@@ -5,10 +5,9 @@
  * regelversjonen; innholdet står i brevet (KA-U10 (opphevet av MM-U50)).
  */
 
-import { kravposteneStrider, kravpostvarseletStrider } from '../spor/vederlag/utledning.ts';
-import { beloep, UgyldigBeloep } from '../regler/beloep.ts';
+import { NYTTELAST_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
+import { UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
-import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import { ELDRE_SVAR } from './forutsetninger.ts';
 import { norskDato } from '../frosset/brevdeler.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
@@ -16,16 +15,19 @@ import { datoFor, kalenderdag } from '../format/leser.ts';
 import { erKalenderdato, tekst } from '../format/skjema.ts';
 import { korrigertDato, type Kommando, type Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { gjelderVarslingsplikten, hjemmelenGjelder } from '../frosset/byggeklosser.ts';
+import {
+  gjelderVarslingsplikten,
+  hjemmelenGjelder,
+  iSporet,
+  type Svarvurdering,
+} from '../frosset/byggeklosser.ts';
 import {
   likeResultatfelt,
   regnUtSvar,
   SAMMENLIKNES,
   utenforOmfanget,
 } from '../frosset/utregning.ts';
-import { kravpostvurderinger } from '../spor/vederlag/frysing.ts';
 import { innholdIForholdet, kategori } from '../format/kravinnhold.ts';
-import { krevdIKravposten, krevdSamlet } from '../spor/vederlag/format.ts';
 import {
   datoenDetBleSendt,
   foresporselForFristsvar,
@@ -35,13 +37,14 @@ import {
 } from '../utledning/utled.ts';
 import {
   avvis,
+  SPOR,
   VARSELSPOR,
   type Avvisning,
   type Krav,
   type OppgittDatofelt,
   type Part,
+  type Spor,
   type Standpunkt,
-  utenGren,
 } from '../typer.ts';
 
 /**
@@ -49,6 +52,34 @@ import {
  * Skrivingen bygger dem én gang per svar, og brevet lagrer de samme (#804).
  */
 export type Svarstandpunkter = (s: Svarutkast, utregning: Record<string, unknown>) => Standpunkt[];
+
+/** Det som er sporets eget i nyttelastkontrollen (#1783). */
+export interface Sporsnyttelast {
+  /** Avgrensningene i svaret som krever en begrunnelse (KA-U24, KA-U32). */
+  avgrensninger(v: Svarvurdering, server: Record<string, unknown>, krav: Krav): string[];
+  /** Det i kravet som strider mot kravversjonene før i sporet, eller `null`. */
+  kravsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null;
+  /** Det som hindrer en innsigelse mot `gjelder` i sporet, eller `null`. */
+  innsigelse(gjelder: string, u: Utledning, regler: Regelsett): Avvisning | null;
+}
+
+/** Nyttelastkontrollen i hvert spor. Forholdet og fristen står her til de flyttes (#1745). */
+const NYTTELAST: Record<Spor, Sporsnyttelast> = {
+  forhold: {
+    avgrensninger: avgrensningerIForholdet,
+    kravsperre: () => null,
+    innsigelse: () => null,
+  },
+  vederlag: NYTTELAST_I_VEDERLAGET,
+  frist: {
+    avgrensninger: avgrensningerIFristen,
+    kravsperre: () => null,
+    innsigelse: () => null,
+  },
+};
+
+/** Nyttelastkontrollen i sporet (`iSporet`). */
+const nyttelastI = (spor: Spor): Sporsnyttelast => iSporet(NYTTELAST, spor);
 
 /**
  * MM-U34 punkt 4, 6 og 7: også en revisjon som senker det byggherren har godkjent, en
@@ -118,51 +149,35 @@ function kontrollerSvar(
  * står uten subjekt, så meldingen kan si «fordi du …» (#1279).
  */
 function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Krav): string[] {
-  const v = s.vurderinger;
+  return nyttelastI(s.spor).avgrensninger(s.vurderinger, server, krav);
+}
+
+/** Avgrensningene i svaret på forholdet. */
+function avgrensningerIForholdet(v: Svarvurdering): string[] {
+  const ut: string[] = [];
+  // KA-U21
+  if (v.grunnlag_varslet_i_tide === false)
+    ut.push('gjør gjeldende at varselet etter § 32.2 kom for sent');
+  if (v.resultat === 'avslaatt') ut.push('avslår grunnlaget');
+  // KA-U32
+  if (v.resultat === 'paalegg_frafalt') ut.push('frafaller pålegget etter § 32.3 c');
+  return ut;
+}
+
+/** Avgrensningene i svaret på fristen. */
+function avgrensningerIFristen(v: Svarvurdering, server: Record<string, unknown>): string[] {
   const ut: string[] = [];
   const fulltGodkjent = (server.subsidiaert_resultat ?? server.resultat) === 'godkjent';
-  if (s.spor === 'forhold') {
-    // KA-U21
-    if (v.grunnlag_varslet_i_tide === false)
-      ut.push('gjør gjeldende at varselet etter § 32.2 kom for sent');
-    if (v.resultat === 'avslaatt') ut.push('avslår grunnlaget');
-    // KA-U32
-    if (v.resultat === 'paalegg_frafalt') ut.push('frafaller pålegget etter § 32.3 c');
-  } else if (s.spor === 'vederlag') {
-    if (v.hovedkrav_varslet_i_tide === false)
-      ut.push('gjør gjeldende at varselet etter § 34.1.2 kom for sent');
-    // VS-U5: begrensningen etter § 34.1.3.
-    if (v.produktivitet_varslet_i_tide === false)
-      ut.push('gjør gjeldende at varselet etter § 34.1.3 kom for sent');
-    const ikkeAkseptert = kravpostvurderinger(v, krav).filter(
-      ({ svar }) => svar.aksepterer === false
-    );
-    if (ikkeAkseptert.length) ut.push('ikke aksepterer tilbudet (§ 34.2.2)');
-    // B-13: beløpet for postene svaret tar stilling til. KA-U72, OV-U73: en kravpost der tilbudet
-    // ikke er akseptert, har ikke beløp og regnes ikke med.
-    const godkjent = beloep(
-      (server.subsidiaert_godkjent_beloep ?? server.godkjent_beloep) as number | undefined
-    );
-    if (godkjent === null)
-      throw new Error('Utregningen av vederlaget har ikke godkjent beløp (#508).');
-    const krevd = ikkeAkseptert.reduce(
-      (sum, { post }) => sum - (krevdIKravposten(krav, post) ?? 0n),
-      krevdSamlet(krav)
-    );
-    if (!erBeloepetGodkjentFullt(krevd, godkjent)) ut.push('ikke godkjenner hele beløpet');
-  } else if (s.spor === 'frist') {
-    if (v.frist_varsel_ok === false)
-      ut.push('gjør gjeldende at varselet etter § 33.4 kom for sent');
-    // VS-U17
-    if (v.foresporsel_svar_ok === false)
-      ut.push('gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent');
-    // VS-U13: uten hjemmel, som er § 33.3 i force majeure.
-    if (v.vilkar_oppfylt === false)
-      ut.push('gjør gjeldende at fremdriften ikke er hindret som følge av forholdet');
-    if (v.spesifisert_krav_ok === false)
-      ut.push('gjør gjeldende at kravet ble spesifisert for sent (§ 33.6.1)');
-    if (!fulltGodkjent) ut.push('ikke godkjenner alle dagene');
-  } else utenGren(s.spor);
+  if (v.frist_varsel_ok === false) ut.push('gjør gjeldende at varselet etter § 33.4 kom for sent');
+  // VS-U17
+  if (v.foresporsel_svar_ok === false)
+    ut.push('gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent');
+  // VS-U13: uten hjemmel, som er § 33.3 i force majeure.
+  if (v.vilkar_oppfylt === false)
+    ut.push('gjør gjeldende at fremdriften ikke er hindret som følge av forholdet');
+  if (v.spesifisert_krav_ok === false)
+    ut.push('gjør gjeldende at kravet ble spesifisert for sent (§ 33.6.1)');
+  if (!fulltGodkjent) ut.push('ikke godkjenner alle dagene');
   return ut;
 }
 
@@ -188,19 +203,6 @@ function kravetsUtdypning(
       'Varselet etter NS 8407 § 32.2 må beskrive pålegget, så en godkjenning kan si hva endringen går ut på (GR-U15).'
     );
   return null;
-}
-
-/** KA-U56 og KA-U75: kravpostene mot de tidligere kravversjonene, og VS-U50: varselet for posten. */
-function kravpostsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
-  if (k.spor !== 'vederlag') return null;
-  const strid = kravposteneStrider(k.innhold, u.spor.vederlag.krav, false);
-  if (strid) return avvis('KRAVPOSTENE', `Kravversjonen ${strid}.`);
-  const varselet = kravpostvarseletStrider(
-    { innhold: k.innhold },
-    u.spor.vederlag.krav,
-    u.spor.vederlag.kravpostvarsler
-  );
-  return varselet ? avvis('KRAVPOSTVARSELET', `I kravversjonen ${varselet}.`) : null;
 }
 
 /**
@@ -473,7 +475,8 @@ export function nyttelastkontroll(
 ): Avvisning | null {
   switch (k.type) {
     case 'krav': {
-      const sperre = kategorisperre(k, u) ?? datosperre(k, u) ?? kravpostsperre(k, u);
+      const sperre =
+        kategorisperre(k, u) ?? datosperre(k, u) ?? nyttelastI(k.spor).kravsperre(k, u);
       if (sperre) return sperre;
       const utdypning = utdypningKreves ? kravetsUtdypning(k, regler) : null;
       if (utdypning) return utdypning;
@@ -582,16 +585,10 @@ export function nyttelastkontroll(
               'UGYLDIG_INNSIGELSE',
               'Bare TEs begrunnelse etter § 33.6.2 annet ledd b kan påstås ikke å være et svar etter annet ledd.'
             );
-      // OV-U15, KA-46: der TE krever endring, tar byggherren ikke stilling
-      // til rettidigheten etter § 34.1.2, så innsigelsen mot varselet avvises som vurderingen.
-      if (
-        k.gjelder === u.spor.vederlag.varsler['34.1.2']?.id &&
-        !hjemmelenGjelder('34.1.2', u.spor.forhold.gjeldendeKrav, regler)
-      )
-        return avvis(
-          'VARSLINGSPLIKT_GJELDER_IKKE',
-          '§ 34.1.2 gjelder bare svikt og andre forhold, ikke kategorien i grunnlaget, så byggherren tar ikke stilling til om varselet kom i tide (KA-46).'
-        );
+      for (const spor of SPOR) {
+        const hinder = nyttelastI(spor).innsigelse(k.gjelder, u, regler);
+        if (hinder) return hinder;
+      }
       // MM-U34 punkt 6 og 15: også en påberopelse etter at byggherren har sagt «i tide».
       return null;
     }

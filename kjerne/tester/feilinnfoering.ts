@@ -1543,10 +1543,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F184',
     feilklasse: 'påberopelsen etter § 34.1.2 krever ingen begrunnelse (KA-U24)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        "if (v.hovedkrav_varslet_i_tide === false)\n      ut.push('gjør gjeldende at varselet etter § 34.1.2 kom for sent');",
+        "if (v.hovedkrav_varslet_i_tide === false)\n    ut.push('gjør gjeldende at varselet etter § 34.1.2 kom for sent');",
         'void 0;',
       ],
     ],
@@ -1802,7 +1802,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F212',
     feilklasse:
       'begrunnelsen kreves for beløpet når bare tilbudet ikke er akseptert (B-13, #490, KA-U72)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         'if (!erBeloepetGodkjentFullt(krevd, godkjent))',
@@ -3299,7 +3299,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F395',
     feilklasse:
       'en begrensning etter § 34.1.3 krever ingen begrunnelse når beløpene er like (KA-U24, valg d)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         'if (v.produktivitet_varslet_i_tide === false)',
@@ -4402,7 +4402,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F514',
     feilklasse:
       'begrunnelsen kreves for beløpet når svaret ikke tar stilling til beløpet, fordi tilbudet ikke er akseptert (KA-U72)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       ['(sum, { post }) => sum - (krevdIKravposten(krav, post) ?? 0n),', '(sum) => sum,'],
     ],

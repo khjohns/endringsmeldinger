@@ -625,6 +625,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'gjelderVarslingsplikten hjemmelenGjelder',
     [
       'kommandoer/nyttelast.ts',
+      'spor/vederlag/kommando.ts',
       'frosset/frysing.ts:beslutningsgrunnlag',
       'frosset/standpunkt.ts',
       'spor/vederlag/frysing.ts',
@@ -737,19 +738,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regelsett',
     'krevdIKravposten',
     // KA-U72: en kravpost der tilbudet ikke er akseptert, regnes ikke med i beløpet.
-    ['spor/vederlag/tekst.ts', 'spor/vederlag/frysing.ts', 'kommandoer/nyttelast.ts'],
+    ['spor/vederlag/tekst.ts', 'spor/vederlag/frysing.ts', 'spor/vederlag/kommando.ts'],
   ],
   // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
   ['spor/vederlag/frysing.ts', 'regelsett', 'vederlagsposter', ['spor/vederlag/kommando.ts']],
-  ['spor/vederlag/format.ts', 'regelsett', 'krevdSamlet', ['kommandoer/nyttelast.ts']],
+  ['spor/vederlag/format.ts', 'regelsett', 'krevdSamlet', ['spor/vederlag/kommando.ts']],
   ['spor/vederlag/frysing.ts:vederlagsposter', 'regelsett', 'godkjent gjelder saerskilt svar'],
   // KA-U57 (c) og (d), KA-U59: svaret på hver kravpost i kommandoen, lest ett sted.
-  [
-    'spor/vederlag/frysing.ts',
-    'regelsett',
-    'kravpostvurderinger',
-    ['spor/vederlag/kommando.ts', 'kommandoer/nyttelast.ts'],
-  ],
+  ['spor/vederlag/frysing.ts', 'regelsett', 'kravpostvurderinger', ['spor/vederlag/kommando.ts']],
   ['spor/vederlag/frysing.ts:kravpostvurderinger', 'regelsett', 'post svar'],
   [
     'Kravpostvurdering',
@@ -1098,6 +1094,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/vederlag/frysing.ts', 'frosset', 'FRYSING_I_VEDERLAGET', ['frosset/standpunkt.ts']],
   // #1783: lesereglene i 4.2 som er sporets egne.
   ['Sporskontroller', 'predikat', 'kravet kravene svaret', ['utledning/utled.ts']],
+  // Nyttelastkontrollen i sporet (#1783).
+  [
+    'Sporsnyttelast',
+    'predikat',
+    'avgrensninger kravsperre innsigelse',
+    ['kommandoer/nyttelast.ts'],
+  ],
+  ['spor/vederlag/kommando.ts', 'predikat', 'NYTTELAST_I_VEDERLAGET', ['kommandoer/nyttelast.ts']],
   // Formen på kravet i sporet (#1783).
   ['Kravform', 'kommando', 'feil vedleggIInnholdet', ['kommandoer/kommando.ts']],
   ['spor/vederlag/kommando.ts', 'kommando', 'KRAVFORM_I_VEDERLAGET', ['kommandoer/kommando.ts']],
@@ -1375,7 +1379,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/utledning.ts:kravposteneStrider'],
   ],
   ['Postinndata', 'kommando', 'id betegnelse', ['spor/vederlag/utledning.ts:kravposteneStrider']],
-  ['spor/vederlag/utledning.ts', 'predikat', 'kravposteneStrider', ['kommandoer/nyttelast.ts']],
+  ['spor/vederlag/utledning.ts', 'predikat', 'kravposteneStrider', ['spor/vederlag/kommando.ts']],
   [
     'spor/vederlag/utledning.ts',
     'relasjon',
@@ -1400,7 +1404,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/utledning.ts',
     'predikat',
     'kravpostvarseletStrider',
-    ['kommandoer/nyttelast.ts'],
+    ['spor/vederlag/kommando.ts'],
   ],
   [
     'spor/vederlag/utledning.ts:kravpostvarseletStrider',
@@ -1643,10 +1647,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // KA-U24, KA-U32: avgrensningene som krever begrunnelse, av serverens utregning.
   [
-    'kommandoer/nyttelast.ts:avgrensninger(server)',
+    'kommandoer/nyttelast.ts:avgrensningerIFristen(server)',
     'regelsett',
-    'resultat subsidiaert_resultat godkjent_beloep subsidiaert_godkjent_beloep',
-    ['kommandoer/nyttelast.ts:avgrensninger'],
+    'resultat subsidiaert_resultat',
+    ['kommandoer/nyttelast.ts:avgrensningerIFristen'],
+  ],
+  [
+    'spor/vederlag/kommando.ts:avgrensningerIVederlaget(server)',
+    'regelsett',
+    'godkjent_beloep subsidiaert_godkjent_beloep',
+    ['spor/vederlag/kommando.ts:avgrensningerIVederlaget'],
   ],
   // A1: den låste teksten klienten viste, sammenliknet med teksten serveren lager.
   ['Brevtekst', 'kommando', 'brevtekst', ['kommandoer/skriving.ts:skriv']],
@@ -1709,6 +1719,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/standpunkter.ts',
       'kommandoer/forutsetninger.ts',
       'kommandoer/kommando.ts',
+      'kommandoer/nyttelast.ts',
     ],
   ],
   [

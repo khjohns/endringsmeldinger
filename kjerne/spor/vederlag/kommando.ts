@@ -14,10 +14,23 @@ import {
   vederlagsposter,
   type Kravpostvurdering,
 } from './frysing.ts';
-import { etikett, laget, type Svarvurdering } from '../../frosset/byggeklosser.ts';
-import { kravposterI, krevdRigg, OPPGJOERSHJEMMEL, vederlagsinnhold } from './format.ts';
+import {
+  etikett,
+  hjemmelenGjelder,
+  laget,
+  type Svarvurdering,
+} from '../../frosset/byggeklosser.ts';
+import {
+  kravposterI,
+  krevdIKravposten,
+  krevdRigg,
+  krevdSamlet,
+  OPPGJOERSHJEMMEL,
+  vederlagsinnhold,
+} from './format.ts';
 import { erObjekt, feilI, objekt } from '../../format/skjema.ts';
-import { varselhjemmel } from './utledning.ts';
+import { kravposteneStrider, kravpostvarseletStrider, varselhjemmel } from './utledning.ts';
+import { erBeloepetGodkjentFullt } from '../../regler/vederlag.ts';
 import { beloep, BroekdelAvOere, heleOere, tilTall } from '../../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
@@ -33,7 +46,8 @@ import {
   type Virkning,
 } from '../../typer.ts';
 import { paaberopelseFor, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
-import type { Innhold, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
+import type { Innhold, Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
+import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
 
@@ -181,6 +195,72 @@ export const KRAVFORM_I_VEDERLAGET = {
   feil: kravfeil,
   vedleggIInnholdet: vedleggIKravpostene,
 } satisfies Kravform;
+
+/** Avgrensningene i svaret på vederlaget som krever en begrunnelse (`avgrensninger`). */
+function avgrensningerIVederlaget(
+  v: Svarvurdering,
+  server: Record<string, unknown>,
+  krav: Krav
+): string[] {
+  const ut: string[] = [];
+  if (v.hovedkrav_varslet_i_tide === false)
+    ut.push('gjør gjeldende at varselet etter § 34.1.2 kom for sent');
+  // VS-U5: begrensningen etter § 34.1.3.
+  if (v.produktivitet_varslet_i_tide === false)
+    ut.push('gjør gjeldende at varselet etter § 34.1.3 kom for sent');
+  const ikkeAkseptert = kravpostvurderinger(v, krav).filter(
+    ({ svar }) => svar.aksepterer === false
+  );
+  if (ikkeAkseptert.length) ut.push('ikke aksepterer tilbudet (§ 34.2.2)');
+  // B-13: beløpet for postene svaret tar stilling til. KA-U72, OV-U73: en kravpost der tilbudet
+  // ikke er akseptert, har ikke beløp og regnes ikke med.
+  const godkjent = beloep(
+    (server.subsidiaert_godkjent_beloep ?? server.godkjent_beloep) as number | undefined
+  );
+  if (godkjent === null)
+    throw new Error('Utregningen av vederlaget har ikke godkjent beløp (#508).');
+  const krevd = ikkeAkseptert.reduce(
+    (sum, { post }) => sum - (krevdIKravposten(krav, post) ?? 0n),
+    krevdSamlet(krav)
+  );
+  if (!erBeloepetGodkjentFullt(krevd, godkjent)) ut.push('ikke godkjenner hele beløpet');
+  return ut;
+}
+
+/** KA-U56 og KA-U75: kravpostene mot de tidligere kravversjonene, og VS-U50: varselet for posten. */
+function kravpostsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
+  if (k.spor !== 'vederlag') return null;
+  const strid = kravposteneStrider(k.innhold, u.spor.vederlag.krav, false);
+  if (strid) return avvis('KRAVPOSTENE', `Kravversjonen ${strid}.`);
+  const varselet = kravpostvarseletStrider(
+    { innhold: k.innhold },
+    u.spor.vederlag.krav,
+    u.spor.vederlag.kravpostvarsler
+  );
+  return varselet ? avvis('KRAVPOSTVARSELET', `I kravversjonen ${varselet}.`) : null;
+}
+
+/** Det som hindrer innsigelsen mot varselet etter § 34.1.2 (`nyttelastkontroll`). */
+function innsigelseMotVarselet(gjelder: string, u: Utledning, regler: Regelsett): Avvisning | null {
+  // OV-U15, KA-46: der TE krever endring, tar byggherren ikke stilling
+  // til rettidigheten etter § 34.1.2, så innsigelsen mot varselet avvises som vurderingen.
+  if (
+    gjelder === u.spor.vederlag.varsler['34.1.2']?.id &&
+    !hjemmelenGjelder('34.1.2', u.spor.forhold.gjeldendeKrav, regler)
+  )
+    return avvis(
+      'VARSLINGSPLIKT_GJELDER_IKKE',
+      '§ 34.1.2 gjelder bare svikt og andre forhold, ikke kategorien i grunnlaget, så byggherren tar ikke stilling til om varselet kom i tide (KA-46).'
+    );
+  return null;
+}
+
+/** Nyttelastkontrollen i vederlaget (`nyttelastkontroll`). */
+export const NYTTELAST_I_VEDERLAGET = {
+  avgrensninger: avgrensningerIVederlaget,
+  kravsperre: kravpostsperre,
+  innsigelse: innsigelseMotVarselet,
+} satisfies Sporsnyttelast;
 
 /**
  * Det som hindrer byggherrens svar med standpunktene i dag, eller `null` når svaret kan gis.
