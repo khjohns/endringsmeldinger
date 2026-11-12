@@ -480,11 +480,6 @@ const KORRIGERT_I_LUKKET =
   'Saken står lukket, og korrigeringen endrer ikke utfallet. Byggherren kan ta stilling til den nye datoen i et innlegg. Innlegg kan ikke sendes fra løsningen ennå.';
 
 export const FORHOLDET = {
-  /** Kravpostene etter en beregningsregel ved summen av de faste beløpene (KA-U61, #1663). */
-  ogRegelen: (regel: string) =>
-    regel === 'flere' ? ' og andre oppgjørsformer' : ` og ${metodenavn(regel)}`,
-  regelen: (regel: string | null) =>
-    regel === 'flere' ? 'flere oppgjørsformer' : metodenavn(regel),
   utenNavn: 'Forholdet',
   siste: (b: Brevref, part: Part) =>
     `Siste brev: ${brevrefFra(b, part)}${b.nummer === null ? '' : `, ${dato(b.registrert)}`}.`,
@@ -590,11 +585,9 @@ export const FORHOLDET = {
       }[s.resultat];
     return `${standpunkttekst(s, false)}.`;
   },
-  /** Kravpostene svaret ikke har et beløp for, fordi tilbudet ikke er akseptert (KA-U72, #1752). */
-  kravposterUtenBeloep: (poster: string[]) =>
-    poster.length > 1
-      ? `${poster.slice(0, -1).join(', ')} og ${poster.at(-1)} uten beløp: tilbudene er ikke akseptert`
-      : `${poster[0]} uten beløp: tilbudet er ikke akseptert`,
+  /** Antallet poster uten fast beløp ved summen (KA-U61, KA-U72; oppdragsgiver 12.11 i #1752). */
+  utenFastBeloep: (n: number) => `${n} ${n === 1 ? 'post' : 'poster'} uten fast beløp`,
+  ingenFastBeloep: 'Ingen poster med fast beløp',
 };
 
 /** Skjemaet for korrigeringen av datoen (BF-02A, skissen `korrigering-av-datoen.html`). */

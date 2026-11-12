@@ -379,17 +379,19 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
 export interface TilknyttetKrav {
   spor: 'vederlag' | 'frist';
   /**
-   * Summen av de faste beløpene i kroner, eller dagene, og `null` når kravet ikke har et tall.
-   * `regel` er oppgjørsformen til kravpostene etter en beregningsregel, eller `flere` (KA-U61).
+   * Summen av de faste beløpene i kroner, eller dagene, og `null` når ingen post har et fast
+   * beløp. `utenFast` er antallet kravposter etter en beregningsregel, som ikke har et krevd
+   * beløp (KA-U61).
    */
-  krevd: { tall: number | null; regel: Oppgjoersform | 'flere' | null; brev: Brevref } | null;
+  krevd: { tall: number | null; utenFast: number; brev: Brevref } | null;
   /**
-   * `poster` har bare kravpostene med beløp (KA-U72). `utenBeloep` er betegnelsene på
-   * kravpostene svaret ikke har et beløp for, fordi tilbudet ikke er akseptert (KA-U72).
+   * `poster` er summen av beløpene, eller dagene, i hvert lag, i lagenes rekkefølge. `utenFast`
+   * er antallet kravposter svaret ikke har et beløp for: tilbudet er ikke akseptert (KA-U72), eller
+   * posten er etter en beregningsregel (KA-U61). Det leses av standpunktene i brevet.
    */
   svaret: {
     poster: { tall: number; lag: string | null }[];
-    utenBeloep: string[];
+    utenFast: number;
     brev: Brevref;
   } | null;
   grunner: Subsidiaergrunn[];
@@ -400,13 +402,18 @@ export interface TilknyttetKrav {
  * i #1663), slått opp i kravversjonene i sporet, siden svaret kan gjelde en tidligere versjon
  * enn den gjeldende. En kravpost som ikke finnes, står med id.
  */
-export const kravposterUtenFastBeloep = (utfall: Utfall, krav: readonly Krav[]): string[] =>
-  kravpostbetegnelsene(utfall.uten_fast_beloep ?? [], krav);
-
-/** Betegnelsene på kravpostene, slått opp i kravversjonene i sporet. En kravpost som ikke finnes, står med id. */
-function kravpostbetegnelsene(ider: readonly string[], krav: readonly Krav[]): string[] {
+export function kravposterUtenFastBeloep(utfall: Utfall, krav: readonly Krav[]): string[] {
   const poster = krav.flatMap((k) => kravposterI(k));
-  return ider.map((id) => poster.find((p) => p.id === id)?.betegnelse ?? id);
+  return (utfall.uten_fast_beloep ?? []).map(
+    (id) => poster.find((p) => p.id === id)?.betegnelse ?? id
+  );
+}
+
+/** Summen av tallene med samme lag, i rekkefølgen lagene først står i. */
+function summertPerLag(poster: { tall: number; lag: string | null }[]) {
+  const summer = new Map<string | null, number>();
+  for (const p of poster) summer.set(p.lag, (summer.get(p.lag) ?? 0) + p.tall);
+  return [...summer].map(([lag, tall]) => ({ tall, lag }));
 }
 
 /** Oppgjørsformen til kravpostene etter en beregningsregel, `flere` når de har ulike, ellers `null`. */
@@ -427,7 +434,7 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
     if (!krav) return null;
     if (spor === 'frist') return innholdIFristen(krav).dager;
     // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Summen er de faste
-    // beløpene, og visningen nevner beregningsregelen ved siden av (#1663).
+    // beløpene, og visningen sier hvor mange poster som ikke har et fast beløp (#1752).
     const fast =
       kravposterI(krav).some((p) => p.oppgjoersform === 'tilbud') || krevdSamlet(krav) > 0n;
     return fast ? tilTall(krevdSamlet(krav)) : null;
@@ -438,26 +445,28 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
       krav && kravbrev
         ? {
             tall: tall(),
-            regel: beregningsregelen(kravposterI(krav).map((p) => p.oppgjoersform)),
+            utenFast:
+              spor === 'vederlag'
+                ? kravposterI(krav).filter((p) => p.oppgjoersform !== 'tilbud').length
+                : 0,
             brev: ref(kravbrev),
           }
         : null,
     svaret:
       svar && svarbrev
         ? {
-            poster: standpunktene(svar, u).flatMap((l) =>
-              'standpunkt' in l && l.standpunkt.art === 'beloep'
-                ? [{ tall: l.standpunkt.godkjent!, lag: l.lag }]
-                : 'standpunkt' in l && l.standpunkt.art === 'dager'
-                  ? [{ tall: l.standpunkt.vurdert, lag: l.lag }]
-                  : []
+            poster: summertPerLag(
+              standpunktene(svar, u).flatMap((l) =>
+                'standpunkt' in l && l.standpunkt.art === 'beloep'
+                  ? [{ tall: l.standpunkt.godkjent!, lag: l.lag }]
+                  : 'standpunkt' in l && l.standpunkt.art === 'dager'
+                    ? [{ tall: l.standpunkt.vurdert, lag: l.lag }]
+                    : []
+              )
             ),
-            utenBeloep: kravpostbetegnelsene(
-              svar.standpunkter.flatMap((x) =>
-                x.art === 'beloep' && x.godkjent === undefined && x.gjelder ? [x.gjelder] : []
-              ),
-              s.krav
-            ),
+            utenFast: svar.standpunkter.filter(
+              (x) => x.art === 'beloep' && x.godkjent === undefined && x.gjelder
+            ).length,
             brev: ref(svarbrev),
           }
         : null,

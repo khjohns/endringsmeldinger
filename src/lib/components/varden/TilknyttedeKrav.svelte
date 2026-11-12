@@ -63,7 +63,6 @@
         ? FORHOLDET.gjelderHvis(k.grunner)
         : forholdssvaret && FORHOLDET.blirSubsidiaert(forholdssvaret.brev);
   const tall = (spor: Spor, n: number) => (spor === 'frist' ? dager(n) : kroner(n));
-  const stor = (t: string) => t[0].toUpperCase() + t.slice(1);
 </script>
 
 <section class="kort" aria-labelledby={`${uid}-tittel`}>
@@ -94,9 +93,10 @@
                   <dt>{FORHOLDET.krevd}</dt>
                   <dd>
                     {#if k.krevd.tall !== null}<span class="num">{tall(k.spor, k.krevd.tall)}</span
-                      >{#if k.krevd.regel}{FORHOLDET.ogRegelen(k.krevd.regel)}{/if}{:else}{stor(
-                        FORHOLDET.regelen(k.krevd.regel)
-                      )}{/if}
+                      >{#if k.krevd.utenFast}<span class="uten"
+                          ><span class="skille" aria-hidden="true">·</span
+                          >{FORHOLDET.utenFastBeloep(k.krevd.utenFast)}</span
+                        >{/if}{:else}{FORHOLDET.ingenFastBeloep}{/if}
                     <span class="brev">{brevref(k.krevd.brev)}</span>
                   </dd>
                 </div>
@@ -105,14 +105,17 @@
                 <dt>{FORHOLDET.byggherren}</dt>
                 <dd>
                   {#if k.svaret}
+                    {#if !k.svaret.poster.length && k.svaret.utenFast}{FORHOLDET.ingenFastBeloep}{/if}
                     {#each k.svaret.poster as p, i (i)}
                       <span class="post">
                         <span class="num">{tall(k.spor, p.tall)}</span>
                         {#if p.lag}<span class="lag">{p.lag}</span>{/if}
                       </span>
                     {/each}
-                    {#if k.svaret.utenBeloep.length}<span class="uten"
-                        >{FORHOLDET.kravposterUtenBeloep(k.svaret.utenBeloep)}</span
+                    {#if k.svaret.poster.length && k.svaret.utenFast}<span class="uten"
+                        ><span class="skille" aria-hidden="true">·</span>{FORHOLDET.utenFastBeloep(
+                          k.svaret.utenFast
+                        )}</span
                       >{/if}
                     <span class="brev">{brevref(k.svaret.brev)}</span>
                   {:else}
@@ -248,6 +251,10 @@
   .lag,
   .uten {
     color: var(--ink-2);
+  }
+  /* Samme avstand etter skillet som flexen gir foran det, og skillet brytes ikke bort fra teksten. */
+  .skille {
+    margin-right: var(--spacing-3);
   }
   .brev,
   .dempet {

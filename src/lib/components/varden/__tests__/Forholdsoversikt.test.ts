@@ -17,7 +17,6 @@ import Brevtraad from '$lib/components/varden/Brevtraad.svelte';
 import type { Spor } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { betegnelse } from '$kjerne/utledning/visning';
-import { kravposterI } from '$kjerne/spor/vederlag/format';
 
 /** Betegnelsene slik saksbildet gir dem (`betegnelsene`), regnet av kjernen. */
 const betegnelserI = (u: Utledning) => ({
@@ -197,8 +196,8 @@ describe('Siden for forholdet', () => {
     );
   });
 
-  it('en kravpost der byggherren ikke har akseptert tilbudet, står uten beløp under byggherren, med grunnen fra brevet (#1752 punkt 2, KA-U72)', async () => {
-    const { u } = await vis([
+  it('byggherrens beløp står med antallet poster uten fast beløp, uten å nevne posten (#1752 punkt 2, KA-U72, oppdragsgiver 12.11)', async () => {
+    await vis([
       PAABEROPELSE,
       {
         handling: 'krav',
@@ -222,13 +221,31 @@ describe('Siden for forholdet', () => {
         ],
       } as Handling,
     ]);
-    const [, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
     const krav = within(screen.getByRole('region', { name: 'Tilknyttede krav' })).getByRole(
       'listitem'
     );
     const tekst = krav.textContent?.replace(/\s+/g, ' ');
-    expect(tekst).toContain(
-      `Byggherren 100 000 kr ${p2!.betegnelse} uten beløp: tilbudet er ikke akseptert brev 3`
+    expect(tekst).toContain('Krevd 140 000 kr brev 2');
+    // Skillet «·» er et eget element, med avstanden fra flexen rundt (textContent har ingen mellomrom).
+    expect(tekst).toMatch(/Byggherren 100 000 kr ·\s?1 post uten fast beløp brev 3/);
+    expect(tekst).not.toMatch(/P2|prinsipalt/);
+  });
+
+  it('har ingen kravpost et fast beløp, står «Ingen poster med fast beløp» (#1752 punkt 2, KA-U61, oppdragsgiver 12.11)', async () => {
+    await vis([
+      PAABEROPELSE,
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [{ oppgjoersform: 'regningsarbeid' }],
+      } as Handling,
+    ]);
+    const krav = within(screen.getByRole('region', { name: 'Tilknyttede krav' })).getByRole(
+      'listitem'
+    );
+    expect(krav.textContent?.replace(/\s+/g, ' ')).toContain(
+      'Krevd Ingen poster med fast beløp brev 2'
     );
   });
 
