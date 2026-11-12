@@ -88,7 +88,7 @@ export const FORHOLDENE: { navn: string; forhold: Forholdet[] }[] = FORHOLDSGRUP
       navn,
       punkt: kjernensForhold(kjernekode)!.hjemmel,
       beskrivelse: hjemmel.beskrivelse,
-      regel: getKontraktsregel(hjemmel.hjemmel_basis) as Kontraktsregel | null,
+      regel: getKontraktsregel(hjemmel.hjemmel_basis),
     };
   }),
 }));
