@@ -604,6 +604,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],
   ['utledning/utled.ts:forholdet(svar)', 'relasjon', '*'],
+  // MM-U17, MM-U50: om svaret er registrert korrespondanse, for visningen.
+  ['Utledning', 'relasjon', 'svar', ['utledning/utled.ts:vurdertVedRegistreringen']],
+  ['Utledning.svar', 'relasjon', '*', ['utledning/utled.ts:vurdertVedRegistreringen']],
   ['Svarberegning', 'relasjon', 'svar'],
   ['Svarberegning', 'frosset', 'virkninger'],
   ['Enighet', 'predikat', 'grunnlag'],

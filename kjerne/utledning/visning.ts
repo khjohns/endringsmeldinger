@@ -9,7 +9,6 @@
  * er endret etter enigheten (MM-U3 (opphevet av MM-U50)).
  */
 
-import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { lagFraForholdet, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { postlisten, type Paaberopt, type Vederlagspost } from '../spor/vederlag/frysing.ts';
@@ -22,6 +21,7 @@ import {
   sporetErLukket,
   svarIkkeGodtatt,
   venterPaaSvar,
+  vurdertVedRegistreringen,
   type Kilde,
   type RegistrertBrev,
   type Utledning,
@@ -164,17 +164,6 @@ function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   const g = u.spor[spor].gjeldendeSvar;
   if (!g) return false;
   return ulikeVirkninger(u.svar[g.id].virkninger, virkninger(g, paaberopelseFor(g, u), regler));
-}
-
-/**
- * Svaret er registrert korrespondanse. Beslutningsgrunnlaget er da appens vurdering
- * etter reglene ved registreringen, ikke da brevet ble sendt (MM-U17, MM-U50).
- */
-function vurdertVedRegistreringen(u: Utledning, svarId: string): boolean {
-  const dokument = u.svar[svarId].svar.dokument;
-  return erRegistrert(
-    u.opplysninger.filter((o) => o.opplysning.dokument === dokument).map((o) => o.opplysning)
-  );
 }
 
 /**

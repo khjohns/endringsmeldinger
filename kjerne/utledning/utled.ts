@@ -1638,6 +1638,17 @@ export function paaberopelseFor(
 export const sporetErLukket = (u: Utledning): boolean => u.forholdAvvist;
 
 /**
+ * Svaret er registrert korrespondanse. Beslutningsgrunnlaget er da appens vurdering
+ * etter reglene ved registreringen, ikke da brevet ble sendt (MM-U17, MM-U50).
+ */
+export function vurdertVedRegistreringen(u: Utledning, svarId: string): boolean {
+  const dokument = u.svar[svarId].svar.dokument;
+  return erRegistrert(
+    u.opplysninger.filter((o) => o.opplysning.dokument === dokument).map((o) => o.opplysning)
+  );
+}
+
+/**
  * Sporet har et krav byggherren ikke har svart på, kravet er ikke trukket, og saken er
  * ikke lukket, så et svar ville blitt godtatt (GR-U27). En ny påberopelsesversjon etter et
  * frafall venter på svar (GR-U23).
