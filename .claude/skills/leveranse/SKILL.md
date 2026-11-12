@@ -176,8 +176,10 @@ Et funn rettes ikke i PR-en, selv om det gjelder PR-ens egen kode, når
 
 Et funn som ikke rettes, får ett av fire utfall:
 
-- Det avvises med én linje under «Åpne spørsmål» i PR-beskrivelsen, når det verken
-  kan gi feil resultat senere eller er et krav til noe som skal bygges.
+- Det avvises med én linje i tabellen «Funn og utfall» i PR-beskrivelsen, når det
+  verken kan gi feil resultat senere eller er et krav til noe som skal bygges.
+  Duplisering og to kilder for samme verdi kan gi feil senere og avvises ikke. At
+  fila eies av en annen økt, er ingen grunn til å avvise et funn.
 - Er det et krav til en inngang eller del som ikke finnes ennå, eller som bygges i
   et annet åpent issue, føres kravet som kommentar i det issuet. Det gjelder også
   når PR-en er «Del av» det issuet.
@@ -187,9 +189,9 @@ Et funn som ikke rettes, får ett av fire utfall:
   og en sjekkliste. Ett issue per funn lages ikke (#649).
 
 Overleveringen og en omtale i PR-beskrivelsen er ikke noe utfall. Det som bare står
-der, blir glemt. PR-beskrivelsen viser hvert funn med utfallet: rettet med commit,
-lenke til kommentaren eller oppfølgingsissuet, spørsmålet, eller linjen under
-«Åpne spørsmål».
+der, blir glemt. Tabellen «Funn og utfall» i PR-beskrivelsen har én rad per funn med
+utfallet: rettet med commit, lenke til kommentaren eller oppfølgingsissuet,
+spørsmålet under «Åpne spørsmål», eller avvisningen med begrunnelsen.
 
 Reviewet kjøres én gang, og kontrollen av rettingene én gang. Et funn fra kontrollen
 av rettingene rettes bare når det gir feil resultat nå, eller bryter et vedtak eller
@@ -201,9 +203,12 @@ kontrakten. Resten får ett av utfallene over.
   kan gjøre en test grønn for feil atferd i produktkoden, eller skjule en feil der.
   Ellers avvises det med én linje.
 - **Feil ved en senere endring.** Et funn regnes som «kan gi feil resultat
-  senere» bare når endringen er planlagt i et issue eller et vedtak.
-- **Føres aldri:** duplisering, docstringer og ytelse uten måling. Duplisering
-  PR-en selv innfører, rettes i PR-en. Annen duplisering avvises.
+  senere» bare når endringen er planlagt i et issue eller et vedtak. Unntaket er
+  duplisering og to kilder for samme verdi, som kan gli fra hverandre ved enhver
+  endring.
+- **Duplisering og to kilder for samme verdi.** Det PR-en selv innfører, rettes i
+  PR-en. Det som sto før PR-en, føres.
+- **Føres aldri:** docstringer og ytelse uten måling.
 - **Søk før du fører.** Søk i de åpne `review-oppfølging`-issuene først. Står
   punktet der alt, skriver du en kommentar der i stedet for et nytt punkt.
 
