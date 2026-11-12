@@ -20,7 +20,7 @@ import {
 } from '$lib/api/kjerne';
 import { utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 import { tilbudte } from '$kjerne/kommandoer/handlinger';
-import { lagForUtkastet } from '$kjerne/kommandoer/lag';
+import { lagForUtkastet } from '$kjerne/spor/vederlag/kommando';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import { visning } from '$kjerne/utledning/visning';
 import { KJERNE, type Kjerne } from '$kjerne/versjon';
@@ -30,7 +30,7 @@ import type { Part } from '$kjerne/typer';
 export { elementenesSpor } from '$kjerne/kommandoer/handlinger';
 
 /** Det som hindrer byggherrens svar på kravet i dag (KA-U59), for vederlagssvaret i Varden. */
-export { hindrerSvarPaaKravet } from '$kjerne/kommandoer/forutsetninger';
+export { hindrerSvarPaaKravet } from '$kjerne/spor/vederlag/kommando';
 
 /**
  * En kommando som fikk et usikkert utfall. Den kan være lagret, så et nytt forsøk

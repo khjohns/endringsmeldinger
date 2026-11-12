@@ -18,12 +18,12 @@ import {
   type Utledning,
 } from '../utledning/utled.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
-import { erKravpostvarselhjemmel, utenGren } from '../typer.ts';
+import { avvis, erKravpostvarselhjemmel, SPOR } from '../typer.ts';
 import { kategori } from '../format/kravinnhold.ts';
-import { krevdRigg } from '../spor/vederlag/format.ts';
+import { iSporet } from '../frosset/byggeklosser.ts';
+import { FORUTSETNINGER_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import type {
   Avvisning,
-  Krav,
   Kravvarselhjemmel,
   Kravspor,
   Part,
@@ -99,9 +99,6 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   korrigere: 'TE',
 };
 
-const kravpostvarsel = (u: Utledning, id: string) =>
-  u.spor.vederlag.kravpostvarsler.some((v) => v.id === id);
-
 /**
  * Utsagnene uten virkning på utfallet som viser til et annet element. Innsigelsen
  * etter § 5 godtas også når saken er lukket etter GR-U27 (KA-U29), og mot det en
@@ -112,18 +109,11 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
   const maal = u.elementer[h.gjelder];
   switch (h.type) {
     case 'innsigelse':
-      // Det registrerte varselet etter § 32.2 har ingen brevtekst før S-4 i #807 er bygget.
-      if (kanFaaInnsigelse(maal, part) && u.spor.forhold.varsler['32.2']?.id === h.gjelder)
-        return avvis(
-          'IKKE_I_FOERSTE_VERSJON',
-          'Innsigelsen mot det registrerte varselet etter punkt 32.2 kan ikke sendes ennå. Brevet kan registreres som dokumentasjon.'
-        );
-      // Byggherrens svar på et varsel etter § 34.3.3 eller § 34.4 bygges i økt 2 i #1663 (G-9 i BF-14).
-      if (kanFaaInnsigelse(maal, part) && kravpostvarsel(u, h.gjelder))
-        return avvis(
-          'IKKE_I_FOERSTE_VERSJON',
-          'Innsigelsen mot varselet etter punkt 34.3.3 eller 34.4 kan ikke sendes ennå.'
-        );
+      if (kanFaaInnsigelse(maal, part))
+        for (const spor of SPOR) {
+          const ikkeBygget = forutsetningerI(spor).innsigelsenErIkkeBygget(u, h.gjelder);
+          if (ikkeBygget) return ikkeBygget;
+        }
       // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.
       return kanFaaInnsigelse(maal, part)
         ? null
@@ -220,31 +210,37 @@ function fristenErLukket(u: Utledning): Avvisning | null {
   return null;
 }
 
-export const avvis = (regel: string, melding: string): Avvisning => ({ regel, melding });
-
 /** KA-U1, HF-U8: avvisningen sier ikke at det eldre svaret er avslått eller har falt bort. */
 export const ELDRE_SVAR =
   'Aksepten må gjelde byggherrens gjeldende svar på kravet. Et eldre svar kan ikke godtas i løsningen. Det er en begrensning i løsningen, og svaret er ikke avslått eller falt bort av det (KA-U1, HF-U8).';
 
-/**
- * Det som hindrer byggherrens svar med standpunktene i dag, eller `null` når svaret kan gis.
- * Svaret på rigg og drift er ikke bygget; posten går i en egen bestilling (arbeidsvalg 5 i
- * spørsmålsfila 10.11 for #1663).
- */
-export function hindrerSvarPaaKravet(krav: Krav): string | null {
-  return krevdRigg(krav) !== null ? 'Kravet har rigg og drift i forlenget byggetid' : null;
+/** Det som er sporets eget i forutsetningene (#1783). */
+export interface Sporsforutsetninger {
+  /** Innsigelsen mot `gjelder` i sporet kan ikke sendes ennå, eller `null`. */
+  innsigelsenErIkkeBygget(u: Utledning, gjelder: string): Avvisning | null;
+  /** Det som hindrer svaret på gjeldende krav i sporet, eller revisjonen av det. */
+  svaret(u: Utledning, hva: 'Svaret' | 'Revisjonen'): Avvisning | null;
 }
 
-/**
- * KA-U59: byggherren svarer per kravpost. Til svaret på rigg og drift er bygget, tilbys svaret
- * og revisjonen av det ikke for et krav med posten (arbeidsvalg 5 i spørsmålsfila 10.11 for #1663).
- */
-function svarPerKravpost(krav: Krav): Avvisning | null {
-  const hinder = hindrerSvarPaaKravet(krav);
-  return hinder
-    ? avvis('SVAR_PER_KRAVPOST', `${hinder}, og svaret på den er ikke bygget ennå.`)
-    : null;
-}
+/** Forutsetningene i hvert spor. Forholdet og fristen står her til de flyttes (#1745). */
+const FORUTSETNINGER: Record<Spor, Sporsforutsetninger> = {
+  forhold: {
+    innsigelsenErIkkeBygget: (u, gjelder) =>
+      // Det registrerte varselet etter § 32.2 har ingen brevtekst før S-4 i #807 er bygget.
+      u.spor.forhold.varsler['32.2']?.id === gjelder
+        ? avvis(
+            'IKKE_I_FOERSTE_VERSJON',
+            'Innsigelsen mot det registrerte varselet etter punkt 32.2 kan ikke sendes ennå. Brevet kan registreres som dokumentasjon.'
+          )
+        : null,
+    svaret: svaretPaaberoperRegistrertVarsel,
+  },
+  vederlag: FORUTSETNINGER_I_VEDERLAGET,
+  frist: { innsigelsenErIkkeBygget: () => null, svaret: () => null },
+};
+
+/** Forutsetningene i sporet (`iSporet`). */
+const forutsetningerI = (spor: Spor): Sporsforutsetninger => iSporet(FORUTSETNINGER, spor);
 
 /** Kravet i hvert spor, med navnene i visningen (konseptet for Varden, versjon 14). */
 const KRAVET: Record<Spor, string> = {
@@ -256,6 +252,12 @@ const KRAVET: Record<Spor, string> = {
 const KRAVET_OM: Record<Kravspor, string> = {
   vederlag: 'vederlagsjustering',
   frist: 'fristforlengelse',
+};
+
+/** Avvisningen av et varsel fra appen etter kravet i sporet (VS-U16, OV-U5). */
+const KRAVET_ER_SENDT: Record<Kravspor, (sendt: string) => Avvisning> = {
+  vederlag: (sendt) => avvis('VEDERLAGSKRAV_SENDT', `Vederlagskravet ${sendt}`),
+  frist: (sendt) => avvis('FRISTKRAV_SENDT', `Fristkravet ${sendt}`),
 };
 
 export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): Avvisning | null {
@@ -333,11 +335,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (h.type === 'sende_varsel' && s.krav.length) {
         const sendt =
           'er sendt, så et varsel fra appen kommer etter det. Et varsel sendt tidligere utenfor appen kan registreres med sin dato.';
-        return h.spor === 'vederlag'
-          ? avvis('VEDERLAGSKRAV_SENDT', `Vederlagskravet ${sendt}`)
-          : h.spor === 'frist'
-            ? avvis('FRISTKRAV_SENDT', `Fristkravet ${sendt}`)
-            : utenGren(h.spor);
+        return KRAVET_ER_SENDT[h.spor](sendt);
       }
       return null;
     }
@@ -375,17 +373,13 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (s.gjeldendeSvar)
         return avvis('ALLEREDE_SVART', 'Du har allerede svart på denne versjonen. Revider svaret.');
-      if (h.spor === 'vederlag') return svarPerKravpost(s.gjeldendeKrav);
-      if (h.spor !== 'forhold' && h.spor !== 'frist') return utenGren(h.spor);
-      return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Svaret') : null;
+      return forutsetningerI(h.spor).svaret(u, 'Svaret');
     case 'revidere':
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (!s.gjeldendeSvar)
         return avvis('INGEN_SVAR', 'Det finnes ikke noe svar på gjeldende krav å revidere.');
       // MM-U34 punkt 11, EO-U12: også et svar TE har godtatt eller som stemmer med kravet.
-      if (h.spor === 'vederlag') return svarPerKravpost(s.gjeldendeKrav!);
-      if (h.spor !== 'forhold' && h.spor !== 'frist') return utenGren(h.spor);
-      return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Revisjonen') : null;
+      return forutsetningerI(h.spor).svaret(u, 'Revisjonen');
     case 'godta':
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (!s.gjeldendeSvar)

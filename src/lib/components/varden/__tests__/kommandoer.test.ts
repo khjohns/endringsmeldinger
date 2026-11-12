@@ -17,7 +17,7 @@ import {
   vederlagssvaret,
   type Postvalg,
 } from '../kommandoer';
-import { lagForUtkastet } from '$kjerne/kommandoer/lag';
+import { lagForUtkastet } from '$kjerne/spor/vederlag/kommando';
 
 const grunnforhold = skrevet([opprettet], 'TE', {
   type: 'krav',

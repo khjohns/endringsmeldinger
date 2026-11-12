@@ -8,7 +8,8 @@
  */
 
 import { DATOEN_GJELDER, KRAVINNHOLD, oppgittDato, OPPLYSNINGSSLAG } from '../format/format.ts';
-import { vederlagsinnhold } from '../spor/vederlag/format.ts';
+import { KRAVFORM_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
+import { iSporet } from '../frosset/byggeklosser.ts';
 import {
   DATO,
   erKalenderdato,
@@ -20,7 +21,6 @@ import {
   TEKST,
   type Skjema,
 } from '../format/skjema.ts';
-import { BroekdelAvOere, heleOere } from '../regler/beloep.ts';
 import type { Svarvurdering } from '../frosset/byggeklosser.ts';
 import {
   KRAVSPOR,
@@ -355,7 +355,7 @@ export function korrigertDato(k: Extract<Kommando, { type: 'korrigering' }>): {
     : { felt: 'klar_over_forholdet', dato: k.klar_over_forholdet! };
 }
 
-type Innhold = Record<string, unknown>;
+export type Innhold = Record<string, unknown>;
 
 /**
  * Feltet med datoen og vedleggene kommandoen viser til: brevets, påberopelsens (VS-U38),
@@ -378,12 +378,9 @@ const brevfelt = (k: Kommando): { sti: string; sendt?: unknown; dokumentasjon?: 
  */
 export const vedleggI = (k: Kommando): string[] => [
   ...(brevfelt(k).dokumentasjon ?? []),
-  ...(k.type === 'krav' && k.spor === 'vederlag'
-    ? ((k.innhold.kravposter ?? []) as { varsel?: unknown }[]).flatMap((p) =>
-        typeof p.varsel === 'object' && p.varsel !== null
-          ? ((p.varsel as { dokumentasjon?: string[] }).dokumentasjon ?? [])
-          : []
-      )
+  // Kalles også før formen er kontrollert, så et ukjent spor gir ingen vedlegg.
+  ...(k.type === 'krav' && Object.hasOwn(KRAVFORM, k.spor)
+    ? KRAVFORM[k.spor].vedleggIInnholdet(k.innhold)
     : []),
 ];
 
@@ -402,37 +399,32 @@ function datofeil(innhold: Innhold): string[] {
     : [`$.innhold.${felt}: ${JSON.stringify(dato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`];
 }
 
-/** OV-U58: beløpene i kravet, også anslag og overslag, i hele øre. Formatet har allerede kontrollert at de er tall. */
-function oerefeil(innhold: Innhold): string[] {
-  const saerskilt = (innhold.saerskilt ?? {}) as Record<string, { beloep?: unknown }>;
-  const poster = (innhold.kravposter ?? []) as Record<string, unknown>[];
-  const beloepene: [string, unknown][] = [
-    ...poster.flatMap((p, i) =>
-      (['beloep', 'anslag', 'kostnadsoverslag'] as const).map((f): [string, unknown] => [
-        `$.innhold.kravposter[${i}].${f}`,
-        p[f],
-      ])
-    ),
-    ['$.innhold.saerskilt.produktivitet.beloep', saerskilt.produktivitet?.beloep],
-  ];
-  return beloepene.flatMap(([sti, verdi]) => {
-    if (typeof verdi !== 'number') return [];
-    try {
-      heleOere(verdi);
-      return [];
-    } catch (e) {
-      if (!(e instanceof BroekdelAvOere)) throw e;
-      return [
-        `${sti}: ${verdi} har brøkdeler av øre; beløpet oppgis i kroner med høyst to desimaler (OV-U58)`,
-      ];
-    }
-  });
+/** Det som er sporets eget i formen på et krav (#1783). */
+export interface Kravform {
+  /** Feilene i innholdet i kravet, med stien fra `$.innhold`. */
+  feil(innhold: unknown): string[];
+  /** Vedleggene innholdet i kravet viser til, utenom brevets. */
+  vedleggIInnholdet(innhold: Innhold): string[];
 }
 
-/** Kravet har posten for rigg og drift i forlenget byggetid, som formatet ikke har ennå (#1775). */
-const harRiggOgDrift = (innhold: unknown): boolean => {
-  const saerskilt: unknown = erObjekt(innhold) ? (innhold as Innhold).saerskilt : undefined;
-  return erObjekt(saerskilt) && Object.hasOwn(saerskilt, 'rigg_og_drift');
+/** Formen på kravet i hvert spor. Forholdet og fristen står her til de flyttes (#1745). */
+const KRAVFORM: Record<Spor, Kravform> = {
+  forhold: {
+    feil: (innhold) => {
+      const { properties, required, anyOf } = KRAVINNHOLD.forhold;
+      const feil = feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
+      return feil.length ? feil : datofeil(innhold as Innhold);
+    },
+    vedleggIInnholdet: () => [],
+  },
+  vederlag: KRAVFORM_I_VEDERLAGET,
+  frist: {
+    feil: (innhold) => {
+      const { properties, required, anyOf } = KRAVINNHOLD.frist;
+      return feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
+    },
+    vedleggIInnholdet: () => [],
+  },
 };
 
 /** Feilene i formen, tomme når kommandoen kan vurderes. */
@@ -444,18 +436,7 @@ export function formfeil(kommando: unknown): string[] {
   const feil = feilI(kommando, SKJEMA[type as Kommando['type']]);
   if (type === 'krav' && !feil.length) {
     const k = kommando as { spor: Spor; innhold: unknown };
-    const { properties, required, anyOf } =
-      k.spor === 'vederlag' ? vederlagsinnhold(false) : KRAVINNHOLD[k.spor];
-    const rigg = k.spor === 'vederlag' && harRiggOgDrift(k.innhold);
-    feil.push(
-      ...(rigg
-        ? [
-            '$.innhold.saerskilt.rigg_og_drift: posten for rigg og drift i forlenget byggetid er ikke bygget ennå, så kravet kan ikke sendes med den',
-          ]
-        : feilI(k.innhold, objekt(properties, required, anyOf), '$.innhold'))
-    );
-    if (k.spor === 'forhold' && !feil.length) feil.push(...datofeil(k.innhold as Innhold));
-    if (k.spor === 'vederlag' && !feil.length) feil.push(...oerefeil(k.innhold as Innhold));
+    feil.push(...iSporet(KRAVFORM, k.spor).feil(k.innhold));
     if (k.spor !== 'frist' && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
     // VS-U38: vedleggene ved påberopelsen; et fristkrav har brevet med varselet i `varsel`.

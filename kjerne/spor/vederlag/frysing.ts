@@ -112,7 +112,7 @@ function vederlagsvirkninger(
 /**
  * Laget for standpunktene til en kravpost etter en beregningsregel, etter `lagIKravposten`.
  * En kravpost der ingen standpunkter åpner et lag, er ikke med, og standpunktene står som de
- * andre. Forutsetningene i skjemaet leser lagene herfra (`kommandoer/lag.ts`).
+ * andre. Forutsetningene i skjemaet leser lagene herfra (`spor/vederlag/kommando.ts`).
  */
 export function beregningsregelLag(
   standpunkter: Standpunkt[],

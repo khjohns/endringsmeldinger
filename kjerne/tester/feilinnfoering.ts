@@ -467,7 +467,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F30',
     feilklasse: 'skriveren utelater `gjelder` i et standpunkt om rettidighet (7.2)',
     fil: `${K}/kommandoer/standpunkter.ts`,
-    endringer: [["        gjelder: varseletForNyttSvar(u, '33.4'),\n", '']],
+    endringer: [["      gjelder: varseletForNyttSvar(u, '33.4'),\n", '']],
     mal: ['F-MM-D', 'F-MM-A'],
   },
   {
@@ -1480,7 +1480,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F178',
     feilklasse: 'byggherrens vurdering etter § 34.1.2 lagres ikke som standpunkt (#341, KA-U4)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         "if (typeof v.hovedkrav_varslet_i_tide === 'boolean')",
@@ -1543,10 +1543,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F184',
     feilklasse: 'påberopelsen etter § 34.1.2 krever ingen begrunnelse (KA-U24)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        "if (v.hovedkrav_varslet_i_tide === false)\n      ut.push('gjør gjeldende at varselet etter § 34.1.2 kom for sent');",
+        "if (v.hovedkrav_varslet_i_tide === false)\n    ut.push('gjør gjeldende at varselet etter § 34.1.2 kom for sent');",
         'void 0;',
       ],
     ],
@@ -1556,7 +1556,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F185',
     feilklasse:
       'påberopelsen etter § 34.1.2 knyttes til kravversjonen svaret gjelder, ikke det første vederlagskravet (arbeidsvalget i #479)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [["gjelder: varseletForNyttSvar(u, '34.1.2'),", 'gjelder: krav.id,']],
     mal: ['F-MM-V-34-1-2-ny-kravversjon'],
   },
@@ -1600,7 +1600,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F189',
     feilklasse: 'byggherrens vurdering etter § 34.2.2 lagres ikke som standpunkt (#341)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       ["  if (typeof svar.aksepterer === 'boolean')", "  if (typeof svar.aksepterer === 'string')"],
     ],
@@ -1802,7 +1802,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F212',
     feilklasse:
       'begrunnelsen kreves for beløpet når bare tilbudet ikke er akseptert (B-13, #490, KA-U72)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         'if (!erBeloepetGodkjentFullt(krevd, godkjent))',
@@ -2218,7 +2218,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F282',
     feilklasse: 'påberopelsen etter § 34.1.2 leses av feltet for § 32.2 (HF-U4, #522)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         "if (typeof v.hovedkrav_varslet_i_tide === 'boolean')",
@@ -2232,7 +2232,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F283',
     feilklasse:
       'et svar som utelater vurderingen etter § 34.1.2, påberoper at varselet kom for sent (HF-U4, KA-U4, #522)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         "if (typeof v.hovedkrav_varslet_i_tide === 'boolean')",
@@ -3299,7 +3299,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F395',
     feilklasse:
       'en begrensning etter § 34.1.3 krever ingen begrunnelse når beløpene er like (KA-U24, valg d)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         'if (v.produktivitet_varslet_i_tide === false)',
@@ -3518,13 +3518,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F418',
     feilklasse: 'formkontrollen av vederlagskravet godtar brøkdeler av øre (OV-U58)',
-    fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [
-      [
-        "    if (k.spor === 'vederlag' && !feil.length) feil.push(...oerefeil(k.innhold as Innhold));\n",
-        '',
-      ],
-    ],
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['  if (!feil.length) feil.push(...oerefeil(innhold as Innhold));\n', '']],
     mal: ['et krevd beløp med brøkdeler av øre avvises'],
   },
   {
@@ -3565,7 +3560,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F422',
     feilklasse:
       'innsigelsen etter § 34.1.3 står som forutsetning for hele vederlagssvaret i utkastet (OV-U22, OV-U33, #1400)',
-    fil: `${K}/kommandoer/lag.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         "if (s.art === 'beloep' && s.saerskilt && paaberopt('34.1.3'))",
@@ -3578,7 +3573,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F423',
     feilklasse:
       'lagene i utkastet flyttes ikke ned med lagene fra svaret på forholdet (OV-U32, OV-U33, #1400)',
-    fil: `${K}/kommandoer/lag.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [["typeof vi === 'number' ? vi + grunner.length : vi", 'vi']],
     mal: [
       'beløpet står subsidiært, bare med avslaget foran',
@@ -3590,7 +3585,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F424',
     feilklasse:
       'grunnene fra svaret på forholdet står ikke som forutsetninger i utkastet (S2-A i #1400)',
-    fil: `${K}/kommandoer/lag.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [['rammer.push(...grunner.map((grunn) => ({ grunn })));', '']],
     mal: [
       'beløpet står subsidiært, bare med avslaget foran',
@@ -3620,12 +3615,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'byggherren tilbys innsigelse mot det registrerte varselet etter § 32.2, som ikke har brevtekst (S-4 i #807)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [
-      [
-        "if (kanFaaInnsigelse(maal, part) && u.spor.forhold.varsler['32.2']?.id === h.gjelder)",
-        'if (false)',
-      ],
-    ],
+    endringer: [["u.spor.forhold.varsler['32.2']?.id === gjelder", 'false']],
     mal: ['byggherren tilbys ikke innsigelse mot det registrerte varselet'],
   },
   {
@@ -3770,7 +3760,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         "forholdsstandpunkter(v, varseletForNyttSvar(u, '32.2'), nyId)",
-        'forholdsstandpunkter(v, krav.id, nyId)',
+        'forholdsstandpunkter(v, _krav.id, nyId)',
       ],
     ],
     mal: ['svaret på versjon 2 påberoper varselet i den første versjonen'],
@@ -3820,11 +3810,11 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "      return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Revisjonen') : null;",
-        '      return null;',
+        "      return forutsetningerI(h.spor).svaret(u, 'Revisjonen');",
+        "      return h.spor === 'forhold' ? null : forutsetningerI(h.spor).svaret(u, 'Revisjonen');",
       ],
       [
-        "      return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Svaret') : null;",
+        "      return forutsetningerI(h.spor).svaret(u, 'Svaret');",
         "      return svaretPaaberoperRegistrertVarsel(u, 'Svaret');",
       ],
     ],
@@ -4096,7 +4086,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F550',
     feilklasse: 'en trukket kravpost som tas med igjen, får ikke betegnelsen sin tilbake (KA-U75)',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         '    tidligere.flatMap((k) => kravposterI(k)).map((p) => [p.id, p.betegnelse])',
@@ -4173,8 +4163,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F486',
     feilklasse: 'byggherren kan sende innsigelse mot varselet etter punkt 34.3.3 før økt 2 (G-9)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [['kanFaaInnsigelse(maal, part) && kravpostvarsel(u, h.gjelder)', 'false']],
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['u.spor.vederlag.kravpostvarsler.some((v) => v.id === gjelder)', 'false']],
     mal: ['byggherrens innsigelse mot varselet etter punkt 34.3.3 eller 34.4 venter'],
   },
   {
@@ -4274,7 +4264,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F509',
     feilklasse:
       'lagene skjemaet får fra kjernen, sier ikke hvilken kravpost de gjelder (KA-U57 (c) og (d))',
-    fil: `${K}/kommandoer/lag.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         "        ...((s.art === 'beloep' || s.art === 'oppgjoersform' || s.art === 'justering') &&\n        s.gjelder !== undefined",
@@ -4412,7 +4402,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F514',
     feilklasse:
       'begrunnelsen kreves for beløpet når svaret ikke tar stilling til beløpet, fordi tilbudet ikke er akseptert (KA-U72)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       ['(sum, { post }) => sum - (krevdIKravposten(krav, post) ?? 0n),', '(sum) => sum,'],
     ],
@@ -4761,10 +4751,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F548',
     feilklasse:
       'kravet med rigg og drift avvises uten at meldingen sier at posten ikke er bygget ennå (#1775)',
-    fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [
-      ["const rigg = k.spor === 'vederlag' && harRiggOgDrift(k.innhold);", 'const rigg = false;'],
-    ],
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['const rigg = harRiggOgDrift(innhold);', 'const rigg = false;']],
     mal: ['avvises med posten i meldingen'],
   },
 ];

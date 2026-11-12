@@ -14,7 +14,7 @@ import { regnUtSvar } from '../frosset/utregning.ts';
 import { vederlagsposter } from '../spor/vederlag/frysing.ts';
 import { type Svarvurdering } from '../frosset/byggeklosser.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
-import { hindrerSvarPaaKravet } from '../kommandoer/forutsetninger.ts';
+import { hindrerSvarPaaKravet } from '../spor/vederlag/kommando.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Korrespondansetype, Krav, Part, Spor } from '../typer.ts';
 import { tilfeldigeIder, type NyId } from './testmiljoe.ts';
