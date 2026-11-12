@@ -5,10 +5,8 @@
 
 import { forholdet, paaberopelsenAv } from './forholdene.ts';
 import type { Dokument, Sakskode, Spor } from '../typer.ts';
+import { sakensKode } from './tekst.ts';
 import { innholdIForholdet } from '../spor/forhold/format.ts';
-
-/** Sakens kode slik brevene omtaler saken, uten utfylling: «KOE-17» (LV-U44, LV-U45). */
-export const sakensKode = (s: Sakskode): string => `${s.kode.toUpperCase()}-${s.loepenummer}`;
 
 const utfylt = (tall: number, sifre: number) => String(tall).padStart(sifre, '0');
 

@@ -16,20 +16,23 @@
 
 import { HJEMMEL } from '../format/format.ts';
 import { forholdet } from './forholdene.ts';
-import { sakensKode } from './brevtittel.ts';
+import { sakensKode } from './tekst.ts';
 import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { innsigelsenErOppgitt, innsigelsenPaaberoper, svarPaaForesporsler } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
 import { innholdIFristen } from '../format/kravinnhold.ts';
 import {
+  BrevetAvvises,
   eksMva,
   erDato,
   Journalen,
   KanIkkeUttrykkes,
   kravpostenI,
+  liste,
   norskDato,
   PRODUKTIVITET,
+  stor,
   verdi,
   type Kravsporsbrevtekst,
   type Saken,
@@ -60,25 +63,10 @@ import type {
 import { innholdIForholdet, type OppgittDato } from '../spor/forhold/format.ts';
 import { blirEndringsordre, grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 
-/** Brevet kan ikke sendes fra appen slik saken står, og kommandoen avvises med `regel`. */
-export class BrevetAvvises extends Error {
-  readonly regel: string;
-  constructor(regel: string, melding: string) {
-    super(melding);
-    this.regel = regel;
-  }
-}
-
-const stor = (t: string) => `${t[0].toUpperCase()}${t.slice(1)}`;
-
 /** Bokstaven i § 33.1 for hovedkategoriene svikt og andre forhold. */
 const LEDD_I_33_1: Record<string, string> = { svikt: 'b', andre_forhold: 'c' };
 
 const PART: Record<Part, string> = { TE: 'TE', BH: 'Byggherren' };
-
-function liste(deler: string[]): string {
-  return deler.length < 2 ? deler.join('') : `${deler.slice(0, -1).join(', ')} og ${deler.at(-1)}`;
-}
 
 /**
  * Brevteksten for dokumentet `nytt`, som parten sender i appen nå. `foer` er

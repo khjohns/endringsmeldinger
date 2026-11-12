@@ -5,7 +5,7 @@
 
 import { beloep } from '../regler/beloep.ts';
 import type { Forholdsresultat } from '../regler/typer.ts';
-import type { Hjemmel } from '../typer.ts';
+import type { Hjemmel, Sakskode } from '../typer.ts';
 
 /** Kroner med mellomrom mellom tusener og øre bare når de finnes: «150 000 kr». */
 export function kroner(n: number): string {
@@ -48,3 +48,6 @@ export function iLagene<T>(ledd: T[], plass: (l: T) => number | null, foerste: n
     .sort((a, b) => a.k - b.k)
     .map(({ l }) => l);
 }
+
+/** Sakens kode slik brevene omtaler saken, uten utfylling: «KOE-17» (LV-U44, LV-U45). */
+export const sakensKode = (s: Sakskode): string => `${s.kode.toUpperCase()}-${s.loepenummer}`;

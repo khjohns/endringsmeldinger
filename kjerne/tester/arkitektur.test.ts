@@ -1243,9 +1243,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'sakId aktoerId part teamId tidspunkt nyId sakskode kontraktsforkortelse',
   ],
   // LV-U27, LV-U44: sakens kode i tittelen.
-  ['Sakskode', 'kontekst', 'kode loepenummer', ['frosset/brevtittel.ts']],
+  ['Sakskode', 'kontekst', 'kode loepenummer', ['frosset/brevtittel.ts', 'frosset/tekst.ts']],
   // LV-U44, S3 i #1497: brevteksten omtaler saken og tidligere brev med koden.
-  ['frosset/brevtittel.ts', 'brevtekst', 'sakensKode', ['frosset/brevtekst.ts']],
+  [
+    'frosset/tekst.ts',
+    'brevtekst',
+    'sakensKode',
+    ['frosset/brevtekst.ts', 'frosset/brevtittel.ts'],
+  ],
   // LV-U53, LV-U24: merkingen fryses i brevet når det skrives, og leseren prøver den (#1570).
   [
     'frosset/brevtittel.ts',
@@ -1776,9 +1781,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/brevtekst.ts',
     'brevtekst',
-    'lagBrevtekst lagDeresRef BrevetAvvises',
-    ['kommandoer/skriving.ts:brevtekstFor', 'kommandoer/skriving.ts:skriv'],
+    'lagBrevtekst lagDeresRef',
+    ['kommandoer/skriving.ts:brevtekstFor'],
   ],
+  ['frosset/brevdeler.ts', 'brevtekst', 'BrevetAvvises', ['kommandoer/skriving.ts:skriv']],
   [
     'frosset/brevdeler.ts',
     'brevtekst',
@@ -1856,6 +1862,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Journalen KanIkkeUttrykkes PRODUKTIVITET eksMva erDato kravpostenI norskDato opplistet punktum tidligere verdi',
     ['frosset/brevtekst.ts', 'spor/vederlag/tekst.ts'],
   ],
+  // Byggeklossene i brevteksten som teksten i sporene også bruker (#1783).
+  ['frosset/brevdeler.ts', 'brevtekst', 'BrevetAvvises liste stor', ['frosset/brevtekst.ts']],
   // OV-U32: etiketten brevet bruker for laget.
   [
     'frosset/byggeklosser.ts',

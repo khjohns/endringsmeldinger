@@ -279,3 +279,20 @@ export type StandpunktIArt = { [K in Standpunktsart]: Extract<Standpunkt, { art:
 export type Standpunktstekster<A extends Standpunktsart> = {
   [K in A]: (p: StandpunktIArt[K], krav: Krav) => string;
 };
+
+/** Brevet kan ikke sendes fra appen slik saken står, og kommandoen avvises med `regel`. */
+export class BrevetAvvises extends Error {
+  readonly regel: string;
+  constructor(regel: string, melding: string) {
+    super(melding);
+    this.regel = regel;
+  }
+}
+
+/** Teksten med stor forbokstav. */
+export const stor = (t: string) => `${t[0].toUpperCase()}${t.slice(1)}`;
+
+/** Delene i rekkefølge, med «og» før den siste. */
+export function liste(deler: string[]): string {
+  return deler.length < 2 ? deler.join('') : `${deler.slice(0, -1).join(', ')} og ${deler.at(-1)}`;
+}
