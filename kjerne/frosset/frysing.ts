@@ -10,8 +10,7 @@ import { standpunkterISvaret } from '../format/leser.ts';
 import { Uforstaatt } from '../format/skjema.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { blirEndringsordre, godkjennerHeleKravet, virkninger } from './standpunkt.ts';
-import { gjelderVarslingsplikten, type Svarinnhold } from './byggeklosser.ts';
-import { type Svarvurdering } from './byggeklosser.ts';
+import { gjelderVarslingsplikten, type Svarinnhold, type Svarvurdering } from './byggeklosser.ts';
 import { beslutningslinje } from './tekst.ts';
 import type { Beslutningsgrunnlag, Krav, Spor } from '../typer.ts';
 

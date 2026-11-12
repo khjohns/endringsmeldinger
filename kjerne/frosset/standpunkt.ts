@@ -61,7 +61,7 @@ export function virkninger(
   regler: Regelsett,
   forskyvning = 0
 ): Standpunktsvirkning[] {
-  return FRYSING[svar.spor].virkninger(svar, paaberopelse, regler, forskyvning);
+  return frysingI(svar.spor).virkninger(svar, paaberopelse, regler, forskyvning);
 }
 
 /** Lagene i forholdet og fristen: hver grunn med virkning åpner et nytt lag (`virkninger`). */
@@ -283,7 +283,7 @@ function preklusjonPaaberopt(svar: Svarinnhold, v: Standpunktsvirkning[]): boole
 
 /** Det svaret gir i sporet når standpunktene har denne virkningen. */
 function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
-  return FRYSING[svar.spor].utfall(svar, v, avvisesPrinsipalt(svar, v));
+  return frysingI(svar.spor).utfall(svar, v, avvisesPrinsipalt(svar, v));
 }
 
 function utfallIFristen(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert: boolean): Utfall {
@@ -302,7 +302,7 @@ function utfallIFristen(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert:
  */
 export function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
   if (avvisesPrinsipalt(svar, v)) return false;
-  return FRYSING[svar.spor].godkjennerHeleKravet(svar, v);
+  return frysingI(svar.spor).godkjennerHeleKravet(svar, v);
 }
 
 function fristenGodkjent(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
@@ -313,6 +313,10 @@ function fristenGodkjent(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
     return false;
   return utregningIFristen(svar.utregning).resultat === 'godkjent';
 }
+
+/** Frysingen i sporet. Et spor uten innslag kaster, som en gren som mangler (`utenGren`). */
+const frysingI = (spor: Spor): Svarsfrysing =>
+  Object.hasOwn(FRYSING, spor) ? FRYSING[spor] : utenGren(spor as never);
 
 /** Frysingen i hvert spor. Forholdet og fristen står her til de flyttes til sporene (#1783, #1745). */
 const FRYSING: Record<Spor, Svarsfrysing> = {

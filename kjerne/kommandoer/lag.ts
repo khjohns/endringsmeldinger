@@ -6,11 +6,9 @@
  */
 
 import { grunnerFraForholdet, virkninger } from '../frosset/standpunkt.ts';
-import { beregningsregelLag } from '../spor/vederlag/frysing.ts';
-import { etikett, laget } from '../frosset/byggeklosser.ts';
+import { beregningsregelLag, kravpostvurderinger } from '../spor/vederlag/frysing.ts';
+import { etikett, laget, type Svarvurdering } from '../frosset/byggeklosser.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
-import { kravpostvurderinger } from '../spor/vederlag/frysing.ts';
-import { type Svarvurdering } from '../frosset/byggeklosser.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { standpunkterISvaret } from '../format/leser.ts';

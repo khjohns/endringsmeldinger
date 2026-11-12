@@ -11,7 +11,7 @@ import { innholdIFristen, kategori } from '../format/kravinnhold.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
 import { avvisUkjenteFelt, type Svarsutregning, type Svarvurdering } from './byggeklosser.ts';
 import { SAMMENLIKNES_I_VEDERLAGET, UTREGNING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
-import type { Krav, Spor } from '../typer.ts';
+import { utenGren, type Krav, type Spor } from '../typer.ts';
 
 /**
  * En vurdering i svaret som kjernen ennå ikke har et standpunkt for. Den kan ikke
@@ -20,7 +20,7 @@ import type { Krav, Spor } from '../typer.ts';
  * PR #306).
  */
 export function utenforOmfanget(spor: Spor, v: Record<string, unknown>): string | null {
-  return UTREGNING[spor].utenforOmfanget(v);
+  return utregningI(spor).utenforOmfanget(v);
 }
 
 // ---------- Utregningen av svaret (B-13) ----------
@@ -41,8 +41,12 @@ export function regnUtSvar(
   }: { krav: Krav; paaberopelse: Krav | null; foresporsel?: Foresporselsrelasjon | null },
   regler: Regelsett
 ): Record<string, unknown> {
-  return UTREGNING[spor].regnUt(v, { krav, paaberopelse, foresporsel }, regler);
+  return utregningI(spor).regnUt(v, { krav, paaberopelse, foresporsel }, regler);
 }
+
+/** Utregningen i sporet. Et spor uten innslag kaster, som en gren som mangler (`utenGren`). */
+const utregningI = (spor: Spor): Svarsutregning =>
+  Object.hasOwn(UTREGNING, spor) ? UTREGNING[spor] : utenGren(spor as never);
 
 /** Utregningen i hvert spor. Forholdet og fristen står her til de flyttes til sporene (#1783, #1745). */
 const UTREGNING: Record<Spor, Svarsutregning> = {

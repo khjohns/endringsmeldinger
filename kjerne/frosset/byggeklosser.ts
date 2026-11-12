@@ -115,11 +115,15 @@ export interface Svarvurdering {
   dager?: unknown;
 }
 
-export /**
+/**
  * Et felt kjernen ikke leser i vurderingene, ville blitt godtatt uten virkning, så det avvises
  * (MM-U2; kravet i #1663 og #1732).
  */
-function avvisUkjenteFelt(v: Svarvurdering, lest: ReadonlySet<string>, svaretPaa: string): void {
+export function avvisUkjenteFelt(
+  v: Svarvurdering,
+  lest: ReadonlySet<string>,
+  svaretPaa: string
+): void {
   const ukjente = Object.keys(v).filter((felt) => !lest.has(felt));
   if (ukjente.length)
     throw new UgyldigVurdering(
