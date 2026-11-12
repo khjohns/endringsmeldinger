@@ -131,7 +131,7 @@ function kravtekst(k: Krav, t: Tekst, regler: Regelsett): string {
   const deler = brevtekstI(k.spor).krav(k, t, regler);
   // KA-U52 punkt 4 for vederlag og frist (#1379). En ny versjon av påberopelsen sier ikke at
   // noe erstattes (LV-U56).
-  if (k.erstatter && k.spor !== 'forhold')
+  if (k.erstatter && brevtekstI(k.spor).nevnerErstattet)
     deler.push(`Kravet erstatter TEs krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`);
   return deler.join(' ');
 }
@@ -406,8 +406,10 @@ const erPaaberopelseEtter3362 = (id: string, svar: Svar) =>
 function beskriv(id: string, j: Journalen): string {
   const e = j.element(id);
   switch (e.art) {
-    case 'krav':
-      return `TEs krav${e.krav.spor === 'forhold' ? '' : ` om ${brevtekstI(e.krav.spor).kravetOm}`} i ${j.brevet(e.krav.dokument)}`;
+    case 'krav': {
+      const om = brevtekstI(e.krav.spor).kravetOm;
+      return `TEs krav${om ? ` om ${om}` : ''} i ${j.brevet(e.krav.dokument)}`;
+    }
     case 'svar':
       return `byggherrens svar i ${j.brevet(e.svar.dokument)}`;
     case 'standpunkt':
@@ -665,6 +667,7 @@ const BREVTEKST: { forhold: Sporsbrevtekst } & Record<Kravspor, Kravsporsbrevtek
     krav: fristkravtekst,
     // VS-U29: også påberopelsen etter § 33.6.2 mot begrunnelsen.
     ogsaaInnsigelserEtter: ['33.6.2'],
+    nevnerErstattet: true,
     kravetOm: 'fristforlengelse',
     enigI: 'antallet dager',
     trukket: (krav) => dager(innholdIFristen(krav).dager),

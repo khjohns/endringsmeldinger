@@ -227,6 +227,7 @@ export const BREVTEKSTEN_I_FORHOLDET = {
   svaretGjelder: 'grunnlaget',
   krav: forholdstekst,
   ogsaaInnsigelserEtter: [],
+  nevnerErstattet: false,
 } satisfies Sporsbrevtekst;
 
 /** Teksten for standpunktet til forholdet (`I_SPORENE` i `frosset/brevtekst.ts`). */

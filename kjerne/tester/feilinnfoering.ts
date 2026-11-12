@@ -4035,8 +4035,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F474',
     feilklasse: 'en ny påberopelsesversjon sier at den erstatter det tidligere kravet (LV-U56)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [["  if (k.erstatter && k.spor !== 'forhold')", '  if (k.erstatter)']],
+    fil: `${K}/spor/forhold/tekst.ts`,
+    endringer: [['  nevnerErstattet: false,', '  nevnerErstattet: true,']],
     mal: ['underkategorien endringsordre har ingen dato'],
   },
   {
@@ -4045,7 +4045,10 @@ const MUTASJONER: Mutasjon[] = [
       'en ny versjon av vederlags- eller fristkravet viser ikke til kravet den erstatter (KA-U52 punkt 4)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      ["  if (k.erstatter && k.spor !== 'forhold')", "  if (k.erstatter && k.spor === 'forhold')"],
+      [
+        '  if (k.erstatter && brevtekstI(k.spor).nevnerErstattet)',
+        '  if (k.erstatter && !brevtekstI(k.spor).nevnerErstattet)',
+      ],
     ],
     mal: ['en ny kravversjon viser til den den erstatter'],
   },

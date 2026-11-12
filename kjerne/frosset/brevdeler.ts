@@ -258,6 +258,10 @@ export interface Sporsbrevtekst {
   krav(k: Krav, t: Tekst, regler: Regelsett): string[];
   /** Påberopelsene utenom hjemmelen for sporet som svaret gjentar eller gir opp (VS-U29). */
   ogsaaInnsigelserEtter: readonly Hjemmel[];
+  /** En ny versjon av kravet sier hvilket krav den erstatter (KA-U52 punkt 4, LV-U56). */
+  nevnerErstattet: boolean;
+  /** Kravet i sporet med kontraktens ord, når kravet har et: «kravet om <…>». */
+  kravetOm?: string;
 }
 
 /** Brevteksten i et spor med krav om vederlag eller frist. */

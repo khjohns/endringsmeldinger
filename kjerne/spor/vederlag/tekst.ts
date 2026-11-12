@@ -174,6 +174,7 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
   krav: (k, t) => [vederlagstekst(k, t)],
   // VS-U29: også påberopelsen etter § 34.1.3 mot det særskilte varselet (VS-U24, OV-U22).
   ogsaaInnsigelserEtter: ['34.1.3'],
+  nevnerErstattet: true,
   kravetOm: 'justering av vederlaget',
   enigI: 'beløpet',
   trukket: kravetsBeloep,

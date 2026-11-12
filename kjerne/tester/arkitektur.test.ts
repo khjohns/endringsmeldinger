@@ -1843,7 +1843,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsbrevtekst',
     'brevtekst',
-    'krav navn ogsaaInnsigelserEtter svaretGjelder',
+    'krav navn ogsaaInnsigelserEtter svaretGjelder nevnerErstattet',
     ['frosset/brevtekst.ts'],
   ],
   ['Kravsporsbrevtekst', 'brevtekst', 'enigI ingenKrav kravetOm trukket', ['frosset/brevtekst.ts']],
