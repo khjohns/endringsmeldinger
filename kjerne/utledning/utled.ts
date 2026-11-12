@@ -33,7 +33,11 @@ import {
   kravposterI,
   OPPGJOERSHJEMMEL,
 } from '../spor/vederlag/format.ts';
-import { kravposteneStrider, kravpostvarseletStrider, varselhjemmel } from './kravposter.ts';
+import {
+  kravposteneStrider,
+  kravpostvarseletStrider,
+  varselhjemmel,
+} from '../spor/vederlag/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import {

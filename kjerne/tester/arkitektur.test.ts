@@ -428,15 +428,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/format.ts', 'spor/vederlag/tekst.ts'],
   ],
   // VS-U49, D-16, VS-U55: om kravet er varselet for posten, eller et varsel før kravet gjelder den.
-  ['Kravpost', 'utsagn', 'oppgjoersform justert', ['utledning/kravposter.ts:varselhjemmel']],
+  ['Kravpost', 'utsagn', 'oppgjoersform justert', ['spor/vederlag/utledning.ts:varselhjemmel']],
   // VS-U50, VS-U54: varselet kravposten viser til, en relasjon til et varsel i saken.
   [
     'Kravpost',
     'relasjon',
     'varsel',
     [
-      'utledning/kravposter.ts:kravpostvarslene',
-      'utledning/kravposter.ts:kravpostvarseletStrider',
+      'spor/vederlag/utledning.ts:kravpostvarslene',
+      'spor/vederlag/utledning.ts:kravpostvarseletStrider',
       'utledning/utled.ts:kontrollerVedleggeneVedKravet',
     ],
   ],
@@ -698,7 +698,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/tekst.ts',
       'frosset/brevdeler.ts',
       'kommandoer/skriving.ts',
-      'utledning/kravposter.ts',
+      'spor/vederlag/utledning.ts',
       'utledning/utled.ts',
       // KA-U54, KA-U64, KA-U68: TEs oppgjørsform for standpunktene til kravposten.
       'kommandoer/lag.ts',
@@ -707,7 +707,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // KA-U64: varselet en kravpost trenger, for standpunktet til varselet i svaret.
   [
-    'utledning/kravposter.ts',
+    'spor/vederlag/utledning.ts',
     'predikat',
     'varselhjemmel',
     ['kommandoer/standpunkter.ts', 'utledning/utled.ts', 'kommandoer/skriving.ts:medVarslene'],
@@ -1336,46 +1336,46 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Kravversjonsinndata',
     'kommando',
     'kravposter trekker',
-    ['utledning/kravposter.ts:kravposteneStrider'],
+    ['spor/vederlag/utledning.ts:kravposteneStrider'],
   ],
-  ['Postinndata', 'kommando', 'id betegnelse', ['utledning/kravposter.ts:kravposteneStrider']],
+  ['Postinndata', 'kommando', 'id betegnelse', ['spor/vederlag/utledning.ts:kravposteneStrider']],
   [
-    'utledning/kravposter.ts',
+    'spor/vederlag/utledning.ts',
     'predikat',
     'kravposteneStrider',
     ['kommandoer/nyttelast.ts', 'utledning/utled.ts'],
   ],
   [
-    'utledning/kravposter.ts',
+    'spor/vederlag/utledning.ts',
     'relasjon',
     'brukteBetegnelser nesteBetegnelse',
     ['kommandoer/skriving.ts:medKravposter'],
   ],
   // VS-U49, D-16, VS-U55: varselet for hver kravpost, lest av skriveren for brevteksten (A6).
   [
-    'utledning/kravposter.ts',
+    'spor/vederlag/utledning.ts',
     'relasjon',
     'kravpostvarslene',
     ['kommandoer/skriving.ts:brevtekstFor'],
   ],
   [
-    'utledning/kravposter.ts:kravpostvarslene',
+    'spor/vederlag/utledning.ts:kravpostvarslene',
     'utsagn',
     'hjemmel id',
-    ['utledning/kravposter.ts:kravpostvarslene'],
+    ['spor/vederlag/utledning.ts:kravpostvarslene'],
   ],
   // VS-U50: om kravposten viser til et varsel etter samme bestemmelse før kravet.
   [
-    'utledning/kravposter.ts',
+    'spor/vederlag/utledning.ts',
     'predikat',
     'kravpostvarseletStrider',
     ['kommandoer/nyttelast.ts', 'utledning/utled.ts'],
   ],
   [
-    'utledning/kravposter.ts:kravpostvarseletStrider',
+    'spor/vederlag/utledning.ts:kravpostvarseletStrider',
     'utsagn',
     'hjemmel id',
-    ['utledning/kravposter.ts:kravpostvarseletStrider'],
+    ['spor/vederlag/utledning.ts:kravpostvarseletStrider'],
   ],
   [
     'Kommando.innhold',
