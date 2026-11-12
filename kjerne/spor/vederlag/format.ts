@@ -15,6 +15,7 @@ import {
   TEKST,
   Uforstaatt,
   type Skjema,
+  type Svarlesing,
 } from '../../format/skjema.ts';
 import {
   KORRESPONDANSETYPER,
@@ -279,15 +280,15 @@ export const utregningIVederlaget = (utregning: Record<string, unknown>): Vederl
 
 /**
  * Et standpunkt bare vederlaget har, lest av elementet leseren har kontrollert mot skjemaet, med
- * beløpet fra utregningen. Kaster `Uforstaatt`.
+ * beløpet fra utregningen, eller `null` for en annen art. Kaster `Uforstaatt`.
  */
-export function standpunktIVederlaget(
+function standpunktIVederlaget(
   e: Record<string, unknown>,
   utregning: Record<string, unknown>,
   sti: string
-): Standpunkt {
+): Standpunkt | null {
   const id = e.id as string;
-  const art = e.art as keyof typeof STANDPUNKT_I_VEDERLAGET;
+  const art = e.art as Standpunktsart;
   const vederlag = utregningIVederlaget(utregning);
   switch (art) {
     case 'oppgjoersform': {
@@ -345,6 +346,8 @@ export function standpunktIVederlaget(
           ? { gjelder: e.gjelder as string }
           : { saerskilt: 'produktivitet' as const }),
       };
+    default:
+      return null;
   }
 }
 
@@ -537,6 +540,7 @@ const utenFastBeloep = (ut: Standpunkt[]): Set<string> =>
 
 /** Det som er vederlagets eget i lesingen av svaret (`SVARLESING` i `format/leser.ts`). */
 export const LESING_I_VEDERLAGET = {
+  standpunkt: standpunktIVederlaget,
   // Oppgjørsformen og beløpet gjentar seg per kravpost.
   gjentas: true,
   // VS-U24, OV-U22: rettidigheten etter § 34.1.3. KA-U64: varselet etter § 34.3.3 eller § 34.4
@@ -551,4 +555,11 @@ export const LESING_I_VEDERLAGET = {
     virkninger: Standpunktsvirkning[],
     sti: string
   ) => kontrollerUtregningenPerPost(ut, utregningIVederlaget(utregning), virkninger, sti),
-};
+  // OV-U32, OV-U33: en beregningsregel byggherren ikke godtar og et tilbud byggherren ikke
+  // aksepterer, er innsigelser som rammer bare posten (arbeidsvalg 1 punkt 2 i spørsmålsfila
+  // 09.11 for #1663, #1760).
+  innsigelserMotPosten: (standpunkter: Standpunkt[]) =>
+    new Set(
+      standpunkter.flatMap((s) => (s.art === 'oppgjoersform' && !s.aksepterer ? [s.id] : []))
+    ),
+} satisfies Svarlesing;

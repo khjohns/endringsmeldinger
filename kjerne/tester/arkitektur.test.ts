@@ -1177,7 +1177,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/skjema.ts',
     'skjema',
     'DATO ID liste objekt TEKST',
-    ['format/format.ts', 'kommandoer/kommando.ts'],
+    ['format/format.ts', 'kommandoer/kommando.ts', 'spor/vederlag/format.ts'],
   ],
   // VS-U26: datoen TE oppgir i påberopelsen. Bare formkontrollen, kontrollen mot
   // brevets dato og brevteksten leser den, så ingen regel vurderer rettidigheten av den.
@@ -1274,7 +1274,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['format/format.ts'],
   ],
   ['format/skjema.ts', 'skjema', 'artfelt', ['format/format.ts', 'spor/vederlag/format.ts']],
-  ['format/skjema.ts', 'skjema', 'DATO ID liste objekt TEKST', ['spor/vederlag/format.ts']],
   // KA-U53, KA-U56, KA-U75: kravpostene en ny versjon får id og betegnelse for, og
   // versjonsreglene kommandoen og lesingen av journalen bruker.
   [
@@ -1432,15 +1431,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Svarlesing',
     'skjema',
-    'gjentas rettidighet subsidiaertVerdi kontrollerStandpunktene kontrollerUtregningen',
+    `gjentas rettidighet subsidiaertVerdi standpunkt kontrollerStandpunktene kontrollerUtregningen
+     innsigelserMotPosten`,
     ['format/leser.ts'],
   ],
-  [
-    'spor/vederlag/format.ts',
-    'rad',
-    'LESING_I_VEDERLAGET standpunktIVederlaget',
-    ['format/leser.ts'],
-  ],
+  ['spor/vederlag/format.ts', 'rad', 'LESING_I_VEDERLAGET', ['format/leser.ts']],
   // OV-U31, KA-U57 (e): radene i utregningen per post og lag, mot standpunktene og totalene.
   // Resultatet og dagene i standpunktet leses av utregningen (4.3 i designnotatet, #331 punkt 4).
   // Utregningen leses med typen for sporet (#1777).

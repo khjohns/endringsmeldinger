@@ -7,8 +7,9 @@
  * `data` har ingen `null`, ingen tom liste og ingen tom streng. Et felt som
  * mangler, betyr at parten ikke har sagt det, eller at det ikke hører til arten.
  * Et ukjent felt, en ukjent art eller et felt arten krever som mangler, gjør
- * raden ikke forstått (4.4, MM-U2). Skjemaene her er formen; lesereglene som
- * går på tvers av radene, står i `utled.ts`.
+ * raden ikke forstått (4.4, MM-U2). Skjemaene her er formen, sammen med skjemaene for et spor
+ * i `spor/<spor>/format.ts` som de slår opp i (#1783); lesereglene som går på tvers av radene,
+ * står i `utled.ts`.
  *
  * Registeret over typene og artene er `docs/datamodell/kjernehendelser.toml`
  * (#320), og en vakttest holder det likt med det som eksporteres her.

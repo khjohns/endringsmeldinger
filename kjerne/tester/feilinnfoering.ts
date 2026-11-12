@@ -4591,7 +4591,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F531',
     feilklasse:
       'leseren regner ikke et tilbud byggherren ikke aksepterer, som en påberopelse ved siden av en upåvirket kravpost (#1760, OV-U33)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
         "(s.art === 'oppgjoersform' && !s.aksepterer ? [s.id] : [])",

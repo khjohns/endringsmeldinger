@@ -24,9 +24,16 @@ import {
   UTSAGN,
 } from './format.ts';
 import { utregningIFristen } from './svarinnhold.ts';
-import { LESING_I_VEDERLAGET, standpunktIVederlaget } from '../spor/vederlag/format.ts';
+import { LESING_I_VEDERLAGET } from '../spor/vederlag/format.ts';
 import { avvikIMerkingen, avvikITittelen } from '../frosset/brevtittel.ts';
-import { erKalenderdato, erObjekt, feilI, Uforstaatt, type Skjema } from './skjema.ts';
+import {
+  erKalenderdato,
+  erObjekt,
+  feilI,
+  Uforstaatt,
+  type Skjema,
+  type Svarlesing,
+} from './skjema.ts';
 import type {
   Avsnitt,
   Beslutningsgrunnlag,
@@ -144,27 +151,8 @@ function element(
   return verdi;
 }
 
-/**
- * Det som er sporets eget i lesingen av svaret (#1783). `gjentas`: standpunktene gjentar seg, så
- * rekkefølgen kontrolleres av `kontrollerStandpunktene`. `rettidighet`: hjemlene rettidigheten kan
- * ha i sporet utover `HJEMMEL`. `subsidiaertVerdi`: feltet i utregningen som står når, og bare
- * når, `subsidiaert_resultat` står.
- */
-interface Svarlesing {
-  gjentas: boolean;
-  rettidighet: readonly string[];
-  subsidiaertVerdi: string;
-  kontrollerStandpunktene?: (ut: Standpunkt[], utregning: Data, sti: string) => void;
-  kontrollerUtregningen?: (
-    ut: Standpunkt[],
-    utregning: Data,
-    virkninger: Standpunktsvirkning[],
-    sti: string
-  ) => void;
-}
-
 const SVARLESING: Record<Spor, Svarlesing> = {
-  forhold: { gjentas: false, rettidighet: [], subsidiaertVerdi: 'subsidiaert_godkjent_dager' },
+  forhold: { gjentas: false, rettidighet: [], subsidiaertVerdi: null },
   vederlag: LESING_I_VEDERLAGET,
   // § 33.6.2 (VS-U17, VS-U19): fristen har også rettidigheten av svaret på forespørselen.
   frist: {
@@ -199,6 +187,8 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
         `${sti}: standpunktet ${art} hører ikke til ${spor} eller står i feil rekkefølge`
       );
     neste = plass + 1;
+    const egen = lesing.standpunkt?.(e, utregning, sti);
+    if (egen) return egen;
     const id = e.id as string;
     switch (art) {
       case 'rettidighet':
@@ -219,10 +209,6 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
         };
       case 'forhold':
         return { id, art, resultat: e.resultat as never };
-      case 'oppgjoersform':
-      case 'justering':
-      case 'beloep':
-        return standpunktIVederlaget(e, utregning, sti);
       case 'hindring':
         return { id, art, oppfylt: e.oppfylt as boolean };
       case 'spesifisering':
@@ -246,6 +232,8 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
           resultat: frist.subsidiaert_resultat ?? frist.resultat,
           vurdert: frist.subsidiaert_godkjent_dager ?? frist.godkjent_dager,
         };
+      default:
+        throw new Uforstaatt(`${sti}: standpunktet ${art} hører ikke til ${spor}`);
     }
   });
   // VS-U24: ett standpunkt for hver bestemmelse, § 33.4 før § 33.6.2.
@@ -258,7 +246,11 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
     if (t.paakrevd && !ut.some((s) => s.art === t.art))
       throw new Uforstaatt(`${sti}: svaret på ${spor} mangler standpunktet ${t.art}`);
   lesing.kontrollerStandpunktene?.(ut, utregning, sti);
-  if ('subsidiaert_resultat' in utregning !== lesing.subsidiaertVerdi in utregning)
+  const subsidiaertVerdi = lesing.subsidiaertVerdi;
+  if (
+    'subsidiaert_resultat' in utregning !==
+    (subsidiaertVerdi !== null && subsidiaertVerdi in utregning)
+  )
     throw new Uforstaatt(`${sti}: utregningen har bare halvparten av det subsidiære standpunktet`);
   return ut;
 }
@@ -301,15 +293,10 @@ function lesBeslutningsgrunnlag(
   if (sett.size !== art.size)
     throw new Uforstaatt(`${sti}: beslutningsgrunnlaget har ikke én virkning per standpunkt`);
   // OV-U32, OV-U33: upåvirket gjelder vederlag og frist, og bare ved siden av en påberopelse
-  // i sporet. En beregningsregel byggherren ikke godtar og et tilbud byggherren ikke aksepterer,
-  // er innsigelser som rammer bare posten (arbeidsvalg 1 punkt 2 i spørsmålsfila 09.11 for
-  // #1663, #1760).
-  const oppgjoersformIkkeGodtatt = new Set(
-    standpunkter.flatMap((s) => (s.art === 'oppgjoersform' && !s.aksepterer ? [s.id] : []))
-  );
+  // i sporet eller en innsigelse som rammer bare posten.
+  const motPosten = SVARLESING[spor].innsigelserMotPosten?.(standpunkter) ?? new Set();
   const paaberoper = (p: Standpunktsvirkning) =>
-    typeof p.virkning === 'number' &&
-    (PAABEROPELSER.has(p.art) || oppgjoersformIkkeGodtatt.has(p.standpunkt));
+    typeof p.virkning === 'number' && (PAABEROPELSER.has(p.art) || motPosten.has(p.standpunkt));
   if (
     virkninger.some((p) => p.virkning === 'upaavirket') &&
     (spor === 'forhold' || !virkninger.some(paaberoper))

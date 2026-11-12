@@ -85,7 +85,8 @@ def markdown(register: dict) -> str:
         f"_{MERKNAD}_",
         "",
         f"Format {register['format']}. Formen er skjemaene i "
-        "[`kjerne/format/format.ts`](../../kjerne/format/format.ts), og designet står i "
+        "[`kjerne/format/format.ts`](../../kjerne/format/format.ts) og i formatet for "
+        "hvert spor i `kjerne/spor/<spor>/format.ts`, og designet står i "
         "[designnotatet](../design-hendelsesformat-2026-10-09.md).",
         "",
         "Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og ingen "
