@@ -1,9 +1,8 @@
 <!--
   Utkastkortet rundt et skjema som blir et brev (svaret på S-4 og S-4b i BF-10, oppdragsgiver
   06.11): stiplet kant rundt hele kortet og et hode med «Utkast · ikke sendt», brevhodet når
-  kjernen har laget det, og mottakeren. At utkastet ikke er synlig for motparten, er åpenbart, så
-  det står ikke (oppdragsgiver 12.11). Skjemaet står i kortet, og brevet vises i brevkontrollen
-  etter «Se brevet før sending».
+  kjernen har laget det, og mottakeren («Utkastet sier det selv» i `system.md`). Skjemaet står i
+  kortet, og brevet vises i brevkontrollen etter «Se brevet før sending».
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';

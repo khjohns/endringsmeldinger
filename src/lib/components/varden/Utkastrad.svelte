@@ -64,10 +64,7 @@
     border-right: 1px solid var(--draft-border);
   }
   .merke {
-    display: inline-flex;
     flex-shrink: 0;
-    align-items: center;
-    gap: var(--spacing-1);
     padding: 0 var(--spacing-2);
     border: 1px dashed var(--draft-border);
     border-radius: var(--r-merke);

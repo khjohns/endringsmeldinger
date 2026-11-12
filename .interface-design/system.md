@@ -354,8 +354,9 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   versjonen av påberopelsen, der den spør i en dialog med «Behold utkastet» og en rød «Forkast
   utkast» (`Knapp` med `variant="fare"`). Rødt på en knapp står bare der handlingen ikke kan
   gjøres om, og teksten sier det (PR 1650).
-- **Utkastet sier det selv.** Hodet på utkastkortet sier «Utkast». Det sier ikke at brevet bare er
-  synlig for teamet, fordi det er åpenbart for et utkast (oppdragsgiver 12.11). Sendepanelet i brevkontrollen, og panelet
+- **Utkastet sier det selv.** Hodet på utkastkortet sier «Utkast · ikke sendt». Det sier ikke at
+  brevet bare er synlig for teamet, fordi det er åpenbart for et utkast (oppdragsgiver 12.11 i
+  #1663). Sendepanelet i brevkontrollen, og panelet
   med punktene i et langt skjema, sier «Utkast» og «Ikke sendt» ved knappen, så statusen står i
   bildet også når hodet er rullet ut av det (#1663). Merket «Utkast» i panelet til venstre vises bare når et
   annet spor er valgt, så statusen aldri står to steder samtidig.
