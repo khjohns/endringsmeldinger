@@ -209,6 +209,8 @@ const vedleggIKravpostene = (innhold: Innhold): string[] =>
 export const KRAVFORM_I_VEDERLAGET = {
   feil: kravfeil,
   vedleggIInnholdet: vedleggIKravpostene,
+  vedleggVedKravet: false,
+  varselVedKravet: false,
 } satisfies Kravform;
 
 /** Avgrensningene i svaret på vederlaget som krever en begrunnelse (`avgrensninger`). */
@@ -275,6 +277,8 @@ export const NYTTELAST_I_VEDERLAGET = {
   avgrensninger: avgrensningerIVederlaget,
   kravsperre: kravpostsperre,
   innsigelse: innsigelseMotVarselet,
+  utdypning: () => null,
+  oppgittDatoIKravet: () => null,
 } satisfies Sporsnyttelast;
 
 /**
@@ -485,6 +489,9 @@ export const FORUTSETNINGER_I_VEDERLAGET = {
         )
       : null,
   svaret: (u) => svarPerKravpost(u.spor.vederlag.gjeldendeKrav!),
+  kravet: 'kravet om vederlagsjustering',
+  trekket: () => null,
+  aksepten: () => null,
 } satisfies Sporsforutsetninger;
 
 /**

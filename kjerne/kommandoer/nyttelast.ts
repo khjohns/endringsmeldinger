@@ -65,20 +65,29 @@ export interface Sporsnyttelast {
   kravsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null;
   /** Det som hindrer en innsigelse mot `gjelder` i sporet, eller `null`. */
   innsigelse(gjelder: string, u: Utledning, regler: Regelsett): Avvisning | null;
+  /** Utdypningen kravet i sporet må ha under den låste teksten (`kravetsUtdypning`), eller `null`. */
+  utdypning(k: Extract<Kommando, { type: 'krav' }>, regler: Regelsett): Avvisning | null;
+  /** Datoen TE oppgir i kravet i sporet og det den gjelder (`oppgittDatoI`), eller `null`. */
+  oppgittDatoIKravet(k: Extract<Kommando, { type: 'krav' }>): OppgittDato | null;
 }
 
 /** Nyttelastkontrollen i hvert spor. Forholdet og fristen står her til de flyttes (#1745). */
 const NYTTELAST: Record<Spor, Sporsnyttelast> = {
   forhold: {
     avgrensninger: avgrensningerIForholdet,
-    kravsperre: () => null,
+    kravsperre: (k, u) => kategorisperre(k, u) ?? datosperre(k, u),
     innsigelse: () => null,
+    utdypning: utdypningIForholdet,
+    oppgittDatoIKravet: oppgittDatoIForholdet,
   },
   vederlag: NYTTELAST_I_VEDERLAGET,
   frist: {
     avgrensninger: avgrensningerIFristen,
     kravsperre: () => null,
     innsigelse: () => null,
+    utdypning: utdypningIFristen,
+    oppgittDatoIKravet: (k) =>
+      k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null,
   },
 };
 
@@ -196,11 +205,24 @@ function kravetsUtdypning(
   regler: Regelsett
 ): Avvisning | null {
   if (k.utdypning?.trim()) return null;
+  return nyttelastI(k.spor).utdypning(k, regler);
+}
+
+/** Begrunnelsen for dagene i et fristkrav (`kravetsUtdypning`). */
+function utdypningIFristen(k: Extract<Kommando, { type: 'krav' }>): Avvisning | null {
   if (k.spor === 'frist')
     return avvis(
       'BEGRUNNELSE_MANGLER',
       'Kravet om fristforlengelse må begrunne antallet dager (NS 8407 § 33.6.1, KA-U33).'
     );
+  return null;
+}
+
+/** Beskrivelsen av pålegget i et varsel etter § 32.2 (`kravetsUtdypning`). */
+function utdypningIForholdet(
+  k: Extract<Kommando, { type: 'krav' }>,
+  regler: Regelsett
+): Avvisning | null {
   if (k.spor === 'forhold' && gjelderVarslingsplikten(k, regler))
     return avvis(
       'BESKRIVELSE_MANGLER',
@@ -384,7 +406,7 @@ function korrigeringEtterVarslene(
 
 const varseletSendt = (hjemmel: string) => `varselet etter § ${hjemmel} ble sendt`;
 
-type OppgittDato = { dato: unknown; gjelder: string; av: 'TE' | 'Byggherren' };
+export type OppgittDato = { dato: unknown; gjelder: string; av: 'TE' | 'Byggherren' };
 
 /**
  * Datoen parten oppgir i kommandoen og det den gjelder: datoen varslingsplikten løper
@@ -402,10 +424,11 @@ function oppgittDatoI(k: Kommando): OppgittDato | null {
     const { felt, dato } = korrigertDato(k);
     return { dato, gjelder: DATOEN_GJELDER[felt], av: 'TE' };
   }
-  if (k.type !== 'krav') return null;
-  if (k.spor === 'frist')
-    return k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null;
-  if (k.spor !== 'forhold') return null;
+  return k.type === 'krav' ? nyttelastI(k.spor).oppgittDatoIKravet(k) : null;
+}
+
+/** Datoen varslingsplikten løper fra i påberopelsen (VS-U26). */
+function oppgittDatoIForholdet(k: Extract<Kommando, { type: 'krav' }>): OppgittDato | null {
   const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
   return felt === null ? null : { dato: k.innhold[felt], gjelder: DATOEN_GJELDER[felt], av: 'TE' };
 }
@@ -479,8 +502,7 @@ export function nyttelastkontroll(
 ): Avvisning | null {
   switch (k.type) {
     case 'krav': {
-      const sperre =
-        kategorisperre(k, u) ?? datosperre(k, u) ?? nyttelastI(k.spor).kravsperre(k, u);
+      const sperre = nyttelastI(k.spor).kravsperre(k, u);
       if (sperre) return sperre;
       const utdypning = utdypningKreves ? kravetsUtdypning(k, regler) : null;
       if (utdypning) return utdypning;

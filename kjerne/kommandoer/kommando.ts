@@ -406,6 +406,10 @@ export interface Kravform {
   feil(innhold: unknown): string[];
   /** Vedleggene innholdet i kravet viser til, utenom brevets. */
   vedleggIInnholdet(innhold: Innhold): string[];
+  /** Kravet kan ha vedlegg (`dokumentasjon`), som påberopelsen (VS-U38). */
+  vedleggVedKravet: boolean;
+  /** Kravet kan ha et varsel (`varsel`), som fristkravet (OV-U5). */
+  varselVedKravet: boolean;
 }
 
 /** Formen på kravet i hvert spor. Forholdet og fristen står her til de flyttes (#1745). */
@@ -417,6 +421,8 @@ const KRAVFORM: Record<Spor, Kravform> = {
       return feil.length ? feil : datofeil(innhold as Innhold);
     },
     vedleggIInnholdet: () => [],
+    vedleggVedKravet: true,
+    varselVedKravet: false,
   },
   vederlag: KRAVFORM_I_VEDERLAGET,
   frist: {
@@ -425,6 +431,8 @@ const KRAVFORM: Record<Spor, Kravform> = {
       return feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
     },
     vedleggIInnholdet: () => [],
+    vedleggVedKravet: false,
+    varselVedKravet: true,
   },
 };
 
@@ -437,11 +445,12 @@ export function formfeil(kommando: unknown): string[] {
   const feil = feilI(kommando, SKJEMA[type as Kommando['type']]);
   if (type === 'krav' && !feil.length) {
     const k = kommando as { spor: Spor; innhold: unknown };
-    feil.push(...iSporet(KRAVFORM, k.spor).feil(k.innhold));
-    if (k.spor !== 'frist' && 'varsel' in k)
+    const form = iSporet(KRAVFORM, k.spor);
+    feil.push(...form.feil(k.innhold));
+    if (!form.varselVedKravet && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
     // VS-U38: vedleggene ved påberopelsen; et fristkrav har brevet med varselet i `varsel`.
-    if (k.spor !== 'forhold' && 'dokumentasjon' in k)
+    if (!form.vedleggVedKravet && 'dokumentasjon' in k)
       feil.push('$.dokumentasjon: bare påberopelsen har vedlegg ved kravet');
   }
   // OV-U5: varselet etter § 33.4 står i fristen, varselet etter § 34.1.2 i vederlaget.

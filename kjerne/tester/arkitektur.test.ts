@@ -1164,17 +1164,22 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsnyttelast',
     'predikat',
-    'avgrensninger kravsperre innsigelse',
+    'avgrensninger kravsperre innsigelse utdypning oppgittDatoIKravet',
     ['kommandoer/nyttelast.ts'],
   ],
   ['spor/vederlag/kommando.ts', 'predikat', 'NYTTELAST_I_VEDERLAGET', ['kommandoer/nyttelast.ts']],
   // Formen på kravet i sporet (#1783).
-  ['Kravform', 'kommando', 'feil vedleggIInnholdet', ['kommandoer/kommando.ts']],
+  [
+    'Kravform',
+    'kommando',
+    'feil vedleggIInnholdet vedleggVedKravet varselVedKravet',
+    ['kommandoer/kommando.ts'],
+  ],
   ['spor/vederlag/kommando.ts', 'kommando', 'KRAVFORM_I_VEDERLAGET', ['kommandoer/kommando.ts']],
   [
     'Sporsforutsetninger',
     'predikat',
-    'innsigelsenErIkkeBygget svaret',
+    'innsigelsenErIkkeBygget svaret kravet trekket aksepten',
     ['kommandoer/forutsetninger.ts'],
   ],
   [
@@ -1344,7 +1349,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'oppgittDato',
     [
       'kommandoer/kommando.ts:datofeil',
-      'kommandoer/nyttelast.ts:oppgittDatoI',
+      'kommandoer/nyttelast.ts:oppgittDatoIForholdet',
       'kommandoer/nyttelast.ts:datosperre',
       'kommandoer/nyttelast.ts:kontrollerKorrigering',
       'kommandoer/nyttelast.ts:grunnlagsdatoen',
@@ -1526,7 +1531,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Kommando.innhold',
     'kommando',
     'hovedkategori underkategori paalegg_mottatt klar_over_forholdet',
-    ['kommandoer/nyttelast.ts:oppgittDatoI', 'kommandoer/nyttelast.ts:datosperre'],
+    ['kommandoer/nyttelast.ts:oppgittDatoIForholdet', 'kommandoer/nyttelast.ts:datosperre'],
   ],
   // Datoen parten oppgir, det den gjelder og hvem som oppgir den, som bare kontrollen mot
   // brevets dato leser.

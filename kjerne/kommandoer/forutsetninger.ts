@@ -218,6 +218,32 @@ export interface Sporsforutsetninger {
   innsigelsenErIkkeBygget(u: Utledning, gjelder: string): Avvisning | null;
   /** Det som hindrer svaret på gjeldende krav i sporet, eller revisjonen av det. */
   svaret(u: Utledning, hva: 'Svaret' | 'Revisjonen'): Avvisning | null;
+  /** Kravet i sporet, med navnet i visningen (konseptet for Varden, versjon 14). */
+  kravet: string;
+  /** Det i sporet som hindrer TE i å trekke kravet, når det er sendt og ikke trukket. */
+  trekket(u: Utledning): Avvisning | null;
+  /** Det i sporet som hindrer TEs aksept av gjeldende svar, når det ikke er enighet. */
+  aksepten(u: Utledning): Avvisning | null;
+}
+
+/** KA-U13, OV-U6: en endringsordre sendt fra appen leses ellers som bortfalt (KA-U6). */
+function trekkAvPaaberopelsen(u: Utledning): Avvisning | null {
+  if (trekkAvPaaberopelsenErSperret(u))
+    return avvis(
+      'FORHOLD_ER_ENDRINGSORDRE',
+      'Byggherren har godkjent grunnlaget i et svar som er en endringsordre. Grunnlaget kan ikke trekkes, heller ikke etter en ny kravversjon eller et nytt svar.'
+    );
+  return null;
+}
+
+/** GR-U9: frafall er ikke enighet, og løsningen registrerer ikke en aksept av det. */
+function akseptAvFrafallet(u: Utledning): Avvisning | null {
+  if (u.frafalt)
+    return avvis(
+      'FRAFALL_KAN_IKKE_GODTAS',
+      'Løsningen registrerer ikke en aksept av et frafall etter § 32.3 c. Det er en begrensning i løsningen (GR-U9).'
+    );
+  return null;
 }
 
 /** Forutsetningene i hvert spor. Forholdet og fristen står her til de flyttes (#1745). */
@@ -232,20 +258,25 @@ const FORUTSETNINGER: Record<Spor, Sporsforutsetninger> = {
           )
         : null,
     svaret: svaretPaaberoperRegistrertVarsel,
+    kravet: 'grunnlaget for kravet',
+    trekket: trekkAvPaaberopelsen,
+    aksepten: akseptAvFrafallet,
   },
   vederlag: FORUTSETNINGER_I_VEDERLAGET,
-  frist: { innsigelsenErIkkeBygget: () => null, svaret: () => null },
+  frist: {
+    innsigelsenErIkkeBygget: () => null,
+    svaret: () => null,
+    kravet: 'kravet om fristforlengelse',
+    trekket: () => null,
+    aksepten: () => null,
+  },
 };
 
 /** Forutsetningene i sporet (`iSporet`). */
 const forutsetningerI = (spor: Spor): Sporsforutsetninger => iSporet(FORUTSETNINGER, spor);
 
-/** Kravet i hvert spor, med navnene i visningen (konseptet for Varden, versjon 14). */
-const KRAVET: Record<Spor, string> = {
-  forhold: 'grunnlaget for kravet',
-  vederlag: 'kravet om vederlagsjustering',
-  frist: 'kravet om fristforlengelse',
-};
+/** Kravet i sporet (`Sporsforutsetninger.kravet`). */
+const kravet = (spor: Spor): string => forutsetningerI(spor).kravet;
 
 const KRAVET_OM: Record<Kravspor, string> = {
   vederlag: 'vederlagsjustering',
@@ -286,17 +317,11 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         return avvis('PAABEROPELSE_IKKE_SENDT', 'Grunnlaget må være sendt før du kan sende krav.');
       return null;
     case 'trekke':
-      if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `TE har ikke sendt ${KRAVET[h.spor]}.`);
+      if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `TE har ikke sendt ${kravet(h.spor)}.`);
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');
-      // KA-U13, OV-U6: en endringsordre sendt fra appen leses ellers som bortfalt (KA-U6).
-      if (h.spor === 'forhold' && trekkAvPaaberopelsenErSperret(u))
-        return avvis(
-          'FORHOLD_ER_ENDRINGSORDRE',
-          'Byggherren har godkjent grunnlaget i et svar som er en endringsordre. Grunnlaget kan ikke trekkes, heller ikke etter en ny kravversjon eller et nytt svar.'
-        );
       // KA-U22: et avtalt fradrag (KA-U9) avvises av formatet, og sperren bygges med det. En
       // merking av et registrert brev gir ingen sperre (OV-U4, OV-U7).
-      return null;
+      return forutsetningerI(h.spor).trekket(u);
     case 'ingen_krav':
       // KA-U12, KA-U15: et spor som ikke er sendt, etter at forholdet er sendt.
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
@@ -306,7 +331,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
           `TE har allerede sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`
         );
       if (s.krav.length)
-        return avvis('KRAV_I_SPORET', `TE har sendt ${KRAVET[h.spor]}. Trekk kravet i stedet.`);
+        return avvis('KRAV_I_SPORET', `TE har sendt ${kravet(h.spor)}. Trekk kravet i stedet.`);
       if (!paaberopelseSendt)
         return avvis(
           'PAABEROPELSE_IKKE_SENDT',
@@ -367,7 +392,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         );
       return null;
     case 'svare':
-      if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `TE har ikke sendt ${KRAVET[h.spor]}.`);
+      if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `TE har ikke sendt ${kravet(h.spor)}.`);
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (s.gjeldendeSvar)
         return avvis('ALLEREDE_SVART', 'Du har allerede svart på denne versjonen. Revider svaret.');
@@ -385,20 +410,14 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
           'IKKE_GJELDENDE_SVAR',
           s.svar.length > 0
             ? `Byggherren har ikke svart på gjeldende krav. ${ELDRE_SVAR}`
-            : `Byggherren har ikke svart på ${KRAVET[h.spor]}.`
+            : `Byggherren har ikke svart på ${kravet(h.spor)}.`
         );
       // GR-U8: enigheten er alt registrert, også når byggherren har godkjent hele kravet.
       if (s.enighet)
         return avvis(
           'ENIGHET_I_SPORET',
-          `Enigheten om svaret på ${KRAVET[h.spor]} er allerede registrert.`
+          `Enigheten om svaret på ${kravet(h.spor)} er allerede registrert.`
         );
-      // GR-U9: frafall er ikke enighet, og løsningen registrerer ikke en aksept av det.
-      if (h.spor === 'forhold' && u.frafalt)
-        return avvis(
-          'FRAFALL_KAN_IKKE_GODTAS',
-          'Løsningen registrerer ikke en aksept av et frafall etter § 32.3 c. Det er en begrensning i løsningen (GR-U9).'
-        );
-      return null;
+      return forutsetningerI(h.spor).aksepten(u);
   }
 }

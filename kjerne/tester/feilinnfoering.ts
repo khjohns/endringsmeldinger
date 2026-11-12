@@ -294,8 +294,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        '            : `Byggherren har ikke svart på ${KRAVET[h.spor]}.`\n        );\n',
-        "            : `Byggherren har ikke svart på ${KRAVET[h.spor]}.`\n        );\n      if (s.gjeldendeSvar.utregning.resultat === 'avslaatt') return null;\n",
+        '            : `Byggherren har ikke svart på ${kravet(h.spor)}.`\n        );\n',
+        "            : `Byggherren har ikke svart på ${kravet(h.spor)}.`\n        );\n      if (s.gjeldendeSvar.utregning.resultat === 'avslaatt') return null;\n",
       ],
     ],
     mal: ['reglene leser bare det LESBART tillater (#308, #329) kommandoer/forutsetninger.ts'],
@@ -373,8 +373,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "if (h.spor === 'forhold' && trekkAvPaaberopelsenErSperret(u))",
-        "if (h.spor === 'forhold' && trekkAvPaaberopelsenErSperret(u) && u.frafalt)",
+        'if (trekkAvPaaberopelsenErSperret(u))',
+        'if (trekkAvPaaberopelsenErSperret(u) && u.frafalt)',
       ],
     ],
     mal: ['F-MM-G10'],
@@ -2346,8 +2346,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        "    return k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null;",
-        '    return null;',
+        "k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null,",
+        'null,',
       ],
     ],
     mal: ['en dato for varselet etter § 33.4 etter brevets dato avvises'],
@@ -3626,7 +3626,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F435',
     feilklasse: 'et fristkrav godtar vedlegg utenfor varselet (VS-U38, OV-U5)',
     fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [["if (k.spor !== 'forhold' && 'dokumentasjon' in k)", 'if (false)']],
+    endringer: [["if (!form.vedleggVedKravet && 'dokumentasjon' in k)", 'if (false)']],
     mal: ['et vedlegg ved et fristkrav utenfor varselet avvises i formen'],
   },
   {
