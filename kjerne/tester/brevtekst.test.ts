@@ -19,13 +19,8 @@
 import { AssertionError } from 'node:assert';
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import {
-  gjengi,
-  gjengirTro,
-  KanIkkeUttrykkes,
-  lagBrevtekst,
-  norskDato,
-} from '../frosset/brevtekst.ts';
+import { KanIkkeUttrykkes, norskDato } from '../frosset/brevdeler.ts';
+import { gjengi, gjengirTro, lagBrevtekst } from '../frosset/brevtekst.ts';
 import { brevmerking } from '../frosset/brevtittel.ts';
 import { lagFraForholdet } from '../frosset/standpunkt.ts';
 import { postlisten } from '../spor/vederlag/frysing.ts';

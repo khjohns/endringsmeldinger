@@ -35,7 +35,8 @@
 
 import { createHash } from 'node:crypto';
 import type { Brevdokument } from './catenda.ts';
-import { gjengi, gjengirTro, norskDato } from '../kjerne/frosset/brevtekst.ts';
+import { norskDato } from '../kjerne/frosset/brevdeler.ts';
+import { gjengi, gjengirTro } from '../kjerne/frosset/brevtekst.ts';
 import { brevtekstI } from '../kjerne/format/leser.ts';
 import {
   brevprofil,

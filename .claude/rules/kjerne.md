@@ -32,9 +32,11 @@ Regelsettet står i `kjerne/regler/`; endres det, økes `REGELVERSJON` der. Endr
   tilgangen der (`spor/vederlag/format.ts`). En ny lesing av `Krav.innhold` eller
   `Svar.utregning` legges der, ikke som en ny typekonvertering hos kalleren. Det gjelder også
   serveren og visningen.
-- **Teksten står i tekstlaget**: brevteksten i `frosset/brevtekst.ts` og ordene den deler
-  med linjen og visningen i `frosset/tekst.ts`. En tekst kan lese en regel, men en regel
-  leser ikke en tekst.
+- **Teksten står i tekstlaget**: brevteksten i `frosset/brevtekst.ts`, byggeklossene den deler
+  med teksten i sporene i `frosset/brevdeler.ts`, linjen for byggherrens standpunkt i
+  `frosset/linje.ts` og ordene de deler med visningen i `frosset/tekst.ts`. Teksten som er
+  sporets egen, står i `spor/<spor>/tekst.ts`. En tekst kan lese en regel, men en regel leser
+  ikke en tekst.
 - **Det som er sporets eget, står i `kjerne/spor/<spor>/`**, i én fil per rolle (#1783):
   `format.ts` (`format/`), `frysing.ts` og `tekst.ts` (`frosset/`), `utledning.ts` og
   `visning.ts` (`utledning/`, og visningen er visning) og `kommando.ts` (`kommandoer/`). En

@@ -7,14 +7,16 @@
 import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { kategori } from '../format/kravinnhold.ts';
-import type {
-  Hjemmel,
-  Krav,
-  Standpunkt,
-  Standpunktsvirkning,
-  Svar,
-  Utfall,
-  Virkning,
+import {
+  utenGren,
+  type Hjemmel,
+  type Krav,
+  type Spor,
+  type Standpunkt,
+  type Standpunktsvirkning,
+  type Svar,
+  type Utfall,
+  type Virkning,
 } from '../typer.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
 
@@ -166,3 +168,15 @@ export interface Svarsutregning {
   /** En vurdering kjernen ennå ikke har et standpunkt for (`utenforOmfanget`). */
   utenforOmfanget(v: Record<string, unknown>): string | null;
 }
+
+/**
+ * Innslaget for sporet i en rolle som slår opp i sporene (#1783). Et spor uten innslag kaster,
+ * som en gren som mangler (`utenGren`).
+ */
+export function iSporet<T extends Record<Spor, unknown>, S extends Spor>(tabell: T, spor: S): T[S] {
+  return Object.hasOwn(tabell, spor) ? tabell[spor] : utenGren(spor as never);
+}
+
+/** Virkningen av standpunktet `id`, som svaret har en virkning for. */
+export const virkningen = (v: Standpunktsvirkning[], id: string): Virkning =>
+  v.find((p) => p.standpunkt === id)!.virkning;

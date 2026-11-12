@@ -10,7 +10,7 @@ import { beloep, UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import { avvis, ELDRE_SVAR } from './forutsetninger.ts';
-import { norskDato } from '../frosset/brevtekst.ts';
+import { norskDato } from '../frosset/brevdeler.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
 import { datoFor, kalenderdag } from '../format/leser.ts';
 import { erKalenderdato, tekst } from '../format/skjema.ts';

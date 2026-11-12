@@ -1005,7 +1005,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F106',
     feilklasse: '«ingen krav» i vederlaget sier ikke at forseringsvederlaget er unntatt (KA-U25)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/vederlag/tekst.ts`,
     endringer: [[' Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.`', '`']],
     mal: ['«ingen krav» i vederlaget'],
   },
@@ -1722,7 +1722,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F202',
     feilklasse:
       'brevet sier at byggherren godkjenner hele beløpet for en kravpost «av de krevde» når tilbudet for en annen kravpost ikke er akseptert (B-13)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/vederlag/tekst.ts`,
     endringer: [
       [
         'const resultat = erBeloepetGodkjentFullt(krevd, godkjent)',
@@ -2854,7 +2854,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F327',
     feilklasse: 'beslutningslinjen viser bare den første preklusjonen i fristsvaret',
-    fil: `${K}/frosset/tekst.ts`,
+    fil: `${K}/frosset/linje.ts`,
     endringer: [
       [
         "rettidighet: `${sene.join(' og ')} kom for sent`",
@@ -3314,8 +3314,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F398',
     feilklasse: 'svaret gjentar ikke byggherrens innsigelse mot det særskilte varselet (VS-U24)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [["(svar.spor === 'vederlag' && hjemmel === '34.1.3')", 'false']],
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [["ogsaaInnsigelserEtter: ['34.1.3'],", 'ogsaaInnsigelserEtter: [],']],
     mal: ['svaret gjentar byggherrens egen innsigelse mot det særskilte varselet'],
   },
   {
@@ -3328,7 +3328,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F400',
     feilklasse: 'linjen gjentar etiketten for hvert standpunkt i samme lag (OV-U32)',
-    fil: `${K}/frosset/tekst.ts`,
+    fil: `${K}/frosset/linje.ts`,
     endringer: [
       [
         'if (!ordnet || lag === null || merket.has(lag)) return l.tekst;',
@@ -3343,7 +3343,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F401',
     feilklasse: 'linjen setter etikett når svaret har ett lag og ingen påberopelse (OV-U33)',
-    fil: `${K}/frosset/tekst.ts`,
+    fil: `${K}/frosset/linje.ts`,
     endringer: [
       ['const ordnet = ledd.some((l) => (plass(l) ?? 0) > 1);', 'const ordnet = ledd.length > 1;'],
     ],
@@ -3388,7 +3388,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F409',
     feilklasse: 'brevet betegner oppgjør som fast sum som aksept av tilbudet (LV-U31)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/vederlag/tekst.ts`,
     endringer: [
       [
         "? `byggherren godkjenner oppgjør som fast sum${post ? ` for ${post}` : ''} med beløpet og forbeholdene som fremgår av svaret.`",
@@ -3694,14 +3694,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F442',
     feilklasse: 'henvisningen bruker brevnummeret, ikke merkingen frosset på brevet (LV-U53)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/frosset/brevdeler.ts`,
     endringer: [['`brev ${d.merking} av', '`brev ${d.brevnummer} av']],
     mal: ['et brev fra løsningen omtales med merkingen og datoen'],
   },
   {
     id: 'F443',
     feilklasse: 'registrert korrespondanse omtales med feil type (LV-U42)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/frosset/brevdeler.ts`,
     endringer: [["{ brev: 'brev', e_post: 'e-post' }", "{ brev: 'brev', e_post: 'brev' }"]],
     mal: ['registrert korrespondanse omtales med parten, typen og datoen'],
   },
@@ -4176,7 +4176,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F487',
     feilklasse:
       'kravet viser ikke til varselet etter punkt 34.4 gitt før det første kravet (VS-U55)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/vederlag/tekst.ts`,
     endringer: [
       [
         "gitt(varselet, 'Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4)', t)",
@@ -4240,11 +4240,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F506',
     feilklasse:
       'brevet sier ikke hvilken kravpost beløpet gjelder når kravet har flere (KA-U57 (c))',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/vederlag/tekst.ts`,
     endringer: [
       [
-        '        : kravposterI(krav).length > 1\n          ? krevdeKravpost',
-        '        : false\n          ? krevdeKravpost',
+        '      : kravposterI(krav).length > 1\n        ? krevdeKravpost',
+        '      : false\n        ? krevdeKravpost',
       ],
     ],
     mal: ['svaret på to kravposter med fast sum navngir kravposten'],
@@ -4261,8 +4261,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F508',
     feilklasse:
       'linjen sier ikke hvilken kravpost standpunktet gjelder når kravet har flere (KA-U57 (c) og (d))',
-    fil: `${K}/frosset/tekst.ts`,
-    endringer: [['      kravposter.length > 1 ? kravposter.find', '      false ? kravposter.find']],
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [['    kravposter.length > 1 ? kravposter.find', '    false ? kravposter.find']],
     mal: ['svaret på to kravposter med fast sum navngir kravposten'],
   },
   {
@@ -4564,7 +4564,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F528',
     feilklasse:
       'innsigelsen etter § 34.3.3 står som grunn for hele svaret i linjen, ikke ved kravposten (KA-U64, VS-U56)',
-    fil: `${K}/frosset/tekst.ts`,
+    fil: `${K}/frosset/linje.ts`,
     endringer: [['        !forKravposten.has(p.standpunkt)', '        true']],
     mal: ['linjen nevner innsigelsen etter punkt 34.3.3 ved kravposten'],
   },
@@ -4633,7 +4633,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F535',
     feilklasse:
       'kravet sier ikke at TE opplyser varselet i et dokument som er vedlagt (VS-U51, U-14 i BF-14)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/vederlag/tekst.ts`,
     endringer: [
       ['  return dokumentet.length && dokumentet.every(', '  return false && dokumentet.every('],
     ],

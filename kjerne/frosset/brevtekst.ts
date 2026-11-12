@@ -17,11 +17,8 @@
 import { HJEMMEL, type OppgittDato } from '../format/format.ts';
 import { forholdet } from './forholdene.ts';
 import { sakensKode } from './brevtittel.ts';
-import { erRegistrert, kalenderdag } from '../format/leser.ts';
-import { beloep, tilTall, type Oere } from '../regler/beloep.ts';
-import type { Subsidiaergrunn } from '../regler/forhold.ts';
+import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import {
   blirEndringsordre,
   grunnerFraForholdet,
@@ -29,18 +26,27 @@ import {
   innsigelsenPaaberoper,
   svarPaaForesporsler,
 } from './standpunkt.ts';
-import { etikett, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
+import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
 import { innholdIForholdet, innholdIFristen } from '../format/kravinnhold.ts';
 import {
-  harProduktivitetspost,
-  innholdIVederlaget,
-  krevdIKravposten,
-  krevdProduktivitet,
-  krevdRigg,
-  kravposterI,
-} from '../spor/vederlag/format.ts';
-import { dager, iLagene, kroner } from './tekst.ts';
-import { erKravpostvarselhjemmel, utenGren } from '../typer.ts';
+  eksMva,
+  erDato,
+  Journalen,
+  KanIkkeUttrykkes,
+  kravpostenI,
+  norskDato,
+  PRODUKTIVITET,
+  verdi,
+  type Kravsporsbrevtekst,
+  type Saken,
+  type Sporsbrevtekst,
+  type StandpunktIArt,
+  type Standpunktstekster,
+  type Tekst,
+} from './brevdeler.ts';
+import { BREVTEKSTEN_I_VEDERLAGET, STANDPUNKTENE_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
+import { dager, iLagene } from './tekst.ts';
+import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
   Avsnitt,
   Dokument,
@@ -48,43 +54,15 @@ import type {
   Hjemmel,
   Kravspor,
   Krav,
-  Kravpost,
   Opplysning,
   Part,
-  Korrespondansetype,
-  Sakskode,
   Spor,
   Standpunkt,
   Svar,
   Utsagn,
   Kravvarselhjemmel,
-  Kravpostvarselet,
   Varselhjemmel,
 } from '../typer.ts';
-
-/**
- * Saken slik den var før brevet: sakens kode (LV-U44, S3 i #1497) og sakstittelen (KA-U22), gjeldende
- * svar på forholdet (A2), hvorfor svaret i et spor er subsidiært til forholdet
- * (LV-U4 punkt 6) og om forholdet er avklart ved frafall (GR-U23, GR-U26). Skrivingen
- * leser dem av utledningen.
- */
-export interface Saken {
-  sakskode: Sakskode;
-  tittel: string;
-  svarPaaPaaberopelsen: string | null;
-  /**
-   * TEs opplysninger om datoen før brevet, slik utledningen leser dem, i rekkefølgen i
-   * journalen. Den siste i feltet er den en ny versjon må gjengi (`DATOEN_KAN_IKKE_ENDRES`).
-   */
-  datoopplysninger: { felt: OppgittDato; dato: string; dokument: string }[];
-  subsidiaer: Record<Kravspor, Subsidiaergrunn[]>;
-  avklartVedFrafall: boolean;
-  /** Varselet etter § 34.3.3 eller § 34.4 for hver kravpost i brevet som har et (`kravpostvarslene`). */
-  kravpostvarsler: Record<string, Kravpostvarselet>;
-}
-
-/** Kravet en kommando om et kommende avsnitt ikke kan uttrykke. Brevet skrives ikke. */
-export class KanIkkeUttrykkes extends Error {}
 
 /** Brevet kan ikke sendes fra appen slik saken står, og kommandoen avvises med `regel`. */
 export class BrevetAvvises extends Error {
@@ -95,39 +73,6 @@ export class BrevetAvvises extends Error {
   }
 }
 
-const MAANEDER = [
-  'januar',
-  'februar',
-  'mars',
-  'april',
-  'mai',
-  'juni',
-  'juli',
-  'august',
-  'september',
-  'oktober',
-  'november',
-  'desember',
-];
-
-/** Datoen i Oslo for et tidspunkt, eller datoen slik den er oppgitt. «2. oktober 2026». */
-export function norskDato(tid: string): string {
-  const dag = kalenderdag(tid);
-  if (dag === null) throw new KanIkkeUttrykkes(`${tid} er ikke en dato`);
-  const [aar, maaned, dato] = dag.split('-');
-  return `${Number(dato)}. ${MAANEDER[Number(maaned) - 1]} ${aar}`;
-}
-
-/** Et beløp i brevet er uten merverdiavgift, og teksten sier det (LV-U4 punkt 2). */
-const eksMva = (n: number) => `${kroner(n)} eks. mva.`;
-
-/** Setningen med punktum, også når den slutter på en forkortelse. */
-const punktum = (t: string) => (t.endsWith('.') ? t : `${t}.`);
-
-/** En opplysning om når et brev eller et varsel ble sendt eller mottatt. */
-const erDato = (o: Opplysning): o is Extract<Opplysning, { hva: 'sendt' | 'mottatt' }> =>
-  o.hva === 'sendt' || o.hva === 'mottatt';
-
 const stor = (t: string) => `${t[0].toUpperCase()}${t.slice(1)}`;
 
 /** Bokstaven i § 33.1 for hovedkategoriene svikt og andre forhold. */
@@ -135,144 +80,8 @@ const LEDD_I_33_1: Record<string, string> = { svikt: 'b', andre_forhold: 'c' };
 
 const PART: Record<Part, string> = { TE: 'TE', BH: 'Byggherren' };
 
-const SPORNAVN: Record<Spor, string> = {
-  forhold: 'grunnlaget',
-  vederlag: 'vederlaget',
-  frist: 'fristen',
-};
-
-/** Det et svar eller en aksept gjelder, med kontraktens ord (LV-U4 punkt 4 og 6). */
-const SVARET_GJELDER: Record<Spor, string> = {
-  forhold: 'grunnlaget',
-  vederlag: 'kravet om justering av vederlaget',
-  frist: 'kravet om fristforlengelse',
-};
-
-/** Kravet i sporet med kontraktens ord: «kravet om <…>». */
-const KRAVET_OM: Record<Kravspor, string> = {
-  vederlag: 'justering av vederlaget',
-  frist: 'fristforlengelse',
-};
-
 function liste(deler: string[]): string {
   return deler.length < 2 ? deler.join('') : `${deler.slice(0, -1).join(', ')} og ${deler.at(-1)}`;
-}
-
-type Element =
-  | { art: 'krav'; krav: Krav }
-  | { art: 'svar'; svar: Svar }
-  | { art: 'utsagn'; utsagn: Utsagn; dokument: string }
-  | { art: 'standpunkt'; standpunkt: Standpunkt; svar: Svar }
-  | { art: 'opplysning'; opplysning: Opplysning }
-  | { art: 'dokument'; dokument: Dokument };
-
-/** Parten med eieform, skrevet fullt ut i brevet (LV-U35, LV-U42). */
-const PARTENS: Record<Part, string> = { TE: 'totalentreprenørens', BH: 'byggherrens' };
-
-/** Typen registrert korrespondanse slik brevet nevner den (LV-U42). */
-const KORRESPONDANSEN: Record<Korrespondansetype, string> = { brev: 'brev', e_post: 'e-post' };
-
-/**
- * Et tidligere brev med merkingen som er frosset på det, og datoen det ble sendt: «brev
- * K201-KOE-017-03 av 2. oktober 2026» (LV-U53, oppdragsgiver 04.11 i #1570). Registrert
- * korrespondanse har ingen frosset merking ennå (LV-U45) og omtales med parten, typen og
- * datoen: «totalentreprenørens e-post av 2. oktober 2026» (LV-U42). `null` for et brev uten
- * noen av dem. Varden omtaler brevet med den samme teksten.
- */
-export function omtalen(d: Dokument): string | null {
-  const registrert = erRegistrert(d.opplysninger);
-  const sendt = registrert
-    ? d.opplysninger.filter(erDato).find((o) => o.gjelder === undefined)?.dato
-    : d.registrert;
-  if (sendt === undefined) return null;
-  if (d.merking !== null) return `brev ${d.merking} av ${norskDato(sendt)}`;
-  if (registrert && d.korrespondansetype !== null)
-    return `${PARTENS[d.avsender]} ${KORRESPONDANSEN[d.korrespondansetype]} av ${norskDato(sendt)}`;
-  return null;
-}
-
-/** Oppslagene teksten trenger i journalen før brevet og i brevet selv. */
-class Journalen {
-  private readonly brev = new Map<string, { versjon: number; dokument: Dokument }>();
-  private readonly elementer = new Map<string, Element>();
-  /** Dokumentet hvert element står i. */
-  private readonly iDokument = new Map<string, Dokument>();
-  readonly dokumenter: Dokument[] = [];
-
-  constructor(foer: Domenehendelse[], nytt: Dokument) {
-    for (const h of foer) if (h.art === 'dokument') this.legg(h.dokument, h.versjon);
-    this.legg(nytt, 0);
-  }
-
-  private legg(d: Dokument, versjon: number) {
-    this.brev.set(d.id, { versjon, dokument: d });
-    this.dokumenter.push(d);
-    this.elementer.set(d.id, { art: 'dokument', dokument: d });
-    for (const krav of d.krav) this.elementer.set(krav.id, { art: 'krav', krav });
-    for (const svar of d.svar) {
-      this.elementer.set(svar.id, { art: 'svar', svar });
-      for (const standpunkt of svar.standpunkter)
-        this.elementer.set(standpunkt.id, { art: 'standpunkt', standpunkt, svar });
-    }
-    for (const utsagn of d.utsagn)
-      this.elementer.set(utsagn.id, { art: 'utsagn', utsagn, dokument: d.id });
-    for (const opplysning of d.opplysninger)
-      this.elementer.set(opplysning.id, { art: 'opplysning', opplysning });
-    for (const id of this.elementer.keys()) if (!this.iDokument.has(id)) this.iDokument.set(id, d);
-  }
-
-  /** Dokumentet elementet står i, eller dokumentet selv; `undefined` når det ikke finnes. */
-  dokumentMed(id: string): Dokument | undefined {
-    return this.iDokument.get(id);
-  }
-
-  element(id: string): Element {
-    const e = this.elementer.get(id);
-    if (!e) throw new KanIkkeUttrykkes(`brevet viser til ${id}, som ikke finnes i saken`);
-    return e;
-  }
-
-  /** Et tidligere brev slik `omtalen` gir det. Kaster når brevet ikke kan omtales. */
-  brevet(id: string): string {
-    const b = this.brev.get(id);
-    if (!b || b.versjon === 0) throw new KanIkkeUttrykkes(`${id} er ikke et tidligere brev`);
-    const omtale = omtalen(b.dokument);
-    if (omtale === null)
-      throw new KanIkkeUttrykkes(
-        `${id} har ingen merking, fordi prosjektet hadde ingen kontraktsforkortelse da brevet ble skrevet`
-      );
-    return omtale;
-  }
-
-  erRegistrert(dokument: string): boolean {
-    return erRegistrert(this.brev.get(dokument)!.dokument.opplysninger);
-  }
-
-  /** Utdypningen under elementet i brevteksten i brevet det står i. */
-  utdypning(element: string, dokument: string): string | undefined {
-    return this.brev.get(dokument)?.dokument.brevtekst?.find((a) => a.gjelder === element)
-      ?.utdypning;
-  }
-
-  /** VS-U20, OV-U5: brevet varselet står i, som et registrert varsel eller det første fristkravet. */
-  dokumentetTil(id: string): string {
-    const e = this.element(id);
-    if (e.art === 'utsagn') return e.dokument;
-    if (e.art === 'krav') return e.krav.dokument;
-    throw new KanIkkeUttrykkes(`${id} er ikke et varsel eller et krav`);
-  }
-
-  krav(id: string): Krav {
-    const e = this.element(id);
-    if (e.art !== 'krav') throw new KanIkkeUttrykkes(`${id} er ikke et krav`);
-    return e.krav;
-  }
-
-  svar(id: string): Svar {
-    const e = this.element(id);
-    if (e.art !== 'svar') throw new KanIkkeUttrykkes(`${id} er ikke et svar`);
-    return e.svar;
-  }
 }
 
 /**
@@ -317,15 +126,6 @@ export function lagBrevtekst(
   if (nytt.dokumentasjon.length)
     legg(nytt.id, `Brevet har vedlegg: ${liste(nytt.dokumentasjon.map((v) => `«${v.filnavn}»`))}.`);
   return avsnitt;
-}
-
-/** Det hver del av teksten trenger: journalen, saken før brevet og brevet selv. */
-interface Tekst {
-  j: Journalen;
-  saken: Saken;
-  nytt: Dokument;
-  /** «sak KOE-17 («<sakstittel>»)» (KA-U22, LV-U44). */
-  sak: string;
 }
 
 /**
@@ -406,24 +206,23 @@ function forholdstekst(k: Krav, { saken, j }: Tekst, regler: Regelsett): string[
   throw new KanIkkeUttrykkes(`kategorien ${hoved}/${innhold.underkategori} har ingen brevtekst`);
 }
 
-/** LV-U4 punkt 2–3 og GR-U16. Forholdet står i `forholdstekst`. */
+/** Fristkravet (LV-U4 punkt 2–3). */
+function fristkravtekst(k: Krav, { j }: Tekst): string[] {
+  const deler = [
+    `TE krever fristforlengelse på ${dager(innholdIFristen(k).dager)} (NS 8407 § 33.6.1).`,
+  ];
+  // LV-U18 setning 3: kravet som viser til forespørselen, sier det (HF-U1).
+  if (k.gjelder)
+    deler.push(
+      `Kravet er svar på byggherrens forespørsel etter NS 8407 § 33.6.2 i ${j.brevet(j.dokumentetTil(k.gjelder))}.`
+    );
+  return deler;
+}
+
+/** LV-U4 punkt 2–3 og GR-U16. Kravet i sporet står i `BREVTEKST`. */
 function kravtekst(k: Krav, t: Tekst, regler: Regelsett): string {
   const { j } = t;
-  const deler: string[] = [];
-  if (k.spor === 'forhold') {
-    deler.push(...forholdstekst(k, t, regler));
-  } else if (k.spor === 'vederlag') {
-    deler.push(vederlagstekst(k, t));
-  } else if (k.spor === 'frist') {
-    deler.push(
-      `TE krever fristforlengelse på ${dager(innholdIFristen(k).dager)} (NS 8407 § 33.6.1).`
-    );
-    // LV-U18 setning 3: kravet som viser til forespørselen, sier det (HF-U1).
-    if (k.gjelder)
-      deler.push(
-        `Kravet er svar på byggherrens forespørsel etter NS 8407 § 33.6.2 i ${j.brevet(j.dokumentetTil(k.gjelder))}.`
-      );
-  } else utenGren(k.spor);
+  const deler = brevtekstI(k.spor).krav(k, t, regler);
   // KA-U52 punkt 4 for vederlag og frist (#1379). En ny versjon av påberopelsen sier ikke at
   // noe erstattes (LV-U56).
   if (k.erstatter && k.spor !== 'forhold')
@@ -465,30 +264,15 @@ function aapneInnsigelser(
     const hjemmel = innsigelsenPaaberoper(i.gjelder, j.dokumenter, (k) =>
       gjelderVarslingsplikten(k, regler)
     );
-    // VS-U29: i fristen også påberopelsen etter § 33.6.2 mot begrunnelsen, og i vederlaget
-    // den etter § 34.1.3 mot det særskilte varselet (VS-U24, OV-U22).
+    // VS-U29: også påberopelsene sporet nevner i `ogsaaInnsigelserEtter`.
     const gjelder =
       hjemmel === HJEMMEL[svar.spor] ||
-      (svar.spor === 'frist' && hjemmel === '33.6.2') ||
-      (svar.spor === 'vederlag' && hjemmel === '34.1.3');
+      (hjemmel !== null && brevtekstI(svar.spor).ogsaaInnsigelserEtter.includes(hjemmel));
     return gjelder && !innsigelsenErOppgitt(svar.spor, svarFraParten.slice(i.fra), hjemmel)
       ? [{ gjelder: i.gjelder, dokument: i.dokument, hjemmel }]
       : [];
   });
 }
-
-/** Metoden byggherren mener vederlaget skal justeres etter, når tilbudet ikke er akseptert. */
-const METODEN = {
-  enhetspriser: 'etter enhetspriser (NS 8407 § 34.3)',
-  regningsarbeid: 'som regningsarbeid (NS 8407 § 34.4)',
-} as const satisfies Record<
-  NonNullable<Extract<Standpunkt, { art: 'oppgjoersform' }>['oensket']>,
-  string
->;
-
-/** Det særskilte kravet etter § 34.1.3 annet ledd, med ordene i bestemmelsen. */
-const PRODUKTIVITET =
-  'økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid';
 
 /** Bestemmelsen varselet er gitt etter; etter OV-U25 gjelder varselet i § 34.1.3 tredje ledd bare annet ledd (LV-U29). */
 const VARSLET_ETTER: Record<Kravvarselhjemmel, string> = {
@@ -498,133 +282,6 @@ const VARSLET_ETTER: Record<Kravvarselhjemmel, string> = {
   '34.3.3': 'NS 8407 punkt 34.3.3 første ledd',
   '34.4': 'NS 8407 punkt 34.4',
 };
-
-/** Betegnelsene i rekkefølge, med «og» før den siste. */
-const opplistet = (a: string[]) =>
-  a.length > 1 ? `${a.slice(0, -1).join(', ')} og ${a.at(-1)}` : a[0];
-
-/** Kravversjonene før `k` i sporet, eldste først. */
-function tidligere(k: Krav, j: Journalen): Krav[] {
-  const ut: Krav[] = [];
-  for (let id = k.erstatter; id; id = j.krav(id).erstatter) ut.unshift(j.krav(id));
-  return ut;
-}
-
-/**
- * Varselet gitt før kravet: «… ble gitt i» brevet det står i (VS-U55). Ligger dokumentet ved
- * kravet, er det lagt til i kravskjemaet, og totalentreprenøren opplyser det (VS-U51, VS-U53).
- * Ordlyden er design (U-14 i BF-14), og partene skrives fullt ut (`docs/sprak.md`, #1532).
- */
-function gitt(
-  varselet: Extract<Kravpostvarselet, { art: 'gitt' }>,
-  hva: string,
-  { j, nytt }: Pick<Tekst, 'j' | 'nytt'>
-): string {
-  const brevet = j.brevet(j.dokumentetTil(varselet.varsel));
-  const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
-  const dokumentet = j.dokumentMed(varselet.varsel)?.dokumentasjon ?? [];
-  return dokumentet.length && dokumentet.every((v) => vedlagte.has(v.vedlegg_id))
-    ? `Totalentreprenøren opplyser at ${hva.charAt(0).toLowerCase()}${hva.slice(1)} ble gitt i ${brevet}, som er vedlagt.`
-    : `${hva} ble gitt i ${brevet}.`;
-}
-
-/** Setningen for én kravpost. Ordlyden er design (U-6 i BF-14); budskapet står i KA-U61 og KA-U66. */
-function kravposttekst(
-  p: Kravpost,
-  varselet: Kravpostvarselet | undefined,
-  t: Pick<Tekst, 'j' | 'nytt'>
-): string {
-  const hode = `${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}${p.pns ? ` (PNS ${p.pns})` : ''}:`;
-  if (p.oppgjoersform === 'tilbud') return `${hode} TE krever ${eksMva(p.beloep!)}`;
-  const deler = [hode];
-  if (p.oppgjoersform === 'enhetspriser') {
-    deler.push(
-      p.justert
-        ? `TE krever at ${p.betegnelse} gjøres opp etter kontraktens enhetspriser, justert etter NS 8407 punkt 34.3.2.`
-        : `TE krever at ${p.betegnelse} gjøres opp etter kontraktens enhetspriser etter NS 8407 punkt 34.3.1.`
-    );
-    if (varselet)
-      deler.push(
-        varselet.art === 'kravet'
-          ? 'Kravet er varsel om justering av enhetsprisene etter NS 8407 punkt 34.3.3.'
-          : gitt(varselet, 'Varselet om justering av enhetsprisene etter NS 8407 punkt 34.3.3', t)
-      );
-    if (p.anslag !== undefined)
-      deler.push(`Anslaget er ${eksMva(p.anslag)} Anslaget er en opplysning og ikke et tilbud.`);
-  } else if (p.oppgjoersform === 'regningsarbeid') {
-    deler.push(
-      `TE krever at ${p.betegnelse} gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30.`
-    );
-    if (varselet)
-      deler.push(
-        varselet.art === 'kravet'
-          ? 'Kravet er varsel før regningsarbeidet settes i gang (NS 8407 punkt 34.4).'
-          : gitt(varselet, 'Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4)', t)
-      );
-    if (p.kostnadsoverslag !== undefined)
-      deler.push(
-        `Kostnadsoverslaget er ${eksMva(p.kostnadsoverslag)} Overslaget er en opplysning og ikke et tilbud.`
-      );
-  } else utenGren(p.oppgjoersform);
-  return deler.join(' ');
-}
-
-/**
- * Vederlagskravet: én setning per kravpost, trekket (KA-U56), postene utenfor kravpostene
- * (OV-U95 punkt 3, OV-U89 punkt 17) og hvilke poster som er tilbud etter § 34.2.1 (KA-U61,
- * KA-U65). Rigg og drift kalles ikke tilbud.
- */
-function vederlagstekst(k: Krav, t: Tekst): string {
-  const { j, saken } = t;
-  const foer = tidligere(k, j);
-  const poster = kravposterI(k);
-  const deler = poster.map((p) => punktum(kravposttekst(p, saken.kravpostvarsler[p.id], t)));
-  const forrige = foer.at(-1);
-  for (const id of innholdIVederlaget(k).trekker) {
-    const p = forrige && kravposterI(forrige).find((q) => q.id === id);
-    if (!p)
-      throw new KanIkkeUttrykkes(
-        `trekket gjelder kravposten ${id}, som ikke står i forrige kravversjon`
-      );
-    deler.push(
-      `TE trekker kravet i ${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}, fremsatt i ${j.brevet(forrige.dokument)}.`
-    );
-  }
-  // OV-U95 punkt 3: «i tillegg» når vederlagsjusteringen har minst én kravpost.
-  const post = krevdProduktivitet(k);
-  if (post !== null)
-    deler.push(
-      `TE krever ${poster.length ? 'i tillegg ' : ''}særskilt justering av vederlaget etter NS 8407 § 34.1.3 annet ledd for ${PRODUKTIVITET} med ${eksMva(tilTall(post))}`
-    );
-  const rigg = krevdRigg(k);
-  if (rigg !== null)
-    deler.push(`TE krever ${eksMva(tilTall(rigg))} for rigg og drift i forlenget byggetid.`);
-  if (!poster.length && post === null && rigg === null)
-    throw new KanIkkeUttrykkes('vederlagskravet har ingen poster');
-  const tilbud = poster.filter((p) => p.oppgjoersform === 'tilbud').map((p) => p.betegnelse);
-  if (post !== null) tilbud.push('den særskilte vederlagsjusteringen');
-  if (tilbud.length)
-    deler.push(`Kravet for ${opplistet(tilbud)} er et tilbud etter NS 8407 punkt 34.2.1.`);
-  const regel = poster.filter((p) => p.oppgjoersform !== 'tilbud').map((p) => p.betegnelse);
-  if (regel.length)
-    deler.push(
-      `${opplistet(regel)} gjøres opp etter en beregningsregel, og kravet for ${regel.length > 1 ? 'dem' : 'den'} er ikke et tilbud.`
-    );
-  return deler.join(' ');
-}
-
-/** KA-U22: beløpene som identifiserer vederlagskravet i trekket: de krevde faste beløpene. */
-function kravetsBeloep(krav: Krav): string {
-  const deler = kravposterI(krav).flatMap((p) => {
-    const krevd = krevdIKravposten(krav, p);
-    return krevd === null ? [] : [`${eksMva(tilTall(krevd))} i ${p.betegnelse}`];
-  });
-  const post = krevdProduktivitet(krav);
-  if (post !== null) deler.push(`${eksMva(tilTall(post))} etter NS 8407 § 34.1.3 annet ledd`);
-  const rigg = krevdRigg(krav);
-  if (rigg !== null) deler.push(`${eksMva(tilTall(rigg))} for rigg og drift`);
-  return deler.length ? deler.join(' og ') : 'uten krevd beløp';
-}
 
 /** TEs eget varsel, slik brevteksten nevner det (LV-U4 punkt 3, OV-U5). */
 const VARSEL_OM: Record<Kravvarselhjemmel, string> = {
@@ -737,7 +394,7 @@ function svartekst(s: Svar, t: Tekst, regler: Regelsett): string {
   const merket = new Set<number>();
   const avsnitt: string[][] = [
     [
-      `Byggherrens svar på ${SVARET_GJELDER[s.spor]} i TEs krav i ${j.brevet(krav.dokument)}:`,
+      `Byggherrens svar på ${brevtekstI(s.spor).svaretGjelder} i TEs krav i ${j.brevet(krav.dokument)}:`,
       ...forbeholdForForholdet(s, t),
     ],
   ];
@@ -787,6 +444,7 @@ function standpunkttekst(
   innsigelser: Innsigelse[]
 ): string {
   const paaberopelse = s.spor === 'forhold' ? krav : s.paaberopelse ? j.krav(s.paaberopelse) : null;
+  if (erArtISporene(p)) return standpunktetISporet(p.art, p, krav);
   switch (p.art) {
     case 'rettidighet': {
       // VS-U29, VS-U31: saken har én forespørsel, så standpunktet etter § 33.6.2 gjelder begrunnelsen.
@@ -829,47 +487,10 @@ function standpunkttekst(
         innholdIForholdet(paaberopelse).hovedkategori === 'force_majeure' ? '§ 33.3' : '§ 33.1';
       return `byggherren ${p.oppfylt ? 'legger til grunn' : 'legger ikke til grunn'} at fremdriften hindres som følge av forholdet (NS 8407 ${hjemmel}).`;
     }
-    case 'oppgjoersform': {
-      // Arbeidsvalget i #479: oppgjørsformen er byggherrens standpunkt, ikke appens avgjørelse. LV-U31 og
-      // LV-U32: godkjenningen betegner ikke tilbudet som akseptert, heller ikke ved fullt beløp.
-      // KA-U57 (d): med flere kravposter sier standpunktet hvilken kravpost det gjelder.
-      const post = kravposterI(krav).length > 1 ? kravpostenI(krav, p.gjelder).betegnelse : null;
-      if (p.hjemmel !== '34.2.2') return beregningsregeltekst(p, post);
-      return p.aksepterer
-        ? `byggherren godkjenner oppgjør som fast sum${post ? ` for ${post}` : ''} med beløpet og forbeholdene som fremgår av svaret.`
-        : `byggherren aksepterer ikke TEs tilbud${post ? ` for ${post}` : ''} (NS 8407 § 34.2.2 første ledd), og mener vederlaget${post ? ' for kravposten' : ''} skal justeres ${METODEN[p.oensket!]}.`;
-    }
-    case 'justering': {
-      // KA-U68, OV-U95 punkt 5: standpunktet godkjenner ingen priser, mengder eller beløp.
-      const post = kravpostenI(krav, p.gjelder).betegnelse;
-      return p.godtar
-        ? `byggherren godtar at enhetsprisene for ${post} justeres (NS 8407 punkt 34.3.2). Det godkjenner ikke priser, mengder eller beløp.`
-        : `byggherren bestrider at enhetsprisene for ${post} skal justeres (NS 8407 punkt 34.3.2), og mener ${post} skal gjøres opp etter kontraktens enhetspriser.`;
-    }
     case 'spesifisering':
       return p.iTide
         ? 'byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (NS 8407 § 33.6.1).'
         : `byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at TE bare har krav på den fristforlengelsen byggherren måtte forstå at TE hadde krav på, ${dager(p.dager!)} (NS 8407 § 33.6.1).`;
-    case 'beloep': {
-      // Standpunktet har et beløp, fordi `harTekst` har tatt bort standpunktene uten (KA-U72).
-      // Resultatet regnes i hele øre (B-13, OV-U59). OV-U28: med posten etter § 34.1.3 annet
-      // ledd sier brevet beløpet for hver post for seg.
-      const krevd = p.saerskilt ? krevdProduktivitet(krav)! : krevdeKravpost(krav, p.gjelder!)[1];
-      const godkjent = beloep(p.godkjent)!;
-      const resultat = erBeloepetGodkjentFullt(krevd, godkjent)
-        ? 'godkjent'
-        : godkjent === 0n
-          ? 'avslaatt'
-          : 'delvis_godkjent';
-      const post = p.saerskilt
-        ? SAERSKILT
-        : kravposterI(krav).length > 1
-          ? krevdeKravpost(krav, p.gjelder!)[0].betegnelse
-          : harProduktivitetspost(krav)
-            ? 'justeringen ellers'
-            : null;
-      return verdi(resultat, eksMva(p.godkjent!), eksMva(tilTall(krevd)), post);
-    }
     case 'dager':
       return verdi(p.resultat, dager(p.vurdert), dager(innholdIFristen(krav).dager));
   }
@@ -896,65 +517,6 @@ function endringsordretekst(krav: Krav, j: Journalen): string {
   return `${innledning} ${kravet}: «${beskrivelse}».`;
 }
 
-/** Kravposten standpunktet gjelder (KA-U57 (c) og (d)). */
-function kravpostenI(krav: Krav, gjelder: string): Kravpost {
-  const post = kravposterI(krav).find((k) => k.id === gjelder);
-  if (!post) throw new KanIkkeUttrykkes(`kravet har ikke kravposten ${gjelder}`);
-  return post;
-}
-
-/** Kravposten med fast sum standpunktet til beløpet gjelder, og det krevde beløpet (KA-U57 (c)). */
-function krevdeKravpost(krav: Krav, gjelder: string): [Kravpost, Oere] {
-  const post = kravpostenI(krav, gjelder);
-  const krevd = krevdIKravposten(krav, post);
-  if (krevd === null)
-    throw new KanIkkeUttrykkes(`kravposten ${post.betegnelse} har ikke et krevd beløp`);
-  return [post, krevd];
-}
-
-/** TEs beregningsregel i standpunktet, etter hjemmelen. */
-const REGELEN = {
-  '34.3': 'etter enhetspriser (NS 8407 § 34.3)',
-  '34.4': 'som regningsarbeid (NS 8407 § 34.4)',
-} as const;
-
-/**
- * Standpunktet til beregningsregelen for en kravpost (KA-U54, OV-U95 punkt 5) og kravet om
- * spesifisert tilbud (KA-U69, KA-U71). Ordlyden er design (prototype v3, `#svar`).
- */
-function beregningsregeltekst(
-  p: Extract<Standpunkt, { art: 'oppgjoersform' }>,
-  post: string | null
-): string {
-  const forPosten = post ? ` for ${post}` : '';
-  const regelen = REGELEN[p.hjemmel as '34.3' | '34.4'];
-  if (p.aksepterer)
-    return `byggherren godtar at vederlaget${forPosten} justeres ${regelen}. Det godkjenner ikke mengder, priser, kostnader eller noe beløp.`;
-  const mener = p.oensket ? `, og mener det skal justeres ${METODEN[p.oensket]}` : '';
-  const tilbud = p.kreverTilbud
-    ? ` Byggherren krever at TE gir et spesifisert tilbud${post ? ` for ${post}` : ' for kravposten'} (NS 8407 § 34.2.1 første ledd).`
-    : '';
-  return `byggherren godtar ikke at vederlaget${forPosten} justeres ${regelen}${mener}.${tilbud}`;
-}
-
-/** OV-U28: posten etter § 34.1.3 annet ledd i setningen om beløpet. */
-const SAERSKILT = 'særskilt justering etter NS 8407 § 34.1.3 annet ledd';
-
-function verdi(
-  resultat: string,
-  godkjent: string,
-  krevd: string,
-  post: string | null = null
-): string {
-  const om = post ? ` for ${post}` : '';
-  if (resultat === 'godkjent') return punktum(`byggherren godkjenner ${godkjent}${om}`);
-  if (resultat === 'delvis_godkjent')
-    return punktum(`byggherren godkjenner ${godkjent} av de krevde ${krevd}${om}`);
-  if (resultat === 'avslaatt')
-    return post ? `byggherren avslår kravet om ${post}.` : 'byggherren avslår kravet.';
-  throw new KanIkkeUttrykkes(`standpunktet ${resultat} har ingen brevtekst`);
-}
-
 /** Forespørselen et standpunkt etter § 33.6.2 gjelder svaret på: kravet eller begrunnelsen. */
 function foresporselenTil(gjelder: string, j: Journalen): string {
   const f = svarPaaForesporsler(j.dokumenter).find((x) => x.svar === gjelder);
@@ -970,7 +532,7 @@ function beskriv(id: string, j: Journalen): string {
   const e = j.element(id);
   switch (e.art) {
     case 'krav':
-      return `TEs krav${e.krav.spor === 'forhold' ? '' : ` om ${KRAVET_OM[e.krav.spor]}`} i ${j.brevet(e.krav.dokument)}`;
+      return `TEs krav${e.krav.spor === 'forhold' ? '' : ` om ${brevtekstI(e.krav.spor).kravetOm}`} i ${j.brevet(e.krav.dokument)}`;
     case 'svar':
       return `byggherrens svar i ${j.brevet(e.svar.dokument)}`;
     case 'standpunkt':
@@ -1034,31 +596,23 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
     }
     case 'aksept': {
       const svar = j.svar(u.gjelder);
-      const aksept = `TE godtar byggherrens svar på ${SVARET_GJELDER[svar.spor]} i ${j.brevet(svar.dokument)}.`;
+      const aksept = `TE godtar byggherrens svar på ${brevtekstI(svar.spor).svaretGjelder} i ${j.brevet(svar.dokument)}.`;
       // GR-U7: enigheten gjelder beløpet eller dagene, ikke standpunktet til forholdet.
       if (svar.spor === 'forhold' || !saken.subsidiaer[svar.spor].length) return aksept;
-      return `${aksept} TE er enig i ${svar.spor === 'vederlag' ? 'beløpet' : svar.spor === 'frist' ? 'antallet dager' : utenGren(svar.spor)}, men ikke i byggherrens standpunkt til grunnlaget.`;
+      return `${aksept} TE er enig i ${brevtekstI(svar.spor).enigI}, men ikke i byggherrens standpunkt til grunnlaget.`;
     }
     case 'trekk': {
       const krav = j.krav(u.gjelder);
       // KA-U22, ordrett med saken satt inn.
       if (krav.spor === 'forhold')
         return `TE trekker sitt krav i ${sak}. Trekket er avkall på alle krav i saken, også vederlag og fristforlengelse byggherren har godkjent. Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.`;
-      const verdi =
-        krav.spor === 'vederlag'
-          ? kravetsBeloep(krav)
-          : krav.spor === 'frist'
-            ? dager(innholdIFristen(krav).dager)
-            : utenGren(krav.spor);
-      return `TE trekker kravet om ${KRAVET_OM[krav.spor]} i ${sak}, fremsatt i ${j.brevet(krav.dokument)} (${verdi}). Trekket er avkall på dette kravet, også det byggherren har godkjent.`;
+      const sporet = brevtekstI(krav.spor);
+      const verdi = sporet.trukket(krav);
+      return `TE trekker kravet om ${sporet.kravetOm} i ${sak}, fremsatt i ${j.brevet(krav.dokument)} (${verdi}). Trekket er avkall på dette kravet, også det byggherren har godkjent.`;
     }
     case 'ingen_krav':
       // KA-U22 og KA-U25, ordrett med saken satt inn.
-      return u.spor === 'vederlag'
-        ? `TE krever ikke justering av vederlaget som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag. Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.`
-        : u.spor === 'frist'
-          ? `TE krever ikke fristforlengelse som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag.`
-          : utenGren(u.spor);
+      return brevtekstI(u.spor).ingenKrav(sak);
     case 'innsigelse':
       // VS-U29: standpunktet om at begrunnelsen ikke er et svar etter § 33.6.2 annet ledd, uten
       // henvisningen til § 5 (arbeidsvalget 21.10 i #1095).
@@ -1086,7 +640,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       const e = j.element(u.gjelder);
       if (e.art !== 'opplysning' || e.opplysning.hva !== 'kan_ikke_uttrykkes')
         throw new KanIkkeUttrykkes(`${u.gjelder} er ikke en merking`);
-      return `${part} bekrefter at standpunktene i ${j.brevet(e.opplysning.brev)} om ${liste(e.opplysning.spor.map((s) => SPORNAVN[s]))} gjelder uten forbehold fra og med dette brevet.`;
+      return `${part} bekrefter at standpunktene i ${j.brevet(e.opplysning.brev)} om ${liste(e.opplysning.spor.map((s) => brevtekstI(s).navn))} gjelder uten forbehold fra og med dette brevet.`;
     }
     case 'korrigering': {
       // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)), med partene skrevet fullt
@@ -1105,7 +659,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
     case 'begrunnelse': {
       // KA-U34: byggherrens tekst følger som utdypningen.
       const svar = j.svar(u.gjelder);
-      return `Byggherren begrunner sitt svar på ${SVARET_GJELDER[svar.spor]} i ${j.brevet(svar.dokument)}:`;
+      return `Byggherren begrunner sitt svar på ${brevtekstI(svar.spor).svaretGjelder} i ${j.brevet(svar.dokument)}:`;
     }
   }
 }
@@ -1129,7 +683,7 @@ function opplysningstekst(o: Opplysning, avsender: Part, j: Journalen): string {
     throw new KanIkkeUttrykkes(`opplysningen ${o.hva} i et brev fra appen har ingen brevtekst`);
   const sporene =
     o.hva === 'kan_ikke_uttrykkes'
-      ? `, og som gjelder ${liste(o.spor.map((s) => SPORNAVN[s]))}`
+      ? `, og som gjelder ${liste(o.spor.map((s) => brevtekstI(s).navn))}`
       : '';
   return `${PART[avsender]} opplyser at ${opplysningen(o, j)}${sporene}.`;
 }
@@ -1219,4 +773,47 @@ export function gjengirTro(gjengitt: string, brevtekst: Avsnitt[]): boolean {
     fra = plass + del.length;
   }
   return true;
+}
+
+// ---------- Teksten i sporene (#1783) ----------
+
+/** Teksten i sporet (`iSporet`). */
+const brevtekstI = <S extends Spor>(spor: S) => iSporet(BREVTEKST, spor);
+
+/** Teksten i hvert spor. Forholdet og fristen står her til de flyttes til sporene (#1783, #1745). */
+const BREVTEKST: { forhold: Sporsbrevtekst } & Record<Kravspor, Kravsporsbrevtekst> = {
+  forhold: {
+    navn: 'grunnlaget',
+    svaretGjelder: 'grunnlaget',
+    krav: forholdstekst,
+    ogsaaInnsigelserEtter: [],
+  },
+  vederlag: BREVTEKSTEN_I_VEDERLAGET,
+  frist: {
+    navn: 'fristen',
+    svaretGjelder: 'kravet om fristforlengelse',
+    krav: fristkravtekst,
+    // VS-U29: også påberopelsen etter § 33.6.2 mot begrunnelsen.
+    ogsaaInnsigelserEtter: ['33.6.2'],
+    kravetOm: 'fristforlengelse',
+    enigI: 'antallet dager',
+    trukket: (krav) => dager(innholdIFristen(krav).dager),
+    ingenKrav: (sak) =>
+      `TE krever ikke fristforlengelse som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag.`,
+  },
+};
+
+/** Standpunktene i artene bare ett spor har, med teksten i sporet. */
+type ArtISporene = keyof typeof STANDPUNKTENE_I_VEDERLAGET;
+const I_SPORENE: Standpunktstekster<ArtISporene> = STANDPUNKTENE_I_VEDERLAGET;
+
+const erArtISporene = (p: Standpunkt): p is StandpunktIArt[ArtISporene] =>
+  Object.hasOwn(I_SPORENE, p.art);
+
+function standpunktetISporet<A extends ArtISporene>(
+  art: A,
+  p: StandpunktIArt[A],
+  krav: Krav
+): string {
+  return I_SPORENE[art](p, krav);
 }
