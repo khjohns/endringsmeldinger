@@ -15,6 +15,8 @@
   import Sporlesing from './Sporlesing.svelte';
   import Vardenskall, { type Smule } from './Vardenskall.svelte';
   import Vederlagssvar from './Vederlagssvar.svelte';
+  import Vederlagskrav from './Vederlagskrav.svelte';
+  import type { Kravvalg } from './vederlagskrav';
   import Korrigering from './Korrigering.svelte';
   import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
   import { tomtSvar, type Korrigeringsvalg } from './kommandoer';
@@ -23,6 +25,7 @@
   import {
     BREVKONTROLL,
     KORRIGERING,
+    KRAVSKJEMA,
     MOTTATT,
     NYVERSJON,
     NYSAK,
@@ -92,12 +95,15 @@
     erUtkastet: boolean;
     /** Sakens versjon da brevkontrollen ble åpnet. */
     versjon: number | null;
+    /** Vedleggene kommandoen viser til, som kjernen trenger for brevet (VS-U53). */
+    vedlegg?: ReadonlyMap<string, { vedlegg_id: string; filnavn: string; innhold_sha256: string }>;
   };
   type Arbeid =
     | { art: 'les' }
     | { art: 'svar' }
     | { art: 'korrigering'; gjelder: string }
     | { art: 'nyversjon' }
+    | { art: 'vederlagskrav' }
     | ({ art: 'kontroll' } & Kontroll);
 
   const SPORGRUPPENE: { id: string; etikett: string; spor: Spor[] }[] = [
@@ -108,6 +114,8 @@
   let valgt = $state<Spor>(untrack(() => spor ?? (kvittering ? 'forhold' : 'vederlag')));
   let arbeid = $state<Arbeid>({ art: 'les' });
   let svarvalg = $state(tomtSvar());
+  // Kravet om vederlagsjustering står når TE går til brevkontrollen og tilbake (BF-14).
+  let kravvalg = $state<Kravvalg | null>(null);
   // Datoen og forklaringen står når TE går til brevkontrollen og tilbake (U-3 i BF-02A).
   let korrigeringsvalg = $state<Korrigeringsvalg>({ dato: '', forklaring: '' });
   // Teksten i den nye versjonen står mens TE korrigerer datoen (U-2 i BF-10).
@@ -169,6 +177,7 @@
     if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'korrigering')
       korrigeringsvalg = { dato: '', forklaring: '' };
     if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'nyversjon') nyVersjonstekst = null;
+    if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'vederlagskrav') kravvalg = null;
     arbeid = { art: 'les' };
     melding = { tekst: kvittering ?? MOTTATT.dittBrev, art: 'sendt' };
   }
@@ -200,7 +209,7 @@
       meldingen?.focus();
       return;
     }
-    const b = kjernesak.brev(k.kommando, undefined, true);
+    const b = kjernesak.brev(k.kommando, k.vedlegg, true);
     if (!b || !('tekst' in b) || !b.tekst) return;
     arbeid = {
       ...arbeid,
@@ -221,6 +230,7 @@
       arbeid = { art: 'svar' };
     },
     'krav:forhold': () => (arbeid = { art: 'nyversjon' }),
+    'krav:vederlag': () => (arbeid = { art: 'vederlagskrav' }),
   };
   const skjemanoeklene = Object.keys(skjemaene);
 
@@ -235,6 +245,14 @@
 
   async function forkastNyVersjon() {
     nyVersjonstekst = null;
+    arbeid = { art: 'les' };
+    melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
+    await tick();
+    meldingen?.focus();
+  }
+
+  async function forkastKravet() {
+    kravvalg = null;
     arbeid = { art: 'les' };
     melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
     await tick();
@@ -427,6 +445,40 @@
               ],
               kvittering: NYVERSJON.kvittering,
               tilbake: { art: 'nyversjon' },
+              erUtkastet: false,
+            };
+          }}
+        />
+      {:else if arbeid.art === 'vederlagskrav' && valgt === 'vederlag' && kjernesak.handlinger.includes('krav:vederlag')}
+        <Vederlagskrav
+          {kjernesak}
+          {u}
+          bind:valg={kravvalg}
+          onforkast={forkastKravet}
+          onvedsiden={(v) => (vedSiden = v)}
+          onbrevkontroll={(k) => {
+            const kravet = brev.find((b) => b.id === u.spor.vederlag.gjeldendeKrav?.dokument);
+            const svaret = brev.find((b) => b.id === u.spor.vederlag.gjeldendeSvar?.dokument);
+            melding = null;
+            arbeid = {
+              art: 'kontroll',
+              versjon: kjernesak.versjon,
+              ...k,
+              handling: KRAVSKJEMA.kontroller,
+              bareMottaker: true,
+              sendTekst: KRAVSKJEMA.sendTekst,
+              tilbakeTil: KRAVSKJEMA.tilbakeTil,
+              svarerPaa: null,
+              relasjoner: [
+                ...(kravet
+                  ? [{ hva: NYVERSJON.forrigeBrev, brev: KRAVSKJEMA.forrigeKravet(kravet) }]
+                  : []),
+                ...(svaret
+                  ? [{ hva: BREVKONTROLL.viserTil, brev: NYVERSJON.viserTilBrev(svaret) }]
+                  : []),
+              ],
+              kvittering: KRAVSKJEMA.kvittering,
+              tilbake: { art: 'vederlagskrav' },
               erUtkastet: false,
             };
           }}

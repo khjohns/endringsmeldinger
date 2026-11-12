@@ -82,6 +82,7 @@ export function brevFor(
 /**
  * Saken utledet med raden kommandoen ville gitt, uten å lagre den, eller `null` når kjernen
  * avviser kommandoen. Skjemaet leser lagene i svaret herfra, som brevet gjør (#1261).
+ * `vedlegg` er vedleggene kommandoen viser til, som i `brevFor`.
  */
 export function utledetMed(
   kommando: Record<string, unknown>,
@@ -89,9 +90,10 @@ export function utledetMed(
   part: Part,
   merking: Saksmerking,
   journal: Journalrad[],
-  kjerne: Kjerne
+  kjerne: Kjerne,
+  vedlegg?: Vedleggsoppslag
 ): Utledning | null {
-  const vist = forhaandsvis(kommando, stemplet(sakId, part, merking), journal, kjerne);
+  const vist = forhaandsvis(kommando, stemplet(sakId, part, merking), journal, kjerne, vedlegg);
   return vist.godtatt ? utledJournal([...journal, ...vist.hendelser], kjerne) : null;
 }
 

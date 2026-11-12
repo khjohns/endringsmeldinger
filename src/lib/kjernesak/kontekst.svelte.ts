@@ -228,10 +228,10 @@ export function lagKjernesak(valg: Kjernesakvalg) {
    * Saken med raden kommandoen ville gitt, som `utledetMed`. `null` før saken er lastet,
    * uten side, når kjernen avviser kommandoen og ved en programfeil i kjernen.
    */
-  function forhaandsvist(kommando: Record<string, unknown>) {
+  function forhaandsvist(kommando: Record<string, unknown>, vedlegg?: Vedleggsoppslag) {
     if (!sak?.merking || !part) return null;
     try {
-      return utledetMed(kommando, sakId, part, sak.merking, journal, kjerne);
+      return utledetMed(kommando, sakId, part, sak.merking, journal, kjerne, vedlegg);
     } catch (e) {
       console.error(e);
       return null;

@@ -35,6 +35,8 @@ const MODULER = new Set(
     'constants/kontraktsregler',
     // Brevet kjernen lager for påberopelsen mot en ny sak (#1271). Kaller bare kjernen.
     'kjernesak/brevtekst',
+    // Varslene for kravpostene i TEs krav, lest av kjernen (BF-14, #1663). Kaller bare kjernen.
+    'kjernesak/vederlagskrav',
     // Typene for linja i sakslisten, som serveren regner med kjernen (#1450). Bare typer.
     'types/api',
   ].map((m) => join(LIB, m))
