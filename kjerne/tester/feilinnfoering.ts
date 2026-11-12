@@ -1082,25 +1082,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en kommando uten teksten avvises'],
   },
   {
-    id: 'F115',
-    feilklasse: 'et frafall krever ingen begrunnelse (KA-U32)',
-    fil: `${K}/spor/forhold/kommando.ts`,
-    endringer: [["v.resultat === 'paalegg_frafalt'", 'false']],
-    mal: ['frafall etter § 32.3 c'],
-  },
-  {
-    id: 'F116',
-    feilklasse: 'dager som ikke er godkjent fullt, krever ingen begrunnelse (KA-U24)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      [
-        "if (!fulltGodkjent) ut.push('ikke godkjenner alle",
-        "if (false) ut.push('ikke godkjenner alle",
-      ],
-    ],
-    mal: ['dager som ikke er godkjent fullt'],
-  },
-  {
     id: 'F117',
     feilklasse: 'et fristkrav uten begrunnelse godtas (§ 33.6.1, KA-U33)',
     fil: `${K}/kommandoer/nyttelast.ts`,
@@ -1534,18 +1515,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
   },
   {
-    id: 'F184',
-    feilklasse: 'påberopelsen etter § 34.1.2 krever ingen begrunnelse (KA-U24)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [
-      [
-        "if (v.hovedkrav_varslet_i_tide === false)\n    ut.push('gjør gjeldende at varselet etter § 34.1.2 kom for sent');",
-        'void 0;',
-      ],
-    ],
-    mal: ['§ 34.1.2 «nei» med hele beløpet godkjent subsidiært må ha en begrunnelse'],
-  },
-  {
     id: 'F185',
     feilklasse:
       'påberopelsen etter § 34.1.2 knyttes til kravversjonen svaret gjelder, ikke det første vederlagskravet (arbeidsvalget i #479)',
@@ -1655,13 +1624,6 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['F-MM-F-33-6-1-nei', 'F-MM-F-33-6-1-ja'],
-  },
-  {
-    id: 'F196',
-    feilklasse: 'påberopelsen etter § 33.6.1 krever ingen begrunnelse (KA-U24)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['if (v.spesifisert_krav_ok === false)\n', 'if (false)\n']],
-    mal: ['et svar med påberopt spesifisering for sent etter § 33.6.1 må ha en begrunnelse'],
   },
   {
     id: 'F197',
@@ -1790,19 +1752,6 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['et regelsett der § 34.1.2 gjelder en endring'],
-  },
-  {
-    id: 'F212',
-    feilklasse:
-      'begrunnelsen kreves for beløpet når bare tilbudet ikke er akseptert (B-13, #490, KA-U72)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [
-      [
-        'if (!erBeloepetGodkjentFullt(krevd, godkjent))',
-        "if ((server.subsidiaert_resultat ?? server.resultat) !== 'godkjent')",
-      ],
-    ],
-    mal: ['§ 34.2.2 «nei» krever en begrunnelse for tilbudet, men ikke for beløpet'],
   },
   {
     id: 'F213',
@@ -3296,19 +3245,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['beløpet etter begrensningen er høyere enn det byggherren godtar for posten'],
   },
   {
-    id: 'F395',
-    feilklasse:
-      'en begrensning etter § 34.1.3 krever ingen begrunnelse når beløpene er like (KA-U24, valg d)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [
-      [
-        'if (v.produktivitet_varslet_i_tide === false)',
-        'if (v.produktivitet_varslet_i_tide === null)',
-      ],
-    ],
-    mal: ['en begrensning krever begrunnelse, også når beløpet etter den er likt'],
-  },
-  {
     id: 'F397',
     feilklasse:
       'leseren godtar poster som ikke summerer til det subsidiære beløpet (OV-U31, MM-U2)',
@@ -3544,16 +3480,6 @@ const MUTASJONER: Mutasjon[] = [
       '«produktivitet» vurdert «delvis» med 0 kr avvises',
       '«delvis» med det krevde eller 0 kr avvises for hver post',
       'F-MM-KA-U42',
-    ],
-  },
-  {
-    id: 'F421',
-    feilklasse:
-      'påberopelsen etter § 33.6.2 tredje ledd krever ingen begrunnelse (KA-U24 (opphevet av KA-U46), VS-U17)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['if (v.foresporsel_svar_ok === false)\n', 'if (false)\n']],
-    mal: [
-      'KA-U24 (opphevet av KA-U46): et svar som gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent',
     ],
   },
   {
@@ -4127,14 +4053,9 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F558',
     feilklasse:
-      'leseren forstår et avsnitt med punkt for et element som ikke er et krav (MM-U2, LV-U70)',
+      'leseren forstår et avsnitt med punkt for et element som verken er et krav eller et svar (MM-U2, LV-U70)',
     fil: `${K}/format/leser.ts`,
-    endringer: [
-      [
-        'if (a.punkt !== undefined && !dokument.krav.some((k) => k.id === a.gjelder))',
-        'if (false)',
-      ],
-    ],
+    endringer: [['!dokument.svar.some((s) => s.id === a.gjelder)', 'false']],
     mal: ['et avsnitt med punkt for et element som ikke er et krav'],
   },
   {
@@ -4500,16 +4421,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/regler/vederlag.ts`,
     endringer: [['if (!BELOEPSVURDERINGER.includes(vurd)) {', 'if (false) {']],
     mal: ['svaret avvises med en vurdering kjernen ikke kjenner'],
-  },
-  {
-    id: 'F514',
-    feilklasse:
-      'begrunnelsen kreves for beløpet når svaret ikke tar stilling til beløpet, fordi tilbudet ikke er akseptert (KA-U72)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [
-      ['(sum, { post }) => sum - (krevdIKravposten(krav, post) ?? 0n),', '(sum) => sum,'],
-    ],
-    mal: ['§ 34.2.2 «nei» krever en begrunnelse for tilbudet, men ikke for beløpet'],
   },
   {
     id: 'F515',

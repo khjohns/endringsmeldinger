@@ -575,9 +575,15 @@ function lesDokument(h: Journalrad): Dokument {
         (fortsetter && (a.punkt === undefined || forrige!.punkt === undefined))
       )
         throw new Uforstaatt('et avsnitt i brevteksten gjelder ikke ett element i brevet');
-      // Bare et krav har punkter; kjernen skriver ikke punkter for andre elementer (MM-U2).
-      if (a.punkt !== undefined && !dokument.krav.some((k) => k.id === a.gjelder))
-        throw new Uforstaatt('et avsnitt i brevteksten har et punkt, men gjelder ikke et krav');
+      // Bare et krav og et svar har punkter; kjernen skriver ikke punkter for andre elementer (MM-U2).
+      if (
+        a.punkt !== undefined &&
+        !dokument.krav.some((k) => k.id === a.gjelder) &&
+        !dokument.svar.some((s) => s.id === a.gjelder)
+      )
+        throw new Uforstaatt(
+          'et avsnitt i brevteksten har et punkt, men gjelder ikke et krav eller et svar'
+        );
       if (a.punkt !== undefined) {
         if (sett.has(`${a.gjelder}\u0000${a.punkt}`))
           throw new Uforstaatt('to avsnitt i brevteksten gjelder samme punkt i et element');
