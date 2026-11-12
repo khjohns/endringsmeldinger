@@ -27,7 +27,7 @@
     /** Svaret i en lukket post, én linje per standpunkt. Tom før posten er besvart. */
     leselinje: (p: P) => string[];
     /** Feltet som får fokus når posten åpnes. */
-    foersteFelt: (p: P) => string;
+    foersteFelt: (betegnelse: string) => string;
     /** Valgene i den åpne posten. */
     valgene: Snippet<[P]>;
   } = $props();
@@ -40,8 +40,7 @@
   export async function aapne(betegnelse: string, fokus?: string) {
     valgt = betegnelse;
     await tick();
-    const p = poster.find((x) => x.betegnelse === betegnelse);
-    document.getElementById(fokus ?? (p ? foersteFelt(p) : ''))?.focus();
+    document.getElementById(fokus ?? foersteFelt(betegnelse))?.focus();
   }
   async function lukk(betegnelse: string) {
     valgt = '';

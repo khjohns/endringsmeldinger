@@ -2,35 +2,15 @@
  * Lista over postene i byggherrens svar på et vederlagskrav med to kravposter: én post er åpen
  * om gangen, og de andre står som en leselinje (#1739, system.md), og oppsummeringen av det som
  * mangler, åpner posten feltet står i (MM-U32). Lista er delt ut av `Vederlagssvar` (#1778), og
- * testene fastholder atferden fra før delingen; de er grønne mot komponenten på `c7c0878`.
+ * testene fastholder atferden fra før delingen.
  */
 
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import type { Journallinje } from '$lib/api/kjerne';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import { MERKING, SAK, medGrunnlag, skrevet } from '$lib/kjernesak/__tests__/provejournal';
+import { MERKING, SAK, linje, medGrunnlag, skrevet } from '$lib/kjernesak/__tests__/provejournal';
 import Vederlagssvar from '$lib/components/varden/Vederlagssvar.svelte';
-import type { Journalrad } from '$kjerne/typer';
-
-const linje = ({
-  event_id,
-  versjon,
-  event_type,
-  tidsstempel,
-  aktor_rolle,
-  format,
-  data,
-}: Journalrad): Journallinje => ({
-  event_id,
-  versjon,
-  event_type,
-  tidsstempel,
-  aktor_rolle,
-  format,
-  data,
-});
 
 const journal = skrevet(medGrunnlag, 'TE', {
   type: 'krav',

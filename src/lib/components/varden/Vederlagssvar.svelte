@@ -606,7 +606,7 @@
             prefiks={uid}
             krever={(p) => SKJEMA.teKrever(krevdI(p), p.pns)}
             {leselinje}
-            foersteFelt={(p) => `${uid}-form-${p.betegnelse}`}
+            foersteFelt={(b) => `${uid}-form-${b}`}
             valgene={postvalgene}
           />
         </section>
