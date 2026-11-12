@@ -84,7 +84,7 @@ verktøysvar tidlig i økta leses på nytt i hvert kall etter det
   regelversjonsvakten kjører ikke på utkast og ikke ved push til `main` (#390).
   Feilinnføringene kjører også på et utkast når etiketten `feilinnfoering` er satt, og
   et nytt push avbryter kjøringen som pågår. Rører PR-en kjernen, setter økta etiketten
-  ved første push, så feilinnføringene (10–30 minutter i CI) går mens økta kjører
+  ved første push, så feilinnføringene (om lag 10 minutter i CI) går mens økta kjører
   reviewet og retter. Kjøringen på siste commit er beviset. Hva økta kjører lokalt av
   feilinnføringene, står i [miljø-skillen](../miljo/SKILL.md#feilinnføringer).
 - **Arbeid mens CI går.** Mens CI eller feilinnføringene går, arbeider økta videre med
