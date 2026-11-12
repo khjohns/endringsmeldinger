@@ -164,10 +164,7 @@ function kravpostsvaret(post: Kravpost, p: Postvalg) {
   });
 }
 
-/**
- * Om BH tar stilling til varselet etter § 34.1.2. Der TE krever endring etter § 34.1.1, gjør BH
- * det ikke (OV-U15, D-6 i BF-14), og kjernen avviser svaret om varselet.
- */
+/** Om BH tar stilling til varselet etter § 34.1.2 (OV-U15), med kjernens predikat. */
 export const spoerOmHovedvarselet = (u: Utledning, regler: Regelsett): boolean =>
   hjemmelenGjelder('34.1.2', u.spor.forhold.gjeldendeKrav, regler);
 

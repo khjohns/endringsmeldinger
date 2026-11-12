@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
 import type { Journalrad } from '$kjerne/typer';
-import { opprettet, skrevet } from '$lib/kjernesak/__tests__/provejournal';
+import { medVederlag, opprettet, skrevet } from '$lib/kjernesak/__tests__/provejournal';
 import { kravposterI } from '$kjerne/spor/vederlag/format';
 import {
   tomPost,
@@ -287,5 +287,22 @@ describe('svaret på en kravpost etter en beregningsregel (#1756, BF-14 D-7, D-1
     expect(lag.standpunkter.some((x) => x.art === 'oppgjoersform' && x.gjelder === p1!.id)).toBe(
       true
     );
+  });
+});
+
+describe('varselet etter punkt 34.1.2 i svaret (#1842)', () => {
+  it('ved endring etter punkt 34.1.1 sendes ikke svaret om varselet, selv om valget står fra før (OV-U15)', () => {
+    const k = vederlagssvaret(
+      { ...tomtSvar(), iTide: true, poster: { P1: { ...tomPost(), form: 'godtar' } } },
+      utledJournal(medVederlag, KJERNE),
+      KJERNE.regler
+    )!;
+    expect(k.svar[0]!.vurderinger).not.toHaveProperty('hovedkrav_varslet_i_tide');
+  });
+
+  it('ved svikt sendes svaret om varselet (kontrollsak)', () => {
+    expect(svar(medKrav(100000), {}).svar[0]!.vurderinger).toMatchObject({
+      hovedkrav_varslet_i_tide: true,
+    });
   });
 });

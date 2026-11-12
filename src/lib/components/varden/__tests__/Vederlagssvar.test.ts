@@ -1,8 +1,6 @@
 /**
  * Spørsmålet om varselet etter punkt 34.1.2 i byggherrens svar på vederlagskravet (#1842), med
- * kjernen i minnet. Der TE krever endring etter punkt 34.1.1, er det ikke krav om varsel, og
- * byggherren tar ikke stilling til rettidigheten (OV-U15, D-6 i BF-14). Ved svikt spør skjemaet
- * (kontrollsaken).
+ * kjernen i minnet. Kilden er OV-U15 og D-6 i BF-14. Svikt er kontrollsaken.
  */
 
 import '@testing-library/jest-dom/vitest';
@@ -10,10 +8,13 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 import type { Journalrad } from '$kjerne/typer';
+import { utledJournal } from '$kjerne/kommandoer/skriving';
+import { KJERNE } from '$kjerne/versjon';
 import {
   MERKING,
   SAK,
   linje,
+  medGrunnlag,
   medVederlag,
   opprettet,
   skrevet,
@@ -39,6 +40,32 @@ const svikt = skrevet(
       kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 250000 }],
     },
     utdypning: 'Tilbudet gjelder pumpingen.',
+  }
+);
+
+// Irregulær endring der byggherren har avslått forholdet, og totalentreprenøren så krever vederlag.
+const avslaatt = skrevet(
+  skrevet(medGrunnlag, 'BH', {
+    type: 'brev',
+    svar: [
+      {
+        spor: 'forhold',
+        gjelder: utledJournal(medGrunnlag, KJERNE).spor.forhold.gjeldendeKrav!.id,
+        regelversjon: KJERNE.regler.versjon,
+        vurderinger: { resultat: 'avslaatt', grunnlag_varslet_i_tide: true },
+        resultat: {},
+        utdypning: 'Svaret på forholdet.',
+      },
+    ],
+  }),
+  'TE',
+  {
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: {
+      kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 250000 }],
+    },
+    utdypning: 'Tilbudet gjelder pelingen.',
   }
 );
 
@@ -102,5 +129,12 @@ describe('varselet etter punkt 34.1.2 i byggherrens svar (#1842)', () => {
     await seBrevet();
     expect(sendt).toHaveLength(1);
     expect(vurderingen(sendt)).toMatchObject({ hovedkrav_varslet_i_tide: true });
+  });
+
+  it('ved endring etter punkt 34.1.1 med forholdet avslått står avslaget fortsatt under «Gjelder hvis» i skjemaet (OV-U33, OV-U15)', async () => {
+    await svarskjemaet(avslaatt);
+    expect(spoersmaalet()).toBeNull();
+    const gjelderHvis = document.querySelector('[id$="-form-P1-forutsetninger"]');
+    expect(gjelderHvis?.textContent).toMatch(/avslaget av forholdet i brev 2/);
   });
 });
