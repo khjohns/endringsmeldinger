@@ -27,17 +27,8 @@ import {
   sammeSlag,
 } from '../format/leser.ts';
 import { oppgittDato } from '../format/format.ts';
-import {
-  harProduktivitetspost,
-  innholdIVederlaget,
-  kravposterI,
-  OPPGJOERSHJEMMEL,
-} from '../spor/vederlag/format.ts';
-import {
-  kravposteneStrider,
-  kravpostvarseletStrider,
-  varselhjemmel,
-} from '../spor/vederlag/utledning.ts';
+import { harProduktivitetspost } from '../spor/vederlag/format.ts';
+import { KONTROLLER_I_VEDERLAGET } from '../spor/vederlag/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import {
@@ -52,7 +43,7 @@ import {
   kravetErDokumentasjon,
   sammenfallStemmer,
 } from '../frosset/standpunkt.ts';
-import { prinsipalt, standpunktet } from '../frosset/byggeklosser.ts';
+import { iSporet, prinsipalt, standpunktet } from '../frosset/byggeklosser.ts';
 import { innholdIForholdet } from '../format/kravinnhold.ts';
 import {
   KRAVSPOR,
@@ -81,7 +72,7 @@ import {
 } from '../typer.ts';
 import type { Kjerne } from '../versjon.ts';
 
-type LestVarsel = Extract<LestUtsagn, { art: 'varsel' }>;
+export type LestVarsel = Extract<LestUtsagn, { art: 'varsel' }>;
 /** Hjemlene saken har høyst ett varsel etter (SK-12). */
 export type Enkeltvarselhjemmel = Exclude<Varselhjemmel, Kravpostvarselhjemmel>;
 
@@ -502,8 +493,7 @@ function kravetStrider(k: Krav, u: Utledning): string | null {
   if (l) return `en kravversjon etter at ${l}`;
   if (u.spor[k.spor].trukket) return 'en kravversjon etter at kravet er trukket (GR-U5)';
   if (u.spor[k.spor].ingenKrav) return 'en kravversjon i et spor med «ingen krav» (KA-U12)';
-  if (k.spor !== 'vederlag') return null;
-  const poster = kravposteneStrider(innholdIVederlaget(k), u.spor.vederlag.krav, true);
+  const poster = kontrollerI(k.spor).kravet(k, u.spor[k.spor].krav);
   return poster ? `en kravversjon som ${poster}` : null;
 }
 
@@ -584,9 +574,44 @@ type Henvisning = Utsagn<
   'innsigelse' | 'protest' | 'passivitet' | 'begrunnelse' | 'foresporselssvar'
 >;
 /** Fører en begrensning for elementet `id` etter lesereglene i 4.2. */
-type Ugyldig = (id: string, grunn: string) => void;
+export type Ugyldig = (id: string, grunn: string) => void;
 /** `fra` viser til `til` med lavere saksversjon. */
-type Bakover = (fra: string, til: string) => boolean;
+export type Bakover = (fra: string, til: string) => boolean;
+
+/**
+ * Lesereglene i 4.2 som er sporets egne. Hver gir en begrensning med `ugyldig`, eller
+ * `null` for kravversjonen.
+ */
+export interface Sporskontroller {
+  /** Hvorfor kravversjonen `k` strider mot de tidligere versjonene i sporet, etter «som». */
+  kravet(k: Krav, tidligere: readonly Krav[]): string | null;
+  /** Kravversjonene i sporet mot varslene og dokumentene de står i. */
+  kravene(
+    krav: readonly Krav[],
+    varsler: readonly LestVarsel[],
+    bakover: Bakover,
+    dokumentetTil: (id: string) => Dokument | undefined,
+    ugyldig: Ugyldig
+  ): void;
+  /** Svaret `s` mot kravversjonen det gjelder. */
+  svaret(s: Svar, krav: Krav, ugyldig: Ugyldig): void;
+}
+
+const INGEN_KONTROLLER: Sporskontroller = {
+  kravet: () => null,
+  kravene: () => {},
+  svaret: () => {},
+};
+
+/** Kontrollene i hvert spor. Forholdet og fristen har ingen egne (#1783, #1745). */
+const KONTROLLER: Record<Spor, Sporskontroller> = {
+  forhold: INGEN_KONTROLLER,
+  vederlag: KONTROLLER_I_VEDERLAGET,
+  frist: INGEN_KONTROLLER,
+};
+
+/** Kontrollene i sporet (`iSporet`). */
+const kontrollerI = (spor: Spor): Sporskontroller => iSporet(KONTROLLER, spor);
 
 /** Utledningen av journalen i lagret form, lest med kjernens leserformat og regelsett. */
 export function utledJournal(journal: Journalrad[], kjerne: Kjerne): Utledning {
@@ -718,12 +743,14 @@ function utledSporene(
     dokumenter.get(plass.get(id)?.hendelse ?? '')?.avsender;
 
   kontrollerKravkjedene(spor, ugyldig);
-  kontrollerKravpostvarslene(spor.vederlag.krav, varsler, bakover, ugyldig);
-  kontrollerVedleggeneVedKravet(
-    spor.vederlag.krav,
-    (id) => dokumenter.get(plass.get(id)?.hendelse ?? ''),
-    ugyldig
-  );
+  for (const n of SPOR)
+    kontrollerI(n).kravene(
+      spor[n].krav,
+      varsler,
+      bakover,
+      (id) => dokumenter.get(plass.get(id)?.hendelse ?? ''),
+      ugyldig
+    );
   kontrollerSvarene(alleSvar, alleKrav, spor, varsler, besvart, bakover, ugyldig);
   kontrollerSvarkjedene(spor, ugyldig);
   kontrollerAksepter(aksepter, alleSvar, bakover, ugyldig);
@@ -793,44 +820,6 @@ function kontrollerKravkjedene(spor: Record<Spor, Sporutledning>, ugyldig: Ugyld
   }
 }
 
-/** VS-U50, VS-U54: en kravpost viser bare til et varsel for posten som står før kravet. */
-function kontrollerKravpostvarslene(
-  krav: readonly Krav[],
-  varsler: readonly LestVarsel[],
-  bakover: Bakover,
-  ugyldig: Ugyldig
-): void {
-  krav.forEach((k, i) => {
-    const foer = varsler.filter((v) => erKravpostvarselhjemmel(v.hjemmel) && bakover(k.id, v.id));
-    const strid = kravpostvarseletStrider(k, krav.slice(0, i), foer);
-    if (strid) ugyldig(k.id, strid);
-  });
-}
-
-/**
- * VS-U51, VS-U53: et vederlagskrav har bare dokumentene kravskjemaet la til som varselet for en
- * kravpost som vedlegg, og de står i det registrerte varselet kravposten viser til.
- */
-function kontrollerVedleggeneVedKravet(
-  krav: readonly Krav[],
-  dokumentetTil: (id: string) => Dokument | undefined,
-  ugyldig: Ugyldig
-): void {
-  for (const k of krav) {
-    const ved = dokumentetTil(k.id)?.dokumentasjon ?? [];
-    const varslene = new Set(
-      kravposterI(k).flatMap((p) =>
-        p.varsel ? (dokumentetTil(p.varsel)?.dokumentasjon ?? []).map((v) => v.vedlegg_id) : []
-      )
-    );
-    if (ved.some((v) => !varslene.has(v.vedlegg_id)))
-      ugyldig(
-        k.id,
-        'vederlagskravet har et vedlegg som ikke er dokumentet med varselet for en kravpost (VS-U51)'
-      );
-  }
-}
-
 /** Hvert svar viser bakover til kravet, svaret det reviderer og påberopelsesversjonen. */
 function kontrollerSvarene(
   alleSvar: Map<string, Svar>,
@@ -865,76 +854,8 @@ function kontrollerSvarene(
     for (const p of s.standpunkter)
       kontrollerStandpunktet(s, p, spor, varsler, besvart, bakover, ugyldig);
     const krav = alleKrav.get(s.gjelder);
-    if (s.spor === 'vederlag' && krav?.spor === 'vederlag') kontrollerPostene(s, krav, ugyldig);
+    if (krav?.spor === s.spor) kontrollerI(s.spor).svaret(s, krav, ugyldig);
   }
-}
-
-/**
- * OV-U23, KA-U57 (c): svaret på vederlaget har ett beløp for hver post i kravet og ingen
- * andre. Oppgjørsformen står rett foran beløpet for samme kravpost (leseren), så den følger med.
- */
-function kontrollerPostene(s: Svar, krav: Krav, ugyldig: Ugyldig): void {
-  const noekler = (poster: [string, string][]) =>
-    poster
-      .map((p) => JSON.stringify(p))
-      .sort()
-      .join();
-  const iSvaret = noekler(
-    s.standpunkter.flatMap((p): [string, string][] =>
-      p.art !== 'beloep'
-        ? []
-        : [p.gjelder !== undefined ? ['kravpost', p.gjelder] : ['saerskilt', String(p.saerskilt)]]
-    )
-  );
-  const iKravet = noekler([
-    ...kravposterI(krav).map((p): [string, string] => ['kravpost', p.id]),
-    ...(harProduktivitetspost(krav) ? [['saerskilt', 'produktivitet'] as [string, string]] : []),
-  ]);
-  if (iSvaret !== iKravet) ugyldig(s.id, 'beløpene i svaret er ikke de samme postene som i kravet');
-  const poster = new Map(kravposterI(krav).map((p) => [p.id, p]));
-  for (const p of s.standpunkter) {
-    const grunn = kravpoststandpunktetStrider(p, poster);
-    if (grunn) ugyldig(s.id, grunn);
-  }
-}
-
-/**
- * Hvorfor et standpunkt som gjelder en kravpost, ikke passer til kravposten i kravet, eller
- * `null`: standpunktet til oppgjørsformen har TEs oppgjørsform som hjemmel, rettidigheten etter
- * § 34.3.3 eller § 34.4 gjelder en kravpost som trenger det varselet (KA-U64), justeringen
- * gjelder en kravpost med justerte enhetspriser (KA-U68), og beløpet har ikke et beløp for en
- * kravpost etter en beregningsregel (OV-U95 punkt 5).
- */
-function kravpoststandpunktetStrider(
-  p: Standpunkt,
-  poster: ReadonlyMap<string, ReturnType<typeof kravposterI>[number]>
-): string | null {
-  if (p.art === 'oppgjoersform') {
-    const post = poster.get(p.gjelder);
-    return post && OPPGJOERSHJEMMEL[post.oppgjoersform] === p.hjemmel
-      ? null
-      : 'standpunktet til oppgjørsformen har ikke TEs oppgjørsform for kravposten som hjemmel';
-  }
-  if (p.art === 'rettidighet' && erKravpostvarselhjemmel(p.hjemmel)) {
-    const post = poster.get(p.gjelder);
-    return post && varselhjemmel(post) === p.hjemmel
-      ? null
-      : `rettidigheten etter § ${p.hjemmel} gjelder ikke en kravpost som trenger det varselet`;
-  }
-  if (p.art === 'justering') {
-    const post = poster.get(p.gjelder);
-    return post?.oppgjoersform === 'enhetspriser' && post.justert === true
-      ? null
-      : 'justeringen gjelder ikke en kravpost med justerte enhetspriser';
-  }
-  // OV-U95 punkt 5: en kravpost etter en beregningsregel har ikke et beløp i svaret.
-  if (p.art === 'beloep' && p.gjelder !== undefined && p.godkjent !== undefined) {
-    const post = poster.get(p.gjelder);
-    return post && post.oppgjoersform !== 'tilbud'
-      ? 'standpunktet til beløpet har et beløp for en kravpost etter en beregningsregel'
-      : null;
-  }
-  return null;
 }
 
 /** Spesifiseringen og rettidigheten i svaret `s` viser til det de kan gjelde. */
@@ -1293,7 +1214,7 @@ function fyllSporene(
   alleKrav: Map<string, Krav>
 ): void {
   for (const v of varsler)
-    if (erKravpostvarselhjemmel(v.hjemmel)) spor.vederlag.kravpostvarsler.push(v);
+    if (erKravpostvarselhjemmel(v.hjemmel)) spor[VARSELSPOR[v.hjemmel]].kravpostvarsler.push(v);
     else spor[VARSELSPOR[v.hjemmel]].varsler[v.hjemmel] = v;
   spor.frist.foresporsler = besvart;
   for (const n of SPOR) {

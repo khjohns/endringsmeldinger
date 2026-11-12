@@ -4287,7 +4287,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "    if (s.spor === 'vederlag' && krav?.spor === 'vederlag') kontrollerPostene(s, krav, ugyldig);",
+        '    if (krav?.spor === s.spor) kontrollerI(s.spor).svaret(s, krav, ugyldig);',
         '    void krav;',
       ],
     ],
@@ -4650,7 +4650,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F537',
     feilklasse:
       'et vederlagskrav med et vedlegg som ikke er dokumentet med varselet for en kravpost, gjør saken forstått (VS-U51, MM-U2)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
         '    if (ved.some((v) => !varslene.has(v.vedlegg_id)))',

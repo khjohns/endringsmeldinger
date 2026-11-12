@@ -3420,7 +3420,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/kommandoer/skriving.ts#medVarslene",
-        "kjerne/utledning/utled.ts#kontrollerVedleggeneVedKravet"
+        "kjerne/spor/vederlag/utledning.ts#kontrollerVedleggeneVedKravet"
       ],
       "regelkoder": [
         "KRAVPOSTVARSELET"

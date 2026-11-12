@@ -437,7 +437,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'spor/vederlag/utledning.ts:kravpostvarslene',
       'spor/vederlag/utledning.ts:kravpostvarseletStrider',
-      'utledning/utled.ts:kontrollerVedleggeneVedKravet',
+      'spor/vederlag/utledning.ts:kontrollerVedleggeneVedKravet',
     ],
   ],
   // KA-U54, KA-U64, KA-U68, OV-U95 punkt 5: svaret på en kravpost etter en beregningsregel.
@@ -449,7 +449,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/frysing.ts',
       'kommandoer/lag.ts',
       'kommandoer/standpunkter.ts',
-      'utledning/utled.ts',
+      'spor/vederlag/utledning.ts',
     ],
   ],
   [
@@ -702,7 +702,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/brevdeler.ts',
       'kommandoer/skriving.ts',
       'spor/vederlag/utledning.ts',
-      'utledning/utled.ts',
       // KA-U54, KA-U64, KA-U68: TEs oppgjørsform for standpunktene til kravposten.
       'kommandoer/lag.ts',
       'kommandoer/standpunkter.ts',
@@ -713,20 +712,20 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/utledning.ts',
     'predikat',
     'varselhjemmel',
-    ['kommandoer/standpunkter.ts', 'utledning/utled.ts', 'kommandoer/skriving.ts:medVarslene'],
+    ['kommandoer/standpunkter.ts', 'kommandoer/skriving.ts:medVarslene'],
   ],
   // KA-U57 (d), KA-U54: hjemmelen i standpunktet til oppgjørsformen etter TEs oppgjørsform.
   [
     'spor/vederlag/format.ts',
     'skjema',
     'OPPGJOERSHJEMMEL',
-    ['kommandoer/standpunkter.ts', 'utledning/utled.ts'],
+    ['kommandoer/standpunkter.ts', 'spor/vederlag/utledning.ts'],
   ],
   [
     'OPPGJOERSHJEMMEL',
     'skjema',
     'tilbud enhetspriser regningsarbeid',
-    ['kommandoer/standpunkter.ts', 'utledning/utled.ts'],
+    ['kommandoer/standpunkter.ts', 'spor/vederlag/utledning.ts'],
   ],
   ['OPPGJOERSFORM_I_HJEMMELEN', 'skjema', '34.2.2 34.3 34.4', ['spor/vederlag/format.ts']],
   // Kravposten standpunktene gjelder (KA-U57 (c) og (d)).
@@ -800,7 +799,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/format.ts',
     'regelsett',
     'krevdProduktivitet harProduktivitetspost',
-    ['utledning/utled.ts', 'spor/vederlag/frysing.ts', 'spor/vederlag/tekst.ts'],
+    [
+      'utledning/utled.ts',
+      'spor/vederlag/utledning.ts',
+      'spor/vederlag/frysing.ts',
+      'spor/vederlag/tekst.ts',
+    ],
   ],
   // #814: standpunktene og utregningen nyttelastkontrollen leste, er de brevet lagrer.
   ['Bygde', 'regelsett', 'standpunkter utregning', ['kommandoer/skriving.ts:svar']],
@@ -1094,6 +1098,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // #1783: det som er sporets eget i frysingen av svaret.
   ['Svarsfrysing', 'frosset', 'virkninger utfall godkjennerHeleKravet', ['frosset/standpunkt.ts']],
   ['spor/vederlag/frysing.ts', 'frosset', 'FRYSING_I_VEDERLAGET', ['frosset/standpunkt.ts']],
+  // #1783: lesereglene i 4.2 som er sporets egne.
+  ['Sporskontroller', 'predikat', 'kravet kravene svaret', ['utledning/utled.ts']],
+  ['spor/vederlag/utledning.ts', 'predikat', 'KONTROLLER_I_VEDERLAGET', ['utledning/utled.ts']],
   [
     'format/kravinnhold.ts',
     'utsagn',
@@ -1124,7 +1131,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/format.ts',
     'utsagn',
     'innholdIVederlaget',
-    ['utledning/utled.ts:kravetStrider', 'spor/vederlag/tekst.ts'],
+    ['spor/vederlag/utledning.ts', 'spor/vederlag/tekst.ts'],
   ],
   [
     'format/kravinnhold.ts',
@@ -1342,12 +1349,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/utledning.ts:kravposteneStrider'],
   ],
   ['Postinndata', 'kommando', 'id betegnelse', ['spor/vederlag/utledning.ts:kravposteneStrider']],
-  [
-    'spor/vederlag/utledning.ts',
-    'predikat',
-    'kravposteneStrider',
-    ['kommandoer/nyttelast.ts', 'utledning/utled.ts'],
-  ],
+  ['spor/vederlag/utledning.ts', 'predikat', 'kravposteneStrider', ['kommandoer/nyttelast.ts']],
   [
     'spor/vederlag/utledning.ts',
     'relasjon',
@@ -1372,7 +1374,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/utledning.ts',
     'predikat',
     'kravpostvarseletStrider',
-    ['kommandoer/nyttelast.ts', 'utledning/utled.ts'],
+    ['kommandoer/nyttelast.ts'],
   ],
   [
     'spor/vederlag/utledning.ts:kravpostvarseletStrider',
@@ -1670,7 +1672,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/byggeklosser.ts',
     'frosset',
     'iSporet',
-    ['frosset/brevtekst.ts', 'frosset/linje.ts', 'frosset/standpunkt.ts', 'frosset/utregning.ts'],
+    [
+      'frosset/brevtekst.ts',
+      'frosset/linje.ts',
+      'frosset/standpunkt.ts',
+      'frosset/utregning.ts',
+      'utledning/utled.ts',
+    ],
   ],
   [
     'frosset/byggeklosser.ts',
@@ -1773,13 +1781,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['frosset/brevtekst.ts', 'format/leser.ts', 'spor/vederlag/tekst.ts'],
   ],
   // VS-U51, VS-U53: dokumentet med varselet for en kravpost ligger ved kravet, og teksten sier det.
-  ['Dokument', 'utsagn', 'dokumentasjon', ['utledning/utled.ts:kontrollerVedleggeneVedKravet']],
+  [
+    'Dokument',
+    'utsagn',
+    'dokumentasjon',
+    ['spor/vederlag/utledning.ts:kontrollerVedleggeneVedKravet'],
+  ],
   [
     'Vedlegg',
     'relasjon',
     'vedlegg_id',
     [
-      'utledning/utled.ts:kontrollerVedleggeneVedKravet',
+      'spor/vederlag/utledning.ts:kontrollerVedleggeneVedKravet',
       'kommandoer/skriving.ts:foranKravet',
       'spor/vederlag/tekst.ts',
     ],
