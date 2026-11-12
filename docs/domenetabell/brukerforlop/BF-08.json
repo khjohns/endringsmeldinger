@@ -1,0 +1,277 @@
+{
+  "id": "BF-08",
+  "tittel": "Byggherren svarer på påberopelsen av forholdet, og totalentreprenøren tar stilling til svaret",
+  "brukerhistorie": "BH svarer på gjeldende versjon av TEs påberopelse av forholdet med kontraktens valg for forholdet, gjør eventuelt gjeldende at varselet etter punkt 32.2 kom for sent, og ser før sending om svaret er en endringsordre, om partene blir enige om forholdet og hva det gjør med svarene på vederlag og frist. Har BH svart utenfor løsningen, bekrefter BH det svaret, eller viser til det i svaret på vederlag eller frist, eller svarer på forholdet i samme brev. BH kan sende et nytt svar. TE ser hva svaret betyr og hva TE kan gjøre, og godtar avslaget med beskjed om at saken avsluttes.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "TE har påberopt forholdet i brev 1 i sak E-014 i prosjektet med kontraktsforkortelsen K201, og krevd vederlagsjustering i brev 2 og fristforlengelse i brev 3. BH har ikke svart. Forholdet er irregulær endring (punkt 32.1), der punkt 32.2 gjelder, eller uforutsette forhold ved grunnen (punkt 23.1)."
+  },
+  "bestilling": "BF-08.md",
+  "prototype": {
+    "fil": "../../design/prototyper/forholdssvar.html",
+    "klikkstier": [
+      {
+        "id": "svar-endringsordre-og-preklusjon",
+        "dekker": [
+          "1"
+        ],
+        "start": "svar",
+        "handlinger": [
+          {
+            "staar": "Svaret er en endringsordre etter punkt 32.3 første ledd a."
+          },
+          {
+            "staar": "Setningen står i brevet også når begrunnelsen har vilkår eller forbehold."
+          },
+          {
+            "velg": "Ja, varselet kom for sent"
+          },
+          {
+            "staar": "Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem"
+          },
+          {
+            "staar": "Frafall etter punkt 32.3 første ledd c kan ikke kombineres med at varselet kom for sent."
+          },
+          {
+            "velg": "Avslår kravet på endringsordre"
+          },
+          {
+            "staar": "Kreves fordi du gjør gjeldende at varselet kom for sent"
+          },
+          {
+            "staar": "Svarene på vederlag og frist gjelder subsidiært."
+          }
+        ]
+      },
+      {
+        "id": "forholdet-ved-grunnen",
+        "dekker": [
+          "2"
+        ],
+        "start": "svar",
+        "handlinger": [
+          {
+            "trykk": "Uforutsette forhold ved grunnen"
+          },
+          {
+            "velg": "Byggherren har ikke risikoen"
+          },
+          {
+            "staar": "Byggherren har ikke risikoen for forholdet."
+          },
+          {
+            "staar": "Svarene på vederlag og frist gjelder subsidiært."
+          },
+          {
+            "trykk": "Irregulær endring"
+          },
+          {
+            "staar": "Varselet etter punkt 32.2"
+          }
+        ]
+      },
+      {
+        "id": "brevet",
+        "dekker": [
+          "3"
+        ],
+        "start": "svar",
+        "handlinger": [
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "Byggherren svarer på totalentreprenørens påberopelse av irregulær endring"
+          },
+          {
+            "staar": "Svaret er en endringsordre etter NS 8407 punkt 32.3 første ledd a"
+          },
+          {
+            "staar": "Når du sender"
+          },
+          {
+            "klikk": "Tilbake til skjemaet",
+            "tilstand": "svar"
+          }
+        ]
+      },
+      {
+        "id": "bekreftelsen",
+        "dekker": [
+          "4"
+        ],
+        "start": "svar",
+        "handlinger": [
+          {
+            "klikk": "Svaret er gitt utenfor løsningen",
+            "tilstand": "bekreft"
+          },
+          {
+            "staar": "ingen kontraktsfrist regnes fra bekreftelsen"
+          },
+          {
+            "staar": "Byggherren bekrefter sitt svar"
+          },
+          {
+            "velg": "Nei, ikke en endringsordre"
+          },
+          {
+            "staar": "Du utsteder en endringsordre nå"
+          },
+          {
+            "velg": "Ja, det var en endringsordre"
+          },
+          {
+            "staar": "Bekreftelsen kan ikke sendes."
+          },
+          {
+            "klikk": "Tilbake til svaret",
+            "tilstand": "svar"
+          }
+        ]
+      },
+      {
+        "id": "henvisning-og-samme-brev",
+        "dekker": [
+          "5"
+        ],
+        "start": "henvisning",
+        "handlinger": [
+          {
+            "staar": "Et svar på brev 1 er ikke et svar på brev 4."
+          },
+          {
+            "velg": "Nei, ikke på brev 4"
+          },
+          {
+            "staar": "Byggherren har ennå ikke svart på totalentreprenørens påberopelse"
+          },
+          {
+            "velg": "Ja, på brev 4"
+          },
+          {
+            "staar": "vises det til byggherrens e-post"
+          },
+          {
+            "trykk": "Ta med svaret på forholdet i samme brev"
+          },
+          {
+            "staar": "Avslår du, står punktet først"
+          },
+          {
+            "staar": "Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem"
+          }
+        ]
+      },
+      {
+        "id": "handlingene",
+        "dekker": [
+          "6"
+        ],
+        "start": "handlinger",
+        "handlinger": [
+          {
+            "staar": "Du kan godta avslaget, sende en ny versjon av påberopelsen eller trekke påberopelsen."
+          },
+          {
+            "trykk": "Byggherren"
+          },
+          {
+            "staar": "Erstatter svaret i brev 4. Brev 4 står som det ble sendt."
+          },
+          {
+            "trykk": "Enig"
+          },
+          {
+            "staar": "Løsningen avgjør ikke om det nye svaret er virksomt mot endringsordren."
+          },
+          {
+            "trykk": "Frafalt"
+          },
+          {
+            "staar": "Endringsordren lages i en egen sak og viser til denne."
+          }
+        ]
+      },
+      {
+        "id": "godta-avslaget",
+        "dekker": [
+          "7"
+        ],
+        "start": "handlinger",
+        "handlinger": [
+          {
+            "klikk": "Godta avslaget",
+            "tilstand": "godta"
+          },
+          {
+            "staar": "Saken avsluttes."
+          },
+          {
+            "staar": "Aksepten gjelder hele svaret slik det står i brev 4"
+          },
+          {
+            "klikk": "Tilbake til forholdet",
+            "tilstand": "handlinger"
+          }
+        ]
+      }
+    ]
+  },
+  "kilder": [
+    "GR-U1",
+    "GR-U7",
+    "GR-U9",
+    "GR-U10",
+    "GR-U12",
+    "GR-U13",
+    "GR-U14",
+    "GR-U15",
+    "GR-U18",
+    "GR-U22",
+    "GR-U23",
+    "GR-U27",
+    "GR-U28",
+    "GR-U31",
+    "GR-U32",
+    "GR-U34",
+    "HF-U1",
+    "HF-U25",
+    "KA-U43",
+    "KA-U46",
+    "KA-U49",
+    "KA-U51",
+    "LV-U34",
+    "LV-U35",
+    "LV-U39",
+    "LV-U40",
+    "LV-U41",
+    "LV-U53",
+    "MM-U9",
+    "MM-U34",
+    "OV-U6",
+    "OV-U12",
+    "OV-U46",
+    "OV-U69",
+    "OV-U72",
+    "VS-U46",
+    "GFK-U2"
+  ],
+  "venter_paa": [
+    "#1306",
+    "#1433",
+    "#1380",
+    "#1449"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-12",
+      "forhold": "#1834",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen etter prototypen forholdssvar.html og spørsmålene S-1 og S-2."
+    }
+  ]
+}
