@@ -1,6 +1,6 @@
 # Spørsmål om flere varsler i ett brev, 12.11
 
-Spørsmålene S-1–S-3 i [BF-37](../../domenetabell/brukerforlop/BF-37.md#åpne-spørsmål) fra designsløyfa
+Spørsmålene S-1–S-3 i [BF-37](../../domenetabell/brukerforlop/BF-37.md#spørsmålene) fra designsløyfa
 i #1837, for punkt 5 i #1823. Grunnlaget er prototypen
 [varsler-i-ett-brev.html](../../design/prototyper/varsler-i-ett-brev.html), v1. At prototypen er tegnet
 etter det anbefalte alternativet, er ikke et svar. Spørsmålene gjelder rettsregler og stilles som
