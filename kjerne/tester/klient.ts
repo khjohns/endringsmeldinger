@@ -11,7 +11,7 @@ import type { Vedleggsoppslag } from '../kommandoer/skriving.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { oppgittDato } from '../format/format.ts';
 import { regnUtSvar, vederlagsposter, type Svarvurdering } from '../frosset/utregning.ts';
-import { kravposterI } from '../format/kravinnhold.ts';
+import { kravposterI } from '../spor/vederlag/format.ts';
 import { hindrerSvarPaaKravet } from '../kommandoer/forutsetninger.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Korrespondansetype, Krav, Part, Spor } from '../typer.ts';

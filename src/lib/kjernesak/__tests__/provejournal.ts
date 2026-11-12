@@ -3,7 +3,7 @@
 import type { Saksmerking } from '$lib/kjernesak/brevtekst';
 import { forhaandsvis, utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
-import { kravposterI } from '$kjerne/format/kravinnhold';
+import { kravposterI } from '$kjerne/spor/vederlag/format';
 import type { Journalrad, Part } from '$kjerne/typer';
 
 export const SAK = 'sak-1';

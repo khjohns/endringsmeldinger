@@ -6,7 +6,8 @@
 import { beloep } from '../regler/beloep.ts';
 import type { Forholdsresultat } from '../regler/typer.ts';
 import { begrensningen, etikett, laget, standpunktet, type Svarinnhold } from './standpunkt.ts';
-import { kategori, kravposterI } from '../format/kravinnhold.ts';
+import { kategori } from '../format/kravinnhold.ts';
+import { kravposterI } from '../spor/vederlag/format.ts';
 import {
   erKravpostvarselhjemmel,
   type Hjemmel,

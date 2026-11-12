@@ -8,7 +8,7 @@
  * `id` og betegnelse på de nye postene, journalen etter.
  */
 
-import { kravposterI } from '../format/kravinnhold.ts';
+import { kravposterI } from '../spor/vederlag/format.ts';
 import type { Krav, Kravpost, Kravpostvarselet, Kravpostvarselhjemmel } from '../typer.ts';
 
 type Postinndata = { id?: unknown; betegnelse?: unknown };

@@ -11,12 +11,8 @@ import type { Dokument, Journalrad, Kravspor, Oppgjoersform, Part, Spor } from '
 import { kalenderdag, registrertDato } from '../kjerne/format/leser.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
-import {
-  innholdIForholdet,
-  innholdIFristen,
-  kravposterI,
-  krevdSamlet,
-} from '../kjerne/format/kravinnhold.ts';
+import { innholdIForholdet, innholdIFristen } from '../kjerne/format/kravinnhold.ts';
+import { kravposterI, krevdSamlet } from '../kjerne/spor/vederlag/format.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import {
   betegnelse,

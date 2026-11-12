@@ -26,7 +26,13 @@ import {
   registrertDato,
   sammeSlag,
 } from '../format/leser.ts';
-import { OPPGJOERSHJEMMEL, oppgittDato } from '../format/format.ts';
+import { oppgittDato } from '../format/format.ts';
+import {
+  harProduktivitetspost,
+  innholdIVederlaget,
+  kravposterI,
+  OPPGJOERSHJEMMEL,
+} from '../spor/vederlag/format.ts';
 import { kravposteneStrider, kravpostvarseletStrider, varselhjemmel } from './kravposter.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
@@ -44,12 +50,7 @@ import {
   sammenfallStemmer,
   standpunktet,
 } from '../frosset/standpunkt.ts';
-import {
-  harProduktivitetspost,
-  innholdIForholdet,
-  innholdIVederlaget,
-  kravposterI,
-} from '../format/kravinnhold.ts';
+import { innholdIForholdet } from '../format/kravinnhold.ts';
 import {
   KRAVSPOR,
   SPOR,

@@ -21,13 +21,8 @@ import {
   kontrollerSpesifiseringen,
   kontrollerVarseletForVederlag,
 } from '../regler/svarkontroll.ts';
-import {
-  innholdIFristen,
-  kategori,
-  krevdIKravposten,
-  krevdProduktivitet,
-  kravposterI,
-} from '../format/kravinnhold.ts';
+import { innholdIFristen, kategori } from '../format/kravinnhold.ts';
+import { krevdIKravposten, krevdProduktivitet, kravposterI } from '../spor/vederlag/format.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
 import { type Krav, type Kravpost, type Spor, utenGren } from '../typer.ts';
 

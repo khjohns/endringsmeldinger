@@ -40,6 +40,9 @@ export const NOEKKELORD = new Set([
   'minItems',
 ]);
 
+/** Feltene `id` og `art` i et standpunkt av arten. */
+export const artfelt = (art: string) => ({ id: ID, art: { const: art } });
+
 /** Leseren forstår ikke raden (MM-U2). */
 export class Uforstaatt extends Error {}
 

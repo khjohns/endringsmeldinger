@@ -14,7 +14,7 @@ import type { Krav, Spor } from '$kjerne/typer';
 import { KRAVINNHOLD, oppgittDato } from '$kjerne/format/format';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { lesKroner } from '$lib/utils/belop';
-import { kravposterI } from '$kjerne/format/kravinnhold';
+import { kravposterI } from '$kjerne/spor/vederlag/format';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 

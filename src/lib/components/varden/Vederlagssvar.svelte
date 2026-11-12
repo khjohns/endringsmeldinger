@@ -18,7 +18,7 @@
 <script lang="ts">
   import { BookOpen, FileText, Info } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
-  import { harProduktivitetspost, kravposterI } from '$kjerne/format/kravinnhold';
+  import { harProduktivitetspost, kravposterI } from '$kjerne/spor/vederlag/format';
   import { kroner } from '$kjerne/frosset/tekst';
   import {
     brevaarsak,

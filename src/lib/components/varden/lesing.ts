@@ -9,14 +9,13 @@ import { omtalen } from '$kjerne/frosset/brevtekst';
 import { oppgittDato } from '$kjerne/format/format';
 import { FORHOLDSGRUPPER, forholdet } from '$kjerne/frosset/forholdene';
 import { grunnerFraForholdet, plassene } from '$kjerne/frosset/standpunkt';
+import { innholdIForholdet, innholdIFristen } from '$kjerne/format/kravinnhold';
 import {
   harHovedbeloep,
-  innholdIForholdet,
-  innholdIFristen,
   kravposterI,
   krevdSamlet,
   krevdProduktivitet,
-} from '$kjerne/format/kravinnhold';
+} from '$kjerne/spor/vederlag/format';
 import { tilTall } from '$kjerne/regler/beloep';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { TilbudtHandling } from '$kjerne/kommandoer/handlinger';

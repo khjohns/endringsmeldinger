@@ -4,7 +4,7 @@
  * kravet, så `regler/` ikke når `frosset/`. Hver kontroll kaster `UgyldigVurdering`.
  */
 
-import { METODER } from '../format/format.ts';
+import { METODER } from '../spor/vederlag/format.ts';
 import { UgyldigVurdering } from './feil.ts';
 import type { Oppgjoersform } from '../typer.ts';
 import type { Regelsett } from './regelsett.ts';

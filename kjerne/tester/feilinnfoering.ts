@@ -3096,7 +3096,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F374',
     feilklasse:
       'vederlagskravet krever kravposter, også med posten etter § 34.1.3 (OV-U89 punkt 6)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
         "    anyOf: [{ required: ['kravposter'] }, { required: ['saerskilt'] }],\n",
@@ -3108,7 +3108,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F375',
     feilklasse: 'kravet uten kravposter og uten postene utenfor godtas (OV-U89 punkt 6)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
         "    anyOf: [{ required: ['kravposter'] }, { required: ['saerskilt'] }],\n",
@@ -4741,7 +4741,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F547',
     feilklasse:
       'formatet forstår rigg og drift i et lagret vederlagskrav før posten er bygget (MM-U2, #1775)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
         "saerskilt: objekt({ produktivitet: BELOEPSPOST }, ['produktivitet']),",

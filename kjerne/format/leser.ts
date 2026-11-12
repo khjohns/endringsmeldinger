@@ -24,7 +24,8 @@ import {
   UTSAGN,
 } from './format.ts';
 import { beloep } from '../regler/beloep.ts';
-import { utregningIFristen, utregningIVederlaget } from './svarinnhold.ts';
+import { utregningIFristen } from './svarinnhold.ts';
+import { utregningIVederlaget } from '../spor/vederlag/format.ts';
 import { avvikIMerkingen, avvikITittelen } from '../frosset/brevtittel.ts';
 import { erKalenderdato, erObjekt, feilI, Uforstaatt, type Skjema } from './skjema.ts';
 import type {

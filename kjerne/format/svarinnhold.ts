@@ -5,11 +5,7 @@
  * utregning som ikke er kontrollert, så et felt kan mangle der.
  */
 
-import type { Fristutregning, Vederlagsutregning } from '../typer.ts';
-
-/** Utregningen i et svar på vederlaget. */
-export const utregningIVederlaget = (utregning: Record<string, unknown>): Vederlagsutregning =>
-  utregning as unknown as Vederlagsutregning;
+import type { Fristutregning } from '../typer.ts';
 
 /** Utregningen i et svar på fristen. */
 export const utregningIFristen = (utregning: Record<string, unknown>): Fristutregning =>

@@ -7,13 +7,8 @@
  * skrives.
  */
 
-import {
-  DATOEN_GJELDER,
-  KRAVINNHOLD,
-  vederlagsinnhold,
-  oppgittDato,
-  OPPLYSNINGSSLAG,
-} from '../format/format.ts';
+import { DATOEN_GJELDER, KRAVINNHOLD, oppgittDato, OPPLYSNINGSSLAG } from '../format/format.ts';
+import { vederlagsinnhold } from '../spor/vederlag/format.ts';
 import {
   DATO,
   erKalenderdato,
