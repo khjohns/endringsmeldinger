@@ -21,6 +21,8 @@
  *
  * - Rollefilene i et spor (`spor/<spor>/<rolle>.ts`, #1783) hører til mappen rollen står
  *   for, og grensene for mappen gjelder dem. `regler/` når ikke frysingen eller teksten.
+ *   Byggeklossene for postene (`spor/poster/<rolle>.ts`, #1778) er rollefiler på samme måte,
+ *   og importerer bare `typer.ts`.
  *
  * Importene leses med TypeScript-parseren, ikke med et tekstsøk, så `import`,
  * `import type`, `export … from`, `import()` og `require()` teller likt, med og
@@ -32,7 +34,7 @@ import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
-import { SPOR, type Spor } from '../typer.ts';
+import { SPOR } from '../typer.ts';
 
 const KJERNE = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROT = resolve(KJERNE, '..');
@@ -50,24 +52,27 @@ const ROLLER = {
   kommando: 'kommandoer',
 } as const;
 type Rolle = keyof typeof ROLLER;
+/** Byggeklossene for postene i kravet og svaret per post, som sporene bruker (#1778). */
+const POSTER = 'poster';
+const SPORMAPPENE: readonly string[] = [...SPOR, POSTER];
 const erRolle = (navn: string | undefined): navn is Rolle =>
   navn !== undefined && Object.hasOwn(ROLLER, navn);
 
-/** Rollefilene i hvert spor, også de som ikke finnes ennå. */
+/** Rollefilene i hvert spor og for postene, også de som ikke finnes ennå. */
 const rollefilene = (...roller: Rolle[]) =>
-  SPOR.flatMap((s) => roller.map((r) => join(KJERNE, 'spor', s, `${r}.ts`)));
+  SPORMAPPENE.flatMap((s) => roller.map((r) => join(KJERNE, 'spor', s, `${r}.ts`)));
 
 /**
- * Mappen `fil` hører til: mappen den står i, eller for en rollefil i et spor mappen rollen
- * hører til. `null` for en fil utenfor kjernen eller rett i den, og for en fil i `spor/` som
- * ikke er en rollefil.
+ * Mappen `fil` hører til: mappen den står i, eller for en rollefil i et spor eller for postene
+ * mappen rollen hører til. `null` for en fil utenfor kjernen eller rett i den, og for en fil i
+ * `spor/` som ikke er en rollefil.
  */
 export function mappenTil(fil: string): string | null {
   if (!fil.startsWith(KJERNE + sep)) return null;
   const deler = relative(KJERNE, utenEndelse(fil)).split(sep);
   if (deler[0] !== 'spor') return deler.length > 1 ? deler[0]! : null;
   const [, spor, rolle] = deler;
-  return deler.length === 3 && SPOR.includes(spor as Spor) && erRolle(rolle) ? ROLLER[rolle] : null;
+  return deler.length === 3 && SPORMAPPENE.includes(spor!) && erRolle(rolle) ? ROLLER[rolle] : null;
 }
 
 /** Modulene reglene ikke kan nå. */
@@ -272,10 +277,39 @@ describe('et spor har bare rollefiler (#1783)', () => {
     ['typer.ts', null],
     ['spor/vederlag/annet.ts', null],
     ['spor/vederlag/frysing/a.ts', null],
-    ['spor/poster/tekst.ts', null],
+    ['spor/poster/utledning.ts', 'utledning'],
+    ['spor/poster/kommando.ts', 'kommandoer'],
+    ['spor/poster/annet.ts', null],
+    ['spor/postene/format.ts', null],
     ['../src/kommandoer/a.ts', null],
   ])('%s hører til %s', (navn, mappe) => {
     expect(mappenTil(join(KJERNE, navn))).toBe(mappe);
+  });
+});
+
+/** Importene i `fil` som ikke er `typer.ts`. */
+const utenomTyper = (fil: string, kilde: string) =>
+  importer(fil, kilde).filter((i) => i !== join(KJERNE, 'typer'));
+
+// Planen i #1783 for #1778: byggeklossene for postene importerer bare `typer.ts`, så hvert spor
+// kan bruke dem uten en sirkel gjennom de felles modulene.
+describe('byggeklossene for postene importerer bare typer.ts (#1778)', () => {
+  it.each(
+    filer
+      .filter((f) => f.startsWith(join(KJERNE, 'spor', POSTER) + sep))
+      .map((f) => [relative(KJERNE, f), f] as const)
+  )('%s', (_navn, fil) => {
+    expect(utenomTyper(fil, readFileSync(fil, 'utf8'))).toEqual([]);
+  });
+
+  it.each([
+    ["import type { Krav } from '../../typer.ts';", []],
+    ["import { kravposterI } from '../vederlag/format.ts';", ['spor/vederlag/format']],
+    ["import type { Utledning } from '../../utledning/utled';", ['utledning/utled']],
+    ["export * from './kommando.ts';", ['spor/poster/kommando']],
+  ])('%s gir %j', (linje, ut) => {
+    const fil = join(KJERNE, 'spor', POSTER, 'utledning.ts');
+    expect(utenomTyper(fil, linje).map((i) => relative(KJERNE, i))).toEqual(ut);
   });
 });
 
@@ -1380,12 +1414,27 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kravposter trekker',
     ['spor/vederlag/utledning.ts:kravposteneStrider'],
   ],
-  ['Postinndata', 'kommando', 'id betegnelse', ['spor/vederlag/utledning.ts:kravposteneStrider']],
+  // #1778: versjonsregelen for postene, som vederlaget bruker for kravpostene.
+  ['Versjonsinndata', 'kommando', 'poster trekker', ['spor/poster/utledning.ts:posteneStrider']],
+  ['Postinndata', 'kommando', 'id betegnelse', ['spor/poster/utledning.ts:posteneStrider']],
+  ['Post', 'relasjon', 'id betegnelse', ['spor/poster/utledning.ts']],
+  [
+    'spor/poster/utledning.ts',
+    'predikat',
+    'posteneStrider',
+    ['spor/vederlag/utledning.ts:kravposteneStrider'],
+  ],
   ['spor/vederlag/utledning.ts', 'predikat', 'kravposteneStrider', ['spor/vederlag/kommando.ts']],
+  [
+    'spor/poster/utledning.ts',
+    'relasjon',
+    'brukteBetegnelser',
+    ['spor/vederlag/kommando.ts:medKravposter'],
+  ],
   [
     'spor/vederlag/utledning.ts',
     'relasjon',
-    'brukteBetegnelser nesteBetegnelse',
+    'nesteBetegnelse',
     ['spor/vederlag/kommando.ts:medKravposter'],
   ],
   // VS-U49, D-16, VS-U55: varselet for hver kravpost, lest av skriveren for brevteksten (A6).

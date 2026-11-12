@@ -4054,14 +4054,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F476',
     feilklasse: 'en ny kravversjon kan utelate en kravpost uten å trekke den (KA-U56)',
-    fil: `${K}/spor/vederlag/utledning.ts`,
+    fil: `${K}/spor/poster/utledning.ts`,
     endringer: [['  return mangler.length\n', '  return mangler.length && false\n']],
     mal: ['verken tar med eller trekker P1'],
   },
   {
     id: 'F549',
     feilklasse: 'en trukket kravpost avvises når den tas med igjen (KA-U75)',
-    fil: `${K}/spor/vederlag/utledning.ts`,
+    fil: `${K}/spor/poster/utledning.ts`,
     endringer: [
       [
         '    if (id !== undefined && !kjent && !lagret)',
@@ -4098,11 +4098,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F478',
     feilklasse: 'en ny kravpost får en betegnelse som er brukt før i sporet (KA-U53, KA-U75)',
-    fil: `${K}/spor/vederlag/utledning.ts`,
+    fil: `${K}/spor/poster/utledning.ts`,
     endringer: [
       [
-        '  return new Set(tidligere.flatMap((k) => kravposterI(k).map((p) => p.betegnelse)));',
-        '  return new Set(kravposterI(tidligere.at(-1) ?? { innhold: {} }).map((p) => p.betegnelse));',
+        '  return new Set(versjoner.flatMap((poster) => poster.map((p) => p.betegnelse)));',
+        '  return new Set((versjoner.at(-1) ?? []).map((p) => p.betegnelse));',
       ],
     ],
     mal: ['en trukket kravpost kan tas med igjen'],

@@ -29,8 +29,8 @@ import {
   vederlagsinnhold,
 } from './format.ts';
 import { erObjekt, feilI, objekt } from '../../format/skjema.ts';
+import { brukteBetegnelser } from '../poster/utledning.ts';
 import {
-  brukteBetegnelser,
   kravposteneStrider,
   kravpostvarseletStrider,
   nesteBetegnelse,
@@ -284,7 +284,7 @@ function medKravposter(
   const betegnelsen = new Map(
     tidligere.flatMap((k) => kravposterI(k)).map((p) => [p.id, p.betegnelse])
   );
-  const brukte = brukteBetegnelser(tidligere);
+  const brukte = brukteBetegnelser(tidligere.map(kravposterI));
   const kravposter = (innhold.kravposter as Record<string, unknown>[]).map((p) => {
     if (typeof p.id === 'string') return { ...p, betegnelse: betegnelsen.get(p.id)! };
     const betegnelse = nesteBetegnelse(brukte);
