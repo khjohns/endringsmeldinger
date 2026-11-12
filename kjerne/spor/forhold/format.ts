@@ -138,7 +138,7 @@ export function innholdIForholdet(krav: Pick<Krav, 'innhold'> | null | undefined
   const innhold = krav?.innhold ?? {};
   return {
     hovedkategori: tekst(innhold.hovedkategori),
-    underkategori: foersteUnderkategori(innhold.underkategori as string | string[] | null),
+    underkategori: tekst(foersteUnderkategori(innhold.underkategori as string | string[] | null)),
     endringsordre: tekst(innhold.endringsordre),
     datoer: {
       paalegg_mottatt: tekst(innhold.paalegg_mottatt),
