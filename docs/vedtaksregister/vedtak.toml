@@ -3887,6 +3887,43 @@ tekst = '''
 Har saken et varsel etter samme bestemmelse som ingen kravpost viser til, velger totalentreprenøren i kravskjemaet for hver kravpost med den beregningsregelen som ikke hadde den i en tidligere versjon, hvilket av varslene den gjelder, eller at kravet er varselet for posten. Har saken ett slikt varsel, er det forhåndsvalgt. Kravet sendes ikke uten valget. Kravposten viser til varselet med feltet i VS-U54. Et feil valg rettes i en ny kravversjon, men tidsrommet for svaret på et varsel som en sendt kravversjon har vist til, åpnes ikke igjen (VS-U62). En påberopelse i svaret på et varsel står bare mot kravpostene som gjelder det (VS-U61). Forhold: endrer arbeidsvalget i Følge hos VS-U48 og D-16 i BF-14 («gjelder uten valg»), snevrer inn VS-U62, endrer VS-U54 ved at feltet er påkrevd for slike poster, utvider VS-U50 til poster med et tidligere varsel, presiserer VS-U61.'''
 anbefalt = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "VS-U70"
+dato = 2026-11-12
+hvem = "oppdragsgiver"
+kilde = ["#1843", "#1065"]
+sporsmal = '''
+V1, ordrett slik det ble stilt 12.11 i runde B i #1065 og lagret i [#1843](https://github.com/khjohns/endringsmeldinger/pull/1843#issuecomment-6834417658). V1 kom fra reviewet av samspillet mellom reglene i #1843.
+
+**V1. Hvilket varsel byggherrens påberopelse og en ny kravversjon viser til, når totalentreprenørens eget varsel er datert etter det første kravet.**
+
+- A (anbefalt): «Har totalentreprenøren både et eget varsel etter punkt 33.4, 34.1.2 eller 34.1.3 og et krav som etter samlevedtaket for varslingsdatoen punkt 7–9 er sendt før det, gjelder byggherrens påberopelse av at varselet kom for sent, det tidligste av dem, slik kontrollen etter VS-U60 regner. En ny kravversjon viser til det samme dokumentet i punktet om varselet. Et svar byggherren alt har gitt, står med virkningen det hadde (MM-U50). Forhold: endrer samlevedtaket for varslingsdatoen (VS-U43) punkt 8, 9 og 10 (OV-U29, OV-U24, LV-U10); presiserer VS-U66.»
+- B: «Det egne varselet går foran det første kravet i påberopelsen og i den nye kravversjonen, også når det er datert etter kravet. Kontrollen etter VS-U60 regner fortsatt med det tidligste (VS-U66). Forhold: presiserer samlevedtaket for varslingsdatoen (VS-U43) punkt 10.»
+
+Hva valget styrer: hvilket brev byggherrens påberopelse etter punkt 33.4, 34.1.2 og 34.1.3 gjelder, og hvilket brev punktet om varselet i totalentreprenørens nye kravversjon viser til.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 12.11, ordrett ([#1843](https://github.com/khjohns/endringsmeldinger/pull/1843#issuecomment-6834417658)): «A».'''
+forhold = [
+  { art = "endrer", vedtak = "vs-u43" },
+  { art = "presiserer", vedtak = "vs-u66" },
+]
+folge = '''
+Forholdet står i alternativ A: «endrer samlevedtaket for varslingsdatoen (VS-U43) punkt 8, 9 og 10 (OV-U29, OV-U24, LV-U10)». Punktene står i VS-U43, og forholdet er ført til VS-U43. Bygges i #1843.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+anbefalt = true
+tekst = '''
+Har totalentreprenøren både et eget varsel etter punkt 33.4, 34.1.2 eller 34.1.3 og et krav som etter samlevedtaket for varslingsdatoen punkt 7–9 er sendt før det, gjelder byggherrens påberopelse av at varselet kom for sent, det tidligste av dem, slik kontrollen etter VS-U60 regner. En ny kravversjon viser til det samme dokumentet i punktet om varselet. Et svar byggherren alt har gitt, står med virkningen det hadde (MM-U50). Forhold: endrer samlevedtaket for varslingsdatoen (VS-U43) punkt 8, 9 og 10 (OV-U29, OV-U24, LV-U10); presiserer VS-U66.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+forkastet = true
+tekst = '''
+Det egne varselet går foran det første kravet i påberopelsen og i den nye kravversjonen, også når det er datert etter kravet. Kontrollen etter VS-U60 regner fortsatt med det tidligste (VS-U66). Forhold: presiserer samlevedtaket for varslingsdatoen (VS-U43) punkt 10.'''
+
 
 [[gruppe]]
 tittel = "Svar og standpunkt"
