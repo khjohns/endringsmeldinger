@@ -10,6 +10,7 @@ import { innholdIForholdet, oppgittDato } from '$kjerne/spor/forhold/format';
 import { FORHOLDSGRUPPER, forholdet } from '$kjerne/spor/forhold/tekst';
 import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
 import { plassene } from '$kjerne/frosset/byggeklosser';
+import { enighetsgrunnlag } from '$kjerne/frosset/standpunkt';
 import { innholdIFristen } from '$kjerne/format/kravinnhold';
 import { kravposterI, krevdSamlet } from '$kjerne/spor/vederlag/format';
 import { tilTall } from '$kjerne/regler/beloep';
@@ -384,8 +385,8 @@ export interface TilknyttetKrav {
    */
   krevd: { tall: number | null; regel: Oppgjoersform | 'flere' | null; brev: Brevref } | null;
   /**
-   * `utenBeloep` er betegnelsene på kravpostene der byggherren ikke har akseptert tilbudet, og
-   * som derfor står uten beløp i svaret (KA-U72, OV-U73).
+   * `utenBeloep` er betegnelsene på kravpostene uten fast beløp prinsipalt i svaret, fra
+   * utfallet kjernen regner av brevet (`uten_fast_beloep`, OV-U73).
    */
   svaret: {
     poster: { tall: number; lag: string | null }[];
@@ -413,20 +414,6 @@ export function beregningsregelen(
 ): Exclude<Oppgjoersform, 'tilbud'> | 'flere' | null {
   const regler = new Set(former.filter((f) => f !== 'tilbud'));
   return regler.size === 0 ? null : regler.size === 1 ? [...regler][0]! : 'flere';
-}
-
-/**
- * Betegnelsene på kravpostene svaret har et standpunkt til beløpet for uten beløp (KA-U72), slått
- * opp i kravversjonene i sporet, siden svaret kan gjelde en tidligere versjon. En kravpost som
- * ikke finnes, står med id.
- */
-function kravposterUtenBeloep(svar: Svar, krav: readonly Krav[]): string[] {
-  const poster = krav.flatMap((k) => kravposterI(k));
-  return svar.standpunkter.flatMap((s) =>
-    s.art === 'beloep' && s.godkjent === undefined && s.gjelder
-      ? [poster.find((p) => p.id === s.gjelder)?.betegnelse ?? s.gjelder]
-      : []
-  );
 }
 
 export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): TilknyttetKrav {
@@ -464,7 +451,8 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
                   ? [{ tall: l.standpunkt.vurdert, lag: l.lag }]
                   : []
             ),
-            utenBeloep: kravposterUtenBeloep(svar, s.krav),
+            // Utfallet en aksept av svaret ville gitt, som kjernen regner det av brevet (OV-U73).
+            utenBeloep: kravposterUtenFastBeloep(enighetsgrunnlag(svar, 'aksept').utfall, s.krav),
             brev: ref(svarbrev),
           }
         : null,

@@ -262,6 +262,32 @@ describe('«Tilknyttede krav» og kravpostene uten beløp (#1752 punkt 2)', () =
     expect(svaret.utenBeloep).toEqual([p1!.betegnelse]);
   });
 
+  it('når byggherren gjør gjeldende at varselet om vederlaget kom for sent, står ingen kravpost uten beløp, fordi utfallet prinsipalt er 0 kr (frysingen i vederlaget, utfallet ved preklusjon)', async () => {
+    const u = await utledning([
+      // § 34.1.2 gjelder svikt og andre forhold, som grunnforholdene.
+      { ...PAABEROPELSE, hovedkategori: 'svikt', underkategori: 'grunnforhold' },
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [{ belop: 100000 }, { belop: 40000 }],
+      },
+      brevet(
+        { spor: 'forhold', navn: 'S-g1', resultat: 'godkjent' },
+        {
+          spor: 'vederlag',
+          navn: 'S-v1',
+          varslet_i_tide: false,
+          kravposter: [
+            { post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 },
+            ikkeAkseptert('P2'),
+          ],
+        }
+      ),
+    ]);
+    expect(tilknyttetKrav(u, 'vederlag').svaret!.utenBeloep).toEqual([]);
+  });
+
   it('kontrollsak: når tilbudet er akseptert, står ingen kravpost uten beløp', async () => {
     const u = await utledning([
       PAABEROPELSE,
