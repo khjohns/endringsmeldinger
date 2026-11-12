@@ -482,14 +482,19 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Svar', 'relasjon', 'id spor gjelder erstatter dokument paaberopelse'],
   ['Svar', 'utsagn', 'standpunkter'],
   ['Svar', 'frosset', 'beslutningsgrunnlag'],
-  ['Svar', 'frosset svar', 'utregning', ['frosset/standpunkt.ts:godkjennerHeleKravet']],
+  [
+    'Svar',
+    'frosset svar',
+    'utregning',
+    ['frosset/standpunkt.ts:fristenGodkjent', 'spor/vederlag/frysing.ts:godkjennerHeleKravet'],
+  ],
   [
     'Vederlagsutregning',
     'frosset svar',
     'resultat',
-    ['frosset/standpunkt.ts:godkjennerHeleKravet'],
+    ['spor/vederlag/frysing.ts:godkjennerHeleKravet'],
   ],
-  ['Fristutregning', 'frosset svar', 'resultat', ['frosset/standpunkt.ts:godkjennerHeleKravet']],
+  ['Fristutregning', 'frosset svar', 'resultat', ['frosset/standpunkt.ts:fristenGodkjent']],
   ['Utsagn', 'relasjon', 'id art gjelder spor'],
   ['Utsagn', 'utsagn', 'hva'],
   // OV-U5: bestemmelsen TEs varsel er gitt etter, § 33.4 eller § 34.1.2.
@@ -620,7 +625,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/byggeklosser.ts',
     'regelsett',
     'gjelderVarslingsplikten hjemmelenGjelder',
-    ['kommandoer/nyttelast.ts', 'frosset/frysing.ts:beslutningsgrunnlag', 'frosset/standpunkt.ts'],
+    [
+      'kommandoer/nyttelast.ts',
+      'frosset/frysing.ts:beslutningsgrunnlag',
+      'frosset/standpunkt.ts',
+      'spor/vederlag/frysing.ts',
+    ],
   ],
   // § 32.3 første ledd a for et brev sendt i appen, lest av beslutningsgrunnlaget (GR-U12, #351).
   [
@@ -702,7 +712,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['OPPGJOERSFORM_I_HJEMMELEN', 'skjema', '34.2.2 34.3 34.4', ['spor/vederlag/format.ts']],
   // Kravposten standpunktene gjelder (KA-U57 (c) og (d)).
-  ['frosset/standpunkt.ts:beregningsregelLag', 'relasjon', 'gjelder'],
+  ['spor/vederlag/frysing.ts:beregningsregelLag', 'relasjon', 'gjelder'],
   ['kommandoer/lag.ts:innenforKravposten', 'relasjon', 'gjelder'],
   // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav med rigg og drift (#1663).
   [
@@ -742,30 +752,30 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/byggeklosser.ts:plassene',
     'frosset',
     'standpunkt',
-    ['frosset/standpunkt.ts:postlisten'],
+    ['spor/vederlag/frysing.ts:postlisten'],
   ],
-  ['frosset/byggeklosser.ts', 'frosset', 'plassene', ['frosset/standpunkt.ts:postlisten']],
+  ['frosset/byggeklosser.ts', 'frosset', 'plassene', ['spor/vederlag/frysing.ts:postlisten']],
   // Valg 4 i #1047: postene i det frosne brevet, med beløpet etter en virksom begrensning.
   // Utfallet summerer dem; visningen leser resten av postlisten.
   [
-    'frosset/standpunkt.ts:postlisten',
+    'spor/vederlag/frysing.ts:postlisten',
     'frosset',
     'poster',
-    ['frosset/standpunkt.ts:prinsipaltIVederlaget'],
+    ['spor/vederlag/frysing.ts:prinsipaltIVederlaget'],
   ],
   [
     'Vederlagspost',
     'utsagn',
     'godkjent begrensning saerskilt gjelder',
-    ['frosset/standpunkt.ts:prinsipaltIVederlaget'],
+    ['spor/vederlag/frysing.ts:prinsipaltIVederlaget'],
   ],
   // OV-U73: en kravpost med beløpet i et senere lag regnes ikke med i det prinsipale.
-  ['Plass', 'frosset', 'lag', ['frosset/standpunkt.ts:prinsipaltIVederlaget']],
+  ['Plass', 'frosset', 'lag', ['spor/vederlag/frysing.ts:prinsipaltIVederlaget']],
   [
     'Vederlagspost.begrensning',
     'utsagn',
     'beloep',
-    ['frosset/standpunkt.ts:prinsipaltIVederlaget'],
+    ['spor/vederlag/frysing.ts:prinsipaltIVederlaget'],
   ],
   // OV-U23, OV-U24: posten etter § 34.1.3 leses ett sted, av brevet og første kjente varsel.
   [
@@ -900,10 +910,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regler/vederlag.ts',
     'regelsett',
     'lagIKravposten',
-    ['frosset/standpunkt.ts:beregningsregelLag'],
+    ['spor/vederlag/frysing.ts:beregningsregelLag'],
   ],
   [
-    'frosset/standpunkt.ts',
+    'spor/vederlag/frysing.ts',
     'regelsett',
     'beregningsregelLag',
     ['kommandoer/lag.ts:innenforKravposten'],
@@ -1039,7 +1049,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/byggeklosser.ts',
     'frosset',
     'laget',
-    ['frosset/brevtekst.ts', 'kommandoer/lag.ts', 'frosset/tekst.ts', 'frosset/standpunkt.ts'],
+    [
+      'frosset/brevtekst.ts',
+      'kommandoer/lag.ts',
+      'frosset/tekst.ts',
+      'frosset/standpunkt.ts',
+      'spor/vederlag/frysing.ts',
+    ],
   ],
   // OV-U32, OV-U33: lagene i et svarutkast regnes som brevet regner dem (S1-A i #1400).
   [
@@ -1055,7 +1071,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'godkjennerHeleKravet',
     ['frosset/frysing.ts:beslutningsgrunnlag'],
   ],
-  ['frosset/standpunkt.ts', 'frosset', 'begrensningen', ['frosset/tekst.ts:beslutningslinje']],
+  ['spor/vederlag/frysing.ts', 'frosset', 'begrensningen', ['frosset/tekst.ts:beslutningslinje']],
+  // #1783: det som er sporets eget i frysingen av svaret.
+  ['Svarsfrysing', 'frosset', 'virkninger utfall godkjennerHeleKravet', ['frosset/standpunkt.ts']],
+  ['spor/vederlag/frysing.ts', 'frosset', 'FRYSING_I_VEDERLAGET', ['frosset/standpunkt.ts']],
   [
     'format/kravinnhold.ts',
     'utsagn',
@@ -1457,13 +1476,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/svarinnhold.ts',
     'rad',
     'utregningIFristen',
-    ['format/leser.ts', 'frosset/standpunkt.ts:godkjennerHeleKravet'],
+    ['format/leser.ts', 'frosset/standpunkt.ts:fristenGodkjent'],
   ],
   [
     'spor/vederlag/format.ts',
     'rad',
     'utregningIVederlaget',
-    ['frosset/standpunkt.ts:godkjennerHeleKravet'],
+    ['spor/vederlag/frysing.ts:godkjennerHeleKravet'],
   ],
   [
     'Vederlagsutregning',

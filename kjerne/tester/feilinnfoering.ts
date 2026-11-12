@@ -196,8 +196,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "if (svar.spor === 'forhold') return standpunktet(svar, 'forhold')?.resultat === 'godkjent';",
-        "if (svar.spor === 'forhold') return false;",
+        "godkjennerHeleKravet: (svar) => standpunktet(svar, 'forhold')?.resultat === 'godkjent',",
+        'godkjennerHeleKravet: () => false,',
       ],
     ],
     mal: ['F-MM-G10', 'F-MM-A5b'],
@@ -1498,7 +1498,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F180',
     feilklasse:
       'aksept av et svar med preklusjon etter § 34.1.2 gir det subsidiære beløpet (VS-U3)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [
       [
         'prekludert ? { beloep: 0 } : prinsipaltIVederlaget(svar, v)',
@@ -1574,7 +1574,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F187',
     feilklasse: 'godkjenningen av oppgjør som fast sum står uten lag (OV-U33, LV-U31)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [
       [
         "if (s.art === 'beloep' && s.saerskilt) return posten ? foerste + 1 : ellers;",
@@ -1704,7 +1704,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F200',
     feilklasse:
       'et tilbud byggherren ikke aksepterer, gir sammenfall når utregningen sier «godkjent» (arbeidsvalget i #479, MM-U43 punkt 8)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [['if (tilbudetIkkeAkseptert(svar)) return false;', 'void 0;']],
     mal: ['sammenfall med et tilbud byggherren ikke aksepterer'],
   },
@@ -3264,7 +3264,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F392',
     feilklasse: 'justeringen ellers er upåvirket også når forholdet er avslått (OV-U33)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [['rammer && !hele && forskyvning === 0', 'rammer && !hele']],
     mal: ['med avslått forhold er justeringen ellers i sporets første lag og ikke upåvirket'],
   },
@@ -3319,7 +3319,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F399',
     feilklasse: 'en begrensning etter § 34.1.3 i et lag gir sammenfall (VS-U5, #479)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [['if (begrensningen(svar, v)) return false;', '']],
     mal: ['en begrensning i et lag gir ikke sammenfall'],
   },
@@ -3426,7 +3426,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F412',
     feilklasse:
       'en påberopelse etter § 34.1.3 uten virkning begrenser posten i postlisten (presiseringen 24.10 i #1047, VS-U5)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [
       [
         '  const begrenset = begrensningen(svar, v);\n  const poster = svar.standpunkter',
@@ -4251,7 +4251,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F507',
     feilklasse:
       'utfallet sier ikke at en kravpost ikke har fast beløp prinsipalt (OV-U73, svar 6 A i #1663)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [['...(uten.length ? { uten_fast_beloep: uten } : {})', '...{}']],
     mal: ['svaret på to kravposter med fast sum navngir kravposten'],
   },
@@ -4309,7 +4309,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F494',
     feilklasse: 'et tilbud som ikke er akseptert, gir et eget lag for beløpet i svaret (KA-U72)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [
       [
         "      if ('gjelder' in s && s.gjelder !== undefined && tilbudet.has(s.gjelder)) return foerste;",
@@ -4334,7 +4334,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F496',
     feilklasse: 'utfallet regner med en kravpost uten fast beløp (KA-U72, OV-U73)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [
       [
         '    else if (!p.saerskilt && ((p.lag ?? 1) > 1 || p.godkjent === undefined))',
@@ -4554,7 +4554,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F527',
     feilklasse:
       'en beregningsregel byggherren ikke godtar, gjør ikke de andre kravpostene upåvirket (arbeidsvalg 1 punkt 2 i #1663, OV-U33)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [["          (s.art === 'oppgjoersform' && !s.aksepterer))", '          false)']],
     mal: ['en kravpost som verken beregningsregelen byggherren ikke godtar'],
   },
@@ -4570,7 +4570,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F529',
     feilklasse:
       'et tilbud byggherren ikke aksepterer, gjør ikke de andre kravpostene upåvirket (arbeidsvalget 10.11 i #1760, OV-U33)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [['    tilbudet.size > 0 ||\n', '']],
     mal: ['et tilbud byggherren ikke aksepterer, rammer bare sin egen kravpost'],
   },
@@ -4578,7 +4578,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F530',
     feilklasse:
       'standpunktene for kravposten med tilbudet som ikke er akseptert, er upåvirket i stedet for i det første laget (#1760, KA-U72)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [
       [
         "      if ('gjelder' in s && s.gjelder !== undefined && tilbudet.has(s.gjelder)) return foerste;\n",
@@ -4725,7 +4725,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F545',
     feilklasse:
       'virkningene gir beløpet for en kravpost etter en beregningsregel et lag utregningen ikke har (OV-U32, #1774)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [['      lag.beloepet\n', '      lag.beloepet + 1\n']],
     mal: ['antallet lag i utregningen er det høyeste laget i virkningene'],
   },

@@ -5,7 +5,8 @@
  * S1-A og S2-A i #1400, 30.10).
  */
 
-import { beregningsregelLag, grunnerFraForholdet, virkninger } from '../frosset/standpunkt.ts';
+import { grunnerFraForholdet, virkninger } from '../frosset/standpunkt.ts';
+import { beregningsregelLag } from '../spor/vederlag/frysing.ts';
 import { etikett, laget } from '../frosset/byggeklosser.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { kravpostvurderinger } from '../frosset/utregning.ts';

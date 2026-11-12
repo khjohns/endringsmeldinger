@@ -7,7 +7,15 @@
 import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { kategori } from '../format/kravinnhold.ts';
-import type { Hjemmel, Krav, Standpunkt, Standpunktsvirkning, Svar, Virkning } from '../typer.ts';
+import type {
+  Hjemmel,
+  Krav,
+  Standpunkt,
+  Standpunktsvirkning,
+  Svar,
+  Utfall,
+  Virkning,
+} from '../typer.ts';
 
 /** Det i et svar virkningene regnes av: sporet, standpunktene og serverens utregning. */
 export type Svarinnhold = Pick<Svar, 'spor' | 'standpunkter' | 'utregning'>;
@@ -118,4 +126,19 @@ function avvisUkjenteFelt(v: Svarvurdering, lest: ReadonlySet<string>, svaretPaa
         ukjente.map((felt) => [felt, `kjernen leser ikke feltet i svaret på ${svaretPaa}`])
       )
     );
+}
+
+/** Frysingen i ett spor, som `frosset/standpunkt.ts` slår opp gjennom `FRYSING` (#1783). */
+export interface Svarsfrysing {
+  /** Virkningen av hvert standpunkt (`virkninger` i `frosset/standpunkt.ts`). */
+  virkninger(
+    svar: Svarinnhold,
+    paaberopelse: Krav | null | undefined,
+    regler: Regelsett,
+    forskyvning: number
+  ): Standpunktsvirkning[];
+  /** Det svaret gir i sporet. `prekludert` er at et standpunkt i første lag avviser kravet. */
+  utfall(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert: boolean): Utfall;
+  /** Svaret godkjenner hele kravet, når ikke et standpunkt i første lag avviser det. */
+  godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean;
 }
