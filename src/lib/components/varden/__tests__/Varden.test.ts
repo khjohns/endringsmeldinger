@@ -123,7 +123,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     // står i brevkontrollen før sendingen.
     const kontrollen = screen.getByRole('region', { name: 'Sending' });
     expect(kontrollen.textContent).toMatch(
-      /Aksepten omfatter også at BH gjør gjeldende at varselet etter punkt 34\.1\.2 kom for sent/
+      /Aksepten omfatter også at byggherren gjør gjeldende at varselet etter punkt 34\.1\.2 kom for sent/
     );
     expect(kontrollen.textContent).toMatch(/enige om for vederlagsjusteringen 0\skr/);
     await sendBrevet('Send aksepten til BH');

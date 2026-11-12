@@ -200,8 +200,8 @@ export function leselinjene(linjer: Standpunktet[], post: Kravpost): string[] {
  */
 export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post?: string): string {
   const forPosten = post ? ` for ${post}` : '';
-  const hvem = du ? 'Du' : 'BH';
-  const hvemLiten = du ? 'du' : 'BH';
+  const hvem = du ? 'Du' : 'Byggherren';
+  const hvemLiten = du ? 'du' : 'byggherren';
   switch (s.art) {
     case 'rettidighet':
       // VS-U63.
@@ -216,8 +216,8 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post
     case 'oppgjoersform':
       return (
         (s.aksepterer
-          ? `${hvem} godkjenner oppgjørsformen TE krever${forPosten}`
-          : `${hvem} godkjenner ikke oppgjørsformen TE krever${forPosten}` +
+          ? `${hvem} godkjenner oppgjørsformen totalentreprenøren krever${forPosten}`
+          : `${hvem} godkjenner ikke oppgjørsformen totalentreprenøren krever${forPosten}` +
             (s.oensket
               ? `, og mener vederlaget skal justeres etter ${metodenavn(s.oensket)}`
               : '')) + (s.kreverTilbud ? `, og krever et spesifisert tilbud (punkt 34.2.1)` : '')
@@ -484,7 +484,7 @@ export const STILLING = {
   godta: 'Aksepten kan ikke lages nå.',
   // Etter § 34.3.3 står justeringen subsidiært, ikke beløpet (VS-U4, KA-U64).
   omfatter: (hjemmel: string) =>
-    `Aksepten omfatter også at BH gjør gjeldende at varselet etter punkt ${hjemmel} kom for sent, ikke bare ${hjemmel === '34.3.3' ? 'det subsidiære standpunktet til justeringen' : 'det subsidiære beløpet'}.`,
+    `Aksepten omfatter også at byggherren gjør gjeldende at varselet etter punkt ${hjemmel} kom for sent, ikke bare ${hjemmel === '34.3.3' ? 'det subsidiære standpunktet til justeringen' : 'det subsidiære beløpet'}.`,
   beloep: (beloep: number, b: Brevref) =>
     `Godtar du, er beløpet dere er enige om for vederlagsjusteringen ${kroner(beloep)}, etter ${brevref(b)} slik det ble sendt.`,
   /**
