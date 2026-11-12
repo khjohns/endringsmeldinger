@@ -4109,7 +4109,6 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['som ikke har formen fra brevmerkingen, er ikke forstått'],
   },
-
   {
     id: 'F550',
     feilklasse: 'en trukket kravpost som tas med igjen, får ikke betegnelsen sin tilbake (KA-U75)',

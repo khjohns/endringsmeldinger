@@ -619,7 +619,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'varseletForNyttSvar',
     ['kommandoer/standpunkter.ts', 'spor/vederlag/kommando.ts', 'spor/forhold/kommando.ts'],
   ],
-  // VS-U60: kravet som er det første varselet, når det ikke finnes et eget varsel.
+  // VS-U60, VS-U66: kravet som er det første varselet, ved siden av et eget varsel.
   [
     'utledning/utled.ts',
     'relasjon',

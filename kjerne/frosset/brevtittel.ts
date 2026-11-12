@@ -9,6 +9,11 @@ import { paaberopelsenAv, paaberoptForhold } from '../spor/forhold/tekst.ts';
 
 const utfylt = (tall: number, sifre: number) => String(tall).padStart(sifre, '0');
 
+/** Kodene i `Sakskode`, slik merkingen og tittelen skriver dem (LV-U27, LV-U44). */
+const SAKSKODENE = Object.keys({ koe: true, eo: true } satisfies Record<Sakskode['kode'], true>)
+  .map((k) => k.toUpperCase())
+  .join('|');
+
 /**
  * Merkingen på et brev fra løsningen, `K201-KOE-005-03`: kontraktsforkortelsen, sakens kode,
  * minst tre sifre i løpenummeret og minst to i brevnummeret (LV-U44, LV-U48). Den står i
@@ -48,14 +53,14 @@ export function avvikIMerkingen(
  * Det `brevmerking` lager foran brevnummeret: kontraktsforkortelsen, som har store bokstaver
  * og sifre i katalogen, sakens kode og løpenummeret med minst tre sifre (LV-U44, LV-U48).
  */
-const MERKINGEN = /^[A-Z0-9]+-(KOE|EO)-(00[1-9]|0[1-9]\d|[1-9]\d{2,})$/;
+const MERKINGEN = new RegExp(`^[A-Z0-9]+-(${SAKSKODENE})-(00[1-9]|0[1-9]\\d|[1-9]\\d{2,})$`);
 
 /** Tittelen med sakens kode, slik skrivingen fryser den: «Krav om endring i sak KOE-17» (LV-U27). */
 export const medSakskode = (tittel: string, s: Sakskode): string =>
   `${tittel} i sak ${sakensKode(s)}`;
 
 /** Det `medSakskode` legger til, slik leseren kjenner det igjen. */
-const SAKSKODE_ETTER_TITTELEN = /^ i sak (KOE|EO)-[1-9]\d*$/;
+const SAKSKODE_ETTER_TITTELEN = new RegExp(`^ i sak (${SAKSKODENE})-[1-9]\\d*$`);
 
 export const KRAVTITTEL: Record<Spor, string> = {
   forhold: 'Krav om endring',

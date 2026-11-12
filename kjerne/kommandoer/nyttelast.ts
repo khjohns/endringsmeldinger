@@ -249,7 +249,8 @@ function varseletFoerGrunnlagsdatoen(
 
 /**
  * VS-U60 og VS-U66: det egne varselet etter hjemmelen og kravet som er det første varselet
- * løsningen kjenner (VS-U43 punkt 6–9, som `varseletForNyttSvar`).
+ * løsningen kjenner (VS-U43 punkt 6–9). Ulikt `varseletForNyttSvar` gir den begge, og kalleren
+ * bruker det tidligste.
  */
 function varslerOmForholdet(
   hjemmel: VarselOmForholdet,
@@ -280,7 +281,7 @@ function korrigeringEtterVarslene(
     if (sendt !== null && sendt < ny)
       return avvis(
         'VARSEL_FOER_GRUNNLAGSDATOEN',
-        `Korrigeringen oppgir at ${DATOEN_GJELDER[felt]} ${norskDato(ny)}, etter at varselet etter punkt ${hjemmel} ble sendt ${norskDato(sendt)} (VS-U59, VS-U60).`
+        `Korrigeringen oppgir at ${DATOEN_GJELDER[felt]} ${norskDato(ny)}, etter at varselet etter punkt ${hjemmel} ble sendt ${norskDato(sendt)} (VS-U59, VS-U60, VS-U66).`
       );
   }
   return null;
