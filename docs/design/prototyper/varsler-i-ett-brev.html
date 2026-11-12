@@ -11,8 +11,7 @@
   Mønsteret er nytt: skjemaet «Bare varsle, uten krav» (U-11 i BF-14) blir en liste med varsler.
   Tilstandene er ankrene #varsler, #brev, #registrer, #kravpost og #svar.
   Teksten er prototypetekst. Ingenting sendes, og ingen data lagres.
-  Gult merke «Åpent S-n» viser hvor skissen er tegnet etter det anbefalte alternativet i et
-  spørsmål som ikke er besvart.
+  Skissen følger svarene 12.11 på S-1–S-3 i BF-37 (A, A, C).
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -568,7 +567,7 @@ a.liten-knapp{color:inherit}
           </section>
           <section class="punkt" aria-labelledby="kp-v">
             <div class="punkt-hode"><h2 id="kp-v">Varslene</h2></div>
-            <fieldset class="oppgj"><legend class="spm">Hvilket varsel etter punkt 34.4 gjelder P2? <span class="aapent" data-spor="S-3">Åpent S-3</span></legend>
+            <fieldset class="oppgj" data-spor="D-5"><legend class="spm">Hvilket varsel etter punkt 34.4 gjelder P2?</legend>
               <span class="hjelp">Saken har to varsler etter punkt 34.4 som ingen kravpost viser til. Velg det som gjelder arbeidet i P2.</span>
               <div class="valg lett liste">
                 <label><input type="radio" name="kpv" value="1" checked> Varsel 1 i brev 4, 3. november 2026: «Ekstra graving i grøften ved kum 4»</label>
@@ -637,7 +636,7 @@ function radHtml(r, i) {
     `<label><input type="radio" name="vh-${i}" value="${h}"${h === r.h ? ' checked' : ''}> ${esc(B[h].navn)} (${B[h].ref})</label>`).join('');
   return linje + `<div class="vskjema" data-spor="U-2 · U-3 · U-4">
     <fieldset class="oppgj"><legend class="spm">Hva varsler du?</legend><div class="valg lett liste">${valg}</div></fieldset>
-    ${b.arbeid ? `<div class="beloepfelt"><label for="va-${i}">Arbeidet varselet gjelder${paakrevd(r) ? '' : ' (valgfritt)'} <span class="aapent" data-spor="S-2">Åpent S-2</span></label>
+    ${b.arbeid ? `<div class="beloepfelt" data-spor="D-3"><label for="va-${i}">Arbeidet varselet gjelder${paakrevd(r) ? '' : ' (valgfritt)'}</label>
       <span class="hjelp">Står i brevet. Velg ett varsel per arbeid, så du senere kan si hvilket varsel en kravpost gjelder.</span>
       <input id="va-${i}" class="tekstfelt" data-arbeid="${i}" value="${esc(r.arbeid)}"></div>` : ''}</div>`;
 }

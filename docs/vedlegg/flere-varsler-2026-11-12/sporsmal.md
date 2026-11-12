@@ -164,4 +164,11 @@ påberopelse står mot, og tidsrommet for svaret på varselet.
 
 ## Svarene
 
-Ikke stilt ennå.
+Stilt av orkestratoren 12.11 som nummerert liste i tekst, slik spørsmålene står over (commit `fe3317a`).
+Oppdragsgiver svarte ordrett
+([#1837](https://github.com/khjohns/endringsmeldinger/issues/1837#issuecomment-6833194004)):
+
+> A, A, C.
+> Det var for varsler
+
+Det betyr S-1 A, S-2 A og S-3 C. Orkestratoren fører vedtakene i en egen vedtaks-PR.

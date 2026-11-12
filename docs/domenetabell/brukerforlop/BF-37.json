@@ -126,6 +126,11 @@
       "dato": "2026-11-12",
       "forhold": "#1837",
       "hva": "Forløpet er registrert som planlagt, med bestillingen, prototypen v1 og spørsmålene S-1–S-3."
+    },
+    {
+      "dato": "2026-11-12",
+      "forhold": "#1837",
+      "hva": "Svarene på S-1–S-3 (A, A, C) er ført i bestillingen, og prototypen følger dem."
     }
   ]
 }
