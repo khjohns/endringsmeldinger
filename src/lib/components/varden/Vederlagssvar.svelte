@@ -44,10 +44,12 @@
   import Valg from './Valg.svelte';
   import {
     beloepsvalget,
+    denAndreRegelen,
     etterRegel,
     formBesvart,
     justerte,
     postvalget,
+    regelen,
     spoerOmBeloepet,
     spoerOmTilbud,
     spoerOmVarselet,
@@ -170,12 +172,12 @@
       ...s.vurderinger,
       kravposter: vurderteIUtkastet(s).map((v) => {
         const post = poster.find((p) => p.id === v.gjelder);
-        return post && etterRegel(post)
+        const regel = post ? regelen(post) : null;
+        return regel
           ? {
               gjelder: v.gjelder,
               aksepterer: false,
-              oensket_oppgjoersform:
-                post.oppgjoersform === 'regningsarbeid' ? 'enhetspriser' : 'regningsarbeid',
+              oensket_oppgjoersform: denAndreRegelen(regel),
             }
           : { ...utenOppgjoersform(v), aksepterer: true };
       }),
@@ -256,15 +258,15 @@
     if (fra.length) return fra;
     const v = postvalget(valg, p.betegnelse);
     const beloep = beloepsvalget(v, p);
-    const regel = p.oppgjoersform as 'enhetspriser' | 'regningsarbeid';
+    const regel = regelen(p);
     const tilbud = spoerOmTilbud(v, p) && v.kreverTilbud;
     const form =
       v.form === null
         ? tilbud
-          ? SKJEMA.godkjennerIkkeRegel(regel)
+          ? SKJEMA.godkjennerIkkeRegel(regel!)
           : null
         : v.form === 'godtar'
-          ? etterRegel(p)
+          ? regel
             ? SKJEMA.godkjennerRegel(regel)
             : SKJEMA.godkjennerForm
           : SKJEMA.menerForm(v.form);
@@ -320,8 +322,8 @@
             tekst: i(
               formBesvart(v, p)
                 ? null
-                : etterRegel(p)
-                  ? SKJEMA.manglerFormRegel(p.oppgjoersform as 'enhetspriser' | 'regningsarbeid')
+                : regelen(p)
+                  ? SKJEMA.manglerFormRegel(regelen(p)!)
                   : SKJEMA.manglerForm
             ),
           },
@@ -575,8 +577,8 @@
      regelen, kan kreve tilbud (KA-U69, KA-U71) og svarer på varselet og justeringen for posten
      (KA-U64, KA-U68, VS-U56, VS-U63). Prototype v3 og v4, `#svar`. -->
 {#snippet regelvalgene(p: Kravpost, v: Postvalg, forutsatt: boolean)}
-  {@const regel = p.oppgjoersform as 'enhetspriser' | 'regningsarbeid'}
-  {@const annen = regel === 'enhetspriser' ? 'regningsarbeid' : 'enhetspriser'}
+  {@const regel = regelen(p)!}
+  {@const annen = denAndreRegelen(regel)}
   <Valg
     navn={`${uid}-form-${p.betegnelse}`}
     spoersmaal={SKJEMA.formSpoersmaalRegel}
@@ -763,7 +765,7 @@
           />
           <div class="datoer">
             {#if klarOver}<p>{SKJEMA.klarOver(klarOver.dato, klarOver.brev)}</p>{/if}
-            <p>{SKJEMA.kravSendt(kravbrevet.registrert, kravbrevet)}</p>
+            <p>{SKJEMA.kravSendt(kravSendt ?? kravbrevet.registrert, kravbrevet)}</p>
             {#if klarOver && kravSendt}
               <p>
                 <strong>{SKJEMA.avstand(kalenderdager(klarOver.dato, kravSendt))}</strong>

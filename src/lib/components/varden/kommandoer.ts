@@ -20,6 +20,9 @@ import { kravposterI } from '$kjerne/spor/vederlag/format';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
+/** En beregningsregel for en kravpost (§ 34.3 og § 34.4). */
+export type Regel = 'enhetspriser' | 'regningsarbeid';
+
 /**
  * Standpunktet til oppgjørsformen TE krever for kravposten: `godtar` den, eller mener en annen
  * (§ 34.2.2, KA-U57 (d)). For en kravpost etter en beregningsregel kan BH ikke mene fast sum
@@ -36,8 +39,8 @@ export interface Postvalg {
   /** Kravet om spesifisert tilbud for en kravpost etter en beregningsregel (KA-U69, KA-U71). */
   kreverTilbud: boolean;
   /**
-   * Standpunktet til varselet etter § 34.3.3 eller § 34.4 for kravposten (KA-U64). For § 34.4 er
-   * det bare `false`, «ikke gitt eller kom for sent» (VS-U63).
+   * Standpunktet til varselet etter § 34.3.3 eller § 34.4 for kravposten (KA-U64). For § 34.4
+   * brukes bare `false` (VS-U63).
    */
   varsletITide: boolean | null;
   /** Om BH godtar justeringen av enhetsprisene etter § 34.3.2 (KA-U68). */
@@ -71,6 +74,14 @@ export const postvalget = (v: Svarvalg, betegnelse: string): Postvalg =>
 
 /** Kravposten følger en beregningsregel, enhetspriser eller regningsarbeid, og har ikke et krevd beløp (KA-U66). */
 export const etterRegel = (post: Kravpost): boolean => post.oppgjoersform !== 'tilbud';
+
+/** Beregningsregelen kravposten følger, eller `null` for en kravpost med fast sum. */
+export const regelen = (post: Kravpost): Regel | null =>
+  post.oppgjoersform === 'tilbud' ? null : post.oppgjoersform;
+
+/** Den andre beregningsregelen, som byggherren kan mene (OV-U95 punkt 1 og 5). */
+export const denAndreRegelen = (r: Regel): Regel =>
+  r === 'enhetspriser' ? 'regningsarbeid' : 'enhetspriser';
 
 /** Kravposten krever justerte enhetspriser (§ 34.3.2, KA-U68). */
 export const justerte = (post: Kravpost): boolean =>
@@ -144,7 +155,7 @@ function kravpostsvaret(post: Kravpost, p: Postvalg) {
     aksepterer: p.form === 'godtar' ? true : p.form !== null || kreverTilbud ? false : undefined,
     oensket_oppgjoersform: p.form === null || p.form === 'godtar' ? undefined : p.form,
     krever_tilbud: kreverTilbud || undefined,
-    // VS-U63: for § 34.4 har BH bare standpunktet at varselet ikke ble gitt eller kom for sent.
+    // VS-U63.
     varslet_i_tide:
       varslet === null || (post.oppgjoersform === 'regningsarbeid' && varslet)
         ? undefined

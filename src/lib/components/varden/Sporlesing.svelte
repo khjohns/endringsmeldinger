@@ -144,12 +144,14 @@
   const enighet = $derived(
     akseptkommando ? (kjernesak.forhaandsvist(akseptkommando)?.spor[spor].enighet ?? null) : null
   );
-  // Innsigelsene mot varslene som har virkning; varselet etter § 34.4 har ingen (KA-U64).
-  const paaberopt = $derived(
-    svaret?.standpunkter.filter(
-      (s) => s.art === 'rettidighet' && !s.iTide && s.hjemmel !== '34.4'
-    ) ?? []
-  );
+  // Hjemlene for innsigelsene mot varslene som har virkning, uten § 34.4 (KA-U64), hver én gang.
+  const paaberopt = $derived([
+    ...new Set(
+      (svaret?.standpunkter ?? []).flatMap((s) =>
+        s.art === 'rettidighet' && !s.iTide && s.hjemmel !== '34.4' ? [s.hjemmel] : []
+      )
+    ),
+  ]);
 
   /** Teksten for et varsel med hjemmelen, og for handlingene i forholdet og etter svaret. */
   function innsigelsestekst(n: string): string | null {
@@ -184,7 +186,7 @@
   function akseptensVirkning(): string[] {
     if (!svarbrevet) return [];
     return [
-      ...paaberopt.flatMap((s) => (s.art === 'rettidighet' ? [STILLING.omfatter(s.hjemmel)] : [])),
+      ...paaberopt.map((h) => STILLING.omfatter(h)),
       ...(enighet?.grunnlag.utfall.beloep !== undefined
         ? STILLING.beloepet(
             enighet.grunnlag.utfall.beloep,

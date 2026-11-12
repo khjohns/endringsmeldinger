@@ -140,7 +140,8 @@ export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: Brevref) =
 
 /**
  * Standpunktet i den lukkede kravposten, kort og uten kravposten, som raden navngir (prototype v3,
- * `leselinje`). Bare oppgjørsformen og beløpet gjelder én kravpost; ellers `null`.
+ * `leselinje`). Bare standpunktene til oppgjørsformen, beløpet, varselet etter § 34.3.3 eller
+ * § 34.4 og justeringen gjelder én kravpost; ellers `null`.
  */
 function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
   switch (s.art) {
@@ -203,7 +204,7 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post
   const hvemLiten = du ? 'du' : 'BH';
   switch (s.art) {
     case 'rettidighet':
-      // VS-U63: for § 34.4 har byggherren bare standpunktet at varselet ikke ble gitt eller kom for sent.
+      // VS-U63.
       if (s.hjemmel === '34.4')
         return `${hvem} gjør gjeldende at varselet etter punkt 34.4${forPosten} ikke ble gitt eller kom for sent`;
       return s.iTide
@@ -347,8 +348,7 @@ export const SKJEMA = {
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
   manglerForm: 'Velg om du godkjenner fast sum.',
-  manglerFormRegel: (m: 'enhetspriser' | 'regningsarbeid') =>
-    `Velg om du godkjenner ${m === 'enhetspriser' ? 'enhetspriser' : 'regningsarbeid'}.`,
+  manglerFormRegel: (m: 'enhetspriser' | 'regningsarbeid') => `Velg om du godkjenner ${m}.`,
   manglerVarselJustering: 'Velg om varselet om justering av enhetsprisene kom i tide.',
   manglerJustering: 'Velg om du godkjenner justeringen av enhetsprisene.',
   manglerBeloep: 'Velg hvor mye av beløpet du godkjenner.',
@@ -918,7 +918,7 @@ export const SAKSLISTE = {
   /** Avsenderen av sakens siste brev, til brevkoden er bygget (#1174). */
   brevFra: (avsender: string) => `Fra ${avsender}`,
   ingenBrev: 'Ingen brev',
-  forholdMedPunkt: (navn: string, punkt: string) => `${navn} · pkt. ${punkt}`,
+  forholdMedPunkt: (navn: string, punkt: string) => `${navn} · pkt.\u00a0${punkt}`,
   ikkeKrevd: 'Ikke krevd',
   varslet: 'Varslet',
   trukket: 'trukket',
