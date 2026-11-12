@@ -31,7 +31,6 @@ import { kroner } from '../frosset/tekst.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
 import { HOVEDKATEGORIER, KATEGORIER } from '../format/koder.ts';
-import { oppgittDato } from '../format/format.ts';
 import { erRegistrert, kalenderdag, lesJournal } from '../format/leser.ts';
 import {
   forhaandsvis,
@@ -71,6 +70,7 @@ import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { vederlagssvaret } from '../spor/vederlag/visning.ts';
 import { KJERNE } from '../versjon.ts';
 import { utenAvsnitt } from './formatprove.ts';
+import { oppgittDato } from '../spor/forhold/format.ts';
 
 type Data = Record<string, unknown>;
 

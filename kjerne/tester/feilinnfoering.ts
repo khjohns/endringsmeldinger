@@ -717,8 +717,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F59',
     feilklasse: 'kategorien er ikke et par fra den lukkede listen (#335, HF-U1)',
-    fil: `${K}/format/format.ts`,
-    endringer: [['    anyOf: KATEGORIPAR,\n', '']],
+    fil: `${K}/spor/forhold/format.ts`,
+    endringer: [['  anyOf: KATEGORIPAR,\n', '']],
     mal: [
       'avviser en underkategori under feil hovedkategori',
       'avviser endringsordrens dato eller nummer i en annen underkategori',
@@ -1188,7 +1188,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F127',
     feilklasse:
       'et krav i underkategorien endringsordre godtas uten endringsordrens dato eller nummer (GR-U16)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/spor/forhold/format.ts`,
     endringer: [["      required: ['endringsordre'],\n", '']],
     mal: ['uten endringsordrens dato eller nummer'],
   },
@@ -1980,7 +1980,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F249',
     feilklasse: 'datoen godtas i en kategori den ikke hører til (VS-U26, #664)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/spor/forhold/format.ts`,
     endringer: [
       [
         "...ikkeI(['endringsordre', ...OPPGITTE_DATOER.filter((d) => d !== dato)]),",
@@ -2314,7 +2314,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F295',
     feilklasse: 'endringsordrens dato eller nummer godtas i en annen underkategori (GR-U16, #698)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/spor/forhold/format.ts`,
     endringer: [
       [
         "        ...ikkeI(['endringsordre', ...OPPGITTE_DATOER.filter((d) => d !== dato)]),",

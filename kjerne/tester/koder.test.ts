@@ -15,7 +15,6 @@ import {
 } from '../format/koder.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
 import { lesJournal } from '../format/leser.ts';
-import { oppgittDato } from '../format/format.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { erByggherrensPaalegg, gyldigeResultater } from '../regler/forhold.ts';
@@ -30,6 +29,7 @@ import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 import { Kjoering } from './kjoerer.ts';
 import { NESTE_REGLER } from './klient.ts';
+import { oppgittDato } from '../spor/forhold/format.ts';
 
 const PAR = HOVEDKATEGORIER.flatMap((h) => KATEGORIER[h].map((u) => [h, u] as const));
 

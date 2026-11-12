@@ -14,7 +14,7 @@
  * utdypningen (KA-U16, KA-U19).
  */
 
-import { HJEMMEL, type OppgittDato } from '../format/format.ts';
+import { HJEMMEL } from '../format/format.ts';
 import { forholdet } from './forholdene.ts';
 import { sakensKode } from './brevtittel.ts';
 import { erRegistrert } from '../format/leser.ts';
@@ -27,7 +27,7 @@ import {
   svarPaaForesporsler,
 } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
-import { innholdIForholdet, innholdIFristen } from '../format/kravinnhold.ts';
+import { innholdIFristen } from '../format/kravinnhold.ts';
 import {
   eksMva,
   erDato,
@@ -63,6 +63,8 @@ import type {
   Kravvarselhjemmel,
   Varselhjemmel,
 } from '../typer.ts';
+import type { OppgittDato } from '../spor/forhold/format.ts';
+import { innholdIForholdet } from '../spor/forhold/format.ts';
 
 /** Brevet kan ikke sendes fra appen slik saken står, og kommandoen avvises med `regel`. */
 export class BrevetAvvises extends Error {

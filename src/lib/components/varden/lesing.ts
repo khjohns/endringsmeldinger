@@ -6,11 +6,11 @@
  */
 
 import { omtalen } from '$kjerne/frosset/brevdeler';
-import { oppgittDato } from '$kjerne/format/format';
+import { innholdIForholdet, oppgittDato } from '$kjerne/spor/forhold/format';
 import { FORHOLDSGRUPPER, forholdet } from '$kjerne/frosset/forholdene';
 import { grunnerFraForholdet } from '$kjerne/frosset/standpunkt';
 import { plassene } from '$kjerne/frosset/byggeklosser';
-import { innholdIForholdet, innholdIFristen } from '$kjerne/format/kravinnhold';
+import { innholdIFristen } from '$kjerne/format/kravinnhold';
 import {
   harHovedbeloep,
   kravposterI,

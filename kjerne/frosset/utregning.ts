@@ -7,7 +7,7 @@ import { beloep } from '../regler/beloep.ts';
 import { beregnFrist, resultatAvDager, type Fristkrav } from '../regler/frist.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { kontrollerForholdet, kontrollerSpesifiseringen } from '../regler/svarkontroll.ts';
-import { innholdIFristen, kategori } from '../format/kravinnhold.ts';
+import { innholdIFristen } from '../format/kravinnhold.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
 import {
   avvisUkjenteFelt,
@@ -17,6 +17,7 @@ import {
 } from './byggeklosser.ts';
 import { SAMMENLIKNES_I_VEDERLAGET, UTREGNING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
 import type { Krav, Spor } from '../typer.ts';
+import { kategori } from '../spor/forhold/format.ts';
 
 /**
  * En vurdering i svaret som kjernen ennå ikke har et standpunkt for. Den kan ikke

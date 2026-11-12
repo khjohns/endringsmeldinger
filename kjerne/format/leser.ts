@@ -24,6 +24,7 @@ import {
   UTSAGN,
 } from './format.ts';
 import { utregningIFristen } from './svarinnhold.ts';
+import { LESING_I_FORHOLDET } from '../spor/forhold/format.ts';
 import { LESING_I_VEDERLAGET } from '../spor/vederlag/format.ts';
 import { avvikIMerkingen, avvikITittelen } from '../frosset/brevtittel.ts';
 import {
@@ -152,7 +153,7 @@ function element(
 }
 
 const SVARLESING: Record<Spor, Svarlesing> = {
-  forhold: { gjentas: false, rettidighet: [], subsidiaertVerdi: null },
+  forhold: LESING_I_FORHOLDET,
   vederlag: LESING_I_VEDERLAGET,
   // § 33.6.2 (VS-U17, VS-U19): fristen har også rettidigheten av svaret på forespørselen.
   frist: {
@@ -207,8 +208,6 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
           iTide: e.i_tide as boolean,
           ...('begrenset_beloep' in e ? { begrenset: e.begrenset_beloep as number } : {}),
         };
-      case 'forhold':
-        return { id, art, resultat: e.resultat as never };
       case 'hindring':
         return { id, art, oppfylt: e.oppfylt as boolean };
       case 'spesifisering':

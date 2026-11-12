@@ -19,7 +19,6 @@ import {
   type Postsvar,
   type Vederlagssvar,
 } from '../../regler/vederlag.ts';
-import { kategori } from '../../format/kravinnhold.ts';
 import {
   avvisUkjenteFelt,
   hjemmelenGjelder,
@@ -47,6 +46,7 @@ import type {
   Utfall,
   Virkning,
 } from '../../typer.ts';
+import { kategori } from '../forhold/format.ts';
 
 /**
  * OV-U27, OV-U33, KA-U60, KA-U64: lagene i vederlaget. Påberopelsen etter § 34.1.2 gjelder hele
