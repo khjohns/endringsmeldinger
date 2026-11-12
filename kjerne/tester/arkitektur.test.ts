@@ -21,6 +21,8 @@
  *
  * - Rollefilene i et spor (`spor/<spor>/<rolle>.ts`, #1783) hører til mappen rollen står
  *   for, og grensene for mappen gjelder dem. `regler/` når ikke frysingen eller teksten.
+ *   Byggeklossene for postene (`spor/poster/<rolle>.ts`, #1778) er rollefiler på samme måte,
+ *   og importerer bare `typer.ts`.
  *
  * Importene leses med TypeScript-parseren, ikke med et tekstsøk, så `import`,
  * `import type`, `export … from`, `import()` og `require()` teller likt, med og
@@ -32,7 +34,7 @@ import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
-import { SPOR, type Spor } from '../typer.ts';
+import { SPOR } from '../typer.ts';
 
 const KJERNE = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROT = resolve(KJERNE, '..');
@@ -50,24 +52,27 @@ const ROLLER = {
   kommando: 'kommandoer',
 } as const;
 type Rolle = keyof typeof ROLLER;
+/** Byggeklossene for postene i kravet og svaret per post, som sporene bruker (#1778). */
+const POSTER = 'poster';
+const SPORMAPPENE: readonly string[] = [...SPOR, POSTER];
 const erRolle = (navn: string | undefined): navn is Rolle =>
   navn !== undefined && Object.hasOwn(ROLLER, navn);
 
-/** Rollefilene i hvert spor, også de som ikke finnes ennå. */
+/** Rollefilene i hvert spor og for postene, også de som ikke finnes ennå. */
 const rollefilene = (...roller: Rolle[]) =>
-  SPOR.flatMap((s) => roller.map((r) => join(KJERNE, 'spor', s, `${r}.ts`)));
+  SPORMAPPENE.flatMap((s) => roller.map((r) => join(KJERNE, 'spor', s, `${r}.ts`)));
 
 /**
- * Mappen `fil` hører til: mappen den står i, eller for en rollefil i et spor mappen rollen
- * hører til. `null` for en fil utenfor kjernen eller rett i den, og for en fil i `spor/` som
- * ikke er en rollefil.
+ * Mappen `fil` hører til: mappen den står i, eller for en rollefil i et spor eller for postene
+ * mappen rollen hører til. `null` for en fil utenfor kjernen eller rett i den, og for en fil i
+ * `spor/` som ikke er en rollefil.
  */
 export function mappenTil(fil: string): string | null {
   if (!fil.startsWith(KJERNE + sep)) return null;
   const deler = relative(KJERNE, utenEndelse(fil)).split(sep);
   if (deler[0] !== 'spor') return deler.length > 1 ? deler[0]! : null;
   const [, spor, rolle] = deler;
-  return deler.length === 3 && SPOR.includes(spor as Spor) && erRolle(rolle) ? ROLLER[rolle] : null;
+  return deler.length === 3 && SPORMAPPENE.includes(spor!) && erRolle(rolle) ? ROLLER[rolle] : null;
 }
 
 /** Modulene reglene ikke kan nå. */
@@ -272,10 +277,39 @@ describe('et spor har bare rollefiler (#1783)', () => {
     ['typer.ts', null],
     ['spor/vederlag/annet.ts', null],
     ['spor/vederlag/frysing/a.ts', null],
-    ['spor/poster/tekst.ts', null],
+    ['spor/poster/utledning.ts', 'utledning'],
+    ['spor/poster/kommando.ts', 'kommandoer'],
+    ['spor/poster/annet.ts', null],
+    ['spor/postene/format.ts', null],
     ['../src/kommandoer/a.ts', null],
   ])('%s hører til %s', (navn, mappe) => {
     expect(mappenTil(join(KJERNE, navn))).toBe(mappe);
+  });
+});
+
+/** Importene i `fil` som ikke er `typer.ts`. */
+const utenomTyper = (fil: string, kilde: string) =>
+  importer(fil, kilde).filter((i) => i !== join(KJERNE, 'typer'));
+
+// Planen i #1783 for #1778: byggeklossene for postene importerer bare `typer.ts`, så hvert spor
+// kan bruke dem uten en sirkel gjennom de felles modulene.
+describe('byggeklossene for postene importerer bare typer.ts (#1778)', () => {
+  it.each(
+    filer
+      .filter((f) => f.startsWith(join(KJERNE, 'spor', POSTER) + sep))
+      .map((f) => [relative(KJERNE, f), f] as const)
+  )('%s', (_navn, fil) => {
+    expect(utenomTyper(fil, readFileSync(fil, 'utf8'))).toEqual([]);
+  });
+
+  it.each([
+    ["import type { Krav } from '../../typer.ts';", []],
+    ["import { kravposterI } from '../vederlag/format.ts';", ['spor/vederlag/format']],
+    ["import type { Utledning } from '../../utledning/utled';", ['utledning/utled']],
+    ["export * from './kommando.ts';", ['spor/poster/kommando']],
+  ])('%s gir %j', (linje, ut) => {
+    const fil = join(KJERNE, 'spor', POSTER, 'utledning.ts');
+    expect(utenomTyper(fil, linje).map((i) => relative(KJERNE, i))).toEqual(ut);
   });
 });
 
@@ -650,7 +684,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'utledning/utled.ts:settSubsidiaer',
       'frosset/brevtekst.ts:forholdetsStandpunkter',
-      'spor/vederlag/kommando.ts:lagForUtkastet',
+      'spor/vederlag/kommando.ts:lagIVederlaget',
     ],
   ],
   // OV-U32, OV-U33: lagene forholdet opptar foran sporet, som linjen etiketteres med.
@@ -702,12 +736,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   // KA-U64: varselet en kravpost trenger, for standpunktet til varselet i svaret.
-  [
-    'spor/vederlag/utledning.ts',
-    'predikat',
-    'varselhjemmel',
-    ['spor/vederlag/kommando.ts', 'kommandoer/skriving.ts:medVarslene'],
-  ],
+  ['spor/vederlag/utledning.ts', 'predikat', 'varselhjemmel', ['spor/vederlag/kommando.ts']],
   // KA-U57 (d), KA-U54: hjemmelen i standpunktet til oppgjørsformen etter TEs oppgjørsform.
   [
     'spor/vederlag/format.ts',
@@ -968,7 +997,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Kommando.innhold',
     'kommando',
     'kravposter',
-    ['kommandoer/skriving.ts:handlingen', 'kommandoer/skriving.ts:medVarslene'],
+    ['spor/vederlag/kommando.ts:medDokumentvarslene', 'spor/vederlag/kommando.ts:medVarslene'],
   ],
   [
     'spor/vederlag/kommando.ts:vedleggIKravpostene(innhold)',
@@ -977,18 +1006,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/kommando.ts:vedleggIKravpostene'],
   ],
   ['spor/vederlag/kommando.ts:vedleggIKravpostene', 'kommando', 'varsel dokumentasjon'],
-  ['kommandoer/skriving.ts:handlingen(p)', 'kommando', 'varsel'],
-  ['kommandoer/skriving.ts:medVarslene(p)', 'kommando', 'varsel'],
+  ['spor/vederlag/kommando.ts:medDokumentvarslene(p)', 'kommando', 'varsel'],
+  ['spor/vederlag/kommando.ts:medVarslene(p)', 'kommando', 'varsel'],
   ['Dokumentvarsel', 'kommando', 'dokumentasjon sendt korrespondansetype'],
   ['kommandoer/skriving.ts:Utfall', 'kommando', 'godtatt hendelser neste avvisning'],
-  ['Avvisning', 'kommando', 'melding', ['kommandoer/skriving.ts:medVarslene']],
-  ['Journalrad.data', 'rad', 'utsagn', ['kommandoer/skriving.ts:medVarslene']],
-  ['kommandoer/skriving.ts:medVarslene', 'rad', 'id'],
-  ['kommandoer/skriving.ts:medVarslene', 'utsagn', 'hjemmel'],
+  ['Avvisning', 'kommando', 'melding', ['spor/vederlag/kommando.ts:medVarslene']],
+  ['Journalrad.data', 'rad', 'utsagn', ['spor/vederlag/kommando.ts:medVarslene']],
+  ['spor/vederlag/kommando.ts:medVarslene', 'rad', 'id'],
+  ['spor/vederlag/kommando.ts:medVarslene', 'utsagn', 'hjemmel'],
   ['Dokumentpost', 'kommando', 'varsel'],
   // VS-U51, VS-U53: dokumentet fra kravskjemaet gjelder bare kravposten som viser til det.
-  ['Dokument', 'utsagn', 'dokumentasjon', ['kommandoer/skriving.ts:foranKravet']],
-  ['Utsagn', 'relasjon', 'dokument', ['kommandoer/skriving.ts:foranKravet']],
+  ['Dokument', 'utsagn', 'dokumentasjon', ['spor/vederlag/kommando.ts:foranKravet']],
+  ['Utsagn', 'relasjon', 'dokument', ['spor/vederlag/kommando.ts:foranKravet']],
   [
     'kommandoer/kommando.ts:formfeil',
     'kommando',
@@ -1078,7 +1107,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts',
     'predikat',
     'virkninger',
-    ['spor/vederlag/kommando.ts:lagForUtkastet', 'frosset/frysing.ts:beslutningsgrunnlag'],
+    ['spor/vederlag/kommando.ts:lagIVederlaget', 'frosset/frysing.ts:beslutningsgrunnlag'],
   ],
   // GR-U7 og MM-U9: sammenfallet og begrensningen etter § 34.1.3 (VS-U5), lest når brevet fryses.
   [
@@ -1094,8 +1123,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // #1783: lesereglene i 4.2 som er sporets egne.
   ['Sporskontroller', 'predikat', 'kravet kravene svaret', ['utledning/utled.ts']],
   // Skrivingen i sporet (#1783).
-  ['Sporsskriving', 'kommando', 'kravinnhold', ['kommandoer/skriving.ts']],
+  ['Sporsskriving', 'kommando', 'kravinnhold handlingen postvarsler', ['kommandoer/skriving.ts']],
+  // VS-U51, VS-U53: skrivingen gir sporet stegene for en handling med flere rader.
+  ['Skrivesteg', 'kommando', 'sendes formen skriv hele', ['spor/vederlag/kommando.ts']],
   ['spor/vederlag/kommando.ts', 'kommando', 'SKRIVING_I_VEDERLAGET', ['kommandoer/skriving.ts']],
+  // Lagene i et svarutkast i sporet (#1778).
+  ['spor/vederlag/kommando.ts', 'predikat', 'lagIVederlaget', ['kommandoer/lag.ts']],
   // Nyttelastkontrollen i sporet (#1783).
   [
     'Sporsnyttelast',
@@ -1380,12 +1413,27 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kravposter trekker',
     ['spor/vederlag/utledning.ts:kravposteneStrider'],
   ],
-  ['Postinndata', 'kommando', 'id betegnelse', ['spor/vederlag/utledning.ts:kravposteneStrider']],
+  // #1778: versjonsregelen for postene, som vederlaget bruker for kravpostene.
+  ['Versjonsinndata', 'kommando', 'poster trekker', ['spor/poster/utledning.ts:posteneStrider']],
+  ['Postinndata', 'kommando', 'id betegnelse', ['spor/poster/utledning.ts:posteneStrider']],
+  ['Post', 'relasjon', 'id betegnelse', ['spor/poster/utledning.ts']],
+  [
+    'spor/poster/utledning.ts',
+    'predikat',
+    'posteneStrider',
+    ['spor/vederlag/utledning.ts:kravposteneStrider'],
+  ],
   ['spor/vederlag/utledning.ts', 'predikat', 'kravposteneStrider', ['spor/vederlag/kommando.ts']],
+  [
+    'spor/poster/utledning.ts',
+    'relasjon',
+    'brukteBetegnelser',
+    ['spor/vederlag/kommando.ts:medKravposter'],
+  ],
   [
     'spor/vederlag/utledning.ts',
     'relasjon',
-    'brukteBetegnelser nesteBetegnelse',
+    'nesteBetegnelse',
     ['spor/vederlag/kommando.ts:medKravposter'],
   ],
   // VS-U49, D-16, VS-U55: varselet for hver kravpost, lest av skriveren for brevteksten (A6).
@@ -1393,7 +1441,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/utledning.ts',
     'relasjon',
     'kravpostvarslene',
-    ['kommandoer/skriving.ts:brevtekstFor'],
+    ['spor/vederlag/kommando.ts:kravpostvarslerIBrevet'],
   ],
   [
     'spor/vederlag/utledning.ts:kravpostvarslene',
@@ -1470,7 +1518,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Journalrad',
     'rad',
     'event_id event_type versjon tidsstempel aktor_rolle refererer_til_event_id format data',
-    ['format/leser.ts', 'kommandoer/skriving.ts'],
+    ['format/leser.ts', 'kommandoer/skriving.ts', 'spor/vederlag/kommando.ts:medVarslene'],
   ],
   ['Journalrad.data', 'rad', 'svar', ['kommandoer/skriving.ts']],
   ['format/leser.ts:element(verdi)', 'rad', 'art hva spor', ['format/leser.ts']],
@@ -1550,8 +1598,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'resultat godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
     ['format/leser.ts'],
   ],
-  ['Utregningsrad', 'rad', 'gjelder saerskilt lag', ['spor/vederlag/format.ts']],
-  ['Utregningslag', 'rad', 'lag beloep', ['spor/vederlag/format.ts']],
+  ['Utregningsrad', 'rad', 'gjelder lag', ['spor/vederlag/format.ts']],
+  ['Utregningslag', 'rad', 'beloep', ['spor/vederlag/format.ts']],
+  // #1778: radene per post og lagene i dem, som vederlaget kontrollerer med beløpene.
+  ['Postrad', 'rad', 'lag lag.lag', ['spor/poster/format.ts:kontrollerRadene']],
+  ['Postnoekkel', 'rad', 'gjelder saerskilt', ['spor/poster/format.ts:kontrollerRadene']],
+  [
+    'spor/poster/format.ts',
+    'rad',
+    'kontrollerRadene',
+    ['spor/vederlag/format.ts:kontrollerUtregningenPerPost'],
+  ],
   [
     'format/leser.ts:lesBeslutningsgrunnlag(v)',
     'rad',
@@ -1723,6 +1780,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/kommando.ts',
       'kommandoer/nyttelast.ts',
       'kommandoer/skriving.ts',
+      'kommandoer/lag.ts',
     ],
   ],
   [
@@ -1838,7 +1896,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'vedlegg_id',
     [
       'spor/vederlag/utledning.ts:kontrollerVedleggeneVedKravet',
-      'kommandoer/skriving.ts:foranKravet',
+      'spor/vederlag/kommando.ts:foranKravet',
       'spor/vederlag/tekst.ts',
     ],
   ],

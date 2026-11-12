@@ -3419,7 +3419,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/kommandoer/skriving.ts#medVarslene",
+        "kjerne/spor/vederlag/kommando.ts#medVarslene",
         "kjerne/spor/vederlag/utledning.ts#kontrollerVedleggeneVedKravet"
       ],
       "regelkoder": [

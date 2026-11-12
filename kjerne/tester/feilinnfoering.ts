@@ -4054,14 +4054,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F476',
     feilklasse: 'en ny kravversjon kan utelate en kravpost uten å trekke den (KA-U56)',
-    fil: `${K}/spor/vederlag/utledning.ts`,
+    fil: `${K}/spor/poster/utledning.ts`,
     endringer: [['  return mangler.length\n', '  return mangler.length && false\n']],
     mal: ['verken tar med eller trekker P1'],
   },
   {
     id: 'F549',
     feilklasse: 'en trukket kravpost avvises når den tas med igjen (KA-U75)',
-    fil: `${K}/spor/vederlag/utledning.ts`,
+    fil: `${K}/spor/poster/utledning.ts`,
     endringer: [
       [
         '    if (id !== undefined && !kjent && !lagret)',
@@ -4098,11 +4098,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F478',
     feilklasse: 'en ny kravpost får en betegnelse som er brukt før i sporet (KA-U53, KA-U75)',
-    fil: `${K}/spor/vederlag/utledning.ts`,
+    fil: `${K}/spor/poster/utledning.ts`,
     endringer: [
       [
-        '  return new Set(tidligere.flatMap((k) => kravposterI(k).map((p) => p.betegnelse)));',
-        '  return new Set(kravposterI(tidligere.at(-1) ?? { innhold: {} }).map((p) => p.betegnelse));',
+        '  return new Set(versjoner.flatMap((poster) => poster.map((p) => p.betegnelse)));',
+        '  return new Set((versjoner.at(-1) ?? []).map((p) => p.betegnelse));',
       ],
     ],
     mal: ['en trukket kravpost kan tas med igjen'],
@@ -4658,15 +4658,17 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F538',
     feilklasse:
       'varselet fra kravskjemaet gis før kjernen har prøvd kravet, så et avvist krav etterlater varselet (VS-U53)',
-    fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['  if (sendes) {\n    const proeve', '  if (!sendes) {\n    const proeve']],
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      ['  if (skriving.sendes) {\n    const proeve', '  if (!skriving.sendes) {\n    const proeve'],
+    ],
     mal: ['avvises kravet, gis ingen rad, heller ikke varselet'],
   },
   {
     id: 'F539',
     feilklasse:
       'dokumentet fra kravskjemaet for én kravpost blir også varselet for en annen post i det første kravet (VS-U51, D-16)',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         '(v) => !dokumenter.get(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))',
@@ -4706,7 +4708,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F543',
     feilklasse: 'samme dokument med ulik dato for to kravposter godtas (VS-U53)',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [['if ((dokumentene.get(id) ?? like) !== like)', 'if (false)']],
     mal: ['samme dokument med ulik dato eller med andre vedlegg'],
   },
@@ -4730,7 +4732,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F546',
     feilklasse:
       'leseren godtar en utregning med flere lag enn beslutningsgrunnlaget (OV-U32, MM-U2, #1774)',
-    fil: `${K}/spor/vederlag/format.ts`,
+    fil: `${K}/spor/poster/format.ts`,
     endringer: [['if (rader.length > 0 && antall !== lagIGrunnlaget)', 'if (false)']],
     mal: ['utregningen har to lag, men beslutningsgrunnlaget ett'],
   },

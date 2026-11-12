@@ -3,13 +3,8 @@
  * trenger, og lesereglene i 4.2 som er vederlagets egne (`KONTROLLER_I_VEDERLAGET`, som
  * `utledning/utled.ts` slår opp gjennom `KONTROLLER`, #1783).
  *
- * Versjonsreglene for kravpostene i vederlagskravet. En ny kravversjon tar med hver kravpost
- * fra forrige versjon som ikke trekkes (KA-U56), og en trukket kravpost kan tas med igjen
- * (KA-U75). Betegnelsen følger posten, også gjennom et trekk, og brukes ikke av en ny
- * kravpost (KA-U53, KA-U75).
- *
- * Kommandoen og lesingen av journalen bruker samme regel: kommandoen før serveren har satt
- * `id` og betegnelse på de nye postene, journalen etter.
+ * Versjonsreglene for kravpostene er versjonsregelen for postene i `spor/poster/utledning.ts`
+ * (KA-U53, KA-U56, KA-U75, #1778), og betegnelsen er P1, P2 og så videre (KA-U53).
  */
 
 import {
@@ -19,6 +14,7 @@ import {
   OPPGJOERSHJEMMEL,
 } from './format.ts';
 import type { Bakover, LestVarsel, Sporskontroller, Ugyldig } from '../../utledning/utled.ts';
+import { posteneStrider, type Versjonsinndata } from '../poster/utledning.ts';
 import {
   erKravpostvarselhjemmel,
   type Dokument,
@@ -30,13 +26,7 @@ import {
   type Svar,
 } from '../../typer.ts';
 
-type Postinndata = { id?: unknown; betegnelse?: unknown };
-type Kravversjonsinndata = { kravposter?: readonly Postinndata[]; trekker?: readonly unknown[] };
-
-/** Betegnelsene brukt i sporet, også av kravposter som er trukket (KA-U75). */
-export function brukteBetegnelser(tidligere: readonly Pick<Krav, 'innhold'>[]): Set<string> {
-  return new Set(tidligere.flatMap((k) => kravposterI(k).map((p) => p.betegnelse)));
-}
+type Kravversjonsinndata = { kravposter?: Versjonsinndata['poster']; trekker?: readonly unknown[] };
 
 /** Betegnelsen en ny kravpost får: tallet etter det høyeste som er brukt i sporet (KA-U53). */
 export function nesteBetegnelse(brukte: ReadonlySet<string>): string {
@@ -46,53 +36,20 @@ export function nesteBetegnelse(brukte: ReadonlySet<string>): string {
 
 /**
  * Hvorfor kravpostene i den nye kravversjonen strider mot de tidligere versjonene i sporet,
- * eller `null`. `lagret` sier om innholdet er en lagret versjon, der en ny kravpost har fått
- * `id` og betegnelse, eller en kommando, der en ny kravpost er uten `id`.
+ * eller `null`, etter versjonsregelen for postene (`posteneStrider`). `lagret` sier om
+ * innholdet er en lagret versjon eller en kommando.
  */
-export function kravposteneStrider(
+export const kravposteneStrider = (
   ny: Kravversjonsinndata,
   tidligere: readonly Pick<Krav, 'innhold'>[],
   lagret: boolean
-): string | null {
-  const forrige = new Map(
-    (tidligere.length ? kravposterI(tidligere.at(-1)!) : []).map((p) => [p.id, p])
+): string | null =>
+  posteneStrider(
+    { poster: ny.kravposter, trekker: ny.trekker },
+    tidligere.map(kravposterI),
+    lagret,
+    'kravpost'
   );
-  const foer = new Map(tidligere.flatMap((k) => kravposterI(k)).map((p) => [p.id, p]));
-  const brukte = brukteBetegnelser(tidligere);
-  const trekker = (ny.trekker ?? []) as string[];
-  const trukne = new Set<string>();
-  for (const id of trekker) {
-    if (!forrige.has(id)) return `trekker kravposten ${id}, som ikke er med i forrige kravversjon`;
-    if (trukne.has(id)) return `trekker kravposten ${forrige.get(id)!.betegnelse} to ganger`;
-    trukne.add(id);
-  }
-  const sett = new Set<string>();
-  const betegnelser = new Set<string>();
-  for (const p of ny.kravposter ?? []) {
-    const id = p.id as string | undefined;
-    if (id !== undefined) {
-      if (sett.has(id)) return `har kravposten ${id} to ganger`;
-      sett.add(id);
-    }
-    const kjent = id === undefined ? undefined : (forrige.get(id) ?? foer.get(id));
-    if (id !== undefined && trekker.includes(id))
-      return `både tar med og trekker kravposten ${forrige.get(id)!.betegnelse}`;
-    if (id !== undefined && !kjent && !lagret)
-      return `har kravposten ${id}, som ikke har stått i sporet`;
-    if (!lagret) continue;
-    const betegnelse = p.betegnelse as string;
-    if (betegnelser.has(betegnelse)) return `har betegnelsen ${betegnelse} to ganger`;
-    betegnelser.add(betegnelse);
-    if (kjent && kjent.betegnelse !== betegnelse)
-      return `gir kravposten ${kjent.betegnelse} betegnelsen ${betegnelse}`;
-    if (!kjent && brukte.has(betegnelse))
-      return `gir en ny kravpost betegnelsen ${betegnelse}, som er brukt før i sporet (KA-U53, KA-U75)`;
-  }
-  const mangler = [...forrige.values()].filter((p) => !sett.has(p.id) && !trekker.includes(p.id));
-  return mangler.length
-    ? `mangler ${mangler.map((p) => p.betegnelse).join(', ')} uten at ${mangler.length > 1 ? 'de er trukket' : 'den er trukket'} (KA-U56)`
-    : null;
-}
 
 /** Varselet en kravpost med den oppgjørsformen trenger, eller `null` (VS-U48, KA-U68). */
 export const varselhjemmel = (
