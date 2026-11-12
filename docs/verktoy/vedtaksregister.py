@@ -1618,6 +1618,9 @@ FORHOLD_FJERNET_ETTER_MERGE = {
     ("ov-u55", "snevrer inn", "eo-u5"): "E9 i EO-U38, OV-U92 (b) og OV-U93, #1534",
     ("gfk-u2", "presiserer", "eo-u6"): "E9 i EO-U38, OV-U92 (b) og OV-U93, #1534",
     ("hf-u12", "presiserer", "eo-u9"): "E9 i EO-U38, OV-U92 (b) og OV-U93, #1534",
+    ("eo-u35", "snevrer inn", "mm-u21"): "E13 i EO-U39, svar 4 A 05.11, OV-U92 (b), #1534",
+    ("eo-u36", "presiserer", "eo-u16"): "E13 i EO-U39, svar 4 A 05.11, OV-U92 (b), #1534",
+    ("eo-u37", "snevrer inn", "eo-u16"): "E13 i EO-U39, svar 4 A 05.11, OV-U92 (b), #1534",
 }
 
 
