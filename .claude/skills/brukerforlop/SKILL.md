@@ -34,7 +34,11 @@ Prototypen og forløpet i demoruta viser til punktene i bestillingen og gjentar 
    linje begrunnelse hver, og velger ingen. Den som skriver bestillingen, avgjør
    `kilder` etter å ha lest kandidatene mot vedtaksfila. Vedtak som den kognitive
    gjennomgangen i steg 6 peker på, og som forløpet ikke viser til, går også hit.
-3. **Skisser.** Forløpet prøves i demoruta, og en HTML-skisse lages bare for et nytt
+3. **Skisser.** Les skillen `interface-design` og [systemfila](../../../.interface-design/system.md)
+   før du skisserer eller skriver designmålene (U-punktene). Det gjelder også når forløpet
+   bare prøves i demoruta. Systemfila har retningen, tokenene og mønstrene som er
+   besluttet, og skissen følger dem. Et valg som avviker fra systemfila, står i
+   bestillingen med begrunnelsen. Forløpet prøves i demoruta, og en HTML-skisse lages bare for et nytt
    mønster («Prototypen»). Skissen kan vise handlinger og tilstander som ikke finnes (#1331). Er spørsmålet
    bare plassering eller ordlyd, og den nye visningen er bygget for oppgaven, kan det
    prøves der i stedet.
