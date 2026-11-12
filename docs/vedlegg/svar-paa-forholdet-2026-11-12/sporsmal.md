@@ -183,4 +183,13 @@ Funnene i domeneforventningene er rettet i BF-08 (se «Endringer» der).
 
 ## Svarene
 
-Ikke besvart.
+Spørsmålene ble stilt slik de står på e47ee6a, som nummerert liste i tekst. Oppdragsgiver svarte
+12.11, ordrett ([#1834, 6833550575](https://github.com/khjohns/endringsmeldinger/issues/1834#issuecomment-6833550575)):
+
+> BF-08: A, A, A.
+
+- **S-1:** A.
+- **S-2:** A. Føres som U-9 i BF-08 og ikke som vedtak.
+- **S-3:** A.
+
+Vedtakene for S-1 og S-3 føres av orkestratoren i en egen vedtaks-PR.

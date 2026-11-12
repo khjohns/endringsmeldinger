@@ -6,9 +6,9 @@
 <title>Svaret på forholdet i Varden</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!--
-  Prototype v4 (12.11) av byggherrens svar på totalentreprenørens påberopelse av forholdet,
+  Prototype v5 (12.11) av byggherrens svar på totalentreprenørens påberopelse av forholdet,
   bestillingen BF-08 (docs/domenetabell/brukerforlop/BF-08.md, #1834). Mønsteret og stilarket er
-  fra fristsvar.html, rettet etter .interface-design/system.md i v2, mot vedtakene i v3 og etter prøven av S-3 i v4. Tilstandene er ankrene #svar,
+  fra fristsvar.html, rettet etter .interface-design/system.md i v2, mot vedtakene i v3 etter prøven av S-3 i v4 og etter svarene på S-1–S-3 i v5. Tilstandene er ankrene #svar,
   #brev, #bekreft, #henvisning, #handlinger og #godta. Teksten er prototypetekst; de vedtatte
   brevsetningene står ordrett etter D-2 i bestillingen. «Vis sporbarhet» viser punktene i
   bestillingen på elementene. Ingenting sendes.
@@ -351,7 +351,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
       <div class="verktoyrad">
         <p class="sti">Varden › K201 › <span class="num">E-014</span></p>
         <span class="hoyre">
-          <span class="demomerke" id="rolle">Prototype v4 · du ser saken som byggherren</span>
+          <span class="demomerke" id="rolle">Prototype v5 · du ser saken som byggherren</span>
           <span class="segment" role="group" aria-label="Forholdet i eksempelet">
             <button type="button" data-sett-f="endring" aria-pressed="true">Irregulær endring</button>
             <button type="button" data-sett-f="grunn" aria-pressed="false">Uforutsette forhold ved grunnen</button>
@@ -563,7 +563,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
           </form>
           <aside class="stoette" aria-label="Innledningen i brevet">
             <section class="kort">
-              <div class="kort-hode"><h2>Innledningen i brevet</h2><p>Følger alternativ A i S-1, som ikke er avgjort</p></div>
+              <div class="kort-hode"><h2>Innledningen i brevet</h2><p>Etter S-1 A, svaret 12.11</p></div>
               <div class="blokk"><p id="k-innledning"></p></div>
               <div class="blokk"><ul class="virkninger" id="k-virkninger"></ul></div>
               <div class="blokk" id="k-sendeblokk"><p class="ved-knapp"><span class="utkastmerke">Utkast</span> Ikke sendt</p><button class="knapp" type="button" id="k-knapp">Se brevet før sending</button></div>
@@ -897,7 +897,7 @@ function lesAnker() {
   const a = TILSTANDER.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'svar';
   $$('.tilstand').forEach(t => t.classList.toggle('aktiv', t.id === a));
   const te = a === 'godta' || (a === 'handlinger' && S.part === 'TE');
-  $('#rolle').textContent = 'Prototype v4 · du ser saken som ' + (te ? 'totalentreprenøren' : 'byggherren');
+  $('#rolle').textContent = 'Prototype v5 · du ser saken som ' + (te ? 'totalentreprenøren' : 'byggherren');
   tegn();
   window.scrollTo(0, 0);
 }
