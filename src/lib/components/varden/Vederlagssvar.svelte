@@ -599,7 +599,7 @@
   {/if}
   {#if spoerOmVarselet(v, p)}
     {#if regel === 'regningsarbeid'}
-      <div class="setning" id={`${uid}-varsel-${p.betegnelse}`} tabindex="-1">
+      <div class="setning">
         <p>
           <strong>{SKJEMA.varselRegning}</strong>
           {v.varsletITide === false ? SKJEMA.ikkeGittEllerForSent : SKJEMA.ingenInnsigelse}
@@ -1164,9 +1164,6 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-1);
-  }
-  .setning:focus {
-    outline: none;
   }
   .snarveier {
     display: flex;
