@@ -306,8 +306,10 @@ export interface Sporsbrevtekst {
   kravetOm?: string;
   /** Temaene i byggherrens svar i skjemaets rekkefølge (LV-U34), når svaret har punkter. */
   temaer?(krav: Krav, t: Tekst, regler: Regelsett): Tema[];
-  /** Oversiktstabellen i svaret (OV-U73), eller `null` når svaret ikke har en. */
-  /** `beloepene` og `lagene` er lagene i sporet; `forskyvning` er lagene fra forholdet foran (OV-U32). */
+  /**
+   * Oversiktstabellen i svaret (OV-U73), eller `null` når svaret ikke har en. `beloepene` og
+   * `lagene` er lagene i sporet; `forskyvning` er lagene fra forholdet foran (OV-U32).
+   */
   oversikt?(krav: Krav, beloepene: Lagbeloep[], lagene: number, forskyvning: number): string | null;
   /** Følgen av påberopelsen etter § 34.1.2 når svaret ikke har tabell (LV-U33, LV-U38). */
   ingenBeloep?(krav: Krav): string;

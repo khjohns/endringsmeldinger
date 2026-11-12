@@ -19,7 +19,7 @@
   import { BookOpen, FileText, Info } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
   import { harProduktivitetspost, kravposterI } from '$kjerne/spor/vederlag/format';
-  import { kroner, OVERSIKTEN } from '$kjerne/frosset/tekst';
+  import { erKravpostpunkt, kroner, OVERSIKTEN } from '$kjerne/frosset/tekst';
   import {
     brevaarsak,
     hindrerSvarPaaKravet,
@@ -146,14 +146,21 @@
   const UTEN_BEGRUNNELSE = ['innledning', OVERSIKTEN, 'forbehold'];
   // KA-U46 og LV-U71: ett felt for begrunnelsen per punkt i brevet, i brevets rekkefølge. Punktene
   // leses av brevet kjernen lager uten begrunnelsene, så et felt aldri gjelder et punkt brevet ikke har.
+  // Valgene uten tekstene, så lista ikke lages på nytt for hvert tegn i et tekstfelt.
   const punktene = $derived.by(() => {
-    const b = kjernesak.brev(vederlagssvaret(valg, u, kjernesak.regler)!);
+    const valgene = { iTide: valg.iTide, poster: valg.poster, begrunnelser: {}, forbehold: '' };
+    const b = kjernesak.brev(vederlagssvaret(valgene, u, kjernesak.regler)!);
     const avsnitt = b && 'avsnitt' in b ? (b.avsnitt ?? []) : [];
-    return avsnitt.flatMap((a) =>
-      a.punkt === undefined || UTEN_BEGRUNNELSE.includes(a.punkt)
-        ? []
-        : [{ punkt: a.punkt, navn: a.overskrift ?? a.laast.split('\n\n')[0] }]
-    );
+    return avsnitt.flatMap((a) => {
+      if (a.punkt === undefined || UTEN_BEGRUNNELSE.includes(a.punkt)) return [];
+      // KA-U53: med flere kravposter sier feltet hvilken kravpost det gjelder.
+      const linjene = a.laast.split('\n\n');
+      const post = erKravpostpunkt(a.punkt)
+        ? linjene.find((l) => l.startsWith(`${a.punkt} `))
+        : undefined;
+      const navn = [a.overskrift, post].filter((x): x is string => !!x).join(': ');
+      return [{ punkt: a.punkt, navn: navn || linjene[0] }];
+    });
   });
   const kommando = $derived(
     vederlagssvaret(

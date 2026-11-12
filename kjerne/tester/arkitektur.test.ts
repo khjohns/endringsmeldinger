@@ -1828,7 +1828,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Stedet i brevteksten en avvisning for tegnene viser til (`avsnittsnavn`).
   ['Avsnitt', 'brevtekst', 'gjelder punkt overskrift', ['kommandoer/skriving.ts:avsnittsnavn']],
   // Et element med punkter har ingen utdypning for hele elementet (`Journalen.utdypning`).
-  ['Avsnitt', 'brevtekst', 'punkt', ['frosset/brevdeler.ts']],
+  ['Avsnitt', 'brevtekst', 'punkt', ['frosset/brevdeler.ts', 'frosset/brevtekst.ts:gjengi']],
   [
     'frosset/brevdeler.ts',
     'brevtekst',
@@ -1968,7 +1968,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'spor/forhold/tekst.ts',
     'brevtekst',
-    'BREVTEKSTEN_I_FORHOLDET STANDPUNKTENE_I_FORHOLDET DATOEN_I_BREVET forholdet',
+    'BREVTEKSTEN_I_FORHOLDET STANDPUNKTENE_I_FORHOLDET DATOEN_I_BREVET forholdet harRisikoen',
     ['frosset/brevtekst.ts'],
   ],
   ['spor/forhold/tekst.ts', 'brevtekst', 'LINJEN_I_FORHOLDET', ['frosset/linje.ts']],

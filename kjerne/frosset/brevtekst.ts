@@ -49,6 +49,7 @@ import {
   BREVTEKSTEN_I_FORHOLDET,
   DATOEN_I_BREVET,
   forholdet,
+  harRisikoen,
   STANDPUNKTENE_I_FORHOLDET,
 } from '../spor/forhold/tekst.ts';
 import { BREVTEKSTEN_I_VEDERLAGET, STANDPUNKTENE_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
@@ -281,6 +282,27 @@ const VARSELET: Record<Hjemmel, string> = {
 
 const SEN_32_2 = `${VARSELET['32.2']} kom for sent`;
 
+/** Svaret på forholdet i brevet, eller gjeldende svar før brevet (A2, OV-U32). */
+function svaretPaaForholdet({ j, saken, nytt }: Pick<Tekst, 'j' | 'saken' | 'nytt'>) {
+  return (
+    nytt.svar.find((x) => x.spor === 'forhold') ??
+    (saken.svarPaaPaaberopelsen ? j.svar(saken.svarPaaPaaberopelsen) : undefined)
+  );
+}
+
+/**
+ * GR-U26 og GR-U34: byggherren svarer på vederlag eller frist uten å ha svart på gjeldende
+ * versjon av forholdet, i brevet eller før det, og forholdet er ikke avklart ved frafall (GR-U23).
+ */
+function forholdetErUbesvart(s: Svar, { saken, nytt }: Pick<Tekst, 'saken' | 'nytt'>): boolean {
+  return (
+    s.spor !== 'forhold' &&
+    saken.svarPaaPaaberopelsen === null &&
+    !saken.avklartVedFrafall &&
+    !nytt.svar.some((x) => x.spor === 'forhold')
+  );
+}
+
 /**
  * A2: standpunktene i svaret på forholdet som gjør et svar på vederlag eller frist
  * subsidiært (B-13 05.10): preklusjon etter § 32.2 og avslag. Svaret på forholdet
@@ -289,9 +311,7 @@ const SEN_32_2 = `${VARSELET['32.2']} kom for sent`;
  */
 function forholdetsStandpunkter(s: Svar, { j, saken, nytt }: Tekst): string[] {
   if (s.spor === 'forhold') return [];
-  const g =
-    nytt.svar.find((x) => x.spor === 'forhold') ??
-    (saken.svarPaaPaaberopelsen ? j.svar(saken.svarPaaPaaberopelsen) : undefined);
+  const g = svaretPaaForholdet({ j, saken, nytt });
   if (!g) return [];
   const grunner = grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger);
   const prekludert = grunner.includes('prekludert');
@@ -323,9 +343,7 @@ function forholdetsStandpunkter(s: Svar, { j, saken, nytt }: Tekst): string[] {
  * ved frafall (GR-U23). Det er ikke et lag.
  */
 function forbeholdForForholdet(s: Svar, { j, saken, nytt }: Tekst): string[] {
-  if (s.spor === 'forhold' || saken.svarPaaPaaberopelsen !== null || saken.avklartVedFrafall)
-    return [];
-  if (nytt.svar.some((g) => g.spor === 'forhold')) return [];
+  if (!forholdetErUbesvart(s, { saken, nytt })) return [];
   if (!s.paaberopelse) throw new KanIkkeUttrykkes(`${s.id} viser ikke til grunnlagskravet`);
   return [
     `Byggherren har ennå ikke svart på grunnlaget i TEs krav i ${j.brevet(j.krav(s.paaberopelse).dokument)}.`,
@@ -482,10 +500,16 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
   }
   const ordnet = ledd.some((l) => l.plass !== null && l.plass > 1);
 
-  const punkter: Tema[] = (sporet.temaer?.(krav, t, regler) ?? [])
+  const temaene = sporet.temaer?.(krav, t, regler) ?? [];
+  // MM-U2: et standpunkt uten et tema i svaret avvises, i stedet for å falle ut av brevet.
+  const utenTema = ledd.find((l) => !temaene.some((tema) => tema.punkt === l.punkt));
+  if (utenTema)
+    throw new KanIkkeUttrykkes(
+      `standpunktet i punktet ${utenTema.punkt} har ikke noe tema i svaret`
+    );
+  const punkter: Tema[] = temaene
     .filter((tema) => ledd.some((l) => l.punkt === tema.punkt))
     .map((tema) => ({ ...tema }));
-  // KA-U53: overskriften står over den første kravposten, slik i kravet.
   // KA-U53: like overskrifter står bare over den første, som kravpostene i kravet.
   const overskriftene = punkter.map((p) => p.overskrift);
   punkter.forEach((p, i) => {
@@ -635,9 +659,7 @@ function forholdetsLag(
 ): { forskyvning: number; ledd: Svarledd[]; henvisninger: Map<number, number[]> } {
   const ingen = { forskyvning: 0, ledd: [], henvisninger: new Map() };
   if (s.spor === 'forhold') return ingen;
-  const g =
-    nytt.svar.find((x) => x.spor === 'forhold') ??
-    (saken.svarPaaPaaberopelsen ? j.svar(saken.svarPaaPaaberopelsen) : undefined);
+  const g = svaretPaaForholdet({ j, saken, nytt });
   if (!g) return ingen;
   const grunner = grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger);
   if (nytt.id === g.dokument) {
@@ -669,21 +691,13 @@ function forholdetsLag(
   return { forskyvning: grunner.length, ledd, henvisninger: new Map() };
 }
 
-/** Svikt og andre forhold, der svaret sier om byggherren har risikoen for forholdet (LV-U41). */
-const harRisikoen = (paaberopelse: Krav): boolean => {
-  const { hovedkategori } = innholdIForholdet(paaberopelse);
-  return hovedkategori === 'svikt' || hovedkategori === 'andre_forhold';
-};
-
 /**
  * GR-U34 punkt 3–5 med GR-U33: forbeholdet når byggherren svarer på vederlaget uten å ha svart
  * på gjeldende versjon av forholdet, i brevet eller før det, og forholdet ikke er avklart ved
  * frafall (GR-U23). Det står under «Forbehold» sist i svaret og er ikke et lag.
  */
 function forbeholdetForForholdet(s: Svar, { j, saken, nytt }: Tekst): string[] {
-  if (s.spor === 'forhold' || saken.svarPaaPaaberopelsen !== null || saken.avklartVedFrafall)
-    return [];
-  if (nytt.svar.some((x) => x.spor === 'forhold')) return [];
+  if (!forholdetErUbesvart(s, { saken, nytt })) return [];
   if (!s.paaberopelse) throw new KanIkkeUttrykkes(`${s.id} viser ikke til påberopelsen`);
   const paaberopelse = j.krav(s.paaberopelse);
   return [
@@ -1040,7 +1054,14 @@ function sisteSvarPaa(krav: string, j: Journalen): string[] {
 
 /** Teksten i avsnittene slik et dokument gjengir den: den låste delen, så utdypningen. */
 export function gjengi(brevtekst: Avsnitt[]): string {
-  return deler(brevtekst).join('\n\n');
+  // Bare tabellen etter OV-U73 har tabulator mellom cellene. Ellers settes tabulator, også i
+  // partens tekst, som mellomrom, så PDF-en ikke leser teksten som en rad i tabellen.
+  return brevtekst
+    .flatMap((a) => {
+      const tekst = a.utdypning ? [a.laast, a.utdypning] : [a.laast];
+      return tekst.map((t, i) => (a.punkt === OVERSIKTEN && i === 0 ? t : t.replace(/\t/g, ' ')));
+    })
+    .join('\n\n');
 }
 
 const deler = (brevtekst: Avsnitt[]) =>

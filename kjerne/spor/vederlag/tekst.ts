@@ -313,10 +313,14 @@ function oversikt(
     kroner(tilTall(p.krevd)),
     ...kolonner.map((lag) => kroner(iLaget(p.post, lag))),
   ]);
+  // B-13, OV-U59: summen regnes i hele øre.
+  const iOere = (n: number): Oere => beloep(n)!;
   const sum = [
     'Sum',
-    kroner(poster.reduce((s, p) => s + tilTall(p.krevd), 0)),
-    ...kolonner.map((lag) => kroner(poster.reduce((s, p) => s + iLaget(p.post, lag), 0))),
+    kroner(tilTall(poster.reduce((s, p) => s + p.krevd, 0n))),
+    ...kolonner.map((lag) =>
+      kroner(tilTall(poster.reduce((s, p) => s + iOere(iLaget(p.post, lag)), 0n)))
+    ),
   ];
   return [
     ['Post', 'Krevd', ...kolonner.map((lag) => stor(etikett(lag + forskyvning)))],

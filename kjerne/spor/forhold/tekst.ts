@@ -224,6 +224,12 @@ function endringsordretekst(krav: Krav, j: Journalen): string {
   return `${innledning} ${kravet}: «${beskrivelse}».`;
 }
 
+/** Svikt og andre forhold, der svaret sier om byggherren har risikoen for forholdet (LV-U41). */
+export function harRisikoen(paaberopelse: Krav): boolean {
+  const { hovedkategori } = innholdIForholdet(paaberopelse);
+  return hovedkategori === 'svikt' || hovedkategori === 'andre_forhold';
+}
+
 /** Hjemmelen for forholdet i svaret ved svikt og andre forhold (LV-U41). */
 function risikohjemmel(krav: Krav): string {
   const f = forholdet(innholdIForholdet(krav).underkategori);
@@ -253,8 +259,7 @@ export const BREVTEKSTEN_I_FORHOLDET = {
  */
 export const STANDPUNKTENE_I_FORHOLDET = {
   forhold: (p, krav, s, j) => {
-    const { hovedkategori } = innholdIForholdet(krav);
-    const risiko = hovedkategori === 'svikt' || hovedkategori === 'andre_forhold';
+    const risiko = harRisikoen(krav);
     const varslingsplikt = s.beslutningsgrunnlag.varslingsplikt === true;
     if (p.resultat === 'godkjent') {
       if (blirEndringsordre(s.beslutningsgrunnlag)) return endringsordretekst(krav, j);

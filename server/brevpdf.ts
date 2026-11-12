@@ -627,23 +627,41 @@ export async function settBrevPdf(
       x += l.bredde;
     }
   };
-  for (const avsnitt of radene.split('\n')) {
+  // OV-U73: kolonnene i tabellen er så brede som det bredeste innholdet. Får tabellen ikke
+  // plass i bredden, settes radene som vanlig tekst, så ingen celle står over en annen.
+  const kolonnene = new Map<number, number[]>();
+  const alle = radene.split('\n');
+  for (let i = 0; i < alle.length; i++) {
+    if (!alle[i].includes('\t') || alle[i - 1]?.includes('\t')) continue;
+    let k = i;
+    const blokk: string[][] = [];
+    while (alle[k]?.includes('\t')) blokk.push(alle[k++].split('\t'));
+    const maalt = blokk[0].map((_, c) =>
+      Math.max(...blokk.map((r) => maal(c ? ` ${r[c] ?? ''}` : (r[c] ?? ''))))
+    );
+    if (maalt.reduce((sum, b) => sum + b + stoerrelse, 0) <= bredde) kolonnene.set(i, maalt);
+  }
+  let kolonner: number[] | null = null;
+  for (const [nr, avsnitt] of alle.entries()) {
     if (avsnitt.includes('\t')) {
-      // Den første kolonnen står til venstre, og beløpene står til høyre i like brede kolonner.
-      // Hver celle etter den første har mellomrommet foran seg, så lesingen gir teksten tilbake.
-      const celler = avsnitt.split('\t');
-      const foerste = bredde * 0.34;
-      const kolonne = (bredde - foerste) / Math.max(1, celler.length - 1);
-      nyLinje();
-      tegnLoep(celler[0], MARG);
-      celler.slice(1).forEach((c, i) => {
-        const t = ` ${c}`;
-        tegnLoep(t, MARG + foerste + kolonne * (i + 1) - maal(t));
-      });
-      y -= stoerrelse * LINJEHOEYDE;
-      continue;
+      if (!alle[nr - 1]?.includes('\t')) kolonner = kolonnene.get(nr) ?? null;
+      if (kolonner) {
+        // Den første kolonnen står til venstre, og beløpene til høyre i kolonnen. Hver celle
+        // etter den første har mellomrommet foran seg, så lesingen gir teksten tilbake.
+        const celler = avsnitt.split('\t');
+        nyLinje();
+        tegnLoep(celler[0], MARG);
+        let hoeyre = MARG + kolonner[0] + stoerrelse;
+        celler.slice(1).forEach((c, i) => {
+          hoeyre += kolonner![i + 1] + stoerrelse;
+          const t = ` ${c}`;
+          tegnLoep(t, hoeyre - stoerrelse - maal(t));
+        });
+        y -= stoerrelse * LINJEHOEYDE;
+        continue;
+      }
     }
-    for (const linje of linjer(avsnitt, bredde, maal)) {
+    for (const linje of linjer(avsnitt.replace(/\t/g, ' '), bredde, maal)) {
       if (linje.tekst) {
         nyLinje();
         if (linje.delt) side.pushOperators(beginMarkedContent(DELT));

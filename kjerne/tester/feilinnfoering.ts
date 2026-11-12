@@ -3333,7 +3333,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F408',
     feilklasse: 'forbeholdet skrives når forholdet besvares i samme brev (GR-U26)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [["  if (nytt.svar.some((x) => x.spor === 'forhold')) return [];\n", '']],
+    endringer: [["    !nytt.svar.some((x) => x.spor === 'forhold')\n", '    true\n']],
     mal: ['kontrollsak: med forholdet godkjent i samme brev har svaret ikke forbeholdet'],
   },
   {
@@ -3368,10 +3368,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'en revisjon mens forholdet ikke er besvart, mister forbeholdet (GR-U26, GR-08)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      [
-        "  if (nytt.svar.some((x) => x.spor === 'forhold')) return [];\n",
-        "  if (nytt.svar.some((x) => x.spor === 'forhold')) return [];\n  if (s.erstatter) return [];\n",
-      ],
+      ["    s.spor !== 'forhold' &&\n", "    s.spor !== 'forhold' &&\n    !s.erstatter &&\n"],
     ],
     mal: ['GR-08: en revisjon av vederlagssvaret mens en ny påberopelsesversjon venter'],
   },
