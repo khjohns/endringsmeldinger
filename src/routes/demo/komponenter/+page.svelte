@@ -15,6 +15,7 @@
   import { HANDLINGENE, SAKEN, SPORNAVN, brevtittel, dato } from '$lib/components/varden/tekster';
   import Arbeid from './Arbeid.svelte';
   import { FORLOEPET, TILSTANDER, aapneSak } from './kjernesaker';
+  import { SVAR_MED_TABELL } from './svarmedtabell';
 
   const SIDER: Part[] = ['BH', 'TE'];
 
@@ -185,6 +186,18 @@
         Brevene i {FORLOEPET.id} med teksten kjernen frøs. Lengst først; det er den lengste teksten i
         startjournalen.
       </p>
+      <div class="kort" data-eksempel="svar-med-tabell">
+        <p class="etikett">Byggherrens svar med tre lag og oversiktstabellen (#1433)</p>
+        <Brev
+          avsender="BH"
+          sak="Ny peling med produktivitetstap"
+          merking="K201-KOE-017-06"
+          deresRef={['K201-KOE-017-05']}
+          dato="12. november 2026"
+          tittel="Svar på krav om vederlagsjustering i sak KOE-17"
+          avsnitt={SVAR_MED_TABELL}
+        />
+      </div>
       {#if !u}
         <p class="dempet" role="status">{godtatt.feil ?? SAKEN.laster}</p>
       {:else}

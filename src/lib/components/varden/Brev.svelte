@@ -115,7 +115,9 @@
         {#if a.punkt === OVERSIKTEN}
           {#each underOverskriften(a) as del, k (k)}
             {@const [kolonner, ...rader] = cellene(del)}
-            <div class="tabell">
+            <!-- Tabellen kan rulles på smal skjerm, så rammen kan få fokus med tastaturet (WCAG 2.1.1). -->
+            <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+            <div class="tabell" role="region" aria-label={a.overskrift} tabindex="0">
               <table>
                 <thead>
                   <tr
@@ -284,6 +286,7 @@
   /* Lagslinjen står over standpunktet i laget (LV-U34); etiketten bærer vekten. */
   .tekst .lagslinje {
     color: var(--ink-3);
+    font-size: 0.875em;
   }
   .tekst .lagslinje b {
     color: var(--ink);
@@ -303,6 +306,10 @@
   .tabell {
     overflow-x: auto;
     margin-top: var(--spacing-2);
+  }
+  .tabell:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
   }
   .tabell table {
     border-collapse: collapse;

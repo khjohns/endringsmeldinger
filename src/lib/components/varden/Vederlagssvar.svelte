@@ -849,13 +849,13 @@
               <label for={`${uid}-begrunnelse-${p.punkt}`}>{p.navn}</label>
               <textarea
                 id={`${uid}-begrunnelse-${p.punkt}`}
-                rows="3"
+                rows="2"
                 bind:value={valg.begrunnelser[p.punkt]}
                 aria-describedby={`${uid}-begrunnelse-hjelp`}
               ></textarea>
             </div>
           {/each}
-          <div class="begrunnelse">
+          <div class="begrunnelse forbehold">
             <label for={`${uid}-forbehold`}>{SKJEMA.forbehold}</label>
             <span class="dempet" id={`${uid}-forbehold-hjelp`}>{SKJEMA.forbeholdHjelp}</span>
             <textarea
@@ -975,6 +975,12 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-2);
+  }
+  /* Forbeholdet gjelder hele svaret og står sist i brevet, skilt fra punktene. */
+  .begrunnelse.forbehold {
+    margin-top: var(--spacing-3);
+    padding-top: var(--spacing-4);
+    border-top: var(--rule);
   }
   .inndata {
     display: inline-flex;
