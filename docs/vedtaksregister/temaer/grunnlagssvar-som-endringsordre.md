@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `e1ec695e2e54a0186ceefb28e45410ce0482f24970bfee510459199ac8e4c5f1`
+Kontrollsum (SHA-256 over utdraget visningen leser): `67748cec20854da34c79de15f719a91aa9c85aa3a3eedc5f068a7678036de92b`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -70,7 +70,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [VS-U64](#vs-u64) | Utvider [VS-U48](#vs-u48); Presiserer [OV-U89](#ov-u89); Utvider [VS-U46](#vs-u46) | — |
 | [VS-U65](#vs-u65) | Bygger på [HF-U29](#hf-u29) | — |
 | [VS-U66](#vs-u66) | Presiserer [VS-U60](#vs-u60) | — |
-| [VS-U68](#vs-u68) | Utvider [VS-U48](#vs-u48); Utvider [VS-U52](#vs-u52); Snevrer inn [VS-U48](#vs-u48) | — |
+| [VS-U68](#vs-u68) | Utvider [VS-U48](#vs-u48); Utvider [VS-U52](#vs-u52); Snevrer inn [VS-U48](#vs-u48); Bygger på [GR-U15](#gr-u15) | — |
 | [VS-U69](#vs-u69) | Snevrer inn [VS-U62](#vs-u62); Endrer [VS-U54](#vs-u54); Utvider [VS-U50](#vs-u50); Presiserer [VS-U61](#vs-u61) | — |
 | [KA-U45](#ka-u45) | Opphever [KA-U26](../../plans/vedtak.md#ka-u26); Opphever [KA-U28](../../plans/vedtak.md#ka-u28); Opphever [KA-U30](../../plans/vedtak.md#ka-u30); Snevrer inn [KA-U20](../../plans/vedtak.md#ka-u20); Snevrer inn [KA-U27](../../plans/vedtak.md#ka-u27); Snevrer inn [KA-U29](../../plans/vedtak.md#ka-u29); Snevrer inn [LV-U4](../../plans/vedtak.md#lv-u4); Snevrer inn [OV-U7](../../plans/vedtak.md#ov-u7); Endrer [KA-U16](../../plans/vedtak.md#ka-u16) | Samlet av [KA-U49](#ka-u49); Endret av [EO-U18](#eo-u18); Endret av [EO-U34](#eo-u34); Endret av [EO-U38](#eo-u38); Endret av [EO-U39](#eo-u39) |
 | [HF-U25](#hf-u25) | Endrer [HF-U5](#hf-u5); Endrer [HF-U6](#hf-u6); Endrer [MM-U27](../../plans/vedtak.md#mm-u27); Endrer [GR-U7](../../plans/vedtak.md#gr-u7); Endrer [OV-U5](#ov-u5); Endrer [EO-U34](#eo-u34); Endrer [GR-U17](#gr-u17); Endrer [GR-U20](#gr-u20); Endrer [GR-U23](#gr-u23); Endrer [MM-U9](../../plans/vedtak.md#mm-u9); Presiserer [MM-U34](#mm-u34) | Opphevet av [HF-U29](#hf-u29) |
@@ -83,7 +83,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [GR-U12](#gr-u12) | — | Endret av [GR-U13](#gr-u13); Endret av [MM-U17](#mm-u17); Samlet av [MM-U50](#mm-u50); Endret av [OV-U4](#ov-u4); Presisert av [OV-U46](#ov-u46) |
 | [GR-U13](#gr-u13) | Endrer [GR-U10](#gr-u10); Endrer [GR-U12](#gr-u12) | Endret av [GR-U14](#gr-u14); Utvidet av [GR-U15](#gr-u15); Presisert av [HF-U12](#hf-u12); Presisert av [EO-U30](#eo-u30); Endret av [MM-U17](#mm-u17); Presisert av [LV-U15](#lv-u15); Samlet av [MM-U50](#mm-u50); Presisert av [GFK-U2](#gfk-u2); Endret av [OV-U6](#ov-u6); Presisert av [OV-U13](#ov-u13); Presisert av [OV-U46](#ov-u46) |
 | [GR-U14](#gr-u14) | Endrer [GR-U13](#gr-u13) | Endret av [GR-U32](#gr-u32); Endret av [LV-U39](#lv-u39); Endret av [LV-U42](#lv-u42); Endret av [LV-U53](#lv-u53); Endret av [OV-U4](#ov-u4); Presisert av [OV-U80](#ov-u80) |
-| [GR-U15](#gr-u15) | Utvider [GR-U13](#gr-u13) | — |
+| [GR-U15](#gr-u15) | Utvider [GR-U13](#gr-u13) | Lagt til grunn av [VS-U68](#vs-u68) |
 | [GR-U17](#gr-u17) | Snevrer inn [GR-U9](../../plans/vedtak.md#gr-u9); Snevrer inn [HF-U5](#hf-u5) | Endret av [HF-U25](#hf-u25); Endret av [HF-U27](#hf-u27); Endret av [HF-U29](#hf-u29); Presisert av [GR-U20](#gr-u20); Presisert av [GR-U24](#gr-u24); Endret av [MM-U34](#mm-u34) |
 | [GR-U20](#gr-u20) | Presiserer [GR-U17](#gr-u17); Presiserer [HF-U8](../../plans/vedtak.md#hf-u8); Snevrer inn [GR-U1](../../plans/vedtak.md#gr-u1); Snevrer inn [HF-U5](#hf-u5) | Endret av [HF-U25](#hf-u25); Endret av [HF-U27](#hf-u27); Endret av [HF-U29](#hf-u29); Presisert av [GR-U21](#gr-u21); Presisert av [GR-U23](#gr-u23); Snevret inn av [GR-U24](#gr-u24); Endret av [MM-U34](#mm-u34) |
 | [GR-U21](#gr-u21) | Presiserer [GR-U20](#gr-u20); Presiserer [GR-U18](../../plans/vedtak.md#gr-u18) | Opphevet av [GR-U22](#gr-u22) |
@@ -912,7 +912,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 12.11, oppdragsgiver (#1837, #1823)
 
-**Følge:** Utvider [VS-U48](#vs-u48). Utvider [VS-U52](#vs-u52). Snevrer inn [VS-U48](#vs-u48). Gjelder BF-37 (#1837) og punkt 5 i #1823.
+**Følge:** Utvider [VS-U48](#vs-u48). Utvider [VS-U52](#vs-u52). Snevrer inn [VS-U48](#vs-u48). Bygger på [GR-U15](#gr-u15). Gjelder BF-37 (#1837) og punkt 5 i #1823.
 
 **Regelrader:** —
 
@@ -1092,7 +1092,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 11.10, oppdragsgiver (#369, #410)
 
-**Følge:** Spørsmålet står i versjon 4 av spørsmålene på #410, svaret på #369 (V4 b, «Hva endringen går ut på, når TEs varsel ikke beskriver pålegget»). Utvider [GR-U13](#gr-u13): beskrivelsen er det endringsordren i [GR-U14](#gr-u14) viser til som hva endringen går ut på (§ 31.3). Varselet etter § 32.2 står i TEs grunnlagskrav ([LV-U4](../../plans/vedtak.md#lv-u4), punkt 1). Et registrert varsel kan stå uten beskrivelse; det følger av alternativet selv («må varsle utenfor appen og registrere varselet»), og [GR-U14](#gr-u14) har ordlyden for et registrert krav. Ikke bygget Bygget, kontrollert 20.10 (#417): et varsel fra TE etter § 32.2 uten beskrivelse, eller med bare mellomrom, avvises med BESKRIVELSE_MANGLER (`kravetsUtdypning` i `kjerne/kommandoer/nyttelast.ts`), med test i `kjerne/tester/brevtekst.test.ts`, og TE-skjemaet sender beskrivelsen (`src/lib/kjernesak/grunnlagskrav.ts`). Unntaket for et registrert varsel er ikke kontrollert.
+**Følge:** Lagt til grunn 12.11 av [VS-U68](#vs-u68). Spørsmålet står i versjon 4 av spørsmålene på #410, svaret på #369 (V4 b, «Hva endringen går ut på, når TEs varsel ikke beskriver pålegget»). Utvider [GR-U13](#gr-u13): beskrivelsen er det endringsordren i [GR-U14](#gr-u14) viser til som hva endringen går ut på (§ 31.3). Varselet etter § 32.2 står i TEs grunnlagskrav ([LV-U4](../../plans/vedtak.md#lv-u4), punkt 1). Et registrert varsel kan stå uten beskrivelse; det følger av alternativet selv («må varsle utenfor appen og registrere varselet»), og [GR-U14](#gr-u14) har ordlyden for et registrert krav. Ikke bygget Bygget, kontrollert 20.10 (#417): et varsel fra TE etter § 32.2 uten beskrivelse, eller med bare mellomrom, avvises med BESKRIVELSE_MANGLER (`kravetsUtdypning` i `kjerne/kommandoer/nyttelast.ts`), med test i `kjerne/tester/brevtekst.test.ts`, og TE-skjemaet sender beskrivelsen (`src/lib/kjernesak/grunnlagskrav.ts`). Unntaket for et registrert varsel er ikke kontrollert.
 
 **Regelrader:** [GR-34](#rad-gr-34), [GR-35](#rad-gr-35)
 

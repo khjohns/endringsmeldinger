@@ -3778,6 +3778,7 @@ forhold = [
   { art = "utvider", vedtak = "vs-u48" },
   { art = "utvider", vedtak = "vs-u52" },
   { art = "snevrer inn", vedtak = "vs-u48" },
+  { art = "bygger på", vedtak = "gr-u15" },
 ]
 folge = '''
 Gjelder BF-37 (#1837) og punkt 5 i #1823.'''
@@ -22344,7 +22345,7 @@ valgt = "A"
 svar = '''
 Oppdragsgiver 12.11, ordrett ([#1824](https://github.com/khjohns/endringsmeldinger/issues/1824#issuecomment-6833553723)): «Følger for øvrig dine anbefalinger». Det betyr B-1 B, B-2 A og B-3 A.'''
 folge = '''
-Gjelder #1824 og #1745.'''
+Gjelder #1824 og #1843, og runde C i #1745.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
