@@ -329,7 +329,11 @@
         noekkel: p.noekkel,
         betegnelse: navnet(p),
         beskrivelse: p.beskrivelse || KRAVSKJEMA.nyPost,
-        verdi: beloeplinje(p),
+        // Panelet viser beløpet eller oppgjørsformen (U-15).
+        verdi:
+          !p.trukket && p.form && p.form !== 'tilbud'
+            ? KRAVSKJEMA.formnavn[p.form]
+            : beloeplinje(p),
         trukket: p.trukket,
       })),
     },
@@ -651,6 +655,7 @@
       navn={id(`varsel-${n}`)}
       spoersmaal={KRAVSKJEMA.hvorGitt(navnet(p))}
       stablet
+      lett
       valg={[
         { verdi: 'kravet', tekst: KRAVSKJEMA.varselvalg.kravet },
         ...(varsler.length ? [{ verdi: 'saken', tekst: KRAVSKJEMA.varselvalg.saken }] : []),
@@ -677,6 +682,7 @@
           navn={id(`varselet-${n}`)}
           spoersmaal={KRAVSKJEMA.hvilketVarsel}
           stablet
+          lett
           valg={varsler.map((x) => {
             const b = brevMed(x.dokument);
             return { verdi: x.id, tekst: b ? KRAVSKJEMA.varseletI(b) : x.id };
@@ -693,6 +699,7 @@
           spoersmaal={KRAVSKJEMA.dokumenttype}
           valg={KRAVSKJEMA.dokumenttyper}
           stablet
+          lett
           bind:verdi={p.varsel.type}
           feil={feil(`type-${n}`)}
         />
@@ -964,9 +971,13 @@
         </ul>
       </section>
 
-      <section class="seksjon" id={id('forbehold')}>
+      <section class="seksjon" id={id('forbehold')} aria-labelledby={id('forbehold-tittel')}>
+        <div class="seksjonshode">
+          <span class="nummer" aria-hidden="true">{v.saerskilt ? 4 : 3}</span>
+          <h3 id={id('forbehold-tittel')}>{KRAVSKJEMA.forbeholdPunkt}</h3>
+        </div>
         <div class="felt">
-          <label for={id('forbehold-felt')} class="h3">{KRAVSKJEMA.forbehold}</label>
+          <label for={id('forbehold-felt')}>{KRAVSKJEMA.forbehold}</label>
           <span class="hjelp" id={id('forbehold-hjelp')}>{KRAVSKJEMA.forbeholdHjelp}</span>
           <textarea
             id={id('forbehold-felt')}
@@ -1057,8 +1068,9 @@
   }
   .seksjonshode {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
-    gap: var(--spacing-3);
+    gap: var(--spacing-1) var(--spacing-3);
   }
   .nummer {
     display: inline-grid;
@@ -1070,10 +1082,9 @@
     border-radius: 50%;
     font-size: 12px;
     font-weight: 600;
-    align-self: center;
+    align-self: flex-start;
   }
-  h3,
-  .h3 {
+  h3 {
     font-size: 16px;
     font-weight: 600;
     color: var(--ink);
@@ -1188,8 +1199,7 @@
     flex-direction: column;
     gap: var(--spacing-1);
   }
-  label,
-  .h3 {
+  label {
     font-weight: 600;
     color: var(--ink);
   }
@@ -1294,6 +1304,7 @@
   }
   .varselrad {
     display: grid;
+    align-items: first baseline;
     grid-template-columns: 56px minmax(0, 1.4fr) minmax(0, 1.6fr) 56px;
     column-gap: var(--spacing-4);
     row-gap: var(--spacing-3);

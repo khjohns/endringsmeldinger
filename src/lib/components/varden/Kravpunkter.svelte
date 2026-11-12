@@ -179,6 +179,16 @@
     font-weight: 500;
     text-decoration: none;
   }
+  /* Hele raden er lenken, så treffflaten er stor nok, og fokus vises som i resten av Varden. */
+  .innhold a {
+    display: block;
+    min-height: 24px;
+    padding-block: var(--spacing-1);
+  }
+  .innhold a:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
+  }
   .innhold a:hover {
     text-decoration: underline;
     text-underline-offset: 3px;

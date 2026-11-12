@@ -12,6 +12,7 @@
     feil = null,
     beskrevetAv,
     stablet = false,
+    lett = false,
   }: {
     navn: string;
     spoersmaal: string;
@@ -24,6 +25,11 @@
     beskrevetAv?: string;
     /** Valgene står under hverandre. For mer enn to valg eller lange tekster. */
     stablet?: boolean;
+    /**
+     * Radio og tekst uten ramme, inne i et åpent element; bare det valgte får flaten
+     * (`system.md`, «To vekter på et valg»).
+     */
+    lett?: boolean;
   } = $props();
   const uid = $props.id();
   const beskrivelse = $derived(
@@ -33,7 +39,7 @@
 
 <fieldset class="valg" id={navn} tabindex="-1" aria-describedby={beskrivelse}>
   <legend>{spoersmaal}</legend>
-  <div class="kort" class:stablet>
+  <div class="kort" class:stablet class:lett>
     {#each valg as v (String(v.verdi))}
       <label class="valgkort" class:valgt={verdi === v.verdi} class:forklart={!!v.forklaring}>
         <input
@@ -118,6 +124,13 @@
     color: var(--ink-2);
     font-size: 14px;
     font-weight: 400;
+  }
+  .lett .valgkort {
+    border-color: transparent;
+  }
+  .lett .valgkort.valgt {
+    border-color: transparent;
+    box-shadow: none;
   }
   .valgkort:hover {
     background: var(--surface-inset);
