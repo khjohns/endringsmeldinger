@@ -244,7 +244,7 @@ describe('PDF-en av brevet (#371 del 2)', () => {
       const pdf = (await brevdokument(oppdrag([{ gjelder: 'a', laast: tekst }], part), 'n'))
         .innhold;
       /**
-       * Det som skiller skriftene i `head`: versjonen, enhetene per em og datoene. Delmengden
+       * Det som skiller skriftene i `head`: revisjonen av skriften, enhetene per em og datoene. Delmengden
        * beholder dem fra skriften den er laget av, så den kjennes igjen på dem (#1692).
        */
       const kjennetegn = (b: Buffer) => {
