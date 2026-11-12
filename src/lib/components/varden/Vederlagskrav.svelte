@@ -952,14 +952,7 @@
                 'beloep',
                 true
               )}
-              <div class="postfot">
-                <!-- En post fra forrige krav kan ikke tas ut uten et trekk kjernen ennå ikke har (spørsmål 3). -->
-                {#if !forrige || krevdProduktivitet(forrige) === null}
-                  <Knapp variant="lenke" onclick={fjernSaerskilt}>{KRAVSKJEMA.fjernSaerskilt}</Knapp
-                  >
-                {:else}
-                  <span></span>
-                {/if}
+              <div class="postfot saerskilt-fot">
                 <Knapp onclick={lukkSaerskilt}>{KRAVSKJEMA.ferdig}</Knapp>
               </div>
             </div>
@@ -987,6 +980,12 @@
           {/if}
           {#if feil('saerskilt') && !saerskiltAapen}
             <p class="feilmelding">{feil('saerskilt')}</p>
+          {/if}
+          <!-- Under posten, som i prototype v4. En post fra forrige krav kan ikke tas ut uten et trekk kjernen ennå ikke har (#1823 punkt 6). -->
+          {#if !forrige || krevdProduktivitet(forrige) === null}
+            <div class="saerskilt-fjern">
+              <Knapp variant="lenke" onclick={fjernSaerskilt}>{KRAVSKJEMA.fjernSaerskilt}</Knapp>
+            </div>
           {/if}
         </section>
       {:else}
@@ -1301,6 +1300,12 @@
     border-top: var(--rule);
     border-bottom: var(--rule);
   }
+  /* Venstrestilt med teksten over, også når lenken brytes på smal skjerm (prototype v4). */
+  .saerskilt-fjern > :global(.knapp) {
+    justify-content: flex-start;
+    padding-inline: 0;
+    text-align: left;
+  }
   .post.er-aapen,
   .saerskilt-aapen {
     padding: var(--spacing-4) 0 var(--spacing-4) var(--spacing-4);
@@ -1408,7 +1413,8 @@
     justify-content: space-between;
     gap: var(--spacing-3);
   }
-  .varselvalg .postfot {
+  .varselvalg .postfot,
+  .saerskilt-fot {
     justify-content: flex-end;
   }
   .sum {
