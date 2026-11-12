@@ -90,6 +90,13 @@ verktøysvar tidlig i økta leses på nytt i hvert kall etter det
 - **Arbeid mens CI går.** Mens CI eller feilinnføringene går, arbeider økta videre med
   reviewet, rettingene eller det neste relaterte issuet i oppdraget.
   Den venter med en bakgrunnskommando først når den ikke har mer å gjøre.
+- **Neste PR i en rekke venter ikke på feilinnføringene.** Bygger neste PR i oppdraget
+  på en PR som ikke er merget, starter grenen fra den siste committen i den PR-en så
+  snart den er pushet og `--ankre` er grønn lokalt. Den nye PR-en har grenen til den
+  første som base og oppgir avhengigheten slik PR-malen sier. Når den første er merget,
+  flyttes den nye til `main` med `git rebase --onto origin/main <den gamle basen>`. Blir
+  feilinnføringene røde på den første, rettes de der, og den neste rebases. Hver PR har
+  sin egen kjøring som bevis, og kjøringene går samtidig.
 - **Ikke abonner på PR-en** (`subscribe_pr_activity`), med mindre oppdragsgiver ber om
   det. Hver hendelse vekker økta og leser hele konteksten på nytt, også en grønn
   kjøring, egne pusher og mergen. Etter hver push venter økta på CI med én

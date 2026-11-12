@@ -36,7 +36,9 @@
  * `FEILINNFOERING_ARBEIDSKOPIER` overstyrer antallet, som ellers er antallet
  * prosessorer. `FEILINNFOERING_DEL=i/n` kjører bare del i av n: hver n-te
  * mutasjon fra og med nummer i, med sin egen kontrollkjøring over hele
- * samlingen. Workflowen fordeler delene på flere jobber, og en ny mutasjon havner
+ * samlingen. Med et utvalg fordeles mutasjonene med lagringstester for seg, så delene
+ * tar om lag like lang tid, og kontrollkjøringen over hele samlingen går i én kopi.
+ * Workflowen fordeler delene på flere jobber, og en ny mutasjon havner
  * i en av dem uten videre. Fra-strengene kontrolleres for alle delene.
  *
  * Kjøres fra repoets rot, med SQL Server oppe og `KOE_SQLSERVER_TILKOBLING` satt:
@@ -4851,18 +4853,19 @@ const STDERR_SLUTT = 4000;
  */
 async function kjoerVitest(
   k: Arbeidskopi,
-  filer = ['kjerne/', 'sprakprove/kjernelagring/']
+  filer = ['kjerne/', 'sprakprove/kjernelagring/'],
+  arbeidere = arbeiderePerKopi
 ): Promise<Rapport> {
   try {
-    return await kjoerVitestEnGang(k, filer);
+    return await kjoerVitestEnGang(k, filer, arbeidere);
   } catch (e) {
     if (!(e instanceof IngenRapport)) throw e;
     console.error(`${e.message}\nKjøres én gang til.`);
-    return kjoerVitestEnGang(k, filer);
+    return kjoerVitestEnGang(k, filer, arbeidere);
   }
 }
 
-function kjoerVitestEnGang(k: Arbeidskopi, filer: string[]): Promise<Rapport> {
+function kjoerVitestEnGang(k: Arbeidskopi, filer: string[], arbeidere: number): Promise<Rapport> {
   const ut = `${k.rot}-rapport.json`;
   const suiteut = `${k.rot}-suitefeil.json`;
   rmSync(ut, { force: true });
@@ -4887,7 +4890,7 @@ function kjoerVitestEnGang(k: Arbeidskopi, filer: string[]): Promise<Rapport> {
         // kjøring (#1015), så grensen heves over den i `vite.config.ts`.
         '--testTimeout=60000',
         // Prosessorene deles mellom kopiene, ikke ganges med dem.
-        `--maxWorkers=${arbeiderePerKopi}`,
+        `--maxWorkers=${arbeidere}`,
         '--reporter=json',
         `--outputFile=${ut}`,
         '--reporter=./kjerne/tester/suitefeil.ts',
@@ -5215,18 +5218,27 @@ const malfeil = valgte.flatMap((m) => [
     ),
 ]);
 if (malfeil.length) throw new Error(malfeil.join('\n'));
-const delen = valgte.filter((_, i) => i % deler === del - 1);
-// #967 punkt 1: en feilinnføring med ankerfeil hoppes over og meldes på slutten, så de andre
-// kjøres. Kjøringen er rød likevel.
-const mutasjoner = delen.filter((m) => !ankerfeil.has(m.id));
-const ankerfeilIDelen = delen.flatMap((m) => ankerfeil.get(m.id) ?? []);
 // Avgjort av oppdragsgiver 19.10 (#934): på en PR kjører hver mutasjon bare filene med
-// målene sine, og om natta hele samlingen. Kontrollkjøringen går alltid over hele.
+// målene sine, og om natta hele samlingen. Kontrollkjøringen går alltid over hele, med et
+// utvalg i én kopi: hvert utvalg har sin egen kontroll, og `ci.yml` kjører samlingen.
 const utvalg = process.env.FEILINNFOERING_UTVALG === '1';
 const filerFor = (m: Mutasjon) =>
   utvalg
     ? [...new Set(navn.filter((n) => m.mal.some((mal) => harMal(n.navn, mal))).map((n) => n.fil))]
     : undefined;
+// Lagringstestene mot SQL Server tar det meste av tiden i et utvalg, så mutasjonene med
+// slike filer fordeles for seg. Ellers avgjør rekkefølgen i lista hvor mange hver del får.
+const tung = (m: Mutasjon) =>
+  filerFor(m)?.some((f) => f.startsWith('sprakprove/kjernelagring/')) ?? false;
+const tunge = new Set(valgte.filter(tung));
+const iDelen = new Set(
+  [...tunge, ...valgte.filter((m) => !tunge.has(m))].filter((_, i) => i % deler === del - 1)
+);
+const delen = valgte.filter((m) => iDelen.has(m));
+// #967 punkt 1: en feilinnføring med ankerfeil hoppes over og meldes på slutten, så de andre
+// kjøres. Kjøringen er rød likevel.
+const mutasjoner = delen.filter((m) => !ankerfeil.has(m.id));
+const ankerfeilIDelen = delen.flatMap((m) => ankerfeil.get(m.id) ?? []);
 /** Kontrollkjøringen av hvert utvalg, etter filene (`utvalgskontroll`). */
 const utvalgskontroller = new Map<string, Promise<void>>();
 
@@ -5263,9 +5275,11 @@ if (bareAnkre) {
 
 async function kjoer(): Promise<number> {
   const kopier = lagArbeidskopier(antallKopier);
-  // Kontrollen kjøres i hver kopi, så en kopi som avviker, stopper
+  // Uten utvalg kjøres kontrollen i hver kopi, så en kopi som avviker, stopper
   // kjøringen før noen mutasjon.
-  const kontroller = await Promise.all(kopier.map((k) => kontrollkjoering(k)));
+  const kontroller = utvalg
+    ? [await kontrollkjoering(kopier[0], undefined, availableParallelism())]
+    : await Promise.all(kopier.map((k) => kontrollkjoering(k)));
   const antallTester = new Set<number>();
   for (const [i, kontroll] of kontroller.entries()) {
     const kontrolltester = kontroll.testResults.flatMap((f) => f.assertionResults);
@@ -5285,7 +5299,7 @@ async function kjoer(): Promise<number> {
   if (antallTester.size !== 1)
     throw new Error(`Kontrollkjøringene teller ulikt: ${[...antallTester].join(', ')} tester`);
   console.log(
-    `Kontroll uten mutasjon: ${[...antallTester][0]} tester grønne i hver av ${kopier.length} arbeidskopier.`
+    `Kontroll uten mutasjon: ${[...antallTester][0]} tester grønne i ${utvalg ? 'én arbeidskopi' : `hver av ${kopier.length} arbeidskopier`}.`
   );
 
   const koe = [...mutasjoner];
@@ -5325,14 +5339,18 @@ function kontrollfeil(kontroll: Rapport, k: Arbeidskopi): string[] {
  * Kontrollkjøringen av `filer`, eller hele samlingen, i `k`. Feiler den bare på tidsavbrudd,
  * kjøres den én gang til, og den andre kjøringen gjelder (#1122, E2-2 i del 4).
  */
-async function kontrollkjoering(k: Arbeidskopi, filer?: string[]): Promise<Rapport> {
-  const forste = await kjoerVitest(k, filer);
+async function kontrollkjoering(
+  k: Arbeidskopi,
+  filer?: string[],
+  arbeidere?: number
+): Promise<Rapport> {
+  const forste = await kjoerVitest(k, filer, arbeidere);
   const feil = kontrollfeil(forste, k);
   if (!feil.length || !feil.every((f) => TIDSAVBRUDD.test(f))) return forste;
   console.error(
     `Kontrollkjøringen i ${k.rot} fikk tidsavbrudd og kjøres én gang til: ${feil.join('; ')}`
   );
-  return kjoerVitest(k, filer);
+  return kjoerVitest(k, filer, arbeidere);
 }
 
 /**
