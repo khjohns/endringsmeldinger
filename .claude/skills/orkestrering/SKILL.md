@@ -245,7 +245,9 @@ Gjør dette for hver PR:
 2. Funn som verken er rettet, ført eller avvist etter stoppregelen for funn i
    leveranseskillen, kontrolleres og meldes. Skal funnet rettes i PR-en etter
    stoppregelen, sendes det til økta som eier PR-en. Ellers føres det i PR-ens
-   samleissue, eller legges i issuet for samme rotårsak når det finnes. Et funn som økta har tilskrevet
+   samleissue, eller legges i issuet for samme rotårsak når det finnes. Er økta ved
+   grensen sin («Orkestratorens tid og kontekst»), fører orkestratoren funnene i
+   samleissuet selv og sender dem ikke til økta. Et funn som økta har tilskrevet
    testmiljøet, sjekkes før det avskrives.
    Legger PR-en til en serverinngang, en tabell eller en migrasjon, lar
    orkestratoren en subagent på standardmodellen kontrollere hver

@@ -30,8 +30,7 @@ kjørekommando og verifikasjon/CI. Engangsverktøy: sletting eller historisk bev
 ## Verifikasjon og grenser
 
 <!-- Kontrollert commit/diff, faktisk kjørte kommandoer og resultater; også bygg
-når relevant. Review: kontrollert diff og resultat, og hvert funn med utfallet sitt etter
-stoppregelen for funn i leveranseskillen.
+når relevant. Review: kontrollert diff, nivå og resultat. Funnene står i «Funn og utfall».
 Kritiske regelendringer: representative feilinnføringer, målassertion, kjøring
 etter at mutasjonene er fjernet og vurdering av eventuelle overlevende mutasjoner.
 Skill historiske resultater fra egne kjøringer. Oppgi uprøvde innganger,
@@ -47,7 +46,19 @@ En manglende påkrevd sjekk eller review betyr fortsatt utkast. -->
 hvorfor PR-en alene er tilstrekkelig. Ikke lag en egen gjennomføringsrapport
 bare for å fylle dette punktet. -->
 
+## Funn og utfall
+
+<!-- Én rad per funn fra /code-review, reviewet av samspillet mellom reglene,
+/design-review og kontrollen av rettingene, med utfallet etter stoppregelen for funn
+i leveranseskillen. Utfallet er ett av: rettet (commit), krav i issue (lenke til
+kommentaren), oppfølgingsissue (lenke), spørsmål (under «Åpne spørsmål») eller
+avvist (én linje med begrunnelsen). Slett seksjonen hvis reviewet ikke ga funn. -->
+
+| Funn | Kilde | Utfall |
+| --- | --- | --- |
+|  |  |  |
+
 ## Åpne spørsmål
 
-<!-- Uløste beslutninger, avviste reviewfunn etter stoppregelen for funn i leveranseskillen
-og koblede oppfølgingsissues. Slett seksjonen hvis det ikke er noen. -->
+<!-- Uløste beslutninger og spørsmål til oppdragsgiver, også fra funnene over.
+Slett seksjonen hvis det ikke er noen. -->
