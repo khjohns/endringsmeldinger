@@ -104,8 +104,8 @@ jobs:
     name: Feilinnføringene for kjernen (del ${{ matrix.del }} av 12)
     needs: endret
     if: needs.endret.outputs.kjoer == 'true'
-    # Skriptet fordeler mutasjonene på delene etter rekkefølgen, så en ny
-    # mutasjon trenger ingen endring her.
+    # Skriptet fordeler mutasjonene på delene, så en ny mutasjon trenger ingen
+    # endring her. Fordelingen avhenger av FEILINNFOERING_UTVALG.
     strategy:
       fail-fast: false
       matrix:

@@ -94,7 +94,9 @@ verktøysvar tidlig i økta leses på nytt i hvert kall etter det
   på en PR som ikke er merget, starter grenen fra den siste committen i den PR-en så
   snart den er pushet og `--ankre` er grønn lokalt. Den nye PR-en har grenen til den
   første som base og oppgir avhengigheten slik PR-malen sier. Når den første er merget,
-  flyttes den nye til `main` med `git rebase --onto origin/main <den gamle basen>`. Blir
+  settes basen for den nye PR-en til `main` først, og så flyttes grenen med
+  `git rebase --onto origin/main <den gamle basen>` og pushes. Pushet kjører CI og
+  regelversjonsvakten mot `main`; før det er de bare prøvd mot grenen til den første. Blir
   feilinnføringene røde på den første, rettes de der, og den neste rebases. Hver PR har
   sin egen kjøring som bevis, og kjøringene går samtidig.
 - **Ikke abonner på PR-en** (`subscribe_pr_activity`), med mindre oppdragsgiver ber om

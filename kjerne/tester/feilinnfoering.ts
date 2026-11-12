@@ -5222,10 +5222,19 @@ if (malfeil.length) throw new Error(malfeil.join('\n'));
 // målene sine, og om natta hele samlingen. Kontrollkjøringen går alltid over hele, med et
 // utvalg i én kopi: hvert utvalg har sin egen kontroll, og `ci.yml` kjører samlingen.
 const utvalg = process.env.FEILINNFOERING_UTVALG === '1';
-const filerFor = (m: Mutasjon) =>
+const utvalgene = new Map(
   utvalg
-    ? [...new Set(navn.filter((n) => m.mal.some((mal) => harMal(n.navn, mal))).map((n) => n.fil))]
-    : undefined;
+    ? valgte.map((m) => [
+        m,
+        [
+          ...new Set(
+            navn.filter((n) => m.mal.some((mal) => harMal(n.navn, mal))).map((n) => n.fil)
+          ),
+        ],
+      ])
+    : []
+);
+const filerFor = (m: Mutasjon) => utvalgene.get(m);
 // Lagringstestene mot SQL Server tar det meste av tiden i et utvalg, så mutasjonene med
 // slike filer fordeles for seg. Ellers avgjør rekkefølgen i lista hvor mange hver del får.
 const tung = (m: Mutasjon) =>
