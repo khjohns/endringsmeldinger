@@ -183,8 +183,8 @@ Funnene i domeneforventningene er rettet i BF-08 (se «Endringer» der).
 
 ## Svarene
 
-Spørsmålene ble stilt slik de står på e47ee6a, som nummerert liste i tekst. Oppdragsgiver svarte
-12.11, ordrett ([#1834, 6833550575](https://github.com/khjohns/endringsmeldinger/issues/1834#issuecomment-6833550575)):
+Orkestratoren stilte spørsmålene slik de står på e47ee6a, som nummerert liste i tekst, ifølge
+kommentaren under. Oppdragsgiver svarte 12.11, ordrett ([#1834, 6833550575](https://github.com/khjohns/endringsmeldinger/issues/1834#issuecomment-6833550575)):
 
 > BF-08: A, A, A.
 
