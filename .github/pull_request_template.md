@@ -30,7 +30,8 @@ kjørekommando og verifikasjon/CI. Engangsverktøy: sletting eller historisk bev
 ## Verifikasjon og grenser
 
 <!-- Kontrollert commit/diff, faktisk kjørte kommandoer og resultater; også bygg
-når relevant. Review: kontrollert diff, resultat og håndtering av funn.
+når relevant. Review: kontrollert diff og resultat, og hvert funn med utfallet sitt etter
+stoppregelen for funn i leveranseskillen.
 Kritiske regelendringer: representative feilinnføringer, målassertion, kjøring
 etter at mutasjonene er fjernet og vurdering av eventuelle overlevende mutasjoner.
 Skill historiske resultater fra egne kjøringer. Oppgi uprøvde innganger,

@@ -152,6 +152,8 @@ Når oppdragsgiver har sagt fra, kjører byggeøkta `/design-review` i en subage
 kontekst, før `/code-review`, og retter funnene selv. Kommer svaret ikke innen en time,
 følger økta «Hold hurtigbufferen varm» i arbeidsøkt-skillen. Alvorligheten settes av
 `/design-review`; hva som rettes i PR-en, følger stoppregelen for funn under (#1080, #1492).
+Endrer en retting visningen etter at oppdragsgiver har sett skjermbildene, sier
+PR-beskrivelsen hva som ble endret i visningen, i et eget punkt.
 
 En diff i `src/routes/[prosjektId]/` eller `src/lib/kjernesak/` krever også at den
 ekte saksruta kjøres med `saksrute.ts` før PR-en meldes klar, og skjermbildene legges
@@ -172,9 +174,6 @@ Et funn rettes ikke i PR-en, selv om det gjelder PR-ens egen kode, når
   linjer i en fil PR-en allerede endrer, eller
 - rettingen hører til en del som bygges i et annet issue.
 
-Endrer en retting visningen etter at oppdragsgiver har sett skjermbildene, sier
-PR-beskrivelsen hva som ble endret i visningen, i et eget punkt.
-
 Et funn som ikke rettes, får ett av fire utfall:
 
 - Det avvises med én linje under «Åpne spørsmål» i PR-beskrivelsen, når det verken
@@ -186,6 +185,11 @@ Et funn som ikke rettes, får ett av fire utfall:
   PR-en, eller etter [vedtaksskillen](../vedtak/SKILL.md) når det gjelder domenet.
 - Resten samles i ett oppfølgingsissue per PR, med etiketten `review-oppfølging`
   og en sjekkliste. Ett issue per funn lages ikke (#649).
+
+Overleveringen og en omtale i PR-beskrivelsen er ikke noe utfall. Det som bare står
+der, blir glemt. PR-beskrivelsen viser hvert funn med utfallet: rettet med commit,
+lenke til kommentaren eller oppfølgingsissuet, spørsmålet, eller linjen under
+«Åpne spørsmål».
 
 Reviewet kjøres én gang, og kontrollen av rettingene én gang. Et funn fra kontrollen
 av rettingene rettes bare når det gir feil resultat nå, eller bryter et vedtak eller
@@ -215,6 +219,10 @@ rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, e
 kontrollen. Testene kjøres, og PR-en sier at kontrollen er utelatt.
 
 ## Før en PR meldes klar
+
+Les «Review og funn» og denne delen på nytt, hele, når reviewet er gjort og før PR-en
+markeres klar. Dette er den andre lesingen `CLAUDE.md` krever. Et utsnitt rundt
+nivået for reviewet er ikke nok.
 
 - Prøv akseptkriteriene mot forventninger fra et vedtak eller en annen uttrykkelig
   kilde, etter `.claude/rules/tester.md`. Der dagens atferd er en kjent feil, er
@@ -255,7 +263,8 @@ kontrollen. Testene kjøres, og PR-en sier at kontrollen er utelatt.
   [vedtaksskillen](../vedtak/SKILL.md).
 - Gjennomfør uavhengig review etter «Review og funn», med akseptkriteriene som
   grunnlag. Se særlig etter ny duplisering, om regelen ligger der den skal eies,
-  og om utfasingen er planlagt. Funn om dette følger stoppregelen for funn.
+  og om utfasingen er planlagt. Funn om dette følger stoppregelen for funn, og hvert
+  funn har et av utfallene der.
   Leveransen skal kunne forklares og etterprøves
   fra kode, tester og varige referanser uten den opprinnelige chatten. At
   agenter er enige, er ikke testbevis og erstatter ikke det menneskelige
