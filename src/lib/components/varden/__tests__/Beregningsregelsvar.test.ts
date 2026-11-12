@@ -104,7 +104,9 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
   it('kravet om tilbud står bare når BH ikke godkjenner regelen, og alene er det svaret på oppgjørsformen (KA-U71, svar 3 A 10.11)', async () => {
     const sendt = await svarskjemaet();
     const tilbud = () =>
-      screen.queryByRole('checkbox', { name: 'Krev at TE gir et spesifisert tilbud for P1' });
+      screen.queryByRole('checkbox', {
+        name: 'Krev at totalentreprenøren gir et spesifisert tilbud for P1',
+      });
     expect(tilbud()).toBeInTheDocument();
     await fireEvent.click(radio('Godkjenner regningsarbeid (punkt 34.4)'));
     expect(tilbud()).toBeNull();

@@ -281,7 +281,7 @@ export const SKJEMA = {
   kreverTilbudKort: 'krever spesifisert tilbud',
   tilbudSpoersmaal: 'Spesifisert tilbud (punkt 34.2.1)',
   kreverTilbud: (post: string | null) =>
-    `Krev at TE gir et spesifisert tilbud for ${post ?? 'kravposten'}`,
+    `Krev at totalentreprenøren gir et spesifisert tilbud for ${post ?? 'kravposten'}`,
   varselJusteringSpoersmaal: 'Varselet om justering av enhetsprisene (punkt 34.3.3)',
   komITide: 'Kom i tide',
   komForSent: 'Kom for sent',
@@ -302,7 +302,7 @@ export const SKJEMA = {
   godkjennAlleFormer: 'Godkjenn fast sum for alle kravpostene',
   godkjennAlle: 'Godkjenn alle kravpostene som krevd',
   // Med en kravpost etter en beregningsregel (U-9 i BF-14).
-  godkjennAlleFormerRegel: 'Godkjenn oppgjørsformen TE krever for alle kravpostene',
+  godkjennAlleFormerRegel: 'Godkjenn oppgjørsformen totalentreprenøren krever for alle kravpostene',
   godkjennAlleFaste: 'Godkjenn alle kravpostene med fast sum som krevd',
   svaretKolonne: 'Svaret',
   teKrever: (beloep: number, pns?: string) =>
