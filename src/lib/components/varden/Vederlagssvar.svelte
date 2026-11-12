@@ -536,6 +536,8 @@
     ]}
     bind:verdi={v.form}
     feil={feil(`form-${p.betegnelse}`)}
+    lett
+    stablet
   />
   <!-- Spørsmålet om beløpet står bare når BH godkjenner fast sum (KA-U72). Det er i
        samme lag som oppgjørsformen og viser til forutsetningene over. -->
@@ -551,6 +553,8 @@
       ]}
       bind:verdi={v.beloep}
       feil={feil(`beloep-${p.betegnelse}`)}
+      lett
+      stablet
     />
   {/if}
   {#if beloepsvalget(v, p) === 'deler'}
@@ -590,6 +594,7 @@
     bind:verdi={v.form}
     feil={feil(`form-${p.betegnelse}`)}
     lett
+    stablet
   />
   {#if spoerOmTilbud(v, p)}
     <fieldset class="avkrysning">
@@ -637,6 +642,7 @@
           bind:verdi={v.varsletITide}
           feil={feil(`varsel-${p.betegnelse}`)}
           lett
+          stablet
         />
       </div>
       <div class="betinget">
@@ -660,6 +666,7 @@
           bind:verdi={v.godtarJustering}
           feil={feil(`justering-${p.betegnelse}`)}
           lett
+          stablet
         />
       </div>
     {/if}
