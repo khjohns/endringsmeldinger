@@ -3703,7 +3703,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/kommandoer/forutsetninger.ts#hindrerSvarPaaKravet",
+        "kjerne/spor/vederlag/kommando.ts#hindrerSvarPaaKravet",
         "kjerne/spor/vederlag/frysing.ts#kravpostvurderinger"
       ],
       "regelkoder": [

@@ -590,7 +590,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | KA-50 | [`dokumentasjonIBrevet`](../../kjerne/utledning/utled.ts) |
 | KA-51 | [`tekstavvik`](../../kjerne/kommandoer/skriving.ts) |
 | KA-55 | [`kravposteneStrider`](../../kjerne/spor/vederlag/utledning.ts) |
-| KA-56 | [`hindrerSvarPaaKravet`](../../kjerne/kommandoer/forutsetninger.ts), [`kravpostvurderinger`](../../kjerne/spor/vederlag/frysing.ts) |
+| KA-56 | [`hindrerSvarPaaKravet`](../../kjerne/spor/vederlag/kommando.ts), [`kravpostvurderinger`](../../kjerne/spor/vederlag/frysing.ts) |
 <!-- sporbarhet:slutt -->
 
 ## Formatet

@@ -55,7 +55,7 @@ export type Svarstandpunkter = (s: Svarutkast, utregning: Record<string, unknown
 
 /** Det som er sporets eget i nyttelastkontrollen (#1783). */
 export interface Sporsnyttelast {
-  /** Avgrensningene i svaret som krever en begrunnelse (KA-U24, KA-U32). */
+  /** Avgrensningene i svaret som krever en begrunnelse (`avgrensninger`). */
   avgrensninger(v: Svarvurdering, server: Record<string, unknown>, krav: Krav): string[];
   /** Det i kravet som strider mot kravversjonene før i sporet, eller `null`. */
   kravsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null;

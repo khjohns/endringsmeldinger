@@ -189,7 +189,7 @@ function kravfeil(innhold: unknown): string[] {
   return feil;
 }
 
-/** Dokumentene kravskjemaet legger til som varsel for en kravpost (VS-U53, `vedleggI`). */
+/** Dokumentene kravskjemaet legger til som varsel for en kravpost (VS-U51, VS-U53, `vedleggI`). */
 const vedleggIKravpostene = (innhold: Innhold): string[] =>
   ((innhold.kravposter ?? []) as { varsel?: unknown }[]).flatMap((p) =>
     typeof p.varsel === 'object' && p.varsel !== null
