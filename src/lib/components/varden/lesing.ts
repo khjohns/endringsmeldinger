@@ -11,7 +11,7 @@ import { FORHOLDSGRUPPER, forholdet } from '$kjerne/spor/forhold/tekst';
 import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
 import { plassene } from '$kjerne/frosset/byggeklosser';
 import { innholdIFristen } from '$kjerne/format/kravinnhold';
-import { kravposterI, krevdSamlet } from '$kjerne/spor/vederlag/format';
+import { krevdIKravposten, kravposterI, krevdSamlet } from '$kjerne/spor/vederlag/format';
 import { tilTall } from '$kjerne/regler/beloep';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { TilbudtHandling } from '$kjerne/kommandoer/handlinger';
@@ -409,11 +409,11 @@ export function kravposterUtenFastBeloep(utfall: Utfall, krav: readonly Krav[]):
   );
 }
 
-/** Summen av tallene med samme lag, i rekkefølgen lagene først står i. */
+/** Summen av tallene med samme lag, i rekkefølgen lagene først står i. Summeres i øre. */
 function summertPerLag(poster: { tall: number; lag: string | null }[]) {
-  const summer = new Map<string | null, number>();
-  for (const p of poster) summer.set(p.lag, (summer.get(p.lag) ?? 0) + p.tall);
-  return [...summer].map(([lag, tall]) => ({ tall, lag }));
+  const oere = new Map<string | null, number>();
+  for (const p of poster) oere.set(p.lag, (oere.get(p.lag) ?? 0) + Math.round(p.tall * 100));
+  return [...oere].map(([lag, o]) => ({ tall: o / 100, lag }));
 }
 
 /** Oppgjørsformen til kravpostene etter en beregningsregel, `flere` når de har ulike, ellers `null`. */
@@ -447,7 +447,7 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
             tall: tall(),
             utenFast:
               spor === 'vederlag'
-                ? kravposterI(krav).filter((p) => p.oppgjoersform !== 'tilbud').length
+                ? kravposterI(krav).filter((p) => krevdIKravposten(krav, p) === null).length
                 : 0,
             brev: ref(kravbrev),
           }

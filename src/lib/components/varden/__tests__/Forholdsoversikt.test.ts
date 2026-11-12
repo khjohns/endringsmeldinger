@@ -226,8 +226,7 @@ describe('Siden for forholdet', () => {
     );
     const tekst = krav.textContent?.replace(/\s+/g, ' ');
     expect(tekst).toContain('Krevd 140 000 kr brev 2');
-    // Skillet «·» er et eget element, med avstanden fra flexen rundt (textContent har ingen mellomrom).
-    expect(tekst).toMatch(/Byggherren 100 000 kr ·\s?1 post uten fast beløp brev 3/);
+    expect(tekst).toContain('Byggherren 100 000 kr · 1 post uten fast beløp brev 3');
     expect(tekst).not.toMatch(/P2|prinsipalt/);
   });
 
