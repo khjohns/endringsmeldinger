@@ -3991,7 +3991,7 @@ punkt 9 etter svaret i [HF-U26](#hf-u26), som i versjon 1.
    løsningen avgjør ikke om enigheten står (MM-U50 punkt 8). (MM-U34 punkt 9; E9) Etter en endringsordre
    registrert som svar sier brev og visning ikke at endringsordren i brevet er erstattet
    eller bortfalt. (EO-U35; spørsmål 1 A; E6)
-9. «Gir dagens regler et standpunkt i et sendt svar en annen virkning, vises avviket som en merknad. Så langt et nytt svar er tillatt, sier merknaden at byggherren kan sende et nytt svar. Den oppfordrer ikke til en bestemt endring. Løsningen avgjør ikke om et nytt svar er rettslig virksomt (MM-U12).» (MM-U9; HF-U5; E4; spørsmål 2 A, [HF-U26](#hf-u26))
+9. Gir dagens regler et standpunkt i et sendt svar en annen virkning, vises avviket som en merknad. Så langt et nytt svar er tillatt, sier merknaden at byggherren kan sende et nytt svar. Den oppfordrer ikke til en bestemt endring. Løsningen avgjør ikke om et nytt svar er rettslig virksomt (MM-U50 punkt 8). (MM-U9; HF-U5; E4; spørsmål 2 A, [HF-U26](#hf-u26); E9)
 
 ###### C. Det samlevedtaket ikke gjelder
 
@@ -4028,10 +4028,10 @@ svar. Kilde: 2 A, forholdet «snevrer inn HF-U25 punkt 5».
 endringsordre registrert som svar.» Ny tekst: punkt 7 viser til punkt 13 i samlevedtaket for
 endringsordren, versjon 3. Kilde: 3 A, forholdet «HF-U25 punkt 7 viser hit».
 
-**E9 Henvisningen til MM-U12 (punkt 1, 7 og 8).** «(MM-U12)» står som «(MM-U50 punkt 8)». Kilde:
+**E9 Henvisningen til MM-U12 (punkt 1, 7, 8 og 9).** «(MM-U12)» står som «(MM-U50 punkt 8)». Kilde:
 MM-U50 opphevet MM-U12, og MM-U50 punkt 8: «løsningen avgjør ikke om en part er bundet av et
-utsagn eller kan komme løs fra det». I punkt 9 står teksten fra HF-U26 ordrett, med «(MM-U12)»,
-og den leses som MM-U50 punkt 8. Ikke nytt innhold.
+utsagn eller kan komme løs fra det». Punkt 9 er teksten i HF-U26 med henvisningen rettet, og står
+derfor uten anførselstegn. Ikke nytt innhold.
 
 ##### <a id="samlevedtak-vilkaar-forbehold"></a>Samlevedtaket for vilkår og forbehold i byggherrens svar (KA-U49)
 
@@ -12569,7 +12569,7 @@ svarene på spørsmål 1–5 i [vurderingen](../vedtaksregister/vurdering-samlev
 og ordlyden som ble godkjent 05.11
 ([#1534, 6669209777](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6669209777)).
 Samlevedtaket opphever [EO-U38](#eo-u38), versjon 2 (svar 5 A). Samlevedtaket for revisjon av
-byggherrens svar er ført på samme måte som [HF-U29](#hf-u29).
+byggherrens svar, versjon 2, er [HF-U29](#hf-u29).
 
 ###### Forslaget
 
@@ -12743,8 +12743,7 @@ parentes står som i versjon 2, og «E1»–«E9» i dem er E-punktene i versjon
     8.) Løsningen avgjør ikke om det nye svaret er virksomt mot endringsordren i brevet.
     (EO-U38 punkt 50; MM-U50 punkt 8.) (E10) Godtar totalentreprenøren uttrykkelig et senere
     avslag på forholdet, eller trekker totalentreprenøren forholdet, lukkes saken etter GR-U27.
-    Brev og visning sier ikke at endringsordren i brevet er bortfalt (OV-U6; KA-U14). (EO-U35;
-    E5; E8; E14)
+    (EO-U35; E5; E8; E14)
 51. Registreres den som endringsordre i en EO-sak, registreres brevet som vedlegg, med
     datoen det ble sendt og dokumentkoden i brevet. Der skjemaet og brevet spriker, er
     brevet byggherrens meddelelse. (EO-U34 punkt 51)
@@ -12906,8 +12905,10 @@ betegnelsen etter svaret 05.11. Svar 5 A er føringen: to nye poster.
 
 **E10 Brevet etter en endringsordre registrert som svar (punkt 50; spørsmål 1 A).** Gammel tekst:
 punkt 50 «Løsningen avgjør ikke om det nye svaret er virksomt mot endringsordren i brevet (MM-U50
-punkt 8).» Ny tekst: brevteksten og de to setningene etter den i punkt 50, 1 A med den godkjente
-ordlyden. Forhold: snevrer inn LV-U34 og HF-U25 punkt 2. HF-U25 punkt 2 står i
+punkt 8).» og siste setning i punkt 50 «Brev og visning sier ikke at endringsordren i brevet er
+bortfalt (OV-U6; KA-U14).» Ny tekst: brevteksten og de to setningene etter den i punkt 50, 1 A med
+den godkjente ordlyden. Setningen i 1 A «Brev og visning sier ikke at endringsordren er erstattet
+eller bortfalt.» står for den gamle siste setningen, som i HF-U29 punkt 8. Forhold: snevrer inn LV-U34 og HF-U25 punkt 2. HF-U25 punkt 2 står i
 [HF-U29](#hf-u29) med en henvisning hit.
 
 **E11 Feil i registreringen eller et annet svar (punkt 50; spørsmål 2 A).** Gammel tekst: punkt

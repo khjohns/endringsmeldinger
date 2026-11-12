@@ -178,7 +178,7 @@ Oppdragsgiver 05.11, ordrett ([#1534, 6668555694](https://github.com/khjohns/end
 > 2A, 3A, 4A, 5A. 1A, men språket må forbedres. «Grunnlaget» brukes ikke lenger - det er forhold eller påberopelse.
 
 - **2 A, 3 A, 4 A og 5 A** er valgt, og B er forkastet i hvert av dem.
-- **1 A** er valgt med rettelse i språket. Den rettede ordlyden under venter på godkjenning.
+- **1 A** er valgt med rettelse i språket. Den rettede ordlyden under ble godkjent 05.11 (se «Godkjent 05.11»).
   1 B er forkastet.
 
 Spørsmålene over står slik de ble stilt. Betegnelsen er hentet fra OV-U82: «I
@@ -188,7 +188,7 @@ forholdet›». Domenetabellen, «Påberopelse av forholdet»: «Totalentrepren�
 saken, byggherrens svar på det og trekket av det.» Byggherren svarer derfor på
 påberopelsen, og i punkt 13 gjelder begrensningen sporet, som heter forholdet.
 
-**1 A, rettet ordlyd (venter på godkjenning):**
+**1 A, rettet ordlyd (godkjent 05.11):**
 
 | Før (stilt) | Rettet |
 | --- | --- |

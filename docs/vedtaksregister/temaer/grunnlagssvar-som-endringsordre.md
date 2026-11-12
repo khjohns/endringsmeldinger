@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `c7b70c1f88466754af9b7946d3aa6ea8dae2ccfc7b73f80b49f3529608b1dd43`
+Kontrollsum (SHA-256 over utdraget visningen leser): `87792c2145f8684686c5085ec7ee3a4a41b0aab551b321dffb54efbc29cb20f5`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -68,13 +68,13 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [VS-U62](#vs-u62) | Presiserer [VS-U48](#vs-u48); Presiserer [VS-U57](#vs-u57); Bygger på [VS-U46](#vs-u46) | — |
 | [VS-U63](#vs-u63) | Snevrer inn [VS-U46](#vs-u46) | — |
 | [VS-U64](#vs-u64) | Utvider [VS-U48](#vs-u48); Presiserer [OV-U89](#ov-u89); Utvider [VS-U46](#vs-u46) | — |
-| [VS-U65](#vs-u65) | Bygger på [HF-U25](#hf-u25) | — |
+| [VS-U65](#vs-u65) | Bygger på [HF-U29](#hf-u29) | — |
 | [VS-U66](#vs-u66) | Presiserer [VS-U60](#vs-u60) | — |
 | [KA-U45](#ka-u45) | Opphever [KA-U26](../../plans/vedtak.md#ka-u26); Opphever [KA-U28](../../plans/vedtak.md#ka-u28); Opphever [KA-U30](../../plans/vedtak.md#ka-u30); Snevrer inn [KA-U20](../../plans/vedtak.md#ka-u20); Snevrer inn [KA-U27](../../plans/vedtak.md#ka-u27); Snevrer inn [KA-U29](../../plans/vedtak.md#ka-u29); Snevrer inn [LV-U4](../../plans/vedtak.md#lv-u4); Snevrer inn [OV-U7](../../plans/vedtak.md#ov-u7); Endrer [KA-U16](../../plans/vedtak.md#ka-u16) | Samlet av [KA-U49](#ka-u49); Endret av [EO-U18](#eo-u18); Endret av [EO-U34](#eo-u34); Endret av [EO-U38](#eo-u38); Endret av [EO-U39](#eo-u39) |
-| [HF-U25](#hf-u25) | Endrer [HF-U5](#hf-u5); Endrer [HF-U6](#hf-u6); Endrer [MM-U27](../../plans/vedtak.md#mm-u27); Endrer [GR-U7](../../plans/vedtak.md#gr-u7); Endrer [OV-U5](#ov-u5); Endrer [EO-U34](#eo-u34); Endrer [GR-U17](#gr-u17); Endrer [GR-U20](#gr-u20); Endrer [GR-U23](#gr-u23); Endrer [MM-U9](../../plans/vedtak.md#mm-u9); Presiserer [MM-U34](#mm-u34) | Lagt til grunn av [VS-U65](#vs-u65); Opphevet av [HF-U29](#hf-u29) |
+| [HF-U25](#hf-u25) | Endrer [HF-U5](#hf-u5); Endrer [HF-U6](#hf-u6); Endrer [MM-U27](../../plans/vedtak.md#mm-u27); Endrer [GR-U7](../../plans/vedtak.md#gr-u7); Endrer [OV-U5](#ov-u5); Endrer [EO-U34](#eo-u34); Endrer [GR-U17](#gr-u17); Endrer [GR-U20](#gr-u20); Endrer [GR-U23](#gr-u23); Endrer [MM-U9](../../plans/vedtak.md#mm-u9); Presiserer [MM-U34](#mm-u34) | Opphevet av [HF-U29](#hf-u29) |
 | [HF-U26](#hf-u26) | Endrer [MM-U9](../../plans/vedtak.md#mm-u9); Endrer [HF-U5](#hf-u5) | — |
 | [HF-U27](#hf-u27) | Endrer [GR-U17](#gr-u17); Endrer [GR-U20](#gr-u20); Endrer [GR-U23](#gr-u23); Presiserer [MM-U34](#mm-u34) | — |
-| [HF-U29](#hf-u29) | Opphever [HF-U25](#hf-u25); Endrer [HF-U5](#hf-u5); Endrer [HF-U6](#hf-u6); Endrer [MM-U27](../../plans/vedtak.md#mm-u27); Endrer [GR-U7](../../plans/vedtak.md#gr-u7); Endrer [OV-U5](#ov-u5); Endrer [GR-U17](#gr-u17); Endrer [GR-U20](#gr-u20); Endrer [GR-U23](#gr-u23); Endrer [MM-U9](../../plans/vedtak.md#mm-u9); Presiserer [MM-U34](#mm-u34) | — |
+| [HF-U29](#hf-u29) | Opphever [HF-U25](#hf-u25); Endrer [HF-U5](#hf-u5); Endrer [HF-U6](#hf-u6); Endrer [MM-U27](../../plans/vedtak.md#mm-u27); Endrer [GR-U7](../../plans/vedtak.md#gr-u7); Endrer [OV-U5](#ov-u5); Endrer [GR-U17](#gr-u17); Endrer [GR-U20](#gr-u20); Endrer [GR-U23](#gr-u23); Endrer [MM-U9](../../plans/vedtak.md#mm-u9); Presiserer [MM-U34](#mm-u34) | Lagt til grunn av [VS-U65](#vs-u65) |
 | [KA-U49](#ka-u49) | Samler [OV-U69](#ov-u69); Samler [OV-U72](#ov-u72); Endrer [KA-U16](../../plans/vedtak.md#ka-u16); Samler [KA-U19](../../plans/vedtak.md#ka-u19); Samler [KA-U45](#ka-u45); Endrer [KA-U20](../../plans/vedtak.md#ka-u20); Samler [KA-U27](../../plans/vedtak.md#ka-u27); Endrer [KA-U29](../../plans/vedtak.md#ka-u29); Samler [LV-U32](#lv-u32); Endrer [MM-U34](#mm-u34); Samler [OV-U46](#ov-u46); Presiserer [HF-U7](../../plans/vedtak.md#hf-u7) | — |
 | [KA-U50](#ka-u50) | Samler [OV-U72](#ov-u72); Samler [OV-U69](#ov-u69); Endrer [EO-U34](#eo-u34) | — |
 | [GR-U10](#gr-u10) | Presiserer [GR-U7](../../plans/vedtak.md#gr-u7); Presiserer [GR-U2](../../plans/vedtak.md#gr-u2) | Endret av [GR-U13](#gr-u13); Presisert av [GR-U26](#gr-u26); Presisert av [HF-U9](#hf-u9); Presisert av [EO-U12](#eo-u12); Endret av [MM-U34](#mm-u34); Presisert av [OV-U66](#ov-u66) |
@@ -880,7 +880,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 10.11, oppdragsgiver (#1758, #1663)
 
-**Følge:** Bygger på [HF-U25](#hf-u25). Følger HF-U25, slik alternativet sier. Kravpostene uten «Endre» i svaret på et varsel lagt til mellom to krav er design og føres i BF-14. Avgjør S-18 i BF-14. Berører BF-14 (F-8).
+**Følge:** Bygger på [HF-U29](#hf-u29). Følger HF-U25, slik alternativet sier. Kravpostene uten «Endre» i svaret på et varsel lagt til mellom to krav er design og føres i BF-14. Avgjør S-18 i BF-14. Berører BF-14 (F-8).
 
 **Regelrader:** —
 
@@ -922,7 +922,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 04.11, oppdragsgiver (#1534, #1065)
 
-**Følge:** Endrer [HF-U5](#hf-u5). Endrer [HF-U6](#hf-u6). Endrer [MM-U27](../../plans/vedtak.md#mm-u27). Endrer [GR-U7](../../plans/vedtak.md#gr-u7). Endrer [OV-U5](#ov-u5). Endrer [EO-U34](#eo-u34). Endrer [GR-U17](#gr-u17). Endrer [GR-U20](#gr-u20). Endrer [GR-U23](#gr-u23). Endrer [MM-U9](../../plans/vedtak.md#mm-u9). Presiserer [MM-U34](#mm-u34). Opphevet 05.11 av [HF-U29](#hf-u29). Lagt til grunn 10.11 av [VS-U65](#vs-u65). Teksten står under tabellen, i [Samlevedtaket for revisjon av byggherrens svar](../../plans/vedtak.md#samlevedtak-revisjon). Forholdene står i spørsmål 1: «endrer, som i tabellen «Postene i kjeden», og presiserer MM-U34 punkt 5 og 7», i [vurderingen](https://github.com/khjohns/endringsmeldinger/blob/936d874/docs/vedtaksregister/vurdering-samlevedtak-revisjon-av-svaret-2026-11-04.md#postene-i-kjeden). I postene det endrer, gjelder de navngitte setningene ikke lenger. I EO-U34 punkt 46 endres uttrykket slik E2 sier. Raden SK-02 og SK-03 endres også (E2). Merknaden etter MM-U9 er [HF-U26](#hf-u26), og påberopelsen etter frafall er [HF-U27](#hf-u27).
+**Følge:** Endrer [HF-U5](#hf-u5). Endrer [HF-U6](#hf-u6). Endrer [MM-U27](../../plans/vedtak.md#mm-u27). Endrer [GR-U7](../../plans/vedtak.md#gr-u7). Endrer [OV-U5](#ov-u5). Endrer [EO-U34](#eo-u34). Endrer [GR-U17](#gr-u17). Endrer [GR-U20](#gr-u20). Endrer [GR-U23](#gr-u23). Endrer [MM-U9](../../plans/vedtak.md#mm-u9). Presiserer [MM-U34](#mm-u34). Opphevet 05.11 av [HF-U29](#hf-u29). Teksten står under tabellen, i [Samlevedtaket for revisjon av byggherrens svar](../../plans/vedtak.md#samlevedtak-revisjon). Forholdene står i spørsmål 1: «endrer, som i tabellen «Postene i kjeden», og presiserer MM-U34 punkt 5 og 7», i [vurderingen](https://github.com/khjohns/endringsmeldinger/blob/936d874/docs/vedtaksregister/vurdering-samlevedtak-revisjon-av-svaret-2026-11-04.md#postene-i-kjeden). I postene det endrer, gjelder de navngitte setningene ikke lenger. I EO-U34 punkt 46 endres uttrykket slik E2 sier. Raden SK-02 og SK-03 endres også (E2). Merknaden etter MM-U9 er [HF-U26](#hf-u26), og påberopelsen etter frafall er [HF-U27](#hf-u27).
 
 **Regelrader:** —
 
@@ -964,7 +964,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 05.11, oppdragsgiver (#1534, #1065)
 
-**Følge:** Opphever [HF-U25](#hf-u25). Endrer [HF-U5](#hf-u5). Endrer [HF-U6](#hf-u6). Endrer [MM-U27](../../plans/vedtak.md#mm-u27). Endrer [GR-U7](../../plans/vedtak.md#gr-u7). Endrer [OV-U5](#ov-u5). Endrer [GR-U17](#gr-u17). Endrer [GR-U20](#gr-u20). Endrer [GR-U23](#gr-u23). Endrer [MM-U9](../../plans/vedtak.md#mm-u9). Presiserer [MM-U34](#mm-u34). Teksten står under tabellen, i [Samlevedtaket for revisjon av byggherrens svar, versjon 2](../../plans/vedtak.md#samlevedtak-revisjon-2). Opphever HF-U25 (svar 5 A). Forholdene i HF-U25 er overtatt, unntatt «endrer EO-U34»: EO-U34 er opphevet, og endringen står i E1 i EO-U38. Punkt 2, 5, 7 og 8 viser til samlevedtaket for endringsordren, versjon 3, [EO-U39](#eo-u39) (svar 1 A, 2 A og 3 A).
+**Følge:** Opphever [HF-U25](#hf-u25). Endrer [HF-U5](#hf-u5). Endrer [HF-U6](#hf-u6). Endrer [MM-U27](../../plans/vedtak.md#mm-u27). Endrer [GR-U7](../../plans/vedtak.md#gr-u7). Endrer [OV-U5](#ov-u5). Endrer [GR-U17](#gr-u17). Endrer [GR-U20](#gr-u20). Endrer [GR-U23](#gr-u23). Endrer [MM-U9](../../plans/vedtak.md#mm-u9). Presiserer [MM-U34](#mm-u34). Lagt til grunn 10.11 av [VS-U65](#vs-u65). Teksten står under tabellen, i [Samlevedtaket for revisjon av byggherrens svar, versjon 2](../../plans/vedtak.md#samlevedtak-revisjon-2). Opphever HF-U25 (svar 5 A). Forholdene i HF-U25 er overtatt, unntatt «endrer EO-U34»: EO-U34 er opphevet, og endringen står i E1 i EO-U38. Punkt 2, 5, 7 og 8 viser til samlevedtaket for endringsordren, versjon 3, [EO-U39](#eo-u39) (svar 1 A, 2 A og 3 A).
 
 **Regelrader:** —
 
@@ -2778,7 +2778,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Opphever [EO-U38](#eo-u38). Opphever [EO-U34](#eo-u34). Samler [EO-U35](#eo-u35). Samler [EO-U36](#eo-u36). Samler [EO-U37](#eo-u37). Utvider [GR-U27](#gr-u27). Opphever [EO-U1](../../plans/vedtak.md#eo-u1). Opphever [EO-U3](../../plans/vedtak.md#eo-u3). Opphever [EO-U4](../../plans/vedtak.md#eo-u4). Opphever [EO-U8](../../plans/vedtak.md#eo-u8). Opphever [EO-U16](#eo-u16). Opphever [EO-U20](../../plans/vedtak.md#eo-u20). Opphever [EO-U24](#eo-u24). Samler [EO-U11](#eo-u11). Samler [EO-U12](#eo-u12). Samler [EO-U13](#eo-u13). Samler [EO-U14](#eo-u14). Samler [EO-U15](#eo-u15). Samler [EO-U17](../../plans/vedtak.md#eo-u17). Samler [EO-U18](#eo-u18). Samler [EO-U19](#eo-u19). Samler [EO-U21](#eo-u21). Samler [EO-U22](#eo-u22). Samler [EO-U23](#eo-u23). Samler [EO-U25](../../plans/vedtak.md#eo-u25). Samler [EO-U26](../../plans/vedtak.md#eo-u26). Samler [EO-U27](#eo-u27). Samler [EO-U28](#eo-u28). Samler [EO-U29](#eo-u29). Samler [EO-U30](#eo-u30). Samler [EO-U31](#eo-u31). Samler [EO-U32](#eo-u32). Samler [EO-U33](#eo-u33). Samler [OV-U6](#ov-u6). Endrer [HF-U12](#hf-u12). Endrer [KA-U12](../../plans/vedtak.md#ka-u12). Endrer [KA-U45](#ka-u45). Endrer [MM-U33](../../plans/vedtak.md#mm-u33). Endrer [MM-U34](#mm-u34). Endrer [OV-U2](../../plans/vedtak.md#ov-u2). Endrer [OV-U3](../../plans/vedtak.md#ov-u3). Endrer [OV-U6](#ov-u6). Endrer [OV-U43](#ov-u43). Endrer [OV-U80](#ov-u80). Endrer [Ubegrenset fullmakt kan sende alene når beløpet ikke kan verdsettes](../../plans/vedtak.md#ubegrenset-fullmakt). Snevrer inn [LV-U34](#lv-u34). Presiserer [MM-U52](#mm-u52). Teksten står under tabellen, i [Samlevedtaket for endringsordren, versjon 3](../../plans/vedtak.md#samlevedtak-eo-3). Opphever EO-U38 (svar 5 A). Forholdene i EO-U38 er overtatt. Snevrer inn LV-U34 (svar 1 A) og presiserer MM-U52 punkt 6 (svar 3 A). Etter svar 4 A er forholdene «EO-U36 presiserer EO-U16», «EO-U37 snevrer inn EO-U16» og «EO-U35 snevrer inn MM-U21» fjernet (E13). HF-U25 er opphevet av [HF-U29](#hf-u29) (svar 5 A).
 
-**Regelrader:** —
+**Regelrader:** [GR-14](#rad-gr-14), [EO-01](#rad-eo-01), [EO-09](#rad-eo-09), [EO-15](#rad-eo-15), [EO-16](#rad-eo-16), [EO-21](#rad-eo-21), [EO-22](#rad-eo-22), [EO-23](#rad-eo-23), [EO-24](#rad-eo-24)
 
 **Bevis-saker som viser til vedtaket:** —
 
@@ -3703,7 +3703,7 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-gr-02"></a>GR-02 | TE sender en ny grunnlagsversjon som endrer underkategorien fra pålegg (IRREG) til endringsordre (EO), etter et svar som påberoper preklusjon etter § 32.2. | [GR-U22](#gr-u22), [MM-U43](#mm-u43), [MM-U34](#mm-u34) | F-GR-02, F-MM-G28 (målmodellen) |
 | <a id="rad-gr-07"></a>GR-07 | TE sender en ny grunnlagsversjon etter at byggherren har godkjent grunnlaget uten å påberope preklusjon. | [GR-U10](#gr-u10), [MM-U34](#mm-u34) | F-GR-07, F-MM-G30 (målmodellen), F-MM-G30-kontroll (målmodellen) |
 | <a id="rad-gr-08"></a>GR-08 | Byggherren reviderer vederlagssvaret mens grunnlaget venter på nytt svar etter en ny grunnlagsversjon, og avslår deretter grunnlaget igjen. | [GR-U26](#gr-u26) | F-GR-08, F-MM-G31 (målmodellen) |
-| <a id="rad-gr-14"></a>GR-14 | Byggherren frafaller pålegget og godkjenner deretter vederlag og frist. | [EO-U34](#eo-u34), [EO-U38](#eo-u38) | F-GR-14, F-MM-G32 (målmodellen) |
+| <a id="rad-gr-14"></a>GR-14 | Byggherren frafaller pålegget og godkjenner deretter vederlag og frist. | [EO-U34](#eo-u34), [EO-U38](#eo-u38), [EO-U39](#eo-u39) | F-GR-14, F-MM-G32 (målmodellen) |
 | <a id="rad-gr-18"></a>GR-18 | TE sender en ny grunnlagsversjon som endrer underkategorien fra pålegg (IRREG) til endringsordre (EO), før byggherren har svart, og byggherren svarer deretter «frafalt». | [GR-U22](#gr-u22), [MM-U43](#mm-u43) | F-GR-18, F-MM-G34 (målmodellen) |
 | <a id="rad-gr-19"></a>GR-19 | TE godtar et delvis godkjent vederlagssvar mens byggherren har avslått grunnlaget. | [MM-U34](#mm-u34) | F-GR-19, F-MM-A (målmodellen), F-MM-A1 (målmodellen) |
 | <a id="rad-gr-21"></a>GR-21 | TE endrer underkategorien etter et avslag i en kravversjon fra en annen skriver (MM-U18) og godtar vederlagssvaret mens grunnlaget venter på nytt svar. Byggherren godkjenner deretter grunnlaget. | [MM-U43](#mm-u43), [GR-U22](#gr-u22), [HF-U9](#hf-u9) | F-GR-21, F-MM-A5b (målmodellen) |
@@ -3712,20 +3712,20 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-gr-27"></a>GR-27 | Byggherren har godkjent grunnlaget uten å påberope preklusjon. Byggherren vil deretter revidere svaret, eller TE sender en ny kravversjon av grunnlaget. | [GR-U10](#gr-u10), [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-MM-G10 (målmodellen) |
 | <a id="rad-gr-28"></a>GR-28 | TE trekker grunnlaget etter at byggherren har godkjent det uten å påberope preklusjon. | [EO-U12](#eo-u12), [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13), [OV-U6](#ov-u6), [OV-U4](#ov-u4) | F-MM-G10 (målmodellen), F-MM-G13 (målmodellen), F-MM-G14 (målmodellen), F-MM-G15 (målmodellen), F-MM-G16 (målmodellen), F-MM-G17 (målmodellen), F-MM-G18 (målmodellen), F-MM-G19 (målmodellen) |
 | <a id="rad-gr-29"></a>GR-29 | Byggherren har godkjent grunnlaget uten å påberope preklusjon i en underkategori § 32.2 gjelder for, i korrespondanse som er registrert i appen. Den som registrerte, har oppgitt at brevet var en endringsordre etter § 31.3, at det ikke var det, eller ingenting. | [GR-U12](#gr-u12), [GR-U10](#gr-u10), [GR-U13](#gr-u13), [MM-U50](#mm-u50), [OV-U6](#ov-u6), [OV-U4](#ov-u4), [OV-U13](#ov-u13) | F-MM-G43 (målmodellen), F-MM-G45 (målmodellen), F-MM-G45-kontroll (målmodellen), F-MM-G20 (målmodellen), F-MM-G21 (målmodellen), F-MM-G22 (målmodellen) |
-| <a id="rad-eo-01"></a>EO-01 | Byggherren utsteder en endringsordre i en KOE-sak som er `OMFORENT` (`eo_utstedt` i KOE-saken). | [EO-U34](#eo-u34), [EO-U38](#eo-u38) | F-EO-01 |
+| <a id="rad-eo-01"></a>EO-01 | Byggherren utsteder en endringsordre i en KOE-sak som er `OMFORENT` (`eo_utstedt` i KOE-saken). | [EO-U34](#eo-u34), [EO-U38](#eo-u38), [EO-U39](#eo-u39) | F-EO-01 |
 | <a id="rad-eo-02"></a>EO-02 | Byggherren har godkjent grunnlaget, og TE har ikke sendt vederlag eller frist. | [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-EO-02 |
 | <a id="rad-eo-03"></a>EO-03 | Byggherren har godkjent grunnlaget og vederlaget, og TE har ikke sendt frist. | [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-EO-03 |
 | <a id="rad-eo-04"></a>EO-04 | TE trekker vederlag og frist etter at byggherren har godkjent grunnlaget. | [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-EO-04, F-MM-EO3 (målmodellen) |
 | <a id="rad-eo-05"></a>EO-05 | Byggherren godkjenner vederlaget og avslår fristen, og TE godtar avslaget. | [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-EO-05 |
 | <a id="rad-eo-06"></a>EO-06 | TE godtar et delvis godkjent vederlagssvar, og byggherren godkjenner fristen. | [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-EO-06 |
 | <a id="rad-eo-07"></a>EO-07 | Byggherren knytter en KOE-sak som ikke er `OMFORENT`, til en EO-sak gjennom `/api/events` (`eo_koe_lagt_til`). | [MM-U34](#mm-u34), [EO-U12](#eo-u12) | F-EO-07 |
-| <a id="rad-eo-09"></a>EO-09 | Byggherren knytter en KOE-sak til en EO-sak mens den inngår i en annen utstedt EO-sak, og TE har bestridt et utsagn i den. | [EO-U34](#eo-u34), [EO-U38](#eo-u38) | F-EO-09 |
-| <a id="rad-eo-15"></a>EO-15 | TE godtar et utsagn i en endringsordre som ikke er utstedt. | [EO-U34](#eo-u34), [EO-U38](#eo-u38) | F-EO-15 |
-| <a id="rad-eo-16"></a>EO-16 | Byggherren utsteder samme endringsordre på nytt. | [EO-U34](#eo-u34), [EO-U38](#eo-u38) | F-EO-16 |
-| <a id="rad-eo-21"></a>EO-21 | Byggherren knytter en omforent KOE-sak til en EO-sak etter utstedelsen. | [EO-U34](#eo-u34), [EO-U38](#eo-u38) | F-EO-21 |
-| <a id="rad-eo-22"></a>EO-22 | Byggherren fjerner en KOE-sak fra en utstedt endringsordre. | [EO-U34](#eo-u34), [EO-U38](#eo-u38) | F-EO-22 |
-| <a id="rad-eo-23"></a>EO-23 | Byggherren oppretter en endringsordre i en KOE-sak (`eo_opprettet`). | [EO-U34](#eo-u34), [EO-U38](#eo-u38) | F-EO-23 |
-| <a id="rad-eo-24"></a>EO-24 | Byggherren utsteder en EO-sak med en KOE-sak i utkastet, og utstedelsen nevner ikke KOE-sakene. | [EO-U34](#eo-u34), [EO-U38](#eo-u38) | F-EO-24 |
+| <a id="rad-eo-09"></a>EO-09 | Byggherren knytter en KOE-sak til en EO-sak mens den inngår i en annen utstedt EO-sak, og TE har bestridt et utsagn i den. | [EO-U34](#eo-u34), [EO-U38](#eo-u38), [EO-U39](#eo-u39) | F-EO-09 |
+| <a id="rad-eo-15"></a>EO-15 | TE godtar et utsagn i en endringsordre som ikke er utstedt. | [EO-U34](#eo-u34), [EO-U38](#eo-u38), [EO-U39](#eo-u39) | F-EO-15 |
+| <a id="rad-eo-16"></a>EO-16 | Byggherren utsteder samme endringsordre på nytt. | [EO-U34](#eo-u34), [EO-U38](#eo-u38), [EO-U39](#eo-u39) | F-EO-16 |
+| <a id="rad-eo-21"></a>EO-21 | Byggherren knytter en omforent KOE-sak til en EO-sak etter utstedelsen. | [EO-U34](#eo-u34), [EO-U38](#eo-u38), [EO-U39](#eo-u39) | F-EO-21 |
+| <a id="rad-eo-22"></a>EO-22 | Byggherren fjerner en KOE-sak fra en utstedt endringsordre. | [EO-U34](#eo-u34), [EO-U38](#eo-u38), [EO-U39](#eo-u39) | F-EO-22 |
+| <a id="rad-eo-23"></a>EO-23 | Byggherren oppretter en endringsordre i en KOE-sak (`eo_opprettet`). | [EO-U34](#eo-u34), [EO-U38](#eo-u38), [EO-U39](#eo-u39) | F-EO-23 |
+| <a id="rad-eo-24"></a>EO-24 | Byggherren utsteder en EO-sak med en KOE-sak i utkastet, og utstedelsen nevner ikke KOE-sakene. | [EO-U34](#eo-u34), [EO-U38](#eo-u38), [EO-U39](#eo-u39) | F-EO-24 |
 | <a id="rad-eo-25"></a>EO-25 | Byggherren har godkjent grunnlaget og hele fristkravet, og TE trekker vederlagskravet. | [MM-U34](#mm-u34) | F-MM-EO1 (målmodellen) |
 | <a id="rad-eo-26"></a>EO-26 | Byggherren har godkjent grunnlaget og avslått vederlag og frist, og TE godtar begge avslagene. | [MM-U34](#mm-u34) | F-MM-EO2 (målmodellen) |
 | <a id="rad-gr-31"></a>GR-31 | Byggherren har frafalt pålegget (§ 32.3 c) i et svar sendt fra appen, og reviderer svaret. | [MM-U34](#mm-u34), [GR-U17](#gr-u17), [MM-U50](#mm-u50), [MM-U43](#mm-u43), [OV-U4](#ov-u4) | F-MM-G37 (målmodellen), F-MM-G37x (målmodellen), F-MM-G41 (målmodellen), F-MM-G41x (målmodellen) |
