@@ -88,6 +88,8 @@ på kilden, men har ingen kontroller ennå.
 | [GR-U31](../../plans/vedtak.md#gr-u31) | — | BF-05 start | BF-08 |
 | [GR-U32](../../plans/vedtak.md#gr-u32) | — | — | BF-06, BF-08 |
 | [GR-U34](../../plans/vedtak.md#gr-u34) | — | — | BF-08 |
+| [GR-U35](../../plans/vedtak.md#gr-u35) | — | — | BF-08 |
+| [GR-U36](../../plans/vedtak.md#gr-u36) | — | — | BF-08 |
 | [HF-U1](../../plans/vedtak.md#hf-u1) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — | BF-01V, BF-03, BF-07, BF-08 |
 | [HF-U2](../../plans/vedtak.md#hf-u2) | — | — | BF-01V |
 | [HF-U5](../../plans/vedtak.md#hf-u5) | — | — | BF-20 |
@@ -296,3 +298,6 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U63](../../plans/vedtak.md#vs-u63) | — | — | BF-14 |
 | [VS-U64](../../plans/vedtak.md#vs-u64) | — | — | BF-14, BF-37 |
 | [VS-U65](../../plans/vedtak.md#vs-u65) | — | — | BF-14, BF-37 |
+| [VS-U67](../../plans/vedtak.md#vs-u67) | — | — | BF-37 |
+| [VS-U68](../../plans/vedtak.md#vs-u68) | — | — | BF-37 |
+| [VS-U69](../../plans/vedtak.md#vs-u69) | — | — | BF-37 |

@@ -192,4 +192,4 @@ kommentaren under. Oppdragsgiver svarte 12.11, ordrett ([#1834, 6833550575](http
 - **S-2:** A. Føres som U-9 i BF-08 og ikke som vedtak.
 - **S-3:** A.
 
-Vedtakene for S-1 og S-3 føres av orkestratoren i en egen vedtaks-PR.
+Vedtakene for S-1 og S-3 er [GR-U35](../../plans/vedtak.md#gr-u35) og [GR-U36](../../plans/vedtak.md#gr-u36).
