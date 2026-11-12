@@ -29,7 +29,7 @@ import { UgyldigVurdering } from '../regler/feil.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { kroner } from '../frosset/tekst.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
-import { lagForUtkastet } from '../kommandoer/lag.ts';
+import { lagForUtkastet } from '../spor/vederlag/kommando.ts';
 import { HOVEDKATEGORIER, KATEGORIER } from '../format/koder.ts';
 import { oppgittDato } from '../format/format.ts';
 import { erRegistrert, kalenderdag, lesJournal } from '../format/leser.ts';

@@ -28,7 +28,7 @@
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import { lesKroner } from '$lib/utils/belop';
   import type { Kravpostvurdering } from '$kjerne/spor/vederlag/frysing';
-  import type { Forutsetning } from '$kjerne/kommandoer/lag';
+  import type { Forutsetning } from '$kjerne/spor/vederlag/kommando';
   import type { Utledning } from '$kjerne/utledning/utled';
   import type { Kravpost, Standpunkt } from '$kjerne/typer';
   import Arbeidsflate from './Arbeidsflate.svelte';

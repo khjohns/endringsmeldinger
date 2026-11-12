@@ -447,7 +447,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'oppgjoersform justert',
     [
       'spor/vederlag/frysing.ts',
-      'kommandoer/lag.ts',
+      'spor/vederlag/kommando.ts',
       'kommandoer/standpunkter.ts',
       'spor/vederlag/utledning.ts',
     ],
@@ -654,7 +654,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'utledning/utled.ts:settSubsidiaer',
       'frosset/brevtekst.ts:forholdetsStandpunkter',
-      'kommandoer/lag.ts:lagForUtkastet',
+      'spor/vederlag/kommando.ts:lagForUtkastet',
     ],
   ],
   // OV-U32, OV-U33: lagene forholdet opptar foran sporet, som linjen etiketteres med.
@@ -703,7 +703,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/skriving.ts',
       'spor/vederlag/utledning.ts',
       // KA-U54, KA-U64, KA-U68: TEs oppgjørsform for standpunktene til kravposten.
-      'kommandoer/lag.ts',
+      'spor/vederlag/kommando.ts',
       'kommandoer/standpunkter.ts',
     ],
   ],
@@ -730,7 +730,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['OPPGJOERSFORM_I_HJEMMELEN', 'skjema', '34.2.2 34.3 34.4', ['spor/vederlag/format.ts']],
   // Kravposten standpunktene gjelder (KA-U57 (c) og (d)).
   ['spor/vederlag/frysing.ts:beregningsregelLag', 'relasjon', 'gjelder'],
-  ['kommandoer/lag.ts:innenforKravposten', 'relasjon', 'gjelder'],
+  ['spor/vederlag/kommando.ts:innenforKravposten', 'relasjon', 'gjelder'],
   // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav med rigg og drift (#1663).
   [
     'spor/vederlag/format.ts',
@@ -754,7 +754,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/frysing.ts',
     'regelsett',
     'kravpostvurderinger',
-    ['kommandoer/lag.ts', 'kommandoer/nyttelast.ts'],
+    ['spor/vederlag/kommando.ts', 'kommandoer/nyttelast.ts'],
   ],
   ['spor/vederlag/frysing.ts:kravpostvurderinger', 'regelsett', 'post svar'],
   [
@@ -762,7 +762,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'gjelder vurdering godkjent_beloep aksepterer oensket_oppgjoersform krever_tilbud varslet_i_tide godtar_justering',
   ],
-  ['kommandoer/lag.ts:besvart', 'utsagn', 'saerskilt gjelder'],
+  ['spor/vederlag/kommando.ts:besvart', 'utsagn', 'saerskilt gjelder'],
   // OV-U32, OV-U33: plassen hvert standpunkt har i det frosne brevet, som postlisten og
   // visningen leser.
   [
@@ -938,7 +938,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/frysing.ts',
     'regelsett',
     'beregningsregelLag',
-    ['kommandoer/lag.ts:innenforKravposten'],
+    ['spor/vederlag/kommando.ts:innenforKravposten'],
   ],
   ['Preklusjon', 'regelsett', 'hovedkrav produktivitet'],
   [
@@ -1075,7 +1075,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'laget',
     [
       'frosset/brevtekst.ts',
-      'kommandoer/lag.ts',
+      'spor/vederlag/kommando.ts',
       'frosset/linje.ts',
       'frosset/standpunkt.ts',
       'spor/vederlag/frysing.ts',
@@ -1087,7 +1087,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts',
     'predikat',
     'virkninger',
-    ['kommandoer/lag.ts:lagForUtkastet', 'frosset/frysing.ts:beslutningsgrunnlag'],
+    ['spor/vederlag/kommando.ts:lagForUtkastet', 'frosset/frysing.ts:beslutningsgrunnlag'],
   ],
   // GR-U7 og MM-U9: sammenfallet og begrensningen etter § 34.1.3 (VS-U5), lest når brevet fryses.
   [
@@ -1539,7 +1539,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kommandoer/standpunkter.ts',
     'utsagn',
     'standpunkter',
-    ['kommandoer/skriving.ts', 'kommandoer/lag.ts'],
+    ['kommandoer/skriving.ts', 'spor/vederlag/kommando.ts'],
   ],
   ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
   [
@@ -1561,7 +1561,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/leser.ts',
     'rad',
     'standpunkterISvaret',
-    ['frosset/frysing.ts', 'kommandoer/skriving.ts', 'kommandoer/lag.ts'],
+    ['frosset/frysing.ts', 'kommandoer/skriving.ts', 'spor/vederlag/kommando.ts'],
   ],
   [
     'format/skjema.ts',
@@ -1716,7 +1716,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/byggeklosser.ts',
     'brevtekst',
     'etikett',
-    ['frosset/brevtekst.ts', 'kommandoer/lag.ts', 'frosset/linje.ts'],
+    ['frosset/brevtekst.ts', 'spor/vederlag/kommando.ts', 'frosset/linje.ts'],
   ],
   ['frosset/linje.ts:beslutningslinje', 'brevtekst', 'tekst', ['frosset/linje.ts']],
   ['frosset/linje.ts:beslutningslinje.plass', 'brevtekst', 'virkning', ['frosset/linje.ts']],

@@ -3565,7 +3565,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F422',
     feilklasse:
       'innsigelsen etter § 34.1.3 står som forutsetning for hele vederlagssvaret i utkastet (OV-U22, OV-U33, #1400)',
-    fil: `${K}/kommandoer/lag.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         "if (s.art === 'beloep' && s.saerskilt && paaberopt('34.1.3'))",
@@ -3578,7 +3578,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F423',
     feilklasse:
       'lagene i utkastet flyttes ikke ned med lagene fra svaret på forholdet (OV-U32, OV-U33, #1400)',
-    fil: `${K}/kommandoer/lag.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [["typeof vi === 'number' ? vi + grunner.length : vi", 'vi']],
     mal: [
       'beløpet står subsidiært, bare med avslaget foran',
@@ -3590,7 +3590,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F424',
     feilklasse:
       'grunnene fra svaret på forholdet står ikke som forutsetninger i utkastet (S2-A i #1400)',
-    fil: `${K}/kommandoer/lag.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [['rammer.push(...grunner.map((grunn) => ({ grunn })));', '']],
     mal: [
       'beløpet står subsidiært, bare med avslaget foran',
@@ -4274,7 +4274,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F509',
     feilklasse:
       'lagene skjemaet får fra kjernen, sier ikke hvilken kravpost de gjelder (KA-U57 (c) og (d))',
-    fil: `${K}/kommandoer/lag.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         "        ...((s.art === 'beloep' || s.art === 'oppgjoersform' || s.art === 'justering') &&\n        s.gjelder !== undefined",

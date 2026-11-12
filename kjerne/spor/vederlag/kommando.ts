@@ -5,23 +5,23 @@
  * S1-A og S2-A i #1400, 30.10).
  */
 
-import { grunnerFraForholdet, virkninger } from '../frosset/standpunkt.ts';
-import { beregningsregelLag, kravpostvurderinger } from '../spor/vederlag/frysing.ts';
-import { etikett, laget, type Svarvurdering } from '../frosset/byggeklosser.ts';
-import { kravposterI } from '../spor/vederlag/format.ts';
-import type { Subsidiaergrunn } from '../regler/forhold.ts';
-import type { Regelsett } from '../regler/regelsett.ts';
-import { standpunkterISvaret } from '../format/leser.ts';
+import { grunnerFraForholdet, virkninger } from '../../frosset/standpunkt.ts';
+import { beregningsregelLag, kravpostvurderinger } from './frysing.ts';
+import { etikett, laget, type Svarvurdering } from '../../frosset/byggeklosser.ts';
+import { kravposterI } from './format.ts';
+import type { Subsidiaergrunn } from '../../regler/forhold.ts';
+import type { Regelsett } from '../../regler/regelsett.ts';
+import { standpunkterISvaret } from '../../format/leser.ts';
 import {
   erKravpostvarselhjemmel,
   type Hjemmel,
   type Standpunkt,
   type Standpunktsart,
   type Virkning,
-} from '../typer.ts';
-import { paaberopelseFor, type Utledning } from '../utledning/utled.ts';
-import type { Svarutkast } from './kommando.ts';
-import { standpunkter } from './standpunkter.ts';
+} from '../../typer.ts';
+import { paaberopelseFor, type Utledning } from '../../utledning/utled.ts';
+import type { Svarutkast } from '../../kommandoer/kommando.ts';
+import { standpunkter } from '../../kommandoer/standpunkter.ts';
 
 /**
  * Det i et foregående lag som rammer standpunktet (OV-U32). `oppgjoersform` er TEs beregningsregel for

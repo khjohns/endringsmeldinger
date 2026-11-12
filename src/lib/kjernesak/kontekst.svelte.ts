@@ -20,7 +20,7 @@ import {
 } from '$lib/api/kjerne';
 import { utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 import { tilbudte } from '$kjerne/kommandoer/handlinger';
-import { lagForUtkastet } from '$kjerne/kommandoer/lag';
+import { lagForUtkastet } from '$kjerne/spor/vederlag/kommando';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import { visning } from '$kjerne/utledning/visning';
 import { KJERNE, type Kjerne } from '$kjerne/versjon';
