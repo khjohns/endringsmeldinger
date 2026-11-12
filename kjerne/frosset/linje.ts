@@ -5,7 +5,7 @@
 import { etikett, laget, standpunktet, type Svarinnhold } from './byggeklosser.ts';
 import { kategori } from '../format/kravinnhold.ts';
 import { LINJEN_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
-import { iLagene, SENT_I_LINJEN, SVARET_PAA_PAABEROPELSEN, type Sporslinje } from './tekst.ts';
+import { iLagene, SENT_I_LINJEN, SVARET_PAA_PAABEROPELSEN } from './tekst.ts';
 import {
   erKravpostvarselhjemmel,
   type Krav,
@@ -126,3 +126,25 @@ const LINJE: Record<Spor, Sporslinje> = {
     },
   },
 };
+
+/** Et ledd i linjen for byggherrens standpunkt, med virkningen som gir laget. */
+export interface Linjeledd {
+  tekst: string;
+  virkning: Virkning;
+}
+
+/** Leddene i linjen i ett spor, som `frosset/linje.ts` slår opp gjennom `LINJE` (#1783). */
+export interface Sporslinje {
+  /** Standpunktet om rettidighet som står som et eget ledd i sporet og ikke som grunn (VS-U5). */
+  egetLedd(svar: Svarinnhold, v: Standpunktsvirkning[]): string | undefined;
+  /**
+   * Leddene for standpunktene i sporet, etter grunnene. `forKravposten` er standpunktene om
+   * varselet for en kravpost (KA-U64, VS-U56).
+   */
+  ledd(
+    svar: Svarinnhold,
+    v: Standpunktsvirkning[],
+    kravet: Krav | null | undefined,
+    forKravposten: ReadonlySet<string>
+  ): Linjeledd[];
+}

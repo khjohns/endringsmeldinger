@@ -20,7 +20,8 @@ import {
   type Tekst,
 } from '../../frosset/brevdeler.ts';
 import { laget, type Svarinnhold } from '../../frosset/byggeklosser.ts';
-import { kroner, SENT_I_LINJEN, type Linjeledd, type Sporslinje } from '../../frosset/tekst.ts';
+import type { Linjeledd, Sporslinje } from '../../frosset/linje.ts';
+import { kroner, SENT_I_LINJEN } from '../../frosset/tekst.ts';
 import { begrensningen } from './frysing.ts';
 import {
   harProduktivitetspost,

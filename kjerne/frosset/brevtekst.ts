@@ -267,8 +267,7 @@ function aapneInnsigelser(
     // VS-U29: også påberopelsene sporet nevner i `ogsaaInnsigelserEtter`.
     const gjelder =
       hjemmel === HJEMMEL[svar.spor] ||
-      (hjemmel !== null &&
-        (brevtekstI(svar.spor).ogsaaInnsigelserEtter as readonly string[]).includes(hjemmel));
+      (hjemmel !== null && brevtekstI(svar.spor).ogsaaInnsigelserEtter.includes(hjemmel));
     return gjelder && !innsigelsenErOppgitt(svar.spor, svarFraParten.slice(i.fra), hjemmel)
       ? [{ gjelder: i.gjelder, dokument: i.dokument, hjemmel }]
       : [];
