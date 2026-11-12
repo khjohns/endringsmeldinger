@@ -171,4 +171,4 @@ Oppdragsgiver svarte ordrett
 > A, A, C.
 > Det var for varsler
 
-Det betyr S-1 A, S-2 A og S-3 C. Orkestratoren fører vedtakene i en egen vedtaks-PR.
+Det betyr S-1 A, S-2 A og S-3 C. Vedtakene er [VS-U67](../../plans/vedtak.md#vs-u67), [VS-U68](../../plans/vedtak.md#vs-u68) og [VS-U69](../../plans/vedtak.md#vs-u69).
