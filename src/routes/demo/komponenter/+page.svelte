@@ -242,7 +242,7 @@
           <Brevtyper
             tittel={HANDLINGENE.andre}
             handlinger={['svare:vederlag', 'krav:vederlag', 'varsle:vederlag', 'trekke:vederlag']}
-            bygget={['svare']}
+            bygget={['svare:vederlag']}
             onvelg={() => {}}
           />
         </div>

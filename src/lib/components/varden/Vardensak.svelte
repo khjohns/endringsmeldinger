@@ -212,6 +212,19 @@
   }
 
   /**
+   * Skjemaene Varden åpner fra «Det du kan gjøre nå», med hele nøkkelen fra kjernen. Bare en
+   * nøkkel her blir en knapp som åpner noe; resten sier at handlingen ikke er bygget (#1636, #1663).
+   */
+  const skjemaene: Record<string, () => void> = {
+    'svare:vederlag': () => {
+      utkastAapent = true;
+      arbeid = { art: 'svar' };
+    },
+    'krav:forhold': () => (arbeid = { art: 'nyversjon' }),
+  };
+  const skjemanoeklene = Object.keys(skjemaene);
+
+  /**
    * Skjemaet for korrigeringen vises når kjernen tilbyr den og opplysningen står i et brev i saken
    * (#1647).
    */
@@ -455,13 +468,10 @@
               melding = null;
               arbeid = { art: 'korrigering', gjelder };
             }}
+            skjemaene={skjemanoeklene}
             onvelg={(n) => {
               melding = null;
-              if (n === 'svare:vederlag') {
-                utkastAapent = true;
-                arbeid = { art: 'svar' };
-              }
-              if (n === 'krav:forhold') arbeid = { art: 'nyversjon' };
+              if (Object.hasOwn(skjemaene, n)) skjemaene[n]();
             }}
             onakseptbrev={({ kommando, tekst, virkninger, merking, deresRef, tittel }) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
