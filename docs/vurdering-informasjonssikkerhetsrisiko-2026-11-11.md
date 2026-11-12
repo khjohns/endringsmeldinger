@@ -44,7 +44,7 @@ Det må avklares at disse kriteriene gjelder for innføringen, og hvem som har m
 Belegg følger hovedplanens skille: **L** betyr lest i kode; **K** betyr kjørt og
 observert. Dokumentreferanser er dokumentert grunnlag, ikke kjørt verifikasjon.
 Ingen K-belegg for produktets atferd er produsert i denne vurderingen.
-Scenarioene RVG-01–RVG-05 er lokale analyse-ID-er. Den utdypende kontrollen
+Scenarioene RVG-01–RVG-08 er lokale analyse-ID-er. Den utdypende kontrollen
 nedenfor knytter dem til eksisterende issues; RVG-02 omfatter et allerede sporet
 avvik i #51, lest også i dagens TS-kode.
 Risikonivå er ikke satt: virksomhetens konsekvens- og sannsynlighetskriterier
@@ -260,6 +260,100 @@ følger andre rettinger og den samlede flyten. Vurder disse mot
 ikke bare eldre henvisninger i issuebeskrivelsene. Scenarioet gjelder feil
 bruk og utilstrekkelig håndtering av rettinger; det er ikke en påstand om at
 all korrigeringsstøtte mangler.
+
+## Supplerende scenarioer og leveringsforløp, 12.11.2026
+
+Denne suppleringen bygger på GitHub-issues med kommentarer lest 12.11 og to
+kodefiler hentet fra `main` samme dag. Den er en datert utvidelse av grunnlaget,
+ikke en ny kontroll av hele committen angitt øverst. Blobene som ble lest er
+`440a933a91a0ae3571cdbc1de9c36637e50a8baa` for webhooken og
+`051ba8326d25fe248299e9fd6069b830127b11ca` for migrasjonsvakten.
+Ingen produktkjøring eller databasekontroll er utført i suppleringen.
+
+### RVG-06: Personopplysninger beholdes unødvendig i webhook-innboksen
+
+Mulig skadefølge er unødvendig eksponering og bevaring av navn og e-post utenfor
+journalen. Journalens bruk av aktør-ID dekker ikke automatisk integrasjonsdata.
+
+**Belegg L:** [webhook.ts](../server/webhook.ts), `taImot` og `mottaHendelse`,
+sender den mottatte kroppen videre til `koe_api.motta_hendelse` uten å fjerne
+navn og e-post i TS-laget. Dette beskriver overleveringen til prosedyren;
+gjeldende databasebehandling og sletterettigheter er ikke kontrollert.
+
+[#940](https://github.com/khjohns/endringsmeldinger/issues/940) er åpent.
+[Arbeidsvalget 30.10](https://github.com/khjohns/endringsmeldinger/issues/940#issuecomment-6521942934)
+avklarer allerede at navn og e-post skal fjernes, mens ID-er og hendelsestype
+beholdes. Kommentaren drøfter også å utelate opplysningene ved mottak.
+Risikovurderingen bør følge opp dataminimering, tilgang og sletting gjennom hele
+innboksløpet; dette er ikke et nytt ubesvart valg om hvorvidt opplysningene skal fjernes.
+
+### RVG-07: En senere utgivelse gjør gamle saker uleselige
+
+Mulig skadefølge er utilgjengelige saker og svekket bevisgrunnlag etter en
+programvareoppgradering, selv om dataene fortsatt ligger i databasen.
+
+**Issuebelegg:** Det åpne [#1058](https://github.com/khjohns/endringsmeldinger/issues/1058)
+beskriver behov for faste historiske journaler som nye lesere prøves mot.
+Tester der dagens kode både skriver og leser, kan dele samme endrede
+formatforutsetning og derfor overse brudd med tidligere lagrede data.
+
+Dette er et dokumentert testkrav, ikke et nyreprodusert kompatibilitetsbrudd
+eller en uttømmende kontroll av dagens testdekning. Vurderingen bør etterspørre
+belegg for lesing av tidligere journalformater, og håndtering av saker som
+ikke forstås etter oppgradering eller tilbakerulling.
+
+### RVG-08: Første reelle data tas i bruk før migrasjonsvernet aktiveres
+
+Mulig skadefølge er at senere skjemaendringer ikke følger den planlagte
+rekkefølgen for tillegg og fjerning, med risiko for datatap eller vanskelig
+tilbakerulling.
+
+**Belegg L:** [migrasjonsvakt.py](../.github/scripts/migrasjonsvakt.py),
+`FOERSTE_EKTE_SAK` og `to_trinn`: konstanten var `None` i filen lest 12.11.
+Vakten kontrollerer tillegg som er merket, men kravet om merking av alle nye
+migrasjoner etter første ekte sak avhenger av at konstanten er satt.
+[#1091](https://github.com/khjohns/endringsmeldinger/issues/1091) er åpent og
+plasserer aktiveringen i PR-en som tar basen i bruk.
+
+Dette er en risiko ved overgangen til reell bruk, ikke en feil ved dagens
+utviklingsoppsett. Øvrige migrasjonsvern faller ikke bort fordi konstanten er
+`None`. Innføringen bør dokumentere at aktivering og relevant kontroll faktisk
+er utført før første reelle data.
+
+### Presisering av RVG-01: Brukeren oppdager ikke leveringssvikten
+
+Mulig skadefølge er at brukeren oppfatter intern registrering som fullført
+levering og derfor ikke følger opp et fristkritisk brev.
+
+**Issuebelegg:** [Kommentaren i #1046](https://github.com/khjohns/endringsmeldinger/issues/1046#issuecomment-6806034248)
+opplyser at `LastetKjernesak.leveringsoppdrag` hentes, men ikke leses av
+Varden, og at den eldre henvisningen til `leveringstekst` ikke lenger gjelder.
+Dagens visning er ikke prøvd i denne suppleringen. Dette konkretiserer behovet
+for synlig leveringsstatus og veiledning, uten å gjøre eldre UI-beskrivelser
+til nye observasjoner.
+
+### Presisering av RVG-01: Ekstern handling etter mulig utløp av lease
+
+Mulig skadefølge er overlappende leveringsforsøk og usikker ekstern effekt.
+
+**Issuebelegg:** [Kommentaren i #926](https://github.com/khjohns/endringsmeldinger/issues/926#issuecomment-6287390011)
+beskriver forbigående feil i fornyelsen som varer gjennom hele leasetiden.
+Det må skilles fra en uttrykkelig bekreftet tapt lease, som har et
+avbruddsvern. Scenarioet gjelder at den gamle kjøreren kan fortsette en
+ekstern handling mens en annen kjører har overtatt jobben.
+Dette er eksisterende oppfølging, ikke en ny reproduksjon eller påvist duplikat.
+
+**Nyere avklaring:** [#926](https://github.com/khjohns/endringsmeldinger/issues/926)
+fører nå svaret fra 11.11 i [#1791](https://github.com/khjohns/endringsmeldinger/issues/1791):
+parkering etter et fast antall leveringsforsøk er besluttet og står som
+gjenstående implementering. Eksempelet «24» i issuet skal ikke her fastsettes
+som endelig driftsverdi. Behovet for en øvre grense er ikke lenger et ubesvart
+produktvalg.
+
+Suppleringen anbefaler at synlig leveringssvikt, dataminimering i innboksen
+og kompatibilitet ved oppgraderinger prioriteres i videre ROS-arbeid.
+Oppfølgingen ligger i de eksisterende issuene; ingen nye risikonivåer,
+vedtak eller parallelle bestillinger opprettes.
 
 ## Anbefalt bruk av vurderingen
 
