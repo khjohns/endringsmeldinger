@@ -12,8 +12,8 @@
   - Kravet angir dagene per frist i kontrakten (Del II punkt E.1), ikke ett tall for saken (KA-U73, KA-U74). Fristene står
     i en tabell som kravpostene i v3: frist, gjeldende frist, dager og ny frist, med «Endre» for én om gangen.
     Dagene legges ikke sammen, så tabellen har ingen sumrad.
-  - Hver frist sier om hindringen gjelder hele kontraktsarbeidet eller deler av det, fordi formelen for
-    rigg og drift i forlenget byggetid reduserer A forholdsmessig (Del II, tillegget til punkt 34.1.3).
+  - Kravet sier ikke særskilt om forlengelsen gjelder deler av arbeidene. Andelen av rigg og drift står i
+    vederlagskravet (OV-U39), der formelen reduserer A forholdsmessig (Del II, tillegget til punkt 34.1.3).
   - Begrunnelsen er ett punkt for hele kravet (KA-U33), med punkt 33.5 som veiledning (VS-U18).
   - Dagene regnes fra den gjeldende fristen, med en forlengelse fra en annen sak (E-009 i eksempelet).
     Om det er riktig utgangspunkt, er åpent og merket.
@@ -743,12 +743,12 @@ const forlenget = F => F.tidligere ? `avtalt ${lang(dato(F.avtalt))}, forlenget 
 // Eksempeldata. «forrige» er verdiene i brev 5, som en ny versjon sammenlignes med.
 const BEGR = 'Ny føringsvei for rørene i kjeller gir fire ukers tillegg i rørarbeidet. Rørarbeidet ligger på kritisk linje i fremdriftsplanen (vedlegg 1): himlinger og tekniske anlegg i kjeller kan ikke monteres før det er ferdig. Virkningen er regnet med avbrudd i rørarbeidet mens ny føringsvei ble prosjektert. Buffer i planen før overtakelsen tar opp fem dager.';
 function data(t) {
-  const basis = () => ({ frist: 7, dager: 0, del: 'hele', delTekst: '', merk: '' });
+  const basis = () => ({ frist: 7, dager: 0, merk: '' });
   const tekst = { begr: BEGR, forbehold: 'Totalentreprenøren tar forbehold om å justere kravet hvis ny føringsvei krever omprosjektering av ventilasjonen.', b: '', standpunkt: '' };
   if (t === 'ny') return {
     linjer: [
       { ...basis(), id: 'F1', frist: 7, dager: 25, merk: 'Prøvetrykkingen av ny føringsvei viste at tettingen må gjøres om.', forrige: { dager: 20 } },
-      { ...basis(), id: 'F2', frist: 5, dager: 25, del: 'deler', delTekst: 'Rør- og ventilasjonsanlegg i kjeller', trukket: true, forrige: { dager: 25 } },
+      { ...basis(), id: 'F2', frist: 5, dager: 25, trukket: true, forrige: { dager: 25 } },
       { ...basis(), id: 'F3', frist: 8, dager: 15, merk: 'Tilbakefylling over ny trasé må vente til rørene er prøvetrykket.' },
     ],
     tekst: { ...tekst, standpunkt: 'Totalentreprenøren godtar ikke svaret om 10 dager for overtakelsen og fremsetter det reviderte kravet nedenfor. Kravet for mekanisk ferdigstillelse inngår nå i overtakelsen.' },
@@ -756,7 +756,7 @@ function data(t) {
   return {
     linjer: [
       { ...basis(), id: 'F1', frist: 7, dager: 20, merk: 'Overtakelsen ligger på kritisk linje etter rørarbeidet og de tekniske anleggene i kjeller.' },
-      { ...basis(), id: 'F2', frist: 5, dager: 25, del: 'deler', delTekst: 'Rør- og ventilasjonsanlegg i kjeller' },
+      { ...basis(), id: 'F2', frist: 5, dager: 25 },
     ],
     tekst: { ...tekst, b: 'Føringsveien er ikke ferdig prosjektert. Byggherrens rådgiver har varslet nye tegninger 20. oktober 2026. Før tegningene foreligger, kan omfanget av rørarbeidet og virkningen på fremdriften ikke beregnes.' },
   };
@@ -805,7 +805,7 @@ function fristRad(f) {
     <span class="c-merk">Kravet om forlengelse av frist ${f.frist} (${F.navn.toLowerCase()}) trekkes i denne versjonen. Brevet sier det uttrykkelig.</span></div>`;
   const e = endretKort(f), n = nyFrist(f);
   return `<div class="krt frt" data-id="${f.id}" id="frist-${f.id}">
-    <span class="c-id">${f.frist}</span><span class="c-navn">${F.navn}${mulktMerke(f)}<span class="u">Del II punkt E.1${F.tidligere ? ` · forlenget ${F.tidligere.dager} d i ${F.tidligere.sak}` : ''}${f.del === 'deler' ? ' · deler av arbeidene: ' + (esc(f.delTekst) || '…') : ''}</span></span>
+    <span class="c-id">${f.frist}</span><span class="c-navn">${F.navn}${mulktMerke(f)}<span class="u">Del II punkt E.1${F.tidligere ? ` · forlenget ${F.tidligere.dager} d i ${F.tidligere.sak}` : ''}</span></span>
     <span class="c-gj">${kort(dato(F.dato))}</span><span class="c-dager">${f.dager ? f.dager + ' d' : '<span class="mangler-tekst">Mangler</span>'}</span><span class="c-ny">${n ? kort(n) : ''}</span>
     <span class="c-handling"><button class="lenke liten" type="button" data-handling="aapne" aria-label="Endre frist ${f.frist}">Endre</button></span>
     ${f.merk ? `<span class="c-begr">${esc(f.merk)}</span>` : ''}${e ? `<span class="c-merk">${e}</span>` : ''}</div>`;
@@ -818,12 +818,7 @@ function fristSkjema(f) {
   const id = f.id, F = FRISTER[f.frist];
   const brukt = d.linjer.filter(x => x !== f && !x.trukket).map(x => x.frist);
   const valg = Object.entries(FRISTER).map(([nr, x]) => `<label><input type="radio" name="fr-${id}" value="${nr}"${Number(nr) === f.frist ? ' checked' : ''}${brukt.includes(Number(nr)) ? ' disabled' : ''}> Frist ${nr} · ${x.navn} · ${kort(dato(x.dato))}${x.mulkt ? ' · dagmulkt' : ''}</label>`).join('');
-  // Normalsvaret er en setning, unntaket en lenke (system.md).
-  const del = f.del === 'deler'
-    ? `<div class="varsel" data-spor="U-3 · S-5"><p class="oppgitt"><b>Forlengelsen gjelder deler av arbeidene.</b> Da reduseres rigg og drift forholdsmessig i formelen i kontraktsgrunnlaget (Del II, tillegget til punkt 34.1.3).</p>
-        <div class="felt"><label for="dt-${id}">Hvilke deler?</label><input id="dt-${id}" class="tekstfelt bred" data-felt="delTekst" value="${esc(f.delTekst)}" aria-required="true"></div>
-        <button class="lenke liten" type="button" data-handling="del-hele">Forlengelsen gjelder hele kontraktsarbeidet</button></div>`
-    : `<div class="varsel" data-spor="U-3 · S-5"><p class="oppgitt">Forlengelsen gjelder hele kontraktsarbeidet.</p><button class="lenke liten" type="button" data-handling="del-deler">Forlengelsen gjelder bare deler av arbeidene</button></div>`;
+  const del = `<p class="hjelp" data-spor="U-3">Gjelder forlengelsen bare deler av arbeidene, beskriv det i begrunnelsen. Andelen av rigg og drift oppgis i posten for rigg og drift i vederlagskravet (Del II, tillegget til punkt 34.1.3).</p>`;
   const fjern = ny() && f.forrige
     ? `<button class="lenke liten" type="button" data-handling="trekk">Trekk frist ${f.frist}</button>`
     : `<button class="lenke liten" type="button" data-handling="fjern">Fjern frist ${f.frist}</button>`;
@@ -943,7 +938,6 @@ function brev() {
       if (f.trukket) return `<p class="postlinje"><b>Frist ${f.frist}, ${F.navn.toLowerCase()}.</b> Totalentreprenøren trekker kravet om forlengelse av fristen for ${F.navn.toLowerCase()} i brev 5.</p>`;
       let t = `<b>Frist ${f.frist}, ${F.navn.toLowerCase()} (kontraktsgrunnlaget punkt E.1).</b> Totalentreprenøren krever ${f.dager ? dg(f.dager) : '‹dager›'} forlengelse av fristen ${lang(dato(F.dato))}${F.tidligere ? ` (${forlenget(F)})` : ''}`;
       t += nyFrist(f) ? `, <span class="ny">til ${lang(nyFrist(f))}</span>.` : '.';
-      if (f.del === 'deler') t += ` Forlengelsen gjelder deler av arbeidene: ${esc(f.delTekst) || '‹deler›'}.`;
       if (f.merk) t += ` <span class="dempet">${esc(f.merk)}</span>`;
       return `<p class="postlinje">${t}</p>`;
     };
@@ -1113,16 +1107,15 @@ skjema.addEventListener('click', e => {
   if (a === 'ny-frist') {
     const nr = Math.max(0, ...d.linjer.map(f => Number(f.id.slice(1)))) + 1;
     const ledig = Object.keys(FRISTER).map(Number).find(x => !d.linjer.some(f => !f.trukket && f.frist === x)) ?? 7;
-    d.linjer.push({ id: 'F' + nr, frist: ledig, dager: 0, del: 'hele', delTekst: '', merk: '' });
+    d.linjer.push({ id: 'F' + nr, frist: ledig, dager: 0, merk: '' });
     aapen = 'F' + nr; tegn(); document.querySelector(`[name="fr-F${nr}"]:checked`)?.focus();
   }
   if (a === 'snarvei') {
     const s = snarveiKilde(); if (!s) return;
     let nr = Math.max(0, ...d.linjer.map(f => Number(f.id.slice(1))));
-    s.senere.forEach(frist => d.linjer.push({ id: 'F' + ++nr, frist, dager: s.k.dager, del: s.k.del, delTekst: s.k.delTekst, merk: '' }));
+    s.senere.forEach(frist => d.linjer.push({ id: 'F' + ++nr, frist, dager: s.k.dager, merk: '' }));
     aapen = null; tegn(); document.querySelector(`#frist-F${nr} [data-handling="aapne"]`)?.focus();
   }
-  if (a === 'del-hele' || a === 'del-deler') { const x = finn(art.dataset.id); x.del = a === 'del-hele' ? 'hele' : 'deler'; tegn(); document.querySelector(`#frist-${x.id} ${x.del === 'deler' ? '#dt-' + x.id : '[data-handling="del-deler"]'}`)?.focus(); }
   if (a === 'aapne') { aapen = art.dataset.id; tegn(); document.getElementById(`d-${aapen}`)?.focus(); }
   if (a === 'lukk') { const id = art.dataset.id; aapen = null; tegn(); document.querySelector(`#frist-${id} [data-handling="aapne"]`)?.focus(); }
   if (a === 'fjern') { d.linjer = d.linjer.filter(f => f.id !== art.dataset.id); aapen = null; tegn(); }

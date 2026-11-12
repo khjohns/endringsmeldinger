@@ -199,7 +199,9 @@
     "KA-U74",
     "KA-U76",
     "KA-U22",
-    "HF-U5"
+    "HF-U5",
+    "KA-U75",
+    "OV-U39"
   ],
   "venter_paa": [
     "#1427"
@@ -225,7 +227,7 @@
     {
       "dato": "2026-11-12",
       "forhold": "#1745",
-      "hva": "S-1 og S-4 er besvart (KA-U73, KA-U74 og KA-U76) og står som D-7 og D-8. S-7 følger av KA-U1 og HF-U5, og spørsmål 1 fra den kognitive gjennomgangen (S-8) av KA-U4. S-3, S-5 og S-6 er åpne."
+      "hva": "S-1 og S-4 er besvart (KA-U73, KA-U74 og KA-U76) og står som D-7 og D-8. S-5 følger av OV-U39, S-7 av KA-U1 og HF-U5, og spørsmål 1 fra den kognitive gjennomgangen (S-8) av KA-U4. S-3 og S-6 er åpne."
     }
   ]
 }
