@@ -22309,7 +22309,7 @@ sporsmal = '''
 Spørsmål B-2 ordrett slik det ble stilt 12.11 og står i [spørsmålsfila](../vedlegg/brevtekst-i-punkter-2026-11-12/sporsmal.md):
 
 **B-2. Om kommandoen bærer utdypning per punkt nå** (beslutning; lagret navn)
-- A (anbefalt, med B-1 B). «Kommandoen for et krav og for et svar kan bære partens utdypning per punkt, og brevteksten setter den under punktet. Utdypningen for hele elementet står som før. For vederlagskravet er den forbeholdet til #1823 gir forbeholdet et eget felt. Skjemaene tar utdypningen per punkt i bruk når de bygges: #1823 punkt 1 for kravet, og skjemaet for byggherrens svar for svaret. Feltet i kommandoen er et lagret navn: «utdypninger», med punktet som nøkkel.»
+- A (anbefalt, med B-1 B). «Kommandoen for et krav og for et svar kan bære partens utdypning per punkt, og brevteksten setter den under punktet. Utdypningen for hele elementet står som før. For vederlagskravet er den forbeholdet til #1823 gir forbeholdet et eget felt. Skjemaene tar utdypningen per punkt i bruk når de bygges: #1823 punkt 1 for kravet, og skjemaet for byggherrens svar for svaret. Feltet i kommandoen er et lagret navn: `utdypninger`, med punktet som nøkkel.»
 - B. «Utdypningen per punkt kommer i formatet og kommandoen når skjemaene bygges. Til da står én utdypning per element.»'''
 valgt = "A"
 svar = '''
