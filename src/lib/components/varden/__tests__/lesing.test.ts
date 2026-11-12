@@ -214,7 +214,7 @@ describe('leselinjene i den lukkede kravposten (prototype v3, `leselinje`; KA-U5
     const [p1, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
     const linjer = standpunktene(svar, u);
     expect(leselinjene(linjer, p1!)).toEqual([
-      'Godkjenner fast sum',
+      'Godkjenner fast sum (punkt 34.2.1)',
       `${kroner(100000)}, godkjent som krevd`,
     ]);
     expect(leselinjene(linjer, p2!)).toEqual(['Mener regningsarbeid (punkt 34.4)']);

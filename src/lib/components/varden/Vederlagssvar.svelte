@@ -587,6 +587,7 @@
     ]}
     bind:verdi={v.form}
     feil={feil(`form-${p.betegnelse}`)}
+    lett
   />
   {#if spoerOmTilbud(v, p)}
     <fieldset class="avkrysning">
@@ -600,12 +601,13 @@
   {#if spoerOmVarselet(v, p)}
     {#if regel === 'regningsarbeid'}
       <div class="setning">
-        <p>
+        <p id={`${uid}-varsel-${p.betegnelse}-standpunkt`} aria-live="polite">
           <strong>{SKJEMA.varselRegning}</strong>
           {v.varsletITide === false ? SKJEMA.ikkeGittEllerForSent : SKJEMA.ingenInnsigelse}
         </p>
         <Knapp
           variant="lenke"
+          aria-describedby={`${uid}-varsel-${p.betegnelse}-standpunkt`}
           onclick={() => (v.varsletITide = v.varsletITide === false ? null : false)}
           >{v.varsletITide === false
             ? SKJEMA.ingenInnsigelseLikevel
@@ -615,44 +617,50 @@
     {:else}
       {@const varselet = regelforutsetninger(p, 'rettidighet')}
       {@const justeringen = regelforutsetninger(p, 'justering')}
-      <Gjelderhvis
-        id={`${uid}-varsel-${p.betegnelse}-forutsetninger`}
-        liste={varselet}
-        punkt={forutsetning}
-      />
-      <Valg
-        navn={`${uid}-varsel-${p.betegnelse}`}
-        spoersmaal={v.form === 'godtar'
-          ? SKJEMA.varselJusteringSpoersmaal
-          : SKJEMA.valgfritt(SKJEMA.varselJusteringSpoersmaal)}
-        beskrevetAv={varselet.length ? `${uid}-varsel-${p.betegnelse}-forutsetninger` : undefined}
-        valg={[
-          { verdi: true, tekst: SKJEMA.komITide },
-          { verdi: false, tekst: SKJEMA.komForSent },
-        ]}
-        bind:verdi={v.varsletITide}
-        feil={feil(`varsel-${p.betegnelse}`)}
-      />
-      <Gjelderhvis
-        id={`${uid}-justering-${p.betegnelse}-forutsetninger`}
-        liste={justeringen}
-        punkt={forutsetning}
-      />
-      <Valg
-        navn={`${uid}-justering-${p.betegnelse}`}
-        spoersmaal={v.form === 'godtar'
-          ? SKJEMA.justeringSpoersmaal
-          : SKJEMA.valgfritt(SKJEMA.justeringSpoersmaal)}
-        beskrevetAv={justeringen.length
-          ? `${uid}-justering-${p.betegnelse}-forutsetninger`
-          : undefined}
-        valg={[
-          { verdi: true, tekst: SKJEMA.godkjennerJustering },
-          { verdi: false, tekst: SKJEMA.bestriderJustering },
-        ]}
-        bind:verdi={v.godtarJustering}
-        feil={feil(`justering-${p.betegnelse}`)}
-      />
+      <div class="betinget">
+        <Gjelderhvis
+          id={`${uid}-varsel-${p.betegnelse}-forutsetninger`}
+          liste={varselet}
+          punkt={forutsetning}
+        />
+        <Valg
+          navn={`${uid}-varsel-${p.betegnelse}`}
+          spoersmaal={v.form === 'godtar'
+            ? SKJEMA.varselJusteringSpoersmaal
+            : SKJEMA.valgfritt(SKJEMA.varselJusteringSpoersmaal)}
+          beskrevetAv={varselet.length ? `${uid}-varsel-${p.betegnelse}-forutsetninger` : undefined}
+          valg={[
+            { verdi: true, tekst: SKJEMA.komITide },
+            { verdi: false, tekst: SKJEMA.komForSent },
+          ]}
+          bind:verdi={v.varsletITide}
+          feil={feil(`varsel-${p.betegnelse}`)}
+          lett
+        />
+      </div>
+      <div class="betinget">
+        <Gjelderhvis
+          id={`${uid}-justering-${p.betegnelse}-forutsetninger`}
+          liste={justeringen}
+          punkt={forutsetning}
+        />
+        <Valg
+          navn={`${uid}-justering-${p.betegnelse}`}
+          spoersmaal={v.form === 'godtar'
+            ? SKJEMA.justeringSpoersmaal
+            : SKJEMA.valgfritt(SKJEMA.justeringSpoersmaal)}
+          beskrevetAv={justeringen.length
+            ? `${uid}-justering-${p.betegnelse}-forutsetninger`
+            : undefined}
+          valg={[
+            { verdi: true, tekst: SKJEMA.godkjennerJustering },
+            { verdi: false, tekst: SKJEMA.bestriderJustering },
+          ]}
+          bind:verdi={v.godtarJustering}
+          feil={feil(`justering-${p.betegnelse}`)}
+          lett
+        />
+      </div>
     {/if}
   {/if}
 {/snippet}
@@ -1120,8 +1128,7 @@
     background: var(--surface);
     border-top: var(--rule-strong);
   }
-  /* Kravet om tilbud er ett valg ved siden av oppgjørsformen, med samme form som valgkortene
-     (prototype v3, D-15). */
+  /* Kravet om tilbud er ett valg ved siden av oppgjørsformen (prototype v3, D-15). */
   .avkrysning {
     border: 0;
     padding: 0;
@@ -1134,19 +1141,23 @@
     font-weight: 600;
     color: var(--ink);
   }
+  /* Lett vekt inne i et åpent element, som `Valg lett`: flaten for valgt når den er avkrysset
+     («To vekter på et valg» i system.md). */
   .avkryss {
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-3);
     min-height: 48px;
     padding: 0 var(--spacing-4);
-    border: 1px solid var(--rule-strong-color);
+    border: 1px solid transparent;
     border-radius: var(--r-felt);
-    background: var(--surface);
     color: var(--ink);
     cursor: pointer;
   }
-  .avkryss:hover {
+  .avkryss:has(input:checked) {
+    background: var(--surface-selected);
+  }
+  .avkryss:not(:has(input:checked)):hover {
     background: var(--surface-inset);
   }
   .avkryss:has(input:focus-visible) {
@@ -1164,6 +1175,17 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-1);
+  }
+  /* Lenken står på samme kant som setningen den hører til. */
+  .setning :global(.knapp-lenke) {
+    padding-inline: 0;
+  }
+  /* «Gjelder hvis» hører til spørsmålet under seg, ikke til det over (U-8). */
+  .betinget {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-2);
   }
   .snarveier {
     display: flex;

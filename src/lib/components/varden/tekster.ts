@@ -145,7 +145,7 @@ export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: Brevref) =
 function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
   switch (s.art) {
     case 'oppgjoersform': {
-      const form = s.hjemmel === '34.2.2' ? 'fast sum' : metodenavn(REGEL[s.hjemmel]);
+      const form = metodenavn(s.hjemmel === '34.2.2' ? 'tilbud' : REGEL[s.hjemmel]);
       return (
         (s.aksepterer
           ? `Godkjenner ${form}`
@@ -154,12 +154,14 @@ function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
             : `Godkjenner ikke ${form}`) + (s.kreverTilbud ? `, ${SKJEMA.kreverTilbudKort}` : '')
       );
     }
+    // Byggherrens standpunkt, ikke løsningens konklusjon.
     case 'rettidighet':
-      if (s.hjemmel === '34.4') return 'Varselet etter punkt 34.4 ble ikke gitt eller kom for sent';
+      if (s.hjemmel === '34.4')
+        return 'Gjør gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent';
       if (s.hjemmel !== '34.3.3') return null;
       return s.iTide
-        ? 'Varselet etter punkt 34.3.3 kom i tide'
-        : 'Varselet etter punkt 34.3.3 kom for sent';
+        ? 'Godkjenner at varselet etter punkt 34.3.3 kom i tide'
+        : 'Gjør gjeldende at varselet etter punkt 34.3.3 kom for sent';
     case 'justering':
       return s.godtar ? 'Godkjenner justeringen' : 'Bestrider justeringen';
     case 'beloep':
@@ -269,7 +271,7 @@ export const SKJEMA = {
       : `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
   avstand: (dager: number) => `${dager} kalenderdager fra datoen TE oppgir til kravet ble sendt.`,
   formSpoersmaal: 'Oppgjørsformen (punkt 34.2.2)',
-  godkjennerForm: 'Godkjenner fast sum (punkt 34.2.1)',
+  godkjennerForm: `Godkjenner ${metodenavn('tilbud')}`,
   menerForm: (m: 'enhetspriser' | 'regningsarbeid') => `Mener ${metodenavn(m)}`,
   // Kravposten etter en beregningsregel (#1756, prototype v3 `#svar`).
   formSpoersmaalRegel: 'Oppgjørsformen',
@@ -916,7 +918,7 @@ export const SAKSLISTE = {
   /** Avsenderen av sakens siste brev, til brevkoden er bygget (#1174). */
   brevFra: (avsender: string) => `Fra ${avsender}`,
   ingenBrev: 'Ingen brev',
-  forholdMedPunkt: (navn: string, punkt: string) => `${navn} · pkt.\u00a0${punkt}`,
+  forholdMedPunkt: (navn: string, punkt: string) => `${navn} · pkt. ${punkt}`,
   ikkeKrevd: 'Ikke krevd',
   varslet: 'Varslet',
   trukket: 'trukket',
