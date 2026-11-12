@@ -222,6 +222,7 @@
     },
     'krav:forhold': () => (arbeid = { art: 'nyversjon' }),
   };
+  const skjemanoeklene = Object.keys(skjemaene);
 
   /**
    * Skjemaet for korrigeringen vises når kjernen tilbyr den og opplysningen står i et brev i saken
@@ -467,10 +468,10 @@
               melding = null;
               arbeid = { art: 'korrigering', gjelder };
             }}
-            skjemaene={Object.keys(skjemaene)}
+            skjemaene={skjemanoeklene}
             onvelg={(n) => {
               melding = null;
-              skjemaene[n]?.();
+              if (Object.hasOwn(skjemaene, n)) skjemaene[n]();
             }}
             onakseptbrev={({ kommando, tekst, virkninger, merking, deresRef, tittel }) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);

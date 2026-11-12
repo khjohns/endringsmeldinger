@@ -104,7 +104,7 @@
   );
   const harPrimaer = $derived(primaer !== null);
   // Aksepten åpnes her, og resten av skjemaene hos kalleren (#1663).
-  const bygget = $derived([`godta:${spor}`, ...skjemaene]);
+  const bygget = $derived([...(kanGodta ? [`godta:${spor}`] : []), ...skjemaene]);
   const primaerBygget = $derived(!!primaer && bygget.includes(primaer));
   let primaerIkkeBygget = $state(false);
   // Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista (U-1 i BF-02A, #1615).
