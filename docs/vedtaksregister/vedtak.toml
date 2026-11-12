@@ -3014,6 +3014,81 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+id = "KA-U77"
+dato = 2026-11-12
+hvem = "oppdragsgiver"
+kilde = ["#1745"]
+sporsmal = '''
+S-3 ordrett slik det ble stilt 12.11 som spørsmål 7, fra [spørsmålsfila](../vedlegg/fristkrav-2026-11-12/sporsmal.md):
+
+**1. Hvilken dato den nye fristen regnes fra (S-3).**
+
+Bakgrunn: Kravet angir dagene for hver frist i kontrakten (KA-U73, KA-U74), og skjemaet viser hvilken dato hver frist får. Er fristen alt forlenget etter enighet i en annen sak, gir den avtalte fristen pluss dagene en annen dato enn fristen som gjelder nå pluss dagene. Etter NS 8407 punkt 33.5 skal det tas hensyn til den samlede virkningen av tidligere varslede forhold. OV-U63 sier at løsningen ikke tar hensyn til fristkrav i andre saker, ikke kontrollerer sammenhengen og ikke summerer dagene på tvers av saker. Samlevedtaket for endringsordren (EO-U38) sier at dagene i flere saker ikke summeres uten videre. Prototypen regner i dag fra fristen som gjelder etter en forlengelse i en annen sak.'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 12.11, ordrett: «7B. 8A. 9 - prøver nå». Valgt i spørsmål 7: B. ([spørsmålsfila](../vedlegg/fristkrav-2026-11-12/sporsmal.md))'''
+forhold = [
+  { art = "snevrer inn", vedtak = "ov-u63" },
+  { art = "presiserer", vedtak = "eo-u38" },
+]
+folge = '''
+Gjelder BF-20 (#1745).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Kravet og brevet angir dagene for hver frist. Skjemaet viser datoen fristen får regnet fra den avtalte fristen i kontrakten, og sier at forlengelser i andre saker ikke er tatt med. Forhold: følger OV-U63.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Kravet og brevet angir dagene for hver frist. Skjemaet viser datoen fristen får regnet fra fristen slik den gjelder etter forlengelser partene er enige om i andre saker i samme kontrakt, og sier hvilke saker. Enige er partene når TE har godtatt et svar der dagene står i første lag, eller når totalentreprenøren har godtatt dagene i en endringsordre. Andre saker tas ikke med, og skjemaet sier hvilke og hvorfor. Datoen forutsetter at dagene i kravet kommer i tillegg til forlengelsene som alt er avtalt. Den er en opplysning i skjemaet, regnet med enighetene som foreligger når skjemaet fylles ut, og står ikke i brevet. Den er ikke en vurdering etter punkt 33.5. Forhold: snevrer inn OV-U63 (setningene «Løsningen tar ikke hensyn til fristkrav i andre saker» og «summerer ikke dagene på tvers av saker»): en enighet om dager i en annen sak tas med i datoen skjemaet viser. Presiserer EO-U38 om at dagene ikke summeres uten videre.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Kravet og brevet angir dagene for hver frist. Skjemaet viser ingen ny dato, bare fristen i kontrakten. Forhold: følger OV-U63. M-2 i bestillingen («se hvilken dato hver frist får») faller bort.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U78"
+dato = 2026-11-12
+hvem = "oppdragsgiver"
+kilde = ["#1745"]
+sporsmal = '''
+S-6 ordrett slik det ble stilt 12.11 som spørsmål 8, fra [spørsmålsfila](../vedlegg/fristkrav-2026-11-12/sporsmal.md):
+
+**2. Rekkefølgen på lagene når byggherren både sier at fremdriften ikke ble hindret og at kravet ble spesifisert for sent (S-6).**
+
+Bakgrunn: Påberoper byggherren at kravet ble spesifisert for sent etter punkt 33.6.1, oppgir byggherren prinsipalt det hen måtte forstå og subsidiært det hen godtar (VS-U4). Mener byggherren at fremdriften ikke ble hindret, står dagene byggherren har vurdert, som et videre subsidiært standpunkt (B-13 frist uten fremdriftshindring). Et standpunkt i et senere lag gjelder bare hvis innsigelsene i de foregående lagene ikke fører fram (OV-U32). Når begge innsigelsene står i samme svar, sier ingen av vedtakene hvilken som kommer først. Kjernen har hindringen først. Prototypen har spesifiseringen først, og det ville krevd en ny regelversjon.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 12.11, ordrett: «7B. 8A. 9 - prøver nå». Valgt i spørsmål 8: A. ([spørsmålsfila](../vedlegg/fristkrav-2026-11-12/sporsmal.md))'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u32" },
+  { art = "presiserer", vedtak = "vs-u4" },
+  { art = "presiserer", vedtak = "b-13-frist-uten-fremdriftshindring" },
+]
+folge = '''
+Gjelder BF-20 (#1745).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Påberoper byggherren både at fremdriften ikke ble hindret (punkt 33.1) og at kravet ble spesifisert for sent (punkt 33.6.1), står standpunktet om hindringen i laget før dagene byggherren måtte forstå: prinsipalt at fremdriften ikke ble hindret, subsidiært dagene byggherren måtte forstå, og videre subsidiært dagene byggherren godtar hvis spesifiseringen kom i tide. En påberopelse av at varselet kom for sent etter punkt 33.4, står før alle disse. Har totalentreprenøren angitt dagene som svar på byggherrens forespørsel etter punkt 33.6.2 bokstav a, kan byggherren ikke påberope at kravet ble spesifisert for sent, og laget finnes ikke. Forhold: presiserer OV-U32, VS-U4 og B-13 frist uten fremdriftshindring.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Som A, men dagene byggherren måtte forstå står i laget før hindringen: prinsipalt dagene byggherren måtte forstå, subsidiært at fremdriften ikke ble hindret, og videre subsidiært dagene byggherren godtar. Forhold: presiserer OV-U32, VS-U4 og B-13 frist uten fremdriftshindring.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
 id = "VS-U58"
 dato = 2026-11-10
 hvem = "oppdragsgiver"
@@ -4210,6 +4285,7 @@ beløpet hen godtar etter begrensningen, og subsidiært beløpet hen godtar hvis
 innsigelsen ikke fører fram. Som skjemaet gjør i dag, nå eid av backend'''
 
 [[gruppe.vedtak]]
+anker = "b-13-frist-uten-fremdriftshindring"
 klasse = "vedtak"
 vedtak = '''
 B-13 frist uten fremdriftshindring (§ 33.1): dagene byggherren har vurdert, står som et
@@ -8416,7 +8492,7 @@ begrunnelsen kreves i et svar fra appen, og et registrert brev kan stå uten. Ik
 [[gruppe.vedtak]]
 klasse = "vedtak"
 anker = "vs-u13"
-forhold = [{ art = "bygger på", vedtak = "ka-u24" }]
+forhold = [{ art = "bygger på", vedtak = "ka-u24" }, { art = "utvider", vedtak = "b-13-frist-uten-fremdriftshindring" }]
 vedtak = '''
 VS-U13: i en sak med hovedkategorien force majeure (§ 33.3) er byggherrens standpunkt om
 at forholdet ikke var utenfor partens kontroll, at parten eller dens

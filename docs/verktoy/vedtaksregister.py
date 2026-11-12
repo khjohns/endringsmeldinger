@@ -660,6 +660,8 @@ EN_VEI = frozenset(
         ("mm-u9", "opphever", "mm-u4", "passiv"),
         ("mm-u9", "opphever", "mm-u5", "passiv"),
         ("mm-u9", "opphever", "mm-u6", "passiv"),
+        # Ført 12.11 for KA-U78 i #1745: raden 05.10 fikk ankeret, og Følge der sier forholdet.
+        ("vs-u13", "utvider", "b-13-frist-uten-fremdriftshindring", "passiv"),
     }
 )
 
