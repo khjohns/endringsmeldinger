@@ -16,6 +16,15 @@ import { beloep, tilTall } from '../regler/beloep.ts';
 import { lagIKravposten } from '../regler/vederlag.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
+import {
+  hjemmelenGjelder,
+  laget,
+  plassene,
+  prinsipalt,
+  standpunktet,
+  type Plass,
+  type Svarinnhold,
+} from './byggeklosser.ts';
 import { erRegistrert } from '../format/leser.ts';
 import { HJEMMEL } from '../format/format.ts';
 import { utregningIFristen } from '../format/svarinnhold.ts';
@@ -37,39 +46,10 @@ import type {
   Virkning,
 } from '../typer.ts';
 
-/** Det i et svar virkningene regnes av: sporet, standpunktene og serverens utregning. */
-export type Svarinnhold = Pick<Svar, 'spor' | 'standpunkter' | 'utregning'>;
-
 /** To påberopelsesversjoner har samme hovedkategori og underkategori (GR-U22). */
 export function sammeKategori(a: Pick<Krav, 'innhold'>, b: Pick<Krav, 'innhold'>): boolean {
   const [x, y] = [kategori(a), kategori(b)];
   return x.hovedkategori === y.hovedkategori && x.underkategori === y.underkategori;
-}
-
-/** Varslingsplikten i § 32.2 gjelder kategorien i påberopelsen (GR-U11). */
-export function gjelderVarslingsplikten(
-  krav: Pick<Krav, 'innhold'> | null | undefined,
-  regler: Regelsett
-): boolean {
-  const { hovedkategori, underkategori } = kategori(krav);
-  return regler.gjelderVarslingsplikten(hovedkategori, underkategori);
-}
-
-/**
- * VS-U3: påberopelsen etter hjemmelen kan ha virkning for kravet. § 33.4 gjelder
- * alltid i fristen, § 32.2 der varslingsplikten gjelder kategorien, § 34.1.2
- * for svikt og andre forhold byggherren har risikoen for, og § 34.1.3 for forhold
- * etter både § 34.1.1 og § 34.1.2 (#1047, kommentaren 6348199156).
- */
-export function hjemmelenGjelder(
-  hjemmel: Hjemmel,
-  paaberopelse: Krav | null | undefined,
-  regler: Regelsett
-): boolean {
-  if (hjemmel === '33.4' || hjemmel === '33.6.2' || hjemmel === '34.1.3') return true;
-  if (hjemmel === '34.1.2')
-    return regler.gjelderVarslingspliktenForVederlag(kategori(paaberopelse).hovedkategori);
-  return gjelderVarslingsplikten(paaberopelse, regler);
 }
 
 /**
@@ -345,7 +325,6 @@ export function foresporselsrelasjon(
   return begrunnelse ? { art: 'begrunnelse', gjelder: begrunnelse } : null;
 }
 
-export const prinsipalt = (v: Standpunktsvirkning[]) => v.find((p) => p.virkning === 1);
 /**
  * Et standpunkt i første lag avviser kravet uavhengig av beløpet eller dagene: en preklusjon
  * eller «ingen hindring». En begrensning etter § 34.1.3 avviser aldri hele kravet (VS-U5).
@@ -370,36 +349,6 @@ export function begrensningen(svar: Svarinnhold, v: Standpunktsvirkning[]) {
       s.hjemmel === '34.1.3' &&
       v.some((p) => p.standpunkt === s.id && laget(p.virkning) !== null)
   );
-}
-
-/** Laget i brevet og etiketten for det, eller `null` for et standpunkt uten lag (OV-U32). */
-export interface Plass {
-  lag: number | null;
-  etikett: string | null;
-}
-
-/**
- * Plassen hvert standpunkt i svaret har i brevet, og plassen til hver grunn fra svaret på
- * forholdet som står foran sporet (OV-U32, OV-U33). `forskyvning` er lagene de grunnene opptar
- * (`forskyvningIBrevet`), og 0 for forholdet selv. Etiketten følger brevteksten: bare når
- * svaret har mer enn ett lag. `grunn(i)` er den i-te grunnen, fra 0.
- */
-export function plassene(
-  svar: Svarinnhold,
-  v: Standpunktsvirkning[],
-  forskyvning: number
-): { standpunkt: (id: string) => Plass; grunn: (i: number) => Plass } {
-  const lagI = (id: string) => {
-    const virkning = v.find((p) => p.standpunkt === id)?.virkning;
-    const lag = virkning === undefined ? null : laget(virkning);
-    return lag === null ? null : lag + forskyvning;
-  };
-  const ordnet = forskyvning > 1 || svar.standpunkter.some((s) => (lagI(s.id) ?? 0) > 1);
-  const plass = (lag: number | null): Plass => ({
-    lag,
-    etikett: ordnet && lag !== null ? etikett(lag) : null,
-  });
-  return { standpunkt: (id) => plass(lagI(id)), grunn: (i) => plass(i + 1) };
 }
 
 /**
@@ -487,10 +436,6 @@ function prinsipaltIVederlaget(svar: Svarinnhold, v: Standpunktsvirkning[]): Utf
     else beloepet += beloep(p.godkjent)!;
   }
   return { beloep: tilTall(beloepet), ...(uten.length ? { uten_fast_beloep: uten } : {}) };
-}
-
-export function standpunktet<A extends Standpunkt['art']>(svar: Svarinnhold, art: A) {
-  return svar.standpunkter.find((s): s is Extract<Standpunkt, { art: A }> => s.art === art);
 }
 
 /**
@@ -612,17 +557,6 @@ export function enighetsgrunnlag(svar: Svar, kilde: Enighetsgrunnlag['kilde']): 
     vilkaar: svar.spor === 'forhold' ? null : 'forhold_avklart',
   };
 }
-
-/** Laget standpunktet står i, eller `null` når det er upåvirket eller uten virkning (OV-U32). */
-export const laget = (virkning: Virkning): number | null =>
-  typeof virkning === 'number' ? virkning : null;
-
-/**
- * Etiketten for laget, med ordene i LV-U4 punkt 4: «videre subsidiært» for hvert lag fra det
- * tredje. Lik etikett betyr ikke samme lag (OV-U32).
- */
-export const etikett = (lag: number): string =>
-  lag === 1 ? 'prinsipalt' : lag === 2 ? 'subsidiært' : 'videre subsidiært';
 
 /**
  * OV-U32, OV-U33: lagene standpunktene i svaret på forholdet opptar foran vederlag og

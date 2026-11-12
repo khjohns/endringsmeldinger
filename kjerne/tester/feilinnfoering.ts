@@ -136,8 +136,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "  standpunktet,\n} from '../frosset/standpunkt.ts';",
-        "  standpunktet,\n  virkninger as regn,\n} from '../frosset/standpunkt.ts';",
+        "  sammenfallStemmer,\n} from '../frosset/standpunkt.ts';",
+        "  sammenfallStemmer,\n  virkninger as regn,\n} from '../frosset/standpunkt.ts';",
       ],
       [
         '  const svar = svarberegninger(alleSvar, spor);',
@@ -1490,7 +1490,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F179',
     feilklasse: 'påberopelsen etter § 34.1.2 får ingen virkning for svikt (VS-U3)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [["if (hjemmel === '34.1.2')", "if (hjemmel === ('' as Hjemmel))"]],
     mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
   },
@@ -1813,7 +1813,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F213',
     feilklasse:
       'linjen sier «subsidiært» også fra tredje ledd, ikke «videre subsidiært» (HF-U2, #492)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [["lag === 2 ? 'subsidiært' : 'videre subsidiært'", "'subsidiært'"]],
     mal: ['linjen ordner byggherrens standpunkter'],
   },
@@ -3438,7 +3438,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F413',
     feilklasse: 'postlisten mister lagene svaret på forholdet opptar foran sporet (OV-U32)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [
       [
         '    const lag = virkning === undefined ? null : laget(virkning);\n    return lag === null ? null : lag + forskyvning;',
@@ -3979,7 +3979,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F469',
     feilklasse: 'grunnene fra forholdet foran sporet får feil lag (OV-U32, LV-U4 punkt 4, #1449)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [['grunn: (i) => plass(i + 1)', 'grunn: (i) => plass(i)']],
     mal: ['avslag og påberopt preklusjon etter § 32.2 opptar første og andre lag, posten tredje'],
   },
@@ -4196,7 +4196,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F491',
     feilklasse: 'et ukjent felt i vurderingene i svaret på vederlaget godtas uten virkning (MM-U2)',
-    fil: `${K}/frosset/utregning.ts`,
+    fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [['  if (ukjente.length)', '  if (false)']],
     mal: ['et ukjent felt i vurderingene i svaret på vederlaget avvises'],
   },

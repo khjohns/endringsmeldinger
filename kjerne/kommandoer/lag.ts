@@ -5,15 +5,11 @@
  * S1-A og S2-A i #1400, 30.10).
  */
 
-import {
-  beregningsregelLag,
-  etikett,
-  grunnerFraForholdet,
-  laget,
-  virkninger,
-} from '../frosset/standpunkt.ts';
+import { beregningsregelLag, grunnerFraForholdet, virkninger } from '../frosset/standpunkt.ts';
+import { etikett, laget } from '../frosset/byggeklosser.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
-import { kravpostvurderinger, type Svarvurdering } from '../frosset/utregning.ts';
+import { kravpostvurderinger } from '../frosset/utregning.ts';
+import { type Svarvurdering } from '../frosset/byggeklosser.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { standpunkterISvaret } from '../format/leser.ts';

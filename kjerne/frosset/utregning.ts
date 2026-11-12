@@ -21,6 +21,7 @@ import { kontrollerForholdet, kontrollerSpesifiseringen } from '../regler/svarko
 import { innholdIFristen, kategori } from '../format/kravinnhold.ts';
 import { krevdIKravposten, krevdProduktivitet, kravposterI } from '../spor/vederlag/format.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
+import { avvisUkjenteFelt, type Svarvurdering } from './byggeklosser.ts';
 import { type Krav, type Kravpost, type Spor, utenGren } from '../typer.ts';
 
 /**
@@ -42,27 +43,6 @@ export function utenforOmfanget(spor: Spor, v: Record<string, unknown>): string 
 }
 
 // ---------- Utregningen av svaret (B-13) ----------
-
-export interface Svarvurdering {
-  resultat?: unknown;
-  grunnlag_varslet_i_tide?: unknown;
-  hovedkrav_varslet_i_tide?: unknown;
-  /** Svaret på hver kravpost, som en liste med `Kravpostvurdering` (KA-U57 (c) og (d), KA-U59). */
-  kravposter?: unknown;
-  produktivitet_vurdering?: unknown;
-  produktivitet_godkjent_beloep?: unknown;
-  produktivitet_varslet_i_tide?: unknown;
-  produktivitet_begrenset_beloep?: unknown;
-  rigg_vurdering?: unknown;
-  rigg_varslet_i_tide?: unknown;
-  hold_tilbake?: unknown;
-  frist_varsel_ok?: unknown;
-  spesifisert_krav_ok?: unknown;
-  foresporsel_svar_ok?: unknown;
-  dager_maatte_forstaa?: unknown;
-  vilkar_oppfylt?: unknown;
-  dager?: unknown;
-}
 
 /**
  * Serverens utregning av svaret, med navnene i formatet (`UTREGNING` i
@@ -92,20 +72,6 @@ function regnUtForhold(v: Svarvurdering, krav: Krav, regler: Regelsett): Record<
   const { hovedkategori, underkategori } = kategori(krav);
   kontrollerForholdet(v, hovedkategori, underkategori, regler);
   return {};
-}
-
-/**
- * Et felt kjernen ikke leser i vurderingene, ville blitt godtatt uten virkning, så det avvises
- * (MM-U2; kravet i #1663 og #1732).
- */
-function avvisUkjenteFelt(v: Svarvurdering, lest: ReadonlySet<string>, svaretPaa: string): void {
-  const ukjente = Object.keys(v).filter((felt) => !lest.has(felt));
-  if (ukjente.length)
-    throw new UgyldigVurdering(
-      Object.fromEntries(
-        ukjente.map((felt) => [felt, `kjernen leser ikke feltet i svaret på ${svaretPaa}`])
-      )
-    );
 }
 
 /** Feltene kjernen leser i vurderingene i svaret på forholdet (`kontrollerForholdet`, `standpunkter`). */

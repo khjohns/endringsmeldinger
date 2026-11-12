@@ -16,7 +16,7 @@ import { datoFor, kalenderdag } from '../format/leser.ts';
 import { erKalenderdato, tekst } from '../format/skjema.ts';
 import { korrigertDato, type Kommando, type Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { gjelderVarslingsplikten, hjemmelenGjelder } from '../frosset/standpunkt.ts';
+import { gjelderVarslingsplikten, hjemmelenGjelder } from '../frosset/byggeklosser.ts';
 import {
   kravpostvurderinger,
   likeResultatfelt,

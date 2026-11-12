@@ -46,10 +46,9 @@ import {
   type Foresporselsrelasjon,
   type ForesporselOgSvar,
   kravetErDokumentasjon,
-  prinsipalt,
   sammenfallStemmer,
-  standpunktet,
 } from '../frosset/standpunkt.ts';
+import { prinsipalt, standpunktet } from '../frosset/byggeklosser.ts';
 import { innholdIForholdet } from '../format/kravinnhold.ts';
 import {
   KRAVSPOR,

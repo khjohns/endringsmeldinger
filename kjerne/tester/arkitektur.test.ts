@@ -613,14 +613,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
 
   // Utregningen av svaret (utregning.ts), standpunktene (standpunkt.ts) og det brevet fryser.
   ['frosset/utregning.ts', 'regelsett', `regnUtSvar SAMMENLIKNES likeResultatfelt utenforOmfanget`],
-  ['frosset/standpunkt.ts', 'frosset', 'prinsipalt'],
+  ['frosset/byggeklosser.ts', 'frosset', 'prinsipalt'],
   // GR-U11 og VS-U12: passivitetsregelen gjelder der § 32.2 gjelder. KA-46: innsigelsen mot
   // varselet etter § 34.1.2 avvises der § 34.1.2 ikke gjelder kategorien.
   [
-    'frosset/standpunkt.ts',
+    'frosset/byggeklosser.ts',
     'regelsett',
     'gjelderVarslingsplikten hjemmelenGjelder',
-    ['kommandoer/nyttelast.ts', 'frosset/frysing.ts:beslutningsgrunnlag'],
+    ['kommandoer/nyttelast.ts', 'frosset/frysing.ts:beslutningsgrunnlag', 'frosset/standpunkt.ts'],
   ],
   // § 32.3 første ledd a for et brev sendt i appen, lest av beslutningsgrunnlaget (GR-U12, #351).
   [
@@ -629,7 +629,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'blirEndringsordre',
     ['utledning/utled.ts', 'frosset/frysing.ts'],
   ],
-  ['frosset/standpunkt.ts', 'utsagn', 'standpunktet'],
+  ['frosset/byggeklosser.ts', 'utsagn', 'standpunktet'],
   // Standpunktene til oppgjørsformen etter § 34.2.2, ett per kravpost (KA-U57 (d)).
   ['frosset/standpunkt.ts', 'predikat', 'enighetsgrunnlag'],
   // Vedtaket 05.10: hvorfor svaret i sporet er subsidiært til forholdet. Brevteksten sier
@@ -660,6 +660,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['utledning/utled.ts:kontrollerSvarene'],
   ],
   ['frosset/utregning.ts:regnUtSvar', 'utsagn', 'krav paaberopelse'],
+  ['frosset/byggeklosser.ts', 'regelsett', 'avvisUkjenteFelt', ['frosset/utregning.ts']],
   ['frosset/utregning.ts:regnUtSvar', 'relasjon', 'foresporsel'],
   // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
   // og utledningen, som prøver postene i svaret mot dem (OV-U23).
@@ -737,7 +738,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['kommandoer/lag.ts:besvart', 'utsagn', 'saerskilt gjelder'],
   // OV-U32, OV-U33: plassen hvert standpunkt har i det frosne brevet, som postlisten og
   // visningen leser.
-  ['frosset/standpunkt.ts:plassene', 'frosset', 'standpunkt', ['frosset/standpunkt.ts:postlisten']],
+  [
+    'frosset/byggeklosser.ts:plassene',
+    'frosset',
+    'standpunkt',
+    ['frosset/standpunkt.ts:postlisten'],
+  ],
+  ['frosset/byggeklosser.ts', 'frosset', 'plassene', ['frosset/standpunkt.ts:postlisten']],
   // Valg 4 i #1047: postene i det frosne brevet, med beløpet etter en virksom begrensning.
   // Utfallet summerer dem; visningen leser resten av postlisten.
   [
@@ -1029,10 +1036,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // OV-U32: laget en fryst virkning står i, og laget i et svarutkast (#1400).
   [
-    'frosset/standpunkt.ts',
+    'frosset/byggeklosser.ts',
     'frosset',
     'laget',
-    ['frosset/brevtekst.ts', 'kommandoer/lag.ts', 'frosset/tekst.ts'],
+    ['frosset/brevtekst.ts', 'kommandoer/lag.ts', 'frosset/tekst.ts', 'frosset/standpunkt.ts'],
   ],
   // OV-U32, OV-U33: lagene i et svarutkast regnes som brevet regner dem (S1-A i #1400).
   [
@@ -1056,6 +1063,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'frosset/tekst.ts:beslutningslinje',
       'frosset/standpunkt.ts',
+      'frosset/byggeklosser.ts',
       'frosset/utregning.ts',
       'kommandoer/forutsetninger.ts:korrigering',
       'kommandoer/nyttelast.ts:kontrollerKorrigering',
@@ -1613,7 +1621,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/tekst.ts', 'brevtekst', 'kroner dager', ['frosset/brevtekst.ts']],
   // OV-U32: etiketten brevet bruker for laget.
   [
-    'frosset/standpunkt.ts',
+    'frosset/byggeklosser.ts',
     'brevtekst',
     'etikett',
     ['frosset/brevtekst.ts', 'kommandoer/lag.ts', 'frosset/tekst.ts'],
@@ -1720,7 +1728,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/standpunkt.ts',
     'brevtekst',
-    'blirEndringsordre gjelderVarslingsplikten innsigelsenErOppgitt standpunktet',
+    'blirEndringsordre innsigelsenErOppgitt',
+    ['frosset/brevtekst.ts'],
+  ],
+  [
+    'frosset/byggeklosser.ts',
+    'brevtekst',
+    'gjelderVarslingsplikten standpunktet',
     ['frosset/brevtekst.ts'],
   ],
 ];

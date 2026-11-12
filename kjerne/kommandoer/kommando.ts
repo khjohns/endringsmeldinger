@@ -21,7 +21,7 @@ import {
   type Skjema,
 } from '../format/skjema.ts';
 import { BroekdelAvOere, heleOere } from '../regler/beloep.ts';
-import type { Svarvurdering } from '../frosset/utregning.ts';
+import type { Svarvurdering } from '../frosset/byggeklosser.ts';
 import {
   KRAVSPOR,
   SPOR as SPORENE,

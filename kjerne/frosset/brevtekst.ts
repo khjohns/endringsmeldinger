@@ -24,14 +24,12 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
 import {
   blirEndringsordre,
-  etikett,
-  laget,
-  gjelderVarslingsplikten,
   grunnerFraForholdet,
   innsigelsenErOppgitt,
   innsigelsenPaaberoper,
   svarPaaForesporsler,
 } from './standpunkt.ts';
+import { etikett, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
 import { innholdIForholdet, innholdIFristen } from '../format/kravinnhold.ts';
 import {
   harProduktivitetspost,

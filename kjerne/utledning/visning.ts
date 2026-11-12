@@ -12,7 +12,6 @@
 import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
-  hjemmelenGjelder,
   lagFraForholdet,
   postlisten,
   ulikeVirkninger,
@@ -20,6 +19,7 @@ import {
   type Paaberopt,
   type Vederlagspost,
 } from '../frosset/standpunkt.ts';
+import { hjemmelenGjelder } from '../frosset/byggeklosser.ts';
 import {
   enighetensVirkning,
   paaberopelseFor,
