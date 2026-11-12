@@ -4086,7 +4086,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F550',
     feilklasse: 'en trukket kravpost som tas med igjen, får ikke betegnelsen sin tilbake (KA-U75)',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         '    tidligere.flatMap((k) => kravposterI(k)).map((p) => [p.id, p.betegnelse])',

@@ -696,7 +696,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       // KA-U57 (c) og (d): linjen navngir kravposten når kravet har flere.
       'spor/vederlag/tekst.ts',
       'frosset/brevdeler.ts',
-      'kommandoer/skriving.ts',
       'spor/vederlag/utledning.ts',
       // KA-U54, KA-U64, KA-U68: TEs oppgjørsform for standpunktene til kravposten.
       'spor/vederlag/kommando.ts',
@@ -1094,6 +1093,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/vederlag/frysing.ts', 'frosset', 'FRYSING_I_VEDERLAGET', ['frosset/standpunkt.ts']],
   // #1783: lesereglene i 4.2 som er sporets egne.
   ['Sporskontroller', 'predikat', 'kravet kravene svaret', ['utledning/utled.ts']],
+  // Skrivingen i sporet (#1783).
+  ['Sporsskriving', 'kommando', 'kravinnhold', ['kommandoer/skriving.ts']],
+  ['spor/vederlag/kommando.ts', 'kommando', 'SKRIVING_I_VEDERLAGET', ['kommandoer/skriving.ts']],
   // Nyttelastkontrollen i sporet (#1783).
   [
     'Sporsnyttelast',
@@ -1361,16 +1363,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // KA-U53, KA-U56, KA-U75: kravpostene en ny versjon får id og betegnelse for, og
   // versjonsreglene kommandoen og lesingen av journalen bruker.
   [
-    'kommandoer/skriving.ts:medKravposter(innhold)',
+    'spor/vederlag/kommando.ts:medKravposter(innhold)',
     'kommando',
     'kravposter',
-    ['kommandoer/skriving.ts:medKravposter'],
+    ['spor/vederlag/kommando.ts:medKravposter'],
   ],
   [
-    'kommandoer/skriving.ts:medKravposter(p)',
+    'spor/vederlag/kommando.ts:medKravposter(p)',
     'kommando',
     'id',
-    ['kommandoer/skriving.ts:medKravposter'],
+    ['spor/vederlag/kommando.ts:medKravposter'],
   ],
   [
     'Kravversjonsinndata',
@@ -1384,7 +1386,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/utledning.ts',
     'relasjon',
     'brukteBetegnelser nesteBetegnelse',
-    ['kommandoer/skriving.ts:medKravposter'],
+    ['spor/vederlag/kommando.ts:medKravposter'],
   ],
   // VS-U49, D-16, VS-U55: varselet for hver kravpost, lest av skriveren for brevteksten (A6).
   [
@@ -1720,6 +1722,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/forutsetninger.ts',
       'kommandoer/kommando.ts',
       'kommandoer/nyttelast.ts',
+      'kommandoer/skriving.ts',
     ],
   ],
   [

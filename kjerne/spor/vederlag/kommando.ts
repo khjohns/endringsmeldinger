@@ -29,7 +29,13 @@ import {
   vederlagsinnhold,
 } from './format.ts';
 import { erObjekt, feilI, objekt } from '../../format/skjema.ts';
-import { kravposteneStrider, kravpostvarseletStrider, varselhjemmel } from './utledning.ts';
+import {
+  brukteBetegnelser,
+  kravposteneStrider,
+  kravpostvarseletStrider,
+  nesteBetegnelse,
+  varselhjemmel,
+} from './utledning.ts';
 import { erBeloepetGodkjentFullt } from '../../regler/vederlag.ts';
 import { beloep, BroekdelAvOere, heleOere, tilTall } from '../../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
@@ -48,6 +54,7 @@ import {
 import { paaberopelseFor, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
 import type { Innhold, Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
+import type { Sporsskriving } from '../../kommandoer/skriving.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
 
@@ -261,6 +268,34 @@ export const NYTTELAST_I_VEDERLAGET = {
   kravsperre: kravpostsperre,
   innsigelse: innsigelseMotVarselet,
 } satisfies Sporsnyttelast;
+
+/**
+ * Kravpostene slik de lagres: en ny kravpost får `id` fra serveren og neste betegnelse i
+ * sporet, og en kravpost fra en tidligere versjon beholder sin, også etter et trekk (KA-U53, KA-U75,
+ * arbeidsvalget 07.11 i domenetabellen).
+ */
+function medKravposter(
+  innhold: Record<string, unknown>,
+  u: Utledning,
+  nyId: () => string
+): Record<string, unknown> {
+  if (!innhold.kravposter) return innhold;
+  const tidligere = u.spor.vederlag.krav;
+  const betegnelsen = new Map(
+    tidligere.flatMap((k) => kravposterI(k)).map((p) => [p.id, p.betegnelse])
+  );
+  const brukte = brukteBetegnelser(tidligere);
+  const kravposter = (innhold.kravposter as Record<string, unknown>[]).map((p) => {
+    if (typeof p.id === 'string') return { ...p, betegnelse: betegnelsen.get(p.id)! };
+    const betegnelse = nesteBetegnelse(brukte);
+    brukte.add(betegnelse);
+    return { id: nyId(), betegnelse, ...p };
+  });
+  return { ...innhold, kravposter };
+}
+
+/** Skrivingen i vederlaget (`skriv`). */
+export const SKRIVING_I_VEDERLAGET = { kravinnhold: medKravposter } satisfies Sporsskriving;
 
 /**
  * Det som hindrer byggherrens svar med standpunktene i dag, eller `null` når svaret kan gis.

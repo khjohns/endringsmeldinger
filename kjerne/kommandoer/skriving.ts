@@ -6,17 +6,13 @@
  * ID, og relasjonene står som `gjelder` og `erstatter` (4.2).
  */
 
-import {
-  brukteBetegnelser,
-  kravpostvarslene,
-  nesteBetegnelse,
-  varselhjemmel,
-} from '../spor/vederlag/utledning.ts';
+import { kravpostvarslene, varselhjemmel } from '../spor/vederlag/utledning.ts';
+import { SKRIVING_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
+import { iSporet } from '../frosset/byggeklosser.ts';
 import { avvisning } from './avvisning.ts';
 import { formfeil, korrigertDato, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys } from '../frosset/frysing.ts';
 import { lagFraForholdet } from '../frosset/standpunkt.ts';
-import { kravposterI } from '../spor/vederlag/format.ts';
 import { standpunkter } from './standpunkter.ts';
 import { BrevetAvvises, lagBrevtekst, lagDeresRef } from '../frosset/brevtekst.ts';
 import { KanIkkeUttrykkes } from '../frosset/brevdeler.ts';
@@ -207,30 +203,18 @@ function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne): Data[] {
   return svarene;
 }
 
-/**
- * Kravpostene slik de lagres: en ny kravpost får `id` fra serveren og neste betegnelse i
- * sporet, og en kravpost fra en tidligere versjon beholder sin, også etter et trekk (KA-U53, KA-U75,
- * arbeidsvalget 07.11 i domenetabellen).
- */
-function medKravposter(
-  innhold: Record<string, unknown>,
-  u: Utledning,
-  nyId: () => string
-): Record<string, unknown> {
-  if (!innhold.kravposter) return innhold;
-  const tidligere = u.spor.vederlag.krav;
-  const betegnelsen = new Map(
-    tidligere.flatMap((k) => kravposterI(k)).map((p) => [p.id, p.betegnelse])
-  );
-  const brukte = brukteBetegnelser(tidligere);
-  const kravposter = (innhold.kravposter as Record<string, unknown>[]).map((p) => {
-    if (typeof p.id === 'string') return { ...p, betegnelse: betegnelsen.get(p.id)! };
-    const betegnelse = nesteBetegnelse(brukte);
-    brukte.add(betegnelse);
-    return { id: nyId(), betegnelse, ...p };
-  });
-  return { ...innhold, kravposter };
+/** Det som er sporets eget i skrivingen (#1783). */
+export interface Sporsskriving {
+  /** Innholdet i kravet slik det lagres. */
+  kravinnhold(innhold: Data, u: Utledning, nyId: () => string): Data;
 }
+
+/** Skrivingen i hvert spor. Forholdet og fristen står her til de flyttes (#1745). */
+const SKRIVING: Record<Spor, Sporsskriving> = {
+  forhold: { kravinnhold: (innhold) => innhold },
+  vederlag: SKRIVING_I_VEDERLAGET,
+  frist: { kravinnhold: (innhold) => innhold },
+};
 
 /** Innholdet i dokumentet kommandoen gir. */
 function dokument(
@@ -259,7 +243,7 @@ function dokument(
             spor: k.spor,
             ...(forrige ? { erstatter: forrige.id } : {}),
             ...(foresporsel ? { gjelder: foresporsel.foresporsel } : {}),
-            ...(k.spor === 'vederlag' ? medKravposter(k.innhold, u, nyId) : k.innhold),
+            ...iSporet(SKRIVING, k.spor).kravinnhold(k.innhold, u, nyId),
           },
         ],
       };
