@@ -438,7 +438,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Forholdsinnhold',
     'utsagn',
     'endringsordre',
-    ['spor/forhold/tekst.ts', 'kommandoer/nyttelast.ts:kategorisperre'],
+    ['spor/forhold/tekst.ts', 'spor/forhold/kommando.ts:kategorisperre'],
   ],
   ['Fristinnhold', 'utsagn', 'dager'],
   // OV-U95 punkt 19–22 og arbeidsvalget 07.11 i domenetabellen: kravpostene i vederlagskravet, og kravpostene
@@ -617,7 +617,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utledning/utled.ts',
     'relasjon',
     'varseletForNyttSvar',
-    ['kommandoer/standpunkter.ts', 'spor/vederlag/kommando.ts', 'kommandoer/forutsetninger.ts'],
+    ['kommandoer/standpunkter.ts', 'spor/vederlag/kommando.ts', 'spor/forhold/kommando.ts'],
   ],
   // VS-U60: kravet som er det første varselet, når det ikke finnes et eget varsel.
   [
@@ -633,7 +633,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'relasjon',
     'datoenDetBleSendt',
     [
-      'kommandoer/nyttelast.ts:varseletEtter322',
+      'spor/forhold/kommando.ts:varseletEtter322',
       'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
     ],
   ],
@@ -673,6 +673,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'gjelderVarslingsplikten hjemmelenGjelder',
     [
       'kommandoer/nyttelast.ts',
+      'spor/forhold/kommando.ts',
       'spor/vederlag/kommando.ts',
       'frosset/frysing.ts:beslutningsgrunnlag',
       'spor/vederlag/frysing.ts',
@@ -998,10 +999,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Kommando.innhold',
     'utsagn',
     'hovedkategori underkategori',
-    ['kommandoer/nyttelast.ts:kategorisperre'],
+    ['spor/forhold/kommando.ts:kategorisperre'],
   ],
   // MM-U52 punkt 14: endringsordren i underkategorien endringsordre står.
-  ['Kommando.innhold', 'utsagn', 'endringsordre', ['kommandoer/nyttelast.ts:kategorisperre']],
+  ['Kommando.innhold', 'utsagn', 'endringsordre', ['spor/forhold/kommando.ts:kategorisperre']],
   ['Svarutkast', 'kommando', 'spor gjelder regelversjon vurderinger'],
   ['Svarutkast', 'kommando', 'resultat', ['kommandoer/nyttelast.ts']],
   ['Svarutkast.resultat', 'kommando', '*', ['kommandoer/nyttelast.ts']],
@@ -1158,6 +1159,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // VS-U51, VS-U53: skrivingen gir sporet stegene for en handling med flere rader.
   ['Skrivesteg', 'kommando', 'sendes formen skriv hele', ['spor/vederlag/kommando.ts']],
   ['spor/vederlag/kommando.ts', 'kommando', 'SKRIVING_I_VEDERLAGET', ['kommandoer/skriving.ts']],
+  ['spor/forhold/kommando.ts', 'kommando', 'SKRIVING_I_FORHOLDET', ['kommandoer/skriving.ts']],
   // Lagene i et svarutkast i sporet (#1778).
   ['spor/vederlag/kommando.ts', 'predikat', 'lagIVederlaget', ['kommandoer/lag.ts']],
   // Nyttelastkontrollen i sporet (#1783).
@@ -1168,6 +1170,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/nyttelast.ts'],
   ],
   ['spor/vederlag/kommando.ts', 'predikat', 'NYTTELAST_I_VEDERLAGET', ['kommandoer/nyttelast.ts']],
+  [
+    'spor/forhold/kommando.ts',
+    'predikat',
+    'NYTTELAST_I_FORHOLDET kontrollerKorrigering varseletEtter322',
+    ['kommandoer/nyttelast.ts'],
+  ],
   // Formen på kravet i sporet (#1783).
   [
     'Kravform',
@@ -1176,6 +1184,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/kommando.ts'],
   ],
   ['spor/vederlag/kommando.ts', 'kommando', 'KRAVFORM_I_VEDERLAGET', ['kommandoer/kommando.ts']],
+  ['spor/forhold/kommando.ts', 'kommando', 'KRAVFORM_I_FORHOLDET', ['kommandoer/kommando.ts']],
   [
     'Sporsforutsetninger',
     'predikat',
@@ -1186,6 +1195,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/kommando.ts',
     'predikat',
     'FORUTSETNINGER_I_VEDERLAGET',
+    ['kommandoer/forutsetninger.ts'],
+  ],
+  [
+    'spor/forhold/kommando.ts',
+    'predikat',
+    'FORUTSETNINGER_I_FORHOLDET korrigering',
     ['kommandoer/forutsetninger.ts'],
   ],
   ['spor/vederlag/utledning.ts', 'predikat', 'KONTROLLER_I_VEDERLAGET', ['utledning/utled.ts']],
@@ -1206,8 +1221,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/forhold/frysing.ts',
       'frosset/byggeklosser.ts',
       'spor/vederlag/frysing.ts',
-      'kommandoer/forutsetninger.ts:korrigering',
-      'kommandoer/nyttelast.ts:kontrollerKorrigering',
+      'spor/forhold/kommando.ts:korrigering',
+      'spor/forhold/kommando.ts:kontrollerKorrigering',
       'kommandoer/nyttelast.ts:grunnlagsdatoen',
     ],
   ],
@@ -1219,7 +1234,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/brevtekst.ts',
       'spor/forhold/tekst.ts',
       'spor/forhold/utledning.ts:opplysningerOmDatoen',
-      'kommandoer/nyttelast.ts:kategorisperre',
+      'spor/forhold/kommando.ts:kategorisperre',
     ],
   ],
   [
@@ -1327,7 +1342,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'METODER',
     ['regler/vederlag.ts:kontrollerOppgjoersformen'],
   ],
-  ['format/format.ts', 'skjema', 'KRAVINNHOLD OPPLYSNINGSSLAG', ['kommandoer/kommando.ts']],
+  [
+    'format/format.ts',
+    'skjema',
+    'KRAVINNHOLD OPPLYSNINGSSLAG',
+    ['kommandoer/kommando.ts', 'spor/forhold/kommando.ts'],
+  ],
   [
     'format/skjema.ts',
     'skjema',
@@ -1339,7 +1359,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/format.ts',
     ],
   ],
-  ['format/skjema.ts', 'skjema', 'objekt', ['spor/vederlag/kommando.ts:kravfeil']],
+  [
+    'format/skjema.ts',
+    'skjema',
+    'objekt',
+    ['spor/vederlag/kommando.ts:kravfeil', 'spor/forhold/kommando.ts'],
+  ],
   // VS-U26: datoen TE oppgir i påberopelsen. Bare formkontrollen, kontrollen mot
   // brevets dato og brevteksten leser den, så ingen regel vurderer rettidigheten av den.
   ['OPPGITT_DATO', 'skjema', 'endring svikt andre_forhold', ['spor/forhold/format.ts']],
@@ -1348,12 +1373,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'skjema',
     'oppgittDato',
     [
-      'kommandoer/kommando.ts:datofeil',
-      'kommandoer/nyttelast.ts:oppgittDatoIForholdet',
-      'kommandoer/nyttelast.ts:datosperre',
-      'kommandoer/nyttelast.ts:kontrollerKorrigering',
+      'spor/forhold/kommando.ts:datofeil',
+      'spor/forhold/kommando.ts:oppgittDatoIForholdet',
+      'spor/forhold/kommando.ts:datosperre',
+      'spor/forhold/kommando.ts:kontrollerKorrigering',
       'kommandoer/nyttelast.ts:grunnlagsdatoen',
-      'kommandoer/forutsetninger.ts:korrigering',
+      'spor/forhold/kommando.ts:korrigering',
       'spor/forhold/utledning.ts:opplysningerOmDatoen',
     ],
   ],
@@ -1372,9 +1397,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'sisteDatoopplysning',
     [
-      'kommandoer/forutsetninger.ts:korrigering',
-      'kommandoer/nyttelast.ts:datosperre',
-      'kommandoer/nyttelast.ts:kontrollerKorrigering',
+      'spor/forhold/kommando.ts:korrigering',
+      'spor/forhold/kommando.ts:datosperre',
+      'spor/forhold/kommando.ts:kontrollerKorrigering',
       'kommandoer/nyttelast.ts:grunnlagsdatoen',
     ],
   ],
@@ -1384,20 +1409,24 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Kommando',
     'kommando',
     'paalegg_mottatt klar_over_forholdet',
-    ['kommandoer/kommando.ts:korrigertDato'],
+    ['spor/forhold/kommando.ts:korrigertDato'],
   ],
-  ['kommandoer/kommando.ts:korrigertDato', 'kommando', 'felt dato'],
+  ['spor/forhold/kommando.ts:korrigertDato', 'kommando', 'felt dato'],
   [
-    'kommandoer/kommando.ts',
+    'spor/forhold/kommando.ts',
     'kommando',
     'korrigertDato',
-    ['kommandoer/nyttelast.ts', 'kommandoer/skriving.ts:dokument'],
+    [
+      'kommandoer/nyttelast.ts',
+      'kommandoer/skriving.ts:dokument',
+      'kommandoer/kommando.ts:formfeil',
+    ],
   ],
   [
-    'kommandoer/kommando.ts:datofeil(innhold)',
+    'spor/forhold/kommando.ts:datofeil(innhold)',
     'kommando',
     'hovedkategori underkategori paalegg_mottatt klar_over_forholdet',
-    ['kommandoer/kommando.ts:datofeil'],
+    ['spor/forhold/kommando.ts:datofeil'],
   ],
   // OV-U58: beløpene TE krever, som formkontrollen leser for å avvise brøkdeler av øre.
   [
@@ -1531,7 +1560,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Kommando.innhold',
     'kommando',
     'hovedkategori underkategori paalegg_mottatt klar_over_forholdet',
-    ['kommandoer/nyttelast.ts:oppgittDatoIForholdet', 'kommandoer/nyttelast.ts:datosperre'],
+    ['spor/forhold/kommando.ts:oppgittDatoIForholdet', 'spor/forhold/kommando.ts:datosperre'],
   ],
   // Datoen parten oppgir, det den gjelder og hvem som oppgir den, som bare kontrollen mot
   // brevets dato leser.
@@ -1553,7 +1582,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/forhold/format.ts',
     'brevtekst',
     'DATOEN_GJELDER',
-    ['kommandoer/kommando.ts', 'kommandoer/nyttelast.ts', 'kommandoer/forutsetninger.ts'],
+    ['kommandoer/nyttelast.ts', 'spor/forhold/kommando.ts'],
   ],
   // Brevets dato er serverens tidspunkt i norsk tid (VS-U8).
   ['format/leser.ts', 'kontekst', 'registrertDato', ['kommandoer/skriving.ts:skriv']],
@@ -1697,7 +1726,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/forhold/frysing.ts',
     'regelsett',
     'forholdsstandpunkter',
-    ['kommandoer/standpunkter.ts', 'frosset/frysing.ts'],
+    ['spor/forhold/kommando.ts', 'frosset/frysing.ts'],
   ],
   // Standpunktene i et svarutkast, som skrivingen lagrer og revisjonen sammenliknes med (HF-U5).
   ['kommandoer/standpunkter.ts', 'utsagn', 'standpunkter', ['kommandoer/skriving.ts']],
@@ -1706,6 +1735,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/kommando.ts',
     'utsagn',
     'STANDPUNKTER_I_VEDERLAGET',
+    ['kommandoer/standpunkter.ts'],
+  ],
+  // Standpunktene i forholdet (#1783).
+  [
+    'spor/forhold/kommando.ts',
+    'utsagn',
+    'STANDPUNKTER_I_FORHOLDET',
     ['kommandoer/standpunkter.ts'],
   ],
   ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
@@ -1744,7 +1780,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/leser.ts',
     'relasjon',
     'kalenderdag',
-    ['kommandoer/nyttelast.ts', 'frosset/brevdeler.ts', 'utledning/utled.ts:datoenDetBleSendt'],
+    [
+      'kommandoer/nyttelast.ts',
+      'spor/forhold/kommando.ts',
+      'frosset/brevdeler.ts',
+      'utledning/utled.ts:datoenDetBleSendt',
+    ],
   ],
 
   // Brevteksten (frosset/brevtekst.ts, LV-U2, LV-U3, #369). Leses bare når brevet skrives.
@@ -1968,9 +2009,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'norskDato',
     [
       'kommandoer/nyttelast.ts:oppgittDatoEtterBrevet',
-      'kommandoer/nyttelast.ts:varseletEtter322',
-      'kommandoer/nyttelast.ts:datosperre',
-      'kommandoer/nyttelast.ts:kontrollerKorrigering',
+      'spor/forhold/kommando.ts:varseletEtter322',
+      'spor/forhold/kommando.ts:datosperre',
+      'spor/forhold/kommando.ts:kontrollerKorrigering',
       'kommandoer/nyttelast.ts:varseletFoerGrunnlagsdatoen',
       'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
     ],

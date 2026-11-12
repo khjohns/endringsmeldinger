@@ -1901,7 +1901,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/kommandoer/nyttelast.ts#kategorisperre",
+        "kjerne/spor/forhold/kommando.ts#kategorisperre",
         "kjerne/utledning/utled.ts#utledSporene",
         "kjerne/spor/forhold/frysing.ts#grunnerFraForholdet",
         "kjerne/spor/forhold/utledning.ts#kanInngaaIEo"
@@ -2238,7 +2238,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/kommandoer/nyttelast.ts#kategorisperre",
+        "kjerne/spor/forhold/kommando.ts#kategorisperre",
         "kjerne/frosset/utregning.ts#regnUtSvar",
         "kjerne/regler/forhold.ts#gyldigeResultater",
         "kjerne/regler/forhold.ts#erByggherrensPaalegg"
@@ -2457,7 +2457,7 @@
       "funksjoner": [
         "kjerne/spor/forhold/utledning.ts#trekkAvPaaberopelsenErSperret",
         "kjerne/spor/forhold/frysing.ts#blirEndringsordre",
-        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+        "kjerne/spor/forhold/kommando.ts#trekkAvPaaberopelsen"
       ],
       "regelkoder": [
         "FORHOLD_ER_ENDRINGSORDRE"
@@ -2864,7 +2864,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/kommandoer/nyttelast.ts#kravetsUtdypning"
+        "kjerne/spor/forhold/kommando.ts#utdypningIForholdet"
       ],
       "regelkoder": [
         "BESKRIVELSE_MANGLER"
@@ -2914,8 +2914,8 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/kommandoer/forutsetninger.ts#korrigering",
-        "kjerne/kommandoer/nyttelast.ts#kontrollerKorrigering",
+        "kjerne/spor/forhold/kommando.ts#korrigering",
+        "kjerne/spor/forhold/kommando.ts#kontrollerKorrigering",
         "kjerne/spor/forhold/utledning.ts#opplysningerOmDatoen"
       ],
       "regelkoder": [
@@ -2941,7 +2941,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/kommandoer/nyttelast.ts#datosperre",
+        "kjerne/spor/forhold/kommando.ts#datosperre",
         "kjerne/spor/forhold/tekst.ts#forholdstekst"
       ],
       "regelkoder": [

@@ -11,8 +11,14 @@ import { UgyldigVurdering } from '../regler/feil.ts';
 import { ELDRE_SVAR } from './forutsetninger.ts';
 import { norskDato } from '../frosset/brevdeler.ts';
 import { datoFor, kalenderdag } from '../format/leser.ts';
-import { erKalenderdato, tekst } from '../format/skjema.ts';
-import { korrigertDato, type Kommando, type Svarutkast } from './kommando.ts';
+import { erKalenderdato } from '../format/skjema.ts';
+import type { Kommando, Svarutkast } from './kommando.ts';
+import {
+  korrigertDato,
+  kontrollerKorrigering,
+  NYTTELAST_I_FORHOLDET,
+  varseletEtter322,
+} from '../spor/forhold/kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
   gjelderVarslingsplikten,
@@ -44,12 +50,7 @@ import {
   type Spor,
   type Standpunkt,
 } from '../typer.ts';
-import {
-  DATOEN_GJELDER,
-  oppgittDato,
-  innholdIForholdet,
-  kategori,
-} from '../spor/forhold/format.ts';
+import { DATOEN_GJELDER, oppgittDato, kategori } from '../spor/forhold/format.ts';
 
 /**
  * Standpunktene i et svarutkast med serverens utregning, lest slik brevet lagrer dem.
@@ -71,15 +72,9 @@ export interface Sporsnyttelast {
   oppgittDatoIKravet(k: Extract<Kommando, { type: 'krav' }>): OppgittDato | null;
 }
 
-/** Nyttelastkontrollen i hvert spor. Forholdet og fristen står her til de flyttes (#1745). */
+/** Nyttelastkontrollen i hvert spor. Fristen står her til den flyttes (#1745). */
 const NYTTELAST: Record<Spor, Sporsnyttelast> = {
-  forhold: {
-    avgrensninger: avgrensningerIForholdet,
-    kravsperre: (k, u) => kategorisperre(k, u) ?? datosperre(k, u),
-    innsigelse: () => null,
-    utdypning: utdypningIForholdet,
-    oppgittDatoIKravet: oppgittDatoIForholdet,
-  },
+  forhold: NYTTELAST_I_FORHOLDET,
   vederlag: NYTTELAST_I_VEDERLAGET,
   frist: {
     avgrensninger: avgrensningerIFristen,
@@ -165,18 +160,6 @@ function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Kra
   return nyttelastI(s.spor).avgrensninger(s.vurderinger, server, krav);
 }
 
-/** Avgrensningene i svaret på forholdet. */
-function avgrensningerIForholdet(v: Svarvurdering): string[] {
-  const ut: string[] = [];
-  // KA-U21
-  if (v.grunnlag_varslet_i_tide === false)
-    ut.push('gjør gjeldende at varselet etter § 32.2 kom for sent');
-  if (v.resultat === 'avslaatt') ut.push('avslår grunnlaget');
-  // KA-U32
-  if (v.resultat === 'paalegg_frafalt') ut.push('frafaller pålegget etter § 32.3 c');
-  return ut;
-}
-
 /** Avgrensningene i svaret på fristen. */
 function avgrensningerIFristen(v: Svarvurdering, server: Record<string, unknown>): string[] {
   const ut: string[] = [];
@@ -218,83 +201,6 @@ function utdypningIFristen(k: Extract<Kommando, { type: 'krav' }>): Avvisning | 
   return null;
 }
 
-/** Beskrivelsen av pålegget i et varsel etter § 32.2 (`kravetsUtdypning`). */
-function utdypningIForholdet(
-  k: Extract<Kommando, { type: 'krav' }>,
-  regler: Regelsett
-): Avvisning | null {
-  if (k.spor === 'forhold' && gjelderVarslingsplikten(k, regler))
-    return avvis(
-      'BESKRIVELSE_MANGLER',
-      'Varselet etter NS 8407 § 32.2 må beskrive pålegget, så en godkjenning kan si hva endringen går ut på (GR-U15).'
-    );
-  return null;
-}
-
-/**
- * GR-U22 og MM-U52 punkt 14: når forholdet er sendt, står hovedkategorien, underkategorien og,
- * i underkategorien endringsordre, endringsordren. En annen hjemmel eller en annen endringsordre
- * går i en ny sak. Om det er samme forhold, avgjør ikke appen (MM-U12 (opphevet av MM-U50)).
- */
-function kategorisperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
-  if (k.spor !== 'forhold' || !u.spor.forhold.gjeldendeKrav) return null;
-  const forrige = innholdIForholdet(u.spor.forhold.gjeldendeKrav);
-  if (
-    tekst(k.innhold.hovedkategori) !== forrige.hovedkategori ||
-    tekst(k.innhold.underkategori) !== forrige.underkategori
-  )
-    return avvis(
-      'ANNEN_HJEMMEL',
-      'Grunnlaget er sendt, og en ny versjon kan ikke endre hovedkategorien eller underkategorien (GR-U22).'
-    );
-  if (tekst(k.innhold.endringsordre) !== forrige.endringsordre)
-    return avvis(
-      'ANNEN_ENDRINGSORDRE',
-      `Grunnlaget er sendt, og en ny versjon kan ikke endre endringsordren «${forrige.endringsordre}». En annen endringsordre påberopes i en ny sak (MM-U52 punkt 14).`
-    );
-  return null;
-}
-
-/**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): en ny grunnlagsversjon kan ikke
- * endre datoen etter VS-U26, og gjengir TEs siste opplysning. Datoen endres i en korrigering.
- */
-function datosperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
-  if (k.spor !== 'forhold') return null;
-  const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
-  const siste = felt === null ? null : sisteDatoopplysning(u, felt);
-  if (felt === null || siste === null || k.innhold[felt] === siste.dato) return null;
-  return avvis(
-    'DATOEN_KAN_IKKE_ENDRES',
-    `En ny versjon av grunnlaget kan ikke endre datoen ${DATOEN_GJELDER[felt]}. TEs siste opplysning er ${norskDato(siste.dato)}. Datoen korrigeres i et eget brev.`
-  );
-}
-
-/**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): korrigeringen har datoen
- * kategorien har, og endrer TEs siste opplysning (arbeidsvalget i avgrensningen av #1308).
- * Forutsetningene har kontrollert at den viser til den siste opplysningen.
- */
-function kontrollerKorrigering(
-  k: Extract<Kommando, { type: 'korrigering' }>,
-  u: Utledning
-): Avvisning | null {
-  const { felt, dato } = korrigertDato(k);
-  const { hovedkategori, underkategori } = kategori(u.spor.forhold.gjeldendeKrav);
-  const kategoriensFelt = oppgittDato(hovedkategori, underkategori);
-  if (felt !== kategoriensFelt)
-    return avvis(
-      'UGYLDIG_KORRIGERING',
-      `I kategorien i grunnlaget oppgir TE datoen ${DATOEN_GJELDER[kategoriensFelt!]}, ikke datoen ${DATOEN_GJELDER[felt]}.`
-    );
-  return sisteDatoopplysning(u, felt)?.dato === dato
-    ? avvis(
-        'DATOEN_ER_UENDRET',
-        `TE har alt oppgitt at ${DATOEN_GJELDER[felt]} ${norskDato(dato)}. Korrigeringen må oppgi en annen dato.`
-      )
-    : null;
-}
-
 /**
  * KA-U34 (opphevet av KA-U46): en begrunnelse fra appen må ha teksten. Appen kontrollerer at den finnes,
  * ikke hva den sier (KA-U19). En registrert begrunnelse har ingen (KA-U35 (opphevet av KA-U46)).
@@ -303,33 +209,6 @@ function begrunnelsensTekst(k: Extract<Kommando, { type: 'begrunnelse' }>): Avvi
   return k.sendt === undefined && !k.utdypning?.trim()
     ? avvis('BEGRUNNELSE_MANGLER', 'Begrunnelsen har ingen tekst.')
     : null;
-}
-
-/**
- * VS-U38, VS-U39: varselet etter § 32.2 sendt utenfor løsningen registreres bare der
- * varslingsplikten gjelder kategorien i påberopelsen, og det kan ikke være sendt etter
- * påberopelsen. Forutsetningene har alt krevd at påberopelsen er sendt.
- */
-function varseletEtter322(sendt: string, u: Utledning, regler: Regelsett): Avvisning | null {
-  const [foerste] = u.spor.forhold.krav;
-  if (!gjelderVarslingsplikten(u.spor.forhold.gjeldendeKrav, regler))
-    return avvis(
-      'VARSLINGSPLIKT_GJELDER_IKKE',
-      'Varslingsplikten etter punkt 32.2 gjelder ikke forholdet som er påberopt, så det er ikke noe varsel etter punkt 32.2 å registrere (VS-U39).'
-    );
-  const paaberopelsen = foerste ? datoenDetBleSendt(u, foerste) : null;
-  const dag = kalenderdag(sendt);
-  if (paaberopelsen === null || dag === null)
-    return avvis(
-      'DATO_KAN_IKKE_LESES',
-      'Datoen for varselet etter punkt 32.2 eller for påberopelsen av forholdet kan ikke leses, så det kan ikke avgjøres om varselet ble sendt før påberopelsen (VS-U38).'
-    );
-  if (dag > paaberopelsen)
-    return avvis(
-      'VARSEL_ETTER_PAABEROPELSEN',
-      `Varselet etter punkt 32.2 er oppgitt sendt ${norskDato(dag)}, etter påberopelsen av forholdet, som ble sendt ${norskDato(paaberopelsen)} (VS-U38).`
-    );
-  return null;
 }
 
 /** VS-U58. */
@@ -425,12 +304,6 @@ function oppgittDatoI(k: Kommando): OppgittDato | null {
     return { dato, gjelder: DATOEN_GJELDER[felt], av: 'TE' };
   }
   return k.type === 'krav' ? nyttelastI(k.spor).oppgittDatoIKravet(k) : null;
-}
-
-/** Datoen varslingsplikten løper fra i påberopelsen (VS-U26). */
-function oppgittDatoIForholdet(k: Extract<Kommando, { type: 'krav' }>): OppgittDato | null {
-  const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
-  return felt === null ? null : { dato: k.innhold[felt], gjelder: DATOEN_GJELDER[felt], av: 'TE' };
 }
 
 /**

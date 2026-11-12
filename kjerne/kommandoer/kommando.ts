@@ -27,7 +27,6 @@ import {
   SPOR as SPORENE,
   VARSELSPOR,
   type Kravspor,
-  type OppgittDatofelt,
   type Opplysningsslag,
   type Spor,
   type Kravvarselhjemmel,
@@ -35,7 +34,7 @@ import {
   KORRESPONDANSETYPER,
   type Korrespondansetype,
 } from '../typer.ts';
-import { DATOEN_GJELDER, oppgittDato } from '../spor/forhold/format.ts';
+import { KRAVFORM_I_FORHOLDET, korrigertDato } from '../spor/forhold/kommando.ts';
 
 export interface Svarutkast {
   spor: Spor;
@@ -346,16 +345,6 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
   ),
 };
 
-/** Feltet og datoen i korrigeringen. Formen har nøyaktig ett av feltene. */
-export function korrigertDato(k: Extract<Kommando, { type: 'korrigering' }>): {
-  felt: OppgittDatofelt;
-  dato: string;
-} {
-  return k.paalegg_mottatt !== undefined
-    ? { felt: 'paalegg_mottatt', dato: k.paalegg_mottatt }
-    : { felt: 'klar_over_forholdet', dato: k.klar_over_forholdet! };
-}
-
 export type Innhold = Record<string, unknown>;
 
 /**
@@ -385,21 +374,6 @@ export const vedleggI = (k: Kommando): string[] => [
     : []),
 ];
 
-/**
- * VS-U26: en påberopelse fra appen har datoen kategorien har, som en dato.
- * Formatet binder feltet til kategorien; her kreves det.
- */
-function datofeil(innhold: Innhold): string[] {
-  const felt = oppgittDato(innhold.hovedkategori, innhold.underkategori);
-  if (felt === null) return [];
-  const dato = innhold[felt];
-  if (dato === undefined)
-    return [`$.innhold.${felt}: TE må oppgi datoen ${DATOEN_GJELDER[felt]} (VS-U26)`];
-  return erKalenderdato(dato)
-    ? []
-    : [`$.innhold.${felt}: ${JSON.stringify(dato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`];
-}
-
 /** Det som er sporets eget i formen på et krav (#1783). */
 export interface Kravform {
   /** Feilene i innholdet i kravet, med stien fra `$.innhold`. */
@@ -412,18 +386,9 @@ export interface Kravform {
   varselVedKravet: boolean;
 }
 
-/** Formen på kravet i hvert spor. Forholdet og fristen står her til de flyttes (#1745). */
+/** Formen på kravet i hvert spor. Fristen står her til den flyttes (#1745). */
 const KRAVFORM: Record<Spor, Kravform> = {
-  forhold: {
-    feil: (innhold) => {
-      const { properties, required, anyOf } = KRAVINNHOLD.forhold;
-      const feil = feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
-      return feil.length ? feil : datofeil(innhold as Innhold);
-    },
-    vedleggIInnholdet: () => [],
-    vedleggVedKravet: true,
-    varselVedKravet: false,
-  },
+  forhold: KRAVFORM_I_FORHOLDET,
   vederlag: KRAVFORM_I_VEDERLAGET,
   frist: {
     feil: (innhold) => {

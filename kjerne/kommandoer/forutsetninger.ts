@@ -9,13 +9,7 @@
  * avvisningen er de samme per konstruksjon (INV-MM-1).
  */
 
-import {
-  fristkravErFremmet,
-  kanFaaInnsigelse,
-  varseletForNyttSvar,
-  type Utledning,
-} from '../utledning/utled.ts';
-import { sisteDatoopplysning, trekkAvPaaberopelsenErSperret } from '../spor/forhold/utledning.ts';
+import { fristkravErFremmet, kanFaaInnsigelse, type Utledning } from '../utledning/utled.ts';
 import { avvis, erKravpostvarselhjemmel, SPOR } from '../typer.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { FORUTSETNINGER_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
@@ -27,7 +21,7 @@ import type {
   Spor,
   Varselhjemmel,
 } from '../typer.ts';
-import { DATOEN_GJELDER, oppgittDato, kategori } from '../spor/forhold/format.ts';
+import { FORUTSETNINGER_I_FORHOLDET, korrigering } from '../spor/forhold/kommando.ts';
 
 export type Handlingsnoekkel =
   | { type: 'krav' | 'trekke' | 'godta' | 'svare' | 'revidere'; spor: Spor }
@@ -149,53 +143,6 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
   }
 }
 
-/**
- * VS-U43 punkt 6 og E3: standpunktet om rettidigheten i svaret på grunnlaget gjelder
- * varselet fra `varseletForNyttSvar`. Er det et registrert varsel etter § 32.2, har det ingen
- * brevtekst før #1600 er bygget. Sperren gjelder også et svar uten et slikt standpunkt.
- */
-function svaretPaaberoperRegistrertVarsel(u: Utledning, hva: 'Svaret' | 'Revisjonen') {
-  const registrert = u.spor.forhold.varsler['32.2'];
-  return registrert && varseletForNyttSvar(u, '32.2') === registrert.id
-    ? avvis(
-        'IKKE_I_FOERSTE_VERSJON',
-        `${hva} på grunnlaget kan ikke sendes ennå, fordi TE har registrert et varsel etter punkt 32.2 sendt utenfor løsningen, og brevet kan ikke vise til det. Brevet kan registreres som dokumentasjon.`
-      )
-    : null;
-}
-
-/**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): TE korrigerer sin siste
- * opplysning om datoen kategorien har, med henvisning til brevet med den. Brevet godtas også i et
- * spor med enighet, når kravene er avgjort og i en sak lukket etter GR-U27, også ved trekk etter
- * GR-U5 (MM-U51), så ingen av dem sperrer.
- */
-function korrigering(gjelder: string, u: Utledning): Avvisning | null {
-  const krav = u.spor.forhold.gjeldendeKrav;
-  if (!krav)
-    return avvis('PAABEROPELSE_IKKE_SENDT', 'Grunnlaget må være sendt før datoen kan korrigeres.');
-  const { hovedkategori, underkategori } = kategori(krav);
-  const felt = oppgittDato(hovedkategori, underkategori);
-  // Punkt 10: i underkategorien endringsordre oppgir TE ingen slik dato.
-  if (felt === null)
-    return avvis(
-      'INGEN_DATO_I_KATEGORIEN',
-      'TE oppgir ikke en dato for når pålegget ble mottatt eller TE ble klar over forholdet i underkategorien endringsordre, så det er ingen dato å korrigere.'
-    );
-  const siste = sisteDatoopplysning(u, felt);
-  if (!siste)
-    return avvis(
-      'UGYLDIG_KORRIGERING',
-      `TE har ikke oppgitt datoen ${DATOEN_GJELDER[felt]}, så det er ingen opplysning å korrigere.`
-    );
-  return siste.id === gjelder
-    ? null
-    : avvis(
-        'UGYLDIG_KORRIGERING',
-        `Korrigeringen må vise til brevet med TEs siste opplysning om datoen ${DATOEN_GJELDER[felt]}.`
-      );
-}
-
 const AVSLAGET_GODTATT =
   'TE har godtatt svaret på grunnlaget, som avslår det eller påberoper preklusjon, og saken er lukket (GR-U27).';
 
@@ -226,42 +173,9 @@ export interface Sporsforutsetninger {
   aksepten(u: Utledning): Avvisning | null;
 }
 
-/** KA-U13, OV-U6: en endringsordre sendt fra appen leses ellers som bortfalt (KA-U6). */
-function trekkAvPaaberopelsen(u: Utledning): Avvisning | null {
-  if (trekkAvPaaberopelsenErSperret(u))
-    return avvis(
-      'FORHOLD_ER_ENDRINGSORDRE',
-      'Byggherren har godkjent grunnlaget i et svar som er en endringsordre. Grunnlaget kan ikke trekkes, heller ikke etter en ny kravversjon eller et nytt svar.'
-    );
-  return null;
-}
-
-/** GR-U9: frafall er ikke enighet, og løsningen registrerer ikke en aksept av det. */
-function akseptAvFrafallet(u: Utledning): Avvisning | null {
-  if (u.frafalt)
-    return avvis(
-      'FRAFALL_KAN_IKKE_GODTAS',
-      'Løsningen registrerer ikke en aksept av et frafall etter § 32.3 c. Det er en begrensning i løsningen (GR-U9).'
-    );
-  return null;
-}
-
-/** Forutsetningene i hvert spor. Forholdet og fristen står her til de flyttes (#1745). */
+/** Forutsetningene i hvert spor. Fristen står her til den flyttes (#1745). */
 const FORUTSETNINGER: Record<Spor, Sporsforutsetninger> = {
-  forhold: {
-    innsigelsenErIkkeBygget: (u, gjelder) =>
-      // Det registrerte varselet etter § 32.2 har ingen brevtekst før S-4 i #807 er bygget.
-      u.spor.forhold.varsler['32.2']?.id === gjelder
-        ? avvis(
-            'IKKE_I_FOERSTE_VERSJON',
-            'Innsigelsen mot det registrerte varselet etter punkt 32.2 kan ikke sendes ennå. Brevet kan registreres som dokumentasjon.'
-          )
-        : null,
-    svaret: svaretPaaberoperRegistrertVarsel,
-    kravet: 'grunnlaget for kravet',
-    trekket: trekkAvPaaberopelsen,
-    aksepten: akseptAvFrafallet,
-  },
+  forhold: FORUTSETNINGER_I_FORHOLDET,
   vederlag: FORUTSETNINGER_I_VEDERLAGET,
   frist: {
     innsigelsenErIkkeBygget: () => null,
