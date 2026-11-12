@@ -4065,7 +4065,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'leseren forstår et avsnitt med punkt for et element som verken er et krav eller et svar (MM-U2, LV-U70)',
     fil: `${K}/format/leser.ts`,
-    endringer: [['!dokument.svar.some((s) => s.id === a.gjelder)', 'false']],
+    endringer: [["!dokument.svar.some((s) => s.id === a.gjelder && s.spor !== 'frist')", 'false']],
     mal: ['et avsnitt med punkt for et element som ikke er et krav'],
   },
   {
@@ -4834,6 +4834,42 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['const brevet = j.brevet(g.dokument);', "const brevet = 'samme brev';"]],
     mal: ['forholdet avslått i et tidligere brev', 'subsidiært i et tidligere brev'],
+  },
+  {
+    id: 'F566',
+    feilklasse:
+      'leseren forstår et avsnitt med punkt i svaret på fristen, som har dagens struktur (MM-U2, LV-U72)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [[" && s.spor !== 'frist')", ')']],
+    mal: ['et avsnitt med punkt i svaret på fristen'],
+  },
+  {
+    id: 'F567',
+    feilklasse:
+      'tabellen regner lagene fra forholdet med, så første kolonne ikke er beløpet i utregningen (OV-U73)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['      lagene - fra.forskyvning,\n', '      lagene,\n']],
+    mal: ['tabellen regner lagene i sporet'],
+  },
+  {
+    id: 'F568',
+    feilklasse: 'et standpunkt uten lag står etter et standpunkt med etikett i punktet (OV-U32)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '.sort((a, b) => (a.plass ?? 0) - (b.plass ?? 0));',
+        '.sort((a, b) => (a.plass ?? 99) - (b.plass ?? 99));',
+      ],
+    ],
+    mal: ['standpunktet til varselet etter punkt 34.4 får ingen virkning'],
+  },
+  {
+    id: 'F569',
+    feilklasse:
+      'svaret på forholdet ved svikt i et tidligere brev omtales som et avslag (LV-U41, MM-U50)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['          : harRisikoen(j.krav(g.gjelder))', '          : false']],
+    mal: ['står med ordene det hadde: byggherren har ikke risikoen'],
   },
 ];
 

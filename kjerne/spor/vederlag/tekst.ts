@@ -282,7 +282,12 @@ function ingenBeloep(krav: Krav): string {
  * beløpet for posten i laget eller før (arbeidsvalg 2 i #1433). Cellene står som tekst, adskilt
  * med tabulator, så tabellen fryses med brevteksten.
  */
-function oversikt(krav: Krav, beloepene: Lagbeloep[], lagene: number): string | null {
+function oversikt(
+  krav: Krav,
+  beloepene: Lagbeloep[],
+  lagene: number,
+  forskyvning: number
+): string | null {
   const poster = [
     ...kravposterI(krav).map((p) => ({ post: p.betegnelse, krevd: krevdIKravposten(krav, p) })),
     { post: 'produktivitet', krevd: krevdProduktivitet(krav) },
@@ -313,7 +318,11 @@ function oversikt(krav: Krav, beloepene: Lagbeloep[], lagene: number): string | 
     kroner(poster.reduce((s, p) => s + tilTall(p.krevd), 0)),
     ...kolonner.map((lag) => kroner(poster.reduce((s, p) => s + iLaget(p.post, lag), 0))),
   ];
-  return [['Post', 'Krevd', ...kolonner.map((lag) => stor(etikett(lag)))], ...rader, sum]
+  return [
+    ['Post', 'Krevd', ...kolonner.map((lag) => stor(etikett(lag + forskyvning)))],
+    ...rader,
+    sum,
+  ]
     .map((rad) => rad.join('\t'))
     .join('\n');
 }

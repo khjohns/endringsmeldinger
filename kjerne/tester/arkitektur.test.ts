@@ -1953,6 +1953,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // LV-U34 og OV-U73: temaene og beløpene per lag i byggherrens svar.
   ['Tema', 'brevtekst', 'punkt overskrift foerst', ['frosset/brevtekst.ts']],
   ['Lagbeloep', 'brevtekst', 'post plass beloep', ['spor/vederlag/tekst.ts']],
+  // OV-U73: tabellen får lagene i sporet, uten lagene fra forholdet.
+  ['Lagbeloep', 'brevtekst', 'plass', ['frosset/brevtekst.ts']],
   ['spor/vederlag/tekst.ts:oversikt', 'brevtekst', 'post krevd', ['spor/vederlag/tekst.ts']],
   ['Kravsporsbrevtekst', 'brevtekst', 'enigI ingenKrav kravetOm trukket', ['frosset/brevtekst.ts']],
   [

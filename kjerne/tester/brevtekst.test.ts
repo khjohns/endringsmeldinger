@@ -1826,7 +1826,7 @@ describe('svaret på vederlag og frist når forholdet er avslått eller preklude
       'avslaatt',
       false,
       [
-        `1. Forholdet\n\nPrinsipalt\n\nByggherren har i brev K201-KOE-017-04 av 5. oktober 2026 gjort gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 kom for sent.\n\n${subsidiaert(1)}\n\nByggherren har avslått kravet på endringsordre i brev K201-KOE-017-04 av 5. oktober 2026.`,
+        `1. Forholdet\n\nPrinsipalt\n\nByggherren har i brev K201-KOE-017-04 av 5. oktober 2026 gjort gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 kom for sent.\n\nSubsidiært, hvis innsigelsen ovenfor ikke fører frem\n\nByggherren har avslått kravet på endringsordre i brev K201-KOE-017-04 av 5. oktober 2026.`,
         metode(2, videre(1)),
         delvis(3, videre(1)),
       ],
@@ -6751,6 +6751,53 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       .u()
       .spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.virkninger.map((v) => [v.art, v.virkning]);
 
+  it('svaret på forholdet ved svikt i et tidligere brev står med ordene det hadde: byggherren har ikke risikoen (LV-U41, MM-U50)', () => {
+    const s = sakMedPost(tilbud(150000, { saerskilt: post }), true);
+    s.send('BH', {
+      type: 'brev',
+      svar: [svar('forhold', s.krav('forhold'), { resultat: 'avslaatt' })],
+    });
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          { ...postene, hovedkrav_varslet_i_tide: true, produktivitet_varslet_i_tide: true },
+          { resultat: 'delvis_godkjent', godkjent_beloep: 130000 }
+        ),
+      ],
+    });
+    expect((rad.data.brevtekst as Avsnitt[])[1].laast).toBe(
+      '1. Forholdet\n\nPrinsipalt\n\nByggherren har i brev K201-KOE-017-05 av 6. oktober 2026 svart at byggherren ikke har risikoen for forholdet.'
+    );
+  });
+
+  it('tabellen regner lagene i sporet: med forholdet avslått i samme brev og ett lag i vederlaget har svaret ingen tabell (OV-U73, OV-U32)', () => {
+    const s = sakMedPost();
+    const avslag = svar('forhold', s.krav('forhold'), {
+      resultat: 'avslaatt',
+      grunnlag_varslet_i_tide: true,
+    });
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        avslag,
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          { ...postene, produktivitet_varslet_i_tide: true },
+          { resultat: 'delvis_godkjent', godkjent_beloep: 130000 }
+        ),
+      ],
+    });
+    expect(
+      s.u().spor.vederlag.gjeldendeSvar!.utregning.godkjent_beloep,
+      'kontrollsak: ett lag i utregningen'
+    ).toBe(130000);
+    expect((rad.data.brevtekst as Avsnitt[]).map((a) => a.punkt)).not.toContain('oversikt');
+  });
+
   it('beløpet for hver post og beløpet etter begrensningen står på standpunktene, og utregningen har totalene og beløpet for hver post i hvert lag (OV-U26, OV-U31, KA-U57 (e))', () => {
     const s = sakMedPost();
     const rad = brevet(
@@ -9060,7 +9107,8 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
       'Prinsipalt\n\nByggherren gjør gjeldende at varselet om justering av enhetsprisene etter punkt 34.3.3 første ledd for P2 kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.'
     );
     expect(brevet).toContain(
-      'Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godtar at enhetsprisene for P2 justeres (punkt 34.3.2).'
+      // Innsigelsen står i samme punkt, så lagslinjen viser ikke til punktet selv (#1858).
+      'Subsidiært, hvis innsigelsen ovenfor ikke fører frem\n\nByggherren godtar at enhetsprisene for P2 justeres (punkt 34.3.2).'
     );
   });
 
@@ -9102,8 +9150,9 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
       ['beloep', 1],
     ]);
     expect(gjeldende(s).beslutningsgrunnlag.sammenfall).toBe(false);
+    // OV-U32: standpunktet uten virkning står uten etikett, foran lagene i punktet.
     expect(laast(rad).join(' ')).toContain(
-      'Byggherren gjør gjeldende at varselet om regningsarbeid etter punkt 34.4 for P2 ikke ble gitt eller kom for sent.'
+      'Beregningsmetode (punkt 34.2)\n\nByggherren gjør gjeldende at varselet om regningsarbeid etter NS 8407 punkt 34.4 for P2 ikke ble gitt eller kom for sent.'
     );
   });
 
@@ -10062,6 +10111,25 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
     const varselet = s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' });
     expect(s.u().forstaatt, 'kontrollsak').toBe(true);
     (varselet.data.brevtekst as Avsnitt[])[0].punkt = '34.1.2';
+    expect(s.u().forstaatt).toBe(false);
+  });
+
+  it('et avsnitt med punkt i svaret på fristen gjør saken ikke forstått, men i svaret på vederlaget er det forstått (MM-U2, LV-U34, LV-U72)', () => {
+    const s = sakMedKrav();
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('vederlag', s.krav('vederlag'), ...VEDERLAG_DELVIS),
+        svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1]),
+      ],
+    });
+    const lagret = rad.data.brevtekst as Avsnitt[];
+    expect(
+      lagret.some((a) => a.punkt === 'P1'),
+      'kontrollsak: svaret på vederlaget har punkter'
+    ).toBe(true);
+    expect(s.u().forstaatt, 'kontrollsak').toBe(true);
+    lagret.at(-1)!.punkt = 'dager';
     expect(s.u().forstaatt).toBe(false);
   });
 

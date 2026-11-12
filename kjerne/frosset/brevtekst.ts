@@ -465,7 +465,15 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
   }
   const lagene = Math.max(0, ...ledd.map((l) => l.plass ?? 0));
   const sporet = brevtekstI(s.spor);
-  const tabell = sporet.oversikt?.(krav, beloepene, lagene) ?? null;
+  // OV-U73: tabellen har lagene i sporet, så første og siste kolonne er beløpene i utregningen.
+  const iSporet = (plass: number | null) => (plass === null ? null : plass - fra.forskyvning);
+  const tabell =
+    sporet.oversikt?.(
+      krav,
+      beloepene.map((b) => ({ ...b, plass: iSporet(b.plass) })),
+      lagene - fra.forskyvning,
+      fra.forskyvning
+    ) ?? null;
   // LV-U33, LV-U38: uten tabell sier punktet om varselet følgen for postene.
   if (!tabell) {
     const varselet = ledd.find((l) => l.punkt === '34.1.2' && l.innsigelse);
@@ -497,7 +505,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
       throw new KanIkkeUttrykkes(`svaret viser til punktet ${punkt}, som ikke står i brevet`);
     return i;
   };
-  const lagslinje = (plass: number) => {
+  const lagslinje = (plass: number, punktet: string) => {
     // LV-U34, LV-U40: etiketten og innsigelsene i laget foran, med brevets egne punkter «ovenfor».
     if (plass === 1) return stor(etikett(1));
     const foran = [
@@ -507,7 +515,11 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
     const punktene = [...new Set(foran)].sort((a, b) => a - b);
     if (!punktene.length) return stor(etikett(plass));
     const innsigelsen = punktene.length > 1 ? 'innsigelsene' : 'innsigelsen';
-    const i = `${innsigelsen} i punkt ${liste(punktene.map(String))} ovenfor`;
+    // Står innsigelsen i samme punkt, viser lagslinjen ikke til punktet selv.
+    const i =
+      punktene.length === 1 && punktene[0] === nummerert.get(punktet)
+        ? `${innsigelsen} ovenfor`
+        : `${innsigelsen} i punkt ${liste(punktene.map(String))} ovenfor`;
     return plass > 2
       ? `${stor(etikett(plass))}, hvis heller ikke ${i} fører frem`
       : `${stor(etikett(plass))}, hvis ${i} ikke fører frem`;
@@ -521,11 +533,10 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
     if (p.punkt === OVERSIKTEN) avsnitt.push(tabell!);
     else if (p.punkt === FORBEHOLDET.punkt) avsnitt.push(forbehold.join(' '));
     else {
-      const iPunktet = iLagene(
-        ledd.filter((l) => l.punkt === p.punkt),
-        (l) => l.plass,
-        fra.forskyvning + 1
-      );
+      // OV-U32: et upåvirket standpunkt står uten etikett, så det står foran lagene i punktet.
+      const iPunktet = ledd
+        .filter((l) => l.punkt === p.punkt)
+        .sort((a, b) => (a.plass ?? 0) - (b.plass ?? 0));
       let forrige: number | null | undefined;
       for (const l of iPunktet) {
         const tekst = utenGjentattNs(
@@ -533,7 +544,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
           nr.ns
         );
         if (ordnet && l.plass !== null && l.plass !== forrige)
-          avsnitt.push(lagslinje(l.plass), tekst);
+          avsnitt.push(lagslinje(l.plass, p.punkt), tekst);
         else if (forrige !== undefined && l.plass === forrige)
           avsnitt.push(`${avsnitt.pop()} ${tekst}`);
         else avsnitt.push(tekst);
@@ -648,12 +659,21 @@ function forholdetsLag(
     tekst:
       grunn === 'prekludert'
         ? `Byggherren har i ${brevet} gjort gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 kom for sent.`
-        : g.beslutningsgrunnlag.varslingsplikt
+        : // MM-U50, LV-U41: det byggherren sa i det tidligere svaret, med de samme ordene.
+          g.beslutningsgrunnlag.varslingsplikt
           ? `Byggherren har avslått kravet på endringsordre i ${brevet}.`
-          : `Byggherren har avslått forholdet i ${brevet}.`,
+          : harRisikoen(j.krav(g.gjelder))
+            ? `Byggherren har i ${brevet} svart at byggherren ikke har risikoen for forholdet.`
+            : `Byggherren har avslått forholdet i ${brevet}.`,
   }));
   return { forskyvning: grunner.length, ledd, henvisninger: new Map() };
 }
+
+/** Svikt og andre forhold, der svaret sier om byggherren har risikoen for forholdet (LV-U41). */
+const harRisikoen = (paaberopelse: Krav): boolean => {
+  const { hovedkategori } = innholdIForholdet(paaberopelse);
+  return hovedkategori === 'svikt' || hovedkategori === 'andre_forhold';
+};
 
 /**
  * GR-U34 punkt 3–5 med GR-U33: forbeholdet når byggherren svarer på vederlaget uten å ha svart
