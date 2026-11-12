@@ -107,7 +107,7 @@ describe('Henvisningen til kravbrevet i svarskjemaet', () => {
   };
 
   it('viser til brevet i kortform med nummeret i saken, ikke med merkingen brevteksten bruker (oppdragsgiver 05.11 i #1631)', () => {
-    expect(SKJEMA.svarerPaa(kravbrev)).toBe('Svar på brev 2 fra TE · 2. okt.');
+    expect(SKJEMA.svarerPaa(kravbrev)).toBe('Svar på brev 2 fra totalentreprenøren · 2. okt.');
     expect(SKJEMA.kravSendt(kravbrev.registrert, kravbrev)).toBe(
       'Kravet om vederlagsjustering ble sendt 2. oktober 2026 (brev 2).'
     );
@@ -123,6 +123,8 @@ describe('Henvisningen til kravbrevet i svarskjemaet', () => {
   });
 
   it('et brev uten omtale får nummeret, parten og datoen', () => {
-    expect(SKJEMA.svarerPaa({ ...kravbrev, omtale: null })).toMatch(/^Svar på brev 2 fra TE · /);
+    expect(SKJEMA.svarerPaa({ ...kravbrev, omtale: null })).toMatch(
+      /^Svar på brev 2 fra totalentreprenøren · /
+    );
   });
 });

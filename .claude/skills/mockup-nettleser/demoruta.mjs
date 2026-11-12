@@ -109,7 +109,7 @@ const ETIKETTER = (
 const NY_SAK = Boolean(FORLOEP.utgangspunkt?.opprettes);
 if (!NY_SAK && !punktet('bh-har-mottatt-vederlagskravet'))
   throw new Error(`${arg.forlop} har ikke kontrollpunktet bh-har-mottatt-vederlagskravet`);
-// Lagene foran beløpet, som er det siste laget: forholdet når BH har avslått det, og varselet.
+// Lagene foran beløpet, som er det siste laget: forholdet når Byggherren har avslått det, og varselet.
 const FORUTSETNINGER = [
   ...(punktet('forholdet-er-avslaatt') ? [/avslaget av forholdet/] : []),
   /innsigelsen om sen varsling/,
@@ -255,7 +255,7 @@ try {
     throw new Error(`Brevet sier ikke lagene ${ETIKETTER.join(', ')} og det subsidiære beløpet`);
   await steg('bh-kontrollerer-brevet', true);
   await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
-  await knapp('Send svaret til TE').click();
+  await knapp('Send svaret til totalentreprenøren').click();
   await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).waitFor({ state: 'detached' });
   await steg('bh-har-sendt', true);
 
@@ -269,7 +269,7 @@ try {
   console.log(`Aksepten TE kontrollerer:\n${await article('Aksept av svaret').getByTestId('laast-tekst').innerText()}`);
   await steg('te-godtar');
   await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
-  await knapp('Send aksepten til BH').click();
+  await knapp('Send aksepten til byggherren').click();
   await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).waitFor({ state: 'detached' });
   if (await knapp(/^Godta svaret/).isVisible())
     throw new Error('TE får fortsatt tilbud om å godta svaret etter aksepten');

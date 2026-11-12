@@ -15,7 +15,7 @@ describe('Hovedlinjer', () => {
     const { container } = render(Hovedlinjer, {
       linjer: [
         { tekst, lag: null },
-        { tekst: 'Du godkjenner oppgjørsformen TE krever', lag: null },
+        { tekst: 'Du godkjenner oppgjørsformen totalentreprenøren krever', lag: null },
       ],
       alternativer: false,
     });
