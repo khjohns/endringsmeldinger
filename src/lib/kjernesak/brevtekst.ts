@@ -9,7 +9,8 @@ import {
 import { opprettelse as opprett } from '$kjerne/kommandoer/opprettelse';
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Kjerne } from '$kjerne/versjon';
-import type { Avvisning, Journalrad, Part } from '$kjerne/typer';
+import { brevtekstI } from '$kjerne/format/leser';
+import type { Avsnitt, Avvisning, Journalrad, Part } from '$kjerne/typer';
 
 /**
  * Brevet kjernen lager for kommandoen mot journalen slik den er lastet (B-15):
@@ -25,6 +26,8 @@ import type { Avvisning, Journalrad, Part } from '$kjerne/typer';
 export type Brev =
   | {
       tekst: string[] | null;
+      /** Avsnittene slik kjernen fryser dem, med punktene og utdypningene (#1824). */
+      avsnitt: Avsnitt[] | null;
       brevnummer: number | null;
       brevtittel: string | null;
       /** Vår ref. og Deres ref. slik kjernen fryser dem i hodet (LV-U27, LV-U49, U-4 i BF-07). */
@@ -68,6 +71,7 @@ export function brevFor(
   const tekst = laastTekst(rad);
   const brev = {
     tekst,
+    avsnitt: brevtekstI(rad),
     brevnummer: typeof rad.data.brevnummer === 'number' ? rad.data.brevnummer : null,
     brevtittel: typeof rad.data.brevtittel === 'string' ? rad.data.brevtittel : null,
     merking: typeof rad.data.merking === 'string' ? rad.data.merking : null,

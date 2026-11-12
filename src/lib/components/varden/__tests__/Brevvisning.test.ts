@@ -126,3 +126,38 @@ describe('Henvisningen til kravbrevet i svarskjemaet', () => {
     expect(SKJEMA.svarerPaa({ ...kravbrev, omtale: null })).toMatch(/^Svar på brev 2 fra TE · /);
   });
 });
+
+describe('Punktene i brevet (#1824, prototype v4 i BF-14)', () => {
+  it('hvert punkt har overskriften som overskrift, hvert avsnitt for seg, og forbeholdet under sin overskrift', () => {
+    brev({
+      avsender: 'TE',
+      avsnitt: [
+        {
+          laast: 'skal ikke vises når punktene finnes',
+          punkter: [
+            { tekst: 'Kravet erstatter totalentreprenørens krav i brev K201-KOE-005-03.' },
+            { overskrift: '1. Vederlagsjustering', tekst: 'P1 Graving.\n\nP2 Rør.' },
+            { overskrift: '2. Forbehold' },
+          ],
+          utdypning: 'Forbeholdet.',
+        },
+      ],
+    });
+    const overskrifter = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
+    expect(overskrifter).toEqual(['1. Vederlagsjustering', '2. Forbehold']);
+    const tekst = screen.getByTestId('laast-tekst');
+    expect([...tekst.querySelectorAll('p')].map((p) => p.textContent)).toEqual([
+      'Kravet erstatter totalentreprenørens krav i brev K201-KOE-005-03.',
+      'P1 Graving.',
+      'P2 Rør.',
+      'Forbeholdet.',
+    ]);
+    expect(tekst.textContent).not.toContain('skal ikke vises');
+  });
+
+  it('et avsnitt uten punkter står som før, med den låste teksten (kontrollsak)', () => {
+    brev();
+    expect(screen.queryAllByRole('heading', { level: 3 })).toEqual([]);
+    expect(screen.getByTestId('laast-tekst').textContent).toContain('Byggherren svarer.');
+  });
+});

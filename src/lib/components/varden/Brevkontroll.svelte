@@ -7,7 +7,7 @@
 <script lang="ts">
   import { ChevronLeft, Send } from 'lucide-svelte';
   import { onMount, tick } from 'svelte';
-  import type { Part } from '$kjerne/typer';
+  import type { Avsnitt, Part } from '$kjerne/typer';
   import type { Brevref } from './lesing';
   import type { Brevsending } from './nysak';
   import Brev from './Brev.svelte';
@@ -21,6 +21,7 @@
     kommando,
     tekst,
     utdypning,
+    avsnitt,
     merking,
     deresRef,
     tittel,
@@ -43,6 +44,11 @@
     kommando: Record<string, unknown>;
     tekst: string[];
     utdypning?: string;
+    /**
+     * Avsnittene kjernen lager, med punktene og utdypningene (#1824). Uten dem vises `tekst`, med
+     * `utdypning` under det siste avsnittet.
+     */
+    avsnitt?: Avsnitt[] | null;
     /**
      * Vår ref., Deres ref. og tittelen kjernen fryser i raden forhåndsvisningen gir (LV-U27,
      * LV-U49, LV-U53). Nettleseren regner dem ikke ut selv, og de er en del av det avsenderen
@@ -141,10 +147,11 @@
       {deresRef}
       dato={BREVKONTROLL.datoSettes}
       tittel={tittel ?? ''}
-      avsnitt={tekst.map((laast, i) => ({
-        laast,
-        utdypning: i === tekst.length - 1 ? utdypning : undefined,
-      }))}
+      avsnitt={avsnitt ??
+        tekst.map((laast, i) => ({
+          laast,
+          utdypning: i === tekst.length - 1 ? utdypning : undefined,
+        }))}
     />
   </div>
 

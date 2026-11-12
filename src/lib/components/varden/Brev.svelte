@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import type { Part } from '$kjerne/typer';
+  import type { Avsnitt, Part } from '$kjerne/typer';
   import { organisasjonene } from './kontrakt';
   import { MOTTATT, PARTNAVN } from './tekster';
 
@@ -36,7 +36,8 @@
     deresRef?: string[];
     dato: string;
     tittel: string;
-    avsnitt: { laast: string; utdypning?: string }[];
+    /** Avsnittene kjernen lager. Med `punkter` står overskriftene for seg (#1824). */
+    avsnitt: Pick<Avsnitt, 'laast' | 'punkter' | 'utdypning'>[];
     /** Tidspunktet brevet ble sendt. Bare et sendt brev har stempelet. */
     sendt?: string;
     fot?: Snippet;
@@ -96,7 +97,14 @@
   <h2>{tittel}</h2>
   <div class="tekst" data-testid="laast-tekst">
     {#each avsnitt as a, i (i)}
-      <p>{a.laast}</p>
+      {#if a.punkter}
+        {#each a.punkter as punkt, j (j)}
+          {#if punkt.overskrift}<h3>{punkt.overskrift}</h3>{/if}
+          {#each punkt.tekst?.split('\n\n') ?? [] as del, k (k)}<p>{del}</p>{/each}
+        {/each}
+      {:else}
+        <p>{a.laast}</p>
+      {/if}
       {#if a.utdypning}<p class="utdypning" data-testid="utdypning">{a.utdypning}</p>{/if}
     {/each}
   </div>
@@ -208,6 +216,17 @@
   }
   .tekst p + p {
     margin-top: var(--spacing-3);
+  }
+  /* Overskriften i et punkt har brødtekstens størrelse; vekten bærer den, som tittelen i et dempet brev. */
+  .tekst h3 {
+    font-size: 1em;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-top: var(--spacing-5);
+    margin-bottom: var(--spacing-2);
+  }
+  .tekst h3:first-child {
+    margin-top: 0;
   }
   .tekst .utdypning {
     white-space: pre-wrap;

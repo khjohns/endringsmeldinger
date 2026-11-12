@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
-import type { Avsnitt } from '../../kjerne/typer.ts';
+import { somLaastTekst, type Avsnitt } from '../../kjerne/typer.ts';
 import { readFileSync } from 'node:fs';
 import { inflateSync } from 'node:zlib';
 import { tegnSomIkkeKanVises } from '../../kjerne/format/skjema.ts';
@@ -76,6 +76,29 @@ describe('PDF-en av brevet (#371 del 2)', () => {
       'Vår ref.: K201-KOE-005-03',
       'Fra: Totalentreprenøren (TE)',
     ]);
+  });
+
+  it('gjengir punktene med overskriften som eget avsnitt og forbeholdet under sin overskrift (#1824)', async () => {
+    const punkter = [
+      { overskrift: '1. Varselet om vederlagsjustering', tekst: 'Totalentreprenøren varsler.' },
+      { overskrift: '2. Vederlagsjustering', tekst: 'P1 Graving.\n\nP2 Rør.' },
+      { overskrift: '3. Forbehold' },
+    ];
+    const tekst: Avsnitt[] = [
+      { gjelder: 'k', laast: somLaastTekst(punkter), punkter, utdypning: 'Forbeholdet.' },
+    ];
+    const lest = lesBrevPdf((await brevdokument(oppdrag(tekst), 'n')).innhold);
+    // Lesingen gir én linje per avsnitt; overskriften står på sin egen linje.
+    expect(lest.split('\n').slice(-7)).toEqual([
+      '1. Varselet om vederlagsjustering',
+      'Totalentreprenøren varsler.',
+      '2. Vederlagsjustering',
+      'P1 Graving.',
+      'P2 Rør.',
+      '3. Forbehold',
+      'Forbeholdet.',
+    ]);
+    expect(gjengirTro(lest, tekst)).toBe(true);
   });
 
   it('lesingen ser at en side mangler, så kontrollen ikke godtar en utelatelse ved sidebrekk', async () => {
