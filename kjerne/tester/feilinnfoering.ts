@@ -886,7 +886,10 @@ const MUTASJONER: Mutasjon[] = [
         '      // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.\n',
         "      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', 'Kravene er avgjort.');\n",
       ],
-      ["} from '../utledning/utled.ts';", "  kraveneErAvgjort,\n} from '../utledning/utled.ts';"],
+      [
+        "import { fristkravErFremmet, kanFaaInnsigelse, type Utledning } from '../utledning/utled.ts';",
+        "import { fristkravErFremmet, kanFaaInnsigelse, kraveneErAvgjort, type Utledning } from '../utledning/utled.ts';",
+      ],
     ],
     mal: ['godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter'],
   },
