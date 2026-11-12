@@ -21,7 +21,7 @@
     tittel?: string | null;
     /** Nøklene kjernen tilbyr, som `krav:vederlag`. */
     handlinger: string[];
-    /** Typene Varden kan åpne i denne prøven. */
+    /** Nøklene Varden kan åpne, som `svare:vederlag`. */
     bygget: string[];
     /** Teksten for en bestemt nøkkel, som en innsigelse mot et bestemt brev. */
     tekstFor?: (noekkel: string) => string | null;
@@ -43,7 +43,7 @@
           noekkel: n,
           tekst: tekstFor(n) ?? type?.tekst ?? ukjentHandling(n),
           virkning: beskrivelseFor(n),
-          bygget: bygget.includes(n.split(':')[0]),
+          bygget: bygget.includes(n),
         };
       })
   );
