@@ -18,9 +18,8 @@ export interface Postrad extends Postnoekkel {
 }
 
 /**
- * Kontrollerer at utregningen har én rad per post i `poster`, i samme rekkefølge og med samme
- * post, og like mange lag i hver rad, nummerert fra 1. Antallet lag er det høyeste laget i
- * beslutningsgrunnlaget (OV-U32, #1774). `raden` kontrollerer innholdet i hver rad etter at
+ * Kontrollerer radene per post i utregningen mot `poster` (OV-U31, KA-U57 (e)) og antallet lag
+ * mot beslutningsgrunnlaget (OV-U32, #1774). `raden` kontrollerer innholdet i hver rad etter at
  * posten og lagene er kontrollert. `verdien` er ordet for standpunktet til posten, som
  * «beløpet», og `feil` lager feilen. Gir antallet lag.
  */

@@ -1,9 +1,7 @@
 /**
- * Versjonsregelen for postene i et krav (#1778). Posten har en `id` som følger den gjennom
- * kravversjonene, og en betegnelse som følger posten og ikke brukes av en ny post. En ny
- * kravversjon tar med hver post fra forrige versjon som ikke trekkes, og en trukket post kan
- * tas med igjen. Regelen er utledet av vederlaget (KA-U53, KA-U56, KA-U75), og sporet kaller
- * den med postene sine og ordet for posten. Om fristen følger den, avgjøres i #1745.
+ * Versjonsregelen for postene i et krav (#1778), utledet av vederlaget (KA-U53, KA-U56,
+ * KA-U75). Sporet kaller den med postene sine og ordet for posten. Om fristen følger den,
+ * avgjøres i #1745.
  *
  * Kommandoen og lesingen av journalen bruker samme regel: kommandoen før serveren har satt
  * `id` og betegnelse på de nye postene, journalen etter.

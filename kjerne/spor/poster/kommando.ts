@@ -13,7 +13,7 @@ export interface Utkastlag<F> {
     saerskilt?: 'produktivitet';
     /** Posten standpunktet gjelder (KA-U57 (c) og (d)). */
     gjelder?: string;
-    /** Spørsmålet om posten er besvart. Andre standpunkter finnes bare når de er besvart (KA-U4). */
+    /** Beløpsspørsmålet for posten er besvart. Andre standpunkter finnes bare når de er besvart (KA-U4). */
     besvart: boolean;
     /** Laget etter lagene fra forholdet, `upaavirket` eller `uten_virkning`. */
     virkning: Virkning;
