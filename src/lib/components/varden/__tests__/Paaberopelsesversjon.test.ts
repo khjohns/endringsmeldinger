@@ -357,9 +357,12 @@ describe('primærhandlingen i «Det du kan gjøre nå» (#1649)', () => {
     expect(within(raden).getByRole('status')).toHaveTextContent(HANDLINGENE.ikkeBygget);
   });
 
-  it('i demoruta er «Revider krav» primær etter svaret også når den ikke er bygget, og et klikk sier det (#1636)', async () => {
+  it('i demoruta er «Revider krav» primær etter svaret og åpner kravskjemaet for vederlaget (#1636, BF-14)', async () => {
     const kortet = await vis('BF-04', 'te-har-mottatt-svaret', 'TE', 'vederlag');
     await fireEvent.click(kortet.getByRole('button', { name: 'Revider krav' }));
-    expect(kortet.getByText('Denne handlingen er ikke bygget i prøven ennå.')).toBeTruthy();
+    expect(
+      await screen.findByRole('heading', { name: 'Vederlagsjustering', level: 3 })
+    ).toBeTruthy();
+    expect(screen.queryByText(HANDLINGENE.ikkeBygget)).toBeNull();
   });
 });

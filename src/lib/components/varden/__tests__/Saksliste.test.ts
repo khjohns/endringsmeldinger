@@ -192,12 +192,12 @@ describe('Sakslisten i Varden', () => {
         lagSakslinje({
           sak_id: 'A',
           sakstittel: 'Regning',
-          vederlag: vederlag({ beloep: 85000, oppgjoersformer: ['regningsarbeid'] }, null),
+          vederlag: vederlag({ beloep: 0, oppgjoersformer: ['regningsarbeid'] }, null),
         }),
         lagSakslinje({
           sak_id: 'B',
           sakstittel: 'Enhet',
-          vederlag: vederlag({ beloep: 150000, oppgjoersformer: ['enhetspriser'] }, null),
+          vederlag: vederlag({ beloep: 0, oppgjoersformer: ['enhetspriser'] }, null),
         }),
         lagSakslinje({
           sak_id: 'C',
@@ -215,6 +215,14 @@ describe('Sakslisten i Varden', () => {
           },
         }),
         lagSakslinje({ sak_id: 'D', sakstittel: 'Ingenting' }),
+        lagSakslinje({
+          sak_id: 'E',
+          sakstittel: 'Blandet',
+          vederlag: vederlag(
+            { beloep: 210000, oppgjoersformer: ['tilbud', 'regningsarbeid', 'enhetspriser'] },
+            null
+          ),
+        }),
       ],
     });
     const celler = (t: string) =>
@@ -224,6 +232,8 @@ describe('Sakslisten i Varden', () => {
     expect(celler('Enhet')).toEqual(['Enhetspriser', 'Ikke krevd']);
     expect(celler('Varsel')).toEqual(['Varslet', 'Varslet']);
     expect(celler('Ingenting')).toEqual(['Ikke krevd', 'Ikke krevd']);
+    // Et blandet krav har summen av de faste beløpene og beregningsreglene ved siden av (KA-U61, #1663).
+    expect(celler('Blandet')[0]?.replace(/\s+/g, ' ')).toBe('210 000 kr og andre oppgjørsformer');
   });
 
   it('tallene i en sak i en endringsordre, et trukket krav og en sak TE har avsluttet, er dempet, og merket sier hva TE har gjort (MM-U38)', () => {
@@ -306,10 +316,15 @@ describe('Sakslisten i Varden', () => {
       kravet_staar,
       har_varsel: false,
       ingen_krav: false,
-      krav: { beloep, oppgjoersformer: [metode] },
+      krav: {
+        beloep,
+        oppgjoersformer: metode === 'tilbud' ? [metode] : ['tilbud' as const, metode],
+      },
       svar: null,
       enighet: null,
     });
+    // Serveren gir summen av de faste beløpene (OV-U73), så et krav med bare en beregningsregel har 0.
+    const regning = { ...v(0), krav: { beloep: 0, oppgjoersformer: ['regningsarbeid' as const] } };
     const f = (dager: number) => ({
       ...ingenting,
       kravet_staar: true,
@@ -323,7 +338,9 @@ describe('Sakslisten i Varden', () => {
       saker: [
         lagSakslinje({ sak_id: 'A', vederlag: v(420000), frist: f(15) }),
         lagSakslinje({ sak_id: 'B', vederlag: v(190000), frist: f(20) }),
-        lagSakslinje({ sak_id: 'C', vederlag: v(85000, 'regningsarbeid') }),
+        lagSakslinje({ sak_id: 'C', vederlag: regning }),
+        // Et blandet krav telles med de faste beløpene (KA-U61, #1663).
+        lagSakslinje({ sak_id: 'H', vederlag: v(30000, 'regningsarbeid') }),
         lagSakslinje({
           sak_id: 'D',
           vederlag: {
@@ -347,8 +364,8 @@ describe('Sakslisten i Varden', () => {
       endringsordrer: { E: 'EO-01' },
     });
     const [vederlag, frist] = [...document.querySelectorAll('.spor-kort')] as HTMLElement[];
-    expect(vederlag.querySelector('.hv')!.textContent?.replace(/\s+/g, ' ')).toBe('610 000 kr');
-    expect(vederlag.querySelector('.hm')!.textContent).toBe('2 krav · 1 varslet · 1 uten beløp');
+    expect(vederlag.querySelector('.hv')!.textContent?.replace(/\s+/g, ' ')).toBe('640 000 kr');
+    expect(vederlag.querySelector('.hm')!.textContent).toBe('3 krav · 1 varslet · 1 uten beløp');
     expect(frist.querySelector('.hv')!.textContent).toBe('2 krav');
     expect(frist.textContent).not.toContain('35');
   });

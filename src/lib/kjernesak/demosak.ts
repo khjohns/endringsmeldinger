@@ -89,7 +89,7 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
   const nyId = () =>
     `${forloep.idhode}-0000-4000-8000-${(++nummer).toString(16).padStart(12, '0')}`;
 
-  // Vedleggene til den nye saken, som mellomlageret på serveren. Kjernen slår dem opp.
+  // Vedleggene, som mellomlageret på serveren. Kjernen slår dem opp.
   const mellomlager = new Map<string, Vedlegg>();
 
   const linje = ({
@@ -230,10 +230,9 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
     },
   };
 
-  // Vedlegget ville blitt lastet opp til serveren, og demoruta sender ingenting.
-  const lastOppVedlegg: typeof lastOppKjernevedlegg = async () => {
-    throw new ApiError(400, 'Vedlegg kan ikke lastes opp i demoen, som ikke sender noe.');
-  };
+  // Vedlegget i saken legges i det samme mellomlageret i minnet, så et dokument fra kravskjemaet
+  // kan legges ved (VS-U53, BF-14). Ingenting sendes.
+  const lastOppVedlegg: typeof lastOppKjernevedlegg = (_sakId, fil) => vedleggForNySak.lastOpp(fil);
 
   const demosak = {
     sakId,

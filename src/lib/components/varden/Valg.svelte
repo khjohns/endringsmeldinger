@@ -12,10 +12,12 @@
     feil = null,
     beskrevetAv,
     stablet = false,
+    lett = false,
   }: {
     navn: string;
     spoersmaal: string;
-    valg: { verdi: T; tekst: string }[];
+    /** `forklaring` står under teksten, som for oppgjørsformen (`system.md`, «To vekter på et valg»). */
+    valg: { verdi: T; tekst: string; forklaring?: string }[];
     verdi: T | null;
     /** Hva som mangler, når parten har prøvd å gå videre uten svaret. */
     feil?: string | null;
@@ -23,6 +25,11 @@
     beskrevetAv?: string;
     /** Valgene står under hverandre. For mer enn to valg eller lange tekster. */
     stablet?: boolean;
+    /**
+     * Radio og tekst uten ramme, inne i et åpent element; bare det valgte får flaten
+     * (`system.md`, «To vekter på et valg»).
+     */
+    lett?: boolean;
   } = $props();
   const uid = $props.id();
   const beskrivelse = $derived(
@@ -32,9 +39,9 @@
 
 <fieldset class="valg" id={navn} tabindex="-1" aria-describedby={beskrivelse}>
   <legend>{spoersmaal}</legend>
-  <div class="kort" class:stablet>
+  <div class="kort" class:stablet class:lett>
     {#each valg as v (String(v.verdi))}
-      <label class="valgkort" class:valgt={verdi === v.verdi}>
+      <label class="valgkort" class:valgt={verdi === v.verdi} class:forklart={!!v.forklaring}>
         <input
           type="radio"
           name={navn}
@@ -42,7 +49,14 @@
           checked={verdi === v.verdi}
           onchange={() => (verdi = v.verdi)}
         />
-        <span>{v.tekst}</span>
+        {#if v.forklaring}
+          <span class="tekster">
+            <span>{v.tekst}</span>
+            <span class="forklaring">{v.forklaring}</span>
+          </span>
+        {:else}
+          <span>{v.tekst}</span>
+        {/if}
       </label>
     {/each}
   </div>
@@ -88,6 +102,35 @@
     background: var(--surface);
     color: var(--ink);
     cursor: pointer;
+  }
+  /* Med en forklaring per valg er kortene like brede og fyller kolonnen (oppgjørsformen, #1663). */
+  .kort.stablet:has(.forklart) {
+    width: 100%;
+  }
+  .valgkort.forklart {
+    align-items: flex-start;
+    padding: var(--spacing-3) var(--spacing-4);
+  }
+  .valgkort.forklart input {
+    flex: none;
+    margin-top: 2px;
+  }
+  .tekster {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+  }
+  .forklaring {
+    color: var(--ink-2);
+    font-size: 14px;
+    font-weight: 400;
+  }
+  .lett .valgkort {
+    border-color: transparent;
+  }
+  .lett .valgkort.valgt {
+    border-color: transparent;
+    box-shadow: none;
   }
   .valgkort:hover {
     background: var(--surface-inset);

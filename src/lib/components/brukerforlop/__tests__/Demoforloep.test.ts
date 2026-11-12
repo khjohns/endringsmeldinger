@@ -168,7 +168,7 @@ describe('demoruta for brukerforløpet BF-01', () => {
     expect(panel.queryByText(/Neste steg i forløpet/)).toBeNull();
   });
 
-  it('et vedlegg i demoruta lastes ikke opp til serveren', async () => {
+  it('et vedlegg i demoruta legges i minnet og lastes ikke opp til serveren (VS-U53, BF-14)', async () => {
     let kjernesak: ReturnType<typeof lagKjernesak> | null = null;
     render(Demoforloep, {
       forloep: START,
@@ -177,9 +177,9 @@ describe('demoruta for brukerforløpet BF-01', () => {
       onstart: (_d: Demosak, k: ReturnType<typeof lagKjernesak>) => (kjernesak = k),
     });
     await screen.findByRole('heading', { name: BF.tittel });
-    await expect(kjernesak!.lastOppVedlegg(new File(['x'], 'tegning.pdf'))).rejects.toThrow(
-      'Vedlegg kan ikke lastes opp i demoen'
-    );
+    const vedlegg = await kjernesak!.lastOppVedlegg(new File(['x'], 'tegning.pdf'));
+    expect(vedlegg.filnavn).toBe('tegning.pdf');
+    expect(vedlegg.innhold_sha256).toMatch(/^[0-9a-f]{64}$/);
     expect(fetch).not.toHaveBeenCalled();
   });
 

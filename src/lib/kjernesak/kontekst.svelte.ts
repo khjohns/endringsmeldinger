@@ -228,10 +228,10 @@ export function lagKjernesak(valg: Kjernesakvalg) {
    * Saken med raden kommandoen ville gitt, som `utledetMed`. `null` før saken er lastet,
    * uten side, når kjernen avviser kommandoen og ved en programfeil i kjernen.
    */
-  function forhaandsvist(kommando: Record<string, unknown>) {
+  function forhaandsvist(kommando: Record<string, unknown>, vedlegg?: Vedleggsoppslag) {
     if (!sak?.merking || !part) return null;
     try {
-      return utledetMed(kommando, sakId, part, sak.merking, journal, kjerne);
+      return utledetMed(kommando, sakId, part, sak.merking, journal, kjerne, vedlegg);
     } catch (e) {
       console.error(e);
       return null;
@@ -273,7 +273,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       }
       tekst = vurdert.tekst;
     }
-    const innhold = tekst ? { ...kommando, brevtekst: tekst } : kommando;
+    // Kommandoen kan komme fra tilstanden i et skjema; det som sendes, er verdiene, ikke proxyene.
+    const ren = $state.snapshot(kommando) as Record<string, unknown>;
+    const innhold = tekst ? { ...ren, brevtekst: tekst } : ren;
     const igjen =
       ventende?.versjon === sak.versjon &&
       JSON.stringify(ventende.kommando) === JSON.stringify(innhold);

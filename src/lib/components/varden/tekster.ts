@@ -9,6 +9,7 @@
  */
 
 import { FORHOLDSGRUPPER as KJERNENS_FORHOLD } from '$kjerne/frosset/forholdene';
+import { opplistet } from '$kjerne/frosset/brevdeler';
 import { kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Betegnelse } from '$kjerne/utledning/visning';
@@ -479,6 +480,11 @@ const KORRIGERT_I_LUKKET =
   'Saken står lukket, og korrigeringen endrer ikke utfallet. Byggherren kan ta stilling til den nye datoen i et innlegg. Innlegg kan ikke sendes fra løsningen ennå.';
 
 export const FORHOLDET = {
+  /** Kravpostene etter en beregningsregel ved summen av de faste beløpene (KA-U61, #1663). */
+  ogRegelen: (regel: string) =>
+    regel === 'flere' ? ' og andre oppgjørsformer' : ` og ${metodenavn(regel)}`,
+  regelen: (regel: string | null) =>
+    regel === 'flere' ? 'flere oppgjørsformer' : metodenavn(regel),
   utenNavn: 'Forholdet',
   siste: (b: Brevref, part: Part) =>
     `Siste brev: ${brevrefFra(b, part)}${b.nummer === null ? '' : `, ${dato(b.registrert)}`}.`,
@@ -851,6 +857,9 @@ export const SAKSLISTE = {
     string
   >,
   flereOppgjoersformer: 'Flere oppgjørsformer',
+  /** De faste beløpene og kravpostene etter en beregningsregel i samme krav (KA-U61, #1663). */
+  ogRegel: (beloep: string, regel: string) =>
+    `${beloep} og ${regel === 'flere' ? 'andre oppgjørsformer' : regel.toLowerCase()}`,
   utenTittel: 'Uten tittel',
   inngaarIEo: (kode: string) => `Inngår i ${kode}`,
   paaberopelsenTrukket: 'Påberopelsen trukket',
@@ -865,7 +874,7 @@ export const SAKSLISTE = {
   utenBeloep: (n: number) => `${n} uten beløp`,
   omTallene: (spor: string) => `Om tallene for ${spor.toLowerCase()}`,
   omVederlag:
-    'Summen av kravene med beløp i sakene som ikke inngår i en sendt endringsordre. Krav etter regningsarbeid eller enhetspriser har ikke beløp og telles for seg. Trukne krav og saker som TE har avsluttet, er ikke med. Krav i flere saker kan gjelde samme kostnad.',
+    'Summen av de faste beløpene i kravene i sakene som ikke inngår i en sendt endringsordre. Kravposter etter regningsarbeid eller enhetspriser har ikke beløp, og et krav med bare slike poster telles for seg. Trukne krav og saker som TE har avsluttet, er ikke med. Krav i flere saker kan gjelde samme kostnad.',
   omFrist:
     'Antall krav i sakene som ikke inngår i en sendt endringsordre. Dagene summeres ikke, fordi forlengelser i ulike saker kan gjelde samme periode.',
   // Verktøylinja
@@ -901,3 +910,211 @@ export function initialer(navn: string): string {
   const forbokstav = (o: string) => [...o][0].toLocaleUpperCase('nb-NO');
   return ord.length === 1 ? forbokstav(ord[0]) : forbokstav(ord[0]) + forbokstav(ord.at(-1)!);
 }
+
+/**
+ * TEs krav om vederlagsjustering (BF-14, prototype v4, økt 3 i #1663). Ordene følger språkfila:
+ * «vederlagsjustering» og «særskilt vederlagsjustering», partene fullt ut, «brev» og ikke
+ * «versjon», og et trekk kalles ikke avkall (KA-U75, D-18).
+ */
+export const KRAVSKJEMA = {
+  tittel: 'Krav om justering av vederlaget',
+  til: 'Til byggherren (BH)',
+  forholdet: (navn: string, b: Brevref) =>
+    `Forholdet: ${navn}, påberopt i ${brevref(b)} · ${kortDato(b.registrert)}`,
+  folgerOpp: (krav: Brevref, svar: Brevref | null) =>
+    `Følger opp kravet i ${brevref(krav)}${svar ? `. Byggherren svarte i ${brevref(svar)}` : ''}`,
+  lesBrevet: (b: Brevref) => `Les ${brevref(b)} ved siden av`,
+  lesBrevetHer: (b: Brevref) => `Les ${brevref(b)}`,
+  lukkBrevet: 'Lukk brevet',
+  // 1. Vederlagsjusteringen.
+  postene: 'Vederlagsjustering',
+  posteneHjemmel: 'punkt 34.1.1 og 34.1.2',
+  posteneIntro:
+    'Del kravet i kravposter. Betegnelsen (P1, P2 …) følger posten i nye brev og i endringsordren. Beløpene er eks. mva.',
+  kolonner: ['Post', 'Oppgjørsform', 'PNS', 'Beløp'],
+  nyPost: 'Ny kravpost',
+  // Kjernen gir betegnelsen når kravet sendes (KA-U53).
+  nyBetegnelse: 'Ny',
+  beskrivelse: 'Beskrivelse av posten',
+  beskrivelseHjelp: 'Står i brevet og i endringsordren.',
+  form: 'Oppgjørsform',
+  former: [
+    {
+      verdi: 'tilbud' as const,
+      tekst: 'Fast sum',
+      forklaring:
+        'Beløpet du krever, er et tilbud etter punkt 34.2.1, som byggherren kan akseptere.',
+    },
+    {
+      verdi: 'enhetspriser' as const,
+      tekst: 'Enhetspriser',
+      forklaring:
+        'Oppgjør etter utførte mengder med kontraktens eller justerte enhetspriser (punkt 34.3). Posten har ikke et krevd beløp.',
+    },
+    {
+      verdi: 'regningsarbeid' as const,
+      tekst: 'Regningsarbeid',
+      forklaring:
+        'Kostnader og påslag etter punkt 30. Skal varsles før arbeidet settes i gang (punkt 34.4). Posten har ikke et krevd beløp.',
+    },
+  ],
+  formnavn: { tilbud: 'Fast sum', enhetspriser: 'Enhetspriser', regningsarbeid: 'Regningsarbeid' },
+  beloep: 'Beløpet du krever',
+  beloepHjelp: 'Eks. mva.',
+  justert: 'Enhetsprisene',
+  justeringer: [
+    { verdi: false, tekst: 'Kontraktens enhetspriser' },
+    { verdi: true, tekst: 'Justerte enhetspriser (punkt 34.3.2)' },
+  ],
+  anslag: 'Anslag (valgfritt)',
+  anslagHjelp: 'En opplysning, ikke et tilbud.',
+  overslag: 'Kostnadsoverslag (valgfritt)',
+  overslagHjelp:
+    'En opplysning, ikke et tilbud (punkt 30.2). Ser det ut til å bli overskredet, skal du varsle byggherren.',
+  pns: 'PNS (valgfritt)',
+  pnsHjelp: 'Binder ikke. Byggherren kan sette en annen i endringsordren.',
+  varsellinje: (hjemmel: string, tekst: string) => `Varsel etter punkt ${hjemmel}: ${tekst}`,
+  tilVarslene: 'Se under Varslene',
+  ferdig: 'Ferdig',
+  endre: 'Endre',
+  endrePost: (post: string) => `Endre ${post}`,
+  fjernNy: 'Fjern posten',
+  trekk: (post: string) => `Trekk ${post}`,
+  trekkes: 'Trekkes',
+  trekket: (post: string) =>
+    `Kravet i ${post} trekkes i dette brevet. Brevet sier det. Du kan angre før du sender.`,
+  angre: 'Angre',
+  angreTrekk: (post: string) => `Angre trekket av ${post}`,
+  utenBeloep: 'Uten beløp',
+  anslaatt: (b: string) => `anslag ${b}`,
+  overslaget: (b: string) => `overslag ${b}`,
+  justerte: 'justerte',
+  endretFra: (brev: Brevref, foer: string, naa: string) =>
+    `Endret fra ${brevref(brev)}: ${foer} → ${naa}`,
+  ny: 'Ny post i dette brevet',
+  sumFaste: 'Sum faste beløp i kravpostene',
+  leggTil: 'Legg til kravpost',
+  taMedIgjen: (post: string, beskrivelse: string) => `Ta med igjen ${post} ${beskrivelse}`,
+  // 2. Den særskilte vederlagsjusteringen (OV-U89, OV-U95 punkt 3).
+  saerskilt: 'Særskilt vederlagsjustering',
+  saerskiltHjemmel: 'punkt 34.1.3 annet ledd',
+  saerskiltIntro:
+    'Økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid.',
+  saerskiltBeloep: 'Beløpet du krever',
+  saerskiltHjelp: 'Fast sum, eks. mva.',
+  leggTilSaerskilt: 'Legg til særskilt vederlagsjustering',
+  fjernSaerskilt: 'Fjern den særskilte vederlagsjusteringen',
+  // 3. Varslene (prototype v4).
+  varslene: 'Varslene',
+  varsleneIntro:
+    'Varslene kravet trenger, ut fra postene over. Dette kravet er varselet der du ikke har varslet før.',
+  varselkolonner: ['Punkt', 'Varselet', 'Slik står det i brevet'],
+  varselnavn: {
+    '34.1.2': 'Varsel om vederlagsjustering',
+    '34.1.3': 'Varsel om særskilt vederlagsjustering',
+    '34.3.3': 'Varsel om justering av enhetsprisene',
+    '34.4': 'Varsel før regningsarbeidet settes i gang',
+  } as Record<string, string>,
+  gjelderHele: 'Gjelder hele kravet',
+  gjelderSaerskilt: 'Gjelder den særskilte posten',
+  gjelderPost: (post: string) => `Gjelder ${post}`,
+  ingenPostViserTil: 'Ingen kravpost viser til det',
+  kravetErVarselet: 'Dette kravet er varselet.',
+  gittIDokumentet: (type: 'brev' | 'e_post' | null, d: string) =>
+    `Gitt i ${type === 'e_post' ? 'e-posten' : 'brevet'} av ${dato(d)}, som legges ved kravet.`,
+  sammeDokument: (d: string) =>
+    d ? `Dokumentet av ${dato(d)} legges ved én gang.` : 'Dokumentet legges ved én gang.',
+  denSaerskilte: 'den særskilte vederlagsjusteringen',
+  kravetErVarseletKort: 'dette kravet er varselet.',
+  gittI: (b: Brevref) => `Gitt i ${brevref(b)}.`,
+  gittMedKravet: (b: Brevref) => `Gitt med kravet i ${brevref(b)}.`,
+  dagerEtterKlarOver: (dager: number, d: string) =>
+    `${dager} kalenderdager etter at du ble klar over forholdet ${dato(d)}`,
+  utenKravpost: (hjemmel: string) =>
+    `Saken har et varsel etter punkt ${hjemmel} som ingen kravpost viser til.`,
+  seVarselet: (post: string) => `Se på varselet for ${post}`,
+  endreVarselet: (post: string) => `Endre varselet for ${post}`,
+  gittFoer: (post: string) => `Varselet for ${post} er gitt før`,
+  hvorGitt: (post: string) => `Hvor ble varselet for ${post} gitt?`,
+  varselvalg: {
+    kravet: 'Dette kravet er varselet',
+    saken: 'I et varsel som står i saken',
+    dokument: 'I et dokument sendt utenfor løsningen',
+    samme: (post: string) => `Samme dokument som for ${post}`,
+  },
+  hvilketVarsel: 'Varselet i saken',
+  varseletI: (b: Brevref) => (b.nummer === null && b.omtale ? b.omtale : brevrefStor(b)),
+  ingenVarslerISaken: (hjemmel: string) =>
+    `Saken har ikke noe varsel etter punkt ${hjemmel}. Legg til dokumentet i stedet.`,
+  dokumenttype: 'Hva legger du til?',
+  dokumenttyper: [
+    { verdi: 'brev' as const, tekst: 'Brev' },
+    { verdi: 'e_post' as const, tekst: 'E-post' },
+  ],
+  dokumentdato: 'Datoen det ble sendt',
+  dokumentdatoHjelp: 'Datoen avsenderen oppgir.',
+  dokumentet: 'Dokumentet',
+  dokumentetHjelp: 'Legges til i saken som et eget brev og ved kravet. Opptil 15 MB.',
+  // 4. Forbeholdet, som kravets utdypning til kjernen har et eget felt (svar 1 A 12.11 i #1663, #1823).
+  forbehold: 'Forbehold (valgfritt)',
+  forbeholdHjelp: 'Står i brevet under kravet.',
+  // Det som mangler, med feltet (MM-U32, språkfila: «<Verb> <feltet>.»).
+  mangler: 'Dette mangler før brevet kan lages:',
+  iPosten: (post: string, tekst: string) => `${post}: ${tekst}`,
+  iSaerskilt: (tekst: string) => `Særskilt vederlagsjustering: ${tekst}`,
+  ingenPoster: 'Legg til en kravpost eller den særskilte vederlagsjusteringen.',
+  manglerBeskrivelse: 'Beskriv posten.',
+  manglerForm: 'Velg oppgjørsformen.',
+  manglerBeloep: 'Skriv beløpet.',
+  manglerJustert: 'Velg kontraktens eller justerte enhetspriser.',
+  merEnnNull: 'Beløpet må være mer enn 0 kr.',
+  manglerVarselet: 'Velg varselet i saken.',
+  manglerSamme: 'Legg til dokumentet i den andre posten, eller velg et annet svar.',
+  manglerType: 'Velg om dokumentet er et brev eller en e-post.',
+  manglerDato: 'Oppgi datoen dokumentet ble sendt.',
+  manglerDokument: 'Legg ved dokumentet.',
+  // Panelet til høyre (U-15, U-16).
+  punktene: 'Punktene',
+  punkteneHjelp: 'Beløp eks. mva. Oppdateres mens du skriver.',
+  antallPoster: (n: number) => (n === 1 ? '1 kravpost' : `${n} kravposter`),
+  antallVarsler: (n: number, medKravet: number) =>
+    `${n === 1 ? '1 varsel' : `${n} varsler`} · ${medKravet} gis med kravet`,
+  skrevet: 'Skrevet',
+  ikkeSkrevet: 'Ikke skrevet',
+  forbeholdPunkt: 'Forbehold',
+  fasteBeloep: 'Faste beløp',
+  anslagIkkeKrevd: 'Anslag og overslag, ikke krevd',
+  fordelingPns: 'Fordeling på PNS',
+  pnsRad: (faste: number, anslag: number) =>
+    anslag ? `${kroner(faste)} + ${kroner(anslag)} anslått` : kroner(faste),
+  // U-3: veiledningen etter Del II punkt 184 stopper ikke kravet.
+  pnsOver: (pns: string[], grense: number) =>
+    `${pns.length === 1 ? `PNS ${pns[0]} har` : `PNS ${pns.join(' og ')} har hver`} over ${kroner(grense)}. Ved fakturering etter endringsordren skal endringen da fordeles på PNS-kodene (Del II punkt 184). PNS-en binder ikke, og byggherren kan sette en annen i endringsordren.`,
+  tilbudet: (poster: string[]) =>
+    `Kravet for ${opplistet(poster)} er et tilbud etter punkt 34.2.1. Byggherren kan akseptere det.`,
+  regelen: (poster: string[]) =>
+    `${opplistet(poster)} gjøres opp etter en beregningsregel og har ikke et krevd beløp.`,
+  trekkesListe: (poster: string[]) => `${opplistet(poster)} trekkes.`,
+  utkast: 'Utkast',
+  ikkeSendt: 'Ikke sendt.',
+  // Tidslinja (U-17).
+  tidslinjeVarselet: (post: string) => `Varselet for ${post}`,
+  oppgisIKravet: 'Oppgis i kravet',
+  tidslinjeSendes: 'Kravet sendes',
+  naarDuSender: 'I dag, når du sender',
+  // Brevkontrollen og kvitteringen.
+  kontroller: 'Kontroller og send',
+  forrigeKravet: (krav: Brevref) => `Kravet i ${brevref(krav)}`,
+  seBrevet: 'Se brevet før sending',
+  sendTekst: 'Send til byggherren',
+  tilbakeTil: 'utkastet',
+  kvittering: 'Brevet er sendt til byggherren.',
+  kanIkkeLages: 'Brevet kan ikke lages ennå.',
+  forkast: 'Forkast utkast',
+  forkastSpoersmaal: 'Forkaste utkastet? Kravpostene og forbeholdet du har skrevet, slettes.',
+  forkastJa: 'Forkast',
+  behold: 'Behold utkastet',
+  detteSender: {
+    poster: (n: number) => `${n === 1 ? 'Én kravpost' : `${n} kravposter`} i vederlagsjusteringen`,
+  },
+};
