@@ -197,7 +197,7 @@ describe('Siden for forholdet', () => {
     );
   });
 
-  it('en kravpost der byggherren ikke har akseptert tilbudet, står uten beløp under byggherren, med ordlyden fra enigheten (#1752 punkt 2, KA-U72, OV-U73)', async () => {
+  it('en kravpost der byggherren ikke har akseptert tilbudet, står uten beløp under byggherren, med grunnen fra brevet (#1752 punkt 2, KA-U72)', async () => {
     const { u } = await vis([
       PAABEROPELSE,
       {
@@ -228,7 +228,7 @@ describe('Siden for forholdet', () => {
     );
     const tekst = krav.textContent?.replace(/\s+/g, ' ');
     expect(tekst).toContain(
-      `Byggherren 100 000 kr ${p2!.betegnelse} har ikke et fast beløp prinsipalt brev 3`
+      `Byggherren 100 000 kr ${p2!.betegnelse} uten beløp: tilbudet er ikke akseptert brev 3`
     );
   });
 

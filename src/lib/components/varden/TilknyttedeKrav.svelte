@@ -112,7 +112,7 @@
                       </span>
                     {/each}
                     {#if k.svaret.utenBeloep.length}<span class="uten"
-                        >{FORHOLDET.utenFastBeloep(k.svaret.utenBeloep)}</span
+                        >{FORHOLDET.kravposterUtenBeloep(k.svaret.utenBeloep)}</span
                       >{/if}
                     <span class="brev">{brevref(k.svaret.brev)}</span>
                   {:else}

@@ -230,7 +230,7 @@ describe('«Tilknyttede krav» og kravpostene uten beløp (#1752 punkt 2)', () =
     oensket_metode: 'regningsarbeid',
   });
 
-  it('med to kravposter der tilbudet for P2 ikke er akseptert, står beløpet for P1 og P2 som kravposten uten beløp (KA-U72, OV-U73)', async () => {
+  it('med to kravposter der tilbudet for P2 ikke er akseptert, står beløpet for P1 og P2 som kravposten uten beløp (KA-U72)', async () => {
     const u = await utledning([
       PAABEROPELSE,
       {
@@ -262,7 +262,7 @@ describe('«Tilknyttede krav» og kravpostene uten beløp (#1752 punkt 2)', () =
     expect(svaret.utenBeloep).toEqual([p1!.betegnelse]);
   });
 
-  it('når byggherren gjør gjeldende at varselet om vederlaget kom for sent, står ingen kravpost uten beløp, fordi utfallet prinsipalt er 0 kr (frysingen i vederlaget, utfallet ved preklusjon)', async () => {
+  it('når byggherren gjør gjeldende at varselet om vederlaget kom for sent, står kravposten der tilbudet ikke er akseptert, fortsatt uten beløp, som i brevet (KA-U72)', async () => {
     const u = await utledning([
       // § 34.1.2 gjelder svikt og andre forhold, som grunnforholdene.
       { ...PAABEROPELSE, hovedkategori: 'svikt', underkategori: 'grunnforhold' },
@@ -285,7 +285,8 @@ describe('«Tilknyttede krav» og kravpostene uten beløp (#1752 punkt 2)', () =
         }
       ),
     ]);
-    expect(tilknyttetKrav(u, 'vederlag').svaret!.utenBeloep).toEqual([]);
+    const [, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
+    expect(tilknyttetKrav(u, 'vederlag').svaret!.utenBeloep).toEqual([p2!.betegnelse]);
   });
 
   it('kontrollsak: når tilbudet er akseptert, står ingen kravpost uten beløp', async () => {

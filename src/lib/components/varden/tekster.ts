@@ -590,9 +590,11 @@ export const FORHOLDET = {
       }[s.resultat];
     return `${standpunkttekst(s, false)}.`;
   },
-  /** Kravpostene der byggherren ikke har akseptert tilbudet, med ordlyden i OV-U73 (KA-U72, #1752). */
-  utenFastBeloep: (poster: string[]) =>
-    `${poster.length > 1 ? `${poster.slice(0, -1).join(', ')} og ${poster.at(-1)}` : poster[0]} har ikke et fast beløp prinsipalt`,
+  /** Kravpostene svaret ikke har et beløp for, fordi tilbudet ikke er akseptert (KA-U72, #1752). */
+  kravposterUtenBeloep: (poster: string[]) =>
+    poster.length > 1
+      ? `${poster.slice(0, -1).join(', ')} og ${poster.at(-1)} uten beløp: tilbudene er ikke akseptert`
+      : `${poster[0]} uten beløp: tilbudet er ikke akseptert`,
 };
 
 /** Skjemaet for korrigeringen av datoen (BF-02A, skissen `korrigering-av-datoen.html`). */

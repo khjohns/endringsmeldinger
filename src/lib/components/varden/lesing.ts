@@ -10,7 +10,6 @@ import { innholdIForholdet, oppgittDato } from '$kjerne/spor/forhold/format';
 import { FORHOLDSGRUPPER, forholdet } from '$kjerne/spor/forhold/tekst';
 import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
 import { plassene } from '$kjerne/frosset/byggeklosser';
-import { enighetsgrunnlag } from '$kjerne/frosset/standpunkt';
 import { innholdIFristen } from '$kjerne/format/kravinnhold';
 import { kravposterI, krevdSamlet } from '$kjerne/spor/vederlag/format';
 import { tilTall } from '$kjerne/regler/beloep';
@@ -385,8 +384,8 @@ export interface TilknyttetKrav {
    */
   krevd: { tall: number | null; regel: Oppgjoersform | 'flere' | null; brev: Brevref } | null;
   /**
-   * `utenBeloep` er betegnelsene på kravpostene uten fast beløp prinsipalt i svaret, fra
-   * utfallet kjernen regner av brevet (`uten_fast_beloep`, OV-U73).
+   * `poster` har bare kravpostene med beløp (KA-U72). `utenBeloep` er betegnelsene på
+   * kravpostene svaret ikke har et beløp for, fordi tilbudet ikke er akseptert (KA-U72).
    */
   svaret: {
     poster: { tall: number; lag: string | null }[];
@@ -401,11 +400,13 @@ export interface TilknyttetKrav {
  * i #1663), slått opp i kravversjonene i sporet, siden svaret kan gjelde en tidligere versjon
  * enn den gjeldende. En kravpost som ikke finnes, står med id.
  */
-export function kravposterUtenFastBeloep(utfall: Utfall, krav: readonly Krav[]): string[] {
+export const kravposterUtenFastBeloep = (utfall: Utfall, krav: readonly Krav[]): string[] =>
+  kravpostbetegnelsene(utfall.uten_fast_beloep ?? [], krav);
+
+/** Betegnelsene på kravpostene, slått opp i kravversjonene i sporet. En kravpost som ikke finnes, står med id. */
+function kravpostbetegnelsene(ider: readonly string[], krav: readonly Krav[]): string[] {
   const poster = krav.flatMap((k) => kravposterI(k));
-  return (utfall.uten_fast_beloep ?? []).map(
-    (id) => poster.find((p) => p.id === id)?.betegnelse ?? id
-  );
+  return ider.map((id) => poster.find((p) => p.id === id)?.betegnelse ?? id);
 }
 
 /** Oppgjørsformen til kravpostene etter en beregningsregel, `flere` når de har ulike, ellers `null`. */
@@ -451,8 +452,12 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
                   ? [{ tall: l.standpunkt.vurdert, lag: l.lag }]
                   : []
             ),
-            // Utfallet en aksept av svaret ville gitt, som kjernen regner det av brevet (OV-U73).
-            utenBeloep: kravposterUtenFastBeloep(enighetsgrunnlag(svar, 'aksept').utfall, s.krav),
+            utenBeloep: kravpostbetegnelsene(
+              svar.standpunkter.flatMap((x) =>
+                x.art === 'beloep' && x.godkjent === undefined && x.gjelder ? [x.gjelder] : []
+              ),
+              s.krav
+            ),
             brev: ref(svarbrev),
           }
         : null,
