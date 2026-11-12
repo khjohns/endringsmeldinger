@@ -799,7 +799,7 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
 - **Kjernen i dag:** delvis. En godkjenning fra appen som er en endringsordre,
   sier at endringen kreves og hva den går ut på ([GR-U14](plans/vedtak.md#gr-u14)); et krav som følger
   av en endringsordre, identifiserer den ([GR-U16](plans/vedtak.md#gr-u16)). Kandidatkontrollen finnes som predikat
-  (`kanInngaaIEo` i [`utled.ts`](../kjerne/utledning/utled.ts)), men kalles ikke av
+  (`kanInngaaIEo` i [`utledning.ts`](../kjerne/spor/forhold/utledning.ts)), men kalles ikke av
   kjernen: grunnlaget er sendt, TE har ikke godtatt avslaget på grunnlaget, og
   grunnlaget er ikke trukket. Ikke bygget: EO-saken, livsløpet, tilknytningen mellom
   saker, unntaket for en sak som alt er omfattet av en endringsordre (EO-U3) og

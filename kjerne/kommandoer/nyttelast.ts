@@ -30,9 +30,9 @@ import {
   datoenDetBleSendt,
   foresporselForFristsvar,
   kravSomVarsler,
-  sisteDatoopplysning,
   type Utledning,
 } from '../utledning/utled.ts';
+import { sisteDatoopplysning } from '../spor/forhold/utledning.ts';
 import {
   avvis,
   SPOR,

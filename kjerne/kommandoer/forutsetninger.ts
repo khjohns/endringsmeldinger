@@ -12,11 +12,10 @@
 import {
   fristkravErFremmet,
   kanFaaInnsigelse,
-  sisteDatoopplysning,
-  trekkAvPaaberopelsenErSperret,
   varseletForNyttSvar,
   type Utledning,
 } from '../utledning/utled.ts';
+import { sisteDatoopplysning, trekkAvPaaberopelsenErSperret } from '../spor/forhold/utledning.ts';
 import { avvis, erKravpostvarselhjemmel, SPOR } from '../typer.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { FORUTSETNINGER_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';

@@ -61,4 +61,6 @@ export const VISNING_I_VEDERLAGET = {
     !hjemmelenGjelder('34.1.2', u.spor.forhold.gjeldendeKrav, regler)
       ? 'varsel_kreves_ikke'
       : null,
+  paaleggFrafalt: () => false,
+  passivitetsetikett: () => null,
 } satisfies Sporsvisning;

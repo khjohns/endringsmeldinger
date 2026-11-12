@@ -550,7 +550,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Utledning', 'predikat', 'forstaatt spor opplysninger forholdAvvist frafalt'],
   // § 31.3 for godkjenningen av forholdet (GR-U13, KA-U14): ja, nei eller ikke avklart,
   // utledet av opplysningene. Leses bare av sperren mot trekk (OV-U6).
-  ['Utledning', 'predikat', 'endringsordre', ['utledning/utled.ts:trekkAvPaaberopelsenErSperret']],
+  [
+    'Utledning',
+    'predikat',
+    'endringsordre',
+    ['spor/forhold/utledning.ts:trekkAvPaaberopelsenErSperret'],
+  ],
   // Hvorfor saken ikke er forstått, i meldingen når kjernen ikke forstår det den skriver.
   [
     'Utledning',
@@ -633,7 +638,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],
-  ['utledning/utled.ts:forholdet(svar)', 'relasjon', '*'],
+  ['spor/forhold/utledning.ts:forholdet(svar)', 'relasjon', '*'],
   // MM-U17, MM-U50: om svaret er registrert korrespondanse, for visningen.
   ['Utledning', 'relasjon', 'svar', ['utledning/utled.ts:vurdertVedRegistreringen']],
   ['Utledning.svar', 'relasjon', '*', ['utledning/utled.ts:vurdertVedRegistreringen']],
@@ -641,7 +646,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Svarberegning', 'frosset', 'virkninger'],
   ['Enighet', 'predikat', 'grunnlag'],
   ['Enighetsgrunnlag', 'predikat', 'kilde vilkaar'],
-  ['utledning/utled.ts', 'predikat', 'utled utledJournal trekkAvPaaberopelsenErSperret'],
+  ['utledning/utled.ts', 'predikat', 'utled utledJournal'],
+  ['spor/forhold/utledning.ts', 'predikat', 'trekkAvPaaberopelsenErSperret'],
   ['utledning/utled.ts', 'relasjon', 'paaberopelseFor'],
   ['utledning/utled.ts:paaberopelseFor', 'relasjon', 'paaberopelse'],
   // Plassen hvert element har i journalen: dokumentet og saksversjonen (4.2 i designnotatet).
@@ -677,7 +683,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/forhold/frysing.ts',
     'frosset',
     'blirEndringsordre',
-    ['utledning/utled.ts', 'frosset/frysing.ts'],
+    ['spor/forhold/utledning.ts', 'frosset/frysing.ts'],
   ],
   ['frosset/byggeklosser.ts', 'utsagn', 'standpunktet'],
   // Standpunktene til oppgjørsformen etter § 34.2.2, ett per kravpost (KA-U57 (d)).
@@ -702,7 +708,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:frysSvarene'],
   ],
   // GR-U7 med unntaket i MM-U13: utledningen regner `forholdAvklart` og `forholdAvvist` av den.
-  ['spor/forhold/frysing.ts', 'predikat', 'forholdetErAvklart', ['utledning/utled.ts:forholdet']],
+  [
+    'spor/forhold/frysing.ts',
+    'predikat',
+    'forholdetErAvklart',
+    ['spor/forhold/utledning.ts:forholdet'],
+  ],
   // VS-U24: en egen innsigelse er en påberopelse etter § 33.4 eller § 32.2 bare mot varselet.
   ['frosset/standpunkt.ts', 'relasjon', 'innsigelsenPaaberoper', ['frosset/brevtekst.ts']],
   // OV-U4: kravene i et registrert brev er dokumentasjon (#787).
@@ -1136,7 +1147,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/forhold/frysing.ts', 'frosset', 'FRYSING_I_FORHOLDET', ['frosset/standpunkt.ts']],
   ['spor/vederlag/frysing.ts', 'frosset', 'FRYSING_I_VEDERLAGET', ['frosset/standpunkt.ts']],
   // #1783: lesereglene i 4.2 som er sporets egne.
-  ['Sporskontroller', 'predikat', 'kravet kravene svaret', ['utledning/utled.ts']],
+  [
+    'Sporskontroller',
+    'predikat',
+    'kravet kravene svaret kanFaaPassivitet leserDatoen svaretKanGodtas',
+    ['utledning/utled.ts'],
+  ],
   // Skrivingen i sporet (#1783).
   ['Sporsskriving', 'kommando', 'kravinnhold handlingen postvarsler', ['kommandoer/skriving.ts']],
   // VS-U51, VS-U53: skrivingen gir sporet stegene for en handling med flere rader.
@@ -1168,6 +1184,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/forutsetninger.ts'],
   ],
   ['spor/vederlag/utledning.ts', 'predikat', 'KONTROLLER_I_VEDERLAGET', ['utledning/utled.ts']],
+  ['spor/forhold/utledning.ts', 'predikat', 'KONTROLLER_I_FORHOLDET', ['utledning/utled.ts']],
+  // Det utledningen leser av forholdet (#1783), som var i utled.ts før flyttingen.
+  [
+    'spor/forhold/utledning.ts',
+    'predikat',
+    'erRegistrertEndringsordre kontrollerEndringsordrene kontrollerKorrigeringene opplysningerOmDatoen forholdet',
+    ['utledning/utled.ts'],
+  ],
   [
     'spor/forhold/format.ts',
     'utsagn',
@@ -1189,7 +1213,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'frosset/brevtekst.ts',
       'spor/forhold/tekst.ts',
-      'utledning/utled.ts:opplysningerOmDatoen',
+      'spor/forhold/utledning.ts:opplysningerOmDatoen',
       'kommandoer/nyttelast.ts:kategorisperre',
     ],
   ],
@@ -1325,7 +1349,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/nyttelast.ts:kontrollerKorrigering',
       'kommandoer/nyttelast.ts:grunnlagsdatoen',
       'kommandoer/forutsetninger.ts:korrigering',
-      'utledning/utled.ts:opplysningerOmDatoen',
+      'spor/forhold/utledning.ts:opplysningerOmDatoen',
     ],
   ],
   // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): TEs korrigering av datoen
@@ -1335,11 +1359,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Utledning', 'utsagn', 'datoopplysninger'],
   ['Datoopplysning', 'relasjon', 'id'],
   ['Datoopplysning', 'utsagn', 'felt dato'],
-  ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:opplysningerOmDatoen']],
-  ['Forholdsinnhold', 'utsagn', 'datoer', ['utledning/utled.ts:opplysningerOmDatoen']],
-  ['utledning/utled.ts:kontrollerKorrigeringene(elementer)', 'relasjon', '*'],
+  ['Dokument', 'relasjon', 'id', ['spor/forhold/utledning.ts:opplysningerOmDatoen']],
+  ['Forholdsinnhold', 'utsagn', 'datoer', ['spor/forhold/utledning.ts:opplysningerOmDatoen']],
+  ['spor/forhold/utledning.ts:kontrollerKorrigeringene(elementer)', 'relasjon', '*'],
   [
-    'utledning/utled.ts',
+    'spor/forhold/utledning.ts',
     'utsagn',
     'sisteDatoopplysning',
     [
@@ -2483,7 +2507,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
         'Utledning.forholdAvvist',
         'Sporutledning.enighet',
         'Svar.beslutningsgrunnlag',
-        'utledning/utled.ts.trekkAvPaaberopelsenErSperret',
+        'spor/forhold/utledning.ts.trekkAvPaaberopelsenErSperret',
         'Fristutregning.resultat',
       ])
     );
@@ -2491,6 +2515,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
 
   const forutsetninger = join(KJERNE, 'kommandoer', 'forutsetninger.ts');
   const utled = join(KJERNE, 'utledning', 'utled.ts');
+  const utledningIForholdet = join(KJERNE, 'spor', 'forhold', 'utledning.ts');
   const leser = join(KJERNE, 'format', 'leser.ts');
   const standpunkt = join(KJERNE, 'frosset', 'standpunkt.ts');
   /** Kode som legges til sist i en fil, så forsøkene ikke avhenger av teksten feilinnføringene endrer. */
@@ -2656,11 +2681,11 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
     ],
     [
       '«avklart» etter GR-U7 importert i en annen funksjon i utledningen (#344)',
-      utled,
+      utledningIForholdet,
       [
         [
-          utled,
-          'export const proeve = (s: Svar, v: Standpunktsvirkning[]) => forholdetErAvklart(s, v);',
+          utledningIForholdet,
+          'export const proeve = (s: Svar, v: Parameters<typeof forholdetErAvklart>[1]) =>\n  forholdetErAvklart(s, v);',
         ],
       ],
       'spor/forhold/frysing.ts.forholdetErAvklart',

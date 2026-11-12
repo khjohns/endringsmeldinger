@@ -1904,7 +1904,7 @@
         "kjerne/kommandoer/nyttelast.ts#kategorisperre",
         "kjerne/utledning/utled.ts#utledSporene",
         "kjerne/spor/forhold/frysing.ts#grunnerFraForholdet",
-        "kjerne/utledning/utled.ts#kanInngaaIEo"
+        "kjerne/spor/forhold/utledning.ts#kanInngaaIEo"
       ],
       "regelkoder": [
         "ANNEN_HJEMMEL",
@@ -2151,7 +2151,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/utledning/utled.ts#kanInngaaIEo",
+        "kjerne/spor/forhold/utledning.ts#kanInngaaIEo",
         "kjerne/utledning/utled.ts#kraveneErAvgjort",
         "kjerne/spor/forhold/frysing.ts#forholdetErAvklart"
       ]
@@ -2173,7 +2173,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#kraveneErAvgjort",
-        "kjerne/utledning/utled.ts#kanInngaaIEo"
+        "kjerne/spor/forhold/utledning.ts#kanInngaaIEo"
       ]
     },
     {
@@ -2265,7 +2265,7 @@
       "funksjoner": [
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
         "kjerne/utledning/utled.ts#enighetensVirkning",
-        "kjerne/utledning/utled.ts#kanInngaaIEo"
+        "kjerne/spor/forhold/utledning.ts#kanInngaaIEo"
       ]
     },
     {
@@ -2455,7 +2455,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/utledning/utled.ts#trekkAvPaaberopelsenErSperret",
+        "kjerne/spor/forhold/utledning.ts#trekkAvPaaberopelsenErSperret",
         "kjerne/spor/forhold/frysing.ts#blirEndringsordre",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ],
@@ -2489,7 +2489,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/utledning/utled.ts#trekkAvPaaberopelsenErSperret",
+        "kjerne/spor/forhold/utledning.ts#trekkAvPaaberopelsenErSperret",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ]
     },
@@ -2916,7 +2916,7 @@
       "funksjoner": [
         "kjerne/kommandoer/forutsetninger.ts#korrigering",
         "kjerne/kommandoer/nyttelast.ts#kontrollerKorrigering",
-        "kjerne/utledning/utled.ts#opplysningerOmDatoen"
+        "kjerne/spor/forhold/utledning.ts#opplysningerOmDatoen"
       ],
       "regelkoder": [
         "UGYLDIG_KORRIGERING",

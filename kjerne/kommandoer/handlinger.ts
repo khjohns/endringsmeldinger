@@ -73,7 +73,7 @@ export function elementenesSpor(u: Utledning): Map<string, Spor> {
       if (f.svar) sporet.set(f.svar, spor);
     }
   }
-  // Korrigeringen gjelder datoen i et krav i forholdet (MM-U52, `utled.ts`).
+  // Korrigeringen gjelder datoen i et krav i forholdet (MM-U52, `spor/forhold/utledning.ts`).
   for (const o of u.datoopplysninger) sporet.set(o.id, 'forhold');
   return sporet;
 }

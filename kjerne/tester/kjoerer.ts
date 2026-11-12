@@ -23,12 +23,8 @@ import {
   type Kontekst,
   type Utfall,
 } from '../kommandoer/skriving.ts';
-import {
-  enighetensVirkning,
-  kanInngaaIEo,
-  kraveneErAvgjort,
-  type Utledning,
-} from '../utledning/utled.ts';
+import { enighetensVirkning, kraveneErAvgjort, type Utledning } from '../utledning/utled.ts';
+import { kanInngaaIEo } from '../spor/forhold/utledning.ts';
 import { visning } from '../utledning/visning.ts';
 import type { Bane } from './bane.ts';
 import { testklokke, tilfeldigeIder, type Klokke, type NyId } from './testmiljoe.ts';

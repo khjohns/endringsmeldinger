@@ -57,13 +57,13 @@ import {
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import {
   enighetensVirkning,
-  kanInngaaIEo,
   kraveneErAvgjort,
   standpunktetErSubsidiaert,
   svarIkkeGodtatt,
   varseletForNyttSvar,
   venterPaaSvar,
 } from '../utledning/utled.ts';
+import { kanInngaaIEo } from '../spor/forhold/utledning.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { vederlagssvaret } from '../spor/vederlag/visning.ts';
