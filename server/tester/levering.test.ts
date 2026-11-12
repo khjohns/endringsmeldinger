@@ -1450,7 +1450,7 @@ describe('oppdraget, brevteksten og brevprofilen (#926, #1177)', () => {
     const brevtekst = [{ gjelder: 'a', laast: 'Tekst.' }];
     const { innhold } = lag({ brevtekst, merking: 'K201-KOE-005-03' });
     expect(innhold.dokument).toEqual({ noekkel: 'e1', filnavn: 'K201-KOE-005-03.pdf' });
-    expect(innhold.oppdragsformat).toBe(9);
+    expect(innhold.oppdragsformat).toBe(10);
     expect((innhold.brev as { brevprofil: unknown }).brevprofil, 'LV-U26, #1177').toEqual(
       brevprofil('BH')
     );

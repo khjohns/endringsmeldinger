@@ -9812,6 +9812,15 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
     expect(innledning.overskrift).toBeUndefined();
   });
 
+  it('et avsnitt med punkt for et element som ikke er et krav, gjør saken ikke forstått (MM-U2)', () => {
+    const s = sak();
+    s.send('TE', svikt);
+    const varselet = s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' });
+    expect(s.u().forstaatt, 'kontrollsak').toBe(true);
+    (varselet.data.brevtekst as Avsnitt[])[0].punkt = '34.1.2';
+    expect(s.u().forstaatt).toBe(false);
+  });
+
   it('avsnitt som ikke står etter hverandre per punkt, eller en overskrift som ikke står først, gjør saken ikke forstått (MM-U2)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);

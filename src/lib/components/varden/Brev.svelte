@@ -57,9 +57,15 @@
   const organisasjoner = $derived(hentOrganisasjoner());
   const stor = (s: string) => s[0].toUpperCase() + s.slice(1);
 
-  /** Avsnittene i et punkt, uten overskriften, som står først i den låste delen. */
+  /**
+   * Avsnittene i et punkt, uten overskriften, som står først i den låste delen. Står den ikke
+   * først, vises hele den låste delen, så ingen tekst faller bort.
+   */
   const underOverskriften = (a: Pick<Avsnitt, 'laast' | 'overskrift'>): string[] =>
-    (a.overskrift ? a.laast.slice(a.overskrift.length) : a.laast)
+    (a.overskrift && a.laast.startsWith(a.overskrift)
+      ? a.laast.slice(a.overskrift.length).trimStart()
+      : a.laast
+    )
       .split('\n\n')
       .filter((del) => del !== '');
 </script>
@@ -231,6 +237,10 @@
   }
   .tekst h3:first-child {
     margin-top: 0;
+  }
+  /* I et dempet brev har tittelen samme størrelse og vekt; fargen skiller punktene fra den. */
+  .dempet .tekst h3 {
+    color: var(--ink-2);
   }
   .tekst .utdypning {
     white-space: pre-wrap;

@@ -182,10 +182,14 @@ export class Journalen {
     return erRegistrert(this.brev.get(dokument)!.dokument.opplysninger);
   }
 
-  /** Utdypningen under elementet i brevteksten i brevet det står i. */
+  /**
+   * Utdypningen under elementet i brevteksten i brevet det står i. Et element med punkter har
+   * ingen utdypning for hele elementet (B-1 B i #1824).
+   */
   utdypning(element: string, dokument: string): string | undefined {
-    return this.brev.get(dokument)?.dokument.brevtekst?.find((a) => a.gjelder === element)
-      ?.utdypning;
+    return this.brev
+      .get(dokument)
+      ?.dokument.brevtekst?.find((a) => a.gjelder === element && a.punkt === undefined)?.utdypning;
   }
 
   /** VS-U20, OV-U5: brevet varselet står i, som et registrert varsel eller det første fristkravet. */
@@ -234,10 +238,13 @@ export interface Brevpunkt {
  * Partens utdypning per element i brevet, for hele elementet og per punkt, med punktet som
  * nøkkel (B-13 om begrunnelsestekst, B-2 A i #1824). Appen tolker den ikke (KA-U19).
  */
-export type Utdypninger = ReadonlyMap<
-  string,
-  { utdypning?: string; utdypninger?: Readonly<Record<string, string>> }
->;
+export type Utdypninger = ReadonlyMap<string, Utdypning>;
+
+/** Partens utdypning for ett element: for hele elementet, og per punkt (`Utdypninger`). */
+export interface Utdypning {
+  utdypning?: string;
+  utdypninger?: Readonly<Record<string, string>>;
+}
 
 /** Setningene som ett avsnitt uten overskrift. */
 export const utenOverskrift = (setninger: string[]): Brevpunkt => ({

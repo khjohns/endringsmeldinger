@@ -4130,6 +4130,19 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['avsnitt som ikke står etter hverandre per punkt'],
   },
   {
+    id: 'F558',
+    feilklasse:
+      'leseren forstår et avsnitt med punkt for et element som ikke er et krav (MM-U2, B-1 B i #1824)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        'if (a.punkt !== undefined && !dokument.krav.some((k) => k.id === a.gjelder))',
+        'if (false)',
+      ],
+    ],
+    mal: ['et avsnitt med punkt for et element som ikke er et krav'],
+  },
+  {
     id: 'F557',
     feilklasse:
       'brevteksten mister en utdypning for et punkt brevet ikke har, i stedet for å avvise kommandoen (B-2 A i #1824)',

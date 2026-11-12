@@ -14,7 +14,12 @@ import { korrigertDato, SKRIVING_I_FORHOLDET } from '../spor/forhold/kommando.ts
 import { frys } from '../frosset/frysing.ts';
 import { standpunkter } from './standpunkter.ts';
 import { lagBrevtekst, lagDeresRef } from '../frosset/brevtekst.ts';
-import { BrevetAvvises, KanIkkeUttrykkes, UtdypningUtenPunkt } from '../frosset/brevdeler.ts';
+import {
+  BrevetAvvises,
+  KanIkkeUttrykkes,
+  UtdypningUtenPunkt,
+  type Utdypning,
+} from '../frosset/brevdeler.ts';
 import { brevmerking, lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
 import {
   brevtekstI,
@@ -98,6 +103,21 @@ export type Utfall =
  */
 export type Neste = (kontekst: Kontekst, journal: Journalrad[]) => Utfall;
 
+/**
+ * Stedet i brevteksten et avsnitt står, slik avsenderen leser brevet: punktet med overskriften
+ * over avsnittet, eller nummeret på elementet (B-1 B i #1824).
+ */
+function avsnittsnavn(brevtekst: readonly Avsnitt[], i: number): string {
+  const a = brevtekst[i];
+  const over = brevtekst
+    .slice(0, i + 1)
+    .reverse()
+    .find((b) => b.gjelder === a.gjelder && b.overskrift !== undefined);
+  if (a.punkt !== undefined && over) return `Punktet «${over.overskrift}» i brevteksten`;
+  const elementer = new Set(brevtekst.slice(0, i + 1).map((b) => b.gjelder));
+  return `Avsnitt ${elementer.size} i brevteksten`;
+}
+
 const ugyldigForm = (avvisning: Avvisning): Utfall => ({
   godtatt: false,
   feil: 'UGYLDIG_FORM',
@@ -132,8 +152,8 @@ function lagret({ virkninger, ...resten }: Beslutningsgrunnlag): Data {
   };
 }
 
-/** Partens utdypning per element og per punkt i brevet, til brevteksten (`Utdypninger`). */
-type Utdypninger = Map<string, { utdypning?: string; utdypninger?: Record<string, string> }>;
+/** Partens utdypning per element og per punkt i brevet, til brevteksten. */
+type Utdypninger = Map<string, Utdypning>;
 
 /**
  * Standpunktene og serverens utregning nyttelastkontrollen leste i hvert svarutkast, i
@@ -598,11 +618,7 @@ function skriv(
         avvisning: { regel: feil.regel, melding: feil.message },
       };
     if (feil instanceof UtdypningUtenPunkt)
-      return {
-        godtatt: false,
-        feil: 'UGYLDIG_FORM',
-        avvisning: { regel: 'UGYLDIG_FORM', melding: feil.message },
-      };
+      return ugyldigForm({ regel: 'UGYLDIG_FORM', melding: feil.message });
     throw feil;
   }
   if (brevtekst) {
@@ -622,7 +638,7 @@ function skriv(
       ) ??
       kommandoenHarTegnSomIkkeKanVises(kommando) ??
       brevtekst.reduce<Avvisning | null>(
-        (funnet, a, i) => funnet ?? tegnSomIkkeKanVises(a.laast, `Avsnitt ${i + 1} i brevteksten`),
+        (funnet, a, i) => funnet ?? tegnSomIkkeKanVises(a.laast, avsnittsnavn(brevtekst, i)),
         null
       );
     if (tegn) return ugyldigForm(tegn);

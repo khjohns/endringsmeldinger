@@ -53,7 +53,7 @@ import type { Visning } from '../kjerne/utledning/visning.ts';
 import type { Leveringsmaal, Oppdragsrad } from './lager.ts';
 
 /** Formen på `leveringsoppdrag.innhold`. Økes når formen endres. */
-export const OPPDRAGSFORMAT = 9;
+export const OPPDRAGSFORMAT = 10;
 
 /** Prosjektet har ingen kontraktsforkortelse, så brevet kan ikke merkes (S2 A i #1497). */
 export class KontraktsforkortelseMangler extends Error {}

@@ -163,6 +163,15 @@ describe('Punktene i brevet (#1824, prototype v4 i BF-14)', () => {
     ]);
   });
 
+  it('står overskriften ikke først i den låste delen, vises hele den låste delen, så ingen tekst faller bort', () => {
+    brev({
+      avsender: 'TE',
+      avsnitt: [{ punkt: 'P1', overskrift: '1. Vederlagsjustering', laast: 'P1 Graving.' }],
+    });
+    const tekst = screen.getByTestId('laast-tekst');
+    expect([...tekst.querySelectorAll('p')].map((p) => p.textContent)).toEqual(['P1 Graving.']);
+  });
+
   it('et avsnitt uten punkter står som før, med den låste teksten (kontrollsak)', () => {
     brev();
     expect(screen.queryAllByRole('heading', { level: 3 })).toEqual([]);

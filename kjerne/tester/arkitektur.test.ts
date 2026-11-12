@@ -1807,13 +1807,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Avsnitt', 'brevtekst', 'laast punkt overskrift', ['format/leser.ts']],
   ['Brevpunkt', 'brevtekst', 'punkt overskrift avsnitt', ['frosset/brevtekst.ts']],
   // B-2 A i #1824: utdypningen per punkt kopieres til teksten under punktet.
+  ['Utdypning', 'brevtekst', 'utdypning utdypninger', ['frosset/brevtekst.ts']],
   [
-    'frosset/brevdeler.ts:Utdypninger',
+    'frosset/brevtekst.ts:lagBrevtekst.leggPunkter',
     'brevtekst',
-    'utdypning utdypninger',
+    'punkt overskrift',
     ['frosset/brevtekst.ts'],
   ],
-  ['frosset/brevtekst.ts:lagBrevtekst(perPunkt)', 'brevtekst', '*', ['frosset/brevtekst.ts']],
+  // Stedet i brevteksten en avvisning for tegnene viser til (`avsnittsnavn`).
+  ['Avsnitt', 'brevtekst', 'gjelder punkt overskrift', ['kommandoer/skriving.ts:avsnittsnavn']],
+  // Et element med punkter har ingen utdypning for hele elementet (`Journalen.utdypning`).
+  ['Avsnitt', 'brevtekst', 'punkt', ['frosset/brevdeler.ts']],
   [
     'frosset/brevdeler.ts',
     'brevtekst',
@@ -1948,7 +1952,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['frosset/brevtekst.ts'],
   ],
   ['Kravsporsbrevtekst', 'brevtekst', 'enigI ingenKrav kravetOm trukket', ['frosset/brevtekst.ts']],
-  ['Sporsbrevtekst.utdypningensPunkt', 'brevtekst', 'punkt overskrift', ['frosset/brevtekst.ts']],
   [
     'spor/vederlag/tekst.ts',
     'brevtekst',
