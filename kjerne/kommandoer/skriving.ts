@@ -723,12 +723,16 @@ function brevtekstFor(
             Object.entries(iSporet(SKRIVING, k.spor).postvarsler?.(k, ny.dokument, lest, u) ?? {})
           )
         ),
-        varsletFoer: Object.fromEntries(
-          (['34.1.2', '34.1.3'] as const).flatMap((h) => {
-            const varsel = varseletFoerBrevet(u, h);
-            return varsel === undefined ? [] : [[h, varsel]];
-          })
-        ),
+        varsletFoer: ny.dokument.krav.some((k) => k.spor === 'vederlag')
+          ? Object.fromEntries(
+              (['34.1.2', '34.1.3'] as const).flatMap((h) => {
+                const varsel = varseletFoerBrevet(u, h);
+                return varsel === undefined ? [] : [[h, varsel]];
+              })
+            )
+          : {},
+        paaberopelse:
+          ny.dokument.krav.find((k) => k.spor === 'forhold') ?? u.spor.forhold.gjeldendeKrav,
       },
       kjerne.regler,
       utdypninger

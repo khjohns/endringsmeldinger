@@ -52,6 +52,8 @@ export interface Saken {
    * tidligere krav (`varseletFoerBrevet` i utledningen). Uten det er kravet i brevet varselet.
    */
   varsletFoer: Partial<Record<'34.1.2' | '34.1.3', string>>;
+  /** Påberopelsen vederlagskravet bygger på: i brevet, ellers gjeldende versjon før det. */
+  paaberopelse: Krav | null;
 }
 
 /** Kravet en kommando om et kommende avsnitt ikke kan uttrykke. Brevet skrives ikke. */

@@ -20,7 +20,13 @@ import {
   type Standpunktstekster,
   type Tekst,
 } from '../../frosset/brevdeler.ts';
-import { laget, virkningen, type Svarinnhold } from '../../frosset/byggeklosser.ts';
+import {
+  hjemmelenGjelder,
+  laget,
+  virkningen,
+  type Svarinnhold,
+} from '../../frosset/byggeklosser.ts';
+import type { Regelsett } from '../../regler/regelsett.ts';
 import type { Linjeledd, Sporslinje } from '../../frosset/linje.ts';
 import { kroner, SENT_I_LINJEN } from '../../frosset/tekst.ts';
 import { begrensningen } from './frysing.ts';
@@ -114,12 +120,10 @@ function kravposttekst(
 
 /**
  * Varselet etter § 34.1.2 eller § 34.1.3 tredje ledd i punktet for varselet: brevet det ble gitt
- * i, eller at kravet varsler nå (U-7 og prototype v4 i BF-14, VS-U51). Ordlyden er design.
+ * i, som for varselet for en kravpost (`gitt`), eller at kravet varsler nå (U-7 og prototype v4
+ * i BF-14, VS-U51). Ordlyden er design.
  */
-function varselpunkt(
-  hjemmel: '34.1.2' | '34.1.3',
-  { j, saken }: Pick<Tekst, 'j' | 'saken'>
-): Brevpunkt {
+function varselpunkt(hjemmel: '34.1.2' | '34.1.3', t: Tekst): Brevpunkt {
   const ordene = {
     '34.1.2': {
       overskrift: 'Varselet om vederlagsjustering',
@@ -132,13 +136,11 @@ function varselpunkt(
       naa: 'Totalentreprenøren varsler særskilt etter NS 8407 punkt 34.1.3 tredje ledd.',
     },
   }[hjemmel];
-  const foer = saken.varsletFoer[hjemmel];
+  const foer = t.saken.varsletFoer[hjemmel];
   return {
     overskrift: ordene.overskrift,
     avsnitt: [
-      foer === undefined
-        ? ordene.naa
-        : `${ordene.gitt} ble gitt i ${j.brevet(j.dokumentetTil(foer))}.`,
+      foer === undefined ? ordene.naa : gitt({ art: 'gitt', varsel: foer }, ordene.gitt, t),
     ],
   };
 }
@@ -149,7 +151,7 @@ function varselpunkt(
  * (OV-U95 punkt 3, OV-U89 punkt 17) og hvilke poster som er tilbud etter § 34.2.1 (KA-U61,
  * KA-U65). Rigg og drift kalles ikke tilbud. Partene skrives fullt ut (LV-U35).
  */
-function vederlagstekst(k: Krav, t: Tekst): Brevpunkt[] {
+function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
   const { j, saken } = t;
   const poster = kravposterI(k);
   const post = krevdProduktivitet(k);
@@ -164,7 +166,9 @@ function vederlagstekst(k: Krav, t: Tekst): Brevpunkt[] {
         `Kravet erstatter totalentreprenørens krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`,
       ],
     });
-  punkter.push(varselpunkt('34.1.2', t));
+  // VS-U3, OV-U15: varselet etter § 34.1.2 nevnes der varslingsplikten gjelder forholdet.
+  if (hjemmelenGjelder('34.1.2', saken.paaberopelse, regler))
+    punkter.push(varselpunkt('34.1.2', t));
   if (post !== null) punkter.push(varselpunkt('34.1.3', t));
 
   const justering = poster.map((p) => kravposttekst(p, saken.kravpostvarsler[p.id], t));
@@ -217,7 +221,7 @@ function kravetsBeloep(krav: Krav): string {
     return krevd === null ? [] : [`${eksMva(tilTall(krevd))} i ${p.betegnelse}`];
   });
   const post = krevdProduktivitet(krav);
-  if (post !== null) deler.push(`${eksMva(tilTall(post))} etter NS 8407 punkt 34.1.3 annet ledd`);
+  if (post !== null) deler.push(`${eksMva(tilTall(post))} etter NS 8407 § 34.1.3 annet ledd`);
   const rigg = krevdRigg(krav);
   if (rigg !== null) deler.push(`${eksMva(tilTall(rigg))} for rigg og drift`);
   return deler.length ? deler.join(' og ') : 'uten krevd beløp';

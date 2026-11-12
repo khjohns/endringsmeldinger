@@ -4107,6 +4107,22 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['et eget varsel registrert etter det første fristkravet, skjuler ikke kravet'],
   },
   {
+    id: 'F554',
+    feilklasse:
+      'leseren forstår punkter i brevteksten som ikke gir den låste delen ordrett (MM-U2, #1824)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['somLaastTekst(a.punkter) !== a.laast', 'false']],
+    mal: ['punkter som ikke gir den låste delen ordrett, gjør saken ikke forstått'],
+  },
+  {
+    id: 'F555',
+    feilklasse:
+      'vederlagskravet nevner varselet etter § 34.1.2 der varslingsplikten ikke gjelder forholdet (VS-U3, OV-U15, #1824)',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [["if (hjemmelenGjelder('34.1.2', saken.paaberopelse, regler))", 'if (true)']],
+    mal: ['ved en endring nevner kravet ikke varselet etter punkt 34.1.2'],
+  },
+  {
     id: 'F553',
     feilklasse:
       'leseren forstår en merking som slutter med brevnummeret, men ikke har formen fra brevmerkingen (LV-U44, LV-U48, #1588)',
