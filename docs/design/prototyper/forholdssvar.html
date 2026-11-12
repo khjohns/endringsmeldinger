@@ -6,9 +6,9 @@
 <title>Svaret på forholdet i Varden</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!--
-  Prototype v3 (12.11) av byggherrens svar på totalentreprenørens påberopelse av forholdet,
+  Prototype v4 (12.11) av byggherrens svar på totalentreprenørens påberopelse av forholdet,
   bestillingen BF-08 (docs/domenetabell/brukerforlop/BF-08.md, #1834). Mønsteret og stilarket er
-  fra fristsvar.html, rettet etter .interface-design/system.md i v2 og mot vedtakene i v3. Tilstandene er ankrene #svar,
+  fra fristsvar.html, rettet etter .interface-design/system.md i v2, mot vedtakene i v3 og etter prøven av S-3 i v4. Tilstandene er ankrene #svar,
   #brev, #bekreft, #henvisning, #handlinger og #godta. Teksten er prototypetekst; de vedtatte
   brevsetningene står ordrett etter D-2 i bestillingen. «Vis sporbarhet» viser punktene i
   bestillingen på elementene. Ingenting sendes.
@@ -351,7 +351,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
       <div class="verktoyrad">
         <p class="sti">Varden › K201 › <span class="num">E-014</span></p>
         <span class="hoyre">
-          <span class="demomerke" id="rolle">Prototype v3 · du ser saken som byggherren</span>
+          <span class="demomerke" id="rolle">Prototype v4 · du ser saken som byggherren</span>
           <span class="segment" role="group" aria-label="Forholdet i eksempelet">
             <button type="button" data-sett-f="endring" aria-pressed="true">Irregulær endring</button>
             <button type="button" data-sett-f="grunn" aria-pressed="false">Uforutsette forhold ved grunnen</button>
@@ -603,7 +603,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
                 <div class="valg"><label><input type="radio" name="h-v" value="enig"> Enig</label><label><input type="radio" name="h-v" value="avslag" checked> Avslår</label></div>
               </fieldset>
               <p class="hjelp">Avslår du, står punktet først, og punktene om vederlaget gjelder subsidiært.</p>
-              <div class="notis" id="h-bundet" data-spor="D-15" style="margin:0" hidden><p>Du har vist til byggherrens e-post av 23. oktober 2026. Gir du et nytt svar her, kan byggherren være bundet av det tidligere svaret, og brevet sier at du viste til e-posten (S-3).</p></div>
+              <div class="notis" id="h-bundet" data-spor="D-15 · S-3" style="margin:0" hidden><p>Du har oppgitt at byggherren svarte i e-post av 23. oktober 2026. Svarer du på forholdet her, kan byggherren være bundet av det tidligere svaret. Brevet nevner ikke e-posten, fordi ingen henvisning til den er sendt. Skal brevet vise til e-posten, kan du bekrefte svaret i den i stedet.</p><a class="lenke" href="#bekreft" style="align-self:flex-start;padding:0">Bekreft svaret i e-posten</a></div>
               <button class="lenke liten" type="button" id="h-fjern" style="align-self:flex-start">Ta ut svaret på forholdet</button>
             </section>
             <section class="punkt" aria-labelledby="hp1">
@@ -897,7 +897,7 @@ function lesAnker() {
   const a = TILSTANDER.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'svar';
   $$('.tilstand').forEach(t => t.classList.toggle('aktiv', t.id === a));
   const te = a === 'godta' || (a === 'handlinger' && S.part === 'TE');
-  $('#rolle').textContent = 'Prototype v3 · du ser saken som ' + (te ? 'totalentreprenøren' : 'byggherren');
+  $('#rolle').textContent = 'Prototype v4 · du ser saken som ' + (te ? 'totalentreprenøren' : 'byggherren');
   tegn();
   window.scrollTo(0, 0);
 }

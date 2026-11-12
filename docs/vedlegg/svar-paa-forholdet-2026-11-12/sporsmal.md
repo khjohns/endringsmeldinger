@@ -76,25 +76,56 @@ rettes av spørsmålet og hjelpeteksten, uten en ny brevtekst. Om totalentrepren
 tidligere svaret i brevet, er ikke prøvd. Velges A, føres valget som designpunktet U-9 i BF-08 og ikke
 som vedtak.
 
-## Spørsmål 3: S-3, nytt svar etter en henvisning
+## Spørsmål 3: S-3, svar på forholdet etter en henvisning til et svar utenfor løsningen
 
 **Bakgrunn.** OV-U46 sier: har byggherren vist til et svar utenfor løsningen og gir i stedet et nytt
 svar, velger byggherren det uttrykkelig, skjemaet sier at byggherren kan være bundet av det
 tidligere svaret, og brevet sier at byggherren tidligere viste til <dokumenttype> av <dato>. Regelen
-har ingen brevtekst. Den gjelder BF-08 når byggherren først har svart på vederlag med henvisningen
-(GR-U34 punkt 6) og så svarer på forholdet (D-15 i BF-08).
+har ingen brevtekst. «Nytt svar» betyr her et svar på forholdet i stedet for en bekreftelse, som i
+OV-U46. Det er ikke en revisjon av byggherrens svar etter HF-U25 punkt 1–2, som knappen «Nytt svar»
+i prototypen gjelder.
 
-**Hva valget styrer.** Brevteksten i svaret på forholdet etter en henvisning, i #1306 og i kjernen.
+Spørsmålet gjelder to tilfeller i BF-08 (D-15):
 
-- **A (anbefalt):** Etter innledningen i svaret sier brevet: ‹Byggherren viste i brev <merking> av
-  <dato> til byggherrens <dokumenttype> av <dato> for standpunktet til forholdet.› Har dokumentet en
-  merking, viser brevet til det etter LV-U53. Resten av brevet er et svar etter LV-U34. Endret tekst
-  gjelder bare nye brev (MM-U9). Forhold: presiserer OV-U46.
-- **B:** Som A, men setningen fortsetter: ‹Standpunktene nedenfor er byggherrens svar på
-  påberopelsen.› Forhold: presiserer OV-U46.
+- byggherren har svart på vederlag eller frist med henvisningen i et sendt brev (GR-U34 punkt 6), og
+  svarer nå på forholdet i et eget brev;
+- byggherren har i skjemaet for svaret på vederlag oppgitt et svar utenfor løsningen, men svarer på
+  forholdet i samme brev (GR-U34 punkt 2). Da sendes ingen henvisning.
 
-**Anbefaling: A.** Setningen sier det OV-U46 krever, med ordene i GR-U34 punkt 6, og B legger til en
-setning innledningen i LV-U41 allerede sier.
+Henvisningen gjelder gjeldende versjon av påberopelsen og følger ikke med en ny versjon (GR-U34
+punkt 7). Den kan stå i flere sendte brev, i svaret på vederlag og i svaret på frist og i et nytt
+svar som retter et standpunkt (HF-U25 punkt 5), og vise til ulike dokumenter.
+
+**Hva valget styrer.** Brevteksten i svaret på forholdet etter en henvisning, i #1306 og i kjernen, og
+teksten i skjemaet i D-15.
+
+- **A (anbefalt):** Står henvisningen i et sendt brev og gjelder versjonen byggherren nå svarer på,
+  sier brevet etter innledningen: ‹Byggherren viste i brev <merking> av <dato> til byggherrens
+  <dokumenttype> av <dato> for standpunktet til forholdet.› Brevet har én slik setning for hvert
+  dokument byggherren har vist til på den versjonen, med det siste sendte brevet som viste til
+  dokumentet, også når brevet er et nytt svar på vederlag eller frist som retter et standpunkt. Et
+  senere brev uten henvisningen endrer ikke at henvisningen er sendt (MM-U50). Har dokumentet en
+  merking, viser brevet til det etter LV-U53. Svaret har ellers innledningen og punktene etter LV-U34 og LV-U41,
+  uten setningen ‹Svaret erstatter byggherrens svar i brev <n> av <dato>.›, fordi løsningen ikke
+  har noe svar på forholdet som erstattes, og brevet ikke stiller det nye svaret over det tidligere.
+  Gjelder henvisningen en tidligere versjon, tas setningen ikke med, og skjemaet sier ikke at
+  byggherren kan være bundet av det tidligere svaret (GR-U34 punkt 7). Svarer byggherren på forholdet
+  i samme brev, er ingen henvisning sendt, og brevet har ingen slik setning. Byggherren velger da
+  uttrykkelig å svare på forholdet, og skjemaet sier at byggherren kan være bundet av det tidligere
+  svaret. Forhold: presiserer OV-U46; utvider OV-U46 (skjemaet ved samme brev); utvider LV-U34
+  (innledningen).
+- **B:** Som A, men svarer byggherren på forholdet i samme brev, kan byggherren uttrykkelig velge at
+  brevet etter innledningen sier: ‹Byggherren har tidligere svart på forholdet i byggherrens
+  <dokumenttype> av <dato>.› Setningen er valgfri og tas ikke med av opplysningen byggherren ga om
+  svaret utenfor løsningen alene. Forhold: presiserer OV-U46; utvider OV-U46 (skjemaet og brevet ved
+  samme brev); utvider LV-U34 (innledningen).
+
+**Anbefaling: A.** Setningen sier det OV-U46 krever, med ordene i GR-U34 punkt 6, og bare når en
+henvisning er meddelt totalentreprenøren. I samme brev har totalentreprenøren ikke fått noen
+henvisning, og B legger til en opplysning OV-U46 ikke krever. Om totalentreprenøren trenger den, er
+ikke prøvd. Hvert dokument nevnes, så setningen ikke skjuler et dokument byggherren har vist til.
+Vil byggherren at brevet nevner et svar utenfor løsningen i samme brev, kan byggherren bekrefte det
+etter OV-U46 i stedet, og bekreftelsen krever ingen henvisning. Skjemaet tilbyr det (G-8 i BF-08).
 
 ## Kontrollen
 
@@ -115,6 +146,38 @@ spørsmålene ble sendt. Funnene som gjaldt spørsmålene, og hvordan de er rett
    totalentreprenørens brev, og opplysningen er valgfri.
 7. **Et spørsmål som manglet.** Brevteksten for et nytt svar etter en henvisning (OV-U46). Det er S-3,
    som ikke er prøvd av kontrollen.
+
+Orkestratoren lot en subagent prøve S-3 mot vedtakene 12.11, med tre forløp
+([#1839, 6832964659](https://github.com/khjohns/endringsmeldinger/pull/1839#issuecomment-6832964659)).
+S-3 er rettet etter funnene:
+
+1. **Samme brev.** Tilfellet der byggherren svarer på forholdet i samme brev, er avgrenset i A og
+   stilt som alternativ B.
+2. **Flere henvisninger.** A sier at setningen viser til det siste sendte brevet med en henvisning
+   på versjonen, også etter en retting (HF-U25 punkt 5), og til dokumentet det viser til.
+3. **Gjeldende versjon.** Setningen tas bare med når henvisningen gjelder versjonen byggherren svarer
+   på (GR-U34 punkt 7).
+4. **«Erstatter».** A sier at setningen ‹Svaret erstatter …› i LV-U34 ikke tas med.
+5. **Forholdet.** Rettet til «presiserer OV-U46; utvider LV-U34 (innledningen)».
+6. **«Nytt svar».** Bakgrunnen sier at det betyr et svar i stedet for en bekreftelse, ikke en
+   revisjon.
+7. **MM-U9.** Setningen om endret tekst er fjernet. Teksten er ny, og MM-U9 er samlet i MM-U50.
+
+En subagent prøvde den rettede S-3 mot vedtakene én gang 12.11, med fire forløp. Den fant ingen
+motstrid der et vedtak bør vike. Funnene, og hvordan de er rettet:
+
+1. **A, retting uten henvisning.** A sier at et senere brev uten henvisningen ikke endrer at den er
+   sendt (MM-U50).
+2. **A, tidligere versjon.** A sier at skjemaet da ikke sier at byggherren kan være bundet.
+3. **A, flere dokumenter.** Én setning nevnte bare det siste dokumentet og snevret inn OV-U46. A har
+   nå én setning per dokument.
+4. **A, samme brev.** Advarselen i skjemaet uten en sendt henvisning utvider OV-U46. Forholdet sier
+   det, og valget er uttrykkelig.
+5. **B.** Setningen ville bli en meddelelse av en opplysning gitt for et annet formål. Den er nå
+   valgfri og velges uttrykkelig.
+6. **Samme brev og påberopt preklusjon.** Nevner brevet ikke e-posten, kan visningen vise
+   påberopelsen som sen. Skjemaet tilbyr bekreftelsen etter OV-U46 i samme brev (G-8 i BF-08 og
+   prototypen). Det er design og ikke en del av spørsmålet.
 
 Funnene i domeneforventningene er rettet i BF-08 (se «Endringer» der).
 
