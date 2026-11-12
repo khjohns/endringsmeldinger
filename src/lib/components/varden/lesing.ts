@@ -83,8 +83,9 @@ export function brevene(u: Utledning): Brevet[] {
       ...d.spor,
       ...d.krav.map((k) => k.spor),
       ...d.svar.map((s) => s.spor),
+      // Et varsel har sporet selv, som et varsel for en kravpost (VS-U53).
       ...d.utsagn.flatMap((x) => {
-        const s = 'gjelder' in x ? spor.get(x.gjelder) : undefined;
+        const s = ('gjelder' in x ? spor.get(x.gjelder) : undefined) ?? spor.get(x.id);
         return s ? [s] : [];
       }),
     ]);
