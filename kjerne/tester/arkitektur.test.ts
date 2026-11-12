@@ -730,7 +730,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/format.ts',
     'regelsett',
     'krevdRigg',
-    ['kommandoer/forutsetninger.ts:hindrerSvarPaaKravet', 'spor/vederlag/tekst.ts'],
+    ['spor/vederlag/kommando.ts:hindrerSvarPaaKravet', 'spor/vederlag/tekst.ts'],
   ],
   [
     'spor/vederlag/format.ts',
@@ -1096,6 +1096,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/vederlag/frysing.ts', 'frosset', 'FRYSING_I_VEDERLAGET', ['frosset/standpunkt.ts']],
   // #1783: lesereglene i 4.2 som er sporets egne.
   ['Sporskontroller', 'predikat', 'kravet kravene svaret', ['utledning/utled.ts']],
+  [
+    'Sporsforutsetninger',
+    'predikat',
+    'innsigelsenErIkkeBygget svaret',
+    ['kommandoer/forutsetninger.ts'],
+  ],
+  [
+    'spor/vederlag/kommando.ts',
+    'predikat',
+    'FORUTSETNINGER_I_VEDERLAGET',
+    ['kommandoer/forutsetninger.ts'],
+  ],
   ['spor/vederlag/utledning.ts', 'predikat', 'KONTROLLER_I_VEDERLAGET', ['utledning/utled.ts']],
   [
     'format/kravinnhold.ts',
@@ -1678,6 +1690,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/utregning.ts',
       'utledning/utled.ts',
       'kommandoer/standpunkter.ts',
+      'kommandoer/forutsetninger.ts',
     ],
   ],
   [

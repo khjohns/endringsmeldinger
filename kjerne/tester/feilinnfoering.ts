@@ -3620,12 +3620,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'byggherren tilbys innsigelse mot det registrerte varselet etter § 32.2, som ikke har brevtekst (S-4 i #807)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [
-      [
-        "if (kanFaaInnsigelse(maal, part) && u.spor.forhold.varsler['32.2']?.id === h.gjelder)",
-        'if (false)',
-      ],
-    ],
+    endringer: [["u.spor.forhold.varsler['32.2']?.id === gjelder", 'false']],
     mal: ['byggherren tilbys ikke innsigelse mot det registrerte varselet'],
   },
   {
@@ -3820,11 +3815,11 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "      return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Revisjonen') : null;",
-        '      return null;',
+        "      return forutsetningerI(h.spor).svaret(u, 'Revisjonen');",
+        "      return h.spor === 'forhold' ? null : forutsetningerI(h.spor).svaret(u, 'Revisjonen');",
       ],
       [
-        "      return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Svaret') : null;",
+        "      return forutsetningerI(h.spor).svaret(u, 'Svaret');",
         "      return svaretPaaberoperRegistrertVarsel(u, 'Svaret');",
       ],
     ],
@@ -4173,8 +4168,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F486',
     feilklasse: 'byggherren kan sende innsigelse mot varselet etter punkt 34.3.3 før økt 2 (G-9)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [['kanFaaInnsigelse(maal, part) && kravpostvarsel(u, h.gjelder)', 'false']],
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['u.spor.vederlag.kravpostvarsler.some((v) => v.id === gjelder)', 'false']],
     mal: ['byggherrens innsigelse mot varselet etter punkt 34.3.3 eller 34.4 venter'],
   },
   {

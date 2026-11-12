@@ -15,14 +15,16 @@ import {
   type Kravpostvurdering,
 } from './frysing.ts';
 import { etikett, laget, type Svarvurdering } from '../../frosset/byggeklosser.ts';
-import { kravposterI, OPPGJOERSHJEMMEL } from './format.ts';
+import { kravposterI, krevdRigg, OPPGJOERSHJEMMEL } from './format.ts';
 import { varselhjemmel } from './utledning.ts';
 import { beloep, tilTall } from '../../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
 import { standpunkterISvaret } from '../../format/leser.ts';
 import {
+  avvis,
   erKravpostvarselhjemmel,
+  type Avvisning,
   type Hjemmel,
   type Krav,
   type Standpunkt,
@@ -31,6 +33,7 @@ import {
 } from '../../typer.ts';
 import { paaberopelseFor, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
 import type { Svarutkast } from '../../kommandoer/kommando.ts';
+import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
 
 type Data = Record<string, unknown>;
@@ -117,6 +120,39 @@ function kravpoststandpunkter(
     });
   return ut;
 }
+
+/**
+ * Det som hindrer byggherrens svar med standpunktene i dag, eller `null` når svaret kan gis.
+ * Svaret på rigg og drift er ikke bygget; posten går i en egen bestilling (arbeidsvalg 5 i
+ * spørsmålsfila 10.11 for #1663).
+ */
+export function hindrerSvarPaaKravet(krav: Krav): string | null {
+  return krevdRigg(krav) !== null ? 'Kravet har rigg og drift i forlenget byggetid' : null;
+}
+
+/**
+ * KA-U59: byggherren svarer per kravpost. Til svaret på rigg og drift er bygget, tilbys svaret
+ * og revisjonen av det ikke for et krav med posten (arbeidsvalg 5 i spørsmålsfila 10.11 for #1663).
+ */
+function svarPerKravpost(krav: Krav): Avvisning | null {
+  const hinder = hindrerSvarPaaKravet(krav);
+  return hinder
+    ? avvis('SVAR_PER_KRAVPOST', `${hinder}, og svaret på den er ikke bygget ennå.`)
+    : null;
+}
+
+/** Forutsetningene i vederlaget (`forutsetninger`). */
+export const FORUTSETNINGER_I_VEDERLAGET = {
+  innsigelsenErIkkeBygget: (u, gjelder) =>
+    // Byggherrens svar på et varsel etter § 34.3.3 eller § 34.4 bygges i økt 2 i #1663 (G-9 i BF-14).
+    u.spor.vederlag.kravpostvarsler.some((v) => v.id === gjelder)
+      ? avvis(
+          'IKKE_I_FOERSTE_VERSJON',
+          'Innsigelsen mot varselet etter punkt 34.3.3 eller 34.4 kan ikke sendes ennå.'
+        )
+      : null,
+  svaret: (u) => svarPerKravpost(u.spor.vederlag.gjeldendeKrav!),
+} satisfies Sporsforutsetninger;
 
 /**
  * Det i et foregående lag som rammer standpunktet (OV-U32). `oppgjoersform` er TEs beregningsregel for
