@@ -90,9 +90,10 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
         'Kravet for P1 er et tilbud etter punkt 34.2.1. Byggherren kan akseptere det.'
       )
     ).toBeTruthy();
-    // VS-U49: kravet er varselet etter § 34.4 for P2, som ikke har stått i saken før.
+    // VS-U48 og VS-U49: kravet regnes også som varselet etter § 34.4 for P2, som ikke har stått i
+    // saken før. Ordene står i språkfila, «Varselet i kravet».
     const raden = screen.getByText('Gjelder P2').closest('li')!;
-    expect(within(raden).getByText('Dette kravet er varselet.')).toBeTruthy();
+    expect(within(raden).getByText('Gis i dette brevet.')).toBeTruthy();
 
     await sendBrevet();
     const innhold = sistSendt(demosak().journal());
@@ -191,5 +192,111 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     await screen.findByText('Brevet er sendt til byggherren.');
     const [, p2] = sistSendt(demosak().journal()).kravposter as { varsel?: string }[];
     expect(typeof p2.varsel).toBe('string');
+  });
+
+  it('panelet «Punktene» markerer punktet for avsnittet du står i, også når et indre element ruller og i bunnen, og hver kravpost er en lenke til kravposten (U-15 i BF-14, #1827)', async () => {
+    await aapneSomTe('forholdet-er-godkjent');
+    await fireEvent.click(
+      within(
+        await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
+      ).getByRole('button')
+    );
+    const panelet = within(screen.getByRole('heading', { name: 'Punktene' }).closest('section')!);
+    const lenke = (navn: string) => panelet.getByRole('link', { name: navn });
+    const avsnitt = (navn: string) => document.querySelector(lenke(navn).getAttribute('href')!)!;
+    const merket = () =>
+      panelet
+        .getAllByRole('link')
+        .filter((a) => a.getAttribute('aria-current') === 'location')
+        .map((a) => a.textContent);
+    // Avsnittene er under linja 30 % ned i vinduet, bortsett fra dem som er rullet forbi.
+    const toppen = (forbi: string[]) => {
+      for (const navn of ['Vederlagsjustering', 'Varslene', 'Forbehold'])
+        vi.spyOn(avsnitt(navn), 'getBoundingClientRect').mockReturnValue({
+          top: forbi.includes(navn) ? 0 : window.innerHeight,
+        } as DOMRect);
+    };
+    // Saken ruller i et element inne i skallet, ikke i vinduet (`.project-shell`).
+    const rulleflate = avsnitt('Vederlagsjustering').parentElement!;
+    const rull = async () => {
+      await fireEvent.scroll(rulleflate);
+      await new Promise((ferdig) => requestAnimationFrame(ferdig));
+    };
+    toppen([]);
+    await rull();
+    expect(merket()).toEqual(['Vederlagsjustering']);
+    toppen(['Vederlagsjustering', 'Varslene']);
+    await rull();
+    expect(merket()).toEqual(['Varslene']);
+    // En annen flate i bunnen, som brevet ved siden av, flytter ikke markeringen.
+    const annen = document.createElement('div');
+    document.body.append(annen);
+    for (const [felt, verdi] of [
+      ['scrollTop', 600],
+      ['clientHeight', 400],
+      ['scrollHeight', 1000],
+    ] as const)
+      Object.defineProperty(annen, felt, { configurable: true, value: verdi });
+    await fireEvent.scroll(annen);
+    await new Promise((ferdig) => requestAnimationFrame(ferdig));
+    expect(merket()).toEqual(['Varslene']);
+    annen.remove();
+    // Et klikk i panelet som ikke ruller, markerer punktet det fører til.
+    window.location.hash = lenke('Forbehold').getAttribute('href')!;
+    await fireEvent(window, new HashChangeEvent('hashchange'));
+    expect(merket()).toEqual(['Forbehold']);
+    window.location.hash = '';
+    toppen(['Vederlagsjustering', 'Varslene']);
+    await rull();
+    expect(merket()).toEqual(['Varslene']);
+    // I bunnen er det siste punktet markert, også når det ikke når linja.
+    for (const [felt, verdi] of [
+      ['scrollTop', 600],
+      ['clientHeight', 400],
+      ['scrollHeight', 1000],
+    ] as const)
+      Object.defineProperty(rulleflate, felt, { configurable: true, value: verdi });
+    await rull();
+    expect(merket()).toEqual(['Forbehold']);
+    const p1 = panelet.getByRole('link', { name: /^P1/ });
+    expect(document.querySelector(p1.getAttribute('href')!)?.classList.contains('post')).toBe(true);
+  });
+
+  it('den særskilte vederlagsjusteringen står åpen når den legges til, og som en leselinje med «Endre» etter «Ferdig» (system.md «Én leselinje til du åpner», #1827 punkt 2)', async () => {
+    const demosak = await aapneSomTe('forholdet-er-godkjent');
+    await fireEvent.click(
+      within(
+        await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
+      ).getByRole('button')
+    );
+    await skriv('Beskrivelse av posten', 'Omlegging av rør');
+    await fireEvent.click(screen.getByRole('radio', { name: /^Fast sum/ }));
+    await skriv('Beløpet du krever', '210 000');
+    await fireEvent.click(knapp('Ferdig'));
+
+    await fireEvent.click(knapp('Legg til særskilt vederlagsjustering'));
+    const seksjonen = within(screen.getByRole('region', { name: 'Særskilt vederlagsjustering' }));
+    expect(document.activeElement).toBe(seksjonen.getByLabelText('Beløpet du krever'));
+    await fireEvent.click(seksjonen.getByRole('button', { name: 'Ferdig' }));
+    expect(seksjonen.queryByLabelText('Beløpet du krever')).toBeNull();
+    expect(document.activeElement).toBe(knapp('Endre særskilt vederlagsjustering'));
+
+    // MM-U32: et tomt beløp står i oppsummeringen, og lenken åpner feltet.
+    await fireEvent.click(knapp('Se brevet før sending'));
+    const mangler = within(
+      screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' })
+    );
+    await fireEvent.click(mangler.getByRole('link', { name: /^Særskilt vederlagsjustering/ }));
+    expect(document.activeElement).toBe(seksjonen.getByLabelText('Beløpet du krever'));
+    await fireEvent.input(seksjonen.getByLabelText('Beløpet du krever'), {
+      target: { value: '40000' },
+    });
+    await fireEvent.click(seksjonen.getByRole('button', { name: 'Ferdig' }));
+    expect(seksjonen.getByText(/^40\s000/)).toBeTruthy();
+
+    await sendBrevet();
+    expect(sistSendt(demosak().journal()).saerskilt).toEqual({
+      produktivitet: { beloep: 40000 },
+    });
   });
 });

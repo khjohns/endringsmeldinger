@@ -18,6 +18,7 @@
     pnsOver,
     hvaKravetEr,
     handling,
+    aktiv = null,
   }: {
     punkter: {
       id: string;
@@ -26,6 +27,8 @@
       status: string;
       poster?: {
         noekkel: string;
+        /** Id-en til kravposten i skjemaet. */
+        anker: string;
         betegnelse: string;
         beskrivelse: string;
         verdi: string;
@@ -38,6 +41,8 @@
     pnsOver: string[];
     hvaKravetEr: string[];
     handling: Snippet;
+    /** Punktet for avsnittet som er i syne. */
+    aktiv?: string | null;
   } = $props();
   const uid = $props.id();
 </script>
@@ -49,18 +54,22 @@
   </div>
   <ol class="punkter">
     {#each punkter as p (p.id)}
-      <li>
+      <li class:aktiv={aktiv === p.id}>
         <span class="nummer" aria-hidden="true">{p.nummer}</span>
         <div class="innhold">
-          <a href={`#${p.id}`}>{p.tittel}</a>
+          <a href={`#${p.id}`} aria-current={aktiv === p.id ? 'location' : undefined}>{p.tittel}</a>
           <span class="status">{p.status}</span>
           {#if p.poster?.length}
             <ul class="poster">
               {#each p.poster as q (q.noekkel)}
                 <li class:trukket={q.trukket}>
-                  <span class="betegnelse">{q.betegnelse}</span>
-                  <span class="beskrivelse">{q.beskrivelse}</span>
-                  <span class="verdi">{q.verdi}</span>
+                  <a href={`#${q.anker}`}>
+                    <span class="betegnelse">{q.betegnelse}</span>
+                    <span class="beskrivelse"
+                      ><span class="visually-hidden">&nbsp;</span>{q.beskrivelse}</span
+                    >
+                    <span class="verdi"><span class="visually-hidden">,&nbsp;</span>{q.verdi}</span>
+                  </a>
                 </li>
               {/each}
             </ul>
@@ -208,10 +217,28 @@
     font-size: 12px;
     color: var(--ink-2);
   }
-  .poster li {
+  .poster a {
     display: grid;
     grid-template-columns: 24px minmax(0, 1fr) auto;
     gap: var(--spacing-2);
+    color: inherit;
+    font-size: inherit;
+    font-weight: 400;
+    align-items: center;
+    min-height: 40px;
+  }
+  /* Punktet du står i: flaten for valgt og blekk i kanten, som i prototype v4 (U-15). */
+  .punkter > li {
+    padding: var(--spacing-1) var(--spacing-2);
+    border-left: 3px solid transparent;
+    border-radius: 0 var(--r-felt) var(--r-felt) 0;
+  }
+  .punkter > li.aktiv {
+    background: var(--surface-selected);
+    border-left-color: var(--ink);
+  }
+  .punkter > li.aktiv > .innhold > a {
+    font-weight: 600;
   }
   .poster .beskrivelse {
     overflow: hidden;

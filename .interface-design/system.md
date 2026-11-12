@@ -193,8 +193,9 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
 - **Normalsvaret er en setning, unntaket en lenke** (#1663). Et spørsmål
   med et klart normalsvar stilles ikke som en radiogruppe. Setningen sier normalsvaret med
   hjemmelen, og en lenke åpner unntaket. Det første tilfellet er varslene etter punkt 34.3.3 og
-  34.4 for en kravpost: «Dette kravet er varselet for P2», med lenken «Varselet for P2 er gitt
-  før» ([VS-U49](../docs/plans/vedtak.md#vs-u49) og [VS-U50](../docs/plans/vedtak.md#vs-u50)
+  34.4 for en kravpost: «Gis i dette brevet.», med lenken «Varselet for P2 er gitt før». Ordene
+  står i [språkfila](../docs/sprak.md#ordene-i-brevene-og-skjemaene), «Varselet i kravet»
+  ([VS-U49](../docs/plans/vedtak.md#vs-u49) og [VS-U50](../docs/plans/vedtak.md#vs-u50)
   sier hva TE kan oppgi, ikke hvordan spørsmålet stilles).
 - **Leselinja for et svar med lag** (#1663) viser standpunktet i det første
   laget som gjelder elementet, uten etiketten «Prinsipalt». Lagene under står som dempede linjer
