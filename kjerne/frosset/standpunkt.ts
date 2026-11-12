@@ -15,19 +15,18 @@
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
-  hjemmelenGjelder,
   laget,
   prinsipalt,
   standpunktet,
   type Svarinnhold,
   type Svarsfrysing,
   iSporet,
+  virkningerIForholdetOgFristen,
 } from './byggeklosser.ts';
 import { FRYSING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
 import { erRegistrert } from '../format/leser.ts';
 import { HJEMMEL } from '../format/format.ts';
 import { utregningIFristen } from '../format/svarinnhold.ts';
-import { utenGren } from '../typer.ts';
 import type {
   Beslutningsgrunnlag,
   Dokument,
@@ -63,45 +62,6 @@ export function virkninger(
   forskyvning = 0
 ): Standpunktsvirkning[] {
   return frysingI(svar.spor).virkninger(svar, paaberopelse, regler, forskyvning);
-}
-
-/** Lagene i forholdet og fristen: hver grunn med virkning åpner et nytt lag (`virkninger`). */
-function virkningerIForholdetOgFristen(
-  svar: Svarinnhold,
-  paaberopelse: Krav | null | undefined,
-  regler: Regelsett
-): Standpunktsvirkning[] {
-  const ut: Standpunktsvirkning[] = [];
-  let lag = 1;
-  const iLaget = () => lag;
-  for (const s of svar.standpunkter) {
-    if (s.art === 'rettidighet') {
-      const virker = !s.iTide && hjemmelenGjelder(s.hjemmel, paaberopelse, regler);
-      if (virker) lag = 2;
-      ut.push({ standpunkt: s.id, art: s.art, virkning: virker ? 1 : 'uten_virkning' });
-    } else if (s.art === 'oppgjoersform' && s.aksepterer) {
-      ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });
-    } else if (s.art === 'spesifisering') {
-      // VS-U4: for sent spesifisert gir prinsipalt det byggherren mener at byggherren måtte forstå at TE hadde krav på.
-      const virkning = s.iTide ? 'uten_virkning' : iLaget();
-      if (!s.iTide) lag++;
-      ut.push({ standpunkt: s.id, art: s.art, virkning });
-    } else if (s.art === 'hindring') {
-      // Vedtaket 05.10 (#211): uten fremdriftshindring står dagene som et videre subsidiært standpunkt.
-      const virkning = s.oppfylt ? 'uten_virkning' : iLaget();
-      if (!s.oppfylt) lag++;
-      ut.push({ standpunkt: s.id, art: s.art, virkning });
-    } else if (
-      s.art === 'forhold' ||
-      s.art === 'beloep' ||
-      s.art === 'oppgjoersform' ||
-      s.art === 'justering' ||
-      s.art === 'dager'
-    ) {
-      ut.push({ standpunkt: s.id, art: s.art, virkning: iLaget() });
-    } else utenGren(s);
-  }
-  return ut;
 }
 
 /**

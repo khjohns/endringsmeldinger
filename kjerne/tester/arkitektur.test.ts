@@ -652,6 +652,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Utregningen av svaret (utregning.ts), standpunktene (standpunkt.ts) og det brevet fryser.
   ['frosset/utregning.ts', 'regelsett', `regnUtSvar SAMMENLIKNES likeResultatfelt utenforOmfanget`],
   ['frosset/byggeklosser.ts', 'frosset', 'prinsipalt'],
+  // Lagene i forholdet og fristen, som begge slår opp i (#1783).
+  [
+    'frosset/byggeklosser.ts',
+    'frosset',
+    'virkningerIForholdetOgFristen',
+    ['frosset/standpunkt.ts'],
+  ],
   // GR-U11 og VS-U12: passivitetsregelen gjelder der § 32.2 gjelder. KA-46: innsigelsen mot
   // varselet etter § 34.1.2 avvises der § 34.1.2 ikke gjelder kategorien.
   [
@@ -662,7 +669,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/nyttelast.ts',
       'spor/vederlag/kommando.ts',
       'frosset/frysing.ts:beslutningsgrunnlag',
-      'frosset/standpunkt.ts',
       'spor/vederlag/frysing.ts',
     ],
   ],

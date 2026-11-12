@@ -1609,7 +1609,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F190',
     feilklasse: 'spesifisering i tide får virkning etter § 33.6.1',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [
       ["const virkning = s.iTide ? 'uten_virkning' : iLaget();", 'const virkning = iLaget();'],
     ],
@@ -1619,7 +1619,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F191',
     feilklasse:
       'de vurderte dagene står prinsipalt ved siden av påberopelsen etter § 33.6.1 (VS-U4)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [['if (!s.iTide) lag++;', 'void 0;']],
     mal: ['F-MM-F-33-6-1-nei'],
   },
@@ -3127,7 +3127,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F376',
     feilklasse: 'en grunn etter den andre åpner ikke et nytt lag, så dagene står i lag 2 (OV-U32)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [['      if (!s.oppfylt) lag++;', '      if (!s.oppfylt) lag = 2;']],
     mal: ['§ 33.4 for sent, ingen hindring og dagene står i lag 1, 2 og 3'],
   },
