@@ -3612,7 +3612,7 @@ valgt = "A"
 svar = '''
 Oppdragsgiver 10.11, videresendt ordrett av orkestratoren: «1D, 2A, 3A, 4B, 5A», med begrunnelsen oppdragsgiver la ved og skrev «Jeg støtter meg til dette:» om. For spørsmål 5 skriver begrunnelsen: «Her ville jeg gått mot anbefalingen, av tre grunner:», og: «Velger du A, endrer jeg v4 så kravpostene i «Varsel mellom to krav» vises uten «Endre», med en lenke til nytt svar på kravet.» Begrunnelsen står ordrett i [spørsmålsfila](../vedlegg/varselsvar-2026-11-10/sporsmal.md).'''
 forhold = [
-  { art = "bygger på", vedtak = "hf-u25" },
+  { art = "bygger på", vedtak = "hf-u29" },
 ]
 folge = '''
 Følger HF-U25, slik alternativet sier. Kravpostene uten «Endre» i svaret på et varsel lagt til mellom to krav er design og føres i BF-14. Avgjør S-18 i BF-14. Berører BF-14 (F-8).'''
