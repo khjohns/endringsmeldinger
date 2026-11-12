@@ -622,7 +622,7 @@ let aapen = null;
 const skall = document.querySelector('.skall');
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const brukt = (h, unntatt) => rader.some((r, i) => i !== unntatt && r.h === h);
-const ledig = (h, i) => !GITT[h] && !(B[h].en && brukt(h, i));
+const ledig = (h, i) => !(B[h].en && brukt(h, i));
 // S-2 A: påkrevd i et brev fra løsningen, valgfritt i et registrert dokument (som GR-U15).
 const paakrevd = r => B[r.h].arbeid && skall.dataset.maate !== 'utenfor';
 const mangler = r => paakrevd(r) && !r.arbeid.trim();
@@ -637,9 +637,9 @@ function radHtml(r, i) {
     `<label><input type="radio" name="vh-${i}" value="${h}"${h === r.h ? ' checked' : ''}> ${esc(B[h].navn)} (${B[h].ref})</label>`).join('');
   return linje + `<div class="vskjema" data-spor="U-2 · U-3 · U-4">
     <fieldset class="oppgj"><legend class="spm">Hva varsler du?</legend><div class="valg lett liste">${valg}</div></fieldset>
-    <div class="beloepfelt"><label for="va-${i}">Arbeidet varselet gjelder${paakrevd(r) ? '' : ' (valgfritt)'} ${b.arbeid ? '<span class="aapent" data-spor="S-2">Åpent S-2</span>' : ''}</label>
-      <span class="hjelp">${b.arbeid ? 'Står i brevet. Velg ett varsel per arbeid, så du senere kan si hvilket varsel en kravpost gjelder.' : 'Står i brevet.'}</span>
-      <input id="va-${i}" class="tekstfelt" data-arbeid="${i}" value="${esc(r.arbeid)}"></div></div>`;
+    ${b.arbeid ? `<div class="beloepfelt"><label for="va-${i}">Arbeidet varselet gjelder${paakrevd(r) ? '' : ' (valgfritt)'} <span class="aapent" data-spor="S-2">Åpent S-2</span></label>
+      <span class="hjelp">Står i brevet. Velg ett varsel per arbeid, så du senere kan si hvilket varsel en kravpost gjelder.</span>
+      <input id="va-${i}" class="tekstfelt" data-arbeid="${i}" value="${esc(r.arbeid)}"></div>` : ''}</div>`;
 }
 
 function brevtekst(r) {
@@ -656,7 +656,7 @@ function tegn() {
   const utenfor = skall.dataset.maate === 'utenfor';
   document.getElementById('varselrader').innerHTML = rader.map(radHtml).join('');
   document.getElementById('gitte').innerHTML = Object.entries(GITT).map(([h, hvor]) =>
-    `<p class="gitt"><b>${esc(B[h].navn)} (${B[h].ref})</b> er gitt i ${hvor} og kan ikke gis på nytt.</p>`).join('');
+    `<p class="gitt"><b>${esc(B[h].navn)} (${B[h].ref})</b> er gitt i ${hvor}.</p>`).join('');
   document.getElementById('legg-til').hidden = !Object.keys(B).some(h => ledig(h, -1));
   document.getElementById('antall').textContent = `${rader.length} varsler i ${utenfor ? 'det registrerte dokumentet' : 'brevet'}.`;
   document.getElementById('punktliste').innerHTML = rader.map((r, i) =>
@@ -703,7 +703,7 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('change', e => {
   const n = e.target.name || '';
-  if (n.startsWith('vh-')) { rader[+n.slice(3)].h = e.target.value; tegn(); }
+  if (n.startsWith('vh-')) { const r = rader[+n.slice(3)]; r.h = e.target.value; if (!B[r.h].arbeid) r.arbeid = ''; tegn(); }
   if (n === 'maate') { skall.dataset.maate = e.target.value; tegn(); }
   if (n === 'kpv') tegn();
 });
