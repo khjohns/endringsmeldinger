@@ -337,6 +337,7 @@
       status: KRAVSKJEMA.antallPoster(med.length),
       poster: v.poster.map((p) => ({
         noekkel: p.noekkel,
+        anker: id(`post-${p.noekkel}`),
         betegnelse: navnet(p),
         beskrivelse: p.beskrivelse || KRAVSKJEMA.nyPost,
         // Panelet viser beløpet eller oppgjørsformen (U-15).
@@ -370,6 +371,28 @@
       status: v.forbehold.trim() ? KRAVSKJEMA.skrevet : KRAVSKJEMA.ikkeSkrevet,
     },
   ]);
+
+  // Punktet i panelet for avsnittet øverst i syne (U-15 i BF-14, `aria-current`). Observatøren
+  // lages på nytt bare når avsnittene endres, ikke for hver status.
+  const punktider = $derived(punkter.map((p) => p.id).join(' '));
+  let aktivtPunkt = $state<string | null>(null);
+  $effect(() => {
+    const ider = punktider.split(' ');
+    if (typeof IntersectionObserver === 'undefined') return;
+    const synlige: Record<string, boolean> = {};
+    const io = new IntersectionObserver(
+      (oppfoeringer) => {
+        for (const o of oppfoeringer) synlige[o.target.id] = o.isIntersecting;
+        aktivtPunkt = ider.find((x) => synlige[x]) ?? aktivtPunkt;
+      },
+      { rootMargin: '0px 0px -55% 0px' }
+    );
+    for (const x of ider) {
+      const el = document.getElementById(x);
+      if (el) io.observe(el);
+    }
+    return () => io.disconnect();
+  });
 
   // Datoene TE fyller ut, i tidslinja (U-17).
   const utfylt = $derived([
@@ -618,8 +641,12 @@
       {formlinje(p)}
       {#if formdetalj(p)}<span class="detalj">{formdetalj(p)}</span>{/if}
     </p>
-    <p class="pns-celle">
-      <span class="visually-hidden">{KRAVSKJEMA.kolonner[2]}:</span>{p.pns || '–'}
+    <!-- Under 640 px står PNS med etiketten, og cellen står ikke når PNS er tom (#1827). -->
+    <p class="pns-celle" class:tom={!p.pns}>
+      <span class="visually-hidden">{KRAVSKJEMA.kolonner[2]}:</span><span
+        class="smal-etikett"
+        aria-hidden="true">{KRAVSKJEMA.kolonner[2]}</span
+      >{p.pns || '–'}
     </p>
     <p class="beloep-celle">
       <span class="visually-hidden">{KRAVSKJEMA.kolonner[3]}:</span>{beloeplinje(p)}
@@ -829,7 +856,11 @@
           </div>
           <ul class="poster">
             {#each v.poster as p (p.noekkel)}
-              <li class="post" class:er-aapen={aapen === p.noekkel && !p.trukket}>
+              <li
+                class="post"
+                id={id(`post-${p.noekkel}`)}
+                class:er-aapen={aapen === p.noekkel && !p.trukket}
+              >
                 {#if aapen === p.noekkel && !p.trukket}
                   {@render aapenPost(p)}
                 {:else}
@@ -1035,6 +1066,7 @@
       <div class="feste" class:fast={faarPlass} bind:this={panel}>
         <Kravpunkter
           {punkter}
+          aktiv={aktivtPunkt}
           faste={summer.faste}
           anslag={summer.anslag}
           {pns}
@@ -1423,9 +1455,20 @@
     padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
     border-top: var(--rule);
   }
+  .smal-etikett {
+    display: none;
+  }
   @media (max-width: 640px) {
     .kolonner {
       display: none;
+    }
+    .pns-celle.tom {
+      display: none;
+    }
+    .smal-etikett {
+      display: inline;
+      margin-right: var(--spacing-1);
+      color: var(--ink-3);
     }
     .linje,
     .varselrad {
