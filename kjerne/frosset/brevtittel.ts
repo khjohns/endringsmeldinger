@@ -39,8 +39,16 @@ export function avvikIMerkingen(
     return 'merkingen står bare i et brev fra løsningen, med nummeret (LV-U53)';
   if (!merking.endsWith(`-${utfylt(brevnummer, 2)}`))
     return 'merkingen slutter ikke med brevnummeret (LV-U48)';
+  if (!MERKINGEN.test(merking.slice(0, merking.lastIndexOf('-'))))
+    return 'merkingen har ikke formen fra brevmerking (LV-U44, LV-U48)';
   return null;
 }
+
+/**
+ * Det `brevmerking` lager foran brevnummeret: kontraktsforkortelsen, som har store bokstaver
+ * og sifre i katalogen, sakens kode og løpenummeret med minst tre sifre (LV-U44, LV-U48).
+ */
+const MERKINGEN = /^[A-Z0-9]+-(KOE|EO)-(00[1-9]|0[1-9]\d|[1-9]\d{2,})$/;
 
 /** Tittelen med sakens kode, slik skrivingen fryser den: «Krav om endring i sak KOE-17» (LV-U27). */
 export const medSakskode = (tittel: string, s: Sakskode): string =>

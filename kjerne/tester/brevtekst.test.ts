@@ -8179,6 +8179,28 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
     expect(med({ brevnummer: undefined })).toBe('ukjent');
   });
 
+  it.each([
+    ['uten forkortelsen og sakens kode', 'X-01'],
+    ['med to sifre i løpenummeret', 'K201-KOE-17-01'],
+    ['med en annen kode enn KOE og EO', 'K201-ABC-017-01'],
+    ['med små bokstaver i forkortelsen', 'k201-KOE-017-01'],
+    ['med en null for mye i løpenummeret', 'K201-KOE-0017-01'],
+  ])(
+    'en merking %s, som ikke har formen fra brevmerkingen, er ikke forstått (LV-U44, LV-U48, MM-U2)',
+    (_, merking) => {
+      const s = sak();
+      const rad = s.send('TE', PAABEROPELSE);
+      const med = (data: Data) =>
+        lesJournal(
+          [...s.journal.slice(0, -1), { ...rad, data: { ...rad.data, ...data } }],
+          KJERNE.leserformat
+        ).at(-1)!.art;
+      expect(med({ merking: 'K201-KOE-017-01' }), 'kontrollsak').toBe('dokument');
+      expect(med({ merking: 'K201-EO-1234-01' }), 'kontrollsak med fire sifre').toBe('dokument');
+      expect(med({ merking })).toBe('ukjent');
+    }
+  );
+
   it('registrert korrespondanse omtales med parten, typen og datoen (LV-U42)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
