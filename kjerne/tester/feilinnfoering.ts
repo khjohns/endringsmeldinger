@@ -1119,11 +1119,9 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F120',
     feilklasse: 'et svar på påberopelsen i et tidligere brev omtales som i samme brev (A2, LV-U3)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      ['  if (g.dokument === nytt.id) {', '  if (true) {'],
-      ['  if (nytt.id === g.dokument) {', '  if (true) {'],
-    ],
-    mal: ['forholdet avslått i et tidligere brev'],
+    endringer: [['  if (g.dokument === nytt.id) {', '  if (true) {']],
+    // LV-U72: svaret på fristen har dagens tekst.
+    mal: ['nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)'],
   },
   {
     id: 'F121',
@@ -4828,6 +4826,14 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['men ikke under «Forbehold»'],
+  },
+  {
+    id: 'F565',
+    feilklasse:
+      'punktet «Forholdet» i svaret på vederlaget sier ikke hvilket tidligere brev svaret på forholdet står i (OV-U32, LV-U3)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['const brevet = j.brevet(g.dokument);', "const brevet = 'samme brev';"]],
+    mal: ['forholdet avslått i et tidligere brev', 'subsidiært i et tidligere brev'],
   },
 ];
 
