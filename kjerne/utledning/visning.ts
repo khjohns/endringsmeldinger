@@ -12,6 +12,7 @@
 import type { Regelsett } from '../regler/regelsett.ts';
 import { ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
+import { VISNING_I_FORHOLDET } from '../spor/forhold/visning.ts';
 import { VISNING_I_VEDERLAGET } from '../spor/vederlag/visning.ts';
 import {
   enighetensVirkning,
@@ -223,18 +224,7 @@ export interface Sporsvisning {
 
 /** Visningen i hvert spor. Fristen står her til den flyttes til sporet (#1745). */
 const VISNING: Record<Spor, Sporsvisning> = {
-  forhold: {
-    varseletikett: () => null,
-    paaleggFrafalt: (u) => u.frafalt,
-    svaretsEtiketter: (u, virkning) => {
-      const ut: string[] = [];
-      if (u.frafalt) ut.push('paalegg_frafalt');
-      if (u.forholdAvvist) ut.push('avslaatt');
-      if (virkning && !u.spor.forhold.trukket) ut.push('enige');
-      return ut;
-    },
-    passivitetsetikett: (u) => (u.passivitet.length ? 'passivitet_paaberopt' : null),
-  },
+  forhold: VISNING_I_FORHOLDET,
   vederlag: VISNING_I_VEDERLAGET,
   frist: {
     paaleggFrafalt: () => false,

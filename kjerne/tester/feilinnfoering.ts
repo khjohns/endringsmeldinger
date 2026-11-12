@@ -268,7 +268,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F13',
     feilklasse:
       'saken kan inngå i en endringsordre etter at TE har godtatt avslaget på forholdet (GR-U27, MM-U34 punkt 20)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [['!== null && !u.forholdAvvist && !u.spor', '!== null && !u.spor']],
     mal: ['ikke når TE har godtatt avslaget på forholdet (GR-U27, MM-U34 punkt 20)'],
   },
@@ -314,7 +314,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F17',
     feilklasse:
       'saken kan inngå i en endringsordre etter at TE har trukket forholdet (GR-U27, MM-U34 punkt 20)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [[' && !u.spor.forhold.trukket;', ';']],
     mal: ['ikke når TE har trukket forholdet (GR-U27, MM-U34 punkt 20)'],
   },
@@ -382,7 +382,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F24',
     feilklasse: 'forbudet mot trekk gjelder også kategorier § 32.2 ikke gjelder for (KA-U13)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       ['blirEndringsordre(svaret.beslutningsgrunnlag)', '(svaret.beslutningsgrunnlag.sammenfall)'],
     ],
@@ -395,15 +395,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         '    ...forholdet(spor, elementer, svar, dokumenter),',
-        '    ...forholdet(spor, elementer, svar, dokumenter, regler),',
-      ],
-      [
-        '  dokumenter: Map<string, Dokument>\n): Pick<Utledning',
-        '  dokumenter: Map<string, Dokument>,\n  regler: Regelsett\n): Pick<Utledning',
-      ],
-      [
-        'blirEndringsordre(svaret.beslutningsgrunnlag)',
-        '(svaret.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.forhold.gjeldendeKrav?.innhold.hovedkategori), String(spor.forhold.gjeldendeKrav?.innhold.underkategori)))',
+        "    ...forholdet(spor, elementer, svar, dokumenter),\n    endringsordre: spor.forhold.svar.some((svaret) => svaret.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.forhold.gjeldendeKrav?.innhold.hovedkategori), String(spor.forhold.gjeldendeKrav?.innhold.underkategori)) && !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)) ? 'ja' : 'nei',",
       ],
     ],
     mal: ['F-MM-G15'],
@@ -411,7 +403,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F26',
     feilklasse: 'trekk av forholdet sperres av ethvert svar, også avslag og frafall (KA-U13)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
         'blirEndringsordre(svaret.beslutningsgrunnlag)',
@@ -424,7 +416,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F26b',
     feilklasse:
       'en ny påberopelsesversjon tar bort sperren mot trekk etter en godkjenning som er en endringsordre (EO-U12)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       ['endringsordre: spor.forhold.svar.some(', 'endringsordre: (gSvar ? [gSvar] : []).some('],
     ],
@@ -447,7 +439,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F28',
     feilklasse:
       'om godkjenningen er en endringsordre, leses av et utsagn om varslingen i brevet (GR-U12)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
         'blirEndringsordre(svaret.beslutningsgrunnlag)',
@@ -554,7 +546,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F43',
     feilklasse:
       'opplysningen om at § 31.3 ikke er oppfylt, gir unntaket i OV-U6 likevel (OV-U6, GR-U13)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
         "o.hva === 'endringsordre' && o.brev === s.dokument && o.oppfylt",
@@ -742,14 +734,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F61',
     feilklasse: 'en importert verdi leses i en annen funksjon enn den den er avgrenset til (#344)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
         '/**\n * KA-U13 og KA-U14',
-        'export const proeve = (s: Svar, v: Standpunktsvirkning[]) => forholdetErAvklart(s, v);\n\n/**\n * KA-U13 og KA-U14',
+        'export const proeve = (s: Svar, v: Parameters<typeof forholdetErAvklart>[1]) =>\n  forholdetErAvklart(s, v);\n\n/**\n * KA-U13 og KA-U14',
       ],
     ],
-    mal: ['reglene leser bare det LESBART tillater (#308, #329) utledning/utled.ts'],
+    mal: ['reglene leser bare det LESBART tillater (#308, #329) spor/forhold/utledning.ts'],
   },
   {
     id: 'F62',
@@ -1905,7 +1897,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F234',
     feilklasse:
       'en ny påberopelsesversjon etter frafallet gjør forholdet uavklart til byggherren svarer (GR-U23, OV-U3, #510)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [['  const venterEtterFrafall =', '  const venterEtterFrafall = false &&']],
     mal: ['forholdet er avklart ved frafallet', 'F-MM-G42'],
   },
@@ -1921,7 +1913,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F236',
     feilklasse:
       'en endringsordre byggherren har registrert, er en endringsordre i saken og sperrer TEs trekk av forholdet (OV-U6, #594)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       ['    !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)\n', '    true\n'],
     ],
@@ -2088,7 +2080,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F267',
     feilklasse:
       'opplysningen om § 31.3 godtas ved et registrert brev som ikke er byggherrens endringsordre (OV-U13, OV-U6, #669)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       ['    if (!brev.svar.some((s) => erRegistrertEndringsordre(s, brev)))', '    if (false)'],
     ],
@@ -2433,8 +2425,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F311',
     feilklasse:
       'endringsordren krever registrert enighet i vederlag eller frist, som før MM-U34 punkt 20',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
+      [
+        "import { innholdIForholdet, oppgittDato } from './format.ts';",
+        "import { KRAVSPOR } from '../../typer.ts';\nimport { innholdIForholdet, oppgittDato } from './format.ts';",
+      ],
       [
         'u.spor.forhold.gjeldendeKrav !== null && !u.forholdAvvist',
         'u.spor.forhold.gjeldendeKrav !== null && KRAVSPOR.some((n) => u.spor[n].enighet !== null) && !u.forholdAvvist',
@@ -2449,7 +2445,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F311b',
     feilklasse:
       'et frafall etter § 32.3 c hindrer at saken inngår i en endringsordre, som før GR-U28',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [['!u.spor.forhold.trukket;', '!u.spor.forhold.trukket && !u.frafalt;']],
     mal: [
       'også når byggherren har frafalt pålegget etter § 32.3 c (GR-U28)',
@@ -2534,8 +2530,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F314',
     feilklasse:
       'et frafall står som et svar TE ikke har godtatt (GR-U9, arbeidsvalget 20.10 i #1050)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['    svaretKanGodtas: (u) => !u.frafalt,', '    svaretKanGodtas: () => true,']],
+    fil: `${K}/spor/forhold/utledning.ts`,
+    endringer: [['  svaretKanGodtas: (u) => !u.frafalt,', '  svaretKanGodtas: () => true,']],
     mal: ['GR-U9: et frafall står ikke som et svar TE ikke har godtatt'],
   },
   {
@@ -2998,11 +2994,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F350',
     feilklasse: 'visningen sier at forholdet er «avklart» (MM-U23, #1136)',
-    fil: `${K}/utledning/visning.ts`,
+    fil: `${K}/spor/forhold/visning.ts`,
     endringer: [
       [
-        "      if (virkning && !u.spor.forhold.trukket) ut.push('enige');",
-        "      if (u.forholdAvklart) ut.push('avklart');\n      if (virkning && !u.spor.forhold.trukket) ut.push('enige');",
+        "    if (virkning && !u.spor.forhold.trukket) ut.push('enige');",
+        "    if (u.forholdAvklart) ut.push('avklart');\n    if (virkning && !u.spor.forhold.trukket) ut.push('enige');",
       ],
     ],
     mal: ['en virksom enighet og et avklart forhold gir verken'],
@@ -3637,7 +3633,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F436',
     feilklasse:
       'et registrert svar etter frafallet tar bort at forholdet er avklart ved frafallet mens en ny versjon venter (GR-U20, GR-U23, OV-U4, #1388)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
         'spor.forhold.svar.filter((s) => sendtFraAppen({ elementer }, s)).at(-1);',
@@ -3921,7 +3917,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F464',
     feilklasse:
       'en ny kravversjon som gjengir datoen, leses som en ny opplysning (MM-U41 (opphevet av MM-U52) punkt 10)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
         "typeof dato !== 'string' || sisteOm(felt)?.dato === dato) continue;",

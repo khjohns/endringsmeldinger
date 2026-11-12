@@ -17,12 +17,12 @@ import { lesJournal, standpunkterISvaret } from '../format/leser.ts';
 import { BESLUTNINGSGRUNNLAG } from '../format/format.ts';
 import { feilI, Uforstaatt } from '../format/skjema.ts';
 import {
-  kanInngaaIEo,
   kraveneErAvgjort,
   standpunktetErSubsidiaert,
   utled,
   type Utledning,
 } from '../utledning/utled.ts';
+import { kanInngaaIEo } from '../spor/forhold/utledning.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import {
   beregnVederlag,

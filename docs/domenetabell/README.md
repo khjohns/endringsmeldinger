@@ -535,7 +535,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | Rad | Gjennomføres av |
 | --- | --- |
 | GR-01 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraForholdet`](../../kjerne/spor/forhold/frysing.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
-| GR-02 | [`kategorisperre`](../../kjerne/kommandoer/nyttelast.ts), [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraForholdet`](../../kjerne/spor/forhold/frysing.ts), [`kanInngaaIEo`](../../kjerne/utledning/utled.ts) |
+| GR-02 | [`kategorisperre`](../../kjerne/kommandoer/nyttelast.ts), [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraForholdet`](../../kjerne/spor/forhold/frysing.ts), [`kanInngaaIEo`](../../kjerne/spor/forhold/utledning.ts) |
 | GR-03 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | GR-04 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraForholdet`](../../kjerne/spor/forhold/frysing.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | GR-05 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`grunnerFraForholdet`](../../kjerne/spor/forhold/frysing.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
@@ -547,12 +547,12 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | GR-11 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`enighetensVirkning`](../../kjerne/utledning/utled.ts) |
 | GR-12 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | GR-13 | [`utledSporene`](../../kjerne/utledning/utled.ts) |
-| GR-14 | [`kanInngaaIEo`](../../kjerne/utledning/utled.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts), [`forholdetErAvklart`](../../kjerne/spor/forhold/frysing.ts) |
-| GR-15 | [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts), [`kanInngaaIEo`](../../kjerne/utledning/utled.ts) |
+| GR-14 | [`kanInngaaIEo`](../../kjerne/spor/forhold/utledning.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts), [`forholdetErAvklart`](../../kjerne/spor/forhold/frysing.ts) |
+| GR-15 | [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts), [`kanInngaaIEo`](../../kjerne/spor/forhold/utledning.ts) |
 | GR-16 | [`forholdetErAvklart`](../../kjerne/spor/forhold/frysing.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
 | GR-17 | [`regnUtSvar`](../../kjerne/frosset/utregning.ts), [`kontrollerSvar`](../../kjerne/kommandoer/nyttelast.ts) |
 | GR-18 | [`kategorisperre`](../../kjerne/kommandoer/nyttelast.ts), [`regnUtSvar`](../../kjerne/frosset/utregning.ts), [`gyldigeResultater`](../../kjerne/regler/forhold.ts), [`erByggherrensPaalegg`](../../kjerne/regler/forhold.ts) |
-| GR-19 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`enighetensVirkning`](../../kjerne/utledning/utled.ts), [`kanInngaaIEo`](../../kjerne/utledning/utled.ts) |
+| GR-19 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`enighetensVirkning`](../../kjerne/utledning/utled.ts), [`kanInngaaIEo`](../../kjerne/spor/forhold/utledning.ts) |
 | GR-20 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | GR-21 | [`enighetensVirkning`](../../kjerne/utledning/utled.ts), [`forholdetErAvklart`](../../kjerne/spor/forhold/frysing.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
 | GR-22 | [`enighetensVirkning`](../../kjerne/utledning/utled.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
@@ -561,15 +561,15 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | GR-25 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`godkjennerHeleKravet`](../../kjerne/frosset/standpunkt.ts) |
 | GR-26 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`godkjennerHeleKravet`](../../kjerne/frosset/standpunkt.ts) |
 | GR-27 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`godkjennerHeleKravet`](../../kjerne/frosset/standpunkt.ts) |
-| GR-28 | [`trekkAvPaaberopelsenErSperret`](../../kjerne/utledning/utled.ts), [`blirEndringsordre`](../../kjerne/spor/forhold/frysing.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
-| GR-29 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`trekkAvPaaberopelsenErSperret`](../../kjerne/utledning/utled.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-28 | [`trekkAvPaaberopelsenErSperret`](../../kjerne/spor/forhold/utledning.ts), [`blirEndringsordre`](../../kjerne/spor/forhold/frysing.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
+| GR-29 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`trekkAvPaaberopelsenErSperret`](../../kjerne/spor/forhold/utledning.ts), [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | GR-30 | [`utledSporene`](../../kjerne/utledning/utled.ts), [`ikkeErstattet`](../../kjerne/utledning/utled.ts), [`grunnerFraForholdet`](../../kjerne/spor/forhold/frysing.ts) |
 | GR-31 | [`kontrollerSvar`](../../kjerne/kommandoer/nyttelast.ts), [`strid`](../../kjerne/utledning/utled.ts) |
 | GR-32 | [`kontrollerSvar`](../../kjerne/kommandoer/nyttelast.ts), [`strid`](../../kjerne/utledning/utled.ts) |
 | GR-33 | [`utled`](../../kjerne/utledning/utled.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
 | GR-34 | [`kravetsUtdypning`](../../kjerne/kommandoer/nyttelast.ts) |
 | GR-35 | [`endringsordretekst`](../../kjerne/spor/forhold/tekst.ts) |
-| GR-36 | [`korrigering`](../../kjerne/kommandoer/forutsetninger.ts), [`kontrollerKorrigering`](../../kjerne/kommandoer/nyttelast.ts), [`opplysningerOmDatoen`](../../kjerne/utledning/utled.ts) |
+| GR-36 | [`korrigering`](../../kjerne/kommandoer/forutsetninger.ts), [`kontrollerKorrigering`](../../kjerne/kommandoer/nyttelast.ts), [`opplysningerOmDatoen`](../../kjerne/spor/forhold/utledning.ts) |
 | GR-37 | [`datosperre`](../../kjerne/kommandoer/nyttelast.ts), [`forholdstekst`](../../kjerne/spor/forhold/tekst.ts) |
 | KA-31 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | KA-35 | [`strid`](../../kjerne/utledning/utled.ts) |
