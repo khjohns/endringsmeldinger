@@ -1301,11 +1301,8 @@
     border-top: var(--rule);
     border-bottom: var(--rule);
   }
+  .post.er-aapen,
   .saerskilt-aapen {
-    padding: var(--spacing-4) 0 var(--spacing-4) var(--spacing-4);
-    border-left: 3px solid var(--ink);
-  }
-  .post.er-aapen {
     padding: var(--spacing-4) 0 var(--spacing-4) var(--spacing-4);
     border-left: 3px solid var(--ink);
   }
