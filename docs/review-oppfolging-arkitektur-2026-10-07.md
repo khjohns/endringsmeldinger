@@ -79,7 +79,7 @@ Ingen generell oppgraderingsmotor er påkrevd uten et konkret formatbehov.
 ## RO-04: sammenlikn språk etter samme modellforbedring
 
 **Fil og symbol:** [backend/regler](https://github.com/khjohns/endringsmeldinger/tree/ce87a30889200fdabff389e33c246a2b54e8a555/backend/regler) og
-[frontendens domenemoduler](../src/lib/domain/), med servergrensene i
+frontendens domenemoduler i `src/lib/domain/` (fjernet), med servergrensene i
 `ApprovalService.validate_items` og `submit_event`.
 
 Prøven skiller semantikk og spart dobbeltarbeid fra server-/integrasjonskostnad.
