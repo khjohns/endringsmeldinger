@@ -267,18 +267,11 @@ export function tidligere(k: Krav, j: Journalen): Krav[] {
   return ut;
 }
 
-export function verdi(
-  resultat: string,
-  godkjent: string,
-  krevd: string,
-  post: string | null = null
-): string {
-  const om = post ? ` for ${post}` : '';
-  if (resultat === 'godkjent') return punktum(`byggherren godkjenner ${godkjent}${om}`);
+export function verdi(resultat: string, godkjent: string, krevd: string): string {
+  if (resultat === 'godkjent') return `byggherren godkjenner ${godkjent}.`;
   if (resultat === 'delvis_godkjent')
-    return punktum(`byggherren godkjenner ${godkjent} av de krevde ${krevd}${om}`);
-  if (resultat === 'avslaatt')
-    return post ? `byggherren avslår kravet om ${post}.` : 'byggherren avslår kravet.';
+    return `byggherren godkjenner ${godkjent} av de krevde ${krevd}.`;
+  if (resultat === 'avslaatt') return 'byggherren avslår kravet.';
   throw new KanIkkeUttrykkes(`standpunktet ${resultat} har ingen brevtekst`);
 }
 
@@ -311,6 +304,25 @@ export interface Sporsbrevtekst {
   utdypningensPunkt?: { punkt: string; overskrift: string };
   /** Kravet i sporet med kontraktens ord, når kravet har et: «kravet om <…>». */
   kravetOm?: string;
+  /** Temaene i byggherrens svar i skjemaets rekkefølge (LV-U34), når svaret har punkter. */
+  temaer?(krav: Krav, t: Tekst, regler: Regelsett): Tema[];
+  /** Oversiktstabellen i svaret (OV-U73), eller `null` når svaret ikke har en. */
+  oversikt?(krav: Krav, beloepene: Lagbeloep[], lagene: number): string | null;
+  /** Følgen av påberopelsen etter § 34.1.2 når svaret ikke har tabell (LV-U33, LV-U38). */
+  ingenBeloep?(krav: Krav): string;
+}
+
+/** Et tema i byggherrens svar: punktet og overskriften (LV-U34). */
+export interface Tema {
+  punkt: string;
+  overskrift: string | null;
+}
+
+/** Et beløp byggherren godkjenner for en post i et lag, til oversiktstabellen (OV-U73). */
+export interface Lagbeloep {
+  post: string;
+  plass: number | null;
+  beloep: number;
 }
 
 /** Brevteksten i et spor med krav om vederlag eller frist. */

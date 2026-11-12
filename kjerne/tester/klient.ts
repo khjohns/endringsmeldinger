@@ -188,8 +188,32 @@ function svarutkast(
     regelversjon: regler.versjon,
     vurderinger: v,
     resultat,
-    ...utdypning(h),
+    ...svarutdypning(spor, h),
   };
+}
+
+/**
+ * Begrunnelsen i svaret står per punkt (KA-U46, LV-U71). I svaret på forholdet står den i
+ * punktet om forholdet, så kravet etter KA-U47 ikke avviser et steg som prøver noe annet. Svaret
+ * på vederlaget har ingen begrunnelse med mindre steget har en, og da står den under «Forbehold».
+ * `utdypninger` går videre som den står.
+ */
+function svarutdypning(spor: Spor, h: Record<string, unknown>) {
+  if (typeof h.utdypninger === 'object' && h.utdypninger !== null)
+    return {
+      utdypninger: h.utdypninger as Record<string, string>,
+      ...(typeof h.utdypning === 'string' ? { utdypning: h.utdypning } : {}),
+    };
+  if (spor === 'forhold')
+    return h.utdypning === false
+      ? {}
+      : {
+          utdypninger: {
+            forhold: typeof h.utdypning === 'string' ? h.utdypning : 'Utdypning i bevis-saken.',
+          },
+        };
+  if (spor === 'vederlag') return typeof h.utdypning === 'string' ? { utdypning: h.utdypning } : {};
+  return utdypning(h);
 }
 
 /**

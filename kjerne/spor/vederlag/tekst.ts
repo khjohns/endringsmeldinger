@@ -16,11 +16,15 @@ import {
   tidligere,
   verdi,
   type Brevpunkt,
+  type Lagbeloep,
+  stor,
+  type Tema,
   type Kravsporsbrevtekst,
   type Standpunktstekster,
   type Tekst,
 } from '../../frosset/brevdeler.ts';
 import {
+  etikett,
   hjemmelenGjelder,
   laget,
   virkningen,
@@ -31,7 +35,6 @@ import type { Linjeledd, Sporslinje } from '../../frosset/linje.ts';
 import { kroner, SENT_I_LINJEN } from '../../frosset/tekst.ts';
 import { begrensningen } from './frysing.ts';
 import {
-  harProduktivitetspost,
   innholdIVederlaget,
   krevdIKravposten,
   krevdProduktivitet,
@@ -51,8 +54,8 @@ import type {
 
 /** Metoden byggherren mener vederlaget skal justeres etter, når tilbudet ikke er akseptert. */
 const METODEN = {
-  enhetspriser: 'etter enhetspriser (NS 8407 § 34.3)',
-  regningsarbeid: 'som regningsarbeid (NS 8407 § 34.4)',
+  enhetspriser: 'etter enhetspriser (NS 8407 punkt 34.3)',
+  regningsarbeid: 'som regningsarbeid (NS 8407 punkt 34.4)',
 } as const satisfies Record<
   NonNullable<Extract<Standpunkt, { art: 'oppgjoersform' }>['oensket']>,
   string
@@ -245,6 +248,74 @@ function kravetsBeloep(krav: Krav): string {
   return deler.length ? deler.join(' og ') : 'uten krevd beløp';
 }
 
+/** Temaene i byggherrens svar i skjemaets rekkefølge, med overskriften (LV-U34, KA-U53). */
+function temaer(krav: Krav, { saken }: Tekst, regler: Regelsett): Tema[] {
+  const hjemmel = hjemmelenGjelder('34.1.2', saken.paaberopelse, regler) ? '34.1.2' : '34.1.1';
+  return [
+    { punkt: 'forholdet', overskrift: 'Forholdet' },
+    { punkt: '34.1.2', overskrift: 'Varselet om vederlagsjustering (punkt 34.1.2)' },
+    { punkt: '34.1.3', overskrift: 'Varselet om særskilt vederlagsjustering (punkt 34.1.3)' },
+    { punkt: 'metode', overskrift: 'Beregningsmetode (punkt 34.2)' },
+    ...kravposterI(krav).map((p) => ({
+      punkt: p.betegnelse,
+      overskrift: `Vederlagsjustering (punkt ${hjemmel})`,
+    })),
+    { punkt: 'produktivitet', overskrift: 'Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)' },
+  ];
+}
+
+/** LV-U38: følgen av påberopelsen etter § 34.1.2 for postene i kravet, når svaret ikke har tabell. */
+function ingenBeloep(krav: Krav): string {
+  const poster = [
+    ...(kravposterI(krav).length ? ['vederlagsjusteringen'] : []),
+    ...(krevdProduktivitet(krav) !== null ? ['den særskilte vederlagsjusteringen'] : []),
+  ];
+  return `Byggherren godkjenner etter dette ikke noe beløp for ${poster.join(' eller ')}.`;
+}
+
+/**
+ * OV-U73 og KA-U57 (e): tabellen med én rad per post med fast beløp, det krevde beløpet og det
+ * byggherren godkjenner i hvert lag, og en sumrad, når svaret har minst to slike poster og minst
+ * to lag. I et lag før postens første beløp er beløpet 0 kr (LV-U33), og ellers det siste
+ * beløpet for posten i laget eller før (arbeidsvalg 2 i #1433). Cellene står som tekst, adskilt
+ * med tabulator, så tabellen fryses med brevteksten.
+ */
+function oversikt(krav: Krav, beloepene: Lagbeloep[], lagene: number): string | null {
+  const poster = [
+    ...kravposterI(krav).map((p) => ({ post: p.betegnelse, krevd: krevdIKravposten(krav, p) })),
+    { post: 'produktivitet', krevd: krevdProduktivitet(krav) },
+  ].filter(
+    (p): p is { post: string; krevd: Oere } =>
+      p.krevd !== null && beloepene.some((b) => b.post === p.post)
+  );
+  if (poster.length < 2 || lagene < 2) return null;
+  const navn = (post: string) =>
+    post === 'produktivitet'
+      ? 'Særskilt vederlagsjustering'
+      : kravposterI(krav).length > 1
+        ? post
+        : 'Vederlagsjustering';
+  const iLaget = (post: string, lag: number) =>
+    beloepene
+      .filter((b) => b.post === post && (b.plass ?? 0) <= lag)
+      .sort((a, b) => (a.plass ?? 0) - (b.plass ?? 0))
+      .at(-1)?.beloep ?? 0;
+  const kolonner = Array.from({ length: lagene }, (_, i) => i + 1);
+  const rader = poster.map((p) => [
+    navn(p.post),
+    kroner(tilTall(p.krevd)),
+    ...kolonner.map((lag) => kroner(iLaget(p.post, lag))),
+  ]);
+  const sum = [
+    'Sum',
+    kroner(poster.reduce((s, p) => s + tilTall(p.krevd), 0)),
+    ...kolonner.map((lag) => kroner(poster.reduce((s, p) => s + iLaget(p.post, lag), 0))),
+  ];
+  return [['Post', 'Krevd', ...kolonner.map((lag) => stor(etikett(lag)))], ...rader, sum]
+    .map((rad) => rad.join('\t'))
+    .join('\n');
+}
+
 /** Brevteksten i vederlagssporet. */
 export const BREVTEKSTEN_I_VEDERLAGET = {
   navn: 'vederlaget',
@@ -257,23 +328,30 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
   // Forbeholdet, som Varden sender som kravets utdypning til #1823 gir det et eget felt.
   utdypningensPunkt: { punkt: 'forbehold', overskrift: 'Forbehold' },
   kravetOm: 'justering av vederlaget',
+  temaer,
+  oversikt,
+  ingenBeloep,
   enigI: 'beløpet',
   trukket: kravetsBeloep,
   ingenKrav: (sak) =>
     `Totalentreprenøren krever ikke justering av vederlaget som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag. Avkallet omfatter ikke vederlag for forsering etter NS 8407 punkt 33.8.`,
 } satisfies Kravsporsbrevtekst;
 
-/** Standpunktene i artene bare vederlagssporet har (LV-U4 punkt 5, LV-U5). */
+/**
+ * Standpunktene i artene bare vederlagssporet har (LV-U4 punkt 5, LV-U5), med partene skrevet
+ * fullt ut (LV-U35) og «punkt» (LV-U39). Beløpene står uten «eks. mva.», som står i
+ * innledningen (LV-U34).
+ */
 export const STANDPUNKTENE_I_VEDERLAGET = {
   oppgjoersform: (p, krav) => {
-    // Arbeidsvalget i #479: oppgjørsformen er byggherrens standpunkt, ikke appens avgjørelse. LV-U31 og
+    // Arbeidsvalget i #479: oppgjørsformen er byggherrens standpunkt, ikke løsningens avgjørelse. LV-U31 og
     // LV-U32: godkjenningen betegner ikke tilbudet som akseptert, heller ikke ved fullt beløp.
     // KA-U57 (d): med flere kravposter sier standpunktet hvilken kravpost det gjelder.
     const post = kravposterI(krav).length > 1 ? kravpostenI(krav, p.gjelder).betegnelse : null;
     if (p.hjemmel !== '34.2.2') return beregningsregeltekst(p, post);
     return p.aksepterer
       ? `byggherren godkjenner oppgjør som fast sum${post ? ` for ${post}` : ''} med beløpet og forbeholdene som fremgår av svaret.`
-      : `byggherren aksepterer ikke TEs tilbud${post ? ` for ${post}` : ''} (NS 8407 § 34.2.2 første ledd), og mener vederlaget${post ? ' for kravposten' : ''} skal justeres ${METODEN[p.oensket!]}.`;
+      : `byggherren aksepterer ikke totalentreprenørens tilbud${post ? ` for ${post}` : ''} (NS 8407 punkt 34.2.2 første ledd), og mener vederlaget${post ? ' for kravposten' : ''} skal justeres ${METODEN[p.oensket!]}.`;
   },
   justering: (p, krav) => {
     // KA-U68, OV-U95 punkt 5: standpunktet godkjenner ingen priser, mengder eller beløp.
@@ -284,8 +362,8 @@ export const STANDPUNKTENE_I_VEDERLAGET = {
   },
   beloep: (p, krav) => {
     // Standpunktet har et beløp, fordi `harTekst` har tatt bort standpunktene uten (KA-U72).
-    // Resultatet regnes i hele øre (B-13, OV-U59). OV-U28: med posten etter § 34.1.3 annet
-    // ledd sier brevet beløpet for hver post for seg.
+    // Resultatet regnes i hele øre (B-13, OV-U59). LV-U34: beløpet står under punktet for
+    // posten, så setningen nevner ikke posten eller hjemmelen.
     const krevd = p.saerskilt ? krevdProduktivitet(krav)! : krevdeKravpost(krav, p.gjelder!)[1];
     const godkjent = beloep(p.godkjent)!;
     const resultat = erBeloepetGodkjentFullt(krevd, godkjent)
@@ -293,14 +371,7 @@ export const STANDPUNKTENE_I_VEDERLAGET = {
       : godkjent === 0n
         ? 'avslaatt'
         : 'delvis_godkjent';
-    const post = p.saerskilt
-      ? SAERSKILT
-      : kravposterI(krav).length > 1
-        ? krevdeKravpost(krav, p.gjelder!)[0].betegnelse
-        : harProduktivitetspost(krav)
-          ? 'justeringen ellers'
-          : null;
-    return verdi(resultat, eksMva(p.godkjent!), eksMva(tilTall(krevd)), post);
+    return verdi(resultat, kroner(p.godkjent!), kroner(tilTall(krevd)));
   },
 } satisfies Standpunktstekster<'oppgjoersform' | 'justering' | 'beloep'>;
 
@@ -315,8 +386,8 @@ function krevdeKravpost(krav: Krav, gjelder: string): [Kravpost, Oere] {
 
 /** TEs beregningsregel i standpunktet, etter hjemmelen. */
 const REGELEN = {
-  '34.3': 'etter enhetspriser (NS 8407 § 34.3)',
-  '34.4': 'som regningsarbeid (NS 8407 § 34.4)',
+  '34.3': 'etter enhetspriser (NS 8407 punkt 34.3)',
+  '34.4': 'som regningsarbeid (NS 8407 punkt 34.4)',
 } as const;
 
 /**
@@ -333,13 +404,10 @@ function beregningsregeltekst(
     return `byggherren godtar at vederlaget${forPosten} justeres ${regelen}. Det godkjenner ikke mengder, priser, kostnader eller noe beløp.`;
   const mener = p.oensket ? `, og mener det skal justeres ${METODEN[p.oensket]}` : '';
   const tilbud = p.kreverTilbud
-    ? ` Byggherren krever at TE gir et spesifisert tilbud${post ? ` for ${post}` : ' for kravposten'} (NS 8407 § 34.2.1 første ledd).`
+    ? ` Byggherren krever at totalentreprenøren gir et spesifisert tilbud${post ? ` for ${post}` : ' for kravposten'} (NS 8407 punkt 34.2.1 første ledd).`
     : '';
   return `byggherren godtar ikke at vederlaget${forPosten} justeres ${regelen}${mener}.${tilbud}`;
 }
-
-/** OV-U28: posten etter § 34.1.3 annet ledd i setningen om beløpet. */
-const SAERSKILT = 'særskilt justering etter NS 8407 § 34.1.3 annet ledd';
 
 // ---------- Linjen for byggherrens standpunkt (MM-U9) ----------
 

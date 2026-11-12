@@ -2225,10 +2225,13 @@ describe('forskyvningen fra forholdet i linjen (OV-U32, OV-U33, #1199)', () => {
   it('avslått forhold gir beløpet etiketten for andre lag, som brevet', async () => {
     const { linje, brevtekst } = await linjene({ resultat: 'avslaatt' });
     expect(linje('S-v1')).toBe(`Byggherrens standpunkt: subsidiært godkjent med ${kr(60000)}.`);
-    // OV-U33, LV-U31: metoden står i laget til beløpet og får etiketten.
+    // OV-U33, LV-U31: metoden står i laget til beløpet og får etiketten. LV-U34, LV-U40:
+    // lagslinjen viser til punktet om forholdet i samme brev.
+    const lagslinje = 'Subsidiært, hvis innsigelsen i punkt 2 ovenfor ikke fører frem';
     expect(brevtekst).toContain(
-      'Subsidiært: byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 60'
+      `${lagslinje}\\n\\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.`
     );
+    expect(brevtekst).toContain(`${lagslinje}\\n\\nByggherren godkjenner 60`);
   });
 
   it('prinsipalt § 32.2 og subsidiært avslag gir beløpet etiketten for tredje lag', async () => {
