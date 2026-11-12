@@ -54,7 +54,10 @@ export interface Postvalg {
 export interface Svarvalg {
   iTide: boolean | null;
   poster: Record<string, Postvalg>;
-  begrunnelse: string;
+  /** Begrunnelsen per punkt i brevet, med punktet som nøkkel (KA-U46, LV-U71). */
+  begrunnelser: Record<string, string>;
+  /** Byggherrens tekst for hele svaret, under «Forbehold» sist i brevet (KA-U49 punkt 1). */
+  forbehold: string;
 }
 
 export const tomPost = (): Postvalg => ({
@@ -66,7 +69,12 @@ export const tomPost = (): Postvalg => ({
   godtarJustering: null,
 });
 
-export const tomtSvar = (): Svarvalg => ({ iTide: null, poster: {}, begrunnelse: '' });
+export const tomtSvar = (): Svarvalg => ({
+  iTide: null,
+  poster: {},
+  begrunnelser: {},
+  forbehold: '',
+});
 
 /** Valgene for kravposten med betegnelsen, eller en ubesvart post. */
 export const postvalget = (v: Svarvalg, betegnelse: string): Postvalg =>
@@ -179,11 +187,15 @@ function vurderingene(v: Svarvalg, krav: Krav, hovedvarselet: boolean): Svarvurd
   });
 }
 
-/** BHs svar på gjeldende vederlagskrav, eller `null` når saken ikke har et krav. */
+/**
+ * BHs svar på gjeldende vederlagskrav, eller `null` når saken ikke har et krav. Begrunnelsen står
+ * bare for `punktene` brevet har, så en tekst for et punkt som er falt bort, ikke stopper brevet.
+ */
 export function vederlagssvaret(
   v: Svarvalg,
   u: Utledning,
-  regler: Regelsett
+  regler: Regelsett,
+  punktene: readonly string[] = []
 ): { type: 'brev'; svar: Svarutkast[] } | null {
   const krav = u.spor.vederlag.gjeldendeKrav;
   if (!krav) return null;
@@ -199,7 +211,12 @@ export function vederlagssvaret(
   } catch (feil) {
     if (!(feil instanceof UgyldigVurdering || feil instanceof UgyldigBeloep)) throw feil;
   }
-  const utdypning = v.begrunnelse.trim();
+  const utdypning = v.forbehold.trim();
+  const utdypninger = Object.fromEntries(
+    Object.entries(v.begrunnelser)
+      .map(([punkt, tekst]) => [punkt, tekst.trim()] as const)
+      .filter(([punkt, tekst]) => tekst && punktene.includes(punkt))
+  );
   return {
     type: 'brev',
     svar: [
@@ -210,6 +227,7 @@ export function vederlagssvaret(
         vurderinger,
         resultat,
         ...(utdypning ? { utdypning } : {}),
+        ...(Object.keys(utdypninger).length ? { utdypninger } : {}),
       },
     ],
   };

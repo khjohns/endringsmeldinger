@@ -316,11 +316,12 @@ export interface Innlegget {
 export function innleggene(u: Utledning): Map<string, Innlegget> {
   const alle = brevene(u);
   const brev = new Map(alle.map((b) => [b.id, b]));
+  // Byggherrens begrunnelse står per punkt i svaret (KA-U46, LV-U70), i rekkefølgen i brevet.
   const utdypning = (dokument: string, gjelder: string) =>
-    brev
-      .get(dokument)
-      ?.avsnitt?.find((a) => a.gjelder === gjelder)
-      ?.utdypning?.trim() || null;
+    (brev.get(dokument)?.avsnitt ?? [])
+      .filter((a) => a.gjelder === gjelder)
+      .flatMap((a) => a.utdypning?.trim() || [])
+      .join('\n\n') || null;
   const kravbrev = new Map(u.spor.forhold.krav.map((k) => [k.id, brev.get(k.dokument)]));
   const opplysningene = datoopplysningene(u);
   const iBrevet = (dokument: string) =>

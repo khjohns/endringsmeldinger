@@ -316,6 +316,8 @@ export interface Sporsbrevtekst {
 export interface Tema {
   punkt: string;
   overskrift: string | null;
+  /** Linjen som sier hva punktet gjelder, først i punktet, som kravposten i kravet. */
+  foerst?: string;
 }
 
 /** Et beløp byggherren godkjenner for en post i et lag, til oversiktstabellen (OV-U73). */

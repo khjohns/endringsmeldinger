@@ -346,7 +346,10 @@ export const SKJEMA = {
   belopEtikett: 'Beløpet du godkjenner',
   belopHjelp: (krevd: number) => `Mer enn 0 kr og mindre enn ${kroner(krevd)}.`,
   begrunnelse: 'Begrunnelse',
-  begrunnelseHjelp: 'Kommer i brevet under standpunktene.',
+  begrunnelseHjelp:
+    'Valgfritt. Begrunnelsen står i brevet under punktet den gjelder, og kan vise til et annet punkt.',
+  forbehold: 'Forbehold for hele svaret',
+  forbeholdHjelp: 'Valgfritt. Står sist i brevet. Det erstatter ikke begrunnelsen i et punkt.',
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
   manglerForm: 'Velg om du godkjenner fast sum.',

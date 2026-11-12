@@ -115,6 +115,27 @@ describe('PDF-en av brevet (#371 del 2)', () => {
     expect(gjengirTro(lest, tekst)).toBe(true);
   });
 
+  it('setter oversiktstabellen i byggherrens svar i kolonner, og lesingen gir cellene tilbake med mellomrom (OV-U73)', async () => {
+    const tabell = [
+      'Post\tKrevd\tPrinsipalt\tSubsidiært',
+      'Vederlagsjustering\t150\u00a0000\u00a0kr\t0\u00a0kr\t100\u00a0000\u00a0kr',
+      'Sum\t150\u00a0000\u00a0kr\t0\u00a0kr\t100\u00a0000\u00a0kr',
+    ].join('\n');
+    const tekst: Avsnitt[] = [
+      {
+        gjelder: 's',
+        punkt: 'oversikt',
+        overskrift: '3. Oversikt',
+        laast: `3. Oversikt\n\n${tabell}`,
+      },
+    ];
+    const lest = lesBrevPdf((await brevdokument(oppdrag(tekst), 'n')).innhold);
+    expect(lest.split('\n').slice(-3)).toEqual(
+      tabell.split('\n').map((r) => r.replace(/\t/g, ' '))
+    );
+    expect(gjengirTro(lest, tekst)).toBe(true);
+  });
+
   it('lesingen ser at en side mangler, så kontrollen ikke godtar en utelatelse ved sidebrekk', async () => {
     const tekst = gjengiOppdrag(oppdrag(LANG))!;
     const hel = await skrivBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'TE');

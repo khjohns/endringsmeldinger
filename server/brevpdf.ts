@@ -511,7 +511,8 @@ function linjer(
 
 /**
  * Brevet som PDF. Tidspunktet i metadataene er brevets, så samme tekst gir samme fil.
- * Tab, CR, FF og VT settes som mellomrom og linjeskift, som `gjengirTro` tåler.
+ * CR, FF og VT settes som linjeskift og mellomrom, som `gjengirTro` tåler. En linje med tab er en
+ * rad i oversiktstabellen (OV-U73), og cellene står i kolonner med mellomrom foran.
  * Et delt ord merkes `/Delt`, så lesingen setter delene sammen igjen.
  *
  * @throws TegnUtenforSkriften når skriftene mangler et tegn eller tegnet er usynlig (unntatt
@@ -581,7 +582,9 @@ export async function settBrevPdf(
   pdf.setCreationDate(tidspunkt);
   pdf.setModificationDate(tidspunkt);
   pdf.registerFontkit(fontkitMedBindestrek);
-  const normalisert = tekst.replace(/\r\n?/g, '\n').replace(/[\t\f\v]/g, ' ');
+  // En linje med tabulator er en rad i oversiktstabellen (OV-U73) og settes i kolonner.
+  const radene = tekst.replace(/\r\n?/g, '\n').replace(/[\f\v]/g, ' ');
+  const normalisert = radene.replace(/\t/g, ' ');
   const tegn = normalisert.replace(/\n/g, '');
   const brukte = new Set([...tegn].map((t) => t.codePointAt(0)!));
   const brukt = new Set(loep(tegn, brevskrift, brukte).map((l) => l.skrift));
@@ -612,19 +615,39 @@ export async function settBrevPdf(
     tegnLogo(side);
     y -= logohoeyde() + stoerrelse * LINJEHOEYDE * 2;
   }
-  for (const avsnitt of normalisert.split('\n')) {
+  const nyLinje = () => {
+    if (y < MARG) {
+      side = pdf.addPage([...A4]);
+      y = A4[1] - MARG;
+    }
+  };
+  const tegnLoep = (t: string, x: number) => {
+    for (const l of settes(t)) {
+      side.drawText(l.tekst, { x, y, size: stoerrelse, font: l.skrift });
+      x += l.bredde;
+    }
+  };
+  for (const avsnitt of radene.split('\n')) {
+    if (avsnitt.includes('\t')) {
+      // Den første kolonnen står til venstre, og beløpene står til høyre i like brede kolonner.
+      // Hver celle etter den første har mellomrommet foran seg, så lesingen gir teksten tilbake.
+      const celler = avsnitt.split('\t');
+      const foerste = bredde * 0.34;
+      const kolonne = (bredde - foerste) / Math.max(1, celler.length - 1);
+      nyLinje();
+      tegnLoep(celler[0], MARG);
+      celler.slice(1).forEach((c, i) => {
+        const t = ` ${c}`;
+        tegnLoep(t, MARG + foerste + kolonne * (i + 1) - maal(t));
+      });
+      y -= stoerrelse * LINJEHOEYDE;
+      continue;
+    }
     for (const linje of linjer(avsnitt, bredde, maal)) {
       if (linje.tekst) {
-        if (y < MARG) {
-          side = pdf.addPage([...A4]);
-          y = A4[1] - MARG;
-        }
+        nyLinje();
         if (linje.delt) side.pushOperators(beginMarkedContent(DELT));
-        let x = MARG;
-        for (const l of settes(linje.tekst)) {
-          side.drawText(l.tekst, { x, y, size: stoerrelse, font: l.skrift });
-          x += l.bredde;
-        }
+        tegnLoep(linje.tekst, MARG);
         if (linje.delt) side.pushOperators(endMarkedContent());
       }
       y -= stoerrelse * LINJEHOEYDE;

@@ -41,7 +41,7 @@
     ...tomtSvar(),
     iTide: false,
     poster: { P1: { ...tomPost(), form: 'godtar', beloep: 'deler', delbeloep: '60 000' } },
-    begrunnelse,
+    begrunnelser: { '34.1.2': begrunnelse },
   });
   const UBESVART = 'bh-har-mottatt-vederlagskravet';
   const svaret = [

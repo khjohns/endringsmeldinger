@@ -1916,7 +1916,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:skriv'],
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
-  ['frosset/tekst.ts', 'brevtekst', 'dager', ['frosset/brevtekst.ts']],
+  ['frosset/tekst.ts', 'brevtekst', 'dager OVERSIKTEN', ['frosset/brevtekst.ts']],
   ['frosset/tekst.ts', 'brevtekst', 'kroner', ['frosset/brevdeler.ts', 'frosset/brevtekst.ts']],
   // Oppslaget i sporet for en rolle, og virkningen av et standpunkt (#1783).
   [
@@ -1951,7 +1951,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['frosset/brevtekst.ts'],
   ],
   // LV-U34 og OV-U73: temaene og beløpene per lag i byggherrens svar.
-  ['Tema', 'brevtekst', 'punkt overskrift', ['frosset/brevtekst.ts']],
+  ['Tema', 'brevtekst', 'punkt overskrift foerst', ['frosset/brevtekst.ts']],
   ['Lagbeloep', 'brevtekst', 'post plass beloep', ['spor/vederlag/tekst.ts']],
   ['spor/vederlag/tekst.ts:oversikt', 'brevtekst', 'post krevd', ['spor/vederlag/tekst.ts']],
   ['Kravsporsbrevtekst', 'brevtekst', 'enigI ingenKrav kravetOm trukket', ['frosset/brevtekst.ts']],

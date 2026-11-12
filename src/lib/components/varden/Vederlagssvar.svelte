@@ -19,7 +19,7 @@
   import { BookOpen, FileText, Info } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
   import { harProduktivitetspost, kravposterI } from '$kjerne/spor/vederlag/format';
-  import { kroner } from '$kjerne/frosset/tekst';
+  import { kroner, OVERSIKTEN } from '$kjerne/frosset/tekst';
   import {
     brevaarsak,
     hindrerSvarPaaKravet,
@@ -30,7 +30,7 @@
   import type { Kravpostvurdering } from '$kjerne/spor/vederlag/frysing';
   import type { Forutsetning } from '$kjerne/spor/vederlag/kommando';
   import type { Utledning } from '$kjerne/utledning/utled';
-  import type { Kravpost, Standpunkt } from '$kjerne/typer';
+  import type { Avsnitt, Kravpost, Standpunkt } from '$kjerne/typer';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
@@ -90,7 +90,7 @@
     onbrevkontroll: (k: {
       kommando: Record<string, unknown>;
       tekst: string[];
-      utdypning?: string;
+      avsnitt: Avsnitt[] | null;
       detteSender: { tekst: string; lag: string | null }[];
       virkninger: string[];
       merking: string | null;
@@ -142,7 +142,27 @@
     for (const p of poster) if (!etterRegel(p)) valgFor(p.betegnelse).beloep = 'hele';
   }
 
-  const kommando = $derived(vederlagssvaret(valg, u, kjernesak.regler)!);
+  // Innledningen og tabellen har ingen begrunnelse, og forbeholdet har sitt eget felt.
+  const UTEN_BEGRUNNELSE = ['innledning', OVERSIKTEN, 'forbehold'];
+  // KA-U46 og LV-U71: ett felt for begrunnelsen per punkt i brevet, i brevets rekkefølge. Punktene
+  // leses av brevet kjernen lager uten begrunnelsene, så et felt aldri gjelder et punkt brevet ikke har.
+  const punktene = $derived.by(() => {
+    const b = kjernesak.brev(vederlagssvaret(valg, u, kjernesak.regler)!);
+    const avsnitt = b && 'avsnitt' in b ? (b.avsnitt ?? []) : [];
+    return avsnitt.flatMap((a) =>
+      a.punkt === undefined || UTEN_BEGRUNNELSE.includes(a.punkt)
+        ? []
+        : [{ punkt: a.punkt, navn: a.overskrift ?? a.laast.split('\n\n')[0] }]
+    );
+  });
+  const kommando = $derived(
+    vederlagssvaret(
+      valg,
+      u,
+      kjernesak.regler,
+      punktene.map((p) => p.punkt)
+    )!
+  );
   const etter = $derived(kjernesak.forhaandsvist(kommando));
   const vurderteIUtkastet = (s: (typeof kommando.svar)[number]) =>
     (s.vurderinger.kravposter ?? []) as Kravpostvurdering[];
@@ -290,11 +310,6 @@
         : []
     ).size > 1
   );
-  // Med `sendes` avviser kjernen også et svar uten begrunnelse der kontrakten krever den.
-  const avvisning = $derived.by(() => {
-    const b = kjernesak.brev(kommando, undefined, true);
-    return b && 'avvisning' in b ? b.avvisning : null;
-  });
   // Nummeret og tittelen står i raden kjernen ville skrevet (LV-U44, LV-U27), ikke regnet ut her.
   const utkastbrev = $derived.by(() => {
     const b = kjernesak.brev(kommando);
@@ -367,19 +382,12 @@
           },
         ];
       }),
-      // KA-U24: kjernen sier når svaret må ha en begrunnelse, og hvorfor.
-      {
-        felt: `${uid}-begrunnelse`,
-        post: null,
-        tekst: avvisning?.regel === 'BEGRUNNELSE_MANGLER' ? avvisning.melding : null,
-      },
     ].filter((m): m is { felt: string; post: string | null; tekst: string } => m.tekst !== null)
   );
   // Beskjedene vises først når BH har prøvd å se brevet (MM-U32), og forsvinner når feltet er besvart.
   let forsoekt = $state(false);
   const feil = (felt: string): string | null =>
     forsoekt ? (mangler.find((m) => m.felt === `${uid}-${felt}`)?.tekst ?? null) : null;
-  const begrunnelseFeil = $derived(feil('begrunnelse'));
   let oppsummering = $state<HTMLElement | null>(null);
   let sendehindring = $state<string | null>(null);
 
@@ -418,7 +426,7 @@
     onbrevkontroll({
       kommando,
       tekst: b.tekst,
-      utdypning: kommando.svar[0].utdypning,
+      avsnitt: b.avsnitt,
       detteSender: linjer,
       virkninger,
       merking: b.merking,
@@ -831,23 +839,31 @@
           />
         </section>
 
-        <section class="spoersmaal">
+        <section class="spoersmaal" aria-labelledby={`${uid}-sp-begrunnelse`}>
+          <div class="sp-hode">
+            <h3 id={`${uid}-sp-begrunnelse`}>{SKJEMA.begrunnelse}</h3>
+          </div>
+          <p class="dempet" id={`${uid}-begrunnelse-hjelp`}>{SKJEMA.begrunnelseHjelp}</p>
+          {#each punktene as p (p.punkt)}
+            <div class="begrunnelse">
+              <label for={`${uid}-begrunnelse-${p.punkt}`}>{p.navn}</label>
+              <textarea
+                id={`${uid}-begrunnelse-${p.punkt}`}
+                rows="3"
+                bind:value={valg.begrunnelser[p.punkt]}
+                aria-describedby={`${uid}-begrunnelse-hjelp`}
+              ></textarea>
+            </div>
+          {/each}
           <div class="begrunnelse">
-            <label for={`${uid}-begrunnelse`} class="h3">{SKJEMA.begrunnelse}</label>
-            <span class="dempet" id={`${uid}-begrunnelse-hjelp`}>{SKJEMA.begrunnelseHjelp}</span>
+            <label for={`${uid}-forbehold`}>{SKJEMA.forbehold}</label>
+            <span class="dempet" id={`${uid}-forbehold-hjelp`}>{SKJEMA.forbeholdHjelp}</span>
             <textarea
-              id={`${uid}-begrunnelse`}
-              class:ugyldig={begrunnelseFeil}
-              rows="5"
-              bind:value={valg.begrunnelse}
-              aria-describedby={begrunnelseFeil
-                ? `${uid}-begrunnelse-hjelp ${uid}-begrunnelse-feil`
-                : `${uid}-begrunnelse-hjelp`}
-              aria-invalid={begrunnelseFeil ? 'true' : undefined}
+              id={`${uid}-forbehold`}
+              rows="3"
+              bind:value={valg.forbehold}
+              aria-describedby={`${uid}-forbehold-hjelp`}
             ></textarea>
-            {#if begrunnelseFeil}<p class="feilmelding" id={`${uid}-begrunnelse-feil`}>
-                {begrunnelseFeil}
-              </p>{/if}
           </div>
         </section>
       {/if}
@@ -931,8 +947,7 @@
     align-items: center;
     gap: var(--spacing-3);
   }
-  h3,
-  .h3 {
+  h3 {
     font-size: 16px;
     font-weight: 600;
     color: var(--ink);
@@ -1045,8 +1060,7 @@
     font-size: 14px;
     font-weight: 500;
   }
-  .inndata.ugyldig,
-  textarea.ugyldig {
+  .inndata.ugyldig {
     border-color: var(--danger);
     box-shadow: inset 0 0 0 1px var(--danger);
   }

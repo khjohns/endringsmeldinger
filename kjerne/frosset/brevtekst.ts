@@ -52,7 +52,7 @@ import {
   STANDPUNKTENE_I_FORHOLDET,
 } from '../spor/forhold/tekst.ts';
 import { BREVTEKSTEN_I_VEDERLAGET, STANDPUNKTENE_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
-import { dager, iLagene, kroner } from './tekst.ts';
+import { dager, iLagene, kroner, OVERSIKTEN } from './tekst.ts';
 import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
   Avsnitt,
@@ -484,7 +484,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
     if (i > 0 && p.overskrift !== null && p.overskrift === overskriftene[i - 1])
       p.overskrift = null;
   });
-  if (tabell) punkter.push({ punkt: 'oversikt', overskrift: 'Oversikt' });
+  if (tabell) punkter.push({ punkt: OVERSIKTEN, overskrift: 'Oversikt' });
   const forbehold = forbeholdetForForholdet(s, t);
   if (forbehold.length) punkter.push({ ...FORBEHOLDET });
 
@@ -517,8 +517,8 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
     { punkt: 'innledning', overskrift: null, avsnitt: [innledningen(s, krav, t).join(' ')] },
   ];
   for (const p of punkter) {
-    const avsnitt: string[] = [];
-    if (p.punkt === 'oversikt') avsnitt.push(tabell!);
+    const avsnitt: string[] = p.foerst ? [p.foerst] : [];
+    if (p.punkt === OVERSIKTEN) avsnitt.push(tabell!);
     else if (p.punkt === FORBEHOLDET.punkt) avsnitt.push(forbehold.join(' '));
     else {
       const iPunktet = iLagene(
@@ -534,7 +534,8 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
         );
         if (ordnet && l.plass !== null && l.plass !== forrige)
           avsnitt.push(lagslinje(l.plass), tekst);
-        else if (avsnitt.length && l.plass === forrige) avsnitt.push(`${avsnitt.pop()} ${tekst}`);
+        else if (forrige !== undefined && l.plass === forrige)
+          avsnitt.push(`${avsnitt.pop()} ${tekst}`);
         else avsnitt.push(tekst);
         forrige = l.plass;
       }

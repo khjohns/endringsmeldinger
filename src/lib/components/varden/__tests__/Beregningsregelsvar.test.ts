@@ -71,11 +71,6 @@ const radio = (navn: string) => screen.getByRole('radio', { name: navn });
 const aapne = (post: string) =>
   fireEvent.click(screen.getByRole('button', { name: `Svar på ${post}` }));
 const ferdig = () => fireEvent.click(screen.getByRole('button', { name: 'Ferdig' }));
-// KA-U43: kjernen krever en begrunnelse når svaret ikke godkjenner alt.
-const begrunn = () =>
-  fireEvent.input(screen.getByRole('textbox', { name: /Begrunnelse/ }), {
-    target: { value: 'Byggherrens begrunnelse.' },
-  });
 const seBrevet = () =>
   fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
 const forutsetningene = (gruppe: string) => {
@@ -123,11 +118,10 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     await fireEvent.click(radio('Kom i tide'));
     await fireEvent.click(radio('Godkjenner justeringen'));
     await fireEvent.click(radio('Varslet i tide'));
-    await begrunn();
     await seBrevet();
     expect(sendt).toHaveLength(1);
     expect(sendt[0]!.tekst.join(' ')).toContain(
-      'Byggherren krever at TE gir et spesifisert tilbud'
+      'Byggherren krever at totalentreprenøren gir et spesifisert tilbud'
     );
   });
 
@@ -149,10 +143,10 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     await aapne('P2');
     await fireEvent.click(radio('Mener regningsarbeid (punkt 34.4)'));
     await fireEvent.click(radio('Varslet i tide'));
-    await begrunn();
     await seBrevet();
+    // LV-U34: «NS 8407» står bare første gang i brevet.
     expect(sendt[0]!.tekst.join(' ')).toContain(
-      'Byggherren gjør gjeldende at varselet om regningsarbeid etter NS 8407 punkt 34.4 for P1 ikke ble gitt eller kom for sent.'
+      'Byggherren gjør gjeldende at varselet om regningsarbeid etter punkt 34.4 for P1 ikke ble gitt eller kom for sent.'
     );
   });
 
