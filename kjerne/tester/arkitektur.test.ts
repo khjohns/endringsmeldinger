@@ -1065,7 +1065,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Dokument', 'relasjon', 'id retter', ['utledning/utled.ts:registreringer']],
   // OV-U19: brevene appen ikke vurderer, for visningen. Ingen regel leser dem.
   ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:ikkeVurderte']],
-  // V1 A i #1843: datoen varselet og kravet ble sendt, i kontrollen av påberopelsen.
+  // VS-U70: datoen varselet og kravet ble sendt, i kontrollen av påberopelsen.
   [
     'Dokument',
     'relasjon',

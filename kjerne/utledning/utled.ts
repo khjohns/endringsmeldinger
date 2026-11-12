@@ -895,7 +895,7 @@ function kontrollerStandpunktet(
     return;
   }
   // VS-U43 punkt 6 og 10: påberopelsen gjelder varselet `varseletFoerSvaret` gir, og en senere
-  // versjon er ikke et nytt varsel. Et svar sendt før V1 A i #1843 viser til det egne varselet,
+  // versjon er ikke et nytt varsel. Et svar sendt før VS-U70 viser til det egne varselet,
   // og står med det (MM-U50). Etter § 34.3.3 og § 34.4 gjelder den kravposten (`kontrollerPostene`).
   if (erVarselhjemmel(p.hjemmel) && !erKravpostvarselhjemmel(p.hjemmel)) {
     const n = VARSELSPOR[p.hjemmel];
@@ -1475,7 +1475,7 @@ export const kravSomVarsler = (
  * eller § 34.1.3 gjelder: varselet etter hjemmelen som var registrert da svaret ble sendt,
  * ellers det første kravet som varsler (`kravSomVarsler`), som er det første varselet appen
  * kjenner (arbeidsvalgene i #309 og #479, OV-U24). Etter § 33.4, § 34.1.2 og § 34.1.3 gjelder
- * påberopelsen det av dem som ble sendt først (V1 A i #1843, VS-U66); med samme dato, eller uten
+ * påberopelsen det av dem som ble sendt først (VS-U70, VS-U66); med samme dato, eller uten
  * en dato for kravet, det egne varselet. Vilkåret i E3 om en tidligere dato for § 32.2 er ikke
  * bygget (#1600).
  * `foerSvaret` sier om et varsel står før svaret, og `sendt` datoen et varsel eller krav ble

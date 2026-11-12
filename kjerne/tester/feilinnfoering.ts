@@ -4140,7 +4140,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F559',
     feilklasse:
-      'påberopelsen og punktet om varselet gjelder det egne varselet også når det første kravet er sendt før (V1 A i #1843, VS-U66)',
+      'påberopelsen og punktet om varselet gjelder det egne varselet også når det første kravet er sendt før (VS-U70, VS-U66)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -4153,7 +4153,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F560',
     feilklasse:
-      'leseren godtar bare det egne varselet i påberopelsen, ikke det første kravet som ble sendt før det (V1 A i #1843)',
+      'leseren godtar bare det egne varselet i påberopelsen, ikke det første kravet som ble sendt før det (VS-U70)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       ['if (p.gjelder !== tidligste && p.gjelder !== egetFoerst)', 'if (p.gjelder !== egetFoerst)'],

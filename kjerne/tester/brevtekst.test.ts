@@ -4291,7 +4291,7 @@ describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', (
     expect(s.avvist('TE', korrigering(s, 'klar_over_forholdet', '2026-10-03'))).toBeNull();
   });
 
-  // V1 A i #1843 og VS-U66, med kontrollsakene for samme dato og en tidligere dato.
+  // VS-U70 og VS-U66, med kontrollsakene for samme dato og en tidligere dato.
   it.each([
     [
       'et eget varsel datert etter det første kravet: det første kravet',
@@ -4312,7 +4312,7 @@ describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', (
       'totalentreprenørens brev av 3. oktober 2026',
     ],
   ])(
-    'påberopelsen etter § 34.1.2 og punktet om varselet i en ny kravversjon gjelder det tidligste, %s (V1 A i #1843, VS-U66)',
+    'påberopelsen etter § 34.1.2 og punktet om varselet i en ny kravversjon gjelder det tidligste, %s (VS-U70, VS-U66)',
     (_navn, dato, gjelder, brevet) => {
       // Påberopelsen er sendt 2. oktober og vederlagskravet uten varsel 3. oktober (brev 2).
       const s = medForhold(svikt);
@@ -4331,7 +4331,7 @@ describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', (
     }
   );
 
-  it('byggherrens påberopelse etter § 34.1.2 gjelder det første kravet når det egne varselet er datert etter det, og et svar som viser til det egne varselet, står (V1 A i #1843, MM-U50)', () => {
+  it('byggherrens påberopelse etter § 34.1.2 gjelder det første kravet når det egne varselet er datert etter det, og et svar som viser til det egne varselet, står (VS-U70, MM-U50)', () => {
     const s = medForhold(svikt);
     s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) });
     const kravet = s.krav('vederlag');
@@ -4354,14 +4354,14 @@ describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', (
       .find((p) => p.art === 'rettidighet' && p.hjemmel === '34.1.2')!;
     expect(rettidighet.gjelder).toBe(kravet);
     expect(s.u().forstaatt, 'kontrollsak').toBe(true);
-    // Et svar sendt før V1 A viste til det egne varselet, og står med det (MM-U50).
+    // Et svar sendt før VS-U70 viste til det egne varselet, og står med det (MM-U50).
     rettidighet.gjelder = varselet;
     expect(s.u().forstaatt).toBe(true);
     rettidighet.gjelder = s.krav('forhold');
     expect(s.u().forstaatt).toBe(false);
   });
 
-  it('påberopelsen etter § 33.4 gjelder det første fristkravet når det egne varselet er datert etter det (V1 A i #1843)', () => {
+  it('påberopelsen etter § 33.4 gjelder det første fristkravet når det egne varselet er datert etter det (VS-U70)', () => {
     const s = medForhold(svikt);
     s.send('TE', { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: BESKRIVELSE });
     const kravet = s.krav('frist');
