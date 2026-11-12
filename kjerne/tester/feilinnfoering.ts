@@ -1740,8 +1740,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'if (p.gjelder !== varseletFoerSvaret(varslene, krav, (v) => bakover(s.id, v), sendt))',
-        'if (p.gjelder !== varseletFoerSvaret(varslene, krav, (v) => bakover(s.id, v), sendt) && p.gjelder !== s.gjelder)',
+        'if (p.gjelder !== tidligste && p.gjelder !== egetFoerst)',
+        'if (p.gjelder !== tidligste && p.gjelder !== egetFoerst && p.gjelder !== s.gjelder)',
       ],
     ],
     mal: ['en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått'],
@@ -4144,11 +4144,21 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'kravetSendt !== null && kravetSendt < varselet ? kravet.id : eget.id;',
-        'kravetSendt !== null && false ? kravet.id : eget.id;',
+        'return varselet === null || kravetSendt < varselet ? kravet.id : eget.id;',
+        'return varselet === null ? kravet.id : eget.id;',
       ],
     ],
     mal: ['et eget varsel datert etter det første kravet: det første kravet'],
+  },
+  {
+    id: 'F560',
+    feilklasse:
+      'leseren godtar bare det egne varselet i påberopelsen, ikke det første kravet som ble sendt før det (V1 A i #1843)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['if (p.gjelder !== tidligste && p.gjelder !== egetFoerst)', 'if (p.gjelder !== egetFoerst)'],
+    ],
+    mal: ['byggherrens påberopelse etter § 34.1.2 gjelder det første kravet'],
   },
   {
     id: 'F557',

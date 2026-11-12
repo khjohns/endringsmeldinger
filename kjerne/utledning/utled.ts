@@ -754,7 +754,14 @@ function utledSporene(
       (id) => dokumenter.get(plass.get(id)?.hendelse ?? ''),
       ugyldig
     );
-  const sendt = (v: Pick<Krav, 'id' | 'dokument'>) => datoenDetBleSendt({ journal }, v);
+  // Lesingen kaster ikke for en dato den ikke kan lese; uten dato gjelder det egne varselet.
+  const dokumentet = new Map([...dokumenter.values()].map((d) => [d.id, d]));
+  const sendt = (v: Pick<Krav, 'id' | 'dokument'>): string | null => {
+    const d = dokumentet.get(v.dokument);
+    if (!d) return null;
+    const oppgitt = datoFor(v, 'sendt', d.opplysninger);
+    return kalenderdag(oppgitt ? oppgitt.dato : d.registrert);
+  };
   kontrollerSvarene(alleSvar, alleKrav, spor, varsler, besvart, bakover, sendt, ugyldig);
   kontrollerSvarkjedene(spor, ugyldig);
   kontrollerAksepter(aksepter, alleSvar, bakover, ugyldig);
@@ -887,17 +894,20 @@ function kontrollerStandpunktet(
       );
     return;
   }
-  // VS-U43 punkt 6 og 10: etter § 32.2 gjelder påberopelsen det registrerte varselet, ellers
-  // det første grunnlagskravet, og en senere versjon er ikke et nytt varsel. Etter § 34.3.3 og
-  // § 34.4 gjelder den kravposten (`kontrollerPostene`).
+  // VS-U43 punkt 6 og 10: påberopelsen gjelder varselet `varseletFoerSvaret` gir, og en senere
+  // versjon er ikke et nytt varsel. Et svar sendt før V1 A i #1843 viser til det egne varselet,
+  // og står med det (MM-U50). Etter § 34.3.3 og § 34.4 gjelder den kravposten (`kontrollerPostene`).
   if (erVarselhjemmel(p.hjemmel) && !erKravpostvarselhjemmel(p.hjemmel)) {
     const n = VARSELSPOR[p.hjemmel];
     const varslene = varsler.filter((v) => v.hjemmel === p.hjemmel);
     const krav = kravSomVarsler(p.hjemmel, spor[n].krav);
-    if (p.gjelder !== varseletFoerSvaret(varslene, krav, (v) => bakover(s.id, v), sendt))
+    const foer = (v: string) => bakover(s.id, v);
+    const tidligste = varseletFoerSvaret(p.hjemmel, varslene, krav, foer, sendt);
+    const egetFoerst = varseletFoerSvaret(p.hjemmel, varslene, krav, foer, () => null);
+    if (p.gjelder !== tidligste && p.gjelder !== egetFoerst)
       ugyldig(
         s.id,
-        `påberopelsen etter § ${p.hjemmel} viser ikke til det tidligste av varselet før svaret og det første kravet som varsler`
+        `påberopelsen etter § ${p.hjemmel} viser til ${p.gjelder}, men varselet før svaret er ${tidligste ?? 'ikke i saken'}`
       );
   }
 }
@@ -1464,14 +1474,15 @@ export const kravSomVarsler = (
  * VS-U20, OV-U5, HF-U1, VS-U43 punkt 6: varselet en påberopelse etter § 32.2, § 33.4, § 34.1.2
  * eller § 34.1.3 gjelder: varselet etter hjemmelen som var registrert da svaret ble sendt,
  * ellers det første kravet som varsler (`kravSomVarsler`), som er det første varselet appen
- * kjenner (arbeidsvalgene i #309 og #479, OV-U24). Har saken begge, gjelder påberopelsen det
- * tidligste etter datoen det ble sendt, slik kontrollen etter VS-U60 og VS-U66 regner (svaret A
- * på V1 i #1843); med samme dato det egne varselet. Vilkåret i E3 om en tidligere dato for
- * § 32.2 er ikke bygget (#1600).
+ * kjenner (arbeidsvalgene i #309 og #479, OV-U24). Etter § 33.4, § 34.1.2 og § 34.1.3 gjelder
+ * påberopelsen det av dem som ble sendt først (V1 A i #1843, VS-U66); med samme dato, eller uten
+ * en dato for kravet, det egne varselet. Vilkåret i E3 om en tidligere dato for § 32.2 er ikke
+ * bygget (#1600).
  * `foerSvaret` sier om et varsel står før svaret, og `sendt` datoen et varsel eller krav ble
  * sendt. Skriveren og valideringen leser det herfra (#496).
  */
 export function varseletFoerSvaret(
+  hjemmel: Enkeltvarselhjemmel,
   varsler: readonly Pick<LestVarsel, 'id' | 'dokument'>[],
   krav: readonly Pick<Krav, 'id' | 'dokument'>[],
   foerSvaret: (varsel: string) => boolean,
@@ -1479,9 +1490,10 @@ export function varseletFoerSvaret(
 ): string | undefined {
   const eget = varsler.find((v) => foerSvaret(v.id));
   const [kravet] = krav;
-  if (!eget || !kravet) return eget?.id ?? kravet?.id;
+  if (!eget || !kravet || hjemmel === '32.2') return eget?.id ?? kravet?.id;
   const [varselet, kravetSendt] = [sendt(eget), sendt(kravet)];
-  return varselet !== null && kravetSendt !== null && kravetSendt < varselet ? kravet.id : eget.id;
+  if (kravetSendt === null) return eget.id;
+  return varselet === null || kravetSendt < varselet ? kravet.id : eget.id;
 }
 
 /**
@@ -1511,6 +1523,7 @@ export function varseletFoerBrevet(
   const registrert = s.varsler[hjemmel];
   const krav = kravSomVarsler(hjemmel, s.krav);
   return varseletFoerSvaret(
+    hjemmel,
     registrert ? [registrert] : [],
     krav,
     () => true,

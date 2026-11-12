@@ -1065,7 +1065,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Dokument', 'relasjon', 'id retter', ['utledning/utled.ts:registreringer']],
   // OV-U19: brevene appen ikke vurderer, for visningen. Ingen regel leser dem.
   ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:ikkeVurderte']],
-  ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:datoenDetBleSendt']],
+  // V1 A i #1843: datoen varselet og kravet ble sendt, i kontrollen av påberopelsen.
+  [
+    'Dokument',
+    'relasjon',
+    'id',
+    ['utledning/utled.ts:datoenDetBleSendt', 'utledning/utled.ts:utledSporene'],
+  ],
+  ['Dokument', 'relasjon', 'registrert', ['utledning/utled.ts:utledSporene.sendt']],
   ['RegistrertBrev', 'relasjon', 'dokument rettetAv', ['utledning/utled.ts:ikkeVurderte']],
   [
     'Dokument',
@@ -1790,6 +1797,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/forhold/kommando.ts:varseletEtter322',
       'frosset/brevdeler.ts',
       'utledning/utled.ts:datoenDetBleSendt',
+      'utledning/utled.ts:utledSporene.sendt',
     ],
   ],
 
@@ -2093,7 +2101,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/tekst.ts',
     ],
   ],
-  ['Krav', 'relasjon', 'dokument', ['utledning/utled.ts:datoenDetBleSendt']],
+  [
+    'Krav',
+    'relasjon',
+    'dokument',
+    ['utledning/utled.ts:datoenDetBleSendt', 'utledning/utled.ts:utledSporene.sendt'],
+  ],
   ['Forholdsinnhold', 'utsagn', 'datoer', ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts']],
   [
     'Journalen',
