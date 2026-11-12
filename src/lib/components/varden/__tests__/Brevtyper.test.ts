@@ -28,7 +28,10 @@ describe('Brevtyper', () => {
   });
 
   it('hver handling står én gang i fast rekkefølge, og en brevtype som ikke er bygget, er en knapp med virkningen', () => {
-    lag(['svare:vederlag', 'krav:vederlag', 'trekke:vederlag', 'varsle:vederlag'], ['svare']);
+    lag(
+      ['svare:vederlag', 'krav:vederlag', 'trekke:vederlag', 'varsle:vederlag'],
+      ['svare:vederlag']
+    );
     expect(screen.getByRole('button', { name: 'Svar på kravet' })).toBeInTheDocument();
     expect(screen.queryByRole('link')).toBeNull();
     const trekk = screen.getByRole('button', { name: /^Trekk kravet/ });
@@ -44,6 +47,12 @@ describe('Brevtyper', () => {
     expect(screen.getByText('Kravet kan ikke tas opp igjen.')).toBeInTheDocument();
     expect(screen.queryByText(HANDLINGENE.ikkeBygget)).toBeNull();
     await fireEvent.click(screen.getByRole('button', { name: /Kravet kan ikke tas opp igjen/ }));
+    expect(screen.getByRole('status')).toHaveTextContent(HANDLINGENE.ikkeBygget);
+  });
+
+  it('en handling er bygget bare med hele nøkkelen, så svaret i et annet spor sier at det ikke er bygget (#1663)', async () => {
+    lag(['svare:frist'], ['svare:vederlag']);
+    await fireEvent.click(screen.getByRole('button', { name: /Svar på kravet/ }));
     expect(screen.getByRole('status')).toHaveTextContent(HANDLINGENE.ikkeBygget);
   });
 

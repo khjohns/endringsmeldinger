@@ -45,6 +45,7 @@
     kjernesak,
     u,
     spor,
+    skjemaene,
     onvelg,
     onspor,
     onkorriger,
@@ -54,6 +55,8 @@
     kjernesak: Kjernesakkontekst;
     u: Utledning;
     spor: Spor;
+    /** Nøklene kalleren åpner et skjema for med `onvelg`, som `svare:vederlag`. */
+    skjemaene: string[];
     /** Brukeren valgte en brevtype i menyen, som `svare:vederlag`. */
     onvelg: (noekkel: string) => void;
     /** Brukeren valgte et annet spor på siden for forholdet. */
@@ -100,12 +103,9 @@
         : null
   );
   const harPrimaer = $derived(primaer !== null);
-  // Skjemaene Varden har: svaret på vederlagskravet og den nye versjonen av påberopelsen (BF-10).
-  const bygget = $derived([
-    'godta',
-    ...(spor === 'vederlag' ? ['svare'] : spor === 'forhold' ? ['krav'] : []),
-  ]);
-  const primaerBygget = $derived(!!primaer && bygget.includes(handlingen(primaer)!.type));
+  // Aksepten åpnes her, og resten av skjemaene hos kalleren (#1663).
+  const bygget = $derived([...(kanGodta ? [`godta:${spor}`] : []), ...skjemaene]);
+  const primaerBygget = $derived(!!primaer && bygget.includes(primaer));
   let primaerIkkeBygget = $state(false);
   // Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista (U-1 i BF-02A, #1615).
   const korrigerbare = $derived(

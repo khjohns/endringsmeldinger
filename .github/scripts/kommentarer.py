@@ -1,15 +1,10 @@
-"""Filene der mer enn kommentarene er endret: regelversjonsvakten (#1549).
+"""Koden i en TypeScript- eller JavaScript-fil uten kommentarer, for flytting.py (#1549).
 
 En fil er uendret når koden uten kommentarer er lik før og etter. TypeScript og
 JavaScript skrives ut av TypeScript-printeren uten kommentarer og JSDoc
-(`uten_kommentarer.mjs`). Formateringen ses det dermed også bort fra. Kan en av
-versjonene ikke leses eller parses, eller er språket ukjent, er fila endret.
-
-Leser `git diff --name-status --no-renames FRA HEAD` på stdin og skriver stien
-til hver fil som er endret, lagt til eller slettet.
-
-Bruk: git -c core.quotePath=false diff --name-status --no-renames FRA HEAD \\
-  -- <stier> | python3 kommentarer.py FRA
+(`uten_kommentarer.mjs`). Formateringen ses det dermed også bort fra. Språk som
+ikke er TypeScript eller JavaScript, og filer som ikke kan leses eller parses,
+gir None.
 """
 
 import subprocess
@@ -34,27 +29,5 @@ def uten_kommentarer(innhold: str, sti: str) -> str | None:
     return None
 
 
-def bare_kommentarer(for_: str, etter: str, sti: str) -> bool:
-    if for_ == etter:
-        return True
-    uten = uten_kommentarer(for_, sti)
-    return uten is not None and uten == uten_kommentarer(etter, sti)
-
-
 def tekst(ref: str, sti: str) -> str:
     return subprocess.run(["git", "show", f"{ref}:{sti}"], check=True, capture_output=True, text=True).stdout
-
-
-def main() -> int:
-    fra = sys.argv[1]
-    for linje in sys.stdin.read().splitlines():
-        if not linje.strip():
-            continue
-        status, sti = linje.split("\t")[0], linje.split("\t")[-1]
-        if status != "M" or not bare_kommentarer(tekst(fra, sti), tekst("HEAD", sti), sti):
-            print(sti)
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())

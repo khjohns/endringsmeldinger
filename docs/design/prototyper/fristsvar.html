@@ -6,6 +6,7 @@
 <title>Svarskjemaet for frist i Varden</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!--
+  Prototype v2 (12.11): hindringen står før spesifiseringen, som lagene etter svaret på S-6 i BF-20.
   Prototype v1 av byggherrens svar på krav om fristforlengelse i Varden, i samme mønster som
   vederlagssvaret (#1433): punktene følger brevet, én begrunnelse per punkt, forbehold sist og
   vedlegg som det vises til. Lagene følger kjernen: punkt 33.4, punkt 33.6.1 og dagene (OV-U32, VS-U4).
@@ -265,7 +266,6 @@ button{font:inherit;color:inherit}
           <div class="utkast-hode">
             <div class="linje"><span class="utkastmerke">Utkast · ikke sendt</span><h1 id="tittel">Brev 7 · Svar på krav om fristforlengelse</h1></div>
             <p>Til totalentreprenøren (TE)</p>
-            <p class="laas"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Bare synlig for teamet ditt til det er sendt</p>
           </div>
           <div class="svarpaa">
             <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Svar på brev 4 fra TE · 13. okt 2026 · <span class="num">20 dager</span></span>
@@ -307,8 +307,19 @@ button{font:inherit;color:inherit}
           </section>
 
           <!-- 2 -->
+          <section class="punkt" aria-labelledby="p3">
+            <div class="punkt-hode"><span class="nr" aria-hidden="true">2</span><h2 id="p3">Hindringen</h2><span class="hjemmel">punkt 33.1</span></div>
+            <div class="gjelder"><b>Gjelder hvis</b><ul><li><a href="#p1">innsigelsen om varselet etter punkt 33.4</a> ikke fører frem</li></ul></div>
+            <fieldset style="border:0;margin:0;padding:0"><legend class="spm" style="padding:0;margin-bottom:10px">Legger du til grunn at fremdriften hindres som følge av forholdet?</legend><div class="valg"><label><input type="radio" name="v3" checked> Ja, fremdriften hindres</label><label><input type="radio" name="v3"> Nei, fremdriften hindres ikke</label></div></fieldset>
+            <div class="begr" data-begr="3">
+              <div class="begr-hode"><b>Begrunnelse</b><span class="krav">Valgfri</span></div>
+              <button class="lenke liten" type="button" data-rediger style="align-self:flex-start">Legg til begrunnelse</button>
+            </div>
+          </section>
+
+          <!-- 3 -->
           <section class="punkt" aria-labelledby="p2">
-            <div class="punkt-hode"><span class="nr" aria-hidden="true">2</span><h2 id="p2">Spesifiseringen av kravet</h2><span class="hjemmel">punkt 33.6.1</span></div>
+            <div class="punkt-hode"><span class="nr" aria-hidden="true">3</span><h2 id="p2">Spesifiseringen av kravet</h2><span class="hjemmel">punkt 33.6.1</span></div>
             <div class="gjelder"><b>Gjelder hvis</b><ul><li><a href="#p1">innsigelsen om varselet etter punkt 33.4</a> ikke fører frem</li></ul></div>
             <div class="datoboks"><p>Kravet om 20 dager ble spesifisert i brev 4, 13. oktober 2026.</p><p class="dempet">Om kravet ble spesifisert i tide, avgjør partene.</p></div>
             <fieldset style="border:0;margin:0;padding:0"><legend class="spm" style="padding:0;margin-bottom:10px">Ble kravet spesifisert i tide?</legend><div class="valg"><label><input type="radio" name="v2"> Spesifisert i tide</label><label><input type="radio" name="v2" checked> Spesifisert for sent</label></div></fieldset>
@@ -320,7 +331,7 @@ button{font:inherit;color:inherit}
             <div class="begr" data-begr="2" data-aapen>
               <div class="begr-hode"><b>Begrunnelse</b><span class="krav">Kreves fordi du gjør gjeldende at kravet ble spesifisert for sent</span></div>
               <div class="editor">
-                <label for="t2" class="tom" style="font-size:12px">Kommer i brevet under punkt 2.</label>
+                <label for="t2" class="tom" style="font-size:12px">Kommer i brevet under punkt 3.</label>
                 <textarea id="t2">TE hadde grunnlag for å beregne virkningen da den reviderte pelingsplanen forelå 22. september. Ut fra stansen i akse C–F og planen byggherren fikk da, måtte byggherren forstå at fremdriften ble forsinket med 8 dager, se </textarea>
                 <div class="verktoy">
                   <span class="meny"><button class="liten-knapp" type="button" aria-expanded="false" aria-haspopup="true" data-meny>Vis til vedlegg</button>
@@ -328,17 +339,6 @@ button{font:inherit;color:inherit}
                   <button class="liten-knapp sterk" type="button" data-ferdig>Ferdig</button>
                 </div>
               </div>
-            </div>
-          </section>
-
-          <!-- 3 -->
-          <section class="punkt" aria-labelledby="p3">
-            <div class="punkt-hode"><span class="nr" aria-hidden="true">3</span><h2 id="p3">Hindringen</h2><span class="hjemmel">punkt 33.1</span></div>
-            <div class="gjelder"><b>Gjelder hvis</b><ul><li><a href="#p1">innsigelsen om varselet etter punkt 33.4</a> ikke fører frem</li></ul></div>
-            <fieldset style="border:0;margin:0;padding:0"><legend class="spm" style="padding:0;margin-bottom:10px">Legger du til grunn at fremdriften hindres som følge av forholdet?</legend><div class="valg"><label><input type="radio" name="v3" checked> Ja, fremdriften hindres</label><label><input type="radio" name="v3"> Nei, fremdriften hindres ikke</label></div></fieldset>
-            <div class="begr" data-begr="3">
-              <div class="begr-hode"><b>Begrunnelse</b><span class="krav">Valgfri</span></div>
-              <button class="lenke liten" type="button" data-rediger style="align-self:flex-start">Legg til begrunnelse</button>
             </div>
           </section>
 
@@ -390,8 +390,8 @@ button{font:inherit;color:inherit}
             <nav aria-label="Punktene i svaret">
               <ol class="punktliste">
                 <li><a href="#p1" data-til="p1"><span class="pnr">1</span><span class="pt">Varselet om fristforlengelse</span><span class="ps">Varslet for sent<span class="pb">Begrunnelse skrevet</span></span></a></li>
-                <li><a href="#p2" data-til="p2" aria-current="true"><span class="pnr">2</span><span class="pt">Spesifiseringen av kravet</span><span class="ps">For sent · 8 dager<span class="pb">Begrunnelse under arbeid</span></span></a></li>
-                <li><a href="#p3" data-til="p3"><span class="pnr">3</span><span class="pt">Hindringen</span><span class="ps">Fremdriften hindres<span class="pb">Uten begrunnelse</span></span></a></li>
+                <li><a href="#p3" data-til="p3"><span class="pnr">2</span><span class="pt">Hindringen</span><span class="ps">Fremdriften hindres<span class="pb">Uten begrunnelse</span></span></a></li>
+                <li><a href="#p2" data-til="p2" aria-current="true"><span class="pnr">3</span><span class="pt">Spesifiseringen av kravet</span><span class="ps">For sent · 8 dager<span class="pb">Begrunnelse under arbeid</span></span></a></li>
                 <li class="mangler"><a href="#p4" data-til="p4"><span class="pnr">4</span><span class="pt">Dagene</span><span class="ps">14 av 20 dager<span class="pb">Begrunnelse mangler</span></span></a></li>
                 <li><a href="#p5" data-til="p5"><span class="pnr">5</span><span class="pt">Forbehold</span><span class="ps">Fast tekst<span class="pb"></span></span></a></li>
                 <li><a href="#pv" data-til="pv"><span class="pnr v">V</span><span class="pt">Vedlegg</span><span class="ps">2 filer</span></a></li>
