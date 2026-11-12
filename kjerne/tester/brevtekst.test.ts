@@ -67,7 +67,8 @@ import {
   venterPaaSvar,
 } from '../utledning/utled.ts';
 import type { Utledning } from '../utledning/utled.ts';
-import { harIkkeVurdertBrev, vederlagssvaret, visning } from '../utledning/visning.ts';
+import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
+import { vederlagssvaret } from '../spor/vederlag/visning.ts';
 import { KJERNE } from '../versjon.ts';
 import { utenAvsnitt } from './formatprove.ts';
 

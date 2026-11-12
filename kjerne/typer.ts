@@ -55,7 +55,7 @@ export type Kravpostvarselhjemmel = '34.3.3' | '34.4';
 /**
  * Varselet etter § 34.3.3 eller § 34.4 for en kravpost i en ny kravversjon: kravet er varselet
  * (`kravet`), eller varselet ble gitt før kravet (`varsel` er utsagnet). Utledes i
- * `utledning/kravposter.ts` (VS-U49, VS-U50, VS-U55).
+ * `spor/vederlag/utledning.ts` (VS-U49, VS-U50, VS-U55).
  */
 export type Kravpostvarselet = { art: 'kravet' } | { art: 'gitt'; varsel: string };
 export const erKravpostvarselhjemmel = (hjemmel: Hjemmel): hjemmel is Kravpostvarselhjemmel =>

@@ -11,7 +11,7 @@ import {
   kravpostvarslene,
   nesteBetegnelse,
   varselhjemmel,
-} from '../utledning/kravposter.ts';
+} from '../spor/vederlag/utledning.ts';
 import { avvisning } from './avvisning.ts';
 import { formfeil, korrigertDato, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys } from '../frosset/frysing.ts';

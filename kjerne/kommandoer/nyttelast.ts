@@ -5,7 +5,7 @@
  * regelversjonen; innholdet står i brevet (KA-U10 (opphevet av MM-U50)).
  */
 
-import { kravposteneStrider, kravpostvarseletStrider } from '../utledning/kravposter.ts';
+import { kravposteneStrider, kravpostvarseletStrider } from '../spor/vederlag/utledning.ts';
 import { beloep, UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';

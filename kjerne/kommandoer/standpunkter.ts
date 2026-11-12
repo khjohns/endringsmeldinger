@@ -7,7 +7,7 @@ import { HJEMMEL } from '../format/format.ts';
 import { kravposterI, OPPGJOERSHJEMMEL } from '../spor/vederlag/format.ts';
 import { forholdsstandpunkter } from '../frosset/frysing.ts';
 import { vederlagsposter, type Kravpostvurdering } from '../spor/vederlag/frysing.ts';
-import { varselhjemmel } from '../utledning/kravposter.ts';
+import { varselhjemmel } from '../spor/vederlag/utledning.ts';
 import { beloep, tilTall } from '../regler/beloep.ts';
 import type { Svarutkast } from './kommando.ts';
 import {

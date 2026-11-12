@@ -12,7 +12,7 @@ import { kjoer, type Forloep } from './kjoerer.ts';
 import type { Handling } from './klient.ts';
 import { plassene } from '../frosset/byggeklosser.ts';
 import { kroner } from '../frosset/tekst.ts';
-import { vederlagssvaret } from '../utledning/visning.ts';
+import { vederlagssvaret } from '../spor/vederlag/visning.ts';
 
 async function utledning(steg: Handling[]) {
   const forloep: Forloep = { id: 'lagene', rader: [], start: null, steg, kontroller: [] };

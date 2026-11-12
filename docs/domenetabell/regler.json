@@ -3396,8 +3396,8 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/utledning/kravposter.ts#kravpostvarslene",
-        "kjerne/utledning/kravposter.ts#kravpostvarseletStrider"
+        "kjerne/spor/vederlag/utledning.ts#kravpostvarslene",
+        "kjerne/spor/vederlag/utledning.ts#kravpostvarseletStrider"
       ],
       "regelkoder": [
         "KRAVPOSTVARSELET"
@@ -3420,7 +3420,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/kommandoer/skriving.ts#medVarslene",
-        "kjerne/utledning/utled.ts#kontrollerVedleggeneVedKravet"
+        "kjerne/spor/vederlag/utledning.ts#kontrollerVedleggeneVedKravet"
       ],
       "regelkoder": [
         "KRAVPOSTVARSELET"
@@ -3683,7 +3683,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/utledning/kravposter.ts#kravposteneStrider"
+        "kjerne/spor/vederlag/utledning.ts#kravposteneStrider"
       ],
       "regelkoder": [
         "KRAVPOSTENE"

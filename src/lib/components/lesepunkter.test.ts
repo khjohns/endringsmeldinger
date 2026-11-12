@@ -98,7 +98,8 @@ const bareTyper = (klausul: string) => {
   return navn !== undefined && navn.length > 0 && navn.every((n) => /^type\s/.test(n));
 };
 
-const KJERNE = String.raw`['"\x60]\$kjerne\/(?:utledning|kommandoer)\/`;
+/** Utledningen og kommandoene, også rollefilene for dem i et spor (#1783). */
+const KJERNE = String.raw`['"\x60]\$kjerne\/(?:(?:utledning|kommandoer)\/|spor\/\w+\/(?:utledning|visning|kommando)\b)`;
 
 const KJERNELESING: [string, RegExp, ((klausul: string) => boolean)?][] = [
   [
@@ -157,6 +158,8 @@ describe('lesepunktet for TS-sakene', () => {
           `  export { type Visning, type Status } from '$kjerne/utledning/visning';`,
           `  import { type Visning, visning } from '$kjerne/utledning/visning';`,
           `  import '$kjerne/kommandoer/skriving';`,
+          `  import { vederlagssvaret } from '$kjerne/spor/vederlag/visning';`,
+          `  import { kravposterI } from '$kjerne/spor/vederlag/format';`,
           `</script>`,
         ].join('\n')
       )
@@ -169,6 +172,7 @@ describe('lesepunktet for TS-sakene', () => {
       '13: kjernekall',
       '16: kjernekall',
       '17: kjernekall',
+      '18: kjernekall',
     ]);
   });
 });

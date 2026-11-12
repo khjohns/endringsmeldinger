@@ -2827,7 +2827,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F426',
     feilklasse: '«Varsel ikke registrert» står også etter fristkravet (#1126)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [["!s.varsler['33.4'] && s.krav.length === 0)", "!s.varsler['33.4'])"]],
+    endringer: [
+      [
+        "!u.spor.frist.varsler['33.4'] && u.spor.frist.krav.length === 0",
+        "!u.spor.frist.varsler['33.4']",
+      ],
+    ],
     mal: ['står ikke etter fristkravet'],
   },
   {
@@ -4059,14 +4064,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F476',
     feilklasse: 'en ny kravversjon kan utelate en kravpost uten å trekke den (KA-U56)',
-    fil: `${K}/utledning/kravposter.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [['  return mangler.length\n', '  return mangler.length && false\n']],
     mal: ['verken tar med eller trekker P1'],
   },
   {
     id: 'F549',
     feilklasse: 'en trukket kravpost avvises når den tas med igjen (KA-U75)',
-    fil: `${K}/utledning/kravposter.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
         '    if (id !== undefined && !kjent && !lagret)',
@@ -4079,7 +4084,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F551',
     feilklasse:
       'en kravpost som tas med igjen, sammenlignes med forrige versjon, der den mangler (KA-U75)',
-    fil: `${K}/utledning/kravposter.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
         '    const somFoer = [...tidligere]\n      .reverse()',
@@ -4103,7 +4108,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F478',
     feilklasse: 'en ny kravpost får en betegnelse som er brukt før i sporet (KA-U53, KA-U75)',
-    fil: `${K}/utledning/kravposter.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
         '  return new Set(tidligere.flatMap((k) => kravposterI(k).map((p) => p.betegnelse)));',
@@ -4115,7 +4120,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F479',
     feilklasse: 'kravposten er varselet etter punkt 34.4 også i en senere versjon (VS-U48)',
-    fil: `${K}/utledning/kravposter.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
         '    if (hjemmel === null || hattFoer(p, hjemmel, tidligere)) continue;',
@@ -4137,7 +4142,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F482',
     feilklasse: 'et varsel før det første kravet gjelder ikke kravpostene i det kravet (D-16)',
-    fil: `${K}/utledning/kravposter.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [['(tidligere.length ? undefined : varsler.find(', '(undefined && varsler.find(']],
     mal: [
       'et varsel sendt før det første kravet gjelder',
@@ -4147,14 +4152,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F483',
     feilklasse: 'et varsel etter punkt 34.4 gjelder kravpostene med justerte enhetspriser (D-16)',
-    fil: `${K}/utledning/kravposter.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [["    ? '34.4'\n", "    ? '34.3.3'\n"]],
     mal: ['et varsel registrert før det første kravet'],
   },
   {
     id: 'F484',
     feilklasse: 'et varsel etter det første kravet gjelder en ny kravpost uten valg (D-16, D-19)',
-    fil: `${K}/utledning/kravposter.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [['(tidligere.length ? undefined : varsler', '(varsler']],
     mal: ['et varsel etter det første kravet gjelder ikke en ny kravpost'],
   },
@@ -4287,7 +4292,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "    if (s.spor === 'vederlag' && krav?.spor === 'vederlag') kontrollerPostene(s, krav, ugyldig);",
+        '    if (krav?.spor === s.spor) kontrollerI(s.spor).svaret(s, krav, ugyldig);',
         '    void krav;',
       ],
     ],
@@ -4615,7 +4620,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F533',
     feilklasse: 'varselet kravposten viser til, leses ikke (VS-U50, VS-U54)',
-    fil: `${K}/utledning/kravposter.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [['      p.varsel ?? (tidligere.length', '      (tidligere.length']],
     mal: [
       'en ny kravpost i en senere kravversjon viser til et varsel sendt etter det første kravet',
@@ -4625,7 +4630,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F534',
     feilklasse: 'kravposten kan vise til et varsel etter en annen bestemmelse (VS-U50)',
-    fil: `${K}/utledning/kravposter.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [['v.id === p.varsel && v.hjemmel === hjemmel', 'v.id === p.varsel']],
     mal: ['kravposten kan bare vise til et varsel etter samme bestemmelse i saken'],
   },
@@ -4650,7 +4655,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F537',
     feilklasse:
       'et vederlagskrav med et vedlegg som ikke er dokumentet med varselet for en kravpost, gjør saken forstått (VS-U51, MM-U2)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
         '    if (ved.some((v) => !varslene.has(v.vedlegg_id)))',
@@ -4684,7 +4689,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F540',
     feilklasse:
       'et varsel i saken som én kravpost viser til, gjelder ikke en annen post med samme beregningsregel (D-16)',
-    fil: `${K}/utledning/kravposter.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
         'varsler.find((v) => v.hjemmel === hjemmel)?.id)',
@@ -4696,7 +4701,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F541',
     feilklasse: 'en kravpost i en ny versjon kan ikke gjenta varselet den viste til (KA-U56)',
-    fil: `${K}/utledning/kravposter.ts`,
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [['somFoer?.varsel !== p.varsel', 'true']],
     mal: ['en kravpost i en ny versjon kan gjenta varselet'],
   },

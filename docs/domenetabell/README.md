@@ -585,11 +585,11 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | VS-05 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`henvisning`](../../kjerne/kommandoer/forutsetninger.ts) |
 | VS-06 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`nyttelastkontroll`](../../kjerne/kommandoer/nyttelast.ts) |
 | VS-07 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts), [`nyttelastkontroll`](../../kjerne/kommandoer/nyttelast.ts) |
-| VS-08 | [`kravpostvarslene`](../../kjerne/utledning/kravposter.ts), [`kravpostvarseletStrider`](../../kjerne/utledning/kravposter.ts) |
-| VS-09 | [`medVarslene`](../../kjerne/kommandoer/skriving.ts), [`kontrollerVedleggeneVedKravet`](../../kjerne/utledning/utled.ts) |
+| VS-08 | [`kravpostvarslene`](../../kjerne/spor/vederlag/utledning.ts), [`kravpostvarseletStrider`](../../kjerne/spor/vederlag/utledning.ts) |
+| VS-09 | [`medVarslene`](../../kjerne/kommandoer/skriving.ts), [`kontrollerVedleggeneVedKravet`](../../kjerne/spor/vederlag/utledning.ts) |
 | KA-50 | [`dokumentasjonIBrevet`](../../kjerne/utledning/utled.ts) |
 | KA-51 | [`tekstavvik`](../../kjerne/kommandoer/skriving.ts) |
-| KA-55 | [`kravposteneStrider`](../../kjerne/utledning/kravposter.ts) |
+| KA-55 | [`kravposteneStrider`](../../kjerne/spor/vederlag/utledning.ts) |
 | KA-56 | [`hindrerSvarPaaKravet`](../../kjerne/kommandoer/forutsetninger.ts), [`kravpostvurderinger`](../../kjerne/spor/vederlag/frysing.ts) |
 <!-- sporbarhet:slutt -->
 
