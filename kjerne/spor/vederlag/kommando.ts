@@ -48,13 +48,13 @@ import {
   type Hjemmel,
   type Krav,
   type Standpunkt,
-  type Standpunktsart,
   type Virkning,
 } from '../../typer.ts';
 import { paaberopelseFor, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
 import type { Innhold, Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type { Sporsskriving } from '../../kommandoer/skriving.ts';
+import type { Utkastlag } from '../poster/kommando.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
 
@@ -340,24 +340,6 @@ export type Forutsetning =
   | { innsigelse: '34.1.2' | '34.1.3' | '34.3.3' }
   | { oppgjoersform: string };
 
-export interface Utkastlag {
-  standpunkter: {
-    art: Standpunktsart;
-    hjemmel?: Hjemmel;
-    saerskilt?: 'produktivitet';
-    /** Kravposten beløpet eller oppgjørsformen gjelder (KA-U57 (c) og (d)). */
-    gjelder?: string;
-    /** Beløpsspørsmålet for posten er besvart. Andre standpunkter finnes bare når de er besvart (KA-U4). */
-    besvart: boolean;
-    /** Laget etter lagene fra forholdet, `upaavirket` eller `uten_virkning`. */
-    virkning: Virkning;
-    /** `null` når standpunktet ikke står i et lag, eller hele svaret har ett lag (OV-U33). */
-    etikett: string | null;
-    /** Grunnene fra forholdet i brevets rekkefølge, så innsigelsene i sporet (S2-A). */
-    forutsetninger: Forutsetning[];
-  }[];
-}
-
 /**
  * Lagene i et svarutkast på vederlag, også før alle spørsmålene er besvart. Et ubesvart
  * varslingsspørsmål regnes som at innsigelsen ikke er gjort gjeldende, så laget kan endre
@@ -366,9 +348,11 @@ export interface Utkastlag {
  * lagene og tas ut før standpunktene bygges. Kaster `UgyldigVurdering` for svar på
  * kravpostene som `kravpostvurderinger` avviser.
  */
-export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelsett): Utkastlag {
-  if (utkast.spor !== 'vederlag')
-    throw new Error(`lagForUtkastet gjelder vederlag, ikke ${utkast.spor}`);
+export function lagIVederlaget(
+  utkast: Svarutkast,
+  u: Utledning,
+  regler: Regelsett
+): Utkastlag<Forutsetning> {
   const v = utkast.vurderinger;
   const utenBeloep: Svarvurdering = {
     ...v,

@@ -29,7 +29,7 @@ import { UgyldigVurdering } from '../regler/feil.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { kroner } from '../frosset/tekst.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
-import { lagForUtkastet } from '../spor/vederlag/kommando.ts';
+import { lagForUtkastet } from '../kommandoer/lag.ts';
 import { HOVEDKATEGORIER, KATEGORIER } from '../format/koder.ts';
 import { oppgittDato } from '../format/format.ts';
 import { erRegistrert, kalenderdag, lesJournal } from '../format/leser.ts';
@@ -7705,6 +7705,15 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
       delete rest.gjelder;
       return { standpunkt: [art, hjemmel ?? saerskilt].filter(Boolean).join(' '), ...rest };
     });
+
+  // Planen for #1778 i #1783: lagene i fristsvaret bygges med #1745 (M-8 i BF-20), og til da
+  // kaster oppslaget i stedet for å gi lag fristen ikke har.
+  it('et utkast til svar på fristkravet har ingen lag ennå (#1745)', () => {
+    const s = saken({ resultat: 'godkjent' });
+    expect(() =>
+      lagForUtkastet({ spor: 'frist', vurderinger: {} } as never, s.u(), KJERNE.regler)
+    ).toThrow('lagForUtkastet gjelder vederlag, ikke frist');
+  });
 
   it('med to kravposter sier hvert lag for beløpet og oppgjørsformen hvilken kravpost det gjelder (KA-U57 (c) og (d))', () => {
     const s = saken(

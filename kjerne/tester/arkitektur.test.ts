@@ -684,7 +684,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'utledning/utled.ts:settSubsidiaer',
       'frosset/brevtekst.ts:forholdetsStandpunkter',
-      'spor/vederlag/kommando.ts:lagForUtkastet',
+      'spor/vederlag/kommando.ts:lagIVederlaget',
     ],
   ],
   // OV-U32, OV-U33: lagene forholdet opptar foran sporet, som linjen etiketteres med.
@@ -1112,7 +1112,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts',
     'predikat',
     'virkninger',
-    ['spor/vederlag/kommando.ts:lagForUtkastet', 'frosset/frysing.ts:beslutningsgrunnlag'],
+    ['spor/vederlag/kommando.ts:lagIVederlaget', 'frosset/frysing.ts:beslutningsgrunnlag'],
   ],
   // GR-U7 og MM-U9: sammenfallet og begrensningen etter § 34.1.3 (VS-U5), lest når brevet fryses.
   [
@@ -1130,6 +1130,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Skrivingen i sporet (#1783).
   ['Sporsskriving', 'kommando', 'kravinnhold', ['kommandoer/skriving.ts']],
   ['spor/vederlag/kommando.ts', 'kommando', 'SKRIVING_I_VEDERLAGET', ['kommandoer/skriving.ts']],
+  // Lagene i et svarutkast i sporet (#1778).
+  ['spor/vederlag/kommando.ts', 'predikat', 'lagIVederlaget', ['kommandoer/lag.ts']],
   // Nyttelastkontrollen i sporet (#1783).
   [
     'Sporsnyttelast',
@@ -1781,6 +1783,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/kommando.ts',
       'kommandoer/nyttelast.ts',
       'kommandoer/skriving.ts',
+      'kommandoer/lag.ts',
     ],
   ],
   [
