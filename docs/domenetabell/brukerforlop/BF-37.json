@@ -1,0 +1,136 @@
+{
+  "id": "BF-37",
+  "tittel": "TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder",
+  "brukerhistorie": "TE velger «Bare varsle, uten krav» og varsler flere forhold i samme brev: regningsarbeid for to arbeider, justering av en enhetspris og fristforlengelse, hvert med bestemmelsen og arbeidet. TE ser brevet med ett avsnitt per varsel, eller registrerer et brev sendt utenfor løsningen med én dato for alle varslene. I det senere kravet sier TE hvilket varsel kravposten gjelder. BH svarer på hvert varsel for seg.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "TE har påberopt forholdet byggherrens valg av løsninger og prosjektering (punkt 24.1) i brev 2 og varslet vederlagsjustering etter punkt 34.1.2 i brev 3 (BF-05, BF-14)."
+  },
+  "bestilling": "BF-37.md",
+  "prototype": {
+    "fil": "../../design/prototyper/varsler-i-ett-brev.html",
+    "klikkstier": [
+      {
+        "id": "varslene-og-brevet",
+        "dekker": [
+          "1",
+          "2",
+          "3"
+        ],
+        "start": "varsler",
+        "handlinger": [
+          {
+            "staar": "Ett varsel per rad. Hvert varsel står som et eget avsnitt i brevet."
+          },
+          {
+            "staar": "Krav om vederlagsjustering (punkt 34.1.2) er gitt i brev 3, 20. oktober 2026."
+          },
+          {
+            "trykk": "Legg til et varsel"
+          },
+          {
+            "staar": "Arbeidet varselet gjelder"
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "Ekstra graving i grøften ved kum 4"
+          },
+          {
+            "klikk": "Tilbake til skjemaet",
+            "tilstand": "varsler"
+          }
+        ]
+      },
+      {
+        "id": "registrer-et-brev",
+        "dekker": [
+          "4"
+        ],
+        "start": "registrer",
+        "handlinger": [
+          {
+            "staar": "Gjelder alle varslene i dokumentet. Datoen settes én gang."
+          },
+          {
+            "staar": "Løsningen lager ingen brevtekst for et registrert dokument."
+          }
+        ]
+      },
+      {
+        "id": "kravposten-velger-varselet",
+        "dekker": [
+          "5",
+          "G-3"
+        ],
+        "start": "kravpost",
+        "handlinger": [
+          {
+            "staar": "Hvilket varsel etter punkt 34.4 gjelder P2?"
+          },
+          {
+            "velg": "Ingen av dem. Dette kravet er varselet for P2"
+          },
+          {
+            "staar": "Brevet sier at kravet er varselet for P2 etter punkt 34.4."
+          }
+        ]
+      },
+      {
+        "id": "svar-per-varsel",
+        "dekker": [
+          "6"
+        ],
+        "start": "svar",
+        "handlinger": [
+          {
+            "staar": "Ett svar per varsel."
+          }
+        ]
+      }
+    ]
+  },
+  "kilder": [
+    "MM-U10",
+    "LV-U3",
+    "VS-U16",
+    "OV-U89",
+    "OV-U90",
+    "VS-U48",
+    "VS-U49",
+    "VS-U52",
+    "VS-U54",
+    "VS-U61",
+    "VS-U62",
+    "VS-U64",
+    "VS-U65",
+    "VS-U34",
+    "OV-U80",
+    "KA-U16",
+    "GR-U15",
+    "EO-U19",
+    "B-17",
+    "VS-U53"
+  ],
+  "venter_paa": [
+    "#1837",
+    "#1823"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-12",
+      "forhold": "#1837",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen, prototypen v1 og spørsmålene S-1–S-3."
+    },
+    {
+      "dato": "2026-11-12",
+      "forhold": "#1837",
+      "hva": "Svarene på S-1–S-3 (A, A, C) er ført i bestillingen, og prototypen følger dem."
+    }
+  ]
+}
