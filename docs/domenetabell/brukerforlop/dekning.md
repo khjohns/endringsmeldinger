@@ -132,6 +132,8 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U74](../../plans/vedtak.md#ka-u74) | — | — | BF-20 |
 | [KA-U75](../../plans/vedtak.md#ka-u75) | — | — | BF-14, BF-20 |
 | [KA-U76](../../plans/vedtak.md#ka-u76) | — | — | BF-20 |
+| [KA-U77](../../plans/vedtak.md#ka-u77) | — | — | BF-20 |
+| [KA-U78](../../plans/vedtak.md#ka-u78) | — | — | BF-20 |
 | [KT-U3](../../plans/vedtak.md#kt-u3) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U6](../../plans/vedtak.md#kt-u6) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U7](../../plans/vedtak.md#kt-u7) | — | BF-05 start | — |
