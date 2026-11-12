@@ -26,6 +26,7 @@ import {
   type Standpunktsvirkning,
   type Vederlagsutregning,
 } from '../../typer.ts';
+import { kontrollerRadene } from '../poster/format.ts';
 
 /**
  * Standpunktene i svaret på vederlaget, etter `STANDPUNKTER_I_SPORET`: § 34.1.2, oppgjørsformen
@@ -457,12 +458,12 @@ function kontrollerVederlagsstandpunktene(
 
 /**
  * OV-U31, KA-U57 (e): utregningen har én rad per beløp i standpunktene, i samme rekkefølge og med
- * samme post, og like mange lag i hver rad. Beløpet i det siste laget er det byggherren godtar
+ * samme post, og like mange lag i hver rad. Antallet lag er det høyeste laget i
+ * beslutningsgrunnlaget (`kontrollerRadene`). Beløpet i det siste laget er det byggherren godtar
  * for posten. Et lag uten beløp står bare for en kravpost der tilbudet ikke er akseptert, og en
  * slik kravpost har 0 kr i laget for § 34.1.2 når påberopelsen har virkning, og ellers ikke
  * beløp (KA-U72, OV-U27). Det byggherren godtar prinsipalt og subsidiært, er summen av det
- * første og det siste laget, og det subsidiære står bare med mer enn ett lag. Antallet lag er
- * det høyeste laget i beslutningsgrunnlaget.
+ * første og det siste laget, og det subsidiære står bare med mer enn ett lag.
  */
 function kontrollerUtregningenPerPost(
   ut: Standpunkt[],
@@ -473,24 +474,13 @@ function kontrollerUtregningenPerPost(
   const rader = utregning.poster;
   const beloepene = ut.filter((s) => s.art === 'beloep');
   const utenAksept = utenFastBeloep(ut);
-  const antall = rader[0]?.lag.length ?? 0;
   const hele = ut.find((s) => s.art === 'rettidighet' && s.hjemmel === '34.1.2');
   const prekludert = Number(
     hele !== undefined &&
       typeof virkninger.find((v) => v.standpunkt === hele.id)?.virkning === 'number'
   );
   const feil = (hva: string) => new Uforstaatt(`${sti}.utregning.poster: ${hva}`);
-  if (rader.length !== beloepene.length) throw feil('radene er ikke én per post i standpunktene');
-  rader.forEach((r, i) => {
-    const b = beloepene[i];
-    if (
-      'gjelder' in r === 'saerskilt' in r ||
-      r.gjelder !== b.gjelder ||
-      r.saerskilt !== b.saerskilt
-    )
-      throw feil(`rad ${i + 1} gjelder ikke samme post som beløpet i standpunktene`);
-    if (r.lag.length !== antall || r.lag.some((l, n) => l.lag !== n + 1))
-      throw feil(`rad ${i + 1} har ikke lagene 1 til ${antall}`);
+  const antall = kontrollerRadene(rader, beloepene, virkninger, 'beløpet', feil, (r, b, i) => {
     if (beloep(r.lag.at(-1)!.beloep) !== beloep(b.godkjent))
       throw feil(`rad ${i + 1} har ikke beløpet byggherren godtar i det siste laget`);
     if (!utenAksept.has(r.gjelder!)) {
@@ -503,13 +493,6 @@ function kontrollerUtregningenPerPost(
         `rad ${i + 1} har ikke 0 kr i laget for § 34.1.2 og ellers ingen beløp, men byggherren aksepterer ikke tilbudet for posten (KA-U72, OV-U27)`
       );
   });
-  // OV-U32, #1774: lagene i utregningen er lagene i beslutningsgrunnlaget.
-  const lagIGrunnlaget = Math.max(
-    1,
-    ...virkninger.flatMap((v) => (typeof v.virkning === 'number' ? [v.virkning] : []))
-  );
-  if (rader.length > 0 && antall !== lagIGrunnlaget)
-    throw feil(`radene har ${antall} lag, men beslutningsgrunnlaget har ${lagIGrunnlaget}`);
   const summen = (n: number) =>
     rader.map((r) => r.lag.at(n)!).reduce((a, l) => a + (beloep(l.beloep) ?? 0n), 0n);
   if (summen(0) !== beloep(utregning.godkjent_beloep))

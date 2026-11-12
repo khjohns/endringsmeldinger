@@ -1599,8 +1599,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'resultat godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
     ['format/leser.ts'],
   ],
-  ['Utregningsrad', 'rad', 'gjelder saerskilt lag', ['spor/vederlag/format.ts']],
-  ['Utregningslag', 'rad', 'lag beloep', ['spor/vederlag/format.ts']],
+  ['Utregningsrad', 'rad', 'gjelder lag', ['spor/vederlag/format.ts']],
+  ['Utregningslag', 'rad', 'beloep', ['spor/vederlag/format.ts']],
+  // #1778: radene per post og lagene i dem, som vederlaget kontrollerer med beløpene.
+  ['Postrad', 'rad', 'lag lag.lag', ['spor/poster/format.ts:kontrollerRadene']],
+  ['Postnoekkel', 'rad', 'gjelder saerskilt', ['spor/poster/format.ts:kontrollerRadene']],
+  [
+    'spor/poster/format.ts',
+    'rad',
+    'kontrollerRadene',
+    ['spor/vederlag/format.ts:kontrollerUtregningenPerPost'],
+  ],
   [
     'format/leser.ts:lesBeslutningsgrunnlag(v)',
     'rad',

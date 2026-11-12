@@ -4730,7 +4730,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F546',
     feilklasse:
       'leseren godtar en utregning med flere lag enn beslutningsgrunnlaget (OV-U32, MM-U2, #1774)',
-    fil: `${K}/spor/vederlag/format.ts`,
+    fil: `${K}/spor/poster/format.ts`,
     endringer: [['if (rader.length > 0 && antall !== lagIGrunnlaget)', 'if (false)']],
     mal: ['utregningen har to lag, men beslutningsgrunnlaget ett'],
   },
