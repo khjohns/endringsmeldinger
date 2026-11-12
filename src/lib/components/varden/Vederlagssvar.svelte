@@ -43,12 +43,17 @@
   import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
   import {
-    postvalget,
     beloepsvalget,
+    etterRegel,
+    formBesvart,
+    justerte,
+    postvalget,
     spoerOmBeloepet,
-    utkastForBeloepet,
+    spoerOmTilbud,
+    spoerOmVarselet,
     tomPost,
     tomtSvar,
+    utkastForBeloepet,
     vederlagssvaret,
     type Postvalg,
     type Svarvalg,
@@ -107,19 +112,18 @@
   );
   const alleBrev = $derived(brevene(u));
   const kravbrevet = $derived(alleBrev.find((b) => b.id === krav.dokument)!);
+  // Datoen kravet ble sendt: for registrert korrespondanse datoen TE oppgir, ikke når brevet ble
+  // registrert (LV-U42, OV-U85, #1596). `null` når TE ikke har oppgitt den.
+  const kravSendt = $derived(
+    kravbrevet.sendt ?? (kravbrevet.art === 'registrert' ? null : kravbrevet.registrert)
+  );
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes('vederlag')));
   const datoer = $derived(datoerISporet(u, 'vederlag'));
   const klarOver = $derived(klarOverForholdet(u));
   const harPost = $derived(harProduktivitetspost(krav));
-  // Kjernen sier hva svaret ennå ikke kan gjelde: rigg og drift. Skjemaet har ennå ikke svaret på
-  // en kravpost etter en beregningsregel (svar 4 A i spørsmålsfila 10.11 for #1663, #1756).
-  const regelpost = $derived(poster.find((p) => p.oppgjoersform !== 'tilbud'));
-  const hinder = $derived(
-    harPost
-      ? null
-      : (hindrerSvarPaaKravet(krav) ??
-          (regelpost ? SKJEMA.beregningsregel(regelpost.betegnelse) : null))
-  );
+  // Kjernen sier hva svaret ennå ikke kan gjelde: rigg og drift.
+  const hinder = $derived(harPost ? null : hindrerSvarPaaKravet(krav));
+  const harRegel = $derived(poster.some(etterRegel));
   const stoppet = $derived(harPost || hinder !== null);
 
   let valgtPost = $state<string | null>(null);
@@ -129,10 +133,10 @@
   });
   const valgFor = (betegnelse: string): Postvalg => (valg.poster[betegnelse] ??= tomPost());
   function godkjennAlleFormer() {
-    for (const p of poster) valgFor(p.betegnelse).form = 'tilbud';
+    for (const p of poster) valgFor(p.betegnelse).form = 'godtar';
   }
   function godkjennAlle() {
-    for (const p of poster) valgFor(p.betegnelse).beloep = 'hele';
+    for (const p of poster) if (!etterRegel(p)) valgFor(p.betegnelse).beloep = 'hele';
   }
 
   const kommando = $derived(vederlagssvaret(valg, u, kjernesak.regler)!);
@@ -156,19 +160,64 @@
   // (oppdragsgiver 30.10, 1A i #1411).
   const grunnene = $derived(poster[0] ? forutsetninger(poster[0]).filter((f) => 'grunn' in f) : []);
   // Oppgjørsformen står i laget sitt uansett svaret (OV-U33, LV-U31), så kjernen spørres med
-  // formen godtatt, også før den er besvart (oppdragsgiver 30.10 i #1411, S2-A i #1400).
+  // et svar på formen som har et lag, også før den er besvart (oppdragsgiver 30.10 i #1411, S2-A
+  // i #1400): tilbudet akseptert, eller beregningsregelen ikke godtatt, siden en godtatt regel
+  // ikke åpner noe lag (VS-U4).
   const formlagene = $derived.by(() => {
     if (stoppet) return null;
     const s = kommando.svar[0];
     const vurderinger = {
       ...s.vurderinger,
-      kravposter: vurderteIUtkastet(s).map((p) => ({ ...utenOppgjoersform(p), aksepterer: true })),
+      kravposter: vurderteIUtkastet(s).map((v) => {
+        const post = poster.find((p) => p.id === v.gjelder);
+        return post && etterRegel(post)
+          ? {
+              gjelder: v.gjelder,
+              aksepterer: false,
+              oensket_oppgjoersform:
+                post.oppgjoersform === 'regningsarbeid' ? 'enhetspriser' : 'regningsarbeid',
+            }
+          : { ...utenOppgjoersform(v), aksepterer: true };
+      }),
     };
     return kjernesak.lagForUtkastet({ ...s, vurderinger });
   });
-  const formforutsetninger = (p: Kravpost): Forutsetning[] =>
-    formlagene?.standpunkter.find((x) => x.art === 'oppgjoersform' && x.gjelder === p.id)
-      ?.forutsetninger ?? [];
+  type IPosten = { f: Forutsetning; post?: Kravpost };
+  const iPosten = (liste: Forutsetning[], post?: Kravpost): IPosten[] =>
+    liste.map((f) => ({ f, post }));
+  const formforutsetninger = (p: Kravpost): IPosten[] =>
+    iPosten(
+      formlagene?.standpunkter.find((x) => x.art === 'oppgjoersform' && x.gjelder === p.id)
+        ?.forutsetninger ?? [],
+      p
+    );
+  // Varselet etter § 34.3.3 og justeringen står i laget sitt etter svaret på oppgjørsformen, så
+  // kjernen spørres med innsigelsen og justeringen gjort gjeldende når de ikke er besvart (VS-U4,
+  // VS-U56).
+  const regellagene = $derived.by(() => {
+    if (stoppet || !harRegel) return null;
+    const s = utkastForBeloepet(kommando.svar[0], valg, krav);
+    const vurderinger = {
+      ...s.vurderinger,
+      kravposter: vurderteIUtkastet(s).map((v) => {
+        const post = poster.find((p) => p.id === v.gjelder);
+        return post && justerte(post)
+          ? {
+              ...v,
+              varslet_i_tide: v.varslet_i_tide ?? false,
+              godtar_justering: v.godtar_justering ?? false,
+            }
+          : v;
+      }),
+    };
+    return kjernesak.lagForUtkastet({ ...s, vurderinger });
+  });
+  const regelforutsetninger = (p: Kravpost, art: 'rettidighet' | 'justering'): IPosten[] =>
+    iPosten(
+      regellagene?.standpunkter.find((x) => x.art === art && x.gjelder === p.id)?.forutsetninger ??
+        [],
+      p
+    );
   const grunnlagsbrev = $derived.by(() => {
     const g = u.spor.forhold.gjeldendeSvar;
     return g ? brevet(u, g.dokument) : null;
@@ -206,17 +255,26 @@
     const fra = nyttSvar ? leselinjene(standpunktene(nyttSvar, etter!), p) : [];
     if (fra.length) return fra;
     const v = postvalget(valg, p.betegnelse);
-    return [
+    const beloep = beloepsvalget(v, p);
+    const regel = p.oppgjoersform as 'enhetspriser' | 'regningsarbeid';
+    const tilbud = spoerOmTilbud(v, p) && v.kreverTilbud;
+    const form =
       v.form === null
+        ? tilbud
+          ? SKJEMA.godkjennerIkkeRegel(regel)
+          : null
+        : v.form === 'godtar'
+          ? etterRegel(p)
+            ? SKJEMA.godkjennerRegel(regel)
+            : SKJEMA.godkjennerForm
+          : SKJEMA.menerForm(v.form);
+    return [
+      form && tilbud ? `${form}, ${SKJEMA.kreverTilbudKort}` : form,
+      beloep === null
         ? null
-        : v.form === 'tilbud'
-          ? SKJEMA.godkjennerForm
-          : SKJEMA.menerForm(v.form),
-      beloepsvalget(v) === null
-        ? null
-        : v.beloep === 'deler'
+        : beloep === 'deler'
           ? `${SKJEMA.deler}: ${v.delbeloep || '–'} kr`
-          : SKJEMA[beloepsvalget(v)!],
+          : SKJEMA[beloep],
     ].filter((x): x is string => x !== null);
   };
   // Beløp i mer enn ett lag er alternativer, ikke tillegg (Varden, skjerm B).
@@ -242,7 +300,7 @@
   // Det som mangler, med skjemaets ord. Kjernen avviser det samme med feltkoder.
   const delbeloepFeil = (p: Kravpost): string | null => {
     const v = postvalget(valg, p.betegnelse);
-    if (beloepsvalget(v) !== 'deler') return null;
+    if (beloepsvalget(v, p) !== 'deler') return null;
     const lest = lesKroner(v.delbeloep);
     if ('feil' in lest) return lest.feil;
     if (lest.verdi === undefined) return SKJEMA.manglerDelbeloep;
@@ -259,12 +317,40 @@
           {
             felt: `${uid}-form-${p.betegnelse}`,
             post: p.betegnelse,
-            tekst: i(v.form === null ? SKJEMA.manglerForm : null),
+            tekst: i(
+              formBesvart(v, p)
+                ? null
+                : etterRegel(p)
+                  ? SKJEMA.manglerFormRegel(p.oppgjoersform as 'enhetspriser' | 'regningsarbeid')
+                  : SKJEMA.manglerForm
+            ),
+          },
+          // KA-U68: når BH godkjenner justerte enhetspriser, tar svaret stilling til varselet og
+          // justeringen. Ellers står de subsidiært og er valgfrie (VS-U56).
+          {
+            felt: `${uid}-varsel-${p.betegnelse}`,
+            post: p.betegnelse,
+            tekst: i(
+              justerte(p) && v.form === 'godtar' && v.varsletITide === null
+                ? SKJEMA.manglerVarselJustering
+                : null
+            ),
+          },
+          {
+            felt: `${uid}-justering-${p.betegnelse}`,
+            post: p.betegnelse,
+            tekst: i(
+              justerte(p) && v.form === 'godtar' && v.godtarJustering === null
+                ? SKJEMA.manglerJustering
+                : null
+            ),
           },
           {
             felt: `${uid}-beloep-${p.betegnelse}`,
             post: p.betegnelse,
-            tekst: i(spoerOmBeloepet(v) && beloepsvalget(v) === null ? SKJEMA.manglerBeloep : null),
+            tekst: i(
+              spoerOmBeloepet(v, p) && beloepsvalget(v, p) === null ? SKJEMA.manglerBeloep : null
+            ),
           },
           {
             felt: `${uid}-delbeloep-${p.betegnelse}`,
@@ -292,7 +378,10 @@
   const virkninger = $derived([
     ...(nyttSvar?.beslutningsgrunnlag.sammenfall ? [VIRKNING.sammenfall] : []),
     ...(kjernesak.forbehold ? [VIRKNING.forbehold] : []),
-    ...(nyttSvar?.standpunkter.some((s) => s.art === 'rettidighet' && !s.iTide)
+    // KA-U64: varselet etter § 34.4 har ingen virkning.
+    ...(nyttSvar?.standpunkter.some(
+      (s) => s.art === 'rettidighet' && !s.iTide && s.hjemmel !== '34.4'
+    )
       ? [BREVKONTROLL.akseptOmfatter]
       : []),
   ]);
@@ -400,9 +489,16 @@
   const visKompakt = $derived(vilVise && vilHaLinja.at(-1) === uid);
 </script>
 
-{#snippet forutsetning(f: Forutsetning)}
+<!-- Forutsetningene i en kravpost gjelder den, også innsigelsen etter § 34.3.3 (`innenforKravposten`). -->
+{#snippet forutsetning({ f, post }: IPosten)}
   {#if 'grunn' in f}
     {SKJEMA.grunnen(f.grunn, grunnlagsbrev!)}
+  {:else if 'oppgjoersform' in f}
+    <a href={`#${uid}-form-${post!.betegnelse}`}>{SKJEMA.standpunktetTilFormen}</a>
+  {:else if f.innsigelse === '34.3.3'}
+    <a href={`#${uid}-varsel-${post!.betegnelse}`}>{SKJEMA.innsigelsenJustering}</a>
+  {:else if f.innsigelse === '34.1.3'}
+    {SKJEMA.innsigelsenSaerskilt}
   {:else}
     <a href={`#${uid}-itide`}>{SKJEMA.innsigelsenSenVarsling}</a>
   {/if}
@@ -411,58 +507,152 @@
 {#snippet postvalgene(p: Kravpost)}
   {@const v = valg.poster[p.betegnelse]}
   {#if v}
-    {@const beloepFeil = feil(`delbeloep-${p.betegnelse}`)}
     {@const forms = formforutsetninger(p)}
     <Gjelderhvis
       id={`${uid}-form-${p.betegnelse}-forutsetninger`}
       liste={forms}
       punkt={forutsetning}
     />
-    <Valg
-      navn={`${uid}-form-${p.betegnelse}`}
-      spoersmaal={SKJEMA.formSpoersmaal}
-      beskrevetAv={forms.length ? `${uid}-form-${p.betegnelse}-forutsetninger` : undefined}
-      valg={[
-        { verdi: 'tilbud', tekst: SKJEMA.godkjennerForm },
-        { verdi: 'enhetspriser', tekst: SKJEMA.menerForm('enhetspriser') },
-        { verdi: 'regningsarbeid', tekst: SKJEMA.menerForm('regningsarbeid') },
-      ]}
-      bind:verdi={v.form}
-      feil={feil(`form-${p.betegnelse}`)}
-    />
-    <!-- Spørsmålet om beløpet står bare når BH godkjenner fast sum (KA-U72). Det er i
-         samme lag som oppgjørsformen og viser til forutsetningene over. -->
-    {#if spoerOmBeloepet(v)}
-      <Valg
-        navn={`${uid}-beloep-${p.betegnelse}`}
-        spoersmaal={SKJEMA.beloepSpoersmaal}
-        beskrevetAv={forms.length ? `${uid}-form-${p.betegnelse}-forutsetninger` : undefined}
-        valg={[
-          { verdi: 'hele', tekst: SKJEMA.hele },
-          { verdi: 'deler', tekst: SKJEMA.deler },
-          { verdi: 'ingenting', tekst: SKJEMA.ingenting },
-        ]}
-        bind:verdi={v.beloep}
-        feil={feil(`beloep-${p.betegnelse}`)}
-      />
+    {#if etterRegel(p)}
+      {@render regelvalgene(p, v, forms.length > 0)}
+    {:else}
+      {@render fastsumvalgene(p, v, forms.length > 0)}
     {/if}
-    {#if beloepsvalget(v) === 'deler'}
-      {@const id = `${uid}-delbeloep-${p.betegnelse}`}
-      <div class="beloepfelt">
-        <label for={id}>{SKJEMA.belopEtikett}</label>
-        <span id={`${id}-hjelp`} class="dempet">{SKJEMA.belopHjelp(krevdI(p))}</span>
-        <span class="inndata" class:ugyldig={beloepFeil}>
-          <input
-            {id}
-            inputmode="decimal"
-            bind:value={v.delbeloep}
-            aria-describedby={beloepFeil ? `${id}-hjelp ${id}-feil` : `${id}-hjelp`}
-            aria-invalid={beloepFeil ? 'true' : undefined}
-          />
-          <span class="kr" aria-hidden="true">kr</span>
-        </span>
-        {#if beloepFeil}<p class="feilmelding" id={`${id}-feil`}>{beloepFeil}</p>{/if}
+  {/if}
+{/snippet}
+
+{#snippet fastsumvalgene(p: Kravpost, v: Postvalg, forutsatt: boolean)}
+  {@const beloepFeil = feil(`delbeloep-${p.betegnelse}`)}
+  <Valg
+    navn={`${uid}-form-${p.betegnelse}`}
+    spoersmaal={SKJEMA.formSpoersmaal}
+    beskrevetAv={forutsatt ? `${uid}-form-${p.betegnelse}-forutsetninger` : undefined}
+    valg={[
+      { verdi: 'godtar', tekst: SKJEMA.godkjennerForm },
+      { verdi: 'enhetspriser', tekst: SKJEMA.menerForm('enhetspriser') },
+      { verdi: 'regningsarbeid', tekst: SKJEMA.menerForm('regningsarbeid') },
+    ]}
+    bind:verdi={v.form}
+    feil={feil(`form-${p.betegnelse}`)}
+  />
+  <!-- Spørsmålet om beløpet står bare når BH godkjenner fast sum (KA-U72). Det er i
+       samme lag som oppgjørsformen og viser til forutsetningene over. -->
+  {#if spoerOmBeloepet(v, p)}
+    <Valg
+      navn={`${uid}-beloep-${p.betegnelse}`}
+      spoersmaal={SKJEMA.beloepSpoersmaal}
+      beskrevetAv={forutsatt ? `${uid}-form-${p.betegnelse}-forutsetninger` : undefined}
+      valg={[
+        { verdi: 'hele', tekst: SKJEMA.hele },
+        { verdi: 'deler', tekst: SKJEMA.deler },
+        { verdi: 'ingenting', tekst: SKJEMA.ingenting },
+      ]}
+      bind:verdi={v.beloep}
+      feil={feil(`beloep-${p.betegnelse}`)}
+    />
+  {/if}
+  {#if beloepsvalget(v, p) === 'deler'}
+    {@const id = `${uid}-delbeloep-${p.betegnelse}`}
+    <div class="beloepfelt">
+      <label for={id}>{SKJEMA.belopEtikett}</label>
+      <span id={`${id}-hjelp`} class="dempet">{SKJEMA.belopHjelp(krevdI(p))}</span>
+      <span class="inndata" class:ugyldig={beloepFeil}>
+        <input
+          {id}
+          inputmode="decimal"
+          bind:value={v.delbeloep}
+          aria-describedby={beloepFeil ? `${id}-hjelp ${id}-feil` : `${id}-hjelp`}
+          aria-invalid={beloepFeil ? 'true' : undefined}
+        />
+        <span class="kr" aria-hidden="true">kr</span>
+      </span>
+      {#if beloepFeil}<p class="feilmelding" id={`${id}-feil`}>{beloepFeil}</p>{/if}
+    </div>
+  {/if}
+{/snippet}
+
+<!-- En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U66). BH tar stilling til
+     regelen, kan kreve tilbud (KA-U69, KA-U71) og svarer på varselet og justeringen for posten
+     (KA-U64, KA-U68, VS-U56, VS-U63). Prototype v3 og v4, `#svar`. -->
+{#snippet regelvalgene(p: Kravpost, v: Postvalg, forutsatt: boolean)}
+  {@const regel = p.oppgjoersform as 'enhetspriser' | 'regningsarbeid'}
+  {@const annen = regel === 'enhetspriser' ? 'regningsarbeid' : 'enhetspriser'}
+  <Valg
+    navn={`${uid}-form-${p.betegnelse}`}
+    spoersmaal={SKJEMA.formSpoersmaalRegel}
+    beskrevetAv={forutsatt ? `${uid}-form-${p.betegnelse}-forutsetninger` : undefined}
+    valg={[
+      { verdi: 'godtar', tekst: SKJEMA.godkjennerRegel(regel) },
+      { verdi: annen, tekst: SKJEMA.menerForm(annen) },
+    ]}
+    bind:verdi={v.form}
+    feil={feil(`form-${p.betegnelse}`)}
+  />
+  {#if spoerOmTilbud(v, p)}
+    <fieldset class="avkrysning">
+      <legend>{SKJEMA.tilbudSpoersmaal}</legend>
+      <label class="avkryss">
+        <input type="checkbox" id={`${uid}-tilbud-${p.betegnelse}`} bind:checked={v.kreverTilbud} />
+        {SKJEMA.kreverTilbud(navnet(p) ?? null)}
+      </label>
+    </fieldset>
+  {/if}
+  {#if spoerOmVarselet(v, p)}
+    {#if regel === 'regningsarbeid'}
+      <div class="setning" id={`${uid}-varsel-${p.betegnelse}`} tabindex="-1">
+        <p>
+          <strong>{SKJEMA.varselRegning}</strong>
+          {v.varsletITide === false ? SKJEMA.ikkeGittEllerForSent : SKJEMA.ingenInnsigelse}
+        </p>
+        <Knapp
+          variant="lenke"
+          onclick={() => (v.varsletITide = v.varsletITide === false ? null : false)}
+          >{v.varsletITide === false
+            ? SKJEMA.ingenInnsigelseLikevel
+            : SKJEMA.gjoerGjeldendeVarsel}</Knapp
+        >
       </div>
+    {:else}
+      {@const varselet = regelforutsetninger(p, 'rettidighet')}
+      {@const justeringen = regelforutsetninger(p, 'justering')}
+      <Gjelderhvis
+        id={`${uid}-varsel-${p.betegnelse}-forutsetninger`}
+        liste={varselet}
+        punkt={forutsetning}
+      />
+      <Valg
+        navn={`${uid}-varsel-${p.betegnelse}`}
+        spoersmaal={v.form === 'godtar'
+          ? SKJEMA.varselJusteringSpoersmaal
+          : SKJEMA.valgfritt(SKJEMA.varselJusteringSpoersmaal)}
+        beskrevetAv={varselet.length ? `${uid}-varsel-${p.betegnelse}-forutsetninger` : undefined}
+        valg={[
+          { verdi: true, tekst: SKJEMA.komITide },
+          { verdi: false, tekst: SKJEMA.komForSent },
+        ]}
+        bind:verdi={v.varsletITide}
+        feil={feil(`varsel-${p.betegnelse}`)}
+      />
+      <Gjelderhvis
+        id={`${uid}-justering-${p.betegnelse}-forutsetninger`}
+        liste={justeringen}
+        punkt={forutsetning}
+      />
+      <Valg
+        navn={`${uid}-justering-${p.betegnelse}`}
+        spoersmaal={v.form === 'godtar'
+          ? SKJEMA.justeringSpoersmaal
+          : SKJEMA.valgfritt(SKJEMA.justeringSpoersmaal)}
+        beskrevetAv={justeringen.length
+          ? `${uid}-justering-${p.betegnelse}-forutsetninger`
+          : undefined}
+        valg={[
+          { verdi: true, tekst: SKJEMA.godkjennerJustering },
+          { verdi: false, tekst: SKJEMA.bestriderJustering },
+        ]}
+        bind:verdi={v.godtarJustering}
+        feil={feil(`justering-${p.betegnelse}`)}
+      />
     {/if}
   {/if}
 {/snippet}
@@ -558,15 +748,17 @@
             <Infotips navn={SKJEMA.datoInfoNavn} tekst={SKJEMA.datoInfo} />
             <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 34.1.2</span>
           </div>
-          <Gjelderhvis id={`${uid}-itide-forutsetninger`} liste={grunnene} punkt={forutsetning} />
+          <Gjelderhvis
+            id={`${uid}-itide-forutsetninger`}
+            liste={iPosten(grunnene)}
+            punkt={forutsetning}
+          />
           <div class="datoer">
             {#if klarOver}<p>{SKJEMA.klarOver(klarOver.dato, klarOver.brev)}</p>{/if}
             <p>{SKJEMA.kravSendt(kravbrevet.registrert, kravbrevet)}</p>
-            {#if klarOver}
+            {#if klarOver && kravSendt}
               <p>
-                <strong
-                  >{SKJEMA.avstand(kalenderdager(klarOver.dato, kravbrevet.registrert))}</strong
-                >
+                <strong>{SKJEMA.avstand(kalenderdager(klarOver.dato, kravSendt))}</strong>
               </p>
             {/if}
             <p class="dempet">{SKJEMA.datoGrense}</p>
@@ -594,9 +786,12 @@
           {#if flere}
             <p class="dempet">{SKJEMA.ettSvarPerPost}</p>
             <div class="snarveier">
-              <Knapp variant="lenke" onclick={godkjennAlleFormer}>{SKJEMA.godkjennAlleFormer}</Knapp
+              <Knapp variant="lenke" onclick={godkjennAlleFormer}
+                >{harRegel ? SKJEMA.godkjennAlleFormerRegel : SKJEMA.godkjennAlleFormer}</Knapp
               >
-              <Knapp variant="lenke" onclick={godkjennAlle}>{SKJEMA.godkjennAlle}</Knapp>
+              <Knapp variant="lenke" onclick={godkjennAlle}
+                >{harRegel ? SKJEMA.godkjennAlleFaste : SKJEMA.godkjennAlle}</Knapp
+              >
             </div>
           {/if}
           <Postliste
@@ -604,7 +799,8 @@
             bind:valgt={valgtPost}
             {poster}
             prefiks={uid}
-            krever={(p) => SKJEMA.teKrever(krevdI(p), p.pns)}
+            krever={(p) =>
+              etterRegel(p) ? SKJEMA.teKreverRegel(p) : SKJEMA.teKrever(krevdI(p), p.pns)}
             {leselinje}
             foersteFelt={(b) => `${uid}-form-${b}`}
             valgene={postvalgene}
@@ -923,6 +1119,54 @@
     padding: var(--spacing-3) var(--spacing-6);
     background: var(--surface);
     border-top: var(--rule-strong);
+  }
+  /* Kravet om tilbud er ett valg ved siden av oppgjørsformen, med samme form som valgkortene
+     (prototype v3, D-15). */
+  .avkrysning {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+  }
+  .avkrysning legend {
+    padding: 0;
+    margin-bottom: var(--spacing-3);
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .avkryss {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    min-height: 48px;
+    padding: 0 var(--spacing-4);
+    border: 1px solid var(--rule-strong-color);
+    border-radius: var(--r-felt);
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .avkryss:hover {
+    background: var(--surface-inset);
+  }
+  .avkryss:has(input:focus-visible) {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
+  }
+  .avkryss input {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--ink);
+  }
+  /* Punkt 34.4: normalsvaret er en setning, unntaket en lenke (system.md). */
+  .setning {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-1);
+  }
+  .setning:focus {
+    outline: none;
   }
   .snarveier {
     display: flex;
