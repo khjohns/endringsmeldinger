@@ -7,18 +7,23 @@
 import type { OppgittDato } from '../format/format.ts';
 import { erRegistrert, kalenderdag } from '../format/leser.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
+import type { Regelsett } from '../regler/regelsett.ts';
+import { kravposterI } from '../spor/vederlag/format.ts';
 import { kroner } from './tekst.ts';
 import type {
   Dokument,
   Domenehendelse,
   Korrespondansetype,
   Krav,
+  Kravpost,
   Kravpostvarselet,
   Kravspor,
   Opplysning,
   Part,
+  Hjemmel,
   Sakskode,
   Standpunkt,
+  Standpunktsart,
   Svar,
   Utsagn,
 } from '../typer.ts';
@@ -235,3 +240,42 @@ export function verdi(
     return post ? `byggherren avslår kravet om ${post}.` : 'byggherren avslår kravet.';
   throw new KanIkkeUttrykkes(`standpunktet ${resultat} har ingen brevtekst`);
 }
+
+/** Kravposten standpunktet gjelder (KA-U57 (c) og (d)). */
+export function kravpostenI(krav: Krav, gjelder: string): Kravpost {
+  const post = kravposterI(krav).find((k) => k.id === gjelder);
+  if (!post) throw new KanIkkeUttrykkes(`kravet har ikke kravposten ${gjelder}`);
+  return post;
+}
+
+/** Brevteksten i ett spor, som `frosset/brevtekst.ts` slår opp gjennom `BREVTEKST` (#1783). */
+export interface Sporsbrevtekst {
+  /** Sporet i opplysningen og avklaringen om et brev med innhold appen ikke uttrykker. */
+  navn: string;
+  /** Det et svar eller en aksept gjelder, med kontraktens ord (LV-U4 punkt 4 og 6). */
+  svaretGjelder: string;
+  /** Kravet (LV-U4 punkt 2–3), uten setningen om kravet det erstatter. */
+  krav(k: Krav, t: Tekst, regler: Regelsett): string[];
+  /** Påberopelsene utenom hjemmelen for sporet som svaret gjentar eller gir opp (VS-U29). */
+  ogsaaInnsigelserEtter: readonly Hjemmel[];
+}
+
+/** Brevteksten i et spor med krav om vederlag eller frist. */
+export interface Kravsporsbrevtekst extends Sporsbrevtekst {
+  /** Kravet i sporet med kontraktens ord: «kravet om <…>». */
+  kravetOm: string;
+  /** Det TE er enig i når aksepten ikke gjelder standpunktet til grunnlaget (GR-U7). */
+  enigI: string;
+  /** Det som identifiserer kravet i trekket (KA-U22). */
+  trukket(krav: Krav): string;
+  /** At TE ikke krever noe i sporet (KA-U22, KA-U25). */
+  ingenKrav(sak: string): string;
+}
+
+/** Standpunktet i hver art. */
+export type StandpunktIArt = { [K in Standpunktsart]: Extract<Standpunkt, { art: K }> };
+
+/** Teksten for standpunktet i en art som bare ett spor har, med kravet svaret gjelder (#1783). */
+export type Standpunktstekster<A extends Standpunktsart> = {
+  [K in A]: (p: StandpunktIArt[K], krav: Krav) => string;
+};

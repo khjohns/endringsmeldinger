@@ -5,7 +5,8 @@
 
 import { beloep } from '../regler/beloep.ts';
 import type { Forholdsresultat } from '../regler/typer.ts';
-import type { Hjemmel } from '../typer.ts';
+import type { Svarinnhold } from './byggeklosser.ts';
+import type { Hjemmel, Krav, Standpunktsvirkning, Virkning } from '../typer.ts';
 
 /** Kroner med mellomrom mellom tusener og øre bare når de finnes: «150 000 kr». */
 export function kroner(n: number): string {
@@ -47,4 +48,26 @@ export function iLagene<T>(ledd: T[], plass: (l: T) => number | null, foerste: n
     .map((l) => ({ l, k: plass(l) ?? foerste }))
     .sort((a, b) => a.k - b.k)
     .map(({ l }) => l);
+}
+
+/** Et ledd i linjen for byggherrens standpunkt, med virkningen som gir laget. */
+export interface Linjeledd {
+  tekst: string;
+  virkning: Virkning;
+}
+
+/** Leddene i linjen i ett spor, som `frosset/linje.ts` slår opp gjennom `LINJE` (#1783). */
+export interface Sporslinje {
+  /** Standpunktet om rettidighet som står som et eget ledd i sporet og ikke som grunn (VS-U5). */
+  egetLedd(svar: Svarinnhold, v: Standpunktsvirkning[]): string | undefined;
+  /**
+   * Leddene for standpunktene i sporet, etter grunnene. `forKravposten` er standpunktene om
+   * varselet for en kravpost (KA-U64, VS-U56).
+   */
+  ledd(
+    svar: Svarinnhold,
+    v: Standpunktsvirkning[],
+    kravet: Krav | null | undefined,
+    forKravposten: ReadonlySet<string>
+  ): Linjeledd[];
 }

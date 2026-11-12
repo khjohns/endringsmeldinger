@@ -266,7 +266,7 @@ utløserne `grunnlag_avslaatt` og `grunnlag_prekludert_32_2`, regelinngangene
 | Standpunktet `art: 'grunnlag'` | `art: 'forhold'` | Svaret i journalen |
 | `grunnlagskrav` i svaret på vederlag og frist | `paaberopelse` | Svaret i journalen |
 | `vilkaar: 'grunnlag_avklart'` | `forhold_avklart` | Enighetsgrunnlaget |
-| `grunnlagssvar` i brevets `Saken` | `svarPaaPaaberopelsen` | Brevgrunnlaget i `kjerne/frosset/brevtekst.ts` (TS-felt i camelCase som feltene ved siden av) |
+| `grunnlagssvar` i brevets `Saken` | `svarPaaPaaberopelsen` | Brevgrunnlaget i `kjerne/frosset/brevdeler.ts` (TS-felt i camelCase som feltene ved siden av) |
 | `grunnlag` i sakslinjen | `forhold` | API-et i `server/saksliste.ts` |
 | Betegnelsene `grunnlaget_trukket` og `avslaget_paa_grunnlaget_godtatt` | `paaberopelsen_trukket` og `avslaget_paa_forholdet_godtatt` | API-et |
 | Regelkodene `GRUNNLAG_IKKE_SENDT`, `GRUNNLAG_AVVIST` og `GRUNNLAG_ER_ENDRINGSORDRE` | `PAABEROPELSE_IKKE_SENDT`, `FORHOLD_AVVIST` og `FORHOLD_ER_ENDRINGSORDRE` | Kommandosvaret og bevis-sakene |
