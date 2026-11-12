@@ -8147,6 +8147,11 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
     );
   });
 
+  it('brevmerkingen har tre sifre i løpenummeret og to i brevnummeret (LV-U48)', () => {
+    expect(brevmerking('K7', { kode: 'eo', loepenummer: 5 }, 2)).toBe('K7-EO-005-02');
+    expect(brevmerking('K201', { kode: 'koe', loepenummer: 1234 }, 103)).toBe('K201-KOE-1234-103');
+  });
+
   it('uten kontraktsforkortelsen kan brevet ikke vise til merkingen, og skrives ikke (LV-U53)', () => {
     const s = sak(TITTEL, KOE_17, null);
     const trekk = trekkEtterEpost(s);

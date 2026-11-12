@@ -3727,8 +3727,15 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F446',
     feilklasse: 'merkingen i henvisningen har to sifre i løpenummeret (LV-U53, LV-U48)',
     fil: `${K}/frosset/brevtittel.ts`,
-    endringer: [['utfylt(s.loepenummer, 3)', 'utfylt(s.loepenummer, 2)']],
-    mal: ['merkingen i henvisningen har sakens kode og tre sifre i løpenummeret'],
+    // Skrivingen og leseren endres sammen; ellers stopper selvkontrollen i skrivingen brevet (MM-U2).
+    endringer: [
+      ['utfylt(s.loepenummer, 3)', 'utfylt(s.loepenummer, 2)'],
+      ['(00[1-9]|0[1-9]\\\\d|[1-9]\\\\d{2,})', '(0[1-9]|[1-9]\\\\d+)'],
+    ],
+    mal: [
+      'merkingen i henvisningen har sakens kode og tre sifre i løpenummeret',
+      'brevmerkingen har tre sifre i løpenummeret og to i brevnummeret',
+    ],
   },
   {
     id: 'F447',
