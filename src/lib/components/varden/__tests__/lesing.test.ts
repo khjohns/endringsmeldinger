@@ -11,7 +11,12 @@ import { minnebane } from '$kjerne/tester/bane';
 import { kjoer, type Forloep } from '$kjerne/tester/kjoerer';
 import type { Handling } from '$kjerne/tester/klient';
 import { kroner } from '$kjerne/frosset/tekst';
-import { brevene, kravposterUtenFastBeloep, standpunktene } from '$lib/components/varden/lesing';
+import {
+  brevene,
+  kravposterUtenFastBeloep,
+  standpunktene,
+  tilknyttetKrav,
+} from '$lib/components/varden/lesing';
 import { leselinjene, STILLING } from '$lib/components/varden/tekster';
 import { kravposterI } from '$kjerne/spor/vederlag/format';
 
@@ -213,6 +218,121 @@ describe('leselinjene i den lukkede kravposten (prototype v3, `leselinje`; KA-U5
       `${kroner(100000)}, godkjent som krevd`,
     ]);
     expect(leselinjene(linjer, p2!)).toEqual(['Mener regningsarbeid (punkt 34.4)']);
+  });
+});
+
+describe('«Tilknyttede krav» og postene uten fast beløp (#1752 punkt 2, oppdragsgiver 12.11)', () => {
+  const svaretPaaPostene = (...poster: Record<string, unknown>[]) =>
+    brevet(forholdet('godkjent'), { spor: 'vederlag', navn: 'S-v1', kravposter: poster });
+  const ikkeAkseptert = (post: string) => ({
+    post,
+    metode_akseptert: false,
+    oensket_metode: 'regningsarbeid',
+  });
+  const TO_POSTER: Handling = {
+    handling: 'krav',
+    spor: 'vederlag',
+    navn: 'K-v1',
+    kravposter: [{ belop: 100000 }, { belop: 40000 }],
+  };
+
+  it('med to kravposter der tilbudet for P2 ikke er akseptert, er byggherrens beløp summen for P1, og én post er uten fast beløp (KA-U72)', async () => {
+    const u = await utledning([
+      PAABEROPELSE,
+      TO_POSTER,
+      svaretPaaPostene(
+        { post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 },
+        ikkeAkseptert('P2')
+      ),
+    ]);
+    const svaret = tilknyttetKrav(u, 'vederlag').svaret!;
+    expect(svaret.poster).toEqual([{ tall: 100000, lag: null }]);
+    expect(svaret.utenFast).toBe(1);
+  });
+
+  it('med to godkjente kravposter er byggherrens beløp summen av dem, og ingen post er uten fast beløp', async () => {
+    const u = await utledning([
+      PAABEROPELSE,
+      TO_POSTER,
+      svaretPaaPostene(
+        { post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 },
+        { post: 'P2', vurdering: 'delvis', godkjent_belop: 30000 }
+      ),
+    ]);
+    const svaret = tilknyttetKrav(u, 'vederlag').svaret!;
+    expect(svaret.poster).toEqual([{ tall: 130000, lag: null }]);
+    expect(svaret.utenFast).toBe(0);
+  });
+
+  it('med én kravpost uten aksept har svaret ingen beløp og én post uten fast beløp (KA-U72)', async () => {
+    const u = await utledning([
+      PAABEROPELSE,
+      { handling: 'krav', spor: 'vederlag', navn: 'K-v1', kravposter: [{ belop: 100000 }] },
+      svaretPaaPostene(ikkeAkseptert('P1')),
+    ]);
+    const svaret = tilknyttetKrav(u, 'vederlag').svaret!;
+    expect(svaret.poster).toEqual([]);
+    expect(svaret.utenFast).toBe(1);
+  });
+
+  it('når byggherren gjør gjeldende at varselet om vederlaget kom for sent, er kravposten der tilbudet ikke er akseptert, fortsatt uten fast beløp, som i brevet (KA-U72)', async () => {
+    const u = await utledning([
+      // § 34.1.2 gjelder svikt og andre forhold, som grunnforholdene.
+      { ...PAABEROPELSE, hovedkategori: 'svikt', underkategori: 'grunnforhold' },
+      TO_POSTER,
+      brevet(
+        { spor: 'forhold', navn: 'S-g1', resultat: 'godkjent' },
+        {
+          spor: 'vederlag',
+          navn: 'S-v1',
+          varslet_i_tide: false,
+          kravposter: [
+            { post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 },
+            ikkeAkseptert('P2'),
+          ],
+        }
+      ),
+    ]);
+    expect(tilknyttetKrav(u, 'vederlag').svaret!.utenFast).toBe(1);
+  });
+
+  it('kontrollsak: når tilbudet er akseptert, er ingen post uten fast beløp', async () => {
+    const u = await utledning([
+      PAABEROPELSE,
+      { handling: 'krav', spor: 'vederlag', navn: 'K-v1', kravposter: [{ belop: 100000 }] },
+      svaretPaaPostene({ post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 }),
+    ]);
+    expect(tilknyttetKrav(u, 'vederlag').svaret!.utenFast).toBe(0);
+  });
+
+  it('i kravet er summen de faste beløpene, og en kravpost etter en beregningsregel er uten fast beløp (KA-U61, BF-14 U-5)', async () => {
+    const u = await utledning([
+      PAABEROPELSE,
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [{ belop: 100000 }, { oppgjoersform: 'regningsarbeid' }],
+      },
+    ]);
+    const krevd = tilknyttetKrav(u, 'vederlag').krevd!;
+    expect(krevd.tall).toBe(100000);
+    expect(krevd.utenFast).toBe(1);
+  });
+
+  it('har ingen kravpost et fast beløp, har kravet ikke et tall, og postene er uten fast beløp (KA-U61)', async () => {
+    const u = await utledning([
+      PAABEROPELSE,
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [{ oppgjoersform: 'regningsarbeid' }],
+      },
+    ]);
+    const krevd = tilknyttetKrav(u, 'vederlag').krevd!;
+    expect(krevd.tall).toBeNull();
+    expect(krevd.utenFast).toBe(1);
   });
 });
 
