@@ -235,14 +235,14 @@ describe('regelsettet når ikke frysingen eller teksten', () => {
   });
 
   it('oppdager teksten i et spor gjennom en annen modul', () => {
-    const regel = join(KJERNE, 'regler', 'svarkontroll.ts');
-    const format = join(KJERNE, 'format', 'format.ts');
+    const regel = join(KJERNE, 'regler', 'vederlag.ts');
+    const format = join(KJERNE, 'spor', 'vederlag', 'format.ts');
     const filer = new Map([
-      [utenEndelse(regel), "import { METODER } from '../format/format.ts';"],
-      [utenEndelse(format), "export { METODEN as METODER } from '../spor/vederlag/tekst.ts';"],
+      [utenEndelse(regel), "import { METODER } from '../spor/vederlag/format.ts';"],
+      [utenEndelse(format), "export { METODEN as METODER } from './tekst.ts';"],
     ]);
     expect(forbudteStier(regel, filer, FROSSET)).toEqual([
-      'kjerne/regler/svarkontroll → kjerne/format/format → kjerne/spor/vederlag/tekst',
+      'kjerne/regler/vederlag → kjerne/spor/vederlag/format → kjerne/spor/vederlag/tekst',
     ]);
   });
 });
@@ -788,17 +788,23 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'regler/svarkontroll.ts',
     'regelsett',
-    'kontrollerForholdet kontrollerVarseletForVederlag kontrollerOppgjoersformen kontrollerSpesifiseringen',
+    'kontrollerForholdet kontrollerSpesifiseringen',
+    ['frosset/utregning.ts'],
+  ],
+  [
+    'regler/vederlag.ts',
+    'regelsett',
+    'kontrollerVarseletForVederlag kontrollerOppgjoersformen',
     ['frosset/utregning.ts'],
   ],
   ['regler/svarkontroll.ts:kontrollerForholdet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
-  ['regler/svarkontroll.ts:kontrollerVarseletForVederlag', 'utsagn', 'hovedkrav_varslet_i_tide'],
+  ['regler/vederlag.ts:kontrollerVarseletForVederlag', 'utsagn', 'hovedkrav_varslet_i_tide'],
   [
-    'regler/svarkontroll.ts:kontrollerOppgjoersformen',
+    'regler/vederlag.ts:kontrollerOppgjoersformen',
     'utsagn',
     'aksepterer oensket_oppgjoersform krever_tilbud varslet_i_tide godtar_justering',
   ],
-  ['regler/svarkontroll.ts:kontrollerOppgjoersformen', 'utsagn', 'oppgjoersform justert'],
+  ['regler/vederlag.ts:kontrollerOppgjoersformen', 'utsagn', 'oppgjoersform justert'],
   [
     'regler/svarkontroll.ts:kontrollerSpesifiseringen',
     'utsagn',
@@ -1164,7 +1170,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/format.ts',
     'skjema',
     'METODER',
-    ['regler/svarkontroll.ts:kontrollerOppgjoersformen'],
+    ['regler/vederlag.ts:kontrollerOppgjoersformen'],
   ],
   ['format/format.ts', 'skjema', 'KRAVINNHOLD OPPLYSNINGSSLAG', ['kommandoer/kommando.ts']],
   [

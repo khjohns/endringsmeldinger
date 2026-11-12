@@ -1510,7 +1510,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F181',
     feilklasse: 'vurderingen etter § 34.1.2 godtas for en endring, der bestemmelsen ikke gjelder',
-    fil: `${K}/regler/svarkontroll.ts`,
+    fil: `${K}/regler/vederlag.ts`,
     endringer: [['v.hovedkrav_varslet_i_tide != null &&', 'false &&']],
     mal: ['F-MM-V-34-1-2-endring'],
   },
@@ -1586,7 +1586,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F188',
     feilklasse: 'byggherren kan avslå tilbudet etter § 34.2.2 uten å oppgi metoden',
-    fil: `${K}/regler/svarkontroll.ts`,
+    fil: `${K}/regler/vederlag.ts`,
     endringer: [
       [
         '  else if (p.aksepterer === false && p.oensket_oppgjoersform == null && !kreverTilbud)',
@@ -4230,7 +4230,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F505',
     feilklasse:
       'svaret godtar beregningsregelen og krever samtidig tilbud for kravposten (KA-U71, #1663)',
-    fil: `${K}/regler/svarkontroll.ts`,
+    fil: `${K}/regler/vederlag.ts`,
     endringer: [['  else if (kreverTilbud && p.aksepterer !== false)', '  else if (false)']],
     mal: ['kravet om tilbud kan ikke stå sammen med en godtatt beregningsregel'],
   },
