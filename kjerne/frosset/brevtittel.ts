@@ -1,6 +1,6 @@
 /**
- * Tittelen på brevet løsningen sender, frosset med teksten (MM-U3, MM-U50, #1536). Et registrert
- * brev har ingen frosset tittel; visningen gir det en etikett (MM-U17).
+ * Tittelen på brevet løsningen sender, frosset med teksten (LV-U2, LV-U25, MM-U9, MM-U50, #1536).
+ * Et registrert brev har ingen frosset tittel; visningen gir det en etikett (MM-U17).
  */
 
 import type { Dokument, Sakskode, Spor } from '../typer.ts';
@@ -90,7 +90,7 @@ export function lagBrevtittel(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): st
 }
 
 /**
- * MM-U3 (opphevet av MM-U50), MM-U2 (#1533): grunnen til at en lagret tittel ikke kan være laget av skrivingen, eller
+ * LV-U25, MM-U2 (#1533): grunnen til at en lagret tittel ikke kan være laget av skrivingen, eller
  * `null`. Tittelen sammenliknes ikke med `lagBrevtittel`, så et sendt brev beholder tittelen det
  * ble sendt med (MM-U9) når titlene endres.
  */
