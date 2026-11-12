@@ -408,12 +408,14 @@
   ]);
 
   // Punktet i panelet for avsnittet du står i (U-15 i BF-14, `aria-current`): det siste avsnittet
-  // som har passert en linje 30 % ned i vinduet. Lytteren lages på nytt bare når avsnittene endres,
-  // ikke for hver status.
+  // som har passert en linje 30 % ned i vinduet, eller det siste når rullingen er i bunnen. Saken
+  // ruller i et element inne i skallet, så rullingen fanges på `document` i capture-fasen. Lytteren
+  // lages på nytt bare når avsnittene endres, ikke for hver status.
   const punktider = $derived(punkter.map((p) => p.id).join(' '));
   let aktivtPunkt = $state<string | null>(null);
   $effect(() => {
     const ider = punktider.split(' ');
+    let rulleflate: Element | null = document.scrollingElement;
     const finn = () => {
       const linje = window.innerHeight * 0.3;
       let valgt = ider[0] ?? null;
@@ -421,19 +423,23 @@
         const el = document.getElementById(x);
         if (el && el.getBoundingClientRect().top <= linje) valgt = x;
       }
+      const r = rulleflate;
+      if (r && r.scrollTop > 0 && r.scrollTop + r.clientHeight >= r.scrollHeight - 1)
+        valgt = ider.at(-1) ?? valgt;
       aktivtPunkt = valgt;
     };
     let ramme = 0;
-    const planlegg = () => {
+    const planlegg = (e?: Event) => {
+      if (e?.target instanceof Element) rulleflate = e.target;
       cancelAnimationFrame(ramme);
       ramme = requestAnimationFrame(finn);
     };
     finn();
-    window.addEventListener('scroll', planlegg, { passive: true });
+    document.addEventListener('scroll', planlegg, { capture: true, passive: true });
     window.addEventListener('resize', planlegg);
     return () => {
       cancelAnimationFrame(ramme);
-      window.removeEventListener('scroll', planlegg);
+      document.removeEventListener('scroll', planlegg, { capture: true });
       window.removeEventListener('resize', planlegg);
     };
   });

@@ -222,14 +222,14 @@
     color: inherit;
     font-size: inherit;
     font-weight: 400;
-    min-height: 24px;
-    padding-block: 2px;
+    align-items: center;
+    min-height: 40px;
   }
   /* Punktet du står i: flaten for valgt og blekk i kanten, som i prototype v4 (U-15). */
   .punkter > li {
     padding: var(--spacing-1) var(--spacing-2);
     border-left: 3px solid transparent;
-    border-radius: var(--r-felt);
+    border-radius: 0 var(--r-felt) var(--r-felt) 0;
   }
   .punkter > li.aktiv {
     background: var(--surface-selected);

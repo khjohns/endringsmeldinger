@@ -194,7 +194,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     expect(typeof p2.varsel).toBe('string');
   });
 
-  it('panelet «Punktene» markerer punktet for avsnittet du står i, og hver kravpost er en lenke til kravposten (U-15 i BF-14, #1827)', async () => {
+  it('panelet «Punktene» markerer punktet for avsnittet du står i, også når et indre element ruller og i bunnen, og hver kravpost er en lenke til kravposten (U-15 i BF-14, #1827)', async () => {
     await aapneSomTe('forholdet-er-godkjent');
     await fireEvent.click(
       within(
@@ -216,14 +216,27 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
           top: forbi.includes(navn) ? 0 : window.innerHeight,
         } as DOMRect);
     };
+    // Saken ruller i et element inne i skallet, ikke i vinduet (`.project-shell`).
+    const rulleflate = avsnitt('Vederlagsjustering').parentElement!;
+    const rull = async () => {
+      await fireEvent.scroll(rulleflate);
+      await new Promise((ferdig) => requestAnimationFrame(ferdig));
+    };
     toppen([]);
-    await fireEvent.scroll(window);
-    await new Promise((ferdig) => requestAnimationFrame(ferdig));
+    await rull();
     expect(merket()).toEqual(['Vederlagsjustering']);
     toppen(['Vederlagsjustering', 'Varslene']);
-    await fireEvent.scroll(window);
-    await new Promise((ferdig) => requestAnimationFrame(ferdig));
+    await rull();
     expect(merket()).toEqual(['Varslene']);
+    // I bunnen er det siste punktet markert, også når det ikke når linja.
+    for (const [felt, verdi] of [
+      ['scrollTop', 600],
+      ['clientHeight', 400],
+      ['scrollHeight', 1000],
+    ] as const)
+      Object.defineProperty(rulleflate, felt, { configurable: true, value: verdi });
+    await rull();
+    expect(merket()).toEqual(['Forbehold']);
     const p1 = panelet.getByRole('link', { name: /^P1/ });
     expect(document.querySelector(p1.getAttribute('href')!)?.classList.contains('post')).toBe(true);
   });
