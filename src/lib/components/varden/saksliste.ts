@@ -96,7 +96,7 @@ export function krevd(
     const regel =
       regelen === null || regelen === 'flere' ? regelen : (SAKSLISTE.metode[regelen] ?? regelen);
     if (regel === null) return { tekst: kroner(beloep), tall: true, dempet, merknad };
-    if (!oppgjoersformer.includes('tilbud') && beloep === 0)
+    if (!oppgjoersformer.includes('tilbud') && beloep <= 0)
       return {
         tekst: regel === 'flere' ? SAKSLISTE.flereOppgjoersformer : regel,
         tall: false,

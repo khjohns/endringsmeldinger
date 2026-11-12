@@ -105,8 +105,10 @@ export function varseletFoerKravet(u: Utledning, hjemmel: '34.1.2' | '34.1.3'): 
     return registrert?.id === id
       ? registrert.dokument
       : (s.krav.find((k) => k.id === id)?.dokument ?? null);
-  } catch {
+  } catch (feil) {
     // Ingen tidligere krav varslet etter hjemmelen, som § 34.1.3 uten den særskilte posten.
-    return null;
+    // Alle andre feil er programfeil og skal ikke vises som at kravet er varselet.
+    if (feil instanceof Error && feil.message.startsWith('Et svar kan ikke påberope')) return null;
+    throw feil;
   }
 }

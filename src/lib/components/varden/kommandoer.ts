@@ -66,7 +66,8 @@ const VURDERING: Record<Beloepsvalg, string> = {
   ingenting: 'avslaatt',
 };
 
-const kroner = (tekst: string) => {
+/** Beløpet i et beløpsfelt i kroner, eller `undefined` når det er tomt eller ikke kan leses. */
+export const beloepet = (tekst: string) => {
   const lest = lesKroner(tekst);
   return 'verdi' in lest ? lest.verdi : undefined;
 };
@@ -92,7 +93,7 @@ function vurderingene(v: Svarvalg, krav: Krav): Svarvurdering {
                 : beloep === 'ingenting'
                   ? 0
                   : beloep === 'deler'
-                    ? kroner(p.delbeloep)
+                    ? beloepet(p.delbeloep)
                     : undefined,
             aksepterer: p.form === null ? undefined : p.form === 'tilbud',
             oensket_oppgjoersform: p.form === null || p.form === 'tilbud' ? undefined : p.form,

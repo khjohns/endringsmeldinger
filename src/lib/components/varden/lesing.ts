@@ -11,7 +11,7 @@ import { FORHOLDSGRUPPER, forholdet } from '$kjerne/frosset/forholdene';
 import { grunnerFraForholdet } from '$kjerne/frosset/standpunkt';
 import { plassene } from '$kjerne/frosset/byggeklosser';
 import { innholdIFristen } from '$kjerne/format/kravinnhold';
-import { kravposterI, krevdSamlet, krevdProduktivitet } from '$kjerne/spor/vederlag/format';
+import { kravposterI, krevdSamlet } from '$kjerne/spor/vederlag/format';
 import { tilTall } from '$kjerne/regler/beloep';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { TilbudtHandling } from '$kjerne/kommandoer/handlinger';
@@ -419,8 +419,7 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
     // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Summen er de faste
     // beløpene, og visningen nevner beregningsregelen ved siden av (#1663).
     const fast =
-      kravposterI(krav).some((p) => p.oppgjoersform === 'tilbud') ||
-      krevdProduktivitet(krav) !== null;
+      kravposterI(krav).some((p) => p.oppgjoersform === 'tilbud') || krevdSamlet(krav) > 0n;
     return fast ? tilTall(krevdSamlet(krav)) : null;
   };
   return {

@@ -1088,8 +1088,8 @@ export const KRAVSKJEMA = {
   pnsRad: (faste: number, anslag: number) =>
     anslag ? `${kroner(faste)} + ${kroner(anslag)} anslått` : kroner(faste),
   // U-3: veiledningen etter Del II punkt 184 stopper ikke kravet.
-  pnsOver: (pns: string[]) =>
-    `${pns.length === 1 ? `PNS ${pns[0]} har` : `PNS ${pns.join(' og ')} har hver`} over 300 000 kr. Ved fakturering etter endringsordren skal endringen da fordeles på PNS-kodene (Del II punkt 184). PNS-en binder ikke, og byggherren kan sette en annen i endringsordren.`,
+  pnsOver: (pns: string[], grense: number) =>
+    `${pns.length === 1 ? `PNS ${pns[0]} har` : `PNS ${pns.join(' og ')} har hver`} over ${kroner(grense)}. Ved fakturering etter endringsordren skal endringen da fordeles på PNS-kodene (Del II punkt 184). PNS-en binder ikke, og byggherren kan sette en annen i endringsordren.`,
   tilbudet: (poster: string[]) =>
     `Kravet for ${opplistet(poster)} er et tilbud etter punkt 34.2.1. Byggherren kan akseptere det.`,
   regelen: (poster: string[]) =>

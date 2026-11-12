@@ -33,6 +33,7 @@
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
+  import { beloepet } from './kommandoer';
   import {
     brevene,
     datoerISporet,
@@ -42,7 +43,7 @@
   } from './lesing';
   import { brevhode, brevtittel, dato, kalenderdager, KRAVSKJEMA } from './tekster';
   import {
-    beloepet,
+    PNS_GRENSE,
     fordelingenPaaPns,
     fraKravpost,
     gjeldendeVarselvalg,
@@ -267,7 +268,12 @@
   const iDag = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
   const vederlagsvarselet = $derived(varseletFoerKravet(u, '34.1.2'));
   const saerskiltvarselet = $derived(varseletFoerKravet(u, '34.1.3'));
-  const utenKravpost = $derived(varslerUtenKravpost(u));
+  // Et varsel TE velger for en post i skjemaet, står ved posten og ikke som et varsel uten post.
+  const utenKravpost = $derived(
+    varslerUtenKravpost(u).filter(
+      (x) => !med.some((p) => p.varsel.art === 'saken' && p.varsel.varsel === x.id)
+    )
+  );
   const iSaken = $derived(varsleneISaken(u));
   function postvarseltekst(p: Kravpostvalg, vs: Varselet): string {
     if (vs.art === 'gitt') return varselI(vs.dokument);
@@ -293,7 +299,7 @@
 
   const summer = $derived(summene(v));
   const pns = $derived(fordelingenPaaPns(v));
-  const pnsOver = $derived(pns.filter((r) => r.faste + r.anslag > 300_000).map((r) => r.pns));
+  const pnsOver = $derived(pns.filter((r) => r.faste + r.anslag > PNS_GRENSE).map((r) => r.pns));
   const tilbud = $derived([
     ...med.filter((p) => p.form === 'tilbud').map(navnet),
     ...(v.saerskilt ? [KRAVSKJEMA.denSaerskilte] : []),

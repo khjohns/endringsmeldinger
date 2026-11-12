@@ -11,7 +11,7 @@ import type { Utledning } from '$kjerne/utledning/utled';
 import type { Varselet } from '$lib/kjernesak/vederlagskrav';
 import { lesKroner, visKroner } from '$lib/utils/belop';
 import type { Kjernevedlegg } from './nysak';
-import { definert } from './kommandoer';
+import { beloepet, definert } from './kommandoer';
 import { KRAVSKJEMA } from './tekster';
 
 /**
@@ -139,16 +139,12 @@ export function trukneKravposter(u: Utledning): Kravpost[] {
   return [...sist.values()].filter((p) => !gjeldende.has(p.id));
 }
 
-export const beloepet = (t: string): number | undefined => {
-  const lest = lesKroner(t);
-  return 'verdi' in lest ? lest.verdi : undefined;
-};
-
 /** Dokumentet med varselet for posten, slik kommandoen bærer det (VS-U51, VS-U53). */
 function dokumentvarsel(v: Varselvalg) {
   return {
     sendt: v.dato,
-    korrespondansetype: v.type ?? 'brev',
+    // Kjernen avviser et dokument uten typen; skjemaet sier fra ved feltet først.
+    korrespondansetype: v.type ?? undefined,
     dokumentasjon: v.vedlegg.map((x) => x.vedlegg_id),
   };
 }
@@ -156,7 +152,8 @@ function dokumentvarsel(v: Varselvalg) {
 /** Varselvalget som gjelder posten: valget selv, eller valget i posten med samme dokument. */
 export function gjeldendeVarselvalg(v: Kravvalg, p: Kravpostvalg): Varselvalg {
   if (p.varsel.art !== 'samme') return p.varsel;
-  const kilde = v.poster.find((q) => q.noekkel === p.varsel.som);
+  // Bare en post som er med i kravet, kan ha dokumentet (VS-U53).
+  const kilde = postene(v).find((q) => q.noekkel === p.varsel.som);
   return kilde && kilde.varsel.art === 'dokument' ? kilde.varsel : tomtVarselvalg();
 }
 
@@ -206,7 +203,10 @@ export function vederlagskravet(v: Kravvalg, varslene: readonly (Varselet | null
 
 /** Vedleggene kommandoen viser til, så kjernen kan lage brevet før sendingen (VS-U53). */
 export function vedleggIKravet(v: Kravvalg) {
-  const alle = postene(v).flatMap((p) => (p.varsel.art === 'dokument' ? p.varsel.vedlegg : []));
+  const alle = postene(v).flatMap((p) => {
+    const valg = gjeldendeVarselvalg(v, p);
+    return valg.art === 'dokument' ? valg.vedlegg : [];
+  });
   return new Map(
     alle.map(({ vedlegg_id, filnavn, innhold_sha256 }) => [
       vedlegg_id,
@@ -274,8 +274,13 @@ export function manglerIKravet(
     const valg = gjeldendeVarselvalg(v, p);
     if (p.varsel.art === 'saken')
       legg('varsel', valg.varsel === null ? KRAVSKJEMA.manglerVarselet : null);
-    if (p.varsel.art === 'samme')
-      legg('varsel', valg.art === 'dokument' ? null : KRAVSKJEMA.manglerSamme);
+    // «Samme dokument» krever at den andre posten selv oppgir dokumentet, så feltene kontrolleres der.
+    if (p.varsel.art === 'samme') {
+      const kilde = med.findIndex((q) => q.noekkel === p.varsel.som);
+      const kontrollert =
+        kilde >= 0 && varslene[kilde]?.art === 'kravet' && valg.art === 'dokument';
+      legg('varsel', kontrollert ? null : KRAVSKJEMA.manglerSamme);
+    }
     if (p.varsel.art === 'dokument') {
       legg('type', valg.type === null ? KRAVSKJEMA.manglerType : null);
       legg('dato', valg.dato ? null : KRAVSKJEMA.manglerDato);
@@ -331,3 +336,6 @@ export function fordelingenPaaPns(v: Kravvalg): { pns: string; faste: number; an
     .sort(([a], [b]) => a.localeCompare(b, 'nb', { numeric: true }))
     .map(([pns, r]) => ({ pns, faste: r.faste / 100, anslag: r.anslag / 100 }));
 }
+
+/** Grensen for veiledningen om fordeling på PNS ved fakturering (Del II punkt 184, U-3 i BF-14). */
+export const PNS_GRENSE = 300_000;

@@ -8,6 +8,7 @@
   import type { Snippet } from 'svelte';
   import { kroner } from '$kjerne/frosset/tekst';
   import { KRAVSKJEMA } from './tekster';
+  import { PNS_GRENSE } from './vederlagskrav';
 
   let {
     punkter,
@@ -91,7 +92,7 @@
           </div>
         {/each}
       </dl>
-      {#if pnsOver.length}<p class="dempet">{KRAVSKJEMA.pnsOver(pnsOver)}</p>{/if}
+      {#if pnsOver.length}<p class="dempet">{KRAVSKJEMA.pnsOver(pnsOver, PNS_GRENSE)}</p>{/if}
     </div>
   {/if}
   {#if hvaKravetEr.length}
