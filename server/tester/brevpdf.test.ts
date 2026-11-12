@@ -243,12 +243,21 @@ describe('PDF-en av brevet (#371 del 2)', () => {
       const tekst = `Krav ${tegn.join(' ')} slutt.`;
       const pdf = (await brevdokument(oppdrag([{ gjelder: 'a', laast: tekst }], part), 'n'))
         .innhold;
-      const iBrevet = [...latin1(pdf).matchAll(/\/FlateDecode[^]*?stream\r?\n([^]*?)endstream/g)]
+      /**
+       * Det som skiller skriftene i `head`: revisjonen av skriften, enhetene per em og datoene. Delmengden
+       * beholder dem fra skriften den er laget av, så den kjennes igjen på dem (#1692).
+       */
+      const kjennetegn = (b: Buffer) => {
+        const head = tabell(b, 'head');
+        return Buffer.concat([head.subarray(4, 8), head.subarray(18, 36)]).toString('hex');
+      };
+      const delmengder = [...latin1(pdf).matchAll(/\/FlateDecode[^]*?stream\r?\n([^]*?)endstream/g)]
         .map((m) => inflateSync(Buffer.from(m[1], 'latin1')))
         .filter((b) => ['true', '\0\x01\0\0'].includes(b.subarray(0, 4).toString('latin1')))
-        .flatMap(glyfer)
-        .map(utenIder);
-      expect(iBrevet.length, 'forutsetningen: brevet har en TrueType-delmengde').toBeGreaterThan(0);
+        .map((b) => ({ kjennetegn: kjennetegn(b), glyfer: glyfer(b).map(utenIder) }));
+      expect(delmengder.length, 'forutsetningen: brevet har en TrueType-delmengde').toBeGreaterThan(
+        0
+      );
       const brevskrift = part === 'BH' ? 'osloSans' : 'sourceSerif4';
       let proevd = 0;
       for (const t of tegn) {
@@ -256,13 +265,16 @@ describe('PDF-en av brevet (#371 del 2)', () => {
         if (!fil) continue;
         const skrift = readFileSync(new URL(`../skrift/${fil}`, import.meta.url));
         const iFila = glyfer(skrift);
+        const fra = delmengder.filter((d) => d.kjennetegn === kjennetegn(skrift));
+        expect(fra, `forutsetningen: brevet har én delmengde av ${fil}`).toHaveLength(1);
+        const iBrevet = fra[0].glyfer;
         const kontroller = (id: number, hva: string) => {
           const glyf = iFila[id];
           expect(glyf.length, `forutsetningen: ${hva} har omriss i ${fil}`).toBeGreaterThan(0);
           const ventet = utenIder(glyf);
           expect(
             iBrevet.some((g) => g.subarray(0, ventet.length).equals(ventet)),
-            `${hva} fra ${fil} står hel i delmengden`
+            `${hva} fra ${fil} står hel i delmengden av ${fil}`
           ).toBe(true);
           for (const del of deler(glyf)) kontroller(del.id, `en del av ${hva}`);
         };
