@@ -976,11 +976,21 @@
     flex-direction: column;
     gap: var(--spacing-2);
   }
+  /* Feltnavnet er punktet i brevet, under overskriften «Begrunnelse» (design-review #1858). */
+  .begrunnelse label {
+    font-size: 15px;
+    color: var(--ink-2);
+  }
   /* Forbeholdet gjelder hele svaret og står sist i brevet, skilt fra punktene. */
   .begrunnelse.forbehold {
     margin-top: var(--spacing-3);
     padding-top: var(--spacing-4);
     border-top: var(--rule);
+  }
+  .begrunnelse.forbehold label {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
   }
   .inndata {
     display: inline-flex;

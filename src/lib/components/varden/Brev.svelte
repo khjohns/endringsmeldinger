@@ -303,9 +303,17 @@
   .tekst .postlinje b {
     font-weight: 600;
   }
+  /* En skygge i kanten viser at tabellen fortsetter når den rulles på smal skjerm (design-review #1858). */
   .tabell {
     overflow-x: auto;
     margin-top: var(--spacing-2);
+    background:
+      linear-gradient(to right, var(--surface) 30%, transparent) left / 24px 100% no-repeat local,
+      linear-gradient(to left, var(--surface) 30%, transparent) right / 24px 100% no-repeat local,
+      linear-gradient(to right, color-mix(in srgb, var(--ink) 18%, transparent), transparent) left /
+        10px 100% no-repeat scroll,
+      linear-gradient(to left, color-mix(in srgb, var(--ink) 18%, transparent), transparent) right /
+        10px 100% no-repeat scroll;
   }
   .tabell:focus-visible {
     outline: 2px solid var(--control-focus);
@@ -335,7 +343,7 @@
   }
   .tabell tr.sum > * {
     font-weight: 600;
-    border-top: 1px solid var(--ink-3);
+    border-top: 1px solid var(--rule-strong-color);
     border-bottom: 0;
   }
   .fot {
