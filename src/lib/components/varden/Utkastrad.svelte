@@ -1,13 +1,12 @@
 <!--
   Arbeidsraden over utkastet (oppdragsgiver 06.11 og 07.11, PR 1650): et gult, stiplet kort med
-  veien tilbake, «Utkast» med lås, brevet som skrives («Brev 3 · Oppdatert påberopelse») og mottakeren under, og
+  veien tilbake, «Utkast», brevet som skrives («Brev 3 · Oppdatert påberopelse») og mottakeren under, og
   primærhandlingen ytterst til høyre. Raden følger rullingen, så handlingen står ved brevet den
   gjelder.
 -->
 <script lang="ts">
-  import { Lock } from 'lucide-svelte';
   import type { Snippet } from 'svelte';
-  import { BREVUTKAST, SKJEMA } from './tekster';
+  import { BREVUTKAST } from './tekster';
 
   let {
     tittel,
@@ -29,11 +28,7 @@
 <div class="utkastrad">
   <div class="status">
     {#if tilbake}<div class="tilbake">{@render tilbake()}</div>{/if}
-    <span class="merke"
-      ><Lock size={12} aria-hidden="true" />{BREVUTKAST.utkast}<span class="visually-hidden"
-        >, {SKJEMA.synlig.toLowerCase()}</span
-      ></span
-    >
+    <span class="merke">{BREVUTKAST.utkast}</span>
     <div class="tekst">
       <h2>{tittel}</h2>
       <p class="linje">{linje}</p>
