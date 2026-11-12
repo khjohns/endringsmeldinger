@@ -11,7 +11,12 @@ import { minnebane } from '$kjerne/tester/bane';
 import { kjoer, type Forloep } from '$kjerne/tester/kjoerer';
 import type { Handling } from '$kjerne/tester/klient';
 import { kroner } from '$kjerne/frosset/tekst';
-import { brevene, kravposterUtenFastBeloep, standpunktene } from '$lib/components/varden/lesing';
+import {
+  brevene,
+  kravposterUtenFastBeloep,
+  standpunktene,
+  tilknyttetKrav,
+} from '$lib/components/varden/lesing';
 import { leselinjene, STILLING } from '$lib/components/varden/tekster';
 import { kravposterI } from '$kjerne/spor/vederlag/format';
 
@@ -213,6 +218,57 @@ describe('leselinjene i den lukkede kravposten (prototype v3, `leselinje`; KA-U5
       `${kroner(100000)}, godkjent som krevd`,
     ]);
     expect(leselinjene(linjer, p2!)).toEqual(['Mener regningsarbeid (punkt 34.4)']);
+  });
+});
+
+describe('«Tilknyttede krav» og kravpostene uten beløp (#1752 punkt 2)', () => {
+  const svaretPaaPostene = (...poster: Record<string, unknown>[]) =>
+    brevet(forholdet('godkjent'), { spor: 'vederlag', navn: 'S-v1', kravposter: poster });
+  const ikkeAkseptert = (post: string) => ({
+    post,
+    metode_akseptert: false,
+    oensket_metode: 'regningsarbeid',
+  });
+
+  it('med to kravposter der tilbudet for P2 ikke er akseptert, står beløpet for P1 og P2 som kravposten uten beløp (KA-U72, OV-U73)', async () => {
+    const u = await utledning([
+      PAABEROPELSE,
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [{ belop: 100000 }, { belop: 40000 }],
+      },
+      svaretPaaPostene(
+        { post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 },
+        ikkeAkseptert('P2')
+      ),
+    ]);
+    const [, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
+    const svaret = tilknyttetKrav(u, 'vederlag').svaret!;
+    expect(svaret.poster.map((p) => p.tall)).toEqual([100000]);
+    expect(svaret.utenBeloep).toEqual([p2!.betegnelse]);
+  });
+
+  it('med én kravpost uten aksept står ingen beløp, bare kravposten uten beløp (KA-U72)', async () => {
+    const u = await utledning([
+      PAABEROPELSE,
+      { handling: 'krav', spor: 'vederlag', navn: 'K-v1', kravposter: [{ belop: 100000 }] },
+      svaretPaaPostene(ikkeAkseptert('P1')),
+    ]);
+    const [p1] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
+    const svaret = tilknyttetKrav(u, 'vederlag').svaret!;
+    expect(svaret.poster).toEqual([]);
+    expect(svaret.utenBeloep).toEqual([p1!.betegnelse]);
+  });
+
+  it('kontrollsak: når tilbudet er akseptert, står ingen kravpost uten beløp', async () => {
+    const u = await utledning([
+      PAABEROPELSE,
+      { handling: 'krav', spor: 'vederlag', navn: 'K-v1', kravposter: [{ belop: 100000 }] },
+      svaretPaaPostene({ post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 }),
+    ]);
+    expect(tilknyttetKrav(u, 'vederlag').svaret!.utenBeloep).toEqual([]);
   });
 });
 
