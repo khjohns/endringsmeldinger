@@ -95,4 +95,10 @@ skjemaet, og `fristsvar.html` og prototypen må endres.
 
 ## Svarene
 
-Føres her når de kommer.
+Stilt av orkestratoren (`session_011JFYDoHFUTwr4ajj5HLZ8d`) 12.11 som spørsmål 7 (spørsmål 1 her, S-3) og
+spørsmål 8 (spørsmål 2 her, S-6). Svar 12.11, ordrett, slik orkestratoren videresendte det:
+
+> 7B. 8A. 9 - prøver nå
+
+Valgt: spørsmål 1 (S-3) alternativ B, og spørsmål 2 (S-6) alternativ A, begge anbefalingene. «9 - prøver
+nå» gjelder prøven av prototypen.

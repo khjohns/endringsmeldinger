@@ -16,13 +16,13 @@
     vederlagskravet (OV-U39), der formelen reduserer A forholdsmessig (Del II, tillegget til punkt 34.1.3).
   - Begrunnelsen er ett punkt for hele kravet (KA-U33), med punkt 33.5 som veiledning (VS-U18).
   - Dagene regnes fra den gjeldende fristen, med en forlengelse fra en annen sak (E-009 i eksempelet).
-    Om det er riktig utgangspunkt, er åpent og merket.
+    Bare forlengelser partene er enige om, tas med (svaret på S-3).
   - Tidslinja under panelet viser datoene i sporet og fristene i den rekkefølgen de får med kravet.
   - En lenke forlenger de senere fristene med like mange dager som den seneste fristen i kravet.
   - Brevet har «Når du sender» under seg, med virkningen og bestemmelsen den følger av.
   - Tilstandene er ankrene #nytt-krav, #varsel (bare varsel etter punkt 33.4, VS-U15), #ny-versjon,
     #foresporsel (svar på byggherrens forespørsel etter punkt 33.6.2, bokstav a eller b, VS-U17),
-    #brev og #svar. Svaret har lagene i fristsvar.html: punkt 33.4, punkt 33.6.1, hindringen og dagene.
+    #brev og #svar. Svaret har lagene i rekkefølgen punkt 33.4, hindringen, punkt 33.6.1 og dagene (S-6).
   Teksten er prototypetekst. Gult utenom utkastet er merker i prototypen («Åpent», setninger som ikke
   er vedtatt ordrett) og bygges ikke. «Vis sporbarhet» viser punktene i bestillingen på elementene.
 -->
@@ -680,14 +680,16 @@ select.tekstfelt{max-width:520px;appearance:auto}
               <p class="dempet" style="color:var(--draft)">Illustrasjon av svaret per frist. Begrunnelse per punkt, forbehold og godkjenningen er som i fristsvar.html og er ikke med her.</p>
             </div>
             <section class="punkt nummerert" aria-labelledby="bp1" data-spor="D-5">
-              <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="bp1">Varselet og spesifiseringen</h2><span class="hjemmel">punkt 33.4 og 33.6.1</span></div>
-              <fieldset class="oppgj"><legend class="spm">Varselet om fristforlengelse (punkt 33.4). Gjelder hele kravet.</legend><div class="valg kompakt"><label><input type="radio" name="bv334" value="tide"> Kom i tide</label><label><input type="radio" name="bv334" value="sent"> Kom for sent</label></div></fieldset>
-              <fieldset class="oppgj"><legend class="spm">Spesifiseringen av kravet (punkt 33.6.1). Gjelder hele kravet.</legend><div class="valg kompakt"><label><input type="radio" name="bspes" value="tide"> Kom i tide</label><label><input type="radio" name="bspes" value="sent"> Kom for sent</label></div></fieldset>
+              <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="bp1">Varselet om fristforlengelse</h2><span class="hjemmel">punkt 33.4</span></div>
+              <fieldset class="oppgj"><legend class="spm">Kom varselet i tide? Gjelder hele kravet.</legend><div class="valg kompakt"><label><input type="radio" name="bv334" value="tide"> Kom i tide</label><label><input type="radio" name="bv334" value="sent"> Kom for sent</label></div></fieldset>
             </section>
-            <section class="punkt nummerert" aria-labelledby="bp2">
+            <section class="punkt nummerert" aria-labelledby="bp2" data-spor="D-10">
               <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="bp2">Hindringen</h2><span class="hjemmel">punkt 33.1</span></div>
-              <p class="oppgitt"><span class="aapent" data-spor="S-6">Åpent: rekkefølgen mellom hindringen og spesifiseringen i lagene</span></p>
               <fieldset class="oppgj"><legend class="spm">Legger du til grunn at fremdriften hindres som følge av forholdet?</legend><div class="valg kompakt"><label><input type="radio" name="bhind" value="ja"> Ja</label><label><input type="radio" name="bhind" value="nei"> Nei</label></div></fieldset>
+            </section>
+            <section class="punkt nummerert" aria-labelledby="bp4" data-spor="D-5 · D-10">
+              <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="bp4">Spesifiseringen av kravet</h2><span class="hjemmel">punkt 33.6.1</span></div>
+              <fieldset class="oppgj"><legend class="spm">Ble kravet spesifisert i tide? Gjelder hele kravet.</legend><div class="valg kompakt"><label><input type="radio" name="bspes" value="tide"> Kom i tide</label><label><input type="radio" name="bspes" value="sent"> Kom for sent</label></div></fieldset>
             </section>
             <section class="punkt nummerert" aria-labelledby="bp3" data-spor="U-12 · D-2 · D-5">
               <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="bp3">Fristforlengelse</h2><span class="hjemmel">punkt 33.5 og 33.7</span></div>
@@ -824,8 +826,8 @@ function fristSkjema(f) {
     : `<button class="lenke liten" type="button" data-handling="fjern">Fjern frist ${f.frist}</button>`;
   return `<article class="postskjema" data-id="${id}" id="frist-${id}" aria-label="Frist ${f.frist}">
     <div class="hode"><b>Frist ${f.frist} · ${F.navn}</b>${endretKort(f) ? `<span class="endret">${endretKort(f)}</span>` : ''}</div>
-    <fieldset class="oppgj" data-spor="U-2 · S-3"><legend>Fristen</legend><span class="hjelp">Fristene i kontrakten, Del II punkt E.1, med datoen som gjelder nå.</span><div class="valg lett liste">${valg}</div>
-      <p class="oppgitt">Gjeldende frist: <b>${lang(dato(F.dato))}</b>${F.tidligere ? ` (${forlenget(F)}, ${F.tidligere.naar}). <span class="aapent">Åpent: om dagene regnes fra den avtalte eller den gjeldende fristen</span>` : ', som avtalt.'}</p></fieldset>
+    <fieldset class="oppgj" data-spor="U-2 · D-9"><legend>Fristen</legend><span class="hjelp">Fristene i kontrakten, Del II punkt E.1, med datoen som gjelder nå.</span><div class="valg lett liste">${valg}</div>
+      <p class="oppgitt">Gjeldende frist: <b>${lang(dato(F.dato))}</b>${F.tidligere ? ` (${forlenget(F)}, ${F.tidligere.naar}). Den nye datoen forutsetter at dagene du krever, kommer i tillegg til forlengelsen som er avtalt.` : ', som avtalt.'}</p></fieldset>
     <div class="felt" data-spor="D-1"><label for="d-${id}">Dagene du krever</label><span class="hjelp">Kalenderdager.</span><span class="inndata" style="width:140px"><input id="d-${id}" inputmode="numeric" data-felt="dager" value="${f.dager || ''}" aria-required="true" aria-describedby="nyd-${id}"><span aria-hidden="true">d</span></span><span class="hjelp" id="nyd-${id}" aria-live="polite">${nyDatoTekst(f)}</span></div>
     ${del}
     <div class="felt"><label for="m-${id}">Kort om denne fristen (valgfritt)</label><span class="hjelp">Står ved fristen i brevet. Begrunnelsen for hele kravet står i punktet Begrunnelse.</span><textarea id="m-${id}" class="tekstfelt" data-felt="merk">${esc(f.merk)}</textarea></div>
@@ -968,7 +970,7 @@ function brev() {
   document.getElementById('tilbake').setAttribute('href', '#' + (ny() ? 'ny-versjon' : tilstand === 'foresp' ? 'foresporsel' : 'nytt-krav'));
 }
 
-// Byggherrens svar. Lagene i rekkefølgen punkt 33.4, punkt 33.6.1, hindringen og dagene, som i fristsvar.html.
+// Byggherrens svar. Lagene i rekkefølgen punkt 33.4, hindringen, punkt 33.6.1 og dagene (svaret på S-6).
 // Lagene regnes ut av standpunktene; byggherren fyller dem ikke ut.
 const bhv = { v334: false, spes: false, hindring: false };
 let aapenSvar = 'F1';
@@ -977,15 +979,15 @@ function lagene() {
   const k = [{ navn: 'Prinsipalt', kort: 'Prins.' }];
   const navn = () => k.length > 1 ? 'Videre subsidiært' : 'Subsidiært', kn = () => k.length > 1 ? 'V. subs.' : 'Subs.';
   if (bhv.v334) k.push({ navn: navn(), kort: kn(), hvis: 'varselet etter punkt 33.4 kom i tide', v: true });
-  if (bhv.spes) k.push({ navn: navn(), kort: kn(), hvis: 'kravet ble spesifisert i tide', s: true });
   if (bhv.hindring) k.push({ navn: navn(), kort: kn(), hvis: 'fremdriften ble hindret av forholdet', h: true });
+  if (bhv.spes) k.push({ navn: navn(), kort: kn(), hvis: 'kravet ble spesifisert i tide', s: true });
   return k;
 }
 function celle(f, i, k) {
   const b = bhF(f), iv = k.findIndex(c => c.v), is = k.findIndex(c => c.s), ih = k.findIndex(c => c.h);
   if (iv > 0 && i < iv) return { v: 0, why: 'varselet etter punkt 33.4 kom for sent', hele: true };
-  if (is > 0 && i < is) return { v: b.maatte, why: b.maatte === null ? 'dagene byggherren måtte forstå, ikke oppgitt ennå' : 'det byggherren måtte forstå, fordi kravet ble spesifisert for sent (punkt 33.6.1)' };
   if (ih > 0 && i < ih) return { v: 0, why: 'fremdriften ble ikke hindret av forholdet', hele: true };
+  if (is > 0 && i < is) return { v: b.maatte, why: b.maatte === null ? 'dagene byggherren måtte forstå, ikke oppgitt ennå' : 'det byggherren måtte forstå, fordi kravet ble spesifisert for sent (punkt 33.6.1)' };
   if (b.dager === 'krevd') return { v: f.dager, why: 'godkjent som krevd' };
   if (b.dager === 'delvis') return { v: b.delvis, why: b.delvis === null ? 'godkjent delvis, dagene ikke oppgitt ennå' : 'godkjent delvis' };
   return { v: 0, why: 'avslått' };
@@ -1019,7 +1021,7 @@ function bhKort(f, k) {
   // Subsidiært skilles med «Gjelder hvis» og én linje per innsigelse (system.md, «Retningen»).
   const gjelder = vilkaar => vilkaar.length ? `<div class="gjelder"><b>Gjelder hvis</b><ul>${vilkaar.map(v => `<li>${v}</li>`).join('')}</ul></div>` : '';
   const vilkaar = k.filter(c => c.hvis).map(c => c.hvis);
-  const maatte = bhv.spes ? `<div class="beloepfelt">${gjelder(bhv.v334 ? [k.find(c => c.v).hvis] : [])}<label for="bm-${id}">Dagene du måtte forstå at TE hadde krav på</label><span class="hjelp">Er kravet spesifisert for sent, har TE bare krav på det du måtte forstå (punkt 33.6.1).</span><span class="inndata" style="width:140px"><input id="bm-${id}" inputmode="numeric" data-bh-felt="maatte" value="${b.maatte ?? ''}"><span aria-hidden="true">d</span></span></div>` : '';
+  const maatte = bhv.spes ? `<div class="beloepfelt">${gjelder(k.filter(c => c.v || c.h).map(c => c.hvis))}<label for="bm-${id}">Dagene du måtte forstå at TE hadde krav på</label><span class="hjelp">Er kravet spesifisert for sent, har TE bare krav på det du måtte forstå (punkt 33.6.1).</span><span class="inndata" style="width:140px"><input id="bm-${id}" inputmode="numeric" data-bh-felt="maatte" value="${b.maatte ?? ''}"><span aria-hidden="true">d</span></span></div>` : '';
   return `<article class="postskjema" data-bh-id="${id}" aria-label="Frist ${f.frist}">
     <div class="hode"><b>Frist ${f.frist} · ${F.navn}</b></div>
     <p class="hjelp" style="margin-top:-10px">${krever} · gjeldende frist ${kort(dato(F.dato))}</p>
