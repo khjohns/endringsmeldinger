@@ -10,7 +10,6 @@ import { UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { ELDRE_SVAR } from './forutsetninger.ts';
 import { norskDato } from '../frosset/brevdeler.ts';
-import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
 import { datoFor, kalenderdag } from '../format/leser.ts';
 import { erKalenderdato, tekst } from '../format/skjema.ts';
 import { korrigertDato, type Kommando, type Svarutkast } from './kommando.ts';
@@ -27,7 +26,6 @@ import {
   SAMMENLIKNES,
   utenforOmfanget,
 } from '../frosset/utregning.ts';
-import { innholdIForholdet, kategori } from '../format/kravinnhold.ts';
 import {
   datoenDetBleSendt,
   foresporselForFristsvar,
@@ -46,6 +44,12 @@ import {
   type Spor,
   type Standpunkt,
 } from '../typer.ts';
+import {
+  DATOEN_GJELDER,
+  oppgittDato,
+  innholdIForholdet,
+  kategori,
+} from '../spor/forhold/format.ts';
 
 /**
  * Standpunktene i et svarutkast med serverens utregning, lest slik brevet lagrer dem.

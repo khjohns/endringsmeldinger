@@ -424,13 +424,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Domenehendelse', 'relasjon', 'art id versjon dokument grunn'],
   ['Krav', 'relasjon', 'id spor erstatter gjelder'],
   ['Krav', 'utsagn', 'innhold'],
-  // #1707, #1711: kravinnholdet leses gjennom den typede tilgangen per spor i `format/kravinnhold.ts`.
-  ['Krav.innhold', 'utsagn', 'hovedkategori underkategori dager', ['format/kravinnhold.ts']],
+  // #1707, #1711: kravinnholdet leses gjennom den typede tilgangen per spor, i `format/kravinnhold.ts`
+  // eller i formatfila for sporet (#1783).
+  ['Krav.innhold', 'utsagn', 'dager', ['format/kravinnhold.ts']],
   [
     'Krav.innhold',
     'utsagn',
-    'endringsordre paalegg_mottatt klar_over_forholdet',
-    ['format/kravinnhold.ts:innholdIForholdet'],
+    'hovedkategori underkategori endringsordre paalegg_mottatt klar_over_forholdet',
+    ['spor/forhold/format.ts:innholdIForholdet'],
   ],
   ['Forholdsinnhold', 'utsagn', 'hovedkategori underkategori'],
   [
@@ -826,7 +827,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // #814: standpunktene og utregningen nyttelastkontrollen leste, er de brevet lagrer.
   ['Bygde', 'regelsett', 'standpunkter utregning', ['kommandoer/skriving.ts:svar']],
-  ['format/kravinnhold.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
+  ['spor/forhold/format.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   // OV-U23, OV-U95 punkt 19: kravet har kravposter i vederlagsjusteringen.
   ['spor/vederlag/format.ts', 'regelsett', 'kravposterI', ['spor/vederlag/frysing.ts']],
   [
@@ -1154,7 +1155,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['spor/vederlag/utledning.ts', 'predikat', 'KONTROLLER_I_VEDERLAGET', ['utledning/utled.ts']],
   [
-    'format/kravinnhold.ts',
+    'spor/forhold/format.ts',
     'utsagn',
     'kategori',
     [
@@ -1169,7 +1170,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   [
-    'format/kravinnhold.ts',
+    'spor/forhold/format.ts',
     'utsagn',
     'innholdIForholdet',
     [
@@ -1284,14 +1285,19 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/skjema.ts',
     'skjema',
     'DATO ID liste objekt TEKST',
-    ['format/format.ts', 'kommandoer/kommando.ts', 'spor/vederlag/format.ts'],
+    [
+      'format/format.ts',
+      'kommandoer/kommando.ts',
+      'spor/forhold/format.ts',
+      'spor/vederlag/format.ts',
+    ],
   ],
   ['format/skjema.ts', 'skjema', 'objekt', ['spor/vederlag/kommando.ts:kravfeil']],
   // VS-U26: datoen TE oppgir i påberopelsen. Bare formkontrollen, kontrollen mot
   // brevets dato og brevteksten leser den, så ingen regel vurderer rettidigheten av den.
-  ['OPPGITT_DATO', 'skjema', 'endring svikt andre_forhold', ['format/format.ts']],
+  ['OPPGITT_DATO', 'skjema', 'endring svikt andre_forhold', ['spor/forhold/format.ts']],
   [
-    'format/format.ts',
+    'spor/forhold/format.ts',
     'skjema',
     'oppgittDato',
     [
@@ -1392,7 +1398,19 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'STANDPUNKTER_I_VEDERLAGET STANDPUNKT_I_VEDERLAGET UTREGNING_I_VEDERLAGET',
     ['format/format.ts'],
   ],
-  ['format/skjema.ts', 'skjema', 'artfelt', ['format/format.ts', 'spor/vederlag/format.ts']],
+  [
+    'format/skjema.ts',
+    'skjema',
+    'artfelt',
+    ['format/format.ts', 'spor/forhold/format.ts', 'spor/vederlag/format.ts'],
+  ],
+  // #1783: formatet for forholdet i sporet.
+  [
+    'spor/forhold/format.ts',
+    'skjema',
+    'STANDPUNKTER_I_FORHOLDET STANDPUNKT_I_FORHOLDET FORHOLDSINNHOLD',
+    ['format/format.ts'],
+  ],
   // KA-U53, KA-U56, KA-U75: kravpostene en ny versjon får id og betegnelse for, og
   // versjonsreglene kommandoen og lesingen av journalen bruker.
   [
@@ -1485,7 +1503,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // #698: det datoen gjelder, med de samme ordene i meldingene og skjemaet. Brevet skriver
   // partene fullt ut (LV-U35) og har ordene i `DATOEN_I_BREVET`.
   [
-    'format/format.ts',
+    'spor/forhold/format.ts',
     'brevtekst',
     'DATOEN_GJELDER',
     ['kommandoer/kommando.ts', 'kommandoer/nyttelast.ts', 'kommandoer/forutsetninger.ts'],
@@ -1497,10 +1515,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['STANDPUNKTER_I_SPORET', 'rad', 'art paakrevd', ['format/leser.ts']],
   ['KRAVINNHOLD', 'skjema', 'properties required anyOf'],
   // Kodene i formatet for kategoriene (#335): formen på påberopelsen.
-  ['format/koder.ts', 'skjema', 'HOVEDKATEGORIER UNDERKATEGORIER', ['format/format.ts']],
+  ['format/koder.ts', 'skjema', 'HOVEDKATEGORIER UNDERKATEGORIER', ['spor/forhold/format.ts']],
   // #516: kategoriene står i regelsettet, så reglene types mot dem.
-  ['regler/typer.ts', 'skjema', 'KATEGORIER', ['format/format.ts', 'format/koder.ts']],
-  ['KATEGORIER', 'skjema', 'endring svikt andre_forhold force_majeure', ['format/format.ts']],
+  ['regler/typer.ts', 'skjema', 'KATEGORIER', ['spor/forhold/format.ts', 'format/koder.ts']],
+  ['KATEGORIER', 'skjema', 'endring svikt andre_forhold force_majeure', ['spor/forhold/format.ts']],
   // Oversettelsen fra katalogens koder, for klienten og språkprøven (#335).
   ['format/koder.ts:fraKatalogen(tabell)', 'kommando', '*', ['format/koder.ts']],
   [
@@ -1509,7 +1527,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'hovedkategori underkategori',
     ['format/koder.ts'],
   ],
-  ['regler/typer.ts', 'regelsett', 'FRISTRESULTATER FORHOLDSRESULTATER', ['format/format.ts']],
+  ['regler/typer.ts', 'regelsett', 'FRISTRESULTATER', ['format/format.ts']],
+  ['regler/typer.ts', 'regelsett', 'FORHOLDSRESULTATER', ['spor/forhold/format.ts']],
   ['regler/typer.ts', 'regelsett', 'VEDERLAGSRESULTATER SAERSKILTE', ['spor/vederlag/format.ts']],
 
   // Journalraden i format 1 (leser.ts, skriving.ts). `data` er uten type, så feltene har
@@ -1547,8 +1566,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:standpunkterISvaret(e)',
     'rad',
-    'id art gjelder hjemmel i_tide resultat oppfylt dager begrenset_beloep',
+    'id art gjelder hjemmel i_tide oppfylt dager begrenset_beloep',
     ['format/leser.ts'],
+  ],
+  [
+    'spor/forhold/format.ts:standpunktIForholdet(e)',
+    'rad',
+    'id art resultat',
+    ['spor/forhold/format.ts'],
   ],
   [
     'spor/vederlag/format.ts:standpunktIVederlaget(e)',
@@ -1564,6 +1589,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
      innsigelserMotPosten`,
     ['format/leser.ts'],
   ],
+  ['spor/forhold/format.ts', 'rad', 'LESING_I_FORHOLDET', ['format/leser.ts']],
   ['spor/vederlag/format.ts', 'rad', 'LESING_I_VEDERLAGET', ['format/leser.ts']],
   // OV-U31, KA-U57 (e): radene i utregningen per post og lag, mot standpunktene og totalene.
   // Resultatet og dagene i standpunktet leses av utregningen (4.3 i designnotatet, #331 punkt 4).

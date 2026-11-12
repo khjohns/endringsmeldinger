@@ -29,9 +29,9 @@ Regelsettet står i `kjerne/regler/`; endres det, økes `REGELVERSJON` der. Endr
   (`regler/svarkontroll.ts`).
 - **Kravinnholdet leses gjennom `format/kravinnhold.ts`, og utregningen i svaret gjennom
   `format/svarinnhold.ts`**, med typen for sporet. For et spor med en egen formatfil står
-  tilgangen der (`spor/vederlag/format.ts`). En ny lesing av `Krav.innhold` eller
-  `Svar.utregning` legges der, ikke som en ny typekonvertering hos kalleren. Det gjelder også
-  serveren og visningen.
+  tilgangen der (`spor/forhold/format.ts`, `spor/vederlag/format.ts`). En ny lesing av
+  `Krav.innhold` eller `Svar.utregning` legges der, ikke som en ny typekonvertering hos
+  kalleren. Det gjelder også serveren og visningen.
 - **Teksten står i tekstlaget**: brevteksten i `frosset/brevtekst.ts`, byggeklossene den deler
   med teksten i sporene i `frosset/brevdeler.ts`, linjen for byggherrens standpunkt i
   `frosset/linje.ts` og ordene de deler med visningen i `frosset/tekst.ts`. Teksten som er

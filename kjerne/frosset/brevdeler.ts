@@ -4,7 +4,6 @@
  * og teksten i sporene (`kjerne/spor/<spor>/tekst.ts`) bygger på dem.
  */
 
-import type { OppgittDato } from '../format/format.ts';
 import { erRegistrert, kalenderdag } from '../format/leser.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
@@ -27,6 +26,7 @@ import type {
   Svar,
   Utsagn,
 } from '../typer.ts';
+import type { OppgittDato } from '../spor/forhold/format.ts';
 
 /**
  * Saken slik den var før brevet: sakens kode (LV-U44, S3 i #1497) og sakstittelen (KA-U22), gjeldende

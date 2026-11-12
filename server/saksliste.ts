@@ -11,7 +11,7 @@ import type { Dokument, Journalrad, Kravspor, Oppgjoersform, Part, Spor } from '
 import { kalenderdag, registrertDato } from '../kjerne/format/leser.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
-import { innholdIForholdet, innholdIFristen } from '../kjerne/format/kravinnhold.ts';
+import { innholdIFristen } from '../kjerne/format/kravinnhold.ts';
 import { kravposterI, krevdSamlet } from '../kjerne/spor/vederlag/format.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import {
@@ -32,6 +32,7 @@ import type { Avhengigheter, Prosjektforespoersel, Rute, Svar } from './rutetype
 import { lesekontekst } from './autorisasjon.ts';
 import { transaksjon, type Kontekst, type Pool } from './datalag.ts';
 import { skrevetAvKjernen } from './lager.ts';
+import { innholdIForholdet } from '../kjerne/spor/forhold/format.ts';
 
 interface Listerad {
   sak_id: string;

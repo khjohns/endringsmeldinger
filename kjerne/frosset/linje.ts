@@ -10,7 +10,6 @@ import {
   virkningen,
   type Svarinnhold,
 } from './byggeklosser.ts';
-import { kategori } from '../format/kravinnhold.ts';
 import { LINJEN_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
 import { iLagene, SENT_I_LINJEN, SVARET_PAA_PAABEROPELSEN } from './tekst.ts';
 import {
@@ -21,6 +20,7 @@ import {
   type Standpunktsvirkning,
   type Virkning,
 } from '../typer.ts';
+import { kategori } from '../spor/forhold/format.ts';
 
 /**
  * Linjen i brevet for svaret: byggherrens standpunkt, med den prinsipale grunnen først

@@ -26,7 +26,6 @@ import {
   registrertDato,
   sammeSlag,
 } from '../format/leser.ts';
-import { oppgittDato } from '../format/format.ts';
 import { harProduktivitetspost } from '../spor/vederlag/format.ts';
 import { KONTROLLER_I_VEDERLAGET } from '../spor/vederlag/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
@@ -44,7 +43,6 @@ import {
   sammenfallStemmer,
 } from '../frosset/standpunkt.ts';
 import { iSporet, prinsipalt, standpunktet } from '../frosset/byggeklosser.ts';
-import { innholdIForholdet } from '../format/kravinnhold.ts';
 import {
   KRAVSPOR,
   SPOR,
@@ -71,6 +69,7 @@ import {
   type Vedlegg,
 } from '../typer.ts';
 import type { Kjerne } from '../versjon.ts';
+import { oppgittDato, innholdIForholdet } from '../spor/forhold/format.ts';
 
 export type LestVarsel = Extract<LestUtsagn, { art: 'varsel' }>;
 /** Hjemlene saken har høyst ett varsel etter (SK-12). */

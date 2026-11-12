@@ -77,7 +77,9 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     const skjema = within(screen.getByRole('form'));
     expect(screen.getByRole('heading', { name: 'Brev 3 · Oppdatert påberopelse' })).toBeTruthy();
     expect(screen.getByText('Til byggherren (BH)')).toBeTruthy();
-    expect(screen.getByText(/^Utkast/).textContent).toMatch(/bare synlig for teamet ditt/);
+    // Utkastet sier ikke at det bare er synlig for teamet (system.md, «Utkastet sier det selv», #1663).
+    expect(screen.getByText('Utkast')).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/synlig for teamet/i);
     expect(skjema.queryByRole('button', { name: 'Forhåndsvis brevet' })).toBeNull();
     // S-3 B: teksten står slik den sist ble sendt, i ett felt, uten hjelpetekst.
     expect((teksten() as HTMLTextAreaElement).value).not.toBe('');

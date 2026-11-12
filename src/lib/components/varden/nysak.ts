@@ -9,7 +9,7 @@ import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
 import { getKontraktsregel, type Kontraktsregel } from '$lib/constants/kontraktsregler';
 import { kravMotNySak, type Brev, type Saksmerking } from '$lib/kjernesak/brevtekst';
 import { PROGRAMFEIL, type Programfeil } from '$lib/kjernesak/kontekst.svelte';
-import { oppgittDato, type OppgittDato } from '$kjerne/format/format';
+import { oppgittDato, type OppgittDato } from '$kjerne/spor/forhold/format';
 import {
   kategoriFraKatalogen,
   tilKatalogen,
