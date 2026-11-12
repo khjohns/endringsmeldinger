@@ -1062,6 +1062,10 @@ const MUTASJONER: Mutasjon[] = [
         'const innsigelser = aapneInnsigelser(s, nytt.avsender, j, regler);',
         'const innsigelser = [];',
       ],
+      [
+        'const innsigelsene = aapneInnsigelser(s, nytt.avsender, j, regler);',
+        'const innsigelsene: Innsigelse[] = [];',
+      ],
     ],
     mal: ['svaret gjentar innsigelsen', 'gir byggherren innsigelsen opp'],
   },
@@ -1115,7 +1119,10 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F120',
     feilklasse: 'et svar på påberopelsen i et tidligere brev omtales som i samme brev (A2, LV-U3)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['  if (g.dokument === nytt.id) {', '  if (true) {']],
+    endringer: [
+      ['  if (g.dokument === nytt.id) {', '  if (true) {'],
+      ['  if (nytt.id === g.dokument) {', '  if (true) {'],
+    ],
     mal: ['forholdet avslått i et tidligere brev'],
   },
   {
@@ -1173,7 +1180,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'avslaget der § 32.2 gjelder, sier ikke at kravet på endringsordre avslås (§ 32.3 b)',
     fil: `${K}/spor/forhold/tekst.ts`,
-    endringer: [['      return s.beslutningsgrunnlag.varslingsplikt\n', '      return false\n']],
+    endringer: [
+      [
+        "      if (varslingsplikt)\n        return 'byggherren avslår kravet på endringsordre",
+        "      if (false)\n        return 'byggherren avslår kravet på endringsordre",
+      ],
+    ],
     mal: ['avslaget der § 32.2 gjelder'],
   },
   {
@@ -4260,12 +4272,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'brevet sier ikke hvilken kravpost beløpet gjelder når kravet har flere (KA-U57 (c))',
     fil: `${K}/spor/vederlag/tekst.ts`,
-    endringer: [
-      [
-        '      : kravposterI(krav).length > 1\n        ? krevdeKravpost',
-        '      : false\n        ? krevdeKravpost',
-      ],
-    ],
+    endringer: [['...(alle.length > 1 ? { foerst:', '...(false ? { foerst:']],
     mal: ['svaret på to kravposter med fast sum navngir kravposten'],
   },
   {
@@ -4770,6 +4777,57 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [['const rigg = harRiggOgDrift(innhold);', 'const rigg = false;']],
     mal: ['avvises med posten i meldingen'],
+  },
+  {
+    id: 'F561',
+    feilklasse:
+      'en påberopelse av at varselet etter § 32.2 kom for sent, krever ingen begrunnelse (KA-U46 punkt 2–3)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [
+      [
+        'const paaberoper = v.grunnlag_varslet_i_tide === false;',
+        'const paaberoper = false as boolean;',
+      ],
+    ],
+    mal: ['påberopt preklusjon etter § 32.2 (KA-U21, KA-U47)'],
+  },
+  {
+    id: 'F562',
+    feilklasse: 'begrunnelsen kreves for avslag også der § 32.2 ikke gjelder (KA-U46 punkt 1)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [
+      [
+        "const avslaar = v.resultat === 'avslaatt' && gjelderVarslingsplikten(krav, regler);",
+        "const avslaar = v.resultat === 'avslaatt';",
+      ],
+    ],
+    mal: ['der § 32.2 ikke gjelder, godtas uten begrunnelse også ved avslag'],
+  },
+  {
+    id: 'F563',
+    feilklasse:
+      'begrunnelsen i punktet om et varsel i tide oppfyller kravet ved avslag (KA-U46 punkt 3)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [
+      [
+        "const punktene = paaberoper ? ['forhold', '32.2'] : ['forhold'];",
+        "const punktene = ['forhold', '32.2'];",
+      ],
+    ],
+    mal: ['ikke i punktet om et varsel i tide'],
+  },
+  {
+    id: 'F564',
+    feilklasse:
+      'utdypningen for hele svaret under «Forbehold» oppfyller kravet til begrunnelse (KA-U46 punkt 3)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [
+      [
+        'if (punktene.some((p) => s.utdypninger?.[p]?.trim())) return null;',
+        'if (punktene.some((p) => s.utdypninger?.[p]?.trim()) || s.utdypning) return null;',
+      ],
+    ],
+    mal: ['men ikke under «Forbehold»'],
   },
 ];
 

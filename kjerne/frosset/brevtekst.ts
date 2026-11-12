@@ -325,7 +325,7 @@ function forholdetsStandpunkter(s: Svar, { j, saken, nytt }: Tekst): string[] {
 function forbeholdForForholdet(s: Svar, { j, saken, nytt }: Tekst): string[] {
   if (s.spor === 'forhold' || saken.svarPaaPaaberopelsen !== null || saken.avklartVedFrafall)
     return [];
-  if (nytt.svar.some((x) => x.spor === 'forhold')) return [];
+  if (nytt.svar.some((g) => g.spor === 'forhold')) return [];
   if (!s.paaberopelse) throw new KanIkkeUttrykkes(`${s.id} viser ikke til grunnlagskravet`);
   return [
     `Byggherren har ennå ikke svart på grunnlaget i TEs krav i ${j.brevet(j.krav(s.paaberopelse).dokument)}.`,
@@ -429,7 +429,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
   const { j, nytt } = t;
   const krav = j.krav(s.gjelder);
   const virkning = new Map(s.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning]));
-  const innsigelser = aapneInnsigelser(s, nytt.avsender, j, regler);
+  const innsigelsene = aapneInnsigelser(s, nytt.avsender, j, regler);
   const fra = forholdetsLag(s, t, nr);
   const ledd: Svarledd[] = [...fra.ledd];
   const beloepene: Lagbeloep[] = [];
@@ -446,8 +446,8 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
       innsigelse: erInnsigelse(p),
       tekst: stor(
         p.art === 'rettidighet'
-          ? rettidighetstekst(p, krav, j, innsigelser)
-          : standpunkttekst(p, s, krav, j, innsigelser)
+          ? rettidighetstekst(p, krav, j, innsigelsene)
+          : standpunkttekst(p, s, krav, j, innsigelsene)
       ),
     });
     if (p.art === 'beloep') beloepene.push({ post: punkt, plass, beloep: p.godkjent! });
@@ -629,7 +629,7 @@ function forholdetsLag(
     (saken.svarPaaPaaberopelsen ? j.svar(saken.svarPaaPaaberopelsen) : undefined);
   if (!g) return ingen;
   const grunner = grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger);
-  if (g.dokument === nytt.id) {
+  if (nytt.id === g.dokument) {
     const henvisninger = new Map<number, number[]>();
     grunner.forEach((grunn, i) => {
       const punkt = grunn === 'prekludert' ? '32.2' : 'forhold';
@@ -691,11 +691,11 @@ function rettidighetstekst(
   p: Extract<Standpunkt, { art: 'rettidighet' }>,
   krav: Krav,
   j: Journalen,
-  innsigelser: Innsigelse[]
+  innsigelsene: Innsigelse[]
 ): string {
   if (p.hjemmel === '33.4' || p.hjemmel === '33.6.2')
     throw new KanIkkeUttrykkes(`varselet etter § ${p.hjemmel} står ikke i svaret på ${krav.spor}`);
-  const aapne = innsigelser.filter((i) => i.hjemmel === p.hjemmel);
+  const aapne = innsigelsene.filter((i) => i.hjemmel === p.hjemmel);
   const brevene = liste([...new Set(aapne.map((i) => j.brevet(i.dokument)))]);
   const henvisning = aapne.length > 1 ? 'innsigelsene' : 'innsigelsen';
   const jf = aapne.length ? `, jf. ${henvisning} i ${brevene}` : '';
@@ -706,13 +706,13 @@ function rettidighetstekst(
       ? `byggherren gjør gjeldende at ${om} kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.`
       : `byggherren gjør gjeldende at ${om} ikke ble gitt eller kom for sent.`;
   }
-  const varselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(p.gjelder))}`;
+  const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(p.gjelder))}`;
   if (!p.iTide && p.hjemmel === '34.1.3')
-    return `byggherren gjør gjeldende at ${varselet} kom for sent${jf}, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet.`;
-  if (!p.iTide) return `byggherren gjør gjeldende at ${varselet} kom for sent${jf}.`;
+    return `byggherren gjør gjeldende at ${omVarselet} kom for sent${jf}, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet.`;
+  if (!p.iTide) return `byggherren gjør gjeldende at ${omVarselet} kom for sent${jf}.`;
   return aapne.length
-    ? `byggherren gir opp ${henvisning} etter NS 8407 punkt 5 i ${brevene} og gjør ikke gjeldende at ${varselet} kom for sent.`
-    : `byggherren gjør ikke gjeldende at ${varselet} kom for sent.`;
+    ? `byggherren gir opp ${henvisning} etter NS 8407 punkt 5 i ${brevene} og gjør ikke gjeldende at ${omVarselet} kom for sent.`
+    : `byggherren gjør ikke gjeldende at ${omVarselet} kom for sent.`;
 }
 
 /**

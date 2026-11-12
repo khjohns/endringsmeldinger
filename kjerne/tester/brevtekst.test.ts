@@ -3,7 +3,7 @@
  * Forventningene har kilde i vedtakene: LV-U4 (ordlyden, punkt 1–13, og 5.2, 5.5b
  * og 5.6 i svaret), GR-U14 (teksten etter § 31.3 i en godkjenning som er en
  * endringsordre), GR-U15 (TEs varsel etter § 32.2 beskriver pålegget), GR-U16
- * (endringsordrens dato eller nummer), KA-U31–KA-U33 og KA-U24 (opphevet av KA-U46) (begrunnelsen),
+ * (endringsordrens dato eller nummer), KA-U31–KA-U33 og KA-U46 (begrunnelsen),
  * LV-U2 (teksten avsenderen godkjenner, er den som fryses, og et dokument gjengir
  * den tro), LV-U3 (hvert utsagn med virkning står i teksten, ikke appens vurdering),
  * KA-U22 og KA-U25 (de faste tekstene, ordrett), VS-U9 og VS-U11 (svaret gjentar
@@ -980,7 +980,7 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
   });
 });
 
-describe('kravet til begrunnelse og beskrivelse (KA-U24 (opphevet av KA-U46), KA-U31–KA-U33, GR-U15)', () => {
+describe('kravet til begrunnelse og beskrivelse (KA-U46, KA-U47, KA-U31–KA-U33, GR-U15)', () => {
   it('TEs varsel etter § 32.2 uten beskrivelse av pålegget avvises (GR-U15)', () => {
     const s = sak();
     const uten = utenFelt(PAABEROPELSE, 'utdypning');
@@ -1071,6 +1071,38 @@ describe('kravet til begrunnelse og beskrivelse (KA-U24 (opphevet av KA-U46), KA
     }
   );
 
+  it('begrunnelsen for en påberopelse etter § 32.2 kan stå i punktet om varselet, men ikke under «Forbehold» (KA-U46 punkt 3, arbeidsvalg 1 i #1433)', () => {
+    const s = sakMedKrav();
+    const paaberopt = { resultat: 'godkjent', grunnlag_varslet_i_tide: false };
+    const med = (felt: Data) =>
+      brev({ ...svar('forhold', s.krav('forhold'), paaberopt, {}, null), ...felt });
+    expect(s.avvist('BH', med({ utdypninger: { '32.2': BEGRUNNELSE } }))).toBeNull();
+    expect(s.avvist('BH', med({ utdypning: BEGRUNNELSE }))).toBe('BEGRUNNELSE_MANGLER');
+    expect(s.avvist('BH', med({ utdypninger: { forhold: '   ' } }))).toBe('BEGRUNNELSE_MANGLER');
+  });
+
+  it('begrunnelsen for et avslag av kravet på endringsordre står i punktet om forholdet, ikke i punktet om et varsel i tide (KA-U46 punkt 3)', () => {
+    const s = sakMedKrav();
+    const avslag = { resultat: 'avslaatt', grunnlag_varslet_i_tide: true };
+    const med = (felt: Data) =>
+      brev({ ...svar('forhold', s.krav('forhold'), avslag, {}, null), ...felt });
+    expect(s.avvist('BH', med({ utdypninger: { '32.2': BEGRUNNELSE } }))).toBe(
+      'BEGRUNNELSE_MANGLER'
+    );
+    expect(s.avvist('BH', med({ utdypninger: { forhold: BEGRUNNELSE } }))).toBeNull();
+  });
+
+  it('svaret på forholdet ved svikt, der § 32.2 ikke gjelder, godtas uten begrunnelse også ved avslag (KA-U46 punkt 1)', () => {
+    const s = sak();
+    s.send('TE', {
+      type: 'krav',
+      spor: 'forhold',
+      innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER },
+    });
+    const avslag = brev(svar('forhold', s.krav('forhold'), { resultat: 'avslaatt' }, {}, null));
+    expect(s.avvist('BH', avslag)).toBeNull();
+  });
+
   it.each([
     [
       'frafall etter § 32.3 c',
@@ -1139,7 +1171,7 @@ describe('kravet til begrunnelse og beskrivelse (KA-U24 (opphevet av KA-U46), KA
     }
   );
 
-  it('et svar som bare er subsidiært fordi forholdet er avslått, trenger ingen egen begrunnelse (KA-U24)', () => {
+  it('et svar som bare er subsidiært fordi forholdet er avslått, trenger ingen egen begrunnelse (KA-U46 punkt 1)', () => {
     const s = sakMedKrav();
     s.send(
       'BH',
@@ -1767,6 +1799,7 @@ describe('svaret på vederlag og frist når forholdet er avslått eller preklude
     expect(laast(rad)).toEqual([INNLEDNING_FORHOLDET, ...forventet, '5. Forbehold']);
   });
 
+  // Ordlyden er alternativ A i spørsmål 3 i #1433 (kommentaren 6837001621), som venter på svar.
   it.each([
     [
       'avslått i et tidligere brev',
@@ -1783,7 +1816,7 @@ describe('svaret på vederlag og frist når forholdet er avslått eller preklude
       'godkjent',
       false,
       [
-        '1. Forholdet\n\nPrinsipalt\n\nByggherren har gjort gjeldende i brev K201-KOE-017-04 av 5. oktober 2026 at totalentreprenørens varsel etter NS 8407 punkt 32.2 kom for sent.',
+        '1. Forholdet\n\nPrinsipalt\n\nByggherren har i brev K201-KOE-017-04 av 5. oktober 2026 gjort gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 kom for sent.',
         metode(2, subsidiaert(1)),
         delvis(3, subsidiaert(1)),
       ],
@@ -1793,7 +1826,7 @@ describe('svaret på vederlag og frist når forholdet er avslått eller preklude
       'avslaatt',
       false,
       [
-        `1. Forholdet\n\nPrinsipalt\n\nByggherren har gjort gjeldende i brev K201-KOE-017-04 av 5. oktober 2026 at totalentreprenørens varsel etter NS 8407 punkt 32.2 kom for sent.\n\n${subsidiaert(1)}\n\nByggherren har avslått kravet på endringsordre i samme brev.`,
+        `1. Forholdet\n\nPrinsipalt\n\nByggherren har i brev K201-KOE-017-04 av 5. oktober 2026 gjort gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 kom for sent.\n\n${subsidiaert(1)}\n\nByggherren har avslått kravet på endringsordre i brev K201-KOE-017-04 av 5. oktober 2026.`,
         metode(2, videre(1)),
         delvis(3, videre(1)),
       ],
