@@ -542,6 +542,7 @@
         navn={id(`justert-${n}`)}
         spoersmaal={KRAVSKJEMA.justert}
         valg={KRAVSKJEMA.justeringer}
+        stablet
         bind:verdi={p.justert}
         feil={feil(`justert-${n}`)}
       />
@@ -691,6 +692,7 @@
           navn={id(`type-${n}`)}
           spoersmaal={KRAVSKJEMA.dokumenttype}
           valg={KRAVSKJEMA.dokumenttyper}
+          stablet
           bind:verdi={p.varsel.type}
           feil={feil(`type-${n}`)}
         />

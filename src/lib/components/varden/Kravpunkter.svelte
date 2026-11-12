@@ -260,8 +260,10 @@
     flex-direction: column;
     gap: var(--spacing-3);
   }
+  /* Midtstilt under knappen (oppdragsgiver 12.11, #1663). */
   .status-utkast {
     display: flex;
+    justify-content: center;
     align-items: center;
     gap: var(--spacing-2);
   }
