@@ -34,7 +34,7 @@ Beholde inter som font.» Oslo-logoen er fast.
 - **Hver farge betyr én ting:**
   - `--brand` er handling: primærknappen og valgt svar. Valgt svar har også flaten
     `--surface-selected`. I det mørke panelet markeres valgt spor med `--sidebar-active`.
-  - `--draft` er utkast: det som ikke er sendt og bare er synlig for teamet. Utkastet har
+  - `--draft` er utkast: det som ikke er sendt. Utkastet har
     stiplet kant rundt hele kortet og `--draft-bg` i hodet, så det aldri ser ut som et
     sendt brev. Ingenting annet er gult.
   - `--control-focus` er fokus og ingenting annet.
@@ -324,8 +324,8 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
 - **Unntak: den nye versjonen av påberopelsen.** Arbeidsflaten har to roller (PR 1650):
   - En gul arbeidsrad med stiplet kant over begge kolonnene følger rullingen, unntatt på 640 px
     og smalere, der den ligger fast (PR 1650) (`Utkastrad`):
-    «Tilbake til forholdet», skilt fra resten med en linje, siden sakslisten er felt inn, «Utkast»
-    med lås, brevet som skrives («Brev 3 · Oppdatert påberopelse») og mottakeren under, og
+    «Tilbake til forholdet», skilt fra resten med en linje, siden sakslisten er felt inn, «Utkast»,
+    brevet som skrives («Brev 3 · Oppdatert påberopelse») og mottakeren under, og
     «Forhåndsvis brevet» ytterst til høyre, så handlingen står ved brevet den gjelder. Det gule er
     raden, ikke utkastet. Raden står øverst, der «Tilbake til utkastet» står i brevkontrollen.
   - Utkastet står til venstre (`Brevutkast`, om lag 60 prosent): et hvitt kort med emnet,
@@ -354,8 +354,9 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   versjonen av påberopelsen, der den spør i en dialog med «Behold utkastet» og en rød «Forkast
   utkast» (`Knapp` med `variant="fare"`). Rødt på en knapp står bare der handlingen ikke kan
   gjøres om, og teksten sier det (PR 1650).
-- **Utkastet sier det selv.** Hodet på utkastkortet sier «Utkast», og låselinja under sier at
-  brevet bare er synlig for teamet til det er sendt. Sendepanelet i brevkontrollen, og panelet
+- **Utkastet sier det selv.** Hodet på utkastkortet sier «Utkast · ikke sendt». Det sier ikke at
+  brevet bare er synlig for teamet, fordi det er åpenbart for et utkast (oppdragsgiver 12.11 i
+  #1663). Sendepanelet i brevkontrollen, og panelet
   med punktene i et langt skjema, sier «Utkast» og «Ikke sendt» ved knappen, så statusen står i
   bildet også når hodet er rullet ut av det (#1663). Merket «Utkast» i panelet til venstre vises bare når et
   annet spor er valgt, så statusen aldri står to steder samtidig.
