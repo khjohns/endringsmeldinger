@@ -952,12 +952,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'påberopelsen etter § 33.4 viser til kravversjonen svaret gjelder, ikke det første fristkravet (VS-U20, OV-U5, KK-07)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        'registrert ? [registrert] : [], krav, () => true',
-        'registrert ? [registrert] : [], krav.slice(-1), () => true',
-      ],
-    ],
+    endringer: [['    krav,\n    () => true,', '    krav.slice(-1),\n    () => true,']],
     mal: [
       'uten registrert varsel gjelder den det første fristkravet',
       'brevet sier at varselet er det første fristkravet',
@@ -1745,8 +1740,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'if (p.gjelder !== varseletFoerSvaret(varslene, krav, (v) => bakover(s.id, v)))',
-        'if (p.gjelder !== varseletFoerSvaret(varslene, krav, (v) => bakover(s.id, v)) && p.gjelder !== s.gjelder)',
+        'if (p.gjelder !== varseletFoerSvaret(varslene, krav, (v) => bakover(s.id, v), sendt))',
+        'if (p.gjelder !== varseletFoerSvaret(varslene, krav, (v) => bakover(s.id, v), sendt) && p.gjelder !== s.gjelder)',
       ],
     ],
     mal: ['en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått'],
@@ -4114,7 +4109,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F554',
     feilklasse:
-      'leseren forstår et punkt i brevteksten der overskriften ikke står først i den låste delen (MM-U2, B-1 B i #1824)',
+      'leseren forstår et punkt i brevteksten der overskriften ikke står først i den låste delen (MM-U2, LV-U70)',
     fil: `${K}/format/leser.ts`,
     endringer: [
       ['(a.laast !== a.overskrift && !a.laast.startsWith(`${a.overskrift}\\n\\n`))', 'false'],
@@ -4124,7 +4119,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F556',
     feilklasse:
-      'leseren forstår to avsnitt i brevteksten for samme punkt i et element (MM-U2, B-1 B i #1824)',
+      'leseren forstår to avsnitt i brevteksten for samme punkt i et element (MM-U2, LV-U70)',
     fil: `${K}/format/leser.ts`,
     endringer: [['if (sett.has(`${a.gjelder}\\u0000${a.punkt}`))', 'if (false)']],
     mal: ['avsnitt som ikke står etter hverandre per punkt'],
@@ -4132,7 +4127,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F558',
     feilklasse:
-      'leseren forstår et avsnitt med punkt for et element som ikke er et krav (MM-U2, B-1 B i #1824)',
+      'leseren forstår et avsnitt med punkt for et element som ikke er et krav (MM-U2, LV-U70)',
     fil: `${K}/format/leser.ts`,
     endringer: [
       [
@@ -4143,9 +4138,22 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['et avsnitt med punkt for et element som ikke er et krav'],
   },
   {
+    id: 'F559',
+    feilklasse:
+      'påberopelsen og punktet om varselet gjelder det egne varselet også når det første kravet er sendt før (V1 A i #1843, VS-U66)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        'kravetSendt !== null && kravetSendt < varselet ? kravet.id : eget.id;',
+        'kravetSendt !== null && false ? kravet.id : eget.id;',
+      ],
+    ],
+    mal: ['et eget varsel datert etter det første kravet: det første kravet'],
+  },
+  {
     id: 'F557',
     feilklasse:
-      'brevteksten mister en utdypning for et punkt brevet ikke har, i stedet for å avvise kommandoen (B-2 A i #1824)',
+      'brevteksten mister en utdypning for et punkt brevet ikke har, i stedet for å avvise kommandoen (LV-U71)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['    if (ukjent.length)', '    if (false)']],
     mal: ['en utdypning for et punkt brevet ikke har, avvises'],

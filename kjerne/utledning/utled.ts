@@ -754,7 +754,8 @@ function utledSporene(
       (id) => dokumenter.get(plass.get(id)?.hendelse ?? ''),
       ugyldig
     );
-  kontrollerSvarene(alleSvar, alleKrav, spor, varsler, besvart, bakover, ugyldig);
+  const sendt = (v: Pick<Krav, 'id' | 'dokument'>) => datoenDetBleSendt({ journal }, v);
+  kontrollerSvarene(alleSvar, alleKrav, spor, varsler, besvart, bakover, sendt, ugyldig);
   kontrollerSvarkjedene(spor, ugyldig);
   kontrollerAksepter(aksepter, alleSvar, bakover, ugyldig);
   kontrollerTrekk(trekk, alleKrav, spor, bakover, ugyldig);
@@ -831,6 +832,7 @@ function kontrollerSvarene(
   varsler: readonly LestVarsel[],
   besvart: readonly ForesporselOgSvar[],
   bakover: Bakover,
+  sendt: (v: Pick<Krav, 'id' | 'dokument'>) => string | null,
   ugyldig: Ugyldig
 ): void {
   for (const s of alleSvar.values()) {
@@ -855,7 +857,7 @@ function kontrollerSvarene(
         'sammenfallet stemmer ikke med standpunktene i brevet (GR-U10, MM-U18 (opphevet av MM-U43))'
       );
     for (const p of s.standpunkter)
-      kontrollerStandpunktet(s, p, spor, varsler, besvart, bakover, ugyldig);
+      kontrollerStandpunktet(s, p, spor, varsler, besvart, bakover, sendt, ugyldig);
     const krav = alleKrav.get(s.gjelder);
     if (krav?.spor === s.spor) kontrollerI(s.spor).svaret(s, krav, ugyldig);
   }
@@ -869,6 +871,7 @@ function kontrollerStandpunktet(
   varsler: readonly LestVarsel[],
   besvart: readonly ForesporselOgSvar[],
   bakover: Bakover,
+  sendt: (v: Pick<Krav, 'id' | 'dokument'>) => string | null,
   ugyldig: Ugyldig
 ): void {
   // HF-U1, VS-U4: spesifiseringen gjelder kravversjonen svaret gjelder.
@@ -891,10 +894,10 @@ function kontrollerStandpunktet(
     const n = VARSELSPOR[p.hjemmel];
     const varslene = varsler.filter((v) => v.hjemmel === p.hjemmel);
     const krav = kravSomVarsler(p.hjemmel, spor[n].krav);
-    if (p.gjelder !== varseletFoerSvaret(varslene, krav, (v) => bakover(s.id, v)))
+    if (p.gjelder !== varseletFoerSvaret(varslene, krav, (v) => bakover(s.id, v), sendt))
       ugyldig(
         s.id,
-        `påberopelsen etter § ${p.hjemmel} viser ikke til varselet før svaret eller, uten varsel, det første kravet som varsler`
+        `påberopelsen etter § ${p.hjemmel} viser ikke til det tidligste av varselet før svaret og det første kravet som varsler`
       );
   }
 }
@@ -1458,19 +1461,28 @@ export const kravSomVarsler = (
 ): readonly Krav[] => (hjemmel === '34.1.3' ? krav.filter(harProduktivitetspost) : krav);
 
 /**
- * VS-U20, OV-U5, HF-U1, VS-U43 punkt 6: varselet en påberopelse etter § 32.2, § 33.4,
- * § 34.1.2 eller § 34.1.3 gjelder, er varselet etter hjemmelen som var registrert da svaret
- * ble sendt, ellers det første kravet som varsler (`kravSomVarsler`), som er det første
- * varselet appen kjenner (arbeidsvalgene i #309 og #479, OV-U24). Vilkåret i E3 om en
- * tidligere dato for § 32.2 er ikke bygget (#1600).
- * `foerSvaret` sier om et varsel står før svaret. Skriveren og valideringen leser det
- * herfra (#496).
+ * VS-U20, OV-U5, HF-U1, VS-U43 punkt 6: varselet en påberopelse etter § 32.2, § 33.4, § 34.1.2
+ * eller § 34.1.3 gjelder: varselet etter hjemmelen som var registrert da svaret ble sendt,
+ * ellers det første kravet som varsler (`kravSomVarsler`), som er det første varselet appen
+ * kjenner (arbeidsvalgene i #309 og #479, OV-U24). Har saken begge, gjelder påberopelsen det
+ * tidligste etter datoen det ble sendt, slik kontrollen etter VS-U60 og VS-U66 regner (svaret A
+ * på V1 i #1843); med samme dato det egne varselet. Vilkåret i E3 om en tidligere dato for
+ * § 32.2 er ikke bygget (#1600).
+ * `foerSvaret` sier om et varsel står før svaret, og `sendt` datoen et varsel eller krav ble
+ * sendt. Skriveren og valideringen leser det herfra (#496).
  */
-export const varseletFoerSvaret = (
-  varsler: readonly Pick<Extract<LestUtsagn, { art: 'varsel' }>, 'id'>[],
-  krav: readonly Pick<Krav, 'id'>[],
-  foerSvaret: (varsel: string) => boolean
-): string | undefined => varsler.find((v) => foerSvaret(v.id))?.id ?? krav[0]?.id;
+export function varseletFoerSvaret(
+  varsler: readonly Pick<LestVarsel, 'id' | 'dokument'>[],
+  krav: readonly Pick<Krav, 'id' | 'dokument'>[],
+  foerSvaret: (varsel: string) => boolean,
+  sendt: (v: Pick<Krav, 'id' | 'dokument'>) => string | null
+): string | undefined {
+  const eget = varsler.find((v) => foerSvaret(v.id));
+  const [kravet] = krav;
+  if (!eget || !kravet) return eget?.id ?? kravet?.id;
+  const [varselet, kravetSendt] = [sendt(eget), sendt(kravet)];
+  return varselet !== null && kravetSendt !== null && kravetSendt < varselet ? kravet.id : eget.id;
+}
 
 /**
  * Varselet en påberopelse etter hjemmelen gjelder i et svar som skrives nå: hvert varsel
@@ -1478,7 +1490,7 @@ export const varseletFoerSvaret = (
  * så regelen står ett sted (#766).
  */
 export function varseletForNyttSvar(
-  u: Pick<Utledning, 'spor'>,
+  u: Pick<Utledning, 'spor' | 'journal'>,
   hjemmel: Enkeltvarselhjemmel
 ): string {
   const varsel = varseletFoerBrevet(u, hjemmel);
@@ -1492,11 +1504,16 @@ export function varseletForNyttSvar(
  * `undefined` når saken ikke har noe. Brevteksten for vederlagskravet viser til det (#1824).
  */
 export function varseletFoerBrevet(
-  u: Pick<Utledning, 'spor'>,
+  u: Pick<Utledning, 'spor' | 'journal'>,
   hjemmel: Enkeltvarselhjemmel
 ): string | undefined {
   const s = u.spor[VARSELSPOR[hjemmel]];
   const registrert = s.varsler[hjemmel];
   const krav = kravSomVarsler(hjemmel, s.krav);
-  return varseletFoerSvaret(registrert ? [registrert] : [], krav, () => true);
+  return varseletFoerSvaret(
+    registrert ? [registrert] : [],
+    krav,
+    () => true,
+    (v) => datoenDetBleSendt(u, v)
+  );
 }

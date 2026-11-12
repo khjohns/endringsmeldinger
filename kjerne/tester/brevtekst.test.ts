@@ -514,7 +514,7 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
     const [, , v, f] = s.journal;
     // Punktene i prototype v4 i BF-14 (#1824), ett avsnitt per kravpost, og brevet sier hvilke
     // poster som er tilbud (KA-U61, BF-14 U-6). Partene skrives fullt ut (LV-U35).
-    // Ett avsnitt per punkt (B-1 B i #1824). Forholdet er en endring, så varselet etter
+    // Ett avsnitt per punkt (LV-U70). Forholdet er en endring, så varselet etter
     // § 34.1.2 nevnes ikke (VS-U3, OV-U15).
     expect(tekst(v)).toEqual([
       {
@@ -1020,7 +1020,7 @@ describe('kravet til begrunnelse og beskrivelse (KA-U24 (opphevet av KA-U46), KA
     const vederlag = { type: 'krav', spor: 'vederlag', innhold: tilbud(1) };
     expect(s.avvist('TE', vederlag)).toBeNull();
     const rad = s.send('TE', { ...vederlag, utdypning: 'Kalkylen er vedlagt.' });
-    // Utdypningen for hele vederlagskravet står i punktet «Forbehold» (B-2 A i #1824).
+    // Utdypningen for hele vederlagskravet står i punktet «Forbehold» (LV-U71).
     expect(tekst(rad).at(-1)).toMatchObject({
       punkt: 'forbehold',
       utdypning: 'Kalkylen er vedlagt.',
@@ -4289,6 +4289,58 @@ describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', (
       melding: expect.stringContaining('punkt 33.4 ble sendt 3. oktober 2026'),
     });
     expect(s.avvist('TE', korrigering(s, 'klar_over_forholdet', '2026-10-03'))).toBeNull();
+  });
+
+  /**
+   * Svaret A på V1 i #1843: har saken både et eget varsel og et krav som varsler, gjelder
+   * påberopelsen det tidligste, og en ny kravversjon viser til det samme brevet. Med samme dato
+   * gjelder det egne varselet, som før.
+   */
+  it.each([
+    [
+      'et eget varsel datert etter det første kravet: det første kravet',
+      '2026-10-04',
+      'kravet',
+      'brev K201-KOE-017-02 av 3. oktober 2026',
+    ],
+    [
+      'et eget varsel datert før det første kravet (kontrollsak): varselet',
+      '2026-09-30',
+      'varselet',
+      'totalentreprenørens brev av 30. september 2026',
+    ],
+    [
+      'et eget varsel datert samme dag som det første kravet: varselet',
+      '2026-10-03',
+      'varselet',
+      'totalentreprenørens brev av 3. oktober 2026',
+    ],
+  ])(
+    'påberopelsen etter § 34.1.2 og punktet om varselet i en ny kravversjon gjelder det tidligste, %s (V1 A i #1843, VS-U66)',
+    (_navn, dato, gjelder, brevet) => {
+      // Påberopelsen er sendt 2. oktober og vederlagskravet uten varsel 3. oktober (brev 2).
+      const s = medForhold(svikt);
+      s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) });
+      const kravet = s.krav('vederlag');
+      s.send('TE', registrering('vederlag', '34.1.2', dato));
+      const varselet = s.u().spor.vederlag.varsler['34.1.2']!.id;
+      const forventet = gjelder === 'kravet' ? kravet : varselet;
+      expect(varseletForNyttSvar(s.u(), '34.1.2')).toBe(forventet);
+      const [punkt] = tekst(
+        s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(130000) })
+      ).filter((a) => a.punkt === '34.1.2');
+      expect(punkt.laast).toBe(
+        `1. Varselet om vederlagsjustering\n\nVarsel om vederlagsjustering etter NS 8407 punkt 34.1.2 ble gitt i ${brevet}.`
+      );
+    }
+  );
+
+  it('påberopelsen etter § 33.4 gjelder det første fristkravet når det egne varselet er datert etter det (V1 A i #1843)', () => {
+    const s = medForhold(svikt);
+    s.send('TE', { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: BESKRIVELSE });
+    const kravet = s.krav('frist');
+    s.send('TE', registrering('frist', '33.4', '2026-10-04'));
+    expect(varseletForNyttSvar(s.u(), '33.4')).toBe(kravet);
   });
 });
 
@@ -9738,7 +9790,7 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
     expect(avsnitt.map((a) => a.laast).join(' ')).not.toContain('34.1.2');
   });
 
-  it('hver kravpost er et eget avsnitt, og bare det første har overskriften (B-1 B)', () => {
+  it('hver kravpost er et eget avsnitt, og bare det første har overskriften (LV-U70)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     const avsnitt = tekst(s.send('TE', vederlagskrav(to(125000))));
@@ -9767,7 +9819,7 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
     expect(uten.map((a) => a.punkt)).not.toContain('forbehold');
   });
 
-  it('utdypningen per punkt står under punktet den gjelder, og forbeholdet kan sendes per punkt (B-2 A)', () => {
+  it('utdypningen per punkt står under punktet den gjelder, og forbeholdet kan sendes per punkt (LV-U71)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     const avsnitt = tekst(
@@ -9787,7 +9839,7 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
     ]);
   });
 
-  it('en utdypning for et punkt brevet ikke har, avvises, så teksten ikke forsvinner fra brevet (B-2 A)', () => {
+  it('en utdypning for et punkt brevet ikke har, avvises, så teksten ikke forsvinner fra brevet (LV-U71)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     expect(
