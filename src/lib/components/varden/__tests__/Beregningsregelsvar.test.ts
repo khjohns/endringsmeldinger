@@ -90,7 +90,9 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     await svarskjemaet();
     expect(screen.queryByText(/følger en beregningsregel/)).toBeNull();
     expect(
-      screen.getByText('TE krever regningsarbeid, kostnadsoverslag 150 000 kr · PNS 21')
+      screen.getByText(
+        'Totalentreprenøren krever regningsarbeid, kostnadsoverslag 150 000 kr · PNS 21'
+      )
     ).toBeInTheDocument();
     const formen = screen.getByRole('group', { name: 'Oppgjørsformen' });
     expect(
