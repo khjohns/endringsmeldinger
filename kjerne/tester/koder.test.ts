@@ -15,7 +15,6 @@ import {
 } from '../format/koder.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
 import { lesJournal } from '../format/leser.ts';
-import { oppgittDato } from '../format/format.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { erByggherrensPaalegg, gyldigeResultater } from '../regler/forhold.ts';
@@ -30,6 +29,7 @@ import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 import { Kjoering } from './kjoerer.ts';
 import { NESTE_REGLER } from './klient.ts';
+import { innholdIForholdet, oppgittDato } from '../spor/forhold/format.ts';
 
 const PAR = HOVEDKATEGORIER.flatMap((h) => KATEGORIER[h].map((u) => [h, u] as const));
 
@@ -206,6 +206,24 @@ describe('reglene med kjernens koder', () => {
 
   it.each(HOVEDKATEGORIER)('varslingsplikten for vederlaget i %s (§ 34.1.2)', (h) => {
     expect(gjelderVarslingspliktenForVederlag(h)).toBe(h === 'svikt' || h === 'andre_forhold');
+  });
+});
+
+describe('kategorien lest av kravet (#1796)', () => {
+  // Fastholder at tilgangen er vakten for typen (#1796), ikke en domeneforventning. Et lagret krav
+  // har bare kodene i formatet; dette gjelder et krav som ikke er lest mot skjemaet.
+  it('gir underkategorien som tekst, og den første av en liste', () => {
+    expect(innholdIForholdet({ innhold: { underkategori: 'samordning' } }).underkategori).toBe(
+      'samordning'
+    );
+    expect(innholdIForholdet({ innhold: { underkategori: ['samordning'] } }).underkategori).toBe(
+      'samordning'
+    );
+  });
+
+  it('gir null for en underkategori som ikke er tekst', () => {
+    expect(innholdIForholdet({ innhold: { underkategori: 3 } }).underkategori).toBeNull();
+    expect(innholdIForholdet({ innhold: { underkategori: [3] } }).underkategori).toBeNull();
   });
 });
 

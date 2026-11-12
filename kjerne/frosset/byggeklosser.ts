@@ -6,7 +6,6 @@
 
 import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { kategori } from '../format/kravinnhold.ts';
 import {
   utenGren,
   type Hjemmel,
@@ -19,6 +18,7 @@ import {
   type Virkning,
 } from '../typer.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
+import { kategori } from '../spor/forhold/format.ts';
 
 /** Det i et svar virkningene regnes av: sporet, standpunktene og serverens utregning. */
 export type Svarinnhold = Pick<Svar, 'spor' | 'standpunkter' | 'utregning'>;

@@ -252,7 +252,7 @@ export type Utsagn =
 /**
  * VS-U26: feltet for datoen varslingsplikten løper fra, som TE oppgir i påberopelsen: datoen
  * pålegget ble mottatt, eller datoen TE ble klar over forholdet. Kategorien avgjør hvilket
- * (`OPPGITT_DATO` i `format.ts`).
+ * (`OPPGITT_DATO` i `spor/forhold/format.ts`).
  */
 export type OppgittDatofelt = 'paalegg_mottatt' | 'klar_over_forholdet';
 

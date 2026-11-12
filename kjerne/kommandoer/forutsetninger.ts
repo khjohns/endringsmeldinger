@@ -17,9 +17,7 @@ import {
   varseletForNyttSvar,
   type Utledning,
 } from '../utledning/utled.ts';
-import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
 import { avvis, erKravpostvarselhjemmel, SPOR } from '../typer.ts';
-import { kategori } from '../format/kravinnhold.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { FORUTSETNINGER_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import type {
@@ -30,6 +28,7 @@ import type {
   Spor,
   Varselhjemmel,
 } from '../typer.ts';
+import { DATOEN_GJELDER, oppgittDato, kategori } from '../spor/forhold/format.ts';
 
 export type Handlingsnoekkel =
   | { type: 'krav' | 'trekke' | 'godta' | 'svare' | 'revidere'; spor: Spor }

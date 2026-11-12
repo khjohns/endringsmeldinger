@@ -27,7 +27,6 @@ import { FRYSING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
 import { erRegistrert } from '../format/leser.ts';
 import { HJEMMEL } from '../format/format.ts';
 import { utregningIFristen } from '../format/svarinnhold.ts';
-import { kategori } from '../format/kravinnhold.ts';
 import { utenGren } from '../typer.ts';
 import type {
   Beslutningsgrunnlag,
@@ -42,6 +41,7 @@ import type {
   Svar,
   Utfall,
 } from '../typer.ts';
+import { kategori } from '../spor/forhold/format.ts';
 
 /** To påberopelsesversjoner har samme hovedkategori og underkategori (GR-U22). */
 export function sammeKategori(a: Pick<Krav, 'innhold'>, b: Pick<Krav, 'innhold'>): boolean {

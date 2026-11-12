@@ -9,7 +9,6 @@ import { UgyldigVurdering } from '../regler/feil.ts';
 import { vedleggI, type Kommando, type Svarutkast } from '../kommandoer/kommando.ts';
 import type { Vedleggsoppslag } from '../kommandoer/skriving.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
-import { oppgittDato } from '../format/format.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { vederlagsposter } from '../spor/vederlag/frysing.ts';
 import { type Svarvurdering } from '../frosset/byggeklosser.ts';
@@ -18,6 +17,7 @@ import { hindrerSvarPaaKravet } from '../spor/vederlag/kommando.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Korrespondansetype, Krav, Part, Spor } from '../typer.ts';
 import { tilfeldigeIder, type NyId } from './testmiljoe.ts';
+import { oppgittDato } from '../spor/forhold/format.ts';
 
 export type Handling = Record<string, unknown> & { handling: string };
 

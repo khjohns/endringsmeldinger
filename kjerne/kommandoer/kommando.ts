@@ -7,7 +7,7 @@
  * skrives.
  */
 
-import { DATOEN_GJELDER, KRAVINNHOLD, oppgittDato, OPPLYSNINGSSLAG } from '../format/format.ts';
+import { KRAVINNHOLD, OPPLYSNINGSSLAG } from '../format/format.ts';
 import { KRAVFORM_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import {
@@ -35,6 +35,7 @@ import {
   KORRESPONDANSETYPER,
   type Korrespondansetype,
 } from '../typer.ts';
+import { DATOEN_GJELDER, oppgittDato } from '../spor/forhold/format.ts';
 
 export interface Svarutkast {
   spor: Spor;
