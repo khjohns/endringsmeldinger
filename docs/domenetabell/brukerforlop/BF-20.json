@@ -182,7 +182,10 @@
             "staar": "Ett svar per frist."
           },
           {
-            "trykk": "Godkjenn dagene som krevd for alle fristene"
+            "staar": "Fristen er ikke besvart ennå."
+          },
+          {
+            "velg": "Delvis"
           },
           {
             "fyll": "Godkjente dager",
@@ -193,6 +196,12 @@
           },
           {
             "trykk": "Ferdig"
+          },
+          {
+            "trykk": "Godkjenn dagene som krevd for alle fristene"
+          },
+          {
+            "staar": "godkjent som krevd"
           },
           {
             "staar": "Lagene samlet"
@@ -275,6 +284,11 @@
       "dato": "2026-11-12",
       "forhold": "#1818",
       "hva": "D-9 og D-10 viser til KA-U77 og KA-U78."
+    },
+    {
+      "dato": "2026-11-12",
+      "forhold": "#1745",
+      "hva": "Oppdragsgiver godkjente prototypen med to rettinger (U-14). Klikkstien for svaret ser at fristen ikke er besvart, og velger «Delvis» og så snarveien aktivt."
     }
   ]
 }

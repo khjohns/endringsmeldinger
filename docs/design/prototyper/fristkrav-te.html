@@ -6,7 +6,7 @@
 <title>Kravskjemaet for fristforlengelse</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!--
-  Prototype v2 (12.11) av totalentreprenørens krav om fristforlengelse i Varden, og byggherrens svar på det.
+  Prototype v3 (12.11) av totalentreprenørens krav om fristforlengelse i Varden, og byggherrens svar på det.
   Samme mønster, stilark og eksempelsak som vederlagskrav-te-v3.html (#1663). Designforslag, ikke vedtatt. Bestillingen er
   docs/domenetabell/brukerforlop/BF-20.md.
   - Kravet angir dagene per frist i kontrakten (Del II punkt E.1), ikke ett tall for saken (KA-U73, KA-U74). Fristene står
@@ -23,6 +23,7 @@
   - Tilstandene er ankrene #nytt-krav, #varsel (bare varsel etter punkt 33.4, VS-U15), #ny-versjon,
     #foresporsel (svar på byggherrens forespørsel etter punkt 33.6.2, bokstav a eller b, VS-U17),
     #brev og #svar. Svaret har lagene i rekkefølgen punkt 33.4, hindringen, punkt 33.6.1 og dagene (S-6).
+  - Versjon 3 er versjon 2, som oppdragsgiver godkjente 12.11, med de to rettingene i godkjenningen (U-14).
   Teksten er prototypetekst. Gult utenom utkastet er merker i prototypen («Åpent», setninger som ikke
   er vedtatt ordrett) og bygges ikke. «Vis sporbarhet» viser punktene i bestillingen på elementene.
 -->
@@ -510,6 +511,8 @@ select.tekstfelt{max-width:520px;appearance:auto}
 .naar .knapp{width:auto}
 .varsel .felt{align-self:stretch}
 .beloepfelt > .gjelder{margin-bottom:8px}
+.dagelag{border-top:1px solid var(--rule-subtle-color);padding-top:16px}
+.dagelag > .gjelder{margin-bottom:12px}
 /* Totalentreprenørens brev står i Source Serif 4, 16 px (system.md, «Typografi») */
 .ark{font-family:'Source Serif 4',Georgia,serif;font-size:16px;line-height:1.6;font-variant-numeric:tabular-nums}
 .ark .hjelp,.ark .liten-knapp,.ark > p.dempet:first-child{font-family:var(--font-sans);font-size:12px}
@@ -543,7 +546,7 @@ select.tekstfelt{max-width:520px;appearance:auto}
   <div class="flate">
     <div class="topplinje">
       <div class="demo-bryter">
-        <p style="margin:0"><span id="rolle">Du er totalentreprenør (TE)</span> · <span class="dempet">prototype v2, eksempeldata</span></p>
+        <p style="margin:0"><span id="rolle">Du er totalentreprenør (TE)</span> · <span class="dempet">prototype v3, eksempeldata</span></p>
         <span style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><span class="d">Vis</span>
           <span class="segment" role="group" aria-label="Tilstand">
             <button type="button" data-anker="nytt-krav" aria-pressed="true">Nytt krav</button>
@@ -698,7 +701,7 @@ select.tekstfelt{max-width:520px;appearance:auto}
             <section class="punkt nummerert" aria-labelledby="bp3" data-spor="U-12 · D-2 · D-5">
               <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="bp3">Fristforlengelse</h2><span class="hjemmel">punkt 33.5 og 33.7</span></div>
               <p class="virkning" id="varselinfo" hidden></p>
-              <p class="oppgitt">Ett svar per frist.</p>
+              <p class="oppgitt" data-spor="U-14">Ett svar per frist.</p>
               <div class="snarveier"><button class="liten-knapp" type="button" data-snarvei="krevd">Godkjenn dagene som krevd for alle fristene</button></div>
               <div id="bh-frister" class="postliste"></div>
             </section>
@@ -988,7 +991,7 @@ function brev() {
 // Lagene regnes ut av standpunktene; byggherren fyller dem ikke ut.
 const bhv = { v334: false, spes: false, hindring: false };
 let aapenSvar = 'F1';
-const bhF = f => (bh[f.id] = bh[f.id] || { dager: 'krevd', delvis: null, maatte: null });
+const bhF = f => (bh[f.id] = bh[f.id] || { dager: null, delvis: null, maatte: null });
 function lagene() {
   const k = [{ navn: 'Prinsipalt', kort: 'Prins.' }];
   const navn = () => k.length > 1 ? 'Videre subsidiært' : 'Subsidiært', kn = () => k.length > 1 ? 'V. subs.' : 'Subs.';
@@ -1002,6 +1005,7 @@ function celle(f, i, k) {
   if (iv > 0 && i < iv) return { v: 0, why: 'varselet etter punkt 33.4 kom for sent', hele: true };
   if (ih > 0 && i < ih) return { v: 0, why: 'fremdriften ble ikke hindret av forholdet', hele: true };
   if (is > 0 && i < is) return { v: b.maatte, why: b.maatte === null ? 'dagene byggherren måtte forstå, ikke oppgitt ennå' : 'det byggherren måtte forstå, fordi kravet ble spesifisert for sent (punkt 33.6.1)' };
+  if (b.dager === null) return { v: null, why: 'fristen er ikke besvart ennå' };
   if (b.dager === 'krevd') return { v: f.dager, why: 'godkjent som krevd' };
   if (b.dager === 'delvis') return { v: b.delvis, why: b.delvis === null ? 'godkjent delvis, dagene ikke oppgitt ennå' : 'godkjent delvis' };
   return { v: 0, why: 'avslått' };
@@ -1034,15 +1038,17 @@ function bhKort(f, k) {
     <span class="c-handling"><button class="lenke liten" type="button" data-bh-handling="aapne" aria-label="Endre svaret på frist ${f.frist}">Endre</button></span></div>`;
   // Subsidiært skilles med «Gjelder hvis» og én linje per innsigelse (system.md, «Retningen»).
   const gjelder = vilkaar => vilkaar.length ? `<div class="gjelder"><b>Gjelder hvis</b><ul>${vilkaar.map(v => `<li>${v}</li>`).join('')}</ul></div>` : '';
-  const vilkaar = k.filter(c => c.hvis).map(c => c.hvis);
+  // Spesifiseringen står i overskriften over «Dagene»; de andre vilkårene står i «Gjelder hvis» over den.
+  const vilkaar = k.filter(c => c.hvis && !c.s).map(c => c.hvis);
+  const dagespm = bhv.spes ? 'Dagene du godtar hvis kravet ble spesifisert i tide' : vilkaar.length ? 'Dagene du godtar' : 'Dagene';
   const maatte = bhv.spes ? `<div class="beloepfelt">${gjelder(k.filter(c => c.v || c.h).map(c => c.hvis))}<label for="bm-${id}">Dagene du måtte forstå at TE hadde krav på</label><span class="hjelp">Er kravet spesifisert for sent, har TE bare krav på det du måtte forstå (punkt 33.6.1).</span><span class="inndata" style="width:140px"><input id="bm-${id}" inputmode="numeric" data-bh-felt="maatte" value="${b.maatte ?? ''}"><span aria-hidden="true">d</span></span></div>` : '';
   return `<article class="postskjema" data-bh-id="${id}" aria-label="Frist ${f.frist}">
     <div class="hode"><b>Frist ${f.frist} · ${F.navn}</b></div>
     <p class="hjelp" style="margin-top:-10px">${krever} · gjeldende frist ${kort(dato(F.dato))}</p>
     ${maatte}
-    ${gjelder(vilkaar)}
-    <fieldset class="oppgj"><legend class="spm">Dagene</legend><div class="valg lett">${radio('bd-' + id, 'krevd', b.dager, `Som krevd, ${dg(f.dager)}`)}${radio('bd-' + id, 'delvis', b.dager, 'Delvis')}${radio('bd-' + id, 'avslaatt', b.dager, 'Avslått')}</div>
-      <div class="beloepfelt"><label for="bdv-${id}">Godkjente dager</label><span class="hjelp">Valget over følger tallet.</span><span class="inndata" style="width:140px"><input id="bdv-${id}" inputmode="numeric" data-bh-felt="godkjent" value="${b.dager === 'krevd' ? f.dager : b.dager === 'avslaatt' ? 0 : (b.delvis ?? '')}"><span aria-hidden="true">d</span></span></div></fieldset>
+    <div class="${maatte ? 'dagelag' : ''}">${gjelder(vilkaar)}
+    <fieldset class="oppgj" data-spor="U-14 · D-5"><legend class="spm">${dagespm}</legend><div class="valg lett">${radio('bd-' + id, 'krevd', b.dager, `Som krevd, ${dg(f.dager)}`)}${radio('bd-' + id, 'delvis', b.dager, 'Delvis')}${radio('bd-' + id, 'avslaatt', b.dager, 'Avslått')}</div>
+      <div class="beloepfelt"><label for="bdv-${id}">Godkjente dager</label><span class="hjelp">Valget over følger tallet.</span><span class="inndata" style="width:140px"><input id="bdv-${id}" inputmode="numeric" data-bh-felt="godkjent" value="${b.dager === 'krevd' ? f.dager : b.dager === 'avslaatt' ? 0 : (b.delvis ?? '')}"><span aria-hidden="true">d</span></span></div></fieldset></div>
     <div class="trapp"><p class="blokktittel">Slik står det i brevet</p><ol>${trapp(f, k)}</ol></div>
     <div class="fot"><span></span><button class="liten-knapp sterk" type="button" data-bh-handling="lukk">Ferdig</button></div>
   </article>`;
@@ -1081,7 +1087,7 @@ svarvisning.addEventListener('input', e => {
   if (f === 'godkjent') {
     // Tallet styrer valget: som krevd, delvis eller avslått.
     const krevd = aktive().find(x => x.id === id).dager;
-    Object.assign(bh[id], n === krevd ? { dager: 'krevd' } : n === 0 ? { dager: 'avslaatt' } : { dager: 'delvis', delvis: n });
+    Object.assign(bh[id], n === null ? { dager: bh[id].dager === 'delvis' ? 'delvis' : null, delvis: null } : n === krevd ? { dager: 'krevd' } : n === 0 ? { dager: 'avslaatt' } : { dager: 'delvis', delvis: n });
   } else bh[id][f] = n;
   const pos = t.selectionStart; tegnSvar();
   const nyt = document.querySelector(`#svarvisning [data-bh-id="${id}"] [data-bh-felt="${f}"]`); nyt.focus(); try { nyt.setSelectionRange(pos, pos); } catch {}
