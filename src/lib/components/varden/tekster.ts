@@ -13,7 +13,8 @@ import { opplistet } from '$kjerne/frosset/brevdeler';
 import { kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Betegnelse } from '$kjerne/utledning/visning';
-import type { Kravpost, Part, Spor, Standpunkt } from '$kjerne/typer';
+import type { Kravpost, Oppgjoersform, Part, Spor, Standpunkt } from '$kjerne/typer';
+import { OPPGJOERSHJEMMEL } from '$kjerne/spor/vederlag/format';
 import type { Brevet, Brevref, OppgittDato, Standpunktet } from './lesing';
 
 export const PARTNAVN: Record<Part, string> = { TE: 'totalentreprenøren', BH: 'byggherren' };
@@ -122,16 +123,17 @@ export const OPPGITT: Record<OppgittDato['hva'], string> = {
   mottatt: 'Dokumentet mottatt',
 };
 
-const METODE: Record<string, string> = {
+const METODE: Record<Oppgjoersform, string> = {
   tilbud: 'fast sum (punkt 34.2.1)',
   enhetspriser: 'enhetspriser (punkt 34.3)',
   regningsarbeid: 'regningsarbeid (punkt 34.4)',
 };
 export const metodenavn = (m: unknown) =>
-  METODE[m as string] ?? 'metoden totalentreprenøren oppgir';
+  METODE[m as Oppgjoersform] ?? 'metoden totalentreprenøren oppgir';
 
-/** Beregningsregelen TE krever, etter hjemmelen i standpunktet til oppgjørsformen. */
-const REGEL = { '34.3': 'enhetspriser', '34.4': 'regningsarbeid' } as const;
+/** Oppgjørsformen etter hjemmelen i standpunktet, som kjernen fører i `OPPGJOERSHJEMMEL`. */
+const oppgjoersformEtter = (hjemmel: string): Oppgjoersform | undefined =>
+  (Object.keys(OPPGJOERSHJEMMEL) as Oppgjoersform[]).find((f) => OPPGJOERSHJEMMEL[f] === hjemmel);
 
 /** En grunn fra svaret på grunnlaget i brevet `brev`, som utsagn fra byggherren. */
 export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: Brevref) =>
@@ -147,7 +149,7 @@ export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: Brevref) =
 function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
   switch (s.art) {
     case 'oppgjoersform': {
-      const form = metodenavn(s.hjemmel === '34.2.2' ? 'tilbud' : REGEL[s.hjemmel]);
+      const form = metodenavn(oppgjoersformEtter(s.hjemmel));
       return (
         (s.aksepterer
           ? `Godkjenner ${form}`

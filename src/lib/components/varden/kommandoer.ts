@@ -11,7 +11,7 @@ import { UgyldigBeloep } from '$kjerne/regler/beloep';
 import { UgyldigVurdering } from '$kjerne/regler/feil';
 import type { Regelsett } from '$kjerne/regler/regelsett';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
-import type { Krav, Kravpost, Spor } from '$kjerne/typer';
+import type { Krav, Kravpost, Oppgjoersform, Spor } from '$kjerne/typer';
 import { KRAVINNHOLD } from '$kjerne/format/format';
 import { oppgittDato } from '$kjerne/spor/forhold/format';
 import type { Utledning } from '$kjerne/utledning/utled';
@@ -20,8 +20,8 @@ import { kravposterI } from '$kjerne/spor/vederlag/format';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
-/** En beregningsregel for en kravpost (§ 34.3 og § 34.4). */
-export type Regel = 'enhetspriser' | 'regningsarbeid';
+/** En beregningsregel for en kravpost (§ 34.3 og § 34.4): oppgjørsformene utenom fast sum. */
+export type Regel = Exclude<Oppgjoersform, 'tilbud'>;
 
 /**
  * Standpunktet til oppgjørsformen TE krever for kravposten: `godtar` den, eller mener en annen
@@ -80,12 +80,12 @@ export const tomtSvar = (): Svarvalg => ({
 export const postvalget = (v: Svarvalg, betegnelse: string): Postvalg =>
   v.poster[betegnelse] ?? tomPost();
 
-/** Kravposten følger en beregningsregel, enhetspriser eller regningsarbeid, og har ikke et krevd beløp (KA-U66). */
-export const etterRegel = (post: Kravpost): boolean => post.oppgjoersform !== 'tilbud';
-
 /** Beregningsregelen kravposten følger, eller `null` for en kravpost med fast sum. */
 export const regelen = (post: Kravpost): Regel | null =>
   post.oppgjoersform === 'tilbud' ? null : post.oppgjoersform;
+
+/** Kravposten følger en beregningsregel, enhetspriser eller regningsarbeid, og har ikke et krevd beløp (KA-U66). */
+export const etterRegel = (post: Kravpost): boolean => regelen(post) !== null;
 
 /** Den andre beregningsregelen, som byggherren kan mene (OV-U95 punkt 1 og 5). */
 export const denAndreRegelen = (r: Regel): Regel =>

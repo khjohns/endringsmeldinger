@@ -283,8 +283,8 @@
     const tilbud = spoerOmTilbud(v, p) && v.kreverTilbud;
     const form =
       v.form === null
-        ? tilbud
-          ? SKJEMA.godkjennerIkkeRegel(regel!)
+        ? tilbud && regel
+          ? SKJEMA.godkjennerIkkeRegel(regel)
           : null
         : v.form === 'godtar'
           ? regel
