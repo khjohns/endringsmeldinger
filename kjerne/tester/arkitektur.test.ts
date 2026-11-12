@@ -424,7 +424,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Domenehendelse', 'relasjon', 'art id versjon dokument grunn'],
   ['Krav', 'relasjon', 'id spor erstatter gjelder'],
   ['Krav', 'utsagn', 'innhold'],
-  // #1707, #1711: kravinnholdet leses gjennom den typede tilgangen per spor i `format/kravinnhold.ts`.
+  // #1707, #1711: kravinnholdet leses gjennom den typede tilgangen per spor, i `format/kravinnhold.ts`
+  // eller i formatfila for sporet (#1783).
   ['Krav.innhold', 'utsagn', 'dager', ['format/kravinnhold.ts']],
   [
     'Krav.innhold',

@@ -63,8 +63,7 @@ import type {
   Kravvarselhjemmel,
   Varselhjemmel,
 } from '../typer.ts';
-import type { OppgittDato } from '../spor/forhold/format.ts';
-import { innholdIForholdet } from '../spor/forhold/format.ts';
+import { innholdIForholdet, type OppgittDato } from '../spor/forhold/format.ts';
 
 /** Brevet kan ikke sendes fra appen slik saken står, og kommandoen avvises med `regel`. */
 export class BrevetAvvises extends Error {

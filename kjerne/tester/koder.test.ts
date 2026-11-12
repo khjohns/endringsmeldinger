@@ -210,7 +210,8 @@ describe('reglene med kjernens koder', () => {
 });
 
 describe('kategorien lest av kravet (#1796)', () => {
-  // Formatet krever tekst i begge kategoriene (`KRAVINNHOLD`); tilgangen gir `null` for noe annet.
+  // Fastholder at tilgangen er vakten for typen (#1796), ikke en domeneforventning. Et lagret krav
+  // har bare kodene i formatet; dette gjelder et krav som ikke er lest mot skjemaet.
   it('gir underkategorien som tekst, og den første av en liste', () => {
     expect(innholdIForholdet({ innhold: { underkategori: 'samordning' } }).underkategori).toBe(
       'samordning'
