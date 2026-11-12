@@ -22284,7 +22284,7 @@ valgt = "B"
 svar = '''
 Oppdragsgiver 12.11, ordrett ([#1824](https://github.com/khjohns/endringsmeldinger/issues/1824#issuecomment-6833553723)): «Følger for øvrig dine anbefalinger». Det betyr B-1 B, B-2 A og B-3 A.'''
 folge = '''
-Gjelder #1824 og #1843.'''
+Gjelder #1824 og #1843. Navnene står i anførsel og ikke i backticks som i spørsmålet, fordi vakttesten avviser kodenavn i vedtaksteksten. Ordene er uendret (orkestratoren 12.11).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
@@ -22314,7 +22314,7 @@ valgt = "A"
 svar = '''
 Oppdragsgiver 12.11, ordrett ([#1824](https://github.com/khjohns/endringsmeldinger/issues/1824#issuecomment-6833553723)): «Følger for øvrig dine anbefalinger». Det betyr B-1 B, B-2 A og B-3 A.'''
 folge = '''
-Gjelder #1824 og #1843.'''
+Gjelder #1824 og #1843. Navnene står i anførsel og ikke i backticks som i spørsmålet, fordi vakttesten avviser kodenavn i vedtaksteksten. Ordene er uendret (orkestratoren 12.11).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
