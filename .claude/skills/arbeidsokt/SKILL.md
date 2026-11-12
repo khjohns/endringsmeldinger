@@ -136,9 +136,8 @@ uten at oppdraget gjentar det:
 - **Review.** Byggeøkta kjører reviewet selv, etter «Review i byggeøkta».
 - **PR-beskrivelsen er rapporten til orkestratoren:** hva som er endret,
   sjekkene som er kjørt med resultat, funn utenfor oppdraget med issuenummer,
-  samleissuet med nummer når det finnes, og «Åpne spørsmål». Den har med
-  utfallet av `/code-review`: hvilke funn som er rettet i PR-en, og hvor resten er
-  ført.
+  samleissuet med nummer når det finnes, og «Åpne spørsmål». Utfallet av reviewet står
+  i tabellen «Funn og utfall», med én rad per funn.
 - **PR mot `main`** med `Closes #n`, eller «Del av #n» når bare en del leveres.
   Økta merger ikke.
 - **Meld fra** med `send_message` til `@parent` når PR-en er grønn og

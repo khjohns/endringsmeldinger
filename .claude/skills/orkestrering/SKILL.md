@@ -173,7 +173,7 @@ tabellen gjentar dem ikke (#1338).
 
 | Oppgavetype | Kjennetegn | Skillene | Kontrollene og reviewet |
 | --- | --- | --- | --- |
-| Designsløyfe | Bestilling og prototype for et brukerforløp, etiketten `bestilling`. Rører bare `docs/` | `brukerforlop`, og `vedtak` for D- og S-punktene | «Kontrollene» i `brukerforlop`. Kan være én økt sammen med oppdragsgiver |
+| Designsløyfe | Bestilling og prototype for et brukerforløp, etiketten `bestilling`. Rører bare `docs/` | `brukerforlop`, `interface-design` med [systemfila](../../../.interface-design/system.md) før skissen, og `vedtak` for D- og S-punktene | «Kontrollene» i `brukerforlop`. Kan være én økt sammen med oppdragsgiver |
 | Vedtaks-PR | Svar fra oppdragsgiver føres som vedtak | `vedtak` | Vakttestene i vedtaksskillen. Orkestratoren fører den («Spørsmål og vedtak») |
 | Bygging i kjernen, på serveren eller i lagringen | `kjerne/`, `server/`, `sprakprove/`, migrasjonene | `leveranse` og `miljo`, og `brukerforlop` når issuet viser til en bestilling | Leveranseskillen, «Review og funn», og «Review i byggeøkta» i arbeidsøkt-skillen |
 | Bygging av visningen | `.svelte`- eller CSS-filer i `src/`, eller synlig tekst i `src/lib` | Som over, og `interface-design`, `mockup-nettleser`, `/design-deslop` og `/design-review`, i det omfanget leveranseskillen, «Review og funn», gir dem. Viser issuet til en bestilling, også `brukerforlop`, for byggeøkta, ryddeøkta og reviewøkta. Et designvalg går gjennom avvikstabellen i `brukerforlop`, steg 4, også uten bestilling | Leveranseskillen, «Review og funn». Med bestilling kjøres `/design-review` også mot den, etter «Sammenligne en bygget visning» i `brukerforlop`, i den rekkefølgen leveranseskillen gir. Avvikstabellen og skjermbildene side om side, i samme bredde, står i PR-en før den meldes klar. `/design-deslop` endrer ikke det bestillingen fastsetter, med mindre endringen føres som bevisst endring i avvikstabellen. En bevisst endring er ikke godkjent før oppdragsgiver har sagt ja (#1492) |
@@ -245,7 +245,9 @@ Gjør dette for hver PR:
 2. Funn som verken er rettet, ført eller avvist etter stoppregelen for funn i
    leveranseskillen, kontrolleres og meldes. Skal funnet rettes i PR-en etter
    stoppregelen, sendes det til økta som eier PR-en. Ellers føres det i PR-ens
-   samleissue, eller legges i issuet for samme rotårsak når det finnes. Et funn som økta har tilskrevet
+   samleissue, eller legges i issuet for samme rotårsak når det finnes. Er økta ved
+   grensen sin («Orkestratorens tid og kontekst»), fører orkestratoren funnene i
+   samleissuet selv og sender dem ikke til økta. Et funn som økta har tilskrevet
    testmiljøet, sjekkes før det avskrives.
    Legger PR-en til en serverinngang, en tabell eller en migrasjon, lar
    orkestratoren en subagent på standardmodellen kontrollere hver
