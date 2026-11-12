@@ -212,6 +212,13 @@
       "radetikett": "EO-U38: Spørsmål 1: Samlevedtaket for endringsordren, versjon 2, gjelder med E1–E9"
     },
     {
+      "id": "EO-U39",
+      "type": "vedtak",
+      "dato": "2026-11-05",
+      "ref": "../plans/vedtak.md#eo-u39",
+      "radetikett": "EO-U39: Spørsmål 1: Når byggherrens tidligere svar er en endringsordre registrert som svar"
+    },
+    {
       "id": "EO-U2",
       "type": "vedtak",
       "dato": "2026-10-08",
@@ -2147,7 +2154,8 @@
         "V-235",
         "NS-32.3-1c",
         "EO-U34",
-        "EO-U38"
+        "EO-U38",
+        "EO-U39"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -2504,6 +2512,7 @@
       "kilder": [
         "EO-U34",
         "EO-U38",
+        "EO-U39",
         "V-B02-3",
         "V-EO-KOE"
       ],
@@ -2607,6 +2616,7 @@
       "kilder": [
         "EO-U34",
         "EO-U38",
+        "EO-U39",
         "V-TFR02"
       ],
       "tolkningsstatus": "avklart_tolkning"
@@ -2648,7 +2658,8 @@
       "kilder": [
         "V-TFR02",
         "EO-U34",
-        "EO-U38"
+        "EO-U38",
+        "EO-U39"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -2662,7 +2673,8 @@
       "tidsakse": "registrering",
       "kilder": [
         "EO-U34",
-        "EO-U38"
+        "EO-U38",
+        "EO-U39"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -2676,7 +2688,8 @@
       "tidsakse": "registrering",
       "kilder": [
         "EO-U34",
-        "EO-U38"
+        "EO-U38",
+        "EO-U39"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -2690,7 +2703,8 @@
       "tidsakse": "registrering",
       "kilder": [
         "EO-U34",
-        "EO-U38"
+        "EO-U38",
+        "EO-U39"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -2705,7 +2719,8 @@
       "kilder": [
         "V-EO-KOE",
         "EO-U34",
-        "EO-U38"
+        "EO-U38",
+        "EO-U39"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -2719,7 +2734,8 @@
       "tidsakse": "registrering",
       "kilder": [
         "EO-U34",
-        "EO-U38"
+        "EO-U38",
+        "EO-U39"
       ],
       "tolkningsstatus": "arbeidshypotese"
     },

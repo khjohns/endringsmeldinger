@@ -10,6 +10,7 @@ import { getKontraktsregel, type Kontraktsregel } from '$lib/constants/kontrakts
 import { kravMotNySak, type Brev, type Saksmerking } from '$lib/kjernesak/brevtekst';
 import { PROGRAMFEIL, type Programfeil } from '$lib/kjernesak/kontekst.svelte';
 import { oppgittDato, type OppgittDato } from '$kjerne/spor/forhold/format';
+import { forholdet as kjernensForhold } from '$kjerne/spor/forhold/tekst';
 import {
   kategoriFraKatalogen,
   tilKatalogen,
@@ -61,16 +62,20 @@ export const STOERSTE_VEDLEGG = 15 * 1024 * 1024;
  */
 export type SendNySak = (nySak: NySak) => Promise<{ sakId: string }>;
 
-/** Ett forhold i velgeren, med katalogens koder kjernen oversetter (`kategoriFraKatalogen`). */
+/**
+ * Ett forhold i velgeren, med katalogens koder kjernen oversetter (`kategoriFraKatalogen`).
+ * `punkt` er hjemmelen kjernen setter i brevet (`kjerne/spor/forhold/tekst.ts`, #1533).
+ */
 export interface Forholdet {
   gruppe: string;
   kode: string;
   navn: string;
   punkt: string;
   beskrivelse: string;
+  regel: Kontraktsregel | null;
 }
 
-/** Forholdene i gruppene fra skissen (OV-U77, OV-U78), med katalogens henvisning og beskrivelse. */
+/** Forholdene i gruppene fra skissen (OV-U77, OV-U78), med katalogens beskrivelse og kontraktsregel. */
 export const FORHOLDENE: { navn: string; forhold: Forholdet[] }[] = FORHOLDSGRUPPER.map((g) => ({
   navn: g.navn,
   forhold: g.forhold.map(([kjernekode, navn]) => {
@@ -81,8 +86,9 @@ export const FORHOLDENE: { navn: string; forhold: Forholdet[] }[] = FORHOLDSGRUP
       gruppe: gruppe.kode,
       kode,
       navn,
-      punkt: hjemmel.hjemmel_basis,
+      punkt: kjernensForhold(kjernekode)!.hjemmel,
       beskrivelse: hjemmel.beskrivelse,
+      regel: getKontraktsregel(hjemmel.hjemmel_basis),
     };
   }),
 }));
@@ -141,8 +147,7 @@ export function feltene(valg: Forholdsvalg, kjerne: Kjerne): Feltene {
 }
 
 export function forholdet(valg: Forholdsvalg) {
-  const forhold = FORHOLDENE.flatMap((g) => g.forhold).find((f) => f.kode === valg.kode)!;
-  return { ...forhold, regel: getKontraktsregel(forhold.punkt) as Kontraktsregel | null };
+  return FORHOLDENE.flatMap((g) => g.forhold).find((f) => f.kode === valg.kode)!;
 }
 
 export interface Utfylling {
