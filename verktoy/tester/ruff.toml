@@ -1,0 +1,14 @@
+# Reglene testene i Python-appen hadde da vaktene ble flyttet hit (#49).
+target-version = "py311"
+line-length = 88
+
+[lint]
+select = ["E", "F", "B", "I", "UP", "SIM"]
+ignore = [
+    "E501", "B008", "SIM108", "SIM102", "SIM117", "SIM103", "SIM105", "SIM110",
+    "SIM115", "SIM116", "UP007", "B905", "B904", "B011", "UP042",
+    "E402", "F841", "B007", "B017",
+]
+
+[lint.isort]
+known-first-party = ["verktoymoduler", "test_domenetabell"]

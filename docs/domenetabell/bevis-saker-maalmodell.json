@@ -497,13 +497,13 @@
         {
           "etter": 4,
           "rolle": "mal",
-          "kilde": ["GR-U3", "GR-U28", "V-TFR01", "KA-U1", "GR-U7", "KA-U11", "MM-U34", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4", "MM-U41", "MM-U52"],
+          "kilde": ["GR-U3", "GR-U28", "V-TFR01", "KA-U1", "GR-U7", "KA-U11", "MM-U34", "OV-U7", "AV-587", "OV-U3", "OV-U5", "OV-U4", "MM-U41", "MM-U52", "VS-U48", "VS-U52"],
           "forventet": {
             "enighet.vederlag.virkning": "virksom",
             "enighet.frist.virkning": "virksom",
             "kan_inngaa_i_eo": true,
             "visning.status": "alle_krav_avgjort",
-            "handlinger.TE": ["krav:forhold", "trekke:forhold", "krav:vederlag", "trekke:vederlag", "krav:frist", "trekke:frist", "registrere_brev", "varsle:vederlag", "varsle:frist", "varsle:34.1.3", "sende_varsel:34.1.3", "innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1", "korrigere:K-g1"],
+            "handlinger.TE": ["krav:forhold", "trekke:forhold", "krav:vederlag", "trekke:vederlag", "krav:frist", "trekke:frist", "registrere_brev", "varsle:vederlag", "varsle:frist", "varsle:34.1.3", "varsle:34.3.3", "varsle:34.4", "sende_varsel:34.1.3", "sende_varsel:34.3.3", "sende_varsel:34.4", "innsigelse:S-g1", "innsigelse:S-v1", "innsigelse:S-f1", "korrigere:K-g1"],
             "handlinger.BH": ["revidere:forhold", "revidere:vederlag", "revidere:frist", "registrere_brev", "innsigelse:K-g1", "innsigelse:K-v1", "innsigelse:K-f1"],
             "kravene_avgjort": true
           }
@@ -5352,7 +5352,7 @@
         {
           "handling": "varsel",
           "spor": "frist",
-          "sendt": "2026-09-02",
+          "sendt": "2026-09-16",
           "navn": "D4"
         },
         {
@@ -5633,7 +5633,7 @@
           "prov": {
             "handling": "varsel",
             "spor": "frist",
-            "sendt": "2026-09-02"
+            "sendt": "2026-09-16"
           },
           "forventet": {
             "avvist": false
@@ -5650,7 +5650,7 @@
             "handling": "krav",
             "spor": "frist",
             "dager": 20,
-            "varsel_sendt": "2026-09-02"
+            "varsel_sendt": "2026-09-16"
           },
           "forventet": {
             "avvist": false
@@ -5696,7 +5696,7 @@
           "prov": {
             "handling": "varsel",
             "spor": "frist",
-            "sendt": "2026-09-02"
+            "sendt": "2026-09-16"
           },
           "forventet": {
             "avvist": true,
@@ -5730,7 +5730,7 @@
             "handling": "krav",
             "spor": "frist",
             "dager": 20,
-            "varsel_sendt": "2026-09-02"
+            "varsel_sendt": "2026-09-16"
           },
           "forventet": {
             "avvist": true,
@@ -5945,7 +5945,7 @@
         {
           "handling": "varsel",
           "spor": "vederlag",
-          "sendt": "2026-09-02",
+          "sendt": "2026-09-16",
           "navn": "D-v"
         }
       ],
@@ -6466,7 +6466,7 @@
           "prov": {
             "handling": "varsel",
             "spor": "frist",
-            "sendt": "2026-09-02"
+            "sendt": "2026-09-16"
           },
           "forventet": {
             "avvist": false
@@ -9188,7 +9188,6 @@
             {
               "spor": "vederlag",
               "navn": "S-v1",
-              "vurdering": "godkjent",
               "metode_akseptert": false,
               "oensket_metode": "regningsarbeid"
             }
@@ -9218,7 +9217,6 @@
               },
               {
                 "spor": "vederlag",
-                "vurdering": "godkjent",
                 "metode_akseptert": false
               }
             ]
@@ -9238,9 +9236,9 @@
           ],
           "forventet": {
             "avvist": false,
-            "standpunkt.S-v1.metode.hjemmel": "34.2.2",
-            "standpunkt.S-v1.metode.aksepterer": false,
-            "standpunkt.S-v1.metode.oensket": "regningsarbeid"
+            "standpunkt.S-v1.oppgjoersform.hjemmel": "34.2.2",
+            "standpunkt.S-v1.oppgjoersform.aksepterer": false,
+            "standpunkt.S-v1.oppgjoersform.oensket": "regningsarbeid"
           }
         },
         {
@@ -9248,9 +9246,11 @@
           "rolle": "mal",
           "kilde": [
             "AV-479",
-            "GR-U7"
+            "GR-U7",
+            "KA-U72"
           ],
           "forventet": {
+            "virkning.S-v1.oppgjoersform": 1,
             "virkning.S-v1.beloep": 1,
             "beslutningsgrunnlag.S-v1.sammenfall": false,
             "enighet.vederlag": null
@@ -9262,11 +9262,13 @@
           "kilde": [
             "AV-479",
             "KA-U10",
-            "MM-U50"
+            "MM-U50",
+            "KA-U72",
+            "OV-U73"
           ],
           "forventet": {
             "avvist": false,
-            "enighet.vederlag.utfall.beloep": 100000
+            "enighet.vederlag.utfall.beloep": 0
           }
         }
       ],
@@ -9335,8 +9337,8 @@
           ],
           "forventet": {
             "avvist": false,
-            "standpunkt.S-v1.metode.aksepterer": true,
-            "virkning.S-v1.metode": 1,
+            "standpunkt.S-v1.oppgjoersform.aksepterer": true,
+            "virkning.S-v1.oppgjoersform": 1,
             "beslutningsgrunnlag.S-v1.sammenfall": true,
             "enighet.vederlag.utfall.beloep": 100000
           }
@@ -9704,7 +9706,6 @@
             {
               "spor": "vederlag",
               "navn": "S-v1",
-              "vurdering": "godkjent",
               "varslet_i_tide": false,
               "metode_akseptert": false,
               "oensket_metode": "enhetspriser"
@@ -9724,14 +9725,16 @@
           "kilde": [
             "VS-U3",
             "V-B13",
-            "AV-479"
+            "AV-479",
+            "KA-U60",
+            "KA-U72"
           ],
           "forventet": {
             "avvist": false,
             "virkning.S-v1.rettidighet": 1,
+            "virkning.S-v1.oppgjoersform": 2,
             "virkning.S-v1.beloep": 2,
-            "standpunkt.S-v1.beloep.godkjent": 100000,
-            "standpunkt.S-v1.metode.aksepterer": false,
+            "standpunkt.S-v1.oppgjoersform.aksepterer": false,
             "beslutningsgrunnlag.S-v1.sammenfall": false
           }
         },
@@ -10118,8 +10121,6 @@
           "prov": {
             "handling": "revisjon",
             "spor": "vederlag",
-            "vurdering": "delvis",
-            "godkjent_belop": 80000,
             "metode_akseptert": false,
             "oensket_metode": "enhetspriser"
           },
@@ -10162,8 +10163,6 @@
           "prov": {
             "handling": "revisjon",
             "spor": "vederlag",
-            "vurdering": "delvis",
-            "godkjent_belop": 60000,
             "metode_akseptert": false,
             "oensket_metode": "enhetspriser"
           },
@@ -12362,7 +12361,7 @@
         {
           "etter": 2,
           "rolle": "mal",
-          "kilde": ["MM-U41", "MM-U52", "LV-U54"],
+          "kilde": ["MM-U41", "MM-U52"],
           "prov": { "handling": "krav", "spor": "forhold", "underkategori": "irregulaer_endring" },
           "forventet": { "avvist": true, "regel": "DATOEN_KAN_IKKE_ENDRES" }
         },
@@ -12402,10 +12401,271 @@
         }
       ],
       "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-KA-U56",
+      "forslag": "KA-U56: en ny kravversjon tar med eller trekker hver kravpost i forrige versjon",
+      "rader": ["KA-55"],
+      "start": "krav_irreg",
+      "steg": [],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": ["KA-U56"],
+          "prov": { "handling": "krav", "spor": "vederlag", "kravposter": [{ "oppgjoersform": "regningsarbeid" }] },
+          "forventet": { "avvist": true, "regel": "KRAVPOSTENE" }
+        },
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": ["KA-U56"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "post": "P1", "belop": 120000 }, { "oppgjoersform": "regningsarbeid" }]
+          },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": ["KA-U56"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "oppgjoersform": "regningsarbeid" }],
+            "trekker": ["P1"]
+          },
+          "forventet": { "avvist": false }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-VS-U50",
+      "forslag": "VS-U50, VS-U54: kravposten viser til et varsel etter samme bestemmelse i saken",
+      "rader": ["VS-08"],
+      "start": "krav_irreg",
+      "steg": [{ "handling": "varsel", "spor": "vederlag", "hjemmel": "34.4", "navn": "V1" }],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["VS-U50"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [
+              { "post": "P1", "belop": 100000 },
+              { "oppgjoersform": "enhetspriser", "justert": true, "varsel": "V1" }
+            ]
+          },
+          "forventet": { "avvist": true, "regel": "KRAVPOSTVARSELET" }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["VS-U49", "VS-U50"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "post": "P1", "belop": 100000, "varsel": "V1" }]
+          },
+          "forventet": { "avvist": true, "regel": "KRAVPOSTVARSELET" }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": ["VS-U50", "VS-U54"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [
+              { "post": "P1", "belop": 100000 },
+              { "oppgjoersform": "regningsarbeid", "varsel": "V1" }
+            ]
+          },
+          "forventet": { "avvist": false }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-VS-U51",
+      "forslag": "VS-U51, VS-U53: dokumentet fra kravskjemaet står som eget registrert varsel før kravet",
+      "rader": ["VS-09"],
+      "start": "krav_irreg",
+      "steg": [],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": ["VS-U50"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "post": "P1", "belop": 100000, "varsel": { "sendt": "2026-09-10" } }]
+          },
+          "forventet": { "avvist": true, "regel": "KRAVPOSTVARSELET" }
+        },
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": ["VS-U51", "VS-U54"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [
+              { "post": "P1", "belop": 100000 },
+              { "oppgjoersform": "regningsarbeid", "varsel": { "sendt": "2026-09-10" } }
+            ]
+          },
+          "forventet": { "avvist": false }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-KA-U75",
+      "forslag": "KA-U75: en trukket kravpost kan tas med igjen i en senere kravversjon",
+      "rader": ["KA-55"],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "kravposter": [{ "oppgjoersform": "regningsarbeid" }],
+          "trekker": ["P1"],
+          "navn": "K-v2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["KA-U75"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "post": "P2", "oppgjoersform": "regningsarbeid" }, { "post": "P1", "belop": 1000 }]
+          },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": ["KA-U56"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "post": "P1", "belop": 1000 }]
+          },
+          "forventet": { "avvist": true, "regel": "KRAVPOSTENE" }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-KA-U59",
+      "forslag": "KA-U59: byggherren svarer per kravpost, så ett beløp på et krav med flere kravposter avvises, og et svar på hver kravpost godtas",
+      "rader": ["KA-56"],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "kravposter": [{ "post": "P1", "belop": 100000 }, { "belop": 5000 }],
+          "navn": "K-v2"
+        },
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "kravposter": [{ "post": "P1", "belop": 100000 }, { "post": "P2", "oppgjoersform": "regningsarbeid" }],
+          "navn": "K-v3"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": ["KA-U59"],
+          "prov": {
+            "handling": "brev",
+            "svar": [{ "spor": "vederlag", "vurdering": "delvis", "godkjent_belop": 60000 }]
+          },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["KA-U59"],
+          "prov": {
+            "handling": "brev",
+            "svar": [{ "spor": "vederlag", "vurdering": "delvis", "godkjent_belop": 60000 }]
+          },
+          "forventet": { "avvist": true, "regel": "UGYLDIG_VURDERING" }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": ["KA-U59"],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "kravposter": [
+                  { "post": "P1", "vurdering": "delvis", "godkjent_belop": 60000 },
+                  { "post": "P2", "vurdering": "godkjent" }
+                ]
+              }
+            ]
+          },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["KA-U59"],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "kravposter": [
+                  { "post": "P1", "vurdering": "godkjent" },
+                  { "post": "P2", "vurdering": "godkjent" }
+                ]
+              }
+            ]
+          },
+          "forventet": { "avvist": true, "regel": "UGYLDIG_VURDERING" }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": ["KA-U59", "OV-U95"],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "kravposter": [
+                  { "post": "P1", "vurdering": "godkjent" },
+                  { "post": "P2", "metode_akseptert": true }
+                ]
+              }
+            ]
+          },
+          "forventet": { "avvist": false }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
     }
   ],
   "genererte": {
-    "omfang": "Genererte forløp for målmodellen. Samme LCG som sprakprove/genererte-forlop.json, x = (1103515245·x + 12345) mod 2^31, og handling nummer (x >> 16) mod antall handlinger, uansett tilstand. En handling som ikke passer, skal avvises uten at journalen endres. Regelendringen bytter regelsettet til n+1 for resten av forløpet.",
+    "omfang": "Genererte forløp for målmodellen. LCG-en er x = (1103515245·x + 12345) mod 2^31, og handling nummer (x >> 16) mod antall handlinger, uansett tilstand. En handling som ikke passer, skal avvises uten at journalen endres. Regelendringen bytter regelsettet til n+1 for resten av forløpet.",
     "seed": 304,
     "antall": 200,
     "lengde": 10,

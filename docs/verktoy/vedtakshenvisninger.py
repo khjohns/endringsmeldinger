@@ -27,7 +27,7 @@ historisk gjelder ikke der, og `endringer` i et brukerforløp leses ikke, fordi 
 fører hva som er endret og hvorfor.
 
 Dokumentene er bestillingene for brukerforløpene (`BF-*.md`), `.interface-design/system.md`,
-skillene og `AGENTS.md`, der designet fra registeret flyttes (svar 5 04.11 i #1534). Der er
+skillene og `CLAUDE.md`, der designet fra registeret flyttes (svar 5 04.11 i #1534). Der er
 henvisningen et avsnitt, et punkt i en liste, en tabellrad eller en overskrift, og ID-ene
 kontrolleres som i koden, uten unntaket for en test merket historisk. Unntaket er
 spørsmålsfilene i `HISTORISKE_DOKUMENTER`, som fører spørsmålene ordrett slik de ble stilt: der
@@ -35,7 +35,9 @@ kan en opphevet ID stå uten posten som opphever den, som i en test merket histo
 vedtaks-PR-en for samlevedtaket for endringsordren, #1534).
 
 En post med klassen design er ikke eneste grunnlag i `kjerne/frosset/`, `kjerne/kommandoer/`
-og `kjerne/regler/`, og heller ikke i `kilde` og `kilder` i bevis-sakene. Samme henvisning
+og `kjerne/regler/`, i rollefilene i et spor som hører til dem (`frysing.ts`, `tekst.ts` og
+`kommando.ts` i `kjerne/spor/<spor>/`, #1783), og heller ikke i `kilde` og `kilder` i
+bevis-sakene. Samme henvisning
 må vise til vedtaket med den bindende setningen, og feilmeldingen foreslår vedtakene i
 `bindende_i` (arbeidsvalget for kontroll 2 04.11 i #1534).
 """
@@ -58,7 +60,7 @@ DOKUMENTER = (
     "docs/domenetabell/brukerforlop/BF-*.md",
     ".interface-design/system.md",
     ".claude/skills/**/*.md",
-    "AGENTS.md",
+    "CLAUDE.md",
 )
 HISTORISKE_DOKUMENTER = frozenset(
     {
@@ -67,6 +69,8 @@ HISTORISKE_DOKUMENTER = frozenset(
     }
 )
 GRUNNLAGSMAPPER = ("kjerne/frosset/", "kjerne/kommandoer/", "kjerne/regler/")
+# Rollefilene i et spor som hører til GRUNNLAGSMAPPER (#1783).
+GRUNNLAG_I_SPORET = re.compile(r"kjerne/spor/[^/]+/(?:frysing|tekst|kommando)\.ts")
 BEVIS_SAKER = "docs/domenetabell/bevis-saker*.json"
 KILDEFELT = ("kilde", "kilder")
 HOPP_OVER = {"node_modules", ".svelte-kit", "dist", "build"}
@@ -90,7 +94,8 @@ AVVIKSISSUE = re.compile(r"#\d+(?:, steg \d+)?")
 # henvisningene om. Lista skal bare krympe.
 KJENTE_AVVIK = (
     ("kjerne/kommandoer/nyttelast.ts", "KA-U24", 1, "#1433"),
-    ("kjerne/kommandoer/nyttelast.ts", "KA-U32", 2, "#1433"),
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U32", 1, "#1433"),
+    ("kjerne/spor/forhold/kommando.ts", "KA-U32", 1, "#1433"),
     ("kjerne/tester/arkitektur.test.ts", "KA-U24", 1, "#1433"),
     ("kjerne/tester/arkitektur.test.ts", "KA-U32", 1, "#1433"),
     ("kjerne/tester/brevtekst.test.ts", "KA-U24", 3, "#1433"),
@@ -113,26 +118,16 @@ KJENTE_AVVIK = (
     ("server/saksliste.ts", "MM-U29", 2, "#1545"),
     ("server/tester/sakslinje.test.ts", "MM-U28", 2, "#1545"),
     ("server/tester/sakslinje.test.ts", "MM-U29", 2, "#1545"),
-    ("src/lib/components/case-list/__tests__/CaseListRow.test.ts", "MM-U28", 2, "#1545"),
-    ("src/lib/components/case-list/presentation.ts", "MM-U28", 1, "#1545"),
-    ("src/lib/components/saksoversikt/__tests__/ProjectOverview.test.ts", "MM-U29", 1, "#1545"),
-    ("src/lib/components/saksoversikt/__tests__/ProjectOverview.test.ts", "OV-U61", 3, "#1450"),
-    ("src/lib/components/saksoversikt/__tests__/WorkQueue.test.ts", "MM-U29", 3, "#1545"),
-    ("src/lib/components/saksoversikt/foreligger.ts", "MM-U29", 1, "#1545"),
-    ("src/lib/mocks/projectOverview.ts", "MM-U28", 1, "#1545"),
-    ("src/lib/mocks/projectOverview.ts", "MM-U29", 1, "#1545"),
     ("kjerne/kommandoer/forutsetninger.ts", "OV-U8", 1, "#1576"),
     ("kjerne/tester/feilinnfoering.ts", "OV-U8", 1, "#1576"),
-    ("src/lib/components/kjernesak/__tests__/TeSkjema.test.ts", "OV-U8", 1, "#1576"),
-    ("src/lib/components/kontraktsbord/TeVederlagForm.svelte", "OV-U8", 1, "#1576"),
 )
 # En post med klassen design som eneste grunnlag i kjernen eller i en bevis-sak, i samme form
 # som KJENTE_AVVIK. Henvisningene skrives om når designet flyttes i steg 4. Lista skal bare
 # krympe.
 KJENTE_DESIGNAVVIK = (
     ("docs/domenetabell/bevis-saker-maalmodell.json", "MM-U22", 2, "#1534, steg 4"),
-    ("kjerne/frosset/forholdene.ts", "OV-U77", 1, "#1534, steg 4"),
-    ("kjerne/frosset/forholdene.ts", "OV-U78", 1, "#1534, steg 4"),
+    ("kjerne/spor/forhold/tekst.ts", "OV-U77", 1, "#1534, steg 4"),
+    ("kjerne/spor/forhold/tekst.ts", "OV-U78", 1, "#1534, steg 4"),
 )
 
 
@@ -276,7 +271,7 @@ def er_dokument(sti: str) -> bool:
 
 
 def i_grunnlagsmappe(sti: str) -> bool:
-    return sti.startswith(GRUNNLAGSMAPPER)
+    return sti.startswith(GRUNNLAGSMAPPER) or GRUNNLAG_I_SPORET.fullmatch(sti) is not None
 
 
 def er_test(sti: str) -> bool:
@@ -301,7 +296,8 @@ def feil_i(
     """`opphevet` er de opphevede ID-ene med ID-ene til postene som opphever dem. `avvik` er
     parene (fil, ID) i `KJENTE_AVVIK`, og `designavvik` dem i
     `KJENTE_DESIGNAVVIK`; hvert treff telles i `truffet` og `designtruffet`. `design_` er
-    ID-ene til designpostene med vedtakene i `bindende_i`, og leses bare i GRUNNLAGSMAPPER."""
+    ID-ene til designpostene med vedtakene i `bindende_i`, og leses bare der `i_grunnlagsmappe`
+    gjelder."""
     feil = []
     deler = avsnitt(tekst) if er_dokument(sti) else henvisninger(tekst)
     for nr, henvisning in deler:

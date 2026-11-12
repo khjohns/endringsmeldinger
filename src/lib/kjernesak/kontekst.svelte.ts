@@ -19,12 +19,18 @@ import {
   type LastetKjernesak,
 } from '$lib/api/kjerne';
 import { utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
-import { handlinger } from '$kjerne/kommandoer/handlinger';
+import { tilbudte } from '$kjerne/kommandoer/handlinger';
 import { lagForUtkastet } from '$kjerne/kommandoer/lag';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import { visning } from '$kjerne/utledning/visning';
 import { KJERNE, type Kjerne } from '$kjerne/versjon';
 import type { Part } from '$kjerne/typer';
+
+/** Sporet kjernen gir hvert element i saken, for brevene i Varden (#1663). */
+export { elementenesSpor } from '$kjerne/kommandoer/handlinger';
+
+/** Det som hindrer byggherrens svar på kravet i dag (KA-U59), for vederlagssvaret i Varden. */
+export { hindrerSvarPaaKravet } from '$kjerne/spor/vederlag/kommando';
 
 /**
  * En kommando som fikk et usikkert utfall. Den kan være lagret, så et nytt forsøk
@@ -147,10 +153,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   const journal = $derived(sak ? somJournal(sakId, sak.journal) : []);
   const utledning = $derived(sak ? utledJournal(journal, kjerne) : null);
   const vist = $derived(utledning ? visning(utledning, kjerne.regler) : null);
-  const tilbudt = $derived(utledning && part ? handlinger(utledning, part) : []);
-  const bilde = $derived(
-    sak && utledning && vist ? lagSaksbilde(journal, sak.leveringsoppdrag, utledning, vist) : null
-  );
+  const tilbudt = $derived(utledning && part ? tilbudte(utledning, part) : []);
+  const noeklene = $derived(tilbudt.map((h) => h.noekkel));
+  const bilde = $derived(sak && vist ? lagSaksbilde(journal, vist) : null);
 
   let lastinger = 0;
   let gjeldende: Promise<boolean> = Promise.resolve(false);
@@ -223,10 +228,10 @@ export function lagKjernesak(valg: Kjernesakvalg) {
    * Saken med raden kommandoen ville gitt, som `utledetMed`. `null` før saken er lastet,
    * uten side, når kjernen avviser kommandoen og ved en programfeil i kjernen.
    */
-  function forhaandsvist(kommando: Record<string, unknown>) {
+  function forhaandsvist(kommando: Record<string, unknown>, vedlegg?: Vedleggsoppslag) {
     if (!sak?.merking || !part) return null;
     try {
-      return utledetMed(kommando, sakId, part, sak.merking, journal, kjerne);
+      return utledetMed(kommando, sakId, part, sak.merking, journal, kjerne, vedlegg);
     } catch (e) {
       console.error(e);
       return null;
@@ -268,7 +273,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       }
       tekst = vurdert.tekst;
     }
-    const innhold = tekst ? { ...kommando, brevtekst: tekst } : kommando;
+    // Kommandoen kan komme fra tilstanden i et skjema; det som sendes, er verdiene, ikke proxyene.
+    const ren = $state.snapshot(kommando) as Record<string, unknown>;
+    const innhold = tekst ? { ...ren, brevtekst: tekst } : ren;
     const igjen =
       ventende?.versjon === sak.versjon &&
       JSON.stringify(ventende.kommando) === JSON.stringify(innhold);
@@ -345,6 +352,10 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       return vist;
     },
     get handlinger() {
+      return noeklene;
+    },
+    /** Handlingene med sporet og det hver gjelder, så visningen ikke deler nøkkelen (#1703). */
+    get tilbudte() {
       return tilbudt;
     },
     /** Regelversjonen brevet forhåndsvises med, som aksepten bærer (KA-U10, MM-U50). */

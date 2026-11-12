@@ -1,6 +1,6 @@
 <!-- Bruk også malen ved opprettelse via CLI/API. Slett irrelevante punkter;
 rene dokumentendringer trenger ikke kode-, migrerings- eller byggbevis.
-Instruksjonene står i AGENTS.md og .claude/skills/leveranse/SKILL.md. -->
+Instruksjonene står i CLAUDE.md og .claude/skills/leveranse/SKILL.md. -->
 
 ## Endring
 
@@ -30,7 +30,8 @@ kjørekommando og verifikasjon/CI. Engangsverktøy: sletting eller historisk bev
 ## Verifikasjon og grenser
 
 <!-- Kontrollert commit/diff, faktisk kjørte kommandoer og resultater; også bygg
-når relevant. Review: kontrollert diff, resultat og håndtering av funn.
+når relevant. Review: kontrollert diff og resultat, og hvert funn med utfallet sitt etter
+stoppregelen for funn i leveranseskillen.
 Kritiske regelendringer: representative feilinnføringer, målassertion, kjøring
 etter at mutasjonene er fjernet og vurdering av eventuelle overlevende mutasjoner.
 Skill historiske resultater fra egne kjøringer. Oppgi uprøvde innganger,
@@ -48,5 +49,5 @@ bare for å fylle dette punktet. -->
 
 ## Åpne spørsmål
 
-<!-- Uløste beslutninger, avviste reviewfunn etter stoppregelen for funn i `AGENTS.md`
+<!-- Uløste beslutninger, avviste reviewfunn etter stoppregelen for funn i leveranseskillen
 og koblede oppfølgingsissues. Slett seksjonen hvis det ikke er noen. -->

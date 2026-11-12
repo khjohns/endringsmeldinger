@@ -8,11 +8,13 @@ klassen sier om posten er et vedtak, en beslutning eller design (se
 [Klassen](#klassen)). For hver ny post holder registeret spørsmålet, alternativene
 og oppdragsgivers svar ordrett, og raden i vedtaksfila lages av dem uten omskriving. Verktøyet er [`docs/verktoy/vedtaksregister.py`](../verktoy/vedtaksregister.py),
 og vakttestene står i
-[`backend/tests/test_vedtaksregister/`](../../backend/tests/test_vedtaksregister/test_vedtaksregister.py).
+[`verktoy/tester/test_vedtaksregister/`](../../verktoy/tester/test_vedtaksregister/test_vedtaksregister.py).
 
 ```bash
 python3 docs/verktoy/vedtaksregister.py           # kontroller registeret og skriv vedtaksfila
 python3 docs/verktoy/vedtaksregister.py --sjekk   # bare kontroller
+python3 docs/verktoy/vedtaksregister.py --vis KA-U1 MM-U34   # radene ordrett, slik vedtaksfila har dem
+python3 docs/verktoy/vedtaksregister.py --kjede KA-U1        # forholdene, fram til vedtakene som gjelder nå
 python3 docs/verktoy/vedtakshenvisninger.py       # vedtaks-ID-ene i koden, domenetabellen og dokumentene (#452)
 python3 docs/verktoy/byggestatus.py               # byggestatusen, laget av koden og issuene (#1021)
 ```
@@ -208,7 +210,7 @@ Byggestatusen lages av koden og issuene, ikke for hånd (oppdragsgivers svar 20.
 på spørsmål 4 i [vurderingen](../vedlegg/vurdering-maalbilde-2026-10-20/sporsmal.md),
 #1021). Verktøyet er [`docs/verktoy/byggestatus.py`](../verktoy/byggestatus.py), og
 testene står i
-[`test_byggestatus.py`](../../backend/tests/test_vedtaksregister/test_byggestatus.py).
+[`test_byggestatus.py`](../../verktoy/tester/test_vedtaksregister/test_byggestatus.py).
 
 ```bash
 python3 docs/verktoy/byggestatus.py                # alle vedtakene med ID
@@ -249,7 +251,7 @@ og visningen sier det.
 Temaene står i [`temaer.toml`](temaer.toml), og visningene i [`temaer/`](temaer/).
 Verktøyet er [`docs/verktoy/temavisning.py`](../verktoy/temavisning.py), og
 vakttesten står i
-[`test_temavisning.py`](../../backend/tests/test_vedtaksregister/test_temavisning.py).
+[`test_temavisning.py`](../../verktoy/tester/test_vedtaksregister/test_temavisning.py).
 Testen feiler når en innsjekket visning avviker fra det verktøyet lager. Endres en
 post, en regelrad eller en bevis-sak som visningen bruker, må visningen derfor lages
 på nytt i samme PR.
@@ -292,8 +294,8 @@ python3 docs/verktoy/temavisning.py --sjekk   # bare kontroller
 | Svaret nevner det valgte alternativet og ikke noe annet alternativ ved navn. En omtale av et forkastet alternativ regnes ikke som et valg. Det gjør heller ikke en omtale med et spørsmålsnummer foran, som «2b-A», når nummeret ikke også står foran det valgte alternativet | nye poster |
 | Hvert sitat står ordrett i posten og i kilden, med mellomrom normalisert, og er hele setninger der: det begynner ved setningsstart, «, kolon, semikolon eller cellegrense og slutter ved punktum, » eller cellegrense. Fet skrift og et anker foran hoppes over, og en overskrift, et avsnitt og et punkt er grenser. `utdrag = true` slipper et utdrag gjennom uttrykkelig. Kilden er NS 8407 eller fila slik den er på `main`, så et sitat kan ikke få kilden sin i samme PR | nye poster til de er merget; raden til posten selv teller ikke som kilde i hovedplanen. Etter merge kan kilden endres, og sitatet prøves ikke igjen |
 | Følge får ikke ny byggestatus for hånd: «Ikke bygget», «Delvis bygget», «Del n bygget» eller «Bygget», med stor forbokstav, utover det som står på `main` | alle poster (#1021) |
-| En vedtaks-ID i koden er et vedtak i registeret eller en åpen B-ID i 3.4, og en opphevet ID står ikke som eneste grunnlag uten å være merket historisk i en test. Formene og hva en henvisning er, står i [`vedtakshenvisninger.py`](../verktoy/vedtakshenvisninger.py) | `kjerne/`, `server/` og `src/` (#452), listene under `kilde` og `kilder` i JSON-filene i `docs/domenetabell/`, bestillingene `BF-*.md`, `.interface-design/system.md`, skillene og `AGENTS.md`, de fire siste uten unntaket for en test merket historisk. Spørsmålsfilene i `HISTORISKE_DOKUMENTER` har samme unntak som en test merket historisk |
-| En designpost er ikke eneste grunnlag; feilmeldingen foreslår vedtakene i `bindende_i`. Dagens tilfeller står i `KJENTE_DESIGNAVVIK` | `kjerne/frosset/`, `kjerne/kommandoer/`, `kjerne/regler/` og `kilde` i bevis-sakene (steg 3b i #1534) |
+| En vedtaks-ID i koden er et vedtak i registeret eller en åpen B-ID i 3.4, og en opphevet ID står ikke som eneste grunnlag uten å være merket historisk i en test. Formene og hva en henvisning er, står i [`vedtakshenvisninger.py`](../verktoy/vedtakshenvisninger.py) | `kjerne/`, `server/` og `src/` (#452), listene under `kilde` og `kilder` i JSON-filene i `docs/domenetabell/`, bestillingene `BF-*.md`, `.interface-design/system.md`, skillene og `CLAUDE.md`, de fire siste uten unntaket for en test merket historisk. Spørsmålsfilene i `HISTORISKE_DOKUMENTER` har samme unntak som en test merket historisk |
+| En designpost er ikke eneste grunnlag; feilmeldingen foreslår vedtakene i `bindende_i`. Dagens tilfeller står i `KJENTE_DESIGNAVVIK` | `kjerne/frosset/`, `kjerne/kommandoer/`, `kjerne/regler/`, rollefilene i et spor som hører til dem (#1783), og `kilde` i bevis-sakene (steg 3b i #1534) |
 
 De importerte postene har kodenavn i dag og skrives ikke om. Testen skiller dem
 på formen: en post med `vedtatt` er importert, og en ny post har `dato`. En

@@ -38,6 +38,10 @@
   // svelte-ignore state_referenced_locally
   let svarer = $state(svar);
 
+  // Skjemaene showcasen åpner, som i `Vardensak.svelte`.
+  const skjemaene: Record<string, () => void> = { 'svare:vederlag': () => (svarer = true) };
+  const skjemanoeklene = Object.keys(skjemaene);
+
   const u = $derived(kjernesak.utledning);
   const brev = $derived(u ? brevene(u) : []);
 </script>
@@ -54,7 +58,7 @@
       sendt = true;
     }}
   />
-{:else if svarer && !sendt && kjernesak.handlinger.includes(`svare:${spor}`)}
+{:else if svarer && !sendt && spor === 'vederlag' && kjernesak.handlinger.includes('svare:vederlag')}
   <Vederlagssvar
     {kjernesak}
     {u}
@@ -79,16 +83,17 @@
     {kjernesak}
     {u}
     {spor}
+    skjemaene={spor === 'vederlag' ? skjemanoeklene : []}
     onvelg={(n) => {
-      if (n === `svare:${spor}`) svarer = true;
+      if (Object.hasOwn(skjemaene, n)) skjemaene[n]();
     }}
-    onakseptbrev={({ kommando, tekst, merking, deresRef, tittel }) => {
+    onakseptbrev={({ kommando, tekst, virkninger, merking, deresRef, tittel }) => {
       const svaret = brev.find((b) => b.id === u.spor[spor].gjeldendeSvar?.dokument);
       kontroll = {
         kommando,
         tekst,
         detteSender: svaret ? [{ tekst: STILLING.godtarBrev(svaret), lag: null }] : [],
-        virkninger: [],
+        virkninger,
         merking,
         deresRef,
         tittel,

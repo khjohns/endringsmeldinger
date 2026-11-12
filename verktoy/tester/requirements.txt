@@ -1,0 +1,4 @@
+# Vaktene i verktoy/tester/ (#49).
+pytest>=7.0.0
+openpyxl>=3.1.0                   # Tabellbeskrivelsen i Excel (docs/verktoy/datamodell.py)
+ruff==0.16.8                      # Pinnet: gater i CI

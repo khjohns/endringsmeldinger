@@ -24,16 +24,42 @@ export type Korrespondansetype = (typeof KORRESPONDANSETYPER)[number];
 export const SPOR: readonly Spor[] = ['forhold', 'vederlag', 'frist'];
 export const KRAVSPOR = ['vederlag', 'frist'] as const;
 export type Kravspor = (typeof KRAVSPOR)[number];
+/**
+ * Siste gren der hvert spor, hver standpunktsart eller hver oppgjørsform har sin egen gren.
+ * Argumentet har typen `never`, så en verdi ingen gren har tatt stilling til, gir en typefeil (#1781).
+ */
+export function utenGren(verdi: never): never {
+  throw new Error(`Kjernen har ingen gren for ${JSON.stringify(verdi)}`);
+}
 
-export type Hjemmel = '32.2' | '33.4' | '33.6.2' | '34.1.2' | '34.1.3';
+/**
+ * Hjemlene byggherren kan påberope i et standpunkt om rettidighet. Etter § 34.3.3 og § 34.4
+ * gjelder standpunktet en kravpost (KA-U64, VS-U56).
+ */
+export type Hjemmel = '32.2' | '33.4' | '33.6.2' | '34.1.2' | '34.1.3' | Kravpostvarselhjemmel;
 
 /**
  * TEs eget varsel: om fristforlengelse etter § 33.4, om vederlagsjustering etter § 34.1.2
  * (OV-U5), og det særskilte varselet etter § 34.1.3 tredje ledd for kravet etter annet ledd,
  * som etter OV-U25 er det eneste særskilte varselet. Varselet etter § 32.2 i forholdet er
  * påberopelsen, eller et varsel sendt utenfor løsningen og registrert (VS-U34, VS-U38).
+ * Varslene etter § 34.3.3 første ledd og § 34.4 gjelder kravpostene (`Kravpostvarselhjemmel`).
  */
-export type Varselhjemmel = '32.2' | '33.4' | '34.1.2' | '34.1.3';
+export type Varselhjemmel = '32.2' | '33.4' | '34.1.2' | '34.1.3' | Kravpostvarselhjemmel;
+/**
+ * VS-U48, VS-U52: varselet om justering av enhetsprisene etter § 34.3.3 første ledd og varselet
+ * før regningsarbeid etter § 34.4. Saken kan ha flere av dem, og løsningen ser ikke hvilket
+ * arbeid de gjelder (arbeidsvalget i D-16 i BF-14).
+ */
+export type Kravpostvarselhjemmel = '34.3.3' | '34.4';
+/**
+ * Varselet etter § 34.3.3 eller § 34.4 for en kravpost i en ny kravversjon: kravet er varselet
+ * (`kravet`), eller varselet ble gitt før kravet (`varsel` er utsagnet). Utledes i
+ * `spor/vederlag/utledning.ts` (VS-U49, VS-U50, VS-U55).
+ */
+export type Kravpostvarselet = { art: 'kravet' } | { art: 'gitt'; varsel: string };
+export const erKravpostvarselhjemmel = (hjemmel: Hjemmel): hjemmel is Kravpostvarselhjemmel =>
+  hjemmel === '34.3.3' || hjemmel === '34.4';
 /** Varslene TE kan sende fra løsningen. Fra løsningen er påberopelsen varselet etter § 32.2 (GR-U31). */
 export type Kravvarselhjemmel = Exclude<Varselhjemmel, '32.2'>;
 export const VARSELSPOR = {
@@ -41,8 +67,10 @@ export const VARSELSPOR = {
   '33.4': 'frist',
   '34.1.2': 'vederlag',
   '34.1.3': 'vederlag',
+  '34.3.3': 'vederlag',
+  '34.4': 'vederlag',
 } as const satisfies Record<Varselhjemmel, Spor>;
-export const erVarselhjemmel = (hjemmel: Hjemmel): hjemmel is Varselhjemmel =>
+export const erVarselhjemmel = (hjemmel: Hjemmel | Varselhjemmel): hjemmel is Varselhjemmel =>
   hjemmel in VARSELSPOR;
 
 /**
@@ -85,8 +113,10 @@ export type Opplysning =
 /**
  * Byggherrens standpunkter i ett svar. Standpunktene gjelder kravet svaret
  * gjelder, unntatt rettidigheten, som `gjelder` et varsel eller kravversjonen
- * varselet er utledet av (MM-U1). Beløp og dager leses fra serverens utregning i
- * svaret, så de har ett hjem (4.3 i designnotatet).
+ * varselet er utledet av (MM-U1). Resultatet i `beloep` og `dager`, og dagene i fristen, leses
+ * fra serverens utregning i svaret. I vederlaget bærer standpunktet `beloep` beløpet for posten og
+ * rettidigheten etter § 34.1.3 beløpet etter begrensningen; leseren kontrollerer beløpet for
+ * posten mot det siste laget i raden i utregningen, og summen mot totalene (OV-U31, KA-U57 (e)).
  */
 export type Standpunkt =
   /**
@@ -105,28 +135,43 @@ export type Standpunkt =
   | { id: string; art: 'forhold'; resultat: Forholdsresultat }
   /**
    * OV-U26: `godkjent` er beløpet byggherren godtar for posten uten begrensningen etter
-   * § 34.1.3. `saerskilt` er posten etter § 34.1.3 annet ledd; uten den gjelder standpunktet
-   * justeringen ellers. `resultat` er svarets, som utregningen gir det.
+   * § 34.1.3. Standpunktet har enten `gjelder`, kravpostens `id`, eller `saerskilt`
+   * (KA-U57 (c); spørsmålsfila 09.11 for #1663, det tekniske avsnittet punkt 4). `resultat` er
+   * svarets, som utregningen gir det. Uten `godkjent` når tilbudet for kravposten ikke er
+   * akseptert (KA-U72).
    */
   | {
       id: string;
       art: 'beloep';
       resultat: Vederlagsresultat;
-      godkjent: number;
+      godkjent?: number;
+      gjelder?: string;
       saerskilt?: 'produktivitet';
     }
   /**
-   * § 34.2.2: om byggherren aksepterer TEs tilbud. Uten aksept oppgir byggherren metoden
-   * byggherren mener vederlaget skal justeres etter (`oensket`); appen avgjør ikke om
-   * § 34.3 eller § 34.4 gjelder (arbeidsvalget i #479, MM-U12, MM-U50).
+   * Standpunktet til TEs oppgjørsform for kravposten `gjelder` (KA-U57 (d), KA-U54). `hjemmel` er
+   * TEs oppgjørsform: § 34.2.2 for tilbudet, § 34.3 eller § 34.4 for en beregningsregel.
+   * `aksepterer` er om byggherren aksepterer tilbudet eller godtar beregningsregelen. Uten aksept
+   * oppgir byggherren oppgjørsformen byggherren mener (`oensket`); appen avgjør ikke om § 34.3
+   * eller § 34.4 gjelder (arbeidsvalget i #479, MM-U12, MM-U50). `kreverTilbud` er kravet om
+   * spesifisert tilbud etter § 34.2.1 for en kravpost etter en beregningsregel (KA-U69, KA-U71),
+   * og da kan `oensket` mangle (svar 3 A i spørsmålsfila 10.11 for #1663).
    */
   | {
       id: string;
-      art: 'metode';
-      hjemmel: '34.2.2';
+      art: 'oppgjoersform';
+      gjelder: string;
+      hjemmel: '34.2.2' | '34.3' | '34.4';
       aksepterer: boolean;
       oensket?: 'enhetspriser' | 'regningsarbeid';
+      kreverTilbud?: true;
     }
+  /**
+   * § 34.3.2: om byggherren godtar justeringen av enhetsprisene for kravposten `gjelder`
+   * (KA-U68; det tekniske avsnittet punkt 2 i spørsmålsfila 09.11 for #1663). Godkjenner ingen
+   * priser, mengder eller beløp (OV-U95 punkt 5).
+   */
+  | { id: string; art: 'justering'; gjelder: string; hjemmel: '34.3.2'; godtar: boolean }
   /** § 33.1: om byggherren godtar at fremdriften hindres som følge av forholdet saken gjelder. */
   | { id: string; art: 'hindring'; oppfylt: boolean }
   /**
@@ -207,7 +252,7 @@ export type Utsagn =
 /**
  * VS-U26: feltet for datoen varslingsplikten løper fra, som TE oppgir i påberopelsen: datoen
  * pålegget ble mottatt, eller datoen TE ble klar over forholdet. Kategorien avgjør hvilket
- * (`OPPGITT_DATO` i `format.ts`).
+ * (`OPPGITT_DATO` i `spor/forhold/format.ts`).
  */
 export type OppgittDatofelt = 'paalegg_mottatt' | 'klar_over_forholdet';
 
@@ -216,6 +261,39 @@ export type LestOpplysning = Exclude<Opplysning, { hva: 'kan_ikke_uttrykkes' }>;
 export type LestUtsagn = Exclude<Utsagn, { art: 'avklaring' }>;
 export type Opplysningsslag = LestOpplysning['hva'];
 export type Utsagnsart = LestUtsagn['art'];
+
+/**
+ * Oppgjørsformen for en kravpost (OV-U95 punkt 19–20). `tilbud` er fast sum etter § 34.2.1;
+ * `enhetspriser` og `regningsarbeid` er kontraktens beregningsregler (§ 34.3, § 34.4).
+ */
+export type Oppgjoersform = 'tilbud' | 'enhetspriser' | 'regningsarbeid';
+export const OPPGJOERSFORMER: readonly Oppgjoersform[] = [
+  'tilbud',
+  'enhetspriser',
+  'regningsarbeid',
+];
+
+/**
+ * En kravpost i vederlagskravet, slik den er lagret (OV-U95 punkt 19–22; arbeidsvalget 07.11 i
+ * domenetabellen, #1663). `id` settes av serveren og `betegnelse` av kommandoen, og
+ * begge følger posten gjennom kravversjonene. Anslaget, kostnadsoverslaget og PNS er
+ * opplysninger som ingen regel leser (KA-U55, KA-U66).
+ */
+export interface Kravpost {
+  id: string;
+  betegnelse: string;
+  beskrivelse: string;
+  oppgjoersform: Oppgjoersform;
+  pns?: string;
+  /** Det krevde beløpet i en kravpost med fast sum. */
+  beloep?: number;
+  /** Justerte enhetspriser etter § 34.3.2 (KA-U68). */
+  justert?: boolean;
+  anslag?: number;
+  kostnadsoverslag?: number;
+  /** Varselet etter § 34.3.3 eller § 34.4 for kravposten, gitt før kravet (VS-U50, VS-U54). */
+  varsel?: string;
+}
 
 export interface Krav {
   id: string;
@@ -245,10 +323,46 @@ export interface Svar {
    */
   paaberopelse: string | null;
   standpunkter: Standpunkt[];
-  /** Serverens utregning etter B-13, slik den er lagret. */
+  /**
+   * Serverens utregning etter B-13, slik den er lagret. Leses gjennom `format/svarinnhold.ts`
+   * med typen for sporet: `Vederlagsutregning` eller `Fristutregning`.
+   */
   utregning: Record<string, unknown>;
   /** Brevet slik det ble sendt. Virkningen leses herfra (MM-U9). */
   beslutningsgrunnlag: Beslutningsgrunnlag;
+}
+
+/** Ett lag i raden for en post i utregningen. Uten `beloep` når tilbudet ikke er akseptert (KA-U72). */
+export interface Utregningslag {
+  lag: number;
+  beloep?: number;
+}
+
+/**
+ * Raden for én post i utregningen, med ett element per lag (OV-U31, KA-U57 (e)). Posten er
+ * kravposten `gjelder` eller den særskilte `saerskilt`.
+ */
+export interface Utregningsrad {
+  gjelder?: string;
+  saerskilt?: 'produktivitet';
+  lag: Utregningslag[];
+}
+
+/** Utregningen i et svar på vederlaget, etter `UTREGNING.vederlag` i `format/format.ts`. */
+export interface Vederlagsutregning {
+  resultat: Vederlagsresultat;
+  godkjent_beloep: number;
+  subsidiaert_resultat?: Vederlagsresultat;
+  subsidiaert_godkjent_beloep?: number;
+  poster: Utregningsrad[];
+}
+
+/** Utregningen i et svar på fristen, etter `UTREGNING.frist` i `format/format.ts`. */
+export interface Fristutregning {
+  resultat: Fristresultat;
+  godkjent_dager: number;
+  subsidiaert_resultat?: Fristresultat;
+  subsidiaert_godkjent_dager?: number;
 }
 
 /**
@@ -386,6 +500,8 @@ export interface Beslutningsgrunnlag {
 
 export interface Utfall {
   beloep?: number;
+  /** Kravpostene uten fast beløp i det første laget, som `beloep` ikke regner med (OV-U73). */
+  uten_fast_beloep?: string[];
   dager?: number;
 }
 
@@ -409,3 +525,5 @@ export interface Avvisning {
   regel: string;
   melding: string;
 }
+
+export const avvis = (regel: string, melding: string): Avvisning => ({ regel, melding });

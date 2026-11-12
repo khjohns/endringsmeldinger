@@ -9,12 +9,13 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { forhaandsvis, laastTekst, utledJournal, vurder } from '../kommandoer/skriving.ts';
-import { regnUtSvar, type Svarvurdering } from '../frosset/standpunkt.ts';
+import { regnUtSvar } from '../frosset/utregning.ts';
+import { type Svarvurdering } from '../frosset/byggeklosser.ts';
 import { enighetensVirkning } from '../utledning/utled.ts';
 import { BETEGNELSER, betegnelse, visning } from '../utledning/visning.ts';
 import { SPOR, type Journalrad, type Part, type Spor } from '../typer.ts';
 import { KJERNE } from '../versjon.ts';
-import { mellomlager } from './klient.ts';
+import { medKravpostIder, mellomlager, P1 } from './klient.ts';
 
 class Sak {
   private klokke = Date.UTC(2026, 9, 1, 8, 0, 0);
@@ -59,7 +60,7 @@ class Sak {
   svar(spor: Spor, vurderinger: Record<string, unknown>) {
     const u = utledJournal(this.journal, KJERNE);
     const krav = u.spor[spor].gjeldendeKrav!;
-    const v = vurderinger as unknown as Svarvurdering;
+    const v = medKravpostIder(vurderinger, krav) as unknown as Svarvurdering;
     return {
       spor,
       gjelder: krav.id,
@@ -99,7 +100,9 @@ const vederlagskrav: Steg = (sak) =>
   sak.send('TE', {
     type: 'krav',
     spor: 'vederlag',
-    innhold: { metode: 'tilbud', beloep: 100000 },
+    innhold: {
+      kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 100000 }],
+    },
     utdypning: UTDYPNING,
   });
 const fristkrav: Steg = (sak) =>
@@ -123,9 +126,7 @@ const forloepA: Steg = (sak) => {
     svar: [
       sak.svar('forhold', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true }),
       sak.svar('vederlag', {
-        hovedkrav_vurdering: 'delvis',
-        hovedkrav_godkjent_beloep: 60000,
-        aksepterer_metode: true,
+        ...P1({ vurdering: 'delvis', godkjent_beloep: 60000, aksepterer: true }),
       }),
       sak.svar('frist', {
         frist_varsel_ok: true,
@@ -308,9 +309,7 @@ const alleGodkjent: Steg = (sak) => {
     svar: [
       sak.svar('forhold', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
       sak.svar('vederlag', {
-        hovedkrav_vurdering: 'godkjent',
-        hovedkrav_godkjent_beloep: 100000,
-        aksepterer_metode: true,
+        ...P1({ vurdering: 'godkjent', godkjent_beloep: 100000, aksepterer: true }),
       }),
       sak.svar('frist', {
         frist_varsel_ok: true,

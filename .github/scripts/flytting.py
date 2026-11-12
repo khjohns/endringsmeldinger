@@ -4,7 +4,8 @@ Leser `git diff --name-status -M FRA HEAD` for kjernen utenom testene på stdin 
 skriver én linje per krav, `REGELVERSJON<TAB>sti` eller
 `PROJEKSJONSVERSJON<TAB>sti`. En fil som bare er flyttet, skrives som
 `flyttet<TAB>sti`. Omfanget står bare her: REGELVERSJON dekker `REGELVERSJON`,
-PROJEKSJONSVERSJON resten av kjernen (B-14, MM-U11, #330).
+PROJEKSJONSVERSJON resten av kjernen (B-14, MM-U11, #330). Frysingen og teksten i
+et spor (`kjerne/spor/<spor>/frysing.ts` og `tekst.ts`) dekkes som `frosset/` (#1783).
 
 En omdøpt eller endret fil er bare flyttet når teksten utenfor import- og
 eksportsetningene med sti er byte-lik, og hver relativ sti i dem peker på den
@@ -31,11 +32,13 @@ import sys
 from kommentarer import tekst, uten_kommentarer
 
 REGELVERSJON = ("kjerne/regler/", "kjerne/frosset/")
+# Rollefilene i et spor som hører til frosset/ (#1783): frysingen og teksten.
+FROSSET_I_SPORET = re.compile(r"kjerne/spor/[^/]+/(?:frysing|tekst)\.ts")
 
 
 def dekker(versjon: str, sti: str) -> bool:
     if versjon == "REGELVERSJON":
-        return sti.startswith(REGELVERSJON)
+        return sti.startswith(REGELVERSJON) or FROSSET_I_SPORET.fullmatch(sti) is not None
     return sti.startswith("kjerne/") and not sti.startswith("kjerne/regler/")
 
 

@@ -643,27 +643,14 @@ function hendelsesnavn(sti: string): string[] {
     .map((blokk) => /^navn = "([^"]*)"$/m.exec(blokk)?.[1] ?? `${sti}: blokk uten navn`);
 }
 
-/** Verdiene i `class SaksType(str, Enum)` i Python. */
-function pythonsSakstyper(): string[] {
-  const klasse = /^class SaksType\(str, Enum\):\n([\s\S]*?)\n(?=\S)/m.exec(
-    lesFil('backend/models/sak_state.py')
-  );
-  return [...(klasse?.[1] ?? '').matchAll(/^ {4}[A-Z_]+ = "([^"]*)"$/gm)].map((t) => t[1]);
-}
-
 /**
- * De kjente verdiene for kolonnene med den lukkede tegnklassen (#609): Pythons 34
- * hendelsestyper (`hendelser.toml`, som pytest holder lik `EventType`), kjernens
+ * De kjente verdiene for kolonnene med den lukkede tegnklassen (#609): kjernens
  * typer (`kjernehendelser.toml`, som `register.test.ts` holder lik kjernen) og
- * sakstypene i Python og kjernen.
+ * sakstypen i kjernen.
  */
 const KJENTE_VERDIER: Record<string, string[]> = {
-  'koe.hendelse.event_type': [
-    ...hendelsesnavn('docs/datamodell/hendelser.toml'),
-    ...hendelsesnavn('docs/datamodell/kjernehendelser.toml'),
-  ],
+  'koe.hendelse.event_type': hendelsesnavn('docs/datamodell/kjernehendelser.toml'),
   'koe.sak_metadata.sakstype': [
-    ...pythonsSakstyper(),
     /sakstype: \{ const: '([^']*)' \}/.exec(lesFil('kjerne/format/format.ts'))?.[1] ?? 'mangler',
   ],
 };
@@ -1144,13 +1131,11 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('mellomrom til slutt i SQL Server', () =>
   });
 
   it('kontrollsak: hver kjent hendelsestype og sakstype passer kontrollene på kolonnen i katalogen (#609)', async () => {
-    expect(KJENTE_VERDIER['koe.hendelse.event_type'].length).toBe(34 + 2);
-    expect(KJENTE_VERDIER['koe.sak_metadata.sakstype']).toEqual([
-      'standard',
-      'forsering',
-      'endringsordre',
-      'standard',
+    expect(KJENTE_VERDIER['koe.hendelse.event_type']).toEqual([
+      'sak_opprettet',
+      'dokument_registrert',
     ]);
+    expect(KJENTE_VERDIER['koe.sak_metadata.sakstype']).toEqual(['standard']);
     const kontroller = (await base.pool.request().query(KONTROLLER)).recordset;
     for (const [kolonne, verdier] of Object.entries(KJENTE_VERDIER)) {
       const [tabell, navn] = del(kolonne);

@@ -1,6 +1,6 @@
 # Prøving av forslaget til OV-U3–OV-U7 (13.10)
 
-> Prøvingen gjelder [utkast-vedtak.md](utkast-vedtak.md). Oppdragsgivers svar 13.10 på de fire spørsmålene i avsnitt 6 står i [vurderingen](../../vurdering-behov-forste-versjon-2026-10-13.md).
+> Prøvingen gjelder [utkast-vedtak.md](utkast-vedtak.md). Oppdragsgivers svar 13.10 på de fire spørsmålene i avsnitt 6 står i [vurderingen](../../historikk/vurdering-behov-forste-versjon-2026-10-13.md).
 
 Prøvd: `forslag-vedtak.md` (utkast 13.10) mot `docs/vedtaksregister/vedtak.toml` på grenen
 (commit 44bbb49 med docs-commits), lest i sin helhet for gruppene krav, svar, aksept, grunnlag,

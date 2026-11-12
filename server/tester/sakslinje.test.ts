@@ -21,7 +21,9 @@ import {
   utledJournal,
   vurder,
 } from '../../kjerne/kommandoer/skriving.ts';
-import { regnUtSvar, type Svarvurdering } from '../../kjerne/frosset/standpunkt.ts';
+import { regnUtSvar } from '../../kjerne/frosset/utregning.ts';
+import { type Svarvurdering } from '../../kjerne/frosset/byggeklosser.ts';
+import { kravposterI } from '../../kjerne/spor/vederlag/format.ts';
 import type { Journalrad, Part, Spor } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { noekkeltall, sakslinje, type Sakslinje } from '../saksliste.ts';
@@ -73,7 +75,17 @@ class Sak {
   svar(spor: Spor, vurderinger: Record<string, unknown>) {
     const u = utledJournal(this.journal, KJERNE);
     const krav = u.spor[spor].gjeldendeKrav!;
-    const v = vurderinger as unknown as Svarvurdering;
+    // Testene skriver kravpostens betegnelse i `gjelder`; kommandoen har kravpostens `id`.
+    const kravposter = vurderinger.kravposter as { gjelder: string }[] | undefined;
+    const v = {
+      ...vurderinger,
+      ...(kravposter && {
+        kravposter: kravposter.map((p) => ({
+          ...p,
+          gjelder: kravposterI(krav).find((k) => k.betegnelse === p.gjelder)?.id ?? p.gjelder,
+        })),
+      }),
+    } as Svarvurdering;
     return {
       spor,
       gjelder: krav.id,
@@ -132,7 +144,9 @@ const krav: Steg = (sak) => {
   sak.send('TE', {
     type: 'krav',
     spor: 'vederlag',
-    innhold: { metode: 'tilbud', beloep: 100000 },
+    innhold: {
+      kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 100000 }],
+    },
     utdypning: UTDYPNING,
   });
   sak.send('TE', { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: UTDYPNING });
@@ -151,9 +165,9 @@ const forloepA: Steg = (sak) => {
     svar: [
       sak.svar('forhold', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true }),
       sak.svar('vederlag', {
-        hovedkrav_vurdering: 'delvis',
-        hovedkrav_godkjent_beloep: 60000,
-        aksepterer_metode: true,
+        kravposter: [
+          { gjelder: 'P1', vurdering: 'delvis', godkjent_beloep: 60000, aksepterer: true },
+        ],
       }),
       sak.svar('frist', FRIST_I_ORDEN),
     ],
@@ -166,9 +180,9 @@ const fullGodkjenning: Steg = (sak) => {
     svar: [
       sak.svar('forhold', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
       sak.svar('vederlag', {
-        hovedkrav_vurdering: 'godkjent',
-        hovedkrav_godkjent_beloep: 100000,
-        aksepterer_metode: true,
+        kravposter: [
+          { gjelder: 'P1', vurdering: 'godkjent', godkjent_beloep: 100000, aksepterer: true },
+        ],
       }),
       sak.svar('frist', FRIST_I_ORDEN),
     ],
@@ -195,6 +209,41 @@ function linje(...steg: Steg[]): Sakslinje {
 }
 
 describe('linja i sakslisten (#1022)', () => {
+  it('svaret og enigheten på et krav med to kravposter: summen av kravpostene, og enigheten sier hvilken kravpost som ikke har fast beløp (KA-U57 (c), KA-U72, OV-U73, svar 6 A i #1663)', () => {
+    const l = linje((sak) => {
+      sak.send('TE', PAABEROPELSE);
+      sak.send('TE', {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: {
+          kravposter: [
+            { beskrivelse: 'Fundamentering', oppgjoersform: 'tilbud', beloep: 100000 },
+            { beskrivelse: 'Pumping', oppgjoersform: 'tilbud', beloep: 40000 },
+          ],
+        },
+        utdypning: UTDYPNING,
+      });
+      sak.send('BH', {
+        type: 'brev',
+        svar: [
+          sak.svar('forhold', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+          sak.svar('vederlag', {
+            kravposter: [
+              { gjelder: 'P1', vurdering: 'godkjent', godkjent_beloep: 100000, aksepterer: true },
+              { gjelder: 'P2', aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' },
+            ],
+          }),
+        ],
+      });
+    }, aksept('vederlag'));
+    expect(l.vederlag.svar).toEqual({
+      resultat: 'delvis_godkjent',
+      beloep: 100000,
+      subsidiaert: false,
+    });
+    expect(l.vederlag.enighet).toMatchObject({ beloep: 100000, uten_fast_beloep: ['P2'] });
+  });
+
   it('krav uten svar venter på byggherrens svar i alle tre sporene (MM-U29)', () => {
     const l = linje(krav);
     expect(l).toMatchObject({
@@ -204,7 +253,7 @@ describe('linja i sakslisten (#1022)', () => {
       underkategori: 'irregulaer_endring',
       forhold: { svar: null, venter_paa_svar: true, svar_ikke_godtatt: false },
       vederlag: {
-        krav: { beloep: 100000, metode: 'tilbud' },
+        krav: { beloep: 100000, oppgjoersformer: ['tilbud'] },
         svar: null,
         enighet: null,
         venter_paa_svar: true,
@@ -253,7 +302,11 @@ describe('linja i sakslisten (#1022)', () => {
       expect(l[spor].svar_ikke_godtatt, spor).toBe(false);
       expect(l[spor].venter_paa_svar, spor).toBe(false);
     }
-    expect(l.vederlag.enighet).toEqual({ beloep: 100000, virkning: 'virksom' });
+    expect(l.vederlag.enighet).toEqual({
+      beloep: 100000,
+      uten_fast_beloep: [],
+      virkning: 'virksom',
+    });
     expect(l.frist.enighet).toEqual({ dager: 20, virkning: 'virksom' });
     expect(l.saksbetegnelse).toBe('kravene_avgjort');
     expect(noekkeltall([l]).vederlag).toMatchObject({
@@ -276,7 +329,7 @@ describe('linja i sakslisten (#1022)', () => {
     const paaberopelsenTrukket = linje(krav, trekk('forhold'));
     const avslagGodtatt = linje(forloepA, aksept('forhold'));
     for (const l of [vederlagTrukket, paaberopelsenTrukket, avslagGodtatt])
-      expect(l.vederlag.krav).toEqual({ beloep: 100000, metode: 'tilbud' });
+      expect(l.vederlag.krav).toEqual({ beloep: 100000, oppgjoersformer: ['tilbud'] });
     expect(vederlagTrukket.vederlag.betegnelse).toBe('trukket');
     expect(staar.vederlag.kravet_staar).toBe(true);
     for (const l of [vederlagTrukket, paaberopelsenTrukket, avslagGodtatt])
@@ -317,8 +370,7 @@ describe('linja i sakslisten (#1022)', () => {
         type: 'krav',
         spor: 'vederlag',
         innhold: {
-          metode: 'tilbud',
-          beloep: 100000,
+          kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 100000 }],
           saerskilt: { produktivitet: { beloep: 40000 } },
         },
         utdypning: UTDYPNING,
@@ -328,19 +380,19 @@ describe('linja i sakslisten (#1022)', () => {
         svar: [
           sak.svar('forhold', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
           sak.svar('vederlag', {
-            hovedkrav_vurdering: 'godkjent',
-            hovedkrav_godkjent_beloep: 100000,
+            kravposter: [
+              { gjelder: 'P1', vurdering: 'godkjent', godkjent_beloep: 100000, aksepterer: true },
+            ],
             produktivitet_vurdering: 'delvis',
             produktivitet_godkjent_beloep: 30000,
             produktivitet_varslet_i_tide: false,
             produktivitet_begrenset_beloep: 10000,
-            aksepterer_metode: true,
           }),
         ],
       });
     };
     const l = linje(medPost);
-    expect(l.vederlag.krav).toEqual({ beloep: 140000, metode: 'tilbud' });
+    expect(l.vederlag.krav).toEqual({ beloep: 140000, oppgjoersformer: ['tilbud'] });
     expect(l.vederlag.svar).toEqual({
       resultat: 'delvis_godkjent',
       beloep: 130000,
@@ -397,14 +449,24 @@ describe('linja i sakslisten (#1022)', () => {
 
   it('en enighet uten virkning telles ikke, heller ikke uten beløp (svar 3 fra oppdragsgiver 20.10 i #1029)', () => {
     const l = linje(forloepA, aksept('vederlag'), trekk('forhold'));
-    expect(l.vederlag.enighet).toEqual({ beloep: 60000, virkning: 'uten_virkning' });
+    expect(l.vederlag.enighet).toEqual({
+      beloep: 60000,
+      uten_fast_beloep: [],
+      virkning: 'uten_virkning',
+    });
     const utenBeloep: Sakslinje = {
       ...l,
-      vederlag: { ...l.vederlag, enighet: { beloep: null, virkning: 'uten_virkning' } },
+      vederlag: {
+        ...l.vederlag,
+        enighet: { beloep: null, uten_fast_beloep: [], virkning: 'uten_virkning' },
+      },
     };
     const betingetUtenBeloep: Sakslinje = {
       ...l,
-      vederlag: { ...l.vederlag, enighet: { beloep: null, virkning: 'betinget' } },
+      vederlag: {
+        ...l.vederlag,
+        enighet: { beloep: null, uten_fast_beloep: [], virkning: 'betinget' },
+      },
     };
     expect(noekkeltall([l, utenBeloep]).vederlag).toMatchObject({
       enighet_uten_beloep: 0,
@@ -554,6 +616,15 @@ describe('linja i sakslisten (#1022)', () => {
     const l = sak.linje();
     expect(l.forstaatt, 'forutsetning').toBe(false);
     expect(l.brev_utenfor_appen).toBe(true);
+  });
+
+  it('varselet etter punkt 34.4 som står alene, gir har_varsel i vederlaget (VS-U48)', () => {
+    const l = linje((sak) => {
+      sak.send('TE', PAABEROPELSE);
+      sak.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.4' });
+    });
+    expect(l.vederlag).toMatchObject({ har_varsel: true, krav: null });
+    expect(l.frist.har_varsel, 'kontrollsak: sporet uten varsel').toBe(false);
   });
 
   it('har_varsel og ingen_krav følger utsagnene når betegnelsen er en annen: etter en forespørsel etter punkt 33.6.2 og når sporet er trukket (MM-U37, MM-U30, KA-U12)', () => {

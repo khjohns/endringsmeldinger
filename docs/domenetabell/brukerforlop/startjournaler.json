@@ -118,7 +118,7 @@
             "brevtekst": [
               {
                 "gjelder": "1975bfcf-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret» i sak KOE-17. Totalentreprenøren opplyser at totalentreprenøren ble klar over forholdet 15. september 2026.",
+                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
                 "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
               }
             ],
@@ -152,7 +152,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 48,
+                  "regelversjon": 78,
                   "linje": "Byggherrens standpunkt: godkjent.",
                   "sammenfall": true,
                   "varslingsplikt": false,
@@ -181,7 +181,7 @@
           }
         },
         {
-          "event_id": "1975bfcf-0000-4000-8000-00000000000f",
+          "event_id": "1975bfcf-0000-4000-8000-000000000010",
           "sak_id": "1975bfcf-0000-4000-8000-000000000001",
           "event_type": "dokument_registrert",
           "versjon": 4,
@@ -194,16 +194,23 @@
           "data": {
             "krav": [
               {
-                "id": "1975bfcf-0000-4000-8000-000000000010",
+                "id": "1975bfcf-0000-4000-8000-000000000011",
                 "spor": "vederlag",
-                "metode": "tilbud",
-                "beloep": 100000
+                "kravposter": [
+                  {
+                    "id": "1975bfcf-0000-4000-8000-000000000012",
+                    "betegnelse": "P1",
+                    "beskrivelse": "Kravposten i bevis-saken",
+                    "oppgjoersform": "tilbud",
+                    "beloep": 100000
+                  }
+                ]
               }
             ],
             "brevtekst": [
               {
-                "gjelder": "1975bfcf-0000-4000-8000-000000000010",
-                "laast": "TE krever justering av vederlaget med 100 000 kr eks. mva. Kravet er et tilbud etter NS 8407 § 34.2.1."
+                "gjelder": "1975bfcf-0000-4000-8000-000000000011",
+                "laast": "P1 Kravposten i bevis-saken: TE krever 100 000 kr eks. mva. Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1."
               }
             ],
             "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
@@ -212,7 +219,7 @@
           }
         },
         {
-          "event_id": "1975bfcf-0000-4000-8000-000000000019",
+          "event_id": "1975bfcf-0000-4000-8000-00000000001b",
           "sak_id": "1975bfcf-0000-4000-8000-000000000001",
           "event_type": "dokument_registrert",
           "versjon": 5,
@@ -225,51 +232,68 @@
           "data": {
             "svar": [
               {
-                "id": "1975bfcf-0000-4000-8000-00000000001a",
+                "id": "1975bfcf-0000-4000-8000-00000000001c",
                 "spor": "vederlag",
-                "gjelder": "1975bfcf-0000-4000-8000-000000000010",
+                "gjelder": "1975bfcf-0000-4000-8000-000000000011",
                 "paaberopelse": "1975bfcf-0000-4000-8000-000000000006",
                 "standpunkter": [
                   {
-                    "id": "1975bfcf-0000-4000-8000-000000000016",
+                    "id": "1975bfcf-0000-4000-8000-000000000018",
                     "art": "rettidighet",
-                    "gjelder": "1975bfcf-0000-4000-8000-000000000010",
+                    "gjelder": "1975bfcf-0000-4000-8000-000000000011",
                     "hjemmel": "34.1.2",
                     "i_tide": false
                   },
                   {
-                    "id": "1975bfcf-0000-4000-8000-000000000017",
-                    "art": "metode",
+                    "id": "1975bfcf-0000-4000-8000-000000000019",
+                    "art": "oppgjoersform",
+                    "gjelder": "1975bfcf-0000-4000-8000-000000000012",
                     "hjemmel": "34.2.2",
                     "aksepterer": true
                   },
                   {
-                    "id": "1975bfcf-0000-4000-8000-000000000018",
+                    "id": "1975bfcf-0000-4000-8000-00000000001a",
                     "art": "beloep",
-                    "beloep": 60000
+                    "beloep": 60000,
+                    "gjelder": "1975bfcf-0000-4000-8000-000000000012"
                   }
                 ],
                 "utregning": {
                   "resultat": "avslaatt",
                   "godkjent_beloep": 0,
+                  "poster": [
+                    {
+                      "gjelder": "1975bfcf-0000-4000-8000-000000000012",
+                      "lag": [
+                        {
+                          "lag": 1,
+                          "beloep": 0
+                        },
+                        {
+                          "lag": 2,
+                          "beloep": 60000
+                        }
+                      ]
+                    }
+                  ],
                   "subsidiaert_resultat": "delvis_godkjent",
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 48,
+                  "regelversjon": 78,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 34.1.2 kom for sent, subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
                     {
-                      "standpunkt": "1975bfcf-0000-4000-8000-000000000016",
+                      "standpunkt": "1975bfcf-0000-4000-8000-000000000018",
                       "lag": 1
                     },
                     {
-                      "standpunkt": "1975bfcf-0000-4000-8000-000000000017",
+                      "standpunkt": "1975bfcf-0000-4000-8000-000000000019",
                       "lag": 2
                     },
                     {
-                      "standpunkt": "1975bfcf-0000-4000-8000-000000000018",
+                      "standpunkt": "1975bfcf-0000-4000-8000-00000000001a",
                       "lag": 2
                     }
                   ]
@@ -278,7 +302,7 @@
             ],
             "brevtekst": [
               {
-                "gjelder": "1975bfcf-0000-4000-8000-00000000001a",
+                "gjelder": "1975bfcf-0000-4000-8000-00000000001c",
                 "laast": "Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev K201-KOE-017-03 av 1. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent.\n\nSubsidiært: byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 60 000 kr eks. mva. av de krevde 100 000 kr eks. mva.",
                 "utdypning": "Varselet etter punkt 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet."
               }
@@ -292,7 +316,7 @@
           }
         },
         {
-          "event_id": "1975bfcf-0000-4000-8000-00000000001d",
+          "event_id": "1975bfcf-0000-4000-8000-00000000001f",
           "sak_id": "1975bfcf-0000-4000-8000-000000000001",
           "event_type": "dokument_registrert",
           "versjon": 6,
@@ -305,15 +329,15 @@
           "data": {
             "utsagn": [
               {
-                "id": "1975bfcf-0000-4000-8000-00000000001e",
+                "id": "1975bfcf-0000-4000-8000-000000000020",
                 "art": "aksept",
-                "gjelder": "1975bfcf-0000-4000-8000-00000000001a",
-                "regelversjon": 48
+                "gjelder": "1975bfcf-0000-4000-8000-00000000001c",
+                "regelversjon": 78
               }
             ],
             "brevtekst": [
               {
-                "gjelder": "1975bfcf-0000-4000-8000-00000000001e",
+                "gjelder": "1975bfcf-0000-4000-8000-000000000020",
                 "laast": "TE godtar byggherrens svar på kravet om justering av vederlaget i brev K201-KOE-017-04 av 1. oktober 2026."
               }
             ],
@@ -323,6 +347,602 @@
             "deres_ref": [
               "K201-KOE-017-04"
             ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "BF-02A",
+      "tittel": "TE korrigerer datoen pålegget ble mottatt",
+      "brukerhistorie": "TE har oppgitt feil dato for når pålegget ble mottatt, og BH har påberopt at varselet kom for sent. TE korrigerer datoen i et eget brev som viser til brevet med opplysningen. Brevet er ikke en ny kravversjon og avslår ikke BHs svar. BH ser brevet, svaret står med virkningen det hadde, og sporet venter ikke på et nytt svar.",
+      "aktoerer": {
+        "TE": {
+          "aktor_id": "te",
+          "aktor_team_id": "team-te"
+        },
+        "BH": {
+          "aktor_id": "bh",
+          "aktor_team_id": "team-bh"
+        }
+      },
+      "idhode": "31f6c7e7",
+      "kontrollpunkter": [
+        {
+          "id": "te-har-mottatt-svaret",
+          "beskrivelse": "BH har påberopt at varselet kom for sent. TE har oppgitt at pålegget ble mottatt 15.09.2026.",
+          "versjon": 3,
+          "forstaaelse": [
+            "TE finner datoen TE oppga i påberopelsen, og ser at den korrigeres i et eget brev, og at påberopelsen og svaret står som de ble sendt.",
+            "TE ser før sending teksten brevet får, med den nye datoen og datoen TE oppga i brevet det viser til.",
+            "TE ser at korrigeringen også kan sendes når saken er lukket, og at BH da kan ta stilling til den i et innlegg."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "korrigering"
+          }
+        },
+        {
+          "id": "korrigeringen-er-sendt",
+          "beskrivelse": "TE har korrigert datoen til 20.09.2026 i et eget brev.",
+          "versjon": 4,
+          "forstaaelse": [
+            "Begge ser 20.09.2026 som TEs siste opplysning og 15.09.2026 som den tidligere.",
+            "BH ser korrigeringen som et nytt brev med henvisning til påberopelsen. BH ser at svaret står som det ble sendt, og at BH kan ta stilling til den nye datoen i et senere svar.",
+            "Ingen av partene leser av visningen at varselet nå kom i tide. Løsningen avgjør ikke hvilken dato som er riktig, eller om varselet var rettidig.",
+            "TE ser at en senere ny versjon av påberopelsen gjengir den nye datoen og nevner den tidligere datoen med brevet den ble oppgitt i."
+          ],
+          "neste": null
+        }
+      ],
+      "journal": [
+        {
+          "event_id": "ca5f0a19-0000-4000-8000-000000000002",
+          "sak_id": "ca5f0a19-0000-4000-8000-000000000001",
+          "event_type": "sak_opprettet",
+          "versjon": 1,
+          "tidsstempel": "2026-10-01T08:00:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": null,
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "sakstittel": "TE korrigerer datoen pålegget ble mottatt",
+            "sakstype": "standard"
+          }
+        },
+        {
+          "event_id": "ca5f0a19-0000-4000-8000-000000000005",
+          "sak_id": "ca5f0a19-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 2,
+          "tidsstempel": "2026-10-01T08:01:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "ca5f0a19-0000-4000-8000-000000000006",
+                "spor": "forhold",
+                "hovedkategori": "endring",
+                "underkategori": "irregulaer_endring",
+                "paalegg_mottatt": "2026-09-15"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "ca5f0a19-0000-4000-8000-000000000006",
+                "laast": "Totalentreprenøren krever endringsordre for «TE korrigerer datoen pålegget ble mottatt» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
+                "utdypning": "Byggherren ga pålegg om å flytte ventilasjonssjakten i plan 3."
+              }
+            ],
+            "brevtittel": "Påberopelse av irregulær endring i sak KOE-17",
+            "brevnummer": 1,
+            "merking": "K201-KOE-017-01"
+          }
+        },
+        {
+          "event_id": "ca5f0a19-0000-4000-8000-00000000000d",
+          "sak_id": "ca5f0a19-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 3,
+          "tidsstempel": "2026-10-01T08:02:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "ca5f0a19-0000-4000-8000-00000000000e",
+                "spor": "forhold",
+                "gjelder": "ca5f0a19-0000-4000-8000-000000000006",
+                "standpunkter": [
+                  {
+                    "id": "ca5f0a19-0000-4000-8000-00000000000b",
+                    "art": "rettidighet",
+                    "gjelder": "ca5f0a19-0000-4000-8000-000000000006",
+                    "hjemmel": "32.2",
+                    "i_tide": false
+                  },
+                  {
+                    "id": "ca5f0a19-0000-4000-8000-00000000000c",
+                    "art": "forhold",
+                    "resultat": "godkjent"
+                  }
+                ],
+                "beslutningsgrunnlag": {
+                  "regelversjon": 78,
+                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 32.2 kom for sent, subsidiært godkjent.",
+                  "sammenfall": false,
+                  "varslingsplikt": true,
+                  "virkninger": [
+                    {
+                      "standpunkt": "ca5f0a19-0000-4000-8000-00000000000b",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "ca5f0a19-0000-4000-8000-00000000000c",
+                      "lag": 2
+                    }
+                  ]
+                }
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "ca5f0a19-0000-4000-8000-00000000000e",
+                "laast": "Byggherrens svar på grunnlaget i TEs krav i brev K201-KOE-017-01 av 1. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 i brev K201-KOE-017-01 av 1. oktober 2026 kom for sent.\n\nSubsidiært: byggherren godkjenner grunnlaget.",
+                "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært godtas at forholdet er en endring."
+              }
+            ],
+            "brevtittel": "Svar på forholdet i sak KOE-17",
+            "brevnummer": 2,
+            "merking": "K201-KOE-017-02",
+            "deres_ref": [
+              "K201-KOE-017-01"
+            ]
+          }
+        },
+        {
+          "event_id": "ca5f0a19-0000-4000-8000-000000000011",
+          "sak_id": "ca5f0a19-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 4,
+          "tidsstempel": "2026-10-01T08:04:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "ca5f0a19-0000-4000-8000-000000000012",
+                "art": "korrigering",
+                "gjelder": "ca5f0a19-0000-4000-8000-000000000006",
+                "paalegg_mottatt": "2026-09-20"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "ca5f0a19-0000-4000-8000-000000000012",
+                "laast": "Totalentreprenøren oppgir nå at pålegget ble mottatt 20. september 2026. I brev K201-KOE-017-01 av 1. oktober 2026 oppga totalentreprenøren 15. september 2026."
+              }
+            ],
+            "brevtittel": "Korrigering av datoen i sak KOE-17",
+            "brevnummer": 3,
+            "merking": "K201-KOE-017-03"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BF-02C",
+      "tittel": "TE vil rette datoen i en ny versjon av påberopelsen og blir vist til korrigeringen",
+      "brukerhistorie": "TE vil rette datoen pålegget ble mottatt og begynner på en ny versjon av grunnlagskravet. Datoen kan ikke endres i en ny versjon, som gjengir TEs siste opplysning. Skjemaet anbefaler korrigeringen, og TE sender den i stedet. En ny versjon etter korrigeringen gjengir den nye datoen med henvisning til brevet med korrigeringen.",
+      "aktoerer": {
+        "TE": {
+          "aktor_id": "te",
+          "aktor_team_id": "team-te"
+        },
+        "BH": {
+          "aktor_id": "bh",
+          "aktor_team_id": "team-bh"
+        }
+      },
+      "idhode": "7b10e501",
+      "kontrollpunkter": [
+        {
+          "id": "te-vil-sende-ny-versjon",
+          "beskrivelse": "TE begynner på en ny versjon av grunnlagskravet for å rette datoen.",
+          "versjon": 3,
+          "forstaaelse": [
+            "TE ser forskjellen før valget: etter en ny versjon av påberopelsen kan svaret ikke godtas i løsningen, mens påberopelsen og svaret står som de ble sendt etter korrigeringen.",
+            "TE ser i skjemaet for den nye versjonen at datoen står låst som TEs siste opplysning, og at datoen korrigeres i et eget brev.",
+            "TE kommer fra skjemaet til korrigeringen uten å miste det TE har skrevet."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "korrigering"
+          }
+        },
+        {
+          "id": "ny-versjon-etter-korrigeringen",
+          "beskrivelse": "TE har korrigert datoen til 20.09.2026 og begynner igjen på en ny versjon.",
+          "versjon": 4,
+          "forstaaelse": [
+            "TE ser at den nye versjonen gjengir 20.09.2026 og nevner at TE tidligere oppga 15.09.2026 i det første brevet, og at TE ikke kan sende 15.09.2026."
+          ],
+          "neste": null
+        }
+      ],
+      "journal": [
+        {
+          "event_id": "c85f06f3-0000-4000-8000-000000000002",
+          "sak_id": "c85f06f3-0000-4000-8000-000000000001",
+          "event_type": "sak_opprettet",
+          "versjon": 1,
+          "tidsstempel": "2026-10-01T08:00:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": null,
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "sakstittel": "TE vil rette datoen i en ny versjon av påberopelsen og blir vist til korrigeringen",
+            "sakstype": "standard"
+          }
+        },
+        {
+          "event_id": "c85f06f3-0000-4000-8000-000000000005",
+          "sak_id": "c85f06f3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 2,
+          "tidsstempel": "2026-10-01T08:01:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "c85f06f3-0000-4000-8000-000000000006",
+                "spor": "forhold",
+                "hovedkategori": "endring",
+                "underkategori": "irregulaer_endring",
+                "paalegg_mottatt": "2026-09-15"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "c85f06f3-0000-4000-8000-000000000006",
+                "laast": "Totalentreprenøren krever endringsordre for «TE vil rette datoen i en ny versjon av påberopelsen og blir vist til korrigeringen» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
+                "utdypning": "Byggherren ga pålegg om å flytte ventilasjonssjakten i plan 3."
+              }
+            ],
+            "brevtittel": "Påberopelse av irregulær endring i sak KOE-17",
+            "brevnummer": 1,
+            "merking": "K201-KOE-017-01"
+          }
+        },
+        {
+          "event_id": "c85f06f3-0000-4000-8000-00000000000d",
+          "sak_id": "c85f06f3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 3,
+          "tidsstempel": "2026-10-01T08:02:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "c85f06f3-0000-4000-8000-00000000000e",
+                "spor": "forhold",
+                "gjelder": "c85f06f3-0000-4000-8000-000000000006",
+                "standpunkter": [
+                  {
+                    "id": "c85f06f3-0000-4000-8000-00000000000b",
+                    "art": "rettidighet",
+                    "gjelder": "c85f06f3-0000-4000-8000-000000000006",
+                    "hjemmel": "32.2",
+                    "i_tide": false
+                  },
+                  {
+                    "id": "c85f06f3-0000-4000-8000-00000000000c",
+                    "art": "forhold",
+                    "resultat": "godkjent"
+                  }
+                ],
+                "beslutningsgrunnlag": {
+                  "regelversjon": 78,
+                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 32.2 kom for sent, subsidiært godkjent.",
+                  "sammenfall": false,
+                  "varslingsplikt": true,
+                  "virkninger": [
+                    {
+                      "standpunkt": "c85f06f3-0000-4000-8000-00000000000b",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "c85f06f3-0000-4000-8000-00000000000c",
+                      "lag": 2
+                    }
+                  ]
+                }
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "c85f06f3-0000-4000-8000-00000000000e",
+                "laast": "Byggherrens svar på grunnlaget i TEs krav i brev K201-KOE-017-01 av 1. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 i brev K201-KOE-017-01 av 1. oktober 2026 kom for sent.\n\nSubsidiært: byggherren godkjenner grunnlaget.",
+                "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært godtas at forholdet er en endring."
+              }
+            ],
+            "brevtittel": "Svar på forholdet i sak KOE-17",
+            "brevnummer": 2,
+            "merking": "K201-KOE-017-02",
+            "deres_ref": [
+              "K201-KOE-017-01"
+            ]
+          }
+        },
+        {
+          "event_id": "c85f06f3-0000-4000-8000-000000000015",
+          "sak_id": "c85f06f3-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 4,
+          "tidsstempel": "2026-10-01T08:04:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "c85f06f3-0000-4000-8000-000000000016",
+                "art": "korrigering",
+                "gjelder": "c85f06f3-0000-4000-8000-000000000006",
+                "paalegg_mottatt": "2026-09-20"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "c85f06f3-0000-4000-8000-000000000016",
+                "laast": "Totalentreprenøren oppgir nå at pålegget ble mottatt 20. september 2026. I brev K201-KOE-017-01 av 1. oktober 2026 oppga totalentreprenøren 15. september 2026."
+              }
+            ],
+            "brevtittel": "Korrigering av datoen i sak KOE-17",
+            "brevnummer": 3,
+            "merking": "K201-KOE-017-03"
+          }
+        }
+      ]
+    },
+    {
+      "id": "BF-02D",
+      "tittel": "TE korrigerer datoen pålegget ble mottatt i en lukket sak",
+      "brukerhistorie": "BH har påberopt at varselet kom for sent og godtatt forholdet subsidiært. TE har godtatt svaret, og saken er lukket. TE korrigerer datoen i et eget brev. Saken står lukket, utfallet endres ikke, og BH kan ta stilling til opplysningen i et innlegg.",
+      "aktoerer": {
+        "TE": {
+          "aktor_id": "te",
+          "aktor_team_id": "team-te"
+        },
+        "BH": {
+          "aktor_id": "bh",
+          "aktor_team_id": "team-bh"
+        }
+      },
+      "idhode": "9081b5ee",
+      "kontrollpunkter": [
+        {
+          "id": "saken-er-lukket",
+          "beskrivelse": "TE har godtatt svaret, og saken er lukket.",
+          "versjon": 4,
+          "forstaaelse": [
+            "TE ser at datoen kan korrigeres også i den lukkede saken, og at korrigeringen ikke endrer utfallet."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "korrigering"
+          }
+        },
+        {
+          "id": "korrigeringen-er-sendt",
+          "beskrivelse": "TE har korrigert datoen til 20.09.2026 i den lukkede saken.",
+          "versjon": 5,
+          "forstaaelse": [
+            "BH ser korrigeringen, at saken står lukket med det samme utfallet, og at BH kan ta stilling til opplysningen i et innlegg."
+          ],
+          "neste": null
+        }
+      ],
+      "journal": [
+        {
+          "event_id": "cd5f0ed2-0000-4000-8000-000000000002",
+          "sak_id": "cd5f0ed2-0000-4000-8000-000000000001",
+          "event_type": "sak_opprettet",
+          "versjon": 1,
+          "tidsstempel": "2026-10-01T08:00:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": null,
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "sakstittel": "TE korrigerer datoen pålegget ble mottatt i en lukket sak",
+            "sakstype": "standard"
+          }
+        },
+        {
+          "event_id": "cd5f0ed2-0000-4000-8000-000000000005",
+          "sak_id": "cd5f0ed2-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 2,
+          "tidsstempel": "2026-10-01T08:01:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "cd5f0ed2-0000-4000-8000-000000000006",
+                "spor": "forhold",
+                "hovedkategori": "endring",
+                "underkategori": "irregulaer_endring",
+                "paalegg_mottatt": "2026-09-15"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "cd5f0ed2-0000-4000-8000-000000000006",
+                "laast": "Totalentreprenøren krever endringsordre for «TE korrigerer datoen pålegget ble mottatt i en lukket sak» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
+                "utdypning": "Byggherren ga pålegg om å flytte ventilasjonssjakten i plan 3."
+              }
+            ],
+            "brevtittel": "Påberopelse av irregulær endring i sak KOE-17",
+            "brevnummer": 1,
+            "merking": "K201-KOE-017-01"
+          }
+        },
+        {
+          "event_id": "cd5f0ed2-0000-4000-8000-00000000000d",
+          "sak_id": "cd5f0ed2-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 3,
+          "tidsstempel": "2026-10-01T08:02:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "cd5f0ed2-0000-4000-8000-00000000000e",
+                "spor": "forhold",
+                "gjelder": "cd5f0ed2-0000-4000-8000-000000000006",
+                "standpunkter": [
+                  {
+                    "id": "cd5f0ed2-0000-4000-8000-00000000000b",
+                    "art": "rettidighet",
+                    "gjelder": "cd5f0ed2-0000-4000-8000-000000000006",
+                    "hjemmel": "32.2",
+                    "i_tide": false
+                  },
+                  {
+                    "id": "cd5f0ed2-0000-4000-8000-00000000000c",
+                    "art": "forhold",
+                    "resultat": "godkjent"
+                  }
+                ],
+                "beslutningsgrunnlag": {
+                  "regelversjon": 78,
+                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter § 32.2 kom for sent, subsidiært godkjent.",
+                  "sammenfall": false,
+                  "varslingsplikt": true,
+                  "virkninger": [
+                    {
+                      "standpunkt": "cd5f0ed2-0000-4000-8000-00000000000b",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "cd5f0ed2-0000-4000-8000-00000000000c",
+                      "lag": 2
+                    }
+                  ]
+                }
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "cd5f0ed2-0000-4000-8000-00000000000e",
+                "laast": "Byggherrens svar på grunnlaget i TEs krav i brev K201-KOE-017-01 av 1. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 i brev K201-KOE-017-01 av 1. oktober 2026 kom for sent.\n\nSubsidiært: byggherren godkjenner grunnlaget.",
+                "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært godtas at forholdet er en endring."
+              }
+            ],
+            "brevtittel": "Svar på forholdet i sak KOE-17",
+            "brevnummer": 2,
+            "merking": "K201-KOE-017-02",
+            "deres_ref": [
+              "K201-KOE-017-01"
+            ]
+          }
+        },
+        {
+          "event_id": "cd5f0ed2-0000-4000-8000-000000000011",
+          "sak_id": "cd5f0ed2-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 4,
+          "tidsstempel": "2026-10-01T08:03:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "cd5f0ed2-0000-4000-8000-000000000012",
+                "art": "aksept",
+                "gjelder": "cd5f0ed2-0000-4000-8000-00000000000e",
+                "regelversjon": 78
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "cd5f0ed2-0000-4000-8000-000000000012",
+                "laast": "TE godtar byggherrens svar på grunnlaget i brev K201-KOE-017-02 av 1. oktober 2026."
+              }
+            ],
+            "brevtittel": "Aksept av svaret i sak KOE-17",
+            "brevnummer": 3,
+            "merking": "K201-KOE-017-03",
+            "deres_ref": [
+              "K201-KOE-017-02"
+            ]
+          }
+        },
+        {
+          "event_id": "cd5f0ed2-0000-4000-8000-000000000015",
+          "sak_id": "cd5f0ed2-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 5,
+          "tidsstempel": "2026-10-01T08:04:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "cd5f0ed2-0000-4000-8000-000000000016",
+                "art": "korrigering",
+                "gjelder": "cd5f0ed2-0000-4000-8000-000000000006",
+                "paalegg_mottatt": "2026-09-20"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "cd5f0ed2-0000-4000-8000-000000000016",
+                "laast": "Totalentreprenøren oppgir nå at pålegget ble mottatt 20. september 2026. I brev K201-KOE-017-01 av 1. oktober 2026 oppga totalentreprenøren 15. september 2026."
+              }
+            ],
+            "brevtittel": "Korrigering av datoen i sak KOE-17",
+            "brevnummer": 4,
+            "merking": "K201-KOE-017-04"
           }
         }
       ]
@@ -430,7 +1050,7 @@
             "brevtekst": [
               {
                 "gjelder": "1475b7f0-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH avslår forholdet og påberoper at vederlagsvarselet kom for sent» i sak KOE-17. Totalentreprenøren opplyser at totalentreprenøren ble klar over forholdet 15. september 2026.",
+                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH avslår forholdet og påberoper at vederlagsvarselet kom for sent» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
                 "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
               }
             ],
@@ -464,7 +1084,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 48,
+                  "regelversjon": 78,
                   "linje": "Byggherrens standpunkt: avslått.",
                   "sammenfall": false,
                   "varslingsplikt": false,
@@ -493,7 +1113,7 @@
           }
         },
         {
-          "event_id": "1475b7f0-0000-4000-8000-00000000000f",
+          "event_id": "1475b7f0-0000-4000-8000-000000000010",
           "sak_id": "1475b7f0-0000-4000-8000-000000000001",
           "event_type": "dokument_registrert",
           "versjon": 4,
@@ -506,16 +1126,23 @@
           "data": {
             "krav": [
               {
-                "id": "1475b7f0-0000-4000-8000-000000000010",
+                "id": "1475b7f0-0000-4000-8000-000000000011",
                 "spor": "vederlag",
-                "metode": "tilbud",
-                "beloep": 100000
+                "kravposter": [
+                  {
+                    "id": "1475b7f0-0000-4000-8000-000000000012",
+                    "betegnelse": "P1",
+                    "beskrivelse": "Kravposten i bevis-saken",
+                    "oppgjoersform": "tilbud",
+                    "beloep": 100000
+                  }
+                ]
               }
             ],
             "brevtekst": [
               {
-                "gjelder": "1475b7f0-0000-4000-8000-000000000010",
-                "laast": "TE krever justering av vederlaget med 100 000 kr eks. mva. Kravet er et tilbud etter NS 8407 § 34.2.1."
+                "gjelder": "1475b7f0-0000-4000-8000-000000000011",
+                "laast": "P1 Kravposten i bevis-saken: TE krever 100 000 kr eks. mva. Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1."
               }
             ],
             "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
@@ -524,7 +1151,7 @@
           }
         },
         {
-          "event_id": "1475b7f0-0000-4000-8000-000000000019",
+          "event_id": "1475b7f0-0000-4000-8000-00000000001b",
           "sak_id": "1475b7f0-0000-4000-8000-000000000001",
           "event_type": "dokument_registrert",
           "versjon": 5,
@@ -537,51 +1164,68 @@
           "data": {
             "svar": [
               {
-                "id": "1475b7f0-0000-4000-8000-00000000001a",
+                "id": "1475b7f0-0000-4000-8000-00000000001c",
                 "spor": "vederlag",
-                "gjelder": "1475b7f0-0000-4000-8000-000000000010",
+                "gjelder": "1475b7f0-0000-4000-8000-000000000011",
                 "paaberopelse": "1475b7f0-0000-4000-8000-000000000006",
                 "standpunkter": [
                   {
-                    "id": "1475b7f0-0000-4000-8000-000000000016",
+                    "id": "1475b7f0-0000-4000-8000-000000000018",
                     "art": "rettidighet",
-                    "gjelder": "1475b7f0-0000-4000-8000-000000000010",
+                    "gjelder": "1475b7f0-0000-4000-8000-000000000011",
                     "hjemmel": "34.1.2",
                     "i_tide": false
                   },
                   {
-                    "id": "1475b7f0-0000-4000-8000-000000000017",
-                    "art": "metode",
+                    "id": "1475b7f0-0000-4000-8000-000000000019",
+                    "art": "oppgjoersform",
+                    "gjelder": "1475b7f0-0000-4000-8000-000000000012",
                     "hjemmel": "34.2.2",
                     "aksepterer": true
                   },
                   {
-                    "id": "1475b7f0-0000-4000-8000-000000000018",
+                    "id": "1475b7f0-0000-4000-8000-00000000001a",
                     "art": "beloep",
-                    "beloep": 60000
+                    "beloep": 60000,
+                    "gjelder": "1475b7f0-0000-4000-8000-000000000012"
                   }
                 ],
                 "utregning": {
                   "resultat": "avslaatt",
                   "godkjent_beloep": 0,
+                  "poster": [
+                    {
+                      "gjelder": "1475b7f0-0000-4000-8000-000000000012",
+                      "lag": [
+                        {
+                          "lag": 1,
+                          "beloep": 0
+                        },
+                        {
+                          "lag": 2,
+                          "beloep": 60000
+                        }
+                      ]
+                    }
+                  ],
                   "subsidiaert_resultat": "delvis_godkjent",
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 48,
+                  "regelversjon": 78,
                   "linje": "Byggherrens standpunkt: subsidiært varselet etter § 34.1.2 kom for sent, videre subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
                     {
-                      "standpunkt": "1475b7f0-0000-4000-8000-000000000016",
+                      "standpunkt": "1475b7f0-0000-4000-8000-000000000018",
                       "lag": 1
                     },
                     {
-                      "standpunkt": "1475b7f0-0000-4000-8000-000000000017",
+                      "standpunkt": "1475b7f0-0000-4000-8000-000000000019",
                       "lag": 2
                     },
                     {
-                      "standpunkt": "1475b7f0-0000-4000-8000-000000000018",
+                      "standpunkt": "1475b7f0-0000-4000-8000-00000000001a",
                       "lag": 2
                     }
                   ]
@@ -590,7 +1234,7 @@
             ],
             "brevtekst": [
               {
-                "gjelder": "1475b7f0-0000-4000-8000-00000000001a",
+                "gjelder": "1475b7f0-0000-4000-8000-00000000001c",
                 "laast": "Byggherrens svar på kravet om justering av vederlaget i TEs krav i brev K201-KOE-017-03 av 1. oktober 2026:\n\nPrinsipalt: byggherren har avslått grunnlaget i brev K201-KOE-017-02 av 1. oktober 2026.\n\nSubsidiært: byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 § 34.1.2 i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent.\n\nVidere subsidiært: byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret. Byggherren godkjenner 60 000 kr eks. mva. av de krevde 100 000 kr eks. mva.",
                 "utdypning": "Varselet etter punkt 34.1.2 kom for sent. Subsidiært godtas 60 000 kr for merarbeidet."
               }
@@ -689,7 +1333,7 @@
             "brevtekst": [
               {
                 "gjelder": "1575b983-0000-4000-8000-000000000008",
-                "laast": "Totalentreprenøren krever endringsordre for «TE oppretter saken og påberoper forholdet» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026.",
+                "laast": "Totalentreprenøren krever endringsordre for «TE oppretter saken og påberoper forholdet» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
                 "utdypning": "Byggherren påla i byggemøtet 15. september 2026 at fasaden skal ha teglforblending i stedet for platekledning, som beskrevet i kontrakten."
               }
             ],

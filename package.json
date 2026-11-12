@@ -4,7 +4,7 @@
 	"version": "0.1.0",
 	"type": "module",
 	"engines": {
-		"node": "^22.18.0"
+		"node": "^22.19.0"
 	},
 	"scripts": {
 		"dev": "vite dev",
@@ -50,15 +50,11 @@
 		"vitest": "^5.0.5"
 	},
 	"dependencies": {
+		"@oslokommune/punkt-assets": "19.14.2",
 		"@pdf-lib/fontkit": "1.1.1",
 		"@tanstack/svelte-query": "^6.1.0",
-		"@tiptap/core": "^2.27.2",
-		"@tiptap/extension-character-count": "^2.27.2",
-		"@tiptap/extension-placeholder": "^2.27.2",
-		"@tiptap/starter-kit": "^2.27.2",
 		"bits-ui": "^2.16.2",
 		"date-fns": "^4.1.0",
-		"dompurify": "3.4.17",
 		"formsnap": "^2.0.1",
 		"jose": "6.2.12",
 		"lucide-svelte": "^0.475.0",

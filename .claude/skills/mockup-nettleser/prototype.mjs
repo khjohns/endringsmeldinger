@@ -142,6 +142,8 @@ for (const sti of stier) {
         if (naa !== `#${h.tilstand}`) throw new Error(`«${h.klikk}» førte til ${naa}, ikke #${h.tilstand}`);
         if (!(await maal.isVisible())) throw new Error(`#${h.tilstand} er ikke synlig`);
         if (naa !== foer) await tilstand(page, sti.id, n++);
+      } else if ('trykk' in h) {
+        await (await ett(page.getByRole('button', { name: h.trykk }), `knappen «${h.trykk}»`)).click({ timeout: 3000 });
       } else if ('kryss' in h) {
         await (await ett(page.getByRole('checkbox', { name: h.kryss }), `avkrysningen «${h.kryss}»`)).check();
       } else if ('velg' in h) {

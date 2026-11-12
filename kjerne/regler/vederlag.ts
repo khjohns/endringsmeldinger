@@ -1,114 +1,132 @@
 /**
- * Byggherrens svar på vederlagskrav, NS 8407 § 34 og § 30.2. Port av
- * `regler/vederlag.py`; beløp regnes i hele øre (`beloep.ts`).
+ * Byggherrens svar på vederlagskravet, NS 8407 § 34, over postene i kravet. Beløp regnes i
+ * hele øre (`beloep.ts`).
  */
 
 import { beloep, BroekdelAvOere, heleOere, NULL_OERE, UgyldigBeloep, type Oere } from './beloep.ts';
-import type {
-  Beloepsvurdering,
-  Forholdsresultat,
-  SubsidiaerUtloser,
-  Vederlagsmetode,
-  Vederlagsresultat,
-} from './typer.ts';
+import { BELOEPSVURDERINGER, type Beloepsvurdering, type Vederlagsresultat } from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';
-import { erForholdSubsidiaert } from './forhold.ts';
+import { METODER } from '../spor/vederlag/format.ts';
+import type { Oppgjoersform } from '../typer.ts';
 import type { Regelsett } from './regelsett.ts';
 
 type Tall = number | string;
 
+/** Byggherrens vurdering av beløpet i én post, og det krevde beløpet (KA-U57 (c)). */
+interface Postbeloep {
+  krevd: Tall;
+  vurdering?: Beloepsvurdering | null;
+  godkjent_beloep?: Tall | null;
+}
+
 /**
- * TEs krav og forholdssporet. `rigg_beloep` og `produktivitet_beloep` er `null` når posten ikke er
- * krevd, og `hovedkrav_beloep` når kravet bare har de særskilte kravene (OV-U23).
+ * En kravpost. `gjelder` er kravpostens `id`; `aksepterer` er standpunktet etter § 34.2.2
+ * (KA-U57 (d)). Uten aksept står kravposten uten vurdering av beløpet (KA-U72).
  */
-export interface Vederlagskrav {
-  hovedkrav_beloep: Tall | null;
-  metode: Vederlagsmetode | null;
-  rigg_beloep: Tall | null;
-  produktivitet_beloep: Tall | null;
-  krever_justert_ep: boolean;
-  kostnads_overslag: Tall | null;
+export interface Kravpostsvar extends Postbeloep {
+  gjelder: string;
+  aksepterer?: boolean | null;
+  /**
+   * Kravposten følger en beregningsregel, og svaret tar ikke stilling til et beløp (OV-U95
+   * punkt 5). `varselForSent` er innsigelsen etter § 34.3.3 første ledd (VS-U4, VS-U56), og
+   * `justering` standpunktet etter § 34.3.2, `null` uten standpunkt (KA-U68).
+   */
+  beregningsregel?: { varselForSent: boolean; justering: boolean | null };
+}
+
+/** Posten etter § 34.1.3 annet ledd, med påberopelsen etter § 34.1.3 og beløpet etter begrensningen (VS-U5, OV-U22). */
+export interface Produktivitetssvar extends Postbeloep {
+  saerskilt: 'produktivitet';
+  varslet_i_tide?: boolean | null;
+  begrenset_beloep?: Tall | null;
+}
+
+/** Rigg og drift. `varslet_i_tide` avvises, se `kontroller` (OV-U89 punkt 9). */
+export interface RiggOgDriftsvar extends Postbeloep {
+  saerskilt: 'rigg_og_drift';
+  varslet_i_tide?: unknown;
+}
+
+export type Postsvar = Kravpostsvar | Produktivitetssvar | RiggOgDriftsvar;
+
+/**
+ * Byggherrens svar på vederlagskravet, én post per post i kravet (OV-U23, KA-U57 (c)).
+ * `hovedkategori` er kategorien i påberopelsen, og `varslet_i_tide` er påberopelsen etter
+ * § 34.1.2, som gjelder hele kravet (OV-U27).
+ */
+export interface Vederlagssvar {
   hovedkategori: string | null;
-  underkategori: string | null;
-  grunnlag_varslet_i_tide: boolean | null;
-  grunnlag_resultat: Forholdsresultat | null;
+  varslet_i_tide?: boolean | null;
+  poster: Postsvar[];
 }
 
-/** Byggherrens vurderinger. Feltnavnene er de i kommandoen. */
-export interface Vederlagsvurdering {
-  hovedkrav_vurdering?: Beloepsvurdering | null;
-  hovedkrav_godkjent_beloep?: Tall | null;
-  rigg_vurdering?: Beloepsvurdering | null;
-  rigg_godkjent_beloep?: Tall | null;
-  produktivitet_vurdering?: Beloepsvurdering | null;
-  produktivitet_godkjent_beloep?: Tall | null;
-  hovedkrav_varslet_i_tide?: boolean | null;
-  rigg_varslet_i_tide?: boolean | null;
-  produktivitet_varslet_i_tide?: boolean | null;
-  /** VS-U5, OV-U22: beløpet byggherren godtar for posten etter begrensningen etter § 34.1.3. */
-  produktivitet_begrenset_beloep?: Tall | null;
-  aksepterer_metode?: boolean | null;
-  varsel_justert_ep_ok?: boolean | null;
-  hold_tilbake?: boolean;
+/** Feltene i en feil: `<post>.<felt>`, der posten er `gjelder` eller `saerskilt`. */
+export const postnoekkel = (p: Postsvar): string => ('gjelder' in p ? p.gjelder : p.saerskilt);
+
+/**
+ * Det byggherren godtar for posten i ett lag i sporet, fra 1 (OV-U32). `beloep` er `null` når
+ * posten ikke har et fast beløp i laget, fordi byggherren ikke aksepterer tilbudet (KA-U72).
+ */
+export interface Postlag {
+  lag: number;
+  beloep: Oere | null;
 }
 
-export interface Preklusjon {
-  hovedkrav: boolean;
-  rigg: boolean;
-  produktivitet: boolean;
+/** Det byggherren godtar for én post, i øre. */
+export interface Postresultat {
+  post: Postsvar;
+  krevd: Oere;
+  /**
+   * Ett element per lag i sporet, i rekkefølge. Det siste er det byggherren godtar uten
+   * begrensningen etter § 34.1.3 (OV-U26). Arbeidsvalg 1 i spørsmålsfila 09.11 for #1663.
+   * Uten beløp for en kravpost der tilbudet ikke er akseptert (KA-U72).
+   */
+  lag: Postlag[];
 }
 
 export interface Vederlagsberegning {
   beregnings_resultat: Vederlagsresultat;
   total_godkjent_beloep: Oere;
   total_krevd_beloep: Oere;
-  hovedkrav_godkjent_beloep: Oere | null;
-  rigg_godkjent_beloep: Oere | null;
-  produktivitet_godkjent_beloep: Oere | null;
-  produktivitet_begrenset_beloep: Oere | null;
-  subsidiaer_triggers: SubsidiaerUtloser[];
+  poster: Postresultat[];
   subsidiaer_resultat: Vederlagsresultat | null;
   subsidiaer_godkjent_beloep: Oere | null;
+  /** § 34.1.2 og § 34.1.3 påberopt med virkning. */
   preklusjon: Preklusjon;
-  hele_vederlaget_subsidiaert: boolean;
 }
 
-const harHovedkrav = (krav: Vederlagskrav) => krav.hovedkrav_beloep !== null;
-const harRigg = (krav: Vederlagskrav) => krav.rigg_beloep !== null;
-const harProduktivitet = (krav: Vederlagskrav) => krav.produktivitet_beloep !== null;
+export interface Preklusjon {
+  hovedkrav: boolean;
+  produktivitet: boolean;
+}
 
 export function gjelderVarslingspliktenForVederlag(hovedkategori: string | null): boolean {
   return hovedkategori === 'svikt' || hovedkategori === 'andre_forhold';
 }
 
-export function kanHoldeTilbake(krav: Vederlagskrav): boolean {
-  return krav.metode === 'regningsarbeid' && !krav.kostnads_overslag;
-}
-
 /** Predikatet for § 34.1.2 leses av regelsettet, som i standpunktene (#490). */
 type Varslingsplikt = Pick<Regelsett, 'gjelderVarslingspliktenForVederlag'>;
 
-export function beregnPreklusjon(
-  v: Vederlagsvurdering,
-  krav: Vederlagskrav,
-  regler: Varslingsplikt
-): Preklusjon {
+const erProduktivitet = (p: Postsvar): p is Produktivitetssvar =>
+  'saerskilt' in p && p.saerskilt === 'produktivitet';
+
+const produktivitetsposten = (svar: Vederlagssvar): Produktivitetssvar | undefined =>
+  svar.poster.find(erProduktivitet);
+
+export function beregnPreklusjon(svar: Vederlagssvar, regler: Varslingsplikt): Preklusjon {
   return {
     hovedkrav:
-      regler.gjelderVarslingspliktenForVederlag(krav.hovedkategori) &&
-      v.hovedkrav_varslet_i_tide === false,
-    rigg: harRigg(krav) && v.rigg_varslet_i_tide === false,
-    produktivitet: harProduktivitet(krav) && v.produktivitet_varslet_i_tide === false,
+      regler.gjelderVarslingspliktenForVederlag(svar.hovedkategori) &&
+      svar.varslet_i_tide === false,
+    produktivitet: produktivitetsposten(svar)?.varslet_i_tide === false,
   };
 }
 
 export function beregnGodkjentBeloep(
   vurdering: Beloepsvurdering | null | undefined,
   krevd: Oere,
-  delvis: Oere | null,
-  prekludert = false
+  delvis: Oere | null
 ): Oere {
-  if (prekludert) return NULL_OERE;
   if (vurdering === 'godkjent') return krevd;
   if (vurdering === 'delvis') return delvis ?? NULL_OERE;
   return NULL_OERE;
@@ -122,42 +140,98 @@ export function erKravlinjeGyldig(
   return !(vurdering === 'delvis' && (godkjent === null || godkjent === undefined));
 }
 
-/** En post i kravet: det krevde, det byggherren godtar uten begrensningen, og det prinsipale. */
-type Post = [krevd: Oere, godkjent: Oere, prinsipalt: Oere];
+/** Byggherren aksepterer ikke tilbudet for kravposten (§ 34.2.2, KA-U57 (d)). */
+const ikkeAkseptert = (p: Postsvar): boolean => 'gjelder' in p && p.aksepterer === false;
+
+const regelen = (p: Postsvar) => ('gjelder' in p ? p.beregningsregel : undefined);
+
+/** Standpunktene for en kravpost etter en beregningsregel som kan åpne et lag (KA-U64, KA-U68). */
+export interface Kravpostinnsigelser {
+  /** Byggherren godtar beregningsregelen (§ 34.3, § 34.4). */
+  godtarRegelen: boolean;
+  /** Innsigelsen etter § 34.3.3 første ledd (VS-U4, VS-U56). */
+  varselForSent: boolean;
+  /** Byggherren tar stilling til justeringen etter § 34.3.2. */
+  justering: boolean;
+}
+
+/** Laget hvert standpunkt for kravposten står i, `null` uten virkning, og laget for beløpet. */
+export interface LagIKravposten {
+  regelen: number | null;
+  varselet: number | null;
+  justeringen: number | null;
+  beloepet: number;
+}
 
 /**
- * Postene med det byggherren godtar prinsipalt. VS-U5, OV-U22: en påberopelse etter § 34.1.3
- * avviser aldri hele kravet, bare utgiftsgrunnlaget for posten, som da står med beløpet etter
- * begrensningen. OV-U27: påberopelsen etter § 34.1.2 gjelder hele kravet, også de særskilte.
- * Rigg og drift (#1171) har ingen begrensning og settes til 0 ved preklusjon.
+ * Lagene standpunktene for en kravpost etter en beregningsregel står i, fra `foerste`, det første
+ * laget etter § 34.1.2 (arbeidsvalg 1 punkt 4 i spørsmålsfila 09.11 for #1663): beregningsregelen
+ * byggherren ikke godtar og innsigelsen etter § 34.3.3 åpner hvert sitt lag for standpunktene
+ * etter dem, i rekkefølgen leseren krever, og beløpet står i laget til det siste (VS-U4,
+ * VS-U56). Varselet etter § 34.4 åpner ikke et lag (KA-U64). `null` når ingen av dem åpner et
+ * lag: da står standpunktene som de andre. Utregningen, virkningene og forutsetningene i
+ * skjemaet leser lagene herfra (#1774).
  */
-function poster(v: Vederlagsvurdering, krav: Vederlagskrav, p: Preklusjon): Post[] {
-  const rader: [Oere, Beloepsvurdering | null | undefined, Oere | null, Oere | null][] = [];
-  if (harHovedkrav(krav))
-    rader.push([
-      beloep(krav.hovedkrav_beloep)!,
-      v.hovedkrav_vurdering,
-      beloep(v.hovedkrav_godkjent_beloep),
-      null,
-    ]);
-  if (harRigg(krav))
-    rader.push([
-      beloep(krav.rigg_beloep)!,
-      v.rigg_vurdering,
-      beloep(v.rigg_godkjent_beloep),
-      p.rigg ? NULL_OERE : null,
-    ]);
-  if (harProduktivitet(krav)) {
-    rader.push([
-      beloep(krav.produktivitet_beloep)!,
-      v.produktivitet_vurdering,
-      beloep(v.produktivitet_godkjent_beloep),
-      p.produktivitet ? (beloep(v.produktivitet_begrenset_beloep) ?? NULL_OERE) : null,
-    ]);
-  }
-  return rader.map(([krevd, vurd, delvis, begrenset]) => {
-    const godkjent = beregnGodkjentBeloep(vurd, krevd, delvis);
-    return [krevd, godkjent, p.hovedkrav ? NULL_OERE : (begrenset ?? godkjent)];
+export function lagIKravposten(k: Kravpostinnsigelser, foerste: number): LagIKravposten | null {
+  if (k.godtarRegelen && !k.varselForSent) return null;
+  let lag = foerste;
+  const regelen = k.godtarRegelen ? null : lag++;
+  const varselet = k.varselForSent ? lag++ : null;
+  const justeringen = k.justering ? lag : null;
+  return { regelen, varselet, justeringen, beloepet: justeringen ?? lag - 1 };
+}
+
+/**
+ * Lagene i sporet: § 34.1.2 først, så begrensningen etter § 34.1.3 (KA-U64) og standpunktene
+ * for en kravpost etter en beregningsregel, som bare rammer posten de gjelder (arbeidsvalg 1).
+ * Gir antallet lag og det første laget etter § 34.1.2. Et tilbud som ikke er akseptert, gir ikke
+ * et eget lag (KA-U72).
+ */
+function lagene(p: Preklusjon, svar: Vederlagssvar): { foerste: number; antall: number } {
+  const foerste = p.hovedkrav ? 2 : 1;
+  const regler = svar.poster.map((post) => {
+    const r = regelen(post);
+    const lag = r
+      ? lagIKravposten(
+          {
+            godtarRegelen: !ikkeAkseptert(post),
+            varselForSent: r.varselForSent,
+            justering: r.justering !== null,
+          },
+          0
+        )
+      : null;
+    return lag?.beloepet ?? 0;
+  });
+  return { foerste, antall: foerste + Math.max(Number(p.produktivitet), ...regler) };
+}
+
+/**
+ * Postene med det byggherren godtar i hvert lag. OV-U27: påberopelsen etter § 34.1.2 gjelder
+ * hele kravet, også de særskilte, og står i det første laget. VS-U5, OV-U22: en påberopelse
+ * etter § 34.1.3 avviser aldri hele kravet; den særskilte posten står med beløpet etter
+ * begrensningen i laget for begrensningen. KA-U72: uten aksept av tilbudet har kravposten
+ * ikke et beløp i noe lag etter § 34.1.2.
+ * Arbeidsvalg 1.1: en post som ingen innsigelse i laget rammer, har samme verdi som i laget før.
+ * Rigg og drift har ingen særskilt varslingsplikt (OV-U25, OV-U35).
+ */
+function postresultater(svar: Vederlagssvar, p: Preklusjon): Postresultat[] {
+  const { foerste, antall } = lagene(p, svar);
+  return svar.poster.map((post) => {
+    const krevd = beloep(post.krevd)!;
+    const godkjent =
+      ikkeAkseptert(post) || regelen(post)
+        ? null
+        : beregnGodkjentBeloep(post.vurdering, krevd, beloep(post.godkjent_beloep));
+    const iFoerste =
+      erProduktivitet(post) && p.produktivitet
+        ? (beloep(post.begrenset_beloep) ?? NULL_OERE)
+        : godkjent;
+    const lag: Postlag[] = Array.from({ length: antall }, (_, i) => ({
+      lag: i + 1,
+      beloep: i + 1 < foerste ? NULL_OERE : i + 1 === foerste ? iFoerste : godkjent,
+    }));
+    return { post, krevd, lag };
   });
 }
 
@@ -171,29 +245,23 @@ export function erBeloepetGodkjentFullt(krevd: Oere, godkjent: Oere): boolean {
   return godkjent >= krevd;
 }
 
-/** B-13, HF-U5: «godkjent» bare når hele beløpet er godkjent og tilbudet akseptert (§ 34.2.2). */
-function resultatAvBeloep(krevd: Oere, godkjent: Oere, metodeendring: boolean): Vederlagsresultat {
-  if (godkjent === NULL_OERE) return 'avslaatt';
+/**
+ * B-13, HF-U5: «godkjent» bare når hele beløpet er godkjent og tilbudet akseptert (§ 34.2.2).
+ * Et lag der en kravpost ikke har et fast beløp, avslår ikke kravet, også når summen er 0
+ * (OV-U73, KA-U72).
+ */
+function resultatAvBeloep(
+  krevd: Oere,
+  godkjent: Oere,
+  metodeendring: boolean,
+  utenFastBeloep = false
+): Vederlagsresultat {
+  if (godkjent === NULL_OERE && !utenFastBeloep) return 'avslaatt';
   if (erBeloepetGodkjentFullt(krevd, godkjent) && !metodeendring) return 'godkjent';
   return 'delvis_godkjent';
 }
 
-export function subsidiaerTriggers(
-  v: Vederlagsvurdering,
-  krav: Vederlagskrav,
-  p: Preklusjon
-): SubsidiaerUtloser[] {
-  const kandidater: [boolean, SubsidiaerUtloser][] = [
-    [p.hovedkrav, 'preklusjon_hovedkrav'],
-    [p.rigg, 'preklusjon_rigg'],
-    [p.produktivitet, 'preklusjon_produktivitet'],
-    [krav.krever_justert_ep && v.varsel_justert_ep_ok === false, 'reduksjon_ep_justering'],
-    [v.aksepterer_metode === false, 'metode_avslaatt'],
-  ];
-  return kandidater.filter(([gjelder]) => gjelder).map(([, t]) => t);
-}
-
-function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav, regler: Varslingsplikt): void {
+function kontroller(svar: Vederlagssvar, regler: Varslingsplikt): void {
   const feil: Record<string, string> = {};
   /** OV-U58: beløpet parten sendte, i hele øre; ellers føres feilen for feltet. */
   const lesOere = (felt: string, verdi: Tall): Oere | null => {
@@ -208,15 +276,29 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav, regler: Varsling
       return null;
     }
   };
-  const post = (
-    navn: string,
-    vurd: Beloepsvurdering | null | undefined,
-    godkjent: Tall | null | undefined,
-    krevd: Tall | null
-  ) => {
-    const felt = `${navn}_godkjent_beloep`;
+  const kontrollerBeloepet = (navn: string, p: Postsvar) => {
+    const { vurdering: vurd, godkjent_beloep: godkjent, krevd } = p;
+    const felt = `${navn}.godkjent_beloep`;
+    if (regelen(p)) {
+      const grunn =
+        'kravposten følger en beregningsregel, og svaret godkjenner ikke noe beløp for den (OV-U95 punkt 5)';
+      if (vurd !== null && vurd !== undefined) feil[`${navn}.vurdering`] = grunn;
+      if (godkjent !== null && godkjent !== undefined) feil[felt] = grunn;
+      return;
+    }
+    if (ikkeAkseptert(p)) {
+      const ikkeAkseptertMen = 'byggherren aksepterer ikke tilbudet, men tar stilling til beløpet';
+      if (vurd !== null && vurd !== undefined)
+        feil[`${navn}.vurdering`] = `${ikkeAkseptertMen} (KA-U72)`;
+      if (godkjent !== null && godkjent !== undefined) feil[felt] = `${ikkeAkseptertMen} (KA-U72)`;
+      return;
+    }
     if (vurd === null || vurd === undefined) {
-      feil[`${navn}_vurdering`] = 'mangler';
+      feil[`${navn}.vurdering`] = 'mangler';
+      return;
+    }
+    if (!BELOEPSVURDERINGER.includes(vurd)) {
+      feil[`${navn}.vurdering`] = `${String(vurd)} er ikke en vurdering av beløpet`;
       return;
     }
     if (!erKravlinjeGyldig(vurd, godkjent)) {
@@ -242,96 +324,157 @@ function kontroller(v: Vederlagsvurdering, krav: Vederlagskrav, regler: Varsling
           `er ${String(godkjent)}, men vurderingen «delvis» gjelder mer enn 0 og mindre enn det krevde beløpet, ${String(krevd)}`;
     }
   };
-  if (harHovedkrav(krav))
-    post('hovedkrav', v.hovedkrav_vurdering, v.hovedkrav_godkjent_beloep, krav.hovedkrav_beloep);
-  if (harRigg(krav)) post('rigg', v.rigg_vurdering, v.rigg_godkjent_beloep, krav.rigg_beloep);
-  if (harProduktivitet(krav)) {
-    post(
-      'produktivitet',
-      v.produktivitet_vurdering,
-      v.produktivitet_godkjent_beloep,
-      krav.produktivitet_beloep
-    );
-  }
-  const spoersmaal: [boolean, keyof Vederlagsvurdering, string][] = [
-    [
-      regler.gjelderVarslingspliktenForVederlag(krav.hovedkategori),
-      'hovedkrav_varslet_i_tide',
-      '§ 34.1.2',
-    ],
-    [harRigg(krav), 'rigg_varslet_i_tide', '§ 34.1.3'],
-    [harProduktivitet(krav), 'produktivitet_varslet_i_tide', '§ 34.1.3'],
-    [true, 'aksepterer_metode', '§ 34.2.2'],
-  ];
-  for (const [gjelder, felt, hjemmel] of spoersmaal) {
-    if (gjelder && (v[felt] === null || v[felt] === undefined)) feil[felt] = `mangler (${hjemmel})`;
-  }
   // Valg 2 i #1047: 0 ≤ beløpet etter begrensningen ≤ det byggherren godtar for posten.
-  const begrenset = v.produktivitet_begrenset_beloep;
-  const begrenses = harProduktivitet(krav) && v.produktivitet_varslet_i_tide === false;
-  if (!begrenses) {
-    if (begrenset !== null && begrenset !== undefined)
-      feil.produktivitet_begrenset_beloep = 'gjelder bare en påberopt begrensning (§ 34.1.3)';
-  } else if (begrenset === null || begrenset === undefined) {
-    feil.produktivitet_begrenset_beloep = 'mangler (§ 34.1.3)';
-  } else {
-    const b = lesOere('produktivitet_begrenset_beloep', begrenset);
-    if (b !== null && !feil.produktivitet_vurdering && !feil.produktivitet_godkjent_beloep) {
-      const krevd = beloep(krav.produktivitet_beloep)!;
-      const godkjent = beregnGodkjentBeloep(
-        v.produktivitet_vurdering,
-        krevd,
-        beloep(v.produktivitet_godkjent_beloep)
-      );
-      if (b < NULL_OERE) feil.produktivitet_begrenset_beloep = 'kan ikke være negativt';
-      else if (b > godkjent)
-        feil.produktivitet_begrenset_beloep = 'er høyere enn det byggherren godtar for posten';
+  const kontrollerBegrensningen = (navn: string, p: Produktivitetssvar) => {
+    const felt = `${navn}.begrenset_beloep`;
+    const begrenset = p.begrenset_beloep;
+    if (p.varslet_i_tide === null || p.varslet_i_tide === undefined)
+      feil[`${navn}.varslet_i_tide`] = 'mangler (§ 34.1.3)';
+    if (p.varslet_i_tide !== false) {
+      if (begrenset !== null && begrenset !== undefined)
+        feil[felt] = 'gjelder bare en påberopt begrensning (§ 34.1.3)';
+      return;
     }
-  }
-  if (v.hold_tilbake && !kanHoldeTilbake(krav)) {
-    feil.hold_tilbake = 'bare ved regningsarbeid uten kostnadsoverslag (§ 30.2)';
+    if (begrenset === null || begrenset === undefined) {
+      feil[felt] = 'mangler (§ 34.1.3)';
+      return;
+    }
+    const b = lesOere(felt, begrenset);
+    if (b !== null && !feil[`${navn}.vurdering`] && !feil[`${navn}.godkjent_beloep`]) {
+      const krevd = beloep(p.krevd)!;
+      const godkjent = beregnGodkjentBeloep(p.vurdering, krevd, beloep(p.godkjent_beloep));
+      if (b < NULL_OERE) feil[felt] = 'kan ikke være negativt';
+      else if (b > godkjent) feil[felt] = 'er høyere enn det byggherren godtar for posten';
+    }
+  };
+  if (
+    regler.gjelderVarslingspliktenForVederlag(svar.hovedkategori) &&
+    (svar.varslet_i_tide === null || svar.varslet_i_tide === undefined)
+  )
+    feil.varslet_i_tide = 'mangler (§ 34.1.2)';
+  for (const p of svar.poster) {
+    const navn = postnoekkel(p);
+    kontrollerBeloepet(navn, p);
+    if ('gjelder' in p) {
+      if (p.aksepterer === null || p.aksepterer === undefined)
+        feil[`${navn}.aksepterer`] = 'mangler (§ 34.2.2)';
+    } else if (p.saerskilt === 'produktivitet') kontrollerBegrensningen(navn, p);
+    // OV-U89 punkt 9: påberopelsen etter § 34.1.3 gjelder bare kravet etter annet ledd.
+    else if (p.varslet_i_tide !== null && p.varslet_i_tide !== undefined)
+      feil[`${navn}.varslet_i_tide`] =
+        'påberopelsen etter § 34.1.3 gjelder bare kravet om nedsatt produktivitet og forstyrrelser';
   }
   if (Object.keys(feil).length) throw new UgyldigVurdering(feil);
 }
 
-/** Regn ut svaret av vurderingene og kravet. Kaster `UgyldigVurdering` når svaret ikke er helt (B-13). */
-export function beregnVederlag(
-  krav: Vederlagskrav,
-  v: Vederlagsvurdering,
-  regler: Varslingsplikt
-): Vederlagsberegning {
-  kontroller(v, krav, regler);
-  const p = beregnPreklusjon(v, krav, regler);
-  const alle = poster(v, krav, p);
-  const totalKrevdInklPrekludert = sum(alle.map(([k]) => k));
-  const totalGodkjent = sum(alle.map(([, , pr]) => pr));
-  const totalGodkjentInklPrekludert = sum(alle.map(([, g]) => g));
-  const metodeendring = v.aksepterer_metode === false;
-  const perPost = alle.map(([, g]) => g);
-  const visSubsidiaert = p.hovedkrav || p.rigg || p.produktivitet;
+/** Regn ut svaret av postene. Kaster `UgyldigVurdering` når svaret ikke er helt (B-13). */
+export function beregnVederlag(svar: Vederlagssvar, regler: Varslingsplikt): Vederlagsberegning {
+  kontroller(svar, regler);
+  const p = beregnPreklusjon(svar, regler);
+  const alle = postresultater(svar, p);
+  const krevd = sum(alle.map((r) => r.krevd));
+  // OV-U31, OV-U73: det første og det siste laget; en post uten fast beløp regnes ikke med.
+  const iLaget = (i: number) => alle.map((r) => r.lag.at(i)!.beloep);
+  const [foerste, siste] = [iLaget(0), iLaget(-1)];
+  const totalGodkjent = sum(foerste.map((b) => b ?? NULL_OERE));
+  // HF-U5: ikke «godkjent» når byggherren ikke aksepterer oppgjørsformen, bestrider justeringen
+  // eller gjør gjeldende at varselet etter § 34.3.3 kom for sent (arbeidsvalg 2 og 3 i
+  // spørsmålsfilene 09.11 og 10.11 for #1663).
+  const metodeendring = svar.poster.some((post) => {
+    const r = regelen(post);
+    return ikkeAkseptert(post) || (r !== undefined && (r.varselForSent || r.justering === false));
+  });
+  const visSubsidiaert = lagene(p, svar).antall > 1;
+  const uten = sum(siste.map((b) => b ?? NULL_OERE));
   return {
-    beregnings_resultat: v.hold_tilbake
-      ? 'tilbakeholdelse'
-      : resultatAvBeloep(totalKrevdInklPrekludert, totalGodkjent, metodeendring),
-    total_godkjent_beloep: totalGodkjent,
-    total_krevd_beloep: totalKrevdInklPrekludert,
-    hovedkrav_godkjent_beloep: harHovedkrav(krav) ? perPost[0] : null,
-    rigg_godkjent_beloep: harRigg(krav) ? perPost[Number(harHovedkrav(krav))] : null,
-    produktivitet_godkjent_beloep: harProduktivitet(krav) ? perPost[perPost.length - 1] : null,
-    produktivitet_begrenset_beloep: p.produktivitet
-      ? (beloep(v.produktivitet_begrenset_beloep) ?? NULL_OERE)
-      : null,
-    subsidiaer_triggers: subsidiaerTriggers(v, krav, p),
-    subsidiaer_resultat: visSubsidiaert
-      ? resultatAvBeloep(totalKrevdInklPrekludert, totalGodkjentInklPrekludert, metodeendring)
-      : null,
-    subsidiaer_godkjent_beloep: visSubsidiaert ? totalGodkjentInklPrekludert : null,
-    preklusjon: p,
-    hele_vederlaget_subsidiaert: erForholdSubsidiaert(
-      krav.grunnlag_resultat,
-      krav.hovedkategori,
-      krav.underkategori,
-      krav.grunnlag_varslet_i_tide
+    beregnings_resultat: resultatAvBeloep(
+      krevd,
+      totalGodkjent,
+      metodeendring,
+      foerste.includes(null)
     ),
+    total_godkjent_beloep: totalGodkjent,
+    total_krevd_beloep: krevd,
+    poster: alle,
+    subsidiaer_resultat: visSubsidiaert
+      ? resultatAvBeloep(krevd, uten, metodeendring, siste.includes(null))
+      : null,
+    subsidiaer_godkjent_beloep: visSubsidiaert ? uten : null,
+    preklusjon: p,
   };
+}
+
+/** § 34.1.2: innsigelsen mot varselet gjelder bare kategoriene der varslingsplikten gjelder. */
+export function kontrollerVarseletForVederlag(
+  v: { hovedkrav_varslet_i_tide?: unknown },
+  hovedkategori: string | null,
+  regler: Regelsett
+): void {
+  if (
+    v.hovedkrav_varslet_i_tide != null &&
+    !regler.gjelderVarslingspliktenForVederlag(hovedkategori)
+  )
+    throw new UgyldigVurdering({
+      hovedkrav_varslet_i_tide: 'gjelder bare svikt og andre forhold (§ 34.1.2)',
+    });
+}
+
+/**
+ * Standpunktet til oppgjørsformen for kravposten `navn` (KA-U57 (d), KA-U54), kravet om tilbud
+ * (KA-U69, KA-U71), varselet etter § 34.3.3 eller § 34.4 (KA-U64) og justeringen (KA-U68),
+ * mot TEs oppgjørsform for posten. Feilene står på `<navn>.<felt>`.
+ */
+export function kontrollerOppgjoersformen(
+  navn: string,
+  p: {
+    aksepterer?: unknown;
+    oensket_oppgjoersform?: unknown;
+    krever_tilbud?: unknown;
+    varslet_i_tide?: unknown;
+    godtar_justering?: unknown;
+  },
+  post: { oppgjoersform: Oppgjoersform; justert?: boolean }
+): void {
+  const feil: Record<string, string> = {};
+  const felt = `${navn}.oensket_oppgjoersform`;
+  const regel = post.oppgjoersform !== 'tilbud';
+  const kreverTilbud = p.krever_tilbud === true;
+  const hva = regel ? 'beregningsregelen ikke godtas' : 'tilbudet ikke aksepteres (§ 34.2.2)';
+  // Arbeidsvalget i #479: uten aksept oppgir byggherren oppgjørsformen, ellers ikke. Svar 3 A
+  // 10.11 for #1663: med kravet om tilbud er den valgfri.
+  if (p.oensket_oppgjoersform != null && !METODER.includes(p.oensket_oppgjoersform as never))
+    feil[felt] = `${String(p.oensket_oppgjoersform)} er ikke en oppgjørsform byggherren kan mene`;
+  else if (p.aksepterer === false && p.oensket_oppgjoersform == null && !kreverTilbud)
+    feil[felt] = `mangler når ${hva}`;
+  else if (p.aksepterer !== false && p.oensket_oppgjoersform != null)
+    feil[felt] = `gjelder bare når ${hva}`;
+  // OV-U95 punkt 1 og 5: byggherren mener ikke den beregningsregelen TE krever.
+  else if (regel && p.oensket_oppgjoersform === post.oppgjoersform)
+    feil[felt] = 'er oppgjørsformen TE krever';
+  if (p.krever_tilbud != null && typeof p.krever_tilbud !== 'boolean')
+    feil[`${navn}.krever_tilbud`] = 'er verken true eller false';
+  else if (kreverTilbud && !regel)
+    feil[`${navn}.krever_tilbud`] =
+      'gjelder bare en kravpost etter en beregningsregel (§ 34.2.1, KA-U69)';
+  // KA-U71: kravet om tilbud og en godtatt beregningsregel utelukker hverandre.
+  else if (kreverTilbud && p.aksepterer !== false)
+    feil[`${navn}.krever_tilbud`] =
+      'kan ikke stå når byggherren godtar beregningsregelen for kravposten (KA-U71)';
+  const justert = post.oppgjoersform === 'enhetspriser' && post.justert === true;
+  // KA-U64: varselet etter § 34.3.3 gjelder justerte enhetspriser, og § 34.4 regningsarbeid.
+  const trengerVarsel = post.oppgjoersform === 'regningsarbeid' || justert;
+  if (p.varslet_i_tide != null && typeof p.varslet_i_tide !== 'boolean')
+    feil[`${navn}.varslet_i_tide`] = 'er verken true eller false';
+  else if (p.varslet_i_tide != null && !trengerVarsel)
+    feil[`${navn}.varslet_i_tide`] =
+      'gjelder bare varselet etter punkt 34.3.3 for justerte enhetspriser og punkt 34.4 for regningsarbeid';
+  // KA-U68: justeringen gjelder justerte enhetspriser, og byggherren tar stilling til den når
+  // beregningsregelen godtas. Uten aksept står den subsidiært og er valgfri (VS-U56).
+  if (p.godtar_justering != null && typeof p.godtar_justering !== 'boolean')
+    feil[`${navn}.godtar_justering`] = 'er verken true eller false';
+  else if (p.godtar_justering != null && !justert)
+    feil[`${navn}.godtar_justering`] = 'gjelder bare en kravpost med justerte enhetspriser';
+  else if (justert && p.aksepterer === true && p.godtar_justering == null)
+    feil[`${navn}.godtar_justering`] = 'mangler når byggherren godtar beregningsregelen (§ 34.3.2)';
+  if (Object.keys(feil).length) throw new UgyldigVurdering(feil);
 }

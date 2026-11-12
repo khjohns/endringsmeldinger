@@ -3,10 +3,8 @@
  *
  * Basen bygges fra `database/migrasjoner/` med runneren, som for testene, og
  * leses i `sys.tables`, `sys.columns`, `sys.indexes` og `sys.foreign_keys`.
- * Formen er den `docs/verktoy/katalog.py` gir PostgreSQL-delen, med
- * tabellnavnet kvalifisert med skjemaet (`koe.app_users`), så navnene ikke
- * kolliderer med PostgreSQL-tabellene. `koe_migrering` er runnerens bokføring
- * og står ikke i registrene.
+ * Tabellnavnet er kvalifisert med skjemaet (`koe.app_users`). `koe_migrering` er
+ * runnerens bokføring og står ikke i registrene.
  *
  * `katalog.py` kjører fila og leser JSON fra stdout:
  *   node server/tester/katalog.ts

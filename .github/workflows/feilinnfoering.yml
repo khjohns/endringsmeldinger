@@ -1,7 +1,7 @@
 # #348: feilinnføringene for kjernen (kjerne/tester/feilinnfoering.ts). Jobben
 # er rød når en mutasjon ikke oppdages, når kontrollkjøringen uten mutasjon ikke
 # er grønn, eller når arbeidskopien ikke er ren etterpå. Én vitest-kjøring per
-# mutasjon, fordelt på seks jobber og i hver jobb på like mange arbeidskopier som
+# mutasjon, fordelt på tolv jobber og i hver jobb på like mange arbeidskopier som
 # runneren har prosessorer (#378). Kopiene deler SQL Server-serveren, og
 # lagringstestene lager hver sin base fra malen (#932). På en PR kjører hver
 # mutasjon bare filene med målene sine, og den nattlige kjøringen hele samlingen
@@ -66,7 +66,6 @@ jobs:
             kjerne
             sprakprove/kjernelagring
             server
-            sprakprove/kjerne
             docs/domenetabell
             docs/datamodell/kjernehendelser.toml
             database/migrasjoner
@@ -102,15 +101,15 @@ jobs:
           fi
 
   feilinnfoering:
-    name: Feilinnføringene for kjernen (del ${{ matrix.del }} av 6)
+    name: Feilinnføringene for kjernen (del ${{ matrix.del }} av 12)
     needs: endret
     if: needs.endret.outputs.kjoer == 'true'
-    # Skriptet fordeler mutasjonene på delene etter rekkefølgen, så en ny
-    # mutasjon trenger ingen endring her.
+    # Skriptet fordeler mutasjonene på delene, så en ny mutasjon trenger ingen
+    # endring her. Fordelingen avhenger av FEILINNFOERING_UTVALG.
     strategy:
       fail-fast: false
       matrix:
-        del: [1, 2, 3, 4, 5, 6]
+        del: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     # På jobben, ikke workflowen: en PR-hendelse som hoppes over (en annen
     # etikett), skal ikke avbryte en kjøring som går. Én gruppe per del, ellers
     # venter delene på hverandre.
@@ -146,7 +145,7 @@ jobs:
       - name: Kjør feilinnføringene
         id: feilinnfoering
         env:
-          FEILINNFOERING_DEL: ${{ matrix.del }}/6
+          FEILINNFOERING_DEL: ${{ matrix.del }}/12
           FEILINNFOERING_UTVALG: ${{ github.event_name == 'pull_request' && '1' || '0' }}
         run: |
           echo "Prosessorer: $(nproc)"

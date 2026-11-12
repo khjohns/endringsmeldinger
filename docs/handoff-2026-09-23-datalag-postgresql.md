@@ -5,7 +5,7 @@ Code-prosjekt som starter uten kontekst. Kriteriet er det samme som før: **hva
 er dyrt å finne ut på nytt, og hvor er det lett å ta feil.** Fortellingen står i
 dokumentene; dette er det som ikke gjentas der.
 
-Forrige handoff: [21.09 (sen kveld)](handoff-2026-09-21-frister.md). Siden den
+Forrige handoff: [21.09 (sen kveld)](historikk/handoff-2026-09-21-frister.md). Siden den
 har B-02 fått designgrunnlag, uavhengig review og en revidert versjon, og
 oppdragsgiver har begynt å avklare driftsplattform med IKT i virksomheten.
 
@@ -37,7 +37,7 @@ Ingen produksjonskode, migrasjon eller database er endret siden forrige handoff.
 | Denne handoffen, avsnitt 3 og 7 | Hva som er besluttet eller foreslått, og hvordan arbeidet er tenkt satt opp |
 | [hovedplanen](plans/2026-09-16-godkjenning-og-varig-levering.md) | **Autoritativ.** Invarianter 2.3, beslutninger 3.1–3.4, F0–F2. Merknadene under B-02 |
 | [design v2 for B-02](design-b02-tilgangsmekanisme-v2-2026-09-23.md) | Operasjonsmodell, kontekstkontrakt, transportvariantene T1v og T2, seks åpne beslutninger |
-| [reviewet av B-02](review-b02-tilgangsmekanisme-2026-09-23.md) | RB2-01–08. Hvorfor v2 ser ut som den gjør |
+| [reviewet av B-02](historikk/review-b02-tilgangsmekanisme-2026-09-23.md) | RB2-01–08. Hvorfor v2 ser ut som den gjør |
 | [transaksjonsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md) | Kommando-, låse- og worker-kontrakten for F2 |
 
 Design v1 og prototype v1 er historikk; v2 og reviewet erstatter dem.
@@ -62,7 +62,7 @@ Design v1 og prototype v1 er historikk; v2 og reviewet erstatter dem.
 
 ## 3. Beslutninger: tatt, foreslått og ventende
 
-**Tatt av oppdragsgiver 22.09** (står i [B-02-oppdraget](prompt-b02-tilgangsmekanisme-2026-09-22.md#2-oppdragsgivers-svar)):
+**Tatt av oppdragsgiver 22.09** (står i [B-02-oppdraget](historikk/prompt-b02-tilgangsmekanisme-2026-09-22.md#2-oppdragsgivers-svar)):
 ingen klienttilgang til basen; trusselmodellen med integritet ved overtatt
 runtime og konfidensialitet som restrisiko; review av annen agent før F1.
 
@@ -90,7 +90,7 @@ runtime og konfidensialitet som restrisiko; review av annen agent før F1.
 backend. Svaret var: Fabric til rapportering, appen beholder egen database.
 Fabric kan speile fra Azure PostgreSQL (GA, versjon 14–18, ikke Burstable-nivå).
 Interne notater må holdes utenfor speilingen eller skjermes der; se
-[vurderingen av Power Platform](vurdering-power-platform-2026-09-17.md), del 5.
+[vurderingen av Power Platform](historikk/vurdering-power-platform-2026-09-17.md), del 5.
 
 ## 4. Etablerte fakta — ikke finn dem igjen
 
@@ -98,7 +98,7 @@ Interne notater må holdes utenfor speilingen eller skjermes der; se
 
 - Backend når basen bare gjennom `supabase-py`, altså PostgREST på `/rest/v1`,
   med `SUPABASE_SECRET_KEY` (`service_role`). Én delt klient per prosess
-  ([`lib/supabase/client.py`](../backend/lib/supabase/client.py)). `auth(token)`
+  ([`lib/supabase/client.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/supabase/client.py)). `auth(token)`
   endrer hele klienten (TM-04).
 - Ni repositorier bruker `.table()`. `auth_repository.py` kaller fire funksjoner
   som RPC: `koe_resolve_identity`, `koe_reconcile_memberships`,
@@ -122,7 +122,7 @@ Interne notater må holdes utenfor speilingen eller skjermes der; se
 - `pgaudit` er forhåndslastet, ikke opprettet.
 
 **Om migrasjonene:** de forutsetter plattformrollene og skjemaet `auth`
-([`scripts/testbase/plattformstubb.sql`](../scripts/testbase/plattformstubb.sql)).
+([`scripts/testbase/plattformstubb.sql`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/scripts/testbase/plattformstubb.sql)).
 Én migrasjon har egen `BEGIN`/`COMMIT` og kan ikke kjøres med
 `--single-transaction`. Alle 23 bygger som `postgres` uten superbruker (K 23.09,
 prototype v2).
@@ -163,8 +163,8 @@ prototype v2).
 | Hovedplanen F0–F3, F5 og avsnitt 6 | Ny første leveranse: datalaget over direkte tilkobling (avsnitt 7). F2 og F3 viser til RPC; F5 viser til Supabase-konsollet |
 | [Design v2 for B-02](design-b02-tilgangsmekanisme-v2-2026-09-23.md) | Merknad: T2 valgt; T1v og porten mot hostet PostgREST bortfaller |
 | [Transaksjonsplanen](plans/2026-09-17-atomisk-utstedelse-og-outbox.md) og [durable inbox/outbox](design-durable-inbox-outbox-2026-09-17.md) | Merknad: blokkeringen «et REST-kall kan ikke være med i en transaksjon» faller bort med direkte tilkobling |
-| [B-02-oppdraget](prompt-b02-tilgangsmekanisme-2026-09-22.md) | Merknad under plattformsvaret: Azure PostgreSQL er foreløpig mål; portabilitetskravet står |
-| [Arkitekturdiagrammene](arkitektur-diagrammer.md) | Merknad: Azure SQL er erstattet av Azure PostgreSQL; backend i Container Apps eller App Service; Fabric til rapportering |
+| [B-02-oppdraget](historikk/prompt-b02-tilgangsmekanisme-2026-09-22.md) | Merknad under plattformsvaret: Azure PostgreSQL er foreløpig mål; portabilitetskravet står |
+| [Arkitekturdiagrammene](historikk/arkitektur-diagrammer.md) | Merknad: Azure SQL er erstattet av Azure PostgreSQL; backend i Container Apps eller App Service; Fabric til rapportering |
 | `AGENTS.md` | **Ikke ved beslutningen, men når byttet er gjennomført.** Avsnittene om Supabase-MCP, `supabase db push`, `PermanentError` fra Supabase-lagre, `supabase_dobbel` og stubbens `service_role` blir da feil. Fila skal bare ha det som er stabilt |
 | `docs/README.md` | Rad for denne handoffen og for dokumentene over |
 
@@ -192,7 +192,7 @@ automatisk.
 | 4 | **F1 fra B-02 v2:** roller, kontekst, policyer, skrivevakt og kommandoer som migrasjoner; rettighetsmatrise og mutasjoner i CI | Delvis | Fase 3 og beslutningene i B-02 v2 avsnitt 9 | **Uavhengig review**, som oppdragsgiver krevde 22.09 |
 
 Uavhengig review betyr en annen tråd enn den som skrev, med et eget oppdrag i
-formen til [reviewoppdraget for B-02](prompt-review-b02-tilgangsmekanisme-2026-09-22.md).
+formen til [reviewoppdraget for B-02](historikk/prompt-review-b02-tilgangsmekanisme-2026-09-22.md).
 `/simplify` ser etter gjenbruk og kompleksitet, ikke etter feil. Den er ikke et
 review. Gi den beskjed om å la sikkerhetskontrollene stå:
 

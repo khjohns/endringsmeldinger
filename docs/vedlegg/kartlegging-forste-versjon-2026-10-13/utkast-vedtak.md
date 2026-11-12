@@ -4,7 +4,7 @@
 
 > **Utkast, ikke vedtak.** Ordlyden er prøvd mot 3.1 i [utkast-vedtak-provet.md](utkast-vedtak-provet.md), og alle fem forslagene må rettes etter prøvingen før oppdragsgiver tar stilling. Vedtakene står i hovedplanen, 3.1.
 
-Grunnlag: docs/vurdering-behov-forste-versjon-2026-10-13.md,
+Grunnlag: docs/historikk/vurdering-behov-forste-versjon-2026-10-13.md,
 vedlegget `vedtak.md` (E1–E7), oppdragsgivers svar 13.10 og sparringen med Astra.
 
 ## OV-U3 — lukkingen av saken i første versjon

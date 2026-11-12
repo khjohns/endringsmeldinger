@@ -9,11 +9,12 @@ import {
   tilKatalogen,
   UNDERKATEGORI_FRA_KATALOGEN,
 } from '$kjerne/format/koder';
-import { dager, kroner } from '$kjerne/frosset/standpunkt';
+import { dager, kroner } from '$kjerne/frosset/tekst';
 import { kalenderdag } from '$kjerne/format/leser';
 import { getKontraktsforholdLabel } from '$lib/constants/categories';
 import { FORHOLDENE } from './nysak';
 import { SAKSLISTE } from './tekster';
+import { beregningsregelen } from './lesing';
 
 /** Sakstypene i panelet etter KT-U9. Forsering står ikke der ennå (svaret på M4). */
 export type Fane = 'koe' | 'eo';
@@ -88,10 +89,21 @@ export function krevd(
   const trukket = l.betegnelse === 'trukket';
   const merknad = trukket && !avsluttetAvTe(linje) ? SAKSLISTE.trukket : null;
   if (spor === 'vederlag' && linje.vederlag.krav) {
-    const { beloep, metode } = linje.vederlag.krav;
-    if (metode !== 'tilbud')
-      return { tekst: SAKSLISTE.metode[metode] ?? metode, tall: false, dempet: true, merknad };
-    return { tekst: kroner(beloep), tall: true, dempet, merknad };
+    const { beloep, oppgjoersformer } = linje.vederlag.krav;
+    // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Har kravet også faste
+    // beløp, står summen av dem med beregningsregelen ved siden av (#1663).
+    const regelen = beregningsregelen(oppgjoersformer);
+    const regel =
+      regelen === null || regelen === 'flere' ? regelen : (SAKSLISTE.metode[regelen] ?? regelen);
+    if (regel === null) return { tekst: kroner(beloep), tall: true, dempet, merknad };
+    if (!oppgjoersformer.includes('tilbud') && beloep <= 0)
+      return {
+        tekst: regel === 'flere' ? SAKSLISTE.flereOppgjoersformer : regel,
+        tall: false,
+        dempet: true,
+        merknad,
+      };
+    return { tekst: SAKSLISTE.ogRegel(kroner(beloep), regel), tall: true, dempet, merknad };
   }
   if (spor === 'frist' && linje.frist.krav)
     return { tekst: dager(linje.frist.krav.dager), tall: true, dempet, merknad };
@@ -145,7 +157,13 @@ export function noekkeltall(linjer: readonly Sakslinje[], eo: Endringsordrer): N
   for (const l of linjer) {
     if (!l.forstaatt || eo[l.sak_id] || avsluttetAvTe(l)) continue;
     const v = l.vederlag;
-    if (v.krav && v.kravet_staar && v.krav.metode === 'tilbud') {
+    // Et krav med faste beløp telles med summen av dem, også når det har kravposter etter en
+    // beregningsregel (KA-U61, #1663).
+    if (
+      v.krav &&
+      v.kravet_staar &&
+      (v.krav.oppgjoersformer.includes('tilbud') || v.krav.beloep > 0)
+    ) {
       n.vederlag.krav += 1;
       n.vederlag.sum += v.krav.beloep;
     } else if (v.krav && v.kravet_staar) n.vederlag.utenBeloep += 1;

@@ -97,7 +97,8 @@ To trekk gjelder hele kjernen på `7460838`:
 - Frist- og vederlagsreglene i [`regler/frist.ts`](../kjerne/regler/frist.ts)
   og [`regler/vederlag.ts`](../kjerne/regler/vederlag.ts) er portert fra
   Python og har flere grener enn kjernen bruker. `regnUtSvar` i
-  [`standpunkt.ts`](../kjerne/frosset/standpunkt.ts) låser inndataene: alltid fastpris,
+  [`utregning.ts`](../kjerne/frosset/utregning.ts), med utregningen av vederlaget i
+  [`spor/vederlag/frysing.ts`](../kjerne/spor/vederlag/frysing.ts), låser inndataene: alltid fastpris,
   alltid spesifisert fristkrav, ingen rigg, produktivitet eller forespørsel.
   `utenforOmfanget` avviser resten med `VURDERING_UTENFOR_KJERNEN`
   ([#341](https://github.com/khjohns/endringsmeldinger/issues/341)).
@@ -375,7 +376,7 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
   majeure kan derfor ikke uttrykkes
   ([#367](https://github.com/khjohns/endringsmeldinger/issues/367)). Ingen regel
   i kjernen skiller ut force majeure. Python har `er_force_majeure` i
-  [`backend/constants/grunnlag_categories.py`](../backend/constants/grunnlag_categories.py),
+  [`backend/constants/grunnlag_categories.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/constants/grunnlag_categories.py),
   men ingen kaller den.
 
 ### § 33.4 — varsel om fristforlengelse
@@ -479,7 +480,7 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
   `foresporsel_svar_ok` i [`regler/frist.ts`](../kjerne/regler/frist.ts), men
   kjernen setter dem alltid usann, og usann `foresporsel_svar_ok` avvises.
   Python avviser påberopelsen etter fjerde ledd (`kontroller` i
-  [`backend/regler/frist.py`](../backend/regler/frist.py)).
+  [`backend/regler/frist.py`](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/regler/frist.py)).
   Ingen utsagnsart. Feltene fra DRF-02 og SD-04 (#64, #76) og `begrunnelse_utsatt`
   uten dager (#237) hører hit.
 
@@ -685,8 +686,8 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
   [KA-U14](plans/vedtak.md#ka-u14): kan
   snevre inn KA-U6 der enigheten gir BH en rettighet, for eksempel et fradrag.
 - **Kjernen i dag:** ikke bygget. Formatet krever beløp over 0, og
-  `hold_tilbake` avvises. `kanHoldeTilbake` finnes i
-  [`regler/vederlag.ts`](../kjerne/regler/vederlag.ts).
+  `hold_tilbake` avvises i
+  [`spor/vederlag/frysing.ts`](../kjerne/spor/vederlag/frysing.ts) (`utenforOmfanget`).
 
 ---
 
@@ -798,7 +799,7 @@ visning ikke fremstiller et trekk som at utførelsesplikten er bortfalt.
 - **Kjernen i dag:** delvis. En godkjenning fra appen som er en endringsordre,
   sier at endringen kreves og hva den går ut på ([GR-U14](plans/vedtak.md#gr-u14)); et krav som følger
   av en endringsordre, identifiserer den ([GR-U16](plans/vedtak.md#gr-u16)). Kandidatkontrollen finnes som predikat
-  (`kanInngaaIEo` i [`utled.ts`](../kjerne/utledning/utled.ts)), men kalles ikke av
+  (`kanInngaaIEo` i [`utledning.ts`](../kjerne/spor/forhold/utledning.ts)), men kalles ikke av
   kjernen: grunnlaget er sendt, TE har ikke godtatt avslaget på grunnlaget, og
   grunnlaget er ikke trukket. Ikke bygget: EO-saken, livsløpet, tilknytningen mellom
   saker, unntaket for en sak som alt er omfattet av en endringsordre (EO-U3) og

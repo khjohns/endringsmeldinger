@@ -18,23 +18,18 @@
  * Begge kan gjelde for samme prosjekteringsfeil, men med ulik terskel.
  */
 
-export interface DropdownOption {
-  value: string;
-  label: string;
-}
-
 // Vederlagsmetode type for standard methods
-export type StandardVederlagsmetode =
+type StandardVederlagsmetode =
   | 'Enhetspriser (34.3)'
   | 'Regningsarbeid (34.4)'
   | 'Ingen (Kun fristforlengelse)'
   | 'Avtalt/Tilbud (34.2.1)';
 
 // Type krav - what can be claimed
-export type TypeKrav = 'Tid' | 'Penger' | 'Tid og Penger';
+type TypeKrav = 'Tid' | 'Penger' | 'Tid og Penger';
 
 // Kontraktshjemmel — den juridiske underkategorien (f.eks. §32.1 Irregulær endring)
-export interface Kontraktshjemmel {
+interface Kontraktshjemmel {
   kode: string;
   label: string;
   hjemmel_basis: string; // The triggering paragraph
@@ -44,7 +39,7 @@ export interface Kontraktshjemmel {
 }
 
 // Kontraktsforhold — hovedkategorien for kravet (f.eks. Endring, Svikt, Force Majeure)
-export interface Kontraktsforhold {
+interface Kontraktsforhold {
   kode: string;
   label: string;
   beskrivelse: string;
@@ -266,43 +261,4 @@ export function getKontraktsforholdLabel(code: string | string[] | undefined | n
   const upperCode = codeStr.toUpperCase();
   const forhold = KRAV_STRUKTUR_NS8407.find((k) => k.kode.toUpperCase() === upperCode);
   return forhold?.label || codeStr;
-}
-
-// Get kontraktshjemmel label from code (case-insensitive)
-export function getHjemmelLabel(code: string | string[] | undefined | null): string {
-  if (!code) return '';
-  const codeStr = Array.isArray(code) ? code[0] : code;
-  if (!codeStr) return '';
-  const upperCode = codeStr.toUpperCase();
-  for (const forhold of KRAV_STRUKTUR_NS8407) {
-    const hjemmel = forhold.hjemler.find((h) => h.kode.toUpperCase() === upperCode);
-    if (hjemmel) return hjemmel.label;
-  }
-  return codeStr;
-}
-
-// Get full kontraktsforhold object by code (case-insensitive)
-export function getKontraktsforhold(
-  code: string | string[] | undefined | null
-): Kontraktsforhold | undefined {
-  if (!code) return undefined;
-  const codeStr = Array.isArray(code) ? code[0] : code;
-  if (!codeStr) return undefined;
-  const upperCode = codeStr.toUpperCase();
-  return KRAV_STRUKTUR_NS8407.find((k) => k.kode.toUpperCase() === upperCode);
-}
-
-// Get full kontraktshjemmel object by code (case-insensitive)
-export function getHjemmelObj(
-  code: string | string[] | undefined | null
-): Kontraktshjemmel | undefined {
-  if (!code) return undefined;
-  const codeStr = Array.isArray(code) ? code[0] : code;
-  if (!codeStr) return undefined;
-  const upperCode = codeStr.toUpperCase();
-  for (const forhold of KRAV_STRUKTUR_NS8407) {
-    const hjemmel = forhold.hjemler.find((h) => h.kode.toUpperCase() === upperCode);
-    if (hjemmel) return hjemmel;
-  }
-  return undefined;
 }

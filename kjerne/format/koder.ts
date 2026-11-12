@@ -1,22 +1,12 @@
 /**
  * Kodene i formatet for kategoriene i påberopelsen, og oversettelsen fra
- * katalogen i frontenden og Python (`KRAV_STRUKTUR_NS8407`, `paymentMethods.ts`
- * og Python-enumene), som beholder de gamle kodene (arbeidsvalget 10.10 i #335,
- * HF-U2). Kjernen bruker bare sine egne koder. Klienten og språkprøven
- * oversetter på grensen med tabellene her.
+ * katalogen i frontenden (`KRAV_STRUKTUR_NS8407`), som beholder de gamle kodene
+ * (arbeidsvalget 10.10 i #335, HF-U2). Kjernen bruker bare sine egne koder.
+ * Klienten oversetter på grensen med tabellene her.
  */
 
 import { foersteUnderkategori } from '../regler/forhold.ts';
-import {
-  KATEGORIER,
-  type Beloepsvurdering,
-  type Forholdsresultat,
-  type Hovedkategori,
-  type SubsidiaerUtloser,
-  type Underkategori,
-  type Vederlagsmetode,
-  type Vederlagsresultat,
-} from '../regler/typer.ts';
+import { KATEGORIER, type Hovedkategori, type Underkategori } from '../regler/typer.ts';
 
 /** Kategoriene står i regelsettet, så reglene kan types mot dem (#516). */
 export { KATEGORIER, type Hovedkategori, type Underkategori };
@@ -49,45 +39,6 @@ export const UNDERKATEGORI_FRA_KATALOGEN: Record<string, Underkategori> = {
   BRUKSTAKELSE: 'brukstakelse',
   STANS_BET: 'stans_ved_betalingsmislighold',
   ANDRE_ANDRE: 'annet_forhold',
-};
-
-export const METODE_FRA_KATALOGEN: Record<string, Vederlagsmetode> = {
-  ENHETSPRISER: 'enhetspriser',
-  REGNINGSARBEID: 'regningsarbeid',
-  FASTPRIS_TILBUD: 'tilbud',
-};
-
-export const FORHOLDSRESULTAT_FRA_KATALOGEN: Record<string, Forholdsresultat> = {
-  godkjent: 'godkjent',
-  avslatt: 'avslaatt',
-  frafalt: 'paalegg_frafalt',
-};
-
-export const RESULTAT_FRA_KATALOGEN: Record<string, Vederlagsresultat> = {
-  godkjent: 'godkjent',
-  delvis_godkjent: 'delvis_godkjent',
-  avslatt: 'avslaatt',
-  hold_tilbake: 'tilbakeholdelse',
-};
-
-export const BELOEPSVURDERING_FRA_KATALOGEN: Record<string, Beloepsvurdering> = {
-  godkjent: 'godkjent',
-  delvis: 'delvis',
-  avslatt: 'avslaatt',
-};
-
-export const UTLOESER_FRA_KATALOGEN: Record<string, SubsidiaerUtloser> = {
-  grunnlag_avslatt: 'grunnlag_avslaatt',
-  grunnlag_prekludert_32_2: 'grunnlag_prekludert_32_2',
-  forseringsrett_avslatt: 'forseringsrett_avslaatt',
-  preklusjon_hovedkrav: 'preklusjon_hovedkrav',
-  preklusjon_rigg: 'preklusjon_rigg',
-  preklusjon_produktivitet: 'preklusjon_produktivitet',
-  reduksjon_ep_justering: 'reduksjon_ep_justering',
-  preklusjon_varsel: 'preklusjon_varsel',
-  reduksjon_spesifisert: 'reduksjon_spesifisert',
-  ingen_hindring: 'ingen_hindring',
-  metode_avslatt: 'metode_avslaatt',
 };
 
 /**

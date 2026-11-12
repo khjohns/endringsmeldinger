@@ -872,6 +872,27 @@
       "radetikett": "OV-U5: TE kan sende varsel etter § 34.1.2 og § 34.1.3 fra appen"
     },
     {
+      "id": "KA-U72",
+      "type": "vedtak",
+      "dato": "2026-11-10",
+      "ref": "../plans/vedtak.md#ka-u72",
+      "radetikett": "KA-U72: For en kravpost med fast sum der byggherren ikke aksepterer tilbudet, tar svaret ikke stilling til beløpet"
+    },
+    {
+      "id": "KA-U60",
+      "type": "vedtak",
+      "dato": "2026-11-07",
+      "ref": "../plans/vedtak.md#ka-u60",
+      "radetikett": "KA-U60: Lagene i byggherrens svar står i rekkefølgen varselinnsigelsene først, deretter standpunktet til oppgjørsformen, så beløpet"
+    },
+    {
+      "id": "OV-U73",
+      "type": "vedtak",
+      "dato": "2026-10-31",
+      "ref": "../plans/vedtak.md#ov-u73",
+      "radetikett": "OV-U73: Byggherrens svar på et krav om vederlagsjustering har en oversiktstabell når svaret har minst to poster med beløp og minst to lag"
+    },
+    {
       "id": "OV-U15",
       "type": "vedtak",
       "dato": "2026-10-20",
@@ -1228,11 +1249,102 @@
       "radetikett": "MM-U52: Spørsmål 1: Samlevedtaket for retting av sendt brev, versjon 2, gjelder med E1–E8"
     },
     {
-      "id": "LV-U54",
+      "id": "LV-U56",
+      "type": "vedtak",
+      "dato": "2026-11-06",
+      "ref": "../plans/vedtak.md#lv-u56",
+      "radetikett": "LV-U56: Den låste delen av brevet med en ny versjon av påberopelsen sier bare hva påberopelsen gjelder, og datoen"
+    },
+    {
+      "id": "KA-U51",
       "type": "vedtak",
       "dato": "2026-11-05",
-      "ref": "../plans/vedtak.md#lv-u54",
-      "radetikett": "LV-U54: Etter en korrigering etter punkt 10 i samlevedtaket for retting av sendt brev sier en ny grunnlagsversjon"
+      "ref": "../plans/vedtak.md#ka-u51",
+      "radetikett": "KA-U51: Spørsmål 1: Samlevedtaket for trekk gjelder med E1–E8"
+    },
+    {
+      "id": "KA-U56",
+      "type": "vedtak",
+      "dato": "2026-11-07",
+      "ref": "../plans/vedtak.md#ka-u56",
+      "radetikett": "KA-U56: Skal en kravpost ut, trekker TE den uttrykkelig i den nye kravversjonen"
+    },
+    {
+      "id": "KA-U59",
+      "type": "vedtak",
+      "dato": "2026-11-07",
+      "ref": "../plans/vedtak.md#ka-u59",
+      "radetikett": "KA-U59: Byggherren svarer per kravpost"
+    },
+    {
+      "id": "KA-U75",
+      "type": "vedtak",
+      "dato": "2026-11-11",
+      "ref": "../plans/vedtak.md#ka-u75",
+      "radetikett": "KA-U75: Brevet sier at totalentreprenøren trekker kravposten, ikke at trekket er et avkall"
+    },
+    {
+      "id": "KA-U53",
+      "type": "vedtak",
+      "dato": "2026-11-07",
+      "ref": "../plans/vedtak.md#ka-u53",
+      "radetikett": "KA-U53: TE kan dele vederlagsjusteringen i flere kravposter, hver med beskrivelse og beløp"
+    },
+    {
+      "id": "OV-U95",
+      "type": "vedtak",
+      "dato": "2026-11-07",
+      "ref": "../plans/vedtak.md#ov-u95",
+      "radetikett": "OV-U95: Spørsmål 1: Samlevedtaket for vederlagsmetoden, versjon 2, gjelder med E8–E16"
+    },
+    {
+      "id": "VS-U48",
+      "type": "vedtak",
+      "dato": "2026-11-07",
+      "ref": "../plans/vedtak.md#vs-u48",
+      "radetikett": "VS-U48: Varselet etter punkt 34.3.3 første ledd og punkt 34.4"
+    },
+    {
+      "id": "VS-U52",
+      "type": "vedtak",
+      "dato": "2026-11-08",
+      "ref": "../plans/vedtak.md#vs-u52",
+      "radetikett": "VS-U52: Totalentreprenøren kan også velge varsel etter punkt 34.3.3 første ledd og etter punkt 34.4 når korrespondanse legges til som varsel"
+    },
+    {
+      "id": "VS-U49",
+      "type": "vedtak",
+      "dato": "2026-11-08",
+      "ref": "../plans/vedtak.md#vs-u49",
+      "radetikett": "VS-U49: En kravpost med regningsarbeid eller justerte enhetspriser regnes som varsel for seg"
+    },
+    {
+      "id": "VS-U50",
+      "type": "vedtak",
+      "dato": "2026-11-08",
+      "ref": "../plans/vedtak.md#vs-u50",
+      "radetikett": "VS-U50: For hver kravpost som etter VS-U49 ville vært varsel, kan TE i kravskjemaet oppgi at varselet for posten etter punkt 34.3.3 eller 34.4 alt er gitt"
+    },
+    {
+      "id": "VS-U51",
+      "type": "vedtak",
+      "dato": "2026-11-08",
+      "ref": "../plans/vedtak.md#vs-u51",
+      "radetikett": "VS-U51: Legger totalentreprenøren i kravskjemaet til et dokument sendt utenfor løsningen som varselet etter punkt 34.3.3 eller 34.4 for en kravpost, sier kravet at det er totalentreprenøren som opplyser at varselet ble gitt i dokumentet, og dokumentet legges ved kravet"
+    },
+    {
+      "id": "VS-U54",
+      "type": "vedtak",
+      "dato": "2026-11-08",
+      "ref": "../plans/vedtak.md#vs-u54",
+      "radetikett": "VS-U54: Kravposten viser til varselet for posten etter punkt 34.3.3 eller 34.4 med et valgfritt felt, både når TE velger et varsel som står i saken, og når TE legger til et dokument i kravskjemaet"
+    },
+    {
+      "id": "VS-U55",
+      "type": "vedtak",
+      "dato": "2026-11-08",
+      "ref": "../plans/vedtak.md#vs-u55",
+      "radetikett": "VS-U55: Er et varsel gitt før kravet, viser kravet kort til det"
     }
   ],
   "rader": [
@@ -1761,7 +1873,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet",
+        "kjerne/spor/forhold/frysing.ts#grunnerFraForholdet",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ],
       "regelkoder": [
@@ -1789,10 +1901,10 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/kommandoer/nyttelast.ts#kategorisperre",
+        "kjerne/spor/forhold/kommando.ts#kategorisperre",
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet",
-        "kjerne/utledning/utled.ts#kanInngaaIEo"
+        "kjerne/spor/forhold/frysing.ts#grunnerFraForholdet",
+        "kjerne/spor/forhold/utledning.ts#kanInngaaIEo"
       ],
       "regelkoder": [
         "ANNEN_HJEMMEL",
@@ -1833,7 +1945,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet",
+        "kjerne/spor/forhold/frysing.ts#grunnerFraForholdet",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ],
       "regelkoder": [
@@ -1855,7 +1967,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet",
+        "kjerne/spor/forhold/frysing.ts#grunnerFraForholdet",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ],
       "regelkoder": [
@@ -1918,7 +2030,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet"
+        "kjerne/spor/forhold/frysing.ts#grunnerFraForholdet"
       ]
     },
     {
@@ -2039,9 +2151,9 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/utledning/utled.ts#kanInngaaIEo",
+        "kjerne/spor/forhold/utledning.ts#kanInngaaIEo",
         "kjerne/utledning/utled.ts#kraveneErAvgjort",
-        "kjerne/frosset/standpunkt.ts#forholdetErAvklart"
+        "kjerne/spor/forhold/frysing.ts#forholdetErAvklart"
       ]
     },
     {
@@ -2061,7 +2173,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#kraveneErAvgjort",
-        "kjerne/utledning/utled.ts#kanInngaaIEo"
+        "kjerne/spor/forhold/utledning.ts#kanInngaaIEo"
       ]
     },
     {
@@ -2081,7 +2193,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/frosset/standpunkt.ts#forholdetErAvklart",
+        "kjerne/spor/forhold/frysing.ts#forholdetErAvklart",
         "kjerne/utledning/utled.ts#kraveneErAvgjort"
       ]
     },
@@ -2100,7 +2212,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/frosset/standpunkt.ts#regnUtSvar",
+        "kjerne/frosset/utregning.ts#regnUtSvar",
         "kjerne/kommandoer/nyttelast.ts#kontrollerSvar"
       ],
       "regelkoder": [
@@ -2126,8 +2238,8 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/kommandoer/nyttelast.ts#kategorisperre",
-        "kjerne/frosset/standpunkt.ts#regnUtSvar",
+        "kjerne/spor/forhold/kommando.ts#kategorisperre",
+        "kjerne/frosset/utregning.ts#regnUtSvar",
         "kjerne/regler/forhold.ts#gyldigeResultater",
         "kjerne/regler/forhold.ts#erByggherrensPaalegg"
       ],
@@ -2153,7 +2265,7 @@
       "funksjoner": [
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger",
         "kjerne/utledning/utled.ts#enighetensVirkning",
-        "kjerne/utledning/utled.ts#kanInngaaIEo"
+        "kjerne/spor/forhold/utledning.ts#kanInngaaIEo"
       ]
     },
     {
@@ -2196,7 +2308,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#enighetensVirkning",
-        "kjerne/frosset/standpunkt.ts#forholdetErAvklart",
+        "kjerne/spor/forhold/frysing.ts#forholdetErAvklart",
         "kjerne/utledning/utled.ts#kraveneErAvgjort"
       ]
     },
@@ -2343,9 +2455,9 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/utledning/utled.ts#trekkAvPaaberopelsenErSperret",
-        "kjerne/frosset/standpunkt.ts#blirEndringsordre",
-        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
+        "kjerne/spor/forhold/utledning.ts#trekkAvPaaberopelsenErSperret",
+        "kjerne/spor/forhold/frysing.ts#blirEndringsordre",
+        "kjerne/spor/forhold/kommando.ts#trekkAvPaaberopelsen"
       ],
       "regelkoder": [
         "FORHOLD_ER_ENDRINGSORDRE"
@@ -2377,7 +2489,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/utledning/utled.ts#trekkAvPaaberopelsenErSperret",
+        "kjerne/spor/forhold/utledning.ts#trekkAvPaaberopelsenErSperret",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ]
     },
@@ -2657,7 +2769,7 @@
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
         "kjerne/utledning/utled.ts#ikkeErstattet",
-        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet"
+        "kjerne/spor/forhold/frysing.ts#grunnerFraForholdet"
       ]
     },
     {
@@ -2752,7 +2864,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/kommandoer/nyttelast.ts#kravetsUtdypning"
+        "kjerne/spor/forhold/kommando.ts#utdypningIForholdet"
       ],
       "regelkoder": [
         "BESKRIVELSE_MANGLER"
@@ -2774,7 +2886,7 @@
       ],
       "tolkningsstatus": "arbeidshypotese",
       "funksjoner": [
-        "kjerne/frosset/brevtekst.ts#endringsordretekst"
+        "kjerne/spor/forhold/tekst.ts#endringsordretekst"
       ],
       "regelkoder": [
         "PAALEGGET_IKKE_BESKREVET"
@@ -2802,9 +2914,9 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/kommandoer/forutsetninger.ts#korrigering",
-        "kjerne/kommandoer/nyttelast.ts#kontrollerKorrigering",
-        "kjerne/utledning/utled.ts#opplysningerOmDatoen"
+        "kjerne/spor/forhold/kommando.ts#korrigering",
+        "kjerne/spor/forhold/kommando.ts#kontrollerKorrigering",
+        "kjerne/spor/forhold/utledning.ts#opplysningerOmDatoen"
       ],
       "regelkoder": [
         "UGYLDIG_KORRIGERING",
@@ -2815,7 +2927,7 @@
     {
       "id": "GR-37",
       "tilfelle": "TE sender en ny grunnlagsversjon etter at TE har oppgitt datoen pålegget ble mottatt eller TE ble klar over forholdet, med eller uten en korrigering av datoen.",
-      "forventet": "En ny grunnlagsversjon med en annen dato enn TEs siste opplysning avvises. Med samme dato godtas den, og etter en korrigering sier den at TE oppga datoen i det siste brevet med en korrigering. Gjengivelsen er ikke en ny opplysning.",
+      "forventet": "En ny grunnlagsversjon med en annen dato enn TEs siste opplysning avvises. Med samme dato godtas den, og etter en korrigering nevner den hver tidligere dato med brevet den ble oppgitt i, den opprinnelige først. Gjengivelsen er ikke en ny opplysning.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Den nye grunnlagsversjonen endrer ikke tidligere brev eller premissene i tidligere svar.",
       "rettidighet": "Ikke vurdert av løsningen.",
@@ -2823,14 +2935,14 @@
       "kilder": [
         "MM-U41",
         "MM-U52",
-        "LV-U54",
+        "LV-U56",
         "VS-U26",
         "LV-U53"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/kommandoer/nyttelast.ts#datosperre",
-        "kjerne/frosset/brevtekst.ts#forholdstekst"
+        "kjerne/spor/forhold/kommando.ts#datosperre",
+        "kjerne/spor/forhold/tekst.ts#forholdstekst"
       ],
       "regelkoder": [
         "DATOEN_KAN_IKKE_ENDRES"
@@ -3160,7 +3272,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/regler/frist.ts#kontroller",
-        "kjerne/frosset/standpunkt.ts#regnUtSvar",
+        "kjerne/frosset/utregning.ts#regnUtSvar",
         "kjerne/kommandoer/nyttelast.ts#kontrollerSvar"
       ],
       "regelkoder": [
@@ -3266,6 +3378,52 @@
       "regelkoder": [
         "VARSEL_REGISTRERT",
         "VEDERLAGSKRAV_SENDT"
+      ]
+    },
+    {
+      "id": "VS-08",
+      "tilfelle": "TE sender et vederlagskrav med en kravpost med regningsarbeid eller justerte enhetspriser som er varsel for seg, og oppgir at varselet for posten alt er gitt i et varsel som står i saken.",
+      "forventet": "Kravposten viser til varselet med et valgfritt felt, og varselet viser ikke til kravposten ([VS-U54](../plans/vedtak.md#vs-u54)). Kravet sier hvor varselet ble gitt og er ikke varselet selv ([VS-U50](../plans/vedtak.md#vs-u50), [VS-U55](../plans/vedtak.md#vs-u55)), også når varselet ble gitt etter det første kravet og når saken har flere varsler etter samme bestemmelse. En kravpost som viser til et varsel etter en annen bestemmelse, til noe som ikke er et varsel i saken før kravet, eller som ikke er varsel for seg ([VS-U49](../plans/vedtak.md#vs-u49)), avvises (KRAVPOSTVARSELET), og en slik lagret kravpost gjør saken ikke forstått.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Løsningen kontrollerer ikke at varselet gjaldt posten (VS-U50), og avgjør ikke om det kom i tide (VS-U48).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "VS-U49",
+        "VS-U50",
+        "VS-U54",
+        "VS-U55"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/spor/vederlag/utledning.ts#kravpostvarslene",
+        "kjerne/spor/vederlag/utledning.ts#kravpostvarseletStrider"
+      ],
+      "regelkoder": [
+        "KRAVPOSTVARSELET"
+      ]
+    },
+    {
+      "id": "VS-09",
+      "tilfelle": "TE legger i kravskjemaet til et dokument sendt utenfor løsningen som varselet etter § 34.3.3 eller § 34.4 for en kravpost.",
+      "forventet": "Dokumentet står i saken som et eget brev: registrert korrespondanse med kategorien varsel, med TE som avsender og datoen det ble sendt, før kravet ([VS-U53](../plans/vedtak.md#vs-u53)). Kravposten viser til det ([VS-U54](../plans/vedtak.md#vs-u54)), og kravet legger dokumentet ved og sier at det er TE som opplyser at varselet ble gitt i det ([VS-U51](../plans/vedtak.md#vs-u51)). Oppgir flere kravposter samme dokument, er det ett brev med ett varsel per bestemmelse postene trenger ([VS-U52](../plans/vedtak.md#vs-u52)), og kravet legger det ved én gang; samme dokument med ulik dato eller med andre vedlegg avvises. Varselet og kravet skrives i én transaksjon, så et avvist krav etterlater ikke varselet. Et vederlagskrav med et annet vedlegg gjør saken ikke forstått.",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Løsningen kontrollerer ikke at dokumentet er et varsel for posten, og byggherren kan bestride datoen (VS-U50).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "VS-U52",
+        "VS-U50",
+        "VS-U51",
+        "VS-U54"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/spor/vederlag/kommando.ts#medVarslene",
+        "kjerne/spor/vederlag/utledning.ts#kontrollerVedleggeneVedKravet"
+      ],
+      "regelkoder": [
+        "KRAVPOSTVARSELET"
       ]
     },
     {
@@ -3508,9 +3666,54 @@
         "KA-U4"
       ],
       "tolkningsstatus": "avklart_tolkning"
+    },
+    {
+      "id": "KA-55",
+      "tilfelle": "TE har sendt et vederlagskrav med kravposten P1. TE sender en ny kravversjon som verken tar med eller trekker P1, en som tar med P1, og en som trekker P1. Etter trekket sender TE en ny kravversjon som tar med P1 igjen.",
+      "forventet": "En ny kravversjon tar med eller trekker uttrykkelig hver kravpost i forrige versjon ([KA-U56](../plans/vedtak.md#ka-u56)). Versjonen som verken tar med eller trekker P1, avvises; versjonen som tar med P1, og versjonen som trekker P1, godtas. En trukket kravpost kan tas med igjen i en senere kravversjon med samme betegnelse ([KA-U75](../plans/vedtak.md#ka-u75)). En ny kravpost får en betegnelse som ikke er brukt i sporet ([KA-U53](../plans/vedtak.md#ka-u53)).",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Løsningen sier ikke at trekket av en kravpost er et avkall. Hva trekket betyr, vurderer partene (KA-U75).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U56",
+        "KA-U75",
+        "KA-U53",
+        "OV-U95"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/spor/vederlag/utledning.ts#kravposteneStrider"
+      ],
+      "regelkoder": [
+        "KRAVPOSTENE"
+      ]
+    },
+    {
+      "id": "KA-56",
+      "tilfelle": "TE har sendt et vederlagskrav. Byggherren svarer med ett beløp for hele kravet, når kravet har én kravpost med fast sum, og når det har flere kravposter.",
+      "forventet": "Byggherren svarer per kravpost ([KA-U59](../plans/vedtak.md#ka-u59)). Et svar med ett beløp på et krav med flere kravposter avvises, og et svar på hver kravpost godtas. Et svar med ett beløp på et krav med én kravpost med fast sum godtas. En kravpost etter en beregningsregel får ikke et beløp i svaret ([OV-U95](../plans/vedtak.md#ov-u95) punkt 5). Til svaret på rigg og drift er bygget, avvises svaret på et krav med rigg og drift; det er en avgrensning i byggingen, ikke en forventning fra vedtaket.",
+      "bh_standpunkt": "Beløpsvurderingen av vederlagskravet.",
+      "rettslig_virkning": "Avgjør ikke hva partene har avtalt. Samling av poster på tvers hører til endringsordren (KA-U59).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U59",
+        "OV-U95"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/spor/vederlag/kommando.ts#hindrerSvarPaaKravet",
+        "kjerne/spor/vederlag/frysing.ts#kravpostvurderinger"
+      ],
+      "regelkoder": [
+        "UGYLDIG_VURDERING"
+      ]
     }
   ],
   "koder_uten_rad": {
+    "SVAR_PER_KRAVPOST": "Kontrollen av kommandoen: svaret på rigg og drift er ikke bygget, så svaret på et krav med posten tilbys ikke (arbeidsvalg 5 i spørsmålsfila 10.11 for #1663). Det er en avgrensning i byggingen, og ingen rad sier avvisningen.",
+    "ANNEN_ENDRINGSORDRE": "Kontrollen av kommandoen: når grunnlaget er sendt, står endringsordren i underkategorien endringsordre, og en annen endringsordre påberopes i en ny sak (MM-U52 punkt 14). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "FORESPORSEL_BEGRUNNET": "Kontrollen av kommandoen: etter TEs begrunnelse etter § 33.6.2 annet ledd b sendes ingen ny forespørsel fra appen (VS-U30). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "FORESPORSEL_SENDT": "Kontrollen av kommandoen: høyst én forespørsel etter § 33.6.2 fra appen i saken; en senere sendes utenfor appen (VS-U31). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "INGEN_FORESPORSEL": "Kontrollen av kommandoen: TEs begrunnelse etter § 33.6.2 annet ledd b gjelder en forespørsel fra appen (VS-U27). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
@@ -3532,6 +3735,7 @@
     "BEGRUNNELSE_MANGLER": "Kontrollen av teksten i svaret og fristkravet (KA-U24, KA-U31, KA-U33). KA-42, der den sto, er utsatt (OV-U7). Den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "VARSLINGSPLIKT_GJELDER_IKKE": "Kontrollen av påberopt passivitet etter GR-U11 og VS-U12 i `nyttelast.ts`. Kommandoen avvises før kontrollen etter OV-U7, og VS-04 er utsatt, så ingen bevis-sak når den før utsagnet bygges.",
     "DATO_KAN_IKKE_LESES": "Kontrollen av varselet etter § 32.2 i `nyttelast.ts` (VS-U38): et vern når en av datoene ikke kan leses. Skjemaet avviser en dato som ikke kan leses før kontrollen, så ingen rad og ingen bevis-sak når den.",
-    "VARSEL_ETTER_PAABEROPELSEN": "Kontrollen av varselet etter § 32.2 sendt utenfor løsningen i `nyttelast.ts` (VS-U38): datoen kan ikke være senere enn påberopelsen. Ingen rad sier avvisningen ennå (#807); den prøves i `kjerne/tester/brevtekst.test.ts`."
+    "VARSEL_ETTER_PAABEROPELSEN": "Kontrollen av varselet etter § 32.2 sendt utenfor løsningen i `nyttelast.ts` (VS-U38): datoen kan ikke være senere enn påberopelsen. Ingen rad sier avvisningen ennå (#807); den prøves i `kjerne/tester/brevtekst.test.ts`.",
+    "VARSEL_FOER_GRUNNLAGSDATOEN": "Kontrollen av varselet om forholdet mot datoen i grunnlagskravet i `nyttelast.ts` (VS-U58, VS-U59, #1730): et registrert varsel, varselet i et fristkrav og en korrigering av datoen. Ingen rad sier avvisningen ennå; den prøves i `kjerne/tester/brevtekst.test.ts`."
   }
 }

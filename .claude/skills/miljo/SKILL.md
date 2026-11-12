@@ -5,7 +5,7 @@ description: Kommandoene for pytest, TS-typesjekk og feilinnføringer, hvordan u
 
 # Miljø og kommandoer
 
-Reglene for miljøet står i «Miljø» i `AGENTS.md`. Her står kommandoene og
+Reglene for miljøet står i «Miljø» i `CLAUDE.md`. Her står kommandoene og
 omveiene.
 
 Nettleseren for skriptene i `mockup-nettleser`, i skyøkta og lokalt med global Playwright,
@@ -14,14 +14,14 @@ står i [«Nettleseren» i den skillen](../mockup-nettleser/SKILL.md#nettleseren
 ## Sjekker
 
 ```bash
-cd backend && /tmp/venv/bin/python -m pytest -q
+cd verktoy/tester && /tmp/venv/bin/python -m pytest -q  # vaktene for verktøyene og registrene (#49)
 npm test && npm run check:error      # skal gi 0 errors
 npx tsc -p kjerne/tsconfig.json      # svelte-check ser ikke kjerne/
 npx tsc -p sprakprove/tsconfig.json  # eller sprakprove/
 npx tsc -p sprakprove/skrivesti/tsconfig.json  # skrivestien, som CI også kjører (#1469)
 npx tsc -p server/tsconfig.json      # eller server/
 python3 server/tester/feilinnfoering.py --ankre  # ankrene for serveren, som CI kjører (#1469)
-ruff check backend/                  # porten, skal være 0
+ruff check verktoy/tester/           # porten, skal være 0
 ```
 
 Lenkekontrollen og vakttesten for brukerforløpene kjører i CI. For hånd, når en
@@ -35,19 +35,16 @@ npx vitest run kjerne/tester/brukerforloep.test.ts
 
 `npm run server` starter TS-serveren i `server/` (B-18), med miljøvariablene i
 headeren til `server/start.ts`. Vite-proxyen sender hele `/api` og webhooken dit,
-som `tilTsServeren()` i `server/ruting.ts` velger (#1026); ingenting går til Python.
+som `tilTsServeren()` i `server/ruting.ts` velger (#1026).
 
 I skyøktene lager `.claude/hooks/session-start.sh` venv-en og starter Docker og testbasen i SQL Server.
 
-PostgreSQL-basen for katalogen og `docs/verktoy/katalog.py` (se «Miljø» i
-`AGENTS.md`) bygges fra tom med `stopp` og `start`. Henting av bildet og
-migrasjonene kan ta mer enn 120 s, så gi kallet `timeout` på 600000. Variabelen
-gjelder bare i Bash-kallet den settes i, så hent URL-en i hvert kall som bruker
-basen:
+`docs/verktoy/katalog.py` tar øyeblikksbildet `docs/datamodell/katalog.json` fra en
+base i SQL Server bygget fra migrasjonene, og trenger bare `KOE_SQLSERVER_TILKOBLING`.
+Kjør `datamodell.py` etterpå:
 
 ```bash
-scripts/testbase/docker_testbase.sh stopp && scripts/testbase/docker_testbase.sh start >&2
-KOE_TESTBASE_URL="$(scripts/testbase/docker_testbase.sh url)" /tmp/venv/bin/python docs/verktoy/katalog.py
+python3 docs/verktoy/katalog.py && /tmp/venv/bin/python docs/verktoy/datamodell.py
 ```
 
 SQL Server for datalaget i F0b (#488) starter hooken i bakgrunnen med
@@ -85,10 +82,27 @@ TS-serveren og `vite dev` mot det ekte prosjektet; bruken står i headeren:
 node scripts/testbase/ekte_innlogging.ts [--bh <team> …] [--te <team> …]
 ```
 
-Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r` begge
-`backend/requirements*.txt` (systempython mangler pytest).
+Utenfor skyøktene: `python3 -m venv /tmp/venv` og `pip install -r
+verktoy/tester/requirements.txt` (systempython mangler pytest).
 
-Timeouten for en hel vitest-kjøring står i «Miljø» i `AGENTS.md`.
+Timeouten for en hel vitest-kjøring står i «Miljø» i `CLAUDE.md`.
+
+### Rask kjøring under arbeidet
+
+Testene mot SQL Server står for nesten all tiden i en hel kjøring (målingen står i
+#1714). Uten `KOE_SQLSERVER_TILKOBLING` hoppes de over, og resten går på sekunder:
+
+```bash
+env -u KOE_SQLSERVER_TILKOBLING npx vitest run --project node --project frontend --reporter=agent
+```
+
+Det dekker `kjerne/`, `sprakprove/` utenom lagringstestene, `verktoy/`, hookene og
+`src/` utenom komponentene. Er en komponent i `src/lib/components/` endret, legg til
+`--project frontend-komponenter`. Er `server/` eller grensene mot kjernen endret, legg
+til `--project server`, som uten variabelen kjører testene der som ikke trenger basen,
+blant dem arkitekturtesten. Filtrer på prosjekt, ikke på sti: `npx vitest run kjerne`
+treffer også `sprakprove/kjernelagring/` og kjører den mot SQL Server. Hele samlingen
+er `npm test` med `KOE_SQLSERVER_TILKOBLING` satt.
 
 ## Utdata
 
@@ -99,7 +113,8 @@ det, så svarene holdes små:
   Reporteren skriver bare oppsummeringen når alt er grønt, og ellers de
   feilende testene med diff og sted. Den skjuler også advarslene fra
   vite-plugin-svelte. Et `tail` kan kutte bort den første feilen. Pytest kjøres
-  med `-q` som i blokken over, med `| tail -30`. Skal hele utdataene leses, gjør
+  med `-q` som i blokken over, med `| tail -30`: pytest skriver feilene og
+  oppsummeringen sist. Skal hele utdataene leses, gjør
   en subagent det og rapporterer bare feilene.
 - Tell før du leser: `grep -c` eller `grep -l` først, deretter `grep -n` på
   de filene som gjelder. Et søk med mange alternativer over hele treet gir
@@ -122,13 +137,12 @@ parallelle kopier av treet med hver sin testbase. Én kjøring tar lang tid; sta
 den i bakgrunnen. Med `--ankre` kontrollerer den bare at teksten hver
 feilinnføring bytter ut, finnes nøyaktig én gang, og at hvert mål er en del av
 navnet på en test, lest med `vitest list`. Det tar sekunder, og
-leveranseskillen sier når det kjøres. I CI fordeler workflowen `feilinnfoering.yml` dem på seks
+leveranseskillen sier når det kjøres. I CI fordeler workflowen `feilinnfoering.yml` dem på tolv
 jobber og kjører dem om natta når kjernen, lagringstestene eller
 verktøykjeden er endret, ved manuell start og på PR-er med etiketten
 `feilinnfoering`.
 
-En skyøkt kjører ikke hele samlingen for kjernen lokalt som del av leveransen
-(oppdragsgiver 28.10): kjøringen tar lang tid, og økta mister kontekstcachen. Full
+En skyøkt kjører ikke hele samlingen for kjernen lokalt som del av leveransen: kjøringen tar lang tid, og økta mister kontekstcachen. Full
 lokal kjøring brukes bare til å feilsøke en rød jobb i CI. `--ankre` kjøres fortsatt
 lokalt. For serveren kjøres i stedet de ID-ene som gjelder endringen, mot en kopi av
 arbeidstreet: `python3 server/tester/feilinnfoering.py /tmp/kopi S39 S40`.
@@ -180,7 +194,7 @@ Kjør deretter bare de ID-ene som feilet, med `FEILINNFOERING_UTVALG=1`, i bakgr
 
 ## Skyøkta
 
-Reglene for skyøkta står i «Miljø» og «Hvor hva står» i `AGENTS.md`. Her står kommandoene.
+Reglene for skyøkta står i «Miljø» i `CLAUDE.md`. Her står kommandoene.
 
 `khjohns/kontrakt` legges til underveis:
 
@@ -210,13 +224,17 @@ Hentingen av bildet kan ta om lag ti minutter, og testene venter bare i tre. Ser
 har svart når `/tmp/koe-sqlserver-14331.container` finnes. Til da viser
 `/tmp/koe-sqlserver.log` hvor langt oppstarten er kommet.
 
-Vaktene kan ikke kjøres for hånd. I en slik økt verner ingenting token-brokeren eller
-de sperrede mappene for subagentene, så hold deg til det oppdraget sier.
+Vaktene kan ikke kjøres for hånd. I en slik økt verner ingenting token-brokeren, og
+`diffkontroll` er ikke begrenset til lesing, så hold deg til det oppdraget sier.
+
+`gh issue`, `gh pr` og `gh label` går over GraphQL, som gir 403 i skyøktene; bruk
+REST-formen med `gh api`. `gh api search/issues` og `--paginate` gir også 403 i
+skyøkta, så sidene hentes med `page=N`.
 
 Side for side i repo-listen, uten `search/issues`:
 `gh api "repos/khjohns/endringsmeldinger/issues?state=all&per_page=100&page=N" --jq '.[] | select(.title | test("…"; "i"))'`.
 
-Filtrert kjøring, som holder under arbeidet: `npx vitest run <filer>`. For en hel `npx vitest run` gjelder timeout-regelen i `AGENTS.md`.
+Filtrert kjøring, som holder under arbeidet: `npx vitest run <filer>`. For en hel `npx vitest run` gjelder timeout-regelen i `CLAUDE.md`.
 
 Et arbeidstre under `.claude/worktrees/` har ingen `node_modules`, så vite og vitest
 der laster pakkene fra hovedcheckouten, og med dem `tsconfig.json` der. Den utvider

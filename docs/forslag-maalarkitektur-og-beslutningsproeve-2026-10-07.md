@@ -2,7 +2,7 @@
 
 **Dato:** 2026-10-07. **Kodegrunnlag:** `68ca0ea5b593808c4513dc84ab908baf12739cdb`.
 **Forrige ledd:** [PR #266](https://github.com/khjohns/endringsmeldinger/pull/266),
-[strukturkartleggingen på PR-head `4c8860a`](https://github.com/khjohns/endringsmeldinger/blob/4c8860a84a4aa9f388818b38471593e5592fcfb8/docs/kartlegging-struktur-spor-d-2026-10-05.md)
+[strukturkartleggingen på PR-head `4c8860a`](https://github.com/khjohns/endringsmeldinger/blob/4c8860a84a4aa9f388818b38471593e5592fcfb8/docs/historikk/kartlegging-struktur-spor-d-2026-10-05.md)
 og [hovedplanen på samme head](https://github.com/khjohns/endringsmeldinger/blob/4c8860a84a4aa9f388818b38471593e5592fcfb8/docs/plans/2026-09-16-godkjenning-og-varig-levering.md).
 **Status:** bearbeidet arkitekturgrunnlag. **Merknad 2026-10-07 etter review:**
 Oppdragsgiver har tilsluttet seg målretning og justert rekkefølge under B-14
@@ -79,7 +79,7 @@ er en ny kravversjon, kan ikke antas bare fordi vederlag og frist har denne
 regelen; uavklart atferd avgjøres før den aktuelle implementeringen.
 
 Definisjonen av gjeldende krav skal brukes også i
-[claims i approval_service.py](../backend/services/approval_service.py), som i dag
+[claims i approval_service.py](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/approval_service.py), som i dag
 klassifiserer hendelser etter navn. En lokal ombygging av projeksjonen alene
 er ikke tilstrekkelig. Reaktiv EO og andre særforløp må omfattes av tabellen
 der de påvirker sporene; de skal ikke skjult overstyre den nye utledningen.
@@ -87,7 +87,7 @@ der de påvirker sporene; de skal ikke skjult overstyre den nye utledningen.
 M1 bør samle `standpunkt(grunnlag, spor)` med hovedgrunn, subsidiær karakter
 og årsaker. Flere resultatfelt innføres når en konkret forbruker trenger dem.
 Grunnlaget må kunne komme fra en ennå ikke publisert godkjenningspakke, slik
-[ApprovalService.validate_items](../backend/services/approval_service.py)
+[ApprovalService.validate_items](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/approval_service.py)
 allerede evaluerer pakkens svar i domenerekkefølge.
 
 Den delte kjernen skal være vanlige TypeScript-moduler uten HTTP, database,
@@ -127,9 +127,9 @@ i kartleggingens avsnitt 7.7; språkvalget fritar ikke fra den.
 
 ## 4. MA-03: sannhetskilder og offentlig tilstand
 
-[TimelineService.compute_state](../backend/services/timeline_service.py)
+[TimelineService.compute_state](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/timeline_service.py)
 bygger sakstilstanden fra hendelsene i lagerets rekkefølge.
-[submit_event](../backend/routes/event_routes.py) oppdaterer `cached_status`
+[submit_event](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/routes/event_routes.py) oppdaterer `cached_status`
 og `cached_sum_godkjent` fra den beregnede tilstanden. Kartleggingens avsnitt
 7.1 har allerede undersøkt dette. Den neste nyttige kontrollen er derfor en
 gjenoppbyggingstest gjennom lagring og gjenlesing, ikke en ny bred hypotese om
@@ -158,7 +158,7 @@ stanser skrivestien; historikkinnsyn kan bestå med en uttrykkelig begrensning.
 Dette prøves i F2 og kontrolleres i produksjonsporten F5.
 
 `/api/events` returnerer allerede `public_state` og ny saksversjon. Klientens
-[refresh](../src/lib/kontraktsbord/context.svelte.ts) henter også tidslinje,
+[refresh](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/kontraktsbord/context.svelte.ts) henter også tidslinje,
 historikk og Catenda-status. En ekstra GET kan fjernes først når
 kommandosvaret leverer den nødvendige sammenhengende sakskonteksten, eller
 klienten har en bevist måte å oppdatere den på. Versjonsmonotoni og skillet
@@ -166,7 +166,7 @@ mellom «lagret» og «oppdateringen av visningen feilet» må bevares.
 
 ## 5. MA-04: autoritativ server og kontraktsgrenser
 
-[kontroller_svar](../backend/regler/sammenlikning.py) kontrollerer både
+[kontroller_svar](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/regler/sammenlikning.py) kontrollerer både
 regelversjon og klientens resultat mot serverens beregning. `RESULT_MISMATCH`
 fanger mer enn forskjeller mellom programmeringsspråk: også feil kontekst,
 feil nyttelast og manipulert resultat. Behold denne B-13-kontrakten under
@@ -338,7 +338,7 @@ med kontrollert commit.
   - en ny kravversjon åpner sporet;
   - GR-U1, SK-01 og SK-03;
   - standpunktet per spor i tilstanden.
-- **TS-kjernen** i [`sprakprove/kjerne/`](../sprakprove/kjerne/) er bygget i
+- **TS-kjernen** i [`sprakprove/kjerne/`](https://github.com/khjohns/endringsmeldinger/tree/3b9cdd7/sprakprove/kjerne) er bygget i
   samme målform fra start, med beløp i hele øre og kommandoer validert mot
   `kontrakt.json`. Node 22 kjører den uten byggesteg.
 - **Flyten** er 31 rader og 30 forløp i [domenetabellen](domenetabell/README.md),
@@ -349,8 +349,8 @@ med kontrollert commit.
 | --- | --- | --- | --- |
 | Felles forventninger | 30 av 30 forløp, i domenebanen, `/api/events` og batch mot testbasen. 9 av dem er kjente avvik på `main` | 30 av 30, i minnet | Domenetabellen, `sprakprove/tester/korpus.test.ts` |
 | Kontrakt | Pydantic-modellene og `test_kontrakt*` | Skjemaet validert ved kjøretid. Aksepten er streng, og serverfeltene avvises eller overskrives | `sprakprove/tester/kontrakt.test.ts` |
-| Tall, dager, fravær | 50 tilfeller grønne | 51 tilfeller grønne | [`sprakprove/grensetilfeller.json`](../sprakprove/grensetilfeller.json) |
-| Genererte forløp | 300 forløp på 8 steg, fire invarianter holder | Samme 300, samme utfall | [`sprakprove/genererte-forlop.json`](../sprakprove/genererte-forlop.json), seed 274 |
+| Tall, dager, fravær | 50 tilfeller grønne | 51 tilfeller grønne | [`sprakprove/grensetilfeller.json`](https://github.com/khjohns/endringsmeldinger/blob/3b9cdd7/sprakprove/grensetilfeller.json) |
+| Genererte forløp | 300 forløp på 8 steg, fire invarianter holder | Samme 300, samme utfall | [`sprakprove/genererte-forlop.json`](https://github.com/khjohns/endringsmeldinger/blob/3b9cdd7/sprakprove/genererte-forlop.json), seed 274 |
 | Feilinnføring M1–M8 | Alle oppdaget, på målassertionen | Alle oppdaget, på målassertionen | [`sprakprove/feilinnforing.py`](https://github.com/khjohns/endringsmeldinger/blob/ad92579/sprakprove/feilinnforing.py) |
 | Regelendringen (enighet) | 3 produksjonsfiler (+74/−78). I tillegg fikk 2 testfiler nytt oppsett (+56/−10), og én xfail ble ordinær | 3 filer (+50/−22) | Commitene `4cdd012` og `28e5c2c` |
 
@@ -435,7 +435,7 @@ i hovedplanen under B-14 (3.1).
 - **Lageret** skriver `hendelse` i én transaksjon, med `expected_version` og
   unik-skranken.
 - **Godkjenningspakken** vurderes i kjernen
-  ([`godkjenning.ts`](../sprakprove/kjerne/godkjenning.ts)), med samme grense
+  ([`godkjenning.ts`](https://github.com/khjohns/endringsmeldinger/blob/3b9cdd7/sprakprove/kjerne/godkjenning.ts)), med samme grense
   som `validate_items`. Den publiseres ikke.
 
 | Kriterium | Bevis | Resultat |
@@ -633,7 +633,7 @@ Unngå en ubestemt pause i alt arbeid. Små kontraktsrettinger og nødvendige
 sikkerhetsoppdateringer kan fortsatt ha verdi før språkvalget. Ikke bygg nye
 speilregler eller en omfattende generatorplattform uten å vurdere levetiden.
 
-Avhengighetsarbeidet behandles i [vedlikeholdsvurderingen](vurdering-avhengigheter-og-arkitekturvalg-2026-10-07.md).
+Avhengighetsarbeidet behandles i [vedlikeholdsvurderingen](historikk/vurdering-avhengigheter-og-arkitekturvalg-2026-10-07.md).
 Den konkretiserer pakkegrupper og
 testkrav; den avgjør ikke språk eller database. Flask, Svelte og eksisterende
 lagrings-/PDF-adaptere kan beholdes mens kjernen prøves. Et rammeverksbytte,

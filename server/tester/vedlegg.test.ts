@@ -20,11 +20,12 @@ import {
   rensetFilnavn,
   STOERSTE_VEDLEGG,
 } from '../vedlegg.ts';
-import { vurder } from '../../kjerne/kommandoer/skriving.ts';
+import { utledJournal, vurder } from '../../kjerne/kommandoer/skriving.ts';
+import { visning } from '../../kjerne/utledning/visning.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { skrivHendelse, UgyldigKommando } from '../kommandoer.ts';
 import { lesSaken } from '../lager.ts';
-import { OPPDRAGSFORMAT } from '../levering.ts';
+import { lagOppdrag, OPPDRAGSFORMAT } from '../levering.ts';
 import {
   kall,
   type KjorendeServer,
@@ -467,6 +468,121 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
       expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
       expect(igjen.kropp.event_id).toBe(foerste.kropp.event_id);
       expect((await journal(sakId)).length).toBe(3);
+    });
+
+    /**
+     * VS-U51, VS-U53: dokumentet TE legger til i kravskjemaet som varselet for en kravpost, står
+     * som et eget registrert varsel før kravet, og kravet legger det ved. Handlingen er én
+     * transaksjon med én kvittering per rad.
+     */
+    describe('dokumentet med varselet for en kravpost i kravskjemaet', () => {
+      const vederlagskrav = (id: string) => ({
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: {
+          kravposter: [
+            {
+              beskrivelse: 'Pumping',
+              oppgjoersform: 'regningsarbeid',
+              varsel: { sendt: '2026-09-25', korrespondansetype: 'brev', dokumentasjon: [id] },
+            },
+          ],
+        },
+      });
+      const oppslag = (id: string) =>
+        new Map([[id, { vedlegg_id: id, filnavn: 'varsel.pdf', innhold_sha256: SUM }]]);
+
+      it('varselet og kravet skrives som to versjoner i samme handling, og dokumentet bindes av varselet', async () => {
+        const sakId = await sakMedPaaberopelse();
+        const id = (await lastOpp(o.te, PDF, 'varsel.pdf', sakId)).kropp.vedlegg.vedlegg_id;
+        const kommando = await medLaastTekst(o, sakId, vederlagskrav(id), oppslag(id));
+        const kommandoId = randomUUID();
+        const svar = await send(sakId, 2, kommando, kommandoId);
+        expect(svar.status, JSON.stringify(svar.kropp)).toBe(201);
+        const rader = await journal(sakId);
+        expect(rader.map((r) => r.versjon)).toEqual([1, 2, 3, 4]);
+        const [varselet, kravet] = rader.slice(2);
+        expect(svar.kropp.event_id, 'svaret gjelder kravet').toBe(kravet!.event_id);
+        expect(varselet!.data.brevtekst).toBe(undefined);
+        expect(varselet!.data.utsagn).toEqual([
+          expect.objectContaining({ art: 'varsel', hjemmel: '34.4' }),
+        ]);
+        expect(kravet!.data.dokumentasjon).toEqual([
+          { vedlegg_id: id, filnavn: 'varsel.pdf', innhold_sha256: SUM },
+        ]);
+        expect(new Date(kravet!.tidsstempel) >= new Date(varselet!.tidsstempel)).toBe(true);
+        expect(
+          (await liste(o.bh, sakId)).find((v) => v.vedlegg_id === id)?.bundet_av_event_id,
+          'varselet binder dokumentet, og kravet binder det ikke på nytt'
+        ).toBe(varselet!.event_id);
+        // KT-U5: et gjentak gir kravet fra kvitteringen og skriver ingenting.
+        const igjen = await send(sakId, 2, kommando, kommandoId);
+        expect(igjen.status, JSON.stringify(igjen.kropp)).toBe(201);
+        expect(igjen.kropp.event_id).toBe(kravet!.event_id);
+        expect((await journal(sakId)).length).toBe(4);
+      });
+
+      it('avviser kjernen kravet, skrives heller ikke varselet', async () => {
+        const sakId = await sakMedPaaberopelse();
+        const id = (await lastOpp(o.te, PDF, 'varsel.pdf', sakId)).kropp.vedlegg.vedlegg_id;
+        const kommando = await medLaastTekst(o, sakId, vederlagskrav(id), oppslag(id));
+        // LV-U2: en annen tekst enn den serveren lager, avvises når kravet skrives.
+        const svar = await send(sakId, 2, { ...kommando, brevtekst: ['En annen tekst.'] });
+        expect(svar.status, JSON.stringify(svar.kropp)).toBe(400);
+        expect((await journal(sakId)).length).toBe(2);
+        expect(
+          (await liste(o.te, sakId)).find((v) => v.vedlegg_id === id)?.bundet_av_event_id ?? null
+        ).toBe(null);
+        const kontroll = await send(sakId, 2, kommando);
+        expect(kontroll.status, 'kontrollsak').toBe(201);
+      });
+
+      it('avvises en senere rad i handlingen, rulles også radene før tilbake', async () => {
+        const sakId = await sakMedPaaberopelse();
+        const id = (await lastOpp(o.te, PDF, 'varsel.pdf', sakId)).kropp.vedlegg.vedlegg_id;
+        const utfall = await skrivHendelse(
+          o.datalag.kjoeretid.pool,
+          teKontekst(),
+          sakId,
+          2,
+          { id: randomUUID(), sha256: 'b'.repeat(64) },
+          ({ journal: j, tidspunkt, maal, sakskode, kontraktsforkortelse }) => {
+            const vurdert = vurder(
+              varsel([id]),
+              {
+                sakId,
+                aktoerId: o.te.id,
+                part: 'TE',
+                teamId: teKontekst().team,
+                sakskode: { kode: sakskode.kode, loepenummer: sakskode.loepenummer },
+                kontraktsforkortelse,
+                tidspunkt: () => tidspunkt,
+                nyId: randomUUID,
+              },
+              j,
+              KJERNE,
+              oppslag(id)
+            );
+            if (!vurdert.godtatt) throw new Error(vurdert.avvisning.melding);
+            const [rad] = vurdert.hendelser;
+            const status = visning(utledJournal([...j, rad!], KJERNE), KJERNE.regler).status;
+            return {
+              skriv: true,
+              rad: rad!,
+              oppdrag: lagOppdrag(rad!, maal, status, KJERNE, randomUUID),
+              neste: ({ journal: etter }) => {
+                expect(etter.length, 'neste får journalen med raden før').toBe(3);
+                return { skriv: false, avvisning: 'avvist' };
+              },
+            };
+          }
+        );
+        expect(utfall).toEqual({ skriv: false, avvisning: 'avvist' });
+        expect((await journal(sakId)).length).toBe(2);
+        expect(
+          (await liste(o.te, sakId)).find((v) => v.vedlegg_id === id)?.bundet_av_event_id ?? null
+        ).toBe(null);
+      });
     });
 
     it.each([

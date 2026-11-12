@@ -1,15 +1,18 @@
 /**
- * Tittelen på brevet løsningen sender, frosset med teksten (MM-U3, MM-U50, #1536). Et registrert
- * brev har ingen frosset tittel; visningen gir det en etikett (MM-U17).
+ * Tittelen på brevet løsningen sender, frosset med teksten (LV-U2, LV-U25, MM-U9, MM-U50, #1536).
+ * Et registrert brev har ingen frosset tittel; visningen gir det en etikett (MM-U17).
  */
 
-import { forholdet, paaberopelsenAv } from './forholdene.ts';
 import type { Dokument, Sakskode, Spor } from '../typer.ts';
-
-/** Sakens kode slik brevene omtaler saken, uten utfylling: «KOE-17» (LV-U44, LV-U45). */
-export const sakensKode = (s: Sakskode): string => `${s.kode.toUpperCase()}-${s.loepenummer}`;
+import { sakensKode } from './tekst.ts';
+import { paaberopelsenAv, paaberoptForhold } from '../spor/forhold/tekst.ts';
 
 const utfylt = (tall: number, sifre: number) => String(tall).padStart(sifre, '0');
+
+/** Kodene i `Sakskode`, slik merkingen og tittelen skriver dem (LV-U27, LV-U44). */
+const SAKSKODENE = Object.keys({ koe: true, eo: true } satisfies Record<Sakskode['kode'], true>)
+  .map((k) => k.toUpperCase())
+  .join('|');
 
 /**
  * Merkingen på et brev fra løsningen, `K201-KOE-005-03`: kontraktsforkortelsen, sakens kode,
@@ -41,15 +44,23 @@ export function avvikIMerkingen(
     return 'merkingen står bare i et brev fra løsningen, med nummeret (LV-U53)';
   if (!merking.endsWith(`-${utfylt(brevnummer, 2)}`))
     return 'merkingen slutter ikke med brevnummeret (LV-U48)';
+  if (!MERKINGEN.test(merking.slice(0, merking.lastIndexOf('-'))))
+    return 'merkingen har ikke formen fra brevmerking (LV-U44, LV-U48)';
   return null;
 }
+
+/**
+ * Det `brevmerking` lager foran brevnummeret: kontraktsforkortelsen, som har store bokstaver
+ * og sifre i katalogen, sakens kode og løpenummeret med minst tre sifre (LV-U44, LV-U48).
+ */
+const MERKINGEN = new RegExp(`^[A-Z0-9]+-(${SAKSKODENE})-(00[1-9]|0[1-9]\\d|[1-9]\\d{2,})$`);
 
 /** Tittelen med sakens kode, slik skrivingen fryser den: «Krav om endring i sak KOE-17» (LV-U27). */
 export const medSakskode = (tittel: string, s: Sakskode): string =>
   `${tittel} i sak ${sakensKode(s)}`;
 
 /** Det `medSakskode` legger til, slik leseren kjenner det igjen. */
-const SAKSKODE_ETTER_TITTELEN = /^ i sak (KOE|EO)-[1-9]\d*$/;
+const SAKSKODE_ETTER_TITTELEN = new RegExp(`^ i sak (${SAKSKODENE})-[1-9]\\d*$`);
 
 export const KRAVTITTEL: Record<Spor, string> = {
   forhold: 'Krav om endring',
@@ -70,12 +81,6 @@ export const UTSAGNSTITTEL = {
   // LV-U55: brevet med korrigeringen etter punkt 10 i samlevedtaket for retting av sendt brev (MM-U52).
   korrigering: 'Korrigering av datoen',
 } as const;
-
-/** Forholdet brevet påberoper (GR-U31): et krav i forholdssporet i et brev uten svar. */
-function paaberoptForhold(d: Pick<Dokument, 'krav' | 'svar'>) {
-  if (d.svar.length) return null;
-  return forholdet(d.krav.find((k) => k.spor === 'forhold')?.innhold.underkategori);
-}
 
 /**
  * Tittelen etter det brevet inneholder: «Påberopelse av <forholdet>» (GR-U31), ellers etter
@@ -98,7 +103,7 @@ export function lagBrevtittel(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): st
 }
 
 /**
- * MM-U3 (opphevet av MM-U50), MM-U2 (#1533): grunnen til at en lagret tittel ikke kan være laget av skrivingen, eller
+ * LV-U25, MM-U2 (#1533): grunnen til at en lagret tittel ikke kan være laget av skrivingen, eller
  * `null`. Tittelen sammenliknes ikke med `lagBrevtittel`, så et sendt brev beholder tittelen det
  * ble sendt med (MM-U9) når titlene endres.
  */

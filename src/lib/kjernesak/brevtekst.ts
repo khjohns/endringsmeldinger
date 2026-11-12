@@ -1,8 +1,8 @@
 import {
   forhaandsvis,
   laastTekst,
-  utledJournal,
   vurder,
+  utledJournal,
   type Kontekst,
   type Vedleggsoppslag,
 } from '$kjerne/kommandoer/skriving';
@@ -63,7 +63,8 @@ export function brevFor(
   const kontekst = stemplet(sakId, part, merking);
   const vist = forhaandsvis(kommando, kontekst, journal, kjerne, vedlegg);
   if (!vist.godtatt) return { avvisning: vist.avvisning };
-  const rad = vist.hendelser[0];
+  // Brevet er den siste raden; et dokument fra kravskjemaet står som varsel foran (VS-U53).
+  const rad = vist.hendelser.at(-1)!;
   const tekst = laastTekst(rad);
   const brev = {
     tekst,
@@ -81,6 +82,7 @@ export function brevFor(
 /**
  * Saken utledet med raden kommandoen ville gitt, uten å lagre den, eller `null` når kjernen
  * avviser kommandoen. Skjemaet leser lagene i svaret herfra, som brevet gjør (#1261).
+ * `vedlegg` er vedleggene kommandoen viser til, som i `brevFor`.
  */
 export function utledetMed(
   kommando: Record<string, unknown>,
@@ -88,9 +90,10 @@ export function utledetMed(
   part: Part,
   merking: Saksmerking,
   journal: Journalrad[],
-  kjerne: Kjerne
+  kjerne: Kjerne,
+  vedlegg?: Vedleggsoppslag
 ): Utledning | null {
-  const vist = forhaandsvis(kommando, stemplet(sakId, part, merking), journal, kjerne);
+  const vist = forhaandsvis(kommando, stemplet(sakId, part, merking), journal, kjerne, vedlegg);
   return vist.godtatt ? utledJournal([...journal, ...vist.hendelser], kjerne) : null;
 }
 

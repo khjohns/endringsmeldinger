@@ -1,12 +1,10 @@
 """Dataflyten mellom tabellene og Catenda i docs/datamodell/dataflyt.toml (spor M, 1c).
 
-Brukes av datamodell.py. Kallene til Catenda finnes med AST, ikke med tekstsøk:
-en metode i klientlaget som selv gjør et HTTP-kall, eller kaller en som gjør det,
-er et Catenda-kall. Hvert sted utenfor klientlaget som kaller en slik metode,
-skal stå som kode i en pil eller under [[uten_flyt]] med begrunnelse.
+Brukes av datamodell.py. Hver kodereferanse i en pil er et symbol deklarert på
+toppnivå i en TS-fil i server/, og hvert kall til Catenda i server/ har en pil med
+samme metode og sti (`kall_uten_pil`, #1718).
 """
 
-import ast
 import copy
 import functools
 import pathlib
@@ -20,20 +18,9 @@ if "verktoy.laster" not in sys.modules:
 from verktoy.laster import last
 
 ROT = pathlib.Path(__file__).resolve().parents[2]
-BACKEND = ROT / "backend"
 REGISTER = ROT / "docs" / "datamodell" / "dataflyt.toml"
 
 rel = last("relasjoner")
-
-KLIENTLAG = (
-    "backend/integrations/catenda/",
-    "backend/lib/auth/catenda_oauth.py",
-    "backend/services/catenda_service.py",
-)
-IKKE_KLIENTLAG = ("backend/integrations/catenda/_demo.py",)
-KLIENTMODULER = ("integrations.catenda", "lib.auth.catenda_oauth", "services.catenda_service")
-HTTP_PRIMITIVER = frozenset({"_safe_request", "_make_request", "_request"})
-UTENFOR_SKANNING = ("backend/tests/", "backend/venv/", "backend/.venv/")
 
 FLYTFELT = ("id", "navn", "retning", "utloses_av", "beskrivelse", "steg", "funn", "belegg")
 VALGFRIE_FLYTFELT = ("drift",)
@@ -42,8 +29,7 @@ RETNINGER = ("inn", "ut", "inn og ut")
 FLYT_ID = re.compile(r"^C\d{2}$")
 FUNN_ID = re.compile(r"^[A-Z][A-Z0-9]*-\d{2}$")
 KVITTERING = "catenda:svar"
-DATABASEFUNKSJON = "databasefunksjon:"
-KODEREFERANSE = re.compile(r"^(backend/[\w/]+\.py|server/[\w/]+\.ts):([\w.$]+)$")
+KODEREFERANSE = re.compile(r"^(server/[\w/]+\.ts):([\w.$]+)$")
 TS_DEKLARASJON = re.compile(
     r"^(?:export\s+)?(?:default\s+)?(?:declare\s+)?(?:async\s+|abstract\s+)?"
     r"(?:function\s*\*\s*|(?:(?:const\s+)?enum|function|const|let|var|class|interface|type)\s+)"
@@ -99,149 +85,10 @@ def les(sti: pathlib.Path = REGISTER) -> dict:
         return tomllib.load(fil)
 
 
-def _relativ(fil: pathlib.Path) -> str:
-    return fil.relative_to(ROT).as_posix()
-
-
-def _python_filer():
-    for fil in sorted(BACKEND.rglob("*.py")):
-        relativ = _relativ(fil)
-        if not relativ.startswith(UTENFOR_SKANNING):
-            yield relativ, fil
-
-
-def _i_klientlaget(relativ: str) -> bool:
-    return relativ.startswith(KLIENTLAG) and relativ not in IKKE_KLIENTLAG
-
-
-def _kallnavn(node: ast.AST, bare: frozenset[str] = frozenset()) -> str | None:
-    """Metoden et kall treffer. Et kall ved bart navn teller bare når navnet står i `bare`."""
-    if not isinstance(node, ast.Call):
-        return None
-    if isinstance(node.func, ast.Attribute):
-        return node.func.attr
-    if isinstance(node.func, ast.Name) and node.func.id in bare:
-        return node.func.id
-    return None
-
-
-def _importert_fra_klientlaget(tre: ast.AST) -> dict[str, str]:
-    """{lokalt navn: navnet i klientlaget} for `from <klientmodul> import …`."""
-    navn = {}
-    for node in ast.walk(tre):
-        if isinstance(node, ast.ImportFrom) and node.module and node.module.startswith(KLIENTMODULER):
-            for alias in node.names:
-                navn[alias.asname or alias.name] = alias.name
-    return navn
-
-
-def _gjor_http(node: ast.AST) -> bool:
-    for kall in ast.walk(node):
-        if not isinstance(kall, ast.Call) or not isinstance(kall.func, ast.Attribute):
-            continue
-        if kall.func.attr in HTTP_PRIMITIVER:
-            return True
-        if isinstance(kall.func.value, ast.Name) and kall.func.value.id == "requests":
-            return True
-    return False
-
-
-@functools.cache
-def catenda_metoder() -> frozenset[str]:
-    """Navnene på metodene i klientlaget som fører til et HTTP-kall."""
-    funksjoner: dict[str, list[ast.AST]] = {}
-    for relativ, fil in _python_filer():
-        if not _i_klientlaget(relativ):
-            continue
-        for node in ast.walk(ast.parse(fil.read_text(encoding="utf-8"))):
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and not node.name.startswith("__"):
-                funksjoner.setdefault(node.name, []).append(node)
-    metoder = {navn for navn, noder in funksjoner.items() if any(_gjor_http(n) for n in noder)}
-    metoder |= HTTP_PRIMITIVER
-    definert = frozenset(funksjoner)
-    endret = True
-    while endret:
-        endret = False
-        for navn, noder in funksjoner.items():
-            if navn in metoder:
-                continue
-            if any(_kallnavn(k, definert) in metoder for n in noder for k in ast.walk(n)):
-                metoder.add(navn)
-                endret = True
-    return frozenset(metoder)
-
-
-class _Kallsteder(ast.NodeVisitor):
-    def __init__(self, metoder: frozenset[str], importert: dict[str, str]):
-        self.metoder = metoder
-        self.importert = importert
-        self.sti: list[str] = []
-        self.funnet: set[tuple[str, str]] = set()
-
-    def _omslutt(self, node):
-        self.sti.append(node.name)
-        self.generic_visit(node)
-        self.sti.pop()
-
-    visit_ClassDef = _omslutt
-    visit_FunctionDef = _omslutt
-    visit_AsyncFunctionDef = _omslutt
-
-    def visit_Call(self, node: ast.Call):
-        navn = _kallnavn(node, frozenset(self.importert))
-        navn = self.importert.get(navn, navn) if isinstance(node.func, ast.Name) else navn
-        if navn in self.metoder:
-            self.funnet.add((".".join(self.sti) or "<modul>", navn))
-        self.generic_visit(node)
-
-
-@functools.cache
-def kallsteder(unntak: frozenset[str] = frozenset()) -> dict[str, frozenset[str]]:
-    """{'fil:funksjon': {metodene den kaller}} for hvert kall til Catenda."""
-    metoder = catenda_metoder() - unntak
-    resultat: dict[str, set[str]] = {}
-    for relativ, fil in _python_filer():
-        if _i_klientlaget(relativ):
-            continue
-        tre = ast.parse(fil.read_text(encoding="utf-8"))
-        besøk = _Kallsteder(metoder, _importert_fra_klientlaget(tre))
-        besøk.visit(tre)
-        for funksjon, metode in besøk.funnet:
-            resultat.setdefault(f"{relativ}:{funksjon}", set()).add(metode)
-    return {sted: frozenset(m) for sted, m in resultat.items()}
-
-
 @functools.cache
 def definisjoner(relativ: str) -> frozenset[str]:
-    """Kvalifiserte navn på klassene og funksjonene i en Python-fil, eller navnene
-    deklarert på toppnivå i en TS-fil (#713)."""
-    if relativ.endswith(".ts"):
-        return frozenset(TS_DEKLARASJON.findall(_ts_kode((ROT / relativ).read_text(encoding="utf-8"))))
-    tre = ast.parse((ROT / relativ).read_text(encoding="utf-8"))
-    navn: set[str] = set()
-
-    def besøk(node, forelder: str):
-        for barn in ast.iter_child_nodes(node):
-            if isinstance(barn, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
-                fullt = f"{forelder}.{barn.name}" if forelder else barn.name
-                navn.add(fullt)
-                besøk(barn, fullt)
-            else:
-                besøk(barn, forelder)
-
-    besøk(tre, "")
-    return frozenset(navn)
-
-
-def udekkede_kallsteder(register: dict, steder: dict[str, set[str]]) -> list[str]:
-    dekket = {k for f in register.get("flyt", []) for s in f.get("steg", []) for k in s.get("kode", [])}
-    unntatt_fil = {u["fil"] for u in register.get("uten_flyt", []) if "funksjon" not in u}
-    unntatt = {f"{u['fil']}:{u['funksjon']}" for u in register.get("uten_flyt", []) if "funksjon" in u}
-    return sorted(
-        f"{sted} kaller {', '.join(sorted(metoder))}"
-        for sted, metoder in steder.items()
-        if sted not in dekket and sted not in unntatt and sted.split(":")[0] not in unntatt_fil
-    )
+    """Navnene deklarert på toppnivå i en TS-fil (#713)."""
+    return frozenset(TS_DEKLARASJON.findall(_ts_kode((ROT / relativ).read_text(encoding="utf-8"))))
 
 
 def noder(katalog: dict, tabellregister: dict, register: dict) -> dict[str, str]:
@@ -262,8 +109,8 @@ def valider(
 ) -> list[str]:
     feil = []
     kjente = noder(katalog, tabellregister, register)
-    funksjoner = set(katalog["postgresql"]["funksjoner"])
     sett = set()
+    feil += [f"{seksjon}: ukjent seksjon" for seksjon in sorted(set(register) - {"catenda", "flyt"})]
     for ressurs in register.get("catenda", []):
         if set(ressurs) != {"id", "navn"}:
             feil.append(f"catenda-ressursen {ressurs}: feltene skal være id og navn")
@@ -292,16 +139,9 @@ def valider(
             if not steg["kode"]:
                 feil.append(f"{hvor}: pilen viser ikke til koden som gjør kallet")
             for kode in steg["kode"]:
-                if kode.startswith(DATABASEFUNKSJON):
-                    if kode.removeprefix(DATABASEFUNKSJON) not in funksjoner:
-                        feil.append(f"{hvor}: {kode} finnes ikke i katalogen")
-                    continue
                 treff = KODEREFERANSE.match(kode)
                 if not treff:
-                    feil.append(
-                        f"{hvor}: {kode!r} er ikke på formen backend/…/fil.py:Klasse.funksjon "
-                        "eller server/…/fil.ts:symbol"
-                    )
+                    feil.append(f"{hvor}: {kode!r} er ikke på formen server/…/fil.ts:symbol")
                 elif not (ROT / treff[1]).exists():
                     feil.append(f"{hvor}: fila {treff[1]} finnes ikke")
                 elif treff[2] not in definisjoner(treff[1]):
@@ -311,16 +151,6 @@ def valider(
                 feil.append(f"{fid}: {funn!r} er ikke en funn-ID")
             elif funntekst is not None and not re.search(rf"\b{re.escape(funn)}\b", funntekst):
                 feil.append(f"{fid}: {funn} står ikke i hovedplanens funnregister")
-    for unntak in register.get("uten_flyt", []):
-        if not {"fil", "begrunnelse"} <= set(unntak) <= {"fil", "funksjon", "begrunnelse"}:
-            feil.append(f"uten_flyt {unntak}: feltene skal være fil, begrunnelse og eventuelt funksjon")
-        elif not (ROT / unntak["fil"]).exists():
-            feil.append(f"uten_flyt: fila {unntak['fil']} finnes ikke")
-        elif "funksjon" in unntak and unntak["funksjon"] not in definisjoner(unntak["fil"]):
-            feil.append(f"uten_flyt: {unntak['funksjon']} er ikke definert i {unntak['fil']}")
-    for navn in register.get("autentisering", []):
-        if navn not in catenda_metoder():
-            feil.append(f"autentisering: {navn} er ikke en metode i klientlaget som kaller Catenda")
     return feil
 
 
@@ -357,6 +187,327 @@ def flyter_per_tabell(register: dict) -> dict[str, dict[str, list[str]]]:
 
 
 # ---------------------------------------------------------------------------
+# Kallene til Catenda i server/ (#1718)
+# ---------------------------------------------------------------------------
+
+CATENDAKLIENT = "server/catenda.ts"
+KLIENTKALL = re.compile(r"(?<![\w$.#])forespoersel\b")
+FUNKSJON = re.compile(
+    r"^[ \t]*(?:export\s+)?(?:static\s+)?(?:async\s+)?(?:function\s*\*?\s*)?(#?[A-Za-z_$][\w$]*)\s*\(",
+    re.MULTILINE,
+)
+IKKE_FUNKSJON = {"if", "for", "while", "switch", "catch", "return", "await", "throw", "new", "typeof"}
+PIL_ENDEPUNKT = re.compile(r"^([A-Z]+(?: og [A-Z]+)*) (/[^\s?]+)")
+FETCH = re.compile(r"(?<![\w$])fetch\b(?!\s*\??:)")
+# Filene i server/ som bruker `fetch` mot en annen tjeneste enn Catenda: Entra ID og HR-dataene.
+ANDRE_TJENESTER = frozenset({"server/entra.ts", "server/hrdata.ts"})
+
+
+class UkjentSti(ValueError):
+    """Stien i et kall til Catenda kan ikke avgjøres ut av koden."""
+
+
+def _serverfiler() -> dict[str, str]:
+    return {
+        str(sti.relative_to(ROT)): sti.read_text(encoding="utf-8")
+        for sti in sorted((ROT / "server").rglob("*.ts"))
+        if "tester" not in sti.relative_to(ROT / "server").parts
+    }
+
+
+def _slutt(kode: str, start: int, aapne: str, lukke: str) -> int:
+    """Posisjonen etter klammen som lukker den som står på `start`."""
+    dybde = 0
+    for i in range(start, len(kode)):
+        if kode[i] == aapne:
+            dybde += 1
+        elif kode[i] == lukke:
+            dybde -= 1
+            if dybde == 0:
+                return i + 1
+    raise UkjentSti(f"klammen ved {start} lukkes ikke")
+
+
+def _argumenter(kode: str, raa: str, start: int) -> list[str]:
+    """Argumentene i kallet som åpner med parentesen på `start`, fra den rå teksten."""
+    slutt = _slutt(kode, start, "(", ")") - 1
+    deler, dybde, fra = [], 0, start + 1
+    for i in range(start + 1, slutt):
+        if kode[i] in "([{":
+            dybde += 1
+        elif kode[i] in ")]}":
+            dybde -= 1
+        elif kode[i] == "," and dybde == 0:
+            deler.append(raa[fra:i].strip())
+            fra = i + 1
+    deler.append(raa[fra:slutt].strip())
+    return [d for d in deler if d]
+
+
+class _Fil:
+    """Én TS-fil: funksjonene og metodene med parametrene og kroppen."""
+
+    def __init__(self, navn: str, raa: str):
+        self.navn, self.raa, self.kode = navn, raa, _ts_kode(raa)
+        self.funksjoner: list[dict] = []
+        # `{ … }` i import og eksport, også over flere linjer.
+        self.navnelister = [
+            m.span(1) for m in re.finditer(r"\b(?:import|export)\s*(?:type\s*)?(\{[^{}]*\})", self.kode)
+        ]
+        for m in FUNKSJON.finditer(self.kode):
+            if m[1] in IKKE_FUNKSJON:
+                continue
+            parentes = m.end() - 1
+            etter = _slutt(self.kode, parentes, "(", ")")
+            # Kroppen åpner med klammen som avslutter linja, etter en eventuell returtype.
+            kropp = re.compile(r"[ \t]*(?::[^\n]*)?\{[ \t]*\n").match(self.kode, etter)
+            if not kropp:
+                continue
+            start = self.kode.rindex("{", 0, kropp.end())
+            parametre = [
+                (re.match(r"[\s{\[.]*(?:readonly\s+)?([\w$]*)", p) or [None, ""])[1]
+                for p in _argumenter(self.kode, raa, parentes)
+            ]
+            self.funksjoner.append(
+                {
+                    "navn": m[1],
+                    "parametre": parametre,
+                    "start": start,
+                    "slutt": _slutt(self.kode, start, "{", "}"),
+                    # Innrykket: en metode i en klasse, kalt som `x.navn(`.
+                    "metode": m[0][:1] in " \t",
+                }
+            )
+
+    def rundt(self, pos: int) -> dict | None:
+        inni = [f for f in self.funksjoner if f["start"] < pos < f["slutt"]]
+        return min(inni, key=lambda f: f["slutt"] - f["start"]) if inni else None
+
+    def funksjon(self, navn: str) -> dict | None:
+        return next((f for f in self.funksjoner if f["navn"] == navn and not f["metode"]), None)
+
+
+class _Kallgraf:
+    def __init__(self, filer: dict[str, str]):
+        self.filer = {navn: _Fil(navn, raa) for navn, raa in filer.items()}
+
+    def stier(self, fil: _Fil, uttrykk: str, rundt: dict | None, dybde: int = 0) -> set[str]:
+        """Stiene `uttrykk` kan ha, med `{}` for hver verdi koden setter inn."""
+        if dybde > 20:
+            raise UkjentSti(uttrykk)
+        u = uttrykk.strip()
+        if m := re.fullmatch(r"'([^'\\]*)'|\"([^\"\\]*)\"", u):
+            return {m[1] if m[1] is not None else m[2]}
+        if u.startswith("`") and u.endswith("`"):
+            return self._mal(fil, u[1:-1], rundt, dybde)
+        if m := re.fullmatch(r"([A-Za-z_$][\w$]*)\s*\((.*)\)", u, re.DOTALL):
+            hjelper = fil.funksjon(m[1])
+            if not hjelper:
+                raise UkjentSti(u)
+            return self._returnerer(fil, hjelper, dybde)
+        if re.fullmatch(r"[A-Za-z_$][\w$]*", u) and rundt:
+            # Navnet må ha én binding i funksjonen, så en annen blokk eller en pilfunksjon
+            # ikke kan gi det en annen verdi.
+            b = _bindinger(fil.kode[rundt["start"] : rundt["slutt"]], u)
+            if b["annen"] or b["pil"] or b["tilordning"]:
+                raise UkjentSti(f"{u} bindes flere steder i {rundt['navn']}")
+            if u in rundt["parametre"] and not b["const"]:
+                return self._fra_kallerne(fil, rundt, rundt["parametre"].index(u), dybde)
+            if b["const"] == 1 and u not in rundt["parametre"] and (verdi := self._konstant(fil, u, rundt)):
+                return self.stier(fil, verdi, rundt, dybde + 1)
+        raise UkjentSti(u)
+
+    def _mal(self, fil: _Fil, mal: str, rundt: dict | None, dybde: int) -> set[str]:
+        resultat = {""}
+        i = 0
+        while i < len(mal):
+            j = mal.find("${", i)
+            if j < 0:
+                resultat = {r + mal[i:] for r in resultat}
+                break
+            dybden, k = 0, j + 1
+            while True:
+                dybden += {"{": 1, "}": -1}.get(mal[k], 0)
+                k += 1
+                if dybden == 0:
+                    break
+            try:
+                deler = self.stier(fil, mal[j + 2 : k - 1], rundt, dybde + 1)
+                if not all(d.startswith("/") for d in deler):
+                    deler = {"{}"}
+            except UkjentSti:
+                deler = {"{}"}
+            resultat = {r + mal[i:j] + d for r in resultat for d in deler}
+            i = k
+        return resultat
+
+    def _konstant(self, fil: _Fil, navn: str, rundt: dict) -> str | None:
+        m = re.search(rf"\bconst\s+{re.escape(navn)}\s*(?::[^=]+)?=", fil.kode[rundt["start"] : rundt["slutt"]])
+        if not m:
+            return None
+        fra = rundt["start"] + m.end()
+        slutt = fra
+        dybde = 0
+        while slutt < rundt["slutt"]:
+            c = fil.kode[slutt]
+            if c in "([{":
+                dybde += 1
+            elif c in ")]}":
+                dybde -= 1
+            elif c == ";" and dybde == 0:
+                break
+            slutt += 1
+        return fil.raa[fra:slutt]
+
+    def _returnerer(self, fil: _Fil, hjelper: dict, dybde: int) -> set[str]:
+        resultat: set[str] = set()
+        kropp = fil.kode[hjelper["start"] : hjelper["slutt"]]
+        for m in re.finditer(r"\breturn\b", kropp):
+            fra = hjelper["start"] + m.end()
+            slutt = fil.kode.find(";", fra)
+            resultat |= self.stier(fil, fil.raa[fra:slutt], hjelper, dybde + 1)
+        if not resultat:
+            raise UkjentSti(hjelper["navn"])
+        return resultat
+
+    def _fra_kallerne(self, fil: _Fil, funksjon: dict, nr: int, dybde: int) -> set[str]:
+        """Stiene i argument nr. `nr` hos hver kaller av funksjonen, i hele server/."""
+        navn = re.escape(funksjon["navn"])
+        moenster = re.compile(rf"\.{navn}\b" if funksjon["metode"] else rf"(?<![\w$.#]){navn}\b")
+        resultat: set[str] = set()
+        for annen in self.filer.values():
+            for m in moenster.finditer(annen.kode):
+                kaller = annen.rundt(m.start())
+                if _er_definisjon(annen.kode, m.start()):
+                    continue
+                if any(fra < m.start() < til for fra, til in annen.navnelister):
+                    if re.compile(r"\s+as\b").match(annen.kode, m.end()):
+                        raise UkjentSti(f"{annen.navn}: {funksjon['navn']} importeres med et annet navn")
+                    continue
+                if not re.compile(r"\s*\(").match(annen.kode, m.end()):
+                    # Funksjonen brukes som verdi, så kallerne kan ikke finnes.
+                    raise UkjentSti(f"{annen.navn}: {funksjon['navn']} brukes uten å kalles")
+                if kaller is funksjon:
+                    continue
+                argumenter = _argumenter(annen.kode, annen.raa, annen.kode.index("(", m.end()))
+                if nr >= len(argumenter):
+                    raise UkjentSti(f"{annen.navn}: kallet til {funksjon['navn']} mangler argument {nr + 1}")
+                resultat |= self.stier(annen, argumenter[nr], kaller, dybde + 1)
+        if not resultat:
+            raise UkjentSti(f"ingen kaller av {funksjon['navn']}")
+        return resultat
+
+
+def _er_definisjon(kode: str, pos: int) -> bool:
+    return re.search(r"function\s*\*?\s*$", kode[max(0, pos - 40) : pos]) is not None
+
+
+def _bindinger(kode: str, navn: str) -> dict[str, int]:
+    """Hvor mange ganger `navn` bindes i `kode`: med const, med let eller var, som parameter
+    i en pilfunksjon og ved tilordning."""
+    n = re.escape(navn)
+    pilparametre = [
+        m[1] if m[1] is not None else m[2]
+        for m in re.finditer(r"\(([^()]*)\)\s*(?::[^=;]*?)?=>|(?<![\w$.])([A-Za-z_$][\w$]*)\s*=>", kode)
+    ]
+    return {
+        "const": len(re.findall(rf"\bconst\s+{n}\b", kode)),
+        "annen": len(re.findall(rf"\b(?:let|var)\s+{n}\b|\b(?:const|let|var)\s*[{{\[][^=;]*\b{n}\b", kode)),
+        "pil": sum(bool(re.search(rf"(?<![\w$.]){n}\b", p)) for p in pilparametre),
+        "tilordning": len(re.findall(rf"(?<![\w$.]){n}\s*(?:[-+*/?|&]{{0,2}})=(?![=>])", kode))
+        - len(re.findall(rf"\b(?:const|let|var)\s+{n}\s*(?::[^=;]*)?=", kode)),
+    }
+
+
+def _normalisert(sti: str) -> str:
+    return re.sub(r"\{[^{}]*\}", "{}", sti)
+
+
+def catendakall(filer: dict[str, str] | None = None) -> tuple[set[tuple[str, str, str]], list[str]]:
+    """Kallene til Catenda i server/ som (metode, sti, fil:funksjon), og det vakta ikke kan avgjøre.
+
+    Hvert kall går gjennom `forespoersel(this.#oppsett, metode, sti, …)` i server/catenda.ts.
+    En sti som er en parameter, følges til hver kaller i server/, også utenfor fila. Hver
+    verdi koden setter inn i stien, blir `{}`. `fetch` i en annen fil enn dem i
+    `ANDRE_TJENESTER`, et kall til `forespoersel` utenfor klienten og en sti som ikke kan
+    avgjøres, gir en feil. Det gjør også et navn i stien som bindes mer enn én gang i
+    funksjonen, en funksjon med stien som brukes uten å kalles, og en import med `as`.
+
+    Lesingen er tekstlig. Den ser ikke et kall gjennom en navnerommsimport (`c.raa(`), en
+    metode kalt med hakeparentes eller fra en destrukturering, en parameter som får ny verdi
+    ved destrukturerende tilordning eller i `catch`, og andre HTTP-klienter enn `fetch`.
+    """
+    filer = _serverfiler() if filer is None else filer
+    graf = _Kallgraf(filer)
+    kall: set[tuple[str, str, str]] = set()
+    feil: list[str] = []
+    for navn, fil in graf.filer.items():
+        for m in FETCH.finditer(fil.kode):
+            rundt = fil.rundt(m.start())
+            if navn in ANDRE_TJENESTER or (
+                navn == CATENDAKLIENT and rundt and rundt["navn"] == "forespoersel" and re.compile(r"\s*\(").match(fil.kode, m.end())
+            ):
+                continue
+            feil.append(f"{navn}: fetch utenfor forespoersel i {CATENDAKLIENT} og utenfor ANDRE_TJENESTER")
+        for m in KLIENTKALL.finditer(fil.kode):
+            if _er_definisjon(fil.kode, m.start()):
+                continue
+            rundt = fil.rundt(m.start())
+            hvor = f"{navn}:{rundt['navn'] if rundt else '?'}"
+            parentes = re.compile(r"\s*\(").match(fil.kode, m.end())
+            if navn != CATENDAKLIENT:
+                # Klienten eksporterer ikke funksjonen, så navnet er et annet her, men et
+                # kall med samme navn kan være en kopi av den.
+                if parentes:
+                    feil.append(f"{hvor}: forespoersel utenfor {CATENDAKLIENT}")
+                continue
+            if not parentes:
+                feil.append(f"{hvor}: forespoersel brukes uten å kalles")
+                continue
+            argumenter = _argumenter(fil.kode, fil.raa, parentes.end() - 1)
+            metode = re.fullmatch(r"'([A-Z]+)'", argumenter[1]) if len(argumenter) > 2 else None
+            if not metode:
+                feil.append(f"{hvor}: metoden i kallet kan ikke avgjøres")
+                continue
+            try:
+                stier = graf.stier(fil, argumenter[2], rundt)
+            except UkjentSti as e:
+                feil.append(f"{hvor}: stien {argumenter[2]!r} kan ikke avgjøres ({e})")
+                continue
+            kall |= {(metode[1], _normalisert(s), hvor) for s in stier}
+    return kall, feil
+
+
+def pilkall(register: dict) -> set[tuple[str, str]]:
+    """(metode, sti) for hver pil med et kall som endepunkt, med `{}` for plassholderne."""
+    resultat = set()
+    for flyt in register["flyt"]:
+        for steg in flyt["steg"]:
+            if m := PIL_ENDEPUNKT.match(tekst(steg["endepunkt"])):
+                resultat |= {(metode, _normalisert(m[2])) for metode in m[1].split(" og ")}
+    return resultat
+
+
+def piler_uten_kall(register: dict, filer: dict[str, str] | None = None) -> list[str]:
+    """Hver pil med et kall som endepunkt, uten et kall med samme metode og sti i server/."""
+    kall = {(metode, sti) for metode, sti, _ in catendakall(filer)[0]}
+    return sorted(f"{metode} {sti}" for metode, sti in pilkall(register) - kall)
+
+
+def kall_uten_pil(register: dict, filer: dict[str, str] | None = None) -> list[str]:
+    """Hvert kall til Catenda i server/ uten en pil med samme metode og sti, og det vakta
+    ikke kan avgjøre (#1718)."""
+    kall, feil = catendakall(filer)
+    piler_ = pilkall(register)
+    feil += sorted(
+        f"{hvor}: {metode} {sti} har ingen pil i dataflyt.toml"
+        for metode, sti, hvor in kall
+        if (metode, sti) not in piler_
+    )
+    return feil
+
+
+# ---------------------------------------------------------------------------
 # Visning
 # ---------------------------------------------------------------------------
 
@@ -366,8 +517,8 @@ def tekst(verdi) -> str:
 
 
 def kortnavn(kode: str) -> str:
-    """`Klasse.funksjon` eller navnet på databasefunksjonen."""
-    return kode.removeprefix(DATABASEFUNKSJON).rpartition(":")[2]
+    """Symbolet i `fil.ts:symbol`."""
+    return kode.rpartition(":")[2]
 
 
 def _node_id(navn: str) -> str:
@@ -424,7 +575,7 @@ DATAFLYTKOLONNER = [
     "Fra",
     "Til",
     "Catenda-endepunkt",
-    "Kode eller databasefunksjon",
+    "Kode",
     "Data",
 ]
 
@@ -455,8 +606,6 @@ def _celle(verdi: str) -> str:
 
 
 def _kodelenke(kode: str) -> str:
-    if kode.startswith(DATABASEFUNKSJON):
-        return f"databasefunksjonen `{kode.removeprefix(DATABASEFUNKSJON)}`"
     fil, _, symbol = kode.partition(":")
     return f"[`{symbol}`](../../{fil})"
 

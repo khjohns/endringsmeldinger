@@ -1,7 +1,12 @@
 # Kjør reviewforsøkene for F0b
 
+> **Historisk kjøreoppskrift — 2026-11-11:** Forsøkene krever det opprinnelige
+> kodegrunnlaget nedenfor. Python-stien og testmiljøet den brukte, er slettet i
+> [#49](https://github.com/khjohns/endringsmeldinger/issues/49). Oppskriften er
+> bevart sammen med resultatene og skal ikke kjøres som kontroll av dagens kode.
+
 **Dato:** 2026-09-23. **Kontrollert commit:** `55ad006c1e24e87d09831fd6735e563bf441391f`.
-Forrige ledd er [reviewrapporten](../../review-f0b-kjernen-2026-09-23.md) og
+Forrige ledd er [reviewrapporten](../../historikk/review-f0b-kjernen-2026-09-23.md) og
 [implementeringens mutasjoner](../f0b-kjernen-2026-09-23/mutasjoner.py).
 Funn og alvorlighet står i rapporten, RK-01–RK-05.
 

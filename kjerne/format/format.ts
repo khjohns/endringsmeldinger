@@ -7,24 +7,33 @@
  * `data` har ingen `null`, ingen tom liste og ingen tom streng. Et felt som
  * mangler, betyr at parten ikke har sagt det, eller at det ikke hører til arten.
  * Et ukjent felt, en ukjent art eller et felt arten krever som mangler, gjør
- * raden ikke forstått (4.4, MM-U2). Skjemaene her er formen; lesereglene som
- * går på tvers av radene, står i `utled.ts`.
+ * raden ikke forstått (4.4, MM-U2). Skjemaene her er formen, sammen med skjemaene for et spor
+ * i `spor/<spor>/format.ts` som de slår opp i (#1783); lesereglene som går på tvers av radene,
+ * står i `utled.ts`.
  *
  * Registeret over typene og artene er `docs/datamodell/kjernehendelser.toml`
  * (#320), og en vakttest holder det likt med det som eksporteres her.
  */
 
-import { HOVEDKATEGORIER, KATEGORIER, UNDERKATEGORIER, type Hovedkategori } from './koder.ts';
-import { FRISTRESULTATER, FORHOLDSRESULTATER, VEDERLAGSRESULTATER } from '../regler/typer.ts';
-import type { Skjema } from './skjema.ts';
+import { FRISTRESULTATER } from '../regler/typer.ts';
+import { artfelt, DATO, ID, liste, objekt, TEKST, type Skjema } from './skjema.ts';
+import {
+  FORHOLDSINNHOLD,
+  STANDPUNKT_I_FORHOLDET,
+  STANDPUNKTER_I_FORHOLDET,
+} from '../spor/forhold/format.ts';
+import {
+  STANDPUNKT_I_VEDERLAGET,
+  STANDPUNKTER_I_VEDERLAGET,
+  UTREGNING_I_VEDERLAGET,
+  vederlagsinnhold,
+} from '../spor/vederlag/format.ts';
 import {
   KRAVSPOR,
   SPOR,
   type Hjemmel,
-  type OppgittDatofelt,
   type Opplysningsslag,
   type Spor,
-  type Standpunkt,
   type Standpunktsart,
   type Utsagnsart,
   KORRESPONDANSETYPER,
@@ -55,19 +64,8 @@ export const HJEMMEL: Record<Spor, Hjemmel> = {
  * avslag sammen med § 32.2). Arten i sporet uten `?` må finnes.
  */
 export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd: boolean }[]> = {
-  forhold: [
-    { art: 'rettidighet', paakrevd: false },
-    { art: 'forhold', paakrevd: true },
-  ],
-  // § 34.1.2, metoden, justeringen ellers, § 34.1.3 og posten etter annet ledd (OV-U27,
-  // OV-U28). Hjemlene og postene står i rekkefølge (`leser.ts`).
-  vederlag: [
-    { art: 'rettidighet', paakrevd: false },
-    { art: 'metode', paakrevd: false },
-    { art: 'beloep', paakrevd: true },
-    { art: 'rettidighet', paakrevd: false },
-    { art: 'beloep', paakrevd: false },
-  ],
+  forhold: STANDPUNKTER_I_FORHOLDET,
+  vederlag: STANDPUNKTER_I_VEDERLAGET,
   frist: [
     // § 33.4, så § 33.6.2 (VS-U17). Én for hver hjemmel (`leser.ts`).
     { art: 'rettidighet', paakrevd: false },
@@ -77,93 +75,6 @@ export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd
     { art: 'dager', paakrevd: true },
   ],
 };
-
-/** Metodene byggherren kan mene vederlaget skal justeres etter, når tilbudet ikke er akseptert (§ 34.2.2). */
-export const METODER = ['enhetspriser', 'regningsarbeid'] as const satisfies readonly NonNullable<
-  Extract<Standpunkt, { art: 'metode' }>['oensket']
->[];
-
-export const ID: Skjema = { type: 'string', minLength: 1 };
-export const TEKST: Skjema = { type: 'string', minLength: 1 };
-export const DATO: Skjema = { type: 'string', minLength: 10 };
-export const liste = (items: Skjema): Skjema => ({ type: 'array', minItems: 1, items });
-
-export const objekt = (properties: Skjema, required: string[], anyOf?: Skjema[]): Skjema => ({
-  type: 'object',
-  properties,
-  required,
-  additionalProperties: false,
-  ...(anyOf ? { anyOf } : {}),
-});
-
-/**
- * VS-U26: datoen varslingsplikten løper fra, som TE oppgir i påberopelsen,
- * etter hovedkategorien. Der § 32.2 gjelder, er det datoen pålegget ble mottatt;
- * i svikt og andre forhold (§ 33.1 b–c) datoen TE ble klar over forholdet.
- * Underkategorien endringsordre har ingen.
- */
-export const OPPGITT_DATO = {
-  endring: 'paalegg_mottatt',
-  svikt: 'klar_over_forholdet',
-  andre_forhold: 'klar_over_forholdet',
-} as const satisfies Partial<Record<Hovedkategori, OppgittDatofelt>>;
-
-export type OppgittDato = (typeof OPPGITT_DATO)[keyof typeof OPPGITT_DATO];
-
-/**
- * Det datoen gjelder, med ordene brevet, meldingene og skjemaet bruker (VS-U26, #698):
- * «TE opplyser at pålegget ble mottatt …», «datoen pålegget ble mottatt».
- */
-export const DATOEN_GJELDER: Record<OppgittDato, string> = {
-  paalegg_mottatt: 'pålegget ble mottatt',
-  klar_over_forholdet: 'TE ble klar over forholdet',
-};
-
-const OPPGITTE_DATOER = [...new Set(Object.values(OPPGITT_DATO))] as OppgittDato[];
-
-/** Feltet for datoen TE oppgir i kategorien, eller `null` når kategorien ikke har en (VS-U26). */
-export function oppgittDato(hovedkategori: unknown, underkategori: unknown): OppgittDato | null {
-  if (underkategori === 'endringsordre' || typeof hovedkategori !== 'string') return null;
-  return Object.hasOwn(OPPGITT_DATO, hovedkategori)
-    ? OPPGITT_DATO[hovedkategori as keyof typeof OPPGITT_DATO]
-    : null;
-}
-
-// Ingen verdi passer, så feltet finnes ikke i kategorien.
-const ikkeI = (felt: readonly string[]): Skjema =>
-  Object.fromEntries(felt.map((f) => [f, { enum: [] }]));
-
-/**
- * Hovedkategorien og underkategorien er et par fra `KATEGORIER` (#335, HF-U1).
- * Underkategorien endringsordre har endringsordrens dato eller nummer, som TE
- * oppgir (GR-U16); de andre har det ikke. Datoen etter VS-U26 finnes bare i
- * kategorien den hører til. Den er valgfri i formatet, fordi et registrert brev
- * ikke oppgir den; kommandoen krever den.
- */
-const KATEGORIPAR: Skjema[] = HOVEDKATEGORIER.flatMap((h) => {
-  const under: readonly string[] = KATEGORIER[h];
-  const andre = under.filter((u) => u !== 'endringsordre');
-  const dato = oppgittDato(h, andre[0]);
-  const par: Skjema[] = [];
-  if (andre.length)
-    par.push({
-      properties: {
-        hovedkategori: { const: h },
-        underkategori: { enum: andre },
-        ...ikkeI(['endringsordre', ...OPPGITTE_DATOER.filter((d) => d !== dato)]),
-      },
-    });
-  if (under.includes('endringsordre'))
-    par.push({
-      properties: {
-        hovedkategori: { const: h },
-        underkategori: { const: 'endringsordre' },
-        ...ikkeI(OPPGITTE_DATOER),
-      },
-      required: ['endringsordre'],
-    });
-  return par;
-});
 
 /**
  * Innholdet i en kravversjon per spor, uten `id`, `spor` og `erstatter`.
@@ -176,36 +87,12 @@ export const KRAVINNHOLD: Record<
   Spor,
   { properties: Skjema; required: string[]; anyOf?: Skjema[] }
 > = {
-  forhold: {
-    properties: {
-      hovedkategori: { enum: HOVEDKATEGORIER },
-      underkategori: { enum: UNDERKATEGORIER },
-      endringsordre: TEKST,
-      paalegg_mottatt: DATO,
-      klar_over_forholdet: DATO,
-    },
-    required: ['hovedkategori', 'underkategori'],
-    anyOf: KATEGORIPAR,
-  },
-  // OV-U23: hovedbeløpet kan mangle når kravet har posten etter § 34.1.3 annet ledd.
-  // Rigg og drift etter første ledd er ikke i formatet (#1171).
-  vederlag: {
-    properties: {
-      metode: { const: 'tilbud' },
-      beloep: { type: 'number', exclusiveMinimum: 0 },
-      saerskilt: objekt(
-        { produktivitet: objekt({ beloep: { type: 'number', exclusiveMinimum: 0 } }, ['beloep']) },
-        ['produktivitet']
-      ),
-    },
-    required: ['metode'],
-    anyOf: [{ required: ['beloep'] }, { required: ['saerskilt'] }],
-  },
+  forhold: FORHOLDSINNHOLD,
+  vederlag: vederlagsinnhold(true),
   frist: { properties: { dager: { type: 'integer', minimum: 1 } }, required: ['dager'] },
 };
 
 const sporfelt = (spor: Spor) => ({ id: ID, spor: { const: spor } });
-const artfelt = (art: string) => ({ id: ID, art: { const: art } });
 
 export const KRAV: Record<Spor, Skjema> = Object.fromEntries(
   SPOR.map((s) => [
@@ -229,37 +116,15 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
     {
       ...artfelt('rettidighet'),
       gjelder: ID,
-      hjemmel: { enum: ['32.2', '33.4', '33.6.2', '34.1.2', '34.1.3'] },
+      hjemmel: { enum: ['32.2', '33.4', '33.6.2', '34.1.2', '34.1.3', '34.3.3', '34.4'] },
       i_tide: { type: 'boolean' },
       // VS-U5, OV-U22: beløpet byggherren godtar for posten etter begrensningen etter § 34.1.3.
-      beloep: { type: 'number', minimum: 0 },
+      begrenset_beloep: { type: 'number', minimum: 0 },
     },
     ['id', 'art', 'gjelder', 'hjemmel', 'i_tide']
   ),
-  forhold: objekt({ ...artfelt('forhold'), resultat: { enum: [...FORHOLDSRESULTATER] } }, [
-    'id',
-    'art',
-    'resultat',
-  ]),
-  // OV-U26, OV-U31: beløpet byggherren godtar for posten uten begrensningen etter § 34.1.3.
-  // `saerskilt` er posten etter § 34.1.3 annet ledd; uten feltet gjelder det justeringen ellers.
-  beloep: objekt(
-    {
-      ...artfelt('beloep'),
-      beloep: { type: 'number', minimum: 0 },
-      saerskilt: { const: 'produktivitet' },
-    },
-    ['id', 'art', 'beloep']
-  ),
-  metode: objekt(
-    {
-      ...artfelt('metode'),
-      hjemmel: { const: '34.2.2' },
-      aksepterer: { type: 'boolean' },
-      oensket_metode: { enum: [...METODER] },
-    },
-    ['id', 'art', 'hjemmel', 'aksepterer']
-  ),
+  ...STANDPUNKT_I_FORHOLDET,
+  ...STANDPUNKT_I_VEDERLAGET,
   hindring: objekt({ ...artfelt('hindring'), oppfylt: { type: 'boolean' } }, [
     'id',
     'art',
@@ -281,15 +146,7 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
 /** Serverens utregning etter B-13. Forholdet har ingen. */
 export const UTREGNING: Record<Spor, Skjema | null> = {
   forhold: null,
-  vederlag: objekt(
-    {
-      resultat: { enum: [...VEDERLAGSRESULTATER] },
-      godkjent_beloep: { type: 'number', minimum: 0 },
-      subsidiaert_resultat: { enum: [...VEDERLAGSRESULTATER] },
-      subsidiaert_godkjent_beloep: { type: 'number', minimum: 0 },
-    },
-    ['resultat', 'godkjent_beloep']
-  ),
+  vederlag: UTREGNING_I_VEDERLAGET,
   frist: objekt(
     {
       resultat: { enum: [...FRISTRESULTATER] },
@@ -349,8 +206,12 @@ export const OPPLYSNINGSSLAG = [
 
 export const UTSAGN: Record<Utsagnsart, Skjema> = {
   // VS-U34: varselet etter § 32.2 sendt utenfor løsningen registreres som de andre.
+  // VS-U48, VS-U52: varslene etter § 34.3.3 første ledd og § 34.4, sendt eller registrert.
   varsel: objekt(
-    { ...artfelt('varsel'), hjemmel: { enum: ['32.2', '33.4', '34.1.2', '34.1.3'] } },
+    {
+      ...artfelt('varsel'),
+      hjemmel: { enum: ['32.2', '33.4', '34.1.2', '34.1.3', '34.3.3', '34.4'] },
+    },
     ['id', 'art', 'hjemmel']
   ),
   trekk: objekt({ ...artfelt('trekk'), gjelder: ID }, ['id', 'art', 'gjelder']),

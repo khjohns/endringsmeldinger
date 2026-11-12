@@ -4,15 +4,16 @@
  * gjennom brevkontrollen, og TE godtar det i visningen. Etter hvert steg kontrolleres
  * forløpets kontroller med kilde mot journalen demoruta skrev (`kontrollerEtter`).
  *
- * BHs skjema for vederlagssvaret fylles ut i nettleseren (`mockup-nettleser`); her går
- * svaret gjennom `lagKravkontroll`, som skjemaet sender med, med dataene skjemaet gir.
+ * BHs skjema for vederlagssvaret i Varden prøves i Varden-testen; her lages svaret med
+ * `vederlagssvaret`, som skjemaet bruker, av valgene skjemaet gir, og kjernesaken sender det
+ * med den låste teksten BH ser.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { finnForloep, lagDemosak, type Demosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import { lagKravkontroll } from '$lib/kjernesak/kravkontroll.svelte';
+import { vederlagssvaret, type Svarvalg } from '$lib/components/varden/kommandoer';
 import type { Journalrad } from '$kjerne/typer';
 import { finn, kjoerBrukerforloep, kontrollpunkt, somForloep } from '$kjerne/tester/brukerforloep';
 import { kontrollerEtter } from '$kjerne/tester/kjoerer';
@@ -22,13 +23,11 @@ const BF = finn('BF-01');
 const START = finnForloep('BF-01')!;
 const paastand = (holder: boolean, melding: string) => expect(holder, melding).toBe(true);
 
-/** Svaret i forløpets steg 4, med feltene BHs skjema gir (`vederlagssvarFraSkjema`). */
-const BH_SVARER = {
-  hovedkrav_vurdering: 'delvis',
-  hovedkrav_godkjent_belop: 60000,
-  hovedkrav_varslet_i_tide: false,
-  aksepterer_metode: true,
-  begrunnelse: '<p>Varselet kom for sent. Subsidiært godtas 60 000 kr.</p>',
+/** Svaret i forløpets steg 4, med valgene BHs skjema i Varden gir (`Vederlagssvar.svelte`). */
+const BH_SVARER: Svarvalg = {
+  iTide: false,
+  poster: { P1: { form: 'tilbud', beloep: 'deler', delbeloep: '60 000' } },
+  begrunnelse: 'Varselet kom for sent. Subsidiært godtas 60 000 kr.',
 };
 
 /** Kjøreren til kontrollpunktet, med journalen den skrev, og banen som leser demosaken. */
@@ -52,12 +51,12 @@ async function bhSenderSvaret(demosak: Demosak) {
     send: demosak.send,
   });
   await kjernesak.last();
-  const kontroll = lagKravkontroll(kjernesak);
-  const sending = kontroll.submit('vederlag', 'respons_vederlag', BH_SVARER);
-  await vi.waitFor(() => expect(kontroll.letter).not.toBeNull());
-  const vist = kontroll.letter!.tekst;
-  kontroll.confirm();
-  await sending;
+  const kommando = vederlagssvaret(BH_SVARER, kjernesak.utledning!, kjernesak.regler)!;
+  const brevet = kjernesak.brev(kommando, undefined, true);
+  if (!brevet || !('tekst' in brevet) || !brevet.tekst)
+    throw new Error('Kjernen ga ikke noe brev for svaret.');
+  const vist = brevet.tekst;
+  expect(await kjernesak.send(kommando, vist)).toBe(true);
   return vist;
 }
 
@@ -109,24 +108,28 @@ describe('demoruta for brukerforløpet BF-01', () => {
   });
 
   // Oppdragsgiver 02.11 i PR #1492: skjemaet for ny sak står i skallet i Varden, med panelet
-  // og topplinja, og bare TE kan sende det (BF-05).
+  // og topplinja, og bare TE kan sende det (BF-05). Overskriften står i utkastkortet etter merket
+  // «Utkast · ikke sendt» (S-4 og S-4b i BF-10, oppdragsgiver 06.11).
   it('BF-05: skjemaet for ny sak står i skallet i Varden, og siden kan ikke byttes før saken finnes', async () => {
     const bf05 = finnForloep('BF-05')!;
     render(Demoforloep, {
       forloep: bf05,
       punkt: bf05.kontrollpunkter[0].id,
-      visning: 'varden',
       onpunkt: () => {},
     });
-    expect(await screen.findByRole('heading', { name: 'Nytt krav om endringsordre' })).toBeTruthy();
+    const overskrift = await screen.findByRole('heading', {
+      level: 1,
+      name: /^Utkast · ikke sendt\s*Nytt krav om endringsordre$/,
+    });
+    expect(overskrift).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Kontrakten' })).toBeTruthy();
-    expect(screen.getByText('Du er totalentreprenør (TE)')).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Kopier lenke' })).toBeNull();
+    const sti = screen.getByRole('navigation', { name: 'Du er her' });
+    expect(within(sti).getByText('Ny sak').getAttribute('aria-current')).toBe('page');
     expect(screen.queryByRole('radiogroup', { name: 'Du handler som' })).toBeNull();
     expect(screen.queryByText('Du handler som')).toBeNull();
   });
 
-  it('BH sender svaret, TE ser akkurat det svaret og godtar det, og kontrollene ved kontrollpunktene holder', async () => {
+  it('BH sender svaret i demoruta, kontrollene ved kontrollpunktet holder, og når TE åpner saken, sier panelet at den er endret', async () => {
     const forloep = somForloep(BF);
     const punkt = kontrollpunkt(BF, 'bh-har-mottatt-vederlagskravet');
     const { k, lesFra } = await kjoeringTil(punkt.id);
@@ -157,36 +160,15 @@ describe('demoruta for brukerforløpet BF-01', () => {
     expect(svaret.event_id).not.toBe(forhaandslaget.event_id);
     expect(svaret.event_id.startsWith(START.idhode)).toBe(true);
 
-    // Steg 5: TE åpner saken og ser svaret BH skrev, med samme event_id.
+    // TE åpner saken. Godtakelsen i Varden prøves i Varden-testen for BF-01.
     await fireEvent.click(screen.getByRole('radio', { name: 'TE' }));
     // Panelet sier ikke lenger at BH skal svare, når svaret er sendt.
     const panel = within(screen.getByRole('complementary', { name: 'Demo av brukerforløpet' }));
     expect(await panel.findByText(/Saken er endret etter kontrollpunktet/)).toBeInTheDocument();
     expect(panel.queryByText(/Neste steg i forløpet/)).toBeNull();
-    await fireEvent.click(
-      within(await screen.findByRole('navigation', { name: 'Sakens spor' })).getByRole('button', {
-        name: /Vederlag/,
-      })
-    );
-    await fireEvent.click(await screen.findByRole('button', { name: 'Godta svaret' }));
-    const brevkontroll = within(await screen.findByRole('region', { name: 'Brevkontroll' }));
-    await fireEvent.click(
-      brevkontroll.getByRole('checkbox', { name: 'Jeg har kontrollert brevet.' })
-    );
-    await fireEvent.click(brevkontroll.getByRole('button', { name: 'Send til byggherren' }));
-    await vi.waitFor(() => expect(nyeRader(demosak!, svaret.versjon)).toHaveLength(1));
-    const [aksepten] = nyeRader(demosak!, svaret.versjon);
-    expect(aksepten.aktor_rolle).toBe('TE');
-    const godtatt = (aksepten.data.utsagn as { art: string; gjelder: string }[]).find(
-      (u) => u.art === 'aksept'
-    );
-    const svarId = (svaret.data.svar as { id: string }[])[0].id;
-    expect(godtatt?.gjelder).toBe(svarId);
-    k.registrer(BF.steg![4], [aksepten]);
-    await kontrollerEtter(forloep, 5, k, paastand);
   });
 
-  it('et vedlegg i demoruta lastes ikke opp til serveren', async () => {
+  it('et vedlegg i demoruta legges i minnet og lastes ikke opp til serveren (VS-U53, BF-14)', async () => {
     let kjernesak: ReturnType<typeof lagKjernesak> | null = null;
     render(Demoforloep, {
       forloep: START,
@@ -195,9 +177,9 @@ describe('demoruta for brukerforløpet BF-01', () => {
       onstart: (_d: Demosak, k: ReturnType<typeof lagKjernesak>) => (kjernesak = k),
     });
     await screen.findByRole('heading', { name: BF.tittel });
-    await expect(kjernesak!.lastOppVedlegg(new File(['x'], 'tegning.pdf'))).rejects.toThrow(
-      'Vedlegg kan ikke lastes opp i demoen'
-    );
+    const vedlegg = await kjernesak!.lastOppVedlegg(new File(['x'], 'tegning.pdf'));
+    expect(vedlegg.filnavn).toBe('tegning.pdf');
+    expect(vedlegg.innhold_sha256).toMatch(/^[0-9a-f]{64}$/);
     expect(fetch).not.toHaveBeenCalled();
   });
 

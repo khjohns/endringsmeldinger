@@ -1,11 +1,16 @@
 # Reviewoppfølging av målarkitektur og gjennomføring
 
+> **Historisk underlag — 2026-11-11:** Historisk dokumentreview. Konklusjonene
+> nedenfor gjelder det angitte dokument- og kodegrunnlaget, ikke dagens
+> implementering.
+> Gjeldende kilder finnes i [dokumentasjonsindeksen](README.md#start-her).
+
 **Dato:** 2026-10-07. **Kodegrunnlag:** `68ca0ea5b593808c4513dc84ab908baf12739cdb`.
 **Dokumentgrunnlag:** [PR #266](https://github.com/khjohns/endringsmeldinger/pull/266)
 ved `4c8860a84a4aa9f388818b38471593e5592fcfb8` og
 [PR #270](https://github.com/khjohns/endringsmeldinger/pull/270)
 ved `d0a7853376404ed9adf8d76e0871c268e5605b21`.
-**Forrige ledd:** [strukturkartleggingen](kartlegging-struktur-spor-d-2026-10-05.md)
+**Forrige ledd:** [strukturkartleggingen](historikk/kartlegging-struktur-spor-d-2026-10-05.md)
 og [arkitekturforslaget](forslag-maalarkitektur-og-beslutningsproeve-2026-10-07.md).
 **Kilde til vedtak:** Oppdragsgiver tilsluttet seg reviewets justeringer i
 samtalen 07.10 og ba deretter uttrykkelig om dokumentasjons-PR og issues,
@@ -29,10 +34,10 @@ sikkerhetsfunn eller erstatninger for SK-/B-ID-ene.
 ## RO-01: aksept og livsløp
 
 **Fil og symbol:** `TEAkseptererResponsData` i
-[hendelsesmodellene](../backend/models/events.py), `_handle_te_aksepterer_respons`
-og `_svaret_faller_bort` i [projeksjonen](../backend/services/timeline_service.py),
+[hendelsesmodellene](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/models/events.py), `_handle_te_aksepterer_respons`
+og `_svaret_faller_bort` i [projeksjonen](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/timeline_service.py),
 og `claims` / `validate_items` i
-[godkjenningsflyten](../backend/services/approval_service.py).
+[godkjenningsflyten](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/approval_service.py).
 
 M2s referanser løser en viktig del av feilformen, men brukerens konkrete
 svarreferanse må følge hele kommando- og lagringsstien. Livsløpstabellen må
@@ -46,8 +51,8 @@ tilhørende bevis-sak og implementering.
 ## RO-02: kontrakt før generator
 
 **Fil og symbol:** `public_state` i
-[event_visibility.py](../backend/lib/auth/event_visibility.py), `parse_event`
-og `parse_event_from_request` i [events.py](../backend/models/events.py).
+[event_visibility.py](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/lib/auth/event_visibility.py), `parse_event`
+og `parse_event_from_request` i [events.py](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/models/events.py).
 
 Den offentlige serialiserte kontrakten er grunnlag for genererte typer.
 Automatisk eksport av hele internmodellen ville koblet nye interne felt til
@@ -59,9 +64,9 @@ ansvaret for å samle lesepunktene; #272 eier kontrakten før generatorarbeidet.
 ## RO-03: projeksjoner og utrulling
 
 **Fil og symbol:** `submit_event` i
-[event_routes.py](../backend/routes/event_routes.py), `compute_state` i
-[timeline_service.py](../backend/services/timeline_service.py), og
-`replace` i [sakskonteksten](../src/lib/kontraktsbord/context.svelte.ts).
+[event_routes.py](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/routes/event_routes.py), `compute_state` i
+[timeline_service.py](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/timeline_service.py), og
+`replace` i [sakskonteksten](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/kontraktsbord/context.svelte.ts).
 
 Ny regel kan gi nytt avledet standpunkt uten ny hendelse. Saksversjon alene
 beskriver derfor ikke hvilken beregning en lagret oversikt bygger på.
@@ -73,8 +78,8 @@ Ingen generell oppgraderingsmotor er påkrevd uten et konkret formatbehov.
 
 ## RO-04: sammenlikn språk etter samme modellforbedring
 
-**Fil og symbol:** [backend/regler](../backend/regler/) og
-[frontendens domenemoduler](../src/lib/domain/), med servergrensene i
+**Fil og symbol:** [backend/regler](https://github.com/khjohns/endringsmeldinger/tree/ce87a30889200fdabff389e33c246a2b54e8a555/backend/regler) og
+frontendens domenemoduler i `src/lib/domain/` (fjernet), med servergrensene i
 `ApprovalService.validate_items` og `submit_event`.
 
 Prøven skiller semantikk og spart dobbeltarbeid fra server-/integrasjonskostnad.
@@ -87,8 +92,8 @@ godkjenning, sikkerhetsbevis, integrasjoner, lagring og drift.
 
 ## RO-05: prøv invarianten bak feilene
 
-**Fil og symbol:** [backend-reproduksjonene fra #266](../backend/tests/test_services/test_strukturkartlegging_spor_d.py)
-og [frontend-reproduksjonene](../src/lib/components/kontraktsbord/__tests__/strukturkartlegging_spor_d.test.ts),
+**Fil og symbol:** [backend-reproduksjonene fra #266](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/tests/test_services/test_strukturkartlegging_spor_d.py)
+og [frontend-reproduksjonene](https://github.com/khjohns/endringsmeldinger/blob/c6b7c53b0eae67e47a4cc2b70f06e5defae079cd/src/lib/components/kontraktsbord/__tests__/strukturkartlegging_spor_d.test.ts),
 med vanlig innsending, batch og `validate_items` som separate innganger.
 
 De kjente feilforløpene beholdes, med skille mellom observert feil og vedtatt
@@ -99,9 +104,9 @@ inngår fordi modeller i minnet alene ikke beviser journalens innhold.
 
 ## RO-06: korrigering uten omskriving
 
-**Fil og symbol:** `VarselInfo` i [events.py](../backend/models/events.py),
+**Fil og symbol:** `VarselInfo` i [events.py](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/models/events.py),
 `_handle_frist` og `_handle_vederlag` i
-[timeline_service.py](../backend/services/timeline_service.py).
+[timeline_service.py](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/timeline_service.py).
 
 SK-12s låsing består. Reviewet fant ikke en konkret korrigeringsprosess i de
 to forslagene. B-16 skal avklare registreringsrettelse, rettslig virkning,

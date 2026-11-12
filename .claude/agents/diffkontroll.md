@@ -1,8 +1,9 @@
 ---
 name: diffkontroll
-description: Kontrollerer at en diff bare inneholder det som er bestilt, og siterer avvikene ordrett. Bruk før merge av en PR fra mekanisk-pr, eller når en diff skal sammenlignes med en bestilling. Leser bare.
+description: Kontrollerer at en diff bare inneholder det som er bestilt, og siterer avvikene ordrett. Bruk før merge av en liten PR med dokumentasjon eller mekanisk arbeid, eller når en diff skal sammenlignes med en bestilling. Leser bare.
 model: haiku
 effort: medium
+omitClaudeMd: true
 tools: Read, Grep, Glob, Bash
 ---
 
@@ -27,8 +28,8 @@ Kontroller:
 - at hver endrede fil er nevnt i bestillingen eller følger av den;
 - at hver endring i diffen er bestilt. Gå gjennom hunk for hunk;
 - at alt som er bestilt, er med;
-- at ingen fil i `kjerne/`, `server/`, `backend/`, `supabase/` eller
-  `sprakprove/` er endret, med mindre bestillingen sier det.
+- at ingen fil i `kjerne/`, `server/`, `database/` eller `sprakprove/` er
+  endret, med mindre bestillingen sier det.
 
 Rapporter kort, på norsk bokmål:
 

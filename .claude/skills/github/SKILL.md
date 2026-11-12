@@ -5,9 +5,22 @@ description: Etikettene, milepælene og formen på issues og PR-er i endringsmel
 
 # Issues, etiketter og milepæler
 
-Reglene for hvor arbeidet står, er i `AGENTS.md`, «Hvor hva står». Skillen sier
+Reglene for hvor arbeidet står, er i `CLAUDE.md`, «Hvor hva står». Skillen sier
 hvordan de følges på GitHub. Kommandoene for `gh api` og omveiene i skyøkta står i
 [miljø-skillen](../miljo/SKILL.md).
+
+## Reglene
+
+- **Hvert issue har en milepæl eller en sporetikett, og et byggeissue har en
+  lagetikett for hvert lag det rører.** Milepælen er arbeidspakken i hovedplanen;
+  de parallelle sporene har `spor-d`, `spor-h`, `spor-m`, `papercut` eller
+  `bestilling` i stedet. Beskrivelsen av etiketten på GitHub sier hva den dekker. Etikettene,
+  statusetikettene og når en ny lages, står under.
+- **Det som sinker arbeidet, blir et issue med etiketten `papercut`**: et verktøy
+  som feiler, et oppsett som må gjøres for hånd, en test som henger. Skriv
+  symptom og løsning eller omvei. Feiler noe uforklarlig, søk i `papercut`-issuene
+  først, og kommenter et som finnes framfor å lage et nytt. `papercut` teller som
+  sporetikett.
 
 ## Etikettene
 
@@ -30,19 +43,18 @@ Etikettene er av fem typer:
 
 `design` gjelder funn fra designreview av det som er bygget. `bestilling` gjelder et
 brukerforløp i designsløyfa, før byggingen ([brukerforlop](../brukerforlop/SKILL.md)),
-og forteller orkestratoren oppgavetypen (oppdragsgiver 27.10).
+og forteller orkestratoren oppgavetypen.
 
-`feilinnfoering` settes på en PR som rører kjernen, ikke på et issue (`AGENTS.md`,
-«Miljø», og orkestreringsskillen, punkt 2).
+`feilinnfoering` settes på en PR som rører kjernen, ikke på et issue (`CLAUDE.md`,
+«Miljø», og arbeidsøkt-skillen, «PR-en og CI»).
 
 **Lag.** Et byggeissue får lagetiketten for hvert lag det rører, enten det har en
 milepæl eller en sporetikett. Runder settes sammen etter hvilke filer øktene rører
 ([orkestreringsskillen, punkt 1](../orkestrering/SKILL.md#1-kartlegg-før-du-fordeler)),
 og lagetiketten er det første utvalget. Avgjør laget ut fra mappene arbeidet rører, ikke
-ut fra ordet «TS»: etter byttet i #310 er hele appen TS. Et issue som bare dokumenterer
-et avvik i Python-stien etter DL-U2, er ikke et byggeissue og får ingen lagetikett.
+ut fra ordet «TS»: etter byttet i #310 er hele appen TS.
 
-Heller ikke disse får en lagetikett (oppdragsgiver 26.10):
+Heller ikke disse får en lagetikett:
 
 - Et issue som bare rører verktøy: driverne for feilinnføringene, testmalen,
   `docs/verktoy/`, hooks og CI. Lagene gjelder produktkoden, og verktøyarbeidet
@@ -58,7 +70,7 @@ saken eller hele prosjektet, får ingen.
 
 - `beslutning`: issuet samler grunnlaget for en åpen beslutning (B-ID) i hovedplanen.
 - `venter-på-beslutning`: arbeidet kan ikke starte før en B-ID er avgjort. Det gjelder
-  også en feil oppdaget underveis som venter på en B-ID (`AGENTS.md`).
+  også en feil oppdaget underveis som venter på en B-ID (`CLAUDE.md`).
 - `venter-på-rekkefølge`: rekkefølgen i AF-06 holder issuet igjen. Etiketten fjernes
   når hovedplanen har en datert merknad om unntak. Unntaket står i hovedplanen, ikke i
   issuet.
@@ -84,17 +96,18 @@ Etikettene på et issue settes samlet med
 ## Milepælene
 
 Én milepæl per arbeidspakke i hovedplanen. Beskrivelsen sier hva pakken dekker. Det som
-gjenstår i en pakke, er de åpne issuene i milepælen
+gjenstår i en pakke, er de åpne issuene i milepælen, med GitHub-MCP eller
+`gh api "repos/khjohns/endringsmeldinger/issues?milestone=<nummer>&state=open"`
 (`gh api "repos/khjohns/endringsmeldinger/milestones?state=open"` gir nummerne).
 Et oppfølgingsissue fra review får samme milepæl eller sporetikett som PR-en det kom fra
-(`AGENTS.md`, «Arbeidsform»). En PR har sjelden egen milepæl eller sporetikett. Da hentes
+(leveranseskillen, «Review og funn»). En PR har sjelden egen milepæl eller sporetikett. Da hentes
 de fra issuet PR-en lukker eller er del av.
 
 ## Innholdet i et issue
 
 - **Søk før du oppretter.** Supplér et eksisterende issue om samme arbeid med en
   kommentar i stedet for å lage et nytt. Søk i den aktuelle milepælen og etiketten.
-- **Vis til ID-en, ikke til vurderingen** (`AGENTS.md`). Funn-, vedtaks- og
+- **Vis til ID-en, ikke til vurderingen** (`CLAUDE.md`). Funn-, vedtaks- og
   beslutnings-ID-en står med lenke til kilden. Alvorlighet, belegg og begrunnelse står
   der, ikke i issuet.
 - **Et byggeissue har forventede resultater**: konkrete og prøvbare, og hva som prøves.
@@ -103,12 +116,12 @@ de fra issuet PR-en lukker eller er del av.
 - **Et svar eller et arbeidsvalg fra oppdragsgiver** føres som kommentar i issuet som
   bygger det, med dato, kilden og teksten ordrett. Et vedtak føres i
   vedtaksregisteret, og issuet viser til ID-en ([vedtaksskillen](../vedtak/SKILL.md)).
-- **Issues er offentlige** (`AGENTS.md`).
+- **Issues er offentlige** (`CLAUDE.md`).
 
 ## PR-en
 
 - Bruk [PR-malen](../../../.github/pull_request_template.md), også gjennom API-et.
 - `Closes #n` når PR-en fullfører issuet, «Del av #n» når den leverer en del. Et
-  oppfølgingsissue fra review lukkes aldri med `Closes` (`AGENTS.md`, «Arbeidsform»).
+  oppfølgingsissue fra review lukkes aldri med `Closes` (leveranseskillen, «Review og funn»).
 - PR-en får ikke lag- og temaetikettene fra issuet. Den får bare etiketter som styrer
   CI, som `feilinnfoering`. Milepælen og sporet står i issuet PR-en viser til.

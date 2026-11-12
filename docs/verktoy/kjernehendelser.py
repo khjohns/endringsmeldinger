@@ -1,6 +1,7 @@
 """Registeret over hendelsestypene TS-kjernen skriver, docs/datamodell/kjernehendelser.toml (#320).
 
-Brukes av datamodell.py, som skriver kjernehendelser.md. Her prøves formen på
+Brukes av datamodell.py, som skriver kjernehendelser.md og arket «Kjernehendelser» i
+tabellbeskrivelse.xlsx. Her prøves formen på
 registeret. At typene, artene og feltene er de kjernen eksporterer, prøver
 vitest-vakta kjerne/tester/register.test.ts, fordi kjernen er TypeScript.
 """
@@ -84,9 +85,9 @@ def markdown(register: dict) -> str:
         f"_{MERKNAD}_",
         "",
         f"Format {register['format']}. Formen er skjemaene i "
-        "[`kjerne/format/format.ts`](../../kjerne/format/format.ts), og designet står i "
-        "[designnotatet](../design-hendelsesformat-2026-10-09.md). Pythons hendelsestyper "
-        "står i [hendelser.md](hendelser.md).",
+        "[`kjerne/format/format.ts`](../../kjerne/format/format.ts) og i formatet for "
+        "hvert spor i `kjerne/spor/<spor>/format.ts`, og designet står i "
+        "[designnotatet](../design-hendelsesformat-2026-10-09.md).",
         "",
         "Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og ingen "
         "tom streng, og et ukjent felt eller en ukjent art gjør saken ikke forstått "
@@ -129,3 +130,18 @@ def markdown(register: dict) -> str:
         for d in register["del"]
     ]
     return "\n".join(linjer) + "\n"
+
+
+RADKOLONNER = ["Seksjon", "Navn", "Innhold", "Felt", "Grunnlag"]
+
+
+def rader(register: dict) -> list[list[str]]:
+    """Arket «Kjernehendelser»: én rad per oppføring, i rekkefølgen i registeret."""
+    resultat = [RADKOLONNER]
+    for seksjon, (noekkel, _) in SEKSJONER.items():
+        for o in register.get(seksjon, []):
+            navn = o[noekkel] if seksjon != "del" or "spor" not in o else f"{o[noekkel]} ({o['spor']})"
+            resultat.append(
+                [seksjon, navn, _tekst(o["beskrivelse"]), ", ".join(o["felt"]), _tekst(o["grunnlag"])]
+            )
+    return resultat

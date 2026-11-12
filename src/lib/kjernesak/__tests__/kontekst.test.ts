@@ -4,10 +4,10 @@
  * falske `hent` og `send`; at serveren avgjør, prøves over HTTP i `server/tester/`.
  */
 
-import { MERKING } from './provejournal';
+import { MERKING, linje } from './provejournal';
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError, NETTFEIL } from '$lib/api/client';
-import type { Journallinje, Kjernesak, LastetKjernesak } from '$lib/api/kjerne';
+import type { Kjernesak, LastetKjernesak } from '$lib/api/kjerne';
 import {
   avvisningFoerBrevet,
   brevaarsak,
@@ -66,24 +66,6 @@ function skrevet(kommando: unknown, journal: Journalrad[]): Journalrad {
   if (!utfall.godtatt) throw new Error(`Kjernen avviste kommandoen: ${utfall.avvisning.melding}`);
   return { ...utfall.hendelser[0], versjon: journal.length + 1 };
 }
-
-const linje = ({
-  event_id,
-  versjon,
-  event_type,
-  tidsstempel,
-  aktor_rolle,
-  format,
-  data,
-}: Journalrad): Journallinje => ({
-  event_id,
-  versjon,
-  event_type,
-  tidsstempel,
-  aktor_rolle,
-  format,
-  data,
-});
 
 /** Svaret fra serveren, med en visning kjernen aldri lager, så det synes om konteksten leser den. */
 const svar = (journal: Journalrad[], part: Kjernesak['part'] = null): LastetKjernesak => ({
@@ -266,8 +248,7 @@ describe('sakskonteksten for en TS-sak', () => {
     await sak.last();
     expect(hent).toHaveBeenCalledWith(SAK, 'p-1');
     expect(sak.finnes).toBe(true);
-    expect(sak.saksbilde?.status?.tekst).not.toBe('Fra serveren');
-    expect(sak.saksbilde?.journal.map((j) => j.versjon)).toEqual([1]);
+    expect(sak.saksbilde?.tittel).toBe(opprettet.data.sakstittel);
   });
 
   // Kilde: invariant 4 i 2.3 i hovedplanen og #418: et nytt forsøk sender samme kommando-ID.

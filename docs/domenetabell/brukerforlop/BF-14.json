@@ -1,0 +1,295 @@
+{
+  "id": "BF-14",
+  "tittel": "TE krever vederlag med kravposter, oppgjørsform og PNS per post, og BH svarer per post",
+  "brukerhistorie": "TE deler vederlagsjusteringen i kravposter med hver sin oppgjørsform og eventuelt PNS, og ser før sending hvilke poster som er tilbud etter punkt 34.2.1. I en ny versjon står alle postene som ikke er trukket, og en post TE tar ut, trekkes uttrykkelig. BH svarer per kravpost, med varselinnsigelsene, oppgjørsformen og beløpet i den rekkefølgen, og ser trappen per post og lagene samlet før svaret sendes.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "TE har påberopt forholdet byggherrens valg av løsninger og prosjektering (punkt 24.1) og sender krav om justering av vederlaget med tre kravposter, en særskilt vederlagsjustering og rigg og drift i forlenget byggetid (BF-05)."
+  },
+  "bestilling": "BF-14.md",
+  "prototype": {
+    "fil": "../../design/prototyper/vederlagskrav-te-v3.html",
+    "klikkstier": [
+      {
+        "id": "nytt-krav-og-brev",
+        "dekker": [
+          "1",
+          "2",
+          "3"
+        ],
+        "start": "nytt-krav",
+        "handlinger": [
+          {
+            "staar": "Varselet gjelder hele vederlagskravet, med alle kravpostene."
+          },
+          {
+            "staar": "Fordeling på PNS"
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "er et tilbud etter NS 8407 punkt 34.2.1."
+          },
+          {
+            "klikk": "Tilbake til skjemaet",
+            "tilstand": "nytt-krav"
+          }
+        ]
+      },
+      {
+        "id": "ny-versjon-med-trekk",
+        "dekker": [
+          "4"
+        ],
+        "start": "ny-versjon",
+        "handlinger": [
+          {
+            "staar": "En kravpost du tar ut, trekkes uttrykkelig. Brevet sier det."
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "klikk": "Tilbake til skjemaet",
+            "tilstand": "ny-versjon"
+          }
+        ]
+      },
+      {
+        "id": "svar-per-post",
+        "dekker": [
+          "5"
+        ],
+        "start": "svar",
+        "handlinger": [
+          {
+            "staar": "Godta oppgjørsformen for alle postene"
+          },
+          {
+            "staar": "Lagene samlet"
+          },
+          {
+            "staar": "Ett svar per kravpost."
+          }
+        ]
+      },
+      {
+        "id": "bare-varsle",
+        "dekker": [
+          "6"
+        ],
+        "start": "nytt-krav",
+        "handlinger": [
+          {
+            "klikk": "Bare varsle etter punkt 34.3.3 eller 34.4, uten krav",
+            "tilstand": "varsel"
+          },
+          {
+            "staar": "Regningsarbeid, før arbeidet settes i gang (punkt 34.4)"
+          },
+          {
+            "staar": "Registrer et brev sendt utenfor løsningen"
+          }
+        ]
+      },
+      {
+        "id": "varsel-alt-gitt",
+        "dekker": [
+          "7"
+        ],
+        "start": "ny-versjon",
+        "handlinger": [
+          {
+            "trykk": "Endre P4"
+          },
+          {
+            "staar": "Dette kravet er varselet for P4."
+          },
+          {
+            "trykk": "Varselet for P4 er gitt før"
+          },
+          {
+            "staar": "Hvor ble varselet for P4 gitt?"
+          },
+          {
+            "velg": "E-post 28. oktober 2026, registrert som varsel etter punkt 34.3.3"
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "ble gitt i totalentreprenørens e-post av 28. oktober 2026."
+          },
+          {
+            "klikk": "Tilbake til skjemaet",
+            "tilstand": "ny-versjon"
+          }
+        ]
+      }
+    ]
+  },
+  "kilder": [
+    "KA-U53",
+    "KA-U54",
+    "KA-U55",
+    "KA-U56",
+    "KA-U57",
+    "KA-U59",
+    "KA-U60",
+    "KA-U61",
+    "KA-U62",
+    "KA-U63",
+    "KA-U64",
+    "KA-U65",
+    "KA-U66",
+    "KA-U67",
+    "KA-U68",
+    "OV-U95",
+    "OV-U94",
+    "OV-U89",
+    "OV-U73",
+    "OV-U30",
+    "OV-U31",
+    "OV-U15",
+    "KA-U51",
+    "KA-U52",
+    "MM-U33",
+    "EO-U38",
+    "B-17",
+    "OV-U27",
+    "GR-U7",
+    "VS-U4",
+    "VS-U47",
+    "VS-U3",
+    "VS-U2",
+    "HF-U22",
+    "HF-U28",
+    "KA-U69",
+    "KA-U70",
+    "KA-U75",
+    "VS-U48",
+    "VS-U49",
+    "VS-U50",
+    "OV-U79",
+    "VS-U38",
+    "LV-U42",
+    "LV-U45",
+    "VS-U34",
+    "OV-U80",
+    "VS-U51",
+    "VS-U52",
+    "VS-U53",
+    "VS-U54",
+    "VS-U57",
+    "KA-U71",
+    "KA-U72",
+    "VS-U1",
+    "VS-U14",
+    "OV-U5",
+    "VS-U61",
+    "VS-U62",
+    "VS-U63",
+    "VS-U64",
+    "VS-U65"
+  ],
+  "venter_paa": [
+    "#1663",
+    "#1299",
+    "#1294",
+    "#1292",
+    "#1434",
+    "#1290",
+    "#1755",
+    "#1758",
+    "#1724"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-07",
+      "forhold": "#1663",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen etter svarene 07.11 og prototypen v2 (commit 00ca33b), og oppfølgingsspørsmålene 11–16."
+    },
+    {
+      "dato": "2026-11-07",
+      "forhold": "#1665",
+      "hva": "D-9 har vilkåret om kravpost med fast sum og D-2 vilkåret om virksom enighet (GR-U7). D-13 (OV-U89 punkt 8 og 14) og D-14 (VS-U4 om punkt 34.3.3 første ledd) er nye, og prototypen har innsigelsen mot varselet etter punkt 34.3.3."
+    },
+    {
+      "dato": "2026-11-07",
+      "forhold": "#1663",
+      "hva": "Svarene før byggingen er ført inn: D-15 (KA-U69), D-16 (VS-U48), D-17 (HF-U28) og D-18 (KA-U70, opphevet av KA-U75), «Ugyldig valg» etter VS-U48, og prototypen uten «Mener fast sum» for en kravpost etter en beregningsregel og med krav om tilbud."
+    },
+    {
+      "dato": "2026-11-07",
+      "forhold": "#1663",
+      "hva": "Etter kontrollen mot VS-U48: steg 6 og klikkstien for varselet alene (tilstanden #varsel), F-7, U-11, G-8 og G-9, og brevet sier bare at kravet er varselet når det ikke er varslet før."
+    },
+    {
+      "dato": "2026-11-08",
+      "forhold": "#1663",
+      "hva": "Designsløyfa for VS-U49 og VS-U50: steg 7 og klikkstien for et varsel som alt er gitt, F-8, U-12–U-14, D-19, G-10, S-12 og S-13. Prototypen har valget per kravpost, blokken i støttekolonnen og ordlyden i U-14; budskapet er spørsmålet i S-12."
+    },
+    {
+      "dato": "2026-11-08",
+      "forhold": "#1663",
+      "hva": "Etter vurderingen mot system.md: synlige alternativer for typen og sendemåten, innrykk med linje under «alt gitt», forklaringen i et infotips, og panelet med en tabell med bare det brevet sier (U-12, U-13)."
+    },
+    {
+      "dato": "2026-11-08",
+      "forhold": "#1663",
+      "hva": "«Punktene» i panelet som i svarskjemaet (U-15), primærhandlingen fast nederst i panelet (U-16), datoene i tidslinja (U-17), merkingen og de gule merkene (U-18), og setningene om hva partene avgjør, er tatt ut. S-13 er besvart med A."
+    },
+    {
+      "dato": "2026-11-08",
+      "forhold": "#1663",
+      "hva": "Svarene på spørsmål 1–3 er ført som VS-U51–VS-U53, og D-19, S-12 og S-13 viser til dem."
+    },
+    {
+      "dato": "2026-11-08",
+      "forhold": "#1663",
+      "hva": "Prototypen er godkjent som commit 98966af, og forløpet er klart til bygging. Brukerprøven tas etter byggingen (oppdragsgiver 08.11)."
+    },
+    {
+      "dato": "2026-11-09",
+      "forhold": "#1663",
+      "hva": "Prototypen v3 er grunnlaget for byggingen (oppdragsgiver 09.11). Klikkstien for et varsel som alt er gitt, åpner P4 og følger lenken «Varselet for P4 er gitt før»."
+    },
+    {
+      "dato": "2026-11-09",
+      "forhold": "#1663",
+      "hva": "Etter den kognitive gjennomgangen av v3: leselinja i svaret sier lagets navn som brevet, et varsel uten kravpost står i leselinja og panelet (U-12, oppdragsgiver 09.11), og avvikene i «Klar til bygging» gjelder v3, commit e42380c."
+    },
+    {
+      "dato": "2026-11-10",
+      "forhold": "#1755",
+      "hva": "Designforslaget i prototype v4 er ført inn i bestillingen, og S-14–S-18 er nye (#1758). Prototypen for forløpet er fortsatt v3."
+    },
+    {
+      "dato": "2026-11-10",
+      "forhold": "#1758",
+      "hva": "S-14–S-18 er besvart og ført som VS-U61–VS-U65. D-20 er ny, og to punkter i v4 skal tegnes om."
+    },
+    {
+      "dato": "2026-11-11",
+      "forhold": "#1663",
+      "hva": "Prototype v4 er grunnlaget for byggingen, commit 99c7d6d (oppdragsgiver 11.11). Klikkstiene under `prototype` gjelder fortsatt v3, fordi den mekaniske forprøven ikke er gjort på v4, og v4 ikke har `data-spor`."
+    },
+    {
+      "dato": "2026-11-11",
+      "forhold": "#1775",
+      "hva": "Kjernen avviser rigg og drift i forlenget byggetid i vederlagskravet til #1724 har bygget posten. Utgangspunktet med posten venter på #1724."
+    },
+    {
+      "dato": "2026-11-11",
+      "forhold": "KA-U75",
+      "hva": "D-18 følger KA-U75: en trukket kravpost kan tas med igjen med samme betegnelse, og brevet kaller ikke trekket et avkall. «Ugyldig valg» nevner ikke lenger en trukket kravpost som tas opp igjen."
+    }
+  ]
+}

@@ -11,7 +11,7 @@
 
 import { createHash, timingSafeEqual } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
-import type { AapenRute, Svar } from './app.ts';
+import type { AapenRute, Svar } from './rutetyper.ts';
 import { feilnummer, sql, utenKontekst, type Pool as Datalag } from './datalag.ts';
 import { feilsvar, FOR_STOR, lesInntil, ugyldig } from './inngang.ts';
 

@@ -9,7 +9,7 @@
   import type { Part } from '$kjerne/typer';
   import type { Sakslinje } from '$lib/types/api';
   import { Plus } from 'lucide-svelte';
-  import { kroner } from '$kjerne/frosset/standpunkt';
+  import { kroner } from '$kjerne/frosset/tekst';
   import Knapp from './Knapp.svelte';
   import Vardenskall from './Vardenskall.svelte';
   import type { Kontrakt } from './kontrakt';
@@ -39,6 +39,8 @@
     kontrakt,
     sakslenke,
     nyttKrav,
+    prosjekter,
+    bruker = null,
     endringsordrer = {},
     onproevIgjen,
   }: {
@@ -52,6 +54,10 @@
     sakslenke: (sakId: string) => string;
     /** Lenken til skjemaet for ny sak (#1481). */
     nyttKrav: string;
+    /** Lenken til prosjektene, «Varden» først i stien. */
+    prosjekter?: string;
+    /** Den innloggede, i topplinja. */
+    bruker?: { name: string } | null;
     /**
      * Dokumentkoden til den sendte endringsordren som omfatter KOE-saken (EO-U13, EO-U14).
      * Serveren gir den ikke før EO-saken og brevkoden er bygget (#1423, #1174).
@@ -59,6 +65,8 @@
     endringsordrer?: Endringsordrer;
     onproevIgjen?: () => void;
   } = $props();
+
+  const sti = $derived([{ tekst: SAKEN.merkenavn, href: prosjekter }, { tekst: prosjektNavn }]);
 
   const FANENAVN: Record<Fane, string> = { koe: SAKSLISTE.koe, eo: SAKSLISTE.eo };
 
@@ -122,7 +130,7 @@
   </span>
 {/snippet}
 
-<Vardenskall {part} {kontrakt}>
+<Vardenskall {sti} {bruker} {kontrakt}>
   {#snippet panel()}
     <nav aria-labelledby="saker-etikett">
       <p class="etikett" id="saker-etikett">{SAKSLISTE.saker}</p>
@@ -343,7 +351,7 @@
     font-size: 24px;
     font-weight: 600;
     line-height: 1.25;
-    letter-spacing: -0.015em;
+    letter-spacing: var(--sperring-24);
   }
   /* Primærknappen i Varden (`Knapp.svelte`), som lenke fordi den åpner skjemaet. */
   .ny {
@@ -381,8 +389,9 @@
   }
   .tilstand h2 {
     color: var(--ink);
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 600;
+    letter-spacing: var(--sperring-20);
   }
   .tilstand .detaljer {
     color: var(--ink-3);
@@ -441,7 +450,6 @@
   }
   .krevd.tall .verdi {
     color: var(--ink);
-    font-family: var(--font-mono);
     font-size: 14px;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
@@ -558,11 +566,10 @@
   }
   .hv {
     color: var(--ink);
-    font-family: var(--font-mono);
     font-size: 20px;
     font-variant-numeric: tabular-nums;
     font-weight: 500;
-    letter-spacing: -0.01em;
+    letter-spacing: var(--sperring-20);
   }
   .hv small {
     color: var(--ink-3);

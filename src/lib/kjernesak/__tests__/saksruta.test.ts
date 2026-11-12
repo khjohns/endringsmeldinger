@@ -17,11 +17,15 @@ const side = vi.hoisted(() => ({
   params: { prosjektId: 'p-1', sakId: 'sak-1' },
   url: new URL('http://lokal/p-1/sak-1'),
   state: {},
+  data: { user: null },
 }));
 vi.mock('$app/state', () => ({ page: side }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 vi.mock('$app/paths', () => ({ resolve: () => '/p-1' }));
-vi.mock('$lib/kjernesak/kontekst.svelte', () => ({ lagKjernesak: () => t.kontekst }));
+vi.mock('$lib/kjernesak/kontekst.svelte', async (original) => ({
+  ...(await original<typeof import('$lib/kjernesak/kontekst.svelte')>()),
+  lagKjernesak: () => t.kontekst,
+}));
 
 const Saksruta = (await import('../../../routes/[prosjektId]/[sakId]/+page.svelte')).default;
 
@@ -77,13 +81,14 @@ describe('sporet saken åpner i (S5 i #1414)', () => {
     return (await screen.findAllByRole('button')).filter((b) => b.hasAttribute('aria-current'));
   }
 
-  it('`?spor=frist` fra omdirigeringene åpner fristen', async () => {
+  it('`?spor=frist` åpner fristen', async () => {
     const [valgt] = await aapne('frist');
     expect(valgt).toHaveTextContent('Fristforlengelse');
   });
 
   it('et sporparameter som er en arvet nøkkel (`constructor`), åpner forholdet', async () => {
     const [valgt] = await aapne('constructor');
-    expect(valgt).toHaveTextContent('Forholdet');
+    // Forholdet heter det TE påberoper i sporlista (OV-U78).
+    expect(valgt).toHaveTextContent(/^Manglende medvirkning eller leveranser fra byggherren/);
   });
 });

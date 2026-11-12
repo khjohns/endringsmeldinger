@@ -83,7 +83,7 @@
             "staar": "Totalentreprenøren varsler etter NS 8407 punkt 32.2"
           },
           {
-            "staar": "Totalentreprenøren opplyser at pålegget ble mottatt 15. september 2026."
+            "staar": "Pålegget ble mottatt 15. september 2026."
           },
           {
             "staar": "påla BH at ventilasjonskanalene i 3. etasje føres over korridoren"
@@ -385,6 +385,11 @@
       "dato": "2026-11-03",
       "forhold": "#1414",
       "hva": "Forløpet kjøres i saksruta: TE fyller ut og sender skjemaet på /{p}/ny i nettleseren."
+    },
+    {
+      "dato": "2026-11-06",
+      "forhold": "#1615, LV-U56, LV-U57",
+      "hva": "Setningen om datoen i brevet følger LV-U57: «Pålegget ble mottatt <dato>.»"
     }
   ],
   "steg": [
@@ -492,7 +497,8 @@
             "LV-U41",
             "LV-U35",
             "LV-U43",
-            "LV-U4"
+            "LV-U4",
+            "LV-U57"
           ]
         }
       ]

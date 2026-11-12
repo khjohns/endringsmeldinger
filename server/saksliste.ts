@@ -7,12 +7,12 @@
  */
 
 import type { Fristresultat, Forholdsresultat, Vederlagsresultat } from '../kjerne/regler/typer.ts';
-import type { Dokument, Journalrad, Kravspor, Part, Spor } from '../kjerne/typer.ts';
+import type { Dokument, Journalrad, Kravspor, Oppgjoersform, Part, Spor } from '../kjerne/typer.ts';
 import { kalenderdag, registrertDato } from '../kjerne/format/leser.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
-import { krevdSamlet } from '../kjerne/frosset/standpunkt.ts';
-import { foersteUnderkategori } from '../kjerne/regler/forhold.ts';
+import { innholdIFristen } from '../kjerne/format/kravinnhold.ts';
+import { kravposterI, krevdSamlet } from '../kjerne/spor/vederlag/format.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import {
   betegnelse,
@@ -28,10 +28,11 @@ import {
   venterPaaSvar,
   type Utledning,
 } from '../kjerne/utledning/utled.ts';
-import type { Avhengigheter, Prosjektforespoersel, Rute, Svar } from './app.ts';
+import type { Avhengigheter, Prosjektforespoersel, Rute, Svar } from './rutetyper.ts';
 import { lesekontekst } from './autorisasjon.ts';
 import { transaksjon, type Kontekst, type Pool } from './datalag.ts';
 import { skrevetAvKjernen } from './lager.ts';
+import { innholdIForholdet } from '../kjerne/spor/forhold/format.ts';
 
 interface Listerad {
   sak_id: string;
@@ -103,7 +104,6 @@ export async function lesSakslisten(pool: Pool, kontekst: Kontekst): Promise<Les
   return [...saker.values()].filter((s) => skrevetAvKjernen(s.journal));
 }
 
-const tall = (v: unknown): number | null => (typeof v === 'number' ? v : null);
 const tekst = (v: unknown): string | null => (typeof v === 'string' ? v : null);
 
 type Virkning = 'betinget' | 'virksom' | 'uten_virkning';
@@ -137,9 +137,18 @@ interface Staaende {
 }
 
 export interface Vederlagslinje extends Foreligger, Staaende {
-  krav: { beloep: number; metode: string } | null;
+  /**
+   * `beloep` er summen av de faste beløpene (OV-U73), og `oppgjoersformer` er oppgjørsformene i
+   * kravpostene, uten gjentakelser (OV-U95 punkt 19). Et krav med bare postene utenfor
+   * kravpostene har ingen oppgjørsform.
+   */
+  krav: { beloep: number; oppgjoersformer: Oppgjoersform[] } | null;
   svar: { resultat: Vederlagsresultat; beloep: number; subsidiaert: boolean } | null;
-  enighet: { beloep: number | null; virkning: Virkning } | null;
+  /**
+   * `uten_fast_beloep` er betegnelsene på kravpostene uten fast beløp i det første laget, som
+   * `beloep` ikke regner med (OV-U73, svar 6 A i #1663).
+   */
+  enighet: { beloep: number | null; uten_fast_beloep: string[]; virkning: Virkning } | null;
 }
 
 export interface Fristlinje extends Foreligger, Staaende {
@@ -216,21 +225,21 @@ function vederlagssvaret(u: Utledning) {
   if (!poster.length) return null;
   return {
     resultat: poster[0]!.resultat,
-    beloep: tilTall(poster.reduce((sum, p) => sum + beloep(p.godkjent)!, 0n)),
+    // OV-U73, KA-U72: en kravpost uten beløp regnes ikke med.
+    beloep: tilTall(poster.reduce((sum, p) => sum + (beloep(p.godkjent) ?? 0n), 0n)),
     subsidiaert: poster.some((p) => standpunktetErSubsidiaert(u, 'vederlag', p.id)),
   };
 }
 
-const avsluttet = (u: Utledning): boolean => {
-  const b = saksbetegnelse(u);
-  return b === 'avslaget_paa_forholdet_godtatt' || b === 'paaberopelsen_trukket';
-};
+/** Avslaget på forholdet er godtatt, eller påberopelsen er trukket. Leses av predikatene, ikke av betegnelsen (MM-U22). */
+const avsluttet = (u: Utledning): boolean =>
+  u.forstaatt && (u.forholdAvvist || u.spor.forhold.trukket);
 
 const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
   u.spor[spor].gjeldendeKrav !== null && !u.spor[spor].trukket && !avsluttet(u);
 
 const harVarsel = (u: Utledning, spor: Kravspor): boolean =>
-  Object.keys(u.spor[spor].varsler).length > 0;
+  Object.keys(u.spor[spor].varsler).length > 0 || u.spor[spor].kravpostvarsler.length > 0;
 
 function vederlag(u: Utledning): Vederlagslinje {
   const s = u.spor.vederlag;
@@ -240,22 +249,30 @@ function vederlag(u: Utledning): Vederlagslinje {
     kravet_staar: kravetStaar(u, 'vederlag'),
     har_varsel: harVarsel(u, 'vederlag'),
     ingen_krav: s.ingenKrav,
-    // OV-U23: kravet er justeringen ellers og posten etter § 34.1.3 annet ledd.
     krav: s.gjeldendeKrav
       ? {
           beloep: tilTall(krevdSamlet(s.gjeldendeKrav)),
-          metode: tekst(s.gjeldendeKrav.innhold.metode)!,
+          oppgjoersformer: [...new Set(kravposterI(s.gjeldendeKrav).map((p) => p.oppgjoersform))],
         }
       : null,
     svar: vederlagssvaret(u),
     enighet:
-      s.enighet && virkning ? { beloep: s.enighet.grunnlag.utfall.beloep ?? null, virkning } : null,
+      s.enighet && virkning
+        ? {
+            beloep: s.enighet.grunnlag.utfall.beloep ?? null,
+            uten_fast_beloep: (s.enighet.grunnlag.utfall.uten_fast_beloep ?? []).map(
+              (id) =>
+                s.krav.flatMap((k) => kravposterI(k)).find((p) => p.id === id)?.betegnelse ?? id
+            ),
+            virkning,
+          }
+        : null,
   };
 }
 
 function frist(u: Utledning): Fristlinje {
   const s = u.spor.frist;
-  const innhold = s.gjeldendeKrav?.innhold;
+  const krav = s.gjeldendeKrav;
   const sv = fristsvaret(u);
   const virkning = enighetensVirkning(u, 'frist');
   return {
@@ -263,7 +280,7 @@ function frist(u: Utledning): Fristlinje {
     kravet_staar: kravetStaar(u, 'frist'),
     har_varsel: harVarsel(u, 'frist'),
     ingen_krav: s.ingenKrav,
-    krav: innhold ? { dager: tall(innhold.dager)! } : null,
+    krav: krav ? { dager: innholdIFristen(krav).dager } : null,
     svar:
       sv?.st.art === 'dager'
         ? { resultat: sv.st.resultat, dager: sv.st.vurdert, subsidiaert: sv.subsidiaert }
@@ -350,15 +367,12 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
       },
     };
   const g = u.spor.forhold.gjeldendeSvar?.standpunkter.find((p) => p.art === 'forhold');
+  const paaberopt = innholdIForholdet(u.spor.forhold.gjeldendeKrav);
   return {
     ...felles,
     siste_brev: sisteBrev(u),
-    hovedkategori: tekst(u.spor.forhold.gjeldendeKrav?.innhold.hovedkategori),
-    underkategori: tekst(
-      foersteUnderkategori(
-        u.spor.forhold.gjeldendeKrav?.innhold.underkategori as string | string[] | null | undefined
-      )
-    ),
+    hovedkategori: paaberopt.hovedkategori,
+    underkategori: tekst(paaberopt.underkategori),
     forhold: {
       ...foreligger(u, 'forhold'),
       svar: g?.art === 'forhold' ? { resultat: g.resultat } : null,

@@ -9,11 +9,15 @@ import { UgyldigVurdering } from '../regler/feil.ts';
 import { vedleggI, type Kommando, type Svarutkast } from '../kommandoer/kommando.ts';
 import type { Vedleggsoppslag } from '../kommandoer/skriving.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
-import { oppgittDato } from '../format/format.ts';
-import { regnUtSvar, vederlagsposter, type Svarvurdering } from '../frosset/standpunkt.ts';
+import { regnUtSvar } from '../frosset/utregning.ts';
+import { vederlagsposter } from '../spor/vederlag/frysing.ts';
+import { type Svarvurdering } from '../frosset/byggeklosser.ts';
+import { kravposterI } from '../spor/vederlag/format.ts';
+import { hindrerSvarPaaKravet } from '../spor/vederlag/kommando.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Korrespondansetype, Krav, Part, Spor } from '../typer.ts';
 import { tilfeldigeIder, type NyId } from './testmiljoe.ts';
+import { oppgittDato } from '../spor/forhold/format.ts';
 
 export type Handling = Record<string, unknown> & { handling: string };
 
@@ -122,14 +126,35 @@ export const PART: Record<string, Part> = {
 function vurderinger(spor: Spor, h: Record<string, unknown>, krav: Krav | null): Svarvurdering {
   if (spor === 'forhold')
     return { resultat: h.resultat, grunnlag_varslet_i_tide: h.varslet_i_tide };
-  if (spor === 'vederlag')
+  if (spor === 'vederlag') {
+    // `kravposter` i handlingen gir svaret per kravpost, med betegnelsen i `post` (KA-U59).
+    // Ellers beskriver forløpet svaret på kravets første kravpost.
+    const poster = krav ? kravposterI(krav) : [];
+    const svarene = Array.isArray(h.kravposter)
+      ? (h.kravposter as Record<string, unknown>[]).map((s) => ({
+          gjelder: poster.find((p) => p.betegnelse === s.post)?.id ?? s.post,
+          s,
+        }))
+      : poster.slice(0, 1).map((p) => ({ gjelder: p.id, s: h }));
     return {
-      hovedkrav_vurdering: h.vurdering,
-      hovedkrav_godkjent_beloep: h.godkjent_belop,
       hovedkrav_varslet_i_tide: h.varslet_i_tide,
-      aksepterer_metode: h.metode_akseptert ?? true,
-      oensket_metode: h.oensket_metode,
+      kravposter: svarene.map(({ gjelder, s }) => ({
+        gjelder,
+        vurdering: s.vurdering,
+        godkjent_beloep: s.godkjent_belop,
+        aksepterer: s.metode_akseptert ?? true,
+        oensket_oppgjoersform: s.oensket_metode,
+        // Varselet for kravposten står bare i `kravposter`; ellers er `varslet_i_tide` § 34.1.2.
+        ...(s === h
+          ? {}
+          : {
+              krever_tilbud: s.krever_tilbud,
+              varslet_i_tide: s.varslet_i_tide,
+              godtar_justering: s.godtar_justering,
+            }),
+      })),
     };
+  }
   return {
     frist_varsel_ok: h.varsel_i_tide,
     spesifisert_krav_ok: h.spesifisering_i_tide,
@@ -150,7 +175,8 @@ function svarutkast(
   const v = vurderinger(spor, h, krav);
   let resultat: Record<string, unknown> = {};
   try {
-    if (krav)
+    // Rigg og drift er ikke i kjernens svar; serveren avviser (arbeidsvalg 5 i spørsmålsfila 10.11 for #1663).
+    if (krav && (spor !== 'vederlag' || hindrerSvarPaaKravet(krav) === null))
       resultat = regnUtSvar(spor, v, { krav, paaberopelse: u.spor.forhold.gjeldendeKrav }, regler);
   } catch (feil) {
     // Klienten sender likevel, så serveren avviser med sin begrunnelse.
@@ -189,7 +215,53 @@ const INNHOLD = {
       ...(dato ? { [dato]: '2026-09-15' } : {}),
     };
   },
-  vederlag: (h: Handling) => ({ metode: 'tilbud', beloep: h.belop }),
+  // Én kravpost med fast sum, P1, som følger med fra forrige versjon (OV-U95 punkt 19, arbeidsvalget 07.11 i domenetabellen).
+  // `kravposter` og `trekker` i handlingen gir kravpostene selv; `post` er betegnelsen til
+  // en kravpost i en tidligere versjon, og kravposten sendes med dens id (KA-U56, KA-U75).
+  vederlag: (h: Handling, u?: Utledning, nyId?: () => string, navn?: Navn) => {
+    if (Array.isArray(h.kravposter)) {
+      const tidligere = (u?.spor.vederlag.krav ?? []).flatMap((k) => kravposterI(k));
+      const idFor = (betegnelse: unknown) =>
+        tidligere.find((p) => p.betegnelse === betegnelse)?.id ?? 'ukjent-kravpost';
+      return {
+        kravposter: (h.kravposter as Record<string, unknown>[]).map((p) => ({
+          ...(typeof p.post === 'string' ? { id: idFor(p.post) } : {}),
+          beskrivelse: 'Kravposten i bevis-saken',
+          oppgjoersform: p.oppgjoersform ?? 'tilbud',
+          ...(p.justert === undefined ? {} : { justert: p.justert }),
+          ...(p.belop === undefined ? {} : { beloep: p.belop }),
+          // VS-U50, VS-U54: etiketten til et varsel i saken, eller et dokument fra kravskjemaet
+          // med datoen (VS-U53), som får et vedlegg.
+          ...(typeof p.varsel === 'string'
+            ? { varsel: navn?.id(`${p.varsel}#varsel`) }
+            : typeof p.varsel === 'object' && p.varsel !== null
+              ? {
+                  varsel: {
+                    korrespondansetype: 'brev',
+                    dokumentasjon: [navn?.nyId() ?? 'vedlegg'],
+                    ...(p.varsel as Record<string, unknown>),
+                  },
+                }
+              : {}),
+        })),
+        ...(Array.isArray(h.trekker) ? { trekker: h.trekker.map(idFor) } : {}),
+      };
+    }
+    const forrige = u?.spor.vederlag.gjeldendeKrav;
+    const p1 = forrige ? kravposterI(forrige)[0] : undefined;
+    const id = p1?.id ?? nyId?.();
+    return {
+      kravposter: [
+        {
+          ...(id ? { id } : {}),
+          ...(nyId ? { betegnelse: p1?.betegnelse ?? 'P1' } : {}),
+          beskrivelse: 'Kravposten i bevis-saken',
+          oppgjoersform: 'tilbud',
+          beloep: h.belop,
+        },
+      ],
+    };
+  },
   frist: (h: Handling) => ({ dager: h.dager }),
 };
 
@@ -214,7 +286,12 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
       return {
         type: 'krav',
         spor,
-        innhold: INNHOLD[spor](h),
+        innhold:
+          spor === 'vederlag'
+            ? INNHOLD.vederlag(h, u, undefined, navn)
+            : spor === 'forhold'
+              ? INNHOLD.forhold(h)
+              : INNHOLD.frist(h),
         ...(typeof h.varsel_sendt === 'string' ? { varsel: varselIKravet(h.varsel_sendt, u) } : {}),
         ...(spor === 'vederlag' ? {} : utdypning(h)),
       };
@@ -243,10 +320,14 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
     case 'trekk':
       return { type: 'trekk', spor };
     case 'varsel': {
-      // OV-U5: varselet etter § 33.4 i fristen, etter § 34.1.2 i vederlaget.
+      // OV-U5: varselet etter § 33.4 i fristen, etter § 34.1.2 i vederlaget. `hjemmel` velger
+      // et annet varsel i vederlaget (OV-U25, VS-U48, VS-U52).
       const varselet =
         spor === 'vederlag'
-          ? ({ spor, hjemmel: '34.1.2' } as const)
+          ? ({
+              spor,
+              hjemmel: (h.hjemmel as '34.1.3' | '34.3.3' | '34.4' | undefined) ?? '34.1.2',
+            } as const)
           : ({ spor: 'frist', hjemmel: '33.4' } as const);
       // VS-U15: uten en dato sender appen varselet.
       if (typeof h.sendt !== 'string') return { type: 'send_varsel', ...varselet };
@@ -371,7 +452,20 @@ export function radFor(
       spor,
       dokument: gjelder,
       erstatter: null,
-      innhold: spor === 'vederlag' ? { beloep: 100000 } : { dager: 20 },
+      innhold:
+        spor === 'vederlag'
+          ? {
+              kravposter: [
+                {
+                  id: 'p1',
+                  betegnelse: 'P1',
+                  beskrivelse: 'P1',
+                  oppgjoersform: 'tilbud',
+                  beloep: 100000,
+                },
+              ],
+            }
+          : { dager: 20 },
     };
     const v = vurderinger(spor, s, krav);
     const standpunkter: Record<string, unknown>[] = [];
@@ -392,7 +486,7 @@ export function radFor(
           id: navn.nyId(),
           art: 'beloep',
           beloep: post.godkjent,
-          ...(post.saerskilt ? { saerskilt: post.saerskilt } : {}),
+          ...('gjelder' in post ? { gjelder: post.gjelder } : { saerskilt: post.saerskilt }),
         });
     const svar: Record<string, unknown> = {
       id: navn.ta(s.navn),
@@ -432,7 +526,7 @@ export function radFor(
       id: navn.ta(k.navn),
       spor,
       ...(forrige ? { erstatter: forrige.id } : {}),
-      ...INNHOLD[spor](k),
+      ...INNHOLD[spor](k, u, () => navn.nyId()),
     };
   };
   // #449: avklaringen og utsagnet har dokumentets etikett i `navn`.
@@ -514,4 +608,52 @@ export function mellomlager(kommando: unknown): Vedleggsoppslag {
       { vedlegg_id: id.toLowerCase(), filnavn: `${id}.pdf`, innhold_sha256: '0'.repeat(64) },
     ])
   );
+}
+
+/**
+ * Testene skriver kravpostens betegnelse (`P1`) i `gjelder` i svaret på en kravpost, fordi
+ * serveren gir kravposten `id`. Gir vurderingene med kravpostens `id` i kravet `krav`.
+ */
+export function medKravpostIder<T>(vurderinger: T, krav: Krav | null | undefined): T {
+  const v = vurderinger as { kravposter?: unknown };
+  if (!krav || !Array.isArray(v?.kravposter)) return vurderinger;
+  const ider = new Map(kravposterI(krav).map((p) => [p.betegnelse, p.id]));
+  return {
+    ...v,
+    kravposter: v.kravposter.map((p: { gjelder?: unknown }) =>
+      typeof p?.gjelder === 'string' && ider.has(p.gjelder)
+        ? { ...p, gjelder: ider.get(p.gjelder) }
+        : p
+    ),
+  } as T;
+}
+
+type Vurderinger = Record<string, unknown>;
+
+/** Svaret på kravposten P1 med feltene i `svar`, som i kommandoen (`gjelder` er betegnelsen). */
+export const P1 = (svar: Vurderinger): Vurderinger => ({
+  kravposter: [{ gjelder: 'P1', ...svar }],
+});
+
+/**
+ * `vurderinger` der byggherren ikke aksepterer tilbudet for kravposten P1 og mener `oensket`,
+ * uten vurdering av beløpet (KA-U72).
+ */
+export function medP1IkkeAkseptert(vurderinger: Vurderinger, oensket: string): Vurderinger {
+  const ut = medP1(vurderinger, { aksepterer: false, oensket_oppgjoersform: oensket });
+  const [p1, ...resten] = ut.kravposter as Vurderinger[];
+  const utenBeloep = Object.fromEntries(
+    Object.entries(p1).filter(([k]) => k !== 'vurdering' && k !== 'godkjent_beloep')
+  );
+  return { ...ut, kravposter: [utenBeloep, ...resten] };
+}
+
+/** `vurderinger` med feltene i `svar` lagt til svaret på kravposten P1. */
+export function medP1(vurderinger: Vurderinger, svar: Vurderinger): Vurderinger {
+  const poster = (vurderinger.kravposter as Vurderinger[] | undefined) ?? [];
+  const p1 = poster.find((p) => p.gjelder === 'P1') ?? { gjelder: 'P1' };
+  return {
+    ...vurderinger,
+    kravposter: [{ ...p1, ...svar }, ...poster.filter((p) => p !== p1)],
+  };
 }

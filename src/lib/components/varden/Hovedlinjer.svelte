@@ -85,7 +85,6 @@
     border-bottom: 0;
   }
   .num {
-    font-family: var(--font-mono);
     font-weight: 500;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;

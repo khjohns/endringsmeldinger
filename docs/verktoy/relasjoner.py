@@ -38,9 +38,8 @@ def tekst(verdi) -> str:
     return " ".join(str(verdi).split())
 
 
-# Delene i katalog.json og lagringen de er. Tabellene i SQL Server har navn
-# kvalifisert med skjemaet, så de kolliderer ikke med PostgreSQL-tabellene (#558).
-LAGRINGER = (("postgresql", "PostgreSQL"), ("sqlite", "SQLite"), ("sqlserver", "SQL Server"))
+# Delen i katalog.json og lagringen den er. Tabellnavnene er kvalifisert med skjemaet (#558).
+LAGRINGER = (("sqlserver", "SQL Server"),)
 
 
 def tabeller(katalog: dict) -> dict[str, dict]:
@@ -352,10 +351,8 @@ def _linje(r: dict, katalog: dict) -> str:
     )
 
 
-def _attributter(
-    relasjoner: list[dict], katalog: dict, fk: dict, entitet: str, med: set[str] | None
-) -> list[str]:
-    """Nøkkelkolonnene og kolonnene i en tegnet relasjon; `med` begrenser til disse."""
+def _attributter(relasjoner: list[dict], katalog: dict, fk: dict, entitet: str) -> list[str]:
+    """Nøkkelkolonnene og kolonnene i en tegnet relasjon."""
     innhold = tabeller(katalog)[entitet]
     uten_fk = {
         k
@@ -378,8 +375,6 @@ def _attributter(
             merker.append("UK")
         if not merker and fullt not in i_relasjon:
             continue
-        if med is not None and navn not in med:
-            continue
         deler = [_mermaidtype(type_), navn]
         if merker:
             deler.append(", ".join(merker))
@@ -389,45 +384,15 @@ def _attributter(
     return linjer
 
 
-def er_diagram(register: dict, katalog: dict, lagring: str) -> str:
-    """Mermaid. «PostgreSQL» og «SQL Server»: tabellene der og koblingene mellom dem.
-    «SQLite»: SQLite-tabellene og koblingene fra og til dem, med tabellene i
-    PostgreSQL de viser til."""
+def er_diagram(register: dict, katalog: dict) -> str:
+    """Mermaid: tabellene i katalogen og koblingene mellom dem."""
     alle = tabeller(katalog)
-
-    def lag(r: dict, ende: str) -> str:
-        return alle.get(tabell(r, ende), {}).get("lagring", "PostgreSQL")
-
-    if lagring != "SQLite":
-        relasjoner = [r for r in register["relasjon"] if lag(r, "fra") == lag(r, "til") == lagring]
-        entiteter = {t: None for t, i in alle.items() if i["lagring"] == lagring}
-    else:
-        relasjoner = [r for r in register["relasjon"] if "SQLite" in (lag(r, "fra"), lag(r, "til"))]
-        entiteter = {t: None for t, i in alle.items() if i["lagring"] == "SQLite"}
-        for r in relasjoner:
-            for ende in ("fra", "til"):
-                # En tabell utenfor katalogen tegnes som ekstern entitet nedenfor.
-                if lag(r, ende) == "PostgreSQL" and tabell(r, ende) in alle:
-                    entiteter.setdefault(tabell(r, ende), set()).update(
-                        k.rpartition(".")[2] for k in kolonner(r, ende)
-                    )
+    relasjoner = [r for r in register["relasjon"] if tabell(r, "fra") in alle and tabell(r, "til") in alle]
     fk = fremmednøkler(katalog)
     linjer = ["erDiagram"]
-    for navn, med in entiteter.items():
+    for navn in alle:
         linjer.append(f"    {_entitet(navn)} {{")
-        linjer += _attributter(relasjoner, katalog, fk, navn, med)
-        linjer.append("    }")
-    ytre: dict[str, dict[str, str]] = {}
-    for r in relasjoner:
-        if tabell(r, "til") not in alle:
-            # Utenfor `public`; typen er den fremmednøkkelen har.
-            for til, fra in zip(kolonner(r, "til"), kolonner(r, "fra"), strict=True):
-                ytre.setdefault(tabell(r, "til"), {})[til.rpartition(".")[2]] = _mermaidtype(
-                    kolonne(katalog, fra)[1]
-                )
-    for navn, typer in ytre.items():
-        linjer.append(f"    {_entitet(navn)} {{")
-        linjer += [f"        {type_} {k} PK" for k, type_ in typer.items()]
+        linjer += _attributter(relasjoner, katalog, fk, navn)
         linjer.append("    }")
     linjer += [_linje(r, katalog) for r in relasjoner]
     return "\n".join(linjer)

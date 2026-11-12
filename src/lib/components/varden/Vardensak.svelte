@@ -8,35 +8,59 @@
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Spor } from '$kjerne/typer';
   import { tick, untrack, type Snippet } from 'svelte';
-  import { Link } from 'lucide-svelte';
+  import { sakensKode } from '$kjerne/frosset/tekst';
   import Brevkontroll from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Sporlesing from './Sporlesing.svelte';
-  import Vardenskall from './Vardenskall.svelte';
+  import Vardenskall, { type Smule } from './Vardenskall.svelte';
   import Vederlagssvar from './Vederlagssvar.svelte';
-  import { tomtSvar } from './kommandoer';
+  import Vederlagskrav from './Vederlagskrav.svelte';
+  import type { Kravvalg } from './vederlagskrav';
+  import Korrigering from './Korrigering.svelte';
+  import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
+  import { tomtSvar, type Korrigeringsvalg } from './kommandoer';
   import { kontraktFraProsjektet, settOrganisasjoner, type Kontrakt } from './kontrakt';
-  import { brevene, type Brevref } from './lesing';
-  import { BREVKONTROLL, MOTTATT, SAKEN, SPORNAVN, STILLING, dato } from './tekster';
+  import { brevene, datoopplysningene, forholdetISaken, type Brevref } from './lesing';
+  import {
+    BREVKONTROLL,
+    KORRIGERING,
+    KRAVSKJEMA,
+    MOTTATT,
+    NYVERSJON,
+    NYSAK,
+    SAKEN,
+    SPORNAVN,
+    STILLING,
+    dato,
+  } from './tekster';
 
   let {
     kjernesak,
     kontrakt,
     kvittering,
     saksliste,
+    prosjekter,
+    bruker = null,
     nySak,
     spor,
+    nySakLenke,
   }: {
     kjernesak: Kjernesakkontekst;
     /** Sporet saken åpner i. Uten det står saken i vederlaget, eller i forholdet etter opprettelsen. */
     spor?: Spor;
     /** Kvitteringen for brevet som opprettet saken (BF-05 steg 6, F-6). */
     kvittering?: string;
-    /** Lenken til sakslisten, der saken ikke finnes (#1473). */
+    /** Lenken til sakslisten, i stien og der saken ikke finnes (#1473). */
     saksliste?: string;
+    /** Lenken til prosjektene, «Varden» først i stien. */
+    prosjekter?: string;
+    /** Den innloggede, i topplinja. Demoruta har ingen. */
+    bruker?: { name: string } | null;
     /** Skjemaet for ny sak, som står i arbeidsflaten før saken finnes (BF-05, KT-U11). */
     nySak?: Snippet;
+    /** Lenken til skjemaet for ny sak, for en annen hjemmel eller endringsordre (BF-10 U-2). */
+    nySakLenke?: string;
     /** Prosjektet og partene i demoruta. Ellers leses de av prosjektet (#1398). */
     kontrakt?: Kontrakt;
   } = $props();
@@ -57,53 +81,80 @@
     deresRef: string[];
     tittel: string | null;
     handling: string;
+    /** Bare mottakeren i faktaene, for den nye versjonen (oppdragsgiver 07.11, PR 1650). */
+    bareMottaker?: boolean;
     sendTekst: string;
     tilbakeTil: string;
     svarerPaa: Brevref | null;
+    henvisning?: string;
+    relasjoner?: { hva: string; brev: string }[];
+    /** Kvitteringen etter sendingen, ellers den generelle. */
+    kvittering?: string;
     tilbake: Arbeid;
     /** Brevet er svarutkastet, som tømmes når det er sendt. */
     erUtkastet: boolean;
+    /** Sakens versjon da brevkontrollen ble åpnet. */
+    versjon: number | null;
+    /** Vedleggene kommandoen viser til, som kjernen trenger for brevet (VS-U53). */
+    vedlegg?: ReadonlyMap<string, { vedlegg_id: string; filnavn: string; innhold_sha256: string }>;
   };
-  type Arbeid = { art: 'les' } | { art: 'svar' } | ({ art: 'kontroll' } & Kontroll);
+  type Arbeid =
+    | { art: 'les' }
+    | { art: 'svar' }
+    | { art: 'korrigering'; gjelder: string }
+    | { art: 'nyversjon' }
+    | { art: 'vederlagskrav' }
+    | ({ art: 'kontroll' } & Kontroll);
 
-  const SPORENE: Spor[] = ['forhold', 'vederlag', 'frist'];
+  const SPORGRUPPENE: { id: string; etikett: string; spor: Spor[] }[] = [
+    { id: 'forholdet', etikett: SAKEN.kontraktsforhold, spor: ['forhold'] },
+    { id: 'kravene', etikett: SAKEN.krav, spor: ['vederlag', 'frist'] },
+  ];
   // Etter opprettelsen står saken i forholdet, med påberopelsen (BF-05 steg 6).
   let valgt = $state<Spor>(untrack(() => spor ?? (kvittering ? 'forhold' : 'vederlag')));
   let arbeid = $state<Arbeid>({ art: 'les' });
   let svarvalg = $state(tomtSvar());
+  // Kravet om vederlagsjustering står når TE går til brevkontrollen og tilbake (BF-14).
+  let kravvalg = $state<Kravvalg | null>(null);
+  // Datoen og forklaringen står når TE går til brevkontrollen og tilbake (U-3 i BF-02A).
+  let korrigeringsvalg = $state<Korrigeringsvalg>({ dato: '', forklaring: '' });
+  // Teksten i den nye versjonen står mens TE korrigerer datoen (U-2 i BF-10).
+  let nyVersjonstekst = $state<string | null>(null);
   // Mens brevet leses ved siden av skjemaet, felles panelet til venstre inn, så brevet blir
   // omtrent like bredt som ellers (oppdragsgiver 30.10, #1391).
   let vedSiden = $state(false);
   // Utkastet til svaret står til det er sendt eller forkastet, også når BH velger et annet
   // spor (BF-01 S-8). Merket i panelet vises bare når et annet spor er valgt (#1391).
   let utkastAapent = $state(false);
-  let melding = $state<{ tekst: string; art: 'sendt' | 'forkastet' } | null>(
+  let melding = $state<{ tekst: string; art: 'sendt' | 'forkastet' | 'endret' } | null>(
     untrack(() => (kvittering ? { tekst: kvittering, art: 'sendt' } : null))
   );
   let meldingen = $state<HTMLElement | null>(null);
-  let lenkestatus = $state('');
   let proever = $state(false);
   let sistForsoekt = $state<string | null>(null);
 
   const u = $derived(kjernesak.utledning);
   const brev = $derived(u ? brevene(u) : []);
+  // Forholdet heter det TE påberoper i sporlista, som i sporhodet (OV-U78).
+  const forholdsnavn = $derived((u && forholdetISaken(u)?.navn) ?? SPORNAVN.forhold);
+  const sakskode = $derived.by(() => {
+    const kode = kjernesak.sak?.merking?.sakskode;
+    return kode ? sakensKode(kode) : null;
+  });
+  // Stien som i prototypen: Varden › prosjektet › saken, med sakens kode (LV-U46).
+  const sti = $derived.by((): Smule[] => {
+    const prosjekt = (kontrakt ?? kontraktFraProsjektet()).prosjekt;
+    return [
+      { tekst: SAKEN.merkenavn, href: prosjekter },
+      ...(prosjekt ? [{ tekst: prosjekt, href: saksliste }] : []),
+      { tekst: nySak ? NYSAK.over : (sakskode ?? SAKEN.nav) },
+    ];
+  });
 
   function velgSpor(s: Spor) {
     valgt = s;
     arbeid = s === 'vederlag' && utkastAapent ? { art: 'svar' } : { art: 'les' };
     melding = null;
-  }
-
-  async function kopierLenke() {
-    // Tømmes først, så en lik melding ved neste klikk leses opp igjen.
-    lenkestatus = '';
-    await tick();
-    try {
-      await navigator.clipboard.writeText(location.href);
-      lenkestatus = SAKEN.lenkeKopiert;
-    } catch {
-      lenkestatus = SAKEN.lenkeIkkeKopiert;
-    }
   }
 
   async function proevIgjen() {
@@ -122,20 +173,44 @@
       svarvalg = tomtSvar();
       utkastAapent = false;
     }
+    const kvittering = arbeid.art === 'kontroll' ? arbeid.kvittering : undefined;
+    if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'korrigering')
+      korrigeringsvalg = { dato: '', forklaring: '' };
+    if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'nyversjon') nyVersjonstekst = null;
+    if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'vederlagskrav') kravvalg = null;
     arbeid = { art: 'les' };
-    melding = { tekst: MOTTATT.dittBrev, art: 'sendt' };
+    melding = { tekst: kvittering ?? MOTTATT.dittBrev, art: 'sendt' };
+  }
+
+  async function forkastKorrigeringen() {
+    korrigeringsvalg = { dato: '', forklaring: '' };
+    arbeid = { art: 'les' };
+    melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
+    await tick();
+    meldingen?.focus();
   }
 
   /**
-   * Etter en avvist sending kan saken være lastet på nytt, med et nytt brev fra motparten eller
-   * et nytt nummer. Brevet lages da igjen av den samme kommandoen, så teksten og hodet avsenderen
-   * godkjenner, er det som sendes (LV-U2, LV-U51, D-5 i BF-07). Avviser kjernen kommandoen nå,
-   * står brevet og meldingen fra sendingen.
+   * Etter en avvist sending kan saken være lastet på nytt. Har den fått en ny versjon, kan
+   * «Svarer på», «Dette sender du» og virkningene være endret, og de regnes i skjemaet. Avsenderen
+   * går da tilbake dit med valgene i behold, og brevkontrollen bygges på nytt derfra (oppdragsgiver
+   * 07.11, punkt 2 i #1596). Er versjonen uendret, kan en annen sak ha fått nummeret. Brevet lages
+   * da igjen av den samme kommandoen, så teksten og hodet avsenderen godkjenner, er det som sendes
+   * (LV-U2, LV-U51, D-5 i BF-07). Avviser kjernen kommandoen nå, står brevet og meldingen fra
+   * sendingen.
    */
-  function byggPaaNytt(k: Kontroll) {
-    const b = kjernesak.brev(k.kommando, undefined, true);
-    if (!b || !('tekst' in b) || !b.tekst) return;
+  async function byggPaaNytt(k: Kontroll) {
     if (arbeid.art !== 'kontroll' || arbeid.kommando !== k.kommando) return;
+    if (kjernesak.versjon !== k.versjon) {
+      kjernesak.fjernFeil();
+      arbeid = k.tilbake;
+      melding = { tekst: MOTTATT.sakenEndret, art: 'endret' };
+      await tick();
+      meldingen?.focus();
+      return;
+    }
+    const b = kjernesak.brev(k.kommando, k.vedlegg, true);
+    if (!b || !('tekst' in b) || !b.tekst) return;
     arbeid = {
       ...arbeid,
       tekst: b.tekst,
@@ -143,6 +218,45 @@
       deresRef: b.deresRef,
       tittel: b.brevtittel,
     };
+  }
+
+  /**
+   * Skjemaene Varden åpner fra «Det du kan gjøre nå», med hele nøkkelen fra kjernen. Bare en
+   * nøkkel her blir en knapp som åpner noe; resten sier at handlingen ikke er bygget (#1636, #1663).
+   */
+  const skjemaene: Record<string, () => void> = {
+    'svare:vederlag': () => {
+      utkastAapent = true;
+      arbeid = { art: 'svar' };
+    },
+    'krav:forhold': () => (arbeid = { art: 'nyversjon' }),
+    'krav:vederlag': () => (arbeid = { art: 'vederlagskrav' }),
+  };
+  const skjemanoeklene = Object.keys(skjemaene);
+
+  /**
+   * Skjemaet for korrigeringen vises når kjernen tilbyr den og opplysningen står i et brev i saken
+   * (#1647).
+   */
+  const kanKorrigere = (gjelder: string) =>
+    kjernesak.handlinger.includes(`korrigere:${gjelder}`) &&
+    !!u &&
+    datoopplysningene(u).some((o) => o.id === gjelder);
+
+  async function forkastNyVersjon() {
+    nyVersjonstekst = null;
+    arbeid = { art: 'les' };
+    melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
+    await tick();
+    meldingen?.focus();
+  }
+
+  async function forkastKravet() {
+    kravvalg = null;
+    arbeid = { art: 'les' };
+    melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
+    await tick();
+    meldingen?.focus();
   }
 
   async function forkast() {
@@ -156,7 +270,8 @@
 </script>
 
 <Vardenskall
-  part={kjernesak.part}
+  {sti}
+  {bruker}
   {kontrakt}
   visKontrakten={!!(nySak || (u && kjernesak.saksbilde))}
   innfelt={vedSiden}
@@ -164,7 +279,10 @@
   {#snippet panel()}
     {#if !nySak && u && kjernesak.saksbilde}
       <header class="sakshode">
-        <h1>{kjernesak.saksbilde.tittel}</h1>
+        <div class="tittel">
+          {#if sakskode}<p class="kode">{sakskode}</p>{/if}
+          <h1>{kjernesak.saksbilde.tittel}</h1>
+        </div>
         {#if brev[0]}
           <dl class="meta">
             <div>
@@ -175,40 +293,33 @@
         {/if}
       </header>
 
+      <!-- Forholdet og kravene som bygger på det, i hver sin gruppe (oppdragsgiver 06.11, #1631). -->
       <nav class="sporene" aria-label={SAKEN.nav}>
-        <p class="etikett" id="spor-etikett">{SAKEN.spor}</p>
-        <ul class="valgene" aria-labelledby="spor-etikett">
-          {#each SPORENE as s (s)}
-            {@const sisteBrev = brev.filter((b) => b.spor.includes(s)).at(-1)}
-            <li>
-              <button
-                type="button"
-                class="valg"
-                aria-current={valgt === s ? 'page' : undefined}
-                onclick={() => velgSpor(s)}
-              >
-                <span class="navn">
-                  {SPORNAVN[s]}
-                  {#if s === 'vederlag' && utkastAapent && valgt !== s}<span class="merke-utkast"
-                      >{SAKEN.utkast}</span
-                    >{/if}
-                </span>
-                <span class="under"
-                  >{sisteBrev ? SAKEN.sist(sisteBrev, sisteBrev.avsender) : SAKEN.ingenBrev}</span
-                >
-              </button>
-            </li>
-          {/each}
-        </ul>
+        {#each SPORGRUPPENE as gruppe (gruppe.id)}
+          <div class="gruppe">
+            <p class="etikett" id={`spor-${gruppe.id}`}>{gruppe.etikett}</p>
+            <ul class="valgene" aria-labelledby={`spor-${gruppe.id}`}>
+              {#each gruppe.spor as s (s)}
+                <li>
+                  <button
+                    type="button"
+                    class="valg"
+                    aria-current={valgt === s ? 'page' : undefined}
+                    onclick={() => velgSpor(s)}
+                  >
+                    <span class="navn">
+                      {s === 'forhold' ? forholdsnavn : SPORNAVN[s]}
+                      {#if s === 'vederlag' && utkastAapent && valgt !== s}<span
+                          class="merke-utkast">{SAKEN.utkast}</span
+                        >{/if}
+                    </span>
+                  </button>
+                </li>
+              {/each}
+            </ul>
+          </div>
+        {/each}
       </nav>
-    {/if}
-  {/snippet}
-  {#snippet topplinje()}
-    {#if !nySak}
-      <p class="lenkestatus" role="status">{lenkestatus}</p>
-      <Knapp variant="lenke" onclick={kopierLenke}
-        ><Link size={16} aria-hidden="true" />{SAKEN.kopierLenke}</Knapp
-      >
     {/if}
   {/snippet}
 
@@ -244,7 +355,9 @@
   {:else}
     <main class="arbeid">
       <div class="melding" class:tom={!melding} role="status" tabindex="-1" bind:this={meldingen}>
-        {#if melding}<Melding art="kvittering" levende={false}>{melding.tekst}</Melding>{/if}
+        {#if melding}<Melding art={melding.art === 'endret' ? 'info' : 'kvittering'} levende={false}
+            >{melding.tekst}</Melding
+          >{/if}
       </div>
       {#if arbeid.art === 'kontroll'}
         {@const k = arbeid}
@@ -257,7 +370,10 @@
           deresRef={k.deresRef}
           tittel={k.tittel}
           handling={k.handling}
+          bareMottaker={k.bareMottaker}
           svarerPaa={k.svarerPaa}
+          henvisning={k.henvisning}
+          relasjoner={k.relasjoner}
           detteSender={k.detteSender}
           virkninger={k.virkninger}
           sendTekst={k.sendTekst}
@@ -265,6 +381,107 @@
           ontilbake={() => (arbeid = k.tilbake)}
           onsendt={sendt}
           onavvist={() => byggPaaNytt(k)}
+        />
+      {:else if arbeid.art === 'korrigering' && kanKorrigere(arbeid.gjelder)}
+        {@const gjelder = arbeid.gjelder}
+        <Korrigering
+          {kjernesak}
+          {u}
+          {gjelder}
+          bind:valg={korrigeringsvalg}
+          onforkast={forkastKorrigeringen}
+          onbrevkontroll={(k) => {
+            const viserTil = datoopplysningene(u).find((o) => o.id === gjelder)?.brev ?? null;
+            melding = null;
+            arbeid = {
+              art: 'kontroll',
+              versjon: kjernesak.versjon,
+              ...k,
+              handling: KORRIGERING.handling,
+              sendTekst: KORRIGERING.sendTekst,
+              tilbakeTil: KORRIGERING.tilbakeTil,
+              svarerPaa: viserTil,
+              henvisning: BREVKONTROLL.viserTil,
+              kvittering: KORRIGERING.kvittering(
+                (k.kommando.paalegg_mottatt ?? k.kommando.klar_over_forholdet) as string,
+                k.kommando.paalegg_mottatt ? 'paalegg_mottatt' : 'klar_over_forholdet',
+                u.forholdAvvist,
+                !!u.spor.forhold.gjeldendeSvar
+              ),
+              tilbake: { art: 'korrigering', gjelder },
+              erUtkastet: false,
+            };
+          }}
+        />
+      {:else if arbeid.art === 'nyversjon' && valgt === 'forhold' && kjernesak.handlinger.includes('krav:forhold') && u.spor.forhold.gjeldendeKrav}
+        <Paaberopelsesversjon
+          {kjernesak}
+          {u}
+          bind:tekst={nyVersjonstekst}
+          onforkast={forkastNyVersjon}
+          ontilbake={() => velgSpor('forhold')}
+          onvedsiden={(v) => (vedSiden = v)}
+          onbrevkontroll={(k) => {
+            const svaret = brev.find((b) => b.id === u.spor.forhold.gjeldendeSvar?.dokument);
+            const kravet = brev.find((b) => b.id === u.spor.forhold.gjeldendeKrav?.dokument);
+            melding = null;
+            arbeid = {
+              art: 'kontroll',
+              versjon: kjernesak.versjon,
+              ...k,
+              handling: NYVERSJON.kontroller,
+              bareMottaker: true,
+              sendTekst: NYVERSJON.sendTekst,
+              tilbakeTil: NYVERSJON.tilbakeTil,
+              svarerPaa: svaret ?? null,
+              henvisning: BREVKONTROLL.viserTil,
+              relasjoner: [
+                ...(kravet
+                  ? [{ hva: NYVERSJON.forrigeBrev, brev: NYVERSJON.forrigeBrevet(kravet) }]
+                  : []),
+                ...(svaret
+                  ? [{ hva: BREVKONTROLL.viserTil, brev: NYVERSJON.viserTilBrev(svaret) }]
+                  : []),
+              ],
+              kvittering: NYVERSJON.kvittering,
+              tilbake: { art: 'nyversjon' },
+              erUtkastet: false,
+            };
+          }}
+        />
+      {:else if arbeid.art === 'vederlagskrav' && valgt === 'vederlag' && kjernesak.handlinger.includes('krav:vederlag')}
+        <Vederlagskrav
+          {kjernesak}
+          {u}
+          bind:valg={kravvalg}
+          onforkast={forkastKravet}
+          onvedsiden={(v) => (vedSiden = v)}
+          onbrevkontroll={(k) => {
+            const kravet = brev.find((b) => b.id === u.spor.vederlag.gjeldendeKrav?.dokument);
+            const svaret = brev.find((b) => b.id === u.spor.vederlag.gjeldendeSvar?.dokument);
+            melding = null;
+            arbeid = {
+              art: 'kontroll',
+              versjon: kjernesak.versjon,
+              ...k,
+              handling: KRAVSKJEMA.kontroller,
+              bareMottaker: true,
+              sendTekst: KRAVSKJEMA.sendTekst,
+              tilbakeTil: KRAVSKJEMA.tilbakeTil,
+              svarerPaa: null,
+              relasjoner: [
+                ...(kravet
+                  ? [{ hva: NYVERSJON.forrigeBrev, brev: KRAVSKJEMA.forrigeKravet(kravet) }]
+                  : []),
+                ...(svaret
+                  ? [{ hva: BREVKONTROLL.viserTil, brev: NYVERSJON.viserTilBrev(svaret) }]
+                  : []),
+              ],
+              kvittering: KRAVSKJEMA.kvittering,
+              tilbake: { art: 'vederlagskrav' },
+              erUtkastet: false,
+            };
+          }}
         />
       {:else if arbeid.art === 'svar' && valgt === 'vederlag' && kjernesak.handlinger.includes('svare:vederlag')}
         <Vederlagssvar
@@ -275,8 +492,10 @@
           onvedsiden={(v) => (vedSiden = v)}
           onbrevkontroll={(k) => {
             const krav = brev.find((b) => b.id === u.spor.vederlag.gjeldendeKrav?.dokument);
+            melding = null;
             arbeid = {
               art: 'kontroll',
+              versjon: kjernesak.versjon,
               ...k,
               handling: BREVKONTROLL.sendSvaret,
               sendTekst: BREVKONTROLL.sendSvaret,
@@ -293,21 +512,29 @@
             {kjernesak}
             {u}
             spor={valgt}
+            nySak={valgt === 'forhold' && kjernesak.handlinger.includes('krav:forhold')
+              ? nySakLenke
+              : undefined}
+            onspor={velgSpor}
+            onkorriger={(gjelder) => {
+              melding = null;
+              arbeid = { art: 'korrigering', gjelder };
+            }}
+            skjemaene={skjemanoeklene}
             onvelg={(n) => {
               melding = null;
-              if (n === 'svare:vederlag') {
-                utkastAapent = true;
-                arbeid = { art: 'svar' };
-              }
+              if (Object.hasOwn(skjemaene, n)) skjemaene[n]();
             }}
-            onakseptbrev={({ kommando, tekst, merking, deresRef, tittel }) => {
+            onakseptbrev={({ kommando, tekst, virkninger, merking, deresRef, tittel }) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
+              melding = null;
               arbeid = {
                 art: 'kontroll',
+                versjon: kjernesak.versjon,
                 kommando,
                 tekst,
                 detteSender: svaret ? [{ tekst: STILLING.godtarBrev(svaret), lag: null }] : [],
-                virkninger: [],
+                virkninger,
                 merking,
                 deresRef,
                 tittel,
@@ -331,7 +558,7 @@
     font-size: 24px;
     font-weight: 600;
     line-height: 1.25;
-    letter-spacing: -0.01em;
+    letter-spacing: var(--sperring-24);
     text-wrap: balance;
   }
   .sakshode {
@@ -341,6 +568,23 @@
   }
   .sakshode h1 {
     font-size: 20px;
+    letter-spacing: var(--sperring-20);
+  }
+  .tittel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+  }
+  .kode {
+    color: var(--sidebar-muted);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+  .sporene {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-6);
   }
   .navn {
     display: flex;
@@ -355,10 +599,6 @@
     border: 1px dashed var(--draft-border);
     background: var(--surface);
     color: var(--draft);
-  }
-  .lenkestatus {
-    margin-left: auto;
-    color: var(--ink-3);
   }
   .arbeid {
     min-width: 0;

@@ -27,6 +27,8 @@
     prosjektNavn={projectMeta.name}
     sakslenke={(sakId) => resolve('/[prosjektId]/[sakId]', { prosjektId, sakId })}
     nyttKrav={resolve('/[prosjektId]/ny', { prosjektId })}
+    prosjekter={resolve('/')}
+    bruker={page.data.user}
   />
 </div>
 

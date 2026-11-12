@@ -24,27 +24,9 @@ skills-lock.json
 # Planen fra scripts/rydd_grener.py.
 /kandidater.json
 
-# Backend Python artifacts
+# Python-artefakter fra verktøyene og vaktene.
 __pycache__/
 *.pyc
-backend/*.log
-# AuditLogger lager fila i mappa prosessen startes fra.
-audit.log
-backend/.env
-backend/.env.test
-backend/venv/
-backend/.venv/
-backend/.ruff_cache/
-backend/.mypy_cache/
-backend/.coverage
-backend/koe_data/
-# Logg og lokale data når backend eller testene startes fra repoets rot.
-/endringsmeldinger.log
-/koe_data/
-
-# Supabase CLI-artefakter
-supabase/.temp/
-supabase/.branches/
 
 # NS 8407-teksten spores ikke. Den ligger i khjohns/kontrakt (#424).
 docs/NS_8407.md

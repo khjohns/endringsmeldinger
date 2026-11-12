@@ -9,11 +9,16 @@
 import { randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { lagServer, type Avhengigheter } from '../app.ts';
+import { lagServer } from '../app.ts';
+import type { Avhengigheter } from '../rutetyper.ts';
 import { catendaId, sha256, type Catenda } from '../autorisasjon.ts';
 import { forkast, reservasjon, sql, type Utlaan } from '../datalag.ts';
 import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
-import { forhaandsvis, laastTekst } from '../../kjerne/kommandoer/skriving.ts';
+import {
+  forhaandsvis,
+  laastTekst,
+  type Vedleggsoppslag,
+} from '../../kjerne/kommandoer/skriving.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { kommandosum, lesNesteSakskode, opprettSak } from '../kommandoer.ts';
 import { lesSaken } from '../lager.ts';
@@ -389,7 +394,8 @@ export async function sakskodeFor(
 export async function medLaastTekst(
   o: Oppsett,
   sakId: string,
-  kommando: Record<string, unknown> = PAABEROPELSE
+  kommando: Record<string, unknown> = PAABEROPELSE,
+  vedlegg?: Vedleggsoppslag
 ): Promise<Record<string, unknown>> {
   const { journal } = await lesSaken(
     o.datalag.kjoeretid.pool,
@@ -409,11 +415,13 @@ export async function medLaastTekst(
       nyId: randomUUID,
     },
     journal,
-    KJERNE
+    KJERNE,
+    vedlegg
   );
   if (!vist.godtatt)
     throw new Error(`Forhåndsvisningen avviste kommandoen: ${JSON.stringify(vist.avvisning)}`);
-  return { ...kommando, brevtekst: laastTekst(vist.hendelser[0]) };
+  // Brevet er den siste raden handlingen gir (VS-U53).
+  return { ...kommando, brevtekst: laastTekst(vist.hendelser.at(-1)!) };
 }
 
 /** Sender TEs kommando med den låste teksten til saken over HTTP, som brevskjemaet gjør. */
@@ -427,14 +435,31 @@ export async function sendKommando(
     kommandoId = randomUUID(),
   }: { versjon: number; kommando?: Record<string, unknown>; kommandoId?: string }
 ): Promise<Svar> {
+  return sendMedTekst(url, o, sakId, {
+    versjon,
+    kommando: await medLaastTekst(o, sakId, kommando),
+    kommandoId,
+  });
+}
+
+/**
+ * Sender TEs kommando slik den er, med teksten fra `medLaastTekst` lest på forhånd. Da
+ * kan to tekster leses før noen av dem sendes, som to brevkontroller åpne samtidig (#1609).
+ */
+export function sendMedTekst(
+  url: string,
+  o: Oppsett,
+  sakId: string,
+  {
+    versjon,
+    kommando,
+    kommandoId = randomUUID(),
+  }: { versjon: number; kommando: Record<string, unknown>; kommandoId?: string }
+): Promise<Svar> {
   return kall(url, `/api/kjerne/saker/${sakId}/kommandoer`, {
     bruker: o.te,
     prosjektId: o.prosjekt.id,
-    kropp: {
-      expected_version: versjon,
-      kommando_id: kommandoId,
-      kommando: await medLaastTekst(o, sakId, kommando),
-    },
+    kropp: { expected_version: versjon, kommando_id: kommandoId, kommando },
   });
 }
 

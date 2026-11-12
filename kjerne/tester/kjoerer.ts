@@ -10,24 +10,21 @@ import bevis from '../../docs/domenetabell/bevis-saker-maalmodell.json' with { t
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { KJERNE, type Kjerne } from '../versjon.ts';
-import { erRegistrert, Uforstaatt } from '../format/leser.ts';
+import { erRegistrert } from '../format/leser.ts';
+import { Uforstaatt } from '../format/skjema.ts';
 import { brevmerking } from '../frosset/brevtittel.ts';
 import {
   forhaandsvis,
   frysBrev,
   laastTekst,
+  vurder,
   Skrivefeil,
   utledJournal,
-  vurder,
   type Kontekst,
   type Utfall,
 } from '../kommandoer/skriving.ts';
-import {
-  enighetensVirkning,
-  kanInngaaIEo,
-  kraveneErAvgjort,
-  type Utledning,
-} from '../utledning/utled.ts';
+import { enighetensVirkning, kraveneErAvgjort, type Utledning } from '../utledning/utled.ts';
+import { kanInngaaIEo } from '../spor/forhold/utledning.ts';
 import { visning } from '../utledning/visning.ts';
 import type { Bane } from './bane.ts';
 import { testklokke, tilfeldigeIder, type Klokke, type NyId } from './testmiljoe.ts';
@@ -175,7 +172,8 @@ export class Kjoering {
         medRegler(klientregler, this.kjerne),
         mellomlager(k)
       );
-      const tekst = vist.godtatt ? laastTekst(vist.hendelser[0]) : null;
+      // Brevet er den siste raden handlingen gir (VS-U53).
+      const tekst = vist.godtatt ? laastTekst(vist.hendelser.at(-1)!) : null;
       if (Array.isArray(h.brevtekst)) k.brevtekst = h.brevtekst as string[];
       else if (tekst && h.brevtekst !== false) k.brevtekst = tekst;
       const utfall = vurder(
@@ -276,7 +274,7 @@ export class Kjoering {
    * og `<etikett>#mottatt`.
    */
   private navngi(h: Handling, utfall: Extract<Utfall, { godtatt: true }>): void {
-    const [rad] = utfall.hendelser;
+    const rad = utfall.hendelser.at(-1)!;
     const data = rad.data as { krav?: { id: string }[]; svar?: { id: string }[] };
     if (h.handling === 'brev') {
       this.navn.sett(h.navn, rad.event_id);

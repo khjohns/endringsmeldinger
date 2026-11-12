@@ -9,11 +9,11 @@ Lista bygger på [sjekklisten for UU](https://punkt.oslo.kommune.no/latest/god-p
 i Punkt, med egne ord og tilpasset en innlogget fagapplikasjon med skjemaer,
 tabeller, dialoger og brevtekst, i lys modus og på smal skjerm. Punkt
 oppgir ingen lisens for teksten på sidene, så den er ikke tatt inn ordrett (#1187).
-Kravet er WCAG 2.1 A og AA. Mørk modus vurderes ikke nå (oppdragsgiver 29.10).
+Kravet er WCAG 2.1 A og AA. Mørk modus vurderes ikke nå.
 
 **Automatikken finner bare en del.** [Testverktøysida i Punkt](https://punkt.oslo.kommune.no/latest/universell-utforming/testverktoy/)
 anslår om lag 30 % av feilene. `uu.mjs` i skillen [`mockup-nettleser`](../mockup-nettleser/SKILL.md)
-kjører axe-core mot `/mockup`. Resten av lista kontrolleres for hånd: med
+kjører axe-core mot Varden i demoruta. Resten av lista kontrolleres for hånd: med
 tastaturet, med Playwright der det er raskere, og ved å lese koden.
 
 Beslutningene om knapper, skjemaer og feilmeldinger står i
@@ -119,7 +119,7 @@ Før PR-en meldes klar, på det diffen endrer.
 7. **Overlegg:** fokus holdes i dialogen, bakgrunnen kan ikke brukes, og Escape
    lukker.
 8. **Smal skjerm:** ingenting forsvinner, og ingen vannrett rulling.
-9. **Automatikken:** `node .claude/skills/mockup-nettleser/uu.mjs` uten brudd i det diffen
+9. **Automatikken:** `node .claude/skills/mockup-nettleser/uu.mjs` (Varden i demoruta) uten brudd i det diffen
    endrer. Et brudd som også finnes på `main`, føres i et issue.
    Resultatet står i PR-en, og det står hva som er kontrollert for hånd.
 

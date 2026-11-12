@@ -595,10 +595,10 @@ ikke har den. Det viser at `RESPONSE_ACCEPTED` ikke stoppet den.
 
 **Lest ut av koden:** `sprakprove/kjerne/sak.ts`, `forretningsregler.ts`,
 `offentlig.ts` og `regler/grunnlag.ts`; `parse_event` i
-[models/events.py](../backend/models/events.py); `compute_state` og
+[models/events.py](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/models/events.py); `compute_state` og
 `_handle_frist` i
-[services/timeline_service.py](../backend/services/timeline_service.py);
-`snapshot` i [services/approval_letter.py](../backend/services/approval_letter.py);
+[services/timeline_service.py](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/timeline_service.py);
+`snapshot` i [services/approval_letter.py](https://github.com/khjohns/endringsmeldinger/blob/ce87a30889200fdabff389e33c246a2b54e8a555/backend/services/approval_letter.py);
 `cached_*`-kolonnene i migrasjonene.
 
 **Fra hovedplanen og domenetabellen, ikke kjørt her:** Python-atferden i

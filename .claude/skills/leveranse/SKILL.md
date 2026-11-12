@@ -1,11 +1,12 @@
 ---
 name: leveranse
-description: Leveranseprosedyren for implementering og refaktorering. Brukes når en kodeoppgave starter, før akseptkriteriene skrives, og igjen før en PR meldes klar. Rene dokumentendringer bruker bare de relevante kontrollene.
+description: Leveranseprosedyren for implementering og refaktorering, med reglene for review og stoppregelen for funn. Brukes når en kodeoppgave starter, før akseptkriteriene skrives, og igjen før en PR meldes klar. Rene dokumentendringer bruker bare de relevante kontrollene.
 ---
 
 # Leveranse og vedlikehold
 
-Hovedplanen bestemmer målarkitektur, beslutninger og rekkefølge. Denne
+Hovedplanen beskriver målarkitektur, føringer og leveransekrav; vedtakene står i
+vedtaksfila, og arbeidsrekkefølgen i samleissuet for arbeidet. Denne
 prosedyren bestemmer hvordan en avgrenset oppgave leveres. Den brukes to ganger:
 før kode endres, og før en PR meldes klar.
 
@@ -15,9 +16,9 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
 
 - **Feilinnføring** (se `.claude/rules/tester.md`) kreves når endringen gir en
   endret tilgangsavgjørelse, statusovergang, beregningsregel, serialisering
-  eller transaksjonsgaranti. Typiske steder, i begge språk, er tilgangslaget,
+  eller transaksjonsgaranti. Typiske steder er tilgangslaget,
   serverinngangene, reglene og utledningen i kjernen, hendelsesmodellene og
-  lagrene; i Python også `services/business_rules.py` og `SporStatus`. En
+  lagrene. En
   kommentarendring eller ren flytting der utfallet er det samme, utløser det ikke.
 - **Beslutningsansvar** kreves når tiltenkt atferd, en tolkning av NS 8407 eller
   godtatt restrisiko endres. En omstrukturering som beholder atferden, utløser
@@ -42,18 +43,18 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
 - Avgjør hvor den berørte domeneregelen eller kontrakten skal eies, og kartlegg
   kallerne og inngangene som berøres. Skriv hva som skal fjernes og hva som må
   bestå. Skal atferden være uendret, skriv hvilke observerbare resultater som
-  skal bevares. Ved begrepsendring: følg språkregelen i `AGENTS.md`. Les
+  skal bevares. Ved begrepsendring: følg språkregelen i `CLAUDE.md`. Les
   `.claude/rules/dokumentasjon.md` for å avgjøre hva som trenger varig
   dokumentasjon.
 - Bygger oppgaven frontend mot TS-kjernen, er brukerforløpet for flyten
-  utgangspunktet, ikke den gamle frontenden (oppdragsgiver 30.10, #1065).
+  utgangspunktet, ikke den gamle frontenden (#1065).
   Skriv i akseptkriteriene hvilket forløp og hvilke steg oppgaven bærer. Finnes
   det ikke noe forløp for flyten, skriver du hva brukeren skal kunne gjøre, med
   vedtaket eller issuet som grunn. Reglene hentes fra kjernen og prøves mot
   vedtakene og bevis-sakene, ikke mot den gamle koden.
 - Endrer oppgaven visningen, følg [interface-design-skillen](../interface-design/SKILL.md) og
   [systemfila](../../../.interface-design/system.md). Ryddingen og reviewet av visningen
-  står i `AGENTS.md`, «Arbeidsform».
+  står i «Review og funn» under.
 - Avklar bare uavklart tiltenkt atferd med oppdragsgiver. Tekniske valg innenfor
   oppgaven avgjør du selv. En uløst domenebeslutning blokkerer bare den
   implementeringen den gjelder.
@@ -67,7 +68,8 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
 
 - Én sammenhengende endring per PR. Skill atferdsendring fra mekanisk flytting
   der det gjør reviewet lettere å etterprøve. Ingen uvedkommende opprydding.
-- Legg regelen der den er avtalt å eies. Ingen ny juridisk slutning i visning,
+- Legg regelen der den er avtalt å eies, og bare der: én regel har ett hjem i koden,
+  ikke en kopi eller en annen form i et annet lag. Ingen ny juridisk slutning i visning,
   brevtekst eller adapter. Felles kode erstatter ikke servervalidering eller
   tilgangskontroll. Nye pakker og abstraksjoner krever et konkret behov i
   oppgaven, ikke hypotetiske framtidige brukere.
@@ -78,8 +80,7 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   issue og omtales som uprøvd, ikke som håndhevet.
 - En migrering har én autoritativ skrivesti per kommando. Fjern erstattet kode,
   utdaterte tester og konfigurasjon når de ikke trengs lenger, men behold
-  domenebevis og nødvendig bakoverkompatibilitet med historikken (for sakene TS
-  tar over, ikke med Python-radene; B-17). Midlertidig
+  domenebevis og nødvendig bakoverkompatibilitet med historikken (unntaket står i B-17). Midlertidig
   dobbeltkode eller adapter får et koblet issue med ansvarlig, berørte filer og et
   observerbart fjerningskriterium. «Ryddes senere» holder ikke.
 - Oppheves, endres eller snevres et vedtak inn, fjernes koden som bare fantes for
@@ -89,8 +90,30 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   vedtakshenvisninger finner bare en ID til et opphevet vedtak, ikke kode uten ID
   og ikke et vedtak som er endret. Søk derfor etter atferden, koden og tekstene,
   og skriv i PR-en hvilke søk du gjorde og hva som ble fjernet. Synlig tekst og
-  rester utenfor oppdraget føres i issuet som eier dem. Python-stien ryddes etter
-  DL-U2 (oppdragsgiver 28.10, #1338).
+  rester utenfor oppdraget føres i issuet som eier dem.
+
+- Data uten type leses gjennom én typet tilgang, ikke med en typekonvertering hos hver
+  kaller. En type eller en union utledes av én kilde, ikke skrevet på nytt ved siden av.
+
+## Refaktorering
+
+Gjelder når kode flyttes eller deles uten at atferden skal endres (#1695).
+
+- Ren flytting i egen PR, adskilt fra ny logikk. Delingen gjøres først, så diffen for den
+  nye logikken bare viser logikken.
+- Del flyttingen i commits som er grønne hver for seg, med de samme sjekkene som for
+  PR-en. En typeendring eller annen omskriving kommer i en egen commit etter flyttingen,
+  eller i en egen PR når den er mer enn en typeendring.
+- Bevis uendret atferd: testene er grønne uten endrede forventninger, og de
+  representative feilinnføringene for koden som er flyttet, oppdager fortsatt feilen.
+  Snapshots og genererte filer som endres, endres bare der versjonen står.
+- Oppdater importene hos kallerne i stedet for å eksportere på nytt fra den gamle
+  modulen. Gir delingen en sirkel i importene, flyttes funksjonen til den eneste
+  kalleren, eller blir der den brukes.
+- En funksjon med mange grener deles etter art (sporet, kommandotypen) bak samme
+  signatur. Rekkefølgen på kontroller som kan kaste, beholdes, fordi feltet i feilen kan
+  være synlig for brukeren.
+- Skriv i PR-en hvor hver flyttet funksjon står nå, og avvikene fra planen i issuet.
 
 ## Vedlikeholds- og driftsverktøy
 
@@ -109,16 +132,105 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   konsumenter før sletting. Et verktøy for død kode gir kandidater, ikke bevis
   for at noe kan slettes.
 
+## Review og funn
+
+**Uavhengig review før en PR meldes klar er `/code-review` på egen diff** (`CLAUDE.md`), på
+nivå `high` når diffen rører serverinngangene, tilgang, CSRF, lagring, journalen
+eller migrasjonene, uansett språk, ellers `medium`. For en diff som bare rører
+`docs/`, skillene og `CLAUDE.md`, avgjør orkestratoren om `/code-review` er verdt
+det, og begrunner valget i én linje i PR-en (#1338). Endrer diffen utledningen eller reglene i domenet, kommer i
+tillegg en review av samspillet mellom reglene, i ny kontekst og med reglene og
+bevis-sakene samlet, én gang per PR. Hvor reviewet og rettingene kjøres, står i
+[arbeidsøkt-skillen, «Review i byggeøkta»](../arbeidsokt/SKILL.md#tid-og-kontekst).
+`/simplify` kjøres når oppdragsgiver ber om det eller godkjenner orkestratorens
+forslag, og da før `/code-review`, slik at reviewet ser den endelige koden.
+**Endrer diffen visningen** (`.svelte`- eller CSS-filer i `src/`, synlig), rydder
+byggeøkta egen diff med kommandoen `/design-deslop` og lar PR-en stå som utkast.
+Etter `/design-deslop` legger byggeøkta skjermbildene i PR-en og ber oppdragsgiver se over
+dem. Mens den venter, arbeider den videre etter «Arbeid mens CI går» i arbeidsøkt-skillen.
+Når oppdragsgiver har sagt fra, kjører byggeøkta `/design-review` i en subagent i ny
+kontekst, før `/code-review`, og retter funnene selv. Kommer svaret ikke innen en time,
+følger økta «Hold hurtigbufferen varm» i arbeidsøkt-skillen. Alvorligheten settes av
+`/design-review`; hva som rettes i PR-en, følger stoppregelen for funn under (#1080, #1492).
+Endrer en retting visningen etter at oppdragsgiver har sett skjermbildene, sier
+PR-beskrivelsen hva som ble endret i visningen, i et eget punkt.
+
+En diff i `src/routes/[prosjektId]/` eller `src/lib/kjernesak/` krever også at den
+ekte saksruta kjøres med `saksrute.ts` før PR-en meldes klar, og skjermbildene legges
+i PR-en fra grenen `skjermbilder`, slik
+[mockup-nettleser](../mockup-nettleser/SKILL.md#skjermbildene-i-pr-en) sier (#1222).
+
+**Stoppregelen for funn.** Byggeøkta retter funnene mens den har konteksten. Et funn
+rettes i PR-en i to tilfeller:
+
+- Det gir feil resultat nå, eller bryter et vedtak eller kontrakten.
+- Det gjelder kode, tester eller tekst PR-en selv har skrevet eller endret, og
+  rettingen kan gjøres uten en avgjørelse fra oppdragsgiver.
+
+Et funn rettes ikke i PR-en, selv om det gjelder PR-ens egen kode, når
+
+- rettingen krever et vedtak, et designvalg eller et annet svar fra oppdragsgiver,
+- funnet sto før PR-en og ikke gir feil resultat nå, med mindre rettingen er noen få
+  linjer i en fil PR-en allerede endrer, eller
+- rettingen hører til en del som bygges i et annet issue.
+
+Et funn som ikke rettes, får ett av fire utfall:
+
+- Det avvises med én linje under «Åpne spørsmål» i PR-beskrivelsen, når det verken
+  kan gi feil resultat senere eller er et krav til noe som skal bygges.
+- Er det et krav til en inngang eller del som ikke finnes ennå, eller som bygges i
+  et annet åpent issue, føres kravet som kommentar i det issuet. Det gjelder også
+  når PR-en er «Del av» det issuet.
+- Krever det et svar fra oppdragsgiver, stilles spørsmålet under «Åpne spørsmål» i
+  PR-en, eller etter [vedtaksskillen](../vedtak/SKILL.md) når det gjelder domenet.
+- Resten samles i ett oppfølgingsissue per PR, med etiketten `review-oppfølging`
+  og en sjekkliste. Ett issue per funn lages ikke (#649).
+
+Overleveringen og en omtale i PR-beskrivelsen er ikke noe utfall. Det som bare står
+der, blir glemt. PR-beskrivelsen viser hvert funn med utfallet: rettet med commit,
+lenke til kommentaren eller oppfølgingsissuet, spørsmålet, eller linjen under
+«Åpne spørsmål».
+
+Reviewet kjøres én gang, og kontrollen av rettingene én gang. Et funn fra kontrollen
+av rettingene rettes bare når det gir feil resultat nå, eller bryter et vedtak eller
+kontrakten. Resten får ett av utfallene over.
+
+**Hva som føres i oppfølgingsissuet**:
+
+- **Testkode, verktøy, hooks og dokumentasjon.** Et funn her føres bare når det
+  kan gjøre en test grønn for feil atferd i produktkoden, eller skjule en feil der.
+  Ellers avvises det med én linje.
+- **Feil ved en senere endring.** Et funn regnes som «kan gi feil resultat
+  senere» bare når endringen er planlagt i et issue eller et vedtak.
+- **Føres aldri:** duplisering, docstringer og ytelse uten måling. Duplisering
+  PR-en selv innfører, rettes i PR-en. Annen duplisering avvises.
+- **Søk før du fører.** Søk i de åpne `review-oppfølging`-issuene først. Står
+  punktet der alt, skriver du en kommentar der i stedet for et nytt punkt.
+
+Oppfølgingsissuet får samme milepæl
+eller sporetikett som PR-en det kommer fra. En PR som løser punkter, skriver
+«Del av #n». Orkestratoren krysser av punktene når PR-en er merget, og lukker
+issuet når alle er krysset av. PR-ene krysser ikke av selv, og ingen skriver
+`Closes` for et oppfølgingsissue.
+
+Kontrollen av rettingene gjelder bare rettingsdiffen, på nivå `high` når rettingene
+rører serverinngangene, tilgang, CSRF, lagring, journalen eller migrasjonene, ellers
+`medium` (#484, #490). Rører rettingene bare tester og dokumentasjon, kjøres ikke
+kontrollen. Testene kjøres, og PR-en sier at kontrollen er utelatt.
+
 ## Før en PR meldes klar
+
+Les «Review og funn» og denne delen på nytt, hele, når reviewet er gjort og før PR-en
+markeres klar. Dette er den andre lesingen `CLAUDE.md` krever. Et utsnitt rundt
+nivået for reviewet er ikke nok.
 
 - Prøv akseptkriteriene mot forventninger fra et vedtak eller en annen uttrykkelig
   kilde, etter `.claude/rules/tester.md`. Der dagens atferd er en kjent feil, er
   likhet mellom gammel og ny kode ikke fasit. Utløser endringen feilinnføring:
   vis at de representative testene oppdager relevante feil. For kjernen er beviset
-  CI-kjøringen med etiketten `feilinnfoering`; en skyøkt kjører ikke hele samlingen
-  lokalt (oppdragsgiver 28.10). For serveren er beviset den målrettede lokale
-  kjøringen med ID-ene etter stien, mot en kopi av arbeidstreet; CI kjører bare
-  `--ankre` der (oppdragsgiver 28.10).
+  CI-kjøringen med etiketten `feilinnfoering`. For serveren er beviset den målrettede
+  lokale kjøringen; CI kjører bare `--ankre` der. Hva en skyøkt kjører lokalt, og
+  hvordan, står i [miljø-skillen](../miljo/SKILL.md#feilinnføringer).
 - Ved endret domeneregel eller kontrakt: prøv de berørte inngangene, også vanlig
   innsending, batch og godkjenning der de bruker regelen. Ved endret
   hendelsesdata eller serialisering: prøv faktisk lagring og gjenlesing. Vurder
@@ -135,13 +247,13 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
 - En PR som bygger frontend mot TS-kjernen, viser hvilke steg i
   brukerforløpet som er prøvd, og
   [dekningsoversikten](../../../docs/domenetabell/brukerforlop/dekning.md) er
-  generert på nytt når forløpet er endret (oppdragsgiver 30.10, #1065). En
+  generert på nytt når forløpet er endret (#1065). En
   mangel som ikke løses i PR-en, får et issue.
 - Fører PR-en et vedtak, er det en ny post i
   [vedtaksregisteret](../../../docs/vedtaksregister/README.md), og raden i
   vedtaksfila er skrevet av `docs/verktoy/vedtaksregister.py`, ikke for hånd. CI har ikke
   NS 8407-teksten. Kjør derfor `python docs/verktoy/vedtaksregister.py --sjekk`
-  og `pytest tests/test_vedtaksregister` fra `backend/` med klonen av
+  og `pytest test_vedtaksregister` fra `verktoy/tester/` med klonen av
   `khjohns/kontrakt` på plass ([kildene](../../../docs/vedtaksregister/README.md#vakttestene)),
   og før resultatet i PR-en. Meldingen «Sitatene fra NS 8407 er hoppet over»
   betyr at kontrollen ikke er kjørt.
@@ -149,10 +261,11 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   kontrollrundene av vedtaksteksten. Det som krever skjønn, og kontrollen av
   `folge` og merknadene mot svarene, står i
   [vedtaksskillen](../vedtak/SKILL.md).
-- Gjennomfør uavhengig review etter `AGENTS.md`, med akseptkriteriene som
+- Gjennomfør uavhengig review etter «Review og funn», med akseptkriteriene som
   grunnlag. Se særlig etter ny duplisering, om regelen ligger der den skal eies,
-  og om utfasingen er planlagt. Funn om dette følger stoppregelen for funn i
-  `AGENTS.md`. Leveransen skal kunne forklares og etterprøves
+  og om utfasingen er planlagt. Funn om dette følger stoppregelen for funn, og hvert
+  funn har et av utfallene der.
+  Leveransen skal kunne forklares og etterprøves
   fra kode, tester og varige referanser uten den opprinnelige chatten. At
   agenter er enige, er ikke testbevis og erstatter ikke det menneskelige
   beslutningsansvaret.
@@ -161,11 +274,11 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   [brukerforløpene](../../../docs/domenetabell/brukerforlop/README.md), utvides de i
   samme arbeid. Endres et forventet resultat i et forløp, får forløpet en linje i
   `endringer` med dato og vedtak eller issue.
-- Svekk ikke assertions, og legg ikke til skip/xfail eller nye lint-unntak for å
+- Svekk ikke assertions, og legg ikke til `skip`, `it.fails` eller nye lint-unntak for å
   få grønt. Nye reproduksjoner av kjente feil følger testreglene.
 - Fyll ut [PR-malen](../../../.github/pull_request_template.md) med kjørt
   kommando, resultat og kontrollert commit eller diff. Skill egne kjøringer fra
   historiske resultater. Kontroller som ikke er gjennomført eller ikke var
   tilgjengelige, oppgis uttrykkelig. Mangler en påkrevd sjekk eller review, er
-  PR-en fortsatt utkast. Restanser får issues etter `AGENTS.md`. Et issue gjør
+  PR-en fortsatt utkast. Restanser får issues etter `CLAUDE.md`, «Hvor hva står». Et issue gjør
   ikke et uoppfylt akseptkriterium oppfylt.

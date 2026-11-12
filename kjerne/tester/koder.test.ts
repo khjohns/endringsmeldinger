@@ -5,33 +5,21 @@
 
 import { describe, expect, it } from 'vitest';
 import {
-  BELOEPSVURDERING_FRA_KATALOGEN,
-  FORHOLDSRESULTAT_FRA_KATALOGEN,
   HOVEDKATEGORIER,
   HOVEDKATEGORI_FRA_KATALOGEN,
   KATEGORIER,
-  METODE_FRA_KATALOGEN,
-  RESULTAT_FRA_KATALOGEN,
   UNDERKATEGORI_FRA_KATALOGEN,
-  UTLOESER_FRA_KATALOGEN,
   fraKatalogen,
   kategoriFraKatalogen,
   tilKatalogen,
 } from '../format/koder.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
 import { lesJournal } from '../format/leser.ts';
-import { oppgittDato } from '../format/format.ts';
-import { regnUtSvar } from '../frosset/standpunkt.ts';
+import { regnUtSvar } from '../frosset/utregning.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { erByggherrensPaalegg, gyldigeResultater } from '../regler/forhold.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
-import {
-  BELOEPSVURDERINGER,
-  FRISTRESULTATER,
-  FORHOLDSRESULTATER,
-  SUBSIDIAERE_UTLOSERE,
-  VEDERLAGSRESULTATER,
-} from '../regler/typer.ts';
+import { FORHOLDSRESULTATER } from '../regler/typer.ts';
 import { gjelderVarslingspliktenForVederlag } from '../regler/vederlag.ts';
 import { svaretBlirEndringsordre } from '../frosset/frysing.ts';
 import type { Journalrad, Krav } from '../typer.ts';
@@ -41,6 +29,7 @@ import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 import { Kjoering } from './kjoerer.ts';
 import { NESTE_REGLER } from './klient.ts';
+import { innholdIForholdet, oppgittDato } from '../spor/forhold/format.ts';
 
 const PAR = HOVEDKATEGORIER.flatMap((h) => KATEGORIER[h].map((u) => [h, u] as const));
 
@@ -140,17 +129,26 @@ describe('kategorien i påberopelsen er et par fra den lukkede listen (#335, HF-
   });
 });
 
-describe('metoden i vederlagskravet (#335, § 34.2.1)', () => {
-  const vederlagskrav = (metode: string) => ({
+describe('oppgjørsformen i kravposten (OV-U95 punkt 19, § 34.2.1, § 34.3, § 34.4)', () => {
+  const vederlagskrav = (oppgjoersform: string) => ({
     type: 'krav',
     spor: 'vederlag',
-    innhold: { metode, beloep: 1000 },
+    innhold: { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform }] },
   });
 
-  it('godtar tilbud', () => expect(formfeil(vederlagskrav('tilbud'))).toEqual([]));
+  it.each(['enhetspriser', 'regningsarbeid'])('godtar %s uten beløp', (oppgjoersform) =>
+    expect(formfeil(vederlagskrav(oppgjoersform))).toEqual([])
+  );
 
-  it.each(['FASTPRIS_TILBUD', 'regningsarbeid'])('avviser %s', (metode) => {
-    expect(formfeil(vederlagskrav(metode))).not.toEqual([]);
+  it('godtar tilbud med beløp, og avviser tilbud uten beløp (KA-U66)', () => {
+    const tilbud = vederlagskrav('tilbud');
+    expect(formfeil(tilbud)).not.toEqual([]);
+    tilbud.innhold.kravposter[0] = { ...tilbud.innhold.kravposter[0]!, beloep: 1000 } as never;
+    expect(formfeil(tilbud)).toEqual([]);
+  });
+
+  it.each(['FASTPRIS_TILBUD', 'metode'])('avviser %s', (oppgjoersform) => {
+    expect(formfeil(vederlagskrav(oppgjoersform))).not.toEqual([]);
   });
 });
 
@@ -211,22 +209,25 @@ describe('reglene med kjernens koder', () => {
   });
 });
 
+describe('kategorien lest av kravet (#1796)', () => {
+  // Fastholder at tilgangen er vakten for typen (#1796), ikke en domeneforventning. Et lagret krav
+  // har bare kodene i formatet; dette gjelder et krav som ikke er lest mot skjemaet.
+  it('gir underkategorien som tekst, og den første av en liste', () => {
+    expect(innholdIForholdet({ innhold: { underkategori: 'samordning' } }).underkategori).toBe(
+      'samordning'
+    );
+    expect(innholdIForholdet({ innhold: { underkategori: ['samordning'] } }).underkategori).toBe(
+      'samordning'
+    );
+  });
+
+  it('gir null for en underkategori som ikke er tekst', () => {
+    expect(innholdIForholdet({ innhold: { underkategori: 3 } }).underkategori).toBeNull();
+    expect(innholdIForholdet({ innhold: { underkategori: [3] } }).underkategori).toBeNull();
+  });
+});
+
 describe('oversettelsen fra katalogen', () => {
-  it.each([
-    ['forholdsresultatene', FORHOLDSRESULTAT_FRA_KATALOGEN, FORHOLDSRESULTATER],
-    ['vederlagsresultatene', RESULTAT_FRA_KATALOGEN, VEDERLAGSRESULTATER],
-    ['beløpsvurderingene', BELOEPSVURDERING_FRA_KATALOGEN, BELOEPSVURDERINGER],
-    ['utløserne', UTLOESER_FRA_KATALOGEN, SUBSIDIAERE_UTLOSERE],
-    ['metodene', METODE_FRA_KATALOGEN, ['enhetspriser', 'regningsarbeid', 'tilbud']],
-  ])('dekker %s i kjernen, én til én', (_navn, tabell, verdier) => {
-    expect(Object.values(tabell).sort()).toEqual([...verdier].sort());
-    expect(new Set(Object.values(tabell)).size).toBe(Object.keys(tabell).length);
-  });
-
-  it('dekker fristresultatene', () => {
-    for (const r of FRISTRESULTATER) expect(Object.values(RESULTAT_FRA_KATALOGEN)).toContain(r);
-  });
-
   it('går begge veier uten tap', () => {
     for (const tabell of [HOVEDKATEGORI_FRA_KATALOGEN, UNDERKATEGORI_FRA_KATALOGEN])
       for (const [gammel, ny] of Object.entries(tabell)) {

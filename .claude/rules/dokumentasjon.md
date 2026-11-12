@@ -15,7 +15,7 @@ forklaring. Ingen gjennomføringsrapport eller handoff kreves for hver PR.
 ## Ett hjem per opplysning
 
 Én kilde per opplysning. Genererte og kontrollerte visninger er lov, men en fri
-gjengivelse er aldri regelgrunnlag (`AGENTS.md`, «Hvor hva står»).
+gjengivelse er aldri regelgrunnlag (`CLAUDE.md`, «Hvor hva står»).
 
 - `docs/datamodell/` beskriver tabeller, hendelser, relasjoner og dataflyt, og
   `docs/domenetabell/` forventet atferd og bevis-saker. Rediger kilderegistrene,
@@ -27,11 +27,13 @@ gjengivelse er aldri regelgrunnlag (`AGENTS.md`, «Hvor hva står»).
 - Vedtatt forventet atferd og bevis-saker holdes atskilt fra beskrivelse av dagens
   kode. Oppdater den eksisterende domenetabellen når oppgaven har en; ikke lag
   en ordliste eller regelbeskrivelse ved siden av med samme innhold.
-- Hovedplanen er autoritativ for de åpne beslutningene, rekkefølgen og
-  funnstatusen. ADR-er og designnotater kan begrunne valg, men oppretter ikke et
+- Hovedplanen er autoritativ for de åpne beslutningene, føringene og
+  funnstatusen. Arbeidsrekkefølge, bestilling og overlevering står i samleissuet
+  for arbeidet, blant annet #1065 for første ekte sak. Planen viser dit uten å
+  gjenta oppgavelistene. ADR-er og designnotater kan begrunne valg, men oppretter ikke et
   konkurrerende beslutningsregister. En flytting av autoriteten må være
   uttrykkelig, med lenker og markering av hva som er erstattet.
-- **Vedtaksfila er autoritativ for vedtakene** (#1020, oppdragsgiver 20.10):
+- **Vedtaksfila er autoritativ for vedtakene** (#1020):
   et vedtak er det som står i
   [`docs/plans/vedtak.md`](../../docs/plans/vedtak.md) på `main`. Fila var
   avsnitt 3.1 i hovedplanen, og en henvisning til «3.1» gjelder den. Den lages av
@@ -41,8 +43,10 @@ gjengivelse er aldri regelgrunnlag (`AGENTS.md`, «Hvor hva står»).
   vedtaksfila. Rett i registeret og kjør `docs/verktoy/vedtaksregister.py`,
   ikke i vedtaksfila.
 - **Arkivet** ([`docs/plans/arkiv.md`](../../docs/plans/arkiv.md)) har de
-  avsluttede funnene og leveransemerknadene som er flyttet ordrett fra
-  hovedplanen (#1020). Det er autoritativt for statusen til funnene det har.
+  historiske funn, arbeidspakker og leveransemerknader fra hovedplanen.
+  Det er autoritativt for den daterte statusen til funnene det har. Arkivering
+  lukker ikke et krav som fortsatt gjelder: behold kravet eller en presis
+  henvisning til det i hovedplanen. Skill funn i slettet kode fra krav til dagens kode.
   Nye merknader føres i hovedplanen. Gjør merknadene planen tung å lese, flyttes
   de som bare fører det som er levert, til arkivet med dato, og ID-er og ankre
   bevares.
@@ -51,7 +55,7 @@ gjengivelse er aldri regelgrunnlag (`AGENTS.md`, «Hvor hva står»).
   Gjenbruk eksisterende dokumenter; ikke opprett en ny systemoversikt per oppgave.
 - PR-en bærer endringsbegrunnelse, alternativer, review og kjørte testresultater.
   Kopier ikke dette til indeks eller referansedokumenter; arbeidsstatus står i
-  issuene (`AGENTS.md`, «Hvor hva står»). Historiske bevis i en audit beholder
+  issuene (`CLAUDE.md`, «Hvor hva står»). Historiske bevis i en audit beholder
   sin dato og commit.
 
 ## Form og vedlikehold
@@ -76,13 +80,24 @@ gjengivelse er aldri regelgrunnlag (`AGENTS.md`, «Hvor hva står»).
 - `docs/README.md` er en veiviser til gjeldende referanser og historisk underlag.
   Nye indeksrader beskriver dokumentets formål, ikke testantall eller åpne funn.
   Rydd slike gjentakelser når raden berøres.
-- Behold eksisterende plassering og lenker. Daterte undersøkelser kan ligge flatt
-  i `docs/`; `plans/`, `adr/` og `datamodell/` har egne formål. Ingen bred flytting
-  av historikken bare for å få en ryddigere mappe.
+- Gjeldende referanser ligger i `docs/`, og `plans/`, `adr/` og `datamodell/` har
+  egne formål. Et dokument som bare er historisk underlag, ligger i
+  `docs/historikk/` med samme filnavn. Det flyttes dit når det ikke lenger er
+  gjeldende, og lenkene inn skrives om i samme PR. Innholdet og ankrene er
+  uendret, så det trengs ingen viderehenvisning på den gamle stien. Unntatt er
+  dokumenter hovedplanen gir en gjeldende rolle i avsnitt 1.2 (ikke dem den
+  kaller historiske), dokumenter en flettet migrasjon eller kjernen viser til, og
+  dokumenter som teksten i en importert vedtakspost lenker til. Disse stedene
+  kan ikke endres i en ren dokumentendring.
 - Lenk til fil og symbol heller enn skiftende linjenummer. Løs lenker fra
-  dokumentets mappe: fra `docs/` til kode er det `../backend/`, fra `docs/plans/`
-  er det `../../backend/`. Kjør `python3 docs/verktoy/lenkekontroll.py` med berørte
+  dokumentets mappe: fra `docs/` til kode er det `../server/`, fra `docs/plans/`
+  er det `../../server/`. Kjør `python3 docs/verktoy/lenkekontroll.py` med berørte
   Markdown-filer som argumenter; kontroller også nye kodehenvisninger selv.
+  Ved flytting eller forkorting kontrolleres også dokumentene som lenker inn,
+  og gamle ankre bevares med presise viderehenvisninger. Lenkekontrollen hopper
+  over HTTP(S), også GitHub-lenker til dette repoet. Kontroller derfor berørte
+  lenker fra issues og PR-er særskilt; en eksisterende fil eller et anker kan
+  dessuten føre til feil innhold selv om kontrollen er grønn.
 
 **En funn-ID i et avledet dokument er en påstand.** Slå ID-en opp i testens
 `reason` eller modulheader og i kildens funntabell før den brukes. En referanse

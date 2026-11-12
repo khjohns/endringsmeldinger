@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
-# Regelversjonsvakten. Tre kontroller, som hver kan feile:
+# Regelversjonsvakten. To kontroller, som hver kan feile:
 #
-# 1. B-13 (hovedplanen 3.1, 24.09) og #191: endres reglene i src/lib/domain/
-#    eller backend/regler/, må REGELVERSJON økes i begge speilene. En fil der
-#    bare kommentarene er endret, regnes ikke som endret (#1549).
-# 2. B-14 (merknaden 09.10) og #308: endres regelsettet i kjerne/regler/, må
+# 1. B-14 (merknaden 09.10) og #308: endres regelsettet i kjerne/regler/, må
 #    REGELVERSJON i kjerne/regler/regelsett.ts økes. Det samme gjelder
 #    kjerne/frosset/, som bestemmer hva beslutningsgrunnlaget fryser
-#    (MM-U11, #330, #309). Den krever også PROJEKSJONSVERSJON, som resten av
+#    (MM-U11, #330, #309), og frysingen og teksten i et spor i kjerne/spor/
+#    (#1783). Den krever også PROJEKSJONSVERSJON, som resten av
 #    kjernen. Finnes kjerne/ uten frosset/standpunkt.ts, feiler vakten, så
 #    kravet ikke forsvinner ved en omdøping. Endres resten av
 #    TS-koden i kjernen utenom testene, må PROJEKSJONSVERSJON i
@@ -17,7 +15,7 @@
 #    endret (#1549), regnes ikke som endret, men en
 #    flytting ut av det en versjon dekker, krever den versjonen (#309).
 #    Omfanget står i .github/scripts/flytting.py.
-# 3. B-10 og #316: et nytt format leses i én versjon før det skrives i den
+# 2. B-10 og #316: et nytt format leses i én versjon før det skrives i den
 #    neste. FORMAT i kjerne/format/format.ts kan derfor bare økes til LESERFORMAT slik
 #    det stod i BASE, LESERFORMAT senkes aldri, og LESERFORMAT er aldri lavere
 #    enn FORMAT. Kontrollen ser på diffen mot BASE, ikke på hva som er rullet
@@ -42,42 +40,9 @@ okt() {
   [ -n "$etter" ] && [ "$etter" -gt "${for:-0}" ]
 }
 
-# --- 1. Speilene i frontenden og Python ---
-ts=src/lib/domain/regelversjon.ts
-py=backend/regler/__init__.py
-fixtur=backend/tests/fixtures/skjemaenes_nyttelast.json
-# En fil der bare kommentarene er endret, regnes ikke som endret (#1549).
-# .github/scripts/kommentarer.py avgjør det.
 fra=$(git merge-base "$BASE" HEAD) || exit 2
-endret=$(set -o pipefail; git -c core.quotePath=false diff --name-status --no-renames "$fra" HEAD \
-  -- src/lib/domain backend/regler ":(exclude)src/lib/domain/__tests__" \
-  | python3 "$(dirname "$0")/kommentarer.py" "$fra") || exit 2
-if [ -z "$endret" ]; then
-  echo "Ingen endring i src/lib/domain/ eller backend/regler/ utenom testene og kommentarene."
-else
-  echo "Endret:"; echo "$endret"
-  les_ts() { sed -n 's/^export const REGELVERSJON = \([0-9][0-9]*\);$/\1/p'; }
-  les_py() { sed -n 's/^REGELVERSJON = \([0-9][0-9]*\)$/\1/p'; }
-  speilfeil=0
-  for par in "$ts les_ts" "$py les_py"; do
-    set -- $par
-    if ! okt "$1" "$2"; then
-      echo "::error file=$1::Reglene er endret. Øk REGELVERSJON i $ts og $py, og regenerer $fixtur."
-      speilfeil=1
-    fi
-  done
-  if [ "$speilfeil" -eq 0 ]; then
-    echo "::notice file=$fixtur::REGELVERSJON er økt. Regenerer $fixtur med npx vitest run -u src/lib/kontraktsbord/skjemanyttelast.test.ts."
-  fi
-  echo
-  echo "Når REGELVERSJON er økt, må fixturen $fixtur regenereres,"
-  echo "ellers feiler npm test. Backend-testene leser samme fixture:"
-  echo "  npx vitest run -u src/lib/kontraktsbord/skjemanyttelast.test.ts"
-  echo "  cd backend && /tmp/venv/bin/python -m pytest -q"
-  feil=$speilfeil
-fi
 
-# --- 2. Kjernen ---
+# --- 1. Kjernen ---
 regelsett=kjerne/regler/regelsett.ts
 versjon=kjerne/versjon.ts
 les_regelversjon() { sed -n 's/^export const REGELVERSJON = \([0-9][0-9]*\);$/\1/p'; }
@@ -102,7 +67,7 @@ if [ -n "$flyttet" ]; then
 fi
 regler=$(krav_til REGELVERSJON)
 if [ -z "$regler" ]; then
-  echo "Ingen endring i kjerne/regler/ eller kjerne/frosset/."
+  echo "Ingen endring i kjerne/regler/, kjerne/frosset/ eller frysingen og teksten i kjerne/spor/."
 else
   echo "Endret i regelsettet:"; echo "$regler"
   if ! okt "$regelsett" les_regelversjon; then
@@ -121,7 +86,7 @@ else
   fi
 fi
 
-# --- 3. Formatet i to trinn ---
+# --- 2. Formatet i to trinn ---
 format=kjerne/format/format.ts
 les_konstant() { sed -n "s/^export const $1 = \([0-9][0-9]*\);\$/\1/p"; }
 echo

@@ -2,9 +2,9 @@
 
 **Dato:** 2026-09-23. **Utgangspunkt:** commit `0125b1a` (`main`, etter PR #37
 og #38), gren `b02-designrevisjon`.
-**Forrige ledd:** [designet v1](design-b02-tilgangsmekanisme-2026-09-22.md) og
-[det uavhengige reviewet](review-b02-tilgangsmekanisme-2026-09-23.md) (RB2-01–08).
-Oppdragsgivers svar står i [oppdraget](prompt-b02-tilgangsmekanisme-2026-09-22.md#2-oppdragsgivers-svar).
+**Forrige ledd:** [designet v1](historikk/design-b02-tilgangsmekanisme-2026-09-22.md) og
+[det uavhengige reviewet](historikk/review-b02-tilgangsmekanisme-2026-09-23.md) (RB2-01–08).
+Oppdragsgivers svar står i [oppdraget](historikk/prompt-b02-tilgangsmekanisme-2026-09-22.md#2-oppdragsgivers-svar).
 **Status:** revidert designgrunnlag. B-02 og B-04 er åpne. Dokumentet avgjør
 ingenting. Det svarer på hvert navngitte endringskrav fra reviewet.
 
@@ -302,7 +302,7 @@ Loggene ligger i [`resultater-2026-09-23/`](vedlegg/b02-prototype-v2-2026-09-23/
 ## 7. RB2-07 — tidskontrakten
 
 > **Merknad 2026-09-23 til tidsgrensen for T2:**
-> [Kjernereviewet, RK-05](review-f0b-kjernen-2026-09-23.md#rk-05--to-tidsgrenser-er-ikke-én-transaksjonsfrist)
+> [Kjernereviewet, RK-05](historikk/review-f0b-kjernen-2026-09-23.md#rk-05--to-tidsgrenser-er-ikke-én-transaksjonsfrist)
 > har prøvd at kjernen bevarer begge innstillingene, og at de utløses. De gir
 > likevel ingen øvre grense for samlet transaksjonstid: mange korte setninger
 > kan holde transaksjonen og teamkonteksten levende. Raden nedenfor angir

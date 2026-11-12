@@ -32,7 +32,8 @@ export function handlingsnoekler(k: Kommando): Handlingsnoekkel[] {
     case 'varsel':
     case 'send_varsel': {
       const type = k.type === 'varsel' ? 'varsle' : 'sende_varsel';
-      if (k.hjemmel === '34.1.3') return [{ type, spor: k.spor, hjemmel: k.hjemmel }];
+      if (k.hjemmel === '34.1.3' || k.hjemmel === '34.3.3' || k.hjemmel === '34.4')
+        return [{ type, spor: k.spor, hjemmel: k.hjemmel }];
       // VS-U34: varselet etter § 32.2 registreres, og sendes ikke fra appen (GR-U31).
       if (k.hjemmel === '32.2') return [{ type: 'varsle', spor: k.spor, hjemmel: k.hjemmel }];
       return [{ type, spor: k.spor }];

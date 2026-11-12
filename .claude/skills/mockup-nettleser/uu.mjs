@@ -1,7 +1,6 @@
-// Kjører axe-core med WCAG 2.1 A og AA mot /mockup i lys modus, bred og smal
-// skjerm (#1187), med saken sett av TE og BH (#1213). Med --varden kjøres i stedet Varden i
-// demoruta (#1331), også i mørk modus (#1465). Med --sti <sti> (kan gjentas) kjøres stiene, som showcasen
-// /demo/komponenter (#1371), på samme måte som --varden.
+// Kjører axe-core med WCAG 2.1 A og AA mot Varden i demoruta (#1331), i lys og mørk modus
+// (#1465), bred og smal skjerm (#1187). Med --sti <sti> (kan gjentas) kjøres stiene i stedet, som
+// showcasen /demo/komponenter (#1371). --varden godtas og er standard.
 // axe finner bare en del av feilene; resten står i skillen uu-sjekk.
 import { createRequire } from 'node:module';
 import { execFileSync, spawn } from 'node:child_process';
@@ -14,7 +13,6 @@ try {
   ({ values: arg } = parseArgs({
     options: {
       url: { type: 'string', default: 'http://localhost:5173' },
-      scenario: { type: 'string', default: 'scenario1' },
       vis: { type: 'string', default: '5' },
       varden: { type: 'boolean', default: false },
       sti: { type: 'string', multiple: true },
@@ -34,7 +32,6 @@ const OPPSETT = [
   { navn: 'lys, bred', colorScheme: 'light', viewport: { width: 1440, height: 1000 } },
   { navn: 'lys, smal', colorScheme: 'light', viewport: { width: 390, height: 844 } },
 ];
-// Varden har mørk modus (#1465). /mockup har det også, men holder ikke kontrasten ennå (#1258).
 const MØRK = [
   { navn: 'mørk, bred', colorScheme: 'dark', viewport: { width: 1440, height: 1000 } },
   { navn: 'mørk, smal', colorScheme: 'dark', viewport: { width: 390, height: 844 } },
@@ -103,50 +100,10 @@ async function startVite(url) {
   throw new Error(`vite svarte ikke på ${url} innen 60 s`);
 }
 
-// Tilstandene som kjøres i hvert oppsett. Skjemaene nås bare på bred skjerm, der
-// venstrekolonnen med sporene står ved siden av saken. En tilstand med `scenario`
-// kjører i det scenarioet uansett --scenario.
-const somBH = (page) => page.getByRole('button', { name: 'Byggherre BH', exact: true }).click();
-const TILSTANDER = [
-  {
-    navn: 'saken som TE',
-    vei: (page) => page.getByRole('button', { name: 'Byggherre BH', exact: true }).waitFor(),
-  },
-  {
-    navn: 'saken som BH',
-    vei: async (page) => {
-      await somBH(page);
-      await page.getByRole('button', { name: 'Byggherre BH', exact: true, pressed: true }).waitFor();
-      await page.waitForLoadState('networkidle');
-    },
-  },
-  {
-    navn: 'BHs svarskjema for fristen',
-    bareBred: true,
-    vei: async (page) => {
-      await somBH(page);
-      await page.getByRole('button', { name: /^Fristforlengelse/ }).click();
-      await page.getByRole('button', { name: 'Svar på kravet', exact: true }).click();
-      await page.locator('#bh-frist-godkjent-dager').waitFor();
-    },
-  },
-  {
-    navn: 'BHs svarskjema for vederlaget',
-    scenario: 'scenario1prod',
-    bareBred: true,
-    vei: async (page) => {
-      await somBH(page);
-      await page.getByRole('button', { name: /^Vederlag/ }).click();
-      await page.getByRole('button', { name: 'Svar på kravet', exact: true }).click();
-      await page.getByRole('button', { name: 'Ferdigstill vurdering' }).waitFor();
-    },
-  },
-];
-
 // Varden i demoruta med BF-01: hver tilstand starter ved kontrollpunktet sitt. Demopanelet
 // legges sammen først, så det ikke står over det som prøves.
 const iVarden = (punkt, vei) => async (page) => {
-  await page.goto(`${arg.url}/demo/BF-01?punkt=${punkt}&visning=varden`, {
+  await page.goto(`${arg.url}/demo/BF-01?punkt=${punkt}`, {
     waitUntil: 'networkidle',
   });
   await page.getByRole('heading', { level: 1 }).waitFor();
@@ -158,10 +115,9 @@ const iVarden = (punkt, vei) => async (page) => {
   await vei?.(page);
 };
 const bhSvarer = async (page) => {
-  await page.getByText('Skriv brev', { exact: true }).click();
   await page.getByRole('button', { name: 'Svar på kravet', exact: true }).click();
   await page.getByRole('radio', { name: 'Varslet for sent' }).check();
-  await page.getByRole('radio', { name: 'Godkjenner metoden', exact: true }).check();
+  await page.getByRole('radio', { name: 'Godkjenner fast sum (punkt 34.2.1)', exact: true }).check();
   await page.getByRole('radio', { name: 'Deler av beløpet' }).check();
   await page.getByRole('textbox', { name: 'Beløpet du godkjenner' }).fill('60000');
 };
@@ -181,17 +137,10 @@ const VARDEN = [
     }),
   },
   {
-    navn: 'Varden: TE tar stilling til svaret',
-    vei: iVarden('te-har-mottatt-svaret', (page) =>
-      page.getByRole('button', { name: 'Ta stilling til svaret' }).click()
-    ),
-  },
-  {
     navn: 'Varden: akseptbrevet før sending',
-    vei: iVarden('te-har-mottatt-svaret', async (page) => {
-      await page.getByRole('button', { name: 'Ta stilling til svaret' }).click();
-      await page.getByRole('button', { name: 'Se akseptbrevet' }).click();
-    }),
+    vei: iVarden('te-har-mottatt-svaret', (page) =>
+      page.getByRole('button', { name: /^Godta svaret/ }).click()
+    ),
   },
 ];
 
@@ -207,17 +156,16 @@ const STIENE = (arg.sti ?? []).map((sti) => ({
 }));
 
 const axeSti = createRequire(import.meta.url).resolve('axe-core/axe.min.js');
-const mockup = (scenario) => `${arg.url}/mockup?scenario=${scenario}`;
 const { chromium, start } = globalPlaywright();
-const vite = await startVite(mockup(arg.scenario));
+const vite = await startVite(`${arg.url}/demo`);
 let browser;
 let brudd = 0;
 
 try {
   browser = await startNettleser(chromium, start);
-  for (const oppsett of arg.varden || arg.sti ? [...OPPSETT, ...MØRK] : OPPSETT) {
+  for (const oppsett of [...OPPSETT, ...MØRK]) {
     const smal = oppsett.viewport.width < 768;
-    for (const tilstand of arg.sti ? STIENE : arg.varden ? VARDEN : TILSTANDER) {
+    for (const tilstand of arg.sti ? STIENE : VARDEN) {
       if (tilstand.bareBred && smal) continue;
       const kontekst = await browser.newContext({
         colorScheme: oppsett.colorScheme,
@@ -227,8 +175,6 @@ try {
       page.setDefaultTimeout(15000);
       const feil = [];
       page.on('pageerror', (e) => feil.push(e.message));
-      if (!arg.varden && !arg.sti)
-        await page.goto(mockup(tilstand.scenario ?? arg.scenario), { waitUntil: 'networkidle' });
       await tilstand.vei(page);
       const mørk = await page.evaluate(() => document.documentElement.classList.contains('dark'));
       if (mørk !== (oppsett.colorScheme === 'dark'))

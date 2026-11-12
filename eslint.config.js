@@ -32,12 +32,6 @@ export default ts.config(
     },
   },
   {
-    files: ['src/lib/domain/**/*.ts'],
-    rules: {
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    },
-  },
-  {
     // Kjernen (B-14): norske navn etter «Språk» i AGENTS.md, og ae/oe/aa for æ/ø/å.
     // Egenskaper er data over grensen (snake_case) og navn utenfra, så de sjekkes
     // ikke for format, men heller ikke de kan ha æ, ø eller å.

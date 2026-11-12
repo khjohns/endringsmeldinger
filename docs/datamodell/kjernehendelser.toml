@@ -2,14 +2,12 @@
 #
 # Rett her, ikke i kjernehendelser.md. Den lages av
 #   /tmp/venv/bin/python docs/verktoy/datamodell.py
-# Formen er skjemaene i kjerne/format/format.ts. Vakttesten
+# Formen er skjemaene i kjerne/format/format.ts og kjerne/spor/<spor>/format.ts. Vakttesten
 # kjerne/tester/register.test.ts feiler når en type, et spor, en art eller et
-# felt står ett sted og ikke det andre. backend/tests/test_datamodell/ prøver
+# felt står ett sted og ikke det andre. verktoy/tester/test_datamodell/ prøver
 # formen på registeret og at markdown er generert.
 #
-# Pythons hendelsestyper (EventType) står i hendelser.toml. Etter B-17 skriver
-# Python ikke i KOE-, EO- og forseringssakene, og TS-kjernen leser ikke Pythons
-# rader. Designnotatet er docs/design-hendelsesformat-2026-10-09.md.
+# Designnotatet er docs/design-hendelsesformat-2026-10-09.md.
 #
 # `grunnlag` viser til vedtak i hovedplanen (3.1) eller avsnitt i designnotatet.
 
@@ -23,7 +21,7 @@ format = 1
 navn = "sak_opprettet"
 beskrivelse = """
 Saken er opprettet. Første rad i saken, i versjon 1, før grunnlagskravet.
-`POST /api/kjerne/saker` i `server/app.ts` kaller opprettelsen i kjernen
+`POST /api/kjerne/saker` i `server/saker.ts` kaller opprettelsen i kjernen
 (`opprettelse` i `kjerne/kommandoer/opprettelse.ts`), som godtar bare TE og gir
 `format` og `data`, og så `opprettSak` i `server/kommandoer.ts`, som skriver
 raden og også avviser en annen side enn TE (#370, #696)."""
@@ -80,9 +78,17 @@ grunnlag = "KA-U2, GR-U16, VS-U26, designnotatet 4.2. Navnet på forholdet er sa
 
 [[krav]]
 spor = "vederlag"
-beskrivelse = "En kravversjon av vederlaget, i kroner over 0. `metode` er `tilbud` (§ 34.2.1). `beloep` er justeringen ellers, og `saerskilt.produktivitet.beloep` er det særskilte kravet etter § 34.1.3 annet ledd. Minst ett av dem står."
-felt = ["id", "spor", "erstatter", "metode", "beloep", "saerskilt"]
-grunnlag = "KA-U2, KA-U8, OV-U23"
+beskrivelse = """
+En kravversjon av vederlaget, i kroner over 0. `kravposter` er justeringen ellers, én post per
+del av arbeidet, hver med `id`, betegnelsen P1, P2 … fra serveren, beskrivelse og
+oppgjørsform (`tilbud` etter punkt 34.2.1 med beløp, `enhetspriser` etter punkt 34.3 med
+eventuelt justerte enhetspriser og anslag, `regningsarbeid` etter punkt 34.4 med eventuelt
+kostnadsoverslag). `saerskilt` er postene utenfor: kravet etter punkt 34.1.3 annet ledd
+(`produktivitet`) og rigg og drift (`rigg_og_drift`). Minst én kravpost eller én post utenfor
+står. `trekker` er kravpostene fra forrige versjon TE trekker; hver kravpost i forrige versjon
+er med eller trekkes."""
+felt = ["id", "spor", "erstatter", "kravposter", "saerskilt", "trekker"]
+grunnlag = "KA-U2, KA-U8, KA-U53, KA-U56, KA-U66, OV-U89 punkt 6 og 17, OV-U95 punkt 19–22, KA-U70 og arbeidsvalget 07.11 i domenetabellen (#1663)"
 
 [[krav]]
 spor = "frist"
@@ -125,23 +131,35 @@ grunnlag = "B-13, MM-U9, HF-U1, GR-U1, GR-U4"
 art = "rettidighet"
 spor = ["forhold", "vederlag", "frist"]
 beskrivelse = """
-Om varselet kom i tide: § 32.2 i grunnlaget, § 34.1.2 eller § 34.1.3 i
-vederlaget, § 33.4 i fristen. `gjelder` er kravversjonen, eller TEs varsel etter
-§ 33.4, § 34.1.2 eller § 34.1.3. Når varselet etter § 34.1.3 kom for sent, er
-`beloep` det byggherren godtar for posten etter § 34.1.3 annet ledd etter
-begrensningen."""
-felt = ["id", "art", "gjelder", "hjemmel", "i_tide", "beloep"]
-grunnlag = "KA-U4, MM-U1, MM-U8, VS-U3, VS-U5, OV-U22"
+Om varselet kom i tide: § 32.2 i grunnlaget, § 34.1.2, § 34.1.3, § 34.3.3 eller
+§ 34.4 i vederlaget, § 33.4 i fristen. `gjelder` er kravversjonen, eller TEs varsel
+etter § 33.4, § 34.1.2 eller § 34.1.3. Etter § 34.3.3 og § 34.4 er `gjelder`
+kravposten. Når varselet etter § 34.1.3 kom for sent, er `begrenset_beloep` det
+byggherren godtar for posten etter § 34.1.3 annet ledd etter begrensningen."""
+felt = ["id", "art", "gjelder", "hjemmel", "i_tide", "begrenset_beloep"]
+grunnlag = "KA-U4, MM-U1, MM-U8, VS-U3, VS-U5, OV-U22, KA-U64, VS-U56"
 
 [[standpunkt]]
-art = "metode"
+art = "oppgjoersform"
 spor = ["vederlag"]
 beskrivelse = """
-§ 34.2.2: om byggherren aksepterer TEs tilbud. Uten aksept står metoden
-byggherren mener vederlaget skal justeres etter (`oensket_metode`). Appen
-avgjør ikke om § 34.3 eller § 34.4 gjelder."""
-felt = ["id", "art", "hjemmel", "aksepterer", "oensket_metode"]
-grunnlag = "VS-U3, KA-U4, arbeidsvalget i #479"
+Standpunktet til TEs oppgjørsform for kravposten `gjelder`, med TEs oppgjørsform
+som `hjemmel`: § 34.2.2 for tilbudet, § 34.3 eller § 34.4 for en beregningsregel.
+`aksepterer` er om byggherren aksepterer tilbudet eller godtar beregningsregelen.
+Uten aksept står oppgjørsformen byggherren mener (`oensket_oppgjoersform`), som kan
+mangle når byggherren krever et spesifisert tilbud (`krever_tilbud`) for en
+beregningsregel. Appen avgjør ikke om § 34.3 eller § 34.4 gjelder."""
+felt = ["id", "art", "gjelder", "hjemmel", "aksepterer", "oensket_oppgjoersform", "krever_tilbud"]
+grunnlag = "VS-U3, KA-U4, KA-U57, KA-U69, KA-U71, arbeidsvalget i #479, navnene 09.11 og 10.11 i #1663"
+
+[[standpunkt]]
+art = "justering"
+spor = ["vederlag"]
+beskrivelse = """
+§ 34.3.2: om byggherren godtar justeringen av enhetsprisene for kravposten
+`gjelder` med justerte enhetspriser. Godkjenner ingen priser, mengder eller beløp."""
+felt = ["id", "art", "gjelder", "hjemmel", "godtar"]
+grunnlag = "KA-U68, OV-U95 punkt 5, navnene 09.11 i #1663"
 
 [[standpunkt]]
 art = "spesifisering"
@@ -168,11 +186,13 @@ art = "beloep"
 spor = ["vederlag"]
 beskrivelse = """
 Beløpet byggherren godtar for én post uten begrensningen etter § 34.1.3, ett
-standpunkt for hver post. `saerskilt` er `produktivitet` for posten etter
-§ 34.1.3 annet ledd; uten feltet gjelder det justeringen ellers. Resultatet og
-totalene står i svarets utregning."""
-felt = ["id", "art", "beloep", "saerskilt"]
-grunnlag = "B-13, OV-U26, OV-U31, arbeidsvalget i #1047 (6362745637)"
+standpunkt for hver post. Posten er kravposten `gjelder` eller den særskilte
+`saerskilt` (`produktivitet` eller `rigg_og_drift`). Rigg og drift er ikke i
+kjernens svar ennå, og leseren forstår ikke et slikt standpunkt. `beloep` mangler
+når, og bare når, tilbudet for kravposten ikke er akseptert: svaret tar da ikke
+stilling til beløpet. Resultatet og totalene står i svarets utregning."""
+felt = ["id", "art", "beloep", "gjelder", "saerskilt"]
+grunnlag = "B-13, OV-U26, OV-U31, KA-U57, KA-U72, arbeidsvalget i #1047 (6362745637), navnene 09.11 i #1663"
 
 [[standpunkt]]
 art = "hindring"
@@ -193,9 +213,9 @@ grunnlag = "B-13, designnotatet 4.3"
 [[utsagn]]
 art = "varsel"
 avsender = "TE"
-beskrivelse = "Varsel etter § 33.4 i fristen, § 34.1.2 eller § 34.1.3 tredje ledd i vederlaget, eller § 32.2 i grunnlaget. Datoen det ble sendt, er en opplysning i samme dokument. I et brev fra appen uten den opplysningen er brevet varselet, og datoen er dokumentets tidspunkt fra serveren. Varselet etter § 32.2 er alltid registrert: fra appen er påberopelsen varselet."
+beskrivelse = "Varsel etter § 33.4 i fristen, § 34.1.2, § 34.1.3 tredje ledd, § 34.3.3 første ledd eller § 34.4 i vederlaget, eller § 32.2 i grunnlaget. Saken har høyst ett varsel per hjemmel, utenom § 34.3.3 og § 34.4, som gjelder kravpostene. Datoen det ble sendt, er en opplysning i samme dokument. I et brev fra appen uten den opplysningen er brevet varselet, og datoen er dokumentets tidspunkt fra serveren. Varselet etter § 32.2 er alltid registrert: fra appen er påberopelsen varselet."
 felt = ["id", "art", "hjemmel"]
-grunnlag = "MM-U1, SK-12, VS-U15, OV-U25, VS-U34, VS-U38"
+grunnlag = "MM-U1, SK-12, VS-U15, OV-U25, VS-U34, VS-U38, VS-U48, VS-U52"
 
 [[utsagn]]
 art = "trekk"
@@ -351,9 +371,9 @@ grunnlag = "LV-U14, LV-U1, OV-U4, KT-U5, arbeidsvalg 3, 4 og 10 i #790"
 [[del]]
 navn = "utregning"
 spor = "vederlag"
-beskrivelse = "Serverens utregning: resultatet (`godkjent`, `delvis_godkjent`, `avslaatt` eller `tilbakeholdelse`) og det godkjente beløpet, og det subsidiære standpunktet ved preklusjon etter § 34.1.2."
-felt = ["resultat", "godkjent_beloep", "subsidiaert_resultat", "subsidiaert_godkjent_beloep"]
-grunnlag = "B-13, VS-U3"
+beskrivelse = "Serverens utregning: resultatet (`godkjent`, `delvis_godkjent` eller `avslaatt`) og det godkjente beløpet prinsipalt, det subsidiære standpunktet når svaret har mer enn ett lag, og `poster`: én rad per post med `gjelder` eller `saerskilt` og beløpet i hvert lag (`lag` og `beloep`). `beloep` mangler når posten ikke har et fast beløp i laget. Totalene er summen av det første og det siste laget."
+felt = ["resultat", "godkjent_beloep", "subsidiaert_resultat", "subsidiaert_godkjent_beloep", "poster"]
+grunnlag = "B-13, VS-U3, OV-U31, KA-U57 (e), KA-U58, KA-U60"
 
 [[del]]
 navn = "utregning"

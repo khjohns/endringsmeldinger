@@ -4,7 +4,9 @@
  * er kjernens utregning (B-13). Dagmulktssatsen leses, og kjeden avledes av hierarkiet
  * (GFK-U8), i `server/godkjenning.ts`.
  */
-import { krevdSamlet, regnUtSvar } from '../kjerne/frosset/standpunkt.ts';
+import { regnUtSvar } from '../kjerne/frosset/utregning.ts';
+import { innholdIFristen } from '../kjerne/format/kravinnhold.ts';
+import { krevdSamlet } from '../kjerne/spor/vederlag/format.ts';
 import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import type { Regelsett } from '../kjerne/regler/regelsett.ts';
@@ -38,7 +40,7 @@ const oere = (kr: number) => tilTall(beloep(kr)!);
  *
  * Svarene må være kontrollert av kjernen først. Kaster det kjernens utregning
  * kaster (`regnUtSvar`): `UgyldigVurdering` og `UgyldigBeloep`, og `Error` for et krevd
- * beløp som ikke kan leses (`krevdBeloep`).
+ * beløp som ikke kan leses.
  */
 export function brevverdi(
   svar: readonly Svarutkast[],
@@ -89,7 +91,11 @@ export function brevverdi(
       if (besvart.has(spor)) continue;
       // OV-U23: vederlagskravet er justeringen ellers og posten etter § 34.1.3 annet ledd.
       const v = kravverdi(u.spor[spor], (k) =>
-        sporverdi(spor, spor === 'vederlag' ? tilTall(krevdSamlet(k)) : null, k.innhold.dager)
+        sporverdi(
+          spor,
+          spor === 'vederlag' ? tilTall(krevdSamlet(k)) : null,
+          spor === 'frist' ? innholdIFristen(k).dager : null
+        )
       );
       if (v === null) ukjent = true;
       else {

@@ -10,7 +10,7 @@ modulene eller cachen i dem.
 Lasteren selv er felles for prosessen, fordi omfanget må være det. Den kan
 ikke laste seg selv, og den finnes bare under navnet `verktoy.laster`, så et
 annet toppnivånavn ikke kolliderer med den (#958). Lastes en modul av denne
-lasteren eller av testene (`backend/tests/verktoy.py`), står `verktoy.laster`
+lasteren eller av testene (`verktoy/tester/verktoymoduler.py`), står `verktoy.laster`
 allerede i `sys.modules`. Kjøres modulen som skript, også med `python -P` eller `-I`,
 legger den `docs/` til i `sys.path` og importerer `verktoy.laster` derfra.
 """

@@ -19,7 +19,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 (opphevet av MM-U52) punkt 10 og 11, MM-U51, LV-U54, #1308). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 (opphevet av MM-U52) punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F475 en ny versjon av påberopelsen og endringsordren som står (LV-U56, MM-U52 punkt 14, #1615), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
@@ -36,7 +36,9 @@
  * `FEILINNFOERING_ARBEIDSKOPIER` overstyrer antallet, som ellers er antallet
  * prosessorer. `FEILINNFOERING_DEL=i/n` kjører bare del i av n: hver n-te
  * mutasjon fra og med nummer i, med sin egen kontrollkjøring over hele
- * samlingen. Workflowen fordeler delene på flere jobber, og en ny mutasjon havner
+ * samlingen. Med et utvalg fordeles mutasjonene med lagringstester for seg, så delene
+ * tar om lag like lang tid, og kontrollkjøringen over hele samlingen går i én kopi.
+ * Workflowen fordeler delene på flere jobber, og en ny mutasjon havner
  * i en av dem uten videre. Fra-strengene kontrolleres for alle delene.
  *
  * Kjøres fra repoets rot, med SQL Server oppe og `KOE_SQLSERVER_TILKOBLING` satt:
@@ -115,7 +117,8 @@ const MUTASJONER: Mutasjon[] = [
         '    (s as { gjelder: string }).gjelder = spor[s.spor].krav.filter((k) => bakover(s.id, k.id)).at(-1)?.id ?? s.gjelder;\n    if (alleKrav.get(s.gjelder)?.spor !== s.spor || !bakover(s.id, s.gjelder))',
       ],
     ],
-    mal: ['F-MM-E1', 'F-MM-E3'],
+    // F-MM-E3 er ikke mål: et svar flyttet til et annet krav stopper også på postene (OV-U23).
+    mal: ['F-MM-E1'],
   },
   {
     id: 'F3',
@@ -135,8 +138,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "  standpunktet,\n} from '../frosset/standpunkt.ts';",
-        "  standpunktet,\n  virkninger as regn,\n} from '../frosset/standpunkt.ts';",
+        "  sammenfallStemmer,\n} from '../frosset/standpunkt.ts';",
+        "  sammenfallStemmer,\n  virkninger as regn,\n} from '../frosset/standpunkt.ts';",
       ],
       [
         '  const svar = svarberegninger(alleSvar, spor);',
@@ -172,8 +175,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "if (p.art !== 'rettidighet' || !erVarselhjemmel(p.hjemmel)) return false;",
-        "if (p.art !== 'rettidighet' || p.hjemmel !== '34.1.2') return false;",
+        '      !erVarselhjemmel(p.hjemmel) ||\n      erKravpostvarselhjemmel(p.hjemmel)\n    )\n      return false;',
+        "      p.hjemmel !== '34.1.2' ||\n      erKravpostvarselhjemmel(p.hjemmel)\n    )\n      return false;",
       ],
     ],
     mal: ['F-MM-D', 'F-MM-D-godtatt', 'visningen sier at svaret gjaldt et annet varsel'],
@@ -192,11 +195,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F8',
     feilklasse: 'et godkjent forhold er ikke enighet ved sammenfall (GR-U10, #312)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/forhold/frysing.ts`,
     endringer: [
       [
-        "if (svar.spor === 'forhold') return standpunktet(svar, 'forhold')?.resultat === 'godkjent';",
-        "if (svar.spor === 'forhold') return false;",
+        "godkjennerHeleKravet: (svar) => standpunktet(svar, 'forhold')?.resultat === 'godkjent',",
+        'godkjennerHeleKravet: () => false,',
       ],
     ],
     mal: ['F-MM-G10', 'F-MM-A5b'],
@@ -265,7 +268,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F13',
     feilklasse:
       'saken kan inngå i en endringsordre etter at TE har godtatt avslaget på forholdet (GR-U27, MM-U34 punkt 20)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [['!== null && !u.forholdAvvist && !u.spor', '!== null && !u.spor']],
     mal: ['ikke når TE har godtatt avslaget på forholdet (GR-U27, MM-U34 punkt 20)'],
   },
@@ -279,8 +282,8 @@ const MUTASJONER: Mutasjon[] = [
         "  kontroller(verdi, { ...skjemaer[n], required: ((skjemaer[n].required ?? []) as string[]).filter((f) => f !== 'beslutningsgrunnlag') }, sti);",
       ],
       [
-        '      e.beslutningsgrunnlag,',
-        "      e.beslutningsgrunnlag ?? { regelversjon: 0, virkninger: standpunkter.map((s) => ({ standpunkt: s.id, lag: 1 })), linje: '-', sammenfall: false, ...(spor === 'forhold' ? { varslingsplikt: false } : {}) },",
+        '    e.beslutningsgrunnlag,',
+        "    e.beslutningsgrunnlag ?? { regelversjon: 0, virkninger: standpunkter.map((s) => ({ standpunkt: s.id, lag: 1 })), linje: '-', sammenfall: false, ...(spor === 'forhold' ? { varslingsplikt: false } : {}) },",
       ],
     ],
     mal: ['et svar uten beslutningsgrunnlag'],
@@ -291,8 +294,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        '            : `Byggherren har ikke svart på ${KRAVET[h.spor]}.`\n        );\n',
-        "            : `Byggherren har ikke svart på ${KRAVET[h.spor]}.`\n        );\n      if (s.gjeldendeSvar.utregning.resultat === 'avslaatt') return null;\n",
+        '            : `Byggherren har ikke svart på ${kravet(h.spor)}.`\n        );\n',
+        "            : `Byggherren har ikke svart på ${kravet(h.spor)}.`\n        );\n      if (s.gjeldendeSvar.utregning.resultat === 'avslaatt') return null;\n",
       ],
     ],
     mal: ['reglene leser bare det LESBART tillater (#308, #329) kommandoer/forutsetninger.ts'],
@@ -311,7 +314,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F17',
     feilklasse:
       'saken kan inngå i en endringsordre etter at TE har trukket forholdet (GR-U27, MM-U34 punkt 20)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [[' && !u.spor.forhold.trukket;', ';']],
     mal: ['ikke når TE har trukket forholdet (GR-U27, MM-U34 punkt 20)'],
   },
@@ -357,8 +360,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
-        'return beslutningsgrunnlag(innhold, paaberopelse, regler, forskyvning);',
-        'return beslutningsgrunnlag(innhold, undefined, regler, forskyvning);',
+        'return beslutningsgrunnlag(innhold, paaberopelse, regler, forskyvning, kravet);',
+        'return beslutningsgrunnlag(innhold, undefined, regler, forskyvning, kravet);',
       ],
     ],
     mal: ['registrert korrespondanse fryses med kategorien', 'F-MM-C', 'F-MM-G18'],
@@ -367,11 +370,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F23',
     feilklasse:
       'TE trekker forholdet når partene er enige ved sammenfall med varslingsplikt (KA-U13)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
-        "if (h.spor === 'forhold' && trekkAvPaaberopelsenErSperret(u))",
-        "if (h.spor === 'forhold' && trekkAvPaaberopelsenErSperret(u) && u.frafalt)",
+        'if (trekkAvPaaberopelsenErSperret(u))',
+        'if (trekkAvPaaberopelsenErSperret(u) && u.frafalt)',
       ],
     ],
     mal: ['F-MM-G10'],
@@ -379,7 +382,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F24',
     feilklasse: 'forbudet mot trekk gjelder også kategorier § 32.2 ikke gjelder for (KA-U13)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       ['blirEndringsordre(svaret.beslutningsgrunnlag)', '(svaret.beslutningsgrunnlag.sammenfall)'],
     ],
@@ -392,15 +395,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         '    ...forholdet(spor, elementer, svar, dokumenter),',
-        '    ...forholdet(spor, elementer, svar, dokumenter, regler),',
-      ],
-      [
-        '  dokumenter: Map<string, Dokument>\n): Pick<Utledning',
-        '  dokumenter: Map<string, Dokument>,\n  regler: Regelsett\n): Pick<Utledning',
-      ],
-      [
-        'blirEndringsordre(svaret.beslutningsgrunnlag)',
-        '(svaret.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.forhold.gjeldendeKrav?.innhold.hovedkategori), String(spor.forhold.gjeldendeKrav?.innhold.underkategori)))',
+        "    ...forholdet(spor, elementer, svar, dokumenter),\n    endringsordre: spor.forhold.svar.some((svaret) => svaret.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.forhold.gjeldendeKrav?.innhold.hovedkategori), String(spor.forhold.gjeldendeKrav?.innhold.underkategori)) && !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)) ? 'ja' : 'nei',",
       ],
     ],
     mal: ['F-MM-G15'],
@@ -408,7 +403,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F26',
     feilklasse: 'trekk av forholdet sperres av ethvert svar, også avslag og frafall (KA-U13)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
         'blirEndringsordre(svaret.beslutningsgrunnlag)',
@@ -421,7 +416,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F26b',
     feilklasse:
       'en ny påberopelsesversjon tar bort sperren mot trekk etter en godkjenning som er en endringsordre (EO-U12)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       ['endringsordre: spor.forhold.svar.some(', 'endringsordre: (gSvar ? [gSvar] : []).some('],
     ],
@@ -444,7 +439,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F28',
     feilklasse:
       'om godkjenningen er en endringsordre, leses av et utsagn om varslingen i brevet (GR-U12)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
         'blirEndringsordre(svaret.beslutningsgrunnlag)',
@@ -464,7 +459,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F30',
     feilklasse: 'skriveren utelater `gjelder` i et standpunkt om rettidighet (7.2)',
     fil: `${K}/kommandoer/standpunkter.ts`,
-    endringer: [["        gjelder: varseletForNyttSvar(u, '33.4'),\n", '']],
+    endringer: [["      gjelder: varseletForNyttSvar(u, '33.4'),\n", '']],
     mal: ['F-MM-D', 'F-MM-A'],
   },
   {
@@ -512,7 +507,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F37',
     feilklasse: 'leseren godtar et ukjent felt i `data` (4.4, MM-U2)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/format/skjema.ts`,
     endringer: [['  additionalProperties: false,', '  additionalProperties: true,']],
     mal: ['et ukjent felt i et svar', 'en aksept med et ukjent felt'],
   },
@@ -551,7 +546,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F43',
     feilklasse:
       'opplysningen om at § 31.3 ikke er oppfylt, gir unntaket i OV-U6 likevel (OV-U6, GR-U13)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
         "o.hva === 'endringsordre' && o.brev === s.dokument && o.oppfylt",
@@ -659,8 +654,8 @@ const MUTASJONER: Mutasjon[] = [
         "import { avvisning } from './avvisning.ts';\nimport { GJELDENDE_REGLER } from '../regler/regelsett.ts';",
       ],
       [
-        's.paaberopelse)),\n    kjerne\n',
-        's.paaberopelse)),\n    { ...kjerne, regler: GJELDENDE_REGLER }\n',
+        'kravene.find((k) => k.id === s.gjelder),\n    kjerne\n',
+        'kravene.find((k) => k.id === s.gjelder),\n    { ...kjerne, regler: GJELDENDE_REGLER }\n',
       ],
     ],
     mal: ['F-MM-G45-regel'],
@@ -714,8 +709,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F59',
     feilklasse: 'kategorien er ikke et par fra den lukkede listen (#335, HF-U1)',
-    fil: `${K}/format/format.ts`,
-    endringer: [['    anyOf: KATEGORIPAR,\n', '']],
+    fil: `${K}/spor/forhold/format.ts`,
+    endringer: [['  anyOf: KATEGORIPAR,\n', '']],
     mal: [
       'avviser en underkategori under feil hovedkategori',
       'avviser endringsordrens dato eller nummer i en annen underkategori',
@@ -739,14 +734,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F61',
     feilklasse: 'en importert verdi leses i en annen funksjon enn den den er avgrenset til (#344)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
         '/**\n * KA-U13 og KA-U14',
-        'export const proeve = (s: Svar, v: Standpunktsvirkning[]) => forholdetErAvklart(s, v);\n\n/**\n * KA-U13 og KA-U14',
+        'export const proeve = (s: Svar, v: Parameters<typeof forholdetErAvklart>[1]) =>\n  forholdetErAvklart(s, v);\n\n/**\n * KA-U13 og KA-U14',
       ],
     ],
-    mal: ['reglene leser bare det LESBART tillater (#308, #329) utledning/utled.ts'],
+    mal: ['reglene leser bare det LESBART tillater (#308, #329) spor/forhold/utledning.ts'],
   },
   {
     id: 'F62',
@@ -891,7 +886,10 @@ const MUTASJONER: Mutasjon[] = [
         '      // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.\n',
         "      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', 'Kravene er avgjort.');\n",
       ],
-      ["} from '../utledning/utled.ts';", "  kraveneErAvgjort,\n} from '../utledning/utled.ts';"],
+      [
+        "import { fristkravErFremmet, kanFaaInnsigelse, type Utledning } from '../utledning/utled.ts';",
+        "import { fristkravErFremmet, kanFaaInnsigelse, kraveneErAvgjort, type Utledning } from '../utledning/utled.ts';",
+      ],
     ],
     mal: ['godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter'],
   },
@@ -1002,7 +1000,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F106',
     feilklasse: '«ingen krav» i vederlaget sier ikke at forseringsvederlaget er unntatt (KA-U25)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/vederlag/tekst.ts`,
     endringer: [[' Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.`', '`']],
     mal: ['«ingen krav» i vederlaget'],
   },
@@ -1013,8 +1011,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '    ...s.standpunkter.map((p) => {',
-        "    ...s.standpunkter.filter((p) => virkning.get(p.id) !== 'uten_virkning').map((p) => {",
+        '    ...s.standpunkter.filter(harTekst).map((p) => {',
+        "    ...s.standpunkter.filter(harTekst).filter((p) => virkning.get(p.id) !== 'uten_virkning').map((p) => {",
       ],
     ],
     mal: ['et standpunkt appen regner som uten virkning', 'gir byggherren innsigelsen opp'],
@@ -1086,7 +1084,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F115',
     feilklasse: 'et frafall krever ingen begrunnelse (KA-U32)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [["v.resultat === 'paalegg_frafalt'", 'false']],
     mal: ['frafall etter § 32.3 c'],
   },
@@ -1114,7 +1112,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F118',
     feilklasse: 'TEs varsel etter § 32.2 uten beskrivelse av pålegget godtas (GR-U15)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       ["k.spor === 'forhold' && gjelderVarslingsplikten(", 'false && gjelderVarslingsplikten('],
     ],
@@ -1151,7 +1149,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F122',
     feilklasse:
       'godkjenningen som er en endringsordre, sier ikke hva endringen går ut på (GR-U14, § 31.3)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/forhold/tekst.ts`,
     endringer: [
       [
         '  return `${innledning} ${kravet}: «${beskrivelse}».`;',
@@ -1163,7 +1161,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F124',
     feilklasse: 'godkjenningen av et krav fra appen uten beskrivelse sendes likevel (GR-U14)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/forhold/tekst.ts`,
     endringer: [['  if (!beskrivelse?.trim())\n', '  if (false)\n']],
     mal: ['et krav fra appen uten beskrivelse'],
   },
@@ -1185,7 +1183,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F127',
     feilklasse:
       'et krav i underkategorien endringsordre godtas uten endringsordrens dato eller nummer (GR-U16)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/spor/forhold/format.ts`,
     endringer: [["      required: ['endringsordre'],\n", '']],
     mal: ['uten endringsordrens dato eller nummer'],
   },
@@ -1193,10 +1191,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F128',
     feilklasse:
       'avslaget der § 32.2 gjelder, sier ikke at kravet på endringsordre avslås (§ 32.3 b)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      ['        return s.beslutningsgrunnlag.varslingsplikt\n', '        return false\n'],
-    ],
+    fil: `${K}/spor/forhold/tekst.ts`,
+    endringer: [['      return s.beslutningsgrunnlag.varslingsplikt\n', '      return false\n']],
     mal: ['avslaget der § 32.2 gjelder'],
   },
   {
@@ -1438,6 +1434,21 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
+    id: 'F488',
+    feilklasse:
+      'den tilbudte handlingen får sporet fra nøkkelen, ikke fra elementet den gjelder (#1703)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [["  for (const o of u.datoopplysninger) sporet.set(o.id, 'forhold');\n", '']],
+    mal: ['hver handling unntatt registreringen av et brev hører til et spor'],
+  },
+  {
+    id: 'F489',
+    feilklasse: 'varselet i sporet får ikke hjemmelen i den tilbudte handlingen (OV-U5, #1703)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [['        ? VARSEL_I_SPORET[h.spor]\n', '        ? null\n']],
+    mal: ['et varsel får hjemmelen og sporet etter OV-U5'],
+  },
+  {
     id: 'F170',
     feilklasse:
       'en lest senere begrunnelse kan endre utfallet (KA-U34 (opphevet av KA-U46), OV-U7)',
@@ -1462,7 +1473,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F178',
     feilklasse: 'byggherrens vurdering etter § 34.1.2 lagres ikke som standpunkt (#341, KA-U4)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         "if (typeof v.hovedkrav_varslet_i_tide === 'boolean')",
@@ -1474,7 +1485,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F179',
     feilklasse: 'påberopelsen etter § 34.1.2 får ingen virkning for svikt (VS-U3)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [["if (hjemmel === '34.1.2')", "if (hjemmel === ('' as Hjemmel))"]],
     mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
   },
@@ -1482,27 +1493,30 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F180',
     feilklasse:
       'aksept av et svar med preklusjon etter § 34.1.2 gir det subsidiære beløpet (VS-U3)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [
-      ['beloep: prekludert ? 0 : prinsipaltBeloep(svar, v)', 'beloep: prinsipaltBeloep(svar, v)'],
+      [
+        'prekludert ? { beloep: 0 } : prinsipaltIVederlaget(svar, v)',
+        'prinsipaltIVederlaget(svar, v)',
+      ],
     ],
-    mal: ['F-MM-V-34-1-2-nei'],
+    mal: ['en aksept av svaret med § 34.1.2 og § 34.1.3 påberopt gir 0'],
   },
   {
     id: 'F181',
     feilklasse: 'vurderingen etter § 34.1.2 godtas for en endring, der bestemmelsen ikke gjelder',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/regler/vederlag.ts`,
     endringer: [['v.hovedkrav_varslet_i_tide != null &&', 'false &&']],
     mal: ['F-MM-V-34-1-2-endring'],
   },
   {
     id: 'F182',
     feilklasse: 'beløpsstandpunktet leses som det prinsipale beløpet, ikke det vurderte (B-13)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
-        '(utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep)',
-        '(utregning.godkjent_beloep)',
+        'const total = utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep;',
+        'const total = utregning.godkjent_beloep;',
       ],
     ],
     mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
@@ -1510,11 +1524,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F183',
     feilklasse: 'det subsidiære beløpet ved preklusjon etter § 34.1.2 lagres ikke (VS-U3, B-13)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [
       [
-        'if (r.subsidiaer_resultat !== null) {\n      ut.subsidiaert_resultat = r.subsidiaer_resultat;\n      ut.subsidiaert_godkjent_beloep',
-        'if (false) {\n      ut.subsidiaert_resultat = r.subsidiaer_resultat;\n      ut.subsidiaert_godkjent_beloep',
+        'if (r.subsidiaer_resultat !== null) {\n    ut.subsidiaert_resultat = r.subsidiaer_resultat;\n    ut.subsidiaert_godkjent_beloep',
+        'if (false) {\n    ut.subsidiaert_resultat = r.subsidiaer_resultat;\n    ut.subsidiaert_godkjent_beloep',
       ],
     ],
     mal: ['F-MM-V-34-1-2-nei', '§ 34.1.2 «nei»: byggherren påberoper prinsipalt'],
@@ -1522,10 +1536,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F184',
     feilklasse: 'påberopelsen etter § 34.1.2 krever ingen begrunnelse (KA-U24)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        "if (v.hovedkrav_varslet_i_tide === false)\n      ut.push('gjør gjeldende at varselet etter § 34.1.2 kom for sent');",
+        "if (v.hovedkrav_varslet_i_tide === false)\n    ut.push('gjør gjeldende at varselet etter § 34.1.2 kom for sent');",
         'void 0;',
       ],
     ],
@@ -1535,7 +1549,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F185',
     feilklasse:
       'påberopelsen etter § 34.1.2 knyttes til kravversjonen svaret gjelder, ikke det første vederlagskravet (arbeidsvalget i #479)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [["gjelder: varseletForNyttSvar(u, '34.1.2'),", 'gjelder: krav.id,']],
     mal: ['F-MM-V-34-1-2-ny-kravversjon'],
   },
@@ -1546,7 +1560,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '  if (erVarselhjemmel(p.hjemmel)) {\n    const n',
+        '  if (erVarselhjemmel(p.hjemmel) && !erKravpostvarselhjemmel(p.hjemmel)) {\n    const n',
         "  if (p.hjemmel === '33.4') {\n    const n",
       ],
     ],
@@ -1555,11 +1569,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F187',
     feilklasse: 'godkjenningen av oppgjør som fast sum står uten lag (OV-U33, LV-U31)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [
       [
-        "if (s.art === 'beloep' && s.saerskilt) return foerste + Number(posten);",
-        "if (s.art === 'metode' && s.aksepterer) return 'uten_virkning';\n      if (s.art === 'beloep' && s.saerskilt) return foerste + Number(posten);",
+        "if (s.art === 'beloep' && s.saerskilt) return posten ? foerste + 1 : ellers;",
+        "if (s.art === 'oppgjoersform' && s.aksepterer) return 'uten_virkning';\n      if (s.art === 'beloep' && s.saerskilt) return posten ? foerste + 1 : ellers;",
       ],
     ],
     mal: ['F-MM-V-34-2-2-ja', 'justeringen ellers er upåvirket'],
@@ -1567,11 +1581,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F188',
     feilklasse: 'byggherren kan avslå tilbudet etter § 34.2.2 uten å oppgi metoden',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/regler/vederlag.ts`,
     endringer: [
       [
-        'if (v.aksepterer_metode === false && !METODER.includes(',
-        'if (false && !METODER.includes(',
+        '  else if (p.aksepterer === false && p.oensket_oppgjoersform == null && !kreverTilbud)',
+        '  else if (false && p.oensket_oppgjoersform == null && !kreverTilbud)',
       ],
     ],
     mal: ['F-MM-V-34-2-2-nei'],
@@ -1579,19 +1593,16 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F189',
     feilklasse: 'byggherrens vurdering etter § 34.2.2 lagres ikke som standpunkt (#341)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
-      [
-        "if (typeof v.aksepterer_metode === 'boolean')",
-        "if (typeof v.aksepterer_metode === 'string')",
-      ],
+      ["  if (typeof svar.aksepterer === 'boolean')", "  if (typeof svar.aksepterer === 'string')"],
     ],
     mal: ['F-MM-V-34-2-2-nei', 'F-MM-V-34-2-2-ja'],
   },
   {
     id: 'F190',
     feilklasse: 'spesifisering i tide får virkning etter § 33.6.1',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [
       ["const virkning = s.iTide ? 'uten_virkning' : iLaget();", 'const virkning = iLaget();'],
     ],
@@ -1601,7 +1612,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F191',
     feilklasse:
       'de vurderte dagene står prinsipalt ved siden av påberopelsen etter § 33.6.1 (VS-U4)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [['if (!s.iTide) lag++;', 'void 0;']],
     mal: ['F-MM-F-33-6-1-nei'],
   },
@@ -1622,14 +1633,14 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F193',
     feilklasse:
       'serverens utregning gir de vurderte dagene prinsipalt ved påberopelse etter § 33.6.1 (B-13, VS-U4)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/utregning.ts`,
     endringer: [['ut.godkjent_dager = maatteForstaa;', 'ut.godkjent_dager = r.godkjent_dager;']],
     mal: ['serverens utregning gir dagene byggherren måtte forstå at TE hadde krav på, prinsipalt'],
   },
   {
     id: 'F194',
     feilklasse: 'de prinsipale dagene etter § 33.6.1 kan være flere enn de vurderte',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/regler/svarkontroll.ts`,
     endringer: [['if (d > (v.dager as number))', 'if (false)']],
     mal: ['F-MM-F-33-6-1-flere-enn-vurdert'],
   },
@@ -1668,9 +1679,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F198',
     feilklasse: 'en lagret avslått metode uten byggherrens metode forstås',
-    fil: `${K}/format/leser.ts`,
-    endringer: [["if (e.aksepterer === 'oensket_metode' in e)", 'if (e.aksepterer === undefined)']],
-    mal: ['tilbudet er ikke akseptert, men metoden mangler'],
+    fil: `${K}/spor/vederlag/format.ts`,
+    endringer: [
+      [
+        "(e.aksepterer && 'oensket_oppgjoersform' in e) ||\n        (!e.aksepterer && !kreverTilbud && !('oensket_oppgjoersform' in e))",
+        'false',
+      ],
+    ],
+    mal: ['tilbudet er ikke akseptert, men oppgjørsformen mangler'],
   },
   {
     id: 'F199',
@@ -1683,10 +1699,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F200',
     feilklasse:
       'et tilbud byggherren ikke aksepterer, gir sammenfall når utregningen sier «godkjent» (arbeidsvalget i #479, MM-U43 punkt 8)',
-    fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [
-      ["if (standpunktet(svar, 'metode')?.aksepterer === false) return false;", 'void 0;'],
-    ],
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [['if (tilbudetIkkeAkseptert(svar)) return false;', 'void 0;']],
     mal: ['sammenfall med et tilbud byggherren ikke aksepterer'],
   },
   {
@@ -1700,15 +1714,15 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F202',
     feilklasse:
-      'brevet sier at byggherren godkjenner hele beløpet «av de krevde» når tilbudet ikke er akseptert',
-    fil: `${K}/frosset/brevtekst.ts`,
+      'brevet sier at byggherren godkjenner hele beløpet for en kravpost «av de krevde» når tilbudet for en annen kravpost ikke er akseptert (B-13)',
+    fil: `${K}/spor/vederlag/tekst.ts`,
     endringer: [
       [
         'const resultat = erBeloepetGodkjentFullt(krevd, godkjent)',
         "const resultat = p.resultat === 'godkjent'",
       ],
     ],
-    mal: ['§ 34.2.2 «nei» med hele beløpet godkjent: brevet'],
+    mal: ['med to kravposter står beløpet for den kravposten der tilbudet er akseptert'],
   },
   {
     id: 'F203',
@@ -1717,10 +1731,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       ['return godkjent >= krevd;', 'return (godkjent + 50n) / 100n >= (krevd + 50n) / 100n;'],
     ],
-    mal: [
-      '§ 34.2.2 «nei» med et beløp 40 øre under det krevde',
-      '§ 34.2.2 «nei» med hele beløpet godkjent krever en begrunnelse',
-    ],
+    mal: ['kontrollsak: «delvis» med 1 øre og med 1 øre under det krevde godtas'],
   },
   {
     id: 'F204',
@@ -1774,8 +1785,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/regler/vederlag.ts`,
     endringer: [
       [
-        '      regler.gjelderVarslingspliktenForVederlag(krav.hovedkategori) &&',
-        '      gjelderVarslingspliktenForVederlag(krav.hovedkategori) &&',
+        '      regler.gjelderVarslingspliktenForVederlag(svar.hovedkategori) &&\n      svar.varslet_i_tide === false',
+        '      gjelderVarslingspliktenForVederlag(svar.hovedkategori) &&\n      svar.varslet_i_tide === false',
       ],
     ],
     mal: ['et regelsett der § 34.1.2 gjelder en endring'],
@@ -1783,21 +1794,21 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F212',
     feilklasse:
-      'hele beløpet godkjent krever en begrunnelse for beløpet når tilbudet ikke er akseptert (B-13, #490)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+      'begrunnelsen kreves for beløpet når bare tilbudet ikke er akseptert (B-13, #490, KA-U72)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        'if (!erBeloepetGodkjentFullt(krevdSamlet(krav), godkjent))',
+        'if (!erBeloepetGodkjentFullt(krevd, godkjent))',
         "if ((server.subsidiaert_resultat ?? server.resultat) !== 'godkjent')",
       ],
     ],
-    mal: ['§ 34.2.2 «nei» med hele beløpet godkjent krever en begrunnelse'],
+    mal: ['§ 34.2.2 «nei» krever en begrunnelse for tilbudet, men ikke for beløpet'],
   },
   {
     id: 'F213',
     feilklasse:
       'linjen sier «subsidiært» også fra tredje ledd, ikke «videre subsidiært» (HF-U2, #492)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [["lag === 2 ? 'subsidiært' : 'videre subsidiært'", "'subsidiært'"]],
     mal: ['linjen ordner byggherrens standpunkter'],
   },
@@ -1861,11 +1872,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F225',
     feilklasse: 'en ny påberopelsesversjon med en annen hjemmel godtas (GR-U22, #569)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
-        "  if (k.spor !== 'forhold' || !forrige) return null;",
-        "  if (k.spor !== 'forhold' || !forrige || u) return null;",
+        "  if (k.spor !== 'forhold' || !u.spor.forhold.gjeldendeKrav) return null;",
+        "  if (k.spor !== 'forhold' || !u.spor.forhold.gjeldendeKrav || u) return null;",
       ],
     ],
     mal: ['irregulær endring til svikt', 'svikt til andre forhold', 'F-MM-G39'],
@@ -1874,10 +1885,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F226',
     feilklasse:
       'en ny påberopelsesversjon med en annen underkategori i samme hovedkategori godtas (GR-U22, #569)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [
-      ['    tekst(k.innhold.underkategori) === tekst(forrige.innhold.underkategori)', '    true'],
-    ],
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [['    tekst(k.innhold.underkategori) !== forrige.underkategori\n', '    false\n']],
     mal: [
       'grunnforhold til medvirkning, i samme hovedkategori',
       'irregulær endring til lovendring, der § 32.2 gjelder i begge',
@@ -1891,7 +1900,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F234',
     feilklasse:
       'en ny påberopelsesversjon etter frafallet gjør forholdet uavklart til byggherren svarer (GR-U23, OV-U3, #510)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [['  const venterEtterFrafall =', '  const venterEtterFrafall = false &&']],
     mal: ['forholdet er avklart ved frafallet', 'F-MM-G42'],
   },
@@ -1907,7 +1916,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F236',
     feilklasse:
       'en endringsordre byggherren har registrert, er en endringsordre i saken og sperrer TEs trekk av forholdet (OV-U6, #594)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       ['    !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)\n', '    true\n'],
     ],
@@ -1921,7 +1930,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         "        return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');\n",
-        "        return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');\n      if (forrige?.standpunkter.some((p) => p.art === 'metode' && p.aksepterer) && (k.svar.vurderinger as Record<string, unknown>).aksepterer_metode === false)\n        return avvis('SENKER_INNROEMMELSE', 'Aksepten av fast sum tas tilbake.');\n",
+        "        return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');\n      if (forrige?.standpunkter.some((p) => p.art === 'oppgjoersform' && p.aksepterer) && ((k.svar.vurderinger as { kravposter?: { aksepterer?: unknown }[] }).kravposter ?? []).some((p) => p.aksepterer === false))\n        return avvis('SENKER_INNROEMMELSE', 'Aksepten av fast sum tas tilbake.');\n",
       ],
     ],
     mal: ['en revisjon som tar tilbake aksepten av fast sum, godtas'],
@@ -1952,7 +1961,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F248',
     feilklasse: 'en påberopelse fra appen uten datoen godtas (VS-U26, #664)',
-    fil: `${K}/kommandoer/kommando.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       ['  if (dato === undefined)\n    return [`', '  if (dato === undefined)\n    return []; [`'],
     ],
@@ -1964,7 +1973,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F249',
     feilklasse: 'datoen godtas i en kategori den ikke hører til (VS-U26, #664)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/spor/forhold/format.ts`,
     endringer: [
       [
         "...ikkeI(['endringsordre', ...OPPGITTE_DATOER.filter((d) => d !== dato)]),",
@@ -2002,8 +2011,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F253',
     feilklasse: 'brevet sier ikke datoen pålegget ble mottatt (VS-U26, #664)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [["...dato('paalegg_mottatt'),", '']],
+    fil: `${K}/spor/forhold/tekst.ts`,
+    endringer: [
+      ["          ...dato('paalegg_mottatt'),\n        ]\n", '        ]\n'],
+      ["rettidigheten.\n          ...dato('paalegg_mottatt'),", 'rettidigheten.'],
+    ],
     mal: [
       'en endring der § 32.2 gjelder, med varselet',
       'en ny grunnlagsversjon kan ikke endre datoen',
@@ -2012,7 +2024,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F254',
     feilklasse: 'brevet sier ikke datoen TE ble klar over forholdet (VS-U26, #664)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/forhold/tekst.ts`,
     endringer: [["...dato('klar_over_forholdet'),", '']],
     mal: ['svikt viser til § 33.1 b og § 34.1.2', 'annet forhold etter § 33.1 c'],
   },
@@ -2057,7 +2069,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F265',
     feilklasse: 'påberopelsen etter § 32.2 leses av feltet for § 34.1.2 (HF-U4, #522)',
-    fil: `${K}/frosset/frysing.ts`,
+    fil: `${K}/spor/forhold/frysing.ts`,
     endringer: [
       [
         "if (typeof v.grunnlag_varslet_i_tide === 'boolean')",
@@ -2071,7 +2083,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F267',
     feilklasse:
       'opplysningen om § 31.3 godtas ved et registrert brev som ikke er byggherrens endringsordre (OV-U13, OV-U6, #669)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       ['    if (!brev.svar.some((s) => erRegistrertEndringsordre(s, brev)))', '    if (false)'],
     ],
@@ -2199,7 +2211,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F282',
     feilklasse: 'påberopelsen etter § 34.1.2 leses av feltet for § 32.2 (HF-U4, #522)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         "if (typeof v.hovedkrav_varslet_i_tide === 'boolean')",
@@ -2213,7 +2225,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F283',
     feilklasse:
       'et svar som utelater vurderingen etter § 34.1.2, påberoper at varselet kom for sent (HF-U4, KA-U4, #522)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         "if (typeof v.hovedkrav_varslet_i_tide === 'boolean')",
@@ -2295,7 +2307,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F295',
     feilklasse: 'endringsordrens dato eller nummer godtas i en annen underkategori (GR-U16, #698)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/spor/forhold/format.ts`,
     endringer: [
       [
         "        ...ikkeI(['endringsordre', ...OPPGITTE_DATOER.filter((d) => d !== dato)]),",
@@ -2337,8 +2349,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        "    return k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null;",
-        '    return null;',
+        "k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null,",
+        'null,',
       ],
     ],
     mal: ['en dato for varselet etter § 33.4 etter brevets dato avvises'],
@@ -2416,8 +2428,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F311',
     feilklasse:
       'endringsordren krever registrert enighet i vederlag eller frist, som før MM-U34 punkt 20',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
+      [
+        "import { innholdIForholdet, oppgittDato } from './format.ts';",
+        "import { KRAVSPOR } from '../../typer.ts';\nimport { innholdIForholdet, oppgittDato } from './format.ts';",
+      ],
       [
         'u.spor.forhold.gjeldendeKrav !== null && !u.forholdAvvist',
         'u.spor.forhold.gjeldendeKrav !== null && KRAVSPOR.some((n) => u.spor[n].enighet !== null) && !u.forholdAvvist',
@@ -2432,7 +2448,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F311b',
     feilklasse:
       'et frafall etter § 32.3 c hindrer at saken inngår i en endringsordre, som før GR-U28',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [['!u.spor.forhold.trukket;', '!u.spor.forhold.trukket && !u.frafalt;']],
     mal: [
       'også når byggherren har frafalt pålegget etter § 32.3 c (GR-U28)',
@@ -2506,7 +2522,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'svarIkkeGodtatt leser ikke at sporet er lukket (SK-01, OV-U3, #1050)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ["    !sporetErLukket(u) &&\n    !(spor === 'forhold'", "    !(spor === 'forhold'"],
+      [
+        '    !sporetErLukket(u) &&\n    kontrollerI(spor).svaretKanGodtas(u)',
+        '    kontrollerI(spor).svaretKanGodtas(u)',
+      ],
     ],
     mal: ['SK-01: når TE godtar avslaget av forholdet i forløp A'],
   },
@@ -2514,8 +2533,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F314',
     feilklasse:
       'et frafall står som et svar TE ikke har godtatt (GR-U9, arbeidsvalget 20.10 i #1050)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [["    !(spor === 'forhold' && u.frafalt)\n", '    true\n']],
+    fil: `${K}/spor/forhold/utledning.ts`,
+    endringer: [['  svaretKanGodtas: (u) => !u.frafalt,', '  svaretKanGodtas: () => true,']],
     mal: ['GR-U9: et frafall står ikke som et svar TE ikke har godtatt'],
   },
   {
@@ -2531,7 +2550,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'frafallet skjuler et svar TE ikke har godtatt i vederlag og frist (arbeidsvalget 20.10 i #1050)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [["    !(spor === 'forhold' && u.frafalt)\n", '    !u.frafalt\n']],
+    endringer: [['    kontrollerI(spor).svaretKanGodtas(u)\n', '    !u.frafalt\n']],
     mal: ['GR-U9: et frafall står ikke som et svar TE ikke har godtatt'],
   },
   {
@@ -2808,7 +2827,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F426',
     feilklasse: '«Varsel ikke registrert» står også etter fristkravet (#1126)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [["!s.varsler['33.4'] && s.krav.length === 0)", "!s.varsler['33.4'])"]],
+    endringer: [
+      [
+        "!u.spor.frist.varsler['33.4'] && u.spor.frist.krav.length === 0",
+        "!u.spor.frist.varsler['33.4']",
+      ],
+    ],
     mal: ['står ikke etter fristkravet'],
   },
   {
@@ -2835,7 +2859,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F327',
     feilklasse: 'beslutningslinjen viser bare den første preklusjonen i fristsvaret',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/linje.ts`,
     endringer: [
       [
         "rettidighet: `${sene.join(' og ')} kom for sent`",
@@ -2973,11 +2997,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F350',
     feilklasse: 'visningen sier at forholdet er «avklart» (MM-U23, #1136)',
-    fil: `${K}/utledning/visning.ts`,
+    fil: `${K}/spor/forhold/visning.ts`,
     endringer: [
       [
-        "    if (virkning && !s.trukket) ut.push('enige');",
-        "    if (u.forholdAvklart) ut.push('avklart');\n    if (virkning && !s.trukket) ut.push('enige');",
+        "    if (virkning && !u.spor.forhold.trukket) ut.push('enige');",
+        "    if (u.forholdAvklart) ut.push('avklart');\n    if (virkning && !u.spor.forhold.trukket) ut.push('enige');",
       ],
     ],
     mal: ['en virksom enighet og et avklart forhold gir verken'],
@@ -3063,12 +3087,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'sporet har ett registrert varsel, så det særskilte varselet sperrer varselet etter § 34.1.2 (SK-12)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [
-      [
-        "s.varsler['hjemmel' in h ? h.hjemmel : VARSEL_I_SPORET[h.spor]]",
-        'Object.keys(s.varsler).length',
-      ],
-    ],
+    endringer: [['if (s.varsler[hjemmel])', 'if (Object.keys(s.varsler).length)']],
     mal: ['saken har ett registrert varsel per hjemmel'],
   },
   {
@@ -3082,22 +3101,33 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F374',
-    feilklasse: 'vederlagskravet krever hovedbeløpet, også med posten etter § 34.1.3 (OV-U23)',
-    fil: `${K}/format/format.ts`,
-    endringer: [["    required: ['metode'],\n", "    required: ['metode', 'beloep'],\n"]],
+    feilklasse:
+      'vederlagskravet krever kravposter, også med posten etter § 34.1.3 (OV-U89 punkt 6)',
+    fil: `${K}/spor/vederlag/format.ts`,
+    endringer: [
+      [
+        "    anyOf: [{ required: ['kravposter'] }, { required: ['saerskilt'] }],\n",
+        "    anyOf: [{ required: ['kravposter'] }],\n",
+      ],
+    ],
     mal: ['vederlagskravet kan ha bare posten'],
   },
   {
     id: 'F375',
-    feilklasse: 'kravet uten hovedbeløp og uten posten godtas (OV-U23)',
-    fil: `${K}/format/format.ts`,
-    endringer: [["    anyOf: [{ required: ['beloep'] }, { required: ['saerskilt'] }],\n", '']],
+    feilklasse: 'kravet uten kravposter og uten postene utenfor godtas (OV-U89 punkt 6)',
+    fil: `${K}/spor/vederlag/format.ts`,
+    endringer: [
+      [
+        "    anyOf: [{ required: ['kravposter'] }, { required: ['saerskilt'] }],\n",
+        '    anyOf: [],\n',
+      ],
+    ],
     mal: ['vederlagskravet kan ha bare posten'],
   },
   {
     id: 'F376',
     feilklasse: 'en grunn etter den andre åpner ikke et nytt lag, så dagene står i lag 2 (OV-U32)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [['      if (!s.oppfylt) lag++;', '      if (!s.oppfylt) lag = 2;']],
     mal: ['§ 33.4 for sent, ingen hindring og dagene står i lag 1, 2 og 3'],
   },
@@ -3119,7 +3149,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F380',
     feilklasse: 'formatet tar lag 0 (OV-U32)',
     fil: `${K}/format/format.ts`,
-    endringer: [["lag: { type: 'integer', minimum: 1 }", "lag: { type: 'integer' }"]],
+    endringer: [
+      [
+        "standpunkt: ID, lag: { type: 'integer', minimum: 1 }",
+        "standpunkt: ID, lag: { type: 'integer' }",
+      ],
+    ],
     mal: ['formatet lagrer laget som et heltall fra 1'],
   },
   {
@@ -3138,11 +3173,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F382',
     feilklasse: 'linjen etiketterer uten forskyvningen fra forholdet (OV-U32, OV-U33, #1199)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/frysing.ts`,
     endringer: [
       [
-        'linje: beslutningslinje(svar, v, paaberopelse, forskyvning),',
-        'linje: beslutningslinje(svar, v, paaberopelse, 0),',
+        'linje: beslutningslinje(svar, v, paaberopelse, forskyvning, kravet),',
+        'linje: beslutningslinje(svar, v, paaberopelse, 0, kravet),',
       ],
     ],
     mal: [
@@ -3165,7 +3200,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F384',
     feilklasse: 'et frafall av pålegget flytter lagene som et avslag (GR-U7, OV-U33)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/forhold/frysing.ts`,
     endringer: [
       [
         "if (standpunktet(svar, 'forhold')?.resultat === 'avslaatt') ut.push('avslaatt');",
@@ -3205,12 +3240,21 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'leseren godtar upåvirket uten en påberopelse i sporet (OV-U33)',
     fil: `${K}/format/leser.ts`,
     endringer: [
-      [
-        "!virkninger.some((p) => PAABEROPELSER.has(p.art) && typeof p.virkning === 'number')",
-        'false',
-      ],
+      ["(spor === 'forhold' || !virkninger.some(paaberoper))", "(spor === 'forhold' || false)"],
     ],
     mal: ['upåvirket uten en påberopelse i sporet er ikke forstått'],
+  },
+  {
+    id: 'F501',
+    feilklasse:
+      'et standpunkt uten lag står under etiketten for et senere lag (spørsmål 8 i spørsmålsfila for #1663, OV-U32)',
+    fil: `${K}/frosset/tekst.ts`,
+    endringer: [
+      ['.map((l) => ({ l, k: plass(l) ?? foerste }))', '.map((l) => ({ l, k: plass(l) ?? 99 }))'],
+    ],
+    mal: [
+      'en kravpost som verken beregningsregelen byggherren ikke godtar eller innsigelsene for den rammer, er upåvirket',
+    ],
   },
   {
     id: 'F391',
@@ -3218,8 +3262,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "s?.art === 'hindring' || (s?.art === 'rettidighet' && s.hjemmel !== '34.1.3')",
-        "s?.art === 'hindring' || s?.art === 'rettidighet'",
+        "(s?.art === 'rettidighet' && (s.hjemmel === '34.1.2' || !s.hjemmel.startsWith('34')))",
+        "s?.art === 'rettidighet'",
       ],
     ],
     mal: ['en aksept av svaret gir prinsipalt beløp etter begrensningen, ikke 0'],
@@ -3227,15 +3271,20 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F392',
     feilklasse: 'justeringen ellers er upåvirket også når forholdet er avslått (OV-U33)',
-    fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['posten && !hele && forskyvning === 0', 'posten && !hele']],
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [['rammer && !hele && forskyvning === 0', 'rammer && !hele']],
     mal: ['med avslått forhold er justeringen ellers i sporets første lag og ikke upåvirket'],
   },
   {
     id: 'F393',
     feilklasse: 'preklusjonen etter § 34.1.2 rammer ikke posten etter § 34.1.3 annet ledd (OV-U27)',
     fil: `${K}/regler/vederlag.ts`,
-    endringer: [['p.hovedkrav ? NULL_OERE : (begrenset ?? godkjent)', '(begrenset ?? godkjent)']],
+    endringer: [
+      [
+        'beloep: i + 1 < foerste ? NULL_OERE',
+        'beloep: i + 1 < foerste && !erProduktivitet(post) ? NULL_OERE',
+      ],
+    ],
     mal: ['preklusjonen etter § 34.1.2 gjelder hele kravet, også posten'],
   },
   {
@@ -3243,14 +3292,14 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'beløpet etter begrensningen kan være høyere enn det byggherren godtar for posten (valg 2 i #1047)',
     fil: `${K}/regler/vederlag.ts`,
-    endringer: [['else if (b > godkjent)', 'else if (b > beloep(krav.produktivitet_beloep)!)']],
+    endringer: [['else if (b > godkjent)', 'else if (b > krevd)']],
     mal: ['beløpet etter begrensningen er høyere enn det byggherren godtar for posten'],
   },
   {
     id: 'F395',
     feilklasse:
       'en begrensning etter § 34.1.3 krever ingen begrunnelse når beløpene er like (KA-U24, valg d)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         'if (v.produktivitet_varslet_i_tide === false)',
@@ -3263,28 +3312,28 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F397',
     feilklasse:
       'leseren godtar poster som ikke summerer til det subsidiære beløpet (OV-U31, MM-U2)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [['if (samlet !== beloep(total))', 'if (samlet < 0n)']],
     mal: ['poster som ikke summerer til det subsidiære beløpet, er ikke forstått'],
   },
   {
     id: 'F398',
     feilklasse: 'svaret gjentar ikke byggherrens innsigelse mot det særskilte varselet (VS-U24)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [["(svar.spor === 'vederlag' && hjemmel === '34.1.3')", 'false']],
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [["ogsaaInnsigelserEtter: ['34.1.3'],", 'ogsaaInnsigelserEtter: [],']],
     mal: ['svaret gjentar byggherrens egen innsigelse mot det særskilte varselet'],
   },
   {
     id: 'F399',
     feilklasse: 'en begrensning etter § 34.1.3 i et lag gir sammenfall (VS-U5, #479)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [['if (begrensningen(svar, v)) return false;', '']],
     mal: ['en begrensning i et lag gir ikke sammenfall'],
   },
   {
     id: 'F400',
     feilklasse: 'linjen gjentar etiketten for hvert standpunkt i samme lag (OV-U32)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/linje.ts`,
     endringer: [
       [
         'if (!ordnet || lag === null || merket.has(lag)) return l.tekst;',
@@ -3299,7 +3348,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F401',
     feilklasse: 'linjen setter etikett når svaret har ett lag og ingen påberopelse (OV-U33)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/linje.ts`,
     endringer: [
       ['const ordnet = ledd.some((l) => (plass(l) ?? 0) > 1);', 'const ordnet = ledd.length > 1;'],
     ],
@@ -3309,7 +3358,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F402',
     feilklasse:
       'leseren godtar et beløp etter begrensningen over det byggherren godtar for posten (valg 2 i #1047, MM-U2)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [['beloep(begrenset.begrenset)! > beloep(post.godkjent)!', 'false']],
     mal: ['et beløp etter begrensningen over det byggherren godtar for posten, er ikke forstått'],
   },
@@ -3344,23 +3393,23 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F409',
     feilklasse: 'brevet betegner oppgjør som fast sum som aksept av tilbudet (LV-U31)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/vederlag/tekst.ts`,
     endringer: [
       [
-        "'byggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.'",
-        "'byggherren aksepterer beregningsmåten i TEs tilbud (NS 8407 § 34.2.2).'",
+        "? `byggherren godkjenner oppgjør som fast sum${post ? ` for ${post}` : ''} med beløpet og forbeholdene som fremgår av svaret.`",
+        "? 'byggherren aksepterer beregningsmåten i TEs tilbud (NS 8407 § 34.2.2).'",
       ],
     ],
     mal: ['LV-U31 med lavere beløp', 'LV-U32 med hele beløpet'],
   },
   {
     id: 'F410',
-    feilklasse: 'metoden får ikke etiketten for laget sitt (OV-U33)',
+    feilklasse: 'oppgjørsformen får ikke etiketten for laget sitt (OV-U33)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
         'plass: lag !== null ? lag + forskyvning : null,',
-        "plass: lag !== null && p.art !== 'metode' ? lag + forskyvning : null,",
+        "plass: lag !== null && p.art !== 'oppgjoersform' ? lag + forskyvning : null,",
       ],
     ],
     mal: [
@@ -3384,7 +3433,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F412',
     feilklasse:
       'en påberopelse etter § 34.1.3 uten virkning begrenser posten i postlisten (presiseringen 24.10 i #1047, VS-U5)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [
       [
         '  const begrenset = begrensningen(svar, v);\n  const poster = svar.standpunkter',
@@ -3396,7 +3445,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F413',
     feilklasse: 'postlisten mister lagene svaret på forholdet opptar foran sporet (OV-U32)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [
       [
         '    const lag = virkning === undefined ? null : laget(virkning);\n    return lag === null ? null : lag + forskyvning;',
@@ -3428,7 +3477,7 @@ const MUTASJONER: Mutasjon[] = [
       ["    if (vurd === 'godkjent' && g !== k)", "    if (vurd === 'godkjent' && false)"],
     ],
     mal: [
-      '«hovedkrav» vurdert «godkjent»',
+      '«kravposten» vurdert «godkjent»',
       '«produktivitet» vurdert «godkjent»',
       'meldingen sier posten, vurderingen og beløpene',
       '«godkjent» med et annet beløp og «avslått» med et beløp avvises',
@@ -3445,7 +3494,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: [
-      '«hovedkrav» vurdert «avslaatt»',
+      '«kravposten» vurdert «avslaatt»',
       '«produktivitet» vurdert «avslaatt»',
       '«godkjent» med et annet beløp og «avslått» med et beløp avvises',
     ],
@@ -3469,13 +3518,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F418',
     feilklasse: 'formkontrollen av vederlagskravet godtar brøkdeler av øre (OV-U58)',
-    fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [
-      [
-        "    if (k.spor === 'vederlag' && !feil.length) feil.push(...oerefeil(k.innhold as Innhold));\n",
-        '',
-      ],
-    ],
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['  if (!feil.length) feil.push(...oerefeil(innhold as Innhold));\n', '']],
     mal: ['et krevd beløp med brøkdeler av øre avvises'],
   },
   {
@@ -3484,7 +3528,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/regler/vederlag.ts`,
     endringer: [['(g === k || g === NULL_OERE)', '(false || g === NULL_OERE)']],
     mal: [
-      '«hovedkrav» vurdert «delvis» med 150000 kr avvises',
+      '«kravposten» vurdert «delvis» med 150000 kr avvises',
       '«produktivitet» vurdert «delvis» med 40000 kr avvises',
       '«delvis» med det krevde eller 0 kr avvises for hver post',
       'F-MM-KA-U42',
@@ -3496,7 +3540,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/regler/vederlag.ts`,
     endringer: [['(g === k || g === NULL_OERE)', '(g === k || false)']],
     mal: [
-      '«hovedkrav» vurdert «delvis» med 0 kr avvises',
+      '«kravposten» vurdert «delvis» med 0 kr avvises',
       '«produktivitet» vurdert «delvis» med 0 kr avvises',
       '«delvis» med det krevde eller 0 kr avvises for hver post',
       'F-MM-KA-U42',
@@ -3516,7 +3560,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F422',
     feilklasse:
       'innsigelsen etter § 34.1.3 står som forutsetning for hele vederlagssvaret i utkastet (OV-U22, OV-U33, #1400)',
-    fil: `${K}/kommandoer/lag.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         "if (s.art === 'beloep' && s.saerskilt && paaberopt('34.1.3'))",
@@ -3529,7 +3573,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F423',
     feilklasse:
       'lagene i utkastet flyttes ikke ned med lagene fra svaret på forholdet (OV-U32, OV-U33, #1400)',
-    fil: `${K}/kommandoer/lag.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [["typeof vi === 'number' ? vi + grunner.length : vi", 'vi']],
     mal: [
       'beløpet står subsidiært, bare med avslaget foran',
@@ -3541,7 +3585,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F424',
     feilklasse:
       'grunnene fra svaret på forholdet står ikke som forutsetninger i utkastet (S2-A i #1400)',
-    fil: `${K}/kommandoer/lag.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [['rammer.push(...grunner.map((grunn) => ({ grunn })));', '']],
     mal: [
       'beløpet står subsidiært, bare med avslaget foran',
@@ -3552,7 +3596,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F431',
     feilklasse:
       'varselet etter § 32.2 kan ikke registreres med samme dag som påberopelsen (VS-U38)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [['  if (dag > paaberopelsen)', '  if (dag >= paaberopelsen)']],
     mal: ['datoen kan ikke være senere enn påberopelsen'],
   },
@@ -3560,7 +3604,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F432',
     feilklasse:
       'varselet etter § 32.2 registreres der varslingsplikten ikke gjelder kategorien (VS-U39)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       ['if (!gjelderVarslingsplikten(u.spor.forhold.gjeldendeKrav, regler))', 'if (false)'],
     ],
@@ -3570,13 +3614,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F433',
     feilklasse:
       'byggherren tilbys innsigelse mot det registrerte varselet etter § 32.2, som ikke har brevtekst (S-4 i #807)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [
-      [
-        "if (kanFaaInnsigelse(maal, part) && u.spor.forhold.varsler['32.2']?.id === h.gjelder)",
-        'if (false)',
-      ],
-    ],
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [["u.spor.forhold.varsler['32.2']?.id === gjelder", 'false']],
     mal: ['byggherren tilbys ikke innsigelse mot det registrerte varselet'],
   },
   {
@@ -3590,14 +3629,14 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F435',
     feilklasse: 'et fristkrav godtar vedlegg utenfor varselet (VS-U38, OV-U5)',
     fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [["if (k.spor !== 'forhold' && 'dokumentasjon' in k)", 'if (false)']],
+    endringer: [["if (!form.vedleggVedKravet && 'dokumentasjon' in k)", 'if (false)']],
     mal: ['et vedlegg ved et fristkrav utenfor varselet avvises i formen'],
   },
   {
     id: 'F436',
     feilklasse:
       'et registrert svar etter frafallet tar bort at forholdet er avklart ved frafallet mens en ny versjon venter (GR-U20, GR-U23, OV-U4, #1388)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
         'spor.forhold.svar.filter((s) => sendtFraAppen({ elementer }, s)).at(-1);',
@@ -3650,14 +3689,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F442',
     feilklasse: 'henvisningen bruker brevnummeret, ikke merkingen frosset på brevet (LV-U53)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/frosset/brevdeler.ts`,
     endringer: [['`brev ${d.merking} av', '`brev ${d.brevnummer} av']],
     mal: ['et brev fra løsningen omtales med merkingen og datoen'],
   },
   {
     id: 'F443',
     feilklasse: 'registrert korrespondanse omtales med feil type (LV-U42)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/frosset/brevdeler.ts`,
     endringer: [["{ brev: 'brev', e_post: 'e-post' }", "{ brev: 'brev', e_post: 'brev' }"]],
     mal: ['registrert korrespondanse omtales med parten, typen og datoen'],
   },
@@ -3688,8 +3727,15 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F446',
     feilklasse: 'merkingen i henvisningen har to sifre i løpenummeret (LV-U53, LV-U48)',
     fil: `${K}/frosset/brevtittel.ts`,
-    endringer: [['utfylt(s.loepenummer, 3)', 'utfylt(s.loepenummer, 2)']],
-    mal: ['merkingen i henvisningen har sakens kode og tre sifre i løpenummeret'],
+    // Skrivingen og leseren endres sammen; ellers stopper selvkontrollen i skrivingen brevet (MM-U2).
+    endringer: [
+      ['utfylt(s.loepenummer, 3)', 'utfylt(s.loepenummer, 2)'],
+      ['(00[1-9]|0[1-9]\\\\d|[1-9]\\\\d{2,})', '(0[1-9]|[1-9]\\\\d+)'],
+    ],
+    mal: [
+      'merkingen i henvisningen har sakens kode og tre sifre i løpenummeret',
+      'brevmerkingen har tre sifre i løpenummeret og to i brevnummeret',
+    ],
   },
   {
     id: 'F447',
@@ -3717,11 +3763,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F449',
     feilklasse: 'påberopelsen etter § 32.2 gjelder versjonen svaret gjelder (VS-U43 punkt 6)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
         "forholdsstandpunkter(v, varseletForNyttSvar(u, '32.2'), nyId)",
-        'forholdsstandpunkter(v, krav.id, nyId)',
+        'forholdsstandpunkter(v, _krav.id, nyId)',
       ],
     ],
     mal: ['svaret på versjon 2 påberoper varselet i den første versjonen'],
@@ -3733,8 +3779,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '  if (erVarselhjemmel(p.hjemmel)) {\n    const n',
-        "  if (p.hjemmel !== '32.2' && erVarselhjemmel(p.hjemmel)) {\n    const n",
+        '  if (erVarselhjemmel(p.hjemmel) && !erKravpostvarselhjemmel(p.hjemmel)) {\n    const n',
+        "  if (p.hjemmel !== '32.2' && erVarselhjemmel(p.hjemmel) && !erKravpostvarselhjemmel(p.hjemmel)) {\n    const n",
       ],
     ],
     mal: ['en lagret påberopelse etter § 32.2 som viser til versjon 2, gjør saken ikke forstått'],
@@ -3755,7 +3801,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F452',
     feilklasse:
       'svaret på grunnlaget tilbys og skrives med et registrert varsel etter § 32.2 som ikke har brevtekst (VS-U43 E3, #1600)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       ["  return registrert && varseletForNyttSvar(u, '32.2') === registrert.id", '  return false'],
     ],
@@ -3771,12 +3817,12 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "      return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Revisjonen') : null;",
-        '      return null;',
+        "      return forutsetningerI(h.spor).svaret(u, 'Revisjonen');",
+        "      return h.spor === 'forhold' ? null : forutsetningerI(h.spor).svaret(u, 'Revisjonen');",
       ],
       [
-        "      return h.spor === 'forhold' ? svaretPaaberoperRegistrertVarsel(u, 'Svaret') : null;",
-        "      return svaretPaaberoperRegistrertVarsel(u, 'Svaret');",
+        "      return forutsetningerI(h.spor).svaret(u, 'Svaret');",
+        "      return forutsetningerI('forhold').svaret(u, 'Svaret');",
       ],
     ],
     mal: ['revisjonen av svaret på grunnlaget etter at varselet etter § 32.2 er registrert'],
@@ -3799,12 +3845,12 @@ const MUTASJONER: Mutasjon[] = [
   },
 
   // #1308: TEs korrigering av datoen etter punkt 10 og 11 i samlevedtaket for retting av sendt
-  // brev (MM-U41 (opphevet av MM-U52)), i en lukket sak (MM-U51), og den nye grunnlagsversjonen (LV-U54).
+  // brev (MM-U41 (opphevet av MM-U52)), i en lukket sak (MM-U51), og den nye grunnlagsversjonen (LV-U56).
   {
     id: 'F456',
     feilklasse:
       'korrigeringen godtas med henvisning til noe annet enn TEs siste opplysning (arbeidsvalget i #1308)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [['  return siste.id === gjelder', '  return siste.id === gjelder || true']],
     mal: [
       'korrigeringen avvises når henvisningen er ugyldig',
@@ -3815,7 +3861,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F457',
     feilklasse: 'korrigeringen godtas med uendret dato (arbeidsvalget i #1308)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
         '  return sisteDatoopplysning(u, felt)?.dato === dato',
@@ -3827,7 +3873,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F458',
     feilklasse: 'en ny grunnlagsversjon kan endre datoen (MM-U41 (opphevet av MM-U52) punkt 10)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
         '  if (felt === null || siste === null || k.innhold[felt] === siste.dato) return null;',
@@ -3839,7 +3885,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F459',
     feilklasse: 'korrigeringen avvises i en sak lukket etter GR-U27 (MM-U51)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
         '  const krav = u.spor.forhold.gjeldendeKrav;\n  if (!krav)',
@@ -3862,21 +3908,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['brevet har teksten i punkt 10', 'i svikt og andre forhold gjelder korrigeringen'],
   },
   {
-    id: 'F461',
-    feilklasse: 'en ny grunnlagsversjon etter en korrigering viser ikke til korrigeringen (LV-U54)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      [
-        '      korrigert\n        ? `${opplyser}, slik',
-        '      false\n        ? `${opplyser}, slik',
-      ],
-    ],
-    mal: [
-      'en ny grunnlagsversjon kan ikke endre datoen',
-      'en ny korrigering viser til den forrige',
-    ],
-  },
-  {
     id: 'F462',
     feilklasse:
       'svaret leses som om det gjaldt TEs senere opplysning (MM-U41 (opphevet av MM-U52) designdelen og punkt 11)',
@@ -3888,7 +3919,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F463',
     feilklasse:
       'korrigeringen i underkategorien endringsordre avvises ikke som en kategori uten dato (MM-U41 (opphevet av MM-U52) punkt 10)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [["      'INGEN_DATO_I_KATEGORIEN',", "      'UGYLDIG_KORRIGERING',"]],
     mal: ['korrigeringen avvises i underkategorien endringsordre', 'F-MM-KORR4'],
   },
@@ -3896,7 +3927,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F464',
     feilklasse:
       'en ny kravversjon som gjengir datoen, leses som en ny opplysning (MM-U41 (opphevet av MM-U52) punkt 10)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
         "typeof dato !== 'string' || sisteOm(felt)?.dato === dato) continue;",
@@ -3925,6 +3956,839 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['TEs forklaring står i fritekst under den vedtatte teksten'],
+  },
+  {
+    id: 'F467',
+    feilklasse:
+      'lagene i et sendt svar følger det siste svaret på forholdet, ikke brevet (OV-U32, OV-U33, #1449)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    b.forholdssvaret = kilde?.id ?? null;',
+        '    b.forholdssvaret = forhold.at(-1)?.id ?? null;',
+      ],
+    ],
+    mal: [
+      'forholdet godkjent og revidert til avslått etter brevet: posten har fortsatt ingen lag',
+      'forholdet avslått og revidert til godkjent etter brevet: posten står fortsatt subsidiært',
+    ],
+  },
+  {
+    id: 'F468',
+    feilklasse: 'svaret på forholdet i samme brev står ikke foran sporet (OV-U32, OV-U33, #1449)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['      forhold.find((g) => g.dokument === s.dokument) ??\n', '']],
+    mal: ['forholdet avslått i samme brev: svaret i brevet står foran, og posten subsidiært'],
+  },
+  {
+    id: 'F469',
+    feilklasse: 'grunnene fra forholdet foran sporet får feil lag (OV-U32, LV-U4 punkt 4, #1449)',
+    fil: `${K}/frosset/byggeklosser.ts`,
+    endringer: [['grunn: (i) => plass(i + 1)', 'grunn: (i) => plass(i)']],
+    mal: ['avslag og påberopt preklusjon etter § 32.2 opptar første og andre lag, posten tredje'],
+  },
+
+  // #1615: en ny versjon av påberopelsen (LV-U56) og endringsordren som står (MM-U52 punkt 14).
+  {
+    id: 'F470',
+    feilklasse: 'en ny påberopelsesversjon kan endre endringsordren (MM-U52 punkt 14)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [
+      ['  if (tekst(k.innhold.endringsordre) !== forrige.endringsordre)', '  if (false)'],
+    ],
+    mal: [
+      'en annen endringsordre med uendret underkategori',
+      'meldingen ved en annen endringsordre',
+    ],
+  },
+  {
+    id: 'F471',
+    feilklasse:
+      'en ny påberopelsesversjon nevner ikke de tidligere datoene etter en korrigering (LV-U56)',
+    fil: `${K}/spor/forhold/tekst.ts`,
+    endringer: [
+      [
+        '    const tidligere = nyVersjon ? opplysninger.slice(0, -1) : [];',
+        '    const tidligere = opplysninger.slice(0, 0);',
+      ],
+    ],
+    mal: [
+      'en ny grunnlagsversjon kan ikke endre datoen',
+      'nevner hver tidligere dato, den opprinnelige først',
+      'nevner datoen i en versjon fra en annen skriver',
+    ],
+  },
+  {
+    id: 'F472',
+    feilklasse: 'de tidligere datoene står ikke med den opprinnelige først (LV-U56)',
+    fil: `${K}/spor/forhold/tekst.ts`,
+    endringer: [
+      [
+        '    const tidligere = nyVersjon ? opplysninger.slice(0, -1) : [];',
+        '    const tidligere = nyVersjon ? opplysninger.slice(0, -1).reverse() : [];',
+      ],
+    ],
+    mal: ['nevner hver tidligere dato, den opprinnelige først'],
+  },
+  {
+    id: 'F473',
+    feilklasse:
+      'en ny påberopelsesversjon gjentar teksten i det første brevet, med varselet etter punkt 32.2 (LV-U56)',
+    fil: `${K}/spor/forhold/tekst.ts`,
+    endringer: [['  const nyVersjon = k.erstatter !== null;', '  const nyVersjon = false;']],
+    mal: [
+      'underkategorien endringsordre har ingen dato',
+      'en ny grunnlagsversjon kan ikke endre datoen',
+    ],
+  },
+  {
+    id: 'F474',
+    feilklasse: 'en ny påberopelsesversjon sier at den erstatter det tidligere kravet (LV-U56)',
+    fil: `${K}/spor/forhold/tekst.ts`,
+    endringer: [['  nevnerErstattet: false,', '  nevnerErstattet: true,']],
+    mal: ['underkategorien endringsordre har ingen dato'],
+  },
+  {
+    id: 'F475',
+    feilklasse:
+      'en ny versjon av vederlags- eller fristkravet viser ikke til kravet den erstatter (KA-U52 punkt 4)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '  if (k.erstatter && brevtekstI(k.spor).nevnerErstattet)',
+        '  if (k.erstatter && !brevtekstI(k.spor).nevnerErstattet)',
+      ],
+    ],
+    mal: ['en ny kravversjon viser til den den erstatter'],
+  },
+  {
+    id: 'F476',
+    feilklasse: 'en ny kravversjon kan utelate en kravpost uten å trekke den (KA-U56)',
+    fil: `${K}/spor/poster/utledning.ts`,
+    endringer: [['  return mangler.length\n', '  return mangler.length && false\n']],
+    mal: ['verken tar med eller trekker P1'],
+  },
+  {
+    id: 'F549',
+    feilklasse: 'en trukket kravpost avvises når den tas med igjen (KA-U75)',
+    fil: `${K}/spor/poster/utledning.ts`,
+    endringer: [
+      [
+        '    if (id !== undefined && !kjent && !lagret)',
+        '    if (id !== undefined && !forrige.has(id) && !lagret)',
+      ],
+    ],
+    mal: ['en trukket kravpost kan tas med igjen'],
+  },
+  {
+    id: 'F551',
+    feilklasse:
+      'en kravpost som tas med igjen, sammenlignes med forrige versjon, der den mangler (KA-U75)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      [
+        '    const somFoer = [...tidligere]\n      .reverse()',
+        '    const somFoer = tidligere\n      .slice(-1)',
+      ],
+    ],
+    mal: ['kan vise til varselet den viste til før trekket'],
+  },
+  {
+    id: 'F552',
+    feilklasse:
+      'det egne varselet går foran kravet som er det første varselet, også når kravet er tidligere (VS-U66)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  return [s.varsler[hjemmel], kravet].filter((v) => v !== undefined);',
+        '  return [s.varsler[hjemmel] ?? kravet].filter((v) => v !== undefined);',
+      ],
+    ],
+    mal: ['et eget varsel registrert etter det første fristkravet, skjuler ikke kravet'],
+  },
+  {
+    id: 'F553',
+    feilklasse:
+      'leseren forstår en merking som slutter med brevnummeret, men ikke har formen fra brevmerkingen (LV-U44, LV-U48, #1588)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [
+      ["  if (!MERKINGEN.test(merking.slice(0, merking.lastIndexOf('-'))))", '  if (false)'],
+    ],
+    mal: ['som ikke har formen fra brevmerkingen, er ikke forstått'],
+  },
+  {
+    id: 'F550',
+    feilklasse: 'en trukket kravpost som tas med igjen, får ikke betegnelsen sin tilbake (KA-U75)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        '    tidligere.flatMap((k) => kravposterI(k)).map((p) => [p.id, p.betegnelse])',
+        '    (tidligere.length ? kravposterI(tidligere.at(-1)!) : []).map((p) => [p.id, p.betegnelse])',
+      ],
+    ],
+    mal: ['en trukket kravpost kan tas med igjen'],
+  },
+  {
+    id: 'F478',
+    feilklasse: 'en ny kravpost får en betegnelse som er brukt før i sporet (KA-U53, KA-U75)',
+    fil: `${K}/spor/poster/utledning.ts`,
+    endringer: [
+      [
+        '  return new Set(versjoner.flatMap((poster) => poster.map((p) => p.betegnelse)));',
+        '  return new Set((versjoner.at(-1) ?? []).map((p) => p.betegnelse));',
+      ],
+    ],
+    mal: ['en trukket kravpost kan tas med igjen'],
+  },
+  {
+    id: 'F479',
+    feilklasse: 'kravposten er varselet etter punkt 34.4 også i en senere versjon (VS-U48)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      [
+        '    if (hjemmel === null || hattFoer(p, hjemmel, tidligere)) continue;',
+        '    if (hjemmel === null) continue;',
+      ],
+    ],
+    mal: ['er varselet i den første versjonen den står i'],
+  },
+  {
+    id: 'F481',
+    feilklasse:
+      'svaret godkjenner et beløp for en kravpost etter en beregningsregel (OV-U95 punkt 5, #1663)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      ['    if (regelen(p)) {\n      const grunn =', '    if (false) {\n      const grunn ='],
+    ],
+    mal: ['byggherren som godtar beregningsregelen, tar ikke stilling til et beløp'],
+  },
+  {
+    id: 'F482',
+    feilklasse: 'et varsel før det første kravet gjelder ikke kravpostene i det kravet (D-16)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [['(tidligere.length ? undefined : varsler.find(', '(undefined && varsler.find(']],
+    mal: [
+      'et varsel sendt før det første kravet gjelder',
+      'et varsel registrert før det første kravet',
+    ],
+  },
+  {
+    id: 'F483',
+    feilklasse: 'et varsel etter punkt 34.4 gjelder kravpostene med justerte enhetspriser (D-16)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [["    ? '34.4'\n", "    ? '34.3.3'\n"]],
+    mal: ['et varsel registrert før det første kravet'],
+  },
+  {
+    id: 'F484',
+    feilklasse: 'et varsel etter det første kravet gjelder en ny kravpost uten valg (D-16, D-19)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [['(tidligere.length ? undefined : varsler', '(varsler']],
+    mal: ['et varsel etter det første kravet gjelder ikke en ny kravpost'],
+  },
+  {
+    id: 'F485',
+    feilklasse: 'saken kan bare ha ett varsel etter punkt 34.3.3 og 34.4 (VS-U48, VS-U52)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    if (erKravpostvarselhjemmel(hjemmel)) continue;\n', '']],
+    mal: ['saken kan ha flere varsler etter punkt 34.3.3 og 34.4'],
+  },
+  {
+    id: 'F486',
+    feilklasse: 'byggherren kan sende innsigelse mot varselet etter punkt 34.3.3 før økt 2 (G-9)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['u.spor.vederlag.kravpostvarsler.some((v) => v.id === gjelder)', 'false']],
+    mal: ['byggherrens innsigelse mot varselet etter punkt 34.3.3 eller 34.4 venter'],
+  },
+  {
+    id: 'F487',
+    feilklasse:
+      'kravet viser ikke til varselet etter punkt 34.4 gitt før det første kravet (VS-U55)',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [
+      [
+        "gitt(varselet, 'Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4)', t)",
+        "''",
+      ],
+    ],
+    mal: ['et varsel sendt før det første kravet gjelder'],
+  },
+  {
+    id: 'F490',
+    feilklasse:
+      'en påberopelse etter § 34.1.3 mot rigg og drift godtas og forsvinner (OV-U89 punkt 9)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      ['else if (p.varslet_i_tide !== null && p.varslet_i_tide !== undefined)', 'else if (false)'],
+    ],
+    mal: ['en påberopelse etter § 34.1.3 mot rigg og drift avvises'],
+  },
+  {
+    id: 'F491',
+    feilklasse: 'et ukjent felt i vurderingene i svaret på vederlaget godtas uten virkning (MM-U2)',
+    fil: `${K}/frosset/byggeklosser.ts`,
+    endringer: [['  if (ukjente.length)', '  if (false)']],
+    mal: ['et ukjent felt i vurderingene i svaret på vederlaget avvises'],
+  },
+  {
+    id: 'F502',
+    feilklasse: 'et svar på en kravpost kravet ikke har, godtas uten virkning (OV-U23)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [
+      [
+        '    if (!post)\n      throw new UgyldigVurdering({\n',
+        '    if (!post) continue;\n    if (false)\n      throw new UgyldigVurdering({\n',
+      ],
+    ],
+    mal: ['en kravpost kravet ikke har avvises med UGYLDIG_VURDERING'],
+  },
+  {
+    id: 'F503',
+    feilklasse: 'det siste svaret på en kravpost som er besvart to ganger, gjelder (KA-U57 (d))',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [['    if (svarene.has(post.id))\n', '    if (false)\n']],
+    mal: ['samme kravpost to ganger avvises med UGYLDIG_VURDERING'],
+  },
+  {
+    id: 'F504',
+    feilklasse: 'et ukjent felt i svaret på en kravpost godtas uten virkning (MM-U2)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [['    if (ukjent)\n', '    if (false)\n']],
+    mal: ['et felt kjernen ikke leser i svaret på kravposten avvises med UGYLDIG_VURDERING'],
+  },
+  {
+    id: 'F505',
+    feilklasse:
+      'svaret godtar beregningsregelen og krever samtidig tilbud for kravposten (KA-U71, #1663)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['  else if (kreverTilbud && p.aksepterer !== false)', '  else if (false)']],
+    mal: ['kravet om tilbud kan ikke stå sammen med en godtatt beregningsregel'],
+  },
+  {
+    id: 'F506',
+    feilklasse:
+      'brevet sier ikke hvilken kravpost beløpet gjelder når kravet har flere (KA-U57 (c))',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [
+      [
+        '      : kravposterI(krav).length > 1\n        ? krevdeKravpost',
+        '      : false\n        ? krevdeKravpost',
+      ],
+    ],
+    mal: ['svaret på to kravposter med fast sum navngir kravposten'],
+  },
+  {
+    id: 'F507',
+    feilklasse:
+      'utfallet sier ikke at en kravpost ikke har fast beløp prinsipalt (OV-U73, svar 6 A i #1663)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [['...(uten.length ? { uten_fast_beloep: uten } : {})', '...{}']],
+    mal: ['svaret på to kravposter med fast sum navngir kravposten'],
+  },
+  {
+    id: 'F508',
+    feilklasse:
+      'linjen sier ikke hvilken kravpost standpunktet gjelder når kravet har flere (KA-U57 (c) og (d))',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [['    kravposter.length > 1 ? kravposter.find', '    false ? kravposter.find']],
+    mal: ['svaret på to kravposter med fast sum navngir kravposten'],
+  },
+  {
+    id: 'F509',
+    feilklasse:
+      'lagene skjemaet får fra kjernen, sier ikke hvilken kravpost de gjelder (KA-U57 (c) og (d))',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        "        ...((s.art === 'beloep' || s.art === 'oppgjoersform' || s.art === 'justering') &&\n        s.gjelder !== undefined",
+        '        ...(false &&\n        s.gjelder !== undefined',
+      ],
+    ],
+    mal: [
+      'med to kravposter sier hvert lag for beløpet og oppgjørsformen hvilken kravpost det gjelder',
+    ],
+  },
+  {
+    id: 'F492',
+    feilklasse:
+      'et svar på vederlaget med beløp for andre poster enn dem kravet har, er forstått (OV-U23)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    if (krav?.spor === s.spor) kontrollerI(s.spor).svaret(s, krav, ugyldig);',
+        '    void krav;',
+      ],
+    ],
+    mal: [
+      'beløpet viser til en kravpost som ikke står i kravet',
+      'beløpet for kravposten er ført som posten etter § 34.1.3 annet ledd',
+    ],
+  },
+  {
+    id: 'F493',
+    feilklasse: 'en tilbakeholdelse som ikke er boolsk, godtas som ingen tilbakeholdelse (MM-U2)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [
+      [
+        "  if ((v.hold_tilbake ?? false) !== false) return 'hold_tilbake er verken true eller false';",
+        '  void 0;',
+      ],
+    ],
+    mal: ['tilbakeholdelse etter § 30.2 med en verdi som ikke er boolsk'],
+  },
+  {
+    id: 'F494',
+    feilklasse: 'et tilbud som ikke er akseptert, gir et eget lag for beløpet i svaret (KA-U72)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [
+      [
+        "      if ('gjelder' in s && s.gjelder !== undefined && tilbudet.has(s.gjelder)) return foerste;",
+        "      if (s.art === 'beloep' && s.godkjent === undefined) return foerste + 1;\n      if ('gjelder' in s && s.gjelder !== undefined && tilbudet.has(s.gjelder)) return foerste;",
+      ],
+    ],
+    mal: ['F-MM-V-34-2-2-nei', 'tilbudet ikke akseptert og § 34.1.3 påberopt'],
+  },
+  {
+    id: 'F495',
+    feilklasse:
+      'en kravpost der tilbudet ikke er akseptert, får 0 kr i utregningen, som et avslag (KA-U72, OV-U73)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      [
+        'const godkjent =\n      ikkeAkseptert(post) || regelen(post)\n        ? null',
+        'const godkjent =\n      ikkeAkseptert(post) || regelen(post)\n        ? NULL_OERE',
+      ],
+    ],
+    mal: ['svaret lagres med standpunktet til beløpet uten beløp og ett lag uten beløp'],
+  },
+  {
+    id: 'F496',
+    feilklasse: 'utfallet regner med en kravpost uten fast beløp (KA-U72, OV-U73)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [
+      [
+        '    else if (!p.saerskilt && ((p.lag ?? 1) > 1 || p.godkjent === undefined))',
+        '    else if (!p.saerskilt && (p.lag ?? 1) > 1)',
+      ],
+      [
+        '    else beloepet += beloep(p.godkjent)!;',
+        '    else beloepet += beloep(p.godkjent) ?? 0n;',
+      ],
+    ],
+    mal: ['svaret på to kravposter med fast sum navngir kravposten'],
+  },
+  {
+    id: 'F497',
+    feilklasse:
+      'leseren godtar en utregning der det prinsipale beløpet ikke er summen av det første laget (OV-U31)',
+    fil: `${K}/spor/vederlag/format.ts`,
+    endringer: [['if (summen(0) !== beloep(', 'if (false && summen(0) !== beloep(']],
+    mal: ['totalen er ikke summen av det første laget'],
+  },
+  {
+    id: 'F498',
+    feilklasse:
+      'leseren godtar et lag uten beløp for en kravpost der tilbudet er akseptert (KA-U72)',
+    fil: `${K}/spor/vederlag/format.ts`,
+    endringer: [["if (r.lag.some((l) => !('beloep' in l)))", 'if (false)']],
+    mal: ['et lag mangler beløpet når tilbudet er akseptert'],
+  },
+  {
+    id: 'F499',
+    feilklasse:
+      'leddene i samme lag står ikke under én etikett når standpunktene ikke står i lagenes rekkefølge (OV-U32)',
+    fil: `${K}/frosset/tekst.ts`,
+    endringer: [['.sort((a, b) => a.k - b.k)', '.sort(() => 0)']],
+    mal: ['standpunktene ordnes slik brevet ordner dem'],
+  },
+  {
+    id: 'F510',
+    feilklasse: 'svaret godtar en vurdering av beløpet når tilbudet ikke er akseptert (KA-U72)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      [
+        '    if (ikkeAkseptert(p)) {\n',
+        '    if (ikkeAkseptert(p) && vurd == null && godkjent == null) {\n',
+      ],
+    ],
+    mal: ['§ 34.2.2 «nei» med et beløp avvises'],
+  },
+  {
+    id: 'F512',
+    feilklasse:
+      'leseren godtar standpunktet til beløpet med beløp når tilbudet ikke er akseptert, og uten beløp når det er akseptert (KA-U72)',
+    fil: `${K}/spor/vederlag/format.ts`,
+    endringer: [['(s.godkjent === undefined) !== utenBeloep.has(s.gjelder!))', 'false)']],
+    mal: [
+      'en rad med standpunktet til beløpet uten beløp for en kravpost der tilbudet er akseptert, avvises',
+      'en rad med et beløp for en kravpost der tilbudet ikke er akseptert, avvises',
+    ],
+  },
+  {
+    id: 'F513',
+    feilklasse: 'en vurdering av beløpet kjernen ikke kjenner, regnes som 0 kr (#1663)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['if (!BELOEPSVURDERINGER.includes(vurd)) {', 'if (false) {']],
+    mal: ['svaret avvises med en vurdering kjernen ikke kjenner'],
+  },
+  {
+    id: 'F514',
+    feilklasse:
+      'begrunnelsen kreves for beløpet når svaret ikke tar stilling til beløpet, fordi tilbudet ikke er akseptert (KA-U72)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      ['(sum, { post }) => sum - (krevdIKravposten(krav, post) ?? 0n),', '(sum) => sum,'],
+    ],
+    mal: ['§ 34.2.2 «nei» krever en begrunnelse for tilbudet, men ikke for beløpet'],
+  },
+  {
+    id: 'F515',
+    feilklasse:
+      'leseren godtar et beløp i et lag før det siste for en kravpost der tilbudet ikke er akseptert (KA-U72, MM-U2)',
+    fil: `${K}/spor/vederlag/format.ts`,
+    endringer: [
+      [
+        "n < prekludert ? beloep(l.beloep) !== 0n : 'beloep' in l",
+        "n < prekludert ? false : 'beloep' in l",
+      ],
+    ],
+    mal: ['et lag før det siste har et beløp, men tilbudet er ikke akseptert'],
+  },
+  {
+    id: 'F516',
+    feilklasse:
+      'leseren godtar 0 kr i et lag uten preklusjon etter § 34.1.2 for en kravpost der tilbudet ikke er akseptert (KA-U72, OV-U27)',
+    fil: `${K}/spor/vederlag/format.ts`,
+    endringer: [
+      [
+        "n < prekludert ? beloep(l.beloep) !== 0n : 'beloep' in l",
+        "n < 1 ? beloep(l.beloep) !== 0n && 'beloep' in l : 'beloep' in l",
+      ],
+    ],
+    mal: ['et lag uten preklusjon har 0 kr, men tilbudet er ikke akseptert'],
+  },
+  {
+    id: 'F517',
+    feilklasse:
+      'et varsel om forholdet avvises når det er oppgitt sendt samme dag som datoen i grunnlagskravet (VS-U58)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  if (grunnlag === null || dag === null || dag >= grunnlag.dag) return null;',
+        '  if (grunnlag === null || dag === null || dag > grunnlag.dag) return null;',
+      ],
+    ],
+    mal: [
+      'varselet etter § 32.2 oppgitt sendt før datoen pålegget ble mottatt, avvises, samme dag godtas',
+    ],
+  },
+  {
+    id: 'F518',
+    feilklasse:
+      'kontrollen mot datoen i grunnlagskravet gjelder bare varselet etter § 32.2, ikke § 33.4, § 34.1.2 og § 34.1.3 (VS-U58)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        "const VARSLER_OM_FORHOLDET = ['32.2', '33.4', '34.1.2', '34.1.3'] as const;",
+        "const VARSLER_OM_FORHOLDET = ['32.2'] as const;",
+      ],
+    ],
+    mal: ['oppgitt sendt før datoen TE ble klar over forholdet, avvises'],
+  },
+  {
+    id: 'F519',
+    feilklasse:
+      'et fristkrav med varselet etter § 33.4 sendt før datoen i grunnlagskravet godtas (VS-U58)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['      if (foer) return foer;', '']],
+    mal: ['et fristkrav med varselet etter § 33.4 sendt før datoen i grunnlagskravet'],
+  },
+  {
+    id: 'F520',
+    feilklasse:
+      'varselet kontrolleres mot den første datoen i grunnlagskravet, ikke den korrigerte (VS-U58, MM-U52 punkt 10)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  const siste = felt === null ? null : sisteDatoopplysning(u, felt);\n  const dag = siste === null',
+        '  const siste = felt === null ? null : (u.datoopplysninger.find((o) => o.felt === felt) ?? null);\n  const dag = siste === null',
+      ],
+    ],
+    mal: ['kontrollerer varselet mot den korrigerte datoen'],
+  },
+  {
+    id: 'F521',
+    feilklasse:
+      'en korrigering kan flytte datoen i grunnlagskravet til etter et varsel om forholdet (VS-U59)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '      return kontrollerKorrigering(k, u) ?? korrigeringEtterVarslene(k, u, regler);',
+        '      return kontrollerKorrigering(k, u);',
+      ],
+    ],
+    mal: [
+      'en korrigering til en dato etter et registrert varsel avvises',
+      'en korrigering til en dato etter et varsel sendt fra løsningen avvises',
+    ],
+  },
+  {
+    id: 'F522',
+    feilklasse: 'en korrigering til samme dag som et varsel om forholdet avvises (VS-U59)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      ['    if (sendt !== null && sendt < ny)', '    if (sendt !== null && sendt <= ny)'],
+    ],
+    mal: ['en korrigering til en dato etter et registrert varsel avvises, til samme dag godtas'],
+  },
+  {
+    id: 'F523',
+    feilklasse: 'et ukjent felt i vurderingene i svaret på forholdet godtas uten virkning (MM-U2)',
+    fil: `${K}/spor/forhold/frysing.ts`,
+    endringer: [["  avvisUkjenteFelt(v, FORHOLDSVURDERINGER, 'forholdet');\n", '']],
+    mal: ['et ukjent felt i vurderingene i svaret på forholdet og fristen avvises'],
+  },
+  {
+    id: 'F524',
+    feilklasse: 'et ukjent felt i vurderingene i svaret på fristen godtas uten virkning (MM-U2)',
+    fil: `${K}/frosset/utregning.ts`,
+    endringer: [["  avvisUkjenteFelt(v, FRISTVURDERINGER, 'fristen');\n", '']],
+    mal: ['et ukjent felt i vurderingene i svaret på forholdet og fristen avvises'],
+  },
+  {
+    id: 'F525',
+    feilklasse:
+      'en korrigering til en dato etter kravet som er det første varselet, godtas (VS-U60)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['    ? kravSomVarsler(hjemmel, s.krav)[0]\n', '    ? undefined\n']],
+    mal: [
+      'uten eget varsel avvises en korrigering til en dato etter påberopelsen',
+      'uten eget varsel avvises en korrigering til en dato etter det første fristkravet',
+      'uten eget varsel avvises en korrigering til en dato etter den første kravversjonen i vederlaget',
+    ],
+  },
+  {
+    id: 'F526',
+    feilklasse:
+      'påberopelsen regnes som varsel etter § 32.2 også der varslingsplikten ikke gjelder (VS-U60, VS-U43 punkt 6)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  const kravet = hjemmelenGjelder(hjemmel, u.spor.forhold.gjeldendeKrav, regler)\n',
+        '  const kravet = true\n',
+      ],
+    ],
+    mal: ['i svikt er påberopelsen ikke et varsel etter § 32.2'],
+  },
+  {
+    id: 'F527',
+    feilklasse:
+      'en beregningsregel byggherren ikke godtar, gjør ikke de andre kravpostene upåvirket (arbeidsvalg 1 punkt 2 i #1663, OV-U33)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [["          (s.art === 'oppgjoersform' && !s.aksepterer))", '          false)']],
+    mal: ['en kravpost som verken beregningsregelen byggherren ikke godtar'],
+  },
+  {
+    id: 'F528',
+    feilklasse:
+      'innsigelsen etter § 34.3.3 står som grunn for hele svaret i linjen, ikke ved kravposten (KA-U64, VS-U56)',
+    fil: `${K}/frosset/linje.ts`,
+    endringer: [['        !forKravposten.has(p.standpunkt)', '        true']],
+    mal: ['linjen nevner innsigelsen etter punkt 34.3.3 ved kravposten'],
+  },
+  {
+    id: 'F529',
+    feilklasse:
+      'et tilbud byggherren ikke aksepterer, gjør ikke de andre kravpostene upåvirket (arbeidsvalget 10.11 i #1760, OV-U33)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [['    tilbudet.size > 0 ||\n', '']],
+    mal: ['et tilbud byggherren ikke aksepterer, rammer bare sin egen kravpost'],
+  },
+  {
+    id: 'F530',
+    feilklasse:
+      'standpunktene for kravposten med tilbudet som ikke er akseptert, er upåvirket i stedet for i det første laget (#1760, KA-U72)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [
+      [
+        "      if ('gjelder' in s && s.gjelder !== undefined && tilbudet.has(s.gjelder)) return foerste;\n",
+        '',
+      ],
+    ],
+    mal: ['et tilbud byggherren ikke aksepterer, rammer bare sin egen kravpost'],
+  },
+  {
+    id: 'F531',
+    feilklasse:
+      'leseren regner ikke et tilbud byggherren ikke aksepterer, som en påberopelse ved siden av en upåvirket kravpost (#1760, OV-U33)',
+    fil: `${K}/spor/vederlag/format.ts`,
+    endringer: [
+      [
+        "(s.art === 'oppgjoersform' && !s.aksepterer ? [s.id] : [])",
+        "(s.art === 'oppgjoersform' && !s.aksepterer && s.hjemmel !== '34.2.2' ? [s.id] : [])",
+      ],
+    ],
+    mal: ['et tilbud byggherren ikke aksepterer, rammer bare sin egen kravpost'],
+  },
+  {
+    id: 'F532',
+    feilklasse:
+      'en innsigelse mot et krav, svar eller varsel får et annet spor enn elementet (#1713)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [
+      ['      if (e) sporet.set(e.id, spor);', "      if (e) sporet.set(e.id, 'vederlag');"],
+    ],
+    mal: ['en innsigelse hører til sporet elementet den gjelder'],
+  },
+  {
+    id: 'F533',
+    feilklasse: 'varselet kravposten viser til, leses ikke (VS-U50, VS-U54)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [['      p.varsel ?? (tidligere.length', '      (tidligere.length']],
+    mal: [
+      'en ny kravpost i en senere kravversjon viser til et varsel sendt etter det første kravet',
+      'har saken flere varsler før det første kravet, viser kravet til det TE velger',
+    ],
+  },
+  {
+    id: 'F534',
+    feilklasse: 'kravposten kan vise til et varsel etter en annen bestemmelse (VS-U50)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [['v.id === p.varsel && v.hjemmel === hjemmel', 'v.id === p.varsel']],
+    mal: ['kravposten kan bare vise til et varsel etter samme bestemmelse i saken'],
+  },
+  {
+    id: 'F535',
+    feilklasse:
+      'kravet sier ikke at TE opplyser varselet i et dokument som er vedlagt (VS-U51, U-14 i BF-14)',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [
+      ['  return dokumentet.length && dokumentet.every(', '  return false && dokumentet.every('],
+    ],
+    mal: ['dokumentet står som et eget registrert varsel før kravet'],
+  },
+  {
+    id: 'F536',
+    feilklasse: 'dokumentet fra kravskjemaet legges ikke ved kravet (VS-U51)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['[...vedleggI(k), ...vedKravet]', '[...vedleggI(k)]']],
+    mal: ['dokumentet står som et eget registrert varsel før kravet'],
+  },
+  {
+    id: 'F537',
+    feilklasse:
+      'et vederlagskrav med et vedlegg som ikke er dokumentet med varselet for en kravpost, gjør saken forstått (VS-U51, MM-U2)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      [
+        '    if (ved.some((v) => !varslene.has(v.vedlegg_id)))',
+        '    if (ved.some((v) => !varslene.has(v.vedlegg_id) && false))',
+      ],
+    ],
+    mal: ['et vederlagskrav med et vedlegg som ikke er dokumentet med varselet for en kravpost'],
+  },
+  {
+    id: 'F538',
+    feilklasse:
+      'varselet fra kravskjemaet gis før kjernen har prøvd kravet, så et avvist krav etterlater varselet (VS-U53)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      ['  if (skriving.sendes) {\n    const proeve', '  if (!skriving.sendes) {\n    const proeve'],
+    ],
+    mal: ['avvises kravet, gis ingen rad, heller ikke varselet'],
+  },
+  {
+    id: 'F539',
+    feilklasse:
+      'dokumentet fra kravskjemaet for én kravpost blir også varselet for en annen post i det første kravet (VS-U51, D-16)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        '(v) => !dokumenter.get(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))',
+        '(v) => !!v',
+      ],
+    ],
+    mal: ['dokumentet for én kravpost er ikke varselet for en annen post'],
+  },
+  {
+    id: 'F540',
+    feilklasse:
+      'et varsel i saken som én kravpost viser til, gjelder ikke en annen post med samme beregningsregel (D-16)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      [
+        'varsler.find((v) => v.hjemmel === hjemmel)?.id)',
+        'varsler.find((v) => v.hjemmel === hjemmel && !kravposterI(krav).some((q) => q.varsel === v.id))?.id)',
+      ],
+    ],
+    mal: ['et varsel i saken som én kravpost viser til, gjelder også en annen post'],
+  },
+  {
+    id: 'F541',
+    feilklasse: 'en kravpost i en ny versjon kan ikke gjenta varselet den viste til (KA-U56)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [['somFoer?.varsel !== p.varsel', 'true']],
+    mal: ['en kravpost i en ny versjon kan gjenta varselet'],
+  },
+  {
+    id: 'F542',
+    feilklasse:
+      'samme dokument for flere kravposter blir et varsel bare etter den første bestemmelsen (VS-U52, VS-U53)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['[k.hjemmel, ...ogsaaEtter].map(', '[k.hjemmel].map(']],
+    mal: ['samme dokument for to kravposter er ett registrert brev'],
+  },
+  {
+    id: 'F543',
+    feilklasse: 'samme dokument med ulik dato for to kravposter godtas (VS-U53)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['if ((dokumentene.get(id) ?? like) !== like)', 'if (false)']],
+    mal: ['samme dokument med ulik dato eller med andre vedlegg'],
+  },
+  {
+    id: 'F544',
+    feilklasse:
+      'utregningen gir en kravpost etter en beregningsregel ett lag mer enn virkningene (OV-U32, #1774)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [['return lag?.beloepet ?? 0;', 'return lag ? lag.beloepet + 1 : 0;']],
+    mal: ['antallet lag i utregningen er det høyeste laget i virkningene'],
+  },
+  {
+    id: 'F545',
+    feilklasse:
+      'virkningene gir beløpet for en kravpost etter en beregningsregel et lag utregningen ikke har (OV-U32, #1774)',
+    fil: `${K}/spor/vederlag/frysing.ts`,
+    endringer: [['      lag.beloepet\n', '      lag.beloepet + 1\n']],
+    mal: ['antallet lag i utregningen er det høyeste laget i virkningene'],
+  },
+  {
+    id: 'F546',
+    feilklasse:
+      'leseren godtar en utregning med flere lag enn beslutningsgrunnlaget (OV-U32, MM-U2, #1774)',
+    fil: `${K}/spor/poster/format.ts`,
+    endringer: [['if (rader.length > 0 && antall !== lagIGrunnlaget)', 'if (false)']],
+    mal: ['utregningen har to lag, men beslutningsgrunnlaget ett'],
+  },
+  {
+    id: 'F547',
+    feilklasse:
+      'formatet forstår rigg og drift i et lagret vederlagskrav før posten er bygget (MM-U2, #1775)',
+    fil: `${K}/spor/vederlag/format.ts`,
+    endringer: [
+      [
+        "saerskilt: objekt({ produktivitet: BELOEPSPOST }, ['produktivitet']),",
+        'saerskilt: objekt({ produktivitet: BELOEPSPOST, rigg_og_drift: BELOEPSPOST }, []),',
+      ],
+    ],
+    mal: ['en lagret rad med rigg og drift i vederlagskravet er ikke forstått'],
+  },
+  {
+    id: 'F548',
+    feilklasse:
+      'kravet med rigg og drift avvises uten at meldingen sier at posten ikke er bygget ennå (#1775)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['const rigg = harRiggOgDrift(innhold);', 'const rigg = false;']],
+    mal: ['avvises med posten i meldingen'],
   },
 ];
 
@@ -4017,18 +4881,19 @@ const STDERR_SLUTT = 4000;
  */
 async function kjoerVitest(
   k: Arbeidskopi,
-  filer = ['kjerne/', 'sprakprove/kjernelagring/']
+  filer = ['kjerne/', 'sprakprove/kjernelagring/'],
+  arbeidere = arbeiderePerKopi
 ): Promise<Rapport> {
   try {
-    return await kjoerVitestEnGang(k, filer);
+    return await kjoerVitestEnGang(k, filer, arbeidere);
   } catch (e) {
     if (!(e instanceof IngenRapport)) throw e;
     console.error(`${e.message}\nKjøres én gang til.`);
-    return kjoerVitestEnGang(k, filer);
+    return kjoerVitestEnGang(k, filer, arbeidere);
   }
 }
 
-function kjoerVitestEnGang(k: Arbeidskopi, filer: string[]): Promise<Rapport> {
+function kjoerVitestEnGang(k: Arbeidskopi, filer: string[], arbeidere: number): Promise<Rapport> {
   const ut = `${k.rot}-rapport.json`;
   const suiteut = `${k.rot}-suitefeil.json`;
   rmSync(ut, { force: true });
@@ -4053,7 +4918,7 @@ function kjoerVitestEnGang(k: Arbeidskopi, filer: string[]): Promise<Rapport> {
         // kjøring (#1015), så grensen heves over den i `vite.config.ts`.
         '--testTimeout=60000',
         // Prosessorene deles mellom kopiene, ikke ganges med dem.
-        `--maxWorkers=${arbeiderePerKopi}`,
+        `--maxWorkers=${arbeidere}`,
         '--reporter=json',
         `--outputFile=${ut}`,
         '--reporter=./kjerne/tester/suitefeil.ts',
@@ -4381,18 +5246,36 @@ const malfeil = valgte.flatMap((m) => [
     ),
 ]);
 if (malfeil.length) throw new Error(malfeil.join('\n'));
-const delen = valgte.filter((_, i) => i % deler === del - 1);
+// Avgjort av oppdragsgiver 19.10 (#934): på en PR kjører hver mutasjon bare filene med
+// målene sine, og om natta hele samlingen. Kontrollkjøringen går alltid over hele, med et
+// utvalg i én kopi: hvert utvalg har sin egen kontroll, og `ci.yml` kjører samlingen.
+const utvalg = process.env.FEILINNFOERING_UTVALG === '1';
+const utvalgene = new Map(
+  utvalg
+    ? valgte.map((m) => [
+        m,
+        [
+          ...new Set(
+            navn.filter((n) => m.mal.some((mal) => harMal(n.navn, mal))).map((n) => n.fil)
+          ),
+        ],
+      ])
+    : []
+);
+const filerFor = (m: Mutasjon) => utvalgene.get(m);
+// Lagringstestene mot SQL Server tar det meste av tiden i et utvalg, så mutasjonene med
+// slike filer fordeles for seg. Ellers avgjør rekkefølgen i lista hvor mange hver del får.
+const tung = (m: Mutasjon) =>
+  filerFor(m)?.some((f) => f.startsWith('sprakprove/kjernelagring/')) ?? false;
+const tunge = new Set(valgte.filter(tung));
+const iDelen = new Set(
+  [...tunge, ...valgte.filter((m) => !tunge.has(m))].filter((_, i) => i % deler === del - 1)
+);
+const delen = valgte.filter((m) => iDelen.has(m));
 // #967 punkt 1: en feilinnføring med ankerfeil hoppes over og meldes på slutten, så de andre
 // kjøres. Kjøringen er rød likevel.
 const mutasjoner = delen.filter((m) => !ankerfeil.has(m.id));
 const ankerfeilIDelen = delen.flatMap((m) => ankerfeil.get(m.id) ?? []);
-// Avgjort av oppdragsgiver 19.10 (#934): på en PR kjører hver mutasjon bare filene med
-// målene sine, og om natta hele samlingen. Kontrollkjøringen går alltid over hele.
-const utvalg = process.env.FEILINNFOERING_UTVALG === '1';
-const filerFor = (m: Mutasjon) =>
-  utvalg
-    ? [...new Set(navn.filter((n) => m.mal.some((mal) => harMal(n.navn, mal))).map((n) => n.fil))]
-    : undefined;
 /** Kontrollkjøringen av hvert utvalg, etter filene (`utvalgskontroll`). */
 const utvalgskontroller = new Map<string, Promise<void>>();
 
@@ -4429,9 +5312,11 @@ if (bareAnkre) {
 
 async function kjoer(): Promise<number> {
   const kopier = lagArbeidskopier(antallKopier);
-  // Kontrollen kjøres i hver kopi, så en kopi som avviker, stopper
+  // Uten utvalg kjøres kontrollen i hver kopi, så en kopi som avviker, stopper
   // kjøringen før noen mutasjon.
-  const kontroller = await Promise.all(kopier.map((k) => kontrollkjoering(k)));
+  const kontroller = utvalg
+    ? [await kontrollkjoering(kopier[0], undefined, availableParallelism())]
+    : await Promise.all(kopier.map((k) => kontrollkjoering(k)));
   const antallTester = new Set<number>();
   for (const [i, kontroll] of kontroller.entries()) {
     const kontrolltester = kontroll.testResults.flatMap((f) => f.assertionResults);
@@ -4451,7 +5336,7 @@ async function kjoer(): Promise<number> {
   if (antallTester.size !== 1)
     throw new Error(`Kontrollkjøringene teller ulikt: ${[...antallTester].join(', ')} tester`);
   console.log(
-    `Kontroll uten mutasjon: ${[...antallTester][0]} tester grønne i hver av ${kopier.length} arbeidskopier.`
+    `Kontroll uten mutasjon: ${[...antallTester][0]} tester grønne i ${utvalg ? 'én arbeidskopi' : `hver av ${kopier.length} arbeidskopier`}.`
   );
 
   const koe = [...mutasjoner];
@@ -4491,14 +5376,18 @@ function kontrollfeil(kontroll: Rapport, k: Arbeidskopi): string[] {
  * Kontrollkjøringen av `filer`, eller hele samlingen, i `k`. Feiler den bare på tidsavbrudd,
  * kjøres den én gang til, og den andre kjøringen gjelder (#1122, E2-2 i del 4).
  */
-async function kontrollkjoering(k: Arbeidskopi, filer?: string[]): Promise<Rapport> {
-  const forste = await kjoerVitest(k, filer);
+async function kontrollkjoering(
+  k: Arbeidskopi,
+  filer?: string[],
+  arbeidere?: number
+): Promise<Rapport> {
+  const forste = await kjoerVitest(k, filer, arbeidere);
   const feil = kontrollfeil(forste, k);
   if (!feil.length || !feil.every((f) => TIDSAVBRUDD.test(f))) return forste;
   console.error(
     `Kontrollkjøringen i ${k.rot} fikk tidsavbrudd og kjøres én gang til: ${feil.join('; ')}`
   );
-  return kjoerVitest(k, filer);
+  return kjoerVitest(k, filer, arbeidere);
 }
 
 /**

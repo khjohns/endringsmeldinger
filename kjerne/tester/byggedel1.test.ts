@@ -8,9 +8,9 @@
 
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { KRAVINNHOLD, objekt, UTREGNING } from '../format/format.ts';
+import { KRAVINNHOLD, UTREGNING } from '../format/format.ts';
 import { lesJournal } from '../format/leser.ts';
-import { feilI } from '../format/skjema.ts';
+import { feilI, objekt } from '../format/skjema.ts';
 import { forhaandsvis, laastTekst, vurder } from '../kommandoer/skriving.ts';
 import { mellomlager } from './klient.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
@@ -336,9 +336,10 @@ describe('et registrert svar leses ikke med en innsigelse (VS-U24, OV-U4)', () =
 describe('formatet har ingen negative beløp ennå (KA-U22, KA-U9)', () => {
   it('et krav og en utregning med negativt beløp avvises', () => {
     const { properties, required } = KRAVINNHOLD.vederlag;
-    expect(feilI({ metode: 'tilbud', beloep: -100000 }, objekt(properties, required))).not.toEqual(
-      []
-    );
+    const post = { id: 'p1', betegnelse: 'P1', beskrivelse: 'P1', oppgjoersform: 'tilbud' };
+    expect(
+      feilI({ kravposter: [{ ...post, beloep: -100000 }] }, objekt(properties, required))
+    ).not.toEqual([]);
     expect(
       feilI({ resultat: 'godkjent', godkjent_beloep: -100000 }, UTREGNING.vederlag!)
     ).not.toEqual([]);

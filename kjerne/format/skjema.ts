@@ -5,10 +5,23 @@
  * JSON skiller ikke 5 fra 5.0 i JavaScript, så `integer` godtar 5.0.
  */
 
-import type { Avvisning } from '../typer.ts';
+import type { Avvisning, Standpunkt, Standpunktsvirkning } from '../typer.ts';
 import { SETTBARE_TEGN } from './tegnsett.ts';
 
 export type Skjema = Record<string, unknown>;
+
+export const ID: Skjema = { type: 'string', minLength: 1 };
+export const TEKST: Skjema = { type: 'string', minLength: 1 };
+export const DATO: Skjema = { type: 'string', minLength: 10 };
+export const liste = (items: Skjema): Skjema => ({ type: 'array', minItems: 1, items });
+
+export const objekt = (properties: Skjema, required: string[], anyOf?: Skjema[]): Skjema => ({
+  type: 'object',
+  properties,
+  required,
+  additionalProperties: false,
+  ...(anyOf ? { anyOf } : {}),
+});
 
 export const NOEKKELORD = new Set([
   'type',
@@ -26,6 +39,39 @@ export const NOEKKELORD = new Set([
   'pattern',
   'minItems',
 ]);
+
+/** Feltene `id` og `art` i et standpunkt av arten. */
+export const artfelt = (art: string) => ({ id: ID, art: { const: art } });
+
+/** Leseren forstår ikke raden (MM-U2). */
+export class Uforstaatt extends Error {}
+
+type Data = Record<string, unknown>;
+
+/**
+ * Det som er sporets eget i lesingen av svaret (`SVARLESING` i `leser.ts`, #1783).
+ * `gjentas`: standpunktene gjentar seg, så rekkefølgen kontrolleres av
+ * `kontrollerStandpunktene`. `rettidighet`: hjemlene rettidigheten kan ha i sporet utover
+ * `HJEMMEL`. `subsidiaertVerdi`: feltet i utregningen som står når, og bare når,
+ * `subsidiaert_resultat` står, eller `null` når sporet ikke har det subsidiære i utregningen.
+ * `standpunkt`: et standpunkt av en art bare sporet har, eller `null` for en annen art.
+ * `innsigelserMotPosten`: standpunktene som er innsigelser som rammer bare posten, og som
+ * tillater et upåvirket standpunkt ved siden av seg (OV-U33).
+ */
+export interface Svarlesing {
+  gjentas: boolean;
+  rettidighet: readonly string[];
+  subsidiaertVerdi: string | null;
+  standpunkt?: (e: Data, utregning: Data, sti: string) => Standpunkt | null;
+  kontrollerStandpunktene?: (ut: Standpunkt[], utregning: Data, sti: string) => void;
+  kontrollerUtregningen?: (
+    ut: Standpunkt[],
+    utregning: Data,
+    virkninger: Standpunktsvirkning[],
+    sti: string
+  ) => void;
+  innsigelserMotPosten?: (standpunkter: Standpunkt[]) => Set<string>;
+}
 
 /** NUL og en enslig surrogat er gyldig JSON, men JSONB i PostgreSQL avviser dem (#373). */
 const ENSLIG_SURROGAT = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/;

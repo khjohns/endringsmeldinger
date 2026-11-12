@@ -52,22 +52,23 @@ const PLASSHOLDERE: Record<string, string> = {
  * endepunktet slik det står. `avvist` og `tillatt` er alle kallene i steget.
  */
 const UNNTAK: Record<string, { grunn: string; avvist: string[]; tillatt?: string[] }> = {
-  'C03 POST /oauth2/token': {
-    grunn: 'Tokenkallet svarer brokeren på selv, med brokernøkkelen.',
+  'C22 POST /oauth2/token': {
+    grunn:
+      'Brokeren svarer selv på tokenkallet til integrasjonen (client_credentials) med brokernøkkelen ' +
+      '(`tokenkall` i broker.ts), og sender det ikke videre til Catenda.',
     avvist: ['POST /oauth2/token'],
   },
-  'C03 GET /v2/projects (sidevis)': {
-    grunn: 'Prosjektlisten ved innloggingen i Python. Brokeren er avgrenset til ett prosjekt.',
+  'C26 POST /oauth2/token': {
+    grunn:
+      'Innloggingen i TS-serveren bytter koden med authorization_code mot Catenda, ikke gjennom brokeren (#715). ' +
+      'Brokeren svarer selv på tokenkallet, bare med client_credentials, og slipper det ikke gjennom.',
+    avvist: ['POST /oauth2/token'],
+  },
+  'C26 GET /v2/projects (sidevis)': {
+    grunn:
+      'Prosjektlisten hentes med brukerens token ved innloggingen i TS-serveren, som ikke går gjennom brokeren (#715). ' +
+      'Brokeren er avgrenset til ett Catenda-prosjekt.',
     avvist: ['GET /v2/projects (sidevis)'],
-  },
-  'C17 GET /v2/projects': {
-    grunn: 'Prosjektlisten i Python. Brokeren er avgrenset til ett prosjekt.',
-    avvist: ['GET /v2/projects'],
-  },
-  'C16 GET /v2/projects/{catenda_project_id}/ifc/products, POST samme sti ved søk, og GET …/ifc/products/ifctypes': {
-    grunn: 'IFC-søket i BIM-rutene i Python, som integrasjonen fra skyøkta ikke bruker. `ifctypes` er tillatt.',
-    avvist: ['GET /v2/projects/{catenda_project_id}/ifc/products', 'POST /v2/projects/{catenda_project_id}/ifc/products'],
-    tillatt: ['GET /v2/projects/{catenda_project_id}/ifc/products/ifctypes'],
   },
 };
 

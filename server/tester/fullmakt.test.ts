@@ -8,6 +8,7 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import type { Svarutkast } from '../../kjerne/kommandoer/kommando.ts';
+import { kravposterI } from '../../kjerne/spor/vederlag/format.ts';
 import {
   forhaandsvis,
   laastTekst,
@@ -33,7 +34,7 @@ const KRAV_PAABEROPELSE = {
 const KRAV_VEDERLAG = {
   type: 'krav',
   spor: 'vederlag',
-  innhold: { metode: 'tilbud', beloep: 100000 },
+  innhold: { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 100000 }] },
 };
 const KRAV_FRIST = { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: UTDYPNING };
 const FORHOLD_GODKJENT = { spor: 'forhold', resultat: 'godkjent', varslet_i_tide: true };
@@ -94,9 +95,14 @@ function svarutkast(h: Record<string, unknown>, u: Utledning): Svarutkast {
       ? { resultat: h.resultat, grunnlag_varslet_i_tide: h.varslet_i_tide }
       : spor === 'vederlag'
         ? {
-            hovedkrav_vurdering: h.vurdering,
-            hovedkrav_godkjent_beloep: h.godkjent_belop,
-            aksepterer_metode: true,
+            kravposter: [
+              {
+                gjelder: kravposterI(u.spor.vederlag.gjeldendeKrav!)[0]!.id,
+                vurdering: h.vurdering,
+                godkjent_beloep: h.godkjent_belop,
+                aksepterer: true,
+              },
+            ],
           }
         : {
             frist_varsel_ok: h.varsel_i_tide,
@@ -135,7 +141,10 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
     // OV-U58: kravet har høyst to desimaler. Som flyttall er 0,1 + 0,2 ikke 0,3.
     const krav = {
       ...KRAV_VEDERLAG,
-      innhold: { metode: 'tilbud', beloep: 0.1, saerskilt: { produktivitet: { beloep: 0.2 } } },
+      innhold: {
+        kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 0.1 }],
+        saerskilt: { produktivitet: { beloep: 0.2 } },
+      },
     };
     // Fristkravet er ikke sendt, så bare gulvet er verdsatt.
     expect((await verdi([KRAV_PAABEROPELSE, krav], [FORHOLD_GODKJENT], SATS)).gulv).toBe(0.3);
@@ -235,9 +244,14 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
 
 // Det særskilte kravet etter § 34.1.3 annet ledd (OV-U23, #1047 B2b).
 describe('verdien av et vederlagskrav med posten etter § 34.1.3 annet ledd', () => {
-  const medPost = (innhold: object) => ({
+  const medPost = ({ beloep, ...innhold }: { beloep?: number; saerskilt?: object }) => ({
     ...KRAV_VEDERLAG,
-    innhold: { metode: 'tilbud', ...innhold },
+    innhold: {
+      ...(beloep === undefined
+        ? {}
+        : { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep }] }),
+      ...innhold,
+    },
   });
   const post = { saerskilt: { produktivitet: { beloep: 40000 } } };
 
@@ -263,16 +277,70 @@ describe('verdien av et vederlagskrav med posten etter § 34.1.3 annet ledd', ()
       gjelder: u.spor.vederlag.gjeldendeKrav!.id,
       regelversjon: regler.versjon,
       vurderinger: {
-        hovedkrav_vurdering: 'godkjent',
+        kravposter: [
+          {
+            gjelder: kravposterI(u.spor.vederlag.gjeldendeKrav!)[0]!.id,
+            vurdering: 'godkjent',
+            aksepterer: true,
+          },
+        ],
         produktivitet_vurdering: 'delvis',
         produktivitet_godkjent_beloep: 30000,
         produktivitet_varslet_i_tide: false,
         produktivitet_begrenset_beloep: 10000,
-        aksepterer_metode: true,
       },
       resultat: {},
     };
     // Prinsipalt 110 000 kr, subsidiært 130 000 kr (`subsidiaert_godkjent_beloep`).
     expect(brevverdi([svar], u, SATS, regler)).toEqual({ beloep: 130000, gulv: 130000 });
+  });
+});
+
+describe('verdien av et vederlagskrav med flere kravposter (KA-U57 (c), OV-U31)', () => {
+  const toPoster = {
+    ...KRAV_VEDERLAG,
+    innhold: {
+      kravposter: [
+        { beskrivelse: 'Fundamentering', oppgjoersform: 'tilbud', beloep: 100000 },
+        { beskrivelse: 'Pumping', oppgjoersform: 'tilbud', beloep: 40000 },
+      ],
+    },
+  };
+
+  it('et ubesvart krav har summen av kravpostene', async () => {
+    expect((await verdi([KRAV_PAABEROPELSE, toPoster], [FORHOLD_GODKJENT], SATS)).gulv).toBe(
+      140000
+    );
+  });
+
+  it('svaret per kravpost har summen av postene, og en kravpost der tilbudet ikke er akseptert, regnes ikke med (KA-U72, OV-U73)', async () => {
+    const u = utledning([KRAV_PAABEROPELSE, toPoster]);
+    const [p1, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
+    const svar = (p2svar: Record<string, unknown>): Svarutkast => ({
+      spor: 'vederlag',
+      gjelder: u.spor.vederlag.gjeldendeKrav!.id,
+      regelversjon: regler.versjon,
+      vurderinger: {
+        kravposter: [
+          { gjelder: p1!.id, vurdering: 'delvis', godkjent_beloep: 80000, aksepterer: true },
+          { gjelder: p2!.id, ...p2svar },
+        ],
+      },
+      resultat: {},
+    });
+    expect(brevverdi([svar({ vurdering: 'godkjent', aksepterer: true })], u, SATS, regler)).toEqual(
+      { beloep: 120000, gulv: 120000 }
+    );
+    // KA-U72: svaret tar ikke stilling til beløpet for P2, så summen er 80 000 kr. Hvordan
+    // fullmakten skal regnes når byggherren mener en beregningsregel for en kravpost med fast
+    // sum, er ikke avgjort (FK, #1663). Forventningen fastholder dagens atferd.
+    expect(
+      brevverdi(
+        [svar({ aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' })],
+        u,
+        SATS,
+        regler
+      )
+    ).toEqual({ beloep: 80000, gulv: 80000 });
   });
 });

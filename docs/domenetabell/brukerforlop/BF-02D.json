@@ -1,0 +1,127 @@
+{
+  "id": "BF-02D",
+  "tittel": "TE korrigerer datoen pålegget ble mottatt i en lukket sak",
+  "brukerhistorie": "BH har påberopt at varselet kom for sent og godtatt forholdet subsidiært. TE har godtatt svaret, og saken er lukket. TE korrigerer datoen i et eget brev. Saken står lukket, utfallet endres ikke, og BH kan ta stilling til opplysningen i et innlegg.",
+  "status": "kjørbar",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "Som BF-02A, og TE har godtatt svaret, så saken er lukket etter GR-U27."
+  },
+  "steg": [
+    {
+      "handling": "krav",
+      "spor": "forhold",
+      "underkategori": "irregulaer_endring",
+      "navn": "K-g1",
+      "utdypning": "Byggherren ga pålegg om å flytte ventilasjonssjakten i plan 3."
+    },
+    {
+      "handling": "brev",
+      "navn": "D2",
+      "svar": [
+        {
+          "spor": "forhold",
+          "navn": "S-g1",
+          "resultat": "godkjent",
+          "varslet_i_tide": false,
+          "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært godtas at forholdet er en endring."
+        }
+      ]
+    },
+    {
+      "handling": "aksept",
+      "spor": "forhold",
+      "navn": "D3"
+    },
+    {
+      "handling": "korrigering",
+      "navn": "D4",
+      "dato": "2026-09-20"
+    }
+  ],
+  "kontrollpunkter": [
+    {
+      "id": "saken-er-lukket",
+      "etter": 3,
+      "beskrivelse": "TE har godtatt svaret, og saken er lukket.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "GR-U27"
+          ],
+          "forventet": {
+            "forhold_avvist": true,
+            "datoopplysninger": [
+              "K-g1:2026-09-15"
+            ],
+            "handlinger.TE": {
+              "inneholder": [
+                "korrigere:K-g1"
+              ]
+            }
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser at datoen kan korrigeres også i den lukkede saken, og at korrigeringen ikke endrer utfallet.",
+          "kilde": [
+            "MM-U52",
+            "MM-U51",
+            "GR-U27"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "korrigeringen-er-sendt",
+      "etter": 4,
+      "beskrivelse": "TE har korrigert datoen til 20.09.2026 i den lukkede saken.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "MM-U52",
+            "MM-U51",
+            "VS-U46"
+          ],
+          "forventet": {
+            "forhold_avvist": true,
+            "gjeldende_svar.forhold": "S-g1",
+            "enighet.forhold.svar": "S-g1",
+            "standpunkt.S-g1.rettidighet.iTide": false,
+            "datoopplysninger": [
+              "K-g1:2026-09-15",
+              "D4#korrigering:2026-09-20"
+            ],
+            "datoopplysning.S-g1": "K-g1"
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "BH ser korrigeringen, at saken står lukket med det samme utfallet, og at BH kan ta stilling til opplysningen i et innlegg.",
+          "kilde": [
+            "MM-U52",
+            "MM-U51",
+            "MM-U47"
+          ]
+        }
+      ]
+    }
+  ],
+  "bevis_saker": [
+    "F-MM-KORR1"
+  ],
+  "visninger": [
+    "demoruta"
+  ],
+  "endringer": [
+    {
+      "dato": "2026-11-05",
+      "forhold": "#1308, MM-U51",
+      "hva": "Forløpet er registrert som kjørbart, som varianten av BF-02A for en lukket sak."
+    }
+  ]
+}

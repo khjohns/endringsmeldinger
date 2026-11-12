@@ -9,30 +9,25 @@
  * er endret etter enigheten (MM-U3 (opphevet av MM-U50)).
  */
 
-import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import {
-  hjemmelenGjelder,
-  postlisten,
-  ulikeVirkninger,
-  virkninger,
-  type Paaberopt,
-  type Vederlagspost,
-} from '../frosset/standpunkt.ts';
+import { ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
+import { iSporet } from '../frosset/byggeklosser.ts';
+import { VISNING_I_FORHOLDET } from '../spor/forhold/visning.ts';
+import { VISNING_I_VEDERLAGET } from '../spor/vederlag/visning.ts';
 import {
   enighetensVirkning,
-  forskyvningIBrevet,
   paaberopelseFor,
   kilden,
   kraveneErAvgjort,
   sporetErLukket,
   svarIkkeGodtatt,
   venterPaaSvar,
+  vurdertVedRegistreringen,
   type Kilde,
   type RegistrertBrev,
   type Utledning,
 } from './utled.ts';
-import { SPOR, type Part, type Spor, type Svar } from '../typer.ts';
+import { SPOR, type Spor } from '../typer.ts';
 
 export type Statuskode =
   | 'kan_ikke_utledes'
@@ -111,7 +106,7 @@ export const BETEGNELSER = [
 export type Betegnelse = (typeof BETEGNELSER)[number];
 
 const harVarsel = (u: Utledning, spor: Spor): boolean =>
-  Object.keys(u.spor[spor].varsler).length > 0;
+  Object.keys(u.spor[spor].varsler).length > 0 || u.spor[spor].kravpostvarsler.length > 0;
 
 const sendt = (u: Utledning, spor: Spor): boolean =>
   u.spor[spor].krav.length > 0 || u.spor[spor].ingenKrav || harVarsel(u, spor);
@@ -126,12 +121,12 @@ const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
     !sporetErLukket(u) &&
     u.spor.frist.foresporsler.some((f) => f.svar === null),
   venter_paa_svar: venterPaaSvar,
-  paalegg_frafalt: (u, spor) => spor === 'forhold' && u.frafalt,
+  paalegg_frafalt: (u, spor) => visningI(spor).paaleggFrafalt(u),
   enige: (u, spor) => u.spor[spor].enighet !== null,
   svar_ikke_godtatt: svarIkkeGodtatt,
-  // Står igjen når sporet er lukket uten enighet, som når TE har godtatt et svar som avslår
-  // forholdet eller påberoper preklusjon (GR-U27).
-  krav_sendt: (u, spor) => u.spor[spor].gjeldendeKrav !== null,
+  // MM-U30: TE har godtatt avslaget på grunnlaget (GR-U27). At sporet verken har enighet eller
+  // trekk, følger av rekkefølgen: «Trukket» og «Enige» står foran.
+  krav_sendt: (u, spor) => sporetErLukket(u) && u.spor[spor].gjeldendeKrav !== null,
   ingen_krav: (u, spor) => u.spor[spor].ingenKrav,
   varslet: harVarsel,
 };
@@ -172,61 +167,15 @@ function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   return ulikeVirkninger(u.svar[g.id].virkninger, virkninger(g, paaberopelseFor(g, u), regler));
 }
 
-/**
- * Svaret er registrert korrespondanse. Beslutningsgrunnlaget er da appens vurdering
- * etter reglene ved registreringen, ikke da brevet ble sendt (MM-U17, MM-U50).
- */
-function vurdertVedRegistreringen(u: Utledning, svarId: string): boolean {
-  const dokument = u.svar[svarId].svar.dokument;
-  return erRegistrert(
-    u.opplysninger.filter((o) => o.opplysning.dokument === dokument).map((o) => o.opplysning)
-  );
-}
-
-/**
- * Byggherrens svar på vederlaget slik visningen viser det (svarene i #1047 24.10): postene
- * og påberopelsene med lagene brevet ga dem (`postlisten`), brevet og parten. Et registrert
- * svar er appens vurdering ved registreringen (MM-U17 (opphevet av MM-U50)). `eldreKravversjon` skiller svaret på
- * en eldre kravversjon fra kravet som venter på svar (MM-U24, MM-U9).
- */
-export interface Vederlagssvaret {
-  svar: string;
-  dokument: string;
-  hendelse: string;
-  part: Part;
-  kravversjon: string;
-  eldreKravversjon: boolean;
-  vurdertVedRegistreringen: boolean;
-  poster: Vederlagspost[];
-  paaberopt: Paaberopt[];
-}
-
-export function vederlagssvaret(u: Utledning, svar: Svar): Vederlagssvaret {
-  if (svar.spor !== 'vederlag') throw new Error(`${svar.id} er ikke et svar på vederlaget`);
-  const element = u.elementer[svar.id];
-  return {
-    svar: svar.id,
-    dokument: svar.dokument,
-    hendelse: element.hendelse,
-    part: element.part,
-    kravversjon: svar.gjelder,
-    eldreKravversjon: svar.gjelder !== u.spor.vederlag.gjeldendeKrav?.id,
-    vurdertVedRegistreringen: vurdertVedRegistreringen(u, svar.id),
-    ...postlisten(svar, svar.beslutningsgrunnlag.virkninger, forskyvningIBrevet(svar, u)),
-  };
-}
-
 function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   const s = u.spor[spor];
   const ut: string[] = [];
   if (FORELIGGER.trukket(u, spor)) ut.push('trukket');
   if (venterPaaSvar(u, spor)) ut.push('venter_paa_svar');
   const virkning = enighetensVirkning(u, spor);
-  if (spor === 'forhold') {
-    if (u.frafalt) ut.push('paalegg_frafalt');
-    if (u.forholdAvvist) ut.push('avslaatt');
-    if (virkning && !s.trukket) ut.push('enige');
-  } else {
+  const svaretsEtiketter = visningI(spor).svaretsEtiketter;
+  if (svaretsEtiketter) ut.push(...svaretsEtiketter(u, virkning));
+  else {
     if (virkning === 'betinget') ut.push('enige_betinget');
     if (virkning === 'uten_virkning') ut.push('enighet_uten_virkning');
     if (s.gjeldendeKrav && s.subsidiaer.length) ut.push('subsidiaert');
@@ -243,24 +192,53 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
     s.gjeldendeKrav?.id,
     s.gjeldendeSvar?.id,
     ...Object.values(s.varsler).map((v) => v.id),
+    ...s.kravpostvarsler.map((v) => v.id),
   ];
   for (const i of u.innsigelser)
     if (iSporet.includes(i.gjelder) && !ut.includes(`innsigelse_fra_${i.part}`))
       ut.push(`innsigelse_fra_${i.part}`);
-  if (spor === 'forhold' && u.passivitet.length) ut.push('passivitet_paaberopt');
+  const passivitet = visningI(spor).passivitetsetikett(u);
+  if (passivitet) ut.push(passivitet);
   if (s.ingenKrav) ut.push('ingen_krav');
-  // Oppdragsgiver 22.10 (#1126): bare før kravet, som er varselet når sporet ikke har noe.
-  else if (spor === 'frist' && !s.varsler['33.4'] && s.krav.length === 0)
-    ut.push('varsel_ikke_registrert');
-  // OV-U15: der TE krever endring, kreves det ikke varsel etter § 34.1.2 (§ 34.1.1).
-  else if (
-    spor === 'vederlag' &&
-    u.spor.forhold.gjeldendeKrav &&
-    !hjemmelenGjelder('34.1.2', u.spor.forhold.gjeldendeKrav, regler)
-  )
-    ut.push('varsel_kreves_ikke');
+  else {
+    const varsel = visningI(spor).varseletikett(u, regler);
+    if (varsel) ut.push(varsel);
+  }
   return ut;
 }
+
+/** Det som er sporets eget i visningen. */
+export interface Sporsvisning {
+  /** Etiketten for varselet i sporet når sporet ikke har «ingen krav», eller `null`. */
+  varseletikett(u: Utledning, regler: Regelsett): string | null;
+  /** Byggherren har frafalt pålegget i sporet (betegnelsen `paalegg_frafalt`). */
+  paaleggFrafalt(u: Utledning): boolean;
+  /**
+   * Etikettene for svaret og enigheten i sporet med enighetens virkning
+   * (`enighetensVirkning`). Uten dem får sporet etikettene for et spor med krav.
+   */
+  svaretsEtiketter?(u: Utledning, virkning: ReturnType<typeof enighetensVirkning>): string[];
+  /** Etiketten for en påberopt passivitet i sporet, eller `null`. */
+  passivitetsetikett(u: Utledning): string | null;
+}
+
+/** Visningen i hvert spor. Fristen står her til den flyttes til sporet (#1745). */
+const VISNING: Record<Spor, Sporsvisning> = {
+  forhold: VISNING_I_FORHOLDET,
+  vederlag: VISNING_I_VEDERLAGET,
+  frist: {
+    paaleggFrafalt: () => false,
+    passivitetsetikett: () => null,
+    // Oppdragsgiver 22.10 (#1126): bare før kravet, som er varselet når sporet ikke har noe.
+    varseletikett: (u) =>
+      !u.spor.frist.varsler['33.4'] && u.spor.frist.krav.length === 0
+        ? 'varsel_ikke_registrert'
+        : null,
+  },
+};
+
+/** Visningen i sporet (`iSporet`). */
+const visningI = (spor: Spor): Sporsvisning => iSporet(VISNING, spor);
 
 /** OV-U10: et registrert brev kan ha krav appen ikke kjenner. */
 export const BREV_UTENFOR_APPEN =

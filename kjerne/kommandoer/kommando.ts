@@ -7,32 +7,34 @@
  * skrives.
  */
 
+import { KRAVINNHOLD, OPPLYSNINGSSLAG } from '../format/format.ts';
+import { KRAVFORM_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
+import { iSporet } from '../frosset/byggeklosser.ts';
 import {
   DATO,
-  DATOEN_GJELDER,
+  erKalenderdato,
+  erObjekt,
+  feilI,
   ID,
-  KRAVINNHOLD,
   liste,
   objekt,
-  oppgittDato,
-  OPPLYSNINGSSLAG,
   TEKST,
-} from '../format/format.ts';
-import { erKalenderdato, erObjekt, feilI, type Skjema } from '../format/skjema.ts';
-import { BroekdelAvOere, heleOere } from '../regler/beloep.ts';
-import type { Svarvurdering } from '../frosset/standpunkt.ts';
+  type Skjema,
+} from '../format/skjema.ts';
+import type { Svarvurdering } from '../frosset/byggeklosser.ts';
 import {
   KRAVSPOR,
   SPOR as SPORENE,
   VARSELSPOR,
   type Kravspor,
-  type OppgittDatofelt,
   type Opplysningsslag,
   type Spor,
+  type Kravvarselhjemmel,
   type Varselhjemmel,
   KORRESPONDANSETYPER,
   type Korrespondansetype,
 } from '../typer.ts';
+import { KRAVFORM_I_FORHOLDET, korrigertDato } from '../spor/forhold/kommando.ts';
 
 export interface Svarutkast {
   spor: Spor;
@@ -56,14 +58,22 @@ interface Brevtekst {
   brevtekst?: string[];
 }
 
-/** Varselet TE sender fra løsningen (VS-U15). Påberopelsen er varselet etter § 32.2 (GR-U31). */
-type Varselet =
-  | { spor: 'frist'; hjemmel: '33.4' }
-  | { spor: 'vederlag'; hjemmel: '34.1.2' }
-  | { spor: 'vederlag'; hjemmel: '34.1.3' };
+/**
+ * Varselet TE sender fra løsningen (VS-U15), også varselet etter § 34.3.3 første ledd eller
+ * § 34.4 som står alene (VS-U48). Påberopelsen er varselet etter § 32.2 (GR-U31).
+ */
+type Varselet = Hjemmelsvarsel<Kravvarselhjemmel>;
 
-/** Varselet TE har sendt utenfor løsningen og registrerer, også etter § 32.2 (VS-U34, VS-U38). */
-export type RegistrertVarsel = Varselet | { spor: 'forhold'; hjemmel: '32.2' };
+/** Varselet etter hver hjemmel i `H`, med sporet hjemmelen står i (`VARSELSPOR`, OV-U5). */
+type Hjemmelsvarsel<H extends Varselhjemmel> = {
+  [K in H]: { spor: (typeof VARSELSPOR)[K]; hjemmel: K };
+}[H];
+
+/**
+ * Varselet TE har sendt utenfor løsningen og registrerer, også etter § 32.2 (VS-U34, VS-U38) og
+ * etter § 34.3.3 første ledd eller § 34.4 (VS-U52).
+ */
+export type RegistrertVarsel = Hjemmelsvarsel<Varselhjemmel>;
 
 export type Kommando = (
   | {
@@ -97,8 +107,8 @@ export type Kommando = (
     }
   | { type: 'trekk'; spor: Spor }
   /**
-   * Registrerer et varsel etter § 32.2, § 33.4, § 34.1.2 eller § 34.1.3 sendt utenfor appen
-   * (MM-U1, SK-12, OV-U5, VS-U34), med brevet som vedlegg (OV-U4). `dokumentasjon` er
+   * Registrerer et varsel etter § 32.2, § 33.4, § 34.1.2, § 34.1.3, § 34.3.3 eller § 34.4
+   * sendt utenfor appen (MM-U1, SK-12, OV-U5, VS-U34, VS-U52), med brevet som vedlegg (OV-U4). `dokumentasjon` er
    * ID-ene i mellomlageret (LV-U14). Hjemmelen følger sporet.
    */
   | ({
@@ -335,17 +345,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
   ),
 };
 
-/** Feltet og datoen i korrigeringen. Formen har nøyaktig ett av feltene. */
-export function korrigertDato(k: Extract<Kommando, { type: 'korrigering' }>): {
-  felt: OppgittDatofelt;
-  dato: string;
-} {
-  return k.paalegg_mottatt !== undefined
-    ? { felt: 'paalegg_mottatt', dato: k.paalegg_mottatt }
-    : { felt: 'klar_over_forholdet', dato: k.klar_over_forholdet! };
-}
-
-type Innhold = Record<string, unknown>;
+export type Innhold = Record<string, unknown>;
 
 /**
  * Feltet med datoen og vedleggene kommandoen viser til: brevets, påberopelsens (VS-U38),
@@ -362,47 +362,44 @@ const brevfelt = (k: Kommando): { sti: string; sendt?: unknown; dokumentasjon?: 
         ...('dokumentasjon' in k ? { dokumentasjon: k.dokumentasjon } : {}),
       };
 
-/** Vedleggene kommandoen viser til: brevets, påberopelsens (VS-U38), eller varselets i et fristkrav (OV-U5). */
-export const vedleggI = (k: Kommando): string[] => brevfelt(k).dokumentasjon ?? [];
-
 /**
- * VS-U26: en påberopelse fra appen har datoen kategorien har, som en dato.
- * Formatet binder feltet til kategorien; her kreves det.
+ * Vedleggene kommandoen viser til: brevets, påberopelsens (VS-U38), varselets i et fristkrav
+ * (OV-U5), eller dokumentene kravskjemaet legger til som varsel for en kravpost (VS-U53).
  */
-function datofeil(innhold: Innhold): string[] {
-  const felt = oppgittDato(innhold.hovedkategori, innhold.underkategori);
-  if (felt === null) return [];
-  const dato = innhold[felt];
-  if (dato === undefined)
-    return [`$.innhold.${felt}: TE må oppgi datoen ${DATOEN_GJELDER[felt]} (VS-U26)`];
-  return erKalenderdato(dato)
-    ? []
-    : [`$.innhold.${felt}: ${JSON.stringify(dato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`];
+export const vedleggI = (k: Kommando): string[] => [
+  ...(brevfelt(k).dokumentasjon ?? []),
+  // Kalles også før formen er kontrollert, så et ukjent spor gir ingen vedlegg.
+  ...(k.type === 'krav' && Object.hasOwn(KRAVFORM, k.spor)
+    ? KRAVFORM[k.spor].vedleggIInnholdet(k.innhold)
+    : []),
+];
+
+/** Det som er sporets eget i formen på et krav (#1783). */
+export interface Kravform {
+  /** Feilene i innholdet i kravet, med stien fra `$.innhold`. */
+  feil(innhold: unknown): string[];
+  /** Vedleggene innholdet i kravet viser til, utenom brevets. */
+  vedleggIInnholdet(innhold: Innhold): string[];
+  /** Kravet kan ha vedlegg (`dokumentasjon`), som påberopelsen (VS-U38). */
+  vedleggVedKravet: boolean;
+  /** Kravet kan ha et varsel (`varsel`), som fristkravet (OV-U5). */
+  varselVedKravet: boolean;
 }
 
-/** OV-U58: beløpene TE krever, i hele øre. Formatet har allerede kontrollert at de er tall. */
-function oerefeil(innhold: Innhold): string[] {
-  const beloepene: [string, unknown][] = [
-    ['$.innhold.beloep', innhold.beloep],
-    [
-      '$.innhold.saerskilt.produktivitet.beloep',
-      (innhold.saerskilt as { produktivitet?: { beloep?: unknown } } | undefined)?.produktivitet
-        ?.beloep,
-    ],
-  ];
-  return beloepene.flatMap(([sti, verdi]) => {
-    if (typeof verdi !== 'number') return [];
-    try {
-      heleOere(verdi);
-      return [];
-    } catch (e) {
-      if (!(e instanceof BroekdelAvOere)) throw e;
-      return [
-        `${sti}: ${verdi} har brøkdeler av øre; beløpet oppgis i kroner med høyst to desimaler (OV-U58)`,
-      ];
-    }
-  });
-}
+/** Formen på kravet i hvert spor. Fristen står her til den flyttes (#1745). */
+const KRAVFORM: Record<Spor, Kravform> = {
+  forhold: KRAVFORM_I_FORHOLDET,
+  vederlag: KRAVFORM_I_VEDERLAGET,
+  frist: {
+    feil: (innhold) => {
+      const { properties, required, anyOf } = KRAVINNHOLD.frist;
+      return feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
+    },
+    vedleggIInnholdet: () => [],
+    vedleggVedKravet: false,
+    varselVedKravet: true,
+  },
+};
 
 /** Feilene i formen, tomme når kommandoen kan vurderes. */
 export function formfeil(kommando: unknown): string[] {
@@ -413,14 +410,12 @@ export function formfeil(kommando: unknown): string[] {
   const feil = feilI(kommando, SKJEMA[type as Kommando['type']]);
   if (type === 'krav' && !feil.length) {
     const k = kommando as { spor: Spor; innhold: unknown };
-    const { properties, required, anyOf } = KRAVINNHOLD[k.spor];
-    feil.push(...feilI(k.innhold, objekt(properties, required, anyOf), '$.innhold'));
-    if (k.spor === 'forhold' && !feil.length) feil.push(...datofeil(k.innhold as Innhold));
-    if (k.spor === 'vederlag' && !feil.length) feil.push(...oerefeil(k.innhold as Innhold));
-    if (k.spor !== 'frist' && 'varsel' in k)
+    const form = iSporet(KRAVFORM, k.spor);
+    feil.push(...form.feil(k.innhold));
+    if (!form.varselVedKravet && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
     // VS-U38: vedleggene ved påberopelsen; et fristkrav har brevet med varselet i `varsel`.
-    if (k.spor !== 'forhold' && 'dokumentasjon' in k)
+    if (!form.vedleggVedKravet && 'dokumentasjon' in k)
       feil.push('$.dokumentasjon: bare påberopelsen har vedlegg ved kravet');
   }
   // OV-U5: varselet etter § 33.4 står i fristen, varselet etter § 34.1.2 i vederlaget.

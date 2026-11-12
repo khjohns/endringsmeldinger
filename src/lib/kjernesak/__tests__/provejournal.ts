@@ -3,7 +3,9 @@
 import type { Saksmerking } from '$lib/kjernesak/brevtekst';
 import { forhaandsvis, utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
 import { KJERNE } from '$kjerne/versjon';
+import { kravposterI } from '$kjerne/spor/vederlag/format';
 import type { Journalrad, Part } from '$kjerne/typer';
+import type { Journallinje } from '$lib/api/kjerne';
 
 export const SAK = 'sak-1';
 
@@ -66,12 +68,15 @@ export const medGrunnlag = skrevet([opprettet], 'TE', {
 export const medVederlag = skrevet(medGrunnlag, 'TE', {
   type: 'krav',
   spor: 'vederlag',
-  innhold: { metode: 'tilbud', beloep: 250000 },
+  innhold: { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 250000 }] },
   utdypning: 'Tilbudet gjelder pelingen.',
 });
 
 const kravId = (journal: Journalrad[], spor: string) =>
   utledJournal(journal, KJERNE).spor[spor as 'forhold'].gjeldendeKrav!.id;
+/** `id` til den første kravposten i vederlagskravet, som svaret på kravposten viser til. */
+const kravpostId = (journal: Journalrad[]) =>
+  kravposterI(utledJournal(journal, KJERNE).spor.vederlag.gjeldendeKrav!)[0]!.id;
 
 export const medSvar = skrevet(medVederlag, 'BH', {
   type: 'brev',
@@ -95,9 +100,14 @@ export const medVederlagssvar = skrevet(medVederlag, 'BH', {
       gjelder: kravId(medVederlag, 'vederlag'),
       regelversjon: KJERNE.regler.versjon,
       vurderinger: {
-        hovedkrav_vurdering: 'godkjent',
-        hovedkrav_godkjent_beloep: 250000,
-        aksepterer_metode: true,
+        kravposter: [
+          {
+            gjelder: kravpostId(medVederlag),
+            vurdering: 'godkjent',
+            godkjent_beloep: 250000,
+            aksepterer: true,
+          },
+        ],
       },
       resultat: { resultat: 'godkjent', godkjent_beloep: 250000 },
       utdypning: 'Tilbudet godtas.',
@@ -154,3 +164,22 @@ export const medUkjentHendelse: Journalrad[] = [
   ...medGrunnlag,
   { ...medGrunnlag[1], event_id: 'e-ukjent', event_type: 'ukjent_hendelse', versjon: 3, data: {} },
 ];
+
+/** Raden slik serveren gir den i journalen til en sak. */
+export const linje = ({
+  event_id,
+  versjon,
+  event_type,
+  tidsstempel,
+  aktor_rolle,
+  format,
+  data,
+}: Journalrad): Journallinje => ({
+  event_id,
+  versjon,
+  event_type,
+  tidsstempel,
+  aktor_rolle,
+  format,
+  data,
+});

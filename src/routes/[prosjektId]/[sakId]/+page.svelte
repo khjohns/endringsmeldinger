@@ -1,7 +1,6 @@
 <!--
-  Saken i Varden (#1414). Saken åpner i forholdet, eller i sporet `?spor=` fra
-  omdirigeringene. Etter opprettelsen kommer TE hit med kvitteringen (S1 i #1414).
-  Den gamle visningen står på `kjerne/` (S3).
+  Saken i Varden (#1414). Saken åpner i forholdet, eller i sporet `?spor=`. Etter
+  opprettelsen kommer TE hit med kvitteringen (S1 i #1414).
 -->
 <script lang="ts">
   import { page } from '$app/state';
@@ -20,7 +19,7 @@
     if (sakId) void kjernesak.last();
   });
 
-  // Omdirigeringene skriver sporene med de gamle navnene.
+  // `?spor=` tar også imot de gamle navnene på sporet for forholdet.
   const SPORENE: Record<string, Spor> = {
     ansvar: 'forhold',
     grunnlag: 'forhold',
@@ -42,5 +41,8 @@
     {spor}
     kvittering={page.state.nySakSendt ? NYSAK.kvittering : undefined}
     saksliste={resolve('/[prosjektId]', { prosjektId })}
+    prosjekter={resolve('/')}
+    nySakLenke={resolve('/[prosjektId]/ny', { prosjektId })}
+    bruker={page.data.user}
   />
 {/key}

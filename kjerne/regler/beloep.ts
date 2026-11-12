@@ -62,11 +62,6 @@ export function heleOere(verdi: number | string | null | undefined): Oere | null
   return skaler(tekst(verdi), 2, true);
 }
 
-export function tilKrone(oere: Oere): bigint {
-  const krone = oere >= 0n ? (oere + 50n) / 100n : -((-oere + 50n) / 100n);
-  return krone;
-}
-
 /** Øre til flyttall, slik Python lagrer `float(Decimal)`. */
 export function tilTall(oere: Oere): number {
   const negativ = oere < 0n;

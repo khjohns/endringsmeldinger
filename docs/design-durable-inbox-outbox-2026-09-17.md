@@ -24,7 +24,7 @@
 > gjeldende masterplan og transaksjonsplan.
 
 Dato: 2026-09-17. Utgangspunkt: `b4868ca`.
-Forrige: [vurdering av Power Platform](vurdering-power-platform-2026-09-17.md).
+Forrige: [vurdering av Power Platform](historikk/vurdering-power-platform-2026-09-17.md).
 Målarkitekturen dette konkretiserer: trinn 2 og 3 i [Catenda-dataflyten](catenda-dataflyt.md).
 
 Spørsmålet: hvis vi dropper Dataverse og bruker Azure SQL — hva med durable inbox og
@@ -38,7 +38,7 @@ en forbedring man kan ta senere.
 
 **Merknad 2026-09-19.** Dokumentets kjernepåstand — at det avgjørende valget er
 **én database**, ikke Azure SQL kontra Postgres — er bekreftet av
-[arkitekturvurderingen](arkitekturvurdering-2026-09-19.md), som kom til samme
+[arkitekturvurderingen](historikk/arkitekturvurdering-2026-09-19.md), som kom til samme
 konklusjon uavhengig og la til to ting dette dokumentet ikke hadde:
 
 - **Plattformen er avklart.** Google Cloud nå, mulig Azure Container Apps senere.
@@ -49,7 +49,7 @@ konklusjon uavhengig og la til to ting dette dokumentet ikke hadde:
   `prosjekt_id` (DB-06), så en RLS-policy på prosjekt lar seg ikke formulere før
   kolonnen finnes og er backfilt fra `sak_metadata` — aldri fra `source`, som er
   skrevet av en av tre oslobygg-fallbacks. Se
-  [sammenstillingen](sammenstilling-arkitektur-og-auditspor-2026-09-19.md), del 3.
+  [sammenstillingen](historikk/sammenstilling-arkitektur-og-auditspor-2026-09-19.md), del 3.
 
 Linje 428 under fører opp at `BH_APPROVAL_DB` trenger varig lagring og restore-test,
 med «bortfaller når SQLite-lagrene konsolideres». Plattformvalget gjør den
@@ -108,7 +108,7 @@ spenner over noe av det.** Steg 3 til 6 er «prøv, logg, gå videre».
 Det er ikke slurv — hvert enkelt valg er begrunnet i en audit. At hendelsen står selv om
 Catenda feiler er `PDF-02` («en integrasjonsfeil skal ikke invitere til ny
 innsending»). At vedlegget leveres *etter* commit er det bevisste valget i
-[vedleggsauditen](audit-vedleggsflyt-2026-09-15.md). At kvitteringen skrives før commit
+[vedleggsauditen](historikk/audit-vedleggsflyt-2026-09-15.md). At kvitteringen skrives før commit
 er `AUD-06`s intent-registrering.
 
 Problemet er ikke de enkelte valgene. Det er at **ingen av dem etterlater en varig
@@ -197,7 +197,7 @@ CREATE TABLE vedlegg (
 
 `VARBINARY(MAX)` i samme database framfor Blob Storage er et bevisst valg her: det er det
 som gjør atomisiteten triviell. Ved volumanslaget i
-[arkitekturdiagrammene](arkitektur-diagrammer.md) (~5 000 saker/år) og 15 MB-taket er
+[arkitekturdiagrammene](historikk/arkitektur-diagrammer.md) (~5 000 saker/år) og 15 MB-taket er
 det håndterbart, og bytene slettes ved levering, så steady state er bare uleverte
 vedlegg. Blob Storage med en egen opprydder er riktigere ved høyere volum, men koster
 atomisiteten. *FILESTREAM og FileTable finnes ikke i Azure SQL Database.*
@@ -276,8 +276,8 @@ CREATE INDEX ix_klar ON utgaende_levering (neste_forsok_at)
 ```
 
 **Dette er mekanismen som lukker duplikatproblemet.** I dag er «duplikate dokumenter ved
-retry» et åpent punkt i både [PDF-auditen](audit-pdf-catenda-2026-09-14.md) og
-[persistensauditen](audit-persistens-gjenoppretting-2026-09-14.md). Med sjekkpunkt
+retry» et åpent punkt i både [PDF-auditen](historikk/audit-pdf-catenda-2026-09-14.md) og
+[persistensauditen](historikk/audit-persistens-gjenoppretting-2026-09-14.md). Med sjekkpunkt
 gjenopptar et nytt forsøk ved første uutførte steg, framfor å laste opp PDF-en en gang
 til. Mønsteret finnes allerede i miniatyr i dagens kode — «samme dokumentnavn finnes og
 `failOnDocumentExists=false` → gjenbruk eksisterende dokumentreferanse» — og skal
@@ -453,7 +453,7 @@ Eksponentiell backoff med jitter og et absolutt forsøkstak, så dead letter og 
 ### 6.6 Mellomlagrede vedlegg er førbeslutningsmateriale
 
 Bytene i `vedlegg.innhold` er ikke sett av motparten, og det er hele poenget i
-[vedleggsauditen](audit-vedleggsflyt-2026-09-15.md). De arver databasens kryptering og
+[vedleggsauditen](historikk/audit-vedleggsflyt-2026-09-15.md). De arver databasens kryptering og
 sikkerhetskopiering — som også betyr at de havner i sikkerhetskopiene. Slettingen ved
 levering må derfor være reell, og oppbevaringstiden for sikkerhetskopier må være et
 bevisst valg, ikke en standardverdi.
@@ -463,12 +463,12 @@ bevisst valg, ikke en standardverdi.
 | Punkt | Kilde | Hvordan |
 | --- | --- | --- |
 | Durable outbox for webhookens sideeffekter | [Catenda-dataflyten](catenda-dataflyt.md) trinn 3, utsatt etter avtale | Del 4.6 |
-| Duplikate dokumenter og kommentarer ved retry | [PDF](audit-pdf-catenda-2026-09-14.md), [persistens](audit-persistens-gjenoppretting-2026-09-14.md) | Stegsjekkpunkt, del 4.3 |
-| Automatisk gjenopptakelse av hengende jobber | [persistens](audit-persistens-gjenoppretting-2026-09-14.md) | Lease-sweeper, del 4.4 |
-| «Sendt» har tre svar i systemet | [handoff](handoff-2026-09-15.md) | Én outbox-vei for alle tre innsendingsveiene |
+| Duplikate dokumenter og kommentarer ved retry | [PDF](historikk/audit-pdf-catenda-2026-09-14.md), [persistens](historikk/audit-persistens-gjenoppretting-2026-09-14.md) | Stegsjekkpunkt, del 4.3 |
+| Automatisk gjenopptakelse av hengende jobber | [persistens](historikk/audit-persistens-gjenoppretting-2026-09-14.md) | Lease-sweeper, del 4.4 |
+| «Sendt» har tre svar i systemet | [handoff](historikk/handoff-2026-09-15.md) | Én outbox-vei for alle tre innsendingsveiene |
 | Webhookidempotens overlever ikke restart | `lib/security/webhook_security.py` | Inbox-tabell, del 4.6 |
-| `BH_APPROVAL_DB` trenger varig lagring og restore-test | [persistens](audit-persistens-gjenoppretting-2026-09-14.md) | Bortfaller når SQLite-lagrene konsolideres |
-| Opprydding av forlatte utkast server-side | [utkastlagring](audit-utkast-serverlagring-2026-09-15.md) | Kan gjøres i innsendingstransaksjonen |
+| `BH_APPROVAL_DB` trenger varig lagring og restore-test | [persistens](historikk/audit-persistens-gjenoppretting-2026-09-14.md) | Bortfaller når SQLite-lagrene konsolideres |
+| Opprydding av forlatte utkast server-side | [utkastlagring](historikk/audit-utkast-serverlagring-2026-09-15.md) | Kan gjøres i innsendingstransaksjonen |
 
 Det siste er en bieffekt verdt å nevne: når utkastet ligger i samme database som
 hendelsen, kan innsendingen slette utkastraden i samme transaksjon. Da lukkes begge
@@ -507,7 +507,7 @@ Avhengighetene bestemmer rekkefølgen; punkt 1 er en forutsetning for alt annet.
    én om gangen, jf. lærdommen fra vedleggsleveringen.
 5. **Worker som egen deployerbar enhet**, med lease-sweeper og dead letter.
 6. **Sikkerhetsreglene i del 6** som tester, ikke som dokumentasjon. Særlig 6.1 og 6.3.
-7. **Krasjtester.** [Persistensauditen](audit-persistens-gjenoppretting-2026-09-14.md)
+7. **Krasjtester.** [Persistensauditen](historikk/audit-persistens-gjenoppretting-2026-09-14.md)
    har allerede mønsteret — underprosess som avsluttes med `os._exit(23)` midt i en
    transaksjon. De testene må utvides til å dekke avbrudd i hvert steg av leveransen.
 
