@@ -71,7 +71,7 @@ const radio = (navn: string) => screen.getByRole('radio', { name: navn });
 const aapne = (post: string) =>
   fireEvent.click(screen.getByRole('button', { name: `Svar på ${post}` }));
 const ferdig = () => fireEvent.click(screen.getByRole('button', { name: 'Ferdig' }));
-// KA-U24: kjernen krever en begrunnelse når svaret ikke godkjenner alt.
+// KA-U43: kjernen krever en begrunnelse når svaret ikke godkjenner alt.
 const begrunn = () =>
   fireEvent.input(screen.getByRole('textbox', { name: /Begrunnelse/ }), {
     target: { value: 'Byggherrens begrunnelse.' },
