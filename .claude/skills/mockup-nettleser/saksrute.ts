@@ -734,7 +734,7 @@ try {
           ? rute.fulfill({ status: svar.status, contentType: 'application/json', body: JSON.stringify(svar.kropp) })
           : rute.abort('failed');
       });
-      await te.getByRole('button', { name: 'Send aksepten til BH', exact: true }).click();
+      await te.getByRole('button', { name: 'Send aksepten til byggherren', exact: true }).click();
       for (let i = 0; !traff && i < 50; i++) await te.waitForTimeout(200);
       if (!traff) throw new Error(`Feiltilstand ${tilstand.navn}: skjemaet sendte ikke til ${kommandoruta}`);
       const varsel = te.getByRole('alert').filter({ hasText: tilstand.melding }).first();
