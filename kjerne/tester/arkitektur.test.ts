@@ -445,12 +445,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Kravpost',
     'utsagn',
     'oppgjoersform justert',
-    [
-      'spor/vederlag/frysing.ts',
-      'spor/vederlag/kommando.ts',
-      'kommandoer/standpunkter.ts',
-      'spor/vederlag/utledning.ts',
-    ],
+    ['spor/vederlag/frysing.ts', 'spor/vederlag/kommando.ts', 'spor/vederlag/utledning.ts'],
   ],
   [
     'Kravpost',
@@ -582,7 +577,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utledning/utled.ts',
     'relasjon',
     'varseletForNyttSvar',
-    ['kommandoer/standpunkter.ts', 'kommandoer/forutsetninger.ts'],
+    ['kommandoer/standpunkter.ts', 'spor/vederlag/kommando.ts', 'kommandoer/forutsetninger.ts'],
   ],
   // VS-U60: kravet som er det første varselet, når det ikke finnes et eget varsel.
   [
@@ -704,7 +699,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/utledning.ts',
       // KA-U54, KA-U64, KA-U68: TEs oppgjørsform for standpunktene til kravposten.
       'spor/vederlag/kommando.ts',
-      'kommandoer/standpunkter.ts',
     ],
   ],
   // KA-U64: varselet en kravpost trenger, for standpunktet til varselet i svaret.
@@ -712,20 +706,20 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/utledning.ts',
     'predikat',
     'varselhjemmel',
-    ['kommandoer/standpunkter.ts', 'kommandoer/skriving.ts:medVarslene'],
+    ['spor/vederlag/kommando.ts', 'kommandoer/skriving.ts:medVarslene'],
   ],
   // KA-U57 (d), KA-U54: hjemmelen i standpunktet til oppgjørsformen etter TEs oppgjørsform.
   [
     'spor/vederlag/format.ts',
     'skjema',
     'OPPGJOERSHJEMMEL',
-    ['kommandoer/standpunkter.ts', 'spor/vederlag/utledning.ts'],
+    ['spor/vederlag/kommando.ts', 'spor/vederlag/utledning.ts'],
   ],
   [
     'OPPGJOERSHJEMMEL',
     'skjema',
     'tilbud enhetspriser regningsarbeid',
-    ['kommandoer/standpunkter.ts', 'spor/vederlag/utledning.ts'],
+    ['spor/vederlag/kommando.ts', 'spor/vederlag/utledning.ts'],
   ],
   ['OPPGJOERSFORM_I_HJEMMELEN', 'skjema', '34.2.2 34.3 34.4', ['spor/vederlag/format.ts']],
   // Kravposten standpunktene gjelder (KA-U57 (c) og (d)).
@@ -746,7 +740,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/tekst.ts', 'spor/vederlag/frysing.ts', 'kommandoer/nyttelast.ts'],
   ],
   // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
-  ['spor/vederlag/frysing.ts', 'regelsett', 'vederlagsposter', ['kommandoer/standpunkter.ts']],
+  ['spor/vederlag/frysing.ts', 'regelsett', 'vederlagsposter', ['spor/vederlag/kommando.ts']],
   ['spor/vederlag/format.ts', 'regelsett', 'krevdSamlet', ['kommandoer/nyttelast.ts']],
   ['spor/vederlag/frysing.ts:vederlagsposter', 'regelsett', 'godkjent gjelder saerskilt svar'],
   // KA-U57 (c) og (d), KA-U59: svaret på hver kravpost i kommandoen, lest ett sted.
@@ -1215,6 +1209,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'format/leser.ts',
       'kommandoer/standpunkter.ts',
+      'spor/vederlag/kommando.ts',
       'frosset/frysing.ts',
       'frosset/standpunkt.ts',
       'frosset/brevtekst.ts',
@@ -1535,11 +1530,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/frysing.ts', 'regelsett', 'frys', ['kommandoer/skriving.ts']],
   ['frosset/frysing.ts', 'regelsett', 'forholdsstandpunkter', ['kommandoer/standpunkter.ts']],
   // Standpunktene i et svarutkast, som skrivingen lagrer og revisjonen sammenliknes med (HF-U5).
+  ['kommandoer/standpunkter.ts', 'utsagn', 'standpunkter', ['kommandoer/skriving.ts']],
+  // Standpunktene i vederlaget, som standpunktene i et svarutkast og lagene slår opp i (#1783).
   [
-    'kommandoer/standpunkter.ts',
+    'spor/vederlag/kommando.ts',
     'utsagn',
-    'standpunkter',
-    ['kommandoer/skriving.ts', 'spor/vederlag/kommando.ts'],
+    'STANDPUNKTER_I_VEDERLAGET',
+    ['kommandoer/standpunkter.ts'],
   ],
   ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
   [
@@ -1680,6 +1677,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/standpunkt.ts',
       'frosset/utregning.ts',
       'utledning/utled.ts',
+      'kommandoer/standpunkter.ts',
     ],
   ],
   [

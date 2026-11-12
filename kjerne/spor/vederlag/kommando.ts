@@ -1,27 +1,122 @@
 /**
- * Lagene i et vederlagssvar byggherren ennå fyller ut (#1400), så skjemaet kan vise hvilke
- * innsigelser et subsidiært spørsmål bygger på, uten å avgjøre det selv. Lagene regnes som
- * brevet ville regnet dem med standpunktene som er besvart (OV-U32, OV-U33, arbeidsvalget
- * S1-A og S2-A i #1400, 30.10).
+ * Kommandoene i vederlaget (#1783): standpunktene i svaret, slik brevet lagrer dem
+ * (`STANDPUNKTER_I_VEDERLAGET`), og lagene i et vederlagssvar byggherren ennå fyller ut
+ * (#1400), så skjemaet kan vise hvilke innsigelser et subsidiært spørsmål bygger på, uten å
+ * avgjøre det selv. Lagene regnes som brevet ville regnet dem med standpunktene som er
+ * besvart (OV-U32, OV-U33, arbeidsvalget S1-A og S2-A i #1400, 30.10).
  */
 
+import { HJEMMEL } from '../../format/format.ts';
 import { grunnerFraForholdet, virkninger } from '../../frosset/standpunkt.ts';
-import { beregningsregelLag, kravpostvurderinger } from './frysing.ts';
+import {
+  beregningsregelLag,
+  kravpostvurderinger,
+  vederlagsposter,
+  type Kravpostvurdering,
+} from './frysing.ts';
 import { etikett, laget, type Svarvurdering } from '../../frosset/byggeklosser.ts';
-import { kravposterI } from './format.ts';
+import { kravposterI, OPPGJOERSHJEMMEL } from './format.ts';
+import { varselhjemmel } from './utledning.ts';
+import { beloep, tilTall } from '../../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
 import { standpunkterISvaret } from '../../format/leser.ts';
 import {
   erKravpostvarselhjemmel,
   type Hjemmel,
+  type Krav,
   type Standpunkt,
   type Standpunktsart,
   type Virkning,
 } from '../../typer.ts';
-import { paaberopelseFor, type Utledning } from '../../utledning/utled.ts';
+import { paaberopelseFor, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
 import type { Svarutkast } from '../../kommandoer/kommando.ts';
-import { standpunkter } from '../../kommandoer/standpunkter.ts';
+import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
+
+type Data = Record<string, unknown>;
+
+/** Standpunktene i vederlaget, i rekkefølgen brevet setter dem (`standpunkter`). */
+export const STANDPUNKTER_I_VEDERLAGET: Sporsstandpunkter = (v, krav, u, nyId) => {
+  const ut: Data[] = [];
+  // VS-U20, OV-U5, HF-U1: varselet før svaret, som i fristen.
+  if (typeof v.hovedkrav_varslet_i_tide === 'boolean')
+    ut.push({
+      id: nyId(),
+      art: 'rettidighet',
+      gjelder: varseletForNyttSvar(u, '34.1.2'),
+      hjemmel: HJEMMEL.vederlag,
+      i_tide: v.hovedkrav_varslet_i_tide,
+    });
+  // OV-U26, OV-U28, KA-U57: oppgjørsformen og beløpet for kravposten, begrensningen etter
+  // § 34.1.3 og posten etter annet ledd, hver for seg. Beløpet etter begrensningen er det
+  // byggherren oppgir (VS-U5).
+  for (const post of vederlagsposter(v, krav)) {
+    if ('gjelder' in post) ut.push(...kravpoststandpunkter(post.gjelder, post.svar, krav, nyId));
+    if ('saerskilt' in post && typeof v.produktivitet_varslet_i_tide === 'boolean')
+      ut.push({
+        id: nyId(),
+        art: 'rettidighet',
+        gjelder: varseletForNyttSvar(u, '34.1.3'),
+        hjemmel: '34.1.3',
+        i_tide: v.produktivitet_varslet_i_tide,
+        ...(v.produktivitet_varslet_i_tide
+          ? {}
+          : { begrenset_beloep: tilTall(beloep(v.produktivitet_begrenset_beloep as number)!) }),
+      });
+    // KA-U72: uten aksept av tilbudet står standpunktet til beløpet uten beløp.
+    ut.push({
+      id: nyId(),
+      art: 'beloep',
+      ...(post.godkjent === null ? {} : { beloep: post.godkjent }),
+      ...('gjelder' in post ? { gjelder: post.gjelder } : { saerskilt: post.saerskilt }),
+    });
+  }
+  return ut;
+};
+
+/**
+ * Standpunktene for én kravpost foran beløpet: oppgjørsformen med kravet om tilbud (KA-U69,
+ * KA-U71), varselet etter § 34.3.3 eller § 34.4 (KA-U64) og justeringen (KA-U68).
+ */
+function kravpoststandpunkter(
+  gjelder: string,
+  svar: Kravpostvurdering,
+  krav: Krav,
+  nyId: () => string
+): Data[] {
+  const kravpost = kravposterI(krav).find((p) => p.id === gjelder)!;
+  const ut: Data[] = [];
+  if (typeof svar.aksepterer === 'boolean')
+    ut.push({
+      id: nyId(),
+      art: 'oppgjoersform',
+      gjelder,
+      hjemmel: OPPGJOERSHJEMMEL[kravpost.oppgjoersform],
+      aksepterer: svar.aksepterer,
+      ...(svar.oensket_oppgjoersform != null
+        ? { oensket_oppgjoersform: svar.oensket_oppgjoersform }
+        : {}),
+      ...(svar.krever_tilbud === true ? { krever_tilbud: true } : {}),
+    });
+  const hjemmel = varselhjemmel(kravpost);
+  if (hjemmel && typeof svar.varslet_i_tide === 'boolean')
+    ut.push({
+      id: nyId(),
+      art: 'rettidighet',
+      gjelder,
+      hjemmel,
+      i_tide: svar.varslet_i_tide,
+    });
+  if (typeof svar.godtar_justering === 'boolean')
+    ut.push({
+      id: nyId(),
+      art: 'justering',
+      gjelder,
+      hjemmel: '34.3.2',
+      godtar: svar.godtar_justering,
+    });
+  return ut;
+}
 
 /**
  * Det i et foregående lag som rammer standpunktet (OV-U32). `oppgjoersform` er TEs beregningsregel for
@@ -78,8 +173,8 @@ export function lagForUtkastet(utkast: Svarutkast, u: Utledning, regler: Regelse
     produktivitet_begrenset_beloep: v.produktivitet_varslet_i_tide === false ? 0 : undefined,
   };
   let n = 0;
-  const lagret = standpunkter(
-    { ...utkast, vurderinger: utenBeloep },
+  const lagret = STANDPUNKTER_I_VEDERLAGET(
+    utenBeloep,
     u.spor.vederlag.gjeldendeKrav!,
     u,
     () => `utkast-${n++}`

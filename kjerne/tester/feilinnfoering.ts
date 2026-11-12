@@ -467,7 +467,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F30',
     feilklasse: 'skriveren utelater `gjelder` i et standpunkt om rettidighet (7.2)',
     fil: `${K}/kommandoer/standpunkter.ts`,
-    endringer: [["        gjelder: varseletForNyttSvar(u, '33.4'),\n", '']],
+    endringer: [["      gjelder: varseletForNyttSvar(u, '33.4'),\n", '']],
     mal: ['F-MM-D', 'F-MM-A'],
   },
   {
@@ -1480,7 +1480,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F178',
     feilklasse: 'byggherrens vurdering etter § 34.1.2 lagres ikke som standpunkt (#341, KA-U4)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         "if (typeof v.hovedkrav_varslet_i_tide === 'boolean')",
@@ -1556,7 +1556,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F185',
     feilklasse:
       'påberopelsen etter § 34.1.2 knyttes til kravversjonen svaret gjelder, ikke det første vederlagskravet (arbeidsvalget i #479)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [["gjelder: varseletForNyttSvar(u, '34.1.2'),", 'gjelder: krav.id,']],
     mal: ['F-MM-V-34-1-2-ny-kravversjon'],
   },
@@ -1600,7 +1600,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F189',
     feilklasse: 'byggherrens vurdering etter § 34.2.2 lagres ikke som standpunkt (#341)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       ["  if (typeof svar.aksepterer === 'boolean')", "  if (typeof svar.aksepterer === 'string')"],
     ],
@@ -2218,7 +2218,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F282',
     feilklasse: 'påberopelsen etter § 34.1.2 leses av feltet for § 32.2 (HF-U4, #522)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         "if (typeof v.hovedkrav_varslet_i_tide === 'boolean')",
@@ -2232,7 +2232,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F283',
     feilklasse:
       'et svar som utelater vurderingen etter § 34.1.2, påberoper at varselet kom for sent (HF-U4, KA-U4, #522)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         "if (typeof v.hovedkrav_varslet_i_tide === 'boolean')",
@@ -3770,7 +3770,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         "forholdsstandpunkter(v, varseletForNyttSvar(u, '32.2'), nyId)",
-        'forholdsstandpunkter(v, krav.id, nyId)',
+        'forholdsstandpunkter(v, _krav.id, nyId)',
       ],
     ],
     mal: ['svaret på versjon 2 påberoper varselet i den første versjonen'],
