@@ -580,8 +580,8 @@ export type Ugyldig = (id: string, grunn: string) => void;
 export type Bakover = (fra: string, til: string) => boolean;
 
 /**
- * Lesereglene i 4.2 som er sporets egne. Hver gir en begrensning med `ugyldig`, eller
- * `null` for kravversjonen.
+ * Lesereglene i 4.2 som er sporets egne, og det utledningen ellers leser av sporet. Hver
+ * leseregel gir en begrensning med `ugyldig`, eller `null` for kravversjonen.
  */
 export interface Sporskontroller {
   /** Hvorfor kravversjonen `k` strider mot de tidligere versjonene i sporet, etter «som». */
@@ -596,17 +596,35 @@ export interface Sporskontroller {
   ): void;
   /** Svaret `s` mot kravversjonen det gjelder. */
   svaret(s: Svar, krav: Krav, ugyldig: Ugyldig): void;
+  /** En passivitet kan gjelde et krav i sporet (`kanGjelde`). */
+  kanFaaPassivitet: boolean;
+  /** Svaret leser TEs opplysning om datoen (`Svarberegning.datoopplysning`). */
+  leserDatoen: boolean;
+  /** TE kan godta byggherrens gjeldende svar i sporet (`svarIkkeGodtatt`). */
+  svaretKanGodtas(u: Utledning): boolean;
 }
 
 const INGEN_KONTROLLER: Sporskontroller = {
   kravet: () => null,
   kravene: () => {},
   svaret: () => {},
+  kanFaaPassivitet: false,
+  leserDatoen: false,
+  svaretKanGodtas: () => true,
 };
 
-/** Kontrollene i hvert spor. Forholdet og fristen har ingen egne (#1783, #1745). */
+/** Kontrollene i hvert spor. Fristen har ingen egne (#1745). */
 const KONTROLLER: Record<Spor, Sporskontroller> = {
-  forhold: INGEN_KONTROLLER,
+  forhold: {
+    kravet: () => null,
+    kravene: () => {},
+    svaret: () => {},
+    kanFaaPassivitet: true,
+    leserDatoen: true,
+    // Et frafall av pålegget kan TE ikke godta (GR-U9), så det står ikke som et svar som ikke
+    // er godtatt. Unntaket gjelder bare forholdet (arbeidsvalget 20.10 i #1050).
+    svaretKanGodtas: (u) => !u.frafalt,
+  },
   vederlag: KONTROLLER_I_VEDERLAGET,
   frist: INGEN_KONTROLLER,
 };
@@ -1027,8 +1045,10 @@ function kanGjelde(
       return kanFaaInnsigelse(maal, part);
     case 'protest':
       return kanFaaProtest(id, part, elementer);
-    case 'passivitet':
-      return maal.art === 'krav' && kravMedUten.get(id)?.spor === 'forhold';
+    case 'passivitet': {
+      const krav = kravMedUten.get(id);
+      return maal.art === 'krav' && krav !== undefined && kontrollerI(krav.spor).kanFaaPassivitet;
+    }
     case 'begrunnelse':
       // KA-U34: et svar. Begrunnelsen og svaret er begge fra BH (format/leser.ts).
       return maal.art === 'svar';
@@ -1272,7 +1292,7 @@ function settDatoopplysningene(
   versjonen: (id: string) => number
 ): void {
   for (const b of Object.values(svar))
-    if (b.svar.spor === 'forhold')
+    if (kontrollerI(b.svar.spor).leserDatoen)
       b.datoopplysning =
         datoopplysninger.filter((o) => versjonen(o.id) < versjonen(b.svar.id)).at(-1)?.id ?? null;
 }
@@ -1582,9 +1602,8 @@ export function venterPaaSvar(u: Utledning, spor: Spor): boolean {
 
 /**
  * MM-U24, MM-U30: byggherrens gjeldende svar i sporet står uten enighet, kravet er ikke trukket,
- * og sporet er ikke lukket, så TE kan fortsatt godta det. Et frafall av pålegget kan TE
- * ikke godta (GR-U9), så det står ikke som et svar som ikke er godtatt. Unntaket gjelder
- * bare forholdet (arbeidsvalget 20.10 i #1050).
+ * og sporet er ikke lukket, så TE kan fortsatt godta det, og svaret er et TE kan godta
+ * (`Sporskontroller.svaretKanGodtas`).
  */
 export function svarIkkeGodtatt(u: Utledning, spor: Spor): boolean {
   const s = u.spor[spor];
@@ -1593,7 +1612,7 @@ export function svarIkkeGodtatt(u: Utledning, spor: Spor): boolean {
     s.enighet === null &&
     !s.trukket &&
     !sporetErLukket(u) &&
-    !(spor === 'forhold' && u.frafalt)
+    kontrollerI(spor).svaretKanGodtas(u)
   );
 }
 

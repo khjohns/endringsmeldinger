@@ -241,4 +241,7 @@ export const KONTROLLER_I_VEDERLAGET = {
     kontrollerVedleggeneVedKravet(krav, dokumentetTil, ugyldig);
   },
   svaret: kontrollerPostene,
+  kanFaaPassivitet: false,
+  leserDatoen: false,
+  svaretKanGodtas: () => true,
 } satisfies Sporskontroller;

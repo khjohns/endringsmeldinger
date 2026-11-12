@@ -120,7 +120,7 @@ const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
     !sporetErLukket(u) &&
     u.spor.frist.foresporsler.some((f) => f.svar === null),
   venter_paa_svar: venterPaaSvar,
-  paalegg_frafalt: (u, spor) => spor === 'forhold' && u.frafalt,
+  paalegg_frafalt: (u, spor) => visningI(spor).paaleggFrafalt(u),
   enige: (u, spor) => u.spor[spor].enighet !== null,
   svar_ikke_godtatt: svarIkkeGodtatt,
   // Står igjen når sporet er lukket uten enighet, som når TE har godtatt et svar som avslår
@@ -172,11 +172,9 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   if (FORELIGGER.trukket(u, spor)) ut.push('trukket');
   if (venterPaaSvar(u, spor)) ut.push('venter_paa_svar');
   const virkning = enighetensVirkning(u, spor);
-  if (spor === 'forhold') {
-    if (u.frafalt) ut.push('paalegg_frafalt');
-    if (u.forholdAvvist) ut.push('avslaatt');
-    if (virkning && !s.trukket) ut.push('enige');
-  } else {
+  const svaretsEtiketter = visningI(spor).svaretsEtiketter;
+  if (svaretsEtiketter) ut.push(...svaretsEtiketter(u, virkning));
+  else {
     if (virkning === 'betinget') ut.push('enige_betinget');
     if (virkning === 'uten_virkning') ut.push('enighet_uten_virkning');
     if (s.gjeldendeKrav && s.subsidiaer.length) ut.push('subsidiaert');
@@ -198,7 +196,8 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   for (const i of u.innsigelser)
     if (iSporet.includes(i.gjelder) && !ut.includes(`innsigelse_fra_${i.part}`))
       ut.push(`innsigelse_fra_${i.part}`);
-  if (spor === 'forhold' && u.passivitet.length) ut.push('passivitet_paaberopt');
+  const passivitet = visningI(spor).passivitetsetikett(u);
+  if (passivitet) ut.push(passivitet);
   if (s.ingenKrav) ut.push('ingen_krav');
   else {
     const varsel = visningI(spor).varseletikett(u, regler);
@@ -211,13 +210,35 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
 export interface Sporsvisning {
   /** Etiketten for varselet i sporet når sporet ikke har «ingen krav», eller `null`. */
   varseletikett(u: Utledning, regler: Regelsett): string | null;
+  /** Byggherren har frafalt pålegget i sporet (betegnelsen `paalegg_frafalt`). */
+  paaleggFrafalt(u: Utledning): boolean;
+  /**
+   * Etikettene for svaret og enigheten i sporet med enighetens virkning
+   * (`enighetensVirkning`). Uten dem får sporet etikettene for et spor med krav.
+   */
+  svaretsEtiketter?(u: Utledning, virkning: ReturnType<typeof enighetensVirkning>): string[];
+  /** Etiketten for en påberopt passivitet i sporet, eller `null`. */
+  passivitetsetikett(u: Utledning): string | null;
 }
 
-/** Visningen i hvert spor. Forholdet og fristen står her til de flyttes til sporene (#1783, #1745). */
+/** Visningen i hvert spor. Fristen står her til den flyttes til sporet (#1745). */
 const VISNING: Record<Spor, Sporsvisning> = {
-  forhold: { varseletikett: () => null },
+  forhold: {
+    varseletikett: () => null,
+    paaleggFrafalt: (u) => u.frafalt,
+    svaretsEtiketter: (u, virkning) => {
+      const ut: string[] = [];
+      if (u.frafalt) ut.push('paalegg_frafalt');
+      if (u.forholdAvvist) ut.push('avslaatt');
+      if (virkning && !u.spor.forhold.trukket) ut.push('enige');
+      return ut;
+    },
+    passivitetsetikett: (u) => (u.passivitet.length ? 'passivitet_paaberopt' : null),
+  },
   vederlag: VISNING_I_VEDERLAGET,
   frist: {
+    paaleggFrafalt: () => false,
+    passivitetsetikett: () => null,
     // Oppdragsgiver 22.10 (#1126): bare før kravet, som er varselet når sporet ikke har noe.
     varseletikett: (u) =>
       !u.spor.frist.varsler['33.4'] && u.spor.frist.krav.length === 0

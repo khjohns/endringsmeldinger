@@ -1136,7 +1136,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/forhold/frysing.ts', 'frosset', 'FRYSING_I_FORHOLDET', ['frosset/standpunkt.ts']],
   ['spor/vederlag/frysing.ts', 'frosset', 'FRYSING_I_VEDERLAGET', ['frosset/standpunkt.ts']],
   // #1783: lesereglene i 4.2 som er sporets egne.
-  ['Sporskontroller', 'predikat', 'kravet kravene svaret', ['utledning/utled.ts']],
+  [
+    'Sporskontroller',
+    'predikat',
+    'kravet kravene svaret kanFaaPassivitet leserDatoen svaretKanGodtas',
+    ['utledning/utled.ts'],
+  ],
   // Skrivingen i sporet (#1783).
   ['Sporsskriving', 'kommando', 'kravinnhold handlingen postvarsler', ['kommandoer/skriving.ts']],
   // VS-U51, VS-U53: skrivingen gir sporet stegene for en handling med flere rader.

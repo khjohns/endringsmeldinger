@@ -2523,7 +2523,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'svarIkkeGodtatt leser ikke at sporet er lukket (SK-01, OV-U3, #1050)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ["    !sporetErLukket(u) &&\n    !(spor === 'forhold'", "    !(spor === 'forhold'"],
+      [
+        '    !sporetErLukket(u) &&\n    kontrollerI(spor).svaretKanGodtas(u)',
+        '    kontrollerI(spor).svaretKanGodtas(u)',
+      ],
     ],
     mal: ['SK-01: når TE godtar avslaget av forholdet i forløp A'],
   },
@@ -2532,7 +2535,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et frafall står som et svar TE ikke har godtatt (GR-U9, arbeidsvalget 20.10 i #1050)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [["    !(spor === 'forhold' && u.frafalt)\n", '    true\n']],
+    endringer: [['    svaretKanGodtas: (u) => !u.frafalt,', '    svaretKanGodtas: () => true,']],
     mal: ['GR-U9: et frafall står ikke som et svar TE ikke har godtatt'],
   },
   {
@@ -2548,7 +2551,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'frafallet skjuler et svar TE ikke har godtatt i vederlag og frist (arbeidsvalget 20.10 i #1050)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [["    !(spor === 'forhold' && u.frafalt)\n", '    !u.frafalt\n']],
+    endringer: [['    kontrollerI(spor).svaretKanGodtas(u)\n', '    !u.frafalt\n']],
     mal: ['GR-U9: et frafall står ikke som et svar TE ikke har godtatt'],
   },
   {
@@ -2998,8 +3001,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/visning.ts`,
     endringer: [
       [
-        "    if (virkning && !s.trukket) ut.push('enige');",
-        "    if (u.forholdAvklart) ut.push('avklart');\n    if (virkning && !s.trukket) ut.push('enige');",
+        "      if (virkning && !u.spor.forhold.trukket) ut.push('enige');",
+        "      if (u.forholdAvklart) ut.push('avklart');\n      if (virkning && !u.spor.forhold.trukket) ut.push('enige');",
       ],
     ],
     mal: ['en virksom enighet og et avklart forhold gir verken'],
