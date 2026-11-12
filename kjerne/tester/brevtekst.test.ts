@@ -4322,12 +4322,12 @@ describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', (
       const varselet = s.u().spor.vederlag.varsler['34.1.2']!.id;
       const forventet = gjelder === 'kravet' ? kravet : varselet;
       expect(varseletForNyttSvar(s.u(), '34.1.2')).toBe(forventet);
-      const [punkt] = tekst(
+      const punktene = tekst(
         s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(130000) })
       ).filter((a) => a.punkt === '34.1.2');
-      expect(punkt.laast).toBe(
-        `1. Varselet om vederlagsjustering\n\nVarsel om vederlagsjustering etter NS 8407 punkt 34.1.2 ble gitt i ${brevet}.`
-      );
+      expect(punktene.map((a) => a.laast)).toEqual([
+        `1. Varselet om vederlagsjustering\n\nVarsel om vederlagsjustering etter NS 8407 punkt 34.1.2 ble gitt i ${brevet}.`,
+      ]);
     }
   );
 
