@@ -196,6 +196,58 @@ describe('Siden for forholdet', () => {
     );
   });
 
+  it('byggherrens beløp står med antallet poster uten fast beløp, uten å nevne posten (#1752 punkt 2, KA-U72, oppdragsgiver 12.11)', async () => {
+    await vis([
+      PAABEROPELSE,
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [{ belop: 100000 }, { belop: 40000 }],
+      },
+      {
+        handling: 'brev',
+        navn: 'D3',
+        svar: [
+          { spor: 'forhold', navn: 'S-g1', resultat: 'godkjent', varslet_i_tide: true },
+          {
+            spor: 'vederlag',
+            navn: 'S-v1',
+            kravposter: [
+              { post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 },
+              { post: 'P2', metode_akseptert: false, oensket_metode: 'regningsarbeid' },
+            ],
+          },
+        ],
+      } as Handling,
+    ]);
+    const krav = within(screen.getByRole('region', { name: 'Tilknyttede krav' })).getByRole(
+      'listitem'
+    );
+    const tekst = krav.textContent?.replace(/\s+/g, ' ');
+    expect(tekst).toContain('Krevd 140 000 kr brev 2');
+    expect(tekst).toContain('Byggherren 100 000 kr · 1 post uten fast beløp brev 3');
+    expect(tekst).not.toMatch(/P2|prinsipalt/);
+  });
+
+  it('har ingen kravpost et fast beløp, står «Ingen poster med fast beløp» (#1752 punkt 2, KA-U61, oppdragsgiver 12.11)', async () => {
+    await vis([
+      PAABEROPELSE,
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [{ oppgjoersform: 'regningsarbeid' }],
+      } as Handling,
+    ]);
+    const krav = within(screen.getByRole('region', { name: 'Tilknyttede krav' })).getByRole(
+      'listitem'
+    );
+    expect(krav.textContent?.replace(/\s+/g, ' ')).toContain(
+      'Krevd Ingen poster med fast beløp brev 2'
+    );
+  });
+
   it('byggherrens svar på kravet står med beløpet, laget og brevet, og vilkåret når forholdet er avslått (OV-U33, vedtaket 05.10)', async () => {
     await vis([
       PAABEROPELSE,
