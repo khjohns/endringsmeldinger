@@ -8,7 +8,8 @@
 import { omtalen } from '$kjerne/frosset/brevtekst';
 import { oppgittDato } from '$kjerne/format/format';
 import { FORHOLDSGRUPPER, forholdet } from '$kjerne/frosset/forholdene';
-import { grunnerFraForholdet, plassene } from '$kjerne/frosset/standpunkt';
+import { grunnerFraForholdet } from '$kjerne/frosset/standpunkt';
+import { plassene } from '$kjerne/frosset/byggeklosser';
 import { innholdIForholdet, innholdIFristen } from '$kjerne/format/kravinnhold';
 import {
   harHovedbeloep,

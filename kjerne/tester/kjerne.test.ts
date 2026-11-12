@@ -34,7 +34,7 @@ import {
 } from '../regler/vederlag.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { sammenfallStemmer, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
-import { regnUtSvar } from '../frosset/utregning.ts';
+import { regnUtSvar, utenforOmfanget } from '../frosset/utregning.ts';
 import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
@@ -66,6 +66,21 @@ function svaret(rad: Journalrad, k: Kjoering, navn: string): Data {
   if (!s) throw new Error(`Forutsetning: ${navn} er ikke et svar i raden`);
   return s;
 }
+
+describe('et spor kjernen ikke har (MM-U2, #1783)', () => {
+  const ukjent = 'forsering' as Spor;
+  const svar = { spor: ukjent, standpunkter: [], utregning: {} };
+  // Oppslaget i sporet kaster som en gren som mangler, og forenkler ikke svaret.
+  it('frysingen og utregningen kaster for sporet, i stedet for å gi et utfall', () => {
+    expect(() => virkninger(svar, null, GJELDENDE_REGLER)).toThrow(
+      'Kjernen har ingen gren for "forsering"'
+    );
+    expect(() => utenforOmfanget(ukjent, {})).toThrow('Kjernen har ingen gren for "forsering"');
+    expect(() =>
+      regnUtSvar(ukjent, {}, { krav: {} as Krav, paaberopelse: null }, GJELDENDE_REGLER)
+    ).toThrow('Kjernen har ingen gren for "forsering"');
+  });
+});
 
 describe('formen på kravet', () => {
   const krav = (innhold: Data, ekstra: Data = {}) => ({

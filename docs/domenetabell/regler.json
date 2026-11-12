@@ -3704,7 +3704,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/kommandoer/forutsetninger.ts#hindrerSvarPaaKravet",
-        "kjerne/frosset/utregning.ts#kravpostvurderinger"
+        "kjerne/spor/vederlag/frysing.ts#kravpostvurderinger"
       ],
       "regelkoder": [
         "UGYLDIG_VURDERING"

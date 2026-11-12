@@ -5,7 +5,8 @@
 
 import { beloep } from '../regler/beloep.ts';
 import type { Forholdsresultat } from '../regler/typer.ts';
-import { begrensningen, etikett, laget, standpunktet, type Svarinnhold } from './standpunkt.ts';
+import { begrensningen } from '../spor/vederlag/frysing.ts';
+import { etikett, laget, standpunktet, type Svarinnhold } from './byggeklosser.ts';
 import { kategori } from '../format/kravinnhold.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import {
