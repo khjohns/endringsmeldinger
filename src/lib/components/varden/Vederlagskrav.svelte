@@ -40,6 +40,7 @@
     forholdetISaken,
     klarOverForholdet,
     type Brevet,
+    type Brevref,
   } from './lesing';
   import { brevhode, brevtittel, dato, kalenderdager, KRAVSKJEMA } from './tekster';
   import {
@@ -196,6 +197,28 @@
     await tick();
     document.getElementById(id(`endre-${p.noekkel}`))?.focus();
   }
+  // Den særskilte vederlagsjusteringen har en leselinje som kravpostene, og står åpen når den er ny (#1827).
+  let saerskiltAapen = $state(untrack(() => v.saerskilt !== null && !v.saerskilt.beloep));
+  async function aapneSaerskilt() {
+    saerskiltAapen = true;
+    await tick();
+    document.getElementById(id('saerskilt'))?.focus();
+  }
+  async function lukkSaerskilt() {
+    saerskiltAapen = false;
+    await tick();
+    document.getElementById(id('endre-saerskilt'))?.focus();
+  }
+  async function leggTilSaerskilt() {
+    v.saerskilt = { beloep: '' };
+    await aapneSaerskilt();
+  }
+  async function fjernSaerskilt() {
+    v.saerskilt = null;
+    saerskiltAapen = false;
+    await tick();
+    document.getElementById(id('legg-til-saerskilt'))?.focus();
+  }
   const trukne = $derived(trukneKravposter(u).filter((q) => !v.poster.some((p) => p.id === q.id)));
 
   // Det som mangler vises først når TE har prøvd å se brevet (MM-U32).
@@ -207,6 +230,11 @@
   let sendehindring = $state<string | null>(null);
 
   async function gaaTil(m: { felt: string; post: string | null }, e: Event) {
+    if (m.felt === id('saerskilt')) {
+      e.preventDefault();
+      await aapneSaerskilt();
+      return;
+    }
     if (m.post === null) return;
     const p = v.poster.find((q) => q.noekkel === m.post)!;
     const iVarselet = /-(varsel|type|dato|dokument)-/.test(m.felt);
@@ -251,16 +279,23 @@
       q.form === 'tilbud'
         ? (beloepTekst(q.beloep) ?? '–')
         : [q.form ? KRAVSKJEMA.formnavn[q.form] : '–', formdetalj(q)].filter(Boolean).join(', ');
-    const a = verdi(foer);
-    const b = verdi(p);
-    return a === b ? null : KRAVSKJEMA.endretFra(kravbrevet, a, b);
+    return endretFra(kravbrevet, verdi(foer), verdi(p));
   }
+  const endretFra = (brev: Brevref, foer: string, naa: string) =>
+    foer === naa ? null : KRAVSKJEMA.endretFra(brev, foer, naa);
+  const saerskiltBeloep = $derived(v.saerskilt ? (beloepTekst(v.saerskilt.beloep) ?? '–') : '–');
+  const saerskiltFoer = $derived(forrige ? (startvalg(u).saerskilt?.beloep ?? null) : null);
+  const saerskiltEndret = $derived.by(() => {
+    if (!kravbrevet || !v.saerskilt) return null;
+    if (saerskiltFoer === null) return KRAVSKJEMA.ny;
+    return endretFra(kravbrevet, beloepTekst(saerskiltFoer) ?? '–', saerskiltBeloep);
+  });
 
   // Varslene: § 34.1.2 for hele kravet, § 34.1.3 med den særskilte posten, én rad per kravpost
   // som trenger et varsel, og varslene i saken som ingen kravpost viser til (prototype v4, U-12).
   const varselI = (dokument: string | null) => {
     const b = brevMed(dokument);
-    if (!b) return KRAVSKJEMA.kravetErVarselet;
+    if (!b) return KRAVSKJEMA.gisIBrevet;
     return b.art === 'krav' ? KRAVSKJEMA.gittMedKravet(b) : KRAVSKJEMA.gittI(b);
   };
   const klarOver = $derived(klarOverForholdet(u));
@@ -290,7 +325,7 @@
       return varselI(iSaken.find((x) => x.id === valgt.varsel)?.dokument ?? null);
     if (p.varsel.art !== 'kravet' && valgt.art === 'dokument' && valgt.dato)
       return KRAVSKJEMA.gittIDokumentet(valgt.type, valgt.dato);
-    return KRAVSKJEMA.kravetErVarselet;
+    return KRAVSKJEMA.gisIBrevet;
   }
   const smaa = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
   const medDokument = (p: Kravpostvalg) =>
@@ -322,7 +357,7 @@
     })
   );
   const antallVarsler = $derived(1 + (v.saerskilt ? 1 : 0) + postvarsler.length);
-  const medKravet = $derived(
+  const iBrevet = $derived(
     (vederlagsvarselet === null ? 1 : 0) +
       (v.saerskilt && saerskiltvarselet === null ? 1 : 0) +
       postvarsler.filter(
@@ -337,6 +372,7 @@
       status: KRAVSKJEMA.antallPoster(med.length),
       poster: v.poster.map((p) => ({
         noekkel: p.noekkel,
+        anker: id(`post-${p.noekkel}`),
         betegnelse: navnet(p),
         beskrivelse: p.beskrivelse || KRAVSKJEMA.nyPost,
         // Panelet viser beløpet eller oppgjørsformen (U-15).
@@ -353,7 +389,7 @@
             id: id('saerskilt-seksjon'),
             nummer: '2',
             tittel: KRAVSKJEMA.saerskilt,
-            status: beloepTekst(v.saerskilt.beloep) ?? '–',
+            status: saerskiltBeloep,
           },
         ]
       : []),
@@ -361,7 +397,7 @@
       id: id('varslene'),
       nummer: v.saerskilt ? '3' : '2',
       tittel: KRAVSKJEMA.varslene,
-      status: KRAVSKJEMA.antallVarsler(antallVarsler, medKravet),
+      status: KRAVSKJEMA.antallVarsler(antallVarsler, iBrevet),
     },
     {
       id: id('forbehold'),
@@ -370,6 +406,62 @@
       status: v.forbehold.trim() ? KRAVSKJEMA.skrevet : KRAVSKJEMA.ikkeSkrevet,
     },
   ]);
+
+  // Punktet i panelet for avsnittet du står i (U-15 i BF-14, `aria-current`): det siste avsnittet
+  // som har passert en linje 30 % ned i vinduet, eller det siste når rullingen er i bunnen. Saken
+  // ruller i et element inne i skallet, så rullingen fanges på `document` i capture-fasen. Lytteren
+  // lages på nytt bare når avsnittene endres, ikke for hver status.
+  const punktider = $derived(punkter.map((p) => p.id).join(' '));
+  let aktivtPunkt = $state<string | null>(null);
+  $effect(() => {
+    const ider = punktider.split(' ');
+    let rulleflate: Element | null = document.scrollingElement;
+    const finn = () => {
+      const linje = window.innerHeight * 0.3;
+      let valgt = ider[0] ?? null;
+      for (const x of ider) {
+        const el = document.getElementById(x);
+        if (el && el.getBoundingClientRect().top <= linje) valgt = x;
+      }
+      const r = rulleflate;
+      if (r && r.scrollTop > 0 && r.scrollTop + r.clientHeight >= r.scrollHeight - 1)
+        valgt = ider.at(-1) ?? valgt;
+      aktivtPunkt = valgt;
+    };
+    let ramme = 0;
+    // Bare rullingen av en flate som har skjemaet, teller: ikke brevet ved siden av eller et felt.
+    const planlegg = (e?: Event) => {
+      if (e?.target instanceof Element) {
+        const forste = document.getElementById(ider[0] ?? '');
+        if (!forste || !e.target.contains(forste)) return;
+        rulleflate = e.target;
+      } else if (e?.target === document) rulleflate = document.scrollingElement;
+      cancelAnimationFrame(ramme);
+      ramme = requestAnimationFrame(finn);
+    };
+    // Et klikk i panelet som ikke ruller, fordi siden er kort, markerer punktet det fører til.
+    const valgtIPanelet = () => {
+      let x = location.hash.slice(1);
+      try {
+        x = decodeURIComponent(x);
+      } catch {
+        return;
+      }
+      const maal = document.getElementById(x);
+      const punkt = maal && ider.find((i) => document.getElementById(i)?.contains(maal));
+      if (punkt) aktivtPunkt = punkt;
+    };
+    finn();
+    document.addEventListener('scroll', planlegg, { capture: true, passive: true });
+    window.addEventListener('resize', planlegg);
+    window.addEventListener('hashchange', valgtIPanelet);
+    return () => {
+      cancelAnimationFrame(ramme);
+      document.removeEventListener('scroll', planlegg, { capture: true });
+      window.removeEventListener('resize', planlegg);
+      window.removeEventListener('hashchange', valgtIPanelet);
+    };
+  });
 
   // Datoene TE fyller ut, i tidslinja (U-17).
   const utfylt = $derived([
@@ -618,8 +710,12 @@
       {formlinje(p)}
       {#if formdetalj(p)}<span class="detalj">{formdetalj(p)}</span>{/if}
     </p>
-    <p class="pns-celle">
-      <span class="visually-hidden">{KRAVSKJEMA.kolonner[2]}:</span>{p.pns || '–'}
+    <!-- Under 640 px står PNS med etiketten, og cellen står ikke når PNS er tom (#1827). -->
+    <p class="pns-celle" class:tom={!p.pns}>
+      <span class="visually-hidden">{KRAVSKJEMA.kolonner[2]}:</span><span
+        class="smal-etikett"
+        aria-hidden="true">{KRAVSKJEMA.kolonner[2]}</span
+      >{p.pns || '–'}
     </p>
     <p class="beloep-celle">
       <span class="visually-hidden">{KRAVSKJEMA.kolonner[3]}:</span>{beloeplinje(p)}
@@ -829,7 +925,11 @@
           </div>
           <ul class="poster">
             {#each v.poster as p (p.noekkel)}
-              <li class="post" class:er-aapen={aapen === p.noekkel && !p.trukket}>
+              <li
+                class="post"
+                id={id(`post-${p.noekkel}`)}
+                class:er-aapen={aapen === p.noekkel && !p.trukket}
+              >
                 {#if aapen === p.noekkel && !p.trukket}
                   {@render aapenPost(p)}
                 {:else}
@@ -867,27 +967,54 @@
             <span class="hjemmel">{KRAVSKJEMA.saerskiltHjemmel}</span>
           </div>
           <p class="intro">{KRAVSKJEMA.saerskiltIntro}</p>
-          {@render beloepsfelt(
-            'saerskilt',
-            KRAVSKJEMA.saerskiltBeloep,
-            KRAVSKJEMA.saerskiltHjelp,
-            saerskilt,
-            'beloep',
-            true
-          )}
-          <!-- En post fra forrige krav kan ikke tas ut uten et trekk kjernen ennå ikke har (spørsmål 3). -->
-          {#if !forrige || krevdProduktivitet(forrige) === null}
-            <div>
-              <Knapp variant="lenke" onclick={() => (v.saerskilt = null)}
-                >{KRAVSKJEMA.fjernSaerskilt}</Knapp
+          {#if saerskiltAapen}
+            <div class="aapen saerskilt-aapen">
+              {@render beloepsfelt(
+                'saerskilt',
+                KRAVSKJEMA.saerskiltBeloep,
+                KRAVSKJEMA.saerskiltHjelp,
+                saerskilt,
+                'beloep',
+                true
+              )}
+              <div class="postfot saerskilt-fot">
+                <Knapp onclick={lukkSaerskilt}>{KRAVSKJEMA.ferdig}</Knapp>
+              </div>
+            </div>
+          {:else}
+            <div class="linje saerskilt-linje">
+              <h4 class="navn"><span class="betegnelse">{KRAVSKJEMA.saerskiltKort}</span></h4>
+              <p class="form">
+                <span class="visually-hidden">{KRAVSKJEMA.kolonner[1]}:</span>{KRAVSKJEMA.formnavn
+                  .tilbud}
+              </p>
+              <p class="pns-celle tom"></p>
+              <p class="beloep-celle">
+                <span class="visually-hidden">{KRAVSKJEMA.kolonner[3]}:</span>{saerskiltBeloep}
+              </p>
+              <Knapp
+                variant="lenke"
+                id={id('endre-saerskilt')}
+                aria-label={KRAVSKJEMA.endrePost(KRAVSKJEMA.saerskilt.toLowerCase())}
+                onclick={aapneSaerskilt}>{KRAVSKJEMA.endre}</Knapp
               >
+              {#if saerskiltEndret}<div class="under"><p>{saerskiltEndret}</p></div>{/if}
+            </div>
+          {/if}
+          {#if feil('saerskilt') && !saerskiltAapen}
+            <p class="feilmelding">{feil('saerskilt')}</p>
+          {/if}
+          <!-- Under posten, som i prototype v4. En post fra forrige krav kan ikke tas ut uten et trekk kjernen ennå ikke har (#1823 punkt 6). -->
+          {#if !forrige || krevdProduktivitet(forrige) === null}
+            <div class="saerskilt-fjern">
+              <Knapp variant="lenke" onclick={fjernSaerskilt}>{KRAVSKJEMA.fjernSaerskilt}</Knapp>
             </div>
           {/if}
         </section>
       {:else}
         <section class="seksjon kompakt">
           <div>
-            <Knapp onclick={() => (v.saerskilt = { beloep: '' })}
+            <Knapp id={id('legg-til-saerskilt')} onclick={leggTilSaerskilt}
               >{KRAVSKJEMA.leggTilSaerskilt}</Knapp
             >
           </div>
@@ -1035,6 +1162,7 @@
       <div class="feste" class:fast={faarPlass} bind:this={panel}>
         <Kravpunkter
           {punkter}
+          aktiv={aktivtPunkt}
           faste={summer.faste}
           anslag={summer.anslag}
           {pns}
@@ -1191,7 +1319,18 @@
     text-decoration: underline;
     text-underline-offset: 3px;
   }
-  .post.er-aapen {
+  .saerskilt-linje {
+    border-top: var(--rule);
+    border-bottom: var(--rule);
+  }
+  /* Venstrestilt med teksten over, også når lenken brytes på smal skjerm (prototype v4). */
+  .saerskilt-fjern > :global(.knapp) {
+    justify-content: flex-start;
+    padding-inline: 0;
+    text-align: left;
+  }
+  .post.er-aapen,
+  .saerskilt-aapen {
     padding: var(--spacing-4) 0 var(--spacing-4) var(--spacing-4);
     border-left: 3px solid var(--ink);
   }
@@ -1297,7 +1436,8 @@
     justify-content: space-between;
     gap: var(--spacing-3);
   }
-  .varselvalg .postfot {
+  .varselvalg .postfot,
+  .saerskilt-fot {
     justify-content: flex-end;
   }
   .sum {
@@ -1423,9 +1563,20 @@
     padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
     border-top: var(--rule);
   }
+  .smal-etikett {
+    display: none;
+  }
   @media (max-width: 640px) {
     .kolonner {
       display: none;
+    }
+    .pns-celle.tom {
+      display: none;
+    }
+    .smal-etikett {
+      display: inline;
+      margin-right: var(--spacing-1);
+      color: var(--ink-3);
     }
     .linje,
     .varselrad {
