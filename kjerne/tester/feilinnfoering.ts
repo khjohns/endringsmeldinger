@@ -1154,7 +1154,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F122',
     feilklasse:
       'godkjenningen som er en endringsordre, sier ikke hva endringen går ut på (GR-U14, § 31.3)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/forhold/tekst.ts`,
     endringer: [
       [
         '  return `${innledning} ${kravet}: «${beskrivelse}».`;',
@@ -1166,7 +1166,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F124',
     feilklasse: 'godkjenningen av et krav fra appen uten beskrivelse sendes likevel (GR-U14)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/forhold/tekst.ts`,
     endringer: [['  if (!beskrivelse?.trim())\n', '  if (false)\n']],
     mal: ['et krav fra appen uten beskrivelse'],
   },
@@ -1196,10 +1196,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F128',
     feilklasse:
       'avslaget der § 32.2 gjelder, sier ikke at kravet på endringsordre avslås (§ 32.3 b)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      ['        return s.beslutningsgrunnlag.varslingsplikt\n', '        return false\n'],
-    ],
+    fil: `${K}/spor/forhold/tekst.ts`,
+    endringer: [['      return s.beslutningsgrunnlag.varslingsplikt\n', '      return false\n']],
     mal: ['avslaget der § 32.2 gjelder'],
   },
   {
@@ -2018,7 +2016,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F253',
     feilklasse: 'brevet sier ikke datoen pålegget ble mottatt (VS-U26, #664)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/forhold/tekst.ts`,
     endringer: [
       ["          ...dato('paalegg_mottatt'),\n        ]\n", '        ]\n'],
       ["rettidigheten.\n          ...dato('paalegg_mottatt'),", 'rettidigheten.'],
@@ -2031,7 +2029,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F254',
     feilklasse: 'brevet sier ikke datoen TE ble klar over forholdet (VS-U26, #664)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/forhold/tekst.ts`,
     endringer: [["...dato('klar_over_forholdet'),", '']],
     mal: ['svikt viser til § 33.1 b og § 34.1.2', 'annet forhold etter § 33.1 c'],
   },
@@ -3998,7 +3996,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F471',
     feilklasse:
       'en ny påberopelsesversjon nevner ikke de tidligere datoene etter en korrigering (LV-U56)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/forhold/tekst.ts`,
     endringer: [
       [
         '    const tidligere = nyVersjon ? opplysninger.slice(0, -1) : [];',
@@ -4014,7 +4012,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F472',
     feilklasse: 'de tidligere datoene står ikke med den opprinnelige først (LV-U56)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/forhold/tekst.ts`,
     endringer: [
       [
         '    const tidligere = nyVersjon ? opplysninger.slice(0, -1) : [];',
@@ -4027,7 +4025,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F473',
     feilklasse:
       'en ny påberopelsesversjon gjentar teksten i det første brevet, med varselet etter punkt 32.2 (LV-U56)',
-    fil: `${K}/frosset/brevtekst.ts`,
+    fil: `${K}/spor/forhold/tekst.ts`,
     endringer: [['  const nyVersjon = k.erstatter !== null;', '  const nyVersjon = false;']],
     mal: [
       'underkategorien endringsordre har ingen dato',
@@ -4037,8 +4035,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F474',
     feilklasse: 'en ny påberopelsesversjon sier at den erstatter det tidligere kravet (LV-U56)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [["  if (k.erstatter && k.spor !== 'forhold')", '  if (k.erstatter)']],
+    fil: `${K}/spor/forhold/tekst.ts`,
+    endringer: [['  nevnerErstattet: false,', '  nevnerErstattet: true,']],
     mal: ['underkategorien endringsordre har ingen dato'],
   },
   {
@@ -4047,7 +4045,10 @@ const MUTASJONER: Mutasjon[] = [
       'en ny versjon av vederlags- eller fristkravet viser ikke til kravet den erstatter (KA-U52 punkt 4)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      ["  if (k.erstatter && k.spor !== 'forhold')", "  if (k.erstatter && k.spor === 'forhold')"],
+      [
+        '  if (k.erstatter && brevtekstI(k.spor).nevnerErstattet)',
+        '  if (k.erstatter && !brevtekstI(k.spor).nevnerErstattet)',
+      ],
     ],
     mal: ['en ny kravversjon viser til den den erstatter'],
   },

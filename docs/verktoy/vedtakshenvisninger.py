@@ -125,8 +125,8 @@ KJENTE_AVVIK = (
 # krympe.
 KJENTE_DESIGNAVVIK = (
     ("docs/domenetabell/bevis-saker-maalmodell.json", "MM-U22", 2, "#1534, steg 4"),
-    ("kjerne/frosset/forholdene.ts", "OV-U77", 1, "#1534, steg 4"),
-    ("kjerne/frosset/forholdene.ts", "OV-U78", 1, "#1534, steg 4"),
+    ("kjerne/spor/forhold/tekst.ts", "OV-U77", 1, "#1534, steg 4"),
+    ("kjerne/spor/forhold/tekst.ts", "OV-U78", 1, "#1534, steg 4"),
 )
 
 

@@ -8,7 +8,7 @@
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Spor } from '$kjerne/typer';
   import { tick, untrack, type Snippet } from 'svelte';
-  import { sakensKode } from '$kjerne/frosset/brevtittel';
+  import { sakensKode } from '$kjerne/frosset/tekst';
   import Brevkontroll from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';

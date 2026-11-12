@@ -7,7 +7,7 @@
 
 import { omtalen } from '$kjerne/frosset/brevdeler';
 import { innholdIForholdet, oppgittDato } from '$kjerne/spor/forhold/format';
-import { FORHOLDSGRUPPER, forholdet } from '$kjerne/frosset/forholdene';
+import { FORHOLDSGRUPPER, forholdet } from '$kjerne/spor/forhold/tekst';
 import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
 import { plassene } from '$kjerne/frosset/byggeklosser';
 import { innholdIFristen } from '$kjerne/format/kravinnhold';

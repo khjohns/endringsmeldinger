@@ -12,8 +12,8 @@ import { avvisning } from './avvisning.ts';
 import { formfeil, korrigertDato, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys } from '../frosset/frysing.ts';
 import { standpunkter } from './standpunkter.ts';
-import { BrevetAvvises, lagBrevtekst, lagDeresRef } from '../frosset/brevtekst.ts';
-import { KanIkkeUttrykkes } from '../frosset/brevdeler.ts';
+import { lagBrevtekst, lagDeresRef } from '../frosset/brevtekst.ts';
+import { BrevetAvvises, KanIkkeUttrykkes } from '../frosset/brevdeler.ts';
 import { brevmerking, lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
 import {
   brevtekstI,

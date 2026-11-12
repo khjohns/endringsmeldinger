@@ -8,7 +8,7 @@
  * brevnummer). Den finner ikke på virkningen.
  */
 
-import { FORHOLDSGRUPPER as KJERNENS_FORHOLD } from '$kjerne/frosset/forholdene';
+import { FORHOLDSGRUPPER as KJERNENS_FORHOLD } from '$kjerne/spor/forhold/tekst';
 import { opplistet } from '$kjerne/frosset/brevdeler';
 import { kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
@@ -38,7 +38,7 @@ const KRAVET: Record<Spor, string> = {
 
 /**
  * Forholdene med kjernens kode og navnet, i gruppene fra kjernen (OV-U77, OV-U78). Lista har
- * hjemmet sitt i `kjerne/frosset/forholdene.ts`, så brevet og velgeren sier det samme (svaret
+ * hjemmet sitt i `kjerne/spor/forhold/tekst.ts`, så brevet og velgeren sier det samme (svaret
  * på Q3 i #1488).
  */
 export const FORHOLDSGRUPPER: { navn: string; forhold: [kode: string, navn: string][] }[] =

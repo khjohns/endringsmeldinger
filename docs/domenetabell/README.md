@@ -568,9 +568,9 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | GR-32 | [`kontrollerSvar`](../../kjerne/kommandoer/nyttelast.ts), [`strid`](../../kjerne/utledning/utled.ts) |
 | GR-33 | [`utled`](../../kjerne/utledning/utled.ts), [`kraveneErAvgjort`](../../kjerne/utledning/utled.ts) |
 | GR-34 | [`kravetsUtdypning`](../../kjerne/kommandoer/nyttelast.ts) |
-| GR-35 | [`endringsordretekst`](../../kjerne/frosset/brevtekst.ts) |
+| GR-35 | [`endringsordretekst`](../../kjerne/spor/forhold/tekst.ts) |
 | GR-36 | [`korrigering`](../../kjerne/kommandoer/forutsetninger.ts), [`kontrollerKorrigering`](../../kjerne/kommandoer/nyttelast.ts), [`opplysningerOmDatoen`](../../kjerne/utledning/utled.ts) |
-| GR-37 | [`datosperre`](../../kjerne/kommandoer/nyttelast.ts), [`forholdstekst`](../../kjerne/frosset/brevtekst.ts) |
+| GR-37 | [`datosperre`](../../kjerne/kommandoer/nyttelast.ts), [`forholdstekst`](../../kjerne/spor/forhold/tekst.ts) |
 | KA-31 | [`forutsetninger`](../../kjerne/kommandoer/forutsetninger.ts) |
 | KA-35 | [`strid`](../../kjerne/utledning/utled.ts) |
 | KA-36 | [`strid`](../../kjerne/utledning/utled.ts) |

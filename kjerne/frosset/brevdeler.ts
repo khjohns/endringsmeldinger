@@ -258,11 +258,14 @@ export interface Sporsbrevtekst {
   krav(k: Krav, t: Tekst, regler: Regelsett): string[];
   /** Påberopelsene utenom hjemmelen for sporet som svaret gjentar eller gir opp (VS-U29). */
   ogsaaInnsigelserEtter: readonly Hjemmel[];
+  /** En ny versjon av kravet sier hvilket krav den erstatter (KA-U52 punkt 4, LV-U56). */
+  nevnerErstattet: boolean;
+  /** Kravet i sporet med kontraktens ord, når kravet har et: «kravet om <…>». */
+  kravetOm?: string;
 }
 
 /** Brevteksten i et spor med krav om vederlag eller frist. */
 export interface Kravsporsbrevtekst extends Sporsbrevtekst {
-  /** Kravet i sporet med kontraktens ord: «kravet om <…>». */
   kravetOm: string;
   /** Det TE er enig i når aksepten ikke gjelder standpunktet til grunnlaget (GR-U7). */
   enigI: string;
@@ -275,7 +278,24 @@ export interface Kravsporsbrevtekst extends Sporsbrevtekst {
 /** Standpunktet i hver art. */
 export type StandpunktIArt = { [K in Standpunktsart]: Extract<Standpunkt, { art: K }> };
 
-/** Teksten for standpunktet i en art som bare ett spor har, med kravet svaret gjelder (#1783). */
+/** Teksten for standpunktet i en art som bare ett spor har, med kravet, svaret og journalen (#1783). */
 export type Standpunktstekster<A extends Standpunktsart> = {
-  [K in A]: (p: StandpunktIArt[K], krav: Krav) => string;
+  [K in A]: (p: StandpunktIArt[K], krav: Krav, svar: Svar, j: Journalen) => string;
 };
+
+/** Brevet kan ikke sendes fra appen slik saken står, og kommandoen avvises med `regel`. */
+export class BrevetAvvises extends Error {
+  readonly regel: string;
+  constructor(regel: string, melding: string) {
+    super(melding);
+    this.regel = regel;
+  }
+}
+
+/** Teksten med stor forbokstav. */
+export const stor = (t: string) => `${t[0].toUpperCase()}${t.slice(1)}`;
+
+/** Delene i rekkefølge, med «og» før den siste. */
+export function liste(deler: string[]): string {
+  return deler.length < 2 ? deler.join('') : `${deler.slice(0, -1).join(', ')} og ${deler.at(-1)}`;
+}

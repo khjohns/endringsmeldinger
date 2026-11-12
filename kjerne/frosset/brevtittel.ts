@@ -1,14 +1,11 @@
 /**
- * Tittelen på brevet løsningen sender, frosset med teksten (MM-U3, MM-U50, #1536). Et registrert
- * brev har ingen frosset tittel; visningen gir det en etikett (MM-U17).
+ * Tittelen på brevet løsningen sender, frosset med teksten (LV-U2, LV-U25, MM-U9, MM-U50, #1536).
+ * Et registrert brev har ingen frosset tittel; visningen gir det en etikett (MM-U17).
  */
 
-import { forholdet, paaberopelsenAv } from './forholdene.ts';
 import type { Dokument, Sakskode, Spor } from '../typer.ts';
-import { innholdIForholdet } from '../spor/forhold/format.ts';
-
-/** Sakens kode slik brevene omtaler saken, uten utfylling: «KOE-17» (LV-U44, LV-U45). */
-export const sakensKode = (s: Sakskode): string => `${s.kode.toUpperCase()}-${s.loepenummer}`;
+import { sakensKode } from './tekst.ts';
+import { paaberopelsenAv, paaberoptForhold } from '../spor/forhold/tekst.ts';
 
 const utfylt = (tall: number, sifre: number) => String(tall).padStart(sifre, '0');
 
@@ -72,12 +69,6 @@ export const UTSAGNSTITTEL = {
   korrigering: 'Korrigering av datoen',
 } as const;
 
-/** Forholdet brevet påberoper (GR-U31): et krav i forholdssporet i et brev uten svar. */
-function paaberoptForhold(d: Pick<Dokument, 'krav' | 'svar'>) {
-  if (d.svar.length) return null;
-  return forholdet(innholdIForholdet(d.krav.find((k) => k.spor === 'forhold')).underkategori);
-}
-
 /**
  * Tittelen etter det brevet inneholder: «Påberopelse av <forholdet>» (GR-U31), ellers etter
  * det første svaret, kravet eller utsagnet. `null` for et brev uten slik tittel.
@@ -99,7 +90,7 @@ export function lagBrevtittel(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): st
 }
 
 /**
- * MM-U3 (opphevet av MM-U50), MM-U2 (#1533): grunnen til at en lagret tittel ikke kan være laget av skrivingen, eller
+ * LV-U25, MM-U2 (#1533): grunnen til at en lagret tittel ikke kan være laget av skrivingen, eller
  * `null`. Tittelen sammenliknes ikke med `lagBrevtittel`, så et sendt brev beholder tittelen det
  * ble sendt med (MM-U9) når titlene endres.
  */
