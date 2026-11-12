@@ -18,7 +18,8 @@ import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { erRegistrert } from '../format/leser.ts';
 import { HJEMMEL } from '../format/format.ts';
-import { kategori } from './kravinnhold.ts';
+import { utregningIFristen, utregningIVederlaget } from '../format/svarinnhold.ts';
+import { kategori } from '../format/kravinnhold.ts';
 import { erKravpostvarselhjemmel, utenGren } from '../typer.ts';
 import type {
   Beslutningsgrunnlag,
@@ -575,7 +576,8 @@ export function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]
   // HF-U7: en begrensning etter § 34.1.3 i et lag er en påberopelse med subsidiært standpunkt
   // og gir ikke sammenfall, også når beløpet etter den er likt det krevde (VS-U5).
   if (begrensningen(svar, v)) return false;
-  return svar.utregning.resultat === 'godkjent';
+  if (svar.spor === 'frist') return utregningIFristen(svar.utregning).resultat === 'godkjent';
+  return utregningIVederlaget(svar.utregning).resultat === 'godkjent';
 }
 
 /**

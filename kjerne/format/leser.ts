@@ -24,6 +24,7 @@ import {
   UTSAGN,
 } from './format.ts';
 import { beloep } from '../regler/beloep.ts';
+import { utregningIFristen, utregningIVederlaget } from './svarinnhold.ts';
 import { avvikIMerkingen, avvikITittelen } from '../frosset/brevtittel.ts';
 import { erKalenderdato, erObjekt, feilI, type Skjema } from './skjema.ts';
 import type {
@@ -44,6 +45,7 @@ import type {
   Svar,
   Utsagnsart,
   Varselhjemmel,
+  Vederlagsutregning,
   Vedlegg,
   Virkning,
   Korrespondansetype,
@@ -157,6 +159,8 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
     throw new Uforstaatt(`${sti}: har ingen standpunkter`);
   const tillatt = STANDPUNKTER_I_SPORET[spor];
   const utregning = (svar.utregning ?? {}) as Data;
+  const vederlag = utregningIVederlaget(utregning);
+  const frist = utregningIFristen(utregning);
   let neste = 0;
   const ut = liste.map((v, i): Standpunkt => {
     const e = element(v, STANDPUNKT, 'art', `${sti}.standpunkter[${i}]`);
@@ -185,7 +189,7 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
         )
           throw new Uforstaatt(`${sti}: rettidighet etter § ${String(e.hjemmel)} i ${spor}`);
         // VS-U5: beløpet etter begrensningen står når varselet etter § 34.1.3 kom for sent.
-        if ((e.hjemmel === '34.1.3' && e.i_tide === false) !== 'beloep' in e)
+        if ((e.hjemmel === '34.1.3' && e.i_tide === false) !== 'begrenset_beloep' in e)
           throw new Uforstaatt(
             `${sti}: beløpet etter begrensningen står bare når varselet etter § 34.1.3 kom for sent`
           );
@@ -195,7 +199,7 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
           gjelder: e.gjelder as string,
           hjemmel: e.hjemmel as Hjemmel,
           iTide: e.i_tide as boolean,
-          ...('beloep' in e ? { begrenset: e.beloep as number } : {}),
+          ...('begrenset_beloep' in e ? { begrenset: e.begrenset_beloep as number } : {}),
         };
       case 'forhold':
         return { id, art, resultat: e.resultat as never };
@@ -264,7 +268,7 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
         return {
           id,
           art,
-          resultat: (utregning.subsidiaert_resultat ?? utregning.resultat) as never,
+          resultat: vederlag.subsidiaert_resultat ?? vederlag.resultat,
           ...('beloep' in e ? { godkjent: e.beloep as number } : {}),
           ...('gjelder' in e
             ? { gjelder: e.gjelder as string }
@@ -274,8 +278,8 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
         return {
           id,
           art,
-          resultat: (utregning.subsidiaert_resultat ?? utregning.resultat) as never,
-          vurdert: (utregning.subsidiaert_godkjent_dager ?? utregning.godkjent_dager) as number,
+          resultat: frist.subsidiaert_resultat ?? frist.resultat,
+          vurdert: frist.subsidiaert_godkjent_dager ?? frist.godkjent_dager,
         };
     }
   });
@@ -288,7 +292,7 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
   for (const t of tillatt)
     if (t.paakrevd && !ut.some((s) => s.art === t.art))
       throw new Uforstaatt(`${sti}: svaret på ${spor} mangler standpunktet ${t.art}`);
-  if (spor === 'vederlag') kontrollerVederlagsstandpunktene(ut, utregning, sti);
+  if (spor === 'vederlag') kontrollerVederlagsstandpunktene(ut, vederlag, sti);
   const subsidiaertVerdi =
     spor === 'vederlag' ? 'subsidiaert_godkjent_beloep' : 'subsidiaert_godkjent_dager';
   if ('subsidiaert_resultat' in utregning !== subsidiaertVerdi in utregning)
@@ -303,7 +307,11 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
  * beløpet, og ett beløp. OV-U31: postene summerer til det byggherren godtar om ingen påberopelse
  * fører fram.
  */
-function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti: string): void {
+function kontrollerVederlagsstandpunktene(
+  ut: Standpunkt[],
+  utregning: Vederlagsutregning,
+  sti: string
+): void {
   const plass = (s: Standpunkt) =>
     s.art === 'rettidighet'
       ? s.hjemmel === '34.1.2'
@@ -389,7 +397,7 @@ function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti
     s.art === 'beloep' && s.godkjent !== undefined ? [s.godkjent] : []
   );
   const samlet = poster.reduce((a, b) => a + (beloep(b) ?? 0n), 0n);
-  const total = (utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep) as number;
+  const total = utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep;
   if (samlet !== beloep(total))
     throw new Uforstaatt(
       `${sti}: postene summerer ikke til det byggherren godtar om ingen påberopelse fører fram`
@@ -407,11 +415,11 @@ function kontrollerVederlagsstandpunktene(ut: Standpunkt[], utregning: Data, sti
  */
 function kontrollerUtregningenPerPost(
   ut: Standpunkt[],
-  utregning: Data,
+  utregning: Vederlagsutregning,
   virkninger: Standpunktsvirkning[],
   sti: string
 ): void {
-  const rader = utregning.poster as { gjelder?: string; saerskilt?: string; lag: Data[] }[];
+  const rader = utregning.poster;
   const beloepene = ut.filter((s) => s.art === 'beloep');
   const utenAksept = utenFastBeloep(ut);
   const antall = rader[0]?.lag.length ?? 0;
@@ -432,18 +440,14 @@ function kontrollerUtregningenPerPost(
       throw feil(`rad ${i + 1} gjelder ikke samme post som beløpet i standpunktene`);
     if (r.lag.length !== antall || r.lag.some((l, n) => l.lag !== n + 1))
       throw feil(`rad ${i + 1} har ikke lagene 1 til ${antall}`);
-    if (beloep(r.lag.at(-1)!.beloep as number | undefined) !== beloep(b.godkjent))
+    if (beloep(r.lag.at(-1)!.beloep) !== beloep(b.godkjent))
       throw feil(`rad ${i + 1} har ikke beløpet byggherren godtar i det siste laget`);
     if (!utenAksept.has(r.gjelder!)) {
       if (r.lag.some((l) => !('beloep' in l)))
         throw feil(
           `rad ${i + 1} mangler beløpet i et lag, men byggherren aksepterer tilbudet for posten (KA-U72)`
         );
-    } else if (
-      r.lag.some((l, n) =>
-        n < prekludert ? beloep(l.beloep as number | undefined) !== 0n : 'beloep' in l
-      )
-    )
+    } else if (r.lag.some((l, n) => (n < prekludert ? beloep(l.beloep) !== 0n : 'beloep' in l)))
       throw feil(
         `rad ${i + 1} har ikke 0 kr i laget for § 34.1.2 og ellers ingen beløp, men byggherren aksepterer ikke tilbudet for posten (KA-U72, OV-U27)`
       );
@@ -456,14 +460,12 @@ function kontrollerUtregningenPerPost(
   if (rader.length > 0 && antall !== lagIGrunnlaget)
     throw feil(`radene har ${antall} lag, men beslutningsgrunnlaget har ${lagIGrunnlaget}`);
   const summen = (n: number) =>
-    rader
-      .map((r) => r.lag.at(n)!)
-      .reduce((a, l) => a + (beloep(l.beloep as number | undefined) ?? 0n), 0n);
-  if (summen(0) !== beloep(utregning.godkjent_beloep as number))
+    rader.map((r) => r.lag.at(n)!).reduce((a, l) => a + (beloep(l.beloep) ?? 0n), 0n);
+  if (summen(0) !== beloep(utregning.godkjent_beloep))
     throw feil('det første laget summerer ikke til det byggherren godtar prinsipalt');
   if (antall > 1 !== 'subsidiaert_godkjent_beloep' in utregning)
     throw feil('det subsidiære beløpet står ikke nøyaktig når svaret har mer enn ett lag');
-  if (antall > 1 && summen(-1) !== beloep(utregning.subsidiaert_godkjent_beloep as number))
+  if (antall > 1 && summen(-1) !== beloep(utregning.subsidiaert_godkjent_beloep))
     throw feil('det siste laget summerer ikke til det byggherren godtar subsidiært');
 }
 
@@ -561,7 +563,7 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
   if (spor === 'vederlag')
     kontrollerUtregningenPerPost(
       standpunkter,
-      e.utregning as Data,
+      utregningIVederlaget(e.utregning as Data),
       beslutningsgrunnlag.virkninger,
       sti
     );

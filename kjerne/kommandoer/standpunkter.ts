@@ -5,7 +5,7 @@
 
 import { HJEMMEL, OPPGJOERSHJEMMEL } from '../format/format.ts';
 import { forholdsstandpunkter } from '../frosset/frysing.ts';
-import { kravposterI } from '../frosset/kravinnhold.ts';
+import { kravposterI } from '../format/kravinnhold.ts';
 import { vederlagsposter, type Kravpostvurdering } from '../frosset/utregning.ts';
 import { varselhjemmel } from '../utledning/kravposter.ts';
 import { beloep, tilTall } from '../regler/beloep.ts';
@@ -52,7 +52,7 @@ export function standpunkter(s: Svarutkast, krav: Krav, u: Utledning, nyId: () =
           i_tide: v.produktivitet_varslet_i_tide,
           ...(v.produktivitet_varslet_i_tide
             ? {}
-            : { beloep: tilTall(beloep(v.produktivitet_begrenset_beloep as number)!) }),
+            : { begrenset_beloep: tilTall(beloep(v.produktivitet_begrenset_beloep as number)!) }),
         });
       // KA-U72: uten aksept av tilbudet står standpunktet til beløpet uten beløp.
       ut.push({

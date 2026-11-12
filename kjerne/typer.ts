@@ -113,8 +113,10 @@ export type Opplysning =
 /**
  * Byggherrens standpunkter i ett svar. Standpunktene gjelder kravet svaret
  * gjelder, unntatt rettidigheten, som `gjelder` et varsel eller kravversjonen
- * varselet er utledet av (MM-U1). Beløp og dager leses fra serverens utregning i
- * svaret, så de har ett hjem (4.3 i designnotatet).
+ * varselet er utledet av (MM-U1). Resultatet i `beloep` og `dager`, og dagene i fristen, leses
+ * fra serverens utregning i svaret. I vederlaget bærer standpunktet `beloep` beløpet for posten og
+ * rettidigheten etter § 34.1.3 beløpet etter begrensningen; leseren kontrollerer beløpet for
+ * posten mot det siste laget i raden i utregningen, og summen mot totalene (OV-U31, KA-U57 (e)).
  */
 export type Standpunkt =
   /**
@@ -321,10 +323,46 @@ export interface Svar {
    */
   paaberopelse: string | null;
   standpunkter: Standpunkt[];
-  /** Serverens utregning etter B-13, slik den er lagret. */
+  /**
+   * Serverens utregning etter B-13, slik den er lagret. Leses gjennom `format/svarinnhold.ts`
+   * med typen for sporet: `Vederlagsutregning` eller `Fristutregning`.
+   */
   utregning: Record<string, unknown>;
   /** Brevet slik det ble sendt. Virkningen leses herfra (MM-U9). */
   beslutningsgrunnlag: Beslutningsgrunnlag;
+}
+
+/** Ett lag i raden for en post i utregningen. Uten `beloep` når tilbudet ikke er akseptert (KA-U72). */
+export interface Utregningslag {
+  lag: number;
+  beloep?: number;
+}
+
+/**
+ * Raden for én post i utregningen, med ett element per lag (OV-U31, KA-U57 (e)). Posten er
+ * kravposten `gjelder` eller den særskilte `saerskilt`.
+ */
+export interface Utregningsrad {
+  gjelder?: string;
+  saerskilt?: 'produktivitet';
+  lag: Utregningslag[];
+}
+
+/** Utregningen i et svar på vederlaget, etter `UTREGNING.vederlag` i `format/format.ts`. */
+export interface Vederlagsutregning {
+  resultat: Vederlagsresultat;
+  godkjent_beloep: number;
+  subsidiaert_resultat?: Vederlagsresultat;
+  subsidiaert_godkjent_beloep?: number;
+  poster: Utregningsrad[];
+}
+
+/** Utregningen i et svar på fristen, etter `UTREGNING.frist` i `format/format.ts`. */
+export interface Fristutregning {
+  resultat: Fristresultat;
+  godkjent_dager: number;
+  subsidiaert_resultat?: Fristresultat;
+  subsidiaert_godkjent_dager?: number;
 }
 
 /**

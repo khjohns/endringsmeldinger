@@ -27,8 +27,10 @@ Regelsettet står i `kjerne/regler/`; endres det, økes `REGELVERSJON` der. Endr
   en annen modul. Arkitekturtesten håndhever det. En regel som trenger noe fra kravet, tar
   verdien den trenger, som kategoriene som tekst, og ikke `Krav`
   (`regler/svarkontroll.ts`).
-- **Kravinnholdet leses gjennom `frosset/kravinnhold.ts`.** En ny lesing av
-  `Krav.innhold` legges der, ikke som en ny typekonvertering hos kalleren.
+- **Kravinnholdet leses gjennom `format/kravinnhold.ts`, og utregningen i svaret gjennom
+  `format/svarinnhold.ts`**, med typen for sporet. En ny lesing av `Krav.innhold` eller
+  `Svar.utregning` legges der, ikke som en ny typekonvertering hos kalleren. Det gjelder også
+  serveren og visningen.
 - **Teksten står i tekstlaget**: brevteksten i `frosset/brevtekst.ts` og ordene den deler
   med linjen og visningen i `frosset/tekst.ts`. En tekst kan lese en regel, men en regel
   leser ikke en tekst.
