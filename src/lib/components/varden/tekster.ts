@@ -1078,7 +1078,7 @@ export const KRAVSKJEMA = {
   // 3. Varslene (prototype v4).
   varslene: 'Varslene',
   varsleneIntro:
-    'Varslene kravet trenger, ut fra postene over. Dette kravet er varselet der du ikke har varslet før.',
+    'Varslene kravet trenger, ut fra postene over. Har du ikke varslet før, gis varselet i dette brevet.',
   varselkolonner: ['Punkt', 'Varselet', 'Slik står det i brevet'],
   varselnavn: {
     '34.1.2': 'Varsel om vederlagsjustering',
@@ -1090,13 +1090,12 @@ export const KRAVSKJEMA = {
   gjelderSaerskilt: 'Gjelder den særskilte posten',
   gjelderPost: (post: string) => `Gjelder ${post}`,
   ingenPostViserTil: 'Ingen kravpost viser til det',
-  kravetErVarselet: 'Dette kravet er varselet.',
+  gisIBrevet: 'Gis i dette brevet.',
   gittIDokumentet: (type: 'brev' | 'e_post' | null, d: string) =>
     `Gitt i ${type === 'e_post' ? 'e-posten' : 'brevet'} av ${dato(d)}, som legges ved kravet.`,
   sammeDokument: (d: string) =>
     d ? `Dokumentet av ${dato(d)} legges ved én gang.` : 'Dokumentet legges ved én gang.',
   denSaerskilte: 'den særskilte vederlagsjusteringen',
-  kravetErVarseletKort: 'dette kravet er varselet.',
   gittI: (b: Brevref) => `Gitt i ${brevref(b)}.`,
   gittMedKravet: (b: Brevref) => `Gitt med kravet i ${brevref(b)}.`,
   dagerEtterKlarOver: (dager: number, d: string) =>
@@ -1108,7 +1107,7 @@ export const KRAVSKJEMA = {
   gittFoer: (post: string) => `Varselet for ${post} er gitt før`,
   hvorGitt: (post: string) => `Hvor ble varselet for ${post} gitt?`,
   varselvalg: {
-    kravet: 'Dette kravet er varselet',
+    kravet: 'I dette brevet',
     saken: 'I et varsel som står i saken',
     dokument: 'I et dokument sendt utenfor løsningen',
     samme: (post: string) => `Samme dokument som for ${post}`,
@@ -1148,8 +1147,8 @@ export const KRAVSKJEMA = {
   punktene: 'Punktene',
   punkteneHjelp: 'Beløp eks. mva. Oppdateres mens du skriver.',
   antallPoster: (n: number) => (n === 1 ? '1 kravpost' : `${n} kravposter`),
-  antallVarsler: (n: number, medKravet: number) =>
-    `${n === 1 ? '1 varsel' : `${n} varsler`} · ${medKravet} gis med kravet`,
+  antallVarsler: (n: number, iBrevet: number) =>
+    `${n === 1 ? '1 varsel' : `${n} varsler`} · ${iBrevet} gis i dette brevet`,
   skrevet: 'Skrevet',
   ikkeSkrevet: 'Ikke skrevet',
   forbeholdPunkt: 'Forbehold',

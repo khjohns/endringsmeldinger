@@ -90,9 +90,10 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
         'Kravet for P1 er et tilbud etter punkt 34.2.1. Byggherren kan akseptere det.'
       )
     ).toBeTruthy();
-    // VS-U49: kravet er varselet etter § 34.4 for P2, som ikke har stått i saken før.
+    // VS-U48 og VS-U49: kravet regnes også som varselet etter § 34.4 for P2, som ikke har stått i
+    // saken før. Ordene står i språkfila, «Varselet i kravet».
     const raden = screen.getByText('Gjelder P2').closest('li')!;
-    expect(within(raden).getByText('Dette kravet er varselet.')).toBeTruthy();
+    expect(within(raden).getByText('Gis i dette brevet.')).toBeTruthy();
 
     await sendBrevet();
     const innhold = sistSendt(demosak().journal());

@@ -295,7 +295,7 @@
   // som trenger et varsel, og varslene i saken som ingen kravpost viser til (prototype v4, U-12).
   const varselI = (dokument: string | null) => {
     const b = brevMed(dokument);
-    if (!b) return KRAVSKJEMA.kravetErVarselet;
+    if (!b) return KRAVSKJEMA.gisIBrevet;
     return b.art === 'krav' ? KRAVSKJEMA.gittMedKravet(b) : KRAVSKJEMA.gittI(b);
   };
   const klarOver = $derived(klarOverForholdet(u));
@@ -325,7 +325,7 @@
       return varselI(iSaken.find((x) => x.id === valgt.varsel)?.dokument ?? null);
     if (p.varsel.art !== 'kravet' && valgt.art === 'dokument' && valgt.dato)
       return KRAVSKJEMA.gittIDokumentet(valgt.type, valgt.dato);
-    return KRAVSKJEMA.kravetErVarselet;
+    return KRAVSKJEMA.gisIBrevet;
   }
   const smaa = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
   const medDokument = (p: Kravpostvalg) =>
