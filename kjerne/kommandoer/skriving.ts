@@ -18,12 +18,8 @@ import { frys } from '../frosset/frysing.ts';
 import { lagFraForholdet } from '../frosset/standpunkt.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { standpunkter } from './standpunkter.ts';
-import {
-  BrevetAvvises,
-  KanIkkeUttrykkes,
-  lagBrevtekst,
-  lagDeresRef,
-} from '../frosset/brevtekst.ts';
+import { BrevetAvvises, lagBrevtekst, lagDeresRef } from '../frosset/brevtekst.ts';
+import { KanIkkeUttrykkes } from '../frosset/brevdeler.ts';
 import { brevmerking, lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
 import { avvis } from './forutsetninger.ts';
 import {

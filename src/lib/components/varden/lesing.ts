@@ -5,7 +5,7 @@
  * sier og hva en aksept gir, kommer fra kjernen gjennom `lagKjernesak`.
  */
 
-import { omtalen } from '$kjerne/frosset/brevtekst';
+import { omtalen } from '$kjerne/frosset/brevdeler';
 import { oppgittDato } from '$kjerne/format/format';
 import { FORHOLDSGRUPPER, forholdet } from '$kjerne/frosset/forholdene';
 import { grunnerFraForholdet } from '$kjerne/frosset/standpunkt';
