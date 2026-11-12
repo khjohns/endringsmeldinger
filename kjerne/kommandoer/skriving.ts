@@ -16,7 +16,7 @@ import { avvisning } from './avvisning.ts';
 import { formfeil, korrigertDato, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
 import { frys } from '../frosset/frysing.ts';
 import { lagFraForholdet } from '../frosset/standpunkt.ts';
-import { kravposterI } from '../frosset/kravinnhold.ts';
+import { kravposterI } from '../format/kravinnhold.ts';
 import { standpunkter } from './standpunkter.ts';
 import {
   BrevetAvvises,

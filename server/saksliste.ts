@@ -11,8 +11,12 @@ import type { Dokument, Journalrad, Kravspor, Oppgjoersform, Part, Spor } from '
 import { kalenderdag, registrertDato } from '../kjerne/format/leser.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
-import { kravposterI, krevdSamlet } from '../kjerne/frosset/kravinnhold.ts';
-import { foersteUnderkategori } from '../kjerne/regler/forhold.ts';
+import {
+  innholdIForholdet,
+  innholdIFristen,
+  kravposterI,
+  krevdSamlet,
+} from '../kjerne/format/kravinnhold.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import {
   betegnelse,
@@ -103,7 +107,6 @@ export async function lesSakslisten(pool: Pool, kontekst: Kontekst): Promise<Les
   return [...saker.values()].filter((s) => skrevetAvKjernen(s.journal));
 }
 
-const tall = (v: unknown): number | null => (typeof v === 'number' ? v : null);
 const tekst = (v: unknown): string | null => (typeof v === 'string' ? v : null);
 
 type Virkning = 'betinget' | 'virksom' | 'uten_virkning';
@@ -272,7 +275,7 @@ function vederlag(u: Utledning): Vederlagslinje {
 
 function frist(u: Utledning): Fristlinje {
   const s = u.spor.frist;
-  const innhold = s.gjeldendeKrav?.innhold;
+  const krav = s.gjeldendeKrav;
   const sv = fristsvaret(u);
   const virkning = enighetensVirkning(u, 'frist');
   return {
@@ -280,7 +283,7 @@ function frist(u: Utledning): Fristlinje {
     kravet_staar: kravetStaar(u, 'frist'),
     har_varsel: harVarsel(u, 'frist'),
     ingen_krav: s.ingenKrav,
-    krav: innhold ? { dager: tall(innhold.dager)! } : null,
+    krav: krav ? { dager: innholdIFristen(krav).dager } : null,
     svar:
       sv?.st.art === 'dager'
         ? { resultat: sv.st.resultat, dager: sv.st.vurdert, subsidiaert: sv.subsidiaert }
@@ -367,15 +370,12 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
       },
     };
   const g = u.spor.forhold.gjeldendeSvar?.standpunkter.find((p) => p.art === 'forhold');
+  const paaberopt = innholdIForholdet(u.spor.forhold.gjeldendeKrav);
   return {
     ...felles,
     siste_brev: sisteBrev(u),
-    hovedkategori: tekst(u.spor.forhold.gjeldendeKrav?.innhold.hovedkategori),
-    underkategori: tekst(
-      foersteUnderkategori(
-        u.spor.forhold.gjeldendeKrav?.innhold.underkategori as string | string[] | null | undefined
-      )
-    ),
+    hovedkategori: paaberopt.hovedkategori,
+    underkategori: tekst(paaberopt.underkategori),
     forhold: {
       ...foreligger(u, 'forhold'),
       svar: g?.art === 'forhold' ? { resultat: g.resultat } : null,

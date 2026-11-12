@@ -19,28 +19,66 @@
  *   eller hvilket formål en tillatt lesing har, utover avgrensningen til
  *   moduler og funksjoner.
  *
+ * - Rollefilene i et spor (`spor/<spor>/<rolle>.ts`, #1783) hører til mappen rollen står
+ *   for, og grensene for mappen gjelder dem. `regler/` når ikke frysingen eller teksten.
+ *
  * Importene leses med TypeScript-parseren, ikke med et tekstsøk, så `import`,
  * `import type`, `export … from`, `import()` og `require()` teller likt, med og
  * uten filendelse.
  */
 
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
+import { SPOR, type Spor } from '../typer.ts';
 
 const KJERNE = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROT = resolve(KJERNE, '..');
 const TESTER = join(KJERNE, 'tester');
 
+const utenEndelse = (sti: string) => sti.replace(/\.(ts|js|mjs|cjs)$/, '');
+
+/** Rollene en fil i et spor kan ha, og mappen hver rolle hører til (#1783). */
+const ROLLER = {
+  format: 'format',
+  frysing: 'frosset',
+  tekst: 'frosset',
+  utledning: 'utledning',
+  visning: 'utledning',
+  kommando: 'kommandoer',
+} as const;
+type Rolle = keyof typeof ROLLER;
+const erRolle = (navn: string | undefined): navn is Rolle =>
+  navn !== undefined && Object.hasOwn(ROLLER, navn);
+
+/** Rollefilene i hvert spor, også de som ikke finnes ennå. */
+const rollefilene = (...roller: Rolle[]) =>
+  SPOR.flatMap((s) => roller.map((r) => join(KJERNE, 'spor', s, `${r}.ts`)));
+
+/**
+ * Mappen `fil` hører til: mappen den står i, eller for en rollefil i et spor mappen rollen
+ * hører til. `null` for en fil utenfor kjernen eller rett i den, og for en fil i `spor/` som
+ * ikke er en rollefil.
+ */
+export function mappenTil(fil: string): string | null {
+  if (!fil.startsWith(KJERNE + sep)) return null;
+  const deler = relative(KJERNE, utenEndelse(fil)).split(sep);
+  if (deler[0] !== 'spor') return deler.length > 1 ? deler[0]! : null;
+  const [, spor, rolle] = deler;
+  return deler.length === 3 && SPOR.includes(spor as Spor) && erRolle(rolle) ? ROLLER[rolle] : null;
+}
+
 /** Modulene reglene ikke kan nå. */
-const VISNING = [join(KJERNE, 'utledning', 'visning.ts'), join(KJERNE, 'utledning', 'buffer.ts')];
+const VISNING = [
+  join(KJERNE, 'utledning', 'visning.ts'),
+  join(KJERNE, 'utledning', 'buffer.ts'),
+  ...rollefilene('visning'),
+];
 /** Pakker og filer utenfor kjernen testene kan bruke. */
 const TESTPAKKER = new Set(['vitest', 'typescript']);
 const TESTFILER = join(ROT, 'docs', 'domenetabell') + sep;
-
-const utenEndelse = (sti: string) => sti.replace(/\.(ts|js|mjs|cjs)$/, '');
 
 /** Det `fil` importerer: relative stier løst til absolutte uten endelse, og pakkenavn som de står. */
 export function importer(fil: string, kilde: string): string[] {
@@ -138,17 +176,14 @@ describe('kjernen er ren kode (B-14)', () => {
   });
 });
 
-const KOMMANDOER = join(KJERNE, 'kommandoer') + sep;
-/** Importene i `fil` fra kommandoene. */
+/** Importene i `fil` fra kommandoene, også fra kommandoene i et spor. */
 const kommandoerI = (fil: string, kilde: string) =>
-  importer(fil, kilde).filter((i) => i.startsWith(KOMMANDOER));
+  importer(fil, kilde).filter((i) => mappenTil(i) === 'kommandoer');
 
 // #1354: kommandoene leser utledningen, ikke omvendt.
 describe('utledningen importerer ikke kommandoene (#1354)', () => {
   it.each(
-    filer
-      .filter((f) => f.startsWith(join(KJERNE, 'utledning') + sep))
-      .map((f) => [relative(KJERNE, f), f] as const)
+    filer.filter((f) => mappenTil(f) === 'utledning').map((f) => [relative(KJERNE, f), f] as const)
   )('%s', (_navn, fil) => {
     expect(kommandoerI(fil, readFileSync(fil, 'utf8'))).toEqual([]);
   });
@@ -156,9 +191,91 @@ describe('utledningen importerer ikke kommandoene (#1354)', () => {
   it.each([
     ["import { utledJournal } from '../kommandoer/skriving.ts';", 'utledning/buffer.ts'],
     ["export type { Kommando } from '../kommandoer/kommando';", 'utledning/visning.ts'],
+    ["import { standpunkter } from '../spor/vederlag/kommando.ts';", 'utledning/utled.ts'],
   ])('oppdager %s i %s', (linje, navn) => {
     const fil = join(KJERNE, navn);
     expect(kommandoerI(fil, `${linje}\n${readFileSync(fil, 'utf8')}`)).not.toEqual([]);
+  });
+
+  // #1783: rollefilene finnes ikke ennå, så forsøket er hele kilden.
+  it.each([
+    ["import { skriv } from '../../kommandoer/skriving.ts';", 'spor/vederlag/utledning.ts'],
+    ["import { standpunkter } from './kommando';", 'spor/vederlag/visning.ts'],
+    ["export * from '../frist/kommando.ts';", 'spor/vederlag/utledning.ts'],
+  ])('oppdager %s i rollefila %s', (linje, navn) => {
+    const fil = join(KJERNE, navn);
+    expect(mappenTil(fil)).toBe('utledning');
+    expect(kommandoerI(fil, linje)).not.toEqual([]);
+  });
+});
+
+/** Frysingen og teksten, også i et spor. */
+const FROSSET = [
+  ...filer.filter((f) => f.startsWith(join(KJERNE, 'frosset') + sep)),
+  ...rollefilene('frysing', 'tekst'),
+];
+
+// .claude/rules/kjerne.md, «Hvor koden hører hjemme»: en regel leser ikke en tekst.
+describe('regelsettet når ikke frysingen eller teksten', () => {
+  it.each(
+    filer.filter((f) => mappenTil(f) === 'regler').map((f) => [relative(KJERNE, f), f] as const)
+  )('%s', (_navn, modul) => {
+    expect(forbudteStier(modul, new Map(), FROSSET)).toEqual([]);
+  });
+
+  it.each([
+    ["import { kroner } from '../frosset/tekst.ts';"],
+    ["import type { Svarinnhold } from '../frosset/standpunkt';"],
+    ["import { vederlagstekst } from '../spor/vederlag/tekst.ts';"],
+    ["export * from '../spor/frist/frysing';"],
+  ])('oppdager %s', (linje) => {
+    const regel = join(KJERNE, 'regler', 'frist.ts');
+    const kilde = `${linje}\n${readFileSync(regel, 'utf8')}`;
+    expect(forbudteStier(regel, new Map([[utenEndelse(regel), kilde]]), FROSSET)).not.toEqual([]);
+  });
+
+  it('oppdager teksten i et spor gjennom en annen modul', () => {
+    const regel = join(KJERNE, 'regler', 'svarkontroll.ts');
+    const format = join(KJERNE, 'format', 'format.ts');
+    const filer = new Map([
+      [utenEndelse(regel), "import { METODER } from '../format/format.ts';"],
+      [utenEndelse(format), "export { METODEN as METODER } from '../spor/vederlag/tekst.ts';"],
+    ]);
+    expect(forbudteStier(regel, filer, FROSSET)).toEqual([
+      'kjerne/regler/svarkontroll → kjerne/format/format → kjerne/spor/vederlag/tekst',
+    ]);
+  });
+});
+
+describe('et spor har bare rollefiler (#1783)', () => {
+  // Alle filer, ikke bare .ts: en JSON-fil ved siden av en rollefil ville stått utenfor
+  // grensene og versjonene.
+  it('hver fil i spor/ er spor/<spor>/<rolle>.ts', () => {
+    const spor = join(KJERNE, 'spor');
+    const andre = existsSync(spor)
+      ? readdirSync(spor, { recursive: true, withFileTypes: true })
+          .filter((d) => d.isFile())
+          .map((d) => join(d.parentPath, d.name))
+          .filter((f) => !f.endsWith('.ts') || mappenTil(f) === null)
+          .map((f) => relative(KJERNE, f))
+      : [];
+    expect(andre).toEqual([]);
+  });
+
+  it.each([
+    ['spor/vederlag/frysing.ts', 'frosset'],
+    ['spor/vederlag/tekst.ts', 'frosset'],
+    ['spor/frist/visning.ts', 'utledning'],
+    ['spor/forhold/kommando.ts', 'kommandoer'],
+    ['spor/vederlag/format', 'format'],
+    ['frosset/brevtekst.ts', 'frosset'],
+    ['typer.ts', null],
+    ['spor/vederlag/annet.ts', null],
+    ['spor/vederlag/frysing/a.ts', null],
+    ['spor/poster/tekst.ts', null],
+    ['../src/kommandoer/a.ts', null],
+  ])('%s hører til %s', (navn, mappe) => {
+    expect(mappenTil(join(KJERNE, navn))).toBe(mappe);
   });
 });
 
@@ -191,6 +308,7 @@ describe('INV-MM-9: reglene leser ikke visningen', () => {
     ["const v = await import('../utledning/visning.ts');"],
     ["const v = require('../utledning/visning');"],
     ["import { lesSak } from '../utledning/buffer.ts';"],
+    ["import { vederlagssvaret } from '../spor/vederlag/visning.ts';"],
   ])('oppdager %s', (linje) => {
     const regel = join(KJERNE, 'kommandoer', 'forutsetninger.ts');
     const kilde = `${linje}\n${readFileSync(regel, 'utf8')}`;
@@ -272,13 +390,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Domenehendelse', 'relasjon', 'art id versjon dokument grunn'],
   ['Krav', 'relasjon', 'id spor erstatter gjelder'],
   ['Krav', 'utsagn', 'innhold'],
-  // #1707, #1711: kravinnholdet leses gjennom den typede tilgangen per spor i `frosset/kravinnhold.ts`.
-  ['Krav.innhold', 'utsagn', 'hovedkategori underkategori dager', ['frosset/kravinnhold.ts']],
+  // #1707, #1711: kravinnholdet leses gjennom den typede tilgangen per spor i `format/kravinnhold.ts`.
+  ['Krav.innhold', 'utsagn', 'hovedkategori underkategori dager', ['format/kravinnhold.ts']],
   [
     'Krav.innhold',
     'utsagn',
     'endringsordre paalegg_mottatt klar_over_forholdet',
-    ['frosset/kravinnhold.ts:innholdIForholdet'],
+    ['format/kravinnhold.ts:innholdIForholdet'],
   ],
   ['Forholdsinnhold', 'utsagn', 'hovedkategori underkategori'],
   [
@@ -294,21 +412,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Vederlagsinnhold',
     'utsagn',
     'kravposter',
-    ['frosset/kravinnhold.ts:innholdIVederlaget', 'frosset/kravinnhold.ts:kravposterI'],
+    ['format/kravinnhold.ts:innholdIVederlaget', 'format/kravinnhold.ts:kravposterI'],
   ],
   [
     'Vederlagsinnhold',
     'utsagn',
     'trekker',
-    ['frosset/kravinnhold.ts:innholdIVederlaget', 'frosset/brevtekst.ts'],
+    ['format/kravinnhold.ts:innholdIVederlaget', 'frosset/brevtekst.ts'],
   ],
   ['Kravpost', 'relasjon', 'id betegnelse'],
-  [
-    'Kravpost',
-    'utsagn',
-    'oppgjoersform beloep',
-    ['frosset/kravinnhold.ts', 'frosset/brevtekst.ts'],
-  ],
+  ['Kravpost', 'utsagn', 'oppgjoersform beloep', ['format/kravinnhold.ts', 'frosset/brevtekst.ts']],
   // VS-U49, D-16, VS-U55: om kravet er varselet for posten, eller et varsel før kravet gjelder den.
   ['Kravpost', 'utsagn', 'oppgjoersform justert', ['utledning/kravposter.ts:varselhjemmel']],
   // VS-U50, VS-U54: varselet kravposten viser til, en relasjon til et varsel i saken.
@@ -345,27 +458,33 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Vederlagsinnhold.saerskilt',
     'utsagn',
     'rigg_og_drift rigg_og_drift.beloep',
-    ['frosset/kravinnhold.ts:krevdRigg'],
+    ['format/kravinnhold.ts:krevdRigg'],
   ],
   // OV-U23: posten etter § 34.1.3 annet ledd i vederlagskravet.
-  ['Vederlagsinnhold', 'utsagn', 'saerskilt', ['frosset/kravinnhold.ts']],
+  ['Vederlagsinnhold', 'utsagn', 'saerskilt', ['format/kravinnhold.ts']],
   [
     'Vederlagsinnhold.saerskilt',
     'utsagn',
     'produktivitet',
-    ['frosset/kravinnhold.ts:harProduktivitetspost', 'frosset/kravinnhold.ts:krevdProduktivitet'],
+    ['format/kravinnhold.ts:harProduktivitetspost', 'format/kravinnhold.ts:krevdProduktivitet'],
   ],
   [
     'Vederlagsinnhold.saerskilt',
     'utsagn',
     'produktivitet.beloep',
-    ['frosset/kravinnhold.ts:krevdProduktivitet'],
+    ['format/kravinnhold.ts:krevdProduktivitet'],
   ],
   ['Svar', 'relasjon', 'id spor gjelder erstatter dokument paaberopelse'],
   ['Svar', 'utsagn', 'standpunkter'],
   ['Svar', 'frosset', 'beslutningsgrunnlag'],
   ['Svar', 'frosset svar', 'utregning', ['frosset/standpunkt.ts:godkjennerHeleKravet']],
-  ['Svar.utregning', 'frosset svar', 'resultat', ['frosset/standpunkt.ts:godkjennerHeleKravet']],
+  [
+    'Vederlagsutregning',
+    'frosset svar',
+    'resultat',
+    ['frosset/standpunkt.ts:godkjennerHeleKravet'],
+  ],
+  ['Fristutregning', 'frosset svar', 'resultat', ['frosset/standpunkt.ts:godkjennerHeleKravet']],
   ['Utsagn', 'relasjon', 'id art gjelder spor'],
   ['Utsagn', 'utsagn', 'hva'],
   // OV-U5: bestemmelsen TEs varsel er gitt etter, § 33.4 eller § 34.1.2.
@@ -540,7 +659,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
   // og utledningen, som prøver postene i svaret mot dem (OV-U23).
   [
-    'frosset/kravinnhold.ts',
+    'format/kravinnhold.ts',
     'utsagn',
     'kravposterI',
     [
@@ -579,20 +698,23 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Kravposten standpunktene gjelder (KA-U57 (c) og (d)).
   ['frosset/standpunkt.ts:beregningsregelLag', 'relasjon', 'gjelder'],
   ['kommandoer/lag.ts:innenforKravposten', 'relasjon', 'gjelder'],
-  ['frosset/kravinnhold.ts', 'regelsett', 'krevdRigg', ['frosset/brevtekst.ts']],
+  // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav med rigg og drift (#1663).
   [
-    'frosset/kravinnhold.ts',
+    'format/kravinnhold.ts',
+    'regelsett',
+    'krevdRigg',
+    ['frosset/brevtekst.ts', 'kommandoer/forutsetninger.ts:hindrerSvarPaaKravet'],
+  ],
+  [
+    'format/kravinnhold.ts',
     'regelsett',
     'krevdIKravposten',
     // KA-U72: en kravpost der tilbudet ikke er akseptert, regnes ikke med i beløpet.
     ['frosset/brevtekst.ts', 'frosset/utregning.ts', 'kommandoer/nyttelast.ts'],
   ],
-  // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav det ikke kan gis
-  // med ett beløp (#1663).
-  ['frosset/kravinnhold.ts', 'predikat', 'hindrerSvarPaaKravet', ['kommandoer/forutsetninger.ts']],
   // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
   ['frosset/utregning.ts', 'regelsett', 'vederlagsposter', ['kommandoer/standpunkter.ts']],
-  ['frosset/kravinnhold.ts', 'regelsett', 'krevdSamlet', ['kommandoer/nyttelast.ts']],
+  ['format/kravinnhold.ts', 'regelsett', 'krevdSamlet', ['kommandoer/nyttelast.ts']],
   ['frosset/utregning.ts:vederlagsposter', 'regelsett', 'godkjent gjelder saerskilt svar'],
   // KA-U57 (c) og (d), KA-U59: svaret på hver kravpost i kommandoen, lest ett sted.
   [
@@ -635,16 +757,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // OV-U23, OV-U24: posten etter § 34.1.3 leses ett sted, av brevet og første kjente varsel.
   [
-    'frosset/kravinnhold.ts',
+    'format/kravinnhold.ts',
     'regelsett',
     'krevdProduktivitet harProduktivitetspost',
     ['frosset/brevtekst.ts', 'utledning/utled.ts', 'frosset/utregning.ts'],
   ],
   // #814: standpunktene og utregningen nyttelastkontrollen leste, er de brevet lagrer.
   ['Bygde', 'regelsett', 'standpunkter utregning', ['kommandoer/skriving.ts:svar']],
-  ['frosset/kravinnhold.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
+  ['format/kravinnhold.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   // OV-U23, OV-U95 punkt 19: kravet har kravposter i vederlagsjusteringen.
-  ['frosset/kravinnhold.ts', 'regelsett', 'kravposterI', ['frosset/utregning.ts']],
+  ['format/kravinnhold.ts', 'regelsett', 'kravposterI', ['frosset/utregning.ts']],
   [
     'Svarvurdering',
     'utsagn',
@@ -693,7 +815,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regler/beloep.ts',
     'regelsett',
     'UgyldigBeloep',
-    ['kommandoer/nyttelast.ts', 'frosset/kravinnhold.ts', 'regler/vederlag.ts'],
+    ['kommandoer/nyttelast.ts', 'format/kravinnhold.ts', 'regler/vederlag.ts'],
   ],
   // OV-U58: brøkdeler av øre avvises og rundes ikke av.
   [
@@ -917,7 +1039,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['frosset/standpunkt.ts', 'frosset', 'begrensningen', ['frosset/tekst.ts:beslutningslinje']],
   [
-    'frosset/kravinnhold.ts',
+    'format/kravinnhold.ts',
     'utsagn',
     'kategori',
     [
@@ -930,7 +1052,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   [
-    'frosset/kravinnhold.ts',
+    'format/kravinnhold.ts',
     'utsagn',
     'innholdIForholdet',
     [
@@ -941,13 +1063,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   [
-    'frosset/kravinnhold.ts',
+    'format/kravinnhold.ts',
     'utsagn',
     'innholdIVederlaget',
     ['frosset/brevtekst.ts', 'utledning/utled.ts:kravetStrider'],
   ],
   [
-    'frosset/kravinnhold.ts',
+    'format/kravinnhold.ts',
     'utsagn',
     'innholdIFristen',
     ['frosset/brevtekst.ts', 'frosset/utregning.ts'],
@@ -1265,39 +1387,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:standpunkterISvaret(e)',
     'rad',
-    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_oppgjoersform dager beloep saerskilt krever_tilbud godtar',
+    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_oppgjoersform dager beloep begrenset_beloep saerskilt krever_tilbud godtar',
     ['format/leser.ts'],
   ],
   // OV-U31, KA-U57 (e): radene i utregningen per post og lag, mot standpunktene og totalene.
-  [
-    'format/leser.ts:kontrollerUtregningenPerPost(utregning)',
-    'rad',
-    'poster godkjent_beloep subsidiaert_godkjent_beloep',
-    ['format/leser.ts'],
-  ],
-  [
-    'format/leser.ts:kontrollerUtregningenPerPost',
-    'rad',
-    'gjelder saerskilt lag',
-    ['format/leser.ts'],
-  ],
-  ['format/leser.ts:kontrollerUtregningenPerPost(l)', 'rad', 'lag beloep', ['format/leser.ts']],
-  [
-    'format/leser.ts:kontrollerUtregningenPerPost(r.lag.at(-1))',
-    'rad',
-    'beloep',
-    ['format/leser.ts'],
-  ],
-  ['format/leser.ts:kontrollerUtregningenPerPost.summen(l)', 'rad', 'beloep', ['format/leser.ts']],
-  // OV-U31: postene summerer til det byggherren godtar om ingen påberopelse fører fram.
-  [
-    'format/leser.ts:kontrollerVederlagsstandpunktene(utregning)',
-    'rad',
-    'godkjent_beloep subsidiaert_godkjent_beloep',
-    ['format/leser.ts'],
-  ],
-  // Beløpet og dagene i standpunktet leses av utregningen, som har ett hjem (4.3 i
-  // designnotatet). Resultatet i dager-standpunktet tas i #309 (#331 punkt 4).
+  // Resultatet og dagene i standpunktet leses av utregningen (4.3 i designnotatet, #331 punkt 4).
+  // Utregningen leses med typen for sporet (#1777).
   [
     'format/leser.ts:standpunkterISvaret(svar)',
     'rad',
@@ -1305,11 +1400,25 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['format/leser.ts'],
   ],
   [
-    'format/leser.ts:standpunkterISvaret(svar).utregning',
+    'format/svarinnhold.ts',
+    'rad',
+    'utregningIVederlaget utregningIFristen',
+    ['format/leser.ts', 'frosset/standpunkt.ts:godkjennerHeleKravet'],
+  ],
+  [
+    'Vederlagsutregning',
+    'rad',
+    'resultat subsidiaert_resultat godkjent_beloep subsidiaert_godkjent_beloep poster',
+    ['format/leser.ts'],
+  ],
+  [
+    'Fristutregning',
     'rad',
     'resultat godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
     ['format/leser.ts'],
   ],
+  ['Utregningsrad', 'rad', 'gjelder saerskilt lag', ['format/leser.ts']],
+  ['Utregningslag', 'rad', 'lag beloep', ['format/leser.ts']],
   [
     'format/leser.ts:lesBeslutningsgrunnlag(v)',
     'rad',
@@ -2010,7 +2119,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
         'Sporutledning.enighet',
         'Svar.beslutningsgrunnlag',
         'utledning/utled.ts.trekkAvPaaberopelsenErSperret',
-        'format/leser.ts:standpunkterISvaret(svar).utregning.resultat',
+        'Fristutregning.resultat',
       ])
     );
   });

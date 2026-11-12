@@ -5,7 +5,7 @@
  * (GFK-U8), i `server/godkjenning.ts`.
  */
 import { regnUtSvar } from '../kjerne/frosset/utregning.ts';
-import { krevdSamlet } from '../kjerne/frosset/kravinnhold.ts';
+import { innholdIFristen, krevdSamlet } from '../kjerne/format/kravinnhold.ts';
 import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import type { Regelsett } from '../kjerne/regler/regelsett.ts';
@@ -90,7 +90,11 @@ export function brevverdi(
       if (besvart.has(spor)) continue;
       // OV-U23: vederlagskravet er justeringen ellers og posten etter § 34.1.3 annet ledd.
       const v = kravverdi(u.spor[spor], (k) =>
-        sporverdi(spor, spor === 'vederlag' ? tilTall(krevdSamlet(k)) : null, k.innhold.dager)
+        sporverdi(
+          spor,
+          spor === 'vederlag' ? tilTall(krevdSamlet(k)) : null,
+          spor === 'frist' ? innholdIFristen(k).dager : null
+        )
       );
       if (v === null) ukjent = true;
       else {

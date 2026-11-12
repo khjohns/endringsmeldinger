@@ -32,7 +32,7 @@ import {
   type Vederlagsberegning,
   type Vederlagssvar,
 } from '../regler/vederlag.ts';
-import { kravposterI } from '../frosset/kravinnhold.ts';
+import { kravposterI } from '../format/kravinnhold.ts';
 import { sammenfallStemmer, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
@@ -2507,7 +2507,7 @@ describe('leseren av svaret på det særskilte kravet (OV-U27, OV-U31, MM-U2)', 
     gjelder: 'k',
     hjemmel: '34.1.3',
     i_tide: false,
-    beloep: 10000,
+    begrenset_beloep: 10000,
   };
   const justering = { id: 'j', art: 'beloep', beloep: 100000, gjelder: 'kravpost' };
   const posten = { id: 'p', art: 'beloep', beloep: 30000, saerskilt: 'produktivitet' };
@@ -2537,7 +2537,7 @@ describe('leseren av svaret på det særskilte kravet (OV-U27, OV-U31, MM-U2)', 
     ['begrensningen uten posten', [justering, rettidighet]],
     [
       'begrensningen uten beløpet etter den',
-      [justering, { ...rettidighet, beloep: undefined }, posten],
+      [justering, { ...rettidighet, begrenset_beloep: undefined }, posten],
     ],
     [
       'et beløp etter begrensningen når varselet kom i tide',
@@ -2588,8 +2588,11 @@ describe('leseren av svaret på det særskilte kravet (OV-U27, OV-U31, MM-U2)', 
   });
 
   it('et beløp etter begrensningen over det byggherren godtar for posten, er ikke forstått (valg 2 i #1047)', () => {
-    expect(les([justering, { ...rettidighet, beloep: 30000 }, posten]), 'kontroll').not.toThrow();
-    expect(les([justering, { ...rettidighet, beloep: 30001 }, posten])).toThrow(
+    expect(
+      les([justering, { ...rettidighet, begrenset_beloep: 30000 }, posten]),
+      'kontroll'
+    ).not.toThrow();
+    expect(les([justering, { ...rettidighet, begrenset_beloep: 30001 }, posten])).toThrow(
       /høyere enn det byggherren godtar for posten/
     );
   });
