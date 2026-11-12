@@ -23,7 +23,10 @@
     feil?: string | null;
     /** Id-en til det spørsmålet bygger på, som forutsetningene for et subsidiært lag. */
     beskrevetAv?: string;
-    /** Valgene står under hverandre. For mer enn to valg eller lange tekster. */
+    /**
+     * Valgene står under hverandre i kort med lik bredde, når de ville brytes ujevnt ved siden av
+     * hverandre (`system.md`, #1492).
+     */
     stablet?: boolean;
     /**
      * Radio og tekst uten ramme, inne i et åpent element; bare det valgte får flaten

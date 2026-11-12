@@ -127,7 +127,8 @@ const METODE: Record<string, string> = {
   enhetspriser: 'enhetspriser (punkt 34.3)',
   regningsarbeid: 'regningsarbeid (punkt 34.4)',
 };
-export const metodenavn = (m: unknown) => METODE[m as string] ?? 'metoden TE oppgir';
+export const metodenavn = (m: unknown) =>
+  METODE[m as string] ?? 'metoden totalentreprenøren oppgir';
 
 /** Beregningsregelen TE krever, etter hjemmelen i standpunktet til oppgjørsformen. */
 const REGEL = { '34.3': 'enhetspriser', '34.4': 'regningsarbeid' } as const;
@@ -135,8 +136,8 @@ const REGEL = { '34.3': 'enhetspriser', '34.4': 'regningsarbeid' } as const;
 /** En grunn fra svaret på grunnlaget i brevet `brev`, som utsagn fra byggherren. */
 export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: Brevref) =>
   grunn === 'avslaatt'
-    ? `${du ? 'Du' : 'BH'} har avslått forholdet i ${brevref(brev)}`
-    : `${du ? 'Du' : 'BH'} har gjort gjeldende i ${brevref(brev)} at varselet om forholdet kom for sent (punkt 32.2)`;
+    ? `${du ? 'Du' : 'Byggherren'} har avslått forholdet i ${brevref(brev)}`
+    : `${du ? 'Du' : 'Byggherren'} har gjort gjeldende i ${brevref(brev)} at varselet om forholdet kom for sent (punkt 32.2)`;
 
 /**
  * Standpunktet i den lukkede kravposten, kort og uten kravposten, som raden navngir (prototype v3,
@@ -195,13 +196,13 @@ export function leselinjene(linjer: Standpunktet[], post: Kravpost): string[] {
 
 /**
  * Standpunktet som utsagn fra byggherren, med «du» når byggherren leser det selv og
- * «BH» ellers. `krevd` er det TE krevde for posten. `post` er betegnelsen på kravposten
+ * «byggherren» ellers. `krevd` er det totalentreprenøren krevde for posten. `post` er betegnelsen på kravposten
  * standpunktet gjelder, når kravet har flere (KA-U57).
  */
 export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post?: string): string {
   const forPosten = post ? ` for ${post}` : '';
-  const hvem = du ? 'Du' : 'BH';
-  const hvemLiten = du ? 'du' : 'BH';
+  const hvemLiten = du ? 'du' : PARTNAVN.BH;
+  const hvem = `${hvemLiten[0]!.toUpperCase()}${hvemLiten.slice(1)}`;
   switch (s.art) {
     case 'rettidighet':
       // VS-U63.
@@ -216,8 +217,8 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post
     case 'oppgjoersform':
       return (
         (s.aksepterer
-          ? `${hvem} godkjenner oppgjørsformen TE krever${forPosten}`
-          : `${hvem} godkjenner ikke oppgjørsformen TE krever${forPosten}` +
+          ? `${hvem} godkjenner oppgjørsformen totalentreprenøren krever${forPosten}`
+          : `${hvem} godkjenner ikke oppgjørsformen totalentreprenøren krever${forPosten}` +
             (s.oensket
               ? `, og mener vederlaget skal justeres etter ${metodenavn(s.oensket)}`
               : '')) + (s.kreverTilbud ? `, og krever et spesifisert tilbud (punkt 34.2.1)` : '')
@@ -247,7 +248,7 @@ export const SKJEMA = {
   svarerPaa: (b: Brevref) =>
     b.nummer === null && b.omtale
       ? `Svar på ${b.omtale}`
-      : `Svar på ${brevref(b)} fra TE · ${kortDato(b.registrert)}`,
+      : `Svar på ${brevref(b)} fra totalentreprenøren · ${kortDato(b.registrert)}`,
   lesBrevet: 'Les brevet ved siden av',
   // På smal skjerm åpnes brevet i skjemaet, ikke ved siden av.
   lesBrevetHer: 'Les brevet',
@@ -263,14 +264,15 @@ export const SKJEMA = {
     'Datoene er de partene har oppgitt i brevene. Løsningen regner ut dagene mellom dem, men vurderer ikke om varselet kom i tide.',
   datoInfoNavn: 'Om datoene',
   klarOver: (d: string, b: Brevref) =>
-    `TE oppgir at TE ble klar over forholdet ${dato(d)} (${brevref(b)}).`,
-  // For registrert korrespondanse har omtalen datoen TE oppgir, og avstanden regnes til den
+    `Totalentreprenøren oppgir at totalentreprenøren ble klar over forholdet ${dato(d)} (${brevref(b)}).`,
+  // For registrert korrespondanse har omtalen datoen totalentreprenøren oppgir, og avstanden regnes til den
   // (LV-U42, #1596).
   kravSendt: (d: string, b: Brevref) =>
     b.omtale && b.art === 'registrert'
       ? `Kravet om vederlagsjustering står i ${b.omtale}.`
       : `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
-  avstand: (dager: number) => `${dager} kalenderdager fra datoen TE oppgir til kravet ble sendt.`,
+  avstand: (dager: number) =>
+    `${dager} kalenderdager fra datoen totalentreprenøren oppgir til kravet ble sendt.`,
   formSpoersmaal: 'Oppgjørsformen (punkt 34.2.2)',
   godkjennerForm: `Godkjenner ${metodenavn('tilbud')}`,
   menerForm: (m: 'enhetspriser' | 'regningsarbeid') => `Mener ${metodenavn(m)}`,
@@ -281,7 +283,7 @@ export const SKJEMA = {
   kreverTilbudKort: 'krever spesifisert tilbud',
   tilbudSpoersmaal: 'Spesifisert tilbud (punkt 34.2.1)',
   kreverTilbud: (post: string | null) =>
-    `Krev at TE gir et spesifisert tilbud for ${post ?? 'kravposten'}`,
+    `Krev at totalentreprenøren gir et spesifisert tilbud for ${post ?? 'kravposten'}`,
   varselJusteringSpoersmaal: 'Varselet om justering av enhetsprisene (punkt 34.3.3)',
   komITide: 'Kom i tide',
   komForSent: 'Kom for sent',
@@ -302,11 +304,11 @@ export const SKJEMA = {
   godkjennAlleFormer: 'Godkjenn fast sum for alle kravpostene',
   godkjennAlle: 'Godkjenn alle kravpostene som krevd',
   // Med en kravpost etter en beregningsregel (U-9 i BF-14).
-  godkjennAlleFormerRegel: 'Godkjenn oppgjørsformen TE krever for alle kravpostene',
+  godkjennAlleFormerRegel: 'Godkjenn oppgjørsformen totalentreprenøren krever for alle kravpostene',
   godkjennAlleFaste: 'Godkjenn alle kravpostene med fast sum som krevd',
   svaretKolonne: 'Svaret',
   teKrever: (beloep: number, pns?: string) =>
-    `TE krever fast sum, ${kroner(beloep)}${pns ? ` · PNS ${pns}` : ''}`,
+    `Totalentreprenøren krever fast sum, ${kroner(beloep)}${pns ? ` · PNS ${pns}` : ''}`,
   /** Kravposten etter en beregningsregel, med anslaget eller overslaget TE oppgir (KA-U66). */
   teKreverRegel: (p: Kravpost) => {
     const regel =
@@ -319,7 +321,7 @@ export const SKJEMA = {
       p.oppgjoersform === 'regningsarbeid'
         ? p.kostnadsoverslag !== undefined && `kostnadsoverslag ${kroner(p.kostnadsoverslag)}`
         : p.anslag !== undefined && `anslag ${kroner(p.anslag)}`;
-    return `TE krever ${regel}${opplysning ? `, ${opplysning}` : ''}${p.pns ? ` · PNS ${p.pns}` : ''}`;
+    return `Totalentreprenøren krever ${regel}${opplysning ? `, ${opplysning}` : ''}${p.pns ? ` · PNS ${p.pns}` : ''}`;
   },
   ikkeBesvart: 'Ikke besvart',
   endre: 'Endre',
@@ -390,12 +392,13 @@ export const BREVKONTROLL = {
   detteSender: 'Dette sender du',
   /** Virkningen av sendingen, adskilt fra innholdet (oppdragsgiver 06.11, PR 1650). */
   naarDuSender: 'Når du sender',
-  akseptOmfatter: 'Godtar TE svaret, omfatter aksepten hele svaret, også at varselet kom for sent.',
+  akseptOmfatter:
+    'Godtar totalentreprenøren svaret, omfatter aksepten hele svaret, også at varselet kom for sent.',
   kontrollert: 'Jeg har kontrollert brevet',
   hvorforIkke: 'Kryss av for at du har kontrollert brevet, så kan du sende.',
   sender: 'Sender …',
-  sendSvaret: 'Send svaret til TE',
-  sendAksepten: 'Send aksepten til BH',
+  sendSvaret: 'Send svaret til totalentreprenøren',
+  sendAksepten: 'Send aksepten til byggherren',
 };
 
 export const MOTTATT = {
@@ -484,7 +487,7 @@ export const STILLING = {
   godta: 'Aksepten kan ikke lages nå.',
   // Etter § 34.3.3 står justeringen subsidiært, ikke beløpet (VS-U4, KA-U64).
   omfatter: (hjemmel: string) =>
-    `Aksepten omfatter også at BH gjør gjeldende at varselet etter punkt ${hjemmel} kom for sent, ikke bare ${hjemmel === '34.3.3' ? 'det subsidiære standpunktet til justeringen' : 'det subsidiære beløpet'}.`,
+    `Aksepten omfatter også at byggherren gjør gjeldende at varselet etter punkt ${hjemmel} kom for sent, ikke bare ${hjemmel === '34.3.3' ? 'det subsidiære standpunktet til justeringen' : 'det subsidiære beløpet'}.`,
   beloep: (beloep: number, b: Brevref) =>
     `Godtar du, er beløpet dere er enige om for vederlagsjusteringen ${kroner(beloep)}, etter ${brevref(b)} slik det ble sendt.`,
   /**
