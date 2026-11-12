@@ -372,26 +372,35 @@
     },
   ]);
 
-  // Punktet i panelet for avsnittet øverst i syne (U-15 i BF-14, `aria-current`). Observatøren
-  // lages på nytt bare når avsnittene endres, ikke for hver status.
+  // Punktet i panelet for avsnittet du står i (U-15 i BF-14, `aria-current`): det siste avsnittet
+  // som har passert en linje 30 % ned i vinduet. Lytteren lages på nytt bare når avsnittene endres,
+  // ikke for hver status.
   const punktider = $derived(punkter.map((p) => p.id).join(' '));
   let aktivtPunkt = $state<string | null>(null);
   $effect(() => {
     const ider = punktider.split(' ');
-    if (typeof IntersectionObserver === 'undefined') return;
-    const synlige: Record<string, boolean> = {};
-    const io = new IntersectionObserver(
-      (oppfoeringer) => {
-        for (const o of oppfoeringer) synlige[o.target.id] = o.isIntersecting;
-        aktivtPunkt = ider.find((x) => synlige[x]) ?? aktivtPunkt;
-      },
-      { rootMargin: '0px 0px -55% 0px' }
-    );
-    for (const x of ider) {
-      const el = document.getElementById(x);
-      if (el) io.observe(el);
-    }
-    return () => io.disconnect();
+    const finn = () => {
+      const linje = window.innerHeight * 0.3;
+      let valgt = ider[0] ?? null;
+      for (const x of ider) {
+        const el = document.getElementById(x);
+        if (el && el.getBoundingClientRect().top <= linje) valgt = x;
+      }
+      aktivtPunkt = valgt;
+    };
+    let ramme = 0;
+    const planlegg = () => {
+      cancelAnimationFrame(ramme);
+      ramme = requestAnimationFrame(finn);
+    };
+    finn();
+    window.addEventListener('scroll', planlegg, { passive: true });
+    window.addEventListener('resize', planlegg);
+    return () => {
+      cancelAnimationFrame(ramme);
+      window.removeEventListener('scroll', planlegg);
+      window.removeEventListener('resize', planlegg);
+    };
   });
 
   // Datoene TE fyller ut, i tidslinja (U-17).

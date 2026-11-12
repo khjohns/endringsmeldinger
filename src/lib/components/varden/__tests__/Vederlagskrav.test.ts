@@ -193,18 +193,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     expect(typeof p2.varsel).toBe('string');
   });
 
-  it('panelet «Punktene» markerer punktet for avsnittet i syne, og hver kravpost er en lenke til kravposten (U-15 i BF-14, #1827)', async () => {
-    let meld: ((o: { target: Element; isIntersecting: boolean }[]) => void) | null = null;
-    vi.stubGlobal(
-      'IntersectionObserver',
-      class {
-        constructor(cb: typeof meld) {
-          meld = cb;
-        }
-        observe() {}
-        disconnect() {}
-      }
-    );
+  it('panelet «Punktene» markerer punktet for avsnittet du står i, og hver kravpost er en lenke til kravposten (U-15 i BF-14, #1827)', async () => {
     await aapneSomTe('forholdet-er-godkjent');
     await fireEvent.click(
       within(
@@ -212,17 +201,29 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
       ).getByRole('button')
     );
     const panelet = within(screen.getByRole('heading', { name: 'Punktene' }).closest('section')!);
-    const varslene = panelet.getByRole('link', { name: 'Varslene' });
-    const avsnitt = document.querySelector(varslene.getAttribute('href')!)!;
-    meld!([{ target: avsnitt, isIntersecting: true }]);
-    await Promise.resolve();
-    expect(varslene.getAttribute('aria-current')).toBe('location');
-    expect(panelet.getAllByRole('link').filter((a) => a.getAttribute('aria-current')).length).toBe(
-      1
-    );
+    const lenke = (navn: string) => panelet.getByRole('link', { name: navn });
+    const avsnitt = (navn: string) => document.querySelector(lenke(navn).getAttribute('href')!)!;
+    const merket = () =>
+      panelet
+        .getAllByRole('link')
+        .filter((a) => a.getAttribute('aria-current') === 'location')
+        .map((a) => a.textContent);
+    // Avsnittene er under linja 30 % ned i vinduet, bortsett fra dem som er rullet forbi.
+    const toppen = (forbi: string[]) => {
+      for (const navn of ['Vederlagsjustering', 'Varslene', 'Forbehold'])
+        vi.spyOn(avsnitt(navn), 'getBoundingClientRect').mockReturnValue({
+          top: forbi.includes(navn) ? 0 : window.innerHeight,
+        } as DOMRect);
+    };
+    toppen([]);
+    await fireEvent.scroll(window);
+    await new Promise((ferdig) => requestAnimationFrame(ferdig));
+    expect(merket()).toEqual(['Vederlagsjustering']);
+    toppen(['Vederlagsjustering', 'Varslene']);
+    await fireEvent.scroll(window);
+    await new Promise((ferdig) => requestAnimationFrame(ferdig));
+    expect(merket()).toEqual(['Varslene']);
     const p1 = panelet.getByRole('link', { name: /^P1/ });
-    expect(
-      document.querySelector(p1.getAttribute('href')!)?.querySelector('h4, h3, h5')
-    ).toBeTruthy();
+    expect(document.querySelector(p1.getAttribute('href')!)?.classList.contains('post')).toBe(true);
   });
 });
