@@ -51,6 +51,7 @@
     postvalget,
     regelen,
     spoerOmBeloepet,
+    spoerOmHovedvarselet,
     spoerOmTilbud,
     spoerOmVarselet,
     tomPost,
@@ -308,9 +309,14 @@
     if (lest.verdi === undefined) return SKJEMA.manglerDelbeloep;
     return lest.verdi <= 0 || lest.verdi >= krevdI(p) ? HOVEDLINJER.beloepUtenfor(krevdI(p)) : null;
   };
+  const hovedvarselet = $derived(spoerOmHovedvarselet(u, kjernesak.regler));
   const mangler = $derived(
     [
-      { felt: `${uid}-itide`, post: null, tekst: valg.iTide === null ? SKJEMA.manglerITide : null },
+      {
+        felt: `${uid}-itide`,
+        post: null,
+        tekst: hovedvarselet && valg.iTide === null ? SKJEMA.manglerITide : null,
+      },
       ...poster.flatMap((p) => {
         const v = postvalget(valg, p.betegnelse);
         const i = (tekst: string | null) =>
@@ -751,39 +757,41 @@
             </ul>
           </div>
         {/if}
-        <section class="spoersmaal" aria-labelledby={`${uid}-sp-varsel`}>
-          <div class="sp-hode">
-            <h3 id={`${uid}-sp-varsel`}>{SKJEMA.varselTittel}</h3>
-            <Infotips navn={SKJEMA.datoInfoNavn} tekst={SKJEMA.datoInfo} />
-            <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 34.1.2</span>
-          </div>
-          <Gjelderhvis
-            id={`${uid}-itide-forutsetninger`}
-            liste={iPosten(grunnene)}
-            punkt={forutsetning}
-          />
-          <div class="datoer">
-            {#if klarOver}<p>{SKJEMA.klarOver(klarOver.dato, klarOver.brev)}</p>{/if}
-            <p>{SKJEMA.kravSendt(kravSendt ?? kravbrevet.registrert, kravbrevet)}</p>
-            {#if klarOver && kravSendt}
-              <p>
-                <strong>{SKJEMA.avstand(kalenderdager(klarOver.dato, kravSendt))}</strong>
-              </p>
-            {/if}
-            <p class="dempet">{SKJEMA.datoGrense}</p>
-          </div>
-          <Valg
-            navn={`${uid}-itide`}
-            spoersmaal={SKJEMA.varselSpoersmaal}
-            beskrevetAv={grunnene.length ? `${uid}-itide-forutsetninger` : undefined}
-            valg={[
-              { verdi: true, tekst: SKJEMA.iTide },
-              { verdi: false, tekst: SKJEMA.forSent },
-            ]}
-            bind:verdi={valg.iTide}
-            feil={feil('itide')}
-          />
-        </section>
+        {#if hovedvarselet}
+          <section class="spoersmaal" aria-labelledby={`${uid}-sp-varsel`}>
+            <div class="sp-hode">
+              <h3 id={`${uid}-sp-varsel`}>{SKJEMA.varselTittel}</h3>
+              <Infotips navn={SKJEMA.datoInfoNavn} tekst={SKJEMA.datoInfo} />
+              <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 34.1.2</span>
+            </div>
+            <Gjelderhvis
+              id={`${uid}-itide-forutsetninger`}
+              liste={iPosten(grunnene)}
+              punkt={forutsetning}
+            />
+            <div class="datoer">
+              {#if klarOver}<p>{SKJEMA.klarOver(klarOver.dato, klarOver.brev)}</p>{/if}
+              <p>{SKJEMA.kravSendt(kravSendt ?? kravbrevet.registrert, kravbrevet)}</p>
+              {#if klarOver && kravSendt}
+                <p>
+                  <strong>{SKJEMA.avstand(kalenderdager(klarOver.dato, kravSendt))}</strong>
+                </p>
+              {/if}
+              <p class="dempet">{SKJEMA.datoGrense}</p>
+            </div>
+            <Valg
+              navn={`${uid}-itide`}
+              spoersmaal={SKJEMA.varselSpoersmaal}
+              beskrevetAv={grunnene.length ? `${uid}-itide-forutsetninger` : undefined}
+              valg={[
+                { verdi: true, tekst: SKJEMA.iTide },
+                { verdi: false, tekst: SKJEMA.forSent },
+              ]}
+              bind:verdi={valg.iTide}
+              feil={feil('itide')}
+            />
+          </section>
+        {/if}
 
         <section class="spoersmaal" aria-labelledby={`${uid}-sp-beloep`}>
           <div class="sp-hode">

@@ -6,7 +6,7 @@
  */
 
 import { regnUtSvar } from '$kjerne/frosset/utregning';
-import { type Svarvurdering } from '$kjerne/frosset/byggeklosser';
+import { hjemmelenGjelder, type Svarvurdering } from '$kjerne/frosset/byggeklosser';
 import { UgyldigBeloep } from '$kjerne/regler/beloep';
 import { UgyldigVurdering } from '$kjerne/regler/feil';
 import type { Regelsett } from '$kjerne/regler/regelsett';
@@ -164,11 +164,18 @@ function kravpostsvaret(post: Kravpost, p: Postvalg) {
   });
 }
 
+/**
+ * Om BH tar stilling til varselet etter § 34.1.2. Der TE krever endring etter § 34.1.1, gjør BH
+ * det ikke (OV-U15, D-6 i BF-14), og kjernen avviser svaret om varselet.
+ */
+export const spoerOmHovedvarselet = (u: Utledning, regler: Regelsett): boolean =>
+  hjemmelenGjelder('34.1.2', u.spor.forhold.gjeldendeKrav, regler);
+
 /** Ett svar per kravpost (KA-U57). */
-function vurderingene(v: Svarvalg, krav: Krav): Svarvurdering {
+function vurderingene(v: Svarvalg, krav: Krav, hovedvarselet: boolean): Svarvurdering {
   const poster = kravposterI(krav);
   return definert({
-    hovedkrav_varslet_i_tide: v.iTide ?? undefined,
+    hovedkrav_varslet_i_tide: hovedvarselet ? (v.iTide ?? undefined) : undefined,
     kravposter: poster.length
       ? poster.map((post) => kravpostsvaret(post, postvalget(v, post.betegnelse)))
       : undefined,
@@ -183,7 +190,7 @@ export function vederlagssvaret(
 ): { type: 'brev'; svar: Svarutkast[] } | null {
   const krav = u.spor.vederlag.gjeldendeKrav;
   if (!krav) return null;
-  const vurderinger = vurderingene(v, krav);
+  const vurderinger = vurderingene(v, krav, spoerOmHovedvarselet(u, regler));
   let resultat: Record<string, unknown> = {};
   try {
     resultat = regnUtSvar(
