@@ -496,9 +496,15 @@ select.tekstfelt{max-width:520px;appearance:auto}
 #snarvei-frister:empty{display:none}
 .oppgitt .aapent{white-space:normal}
 /* Når du sender, under brevet */
-.naar{display:none;max-width:var(--varden-ark);margin:16px auto 0;padding:20px 24px;background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);flex-direction:column;gap:12px}
+.naar{display:none;position:sticky;top:16px;min-width:0;padding:20px 24px;background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);flex-direction:column;gap:12px}
 [data-side="brev"] .naar{display:flex}
 .naar h2{font-size:16px;font-weight:600}
+.brevhode{display:flex;flex-direction:column;gap:2px;padding-bottom:14px;border-bottom:1px solid var(--rule-color);font-family:Inter,system-ui,sans-serif;font-size:14px}
+.brevhode .avs{margin-bottom:8px}
+.brevhode dl{margin:8px 0 0;display:flex;flex-direction:column;gap:2px}
+.brevhode dl div{display:flex;gap:8px}
+.brevhode dt{color:var(--ink-3);min-width:80px}
+.brevhode dd{margin:0}
 .naar ul{margin:0;padding-left:18px;color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
 .naar .knapper{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
 .naar .knapp{width:auto}
@@ -537,7 +543,7 @@ select.tekstfelt{max-width:520px;appearance:auto}
   <div class="flate">
     <div class="topplinje">
       <div class="demo-bryter">
-        <p style="margin:0"><span id="rolle">Du er totalentreprenør (TE)</span> · <span class="dempet">prototype v1, eksempeldata</span></p>
+        <p style="margin:0"><span id="rolle">Du er totalentreprenør (TE)</span> · <span class="dempet">prototype v2, eksempeldata</span></p>
         <span style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><span class="d">Vis</span>
           <span class="segment" role="group" aria-label="Tilstand">
             <button type="button" data-anker="nytt-krav" aria-pressed="true">Nytt krav</button>
@@ -555,7 +561,6 @@ select.tekstfelt{max-width:520px;appearance:auto}
           <div class="utkast-hode">
             <div class="linje"><span class="utkastmerke">Utkast</span><h1 id="tittel"><span class="kun-nytt" id="nytt-krav">Brev 5 · Krav om fristforlengelse</span><span class="kun-ny" id="ny-versjon">Brev 7 · Krav om fristforlengelse, ny versjon</span><span class="kun-foresp" id="foresporsel">Brev 5 · Svar på byggherrens forespørsel etter punkt 33.6.2</span><span class="kun-varsel" id="varsel">Brev 5 · Varsel om fristforlengelse etter punkt 33.4</span></h1></div>
             <p>Til byggherren (BH)</p>
-            <p class="laas"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Bare synlig for teamet ditt til det er sendt</p>
           </div>
           <nav class="punkt hva-valg kun-nytt" aria-labelledby="hva-tittel" data-spor="U-13 · D-3"><p class="spm" id="hva-tittel">Hva sender du?</p>
             <div class="valg"><a class="liten-knapp" href="#nytt-krav" data-hva="krav" aria-current="page">Send kravet med dagene</a><a class="liten-knapp" href="#varsel" data-hva="varsel">Bare varsle etter punkt 33.4, uten dager</a></div>
@@ -568,8 +573,7 @@ select.tekstfelt{max-width:520px;appearance:auto}
             <fieldset class="oppgj"><legend class="spm">Hvordan varsler du?</legend><div class="valg kompakt"><label><input type="radio" name="vhvor" value="her" checked> Send varselet fra løsningen nå</label><label><input type="radio" name="vhvor" value="utenfor"> Registrer et brev sendt utenfor løsningen</label></div></fieldset>
             <div class="beloepfelt kun-utenfor" hidden><label for="vdato">Datoen for varselet</label><span class="datofelt"><input id="vdato" placeholder="dd.mm.åååå"></span><span class="hjelp">Legg ved brevet. Datoen settes én gang.</span><button class="liten-knapp" type="button" style="align-self:flex-start">Legg ved brevet</button></div>
             <div class="datoboks" id="v-dagar"><p>Sendes varselet i dag, 6. oktober 2026, er det <b>24 kalenderdager</b> etter at du ble klar over forholdet.</p></div>
-            <div class="fast" id="v-brev"><span class="merke">Brevet</span><p>TE varsler etter NS 8407 § 33.4 at TE vil kreve fristforlengelse som følge av forholdet i sak E-017 («Omlegging av rør i kjeller»).</p></div>
-            <button class="knapp" type="button" id="v-send" style="align-self:flex-start;width:auto">Send varselet</button>
+            <a class="knapp" id="v-se" href="#brev" style="align-self:flex-start;width:auto">Se brevet før sending</a>
             <button class="knapp" type="button" id="v-reg" style="align-self:flex-start;width:auto" hidden>Registrer varselet</button>
           </section>
           <div class="svarpaa">
@@ -662,7 +666,7 @@ select.tekstfelt{max-width:520px;appearance:auto}
         </aside>
       </div>
 
-      <div id="brev"><article id="brevark" class="ark" aria-label="Brevet"></article>
+      <div id="brev" class="kolonner"><article id="brevark" class="ark" aria-label="Brevet"></article>
         <section class="naar" aria-labelledby="naar-tittel" data-spor="U-9">
           <h2 id="naar-tittel">Når du sender</h2>
           <ul id="naar-liste"></ul>
@@ -920,10 +924,17 @@ function oppsummer() {
 }
 
 // Brevet. Teksten er prototypetekst.
+const erVarsel = () => skall.dataset.hva === 'varsel';
+// Brevhodet som i Brev.svelte: avsender, mottaker, sak, referanser og dato.
+const brevhode = () => `<header class="brevhode"><p class="avs"><b>Totalentreprenøren</b></p><p>Byggherren</p>
+  <dl><div><dt>Sak:</dt><dd>E-017 Omlegging av rør i kjeller</dd></div>${tilstand === 'foresp' ? '<div><dt>Deres ref.:</dt><dd>Brev 4</dd></div>' : ny() ? '<div><dt>Deres ref.:</dt><dd>Brev 6</dd></div>' : ''}<div><dt>Dato:</dt><dd>6. oktober 2026</dd></div></dl></header>`;
 function brev() {
   const nr = ny() ? 7 : 5;
-  let n = 1, h = `<p class="dempet">Brev ${nr} · til byggherren · E-017 · prototypetekst</p>`;
-  if (bokstavB()) {
+  let n = 1, h = brevhode() + `<p class="dempet">Brev ${nr} · prototypetekst</p>`;
+  if (erVarsel()) {
+    h += `<h1>Varsel om fristforlengelse</h1>
+      <p>TE varsler etter NS 8407 § 33.4 at TE vil kreve fristforlengelse som følge av forholdet i sak E-017 («Omlegging av rør i kjeller»).</p>`;
+  } else if (bokstavB()) {
     h += `<h1>Svar på byggherrens forespørsel etter punkt 33.6.2</h1>
       <p>Totalentreprenøren viser til byggherrens forespørsel i brev 4 av 2. oktober 2026.</p>
       <p class="ny">Totalentreprenøren har ennå ikke grunnlag for å beregne omfanget av fristforlengelsen (NS 8407 punkt 33.6.2 annet ledd bokstav b).</p>
@@ -953,11 +964,14 @@ function brev() {
       <h2>${n++}. Begrunnelse</h2><p>${esc(d.tekst.begr) || '‹begrunnelse›'}</p>
       ${d.tekst.forbehold ? `<h2>${n++}. Forbehold</h2><p>${esc(d.tekst.forbehold)}</p>` : ''}`;
   }
-  h += `<p class="hjelp">Gult: setning som ikke er vedtatt ordrett. Ny dato er regnet i kalenderdager (NS 8407 punkt 1.2).</p>`;
+  h += erVarsel() ? '<p class="hjelp">Brevteksten er vedtatt ordrett.</p>' : `<p class="hjelp">Gult: setning som ikke er vedtatt ordrett. Ny dato er regnet i kalenderdager (NS 8407 punkt 1.2).</p>`;
   document.getElementById('brevark').innerHTML = h;
   // Når du sender: virkningen av brevet, med bestemmelsen den følger av.
   const naar = [];
-  if (bokstavB()) naar.push('Svaret er en begrunnelse etter punkt 33.6.2 annet ledd bokstav b. For kravet du sender senere, gjelder punkt 33.6.1 (punkt 33.6.2 femte ledd).');
+  if (erVarsel()) {
+    naar.push('Varselet etter punkt 33.4 sendes i dag, 24 kalenderdager etter at du ble klar over forholdet. Varsles det for sent, tapes kravet.');
+    naar.push('Når du har grunnlag for å beregne omfanget, skal du uten ugrunnet opphold angi og begrunne dagene (punkt 33.6.1).');
+  } else if (bokstavB()) naar.push('Svaret er en begrunnelse etter punkt 33.6.2 annet ledd bokstav b. For kravet du sender senere, gjelder punkt 33.6.1 (punkt 33.6.2 femte ledd).');
   else {
     if (tilstand === 'nytt' && varselMaate === 'her') naar.push('Kravet er også varselet etter punkt 33.4.');
     if (tilstand === 'foresp') naar.push('Kravet svarer på forespørselen i brev 4. Etter punkt 33.6.2 fjerde ledd kan byggherren da ikke påberope at fristen i punkt 33.6.1 er oversittet.');
@@ -966,15 +980,15 @@ function brev() {
     if (tr.length) naar.push(`Kravet om forlengelse av frist ${tilListe(tr)} er trukket. Svaret i brev 6 kan ikke godtas etter sending.`);
   }
   document.getElementById('naar-liste').innerHTML = naar.map(t => `<li>${t}</li>`).join('');
-  document.getElementById('send-knapp').textContent = bokstavB() ? 'Send svaret' : 'Send kravet';
-  document.getElementById('tilbake').setAttribute('href', '#' + (ny() ? 'ny-versjon' : tilstand === 'foresp' ? 'foresporsel' : 'nytt-krav'));
+  document.getElementById('send-knapp').textContent = erVarsel() ? 'Send varselet' : bokstavB() ? 'Send svaret' : 'Send kravet';
+  document.getElementById('tilbake').setAttribute('href', '#' + (erVarsel() ? 'varsel' : ny() ? 'ny-versjon' : tilstand === 'foresp' ? 'foresporsel' : 'nytt-krav'));
 }
 
 // Byggherrens svar. Lagene i rekkefølgen punkt 33.4, hindringen, punkt 33.6.1 og dagene (svaret på S-6).
 // Lagene regnes ut av standpunktene; byggherren fyller dem ikke ut.
 const bhv = { v334: false, spes: false, hindring: false };
 let aapenSvar = 'F1';
-const bhF = f => (bh[f.id] = bh[f.id] || { dager: 'krevd', delvis: Math.max(1, Math.round(f.dager / 2)), maatte: null });
+const bhF = f => (bh[f.id] = bh[f.id] || { dager: 'krevd', delvis: null, maatte: null });
 function lagene() {
   const k = [{ navn: 'Prinsipalt', kort: 'Prins.' }];
   const navn = () => k.length > 1 ? 'Videre subsidiært' : 'Subsidiært', kn = () => k.length > 1 ? 'V. subs.' : 'Subs.';
@@ -1028,7 +1042,7 @@ function bhKort(f, k) {
     ${maatte}
     ${gjelder(vilkaar)}
     <fieldset class="oppgj"><legend class="spm">Dagene</legend><div class="valg lett">${radio('bd-' + id, 'krevd', b.dager, `Som krevd, ${dg(f.dager)}`)}${radio('bd-' + id, 'delvis', b.dager, 'Delvis')}${radio('bd-' + id, 'avslaatt', b.dager, 'Avslått')}</div>
-      ${b.dager === 'delvis' ? `<div class="beloepfelt"><label for="bdv-${id}">Godkjente dager</label><span class="inndata" style="width:140px"><input id="bdv-${id}" inputmode="numeric" data-bh-felt="delvis" value="${b.delvis ?? ''}"><span aria-hidden="true">d</span></span></div>` : ''}</fieldset>
+      <div class="beloepfelt"><label for="bdv-${id}">Godkjente dager</label><span class="hjelp">Valget over følger tallet.</span><span class="inndata" style="width:140px"><input id="bdv-${id}" inputmode="numeric" data-bh-felt="godkjent" value="${b.dager === 'krevd' ? f.dager : b.dager === 'avslaatt' ? 0 : (b.delvis ?? '')}"><span aria-hidden="true">d</span></span></div></fieldset>
     <div class="trapp"><p class="blokktittel">Slik står det i brevet</p><ol>${trapp(f, k)}</ol></div>
     <div class="fot"><span></span><button class="liten-knapp sterk" type="button" data-bh-handling="lukk">Ferdig</button></div>
   </article>`;
@@ -1063,7 +1077,12 @@ svarvisning.addEventListener('change', e => {
 });
 svarvisning.addEventListener('input', e => {
   const t = e.target, f = t.dataset.bhFelt; if (!f) return;
-  const id = t.closest('[data-bh-id]').dataset.bhId; bh[id][f] = t.value.trim() === '' ? null : heltall(t.value);
+  const id = t.closest('[data-bh-id]').dataset.bhId, n = t.value.trim() === '' ? null : heltall(t.value);
+  if (f === 'godkjent') {
+    // Tallet styrer valget: som krevd, delvis eller avslått.
+    const krevd = aktive().find(x => x.id === id).dager;
+    Object.assign(bh[id], n === krevd ? { dager: 'krevd' } : n === 0 ? { dager: 'avslaatt' } : { dager: 'delvis', delvis: n });
+  } else bh[id][f] = n;
   const pos = t.selectionStart; tegnSvar();
   const nyt = document.querySelector(`#svarvisning [data-bh-id="${id}"] [data-bh-felt="${f}"]`); nyt.focus(); try { nyt.setSelectionRange(pos, pos); } catch {}
 });
@@ -1087,7 +1106,7 @@ skjema.addEventListener('input', e => {
 });
 skjema.addEventListener('change', e => {
   const t = e.target;
-  if (t.name === 'vhvor') { const ut = t.value === 'utenfor'; document.querySelector('.kun-utenfor').hidden = !ut; ['v-dagar', 'v-brev', 'v-send'].forEach(id => document.getElementById(id).hidden = ut); document.getElementById('v-reg').hidden = !ut; return; }
+  if (t.name === 'vhvor') { const ut = t.value === 'utenfor'; document.querySelector('.kun-utenfor').hidden = !ut; ['v-dagar', 'v-se'].forEach(id => document.getElementById(id).hidden = ut); document.getElementById('v-reg').hidden = !ut; return; }
   if (t.name === 'bokstav') { skall.dataset.bokstav = t.value; oppsummer(); return; }
   const art = t.closest('.postskjema'); if (!art) return;
   const x = finn(art.dataset.id);
@@ -1153,7 +1172,7 @@ document.querySelectorAll('#skjema section.punkt.nummerert, #skjema section.punk
 function lesAnker() {
   const a = (location.hash || '#nytt-krav').slice(1);
   const side = a === 'brev' ? 'brev' : a === 'svar' ? 'svar' : 'skjema';
-  skall.dataset.hva = a === 'varsel' ? 'varsel' : 'krav';
+  if (side === 'skjema') skall.dataset.hva = a === 'varsel' ? 'varsel' : 'krav';
   document.querySelectorAll('.hva-valg a').forEach(l => { if (l.dataset.hva === skall.dataset.hva) l.setAttribute('aria-current', 'page'); else l.removeAttribute('aria-current'); });
   if (side === 'skjema') {
     const t = a === 'ny-versjon' ? 'ny' : a === 'foresporsel' ? 'foresp' : 'nytt';

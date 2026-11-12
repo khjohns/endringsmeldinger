@@ -86,7 +86,27 @@
             "tilstand": "varsel"
           },
           {
+            "staar": "Hvordan varsler du?"
+          },
+          {
+            "klikk": "Se brevet før sending",
+            "tilstand": "brev"
+          },
+          {
+            "staar": "Sak:"
+          },
+          {
             "staar": "TE vil kreve fristforlengelse som følge av forholdet i sak E-017"
+          },
+          {
+            "staar": "Når du sender"
+          },
+          {
+            "trykk": "Send varselet"
+          },
+          {
+            "klikk": "Tilbake til skjemaet",
+            "tilstand": "varsel"
           },
           {
             "velg": "Registrer et brev sendt utenfor løsningen"
@@ -165,6 +185,16 @@
             "trykk": "Godkjenn dagene som krevd for alle fristene"
           },
           {
+            "fyll": "Godkjente dager",
+            "tekst": "10"
+          },
+          {
+            "staar": "godkjent delvis"
+          },
+          {
+            "trykk": "Ferdig"
+          },
+          {
             "staar": "Lagene samlet"
           },
           {
@@ -233,6 +263,11 @@
       "dato": "2026-11-12",
       "forhold": "#1745",
       "hva": "Svarene på S-3 (B) og S-6 (A) er D-9 og D-10. Byggherrens svar har hindringen før spesifiseringen, i punktene og i lagene."
+    },
+    {
+      "dato": "2026-11-12",
+      "forhold": "#1745",
+      "hva": "Etter oppdragsgivers prøve av prototypen: linja om at utkastet bare er synlig for teamet er fjernet, «Når du sender» står til høyre for brevet, varselet går fra skjema til brev til sending med brevhode, og feltet for godkjente dager står alltid og styrer valget."
     }
   ]
 }
