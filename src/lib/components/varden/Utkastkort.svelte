@@ -1,13 +1,12 @@
 <!--
   Utkastkortet rundt et skjema som blir et brev (svaret på S-4 og S-4b i BF-10, oppdragsgiver
   06.11): stiplet kant rundt hele kortet og et hode med «Utkast · ikke sendt», brevhodet når
-  kjernen har laget det, mottakeren og at utkastet bare er synlig for teamet. Skjemaet står i
+  kjernen har laget det, og mottakeren («Utkastet sier det selv» i `system.md`). Skjemaet står i
   kortet, og brevet vises i brevkontrollen etter «Se brevet før sending».
 -->
 <script lang="ts">
-  import { Lock } from 'lucide-svelte';
   import type { Snippet } from 'svelte';
-  import { BREVKONTROLL, SKJEMA } from './tekster';
+  import { BREVKONTROLL } from './tekster';
 
   let {
     id,
@@ -56,7 +55,6 @@
     </div>
     {#if undertittel}<p class="undertittel">{undertittel}</p>{/if}
     <p class="dempet">{mottaker}</p>
-    <p class="dempet synlig"><Lock size={14} aria-hidden="true" />{SKJEMA.synlig}</p>
   </header>
   {@render children()}
 </form>
@@ -105,11 +103,6 @@
     margin-bottom: var(--spacing-1);
     color: var(--ink);
     font-size: 16px;
-  }
-  .synlig {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-1);
   }
   .dempet {
     color: var(--ink-3);

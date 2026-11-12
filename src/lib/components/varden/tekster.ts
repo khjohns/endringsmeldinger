@@ -222,7 +222,6 @@ export const SKJEMA = {
   // På smal skjerm åpnes brevet i skjemaet, ikke ved siden av.
   lesBrevetHer: 'Les brevet',
   lukkBrevet: 'Lukk brevet',
-  synlig: 'Bare synlig for teamet ditt til det er sendt',
   tilTE: 'Til totalentreprenøren (TE)',
   tilBH: 'Til byggherren (BH)',
   varselTittel: 'Varselet om kravet',
