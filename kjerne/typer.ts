@@ -373,8 +373,23 @@ export interface Fristutregning {
 export interface Avsnitt {
   gjelder: string;
   laast: string;
+  /** Den låste delen delt i punkter med overskrift, når elementet har det (#1824). */
+  punkter?: Avsnittspunkt[];
   utdypning?: string;
 }
+
+/** Et punkt i den låste delen: overskriften med nummeret, og teksten under den (#1824). */
+export interface Avsnittspunkt {
+  overskrift?: string;
+  tekst?: string;
+}
+
+/**
+ * Den låste delen punktene gir: overskriften og teksten i hvert punkt som egne avsnitt, skilt
+ * med en tom linje. Leseren krever at `laast` er denne teksten når avsnittet har punkter.
+ */
+export const somLaastTekst = (punkter: readonly Avsnittspunkt[]): string =>
+  punkter.flatMap((p) => [p.overskrift, p.tekst].filter((t) => t !== undefined)).join('\n\n');
 
 /**
  * Et vedlegg brevet binder (LV-U14): ID-en klienten oppga, og filnavnet og summen

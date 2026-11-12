@@ -29,7 +29,13 @@ import {
   tekstSomIkkeKanLagres,
   Uforstaatt,
 } from '../format/skjema.ts';
-import { paaberopelseFor, utled, utledJournal, type Utledning } from '../utledning/utled.ts';
+import {
+  paaberopelseFor,
+  utled,
+  utledJournal,
+  varseletFoerBrevet,
+  type Utledning,
+} from '../utledning/utled.ts';
 import type { Kjerne } from '../versjon.ts';
 import {
   avvis,
@@ -716,6 +722,12 @@ function brevtekstFor(
           ny.dokument.krav.flatMap((k) =>
             Object.entries(iSporet(SKRIVING, k.spor).postvarsler?.(k, ny.dokument, lest, u) ?? {})
           )
+        ),
+        varsletFoer: Object.fromEntries(
+          (['34.1.2', '34.1.3'] as const).flatMap((h) => {
+            const varsel = varseletFoerBrevet(u, h);
+            return varsel === undefined ? [] : [[h, varsel]];
+          })
         ),
       },
       kjerne.regler,

@@ -47,6 +47,11 @@ export interface Saken {
   avklartVedFrafall: boolean;
   /** Varselet etter § 34.3.3 eller § 34.4 for hver kravpost i brevet som har et (`kravpostvarslene`). */
   kravpostvarsler: Record<string, Kravpostvarselet>;
+  /**
+   * Varselet etter § 34.1.2 og § 34.1.3 saken har før brevet, som et registrert varsel eller et
+   * tidligere krav (`varseletFoerBrevet` i utledningen). Uten det er kravet i brevet varselet.
+   */
+  varsletFoer: Partial<Record<'34.1.2' | '34.1.3', string>>;
 }
 
 /** Kravet en kommando om et kommende avsnitt ikke kan uttrykke. Brevet skrives ikke. */
@@ -211,6 +216,21 @@ export interface Tekst {
   sak: string;
 }
 
+/**
+ * Et punkt i brevteksten for ett element (#1824, LV-U34): overskriften uten nummeret, eller
+ * `null` for innledningen, og avsnittene. Nummeret settes når hele brevet er laget.
+ */
+export interface Brevpunkt {
+  overskrift: string | null;
+  avsnitt: string[];
+}
+
+/** Setningene som ett avsnitt uten overskrift. */
+export const utenOverskrift = (setninger: string[]): Brevpunkt => ({
+  overskrift: null,
+  avsnitt: [setninger.join(' ')],
+});
+
 /** Det særskilte kravet etter § 34.1.3 annet ledd, med ordene i bestemmelsen. */
 export const PRODUKTIVITET =
   'økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid';
@@ -254,12 +274,17 @@ export interface Sporsbrevtekst {
   navn: string;
   /** Det et svar eller en aksept gjelder, med kontraktens ord (LV-U4 punkt 4 og 6). */
   svaretGjelder: string;
-  /** Kravet (LV-U4 punkt 2–3), uten setningen om kravet det erstatter. */
-  krav(k: Krav, t: Tekst, regler: Regelsett): string[];
+  /** Kravet (LV-U4 punkt 2–3) i punkter, uten setningen om kravet det erstatter. */
+  krav(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[];
   /** Påberopelsene utenom hjemmelen for sporet som svaret gjentar eller gir opp (VS-U29). */
   ogsaaInnsigelserEtter: readonly Hjemmel[];
-  /** En ny versjon av kravet sier hvilket krav den erstatter (KA-U52 punkt 4, LV-U56). */
+  /**
+   * Brevteksten legger til setningen om kravet en ny versjon erstatter (KA-U52 punkt 4, LV-U56).
+   * Vederlagskravet har setningen selv, i innledningen (#1824).
+   */
   nevnerErstattet: boolean;
+  /** Overskriften partens utdypning under kravet står under, når den er et eget punkt (#1824). */
+  utdypningenUnder?: string;
   /** Kravet i sporet med kontraktens ord, når kravet har et: «kravet om <…>». */
   kravetOm?: string;
 }

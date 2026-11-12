@@ -22,6 +22,7 @@ import {
   type Sporsbrevtekst,
   type Standpunktstekster,
   type Tekst,
+  utenOverskrift,
 } from '../../frosset/brevdeler.ts';
 import { gjelderVarslingsplikten, standpunktet, virkningen } from '../../frosset/byggeklosser.ts';
 import type { Sporslinje } from '../../frosset/linje.ts';
@@ -225,7 +226,7 @@ function endringsordretekst(krav: Krav, j: Journalen): string {
 export const BREVTEKSTEN_I_FORHOLDET = {
   navn: 'grunnlaget',
   svaretGjelder: 'grunnlaget',
-  krav: forholdstekst,
+  krav: (k, t, regler) => [utenOverskrift(forholdstekst(k, t, regler))],
   ogsaaInnsigelserEtter: [],
   nevnerErstattet: false,
 } satisfies Sporsbrevtekst;

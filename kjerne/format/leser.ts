@@ -35,6 +35,7 @@ import {
   type Skjema,
   type Svarlesing,
 } from './skjema.ts';
+import { somLaastTekst } from '../typer.ts';
 import type {
   Avsnitt,
   Beslutningsgrunnlag,
@@ -568,6 +569,13 @@ function lesDokument(h: Journalrad): Dokument {
       if (!elementer.has(a.gjelder) || sett.has(a.gjelder))
         throw new Uforstaatt('et avsnitt i brevteksten gjelder ikke ett element i brevet');
       sett.add(a.gjelder);
+      // #1824: punktene er den låste delen delt opp, og sier ikke noe annet enn den.
+      if (
+        a.punkter &&
+        (a.punkter.some((p) => p.overskrift === undefined && p.tekst === undefined) ||
+          somLaastTekst(a.punkter) !== a.laast)
+      )
+        throw new Uforstaatt('punktene i et avsnitt i brevteksten er ikke den låste delen');
     }
   }
   return dokument;

@@ -1001,7 +1001,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F106',
     feilklasse: '«ingen krav» i vederlaget sier ikke at forseringsvederlaget er unntatt (KA-U25)',
     fil: `${K}/spor/vederlag/tekst.ts`,
-    endringer: [[' Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.`', '`']],
+    endringer: [[' Avkallet omfatter ikke vederlag for forsering etter NS 8407 punkt 33.8.`', '`']],
     mal: ['«ingen krav» i vederlaget'],
   },
   {

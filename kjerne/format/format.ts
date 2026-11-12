@@ -305,7 +305,15 @@ export const OPPLYSNING: Record<(typeof OPPLYSNINGSSLAG)[number], Skjema> = {
  * med den låste delen og utdypningen hver for seg (B-13 om begrunnelsestekst).
  */
 export const BREVTEKST: Skjema = liste(
-  objekt({ gjelder: ID, laast: TEKST, utdypning: TEKST }, ['gjelder', 'laast'])
+  objekt(
+    {
+      gjelder: ID,
+      laast: TEKST,
+      punkter: liste(objekt({ overskrift: TEKST, tekst: TEKST }, [])),
+      utdypning: TEKST,
+    },
+    ['gjelder', 'laast']
+  )
 );
 
 /**

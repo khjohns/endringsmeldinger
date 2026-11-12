@@ -1481,11 +1481,22 @@ export function varseletForNyttSvar(
   u: Pick<Utledning, 'spor'>,
   hjemmel: Enkeltvarselhjemmel
 ): string {
-  const s = u.spor[VARSELSPOR[hjemmel]];
-  const registrert = s.varsler[hjemmel];
-  const krav = kravSomVarsler(hjemmel, s.krav);
-  const varsel = varseletFoerSvaret(registrert ? [registrert] : [], krav, () => true);
+  const varsel = varseletFoerBrevet(u, hjemmel);
   if (varsel === undefined)
     throw new Error(`Et svar kan ikke påberope § ${hjemmel} uten varsel eller krav som varsler.`);
   return varsel;
+}
+
+/**
+ * Varselet etter hjemmelen saken har før et nytt brev, slik `varseletForNyttSvar` leser det, eller
+ * `undefined` når saken ikke har noe. Brevteksten for vederlagskravet viser til det (#1824).
+ */
+export function varseletFoerBrevet(
+  u: Pick<Utledning, 'spor'>,
+  hjemmel: Enkeltvarselhjemmel
+): string | undefined {
+  const s = u.spor[VARSELSPOR[hjemmel]];
+  const registrert = s.varsler[hjemmel];
+  const krav = kravSomVarsler(hjemmel, s.krav);
+  return varseletFoerSvaret(registrert ? [registrert] : [], krav, () => true);
 }

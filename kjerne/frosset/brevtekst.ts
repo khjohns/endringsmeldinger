@@ -38,6 +38,8 @@ import {
   type StandpunktIArt,
   type Standpunktstekster,
   type Tekst,
+  type Brevpunkt,
+  utenOverskrift,
 } from './brevdeler.ts';
 import {
   BREVTEKSTEN_I_FORHOLDET,
@@ -46,9 +48,10 @@ import {
 } from '../spor/forhold/tekst.ts';
 import { BREVTEKSTEN_I_VEDERLAGET, STANDPUNKTENE_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
 import { dager, iLagene } from './tekst.ts';
-import { erKravpostvarselhjemmel } from '../typer.ts';
+import { erKravpostvarselhjemmel, somLaastTekst } from '../typer.ts';
 import type {
   Avsnitt,
+  Avsnittspunkt,
   Dokument,
   Domenehendelse,
   Hjemmel,
@@ -92,12 +95,34 @@ export function lagBrevtekst(
   };
 
   const avsnitt: Avsnitt[] = [];
-  const legg = (gjelder: string, laast: string) => {
+  const legg = (gjelder: string, laast: string, punkter?: Avsnittspunkt[]) => {
     const utdypning = utdypninger.get(gjelder);
-    avsnitt.push({ gjelder, laast, ...(utdypning ? { utdypning } : {}) });
+    avsnitt.push({
+      gjelder,
+      laast,
+      ...(punkter ? { punkter } : {}),
+      ...(utdypning ? { utdypning } : {}),
+    });
+  };
+  // LV-U34, LV-U40: punktene er nummerert gjennom hele brevet, så «punkt 1 ovenfor» er entydig.
+  let nummer = 0;
+  const leggPunkter = (gjelder: string, brevpunkter: Brevpunkt[]) => {
+    if (!brevpunkter.some((p) => p.overskrift !== null))
+      return legg(gjelder, brevpunkter.flatMap((p) => p.avsnitt).join('\n\n'));
+    const punkter = brevpunkter.map(({ overskrift, avsnitt: a }) => ({
+      ...(overskrift !== null ? { overskrift: `${++nummer}. ${overskrift}` } : {}),
+      ...(a.length ? { tekst: a.join('\n\n') } : {}),
+    }));
+    legg(gjelder, somLaastTekst(punkter), punkter);
   };
 
-  for (const k of nytt.krav) legg(k.id, kravtekst(k, t, regler));
+  for (const k of nytt.krav) {
+    const punkter = kravtekst(k, t, regler);
+    // #1824: utdypningen står under sin egen overskrift, som det siste punktet for kravet.
+    const under = brevtekstI(k.spor).utdypningenUnder;
+    if (under && utdypninger.get(k.id)) punkter.push({ overskrift: under, avsnitt: [] });
+    leggPunkter(k.id, punkter);
+  }
   for (const s of nytt.svar) legg(s.id, svartekst(s, t, regler));
   for (const u of nytt.utsagn) legg(u.id, utsagnstekst(u, t));
   for (const o of nytt.opplysninger) {
@@ -113,7 +138,7 @@ export function lagBrevtekst(
 }
 
 /** Fristkravet (LV-U4 punkt 2–3). */
-function fristkravtekst(k: Krav, { j }: Tekst): string[] {
+function fristkravtekst(k: Krav, { j }: Tekst): Brevpunkt[] {
   const deler = [
     `TE krever fristforlengelse på ${dager(innholdIFristen(k).dager)} (NS 8407 § 33.6.1).`,
   ];
@@ -122,17 +147,21 @@ function fristkravtekst(k: Krav, { j }: Tekst): string[] {
     deler.push(
       `Kravet er svar på byggherrens forespørsel etter NS 8407 § 33.6.2 i ${j.brevet(j.dokumentetTil(k.gjelder))}.`
     );
-  return deler;
+  return [utenOverskrift(deler)];
 }
 
 /** LV-U4 punkt 2–3 og GR-U16. Kravet i sporet står i `BREVTEKST`. */
-function kravtekst(k: Krav, t: Tekst, regler: Regelsett): string {
+function kravtekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
   const { j } = t;
-  const deler = brevtekstI(k.spor).krav(k, t, regler);
-  // KA-U52 punkt 4 og LV-U56 (`nevnerErstattet`).
-  if (k.erstatter && brevtekstI(k.spor).nevnerErstattet)
-    deler.push(`Kravet erstatter TEs krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`);
-  return deler.join(' ');
+  const punkter = brevtekstI(k.spor).krav(k, t, regler);
+  // KA-U52 punkt 4 og LV-U56 (`nevnerErstattet`): setningen står sist i det siste avsnittet.
+  if (k.erstatter && brevtekstI(k.spor).nevnerErstattet) {
+    const siste = punkter.at(-1)!.avsnitt;
+    siste.push(
+      `${siste.pop()} Kravet erstatter TEs krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`
+    );
+  }
+  return punkter;
 }
 
 /** En innsigelse med brevet den står i. */

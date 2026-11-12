@@ -619,6 +619,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'varseletForNyttSvar',
     ['kommandoer/standpunkter.ts', 'spor/vederlag/kommando.ts', 'spor/forhold/kommando.ts'],
   ],
+  // #1824: varselet etter § 34.1.2 og § 34.1.3 før brevet, som vederlagskravet viser til.
+  ['utledning/utled.ts', 'relasjon', 'varseletFoerBrevet', ['kommandoer/skriving.ts:brevtekstFor']],
   // VS-U60, VS-U66: kravet som er det første varselet, ved siden av et eget varsel.
   [
     'utledning/utled.ts',
@@ -1798,6 +1800,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['Avsnitt', 'brevtekst', 'gjelder', ['format/leser.ts', 'frosset/brevdeler.ts']],
   ['Avsnitt', 'brevtekst', 'laast utdypning', ['frosset/brevtekst.ts', 'frosset/brevdeler.ts']],
+  // #1824: punktene i den låste delen, som leseren prøver mot den, og punktene teksten lager.
+  ['Avsnitt', 'brevtekst', 'laast punkter', ['format/leser.ts']],
+  ['Avsnittspunkt', 'brevtekst', 'overskrift tekst', ['format/leser.ts', 'typer.ts']],
+  ['typer.ts', 'brevtekst', 'somLaastTekst', ['format/leser.ts', 'frosset/brevtekst.ts']],
+  ['Brevpunkt', 'brevtekst', 'overskrift avsnitt', ['frosset/brevtekst.ts']],
+  [
+    'frosset/brevdeler.ts',
+    'brevtekst',
+    'utenOverskrift',
+    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts'],
+  ],
   ['Journalrad.data', 'rad', 'sakstittel', ['format/leser.ts']],
   // #801, #1138: skriv kontrollerer tegnene i sakstittelen og filnavnene i brevet.
   [
@@ -1914,7 +1927,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsbrevtekst',
     'brevtekst',
-    'krav navn ogsaaInnsigelserEtter svaretGjelder nevnerErstattet',
+    'krav navn ogsaaInnsigelserEtter svaretGjelder nevnerErstattet utdypningenUnder',
     ['frosset/brevtekst.ts'],
   ],
   ['Kravsporsbrevtekst', 'brevtekst', 'enigI ingenKrav kravetOm trukket', ['frosset/brevtekst.ts']],
@@ -1990,6 +2003,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // VS-U49, VS-U55: varselet for hver kravpost, utledet før brevet (`kravpostvarslene`, A6).
   ['Saken', 'relasjon', 'kravpostvarsler kravpostvarsler.*', ['spor/vederlag/tekst.ts']],
   ['Kravpostvarselet', 'relasjon', 'art varsel', ['spor/vederlag/tekst.ts']],
+  ['Saken', 'relasjon', 'varsletFoer', ['spor/vederlag/tekst.ts']],
   // LV-U56: TEs opplysninger om datoen, fra utledningen (`Datoopplysning`).
   ['Saken.datoopplysninger', 'utsagn', 'felt dato', ['spor/forhold/tekst.ts']],
   ['Saken.datoopplysninger', 'relasjon', 'dokument', ['spor/forhold/tekst.ts']],

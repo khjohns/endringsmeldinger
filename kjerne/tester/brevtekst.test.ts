@@ -388,12 +388,12 @@ describe('de faste tekstene står ordrett (KA-U22, KA-U25, LV-U4 punkt 13)', () 
     ]);
   });
 
-  it('«ingen krav» i vederlaget sier også at forseringsvederlaget ikke omfattes (KA-U25)', () => {
+  it('«ingen krav» i vederlaget sier også at forseringsvederlaget ikke omfattes (KA-U25, LV-U35, LV-U39)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     const rad = s.send('TE', { type: 'ingen_krav', spor: 'vederlag' });
     expect(laast(rad)).toEqual([
-      `TE krever ikke justering av vederlaget som følge av forholdet ${I_SAKEN}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag. Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.`,
+      `Totalentreprenøren krever ikke justering av vederlaget som følge av forholdet ${I_SAKEN}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag. Avkallet omfatter ikke vederlag for forsering etter NS 8407 punkt 33.8.`,
     ]);
   });
 
@@ -512,9 +512,31 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
   it('vederlaget er et tilbud uten merverdiavgift, og fristkravet har datoen for varselet og brevet med det (OV-U5)', () => {
     const s = sakMedKrav();
     const [, , v, f] = s.journal;
-    // Ett avsnitt per kravpost, og brevet sier hvilke poster som er tilbud (KA-U61, BF-14 U-6).
-    expect(laast(v)).toEqual([
-      `P1 Ny fundamentering: TE krever ${KR('125 000')} Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1.`,
+    // Punktene i prototype v4 i BF-14 (#1824), ett avsnitt per kravpost, og brevet sier hvilke
+    // poster som er tilbud (KA-U61, BF-14 U-6). Partene skrives fullt ut (LV-U35).
+    expect(tekst(v)).toEqual([
+      {
+        gjelder: s.krav('vederlag'),
+        laast: [
+          '1. Varselet om vederlagsjustering',
+          'Totalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2.',
+          '2. Vederlagsjustering',
+          `P1 Ny fundamentering. Totalentreprenøren krever ${KR('125 000')}`,
+          'Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1.',
+        ].join('\n\n'),
+        punkter: [
+          {
+            overskrift: '1. Varselet om vederlagsjustering',
+            tekst:
+              'Totalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2.',
+          },
+          {
+            overskrift: '2. Vederlagsjustering',
+            tekst: `P1 Ny fundamentering. Totalentreprenøren krever ${KR('125 000')}`,
+          },
+          { tekst: 'Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1.' },
+        ],
+      },
     ]);
     expect(tekst(f)).toEqual([
       {
@@ -3681,6 +3703,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,
       kravpostvarsler: {},
+      varsletFoer: {},
     };
     const tekst = (gjelder: string) =>
       lagBrevtekst(protest(gjelder), s.u().journal, saken, KJERNE.regler)[0].laast;
@@ -3773,6 +3796,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,
       kravpostvarsler: {},
+      varsletFoer: {},
     };
     expect(() => lagBrevtekst(dokument, [], saken, KJERNE.regler)).toThrow(
       'et varsel i et brev fra appen har datoen det ble sendt'
@@ -4399,6 +4423,7 @@ describe('vedleggene står i teksten (A4)', () => {
     subsidiaer: { vederlag: [], frist: [] },
     avklartVedFrafall: false,
     kravpostvarsler: {},
+    varsletFoer: {},
   };
 
   it('et brev med vedlegg får et avsnitt som lister filnavnene og gjelder dokumentet (arbeidsvalg 10 i #790)', () => {
@@ -6351,7 +6376,8 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
   const post = { produktivitet: { beloep: 40000 } };
   const produktivitet =
     'økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid';
-  const iTillegg = `TE krever i tillegg særskilt justering av vederlaget etter NS 8407 § 34.1.3 annet ledd for ${produktivitet} med ${KR('40 000')}`;
+  // LV-U30, med partene skrevet fullt ut (LV-U35) og «punkt» (LV-U39).
+  const iTillegg = `Totalentreprenøren krever i tillegg særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd for ${produktivitet} med ${KR('40 000')}`;
 
   it('brevet er varselet etter § 34.1.3 tredje ledd for kravet etter annet ledd, uten beløp og dato (OV-U5, OV-U25, LV-U29)', () => {
     const s = sakMedKrav();
@@ -6411,13 +6437,18 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
       'TE',
       vederlagskrav(tilbud(undefined, { saerskilt: post, trekker: [p1I(s)] }))
     );
-    // Ordlyden er LV-U30, og tilbudssetningen nevner posten (OV-U95 punkt 3, BF-14 U-6).
-    expect(
-      tekst(rad)
-        .map((a) => a.laast)
-        .join(' ')
-    ).toContain(
-      `TE krever særskilt justering av vederlaget etter NS 8407 § 34.1.3 annet ledd for ${produktivitet} med ${KR('40 000')} Kravet for den særskilte vederlagsjusteringen er et tilbud etter NS 8407 punkt 34.2.1.`
+    // Ordlyden er LV-U30 med LV-U35 og LV-U39, og tilbudssetningen nevner posten (OV-U95
+    // punkt 3, BF-14 U-6). Punktene er prototype v4 i BF-14 (#1824); P1 er trukket.
+    expect(tekst(rad)[0].punkter?.map((p) => p.overskrift)).toEqual([
+      undefined,
+      '1. Varselet om vederlagsjustering',
+      '2. Varselet om særskilt vederlagsjustering',
+      '3. Vederlagsjustering',
+      '4. Særskilt vederlagsjustering',
+      undefined,
+    ]);
+    expect(tekst(rad)[0].laast).toContain(
+      `4. Særskilt vederlagsjustering\n\nTotalentreprenøren krever særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd for ${produktivitet} med ${KR('40 000')}\n\nKravet for den særskilte vederlagsjusteringen er et tilbud etter NS 8407 punkt 34.2.1.`
     );
   });
 
@@ -6425,15 +6456,15 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
     const s = sakMedKrav();
     const krav = s.send('TE', vederlagskrav(tilbud(150000, { saerskilt: post })));
     const laast = tekst(krav)
-      .map((a) => a.laast)
+      .map((a) => a.laast.replaceAll('\n\n', ' '))
       .join(' ');
-    // Ordlyden er LV-U30.
+    // Ordlyden er LV-U30, i punktet for posten etter punktet for kravpostene (prototype v4 i BF-14).
     expect(laast).toContain(
-      `P1 Ny fundamentering: TE krever ${KR('150 000')} ${iTillegg} Kravet for P1 og den særskilte vederlagsjusteringen er et tilbud etter NS 8407 punkt 34.2.1.`
+      `P1 Ny fundamentering. Totalentreprenøren krever ${KR('150 000')} 4. Særskilt vederlagsjustering ${iTillegg} Kravet for P1 og den særskilte vederlagsjusteringen er et tilbud etter NS 8407 punkt 34.2.1.`
     );
     const trekk = s.send('TE', { type: 'trekk', spor: 'vederlag' });
     expect(tekst(trekk)[0].laast).toContain(
-      `(${KR('150 000')} i P1 og ${KR('40 000')} etter NS 8407 § 34.1.3 annet ledd)`
+      `(${KR('150 000')} i P1 og ${KR('40 000')} etter NS 8407 punkt 34.1.3 annet ledd)`
     );
   });
 
@@ -8398,10 +8429,10 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
       s.send('TE', krav([{ ...post1, beloep: 125000 }, regning, justert]))
     ).join(' ');
     expect(foerste).toContain(
-      'TE krever at P2 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30. Kravet er varsel før regningsarbeidet settes i gang (NS 8407 punkt 34.4).'
+      'Totalentreprenøren krever at P2 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30. Kravet er varsel før regningsarbeidet settes i gang (NS 8407 punkt 34.4).'
     );
     expect(foerste).toContain(
-      'TE krever at P3 gjøres opp etter kontraktens enhetspriser, justert etter NS 8407 punkt 34.3.2. Kravet er varsel om justering av enhetsprisene etter NS 8407 punkt 34.3.3.'
+      'Totalentreprenøren krever at P3 gjøres opp etter kontraktens enhetspriser, justert etter NS 8407 punkt 34.3.2. Kravet er varsel om justering av enhetsprisene etter NS 8407 punkt 34.3.3.'
     );
     // KA-U61: brevet sier hvilke poster som er tilbud, og at de andre ikke er det.
     expect(foerste).toContain(
@@ -8426,9 +8457,9 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
   it('en kravpost som skifter til regningsarbeid eller justerte enhetspriser, er varselet i versjonen hun skifter i, men ikke når hun har hatt oppgjørsformen før (VS-U49)', () => {
     const s = sakMedKrav();
     const varselP1 =
-      'P1 Ny fundamentering: TE krever at P1 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30. Kravet er varsel før regningsarbeidet settes i gang';
+      'P1 Ny fundamentering. Totalentreprenøren krever at P1 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30. Kravet er varsel før regningsarbeidet settes i gang';
     const varselP2 =
-      'TE krever at P2 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30. Kravet er varsel før regningsarbeidet settes i gang';
+      'Totalentreprenøren krever at P2 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30. Kravet er varsel før regningsarbeidet settes i gang';
     // P1 hadde fast sum i første versjon og skifter til regningsarbeid; P2 er ny.
     const andre = laast(
       s.send(
@@ -8456,7 +8487,9 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
         ])
       )
     ).join(' ');
-    expect(fjerde).toContain('P1 Ny fundamentering: TE krever at P1 gjøres opp som regningsarbeid');
+    expect(fjerde).toContain(
+      'P1 Ny fundamentering. Totalentreprenøren krever at P1 gjøres opp som regningsarbeid'
+    );
     expect(fjerde).not.toContain('Kravet er varsel');
     // Enhetspriser uten justering i én versjon og med justering i den neste: varselet etter
     // punkt 34.3.3 står i versjonen der justeringen kreves.
@@ -8479,7 +8512,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
       )
     ).join(' ');
     expect(sjette).toContain(
-      'TE krever at P3 gjøres opp etter kontraktens enhetspriser, justert etter NS 8407 punkt 34.3.2. Kravet er varsel om justering av enhetsprisene etter NS 8407 punkt 34.3.3.'
+      'Totalentreprenøren krever at P3 gjøres opp etter kontraktens enhetspriser, justert etter NS 8407 punkt 34.3.2. Kravet er varsel om justering av enhetsprisene etter NS 8407 punkt 34.3.3.'
     );
     expect(sjette).not.toContain('Kravet er varsel før regningsarbeidet');
   });
@@ -8496,7 +8529,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
       )
     ).join(' ');
     expect(tekst).toContain(
-      'TE krever at P2 gjøres opp etter kontraktens enhetspriser etter NS 8407 punkt 34.3.1.'
+      'Totalentreprenøren krever at P2 gjøres opp etter kontraktens enhetspriser etter NS 8407 punkt 34.3.1.'
     );
     expect(tekst).not.toContain('Kravet er varsel');
   });
@@ -8505,7 +8538,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     const s = sakMedKrav();
     const tekst = laast(s.send('TE', krav([regning], { trekker: [p1I(s)] }))).join(' ');
     expect(tekst).toContain(
-      'TE trekker kravet i P1 Ny fundamentering, fremsatt i brev K201-KOE-017-02 av 3. oktober 2026.'
+      'P1 Ny fundamentering. Totalentreprenøren trekker kravet i P1, fremsatt i brev K201-KOE-017-02 av 3. oktober 2026.'
     );
     expect(tekst).not.toContain('avkall');
   });
@@ -9032,7 +9065,7 @@ describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, V
       s.send('TE', vederlagskrav([{ ...tilbudspost, beloep: 1000 }, regning, justert]))
     ).join(' ');
     expect(tekst).toContain(
-      'TE krever at P2 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30.'
+      'Totalentreprenøren krever at P2 gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30.'
     );
     expect(tekst).not.toContain(varselRegning);
     expect(tekst).toContain(
@@ -9637,6 +9670,80 @@ describe('rigg og drift i vederlagskravet avvises til posten er bygget (MM-U2, #
       saerskilt: produktivitetsposten,
     });
     kravet.saerskilt = { ...produktivitetsposten, ...riggposten };
+    expect(s.u().forstaatt).toBe(false);
+  });
+});
+
+/**
+ * #1824: TEs vederlagskrav har punkter med overskrift i rekkefølgen i prototype v4 i BF-14
+ * (`#brev`): varslene, kravpostene, den særskilte vederlagsjusteringen, rigg og drift og
+ * forbeholdet. Ordlyden er design innenfor KA-U61 og VS-U51 (U-6 og U-14 i BF-14), og partene
+ * skrives fullt ut (LV-U35).
+ */
+describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i BF-14)', () => {
+  const vederlagskrav = (innhold: Data, utdypning?: string) => ({
+    type: 'krav',
+    spor: 'vederlag',
+    innhold,
+    ...(utdypning ? { utdypning } : {}),
+  });
+
+  it('et varsel etter punkt 34.1.2 sendt før kravet står i punktet for varselet, med brevet det ble gitt i', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.2' });
+    const [punkt] = tekst(s.send('TE', vederlagskrav(tilbud(125000))))[0].punkter!;
+    expect(punkt.overskrift).toBe('1. Varselet om vederlagsjustering');
+    // Varselet er brev 2; brevet viser til det med merkingen og datoen (LV-U53).
+    expect(punkt.tekst).toBe(
+      'Varsel om vederlagsjustering etter NS 8407 punkt 34.1.2 ble gitt i brev K201-KOE-017-02 av 3. oktober 2026.'
+    );
+  });
+
+  it('uten varsel før kravet varsler kravet selv, og kontrollsaken uten den særskilte posten har ikke punktet for varselet etter 34.1.3', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const punkter = tekst(s.send('TE', vederlagskrav(tilbud(125000))))[0].punkter!;
+    expect(punkter[0]).toEqual({
+      overskrift: '1. Varselet om vederlagsjustering',
+      tekst:
+        'Totalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2.',
+    });
+    expect(punkter.map((p) => p.overskrift)).not.toContain(
+      '2. Varselet om særskilt vederlagsjustering'
+    );
+  });
+
+  it('forbeholdet står sist under sin egen overskrift, og teksten er partens utdypning, ikke den låste delen', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const forbehold = 'Totalentreprenøren tar forbehold om å justere kravet når omfanget er kjent.';
+    const [avsnitt] = tekst(s.send('TE', vederlagskrav(tilbud(125000), forbehold)));
+    expect(avsnitt.punkter!.at(-1)).toEqual({ overskrift: '3. Forbehold' });
+    expect(avsnitt.laast.endsWith('\n\n3. Forbehold')).toBe(true);
+    expect(avsnitt.utdypning).toBe(forbehold);
+    // Kontrollsak: uten forbehold er det ikke noe punkt for det.
+    const uten = tekst(s.send('TE', vederlagskrav(tilbud(130000))))[0];
+    expect(uten.punkter!.map((p) => p.overskrift)).not.toContain(
+      expect.stringMatching(/Forbehold/)
+    );
+  });
+
+  it('en ny versjon sier først hvilket krav den erstatter, uten overskrift', () => {
+    const s = sakMedKrav();
+    const [innledning] = tekst(s.send('TE', vederlagskrav(tilbud(130000))))[0].punkter!;
+    expect(innledning).toEqual({
+      tekst: 'Kravet erstatter totalentreprenørens krav i brev K201-KOE-017-02 av 3. oktober 2026.',
+    });
+  });
+
+  it('punkter som ikke gir den låste delen ordrett, gjør saken ikke forstått (MM-U2)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const rad = s.send('TE', vederlagskrav(tilbud(125000)));
+    expect(s.u().forstaatt, 'kontrollsak').toBe(true);
+    const punkter = (rad.data.brevtekst as Avsnitt[])[0].punkter!;
+    punkter[0] = { ...punkter[0], tekst: 'Totalentreprenøren varsler noe annet.' };
     expect(s.u().forstaatt).toBe(false);
   });
 });

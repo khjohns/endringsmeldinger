@@ -15,6 +15,7 @@ import {
   punktum,
   tidligere,
   verdi,
+  type Brevpunkt,
   type Kravsporsbrevtekst,
   type Standpunktstekster,
   type Tekst,
@@ -69,20 +70,21 @@ function gitt(
     : `${hva} ble gitt i ${brevet}.`;
 }
 
-/** Setningen for én kravpost. Ordlyden er design (U-6 i BF-14); budskapet står i KA-U61 og KA-U66. */
+/** Avsnittet for én kravpost. Ordlyden er design (U-6 i BF-14); budskapet står i KA-U61 og KA-U66. */
 function kravposttekst(
   p: Kravpost,
   varselet: Kravpostvarselet | undefined,
   t: Pick<Tekst, 'j' | 'nytt'>
 ): string {
-  const hode = `${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}${p.pns ? ` (PNS ${p.pns})` : ''}:`;
-  if (p.oppgjoersform === 'tilbud') return `${hode} TE krever ${eksMva(p.beloep!)}`;
-  const deler = [hode];
-  if (p.oppgjoersform === 'enhetspriser') {
+  const deler = [
+    `${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}${p.pns ? ` (PNS ${p.pns})` : ''}.`,
+  ];
+  if (p.oppgjoersform === 'tilbud') deler.push(`Totalentreprenøren krever ${eksMva(p.beloep!)}`);
+  else if (p.oppgjoersform === 'enhetspriser') {
     deler.push(
       p.justert
-        ? `TE krever at ${p.betegnelse} gjøres opp etter kontraktens enhetspriser, justert etter NS 8407 punkt 34.3.2.`
-        : `TE krever at ${p.betegnelse} gjøres opp etter kontraktens enhetspriser etter NS 8407 punkt 34.3.1.`
+        ? `Totalentreprenøren krever at ${p.betegnelse} gjøres opp etter kontraktens enhetspriser, justert etter NS 8407 punkt 34.3.2.`
+        : `Totalentreprenøren krever at ${p.betegnelse} gjøres opp etter kontraktens enhetspriser etter NS 8407 punkt 34.3.1.`
     );
     if (varselet)
       deler.push(
@@ -94,7 +96,7 @@ function kravposttekst(
       deler.push(`Anslaget er ${eksMva(p.anslag)} Anslaget er en opplysning og ikke et tilbud.`);
   } else if (p.oppgjoersform === 'regningsarbeid') {
     deler.push(
-      `TE krever at ${p.betegnelse} gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30.`
+      `Totalentreprenøren krever at ${p.betegnelse} gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30.`
     );
     if (varselet)
       deler.push(
@@ -111,47 +113,101 @@ function kravposttekst(
 }
 
 /**
- * Vederlagskravet: én setning per kravpost, trekket (KA-U56), postene utenfor kravpostene
- * (OV-U95 punkt 3, OV-U89 punkt 17) og hvilke poster som er tilbud etter § 34.2.1 (KA-U61,
- * KA-U65). Rigg og drift kalles ikke tilbud.
+ * Varselet etter § 34.1.2 eller § 34.1.3 tredje ledd i punktet for varselet: brevet det ble gitt
+ * i, eller at kravet varsler nå (U-7 og prototype v4 i BF-14, VS-U51). Ordlyden er design.
  */
-function vederlagstekst(k: Krav, t: Tekst): string {
+function varselpunkt(
+  hjemmel: '34.1.2' | '34.1.3',
+  { j, saken }: Pick<Tekst, 'j' | 'saken'>
+): Brevpunkt {
+  const ordene = {
+    '34.1.2': {
+      overskrift: 'Varselet om vederlagsjustering',
+      gitt: 'Varsel om vederlagsjustering etter NS 8407 punkt 34.1.2',
+      naa: 'Totalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2.',
+    },
+    '34.1.3': {
+      overskrift: 'Varselet om særskilt vederlagsjustering',
+      gitt: 'Varsel om særskilt vederlagsjustering etter NS 8407 punkt 34.1.3 tredje ledd',
+      naa: 'Totalentreprenøren varsler særskilt etter NS 8407 punkt 34.1.3 tredje ledd.',
+    },
+  }[hjemmel];
+  const foer = saken.varsletFoer[hjemmel];
+  return {
+    overskrift: ordene.overskrift,
+    avsnitt: [
+      foer === undefined
+        ? ordene.naa
+        : `${ordene.gitt} ble gitt i ${j.brevet(j.dokumentetTil(foer))}.`,
+    ],
+  };
+}
+
+/**
+ * Vederlagskravet i punkter med overskrift (#1824, prototype v4 i BF-14): kravet det erstatter
+ * (KA-U52 punkt 4), varslene, kravpostene med trekket (KA-U56), postene utenfor kravpostene
+ * (OV-U95 punkt 3, OV-U89 punkt 17) og hvilke poster som er tilbud etter § 34.2.1 (KA-U61,
+ * KA-U65). Rigg og drift kalles ikke tilbud. Partene skrives fullt ut (LV-U35).
+ */
+function vederlagstekst(k: Krav, t: Tekst): Brevpunkt[] {
   const { j, saken } = t;
-  const foer = tidligere(k, j);
   const poster = kravposterI(k);
-  const deler = poster.map((p) => punktum(kravposttekst(p, saken.kravpostvarsler[p.id], t)));
-  const forrige = foer.at(-1);
+  const post = krevdProduktivitet(k);
+  const rigg = krevdRigg(k);
+  if (!poster.length && post === null && rigg === null)
+    throw new KanIkkeUttrykkes('vederlagskravet har ingen poster');
+  const punkter: Brevpunkt[] = [];
+  if (k.erstatter)
+    punkter.push({
+      overskrift: null,
+      avsnitt: [
+        `Kravet erstatter totalentreprenørens krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`,
+      ],
+    });
+  punkter.push(varselpunkt('34.1.2', t));
+  if (post !== null) punkter.push(varselpunkt('34.1.3', t));
+
+  const justering = poster.map((p) => kravposttekst(p, saken.kravpostvarsler[p.id], t));
+  const forrige = tidligere(k, j).at(-1);
   for (const id of innholdIVederlaget(k).trekker) {
     const p = forrige && kravposterI(forrige).find((q) => q.id === id);
     if (!p)
       throw new KanIkkeUttrykkes(
         `trekket gjelder kravposten ${id}, som ikke står i forrige kravversjon`
       );
-    deler.push(
-      `TE trekker kravet i ${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}, fremsatt i ${j.brevet(forrige.dokument)}.`
+    justering.push(
+      `${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}. Totalentreprenøren trekker kravet i ${p.betegnelse}, fremsatt i ${j.brevet(forrige.dokument)}.`
     );
   }
+  if (justering.length) punkter.push({ overskrift: 'Vederlagsjustering', avsnitt: justering });
   // OV-U95 punkt 3: «i tillegg» når vederlagsjusteringen har minst én kravpost.
-  const post = krevdProduktivitet(k);
   if (post !== null)
-    deler.push(
-      `TE krever ${poster.length ? 'i tillegg ' : ''}særskilt justering av vederlaget etter NS 8407 § 34.1.3 annet ledd for ${PRODUKTIVITET} med ${eksMva(tilTall(post))}`
-    );
-  const rigg = krevdRigg(k);
+    punkter.push({
+      overskrift: 'Særskilt vederlagsjustering',
+      avsnitt: [
+        `Totalentreprenøren krever ${poster.length ? 'i tillegg ' : ''}særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd for ${PRODUKTIVITET} med ${eksMva(tilTall(post))}`,
+      ],
+    });
   if (rigg !== null)
-    deler.push(`TE krever ${eksMva(tilTall(rigg))} for rigg og drift i forlenget byggetid.`);
-  if (!poster.length && post === null && rigg === null)
-    throw new KanIkkeUttrykkes('vederlagskravet har ingen poster');
+    punkter.push({
+      overskrift: 'Rigg og drift i forlenget byggetid',
+      avsnitt: [
+        `Totalentreprenøren krever ${eksMva(tilTall(rigg))} for rigg og drift i forlenget byggetid.`,
+      ],
+    });
+
+  const slutt: string[] = [];
   const tilbud = poster.filter((p) => p.oppgjoersform === 'tilbud').map((p) => p.betegnelse);
   if (post !== null) tilbud.push('den særskilte vederlagsjusteringen');
   if (tilbud.length)
-    deler.push(`Kravet for ${opplistet(tilbud)} er et tilbud etter NS 8407 punkt 34.2.1.`);
+    slutt.push(`Kravet for ${opplistet(tilbud)} er et tilbud etter NS 8407 punkt 34.2.1.`);
   const regel = poster.filter((p) => p.oppgjoersform !== 'tilbud').map((p) => p.betegnelse);
   if (regel.length)
-    deler.push(
+    slutt.push(
       `${opplistet(regel)} gjøres opp etter en beregningsregel, og kravet for ${regel.length > 1 ? 'dem' : 'den'} er ikke et tilbud.`
     );
-  return deler.join(' ');
+  if (slutt.length) punkter.push({ overskrift: null, avsnitt: [slutt.join(' ')] });
+  return punkter;
 }
 
 /** KA-U22: beløpene som identifiserer vederlagskravet i trekket: de krevde faste beløpene. */
@@ -161,7 +217,7 @@ function kravetsBeloep(krav: Krav): string {
     return krevd === null ? [] : [`${eksMva(tilTall(krevd))} i ${p.betegnelse}`];
   });
   const post = krevdProduktivitet(krav);
-  if (post !== null) deler.push(`${eksMva(tilTall(post))} etter NS 8407 § 34.1.3 annet ledd`);
+  if (post !== null) deler.push(`${eksMva(tilTall(post))} etter NS 8407 punkt 34.1.3 annet ledd`);
   const rigg = krevdRigg(krav);
   if (rigg !== null) deler.push(`${eksMva(tilTall(rigg))} for rigg og drift`);
   return deler.length ? deler.join(' og ') : 'uten krevd beløp';
@@ -171,15 +227,18 @@ function kravetsBeloep(krav: Krav): string {
 export const BREVTEKSTEN_I_VEDERLAGET = {
   navn: 'vederlaget',
   svaretGjelder: 'kravet om justering av vederlaget',
-  krav: (k, t) => [vederlagstekst(k, t)],
+  krav: vederlagstekst,
   // VS-U29: også påberopelsen etter § 34.1.3 mot det særskilte varselet (VS-U24, OV-U22).
   ogsaaInnsigelserEtter: ['34.1.3'],
-  nevnerErstattet: true,
+  // Kravet sier selv hvilket krav det erstatter, i innledningen (#1824).
+  nevnerErstattet: false,
+  // Forbeholdet, som Varden sender som kravets utdypning til #1823 gir det et eget felt.
+  utdypningenUnder: 'Forbehold',
   kravetOm: 'justering av vederlaget',
   enigI: 'beløpet',
   trukket: kravetsBeloep,
   ingenKrav: (sak) =>
-    `TE krever ikke justering av vederlaget som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag. Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.`,
+    `Totalentreprenøren krever ikke justering av vederlaget som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag. Avkallet omfatter ikke vederlag for forsering etter NS 8407 punkt 33.8.`,
 } satisfies Kravsporsbrevtekst;
 
 /** Standpunktene i artene bare vederlagssporet har (LV-U4 punkt 5, LV-U5). */
