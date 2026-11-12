@@ -12,7 +12,7 @@
   import { ChevronRight } from 'lucide-svelte';
   import Knapp from './Knapp.svelte';
   import { brevForLinja, brevet, forholdetISaken, tilknyttetKrav, type Brevet } from './lesing';
-  import { BETEGNELSE, FORHOLDET, SPORNAVN, brevref, brevrefFra, metodenavn } from './tekster';
+  import { BETEGNELSE, FORHOLDET, SPORNAVN, brevref, brevrefFra } from './tekster';
 
   let {
     u,
@@ -94,7 +94,9 @@
                   <dt>{FORHOLDET.krevd}</dt>
                   <dd>
                     {#if k.krevd.tall !== null}<span class="num">{tall(k.spor, k.krevd.tall)}</span
-                      >{:else}{stor(metodenavn(k.krevd.metode))}{/if}
+                      >{#if k.krevd.regel}{FORHOLDET.ogRegelen(k.krevd.regel)}{/if}{:else}{stor(
+                        FORHOLDET.regelen(k.krevd.regel)
+                      )}{/if}
                     <span class="brev">{brevref(k.krevd.brev)}</span>
                   </dd>
                 </div>

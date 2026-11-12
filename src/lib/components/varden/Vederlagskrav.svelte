@@ -426,6 +426,24 @@
     onvedsiden?.(leser && !smal);
     return () => onvedsiden?.(false);
   });
+
+  // Panelet følger rullingen bare når det får plass i vinduet, så «Se brevet før sending» alltid
+  // kan nås (U-16).
+  let panel = $state<HTMLElement | null>(null);
+  let faarPlass = $state(true);
+  $effect(() => {
+    const el = panel;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const maal = () => (faarPlass = el.offsetHeight + 32 <= window.innerHeight);
+    const ro = new ResizeObserver(maal);
+    ro.observe(el);
+    window.addEventListener('resize', maal);
+    maal();
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', maal);
+    };
+  });
 </script>
 
 {#snippet lest(b: Brevet, innfelt: boolean)}
@@ -996,7 +1014,7 @@
         <div class="lesebunn">{@render sendeknapp()}</div>
       </section>
     {:else}
-      <div class="feste">
+      <div class="feste" class:fast={faarPlass} bind:this={panel}>
         <Kravpunkter
           {punkter}
           faste={summer.faste}
@@ -1344,7 +1362,7 @@
     flex-wrap: wrap;
     gap: var(--spacing-3);
   }
-  .feste {
+  .feste.fast {
     position: sticky;
     top: var(--spacing-4);
     z-index: 1;

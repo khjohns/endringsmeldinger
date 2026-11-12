@@ -11,12 +11,7 @@ import { FORHOLDSGRUPPER, forholdet } from '$kjerne/frosset/forholdene';
 import { grunnerFraForholdet } from '$kjerne/frosset/standpunkt';
 import { plassene } from '$kjerne/frosset/byggeklosser';
 import { innholdIFristen } from '$kjerne/format/kravinnhold';
-import {
-  harHovedbeloep,
-  kravposterI,
-  krevdSamlet,
-  krevdProduktivitet,
-} from '$kjerne/spor/vederlag/format';
+import { kravposterI, krevdSamlet, krevdProduktivitet } from '$kjerne/spor/vederlag/format';
 import { tilTall } from '$kjerne/regler/beloep';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { TilbudtHandling } from '$kjerne/kommandoer/handlinger';
@@ -382,8 +377,11 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
  */
 export interface TilknyttetKrav {
   spor: 'vederlag' | 'frist';
-  /** Beløpet i kroner eller dagene, eller `null` når kravet ikke har et tall (metoden). */
-  krevd: { tall: number | null; metode: unknown; brev: Brevref } | null;
+  /**
+   * Summen av de faste beløpene i kroner, eller dagene, og `null` når kravet ikke har et tall.
+   * `regel` er oppgjørsformen til kravpostene etter en beregningsregel, eller `flere` (KA-U61).
+   */
+  krevd: { tall: number | null; regel: Oppgjoersform | 'flere' | null; brev: Brevref } | null;
   svaret: { poster: { tall: number; lag: string | null }[]; brev: Brevref } | null;
   grunner: Subsidiaergrunn[];
 }
@@ -400,10 +398,14 @@ export function kravposterUtenFastBeloep(utfall: Utfall, krav: readonly Krav[]):
   );
 }
 
-/** Oppgjørsformen når alle kravpostene har samme, ellers `null`: visningen navngir den. */
-function fellesOppgjoersform(krav: Krav): Oppgjoersform | null {
-  const former = new Set(kravposterI(krav).map((p) => p.oppgjoersform));
-  return former.size === 1 ? [...former][0]! : null;
+/** Oppgjørsformen til kravpostene etter en beregningsregel, `flere` når de har ulike, ellers `null`. */
+function beregningsregelen(krav: Krav): Oppgjoersform | 'flere' | null {
+  const former = new Set(
+    kravposterI(krav)
+      .map((p) => p.oppgjoersform)
+      .filter((f) => f !== 'tilbud')
+  );
+  return former.size === 0 ? null : former.size === 1 ? [...former][0]! : 'flere';
 }
 
 export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): TilknyttetKrav {
@@ -415,18 +417,18 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
   const tall = (): number | null => {
     if (!krav) return null;
     if (spor === 'frist') return innholdIFristen(krav).dager;
-    // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61), så summen av de
-    // faste beløpene er ikke kravet.
-    if (kravposterI(krav).some((p) => p.oppgjoersform !== 'tilbud')) return null;
-    return harHovedbeloep(krav) || krevdProduktivitet(krav) !== null
-      ? tilTall(krevdSamlet(krav))
-      : null;
+    // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Summen er de faste
+    // beløpene, og visningen nevner beregningsregelen ved siden av (#1663).
+    const fast =
+      kravposterI(krav).some((p) => p.oppgjoersform === 'tilbud') ||
+      krevdProduktivitet(krav) !== null;
+    return fast ? tilTall(krevdSamlet(krav)) : null;
   };
   return {
     spor,
     krevd:
       krav && kravbrev
-        ? { tall: tall(), metode: fellesOppgjoersform(krav), brev: ref(kravbrev) }
+        ? { tall: tall(), regel: beregningsregelen(krav), brev: ref(kravbrev) }
         : null,
     svaret:
       svar && svarbrev

@@ -479,6 +479,11 @@ const KORRIGERT_I_LUKKET =
   'Saken står lukket, og korrigeringen endrer ikke utfallet. Byggherren kan ta stilling til den nye datoen i et innlegg. Innlegg kan ikke sendes fra løsningen ennå.';
 
 export const FORHOLDET = {
+  /** Kravpostene etter en beregningsregel ved summen av de faste beløpene (KA-U61, #1663). */
+  ogRegelen: (regel: string) =>
+    regel === 'flere' ? ' og andre oppgjørsformer' : ` og ${metodenavn(regel)}`,
+  regelen: (regel: string | null) =>
+    regel === 'flere' ? 'flere oppgjørsformer' : metodenavn(regel),
   utenNavn: 'Forholdet',
   siste: (b: Brevref, part: Part) =>
     `Siste brev: ${brevrefFra(b, part)}${b.nummer === null ? '' : `, ${dato(b.registrert)}`}.`,
@@ -851,6 +856,9 @@ export const SAKSLISTE = {
     string
   >,
   flereOppgjoersformer: 'Flere oppgjørsformer',
+  /** De faste beløpene og kravpostene etter en beregningsregel i samme krav (KA-U61, #1663). */
+  ogRegel: (beloep: string, regel: string) =>
+    `${beloep} og ${regel === 'flere' ? 'andre oppgjørsformer' : regel.toLowerCase()}`,
   utenTittel: 'Uten tittel',
   inngaarIEo: (kode: string) => `Inngår i ${kode}`,
   paaberopelsenTrukket: 'Påberopelsen trukket',
@@ -865,7 +873,7 @@ export const SAKSLISTE = {
   utenBeloep: (n: number) => `${n} uten beløp`,
   omTallene: (spor: string) => `Om tallene for ${spor.toLowerCase()}`,
   omVederlag:
-    'Summen av kravene med beløp i sakene som ikke inngår i en sendt endringsordre. Krav etter regningsarbeid eller enhetspriser har ikke beløp og telles for seg. Trukne krav og saker som TE har avsluttet, er ikke med. Krav i flere saker kan gjelde samme kostnad.',
+    'Summen av de faste beløpene i kravene i sakene som ikke inngår i en sendt endringsordre. Kravposter etter regningsarbeid eller enhetspriser har ikke beløp, og et krav med bare slike poster telles for seg. Trukne krav og saker som TE har avsluttet, er ikke med. Krav i flere saker kan gjelde samme kostnad.',
   omFrist:
     'Antall krav i sakene som ikke inngår i en sendt endringsordre. Dagene summeres ikke, fordi forlengelser i ulike saker kan gjelde samme periode.',
   // Verktøylinja
