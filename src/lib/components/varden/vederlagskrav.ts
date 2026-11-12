@@ -202,8 +202,10 @@ export function vederlagskravet(v: Kravvalg, varslene: readonly (Varselet | null
 }
 
 /** Vedleggene kommandoen viser til, så kjernen kan lage brevet før sendingen (VS-U53). */
-export function vedleggIKravet(v: Kravvalg) {
-  const alle = postene(v).flatMap((p) => {
+export function vedleggIKravet(v: Kravvalg, varslene: readonly (Varselet | null)[]) {
+  // Bare dokumentene kommandoen viser til, som i `vederlagskravet`.
+  const alle = postene(v).flatMap((p, i) => {
+    if (varslene[i]?.art !== 'kravet') return [];
     const valg = gjeldendeVarselvalg(v, p);
     return valg.art === 'dokument' ? valg.vedlegg : [];
   });

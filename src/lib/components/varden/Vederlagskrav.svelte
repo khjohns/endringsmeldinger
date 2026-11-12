@@ -123,7 +123,7 @@
   const varselPerPost = $derived(new Map(med.map((p, i) => [p.noekkel, varslene[i] ?? null])));
   const varselFor = (p: Kravpostvalg): Varselet | null => varselPerPost.get(p.noekkel) ?? null;
   const kommando = $derived(vederlagskravet(v, varslene));
-  const vedlegg = $derived(vedleggIKravet(v));
+  const vedlegg = $derived(vedleggIKravet(v, varslene));
 
   // Betegnelsen kjernen gir en ny post (KA-U53), lest av et utkast med de samme postene. Den
   // følger bare postenes id, rekkefølgen og trekket, så utkastet lages ikke ved hvert tastetrykk.
@@ -271,7 +271,11 @@
   // Et varsel TE velger for en post i skjemaet, står ved posten og ikke som et varsel uten post.
   const utenKravpost = $derived(
     varslerUtenKravpost(u).filter(
-      (x) => !med.some((p) => p.varsel.art === 'saken' && p.varsel.varsel === x.id)
+      (x) =>
+        !med.some(
+          (p) =>
+            varselFor(p)?.art === 'kravet' && p.varsel.art === 'saken' && p.varsel.varsel === x.id
+        )
     )
   );
   const iSaken = $derived(varsleneISaken(u));

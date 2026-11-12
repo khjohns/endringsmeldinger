@@ -180,7 +180,7 @@
     font-weight: 500;
     text-decoration: none;
   }
-  /* Hele raden er lenken, så treffflaten er stor nok, og fokus vises som i resten av Varden. */
+  /* Tittelen er lenken, som en blokk over hele bredden, og fokus vises som i resten av Varden. */
   .innhold a {
     display: block;
     min-height: 24px;
