@@ -699,7 +699,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'tilbud enhetspriser regningsarbeid',
     ['kommandoer/standpunkter.ts', 'utledning/utled.ts'],
   ],
-  ['OPPGJOERSFORM_I_HJEMMELEN', 'skjema', '34.2.2 34.3 34.4', ['format/leser.ts']],
+  ['OPPGJOERSFORM_I_HJEMMELEN', 'skjema', '34.2.2 34.3 34.4', ['spor/vederlag/format.ts']],
   // Kravposten standpunktene gjelder (KA-U57 (c) og (d)).
   ['frosset/standpunkt.ts:beregningsregelLag', 'relasjon', 'gjelder'],
   ['kommandoer/lag.ts:innenforKravposten', 'relasjon', 'gjelder'],
@@ -1413,7 +1413,26 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:standpunkterISvaret(e)',
     'rad',
-    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_oppgjoersform dager beloep begrenset_beloep saerskilt krever_tilbud godtar',
+    'id art gjelder hjemmel i_tide resultat oppfylt dager begrenset_beloep',
+    ['format/leser.ts'],
+  ],
+  [
+    'spor/vederlag/format.ts:standpunktIVederlaget(e)',
+    'rad',
+    'id art gjelder hjemmel aksepterer oensket_oppgjoersform beloep saerskilt krever_tilbud godtar',
+    ['spor/vederlag/format.ts'],
+  ],
+  // #1783: det som er sporets eget i lesingen av svaret.
+  [
+    'Svarlesing',
+    'skjema',
+    'gjentas rettidighet subsidiaertVerdi kontrollerStandpunktene kontrollerUtregningen',
+    ['format/leser.ts'],
+  ],
+  [
+    'spor/vederlag/format.ts',
+    'rad',
+    'LESING_I_VEDERLAGET standpunktIVederlaget',
     ['format/leser.ts'],
   ],
   // OV-U31, KA-U57 (e): radene i utregningen per post og lag, mot standpunktene og totalene.
@@ -1435,13 +1454,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/format.ts',
     'rad',
     'utregningIVederlaget',
-    ['format/leser.ts', 'frosset/standpunkt.ts:godkjennerHeleKravet'],
+    ['frosset/standpunkt.ts:godkjennerHeleKravet'],
   ],
   [
     'Vederlagsutregning',
     'rad',
     'resultat subsidiaert_resultat godkjent_beloep subsidiaert_godkjent_beloep poster',
-    ['format/leser.ts'],
+    ['spor/vederlag/format.ts'],
   ],
   [
     'Fristutregning',
@@ -1449,8 +1468,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'resultat godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
     ['format/leser.ts'],
   ],
-  ['Utregningsrad', 'rad', 'gjelder saerskilt lag', ['format/leser.ts']],
-  ['Utregningslag', 'rad', 'lag beloep', ['format/leser.ts']],
+  ['Utregningsrad', 'rad', 'gjelder saerskilt lag', ['spor/vederlag/format.ts']],
+  ['Utregningslag', 'rad', 'lag beloep', ['spor/vederlag/format.ts']],
   [
     'format/leser.ts:lesBeslutningsgrunnlag(v)',
     'rad',
@@ -1496,7 +1515,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/skjema.ts',
     'rad',
     'Uforstaatt',
-    ['format/leser.ts', 'kommandoer/skriving.ts', 'frosset/frysing.ts'],
+    ['format/leser.ts', 'kommandoer/skriving.ts', 'frosset/frysing.ts', 'spor/vederlag/format.ts'],
   ],
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
   // av samme slag (MM-U1, MM-U7).

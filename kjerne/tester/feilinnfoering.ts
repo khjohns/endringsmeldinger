@@ -1517,7 +1517,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F182',
     feilklasse: 'beløpsstandpunktet leses som det prinsipale beløpet, ikke det vurderte (B-13)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
         'const total = utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep;',
@@ -1684,10 +1684,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F198',
     feilklasse: 'en lagret avslått metode uten byggherrens metode forstås',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
-        "(e.aksepterer && 'oensket_oppgjoersform' in e) ||\n          (!e.aksepterer && !kreverTilbud && !('oensket_oppgjoersform' in e))",
+        "(e.aksepterer && 'oensket_oppgjoersform' in e) ||\n        (!e.aksepterer && !kreverTilbud && !('oensket_oppgjoersform' in e))",
         'false',
       ],
     ],
@@ -3305,7 +3305,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F397',
     feilklasse:
       'leseren godtar poster som ikke summerer til det subsidiære beløpet (OV-U31, MM-U2)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [['if (samlet !== beloep(total))', 'if (samlet < 0n)']],
     mal: ['poster som ikke summerer til det subsidiære beløpet, er ikke forstått'],
   },
@@ -3351,7 +3351,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F402',
     feilklasse:
       'leseren godtar et beløp etter begrensningen over det byggherren godtar for posten (valg 2 i #1047, MM-U2)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [['beloep(begrenset.begrenset)! > beloep(post.godkjent)!', 'false']],
     mal: ['et beløp etter begrensningen over det byggherren godtar for posten, er ikke forstått'],
   },
@@ -4351,7 +4351,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F497',
     feilklasse:
       'leseren godtar en utregning der det prinsipale beløpet ikke er summen av det første laget (OV-U31)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [['if (summen(0) !== beloep(', 'if (false && summen(0) !== beloep(']],
     mal: ['totalen er ikke summen av det første laget'],
   },
@@ -4359,7 +4359,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F498',
     feilklasse:
       'leseren godtar et lag uten beløp for en kravpost der tilbudet er akseptert (KA-U72)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [["if (r.lag.some((l) => !('beloep' in l)))", 'if (false)']],
     mal: ['et lag mangler beløpet når tilbudet er akseptert'],
   },
@@ -4387,7 +4387,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F512',
     feilklasse:
       'leseren godtar standpunktet til beløpet med beløp når tilbudet ikke er akseptert, og uten beløp når det er akseptert (KA-U72)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [['(s.godkjent === undefined) !== utenBeloep.has(s.gjelder!))', 'false)']],
     mal: [
       'en rad med standpunktet til beløpet uten beløp for en kravpost der tilbudet er akseptert, avvises',
@@ -4415,7 +4415,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F515',
     feilklasse:
       'leseren godtar et beløp i et lag før det siste for en kravpost der tilbudet ikke er akseptert (KA-U72, MM-U2)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
         "n < prekludert ? beloep(l.beloep) !== 0n : 'beloep' in l",
@@ -4428,7 +4428,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F516',
     feilklasse:
       'leseren godtar 0 kr i et lag uten preklusjon etter § 34.1.2 for en kravpost der tilbudet ikke er akseptert (KA-U72, OV-U27)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
         "n < prekludert ? beloep(l.beloep) !== 0n : 'beloep' in l",
@@ -4733,7 +4733,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F546',
     feilklasse:
       'leseren godtar en utregning med flere lag enn beslutningsgrunnlaget (OV-U32, MM-U2, #1774)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [['if (rader.length > 0 && antall !== lagIGrunnlaget)', 'if (false)']],
     mal: ['utregningen har to lag, men beslutningsgrunnlaget ett'],
   },
