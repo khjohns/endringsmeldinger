@@ -84,12 +84,21 @@ verktøysvar tidlig i økta leses på nytt i hvert kall etter det
   regelversjonsvakten kjører ikke på utkast og ikke ved push til `main` (#390).
   Feilinnføringene kjører også på et utkast når etiketten `feilinnfoering` er satt, og
   et nytt push avbryter kjøringen som pågår. Rører PR-en kjernen, setter økta etiketten
-  ved første push, så feilinnføringene (10–30 minutter i CI) går mens økta kjører
+  ved første push, så feilinnføringene (om lag 10 minutter i CI) går mens økta kjører
   reviewet og retter. Kjøringen på siste commit er beviset. Hva økta kjører lokalt av
   feilinnføringene, står i [miljø-skillen](../miljo/SKILL.md#feilinnføringer).
 - **Arbeid mens CI går.** Mens CI eller feilinnføringene går, arbeider økta videre med
   reviewet, rettingene eller det neste relaterte issuet i oppdraget.
   Den venter med en bakgrunnskommando først når den ikke har mer å gjøre.
+- **Neste PR i en rekke venter ikke på feilinnføringene.** Bygger neste PR i oppdraget
+  på en PR som ikke er merget, starter grenen fra den siste committen i den PR-en så
+  snart den er pushet og `--ankre` er grønn lokalt. Den nye PR-en har grenen til den
+  første som base og oppgir avhengigheten slik PR-malen sier. Når den første er merget,
+  settes basen for den nye PR-en til `main` først, og så flyttes grenen med
+  `git rebase --onto origin/main <den gamle basen>` og pushes. Pushet kjører CI og
+  regelversjonsvakten mot `main`; før det er de bare prøvd mot grenen til den første. Blir
+  feilinnføringene røde på den første, rettes de der, og den neste rebases. Hver PR har
+  sin egen kjøring som bevis, og kjøringene går samtidig.
 - **Ikke abonner på PR-en** (`subscribe_pr_activity`), med mindre oppdragsgiver ber om
   det. Hver hendelse vekker økta og leser hele konteksten på nytt, også en grønn
   kjøring, egne pusher og mergen. Etter hver push venter økta på CI med én
