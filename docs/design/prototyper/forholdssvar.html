@@ -6,14 +6,15 @@
 <title>Svaret på forholdet i Varden</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!--
-  Prototype v1 (12.11) av byggherrens svar på totalentreprenørens påberopelse av forholdet,
+  Prototype v3 (12.11) av byggherrens svar på totalentreprenørens påberopelse av forholdet,
   bestillingen BF-08 (docs/domenetabell/brukerforlop/BF-08.md, #1834). Mønsteret og stilarket er
-  fra fristsvar.html. Tilstandene er ankrene #svar, #brev, #bekreft, #henvisning, #handlinger og
-  #godta. Teksten er prototypetekst; de vedtatte brevsetningene står ordrett etter D-2 i
-  bestillingen. «Vis sporbarhet» viser punktene i bestillingen på elementene. Ingenting sendes.
+  fra fristsvar.html, rettet etter .interface-design/system.md i v2 og mot vedtakene i v3. Tilstandene er ankrene #svar,
+  #brev, #bekreft, #henvisning, #handlinger og #godta. Teksten er prototypetekst; de vedtatte
+  brevsetningene står ordrett etter D-2 i bestillingen. «Vis sporbarhet» viser punktene i
+  bestillingen på elementene. Ingenting sendes.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --brand:#15181d; --on-brand:#ffffff;
@@ -300,6 +301,26 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
 .vis-spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-9px;right:-2px;font:500 10px/1.4 var(--font-mono);background:#a3266b;color:#fff;padding:0 4px;border-radius:2px;z-index:2;white-space:nowrap}
 .num,.inndata input,.sak .id{font-family:var(--font-sans);font-variant-numeric:tabular-nums}
 @media (max-width:860px){.ark{padding:20px 16px}.notis{margin-left:16px;margin-right:16px}}
+/* v2: etter systemfila */
+:root{--danger:#b33e33;--danger-bg:#fceded;--danger-border:#e8b7b2;--font-brev-bh:'Oslo Sans','Noto Sans','Noto Sans Math',var(--font-sans);--font-brev:'Source Serif 4','Noto Serif',Georgia,serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--danger:#f2a39b;--danger-bg:#2c1a19;--danger-border:#7a3d37}}
+:root[data-theme="dark"]{--danger:#f2a39b;--danger-bg:#2c1a19;--danger-border:#7a3d37}
+.hjemmel{border:0;padding:0;color:var(--ink-3);white-space:normal}
+.sti{color:var(--ink-2)}
+.demomerke{font-size:12px;color:var(--ink-2);border:1px solid var(--rule-strong-color);border-radius:var(--r-merke);padding:1px 8px}
+.sporgrupper .etikett{margin-top:4px}
+.sporgrupper .spor{margin-bottom:16px}
+.begr-tittel{font-weight:600}
+.begr .hjelp{margin-top:-4px}
+.ved-knapp{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--ink-3)}
+.fare{padding:12px 14px;background:var(--danger-bg);border-left:4px solid var(--danger);border-radius:var(--r-innfelt);color:var(--ink)}
+.virkning-tekst{color:var(--ink-2)}
+.mottaker{font-size:14px}
+.ark .brevhode{grid-template-columns:1fr 1fr;gap:8px 24px}
+.ark .brevhode div{display:flex;flex-direction:column}
+#brev .ark{font-family:var(--font-brev-bh);font-size:14.67px;line-height:1.6}
+.ark.brev-te{font-family:var(--font-brev);font-size:16px;line-height:1.6}
+.ark .prototypetekst{font-family:var(--font-sans)}
 
 [hidden]{display:none !important}
 .skall .fs{display:none}
@@ -312,12 +333,15 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
   <aside class="panel" aria-label="Saken">
     <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
     <div class="sak"><p class="id num">E-014</p><h2><span class="fs f-endring">Endret fasadeplate etter pålegg på byggemøte</span><span class="fs f-grunn">Fjell høyere enn antatt i byggegropen</span></h2></div>
-    <nav aria-labelledby="spor-etikett">
-      <p class="etikett" id="spor-etikett">Krav og svar</p>
-      <ul class="spor">
-        <li><a href="#handlinger" aria-current="page"><span class="navn"><span class="fs f-endring">Irregulær endring</span><span class="fs f-grunn">Uforutsette forhold ved grunnen</span></span><span class="sist" id="sist-forhold">Svar ikke registrert · brev 1 fra TE</span></a></li>
-        <li><a href="#henvisning"><span class="navn">Vederlagsjustering</span><span class="sist">Siste: brev 2 fra TE</span></a></li>
-        <li><a href="#henvisning"><span class="navn">Fristforlengelse</span><span class="sist">Siste: brev 3 fra TE</span></a></li>
+    <nav aria-label="Sporene i saken" class="sporgrupper">
+      <p class="etikett" id="spor-etikett">Kontraktsforhold</p>
+      <ul class="spor" aria-labelledby="spor-etikett">
+        <li><a href="#handlinger" aria-current="page"><span class="navn"><span class="fs f-endring">Irregulær endring</span><span class="fs f-grunn">Uforutsette forhold ved grunnen</span></span></a></li>
+      </ul>
+      <p class="etikett" id="krav-etikett">Krav</p>
+      <ul class="spor" aria-labelledby="krav-etikett">
+        <li><a href="#henvisning"><span class="navn">Vederlagsjustering</span></a></li>
+        <li><a href="#henvisning"><span class="navn">Fristforlengelse</span></a></li>
       </ul>
     </nav>
   </aside>
@@ -325,9 +349,9 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
   <div class="flate">
     <div class="topplinje">
       <div class="verktoyrad">
-        <p id="rolle">Du er byggherre (BH)</p>
+        <p class="sti">Varden › K201 › <span class="num">E-014</span></p>
         <span class="hoyre">
-          <span>Prototype v1 · BF-08</span>
+          <span class="demomerke" id="rolle">Prototype v3 · du ser saken som byggherren</span>
           <span class="segment" role="group" aria-label="Forholdet i eksempelet">
             <button type="button" data-sett-f="endring" aria-pressed="true">Irregulær endring</button>
             <button type="button" data-sett-f="grunn" aria-pressed="false">Uforutsette forhold ved grunnen</button>
@@ -359,7 +383,6 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
             </div>
             <div class="notis kun-ny" data-spor="U-13 · D-12" hidden>
               <p><b>Svaret erstatter byggherrens svar i brev 4 av 8. oktober 2026.</b> Brev 4 står som det ble sendt. Det forrige svaret er fylt ut, og du endrer det du vil.</p>
-              <p>Var det forrige svaret en endringsordre, avgjør ikke løsningen om det nye svaret er virksomt mot den.</p>
             </div>
             <div class="notis" data-spor="U-8">
               <p>Har du alt svart på påberopelsen utenfor løsningen, i et brev, en e-post eller et møtereferat?</p>
@@ -373,14 +396,14 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
                 <p>TE oppgir at pålegget ble mottatt 2. september 2026 (brev 1).</p>
                 <p>Påberopelsen ble sendt 30. september 2026.</p>
                 <p><b><span class="num">28</span> kalenderdager fra datoen TE oppgir til påberopelsen.</b></p>
-                <p class="dempet">Om varselet kom i tide, avgjør partene.</p>
               </div>
               <fieldset class="ren" data-spor="D-4"><legend class="spm">Gjør du gjeldende at varselet kom for sent?</legend>
                 <div class="valg"><label><input type="radio" name="s-v1" value="nei" checked> Nei</label><label><input type="radio" name="s-v1" value="ja"> Ja, varselet kom for sent</label></div>
               </fieldset>
               <div class="begr">
-                <div class="begr-hode"><b><label for="s-b1">Begrunnelse</label></b><span class="krav" id="s-krav1">Valgfri</span></div>
-                <textarea id="s-b1" placeholder="Kommer i brevet under punkt 1."></textarea>
+                <label for="s-b1" class="begr-tittel" id="s-l1">Begrunnelse (valgfritt)</label>
+                <span class="hjelp" id="s-krav1">Står i brevet under punkt 1.</span>
+                <textarea id="s-b1" aria-describedby="s-krav1"></textarea>
               </div>
             </section>
 
@@ -398,7 +421,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
                   <label><input type="radio" name="s-v2g" value="ja" checked> Byggherren har risikoen</label>
                   <label><input type="radio" name="s-v2g" value="nei"> Byggherren har ikke risikoen</label>
                 </div>
-                <p class="hjelp" id="s-frafall-hjelp" style="margin-top:8px" hidden>Frafall etter punkt 32.3 første ledd c kan ikke kombineres med at varselet kom for sent.</p>
+                <p class="hjelp" id="s-frafall-hjelp" style="margin-top:8px" hidden>Du kan ikke frafalle pålegget og samtidig gjøre gjeldende at varselet kom for sent (punkt 32.3 første ledd c).</p>
               </fieldset>
               <div class="eo" id="s-eo" data-spor="U-5 · D-3">
                 <span class="merke">Svaret er en endringsordre</span>
@@ -407,8 +430,9 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
                 <p class="hjelp">Setningen står i brevet også når begrunnelsen har vilkår eller forbehold.</p>
               </div>
               <div class="begr" data-spor="U-6 · D-7">
-                <div class="begr-hode"><b><label for="s-b2">Begrunnelse</label></b><span class="krav" id="s-krav2">Valgfri</span></div>
-                <textarea id="s-b2" placeholder="Kommer i brevet under punktet om forholdet."></textarea>
+                <label for="s-b2" class="begr-tittel" id="s-l2">Begrunnelse (valgfritt)</label>
+                <span class="hjelp" id="s-krav2">Står i brevet under punktet om forholdet.</span>
+                <textarea id="s-b2" aria-describedby="s-krav2"></textarea>
               </div>
             </section>
 
@@ -416,8 +440,9 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
             <section class="punkt" aria-labelledby="sp3">
               <div class="punkt-hode"><span class="nr" aria-hidden="true"><span class="kun-endring">3</span><span class="fs f-grunn">2</span></span><h2 id="sp3">Forbehold</h2></div>
               <div class="begr" data-spor="D-8">
-                <div class="begr-hode"><b><label for="s-fb">Forbehold for hele svaret</label></b><span class="krav">Valgfritt. Står sist i brevet, tolkes ikke og erstatter ikke begrunnelsen i et punkt</span></div>
-                <textarea id="s-fb" placeholder="Tas med i brevet bare når du skriver noe."></textarea>
+                <label for="s-fb" class="begr-tittel">Forbehold for hele svaret (valgfritt)</label>
+                <span class="hjelp" id="s-fbh">Står sist i brevet. Det erstatter ikke begrunnelsen i et punkt.</span>
+                <textarea id="s-fb" aria-describedby="s-fbh"></textarea>
               </div>
             </section>
             <section class="punkt" aria-labelledby="spv">
@@ -436,6 +461,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
                 <ul class="virkninger" id="s-virkninger"></ul>
               </div>
               <div class="blokk">
+                <p class="ved-knapp"><span class="utkastmerke">Utkast</span> Ikke sendt</p>
                 <a class="knapp" href="#brev">Se brevet før sending</a>
                 <p class="godkj" data-spor="D-14">Svaret går til godkjenning hos Kari Nordmann, som har fullmakt, før det sendes til TE. Lagret kl. 13.40.</p>
               </div>
@@ -448,11 +474,12 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
       <section class="tilstand" id="brev" aria-label="Brevet før sending">
         <div class="kolonner">
           <article class="ark" aria-labelledby="b-tittel">
+            <p class="mottaker">Til totalentreprenøren</p>
             <dl class="brevhode">
-              <dt>Til</dt><dd>Totalentreprenøren</dd>
-              <dt>Vår ref.</dt><dd>K201-KOE-014-<span class="brevnr-kort">04</span></dd>
-              <dt>Deres ref.</dt><dd>K201-KOE-014-01</dd>
-              <dt>Dato</dt><dd>Datoen brevet sendes</dd>
+              <div><dt>Sak</dt><dd>E-014</dd></div>
+              <div><dt>Deres ref.</dt><dd>K201-KOE-014-01</dd></div>
+              <div><dt>Vår ref.</dt><dd>K201-KOE-014-<span class="brevnr-kort">04</span></dd></div>
+              <div><dt>Dato</dt><dd>Datoen brevet sendes</dd></div>
             </dl>
             <h1 id="b-tittel">Svar på påberopelsen av <span class="fs f-endring">irregulær endring</span><span class="fs f-grunn">uforutsette forhold ved grunnen</span></h1>
             <div id="b-tekst"></div>
@@ -463,6 +490,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
               <div class="kort-hode"><h2>Når du sender</h2></div>
               <div class="blokk"><ul class="virkninger" id="b-virkninger"></ul></div>
               <div class="blokk">
+                <p class="ved-knapp"><span class="utkastmerke">Utkast</span> Ikke sendt</p>
                 <button class="knapp" type="button">Send til godkjenning</button>
                 <p class="godkj">Kari Nordmann godkjenner, og svaret sendes til TE med det samme.</p>
                 <a class="lenke" href="#svar">Tilbake til skjemaet</a>
@@ -485,7 +513,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
               <a class="lenke" href="#svar">Tilbake til svaret</a>
             </div>
             <div class="notis" data-spor="U-8">
-              <p>Du bekrefter i et nytt brev svaret du alt har gitt, og velger standpunktet som i et svar. Brevet får datoen det sendes. Datoen du oppgir for det tidligere svaret lagres for seg, og ingen kontraktsfrist regnes fra bekreftelsen.</p>
+              <p>Du bekrefter svaret du alt har gitt, i et nytt brev, og velger standpunktet som i et svar.</p>
             </div>
             <section class="punkt" aria-labelledby="kp1">
               <div class="punkt-hode"><h2 id="kp1">Det tidligere svaret</h2></div>
@@ -496,9 +524,8 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
               <div id="k-annet" style="display:flex;flex-direction:column;gap:12px">
                 <fieldset class="ren"><legend class="tittel" style="font-weight:500">Dokumenttypen</legend>
                   <div class="valg"><label><input type="radio" name="k-type" value="brev" checked> Brev</label><label><input type="radio" name="k-type" value="e-post"> E-post</label><label><input type="radio" name="k-type" value="annet dokument"> Annet dokument</label></div>
-                  <p class="hjelp" style="margin-top:6px">Valget sier ikke noe om formkravet i punkt 5.</p>
                 </fieldset>
-                <div class="felt"><label for="k-dato">Datoen for svaret</label><input id="k-dato" type="date" value="2026-10-05"></div>
+                <div class="felt"><label for="k-dato">Datoen for svaret</label><span class="hjelp" id="k-datoh">Datoen du ga svaret. Bekreftelsen får sin egen dato når den sendes.</span><input id="k-dato" type="date" value="2026-10-05" aria-describedby="k-datoh"></div>
                 <div class="felt"><label for="k-id">Kort identifikasjon</label><input id="k-id" type="text" value="Brev fra prosjektlederen om fasadeplatene"></div>
               </div>
             </section>
@@ -522,11 +549,10 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
               </fieldset>
               <fieldset class="ren" id="k-eo-spm" data-spor="D-9"><legend class="spm">Var svaret av 5. oktober en endringsordre etter punkt 31.3?</legend>
                 <div class="valg"><label><input type="radio" name="k-eo" value="ja"> Ja, det var en endringsordre</label><label><input type="radio" name="k-eo" value="nei"> Nei, ikke en endringsordre</label></div>
-                <p class="hjelp" style="margin-top:6px">Opplysningen er din. Løsningen avgjør ikke om brevet oppfylte kravene til en endringsordre.</p>
               </fieldset>
               <div class="avvist" id="k-avvist" hidden>
                 <p><b>Bekreftelsen kan ikke sendes.</b> Var svaret en endringsordre, registrerer du endringsordren som ditt svar på påberopelsen, og den går gjennom fullmakten som en godkjenning.</p>
-                <button class="lenke liten" type="button" style="align-self:flex-start;padding:0">Registrer endringsordren</button>
+                <button class="knapp" type="button" style="width:auto;align-self:flex-start">Registrer endringsordren</button>
               </div>
               <div class="eo" id="k-ny-eo" hidden>
                 <span class="merke">Du utsteder en endringsordre nå</span>
@@ -540,7 +566,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
               <div class="kort-hode"><h2>Innledningen i brevet</h2><p>Følger alternativ A i S-1, som ikke er avgjort</p></div>
               <div class="blokk"><p id="k-innledning"></p></div>
               <div class="blokk"><ul class="virkninger" id="k-virkninger"></ul></div>
-              <div class="blokk"><button class="knapp" type="button" id="k-knapp">Se brevet før sending</button></div>
+              <div class="blokk" id="k-sendeblokk"><p class="ved-knapp"><span class="utkastmerke">Utkast</span> Ikke sendt</p><button class="knapp" type="button" id="k-knapp">Se brevet før sending</button></div>
             </section>
           </aside>
         </div>
@@ -561,7 +587,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
               <div>
                 <p><b>Påberopelsen av <span class="fs f-endring">irregulær endring</span><span class="fs f-grunn">uforutsette forhold ved grunnen</span> i brev 4 er ikke besvart.</b></p>
                 <fieldset class="ren" data-spor="U-9 · D-10"><legend class="spm">Har du allerede svart utenfor løsningen på påberopelsen i brev 4 av 20. oktober 2026?</legend>
-                  <p class="hjelp" style="margin:-4px 0 10px">Brev 4 er en ny versjon av påberopelsen i brev 1. Et svar på brev 1 er ikke et svar på brev 4. Har du bare svart på brev 1, svarer du nei, og brevet får forbeholdet. Du kan nevne det tidligere svaret under «Forbehold».</p>
+                  <p class="hjelp" style="margin:-4px 0 10px">Brev 4 er en ny versjon av påberopelsen i brev 1. I løsningen er et svar på brev 1 ikke et svar på brev 4. Har du bare svart på brev 1, svarer du nei, og brevet får forbeholdet. Du kan nevne det tidligere svaret under «Forbehold».</p>
                   <div class="valg"><label><input type="radio" name="h-svart" value="nei"> Nei, ikke på brev 4</label><label><input type="radio" name="h-svart" value="ja"> Ja, på brev 4</label></div>
                 </fieldset>
                 <div id="h-dok" hidden style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
@@ -577,6 +603,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
                 <div class="valg"><label><input type="radio" name="h-v" value="enig"> Enig</label><label><input type="radio" name="h-v" value="avslag" checked> Avslår</label></div>
               </fieldset>
               <p class="hjelp">Avslår du, står punktet først, og punktene om vederlaget gjelder subsidiært.</p>
+              <div class="notis" id="h-bundet" data-spor="D-15" style="margin:0" hidden><p>Du har vist til byggherrens e-post av 23. oktober 2026. Gir du et nytt svar her, kan byggherren være bundet av det tidligere svaret, og brevet sier at du viste til e-posten (S-3).</p></div>
               <button class="lenke liten" type="button" id="h-fjern" style="align-self:flex-start">Ta ut svaret på forholdet</button>
             </section>
             <section class="punkt" aria-labelledby="hp1">
@@ -616,29 +643,37 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
       </section>
 
       <!-- ============ #godta ============ -->
-      <section class="tilstand" id="godta" aria-label="Aksepten av avslaget">
+      <section class="tilstand" id="godta" aria-label="Brevkontrollen for aksepten">
         <div class="kolonner">
-          <form class="utkast" aria-labelledby="g-tittel" novalidate onsubmit="return false">
-            <div class="utkast-hode">
-              <div class="linje"><span class="utkastmerke">Utkast · ikke sendt</span><h1 id="g-tittel">Brev 5 · Godtar svaret på påberopelsen</h1></div>
-              <p>Til byggherren (BH)</p>
-            </div>
-            <div class="svarpaa"><span>Godtar byggherrens svar i brev 4 · 8. okt 2026</span><a class="lenke" href="#handlinger">Tilbake til forholdet</a></div>
-            <section class="punkt" aria-labelledby="gp1">
-              <div class="punkt-hode"><h2 id="gp1">Svaret du godtar</h2></div>
-              <div class="datoboks">
-                <p class="kun-endring">1. Byggherren gjør gjeldende at varselet etter punkt 32.2 kom for sent.</p>
-                <p><span class="kun-endring">2. Subsidiært: byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).</span><span class="fs f-grunn">1. Byggherren har ikke risikoen for forholdet (punkt 23.1).</span></p>
-                <p class="dempet">Med begrunnelsen i hvert punkt. Les hele brevet før du godtar.</p>
+          <article class="ark brev-te" aria-labelledby="g-tittel">
+            <p class="mottaker">Til byggherren</p>
+            <dl class="brevhode">
+              <div><dt>Sak</dt><dd>E-014</dd></div>
+              <div><dt>Deres ref.</dt><dd>K201-KOE-014-04</dd></div>
+              <div><dt>Vår ref.</dt><dd>K201-KOE-014-05</dd></div>
+              <div><dt>Dato</dt><dd>Datoen brevet sendes</dd></div>
+            </dl>
+            <h1 id="g-tittel">Aksept av svaret på påberopelsen av <span class="fs f-endring">irregulær endring</span><span class="fs f-grunn">uforutsette forhold ved grunnen</span></h1>
+            <p>Totalentreprenøren godtar byggherrens svar på påberopelsen av <span class="fs f-endring">irregulær endring</span><span class="fs f-grunn">uforutsette forhold ved grunnen</span> i brev K201-KOE-014-04 av 8. oktober 2026, og standpunktet til forholdet.</p>
+            <p class="prototypetekst">Prototypetekst. Ordene «svar på påberopelsen» og «standpunkt til forholdet» er fra LV-U41.</p>
+          </article>
+          <aside class="stoette" aria-label="Når du sender">
+            <section class="kort">
+              <div class="kort-hode"><h2>Når du sender</h2></div>
+              <div class="blokk">
+                <div class="fare" data-spor="U-12 · D-13">
+                  <p><b>Saken avsluttes.</b> Løsningen registrerer at dere er enige om byggherrens standpunkt<span class="kun-endring">, også at varselet etter punkt 32.2 kom for sent</span>. Kravene om vederlag (brev 2) og frist (brev 3) avsluttes med saken. Du kan fortsatt sende innlegg og legge til dokumentasjon.</p>
+                </div>
+                <p class="virkning-tekst">Aksepten gjelder hele svaret slik det står i brev 4, også begrunnelsen og forbeholdet. Løsningen tolker ikke begrunnelsen.</p>
+                <p class="virkning-tekst">Etterpå står saken som «Avsluttet: TE har godtatt svaret på påberopelsen».</p>
               </div>
-              <div class="avvist" data-spor="U-12 · D-13">
-                <p><b>Saken avsluttes.</b> Godtar du svaret, er dere enige om byggherrens standpunkt<span class="kun-endring">, også at varselet etter punkt 32.2 kom for sent</span>. Saken avsluttes med kravene om vederlag (brev 2) og frist (brev 3), og du kan ikke sende en ny versjon av påberopelsen. Innlegg og dokumentasjon kan fortsatt legges til.</p>
-                <p>Aksepten gjelder hele svaret slik det står i brev 4, også begrunnelsen og forbeholdet. Løsningen tolker ikke begrunnelsen.</p>
+              <div class="blokk">
+                <p class="ved-knapp"><span class="utkastmerke">Utkast</span> Ikke sendt</p>
+                <button class="knapp" type="button">Send aksepten</button>
+                <a class="lenke" href="#handlinger">Tilbake til forholdet</a>
               </div>
-              <p class="hjelp">Etter sending står saken som «Avsluttet: totalentreprenøren har godtatt svaret på påberopelsen».</p>
             </section>
-            <div class="skjemafot" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><button class="knapp" type="button" style="width:auto">Send til byggherren</button><a class="lenke" href="#handlinger">Avbryt</a></div>
-          </form>
+          </aside>
         </div>
       </section>
     </main>
@@ -668,14 +703,14 @@ function virkninger(s) {
   if (s.ny) ut.push(['', 'Svaret erstatter byggherrens svar i brev 4. Brev 4 står som det ble sendt.']);
   if (s.eo) {
     ut.push(['hoved', 'Svaret er en endringsordre etter punkt 32.3 første ledd a.']);
-    ut.push(['', 'Partene blir enige om forholdet uten at TE må godta svaret, fordi svaret er enig i påberopelsen.']);
+    ut.push(['', 'Løsningen registrerer enighet om forholdet uten at TE må godta svaret.']);
     ut.push(['', 'Svarene du gir på vederlag og frist, får ikke forbeholdet om forholdet.']);
   } else if (f() === 'grunn' && s.v === 'enig') {
-    ut.push(['hoved', 'Partene blir enige om forholdet uten at TE må godta svaret.']);
+    ut.push(['hoved', 'Løsningen registrerer enighet om forholdet uten at TE må godta svaret.']);
     ut.push(['', 'Svarene du gir på vederlag og frist, får ikke forbeholdet om forholdet.']);
   } else if (s.v === 'frafall') {
     ut.push(['hoved', 'Pålegget er frafalt, og forholdet er avklart. TE kan ikke godta frafallet.']);
-    ut.push(['', 'Endringsordren for arbeid som alt er utført, utsteder du i en egen sak.']);
+    ut.push(['', 'Endringsordren for arbeid som alt er utført, utsteder du i en EO-sak som omfatter denne saken. Kravene for det utførte arbeidet behandles her.']);
     ut.push(['', 'Svarene du gir på vederlag og frist, får ikke forbeholdet om forholdet.']);
   } else {
     if (s.forsent) ut.push(['hoved', 'Du gjør gjeldende at varselet kom for sent. Løsningen behandler det som et avslag etter punkt 32.3 tredje ledd' + (s.v === 'enig' ? ', også når du er enig subsidiært. Svaret er ikke en endringsordre.' : '.')]);
@@ -683,7 +718,7 @@ function virkninger(s) {
     ut.push(['', 'Svarene på vederlag og frist gjelder subsidiært.']);
     ut.push(['', 'TE kan godta svaret, og da avsluttes saken med kravene om vederlag og frist. TE kan også sende en ny versjon eller trekke påberopelsen.']);
   }
-  ut.push(['dempet', 'Løsningen registrerer enigheten ut fra valgene og tolker ikke begrunnelsen.']);
+  ut.push(['dempet', 'Løsningen registrerer enigheten ut fra valgene i skjemaet.']);
   return ut;
 }
 function tegnVirkninger(ul, liste) { ul.innerHTML = liste.map(([k, t]) => `<li class="${k}">${t}</li>`).join(''); }
@@ -692,11 +727,13 @@ function tegnSvar() {
   const s = svaret();
   $('#s-lag').hidden = !s.forsent;
   $$('.enig-tekst', $('#svar')).forEach(e => e.textContent = s.forsent ? 'Enig i at pålegget innebærer en endring' : 'Enig, endringsordre');
-  const ff = $('#s-frafall'); ff.disabled = s.forsent; $('#s-frafall-l').setAttribute('aria-disabled', String(s.forsent)); $('#s-frafall-hjelp').hidden = !s.forsent || f() !== 'endring';
+  $('#s-frafall-l').hidden = s.forsent; $('#s-frafall-hjelp').hidden = !s.forsent || f() !== 'endring';
   $('#s-eo').hidden = !s.eo;
-  $('#s-krav1').textContent = s.forsent ? 'Valgfri her. Begrunnelsen for at varselet kom for sent kan stå her eller i punkt 2' : 'Valgfri';
+  $('#s-krav1').textContent = s.forsent ? 'Står i brevet under punkt 1. Begrunnelsen for at varselet kom for sent kan stå her eller i punkt 2.' : 'Står i brevet under punkt 1.';
   const kreves = f() === 'endring' && (s.forsent || s.v === 'avslag');
-  $('#s-krav2').textContent = kreves ? (s.forsent ? 'Kreves fordi du gjør gjeldende at varselet kom for sent. Den kan vise til punkt 1' : 'Kreves fordi du avslår kravet på endringsordre (punkt 32.3 første ledd b)') : 'Valgfri';
+  $('#s-l2').textContent = kreves ? 'Begrunnelse' : 'Begrunnelse (valgfritt)';
+  $('#s-b2').setAttribute('aria-required', String(kreves));
+  $('#s-krav2').textContent = kreves ? (s.forsent ? 'Kreves fordi du gjør gjeldende at varselet kom for sent. Den kan vise til punkt 1.' : 'Kreves fordi du avslår kravet på endringsordre (punkt 32.3 første ledd b).') : 'Står i brevet under punktet om forholdet.';
   const mangler = kreves && !$('#s-b2').value.trim() && !(s.forsent && $('#s-b1').value.trim());
   const valgtekst = f() === 'endring' ? { enig: s.forsent ? 'Enig subsidiært' : 'Enig, endringsordre', avslag: s.forsent ? 'Avslår subsidiært' : 'Avslår', frafall: 'Frafaller pålegget' }[s.v] : (s.v === 'enig' ? 'Har risikoen' : 'Har ikke risikoen');
   const punkter = [];
@@ -750,7 +787,7 @@ function tegnBekreft() {
   const eo = sporEo ? verdi('k-eo') : null;
   $('#k-avvist').hidden = eo !== 'ja';
   $('#k-ny-eo').hidden = eo !== 'nei';
-  $('#k-knapp').disabled = eo === 'ja';
+  $('#k-sendeblokk').hidden = eo === 'ja';
   const nyEo = eo === 'nei';
   $('#k-tittel-tekst').textContent = nyEo ? `Svar på påberopelsen av ${PAABEROPELSEN()}` : 'Bekreftelse av svar gitt utenfor løsningen';
   const type = verdi('k-type'), dato = new Date($('#k-dato').value || '2026-10-05').toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -760,10 +797,9 @@ function tegnBekreft() {
   const liste = [];
   if (eo === 'ja') liste.push(['hoved', 'Bekreftelsen avvises. Registrer endringsordren som svar i stedet.']);
   else if (nyEo) liste.push(['hoved', 'Svaret er en endringsordre fra nå, med datoen brevet sendes.']);
-  else if (enig && !forsent) liste.push(['hoved', 'Partene blir enige om forholdet, ut fra standpunktet du bekrefter.']);
+  else if (enig && !forsent) liste.push(['hoved', 'Løsningen registrerer enighet om forholdet, ut fra standpunktet du bekrefter.']);
   else liste.push(['hoved', 'Svarene på vederlag og frist gjelder subsidiært, ut fra standpunktet du bekrefter.']);
   liste.push(['', 'Bekreftelsen går gjennom fullmakten og brevkontrollen som et svar.']);
-  liste.push(['dempet', 'Løsningen tolker ikke et forbehold i det tidligere svaret.']);
   tegnVirkninger($('#k-virkninger'), liste);
 }
 
@@ -778,6 +814,7 @@ function tegnHenvisning() {
   const avslag = S.samme && verdi('h-v') === 'avslag';
   $('#h-nr').textContent = S.samme ? '2' : '1';
   $('#h-lag').hidden = !avslag;
+  $('#h-bundet').hidden = !(S.samme && svart === 'ja');
   const p = PAABEROPELSEN();
   let fast = '';
   if (!S.samme && svart === 'nei') fast = `Byggherren har ennå ikke svart på totalentreprenørens påberopelse av ${p} i brev K201-KOE-014-04 av 20. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.`;
@@ -790,39 +827,50 @@ function tegnHenvisning() {
 
 /* Handlingspanelet */
 const PIL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>';
-const rad = (h, b, href = '#handlinger') => `<li><a class="rad" href="${href}"><span class="h">${h} ${PIL}</span><span class="b">${b}</span></a></li>`;
+const rad = (h, b, href = '#handlinger') => '<li><a class="rad" href="' + href + '"><span class="h">' + h + ' ' + PIL + '</span><span class="b">' + b + '</span></a></li>';
 function tegnHandlinger() {
   const e = f() === 'endring';
-  let primaer = '', venter = '', ingen = '', andre = [];
-  const innlegg = rad('Send innlegg', 'Fritekst med tittel og henvisning til et brev.');
+  let primaer = '', linje = '', ingen = '';
+  const andre = [];
   if (S.part === 'BH') {
-    if (S.svar === 'ubesvart') { primaer = '<a class="knapp" href="#svar">Svar</a>'; venter = e ? 'Du kan være enig og utstede endringsordre, avslå kravet eller frafalle pålegget (punkt 32.3).' : 'Du kan svare at byggherren har eller ikke har risikoen for forholdet (punkt 23.1).'; }
-    if (S.svar === 'avslag') andre.push(rad('Send nytt svar', 'Erstatter svaret i brev 4. Brev 4 står som det ble sendt.', '#svar'));
-    if (S.svar === 'enig') { ingen = '<b>Partene er enige om forholdet.</b> Det som gjenstår, er kravene om vederlag og frist.'; andre.push(rad('Send nytt svar', e ? 'Erstatter svaret i brev 4. Løsningen avgjør ikke om det nye svaret er virksomt mot endringsordren.' : 'Erstatter svaret i brev 4. Brev 4 står som det ble sendt.', '#svar')); }
-    if (S.svar === 'frafall') { primaer = '<button class="knapp" type="button">Utsted endringsordre for utført arbeid</button>'; venter = 'Endringsordren lages i en egen sak og viser til denne.'; andre.push(rad('Send nytt svar', 'Frafallet vises sammen med det nye svaret.', '#svar')); }
-  } else {
-    if (S.svar === 'ubesvart') { ingen = '<b>Påberopelsen venter på byggherrens svar.</b>'; andre.push(rad('Send ny versjon av påberopelsen', 'Samme forhold, for eksempel med en utfylt beskrivelse. Erstatter påberopelsen i brev 1.')); }
-    if (S.svar === 'avslag') {
-      venter = 'Du kan godta avslaget, sende en ny versjon av påberopelsen eller trekke påberopelsen. Gjør du ingenting, står saken uendret.';
-      andre.push(`<li><a class="rad" href="#godta"><span class="h">Godta avslaget ${PIL}</span><span class="b">Dere blir enige om byggherrens standpunkt${e ? ', også at varselet etter punkt 32.2 kom for sent' : ''}. Saken avsluttes med kravene om vederlag og frist.</span></a></li>`);
-      andre.push(rad('Send ny versjon av påberopelsen', 'Samme forhold, for eksempel med en utfylt beskrivelse. Byggherren svarer på nytt.'));
+    if (S.svar === 'ubesvart') {
+      primaer = '<a class="knapp" href="#svar">Svar</a>';
+      linje = e ? 'Du kan være enig, avslå kravet på endringsordre eller frafalle pålegget (punkt 32.3).' : 'Du kan svare at byggherren har eller ikke har risikoen for forholdet (punkt 23.1).';
     }
-    if (S.svar === 'enig') ingen = '<b>Partene er enige om forholdet.</b> Det som gjenstår, er kravene om vederlag og frist.';
-    if (S.svar === 'frafall') ingen = '<b>Frafallet kan ikke godtas.</b> Det som gjenstår, er endringsordren for det utførte arbeidet og kravene.';
-    if (S.svar === 'ubesvart' || S.svar === 'avslag') andre.push(rad('Trekk påberopelsen', 'Du gir avkall på forholdet og kravene om vederlag og frist, også det byggherren har godkjent.'));
+    if (S.svar === 'avslag') andre.push(rad('Send nytt svar', 'Erstatter svaret i brev 4. Brev 4 står som det ble sendt.', '#svar'));
+    if (S.svar === 'enig') {
+      ingen = '<b>Enighet om forholdet er registrert.</b> Kravene om vederlag og frist står for seg.';
+      andre.push(rad('Send nytt svar', 'Erstatter svaret i brev 4. Brev 4 står som det ble sendt' + (e ? ', også endringsordren i det.' : '.'), '#svar'));
+    }
+    if (S.svar === 'frafall') {
+      primaer = '<button class="knapp" type="button">Utsted endringsordre for utført arbeid</button>';
+      linje = 'Endringsordren utstedes i en EO-sak som omfatter denne saken, og saken lukkes når den sendes.';
+      andre.push(rad('Send nytt svar', 'Frafallet vises sammen med det nye svaret.', '#svar'));
+    }
+  } else {
+    if (S.svar === 'ubesvart') {
+      ingen = '<b>Svar ikke registrert.</b>';
+      andre.push(rad('Oppdater påberopelse', 'Samme forhold, for eksempel med en utfylt beskrivelse. Erstatter påberopelsen i brev 1.'));
+    }
+    if (S.svar === 'avslag') {
+      primaer = '<a class="knapp" href="#handlinger">Oppdater påberopelse</a>';
+      linje = 'Samme forhold, for eksempel med en utfylt beskrivelse. Byggherren svarer på nytt, og svaret i brev 4 kan da ikke godtas.';
+      andre.push('<li><a class="rad" href="#godta"><span class="h">Godta svaret ' + PIL + '</span><span class="b">Enighet om byggherrens standpunkt' + (e ? ', også at varselet etter punkt 32.2 kom for sent' : '') + ' registreres. Saken avsluttes med kravene om vederlag og frist.</span></a></li>');
+    }
+    if (S.svar === 'enig') ingen = '<b>Enighet om forholdet er registrert.</b> Kravene om vederlag og frist står for seg.';
+    if (S.svar === 'frafall') ingen = '<b>Frafallet kan ikke godtas.</b> Kravene om vederlag og frist for det utførte arbeidet behandles i denne saken.';
   }
-  andre.push(innlegg);
+  andre.push(rad('Send innlegg', 'Fritekst med tittel og henvisning til et brev.'));
+  if (S.part === 'TE' && (S.svar === 'ubesvart' || S.svar === 'avslag')) andre.push(rad('Trekk påberopelsen', 'Trekker også kravene om vederlag og frist, også det byggherren har godkjent, og saken avsluttes.'));
   const html = [];
   if (primaer) html.push(primaer);
-  if (venter) html.push(`<p class="venter">${venter}</p>`);
-  if (ingen) html.push(`<p class="ingen-handling">${ingen}</p>`);
+  if (linje) html.push('<p class="venter">' + linje + '</p>');
+  if (ingen) html.push('<p class="ingen-handling">' + ingen + '</p>');
   if (primaer) html.push('<p class="andre-tittel">Andre handlinger</p>');
-  html.push(`<ul class="andre">${andre.join('')}</ul>`);
+  html.push('<ul class="andre">' + andre.join('') + '</ul>');
   $('#hk-innhold').innerHTML = html.join('');
   $$('[data-sett-part]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.settPart === S.part)));
   $$('[data-sett-svar]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.settSvar === S.svar)));
-  const iSaken = ['handlinger', 'godta'].includes(location.hash.slice(1));
-  $('#sist-forhold').textContent = !iSaken ? 'Svar ikke registrert · brev 1 fra TE' : { ubesvart: 'Svar ikke registrert · brev 1 fra TE', avslag: 'Siste: brev 4 fra BH', enig: 'Enige · brev 4 fra BH', frafall: 'Byggherren har frafalt pålegget' }[S.svar];
 }
 
 function tegn() {
@@ -840,7 +888,6 @@ document.addEventListener('click', e => {
   else if (b.dataset.settSvar) { S.svar = b.dataset.settSvar; tegn(); }
   else if (b.id === 'h-samme') { S.samme = true; tegn(); $('#h-forhold input:checked').focus(); }
   else if (b.id === 'h-fjern') { S.samme = false; tegn(); $('#h-samme').focus(); }
-  else if (b.id === 'k-knapp' && !b.disabled) location.hash = 'brev';
 });
 document.addEventListener('change', e => { if (e.target.id === 'spor-knapp') document.body.classList.toggle('vis-spor', e.target.checked); else tegn(); });
 document.addEventListener('input', () => tegn());
@@ -850,7 +897,7 @@ function lesAnker() {
   const a = TILSTANDER.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'svar';
   $$('.tilstand').forEach(t => t.classList.toggle('aktiv', t.id === a));
   const te = a === 'godta' || (a === 'handlinger' && S.part === 'TE');
-  $('#rolle').textContent = te ? 'Du er totalentreprenør (TE)' : 'Du er byggherre (BH)';
+  $('#rolle').textContent = 'Prototype v3 · du ser saken som ' + (te ? 'totalentreprenøren' : 'byggherren');
   tegn();
   window.scrollTo(0, 0);
 }

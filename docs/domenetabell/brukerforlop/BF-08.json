@@ -31,7 +31,7 @@
             "staar": "Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem"
           },
           {
-            "staar": "Frafall etter punkt 32.3 første ledd c kan ikke kombineres med at varselet kom for sent."
+            "staar": "Du kan ikke frafalle pålegget og samtidig gjøre gjeldende at varselet kom for sent"
           },
           {
             "velg": "Avslår kravet på endringsordre"
@@ -109,7 +109,7 @@
             "tilstand": "bekreft"
           },
           {
-            "staar": "ingen kontraktsfrist regnes fra bekreftelsen"
+            "staar": "Bekreftelsen får sin egen dato når den sendes."
           },
           {
             "staar": "Byggherren bekrefter sitt svar"
@@ -140,7 +140,7 @@
         "start": "henvisning",
         "handlinger": [
           {
-            "staar": "Et svar på brev 1 er ikke et svar på brev 4."
+            "staar": "I løsningen er et svar på brev 1 ikke et svar på brev 4."
           },
           {
             "velg": "Nei, ikke på brev 4"
@@ -173,7 +173,7 @@
         "start": "handlinger",
         "handlinger": [
           {
-            "staar": "Du kan godta avslaget, sende en ny versjon av påberopelsen eller trekke påberopelsen."
+            "staar": "Byggherren svarer på nytt, og svaret i brev 4 kan da ikke godtas."
           },
           {
             "trykk": "Byggherren"
@@ -185,13 +185,13 @@
             "trykk": "Enig"
           },
           {
-            "staar": "Løsningen avgjør ikke om det nye svaret er virksomt mot endringsordren."
+            "staar": "Brev 4 står som det ble sendt, også endringsordren i det."
           },
           {
             "trykk": "Frafalt"
           },
           {
-            "staar": "Endringsordren lages i en egen sak og viser til denne."
+            "staar": "Endringsordren utstedes i en EO-sak som omfatter denne saken"
           }
         ]
       },
@@ -203,7 +203,7 @@
         "start": "handlinger",
         "handlinger": [
           {
-            "klikk": "Godta avslaget",
+            "klikk": "Godta svaret",
             "tilstand": "godta"
           },
           {
@@ -257,7 +257,8 @@
     "OV-U69",
     "OV-U72",
     "VS-U46",
-    "GFK-U2"
+    "GFK-U2",
+    "HF-U27"
   ],
   "venter_paa": [
     "#1306",
@@ -272,6 +273,16 @@
       "dato": "2026-11-12",
       "forhold": "#1834",
       "hva": "Forløpet er registrert som planlagt, med bestillingen etter prototypen forholdssvar.html og spørsmålene S-1 og S-2."
+    },
+    {
+      "dato": "2026-11-12",
+      "forhold": "#1834",
+      "hva": "Prototypen versjon 2 etter systemfila: handlingskortet med «Oppdater påberopelse» og «Godta svaret», aksepten som brevkontroll, og uten setningene om hva løsningen ikke avgjør."
+    },
+    {
+      "dato": "2026-11-12",
+      "forhold": "#1834",
+      "hva": "Domeneforventningene rettet etter kontrollen mot vedtakene, D-15 og S-3 lagt til, og prototypen versjon 3."
     }
   ]
 }

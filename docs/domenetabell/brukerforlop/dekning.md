@@ -98,6 +98,7 @@ på kilden, men har ingen kontroller ennå.
 | [HF-U22](../../plans/vedtak.md#hf-u22) | — | — | BF-14 |
 | [HF-U23](../../plans/vedtak.md#hf-u23) | — | — | BF-10 |
 | [HF-U25](../../plans/vedtak.md#hf-u25) | — | — | BF-08 |
+| [HF-U27](../../plans/vedtak.md#hf-u27) | — | — | BF-08 |
 | [HF-U28](../../plans/vedtak.md#hf-u28) | — | — | BF-14 |
 | KA-01 | BF-01 start, BF-01 bh-har-mottatt-vederlagskravet, BF-04 start, BF-04 bh-har-mottatt-vederlagskravet | — | — |
 | [KA-U1](../../plans/vedtak.md#ka-u1) | BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret | BF-01V, BF-03, BF-06, BF-20 |
