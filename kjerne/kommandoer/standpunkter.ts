@@ -14,7 +14,7 @@ import {
   type Utledning,
 } from '../utledning/utled.ts';
 import type { Krav, Spor } from '../typer.ts';
-import { forholdsstandpunkter } from '../spor/forhold/frysing.ts';
+import { STANDPUNKTER_I_FORHOLDET } from '../spor/forhold/kommando.ts';
 
 type Data = Record<string, unknown>;
 
@@ -73,12 +73,9 @@ function fristensStandpunkter(
   return ut;
 }
 
-/** Standpunktene i hvert spor. Forholdet og fristen står her til de flyttes (#1745). */
+/** Standpunktene i hvert spor. Fristen står her til den flyttes (#1745). */
 const STANDPUNKTER: Record<Spor, Sporsstandpunkter> = {
-  // VS-U43 punkt 6 og 10: påberopelsen gjelder det registrerte varselet etter § 32.2, ellers
-  // det første grunnlagskravet, ikke versjonen svaret gjelder. Med et registrert varsel
-  // avviser forutsetningene svaret til #1600 er bygget.
-  forhold: (v, _krav, u, nyId) => forholdsstandpunkter(v, varseletForNyttSvar(u, '32.2'), nyId),
+  forhold: STANDPUNKTER_I_FORHOLDET,
   vederlag: STANDPUNKTER_I_VEDERLAGET,
   frist: fristensStandpunkter,
 };

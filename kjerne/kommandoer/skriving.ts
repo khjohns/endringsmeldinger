@@ -9,7 +9,8 @@
 import { SKRIVING_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { avvisning } from './avvisning.ts';
-import { formfeil, korrigertDato, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
+import { formfeil, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
+import { korrigertDato, SKRIVING_I_FORHOLDET } from '../spor/forhold/kommando.ts';
 import { frys } from '../frosset/frysing.ts';
 import { standpunkter } from './standpunkter.ts';
 import { lagBrevtekst, lagDeresRef } from '../frosset/brevtekst.ts';
@@ -248,9 +249,9 @@ export interface Skrivesteg {
   hele(utfall: Utfall, kontekst: Kontekst, journal: Journalrad[]): Utfall;
 }
 
-/** Skrivingen i hvert spor. Forholdet og fristen står her til de flyttes (#1745). */
+/** Skrivingen i hvert spor. Fristen står her til den flyttes (#1745). */
 const SKRIVING: Record<Spor, Sporsskriving> = {
-  forhold: { kravinnhold: (innhold) => innhold },
+  forhold: SKRIVING_I_FORHOLDET,
   vederlag: SKRIVING_I_VEDERLAGET,
   frist: { kravinnhold: (innhold) => innhold },
 };

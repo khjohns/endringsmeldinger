@@ -27,7 +27,6 @@ import {
   SPOR as SPORENE,
   VARSELSPOR,
   type Kravspor,
-  type OppgittDatofelt,
   type Opplysningsslag,
   type Spor,
   type Kravvarselhjemmel,
@@ -35,7 +34,7 @@ import {
   KORRESPONDANSETYPER,
   type Korrespondansetype,
 } from '../typer.ts';
-import { DATOEN_GJELDER, oppgittDato } from '../spor/forhold/format.ts';
+import { KRAVFORM_I_FORHOLDET, korrigertDato } from '../spor/forhold/kommando.ts';
 
 export interface Svarutkast {
   spor: Spor;
@@ -346,16 +345,6 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
   ),
 };
 
-/** Feltet og datoen i korrigeringen. Formen har nøyaktig ett av feltene. */
-export function korrigertDato(k: Extract<Kommando, { type: 'korrigering' }>): {
-  felt: OppgittDatofelt;
-  dato: string;
-} {
-  return k.paalegg_mottatt !== undefined
-    ? { felt: 'paalegg_mottatt', dato: k.paalegg_mottatt }
-    : { felt: 'klar_over_forholdet', dato: k.klar_over_forholdet! };
-}
-
 export type Innhold = Record<string, unknown>;
 
 /**
@@ -385,39 +374,21 @@ export const vedleggI = (k: Kommando): string[] => [
     : []),
 ];
 
-/**
- * VS-U26: en påberopelse fra appen har datoen kategorien har, som en dato.
- * Formatet binder feltet til kategorien; her kreves det.
- */
-function datofeil(innhold: Innhold): string[] {
-  const felt = oppgittDato(innhold.hovedkategori, innhold.underkategori);
-  if (felt === null) return [];
-  const dato = innhold[felt];
-  if (dato === undefined)
-    return [`$.innhold.${felt}: TE må oppgi datoen ${DATOEN_GJELDER[felt]} (VS-U26)`];
-  return erKalenderdato(dato)
-    ? []
-    : [`$.innhold.${felt}: ${JSON.stringify(dato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`];
-}
-
 /** Det som er sporets eget i formen på et krav (#1783). */
 export interface Kravform {
   /** Feilene i innholdet i kravet, med stien fra `$.innhold`. */
   feil(innhold: unknown): string[];
   /** Vedleggene innholdet i kravet viser til, utenom brevets. */
   vedleggIInnholdet(innhold: Innhold): string[];
+  /** Kravet kan ha vedlegg (`dokumentasjon`), som påberopelsen (VS-U38). */
+  vedleggVedKravet: boolean;
+  /** Kravet kan ha et varsel (`varsel`), som fristkravet (OV-U5). */
+  varselVedKravet: boolean;
 }
 
-/** Formen på kravet i hvert spor. Forholdet og fristen står her til de flyttes (#1745). */
+/** Formen på kravet i hvert spor. Fristen står her til den flyttes (#1745). */
 const KRAVFORM: Record<Spor, Kravform> = {
-  forhold: {
-    feil: (innhold) => {
-      const { properties, required, anyOf } = KRAVINNHOLD.forhold;
-      const feil = feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
-      return feil.length ? feil : datofeil(innhold as Innhold);
-    },
-    vedleggIInnholdet: () => [],
-  },
+  forhold: KRAVFORM_I_FORHOLDET,
   vederlag: KRAVFORM_I_VEDERLAGET,
   frist: {
     feil: (innhold) => {
@@ -425,6 +396,8 @@ const KRAVFORM: Record<Spor, Kravform> = {
       return feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
     },
     vedleggIInnholdet: () => [],
+    vedleggVedKravet: false,
+    varselVedKravet: true,
   },
 };
 
@@ -437,11 +410,12 @@ export function formfeil(kommando: unknown): string[] {
   const feil = feilI(kommando, SKJEMA[type as Kommando['type']]);
   if (type === 'krav' && !feil.length) {
     const k = kommando as { spor: Spor; innhold: unknown };
-    feil.push(...iSporet(KRAVFORM, k.spor).feil(k.innhold));
-    if (k.spor !== 'frist' && 'varsel' in k)
+    const form = iSporet(KRAVFORM, k.spor);
+    feil.push(...form.feil(k.innhold));
+    if (!form.varselVedKravet && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
     // VS-U38: vedleggene ved påberopelsen; et fristkrav har brevet med varselet i `varsel`.
-    if (k.spor !== 'forhold' && 'dokumentasjon' in k)
+    if (!form.vedleggVedKravet && 'dokumentasjon' in k)
       feil.push('$.dokumentasjon: bare påberopelsen har vedlegg ved kravet');
   }
   // OV-U5: varselet etter § 33.4 står i fristen, varselet etter § 34.1.2 i vederlaget.

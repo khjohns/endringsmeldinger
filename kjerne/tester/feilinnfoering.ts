@@ -294,8 +294,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        '            : `Byggherren har ikke svart på ${KRAVET[h.spor]}.`\n        );\n',
-        "            : `Byggherren har ikke svart på ${KRAVET[h.spor]}.`\n        );\n      if (s.gjeldendeSvar.utregning.resultat === 'avslaatt') return null;\n",
+        '            : `Byggherren har ikke svart på ${kravet(h.spor)}.`\n        );\n',
+        "            : `Byggherren har ikke svart på ${kravet(h.spor)}.`\n        );\n      if (s.gjeldendeSvar.utregning.resultat === 'avslaatt') return null;\n",
       ],
     ],
     mal: ['reglene leser bare det LESBART tillater (#308, #329) kommandoer/forutsetninger.ts'],
@@ -370,11 +370,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F23',
     feilklasse:
       'TE trekker forholdet når partene er enige ved sammenfall med varslingsplikt (KA-U13)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
-        "if (h.spor === 'forhold' && trekkAvPaaberopelsenErSperret(u))",
-        "if (h.spor === 'forhold' && trekkAvPaaberopelsenErSperret(u) && u.frafalt)",
+        'if (trekkAvPaaberopelsenErSperret(u))',
+        'if (trekkAvPaaberopelsenErSperret(u) && u.frafalt)',
       ],
     ],
     mal: ['F-MM-G10'],
@@ -886,7 +886,10 @@ const MUTASJONER: Mutasjon[] = [
         '      // VS-U1, VS-U14: et varsel, krav eller svar fra motparten.\n',
         "      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', 'Kravene er avgjort.');\n",
       ],
-      ["} from '../utledning/utled.ts';", "  kraveneErAvgjort,\n} from '../utledning/utled.ts';"],
+      [
+        "import { fristkravErFremmet, kanFaaInnsigelse, type Utledning } from '../utledning/utled.ts';",
+        "import { fristkravErFremmet, kanFaaInnsigelse, kraveneErAvgjort, type Utledning } from '../utledning/utled.ts';",
+      ],
     ],
     mal: ['godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter'],
   },
@@ -1081,7 +1084,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F115',
     feilklasse: 'et frafall krever ingen begrunnelse (KA-U32)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [["v.resultat === 'paalegg_frafalt'", 'false']],
     mal: ['frafall etter § 32.3 c'],
   },
@@ -1109,7 +1112,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F118',
     feilklasse: 'TEs varsel etter § 32.2 uten beskrivelse av pålegget godtas (GR-U15)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       ["k.spor === 'forhold' && gjelderVarslingsplikten(", 'false && gjelderVarslingsplikten('],
     ],
@@ -1869,7 +1872,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F225',
     feilklasse: 'en ny påberopelsesversjon med en annen hjemmel godtas (GR-U22, #569)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
         "  if (k.spor !== 'forhold' || !u.spor.forhold.gjeldendeKrav) return null;",
@@ -1882,7 +1885,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F226',
     feilklasse:
       'en ny påberopelsesversjon med en annen underkategori i samme hovedkategori godtas (GR-U22, #569)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [['    tekst(k.innhold.underkategori) !== forrige.underkategori\n', '    false\n']],
     mal: [
       'grunnforhold til medvirkning, i samme hovedkategori',
@@ -1958,7 +1961,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F248',
     feilklasse: 'en påberopelse fra appen uten datoen godtas (VS-U26, #664)',
-    fil: `${K}/kommandoer/kommando.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       ['  if (dato === undefined)\n    return [`', '  if (dato === undefined)\n    return []; [`'],
     ],
@@ -2346,8 +2349,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        "    return k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null;",
-        '    return null;',
+        "k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null,",
+        'null,',
       ],
     ],
     mal: ['en dato for varselet etter § 33.4 etter brevets dato avvises'],
@@ -3593,7 +3596,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F431',
     feilklasse:
       'varselet etter § 32.2 kan ikke registreres med samme dag som påberopelsen (VS-U38)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [['  if (dag > paaberopelsen)', '  if (dag >= paaberopelsen)']],
     mal: ['datoen kan ikke være senere enn påberopelsen'],
   },
@@ -3601,7 +3604,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F432',
     feilklasse:
       'varselet etter § 32.2 registreres der varslingsplikten ikke gjelder kategorien (VS-U39)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       ['if (!gjelderVarslingsplikten(u.spor.forhold.gjeldendeKrav, regler))', 'if (false)'],
     ],
@@ -3611,7 +3614,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F433',
     feilklasse:
       'byggherren tilbys innsigelse mot det registrerte varselet etter § 32.2, som ikke har brevtekst (S-4 i #807)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [["u.spor.forhold.varsler['32.2']?.id === gjelder", 'false']],
     mal: ['byggherren tilbys ikke innsigelse mot det registrerte varselet'],
   },
@@ -3626,7 +3629,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F435',
     feilklasse: 'et fristkrav godtar vedlegg utenfor varselet (VS-U38, OV-U5)',
     fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [["if (k.spor !== 'forhold' && 'dokumentasjon' in k)", 'if (false)']],
+    endringer: [["if (!form.vedleggVedKravet && 'dokumentasjon' in k)", 'if (false)']],
     mal: ['et vedlegg ved et fristkrav utenfor varselet avvises i formen'],
   },
   {
@@ -3753,7 +3756,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F449',
     feilklasse: 'påberopelsen etter § 32.2 gjelder versjonen svaret gjelder (VS-U43 punkt 6)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
         "forholdsstandpunkter(v, varseletForNyttSvar(u, '32.2'), nyId)",
@@ -3791,7 +3794,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F452',
     feilklasse:
       'svaret på grunnlaget tilbys og skrives med et registrert varsel etter § 32.2 som ikke har brevtekst (VS-U43 E3, #1600)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       ["  return registrert && varseletForNyttSvar(u, '32.2') === registrert.id", '  return false'],
     ],
@@ -3812,7 +3815,7 @@ const MUTASJONER: Mutasjon[] = [
       ],
       [
         "      return forutsetningerI(h.spor).svaret(u, 'Svaret');",
-        "      return svaretPaaberoperRegistrertVarsel(u, 'Svaret');",
+        "      return forutsetningerI('forhold').svaret(u, 'Svaret');",
       ],
     ],
     mal: ['revisjonen av svaret på grunnlaget etter at varselet etter § 32.2 er registrert'],
@@ -3840,7 +3843,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F456',
     feilklasse:
       'korrigeringen godtas med henvisning til noe annet enn TEs siste opplysning (arbeidsvalget i #1308)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [['  return siste.id === gjelder', '  return siste.id === gjelder || true']],
     mal: [
       'korrigeringen avvises når henvisningen er ugyldig',
@@ -3851,7 +3854,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F457',
     feilklasse: 'korrigeringen godtas med uendret dato (arbeidsvalget i #1308)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
         '  return sisteDatoopplysning(u, felt)?.dato === dato',
@@ -3863,7 +3866,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F458',
     feilklasse: 'en ny grunnlagsversjon kan endre datoen (MM-U41 (opphevet av MM-U52) punkt 10)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
         '  if (felt === null || siste === null || k.innhold[felt] === siste.dato) return null;',
@@ -3875,7 +3878,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F459',
     feilklasse: 'korrigeringen avvises i en sak lukket etter GR-U27 (MM-U51)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
         '  const krav = u.spor.forhold.gjeldendeKrav;\n  if (!krav)',
@@ -3909,7 +3912,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F463',
     feilklasse:
       'korrigeringen i underkategorien endringsordre avvises ikke som en kategori uten dato (MM-U41 (opphevet av MM-U52) punkt 10)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [["      'INGEN_DATO_I_KATEGORIEN',", "      'UGYLDIG_KORRIGERING',"]],
     mal: ['korrigeringen avvises i underkategorien endringsordre', 'F-MM-KORR4'],
   },
@@ -3982,7 +3985,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F470',
     feilklasse: 'en ny påberopelsesversjon kan endre endringsordren (MM-U52 punkt 14)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       ['  if (tekst(k.innhold.endringsordre) !== forrige.endringsordre)', '  if (false)'],
     ],

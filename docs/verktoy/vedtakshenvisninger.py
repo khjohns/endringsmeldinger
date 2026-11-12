@@ -94,7 +94,8 @@ AVVIKSISSUE = re.compile(r"#\d+(?:, steg \d+)?")
 # henvisningene om. Lista skal bare krympe.
 KJENTE_AVVIK = (
     ("kjerne/kommandoer/nyttelast.ts", "KA-U24", 1, "#1433"),
-    ("kjerne/kommandoer/nyttelast.ts", "KA-U32", 2, "#1433"),
+    ("kjerne/kommandoer/nyttelast.ts", "KA-U32", 1, "#1433"),
+    ("kjerne/spor/forhold/kommando.ts", "KA-U32", 1, "#1433"),
     ("kjerne/tester/arkitektur.test.ts", "KA-U24", 1, "#1433"),
     ("kjerne/tester/arkitektur.test.ts", "KA-U32", 1, "#1433"),
     ("kjerne/tester/brevtekst.test.ts", "KA-U24", 3, "#1433"),
