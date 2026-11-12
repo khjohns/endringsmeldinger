@@ -78,6 +78,7 @@ på kilden, men har ingen kontroller ennå.
 | [GR-U32](../../plans/vedtak.md#gr-u32) | — | — | BF-06 |
 | [HF-U1](../../plans/vedtak.md#hf-u1) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — | BF-01V, BF-03, BF-07 |
 | [HF-U2](../../plans/vedtak.md#hf-u2) | — | — | BF-01V |
+| [HF-U5](../../plans/vedtak.md#hf-u5) | — | — | BF-20 |
 | [HF-U6](../../plans/vedtak.md#hf-u6) | — | — | BF-01V |
 | [HF-U8](../../plans/vedtak.md#hf-u8) | — | — | BF-02B, BF-03 |
 | [HF-U9](../../plans/vedtak.md#hf-u9) | — | BF-01 te-har-mottatt-svaret | BF-01V, BF-03 |
@@ -97,6 +98,7 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U14](../../plans/vedtak.md#ka-u14) | — | — | BF-06 |
 | [KA-U16](../../plans/vedtak.md#ka-u16) | — | — | BF-01V |
 | [KA-U19](../../plans/vedtak.md#ka-u19) | — | — | BF-01V, BF-10 |
+| [KA-U22](../../plans/vedtak.md#ka-u22) | — | — | BF-20 |
 | [KA-U24](../../plans/vedtak.md#ka-u24) | — | — | BF-01V |
 | [KA-U31](../../plans/vedtak.md#ka-u31) | — | — | BF-01V |
 | [KA-U33](../../plans/vedtak.md#ka-u33) | — | — | BF-20 |
@@ -126,7 +128,10 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U70](../../plans/vedtak.md#ka-u70) | — | — | BF-14 |
 | [KA-U71](../../plans/vedtak.md#ka-u71) | — | — | BF-14 |
 | [KA-U72](../../plans/vedtak.md#ka-u72) | — | — | BF-14 |
-| [KA-U75](../../plans/vedtak.md#ka-u75) | — | — | BF-14 |
+| [KA-U73](../../plans/vedtak.md#ka-u73) | — | — | BF-20 |
+| [KA-U74](../../plans/vedtak.md#ka-u74) | — | — | BF-20 |
+| [KA-U75](../../plans/vedtak.md#ka-u75) | — | — | BF-14, BF-20 |
+| [KA-U76](../../plans/vedtak.md#ka-u76) | — | — | BF-20 |
 | [KT-U3](../../plans/vedtak.md#kt-u3) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U6](../../plans/vedtak.md#kt-u6) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U7](../../plans/vedtak.md#kt-u7) | — | BF-05 start | — |
@@ -204,6 +209,7 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U31](../../plans/vedtak.md#ov-u31) | — | — | BF-14 |
 | [OV-U32](../../plans/vedtak.md#ov-u32) | BF-04 te-har-mottatt-svaret | BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret | BF-20 |
 | [OV-U33](../../plans/vedtak.md#ov-u33) | BF-04 te-har-mottatt-svaret | BF-04 bh-har-mottatt-vederlagskravet | BF-20 |
+| [OV-U39](../../plans/vedtak.md#ov-u39) | — | — | BF-20 |
 | [OV-U43](../../plans/vedtak.md#ov-u43) | — | — | BF-06 |
 | [OV-U52](../../plans/vedtak.md#ov-u52) | — | BF-05 start | — |
 | [OV-U54](../../plans/vedtak.md#ov-u54) | BF-01 te-har-godtatt-svaret, BF-02C te-vil-sende-ny-versjon | BF-01 te-har-mottatt-svaret | BF-02B, BF-03 |
