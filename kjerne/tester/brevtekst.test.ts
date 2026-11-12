@@ -4255,6 +4255,20 @@ describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', (
       expect(s.avvist('TE', korrigering(s, 'klar_over_forholdet', '2026-10-03'))).toBeNull();
     }
   );
+
+  it('et eget varsel registrert etter det første fristkravet, skjuler ikke kravet: en korrigering til en dato etter kravet avvises (VS-U66)', () => {
+    // Påberopelsen er sendt 2. oktober og fristkravet uten varsel 3. oktober. Varselet etter
+    // § 33.4 registreres 4. oktober med den datoen, og korrigeringen sendes 5. oktober.
+    const s = medForhold(svikt);
+    s.send('TE', { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: BESKRIVELSE });
+    s.send('TE', registrering('frist', '33.4', '2026-10-04'));
+    expect(s.u().spor.frist.varsler['33.4'], 'forutsetning: varselet er registrert').toBeDefined();
+    expect(s.avvisning('TE', korrigering(s, 'klar_over_forholdet', '2026-10-04'))).toMatchObject({
+      regel: 'VARSEL_FOER_GRUNNLAGSDATOEN',
+      melding: expect.stringContaining('punkt 33.4 ble sendt 3. oktober 2026'),
+    });
+    expect(s.avvist('TE', korrigering(s, 'klar_over_forholdet', '2026-10-03'))).toBeNull();
+  });
 });
 
 describe('varselet etter § 32.2 er det første grunnlagskravet (VS-U43 punkt 6 og 10, #1489)', () => {
@@ -8133,6 +8147,11 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
     );
   });
 
+  it('brevmerkingen har tre sifre i løpenummeret og to i brevnummeret (LV-U48)', () => {
+    expect(brevmerking('K7', { kode: 'eo', loepenummer: 5 }, 2)).toBe('K7-EO-005-02');
+    expect(brevmerking('K201', { kode: 'koe', loepenummer: 1234 }, 103)).toBe('K201-KOE-1234-103');
+  });
+
   it('uten kontraktsforkortelsen kan brevet ikke vise til merkingen, og skrives ikke (LV-U53)', () => {
     const s = sak(TITTEL, KOE_17, null);
     const trekk = trekkEtterEpost(s);
@@ -8164,6 +8183,28 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
     expect(med({ merking: 'K201-KOE-017-02' })).toBe('ukjent');
     expect(med({ brevnummer: undefined })).toBe('ukjent');
   });
+
+  it.each([
+    ['uten forkortelsen og sakens kode', 'X-01'],
+    ['med to sifre i løpenummeret', 'K201-KOE-17-01'],
+    ['med en annen kode enn KOE og EO', 'K201-ABC-017-01'],
+    ['med små bokstaver i forkortelsen', 'k201-KOE-017-01'],
+    ['med en null for mye i løpenummeret', 'K201-KOE-0017-01'],
+  ])(
+    'en merking %s, som ikke har formen fra brevmerkingen, er ikke forstått (LV-U44, LV-U48, MM-U2)',
+    (_, merking) => {
+      const s = sak();
+      const rad = s.send('TE', PAABEROPELSE);
+      const med = (data: Data) =>
+        lesJournal(
+          [...s.journal.slice(0, -1), { ...rad, data: { ...rad.data, ...data } }],
+          KJERNE.leserformat
+        ).at(-1)!.art;
+      expect(med({ merking: 'K201-KOE-017-01' }), 'kontrollsak').toBe('dokument');
+      expect(med({ merking: 'K201-EO-1234-01' }), 'kontrollsak med fire sifre').toBe('dokument');
+      expect(med({ merking })).toBe('ukjent');
+    }
+  );
 
   it('registrert korrespondanse omtales med parten, typen og datoen (LV-U42)', () => {
     const s = sak();

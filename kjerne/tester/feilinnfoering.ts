@@ -19,7 +19,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 (opphevet av MM-U52) punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F475 en ny versjon av påberopelsen og endringsordren som står (LV-U56, MM-U52 punkt 14, #1615), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 (opphevet av MM-U52) punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F475 en ny versjon av påberopelsen og endringsordren som står (LV-U56, MM-U52 punkt 14, #1615), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
@@ -3727,8 +3727,15 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F446',
     feilklasse: 'merkingen i henvisningen har to sifre i løpenummeret (LV-U53, LV-U48)',
     fil: `${K}/frosset/brevtittel.ts`,
-    endringer: [['utfylt(s.loepenummer, 3)', 'utfylt(s.loepenummer, 2)']],
-    mal: ['merkingen i henvisningen har sakens kode og tre sifre i løpenummeret'],
+    // Skrivingen og leseren endres sammen; ellers stopper selvkontrollen i skrivingen brevet (MM-U2).
+    endringer: [
+      ['utfylt(s.loepenummer, 3)', 'utfylt(s.loepenummer, 2)'],
+      ['(00[1-9]|0[1-9]\\\\d|[1-9]\\\\d{2,})', '(0[1-9]|[1-9]\\\\d+)'],
+    ],
+    mal: [
+      'merkingen i henvisningen har sakens kode og tre sifre i løpenummeret',
+      'brevmerkingen har tre sifre i løpenummeret og to i brevnummeret',
+    ],
   },
   {
     id: 'F447',
@@ -4085,6 +4092,29 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['kan vise til varselet den viste til før trekket'],
+  },
+  {
+    id: 'F552',
+    feilklasse:
+      'det egne varselet går foran kravet som er det første varselet, også når kravet er tidligere (VS-U66)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [
+      [
+        '  return [s.varsler[hjemmel], kravet].filter((v) => v !== undefined);',
+        '  return [s.varsler[hjemmel] ?? kravet].filter((v) => v !== undefined);',
+      ],
+    ],
+    mal: ['et eget varsel registrert etter det første fristkravet, skjuler ikke kravet'],
+  },
+  {
+    id: 'F553',
+    feilklasse:
+      'leseren forstår en merking som slutter med brevnummeret, men ikke har formen fra brevmerkingen (LV-U44, LV-U48, #1588)',
+    fil: `${K}/frosset/brevtittel.ts`,
+    endringer: [
+      ["  if (!MERKINGEN.test(merking.slice(0, merking.lastIndexOf('-'))))", '  if (false)'],
+    ],
+    mal: ['som ikke har formen fra brevmerkingen, er ikke forstått'],
   },
   {
     id: 'F550',
@@ -4530,7 +4560,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en korrigering til en dato etter kravet som er det første varselet, godtas (VS-U60)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['  return kravSomVarsler(hjemmel, s.krav)[0];', '  return undefined;']],
+    endringer: [['    ? kravSomVarsler(hjemmel, s.krav)[0]\n', '    ? undefined\n']],
     mal: [
       'uten eget varsel avvises en korrigering til en dato etter påberopelsen',
       'uten eget varsel avvises en korrigering til en dato etter det første fristkravet',
@@ -4544,8 +4574,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '  if (eget || !hjemmelenGjelder(hjemmel, u.spor.forhold.gjeldendeKrav, regler)) return eget;',
-        '  if (eget) return eget;',
+        '  const kravet = hjemmelenGjelder(hjemmel, u.spor.forhold.gjeldendeKrav, regler)\n',
+        '  const kravet = true\n',
       ],
     ],
     mal: ['i svikt er påberopelsen ikke et varsel etter § 32.2'],

@@ -124,9 +124,9 @@ const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
   paalegg_frafalt: (u, spor) => visningI(spor).paaleggFrafalt(u),
   enige: (u, spor) => u.spor[spor].enighet !== null,
   svar_ikke_godtatt: svarIkkeGodtatt,
-  // Står igjen når sporet er lukket uten enighet, som når TE har godtatt et svar som avslår
-  // forholdet eller påberoper preklusjon (GR-U27).
-  krav_sendt: (u, spor) => u.spor[spor].gjeldendeKrav !== null,
+  // MM-U30: TE har godtatt avslaget på grunnlaget (GR-U27). At sporet verken har enighet eller
+  // trekk, følger av rekkefølgen: «Trukket» og «Enige» står foran.
+  krav_sendt: (u, spor) => sporetErLukket(u) && u.spor[spor].gjeldendeKrav !== null,
   ingen_krav: (u, spor) => u.spor[spor].ingenKrav,
   varslet: harVarsel,
 };
