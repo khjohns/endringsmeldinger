@@ -8,6 +8,7 @@ import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
   utenGren,
+  type Enighetsgrunnlag,
   type Hjemmel,
   type Krav,
   type Spor,
@@ -148,6 +149,8 @@ export interface Svarsfrysing {
   utfall(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert: boolean): Utfall;
   /** Svaret godkjenner hele kravet, når ikke et standpunkt i første lag avviser det. */
   godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean;
+  /** Vilkåret for enigheten om svaret (GR-U7, `enighetsgrunnlag`). */
+  vilkaar: Enighetsgrunnlag['vilkaar'];
 }
 
 /** Det serverens utregning av svaret regnes av (`regnUtSvar` i `frosset/utregning.ts`). */
@@ -180,3 +183,42 @@ export function iSporet<T extends Record<Spor, unknown>, S extends Spor>(tabell:
 /** Virkningen av standpunktet `id`, som svaret har en virkning for. */
 export const virkningen = (v: Standpunktsvirkning[], id: string): Virkning =>
   v.find((p) => p.standpunkt === id)!.virkning;
+
+/** Lagene i forholdet og fristen: hver grunn med virkning åpner et nytt lag (`virkninger`). */
+export function virkningerIForholdetOgFristen(
+  svar: Svarinnhold,
+  paaberopelse: Krav | null | undefined,
+  regler: Regelsett
+): Standpunktsvirkning[] {
+  const ut: Standpunktsvirkning[] = [];
+  let lag = 1;
+  const iLaget = () => lag;
+  for (const s of svar.standpunkter) {
+    if (s.art === 'rettidighet') {
+      const virker = !s.iTide && hjemmelenGjelder(s.hjemmel, paaberopelse, regler);
+      if (virker) lag = 2;
+      ut.push({ standpunkt: s.id, art: s.art, virkning: virker ? 1 : 'uten_virkning' });
+    } else if (s.art === 'oppgjoersform' && s.aksepterer) {
+      ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });
+    } else if (s.art === 'spesifisering') {
+      // VS-U4: for sent spesifisert gir prinsipalt det byggherren mener at byggherren måtte forstå at TE hadde krav på.
+      const virkning = s.iTide ? 'uten_virkning' : iLaget();
+      if (!s.iTide) lag++;
+      ut.push({ standpunkt: s.id, art: s.art, virkning });
+    } else if (s.art === 'hindring') {
+      // Vedtaket 05.10 (#211): uten fremdriftshindring står dagene som et videre subsidiært standpunkt.
+      const virkning = s.oppfylt ? 'uten_virkning' : iLaget();
+      if (!s.oppfylt) lag++;
+      ut.push({ standpunkt: s.id, art: s.art, virkning });
+    } else if (
+      s.art === 'forhold' ||
+      s.art === 'beloep' ||
+      s.art === 'oppgjoersform' ||
+      s.art === 'justering' ||
+      s.art === 'dager'
+    ) {
+      ut.push({ standpunkt: s.id, art: s.art, virkning: iLaget() });
+    } else utenGren(s);
+  }
+  return ut;
+}

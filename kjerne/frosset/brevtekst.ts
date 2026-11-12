@@ -19,13 +19,7 @@ import { forholdet } from './forholdene.ts';
 import { sakensKode } from './brevtittel.ts';
 import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import {
-  blirEndringsordre,
-  grunnerFraForholdet,
-  innsigelsenErOppgitt,
-  innsigelsenPaaberoper,
-  svarPaaForesporsler,
-} from './standpunkt.ts';
+import { innsigelsenErOppgitt, innsigelsenPaaberoper, svarPaaForesporsler } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
 import { innholdIFristen } from '../format/kravinnhold.ts';
 import {
@@ -64,6 +58,7 @@ import type {
   Varselhjemmel,
 } from '../typer.ts';
 import { innholdIForholdet, type OppgittDato } from '../spor/forhold/format.ts';
+import { blirEndringsordre, grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 
 /** Brevet kan ikke sendes fra appen slik saken står, og kommandoen avvises med `regel`. */
 export class BrevetAvvises extends Error {

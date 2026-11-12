@@ -6,7 +6,7 @@
 import { beloep } from '../regler/beloep.ts';
 import { beregnFrist, resultatAvDager, type Fristkrav } from '../regler/frist.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { kontrollerForholdet, kontrollerSpesifiseringen } from '../regler/svarkontroll.ts';
+import { kontrollerSpesifiseringen } from '../regler/svarkontroll.ts';
 import { innholdIFristen } from '../format/kravinnhold.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
 import {
@@ -15,9 +15,9 @@ import {
   type Svarsutregning,
   type Svarvurdering,
 } from './byggeklosser.ts';
+import { UTREGNING_I_FORHOLDET } from '../spor/forhold/frysing.ts';
 import { SAMMENLIKNES_I_VEDERLAGET, UTREGNING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
 import type { Krav, Spor } from '../typer.ts';
-import { kategori } from '../spor/forhold/format.ts';
 
 /**
  * En vurdering i svaret som kjernen ennå ikke har et standpunkt for. Den kan ikke
@@ -53,29 +53,15 @@ export function regnUtSvar(
 /** Utregningen i sporet (`iSporet`). */
 const utregningI = (spor: Spor): Svarsutregning => iSporet(UTREGNING, spor);
 
-/** Utregningen i hvert spor. Forholdet og fristen står her til de flyttes til sporene (#1783, #1745). */
+/** Utregningen i hvert spor. Fristen står her til den flyttes til sporet (#1745). */
 const UTREGNING: Record<Spor, Svarsutregning> = {
-  forhold: {
-    regnUt: (v, { krav }, regler) => regnUtForhold(v, krav, regler),
-    utenforOmfanget: () => null,
-  },
+  forhold: UTREGNING_I_FORHOLDET,
   vederlag: UTREGNING_I_VEDERLAGET,
   frist: {
     regnUt: (v, { krav, foresporsel }) => regnUtFrist(v, krav, foresporsel),
     utenforOmfanget: () => null,
   },
 };
-
-/** Forholdet har ingen utregning, bare kontrollen av vurderingene (§ 32.2 og § 32.3). */
-function regnUtForhold(v: Svarvurdering, krav: Krav, regler: Regelsett): Record<string, unknown> {
-  avvisUkjenteFelt(v, FORHOLDSVURDERINGER, 'forholdet');
-  const { hovedkategori, underkategori } = kategori(krav);
-  kontrollerForholdet(v, hovedkategori, underkategori, regler);
-  return {};
-}
-
-/** Feltene kjernen leser i vurderingene i svaret på forholdet (`kontrollerForholdet`, `standpunkter`). */
-const FORHOLDSVURDERINGER = new Set<string>(['resultat', 'grunnlag_varslet_i_tide']);
 
 /** Feltene kjernen leser i vurderingene i svaret på fristen (`regnUtFrist`, `standpunkter`). */
 const FRISTVURDERINGER = new Set<string>([

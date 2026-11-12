@@ -3,12 +3,12 @@
  * varselet etter § 34.1.2. `utledning/visning.ts` slår opp i sporet gjennom `VISNING` (#1783).
  */
 
-import { lagFraForholdet } from '../../frosset/standpunkt.ts';
 import { hjemmelenGjelder } from '../../frosset/byggeklosser.ts';
 import { postlisten, type Paaberopt, type Vederlagspost } from './frysing.ts';
 import { vurdertVedRegistreringen, type Utledning } from '../../utledning/utled.ts';
 import type { Sporsvisning } from '../../utledning/visning.ts';
 import type { Part, Svar } from '../../typer.ts';
+import { lagFraForholdet } from '../forhold/frysing.ts';
 
 /**
  * Byggherrens svar på vederlaget slik visningen viser det (svarene i #1047 24.10): postene

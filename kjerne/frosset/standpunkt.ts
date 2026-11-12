@@ -12,24 +12,22 @@
  * (vedtaket 05.10), og vilkåret i enighetsgrunnlaget (GR-U7).
  */
 
-import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
-  hjemmelenGjelder,
   laget,
   prinsipalt,
   standpunktet,
   type Svarinnhold,
   type Svarsfrysing,
   iSporet,
+  virkningerIForholdetOgFristen,
 } from './byggeklosser.ts';
+import { FRYSING_I_FORHOLDET } from '../spor/forhold/frysing.ts';
 import { FRYSING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
 import { erRegistrert } from '../format/leser.ts';
 import { HJEMMEL } from '../format/format.ts';
 import { utregningIFristen } from '../format/svarinnhold.ts';
-import { utenGren } from '../typer.ts';
 import type {
-  Beslutningsgrunnlag,
   Dokument,
   Enighetsgrunnlag,
   Hjemmel,
@@ -41,13 +39,6 @@ import type {
   Svar,
   Utfall,
 } from '../typer.ts';
-import { kategori } from '../spor/forhold/format.ts';
-
-/** To påberopelsesversjoner har samme hovedkategori og underkategori (GR-U22). */
-export function sammeKategori(a: Pick<Krav, 'innhold'>, b: Pick<Krav, 'innhold'>): boolean {
-  const [x, y] = [kategori(a), kategori(b)];
-  return x.hovedkategori === y.hovedkategori && x.underkategori === y.underkategori;
-}
 
 /**
  * Virkningen av hvert standpunkt i svaret etter regelsettet, regnet når brevet
@@ -63,45 +54,6 @@ export function virkninger(
   forskyvning = 0
 ): Standpunktsvirkning[] {
   return frysingI(svar.spor).virkninger(svar, paaberopelse, regler, forskyvning);
-}
-
-/** Lagene i forholdet og fristen: hver grunn med virkning åpner et nytt lag (`virkninger`). */
-function virkningerIForholdetOgFristen(
-  svar: Svarinnhold,
-  paaberopelse: Krav | null | undefined,
-  regler: Regelsett
-): Standpunktsvirkning[] {
-  const ut: Standpunktsvirkning[] = [];
-  let lag = 1;
-  const iLaget = () => lag;
-  for (const s of svar.standpunkter) {
-    if (s.art === 'rettidighet') {
-      const virker = !s.iTide && hjemmelenGjelder(s.hjemmel, paaberopelse, regler);
-      if (virker) lag = 2;
-      ut.push({ standpunkt: s.id, art: s.art, virkning: virker ? 1 : 'uten_virkning' });
-    } else if (s.art === 'oppgjoersform' && s.aksepterer) {
-      ut.push({ standpunkt: s.id, art: s.art, virkning: 'uten_virkning' });
-    } else if (s.art === 'spesifisering') {
-      // VS-U4: for sent spesifisert gir prinsipalt det byggherren mener at byggherren måtte forstå at TE hadde krav på.
-      const virkning = s.iTide ? 'uten_virkning' : iLaget();
-      if (!s.iTide) lag++;
-      ut.push({ standpunkt: s.id, art: s.art, virkning });
-    } else if (s.art === 'hindring') {
-      // Vedtaket 05.10 (#211): uten fremdriftshindring står dagene som et videre subsidiært standpunkt.
-      const virkning = s.oppfylt ? 'uten_virkning' : iLaget();
-      if (!s.oppfylt) lag++;
-      ut.push({ standpunkt: s.id, art: s.art, virkning });
-    } else if (
-      s.art === 'forhold' ||
-      s.art === 'beloep' ||
-      s.art === 'oppgjoersform' ||
-      s.art === 'justering' ||
-      s.art === 'dager'
-    ) {
-      ut.push({ standpunkt: s.id, art: s.art, virkning: iLaget() });
-    } else utenGren(s);
-  }
-  return ut;
 }
 
 /**
@@ -246,42 +198,6 @@ function avvisesPrinsipalt(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean
   });
 }
 
-/**
- * Hvorfor svarene på vederlag og frist er subsidiære til svaret på påberopelsen, etter
- * standpunktene i brevet om forholdet (vedtaket 05.10, MM-U9). Utledningen og
- * brevteksten (A2) leser det samme.
- */
-export function grunnerFraForholdet(
-  svar: Svarinnhold,
-  virkninger: Standpunktsvirkning[]
-): Subsidiaergrunn[] {
-  const ut: Subsidiaergrunn[] = [];
-  if (prinsipalt(virkninger)?.art === 'rettidighet') ut.push('prekludert');
-  if (standpunktet(svar, 'forhold')?.resultat === 'avslaatt') ut.push('avslaatt');
-  return ut;
-}
-
-/**
- * GR-U7: byggherren har godkjent forholdet uten virksom preklusjon etter § 32.2,
- * eller frafalt pålegget. Leses av standpunktene og virkningen i brevet om
- * forholdet, ikke av et utfall.
- */
-export function forholdetErAvklart(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
-  const resultat = standpunktet(svar, 'forhold')?.resultat;
-  return (
-    !preklusjonPaaberopt(svar, v) && (resultat === 'godkjent' || resultat === 'paalegg_frafalt')
-  );
-}
-
-/**
- * MM-U13: byggherren påberoper prinsipalt preklusjon etter § 32.2 i svaret på
- * forholdet.
- * Rettidigheten i forholdet er alltid etter § 32.2 (`HJEMMEL`).
- */
-function preklusjonPaaberopt(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
-  return svar.spor === 'forhold' && v.some((p) => p.art === 'rettidighet' && p.virkning === 1);
-}
-
 /** Det svaret gir i sporet når standpunktene har denne virkningen. */
 function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
   return frysingI(svar.spor).utfall(svar, v, avvisesPrinsipalt(svar, v));
@@ -318,18 +234,15 @@ function fristenGodkjent(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
 /** Frysingen i sporet (`iSporet`). */
 const frysingI = (spor: Spor): Svarsfrysing => iSporet(FRYSING, spor);
 
-/** Frysingen i hvert spor. Forholdet og fristen står her til de flyttes til sporene (#1783, #1745). */
+/** Frysingen i hvert spor. Fristen står her til den flyttes til sporet (#1745). */
 const FRYSING: Record<Spor, Svarsfrysing> = {
-  forhold: {
-    virkninger: virkningerIForholdetOgFristen,
-    utfall: () => ({}),
-    godkjennerHeleKravet: (svar) => standpunktet(svar, 'forhold')?.resultat === 'godkjent',
-  },
+  forhold: FRYSING_I_FORHOLDET,
   vederlag: FRYSING_I_VEDERLAGET,
   frist: {
     virkninger: virkningerIForholdetOgFristen,
     utfall: utfallIFristen,
     godkjennerHeleKravet: fristenGodkjent,
+    vilkaar: 'forhold_avklart',
   },
 };
 
@@ -341,16 +254,6 @@ export const sammenfallStemmer = (svar: Svar): boolean =>
   svar.beslutningsgrunnlag.sammenfall ===
   godkjennerHeleKravet(svar, svar.beslutningsgrunnlag.virkninger);
 
-/**
- * Et svar på forholdet i et brev sendt i appen er en endringsordre etter § 32.3
- * første ledd a: svaret godkjenner hele kravet uten påberopt preklusjon
- * (sammenfall, GR-U10), og § 32.2 gjaldt kategorien (GR-U11, GR-U12). Leses av
- * det frosne beslutningsgrunnlaget.
- */
-export function blirEndringsordre(b: Beslutningsgrunnlag): boolean {
-  return b.sammenfall && b.varslingsplikt === true;
-}
-
 /** Enigheten om svaret slik brevet uttrykte det (MM-U9; KA-U10, MM-U3 og MM-U11, opphevet av MM-U50). */
 export function enighetsgrunnlag(svar: Svar, kilde: Enighetsgrunnlag['kilde']): Enighetsgrunnlag {
   const { regelversjon, virkninger } = svar.beslutningsgrunnlag;
@@ -361,18 +264,9 @@ export function enighetsgrunnlag(svar: Svar, kilde: Enighetsgrunnlag['kilde']): 
     regelversjon,
     virkninger,
     utfall: utfall(svar, virkninger),
-    vilkaar: svar.spor === 'forhold' ? null : 'forhold_avklart',
+    vilkaar: frysingI(svar.spor).vilkaar,
   };
 }
-
-/**
- * OV-U32, OV-U33: lagene standpunktene i svaret på forholdet opptar foran vederlag og
- * frist i brevet, ett for preklusjonen etter § 32.2 og ett for avslaget. Et frafall
- * flytter ikke lagene (GR-U7). Linjen leser det herfra; brevteksten skriver ett ledd for
- * hver av de samme grunnene (`grunnerFraForholdet`).
- */
-export const lagFraForholdet = (g: Svarinnhold | undefined, v: Standpunktsvirkning[]): number =>
-  g ? grunnerFraForholdet(g, v).length : 0;
 
 /**
  * Virkningen hvert standpunkt har, utenom standpunkter uten virkning. Et standpunkt som

@@ -5,7 +5,6 @@
  */
 
 import { HJEMMEL } from '../format/format.ts';
-import { forholdsstandpunkter } from '../frosset/frysing.ts';
 import { iSporet, type Svarvurdering } from '../frosset/byggeklosser.ts';
 import { STANDPUNKTER_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import type { Svarutkast } from './kommando.ts';
@@ -15,6 +14,7 @@ import {
   type Utledning,
 } from '../utledning/utled.ts';
 import type { Krav, Spor } from '../typer.ts';
+import { forholdsstandpunkter } from '../spor/forhold/frysing.ts';
 
 type Data = Record<string, unknown>;
 

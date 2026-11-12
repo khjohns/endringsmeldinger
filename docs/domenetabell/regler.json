@@ -1873,7 +1873,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet",
+        "kjerne/spor/forhold/frysing.ts#grunnerFraForholdet",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ],
       "regelkoder": [
@@ -1903,7 +1903,7 @@
       "funksjoner": [
         "kjerne/kommandoer/nyttelast.ts#kategorisperre",
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet",
+        "kjerne/spor/forhold/frysing.ts#grunnerFraForholdet",
         "kjerne/utledning/utled.ts#kanInngaaIEo"
       ],
       "regelkoder": [
@@ -1945,7 +1945,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet",
+        "kjerne/spor/forhold/frysing.ts#grunnerFraForholdet",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ],
       "regelkoder": [
@@ -1967,7 +1967,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet",
+        "kjerne/spor/forhold/frysing.ts#grunnerFraForholdet",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ],
       "regelkoder": [
@@ -2030,7 +2030,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
-        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet"
+        "kjerne/spor/forhold/frysing.ts#grunnerFraForholdet"
       ]
     },
     {
@@ -2153,7 +2153,7 @@
       "funksjoner": [
         "kjerne/utledning/utled.ts#kanInngaaIEo",
         "kjerne/utledning/utled.ts#kraveneErAvgjort",
-        "kjerne/frosset/standpunkt.ts#forholdetErAvklart"
+        "kjerne/spor/forhold/frysing.ts#forholdetErAvklart"
       ]
     },
     {
@@ -2193,7 +2193,7 @@
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/frosset/standpunkt.ts#forholdetErAvklart",
+        "kjerne/spor/forhold/frysing.ts#forholdetErAvklart",
         "kjerne/utledning/utled.ts#kraveneErAvgjort"
       ]
     },
@@ -2308,7 +2308,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#enighetensVirkning",
-        "kjerne/frosset/standpunkt.ts#forholdetErAvklart",
+        "kjerne/spor/forhold/frysing.ts#forholdetErAvklart",
         "kjerne/utledning/utled.ts#kraveneErAvgjort"
       ]
     },
@@ -2456,7 +2456,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#trekkAvPaaberopelsenErSperret",
-        "kjerne/frosset/standpunkt.ts#blirEndringsordre",
+        "kjerne/spor/forhold/frysing.ts#blirEndringsordre",
         "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
       ],
       "regelkoder": [
@@ -2769,7 +2769,7 @@
       "funksjoner": [
         "kjerne/utledning/utled.ts#utledSporene",
         "kjerne/utledning/utled.ts#ikkeErstattet",
-        "kjerne/frosset/standpunkt.ts#grunnerFraForholdet"
+        "kjerne/spor/forhold/frysing.ts#grunnerFraForholdet"
       ]
     },
     {
