@@ -4658,15 +4658,17 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F538',
     feilklasse:
       'varselet fra kravskjemaet gis før kjernen har prøvd kravet, så et avvist krav etterlater varselet (VS-U53)',
-    fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['  if (sendes) {\n    const proeve', '  if (!sendes) {\n    const proeve']],
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      ['  if (skriving.sendes) {\n    const proeve', '  if (!skriving.sendes) {\n    const proeve'],
+    ],
     mal: ['avvises kravet, gis ingen rad, heller ikke varselet'],
   },
   {
     id: 'F539',
     feilklasse:
       'dokumentet fra kravskjemaet for én kravpost blir også varselet for en annen post i det første kravet (VS-U51, D-16)',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
         '(v) => !dokumenter.get(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))',
@@ -4706,7 +4708,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F543',
     feilklasse: 'samme dokument med ulik dato for to kravposter godtas (VS-U53)',
-    fil: `${K}/kommandoer/skriving.ts`,
+    fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [['if ((dokumentene.get(id) ?? like) !== like)', 'if (false)']],
     mal: ['samme dokument med ulik dato eller med andre vedlegg'],
   },

@@ -6,7 +6,6 @@
  * ID, og relasjonene står som `gjelder` og `erstatter` (4.2).
  */
 
-import { kravpostvarslene, varselhjemmel } from '../spor/vederlag/utledning.ts';
 import { SKRIVING_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { avvisning } from './avvisning.ts';
@@ -40,7 +39,8 @@ import {
   type Dokument,
   type Journalrad,
   type Krav,
-  type Kravpost,
+  type Domenehendelse,
+  type Kravpostvarselet,
   type Kravpostvarselhjemmel,
   type Part,
   type Sakskode,
@@ -207,6 +207,45 @@ function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne): Data[] {
 export interface Sporsskriving {
   /** Innholdet i kravet slik det lagres. */
   kravinnhold(innhold: Data, u: Utledning, nyId: () => string): Data;
+  /**
+   * Kravet som flere rader, når sporet skriver noe før kravet i samme handling, ellers `null`,
+   * og kravet er én rad (VS-U51, VS-U53).
+   */
+  handlingen?(
+    k: Extract<Kommando, { type: 'krav' }>,
+    kontekst: Kontekst,
+    journal: Journalrad[],
+    skriving: Skrivesteg
+  ): Utfall | null;
+  /**
+   * Varselet for hver post i kravet `k` i det nye dokumentet som trenger et, etter postens `id`,
+   * til brevteksten. `lest` er journalen før dokumentet.
+   */
+  postvarsler?(
+    k: Krav,
+    nytt: Dokument,
+    lest: readonly Domenehendelse[],
+    u: Utledning
+  ): Record<string, Kravpostvarselet>;
+}
+
+/**
+ * Det skrivingen gir sporet for en handling med flere rader (`Sporsskriving.handlingen`):
+ * kontrollen av formen, én rad med kjernen og vedleggene i handlingen, og hele handlingen
+ * prøvd til den er avvist eller ferdig.
+ */
+export interface Skrivesteg {
+  sendes: boolean;
+  formen(kommando: unknown): Utfall | null;
+  /** Én rad, som `skriv`. */
+  skriv(
+    k: Kommando,
+    kontekst: Kontekst,
+    journal: Journalrad[],
+    vedKravet?: readonly string[],
+    ogsaaEtter?: readonly Kravpostvarselhjemmel[]
+  ): Utfall;
+  hele(utfall: Utfall, kontekst: Kontekst, journal: Journalrad[]): Utfall;
 }
 
 /** Skrivingen i hvert spor. Forholdet og fristen står her til de flyttes (#1745). */
@@ -426,14 +465,9 @@ function formen(kommando: unknown): Utfall | null {
   return feil.length ? ugyldigForm({ regel: 'UGYLDIG_FORM', melding: feil.join('; ') }) : null;
 }
 
-type Dokumentvarsel = { sendt: string; korrespondansetype: string; dokumentasjon: string[] };
-const erDokumentvarsel = (v: unknown): v is Dokumentvarsel => typeof v === 'object' && v !== null;
-
 /**
- * Kommandoen som én eller flere rader. Et dokument TE legger til i kravskjemaet som varselet
- * for en kravpost, skrives som et registrert varsel før kravet, og kravposten viser til det
- * (VS-U51, VS-U53, VS-U54). Hele handlingen prøves før den første raden gis, så en avvisning
- * av kravet kommer før noe skrives.
+ * Kommandoen som én eller flere rader. Et spor kan skrive rader før kravet i samme handling
+ * (`Sporsskriving.handlingen`), og prøver da hele handlingen før den første raden gis.
  */
 function handlingen(
   kommando: unknown,
@@ -446,123 +480,18 @@ function handlingen(
   const form = formen(kommando);
   if (form) return form;
   const k = kommando as Kommando;
-  const poster =
-    k.type === 'krav' && k.spor === 'vederlag'
-      ? ((k.innhold.kravposter ?? []) as Record<string, unknown>[])
-      : [];
-  if (!poster.some((p) => erDokumentvarsel(p.varsel)))
-    return skriv(k, kontekst, journal, kjerne, vedlegg, sendes);
-  // VS-U51, VS-U53: et dokument står i saken som ett brev. Kravpostene det gjelder, oppgir det
-  // likt, og et vedlegg hører til ett dokument.
-  const dokumentene = new Map<string, string>();
-  for (const p of poster) {
-    if (!erDokumentvarsel(p.varsel)) continue;
-    const { sendt, korrespondansetype } = p.varsel;
-    const like = JSON.stringify([dokumentnoekkel(p.varsel), sendt, korrespondansetype]);
-    for (const id of dokumentnoekkel(p.varsel)) {
-      if ((dokumentene.get(id) ?? like) !== like)
-        return ugyldigForm({
-          regel: 'UGYLDIG_FORM',
-          melding:
-            'Kravpostene oppgir samme dokument som varsel med ulik dato, type eller andre vedlegg. Et dokument oppgis likt for hver kravpost det gjelder.',
-        });
-      dokumentene.set(id, like);
-    }
-  }
-  const krav = k as Extract<Kommando, { type: 'krav' }>;
-  const kjede = (kx: Kontekst, jx: Journalrad[]) =>
-    medVarslene(krav, [], kx, jx, kjerne, vedlegg, sendes);
-  if (sendes) {
-    const proeve = hele(kjede(kontekst, journal), kontekst, journal);
-    if (!proeve.godtatt) return proeve;
-  }
-  return kjede(kontekst, journal);
-}
-
-/** Vedleggene i dokumentet, med små bokstaver og sortert, som skiller ett dokument fra et annet. */
-const dokumentnoekkel = (d: Dokumentvarsel): string[] =>
-  [...new Set(d.dokumentasjon.map((id) => id.toLowerCase()))].sort();
-
-/**
- * Det første dokumentet i kravskjemaet som registrert varsel, og kravet med resten som
- * `neste`; uten flere dokumenter kravet, med dokumentene ved (VS-U51, VS-U53). Gjelder dokumentet
- * flere kravposter, er det ett brev med ett varsel per bestemmelse, og hver kravpost viser til
- * varselet etter sin (VS-U52).
- */
-function medVarslene(
-  k: Extract<Kommando, { type: 'krav' }>,
-  vedKravet: string[],
-  kontekst: Kontekst,
-  journal: Journalrad[],
-  kjerne: Kjerne,
-  vedlegg: Vedleggsoppslag,
-  sendes: boolean
-): Utfall {
-  const poster = k.innhold.kravposter as Record<string, unknown>[];
-  const i = poster.findIndex((p) => erDokumentvarsel(p.varsel));
-  if (i < 0) return skriv(k, kontekst, journal, kjerne, vedlegg, sendes, vedKravet);
-  type Dokumentpost = Omit<Kravpost, 'varsel'> & { varsel: Dokumentvarsel };
-  const dokumentet = (poster[i] as unknown as Dokumentpost).varsel;
-  const noekkel = JSON.stringify(dokumentnoekkel(dokumentet));
-  const gruppen = poster.flatMap((p, j) =>
-    erDokumentvarsel(p.varsel) && JSON.stringify(dokumentnoekkel(p.varsel)) === noekkel
-      ? [[j, p as unknown as Dokumentpost] as const]
-      : []
-  );
-  const hjemler: Kravpostvarselhjemmel[] = [];
-  for (const [j, p] of gruppen) {
-    const hjemmel = varselhjemmel(p);
-    if (hjemmel === null)
-      return {
-        godtatt: false,
-        feil: 'REGELBRUDD',
-        avvisning: avvis(
-          'KRAVPOSTVARSELET',
-          `Kravpost nr. ${j + 1} har et varsel, men oppgjørsformen krever ikke varsel etter § 34.3.3 eller § 34.4 (VS-U50).`
-        ),
-      };
-    if (!hjemler.includes(hjemmel)) hjemler.push(hjemmel);
-  }
-  const kommando = { type: 'varsel', spor: 'vederlag', hjemmel: hjemler[0], ...dokumentet };
-  const varselet =
-    formen(kommando) ??
-    skriv(kommando as Kommando, kontekst, journal, kjerne, vedlegg, sendes, [], hjemler.slice(1));
-  if (!varselet.godtatt)
-    return {
-      ...varselet,
-      avvisning: {
-        ...varselet.avvisning,
-        melding: `Varselet for kravpost nr. ${i + 1}: ${varselet.avvisning.melding}`,
-      },
-    };
-  const [rad] = varselet.hendelser;
-  const utsagn = new Map(
-    (rad!.data.utsagn as { id: string; hjemmel: string }[]).map((x) => [x.hjemmel, x.id])
-  );
-  const resten = {
-    ...k,
-    innhold: {
-      ...k.innhold,
-      kravposter: poster.map((p, j) => {
-        const medlem = gruppen.find(([g]) => g === j);
-        return medlem ? { ...p, varsel: utsagn.get(varselhjemmel(medlem[1])!) } : p;
-      }),
-    },
+  const skriving: Skrivesteg = {
+    sendes,
+    formen,
+    skriv: (kx, kont, jx, vedKravet, ogsaaEtter) =>
+      skriv(kx, kont, jx, kjerne, vedlegg, sendes, vedKravet, ogsaaEtter),
+    hele,
   };
-  return {
-    godtatt: true,
-    hendelser: [rad!],
-    neste: (kx, jx) =>
-      medVarslene(
-        resten,
-        [...vedKravet, ...dokumentnoekkel(dokumentet)],
-        kx,
-        jx,
-        kjerne,
-        vedlegg,
-        sendes
-      ),
-  };
+  return (
+    (k.type === 'krav'
+      ? iSporet(SKRIVING, k.spor).handlingen?.(k, kontekst, journal, skriving)
+      : null) ?? skriv(k, kontekst, journal, kjerne, vedlegg, sendes)
+  );
 }
 
 /**
@@ -783,13 +712,9 @@ function brevtekstFor(
         subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
         avklartVedFrafall: u.frafalt,
         kravpostvarsler: Object.fromEntries(
-          ny.dokument.krav
-            .filter((k) => k.spor === 'vederlag')
-            .flatMap((k) =>
-              Object.entries(
-                kravpostvarslene(k, u.spor.vederlag.krav, foranKravet(ny.dokument, lest, u))
-              )
-            )
+          ny.dokument.krav.flatMap((k) =>
+            Object.entries(iSporet(SKRIVING, k.spor).postvarsler?.(k, ny.dokument, lest, u) ?? {})
+          )
         ),
       },
       kjerne.regler,
@@ -807,20 +732,6 @@ function brevtekstFor(
       throw new Skrivefeil(`Kjernen kan ikke lage brevteksten: ${feil.message}`);
     throw feil;
   }
-}
-
-/**
- * Varslene etter § 34.3.3 og § 34.4 før kravet, uten dokumentene kravskjemaet la til i samme
- * handling: kravet legger dem ved, og de gjelder bare kravposten som viser til dem (VS-U51, VS-U53).
- */
-function foranKravet(nytt: Dokument, lest: ReturnType<typeof lesJournal>, u: Utledning) {
-  const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
-  const dokumenter = new Map(
-    lest.flatMap((h) => (h.art === 'dokument' ? [[h.id, h.dokument] as const] : []))
-  );
-  return u.spor.vederlag.kravpostvarsler.filter(
-    (v) => !dokumenter.get(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))
-  );
 }
 
 /**

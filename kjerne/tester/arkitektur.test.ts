@@ -736,12 +736,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   // KA-U64: varselet en kravpost trenger, for standpunktet til varselet i svaret.
-  [
-    'spor/vederlag/utledning.ts',
-    'predikat',
-    'varselhjemmel',
-    ['spor/vederlag/kommando.ts', 'kommandoer/skriving.ts:medVarslene'],
-  ],
+  ['spor/vederlag/utledning.ts', 'predikat', 'varselhjemmel', ['spor/vederlag/kommando.ts']],
   // KA-U57 (d), KA-U54: hjemmelen i standpunktet til oppgjørsformen etter TEs oppgjørsform.
   [
     'spor/vederlag/format.ts',
@@ -1002,7 +997,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Kommando.innhold',
     'kommando',
     'kravposter',
-    ['kommandoer/skriving.ts:handlingen', 'kommandoer/skriving.ts:medVarslene'],
+    ['spor/vederlag/kommando.ts:medDokumentvarslene', 'spor/vederlag/kommando.ts:medVarslene'],
   ],
   [
     'spor/vederlag/kommando.ts:vedleggIKravpostene(innhold)',
@@ -1011,18 +1006,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/kommando.ts:vedleggIKravpostene'],
   ],
   ['spor/vederlag/kommando.ts:vedleggIKravpostene', 'kommando', 'varsel dokumentasjon'],
-  ['kommandoer/skriving.ts:handlingen(p)', 'kommando', 'varsel'],
-  ['kommandoer/skriving.ts:medVarslene(p)', 'kommando', 'varsel'],
+  ['spor/vederlag/kommando.ts:medDokumentvarslene(p)', 'kommando', 'varsel'],
+  ['spor/vederlag/kommando.ts:medVarslene(p)', 'kommando', 'varsel'],
   ['Dokumentvarsel', 'kommando', 'dokumentasjon sendt korrespondansetype'],
   ['kommandoer/skriving.ts:Utfall', 'kommando', 'godtatt hendelser neste avvisning'],
-  ['Avvisning', 'kommando', 'melding', ['kommandoer/skriving.ts:medVarslene']],
-  ['Journalrad.data', 'rad', 'utsagn', ['kommandoer/skriving.ts:medVarslene']],
-  ['kommandoer/skriving.ts:medVarslene', 'rad', 'id'],
-  ['kommandoer/skriving.ts:medVarslene', 'utsagn', 'hjemmel'],
+  ['Avvisning', 'kommando', 'melding', ['spor/vederlag/kommando.ts:medVarslene']],
+  ['Journalrad.data', 'rad', 'utsagn', ['spor/vederlag/kommando.ts:medVarslene']],
+  ['spor/vederlag/kommando.ts:medVarslene', 'rad', 'id'],
+  ['spor/vederlag/kommando.ts:medVarslene', 'utsagn', 'hjemmel'],
   ['Dokumentpost', 'kommando', 'varsel'],
   // VS-U51, VS-U53: dokumentet fra kravskjemaet gjelder bare kravposten som viser til det.
-  ['Dokument', 'utsagn', 'dokumentasjon', ['kommandoer/skriving.ts:foranKravet']],
-  ['Utsagn', 'relasjon', 'dokument', ['kommandoer/skriving.ts:foranKravet']],
+  ['Dokument', 'utsagn', 'dokumentasjon', ['spor/vederlag/kommando.ts:foranKravet']],
+  ['Utsagn', 'relasjon', 'dokument', ['spor/vederlag/kommando.ts:foranKravet']],
   [
     'kommandoer/kommando.ts:formfeil',
     'kommando',
@@ -1128,7 +1123,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // #1783: lesereglene i 4.2 som er sporets egne.
   ['Sporskontroller', 'predikat', 'kravet kravene svaret', ['utledning/utled.ts']],
   // Skrivingen i sporet (#1783).
-  ['Sporsskriving', 'kommando', 'kravinnhold', ['kommandoer/skriving.ts']],
+  ['Sporsskriving', 'kommando', 'kravinnhold handlingen postvarsler', ['kommandoer/skriving.ts']],
+  // VS-U51, VS-U53: skrivingen gir sporet stegene for en handling med flere rader.
+  ['Skrivesteg', 'kommando', 'sendes formen skriv hele', ['spor/vederlag/kommando.ts']],
   ['spor/vederlag/kommando.ts', 'kommando', 'SKRIVING_I_VEDERLAGET', ['kommandoer/skriving.ts']],
   // Lagene i et svarutkast i sporet (#1778).
   ['spor/vederlag/kommando.ts', 'predikat', 'lagIVederlaget', ['kommandoer/lag.ts']],
@@ -1444,7 +1441,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/utledning.ts',
     'relasjon',
     'kravpostvarslene',
-    ['kommandoer/skriving.ts:brevtekstFor'],
+    ['spor/vederlag/kommando.ts:kravpostvarslerIBrevet'],
   ],
   [
     'spor/vederlag/utledning.ts:kravpostvarslene',
@@ -1521,7 +1518,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Journalrad',
     'rad',
     'event_id event_type versjon tidsstempel aktor_rolle refererer_til_event_id format data',
-    ['format/leser.ts', 'kommandoer/skriving.ts'],
+    ['format/leser.ts', 'kommandoer/skriving.ts', 'spor/vederlag/kommando.ts:medVarslene'],
   ],
   ['Journalrad.data', 'rad', 'svar', ['kommandoer/skriving.ts']],
   ['format/leser.ts:element(verdi)', 'rad', 'art hva spor', ['format/leser.ts']],
@@ -1899,7 +1896,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'vedlegg_id',
     [
       'spor/vederlag/utledning.ts:kontrollerVedleggeneVedKravet',
-      'kommandoer/skriving.ts:foranKravet',
+      'spor/vederlag/kommando.ts:foranKravet',
       'spor/vederlag/tekst.ts',
     ],
   ],
