@@ -78,12 +78,12 @@ export const varsleneISaken = (u: Utledning): Kravpostvarsel[] =>
 export function varslerUtenKravpost(u: Utledning): Kravpostvarsel[] {
   const brukt = new Set<string>();
   const tidligere: (typeof u.spor.vederlag.krav)[number][] = [];
+  const plass = new Map(
+    u.journal.flatMap((h, i) => (h.art === 'dokument' ? [[h.dokument.id, i] as const] : []))
+  );
+  const foerst = (a: string, b: string) => (plass.get(a) ?? -1) < (plass.get(b) ?? -1);
   for (const k of u.spor.vederlag.krav) {
-    const foer = u.spor.vederlag.kravpostvarsler.filter(
-      (v) =>
-        u.journal.findIndex((h) => h.art === 'dokument' && h.dokument.id === v.dokument) <
-        u.journal.findIndex((h) => h.art === 'dokument' && h.dokument.id === k.dokument)
-    );
+    const foer = u.spor.vederlag.kravpostvarsler.filter((v) => foerst(v.dokument, k.dokument));
     for (const v of Object.values(kravpostvarslene(k, tidligere, foer)))
       if (v.art === 'gitt') brukt.add(v.varsel);
     tidligere.push(k);

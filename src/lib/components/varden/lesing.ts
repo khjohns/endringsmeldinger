@@ -400,13 +400,11 @@ export function kravposterUtenFastBeloep(utfall: Utfall, krav: readonly Krav[]):
 }
 
 /** Oppgjørsformen til kravpostene etter en beregningsregel, `flere` når de har ulike, ellers `null`. */
-function beregningsregelen(krav: Krav): Oppgjoersform | 'flere' | null {
-  const former = new Set(
-    kravposterI(krav)
-      .map((p) => p.oppgjoersform)
-      .filter((f) => f !== 'tilbud')
-  );
-  return former.size === 0 ? null : former.size === 1 ? [...former][0]! : 'flere';
+export function beregningsregelen(
+  former: readonly Oppgjoersform[]
+): Exclude<Oppgjoersform, 'tilbud'> | 'flere' | null {
+  const regler = new Set(former.filter((f) => f !== 'tilbud'));
+  return regler.size === 0 ? null : regler.size === 1 ? [...regler][0]! : 'flere';
 }
 
 export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): TilknyttetKrav {
@@ -429,7 +427,11 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
     spor,
     krevd:
       krav && kravbrev
-        ? { tall: tall(), regel: beregningsregelen(krav), brev: ref(kravbrev) }
+        ? {
+            tall: tall(),
+            regel: beregningsregelen(kravposterI(krav).map((p) => p.oppgjoersform)),
+            brev: ref(kravbrev),
+          }
         : null,
     svaret:
       svar && svarbrev

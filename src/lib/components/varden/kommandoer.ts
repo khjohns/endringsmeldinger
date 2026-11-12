@@ -71,7 +71,7 @@ const kroner = (tekst: string) => {
   return 'verdi' in lest ? lest.verdi : undefined;
 };
 
-const definert = <T extends object>(felt: T): T =>
+export const definert = <T extends object>(felt: T): T =>
   Object.fromEntries(Object.entries(felt).filter(([, x]) => x !== undefined)) as T;
 
 /** Ett svar per kravpost (KA-U57); kjernen hindrer svaret på en post etter en beregningsregel. */

@@ -13,7 +13,7 @@
   import { FileText } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
   import { kroner } from '$kjerne/frosset/tekst';
-  import { kravposterI } from '$kjerne/spor/vederlag/format';
+  import { krevdProduktivitet, kravposterI } from '$kjerne/spor/vederlag/format';
   import type { Kravpost } from '$kjerne/typer';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
@@ -24,7 +24,6 @@
     varslerUtenKravpost,
     type Varselet,
   } from '$lib/kjernesak/vederlagskrav';
-  import { lesKroner } from '$lib/utils/belop';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Filvalg from './Filvalg.svelte';
@@ -43,6 +42,7 @@
   } from './lesing';
   import { brevhode, brevtittel, dato, kalenderdager, KRAVSKJEMA } from './tekster';
   import {
+    beloepet,
     fordelingenPaaPns,
     fraKravpost,
     gjeldendeVarselvalg,
@@ -87,6 +87,7 @@
   } = $props();
   const uid = $props.id();
   const id = (felt: string) => `${uid}-${felt}`;
+  type Beloepsfelt = 'beloep' | 'anslag' | 'overslag';
 
   // svelte-ignore state_referenced_locally
   if (valg === null) valg = startvalg(u);
@@ -118,25 +119,32 @@
       }))
     )
   );
-  const varselFor = (p: Kravpostvalg): Varselet | null => varslene[med.indexOf(p)] ?? null;
+  const varselPerPost = $derived(new Map(med.map((p, i) => [p.noekkel, varslene[i] ?? null])));
+  const varselFor = (p: Kravpostvalg): Varselet | null => varselPerPost.get(p.noekkel) ?? null;
   const kommando = $derived(vederlagskravet(v, varslene));
   const vedlegg = $derived(vedleggIKravet(v));
 
-  // Betegnelsen kjernen gir en ny post (KA-U53), lest av et utkast med de samme postene.
+  // Betegnelsen kjernen gir en ny post (KA-U53), lest av et utkast med de samme postene. Den
+  // følger bare postenes id, rekkefølgen og trekket, så utkastet lages ikke ved hvert tastetrykk.
+  const postrekka = $derived(
+    JSON.stringify([med.map((p) => p.id), v.poster.filter((p) => p.trukket).map((p) => p.id)])
+  );
   const betegnelsene = $derived.by(() => {
+    const [ider, trekker] = JSON.parse(postrekka) as [(string | null)[], string[]];
     const skisse = {
-      ...kommando,
+      type: 'krav',
+      spor: 'vederlag',
       innhold: {
-        ...(kommando.innhold.trekker ? { trekker: kommando.innhold.trekker } : {}),
-        kravposter: med.map((p) => ({
-          ...(p.id ? { id: p.id } : {}),
+        ...(trekker.length ? { trekker } : {}),
+        kravposter: ider.map((id) => ({
+          ...(id ? { id } : {}),
           beskrivelse: 'x',
           oppgjoersform: 'tilbud',
           beloep: 1,
         })),
       },
     };
-    const etter = med.length ? kjernesak.forhaandsvist(skisse) : null;
+    const etter = ider.length ? kjernesak.forhaandsvist(skisse) : null;
     const nye = etter?.spor.vederlag.gjeldendeKrav;
     const lest = nye ? kravposterI(nye) : [];
     return new Map(med.map((p, i) => [p.noekkel, lest[i]?.betegnelse ?? null]));
@@ -210,8 +218,8 @@
 
   // Leselinja: hva posten krever, og hva som er endret fra forrige krav.
   const beloepTekst = (t: string) => {
-    const lest = lesKroner(t);
-    return 'verdi' in lest && lest.verdi !== undefined ? kroner(lest.verdi) : null;
+    const b = beloepet(t);
+    return b === undefined ? null : kroner(b);
   };
   const formlinje = (p: Kravpostvalg) => (p.form === null ? '–' : KRAVSKJEMA.formnavn[p.form]);
   function formdetalj(p: Kravpostvalg): string | null {
@@ -255,7 +263,8 @@
     return b.art === 'krav' ? KRAVSKJEMA.gittMedKravet(b) : KRAVSKJEMA.gittI(b);
   };
   const klarOver = $derived(klarOverForholdet(u));
-  const iDag = new Date().toISOString().slice(0, 10);
+  // Dagens dato i norsk tid, som i `NySak.svelte`.
+  const iDag = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
   const vederlagsvarselet = $derived(varseletFoerKravet(u, '34.1.2'));
   const saerskiltvarselet = $derived(varseletFoerKravet(u, '34.1.3'));
   const utenKravpost = $derived(varslerUtenKravpost(u));
@@ -464,7 +473,8 @@
   felt: string,
   etikett: string,
   hjelp: string,
-  verdi: { v: string },
+  eier: Partial<Record<Beloepsfelt, string>>,
+  noekkel: Beloepsfelt,
   paakrevd: boolean
 )}
   {@const f = feil(felt)}
@@ -475,7 +485,7 @@
       <input
         id={id(felt)}
         inputmode="decimal"
-        bind:value={verdi.v}
+        bind:value={eier[noekkel]}
         aria-required={paakrevd ? 'true' : undefined}
         aria-describedby={f ? `${id(`${felt}-hjelp`)} ${id(`${felt}-feil`)}` : id(`${felt}-hjelp`)}
         aria-invalid={f ? 'true' : undefined}
@@ -519,24 +529,15 @@
       feil={feil(`form-${n}`)}
     />
     {#if p.form === 'tilbud'}
-      {@const verdi = {
-        get v() {
-          return p.beloep;
-        },
-        set v(x) {
-          p.beloep = x;
-        },
-      }}
-      {@render beloepsfelt(`beloep-${n}`, KRAVSKJEMA.beloep, KRAVSKJEMA.beloepHjelp, verdi, true)}
+      {@render beloepsfelt(
+        `beloep-${n}`,
+        KRAVSKJEMA.beloep,
+        KRAVSKJEMA.beloepHjelp,
+        p,
+        'beloep',
+        true
+      )}
     {:else if p.form === 'enhetspriser'}
-      {@const verdi = {
-        get v() {
-          return p.anslag;
-        },
-        set v(x) {
-          p.anslag = x;
-        },
-      }}
       <Valg
         navn={id(`justert-${n}`)}
         spoersmaal={KRAVSKJEMA.justert}
@@ -544,21 +545,21 @@
         bind:verdi={p.justert}
         feil={feil(`justert-${n}`)}
       />
-      {@render beloepsfelt(`anslag-${n}`, KRAVSKJEMA.anslag, KRAVSKJEMA.anslagHjelp, verdi, false)}
+      {@render beloepsfelt(
+        `anslag-${n}`,
+        KRAVSKJEMA.anslag,
+        KRAVSKJEMA.anslagHjelp,
+        p,
+        'anslag',
+        false
+      )}
     {:else if p.form === 'regningsarbeid'}
-      {@const verdi = {
-        get v() {
-          return p.overslag;
-        },
-        set v(x) {
-          p.overslag = x;
-        },
-      }}
       {@render beloepsfelt(
         `overslag-${n}`,
         KRAVSKJEMA.overslag,
         KRAVSKJEMA.overslagHjelp,
-        verdi,
+        p,
+        'overslag',
         false
       )}
     {/if}
@@ -836,14 +837,6 @@
 
       {#if v.saerskilt}
         {@const saerskilt = v.saerskilt}
-        {@const verdi = {
-          get v() {
-            return saerskilt.beloep;
-          },
-          set v(x) {
-            saerskilt.beloep = x;
-          },
-        }}
         <section
           class="seksjon"
           id={id('saerskilt-seksjon')}
@@ -859,11 +852,12 @@
             'saerskilt',
             KRAVSKJEMA.saerskiltBeloep,
             KRAVSKJEMA.saerskiltHjelp,
-            verdi,
+            saerskilt,
+            'beloep',
             true
           )}
           <!-- En post fra forrige krav kan ikke tas ut uten et trekk kjernen ennå ikke har (spørsmål 3). -->
-          {#if !forrige || !(forrige.innhold.saerskilt as { produktivitet?: unknown } | undefined)?.produktivitet}
+          {#if !forrige || krevdProduktivitet(forrige) === null}
             <div>
               <Knapp variant="lenke" onclick={() => (v.saerskilt = null)}
                 >{KRAVSKJEMA.fjernSaerskilt}</Knapp

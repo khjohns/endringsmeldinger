@@ -129,9 +129,8 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
         error: 'VERSJONSKONFLIKT',
       });
     const { aktor_id, aktor_team_id } = forloep.aktoerer[demosak.part];
-    // Som over nettet: kommandoen er JSON, ikke tilstanden i skjemaet (Svelte-proxyer).
     const utfall = vurder(
-      JSON.parse(JSON.stringify(kommando)),
+      kommando,
       {
         sakId,
         aktoerId: aktor_id,

@@ -14,6 +14,7 @@ import { kalenderdag } from '$kjerne/format/leser';
 import { getKontraktsforholdLabel } from '$lib/constants/categories';
 import { FORHOLDENE } from './nysak';
 import { SAKSLISTE } from './tekster';
+import { beregningsregelen } from './lesing';
 
 /** Sakstypene i panelet etter KT-U9. Forsering står ikke der ennå (svaret på M4). */
 export type Fane = 'koe' | 'eo';
@@ -91,13 +92,9 @@ export function krevd(
     const { beloep, oppgjoersformer } = linje.vederlag.krav;
     // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Har kravet også faste
     // beløp, står summen av dem med beregningsregelen ved siden av (#1663).
-    const regler = [...new Set(oppgjoersformer.filter((f) => f !== 'tilbud'))];
+    const regelen = beregningsregelen(oppgjoersformer);
     const regel =
-      regler.length === 0
-        ? null
-        : regler.length === 1
-          ? (SAKSLISTE.metode[regler[0]!] ?? regler[0]!)
-          : 'flere';
+      regelen === null || regelen === 'flere' ? regelen : (SAKSLISTE.metode[regelen] ?? regelen);
     if (regel === null) return { tekst: kroner(beloep), tall: true, dempet, merknad };
     if (!oppgjoersformer.includes('tilbud') && beloep === 0)
       return {

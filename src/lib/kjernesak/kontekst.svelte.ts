@@ -273,7 +273,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       }
       tekst = vurdert.tekst;
     }
-    const innhold = tekst ? { ...kommando, brevtekst: tekst } : kommando;
+    // Kommandoen kan komme fra tilstanden i et skjema; det som sendes, er verdiene, ikke proxyene.
+    const ren = $state.snapshot(kommando) as Record<string, unknown>;
+    const innhold = tekst ? { ...ren, brevtekst: tekst } : ren;
     const igjen =
       ventende?.versjon === sak.versjon &&
       JSON.stringify(ventende.kommando) === JSON.stringify(innhold);

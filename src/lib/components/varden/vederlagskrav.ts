@@ -5,12 +5,13 @@
  * avgjør om kravet er varselet for en post (VS-U49) og lager brevet.
  */
 
-import { kravposterI } from '$kjerne/spor/vederlag/format';
+import { innholdIVederlaget, kravposterI } from '$kjerne/spor/vederlag/format';
 import type { Korrespondansetype, Kravpost, Oppgjoersform } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Varselet } from '$lib/kjernesak/vederlagskrav';
 import { lesKroner, visKroner } from '$lib/utils/belop';
 import type { Kjernevedlegg } from './nysak';
+import { definert } from './kommandoer';
 import { KRAVSKJEMA } from './tekster';
 
 /**
@@ -118,8 +119,7 @@ export function startvalg(u: Utledning): Kravvalg {
     return v;
   }
   v.poster = kravposterI(krav).map(fraKravpost);
-  const post = (krav.innhold.saerskilt as { produktivitet?: { beloep: number } } | undefined)
-    ?.produktivitet;
+  const post = innholdIVederlaget(krav).saerskilt.produktivitet;
   if (post) v.saerskilt = { beloep: tekst(post.beloep) };
   return v;
 }
@@ -139,13 +139,10 @@ export function trukneKravposter(u: Utledning): Kravpost[] {
   return [...sist.values()].filter((p) => !gjeldende.has(p.id));
 }
 
-const beloepet = (t: string): number | undefined => {
+export const beloepet = (t: string): number | undefined => {
   const lest = lesKroner(t);
   return 'verdi' in lest ? lest.verdi : undefined;
 };
-
-const definert = <T extends object>(felt: T): T =>
-  Object.fromEntries(Object.entries(felt).filter(([, x]) => x !== undefined)) as T;
 
 /** Dokumentet med varselet for posten, slik kommandoen bærer det (VS-U51, VS-U53). */
 function dokumentvarsel(v: Varselvalg) {
@@ -298,20 +295,26 @@ export function manglerIKravet(
   return ut;
 }
 
+/** De faste beløpene og anslagene eller overslaget i posten, i øre, så summen ikke får avrundingsfeil. */
+function iOere(p: Kravpostvalg): { faste: number; anslag: number } {
+  const oere = (t: string) => Math.round((beloepet(t) ?? 0) * 100);
+  if (p.form === 'tilbud') return { faste: oere(p.beloep), anslag: 0 };
+  if (p.form === 'enhetspriser') return { faste: 0, anslag: oere(p.anslag) };
+  if (p.form === 'regningsarbeid') return { faste: 0, anslag: oere(p.overslag) };
+  return { faste: 0, anslag: 0 };
+}
+
 /** Det TE krever: summen av de faste beløpene og av anslagene og overslagene, som ikke er krevd. */
 export function summene(v: Kravvalg): { faste: number; iKravpostene: number; anslag: number } {
-  // I øre, så summen ikke får avrundingsfeil.
   let faste = 0;
   let anslag = 0;
-  const oere = (t: string) => Math.round((beloepet(t) ?? 0) * 100);
   for (const p of postene(v)) {
-    if (p.form === 'tilbud') faste += oere(p.beloep);
-    if (p.form === 'enhetspriser') anslag += oere(p.anslag);
-    if (p.form === 'regningsarbeid') anslag += oere(p.overslag);
+    const s = iOere(p);
+    faste += s.faste;
+    anslag += s.anslag;
   }
-  const iKravpostene = faste;
-  if (v.saerskilt) faste += oere(v.saerskilt.beloep);
-  return { faste: faste / 100, iKravpostene: iKravpostene / 100, anslag: anslag / 100 };
+  const saerskilt = v.saerskilt ? Math.round((beloepet(v.saerskilt.beloep) ?? 0) * 100) : 0;
+  return { faste: (faste + saerskilt) / 100, iKravpostene: faste / 100, anslag: anslag / 100 };
 }
 
 /** Fordelingen på PNS, med de faste beløpene og anslagene per kode (U-3 i BF-14). */
@@ -321,11 +324,8 @@ export function fordelingenPaaPns(v: Kravvalg): { pns: string; faste: number; an
     const pns = p.pns.trim();
     if (!pns) continue;
     const r = per.get(pns) ?? { faste: 0, anslag: 0 };
-    const b = (t: string) => Math.round((beloepet(t) ?? 0) * 100);
-    if (p.form === 'tilbud') r.faste += b(p.beloep);
-    if (p.form === 'enhetspriser') r.anslag += b(p.anslag);
-    if (p.form === 'regningsarbeid') r.anslag += b(p.overslag);
-    per.set(pns, r);
+    const s = iOere(p);
+    per.set(pns, { faste: r.faste + s.faste, anslag: r.anslag + s.anslag });
   }
   return [...per]
     .sort(([a], [b]) => a.localeCompare(b, 'nb', { numeric: true }))

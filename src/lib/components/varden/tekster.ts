@@ -9,6 +9,7 @@
  */
 
 import { FORHOLDSGRUPPER as KJERNENS_FORHOLD } from '$kjerne/frosset/forholdene';
+import { opplistet } from '$kjerne/frosset/brevdeler';
 import { kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Betegnelse } from '$kjerne/utledning/visning';
@@ -1025,7 +1026,7 @@ export const KRAVSKJEMA = {
     d ? `Dokumentet av ${dato(d)} legges ved én gang.` : 'Dokumentet legges ved én gang.',
   denSaerskilte: 'den særskilte vederlagsjusteringen',
   kravetErVarseletKort: 'dette kravet er varselet.',
-  gittI: (b: Brevref) => `Gitt i ${b.nummer === null && b.omtale ? b.omtale : brevref(b)}.`,
+  gittI: (b: Brevref) => `Gitt i ${brevref(b)}.`,
   gittMedKravet: (b: Brevref) => `Gitt med kravet i ${brevref(b)}.`,
   dagerEtterKlarOver: (dager: number, d: string) =>
     `${dager} kalenderdager etter at du ble klar over forholdet ${dato(d)}`,
@@ -1117,10 +1118,3 @@ export const KRAVSKJEMA = {
     poster: (n: number) => `${n === 1 ? 'Én kravpost' : `${n} kravposter`} i vederlagsjusteringen`,
   },
 };
-
-/** «P1», «P1 og P3», «P1, P3 og den særskilte vederlagsjusteringen». */
-function opplistet(deler: string[]): string {
-  return deler.length < 2
-    ? (deler[0] ?? '')
-    : `${deler.slice(0, -1).join(', ')} og ${deler.at(-1)}`;
-}
