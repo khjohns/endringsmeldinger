@@ -1873,9 +1873,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/brevdeler.ts',
     'brevtekst',
-    'BrevetAvvises liste stor',
+    'liste stor',
     ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts'],
   ],
+  ['frosset/brevdeler.ts', 'brevtekst', 'BrevetAvvises', ['spor/forhold/tekst.ts']],
   // OV-U32: etiketten brevet bruker for laget.
   [
     'frosset/byggeklosser.ts',

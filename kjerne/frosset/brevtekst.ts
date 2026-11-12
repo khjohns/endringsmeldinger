@@ -129,8 +129,7 @@ function fristkravtekst(k: Krav, { j }: Tekst): string[] {
 function kravtekst(k: Krav, t: Tekst, regler: Regelsett): string {
   const { j } = t;
   const deler = brevtekstI(k.spor).krav(k, t, regler);
-  // KA-U52 punkt 4 for vederlag og frist (#1379). En ny versjon av påberopelsen sier ikke at
-  // noe erstattes (LV-U56).
+  // KA-U52 punkt 4 og LV-U56 (`nevnerErstattet`).
   if (k.erstatter && brevtekstI(k.spor).nevnerErstattet)
     deler.push(`Kravet erstatter TEs krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`);
   return deler.join(' ');
@@ -678,10 +677,18 @@ const BREVTEKST: { forhold: Sporsbrevtekst } & Record<Kravspor, Kravsporsbrevtek
 
 /** Standpunktene i artene bare ett spor har, med teksten i sporet. */
 type ArtISporene = keyof typeof STANDPUNKTENE_I_VEDERLAGET | keyof typeof STANDPUNKTENE_I_FORHOLDET;
-const I_SPORENE: Standpunktstekster<ArtISporene> = {
-  ...STANDPUNKTENE_I_FORHOLDET,
-  ...STANDPUNKTENE_I_VEDERLAGET,
-};
+const I_SPORENE: Standpunktstekster<ArtISporene> = adskilte(
+  STANDPUNKTENE_I_FORHOLDET,
+  STANDPUNKTENE_I_VEDERLAGET
+);
+
+/** Tekstene i to spor samlet. En art i begge gir typefeil, så den ene ikke skjuler den andre. */
+function adskilte<A extends object, B extends object & Partial<Record<keyof A, never>>>(
+  a: A,
+  b: B
+): A & B {
+  return { ...a, ...b };
+}
 
 const erArtISporene = (p: Standpunkt): p is StandpunktIArt[ArtISporene] =>
   Object.hasOwn(I_SPORENE, p.art);

@@ -266,7 +266,6 @@ export interface Sporsbrevtekst {
 
 /** Brevteksten i et spor med krav om vederlag eller frist. */
 export interface Kravsporsbrevtekst extends Sporsbrevtekst {
-  /** Kravet i sporet med kontraktens ord: «kravet om <…>». */
   kravetOm: string;
   /** Det TE er enig i når aksepten ikke gjelder standpunktet til grunnlaget (GR-U7). */
   enigI: string;
@@ -279,7 +278,7 @@ export interface Kravsporsbrevtekst extends Sporsbrevtekst {
 /** Standpunktet i hver art. */
 export type StandpunktIArt = { [K in Standpunktsart]: Extract<Standpunkt, { art: K }> };
 
-/** Teksten for standpunktet i en art som bare ett spor har, med kravet svaret gjelder (#1783). */
+/** Teksten for standpunktet i en art som bare ett spor har, med kravet, svaret og journalen (#1783). */
 export type Standpunktstekster<A extends Standpunktsart> = {
   [K in A]: (p: StandpunktIArt[K], krav: Krav, svar: Svar, j: Journalen) => string;
 };
