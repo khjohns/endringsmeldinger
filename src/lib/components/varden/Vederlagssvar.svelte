@@ -609,7 +609,6 @@
         </p>
         <Knapp
           variant="lenke"
-          aria-describedby={`${uid}-varsel-${p.betegnelse}-standpunkt`}
           onclick={() => (v.varsletITide = v.varsletITide === false ? null : false)}
           >{v.varsletITide === false
             ? SKJEMA.ingenInnsigelseLikevel
