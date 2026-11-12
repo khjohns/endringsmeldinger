@@ -14,7 +14,7 @@ Arkitekturtesten i `kjerne/tester/` håndhever hva reglene leser: hvert felt og 
 
 ## Versjonene
 
-Regelsettet står i `kjerne/regler/`; endres det, økes `REGELVERSJON` der. Endres resten av kjernen, økes `PROJEKSJONSVERSJON` i `kjerne/versjon.ts`. `kjerne/frosset/` bestemmer hva beslutningsgrunnlaget fryser, så endres en fil der, økes begge. Regelversjonsvakten i CI krever det, men ikke for en flytting som bare endrer importstiene, og heller ikke når bare kommentarene er endret (#1549).
+Regelsettet står i `kjerne/regler/`; endres det, økes `REGELVERSJON` der. Endres resten av kjernen, økes `PROJEKSJONSVERSJON` i `kjerne/versjon.ts`. `kjerne/frosset/` bestemmer hva beslutningsgrunnlaget fryser, så endres en fil der eller frysingen eller teksten i et spor (`kjerne/spor/<spor>/frysing.ts` og `tekst.ts`), økes begge. Regelversjonsvakten i CI krever det, men ikke for en flytting som bare endrer importstiene, og heller ikke når bare kommentarene er endret (#1549).
 
 ## Hvor koden hører hjemme
 
@@ -23,7 +23,8 @@ Regelsettet står i `kjerne/regler/`; endres det, økes `REGELVERSJON` der. Endr
   og står i `regler/`. `frosset/` leser kravet, regner ut og fryser svaret og skriver
   teksten. Kontrollen etter OV-U23 står i utregningen fordi den er en del av lesingen av
   postene i kravet.
-- **`regler/` importerer ikke `frosset/`.** En regel som trenger noe fra kravet, tar
+- **`regler/` når ikke `frosset/`**, heller ikke frysingen og teksten i et spor eller gjennom
+  en annen modul. Arkitekturtesten håndhever det. En regel som trenger noe fra kravet, tar
   verdien den trenger, som kategoriene som tekst, og ikke `Krav`
   (`regler/svarkontroll.ts`).
 - **Kravinnholdet leses gjennom `format/kravinnhold.ts`, og utregningen i svaret gjennom
@@ -33,6 +34,13 @@ Regelsettet står i `kjerne/regler/`; endres det, økes `REGELVERSJON` der. Endr
 - **Teksten står i tekstlaget**: brevteksten i `frosset/brevtekst.ts` og ordene den deler
   med linjen og visningen i `frosset/tekst.ts`. En tekst kan lese en regel, men en regel
   leser ikke en tekst.
+- **Det som er sporets eget, står i `kjerne/spor/<spor>/`**, i én fil per rolle (#1783):
+  `format.ts` (`format/`), `frysing.ts` og `tekst.ts` (`frosset/`), `utledning.ts` og
+  `visning.ts` (`utledning/`, og visningen er visning) og `kommando.ts` (`kommandoer/`). En
+  rollefil hører til mappen rollen står for, så grensene og versjonene for den mappen gjelder
+  den, og arkitekturtesten avviser en annen fil i `spor/`. Rollene står i `ROLLER` i
+  arkitekturtesten, og vaktene i Python prøves mot dem. Den felles modulen slår opp i sporet
+  gjennom en `Record<Spor, …>` for rollen. Regelsettet for sporet står i `regler/`.
 
 ## Når kode flyttes mellom moduler
 

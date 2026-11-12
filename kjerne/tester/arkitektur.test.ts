@@ -19,28 +19,66 @@
  *   eller hvilket formål en tillatt lesing har, utover avgrensningen til
  *   moduler og funksjoner.
  *
+ * - Rollefilene i et spor (`spor/<spor>/<rolle>.ts`, #1783) hører til mappen rollen står
+ *   for, og grensene for mappen gjelder dem. `regler/` når ikke frysingen eller teksten.
+ *
  * Importene leses med TypeScript-parseren, ikke med et tekstsøk, så `import`,
  * `import type`, `export … from`, `import()` og `require()` teller likt, med og
  * uten filendelse.
  */
 
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
+import { SPOR, type Spor } from '../typer.ts';
 
 const KJERNE = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROT = resolve(KJERNE, '..');
 const TESTER = join(KJERNE, 'tester');
 
+const utenEndelse = (sti: string) => sti.replace(/\.(ts|js|mjs|cjs)$/, '');
+
+/** Rollene en fil i et spor kan ha, og mappen hver rolle hører til (#1783). */
+const ROLLER = {
+  format: 'format',
+  frysing: 'frosset',
+  tekst: 'frosset',
+  utledning: 'utledning',
+  visning: 'utledning',
+  kommando: 'kommandoer',
+} as const;
+type Rolle = keyof typeof ROLLER;
+const erRolle = (navn: string | undefined): navn is Rolle =>
+  navn !== undefined && Object.hasOwn(ROLLER, navn);
+
+/** Rollefilene i hvert spor, også de som ikke finnes ennå. */
+const rollefilene = (...roller: Rolle[]) =>
+  SPOR.flatMap((s) => roller.map((r) => join(KJERNE, 'spor', s, `${r}.ts`)));
+
+/**
+ * Mappen `fil` hører til: mappen den står i, eller for en rollefil i et spor mappen rollen
+ * hører til. `null` for en fil utenfor kjernen eller rett i den, og for en fil i `spor/` som
+ * ikke er en rollefil.
+ */
+export function mappenTil(fil: string): string | null {
+  if (!fil.startsWith(KJERNE + sep)) return null;
+  const deler = relative(KJERNE, utenEndelse(fil)).split(sep);
+  if (deler[0] !== 'spor') return deler.length > 1 ? deler[0]! : null;
+  const [, spor, rolle] = deler;
+  return deler.length === 3 && SPOR.includes(spor as Spor) && erRolle(rolle) ? ROLLER[rolle] : null;
+}
+
 /** Modulene reglene ikke kan nå. */
-const VISNING = [join(KJERNE, 'utledning', 'visning.ts'), join(KJERNE, 'utledning', 'buffer.ts')];
+const VISNING = [
+  join(KJERNE, 'utledning', 'visning.ts'),
+  join(KJERNE, 'utledning', 'buffer.ts'),
+  ...rollefilene('visning'),
+];
 /** Pakker og filer utenfor kjernen testene kan bruke. */
 const TESTPAKKER = new Set(['vitest', 'typescript']);
 const TESTFILER = join(ROT, 'docs', 'domenetabell') + sep;
-
-const utenEndelse = (sti: string) => sti.replace(/\.(ts|js|mjs|cjs)$/, '');
 
 /** Det `fil` importerer: relative stier løst til absolutte uten endelse, og pakkenavn som de står. */
 export function importer(fil: string, kilde: string): string[] {
@@ -138,17 +176,14 @@ describe('kjernen er ren kode (B-14)', () => {
   });
 });
 
-const KOMMANDOER = join(KJERNE, 'kommandoer') + sep;
-/** Importene i `fil` fra kommandoene. */
+/** Importene i `fil` fra kommandoene, også fra kommandoene i et spor. */
 const kommandoerI = (fil: string, kilde: string) =>
-  importer(fil, kilde).filter((i) => i.startsWith(KOMMANDOER));
+  importer(fil, kilde).filter((i) => mappenTil(i) === 'kommandoer');
 
 // #1354: kommandoene leser utledningen, ikke omvendt.
 describe('utledningen importerer ikke kommandoene (#1354)', () => {
   it.each(
-    filer
-      .filter((f) => f.startsWith(join(KJERNE, 'utledning') + sep))
-      .map((f) => [relative(KJERNE, f), f] as const)
+    filer.filter((f) => mappenTil(f) === 'utledning').map((f) => [relative(KJERNE, f), f] as const)
   )('%s', (_navn, fil) => {
     expect(kommandoerI(fil, readFileSync(fil, 'utf8'))).toEqual([]);
   });
@@ -156,9 +191,91 @@ describe('utledningen importerer ikke kommandoene (#1354)', () => {
   it.each([
     ["import { utledJournal } from '../kommandoer/skriving.ts';", 'utledning/buffer.ts'],
     ["export type { Kommando } from '../kommandoer/kommando';", 'utledning/visning.ts'],
+    ["import { standpunkter } from '../spor/vederlag/kommando.ts';", 'utledning/utled.ts'],
   ])('oppdager %s i %s', (linje, navn) => {
     const fil = join(KJERNE, navn);
     expect(kommandoerI(fil, `${linje}\n${readFileSync(fil, 'utf8')}`)).not.toEqual([]);
+  });
+
+  // #1783: rollefilene finnes ikke ennå, så forsøket er hele kilden.
+  it.each([
+    ["import { skriv } from '../../kommandoer/skriving.ts';", 'spor/vederlag/utledning.ts'],
+    ["import { standpunkter } from './kommando';", 'spor/vederlag/visning.ts'],
+    ["export * from '../frist/kommando.ts';", 'spor/vederlag/utledning.ts'],
+  ])('oppdager %s i rollefila %s', (linje, navn) => {
+    const fil = join(KJERNE, navn);
+    expect(mappenTil(fil)).toBe('utledning');
+    expect(kommandoerI(fil, linje)).not.toEqual([]);
+  });
+});
+
+/** Frysingen og teksten, også i et spor. */
+const FROSSET = [
+  ...filer.filter((f) => f.startsWith(join(KJERNE, 'frosset') + sep)),
+  ...rollefilene('frysing', 'tekst'),
+];
+
+// .claude/rules/kjerne.md, «Hvor koden hører hjemme»: en regel leser ikke en tekst.
+describe('regelsettet når ikke frysingen eller teksten', () => {
+  it.each(
+    filer.filter((f) => mappenTil(f) === 'regler').map((f) => [relative(KJERNE, f), f] as const)
+  )('%s', (_navn, modul) => {
+    expect(forbudteStier(modul, new Map(), FROSSET)).toEqual([]);
+  });
+
+  it.each([
+    ["import { kroner } from '../frosset/tekst.ts';"],
+    ["import type { Svarinnhold } from '../frosset/standpunkt';"],
+    ["import { vederlagstekst } from '../spor/vederlag/tekst.ts';"],
+    ["export * from '../spor/frist/frysing';"],
+  ])('oppdager %s', (linje) => {
+    const regel = join(KJERNE, 'regler', 'frist.ts');
+    const kilde = `${linje}\n${readFileSync(regel, 'utf8')}`;
+    expect(forbudteStier(regel, new Map([[utenEndelse(regel), kilde]]), FROSSET)).not.toEqual([]);
+  });
+
+  it('oppdager teksten i et spor gjennom en annen modul', () => {
+    const regel = join(KJERNE, 'regler', 'svarkontroll.ts');
+    const format = join(KJERNE, 'format', 'format.ts');
+    const filer = new Map([
+      [utenEndelse(regel), "import { METODER } from '../format/format.ts';"],
+      [utenEndelse(format), "export { METODEN as METODER } from '../spor/vederlag/tekst.ts';"],
+    ]);
+    expect(forbudteStier(regel, filer, FROSSET)).toEqual([
+      'kjerne/regler/svarkontroll → kjerne/format/format → kjerne/spor/vederlag/tekst',
+    ]);
+  });
+});
+
+describe('et spor har bare rollefiler (#1783)', () => {
+  // Alle filer, ikke bare .ts: en JSON-fil ved siden av en rollefil ville stått utenfor
+  // grensene og versjonene.
+  it('hver fil i spor/ er spor/<spor>/<rolle>.ts', () => {
+    const spor = join(KJERNE, 'spor');
+    const andre = existsSync(spor)
+      ? readdirSync(spor, { recursive: true, withFileTypes: true })
+          .filter((d) => d.isFile())
+          .map((d) => join(d.parentPath, d.name))
+          .filter((f) => !f.endsWith('.ts') || mappenTil(f) === null)
+          .map((f) => relative(KJERNE, f))
+      : [];
+    expect(andre).toEqual([]);
+  });
+
+  it.each([
+    ['spor/vederlag/frysing.ts', 'frosset'],
+    ['spor/vederlag/tekst.ts', 'frosset'],
+    ['spor/frist/visning.ts', 'utledning'],
+    ['spor/forhold/kommando.ts', 'kommandoer'],
+    ['spor/vederlag/format', 'format'],
+    ['frosset/brevtekst.ts', 'frosset'],
+    ['typer.ts', null],
+    ['spor/vederlag/annet.ts', null],
+    ['spor/vederlag/frysing/a.ts', null],
+    ['spor/poster/tekst.ts', null],
+    ['../src/kommandoer/a.ts', null],
+  ])('%s hører til %s', (navn, mappe) => {
+    expect(mappenTil(join(KJERNE, navn))).toBe(mappe);
   });
 });
 
@@ -191,6 +308,7 @@ describe('INV-MM-9: reglene leser ikke visningen', () => {
     ["const v = await import('../utledning/visning.ts');"],
     ["const v = require('../utledning/visning');"],
     ["import { lesSak } from '../utledning/buffer.ts';"],
+    ["import { vederlagssvaret } from '../spor/vederlag/visning.ts';"],
   ])('oppdager %s', (linje) => {
     const regel = join(KJERNE, 'kommandoer', 'forutsetninger.ts');
     const kilde = `${linje}\n${readFileSync(regel, 'utf8')}`;

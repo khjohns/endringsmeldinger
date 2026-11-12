@@ -4,8 +4,11 @@ Hvert tilfelle bygger et eget git-repo, slik at skriptet kjører uten å røre
 filene i dette repoet.
 """
 
+import importlib.util
 import os
+import re
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -147,6 +150,13 @@ def kjerne(repo):
         # #309: det samme gjelder hver fil i frosset/.
         pytest.param({"kjerne/frosset/frysing.ts": "b\n", **_kjerne(5, 3)}, 1, id="frysingen med bare ny projeksjonsversjon"),
         pytest.param({"kjerne/frosset/frysing.ts": "b\n", **_kjerne(6, 3)}, 0, id="frysingen med begge versjonene"),
+        # #1783: frysingen og teksten i et spor dekkes som frosset/, de andre rollene som resten av kjernen.
+        pytest.param({"kjerne/spor/vederlag/frysing.ts": "b\n", **_kjerne(5, 3)}, 1, id="frysingen i et spor med bare ny projeksjonsversjon"),
+        pytest.param({"kjerne/spor/vederlag/frysing.ts": "b\n", **_kjerne(6, 3)}, 0, id="frysingen i et spor med begge versjonene"),
+        pytest.param({"kjerne/spor/frist/tekst.ts": "b\n", **_kjerne(5, 3)}, 1, id="teksten i et spor med bare ny projeksjonsversjon"),
+        pytest.param({"kjerne/spor/frist/tekst.ts": "b\n", **_kjerne(6, 3)}, 0, id="teksten i et spor med begge versjonene"),
+        pytest.param({"kjerne/spor/vederlag/utledning.ts": "b\n", **_kjerne(5, 3)}, 0, id="utledningen i et spor med ny projeksjonsversjon"),
+        pytest.param({"kjerne/spor/vederlag/frysing/x.ts": "b\n", **_kjerne(5, 3)}, 0, id="en fil under en mappe som heter som en rolle"),
         pytest.param({"kjerne/tester/kjerne.test.ts": "b\n"}, 0, id="bare testene"),
     ],
 )
@@ -362,6 +372,11 @@ def test_formatet_i_flere_filer_i_base_feiler_etter_en_flytting(kjerne):
         # Inn i frosset/ eller mellom lagene utenfor regelsettet: dekningen krymper ikke.
         pytest.param("kjerne/utled.ts", "kjerne/frosset/utled.ts", _kjerne(5, 2), 0, id="fra utledningen til frosset"),
         pytest.param("kjerne/utled.ts", "kjerne/utledning/utled.ts", _kjerne(5, 2), 0, id="mellom lagene"),
+        # #1783: frysingen i et spor dekkes som frosset/, utledningen i et spor ikke.
+        pytest.param("kjerne/frosset/f.ts", "kjerne/spor/vederlag/frysing.ts", _kjerne(5, 2), 0, id="fra frosset til frysingen i et spor"),
+        pytest.param("kjerne/frosset/f.ts", "kjerne/spor/vederlag/tekst.ts", _kjerne(5, 2), 0, id="fra frosset til teksten i et spor"),
+        pytest.param("kjerne/frosset/f.ts", "kjerne/spor/vederlag/utledning.ts", _kjerne(5, 3), 1, id="fra frosset til utledningen i et spor med bare ny projeksjonsversjon"),
+        pytest.param("kjerne/frosset/f.ts", "kjerne/spor/vederlag/utledning.ts", _kjerne(6, 2), 0, id="fra frosset til utledningen i et spor med ny regelversjon"),
     ],
 )
 def test_en_ren_flytting_krever_versjonen_som_ikke_lenger_dekker_fila(kjerne, fra, til, versjoner, ventet):
@@ -448,3 +463,35 @@ def test_en_flytting_med_endrede_kommentarer_krever_ingen_ny_versjon(flytting):
     assert svar.returncode == 0, svar.stdout + svar.stderr
     assert KJERNE_STANDPUNKT in svar.stdout.split("uten krav om ny versjon:")[1]
 
+
+
+ARKITEKTUR = SKRIPT.parents[2] / "kjerne/tester/arkitektur.test.ts"
+
+
+def roller_i_arkitekturtesten() -> dict[str, str]:
+    """`ROLLER` i arkitekturtesten: rollefila i et spor og mappen den hører til (#1783)."""
+    tabell = re.search(r"const ROLLER = \{(.*?)\} as const;", ARKITEKTUR.read_text(), re.S)
+    assert tabell, "fant ikke ROLLER i arkitekturtesten"
+    roller = dict(re.findall(r"(\w+): '(\w+)'", tabell.group(1)))
+    assert len(roller) >= 6, roller
+    return roller
+
+
+def _flytting():
+    sys.path.insert(0, str(SKRIPT.parent))
+    try:
+        spes = importlib.util.spec_from_file_location("flytting", SKRIPT.parent / "flytting.py")
+        modul = importlib.util.module_from_spec(spes)
+        spes.loader.exec_module(modul)
+        return modul
+    finally:
+        sys.path.remove(str(SKRIPT.parent))
+
+
+def test_regelversjonen_dekker_rollefilene_arkitekturtesten_regner_til_frosset():
+    """#1783: rollene i arkitekturtesten og omfanget i flytting.py er samme regel."""
+    flytting = _flytting()
+    for rolle, mappe in roller_i_arkitekturtesten().items():
+        sti = f"kjerne/spor/vederlag/{rolle}.ts"
+        assert flytting.dekker("REGELVERSJON", sti) == (mappe == "frosset"), sti
+        assert flytting.dekker("PROJEKSJONSVERSJON", sti), sti

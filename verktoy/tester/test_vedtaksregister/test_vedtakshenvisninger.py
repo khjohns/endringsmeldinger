@@ -7,6 +7,7 @@ unntatt i en test merket historisk (oppdragsgiver 05.11, #1606).
 
 import collections
 import pathlib
+import re
 
 import pytest
 
@@ -526,13 +527,24 @@ def _designfeil(tekst: str, sti: str) -> list[str]:
     return vh.feil_i(sti, tekst, KJENTE_D, OPPHEVET, AAPNE, design_=DESIGN)
 
 
-@pytest.mark.parametrize("mappe", ["kjerne/frosset", "kjerne/kommandoer", "kjerne/regler"])
-def test_en_designpost_alene_i_reglene_gir_feil_som_foreslaar_bindende_i(mappe):
+@pytest.mark.parametrize(
+    "sti",
+    [
+        "kjerne/frosset/a.ts",
+        "kjerne/kommandoer/a.ts",
+        "kjerne/regler/a.ts",
+        # #1783: rollefilene i et spor som hører til mappene over.
+        "kjerne/spor/vederlag/frysing.ts",
+        "kjerne/spor/vederlag/tekst.ts",
+        "kjerne/spor/frist/kommando.ts",
+    ],
+)
+def test_en_designpost_alene_i_reglene_gir_feil_som_foreslaar_bindende_i(sti):
     """Arbeidsvalget for kontroll 2 04.11 i #1534."""
-    assert _designfeil("// MM-U22\n", f"{mappe}/a.ts") == [
-        f"{mappe}/a.ts:1: MM-U22 er design og står som eneste grunnlag; vis også til VS-U3"
+    assert _designfeil("// MM-U22\n", sti) == [
+        f"{sti}:1: MM-U22 er design og står som eneste grunnlag; vis også til VS-U3"
     ]
-    assert _designfeil("// MM-U22, VS-U3\n", f"{mappe}/a.ts") == []
+    assert _designfeil("// MM-U22, VS-U3\n", sti) == []
 
 
 def test_en_designpost_uten_bindende_i_ber_om_feltet():
@@ -542,7 +554,19 @@ def test_en_designpost_uten_bindende_i_ber_om_feltet():
     ]
 
 
-@pytest.mark.parametrize("sti", ["kjerne/utledning/a.ts", "server/a.ts", "src/a.ts", "kjerne/reglerx/a.ts"])
+@pytest.mark.parametrize(
+    "sti",
+    [
+        "kjerne/utledning/a.ts",
+        "server/a.ts",
+        "src/a.ts",
+        "kjerne/reglerx/a.ts",
+        "kjerne/spor/vederlag/utledning.ts",
+        "kjerne/spor/vederlag/visning.ts",
+        "kjerne/spor/vederlag/format.ts",
+        "kjerne/spor/vederlag/tekst/a.ts",
+    ],
+)
 def test_en_designpost_alene_utenfor_reglene_er_lov(sti):
     assert _designfeil("// MM-U22\n", sti) == []
 
@@ -610,3 +634,15 @@ def test_en_historisk_sporsmalsfil_kan_ha_en_opphevet_id_alene():
     assert _feil("Følger MM-U4.", sti) == []
     assert len(_feil("Følger XX-U99.", sti)) == 1
     assert len(_feil("Følger MM-U4.", "docs/domenetabell/brukerforlop/BF-06.md")) == 1
+
+
+def test_grunnlagsmappene_dekker_rollefilene_arkitekturtesten_regner_til_dem():
+    """#1783: rollene i arkitekturtesten og `i_grunnlagsmappe` er samme regel."""
+    tekst = (ROT / "kjerne/tester/arkitektur.test.ts").read_text()
+    tabell = re.search(r"const ROLLER = \{(.*?)\} as const;", tekst, re.S)
+    assert tabell, "fant ikke ROLLER i arkitekturtesten"
+    roller = dict(re.findall(r"(\w+): '(\w+)'", tabell.group(1)))
+    assert len(roller) >= 6, roller
+    for rolle, mappe in roller.items():
+        sti = f"kjerne/spor/vederlag/{rolle}.ts"
+        assert vh.i_grunnlagsmappe(sti) == (f"kjerne/{mappe}/" in vh.GRUNNLAGSMAPPER), sti
