@@ -238,13 +238,14 @@ try {
   await page
     .getByRole('textbox', { name: 'Begrunnelse' })
     .fill('Varselet etter § 34.1.2 kom for sent. Subsidiært godtas 60 000 kr.');
-  const gjelderHvis = await page.locator('[id*="-beloep-"][id$="-forutsetninger"] li').allInnerTexts();
-  console.log(`Beløpet gjelder hvis:\n${gjelderHvis.map((t) => `- ${t}`).join('\n')}`);
+  // Beløpet viser til forutsetningene over oppgjørsformen, i samme lag (KA-U72).
+  const gjelderHvis = await page.locator('[id*="-form-"][id$="-forutsetninger"] li').allInnerTexts();
+  console.log(`Oppgjørsformen og beløpet gjelder hvis:\n${gjelderHvis.map((t) => `- ${t}`).join('\n')}`);
   if (
     gjelderHvis.length !== FORUTSETNINGER.length ||
     !FORUTSETNINGER.every((f, i) => f.test(gjelderHvis[i]))
   )
-    throw new Error(`«Gjelder hvis» over beløpet har ikke punktene ${FORUTSETNINGER.join(', ')} i den rekkefølgen`);
+    throw new Error(`«Gjelder hvis» over oppgjørsformen har ikke punktene ${FORUTSETNINGER.join(', ')} i den rekkefølgen`);
   await steg('bh-vurderer', true);
 
   await knapp('Se brevet før sending').first().click();

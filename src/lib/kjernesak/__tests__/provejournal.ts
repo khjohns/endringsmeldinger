@@ -5,6 +5,7 @@ import { forhaandsvis, utledJournal, type Vedleggsoppslag } from '$kjerne/komman
 import { KJERNE } from '$kjerne/versjon';
 import { kravposterI } from '$kjerne/spor/vederlag/format';
 import type { Journalrad, Part } from '$kjerne/typer';
+import type { Journallinje } from '$lib/api/kjerne';
 
 export const SAK = 'sak-1';
 
@@ -163,3 +164,22 @@ export const medUkjentHendelse: Journalrad[] = [
   ...medGrunnlag,
   { ...medGrunnlag[1], event_id: 'e-ukjent', event_type: 'ukjent_hendelse', versjon: 3, data: {} },
 ];
+
+/** Raden slik serveren gir den i journalen til en sak. */
+export const linje = ({
+  event_id,
+  versjon,
+  event_type,
+  tidsstempel,
+  aktor_rolle,
+  format,
+  data,
+}: Journalrad): Journallinje => ({
+  event_id,
+  versjon,
+  event_type,
+  tidsstempel,
+  aktor_rolle,
+  format,
+  data,
+});
