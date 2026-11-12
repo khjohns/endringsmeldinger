@@ -63,8 +63,12 @@
         ? FORHOLDET.gjelderHvis(k.grunner)
         : forholdssvaret && FORHOLDET.blirSubsidiaert(forholdssvaret.brev);
   const tall = (spor: Spor, n: number) => (spor === 'frist' ? dager(n) : kroner(n));
-  const stor = (t: string) => t[0].toUpperCase() + t.slice(1);
 </script>
+
+<!-- Skillet står med hardt mellomrom etter beløpet, så ingen linje begynner med «·». -->
+{#snippet utenFast(n: number)}&nbsp;<span class="uten"
+    ><span aria-hidden="true">·</span> {FORHOLDET.utenFastBeloep(n)}</span
+  >{/snippet}
 
 <section class="kort" aria-labelledby={`${uid}-tittel`}>
   <header class="hode">
@@ -93,10 +97,10 @@
                 <div>
                   <dt>{FORHOLDET.krevd}</dt>
                   <dd>
-                    {#if k.krevd.tall !== null}<span class="num">{tall(k.spor, k.krevd.tall)}</span
-                      >{#if k.krevd.regel}{FORHOLDET.ogRegelen(k.krevd.regel)}{/if}{:else}{stor(
-                        FORHOLDET.regelen(k.krevd.regel)
-                      )}{/if}
+                    {#if k.krevd.tall !== null}<span class="verdi"
+                        ><span class="num">{tall(k.spor, k.krevd.tall)}</span
+                        >{#if k.krevd.utenFast}{@render utenFast(k.krevd.utenFast)}{/if}</span
+                      >{:else if k.spor === 'vederlag'}{FORHOLDET.ingenFastBeloep}{/if}
                     <span class="brev">{brevref(k.krevd.brev)}</span>
                   </dd>
                 </div>
@@ -105,12 +109,14 @@
                 <dt>{FORHOLDET.byggherren}</dt>
                 <dd>
                   {#if k.svaret}
-                    {#each k.svaret.poster as p, i (i)}
-                      <span class="post">
-                        <span class="num">{tall(k.spor, p.tall)}</span>
-                        {#if p.lag}<span class="lag">{p.lag}</span>{/if}
-                      </span>
-                    {/each}
+                    {#if k.svaret.poster.length}<span class="verdi"
+                        >{#each k.svaret.poster as p, i (i)}{#if i}{/if}<span class="num"
+                            >{tall(k.spor, p.tall)}</span
+                          >{#if p.lag}&nbsp;<span class="lag">{p.lag}</span
+                            >{/if}{/each}{#if k.svaret.utenFast}{@render utenFast(
+                            k.svaret.utenFast
+                          )}{/if}</span
+                      >{:else if k.svaret.utenFast}{FORHOLDET.ingenFastBeloep}{/if}
                     <span class="brev">{brevref(k.svaret.brev)}</span>
                   {:else}
                     <span class="dempet">{FORHOLDET.ikkeSvart}</span>
@@ -233,16 +239,12 @@
     align-items: baseline;
     gap: var(--spacing-1) var(--spacing-3);
   }
-  .post {
-    display: inline-flex;
-    gap: var(--spacing-2);
-    align-items: baseline;
-  }
   .num {
     font-size: 16px;
     font-variant-numeric: tabular-nums;
   }
-  .lag {
+  .lag,
+  .uten {
     color: var(--ink-2);
   }
   .brev,

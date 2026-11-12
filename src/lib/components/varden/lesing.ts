@@ -11,7 +11,7 @@ import { FORHOLDSGRUPPER, forholdet } from '$kjerne/spor/forhold/tekst';
 import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
 import { plassene } from '$kjerne/frosset/byggeklosser';
 import { innholdIFristen } from '$kjerne/format/kravinnhold';
-import { kravposterI, krevdSamlet } from '$kjerne/spor/vederlag/format';
+import { krevdIKravposten, kravposterI, krevdSamlet } from '$kjerne/spor/vederlag/format';
 import { tilTall } from '$kjerne/regler/beloep';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { TilbudtHandling } from '$kjerne/kommandoer/handlinger';
@@ -379,11 +379,21 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
 export interface TilknyttetKrav {
   spor: 'vederlag' | 'frist';
   /**
-   * Summen av de faste beløpene i kroner, eller dagene, og `null` når kravet ikke har et tall.
-   * `regel` er oppgjørsformen til kravpostene etter en beregningsregel, eller `flere` (KA-U61).
+   * Summen av de faste beløpene i kroner, eller dagene, og `null` når ingen post har et fast
+   * beløp. `utenFast` er antallet kravposter etter en beregningsregel, som ikke har et krevd
+   * beløp (KA-U61).
    */
-  krevd: { tall: number | null; regel: Oppgjoersform | 'flere' | null; brev: Brevref } | null;
-  svaret: { poster: { tall: number; lag: string | null }[]; brev: Brevref } | null;
+  krevd: { tall: number | null; utenFast: number; brev: Brevref } | null;
+  /**
+   * `poster` er summen av beløpene, eller dagene, i hvert lag, i lagenes rekkefølge. `utenFast`
+   * er antallet kravposter svaret ikke har et beløp for: tilbudet er ikke akseptert (KA-U72), eller
+   * posten er etter en beregningsregel (KA-U61). Det leses av standpunktene i brevet.
+   */
+  svaret: {
+    poster: { tall: number; lag: string | null }[];
+    utenFast: number;
+    brev: Brevref;
+  } | null;
   grunner: Subsidiaergrunn[];
 }
 
@@ -397,6 +407,13 @@ export function kravposterUtenFastBeloep(utfall: Utfall, krav: readonly Krav[]):
   return (utfall.uten_fast_beloep ?? []).map(
     (id) => poster.find((p) => p.id === id)?.betegnelse ?? id
   );
+}
+
+/** Summen av tallene med samme lag, i rekkefølgen lagene først står i. Summeres i øre. */
+function summertPerLag(poster: { tall: number; lag: string | null }[]) {
+  const oere = new Map<string | null, number>();
+  for (const p of poster) oere.set(p.lag, (oere.get(p.lag) ?? 0) + Math.round(p.tall * 100));
+  return [...oere].map(([lag, o]) => ({ tall: o / 100, lag }));
 }
 
 /** Oppgjørsformen til kravpostene etter en beregningsregel, `flere` når de har ulike, ellers `null`. */
@@ -417,7 +434,7 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
     if (!krav) return null;
     if (spor === 'frist') return innholdIFristen(krav).dager;
     // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Summen er de faste
-    // beløpene, og visningen nevner beregningsregelen ved siden av (#1663).
+    // beløpene, og visningen sier hvor mange poster som ikke har et fast beløp (#1752).
     const fast =
       kravposterI(krav).some((p) => p.oppgjoersform === 'tilbud') || krevdSamlet(krav) > 0n;
     return fast ? tilTall(krevdSamlet(krav)) : null;
@@ -428,20 +445,28 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
       krav && kravbrev
         ? {
             tall: tall(),
-            regel: beregningsregelen(kravposterI(krav).map((p) => p.oppgjoersform)),
+            utenFast:
+              spor === 'vederlag'
+                ? kravposterI(krav).filter((p) => krevdIKravposten(krav, p) === null).length
+                : 0,
             brev: ref(kravbrev),
           }
         : null,
     svaret:
       svar && svarbrev
         ? {
-            poster: standpunktene(svar, u).flatMap((l) =>
-              'standpunkt' in l && l.standpunkt.art === 'beloep'
-                ? [{ tall: l.standpunkt.godkjent!, lag: l.lag }]
-                : 'standpunkt' in l && l.standpunkt.art === 'dager'
-                  ? [{ tall: l.standpunkt.vurdert, lag: l.lag }]
-                  : []
+            poster: summertPerLag(
+              standpunktene(svar, u).flatMap((l) =>
+                'standpunkt' in l && l.standpunkt.art === 'beloep'
+                  ? [{ tall: l.standpunkt.godkjent!, lag: l.lag }]
+                  : 'standpunkt' in l && l.standpunkt.art === 'dager'
+                    ? [{ tall: l.standpunkt.vurdert, lag: l.lag }]
+                    : []
+              )
             ),
+            utenFast: svar.standpunkter.filter(
+              (x) => x.art === 'beloep' && x.godkjent === undefined && x.gjelder
+            ).length,
             brev: ref(svarbrev),
           }
         : null,
