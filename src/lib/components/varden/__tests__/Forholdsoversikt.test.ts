@@ -17,6 +17,7 @@ import Brevtraad from '$lib/components/varden/Brevtraad.svelte';
 import type { Spor } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { betegnelse } from '$kjerne/utledning/visning';
+import { kravposterI } from '$kjerne/spor/vederlag/format';
 
 /** Betegnelsene slik saksbildet gir dem (`betegnelsene`), regnet av kjernen. */
 const betegnelserI = (u: Utledning) => ({
@@ -193,6 +194,41 @@ describe('Siden for forholdet', () => {
     expect(kortet.querySelector('.rot')?.textContent).toBe('Irregulær endring · avslått i brev 3');
     expect(kortet.textContent).toContain(
       'Et svar blir subsidiært så lenge byggherren står fast på brev 3.'
+    );
+  });
+
+  it('en kravpost der byggherren ikke har akseptert tilbudet, står uten beløp under byggherren, med ordlyden fra enigheten (#1752 punkt 2, KA-U72, OV-U73)', async () => {
+    const { u } = await vis([
+      PAABEROPELSE,
+      {
+        handling: 'krav',
+        spor: 'vederlag',
+        navn: 'K-v1',
+        kravposter: [{ belop: 100000 }, { belop: 40000 }],
+      },
+      {
+        handling: 'brev',
+        navn: 'D3',
+        svar: [
+          { spor: 'forhold', navn: 'S-g1', resultat: 'godkjent', varslet_i_tide: true },
+          {
+            spor: 'vederlag',
+            navn: 'S-v1',
+            kravposter: [
+              { post: 'P1', vurdering: 'godkjent', godkjent_belop: 100000 },
+              { post: 'P2', metode_akseptert: false, oensket_metode: 'regningsarbeid' },
+            ],
+          },
+        ],
+      } as Handling,
+    ]);
+    const [, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
+    const krav = within(screen.getByRole('region', { name: 'Tilknyttede krav' })).getByRole(
+      'listitem'
+    );
+    const tekst = krav.textContent?.replace(/\s+/g, ' ');
+    expect(tekst).toContain(
+      `Byggherren 100 000 kr ${p2!.betegnelse} har ikke et fast beløp prinsipalt brev 3`
     );
   });
 

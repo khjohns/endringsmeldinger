@@ -111,6 +111,9 @@
                         {#if p.lag}<span class="lag">{p.lag}</span>{/if}
                       </span>
                     {/each}
+                    {#if k.svaret.utenBeloep.length}<span class="uten"
+                        >{FORHOLDET.utenFastBeloep(k.svaret.utenBeloep)}</span
+                      >{/if}
                     <span class="brev">{brevref(k.svaret.brev)}</span>
                   {:else}
                     <span class="dempet">{FORHOLDET.ikkeSvart}</span>
@@ -242,7 +245,8 @@
     font-size: 16px;
     font-variant-numeric: tabular-nums;
   }
-  .lag {
+  .lag,
+  .uten {
     color: var(--ink-2);
   }
   .brev,
