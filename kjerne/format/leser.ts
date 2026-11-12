@@ -563,11 +563,34 @@ function lesDokument(h: Journalrad): Dokument {
       ...dokument.utsagn.map((u) => u.id),
       ...dokument.opplysninger.map((o) => o.id),
     ]);
+    // LV-U70: et element har ett avsnitt, eller ett avsnitt per punkt etter hverandre.
+    // Overskriften står først i den låste delen og har et punkt.
     const sett = new Set<string>();
+    let forrige: (typeof data.brevtekst)[number] | undefined;
     for (const a of data.brevtekst) {
-      if (!elementer.has(a.gjelder) || sett.has(a.gjelder))
+      const fortsetter = forrige?.gjelder === a.gjelder;
+      if (
+        !elementer.has(a.gjelder) ||
+        (sett.has(a.gjelder) && !fortsetter) ||
+        (fortsetter && (a.punkt === undefined || forrige!.punkt === undefined))
+      )
         throw new Uforstaatt('et avsnitt i brevteksten gjelder ikke ett element i brevet');
+      // Bare et krav har punkter; kjernen skriver ikke punkter for andre elementer (MM-U2).
+      if (a.punkt !== undefined && !dokument.krav.some((k) => k.id === a.gjelder))
+        throw new Uforstaatt('et avsnitt i brevteksten har et punkt, men gjelder ikke et krav');
+      if (a.punkt !== undefined) {
+        if (sett.has(`${a.gjelder}\u0000${a.punkt}`))
+          throw new Uforstaatt('to avsnitt i brevteksten gjelder samme punkt i et element');
+        sett.add(`${a.gjelder}\u0000${a.punkt}`);
+      }
+      if (
+        a.overskrift !== undefined &&
+        (a.punkt === undefined ||
+          (a.laast !== a.overskrift && !a.laast.startsWith(`${a.overskrift}\n\n`)))
+      )
+        throw new Uforstaatt('overskriften i et avsnitt i brevteksten står ikke først i punktet');
       sett.add(a.gjelder);
+      forrige = a;
     }
   }
   return dokument;

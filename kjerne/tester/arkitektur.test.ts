@@ -619,6 +619,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'varseletForNyttSvar',
     ['kommandoer/standpunkter.ts', 'spor/vederlag/kommando.ts', 'spor/forhold/kommando.ts'],
   ],
+  // #1824: varselet etter § 34.1.2 og § 34.1.3 før brevet, som vederlagskravet viser til.
+  ['utledning/utled.ts', 'relasjon', 'varseletFoerBrevet', ['kommandoer/skriving.ts:brevtekstFor']],
   // VS-U60, VS-U66: kravet som er det første varselet, ved siden av et eget varsel.
   [
     'utledning/utled.ts',
@@ -678,6 +680,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/kommando.ts',
       'frosset/frysing.ts:beslutningsgrunnlag',
       'spor/vederlag/frysing.ts',
+      // #1824: varselet etter § 34.1.2 står i vederlagskravet der det gjelder.
+      'spor/vederlag/tekst.ts:vederlagstekst',
     ],
   ],
   // § 32.3 første ledd a for et brev sendt i appen, lest av beslutningsgrunnlaget (GR-U12, #351).
@@ -1061,7 +1065,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Dokument', 'relasjon', 'id retter', ['utledning/utled.ts:registreringer']],
   // OV-U19: brevene appen ikke vurderer, for visningen. Ingen regel leser dem.
   ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:ikkeVurderte']],
-  ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:datoenDetBleSendt']],
+  // VS-U70: datoen varselet og kravet ble sendt, i kontrollen av påberopelsen.
+  [
+    'Dokument',
+    'relasjon',
+    'id',
+    ['utledning/utled.ts:datoenDetBleSendt', 'utledning/utled.ts:utledSporene'],
+  ],
+  ['Dokument', 'relasjon', 'registrert', ['utledning/utled.ts:utledSporene.sendt']],
   ['RegistrertBrev', 'relasjon', 'dokument rettetAv', ['utledning/utled.ts:ikkeVurderte']],
   [
     'Dokument',
@@ -1786,6 +1797,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/forhold/kommando.ts:varseletEtter322',
       'frosset/brevdeler.ts',
       'utledning/utled.ts:datoenDetBleSendt',
+      'utledning/utled.ts:utledSporene.sendt',
     ],
   ],
 
@@ -1798,6 +1810,34 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['Avsnitt', 'brevtekst', 'gjelder', ['format/leser.ts', 'frosset/brevdeler.ts']],
   ['Avsnitt', 'brevtekst', 'laast utdypning', ['frosset/brevtekst.ts', 'frosset/brevdeler.ts']],
+  // LV-U70: leseren prøver at hvert element har ett avsnitt, eller ett per punkt, og at
+  // overskriften står først i den låste delen. Teksten lager punktene.
+  ['Avsnitt', 'brevtekst', 'laast punkt overskrift', ['format/leser.ts']],
+  ['Brevpunkt', 'brevtekst', 'punkt overskrift avsnitt', ['frosset/brevtekst.ts']],
+  // LV-U71: utdypningen per punkt kopieres til teksten under punktet.
+  ['Utdypning', 'brevtekst', 'utdypning utdypninger', ['frosset/brevtekst.ts']],
+  [
+    'frosset/brevtekst.ts:lagBrevtekst.leggPunkter',
+    'brevtekst',
+    'punkt overskrift',
+    ['frosset/brevtekst.ts'],
+  ],
+  // Stedet i brevteksten en avvisning for tegnene viser til (`avsnittsnavn`).
+  ['Avsnitt', 'brevtekst', 'gjelder punkt overskrift', ['kommandoer/skriving.ts:avsnittsnavn']],
+  // Et element med punkter har ingen utdypning for hele elementet (`Journalen.utdypning`).
+  ['Avsnitt', 'brevtekst', 'punkt', ['frosset/brevdeler.ts']],
+  [
+    'frosset/brevdeler.ts',
+    'brevtekst',
+    'UtdypningUtenPunkt',
+    ['frosset/brevtekst.ts', 'kommandoer/skriving.ts:skriv'],
+  ],
+  [
+    'frosset/brevdeler.ts',
+    'brevtekst',
+    'utenOverskrift',
+    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts'],
+  ],
   ['Journalrad.data', 'rad', 'sakstittel', ['format/leser.ts']],
   // #801, #1138: skriv kontrollerer tegnene i sakstittelen og filnavnene i brevet.
   [
@@ -1814,6 +1854,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utdypning',
     ['kommandoer/skriving.ts:svar', 'kommandoer/nyttelast.ts:kontrollerSvar'],
   ],
+  ['Svarutkast', 'kommando', 'utdypninger', ['kommandoer/skriving.ts:svar']],
+  ['Kommando', 'kommando', 'utdypninger', ['kommandoer/skriving.ts:dokument']],
   [
     'Kommando',
     'kommando',
@@ -1914,7 +1956,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsbrevtekst',
     'brevtekst',
-    'krav navn ogsaaInnsigelserEtter svaretGjelder nevnerErstattet',
+    'krav navn ogsaaInnsigelserEtter svaretGjelder nevnerErstattet utdypningensPunkt',
     ['frosset/brevtekst.ts'],
   ],
   ['Kravsporsbrevtekst', 'brevtekst', 'enigI ingenKrav kravetOm trukket', ['frosset/brevtekst.ts']],
@@ -1990,6 +2032,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // VS-U49, VS-U55: varselet for hver kravpost, utledet før brevet (`kravpostvarslene`, A6).
   ['Saken', 'relasjon', 'kravpostvarsler kravpostvarsler.*', ['spor/vederlag/tekst.ts']],
   ['Kravpostvarselet', 'relasjon', 'art varsel', ['spor/vederlag/tekst.ts']],
+  ['Saken', 'relasjon', 'varsletFoer paaberopelse', ['spor/vederlag/tekst.ts']],
   // LV-U56: TEs opplysninger om datoen, fra utledningen (`Datoopplysning`).
   ['Saken.datoopplysninger', 'utsagn', 'felt dato', ['spor/forhold/tekst.ts']],
   ['Saken.datoopplysninger', 'relasjon', 'dokument', ['spor/forhold/tekst.ts']],
@@ -2058,7 +2101,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/tekst.ts',
     ],
   ],
-  ['Krav', 'relasjon', 'dokument', ['utledning/utled.ts:datoenDetBleSendt']],
+  [
+    'Krav',
+    'relasjon',
+    'dokument',
+    ['utledning/utled.ts:datoenDetBleSendt', 'utledning/utled.ts:utledSporene.sendt'],
+  ],
   ['Forholdsinnhold', 'utsagn', 'datoer', ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts']],
   [
     'Journalen',

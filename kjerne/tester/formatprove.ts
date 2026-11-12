@@ -56,7 +56,12 @@ export function utenAvsnitt(rad: Journalrad): string[] {
   if (liste('dokumentasjon').length) elementer.push(rad.event_id);
   const avsnitt = (id: string) =>
     tekst.filter((a) => a.gjelder === id && typeof a.laast === 'string' && a.laast.length);
+  // LV-U70: ett avsnitt, eller ett avsnitt per punkt, hvert med sitt punkt.
+  const ettEllerPerPunkt = (a: Data[]) =>
+    a.length === 1 ||
+    (a.length > 1 &&
+      new Set(a.map((x) => x.punkt).filter((p) => typeof p === 'string')).size === a.length);
   return elementer
-    .filter((id) => avsnitt(id).length !== 1)
-    .map((id) => `${rad.event_id}: ${id} har ikke ett avsnitt i brevteksten`);
+    .filter((id) => !ettEllerPerPunkt(avsnitt(id)))
+    .map((id) => `${rad.event_id}: ${id} har ikke ett avsnitt, eller ett per punkt, i brevteksten`);
 }

@@ -14,7 +14,12 @@ import { korrigertDato, SKRIVING_I_FORHOLDET } from '../spor/forhold/kommando.ts
 import { frys } from '../frosset/frysing.ts';
 import { standpunkter } from './standpunkter.ts';
 import { lagBrevtekst, lagDeresRef } from '../frosset/brevtekst.ts';
-import { BrevetAvvises, KanIkkeUttrykkes } from '../frosset/brevdeler.ts';
+import {
+  BrevetAvvises,
+  KanIkkeUttrykkes,
+  UtdypningUtenPunkt,
+  type Utdypning,
+} from '../frosset/brevdeler.ts';
 import { brevmerking, lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
 import {
   brevtekstI,
@@ -29,7 +34,13 @@ import {
   tekstSomIkkeKanLagres,
   Uforstaatt,
 } from '../format/skjema.ts';
-import { paaberopelseFor, utled, utledJournal, type Utledning } from '../utledning/utled.ts';
+import {
+  paaberopelseFor,
+  utled,
+  utledJournal,
+  varseletFoerBrevet,
+  type Utledning,
+} from '../utledning/utled.ts';
 import type { Kjerne } from '../versjon.ts';
 import {
   avvis,
@@ -92,6 +103,21 @@ export type Utfall =
  */
 export type Neste = (kontekst: Kontekst, journal: Journalrad[]) => Utfall;
 
+/**
+ * Stedet i brevteksten et avsnitt står, slik avsenderen leser brevet: punktet med overskriften
+ * over avsnittet, eller nummeret på elementet (LV-U70).
+ */
+function avsnittsnavn(brevtekst: readonly Avsnitt[], i: number): string {
+  const a = brevtekst[i];
+  const over = brevtekst
+    .slice(0, i + 1)
+    .reverse()
+    .find((b) => b.gjelder === a.gjelder && b.overskrift !== undefined);
+  if (a.punkt !== undefined && over) return `Punktet «${over.overskrift}» i brevteksten`;
+  const elementer = new Set(brevtekst.slice(0, i + 1).map((b) => b.gjelder));
+  return `Avsnitt ${elementer.size} i brevteksten`;
+}
+
 const ugyldigForm = (avvisning: Avvisning): Utfall => ({
   godtatt: false,
   feil: 'UGYLDIG_FORM',
@@ -126,8 +152,8 @@ function lagret({ virkninger, ...resten }: Beslutningsgrunnlag): Data {
   };
 }
 
-/** Partens utdypning per element i brevet, til brevteksten (B-13 om begrunnelsestekst). */
-type Utdypninger = Map<string, string>;
+/** Partens utdypning per element og per punkt i brevet, til brevteksten. */
+type Utdypninger = Map<string, Utdypning>;
 
 /**
  * Standpunktene og serverens utregning nyttelastkontrollen leste i hvert svarutkast, i
@@ -147,7 +173,8 @@ function svar(
   if (!bygd)
     throw new Skrivefeil(`Nyttelastkontrollen har ikke kontrollert svaret på ${s.spor} (#814).`);
   const id = nyId();
-  if (s.utdypning !== undefined) utdypninger.set(id, s.utdypning);
+  if (s.utdypning !== undefined || s.utdypninger)
+    utdypninger.set(id, { utdypning: s.utdypning, utdypninger: s.utdypninger });
   const e: Data = {
     id,
     spor: s.spor,
@@ -271,7 +298,8 @@ function dokument(
     case 'krav': {
       const forrige = u.spor[k.spor].gjeldendeKrav;
       const id = nyId();
-      if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
+      if (k.utdypning !== undefined || k.utdypninger)
+        utdypninger.set(id, { utdypning: k.utdypning, utdypninger: k.utdypninger });
       // HF-U1, LV-U18 punkt 3: et krav om dager mens forespørselen etter § 33.6.2 er ubesvart,
       // er svaret på den og viser til den (avgrensningen i #1567).
       const foresporsel =
@@ -363,7 +391,7 @@ function dokument(
     case 'foresporselssvar': {
       // LV-U18 setning 2: TEs begrunnelse følger som utdypningen.
       const id = nyId();
-      utdypninger.set(id, k.utdypning);
+      utdypninger.set(id, { utdypning: k.utdypning });
       return { utsagn: [{ id, art: 'foresporselssvar', gjelder: k.gjelder }] };
     }
     case 'begrunnelse': {
@@ -377,7 +405,7 @@ function dokument(
           korrespondansetype: k.korrespondansetype,
           ...(k.dokumentasjon ? { dokumentasjon: bundne } : {}),
         };
-      if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
+      if (k.utdypning !== undefined) utdypninger.set(id, { utdypning: k.utdypning });
       return { utsagn };
     }
     case 'korrigering': {
@@ -385,7 +413,7 @@ function dokument(
       const { felt, dato } = korrigertDato(k);
       const id = nyId();
       // MM-U53: TEs forklaring følger som utdypningen.
-      if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
+      if (k.utdypning !== undefined) utdypninger.set(id, { utdypning: k.utdypning });
       return { utsagn: [{ id, art: 'korrigering', gjelder: k.gjelder, [felt]: dato }] };
     }
     case 'bestridelse':
@@ -589,6 +617,8 @@ function skriv(
         feil: 'REGELBRUDD',
         avvisning: { regel: feil.regel, melding: feil.message },
       };
+    if (feil instanceof UtdypningUtenPunkt)
+      return ugyldigForm({ regel: 'UGYLDIG_FORM', melding: feil.message });
     throw feil;
   }
   if (brevtekst) {
@@ -608,7 +638,7 @@ function skriv(
       ) ??
       kommandoenHarTegnSomIkkeKanVises(kommando) ??
       brevtekst.reduce<Avvisning | null>(
-        (funnet, a, i) => funnet ?? tegnSomIkkeKanVises(a.laast, `Avsnitt ${i + 1} i brevteksten`),
+        (funnet, a, i) => funnet ?? tegnSomIkkeKanVises(a.laast, avsnittsnavn(brevtekst, i)),
         null
       );
     if (tegn) return ugyldigForm(tegn);
@@ -717,6 +747,16 @@ function brevtekstFor(
             Object.entries(iSporet(SKRIVING, k.spor).postvarsler?.(k, ny.dokument, lest, u) ?? {})
           )
         ),
+        varsletFoer: ny.dokument.krav.some((k) => k.spor === 'vederlag')
+          ? Object.fromEntries(
+              (['34.1.2', '34.1.3'] as const).flatMap((h) => {
+                const varsel = varseletFoerBrevet(u, h);
+                return varsel === undefined ? [] : [[h, varsel]];
+              })
+            )
+          : {},
+        paaberopelse:
+          ny.dokument.krav.find((k) => k.spor === 'forhold') ?? u.spor.forhold.gjeldendeKrav,
       },
       kjerne.regler,
       utdypninger

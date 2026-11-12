@@ -78,6 +78,43 @@ describe('PDF-en av brevet (#371 del 2)', () => {
     ]);
   });
 
+  it('gjengir punktene med overskriften som eget avsnitt og forbeholdet under sin overskrift (#1824)', async () => {
+    const tekst: Avsnitt[] = [
+      {
+        gjelder: 'k',
+        punkt: '34.1.2',
+        overskrift: '1. Varselet om vederlagsjustering',
+        laast: '1. Varselet om vederlagsjustering\n\nTotalentreprenøren varsler.',
+      },
+      {
+        gjelder: 'k',
+        punkt: 'P1',
+        overskrift: '2. Vederlagsjustering',
+        laast: '2. Vederlagsjustering\n\nP1 Graving.',
+      },
+      { gjelder: 'k', punkt: 'P2', laast: 'P2 Rør.' },
+      {
+        gjelder: 'k',
+        punkt: 'forbehold',
+        overskrift: '3. Forbehold',
+        laast: '3. Forbehold',
+        utdypning: 'Forbeholdet.',
+      },
+    ];
+    const lest = lesBrevPdf((await brevdokument(oppdrag(tekst), 'n')).innhold);
+    // Lesingen gir én linje per avsnitt; overskriften står på sin egen linje.
+    expect(lest.split('\n').slice(-7)).toEqual([
+      '1. Varselet om vederlagsjustering',
+      'Totalentreprenøren varsler.',
+      '2. Vederlagsjustering',
+      'P1 Graving.',
+      'P2 Rør.',
+      '3. Forbehold',
+      'Forbeholdet.',
+    ]);
+    expect(gjengirTro(lest, tekst)).toBe(true);
+  });
+
   it('lesingen ser at en side mangler, så kontrollen ikke godtar en utelatelse ved sidebrekk', async () => {
     const tekst = gjengiOppdrag(oppdrag(LANG))!;
     const hel = await skrivBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'TE');

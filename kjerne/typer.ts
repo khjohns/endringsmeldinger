@@ -369,9 +369,16 @@ export interface Fristutregning {
  * Ett avsnitt i brevteksten (LV-U2, LV-U3): det appen lager av partens valg for
  * elementet `gjelder`, og partens utdypning hver for seg (B-13 om
  * begrunnelsestekst). Ingen regel leser teksten.
+ *
+ * Et element med punkter har ett avsnitt per punkt (LV-U70): `punkt` sier hvilket punkt
+ * i elementet avsnittet gjelder, og `overskrift` er overskriften med nummeret, som også står
+ * først i `laast`. Et punkt uten overskrift står under overskriften i punktet foran. Et
+ * element uten punkter har ett avsnitt, uten `punkt`.
  */
 export interface Avsnitt {
   gjelder: string;
+  punkt?: string;
+  overskrift?: string;
   laast: string;
   utdypning?: string;
 }

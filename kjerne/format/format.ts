@@ -301,11 +301,21 @@ export const OPPLYSNING: Record<(typeof OPPLYSNINGSSLAG)[number], Skjema> = {
 };
 
 /**
- * Brevteksten i et brev appen sender (LV-U2, LV-U3, #369): ett avsnitt per element,
- * med den låste delen og utdypningen hver for seg (B-13 om begrunnelsestekst).
+ * Brevteksten i et brev appen sender (LV-U2, LV-U3, #369): ett avsnitt per element, eller per
+ * punkt i et element med punkter (LV-U70), med den låste delen og utdypningen hver for
+ * seg (B-13 om begrunnelsestekst).
  */
 export const BREVTEKST: Skjema = liste(
-  objekt({ gjelder: ID, laast: TEKST, utdypning: TEKST }, ['gjelder', 'laast'])
+  objekt(
+    {
+      gjelder: ID,
+      punkt: ID,
+      overskrift: TEKST,
+      laast: TEKST,
+      utdypning: TEKST,
+    },
+    ['gjelder', 'laast']
+  )
 );
 
 /**

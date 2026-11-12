@@ -47,6 +47,13 @@ export interface Saken {
   avklartVedFrafall: boolean;
   /** Varselet etter § 34.3.3 eller § 34.4 for hver kravpost i brevet som har et (`kravpostvarslene`). */
   kravpostvarsler: Record<string, Kravpostvarselet>;
+  /**
+   * Varselet etter § 34.1.2 og § 34.1.3 saken har før brevet, som et registrert varsel eller et
+   * tidligere krav (`varseletFoerBrevet` i utledningen). Uten det er kravet i brevet varselet.
+   */
+  varsletFoer: Partial<Record<'34.1.2' | '34.1.3', string>>;
+  /** Påberopelsen vederlagskravet bygger på: i brevet, ellers gjeldende versjon før det. */
+  paaberopelse: Krav | null;
 }
 
 /** Kravet en kommando om et kommende avsnitt ikke kan uttrykke. Brevet skrives ikke. */
@@ -175,10 +182,14 @@ export class Journalen {
     return erRegistrert(this.brev.get(dokument)!.dokument.opplysninger);
   }
 
-  /** Utdypningen under elementet i brevteksten i brevet det står i. */
+  /**
+   * Utdypningen under elementet i brevteksten i brevet det står i. Et element med punkter har
+   * ingen utdypning for hele elementet (LV-U70).
+   */
   utdypning(element: string, dokument: string): string | undefined {
-    return this.brev.get(dokument)?.dokument.brevtekst?.find((a) => a.gjelder === element)
-      ?.utdypning;
+    return this.brev
+      .get(dokument)
+      ?.dokument.brevtekst?.find((a) => a.gjelder === element && a.punkt === undefined)?.utdypning;
   }
 
   /** VS-U20, OV-U5: brevet varselet står i, som et registrert varsel eller det første fristkravet. */
@@ -210,6 +221,36 @@ export interface Tekst {
   /** «sak KOE-17 («<sakstittel>»)» (KA-U22, LV-U44). */
   sak: string;
 }
+
+/**
+ * Et punkt i brevteksten for ett element (#1824, LV-U34): navnet på punktet i elementet, som
+ * lagres som `punkt` (LV-U70), overskriften uten nummeret, eller `null` for et punkt under
+ * overskriften foran og for et punkt uten overskrift, og avsnittene. Nummeret settes når hele
+ * brevet er laget. Et element uten navngitte punkter blir ett avsnitt.
+ */
+export interface Brevpunkt {
+  punkt?: string;
+  overskrift: string | null;
+  avsnitt: string[];
+}
+
+/**
+ * Partens utdypning per element i brevet, for hele elementet og per punkt, med punktet som
+ * nøkkel (B-13 om begrunnelsestekst, LV-U71). Appen tolker den ikke (KA-U19).
+ */
+export type Utdypninger = ReadonlyMap<string, Utdypning>;
+
+/** Partens utdypning for ett element: for hele elementet, og per punkt (`Utdypninger`). */
+export interface Utdypning {
+  utdypning?: string;
+  utdypninger?: Readonly<Record<string, string>>;
+}
+
+/** Setningene som ett avsnitt uten overskrift. */
+export const utenOverskrift = (setninger: string[]): Brevpunkt => ({
+  overskrift: null,
+  avsnitt: [setninger.join(' ')],
+});
 
 /** Det særskilte kravet etter § 34.1.3 annet ledd, med ordene i bestemmelsen. */
 export const PRODUKTIVITET =
@@ -254,12 +295,20 @@ export interface Sporsbrevtekst {
   navn: string;
   /** Det et svar eller en aksept gjelder, med kontraktens ord (LV-U4 punkt 4 og 6). */
   svaretGjelder: string;
-  /** Kravet (LV-U4 punkt 2–3), uten setningen om kravet det erstatter. */
-  krav(k: Krav, t: Tekst, regler: Regelsett): string[];
+  /** Kravet (LV-U4 punkt 2–3) i punkter, uten setningen om kravet det erstatter. */
+  krav(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[];
   /** Påberopelsene utenom hjemmelen for sporet som svaret gjentar eller gir opp (VS-U29). */
   ogsaaInnsigelserEtter: readonly Hjemmel[];
-  /** En ny versjon av kravet sier hvilket krav den erstatter (KA-U52 punkt 4, LV-U56). */
+  /**
+   * Brevteksten legger til setningen om kravet en ny versjon erstatter (KA-U52 punkt 4, LV-U56).
+   * Vederlagskravet har setningen selv, i innledningen (#1824).
+   */
   nevnerErstattet: boolean;
+  /**
+   * Punktet partens utdypning for hele kravet står i, når den er et eget punkt sist i kravet
+   * (LV-U71).
+   */
+  utdypningensPunkt?: { punkt: string; overskrift: string };
   /** Kravet i sporet med kontraktens ord, når kravet har et: «kravet om <…>». */
   kravetOm?: string;
 }
@@ -291,6 +340,12 @@ export class BrevetAvvises extends Error {
     this.regel = regel;
   }
 }
+
+/**
+ * Kommandoen har en utdypning for et punkt brevet ikke har, eller to for samme punkt (LV-U71).
+ * Kommandoen avvises som `UGYLDIG_FORM`, så teksten ikke forsvinner fra brevet.
+ */
+export class UtdypningUtenPunkt extends Error {}
 
 /** Teksten med stor forbokstav. */
 export const stor = (t: string) => `${t[0].toUpperCase()}${t.slice(1)}`;

@@ -507,6 +507,7 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(
       brevaarsak({
         tekst: ['brevet'],
+        avsnitt: [{ gjelder: 'k', laast: 'brevet' }],
         brevnummer: 1,
         brevtittel: 'Brevet',
         merking: 'K201-KOE-017-01',
@@ -516,6 +517,7 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(
       brevaarsak({
         tekst: null,
+        avsnitt: null,
         brevnummer: null,
         brevtittel: null,
         merking: null,

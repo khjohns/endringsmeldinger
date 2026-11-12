@@ -262,9 +262,16 @@ describe.skipIf(!TESTBASE_URL)(
         expect(x.innhold.oppdragsformat).toBe(OPPDRAGSFORMAT);
         // LV-U2: teksten i oppdraget er den kjernen frøs i brevet, og hvert utsagn står i den (LV-U3).
         expect(x.innhold.brev.brevtekst).toEqual(rad.data.brevtekst);
-        expect((x.innhold.brev.brevtekst as Avsnitt[]).map((a) => a.gjelder)).toEqual(
-          (rad.data.krav as { id: string }[]).map((k) => k.id)
-        );
+        // Ett avsnitt per element, eller ett per punkt etter hverandre, hvert med sitt punkt
+        // (LV-U70).
+        const avsnitt = x.innhold.brev.brevtekst as Avsnitt[];
+        const rekka = avsnitt.map((a) => a.gjelder).filter((g, i, l) => g !== l[i - 1]);
+        expect(rekka).toEqual((rad.data.krav as { id: string }[]).map((k) => k.id));
+        for (const gjelder of rekka) {
+          const egne = avsnitt.filter((a) => a.gjelder === gjelder);
+          if (egne.length > 1)
+            expect(new Set(egne.map((a) => a.punkt)).size, gjelder).toBe(egne.length);
+        }
         expect(x.innhold.brev.avsender).toEqual({
           part: 'TE',
           aktor_id: o.te.id,

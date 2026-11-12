@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import type { Part } from '$kjerne/typer';
+  import type { Avsnitt, Part } from '$kjerne/typer';
   import { organisasjonene } from './kontrakt';
   import { MOTTATT, PARTNAVN } from './tekster';
 
@@ -36,7 +36,8 @@
     deresRef?: string[];
     dato: string;
     tittel: string;
-    avsnitt: { laast: string; utdypning?: string }[];
+    /** Avsnittene kjernen lager. Et punkt med overskrift har den først i `laast` (#1824). */
+    avsnitt: Pick<Avsnitt, 'laast' | 'punkt' | 'overskrift' | 'utdypning'>[];
     /** Tidspunktet brevet ble sendt. Bare et sendt brev har stempelet. */
     sendt?: string;
     fot?: Snippet;
@@ -55,6 +56,18 @@
   const hentOrganisasjoner = organisasjonene();
   const organisasjoner = $derived(hentOrganisasjoner());
   const stor = (s: string) => s[0].toUpperCase() + s.slice(1);
+
+  /**
+   * Avsnittene i et punkt, uten overskriften, som står først i den låste delen. Står den ikke
+   * først, vises hele den låste delen, så ingen tekst faller bort.
+   */
+  const underOverskriften = (a: Pick<Avsnitt, 'laast' | 'overskrift'>): string[] =>
+    (a.overskrift && a.laast.startsWith(a.overskrift)
+      ? a.laast.slice(a.overskrift.length).trimStart()
+      : a.laast
+    )
+      .split('\n\n')
+      .filter((del) => del !== '');
 </script>
 
 <article class="brev" class:innfelt class:dempet class:bh={avsender === 'BH'} aria-label={tittel}>
@@ -96,7 +109,12 @@
   <h2>{tittel}</h2>
   <div class="tekst" data-testid="laast-tekst">
     {#each avsnitt as a, i (i)}
-      <p>{a.laast}</p>
+      {#if a.punkt !== undefined}
+        {#if a.overskrift}<h3>{a.overskrift}</h3>{/if}
+        {#each underOverskriften(a) as del, k (k)}<p>{del}</p>{/each}
+      {:else}
+        <p>{a.laast}</p>
+      {/if}
       {#if a.utdypning}<p class="utdypning" data-testid="utdypning">{a.utdypning}</p>{/if}
     {/each}
   </div>
@@ -208,6 +226,21 @@
   }
   .tekst p + p {
     margin-top: var(--spacing-3);
+  }
+  /* Overskriften i et punkt har brødtekstens størrelse; vekten bærer den, som tittelen i et dempet brev. */
+  .tekst h3 {
+    font-size: 1em;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-top: var(--spacing-5);
+    margin-bottom: var(--spacing-2);
+  }
+  .tekst h3:first-child {
+    margin-top: 0;
+  }
+  /* I et dempet brev har tittelen samme størrelse og vekt; fargen skiller punktene fra den. */
+  .dempet .tekst h3 {
+    color: var(--ink-2);
   }
   .tekst .utdypning {
     white-space: pre-wrap;

@@ -46,6 +46,8 @@ export interface Svarutkast {
   resultat: Record<string, unknown>;
   /** Byggherrens utdypning under den låste teksten, også begrunnelsen (KA-U18, KA-U24 (opphevet av KA-U46)). Appen tolker den ikke (KA-U19). */
   utdypning?: string;
+  /** Byggherrens utdypning per punkt i svaret, med punktet som nøkkel (LV-U71). */
+  utdypninger?: Record<string, string>;
 }
 
 /**
@@ -96,6 +98,11 @@ export type Kommando = (
        * ikke (KA-U19).
        */
       utdypning?: string;
+      /**
+       * TEs utdypning per punkt i kravet, med punktet som nøkkel: for en kravpost betegnelsen
+       * (LV-U71). Brevteksten setter den under punktet.
+       */
+      utdypninger?: Record<string, string>;
     }
   | { type: 'brev'; svar: Svarutkast[] }
   | { type: 'revisjon'; erstatter: string; svar: Svarutkast }
@@ -190,6 +197,8 @@ export type Kommando = (
 const SPOR = { enum: [...SPORENE] };
 /** LV-U42, D1 A i #1497: påkrevd i hver registrering av korrespondanse sendt utenfor løsningen. */
 const KORRESPONDANSETYPE = { enum: [...KORRESPONDANSETYPER] };
+/** LV-U71: partens utdypning per punkt, med punktet som nøkkel. */
+const UTDYPNINGER = { type: 'object', additionalProperties: TEKST };
 const SVARUTKAST = objekt(
   {
     spor: SPOR,
@@ -198,6 +207,7 @@ const SVARUTKAST = objekt(
     vurderinger: { type: 'object' },
     resultat: { type: 'object' },
     utdypning: TEKST,
+    utdypninger: UTDYPNINGER,
   },
   ['spor', 'gjelder', 'regelversjon', 'vurderinger', 'resultat']
 );
@@ -224,6 +234,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       varsel: objekt({ sendt: DATO, dokumentasjon: liste(ID) }, ['sendt']),
       dokumentasjon: liste(ID),
       utdypning: TEKST,
+      utdypninger: UTDYPNINGER,
       ...BREVTEKST,
     },
     ['type', 'spor', 'innhold']

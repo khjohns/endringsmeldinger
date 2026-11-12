@@ -6,7 +6,7 @@
 -->
 <script lang="ts">
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
-  import type { Spor } from '$kjerne/typer';
+  import type { Avsnitt, Spor } from '$kjerne/typer';
   import { tick, untrack, type Snippet } from 'svelte';
   import { sakensKode } from '$kjerne/frosset/tekst';
   import Brevkontroll from './Brevkontroll.svelte';
@@ -74,6 +74,8 @@
   type Kontroll = {
     kommando: Record<string, unknown>;
     tekst: string[];
+    /** Avsnittene med punktene, når skjemaet har dem fra kjernen (#1824). */
+    avsnitt?: Avsnitt[] | null;
     utdypning?: string;
     detteSender: { tekst: string; lag: string | null }[];
     virkninger: string[];
@@ -365,6 +367,7 @@
           {kjernesak}
           kommando={k.kommando}
           tekst={k.tekst}
+          avsnitt={k.avsnitt}
           utdypning={k.utdypning}
           merking={k.merking}
           deresRef={k.deresRef}

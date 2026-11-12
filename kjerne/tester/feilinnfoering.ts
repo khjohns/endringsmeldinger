@@ -952,12 +952,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'påberopelsen etter § 33.4 viser til kravversjonen svaret gjelder, ikke det første fristkravet (VS-U20, OV-U5, KK-07)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        'registrert ? [registrert] : [], krav, () => true',
-        'registrert ? [registrert] : [], krav.slice(-1), () => true',
-      ],
-    ],
+    endringer: [['    krav,\n    () => true,', '    krav.slice(-1),\n    () => true,']],
     mal: [
       'uten registrert varsel gjelder den det første fristkravet',
       'brevet sier at varselet er det første fristkravet',
@@ -1001,7 +996,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F106',
     feilklasse: '«ingen krav» i vederlaget sier ikke at forseringsvederlaget er unntatt (KA-U25)',
     fil: `${K}/spor/vederlag/tekst.ts`,
-    endringer: [[' Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.`', '`']],
+    endringer: [[' Avkallet omfatter ikke vederlag for forsering etter NS 8407 punkt 33.8.`', '`']],
     mal: ['«ingen krav» i vederlaget'],
   },
   {
@@ -1022,7 +1017,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'begrunnelsen i svaret faller ut av brevteksten (B-13 om begrunnelsestekst, KA-U31)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['  if (s.utdypning !== undefined) utdypninger.set(id, s.utdypning);\n', '']],
+    endringer: [
+      [
+        '    utdypninger.set(id, { utdypning: s.utdypning, utdypninger: s.utdypninger });',
+        '    utdypninger.set(id, { utdypninger: s.utdypninger });',
+      ],
+    ],
     mal: ['begrunnelsen står under svaret den gjelder'],
   },
   {
@@ -1740,8 +1740,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'if (p.gjelder !== varseletFoerSvaret(varslene, krav, (v) => bakover(s.id, v)))',
-        'if (p.gjelder !== varseletFoerSvaret(varslene, krav, (v) => bakover(s.id, v)) && p.gjelder !== s.gjelder)',
+        'if (p.gjelder !== tidligste && p.gjelder !== egetFoerst)',
+        'if (p.gjelder !== tidligste && p.gjelder !== egetFoerst && p.gjelder !== s.gjelder)',
       ],
     ],
     mal: ['en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått'],
@@ -3951,7 +3951,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
       [
-        "if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);\n      return { utsagn: [{ id, art: 'korrigering'",
+        "if (k.utdypning !== undefined) utdypninger.set(id, { utdypning: k.utdypning });\n      return { utsagn: [{ id, art: 'korrigering'",
         "return { utsagn: [{ id, art: 'korrigering'",
       ],
     ],
@@ -4105,6 +4105,76 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['et eget varsel registrert etter det første fristkravet, skjuler ikke kravet'],
+  },
+  {
+    id: 'F554',
+    feilklasse:
+      'leseren forstår et punkt i brevteksten der overskriften ikke står først i den låste delen (MM-U2, LV-U70)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      ['(a.laast !== a.overskrift && !a.laast.startsWith(`${a.overskrift}\\n\\n`))', 'false'],
+    ],
+    mal: ['en overskrift som ikke står først, gjør saken ikke forstått'],
+  },
+  {
+    id: 'F556',
+    feilklasse:
+      'leseren forstår to avsnitt i brevteksten for samme punkt i et element (MM-U2, LV-U70)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['if (sett.has(`${a.gjelder}\\u0000${a.punkt}`))', 'if (false)']],
+    mal: ['avsnitt som ikke står etter hverandre per punkt'],
+  },
+  {
+    id: 'F558',
+    feilklasse:
+      'leseren forstår et avsnitt med punkt for et element som ikke er et krav (MM-U2, LV-U70)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        'if (a.punkt !== undefined && !dokument.krav.some((k) => k.id === a.gjelder))',
+        'if (false)',
+      ],
+    ],
+    mal: ['et avsnitt med punkt for et element som ikke er et krav'],
+  },
+  {
+    id: 'F559',
+    feilklasse:
+      'påberopelsen og punktet om varselet gjelder det egne varselet også når det første kravet er sendt før (VS-U70, VS-U66)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        'return varselet === null || kravetSendt < varselet ? kravet.id : eget.id;',
+        'return varselet === null ? kravet.id : eget.id;',
+      ],
+    ],
+    mal: ['et eget varsel datert etter det første kravet: det første kravet'],
+  },
+  {
+    id: 'F560',
+    feilklasse:
+      'leseren godtar bare det egne varselet i påberopelsen, ikke det første kravet som ble sendt før det (VS-U70)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['if (p.gjelder !== tidligste && p.gjelder !== egetFoerst)', 'if (p.gjelder !== egetFoerst)'],
+    ],
+    mal: ['byggherrens påberopelse etter § 34.1.2 gjelder det første kravet'],
+  },
+  {
+    id: 'F557',
+    feilklasse:
+      'brevteksten mister en utdypning for et punkt brevet ikke har, i stedet for å avvise kommandoen (LV-U71)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['    if (ukjent.length)', '    if (false)']],
+    mal: ['en utdypning for et punkt brevet ikke har, avvises'],
+  },
+  {
+    id: 'F555',
+    feilklasse:
+      'vederlagskravet nevner varselet etter § 34.1.2 der varslingsplikten ikke gjelder forholdet (VS-U3, OV-U15, #1824)',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [["if (hjemmelenGjelder('34.1.2', saken.paaberopelse, regler))", 'if (true)']],
+    mal: ['ved en endring nevner kravet ikke varselet etter punkt 34.1.2'],
   },
   {
     id: 'F553',
