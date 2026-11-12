@@ -133,7 +133,7 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet med kravposter mot TS-serveren',
       utdypning?: string;
     }[];
     expect(avsnitt.map((a) => a.laast)).toEqual(tekst);
-    // Utdypningen for hele vederlagskravet står i punktet «Forbehold» (B-2 A i #1824).
+    // Utdypningen for hele vederlagskravet står i punktet «Forbehold» (LV-U71).
     if (utdypning) expect(avsnitt.at(-1)).toMatchObject({ punkt: 'forbehold', utdypning });
     else expect(avsnitt.every((a) => a.utdypning === undefined)).toBe(true);
   });

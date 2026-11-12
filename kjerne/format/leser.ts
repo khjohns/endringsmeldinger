@@ -563,7 +563,7 @@ function lesDokument(h: Journalrad): Dokument {
       ...dokument.utsagn.map((u) => u.id),
       ...dokument.opplysninger.map((o) => o.id),
     ]);
-    // B-1 B i #1824: et element har ett avsnitt, eller ett avsnitt per punkt etter hverandre.
+    // LV-U70: et element har ett avsnitt, eller ett avsnitt per punkt etter hverandre.
     // Overskriften står først i den låste delen og har et punkt.
     const sett = new Set<string>();
     let forrige: (typeof data.brevtekst)[number] | undefined;

@@ -173,7 +173,7 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
     punkter.push(varselpunkt('34.1.2', t));
   if (post !== null) punkter.push(varselpunkt('34.1.3', t));
 
-  // B-1 B i #1824: hver kravpost og hvert trekk er et punkt, så utdypningen står under posten
+  // LV-U70: hver kravpost og hvert trekk er et punkt, så utdypningen står under posten
   // (#1823 punkt 1). Punktet er betegnelsen, som avsenderen ser før serveren gir en ny post
   // `id` (KA-U53). Overskriften står over den første.
   const justering: Brevpunkt[] = poster.map((p) => ({

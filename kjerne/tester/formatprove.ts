@@ -56,7 +56,7 @@ export function utenAvsnitt(rad: Journalrad): string[] {
   if (liste('dokumentasjon').length) elementer.push(rad.event_id);
   const avsnitt = (id: string) =>
     tekst.filter((a) => a.gjelder === id && typeof a.laast === 'string' && a.laast.length);
-  // B-1 B i #1824: ett avsnitt, eller ett avsnitt per punkt, hvert med sitt punkt.
+  // LV-U70: ett avsnitt, eller ett avsnitt per punkt, hvert med sitt punkt.
   const ettEllerPerPunkt = (a: Data[]) =>
     a.length === 1 ||
     (a.length > 1 &&

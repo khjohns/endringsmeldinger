@@ -106,7 +106,7 @@ export function lagBrevtekst(
   };
   // LV-U34, LV-U40: punktene er nummerert gjennom hele brevet, så «punkt 1 ovenfor» er entydig.
   let nummer = 0;
-  // B-1 B og B-2 A i #1824: ett avsnitt per punkt, med partens utdypning for punktet under det.
+  // LV-U70 og LV-U71: ett avsnitt per punkt, med partens utdypning for punktet under det.
   // Utdypningen for hele elementet står i punktet `egen` (forbeholdet), sist.
   const leggPunkter = (
     gjelder: string,

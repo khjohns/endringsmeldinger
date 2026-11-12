@@ -184,7 +184,7 @@ export class Journalen {
 
   /**
    * Utdypningen under elementet i brevteksten i brevet det står i. Et element med punkter har
-   * ingen utdypning for hele elementet (B-1 B i #1824).
+   * ingen utdypning for hele elementet (LV-U70).
    */
   utdypning(element: string, dokument: string): string | undefined {
     return this.brev
@@ -224,7 +224,7 @@ export interface Tekst {
 
 /**
  * Et punkt i brevteksten for ett element (#1824, LV-U34): navnet på punktet i elementet, som
- * lagres som `punkt` (B-1 B), overskriften uten nummeret, eller `null` for et punkt under
+ * lagres som `punkt` (LV-U70), overskriften uten nummeret, eller `null` for et punkt under
  * overskriften foran og for et punkt uten overskrift, og avsnittene. Nummeret settes når hele
  * brevet er laget. Et element uten navngitte punkter blir ett avsnitt.
  */
@@ -236,7 +236,7 @@ export interface Brevpunkt {
 
 /**
  * Partens utdypning per element i brevet, for hele elementet og per punkt, med punktet som
- * nøkkel (B-13 om begrunnelsestekst, B-2 A i #1824). Appen tolker den ikke (KA-U19).
+ * nøkkel (B-13 om begrunnelsestekst, LV-U71). Appen tolker den ikke (KA-U19).
  */
 export type Utdypninger = ReadonlyMap<string, Utdypning>;
 
@@ -306,7 +306,7 @@ export interface Sporsbrevtekst {
   nevnerErstattet: boolean;
   /**
    * Punktet partens utdypning for hele kravet står i, når den er et eget punkt sist i kravet
-   * (B-2 A i #1824).
+   * (LV-U71).
    */
   utdypningensPunkt?: { punkt: string; overskrift: string };
   /** Kravet i sporet med kontraktens ord, når kravet har et: «kravet om <…>». */
@@ -342,8 +342,8 @@ export class BrevetAvvises extends Error {
 }
 
 /**
- * Kommandoen har en utdypning for et punkt brevet ikke har, eller to for samme punkt (B-2 A i
- * #1824). Kommandoen avvises som `UGYLDIG_FORM`, så teksten ikke forsvinner fra brevet.
+ * Kommandoen har en utdypning for et punkt brevet ikke har, eller to for samme punkt (LV-U71).
+ * Kommandoen avvises som `UGYLDIG_FORM`, så teksten ikke forsvinner fra brevet.
  */
 export class UtdypningUtenPunkt extends Error {}
 

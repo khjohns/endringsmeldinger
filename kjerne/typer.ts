@@ -370,7 +370,7 @@ export interface Fristutregning {
  * elementet `gjelder`, og partens utdypning hver for seg (B-13 om
  * begrunnelsestekst). Ingen regel leser teksten.
  *
- * Et element med punkter har ett avsnitt per punkt (B-1 B i #1824): `punkt` sier hvilket punkt
+ * Et element med punkter har ett avsnitt per punkt (LV-U70): `punkt` sier hvilket punkt
  * i elementet avsnittet gjelder, og `overskrift` er overskriften med nummeret, som også står
  * først i `laast`. Et punkt uten overskrift står under overskriften i punktet foran. Et
  * element uten punkter har ett avsnitt, uten `punkt`.

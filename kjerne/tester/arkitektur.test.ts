@@ -1802,11 +1802,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['Avsnitt', 'brevtekst', 'gjelder', ['format/leser.ts', 'frosset/brevdeler.ts']],
   ['Avsnitt', 'brevtekst', 'laast utdypning', ['frosset/brevtekst.ts', 'frosset/brevdeler.ts']],
-  // B-1 B i #1824: leseren prøver at hvert element har ett avsnitt, eller ett per punkt, og at
+  // LV-U70: leseren prøver at hvert element har ett avsnitt, eller ett per punkt, og at
   // overskriften står først i den låste delen. Teksten lager punktene.
   ['Avsnitt', 'brevtekst', 'laast punkt overskrift', ['format/leser.ts']],
   ['Brevpunkt', 'brevtekst', 'punkt overskrift avsnitt', ['frosset/brevtekst.ts']],
-  // B-2 A i #1824: utdypningen per punkt kopieres til teksten under punktet.
+  // LV-U71: utdypningen per punkt kopieres til teksten under punktet.
   ['Utdypning', 'brevtekst', 'utdypning utdypninger', ['frosset/brevtekst.ts']],
   [
     'frosset/brevtekst.ts:lagBrevtekst.leggPunkter',

@@ -46,7 +46,7 @@ export interface Svarutkast {
   resultat: Record<string, unknown>;
   /** Byggherrens utdypning under den låste teksten, også begrunnelsen (KA-U18, KA-U24 (opphevet av KA-U46)). Appen tolker den ikke (KA-U19). */
   utdypning?: string;
-  /** Byggherrens utdypning per punkt i svaret, med punktet som nøkkel (B-2 A i #1824). */
+  /** Byggherrens utdypning per punkt i svaret, med punktet som nøkkel (LV-U71). */
   utdypninger?: Record<string, string>;
 }
 
@@ -100,7 +100,7 @@ export type Kommando = (
       utdypning?: string;
       /**
        * TEs utdypning per punkt i kravet, med punktet som nøkkel: for en kravpost betegnelsen
-       * (B-2 A i #1824). Brevteksten setter den under punktet.
+       * (LV-U71). Brevteksten setter den under punktet.
        */
       utdypninger?: Record<string, string>;
     }
@@ -197,7 +197,7 @@ export type Kommando = (
 const SPOR = { enum: [...SPORENE] };
 /** LV-U42, D1 A i #1497: påkrevd i hver registrering av korrespondanse sendt utenfor løsningen. */
 const KORRESPONDANSETYPE = { enum: [...KORRESPONDANSETYPER] };
-/** B-2 A i #1824: partens utdypning per punkt, med punktet som nøkkel. */
+/** LV-U71: partens utdypning per punkt, med punktet som nøkkel. */
 const UTDYPNINGER = { type: 'object', additionalProperties: TEKST };
 const SVARUTKAST = objekt(
   {

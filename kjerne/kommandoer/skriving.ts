@@ -105,7 +105,7 @@ export type Neste = (kontekst: Kontekst, journal: Journalrad[]) => Utfall;
 
 /**
  * Stedet i brevteksten et avsnitt står, slik avsenderen leser brevet: punktet med overskriften
- * over avsnittet, eller nummeret på elementet (B-1 B i #1824).
+ * over avsnittet, eller nummeret på elementet (LV-U70).
  */
 function avsnittsnavn(brevtekst: readonly Avsnitt[], i: number): string {
   const a = brevtekst[i];
