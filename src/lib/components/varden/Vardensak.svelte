@@ -216,6 +216,8 @@
     arbeid = {
       ...arbeid,
       tekst: b.tekst,
+      // LV-U2.
+      avsnitt: arbeid.avsnitt === undefined ? undefined : b.avsnitt,
       merking: b.merking,
       deresRef: b.deresRef,
       tittel: b.brevtittel,
