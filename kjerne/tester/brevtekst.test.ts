@@ -4255,6 +4255,20 @@ describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', (
       expect(s.avvist('TE', korrigering(s, 'klar_over_forholdet', '2026-10-03'))).toBeNull();
     }
   );
+
+  it('et eget varsel registrert etter det første fristkravet, skjuler ikke kravet: en korrigering til en dato etter kravet avvises (VS-U66)', () => {
+    // Påberopelsen er sendt 2. oktober og fristkravet uten varsel 3. oktober. Varselet etter
+    // § 33.4 registreres 4. oktober med den datoen, og korrigeringen sendes 5. oktober.
+    const s = medForhold(svikt);
+    s.send('TE', { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: BESKRIVELSE });
+    s.send('TE', registrering('frist', '33.4', '2026-10-04'));
+    expect(s.u().spor.frist.varsler['33.4'], 'forutsetning: varselet er registrert').toBeDefined();
+    expect(s.avvisning('TE', korrigering(s, 'klar_over_forholdet', '2026-10-04'))).toMatchObject({
+      regel: 'VARSEL_FOER_GRUNNLAGSDATOEN',
+      melding: expect.stringContaining('punkt 33.4 ble sendt 3. oktober 2026'),
+    });
+    expect(s.avvist('TE', korrigering(s, 'klar_over_forholdet', '2026-10-03'))).toBeNull();
+  });
 });
 
 describe('varselet etter § 32.2 er det første grunnlagskravet (VS-U43 punkt 6 og 10, #1489)', () => {

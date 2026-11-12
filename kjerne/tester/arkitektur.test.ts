@@ -624,7 +624,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utledning/utled.ts',
     'relasjon',
     'kravSomVarsler',
-    ['kommandoer/nyttelast.ts:varseletOmForholdet'],
+    ['kommandoer/nyttelast.ts:varslerOmForholdet'],
   ],
   // VS-U38: varselet etter § 32.2 kan ikke være sendt etter påberopelsen. VS-U59: en korrigering
   // kan ikke flytte datoen i grunnlagskravet til etter et varsel om forholdet.

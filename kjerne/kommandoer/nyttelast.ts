@@ -248,21 +248,22 @@ function varseletFoerGrunnlagsdatoen(
 }
 
 /**
- * VS-U60: det egne varselet etter hjemmelen, ellers kravet som er det første varselet
+ * VS-U60 og VS-U66: det egne varselet etter hjemmelen og kravet som er det første varselet
  * løsningen kjenner (VS-U43 punkt 6–9, som `varseletForNyttSvar`).
  */
-function varseletOmForholdet(
+function varslerOmForholdet(
   hjemmel: VarselOmForholdet,
   u: Utledning,
   regler: Regelsett
-): Pick<Krav, 'id' | 'dokument'> | undefined {
+): Pick<Krav, 'id' | 'dokument'>[] {
   const s = u.spor[VARSELSPOR[hjemmel]];
-  const eget = s.varsler[hjemmel];
-  if (eget || !hjemmelenGjelder(hjemmel, u.spor.forhold.gjeldendeKrav, regler)) return eget;
-  return kravSomVarsler(hjemmel, s.krav)[0];
+  const kravet = hjemmelenGjelder(hjemmel, u.spor.forhold.gjeldendeKrav, regler)
+    ? kravSomVarsler(hjemmel, s.krav)[0]
+    : undefined;
+  return [s.varsler[hjemmel], kravet].filter((v) => v !== undefined);
 }
 
-/** VS-U59, VS-U60. */
+/** VS-U59, VS-U60 og VS-U66: det tidligste varselet om forholdet etter hver hjemmel. */
 function korrigeringEtterVarslene(
   k: Extract<Kommando, { type: 'korrigering' }>,
   u: Utledning,
@@ -272,8 +273,10 @@ function korrigeringEtterVarslene(
   const ny = kalenderdag(dato);
   if (ny === null) return null;
   for (const hjemmel of VARSLER_OM_FORHOLDET) {
-    const varsel = varseletOmForholdet(hjemmel, u, regler);
-    const sendt = varsel ? datoenDetBleSendt(u, varsel) : null;
+    const [sendt = null] = varslerOmForholdet(hjemmel, u, regler)
+      .map((v) => datoenDetBleSendt(u, v))
+      .filter((d) => d !== null)
+      .sort();
     if (sendt !== null && sendt < ny)
       return avvis(
         'VARSEL_FOER_GRUNNLAGSDATOEN',
