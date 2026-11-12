@@ -97,7 +97,8 @@ To trekk gjelder hele kjernen på `7460838`:
 - Frist- og vederlagsreglene i [`regler/frist.ts`](../kjerne/regler/frist.ts)
   og [`regler/vederlag.ts`](../kjerne/regler/vederlag.ts) er portert fra
   Python og har flere grener enn kjernen bruker. `regnUtSvar` i
-  [`utregning.ts`](../kjerne/frosset/utregning.ts) låser inndataene: alltid fastpris,
+  [`utregning.ts`](../kjerne/frosset/utregning.ts), med utregningen av vederlaget i
+  [`spor/vederlag/frysing.ts`](../kjerne/spor/vederlag/frysing.ts), låser inndataene: alltid fastpris,
   alltid spesifisert fristkrav, ingen rigg, produktivitet eller forespørsel.
   `utenforOmfanget` avviser resten med `VURDERING_UTENFOR_KJERNEN`
   ([#341](https://github.com/khjohns/endringsmeldinger/issues/341)).
@@ -686,7 +687,7 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
   snevre inn KA-U6 der enigheten gir BH en rettighet, for eksempel et fradrag.
 - **Kjernen i dag:** ikke bygget. Formatet krever beløp over 0, og
   `hold_tilbake` avvises i
-  [`frosset/utregning.ts`](../kjerne/frosset/utregning.ts) (`utenforOmfanget`).
+  [`spor/vederlag/frysing.ts`](../kjerne/spor/vederlag/frysing.ts) (`utenforOmfanget`).
 
 ---
 

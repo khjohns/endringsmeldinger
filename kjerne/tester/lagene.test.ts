@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest';
 import { minnebane } from './bane.ts';
 import { kjoer, type Forloep } from './kjoerer.ts';
 import type { Handling } from './klient.ts';
-import { plassene } from '../frosset/standpunkt.ts';
+import { plassene } from '../frosset/byggeklosser.ts';
 import { kroner } from '../frosset/tekst.ts';
 import { vederlagssvaret } from '../utledning/visning.ts';
 

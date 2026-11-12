@@ -21,7 +21,8 @@ import {
   utledJournal,
   vurder,
 } from '../../kjerne/kommandoer/skriving.ts';
-import { regnUtSvar, type Svarvurdering } from '../../kjerne/frosset/utregning.ts';
+import { regnUtSvar } from '../../kjerne/frosset/utregning.ts';
+import { type Svarvurdering } from '../../kjerne/frosset/byggeklosser.ts';
 import { kravposterI } from '../../kjerne/spor/vederlag/format.ts';
 import type { Journalrad, Part, Spor } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';

@@ -11,15 +11,9 @@
 
 import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import {
-  hjemmelenGjelder,
-  lagFraForholdet,
-  postlisten,
-  ulikeVirkninger,
-  virkninger,
-  type Paaberopt,
-  type Vederlagspost,
-} from '../frosset/standpunkt.ts';
+import { lagFraForholdet, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
+import { postlisten, type Paaberopt, type Vederlagspost } from '../spor/vederlag/frysing.ts';
+import { hjemmelenGjelder } from '../frosset/byggeklosser.ts';
 import {
   enighetensVirkning,
   paaberopelseFor,

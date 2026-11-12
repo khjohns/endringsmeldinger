@@ -27,7 +27,7 @@
   } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import { lesKroner } from '$lib/utils/belop';
-  import type { Kravpostvurdering } from '$kjerne/frosset/utregning';
+  import type { Kravpostvurdering } from '$kjerne/spor/vederlag/frysing';
   import type { Forutsetning } from '$kjerne/kommandoer/lag';
   import type { Utledning } from '$kjerne/utledning/utled';
   import type { Kravpost, Standpunkt } from '$kjerne/typer';
