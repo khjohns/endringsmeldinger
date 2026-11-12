@@ -32,12 +32,12 @@ import {
   lesJournal,
   registrertDato,
   standpunkterISvaret,
-  Uforstaatt,
 } from '../format/leser.ts';
 import {
   kommandoenHarTegnSomIkkeKanVises,
   tegnSomIkkeKanVises,
   tekstSomIkkeKanLagres,
+  Uforstaatt,
 } from '../format/skjema.ts';
 import { paaberopelseFor, utled, utledJournal, type Utledning } from '../utledning/utled.ts';
 import type { Kjerne } from '../versjon.ts';

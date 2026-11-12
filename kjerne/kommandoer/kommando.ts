@@ -8,18 +8,23 @@
  */
 
 import {
-  DATO,
   DATOEN_GJELDER,
-  ID,
   KRAVINNHOLD,
   vederlagsinnhold,
-  liste,
-  objekt,
   oppgittDato,
   OPPLYSNINGSSLAG,
-  TEKST,
 } from '../format/format.ts';
-import { erKalenderdato, erObjekt, feilI, type Skjema } from '../format/skjema.ts';
+import {
+  DATO,
+  erKalenderdato,
+  erObjekt,
+  feilI,
+  ID,
+  liste,
+  objekt,
+  TEKST,
+  type Skjema,
+} from '../format/skjema.ts';
 import { BroekdelAvOere, heleOere } from '../regler/beloep.ts';
 import type { Svarvurdering } from '../frosset/utregning.ts';
 import {

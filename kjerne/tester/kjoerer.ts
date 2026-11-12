@@ -10,7 +10,8 @@ import bevis from '../../docs/domenetabell/bevis-saker-maalmodell.json' with { t
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { KJERNE, type Kjerne } from '../versjon.ts';
-import { erRegistrert, Uforstaatt } from '../format/leser.ts';
+import { erRegistrert } from '../format/leser.ts';
+import { Uforstaatt } from '../format/skjema.ts';
 import { brevmerking } from '../frosset/brevtittel.ts';
 import {
   forhaandsvis,

@@ -13,9 +13,9 @@ import { KJERNE } from '../versjon.ts';
 import { ELDRE_SVAR } from '../kommandoer/forutsetninger.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
-import { lesJournal, standpunkterISvaret, Uforstaatt } from '../format/leser.ts';
+import { lesJournal, standpunkterISvaret } from '../format/leser.ts';
 import { BESLUTNINGSGRUNNLAG } from '../format/format.ts';
-import { feilI } from '../format/skjema.ts';
+import { feilI, Uforstaatt } from '../format/skjema.ts';
 import {
   kanInngaaIEo,
   kraveneErAvgjort,

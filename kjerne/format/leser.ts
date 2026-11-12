@@ -26,7 +26,7 @@ import {
 import { beloep } from '../regler/beloep.ts';
 import { utregningIFristen, utregningIVederlaget } from './svarinnhold.ts';
 import { avvikIMerkingen, avvikITittelen } from '../frosset/brevtittel.ts';
-import { erKalenderdato, erObjekt, feilI, type Skjema } from './skjema.ts';
+import { erKalenderdato, erObjekt, feilI, Uforstaatt, type Skjema } from './skjema.ts';
 import type {
   Avsnitt,
   Beslutningsgrunnlag,
@@ -122,9 +122,6 @@ export const sammeSlag = (opplysning: string, bestridelse: string): boolean =>
 
 /** En opplysning om brevet som helhet: § 31.3 (MM-U12, MM-U50). */
 export const omBrevet = (hva: string): hva is 'endringsordre' => hva === 'endringsordre';
-
-/** Leseren forstår ikke raden (MM-U2). */
-export class Uforstaatt extends Error {}
 
 type Data = Record<string, unknown>;
 

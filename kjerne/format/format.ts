@@ -21,7 +21,7 @@ import {
   SAERSKILTE,
   VEDERLAGSRESULTATER,
 } from '../regler/typer.ts';
-import type { Skjema } from './skjema.ts';
+import { DATO, ID, liste, objekt, TEKST, type Skjema } from './skjema.ts';
 import {
   KRAVSPOR,
   SPOR,
@@ -93,19 +93,6 @@ export const OPPGJOERSHJEMMEL = {
 export const METODER = ['enhetspriser', 'regningsarbeid'] as const satisfies readonly NonNullable<
   Extract<Standpunkt, { art: 'oppgjoersform' }>['oensket']
 >[];
-
-export const ID: Skjema = { type: 'string', minLength: 1 };
-export const TEKST: Skjema = { type: 'string', minLength: 1 };
-export const DATO: Skjema = { type: 'string', minLength: 10 };
-export const liste = (items: Skjema): Skjema => ({ type: 'array', minItems: 1, items });
-
-export const objekt = (properties: Skjema, required: string[], anyOf?: Skjema[]): Skjema => ({
-  type: 'object',
-  properties,
-  required,
-  additionalProperties: false,
-  ...(anyOf ? { anyOf } : {}),
-});
 
 /**
  * VS-U26: datoen varslingsplikten løper fra, som TE oppgir i påberopelsen,

@@ -10,6 +10,19 @@ import { SETTBARE_TEGN } from './tegnsett.ts';
 
 export type Skjema = Record<string, unknown>;
 
+export const ID: Skjema = { type: 'string', minLength: 1 };
+export const TEKST: Skjema = { type: 'string', minLength: 1 };
+export const DATO: Skjema = { type: 'string', minLength: 10 };
+export const liste = (items: Skjema): Skjema => ({ type: 'array', minItems: 1, items });
+
+export const objekt = (properties: Skjema, required: string[], anyOf?: Skjema[]): Skjema => ({
+  type: 'object',
+  properties,
+  required,
+  additionalProperties: false,
+  ...(anyOf ? { anyOf } : {}),
+});
+
 export const NOEKKELORD = new Set([
   'type',
   'enum',
@@ -26,6 +39,9 @@ export const NOEKKELORD = new Set([
   'pattern',
   'minItems',
 ]);
+
+/** Leseren forstår ikke raden (MM-U2). */
+export class Uforstaatt extends Error {}
 
 /** NUL og en enslig surrogat er gyldig JSON, men JSONB i PostgreSQL avviser dem (#373). */
 const ENSLIG_SURROGAT = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/;

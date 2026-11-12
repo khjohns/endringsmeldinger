@@ -1095,7 +1095,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Avsnitt', 'brevtekst', 'laast', ['kommandoer/skriving.ts:skriv']],
   // Opprettelsen av saken (#664): kommandoen og raden `sak_opprettet` den gir.
   ['Opprettelse', 'kommando', 'sakstittel', ['kommandoer/opprettelse.ts:opprettelse']],
-  ['format/format.ts', 'skjema', 'objekt TEKST', ['kommandoer/opprettelse.ts']],
+  ['format/skjema.ts', 'skjema', 'objekt TEKST', ['kommandoer/opprettelse.ts']],
   ['format/format.ts', 'rad', 'FORMAT SAK_OPPRETTET', ['kommandoer/opprettelse.ts:opprettelse']],
   ['format/skjema.ts.TYPER', 'skjema', '*'],
   [
@@ -1151,11 +1151,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['format/format.ts', 'kontekst', 'FORMAT LESERFORMAT', ['versjon.ts']],
   // Arbeidsvalget i #479: metodene byggherren kan oppgi etter § 34.2.2.
   ['format/format.ts', 'skjema', 'METODER', ['regler/svarkontroll.ts:kontrollerOppgjoersformen']],
+  ['format/format.ts', 'skjema', 'KRAVINNHOLD OPPLYSNINGSSLAG', ['kommandoer/kommando.ts']],
   [
-    'format/format.ts',
+    'format/skjema.ts',
     'skjema',
-    'DATO ID KRAVINNHOLD liste objekt OPPLYSNINGSSLAG TEKST',
-    ['kommandoer/kommando.ts'],
+    'DATO ID liste objekt TEKST',
+    ['format/format.ts', 'kommandoer/kommando.ts'],
   ],
   // VS-U26: datoen TE oppgir i påberopelsen. Bare formkontrollen, kontrollen mot
   // brevets dato og brevteksten leser den, så ingen regel vurderer rettidigheten av den.
@@ -1460,7 +1461,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'standpunkterISvaret',
     ['frosset/frysing.ts', 'kommandoer/skriving.ts', 'kommandoer/lag.ts'],
   ],
-  ['format/leser.ts', 'rad', 'Uforstaatt', ['kommandoer/skriving.ts', 'frosset/frysing.ts']],
+  [
+    'format/skjema.ts',
+    'rad',
+    'Uforstaatt',
+    ['format/leser.ts', 'kommandoer/skriving.ts', 'frosset/frysing.ts'],
+  ],
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
   // av samme slag (MM-U1, MM-U7).
   ['format/leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],

@@ -513,7 +513,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F37',
     feilklasse: 'leseren godtar et ukjent felt i `data` (4.4, MM-U2)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/format/skjema.ts`,
     endringer: [['  additionalProperties: false,', '  additionalProperties: true,']],
     mal: ['et ukjent felt i et svar', 'en aksept med et ukjent felt'],
   },

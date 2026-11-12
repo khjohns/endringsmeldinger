@@ -6,7 +6,8 @@
  */
 
 import { HJEMMEL } from '../format/format.ts';
-import { standpunkterISvaret, Uforstaatt } from '../format/leser.ts';
+import { standpunkterISvaret } from '../format/leser.ts';
+import { Uforstaatt } from '../format/skjema.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
   blirEndringsordre,

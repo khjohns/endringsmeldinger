@@ -6,11 +6,13 @@
  * `sak_opprettet` i versjon 1.
  */
 
-import { FORMAT, SAK_OPPRETTET, objekt, TEKST } from '../format/format.ts';
+import { FORMAT, SAK_OPPRETTET } from '../format/format.ts';
 import {
   erObjekt,
   feilI,
   kommandoenHarTegnSomIkkeKanVises,
+  objekt,
+  TEKST,
   tekstSomIkkeKanLagres,
 } from '../format/skjema.ts';
 import { avvis } from './forutsetninger.ts';
