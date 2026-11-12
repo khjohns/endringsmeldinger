@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `7e9608f47d493fdb38a8d53fc2dcf0ae7cbc63521c44c0eaa78d8748384e00bd`
+Kontrollsum (SHA-256 over utdraget visningen leser): `8872bb79bdc3cc8e3d6ec82ef6ece4fe195344ed14a9feb3156e7ed7a60f2b83`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -941,7 +941,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 12.11, oppdragsgiver (#1843, #1065)
 
-**Følge:** Endrer [VS-U43](#vs-u43). Presiserer [VS-U66](#vs-u66). Forholdet står i alternativ A: «endrer samlevedtaket for varslingsdatoen (VS-U43) punkt 8, 9 og 10 (OV-U29, OV-U24, LV-U10)». Punktene står i VS-U43, og forholdet er ført til VS-U43. Bygges i #1843.
+**Følge:** Endrer [VS-U43](#vs-u43). Presiserer [VS-U66](#vs-u66). Forholdet står i alternativ A: «endrer samlevedtaket for varslingsdatoen (VS-U43) punkt 8, 9 og 10 (OV-U29, OV-U24, LV-U10)». Bygges i #1843.
 
 **Regelrader:** —
 

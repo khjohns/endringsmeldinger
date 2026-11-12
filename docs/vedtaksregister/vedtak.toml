@@ -3910,7 +3910,7 @@ forhold = [
   { art = "presiserer", vedtak = "vs-u66" },
 ]
 folge = '''
-Forholdet står i alternativ A: «endrer samlevedtaket for varslingsdatoen (VS-U43) punkt 8, 9 og 10 (OV-U29, OV-U24, LV-U10)». Punktene står i VS-U43, og forholdet er ført til VS-U43. Bygges i #1843.'''
+Forholdet står i alternativ A: «endrer samlevedtaket for varslingsdatoen (VS-U43) punkt 8, 9 og 10 (OV-U29, OV-U24, LV-U10)». Bygges i #1843.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
