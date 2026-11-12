@@ -3,10 +3,9 @@
  * brev har ingen frosset tittel; visningen gir det en etikett (MM-U17).
  */
 
-import { forholdet, paaberopelsenAv } from './forholdene.ts';
 import type { Dokument, Sakskode, Spor } from '../typer.ts';
 import { sakensKode } from './tekst.ts';
-import { innholdIForholdet } from '../spor/forhold/format.ts';
+import { paaberopelsenAv, paaberoptForhold } from '../spor/forhold/tekst.ts';
 
 const utfylt = (tall: number, sifre: number) => String(tall).padStart(sifre, '0');
 
@@ -69,12 +68,6 @@ export const UTSAGNSTITTEL = {
   // LV-U55: brevet med korrigeringen etter punkt 10 i samlevedtaket for retting av sendt brev (MM-U52).
   korrigering: 'Korrigering av datoen',
 } as const;
-
-/** Forholdet brevet påberoper (GR-U31): et krav i forholdssporet i et brev uten svar. */
-function paaberoptForhold(d: Pick<Dokument, 'krav' | 'svar'>) {
-  if (d.svar.length) return null;
-  return forholdet(innholdIForholdet(d.krav.find((k) => k.spor === 'forhold')).underkategori);
-}
 
 /**
  * Tittelen etter det brevet inneholder: «Påberopelse av <forholdet>» (GR-U31), ellers etter

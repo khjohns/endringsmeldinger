@@ -277,7 +277,7 @@ export type StandpunktIArt = { [K in Standpunktsart]: Extract<Standpunkt, { art:
 
 /** Teksten for standpunktet i en art som bare ett spor har, med kravet svaret gjelder (#1783). */
 export type Standpunktstekster<A extends Standpunktsart> = {
-  [K in A]: (p: StandpunktIArt[K], krav: Krav) => string;
+  [K in A]: (p: StandpunktIArt[K], krav: Krav, svar: Svar, j: Journalen) => string;
 };
 
 /** Brevet kan ikke sendes fra appen slik saken står, og kommandoen avvises med `regel`. */

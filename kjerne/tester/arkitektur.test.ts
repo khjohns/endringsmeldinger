@@ -438,7 +438,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Forholdsinnhold',
     'utsagn',
     'endringsordre',
-    ['frosset/brevtekst.ts', 'kommandoer/nyttelast.ts:kategorisperre'],
+    ['spor/forhold/tekst.ts', 'kommandoer/nyttelast.ts:kategorisperre'],
   ],
   ['Fristinnhold', 'utsagn', 'dager'],
   // OV-U95 punkt 19–22 og arbeidsvalget 07.11 i domenetabellen: kravpostene i vederlagskravet, og kravpostene
@@ -1188,7 +1188,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'innholdIForholdet',
     [
       'frosset/brevtekst.ts',
-      'frosset/brevtittel.ts',
+      'spor/forhold/tekst.ts',
       'utledning/utled.ts:opplysningerOmDatoen',
       'kommandoer/nyttelast.ts:kategorisperre',
     ],
@@ -1249,7 +1249,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/tekst.ts',
     'brevtekst',
     'sakensKode',
-    ['frosset/brevtekst.ts', 'frosset/brevtittel.ts'],
+    ['frosset/brevtekst.ts', 'frosset/brevtittel.ts', 'spor/forhold/tekst.ts'],
   ],
   // LV-U53, LV-U24: merkingen fryses i brevet når det skrives, og leseren prøver den (#1570).
   [
@@ -1837,7 +1837,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/byggeklosser.ts',
     'frosset',
     'virkningen',
-    ['frosset/linje.ts', 'spor/vederlag/tekst.ts'],
+    ['frosset/linje.ts', 'spor/forhold/tekst.ts', 'spor/vederlag/tekst.ts'],
   ],
   // Teksten i sporene, som brevteksten og linjen slår opp (#1783).
   [
@@ -1855,15 +1855,27 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['Sporslinje', 'brevtekst', 'egetLedd ledd', ['frosset/linje.ts']],
   ['spor/vederlag/tekst.ts', 'brevtekst', 'LINJEN_I_VEDERLAGET', ['frosset/linje.ts']],
+  [
+    'spor/forhold/tekst.ts',
+    'brevtekst',
+    'BREVTEKSTEN_I_FORHOLDET STANDPUNKTENE_I_FORHOLDET DATOEN_I_BREVET',
+    ['frosset/brevtekst.ts'],
+  ],
+  ['spor/forhold/tekst.ts', 'brevtekst', 'LINJEN_I_FORHOLDET', ['frosset/linje.ts']],
   // Byggeklossene i brevteksten (#1783).
   [
     'frosset/brevdeler.ts',
     'brevtekst',
     'Journalen KanIkkeUttrykkes PRODUKTIVITET eksMva erDato kravpostenI norskDato opplistet punktum tidligere verdi',
-    ['frosset/brevtekst.ts', 'spor/vederlag/tekst.ts'],
+    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts', 'spor/vederlag/tekst.ts'],
   ],
   // Byggeklossene i brevteksten som teksten i sporene også bruker (#1783).
-  ['frosset/brevdeler.ts', 'brevtekst', 'BrevetAvvises liste stor', ['frosset/brevtekst.ts']],
+  [
+    'frosset/brevdeler.ts',
+    'brevtekst',
+    'BrevetAvvises liste stor',
+    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts'],
+  ],
   // OV-U32: etiketten brevet bruker for laget.
   [
     'frosset/byggeklosser.ts',
@@ -1881,7 +1893,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/tekst.ts',
     'brevtekst',
-    'kroner SENT_I_LINJEN SVARET_PAA_PAABEROPELSEN',
+    'kroner SENT_I_LINJEN',
     ['frosset/linje.ts', 'spor/vederlag/tekst.ts'],
   ],
   // Arbeidsvalget i #479: metoden byggherren ønsker, slik brevet sier den.
@@ -1901,15 +1913,20 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Saken',
     'brevtekst',
     'sakskode tittel svarPaaPaaberopelsen datoopplysninger subsidiaer avklartVedFrafall',
-    ['frosset/brevtekst.ts'],
+    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts'],
   ],
   // VS-U49, VS-U55: varselet for hver kravpost, utledet før brevet (`kravpostvarslene`, A6).
   ['Saken', 'relasjon', 'kravpostvarsler kravpostvarsler.*', ['spor/vederlag/tekst.ts']],
   ['Kravpostvarselet', 'relasjon', 'art varsel', ['spor/vederlag/tekst.ts']],
   // LV-U56: TEs opplysninger om datoen, fra utledningen (`Datoopplysning`).
-  ['Saken.datoopplysninger', 'utsagn', 'felt dato', ['frosset/brevtekst.ts']],
-  ['Saken.datoopplysninger', 'relasjon', 'dokument', ['frosset/brevtekst.ts']],
-  ['Tekst', 'brevtekst', 'j saken nytt sak', ['frosset/brevtekst.ts', 'spor/vederlag/tekst.ts']],
+  ['Saken.datoopplysninger', 'utsagn', 'felt dato', ['spor/forhold/tekst.ts']],
+  ['Saken.datoopplysninger', 'relasjon', 'dokument', ['spor/forhold/tekst.ts']],
+  [
+    'Tekst',
+    'brevtekst',
+    'j saken nytt sak',
+    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts', 'spor/vederlag/tekst.ts'],
+  ],
   ['frosset/brevtekst.ts:svartekst', 'brevtekst', 'tekst plass', ['frosset/brevtekst.ts']],
   ['Dokument', 'relasjon', 'id registrert', ['frosset/brevtekst.ts', 'frosset/brevdeler.ts']],
   // Datoen appen registrerte brevet.
@@ -1962,15 +1979,25 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Krav',
     'relasjon',
     'dokument',
-    ['frosset/brevtekst.ts', 'frosset/brevdeler.ts', 'spor/vederlag/tekst.ts'],
+    [
+      'frosset/brevtekst.ts',
+      'frosset/brevdeler.ts',
+      'spor/forhold/tekst.ts',
+      'spor/vederlag/tekst.ts',
+    ],
   ],
   ['Krav', 'relasjon', 'dokument', ['utledning/utled.ts:datoenDetBleSendt']],
-  ['Forholdsinnhold', 'utsagn', 'datoer', ['frosset/brevtekst.ts']],
+  ['Forholdsinnhold', 'utsagn', 'datoer', ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts']],
   [
     'Journalen',
     'brevtekst',
     'legg brev brevet dokument dokumentetTil dokumentMed dokumenter element elementer erRegistrert iDokument krav svar utdypning versjon',
-    ['frosset/brevtekst.ts', 'frosset/brevdeler.ts', 'spor/vederlag/tekst.ts'],
+    [
+      'frosset/brevtekst.ts',
+      'frosset/brevdeler.ts',
+      'spor/forhold/tekst.ts',
+      'spor/vederlag/tekst.ts',
+    ],
   ],
   // #1711: brevtekstens egen `Element`, ikke elementet i utledningen.
   [
@@ -1980,24 +2007,28 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['frosset/brevtekst.ts', 'frosset/brevdeler.ts'],
   ],
   // Forholdene med navnet og hjemmelen (svaret på Q3 i #1488, LV-U43).
-  ['frosset/forholdene.ts', 'brevtekst', 'forholdet', ['frosset/brevtekst.ts']],
-  ['frosset/forholdene.ts', 'brevtekst', 'forholdet paaberopelsenAv', ['frosset/brevtittel.ts']],
-  ['FORHOLDSGRUPPER', 'brevtekst', 'forhold', ['frosset/forholdene.ts']],
-  ['Forholdet', 'brevtekst', 'kode', ['frosset/forholdene.ts', 'frosset/brevtekst.ts']],
-  ['Forholdet', 'brevtekst', 'navn hjemmel', ['frosset/brevtekst.ts']],
+  [
+    'spor/forhold/tekst.ts',
+    'brevtekst',
+    'paaberoptForhold paaberopelsenAv',
+    ['frosset/brevtittel.ts'],
+  ],
+  ['FORHOLDSGRUPPER', 'brevtekst', 'forhold', ['spor/forhold/tekst.ts']],
+  ['Forholdet', 'brevtekst', 'kode', ['spor/forhold/tekst.ts']],
+  ['Forholdet', 'brevtekst', 'navn hjemmel', ['spor/forhold/tekst.ts']],
   ['Forholdet', 'brevtekst', 'navn', ['frosset/brevtittel.ts']],
-  ['frosset/brevtekst.ts.LEDD_I_33_1', 'brevtekst', '*', ['frosset/brevtekst.ts']],
+  ['spor/forhold/tekst.ts.LEDD_I_33_1', 'brevtekst', '*', ['spor/forhold/tekst.ts']],
   ['frosset/brevtekst.ts:aapneInnsigelser', 'relasjon', 'fra', ['frosset/brevtekst.ts']],
   ['Innsigelse', 'relasjon', 'dokument gjelder hjemmel', ['frosset/brevtekst.ts']],
   // Teksten sier det brevet sier: § 32.2 for kravet, endringsordren etter GR-U12 og
   // innsigelsen svaret gjentar eller gir opp (VS-U9, VS-U11).
   ['frosset/standpunkt.ts', 'brevtekst', 'innsigelsenErOppgitt', ['frosset/brevtekst.ts']],
-  ['spor/forhold/frysing.ts', 'brevtekst', 'blirEndringsordre', ['frosset/brevtekst.ts']],
+  ['spor/forhold/frysing.ts', 'brevtekst', 'blirEndringsordre', ['spor/forhold/tekst.ts']],
   [
     'frosset/byggeklosser.ts',
     'brevtekst',
     'gjelderVarslingsplikten standpunktet',
-    ['frosset/brevtekst.ts'],
+    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts'],
   ],
 ];
 

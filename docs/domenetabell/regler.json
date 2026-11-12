@@ -2886,7 +2886,7 @@
       ],
       "tolkningsstatus": "arbeidshypotese",
       "funksjoner": [
-        "kjerne/frosset/brevtekst.ts#endringsordretekst"
+        "kjerne/spor/forhold/tekst.ts#endringsordretekst"
       ],
       "regelkoder": [
         "PAALEGGET_IKKE_BESKREVET"
@@ -2942,7 +2942,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/kommandoer/nyttelast.ts#datosperre",
-        "kjerne/frosset/brevtekst.ts#forholdstekst"
+        "kjerne/spor/forhold/tekst.ts#forholdstekst"
       ],
       "regelkoder": [
         "DATOEN_KAN_IKKE_ENDRES"

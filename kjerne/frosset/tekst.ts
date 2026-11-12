@@ -4,7 +4,6 @@
  */
 
 import { beloep } from '../regler/beloep.ts';
-import type { Forholdsresultat } from '../regler/typer.ts';
 import type { Hjemmel, Sakskode } from '../typer.ts';
 
 /** Kroner med mellomrom mellom tusener og øre bare når de finnes: «150 000 kr». */
@@ -20,12 +19,6 @@ export function kroner(n: number): string {
 /** «1 dag», «12 dager». Brevteksten og meldingen om en senket revisjon bruker samme ord (#628). */
 export const dager = (n: number) => `${n} ${n === 1 ? 'dag' : 'dager'}`;
 
-/** Svaret på forholdet med ordene i brevet (#628). */
-export const SVARET_PAA_PAABEROPELSEN: Record<Forholdsresultat, string> = {
-  godkjent: 'godkjent',
-  avslaatt: 'avslått',
-  paalegg_frafalt: 'pålegget frafalt (§ 32.3 c)',
-};
 /** Det byggherren gjør gjeldende kom for sent, i kortform av `VARSELET` i brevteksten (LV-U4 punkt 5). */
 export const SENT_I_LINJEN: Record<Hjemmel, string> = {
   '32.2': 'varselet etter § 32.2',

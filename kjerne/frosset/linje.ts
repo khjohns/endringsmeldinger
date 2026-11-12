@@ -10,8 +10,9 @@ import {
   virkningen,
   type Svarinnhold,
 } from './byggeklosser.ts';
+import { LINJEN_I_FORHOLDET } from '../spor/forhold/tekst.ts';
 import { LINJEN_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
-import { iLagene, SENT_I_LINJEN, SVARET_PAA_PAABEROPELSEN } from './tekst.ts';
+import { iLagene, SENT_I_LINJEN } from './tekst.ts';
 import {
   erKravpostvarselhjemmel,
   type Krav,
@@ -101,15 +102,9 @@ export function beslutningslinje(
   return `Byggherrens standpunkt: ${ledd.map(etikettert).join(', ')}.`;
 }
 
-/** Leddene i hvert spor. Forholdet og fristen står her til de flyttes til sporene (#1783, #1745). */
+/** Leddene i hvert spor. Fristen står her til den flyttes til sporet (#1745). */
 const LINJE: Record<Spor, Sporslinje> = {
-  forhold: {
-    egetLedd: () => undefined,
-    ledd: (svar, v) => {
-      const g = standpunktet(svar, 'forhold')!;
-      return [{ tekst: SVARET_PAA_PAABEROPELSEN[g.resultat], virkning: virkningen(v, g.id) }];
-    },
-  },
+  forhold: LINJEN_I_FORHOLDET,
   vederlag: LINJEN_I_VEDERLAGET,
   frist: {
     egetLedd: () => undefined,
