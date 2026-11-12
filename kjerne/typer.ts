@@ -525,3 +525,5 @@ export interface Avvisning {
   regel: string;
   melding: string;
 }
+
+export const avvis = (regel: string, melding: string): Avvisning => ({ regel, melding });

@@ -1055,7 +1055,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/forutsetninger.ts', 'kommandoer/handlinger.ts:handling'],
   ],
   ['kommandoer/forutsetninger.ts', 'relasjon', 'VARSEL_I_SPORET', ['kommandoer/handlinger.ts']],
-  ['kommandoer/forutsetninger.ts', 'predikat', 'forutsetninger noekkel avvis'],
+  ['kommandoer/forutsetninger.ts', 'predikat', 'forutsetninger noekkel'],
   // KA-U1, HF-U8: meldingen når aksepten ikke gjelder det gjeldende svaret, lik i
   // forutsetningene og nyttelastkontrollen.
   ['kommandoer/forutsetninger.ts', 'brevtekst', 'ELDRE_SVAR', ['kommandoer/nyttelast.ts']],
@@ -1066,6 +1066,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'relasjon',
     'SPOR KRAVSPOR VARSELSPOR erVarselhjemmel erKravpostvarselhjemmel utenGren',
   ],
+  // Avvisningen med regelkoden og meldingen, felles for forutsetningene, nyttelasten og skrivingen.
+  ['typer.ts', 'predikat', 'avvis'],
   // OV-U32: laget en fryst virkning står i, og laget i et svarutkast (#1400).
   [
     'frosset/byggeklosser.ts',

@@ -15,8 +15,7 @@ import {
   TEKST,
   tekstSomIkkeKanLagres,
 } from '../format/skjema.ts';
-import { avvis } from './forutsetninger.ts';
-import type { Avvisning, Part } from '../typer.ts';
+import { avvis, type Avvisning, type Part } from '../typer.ts';
 
 export interface Opprettelse {
   type: 'opprett_sak';

@@ -9,7 +9,7 @@ import { kravposteneStrider, kravpostvarseletStrider } from '../spor/vederlag/ut
 import { beloep, UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { erBeloepetGodkjentFullt } from '../regler/vederlag.ts';
-import { avvis, ELDRE_SVAR } from './forutsetninger.ts';
+import { ELDRE_SVAR } from './forutsetninger.ts';
 import { norskDato } from '../frosset/brevdeler.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
 import { datoFor, kalenderdag } from '../format/leser.ts';
@@ -34,6 +34,7 @@ import {
   type Utledning,
 } from '../utledning/utled.ts';
 import {
+  avvis,
   VARSELSPOR,
   type Avvisning,
   type Krav,

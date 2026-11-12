@@ -21,7 +21,6 @@ import { standpunkter } from './standpunkter.ts';
 import { BrevetAvvises, lagBrevtekst, lagDeresRef } from '../frosset/brevtekst.ts';
 import { KanIkkeUttrykkes } from '../frosset/brevdeler.ts';
 import { brevmerking, lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
-import { avvis } from './forutsetninger.ts';
 import {
   brevtekstI,
   erRegistrert,
@@ -37,20 +36,21 @@ import {
 } from '../format/skjema.ts';
 import { paaberopelseFor, utled, utledJournal, type Utledning } from '../utledning/utled.ts';
 import type { Kjerne } from '../versjon.ts';
-import type {
-  Avsnitt,
-  Avvisning,
-  Beslutningsgrunnlag,
-  Dokument,
-  Journalrad,
-  Krav,
-  Kravpost,
-  Kravpostvarselhjemmel,
-  Part,
-  Sakskode,
-  Spor,
-  Svar,
-  Vedlegg,
+import {
+  avvis,
+  type Avsnitt,
+  type Avvisning,
+  type Beslutningsgrunnlag,
+  type Dokument,
+  type Journalrad,
+  type Krav,
+  type Kravpost,
+  type Kravpostvarselhjemmel,
+  type Part,
+  type Sakskode,
+  type Spor,
+  type Svar,
+  type Vedlegg,
 } from '../typer.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */

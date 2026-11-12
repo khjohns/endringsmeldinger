@@ -18,7 +18,7 @@ import {
   type Utledning,
 } from '../utledning/utled.ts';
 import { DATOEN_GJELDER, oppgittDato } from '../format/format.ts';
-import { erKravpostvarselhjemmel, utenGren } from '../typer.ts';
+import { avvis, erKravpostvarselhjemmel, utenGren } from '../typer.ts';
 import { kategori } from '../format/kravinnhold.ts';
 import { krevdRigg } from '../spor/vederlag/format.ts';
 import type {
@@ -219,8 +219,6 @@ function fristenErLukket(u: Utledning): Avvisning | null {
     return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves fristforlengelse.');
   return null;
 }
-
-export const avvis = (regel: string, melding: string): Avvisning => ({ regel, melding });
 
 /** KA-U1, HF-U8: avvisningen sier ikke at det eldre svaret er avslått eller har falt bort. */
 export const ELDRE_SVAR =
