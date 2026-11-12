@@ -15,9 +15,10 @@ import {
   type Kravpostvurdering,
 } from './frysing.ts';
 import { etikett, laget, type Svarvurdering } from '../../frosset/byggeklosser.ts';
-import { kravposterI, krevdRigg, OPPGJOERSHJEMMEL } from './format.ts';
+import { kravposterI, krevdRigg, OPPGJOERSHJEMMEL, vederlagsinnhold } from './format.ts';
+import { erObjekt, feilI, objekt } from '../../format/skjema.ts';
 import { varselhjemmel } from './utledning.ts';
-import { beloep, tilTall } from '../../regler/beloep.ts';
+import { beloep, BroekdelAvOere, heleOere, tilTall } from '../../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
 import { standpunkterISvaret } from '../../format/leser.ts';
@@ -32,7 +33,7 @@ import {
   type Virkning,
 } from '../../typer.ts';
 import { paaberopelseFor, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
-import type { Svarutkast } from '../../kommandoer/kommando.ts';
+import type { Innhold, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
 
@@ -120,6 +121,66 @@ function kravpoststandpunkter(
     });
   return ut;
 }
+
+/** OV-U58: beløpene i kravet, også anslag og overslag, i hele øre. Formatet har allerede kontrollert at de er tall. */
+function oerefeil(innhold: Innhold): string[] {
+  const saerskilt = (innhold.saerskilt ?? {}) as Record<string, { beloep?: unknown }>;
+  const poster = (innhold.kravposter ?? []) as Record<string, unknown>[];
+  const beloepene: [string, unknown][] = [
+    ...poster.flatMap((p, i) =>
+      (['beloep', 'anslag', 'kostnadsoverslag'] as const).map((f): [string, unknown] => [
+        `$.innhold.kravposter[${i}].${f}`,
+        p[f],
+      ])
+    ),
+    ['$.innhold.saerskilt.produktivitet.beloep', saerskilt.produktivitet?.beloep],
+  ];
+  return beloepene.flatMap(([sti, verdi]) => {
+    if (typeof verdi !== 'number') return [];
+    try {
+      heleOere(verdi);
+      return [];
+    } catch (e) {
+      if (!(e instanceof BroekdelAvOere)) throw e;
+      return [
+        `${sti}: ${verdi} har brøkdeler av øre; beløpet oppgis i kroner med høyst to desimaler (OV-U58)`,
+      ];
+    }
+  });
+}
+
+/** Kravet har posten for rigg og drift i forlenget byggetid, som formatet ikke har ennå (#1775). */
+const harRiggOgDrift = (innhold: unknown): boolean => {
+  const saerskilt: unknown = erObjekt(innhold) ? (innhold as Innhold).saerskilt : undefined;
+  return erObjekt(saerskilt) && Object.hasOwn(saerskilt, 'rigg_og_drift');
+};
+
+/** Feilene i innholdet i vederlagskravet (`formfeil`). */
+function kravfeil(innhold: unknown): string[] {
+  const { properties, required, anyOf } = vederlagsinnhold(false);
+  const rigg = harRiggOgDrift(innhold);
+  const feil = rigg
+    ? [
+        '$.innhold.saerskilt.rigg_og_drift: posten for rigg og drift i forlenget byggetid er ikke bygget ennå, så kravet kan ikke sendes med den',
+      ]
+    : feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
+  if (!feil.length) feil.push(...oerefeil(innhold as Innhold));
+  return feil;
+}
+
+/** Dokumentene kravskjemaet legger til som varsel for en kravpost (VS-U53, `vedleggI`). */
+const vedleggIKravpostene = (innhold: Innhold): string[] =>
+  ((innhold.kravposter ?? []) as { varsel?: unknown }[]).flatMap((p) =>
+    typeof p.varsel === 'object' && p.varsel !== null
+      ? ((p.varsel as { dokumentasjon?: string[] }).dokumentasjon ?? [])
+      : []
+  );
+
+/** Formen på vederlagskravet (`formfeil`, `vedleggI`). */
+export const KRAVFORM_I_VEDERLAGET = {
+  feil: kravfeil,
+  vedleggIInnholdet: vedleggIKravpostene,
+} satisfies Kravform;
 
 /**
  * Det som hindrer byggherrens svar med standpunktene i dag, eller `null` når svaret kan gis.

@@ -3518,13 +3518,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F418',
     feilklasse: 'formkontrollen av vederlagskravet godtar brøkdeler av øre (OV-U58)',
-    fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [
-      [
-        "    if (k.spor === 'vederlag' && !feil.length) feil.push(...oerefeil(k.innhold as Innhold));\n",
-        '',
-      ],
-    ],
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['  if (!feil.length) feil.push(...oerefeil(innhold as Innhold));\n', '']],
     mal: ['et krevd beløp med brøkdeler av øre avvises'],
   },
   {
@@ -4756,10 +4751,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F548',
     feilklasse:
       'kravet med rigg og drift avvises uten at meldingen sier at posten ikke er bygget ennå (#1775)',
-    fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [
-      ["const rigg = k.spor === 'vederlag' && harRiggOgDrift(k.innhold);", 'const rigg = false;'],
-    ],
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['const rigg = harRiggOgDrift(innhold);', 'const rigg = false;']],
     mal: ['avvises med posten i meldingen'],
   },
 ];

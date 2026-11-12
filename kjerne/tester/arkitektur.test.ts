@@ -866,7 +866,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regler/beloep.ts',
     'regelsett',
     'BroekdelAvOere',
-    ['regler/vederlag.ts', 'kommandoer/kommando.ts'],
+    ['regler/vederlag.ts', 'spor/vederlag/kommando.ts'],
   ],
   [
     'regler/forhold.ts',
@@ -973,13 +973,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Kommando.innhold',
     'kommando',
     'kravposter',
-    [
-      'kommandoer/kommando.ts:vedleggI',
-      'kommandoer/skriving.ts:handlingen',
-      'kommandoer/skriving.ts:medVarslene',
-    ],
+    ['kommandoer/skriving.ts:handlingen', 'kommandoer/skriving.ts:medVarslene'],
   ],
-  ['kommandoer/kommando.ts:vedleggI', 'kommando', 'varsel dokumentasjon'],
+  [
+    'spor/vederlag/kommando.ts:vedleggIKravpostene(innhold)',
+    'kommando',
+    'kravposter',
+    ['spor/vederlag/kommando.ts:vedleggIKravpostene'],
+  ],
+  ['spor/vederlag/kommando.ts:vedleggIKravpostene', 'kommando', 'varsel dokumentasjon'],
   ['kommandoer/skriving.ts:handlingen(p)', 'kommando', 'varsel'],
   ['kommandoer/skriving.ts:medVarslene(p)', 'kommando', 'varsel'],
   ['Dokumentvarsel', 'kommando', 'dokumentasjon sendt korrespondansetype'],
@@ -1096,6 +1098,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/vederlag/frysing.ts', 'frosset', 'FRYSING_I_VEDERLAGET', ['frosset/standpunkt.ts']],
   // #1783: lesereglene i 4.2 som er sporets egne.
   ['Sporskontroller', 'predikat', 'kravet kravene svaret', ['utledning/utled.ts']],
+  // Formen på kravet i sporet (#1783).
+  ['Kravform', 'kommando', 'feil vedleggIInnholdet', ['kommandoer/kommando.ts']],
+  ['spor/vederlag/kommando.ts', 'kommando', 'KRAVFORM_I_VEDERLAGET', ['kommandoer/kommando.ts']],
   [
     'Sporsforutsetninger',
     'predikat',
@@ -1242,6 +1247,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'DATO ID liste objekt TEKST',
     ['format/format.ts', 'kommandoer/kommando.ts', 'spor/vederlag/format.ts'],
   ],
+  ['format/skjema.ts', 'skjema', 'objekt', ['spor/vederlag/kommando.ts:kravfeil']],
   // VS-U26: datoen TE oppgir i påberopelsen. Bare formkontrollen, kontrollen mot
   // brevets dato og brevteksten leser den, så ingen regel vurderer rettidigheten av den.
   ['OPPGITT_DATO', 'skjema', 'endring svikt andre_forhold', ['format/format.ts']],
@@ -1303,31 +1309,42 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // OV-U58: beløpene TE krever, som formkontrollen leser for å avvise brøkdeler av øre.
   [
-    'kommandoer/kommando.ts:oerefeil(innhold)',
+    'spor/vederlag/kommando.ts:oerefeil(innhold)',
     'kommando',
     'kravposter saerskilt saerskilt.produktivitet',
-    ['kommandoer/kommando.ts:oerefeil'],
+    ['spor/vederlag/kommando.ts:oerefeil'],
   ],
   // #1775: rigg og drift i forlenget byggetid avvises til #1724 har satt formen.
   [
-    'kommandoer/kommando.ts:harRiggOgDrift(innhold)',
+    'spor/vederlag/kommando.ts:harRiggOgDrift(innhold)',
     'kommando',
     'saerskilt',
-    ['kommandoer/kommando.ts:harRiggOgDrift'],
+    ['spor/vederlag/kommando.ts:harRiggOgDrift'],
   ],
   [
-    'kommandoer/kommando.ts:oerefeil(p)',
+    'spor/vederlag/kommando.ts:oerefeil(p)',
     'kommando',
     'beloep anslag kostnadsoverslag',
-    ['kommandoer/kommando.ts:oerefeil'],
+    ['spor/vederlag/kommando.ts:oerefeil'],
   ],
-  ['kommandoer/kommando.ts:oerefeil', 'kommando', 'beloep', ['kommandoer/kommando.ts:oerefeil']],
+  [
+    'spor/vederlag/kommando.ts:oerefeil',
+    'kommando',
+    'beloep',
+    ['spor/vederlag/kommando.ts:oerefeil'],
+  ],
   // OV-U95 punkt 19–22, arbeidsvalget 07.11 i domenetabellen: skjemaet for vederlagskravet i kommandoen.
   [
     'spor/vederlag/format.ts',
     'skjema',
     'vederlagsinnhold',
-    ['kommandoer/kommando.ts:formfeil', 'format/format.ts'],
+    ['spor/vederlag/kommando.ts:kravfeil', 'format/format.ts'],
+  ],
+  [
+    'spor/vederlag/format.ts:vederlagsinnhold',
+    'skjema',
+    'properties required anyOf',
+    ['spor/vederlag/kommando.ts:kravfeil'],
   ],
   // #1783: formatet for vederlaget i sporet.
   [
@@ -1691,6 +1708,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'utledning/utled.ts',
       'kommandoer/standpunkter.ts',
       'kommandoer/forutsetninger.ts',
+      'kommandoer/kommando.ts',
     ],
   ],
   [
