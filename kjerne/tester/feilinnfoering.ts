@@ -1529,7 +1529,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F183',
     feilklasse: 'det subsidiære beløpet ved preklusjon etter § 34.1.2 lagres ikke (VS-U3, B-13)',
-    fil: `${K}/frosset/utregning.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [
       [
         'if (r.subsidiaer_resultat !== null) {\n    ut.subsidiaert_resultat = r.subsidiaer_resultat;\n    ut.subsidiaert_godkjent_beloep',
@@ -4203,7 +4203,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F502',
     feilklasse: 'et svar på en kravpost kravet ikke har, godtas uten virkning (OV-U23)',
-    fil: `${K}/frosset/utregning.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [
       [
         '    if (!post)\n      throw new UgyldigVurdering({\n',
@@ -4215,14 +4215,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F503',
     feilklasse: 'det siste svaret på en kravpost som er besvart to ganger, gjelder (KA-U57 (d))',
-    fil: `${K}/frosset/utregning.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [['    if (svarene.has(post.id))\n', '    if (false)\n']],
     mal: ['samme kravpost to ganger avvises med UGYLDIG_VURDERING'],
   },
   {
     id: 'F504',
     feilklasse: 'et ukjent felt i svaret på en kravpost godtas uten virkning (MM-U2)',
-    fil: `${K}/frosset/utregning.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [['    if (ukjent)\n', '    if (false)\n']],
     mal: ['et felt kjernen ikke leser i svaret på kravposten avvises med UGYLDIG_VURDERING'],
   },
@@ -4297,11 +4297,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F493',
     feilklasse: 'en tilbakeholdelse som ikke er boolsk, godtas som ingen tilbakeholdelse (MM-U2)',
-    fil: `${K}/frosset/utregning.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [
       [
-        "    if ((v.hold_tilbake ?? false) !== false) return 'hold_tilbake er verken true eller false';",
-        '    void 0;',
+        "  if ((v.hold_tilbake ?? false) !== false) return 'hold_tilbake er verken true eller false';",
+        '  void 0;',
       ],
     ],
     mal: ['tilbakeholdelse etter § 30.2 med en verdi som ikke er boolsk'],

@@ -10,7 +10,8 @@ import { vedleggI, type Kommando, type Svarutkast } from '../kommandoer/kommando
 import type { Vedleggsoppslag } from '../kommandoer/skriving.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { oppgittDato } from '../format/format.ts';
-import { regnUtSvar, vederlagsposter } from '../frosset/utregning.ts';
+import { regnUtSvar } from '../frosset/utregning.ts';
+import { vederlagsposter } from '../spor/vederlag/frysing.ts';
 import { type Svarvurdering } from '../frosset/byggeklosser.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { hindrerSvarPaaKravet } from '../kommandoer/forutsetninger.ts';

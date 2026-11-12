@@ -16,6 +16,7 @@ import type {
   Utfall,
   Virkning,
 } from '../typer.ts';
+import type { Foresporselsrelasjon } from './standpunkt.ts';
 
 /** Det i et svar virkningene regnes av: sporet, standpunktene og serverens utregning. */
 export type Svarinnhold = Pick<Svar, 'spor' | 'standpunkter' | 'utregning'>;
@@ -141,4 +142,23 @@ export interface Svarsfrysing {
   utfall(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert: boolean): Utfall;
   /** Svaret godkjenner hele kravet, når ikke et standpunkt i første lag avviser det. */
   godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean;
+}
+
+/** Det serverens utregning av svaret regnes av (`regnUtSvar` i `frosset/utregning.ts`). */
+export interface Utregningsgrunnlag {
+  krav: Krav;
+  paaberopelse: Krav | null;
+  foresporsel: Foresporselsrelasjon | null;
+}
+
+/** Utregningen i ett spor, som `frosset/utregning.ts` slår opp gjennom `UTREGNING` (#1783). */
+export interface Svarsutregning {
+  /** Serverens utregning av svaret (`regnUtSvar`). */
+  regnUt(
+    v: Svarvurdering,
+    grunnlag: Utregningsgrunnlag,
+    regler: Regelsett
+  ): Record<string, unknown>;
+  /** En vurdering kjernen ennå ikke har et standpunkt for (`utenforOmfanget`). */
+  utenforOmfanget(v: Record<string, unknown>): string | null;
 }

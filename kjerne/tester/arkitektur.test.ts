@@ -446,7 +446,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'oppgjoersform justert',
     [
-      'frosset/utregning.ts',
+      'spor/vederlag/frysing.ts',
       'kommandoer/lag.ts',
       'kommandoer/standpunkter.ts',
       'utledning/utled.ts',
@@ -670,7 +670,22 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['utledning/utled.ts:kontrollerSvarene'],
   ],
   ['frosset/utregning.ts:regnUtSvar', 'utsagn', 'krav paaberopelse'],
-  ['frosset/byggeklosser.ts', 'regelsett', 'avvisUkjenteFelt', ['frosset/utregning.ts']],
+  [
+    'frosset/byggeklosser.ts',
+    'regelsett',
+    'avvisUkjenteFelt',
+    ['frosset/utregning.ts', 'spor/vederlag/frysing.ts'],
+  ],
+  // #1783: det som er sporets eget i utregningen av svaret.
+  ['Svarsutregning', 'regelsett', 'regnUt utenforOmfanget', ['frosset/utregning.ts']],
+  ['Utregningsgrunnlag', 'utsagn', 'krav paaberopelse'],
+  ['Utregningsgrunnlag', 'relasjon', 'foresporsel'],
+  [
+    'spor/vederlag/frysing.ts',
+    'regelsett',
+    'UTREGNING_I_VEDERLAGET SAMMENLIKNES_I_VEDERLAGET',
+    ['frosset/utregning.ts'],
+  ],
   ['frosset/utregning.ts:regnUtSvar', 'relasjon', 'foresporsel'],
   // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
   // og utledningen, som prøver postene i svaret mot dem (OV-U23).
@@ -726,20 +741,20 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regelsett',
     'krevdIKravposten',
     // KA-U72: en kravpost der tilbudet ikke er akseptert, regnes ikke med i beløpet.
-    ['frosset/brevtekst.ts', 'frosset/utregning.ts', 'kommandoer/nyttelast.ts'],
+    ['frosset/brevtekst.ts', 'spor/vederlag/frysing.ts', 'kommandoer/nyttelast.ts'],
   ],
   // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
-  ['frosset/utregning.ts', 'regelsett', 'vederlagsposter', ['kommandoer/standpunkter.ts']],
+  ['spor/vederlag/frysing.ts', 'regelsett', 'vederlagsposter', ['kommandoer/standpunkter.ts']],
   ['spor/vederlag/format.ts', 'regelsett', 'krevdSamlet', ['kommandoer/nyttelast.ts']],
-  ['frosset/utregning.ts:vederlagsposter', 'regelsett', 'godkjent gjelder saerskilt svar'],
+  ['spor/vederlag/frysing.ts:vederlagsposter', 'regelsett', 'godkjent gjelder saerskilt svar'],
   // KA-U57 (c) og (d), KA-U59: svaret på hver kravpost i kommandoen, lest ett sted.
   [
-    'frosset/utregning.ts',
+    'spor/vederlag/frysing.ts',
     'regelsett',
     'kravpostvurderinger',
     ['kommandoer/lag.ts', 'kommandoer/nyttelast.ts'],
   ],
-  ['frosset/utregning.ts:kravpostvurderinger', 'regelsett', 'post svar'],
+  ['spor/vederlag/frysing.ts:kravpostvurderinger', 'regelsett', 'post svar'],
   [
     'Kravpostvurdering',
     'utsagn',
@@ -782,13 +797,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/format.ts',
     'regelsett',
     'krevdProduktivitet harProduktivitetspost',
-    ['frosset/brevtekst.ts', 'utledning/utled.ts', 'frosset/utregning.ts'],
+    ['frosset/brevtekst.ts', 'utledning/utled.ts', 'spor/vederlag/frysing.ts'],
   ],
   // #814: standpunktene og utregningen nyttelastkontrollen leste, er de brevet lagrer.
   ['Bygde', 'regelsett', 'standpunkter utregning', ['kommandoer/skriving.ts:svar']],
   ['format/kravinnhold.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   // OV-U23, OV-U95 punkt 19: kravet har kravposter i vederlagsjusteringen.
-  ['spor/vederlag/format.ts', 'regelsett', 'kravposterI', ['frosset/utregning.ts']],
+  ['spor/vederlag/format.ts', 'regelsett', 'kravposterI', ['spor/vederlag/frysing.ts']],
   [
     'Svarvurdering',
     'utsagn',
@@ -799,8 +814,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
      rigg_vurdering rigg_varslet_i_tide hold_tilbake`,
   ],
   // #1663, 2a-1b: kommandoens felt oversatt til postene i regelen, og feilene tilbake.
-  ['frosset/utregning.ts:vederlagssvaret', 'regelsett', 'svar felt'],
-  ['UgyldigVurdering', 'regelsett', 'feil', ['frosset/utregning.ts']],
+  ['spor/vederlag/frysing.ts:vederlagssvaret', 'regelsett', 'svar felt'],
+  ['UgyldigVurdering', 'regelsett', 'feil', ['spor/vederlag/frysing.ts']],
   // Kontrollene av vurderingene i svaret, med feltene fra `Svarvurdering` (#1695).
   [
     'regler/svarkontroll.ts',
@@ -812,7 +827,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regler/vederlag.ts',
     'regelsett',
     'kontrollerVarseletForVederlag kontrollerOppgjoersformen',
-    ['frosset/utregning.ts'],
+    ['spor/vederlag/frysing.ts'],
   ],
   ['regler/svarkontroll.ts:kontrollerForholdet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
   ['regler/vederlag.ts:kontrollerVarseletForVederlag', 'utsagn', 'hovedkrav_varslet_i_tide'],
@@ -827,7 +842,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'spesifisert_krav_ok dager_maatte_forstaa dager',
   ],
-  ['frosset/utregning.ts:utenforOmfanget(v)', 'utsagn', `hold_tilbake rigg_vurdering`],
+  ['spor/vederlag/frysing.ts:utenforOmfanget(v)', 'utsagn', `hold_tilbake rigg_vurdering`],
 
   // Regelsettet (regler/).
   [
@@ -863,7 +878,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regelsett',
     'beregnVederlag gjelderVarslingspliktenForVederlag erBeloepetGodkjentFullt',
   ],
-  ['regler/vederlag.ts', 'regelsett', 'beregnGodkjentBeloep', ['frosset/utregning.ts']],
+  ['regler/vederlag.ts', 'regelsett', 'beregnGodkjentBeloep', ['spor/vederlag/frysing.ts']],
   // Vurderingen av beløpet er en av verdiene i regelsettet.
   ['regler/typer.ts', 'regelsett', 'BELOEPSVURDERINGER', ['regler/vederlag.ts']],
   [
@@ -1084,6 +1099,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/standpunkt.ts',
       'frosset/byggeklosser.ts',
       'frosset/utregning.ts',
+      'spor/vederlag/frysing.ts',
       'kommandoer/forutsetninger.ts:korrigering',
       'kommandoer/nyttelast.ts:kontrollerKorrigering',
       'kommandoer/nyttelast.ts:grunnlagsdatoen',

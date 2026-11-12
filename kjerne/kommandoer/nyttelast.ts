@@ -18,12 +18,12 @@ import { korrigertDato, type Kommando, type Svarutkast } from './kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { gjelderVarslingsplikten, hjemmelenGjelder } from '../frosset/byggeklosser.ts';
 import {
-  kravpostvurderinger,
   likeResultatfelt,
   regnUtSvar,
   SAMMENLIKNES,
   utenforOmfanget,
 } from '../frosset/utregning.ts';
+import { kravpostvurderinger } from '../spor/vederlag/frysing.ts';
 import { innholdIForholdet, kategori } from '../format/kravinnhold.ts';
 import { krevdIKravposten, krevdSamlet } from '../spor/vederlag/format.ts';
 import {

@@ -686,7 +686,7 @@ også § 30 om regningsarbeid, som § 34.4 viser til.
   snevre inn KA-U6 der enigheten gir BH en rettighet, for eksempel et fradrag.
 - **Kjernen i dag:** ikke bygget. Formatet krever beløp over 0, og
   `hold_tilbake` avvises i
-  [`frosset/utregning.ts`](../kjerne/frosset/utregning.ts) (`utenforOmfanget`).
+  [`spor/vederlag/frysing.ts`](../kjerne/spor/vederlag/frysing.ts) (`utenforOmfanget`).
 
 ---
 
