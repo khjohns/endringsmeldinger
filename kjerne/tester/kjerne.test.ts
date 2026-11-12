@@ -12,7 +12,7 @@ import { frysBrev, Skrivefeil, vurder, type Kontekst } from '../kommandoer/skriv
 import { KJERNE } from '../versjon.ts';
 import { ELDRE_SVAR } from '../kommandoer/forutsetninger.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
-import { formfeil } from '../kommandoer/kommando.ts';
+import { formfeil, vedleggI, type Kommando } from '../kommandoer/kommando.ts';
 import { lesJournal, standpunkterISvaret } from '../format/leser.ts';
 import { BESLUTNINGSGRUNNLAG } from '../format/format.ts';
 import { feilI, Uforstaatt } from '../format/skjema.ts';
@@ -95,6 +95,14 @@ describe('formen på kravet', () => {
 
   it('godtar et krav med feltene kravet har i formatet', () => {
     expect(formfeil(krav({}))).toEqual([]);
+  });
+
+  // Code-review av #1810: vedleggene leses før formen er kontrollert (klient.ts: mellomlager).
+  it('gir ingen vedlegg og kaster ikke for et krav i et ukjent spor, som formen avviser', () => {
+    const ukjent = { ...krav({}), spor: 'ukjent' };
+    expect(vedleggI(krav({}) as unknown as Kommando), 'kontrollsak').toEqual([]);
+    expect(vedleggI(ukjent as unknown as Kommando)).toEqual([]);
+    expect(formfeil(ukjent)).not.toEqual([]);
   });
 
   it.each(['id', 'erstatter', 'format', 'beslutningsgrunnlag'])(

@@ -378,7 +378,10 @@ const brevfelt = (k: Kommando): { sti: string; sendt?: unknown; dokumentasjon?: 
  */
 export const vedleggI = (k: Kommando): string[] => [
   ...(brevfelt(k).dokumentasjon ?? []),
-  ...(k.type === 'krav' ? iSporet(KRAVFORM, k.spor).vedleggIInnholdet(k.innhold) : []),
+  // Kalles også før formen er kontrollert, så et ukjent spor gir ingen vedlegg.
+  ...(k.type === 'krav' && Object.hasOwn(KRAVFORM, k.spor)
+    ? KRAVFORM[k.spor].vedleggIInnholdet(k.innhold)
+    : []),
 ];
 
 /**
