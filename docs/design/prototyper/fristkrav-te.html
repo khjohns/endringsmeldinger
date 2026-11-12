@@ -6,10 +6,10 @@
 <title>Kravskjemaet for fristforlengelse</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!--
-  Prototype v1 av totalentreprenørens krav om fristforlengelse i Varden, og byggherrens svar på det.
+  Prototype v2 (12.11) av totalentreprenørens krav om fristforlengelse i Varden, og byggherrens svar på det.
   Samme mønster, stilark og eksempelsak som vederlagskrav-te-v3.html (#1663). Designforslag, ikke vedtatt. Bestillingen er
   docs/domenetabell/brukerforlop/BF-20.md.
-  - Kravet angir dagene per frist i kontrakten (Del II punkt E.1), ikke ett tall for saken. Fristene står
+  - Kravet angir dagene per frist i kontrakten (Del II punkt E.1), ikke ett tall for saken (KA-U73, KA-U74). Fristene står
     i en tabell som kravpostene i v3: frist, gjeldende frist, dager og ny frist, med «Endre» for én om gangen.
     Dagene legges ikke sammen, så tabellen har ingen sumrad.
   - Hver frist sier om hindringen gjelder hele kontraktsarbeidet eller deler av det, fordi formelen for
@@ -580,8 +580,8 @@ select.tekstfelt{max-width:520px;appearance:auto}
           <div class="tidligere-svar kun-ny" role="note" data-spor="U-10 · D-6">
             <p><b>Byggherren har svart på kravet i brev 5</b> (brev 6, 27. oktober 2026). Byggherren godkjenner 10 dager for frist 7 (overtakelse) og avslår frist 5 (mekanisk ferdigstillelse).</p>
             <ul>
-              <li data-spor="D-6 · S-7">Etter at den nye versjonen er sendt, kan svaret i brev 6 ikke godtas her. Brev 5 og 6 står som de ble sendt.</li>
-              <li data-spor="U-10 · S-4">En frist du tar ut, trekkes uttrykkelig. Brevet sier det.</li>
+              <li data-spor="D-6">Etter at den nye versjonen er sendt, kan svaret i brev 6 ikke godtas, og byggherren er ikke lenger bundet av det. Brev 5 og 6 står som de ble sendt.</li>
+              <li data-spor="U-10 · D-8">En frist du tar ut, trekkes uttrykkelig. Brevet sier det, og fristen kan tas med igjen i en senere versjon.</li>
             </ul>
             <div class="begr" id="boks-standpunkt" style="border-top:0;padding-top:0"></div>
           </div>
@@ -610,7 +610,7 @@ select.tekstfelt{max-width:520px;appearance:auto}
             <div class="datoboks"><p>Du oppgir at du ble klar over forholdet 12. september 2026.</p><p class="kun-nytt kun-v1-her">Sendes varselet i dag, 6. oktober 2026, er det <b>24 kalenderdager</b> etter.</p><p class="kun-nytt kun-v1-annen" hidden>Varselet ble gitt 18. september 2026, <b>6 kalenderdager</b> etter.</p><p class="kun-ny">Varselet ble sendt med kravet i brev 5.</p><p class="kun-foresp">Varselet ble sendt i brev 3, 18. september 2026, <b>6 kalenderdager</b> etter.</p></div>
           </section>
 
-          <section class="punkt nummerert kun-a" aria-labelledby="p2" data-spor="U-1 · D-1 · S-1 · S-2">
+          <section class="punkt nummerert kun-a" aria-labelledby="p2" data-spor="U-1 · D-1 · D-7 · S-2">
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="p2">Fristforlengelse</h2><span class="hjemmel">punkt 33.1 b og 33.6.1</span></div>
             <p class="oppgitt">Angi dagene for hver frist kravet gjelder. Fristene står i kontrakten (Del II punkt E.1). Dagene gjelder hver frist for seg og legges ikke sammen. Dagene er kalenderdager (punkt 1.2).</p>
             <div id="frister" class="postliste"></div>
@@ -912,7 +912,8 @@ function oppsummer() {
     const ot = a.find(f => f.frist === OVERTAKELSE && f.dager);
     if (ot) v.push(`<p class="virkning">Når forlengelsen av overtakelsen er avtalt, inngår den i formelen for rigg og drift i forlenget byggetid (Del II, tillegget til punkt 34.1.3). Rigg og drift kreves i vederlagskravet. <a href="vederlagskrav-te-v3.html#nytt-krav">Gå til vederlagskravet</a></p>`);
     const tr = d.linjer.filter(f => f.trukket).map(f => String(f.frist));
-    if (tr.length) v.push(`<p class="virkning" style="background:transparent;border:1px solid var(--rule-strong-color)">Kravet om frist ${tilListe(tr)} trekkes. Svaret i brev 6 kan ikke godtas etter at denne versjonen er sendt.</p>`);
+    if (tr.length) v.push(`<p class="virkning" style="background:transparent;border:1px solid var(--rule-strong-color)" data-spor="D-8">Kravet om frist ${tilListe(tr)} trekkes. Fristen kan tas med igjen i en senere versjon.</p>`);
+    if (ny()) v.push('<p class="virkning" data-spor="D-6">Svaret i brev 6 kan ikke godtas etter at denne versjonen er sendt, og byggherren er ikke lenger bundet av det.</p>');
   }
   document.getElementById('virkning').innerHTML = v.join('');
   tegnTidslinje();

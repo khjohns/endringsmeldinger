@@ -194,7 +194,12 @@
     "OV-U33",
     "KA-U1",
     "KA-U56",
-    "B-17"
+    "B-17",
+    "KA-U73",
+    "KA-U74",
+    "KA-U76",
+    "KA-U22",
+    "HF-U5"
   ],
   "venter_paa": [
     "#1427"
@@ -216,6 +221,11 @@
       "dato": "2026-11-09",
       "forhold": "#1745",
       "hva": "Funnene fra den kognitive gjennomgangen er rettet i prototypen og bestillingen. D-5 viser til KA-U4, og S-6 og S-7 er nye."
+    },
+    {
+      "dato": "2026-11-12",
+      "forhold": "#1745",
+      "hva": "S-1 og S-4 er besvart (KA-U73, KA-U74 og KA-U76) og står som D-7 og D-8. S-7 følger av KA-U1 og HF-U5, og spørsmål 1 fra den kognitive gjennomgangen (S-8) av KA-U4. S-3, S-5 og S-6 er åpne."
     }
   ]
 }
