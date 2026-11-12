@@ -228,6 +228,27 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     toppen(['Vederlagsjustering', 'Varslene']);
     await rull();
     expect(merket()).toEqual(['Varslene']);
+    // En annen flate i bunnen, som brevet ved siden av, flytter ikke markeringen.
+    const annen = document.createElement('div');
+    document.body.append(annen);
+    for (const [felt, verdi] of [
+      ['scrollTop', 600],
+      ['clientHeight', 400],
+      ['scrollHeight', 1000],
+    ] as const)
+      Object.defineProperty(annen, felt, { configurable: true, value: verdi });
+    await fireEvent.scroll(annen);
+    await new Promise((ferdig) => requestAnimationFrame(ferdig));
+    expect(merket()).toEqual(['Varslene']);
+    annen.remove();
+    // Et klikk i panelet som ikke ruller, markerer punktet det fører til.
+    window.location.hash = lenke('Forbehold').getAttribute('href')!;
+    await fireEvent(window, new HashChangeEvent('hashchange'));
+    expect(merket()).toEqual(['Forbehold']);
+    window.location.hash = '';
+    toppen(['Vederlagsjustering', 'Varslene']);
+    await rull();
+    expect(merket()).toEqual(['Varslene']);
     // I bunnen er det siste punktet markert, også når det ikke når linja.
     for (const [felt, verdi] of [
       ['scrollTop', 600],

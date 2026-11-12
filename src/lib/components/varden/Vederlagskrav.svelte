@@ -40,6 +40,7 @@
     forholdetISaken,
     klarOverForholdet,
     type Brevet,
+    type Brevref,
   } from './lesing';
   import { brevhode, brevtittel, dato, kalenderdager, KRAVSKJEMA } from './tekster';
   import {
@@ -278,17 +279,16 @@
       q.form === 'tilbud'
         ? (beloepTekst(q.beloep) ?? '–')
         : [q.form ? KRAVSKJEMA.formnavn[q.form] : '–', formdetalj(q)].filter(Boolean).join(', ');
-    const a = verdi(foer);
-    const b = verdi(p);
-    return a === b ? null : KRAVSKJEMA.endretFra(kravbrevet, a, b);
+    return endretFra(kravbrevet, verdi(foer), verdi(p));
   }
+  const endretFra = (brev: Brevref, foer: string, naa: string) =>
+    foer === naa ? null : KRAVSKJEMA.endretFra(brev, foer, naa);
+  const saerskiltBeloep = $derived(v.saerskilt ? (beloepTekst(v.saerskilt.beloep) ?? '–') : '–');
   const saerskiltFoer = $derived(forrige ? (startvalg(u).saerskilt?.beloep ?? null) : null);
   const saerskiltEndret = $derived.by(() => {
     if (!kravbrevet || !v.saerskilt) return null;
     if (saerskiltFoer === null) return KRAVSKJEMA.ny;
-    const a = beloepTekst(saerskiltFoer) ?? '–';
-    const b = beloepTekst(v.saerskilt.beloep) ?? '–';
-    return a === b ? null : KRAVSKJEMA.endretFra(kravbrevet, a, b);
+    return endretFra(kravbrevet, beloepTekst(saerskiltFoer) ?? '–', saerskiltBeloep);
   });
 
   // Varslene: § 34.1.2 for hele kravet, § 34.1.3 med den særskilte posten, én rad per kravpost
@@ -357,7 +357,7 @@
     })
   );
   const antallVarsler = $derived(1 + (v.saerskilt ? 1 : 0) + postvarsler.length);
-  const medKravet = $derived(
+  const iBrevet = $derived(
     (vederlagsvarselet === null ? 1 : 0) +
       (v.saerskilt && saerskiltvarselet === null ? 1 : 0) +
       postvarsler.filter(
@@ -389,7 +389,7 @@
             id: id('saerskilt-seksjon'),
             nummer: '2',
             tittel: KRAVSKJEMA.saerskilt,
-            status: beloepTekst(v.saerskilt.beloep) ?? '–',
+            status: saerskiltBeloep,
           },
         ]
       : []),
@@ -397,7 +397,7 @@
       id: id('varslene'),
       nummer: v.saerskilt ? '3' : '2',
       tittel: KRAVSKJEMA.varslene,
-      status: KRAVSKJEMA.antallVarsler(antallVarsler, medKravet),
+      status: KRAVSKJEMA.antallVarsler(antallVarsler, iBrevet),
     },
     {
       id: id('forbehold'),
@@ -429,18 +429,37 @@
       aktivtPunkt = valgt;
     };
     let ramme = 0;
+    // Bare rullingen av en flate som har skjemaet, teller: ikke brevet ved siden av eller et felt.
     const planlegg = (e?: Event) => {
-      if (e?.target instanceof Element) rulleflate = e.target;
+      if (e?.target instanceof Element) {
+        const forste = document.getElementById(ider[0] ?? '');
+        if (!forste || !e.target.contains(forste)) return;
+        rulleflate = e.target;
+      } else if (e?.target === document) rulleflate = document.scrollingElement;
       cancelAnimationFrame(ramme);
       ramme = requestAnimationFrame(finn);
+    };
+    // Et klikk i panelet som ikke ruller, fordi siden er kort, markerer punktet det fører til.
+    const valgtIPanelet = () => {
+      let x = location.hash.slice(1);
+      try {
+        x = decodeURIComponent(x);
+      } catch {
+        return;
+      }
+      const maal = document.getElementById(x);
+      const punkt = maal && ider.find((i) => document.getElementById(i)?.contains(maal));
+      if (punkt) aktivtPunkt = punkt;
     };
     finn();
     document.addEventListener('scroll', planlegg, { capture: true, passive: true });
     window.addEventListener('resize', planlegg);
+    window.addEventListener('hashchange', valgtIPanelet);
     return () => {
       cancelAnimationFrame(ramme);
       document.removeEventListener('scroll', planlegg, { capture: true });
       window.removeEventListener('resize', planlegg);
+      window.removeEventListener('hashchange', valgtIPanelet);
     };
   });
 
@@ -971,9 +990,7 @@
               </p>
               <p class="pns-celle tom"></p>
               <p class="beloep-celle">
-                <span class="visually-hidden">{KRAVSKJEMA.kolonner[3]}:</span>{beloepTekst(
-                  saerskilt.beloep
-                ) ?? '–'}
+                <span class="visually-hidden">{KRAVSKJEMA.kolonner[3]}:</span>{saerskiltBeloep}
               </p>
               <Knapp
                 variant="lenke"

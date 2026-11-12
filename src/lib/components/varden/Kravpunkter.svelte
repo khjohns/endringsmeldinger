@@ -65,8 +65,10 @@
                 <li class:trukket={q.trukket}>
                   <a href={`#${q.anker}`}>
                     <span class="betegnelse">{q.betegnelse}</span>
-                    <span class="beskrivelse">{q.beskrivelse}</span>
-                    <span class="verdi">{q.verdi}</span>
+                    <span class="beskrivelse"
+                      ><span class="visually-hidden">&nbsp;</span>{q.beskrivelse}</span
+                    >
+                    <span class="verdi"><span class="visually-hidden">,&nbsp;</span>{q.verdi}</span>
                   </a>
                 </li>
               {/each}
