@@ -129,6 +129,9 @@ const METODE: Record<string, string> = {
 };
 export const metodenavn = (m: unknown) => METODE[m as string] ?? 'metoden TE oppgir';
 
+/** Beregningsregelen TE krever, etter hjemmelen i standpunktet til oppgjørsformen. */
+const REGEL = { '34.3': 'enhetspriser', '34.4': 'regningsarbeid' } as const;
+
 /** En grunn fra svaret på grunnlaget i brevet `brev`, som utsagn fra byggherren. */
 export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: Brevref) =>
   grunn === 'avslaatt'
@@ -137,16 +140,31 @@ export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: Brevref) =
 
 /**
  * Standpunktet i den lukkede kravposten, kort og uten kravposten, som raden navngir (prototype v3,
- * `leselinje`). Bare oppgjørsformen og beløpet gjelder én kravpost; ellers `null`.
+ * `leselinje`). Bare standpunktene til oppgjørsformen, beløpet, varselet etter § 34.3.3 eller
+ * § 34.4 og justeringen gjelder én kravpost; ellers `null`.
  */
 function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
   switch (s.art) {
-    case 'oppgjoersform':
-      return s.aksepterer
-        ? 'Godkjenner fast sum'
-        : s.oensket
-          ? `Mener ${metodenavn(s.oensket)}`
-          : 'Godkjenner ikke fast sum';
+    case 'oppgjoersform': {
+      const form = metodenavn(s.hjemmel === '34.2.2' ? 'tilbud' : REGEL[s.hjemmel]);
+      return (
+        (s.aksepterer
+          ? `Godkjenner ${form}`
+          : s.oensket
+            ? `Mener ${metodenavn(s.oensket)}`
+            : `Godkjenner ikke ${form}`) + (s.kreverTilbud ? `, ${SKJEMA.kreverTilbudKort}` : '')
+      );
+    }
+    // Byggherrens standpunkt, ikke løsningens konklusjon.
+    case 'rettidighet':
+      if (s.hjemmel === '34.4')
+        return 'Gjør gjeldende at varselet etter punkt 34.4 ikke ble gitt eller kom for sent';
+      if (s.hjemmel !== '34.3.3') return null;
+      return s.iTide
+        ? 'Godkjenner at varselet etter punkt 34.3.3 kom i tide'
+        : 'Gjør gjeldende at varselet etter punkt 34.3.3 kom for sent';
+    case 'justering':
+      return s.godtar ? 'Godkjenner justeringen' : 'Bestrider justeringen';
     case 'beloep':
       // KA-U72: uten aksept av tilbudet står ingen linje for beløpet.
       if (s.godkjent === undefined) return null;
@@ -186,17 +204,28 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post
   const hvemLiten = du ? 'du' : 'BH';
   switch (s.art) {
     case 'rettidighet':
+      // VS-U63.
+      if (s.hjemmel === '34.4')
+        return `${hvem} gjør gjeldende at varselet etter punkt 34.4${forPosten} ikke ble gitt eller kom for sent`;
       return s.iTide
-        ? `${hvem} godkjenner at varselet etter punkt ${s.hjemmel} kom i tide`
-        : `${hvem} gjør gjeldende at varselet etter punkt ${s.hjemmel} kom for sent` +
+        ? `${hvem} godkjenner at varselet etter punkt ${s.hjemmel}${forPosten} kom i tide`
+        : `${hvem} gjør gjeldende at varselet etter punkt ${s.hjemmel}${forPosten} kom for sent` +
             (s.begrenset !== undefined
               ? `, og godkjenner ${kroner(s.begrenset)} etter begrensningen`
               : '');
     case 'oppgjoersform':
-      return s.aksepterer
-        ? `${hvem} godkjenner oppgjørsformen TE krever${forPosten}`
-        : `${hvem} godkjenner ikke oppgjørsformen TE krever${forPosten}` +
-            (s.oensket ? `, og mener vederlaget skal justeres etter ${metodenavn(s.oensket)}` : '');
+      return (
+        (s.aksepterer
+          ? `${hvem} godkjenner oppgjørsformen TE krever${forPosten}`
+          : `${hvem} godkjenner ikke oppgjørsformen TE krever${forPosten}` +
+            (s.oensket
+              ? `, og mener vederlaget skal justeres etter ${metodenavn(s.oensket)}`
+              : '')) + (s.kreverTilbud ? `, og krever et spesifisert tilbud (punkt 34.2.1)` : '')
+      );
+    case 'justering':
+      return s.godtar
+        ? `${hvem} godkjenner justeringen av enhetsprisene${forPosten} (punkt 34.3.2)`
+        : `${hvem} bestrider justeringen av enhetsprisene${forPosten} (punkt 34.3.2)`;
     case 'beloep': {
       const hva = s.saerskilt ? 'Særskilt vederlagsjustering' : `Vederlagsjustering${forPosten}`;
       const av = krevd !== undefined ? ` av ${kroner(krevd)}` : '';
@@ -235,25 +264,63 @@ export const SKJEMA = {
   datoInfoNavn: 'Om datoene',
   klarOver: (d: string, b: Brevref) =>
     `TE oppgir at TE ble klar over forholdet ${dato(d)} (${brevref(b)}).`,
+  // For registrert korrespondanse har omtalen datoen TE oppgir, og avstanden regnes til den
+  // (LV-U42, #1596).
   kravSendt: (d: string, b: Brevref) =>
-    // Avstanden under regnes til `registrert`, så den datoen står med for registrert
-    // korrespondanse, der omtalen har datoen parten oppgir (LV-U42).
     b.omtale && b.art === 'registrert'
-      ? `Kravet om vederlagsjustering står i ${b.omtale}, registrert ${dato(d)}.`
+      ? `Kravet om vederlagsjustering står i ${b.omtale}.`
       : `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
   avstand: (dager: number) => `${dager} kalenderdager fra datoen TE oppgir til kravet ble sendt.`,
   formSpoersmaal: 'Oppgjørsformen (punkt 34.2.2)',
-  godkjennerForm: 'Godkjenner fast sum (punkt 34.2.1)',
+  godkjennerForm: `Godkjenner ${metodenavn('tilbud')}`,
   menerForm: (m: 'enhetspriser' | 'regningsarbeid') => `Mener ${metodenavn(m)}`,
+  // Kravposten etter en beregningsregel (#1756, prototype v3 `#svar`).
+  formSpoersmaalRegel: 'Oppgjørsformen',
+  godkjennerRegel: (m: 'enhetspriser' | 'regningsarbeid') => `Godkjenner ${metodenavn(m)}`,
+  godkjennerIkkeRegel: (m: 'enhetspriser' | 'regningsarbeid') => `Godkjenner ikke ${metodenavn(m)}`,
+  kreverTilbudKort: 'krever spesifisert tilbud',
+  tilbudSpoersmaal: 'Spesifisert tilbud (punkt 34.2.1)',
+  kreverTilbud: (post: string | null) =>
+    `Krev at TE gir et spesifisert tilbud for ${post ?? 'kravposten'}`,
+  varselJusteringSpoersmaal: 'Varselet om justering av enhetsprisene (punkt 34.3.3)',
+  komITide: 'Kom i tide',
+  komForSent: 'Kom for sent',
+  // Punkt 34.4: normalsvaret er en setning, unntaket en lenke (prototype v4, VS-U63).
+  varselRegning: 'Varselet før regningsarbeidet settes i gang (punkt 34.4).',
+  ingenInnsigelse: 'Ingen innsigelse.',
+  ikkeGittEllerForSent: 'Du gjør gjeldende at varselet ikke ble gitt eller kom for sent.',
+  gjoerGjeldendeVarsel: 'Varselet ble ikke gitt eller kom for sent',
+  ingenInnsigelseLikevel: 'Ingen innsigelse likevel',
+  justeringSpoersmaal: 'Justeringen av enhetsprisene (punkt 34.3.2)',
+  godkjennerJustering: 'Godkjenner justeringen',
+  bestriderJustering: 'Bestrider justeringen',
+  valgfritt: (spoersmaal: string) => `${spoersmaal} (valgfritt)`,
   // Beløpet står etter tittelen i komponenten, med mono (#1467).
   beloepTittel: 'Vederlagsjustering',
   beloepSpoersmaal: 'Hvor mye av beløpet godkjenner du?',
   ettSvarPerPost: 'Ett svar per kravpost. Åpne en kravpost for å svare på den.',
   godkjennAlleFormer: 'Godkjenn fast sum for alle kravpostene',
   godkjennAlle: 'Godkjenn alle kravpostene som krevd',
+  // Med en kravpost etter en beregningsregel (U-9 i BF-14).
+  godkjennAlleFormerRegel: 'Godkjenn oppgjørsformen TE krever for alle kravpostene',
+  godkjennAlleFaste: 'Godkjenn alle kravpostene med fast sum som krevd',
   svaretKolonne: 'Svaret',
   teKrever: (beloep: number, pns?: string) =>
     `TE krever fast sum, ${kroner(beloep)}${pns ? ` · PNS ${pns}` : ''}`,
+  /** Kravposten etter en beregningsregel, med anslaget eller overslaget TE oppgir (KA-U66). */
+  teKreverRegel: (p: Kravpost) => {
+    const regel =
+      p.oppgjoersform === 'regningsarbeid'
+        ? 'regningsarbeid'
+        : p.justert
+          ? 'justerte enhetspriser'
+          : 'kontraktens enhetspriser';
+    const opplysning =
+      p.oppgjoersform === 'regningsarbeid'
+        ? p.kostnadsoverslag !== undefined && `kostnadsoverslag ${kroner(p.kostnadsoverslag)}`
+        : p.anslag !== undefined && `anslag ${kroner(p.anslag)}`;
+    return `TE krever ${regel}${opplysning ? `, ${opplysning}` : ''}${p.pns ? ` · PNS ${p.pns}` : ''}`;
+  },
   ikkeBesvart: 'Ikke besvart',
   endre: 'Endre',
   svarPaa: 'Svar',
@@ -262,6 +329,9 @@ export const SKJEMA = {
   ferdig: 'Ferdig',
   gjelderHvis: 'Gjelder hvis',
   innsigelsenSenVarsling: 'innsigelsen om sen varsling',
+  innsigelsenSaerskilt: 'innsigelsen om at varselet etter punkt 34.1.3 kom for sent',
+  innsigelsenJustering: 'innsigelsen om at varselet etter punkt 34.3.3 kom for sent',
+  standpunktetTilFormen: 'standpunktet ditt til oppgjørsformen',
   // Grunnene fra svaret på grunnlaget har ikke noe felt i skjemaet; brevet står i teksten.
   grunnen: (grunn: Subsidiaergrunn, brev: Brevref) =>
     grunn === 'avslaatt'
@@ -278,6 +348,9 @@ export const SKJEMA = {
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
   manglerForm: 'Velg om du godkjenner fast sum.',
+  manglerFormRegel: (m: 'enhetspriser' | 'regningsarbeid') => `Velg om du godkjenner ${m}.`,
+  manglerVarselJustering: 'Velg om varselet om justering av enhetsprisene kom i tide.',
+  manglerJustering: 'Velg om du godkjenner justeringen av enhetsprisene.',
   manglerBeloep: 'Velg hvor mye av beløpet du godkjenner.',
   manglerDelbeloep: 'Skriv beløpet du godkjenner.',
   /** Med flere kravposter sier meldingen hvilken den gjelder. */
@@ -288,8 +361,6 @@ export const SKJEMA = {
   behold: 'Behold utkastet',
   ikkeStoettet:
     'Kravet har en post for særskilt vederlagsjustering (punkt 34.1.3). Den kan ikke besvares i denne prøven av Varden ennå.',
-  /** Kravposten skjemaet ennå ikke kan svare på (svar 4 A i spørsmålsfila 10.11 for #1663). */
-  beregningsregel: (betegnelse: string) => `Kravposten ${betegnelse} følger en beregningsregel`,
   /** Hinderet kjernen gir for kravet (`hindrerSvarPaaKravet`). */
   ikkeStoettetHinder: (hinder: string) =>
     `${hinder}. Svaret på det kan ikke skrives i denne prøven av Varden ennå.`,
@@ -411,8 +482,9 @@ export const HANDLINGENE = {
 export const STILLING = {
   /** Når kjernen ikke kan lage akseptbrevet og ikke sier hvorfor. */
   godta: 'Aksepten kan ikke lages nå.',
+  // Etter § 34.3.3 står justeringen subsidiært, ikke beløpet (VS-U4, KA-U64).
   omfatter: (hjemmel: string) =>
-    `Aksepten omfatter også at BH gjør gjeldende at varselet etter punkt ${hjemmel} kom for sent, ikke bare det subsidiære beløpet.`,
+    `Aksepten omfatter også at BH gjør gjeldende at varselet etter punkt ${hjemmel} kom for sent, ikke bare ${hjemmel === '34.3.3' ? 'det subsidiære standpunktet til justeringen' : 'det subsidiære beløpet'}.`,
   beloep: (beloep: number, b: Brevref) =>
     `Godtar du, er beløpet dere er enige om for vederlagsjusteringen ${kroner(beloep)}, etter ${brevref(b)} slik det ble sendt.`,
   /**

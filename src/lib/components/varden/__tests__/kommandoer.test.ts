@@ -46,7 +46,7 @@ const svar = (
     {
       ...tomtSvar(),
       iTide: true,
-      poster: { P1: { ...tomPost(), form: 'tilbud', ...post } },
+      poster: { P1: { ...tomPost(), form: 'godtar', ...post } },
       begrunnelse,
     },
     utledJournal(journal, KJERNE),
@@ -132,8 +132,8 @@ describe('svaret per kravpost (KA-U57, #1663)', () => {
       {
         iTide: true,
         poster: {
-          P1: { form: 'tilbud', beloep: 'hele', delbeloep: '' },
-          P2: { form: 'regningsarbeid', beloep: 'deler', delbeloep: '30 000' },
+          P1: { ...tomPost(), form: 'godtar', beloep: 'hele', delbeloep: '' },
+          P2: { ...tomPost(), form: 'regningsarbeid', beloep: 'deler', delbeloep: '30 000' },
         },
         begrunnelse: '',
       },
@@ -153,8 +153,8 @@ describe('svaret per kravpost (KA-U57, #1663)', () => {
     const valg = {
       iTide: true,
       poster: {
-        P1: { form: 'regningsarbeid', beloep: 'hele', delbeloep: '' },
-        P2: { form: null, beloep: 'hele', delbeloep: '' },
+        P1: { ...tomPost(), form: 'regningsarbeid', beloep: 'hele', delbeloep: '' },
+        P2: { ...tomPost(), form: null, beloep: 'hele', delbeloep: '' },
       },
       begrunnelse: '',
     } satisfies Parameters<typeof vederlagssvaret>[0];
@@ -177,7 +177,7 @@ describe('svaret per kravpost (KA-U57, #1663)', () => {
     const kommando = vederlagssvaret(
       {
         iTide: true,
-        poster: { P1: { form: 'tilbud', beloep: 'hele', delbeloep: '' } },
+        poster: { P1: { ...tomPost(), form: 'godtar', beloep: 'hele', delbeloep: '' } },
         begrunnelse: '',
       },
       u,
@@ -186,5 +186,106 @@ describe('svaret per kravpost (KA-U57, #1663)', () => {
     expect((kommando.svar[0].vurderinger.kravposter as unknown[])[1]).toEqual({
       gjelder: kravposterI(u.spor.vederlag.gjeldendeKrav!)[1]!.id,
     });
+  });
+});
+
+describe('svaret på en kravpost etter en beregningsregel (#1756, BF-14 D-7, D-14, D-15)', () => {
+  const regelkrav = skrevet(grunnforhold, 'TE', {
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: {
+      kravposter: [
+        { beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid' },
+        { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true },
+      ],
+    },
+    utdypning: 'To kravposter etter en beregningsregel.',
+  });
+  const u = utledJournal(regelkrav, KJERNE);
+  const krav = u.spor.vederlag.gjeldendeKrav!;
+  const [p1, p2] = kravposterI(krav);
+  const valgene = (P1: Partial<Postvalg>, P2: Partial<Postvalg> = {}) => ({
+    ...tomtSvar(),
+    iTide: true,
+    poster: { P1: { ...tomPost(), ...P1 }, P2: { ...tomPost(), ...P2 } },
+  });
+  const kravpostene = (P1: Partial<Postvalg>, P2: Partial<Postvalg> = {}) =>
+    vederlagssvaret(valgene(P1, P2), u, KJERNE.regler)!.svar[0].vurderinger.kravposter as Record<
+      string,
+      unknown
+    >[];
+
+  it('en godkjent beregningsregel sendes uten beløp, og kravet om tilbud som står igjen i valgene, sendes ikke (KA-U66, KA-U71, #1756 punkt 3)', () => {
+    expect(
+      kravpostene(
+        { form: 'godtar', kreverTilbud: true, beloep: 'hele' },
+        { form: 'godtar', varsletITide: true, godtarJustering: true }
+      )
+    ).toEqual([
+      { gjelder: p1!.id, aksepterer: true },
+      { gjelder: p2!.id, aksepterer: true, varslet_i_tide: true, godtar_justering: true },
+    ]);
+  });
+
+  it('kravet om tilbud uten en annen beregningsregel er at regelen ikke godtas (KA-U71, svar 3 A 10.11)', () => {
+    expect(kravpostene({ form: null, kreverTilbud: true })[0]).toEqual({
+      gjelder: p1!.id,
+      aksepterer: false,
+      krever_tilbud: true,
+    });
+    expect(kravpostene({ form: 'enhetspriser', kreverTilbud: true })[0]).toEqual({
+      gjelder: p1!.id,
+      aksepterer: false,
+      oensket_oppgjoersform: 'enhetspriser',
+      krever_tilbud: true,
+    });
+  });
+
+  it('for punkt 34.4 sendes bare «ikke gitt eller kom for sent», og bare når regningsarbeid godkjennes (VS-U63, prototype v4)', () => {
+    expect(kravpostene({ form: 'godtar', varsletITide: false })[0]).toMatchObject({
+      varslet_i_tide: false,
+    });
+    expect(kravpostene({ form: 'godtar', varsletITide: true })[0]).not.toHaveProperty(
+      'varslet_i_tide'
+    );
+    expect(kravpostene({ form: 'enhetspriser', varsletITide: false })[0]).not.toHaveProperty(
+      'varslet_i_tide'
+    );
+  });
+
+  it('med en annen beregningsregel står varselet etter punkt 34.3.3 og justeringen subsidiært, og kjernen tar imot svaret (VS-U56)', () => {
+    const kommando = vederlagssvaret(
+      valgene(
+        { form: 'godtar' },
+        { form: 'regningsarbeid', varsletITide: false, godtarJustering: false }
+      ),
+      u,
+      KJERNE.regler
+    )!;
+    expect(kommando.svar[0].vurderinger.kravposter).toEqual([
+      { gjelder: p1!.id, aksepterer: true },
+      {
+        gjelder: p2!.id,
+        aksepterer: false,
+        oensket_oppgjoersform: 'regningsarbeid',
+        varslet_i_tide: false,
+        godtar_justering: false,
+      },
+    ]);
+    const tekst = laastTekst(skrevet(regelkrav, 'BH', kommando).at(-1)!)!.join(' ');
+    expect(tekst).toContain('Subsidiært');
+  });
+
+  it('lagene kan regnes før oppgjørsformen er besvart: kravposten står med regelen godtatt (#1756 punkt 1)', () => {
+    const valg = valgene({});
+    const utkast = utkastForBeloepet(vederlagssvaret(valg, u, KJERNE.regler)!.svar[0], valg, krav);
+    expect((utkast.vurderinger.kravposter as Record<string, unknown>[])[0]).toEqual({
+      gjelder: p1!.id,
+      aksepterer: true,
+    });
+    const lag = lagForUtkastet(utkast, u, KJERNE.regler);
+    expect(lag.standpunkter.some((x) => x.art === 'oppgjoersform' && x.gjelder === p1!.id)).toBe(
+      true
+    );
   });
 });

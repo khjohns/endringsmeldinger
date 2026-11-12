@@ -10,7 +10,7 @@
   import Brevtyper from '$lib/components/varden/Brevtyper.svelte';
   import Knapp from '$lib/components/varden/Knapp.svelte';
   import Tidslinje from '$lib/components/varden/Tidslinje.svelte';
-  import { tomtSvar, type Svarvalg } from '$lib/components/varden/kommandoer';
+  import { tomPost, tomtSvar, type Svarvalg } from '$lib/components/varden/kommandoer';
   import { brevene, oppgitteDatoer } from '$lib/components/varden/lesing';
   import { HANDLINGENE, SAKEN, SPORNAVN, brevtittel, dato } from '$lib/components/varden/tekster';
   import Arbeid from './Arbeid.svelte';
@@ -40,7 +40,7 @@
   const utfylt = (begrunnelse = BEGRUNNELSE): Svarvalg => ({
     ...tomtSvar(),
     iTide: false,
-    poster: { P1: { form: 'tilbud', beloep: 'deler', delbeloep: '60 000' } },
+    poster: { P1: { ...tomPost(), form: 'godtar', beloep: 'deler', delbeloep: '60 000' } },
     begrunnelse,
   });
   const UBESVART = 'bh-har-mottatt-vederlagskravet';
