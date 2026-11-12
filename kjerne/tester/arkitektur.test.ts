@@ -1802,11 +1802,24 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['Avsnitt', 'brevtekst', 'gjelder', ['format/leser.ts', 'frosset/brevdeler.ts']],
   ['Avsnitt', 'brevtekst', 'laast utdypning', ['frosset/brevtekst.ts', 'frosset/brevdeler.ts']],
-  // #1824: punktene i den låste delen, som leseren prøver mot den, og punktene teksten lager.
-  ['Avsnitt', 'brevtekst', 'laast punkter', ['format/leser.ts']],
-  ['Avsnittspunkt', 'brevtekst', 'overskrift tekst', ['format/leser.ts', 'typer.ts']],
-  ['typer.ts', 'brevtekst', 'somLaastTekst', ['format/leser.ts', 'frosset/brevtekst.ts']],
-  ['Brevpunkt', 'brevtekst', 'overskrift avsnitt', ['frosset/brevtekst.ts']],
+  // B-1 B i #1824: leseren prøver at hvert element har ett avsnitt, eller ett per punkt, og at
+  // overskriften står først i den låste delen. Teksten lager punktene.
+  ['Avsnitt', 'brevtekst', 'laast punkt overskrift', ['format/leser.ts']],
+  ['Brevpunkt', 'brevtekst', 'punkt overskrift avsnitt', ['frosset/brevtekst.ts']],
+  // B-2 A i #1824: utdypningen per punkt kopieres til teksten under punktet.
+  [
+    'frosset/brevdeler.ts:Utdypninger',
+    'brevtekst',
+    'utdypning utdypninger',
+    ['frosset/brevtekst.ts'],
+  ],
+  ['frosset/brevtekst.ts:lagBrevtekst(perPunkt)', 'brevtekst', '*', ['frosset/brevtekst.ts']],
+  [
+    'frosset/brevdeler.ts',
+    'brevtekst',
+    'UtdypningUtenPunkt',
+    ['frosset/brevtekst.ts', 'kommandoer/skriving.ts:skriv'],
+  ],
   [
     'frosset/brevdeler.ts',
     'brevtekst',
@@ -1829,6 +1842,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utdypning',
     ['kommandoer/skriving.ts:svar', 'kommandoer/nyttelast.ts:kontrollerSvar'],
   ],
+  ['Svarutkast', 'kommando', 'utdypninger', ['kommandoer/skriving.ts:svar']],
+  ['Kommando', 'kommando', 'utdypninger', ['kommandoer/skriving.ts:dokument']],
   [
     'Kommando',
     'kommando',
@@ -1929,10 +1944,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsbrevtekst',
     'brevtekst',
-    'krav navn ogsaaInnsigelserEtter svaretGjelder nevnerErstattet utdypningenUnder',
+    'krav navn ogsaaInnsigelserEtter svaretGjelder nevnerErstattet utdypningensPunkt',
     ['frosset/brevtekst.ts'],
   ],
   ['Kravsporsbrevtekst', 'brevtekst', 'enigI ingenKrav kravetOm trukket', ['frosset/brevtekst.ts']],
+  ['Sporsbrevtekst.utdypningensPunkt', 'brevtekst', 'punkt overskrift', ['frosset/brevtekst.ts']],
   [
     'spor/vederlag/tekst.ts',
     'brevtekst',

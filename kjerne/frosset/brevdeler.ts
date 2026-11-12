@@ -219,13 +219,25 @@ export interface Tekst {
 }
 
 /**
- * Et punkt i brevteksten for ett element (#1824, LV-U34): overskriften uten nummeret, eller
- * `null` for innledningen, og avsnittene. Nummeret settes når hele brevet er laget.
+ * Et punkt i brevteksten for ett element (#1824, LV-U34): navnet på punktet i elementet, som
+ * lagres som `punkt` (B-1 B), overskriften uten nummeret, eller `null` for et punkt under
+ * overskriften foran og for et punkt uten overskrift, og avsnittene. Nummeret settes når hele
+ * brevet er laget. Et element uten navngitte punkter blir ett avsnitt.
  */
 export interface Brevpunkt {
+  punkt?: string;
   overskrift: string | null;
   avsnitt: string[];
 }
+
+/**
+ * Partens utdypning per element i brevet, for hele elementet og per punkt, med punktet som
+ * nøkkel (B-13 om begrunnelsestekst, B-2 A i #1824). Appen tolker den ikke (KA-U19).
+ */
+export type Utdypninger = ReadonlyMap<
+  string,
+  { utdypning?: string; utdypninger?: Readonly<Record<string, string>> }
+>;
 
 /** Setningene som ett avsnitt uten overskrift. */
 export const utenOverskrift = (setninger: string[]): Brevpunkt => ({
@@ -285,8 +297,11 @@ export interface Sporsbrevtekst {
    * Vederlagskravet har setningen selv, i innledningen (#1824).
    */
   nevnerErstattet: boolean;
-  /** Overskriften partens utdypning under kravet står under, når den er et eget punkt (#1824). */
-  utdypningenUnder?: string;
+  /**
+   * Punktet partens utdypning for hele kravet står i, når den er et eget punkt sist i kravet
+   * (B-2 A i #1824).
+   */
+  utdypningensPunkt?: { punkt: string; overskrift: string };
   /** Kravet i sporet med kontraktens ord, når kravet har et: «kravet om <…>». */
   kravetOm?: string;
 }
@@ -318,6 +333,12 @@ export class BrevetAvvises extends Error {
     this.regel = regel;
   }
 }
+
+/**
+ * Kommandoen har en utdypning for et punkt brevet ikke har, eller to for samme punkt (B-2 A i
+ * #1824). Kommandoen avvises som `UGYLDIG_FORM`, så teksten ikke forsvinner fra brevet.
+ */
+export class UtdypningUtenPunkt extends Error {}
 
 /** Teksten med stor forbokstav. */
 export const stor = (t: string) => `${t[0].toUpperCase()}${t.slice(1)}`;

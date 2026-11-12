@@ -369,27 +369,19 @@ export interface Fristutregning {
  * Ett avsnitt i brevteksten (LV-U2, LV-U3): det appen lager av partens valg for
  * elementet `gjelder`, og partens utdypning hver for seg (B-13 om
  * begrunnelsestekst). Ingen regel leser teksten.
+ *
+ * Et element med punkter har ett avsnitt per punkt (B-1 B i #1824): `punkt` sier hvilket punkt
+ * i elementet avsnittet gjelder, og `overskrift` er overskriften med nummeret, som også står
+ * først i `laast`. Et punkt uten overskrift står under overskriften i punktet foran. Et
+ * element uten punkter har ett avsnitt, uten `punkt`.
  */
 export interface Avsnitt {
   gjelder: string;
+  punkt?: string;
+  overskrift?: string;
   laast: string;
-  /** Den låste delen delt i punkter med overskrift, når elementet har det (#1824). */
-  punkter?: Avsnittspunkt[];
   utdypning?: string;
 }
-
-/** Et punkt i den låste delen: overskriften med nummeret, og teksten under den (#1824). */
-export interface Avsnittspunkt {
-  overskrift?: string;
-  tekst?: string;
-}
-
-/**
- * Den låste delen punktene gir: overskriften og teksten i hvert punkt som egne avsnitt, skilt
- * med en tom linje. Leseren krever at `laast` er denne teksten når avsnittet har punkter.
- */
-export const somLaastTekst = (punkter: readonly Avsnittspunkt[]): string =>
-  punkter.flatMap((p) => [p.overskrift, p.tekst].filter((t) => t !== undefined)).join('\n\n');
 
 /**
  * Et vedlegg brevet binder (LV-U14): ID-en klienten oppga, og filnavnet og summen

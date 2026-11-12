@@ -128,17 +128,25 @@ describe('Henvisningen til kravbrevet i svarskjemaet', () => {
 });
 
 describe('Punktene i brevet (#1824, prototype v4 i BF-14)', () => {
-  it('hvert punkt har overskriften som overskrift, hvert avsnitt for seg, og forbeholdet under sin overskrift', () => {
+  it('hvert punkt har overskriften som overskrift, hvert avsnitt for seg, og utdypningen under punktet sitt', () => {
     brev({
       avsender: 'TE',
       avsnitt: [
         {
-          laast: 'skal ikke vises når punktene finnes',
-          punkter: [
-            { tekst: 'Kravet erstatter totalentreprenørens krav i brev K201-KOE-005-03.' },
-            { overskrift: '1. Vederlagsjustering', tekst: 'P1 Graving.\n\nP2 Rør.' },
-            { overskrift: '2. Forbehold' },
-          ],
+          punkt: 'innledning',
+          laast: 'Kravet erstatter totalentreprenørens krav i brev K201-KOE-005-03.',
+        },
+        {
+          punkt: 'P1',
+          overskrift: '1. Vederlagsjustering',
+          laast: '1. Vederlagsjustering\n\nP1 Graving.',
+          utdypning: 'Begrunnelsen for P1.',
+        },
+        { punkt: 'P2', laast: 'P2 Rør.' },
+        {
+          punkt: 'forbehold',
+          overskrift: '2. Forbehold',
+          laast: '2. Forbehold',
           utdypning: 'Forbeholdet.',
         },
       ],
@@ -149,10 +157,10 @@ describe('Punktene i brevet (#1824, prototype v4 i BF-14)', () => {
     expect([...tekst.querySelectorAll('p')].map((p) => p.textContent)).toEqual([
       'Kravet erstatter totalentreprenørens krav i brev K201-KOE-005-03.',
       'P1 Graving.',
+      'Begrunnelsen for P1.',
       'P2 Rør.',
       'Forbeholdet.',
     ]);
-    expect(tekst.textContent).not.toContain('skal ikke vises');
   });
 
   it('et avsnitt uten punkter står som før, med den låste teksten (kontrollsak)', () => {

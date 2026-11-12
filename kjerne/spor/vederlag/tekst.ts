@@ -138,6 +138,7 @@ function varselpunkt(hjemmel: '34.1.2' | '34.1.3', t: Tekst): Brevpunkt {
   }[hjemmel];
   const foer = t.saken.varsletFoer[hjemmel];
   return {
+    punkt: hjemmel,
     overskrift: ordene.overskrift,
     avsnitt: [
       foer === undefined ? ordene.naa : gitt({ art: 'gitt', varsel: foer }, ordene.gitt, t),
@@ -161,6 +162,7 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
   const punkter: Brevpunkt[] = [];
   if (k.erstatter)
     punkter.push({
+      punkt: 'innledning',
       overskrift: null,
       avsnitt: [
         `Kravet erstatter totalentreprenørens krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`,
@@ -171,7 +173,14 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
     punkter.push(varselpunkt('34.1.2', t));
   if (post !== null) punkter.push(varselpunkt('34.1.3', t));
 
-  const justering = poster.map((p) => kravposttekst(p, saken.kravpostvarsler[p.id], t));
+  // B-1 B i #1824: hver kravpost og hvert trekk er et punkt, så utdypningen står under posten
+  // (#1823 punkt 1). Punktet er betegnelsen, som avsenderen ser før serveren gir en ny post
+  // `id` (KA-U53). Overskriften står over den første.
+  const justering: Brevpunkt[] = poster.map((p) => ({
+    punkt: p.betegnelse,
+    overskrift: null,
+    avsnitt: [kravposttekst(p, saken.kravpostvarsler[p.id], t)],
+  }));
   const forrige = tidligere(k, j).at(-1);
   for (const id of innholdIVederlaget(k).trekker) {
     const p = forrige && kravposterI(forrige).find((q) => q.id === id);
@@ -179,14 +188,22 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
       throw new KanIkkeUttrykkes(
         `trekket gjelder kravposten ${id}, som ikke står i forrige kravversjon`
       );
-    justering.push(
-      `${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}. Totalentreprenøren trekker kravet i ${p.betegnelse}, fremsatt i ${j.brevet(forrige.dokument)}.`
-    );
+    justering.push({
+      punkt: p.betegnelse,
+      overskrift: null,
+      avsnitt: [
+        `${p.betegnelse} ${punktum(p.beskrivelse).slice(0, -1)}. Totalentreprenøren trekker kravet i ${p.betegnelse}, fremsatt i ${j.brevet(forrige.dokument)}.`,
+      ],
+    });
   }
-  if (justering.length) punkter.push({ overskrift: 'Vederlagsjustering', avsnitt: justering });
+  if (justering.length) {
+    justering[0].overskrift = 'Vederlagsjustering';
+    punkter.push(...justering);
+  }
   // OV-U95 punkt 3: «i tillegg» når vederlagsjusteringen har minst én kravpost.
   if (post !== null)
     punkter.push({
+      punkt: 'produktivitet',
       overskrift: 'Særskilt vederlagsjustering',
       avsnitt: [
         `Totalentreprenøren krever ${poster.length ? 'i tillegg ' : ''}særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd for ${PRODUKTIVITET} med ${eksMva(tilTall(post))}`,
@@ -194,6 +211,7 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
     });
   if (rigg !== null)
     punkter.push({
+      punkt: 'rigg_og_drift',
       overskrift: 'Rigg og drift i forlenget byggetid',
       avsnitt: [
         `Totalentreprenøren krever ${eksMva(tilTall(rigg))} for rigg og drift i forlenget byggetid.`,
@@ -210,7 +228,7 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
     slutt.push(
       `${opplistet(regel)} gjøres opp etter en beregningsregel, og kravet for ${regel.length > 1 ? 'dem' : 'den'} er ikke et tilbud.`
     );
-  if (slutt.length) punkter.push({ overskrift: null, avsnitt: [slutt.join(' ')] });
+  if (slutt.length) punkter.push({ punkt: 'tilbud', overskrift: null, avsnitt: [slutt.join(' ')] });
   return punkter;
 }
 
@@ -237,7 +255,7 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
   // Kravet sier selv hvilket krav det erstatter, i innledningen (#1824).
   nevnerErstattet: false,
   // Forbeholdet, som Varden sender som kravets utdypning til #1823 gir det et eget felt.
-  utdypningenUnder: 'Forbehold',
+  utdypningensPunkt: { punkt: 'forbehold', overskrift: 'Forbehold' },
   kravetOm: 'justering av vederlaget',
   enigI: 'beløpet',
   trukket: kravetsBeloep,

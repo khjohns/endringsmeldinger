@@ -1022,7 +1022,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'begrunnelsen i svaret faller ut av brevteksten (B-13 om begrunnelsestekst, KA-U31)',
     fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['  if (s.utdypning !== undefined) utdypninger.set(id, s.utdypning);\n', '']],
+    endringer: [
+      [
+        '    utdypninger.set(id, { utdypning: s.utdypning, utdypninger: s.utdypninger });',
+        '    utdypninger.set(id, { utdypninger: s.utdypninger });',
+      ],
+    ],
     mal: ['begrunnelsen står under svaret den gjelder'],
   },
   {
@@ -3951,7 +3956,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
       [
-        "if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);\n      return { utsagn: [{ id, art: 'korrigering'",
+        "if (k.utdypning !== undefined) utdypninger.set(id, { utdypning: k.utdypning });\n      return { utsagn: [{ id, art: 'korrigering'",
         "return { utsagn: [{ id, art: 'korrigering'",
       ],
     ],
@@ -4109,10 +4114,28 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F554',
     feilklasse:
-      'leseren forstår punkter i brevteksten som ikke gir den låste delen ordrett (MM-U2, #1824)',
+      'leseren forstår et punkt i brevteksten der overskriften ikke står først i den låste delen (MM-U2, B-1 B i #1824)',
     fil: `${K}/format/leser.ts`,
-    endringer: [['somLaastTekst(a.punkter) !== a.laast', 'false']],
-    mal: ['punkter som ikke gir den låste delen ordrett, gjør saken ikke forstått'],
+    endringer: [
+      ['(a.laast !== a.overskrift && !a.laast.startsWith(`${a.overskrift}\\n\\n`))', 'false'],
+    ],
+    mal: ['en overskrift som ikke står først, gjør saken ikke forstått'],
+  },
+  {
+    id: 'F556',
+    feilklasse:
+      'leseren forstår to avsnitt i brevteksten for samme punkt i et element (MM-U2, B-1 B i #1824)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['if (sett.has(`${a.gjelder}\\u0000${a.punkt}`))', 'if (false)']],
+    mal: ['avsnitt som ikke står etter hverandre per punkt'],
+  },
+  {
+    id: 'F557',
+    feilklasse:
+      'brevteksten mister en utdypning for et punkt brevet ikke har, i stedet for å avvise kommandoen (B-2 A i #1824)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['    if (ukjent.length)', '    if (false)']],
+    mal: ['en utdypning for et punkt brevet ikke har, avvises'],
   },
   {
     id: 'F555',

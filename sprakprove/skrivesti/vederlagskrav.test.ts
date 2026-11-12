@@ -127,9 +127,14 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet med kravposter mot TS-serveren',
     expect(tekst).not.toBeNull();
 
     const lagret = (await hent(sakId)).journal.at(-1)!;
-    const avsnitt = lagret.data.brevtekst as { laast: string; utdypning?: string }[];
+    const avsnitt = lagret.data.brevtekst as {
+      punkt?: string;
+      laast: string;
+      utdypning?: string;
+    }[];
     expect(avsnitt.map((a) => a.laast)).toEqual(tekst);
-    if (utdypning) expect(avsnitt[0].utdypning).toBe(utdypning);
+    // Utdypningen for hele vederlagskravet står i punktet «Forbehold» (B-2 A i #1824).
+    if (utdypning) expect(avsnitt.at(-1)).toMatchObject({ punkt: 'forbehold', utdypning });
     else expect(avsnitt.every((a) => a.utdypning === undefined)).toBe(true);
   });
 

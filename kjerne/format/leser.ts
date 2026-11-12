@@ -35,7 +35,6 @@ import {
   type Skjema,
   type Svarlesing,
 } from './skjema.ts';
-import { somLaastTekst } from '../typer.ts';
 import type {
   Avsnitt,
   Beslutningsgrunnlag,
@@ -564,18 +563,31 @@ function lesDokument(h: Journalrad): Dokument {
       ...dokument.utsagn.map((u) => u.id),
       ...dokument.opplysninger.map((o) => o.id),
     ]);
+    // B-1 B i #1824: et element har ett avsnitt, eller ett avsnitt per punkt etter hverandre.
+    // Overskriften står først i den låste delen og har et punkt.
     const sett = new Set<string>();
+    let forrige: (typeof data.brevtekst)[number] | undefined;
     for (const a of data.brevtekst) {
-      if (!elementer.has(a.gjelder) || sett.has(a.gjelder))
-        throw new Uforstaatt('et avsnitt i brevteksten gjelder ikke ett element i brevet');
-      sett.add(a.gjelder);
-      // #1824: punktene er den låste delen delt opp, og sier ikke noe annet enn den.
+      const fortsetter = forrige?.gjelder === a.gjelder;
       if (
-        a.punkter &&
-        (a.punkter.some((p) => p.overskrift === undefined && p.tekst === undefined) ||
-          somLaastTekst(a.punkter) !== a.laast)
+        !elementer.has(a.gjelder) ||
+        (sett.has(a.gjelder) && !fortsetter) ||
+        (fortsetter && (a.punkt === undefined || forrige!.punkt === undefined))
       )
-        throw new Uforstaatt('punktene i et avsnitt i brevteksten er ikke den låste delen');
+        throw new Uforstaatt('et avsnitt i brevteksten gjelder ikke ett element i brevet');
+      if (a.punkt !== undefined) {
+        if (sett.has(`${a.gjelder}\u0000${a.punkt}`))
+          throw new Uforstaatt('to avsnitt i brevteksten gjelder samme punkt i et element');
+        sett.add(`${a.gjelder}\u0000${a.punkt}`);
+      }
+      if (
+        a.overskrift !== undefined &&
+        (a.punkt === undefined ||
+          (a.laast !== a.overskrift && !a.laast.startsWith(`${a.overskrift}\n\n`)))
+      )
+        throw new Uforstaatt('overskriften i et avsnitt i brevteksten står ikke først i punktet');
+      sett.add(a.gjelder);
+      forrige = a;
     }
   }
   return dokument;

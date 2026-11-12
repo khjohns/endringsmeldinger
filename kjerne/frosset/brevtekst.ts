@@ -39,7 +39,9 @@ import {
   type Standpunktstekster,
   type Tekst,
   type Brevpunkt,
+  type Utdypninger,
   utenOverskrift,
+  UtdypningUtenPunkt,
 } from './brevdeler.ts';
 import {
   BREVTEKSTEN_I_FORHOLDET,
@@ -48,10 +50,9 @@ import {
 } from '../spor/forhold/tekst.ts';
 import { BREVTEKSTEN_I_VEDERLAGET, STANDPUNKTENE_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
 import { dager, iLagene } from './tekst.ts';
-import { erKravpostvarselhjemmel, somLaastTekst } from '../typer.ts';
+import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
   Avsnitt,
-  Avsnittspunkt,
   Dokument,
   Domenehendelse,
   Hjemmel,
@@ -73,7 +74,7 @@ const PART: Record<Part, string> = { TE: 'TE', BH: 'Byggherren' };
 
 /**
  * Brevteksten for dokumentet `nytt`, som parten sender i appen nå. `foer` er
- * journalen før brevet. `utdypninger` er partens utdypning per element, uten
+ * journalen før brevet. `utdypninger` er partens utdypning per element og per punkt, uten
  * tolkning (KA-U19). Kaster `KanIkkeUttrykkes` når et element ikke kan uttrykkes,
  * og `BrevetAvvises` når brevet ikke kan sendes fra appen slik saken står.
  */
@@ -82,7 +83,7 @@ export function lagBrevtekst(
   foer: Domenehendelse[],
   saken: Saken,
   regler: Regelsett,
-  utdypninger: ReadonlyMap<string, string> = new Map()
+  utdypninger: Utdypninger = new Map()
 ): Avsnitt[] {
   if (erRegistrert(nytt.opplysninger))
     throw new KanIkkeUttrykkes('et registrert brev står som det ble sendt (MM-U50)');
@@ -95,33 +96,66 @@ export function lagBrevtekst(
   };
 
   const avsnitt: Avsnitt[] = [];
-  const legg = (gjelder: string, laast: string, punkter?: Avsnittspunkt[]) => {
-    const utdypning = utdypninger.get(gjelder);
-    avsnitt.push({
-      gjelder,
-      laast,
-      ...(punkter ? { punkter } : {}),
-      ...(utdypning ? { utdypning } : {}),
-    });
+  const legg = (gjelder: string, laast: string) => {
+    const { utdypning, utdypninger: perPunkt } = utdypninger.get(gjelder) ?? {};
+    if (perPunkt && Object.keys(perPunkt).length)
+      throw new UtdypningUtenPunkt(
+        'Utdypningen per punkt gjelder et element i brevet uten punkter.'
+      );
+    avsnitt.push({ gjelder, laast, ...(utdypning ? { utdypning } : {}) });
   };
   // LV-U34, LV-U40: punktene er nummerert gjennom hele brevet, så «punkt 1 ovenfor» er entydig.
   let nummer = 0;
-  const leggPunkter = (gjelder: string, brevpunkter: Brevpunkt[]) => {
-    if (!brevpunkter.some((p) => p.overskrift !== null))
+  // B-1 B og B-2 A i #1824: ett avsnitt per punkt, med partens utdypning for punktet under det.
+  const leggPunkter = (
+    gjelder: string,
+    brevpunkter: Brevpunkt[],
+    utdypningene: Readonly<Record<string, string>> = {},
+    hele?: string
+  ) => {
+    if (!brevpunkter.some((p) => p.punkt !== undefined))
       return legg(gjelder, brevpunkter.flatMap((p) => p.avsnitt).join('\n\n'));
-    const punkter = brevpunkter.map(({ overskrift, avsnitt: a }) => ({
-      ...(overskrift !== null ? { overskrift: `${++nummer}. ${overskrift}` } : {}),
-      ...(a.length ? { tekst: a.join('\n\n') } : {}),
-    }));
-    legg(gjelder, somLaastTekst(punkter), punkter);
+    if (hele)
+      throw new UtdypningUtenPunkt(
+        'Kravet har punkter og ikke noe punkt for utdypningen for hele kravet. Utdypningen gis per punkt.'
+      );
+    const perPunkt = { ...utdypningene };
+    for (const { punkt, overskrift: o, avsnitt: a } of brevpunkter) {
+      if (punkt === undefined)
+        throw new KanIkkeUttrykkes(`et punkt i brevteksten for ${gjelder} har ikke noe navn`);
+      const overskrift = o === null ? undefined : `${++nummer}. ${o}`;
+      const utdypning = perPunkt[punkt];
+      delete perPunkt[punkt];
+      avsnitt.push({
+        gjelder,
+        punkt,
+        ...(overskrift ? { overskrift } : {}),
+        laast: [...(overskrift ? [overskrift] : []), ...a].join('\n\n'),
+        ...(utdypning ? { utdypning } : {}),
+      });
+    }
+    const ukjent = Object.keys(perPunkt);
+    if (ukjent.length)
+      throw new UtdypningUtenPunkt(
+        `Utdypningen gjelder ${ukjent.length > 1 ? 'punktene' : 'punktet'} ${liste(ukjent)}, som ikke står i brevet.`
+      );
   };
 
   for (const k of nytt.krav) {
     const punkter = kravtekst(k, t, regler);
-    // #1824: utdypningen står under sin egen overskrift, som det siste punktet for kravet.
-    const under = brevtekstI(k.spor).utdypningenUnder;
-    if (under && utdypninger.get(k.id)) punkter.push({ overskrift: under, avsnitt: [] });
-    leggPunkter(k.id, punkter);
+    // B-2 A i #1824: utdypningen for hele kravet står i sitt eget punkt, sist (forbeholdet).
+    const eget = brevtekstI(k.spor).utdypningensPunkt;
+    const { utdypning, utdypninger: perPunkt = {} } = utdypninger.get(k.id) ?? {};
+    if (!eget || (!utdypning && !perPunkt[eget.punkt])) {
+      leggPunkter(k.id, punkter, perPunkt, utdypning);
+      continue;
+    }
+    if (utdypning && perPunkt[eget.punkt])
+      throw new UtdypningUtenPunkt(
+        `Utdypningen for hele kravet og utdypningen for punktet ${eget.punkt} står begge i punktet ${eget.punkt}.`
+      );
+    punkter.push({ punkt: eget.punkt, overskrift: eget.overskrift, avsnitt: [] });
+    leggPunkter(k.id, punkter, { ...perPunkt, ...(utdypning ? { [eget.punkt]: utdypning } : {}) });
   }
   for (const s of nytt.svar) legg(s.id, svartekst(s, t, regler));
   for (const u of nytt.utsagn) legg(u.id, utsagnstekst(u, t));

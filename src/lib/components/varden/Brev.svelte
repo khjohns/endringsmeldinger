@@ -36,8 +36,8 @@
     deresRef?: string[];
     dato: string;
     tittel: string;
-    /** Avsnittene kjernen lager. Med `punkter` står overskriftene for seg (#1824). */
-    avsnitt: Pick<Avsnitt, 'laast' | 'punkter' | 'utdypning'>[];
+    /** Avsnittene kjernen lager. Et punkt med overskrift har den først i `laast` (#1824). */
+    avsnitt: Pick<Avsnitt, 'laast' | 'punkt' | 'overskrift' | 'utdypning'>[];
     /** Tidspunktet brevet ble sendt. Bare et sendt brev har stempelet. */
     sendt?: string;
     fot?: Snippet;
@@ -56,6 +56,12 @@
   const hentOrganisasjoner = organisasjonene();
   const organisasjoner = $derived(hentOrganisasjoner());
   const stor = (s: string) => s[0].toUpperCase() + s.slice(1);
+
+  /** Avsnittene i et punkt, uten overskriften, som står først i den låste delen. */
+  const underOverskriften = (a: Pick<Avsnitt, 'laast' | 'overskrift'>): string[] =>
+    (a.overskrift ? a.laast.slice(a.overskrift.length) : a.laast)
+      .split('\n\n')
+      .filter((del) => del !== '');
 </script>
 
 <article class="brev" class:innfelt class:dempet class:bh={avsender === 'BH'} aria-label={tittel}>
@@ -97,11 +103,9 @@
   <h2>{tittel}</h2>
   <div class="tekst" data-testid="laast-tekst">
     {#each avsnitt as a, i (i)}
-      {#if a.punkter}
-        {#each a.punkter as punkt, j (j)}
-          {#if punkt.overskrift}<h3>{punkt.overskrift}</h3>{/if}
-          {#each punkt.tekst?.split('\n\n') ?? [] as del, k (k)}<p>{del}</p>{/each}
-        {/each}
+      {#if a.punkt !== undefined}
+        {#if a.overskrift}<h3>{a.overskrift}</h3>{/if}
+        {#each underOverskriften(a) as del, k (k)}<p>{del}</p>{/each}
       {:else}
         <p>{a.laast}</p>
       {/if}

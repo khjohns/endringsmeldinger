@@ -14,7 +14,7 @@ import { korrigertDato, SKRIVING_I_FORHOLDET } from '../spor/forhold/kommando.ts
 import { frys } from '../frosset/frysing.ts';
 import { standpunkter } from './standpunkter.ts';
 import { lagBrevtekst, lagDeresRef } from '../frosset/brevtekst.ts';
-import { BrevetAvvises, KanIkkeUttrykkes } from '../frosset/brevdeler.ts';
+import { BrevetAvvises, KanIkkeUttrykkes, UtdypningUtenPunkt } from '../frosset/brevdeler.ts';
 import { brevmerking, lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
 import {
   brevtekstI,
@@ -132,8 +132,8 @@ function lagret({ virkninger, ...resten }: Beslutningsgrunnlag): Data {
   };
 }
 
-/** Partens utdypning per element i brevet, til brevteksten (B-13 om begrunnelsestekst). */
-type Utdypninger = Map<string, string>;
+/** Partens utdypning per element og per punkt i brevet, til brevteksten (`Utdypninger`). */
+type Utdypninger = Map<string, { utdypning?: string; utdypninger?: Record<string, string> }>;
 
 /**
  * Standpunktene og serverens utregning nyttelastkontrollen leste i hvert svarutkast, i
@@ -153,7 +153,8 @@ function svar(
   if (!bygd)
     throw new Skrivefeil(`Nyttelastkontrollen har ikke kontrollert svaret på ${s.spor} (#814).`);
   const id = nyId();
-  if (s.utdypning !== undefined) utdypninger.set(id, s.utdypning);
+  if (s.utdypning !== undefined || s.utdypninger)
+    utdypninger.set(id, { utdypning: s.utdypning, utdypninger: s.utdypninger });
   const e: Data = {
     id,
     spor: s.spor,
@@ -277,7 +278,8 @@ function dokument(
     case 'krav': {
       const forrige = u.spor[k.spor].gjeldendeKrav;
       const id = nyId();
-      if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
+      if (k.utdypning !== undefined || k.utdypninger)
+        utdypninger.set(id, { utdypning: k.utdypning, utdypninger: k.utdypninger });
       // HF-U1, LV-U18 punkt 3: et krav om dager mens forespørselen etter § 33.6.2 er ubesvart,
       // er svaret på den og viser til den (avgrensningen i #1567).
       const foresporsel =
@@ -369,7 +371,7 @@ function dokument(
     case 'foresporselssvar': {
       // LV-U18 setning 2: TEs begrunnelse følger som utdypningen.
       const id = nyId();
-      utdypninger.set(id, k.utdypning);
+      utdypninger.set(id, { utdypning: k.utdypning });
       return { utsagn: [{ id, art: 'foresporselssvar', gjelder: k.gjelder }] };
     }
     case 'begrunnelse': {
@@ -383,7 +385,7 @@ function dokument(
           korrespondansetype: k.korrespondansetype,
           ...(k.dokumentasjon ? { dokumentasjon: bundne } : {}),
         };
-      if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
+      if (k.utdypning !== undefined) utdypninger.set(id, { utdypning: k.utdypning });
       return { utsagn };
     }
     case 'korrigering': {
@@ -391,7 +393,7 @@ function dokument(
       const { felt, dato } = korrigertDato(k);
       const id = nyId();
       // MM-U53: TEs forklaring følger som utdypningen.
-      if (k.utdypning !== undefined) utdypninger.set(id, k.utdypning);
+      if (k.utdypning !== undefined) utdypninger.set(id, { utdypning: k.utdypning });
       return { utsagn: [{ id, art: 'korrigering', gjelder: k.gjelder, [felt]: dato }] };
     }
     case 'bestridelse':
@@ -594,6 +596,12 @@ function skriv(
         godtatt: false,
         feil: 'REGELBRUDD',
         avvisning: { regel: feil.regel, melding: feil.message },
+      };
+    if (feil instanceof UtdypningUtenPunkt)
+      return {
+        godtatt: false,
+        feil: 'UGYLDIG_FORM',
+        avvisning: { regel: 'UGYLDIG_FORM', melding: feil.message },
       };
     throw feil;
   }

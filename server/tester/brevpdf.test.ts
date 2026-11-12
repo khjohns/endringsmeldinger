@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
-import { somLaastTekst, type Avsnitt } from '../../kjerne/typer.ts';
+import type { Avsnitt } from '../../kjerne/typer.ts';
 import { readFileSync } from 'node:fs';
 import { inflateSync } from 'node:zlib';
 import { tegnSomIkkeKanVises } from '../../kjerne/format/skjema.ts';
@@ -79,13 +79,27 @@ describe('PDF-en av brevet (#371 del 2)', () => {
   });
 
   it('gjengir punktene med overskriften som eget avsnitt og forbeholdet under sin overskrift (#1824)', async () => {
-    const punkter = [
-      { overskrift: '1. Varselet om vederlagsjustering', tekst: 'Totalentreprenøren varsler.' },
-      { overskrift: '2. Vederlagsjustering', tekst: 'P1 Graving.\n\nP2 Rør.' },
-      { overskrift: '3. Forbehold' },
-    ];
     const tekst: Avsnitt[] = [
-      { gjelder: 'k', laast: somLaastTekst(punkter), punkter, utdypning: 'Forbeholdet.' },
+      {
+        gjelder: 'k',
+        punkt: '34.1.2',
+        overskrift: '1. Varselet om vederlagsjustering',
+        laast: '1. Varselet om vederlagsjustering\n\nTotalentreprenøren varsler.',
+      },
+      {
+        gjelder: 'k',
+        punkt: 'P1',
+        overskrift: '2. Vederlagsjustering',
+        laast: '2. Vederlagsjustering\n\nP1 Graving.',
+      },
+      { gjelder: 'k', punkt: 'P2', laast: 'P2 Rør.' },
+      {
+        gjelder: 'k',
+        punkt: 'forbehold',
+        overskrift: '3. Forbehold',
+        laast: '3. Forbehold',
+        utdypning: 'Forbeholdet.',
+      },
     ];
     const lest = lesBrevPdf((await brevdokument(oppdrag(tekst), 'n')).innhold);
     // Lesingen gir én linje per avsnitt; overskriften står på sin egen linje.

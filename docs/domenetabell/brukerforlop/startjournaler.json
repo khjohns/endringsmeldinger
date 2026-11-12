@@ -210,20 +210,20 @@
             "brevtekst": [
               {
                 "gjelder": "1975bfcf-0000-4000-8000-000000000011",
-                "laast": "1. Varselet om vederlagsjustering\n\nTotalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2.\n\n2. Vederlagsjustering\n\nP1 Kravposten i bevis-saken. Totalentreprenøren krever 100 000 kr eks. mva.\n\nKravet for P1 er et tilbud etter NS 8407 punkt 34.2.1.",
-                "punkter": [
-                  {
-                    "overskrift": "1. Varselet om vederlagsjustering",
-                    "tekst": "Totalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2."
-                  },
-                  {
-                    "overskrift": "2. Vederlagsjustering",
-                    "tekst": "P1 Kravposten i bevis-saken. Totalentreprenøren krever 100 000 kr eks. mva."
-                  },
-                  {
-                    "tekst": "Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1."
-                  }
-                ]
+                "punkt": "34.1.2",
+                "overskrift": "1. Varselet om vederlagsjustering",
+                "laast": "1. Varselet om vederlagsjustering\n\nTotalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2."
+              },
+              {
+                "gjelder": "1975bfcf-0000-4000-8000-000000000011",
+                "punkt": "P1",
+                "overskrift": "2. Vederlagsjustering",
+                "laast": "2. Vederlagsjustering\n\nP1 Kravposten i bevis-saken. Totalentreprenøren krever 100 000 kr eks. mva."
+              },
+              {
+                "gjelder": "1975bfcf-0000-4000-8000-000000000011",
+                "punkt": "tilbud",
+                "laast": "Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1."
               }
             ],
             "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
@@ -1155,20 +1155,20 @@
             "brevtekst": [
               {
                 "gjelder": "1475b7f0-0000-4000-8000-000000000011",
-                "laast": "1. Varselet om vederlagsjustering\n\nTotalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2.\n\n2. Vederlagsjustering\n\nP1 Kravposten i bevis-saken. Totalentreprenøren krever 100 000 kr eks. mva.\n\nKravet for P1 er et tilbud etter NS 8407 punkt 34.2.1.",
-                "punkter": [
-                  {
-                    "overskrift": "1. Varselet om vederlagsjustering",
-                    "tekst": "Totalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2."
-                  },
-                  {
-                    "overskrift": "2. Vederlagsjustering",
-                    "tekst": "P1 Kravposten i bevis-saken. Totalentreprenøren krever 100 000 kr eks. mva."
-                  },
-                  {
-                    "tekst": "Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1."
-                  }
-                ]
+                "punkt": "34.1.2",
+                "overskrift": "1. Varselet om vederlagsjustering",
+                "laast": "1. Varselet om vederlagsjustering\n\nTotalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2."
+              },
+              {
+                "gjelder": "1475b7f0-0000-4000-8000-000000000011",
+                "punkt": "P1",
+                "overskrift": "2. Vederlagsjustering",
+                "laast": "2. Vederlagsjustering\n\nP1 Kravposten i bevis-saken. Totalentreprenøren krever 100 000 kr eks. mva."
+              },
+              {
+                "gjelder": "1475b7f0-0000-4000-8000-000000000011",
+                "punkt": "tilbud",
+                "laast": "Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1."
               }
             ],
             "brevtittel": "Krav om vederlagsjustering i sak KOE-17",

@@ -230,6 +230,8 @@ export function feilI(verdi: unknown, s: Skjema, sti = '$', rot: Skjema = s): st
       if (Object.hasOwn(egenskaper, navn))
         feil.push(...feilI(del, egenskaper[navn], `${sti}.${navn}`, rot));
       else if (s.additionalProperties === false) feil.push(`${sti}.${navn}: ukjent felt`);
+      else if (erObjekt(s.additionalProperties))
+        feil.push(...feilI(del, s.additionalProperties, `${sti}.${navn}`, rot));
     }
   }
   if (typeof s.minItems === 'number' && Array.isArray(verdi) && verdi.length < s.minItems)
