@@ -54,7 +54,7 @@
       sendt = true;
     }}
   />
-{:else if svarer && !sendt && kjernesak.handlinger.includes(`svare:${spor}`)}
+{:else if svarer && !sendt && spor === 'vederlag' && kjernesak.handlinger.includes('svare:vederlag')}
   <Vederlagssvar
     {kjernesak}
     {u}
@@ -79,8 +79,9 @@
     {kjernesak}
     {u}
     {spor}
+    skjemaene={spor === 'vederlag' ? ['svare:vederlag'] : []}
     onvelg={(n) => {
-      if (n === `svare:${spor}`) svarer = true;
+      if (n === 'svare:vederlag') svarer = true;
     }}
     onakseptbrev={({ kommando, tekst, virkninger, merking, deresRef, tittel }) => {
       const svaret = brev.find((b) => b.id === u.spor[spor].gjeldendeSvar?.dokument);
