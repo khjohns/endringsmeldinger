@@ -24,12 +24,6 @@ import type { Beslutningsgrunnlag, Krav, Standpunktsvirkning } from '../../typer
 
 type Data = Record<string, unknown>;
 
-/** To påberopelsesversjoner har samme hovedkategori og underkategori (GR-U22). */
-export function sammeKategori(a: Pick<Krav, 'innhold'>, b: Pick<Krav, 'innhold'>): boolean {
-  const [x, y] = [kategori(a), kategori(b)];
-  return x.hovedkategori === y.hovedkategori && x.underkategori === y.underkategori;
-}
-
 /**
  * Standpunktene i et svar på forholdet (§ 32.2 og § 32.3). `varselet` er det rettidigheten
  * etter § 32.2 gjelder (VS-U43 punkt 6 og 10).

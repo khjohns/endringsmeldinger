@@ -8,8 +8,9 @@ import type { Forholdsresultat } from './typer.ts';
 import { gjelderVarslingspliktenForVederlag } from './vederlag.ts';
 
 /**
- * Versjonen av regelsettet. Økes ved enhver endring i `kjerne/regler/`
- * (B-13); regelversjonsvakten i CI krever det.
+ * Versjonen av regelsettet. Økes ved enhver endring i `kjerne/regler/`, og i det
+ * beslutningsgrunnlaget fryser (B-13, `.claude/rules/kjerne.md`); regelversjonsvakten i CI
+ * krever det.
  */
 export const REGELVERSJON = 76;
 
