@@ -1662,6 +1662,19 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
   ['frosset/tekst.ts', 'brevtekst', 'dager', ['frosset/brevtekst.ts']],
   ['frosset/tekst.ts', 'brevtekst', 'kroner', ['frosset/brevdeler.ts']],
+  // Oppslaget i sporet for en rolle, og virkningen av et standpunkt (#1783).
+  [
+    'frosset/byggeklosser.ts',
+    'frosset',
+    'iSporet',
+    ['frosset/brevtekst.ts', 'frosset/linje.ts', 'frosset/standpunkt.ts', 'frosset/utregning.ts'],
+  ],
+  [
+    'frosset/byggeklosser.ts',
+    'frosset',
+    'virkningen',
+    ['frosset/linje.ts', 'spor/vederlag/tekst.ts'],
+  ],
   // Teksten i sporene, som brevteksten og linjen slår opp (#1783).
   [
     'Sporsbrevtekst',

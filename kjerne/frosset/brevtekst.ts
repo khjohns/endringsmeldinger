@@ -26,7 +26,7 @@ import {
   innsigelsenPaaberoper,
   svarPaaForesporsler,
 } from './standpunkt.ts';
-import { etikett, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
+import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
 import { innholdIForholdet, innholdIFristen } from '../format/kravinnhold.ts';
 import {
   eksMva,
@@ -46,7 +46,7 @@ import {
 } from './brevdeler.ts';
 import { BREVTEKSTEN_I_VEDERLAGET, STANDPUNKTENE_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
 import { dager, iLagene } from './tekst.ts';
-import { erKravpostvarselhjemmel, utenGren } from '../typer.ts';
+import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
   Avsnitt,
   Dokument,
@@ -444,7 +444,7 @@ function standpunkttekst(
   innsigelser: Innsigelse[]
 ): string {
   const paaberopelse = s.spor === 'forhold' ? krav : s.paaberopelse ? j.krav(s.paaberopelse) : null;
-  if (iSporet(p)) return standpunktetISporet(p.art, p, krav);
+  if (erArtISporene(p)) return standpunktetISporet(p.art, p, krav);
   switch (p.art) {
     case 'rettidighet': {
       // VS-U29, VS-U31: saken har én forespørsel, så standpunktet etter § 33.6.2 gjelder begrunnelsen.
@@ -777,10 +777,8 @@ export function gjengirTro(gjengitt: string, brevtekst: Avsnitt[]): boolean {
 
 // ---------- Teksten i sporene (#1783) ----------
 
-/** Teksten i sporet. Et spor uten innslag kaster, som en gren som mangler (`utenGren`). */
-function brevtekstI<S extends Spor>(spor: S): (typeof BREVTEKST)[S] {
-  return Object.hasOwn(BREVTEKST, spor) ? BREVTEKST[spor] : utenGren(spor as never);
-}
+/** Teksten i sporet (`iSporet`). */
+const brevtekstI = <S extends Spor>(spor: S) => iSporet(BREVTEKST, spor);
 
 /** Teksten i hvert spor. Forholdet og fristen står her til de flyttes til sporene (#1783, #1745). */
 const BREVTEKST: { forhold: Sporsbrevtekst } & Record<Kravspor, Kravsporsbrevtekst> = {
@@ -809,7 +807,7 @@ const BREVTEKST: { forhold: Sporsbrevtekst } & Record<Kravspor, Kravsporsbrevtek
 type ArtISporene = keyof typeof STANDPUNKTENE_I_VEDERLAGET;
 const I_SPORENE: Standpunktstekster<ArtISporene> = STANDPUNKTENE_I_VEDERLAGET;
 
-const iSporet = (p: Standpunkt): p is StandpunktIArt[ArtISporene] =>
+const erArtISporene = (p: Standpunkt): p is StandpunktIArt[ArtISporene] =>
   Object.hasOwn(I_SPORENE, p.art);
 
 function standpunktetISporet<A extends ArtISporene>(

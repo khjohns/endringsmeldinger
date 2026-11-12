@@ -9,9 +9,14 @@ import type { Regelsett } from '../regler/regelsett.ts';
 import { kontrollerForholdet, kontrollerSpesifiseringen } from '../regler/svarkontroll.ts';
 import { innholdIFristen, kategori } from '../format/kravinnhold.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
-import { avvisUkjenteFelt, type Svarsutregning, type Svarvurdering } from './byggeklosser.ts';
+import {
+  avvisUkjenteFelt,
+  iSporet,
+  type Svarsutregning,
+  type Svarvurdering,
+} from './byggeklosser.ts';
 import { SAMMENLIKNES_I_VEDERLAGET, UTREGNING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
-import { utenGren, type Krav, type Spor } from '../typer.ts';
+import type { Krav, Spor } from '../typer.ts';
 
 /**
  * En vurdering i svaret som kjernen ennå ikke har et standpunkt for. Den kan ikke
@@ -44,9 +49,8 @@ export function regnUtSvar(
   return utregningI(spor).regnUt(v, { krav, paaberopelse, foresporsel }, regler);
 }
 
-/** Utregningen i sporet. Et spor uten innslag kaster, som en gren som mangler (`utenGren`). */
-const utregningI = (spor: Spor): Svarsutregning =>
-  Object.hasOwn(UTREGNING, spor) ? UTREGNING[spor] : utenGren(spor as never);
+/** Utregningen i sporet (`iSporet`). */
+const utregningI = (spor: Spor): Svarsutregning => iSporet(UTREGNING, spor);
 
 /** Utregningen i hvert spor. Forholdet og fristen står her til de flyttes til sporene (#1783, #1745). */
 const UTREGNING: Record<Spor, Svarsutregning> = {

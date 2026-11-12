@@ -19,7 +19,7 @@ import {
   type Standpunktstekster,
   type Tekst,
 } from '../../frosset/brevdeler.ts';
-import { laget, type Svarinnhold } from '../../frosset/byggeklosser.ts';
+import { laget, virkningen, type Svarinnhold } from '../../frosset/byggeklosser.ts';
 import type { Linjeledd, Sporslinje } from '../../frosset/linje.ts';
 import { kroner, SENT_I_LINJEN } from '../../frosset/tekst.ts';
 import { begrensningen } from './frysing.ts';
@@ -269,7 +269,7 @@ function leddIVederlaget(
   forKravposten: ReadonlySet<string>
 ): Linjeledd[] {
   const sine: Linjeledd[] = [];
-  const virkning = (id: string) => v.find((p) => p.standpunkt === id)!.virkning;
+  const virkning = (id: string) => virkningen(v, id);
   const begrenset = begrensningen(svar, v);
   // OV-U26: hver post for seg når kravet har posten etter § 34.1.3 annet ledd, med
   // begrensningen som eget ledd foran posten.

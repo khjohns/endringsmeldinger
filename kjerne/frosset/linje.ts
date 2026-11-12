@@ -2,7 +2,14 @@
  * Linjen for byggherrens standpunkt i beslutningsgrunnlaget (MM-U9), med leddene i sporet.
  */
 
-import { etikett, laget, standpunktet, type Svarinnhold } from './byggeklosser.ts';
+import {
+  etikett,
+  iSporet,
+  laget,
+  standpunktet,
+  virkningen,
+  type Svarinnhold,
+} from './byggeklosser.ts';
 import { kategori } from '../format/kravinnhold.ts';
 import { LINJEN_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
 import { iLagene, SENT_I_LINJEN, SVARET_PAA_PAABEROPELSEN } from './tekst.ts';
@@ -13,7 +20,6 @@ import {
   type Spor,
   type Standpunktsvirkning,
   type Virkning,
-  utenGren,
 } from '../typer.ts';
 
 /**
@@ -35,7 +41,7 @@ export function beslutningslinje(
   // prinsipale, så de er ett ledd med den prinsipale grunnen (vedtaket 05.10).
   // Et upåvirket standpunkt eller et uten virkning er ingen grunn (OV-U32, HF-U2).
   // Et standpunkt om rettidighet som er et eget ledd i sporet, er ingen grunn (VS-U5).
-  const egetLedd = linjeI(svar.spor).egetLedd(svar, v);
+  const egetLedd = iSporet(LINJE, svar.spor).egetLedd(svar, v);
   // KA-U64, VS-U56: varselet etter § 34.3.3 eller § 34.4 for en kravpost står ved posten, ikke
   // som grunn. Etter § 34.4 har det ingen virkning og står ikke i linjen.
   const forKravposten = new Set(
@@ -72,7 +78,7 @@ export function beslutningslinje(
       laget(p.virkning) &&
       (p.art !== 'rettidighet' || p.standpunkt === prekluderende[0])
   );
-  const sine = linjeI(svar.spor).ledd(svar, v, kravet, forKravposten);
+  const sine = iSporet(LINJE, svar.spor).ledd(svar, v, kravet, forKravposten);
   // OV-U32, OV-U33: etiketten følger det fryste laget, én gang for hvert lag og bare når svaret
   // har mer enn ett lag. Et upåvirket standpunkt står uten etikett. Som i brevteksten.
   const plass = ({ virkning }: { virkning: Virkning }) => {
@@ -95,21 +101,13 @@ export function beslutningslinje(
   return `Byggherrens standpunkt: ${ledd.map(etikettert).join(', ')}.`;
 }
 
-/** Virkningen av standpunktet `id` i svaret. */
-const virkningAv = (v: Standpunktsvirkning[], id: string) =>
-  v.find((p) => p.standpunkt === id)!.virkning;
-
-/** Leddene i sporet. Et spor uten innslag kaster, som en gren som mangler (`utenGren`). */
-const linjeI = (spor: Spor): Sporslinje =>
-  Object.hasOwn(LINJE, spor) ? LINJE[spor] : utenGren(spor as never);
-
 /** Leddene i hvert spor. Forholdet og fristen står her til de flyttes til sporene (#1783, #1745). */
 const LINJE: Record<Spor, Sporslinje> = {
   forhold: {
     egetLedd: () => undefined,
     ledd: (svar, v) => {
       const g = standpunktet(svar, 'forhold')!;
-      return [{ tekst: SVARET_PAA_PAABEROPELSEN[g.resultat], virkning: virkningAv(v, g.id) }];
+      return [{ tekst: SVARET_PAA_PAABEROPELSEN[g.resultat], virkning: virkningen(v, g.id) }];
     },
   },
   vederlag: LINJEN_I_VEDERLAGET,
@@ -120,7 +118,7 @@ const LINJE: Record<Spor, Sporslinje> = {
       return [
         {
           tekst: d.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`,
-          virkning: virkningAv(v, d.id),
+          virkning: virkningen(v, d.id),
         },
       ];
     },

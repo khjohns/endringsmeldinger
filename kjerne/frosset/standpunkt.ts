@@ -21,6 +21,7 @@ import {
   standpunktet,
   type Svarinnhold,
   type Svarsfrysing,
+  iSporet,
 } from './byggeklosser.ts';
 import { FRYSING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
 import { erRegistrert } from '../format/leser.ts';
@@ -314,9 +315,8 @@ function fristenGodkjent(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
   return utregningIFristen(svar.utregning).resultat === 'godkjent';
 }
 
-/** Frysingen i sporet. Et spor uten innslag kaster, som en gren som mangler (`utenGren`). */
-const frysingI = (spor: Spor): Svarsfrysing =>
-  Object.hasOwn(FRYSING, spor) ? FRYSING[spor] : utenGren(spor as never);
+/** Frysingen i sporet (`iSporet`). */
+const frysingI = (spor: Spor): Svarsfrysing => iSporet(FRYSING, spor);
 
 /** Frysingen i hvert spor. Forholdet og fristen står her til de flyttes til sporene (#1783, #1745). */
 const FRYSING: Record<Spor, Svarsfrysing> = {
