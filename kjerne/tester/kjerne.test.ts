@@ -13,9 +13,9 @@ import { KJERNE } from '../versjon.ts';
 import { ELDRE_SVAR } from '../kommandoer/forutsetninger.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { formfeil } from '../kommandoer/kommando.ts';
-import { lesJournal, standpunkterISvaret, Uforstaatt } from '../format/leser.ts';
+import { lesJournal, standpunkterISvaret } from '../format/leser.ts';
 import { BESLUTNINGSGRUNNLAG } from '../format/format.ts';
-import { feilI } from '../format/skjema.ts';
+import { feilI, Uforstaatt } from '../format/skjema.ts';
 import {
   kanInngaaIEo,
   kraveneErAvgjort,
@@ -32,7 +32,7 @@ import {
   type Vederlagsberegning,
   type Vederlagssvar,
 } from '../regler/vederlag.ts';
-import { kravposterI } from '../format/kravinnhold.ts';
+import { kravposterI } from '../spor/vederlag/format.ts';
 import { sammenfallStemmer, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';

@@ -13,7 +13,7 @@ import type { Handling } from '$kjerne/tester/klient';
 import { kroner } from '$kjerne/frosset/tekst';
 import { brevene, kravposterUtenFastBeloep, standpunktene } from '$lib/components/varden/lesing';
 import { leselinjene, STILLING } from '$lib/components/varden/tekster';
-import { kravposterI } from '$kjerne/format/kravinnhold';
+import { kravposterI } from '$kjerne/spor/vederlag/format';
 
 async function utledning(steg: Handling[]) {
   const forloep: Forloep = { id: 'lagene', rader: [], start: null, steg, kontroller: [] };

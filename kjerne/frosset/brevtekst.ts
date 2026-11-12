@@ -32,16 +32,15 @@ import {
   innsigelsenPaaberoper,
   svarPaaForesporsler,
 } from './standpunkt.ts';
+import { innholdIForholdet, innholdIFristen } from '../format/kravinnhold.ts';
 import {
   harProduktivitetspost,
-  innholdIForholdet,
-  innholdIFristen,
   innholdIVederlaget,
   krevdIKravposten,
   krevdProduktivitet,
   krevdRigg,
   kravposterI,
-} from '../format/kravinnhold.ts';
+} from '../spor/vederlag/format.ts';
 import { dager, iLagene, kroner } from './tekst.ts';
 import { erKravpostvarselhjemmel, utenGren } from '../typer.ts';
 import type {

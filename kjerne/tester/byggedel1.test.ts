@@ -8,9 +8,9 @@
 
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { KRAVINNHOLD, objekt, UTREGNING } from '../format/format.ts';
+import { KRAVINNHOLD, UTREGNING } from '../format/format.ts';
 import { lesJournal } from '../format/leser.ts';
-import { feilI } from '../format/skjema.ts';
+import { feilI, objekt } from '../format/skjema.ts';
 import { forhaandsvis, laastTekst, vurder } from '../kommandoer/skriving.ts';
 import { mellomlager } from './klient.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';

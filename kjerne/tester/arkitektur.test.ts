@@ -235,14 +235,14 @@ describe('regelsettet når ikke frysingen eller teksten', () => {
   });
 
   it('oppdager teksten i et spor gjennom en annen modul', () => {
-    const regel = join(KJERNE, 'regler', 'svarkontroll.ts');
-    const format = join(KJERNE, 'format', 'format.ts');
+    const regel = join(KJERNE, 'regler', 'vederlag.ts');
+    const format = join(KJERNE, 'spor', 'vederlag', 'format.ts');
     const filer = new Map([
-      [utenEndelse(regel), "import { METODER } from '../format/format.ts';"],
-      [utenEndelse(format), "export { METODEN as METODER } from '../spor/vederlag/tekst.ts';"],
+      [utenEndelse(regel), "import { METODER } from '../spor/vederlag/format.ts';"],
+      [utenEndelse(format), "export { METODEN as METODER } from './tekst.ts';"],
     ]);
     expect(forbudteStier(regel, filer, FROSSET)).toEqual([
-      'kjerne/regler/svarkontroll → kjerne/format/format → kjerne/spor/vederlag/tekst',
+      'kjerne/regler/vederlag → kjerne/spor/vederlag/format → kjerne/spor/vederlag/tekst',
     ]);
   });
 });
@@ -412,16 +412,21 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Vederlagsinnhold',
     'utsagn',
     'kravposter',
-    ['format/kravinnhold.ts:innholdIVederlaget', 'format/kravinnhold.ts:kravposterI'],
+    ['spor/vederlag/format.ts:innholdIVederlaget', 'spor/vederlag/format.ts:kravposterI'],
   ],
   [
     'Vederlagsinnhold',
     'utsagn',
     'trekker',
-    ['format/kravinnhold.ts:innholdIVederlaget', 'frosset/brevtekst.ts'],
+    ['spor/vederlag/format.ts:innholdIVederlaget', 'frosset/brevtekst.ts'],
   ],
   ['Kravpost', 'relasjon', 'id betegnelse'],
-  ['Kravpost', 'utsagn', 'oppgjoersform beloep', ['format/kravinnhold.ts', 'frosset/brevtekst.ts']],
+  [
+    'Kravpost',
+    'utsagn',
+    'oppgjoersform beloep',
+    ['spor/vederlag/format.ts', 'frosset/brevtekst.ts'],
+  ],
   // VS-U49, D-16, VS-U55: om kravet er varselet for posten, eller et varsel før kravet gjelder den.
   ['Kravpost', 'utsagn', 'oppgjoersform justert', ['utledning/kravposter.ts:varselhjemmel']],
   // VS-U50, VS-U54: varselet kravposten viser til, en relasjon til et varsel i saken.
@@ -458,21 +463,21 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Vederlagsinnhold.saerskilt',
     'utsagn',
     'rigg_og_drift rigg_og_drift.beloep',
-    ['format/kravinnhold.ts:krevdRigg'],
+    ['spor/vederlag/format.ts:krevdRigg'],
   ],
   // OV-U23: posten etter § 34.1.3 annet ledd i vederlagskravet.
-  ['Vederlagsinnhold', 'utsagn', 'saerskilt', ['format/kravinnhold.ts']],
+  ['Vederlagsinnhold', 'utsagn', 'saerskilt', ['spor/vederlag/format.ts']],
   [
     'Vederlagsinnhold.saerskilt',
     'utsagn',
     'produktivitet',
-    ['format/kravinnhold.ts:harProduktivitetspost', 'format/kravinnhold.ts:krevdProduktivitet'],
+    ['spor/vederlag/format.ts:harProduktivitetspost', 'spor/vederlag/format.ts:krevdProduktivitet'],
   ],
   [
     'Vederlagsinnhold.saerskilt',
     'utsagn',
     'produktivitet.beloep',
-    ['format/kravinnhold.ts:krevdProduktivitet'],
+    ['spor/vederlag/format.ts:krevdProduktivitet'],
   ],
   ['Svar', 'relasjon', 'id spor gjelder erstatter dokument paaberopelse'],
   ['Svar', 'utsagn', 'standpunkter'],
@@ -659,7 +664,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
   // og utledningen, som prøver postene i svaret mot dem (OV-U23).
   [
-    'format/kravinnhold.ts',
+    'spor/vederlag/format.ts',
     'utsagn',
     'kravposterI',
     [
@@ -683,7 +688,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // KA-U57 (d), KA-U54: hjemmelen i standpunktet til oppgjørsformen etter TEs oppgjørsform.
   [
-    'format/format.ts',
+    'spor/vederlag/format.ts',
     'skjema',
     'OPPGJOERSHJEMMEL',
     ['kommandoer/standpunkter.ts', 'utledning/utled.ts'],
@@ -694,19 +699,19 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'tilbud enhetspriser regningsarbeid',
     ['kommandoer/standpunkter.ts', 'utledning/utled.ts'],
   ],
-  ['OPPGJOERSFORM_I_HJEMMELEN', 'skjema', '34.2.2 34.3 34.4', ['format/leser.ts']],
+  ['OPPGJOERSFORM_I_HJEMMELEN', 'skjema', '34.2.2 34.3 34.4', ['spor/vederlag/format.ts']],
   // Kravposten standpunktene gjelder (KA-U57 (c) og (d)).
   ['frosset/standpunkt.ts:beregningsregelLag', 'relasjon', 'gjelder'],
   ['kommandoer/lag.ts:innenforKravposten', 'relasjon', 'gjelder'],
   // KA-U59: til svaret per kravpost er bygget, avvises et svar på et krav med rigg og drift (#1663).
   [
-    'format/kravinnhold.ts',
+    'spor/vederlag/format.ts',
     'regelsett',
     'krevdRigg',
     ['frosset/brevtekst.ts', 'kommandoer/forutsetninger.ts:hindrerSvarPaaKravet'],
   ],
   [
-    'format/kravinnhold.ts',
+    'spor/vederlag/format.ts',
     'regelsett',
     'krevdIKravposten',
     // KA-U72: en kravpost der tilbudet ikke er akseptert, regnes ikke med i beløpet.
@@ -714,7 +719,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
   ['frosset/utregning.ts', 'regelsett', 'vederlagsposter', ['kommandoer/standpunkter.ts']],
-  ['format/kravinnhold.ts', 'regelsett', 'krevdSamlet', ['kommandoer/nyttelast.ts']],
+  ['spor/vederlag/format.ts', 'regelsett', 'krevdSamlet', ['kommandoer/nyttelast.ts']],
   ['frosset/utregning.ts:vederlagsposter', 'regelsett', 'godkjent gjelder saerskilt svar'],
   // KA-U57 (c) og (d), KA-U59: svaret på hver kravpost i kommandoen, lest ett sted.
   [
@@ -757,7 +762,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // OV-U23, OV-U24: posten etter § 34.1.3 leses ett sted, av brevet og første kjente varsel.
   [
-    'format/kravinnhold.ts',
+    'spor/vederlag/format.ts',
     'regelsett',
     'krevdProduktivitet harProduktivitetspost',
     ['frosset/brevtekst.ts', 'utledning/utled.ts', 'frosset/utregning.ts'],
@@ -766,7 +771,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Bygde', 'regelsett', 'standpunkter utregning', ['kommandoer/skriving.ts:svar']],
   ['format/kravinnhold.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   // OV-U23, OV-U95 punkt 19: kravet har kravposter i vederlagsjusteringen.
-  ['format/kravinnhold.ts', 'regelsett', 'kravposterI', ['frosset/utregning.ts']],
+  ['spor/vederlag/format.ts', 'regelsett', 'kravposterI', ['frosset/utregning.ts']],
   [
     'Svarvurdering',
     'utsagn',
@@ -783,17 +788,23 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'regler/svarkontroll.ts',
     'regelsett',
-    'kontrollerForholdet kontrollerVarseletForVederlag kontrollerOppgjoersformen kontrollerSpesifiseringen',
+    'kontrollerForholdet kontrollerSpesifiseringen',
+    ['frosset/utregning.ts'],
+  ],
+  [
+    'regler/vederlag.ts',
+    'regelsett',
+    'kontrollerVarseletForVederlag kontrollerOppgjoersformen',
     ['frosset/utregning.ts'],
   ],
   ['regler/svarkontroll.ts:kontrollerForholdet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
-  ['regler/svarkontroll.ts:kontrollerVarseletForVederlag', 'utsagn', 'hovedkrav_varslet_i_tide'],
+  ['regler/vederlag.ts:kontrollerVarseletForVederlag', 'utsagn', 'hovedkrav_varslet_i_tide'],
   [
-    'regler/svarkontroll.ts:kontrollerOppgjoersformen',
+    'regler/vederlag.ts:kontrollerOppgjoersformen',
     'utsagn',
     'aksepterer oensket_oppgjoersform krever_tilbud varslet_i_tide godtar_justering',
   ],
-  ['regler/svarkontroll.ts:kontrollerOppgjoersformen', 'utsagn', 'oppgjoersform justert'],
+  ['regler/vederlag.ts:kontrollerOppgjoersformen', 'utsagn', 'oppgjoersform justert'],
   [
     'regler/svarkontroll.ts:kontrollerSpesifiseringen',
     'utsagn',
@@ -815,7 +826,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regler/beloep.ts',
     'regelsett',
     'UgyldigBeloep',
-    ['kommandoer/nyttelast.ts', 'format/kravinnhold.ts', 'regler/vederlag.ts'],
+    ['kommandoer/nyttelast.ts', 'spor/vederlag/format.ts', 'regler/vederlag.ts'],
   ],
   // OV-U58: brøkdeler av øre avvises og rundes ikke av.
   [
@@ -1063,7 +1074,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   [
-    'format/kravinnhold.ts',
+    'spor/vederlag/format.ts',
     'utsagn',
     'innholdIVederlaget',
     ['frosset/brevtekst.ts', 'utledning/utled.ts:kravetStrider'],
@@ -1095,7 +1106,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Avsnitt', 'brevtekst', 'laast', ['kommandoer/skriving.ts:skriv']],
   // Opprettelsen av saken (#664): kommandoen og raden `sak_opprettet` den gir.
   ['Opprettelse', 'kommando', 'sakstittel', ['kommandoer/opprettelse.ts:opprettelse']],
-  ['format/format.ts', 'skjema', 'objekt TEKST', ['kommandoer/opprettelse.ts']],
+  ['format/skjema.ts', 'skjema', 'objekt TEKST', ['kommandoer/opprettelse.ts']],
   ['format/format.ts', 'rad', 'FORMAT SAK_OPPRETTET', ['kommandoer/opprettelse.ts:opprettelse']],
   ['format/skjema.ts.TYPER', 'skjema', '*'],
   [
@@ -1125,7 +1136,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // LV-U53: henvisningen til et tidligere brev bruker merkingen som er frosset på det.
   ['Dokument', 'brevtekst', 'merking', ['frosset/brevtekst.ts']],
   // LV-U42, D1 A i #1497: typen registrert korrespondanse, i skjemaene.
-  ['typer.ts', 'skjema', 'KORRESPONDANSETYPER', ['format/format.ts', 'kommandoer/kommando.ts']],
+  [
+    'typer.ts',
+    'skjema',
+    'KORRESPONDANSETYPER',
+    ['format/format.ts', 'kommandoer/kommando.ts', 'spor/vederlag/format.ts'],
+  ],
   ['Kjerne', 'kontekst', 'regler format leserformat'],
 
   // Formatet (format.ts): skjemaene radene leses og kommandoene kontrolleres mot.
@@ -1150,12 +1166,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['format/format.ts', 'kontekst', 'FORMAT LESERFORMAT', ['versjon.ts']],
   // Arbeidsvalget i #479: metodene byggherren kan oppgi etter § 34.2.2.
-  ['format/format.ts', 'skjema', 'METODER', ['regler/svarkontroll.ts:kontrollerOppgjoersformen']],
   [
-    'format/format.ts',
+    'spor/vederlag/format.ts',
     'skjema',
-    'DATO ID KRAVINNHOLD liste objekt OPPLYSNINGSSLAG TEKST',
-    ['kommandoer/kommando.ts'],
+    'METODER',
+    ['regler/vederlag.ts:kontrollerOppgjoersformen'],
+  ],
+  ['format/format.ts', 'skjema', 'KRAVINNHOLD OPPLYSNINGSSLAG', ['kommandoer/kommando.ts']],
+  [
+    'format/skjema.ts',
+    'skjema',
+    'DATO ID liste objekt TEKST',
+    ['format/format.ts', 'kommandoer/kommando.ts', 'spor/vederlag/format.ts'],
   ],
   // VS-U26: datoen TE oppgir i påberopelsen. Bare formkontrollen, kontrollen mot
   // brevets dato og brevteksten leser den, så ingen regel vurderer rettidigheten av den.
@@ -1238,7 +1260,20 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['kommandoer/kommando.ts:oerefeil', 'kommando', 'beloep', ['kommandoer/kommando.ts:oerefeil']],
   // OV-U95 punkt 19–22, arbeidsvalget 07.11 i domenetabellen: skjemaet for vederlagskravet i kommandoen.
-  ['format/format.ts', 'skjema', 'vederlagsinnhold', ['kommandoer/kommando.ts:formfeil']],
+  [
+    'spor/vederlag/format.ts',
+    'skjema',
+    'vederlagsinnhold',
+    ['kommandoer/kommando.ts:formfeil', 'format/format.ts'],
+  ],
+  // #1783: formatet for vederlaget i sporet.
+  [
+    'spor/vederlag/format.ts',
+    'skjema',
+    'STANDPUNKTER_I_VEDERLAGET STANDPUNKT_I_VEDERLAGET UTREGNING_I_VEDERLAGET',
+    ['format/format.ts'],
+  ],
+  ['format/skjema.ts', 'skjema', 'artfelt', ['format/format.ts', 'spor/vederlag/format.ts']],
   // KA-U53, KA-U56, KA-U75: kravpostene en ny versjon får id og betegnelse for, og
   // versjonsreglene kommandoen og lesingen av journalen bruker.
   [
@@ -1345,12 +1380,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'hovedkategori underkategori',
     ['format/koder.ts'],
   ],
-  [
-    'regler/typer.ts',
-    'regelsett',
-    'FRISTRESULTATER FORHOLDSRESULTATER VEDERLAGSRESULTATER SAERSKILTE',
-    ['format/format.ts'],
-  ],
+  ['regler/typer.ts', 'regelsett', 'FRISTRESULTATER FORHOLDSRESULTATER', ['format/format.ts']],
+  ['regler/typer.ts', 'regelsett', 'VEDERLAGSRESULTATER SAERSKILTE', ['spor/vederlag/format.ts']],
 
   // Journalraden i format 1 (leser.ts, skriving.ts). `data` er uten type, så feltene har
   // funksjonen og parameteren som eier.
@@ -1387,9 +1418,24 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:standpunkterISvaret(e)',
     'rad',
-    'id art gjelder hjemmel i_tide resultat oppfylt aksepterer oensket_oppgjoersform dager beloep begrenset_beloep saerskilt krever_tilbud godtar',
+    'id art gjelder hjemmel i_tide resultat oppfylt dager begrenset_beloep',
     ['format/leser.ts'],
   ],
+  [
+    'spor/vederlag/format.ts:standpunktIVederlaget(e)',
+    'rad',
+    'id art gjelder hjemmel aksepterer oensket_oppgjoersform beloep saerskilt krever_tilbud godtar',
+    ['spor/vederlag/format.ts'],
+  ],
+  // #1783: det som er sporets eget i lesingen av svaret.
+  [
+    'Svarlesing',
+    'skjema',
+    `gjentas rettidighet subsidiaertVerdi standpunkt kontrollerStandpunktene kontrollerUtregningen
+     innsigelserMotPosten`,
+    ['format/leser.ts'],
+  ],
+  ['spor/vederlag/format.ts', 'rad', 'LESING_I_VEDERLAGET', ['format/leser.ts']],
   // OV-U31, KA-U57 (e): radene i utregningen per post og lag, mot standpunktene og totalene.
   // Resultatet og dagene i standpunktet leses av utregningen (4.3 i designnotatet, #331 punkt 4).
   // Utregningen leses med typen for sporet (#1777).
@@ -1402,14 +1448,20 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/svarinnhold.ts',
     'rad',
-    'utregningIVederlaget utregningIFristen',
+    'utregningIFristen',
     ['format/leser.ts', 'frosset/standpunkt.ts:godkjennerHeleKravet'],
+  ],
+  [
+    'spor/vederlag/format.ts',
+    'rad',
+    'utregningIVederlaget',
+    ['frosset/standpunkt.ts:godkjennerHeleKravet'],
   ],
   [
     'Vederlagsutregning',
     'rad',
     'resultat subsidiaert_resultat godkjent_beloep subsidiaert_godkjent_beloep poster',
-    ['format/leser.ts'],
+    ['spor/vederlag/format.ts'],
   ],
   [
     'Fristutregning',
@@ -1417,8 +1469,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'resultat godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
     ['format/leser.ts'],
   ],
-  ['Utregningsrad', 'rad', 'gjelder saerskilt lag', ['format/leser.ts']],
-  ['Utregningslag', 'rad', 'lag beloep', ['format/leser.ts']],
+  ['Utregningsrad', 'rad', 'gjelder saerskilt lag', ['spor/vederlag/format.ts']],
+  ['Utregningslag', 'rad', 'lag beloep', ['spor/vederlag/format.ts']],
   [
     'format/leser.ts:lesBeslutningsgrunnlag(v)',
     'rad',
@@ -1460,7 +1512,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'standpunkterISvaret',
     ['frosset/frysing.ts', 'kommandoer/skriving.ts', 'kommandoer/lag.ts'],
   ],
-  ['format/leser.ts', 'rad', 'Uforstaatt', ['kommandoer/skriving.ts', 'frosset/frysing.ts']],
+  [
+    'format/skjema.ts',
+    'rad',
+    'Uforstaatt',
+    ['format/leser.ts', 'kommandoer/skriving.ts', 'frosset/frysing.ts', 'spor/vederlag/format.ts'],
+  ],
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
   // av samme slag (MM-U1, MM-U7).
   ['format/leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],

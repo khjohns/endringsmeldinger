@@ -5,7 +5,8 @@
  * (GFK-U8), i `server/godkjenning.ts`.
  */
 import { regnUtSvar } from '../kjerne/frosset/utregning.ts';
-import { innholdIFristen, krevdSamlet } from '../kjerne/format/kravinnhold.ts';
+import { innholdIFristen } from '../kjerne/format/kravinnhold.ts';
+import { krevdSamlet } from '../kjerne/spor/vederlag/format.ts';
 import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import type { Regelsett } from '../kjerne/regler/regelsett.ts';

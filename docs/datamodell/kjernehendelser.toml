@@ -2,7 +2,7 @@
 #
 # Rett her, ikke i kjernehendelser.md. Den lages av
 #   /tmp/venv/bin/python docs/verktoy/datamodell.py
-# Formen er skjemaene i kjerne/format/format.ts. Vakttesten
+# Formen er skjemaene i kjerne/format/format.ts og kjerne/spor/<spor>/format.ts. Vakttesten
 # kjerne/tester/register.test.ts feiler når en type, et spor, en art eller et
 # felt står ett sted og ikke det andre. verktoy/tester/test_datamodell/ prøver
 # formen på registeret og at markdown er generert.

@@ -28,7 +28,8 @@ Regelsettet står i `kjerne/regler/`; endres det, økes `REGELVERSJON` der. Endr
   verdien den trenger, som kategoriene som tekst, og ikke `Krav`
   (`regler/svarkontroll.ts`).
 - **Kravinnholdet leses gjennom `format/kravinnhold.ts`, og utregningen i svaret gjennom
-  `format/svarinnhold.ts`**, med typen for sporet. En ny lesing av `Krav.innhold` eller
+  `format/svarinnhold.ts`**, med typen for sporet. For et spor med en egen formatfil står
+  tilgangen der (`spor/vederlag/format.ts`). En ny lesing av `Krav.innhold` eller
   `Svar.utregning` legges der, ikke som en ny typekonvertering hos kalleren. Det gjelder også
   serveren og visningen.
 - **Teksten står i tekstlaget**: brevteksten i `frosset/brevtekst.ts` og ordene den deler

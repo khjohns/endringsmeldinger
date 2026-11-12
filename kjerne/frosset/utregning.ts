@@ -11,23 +11,15 @@ import type { Beloepsvurdering } from '../regler/typer.ts';
 import {
   beregnGodkjentBeloep,
   beregnVederlag,
+  kontrollerOppgjoersformen,
+  kontrollerVarseletForVederlag,
   type Vederlagsberegning,
   type Postsvar,
   type Vederlagssvar,
 } from '../regler/vederlag.ts';
-import {
-  kontrollerForholdet,
-  kontrollerOppgjoersformen,
-  kontrollerSpesifiseringen,
-  kontrollerVarseletForVederlag,
-} from '../regler/svarkontroll.ts';
-import {
-  innholdIFristen,
-  kategori,
-  krevdIKravposten,
-  krevdProduktivitet,
-  kravposterI,
-} from '../format/kravinnhold.ts';
+import { kontrollerForholdet, kontrollerSpesifiseringen } from '../regler/svarkontroll.ts';
+import { innholdIFristen, kategori } from '../format/kravinnhold.ts';
+import { krevdIKravposten, krevdProduktivitet, kravposterI } from '../spor/vederlag/format.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
 import { type Krav, type Kravpost, type Spor, utenGren } from '../typer.ts';
 

@@ -7,19 +7,19 @@
  * skrives.
  */
 
+import { DATOEN_GJELDER, KRAVINNHOLD, oppgittDato, OPPLYSNINGSSLAG } from '../format/format.ts';
+import { vederlagsinnhold } from '../spor/vederlag/format.ts';
 import {
   DATO,
-  DATOEN_GJELDER,
+  erKalenderdato,
+  erObjekt,
+  feilI,
   ID,
-  KRAVINNHOLD,
-  vederlagsinnhold,
   liste,
   objekt,
-  oppgittDato,
-  OPPLYSNINGSSLAG,
   TEKST,
-} from '../format/format.ts';
-import { erKalenderdato, erObjekt, feilI, type Skjema } from '../format/skjema.ts';
+  type Skjema,
+} from '../format/skjema.ts';
 import { BroekdelAvOere, heleOere } from '../regler/beloep.ts';
 import type { Svarvurdering } from '../frosset/utregning.ts';
 import {

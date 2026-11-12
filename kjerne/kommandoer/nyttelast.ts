@@ -24,12 +24,8 @@ import {
   SAMMENLIKNES,
   utenforOmfanget,
 } from '../frosset/utregning.ts';
-import {
-  innholdIForholdet,
-  kategori,
-  krevdIKravposten,
-  krevdSamlet,
-} from '../format/kravinnhold.ts';
+import { innholdIForholdet, kategori } from '../format/kravinnhold.ts';
+import { krevdIKravposten, krevdSamlet } from '../spor/vederlag/format.ts';
 import {
   datoenDetBleSendt,
   foresporselForFristsvar,

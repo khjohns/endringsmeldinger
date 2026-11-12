@@ -513,7 +513,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F37',
     feilklasse: 'leseren godtar et ukjent felt i `data` (4.4, MM-U2)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/format/skjema.ts`,
     endringer: [['  additionalProperties: false,', '  additionalProperties: true,']],
     mal: ['et ukjent felt i et svar', 'en aksept med et ukjent felt'],
   },
@@ -1510,14 +1510,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F181',
     feilklasse: 'vurderingen etter § 34.1.2 godtas for en endring, der bestemmelsen ikke gjelder',
-    fil: `${K}/regler/svarkontroll.ts`,
+    fil: `${K}/regler/vederlag.ts`,
     endringer: [['v.hovedkrav_varslet_i_tide != null &&', 'false &&']],
     mal: ['F-MM-V-34-1-2-endring'],
   },
   {
     id: 'F182',
     feilklasse: 'beløpsstandpunktet leses som det prinsipale beløpet, ikke det vurderte (B-13)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
         'const total = utregning.subsidiaert_godkjent_beloep ?? utregning.godkjent_beloep;',
@@ -1586,7 +1586,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F188',
     feilklasse: 'byggherren kan avslå tilbudet etter § 34.2.2 uten å oppgi metoden',
-    fil: `${K}/regler/svarkontroll.ts`,
+    fil: `${K}/regler/vederlag.ts`,
     endringer: [
       [
         '  else if (p.aksepterer === false && p.oensket_oppgjoersform == null && !kreverTilbud)',
@@ -1684,10 +1684,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F198',
     feilklasse: 'en lagret avslått metode uten byggherrens metode forstås',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
-        "(e.aksepterer && 'oensket_oppgjoersform' in e) ||\n          (!e.aksepterer && !kreverTilbud && !('oensket_oppgjoersform' in e))",
+        "(e.aksepterer && 'oensket_oppgjoersform' in e) ||\n        (!e.aksepterer && !kreverTilbud && !('oensket_oppgjoersform' in e))",
         'false',
       ],
     ],
@@ -3096,7 +3096,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F374',
     feilklasse:
       'vederlagskravet krever kravposter, også med posten etter § 34.1.3 (OV-U89 punkt 6)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
         "    anyOf: [{ required: ['kravposter'] }, { required: ['saerskilt'] }],\n",
@@ -3108,7 +3108,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F375',
     feilklasse: 'kravet uten kravposter og uten postene utenfor godtas (OV-U89 punkt 6)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
         "    anyOf: [{ required: ['kravposter'] }, { required: ['saerskilt'] }],\n",
@@ -3305,7 +3305,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F397',
     feilklasse:
       'leseren godtar poster som ikke summerer til det subsidiære beløpet (OV-U31, MM-U2)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [['if (samlet !== beloep(total))', 'if (samlet < 0n)']],
     mal: ['poster som ikke summerer til det subsidiære beløpet, er ikke forstått'],
   },
@@ -3351,7 +3351,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F402',
     feilklasse:
       'leseren godtar et beløp etter begrensningen over det byggherren godtar for posten (valg 2 i #1047, MM-U2)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [['beloep(begrenset.begrenset)! > beloep(post.godkjent)!', 'false']],
     mal: ['et beløp etter begrensningen over det byggherren godtar for posten, er ikke forstått'],
   },
@@ -4230,7 +4230,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F505',
     feilklasse:
       'svaret godtar beregningsregelen og krever samtidig tilbud for kravposten (KA-U71, #1663)',
-    fil: `${K}/regler/svarkontroll.ts`,
+    fil: `${K}/regler/vederlag.ts`,
     endringer: [['  else if (kreverTilbud && p.aksepterer !== false)', '  else if (false)']],
     mal: ['kravet om tilbud kan ikke stå sammen med en godtatt beregningsregel'],
   },
@@ -4351,7 +4351,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F497',
     feilklasse:
       'leseren godtar en utregning der det prinsipale beløpet ikke er summen av det første laget (OV-U31)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [['if (summen(0) !== beloep(', 'if (false && summen(0) !== beloep(']],
     mal: ['totalen er ikke summen av det første laget'],
   },
@@ -4359,7 +4359,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F498',
     feilklasse:
       'leseren godtar et lag uten beløp for en kravpost der tilbudet er akseptert (KA-U72)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [["if (r.lag.some((l) => !('beloep' in l)))", 'if (false)']],
     mal: ['et lag mangler beløpet når tilbudet er akseptert'],
   },
@@ -4387,7 +4387,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F512',
     feilklasse:
       'leseren godtar standpunktet til beløpet med beløp når tilbudet ikke er akseptert, og uten beløp når det er akseptert (KA-U72)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [['(s.godkjent === undefined) !== utenBeloep.has(s.gjelder!))', 'false)']],
     mal: [
       'en rad med standpunktet til beløpet uten beløp for en kravpost der tilbudet er akseptert, avvises',
@@ -4415,7 +4415,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F515',
     feilklasse:
       'leseren godtar et beløp i et lag før det siste for en kravpost der tilbudet ikke er akseptert (KA-U72, MM-U2)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
         "n < prekludert ? beloep(l.beloep) !== 0n : 'beloep' in l",
@@ -4428,7 +4428,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F516',
     feilklasse:
       'leseren godtar 0 kr i et lag uten preklusjon etter § 34.1.2 for en kravpost der tilbudet ikke er akseptert (KA-U72, OV-U27)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
         "n < prekludert ? beloep(l.beloep) !== 0n : 'beloep' in l",
@@ -4591,7 +4591,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F531',
     feilklasse:
       'leseren regner ikke et tilbud byggherren ikke aksepterer, som en påberopelse ved siden av en upåvirket kravpost (#1760, OV-U33)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
         "(s.art === 'oppgjoersform' && !s.aksepterer ? [s.id] : [])",
@@ -4733,7 +4733,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F546',
     feilklasse:
       'leseren godtar en utregning med flere lag enn beslutningsgrunnlaget (OV-U32, MM-U2, #1774)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [['if (rader.length > 0 && antall !== lagIGrunnlaget)', 'if (false)']],
     mal: ['utregningen har to lag, men beslutningsgrunnlaget ett'],
   },
@@ -4741,7 +4741,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F547',
     feilklasse:
       'formatet forstår rigg og drift i et lagret vederlagskrav før posten er bygget (MM-U2, #1775)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
         "saerskilt: objekt({ produktivitet: BELOEPSPOST }, ['produktivitet']),",
