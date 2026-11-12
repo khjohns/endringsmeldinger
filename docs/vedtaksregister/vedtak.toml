@@ -3612,7 +3612,7 @@ valgt = "A"
 svar = '''
 Oppdragsgiver 10.11, videresendt ordrett av orkestratoren: «1D, 2A, 3A, 4B, 5A», med begrunnelsen oppdragsgiver la ved og skrev «Jeg støtter meg til dette:» om. For spørsmål 5 skriver begrunnelsen: «Her ville jeg gått mot anbefalingen, av tre grunner:», og: «Velger du A, endrer jeg v4 så kravpostene i «Varsel mellom to krav» vises uten «Endre», med en lenke til nytt svar på kravet.» Begrunnelsen står ordrett i [spørsmålsfila](../vedlegg/varselsvar-2026-11-10/sporsmal.md).'''
 forhold = [
-  { art = "bygger på", vedtak = "hf-u25" },
+  { art = "bygger på", vedtak = "hf-u29" },
 ]
 folge = '''
 Følger HF-U25, slik alternativet sier. Kravpostene uten «Endre» i svaret på et varsel lagt til mellom to krav er design og føres i BF-14. Avgjør S-18 i BF-14. Berører BF-14 (F-8).'''
@@ -3937,6 +3937,101 @@ lenger. Hvorfor: punkt 5 navngir ikke setningene. Den første er unntaket fra se
 5 strøk, den andre og den tredje gjelder vernet. Resten av HF-U6 står og hører til kjeden for
 påberopelse av sent varsel, også «Gjelder NS 8407 noe annet, går kontrakten foran …» og «Om
 parten likevel er løst fra utsagnet, avgjør ikke appen (MM-U12).»
+
+##### <a id="samlevedtak-revisjon-2"></a>Samlevedtaket for revisjon av byggherrens svar, versjon 2 (HF-U29)
+
+Teksten under er samlevedtaket [HF-U29](#hf-u29), vedtatt 05.11 av oppdragsgiver (#1534), med
+svarene på spørsmål 1, 2, 3 og 5 i [vurderingen av samlevedtaket for endringsordren, versjon
+3](../vedtaksregister/vurdering-samlevedtak-endringsordren-v3-2026-11-05.md) og ordlyden som ble
+godkjent 05.11 ([#1534, 6669209777](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6669209777)).
+Samlevedtaket opphever [HF-U25](#hf-u25), versjon 1 (svar 5 A). «Samlevedtaket for
+endringsordren, versjon 3» er [EO-U39](#eo-u39).
+
+###### Forslaget
+
+Samlevedtaket er et *vedtak* med designdel. Det er versjon 1 med «Endret innhold» E6–E9, som
+endrer punkt 1, 2, 5, 7 og 8. Kildene i parentes står som i versjon 1, og «E1»–«E5» i dem er
+E-punktene i [versjon 1](#samlevedtak-revisjon). Punkt 4 står etter svaret i [HF-U27](#hf-u27), og
+punkt 9 etter svaret i [HF-U26](#hf-u26), som i versjon 1.
+
+###### A. Byggherrens nye svar
+
+1. Byggherren kan sende et nytt strukturert svar på en kravversjon byggherren alt har
+   svart på, også med lavere beløp eller andre endringer. Tidligere brev bevares uendret.
+   Løsningen avgjør ikke om endringen er rettslig virksom (MM-U50 punkt 8). (MM-U34 punkt 4; E9)
+2. Det nye svaret erstatter det tidligere som byggherrens siste svar i løsningen, uten
+   totalentreprenørens aksept. (MM-U42) Brevet sier: ‹Svaret erstatter byggherrens svar i
+   brev <n> av <dato>.› (LV-U34) Er byggherrens tidligere svar en endringsordre registrert som
+   svar, sier brevet det punkt 50 i samlevedtaket for endringsordren, versjon 3, sier.
+   (spørsmål 1 A; E6)
+3. Det gjelder også når totalentreprenøren har godtatt svaret, når svaret stemmer med kravet,
+   og i et spor med registrert enighet. En registrert enighet bevares og vises. (MM-U34
+   punkt 9 og 11; E2) For en sak som er lukket ved totalentreprenørens aksept av avslaget
+   på grunnlaget eller trekk av grunnlaget, gjelder GR-U27. (MM-U34 punkt 12; GR-U27)
+4. Det gjelder også etter et frafall etter punkt 32.3 første ledd c, også på en ny
+   grunnlagsversjon: byggherren kan svare med avslag. Løsningen viser frafallet sammen med
+   det nye svaret, uten å trekke konklusjonen. (MM-U34 punkt 7; E3) «Etter et frafall etter punkt 32.3 første ledd c kan byggherren i et nytt svar også påberope at varselet kom for sent etter punkt 32.2. Løsningen viser frafallet sammen med det nye svaret, uten å trekke konklusjonen, og utleder virkningen av standpunktet etter punkt 32.2 som ellers (VS-U3).» (spørsmål 3 A, [HF-U27](#hf-u27))
+5. En retting av et standpunkt i svaret sendes som et nytt svar etter punkt 1–2, med
+   henvisning til brevet den retter. (MM-U42) Etter en endringsordre registrert som svar
+   gjelder punkt 50 i samlevedtaket for endringsordren, versjon 3. (spørsmål 2 A; E7)
+6. Løsningen avviser ikke et nytt svar fordi det senker noe byggherren har innrømmet.
+   (MM-U34 punkt 4 og 15; E1)
+7. I en KOE-sak som en sendt endringsordre eller en godkjent registrering omfatter, avviser
+   løsningen et nytt svar. (EO-U34 punkt 12; MM-U42) Hvor lenge byggherren kan sende et nytt
+   svar, også etter en endringsordre registrert som svar, står i punkt 13 i samlevedtaket for
+   endringsordren, versjon 3. (spørsmål 3 A; E8) Løsningen avgjør ikke om det nye svaret er
+   virksomt mot endringsordren i brevet (MM-U50 punkt 8). (EO-U35; E9)
+
+###### B. Det løsningen viser
+
+8. Senker byggherren i et nytt svar dager eller beløp byggherren har godkjent, viser
+   løsningen det tidligere svaret og, for frist og enhetspriser, punkt 33.7 annet ledd eller
+   punkt 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen (VS-U2).
+   (MM-U34 punkt 8) Avviker det nye svaret fra en registrert enighet, viser visningen det, og
+   løsningen avgjør ikke om enigheten står (MM-U50 punkt 8). (MM-U34 punkt 9; E9) Etter en endringsordre
+   registrert som svar sier brev og visning ikke at endringsordren i brevet er erstattet
+   eller bortfalt. (EO-U35; spørsmål 1 A; E6)
+9. Gir dagens regler et standpunkt i et sendt svar en annen virkning, vises avviket som en merknad. Så langt et nytt svar er tillatt, sier merknaden at byggherren kan sende et nytt svar. Den oppfordrer ikke til en bestemt endring. Løsningen avgjør ikke om et nytt svar er rettslig virksomt (MM-U50 punkt 8). (MM-U9; HF-U5; E4; spørsmål 2 A, [HF-U26](#hf-u26); E9)
+
+###### C. Det samlevedtaket ikke gjelder
+
+10. Hva et nytt svar på vederlag eller frist er mens grunnlaget er ubesvart, følger GR-U26.
+    (GR-U4; GR-U26)
+11. Om byggherren kan påberope at et varsel kom for sent etter å ha sagt at det kom i tide,
+    følger MM-U34 punkt 6. (MM-U34 punkt 6)
+12. Om svaret på vederlag og frist binder etter en ny grunnlagsversjon, følger HF-U21 og
+    kjeden for grunnlagskravet. (HF-U21)
+
+###### Designdel
+
+Svarskjemaet har ikke setningene «Byggherren er bundet av svaret som sendes herfra.» og «… og
+svaret kan ikke revideres» (MM-U34 punkt 26). Et forløp for det nye svaret skrives når det
+bygges.
+
+###### Endret innhold
+
+Gammel tekst er ordrett fra versjon 1.
+
+**E6 Brevet etter en endringsordre registrert som svar (punkt 2 og 8; spørsmål 1 A).** Gammel
+tekst: punkt 2 «Brevet sier: ‹Svaret erstatter byggherrens svar i brev <n> av <dato>.› (LV-U34)»;
+punkt 8 «sier brev og visning ikke at endringsordren i brevet er bortfalt». Ny tekst: punkt 2
+viser til brevteksten i punkt 50 i samlevedtaket for endringsordren, versjon 3, og punkt 8 sier
+«erstattet eller bortfalt». Kilde: 1 A, «Brev og visning sier ikke at endringsordren er erstattet
+eller bortfalt», og forholdet «snevrer inn LV-U34 og HF-U25 punkt 2».
+
+**E7 Feil i registreringen eller et annet svar (punkt 5; spørsmål 2 A).** Ny tekst: punkt 5 viser
+til punkt 50 i samlevedtaket for endringsordren, versjon 3, etter en endringsordre registrert som
+svar. Kilde: 2 A, forholdet «snevrer inn HF-U25 punkt 5».
+
+**E8 Hvor lenge byggherren kan svare på nytt (punkt 7; spørsmål 3 A).** Gammel tekst: punkt 7
+«Fram til endringsordren i EO-saken kan byggherren sende et nytt svar på grunnlaget, også etter en
+endringsordre registrert som svar.» Ny tekst: punkt 7 viser til punkt 13 i samlevedtaket for
+endringsordren, versjon 3. Kilde: 3 A, forholdet «HF-U25 punkt 7 viser hit».
+
+**E9 Henvisningen til MM-U12 (punkt 1, 7, 8 og 9).** «(MM-U12)» står som «(MM-U50 punkt 8)». Kilde:
+MM-U50 opphevet MM-U12, og MM-U50 punkt 8: «løsningen avgjør ikke om en part er bundet av et
+utsagn eller kan komme løs fra det». Punkt 9 er teksten i HF-U26 med henvisningen rettet, og står
+derfor uten anførselstegn. Ikke nytt innhold.
 
 ##### <a id="samlevedtak-vilkaar-forbehold"></a>Samlevedtaket for vilkår og forbehold i byggherrens svar (KA-U49)
 
@@ -5384,6 +5479,64 @@ tekst = '''
 Etter et frafall etter punkt 32.3 første ledd c avviser løsningen et nytt svar som påberoper at varselet kom for sent etter punkt 32.2. Det er en begrensning i løsningen. Byggherren kan svare med avslag (MM-U34 punkt 7).'''
 forkastet = true
 
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "de to første setningene i punkt 8, punkt 9 uten den siste setningen, og første setning i avsnittet «Designdel»"
+beslutningsdel = "«Et forløp for det nye svaret skrives når det bygges.»"
+id = "HF-U29"
+dato = 2026-11-05
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålene ordrett slik de ble stilt 05.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/5ef7098/docs/vedtaksregister/vurdering-samlevedtak-endringsordren-v3-2026-11-05.md#spørsmålene-til-oppdragsgiver). Spørsmål 1, 2, 3 og 5 gjelder samlevedtaket for revisjon av byggherrens svar, og spørsmål 1–5 står ordrett i [EO-U39](#eo-u39). Alternativene står i posten, med ordlyden som ble godkjent 05.11.'''
+valgt = "1 A, 2 A, 3 A, 5 A"
+svar = '''
+Oppdragsgiver 05.11, ordrett ([#1534, 6668555694](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6668555694)): «2A, 3A, 4A, 5A. 1A, men språket må forbedres. «Grunnlaget» brukes ikke lenger - det er forhold eller påberopelse.» Den rettede ordlyden ble godkjent 05.11 ([#1534, 6669209777](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6669209777)), ordrett: «Enig med deg.» og, for punkt 1–3 i forslaget, «1 ja, 2 ja, 3 mitt alternativ». Valgt samlet: 1 A, 2 A, 3 A, 5 A.'''
+forhold = [
+  { art = "opphever", vedtak = "hf-u25" },
+  { art = "endrer", vedtak = "hf-u5" },
+  { art = "endrer", vedtak = "hf-u6" },
+  { art = "endrer", vedtak = "mm-u27" },
+  { art = "endrer", vedtak = "gr-u7" },
+  { art = "endrer", vedtak = "ov-u5" },
+  { art = "endrer", vedtak = "gr-u17" },
+  { art = "endrer", vedtak = "gr-u20" },
+  { art = "endrer", vedtak = "gr-u23" },
+  { art = "endrer", vedtak = "mm-u9" },
+  { art = "presiserer", vedtak = "mm-u34" },
+]
+folge = '''
+Teksten står under tabellen, i [Samlevedtaket for revisjon av byggherrens svar, versjon 2](#samlevedtak-revisjon-2). Opphever HF-U25 (svar 5 A). Forholdene i HF-U25 er overtatt, unntatt «endrer EO-U34»: EO-U34 er opphevet, og endringen står i E1 i EO-U38. Punkt 2, 5, 7 og 8 viser til samlevedtaket for endringsordren, versjon 3, [EO-U39](#eo-u39) (svar 1 A, 2 A og 3 A).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 A, 2 A, 3 A, 5 A"
+tekst = '''
+Spørsmål 1: Når byggherrens tidligere svar er en endringsordre registrert som svar, sier brevet med det nye svaret: ‹Svaret er byggherrens nye svar på påberopelsen av forholdet. Byggherrens tidligere svar på påberopelsen er endringsordren i <brevet, omtalt med avsenderens merking, eller med parten, typen og datoen>.› (Ny; LV-U53.) Brev og visning sier ikke at endringsordren er erstattet eller bortfalt. (EO-U38 punkt 50; HF-U25 punkt 8.) Løsningen avgjør ikke om det nye svaret er virksomt mot endringsordren i brevet. (EO-U38 punkt 50; MM-U50 punkt 8.) Forhold: snevrer inn LV-U34 og HF-U25 punkt 2. Spørsmål 2: Stemmer registreringen av en endringsordre registrert som svar ikke med brevet, er det en feil i registreringen. Byggherren tar den opp i et innlegg i KOE-saken, og brevet er byggherrens meddelelse. (EO-U38 punkt 50.) Vil byggherren gi et annet svar på påberopelsen enn godkjenningen som er registrert, sender byggherren et nytt svar innenfor grensen for nytt svar. (EO-U38 punkt 45 og 50; HF-U25 punkt 5.) Gjelder feilen det standpunktet registreringen gir, for eksempel et forbehold registreringen ikke fikk med, kan byggherren også sende et nytt svar. (Ny.) Svaret er et nytt utsagn, ikke en retting av endringsordren, og det viser til brevet. (EO-U38 punkt 50; MM-U52 punkt 16; LV-U53.) Forhold: snevrer inn HF-U25 punkt 5; presiserer EO-U38 punkt 50. Spørsmål 3: Byggherren kan sende et nytt svar i en KOE-sak, også etter en endringsordre registrert som svar, til en sendt endringsordre eller en godkjent registrering av en endringsordre i en EO-sak omfatter saken. (EO-U38 punkt 9, 12, 13 og 50; HF-U25 punkt 1 og 7.) Deretter gjelder punkt 12. (EO-U38 punkt 12.) Forhold: endrer EO-U38 punkt 13, 50 og 64, som ikke lenger gjelder bare svaret på påberopelsen; presiserer MM-U52 punkt 6; HF-U25 punkt 7 viser hit. Spørsmål 5: to nye poster, én som opphever EO-U38 og én som opphever HF-U25, hver med sin tekst og endringene over.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 B"
+tekst = '''
+Når byggherrens tidligere svar er en endringsordre registrert som svar, sier brevet med det nye svaret: ‹Svaret erstatter byggherrens svar i <brevet>. Endringsordren i brevet står uendret.›'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2 B"
+tekst = '''
+En endringsordre registrert som svar rettes ikke med et nytt svar. En feil i registreringen tas opp i et innlegg i KOE-saken. Et nytt svar etter en endringsordre registrert som svar er et nytt standpunkt og viser ikke til brevet som en retting. Forhold: snevrer inn HF-U25 punkt 5.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3 B"
+tekst = '''
+Byggherren kan sende et nytt svar i en KOE-sak, også etter en endringsordre registrert som svar, til saken er knyttet til en EO-sak. Deretter avviser løsningen et nytt svar. Forhold: endrer EO-U38 punkt 13, 50 og 64.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "5 B"
+tekst = '''
+én ny post som opphever begge og har teksten til begge.'''
+forkastet = true
 [[gruppe.vedtak]]
 klasse = "vedtak"
 designdel = "avsnittet «Designdel» i samlevedtaket"
@@ -6070,7 +6223,7 @@ endringsordre bare når § 31.3 også er oppfylt'''
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
-bindende_i = ["gr-u7", "ov-u3", "eo-u38"]
+bindende_i = ["gr-u7", "ov-u3", "eo-u39"]
 anker = "gr-u3"
 vedtak = '''
 GR-U3: etter frafall (§ 32.3 c) blir saken `OMFORENT` når vederlag og frist er oppgjort,
@@ -12408,6 +12561,384 @@ i EO-U36 og EO-U37 står; EO-U16 er opphevet av EO-U34, og innholdet står i pun
 
 Dette er føring etter OV-U92 og OV-U93, ikke en ny regel. Hver linje viser til setningen som alt
 sier at målet er opphevet eller ikke gjelder.
+
+##### <a id="samlevedtak-eo-3"></a>Samlevedtaket for endringsordren, versjon 3 (EO-U39)
+
+Teksten under er samlevedtaket [EO-U39](#eo-u39), vedtatt 05.11 av oppdragsgiver (#1534), med
+svarene på spørsmål 1–5 i [vurderingen](../vedtaksregister/vurdering-samlevedtak-endringsordren-v3-2026-11-05.md)
+og ordlyden som ble godkjent 05.11
+([#1534, 6669209777](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6669209777)).
+Samlevedtaket opphever [EO-U38](#eo-u38), versjon 2 (svar 5 A). Samlevedtaket for revisjon av
+byggherrens svar, versjon 2, er [HF-U29](#hf-u29).
+
+###### Forslaget
+
+Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Det er versjon 2 med «Endret
+innhold» E10–E14, som endrer punkt 13, 50 og 64. Nummereringen i versjon 2 står. Kildene i
+parentes står som i versjon 2, og «E1»–«E9» i dem er E-punktene i versjon 2, som står i
+[versjon 2](#samlevedtak-eo-2).
+
+###### A. Utstedelse og fullmakt
+
+1. Byggherren utsteder en endringsordre etter punkt 31.3 i en EO-sak, og bare byggherren
+   oppretter en EO-sak. Er byggherrens godkjenning av grunnlaget en endringsordre etter
+   punkt 32.3 første ledd a, er den svaret i grunnlagssporet i KOE-saken. (EO-U34 punkt 1)
+2. En endringsordre i en EO-sak går gjennom godkjenningen etter fullmakten. (EO-U34 punkt 2)
+3. Ingen sender en endringsordre alene. Endringsordren har alltid to signaturer: den som
+   utarbeidet den, og den som godkjente den med fullmakt, også når beløpet ikke kan
+   verdsettes. (EO-U34 punkt 3)
+4. For et svar i KOE-saken står reglene om fullmakt for svar. (EO-U34 punkt 4)
+
+###### B. Hva endringsordren omfatter og lukker
+
+5. Byggherren kan la en endringsordre omfatte én eller flere hele KOE-saker, også når
+   løsningen ikke har registrert enighet. (EO-U34 punkt 5)
+6. En KOE-sak formaliseres ved å inngå i en EO-sak. (EO-U34 punkt 6)
+7. En KOE-sak inngår i høyst én endringsordre, også når et utsagn i den er bestridt.
+   KOE-tilknytningen endres bare før utstedelse. (EO-U34 punkt 7)
+8. En sak som er lukket, fordi den inngår i en sendt endringsordre eller fordi
+   totalentreprenøren har godtatt avslaget på forholdet eller trukket det, kan ikke tas med.
+   (EO-U34 punkt 8)
+9. Bare en endringsordre byggherren sender uttrykkelig som endringsordre i en EO-sak, eller
+   en godkjent registrering av en endringsordre i en EO-sak, lukker KOE-sakene den omfatter,
+   også når uenigheten består. (EO-U34 punkt 9)
+10. Godkjenning av grunnlaget alene lukker ikke KOE-saken, selv om godkjenningen er en
+    endringsordre etter punkt 32.3 første ledd a. Vederlag og frist kan behandles videre i
+    samme sak. Brevet sier fortsatt at godkjenningen er en endringsordre (GR-U14). (EO-U34
+    punkt 10)
+11. Lukkingen ved totalentreprenørens aksept av avslaget på grunnlaget eller trekk av
+    grunnlaget følger GR-U27. (EO-U34 punkt 11)
+12. I en KOE-sak som en sendt endringsordre eller en godkjent registrering omfatter,
+    avviser løsningen krav, svar, aksept og trekk. (EO-U34 punkt 12) Innlegg, dokumentasjon og
+    innsigelser etter punkt 5 tredje ledd godtas, og korrigeringen av datoen etter MM-U52 punkt
+    24 og rettingen av varseldatoen etter punkt 68. (EO-U34 punkt 12; MM-U47 punkt 5 og beslutningsdelen;
+    MM-U51, forholdet; 05.11 3.5 B, forholdet; E3; E8)
+13. Byggherren kan sende et nytt svar i en KOE-sak, også etter en endringsordre registrert som
+    svar, til en sendt endringsordre eller en godkjent registrering av en endringsordre i en
+    EO-sak omfatter saken. (EO-U38 punkt 9, 12, 13 og 50; HF-U25 punkt 1 og 7.) Deretter gjelder
+    punkt 12. (EO-U38 punkt 12.) (E12)
+14. For en godkjenning av grunnlaget sendt fra løsningen står sperren mot trekk av
+    grunnlaget i KA-U13. (EO-U34 punkt 14)
+15. Har byggherren ikke svart på grunnlaget, kan byggherren svare ved å utstede en
+    endringsordre i en EO-sak som omfatter KOE-saken (punkt 32.3 første ledd a). (EO-U34
+    punkt 15)
+16. En KOE som følger opp oppgjøret etter en endringsordre, lukkes som andre KOE-saker, med
+    en endringsordre i en EO-sak. (EO-U34 punkt 16)
+
+###### C. Innholdet: pålegg og utsagn
+
+17. En endringsordre etter punkt 31.3 er byggherrens pålegg. Når den oppfyller punkt 31.3
+    første ledd (GR-U13), binder pålegget totalentreprenøren fra endringsordren er mottatt
+    (punkt 31.3 annet ledd), uten aksept, og pålegget er ikke et tilbud. (EO-U34 punkt 17)
+18. En endringsordre formaliserer kravene og er byggherrens instruks og eventuelt
+    erkjennelse av ansvar, innenfor det som følger av endringsordren og byggherrens tidligere
+    utsagn i KOE-saken. (EO-U34 punkt 18)
+19. Omfatter endringsordren en sak der forholdet ikke er besvart eller er avslått, sier
+    endringsordren uttrykkelig at byggherren er enig i forholdet i saken, slik endringsordren
+    beskriver og omfatter det. En sak om svikt eller et annet forhold som ikke er en
+    endring, får den faste teksten i EO-U22. (EO-U34 punkt 19)
+20. En endringsordre har én beskrivelse av endringen, også når den omfatter flere
+    KOE-saker. Beskrivelsen er byggherrens pålegg og beskriver endringen fullt ut uten å vise
+    til totalentreprenørens krav. Sakene står i brevet som referanser. (EO-U34 punkt 20)
+21. Vederlag og frist i en endringsordre er byggherrens tilbud, eller en gjengivelse av en
+    registrert enighet. (EO-U34 punkt 21)
+22. Byggherren gir utsagn om vederlag og frist bare for krav totalentreprenøren har sendt,
+    og ikke tilbud i et spor uten krav. En endringsordre som ikke omfatter noen KOE-sak,
+    står alene med vederlag og frist. (EO-U34 punkt 22)
+23. Et utsagn gjelder ett spor eller én post i én sak eller i en gruppe saker, og svarer på
+    kravversjonene i sakene det gjelder. Byggherren kan gi ett utsagn for flere saker. Et
+    samlet utsagn har én oppgjørsform, og vederlaget samles per post. (EO-U34 punkt 23)
+24. Et overslag ved regningsarbeid er en opplysning, ikke et tilbud, og det kan ikke
+    godtas. (EO-U34 punkt 24)
+25. KOE-saker som inngår, gjengis med henvisning. Et utsagn kan avvike fra en registrert
+    enighet. (EO-U34 punkt 25)
+26. Ved flere KOE-saker summeres ikke dagene uten videre (punkt 33.5). (EO-U34 punkt 26)
+27. Et utsagn om vederlag eller frist som er byggherrens tilbud, er et løfte. Svarer det
+    ikke på en kravversjon i en KOE-sak, binder det byggherren som et tilbud (HF-U6). En
+    gjengivelse av noe partene har avtalt, følger HF-U9. (EO-U34 punkt 27)
+28. Fastsetter endringsordren regningsarbeid, sender totalentreprenøren overslag, varsel om
+    at overslaget vil bli overskredet, og regningsoppgaver som innlegg i EO-saken.
+    Byggherrens merknader sendes samme vei. Kostnader over overslaget for samme arbeid er
+    avregning etter oppgjørsformen. Nytt arbeid eller annen kompensasjon er et krav i en ny
+    KOE. (EO-U34 punkt 28)
+
+###### D. Totalentreprenørens svar og uenighet
+
+29. Totalentreprenøren mottar endringsordren. Totalentreprenøren kan godta et utsagn i
+    EO-saken, og aksepten gjelder hele utsagnet, slik det står: tilbudet om vederlag,
+    oppgjørsform eller frist. (EO-U34 punkt 29)
+30. Et samlet utsagn kan bare godtas eller bestrides samlet. (EO-U34 punkt 30)
+31. Totalentreprenøren kan godta et utsagn også når det svarer på en tidligere
+    kravversjon. (EO-U34 punkt 31)
+32. Godtar totalentreprenøren et utsagn om regningsarbeid, gjør det ikke overslaget til et
+    fast beløp. (EO-U34 punkt 32)
+33. Det finnes ingen aksept av endringsordren som helhet, og svaret er frivillig. Fravær av
+    protest er ikke enighet. (EO-U34 punkt 33)
+34. Totalentreprenørens aksept eller bestridelse av et utsagn endrer ikke at KOE-saken er
+    lukket. (EO-U34 punkt 34)
+35. Er totalentreprenøren uenig, eller er et krav ikke besvart, sender totalentreprenøren en
+    ny KOE fra den lukkede saken, eller en ny KOE når endringsordren ikke omfatter noen
+    KOE-sak. Den viser til endringsordren og oppgir om den bestrider et utsagn, gjelder et
+    krav endringsordren ikke svarte på, eller gjelder noe nytt. (EO-U34 punkt 35)
+36. Kravet i den nye KOE-en er det samlede kravet for det utsagnet gjelder. Forholdet i den
+    nye KOE-en er ‹endringsordre›, og løsningen utvider ikke byggherrens tidligere
+    erkjennelse. (EO-U34 punkt 36)
+37. Når et utsagn er bestridt, behandles resten av oppgjøret i den nye KOE-en, og utsagnet
+    kan verken godtas eller rettes i løsningen. (EO-U34 punkt 37)
+38. Et utsagn kan bare bestrides av én KOE om gangen som ikke er lukket eller trukket.
+    Sperren oppheves bare hvis den nye KOE-en trekkes før den er gjort opp i en ny
+    endringsordre. (EO-U34 punkt 38)
+39. En endringsordre sendt fra løsningen som omfatter en KOE som bestrider et utsagn, har et
+    utsagn som erstatter det. Tillegget kan være 0. (EO-U34 punkt 39)
+40. Et utsagn som gjør opp et bestridt utsagn, erstatter det, og har flere utsagn vært
+    bestridt samlet, erstatter det alle. En reduksjon endrer ikke en tidligere registrert
+    enighet, men vises som avvik. Bare det siste utsagnet i kjeden kan godtas eller
+    bestrides, og de tidligere forblir sperret, også når den nye KOE-en er lukket. (EO-U34
+    punkt 40)
+
+###### E. Ingen revisjon
+
+41. Endringsordren utstedes én gang og revideres ikke. At EO-U9 er opphevet, åpner ikke for
+    revisjon. (EO-U34 punkt 41)
+42. En feil til ulempe for totalentreprenøren rettes ved at totalentreprenøren bestrider
+    utsagnet eller krever i en ny KOE, og byggherren svarer med et utsagn som erstatter det.
+    En feil til ulempe for byggherren tar byggherren opp i et innlegg i EO-saken. (EO-U34
+    punkt 42)
+
+###### F. Endringsordre sendt utenfor løsningen
+
+43. Byggherren kan registrere en endringsordre sendt utenfor løsningen på to måter: som svar
+    på forholdet etter OV-U6, eller som endringsordre i en EO-sak. (EO-U34 punkt 43)
+44. Registreres den som svar på forholdet etter OV-U6, står saken åpen, og vederlag og frist
+    behandles videre i saken. (EO-U34 punkt 44)
+45. Registreringen som svar forutsetter en underkategori der punkt 32.2 gjelder. Byggherren
+    velger «godkjent», påberoper ikke preklusjon og oppgir at brevet er en endringsordre
+    etter punkt 31.3. Registreringen er byggherrens godkjenning av grunnlaget og går gjennom
+    fullmakten som en godkjenning av grunnlaget etter GFK-06. (EO-U34 punkt 45)
+46. Registreringen som svar godtas der et svar fra løsningen ville vært godtatt, også som et
+    nytt svar etter samlevedtaket for revisjon av byggherrens svar. (EO-U34 punkt 46; HF-U25 E2;
+    E1) Ved sammenfall gjelder GR-U10. (EO-U34 punkt 46) Løsningens vurdering ved
+    registreringen fryses som etter MM-U50 punkt 19. (EO-U34 punkt 46; E8)
+47. Pris og tid i en endringsordre registrert som svar vurderes ikke og gir ingen sperre;
+    vederlag og frist kreves og besvares i KOE-saken. (EO-U34 punkt 47)
+48. Endringsordren i en registrering som svar sperrer ikke trekket av grunnlaget etter
+    KA-U13 eller KA-U22, fordi et trekk ikke opphever den. Brev og visning sier ikke at den
+    er bortfalt. (EO-U34 punkt 48)
+49. Byggherren kan senere velge at korrespondanse som er lagt til, er en endringsordre
+    registrert som svar etter OV-U6. (EO-U34 punkt 49)
+50. En endringsordre registrert som svar etter OV-U6 rettes ikke, og endringsordren i brevet
+    står uendret. (EO-U35; E5) Stemmer registreringen av en endringsordre registrert som svar
+    ikke med brevet, er det en feil i registreringen. Byggherren tar den opp i et innlegg i
+    KOE-saken, og brevet er byggherrens meddelelse. (EO-U38 punkt 50.) Vil byggherren gi et
+    annet svar på påberopelsen enn godkjenningen som er registrert, sender byggherren et nytt
+    svar innenfor grensen for nytt svar. (EO-U38 punkt 45 og 50; HF-U25 punkt 5.) Gjelder
+    feilen det standpunktet registreringen gir, for eksempel et forbehold registreringen ikke
+    fikk med, kan byggherren også sende et nytt svar. (Ny.) Svaret er et nytt utsagn, ikke en
+    retting av endringsordren, og det viser til brevet. (EO-U38 punkt 50; MM-U52 punkt 16;
+    LV-U53.) (E11) Når byggherrens tidligere svar er en endringsordre registrert som svar, sier
+    brevet med det nye svaret: ‹Svaret er byggherrens nye svar på påberopelsen av forholdet.
+    Byggherrens tidligere svar på påberopelsen er endringsordren i <brevet, omtalt med
+    avsenderens merking, eller med parten, typen og datoen>.› (Ny; LV-U53.) Brev og visning
+    sier ikke at endringsordren er erstattet eller bortfalt. (EO-U38 punkt 50; HF-U25 punkt
+    8.) Løsningen avgjør ikke om det nye svaret er virksomt mot endringsordren i brevet.
+    (EO-U38 punkt 50; MM-U50 punkt 8.) (E10) Godtar totalentreprenøren uttrykkelig et senere
+    avslag på forholdet, eller trekker totalentreprenøren forholdet, lukkes saken etter GR-U27.
+    (EO-U35; E5; E8; E14)
+51. Registreres den som endringsordre i en EO-sak, registreres brevet som vedlegg, med
+    datoen det ble sendt og dokumentkoden i brevet. Der skjemaet og brevet spriker, er
+    brevet byggherrens meddelelse. (EO-U34 punkt 51)
+52. Registreringen går gjennom godkjenningen etter fullmakten og lukker sakene den omfatter
+    når den er godkjent. Den har datoen brevet ble sendt. (EO-U34 punkt 52)
+53. En registrert endringsordre gjelder de sakene som er åpne når den siste godkjenningen
+    gjøres. Poster som gjelder en lukket sak, registreres ikke. (EO-U34 punkt 53)
+54. En registrert endringsordre gjengir det brevet sier, også utsagn om vederlag og frist for
+    krav totalentreprenøren ikke har sendt. Regelen om at byggherren bare svarer på krav som
+    er sendt, gjelder det som sendes fra løsningen. (EO-U34 punkt 54)
+55. Totalentreprenøren kan godta et utsagn i en registrert endringsordre, en ny KOE kan
+    bestride det, og det kan inngå i en kjede etter EO-U29, som for en endringsordre sendt fra
+    løsningen. (EO-U34 punkt 55)
+56. Sier brevet ikke noe om et bestridt utsagn, står det som bestridt og kan ikke godtas.
+    (EO-U34 punkt 56) KOE-saken som bestrider det, står åpen (punkt 57). (EO-U37; E6)
+57. En registrert endringsordre lukker ikke en KOE-sak som bestrider et utsagn, når brevet
+    ikke har et utsagn som erstatter det bestridte. Den KOE-saken står åpen til en
+    endringsordre med et utsagn som erstatter det bestridte, omfatter den, eller til
+    totalentreprenøren trekker den. (EO-U37; E6)
+58. Stemmer en registrert endringsordre ikke med brevet, tar byggherren feilen opp i et
+    innlegg i EO-saken, og brevet er byggherrens meddelelse. (EO-U34 punkt 58)
+
+###### G. Hva løsningen ikke avgjør
+
+59. Løsningen avgjør ikke om endringsordren endrer det som er avtalt (MM-U50 punkt 6).
+    (EO-U34 punkt 59; E8)
+60. Endringsordren er ikke nødvendigvis en erkjennelse av alt totalentreprenøren har
+    påberopt, og hvor langt den rekker, er opp til partene å tolke. For en sak om svikt
+    avgjør ikke løsningen om bindingen etter punkt 31.3 gjelder. (EO-U34 punkt 60)
+61. Avviker beskrivelsen fra pålegget i kravet eller fra svaret på forholdet, avgjør ikke
+    løsningen hva som gjelder. (EO-U34 punkt 61)
+62. Løsningen avgjør ikke hvilken av flere registrerte enigheter om samme oppgjør som
+    gjelder, også når utsagnet avviker fra en enighet fra KOE-saken. (EO-U34 punkt 62)
+63. Løsningen avgjør ikke om byggherren fortsatt er bundet av et bestridt utsagn (MM-U50
+    punkt 8), eller om byggherren er bundet av et utsagn som svarer på en kravversjon (MM-U50
+    punkt 8). (EO-U34 punkt 63; E8)
+64. Løsningen avgjør ikke om et nytt svar innenfor grensen i punkt 13 er virksomt (MM-U50
+    punkt 8), heller ikke mot en endringsordre registrert som svar etter OV-U6. (EO-U34 punkt
+    64; E8; E12)
+65. Løsningen avgjør ikke virkningen av en feil i en endringsordre eller en registrering,
+    eller hva en aksept av en post som ikke stemmer med brevet, betyr. (EO-U34 punkt 65)
+66. Løsningen utleder ingen rettsvirkning av at en endringsordre omfatter en sak. Merket sier
+    ikke at noe er rettslig avgjort, at totalentreprenøren har godtatt endringsordren eller
+    at kravene er oppgjort. (EO-U34 punkt 66)
+67. Summer og nøkkeltall er beregninger og avgjør ikke hva partene har avtalt. (EO-U34
+    punkt 67)
+
+###### H. Retting i en lukket sak
+
+68. I en sak som er lukket etter GR-U27, og i en KOE-sak som en sendt endringsordre eller en
+    godkjent registrering av en endringsordre omfatter, godtas totalentreprenørens retting av
+    varseldatoen, og den endrer ikke utfallet. Den står som totalentreprenørens utsagn for
+    partene å vurdere. Byggherren kan ikke godta en retting til totalentreprenørens fordel i
+    løsningen (GR-U27; punkt 12), og en retting i byggherrens favør er bare premiss for nye
+    svar, som avvises (MM-U52 punkt 6). Byggherren kan ta stilling til rettingen i et innlegg,
+    og saken står lukket. Løsningen avgjør ikke hva rettingen betyr mellom partene (MM-U50
+    punkt 6). (05.11 3.5 B; E4) Punktet gjelder også datoen for et krav sendt utenfor
+    løsningen (MM-U52 punkt 18). (05.11 3, innledningen: «Ved 2 A gjelder punktene også datoen
+    for kravet.»; E4)
+
+###### Designdel
+
+Hjemmet er brukerforløpet [BF-06](../domenetabell/brukerforlop/BF-06.md). Visningen viser
+merket ‹Inngår i EO-<nummer>› på KOE-saken, i sakslisten og på siden for saken, i stedet for
+«Avsluttet med EO» (EO-U13; EO-U34 E10). Merket viser dokumentkoden byggherrens endringsordre
+fikk etter LV-U24, og saksnummeret etter DL-U6 står uendret (EO-U14). (EO-U34, designdelen; E8)
+For en registrert endringsordre viser merket koden etter EO-U14. (EO-U36; E7) Skjemaet opplyser
+byggherren om hvilke spor i hvilke saker som ikke har registrert enighet (MM-U34 punkt 20),
+viser avvik fra en registrert enighet (EO-U19) og har påminnelsene i MM-U34 punkt 1, 16 og 26.
+Svarskjemaet spør når endringsordren sendes ved godkjenning av forholdet der punkt 32.2 gjelder
+(EO-U15). Ved registrering som svar gjør skjemaet det tydelig at godkjenningen er byggherrens
+valgte standpunkt, atskilt fra dokumentets øvrige innhold, og visningen viser at byggherren
+opplyser at brevet er en endringsordre (OV-U6). Registreringen i en EO-sak bruker samme skjema
+som en endringsordre sendt fra løsningen, og den viser at brevet også omfatter en sak som var
+lukket (EO-U16). (EO-U34, designdelen) Skjemaet spør ikke om vilkår eller forbehold, heller ikke
+ved registrering (EO-U18). (EO-U34, designdelen) Vilkår og forbehold byggherren knytter til
+svaret, skrives i svaret: i begrunnelsen for punktet de gjelder, eller under «Forbehold» når de
+gjelder hele svaret. (KA-U50; E2) Totalentreprenøren skriver dem i begrunnelsen eller i et
+innlegg. (EO-U18; KA-U50: «Hva som gjelder for totalentreprenørens vilkår og forbehold, endres
+ikke.»; E2) Kontrollen før registreringen viser kravversjoner som er sendt etter datoen på
+brevet (EO-U16). Løsningen viser alle registrerte enigheter om samme oppgjør, også en fra
+KOE-saken som utsagnet avviker fra (EO-U24). Stopper sendingen fordi saken alt er med i en sendt
+endringsordre, sier den hvilken (EO-U20). Den nye KOE-en viser ikke varslene fra den lukkede
+saken, og totalentreprenøren viser til dem i fritekst (EO-U11). (EO-U34, designdelen) I en lukket
+sak vises en retting til totalentreprenørens fordel som et tilbud som ikke kan godtas. (05.11 3.5
+B, forholdet; E4) Brevets eget nummer vises ved siden av koden. (EO-U36; E7; flyttet fra
+beslutningsdelen etter kontrollen av klassene)
+
+###### Beslutningsdel
+
+**Fullmakt og verdi.** Verdien regnes per utsagn og summeres for hele utsendingen. Et utsagn
+som gjelder flere saker samlet, verdsettes én gang, og verdien dekker kravene i sakene det
+gjelder. Der endringsordren ikke svarer på et krav som er sendt, gjelder kravet. Et krav som
+er sendt, men ikke er tallfestet, og et utsagn uten samlet beløp, krever hele kjeden. Et krav
+som ikke er sendt, krever hele kjeden bare når endringsordren sendes samtidig med svaret på
+forholdet, eller selv er svaret på forholdet. Et trukket krav er 0. Et utsagn som erstatter
+et bestridt utsagn, verdsettes med det samlede beløpet i tilbudet. Beløpsgrensene er
+kontraktens, og kjeden følger vedtakene om godkjenning. Sendes svaret på forholdet og
+endringsordren samtidig, godkjennes de samlet, og avvises godkjenningen, sendes ingen av dem.
+Den siste godkjenningen sender. (EO-U17; EO-U25; EO-U15) (EO-U34, beslutningsdelen)
+
+**Når saken inngår.** En KOE-sak inngår i en endringsordre fra den er sendt, eller fra
+registreringen er godkjent; et utkast eller en registrering som venter på godkjenning,
+holder ikke av saken. Er saken alt med i en sendt endringsordre når byggherren sender,
+stopper sendingen (EO-U20; EO-U34 E7). Er ingen av sakene i en registrering åpne, stopper
+registreringen; ellers gjelder punkt 53 (EO-U31). Endres noe i en av sakene etter
+framlegging, avvises den siste godkjenningen, og godkjenningen begynner på nytt bare når et
+utsagn eller verdien endres; innlegg og dokumentasjon stopper ikke sendingen (EO-U25;
+EO-U31). (EO-U34, beslutningsdelen; E8)
+
+**Sperrene i løsningen.** Sperren i punkt 12 leser at endringsordren er sendt og omfatter
+saken, ikke merket (MM-U34 punkt 19; EO-U13). Sperren i punkt 14 er en begrensning i
+løsningen etter KA-U14, fordi løsningen ellers ville lest endringsordren som bortfalt
+(EO-U12). At et bestridt utsagn ikke kan godtas eller rettes (punkt 37), er en begrensning i
+løsningen, og løsningen sier ikke at utsagnet er avslått eller har falt bort (EO-U24).
+Kontrollen ved sendingen sikrer at et utsagn har høyst én direkte etterfølger (EO-U24;
+EO-U29). Endringsordren kan ikke rettes i løsningen, heller ikke en retting i motpartens
+favør (EO-U24; MM-U52 punkt 4 og 16). En registrert endringsordre kan ikke rettes i
+løsningen, heller ikke når registreringen ikke stemmer med brevet (EO-U33). (EO-U34,
+beslutningsdelen; E8)
+
+**Sum og kode.** Summen av vederlag i sendte endringsordrer teller en registrert
+endringsordre (EO-U27) og tilleggene etter EO-U29; nøkkeltallet for et bestridende krav
+følger EO-U28. Summen viser det som ble sendt fra løsningen, og for en registrert
+endringsordre det som ble registrert (EO-U24; EO-U33; EO-U34 E8). I EO-U24 står setningen om
+summen i designdelen; her står den i beslutningsdelen. For en registrert endringsordre lages
+ingen brevtekst (EO-U16). (EO-U34, beslutningsdelen; E8) EO-saken for en registrert
+endringsordre får koden etter LV-U44 når registreringen er godkjent, som et unntak fra LV-U47.
+Brevets eget nummer lagres som brevets referanse. (EO-U36; E7)
+
+###### Forkastet
+
+Det som ble forkastet ved versjon 3, står i posten [EO-U39](#eo-u39). Under står det som var
+ført under «Forkastet» i versjon 2, ordrett.
+
+**Punkt 68 (05.11 3.5 A),** ordrett fra spørsmål 3.5 i versjon 5 i #1309
+([6656940092](https://github.com/khjohns/endringsmeldinger/issues/1309#issuecomment-6656940092)).
+Med «Forhold»-delen, ordrett fra versjon 5.
+
+- **A.** «I en sak som er lukket etter GR-U27, og i en KOE-sak som en sendt endringsordre eller en
+  godkjent registrering av en endringsordre omfatter, avvises totalentreprenørens retting av
+  varseldatoen. Totalentreprenøren kan si at datoen er feil i et innlegg (GR-U27; EO-U34 punkt
+  12).»
+  *Forhold:* presiserer GR-U27 og EO-U34 punkt 12: rettingen er ikke blant det som godtas. I tråd med
+  EO-U34 punkt 9 og 35 og med punkt 6 og 8 i samlevedtaket for retting av sendt brev. Gir datoen
+  etter punkt 8 en annen regel i en lukket sak enn datoen etter punkt 10 (MM-U51).
+
+Forkastet tidligere og ført videre fra posten som oppheves: EO-U34 (ett alternativ), ordrett som
+det står i registeret. Det forkastede i EO-U35, EO-U36 og EO-U37 står i postene, som samles.
+
+**EO-U34, spørsmål 1 (04.11).**
+
+- **1B.** «Samme som A, med rettingene oppdragsgiver gir per E-punkt.»
+
+###### Endret innhold
+
+Gammel tekst er ordrett fra versjon 2. E10–E13 er svarene på spørsmål 1–4, og E14 er
+betegnelsen etter svaret 05.11. Svar 5 A er føringen: to nye poster.
+
+**E10 Brevet etter en endringsordre registrert som svar (punkt 50; spørsmål 1 A).** Gammel tekst:
+punkt 50 «Løsningen avgjør ikke om det nye svaret er virksomt mot endringsordren i brevet (MM-U50
+punkt 8).» og siste setning i punkt 50 «Brev og visning sier ikke at endringsordren i brevet er
+bortfalt (OV-U6; KA-U14).» Ny tekst: brevteksten og de to setningene etter den i punkt 50, 1 A med
+den godkjente ordlyden. Setningen i 1 A «Brev og visning sier ikke at endringsordren er erstattet
+eller bortfalt.» står for den gamle siste setningen, som i HF-U29 punkt 8. Forhold: snevrer inn LV-U34 og HF-U25 punkt 2. HF-U25 punkt 2 står i
+[HF-U29](#hf-u29) med en henvisning hit.
+
+**E11 Feil i registreringen eller et annet svar (punkt 50; spørsmål 2 A).** Gammel tekst: punkt
+50 «Byggherren tar en feil i registreringen opp i et innlegg i KOE-saken, og brevet er
+byggherrens meddelelse. Byggherren kan likevel gi et nytt svar på grunnlaget i KOE-saken, som et
+nytt utsagn, fram til en endringsordre i en EO-sak omfatter saken.» Ny tekst: 2 A med den
+godkjente ordlyden. Forhold: snevrer inn HF-U25 punkt 5; presiserer EO-U38 punkt 50. HF-U25 punkt
+5 står i [HF-U29](#hf-u29) med en henvisning hit.
+
+**E12 Hvor lenge byggherren kan svare på nytt (punkt 13, 50 og 64; spørsmål 3 A).** Gammel
+tekst: punkt 13 «Fram til endringsordren i EO-saken kan byggherren sende et nytt svar på
+grunnlaget.»; punkt 50 «fram til en endringsordre i en EO-sak omfatter saken»; punkt 64 «et nytt
+svar på grunnlaget fram til endringsordren». Ny tekst: punkt 13 er 3 A; i punkt 50 er grensen
+«innenfor grensen for nytt svar» (2 A); punkt 64 viser til grensen i punkt 13. Forhold: endrer
+EO-U38 punkt 13, 50 og 64, som ikke lenger gjelder bare svaret på påberopelsen; presiserer MM-U52
+punkt 6; HF-U25 punkt 7 viser hit, og står slik i [HF-U29](#hf-u29).
+
+**E13 Forholdene til postene samlevedtaket samler (spørsmål 4 A).** Ny tekst, ordrett: «Forholdene
+‹EO-U36 presiserer EO-U16›, ‹EO-U37 snevrer inn EO-U16› og ‹EO-U35 snevrer inn MM-U21› har ikke noe
+å virke på: EO-U16 er opphevet av EO-U34 og EO-U38, og MM-U21 av MM-U52. (OV-U92 (b).) Verken (a)
+eller (b) gjelder for forholdene til EO-U12, EO-U32, EO-U33, OV-U6, GR-U27 og LV-U47, og de står.
+EO-U12, EO-U32, EO-U33 og OV-U6 er samlet her, og GR-U27 og LV-U47 gjelder. (OV-U92; E9.)» Det
+erstatter siste avsnitt i E9 i versjon 2 for forholdene i EO-U35, EO-U36 og EO-U37.
+
+**E14 Betegnelsen (punkt 50).** Gammel tekst: punkt 50 «Godtar totalentreprenøren uttrykkelig et
+senere avslag på grunnlaget, eller trekker totalentreprenøren grunnlaget». Ny tekst: «et senere
+avslag på forholdet, eller trekker totalentreprenøren forholdet». Kilde: svaret 05.11
+«‹Grunnlaget› brukes ikke lenger - det er forhold eller påberopelse.», og OV-U82: «I vedtakene
+leses ‹grunnlaget› og ‹ansvarsgrunnlaget›, der de gjelder det totalentreprenøren påberoper, som
+‹forholdet›». Ikke nytt innhold.
 '''
 
 [[gruppe.vedtak]]
@@ -12572,7 +13103,7 @@ Endrer [EO-U4](#eo-u4) for dette tilfellet; GR-U7, GR-U10 og KA-U7 står. Ikke b
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
-bindende_i = ["eo-u38", "mm-u50"]
+bindende_i = ["eo-u39", "mm-u50"]
 vedtak = '''
 En endringsordresak kan følge av en KOE-sak, men ikke erstatte den, verken i historikken
 eller som en egen hendelse i KOE-saken'''
@@ -14229,7 +14760,7 @@ Klasse: vedtak.'''
 valgt = "2A"
 svar = '''
 Oppdragsgiver 04.11, ordrett: «1A, 2A, 3B, 4A» ([#1534, 6626551632](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6626551632)).'''
-forhold = [{ art = "presiserer", vedtak = "eo-u12" }, { art = "presiserer", vedtak = "ov-u6" }, { art = "presiserer", vedtak = "gr-u27" }, { art = "utvider", vedtak = "eo-u33" }, { art = "snevrer inn", vedtak = "mm-u21" }]
+forhold = [{ art = "presiserer", vedtak = "eo-u12" }, { art = "presiserer", vedtak = "ov-u6" }, { art = "presiserer", vedtak = "gr-u27" }, { art = "utvider", vedtak = "eo-u33" }]
 
 [[gruppe.vedtak.alternativ]]
 navn = "2A"
@@ -14316,7 +14847,7 @@ ved registrering. Klasse: beslutning, etter testen i vedtaksskillen, punkt 2.'''
 valgt = "3B"
 svar = '''
 Oppdragsgiver 04.11, ordrett: «1A, 2A, 3B, 4A» ([#1534, 6626551632](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6626551632)).'''
-forhold = [{ art = "presiserer", vedtak = "eo-u16" }, { art = "snevrer inn", vedtak = "lv-u47" }]
+forhold = [{ art = "snevrer inn", vedtak = "lv-u47" }]
 
 [[gruppe.vedtak.alternativ]]
 navn = "3A"
@@ -14402,7 +14933,7 @@ Klasse: vedtak.'''
 valgt = "4A"
 svar = '''
 Oppdragsgiver 04.11, ordrett: «1A, 2A, 3B, 4A» ([#1534, 6626551632](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6626551632)).'''
-forhold = [{ art = "snevrer inn", vedtak = "eo-u16" }, { art = "endrer", vedtak = "eo-u32" }]
+forhold = [{ art = "endrer", vedtak = "eo-u32" }]
 
 [[gruppe.vedtak.alternativ]]
 navn = "4A"
@@ -19628,7 +20159,7 @@ anbefalt = true
 [[gruppe.vedtak]]
 klasse = "beslutning"
 designdel = "kortene side om side og de dempede tallene"
-bindende_i = ["eo-u38", "gr-u5", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u57"]
+bindende_i = ["eo-u39", "gr-u5", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u57"]
 id = "MM-U38"
 dato = 2026-11-02
 hvem = "oppdragsgiver"
@@ -19878,7 +20409,7 @@ tekst = "Byggherren kan likevel gi et nytt svar på grunnlaget i KOE-saken, som 
 [[gruppe.vedtak]]
 klasse = "beslutning"
 designdel = "avsnittet «Designdel» i samlevedtaket, punkt 12, og i punkt 10 «Byggherrens svar og enigheten står på siden for saken.»"
-bindende_i = ["eo-u38", "mm-u50", "gr-u5", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u57"]
+bindende_i = ["eo-u39", "mm-u50", "gr-u5", "gr-u7", "ka-u6", "ka-u22", "ov-u4", "ov-u57"]
 id = "MM-U45"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -19926,7 +20457,7 @@ forkastet = true
 [[gruppe.vedtak]]
 klasse = "beslutning"
 designdel = "«Byggherrens svar og enigheten står på siden for saken.»"
-bindende_i = ["eo-u38", "gr-u7"]
+bindende_i = ["eo-u39", "gr-u7"]
 id = "MM-U46"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -20997,6 +21528,201 @@ tekst = '''
 Punkt 12 tar inn hele regelen om korrigeringen for en KOE-sak som endringsordren omfatter, og punkt 24 i samlevedtaket for retting av sendt brev gjelder bare en sak som er lukket ved aksept av avslaget eller trekk.'''
 forkastet = true
 
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "avsnittet «Designdel» i samlevedtaket"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket, med sperrene i punkt 12, 14 og 37 som avsnittet viser til"
+id = "EO-U39"
+dato = 2026-11-05
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålene ordrett slik de ble stilt 05.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/5ef7098/docs/vedtaksregister/vurdering-samlevedtak-endringsordren-v3-2026-11-05.md#spørsmålene-til-oppdragsgiver). Alternativene står i posten, med ordlyden som ble godkjent 05.11.
+
+Spørsmål 1–4 er juridiske. Spørsmål 5 er teknisk.
+
+1. **Brevet når byggherren svarer på nytt etter en endringsordre registrert som svar.**
+   Bakgrunn: et nytt svar sier i brevet at det erstatter byggherrens svar i det tidligere
+   brevet. Er det tidligere svaret en endringsordre byggherren sendte utenfor løsningen,
+   kan setningen leses som at endringsordren er erstattet. Belegg: HF-U25 punkt 2 og LV-U34
+   («Svaret erstatter byggherrens svar i brev <n> av <dato>.»); EO-U38 punkt 50 («Brev og
+   visning sier ikke at endringsordren i brevet er bortfalt» og «Løsningen avgjør ikke om
+   det nye svaret er virksomt mot endringsordren i brevet»).
+   - **A (anbefalt):** «Når byggherrens tidligere svar er en endringsordre registrert som
+     svar, sier brevet med det nye svaret: ‹Svaret er byggherrens nye svar på grunnlaget.
+     Byggherrens tidligere svar på grunnlaget er endringsordren i <brevet, omtalt med
+     avsenderens merking, eller med parten, typen og datoen>.› (Ny; LV-U53.) Brev og
+     visning sier ikke at endringsordren er erstattet eller bortfalt. (EO-U38 punkt 50;
+     HF-U25 punkt 8.) Løsningen avgjør ikke om det nye svaret er virksomt mot
+     endringsordren i brevet. (EO-U38 punkt 50; MM-U50 punkt 8.)» Forhold: snevrer inn
+     LV-U34 og HF-U25 punkt 2.
+   - **B:** «Når byggherrens tidligere svar er en endringsordre registrert som svar, sier
+     brevet med det nye svaret: ‹Svaret erstatter byggherrens svar i <brevet>.
+     Endringsordren i brevet står uendret.›»
+   - Anbefaling: A. B beholder «erstatter» og sier i brevet hvilken virkning endringsordren
+     har, og det avgjør løsningen ikke (EO-U38 punkt 50 og 64; MM-U50 punkt 8).
+   - Styrer: brevteksten i svaret og punkt 50.
+
+2. **Feil i registreringen eller et annet svar.** Bakgrunn: en endringsordre registrert
+   som svar rettes ikke. En feil i registreringen tas opp i et innlegg, mens en retting av
+   et standpunkt i et svar sendes som et nytt svar. Hvor grensen går, er ikke sagt.
+   Belegg: HF-U25 punkt 5 («En retting av et standpunkt i svaret sendes som et nytt svar
+   … med henvisning til brevet den retter»); EO-U38 punkt 50 («En endringsordre
+   registrert som svar … rettes ikke … Byggherren tar en feil i registreringen opp i et
+   innlegg i KOE-saken»); MM-U52 punkt 16.
+   - **A (anbefalt):** «Stemmer registreringen av en endringsordre registrert som svar ikke
+     med brevet, er det en feil i registreringen. Byggherren tar den opp i et innlegg i
+     KOE-saken, og brevet er byggherrens meddelelse. (EO-U38 punkt 50.) Vil byggherren gi
+     et annet svar på grunnlaget enn godkjenningen som er registrert, sender byggherren et
+     nytt svar innenfor grensen for nytt svar. (EO-U38 punkt 45 og 50; HF-U25 punkt 5.)
+     Gjelder feilen det standpunktet registreringen gir, for eksempel et forbehold
+     registreringen ikke fikk med, kan byggherren også sende et nytt svar. (Ny.) Svaret er
+     et nytt utsagn, ikke en retting av endringsordren, og det viser til brevet. (EO-U38
+     punkt 50; MM-U52 punkt 16; LV-U53.)» Forhold: snevrer inn HF-U25 punkt 5; presiserer
+     EO-U38 punkt 50.
+   - **B:** «En endringsordre registrert som svar rettes ikke med et nytt svar. En feil i
+     registreringen tas opp i et innlegg i KOE-saken. Et nytt svar etter en endringsordre
+     registrert som svar er et nytt standpunkt og viser ikke til brevet som en retting.»
+     Forhold: snevrer inn HF-U25 punkt 5.
+   - Anbefaling: A. Skillet mellom registreringen og brevet står i punkt 50, og A beholder
+     det nye svaret som vei, slik punkt 50 åpner for. Under B kan byggherren tro at et
+     annet standpunkt også går som innlegg, og et innlegg er ikke et svar.
+   - Styrer: hva byggherren velger etter en endringsordre registrert som svar.
+
+3. **Hvor lenge byggherren kan svare på nytt.** Bakgrunn: grensen står med flere
+   ordlyder. To kan leses som at grensen går når saken knyttes til et utkast til
+   endringsordre. Punkt 9 og 12 knytter lukkingen til den sendte endringsordren eller den
+   godkjente registreringen. Belegg: EO-U38 punkt 13 («Fram til endringsordren i EO-saken
+   kan byggherren sende et nytt svar på grunnlaget.»), punkt 50 («fram til en endringsordre
+   i en EO-sak omfatter saken»), punkt 64, punkt 7 («KOE-tilknytningen endres bare før
+   utstedelse»), punkt 53 («gjelder de sakene som er åpne når den siste godkjenningen
+   gjøres»), HF-U25 punkt 7 og MM-U52 punkt 6.
+   - **A (anbefalt):** «Byggherren kan sende et nytt svar i en KOE-sak, også etter en
+     endringsordre registrert som svar, til en sendt endringsordre eller en godkjent
+     registrering av en endringsordre i en EO-sak omfatter saken. (EO-U38 punkt 9, 12, 13
+     og 50; HF-U25 punkt 1 og 7.) Deretter gjelder punkt 12. (EO-U38 punkt 12.)» Forhold:
+     endrer EO-U38 punkt 13, 50 og 64, som ikke lenger begrenser svaret til grunnlaget;
+     presiserer MM-U52 punkt 6; HF-U25 punkt 7 viser hit.
+   - **B:** «Byggherren kan sende et nytt svar i en KOE-sak, også etter en endringsordre
+     registrert som svar, til saken er knyttet til en EO-sak. Deretter avviser løsningen et
+     nytt svar.» Forhold: endrer EO-U38 punkt 13, 50 og 64.
+   - Anbefaling: A. Under B kan TE sende en ny kravversjon mens saken er knyttet til et
+     utkast, uten at byggherren kan svare, og et utkast som aldri sendes, blir en sperre.
+   - Styrer: når byggherren ikke lenger kan svare i KOE-saken.
+
+4. **Forholdene til postene samlevedtaket samler (føring).** Bakgrunn: samlevedtaket skal
+   si om (a) eller (b) gjelder for forholdene til postene det samler. Versjon 2 sier bare at
+   de står. Belegg: OV-U92, siste setning («hvert av dem sier i «Endret innhold» om (a)
+   eller (b) gjelder for forholdene til postene det samler»), og (b) («Sier samlevedtaket
+   at forholdet eller setningen ikke gjelder, eller ikke har noe å virke på, fjernes
+   forholdet»).
+   - **A (anbefalt):** «Forholdene ‹EO-U36 presiserer EO-U16›, ‹EO-U37 snevrer inn EO-U16›
+     og ‹EO-U35 snevrer inn MM-U21› har ikke noe å virke på: EO-U16 er opphevet av EO-U34
+     og EO-U38, og MM-U21 av MM-U52. (OV-U92 (b).) Verken (a) eller (b) gjelder for
+     forholdene til EO-U12, EO-U32, EO-U33, OV-U6, GR-U27 og LV-U47, og de står. EO-U12,
+     EO-U32, EO-U33 og OV-U6 er samlet her, og GR-U27 og LV-U47 gjelder. (OV-U92; E9.)»
+   - **B:** forholdene til EO-U16 står og leses som forhold til samlevedtaket, og forholdet
+     til MM-U21 fjernes.
+   - Anbefaling: A. Under B presiserer EO-U36 og snevrer EO-U37 inn det samlevedtaket som
+     samler dem.
+   - Styrer: Følge i registeret, ikke hva partene gjør.
+
+5. **Føringsformen (teknisk).** Versjon 3 endrer innhold i EO-U38 og HF-U25. Etter svar 4
+   A i #1534 opphever en ny post dem i stedet for å endre dem.
+   - **A (anbefalt):** to nye poster, én som opphever EO-U38 og én som opphever HF-U25,
+     hver med sin tekst og endringene over.
+   - **B:** én ny post som opphever begge og har teksten til begge.
+   - Styrer: føringen i en senere vedtaks-PR.'''
+valgt = "1 A, 2 A, 3 A, 4 A, 5 A"
+svar = '''
+Oppdragsgiver 05.11, ordrett ([#1534, 6668555694](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6668555694)): «2A, 3A, 4A, 5A. 1A, men språket må forbedres. «Grunnlaget» brukes ikke lenger - det er forhold eller påberopelse.» Den rettede ordlyden ble godkjent 05.11 ([#1534, 6669209777](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6669209777)), ordrett: «Enig med deg.» og, for punkt 1–3 i forslaget, «1 ja, 2 ja, 3 mitt alternativ». Valgt samlet: 1 A, 2 A, 3 A, 4 A, 5 A.'''
+forhold = [
+  { art = "opphever", vedtak = "eo-u38" },
+  { art = "opphever", vedtak = "eo-u34" },
+  { art = "samler", vedtak = "eo-u35" },
+  { art = "samler", vedtak = "eo-u36" },
+  { art = "samler", vedtak = "eo-u37" },
+  { art = "utvider", vedtak = "gr-u27" },
+  { art = "opphever", vedtak = "eo-u1" },
+  { art = "opphever", vedtak = "eo-u3" },
+  { art = "opphever", vedtak = "eo-u4" },
+  { art = "opphever", vedtak = "eo-u8" },
+  { art = "opphever", vedtak = "eo-u16" },
+  { art = "opphever", vedtak = "eo-u20" },
+  { art = "opphever", vedtak = "eo-u24" },
+  { art = "samler", vedtak = "eo-u11" },
+  { art = "samler", vedtak = "eo-u12" },
+  { art = "samler", vedtak = "eo-u13" },
+  { art = "samler", vedtak = "eo-u14" },
+  { art = "samler", vedtak = "eo-u15" },
+  { art = "samler", vedtak = "eo-u17" },
+  { art = "samler", vedtak = "eo-u18" },
+  { art = "samler", vedtak = "eo-u19" },
+  { art = "samler", vedtak = "eo-u21" },
+  { art = "samler", vedtak = "eo-u22" },
+  { art = "samler", vedtak = "eo-u23" },
+  { art = "samler", vedtak = "eo-u25" },
+  { art = "samler", vedtak = "eo-u26" },
+  { art = "samler", vedtak = "eo-u27" },
+  { art = "samler", vedtak = "eo-u28" },
+  { art = "samler", vedtak = "eo-u29" },
+  { art = "samler", vedtak = "eo-u30" },
+  { art = "samler", vedtak = "eo-u31" },
+  { art = "samler", vedtak = "eo-u32" },
+  { art = "samler", vedtak = "eo-u33" },
+  { art = "samler", vedtak = "ov-u6" },
+  { art = "endrer", vedtak = "hf-u12" },
+  { art = "endrer", vedtak = "ka-u12" },
+  { art = "endrer", vedtak = "ka-u45" },
+  { art = "endrer", vedtak = "mm-u33" },
+  { art = "endrer", vedtak = "mm-u34" },
+  { art = "endrer", vedtak = "ov-u2" },
+  { art = "endrer", vedtak = "ov-u3" },
+  { art = "endrer", vedtak = "ov-u6" },
+  { art = "endrer", vedtak = "ov-u43" },
+  { art = "endrer", vedtak = "ov-u80" },
+  { art = "endrer", vedtak = "ubegrenset-fullmakt" },
+  { art = "snevrer inn", vedtak = "lv-u34" },
+  { art = "presiserer", vedtak = "mm-u52" },
+]
+folge = '''
+Teksten står under tabellen, i [Samlevedtaket for endringsordren, versjon 3](#samlevedtak-eo-3). Opphever EO-U38 (svar 5 A). Forholdene i EO-U38 er overtatt. Snevrer inn LV-U34 (svar 1 A) og presiserer MM-U52 punkt 6 (svar 3 A). Etter svar 4 A er forholdene «EO-U36 presiserer EO-U16», «EO-U37 snevrer inn EO-U16» og «EO-U35 snevrer inn MM-U21» fjernet (E13). HF-U25 er opphevet av [HF-U29](#hf-u29) (svar 5 A).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 A, 2 A, 3 A, 4 A, 5 A"
+tekst = '''
+Spørsmål 1: Når byggherrens tidligere svar er en endringsordre registrert som svar, sier brevet med det nye svaret: ‹Svaret er byggherrens nye svar på påberopelsen av forholdet. Byggherrens tidligere svar på påberopelsen er endringsordren i <brevet, omtalt med avsenderens merking, eller med parten, typen og datoen>.› (Ny; LV-U53.) Brev og visning sier ikke at endringsordren er erstattet eller bortfalt. (EO-U38 punkt 50; HF-U25 punkt 8.) Løsningen avgjør ikke om det nye svaret er virksomt mot endringsordren i brevet. (EO-U38 punkt 50; MM-U50 punkt 8.) Forhold: snevrer inn LV-U34 og HF-U25 punkt 2. Spørsmål 2: Stemmer registreringen av en endringsordre registrert som svar ikke med brevet, er det en feil i registreringen. Byggherren tar den opp i et innlegg i KOE-saken, og brevet er byggherrens meddelelse. (EO-U38 punkt 50.) Vil byggherren gi et annet svar på påberopelsen enn godkjenningen som er registrert, sender byggherren et nytt svar innenfor grensen for nytt svar. (EO-U38 punkt 45 og 50; HF-U25 punkt 5.) Gjelder feilen det standpunktet registreringen gir, for eksempel et forbehold registreringen ikke fikk med, kan byggherren også sende et nytt svar. (Ny.) Svaret er et nytt utsagn, ikke en retting av endringsordren, og det viser til brevet. (EO-U38 punkt 50; MM-U52 punkt 16; LV-U53.) Forhold: snevrer inn HF-U25 punkt 5; presiserer EO-U38 punkt 50. Spørsmål 3: Byggherren kan sende et nytt svar i en KOE-sak, også etter en endringsordre registrert som svar, til en sendt endringsordre eller en godkjent registrering av en endringsordre i en EO-sak omfatter saken. (EO-U38 punkt 9, 12, 13 og 50; HF-U25 punkt 1 og 7.) Deretter gjelder punkt 12. (EO-U38 punkt 12.) Forhold: endrer EO-U38 punkt 13, 50 og 64, som ikke lenger gjelder bare svaret på påberopelsen; presiserer MM-U52 punkt 6; HF-U25 punkt 7 viser hit. Spørsmål 4: Forholdene ‹EO-U36 presiserer EO-U16›, ‹EO-U37 snevrer inn EO-U16› og ‹EO-U35 snevrer inn MM-U21› har ikke noe å virke på: EO-U16 er opphevet av EO-U34 og EO-U38, og MM-U21 av MM-U52. (OV-U92 (b).) Verken (a) eller (b) gjelder for forholdene til EO-U12, EO-U32, EO-U33, OV-U6, GR-U27 og LV-U47, og de står. EO-U12, EO-U32, EO-U33 og OV-U6 er samlet her, og GR-U27 og LV-U47 gjelder. (OV-U92; E9.) Spørsmål 5: to nye poster, én som opphever EO-U38 og én som opphever HF-U25, hver med sin tekst og endringene over.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 B"
+tekst = '''
+Når byggherrens tidligere svar er en endringsordre registrert som svar, sier brevet med det nye svaret: ‹Svaret erstatter byggherrens svar i <brevet>. Endringsordren i brevet står uendret.›'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2 B"
+tekst = '''
+En endringsordre registrert som svar rettes ikke med et nytt svar. En feil i registreringen tas opp i et innlegg i KOE-saken. Et nytt svar etter en endringsordre registrert som svar er et nytt standpunkt og viser ikke til brevet som en retting. Forhold: snevrer inn HF-U25 punkt 5.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3 B"
+tekst = '''
+Byggherren kan sende et nytt svar i en KOE-sak, også etter en endringsordre registrert som svar, til saken er knyttet til en EO-sak. Deretter avviser løsningen et nytt svar. Forhold: endrer EO-U38 punkt 13, 50 og 64.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "4 B"
+tekst = '''
+forholdene til EO-U16 står og leses som forhold til samlevedtaket, og forholdet til MM-U21 fjernes.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "5 B"
+tekst = '''
+én ny post som opphever begge og har teksten til begge.'''
+forkastet = true
 [[gruppe.vedtak]]
 id = "MM-U54"
 dato = 2026-11-06
@@ -25293,7 +26019,7 @@ tekst = "Appen vurderer ikke innholdet"
 
 [[gruppe.vedtak]]
 klasse = "design"
-bindende_i = ["eo-u38", "vs-u18"]
+bindende_i = ["eo-u39", "vs-u18"]
 id = "OV-U63"
 dato = 2026-10-26
 hvem = "oppdragsgiver"
