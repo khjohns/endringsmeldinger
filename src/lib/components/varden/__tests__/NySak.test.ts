@@ -269,6 +269,16 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(within(panel).getByText('Dokumentet med varselet som alt er sendt')).toBeTruthy();
   });
 
+  it('#1533: velgeren viser punktet slik brevet skriver det, «33.1 c», og kontraktens regel står', async () => {
+    aapne();
+    await velgForhold('Andre forhold byggherren har risikoen for', /^Annet forhold byggherren/);
+    const panel = screen.getByRole('region', { name: 'Hovedlinjene i påberopelsen' });
+    expect(
+      within(panel).getByText(/^Annet forhold byggherren har risikoen for, punkt 33\.1 c$/)
+    ).toBeTruthy();
+    expect(screen.getByText(/som ikke faller inn under endringer eller svikt/)).toBeTruthy();
+  });
+
   it('F-1/GR-U31: ved svikt sier panelet ikke at brevet varsler etter punkt 32.2', async () => {
     aapne();
     await velgForhold(SVIKT, /^Svikt i byggherrens prosjektering/);

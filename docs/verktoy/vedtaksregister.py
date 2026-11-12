@@ -1592,6 +1592,7 @@ def _innholdet(post: dict) -> dict:
 # med kilden. Teksten i posten sa forholdet med ord, uten lenke.
 FORHOLD_FOERT_ETTER_MERGE = {
     ("eo-u17", "endrer", "ubegrenset-fullmakt"): "M2 A 04.11, #1534",
+    ("vs-u65", "bygger på", "hf-u29"): "svar 5 A 05.11 og README-regelen (svar 4 A 04.11), orkestratoren 12.11, #1534",
 }
 
 # Forhold oppdragsgiver har bestemt at en merget post skal miste, som (posten, arten, vedtaket),
@@ -1618,6 +1619,10 @@ FORHOLD_FJERNET_ETTER_MERGE = {
     ("ov-u55", "snevrer inn", "eo-u5"): "E9 i EO-U38, OV-U92 (b) og OV-U93, #1534",
     ("gfk-u2", "presiserer", "eo-u6"): "E9 i EO-U38, OV-U92 (b) og OV-U93, #1534",
     ("hf-u12", "presiserer", "eo-u9"): "E9 i EO-U38, OV-U92 (b) og OV-U93, #1534",
+    ("eo-u35", "snevrer inn", "mm-u21"): "E13 i EO-U39, svar 4 A 05.11, OV-U92 (b), #1534",
+    ("eo-u36", "presiserer", "eo-u16"): "E13 i EO-U39, svar 4 A 05.11, OV-U92 (b), #1534",
+    ("eo-u37", "snevrer inn", "eo-u16"): "E13 i EO-U39, svar 4 A 05.11, OV-U92 (b), #1534",
+    ("vs-u65", "bygger på", "hf-u25"): "svar 5 A 05.11 og README-regelen (svar 4 A 04.11), orkestratoren 12.11, #1534",
 }
 
 

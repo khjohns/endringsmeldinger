@@ -219,7 +219,7 @@ export const trekkAvPaaberopelsenErSperret = (u: Utledning): boolean => u.endrin
  * etter GR-U27, fordi TE har godtatt et svar som avslår forholdet eller påberoper
  * preklusjon, eller har trukket forholdet.
  * Et frafall etter § 32.3 c hindrer ikke (GR-U28). At saken alt er omfattet av en
- * endringsordre (EO-U3 (opphevet av EO-U34 og EO-U38)), leses der EO-saken bygges (#1378).
+ * endringsordre (EO-U3 (opphevet av EO-U34, EO-U38 og EO-U39)), leses der EO-saken bygges (#1378).
  */
 export function kanInngaaIEo(u: Utledning): boolean {
   return u.spor.forhold.gjeldendeKrav !== null && !u.forholdAvvist && !u.spor.forhold.trukket;
