@@ -196,6 +196,28 @@
     await tick();
     document.getElementById(id(`endre-${p.noekkel}`))?.focus();
   }
+  // Den særskilte vederlagsjusteringen har en leselinje som kravpostene, og står åpen når den er ny (#1827).
+  let saerskiltAapen = $state(untrack(() => v.saerskilt !== null && !v.saerskilt.beloep));
+  async function aapneSaerskilt() {
+    saerskiltAapen = true;
+    await tick();
+    document.getElementById(id('saerskilt'))?.focus();
+  }
+  async function lukkSaerskilt() {
+    saerskiltAapen = false;
+    await tick();
+    document.getElementById(id('endre-saerskilt'))?.focus();
+  }
+  async function leggTilSaerskilt() {
+    v.saerskilt = { beloep: '' };
+    await aapneSaerskilt();
+  }
+  async function fjernSaerskilt() {
+    v.saerskilt = null;
+    saerskiltAapen = false;
+    await tick();
+    document.getElementById(id('legg-til-saerskilt'))?.focus();
+  }
   const trukne = $derived(trukneKravposter(u).filter((q) => !v.poster.some((p) => p.id === q.id)));
 
   // Det som mangler vises først når TE har prøvd å se brevet (MM-U32).
@@ -207,6 +229,11 @@
   let sendehindring = $state<string | null>(null);
 
   async function gaaTil(m: { felt: string; post: string | null }, e: Event) {
+    if (m.felt === id('saerskilt')) {
+      e.preventDefault();
+      await aapneSaerskilt();
+      return;
+    }
     if (m.post === null) return;
     const p = v.poster.find((q) => q.noekkel === m.post)!;
     const iVarselet = /-(varsel|type|dato|dokument)-/.test(m.felt);
@@ -255,6 +282,14 @@
     const b = verdi(p);
     return a === b ? null : KRAVSKJEMA.endretFra(kravbrevet, a, b);
   }
+  const saerskiltFoer = $derived(forrige ? (startvalg(u).saerskilt?.beloep ?? null) : null);
+  const saerskiltEndret = $derived.by(() => {
+    if (!kravbrevet || !v.saerskilt) return null;
+    if (saerskiltFoer === null) return KRAVSKJEMA.ny;
+    const a = beloepTekst(saerskiltFoer) ?? '–';
+    const b = beloepTekst(v.saerskilt.beloep) ?? '–';
+    return a === b ? null : KRAVSKJEMA.endretFra(kravbrevet, a, b);
+  });
 
   // Varslene: § 34.1.2 for hele kravet, § 34.1.3 med den særskilte posten, én rad per kravpost
   // som trenger et varsel, og varslene i saken som ingen kravpost viser til (prototype v4, U-12).
@@ -907,27 +942,57 @@
             <span class="hjemmel">{KRAVSKJEMA.saerskiltHjemmel}</span>
           </div>
           <p class="intro">{KRAVSKJEMA.saerskiltIntro}</p>
-          {@render beloepsfelt(
-            'saerskilt',
-            KRAVSKJEMA.saerskiltBeloep,
-            KRAVSKJEMA.saerskiltHjelp,
-            saerskilt,
-            'beloep',
-            true
-          )}
-          <!-- En post fra forrige krav kan ikke tas ut uten et trekk kjernen ennå ikke har (spørsmål 3). -->
-          {#if !forrige || krevdProduktivitet(forrige) === null}
-            <div>
-              <Knapp variant="lenke" onclick={() => (v.saerskilt = null)}
-                >{KRAVSKJEMA.fjernSaerskilt}</Knapp
-              >
+          {#if saerskiltAapen}
+            <div class="aapen saerskilt-aapen">
+              {@render beloepsfelt(
+                'saerskilt',
+                KRAVSKJEMA.saerskiltBeloep,
+                KRAVSKJEMA.saerskiltHjelp,
+                saerskilt,
+                'beloep',
+                true
+              )}
+              <div class="postfot">
+                <!-- En post fra forrige krav kan ikke tas ut uten et trekk kjernen ennå ikke har (spørsmål 3). -->
+                {#if !forrige || krevdProduktivitet(forrige) === null}
+                  <Knapp variant="lenke" onclick={fjernSaerskilt}>{KRAVSKJEMA.fjernSaerskilt}</Knapp
+                  >
+                {:else}
+                  <span></span>
+                {/if}
+                <Knapp onclick={lukkSaerskilt}>{KRAVSKJEMA.ferdig}</Knapp>
+              </div>
             </div>
+          {:else}
+            <div class="linje saerskilt-linje">
+              <h4 class="navn"><span class="betegnelse">{KRAVSKJEMA.saerskiltKort}</span></h4>
+              <p class="form">
+                <span class="visually-hidden">{KRAVSKJEMA.kolonner[1]}:</span>{KRAVSKJEMA.formnavn
+                  .tilbud}
+              </p>
+              <p class="pns-celle tom"></p>
+              <p class="beloep-celle">
+                <span class="visually-hidden">{KRAVSKJEMA.kolonner[3]}:</span>{beloepTekst(
+                  saerskilt.beloep
+                ) ?? '–'}
+              </p>
+              <Knapp
+                variant="lenke"
+                id={id('endre-saerskilt')}
+                aria-label={KRAVSKJEMA.endrePost(KRAVSKJEMA.saerskilt.toLowerCase())}
+                onclick={aapneSaerskilt}>{KRAVSKJEMA.endre}</Knapp
+              >
+              {#if saerskiltEndret}<div class="under"><p>{saerskiltEndret}</p></div>{/if}
+            </div>
+          {/if}
+          {#if feil('saerskilt') && !saerskiltAapen}
+            <p class="feilmelding">{feil('saerskilt')}</p>
           {/if}
         </section>
       {:else}
         <section class="seksjon kompakt">
           <div>
-            <Knapp onclick={() => (v.saerskilt = { beloep: '' })}
+            <Knapp id={id('legg-til-saerskilt')} onclick={leggTilSaerskilt}
               >{KRAVSKJEMA.leggTilSaerskilt}</Knapp
             >
           </div>
@@ -1231,6 +1296,14 @@
     color: var(--ink);
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+  .saerskilt-linje {
+    border-top: var(--rule);
+    border-bottom: var(--rule);
+  }
+  .saerskilt-aapen {
+    padding: var(--spacing-4) 0 var(--spacing-4) var(--spacing-4);
+    border-left: 3px solid var(--ink);
   }
   .post.er-aapen {
     padding: var(--spacing-4) 0 var(--spacing-4) var(--spacing-4);

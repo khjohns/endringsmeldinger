@@ -995,6 +995,7 @@ export const KRAVSKJEMA = {
   taMedIgjen: (post: string, beskrivelse: string) => `Ta med igjen ${post} ${beskrivelse}`,
   // 2. Den særskilte vederlagsjusteringen (OV-U89, OV-U95 punkt 3).
   saerskilt: 'Særskilt vederlagsjustering',
+  saerskiltKort: 'Særskilt',
   saerskiltHjemmel: 'punkt 34.1.3 annet ledd',
   saerskiltIntro:
     'Økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid.',

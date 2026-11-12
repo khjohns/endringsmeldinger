@@ -226,4 +226,42 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     const p1 = panelet.getByRole('link', { name: /^P1/ });
     expect(document.querySelector(p1.getAttribute('href')!)?.classList.contains('post')).toBe(true);
   });
+
+  it('den særskilte vederlagsjusteringen står åpen når den legges til, og som en leselinje med «Endre» etter «Ferdig» (system.md «Én leselinje til du åpner», #1827 punkt 2)', async () => {
+    const demosak = await aapneSomTe('forholdet-er-godkjent');
+    await fireEvent.click(
+      within(
+        await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
+      ).getByRole('button')
+    );
+    await skriv('Beskrivelse av posten', 'Omlegging av rør');
+    await fireEvent.click(screen.getByRole('radio', { name: /^Fast sum/ }));
+    await skriv('Beløpet du krever', '210 000');
+    await fireEvent.click(knapp('Ferdig'));
+
+    await fireEvent.click(knapp('Legg til særskilt vederlagsjustering'));
+    const seksjonen = within(screen.getByRole('region', { name: 'Særskilt vederlagsjustering' }));
+    expect(document.activeElement).toBe(seksjonen.getByLabelText('Beløpet du krever'));
+    await fireEvent.click(seksjonen.getByRole('button', { name: 'Ferdig' }));
+    expect(seksjonen.queryByLabelText('Beløpet du krever')).toBeNull();
+    expect(document.activeElement).toBe(knapp('Endre særskilt vederlagsjustering'));
+
+    // MM-U32: et tomt beløp står i oppsummeringen, og lenken åpner feltet.
+    await fireEvent.click(knapp('Se brevet før sending'));
+    const mangler = within(
+      screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' })
+    );
+    await fireEvent.click(mangler.getByRole('link', { name: /^Særskilt vederlagsjustering/ }));
+    expect(document.activeElement).toBe(seksjonen.getByLabelText('Beløpet du krever'));
+    await fireEvent.input(seksjonen.getByLabelText('Beløpet du krever'), {
+      target: { value: '40000' },
+    });
+    await fireEvent.click(seksjonen.getByRole('button', { name: 'Ferdig' }));
+    expect(seksjonen.getByText(/^40\s000/)).toBeTruthy();
+
+    await sendBrevet();
+    expect(sistSendt(demosak().journal()).saerskilt).toEqual({
+      produktivitet: { beloep: 40000 },
+    });
+  });
 });
