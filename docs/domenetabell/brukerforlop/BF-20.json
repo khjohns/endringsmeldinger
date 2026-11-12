@@ -231,7 +231,9 @@
     "KA-U22",
     "HF-U5",
     "KA-U75",
-    "OV-U39"
+    "OV-U39",
+    "KA-U77",
+    "KA-U78"
   ],
   "venter_paa": [
     "#1427"
@@ -268,6 +270,11 @@
       "dato": "2026-11-12",
       "forhold": "#1745",
       "hva": "Etter oppdragsgivers prøve av prototypen: linja om at utkastet bare er synlig for teamet er fjernet, «Når du sender» står til høyre for brevet, varselet går fra skjema til brev til sending med brevhode, og feltet for godkjente dager står alltid og styrer valget."
+    },
+    {
+      "dato": "2026-11-12",
+      "forhold": "#1818",
+      "hva": "D-9 og D-10 viser til KA-U77 og KA-U78."
     }
   ]
 }
