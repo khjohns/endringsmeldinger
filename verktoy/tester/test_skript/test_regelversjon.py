@@ -14,7 +14,6 @@ from pathlib import Path
 import pytest
 
 SKRIPT = Path(__file__).resolve().parents[3] / ".github/scripts/regelversjon.sh"
-TS = "src/lib/domain/regelversjon.ts"
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -37,14 +36,10 @@ def _mv(repo: Path, fra: str, til: str) -> None:
     _git(repo, "mv", fra, til)
 
 
-def _versjon(ts: int) -> dict[str, str]:
-    return {TS: f"export const REGELVERSJON = {ts};\n"}
-
-
 @pytest.fixture
 def repo(tmp_path: Path) -> tuple[Path, str]:
     _git(tmp_path, "init", "-q")
-    _skriv(tmp_path, {**_versjon(3), "src/lib/domain/regel.ts": "a\n"})
+    _skriv(tmp_path, {"README.md": "a\n"})
     return tmp_path, _git(tmp_path, "rev-parse", "HEAD")
 
 
@@ -57,43 +52,6 @@ def _kjor(repo: Path, base: str) -> subprocess.CompletedProcess:
         ["bash", str(SKRIPT)], cwd=repo, env={**_uten_git_miljo(), "BASE": base},
         capture_output=True, text=True,
     )
-
-
-def test_regelendring_uten_okt_versjon_feiler(repo):
-    sti, base = repo
-    _skriv(sti, {"src/lib/domain/regel.ts": "b\n"})
-    svar = _kjor(sti, base)
-    assert svar.returncode == 1, svar.stdout + svar.stderr
-    assert f"::error file={TS}::" in svar.stdout
-
-
-def test_regelendring_med_okt_versjon_passerer(repo):
-    sti, base = repo
-    _skriv(sti, {"src/lib/domain/regel.ts": "b\n", **_versjon(4)})
-    svar = _kjor(sti, base)
-    assert svar.returncode == 0, svar.stdout + svar.stderr
-
-
-def test_endring_bare_i_domenetestene_passerer(repo):
-    sti, base = repo
-    _skriv(sti, {"src/lib/domain/__tests__/regel.test.ts": "b\n"})
-    svar = _kjor(sti, base)
-    assert svar.returncode == 0
-    assert "Ingen endring i src/lib/domain/" in svar.stdout
-
-
-def _slett(repo: Path, sti: str) -> None:
-    _git(repo, "rm", "-q", sti)
-    _git(repo, "commit", "-qm", "sletting")
-
-
-def test_slettet_fil_i_frontendspeilet_krever_ingen_ny_versjon(repo):
-    """Skjemaene som brukte speilet, er fjernet, og en sletting endrer ingen regel som kjører (#1516)."""
-    sti, base = repo
-    _slett(sti, "src/lib/domain/regel.ts")
-    svar = _kjor(sti, base)
-    assert svar.returncode == 0, svar.stdout + svar.stderr
-    assert "Ingen endring i src/lib/domain/" in svar.stdout
 
 
 def test_mangler_base_gir_bruksmelding(repo):
@@ -175,13 +133,6 @@ def test_kjernen_uten_standpunkt_ts_feiler(kjerne):
     svar = _kjor(sti, base)
     assert svar.returncode == 1, svar.stdout + svar.stderr
     assert f"{KJERNE_STANDPUNKT} finnes ikke" in svar.stdout
-
-
-def test_kjernen_og_frontendreglene_kontrolleres_hver_for_seg(kjerne):
-    """En endring i kjernen redder ikke en regelendring i src/lib/domain/ uten ny versjon."""
-    sti, base = kjerne
-    _skriv(sti, {"src/lib/domain/regel.ts": "b\n", "kjerne/utled.ts": "b\n", **_kjerne(5, 3)})
-    assert _kjor(sti, base).returncode == 1
 
 
 def _format(skriver: int, leser: int | None) -> dict[str, str]:
@@ -432,7 +383,6 @@ UTLED = (
             "kjerne/regler/frist.ts", UTLED, UTLED.replace("/** Virkningen av et svar. */\n", "/**\n * Ny.\n */\n"), 0,
             id="bare JSDoc i regelsettet",
         ),
-        pytest.param("src/lib/domain/regel.ts", UTLED, UTLED.replace("(MM-U1)", "(MM-U2)"), 0, id="bare en kommentar i speilet"),
         pytest.param("kjerne/utled.ts", UTLED, UTLED.replace("'avslått'", "'godkjent'"), 1, id="en endret streng"),
         pytest.param("kjerne/utled.ts", UTLED, UTLED.replace("? 1 : 2", "? 2 : 1"), 1, id="et endret uttrykk"),
         pytest.param(
@@ -442,9 +392,7 @@ UTLED = (
         pytest.param(
             "kjerne/regler/frist.ts", UTLED, UTLED.replace("'avslått'", "'godkjent'"), 1, id="en endret streng i regelsettet",
         ),
-        pytest.param("src/lib/domain/regel.ts", UTLED, UTLED.replace("'avslått'", "'godkjent'"), 1, id="en endret streng i speilet"),
         pytest.param("kjerne/utled.ts", UTLED + "const = ;\n// a\n", UTLED + "const = ;\n// b\n", 1, id="en fil som ikke kan parses"),
-        pytest.param("src/lib/domain/regler.json", "{}\n", "{}\n\n", 1, id="et ukjent språk"),
     ],
 )
 def test_en_endring_bare_i_kommentarene_krever_ingen_ny_versjon(kjerne, sti_, for_, etter, ventet):

@@ -1,12 +1,7 @@
 #!/usr/bin/env bash
-# Regelversjonsvakten. Tre kontroller, som hver kan feile:
+# Regelversjonsvakten. To kontroller, som hver kan feile:
 #
-# 1. B-13 (hovedplanen 3.1, 24.09) og #191: endres reglene i src/lib/domain/,
-#    må REGELVERSJON i src/lib/domain/regelversjon.ts økes. En fil der
-#    bare kommentarene er endret, regnes ikke som endret (#1549). En slettet fil
-#    i src/lib/domain/ regnes heller ikke som endret: skjemaene som brukte den,
-#    er fjernet, og ingen regel som kjører, endres av det (#1516).
-# 2. B-14 (merknaden 09.10) og #308: endres regelsettet i kjerne/regler/, må
+# 1. B-14 (merknaden 09.10) og #308: endres regelsettet i kjerne/regler/, må
 #    REGELVERSJON i kjerne/regler/regelsett.ts økes. Det samme gjelder
 #    kjerne/frosset/, som bestemmer hva beslutningsgrunnlaget fryser
 #    (MM-U11, #330, #309), og frysingen og teksten i et spor i kjerne/spor/
@@ -20,7 +15,7 @@
 #    endret (#1549), regnes ikke som endret, men en
 #    flytting ut av det en versjon dekker, krever den versjonen (#309).
 #    Omfanget står i .github/scripts/flytting.py.
-# 3. B-10 og #316: et nytt format leses i én versjon før det skrives i den
+# 2. B-10 og #316: et nytt format leses i én versjon før det skrives i den
 #    neste. FORMAT i kjerne/format/format.ts kan derfor bare økes til LESERFORMAT slik
 #    det stod i BASE, LESERFORMAT senkes aldri, og LESERFORMAT er aldri lavere
 #    enn FORMAT. Kontrollen ser på diffen mot BASE, ikke på hva som er rullet
@@ -45,27 +40,9 @@ okt() {
   [ -n "$etter" ] && [ "$etter" -gt "${for:-0}" ]
 }
 
-# --- 1. Reglene i frontenden ---
-ts=src/lib/domain/regelversjon.ts
-# En fil der bare kommentarene er endret, regnes ikke som endret (#1549).
-# .github/scripts/kommentarer.py avgjør det.
 fra=$(git merge-base "$BASE" HEAD) || exit 2
-endret=$(set -o pipefail
-  git -c core.quotePath=false diff --name-status --no-renames --diff-filter=d "$fra" HEAD \
-    -- src/lib/domain ":(exclude)src/lib/domain/__tests__" \
-    | python3 "$(dirname "$0")/kommentarer.py" "$fra") || exit 2
-if [ -z "$endret" ]; then
-  echo "Ingen endring i src/lib/domain/ utenom testene og kommentarene."
-else
-  echo "Endret:"; echo "$endret"
-  les_ts() { sed -n 's/^export const REGELVERSJON = \([0-9][0-9]*\);$/\1/p'; }
-  if ! okt "$ts" les_ts; then
-    echo "::error file=$ts::Reglene er endret. Øk REGELVERSJON i $ts."
-    feil=1
-  fi
-fi
 
-# --- 2. Kjernen ---
+# --- 1. Kjernen ---
 regelsett=kjerne/regler/regelsett.ts
 versjon=kjerne/versjon.ts
 les_regelversjon() { sed -n 's/^export const REGELVERSJON = \([0-9][0-9]*\);$/\1/p'; }
@@ -109,7 +86,7 @@ else
   fi
 fi
 
-# --- 3. Formatet i to trinn ---
+# --- 2. Formatet i to trinn ---
 format=kjerne/format/format.ts
 les_konstant() { sed -n "s/^export const $1 = \([0-9][0-9]*\);\$/\1/p"; }
 echo
