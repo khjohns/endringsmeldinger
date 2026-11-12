@@ -14,7 +14,7 @@ import {
 } from '../vederlagskrav';
 
 function valg(): Kravvalg {
-  const v: Kravvalg = { poster: [], saerskilt: null, begrunnelse: '', nye: 0 };
+  const v: Kravvalg = { poster: [], saerskilt: null, forbehold: '', nye: 0 };
   const p1 = nyKravpost(v);
   Object.assign(p1, { beskrivelse: ' Omlegging ', form: 'tilbud', beloep: '210 000', pns: '31' });
   const p2 = nyKravpost(v);

@@ -1,6 +1,6 @@
 <!--
   TEs krav om vederlagsjustering (BF-14, prototype v4, økt 3 i #1663). Skjemaet har kravpostene,
-  den særskilte vederlagsjusteringen, «Varslene» som følger av postene, og begrunnelsen. Panelet
+  den særskilte vederlagsjusteringen, «Varslene» som følger av postene, og forbeholdet. Panelet
   til høyre har punktene og summene (U-15, U-16), og tidslinja står under (U-17).
 
   Kravpostene står som leselinjer, og én er åpen om gangen (`system.md`, «Én leselinje til du
@@ -341,10 +341,10 @@
       status: KRAVSKJEMA.antallVarsler(antallVarsler, medKravet),
     },
     {
-      id: id('begrunnelse'),
+      id: id('forbehold'),
       nummer: v.saerskilt ? '4' : '3',
-      tittel: KRAVSKJEMA.begrunnelsePunkt,
-      status: v.begrunnelse.trim() ? KRAVSKJEMA.skrevet : KRAVSKJEMA.ikkeSkrevet,
+      tittel: KRAVSKJEMA.forbeholdPunkt,
+      status: v.forbehold.trim() ? KRAVSKJEMA.skrevet : KRAVSKJEMA.ikkeSkrevet,
     },
   ]);
 
@@ -968,15 +968,15 @@
         </ul>
       </section>
 
-      <section class="seksjon" id={id('begrunnelse')}>
+      <section class="seksjon" id={id('forbehold')}>
         <div class="felt">
-          <label for={id('begrunnelse-felt')} class="h3">{KRAVSKJEMA.begrunnelse}</label>
-          <span class="hjelp" id={id('begrunnelse-hjelp')}>{KRAVSKJEMA.begrunnelseHjelp}</span>
+          <label for={id('forbehold-felt')} class="h3">{KRAVSKJEMA.forbehold}</label>
+          <span class="hjelp" id={id('forbehold-hjelp')}>{KRAVSKJEMA.forbeholdHjelp}</span>
           <textarea
-            id={id('begrunnelse-felt')}
+            id={id('forbehold-felt')}
             rows="4"
-            bind:value={v.begrunnelse}
-            aria-describedby={id('begrunnelse-hjelp')}
+            bind:value={v.forbehold}
+            aria-describedby={id('forbehold-hjelp')}
           ></textarea>
         </div>
       </section>

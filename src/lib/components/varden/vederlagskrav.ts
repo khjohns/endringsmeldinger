@@ -52,7 +52,8 @@ export interface Kravvalg {
   poster: Kravpostvalg[];
   /** Kravet etter § 34.1.3 annet ledd, med beløpet som tekst, eller `null` uten posten. */
   saerskilt: { beloep: string } | null;
-  begrunnelse: string;
+  /** Forbeholdet, sendt som kravets `utdypning` til kjernen har et eget felt (#1823). */
+  forbehold: string;
   /** Teller for nøklene til nye poster. */
   nye: number;
 }
@@ -111,7 +112,7 @@ export const fraKravpost = (p: Kravpost): Kravpostvalg => ({
  */
 export function startvalg(u: Utledning): Kravvalg {
   const krav = u.spor.vederlag.gjeldendeKrav;
-  const v: Kravvalg = { poster: [], saerskilt: null, begrunnelse: '', nye: 0 };
+  const v: Kravvalg = { poster: [], saerskilt: null, forbehold: '', nye: 0 };
   if (!krav) {
     v.poster.push(nyKravpost(v));
     return v;
@@ -193,7 +194,7 @@ export function vederlagskravet(v: Kravvalg, varslene: readonly (Varselet | null
   });
   const trekker = v.poster.filter((p) => p.trukket && p.id).map((p) => p.id!);
   const saerskilt = v.saerskilt ? beloepet(v.saerskilt.beloep) : undefined;
-  const utdypning = v.begrunnelse.trim();
+  const utdypning = v.forbehold.trim();
   return {
     type: 'krav' as const,
     spor: 'vederlag' as const,

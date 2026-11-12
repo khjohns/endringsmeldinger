@@ -1054,9 +1054,9 @@ export const KRAVSKJEMA = {
   dokumentdatoHjelp: 'Datoen avsenderen oppgir.',
   dokumentet: 'Dokumentet',
   dokumentetHjelp: 'Legges til i saken som et eget brev og ved kravet. Opptil 15 MB.',
-  // 4. Begrunnelsen, som kravets utdypning (spørsmål 1 til orkestratoren).
-  begrunnelse: 'Begrunnelse (valgfritt)',
-  begrunnelseHjelp: 'Står i brevet under kravet.',
+  // 4. Forbeholdet, som kravets utdypning til kjernen har et eget felt (svar 1 A 12.11 i #1663, #1823).
+  forbehold: 'Forbehold (valgfritt)',
+  forbeholdHjelp: 'Står i brevet under kravet.',
   // Det som mangler, med feltet (MM-U32, språkfila: «<Verb> <feltet>.»).
   mangler: 'Dette mangler før brevet kan lages:',
   iPosten: (post: string, tekst: string) => `${post}: ${tekst}`,
@@ -1080,7 +1080,7 @@ export const KRAVSKJEMA = {
     `${n === 1 ? '1 varsel' : `${n} varsler`} · ${medKravet} gis med kravet`,
   skrevet: 'Skrevet',
   ikkeSkrevet: 'Ikke skrevet',
-  begrunnelsePunkt: 'Begrunnelse',
+  forbeholdPunkt: 'Forbehold',
   fasteBeloep: 'Faste beløp',
   anslagIkkeKrevd: 'Anslag og overslag, ikke krevd',
   fordelingPns: 'Fordeling på PNS',
@@ -1110,7 +1110,7 @@ export const KRAVSKJEMA = {
   kvittering: 'Brevet er sendt til byggherren.',
   kanIkkeLages: 'Brevet kan ikke lages ennå.',
   forkast: 'Forkast utkast',
-  forkastSpoersmaal: 'Forkaste utkastet? Kravpostene og begrunnelsen du har skrevet, slettes.',
+  forkastSpoersmaal: 'Forkaste utkastet? Kravpostene og forbeholdet du har skrevet, slettes.',
   forkastJa: 'Forkast',
   behold: 'Behold utkastet',
   detteSender: {
