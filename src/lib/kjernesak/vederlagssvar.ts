@@ -2,7 +2,7 @@
  * Det brevet setter foran BHs svar på vederlaget, lest av saken før svaret (#1047 C2 del 2).
  */
 
-import { grunnerFraForholdet } from '$kjerne/frosset/standpunkt';
+import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Utledning } from '$kjerne/utledning/utled';
 
