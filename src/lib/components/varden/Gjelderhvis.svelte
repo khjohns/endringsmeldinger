@@ -31,10 +31,11 @@
 {/if}
 
 <style>
-  /* Subsidiært har ingen farge; laget skilles med kantlinjen og teksten (#197). */
+  /* Subsidiært har ingen farge; laget skilles med en tynn, dempet kantlinje og teksten (#197,
+     alternativ A 10.11 i #1752). */
   .forutsetninger {
     padding: var(--spacing-1) 0 var(--spacing-1) var(--spacing-3);
-    border-left: 2px solid var(--ink);
+    border-left: 1px solid var(--rule-strong-color);
     color: var(--ink-2);
     font-size: 14px;
   }

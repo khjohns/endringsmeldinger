@@ -13,7 +13,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { finnForloep, lagDemosak, type Demosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import { vederlagssvaret, type Svarvalg } from '$lib/components/varden/kommandoer';
+import { tomPost, vederlagssvaret, type Svarvalg } from '$lib/components/varden/kommandoer';
 import type { Journalrad } from '$kjerne/typer';
 import { finn, kjoerBrukerforloep, kontrollpunkt, somForloep } from '$kjerne/tester/brukerforloep';
 import { kontrollerEtter } from '$kjerne/tester/kjoerer';
@@ -26,7 +26,7 @@ const paastand = (holder: boolean, melding: string) => expect(holder, melding).t
 /** Svaret i forløpets steg 4, med valgene BHs skjema i Varden gir (`Vederlagssvar.svelte`). */
 const BH_SVARER: Svarvalg = {
   iTide: false,
-  poster: { P1: { form: 'tilbud', beloep: 'deler', delbeloep: '60 000' } },
+  poster: { P1: { ...tomPost(), form: 'godtar', beloep: 'deler', delbeloep: '60 000' } },
   begrunnelse: 'Varselet kom for sent. Subsidiært godtas 60 000 kr.',
 };
 
