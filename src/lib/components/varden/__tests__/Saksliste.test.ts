@@ -316,7 +316,10 @@ describe('Sakslisten i Varden', () => {
       kravet_staar,
       har_varsel: false,
       ingen_krav: false,
-      krav: { beloep, oppgjoersformer: metode === 'tilbud' ? [metode] : ['tilbud', metode] },
+      krav: {
+        beloep,
+        oppgjoersformer: metode === 'tilbud' ? [metode] : ['tilbud' as const, metode],
+      },
       svar: null,
       enighet: null,
     });

@@ -193,7 +193,7 @@
   const mangler = $derived(manglerIKravet(v, varslene, uid, navnet));
   let forsoekt = $state(false);
   const feil = (felt: string): string | null =>
-    forsoekt ? (mangler.find((m) => m.felt === id(felt))?.tekst ?? null) : null;
+    forsoekt ? (mangler.find((m) => m.felt === id(felt))?.ved ?? null) : null;
   let oppsummering = $state<HTMLElement | null>(null);
   let sendehindring = $state<string | null>(null);
 
@@ -273,6 +273,7 @@
       return KRAVSKJEMA.gittIDokumentet(valgt.type, valgt.dato);
     return KRAVSKJEMA.kravetErVarselet;
   }
+  const smaa = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
   const medDokument = (p: Kravpostvalg) =>
     med.filter((q) => q !== p && q.varsel.art === 'dokument' && varselFor(q)?.art === 'kravet');
   const grense = {
@@ -563,7 +564,7 @@
     {/if}
     {#if vs}
       <p class="varsellinje">
-        {KRAVSKJEMA.varsellinje(vs.hjemmel, postvarseltekst(p, vs))}
+        {KRAVSKJEMA.varsellinje(vs.hjemmel, smaa(postvarseltekst(p, vs)))}
         <a href={`#${id(`varselrad-${n}`)}`}>{KRAVSKJEMA.tilVarslene}</a>
       </p>
     {/if}
@@ -1067,8 +1068,8 @@
     display: inline-grid;
     place-items: center;
     flex: none;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     border: 1.5px solid var(--ink);
     border-radius: 50%;
     font-size: 12px;
@@ -1119,8 +1120,9 @@
   .varselrad {
     border-bottom: var(--rule);
   }
+  /* Midtstilt, så «Endre» med 44 px trykkflate står på linja den hører til. */
   .linje {
-    align-items: start;
+    align-items: center;
     row-gap: var(--spacing-1);
     padding: var(--spacing-3) 0;
   }
@@ -1159,7 +1161,7 @@
   }
   .under {
     grid-column: 1 / -1;
-    padding-left: calc(var(--spacing-3) + 2ch);
+    padding-left: var(--spacing-8);
     color: var(--ink-3);
     font-size: 12px;
   }
@@ -1169,6 +1171,7 @@
   .under a,
   .varsellinje a {
     color: var(--ink);
+    text-decoration: underline;
     text-underline-offset: 3px;
   }
   .post.er-aapen {
@@ -1182,7 +1185,7 @@
     gap: var(--spacing-4);
   }
   .aapen h4 {
-    font-size: 15px;
+    font-size: 16px;
   }
   .felt {
     display: flex;

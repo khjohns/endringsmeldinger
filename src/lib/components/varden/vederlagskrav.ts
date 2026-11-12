@@ -221,7 +221,10 @@ export function vedleggIKravet(v: Kravvalg) {
 export interface Mangel {
   felt: string;
   post: string | null;
+  /** Teksten øverst i skjemaet, med posten. */
   tekst: string;
+  /** Teksten ved feltet, som står i posten. */
+  ved: string;
 }
 
 /** Feilen i et beløpsfelt, eller `null`. `paakrevd` sier om feltet må fylles ut. */
@@ -245,7 +248,12 @@ export function manglerIKravet(
   const ut: Mangel[] = [];
   const med = postene(v);
   if (!med.length && !v.saerskilt)
-    ut.push({ felt: `${prefiks}-legg-til`, post: null, tekst: KRAVSKJEMA.ingenPoster });
+    ut.push({
+      felt: `${prefiks}-legg-til`,
+      post: null,
+      tekst: KRAVSKJEMA.ingenPoster,
+      ved: KRAVSKJEMA.ingenPoster,
+    });
   med.forEach((p, i) => {
     const legg = (felt: string, t: string | null) => {
       if (t)
@@ -253,6 +261,7 @@ export function manglerIKravet(
           felt: `${prefiks}-${felt}-${p.noekkel}`,
           post: p.noekkel,
           tekst: KRAVSKJEMA.iPosten(navnet(p), t),
+          ved: t,
         });
     };
     legg('beskrivelse', p.beskrivelse.trim() ? null : KRAVSKJEMA.manglerBeskrivelse);
@@ -282,6 +291,7 @@ export function manglerIKravet(
         felt: `${prefiks}-saerskilt`,
         post: null,
         tekst: KRAVSKJEMA.iSaerskilt(f),
+        ved: f,
       });
   }
   return ut;

@@ -153,13 +153,14 @@
   .punkter > li {
     display: grid;
     grid-template-columns: 24px minmax(0, 1fr);
+    align-items: start;
     gap: var(--spacing-3);
   }
   .nummer {
     display: grid;
     place-items: center;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     border: 1.5px solid var(--ink);
     border-radius: 50%;
     font-size: 12px;
