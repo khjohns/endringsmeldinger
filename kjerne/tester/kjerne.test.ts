@@ -982,6 +982,142 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
  * tilfelle har en kontrollsak: den uendrede raden er forstått. Kilden er arbeidsvalgene
  * i #479 og VS-U4.
  */
+/**
+ * KA-U78 og OV-U32: dagene for hver frist i hvert lag. Varselet etter § 33.4 står før alle,
+ * så at fremdriften ikke ble hindret, så dagene byggherren måtte forstå, og til sist dagene
+ * byggherren godtar hvis spesifiseringen kom i tide. Lagene i utregningen er lagene i
+ * beslutningsgrunnlaget.
+ */
+describe('lagene per frist i utregningen av fristen (KA-U78, OV-U32)', () => {
+  const krav = {
+    innhold: {
+      frister: [
+        { id: 'a', navn: 'Ferdigstillelse', dager: 20 },
+        { id: 'b', navn: 'Delfrist', dager: 10 },
+      ],
+    },
+  } as unknown as Krav;
+  const frister = [
+    { dager: 15, dager_maatte_forstaa: 5 },
+    { dager: 10, dager_maatte_forstaa: 0 },
+  ];
+  const regnUt = (v: Record<string, unknown>) =>
+    regnUtSvar('frist', v, { krav, paaberopelse: null }, GJELDENDE_REGLER);
+  const lagene = (u: Record<string, unknown>) =>
+    (u.frister as { lag: { lag: number; dager: number }[] }[]).map((r) =>
+      r.lag.map((l) => l.dager)
+    );
+
+  it('hindringen bestridt og spesifiseringen for sent gir 0 dager, dagene byggherren måtte forstå og de vurderte dagene', () => {
+    const u = regnUt({
+      frist_varsel_ok: true,
+      vilkar_oppfylt: false,
+      spesifisert_krav_ok: false,
+      frister,
+    });
+    expect(lagene(u)).toEqual([
+      [0, 5, 15],
+      [0, 0, 10],
+    ]);
+    expect(u.frister).toMatchObject([
+      {
+        gjelder: 'a',
+        resultat: 'avslaatt',
+        godkjent_dager: 0,
+        subsidiaert_resultat: 'delvis_godkjent',
+        subsidiaert_godkjent_dager: 15,
+      },
+      {
+        gjelder: 'b',
+        resultat: 'avslaatt',
+        godkjent_dager: 0,
+        subsidiaert_resultat: 'godkjent',
+        subsidiaert_godkjent_dager: 10,
+      },
+    ]);
+  });
+
+  it('varselet etter § 33.4 for sent står i laget før hindringen', () => {
+    const u = regnUt({
+      frist_varsel_ok: false,
+      vilkar_oppfylt: false,
+      spesifisert_krav_ok: false,
+      frister,
+    });
+    expect(lagene(u)).toEqual([
+      [0, 0, 5, 15],
+      [0, 0, 0, 10],
+    ]);
+    const svar = {
+      spor: 'frist' as const,
+      standpunkter: [
+        {
+          id: 'r',
+          art: 'rettidighet' as const,
+          gjelder: 'v',
+          hjemmel: '33.4' as const,
+          iTide: false,
+        },
+        { id: 'h', art: 'hindring' as const, oppfylt: false },
+        {
+          id: 's',
+          art: 'spesifisering' as const,
+          gjelder: 'k',
+          hjemmel: '33.6.1' as const,
+          iTide: false,
+        },
+        {
+          id: 'da',
+          art: 'dager' as const,
+          gjelder: 'a',
+          resultat: 'delvis_godkjent' as const,
+          vurdert: 15,
+        },
+        {
+          id: 'db',
+          art: 'dager' as const,
+          gjelder: 'b',
+          resultat: 'godkjent' as const,
+          vurdert: 10,
+        },
+      ],
+      utregning: u,
+    };
+    expect(virkninger(svar, null, GJELDENDE_REGLER).map((v) => v.virkning)).toEqual([
+      1, 2, 3, 4, 4,
+    ]);
+  });
+
+  it('spesifiseringen for sent alene gir dagene byggherren måtte forstå prinsipalt (VS-U4)', () => {
+    const u = regnUt({
+      frist_varsel_ok: true,
+      vilkar_oppfylt: true,
+      spesifisert_krav_ok: false,
+      frister,
+    });
+    expect(lagene(u)).toEqual([
+      [5, 15],
+      [0, 10],
+    ]);
+    expect(u.frister).toMatchObject([
+      { resultat: 'delvis_godkjent', godkjent_dager: 5 },
+      { resultat: 'avslaatt', godkjent_dager: 0, subsidiaert_resultat: 'godkjent' },
+    ]);
+  });
+
+  it('kontrollsak: uten påberopelse har hver frist ett lag med de vurderte dagene, uten det subsidiære', () => {
+    const u = regnUt({
+      frist_varsel_ok: true,
+      vilkar_oppfylt: true,
+      spesifisert_krav_ok: true,
+      frister: frister.map(({ dager }) => ({ dager })),
+    });
+    expect(lagene(u)).toEqual([[15], [10]]);
+    for (const r of u.frister as Record<string, unknown>[])
+      expect(r).not.toHaveProperty('subsidiaert_godkjent_dager');
+  });
+});
+
 describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en lagret rad', () => {
   const vederlagssak = async () => {
     const bane = minnebane();
@@ -1076,6 +1212,10 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
           godkjent_dager: 5,
           subsidiaert_resultat: 'delvis_godkjent',
           subsidiaert_godkjent_dager: 15,
+          lag: [
+            { lag: 1, dager: 5 },
+            { lag: 2, dager: 15 },
+          ],
         },
       ],
     });

@@ -5366,7 +5366,14 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
             { id: randomUUID(), art: 'dager', gjelder: fristId },
           ],
           utregning: {
-            frister: [{ gjelder: fristId, resultat: 'delvis_godkjent', godkjent_dager: 10 }],
+            frister: [
+              {
+                gjelder: fristId,
+                resultat: 'delvis_godkjent',
+                godkjent_dager: 10,
+                lag: [{ lag: 1, dager: 10 }],
+              },
+            ],
           },
         },
       ],
@@ -6511,10 +6518,23 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
               const p = (v.standpunkter as Data[]).find((x) => x.art === art);
               expect(p?.i_tide, `forutsetning: byggherren sa at ${art} var i tide`).toBe(true);
               p!.i_tide = false;
+              const forstaa = art === 'spesifisering' ? 10 : 0;
               if (art === 'spesifisering') {
                 const frist = (v.standpunkter as Data[]).find((x) => x.art === 'dager')!.gjelder;
-                p!.maatte_forstaa = [{ frist, dager: 10 }];
+                p!.maatte_forstaa = [{ frist, dager: forstaa }];
               }
+              // KA-U78: påberopelsen står i første lag, og de vurderte dagene i det andre.
+              const r = ((v.utregning as Data).frister as Data[])[0]!;
+              Object.assign(r, {
+                resultat: forstaa ? 'delvis_godkjent' : 'avslaatt',
+                godkjent_dager: forstaa,
+                subsidiaert_resultat: r.resultat,
+                subsidiaert_godkjent_dager: r.godkjent_dager,
+                lag: [
+                  { lag: 1, dager: forstaa },
+                  { lag: 2, dager: r.godkjent_dager },
+                ],
+              });
             }),
           ],
         });
@@ -6522,6 +6542,33 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
         expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
       }
     );
+
+    it('en rad med andre dager i et lag enn standpunktet i laget gir fristen, er ikke forstått (KA-U78, OV-U32)', () => {
+      const forSent = (dagerILag1: number) => (v: Data) => {
+        (v.standpunkter as Data[]).find((x) => x.art === 'rettidighet')!.i_tide = false;
+        const r = ((v.utregning as Data).frister as Data[])[0]!;
+        Object.assign(r, {
+          resultat: 'avslaatt',
+          godkjent_dager: dagerILag1,
+          subsidiaert_resultat: r.resultat,
+          subsidiaert_godkjent_dager: r.godkjent_dager,
+          lag: [
+            { lag: 1, dager: dagerILag1 },
+            { lag: 2, dager: r.godkjent_dager },
+          ],
+        });
+      };
+      const grunner = (dagerILag1: number) => {
+        const sak = sakMedKrav();
+        brev(sak, 'frist', dager);
+        sak.rad('BH', { svar: [kopi(sak, forSent(dagerILag1))] });
+        return sak.u().begrensninger.map((b) => b.grunn);
+      };
+      expect(grunner(0), 'kontrollsak').toEqual([]);
+      expect(grunner(3)).toEqual([
+        expect.stringContaining('rad 1 har ikke dagene standpunktet i lag 1 gir fristen'),
+      ]);
+    });
   });
 });
 

@@ -1031,11 +1031,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok vilkar_oppfylt godkjent_dager',
   ],
-  [
-    'Fristberegning',
-    'regelsett',
-    'beregnings_resultat godkjent_dager subsidiaer_resultat subsidiaer_godkjent_dager',
-  ],
+  ['Fristberegning', 'regelsett', 'er_prekludert'],
   [
     'regler/frist.ts:beregnSynlighet',
     'regelsett',
@@ -1869,9 +1865,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Fristrad',
     'rad',
-    'gjelder resultat godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
+    'gjelder resultat godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager lag',
     ['spor/frist/format.ts'],
   ],
+  // KA-U78, OV-U32: dagene for fristen i hvert lag.
+  ['Fristlag', 'rad', 'dager', ['spor/frist/format.ts']],
   ['Utregningsrad', 'rad', 'gjelder lag', ['spor/vederlag/format.ts']],
   ['Utregningslag', 'rad', 'beloep', ['spor/vederlag/format.ts']],
   // #1778: radene per post og lagene i dem, som vederlaget kontrollerer med beløpene.
@@ -1881,7 +1879,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/poster/format.ts',
     'rad',
     'kontrollerRadene',
-    ['spor/vederlag/format.ts:kontrollerUtregningenPerPost'],
+    [
+      'spor/vederlag/format.ts:kontrollerUtregningenPerPost',
+      'spor/frist/format.ts:kontrollerUtregningenIFristen',
+    ],
   ],
   [
     'format/leser.ts:lesBeslutningsgrunnlag(v)',

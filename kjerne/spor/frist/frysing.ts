@@ -127,28 +127,30 @@ function regnUtFristen(
     vilkar_oppfylt: v.vilkar_oppfylt as boolean | undefined,
     godkjent_dager: f.dager,
   });
-  const ut: Record<string, unknown> = {
-    gjelder: f.gjelder,
-    resultat: r.beregnings_resultat,
-    godkjent_dager: r.godkjent_dager,
-  };
-  if (r.subsidiaer_resultat !== null) {
-    ut.subsidiaert_resultat = r.subsidiaer_resultat;
-    ut.subsidiaert_godkjent_dager = r.subsidiaer_godkjent_dager ?? 0;
-  }
   const maatteForstaa = kontrollerSpesifiseringen({
     spesifisert_krav_ok: v.spesifisert_krav_ok,
     dager_maatte_forstaa: f.dager_maatte_forstaa,
     dager: f.dager,
   });
-  // VS-U4, rekkefølgen i #479: uten preklusjon og med hindring er dagene byggherren måtte
-  // forstå at TE hadde krav på det prinsipale, og de vurderte dagene står subsidiært.
-  if (maatteForstaa !== null && r.subsidiaer_resultat === null) {
-    ut.resultat = resultatAvDager(true, krevd, maatteForstaa);
-    ut.godkjent_dager = maatteForstaa;
-    ut.subsidiaert_resultat = r.beregnings_resultat;
-    ut.subsidiaert_godkjent_dager = r.godkjent_dager;
+  // KA-U78, OV-U32: dagene i hvert lag i rekkefølgen i `virkningerIForholdetOgFristen`.
+  // Preklusjon og «ikke hindret» gir 0 dager, og spesifiseringen dagene byggherren måtte forstå.
+  const dager = [
+    ...(r.er_prekludert ? [0] : []),
+    ...(v.vilkar_oppfylt === true ? [] : [0]),
+    ...(maatteForstaa === null ? [] : [maatteForstaa]),
+    f.dager as number,
+  ];
+  const resultat = (d: number) => resultatAvDager(true, krevd, d);
+  const ut: Record<string, unknown> = {
+    gjelder: f.gjelder,
+    resultat: resultat(dager[0]!),
+    godkjent_dager: dager[0],
+  };
+  if (dager.length > 1) {
+    ut.subsidiaert_resultat = resultat(dager.at(-1)!);
+    ut.subsidiaert_godkjent_dager = dager.at(-1);
   }
+  ut.lag = dager.map((d, i) => ({ lag: i + 1, dager: d }));
   return ut;
 }
 

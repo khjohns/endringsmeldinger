@@ -1622,7 +1622,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'serverens utregning gir de vurderte dagene prinsipalt ved påberopelse etter § 33.6.1 (B-13, VS-U4)',
     fil: `${K}/spor/frist/frysing.ts`,
-    endringer: [['ut.godkjent_dager = maatteForstaa;', 'ut.godkjent_dager = r.godkjent_dager;']],
+    endringer: [['    ...(maatteForstaa === null ? [] : [maatteForstaa]),\n', '']],
     mal: ['serverens utregning gir dagene byggherren måtte forstå at TE hadde krav på, prinsipalt'],
   },
   {
@@ -5091,6 +5091,27 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['en frist som er trukket og tatt med igjen i en ny form'],
+  },
+  {
+    id: 'F588',
+    feilklasse:
+      'dagene byggherren måtte forstå står i laget før hindringen i utregningen av fristen (KA-U78)',
+    fil: `${K}/spor/frist/frysing.ts`,
+    endringer: [
+      [
+        '    ...(v.vilkar_oppfylt === true ? [] : [0]),\n    ...(maatteForstaa === null ? [] : [maatteForstaa]),',
+        '    ...(maatteForstaa === null ? [] : [maatteForstaa]),\n    ...(v.vilkar_oppfylt === true ? [] : [0]),',
+      ],
+    ],
+    mal: ['hindringen bestridt og spesifiseringen for sent gir 0 dager'],
+  },
+  {
+    id: 'F589',
+    feilklasse:
+      'leseren godtar en rad med andre dager i et lag enn standpunktet i laget gir (OV-U32)',
+    fil: `${K}/spor/frist/format.ts`,
+    endringer: [['      if (l.dager !== dager)', '      if (l.dager !== dager && false)']],
+    mal: ['en rad med andre dager i et lag enn standpunktet i laget gir fristen'],
   },
 ];
 
