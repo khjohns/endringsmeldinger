@@ -5,10 +5,15 @@
  */
 
 import { HJEMMEL } from '../../format/format.ts';
+import { standpunkterISvaret } from '../../format/leser.ts';
 import { feilI, objekt } from '../../format/skjema.ts';
-import { varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
-import { avvis, varseletSendt, type Avvisning } from '../../typer.ts';
-import type { Kommando, Kravform } from '../../kommandoer/kommando.ts';
+import { etikett, laget } from '../../frosset/byggeklosser.ts';
+import { virkninger } from '../../frosset/standpunkt.ts';
+import type { Subsidiaergrunn } from '../../regler/forhold.ts';
+import type { Regelsett } from '../../regler/regelsett.ts';
+import { paaberopelseFor, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
+import { avvis, varseletSendt, type Avvisning, type Virkning } from '../../typer.ts';
+import type { Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
@@ -20,8 +25,10 @@ import {
   fristkravErFremmet,
   fristnoekkel,
 } from './utledning.ts';
-import { fristinnhold } from './format.ts';
+import { fristinnhold, innholdIFristen } from './format.ts';
 import { fristvurderinger } from './frysing.ts';
+import { grunnerFraForholdet } from '../forhold/frysing.ts';
+import type { Utkastlag } from '../poster/kommando.ts';
 
 /** Formen på kravet i fristen (`KRAVFORM`). */
 export const KRAVFORM_I_FRISTEN = {
@@ -163,6 +170,78 @@ export const STANDPUNKTER_I_FRISTEN: Sporsstandpunkter = (v, krav, u, nyId) => {
   for (const f of frister) ut.push({ id: nyId(), art: 'dager', gjelder: f.gjelder });
   return ut;
 };
+
+/**
+ * Det i et foregående lag som rammer standpunktet (OV-U32): en grunn fra forholdet, en innsigelse
+ * etter § 33.4, § 33.6.2 eller § 33.6.1, eller at fremdriften ikke ble hindret (KA-U78, KA-U81).
+ */
+export type Forutsetning =
+  | { grunn: Subsidiaergrunn }
+  | { innsigelse: '33.4' | '33.6.2' | '33.6.1' | 'hindring' };
+
+/** Lagene i et svarutkast på fristen. Fristen har ingen egne felt i standpunktet. */
+export type LagIFristen = Utkastlag<Forutsetning>;
+
+/**
+ * Lagene i et svarutkast på fristen, også før alle spørsmålene er besvart (M-8 i BF-20). Et
+ * ubesvart spørsmål om varselet, hindringen eller spesifiseringen regnes som at innsigelsen ikke
+ * er gjort gjeldende, så laget kan endre seg når det besvares (S1-A). Lagene fra forholdet leses
+ * av gjeldende svar på forholdet, som i vederlaget. Dagene påvirker ikke lagene, så utregningen
+ * har én rad per frist uten dagene som er vurdert (#1796). Kaster `UgyldigVurdering` når
+ * vurderingene av fristene ikke er én per frist i kravet.
+ */
+export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett): LagIFristen {
+  const v = utkast.vurderinger;
+  const krav = u.spor.frist.gjeldendeKrav!;
+  let n = 0;
+  const lagret = STANDPUNKTER_I_FRISTEN(v, krav, u, () => `utkast-${n++}`);
+  const utregning = {
+    frister: innholdIFristen(krav).frister.map((f) => ({
+      gjelder: f.id,
+      resultat: 'avslaatt',
+      godkjent_dager: 0,
+    })),
+  };
+  const svar = {
+    spor: 'frist' as const,
+    standpunkter: standpunkterISvaret('frist', { standpunkter: lagret, utregning }),
+    utregning,
+  };
+  const g = u.spor.forhold.gjeldendeSvar;
+  const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
+  const virket = virkninger(svar, paaberopelseFor(utkast, u), regler, grunner.length);
+  const forskjoevet = (vi: Virkning): Virkning =>
+    typeof vi === 'number' ? vi + grunner.length : vi;
+  const lag = virket.map((vi) => laget(forskjoevet(vi.virkning)));
+  const flereLag = lag.some((l) => l !== null && l > 1);
+  const dagvurderinger = new Map(fristvurderinger(v, krav).map((f) => [f.gjelder, f]));
+  return {
+    standpunkter: svar.standpunkter.map((s, i) => {
+      const l = lag[i];
+      const rammer: Forutsetning[] = [];
+      if (l !== null) {
+        rammer.push(...grunner.map((grunn) => ({ grunn })));
+        // Hvert standpunkt i et tidligere lag i sporet åpnet laget etter seg (OV-U32).
+        svar.standpunkter.slice(0, i).forEach((f, j) => {
+          const lj = lag[j];
+          if (lj === null || lj >= l || f.art === 'dager') return;
+          if (f.art === 'rettidighet') rammer.push({ innsigelse: f.hjemmel as '33.4' | '33.6.2' });
+          else if (f.art === 'spesifisering') rammer.push({ innsigelse: '33.6.1' });
+          else if (f.art === 'hindring') rammer.push({ innsigelse: 'hindring' });
+        });
+      }
+      return {
+        art: s.art,
+        ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
+        ...(s.art === 'dager' ? { gjelder: s.gjelder } : {}),
+        besvart: s.art !== 'dager' || typeof dagvurderinger.get(s.gjelder)?.dager === 'number',
+        virkning: forskjoevet(virket[i]!.virkning),
+        etikett: l !== null && flereLag ? etikett(l) : null,
+        forutsetninger: rammer,
+      };
+    }),
+  };
+}
 
 /**
  * Fristene i kravet slik de lagres (KA-U79): en registrert frist får nummeret og navnet fra

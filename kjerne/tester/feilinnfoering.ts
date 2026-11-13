@@ -5079,6 +5079,32 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['      if (l.dager !== dager)', '      if (l.dager !== dager && false)']],
     mal: ['en rad med andre dager i et lag enn standpunktet i laget gir fristen'],
   },
+  {
+    id: 'F590',
+    feilklasse:
+      'lagene i fristutkastet viser ikke at fremdriften ikke ble hindret, som forutsetning (KA-U78, M-8 i BF-20)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        "          else if (f.art === 'hindring') rammer.push({ innsigelse: 'hindring' });",
+        '          else void 0;',
+      ],
+    ],
+    mal: ['KA-U78: varselet for sent, ikke hindret og spesifisert for sent gir fire lag'],
+  },
+  {
+    id: 'F591',
+    feilklasse:
+      'lagene i fristutkastet flyttes ikke ned med lagene fra forholdet (OV-U32, M-8 i BF-20)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        '  const lag = virket.map((vi) => laget(forskjoevet(vi.virkning)));\n  const flereLag = lag.some((l) => l !== null && l > 1);\n  const dagvurderinger',
+        '  const lag = virket.map((vi) => laget(vi.virkning));\n  const flereLag = lag.some((l) => l !== null && l > 1);\n  const dagvurderinger',
+      ],
+    ],
+    mal: ['avslått forhold står foran sporet: dagene står subsidiært med avslaget foran'],
+  },
 ];
 
 interface Testresultat {

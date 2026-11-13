@@ -771,6 +771,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'utledning/utled.ts:settSubsidiaer',
       'frosset/brevtekst.ts:forholdetsLag',
       'spor/vederlag/kommando.ts:lagIVederlaget',
+      'spor/frist/kommando.ts:lagIFristen',
     ],
   ],
   // OV-U32, OV-U33: lagene forholdet opptar foran sporet, som linjen etiketteres med.
@@ -1224,6 +1225,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/kommando.ts',
       'frosset/linje.ts',
       'spor/frist/frysing.ts',
+      'spor/frist/kommando.ts',
       'spor/vederlag/frysing.ts',
       'spor/vederlag/tekst.ts',
     ],
@@ -1233,7 +1235,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts',
     'predikat',
     'virkninger',
-    ['spor/vederlag/kommando.ts:lagIVederlaget', 'frosset/frysing.ts:beslutningsgrunnlag'],
+    [
+      'spor/vederlag/kommando.ts:lagIVederlaget',
+      'spor/frist/kommando.ts:lagIFristen',
+      'frosset/frysing.ts:beslutningsgrunnlag',
+    ],
   ],
   // GR-U7 og MM-U9: sammenfallet og begrensningen etter § 34.1.3 (VS-U5), lest når brevet fryses.
   [
@@ -1273,6 +1279,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/forhold/kommando.ts', 'kommando', 'SKRIVING_I_FORHOLDET', ['kommandoer/skriving.ts']],
   // Lagene i et svarutkast i sporet (#1778).
   ['spor/vederlag/kommando.ts', 'predikat', 'lagIVederlaget', ['kommandoer/lag.ts']],
+  ['spor/frist/kommando.ts', 'predikat', 'lagIFristen', ['kommandoer/lag.ts']],
   // Nyttelastkontrollen i sporet (#1783).
   [
     'Sporsnyttelast',
@@ -1378,7 +1385,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/frist/format.ts',
     'utsagn',
     'innholdIFristen',
-    ['spor/frist/tekst.ts', 'spor/frist/frysing.ts', 'spor/frist/utledning.ts'],
+    [
+      'spor/frist/tekst.ts',
+      'spor/frist/frysing.ts',
+      'spor/frist/utledning.ts',
+      'spor/frist/kommando.ts:lagIFristen',
+    ],
   ],
   // U-1, KA-U79: fristen slik kontrakten betegner den, i brevet og i meldingene.
   [
@@ -1936,7 +1948,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/leser.ts',
     'rad',
     'standpunkterISvaret',
-    ['frosset/frysing.ts', 'kommandoer/skriving.ts', 'spor/vederlag/kommando.ts'],
+    [
+      'frosset/frysing.ts',
+      'kommandoer/skriving.ts',
+      'spor/vederlag/kommando.ts',
+      'spor/frist/kommando.ts',
+    ],
   ],
   [
     'format/skjema.ts',
@@ -2180,6 +2197,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'frosset/brevtekst.ts',
       'spor/vederlag/kommando.ts',
+      'spor/frist/kommando.ts',
       'frosset/linje.ts',
       'spor/vederlag/tekst.ts',
     ],
