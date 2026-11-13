@@ -178,8 +178,10 @@ function fristeneSomLagres(
   const { eier } = fristeneISporet(u.spor.frist.krav);
   const frister = (innhold.frister as Record<string, unknown>[]).map((p) => {
     const id = (p.id as string | undefined) ?? eier.get(fristnoekkel(p)) ?? kontekst.nyId();
-    if (p.frist_id === undefined) return { ...p, id };
-    const f = kontekst.kontraktsfrister.find((x) => x.fristId === p.frist_id)!;
+    const f = kontekst.kontraktsfrister.find((x) => x.fristId === p.frist_id);
+    // `fristIkkeRegistrert` har avvist en frist som ikke står i fristtabellen. Uten den står
+    // fristen uten navn, og kjernen forstår ikke kravet den skriver (MM-U2).
+    if (p.frist_id === undefined || !f) return { ...p, id };
     return {
       id,
       frist_id: f.fristId,

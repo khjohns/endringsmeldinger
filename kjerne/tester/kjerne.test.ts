@@ -255,7 +255,7 @@ describe('formatet (7.1.2, 4.4)', () => {
     ['et svar uten utregning', svarIBrevet('S-v2', (s) => delete s.utregning)],
     // KA-U8: en kravversjon på 0 kr eller 0 dager finnes ikke.
     ['et krav på 0 kr', kravet('K-v1', (k) => (k.beloep = 0))],
-    ['et krav på 0 dager', kravet('K-f1', (k) => (k.dager = 0))],
+    ['et krav på 0 dager', kravet('K-f1', (k) => ((k.frister as Data[])[0]!.dager = 0))],
     // B-17: en rad uten format er ikke skrevet av TS-kjernen.
     ['en rad uten format', (r, k) => (radMed(r, k, 'D6').format = null)],
     ['en rad i et nyere format', (r, k) => (radMed(r, k, 'D6').format = 2)],
@@ -1052,6 +1052,11 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
     (s.utregning as Data).resultat = 'godkjent';
     (s.beslutningsgrunnlag as Data).sammenfall = true;
   };
+  // KA-U74: utregningen i fristen har én rad per frist, og hele kravet er godkjent når hver rad er det.
+  const fristenGodkjentMedSammenfall = (s: Data) => {
+    for (const r of (s.utregning as Data).frister as Data[]) r.resultat = 'godkjent';
+    (s.beslutningsgrunnlag as Data).sammenfall = true;
+  };
   const standpunkt = (svar: Data, art: string) => {
     const p = (svar.standpunkter as Data[]).find((x) => x.art === art);
     expect(p, `forutsetning: svaret har standpunktet ${art}`).toBeDefined();
@@ -1120,7 +1125,7 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
     ],
     [
       'sammenfall med en påberopelse etter § 33.6.1',
-      async () => ({ ...(await fristsak()), endring: godkjentMedSammenfall }),
+      async () => ({ ...(await fristsak()), endring: fristenGodkjentMedSammenfall }),
       'S-f1',
     ],
     [
