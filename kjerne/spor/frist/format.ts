@@ -22,7 +22,9 @@ import type {
   Krav,
   Standpunkt,
   Standpunktsart,
+  Standpunktsvirkning,
 } from '../../typer.ts';
+import { kontrollerRadene } from '../poster/format.ts';
 
 /** Standpunktene i svaret på fristkravet, etter `TILLATTE_STANDPUNKTER`. */
 export const TILLATTE_STANDPUNKTER_I_FRISTEN: { art: Standpunktsart; paakrevd: boolean }[] = [
@@ -122,8 +124,15 @@ export const UTREGNINGSSKJEMA_I_FRISTEN: Skjema = objekt(
           godkjent_dager: DAGER_I_SVARET,
           subsidiaert_resultat: FRISTRESULTAT,
           subsidiaert_godkjent_dager: DAGER_I_SVARET,
+          // KA-U78, OV-U32: dagene i hvert lag. `kontrollerUtregningenIFristen` kontrollerer dem.
+          lag: liste(
+            objekt({ lag: { type: 'integer', minimum: 1 }, dager: DAGER_I_SVARET }, [
+              'lag',
+              'dager',
+            ])
+          ),
         },
-        ['gjelder', 'resultat', 'godkjent_dager']
+        ['gjelder', 'resultat', 'godkjent_dager', 'lag']
       )
     ),
   },
@@ -251,6 +260,50 @@ function kontrollerStandpunkteneIFristen(ut: Standpunkt[], utregning: Data, sti:
     );
 }
 
+/**
+ * KA-U78, OV-U32: hver rad har ett lag for hvert lag i beslutningsgrunnlaget (`kontrollerRadene`),
+ * med dagene standpunktet i laget gir fristen: 0 for preklusjon etter § 33.4 eller § 33.6.2 og for
+ * at fremdriften ikke ble hindret, dagene byggherren måtte forstå for spesifiseringen, og de
+ * vurderte dagene i det siste laget og i hvert lag for et upåvirket standpunkt. Det første laget er `godkjent_dager`, og det subsidiære står
+ * bare med mer enn ett lag.
+ */
+function kontrollerUtregningenIFristen(
+  ut: Standpunkt[],
+  utregning: Data,
+  virkninger: Standpunktsvirkning[],
+  sti: string
+): void {
+  const feil = (hva: string) => new Uforstaatt(`${sti}.utregning.frister: ${hva}`);
+  const dagene = ut.filter((s) => s.art === 'dager');
+  const virkning = new Map(virkninger.map((v) => [v.standpunkt, v.virkning]));
+  const standpunktetI = (lag: number) =>
+    ut.find((s) => s.art !== 'dager' && virkning.get(s.id) === lag);
+  const rader = utregningIFristen(utregning).frister;
+  kontrollerRadene(rader, dagene, virkninger, 'dagene', feil, (r, d, i) => {
+    // OV-U33: ingen innsigelse rammer et upåvirket standpunkt om dagene.
+    const upaavirket = virkning.get(d.id) === 'upaavirket';
+    r.lag.forEach((l, n) => {
+      const s = upaavirket ? undefined : standpunktetI(n + 1);
+      const dager =
+        s?.art === 'spesifisering'
+          ? s.maatteForstaa?.find((m) => m.frist === d.gjelder)?.dager
+          : s
+            ? 0
+            : d.vurdert;
+      if (l.dager !== dager)
+        throw feil(`rad ${i + 1} har ikke dagene standpunktet i lag ${n + 1} gir fristen`);
+    });
+    if (r.lag[0]!.dager !== r.godkjent_dager)
+      throw feil(
+        `rad ${i + 1} har ikke dagene byggherren godkjenner prinsipalt i det første laget`
+      );
+    if (r.lag.length > 1 !== 'subsidiaert_godkjent_dager' in r)
+      throw feil(
+        `rad ${i + 1} har ikke det subsidiære standpunktet nøyaktig når svaret har mer enn ett lag`
+      );
+  });
+}
+
 /** VS-U24: ett standpunkt for hver bestemmelse, § 33.4 før § 33.6.2. */
 function kontrollerHjemleneIFristen(hjemler: Hjemmel[], sti: string): void {
   if (hjemler.length > 1 && (hjemler[0] !== '33.4' || hjemler[1] !== '33.6.2'))
@@ -266,6 +319,7 @@ export const LESING_I_FRISTEN = {
   // `kontrollerStandpunkteneIFristen`.
   gjentas: true,
   kontrollerStandpunktene: kontrollerStandpunkteneIFristen,
+  kontrollerUtregningen: kontrollerUtregningenIFristen,
   // § 33.6.2 (VS-U17, VS-U19): fristen har også rettidigheten av svaret på forespørselen.
   rettidighet: ['33.6.2'],
   subsidiaertVerdi: null,

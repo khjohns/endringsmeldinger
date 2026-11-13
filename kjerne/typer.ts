@@ -374,6 +374,17 @@ export interface Fristrad {
   godkjent_dager: number;
   subsidiaert_resultat?: Fristresultat;
   subsidiaert_godkjent_dager?: number;
+  /**
+   * Dagene for fristen i hvert lag i sporet (KA-U78, OV-U32). Det første laget er
+   * `godkjent_dager`, og det siste er det subsidiære når svaret har mer enn ett lag.
+   */
+  lag: Fristlag[];
+}
+
+/** Ett lag i raden for en frist i utregningen: dagene fristen får når standpunktet i laget gjelder. */
+export interface Fristlag {
+  lag: number;
+  dager: number;
 }
 
 /**
