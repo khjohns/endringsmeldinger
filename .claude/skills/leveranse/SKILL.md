@@ -142,8 +142,9 @@ det, og begrunner valget i én linje i PR-en (#1338). Endrer diffen utledningen 
 tillegg en review av samspillet mellom reglene, i ny kontekst og med reglene og
 bevis-sakene samlet, én gang per PR. Hvor reviewet og rettingene kjøres, står i
 [arbeidsøkt-skillen, «Review i byggeøkta»](../arbeidsokt/SKILL.md#tid-og-kontekst).
-`/simplify` kjøres når oppdragsgiver ber om det eller godkjenner orkestratorens
-forslag, og da før `/code-review`, slik at reviewet ser den endelige koden.
+`/simplify` kjøres når et kriterium i [orkestreringsskillen, «`/simplify`»](../orkestrering/SKILL.md#simplify)
+gjelder: orkestratoren bestiller den, eller økta avgjør selv når den ikke er orkestrert.
+Den kjøres før `/code-review`, slik at reviewet ser den endelige koden.
 **Endrer diffen visningen** (`.svelte`- eller CSS-filer i `src/`, synlig), rydder
 byggeøkta egen diff med kommandoen `/design-deslop` og lar PR-en stå som utkast.
 Etter `/design-deslop` legger byggeøkta skjermbildene i PR-en og ber oppdragsgiver se over

@@ -220,8 +220,8 @@ Oppdraget skal inneholde:
   kjøres med «Den ekte saksruta» i skillen. Det kontrollen ikke dekker, står
   i PR-beskrivelsen;
 - hvem som kjører reviewet, etter «Review i byggeøkta» i arbeidsøkt-skillen. `/simplify`
-  kjøres bare når oppdragsgiver har bestilt eller godkjent den (se
-  «`/simplify`»), og da før `/code-review`.
+  kjøres når orkestratoren har bestilt den (se «`/simplify`»), og da før
+  `/code-review`.
 
 `create_session` setter modellen med `model` og innsatsen med `effort`. Innsatsen
 arves ikke fra orkestratoren. Sett den bare når denne skillen eller oppdragsgiver
@@ -328,11 +328,12 @@ før en spørsmålsrunde og før en vedtaks-PR.
 
 ## `/simplify`
 
-`/simplify` kjøres når oppdragsgiver ber om det eller godkjenner orkestratorens
-forslag (leveranseskillen, «Review og funn»). Den ser etter gjenbruk, duplisering og
+Orkestratoren bestiller `/simplify` selv når et kriterium under gjelder, uten å spørre
+oppdragsgiver, og sier i avslutningen av runden hvilke grener den er kjørt på
+(oppdragsgiver 13.11). Oppdragsgiver kan også be om den. Den ser etter gjenbruk, duplisering og
 kode som kan forenkles i én diff. Det den finner, avhenger av hva grenen legger til,
 ikke av hvor stor diffen er. Funnene om duplisering og to kilder i runde B og C kom fra
-PR-er på 25 linjer og på 900 (#1845, #1848, #1856, #1861). Orkestratoren foreslår den for en gren som
+PR-er på 25 linjer og på 900 (#1845, #1848, #1856, #1861). Orkestratoren bestiller den for en gren som
 
 - legger til ny produksjonskode: en ny komponent, modul eller utregning, særlig i
   visningen og på serveren, der en ny del lett blir en kopi av en som finnes;
@@ -341,9 +342,9 @@ PR-er på 25 linjer og på 900 (#1845, #1848, #1856, #1861). Orkestratoren fores
 - rører filer der reviewet tidligere har gitt funn om duplisering eller to kilder for
   samme verdi.
 
-Foreslå den ikke for en ren flytting, for `docs/` og skillene, for en liten retting
-eller for en PR som er merget. Foreslå den når runden legges fram, for økter som ventes
-å gi en slik gren. Ellers foreslår du den når byggeøkta melder at et kriterium gjelder
+Bestill den ikke for en ren flytting, for `docs/` og skillene, for en liten retting
+eller for en PR som er merget. Bestill den i oppdraget for økter som ventes å gi en slik
+gren. Ellers bestiller du den når byggeøkta melder at et kriterium gjelder
 («I en orkestrert økt» i [arbeidsøkt-skillen](../arbeidsokt/SKILL.md#i-en-orkestrert-økt)).
 Den koster flere subagenter og ett `/code-review` til, så den skal treffe der den
 finner noe (oppdragsgiver 13.11).
