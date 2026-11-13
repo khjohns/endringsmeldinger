@@ -6,11 +6,14 @@
 
 import type { Hjemmel, Standpunktsart, Virkning } from '../../typer.ts';
 
-export interface Utkastlag<F> {
-  standpunkter: {
+/**
+ * Lagene i utkastet. `F` er det som kan ramme et standpunkt i sporet, og `P` feltene sporet selv
+ * har i standpunktet, som en særskilt post i vederlaget.
+ */
+export interface Utkastlag<F, P extends object = object> {
+  standpunkter: (P & {
     art: Standpunktsart;
     hjemmel?: Hjemmel;
-    saerskilt?: 'produktivitet';
     /** Posten standpunktet gjelder (KA-U57 (c) og (d)). */
     gjelder?: string;
     /** Beløpsspørsmålet for posten er besvart. Andre standpunkter finnes bare når de er besvart (KA-U4). */
@@ -21,5 +24,5 @@ export interface Utkastlag<F> {
     etikett: string | null;
     /** Grunnene fra forholdet i brevets rekkefølge, så innsigelsene i sporet (S2-A i #1400). */
     forutsetninger: F[];
-  }[];
+  })[];
 }

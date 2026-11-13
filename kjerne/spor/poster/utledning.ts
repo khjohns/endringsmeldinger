@@ -1,7 +1,7 @@
 /**
  * Versjonsregelen for postene i et krav (#1778), utledet av vederlaget (KA-U53, KA-U56,
- * KA-U75). Sporet kaller den med postene sine og ordet for posten. Om fristen følger den,
- * avgjøres i #1745.
+ * KA-U75). Sporet kaller den med postene sine, ordet for posten og vedtakene meldingene viser
+ * til. Om fristen følger den, avgjøres i #1745.
  *
  * Kommandoen og lesingen av journalen bruker samme regel: kommandoen før serveren har satt
  * `id` og betegnelse på de nye postene, journalen etter.
@@ -26,18 +26,28 @@ export function brukteBetegnelser(versjoner: readonly (readonly Post[])[]): Set<
   return new Set(versjoner.flatMap((poster) => poster.map((p) => p.betegnelse)));
 }
 
+/** Betegnelsen en ny post får: tallet etter det høyeste som er brukt i sporet (KA-U53). */
+export function nesteBetegnelse(brukte: ReadonlySet<string>): string {
+  const tall = [...brukte].map((b) => Number(b.slice(1)));
+  return `P${Math.max(0, ...tall) + 1}`;
+}
+
 /**
  * Hvorfor postene i den nye kravversjonen strider mot de tidligere versjonene i sporet, eller
  * `null`. `tidligere` er postene i hver tidligere versjon, i rekkefølgen i sporet. `lagret`
  * sier om innholdet er en lagret versjon, der en ny post har fått `id` og betegnelse, eller en
- * kommando, der en ny post er uten `id`. `post` er ordet for posten i sporet, som «kravpost»,
- * og meldingen bruker det i bestemt form med «-en».
+ * kommando, der en ny post er uten `id`. `post` er ordet for posten i sporet, som «kravpost», og
+ * meldingen bruker det i bestemt form med «-en». `vedtakForBrukt` og `vedtakForMangler` er vedtakene
+ * meldingene viser til: for en ny post med en betegnelse som er brukt før i sporet, og for en post
+ * som mangler uten å være trukket.
  */
 export function posteneStrider(
   ny: Versjonsinndata,
   tidligere: readonly (readonly Post[])[],
   lagret: boolean,
-  post: string
+  post: string,
+  vedtakForBrukt: string,
+  vedtakForMangler: string
 ): string | null {
   const posten = `${post}en`;
   const forrige = new Map((tidligere.at(-1) ?? []).map((p) => [p.id, p]));
@@ -70,10 +80,10 @@ export function posteneStrider(
     if (kjent && kjent.betegnelse !== betegnelse)
       return `gir ${posten} ${kjent.betegnelse} betegnelsen ${betegnelse}`;
     if (!kjent && brukte.has(betegnelse))
-      return `gir en ny ${post} betegnelsen ${betegnelse}, som er brukt før i sporet (KA-U53, KA-U75)`;
+      return `gir en ny ${post} betegnelsen ${betegnelse}, som er brukt før i sporet (${vedtakForBrukt})`;
   }
   const mangler = [...forrige.values()].filter((p) => !sett.has(p.id) && !trekker.includes(p.id));
   return mangler.length
-    ? `mangler ${mangler.map((p) => p.betegnelse).join(', ')} uten at ${mangler.length > 1 ? 'de er trukket' : 'den er trukket'} (KA-U56)`
+    ? `mangler ${mangler.map((p) => p.betegnelse).join(', ')} uten at ${mangler.length > 1 ? 'de er trukket' : 'den er trukket'} (${vedtakForMangler})`
     : null;
 }
