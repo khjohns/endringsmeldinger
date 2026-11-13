@@ -4905,9 +4905,14 @@ describe('leseren kontrollerer brevteksten (HF-U1, MM-U17 (opphevet av MM-U50))'
   });
 
   it('et avsnitt for dokumentet uten vedlegg gjør raden ikke forstått (A4)', () => {
-    expect(medTekst((d, r) => ((d.brevtekst as Avsnitt[])[0].gjelder = r.event_id)).art).toBe(
-      'ukjent'
-    );
+    expect(
+      medTekst((d, r) =>
+        (d.brevtekst as Avsnitt[]).push({
+          gjelder: r.event_id,
+          laast: 'Brevet har vedlegg: «tegning.pdf».',
+        })
+      ).art
+    ).toBe('ukjent');
     // Kontrollsak: med vedlegg kan et avsnitt gjelde dokumentet.
     const h = medTekst((d, r) => {
       d.dokumentasjon = [

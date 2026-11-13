@@ -35,6 +35,7 @@ import {
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { sammenfallStemmer, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { regnUtSvar, utenforOmfanget } from '../frosset/utregning.ts';
+import { iLagene } from '../frosset/tekst.ts';
 import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
@@ -982,6 +983,24 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
  * tilfelle har en kontrollsak: den uendrede raden er forstått. Kilden er arbeidsvalgene
  * i #479 og VS-U4.
  */
+/**
+ * OV-U32: standpunktene i samme lag står under én etikett, også når de ikke står i lagenes
+ * rekkefølge. Et ledd uten lag står med sporets første lag (OV-U33). Linjen for byggherrens
+ * standpunkt ordner leddene med `iLagene`.
+ */
+describe('leddene ordnes etter laget (OV-U32, OV-U33)', () => {
+  it('leddene i samme lag står samlet, og et ledd uten lag står med det første laget', () => {
+    const ledd = [
+      { t: 'a', lag: 2 },
+      { t: 'b', lag: 1 },
+      { t: 'c', lag: null },
+      { t: 'd', lag: 2 },
+      { t: 'e', lag: 1 },
+    ];
+    expect(iLagene(ledd, (l) => l.lag, 1).map((l) => l.t)).toEqual(['b', 'c', 'e', 'a', 'd']);
+  });
+});
+
 /**
  * KA-U78 og OV-U32: dagene for hver frist i hvert lag. Varselet etter § 33.4 står før alle,
  * så at fremdriften ikke ble hindret, så dagene byggherren måtte forstå, og til sist dagene

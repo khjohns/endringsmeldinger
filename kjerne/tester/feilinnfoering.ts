@@ -4397,7 +4397,7 @@ const MUTASJONER: Mutasjon[] = [
       'leddene i samme lag står ikke under én etikett når standpunktene ikke står i lagenes rekkefølge (OV-U32)',
     fil: `${K}/frosset/tekst.ts`,
     endringer: [['.sort((a, b) => a.k - b.k)', '.sort(() => 0)']],
-    mal: ['standpunktene ordnes slik brevet ordner dem'],
+    mal: ['leddene i samme lag står samlet'],
   },
   {
     id: 'F510',
