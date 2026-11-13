@@ -45,7 +45,7 @@ import {
   type Utfall,
 } from '../kommandoer/skriving.ts';
 import { medKravpostIder, medP1, medP1IkkeAkseptert, mellomlager, P1 } from './klient.ts';
-import type { Kommando } from '../kommandoer/kommando.ts';
+import type { Kommando, Svarutkast } from '../kommandoer/kommando.ts';
 import { oppgittDatoEtterBrevet } from '../kommandoer/nyttelast.ts';
 import {
   KRAVSPOR,
@@ -8337,6 +8337,115 @@ describe('en registrert enighet sperrer ikke ny kravversjon eller nytt svar (MM-
   });
 });
 
+describe('lagene i et fristsvar som ikke er ferdig utfylt (M-8 i BF-20, KA-U78, OV-U32, OV-U33)', () => {
+  /** Forholdet, BHs svar på det og fristkravet med varselet etter § 33.4 i et tidligere brev. */
+  const saken = (forhold: Data) => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('BH', {
+      type: 'brev',
+      svar: [svar('forhold', s.krav('forhold'), { grunnlag_varslet_i_tide: true, ...forhold })],
+    });
+    s.send('TE', FRISTKRAV);
+    return s;
+  };
+  const lagene = (s: ReturnType<typeof sak>, vurderinger: Data) =>
+    lagForUtkastet(
+      svar('frist', s.krav('frist'), vurderinger) as Svarutkast & { spor: 'frist' },
+      s.u(),
+      KJERNE.regler
+    ).standpunkter.map(({ art, hjemmel, gjelder, ...rest }) => ({
+      standpunkt: [art, hjemmel].filter(Boolean).join(' '),
+      ...(gjelder === undefined ? {} : { gjelder: gjelder === fristen(s) ? 'fristen' : gjelder }),
+      ...rest,
+    }));
+  const fristen = (s: ReturnType<typeof sak>) =>
+    innholdIFristen(s.u().spor.frist.gjeldendeKrav!).frister[0]!.id;
+
+  it('kontrollsak: med godkjent forhold og ingenting besvart står dagene uten lag, ubesvart og uten forutsetninger', () => {
+    const s = saken({ resultat: 'godkjent' });
+    expect(lagene(s, { frister: [{}] })).toEqual([
+      {
+        standpunkt: 'dager',
+        gjelder: 'fristen',
+        besvart: false,
+        virkning: 1,
+        etikett: null,
+        forutsetninger: [],
+      },
+    ]);
+  });
+
+  it('KA-U78: varselet for sent, ikke hindret og spesifisert for sent gir fire lag, med innsigelsene foran i brevets rekkefølge', () => {
+    const s = saken({ resultat: 'godkjent' });
+    const lag = lagene(s, {
+      frist_varsel_ok: false,
+      vilkar_oppfylt: false,
+      spesifisert_krav_ok: false,
+      frister: [{ dager: 10, dager_maatte_forstaa: 5 }],
+    });
+    expect(lag.map((l) => [l.standpunkt, l.virkning, l.etikett, l.forutsetninger])).toEqual([
+      ['rettidighet 33.4', 1, 'prinsipalt', []],
+      ['hindring', 2, 'subsidiært', [{ innsigelse: '33.4' }]],
+      [
+        'spesifisering',
+        3,
+        'videre subsidiært',
+        [{ innsigelse: '33.4' }, { innsigelse: 'hindring' }],
+      ],
+      [
+        'dager',
+        4,
+        'videre subsidiært',
+        [{ innsigelse: '33.4' }, { innsigelse: 'hindring' }, { innsigelse: '33.6.1' }],
+      ],
+    ]);
+    expect(lag.at(-1)!.besvart).toBe(true);
+  });
+
+  it('varselet i tide og hindret er uten virkning og ingen forutsetning for dagene (OV-U33)', () => {
+    const s = saken({ resultat: 'godkjent' });
+    const lag = lagene(s, {
+      frist_varsel_ok: true,
+      vilkar_oppfylt: true,
+      spesifisert_krav_ok: true,
+      frister: [{ dager: 20 }],
+    });
+    expect(lag.map((l) => [l.standpunkt, l.virkning, l.etikett, l.forutsetninger])).toEqual([
+      ['rettidighet 33.4', 'uten_virkning', null, []],
+      ['hindring', 'uten_virkning', null, []],
+      ['spesifisering', 'uten_virkning', null, []],
+      ['dager', 1, null, []],
+    ]);
+  });
+
+  it('avslått forhold står foran sporet: dagene står subsidiært med avslaget foran (OV-U32, S1-A)', () => {
+    const s = saken({ resultat: 'avslaatt' });
+    expect(lagene(s, { vilkar_oppfylt: false, frister: [{}] })).toEqual([
+      {
+        standpunkt: 'hindring',
+        besvart: true,
+        virkning: 2,
+        etikett: 'subsidiært',
+        forutsetninger: [{ grunn: 'avslaatt' }],
+      },
+      {
+        standpunkt: 'dager',
+        gjelder: 'fristen',
+        besvart: false,
+        virkning: 3,
+        etikett: 'videre subsidiært',
+        forutsetninger: [{ grunn: 'avslaatt' }, { innsigelse: 'hindring' }],
+      },
+    ]);
+  });
+
+  it('vurderingene må være én per frist i kravet, som i svaret (KA-U74)', () => {
+    const s = saken({ resultat: 'godkjent' });
+    expect(() => lagene(s, {})).toThrow(UgyldigVurdering);
+  });
+});
+
 describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S1-A og S2-A i #1400)', () => {
   const sviktkrav = {
     type: 'krav',
@@ -8366,13 +8475,11 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
       return { standpunkt: [art, hjemmel ?? saerskilt].filter(Boolean).join(' '), ...rest };
     });
 
-  // Planen for #1778 i #1783: lagene i fristsvaret bygges med #1745 (M-8 i BF-20), og til da
-  // kaster oppslaget i stedet for å gi lag fristen ikke har.
-  it('et utkast til svar på fristkravet har ingen lag ennå (#1745)', () => {
+  it('forholdet har ingen lag i svarutkastet, og oppslaget kaster', () => {
     const s = saken({ resultat: 'godkjent' });
     expect(() =>
-      lagForUtkastet({ spor: 'frist', vurderinger: {} } as never, s.u(), KJERNE.regler)
-    ).toThrow('lagForUtkastet gjelder vederlag, ikke frist');
+      lagForUtkastet({ spor: 'forhold', vurderinger: {} } as never, s.u(), KJERNE.regler)
+    ).toThrow('Forholdet har ingen lag i svarutkastet');
   });
 
   it('med to kravposter sier hvert lag for beløpet og oppgjørsformen hvilken kravpost det gjelder (KA-U57 (c) og (d))', () => {
