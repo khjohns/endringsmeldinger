@@ -10,8 +10,8 @@ til dem. Den lager ingen sammenslått gjeldende ordlyd. Vedtaksfila, som var avs
 3.1 i hovedplanen, er autoritativ, og visningen sier det (#1020).
 
 Et tema har vedtakene oppdragsgiver har pekt ut (`kjerne`) og, transitivt, hvert
-vedtak som endrer, utvider, snevrer inn, presiserer eller opphever et vedtak i
-temaet etter `forhold` i registeret (arbeidsvalg A i #454). Temadefinisjonen
+vedtak som endrer, utvider, snevrer inn, presiserer, opphever, samler eller bygger på
+et vedtak i temaet etter `forhold` i registeret (arbeidsvalg A i #454). Temadefinisjonen
 lister alle vedtakene; mangler ett, er det en feil. Forhold som Følge bare sier
 med ord, uten lenke, står ikke i `forhold` og ses ikke.
 
@@ -308,8 +308,8 @@ def visning(tema: dict, kilder: dict) -> str:
         "",
         f"Temaet er {', '.join(lenke(v.lower()) for v in tema['kjerne'])} ({', '.join(tema['kilde'])}). "
         + (
-            "I tillegg står vedtakene som endrer, utvider, snevrer inn, presiserer eller "
-            f"opphever et vedtak i temaet: {', '.join(lenke(a) for a in tillagt)}. "
+            "I tillegg står vedtakene som endrer, utvider, snevrer inn, presiserer, "
+            f"opphever, samler eller bygger på et vedtak i temaet: {', '.join(lenke(a) for a in tillagt)}. "
             if tillagt
             else ""
         )
