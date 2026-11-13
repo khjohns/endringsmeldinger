@@ -3093,7 +3093,7 @@ designdel = "at skjemaet ikke viser ny dato for en frist som ikke er registrert,
 id = "KA-U79"
 dato = 2026-11-13
 hvem = "oppdragsgiver"
-kilde = ["#1745", "#721"]
+kilde = ["#1745"]
 sporsmal = '''
 Spørsmål 1 ordrett slik det ble stilt 13.11 i [spørsmålsfila](../vedlegg/fristkrav-2026-11-13/sporsmal.md):
 
@@ -3166,7 +3166,7 @@ forhold = [
   { art = "presiserer", vedtak = "ka-u76" },
 ]
 folge = '''
-Gjelder BF-20 (#1745). «Avgrenser trekket i KA-U75 og KA-U76 mot en erstatning» i alternativet er ført som presiserer KA-U75 og KA-U76.'''
+Gjelder BF-20 (#1745). «avgrenser trekket i KA-U75 og KA-U76 mot en erstatning» i alternativet er ført som presiserer KA-U75 og KA-U76.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"

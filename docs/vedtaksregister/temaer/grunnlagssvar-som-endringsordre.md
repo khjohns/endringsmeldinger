@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `e8a8719b933a4b56eb5495f1b4d9d94c60ea514ffc2c1a081afaa5329a243a63`
+Kontrollsum (SHA-256 over utdraget visningen leser): `a2ab415fa31609a4d1a7d29a1de3714f9eec1b74b78ed936c589d9d30c106211`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -788,9 +788,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Forkastet:** «Kravet om fristforlengelse kan bare gjelde frister som er registrert for prosjektet. Er fristen totalentreprenøren vil kreve forlenget, ikke registrert, eller har prosjektet ingen registrerte frister, kan kravet ikke sendes fra løsningen før fristen er registrert etter bestilling fra byggherren (GFK-U22). Varselet etter punkt 33.4 kan sendes uten frister (VS-U15). Et krav totalentreprenøren har sendt utenfor løsningen i mellomtiden, kan ikke registreres i løsningen. Forhold: snevrer inn KA-U73 (fristene i kontrakten blir de registrerte fristene) og presiserer GFK-U23.»
 
-**Vedtatt:** 13.11, oppdragsgiver (#1745, #721)
+**Vedtatt:** 13.11, oppdragsgiver (#1745)
 
-**Følge:** Presiserer [KA-U73](../../plans/vedtak.md#ka-u73). Presiserer [KA-U77](#ka-u77). Presiserer [GFK-U23](../../plans/vedtak.md#gfk-u23). Presiserer [KA-U75](#ka-u75). Presiserer [KA-U76](#ka-u76). Gjelder BF-20 (#1745). «Avgrenser trekket i KA-U75 og KA-U76 mot en erstatning» i alternativet er ført som presiserer KA-U75 og KA-U76.
+**Følge:** Presiserer [KA-U73](../../plans/vedtak.md#ka-u73). Presiserer [KA-U77](#ka-u77). Presiserer [GFK-U23](../../plans/vedtak.md#gfk-u23). Presiserer [KA-U75](#ka-u75). Presiserer [KA-U76](#ka-u76). Gjelder BF-20 (#1745). «avgrenser trekket i KA-U75 og KA-U76 mot en erstatning» i alternativet er ført som presiserer KA-U75 og KA-U76.
 
 **Regelrader:** —
 
