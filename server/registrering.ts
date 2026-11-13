@@ -44,7 +44,7 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { catendaId, uuidMedBindestreker } from './autorisasjon.ts';
 import { catendaFraMiljoe, type CatendaOAuth } from './catenda.ts';
-import { feilnummer, opprettPool, sql, utenKontekst, type Pool } from './datalag.ts';
+import { opprettPool, sql, utenKontekst, type Pool } from './datalag.ts';
 import { erKalenderdato } from '../kjerne/format/skjema.ts';
 import type { Part } from '../kjerne/typer.ts';
 import {
@@ -52,6 +52,7 @@ import {
   fristtabell,
   STANDARDSATS,
   type Fristtabell,
+  type Radsett,
   type Satsopplysninger,
 } from './kontraktsfrister.ts';
 
@@ -208,9 +209,9 @@ async function iDriften<T>(arbeid: Promise<T>, kjente: number[]): Promise<T> {
   try {
     return await arbeid;
   } catch (feil) {
-    const nummer = feilnummer(feil);
-    if (nummer !== undefined && kjente.includes(nummer))
-      throw new Registreringsfeil(`${(feil as Error).message} (${nummer}).`, { cause: feil });
+    const { number, message } = feil as { number?: unknown; message?: unknown };
+    if (typeof number === 'number' && kjente.includes(number))
+      throw new Registreringsfeil(`${String(message)} (${number}).`, { cause: feil });
     throw feil;
   }
 }
@@ -222,7 +223,7 @@ export async function lesFristtabell(pool: Pool, prosjekt: string): Promise<Fris
   const svar = await utenKontekst(pool)
     .input('prosjekt', sql.NVarChar(4000), prosjekt)
     .execute('koe_drift.kontraktsfrister');
-  return fristtabell(svar.recordsets);
+  return fristtabell(svar.recordsets as unknown as Radsett);
 }
 
 export interface NyFrist {
@@ -417,10 +418,10 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
     allowPositionals: true,
   });
   const [kommando, ...argumenter] = positionals;
-  const [prosjektArgument, ...resten] = argumenter;
+  const [prosjektArgument] = argumenter;
   // `kontraktsfrister` tar handlingen og ID-en etter prosjektet.
-  if (kommando !== 'kontraktsfrister' && resten.length)
-    throw new Registreringsfeil(`Ukjente argumenter: ${resten.join(' ')}`);
+  const ekstra = argumenter.slice(kommando === 'kontraktsfrister' ? 3 : 1);
+  if (ekstra.length) throw new Registreringsfeil(`Ukjente argumenter: ${ekstra.join(' ')}`);
   const oppgittTeam = v.bh || v.te ? kontraktsteamFra(v.bh ?? [], v.te ?? []) : null;
   // Et prosjekt gjelder én entreprisekontrakt, og drift bekrefter det ved registreringen (DL-U14).
   if (oppgittTeam && !v['en-totalentreprenoer'])

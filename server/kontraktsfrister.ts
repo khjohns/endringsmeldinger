@@ -110,9 +110,11 @@ export function satsopplysninger(rad: Fristrad): Satsopplysninger | null {
   }
 }
 
+/** Radsettene fra prosedyrene: kontraktssummen og fristene. */
+export type Radsett = [{ kontraktssum: unknown }[], Fristrad[]];
+
 /** Fristtabellen av radsettene fra `koe_api.kontraktsfrister` eller `koe_drift.kontraktsfrister`. */
-export function fristtabell(radsett: unknown): Fristtabell {
-  const [sum, rader] = radsett as [{ kontraktssum: unknown }[], Fristrad[]];
+export function fristtabell([sum, rader]: Radsett): Fristtabell {
   const kontraktssum = sum.length ? tall(sum[0]!.kontraktssum) : null;
   return {
     kontraktssum,
@@ -137,5 +139,5 @@ export function fristtabell(radsett: unknown): Fristtabell {
  */
 export async function lesKontraktsfrister(foresp: Foresp): Promise<Fristtabell> {
   const r = await foresp().execute('koe_api.kontraktsfrister');
-  return fristtabell(r.recordsets);
+  return fristtabell(r.recordsets as unknown as Radsett);
 }
