@@ -5,7 +5,7 @@
  */
 import type { Avsnitt } from '$kjerne/typer';
 
-const kr = (n: string) => `${n.replace(/ /g, ' ')} kr`;
+const kr = (n: string) => `${n.replace(/ /g, '\u00a0')}\u00a0kr`;
 const sub = 'Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem';
 
 export const SVAR_MED_TABELL: Avsnitt[] = [
