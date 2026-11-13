@@ -348,7 +348,7 @@ FEILINNFOERINGER = [
      "server/brevpdf.ts", "      if (glyf.length % 2) {", "      if (false) {",
      "tar med hver glyf fra en TrueType-delmengde"),
     ("S93", "sakslisten ser ikke varselet etter punkt 34.4 som står alene (VS-U48, #1663)",
-     "server/saksliste.ts",
+     "kjerne/utledning/visning.ts",
      " || u.spor[spor].kravpostvarsler.length > 0;", ";",
      "varselet etter punkt 34.4 som står alene"),
     ("S94", "Oslo Sans bygges inn i formen for TrueType (#1689)", "server/brevpdf.ts",
