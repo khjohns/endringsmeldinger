@@ -55,7 +55,7 @@
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--canvas);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
-.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
 h1,h2,h3{margin:0;text-wrap:balance}
@@ -134,40 +134,48 @@ p{margin:0;text-wrap:pretty}
 .kort-hode .kilde{font-size:12px;color:var(--ink-3)}
 .kort-kropp{padding:16px 20px 20px}
 
-/* Stillingen: målestokken */
-.stokk{position:relative;margin:56px 4px 52px;height:12px}
-.stokk .skala{position:absolute;inset:0;border:1.5px solid var(--ink);display:flex}
-.stokk .skala i{flex:1;border-right:1px solid var(--ink)}
-.stokk .skala i:nth-child(odd){background:var(--ink)}
-.stokk .skala i:last-child{border-right:0}
-.strek{position:absolute;top:-12px;bottom:-12px;width:2px;margin-left:-1px;background:var(--ink);box-shadow:0 0 0 2px var(--surface)}
-.strek .lapp{position:absolute;bottom:calc(100% + 4px);left:0;transform:translateX(-50%);white-space:nowrap;text-align:center;font-size:12px;line-height:1.3;color:var(--ink-2)}
-.strek .lapp b{display:block;font-size:14px;color:var(--ink);font-weight:600}
-.strek.under .lapp{bottom:auto;top:calc(100% + 4px)}
-.strek.krevd{background:repeating-linear-gradient(var(--ink) 0 4px,transparent 4px 7px);box-shadow:none}
-.strek.start .lapp{transform:none}
-.strek.slutt .lapp{transform:translateX(-100%)}
-.skalatall{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-4);margin:44px 4px 0}
-.gap{margin-top:12px;font-size:14px;color:var(--ink-2)}
-.gap b{color:var(--ink)}
+/* Stillingen: målestokken. Kravet er åpent og det godkjente fylt, som ringene i tråden. */
+.maalestokk{--steg:25%;display:grid;gap:16px;margin-top:4px}
+.lagrad{display:flex;flex-wrap:wrap;gap:0 16px;align-items:baseline;justify-content:space-between}
+.lagrad .navn{font-size:14px;font-weight:600}
+.lagrad .belop{font-size:20px;font-weight:600;letter-spacing:-.01em;white-space:nowrap}
+.maal{position:relative;height:8px;margin-top:6px;border:1px solid var(--rule-strong-color);background:var(--surface) linear-gradient(to right,var(--rule-strong-color) 1px,transparent 1px) 0 0/var(--steg) 100%}
+.maal i{position:absolute;inset:-1px auto -1px -1px;min-width:2px;background:var(--ink)}
+.maal.aapen{border-color:var(--ink);background-image:linear-gradient(to right,var(--ink) 1px,transparent 1px)}
+.trinn{display:flex;margin-top:4px;font-size:12px;color:var(--ink-3);white-space:nowrap}
+.trinn span{flex:0 0 var(--steg)}
+.trinn span:last-child{flex:1 1 0}
+.lagene .navn{font-weight:500}
+.lagtittel{font-size:14px;font-weight:600;padding-top:12px;border-top:1px solid var(--rule-subtle-color)}
+.lagene{list-style:none;margin:0;padding:0;display:grid;gap:16px}
+.lagene p{margin-top:6px;font-size:14px;color:var(--ink-2)}
+.gap{margin-top:20px;font-size:14px;color:var(--ink-2)}
+.gap b{color:var(--ink);font-weight:600}
 
 /* Avstemmingstabellen */
-.tabell{overflow-x:auto;margin-top:20px}
-table{width:100%;min-width:560px;border-collapse:collapse;font-size:14px}
+.tabell{margin-top:24px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+caption{text-align:left;padding-bottom:2px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
 th,td{padding:10px 0 10px 16px;text-align:right;vertical-align:top;border-bottom:1px solid var(--rule-subtle-color)}
 th:first-child,td:first-child{text-align:left;padding-left:0}
 thead th{font-weight:600;font-size:14px;border-bottom:1px solid var(--rule-strong-color);vertical-align:bottom;line-height:1.3}
-thead th small{display:block;font-weight:400;font-size:12px;color:var(--ink-3);margin-top:2px}
 td .hj{display:block;font-size:12px;color:var(--ink-3)}
 tr.sum td{font-weight:600;border-bottom:0;border-top:1px solid var(--rule-strong-color)}
-td.n{font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
 .krevdkol{color:var(--ink-2)}
-
-.lagene{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:10px}
-.lagene li{display:grid;grid-template-columns:132px minmax(0,1fr);gap:4px 12px;padding-left:12px;border-left:2px solid var(--rule-strong-color)}
-.lagene b{font-weight:600}
-.lagene span{color:var(--ink-2)}
-@media (max-width:560px){.lagene li{grid-template-columns:1fr}}
+/* Smal skjerm: posten står over beløpene sine, så alle lagene er synlige uten vannrett rulling. */
+@media (max-width:720px){
+  .tabell tr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:8px}
+  .tabell thead,.tabell tbody{display:block}
+  .tabell th,.tabell td{padding:0 0 10px;border-bottom:0;font-size:14px}
+  .tabell thead th{font-size:12px;border-bottom:0;padding-bottom:6px}
+  .tabell thead th:first-child{display:none}
+  .tabell td:first-child{grid-column:1/-1;padding:10px 0 4px}
+  .tabell thead tr{border-bottom:1px solid var(--rule-strong-color)}
+  .tabell tbody tr{border-bottom:1px solid var(--rule-subtle-color)}
+  .tabell tr.sum td{border-top:0}
+  .tabell tbody tr.sum{border-bottom:0;border-top:1px solid var(--rule-strong-color);margin-top:-1px}
+}
 
 .forbehold{display:flex;gap:10px;margin-top:20px;padding:12px 14px;background:var(--surface-inset);border:1px solid var(--ink);border-radius:var(--r-innfelt);color:var(--ink)}
 .forbehold svg{flex:none;margin-top:2px}
@@ -261,13 +269,10 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 
 .kun-fast,.kun-regning{display:contents}
 [data-regel="fast"] .kun-regning,[data-regel="regning"] .kun-fast{display:none}
-.fakta{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:8px}
+.fakta{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .fakta li{display:grid;grid-template-columns:200px minmax(0,1fr);gap:4px 12px}
-.fakta li span:first-child{color:var(--ink-3)}
+.fakta li>span:first-child{color:var(--ink-3)}
 @media (max-width:560px){.fakta li{grid-template-columns:1fr}}
-.regel{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;padding:12px 14px;border:1px solid var(--rule-strong-color);border-radius:var(--r-innfelt)}
-.regel b{font-size:16px}
-.regel span{color:var(--ink-2)}
 
 /* Handlingene */
 .handlinger .kort-kropp{display:flex;flex-direction:column;gap:16px}
@@ -593,40 +598,43 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
               <span class="kilde">Kravet i brev 5 og svaret i brev 6</span>
             </div>
             <div class="kort-kropp kun-fast-blokk">
-              <div class="stokk" role="img" aria-label="Målestokk fra 0 til 190 000 kroner. Prinsipalt 0 kroner, subsidiært 110 000, videre subsidiært 130 000, krevd 190 000.">
-                <div class="skala" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-                <div class="strek start under" style="left:0%" aria-hidden="true"><span class="lapp"><b class="num">0</b>Prinsipalt</span></div>
-                <div class="strek" style="left:57.89%" aria-hidden="true"><span class="lapp"><b class="num">110 000</b>Subsidiært</span></div>
-                <div class="strek under" style="left:68.42%" aria-hidden="true"><span class="lapp"><b class="num">130 000</b>Videre subsidiært</span></div>
-                <div class="strek krevd slutt" style="left:100%" aria-hidden="true"><span class="lapp"><b class="num">190 000</b>Krevd</span></div>
+              <div class="maalestokk" style="--steg:26.3158%">
+                <div>
+                  <div class="lagrad"><span class="navn">Totalentreprenøren krever</span><b class="belop num">190 000 kr</b></div>
+                  <div class="maal aapen" aria-hidden="true"></div>
+                  <div class="trinn" aria-hidden="true"><span>0</span><span>50 000</span><span>100 000</span><span>150 000</span></div>
+                </div>
+                <p class="lagtittel" id="lag-tittel">Byggherren godkjenner</p>
+                <ul class="lagene" aria-labelledby="lag-tittel" data-spor="D-2">
+                  <li><div class="lagrad"><span class="navn">Prinsipalt</span><b class="belop num">0 kr</b></div><div class="maal" aria-hidden="true"><i style="width:0"></i></div>
+                    <p>Byggherren gjør gjeldende at varselet etter punkt 34.1.2 i brev 3 kom for sent.</p></li>
+                  <li><div class="lagrad"><span class="navn">Subsidiært</span><b class="belop num">110 000 kr</b></div><div class="maal" aria-hidden="true"><i style="width:57.89%"></i></div>
+                    <p>Hvis innsigelsen om varselet etter punkt 34.1.2 ikke fører frem. Byggherren gjør gjeldende at varselet etter punkt 34.1.3 i brev 5 kom for sent, og godkjenner oppgjør som fast sum.</p></li>
+                  <li><div class="lagrad"><span class="navn">Videre subsidiært</span><b class="belop num">130 000 kr</b></div><div class="maal" aria-hidden="true"><i style="width:68.42%"></i></div>
+                    <p>Hvis heller ikke innsigelsen om varselet etter punkt 34.1.3 fører frem.</p></li>
+                </ul>
               </div>
               <p class="gap">Om ingen av byggherrens innsigelser fører frem, skiller <b class="num">60 000 kr</b> svaret fra kravet. Beløpene er eks. mva.</p>
 
-              <div class="tabell" tabindex="0" data-spor="U-4 · U-14 · D-1">
-                <table>
-                  <caption class="sr" style="position:absolute;left:-9999px">Kravet og byggherrens standpunkt per post og lag</caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">Post</th>
-                      <th scope="col" class="krevdkol">Krevd</th>
-                      <th scope="col">Prinsipalt</th>
-                      <th scope="col">Subsidiært</th>
-                      <th scope="col">Videre subsidiært</th>
+              <div class="tabell" data-spor="U-4 · U-14 · D-1">
+                <table role="table">
+                  <caption>Per post</caption>
+                  <thead role="rowgroup">
+                    <tr role="row">
+                      <th scope="col" role="columnheader">Post</th>
+                      <th scope="col" role="columnheader" class="krevdkol">Krevd</th>
+                      <th scope="col" role="columnheader">Prinsipalt</th>
+                      <th scope="col" role="columnheader">Subsidiært</th>
+                      <th scope="col" role="columnheader">Videre subsidiært</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    <tr><td>Vederlagsjustering<span class="hj">Tilbud om fast sum (punkt 34.2.1)</span></td><td class="n krevdkol">150 000</td><td class="n">0</td><td class="n">100 000</td><td class="n">100 000</td></tr>
-                    <tr><td>Særskilt vederlagsjustering<span class="hj">Nedsatt produktivitet · tilbud om fast sum</span></td><td class="n krevdkol">40 000</td><td class="n">0</td><td class="n">10 000</td><td class="n">30 000</td></tr>
-                    <tr class="sum"><td>Sum</td><td class="n">190 000</td><td class="n">0</td><td class="n">110 000</td><td class="n">130 000</td></tr>
+                  <tbody role="rowgroup">
+                    <tr role="row"><td role="cell">Vederlagsjustering<span class="hj">Tilbud om fast sum (pkt. 34.2.1)</span></td><td role="cell" class="n krevdkol">150 000</td><td role="cell" class="n">0</td><td role="cell" class="n">100 000</td><td role="cell" class="n">100 000</td></tr>
+                    <tr role="row"><td role="cell">Særskilt vederlagsjustering<span class="hj">Nedsatt produktivitet · tilbud om fast sum</span></td><td role="cell" class="n krevdkol">40 000</td><td role="cell" class="n">0</td><td role="cell" class="n">10 000</td><td role="cell" class="n">30 000</td></tr>
+                    <tr role="row" class="sum"><td role="cell">Sum</td><td role="cell" class="n">190 000</td><td role="cell" class="n">0</td><td role="cell" class="n">110 000</td><td role="cell" class="n">130 000</td></tr>
                   </tbody>
                 </table>
               </div>
-
-              <ul class="lagene" aria-label="Hva hvert lag bygger på" data-spor="D-2">
-                <li><b>Prinsipalt</b><span>Byggherren gjør gjeldende at varselet etter punkt 34.1.2 i brev 3 kom for sent.</span></li>
-                <li><b>Subsidiært</b><span>Hvis innsigelsen om varselet etter punkt 34.1.2 ikke fører frem. Byggherren gjør gjeldende at varselet etter punkt 34.1.3 i brev 5 kom for sent, og godkjenner oppgjør som fast sum.</span></li>
-                <li><b>Videre subsidiært</b><span>Hvis heller ikke innsigelsen om varselet etter punkt 34.1.3 fører frem.</span></li>
-              </ul>
 
               <div class="forbehold" data-spor="U-3 · D-3">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
@@ -634,18 +642,10 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
               </div>
             </div>
             <div class="kort-kropp kun-regning-blokk">
-              <div class="regel" data-spor="U-13"><b>Regningsarbeid (punkt 34.4)</b><span>Byggherren godkjenner regningsarbeid i brev 6.</span></div>
-              <div class="tabell" tabindex="0">
-                <table>
-                  <thead><tr><th scope="col">Post</th><th scope="col">Kostnadsoverslag<small>punkt 30.2, totalentreprenørens opplysning</small></th></tr></thead>
-                  <tbody>
-                    <tr><td>Vederlagsjustering<span class="hj">Regningsarbeid (punkt 34.4)</span></td><td class="n">160 000</td></tr>
-                  </tbody>
-                </table>
-              </div>
-              <ul class="fakta">
-                <li><span>Varsel før arbeidet</span><span>Brev 3, 6. oktober 2026 (punkt 34.4 første ledd)</span></li>
-                <li><span>Kostnadsoverslag</span><span><span class="num">160 000 kr</span> i brev 5, 20. oktober 2026</span></li>
+              <ul class="fakta" data-spor="U-13">
+                <li><span>Oppgjørsform</span><span><b>Regningsarbeid etter punkt 34.4.</b> Byggherren godkjenner regningsarbeid i brev 6.</span></li>
+                <li><span>Varsel før arbeidet</span><span>Brev 3, 6. oktober 2026 (pkt. 34.4 første ledd)</span></li>
+                <li><span>Kostnadsoverslag</span><span><span class="num">160 000 kr</span> ifølge totalentreprenøren i brev 5, 20. oktober 2026 (pkt. 30.2)</span></li>
               </ul>
               <div class="forbehold" data-spor="U-3 · D-3">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>

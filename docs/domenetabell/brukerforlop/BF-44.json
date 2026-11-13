@@ -30,7 +30,8 @@
     "EO-U13",
     "KA-U62",
     "MM-U40",
-    "OV-U87"
+    "OV-U87",
+    "OV-U75"
   ],
   "venter_paa": [
     "#502",
@@ -64,6 +65,11 @@
       "dato": "2026-11-13",
       "forhold": "#1402",
       "hva": "Oppsett B (U-16) er rettet: tråden over kravet og svaret, sporene i topplinja, fast linje nederst i brevet og egen tekst ved utkast."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Kortet med kravet og svaret er bygget om etter designreviewet og språkfila (U-2 og U-13)."
     }
   ],
   "prototype": {
