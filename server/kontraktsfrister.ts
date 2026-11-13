@@ -5,6 +5,7 @@
  * leserollen leser dem (GFK-U23) med `lesKontraktsfrister` inne i `transaksjon`.
  * Satsen i kroner regnes her, ikke i kjernen.
  */
+import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import type { Foresp } from './datalag.ts';
 
 export type Satsgrunnlag = 'kontraktssum' | 'delens_verdi' | 'fast_beloep';
@@ -38,13 +39,14 @@ export interface Fristtabell {
   frister: Kontraktsfrist[];
 }
 
-const oere = (kroner: number): bigint => BigInt(Math.round(kroner * 100));
-
-/** Promillen av grunnlaget, avrundet til nærmeste øre, halve øre opp. */
+/**
+ * Promillen av grunnlaget i kroner, avrundet til nærmeste øre, halve øre opp. Grunnlaget
+ * leses i øre som reglene leser beløp (`beloep`); promillen har høyst fire desimaler.
+ */
 function promilleAv(grunnlag: number, promille: number): number {
-  const teller = oere(grunnlag) * BigInt(Math.round(promille * 10_000));
+  const teller = beloep(grunnlag)! * BigInt(Math.round(promille * 10_000));
   const nevner = 10_000_000n;
-  return Number((teller * 2n + nevner) / (nevner * 2n)) / 100;
+  return tilTall((teller * 2n + nevner) / (nevner * 2n));
 }
 
 /** Satsen per dag etter GFK-U16 og GFK-U18, eller `null` når den ikke kan regnes. */

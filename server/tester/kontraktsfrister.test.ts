@@ -58,7 +58,7 @@ describe('regnSats', () => {
     // 1,5 ‰ av 0,01 kr er 0,000015 kr; 1 ‰ av 5 kr er nøyaktig et halvt øre.
     expect(regnSats(a(1.5, 0), 0.01)).toBe(0);
     expect(regnSats(a(1, 0), 5)).toBe(0.01);
-    // Det største beløpet tabellen tar: 9 999 999 999,99999 kr.
+    // Det største beløpet tabellen tar, 9 999 999 999 999,99 kr, gir 9 999 999 999,99999 kr.
     expect(regnSats(a(1, 0), 9_999_999_999_999.99)).toBe(10_000_000_000);
   });
 });

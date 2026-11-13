@@ -5,7 +5,8 @@
 -- etter skriftlig bestilling fra byggherren (GFK-U22). Kjøretiden kan ikke endre dem,
 -- og begge parter leser dem (GFK-U23). Hver frist har et nummer i prosjektet som
 -- tildeles her og ikke endres, så et krav kan vise til fristen. Navnet, datoen og
--- satsen kan rettes. En frist kan fjernes bare så lenge prosjektet ikke har saker.
+-- satsen kan rettes. En frist kan fjernes bare så lenge prosjektet ikke har saker; før
+-- det kan nummeret til den siste fristen gis ut igjen.
 -- Satsen i kroner regnes av serveren (`server/kontraktsfrister.ts`). Den erstatter
 -- `koe.dagmulktssats`.
 
@@ -152,6 +153,9 @@ BEGIN
     THROW 52076, N'Fristens navn er tomt, over 200 tegn, har mellomrom i endene eller har kontrolltegn eller linjeskift', 1;
   IF @dato IS NULL OR @dagmulktbelagt IS NULL
     THROW 52077, N'Fristen mangler datoen eller om den er dagmulktbelagt', 1;
+  -- `=` ser bort fra mellomrom til slutt, så formen prøves først, som i tabellen.
+  IF @satsgrunnlag COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^a-z_]%'
+    THROW 52078, N'Satsen passer ikke med grunnlaget, eller fristen er ikke dagmulktbelagt', 1;
   IF NOT (
     (@satsgrunnlag IS NULL AND @promille IS NULL AND @minstebeloep IS NULL
        AND @delens_verdi IS NULL AND @beloep_per_dag IS NULL)
@@ -166,6 +170,9 @@ BEGIN
   BEGIN TRANSACTION;
   IF NOT EXISTS (SELECT 1 FROM koe.projects WITH (UPDLOCK, HOLDLOCK) WHERE id = @prosjekt)
     THROW 52073, N'Prosjektet er ikke registrert', 1;
+  IF @nummer IS NOT NULL AND NOT EXISTS (SELECT 1 FROM koe.kontraktsfrist WITH (UPDLOCK, HOLDLOCK)
+                                          WHERE prosjekt_id = @prosjekt AND nummer = @nummer)
+    THROW 52080, N'Prosjektet har ingen frist med det nummeret', 1;
   IF EXISTS (SELECT 1 FROM koe.kontraktsfrist WITH (UPDLOCK, HOLDLOCK)
               WHERE prosjekt_id = @prosjekt AND navn = @navn AND nummer IS DISTINCT FROM @nummer)
     THROW 52079, N'Prosjektet har alt en frist med det navnet', 1;
@@ -185,8 +192,6 @@ BEGIN
            promille = @promille, minstebeloep = @minstebeloep, delens_verdi = @delens_verdi,
            beloep_per_dag = @beloep_per_dag
      WHERE prosjekt_id = @prosjekt AND nummer = @nummer;
-    IF @@ROWCOUNT = 0
-      THROW 52080, N'Prosjektet har ingen frist med det nummeret', 1;
   END
   COMMIT;
   SELECT @nummer AS nummer;
@@ -217,6 +222,8 @@ CREATE PROCEDURE koe_drift.kontraktsfrister
 AS
 BEGIN
   SET NOCOUNT ON;
+  IF NOT EXISTS (SELECT 1 FROM koe.projects WHERE id = @prosjekt)
+    THROW 52073, N'Prosjektet er ikke registrert', 1;
   SELECT kontraktssum FROM koe.kontraktssum WHERE prosjekt_id = @prosjekt;
   SELECT nummer, navn, CONVERT(nchar(10), dato, 23) AS dato, dagmulktbelagt, satsgrunnlag, promille, minstebeloep,
          delens_verdi, beloep_per_dag

@@ -922,7 +922,8 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
       '--frist',
       'Tett bygg',
       '--dato',
-      '2026-12-15'
+      '2026-12-15',
+      '--ikke-dagmulktbelagt'
     );
     await skript(
       'kontraktsfrister',
@@ -963,31 +964,52 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
       prosjekt,
       'rett',
       '2',
-      '--frist',
-      'Tett bygg',
       '--dato',
       '2026-12-20',
       '--dagmulktbelagt'
     );
+    // En retting av navnet og datoen lar satsen stå; --prosjekt virker som argumentet.
+    await skript(
+      'kontraktsfrister',
+      '--prosjekt',
+      prosjekt,
+      'rett',
+      '1',
+      '--frist',
+      'Overtakelse',
+      '--dato',
+      '2027-07-01'
+    );
+    await skript('kontraktsfrister', prosjekt, 'rett', '4', '--ikke-dagmulktbelagt');
     const tabell = await lesFristtabell(drift.pool, prosjekt);
     expect(tabell.kontraktssum).toBe(120_000_000);
     expect(tabell.frister.map((f) => [f.nummer, f.navn, f.dato, f.dagmulktbelagt, f.sats])).toEqual(
       [
-        [1, 'Sluttfrist', '2027-06-30', true, 120_000],
+        [1, 'Overtakelse', '2027-07-01', true, 120_000],
         [2, 'Tett bygg', '2026-12-20', true, null],
         [3, 'Delfrist A', '2027-01-31', true, 3000],
-        [4, 'Delfrist B', '2027-02-28', true, 2500.5],
+        [4, 'Delfrist B', '2027-02-28', false, null],
       ]
     );
+    expect(tabell.frister[3]?.satsopplysninger).toBeNull();
   });
 
   it('kontraktsfrister avviser en sats som ikke passer, et navn som finnes, en dato og et nummer som ikke finnes', async () => {
     const { prosjekt } = await nyttProsjekt([]);
     const ny = (...a: string[]) =>
       skript('kontraktsfrister', prosjekt, 'ny', '--dato', '2027-06-30', ...a);
-    await expect(ny('--frist', 'S', '--promille', '1', '--minstebeloep', '3000')).rejects.toThrow(
-      /bare en frist med --dagmulktbelagt/
+    await expect(
+      ny('--frist', 'S', '--ikke-dagmulktbelagt', '--promille', '1', '--minstebeloep', '3000')
+    ).rejects.toThrow(/bare en dagmulktbelagt frist/);
+    await expect(ny('--frist', 'S')).rejects.toThrow(
+      /Oppgi --dagmulktbelagt eller --ikke-dagmulktbelagt/
     );
+    await expect(ny('--frist', 'S', '--dagmulktbelagt', '--ikke-dagmulktbelagt')).rejects.toThrow(
+      /enten/
+    );
+    await expect(
+      ny('--frist', 'S', '--dagmulktbelagt', '--promille', '100000', '--minstebeloep', '0')
+    ).rejects.toThrow(/høyst 5 sifre/);
     await expect(ny('--frist', 'S', '--dagmulktbelagt', '--promille', '1')).rejects.toThrow(
       /--promille og --minstebeloep/
     );
@@ -1000,13 +1022,43 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     await expect(
       skript('kontraktsfrister', prosjekt, 'ny', '--frist', 'S', '--dato', '2027-02-30')
     ).rejects.toThrow(/ÅÅÅÅ-MM-DD/);
-    await expect(ny('--frist', ' S')).rejects.toThrow(/Fristens navn .*\(52076\)/);
-    await expect(ny('--frist', 'S\nT')).rejects.toThrow(/\(52076\)/);
-    await ny('--frist', 'S');
-    await expect(ny('--frist', 'S')).rejects.toThrow(/alt en frist med det navnet \(52079\)/);
     await expect(
-      skript('kontraktsfrister', prosjekt, 'rett', '7', '--frist', 'T', '--dato', '2027-06-30')
-    ).rejects.toThrow(/\(52080\)/);
+      skript('kontraktsfrister', prosjekt, 'ny', '--frist', 'S', '--dato', '0000-01-01')
+    ).rejects.toThrow(/ÅÅÅÅ-MM-DD/);
+    const utenDagmulkt = (navn: string) => ny('--frist', navn, '--ikke-dagmulktbelagt');
+    await expect(utenDagmulkt(' S')).rejects.toThrow(/Fristens navn .*\(52076\)/);
+    await expect(utenDagmulkt('S\nT')).rejects.toThrow(/\(52076\)/);
+    await utenDagmulkt('S');
+    await utenDagmulkt('T');
+    await expect(utenDagmulkt('S')).rejects.toThrow(/alt en frist med det navnet \(52079\)/);
+    await expect(skript('kontraktsfrister', prosjekt, 'rett', '2', '--frist', 'S')).rejects.toThrow(
+      /\(52079\)/
+    );
+    await expect(skript('kontraktsfrister', prosjekt, 'rett', '7', '--frist', 'S')).rejects.toThrow(
+      /ingen frist med nummeret 7/
+    );
+    await expect(skript('kontraktsfrister', prosjekt, 'rett', '1')).rejects.toThrow(
+      /Oppgi det som skal rettes/
+    );
+    await expect(skript('kontraktsfrister', 'p-finnes-ikke')).rejects.toThrow(/\(52073\)/);
+    // Prosedyren prøver formen på grunnlaget før `=`, som ser bort fra mellomrom til slutt.
+    expect(
+      await avvisning(
+        drift.pool
+          .request()
+          .input('prosjekt', prosjekt)
+          .input('nummer', null)
+          .input('navn', 'U')
+          .input('dato', '2027-01-01')
+          .input('dagmulktbelagt', true)
+          .input('satsgrunnlag', 'fast_beloep ')
+          .input('promille', null)
+          .input('minstebeloep', null)
+          .input('delens_verdi', null)
+          .input('beloep_per_dag', 10)
+          .execute('koe_drift.sett_kontraktsfrist')
+      )
+    ).toBe(52078);
     await expect(skript('kontraktsfrister', prosjekt, 'rett', '0')).rejects.toThrow(
       /positivt heltall/
     );
@@ -1019,7 +1071,10 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     await expect(skript('kontraktsparter', prosjekt, '--frist', 'S')).rejects.toThrow(
       /--frist gjelder bare «kontraktsfrister»/
     );
-    expect((await lesFristtabell(drift.pool, prosjekt)).frister.map((f) => f.navn)).toEqual(['S']);
+    expect((await lesFristtabell(drift.pool, prosjekt)).frister.map((f) => f.navn)).toEqual([
+      'S',
+      'T',
+    ]);
     // Tabellen avviser en sats som ikke passer med grunnlaget, også uten prosedyren.
     for (const verdier of [
       "0, N'kontraktssum', 1, 3000, NULL, NULL",
@@ -1043,7 +1098,8 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
   // Det tekniske valget i #721: et krav kan vise til fristen når prosjektet har saker.
   it('kontraktsfrister fjerner en frist bare så lenge prosjektet ikke har saker', async () => {
     const { prosjekt } = await nyttProsjekt([]);
-    await skript('kontraktsfrister', prosjekt, 'ny', '--frist', 'S', '--dato', '2027-06-30');
+    const ikke = '--ikke-dagmulktbelagt';
+    await skript('kontraktsfrister', prosjekt, 'ny', '--frist', 'S', '--dato', '2027-06-30', ikke);
     await skript('kontraktsfrister', prosjekt, 'fjern', '1');
     expect((await lesFristtabell(drift.pool, prosjekt)).frister).toEqual([]);
     await expect(skript('kontraktsfrister', prosjekt, 'fjern', '1')).rejects.toThrow(/\(52080\)/);
@@ -1055,22 +1111,14 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
       '--frist',
       'Sluttfrist',
       '--dato',
-      '2027-06-30'
+      '2027-06-30',
+      ikke
     );
     await opprettKjernesak(o);
     await expect(skript('kontraktsfrister', o.prosjekt.id, 'fjern', '1')).rejects.toThrow(
       /har saker, så fristen kan ikke fjernes \(52081\)/
     );
-    await skript(
-      'kontraktsfrister',
-      o.prosjekt.id,
-      'rett',
-      '1',
-      '--frist',
-      'Sluttfrist',
-      '--dato',
-      '2027-07-31'
-    );
+    await skript('kontraktsfrister', o.prosjekt.id, 'rett', '1', '--dato', '2027-07-31');
     expect((await lesFristtabell(drift.pool, o.prosjekt.id)).frister[0]?.dato).toBe('2027-07-31');
   });
 

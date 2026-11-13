@@ -16,7 +16,7 @@
  *     [--byggherre "…" --totalentreprenoer "…" --kontraktsforkortelse K201]
  *   KOE_DRIFT_TILKOBLING=… node server/registrering.ts kontraktsfrister oslobygg \
  *     [kontraktssum <kroner> | ny | rett <nummer> | fjern <nummer>] \
- *     [--frist "Sluttfrist" --dato 2027-06-30 [--dagmulktbelagt \
+ *     [--frist "Sluttfrist" --dato 2027-06-30 [--ikke-dagmulktbelagt | --dagmulktbelagt \
  *       [--promille 1 --minstebeloep 3000 [--delens-verdi <kroner>] | --beloep-per-dag <kroner>]]]
  *
  * `KOE_DRIFT_TILKOBLING` er tilkoblingsstrengen for en bruker med
@@ -29,8 +29,8 @@
  * `kontraktsparter` setter navnene på byggherren og totalentreprenøren og
  * kontraktsforkortelsen, alle sammen, og viser dem uten flaggene (#1398, #1497).
  * `kontraktsfrister` viser kontraktssummen og fristtabellen med satsen, setter
- * kontraktssummen, registrerer en ny frist, retter en frist med alle opplysningene
- * eller fjerner en frist så lenge prosjektet ikke har saker (GFK-U16, GFK-U18, GFK-U22).
+ * kontraktssummen, registrerer en ny frist, retter det som oppgis for en frist og
+ * lar resten stå, eller fjerner en frist så lenge prosjektet ikke har saker (GFK-U16, GFK-U18, GFK-U22).
  * Med `--promille` og `--minstebeloep` regnes satsen av kontraktssummen, og med
  * `--delens-verdi` i tillegg av verdien av delen; `--beloep-per-dag` er et avtalt fast
  * beløp. Promillen og minstebeløpet oppgis alltid; skriptet fyller ikke inn standardverdiene.
@@ -205,7 +205,7 @@ async function settKontraktsparter(
   }
 }
 
-const FRISTFEIL = [52043, 52073, 52075, 52076, 52077, 52078, 52079, 52080, 52081];
+const FRISTFEIL = [52073, 52075, 52076, 52077, 52078, 52079, 52080, 52081];
 
 async function iDriften<T>(arbeid: Promise<T>): Promise<T> {
   try {
@@ -280,11 +280,15 @@ function beskrivSats(s: Satsopplysninger): string {
   return `${s.promille} ‰ av ${av}, minst ${kroner(s.minstebeloep)}`;
 }
 
-/** Et beløp eller en promille med punktum som desimaltegn, høyst `desimaler` desimaler. */
-function desimaltall(verdi: string, navn: string, desimaler: number): number {
-  if (!new RegExp(`^\\d{1,13}(\\.\\d{1,${desimaler}})?$`).test(verdi))
+/**
+ * Et tall med punktum som desimaltegn, i formen kolonnen tar: et beløp har høyst 13
+ * sifre før og 2 etter, en promille høyst 5 før og 4 etter.
+ */
+function desimaltall(verdi: string, navn: string, form: 'beloep' | 'promille'): number {
+  const [foer, etter] = form === 'beloep' ? [13, 2] : [5, 4];
+  if (!new RegExp(`^\\d{1,${foer}}(\\.\\d{1,${etter}})?$`).test(verdi))
     throw new Registreringsfeil(
-      `--${navn} er ikke et tall med høyst ${desimaler} desimaler og punktum: ${verdi}`
+      `--${navn} er ikke et tall med høyst ${foer} sifre, ${etter} desimaler og punktum: ${verdi}`
     );
   return Number(verdi);
 }
@@ -300,7 +304,9 @@ function fristnummer(verdi: string | undefined): number {
 function erDato(verdi: string): boolean {
   const d = new Date(`${verdi}T00:00:00Z`);
   return (
-    /^\d{4}-\d{2}-\d{2}$/.test(verdi) && !isNaN(d.getTime()) && d.toISOString().startsWith(verdi)
+    /^(?!0000)\d{4}-\d{2}-\d{2}$/.test(verdi) &&
+    !isNaN(d.getTime()) &&
+    d.toISOString().startsWith(verdi)
   );
 }
 
@@ -353,6 +359,7 @@ const VALG = {
   frist: { type: 'string' },
   dato: { type: 'string' },
   dagmulktbelagt: { type: 'boolean' },
+  'ikke-dagmulktbelagt': { type: 'boolean' },
   promille: { type: 'string' },
   minstebeloep: { type: 'string' },
   'delens-verdi': { type: 'string' },
@@ -366,6 +373,7 @@ const FRISTER: Valg[] = [
   'frist',
   'dato',
   'dagmulktbelagt',
+  'ikke-dagmulktbelagt',
   'promille',
   'minstebeloep',
   'delens-verdi',
@@ -527,15 +535,14 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
   }
 
   if (kommando === 'kontraktsfrister') {
-    if (prosjektArgument && v.prosjekt)
-      throw new Registreringsfeil(
-        `Prosjektet er oppgitt to ganger: ${prosjektArgument} og --prosjekt ${v.prosjekt}.`
-      );
-    const prosjekt = prosjektArgument ?? v.prosjekt;
+    // Med --prosjekt er handlingen det første argumentet etter kommandoen.
+    const [prosjekt, hva, argument, ...ukjente] = v.prosjekt
+      ? [v.prosjekt, prosjektArgument, ...handling]
+      : [prosjektArgument, ...handling];
+    if (ukjente.length) throw new Registreringsfeil(`Ukjente argumenter: ${ukjente.join(' ')}`);
     if (!prosjekt) throw new Registreringsfeil('Prosjektet må oppgis.');
     avvisFlagg(BARE_REGISTRER, 'registrer');
     if (oppgittTeam) throw new Registreringsfeil('--bh og --te gjelder bare «kontraktsteam».');
-    const [hva, argument] = handling;
     const medFrist = hva === 'ny' || hva === 'rett';
     if (!medFrist) avvisFlagg(FRISTER, 'kontraktsfrister ny» og «kontraktsfrister rett');
     if ((hva === 'ny' || hva === undefined) && argument !== undefined)
@@ -543,7 +550,7 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
     const pool = await a.pool();
 
     if (hva === undefined) {
-      const tabell = await lesFristtabell(pool, prosjekt);
+      const tabell = await iDriften(lesFristtabell(pool, prosjekt));
       a.skriv(
         `Kontraktssum: ${tabell.kontraktssum === null ? '(ikke satt)' : kroner(tabell.kontraktssum)}`
       );
@@ -561,7 +568,7 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       return;
     }
     if (hva === 'kontraktssum') {
-      const sum = desimaltall(argument ?? '', 'kontraktssum', 2);
+      const sum = desimaltall(argument ?? '', 'kontraktssum', 'beloep');
       await iDriften(
         utenKontekst(pool)
           .input('prosjekt', sql.NVarChar(4000), prosjekt)
@@ -586,24 +593,22 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       throw new Registreringsfeil(
         'Handlingen for kontraktsfrister er «kontraktssum», «ny», «rett» eller «fjern».'
       );
-    const nummer = hva === 'rett' ? fristnummer(argument) : null;
-    const dato = paakrevd(v.dato, 'dato');
-    if (!erDato(dato))
-      throw new Registreringsfeil(`--dato er ikke en dato på formen ÅÅÅÅ-MM-DD: ${dato}`);
-    const tallFra = (navn: Valg, desimaler: number) => {
+    if (v.dagmulktbelagt && v['ikke-dagmulktbelagt'])
+      throw new Registreringsfeil('Oppgi enten --dagmulktbelagt eller --ikke-dagmulktbelagt.');
+    if (v.dato !== undefined && !erDato(v.dato))
+      throw new Registreringsfeil(`--dato er ikke en dato på formen ÅÅÅÅ-MM-DD: ${v.dato}`);
+    const tallFra = (navn: Valg, form: 'beloep' | 'promille') => {
       const verdi = v[navn];
-      return typeof verdi === 'string' ? desimaltall(verdi, navn, desimaler) : undefined;
+      return typeof verdi === 'string' ? desimaltall(verdi, navn, form) : undefined;
     };
     const sats = {
-      promille: tallFra('promille', 4),
-      minstebeloep: tallFra('minstebeloep', 2),
-      delensVerdi: tallFra('delens-verdi', 2),
-      beloepPerDag: tallFra('beloep-per-dag', 2),
+      promille: tallFra('promille', 'promille'),
+      minstebeloep: tallFra('minstebeloep', 'beloep'),
+      delensVerdi: tallFra('delens-verdi', 'beloep'),
+      beloepPerDag: tallFra('beloep-per-dag', 'beloep'),
     };
     const oppgitt = Object.values(sats).some((x) => x !== undefined);
-    if (oppgitt && !v.dagmulktbelagt)
-      throw new Registreringsfeil('Satsen gjelder bare en frist med --dagmulktbelagt.');
-    let satsopplysninger: Satsopplysninger | null = null;
+    let nySats: Satsopplysninger | null = null;
     if (sats.beloepPerDag !== undefined) {
       if (
         sats.promille !== undefined ||
@@ -613,11 +618,11 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
         throw new Registreringsfeil(
           '--beloep-per-dag kan ikke stå sammen med --promille, --minstebeloep eller --delens-verdi.'
         );
-      satsopplysninger = { grunnlag: 'fast_beloep', beloepPerDag: sats.beloepPerDag };
+      nySats = { grunnlag: 'fast_beloep', beloepPerDag: sats.beloepPerDag };
     } else if (oppgitt) {
       if (sats.promille === undefined || sats.minstebeloep === undefined)
         throw new Registreringsfeil('Både --promille og --minstebeloep må oppgis.');
-      satsopplysninger =
+      nySats =
         sats.delensVerdi === undefined
           ? { grunnlag: 'kontraktssum', promille: sats.promille, minstebeloep: sats.minstebeloep }
           : {
@@ -627,12 +632,39 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
               delensVerdi: sats.delensVerdi,
             };
     }
-    const lagret = await settKontraktsfrist(pool, prosjekt, nummer, {
-      navn: paakrevd(v.frist, 'frist'),
-      dato,
-      dagmulktbelagt: v.dagmulktbelagt === true,
-      satsopplysninger,
-    });
+    const oppgittDagmulkt = v.dagmulktbelagt ? true : v['ikke-dagmulktbelagt'] ? false : undefined;
+
+    let frist: NyFrist;
+    let nummer: number | null = null;
+    if (hva === 'ny') {
+      if (oppgittDagmulkt === undefined)
+        throw new Registreringsfeil('Oppgi --dagmulktbelagt eller --ikke-dagmulktbelagt.');
+      frist = {
+        navn: paakrevd(v.frist, 'frist'),
+        dato: paakrevd(v.dato, 'dato'),
+        dagmulktbelagt: oppgittDagmulkt,
+        satsopplysninger: nySats,
+      };
+    } else {
+      // Det som ikke er oppgitt, står som før, så en retting av datoen fjerner ikke satsen.
+      nummer = fristnummer(argument);
+      if (FRISTER.every((navn) => v[navn] === undefined))
+        throw new Registreringsfeil('Oppgi det som skal rettes.');
+      const naa = (await iDriften(lesFristtabell(pool, prosjekt))).frister.find(
+        (f) => f.nummer === nummer
+      );
+      if (!naa) throw new Registreringsfeil(`Prosjektet har ingen frist med nummeret ${nummer}.`);
+      const dagmulktbelagt = oppgittDagmulkt ?? naa.dagmulktbelagt;
+      frist = {
+        navn: v.frist ?? naa.navn,
+        dato: v.dato ?? naa.dato,
+        dagmulktbelagt,
+        satsopplysninger: oppgitt ? nySats : dagmulktbelagt ? naa.satsopplysninger : null,
+      };
+    }
+    if (oppgitt && !frist.dagmulktbelagt)
+      throw new Registreringsfeil('Satsen gjelder bare en dagmulktbelagt frist.');
+    const lagret = await settKontraktsfrist(pool, prosjekt, nummer, frist);
     a.skriv(
       nummer === null
         ? `Frist ${lagret} i ${prosjekt} er registrert.`
