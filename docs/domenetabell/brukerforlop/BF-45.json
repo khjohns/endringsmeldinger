@@ -69,6 +69,11 @@
       "dato": "2026-11-13",
       "forhold": "#1900",
       "hva": "Funnene R-1–R-21 fra forprøven og gjennomgangen er rettet, og V-1 er A (oppdragsgiver 13.11: «Rett som anbefalt»). GR-U6 er tatt ut av kildene, og GFK-U3, GFK-U4, KA-U73 og KA-U22 er ført."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1900",
+      "hva": "Oppdragsgiver godkjente prototypen på b6f172e. Bestillingen er klar til bygging."
     }
   ],
   "prototype": {
