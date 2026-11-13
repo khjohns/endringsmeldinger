@@ -5015,9 +5015,14 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F580',
-    feilklasse: 'fristen mister forutsetningene for forespørselen etter § 33.6.2 (#1783)',
+    feilklasse: 'kroken i fristen godtar hver begrunnelse på forespørselen etter § 33.6.2 (#1783)',
     fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [['  foresporsel: {\n    sende:', '  foresporsel: null && {\n    sende:']],
+    endringer: [
+      [
+        '    svare: (u, f, avslaget) => {\n',
+        '    svare: (u, f, avslaget) => {\n      if (u) return null;\n',
+      ],
+    ],
     mal: ['KA-U1, VS-U27: én begrunnelse per forespørsel'],
   },
 ];
