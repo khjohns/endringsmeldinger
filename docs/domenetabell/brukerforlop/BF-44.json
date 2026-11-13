@@ -1,0 +1,50 @@
+{
+  "id": "BF-44",
+  "tittel": "Partene ser stillingen i vederlaget",
+  "brukerhistorie": "TE og BH åpner siden for vederlagsjusteringen og ser kravet som gjelder, byggherrens svar med lagene og summen i hvert lag, forbeholdet om at forholdet ikke er besvart, brevene med vedlegg og datoene. TE ser hva det betyr å godta svaret før TE godtar det, og begge ser hva de kan gjøre nå og et påbegynt utkast.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "TE har påberopt forholdet i brev 2 uten svar, krevd vederlag i brev 3 og på nytt i brev 5 med særskilt vederlagsjustering, og byggherren har svart i brev 6 med tre lag og akseptfrist."
+  },
+  "bestilling": "BF-44.md",
+  "kilder": [
+    "MM-U50",
+    "OV-U31",
+    "OV-U73",
+    "OV-U32",
+    "LV-U37",
+    "LV-U33",
+    "GR-U34",
+    "KA-U1",
+    "GR-U7",
+    "GR-U8",
+    "GR-U6",
+    "HF-U23",
+    "OV-U54",
+    "KA-U51",
+    "MM-U48",
+    "OV-U44",
+    "OV-U81",
+    "LV-U14",
+    "EO-U13",
+    "KA-U62",
+    "MM-U40",
+    "OV-U87"
+  ],
+  "venter_paa": [
+    "#1402",
+    "#502",
+    "#1627",
+    "#1434"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen på grunnlag av prototypene v1 og v2 og spørsmålene 1–9."
+    }
+  ]
+}
