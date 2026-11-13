@@ -252,7 +252,7 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U77](../../plans/vedtak.md#ov-u77) | — | BF-05 start | — |
 | [OV-U78](../../plans/vedtak.md#ov-u78) | — | BF-05 start | BF-01V |
 | [OV-U79](../../plans/vedtak.md#ov-u79) | — | BF-05 start | BF-01V, BF-02B, BF-03, BF-14 |
-| [OV-U80](../../plans/vedtak.md#ov-u80) | — | BF-05 start | BF-02B, BF-03, BF-06, BF-07, BF-14, BF-37 |
+| [OV-U80](../../plans/vedtak.md#ov-u80) | — | BF-05 start | BF-02B, BF-03, BF-06, BF-07, BF-08, BF-14, BF-37 |
 | [OV-U81](../../plans/vedtak.md#ov-u81) | — | — | BF-01V, BF-03 |
 | [OV-U82](../../plans/vedtak.md#ov-u82) | — | BF-05 start | — |
 | [OV-U83](../../plans/vedtak.md#ov-u83) | — | — | BF-01V |
