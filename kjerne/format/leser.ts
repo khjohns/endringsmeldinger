@@ -19,7 +19,7 @@ import {
   OPPLYSNING,
   SAK_OPPRETTET,
   STANDPUNKT,
-  STANDPUNKTER_I_SPORET,
+  TILLATTE_STANDPUNKTER,
   SVAR,
   UTSAGN,
 } from './format.ts';
@@ -160,14 +160,14 @@ const SVARLESING: Record<Spor, Svarlesing> = {
 
 /**
  * Standpunktene i et lagret svar, med beløp og dager fra utregningen. Arten og
- * rekkefølgen må være de sporet tillater (`STANDPUNKTER_I_SPORET`). Kaster
+ * rekkefølgen må være de sporet tillater (`TILLATTE_STANDPUNKTER`). Kaster
  * `Uforstaatt`. Skrivingen bruker den samme funksjonen når brevet fryses.
  */
 export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Standpunkt[] {
   const liste = svar.standpunkter;
   if (!Array.isArray(liste) || !liste.length)
     throw new Uforstaatt(`${sti}: har ingen standpunkter`);
-  const tillatt = STANDPUNKTER_I_SPORET[spor];
+  const tillatt = TILLATTE_STANDPUNKTER[spor];
   const utregning = (svar.utregning ?? {}) as Data;
   const lesing = SVARLESING[spor];
   let neste = 0;

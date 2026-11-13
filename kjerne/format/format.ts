@@ -19,19 +19,19 @@ import { artfelt, DATO, ID, liste, objekt, TEKST, type Skjema } from './skjema.t
 import {
   FORHOLDSINNHOLD,
   STANDPUNKT_I_FORHOLDET,
-  STANDPUNKTER_I_FORHOLDET,
+  TILLATTE_STANDPUNKTER_I_FORHOLDET,
 } from '../spor/forhold/format.ts';
 import {
   FRISTINNHOLD,
   RELASJON_I_FRISTKRAVET,
   STANDPUNKT_I_FRISTEN,
-  STANDPUNKTER_I_FRISTEN,
-  UTREGNING_I_FRISTEN,
+  TILLATTE_STANDPUNKTER_I_FRISTEN,
+  UTREGNINGSSKJEMA_I_FRISTEN,
 } from '../spor/frist/format.ts';
 import {
   STANDPUNKT_I_VEDERLAGET,
-  STANDPUNKTER_I_VEDERLAGET,
-  UTREGNING_I_VEDERLAGET,
+  TILLATTE_STANDPUNKTER_I_VEDERLAGET,
+  UTREGNINGSSKJEMA_I_VEDERLAGET,
   vederlagsinnhold,
 } from '../spor/vederlag/format.ts';
 import {
@@ -69,10 +69,10 @@ export const HJEMMEL: Record<Spor, Hjemmel> = {
  * Rekkefølgen avgjør hva som er prinsipalt og subsidiært (vedtaket 05.10 om
  * avslag sammen med § 32.2). Arten i sporet uten `?` må finnes.
  */
-export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd: boolean }[]> = {
-  forhold: STANDPUNKTER_I_FORHOLDET,
-  vederlag: STANDPUNKTER_I_VEDERLAGET,
-  frist: STANDPUNKTER_I_FRISTEN,
+export const TILLATTE_STANDPUNKTER: Record<Spor, { art: Standpunktsart; paakrevd: boolean }[]> = {
+  forhold: TILLATTE_STANDPUNKTER_I_FORHOLDET,
+  vederlag: TILLATTE_STANDPUNKTER_I_VEDERLAGET,
+  frist: TILLATTE_STANDPUNKTER_I_FRISTEN,
 };
 
 /**
@@ -134,10 +134,10 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
 };
 
 /** Serverens utregning etter B-13. Forholdet har ingen. */
-export const UTREGNING: Record<Spor, Skjema | null> = {
+export const UTREGNINGSSKJEMA: Record<Spor, Skjema | null> = {
   forhold: null,
-  vederlag: UTREGNING_I_VEDERLAGET,
-  frist: UTREGNING_I_FRISTEN,
+  vederlag: UTREGNINGSSKJEMA_I_VEDERLAGET,
+  frist: UTREGNINGSSKJEMA_I_FRISTEN,
 };
 
 export const BESLUTNINGSGRUNNLAG: Skjema = objekt(
@@ -157,7 +157,7 @@ export const BESLUTNINGSGRUNNLAG: Skjema = objekt(
 
 export const SVAR: Record<Spor, Skjema> = Object.fromEntries(
   SPOR.map((s) => {
-    const utregning = UTREGNING[s];
+    const utregning = UTREGNINGSSKJEMA[s];
     return [
       s,
       objekt(

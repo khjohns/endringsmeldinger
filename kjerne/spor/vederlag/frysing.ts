@@ -392,7 +392,7 @@ const PRODUKTIVITETSFELT = {
 } as const;
 
 /** Svaret i kommandoen som postene regelen regner over, og feltet i kommandoen for hver feil. */
-function vederlagssvaret(
+function svaretFraVurderingene(
   v: Svarvurdering,
   krav: Krav,
   hovedkategori: string | null
@@ -475,7 +475,7 @@ function regnUtVederlag(
   kontrollerVarseletForVederlag(v, hovedkategori, regler);
   for (const { post, svar } of kravpostvurderinger(v, krav))
     kontrollerOppgjoersformen(post.betegnelse, svar, post);
-  const { svar, felt } = vederlagssvaret(v, krav, hovedkategori);
+  const { svar, felt } = svaretFraVurderingene(v, krav, hovedkategori);
   let r: Vederlagsberegning;
   try {
     r = beregnVederlag(svar, regler);

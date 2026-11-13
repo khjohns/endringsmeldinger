@@ -348,7 +348,7 @@ export interface Utregningsrad {
   lag: Utregningslag[];
 }
 
-/** Utregningen i et svar på vederlaget, etter `UTREGNING.vederlag` i `format/format.ts`. */
+/** Utregningen i et svar på vederlaget, etter `UTREGNINGSSKJEMA.vederlag` i `format/format.ts`. */
 export interface Vederlagsutregning {
   resultat: Vederlagsresultat;
   godkjent_beloep: number;
@@ -357,7 +357,7 @@ export interface Vederlagsutregning {
   poster: Utregningsrad[];
 }
 
-/** Utregningen i et svar på fristen, etter `UTREGNING_I_FRISTEN` i `spor/frist/format.ts`. */
+/** Utregningen i et svar på fristen, etter `UTREGNINGSSKJEMA_I_FRISTEN` i `spor/frist/format.ts`. */
 export interface Fristutregning {
   resultat: Fristresultat;
   godkjent_dager: number;

@@ -155,7 +155,7 @@ const sendtFraAppen = (u: Pick<Utledning, 'elementer'>, s: Svar): boolean =>
   !u.elementer[s.dokument]?.registrertBrev;
 
 /** Virkningen av svaret på forholdet: om forholdet er avklart, avvist eller frafalt, og om svaret er en endringsordre. */
-export function forholdet(
+export function forholdssvaretsVirkning(
   spor: Record<Spor, Sporutledning>,
   elementer: Record<string, Element>,
   svar: Record<string, Svarberegning>,
