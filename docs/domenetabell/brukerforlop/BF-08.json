@@ -112,7 +112,13 @@
             "staar": "Bekreftelsen er et nytt brev til totalentreprenøren. Velg de samme standpunktene som i det tidligere svaret."
           },
           {
-            "staar": "Bekreftelsen får sin egen dato når den sendes."
+            "staar": "Det legges til i saken som dokumentasjon og ved bekreftelsen når bekreftelsen sendes."
+          },
+          {
+            "staar": "Hvordan ble brevet sendt?"
+          },
+          {
+            "staar": "Byggherren bekrefter sitt svar"
           },
           {
             "staar": "Byggherren bekrefter sitt svar"
@@ -254,6 +260,7 @@
     "LV-U39",
     "LV-U40",
     "LV-U41",
+    "LV-U42",
     "LV-U53",
     "MM-U9",
     "MM-U34",
@@ -262,6 +269,7 @@
     "OV-U46",
     "OV-U69",
     "OV-U72",
+    "OV-U79",
     "OV-U80",
     "VS-U46",
     "GFK-U2",
@@ -294,7 +302,7 @@
     {
       "dato": "2026-11-13",
       "forhold": "#1834",
-      "hva": "Prototypen versjon 6 etter oppdragsgivers prøve 13.11: språket etter språkfila, uten stiplet linje ved begrunnelsen, og S-4 om dokumentet i bekreftelsen."
+      "hva": "Prototypen versjon 6 etter oppdragsgivers prøve 13.11: språket etter språkfila, uten stiplet linje ved begrunnelsen, og opplastingen i bekreftelsen etter S-4 A (D-16)."
     }
   ]
 }

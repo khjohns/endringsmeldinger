@@ -194,6 +194,13 @@ kommentaren under. Oppdragsgiver svarte 12.11, ordrett ([#1834, 6833550575](http
 
 Vedtakene for S-1 og S-3 er [GR-U35](../../plans/vedtak.md#gr-u35) og [GR-U36](../../plans/vedtak.md#gr-u36).
 
+Orkestratoren stilte S-4 13.11 slik det står på 2993b46, som nummerert liste i tekst. Oppdragsgiver
+svarte 13.11, ordrett:
+
+> 5 A
+
+- **S-4:** A. Orkestratoren fører vedtaket i en egen vedtaks-PR.
+
 ## Spørsmål 4: S-4, dokumentet med svaret utenfor løsningen (13.11)
 
 Spørsmålet kommer fra oppdragsgivers prøve av prototypen 13.11
