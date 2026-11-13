@@ -1,0 +1,182 @@
+{
+  "id": "BF-45",
+  "tittel": "Partene ser stillingen i fristforlengelsen",
+  "brukerhistorie": "TE og BH åpner siden for fristforlengelsen og ser kravet med dagene for hver frist, byggherrens svar med lagene som gjelder hele kravet og lagene per frist, gjeldende frist for hver frist, brevene med vedlegg og datoene, byggherrens forespørsel etter punkt 33.6.2, og hva de kan gjøre nå.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "TE har påberopt forholdet i brev 2 uten svar, varslet etter punkt 33.4 i brev 4 og krevd dager for tre frister i brev 7, og byggherren har svart i brev 8 med tre lag og akseptfrist. I forespørselen har byggherren bedt om dagene i brev 7."
+  },
+  "bestilling": "BF-45.md",
+  "kilder": [
+    "MM-U50",
+    "OV-U32",
+    "OV-U33",
+    "KA-U78",
+    "KA-U74",
+    "VS-U20",
+    "KA-U80",
+    "KA-U81",
+    "OV-U42",
+    "KA-U1",
+    "GR-U7",
+    "GR-U6",
+    "HF-U24",
+    "HF-U23",
+    "HF-U5",
+    "KA-U75",
+    "KA-U76",
+    "OV-U44",
+    "LV-U14",
+    "KA-U77",
+    "GFK-U26",
+    "KA-U79",
+    "VS-U47",
+    "VS-U3",
+    "HF-U11",
+    "GR-U34",
+    "OV-U2",
+    "FO-U1",
+    "FO-U5",
+    "GFK-U17",
+    "GFK-U19",
+    "GFK-U20",
+    "GFK-U21",
+    "GFK-U24",
+    "OV-U73"
+  ],
+  "venter_paa": [
+    "#502",
+    "#1436"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1900",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen, prototypen v2 og spørsmålene 1–4."
+    }
+  ],
+  "prototype": {
+    "fil": "../../design/prototyper/fristoversikt.html",
+    "klikkstier": [
+      {
+        "id": "te-leser-svaret",
+        "dekker": [
+          "1",
+          "2",
+          "3"
+        ],
+        "start": "te",
+        "handlinger": [
+          {
+            "staar": "For alle fristene"
+          },
+          {
+            "staar": "Byggherren gjør gjeldende at varselet etter punkt 33.4 i brev 4 kom for sent."
+          },
+          {
+            "staar": "Gjeldende frist 26. august 2027: avtalt 16. august, forlenget 10 dager i"
+          },
+          {
+            "staar": "Byggherren avslår dagene for fristen: fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet."
+          },
+          {
+            "staar": "19. november 2026"
+          },
+          {
+            "staar": "Godta svaret"
+          },
+          {
+            "staar": "Revidert fremdriftsplan, revisjon 4"
+          }
+        ]
+      },
+      {
+        "id": "te-har-utkast",
+        "dekker": [
+          "4"
+        ],
+        "start": "te-utkast",
+        "handlinger": [
+          {
+            "staar": "Brev 9 · Revidert krav om fristforlengelse"
+          },
+          {
+            "staar": "Fortsett utkastet"
+          }
+        ]
+      },
+      {
+        "id": "bh-ser-svaret",
+        "dekker": [
+          "5"
+        ],
+        "start": "bh",
+        "handlinger": [
+          {
+            "staar": "Send nytt svar"
+          }
+        ]
+      },
+      {
+        "id": "bh-til-godkjenning",
+        "dekker": [
+          "6"
+        ],
+        "start": "bh-utkast",
+        "handlinger": [
+          {
+            "staar": "Til godkjenning · ikke sendt"
+          },
+          {
+            "staar": "Verdien for fullmakten"
+          },
+          {
+            "staar": "270 000 kr"
+          }
+        ]
+      },
+      {
+        "id": "te-svarer-paa-foresporselen",
+        "dekker": [
+          "7"
+        ],
+        "start": "te-foresporsel",
+        "handlinger": [
+          {
+            "staar": "Svar på forespørselen"
+          },
+          {
+            "staar": "Forespørselen kom 15 dager før i dag."
+          }
+        ]
+      },
+      {
+        "id": "bh-ser-foresporselen",
+        "dekker": [
+          "8"
+        ],
+        "start": "bh-foresporsel",
+        "handlinger": [
+          {
+            "staar": "Forespørsel om spesifisert krav"
+          }
+        ]
+      },
+      {
+        "id": "te-kortet-b",
+        "dekker": [
+          "9"
+        ],
+        "start": "te-tabell",
+        "handlinger": [
+          {
+            "staar": "Dagene er kalenderdager og gjelder hver frist for seg."
+          }
+        ]
+      }
+    ]
+  }
+}
