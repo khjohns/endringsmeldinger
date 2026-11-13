@@ -152,8 +152,8 @@ gjøres den i runder. Ett kall over hele siden gir grunne funn (BF-44, 13.11).
    `/design-review` laster ikke `interface-design` og nevner ikke språkfila.
 2. **Helheten.** Se alle tilstandene i nettleseren, på 1440 og 390 px. Er det flere konsepter,
    anbefal ett og si hva som må rettes i det.
-3. **Én del om gangen.** Kjør `/design-review` på den viktigste komponenten, så de andre, så
-   skallet. Det systemfila alt har bestemt, er ikke et funn.
+3. **Én del om gangen.** Kjør `/design-review` på den viktigste komponenten, så de andre. Det
+   systemfila alt har bestemt, er ikke et funn.
 4. **Språket til slutt, som egen runde.** Hent ut all synlig tekst i hver tilstand, også
    `aria-label`, og les den mot språkfila og systemfila. Teksten endres i designrundene, så en
    tidlig språkrunde må gjøres om. En vedtatt brevtekst vurderes ikke for endring.

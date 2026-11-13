@@ -388,6 +388,8 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 @media (max-width:560px){.brukermeny .hvem{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
 
 /* Prosjektet og koblingene i panelet til venstre */
+.topplenker{display:flex;flex-wrap:wrap;align-items:center;gap:0 20px;margin-left:auto}
+.topplenker .lenke{display:inline-flex;align-items:center;font-size:14px;margin-left:0}
 .prosjektlenker{display:flex;flex-direction:column;gap:2px;margin-top:-8px}
 .prosjektlenker a{font-size:14px;color:var(--sidebar-muted);text-decoration:none;padding:4px 0}
 .prosjektlenker a:hover{color:var(--sidebar-text);text-decoration:underline;text-underline-offset:3px}
@@ -579,19 +581,19 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
             <button type="button" id="utkast-nei" aria-pressed="false">Uten</button>
           </span>
           <span class="vis-som" role="group" aria-label="Oppsett">
-            <button type="button" id="oppsett-a" aria-pressed="true">Oppsett A</button>
-            <button type="button" id="oppsett-b" aria-pressed="false">Oppsett B</button>
+            <button type="button" id="oppsett-a" aria-pressed="false">Oppsett A</button>
+            <button type="button" id="oppsett-b" aria-pressed="true">Oppsett B</button>
           </span>
           <span class="vis-som" role="group" aria-label="Panel">
-            <button type="button" id="panel-a" aria-pressed="true">Panel A</button>
-            <button type="button" id="panel-b" aria-pressed="false">Panel B</button>
+            <button type="button" id="panel-a" aria-pressed="false">Panel A</button>
+            <button type="button" id="panel-b" aria-pressed="true">Panel B</button>
           </span>
           <label class="forslag-av"><input type="checkbox" id="vis-spor"> Vis sporbarhet</label>
         </div></div></div>
     <header class="toppskall">
       <div class="topplinje-inner">
         <nav class="sti" aria-label="Du er her"><a class="merkenavn" href="prosjekter.html">Varden</a><span aria-hidden="true">›</span><a href="saksliste.html">Skolebygg Nord</a><span aria-hidden="true">›</span><span aria-current="page">E-021<span class="sakstittel"> · Ny peling med produktivitetstap</span></span></nav>
-        <a class="lenke catenda-topp kun-b" href="https://catenda.example/" data-spor="U-15">Åpne saken i Catenda</a>
+        <span class="topplenker"><span class="kun-te"><a class="lenke kun-panel-b" href="bf-05-ny-sak.html">Nytt krav om endringsordre</a></span><span class="kun-bh"><a class="lenke kun-panel-b" href="bf-06-endringsordre.html">Ny endringsordre</a></span><a class="lenke catenda-topp kun-b" href="https://catenda.example/" data-spor="U-15">Åpne saken i Catenda</a></span>
         <details class="brukermeny">
           <summary><span class="kun-te"><span class="initialer" aria-hidden="true">PO</span><span class="hvem"><b>Per Olsen</b></span></span><span class="kun-bh"><span class="initialer" aria-hidden="true">ON</span><span class="hvem"><b>Ola Nordmann</b></span></span></summary>
           <div class="meny"><a href="prosjekter.html">Prosjektene dine</a><a href="prosjekter.html">Om Varden</a><hr><a href="innlogging.html">Logg ut</a></div>
@@ -882,7 +884,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 <script>
   const skall = document.getElementById('skall');
   const knapp = id => document.getElementById(id);
-  const tilstand = { rolle: 'TE', utkast: true, regel: 'fast', oppsett: 'a', panel: 'a' };
+  const tilstand = { rolle: 'TE', utkast: true, regel: 'fast', oppsett: 'b', panel: 'b' };
   function vis(){
     skall.dataset.rolle = tilstand.rolle;
     skall.dataset.regel = tilstand.regel;
@@ -964,7 +966,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
   const maal = () => { pane.style.maxHeight = (innerHeight - Math.max(24, pane.getBoundingClientRect().top) - 24) + 'px'; };
   addEventListener('scroll', maal, { passive: true }); addEventListener('resize', maal);
   knapp('vis-spor').onchange = e => skall.classList.toggle('vis-spor', e.target.checked);
-  if (!location.hash) location.replace('#te-utkast');
+  if (!location.hash) location.replace('#te-utkast-b');
   lesAnker();
   addEventListener('hashchange', lesAnker);
 </script>
