@@ -299,4 +299,28 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
       produktivitet: { beloep: 40000 },
     });
   });
+
+  it('brevkontrollen for kravet viser overskriftene i punktene som overskrifter (#1824, kommentaren 6833409907)', async () => {
+    await aapneSomTe('forholdet-er-godkjent');
+    await fireEvent.click(
+      within(
+        await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
+      ).getByRole('button')
+    );
+    await skriv('Beskrivelse av posten', 'Omlegging av rør');
+    await fireEvent.click(screen.getByRole('radio', { name: /^Fast sum/ }));
+    await skriv('Beløpet du krever', '210 000');
+    await fireEvent.click(knapp('Ferdig'));
+    await skriv('Forbehold (valgfritt)', 'Forbeholdet om grunnforholdene.');
+    await fireEvent.click(knapp('Se brevet før sending'));
+    const brevet = await screen.findByRole('article', { name: /Krav om vederlagsjustering/ });
+    const overskrifter = within(brevet)
+      .getAllByRole('heading', { level: 3 })
+      .map((h) => h.textContent);
+    expect(overskrifter).toEqual(
+      expect.arrayContaining([expect.stringMatching(/Vederlagsjustering$/)])
+    );
+    // Forbeholdet står én gang, i punktet sitt, og ikke i tillegg under det siste avsnittet.
+    expect(within(brevet).getAllByText(/Forbeholdet om grunnforholdene\./)).toHaveLength(1);
+  });
 });
