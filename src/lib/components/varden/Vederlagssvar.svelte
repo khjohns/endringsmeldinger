@@ -59,6 +59,7 @@
     utkastForBeloepet,
     vederlagssvaret,
     type Postvalg,
+    type Regel,
     type Svarvalg,
   } from './kommandoer';
   import { brevene, brevet, datoerISporet, klarOverForholdet, standpunktene } from './lesing';
@@ -341,6 +342,7 @@
       },
       ...poster.flatMap((p) => {
         const v = postvalget(valg, p.betegnelse);
+        const regel = regelen(p);
         const i = (tekst: string | null) =>
           tekst ? SKJEMA.iPosten(navnet(p) ?? null, tekst) : null;
         return [
@@ -348,11 +350,7 @@
             felt: `${uid}-form-${p.betegnelse}`,
             post: p.betegnelse,
             tekst: i(
-              formBesvart(v, p)
-                ? null
-                : regelen(p)
-                  ? SKJEMA.manglerFormRegel(regelen(p)!)
-                  : SKJEMA.manglerForm
+              formBesvart(v, p) ? null : regel ? SKJEMA.manglerFormRegel(regel) : SKJEMA.manglerForm
             ),
           },
           // KA-U68: når BH godkjenner justerte enhetspriser, tar svaret stilling til varselet og
@@ -536,8 +534,9 @@
       liste={forms}
       punkt={forutsetning}
     />
-    {#if etterRegel(p)}
-      {@render regelvalgene(p, v, forms.length > 0)}
+    {@const regel = regelen(p)}
+    {#if regel}
+      {@render regelvalgene(p, regel, v, forms.length > 0)}
     {:else}
       {@render fastsumvalgene(p, v, forms.length > 0)}
     {/if}
@@ -601,8 +600,7 @@
 <!-- En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U66). BH tar stilling til
      regelen, kan kreve tilbud (KA-U69, KA-U71) og svarer på varselet og justeringen for posten
      (KA-U64, KA-U68, VS-U56, VS-U63). Prototype v3 og v4, `#svar`. -->
-{#snippet regelvalgene(p: Kravpost, v: Postvalg, forutsatt: boolean)}
-  {@const regel = regelen(p)!}
+{#snippet regelvalgene(p: Kravpost, regel: Regel, v: Postvalg, forutsatt: boolean)}
   {@const annen = denAndreRegelen(regel)}
   <Valg
     navn={`${uid}-form-${p.betegnelse}`}

@@ -14,6 +14,7 @@ import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Betegnelse } from '$kjerne/utledning/visning';
 import type { Kravpost, Oppgjoersform, Part, Spor, Standpunkt } from '$kjerne/typer';
 import { OPPGJOERSHJEMMEL } from '$kjerne/spor/vederlag/format';
+import type { Regel } from './kommandoer';
 import type { Brevet, Brevref, OppgittDato, Standpunktet } from './lesing';
 
 export const PARTNAVN: Record<Part, string> = { TE: 'totalentreprenøren', BH: 'byggherren' };
@@ -265,11 +266,11 @@ export const SKJEMA = {
     `${dager} kalenderdager fra datoen totalentreprenøren oppgir til kravet ble sendt.`,
   formSpoersmaal: 'Oppgjørsformen (punkt 34.2.2)',
   godkjennerForm: `Godkjenner ${metodenavn('tilbud')}`,
-  menerForm: (m: 'enhetspriser' | 'regningsarbeid') => `Mener ${metodenavn(m)}`,
+  menerForm: (m: Regel) => `Mener ${metodenavn(m)}`,
   // Kravposten etter en beregningsregel (#1756, prototype v3 `#svar`).
   formSpoersmaalRegel: 'Oppgjørsformen',
-  godkjennerRegel: (m: 'enhetspriser' | 'regningsarbeid') => `Godkjenner ${metodenavn(m)}`,
-  godkjennerIkkeRegel: (m: 'enhetspriser' | 'regningsarbeid') => `Godkjenner ikke ${metodenavn(m)}`,
+  godkjennerRegel: (m: Regel) => `Godkjenner ${metodenavn(m)}`,
+  godkjennerIkkeRegel: (m: Regel) => `Godkjenner ikke ${metodenavn(m)}`,
   kreverTilbudKort: 'krever spesifisert tilbud',
   tilbudSpoersmaal: 'Spesifisert tilbud (punkt 34.2.1)',
   kreverTilbud: (post: string | null) =>
@@ -343,7 +344,7 @@ export const SKJEMA = {
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
   manglerForm: 'Velg om du godkjenner fast sum.',
-  manglerFormRegel: (m: 'enhetspriser' | 'regningsarbeid') => `Velg om du godkjenner ${m}.`,
+  manglerFormRegel: (m: Regel) => `Velg om du godkjenner ${m}.`,
   manglerVarselJustering: 'Velg om varselet om justering av enhetsprisene kom i tide.',
   manglerJustering: 'Velg om du godkjenner justeringen av enhetsprisene.',
   manglerBeloep: 'Velg hvor mye av beløpet du godkjenner.',
