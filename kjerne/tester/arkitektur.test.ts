@@ -515,7 +515,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Svar',
     'frosset svar',
     'utregning',
-    ['frosset/standpunkt.ts:fristenGodkjent', 'spor/vederlag/frysing.ts:godkjennerHeleKravet'],
+    ['spor/frist/frysing.ts:fristenGodkjent', 'spor/vederlag/frysing.ts:godkjennerHeleKravet'],
   ],
   [
     'Vederlagsutregning',
@@ -523,7 +523,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'resultat',
     ['spor/vederlag/frysing.ts:godkjennerHeleKravet'],
   ],
-  ['Fristutregning', 'frosset svar', 'resultat', ['frosset/standpunkt.ts:fristenGodkjent']],
+  ['Fristutregning', 'frosset svar', 'resultat', ['spor/frist/frysing.ts:fristenGodkjent']],
   ['Utsagn', 'relasjon', 'id art gjelder spor'],
   ['Utsagn', 'utsagn', 'hva'],
   // OV-U5: bestemmelsen TEs varsel er gitt etter, § 33.4 eller § 34.1.2.
@@ -664,7 +664,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/byggeklosser.ts',
     'frosset',
     'virkningerIForholdetOgFristen',
-    ['frosset/standpunkt.ts', 'spor/forhold/frysing.ts'],
+    ['spor/frist/frysing.ts', 'spor/forhold/frysing.ts'],
   ],
   // GR-U11 og VS-U12: passivitetsregelen gjelder der § 32.2 gjelder. KA-46: innsigelsen mot
   // varselet etter § 34.1.2 avvises der § 34.1.2 ikke gjelder kategorien.
@@ -739,7 +739,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/byggeklosser.ts',
     'regelsett',
     'avvisUkjenteFelt',
-    ['frosset/utregning.ts', 'spor/forhold/frysing.ts', 'spor/vederlag/frysing.ts'],
+    ['spor/frist/frysing.ts', 'spor/forhold/frysing.ts', 'spor/vederlag/frysing.ts'],
   ],
   // #1783: det som er sporets eget i utregningen av svaret.
   ['Svarsutregning', 'regelsett', 'regnUt utenforOmfanget', ['frosset/utregning.ts']],
@@ -752,6 +752,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['frosset/utregning.ts'],
   ],
   ['spor/forhold/frysing.ts', 'regelsett', 'UTREGNING_I_FORHOLDET', ['frosset/utregning.ts']],
+  [
+    'spor/frist/frysing.ts',
+    'regelsett',
+    'UTREGNING_I_FRISTEN SAMMENLIKNES_I_FRISTEN',
+    ['frosset/utregning.ts'],
+  ],
   ['frosset/utregning.ts:regnUtSvar', 'relasjon', 'foresporsel'],
   // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
   // og utledningen, som prøver postene i svaret mot dem (OV-U23).
@@ -874,7 +880,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/vederlag/frysing.ts:vederlagssvaret', 'regelsett', 'svar felt'],
   ['UgyldigVurdering', 'regelsett', 'feil', ['spor/vederlag/frysing.ts']],
   // Kontrollene av vurderingene i svaret, med feltene fra `Svarvurdering` (#1695).
-  ['regler/svarkontroll.ts', 'regelsett', 'kontrollerSpesifiseringen', ['frosset/utregning.ts']],
+  ['regler/svarkontroll.ts', 'regelsett', 'kontrollerSpesifiseringen', ['spor/frist/frysing.ts']],
   ['regler/svarkontroll.ts', 'regelsett', 'kontrollerForholdet', ['spor/forhold/frysing.ts']],
   [
     'regler/vederlag.ts',
@@ -1132,7 +1138,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/brevtekst.ts',
       'spor/vederlag/kommando.ts',
       'frosset/linje.ts',
-      'frosset/standpunkt.ts',
+      'spor/frist/frysing.ts',
       'spor/vederlag/frysing.ts',
       'spor/vederlag/tekst.ts',
     ],
@@ -1156,11 +1162,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Svarsfrysing',
     'frosset',
-    'virkninger utfall godkjennerHeleKravet vilkaar',
+    'virkninger utfall godkjennerHeleKravet vilkaar hvertITideGirOppInnsigelsen',
     ['frosset/standpunkt.ts'],
   ],
   ['spor/forhold/frysing.ts', 'frosset', 'FRYSING_I_FORHOLDET', ['frosset/standpunkt.ts']],
   ['spor/vederlag/frysing.ts', 'frosset', 'FRYSING_I_VEDERLAGET', ['frosset/standpunkt.ts']],
+  ['spor/frist/frysing.ts', 'frosset', 'FRYSING_I_FRISTEN', ['frosset/standpunkt.ts']],
   // #1783: lesereglene i 4.2 som er sporets egne.
   [
     'Sporskontroller',
@@ -1261,7 +1268,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/frist/format.ts',
     'utsagn',
     'innholdIFristen',
-    ['frosset/brevtekst.ts', 'frosset/utregning.ts'],
+    ['frosset/brevtekst.ts', 'spor/frist/frysing.ts'],
   ],
   ['VARSELSPOR', 'relasjon', '32.2 33.4 34.1.2 34.1.3 34.3.3 34.4'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
@@ -1710,7 +1717,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'standpunkter utregning',
     ['format/leser.ts'],
   ],
-  ['spor/frist/format.ts', 'rad', 'utregningIFristen', ['frosset/standpunkt.ts:fristenGodkjent']],
+  ['spor/frist/format.ts', 'rad', 'utregningIFristen', ['spor/frist/frysing.ts:fristenGodkjent']],
   [
     'spor/vederlag/format.ts',
     'rad',

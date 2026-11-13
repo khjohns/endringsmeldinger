@@ -103,7 +103,7 @@ KJENTE_AVVIK = (
     ("kjerne/tester/klient.ts", "KA-U35", 1, "#1377"),
     ("kjerne/typer.ts", "KA-U34", 1, "#1377"),
     ("kjerne/utledning/utled.ts", "KA-U34", 1, "#1377"),
-    ("server/saksliste.ts", "MM-U28", 2, "#1545"),
+    ("server/saksliste.ts", "MM-U28", 1, "#1545"),
     ("server/saksliste.ts", "MM-U29", 2, "#1545"),
     ("server/tester/sakslinje.test.ts", "MM-U28", 2, "#1545"),
     ("server/tester/sakslinje.test.ts", "MM-U29", 2, "#1545"),

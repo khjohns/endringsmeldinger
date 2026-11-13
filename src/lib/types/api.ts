@@ -99,26 +99,9 @@ export interface Sakslinje {
   frist: Fristlinje;
 }
 
-/** Regnet i serveren. Ukjent er ikke 0, og fristdagene summeres ikke (MM-U38). */
-export interface Noekkeltall {
-  saker: number;
-  ikke_forstaatt: number;
-  vederlag: {
-    krav_antall: number;
-    krav_sum: number;
-    venter_paa_svar: number;
-    svar_subsidiaert_sum: number;
-    enighet_virksom_sum: number;
-    enighet_betinget_sum: number;
-    enighet_uten_beloep: number;
-  };
-  frist: { krav_antall: number; venter_paa_svar: number };
-}
-
 export interface CaseListResponse {
   success: boolean;
   /** Leserens kontraktsside fra serveren. Rollevalget i klienten gjelder bare visningen. */
   part: 'TE' | 'BH' | null;
   saker: Sakslinje[];
-  noekkeltall: Noekkeltall;
 }

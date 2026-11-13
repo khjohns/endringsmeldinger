@@ -21,8 +21,8 @@ export interface Kontraktsregel {
 }
 
 /**
- * Lookup av kontraktsregler per §-referanse.
- * Nøkkel er hjemmel_basis fra Kontraktshjemmel (uten §-tegn).
+ * Lookup av kontraktsregler per §-referanse, uten §-tegn. For et forhold er nøkkelen hjemmelen
+ * kjernen skriver i brevet (`hjemmel` i `kjerne/spor/forhold/tekst.ts`, #1845).
  */
 export const KONTRAKTSREGLER: Record<string, Kontraktsregel> = {
   // ========== ENDRINGER ==========
@@ -142,7 +142,7 @@ export const KONTRAKTSREGLER: Record<string, Kontraktsregel> = {
     konsekvens: 'Stansingsrett forutsetter vesentlig mislighold.',
   },
 
-  '33.1 c)': {
+  '33.1 c': {
     regel:
       'Andre forhold byggherren har risikoen for som ikke faller inn under endringer eller svikt, kan gi totalentreprenøren rett til fristforlengelse og vederlagsjustering.',
     konsekvens:
@@ -228,9 +228,8 @@ export const KONTRAKTSREGLER: Record<string, Kontraktsregel> = {
 };
 
 /**
- * Hent kontraktsregel for en hjemmel_basis.
- * Returnerer null hvis hjemmelen ikke har en regeltekst.
+ * Regelteksten for hjemmelen, med nøkkelen i `KONTRAKTSREGLER`. `null` når hjemmelen ikke har en.
  */
-export function getKontraktsregel(hjemmelBasis: string): Kontraktsregel | null {
-  return KONTRAKTSREGLER[hjemmelBasis] ?? null;
+export function getKontraktsregel(hjemmel: string): Kontraktsregel | null {
+  return KONTRAKTSREGLER[hjemmel] ?? null;
 }
