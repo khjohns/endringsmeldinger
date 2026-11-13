@@ -27,9 +27,6 @@
             "staar": "Varsel om vederlagsjustering er alt gitt i brev 3."
           },
           {
-            "staar": "Varselet om fristforlengelse sender du fra skjemaet for fristforlengelse."
-          },
-          {
             "trykk": "Legg til et varsel"
           },
           {
@@ -145,6 +142,11 @@
       "dato": "2026-11-13",
       "forhold": "#1837",
       "hva": "Prøven 13.11 er tatt inn: varselet om fristforlengelse er ute av skjemaet for vederlaget, og oppsummeringen bruker navnene på varslene (prototypen v2). Spørsmålet S-4 om VS-U67 er stilt."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1837",
+      "hva": "Prøven av v2: linjen om varselet om fristforlengelse er tatt ut av prototypen, og språket i høyre kolonne tas i byggingen (G-5)."
     }
   ]
 }
