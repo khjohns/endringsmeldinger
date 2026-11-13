@@ -128,4 +128,9 @@ Anbefalingen: hvert tall kan da finnes igjen i et brev (MM-U23), og ingen sum st
 
 ## Svarene
 
-Ikke besvart.
+Oppdragsgiver 13.11, ordrett, gjennom orkestratoren (også i #1402):
+
+> F spørsmål: A på alle
+
+Svarene er A på spørsmål 1–9. De er ført som U-punkter i [BF-44](../../domenetabell/brukerforlop/BF-44.md).
+Ingen av dem er et vedtak.

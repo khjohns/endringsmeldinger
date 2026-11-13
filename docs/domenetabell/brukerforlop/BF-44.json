@@ -33,7 +33,6 @@
     "OV-U87"
   ],
   "venter_paa": [
-    "#1402",
     "#502",
     "#1627",
     "#1434"
@@ -45,6 +44,114 @@
       "dato": "2026-11-13",
       "forhold": "#1402",
       "hva": "Forløpet er registrert som planlagt, med bestillingen på grunnlag av prototypene v1 og v2 og spørsmålene 1–9."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Svarene 13.11 (A på 1–9) er ført som U-10–U-15, og prototypen v3 med klikkstiene er lagt til."
     }
-  ]
+  ],
+  "prototype": {
+    "fil": "../../design/prototyper/vederlagsoversikt.html",
+    "klikkstier": [
+      {
+        "id": "te-leser-svaret",
+        "dekker": [
+          "1",
+          "2",
+          "3"
+        ],
+        "start": "te",
+        "handlinger": [
+          {
+            "staar": "Siste brev: brev 6 fra byggherren, 27. oktober 2026."
+          },
+          {
+            "staar": "Svaret gjelder under forutsetning av at forholdet gir grunnlag for kravet."
+          },
+          {
+            "staar": "10. november 2026"
+          },
+          {
+            "staar": "Godta svaret"
+          },
+          {
+            "staar": "E-post fra byggherren"
+          }
+        ]
+      },
+      {
+        "id": "te-har-utkast",
+        "dekker": [
+          "4"
+        ],
+        "start": "te-utkast",
+        "handlinger": [
+          {
+            "staar": "Brev 7 · Revidert krav om vederlagsjustering"
+          },
+          {
+            "staar": "Fortsett utkastet"
+          }
+        ]
+      },
+      {
+        "id": "bh-ser-svaret",
+        "dekker": [
+          "5"
+        ],
+        "start": "bh",
+        "handlinger": [
+          {
+            "staar": "Send nytt svar"
+          }
+        ]
+      },
+      {
+        "id": "bh-til-godkjenning",
+        "dekker": [
+          "6"
+        ],
+        "start": "bh-utkast",
+        "handlinger": [
+          {
+            "staar": "Til godkjenning · ikke sendt"
+          },
+          {
+            "staar": "Teksten er låst."
+          },
+          {
+            "staar": "Verdien for fullmakten"
+          }
+        ]
+      },
+      {
+        "id": "te-regningsarbeid",
+        "dekker": [
+          "7"
+        ],
+        "start": "te-regning",
+        "handlinger": [
+          {
+            "staar": "Byggherren godkjenner regningsarbeid i brev 6."
+          },
+          {
+            "staar": "Krev påløpt beløp"
+          }
+        ]
+      },
+      {
+        "id": "bh-regningsarbeid",
+        "dekker": [
+          "8"
+        ],
+        "start": "bh-regning",
+        "handlinger": [
+          {
+            "staar": "Krev nytt kostnadsoverslag"
+          }
+        ]
+      }
+    ]
+  }
 }
