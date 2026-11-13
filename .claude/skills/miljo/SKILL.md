@@ -1,6 +1,6 @@
 ---
 name: miljo
-description: Kommandoene for pytest, TS-typesjekk og feilinnføringer, hvordan utdataene holdes små, og omveiene i skyøkta i endringsmeldinger, med gh api-søk i issues (sider og --paginate) og vitest-timeout. Brukes når en sjekk skal kjøres, eller når en kommando feiler i en skyøkt.
+description: Kommandoene for pytest, TS-typesjekk og feilinnføringer, hvordan utdataene holdes små, og omveiene i skyøkta i endringsmeldinger, med gh api-søk i issues (sider og --paginate), vitest-timeout og plattformens grenser for orkestreringen. Brukes når en sjekk skal kjøres, eller når en kommando feiler i en skyøkt.
 ---
 
 # Miljø og kommandoer
@@ -243,6 +243,27 @@ feiler `npx vitest run` og `npx vite build` i arbeidstreet med «Tsconfig not fo
 (#1114). Oppstartshooken kjører derfor `npx svelte-kit sync` i hovedcheckouten. Står
 feilen likevel, kjør `npx svelte-kit sync` i hovedcheckouten; i arbeidstreet hjelper
 den ikke, og arbeidstreet trenger ingen `.svelte-kit/` selv (kontrollert 22.10).
+
+### Orkestreringen i skyøkta
+
+Reglene står i [orkestreringsskillen](../orkestrering/SKILL.md). Her står det
+plattformen gjør.
+
+- **Dybden.** En økt på dybde 8 får ikke satt påminnelsen med `send_later` («lineage
+  depth 8», #1031). Dybden står i `lineage.depth` når økta kaller `get_session` uten
+  `session_id`.
+- **Øktenes kontekst og kostnad** står i `external_metadata.context_usage.used_tokens`
+  og `external_metadata.usage.cost_usd` fra `get_session`. Svaret oppdateres bare når
+  en tur ender. Er `used_tokens` 0, eller mangler `usage`, har økta ikke fullført sin
+  første tur. Ellers er verdien fra siste avsluttede tur og kan ligge en hel tur bak.
+  `list_events` viser heller ikke noe før turen er ferdig, og `usage.cost_usd` kan
+  mangle (#731).
+- **Actions.** Integrasjonen i skyøkta kan ikke starte en Actions-kjøring på nytt
+  (403). Står jobbene uten runner og med en annotasjon om betaling eller
+  utgiftsgrense, er Actions-kvoten brukt opp (FK runde 6).
+- **Oppdatering og merge** virker i REST-formen også i skyøkta:
+  `gh api -X PUT repos/<eier>/<repo>/pulls/<n>/update-branch -f expected_head_sha=<SHA>`
+  og `gh api -X PUT repos/<eier>/<repo>/pulls/<n>/merge -f sha=<hele SHA-en> -f merge_method=merge`.
 
 ### Omvei: `CssSyntaxError` i Varden-testene (#1394)
 
