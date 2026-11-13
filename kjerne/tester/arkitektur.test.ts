@@ -769,9 +769,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'grunnerFraForholdet',
     [
       'utledning/utled.ts:settSubsidiaer',
-      'frosset/brevtekst.ts:forholdetsStandpunkter',
       'frosset/brevtekst.ts:forholdetsLag',
-      'spor/vederlag/kommando.ts:lagIVederlaget',
+      'kommandoer/utkastlag.ts:lageneIUtkastet',
     ],
   ],
   // OV-U32, OV-U33: lagene forholdet opptar foran sporet, som linjen etiketteres med.
@@ -795,13 +794,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/byggeklosser.ts',
     'relasjon',
     'kravetErDokumentasjon',
-    [
-      'utledning/utled.ts',
-      'frosset/standpunkt.ts',
-      'spor/frist/frysing.ts',
-      'spor/frist/utledning.ts',
-    ],
+    ['utledning/utled.ts', 'frosset/standpunkt.ts', 'spor/frist/frysing.ts'],
   ],
+  // VS-U33, OV-U4: et fristkrav i appen, lest likt av kommandoene, utledningen og frysingen (#1876).
+  ['spor/frist/frysing.ts', 'relasjon', 'erFristkravIAppen', ['spor/frist/utledning.ts']],
   // MM-U43 punkt 8: sammenfallet stemmer med standpunktene i samme frosne brev.
   [
     'frosset/standpunkt.ts',
@@ -1031,11 +1027,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok vilkar_oppfylt godkjent_dager',
   ],
-  [
-    'Fristberegning',
-    'regelsett',
-    'beregnings_resultat godkjent_dager subsidiaer_resultat subsidiaer_godkjent_dager',
-  ],
+  ['Fristberegning', 'regelsett', 'er_prekludert'],
   [
     'regler/frist.ts:beregnSynlighet',
     'regelsett',
@@ -1232,6 +1224,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/kommando.ts',
       'frosset/linje.ts',
       'spor/frist/frysing.ts',
+      'kommandoer/utkastlag.ts',
       'spor/vederlag/frysing.ts',
       'spor/vederlag/tekst.ts',
     ],
@@ -1241,7 +1234,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts',
     'predikat',
     'virkninger',
-    ['spor/vederlag/kommando.ts:lagIVederlaget', 'frosset/frysing.ts:beslutningsgrunnlag'],
+    ['kommandoer/utkastlag.ts:lageneIUtkastet', 'frosset/frysing.ts:beslutningsgrunnlag'],
   ],
   // GR-U7 og MM-U9: sammenfallet og begrensningen etter § 34.1.3 (VS-U5), lest når brevet fryses.
   [
@@ -1281,6 +1274,20 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/forhold/kommando.ts', 'kommando', 'SKRIVING_I_FORHOLDET', ['kommandoer/skriving.ts']],
   // Lagene i et svarutkast i sporet (#1778).
   ['spor/vederlag/kommando.ts', 'predikat', 'lagIVederlaget', ['kommandoer/lag.ts']],
+  ['spor/frist/kommando.ts', 'predikat', 'lagIFristen', ['kommandoer/lag.ts']],
+  // OV-U32, OV-U33: lagene i utkastet regnet som brevet regner dem, felles for sporene.
+  [
+    'kommandoer/utkastlag.ts',
+    'predikat',
+    'lageneIUtkastet',
+    ['spor/vederlag/kommando.ts', 'spor/frist/kommando.ts'],
+  ],
+  [
+    'kommandoer/utkastlag.ts:lageneIUtkastet',
+    'predikat',
+    'grunner virket virkning lag etikett',
+    ['spor/vederlag/kommando.ts', 'spor/frist/kommando.ts'],
+  ],
   // Nyttelastkontrollen i sporet (#1783).
   [
     'Sporsnyttelast',
@@ -1372,7 +1379,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'frosset/brevtekst.ts',
       'spor/forhold/tekst.ts',
-      'spor/frist/tekst.ts',
       'spor/forhold/utledning.ts:opplysningerOmDatoen',
       'spor/forhold/kommando.ts:kategorisperre',
     ],
@@ -1387,7 +1393,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/frist/format.ts',
     'utsagn',
     'innholdIFristen',
-    ['spor/frist/tekst.ts', 'spor/frist/frysing.ts', 'spor/frist/utledning.ts'],
+    [
+      'spor/frist/tekst.ts',
+      'spor/frist/frysing.ts',
+      'spor/frist/utledning.ts',
+      'spor/frist/kommando.ts:lagIFristen',
+    ],
   ],
   // U-1, KA-U79: fristen slik kontrakten betegner den, i brevet og i meldingene.
   [
@@ -1869,9 +1880,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Fristrad',
     'rad',
-    'gjelder resultat godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
+    'gjelder resultat godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager lag',
     ['spor/frist/format.ts'],
   ],
+  // KA-U78, OV-U32: dagene for fristen i hvert lag.
+  ['Fristlag', 'rad', 'dager', ['spor/frist/format.ts']],
   ['Utregningsrad', 'rad', 'gjelder lag', ['spor/vederlag/format.ts']],
   ['Utregningslag', 'rad', 'beloep', ['spor/vederlag/format.ts']],
   // #1778: radene per post og lagene i dem, som vederlaget kontrollerer med beløpene.
@@ -1881,7 +1894,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/poster/format.ts',
     'rad',
     'kontrollerRadene',
-    ['spor/vederlag/format.ts:kontrollerUtregningenPerPost'],
+    [
+      'spor/vederlag/format.ts:kontrollerUtregningenPerPost',
+      'spor/frist/format.ts:kontrollerUtregningenIFristen',
+    ],
   ],
   [
     'format/leser.ts:lesBeslutningsgrunnlag(v)',
@@ -1940,7 +1956,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/leser.ts',
     'rad',
     'standpunkterISvaret',
-    ['frosset/frysing.ts', 'kommandoer/skriving.ts', 'spor/vederlag/kommando.ts'],
+    [
+      'frosset/frysing.ts',
+      'kommandoer/skriving.ts',
+      'spor/vederlag/kommando.ts',
+      'spor/frist/kommando.ts',
+    ],
   ],
   [
     'format/skjema.ts',
@@ -2115,7 +2136,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsbrevtekst',
     'brevtekst',
-    'krav navn ogsaaInnsigelserEtter svaretGjelder nevnerErstattet utdypningensPunkt temaer oversikt ingenBeloep',
+    'krav navn ogsaaInnsigelserEtter svaretGjelder nevnerErstattet utdypningensPunkt innledning temaer punktet oversikt ingenBeloep',
     ['frosset/brevtekst.ts'],
   ],
   // LV-U34 og OV-U73: temaene og beløpene per lag i byggherrens svar.
@@ -2143,7 +2164,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'spor/forhold/tekst.ts',
     'brevtekst',
-    'BREVTEKSTEN_I_FORHOLDET STANDPUNKTENE_I_FORHOLDET DATOEN_I_BREVET forholdet harRisikoen',
+    'BREVTEKSTEN_I_FORHOLDET STANDPUNKTENE_I_FORHOLDET DATOEN_I_BREVET paaberopelsenAvForholdet harRisikoen',
     ['frosset/brevtekst.ts'],
   ],
   ['spor/forhold/tekst.ts', 'brevtekst', 'LINJEN_I_FORHOLDET', ['frosset/linje.ts']],
@@ -2174,6 +2195,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts', 'spor/vederlag/tekst.ts'],
   ],
   ['frosset/brevdeler.ts', 'brevtekst', 'BrevetAvvises', ['spor/forhold/tekst.ts']],
+  // VS-U55: varselet gitt før kravet, i vederlaget og fristen.
+  ['frosset/brevdeler.ts', 'brevtekst', 'gitt', ['spor/vederlag/tekst.ts', 'spor/frist/tekst.ts']],
   // OV-U32: etiketten brevet bruker for laget.
   [
     'frosset/byggeklosser.ts',
@@ -2181,7 +2204,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'etikett',
     [
       'frosset/brevtekst.ts',
-      'spor/vederlag/kommando.ts',
+      'kommandoer/utkastlag.ts',
       'frosset/linje.ts',
       'spor/vederlag/tekst.ts',
     ],
@@ -2190,7 +2213,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/linje.ts:beslutningslinje.plass', 'brevtekst', 'virkning', ['frosset/linje.ts']],
   // OV-U32: leddene i samme lag under én etikett, i linjen og brevteksten.
   ['frosset/tekst.ts:iLagene', 'brevtekst', 'k l', ['frosset/tekst.ts']],
-  ['frosset/tekst.ts', 'brevtekst', 'iLagene', ['frosset/brevtekst.ts', 'frosset/linje.ts']],
+  ['frosset/tekst.ts', 'brevtekst', 'iLagene', ['frosset/linje.ts']],
   // MM-U9: linjen i beslutningsgrunnlaget, frosset når brevet sendes.
   ['frosset/linje.ts', 'brevtekst', 'beslutningslinje', ['frosset/frysing.ts:beslutningsgrunnlag']],
   [
@@ -2221,7 +2244,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // VS-U49, VS-U55: varselet for hver kravpost, utledet før brevet (`kravpostvarslene`, A6).
   ['Saken', 'relasjon', 'kravpostvarsler kravpostvarsler.*', ['spor/vederlag/tekst.ts']],
   ['Kravpostvarselet', 'relasjon', 'art varsel', ['spor/vederlag/tekst.ts']],
-  ['Saken', 'relasjon', 'varsletFoer paaberopelse', ['spor/vederlag/tekst.ts']],
+  [
+    'Saken',
+    'relasjon',
+    'varsletFoer paaberopelse',
+    ['spor/vederlag/tekst.ts', 'spor/frist/tekst.ts'],
+  ],
   // LV-U56: TEs opplysninger om datoen, fra utledningen (`Datoopplysning`).
   ['Saken.datoopplysninger', 'utsagn', 'felt dato', ['spor/forhold/tekst.ts']],
   ['Saken.datoopplysninger', 'relasjon', 'dokument', ['spor/forhold/tekst.ts']],
@@ -2230,13 +2258,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'brevtekst',
     'j saken nytt sak',
     [
+      'frosset/brevdeler.ts',
       'frosset/brevtekst.ts',
       'spor/forhold/tekst.ts',
       'spor/vederlag/tekst.ts',
       'spor/frist/tekst.ts',
     ],
   ],
-  ['frosset/brevtekst.ts:fristsvartekst', 'brevtekst', 'tekst plass', ['frosset/brevtekst.ts']],
   // LV-U34: punktene, lagene og nummereringen i byggherrens svar.
   ['Svarledd', 'brevtekst', 'punkt plass innsigelse tekst', ['frosset/brevtekst.ts']],
   ['Nummerering', 'brevtekst', 'foer nummerert ns', ['frosset/brevtekst.ts']],
@@ -2270,7 +2298,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Dokument',
     'utsagn',
     'dokumentasjon',
-    ['frosset/brevtekst.ts', 'format/leser.ts', 'spor/vederlag/tekst.ts'],
+    ['frosset/brevtekst.ts', 'format/leser.ts', 'frosset/brevdeler.ts'],
   ],
   // VS-U51, VS-U53: dokumentet med varselet for en kravpost ligger ved kravet, og teksten sier det.
   [
@@ -2286,7 +2314,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'spor/vederlag/utledning.ts:kontrollerVedleggeneVedKravet',
       'spor/vederlag/kommando.ts:foranKravet',
-      'spor/vederlag/tekst.ts',
+      'frosset/brevdeler.ts',
     ],
   ],
   // Arbeidsvalg 10 i #790: teksten lister vedleggene med filnavnet.
@@ -2343,7 +2371,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['FORHOLDSGRUPPER', 'brevtekst', 'forhold', ['spor/forhold/tekst.ts']],
   ['Forholdet', 'brevtekst', 'kode', ['spor/forhold/tekst.ts']],
   ['Forholdet', 'brevtekst', 'navn hjemmel', ['spor/forhold/tekst.ts']],
-  ['Forholdet', 'brevtekst', 'navn', ['frosset/brevtittel.ts', 'frosset/brevtekst.ts']],
+  ['Forholdet', 'brevtekst', 'navn', ['frosset/brevtittel.ts']],
   ['spor/forhold/tekst.ts.LEDD_I_33_1', 'brevtekst', '*', ['spor/forhold/tekst.ts']],
   ['frosset/brevtekst.ts:aapneInnsigelser', 'relasjon', 'fra', ['frosset/brevtekst.ts']],
   ['Innsigelse', 'relasjon', 'dokument gjelder hjemmel', ['frosset/brevtekst.ts']],

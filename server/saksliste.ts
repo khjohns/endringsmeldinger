@@ -174,7 +174,17 @@ export interface Fristdager {
 /** Dagene står per frist og legges ikke sammen (KA-U74). */
 export interface Fristlinje extends Foreligger, Staaende {
   krav: { frister: Fristdager[] } | null;
-  svar: { frister: (Fristdager & { resultat: Fristresultat; subsidiaert: boolean })[] } | null;
+  /**
+   * `resultat` gjelder hele svaret, `antall_godkjent` er fristene som har fått alle dagene
+   * (`resultatForSvaret`), og `subsidiaert` sier at et av standpunktene om dagene er subsidiært,
+   * som i vederlaget. Ingen regel leser dem.
+   */
+  svar: {
+    resultat: Fristresultat;
+    antall_godkjent: number;
+    subsidiaert: boolean;
+    frister: (Fristdager & { resultat: Fristresultat; subsidiaert: boolean })[];
+  } | null;
   enighet: { frister: Fristdager[]; virkning: Virkning } | null;
 }
 
@@ -232,8 +242,19 @@ function betegnelseFor(sist: ReadonlyMap<string, FristIKravet>, id: string): str
 }
 
 /**
+ * Resultatet for hele svaret på fristen, som etikett i sakslisten (HF-U7, KA-U79): godkjent når hver
+ * frist har fått alle dagene, avslått når ingen frist har fått dager, og ellers delvis godkjent.
+ */
+function resultatForSvaret(resultater: readonly Fristresultat[]): Fristresultat {
+  if (resultater.every((r) => r === 'godkjent')) return 'godkjent';
+  if (resultater.every((r) => r === 'avslaatt')) return 'avslaatt';
+  return 'delvis_godkjent';
+}
+
+/**
  * Byggherrens gjeldende svar på fristen: dagene og resultatet for hver frist, og om
- * standpunktet er subsidiært (`standpunktetErSubsidiaert`, MM-U28).
+ * standpunktet er subsidiært (`standpunktetErSubsidiaert`, MM-U28), med resultatet for hele
+ * svaret og hvor mange frister som har fått alle dagene.
  */
 function fristsvaret(u: Utledning, sist: ReadonlyMap<string, FristIKravet>): Fristlinje['svar'] {
   const frister = (u.spor.frist.gjeldendeSvar?.standpunkter ?? []).flatMap((st) =>
@@ -248,7 +269,14 @@ function fristsvaret(u: Utledning, sist: ReadonlyMap<string, FristIKravet>): Fri
         ]
       : []
   );
-  return frister.length ? { frister } : null;
+  if (!frister.length) return null;
+  const resultater = frister.map((f) => f.resultat);
+  return {
+    resultat: resultatForSvaret(resultater),
+    antall_godkjent: resultater.filter((r) => r === 'godkjent').length,
+    subsidiaert: frister.some((f) => f.subsidiaert),
+    frister,
+  };
 }
 
 const beloepene = (b: FasteBeloep): Beloepene => ({

@@ -48,10 +48,10 @@ export interface Saken {
   /** Varselet etter § 34.3.3 eller § 34.4 for hver kravpost i brevet som har et (`kravpostvarslene`). */
   kravpostvarsler: Record<string, Kravpostvarselet>;
   /**
-   * Varselet etter § 34.1.2 og § 34.1.3 saken har før brevet, som et registrert varsel eller et
+   * Varselet etter § 33.4, § 34.1.2 og § 34.1.3 saken har før brevet, som et registrert varsel eller et
    * tidligere krav (`varseletFoerBrevet` i utledningen). Uten det er kravet i brevet varselet.
    */
-  varsletFoer: Partial<Record<'34.1.2' | '34.1.3', string>>;
+  varsletFoer: Partial<Record<'33.4' | '34.1.2' | '34.1.3', string>>;
   /** Påberopelsen vederlagskravet bygger på: i brevet, ellers gjeldende versjon før det. */
   paaberopelse: Krav | null;
 }
@@ -308,8 +308,16 @@ export interface Sporsbrevtekst {
   utdypningensPunkt?: { punkt: string; overskrift: string };
   /** Kravet i sporet med kontraktens ord, når kravet har et: «kravet om <…>». */
   kravetOm?: string;
-  /** Temaene i byggherrens svar i skjemaets rekkefølge (LV-U34), når svaret har punkter. */
-  temaer?(krav: Krav, t: Tekst, regler: Regelsett): Tema[];
+  /** Innledningen i byggherrens svar, uten setningen om svaret det erstatter (LV-U34, LV-U41). */
+  innledning(krav: Krav, t: Pick<Tekst, 'j'>): string;
+  /** Temaene i byggherrens svar i skjemaets rekkefølge (LV-U34). */
+  temaer(krav: Krav, t: Tekst, regler: Regelsett): Tema[];
+  /**
+   * Punktet et standpunkt i svaret står i (LV-U34), eller `undefined` når sporet ikke har et eget
+   * punkt for det. Et standpunkt om rettidighet står da i punktet for bestemmelsen, og et annet
+   * avvises (`punktetFor`).
+   */
+  punktet(p: Standpunkt, krav: Krav): string | undefined;
   /**
    * Oversiktstabellen i svaret (OV-U73), eller `null` når svaret ikke har en. `beloepene` og
    * `lagene` er lagene i sporet; `forskyvning` er lagene fra forholdet foran (OV-U32).
@@ -374,4 +382,18 @@ export const stor = (t: string) => `${t[0].toUpperCase()}${t.slice(1)}`;
 /** Delene i rekkefølge, med «og» før den siste. */
 export function liste(deler: string[]): string {
   return deler.length < 2 ? deler.join('') : `${deler.slice(0, -1).join(', ')} og ${deler.at(-1)}`;
+}
+
+/**
+ * Varselet gitt før kravet: «… ble gitt i» brevet det står i (VS-U55). Ligger dokumentet ved
+ * kravet, er det lagt til i kravskjemaet, og totalentreprenøren opplyser det (VS-U51, VS-U53).
+ * Ordlyden er design (U-14 i BF-14), og partene skrives fullt ut (`docs/sprak.md`, #1532).
+ */
+export function gitt(varsel: string, hva: string, { j, nytt }: Pick<Tekst, 'j' | 'nytt'>): string {
+  const brevet = j.brevet(j.dokumentetTil(varsel));
+  const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
+  const dokumentet = j.dokumentMed(varsel)?.dokumentasjon ?? [];
+  return dokumentet.length && dokumentet.every((v) => vedlagte.has(v.vedlegg_id))
+    ? `Totalentreprenøren opplyser at ${hva.charAt(0).toLowerCase()}${hva.slice(1)} ble gitt i ${brevet}, som er vedlagt.`
+    : `${hva} ble gitt i ${brevet}.`;
 }

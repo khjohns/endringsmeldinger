@@ -60,6 +60,7 @@ import {
   type Spor,
   type Svar,
   type Vedlegg,
+  VARSELSPOR,
 } from '../typer.ts';
 import { lagFraForholdet } from '../spor/forhold/frysing.ts';
 
@@ -763,14 +764,15 @@ function brevtekstFor(
             Object.entries(iSporet(SKRIVING, k.spor).postvarsler?.(k, ny.dokument, lest, u) ?? {})
           )
         ),
-        varsletFoer: ny.dokument.krav.some((k) => k.spor === 'vederlag')
-          ? Object.fromEntries(
-              (['34.1.2', '34.1.3'] as const).flatMap((h) => {
-                const varsel = varseletFoerBrevet(u, h);
-                return varsel === undefined ? [] : [[h, varsel]];
-              })
-            )
-          : {},
+        // Varslene for sporene brevet har krav i, som kravteksten viser til.
+        varsletFoer: Object.fromEntries(
+          (['33.4', '34.1.2', '34.1.3'] as const)
+            .filter((h) => ny.dokument.krav.some((k) => k.spor === VARSELSPOR[h]))
+            .flatMap((h) => {
+              const varsel = varseletFoerBrevet(u, h);
+              return varsel === undefined ? [] : [[h, varsel]];
+            })
+        ),
         paaberopelse:
           ny.dokument.krav.find((k) => k.spor === 'forhold') ?? u.spor.forhold.gjeldendeKrav,
       },

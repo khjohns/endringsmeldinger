@@ -120,35 +120,37 @@ function regnUtFristen(
     er_grunnlag_subsidiaert: false,
     er_hele_fristen_subsidiaer_pga_grunnlag: false,
   };
-  const r = beregnFrist(fkrav, {
+  const { er_prekludert: prekludert } = beregnFrist(fkrav, {
     frist_varsel_ok: v.frist_varsel_ok as boolean | undefined,
     spesifisert_krav_ok: v.spesifisert_krav_ok as boolean | undefined,
     foresporsel_svar_ok: v.foresporsel_svar_ok as boolean | undefined,
     vilkar_oppfylt: v.vilkar_oppfylt as boolean | undefined,
     godkjent_dager: f.dager,
   });
-  const ut: Record<string, unknown> = {
-    gjelder: f.gjelder,
-    resultat: r.beregnings_resultat,
-    godkjent_dager: r.godkjent_dager,
-  };
-  if (r.subsidiaer_resultat !== null) {
-    ut.subsidiaert_resultat = r.subsidiaer_resultat;
-    ut.subsidiaert_godkjent_dager = r.subsidiaer_godkjent_dager ?? 0;
-  }
   const maatteForstaa = kontrollerSpesifiseringen({
     spesifisert_krav_ok: v.spesifisert_krav_ok,
     dager_maatte_forstaa: f.dager_maatte_forstaa,
     dager: f.dager,
   });
-  // VS-U4, rekkefølgen i #479: uten preklusjon og med hindring er dagene byggherren måtte
-  // forstå at TE hadde krav på det prinsipale, og de vurderte dagene står subsidiært.
-  if (maatteForstaa !== null && r.subsidiaer_resultat === null) {
-    ut.resultat = resultatAvDager(true, krevd, maatteForstaa);
-    ut.godkjent_dager = maatteForstaa;
-    ut.subsidiaert_resultat = r.beregnings_resultat;
-    ut.subsidiaert_godkjent_dager = r.godkjent_dager;
+  // KA-U78, OV-U32: dagene i hvert lag i rekkefølgen i `virkningerIForholdetOgFristen`.
+  // Preklusjon og «ikke hindret» gir 0 dager, og spesifiseringen dagene byggherren måtte forstå.
+  const dager = [
+    ...(prekludert ? [0] : []),
+    ...(v.vilkar_oppfylt === true ? [] : [0]),
+    ...(maatteForstaa === null ? [] : [maatteForstaa]),
+    f.dager as number,
+  ];
+  const resultat = (d: number) => resultatAvDager(true, krevd, d);
+  const ut: Record<string, unknown> = {
+    gjelder: f.gjelder,
+    resultat: resultat(dager[0]!),
+    godkjent_dager: dager[0],
+  };
+  if (dager.length > 1) {
+    ut.subsidiaert_resultat = resultat(dager.at(-1)!);
+    ut.subsidiaert_godkjent_dager = dager.at(-1);
   }
+  ut.lag = dager.map((d, i) => ({ lag: i + 1, dager: d }));
   return ut;
 }
 
@@ -179,6 +181,13 @@ export const SAMMENLIKNES_I_FRISTEN = [
   'frister.godkjent_dager',
 ];
 
+/**
+ * VS-U33, OV-U4. Utledningen og `svarPaaForesporsler` leser det herfra, og kommandoene gjennom
+ * utledningen.
+ */
+export const erFristkravIAppen = (d: Pick<Dokument, 'opplysninger'>, k: Pick<Krav, 'spor'>) =>
+  k.spor === 'frist' && !kravetErDokumentasjon(d);
+
 export interface ForesporselOgSvar {
   foresporsel: string;
   /** Elementet som svarte: et fristkrav (`medKrav`) eller TEs begrunnelse etter annet ledd b. */
@@ -206,9 +215,8 @@ export function svarPaaForesporsler(
         if (f) f.svar = u.id;
       }
     }
-    if (kravetErDokumentasjon(d)) continue;
     for (const krav of d.krav) {
-      const f = krav.spor === 'frist' ? ubesvart(krav.gjelder) : undefined;
+      const f = erFristkravIAppen(d, krav) ? ubesvart(krav.gjelder) : undefined;
       if (f) Object.assign(f, { svar: krav.id, medKrav: true });
     }
   }

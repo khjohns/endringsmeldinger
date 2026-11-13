@@ -217,7 +217,66 @@ function linje(...steg: Steg[]): Sakslinje {
   return sak.linje();
 }
 
+describe('resultatet for hele fristsvaret i sakslisten (svar 2 A i #1745, HF-U7, KA-U79)', () => {
+  /** Et fristkrav med to frister, og byggherrens svar med dagene for hver. */
+  const toFrister =
+    (dager: [number, number]): Steg =>
+    (sak) => {
+      sak.send('TE', PAABEROPELSE);
+      sak.send('TE', {
+        type: 'krav',
+        spor: 'frist',
+        innhold: {
+          frister: [
+            { navn: 'Sluttfristen', dager: 20 },
+            { navn: 'Delfristen', dager: 10 },
+          ],
+        },
+        utdypning: UTDYPNING,
+      });
+      sak.send('BH', {
+        type: 'brev',
+        svar: [
+          sak.svar('forhold', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+          sak.svar('frist', { ...FRIST_I_ORDEN, frister: dager.map((d) => ({ dager: d })) }),
+        ],
+      });
+    };
+
+  it.each([
+    ['godkjent når hver frist har fått alle dagene', [20, 10], 'godkjent', 2],
+    [
+      'delvis godkjent når én frist har fått alle dagene og den andre ingen',
+      [20, 0],
+      'delvis_godkjent',
+      1,
+    ],
+    [
+      'delvis godkjent når ingen frist har fått alle dagene, men én har fått noen',
+      [5, 0],
+      'delvis_godkjent',
+      0,
+    ],
+    ['avslått når ingen frist har fått dager', [0, 0], 'avslaatt', 0],
+  ] as const)('%s', (_, dager, resultat, antall) => {
+    const l = linje(toFrister([...dager]));
+    expect(l.frist.svar).toMatchObject({ resultat, antall_godkjent: antall, subsidiaert: false });
+    expect(l.frist.svar!.frister.map((f) => [f.betegnelse, f.dager])).toEqual([
+      ['Sluttfristen', dager[0]],
+      ['Delfristen', dager[1]],
+    ]);
+  });
+});
+
 describe('linja i sakslisten (#1022)', () => {
+  it('svar 2: med avslått forhold er fristsvaret subsidiært, som vederlaget (OV-U32, svar 2 A i #1745)', () => {
+    expect(linje(forloepA).frist.svar).toMatchObject({
+      resultat: 'godkjent',
+      antall_godkjent: 1,
+      subsidiaert: true,
+    });
+  });
+
   it('svaret og enigheten på et krav med to kravposter: summen av kravpostene, og enigheten sier hvilken kravpost som ikke har fast beløp (KA-U57 (c), KA-U72, OV-U73, svar 6 A i #1663)', () => {
     const l = linje((sak) => {
       sak.send('TE', PAABEROPELSE);

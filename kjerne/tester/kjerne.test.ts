@@ -35,6 +35,7 @@ import {
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { sammenfallStemmer, ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { regnUtSvar, utenforOmfanget } from '../frosset/utregning.ts';
+import { iLagene } from '../frosset/tekst.ts';
 import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
@@ -958,7 +959,7 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
       ['dager', 2],
     ]);
     expect(s.svar.beslutningsgrunnlag?.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), subsidiært godkjent med 20 dager.'
+      'Byggherrens standpunkt: prinsipalt avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), subsidiært godkjent med 20 dager.'
     );
     expect((await k.send({ handling: 'aksept', spor: 'frist' }))?.godtatt).toBe(true);
     expect((await k.utledning()).spor.frist.enighet?.grunnlag.utfall.frister?.[0]?.dager).toBe(0);
@@ -982,6 +983,160 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
  * tilfelle har en kontrollsak: den uendrede raden er forstått. Kilden er arbeidsvalgene
  * i #479 og VS-U4.
  */
+/**
+ * OV-U32: standpunktene i samme lag står under én etikett, også når de ikke står i lagenes
+ * rekkefølge. Et ledd uten lag står med sporets første lag (OV-U33). Linjen for byggherrens
+ * standpunkt ordner leddene med `iLagene`.
+ */
+describe('leddene ordnes etter laget (OV-U32, OV-U33)', () => {
+  it('leddene i samme lag står samlet, og et ledd uten lag står med det første laget', () => {
+    const ledd = [
+      { t: 'a', lag: 2 },
+      { t: 'b', lag: 1 },
+      { t: 'c', lag: null },
+      { t: 'd', lag: 2 },
+      { t: 'e', lag: 1 },
+    ];
+    expect(iLagene(ledd, (l) => l.lag, 1).map((l) => l.t)).toEqual(['b', 'c', 'e', 'a', 'd']);
+  });
+});
+
+/**
+ * KA-U78 og OV-U32: dagene for hver frist i hvert lag. Varselet etter § 33.4 står før alle,
+ * så at fremdriften ikke ble hindret, så dagene byggherren måtte forstå, og til sist dagene
+ * byggherren godtar hvis spesifiseringen kom i tide. Lagene i utregningen er lagene i
+ * beslutningsgrunnlaget.
+ */
+describe('lagene per frist i utregningen av fristen (KA-U78, OV-U32)', () => {
+  const krav = {
+    innhold: {
+      frister: [
+        { id: 'a', navn: 'Ferdigstillelse', dager: 20 },
+        { id: 'b', navn: 'Delfrist', dager: 10 },
+      ],
+    },
+  } as unknown as Krav;
+  const frister = [
+    { dager: 15, dager_maatte_forstaa: 5 },
+    { dager: 10, dager_maatte_forstaa: 0 },
+  ];
+  const regnUt = (v: Record<string, unknown>) =>
+    regnUtSvar('frist', v, { krav, paaberopelse: null }, GJELDENDE_REGLER);
+  const lagene = (u: Record<string, unknown>) =>
+    (u.frister as { lag: { lag: number; dager: number }[] }[]).map((r) =>
+      r.lag.map((l) => l.dager)
+    );
+
+  it('hindringen bestridt og spesifiseringen for sent gir 0 dager, dagene byggherren måtte forstå og de vurderte dagene', () => {
+    const u = regnUt({
+      frist_varsel_ok: true,
+      vilkar_oppfylt: false,
+      spesifisert_krav_ok: false,
+      frister,
+    });
+    expect(lagene(u)).toEqual([
+      [0, 5, 15],
+      [0, 0, 10],
+    ]);
+    expect(u.frister).toMatchObject([
+      {
+        gjelder: 'a',
+        resultat: 'avslaatt',
+        godkjent_dager: 0,
+        subsidiaert_resultat: 'delvis_godkjent',
+        subsidiaert_godkjent_dager: 15,
+      },
+      {
+        gjelder: 'b',
+        resultat: 'avslaatt',
+        godkjent_dager: 0,
+        subsidiaert_resultat: 'godkjent',
+        subsidiaert_godkjent_dager: 10,
+      },
+    ]);
+  });
+
+  it('varselet etter § 33.4 for sent står i laget før hindringen', () => {
+    const u = regnUt({
+      frist_varsel_ok: false,
+      vilkar_oppfylt: false,
+      spesifisert_krav_ok: false,
+      frister,
+    });
+    expect(lagene(u)).toEqual([
+      [0, 0, 5, 15],
+      [0, 0, 0, 10],
+    ]);
+    const svar = {
+      spor: 'frist' as const,
+      standpunkter: [
+        {
+          id: 'r',
+          art: 'rettidighet' as const,
+          gjelder: 'v',
+          hjemmel: '33.4' as const,
+          iTide: false,
+        },
+        { id: 'h', art: 'hindring' as const, oppfylt: false },
+        {
+          id: 's',
+          art: 'spesifisering' as const,
+          gjelder: 'k',
+          hjemmel: '33.6.1' as const,
+          iTide: false,
+        },
+        {
+          id: 'da',
+          art: 'dager' as const,
+          gjelder: 'a',
+          resultat: 'delvis_godkjent' as const,
+          vurdert: 15,
+        },
+        {
+          id: 'db',
+          art: 'dager' as const,
+          gjelder: 'b',
+          resultat: 'godkjent' as const,
+          vurdert: 10,
+        },
+      ],
+      utregning: u,
+    };
+    expect(virkninger(svar, null, GJELDENDE_REGLER).map((v) => v.virkning)).toEqual([
+      1, 2, 3, 4, 4,
+    ]);
+  });
+
+  it('spesifiseringen for sent alene gir dagene byggherren måtte forstå prinsipalt (VS-U4)', () => {
+    const u = regnUt({
+      frist_varsel_ok: true,
+      vilkar_oppfylt: true,
+      spesifisert_krav_ok: false,
+      frister,
+    });
+    expect(lagene(u)).toEqual([
+      [5, 15],
+      [0, 10],
+    ]);
+    expect(u.frister).toMatchObject([
+      { resultat: 'delvis_godkjent', godkjent_dager: 5 },
+      { resultat: 'avslaatt', godkjent_dager: 0, subsidiaert_resultat: 'godkjent' },
+    ]);
+  });
+
+  it('kontrollsak: uten påberopelse har hver frist ett lag med de vurderte dagene, uten det subsidiære', () => {
+    const u = regnUt({
+      frist_varsel_ok: true,
+      vilkar_oppfylt: true,
+      spesifisert_krav_ok: true,
+      frister: frister.map(({ dager }) => ({ dager })),
+    });
+    expect(lagene(u)).toEqual([[15], [10]]);
+    for (const r of u.frister as Record<string, unknown>[])
+      expect(r).not.toHaveProperty('subsidiaert_godkjent_dager');
+  });
+});
+
 describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en lagret rad', () => {
   const vederlagssak = async () => {
     const bane = minnebane();
@@ -1076,6 +1231,10 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
           godkjent_dager: 5,
           subsidiaert_resultat: 'delvis_godkjent',
           subsidiaert_godkjent_dager: 15,
+          lag: [
+            { lag: 1, dager: 5 },
+            { lag: 2, dager: 15 },
+          ],
         },
       ],
     });
@@ -1403,14 +1562,16 @@ describe('påberopelsen etter § 33.4 gjelder varselet (VS-U20, OV-U5, KK-07)', 
     const { k, rader } = await toKravversjoner(false);
     const brevtekst = radMed(rader, k, 'D-svar').data.brevtekst as {
       gjelder: string;
+      punkt?: string;
       laast: string;
     }[];
-    const avsnitt = brevtekst.find((a) => a.gjelder === k.navn.id('S-f2'))!;
+    // LV-U72: punktet om varselet etter § 33.4 i svaret.
+    const avsnitt = brevtekst.find((a) => a.gjelder === k.navn.id('S-f2') && a.punkt === '33.4')!;
     const foerste = radMed(rader, k, 'K-f1').data.brevnummer;
     if (foerste === radMed(rader, k, 'K-f2').data.brevnummer)
       throw new Error('Forutsetning: kravversjonene står i hvert sitt brev');
     expect(avsnitt.laast).toContain(
-      `§ 33.4 i brev K201-KOE-017-${String(foerste).padStart(2, '0')} av`
+      `punkt 33.4 i brev K201-KOE-017-${String(foerste).padStart(2, '0')} av`
     );
   });
 
