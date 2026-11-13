@@ -118,6 +118,8 @@ Skriftene ble valgt 07.11 (oppdragsgiver), etter en sammenligning av fire brevsk
   skjemaene, mer luft rundt brevteksten.
 - **Smal skjerm:** støttekolonnen legges under arbeidet under 1180 px, og panelet over
   arbeidet under 860 px, som i prototypene (#1461).
+  En tabell ruller ikke vannrett. Under 720 px står navnet på raden over verdiene sine, så alle
+  kolonnene er synlige ([U-2 i BF-44](../docs/domenetabell/brukerforlop/BF-44.md#u-2)).
 - **Radius betyr noe** (#1402). Bare knappene er runde,
   som piller (`--r-knapp`), så en handling skiller seg fra alt annet. Kort og brev har
   samme radius, 12 px (`--r-kort`): det gir ro på store flater, og brevet ser ikke
@@ -304,6 +306,9 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
 - **Visningen er handlingsorientert.** Det som ikke trengs for å sende et krav eller svare
   på det, står ikke der. Arbeidet har ingen overskrift med spornavnet: lesingen begynner
   med det siste brevet og menyen, og svaret med utkastkortet.
+  Regelen om overskriften gjelder siden for forholdet. For kravene er den ikke avgjort: prototypen
+  for vederlagsoversikten har overskriften med hjemmelen dempet etter (oppdragsgiver 13.11,
+  [U-16 i BF-44](../docs/domenetabell/brukerforlop/BF-44.md#u-16)).
 - **Visningen sier det løsningen vet, ikke hvem som skal handle.** Den viser hvilke brev
   som er sendt eller registrert, av hvem og når, og at et svar ikke er registrert. Den sier
   aldri hvem som skal gjøre neste handling, som «Venter på byggherren» eller «Neste steg»,
@@ -382,7 +387,11 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   (#1646).
 - **Brevene om forholdet** står i en tråd. Partene skilles med form, ikke med farge: BH har
   fylt ring og TE åpen ring. Beskrivelsen og begrunnelsen kan være flere sider, så tråden viser
-  de første tre linjene, og hele teksten står i brevet bak «Les brevet». Raden for et svar som ikke er registrert, har stiplet ring, fordi
+  de første tre linjene, og hele teksten står i brevet bak «Les brevet».
+  Samme form gjelder der et krav måles mot et svar: kravet er åpent og det godkjente fylt, på samme
+  skala med runde trinn ([U-2 i BF-44](../docs/domenetabell/brukerforlop/BF-44.md#u-2)).
+  Raden for brevet som vises ved siden av, har en strek i blekk til venstre og sier det i tekst,
+  ikke bare med en flate. Raden for et svar som ikke er registrert, har stiplet ring, fordi
   den ikke er et brev. Det løsningen sier om saken under et brev, som at svaret står
   som det ble sendt, har formen for en melding om
   prøven (`Melding`), ikke formen for metadata. Form og tekst prøves før en ny farge

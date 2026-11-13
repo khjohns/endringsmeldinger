@@ -1,0 +1,248 @@
+{
+  "id": "BF-44",
+  "tittel": "Partene ser stillingen i vederlaget",
+  "brukerhistorie": "TE og BH åpner siden for vederlagsjusteringen og ser kravet som gjelder, byggherrens svar med lagene og summen i hvert lag, forbeholdet om at forholdet ikke er besvart, brevene med vedlegg og datoene. TE ser hva det betyr å godta svaret før TE godtar det, og begge ser hva de kan gjøre nå og et påbegynt utkast.",
+  "status": "planlagt",
+  "utgangspunkt": {
+    "start": null,
+    "beskrivelse": "TE har påberopt forholdet i brev 2 uten svar, krevd vederlag i brev 3 og på nytt i brev 5 med særskilt vederlagsjustering, og byggherren har svart i brev 6 med tre lag og akseptfrist."
+  },
+  "bestilling": "BF-44.md",
+  "kilder": [
+    "MM-U50",
+    "OV-U31",
+    "OV-U73",
+    "OV-U32",
+    "LV-U37",
+    "LV-U33",
+    "GR-U34",
+    "KA-U1",
+    "GR-U7",
+    "GR-U8",
+    "GR-U6",
+    "HF-U23",
+    "OV-U54",
+    "KA-U51",
+    "MM-U48",
+    "OV-U44",
+    "OV-U81",
+    "LV-U14",
+    "EO-U13",
+    "KA-U62",
+    "MM-U40",
+    "OV-U87",
+    "OV-U75"
+  ],
+  "venter_paa": [
+    "#502",
+    "#1627",
+    "#1434"
+  ],
+  "bevis_saker": [],
+  "visninger": [],
+  "endringer": [
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Forløpet er registrert som planlagt, med bestillingen på grunnlag av prototypene v1 og v2 og spørsmålene 1–9."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Svarene 13.11 (A på 1–9) er ført som U-10–U-15, og prototypen v3 med klikkstiene er lagt til."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Brevene og datoene står i én tråd (forsøk A etter grunnlagsoversikt-v2.html)."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Oppsett B (U-16) med handlingen ved brevet og brevet ved siden av, som bryter ved siden av A."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Oppsett B (U-16) er rettet: tråden over kravet og svaret, sporene i topplinja, fast linje nederst i brevet og egen tekst ved utkast."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Kortet med kravet og svaret er bygget om etter designreviewet og språkfila (U-2 og U-13)."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Tråden, hodet og topplinja i oppsett B er rettet etter designreviewet (U-16)."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Tekstene i oversikten er rettet etter språkfila og systemfila."
+    }
+  ],
+  "prototype": {
+    "fil": "../../design/prototyper/vederlagsoversikt.html",
+    "klikkstier": [
+      {
+        "id": "te-leser-svaret",
+        "dekker": [
+          "1",
+          "2",
+          "3"
+        ],
+        "start": "te",
+        "handlinger": [
+          {
+            "staar": "Siste brev: brev 6 fra byggherren, 27. oktober 2026."
+          },
+          {
+            "staar": "Svaret gjelder under forutsetning av at forholdet gir grunnlag for kravet."
+          },
+          {
+            "staar": "10. november 2026"
+          },
+          {
+            "staar": "Godta svaret"
+          },
+          {
+            "staar": "Avklaring om mengdene i akse C–F"
+          }
+        ]
+      },
+      {
+        "id": "te-har-utkast",
+        "dekker": [
+          "4"
+        ],
+        "start": "te-utkast",
+        "handlinger": [
+          {
+            "staar": "Brev 7 · Revidert krav om vederlagsjustering"
+          },
+          {
+            "staar": "Fortsett utkastet"
+          }
+        ]
+      },
+      {
+        "id": "bh-ser-svaret",
+        "dekker": [
+          "5"
+        ],
+        "start": "bh",
+        "handlinger": [
+          {
+            "staar": "Send nytt svar"
+          }
+        ]
+      },
+      {
+        "id": "bh-til-godkjenning",
+        "dekker": [
+          "6"
+        ],
+        "start": "bh-utkast",
+        "handlinger": [
+          {
+            "staar": "Til godkjenning · ikke sendt"
+          },
+          {
+            "staar": "Teksten er låst."
+          },
+          {
+            "staar": "Verdien for fullmakten"
+          }
+        ]
+      },
+      {
+        "id": "te-regningsarbeid",
+        "dekker": [
+          "7"
+        ],
+        "start": "te-regning",
+        "handlinger": [
+          {
+            "staar": "Byggherren godkjenner regningsarbeid i brev 6."
+          },
+          {
+            "staar": "Krev påløpt beløp"
+          }
+        ]
+      },
+      {
+        "id": "bh-regningsarbeid",
+        "dekker": [
+          "8"
+        ],
+        "start": "bh-regning",
+        "handlinger": [
+          {
+            "staar": "Krev nytt kostnadsoverslag"
+          }
+        ]
+      },
+      {
+        "id": "te-oppsett-b",
+        "dekker": [
+          "9"
+        ],
+        "start": "te-b",
+        "handlinger": [
+          {
+            "staar": "Svaret gis under forutsetning av at forholdet gir grunnlag for kravet."
+          },
+          {
+            "staar": "Et nytt krav følger opp kravet i brev 5 og avslår tilbudet i dette svaret. Svaret kan da ikke godtas. Godtar du svaret, ser du brevet og virkningen av aksepten før du sender."
+          },
+          {
+            "trykk": "Les brevet: brev 5, Krav om vederlagsjustering"
+          },
+          {
+            "staar": "som tilbud om oppgjør som fast sum (punkt 34.2.1)."
+          }
+        ]
+      },
+      {
+        "id": "te-utkast-oppsett-b",
+        "dekker": [
+          "10"
+        ],
+        "start": "te-utkast-b",
+        "handlinger": [
+          {
+            "staar": "Fortsett utkastet"
+          }
+        ]
+      },
+      {
+        "id": "bh-oppsett-b",
+        "dekker": [
+          "11"
+        ],
+        "start": "bh-b",
+        "handlinger": [
+          {
+            "staar": "Nytt brev med svaret. Svaret i brev 6 står som det ble sendt."
+          }
+        ]
+      },
+      {
+        "id": "te-regning-oppsett-b",
+        "dekker": [
+          "12"
+        ],
+        "start": "te-regning-b",
+        "handlinger": [
+          {
+            "staar": "Nytt brev som følger opp kravet i brev 3, for eksempel med et nytt kostnadsoverslag."
+          },
+          {
+            "staar": "Byggherren godkjenner at vederlagsjusteringen gjøres opp som regningsarbeid (punkt 34.4)."
+          }
+        ]
+      }
+    ]
+  }
+}
