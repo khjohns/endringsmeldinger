@@ -3,7 +3,7 @@
 Funnene fra steg 6 i skillen `brukerforlop` og fra «Gjennomgang i runder», 13.11.2026, for
 [BF-45](../../domenetabell/brukerforlop/BF-45.md) og prototypen
 [fristoversikt.html](../../design/prototyper/fristoversikt.html). Funnene er lagt fram for oppdragsgiver
-før de rettes. Appen er ikke i produksjon og har ingen reelle data; alvorligheten gjelder prototypen.
+før de rettes, og oppdragsgiver svarte 13.11: «Rett som anbefalt». R-1–R-21 er rettet, og V-1 er A. Appen er ikke i produksjon og har ingen reelle data; alvorligheten gjelder prototypen.
 
 ## Hva som er kjørt
 

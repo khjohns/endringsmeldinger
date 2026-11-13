@@ -20,7 +20,6 @@
     "OV-U42",
     "KA-U1",
     "GR-U7",
-    "GR-U6",
     "HF-U24",
     "HF-U23",
     "HF-U5",
@@ -43,7 +42,11 @@
     "GFK-U20",
     "GFK-U21",
     "GFK-U24",
-    "OV-U73"
+    "OV-U73",
+    "GFK-U3",
+    "GFK-U4",
+    "KA-U73",
+    "KA-U22"
   ],
   "venter_paa": [
     "#502",
@@ -61,6 +64,11 @@
       "dato": "2026-11-13",
       "forhold": "#1900",
       "hva": "Svarene 13.11, A på 1–4, er ført i U-2, U-5 og U-6. Form B av kortet og steg 9 er tatt ut."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1900",
+      "hva": "Funnene R-1–R-21 fra forprøven og gjennomgangen er rettet, og V-1 er A (oppdragsgiver 13.11: «Rett som anbefalt»). GR-U6 er tatt ut av kildene, og GFK-U3, GFK-U4, KA-U73 og KA-U22 er ført."
     }
   ],
   "prototype": {
@@ -82,10 +90,10 @@
             "staar": "Byggherren gjør gjeldende at varselet etter punkt 33.4 i brev 4 kom for sent."
           },
           {
-            "staar": "Gjeldende frist 26. august 2027: avtalt 16. august, forlenget 10 dager i"
+            "staar": "Gjeldende frist 26. august 2027: 16. august i kontrakten, forlenget 10 dager i"
           },
           {
-            "staar": "Byggherren avslår dagene for fristen: fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet."
+            "staar": "Videre subsidiært avslår byggherren dagene for fristen: fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet."
           },
           {
             "staar": "19. november 2026"
@@ -139,7 +147,10 @@
             "staar": "Verdien for fullmakten"
           },
           {
-            "staar": "270 000 kr"
+            "staar": "340 000 kr"
+          },
+          {
+            "staar": "Lise Berg"
           }
         ]
       },
@@ -154,7 +165,10 @@
             "staar": "Svar på forespørselen"
           },
           {
-            "staar": "Forespørselen kom 15 dager før i dag."
+            "staar": "Byggherren ba om dagene 29. oktober 2026, for 15 dager siden."
+          },
+          {
+            "staar": "Trekk kravet"
           }
         ]
       },

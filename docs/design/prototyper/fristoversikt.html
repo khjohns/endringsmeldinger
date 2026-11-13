@@ -533,6 +533,25 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .fristblokk .maal{margin-top:4px}
 .fristblokk .trinn{margin-top:2px}
 .tom-krav{color:var(--ink-2)}
+.lagtittel.forste{border-top:0;padding-top:0}
+h3.lagtittel{font-size:16px;font-weight:600}
+.fristblokk h4{margin:0;font-size:14px;font-weight:600}
+.kjede li.senere::before{background:var(--surface-inset);border:1.5px solid var(--ink-3);width:6px;height:6px}
+.fristblokk h4 .nr{font-weight:400;color:var(--ink-3);margin-right:6px}
+.fristblokk .verdi{white-space:nowrap}
+.fristblokk .verdi b{font-size:16px;font-weight:600}
+.fristblokk .verdi .ny{font-size:14px;color:var(--ink-2)}
+.maal.krevd{background-color:var(--surface)}
+.maal.krevd i{background:transparent;border:1.5px solid var(--ink);inset:-1px auto -1px -1px}
+.skala{margin-top:8px;font-size:14px;color:var(--ink-2)}
+.godkjenning .perfr .b{white-space:nowrap}
+.godkjenning .tall b{white-space:nowrap}
+.godkjenning .perfr-tittel{font-size:14px;color:var(--ink-2)}
+@media (max-width:560px){
+  .fristblokk .lagrad{flex-direction:column;align-items:flex-start}
+  .godkjenning .perfr li{flex-direction:column;gap:0}
+}
+@media (max-width:1180px){.andre-b{order:4}}
 .vedvarsel{display:flex;gap:10px;padding:12px 14px;background:var(--surface-inset);border:1px solid var(--ink);border-radius:var(--r-innfelt);color:var(--ink);font-size:14px}
 .vedvarsel svg{flex:none;margin-top:2px}
 .godkjenning .perfr{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:14px;color:var(--ink-2)}
@@ -611,7 +630,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
             <div class="utkast-kropp">
               <dl>
                 <dt>Forrige brev</dt><dd>Kravet i brev 7 av 29. oktober 2026</dd>
-                <dt>Endret så langt</dt><dd>Frist 7 Overtakelse <span class="num">20</span> → <span class="num">16 dager</span>. Frist 5 Mekanisk ferdigstillelse trekkes.</dd>
+                <dt>Endret så langt</dt><dd>Frist 5 Mekanisk ferdigstillelse: trekkes<br>Frist 7 Overtakelse: <span class="num">20</span> → <span class="num">16</span> dager</dd>
                 <dt>Mangler</dt><dd>Begrunnelsen for endringen</dd>
                 <dt>Sist lagret</dt><dd>12. november 2026 kl. 15.12 av Per Olsen</dd>
               </dl>
@@ -636,14 +655,17 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
               <div class="godkjenning" data-spor="U-10 · D-13">
                 <ol class="kjede" aria-label="Godkjennerne">
                   <li><b>Ola Nordmann</b><span class="s">Prosjektingeniør · utarbeidet svaret</span></li>
-                  <li class="naa" aria-current="step"><b>Kari Nordmann</b><span class="s">Prosjektleder · fullmakt til <span class="num">300 000 kr</span> · sender svaret</span></li>
+                  <li class="naa" aria-current="step"><b>Kari Nordmann</b><span class="s">Prosjektleder · fullmakt til <span class="num">300&nbsp;000&nbsp;kr</span></span></li>
+                  <li class="senere"><b>Lise Berg</b><span class="s">Avdelingsdirektør · ubegrenset fullmakt · sender svaret</span></li>
                 </ol>
+                <p class="perfr-tittel">Dagene byggherren godkjenner videre subsidiært</p>
                 <ul class="perfr" aria-label="Verdien for hver frist">
-                  <li><span>Frist 7 Overtakelse · <span class="num">16</span> dager, <span class="num">11</span> hverdager × <span class="num">20 000 kr</span></span><span class="num">220 000 kr</span></li>
-                  <li><span>Frist 8 Overtakelse av utomhusarbeider · <span class="num">14</span> dager, <span class="num">10</span> hverdager × <span class="num">5 000 kr</span></span><span class="num">50 000 kr</span></li>
-                  <li><span>Frist 5 Mekanisk ferdigstillelse · ikke dagmulktbelagt</span><span>–</span></li>
+                  <li><span>Frist 5 Mekanisk ferdigstillelse · ikke dagmulktbelagt</span><span class="b">kan ikke verdsettes</span></li>
+                  <li><span>Frist 7 Overtakelse · <span class="num">16</span> dager, <span class="num">14</span> hverdager × <span class="num">20&nbsp;000&nbsp;kr</span></span><span class="b num">280&nbsp;000&nbsp;kr</span></li>
+                  <li><span>Frist 8 Overtakelse av utomhusarbeider · <span class="num">14</span> dager, <span class="num">12</span> hverdager × <span class="num">5&nbsp;000&nbsp;kr</span></span><span class="b num">60&nbsp;000&nbsp;kr</span></li>
                 </ul>
-                <p class="tall"><span>Verdien for fullmakten</span><b class="num">270 000 kr</b></p>
+                <p class="tall"><span>Verdien for fullmakten</span><b class="num">340&nbsp;000&nbsp;kr</b></p>
+                <p class="perfr-tittel">Frist 5 kan ikke verdsettes, så svaret går til den som har ubegrenset fullmakt.</p>
               </div>
             </div>
             <div class="utkast-fot"><button class="knapp sekundaer" type="button">Les brevet</button></div>
@@ -661,7 +683,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                 <div class="rad"><span class="dato num">5. <span class="maaned-lang">november</span><span class="maaned-kort">nov.</span> 2026</span><h3>Svar på krav om fristforlengelse<span class="sr"> fra byggherren</span></h3><span class="meta"><span class="nr num">brev 8</span><button class="lenke les" type="button" aria-controls="brev-8" data-navn="brev 8, Svar på krav om fristforlengelse" aria-label="Les brevet: brev 8, Svar på krav om fristforlengelse">Les brevet</button></span></div>
                 <div class="innhold"><p class="datolinje">Brevet er godkjent av Kari Nordmann, med fullmakt. Sendt kl. 14.02. Levert til Catenda kl. 14.03.</p><span class="filer" aria-label="Vedlegg til brev 8"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><span>Fremdriftsanalyse byggherren.pdf</span><span class="fm">PDF · 610 kB</span></a></span></div><div class="brevplass"></div><p class="aksept" data-spor="U-11 · D-5">Akseptfrist: <b>19. november 2026</b>.</p><div class="handling kun-te" data-spor="U-6 · D-4 · D-6">
                   <div class="knapper"><span class="uten-utkast"><button class="knapp primaer" type="button">Revider krav</button></span><button class="knapp sekundaer" type="button">Godta svaret</button></div>
-                  <p class="uten-utkast-blokk">Et nytt krav følger opp kravet i brev 7 og avslår tilbudet i dette svaret. Svaret kan da ikke godtas. Godtar du svaret, ser du brevet og virkningen av aksepten før du sender.</p>
+                  <p class="uten-utkast-blokk">Et nytt krav følger opp kravet i brev 7 og avslår tilbudet i dette svaret. Svaret kan da ikke godtas. I det nye kravet kan du endre dagene eller ta ut en frist. Godtar du svaret, ser du brevet og virkningen av aksepten før du sender.</p>
                   <p class="med-utkast-blokk">Sender du utkastet til brev 9, avslår det tilbudet i dette svaret. Svaret kan da ikke godtas. Godtar du svaret, ser du brevet og virkningen av aksepten før du sender.</p>
                 </div><div class="handling kun-bh uten-utkast-blokk">
                   <div class="knapper"><button class="lenke" type="button">Send nytt svar</button></div>
@@ -689,7 +711,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                 <span class="part bh" aria-hidden="true">BH</span>
                 <div class="rad"><span class="dato num">29. <span class="maaned-lang">oktober</span><span class="maaned-kort">okt.</span> 2026</span><h3>Forespørsel om spesifisert krav<span class="sr"> fra byggherren</span></h3><span class="meta"><span class="nr num">brev 7</span><button class="lenke les" type="button" aria-controls="brev-7f" data-navn="brev 7, Forespørsel om spesifisert krav" aria-label="Les brevet: brev 7, Forespørsel om spesifisert krav">Les brevet</button></span></div>
                 <div class="innhold"><p class="leselinje">Byggherren ber om antall dager for hver frist, med begrunnelse (punkt 33.6.2).</p><p class="datolinje">Sendt kl. 10.11. Levert til Catenda kl. 10.12.</p>
-                  <div class="vedvarsel" data-spor="U-9 · D-10"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><p>Forespørselen kom <span class="num">15</span> dager før i dag. Svarer totalentreprenøren ikke uten ugrunnet opphold, tapes kravet på fristforlengelse (punkt 33.6.2 tredje ledd).</p></div>
+                  <div class="vedvarsel" data-spor="U-9 · D-10"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><p>Byggherren ba om dagene 29. oktober 2026, for <span class="num">15</span> dager siden. Svarer totalentreprenøren ikke uten ugrunnet opphold, tapes kravet på fristforlengelse (punkt 33.6.2 tredje ledd).</p></div>
                 </div><div class="brevplass"></div><div class="handling kun-te" data-spor="U-6 · D-10">
                   <div class="knapper"><button class="knapp primaer" type="button">Svar på forespørselen</button></div>
                   <p>Nytt brev med dagene for hver frist og begrunnelsen. Kan du ikke beregne dagene ennå, begrunner du det (punkt 33.6.2 annet ledd).</p>
@@ -705,55 +727,43 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 
           <section class="kort stilling" aria-labelledby="stilling-tittel" data-spor="U-2">
             <div class="kort-hode">
-              <h2 id="stilling-tittel"><span class="kun-svar">Kravet og svaret</span><span class="kun-foresp">Kravet</span></h2>
+              <h2 id="stilling-tittel"><span class="kun-svar">Kravet og svaret</span><span class="kun-foresp">Kravet om fristforlengelse</span></h2>
               <span class="kilde kun-svar">Kravet i brev 7 og svaret i brev 8</span>
             </div>
             <div class="kort-kropp kun-foresp">
-              <p class="tom-krav">Totalentreprenøren har varslet i brev 4 og har ikke angitt dagene ennå.</p>
+              <p class="tom-krav">Dagene er ikke angitt. Totalentreprenøren varslet i brev 4.</p>
             </div>
             <div class="kort-kropp kun-svar">
-              <p class="lagtittel" style="border-top:0;padding-top:0" id="hele-tittel">For alle fristene</p>
+              <h3 class="lagtittel forste" id="hele-tittel">For alle fristene</h3>
               <ul class="helekravet" aria-labelledby="hele-tittel" data-spor="U-3 · D-2">
                 <li><span class="navn">Prinsipalt</span><b class="dg num">0 dager</b>
                   <p>Byggherren gjør gjeldende at varselet etter punkt 33.4 i brev 4 kom for sent.</p></li>
               </ul>
-              <p class="uten-lag" data-spor="U-3 · D-3">Subsidiært legger byggherren til grunn at fremdriften er hindret, og at hindringen skyldes forholdet. Dagene står per frist under.</p>
+              <p class="uten-lag" data-spor="U-3 · D-3">Hvis innsigelsen om varselet ikke fører frem, legger byggherren til grunn at fremdriften er hindret, og at hindringen skyldes forholdet.</p>
 
               <div class="perfrist" data-spor="U-4">
-                <p class="lagtittel">Per frist</p>
+                <h3 class="lagtittel">Per frist</h3>
                 <ul class="vilkaar">
                   <li><b>Subsidiært</b>, hvis innsigelsen om varselet ikke fører frem: Byggherren gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1), og godkjenner dagene byggherren måtte forstå.</li>
                   <li><b>Videre subsidiært</b>, hvis heller ikke innsigelsen om spesifiseringen fører frem: dagene byggherren godkjenner.</li>
                 </ul>
+                <p class="skala">Dagene er kalenderdager. Ny frist er regnet fra gjeldende frist.</p>
 
                 <div data-spor="U-2 · D-1">
                   <section class="fristblokk" aria-labelledby="f5">
-                    <h3 id="f5"><span class="nr">Frist 5</span>Mekanisk ferdigstillelse</h3>
-                    <p class="gjeldende">Gjeldende frist 1. juni 2027, som avtalt.</p>
-                    <div class="maalestokk" style="--steg:33.333%">
-                      <div><div class="lagrad"><span class="navn">Krevd</span><b class="belop num">25 dager<span class="ny">26. juni 2027</span></b></div><div class="maal aapen" aria-hidden="true"></div></div>
-                      <div><div class="lagrad"><span class="navn">Subsidiært</span><b class="belop num">0 dager</b></div><div class="maal" aria-hidden="true"><i style="width:0"></i></div></div>
-                      <div><div class="lagrad"><span class="navn">Videre subsidiært</span><b class="belop num">0 dager</b></div><div class="maal" aria-hidden="true"><i style="width:0"></i></div><div class="trinn" aria-hidden="true"><span>0</span><span>10</span><span>20</span><span>30</span></div>
-                        <p class="avslag" data-spor="U-13 · D-3">Byggherren avslår dagene for fristen: fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet.</p></div>
-                    </div>
+                    <h4 id="f5"><span class="nr">Frist 5</span>Mekanisk ferdigstillelse</h4>
+                    <p class="gjeldende">Gjeldende frist 1. juni 2027, som i kontrakten.</p>
+                    <div class="maalestokk" style="--steg:33.333%"><div><div class="lagrad"><span class="navn">Krevd</span><span class="verdi num"><b>25 dager</b><span class="ny"> · ny frist 26. juni 2027</span></span></div><div class="maal krevd" aria-hidden="true"><i style="width:83.33%"></i></div></div><div><div class="lagrad"><span class="navn">Subsidiært</span><span class="verdi num"><b>0 dager</b></span></div><div class="maal" aria-hidden="true"><i style="width:0.00%"></i></div></div><div><div class="lagrad"><span class="navn">Videre subsidiært</span><span class="verdi num"><b>0 dager</b></span></div><div class="maal" aria-hidden="true"><i style="width:0.00%"></i></div><div class="trinn" aria-hidden="true"><span>0</span><span>10</span><span>20</span><span>30</span></div><p class="avslag" data-spor="U-13 · D-3">Videre subsidiært avslår byggherren dagene for fristen: fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet.</p></div></div>
                   </section>
                   <section class="fristblokk" aria-labelledby="f7">
-                    <h3 id="f7"><span class="nr">Frist 7</span>Overtakelse</h3>
-                    <p class="gjeldende" data-spor="U-5 · D-9">Gjeldende frist 26. august 2027: avtalt 16. august, forlenget <span class="num">10</span> dager i <a href="saksliste.html">sak E-009</a>.</p>
-                    <div class="maalestokk" style="--steg:33.333%">
-                      <div><div class="lagrad"><span class="navn">Krevd</span><b class="belop num">20 dager<span class="ny">15. september 2027</span></b></div><div class="maal aapen" aria-hidden="true"></div></div>
-                      <div><div class="lagrad"><span class="navn">Subsidiært</span><b class="belop num">8 dager<span class="ny">3. september 2027</span></b></div><div class="maal" aria-hidden="true"><i style="width:26.67%"></i></div></div>
-                      <div><div class="lagrad"><span class="navn">Videre subsidiært</span><b class="belop num">14 dager<span class="ny">9. september 2027</span></b></div><div class="maal" aria-hidden="true"><i style="width:46.67%"></i></div><div class="trinn" aria-hidden="true"><span>0</span><span>10</span><span>20</span><span>30</span></div></div>
-                    </div>
+                    <h4 id="f7"><span class="nr">Frist 7</span>Overtakelse</h4>
+                    <p class="gjeldende" data-spor="U-5 · D-9">Gjeldende frist 26. august 2027: 16. august i kontrakten, forlenget <span class="num">10</span> dager i <a href="saksliste.html">sak E-009</a>.</p>
+                    <div class="maalestokk" style="--steg:33.333%"><div><div class="lagrad"><span class="navn">Krevd</span><span class="verdi num"><b>20 dager</b><span class="ny"> · ny frist 15. september 2027</span></span></div><div class="maal krevd" aria-hidden="true"><i style="width:66.67%"></i></div></div><div><div class="lagrad"><span class="navn">Subsidiært</span><span class="verdi num"><b>8 dager</b><span class="ny"> · ny frist 3. september 2027</span></span></div><div class="maal" aria-hidden="true"><i style="width:26.67%"></i></div></div><div><div class="lagrad"><span class="navn">Videre subsidiært</span><span class="verdi num"><b>14 dager</b><span class="ny"> · ny frist 9. september 2027</span></span></div><div class="maal" aria-hidden="true"><i style="width:46.67%"></i></div><div class="trinn" aria-hidden="true"><span>0</span><span>10</span><span>20</span><span>30</span></div></div></div>
                   </section>
                   <section class="fristblokk" aria-labelledby="f8">
-                    <h3 id="f8"><span class="nr">Frist 8</span>Overtakelse av utomhusarbeider</h3>
-                    <p class="gjeldende">Gjeldende frist 13. september 2027, som avtalt.</p>
-                    <div class="maalestokk" style="--steg:33.333%">
-                      <div><div class="lagrad"><span class="navn">Krevd</span><b class="belop num">20 dager<span class="ny">3. oktober 2027</span></b></div><div class="maal aapen" aria-hidden="true"></div></div>
-                      <div><div class="lagrad"><span class="navn">Subsidiært</span><b class="belop num">8 dager<span class="ny">21. september 2027</span></b></div><div class="maal" aria-hidden="true"><i style="width:26.67%"></i></div></div>
-                      <div><div class="lagrad"><span class="navn">Videre subsidiært</span><b class="belop num">14 dager<span class="ny">27. september 2027</span></b></div><div class="maal" aria-hidden="true"><i style="width:46.67%"></i></div><div class="trinn" aria-hidden="true"><span>0</span><span>10</span><span>20</span><span>30</span></div></div>
-                    </div>
+                    <h4 id="f8"><span class="nr">Frist 8</span>Overtakelse av utomhusarbeider</h4>
+                    <p class="gjeldende">Gjeldende frist 13. september 2027, som i kontrakten.</p>
+                    <div class="maalestokk" style="--steg:33.333%"><div><div class="lagrad"><span class="navn">Krevd</span><span class="verdi num"><b>20 dager</b><span class="ny"> · ny frist 3. oktober 2027</span></span></div><div class="maal krevd" aria-hidden="true"><i style="width:66.67%"></i></div></div><div><div class="lagrad"><span class="navn">Subsidiært</span><span class="verdi num"><b>8 dager</b><span class="ny"> · ny frist 21. september 2027</span></span></div><div class="maal" aria-hidden="true"><i style="width:26.67%"></i></div></div><div><div class="lagrad"><span class="navn">Videre subsidiært</span><span class="verdi num"><b>14 dager</b><span class="ny"> · ny frist 27. september 2027</span></span></div><div class="maal" aria-hidden="true"><i style="width:46.67%"></i></div><div class="trinn" aria-hidden="true"><span>0</span><span>10</span><span>20</span><span>30</span></div></div></div>
                   </section>
                 </div>
               </div>
@@ -765,11 +775,11 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
             </div>
           </section>
 
-          <section class="kort andre-b kun-te kun-svar" aria-labelledby="andre-b-tittel" data-spor="U-6">
+          <section class="kort andre-b kun-te" aria-labelledby="andre-b-tittel" data-spor="U-6">
             <p class="andre-tittel" id="andre-b-tittel">Andre handlinger</p>
             <ul class="andre">
               <li class="kun-svar" data-spor="U-6 · D-12"><button type="button"><span class="h">Anse avslaget som pålegg om forsering</span><span class="b">Forsering er ikke bygget i Varden og sendes som egen sak.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
-              <li class="kun-svar" data-spor="D-6"><button type="button"><span class="h">Trekk kravet</span><span class="b">Du gir avkall på hele kravet om fristforlengelse, også det byggherren har godkjent.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+              <li data-spor="D-6"><button type="button"><span class="h">Trekk kravet</span><span class="b"><span class="kun-svar">Du gir avkall på hele kravet om fristforlengelse, også det byggherren har godkjent.</span><span class="kun-foresp">Du gir avkall på kravet om fristforlengelse.</span></span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
             </ul>
           </section>
         </div>
@@ -787,12 +797,12 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
   <dl class="referanser"><div><dt>Sak</dt><dd>Ny peling med produktivitetstap</dd></div><div><dt>Deres ref.</dt><dd class="num">K201-E-021-07</dd></div><div><dt>Vår ref.</dt><dd class="num">K201-E-021-08</dd></div><div><dt>Dato</dt><dd>5. november 2026</dd></div></dl>
   <h4>Svar på krav om fristforlengelse</h4><p>Byggherren svarer på totalentreprenørens krav om fristforlengelse i brev K201-E-021-07.</p>
   <p><b>1. Varselet om fristforlengelse (punkt 33.4)</b><br>Byggherren gjør gjeldende at varselet i brev K201-E-021-04 kom for sent.</p>
-  <p><b>2. Hindringen</b><br><span class="lagslinje">Subsidiært, hvis innsigelsen i punkt 1 ikke fører frem</span>Byggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet.</p>
-  <p><b>3. Spesifiseringen av kravet (punkt 33.6.1)</b><br><span class="lagslinje">Subsidiært, hvis innsigelsen i punkt 1 ikke fører frem</span>Byggherren gjør gjeldende at kravet ble spesifisert for sent, og godkjenner det byggherren måtte forstå: frist 7: <span class="num">8</span> dager, frist 8: <span class="num">8</span> dager, frist 5: <span class="num">0</span> dager.</p>
-  <p><b>4. Dagene for frist 5 Mekanisk ferdigstillelse</b><br><span class="lagslinje">Videre subsidiært, hvis heller ikke innsigelsen i punkt 3 fører frem</span>Byggherren avslår kravet. Fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet, se fremdriftsanalysen i vedlegget.</p>
-  <p><b>5. Dagene for frist 7 Overtakelse</b><br><span class="lagslinje">Videre subsidiært, hvis heller ikke innsigelsen i punkt 3 fører frem</span>Byggherren godkjenner <span class="num">14</span> av de krevde <span class="num">20</span> dagene.</p>
-  <p><b>6. Dagene for frist 8 Overtakelse av utomhusarbeider</b><br><span class="lagslinje">Videre subsidiært, hvis heller ikke innsigelsen i punkt 3 fører frem</span>Byggherren godkjenner <span class="num">14</span> av de krevde <span class="num">20</span> dagene.</p>
-  <p><b>Forbehold</b><br>Byggherren har ikke svart på påberopelsen i brev K201-E-021-02. Svaret gis under forutsetning av at forholdet gir grunnlag for kravet.</p><p>Akseptfrist: 19. november 2026.</p>
+  <p><b>2. Hindringen</b><br><span class="lagslinje">Subsidiært, hvis innsigelsen i punkt 1 ikke fører frem</span>Byggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet (NS 8407 punkt 33.1).</p>
+  <p><b>3. Spesifiseringen av kravet (punkt 33.6.1)</b><br><span class="lagslinje">Subsidiært, hvis innsigelsen i punkt 1 ikke fører frem</span>Byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at totalentreprenøren bare har krav på den fristforlengelsen byggherren måtte forstå at totalentreprenøren hadde krav på: <span class="num">0</span> dager for frist 5 Mekanisk ferdigstillelse, <span class="num">8</span> dager for frist 7 Overtakelse og <span class="num">8</span> dager for frist 8 Overtakelse av utomhusarbeider (NS 8407 punkt 33.6.1).</p>
+  <p><b>4. Dagene for frist 5 Mekanisk ferdigstillelse</b><br><span class="lagslinje">Videre subsidiært, hvis heller ikke innsigelsen i punkt 3 fører frem</span>For frist 5 Mekanisk ferdigstillelse avslår byggherren kravet. Fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet, se fremdriftsanalysen i vedlegget.</p>
+  <p><b>5. Dagene for frist 7 Overtakelse</b><br><span class="lagslinje">Videre subsidiært, hvis heller ikke innsigelsen i punkt 3 fører frem</span>For frist 7 Overtakelse godkjenner byggherren <span class="num">14</span> dager av de krevde <span class="num">20</span> dager.</p>
+  <p><b>6. Dagene for frist 8 Overtakelse av utomhusarbeider</b><br><span class="lagslinje">Videre subsidiært, hvis heller ikke innsigelsen i punkt 3 fører frem</span>For frist 8 Overtakelse av utomhusarbeider godkjenner byggherren <span class="num">14</span> dager av de krevde <span class="num">20</span> dager.</p>
+  <p><b>Forbehold</b><br>Byggherren har ennå ikke svart på totalentreprenørens påberopelse av byggherrens valg av løsninger og prosjektering i brev K201-E-021-02. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.</p><p>Akseptfrist: 19. november 2026.</p>
   <p class="brevfot">Sendt herfra 5. november 2026 kl. 14.02. Dette er brevet slik det ble sendt, og det kan ikke endres.</p>
 </article>
 <article class="brev" id="brev-7" hidden aria-label="Krav om fristforlengelse, slik det ble sendt">
@@ -808,7 +818,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 <article class="brev" id="brev-4" hidden aria-label="Varsel om fristforlengelse, slik det ble sendt">
   <div class="brevhode"><p class="fra"><b>Totalentreprenør AS</b><span>Totalentreprenøren</span></p><span class="stempel">Sendt 13. oktober 2026</span><p class="til"><b>Oslobygg KF</b><span>Byggherren</span></p></div>
   <dl class="referanser"><div><dt>Sak</dt><dd>Ny peling med produktivitetstap</dd></div><div><dt>Deres ref.</dt><dd class="num"></dd></div><div><dt>Vår ref.</dt><dd class="num">K201-E-021-04</dd></div><div><dt>Dato</dt><dd>13. oktober 2026</dd></div></dl>
-  <h4>Varsel om fristforlengelse</h4><p>Totalentreprenøren varsler krav om fristforlengelse etter NS 8407 punkt 33.4 for forholdet påberopt i brev K201-E-021-02.</p><p>Totalentreprenøren ble klar over forholdet 12. september 2026.</p>
+  <h4>Varsel om fristforlengelse</h4><p>Totalentreprenøren varsler krav om fristforlengelse etter NS 8407 punkt 33.4 for forholdet påberopt i brev K201-E-021-02.</p>
   <p class="brevfot">Sendt herfra 13. oktober 2026 kl. 10.21. Dette er brevet slik det ble sendt, og det kan ikke endres.</p>
 </article>
 <article class="brev bh" id="brev-7f" hidden aria-label="Forespørsel om spesifisert krav, slik det ble sendt">
@@ -820,7 +830,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 <article class="brev" id="brev-4f" hidden aria-label="Varsel om fristforlengelse, slik det ble sendt">
   <div class="brevhode"><p class="fra"><b>Totalentreprenør AS</b><span>Totalentreprenøren</span></p><span class="stempel">Sendt 13. oktober 2026</span><p class="til"><b>Oslobygg KF</b><span>Byggherren</span></p></div>
   <dl class="referanser"><div><dt>Sak</dt><dd>Ny peling med produktivitetstap</dd></div><div><dt>Deres ref.</dt><dd class="num"></dd></div><div><dt>Vår ref.</dt><dd class="num">K201-E-021-04</dd></div><div><dt>Dato</dt><dd>13. oktober 2026</dd></div></dl>
-  <h4>Varsel om fristforlengelse</h4><p>Totalentreprenøren varsler krav om fristforlengelse etter NS 8407 punkt 33.4 for forholdet påberopt i brev K201-E-021-02.</p><p>Totalentreprenøren ble klar over forholdet 12. september 2026.</p>
+  <h4>Varsel om fristforlengelse</h4><p>Totalentreprenøren varsler krav om fristforlengelse etter NS 8407 punkt 33.4 for forholdet påberopt i brev K201-E-021-02.</p>
   <p class="brevfot">Sendt herfra 13. oktober 2026 kl. 10.21. Dette er brevet slik det ble sendt, og det kan ikke endres.</p>
 </article>
       </div>

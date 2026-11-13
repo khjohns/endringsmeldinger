@@ -73,6 +73,8 @@ på kilden, men har ingen kontroller ennå.
 | [FO-U5](../../plans/vedtak.md#fo-u5) | — | — | BF-45 |
 | [FO-U8](../../plans/vedtak.md#fo-u8) | — | — | BF-06 |
 | [GFK-U2](../../plans/vedtak.md#gfk-u2) | — | — | BF-08 |
+| [GFK-U3](../../plans/vedtak.md#gfk-u3) | — | — | BF-45 |
+| [GFK-U4](../../plans/vedtak.md#gfk-u4) | — | — | BF-45 |
 | [GFK-U7](../../plans/vedtak.md#gfk-u7) | — | — | BF-06 |
 | [GFK-U17](../../plans/vedtak.md#gfk-u17) | — | — | BF-45 |
 | [GFK-U19](../../plans/vedtak.md#gfk-u19) | — | — | BF-45 |
@@ -81,7 +83,7 @@ på kilden, men har ingen kontroller ennå.
 | [GFK-U24](../../plans/vedtak.md#gfk-u24) | — | — | BF-20, BF-45 |
 | [GFK-U26](../../plans/vedtak.md#gfk-u26) | — | — | BF-45 |
 | [GR-U1](../../plans/vedtak.md#gr-u1) | — | — | BF-08 |
-| [GR-U6](../../plans/vedtak.md#gr-u6) | — | — | BF-44, BF-45 |
+| [GR-U6](../../plans/vedtak.md#gr-u6) | — | — | BF-44 |
 | [GR-U7](../../plans/vedtak.md#gr-u7) | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 forholdet-er-avslaatt, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-04 forholdet-er-avslaatt | BF-01V, BF-08, BF-14, BF-44, BF-45 |
 | [GR-U8](../../plans/vedtak.md#gr-u8) | — | — | BF-44 |
 | [GR-U9](../../plans/vedtak.md#gr-u9) | — | — | BF-08 |
@@ -127,7 +129,7 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U14](../../plans/vedtak.md#ka-u14) | — | — | BF-06 |
 | [KA-U16](../../plans/vedtak.md#ka-u16) | — | — | BF-01V, BF-37 |
 | [KA-U19](../../plans/vedtak.md#ka-u19) | — | — | BF-01V, BF-10 |
-| [KA-U22](../../plans/vedtak.md#ka-u22) | — | — | BF-20 |
+| [KA-U22](../../plans/vedtak.md#ka-u22) | — | — | BF-20, BF-45 |
 | [KA-U24](../../plans/vedtak.md#ka-u24) | — | — | BF-01V |
 | [KA-U31](../../plans/vedtak.md#ka-u31) | — | — | BF-01V |
 | [KA-U33](../../plans/vedtak.md#ka-u33) | — | — | BF-20 |
@@ -158,7 +160,7 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U70](../../plans/vedtak.md#ka-u70) | — | — | BF-14 |
 | [KA-U71](../../plans/vedtak.md#ka-u71) | — | — | BF-14 |
 | [KA-U72](../../plans/vedtak.md#ka-u72) | — | — | BF-14 |
-| [KA-U73](../../plans/vedtak.md#ka-u73) | — | — | BF-20 |
+| [KA-U73](../../plans/vedtak.md#ka-u73) | — | — | BF-20, BF-45 |
 | [KA-U74](../../plans/vedtak.md#ka-u74) | — | — | BF-20, BF-45 |
 | [KA-U75](../../plans/vedtak.md#ka-u75) | — | — | BF-14, BF-20, BF-45 |
 | [KA-U76](../../plans/vedtak.md#ka-u76) | — | — | BF-20, BF-45 |
