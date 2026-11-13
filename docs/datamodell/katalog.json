@@ -558,7 +558,8 @@
    "koe.kontraktsfrist": {
     "kolonner": [
      ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
-     ["nummer", "int", "NOT NULL"],
+     ["frist_id", "int", "NOT NULL"],
+     ["nummer", "nvarchar(20)", "NULL"],
      ["navn", "nvarchar(200)", "NOT NULL"],
      ["dato", "date", "NOT NULL"],
      ["dagmulktbelagt", "bit", "NOT NULL"],
@@ -568,11 +569,13 @@
      ["delens_verdi", "decimal(15,2)", "NULL"],
      ["beloep_per_dag", "decimal(15,2)", "NULL"]
     ],
-    "primærnøkkel": ["prosjekt_id", "nummer"],
+    "primærnøkkel": ["prosjekt_id", "frist_id"],
     "unike": [
      ["prosjekt_id", "navn"]
     ],
-    "unike_indekser": [],
+    "unike_indekser": [
+     "(prosjekt_id, nummer) WHERE ([nummer] IS NOT NULL)"
+    ],
     "fremmednøkler": [
      {
       "kolonner": ["prosjekt_id"],

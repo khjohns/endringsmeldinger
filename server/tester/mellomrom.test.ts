@@ -214,6 +214,7 @@ const MALER = [
   "(NOT ([{k}]) collate Latin1_General_100_BIN2_UTF8 like N'%[^-a-z0-9_]%')",
   // Et navn på én linje, uten mellomrom av noe slag i endene (#1408, #721).
   '([koe].[navn_paa_en_linje]([{k}])=(1))',
+  '([{k}] IS NULL OR [koe].[navn_paa_en_linje]([{k}])=(1))',
 ];
 
 /**

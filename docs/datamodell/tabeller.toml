@@ -538,10 +538,11 @@ lagring = "SQL Server"
 type = ["grunndata"]
 status = "i bruk"
 beskrivelse = """
-Fristtabellen fra kontrakten (GFK-U18, #721): fristens nummer i prosjektet, navnet,
-datoen, om fristen er dagmulktbelagt, og opplysningene satsen regnes av (GFK-U16):
-promillen og minstebeløpet av kontraktssummen eller av verdien av delen, eller et avtalt
-fast beløp per dag. Basen tildeler nummeret, og det endres ikke. Driften registrerer og
+Fristtabellen fra kontrakten (GFK-U18, #721): fristens ID i prosjektet, kontraktens
+nummer på fristen, navnet, datoen, om fristen er dagmulktbelagt, og opplysningene satsen
+regnes av (GFK-U16): promillen og minstebeløpet av kontraktssummen eller av verdien av
+delen, eller et avtalt fast beløp per dag. Basen tildeler ID-en, og den endres ikke. Den er
+en teknisk nøkkel; brevet viser fristen med kontraktens nummer og navnet (KA-U79). Driften registrerer og
 retter fristene etter bestilling fra byggherren (GFK-U22), og fjerner en frist bare så
 lenge prosjektet ikke har saker. Begge parter og leserollen leser dem (GFK-U23). Satsen i
 kroner regnes i `server/kontraktsfrister.ts`. Erstatter `koe.dagmulktssats`."""

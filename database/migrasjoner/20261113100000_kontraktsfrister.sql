@@ -3,10 +3,11 @@
 --
 -- Driften registrerer opplysningene med driftsskriptet (`server/registrering.ts`)
 -- etter skriftlig bestilling fra byggherren (GFK-U22). Kjøretiden kan ikke endre dem,
--- og begge parter leser dem (GFK-U23). Hver frist har et nummer i prosjektet som
--- tildeles her og ikke endres, så et krav kan vise til fristen. Navnet, datoen og
--- satsen kan rettes. En frist kan fjernes bare så lenge prosjektet ikke har saker; før
--- det kan nummeret til den siste fristen gis ut igjen.
+-- og begge parter leser dem (GFK-U23). Hver frist har en ID i prosjektet som
+-- tildeles her og ikke endres, så et krav kan vise til fristen. ID-en er en teknisk
+-- nøkkel; brevet viser fristen med kontraktens nummer, når den har et, og navnet.
+-- Nummeret, navnet, datoen og satsen kan rettes. En frist kan fjernes bare så lenge prosjektet ikke har saker; før
+-- det kan ID-en til den siste fristen gis ut igjen.
 -- Satsen i kroner regnes av serveren (`server/kontraktsfrister.ts`). Den erstatter
 -- `koe.dagmulktssats`.
 
@@ -86,7 +87,9 @@ CREATE TABLE koe.kontraktsfrist (
     CONSTRAINT kontraktsfrist_prosjekt FOREIGN KEY REFERENCES koe.projects (id)
     CONSTRAINT kontraktsfrist_prosjekt_id_tegnklasse
       CHECK (NOT prosjekt_id COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^!-~]%'),
-  nummer int NOT NULL CONSTRAINT kontraktsfrist_nummer CHECK (nummer >= 1),
+  frist_id int NOT NULL CONSTRAINT kontraktsfrist_frist_id CHECK (frist_id >= 1),
+  -- Kontraktens nummer på fristen, som «E.1.2», eller NULL når kontrakten ikke nummererer den.
+  nummer nvarchar(20) NULL CONSTRAINT kontraktsfrist_nummer CHECK (nummer IS NULL OR koe.navn_paa_en_linje(nummer) = 1),
   navn nvarchar(200) NOT NULL CONSTRAINT kontraktsfrist_navn CHECK (koe.navn_paa_en_linje(navn) = 1),
   dato date NOT NULL,
   dagmulktbelagt bit NOT NULL,
@@ -96,7 +99,7 @@ CREATE TABLE koe.kontraktsfrist (
   minstebeloep decimal(15, 2) NULL CONSTRAINT kontraktsfrist_minstebeloep CHECK (minstebeloep >= 0),
   delens_verdi decimal(15, 2) NULL CONSTRAINT kontraktsfrist_delens_verdi CHECK (delens_verdi > 0),
   beloep_per_dag decimal(15, 2) NULL CONSTRAINT kontraktsfrist_beloep_per_dag CHECK (beloep_per_dag > 0),
-  CONSTRAINT kontraktsfrist_pk PRIMARY KEY (prosjekt_id, nummer),
+  CONSTRAINT kontraktsfrist_pk PRIMARY KEY (prosjekt_id, frist_id),
   CONSTRAINT kontraktsfrist_navn_unik UNIQUE (prosjekt_id, navn),
   CONSTRAINT kontraktsfrist_satsgrunnlag
     CHECK (satsgrunnlag IN (N'kontraktssum', N'delens_verdi', N'fast_beloep')),
@@ -110,6 +113,8 @@ CREATE TABLE koe.kontraktsfrist (
     OR (dagmulktbelagt = 1 AND satsgrunnlag = N'fast_beloep' AND promille IS NULL
        AND minstebeloep IS NULL AND delens_verdi IS NULL AND beloep_per_dag IS NOT NULL))
 );
+CREATE UNIQUE INDEX kontraktsfrist_nummer_unik ON koe.kontraktsfrist (prosjekt_id, nummer)
+  WHERE nummer IS NOT NULL;
 GO
 
 CREATE PROCEDURE koe_drift.sett_kontraktssum
@@ -132,11 +137,12 @@ BEGIN
 END
 GO
 
--- Registrerer en ny frist når @nummer er NULL, og retter ellers fristen med det
--- nummeret. Gir nummeret.
+-- Registrerer en ny frist når @frist_id er NULL, og retter ellers fristen med den
+-- ID-en. Gir ID-en.
 CREATE PROCEDURE koe_drift.sett_kontraktsfrist
   @prosjekt nvarchar(4000),
-  @nummer int,
+  @frist_id int,
+  @nummer nvarchar(4000),
   @navn nvarchar(4000),
   @dato date,
   @dagmulktbelagt bit,
@@ -151,6 +157,8 @@ BEGIN
   SET XACT_ABORT ON;
   IF DATALENGTH(@navn) > 400 OR koe.navn_paa_en_linje(@navn) = 0
     THROW 52076, N'Fristens navn er tomt, over 200 tegn, har mellomrom i endene eller har kontrolltegn eller linjeskift', 1;
+  IF @nummer IS NOT NULL AND (DATALENGTH(@nummer) > 40 OR koe.navn_paa_en_linje(@nummer) = 0)
+    THROW 52082, N'Fristens nummer i kontrakten er tomt, over 20 tegn, har mellomrom i endene eller har kontrolltegn eller linjeskift', 1;
   IF @dato IS NULL OR @dagmulktbelagt IS NULL
     THROW 52077, N'Fristen mangler datoen eller om den er dagmulktbelagt', 1;
   -- `=` ser bort fra mellomrom til slutt, så formen prøves først, som i tabellen.
@@ -170,38 +178,41 @@ BEGIN
   BEGIN TRANSACTION;
   IF NOT EXISTS (SELECT 1 FROM koe.projects WITH (UPDLOCK, HOLDLOCK) WHERE id = @prosjekt)
     THROW 52073, N'Prosjektet er ikke registrert', 1;
-  IF @nummer IS NOT NULL AND NOT EXISTS (SELECT 1 FROM koe.kontraktsfrist WITH (UPDLOCK, HOLDLOCK)
-                                          WHERE prosjekt_id = @prosjekt AND nummer = @nummer)
-    THROW 52080, N'Prosjektet har ingen frist med det nummeret', 1;
+  IF @frist_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM koe.kontraktsfrist WITH (UPDLOCK, HOLDLOCK)
+                                          WHERE prosjekt_id = @prosjekt AND frist_id = @frist_id)
+    THROW 52080, N'Prosjektet har ingen frist med den ID-en', 1;
   IF EXISTS (SELECT 1 FROM koe.kontraktsfrist WITH (UPDLOCK, HOLDLOCK)
-              WHERE prosjekt_id = @prosjekt AND navn = @navn AND nummer IS DISTINCT FROM @nummer)
+              WHERE prosjekt_id = @prosjekt AND navn = @navn AND frist_id IS DISTINCT FROM @frist_id)
     THROW 52079, N'Prosjektet har alt en frist med det navnet', 1;
-  IF @nummer IS NULL
+  IF @nummer IS NOT NULL AND EXISTS (SELECT 1 FROM koe.kontraktsfrist WITH (UPDLOCK, HOLDLOCK)
+              WHERE prosjekt_id = @prosjekt AND nummer = @nummer AND frist_id IS DISTINCT FROM @frist_id)
+    THROW 52083, N'Prosjektet har alt en frist med det nummeret i kontrakten', 1;
+  IF @frist_id IS NULL
   BEGIN
-    SELECT @nummer = ISNULL(MAX(nummer), 0) + 1
+    SELECT @frist_id = ISNULL(MAX(frist_id), 0) + 1
       FROM koe.kontraktsfrist WITH (UPDLOCK, HOLDLOCK) WHERE prosjekt_id = @prosjekt;
-    INSERT koe.kontraktsfrist (prosjekt_id, nummer, navn, dato, dagmulktbelagt, satsgrunnlag,
+    INSERT koe.kontraktsfrist (prosjekt_id, frist_id, nummer, navn, dato, dagmulktbelagt, satsgrunnlag,
                                promille, minstebeloep, delens_verdi, beloep_per_dag)
-    VALUES (@prosjekt, @nummer, @navn, @dato, @dagmulktbelagt, @satsgrunnlag,
+    VALUES (@prosjekt, @frist_id, @nummer, @navn, @dato, @dagmulktbelagt, @satsgrunnlag,
             @promille, @minstebeloep, @delens_verdi, @beloep_per_dag);
   END
   ELSE
   BEGIN
     UPDATE koe.kontraktsfrist
-       SET navn = @navn, dato = @dato, dagmulktbelagt = @dagmulktbelagt, satsgrunnlag = @satsgrunnlag,
+       SET nummer = @nummer, navn = @navn, dato = @dato, dagmulktbelagt = @dagmulktbelagt, satsgrunnlag = @satsgrunnlag,
            promille = @promille, minstebeloep = @minstebeloep, delens_verdi = @delens_verdi,
            beloep_per_dag = @beloep_per_dag
-     WHERE prosjekt_id = @prosjekt AND nummer = @nummer;
+     WHERE prosjekt_id = @prosjekt AND frist_id = @frist_id;
   END
   COMMIT;
-  SELECT @nummer AS nummer;
+  SELECT @frist_id AS frist_id;
 END
 GO
 
 -- Et krav kan vise til fristen når prosjektet har saker, så da fjernes den ikke.
 CREATE PROCEDURE koe_drift.fjern_kontraktsfrist
   @prosjekt nvarchar(4000),
-  @nummer int
+  @frist_id int
 AS
 BEGIN
   SET NOCOUNT ON;
@@ -209,9 +220,9 @@ BEGIN
   BEGIN TRANSACTION;
   IF EXISTS (SELECT 1 FROM koe.prosjekt_med_saker WITH (UPDLOCK, HOLDLOCK) WHERE prosjekt_id = @prosjekt)
     THROW 52081, N'Prosjektet har saker, så fristen kan ikke fjernes', 1;
-  DELETE koe.kontraktsfrist WHERE prosjekt_id = @prosjekt AND nummer = @nummer;
+  DELETE koe.kontraktsfrist WHERE prosjekt_id = @prosjekt AND frist_id = @frist_id;
   IF @@ROWCOUNT = 0
-    THROW 52080, N'Prosjektet har ingen frist med det nummeret', 1;
+    THROW 52080, N'Prosjektet har ingen frist med den ID-en', 1;
   COMMIT;
 END
 GO
@@ -225,9 +236,9 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM koe.projects WHERE id = @prosjekt)
     THROW 52073, N'Prosjektet er ikke registrert', 1;
   SELECT kontraktssum FROM koe.kontraktssum WHERE prosjekt_id = @prosjekt;
-  SELECT nummer, navn, CONVERT(nchar(10), dato, 23) AS dato, dagmulktbelagt, satsgrunnlag, promille, minstebeloep,
+  SELECT frist_id, nummer, navn, CONVERT(nchar(10), dato, 23) AS dato, dagmulktbelagt, satsgrunnlag, promille, minstebeloep,
          delens_verdi, beloep_per_dag
-    FROM koe.kontraktsfrist WHERE prosjekt_id = @prosjekt ORDER BY nummer;
+    FROM koe.kontraktsfrist WHERE prosjekt_id = @prosjekt ORDER BY frist_id;
 END
 GO
 
@@ -243,9 +254,9 @@ BEGIN
   DECLARE @prosjekt nvarchar(4000) = TRY_CAST(SESSION_CONTEXT(N'koe_prosjekt') AS nvarchar(4000));
   DECLARE @leser bit = IIF(EXISTS (SELECT 1 FROM koe_sikkerhet.medlem(@prosjekt)), 1, 0);
   SELECT kontraktssum FROM koe.kontraktssum WHERE prosjekt_id = @prosjekt AND @leser = 1;
-  SELECT nummer, navn, CONVERT(nchar(10), dato, 23) AS dato, dagmulktbelagt, satsgrunnlag, promille, minstebeloep,
+  SELECT frist_id, nummer, navn, CONVERT(nchar(10), dato, 23) AS dato, dagmulktbelagt, satsgrunnlag, promille, minstebeloep,
          delens_verdi, beloep_per_dag
-    FROM koe.kontraktsfrist WHERE prosjekt_id = @prosjekt AND @leser = 1 ORDER BY nummer;
+    FROM koe.kontraktsfrist WHERE prosjekt_id = @prosjekt AND @leser = 1 ORDER BY frist_id;
 END
 GO
 

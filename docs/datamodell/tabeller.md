@@ -446,7 +446,7 @@ Vedleggene TE laster opp før saken finnes (#1037, svar 1 i #1487): filen, filna
 
 ### `koe.kontraktsfrist`
 
-Fristtabellen fra kontrakten (GFK-U18, #721): fristens nummer i prosjektet, navnet, datoen, om fristen er dagmulktbelagt, og opplysningene satsen regnes av (GFK-U16): promillen og minstebeløpet av kontraktssummen eller av verdien av delen, eller et avtalt fast beløp per dag. Basen tildeler nummeret, og det endres ikke. Driften registrerer og retter fristene etter bestilling fra byggherren (GFK-U22), og fjerner en frist bare så lenge prosjektet ikke har saker. Begge parter og leserollen leser dem (GFK-U23). Satsen i kroner regnes i `server/kontraktsfrister.ts`. Erstatter `koe.dagmulktssats`.
+Fristtabellen fra kontrakten (GFK-U18, #721): fristens ID i prosjektet, kontraktens nummer på fristen, navnet, datoen, om fristen er dagmulktbelagt, og opplysningene satsen regnes av (GFK-U16): promillen og minstebeløpet av kontraktssummen eller av verdien av delen, eller et avtalt fast beløp per dag. Basen tildeler ID-en, og den endres ikke. Den er en teknisk nøkkel; brevet viser fristen med kontraktens nummer og navnet (KA-U79). Driften registrerer og retter fristene etter bestilling fra byggherren (GFK-U22), og fjerner en frist bare så lenge prosjektet ikke har saker. Begge parter og leserollen leser dem (GFK-U23). Satsen i kroner regnes i `server/kontraktsfrister.ts`. Erstatter `koe.dagmulktssats`.
 
 | Felt | Innhold |
 | --- | --- |
@@ -454,7 +454,7 @@ Fristtabellen fra kontrakten (GFK-U18, #721): fristens nummer i prosjektet, navn
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | Driftsskriptet `server/registrering.ts kontraktsfrister`. Lest av `koe_api.kontraktsfrister` fra `server/kontraktsfrister.ts`. |
 | Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (prosjekt_id, nummer); unik (prosjekt_id, navn). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (prosjekt_id, frist_id); unik (prosjekt_id, navn); unik indeks (prosjekt_id, nummer) WHERE ([nummer] IS NOT NULL). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Kontrakten er kilden. |
 | Personopplysninger | Ingen. |
 | Skrives av | database/migrasjoner/20261113100000_kontraktsfrister.sql (`koe_drift.sett_kontraktsfrist` og `koe_drift.fjern_kontraktsfrist`, kalt fra `server/registrering.ts`) |

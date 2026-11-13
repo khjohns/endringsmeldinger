@@ -12,7 +12,13 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { transaksjon, type Kontekst } from '../datalag.ts';
-import { lesKontraktsfrister, regnSats, type Fristtabell } from '../kontraktsfrister.ts';
+import {
+  betegnelse,
+  lesKontraktsfrister,
+  regnSats,
+  STANDARDSATS,
+  type Fristtabell,
+} from '../kontraktsfrister.ts';
 import { iTransaksjon, settInn } from './sqlserver_migrert.ts';
 import { lagOppsett, rydd, TESTBASE_URL, type Oppsett } from './testbase.ts';
 
@@ -48,6 +54,11 @@ describe('regnSats', () => {
     ).toBe(1000);
   });
 
+  it('GFK-U16: standardsatsen er 1 ‰ av kontraktssummen, men minst 3000 kr', () => {
+    expect(regnSats(STANDARDSATS, 120_000_000)).toBe(120_000);
+    expect(regnSats(STANDARDSATS, 1_000_000)).toBe(3000);
+  });
+
   it('GFK-U16: et avtalt fast beløp per dag er satsen, uavhengig av kontraktssummen', () => {
     expect(regnSats({ grunnlag: 'fast_beloep', beloepPerDag: 7500 }, 120_000_000)).toBe(7500);
   });
@@ -60,6 +71,13 @@ describe('regnSats', () => {
     expect(regnSats(a(1, 0), 5)).toBe(0.01);
     // Det største beløpet tabellen tar, 9 999 999 999 999,99 kr, gir 9 999 999 999,99999 kr.
     expect(regnSats(a(1, 0), 9_999_999_999_999.99)).toBe(10_000_000_000);
+  });
+});
+
+describe('betegnelse', () => {
+  it('KA-U79: brevet viser fristen med kontraktens nummer og navnet, ikke ID-en', () => {
+    expect(betegnelse({ nummer: 'E.1.2', navn: 'Tett bygg' })).toBe('E.1.2 Tett bygg');
+    expect(betegnelse({ nummer: null, navn: 'Tett bygg' })).toBe('Tett bygg');
   });
 });
 
@@ -87,7 +105,8 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
       await settInn(r, 'kontraktssum', { prosjekt_id: o.prosjekt.id, kontraktssum: 120_000_000 });
       await settInn(r, 'kontraktsfrist', {
         prosjekt_id: o.prosjekt.id,
-        nummer: 1,
+        frist_id: 1,
+        nummer: 'E.1',
         navn: 'Sluttfrist',
         dato: '2027-06-30',
         dagmulktbelagt: true,
@@ -97,21 +116,21 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
       });
       await settInn(r, 'kontraktsfrist', {
         prosjekt_id: o.prosjekt.id,
-        nummer: 2,
+        frist_id: 2,
         navn: 'Tett bygg',
         dato: '2026-12-15',
         dagmulktbelagt: false,
       });
       await settInn(r, 'kontraktsfrist', {
         prosjekt_id: o.prosjekt.id,
-        nummer: 3,
+        frist_id: 3,
         navn: 'Overtakelse av utomhus',
         dato: '2027-09-01',
         dagmulktbelagt: true,
       });
       await settInn(r, 'kontraktsfrist', {
         prosjekt_id: o.annetProsjekt.id,
-        nummer: 1,
+        frist_id: 1,
         navn: 'Sluttfrist i det andre prosjektet',
         dato: '2028-01-31',
         dagmulktbelagt: true,
@@ -126,7 +145,8 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
     kontraktssum: 120_000_000,
     frister: [
       {
-        nummer: 1,
+        fristId: 1,
+        nummer: 'E.1',
         navn: 'Sluttfrist',
         dato: '2027-06-30',
         dagmulktbelagt: true,
@@ -134,7 +154,8 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
         sats: 120_000,
       },
       {
-        nummer: 2,
+        fristId: 2,
+        nummer: null,
         navn: 'Tett bygg',
         dato: '2026-12-15',
         dagmulktbelagt: false,
@@ -143,7 +164,8 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
       },
       // Dagmulktbelagt, men satsen er ikke registrert (GFK-U3).
       {
-        nummer: 3,
+        fristId: 3,
+        nummer: null,
         navn: 'Overtakelse av utomhus',
         dato: '2027-09-01',
         dagmulktbelagt: true,

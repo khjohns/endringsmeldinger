@@ -17,8 +17,16 @@ export type Satsopplysninger =
   | { grunnlag: 'fast_beloep'; beloepPerDag: number };
 
 export interface Kontraktsfrist {
-  /** Fristens nummer i prosjektet. Det endres ikke, og et krav viser til fristen med det. */
-  nummer: number;
+  /**
+   * Fristens ID i prosjektet. Den endres ikke, og et krav viser til fristen med den. Den
+   * er en teknisk nøkkel og står ikke i brevet.
+   */
+  fristId: number;
+  /**
+   * Kontraktens nummer på fristen, eller `null` når kontrakten ikke nummererer den.
+   * Brevet viser fristen med nummeret og navnet (`betegnelse`).
+   */
+  nummer: string | null;
   navn: string;
   /** `ÅÅÅÅ-MM-DD`. */
   dato: string;
@@ -49,6 +57,14 @@ function promilleAv(grunnlag: number, promille: number): number {
   return tilTall((teller * 2n + nevner) / (nevner * 2n));
 }
 
+/** Fristen slik kontrakten betegner den: nummeret, når den har et, og navnet. */
+export function betegnelse(f: { nummer: string | null; navn: string }): string {
+  return f.nummer === null ? f.navn : `${f.nummer} ${f.navn}`;
+}
+
+/** Standardverdiene etter § 40.3 a (GFK-U16), som driften registrerer uttrykkelig. */
+export const STANDARDSATS = { grunnlag: 'kontraktssum', promille: 1, minstebeloep: 3000 } as const;
+
 /** Satsen per dag etter GFK-U16 og GFK-U18, eller `null` når den ikke kan regnes. */
 export function regnSats(s: Satsopplysninger, kontraktssum: number | null): number | null {
   if (s.grunnlag === 'fast_beloep') return s.beloepPerDag;
@@ -58,7 +74,8 @@ export function regnSats(s: Satsopplysninger, kontraktssum: number | null): numb
 }
 
 export interface Fristrad {
-  nummer: number;
+  frist_id: number;
+  nummer: string | null;
   navn: string;
   dato: string;
   dagmulktbelagt: boolean;
@@ -101,6 +118,7 @@ export function fristtabell(sum: { kontraktssum: unknown }[], rader: Fristrad[])
     frister: rader.map((rad) => {
       const s = satsopplysninger(rad);
       return {
+        fristId: rad.frist_id,
         nummer: rad.nummer,
         navn: rad.navn,
         dato: rad.dato,

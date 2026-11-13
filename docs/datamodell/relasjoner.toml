@@ -675,7 +675,7 @@ til = "koe.projects.id"
 art = "fremmednøkkel"
 antall = "mange til én"
 beskrivelse = """
-Prosjektet fristen gjelder i. Nummeret er unikt i prosjektet (GFK-U18, #721)."""
+Prosjektet fristen gjelder i. ID-en, kontraktens nummer og navnet er hver unike i prosjektet (GFK-U18, #721)."""
 funn = []
 belegg = "L 13.11: migrasjonen. K 13.11: `server/tester/kontraktsfrister.test.ts`."
 
@@ -926,3 +926,7 @@ kolonne = "koe.hr_kopi.leder_oid"
 begrunnelse = """
 Lederens `oid` i Entra ID, fra `manager` i Graph. Lederen trenger ikke ha en rolle
 og har da ingen rad i HR-kopien."""
+
+[[uten_relasjon]]
+kolonne = "koe.kontraktsfrist.frist_id"
+begrunnelse = "Fristens ID i prosjektet, tildelt av `koe_drift.sett_kontraktsfrist`. Et krav viser til fristen med den; hendelsen i journalen har ingen fremmednøkkel hit (#721)."

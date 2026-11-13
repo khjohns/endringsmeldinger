@@ -15,9 +15,10 @@
  *   KOE_DRIFT_TILKOBLING=… node server/registrering.ts kontraktsparter oslobygg \
  *     [--byggherre "…" --totalentreprenoer "…" --kontraktsforkortelse K201]
  *   KOE_DRIFT_TILKOBLING=… node server/registrering.ts kontraktsfrister oslobygg \
- *     [kontraktssum <kroner> | ny | rett <nummer> | fjern <nummer>] \
- *     [--frist "Sluttfrist" --dato 2027-06-30 [--ikke-dagmulktbelagt | --dagmulktbelagt \
- *       [--promille 1 --minstebeloep 3000 [--delens-verdi <kroner>] | --beloep-per-dag <kroner>]]]
+ *     [kontraktssum <kroner> | ny | rett <frist-id> | fjern <frist-id>] \
+ *     [--nummer E.1.2 | --uten-nummer] [--frist "Sluttfrist"] [--dato 2027-06-30] \
+ *     [--ikke-dagmulktbelagt | --dagmulktbelagt [--standardsats | \
+ *       --promille 1 --minstebeloep 3000 [--delens-verdi <kroner>] | --beloep-per-dag <kroner>]]
  *
  * `KOE_DRIFT_TILKOBLING` er tilkoblingsstrengen for en bruker med
  * `koe_driftsrolle`. Med `--bh` og `--te` kontrolleres teamene mot Catenda-
@@ -33,7 +34,10 @@
  * lar resten stå, eller fjerner en frist så lenge prosjektet ikke har saker (GFK-U16, GFK-U18, GFK-U22).
  * Med `--promille` og `--minstebeloep` regnes satsen av kontraktssummen, og med
  * `--delens-verdi` i tillegg av verdien av delen; `--beloep-per-dag` er et avtalt fast
- * beløp. Promillen og minstebeløpet oppgis alltid; skriptet fyller ikke inn standardverdiene.
+ * beløp. `--standardsats` er 1 ‰ av kontraktssummen og minst 3000 kr etter § 40.3 a
+ * (GFK-U16), skrevet som vanlige verdier; ellers oppgis promillen og minstebeløpet.
+ * `--nummer` er kontraktens nummer på fristen, som brevet viser med navnet. Fristens ID
+ * er skriptets og basens nøkkel og står ikke i brevet.
  */
 
 import { fileURLToPath } from 'node:url';
@@ -43,7 +47,9 @@ import { catendaFraMiljoe, type CatendaOAuth } from './catenda.ts';
 import { opprettPool, sql, utenKontekst, type Pool } from './datalag.ts';
 import type { Part } from '../kjerne/typer.ts';
 import {
+  betegnelse,
   fristtabell,
+  STANDARDSATS,
   type Fristrad,
   type Fristtabell,
   type Satsopplysninger,
@@ -205,7 +211,7 @@ async function settKontraktsparter(
   }
 }
 
-const FRISTFEIL = [52073, 52075, 52076, 52077, 52078, 52079, 52080, 52081];
+const FRISTFEIL = [52073, 52075, 52076, 52077, 52078, 52079, 52080, 52081, 52082, 52083];
 
 async function iDriften<T>(arbeid: Promise<T>): Promise<T> {
   try {
@@ -228,6 +234,8 @@ export async function lesFristtabell(pool: Pool, prosjekt: string): Promise<Fris
 }
 
 export interface NyFrist {
+  /** Kontraktens nummer på fristen, eller `null`. */
+  nummer: string | null;
   navn: string;
   /** `ÅÅÅÅ-MM-DD`. */
   dato: string;
@@ -235,18 +243,19 @@ export interface NyFrist {
   satsopplysninger: Satsopplysninger | null;
 }
 
-/** Registrerer fristen når `nummer` er `null`, og retter ellers fristen. Gir nummeret. */
+/** Registrerer fristen når `fristId` er `null`, og retter ellers fristen. Gir ID-en. */
 async function settKontraktsfrist(
   pool: Pool,
   prosjekt: string,
-  nummer: number | null,
+  fristId: number | null,
   f: NyFrist
 ): Promise<number> {
   const s = f.satsopplysninger;
   const svar = await iDriften(
     utenKontekst(pool)
       .input('prosjekt', sql.NVarChar(4000), prosjekt)
-      .input('nummer', sql.Int, nummer)
+      .input('frist_id', sql.Int, fristId)
+      .input('nummer', sql.NVarChar(4000), f.nummer)
       .input('navn', sql.NVarChar(4000), f.navn)
       .input('dato', sql.NVarChar(10), f.dato)
       .input('dagmulktbelagt', sql.Bit, f.dagmulktbelagt)
@@ -263,9 +272,9 @@ async function settKontraktsfrist(
         sql.Decimal(15, 2),
         s?.grunnlag === 'fast_beloep' ? s.beloepPerDag : null
       )
-      .execute<{ nummer: number }>('koe_drift.sett_kontraktsfrist')
+      .execute<{ frist_id: number }>('koe_drift.sett_kontraktsfrist')
   );
-  return svar.recordset[0]!.nummer;
+  return svar.recordset[0]!.frist_id;
 }
 
 const kroner = (n: number) =>
@@ -293,11 +302,9 @@ function desimaltall(verdi: string, navn: string, form: 'beloep' | 'promille'): 
   return Number(verdi);
 }
 
-function fristnummer(verdi: string | undefined): number {
+function fristId(verdi: string | undefined): number {
   if (!verdi || !/^[1-9]\d{0,8}$/.test(verdi))
-    throw new Registreringsfeil(
-      `Fristens nummer er ikke et positivt heltall: ${verdi ?? '(mangler)'}`
-    );
+    throw new Registreringsfeil(`Fristens ID er ikke et positivt heltall: ${verdi ?? '(mangler)'}`);
   return Number(verdi);
 }
 
@@ -358,7 +365,10 @@ const VALG = {
   kontraktsforkortelse: { type: 'string' },
   frist: { type: 'string' },
   dato: { type: 'string' },
+  nummer: { type: 'string' },
+  'uten-nummer': { type: 'boolean' },
   dagmulktbelagt: { type: 'boolean' },
+  standardsats: { type: 'boolean' },
   'ikke-dagmulktbelagt': { type: 'boolean' },
   promille: { type: 'string' },
   minstebeloep: { type: 'string' },
@@ -370,6 +380,9 @@ type Valg = keyof typeof VALG;
 const FELLES = ['prosjekt', 'bh', 'te', 'en-totalentreprenoer'];
 const PARTER: Valg[] = ['byggherre', 'totalentreprenoer', 'kontraktsforkortelse'];
 const FRISTER: Valg[] = [
+  'nummer',
+  'uten-nummer',
+  'standardsats',
   'frist',
   'dato',
   'dagmulktbelagt',
@@ -563,7 +576,7 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
             : `dagmulktbelagt, ${beskrivSats(f.satsopplysninger)}: ${
                 f.sats === null ? 'kontraktssummen mangler' : `${kroner(f.sats)} per dag`
               }`;
-        a.skriv(`${f.nummer}. ${f.navn}, ${f.dato}, ${dagmulkt}`);
+        a.skriv(`${f.fristId}. ${betegnelse(f)}, ${f.dato}, ${dagmulkt}`);
       }
       return;
     }
@@ -579,14 +592,14 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       return;
     }
     if (hva === 'fjern') {
-      const nummer = fristnummer(argument);
+      const id = fristId(argument);
       await iDriften(
         utenKontekst(pool)
           .input('prosjekt', sql.NVarChar(4000), prosjekt)
-          .input('nummer', sql.Int, nummer)
+          .input('frist_id', sql.Int, id)
           .execute('koe_drift.fjern_kontraktsfrist')
       );
-      a.skriv(`Frist ${nummer} i ${prosjekt} er fjernet.`);
+      a.skriv(`Frist ${id} i ${prosjekt} er fjernet.`);
       return;
     }
     if (!medFrist)
@@ -607,9 +620,15 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       delensVerdi: tallFra('delens-verdi', 'beloep'),
       beloepPerDag: tallFra('beloep-per-dag', 'beloep'),
     };
-    const oppgitt = Object.values(sats).some((x) => x !== undefined);
+    const oppgitt = v.standardsats === true || Object.values(sats).some((x) => x !== undefined);
     let nySats: Satsopplysninger | null = null;
-    if (sats.beloepPerDag !== undefined) {
+    if (v.standardsats) {
+      if (Object.values(sats).some((x) => x !== undefined))
+        throw new Registreringsfeil(
+          '--standardsats kan ikke stå sammen med --promille, --minstebeloep, --delens-verdi eller --beloep-per-dag.'
+        );
+      nySats = STANDARDSATS;
+    } else if (sats.beloepPerDag !== undefined) {
       if (
         sats.promille !== undefined ||
         sats.minstebeloep !== undefined ||
@@ -633,13 +652,17 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
             };
     }
     const oppgittDagmulkt = v.dagmulktbelagt ? true : v['ikke-dagmulktbelagt'] ? false : undefined;
+    if (v.nummer !== undefined && v['uten-nummer'])
+      throw new Registreringsfeil('Oppgi enten --nummer eller --uten-nummer.');
+    const oppgittNummer = v['uten-nummer'] ? null : v.nummer;
 
     let frist: NyFrist;
-    let nummer: number | null = null;
+    let id: number | null = null;
     if (hva === 'ny') {
       if (oppgittDagmulkt === undefined)
         throw new Registreringsfeil('Oppgi --dagmulktbelagt eller --ikke-dagmulktbelagt.');
       frist = {
+        nummer: oppgittNummer ?? null,
         navn: paakrevd(v.frist, 'frist'),
         dato: paakrevd(v.dato, 'dato'),
         dagmulktbelagt: oppgittDagmulkt,
@@ -647,15 +670,17 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       };
     } else {
       // Det som ikke er oppgitt, står som før, så en retting av datoen fjerner ikke satsen.
-      nummer = fristnummer(argument);
+      const rettes = fristId(argument);
+      id = rettes;
       if (FRISTER.every((navn) => v[navn] === undefined))
         throw new Registreringsfeil('Oppgi det som skal rettes.');
       const naa = (await iDriften(lesFristtabell(pool, prosjekt))).frister.find(
-        (f) => f.nummer === nummer
+        (f) => f.fristId === rettes
       );
-      if (!naa) throw new Registreringsfeil(`Prosjektet har ingen frist med nummeret ${nummer}.`);
+      if (!naa) throw new Registreringsfeil(`Prosjektet har ingen frist med ID-en ${rettes}.`);
       const dagmulktbelagt = oppgittDagmulkt ?? naa.dagmulktbelagt;
       frist = {
+        nummer: oppgittNummer === undefined ? naa.nummer : oppgittNummer,
         navn: v.frist ?? naa.navn,
         dato: v.dato ?? naa.dato,
         dagmulktbelagt,
@@ -664,9 +689,9 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
     }
     if (oppgitt && !frist.dagmulktbelagt)
       throw new Registreringsfeil('Satsen gjelder bare en dagmulktbelagt frist.');
-    const lagret = await settKontraktsfrist(pool, prosjekt, nummer, frist);
+    const lagret = await settKontraktsfrist(pool, prosjekt, id, frist);
     a.skriv(
-      nummer === null
+      id === null
         ? `Frist ${lagret} i ${prosjekt} er registrert.`
         : `Frist ${lagret} i ${prosjekt} er rettet.`
     );
