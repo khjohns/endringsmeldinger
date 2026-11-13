@@ -218,3 +218,12 @@ i VS-U67. Under B kan et utkast med varselet om fristforlengelse stoppe hele bre
 først (VS-U16), også varslene i vederlaget. Under A sender totalentreprenøren to brev samme dag.
 
 Alternativene er prøvd mot vedtakene og i tre forløp av en subagent 13.11, og funnene er rettet.
+
+## Svaret på S-4
+
+Stilt av orkestratoren 13.11 som nummerert liste i tekst, slik spørsmålet står over (commit `298e884`,
+rettet etter kontrollen). Oppdragsgiver svarte ordrett:
+
+> 4. A.
+
+Det betyr S-4 A: VS-U67 endres. Orkestratoren fører endringen i en egen vedtaks-PR.
