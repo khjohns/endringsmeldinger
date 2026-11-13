@@ -11,6 +11,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 import { MERKING, SAK, linje, opprettet, skrevet } from '$lib/kjernesak/__tests__/provejournal';
+import type { TilBrevkontrollen } from '$lib/components/varden/Brevkontroll.svelte';
 import Vederlagssvar from '$lib/components/varden/Vederlagssvar.svelte';
 
 // Svikt, så varselet etter punkt 34.1.2 er et spørsmål i svaret (OV-U15).
@@ -57,11 +58,11 @@ async function svarskjemaet() {
     }),
   });
   await kjernesak.last();
-  const sendt: { kommando: Record<string, unknown>; tekst: string[] }[] = [];
+  const sendt: TilBrevkontrollen[] = [];
   render(Vederlagssvar, {
     kjernesak,
     u: kjernesak.utledning!,
-    onbrevkontroll: (k: { kommando: Record<string, unknown>; tekst: string[] }) => sendt.push(k),
+    onbrevkontroll: (k: TilBrevkontrollen) => sendt.push(k),
     onforkast: () => {},
   });
   return sendt;
@@ -120,7 +121,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     await fireEvent.click(radio('Varslet i tide'));
     await seBrevet();
     expect(sendt).toHaveLength(1);
-    expect(sendt[0]!.tekst.join(' ')).toContain(
+    expect(sendt[0]!.avsnitt.map((a) => a.laast).join(' ')).toContain(
       'Byggherren krever at totalentreprenøren gir et spesifisert tilbud'
     );
   });
@@ -145,7 +146,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     await fireEvent.click(radio('Varslet i tide'));
     await seBrevet();
     // LV-U34: «NS 8407» står bare første gang i brevet.
-    expect(sendt[0]!.tekst.join(' ')).toContain(
+    expect(sendt[0]!.avsnitt.map((a) => a.laast).join(' ')).toContain(
       'Byggherren gjør gjeldende at varselet om regningsarbeid etter punkt 34.4 for P1 ikke ble gitt eller kom for sent.'
     );
   });
