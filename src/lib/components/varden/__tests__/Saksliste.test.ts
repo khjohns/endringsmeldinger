@@ -143,7 +143,12 @@ describe('Sakslisten i Varden', () => {
         har_varsel: false,
         ingen_krav: false,
         krav: { beloep: 420000, antall_uten_fast_beloep: 0 },
-        svar: { resultat: 'delvis_godkjent', beloep: 310000, subsidiaert: true },
+        svar: {
+          resultat: 'delvis_godkjent',
+          beloep: 310000,
+          antall_uten_fast_beloep: 0,
+          subsidiaert: true,
+        },
         enighet: null,
       },
       frist: {
