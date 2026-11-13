@@ -14,7 +14,7 @@
   import { tick, untrack } from 'svelte';
   import { kroner } from '$kjerne/frosset/tekst';
   import { krevdProduktivitet, kravposterI } from '$kjerne/spor/vederlag/format';
-  import type { Kravpost } from '$kjerne/typer';
+  import type { Avsnitt, Kravpost } from '$kjerne/typer';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import {
@@ -76,6 +76,7 @@
     onbrevkontroll: (k: {
       kommando: Record<string, unknown>;
       tekst: string[];
+      avsnitt?: Avsnitt[] | null;
       utdypning?: string;
       detteSender: { tekst: string; lag: string | null }[];
       virkninger: string[];
@@ -504,6 +505,7 @@
     onbrevkontroll({
       kommando,
       tekst: b.tekst,
+      avsnitt: b.avsnitt,
       utdypning: kommando.utdypning,
       detteSender,
       virkninger: [],
