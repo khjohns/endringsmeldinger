@@ -33,7 +33,8 @@
 
   /**
    * Brevet til kontrollen, eller `null` når kjernen ikke lager et brev med tekst: en avvisning,
-   * en programfeil eller saken uten merking. Kalleren leser årsaken av `b`.
+   * en programfeil, saken uten merking eller et brev uten tekst, som et registrert brev. Årsaken
+   * står i `b`, og `brevaarsak(b)` er `null` for de to siste.
    */
   export function kontrollbrev(
     b: Kjernebrev | { programfeil: string } | null

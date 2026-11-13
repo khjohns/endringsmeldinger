@@ -349,8 +349,8 @@
       {#if arbeid.art === 'kontroll'}
         {@const k = arbeid}
         <Brevkontroll
-          {kjernesak}
           {...k}
+          {kjernesak}
           ontilbake={() => (arbeid = k.tilbake)}
           onsendt={sendt}
           onavvist={() => byggPaaNytt(k)}

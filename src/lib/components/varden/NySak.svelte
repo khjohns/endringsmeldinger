@@ -208,19 +208,17 @@
     if (forhold && !ny.tittel && !ny.dato && !ny.endringsordre && !ny.vedlegg) {
       // Kjernen prøver påberopelsen slik serveren gjør, med kravet til beskrivelsen (GR-U15).
       const brev = await brevetMedNummer();
+      const lest = kontrollbrev(brev);
       if (!brev) ny.kjernen = NYSAK.ingenMerking;
       else if ('programfeil' in brev) ny.kjernen = brev.programfeil;
       else if ('avvisning' in brev) {
         if (brev.avvisning.regel === 'BESKRIVELSE_MANGLER')
           ny.beskrivelse = NYSAK.beskriv(felt.beskrivelse.endsWith('pålegget'));
         else ny.kjernen = brev.avvisning.melding;
-      } else {
-        const lest = kontrollbrev(brev);
-        if (!Object.keys(ny).length && lest) {
-          feil = {};
-          kontroll = { ...lest, kommando: kommandoene(utfylling(), KJERNE).paaberopelse };
-          return;
-        }
+      } else if (!Object.keys(ny).length && lest) {
+        feil = {};
+        kontroll = { ...lest, kommando: kommandoene(utfylling(), KJERNE).paaberopelse };
+        return;
       }
     }
     feil = ny;
