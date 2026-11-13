@@ -303,8 +303,7 @@ function dokument(
         utdypninger.set(id, { utdypning: k.utdypning, utdypninger: k.utdypninger });
       // HF-U1, LV-U18 punkt 3: et krav om dager mens forespørselen etter § 33.6.2 er ubesvart,
       // er svaret på den og viser til den (avgrensningen i #1567).
-      const foresporsel =
-        k.spor === 'frist' ? u.spor.frist.foresporsler.find((f) => f.svar === null) : undefined;
+      const foresporsel = u.spor[k.spor].foresporsler.find((f) => f.svar === null);
       const data: Data = {
         krav: [
           {

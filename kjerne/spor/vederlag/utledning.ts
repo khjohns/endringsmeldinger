@@ -244,4 +244,5 @@ export const KONTROLLER_I_VEDERLAGET = {
   kanFaaPassivitet: false,
   leserDatoen: false,
   svaretKanGodtas: () => true,
+  saken: () => {},
 } satisfies Sporskontroller;

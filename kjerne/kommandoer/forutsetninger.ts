@@ -10,7 +10,7 @@
  */
 
 import { kanFaaInnsigelse, type Utledning } from '../utledning/utled.ts';
-import { fristkravErFremmet } from '../spor/frist/utledning.ts';
+import type { ForesporselOgSvar } from '../spor/frist/frysing.ts';
 import { FORUTSETNINGER_I_FRISTEN } from '../spor/frist/kommando.ts';
 import { avvis, erKravpostvarselhjemmel, SPOR } from '../typer.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
@@ -116,16 +116,21 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
             'Innsigelsen må gjelde et varsel, et krav eller et svar fra motparten.'
           );
     case 'svare_paa_foresporsel': {
-      // VS-U27: en forespørsel fra appen. KA-U1: én begrunnelse, og ikke etter at et krav har svart.
-      const f = u.spor.frist.foresporsler.find((x) => x.foresporsel === h.gjelder);
-      if (!f)
-        return avvis(
-          'INGEN_FORESPORSEL',
-          'Begrunnelsen må gjelde en forespørsel etter § 33.6.2 fra byggherren.'
-        );
-      if (f.svar !== null)
-        return avvis('FORESPORSEL_BESVART', 'Forespørselen er allerede besvart.');
-      return fristenErLukket(u);
+      // VS-U27: en forespørsel fra appen, i sporet som har den.
+      for (const spor of SPOR) {
+        const f = u.spor[spor].foresporsler.find((x) => x.foresporsel === h.gjelder);
+        const foresporsel = forutsetningerI(spor).foresporsel;
+        if (f && foresporsel)
+          return foresporsel.svare(
+            u,
+            f,
+            u.forholdAvvist ? avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT) : null
+          );
+      }
+      return avvis(
+        'INGEN_FORESPORSEL',
+        'Begrunnelsen må gjelde en forespørsel etter § 33.6.2 fra byggherren.'
+      );
     }
     case 'korrigere':
       return korrigering(h.gjelder, u);
@@ -148,15 +153,6 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
 const AVSLAGET_GODTATT =
   'TE har godtatt svaret på grunnlaget, som avslår det eller påberoper preklusjon, og saken er lukket (GR-U27).';
 
-/** Et utsagn i fristen som ikke er et krav, når sporet er lukket (GR-U27, GR-U5, KA-U12). */
-function fristenErLukket(u: Utledning): Avvisning | null {
-  if (u.forholdAvvist) return avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT);
-  if (u.spor.frist.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-  if (u.spor.frist.ingenKrav)
-    return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves fristforlengelse.');
-  return null;
-}
-
 /** KA-U1, HF-U8: avvisningen sier ikke at det eldre svaret er avslått eller har falt bort. */
 export const ELDRE_SVAR =
   'Aksepten må gjelde byggherrens gjeldende svar på kravet. Et eldre svar kan ikke godtas i løsningen. Det er en begrensning i løsningen, og svaret er ikke avslått eller falt bort av det (KA-U1, HF-U8).';
@@ -173,6 +169,19 @@ export interface Sporsforutsetninger {
   trekket(u: Utledning): Avvisning | null;
   /** Det i sporet som hindrer TEs aksept av gjeldende svar, når det ikke er enighet. */
   aksepten(u: Utledning): Avvisning | null;
+  /** Forespørselen etter § 33.6.2 i sporet, eller `null` når sporet ikke har den. */
+  foresporsel: Foresporselsforutsetninger | null;
+}
+
+/** Forutsetningene for forespørselen i et spor (`Sporsforutsetninger.foresporsel`). */
+export interface Foresporselsforutsetninger {
+  /** Det som hindrer byggherren i å sende forespørselen. */
+  sende(u: Utledning, paaberopelseSendt: boolean): Avvisning | null;
+  /**
+   * Det som hindrer TEs begrunnelse på forespørselen `f`. `avslaget` er avvisningen når TE har
+   * godtatt avslaget på grunnlaget (GR-U27).
+   */
+  svare(u: Utledning, f: ForesporselOgSvar, avslaget: Avvisning | null): Avvisning | null;
 }
 
 /** Forutsetningene i hvert spor. */
@@ -272,35 +281,12 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       }
       return null;
     }
-    case 'sende_foresporsel':
-      if (!paaberopelseSendt)
-        return avvis(
-          'PAABEROPELSE_IKKE_SENDT',
-          'Grunnlaget må være sendt før du kan sende forespørselen.'
-        );
-      if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-      if (s.ingenKrav)
-        return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves fristforlengelse.');
-      // VS-U19, VS-U33: fra appen så lenge TE ikke har krevd dager i appen.
-      if (fristkravErFremmet(u))
-        return avvis(
-          'FRISTKRAV_SENDT',
-          'TE har krevd dager i appen, så forespørselen etter § 33.6.2 kan ikke sendes.'
-        );
-      // VS-U30: ingen ny forespørsel fra appen etter TEs begrunnelse etter annet ledd b.
-      if (s.foresporsler.some((f) => f.svar !== null && !f.medKrav))
-        return avvis(
-          'FORESPORSEL_BEGRUNNET',
-          'TE har svart på en forespørsel med en begrunnelse etter § 33.6.2 annet ledd b, så en ny forespørsel kan ikke sendes fra appen.'
-        );
-      // VS-U31: høyst én forespørsel fra appen i saken. En registrert forespørsel gjør saken
-      // uforstått (format/leser.ts); et brev registrert som dokumentasjon teller ikke (OV-U4).
-      if (s.foresporsler.length)
-        return avvis(
-          'FORESPORSEL_SENDT',
-          'Forespørselen etter § 33.6.2 er alt sendt fra appen. En ny forespørsel sendes utenfor appen.'
-        );
-      return null;
+    case 'sende_foresporsel': {
+      const foresporsel = forutsetningerI(h.spor).foresporsel;
+      return foresporsel
+        ? foresporsel.sende(u, paaberopelseSendt)
+        : avvis('INGEN_FORESPORSEL_I_SPORET', 'Sporet har ingen forespørsel etter § 33.6.2.');
+    }
     case 'svare':
       if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `TE har ikke sendt ${kravet(h.spor)}.`);
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');

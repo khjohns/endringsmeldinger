@@ -39,6 +39,7 @@ export const KONTROLLER_I_FORHOLDET = {
   // Et frafall av pålegget kan TE ikke godta (GR-U9), så det står ikke som et svar som ikke
   // er godtatt. Unntaket gjelder bare forholdet (arbeidsvalget 20.10 i #1050).
   svaretKanGodtas: (u) => !u.frafalt,
+  saken: () => {},
 } satisfies Sporskontroller;
 
 /**

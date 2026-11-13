@@ -23,8 +23,8 @@ import {
 } from './frysing.ts';
 
 /**
- * Kontrollene i fristen, som `utledning/utled.ts` slår opp gjennom `KONTROLLER`. Lesereglene
- * for forespørselen står under; kravene og svarene i fristen har ingen egne (#1745).
+ * Kontrollene i fristen, som `utledning/utled.ts` slår opp gjennom `KONTROLLER`: lesereglene
+ * for forespørselen etter § 33.6.2 (`saken`). Kravene og svarene i fristen har ingen egne (#1745).
  */
 export const KONTROLLER_I_FRISTEN = {
   kravet: () => null,
@@ -33,10 +33,25 @@ export const KONTROLLER_I_FRISTEN = {
   kanFaaPassivitet: false,
   leserDatoen: false,
   svaretKanGodtas: () => true,
+  saken: (s, bakover, ugyldig) => {
+    // VS-U33: kravene om dager fremmet i appen, også de uten virkning.
+    const fristkravIAppen: Krav[] = [];
+    for (const d of s.dokumenter)
+      for (const k of d.krav) if (erFristkravIAppen(d, k)) fristkravIAppen.push(k);
+    kontrollerForesporslene(s.foresporsler, fristkravIAppen, s.henvisninger, bakover, ugyldig);
+    kontrollerSvaretPaaForesporselen(
+      s.kravMedUten,
+      fristkravIAppen,
+      s.elementer,
+      s.besvart,
+      bakover,
+      ugyldig
+    );
+  },
 } satisfies Sporskontroller;
 
 /** VS-U19, VS-U33: forespørselen sendes før TE har krevd dager i appen. */
-export function kontrollerForesporslene(
+function kontrollerForesporslene(
   foresporsler: readonly Utsagn<'foresporsel'>[],
   fristkravIAppen: readonly Krav[],
   henvisninger: readonly Henvisning[],
@@ -57,7 +72,7 @@ export function kontrollerForesporslene(
  * et krav om dager i appen mens forespørselen er ubesvart, er svaret og viser til den
  * (avgrensningen i #1567). Et krav i et registrert brev svarer ikke (OV-U4).
  */
-export function kontrollerSvaretPaaForesporselen(
+function kontrollerSvaretPaaForesporselen(
   kravMedUten: ReadonlyMap<string, Krav>,
   fristkravIAppen: readonly Krav[],
   elementer: Record<string, Element>,

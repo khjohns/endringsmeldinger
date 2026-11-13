@@ -42,7 +42,7 @@ export function handlingsnoekler(k: Kommando): Handlingsnoekkel[] {
     case 'ikke_i_saken':
       return [{ type: 'registrere_brev' }];
     case 'foresporsel':
-      return [{ type: 'sende_foresporsel', spor: 'frist' }];
+      return [{ type: 'sende_foresporsel', spor: k.spor }];
     case 'foresporselssvar':
       return [{ type: 'svare_paa_foresporsel', gjelder: k.gjelder }];
     case 'bestridelse':

@@ -453,6 +453,7 @@ export const FORUTSETNINGER_I_VEDERLAGET = {
   kravet: 'kravet om vederlagsjustering',
   trekket: () => null,
   aksepten: () => null,
+  foresporsel: null,
 } satisfies Sporsforutsetninger;
 
 /**
