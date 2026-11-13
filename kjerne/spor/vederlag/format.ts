@@ -24,6 +24,7 @@ import {
   type Standpunkt,
   type Standpunktsart,
   type Standpunktsvirkning,
+  type Svar,
   type Vederlagsutregning,
 } from '../../typer.ts';
 import { kontrollerRadene } from '../poster/format.ts';
@@ -275,6 +276,43 @@ export const krevdSamlet = (krav: Krav): Oere =>
   (krevdProduktivitet(krav) ?? 0n) +
   (krevdRigg(krav) ?? 0n);
 
+/**
+ * Summen av de faste beløpene i øre, eller `null` når ingen post har et fast beløp, og antallet
+ * kravposter uten fast beløp, som summen ikke regner med (OV-U73, KA-U61, KA-U72).
+ */
+export interface FasteBeloep {
+  sum: Oere | null;
+  utenFastBeloep: number;
+}
+
+/**
+ * Det TE krever: `krevdSamlet`, og kravpostene etter en beregningsregel, som ikke har et krevd
+ * beløp (KA-U61). Et fast beløp er alltid over 0 kr i skjemaet, så 0 kr betyr ingen post med
+ * fast beløp.
+ */
+export function fasteBeloepIKravet(krav: Krav): FasteBeloep {
+  const samlet = krevdSamlet(krav);
+  return {
+    sum: samlet > 0n ? samlet : null,
+    utenFastBeloep: kravposterI(krav).filter((p) => p.oppgjoersform !== 'tilbud').length,
+  };
+}
+
+/**
+ * Det byggherren godtar om ingen påberopelse fører fram: summen av beløpene i standpunktene, som
+ * leseren har kontrollert mot utregningen (OV-U31), og kravpostene uten fast beløp
+ * (`utenFastBeloep`, KA-U72). Uten et standpunkt med beløp er summen `null`.
+ */
+export function fasteBeloepISvaret(svar: Pick<Svar, 'standpunkter'>): FasteBeloep {
+  const beloepene = svar.standpunkter.flatMap((s) =>
+    s.art === 'beloep' && s.godkjent !== undefined ? [beloep(s.godkjent)!] : []
+  );
+  return {
+    sum: beloepene.length ? beloepene.reduce((a, b) => a + b, 0n) : null,
+    utenFastBeloep: utenFastBeloep(svar.standpunkter).size,
+  };
+}
+
 /** Utregningen i et svar på vederlaget. */
 export const utregningIVederlaget = (utregning: Record<string, unknown>): Vederlagsutregning =>
   utregning as unknown as Vederlagsutregning;
@@ -514,7 +552,7 @@ const OPPGJOERSFORM_I_HJEMMELEN = {
  * Kravpostene uten fast beløp i svaret: tilbudet er ikke akseptert (KA-U72), eller kravposten
  * følger en beregningsregel (OV-U95 punkt 5).
  */
-const utenFastBeloep = (ut: Standpunkt[]): Set<string> =>
+export const utenFastBeloep = (ut: readonly Standpunkt[]): Set<string> =>
   new Set(
     ut.flatMap((s) =>
       s.art === 'oppgjoersform' && (!s.aksepterer || s.hjemmel !== '34.2.2') ? [s.gjelder] : []

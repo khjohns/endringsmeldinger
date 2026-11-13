@@ -20,14 +20,7 @@ import {
   laget,
   type Svarvurdering,
 } from '../../frosset/byggeklosser.ts';
-import {
-  kravposterI,
-  krevdIKravposten,
-  krevdRigg,
-  krevdSamlet,
-  OPPGJOERSHJEMMEL,
-  vederlagsinnhold,
-} from './format.ts';
+import { kravposterI, krevdRigg, OPPGJOERSHJEMMEL, vederlagsinnhold } from './format.ts';
 import { erObjekt, feilI, objekt } from '../../format/skjema.ts';
 import { brukteBetegnelser } from '../poster/utledning.ts';
 import {
@@ -37,7 +30,6 @@ import {
   nesteBetegnelse,
   varselhjemmel,
 } from './utledning.ts';
-import { erBeloepetGodkjentFullt } from '../../regler/vederlag.ts';
 import { beloep, BroekdelAvOere, heleOere, tilTall } from '../../regler/beloep.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
@@ -213,37 +205,6 @@ export const KRAVFORM_I_VEDERLAGET = {
   varselVedKravet: false,
 } satisfies Kravform;
 
-/** Avgrensningene i svaret på vederlaget som krever en begrunnelse (`avgrensninger`). */
-function avgrensningerIVederlaget(
-  v: Svarvurdering,
-  server: Record<string, unknown>,
-  krav: Krav
-): string[] {
-  const ut: string[] = [];
-  if (v.hovedkrav_varslet_i_tide === false)
-    ut.push('gjør gjeldende at varselet etter § 34.1.2 kom for sent');
-  // VS-U5: begrensningen etter § 34.1.3.
-  if (v.produktivitet_varslet_i_tide === false)
-    ut.push('gjør gjeldende at varselet etter § 34.1.3 kom for sent');
-  const ikkeAkseptert = kravpostvurderinger(v, krav).filter(
-    ({ svar }) => svar.aksepterer === false
-  );
-  if (ikkeAkseptert.length) ut.push('ikke aksepterer tilbudet (§ 34.2.2)');
-  // B-13: beløpet for postene svaret tar stilling til. KA-U72, OV-U73: en kravpost der tilbudet
-  // ikke er akseptert, har ikke beløp og regnes ikke med.
-  const godkjent = beloep(
-    (server.subsidiaert_godkjent_beloep ?? server.godkjent_beloep) as number | undefined
-  );
-  if (godkjent === null)
-    throw new Error('Utregningen av vederlaget har ikke godkjent beløp (#508).');
-  const krevd = ikkeAkseptert.reduce(
-    (sum, { post }) => sum - (krevdIKravposten(krav, post) ?? 0n),
-    krevdSamlet(krav)
-  );
-  if (!erBeloepetGodkjentFullt(krevd, godkjent)) ut.push('ikke godkjenner hele beløpet');
-  return ut;
-}
-
 /** KA-U56 og KA-U75: kravpostene mot de tidligere kravversjonene, og VS-U50: varselet for posten. */
 function kravpostsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
   if (k.spor !== 'vederlag') return null;
@@ -274,7 +235,7 @@ function innsigelseMotVarselet(gjelder: string, u: Utledning, regler: Regelsett)
 
 /** Nyttelastkontrollen i vederlaget (`nyttelastkontroll`). */
 export const NYTTELAST_I_VEDERLAGET = {
-  avgrensninger: avgrensningerIVederlaget,
+  begrunnelse: () => null,
   kravsperre: kravpostsperre,
   innsigelse: innsigelseMotVarselet,
   utdypning: () => null,

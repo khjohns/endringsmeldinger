@@ -142,8 +142,13 @@ describe('Sakslisten i Varden', () => {
         kravet_staar: true,
         har_varsel: false,
         ingen_krav: false,
-        krav: { beloep: 420000, oppgjoersformer: ['tilbud'] },
-        svar: { resultat: 'delvis_godkjent', beloep: 310000, subsidiaert: true },
+        krav: { beloep: 420000, antall_uten_fast_beloep: 0 },
+        svar: {
+          resultat: 'delvis_godkjent',
+          beloep: 310000,
+          antall_uten_fast_beloep: 0,
+          subsidiaert: true,
+        },
         enighet: null,
       },
       frist: {
@@ -176,7 +181,7 @@ describe('Sakslisten i Varden', () => {
       expect(r.textContent).not.toContain(ute);
   });
 
-  it('cellen sier «Varslet», beregningsregelen eller «Ikke krevd» når det ikke er noe beløp eller dager (MM-U37, OV-U43)', () => {
+  it('cellen sier «Ingen poster med fast beløp», «Varslet» eller «Ikke krevd» når det ikke er noe beløp eller dager, og antallet poster uten fast beløp under summen (MM-U37, OV-U43, arbeidsvalget 12.11 i #1779)', () => {
     const vederlag = (krav: Sakslinje['vederlag']['krav'], betegnelse: 'varslet' | null) => ({
       ...ingenting,
       betegnelse,
@@ -192,12 +197,12 @@ describe('Sakslisten i Varden', () => {
         lagSakslinje({
           sak_id: 'A',
           sakstittel: 'Regning',
-          vederlag: vederlag({ beloep: 0, oppgjoersformer: ['regningsarbeid'] }, null),
+          vederlag: vederlag({ beloep: null, antall_uten_fast_beloep: 1 }, null),
         }),
         lagSakslinje({
           sak_id: 'B',
           sakstittel: 'Enhet',
-          vederlag: vederlag({ beloep: 0, oppgjoersformer: ['enhetspriser'] }, null),
+          vederlag: vederlag({ beloep: null, antall_uten_fast_beloep: 2 }, null),
         }),
         lagSakslinje({
           sak_id: 'C',
@@ -218,22 +223,28 @@ describe('Sakslisten i Varden', () => {
         lagSakslinje({
           sak_id: 'E',
           sakstittel: 'Blandet',
-          vederlag: vederlag(
-            { beloep: 210000, oppgjoersformer: ['tilbud', 'regningsarbeid', 'enhetspriser'] },
-            null
-          ),
+          vederlag: vederlag({ beloep: 210000, antall_uten_fast_beloep: 2 }, null),
         }),
       ],
     });
     const celler = (t: string) =>
       [...rad(t).querySelectorAll('.krevd .verdi')].map((c) => c.textContent);
-    expect(celler('Regning')).toEqual(['Regningsarbeid', 'Ikke krevd']);
+    expect(celler('Regning')).toEqual(['Ingen poster med fast beløp', 'Ikke krevd']);
     // Et anslag ved enhetspriser er ikke et krav om et beløp, så beløpet vises ikke (svaret 02.11).
-    expect(celler('Enhet')).toEqual(['Enhetspriser', 'Ikke krevd']);
+    expect(celler('Enhet')).toEqual(['Ingen poster med fast beløp', 'Ikke krevd']);
+    expect(rad('Regning').querySelector('.krevd .uten')).toBeNull();
     expect(celler('Varsel')).toEqual(['Varslet', 'Varslet']);
     expect(celler('Ingenting')).toEqual(['Ikke krevd', 'Ikke krevd']);
-    // Et blandet krav har summen av de faste beløpene og beregningsreglene ved siden av (KA-U61, #1663).
-    expect(celler('Blandet')[0]?.replace(/\s+/g, ' ')).toBe('210 000 kr og andre oppgjørsformer');
+    // Et blandet krav har summen av de faste beløpene og antallet poster uten fast beløp under,
+    // som i «Tilknyttede krav» (KA-U61, arbeidsvalget 12.11 i #1779).
+    expect(celler('Blandet')[0]?.replace(/\s+/g, ' ')).toBe('210 000 kr');
+    expect(rad('Blandet').querySelector('.krevd .uten')?.textContent).toBe(
+      '2 poster uten fast beløp'
+    );
+    // Lest som tekst står summen og antallet med mellomrom mellom.
+    expect(rad('Blandet').querySelector('.krevd .celle')?.textContent?.replace(/\s+/g, ' ')).toBe(
+      '210 000 kr 2 poster uten fast beløp'
+    );
   });
 
   it('tallene i en sak i en endringsordre, et trukket krav og en sak TE har avsluttet, er dempet, og merket sier hva TE har gjort (MM-U38)', () => {
@@ -243,7 +254,7 @@ describe('Sakslisten i Varden', () => {
       kravet_staar,
       har_varsel: false,
       ingen_krav: false,
-      krav: { beloep: 100000, oppgjoersformer: ['tilbud' as const] },
+      krav: { beloep: 100000, antall_uten_fast_beloep: 0 },
       svar: null,
       enighet: null,
     });
@@ -316,15 +327,13 @@ describe('Sakslisten i Varden', () => {
       kravet_staar,
       har_varsel: false,
       ingen_krav: false,
-      krav: {
-        beloep,
-        oppgjoersformer: metode === 'tilbud' ? [metode] : ['tilbud' as const, metode],
-      },
+      krav: { beloep, antall_uten_fast_beloep: metode === 'tilbud' ? 0 : 1 },
       svar: null,
       enighet: null,
     });
-    // Serveren gir summen av de faste beløpene (OV-U73), så et krav med bare en beregningsregel har 0.
-    const regning = { ...v(0), krav: { beloep: 0, oppgjoersformer: ['regningsarbeid' as const] } };
+    // Serveren gir summen av de faste beløpene (OV-U73), og ingen sum for et krav med bare en
+    // beregningsregel.
+    const regning = { ...v(0), krav: { beloep: null, antall_uten_fast_beloep: 1 } };
     const f = (dager: number) => ({
       ...ingenting,
       kravet_staar: true,
@@ -494,7 +503,7 @@ describe('Sakslisten i Varden', () => {
             kravet_staar: true,
             har_varsel: false,
             ingen_krav: false,
-            krav: { beloep: 1000, oppgjoersformer: ['tilbud'] },
+            krav: { beloep: 1000, antall_uten_fast_beloep: 0 },
             svar: null,
             enighet: null,
           },

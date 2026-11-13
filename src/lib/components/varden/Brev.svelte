@@ -8,6 +8,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { Avsnitt, Part } from '$kjerne/typer';
+  import { cellene, erKravpostpunkt, erLagslinje, OVERSIKTEN } from '$kjerne/frosset/tekst';
   import { organisasjonene } from './kontrakt';
   import { MOTTATT, PARTNAVN } from './tekster';
 
@@ -111,7 +112,44 @@
     {#each avsnitt as a, i (i)}
       {#if a.punkt !== undefined}
         {#if a.overskrift}<h3>{a.overskrift}</h3>{/if}
-        {#each underOverskriften(a) as del, k (k)}<p>{del}</p>{/each}
+        {#if a.punkt === OVERSIKTEN}
+          {#each underOverskriften(a) as del, k (k)}
+            {@const [kolonner, ...rader] = cellene(del)}
+            <!-- Tabellen kan rulles på smal skjerm, så rammen kan få fokus med tastaturet (WCAG 2.1.1). -->
+            <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+            <div class="tabell" role="region" aria-label={a.overskrift} tabindex="0">
+              <table>
+                <thead>
+                  <tr
+                    >{#each kolonner as c, m (m)}<th scope="col">{c}</th>{/each}</tr
+                  >
+                </thead>
+                <tbody>
+                  {#each rader as rad, r (r)}
+                    <tr class:sum={r === rader.length - 1}>
+                      {#each rad as c, m (m)}
+                        {#if m === 0}<th scope="row">{c}</th>{:else}<td>{c}</td>{/if}
+                      {/each}
+                    </tr>
+                  {/each}
+                </tbody>
+              </table>
+            </div>
+          {/each}
+        {:else}
+          {#each underOverskriften(a) as del, k (k)}
+            {#if erLagslinje(del)}
+              {@const [etikett, ...vilkaar] = del.split(', ')}
+              <p class="lagslinje">
+                <b>{etikett}</b>{vilkaar.length ? `, ${vilkaar.join(', ')}` : ''}
+              </p>
+            {:else if k === 0 && erKravpostpunkt(a.punkt) && del.startsWith(`${a.punkt} `)}
+              <p class="postlinje"><b>{a.punkt}</b>{del.slice(a.punkt!.length)}</p>
+            {:else}
+              <p>{del}</p>
+            {/if}
+          {/each}
+        {/if}
       {:else}
         <p>{a.laast}</p>
       {/if}
@@ -244,6 +282,69 @@
   }
   .tekst .utdypning {
     white-space: pre-wrap;
+  }
+  /* Lagslinjen står over standpunktet i laget (LV-U34); etiketten bærer vekten. */
+  .tekst .lagslinje {
+    color: var(--ink-3);
+    font-size: 0.875em;
+  }
+  .tekst .lagslinje b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .tekst .lagslinje + p {
+    margin-top: var(--spacing-1);
+  }
+  /* Kravposten med betegnelsen og en venstrelinje, som i prototype v4 i BF-14 (#1849). */
+  .tekst .postlinje {
+    padding-left: var(--spacing-3);
+    border-left: 2px solid var(--rule-strong-color);
+  }
+  .tekst .postlinje b {
+    font-weight: 600;
+  }
+  /* En skygge i kanten viser at tabellen fortsetter når den rulles på smal skjerm (design-review #1858). */
+  .tabell {
+    overflow-x: auto;
+    margin-top: var(--spacing-2);
+    background:
+      linear-gradient(to right, var(--surface) 30%, transparent) left / 24px 100% no-repeat local,
+      linear-gradient(to left, var(--surface) 30%, transparent) right / 24px 100% no-repeat local,
+      linear-gradient(to right, color-mix(in srgb, var(--ink) 18%, transparent), transparent) left /
+        10px 100% no-repeat scroll,
+      linear-gradient(to left, color-mix(in srgb, var(--ink) 18%, transparent), transparent) right /
+        10px 100% no-repeat scroll;
+  }
+  .tabell:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
+  }
+  .tabell table {
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+  .tabell th,
+  .tabell td {
+    padding: var(--spacing-1) var(--spacing-3);
+    border-bottom: var(--rule);
+    text-align: right;
+    white-space: nowrap;
+  }
+  .tabell th[scope='row'],
+  .tabell th:first-child {
+    text-align: left;
+    padding-left: 0;
+  }
+  .tabell thead th {
+    font-weight: 600;
+  }
+  .tabell th[scope='row'] {
+    font-weight: 400;
+  }
+  .tabell tr.sum > * {
+    font-weight: 600;
+    border-top: 1px solid var(--rule-strong-color);
+    border-bottom: 0;
   }
   .fot {
     margin-top: var(--spacing-8);

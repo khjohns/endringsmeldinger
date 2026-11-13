@@ -241,13 +241,14 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
 - **Appen avgjør ikke:** om begrunnelsen er tilstrekkelig, eller kom i tide.
 - **Appen:** *registrere og vise* ([VS-U3](plans/vedtak.md#vs-u3)). Kravet til et brev fra
   appen og den senere begrunnelsen står i [KA-U18](plans/vedtak.md#ka-u18), og
-  [KA-U24](plans/vedtak.md#ka-u24) utvider kravet til alle spor og kategorier.
-- **Vedtak:** [KA-U18](plans/vedtak.md#ka-u18). [KA-U24](plans/vedtak.md#ka-u24). [KA-U34](plans/vedtak.md#ka-u34). [KA-U35](plans/vedtak.md#ka-u35). B-13 begrunnelsestekst (T-a, 24.09).
+  [KA-U43](plans/vedtak.md#ka-u43) og [KA-U46](plans/vedtak.md#ka-u46) sier når den kreves.
+- **Vedtak:** [KA-U18](plans/vedtak.md#ka-u18). [KA-U43](plans/vedtak.md#ka-u43). [KA-U46](plans/vedtak.md#ka-u46). [KA-U34](plans/vedtak.md#ka-u34). [KA-U35](plans/vedtak.md#ka-u35). B-13 begrunnelsestekst (T-a, 24.09).
   [MM-U12](plans/vedtak.md#mm-u12).
   [LV-U1](plans/vedtak.md#lv-u1).
-- **Kjernen i dag:** bygget. Begrunnelsen i svaret er utdypningen under
-  svarets låste tekst i brevteksten, én per svar ([KA-U31](plans/vedtak.md#ka-u31)), og et svar med en
-  avgrensning etter KA-U24, også et frafall ([KA-U32](plans/vedtak.md#ka-u32)), avvises uten den
+- **Kjernen i dag:** bygget. Begrunnelsen i svaret på forholdet og vederlaget er utdypningen
+  under punktet den gjelder i brevteksten ([KA-U43](plans/vedtak.md#ka-u43)). Den kreves bare når
+  byggherren avslår kravet på endringsordre eller påberoper at varselet etter punkt 32.2 kom for
+  sent ([KA-U46](plans/vedtak.md#ka-u46) punkt 1–3, [KA-U47](plans/vedtak.md#ka-u47)), og ellers avvises svaret
   (`BEGRUNNELSE_MANGLER`). Den senere begrunnelsen er utsagnet `begrunnelse`, som
   `gjelder` svaret: fra appen med byggherrens tekst som utdypning (KA-U34), og
   registrert uten tekst, med datoen og brevet som vedlegg (KA-U35).
@@ -367,7 +368,7 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
   *Registrere og vise* femte ledd som veiledning ([KA-U23](plans/vedtak.md#ka-u23)).
   Annet og fjerde ledd er ikke plassert ([#381](https://github.com/khjohns/endringsmeldinger/issues/381)).
 - **Vedtak:** [VS-U13](plans/vedtak.md#vs-u13). [KA-U23](plans/vedtak.md#ka-u23).
-  [KA-U24](plans/vedtak.md#ka-u24): begrunnelse også for et avslag av grunnlaget.
+  [KA-U46](plans/vedtak.md#ka-u46): begrunnelsen er valgfri, unntatt ved avslag av kravet på endringsordre.
   [KA-U13](plans/vedtak.md#ka-u13): trekket står i FORCE_MAJEURE.
   [GR-U11](plans/vedtak.md#gr-u11): § 32.2 gjelder ikke.
 - **Kjernen i dag:** ikke bygget (lest på `d7f0740`). Hovedkategorien er en lukket liste
@@ -501,8 +502,8 @@ endringsordre og forsering, etter [OV-U1](plans/vedtak.md#ov-u1).
   09.10). B-13 «godkjent» bare ved hele kravet (24.09, merknaden 04.10).
   [VS-U1](plans/vedtak.md#vs-u1): TEs innsigelse mot et sent svar. [MP-U5](plans/vedtak.md#mp-u5) og
   [MP-U6](plans/vedtak.md#mp-u6) (gjelder
-  metodeprøven). [KA-U24](plans/vedtak.md#ka-u24): et svar fra appen som avslår
-  eller avgrenser, har en begrunnelse.
+  metodeprøven). [KA-U46](plans/vedtak.md#ka-u46): begrunnelsen i svaret på fristen er
+  valgfri.
 - **Kjernen i dag:** bygget for svaret med dager og de subsidiære dagene
   (`UTREGNING.frist`, `beregnFrist`). Ikke bygget: frist og passivitet i
   visningen.

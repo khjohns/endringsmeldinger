@@ -12,10 +12,18 @@ import { forhaandsvis, laastTekst, utledJournal, vurder } from '../kommandoer/sk
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { type Svarvurdering } from '../frosset/byggeklosser.ts';
 import { enighetensVirkning } from '../utledning/utled.ts';
-import { BETEGNELSER, betegnelse, visning } from '../utledning/visning.ts';
+import {
+  avsluttetAvTe,
+  BETEGNELSER,
+  betegnelse,
+  harVarsel,
+  kravetStaar,
+  visning,
+} from '../utledning/visning.ts';
+import { fasteBeloepIKravet, fasteBeloepISvaret } from '../spor/vederlag/format.ts';
 import { SPOR, type Journalrad, type Part, type Spor } from '../typer.ts';
 import { KJERNE } from '../versjon.ts';
-import { medKravpostIder, mellomlager, P1 } from './klient.ts';
+import { medKravpostIder, medP1IkkeAkseptert, mellomlager, P1 } from './klient.ts';
 
 class Sak {
   private klokke = Date.UTC(2026, 9, 1, 8, 0, 0);
@@ -72,7 +80,10 @@ class Sak {
         { krav, paaberopelse: u.spor.forhold.gjeldendeKrav },
         KJERNE.regler
       ),
-      utdypning: 'Byggherrens begrunnelse.',
+      // KA-U47: begrunnelsen står i punktet om forholdet.
+      ...(spor === 'forhold'
+        ? { utdypninger: { forhold: 'Byggherrens begrunnelse.' } }
+        : { utdypning: 'Byggherrens begrunnelse.' }),
     };
   }
 
@@ -261,6 +272,10 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
     ).toEqual({ forhold: 'trukket', vederlag: 'trukket', frist: 'trukket' });
   });
 
+  it('et trukket krav i en sak der avslaget på forholdet er godtatt, er «Trukket», ikke «Krav sendt» (MM-U30, #1140)', () => {
+    expect(betegnelser(forloepA, trekk('vederlag'), aksept('forhold')).vederlag).toBe('trukket');
+  });
+
   it('en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at avslaget på forholdet er godtatt (MM-U31)', () => {
     const avslag: Steg = (sak) =>
       sak.send('BH', {
@@ -355,5 +370,96 @@ describe('sakens status og etikettene (MM-U22, MM-U23, #1136)', () => {
     expect(
       vistEtter(paaberopelse, varselIFristen, trekk('forhold')).v.spor.frist.etiketter
     ).toContain('trukket');
+  });
+});
+
+const utledet = (...steg: Steg[]) => {
+  const sak = new Sak();
+  for (const s of steg) s(sak);
+  return utledJournal(sak.journal, KJERNE);
+};
+
+describe('det sakslisten leser av kjernen (#1779)', () => {
+  it('kravet står til det er trukket eller TE har avsluttet saken (svar 2 fra oppdragsgiver 20.10 i #1029)', () => {
+    const u = utledet(forloepA);
+    expect([kravetStaar(u, 'vederlag'), kravetStaar(u, 'frist'), avsluttetAvTe(u)]).toEqual([
+      true,
+      true,
+      false,
+    ]);
+    expect(kravetStaar(utledet(forloepA, trekk('vederlag')), 'vederlag')).toBe(false);
+    expect(kravetStaar(utledet(forloepA, trekk('vederlag')), 'frist')).toBe(true);
+  });
+
+  it('når TE godtar avslaget på forholdet eller trekker påberopelsen, er saken avsluttet og ingen krav står (GR-U27, GR-U5)', () => {
+    for (const u of [utledet(forloepA, aksept('forhold')), utledet(krav, trekk('forhold'))]) {
+      expect(avsluttetAvTe(u)).toBe(true);
+      expect(kravetStaar(u, 'vederlag')).toBe(false);
+    }
+  });
+
+  it('et varsel løsningen kjenner, står uavhengig av betegnelsen (OV-U5, MM-U37)', () => {
+    const u = utledet(paaberopelse, varselIFristen, foresporsel);
+    expect(betegnelse(u, 'frist')).toBe('spesifisert_krav_etterspurt');
+    expect([harVarsel(u, 'frist'), harVarsel(u, 'vederlag')]).toEqual([true, false]);
+  });
+
+  it('kravet og svaret har summen av de faste beløpene og antallet kravposter uten fast beløp (OV-U31, KA-U61, KA-U72, arbeidsvalget 12.11 i #1779)', () => {
+    const blandet: Steg = (sak) =>
+      sak.send('TE', {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: {
+          kravposter: [
+            { beskrivelse: 'Fundamentering', oppgjoersform: 'tilbud', beloep: 100000 },
+            { beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid' },
+          ],
+        },
+        utdypning: UTDYPNING,
+      });
+    const svar =
+      (vurderinger: Record<string, unknown>): Steg =>
+      (sak) =>
+        sak.send('BH', { type: 'brev', svar: [sak.svar('vederlag', vurderinger)] });
+    const delvis = utledet(
+      paaberopelse,
+      blandet,
+      svar({
+        kravposter: [
+          { gjelder: 'P1', vurdering: 'delvis', godkjent_beloep: 60000, aksepterer: true },
+          { gjelder: 'P2', aksepterer: true },
+        ],
+      })
+    ).spor.vederlag;
+    expect(fasteBeloepIKravet(delvis.gjeldendeKrav!)).toEqual({
+      sum: 10000000n,
+      utenFastBeloep: 1,
+    });
+    expect(fasteBeloepISvaret(delvis.gjeldendeSvar!)).toEqual({ sum: 6000000n, utenFastBeloep: 1 });
+    const regel: Steg = (sak) =>
+      sak.send('TE', {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: { kravposter: [{ beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid' }] },
+        utdypning: UTDYPNING,
+      });
+    const ikkeAkseptert = utledet(
+      paaberopelse,
+      vederlagskrav,
+      svar(medP1IkkeAkseptert({ kravposter: [] }, 'regningsarbeid'))
+    ).spor.vederlag;
+    expect(fasteBeloepISvaret(ikkeAkseptert.gjeldendeSvar!)).toEqual({
+      sum: null,
+      utenFastBeloep: 1,
+    });
+    expect(fasteBeloepIKravet(utledet(paaberopelse, regel).spor.vederlag.gjeldendeKrav!)).toEqual({
+      sum: null,
+      utenFastBeloep: 1,
+    });
+  });
+
+  it('svaret har det byggherren godtar om ingen påberopelse fører fram, også når forholdet er avslått (OV-U31, OV-U33)', () => {
+    const u = utledet(forloepA).spor.vederlag;
+    expect(fasteBeloepISvaret(u.gjeldendeSvar!)).toEqual({ sum: 6000000n, utenFastBeloep: 0 });
   });
 });

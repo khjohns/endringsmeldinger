@@ -169,7 +169,7 @@ describe('kjernen er ren kode (B-14)', () => {
   it.each([
     ["import { leggTil } from '../../sprakprove/server/lager.ts';", 'utledning/utled.ts'],
     ["import type { Hendelse } from '../../sprakprove/kjerne/typer';", 'format/leser.ts'],
-    ["export * from '../../src/lib/domain/fristDomain.ts';", 'regler/frist.ts'],
+    ["export * from '../../src/lib/components/varden/lesing.ts';", 'regler/frist.ts'],
     ["import pg from 'pg';", 'kommandoer/skriving.ts'],
     ["const pg = await import('pg');", 'utledning/buffer.ts'],
     ["const { Pool } = require('pg');", 'tester/kjoerer.ts'],
@@ -676,12 +676,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'kommandoer/nyttelast.ts',
       'spor/forhold/kommando.ts:utdypningIForholdet',
+      'spor/forhold/kommando.ts:begrunnelseIForholdet',
       'spor/forhold/kommando.ts:varseletEtter322',
       'spor/vederlag/kommando.ts',
       'frosset/frysing.ts:beslutningsgrunnlag',
       'spor/vederlag/frysing.ts',
       // #1824: varselet etter § 34.1.2 står i vederlagskravet der det gjelder.
       'spor/vederlag/tekst.ts:vederlagstekst',
+      // LV-U34: hjemmelen i overskriften for vederlagsjusteringen i svaret.
+      'spor/vederlag/tekst.ts:temaer',
     ],
   ],
   // § 32.3 første ledd a for et brev sendt i appen, lest av beslutningsgrunnlaget (GR-U12, #351).
@@ -703,6 +706,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'utledning/utled.ts:settSubsidiaer',
       'frosset/brevtekst.ts:forholdetsStandpunkter',
+      'frosset/brevtekst.ts:forholdetsLag',
       'spor/vederlag/kommando.ts:lagIVederlaget',
     ],
   ],
@@ -796,11 +800,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regelsett',
     'krevdIKravposten',
     // KA-U72: en kravpost der tilbudet ikke er akseptert, regnes ikke med i beløpet.
-    ['spor/vederlag/tekst.ts', 'spor/vederlag/frysing.ts', 'spor/vederlag/kommando.ts'],
+    ['spor/vederlag/tekst.ts', 'spor/vederlag/frysing.ts'],
   ],
   // OV-U23, OV-U26: det samlede krevde beløpet og beløpet byggherren godtar for hver post.
   ['spor/vederlag/frysing.ts', 'regelsett', 'vederlagsposter', ['spor/vederlag/kommando.ts']],
-  ['spor/vederlag/format.ts', 'regelsett', 'krevdSamlet', ['spor/vederlag/kommando.ts']],
   ['spor/vederlag/frysing.ts:vederlagsposter', 'regelsett', 'godkjent gjelder saerskilt svar'],
   // KA-U57 (c) og (d), KA-U59: svaret på hver kravpost i kommandoen, lest ett sted.
   ['spor/vederlag/frysing.ts', 'regelsett', 'kravpostvurderinger', ['spor/vederlag/kommando.ts']],
@@ -1178,7 +1181,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsnyttelast',
     'predikat',
-    'avgrensninger kravsperre innsigelse utdypning oppgittDatoIKravet',
+    'begrunnelse kravsperre innsigelse utdypning oppgittDatoIKravet',
     ['kommandoer/nyttelast.ts'],
   ],
   ['spor/vederlag/kommando.ts', 'predikat', 'NYTTELAST_I_VEDERLAGET', ['kommandoer/nyttelast.ts']],
@@ -1825,7 +1828,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Stedet i brevteksten en avvisning for tegnene viser til (`avsnittsnavn`).
   ['Avsnitt', 'brevtekst', 'gjelder punkt overskrift', ['kommandoer/skriving.ts:avsnittsnavn']],
   // Et element med punkter har ingen utdypning for hele elementet (`Journalen.utdypning`).
-  ['Avsnitt', 'brevtekst', 'punkt', ['frosset/brevdeler.ts']],
+  ['Avsnitt', 'brevtekst', 'punkt', ['frosset/brevdeler.ts', 'frosset/brevtekst.ts:gjengi']],
   [
     'frosset/brevdeler.ts',
     'brevtekst',
@@ -1848,13 +1851,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // Utdypningen kopieres til teksten. Kontrollene leser bare om den finnes (A6 i
   // paragrafmatrisen, KA-U31–KA-U34 (opphevet av KA-U46), GR-U15).
+  ['Svarutkast', 'kommando', 'utdypning', ['kommandoer/skriving.ts:svar']],
+  // KA-U46 punkt 3 og KA-U47: kontrollen leser bare om punktet om forholdet har en begrunnelse.
   [
     'Svarutkast',
     'kommando',
-    'utdypning',
-    ['kommandoer/skriving.ts:svar', 'kommandoer/nyttelast.ts:kontrollerSvar'],
+    'utdypninger utdypninger.*',
+    ['kommandoer/skriving.ts:svar', 'spor/forhold/kommando.ts:begrunnelseIForholdet'],
   ],
-  ['Svarutkast', 'kommando', 'utdypninger', ['kommandoer/skriving.ts:svar']],
   ['Kommando', 'kommando', 'utdypninger', ['kommandoer/skriving.ts:dokument']],
   [
     'Kommando',
@@ -1865,19 +1869,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/nyttelast.ts:kravetsUtdypning',
       'kommandoer/nyttelast.ts:begrunnelsensTekst',
     ],
-  ],
-  // KA-U24, KA-U32: avgrensningene som krever begrunnelse, av serverens utregning.
-  [
-    'kommandoer/nyttelast.ts:avgrensningerIFristen(server)',
-    'regelsett',
-    'resultat subsidiaert_resultat',
-    ['kommandoer/nyttelast.ts:avgrensningerIFristen'],
-  ],
-  [
-    'spor/vederlag/kommando.ts:avgrensningerIVederlaget(server)',
-    'regelsett',
-    'godkjent_beloep subsidiaert_godkjent_beloep',
-    ['spor/vederlag/kommando.ts:avgrensningerIVederlaget'],
   ],
   // A1: den låste teksten klienten viste, sammenliknet med teksten serveren lager.
   ['Brevtekst', 'kommando', 'brevtekst', ['kommandoer/skriving.ts:skriv']],
@@ -1925,8 +1916,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:skriv'],
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
-  ['frosset/tekst.ts', 'brevtekst', 'dager', ['frosset/brevtekst.ts']],
-  ['frosset/tekst.ts', 'brevtekst', 'kroner', ['frosset/brevdeler.ts']],
+  ['frosset/tekst.ts', 'brevtekst', 'dager OVERSIKTEN', ['frosset/brevtekst.ts']],
+  ['frosset/tekst.ts', 'brevtekst', 'kroner', ['frosset/brevdeler.ts', 'frosset/brevtekst.ts']],
   // Oppslaget i sporet for en rolle, og virkningen av et standpunkt (#1783).
   [
     'frosset/byggeklosser.ts',
@@ -1956,9 +1947,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsbrevtekst',
     'brevtekst',
-    'krav navn ogsaaInnsigelserEtter svaretGjelder nevnerErstattet utdypningensPunkt',
+    'krav navn ogsaaInnsigelserEtter svaretGjelder nevnerErstattet utdypningensPunkt temaer oversikt ingenBeloep',
     ['frosset/brevtekst.ts'],
   ],
+  // LV-U34 og OV-U73: temaene og beløpene per lag i byggherrens svar.
+  ['Tema', 'brevtekst', 'punkt overskrift foerst', ['frosset/brevtekst.ts']],
+  ['Lagbeloep', 'brevtekst', 'post plass beloep', ['spor/vederlag/tekst.ts']],
+  // OV-U73: tabellen får lagene i sporet, uten lagene fra forholdet.
+  ['Lagbeloep', 'brevtekst', 'plass', ['frosset/brevtekst.ts']],
+  ['spor/vederlag/tekst.ts:oversikt', 'brevtekst', 'post krevd', ['spor/vederlag/tekst.ts']],
   ['Kravsporsbrevtekst', 'brevtekst', 'enigI ingenKrav kravetOm trukket', ['frosset/brevtekst.ts']],
   [
     'spor/vederlag/tekst.ts',
@@ -1971,7 +1968,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'spor/forhold/tekst.ts',
     'brevtekst',
-    'BREVTEKSTEN_I_FORHOLDET STANDPUNKTENE_I_FORHOLDET DATOEN_I_BREVET',
+    'BREVTEKSTEN_I_FORHOLDET STANDPUNKTENE_I_FORHOLDET DATOEN_I_BREVET forholdet harRisikoen',
     ['frosset/brevtekst.ts'],
   ],
   ['spor/forhold/tekst.ts', 'brevtekst', 'LINJEN_I_FORHOLDET', ['frosset/linje.ts']],
@@ -1987,7 +1984,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/brevdeler.ts',
     'brevtekst',
     'liste stor',
-    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts'],
+    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts', 'spor/vederlag/tekst.ts'],
   ],
   ['frosset/brevdeler.ts', 'brevtekst', 'BrevetAvvises', ['spor/forhold/tekst.ts']],
   // OV-U32: etiketten brevet bruker for laget.
@@ -1995,7 +1992,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/byggeklosser.ts',
     'brevtekst',
     'etikett',
-    ['frosset/brevtekst.ts', 'spor/vederlag/kommando.ts', 'frosset/linje.ts'],
+    [
+      'frosset/brevtekst.ts',
+      'spor/vederlag/kommando.ts',
+      'frosset/linje.ts',
+      'spor/vederlag/tekst.ts',
+    ],
   ],
   ['frosset/linje.ts:beslutningslinje', 'brevtekst', 'tekst', ['frosset/linje.ts']],
   ['frosset/linje.ts:beslutningslinje.plass', 'brevtekst', 'virkning', ['frosset/linje.ts']],
@@ -2042,7 +2044,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'j saken nytt sak',
     ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts', 'spor/vederlag/tekst.ts'],
   ],
-  ['frosset/brevtekst.ts:svartekst', 'brevtekst', 'tekst plass', ['frosset/brevtekst.ts']],
+  ['frosset/brevtekst.ts:fristsvartekst', 'brevtekst', 'tekst plass', ['frosset/brevtekst.ts']],
+  // LV-U34: punktene, lagene og nummereringen i byggherrens svar.
+  ['Svarledd', 'brevtekst', 'punkt plass innsigelse tekst', ['frosset/brevtekst.ts']],
+  ['Nummerering', 'brevtekst', 'foer nummerert ns', ['frosset/brevtekst.ts']],
+  ['FORBEHOLDET', 'brevtekst', 'punkt', ['frosset/brevtekst.ts']],
+  [
+    'frosset/brevtekst.ts:forholdetsLag',
+    'brevtekst',
+    'ledd forskyvning henvisninger',
+    ['frosset/brevtekst.ts'],
+  ],
+  ['frosset/brevtekst.ts:utenGjentattNs', 'brevtekst', 'nevnt', ['frosset/brevtekst.ts']],
   ['Dokument', 'relasjon', 'id registrert', ['frosset/brevtekst.ts', 'frosset/brevdeler.ts']],
   // Datoen appen registrerte brevet.
   ['Dokument', 'relasjon', 'registrert', ['format/leser.ts:registrertDato']],
@@ -2136,7 +2149,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['FORHOLDSGRUPPER', 'brevtekst', 'forhold', ['spor/forhold/tekst.ts']],
   ['Forholdet', 'brevtekst', 'kode', ['spor/forhold/tekst.ts']],
   ['Forholdet', 'brevtekst', 'navn hjemmel', ['spor/forhold/tekst.ts']],
-  ['Forholdet', 'brevtekst', 'navn', ['frosset/brevtittel.ts']],
+  ['Forholdet', 'brevtekst', 'navn', ['frosset/brevtittel.ts', 'frosset/brevtekst.ts']],
   ['spor/forhold/tekst.ts.LEDD_I_33_1', 'brevtekst', '*', ['spor/forhold/tekst.ts']],
   ['frosset/brevtekst.ts:aapneInnsigelser', 'relasjon', 'fra', ['frosset/brevtekst.ts']],
   ['Innsigelse', 'relasjon', 'dokument gjelder hjemmel', ['frosset/brevtekst.ts']],

@@ -27,7 +27,8 @@ const paastand = (holder: boolean, melding: string) => expect(holder, melding).t
 const BH_SVARER: Svarvalg = {
   iTide: false,
   poster: { P1: { ...tomPost(), form: 'godtar', beloep: 'deler', delbeloep: '60 000' } },
-  begrunnelse: 'Varselet kom for sent. Subsidiært godtas 60 000 kr.',
+  begrunnelser: { '34.1.2': 'Varselet kom for sent. Subsidiært godtas 60 000 kr.' },
+  forbehold: '',
 };
 
 /** Kjøreren til kontrollpunktet, med journalen den skrev, og banen som leser demosaken. */

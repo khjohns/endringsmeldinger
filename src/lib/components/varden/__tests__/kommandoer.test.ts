@@ -40,17 +40,28 @@ const medKrav = (beloep: number) =>
 
 const svar = (
   journal: Journalrad[],
-  { begrunnelse = '', ...post }: Partial<Postvalg> & { begrunnelse?: string }
+  {
+    begrunnelser = {},
+    forbehold = '',
+    punktene = [],
+    ...post
+  }: Partial<Postvalg> & {
+    begrunnelser?: Record<string, string>;
+    forbehold?: string;
+    punktene?: string[];
+  }
 ) =>
   vederlagssvaret(
     {
       ...tomtSvar(),
       iTide: true,
       poster: { P1: { ...tomPost(), form: 'godtar', ...post } },
-      begrunnelse,
+      begrunnelser,
+      forbehold,
     },
     utledJournal(journal, KJERNE),
-    KJERNE.regler
+    KJERNE.regler,
+    punktene
   )!;
 
 describe('resultatet Varden sender, regnes av kjernen (#1301, B-13)', () => {
@@ -101,14 +112,27 @@ describe('postene i svaret', () => {
     expect(JSON.stringify(svar(medKrav(125_000), { beloep: 'hele' }))).not.toMatch(/rigg_/);
   });
 
-  it('utdypningen er bare teksten BH skrev: tom begrunnelse gir ingen utdypning (KA-U41, bindende i KA-U43)', () => {
+  it('utdypningen er bare teksten BH skrev: tomt forbehold og tom begrunnelse gir ingen utdypning (KA-U41, bindende i KA-U43)', () => {
     const journal = medKrav(125_000);
-    expect(svar(journal, { beloep: 'hele', begrunnelse: '   ' }).svar[0]).not.toHaveProperty(
-      'utdypning'
-    );
+    const tomt = svar(journal, {
+      beloep: 'hele',
+      forbehold: '   ',
+      begrunnelser: { P1: '  ' },
+      punktene: ['P1'],
+    }).svar[0];
+    expect(tomt).not.toHaveProperty('utdypning');
+    expect(tomt).not.toHaveProperty('utdypninger');
     expect(
-      svar(journal, { beloep: 'hele', begrunnelse: '  Godtatt etter befaring. ' }).svar[0].utdypning
-    ).toBe('Godtatt etter befaring.');
+      svar(journal, { beloep: 'hele', forbehold: '  Forbehold om mengdene. ' }).svar[0].utdypning
+    ).toBe('Forbehold om mengdene.');
+  });
+
+  it('begrunnelsen står per punkt, og bare for punktene brevet har (KA-U46, LV-U71)', () => {
+    const journal = medKrav(125_000);
+    const begrunnelser = { P1: ' Godtatt etter befaring. ', '34.1.2': 'Varselet kom sent.' };
+    expect(
+      svar(journal, { beloep: 'hele', begrunnelser, punktene: ['P1'] }).svar[0].utdypninger
+    ).toEqual({ P1: 'Godtatt etter befaring.' });
   });
 });
 
@@ -135,7 +159,8 @@ describe('svaret per kravpost (KA-U57, #1663)', () => {
           P1: { ...tomPost(), form: 'godtar', beloep: 'hele', delbeloep: '' },
           P2: { ...tomPost(), form: 'regningsarbeid', beloep: 'deler', delbeloep: '30 000' },
         },
-        begrunnelse: '',
+        begrunnelser: {},
+        forbehold: '',
       },
       u,
       KJERNE.regler
@@ -156,7 +181,8 @@ describe('svaret per kravpost (KA-U57, #1663)', () => {
         P1: { ...tomPost(), form: 'regningsarbeid', beloep: 'hele', delbeloep: '' },
         P2: { ...tomPost(), form: null, beloep: 'hele', delbeloep: '' },
       },
-      begrunnelse: '',
+      begrunnelser: {},
+      forbehold: '',
     } satisfies Parameters<typeof vederlagssvaret>[0];
     const utkast = utkastForBeloepet(vederlagssvaret(valg, u, KJERNE.regler)!.svar[0], valg, krav);
     const [v1, v2] = utkast.vurderinger.kravposter as Record<string, unknown>[];
@@ -178,7 +204,8 @@ describe('svaret per kravpost (KA-U57, #1663)', () => {
       {
         iTide: true,
         poster: { P1: { ...tomPost(), form: 'godtar', beloep: 'hele', delbeloep: '' } },
-        begrunnelse: '',
+        begrunnelser: {},
+        forbehold: '',
       },
       u,
       KJERNE.regler

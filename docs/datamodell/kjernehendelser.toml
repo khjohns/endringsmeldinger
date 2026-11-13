@@ -307,7 +307,7 @@ datoen det ble sendt og brevet som vedlegg (KA-U35). Endrer ingen standpunkter, 
 godtas også når kravene er avgjort. Erstatter ikke begrunnelsen et svar fra appen
 må ha."""
 felt = ["id", "art", "gjelder"]
-grunnlag = "KA-U34, KA-U35, KA-U18, KA-U24, MM-U12"
+grunnlag = "KA-U34, KA-U35, KA-U18, KA-U46, MM-U12"
 
 [[utsagn]]
 art = "korrigering"
