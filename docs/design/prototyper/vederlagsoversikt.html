@@ -56,6 +56,7 @@
 html,body{margin:0}
 body{background:var(--canvas);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
 .num{font-variant-numeric:tabular-nums}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
 h1,h2,h3{margin:0;text-wrap:balance}
@@ -411,7 +412,8 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .part{position:absolute;left:20px;top:12px;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--ink);background:var(--surface);display:grid;place-items:center;font-size:12px;font-weight:600;letter-spacing:.02em;z-index:1}
 .part.bh{background:var(--ink);color:var(--surface)}
 .rad,.innlegg .innhold,.innlegg>.aksept,.innlegg>.handling{margin-left:48px}
-.rad{display:grid;grid-template-columns:6.5rem minmax(0,1fr) auto;gap:2px 16px;align-items:start;min-height:32px}
+.dato .maaned-kort{display:none}
+.rad{display:grid;grid-template-columns:8.5rem minmax(0,1fr) auto;gap:2px 16px;align-items:start;min-height:32px}
 .rad .dato{color:var(--ink-2);white-space:nowrap;line-height:24px}
 .rad h3{font-size:16px;font-weight:600;min-width:0}
 .rad .meta{font-size:12px;line-height:24px;color:var(--ink-3);white-space:nowrap}
@@ -419,9 +421,9 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .rad .les{position:relative;min-height:0;padding:0;font-size:14px;line-height:24px}
 .rad .les::after{content:"";position:absolute;inset:-8px -4px}
 .rad .fulgt{font-weight:400;color:var(--ink-3)}
-.innlegg>.aksept,.innlegg>.handling{padding-left:calc(6.5rem + 16px)}
+.innlegg>.aksept,.innlegg>.handling{padding-left:calc(8.5rem + 16px)}
 .innlegg .brevplass{position:relative;z-index:1}
-.innlegg .innhold{padding-left:calc(6.5rem + 16px);display:flex;flex-direction:column;gap:8px}
+.innlegg .innhold{padding-left:calc(8.5rem + 16px);display:flex;flex-direction:column;gap:8px}
 .leselinje{font-size:16px;font-weight:500}
 .leselinje.dempet{color:var(--ink-2);font-weight:400}
 .datolinje{font-size:14px;color:var(--ink-2)}
@@ -431,7 +433,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .innlegg.kompakt .part{top:9px;width:24px;height:24px;left:24px;font-size:10px}
 .innlegg.kompakt .rad h3{font-size:14px;font-weight:500;color:var(--ink-2)}
 .innlegg.kompakt .rad .dato{font-size:14px;color:var(--ink-3)}
-@media (max-width:720px){.rad{grid-template-columns:minmax(0,1fr) auto;gap:0 12px}.rad .dato{grid-column:1;font-size:12px;color:var(--ink-3)}.rad .meta{grid-column:2;grid-row:1}.rad h3{grid-column:1/3}.innlegg .innhold,.innlegg>.aksept,.innlegg>.handling{padding-left:0}}
+@media (max-width:720px){.dato .maaned-kort{display:inline}.dato .maaned-lang{display:none}.rad{grid-template-columns:minmax(0,1fr) auto;gap:0 12px}.rad .dato{grid-column:1;font-size:12px;color:var(--ink-3)}.rad .meta{grid-column:2;grid-row:1}.rad h3{grid-column:1/3}.innlegg .innhold,.innlegg>.aksept,.innlegg>.handling{padding-left:0}}
 @media (max-width:560px){.innlegg{padding-left:16px;padding-right:16px}.rad,.innlegg .innhold,.innlegg>.aksept,.innlegg>.handling{margin-left:40px}.brevhode{grid-template-columns:minmax(0,1fr)}.stempel{justify-self:start}.innlegg .brevplass .brev{padding:16px}.part{left:12px}.innlegg::before{left:27px}.innlegg.kompakt .part{left:16px}}
 /* Oppsett B (13.11, fra grunnlagsoversikt-v2.html): handlingen ved brevet og brevet ved siden av */
 :root{--font-brev:'Source Serif 4','Noto Sans',serif;--font-brev-bh:'Oslo Sans','Noto Sans',sans-serif}
@@ -537,7 +539,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
         <nav class="sti" aria-label="Du er her"><a class="merkenavn" href="prosjekter.html">Varden</a><span aria-hidden="true">›</span><a href="saksliste.html">Skolebygg Nord</a><span aria-hidden="true">›</span><span aria-current="page">E-021<span class="sakstittel"> · Ny peling med produktivitetstap</span></span></nav>
         <a class="lenke catenda-topp kun-b" href="https://catenda.example/" data-spor="U-15">Åpne saken i Catenda</a>
         <details class="brukermeny">
-          <summary><span class="kun-te"><span class="initialer" aria-hidden="true">PO</span><span class="hvem"><b>Per Olsen</b><span>Totalentreprenør · Totalentreprenør AS</span></span></span><span class="kun-bh"><span class="initialer" aria-hidden="true">ON</span><span class="hvem"><b>Ola Nordmann</b><span>Byggherre · Oslobygg KF</span></span></span></summary>
+          <summary><span class="kun-te"><span class="initialer" aria-hidden="true">PO</span><span class="hvem"><b>Per Olsen</b></span></span><span class="kun-bh"><span class="initialer" aria-hidden="true">ON</span><span class="hvem"><b>Ola Nordmann</b></span></span></summary>
           <div class="meny"><a href="prosjekter.html">Prosjektene dine</a><a href="prosjekter.html">Om Varden</a><hr><a href="innlogging.html">Logg ut</a></div>
         </details>
         <nav class="sporrad" aria-label="Krav og svar i saken"><a href="grunnlagsoversikt.html">Byggherrens valg av løsninger og prosjektering</a><a href="#skall" aria-current="page">Vederlagsjustering</a><a href="fristoversikt.html">Fristforlengelse</a></nav>
@@ -572,7 +574,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
             <div class="pakke-hode">
               <div class="linje"><span class="pakkemerke">Til godkjenning · ikke sendt</span><h2 id="pakke-tittel">Brev 7 · Nytt svar på krav om vederlagsjustering</h2></div>
               <p>Til totalentreprenøren · utarbeidet av Ola Nordmann, prosjektingeniør</p>
-              <p>Sendt til godkjenning 30. oktober 2026 kl. 15.20</p>
+              <p>Lagt til godkjenning 30. oktober 2026 kl. 15.20</p>
               <p class="laas"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Teksten er låst.</p>
             </div>
             <div class="utkast-kropp">
@@ -616,7 +618,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                   <li><div class="lagrad"><span class="navn">Prinsipalt</span><b class="belop num">0 kr</b></div><div class="maal" aria-hidden="true"><i style="width:0"></i></div>
                     <p>Byggherren gjør gjeldende at varselet etter punkt 34.1.2 i brev 3 kom for sent.</p></li>
                   <li><div class="lagrad"><span class="navn">Subsidiært</span><b class="belop num">110 000 kr</b></div><div class="maal" aria-hidden="true"><i style="width:57.89%"></i></div>
-                    <p>Hvis innsigelsen om varselet etter punkt 34.1.2 ikke fører frem. Byggherren gjør gjeldende at varselet etter punkt 34.1.3 i brev 5 kom for sent, og godkjenner oppgjør som fast sum.</p></li>
+                    <p>Hvis innsigelsen om varselet etter punkt 34.1.2 ikke fører frem: Byggherren gjør gjeldende at varselet etter punkt 34.1.3 i brev 5 kom for sent, og godkjenner oppgjør som fast sum.</p></li>
                   <li><div class="lagrad"><span class="navn">Videre subsidiært</span><b class="belop num">130 000 kr</b></div><div class="maal" aria-hidden="true"><i style="width:68.42%"></i></div>
                     <p>Hvis heller ikke innsigelsen om varselet etter punkt 34.1.3 fører frem.</p></li>
                 </ul>
@@ -666,11 +668,11 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
             <ol class="traad kun-fast-blokk">
               <li class="innlegg" data-brev="brev-6">
                 <span class="part bh" aria-hidden="true">BH</span>
-                <div class="rad"><span class="dato num">27. okt. 2026</span><h3>Svar på krav om vederlagsjustering</h3><span class="meta"><span class="nr num">brev 6</span><button class="lenke les kun-b" type="button" aria-controls="brev-6" data-navn="brev 6, Svar på krav om vederlagsjustering" aria-label="Les brevet: brev 6, Svar på krav om vederlagsjustering">Les brevet</button></span></div>
-                <div class="innhold"><p class="datolinje">Godkjent med fullmakt av Kari Nordmann. Sendt kl. 11.05.<span class="kun-b"> Levert til Catenda kl. 11.06.</span></p><span class="filer" aria-label="Vedlegg til brev 6"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Gjennomgang av kalkylen.pdf</span><span class="fm">PDF · 412 kB</span></a><span class="fil ventende"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Mengdekontroll akse C–F.xlsx</span><span class="fm">Ikke levert til Catenda ennå</span></span></span></div><div class="brevplass"></div><p class="aksept kun-b" data-spor="U-11 · D-5">Akseptfrist: <b>10. november 2026</b>.</p><div class="handling kun-b kun-te">
+                <div class="rad"><span class="dato num">27. <span class="maaned-lang">oktober</span><span class="maaned-kort">okt.</span> 2026</span><h3>Svar på krav om vederlagsjustering<span class="sr"> fra byggherren</span></h3><span class="meta"><span class="nr num">brev 6</span><button class="lenke les kun-b" type="button" aria-controls="brev-6" data-navn="brev 6, Svar på krav om vederlagsjustering" aria-label="Les brevet: brev 6, Svar på krav om vederlagsjustering">Les brevet</button></span></div>
+                <div class="innhold"><p class="datolinje">Brevet er godkjent av Kari Nordmann, med fullmakt. Sendt kl. 11.05.<span class="kun-b"> Levert til Catenda kl. 11.06.</span></p><span class="filer" aria-label="Vedlegg til brev 6"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Gjennomgang av kalkylen.pdf</span><span class="fm">PDF · 412 kB</span></a><span class="fil ventende"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Mengdekontroll akse C–F.xlsx</span><span class="fm">Ikke levert til Catenda ennå</span></span></span></div><div class="brevplass"></div><p class="aksept kun-b" data-spor="U-11 · D-5">Akseptfrist: <b>10. november 2026</b>.</p><div class="handling kun-b kun-te">
                   <div class="knapper"><span class="uten-utkast"><button class="knapp primaer" type="button">Revider krav</button></span><button class="knapp sekundaer" type="button">Godta svaret</button></div>
-                  <p class="uten-utkast-blokk">Et nytt krav følger opp kravet i brev 5 og avslår tilbudet i dette svaret, som da ikke kan godtas. Godtar du svaret, ser du brevet og virkningen av aksepten før du sender.</p>
-                  <p class="med-utkast-blokk">Utkastet til brev 7 avslår tilbudet i dette svaret når det sendes, og svaret kan da ikke godtas. Godtar du svaret, ser du brevet og virkningen av aksepten før du sender.</p>
+                  <p class="uten-utkast-blokk">Et nytt krav følger opp kravet i brev 5 og avslår tilbudet i dette svaret. Svaret kan da ikke godtas. Godtar du svaret, ser du brevet og virkningen av aksepten før du sender.</p>
+                  <p class="med-utkast-blokk">Sender du utkastet til brev 7, avslår det tilbudet i dette svaret. Svaret kan da ikke godtas. Godtar du svaret, ser du brevet og virkningen av aksepten før du sender.</p>
                 </div><div class="handling kun-b kun-bh uten-utkast-blokk">
                   <div class="knapper"><button class="lenke" type="button">Send nytt svar</button></div>
                   <p>Nytt brev med svaret. Svaret i brev 6 står som det ble sendt.</p>
@@ -678,52 +680,52 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
               </li>
               <li class="innlegg kompakt" data-spor="D-7">
                 <span class="part bh" aria-hidden="true">BH</span>
-                <div class="rad"><span class="dato num">22. okt. 2026</span><h3>Avklaring om mengdene i akse C–F</h3><span class="meta"><span>E-post · ifølge byggherren</span></span></div>
-                <div class="innhold"><p class="datolinje">Lagt til av Ola Nordmann 23. oktober 2026.</p><span class="filer"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Avklaring om mengdene i akse C–F.pdf</span><span class="fm">PDF · 96 kB</span></a></span></div>
+                <div class="rad"><span class="dato num">22. <span class="maaned-lang">oktober</span><span class="maaned-kort">okt.</span> 2026</span><h3>Avklaring om mengdene i akse C–F<span class="sr"> fra byggherren</span></h3><span class="meta"><span>E-post</span></span></div>
+                <div class="innhold"><p class="datolinje">Datert 22. oktober 2026 ifølge byggherren. Lagt til av Ola Nordmann 23. oktober 2026.</p><span class="filer"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Avklaring om mengdene i akse C–F.pdf</span><span class="fm">PDF · 96 kB</span></a></span></div>
               </li>
               <li class="innlegg" data-brev="brev-5">
                 <span class="part " aria-hidden="true">TE</span>
-                <div class="rad"><span class="dato num">20. okt. 2026</span><h3>Krav om vederlagsjustering</h3><span class="meta"><span class="nr num">brev 5</span><button class="lenke les kun-b" type="button" aria-controls="brev-5" data-navn="brev 5, Krav om vederlagsjustering" aria-label="Les brevet: brev 5, Krav om vederlagsjustering">Les brevet</button></span></div>
+                <div class="rad"><span class="dato num">20. <span class="maaned-lang">oktober</span><span class="maaned-kort">okt.</span> 2026</span><h3>Krav om vederlagsjustering<span class="sr"> fra totalentreprenøren</span></h3><span class="meta"><span class="nr num">brev 5</span><button class="lenke les kun-b" type="button" aria-controls="brev-5" data-navn="brev 5, Krav om vederlagsjustering" aria-label="Les brevet: brev 5, Krav om vederlagsjustering">Les brevet</button></span></div>
                 <div class="innhold"><p class="leselinje" data-spor="U-12"><span class="num">190 000 kr</span>, med varsel etter punkt 34.1.3.</p><span class="filer" aria-label="Vedlegg til brev 5" data-spor="D-8"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Kalkyle peling.pdf</span><span class="fm">PDF · 1,2 MB</span></a><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Produktivitetsberegning.xlsx</span><span class="fm">Excel · 86 kB</span></a></span></div><div class="brevplass"></div>
               </li>
               <li class="innlegg eldre" data-brev="brev-3">
                 <span class="part " aria-hidden="true">TE</span>
-                <div class="rad"><span class="dato num">6. okt. 2026</span><h3>Krav om vederlagsjustering <span class="fulgt">· fulgt opp i brev 5</span></h3><span class="meta"><span class="nr num">brev 3</span><button class="lenke les kun-b" type="button" aria-controls="brev-3" data-navn="brev 3, Krav om vederlagsjustering · fulgt opp i brev 5" aria-label="Les brevet: brev 3, Krav om vederlagsjustering · fulgt opp i brev 5">Les brevet</button></span></div>
-                <div class="innhold"><p class="leselinje dempet"><span class="num">125 000 kr</span>, med varsel etter punkt 34.1.2.</p><p class="datolinje" data-spor="U-8">Klar over forholdet 12. september 2026, ifølge totalentreprenøren i brev 2. <span class="num">24</span> kalenderdager til varselet i dette brevet.</p></div><div class="brevplass"></div>
+                <div class="rad"><span class="dato num">6. <span class="maaned-lang">oktober</span><span class="maaned-kort">okt.</span> 2026</span><h3>Krav om vederlagsjustering <span class="fulgt">· fulgt opp i brev 5</span><span class="sr"> fra totalentreprenøren</span></h3><span class="meta"><span class="nr num">brev 3</span><button class="lenke les kun-b" type="button" aria-controls="brev-3" data-navn="brev 3, Krav om vederlagsjustering · fulgt opp i brev 5" aria-label="Les brevet: brev 3, Krav om vederlagsjustering · fulgt opp i brev 5">Les brevet</button></span></div>
+                <div class="innhold"><p class="leselinje dempet"><span class="num">125 000 kr</span>, med varsel etter punkt 34.1.2.</p><p class="datolinje" data-spor="U-8">Totalentreprenøren ble klar over forholdet 12. september 2026, ifølge brev 2. Varselet i dette brevet kom <span class="num">24</span> kalenderdager etter.</p></div><div class="brevplass"></div>
               </li>
             </ol>
             <ol class="traad kun-regning-blokk">
               <li class="innlegg" data-brev="brev-6r">
                 <span class="part bh" aria-hidden="true">BH</span>
-                <div class="rad"><span class="dato num">27. okt. 2026</span><h3>Svar på krav om vederlagsjustering</h3><span class="meta"><span class="nr num">brev 6</span><button class="lenke les kun-b" type="button" aria-controls="brev-6r" data-navn="brev 6, Svar på krav om vederlagsjustering" aria-label="Les brevet: brev 6, Svar på krav om vederlagsjustering">Les brevet</button></span></div>
-                <div class="innhold"><p class="datolinje">Godkjenner regningsarbeid. Sendt kl. 11.05.</p></div><div class="brevplass"></div><div class="handling kun-b kun-te">
+                <div class="rad"><span class="dato num">27. <span class="maaned-lang">oktober</span><span class="maaned-kort">okt.</span> 2026</span><h3>Svar på krav om vederlagsjustering<span class="sr"> fra byggherren</span></h3><span class="meta"><span class="nr num">brev 6</span><button class="lenke les kun-b" type="button" aria-controls="brev-6r" data-navn="brev 6, Svar på krav om vederlagsjustering" aria-label="Les brevet: brev 6, Svar på krav om vederlagsjustering">Les brevet</button></span></div>
+                <div class="innhold"><p class="datolinje">Sendt kl. 11.05.</p></div><div class="brevplass"></div><div class="handling kun-b kun-te">
                   <div class="knapper"><button class="knapp primaer" type="button">Revider krav</button></div>
                   <p>Nytt brev som følger opp kravet i brev 3, for eksempel med et nytt kostnadsoverslag.</p>
                 </div>
               </li>
               <li class="innlegg kompakt">
                 <span class="part bh" aria-hidden="true">BH</span>
-                <div class="rad"><span class="dato num">22. okt. 2026</span><h3>Avklaring om mengdene i akse C–F</h3><span class="meta"><span>E-post · ifølge byggherren</span></span></div>
-                <div class="innhold"><p class="datolinje">Lagt til av Ola Nordmann 23. oktober 2026.</p><span class="filer"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Avklaring om mengdene i akse C–F.pdf</span><span class="fm">PDF · 96 kB</span></a></span></div>
+                <div class="rad"><span class="dato num">22. <span class="maaned-lang">oktober</span><span class="maaned-kort">okt.</span> 2026</span><h3>Avklaring om mengdene i akse C–F<span class="sr"> fra byggherren</span></h3><span class="meta"><span>E-post</span></span></div>
+                <div class="innhold"><p class="datolinje">Datert 22. oktober 2026 ifølge byggherren. Lagt til av Ola Nordmann 23. oktober 2026.</p><span class="filer"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Avklaring om mengdene i akse C–F.pdf</span><span class="fm">PDF · 96 kB</span></a></span></div>
               </li>
               <li class="innlegg" data-brev="brev-5r">
                 <span class="part " aria-hidden="true">TE</span>
-                <div class="rad"><span class="dato num">20. okt. 2026</span><h3>Kostnadsoverslag</h3><span class="meta"><span class="nr num">brev 5</span><button class="lenke les kun-b" type="button" aria-controls="brev-5r" data-navn="brev 5, Kostnadsoverslag" aria-label="Les brevet: brev 5, Kostnadsoverslag">Les brevet</button></span></div>
+                <div class="rad"><span class="dato num">20. <span class="maaned-lang">oktober</span><span class="maaned-kort">okt.</span> 2026</span><h3>Kostnadsoverslag<span class="sr"> fra totalentreprenøren</span></h3><span class="meta"><span class="nr num">brev 5</span><button class="lenke les kun-b" type="button" aria-controls="brev-5r" data-navn="brev 5, Kostnadsoverslag" aria-label="Les brevet: brev 5, Kostnadsoverslag">Les brevet</button></span></div>
                 <div class="innhold"><p class="leselinje"><span class="num">160 000 kr</span> (punkt 30.2).</p><span class="filer"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Kostnadsoverslag peling.pdf</span><span class="fm">PDF · 640 kB</span></a></span></div><div class="brevplass"></div>
               </li>
               <li class="innlegg" data-brev="brev-3r">
                 <span class="part " aria-hidden="true">TE</span>
-                <div class="rad"><span class="dato num">6. okt. 2026</span><h3>Varsel før regningsarbeid og krav om vederlagsjustering</h3><span class="meta"><span class="nr num">brev 3</span><button class="lenke les kun-b" type="button" aria-controls="brev-3r" data-navn="brev 3, Varsel før regningsarbeid og krav om vederlagsjustering" aria-label="Les brevet: brev 3, Varsel før regningsarbeid og krav om vederlagsjustering">Les brevet</button></span></div>
-                <div class="innhold"><p class="leselinje">Varsel etter punkt 34.4.</p><p class="datolinje">Klar over forholdet 12. september 2026, ifølge totalentreprenøren i brev 2. <span class="num">24</span> kalenderdager til varselet i dette brevet.</p></div><div class="brevplass"></div>
+                <div class="rad"><span class="dato num">6. <span class="maaned-lang">oktober</span><span class="maaned-kort">okt.</span> 2026</span><h3>Varsel før regningsarbeid og krav om vederlagsjustering<span class="sr"> fra totalentreprenøren</span></h3><span class="meta"><span class="nr num">brev 3</span><button class="lenke les kun-b" type="button" aria-controls="brev-3r" data-navn="brev 3, Varsel før regningsarbeid og krav om vederlagsjustering" aria-label="Les brevet: brev 3, Varsel før regningsarbeid og krav om vederlagsjustering">Les brevet</button></span></div>
+                <div class="innhold"><p class="leselinje">Varsel etter punkt 34.4.</p><p class="datolinje">Totalentreprenøren ble klar over forholdet 12. september 2026, ifølge brev 2. Varselet i dette brevet kom <span class="num">24</span> kalenderdager etter.</p></div><div class="brevplass"></div>
               </li>
             </ol>
           </section>
 
           <section class="kort andre-b kun-b" aria-labelledby="andre-b-tittel" data-spor="U-16">
             <p class="andre-tittel" id="andre-b-tittel">Andre handlinger</p>
-            <ul class="andre kun-fast-blokk"><li class="kun-te"><button type="button"><span class="h">Trekk kravet</span><span class="b">Avkall på kravet, også det byggherren har godkjent.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li></ul>
-            <ul class="andre kun-regning-blokk kun-te" data-forslag="Forslag · venter på #1434 og #1299"><li><button type="button"><span class="h">Krev påløpt beløp</span><span class="b">Når arbeidet er utført, med samleoppgaven som vedlegg.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li><li><button type="button"><span class="h">Varsle at overslaget vil bli overskredet</span><span class="b">Punkt 30.2 annet ledd.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li></ul>
-            <ul class="andre kun-regning-blokk kun-bh" data-forslag="Forslag · venter på #1434 og #1299"><li><button type="button"><span class="h">Krev nytt kostnadsoverslag</span><span class="b">Punkt 30.2.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li></ul>
+            <ul class="andre kun-fast-blokk"><li class="kun-te"><button type="button"><span class="h">Trekk kravet</span><span class="b">Du gir avkall på hele kravet, også det byggherren har godkjent.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li></ul>
+            <ul class="andre kun-regning-blokk kun-te" data-forslag="Forslag · venter på #1434 og #1299"><li><button type="button"><span class="h">Krev påløpt beløp</span><span class="b">Nytt brev med kravet når arbeidet er utført. Samleoppgaven legges ved.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li><li><button type="button"><span class="h">Varsle at overslaget vil bli overskredet</span><span class="b">Nytt brev med varselet etter punkt 30.2 annet ledd.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li></ul>
+            <ul class="andre kun-regning-blokk kun-bh" data-forslag="Forslag · venter på #1434 og #1299"><li><button type="button"><span class="h">Krev nytt kostnadsoverslag</span><span class="b">Nytt brev med kravet etter punkt 30.2.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li></ul>
           </section>
 
         </div>
@@ -739,12 +741,12 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
             <div class="kort-kropp">
               <div class="kun-te kun-fast-blokk">
                 <span class="uten-utkast"><button class="knapp primaer" type="button" data-spor="D-6">Revider krav</button></span>
-                <p class="b uten-utkast" style="font-size:14px;color:var(--ink-2)">Nytt brev som følger opp kravet i brev 5. Det avslår tilbudet i svaret i brev 6, som da ikke kan godtas.</p>
+                <p class="b uten-utkast" style="font-size:14px;color:var(--ink-2)">Nytt brev som følger opp kravet i brev 5. Det avslår tilbudet i svaret i brev 6. Svaret kan da ikke godtas.</p>
                 <p class="andre-tittel">Andre handlinger</p>
                 <ul class="andre">
                   <li><button type="button"><span class="h" data-spor="D-4">Godta svaret</span><span class="b">Du ser brevet og virkningen av aksepten før du sender.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li><button type="button"><span class="h">Send innlegg</span><span class="b">Fritekst med tittel og henvisning til et brev.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
-                  <li><button type="button"><span class="h">Trekk kravet</span><span class="b">Avkall på kravet, også det byggherren har godkjent.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                  <li><button type="button"><span class="h">Trekk kravet</span><span class="b">Du gir avkall på hele kravet, også det byggherren har godkjent.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                 </ul>
               </div>
               <div class="kun-te kun-regning-blokk">
@@ -755,14 +757,14 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                   <li><button type="button"><span class="h">Send innlegg</span><span class="b">Fritekst med tittel og henvisning til et brev.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                 </ul>
                 <ul class="andre" data-forslag="Forslag · venter på #1434 og #1299">
-                  <li><button type="button"><span class="h">Krev påløpt beløp</span><span class="b">Når arbeidet er utført, med samleoppgaven som vedlegg.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
-                  <li><button type="button"><span class="h">Varsle at overslaget vil bli overskredet</span><span class="b">Punkt 30.2 annet ledd.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                  <li><button type="button"><span class="h">Krev påløpt beløp</span><span class="b">Nytt brev med kravet når arbeidet er utført. Samleoppgaven legges ved.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                  <li><button type="button"><span class="h">Varsle at overslaget vil bli overskredet</span><span class="b">Nytt brev med varselet etter punkt 30.2 annet ledd.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                 </ul>
               </div>
               <div class="kun-bh kun-regning-blokk">
                 <p class="andre-tittel">Andre handlinger</p>
                 <ul class="andre" data-forslag="Forslag · venter på #1434 og #1299">
-                  <li><button type="button"><span class="h">Krev nytt kostnadsoverslag</span><span class="b">Punkt 30.2.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                  <li><button type="button"><span class="h">Krev nytt kostnadsoverslag</span><span class="b">Nytt brev med kravet etter punkt 30.2.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                 </ul>
                 <ul class="andre">
                   <li><button type="button"><span class="h">Send innlegg</span><span class="b">Fritekst med tittel og henvisning til et brev.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
