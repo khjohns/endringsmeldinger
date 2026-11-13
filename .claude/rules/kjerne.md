@@ -43,12 +43,11 @@ Regelsettet står i `kjerne/regler/`; endres det, økes `REGELVERSJON` der. Endr
   den, og arkitekturtesten avviser en annen fil i `spor/`. Rollene står i `ROLLER` i
   arkitekturtesten, og vaktene i Python prøves mot dem. Den felles modulen slår opp i sporet
   gjennom en `Record<Spor, …>` for rollen. Regelsettet for sporet står i `regler/`.
-- **Et innslag i rollefilen heter som den felles tabellen det fyller, med sporet etter
-  `_I_`:** `KRAVFORM_I_FRISTEN` i `KRAVFORM`, `UTREGNING_I_FRISTEN` i `UTREGNING` i
-  `frosset/utregning.ts`. Den felles tabellen har et navn ingen annen tabell i kjernen har,
-  så samme navn betyr ikke to ting i to roller (#1783). En funksjon i en rollefil har heller
-  ikke samme navn som en funksjon i en annen rollefil i sporet; arkitekturtesten håndhever det
-  for navnene på toppnivå. Navnene som er byttet, står i
+- **Et navn betyr én ting i sporet** (#1783). To rollefiler i samme spor har ikke samme
+  navn på toppnivå, og arkitekturtesten håndhever det. Et innslag har sporet etter `_I_`, og
+  et nytt innslag heter som den felles tabellen det fyller (`KRAVFORM_I_FRISTEN` i
+  `KRAVFORM`). Eldre tabeller med andre navn på innslagene, som `LINJE`, `BREVTEKST` og
+  `SVARLESING`, beholder dem. Navnene som er byttet, står i
   [domenetabellen](../../docs/domenetabell/README.md#navn-i-kjernen).
 
 ## Når kode flyttes mellom moduler

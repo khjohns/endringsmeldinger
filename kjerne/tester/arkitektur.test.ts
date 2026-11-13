@@ -257,7 +257,7 @@ function sammeNavn(kilder: Record<string, string>): string[] {
   const filene = new Map<string, string[]>();
   for (const [fil, kilde] of Object.entries(kilder))
     for (const [, navn] of kilde.matchAll(
-      /^(?:export )?(?:const|function\*?|type|interface|class) (\w+)/gm
+      /^(?:export )?(?:default )?(?:declare )?(?:async )?(?:const|let|var|function\*?|type|interface|class|enum) (\w+)/gm
     ))
       filene.set(navn, [...(filene.get(navn) ?? []), fil]);
   return [...filene]
@@ -268,7 +268,11 @@ function sammeNavn(kilder: Record<string, string>): string[] {
 // Navneregelen i .claude/rules/kjerne.md: samme navn betyr ikke to ting i to roller i sporet.
 describe('to rollefiler i et spor har ikke samme navn (#1783)', () => {
   const spor = join(KJERNE, 'spor');
-  it.each(existsSync(spor) ? readdirSync(spor) : [])('%s', (navn) => {
+  const mappene = readdirSync(spor, { withFileTypes: true }).filter((d) => d.isDirectory());
+  it('finner sporene', () => {
+    expect(mappene.map((d) => d.name)).toEqual(expect.arrayContaining([...SPOR]));
+  });
+  it.each(mappene.map((d) => d.name))('%s', (navn) => {
     const mappe = join(spor, navn);
     const kilder = Object.fromEntries(
       readdirSync(mappe)
@@ -283,8 +287,9 @@ describe('to rollefiler i et spor har ikke samme navn (#1783)', () => {
       sammeNavn({
         'format.ts': 'export const STANDPUNKTER_I_FRISTEN = [];',
         'kommando.ts': 'export const STANDPUNKTER_I_FRISTEN = () => [];\nfunction lokal() {}',
+        'utledning.ts': 'export async function lokal() {}',
       })
-    ).toEqual(['STANDPUNKTER_I_FRISTEN: format.ts kommando.ts']);
+    ).toEqual(['STANDPUNKTER_I_FRISTEN: format.ts kommando.ts', 'lokal: kommando.ts utledning.ts']);
   });
 });
 
