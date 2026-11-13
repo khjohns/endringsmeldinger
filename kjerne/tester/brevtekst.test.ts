@@ -24,6 +24,7 @@ import { gjengi, gjengirTro, lagBrevtekst } from '../frosset/brevtekst.ts';
 import { brevmerking } from '../frosset/brevtittel.ts';
 import { postlisten } from '../spor/vederlag/frysing.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
+import { innsigelsenErOppgitt } from '../frosset/standpunkt.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { kroner } from '../frosset/tekst.ts';
@@ -2391,6 +2392,36 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     expect(laast(rad)[0]).toContain(
       'kom for sent, jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026.'
     );
+  });
+
+  it('VS-U20: i fristen gir et tidligere «i tide» etter § 33.4 opp innsigelsen, også når det siste svaret sier «for sent» (arbeidsvalget 15.10 i #309)', () => {
+    const rettidighet = (
+      spor: 'frist' | 'vederlag',
+      hjemmel: '33.4' | '34.1.2',
+      iTide: boolean
+    ) => ({
+      spor,
+      standpunkter: [
+        { id: randomUUID(), art: 'rettidighet' as const, gjelder: 'k', hjemmel, iTide },
+      ],
+    });
+    expect(
+      innsigelsenErOppgitt('frist', [rettidighet('frist', '33.4', false)]),
+      'kontrollsak: bare «for sent» gir den ikke opp'
+    ).toBe(false);
+    expect(
+      innsigelsenErOppgitt('vederlag', [
+        rettidighet('vederlag', '34.1.2', true),
+        rettidighet('vederlag', '34.1.2', false),
+      ]),
+      'kontrollsak: i vederlaget teller det siste standpunktet'
+    ).toBe(false);
+    expect(
+      innsigelsenErOppgitt('frist', [
+        rettidighet('frist', '33.4', true),
+        rettidighet('frist', '33.4', false),
+      ])
+    ).toBe(true);
   });
 
   describe('varselet etter § 32.2 er det samme i hver påberopelsesversjon (VS-U24, arbeidsvalget 15.10 i #500)', () => {

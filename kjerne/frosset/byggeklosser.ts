@@ -151,6 +151,11 @@ export interface Svarsfrysing {
   godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean;
   /** Vilkåret for enigheten om svaret (GR-U7, `enighetsgrunnlag`). */
   vilkaar: Enighetsgrunnlag['vilkaar'];
+  /**
+   * Hvert senere «i tide» fra parten gir opp en egen innsigelse, ikke bare partens siste
+   * standpunkt (`innsigelsenErOppgitt` i `frosset/standpunkt.ts`).
+   */
+  hvertITideGirOppInnsigelsen: boolean;
 }
 
 /** Det serverens utregning av svaret regnes av (`regnUtSvar` i `frosset/utregning.ts`). */
