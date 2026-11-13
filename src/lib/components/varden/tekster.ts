@@ -8,13 +8,13 @@
  * brevnummer). Den finner ikke på virkningen.
  */
 
-import { FORHOLDSGRUPPER as KJERNENS_FORHOLD } from '$kjerne/spor/forhold/tekst';
 import { opplistet } from '$kjerne/frosset/brevdeler';
 import { kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Betegnelse } from '$kjerne/utledning/visning';
 import type { Kravpost, Oppgjoersform, Part, Spor, Standpunkt } from '$kjerne/typer';
 import { OPPGJOERSHJEMMEL } from '$kjerne/spor/vederlag/format';
+import type { Regel } from './kommandoer';
 import type { Brevet, Brevref, OppgittDato, Standpunktet } from './lesing';
 
 export const PARTNAVN: Record<Part, string> = { TE: 'totalentreprenøren', BH: 'byggherren' };
@@ -36,17 +36,6 @@ const KRAVET: Record<Spor, string> = {
   vederlag: 'vederlagsjustering',
   frist: 'fristforlengelse',
 };
-
-/**
- * Forholdene med kjernens kode og navnet, i gruppene fra kjernen (OV-U77, OV-U78). Lista har
- * hjemmet sitt i `kjerne/spor/forhold/tekst.ts`, så brevet og velgeren sier det samme (svaret
- * på Q3 i #1488).
- */
-export const FORHOLDSGRUPPER: { navn: string; forhold: [kode: string, navn: string][] }[] =
-  KJERNENS_FORHOLD.map((g) => ({
-    navn: g.navn,
-    forhold: g.forhold.map((f): [string, string] => [f.kode, f.navn]),
-  }));
 
 /**
  * Tittelen som ble frosset med brevet, med sakens kode (LV-U27, MM-U3 (opphevet av MM-U50)). Et registrert brev har
@@ -277,11 +266,11 @@ export const SKJEMA = {
     `${dager} kalenderdager fra datoen totalentreprenøren oppgir til kravet ble sendt.`,
   formSpoersmaal: 'Oppgjørsformen (punkt 34.2.2)',
   godkjennerForm: `Godkjenner ${metodenavn('tilbud')}`,
-  menerForm: (m: 'enhetspriser' | 'regningsarbeid') => `Mener ${metodenavn(m)}`,
+  menerForm: (m: Regel) => `Mener ${metodenavn(m)}`,
   // Kravposten etter en beregningsregel (#1756, prototype v3 `#svar`).
   formSpoersmaalRegel: 'Oppgjørsformen',
-  godkjennerRegel: (m: 'enhetspriser' | 'regningsarbeid') => `Godkjenner ${metodenavn(m)}`,
-  godkjennerIkkeRegel: (m: 'enhetspriser' | 'regningsarbeid') => `Godkjenner ikke ${metodenavn(m)}`,
+  godkjennerRegel: (m: Regel) => `Godkjenner ${metodenavn(m)}`,
+  godkjennerIkkeRegel: (m: Regel) => `Godkjenner ikke ${metodenavn(m)}`,
   kreverTilbudKort: 'krever spesifisert tilbud',
   tilbudSpoersmaal: 'Spesifisert tilbud (punkt 34.2.1)',
   kreverTilbud: (post: string | null) =>
@@ -355,7 +344,7 @@ export const SKJEMA = {
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
   manglerForm: 'Velg om du godkjenner fast sum.',
-  manglerFormRegel: (m: 'enhetspriser' | 'regningsarbeid') => `Velg om du godkjenner ${m}.`,
+  manglerFormRegel: (m: Regel) => `Velg om du godkjenner ${m}.`,
   manglerVarselJustering: 'Velg om varselet om justering av enhetsprisene kom i tide.',
   manglerJustering: 'Velg om du godkjenner justeringen av enhetsprisene.',
   manglerBeloep: 'Velg hvor mye av beløpet du godkjenner.',
