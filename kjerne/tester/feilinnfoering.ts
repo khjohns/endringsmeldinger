@@ -1108,7 +1108,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'svaret på vederlag og frist sier ikke at forholdet er avslått eller prekludert (A2, B-13 05.10)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [["  if (s.spor === 'forhold') return [];", '  return [];']],
+    endringer: [
+      ["  if (s.spor === 'forhold') return [];", '  return [];'],
+      ["  if (s.spor === 'forhold') return ingen;", '  return ingen;'],
+    ],
     mal: [
       'forholdet avslått i samme brev',
       'forholdet prekludert og avslått subsidiært i et tidligere brev',
@@ -3315,7 +3318,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'svaret på vederlag eller frist uten svar på forholdet har ikke forbeholdet (GR-U26)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['    ...forbeholdForForholdet(s, t),\n', '']],
+    endringer: [
+      ['    ...forbeholdForForholdet(s, t),\n', ''],
+      ['  const forbehold = forbeholdetForForholdet(s, t);', '  const forbehold: string[] = [];'],
+    ],
     mal: [
       'det første svaret på vederlaget har forbeholdet',
       'forløpet i #1239',
@@ -3356,6 +3362,10 @@ const MUTASJONER: Mutasjon[] = [
       [
         'plass: lag !== null ? lag + forskyvning : null,',
         "plass: lag !== null && p.art !== 'oppgjoersform' ? lag + forskyvning : null,",
+      ],
+      [
+        '    const plass = plassen(p.id);',
+        "    const plass = p.art === 'oppgjoersform' ? null : plassen(p.id);",
       ],
     ],
     mal: [
@@ -3407,10 +3417,8 @@ const MUTASJONER: Mutasjon[] = [
         "    .map((a) => a.join(' '))\n    .join(' ');",
       ],
     ],
-    mal: [
-      '§ 34.1.2 «nei»: byggherren påberoper prinsipalt at varselet kom for sent',
-      'bare § 34.1.3 påberopt: justeringen ellers er upåvirket',
-    ],
+    // LV-U72: svaret på fristen har dagens struktur med avsnitt per lag.
+    mal: ['nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)'],
   },
   {
     id: 'F415',
@@ -3724,8 +3732,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        "  if (p.hjemmel === '32.2' && j.element(p.gjelder).art !== 'krav')\n    throw new KanIkkeUttrykkes('varselet etter § 32.2 sendt utenfor løsningen har ingen brevtekst');",
-        "  if (p.hjemmel === '32.2') return VARSELET[p.hjemmel];",
+        'const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(p.gjelder))}`;',
+        'const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(krav.dokument)}`;',
       ],
     ],
     mal: ['svaret på versjon 2 påberoper varselet i den første versjonen'],

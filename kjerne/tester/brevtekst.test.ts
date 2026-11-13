@@ -1686,7 +1686,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
         }),
       ],
     });
-    expect(laast(rad)[2]).toMatch(
+    expect(laast(rad).at(-1) ?? '').toMatch(
       /beskrevet i totalentreprenørens krav i brev K201-KOE-017-04 av 5\. oktober 2026: «Ny beskrivelse\.»\.$/
     );
   });
@@ -6552,7 +6552,9 @@ describe('tegn PDF-en av brevet ikke kan vise, avvises når brevet skrives (#801
         }),
       ],
     };
-    expect(s.vis('BH', godkjenning)?.[2], 'kontrollsak').toContain(`«${BESKRIVELSE}»`);
+    expect(s.vis('BH', godkjenning)?.join('\n\n') ?? '', 'kontrollsak').toContain(
+      `«${BESKRIVELSE}»`
+    );
     const avsnitt = (krav.data as { brevtekst: { utdypning?: string }[] }).brevtekst;
     const medBeskrivelse = avsnitt.find((a) => a.utdypning === BESKRIVELSE);
     expect(medBeskrivelse, 'forutsetning').toBeDefined();

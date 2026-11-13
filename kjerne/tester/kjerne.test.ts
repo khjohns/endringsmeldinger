@@ -2342,7 +2342,12 @@ describe('upåvirket hos leserne (OV-U33)', () => {
       for (const e of (r.data.svar ?? []) as Data[]) {
         if (e.id !== k.navn.id(navn)) continue;
         const standpunkter = e.standpunkter as Data[];
-        const id = (a: string) => standpunkter.find((p) => p.art === a)!.id as string;
+        const id = (a: string) => {
+          const p = standpunkter.find((x) => x.art === a);
+          // En feilinnføring som fjerner standpunktet, skal gi en feilet assertion (F179).
+          expect(p, `forutsetning: svaret har standpunktet ${a}`).toBeDefined();
+          return p!.id as string;
+        };
         const b = e.beslutningsgrunnlag as Data;
         const flytt = [id(art), ...(paaberopelse ? [id(paaberopelse)] : [])];
         b.virkninger = (b.virkninger as Data[]).filter(
