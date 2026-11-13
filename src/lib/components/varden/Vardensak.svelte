@@ -360,7 +360,6 @@
           kommando={k.kommando}
           tekst={k.tekst}
           avsnitt={k.avsnitt}
-          utdypning={k.utdypning}
           merking={k.merking}
           deresRef={k.deresRef}
           tittel={k.tittel}

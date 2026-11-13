@@ -110,7 +110,6 @@
       kommando,
       tekst: b.tekst,
       avsnitt: b.avsnitt,
-      utdypning: kommando.utdypning,
       detteSender: linjer,
       virkninger: [FORHOLDET.korrigeringenStaar(lukket, svarbrevet)].filter((v) => v !== null),
       merking: b.merking,

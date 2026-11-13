@@ -116,6 +116,12 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     const vist = await laastTekst(/Påberopelse av irregulær endring/);
     expect(vist.join(' ')).toMatch(/Pålegget ble mottatt 15\. september 2026\./);
     expect(vist.join(' ')).not.toMatch(/erstatter/);
+    // Teksten TE skrev står i avsnittene kjernen lager, slik brevet sendes (LV-U2, #1856).
+    expect(
+      within(screen.getByRole('article', { name: /Påberopelse av irregulær endring/ })).getByText(
+        'Vi fastholder at pålegget er en endring.'
+      )
+    ).toBeTruthy();
     const kontrollen = within(screen.getByRole('region', { name: 'Sending' }));
     expect(kontrollen.getByRole('heading', { name: /^Kontroller og send/ })).toBeTruthy();
     // U-3, D-5: mottakeren og brevrelasjonene. Datoen står i brevet, og korrigeringen på

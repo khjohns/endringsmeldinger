@@ -10,6 +10,7 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import { KJERNE } from '$kjerne/versjon';
+  import type { Avsnitt } from '$kjerne/typer';
   import type { Saksmerking } from '$lib/kjernesak/brevtekst';
   import { tekstenKanVaereUtdatert } from '$lib/kjernesak/kontekst.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
@@ -82,6 +83,7 @@
   let oppsummering = $state<HTMLElement | null>(null);
   let kontroll = $state<{
     tekst: string[];
+    avsnitt: Avsnitt[] | null;
     merking: string | null;
     deresRef: string[];
     brevtittel: string | null;
@@ -223,6 +225,7 @@
         feil = {};
         kontroll = {
           tekst: brev.tekst,
+          avsnitt: brev.avsnitt,
           merking: brev.merking,
           deresRef: brev.deresRef,
           brevtittel: brev.brevtittel,
@@ -286,6 +289,7 @@
             kontroll = {
               ...kontroll,
               tekst: brev.tekst,
+              avsnitt: brev.avsnitt,
               merking: brev.merking,
               deresRef: brev.deresRef,
               brevtittel: brev.brevtittel,
@@ -334,7 +338,7 @@
     kjernesak={sending}
     kommando={kontroll.kommando}
     tekst={kontroll.tekst}
-    utdypning={beskrivelse.trim()}
+    avsnitt={kontroll.avsnitt}
     merking={kontroll.merking}
     deresRef={kontroll.deresRef}
     tittel={kontroll.brevtittel}

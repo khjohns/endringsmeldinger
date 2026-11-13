@@ -496,7 +496,6 @@
       kommando,
       tekst: b.tekst,
       avsnitt: b.avsnitt,
-      utdypning: kommando.utdypning,
       detteSender,
       virkninger: [],
       merking: b.merking,
