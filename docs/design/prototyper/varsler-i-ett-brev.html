@@ -551,7 +551,7 @@ a.liten-knapp{color:inherit}
         <aside class="stoette" aria-label="Brevet samlet">
           <section class="kort">
             <div class="kort-hode"><h2>Varslene</h2><p id="antall"></p></div>
-            <nav aria-label="Varslene i brevet"><ol class="punktliste" id="punktliste"></ol></nav>
+            <nav aria-label="Varslene i brevet" data-spor="U-9"><ol class="punktliste" id="punktliste"></ol></nav>
             <div class="blokk" id="mangler" data-spor="U-3"></div>
             <div class="blokk send" data-spor="U-5 · U-6"><a class="knapp" id="primaer" href="#brev">Se brevet før sending</a><p class="godkj"><span class="utkastmerke">Utkast</span><span>Ikke sendt. Lagret kl. 10.12.</span></p></div>
           </section>
@@ -604,7 +604,6 @@ a.liten-knapp{color:inherit}
 
 <script>
 // Varslene. «en» = kan bare gis én gang i sporet (D-2). «arbeid» = beskrivelsen er påkrevd (S-2).
-const B = {
 // Navnene er «varselnavn» i src/lib/components/varden/tekster.ts. Varselet om fristforlengelse står i
 // skjemaet for fristen (U-4).
 const B = {
@@ -665,7 +664,7 @@ function tegn() {
     `<li><a href="#varsler" data-gaa="${i}"><span class="pnr">${i + 1}</span><span class="pt">${esc(B[r.h].navn)}</span><span class="ps${mangler(r) ? ' mangler' : ''}">${r.arbeid ? esc(r.arbeid) : mangler(r) ? 'Mangler arbeidet varselet gjelder' : B[r.h].arbeid ? 'Arbeidet er ikke oppgitt' : 'Gjelder hele vederlagskravet'}</span></a></li>`).join('');
   const m = rader.filter(mangler).length;
   document.getElementById('mangler').innerHTML = m ? `<p class="virkning"><b>${m === 1 ? 'Ett varsel mangler' : m + ' varsler mangler'} arbeidet varselet gjelder.</b> Brevet sendes ikke før det er fylt ut.</p>`
-    : `<p class="virkning">${utenfor ? 'Løsningen lager ingen brevtekst for et registrert dokument. Dokumentet er det du meddelte.' : 'Hvert varsel står som et eget avsnitt i brevet, med bestemmelsen og arbeidet.'}</p>`;
+    : `<p class="virkning">${utenfor ? 'Løsningen lager ingen brevtekst for et registrert dokument. Dokumentet er det du meddelte.' : 'Hvert varsel står som et eget avsnitt i brevet, med arbeidet det gjelder.'}</p>`;
   const p = document.getElementById('primaer');
   p.textContent = utenfor ? 'Registrer varslene' : 'Se brevet før sending';
   p.setAttribute('href', utenfor ? '#registrer' : '#brev');
