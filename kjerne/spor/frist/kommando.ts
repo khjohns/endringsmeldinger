@@ -43,7 +43,6 @@ const utdypningIFristen = (): Avvisning | null =>
 
 /** KA-U76, KA-U79: fristene i kravet mot de tidligere kravversjonene. */
 function fristsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
-  if (k.spor !== 'frist') return null;
   const strid = fristeneStrider(
     k.innhold as Parameters<typeof fristeneStrider>[0],
     u.spor.frist.krav,

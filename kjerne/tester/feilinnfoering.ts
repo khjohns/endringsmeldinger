@@ -5058,6 +5058,40 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['?? eier.get(fristnoekkel(p)) ', '']],
     mal: ['F-MM-KA-U76-igjen'],
   },
+  {
+    id: 'F585',
+    feilklasse:
+      'en frist uten `id` som kommer tilbake i en rad som er erstattet med en registrert frist, godtas (KA-U79)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      [
+        '    const kjent = rad === undefined ? undefined : sist.get(rad);',
+        '    const kjent = id === undefined ? undefined : sist.get(id);',
+      ],
+    ],
+    mal: ['F-MM-KA-U79-tilbake'],
+  },
+  {
+    id: 'F586',
+    feilklasse:
+      'leseren godtar et fristsvar med dagene for en annen frist enn i kravet (MM-U2, KA-U74)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [['    if (iSvaret.join() !== iKravet.join())', '    if (false)']],
+    mal: ['et lest fristsvar med dagene for en annen frist enn i kravet'],
+  },
+  {
+    id: 'F587',
+    feilklasse:
+      'brevet sier ikke at en frist som er trukket og tatt med igjen i en ny form, erstatter den siste formen (KA-U79)',
+    fil: `${K}/spor/frist/tekst.ts`,
+    endringer: [
+      [
+        '    for (const frist of innholdIFristen(v).frister) sist.set(frist.id, { frist, krav: v });',
+        '    for (const frist of innholdIFristen(v).frister) if (v === forrige) sist.set(frist.id, { frist, krav: v });',
+      ],
+    ],
+    mal: ['en frist som er trukket og tatt med igjen i en ny form'],
+  },
 ];
 
 interface Testresultat {

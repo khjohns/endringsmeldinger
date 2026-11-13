@@ -118,7 +118,7 @@ function kontrollerSvar(
   if (avvik.length)
     return avvis(
       'ANNET_RESULTAT',
-      `Serveren regner ut ${avvik.map((f) => (f.includes('.') ? `${f}=${JSON.stringify(server[f.split('.')[0]!])}` : `${f}=${String(server[f])}`)).join(', ')}.`
+      `Serveren regner ut ${avvik.map((a) => `${a.sti}=${a.serveren}`).join(', ')}.`
     );
   return utdypningKreves ? nyttelastI(s.spor).begrunnelse(s, krav, regler) : null;
 }

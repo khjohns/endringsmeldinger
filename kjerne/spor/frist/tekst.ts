@@ -6,6 +6,7 @@
 
 import {
   KanIkkeUttrykkes,
+  kravetErstatter,
   opplistet,
   tidligere,
   type Brevpunkt,
@@ -50,17 +51,21 @@ function fristkravtekst(k: Krav, { j }: Tekst): Brevpunkt[] {
       `Kravet er svar på byggherrens forespørsel etter NS 8407 punkt 33.6.2 i ${j.brevet(j.dokumentetTil(k.gjelder))}.`
     );
   // KA-U52 punkt 4, LV-U56: setningen om kravet det erstatter står før fristene.
-  if (k.erstatter)
-    deler.push(`Kravet erstatter TEs krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`);
-  const forrige = tidligere(k, j).at(-1);
+  if (k.erstatter) deler.push(kravetErstatter(k.erstatter, j));
+  const versjoner = tidligere(k, j);
+  const forrige = versjoner.at(-1);
   const foer = new Map(forrige ? innholdIFristen(forrige).frister.map((f) => [f.id, f]) : []);
+  // KA-U79: en frist som er trukket og tatt med igjen, sammenliknes med den siste formen den hadde.
+  const sist = new Map<string, { frist: FristIKravet; krav: Krav }>();
+  for (const v of versjoner)
+    for (const frist of innholdIFristen(v).frister) sist.set(frist.id, { frist, krav: v });
   const avsnitt = [deler.join(' ')];
   for (const f of innholdIFristen(k).frister) {
-    const forrigeFrist = foer.get(f.id);
+    const siste = sist.get(f.id);
     const setninger = [`Frist ${betegnelsen(f)}: ${dager(f.dager)}.`];
-    if (forrigeFrist && forrige && fristnoekkel(forrigeFrist) !== fristnoekkel(f))
+    if (siste && fristnoekkel(siste.frist) !== fristnoekkel(f))
       setninger.push(
-        `Fristen erstatter frist ${betegnelsen(forrigeFrist)} i ${j.brevet(forrige.dokument)}.`
+        `Fristen erstatter frist ${betegnelsen(siste.frist)} i ${j.brevet(siste.krav.dokument)}.`
       );
     avsnitt.push(setninger.join(' '));
   }

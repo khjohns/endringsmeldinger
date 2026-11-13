@@ -21,7 +21,7 @@ import {
   type Svarvurdering,
 } from '../../frosset/byggeklosser.ts';
 import { innholdIFristen, utregningIFristen } from './format.ts';
-import type { Dokument, Krav, Standpunktsvirkning, Utfall } from '../../typer.ts';
+import type { Dokument, Krav, Standpunkt, Standpunktsvirkning, Utfall } from '../../typer.ts';
 
 /** Det svaret gir i dager for hver frist i laget (KA-U74). */
 function utfallIFristen(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert: boolean): Utfall {
@@ -30,17 +30,14 @@ function utfallIFristen(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert:
     spesifisering && prinsipalt(v)?.standpunkt === spesifisering.id
       ? spesifisering.maatteForstaa
       : undefined;
-  const frister = svar.standpunkter.flatMap((d) => {
-    if (d.art !== 'dager') return [];
-    const dager = prekludert
-      ? 0
-      : maatteForstaa
-        ? maatteForstaa.find((m) => m.frist === d.gjelder)!.dager
-        : d.resultat === 'avslaatt'
-          ? 0
-          : d.vurdert;
-    return [{ gjelder: d.gjelder, dager }];
-  });
+  const dagerI = (d: Extract<Standpunkt, { art: 'dager' }>): number => {
+    if (prekludert) return 0;
+    if (maatteForstaa) return maatteForstaa.find((m) => m.frist === d.gjelder)!.dager;
+    return d.resultat === 'avslaatt' ? 0 : d.vurdert;
+  };
+  const frister = svar.standpunkter.flatMap((d) =>
+    d.art === 'dager' ? [{ gjelder: d.gjelder, dager: dagerI(d) }] : []
+  );
   return { frister };
 }
 

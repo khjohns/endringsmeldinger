@@ -260,6 +260,10 @@ export const PRODUKTIVITET =
 export const opplistet = (a: string[]) =>
   a.length > 1 ? `${a.slice(0, -1).join(', ')} og ${a.at(-1)}` : a[0];
 
+/** KA-U52 punkt 4, LV-U56: setningen om kravversjonen et krav erstatter. */
+export const kravetErstatter = (erstatter: string, j: Journalen): string =>
+  `Kravet erstatter TEs krav i ${j.brevet(j.krav(erstatter).dokument)}.`;
+
 /** Kravversjonene før `k` i sporet, eldste først. */
 export function tidligere(k: Krav, j: Journalen): Krav[] {
   const ut: Krav[] = [];

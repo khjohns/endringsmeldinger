@@ -234,10 +234,10 @@ function kontrollerStandpunkteneIFristen(ut: Standpunkt[], utregning: Data, sti:
     forrige = plass;
   }
   const dagene = ut.flatMap((s) => (s.art === 'dager' ? [s.gjelder] : []));
-  const radene = utregningIFristen(utregning).frister.map((r) => r.gjelder);
-  if (dagene.join() !== radene.join())
+  const radene = utregningIFristen(utregning).frister;
+  if (dagene.join() !== radene.map((r) => r.gjelder).join())
     throw new Uforstaatt(`${sti}: radene i utregningen er ikke én per frist i standpunktene`);
-  for (const r of utregningIFristen(utregning).frister)
+  for (const r of radene)
     if ('subsidiaert_resultat' in r !== 'subsidiaert_godkjent_dager' in r)
       throw new Uforstaatt(
         `${sti}: utregningen for fristen ${r.gjelder} har bare halvparten av det subsidiære standpunktet`

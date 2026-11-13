@@ -11,7 +11,8 @@ import type { Dokument, Journalrad, Part, Spor } from '../kjerne/typer.ts';
 import { kalenderdag, registrertDato } from '../kjerne/format/leser.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
-import { betegnelsen, innholdIFristen } from '../kjerne/spor/frist/format.ts';
+import { betegnelsen, innholdIFristen, type FristIKravet } from '../kjerne/spor/frist/format.ts';
+import { fristeneISporet } from '../kjerne/spor/frist/utledning.ts';
 import {
   fasteBeloepIKravet,
   fasteBeloepISvaret,
@@ -224,26 +225,22 @@ function foreligger(u: Utledning, spor: Spor): Foreligger {
   };
 }
 
-/**
- * Standpunktet om dagene i fristens gjeldende svar, og om det er subsidiært
- * (`standpunktetErSubsidiaert`); leseren fyller da tallet med det subsidiære (MM-U28).
- */
-/** Fristen med `id` i en av kravversjonene i sporet, med betegnelsen i kontrakten. */
-function betegnelseFor(u: Utledning, id: string): string {
-  for (const k of [...u.spor.frist.krav].reverse()) {
-    const f = innholdIFristen(k).frister.find((x) => x.id === id);
-    if (f) return betegnelsen(f);
-  }
-  return id;
+/** Betegnelsen i kontrakten for fristen med `id`, i den siste formen den hadde i sporet. */
+function betegnelseFor(sist: ReadonlyMap<string, FristIKravet>, id: string): string {
+  const f = sist.get(id);
+  return f ? betegnelsen(f) : id;
 }
 
-/** Byggherrens gjeldende svar på fristen: dagene og resultatet for hver frist. */
-function fristsvaret(u: Utledning): Fristlinje['svar'] {
+/**
+ * Byggherrens gjeldende svar på fristen: dagene og resultatet for hver frist, og om
+ * standpunktet er subsidiært (`standpunktetErSubsidiaert`, MM-U28).
+ */
+function fristsvaret(u: Utledning, sist: ReadonlyMap<string, FristIKravet>): Fristlinje['svar'] {
   const frister = (u.spor.frist.gjeldendeSvar?.standpunkter ?? []).flatMap((st) =>
     st.art === 'dager'
       ? [
           {
-            betegnelse: betegnelseFor(u, st.gjelder),
+            betegnelse: betegnelseFor(sist, st.gjelder),
             resultat: st.resultat,
             dager: st.vurdert,
             subsidiaert: standpunktetErSubsidiaert(u, 'frist', st.id),
@@ -300,6 +297,7 @@ function vederlag(u: Utledning): Vederlagslinje {
 
 function frist(u: Utledning): Fristlinje {
   const s = u.spor.frist;
+  const { sist } = fristeneISporet(s.krav);
   const krav = s.gjeldendeKrav;
   const virkning = enighetensVirkning(u, 'frist');
   return {
@@ -315,12 +313,12 @@ function frist(u: Utledning): Fristlinje {
           })),
         }
       : null,
-    svar: fristsvaret(u),
+    svar: fristsvaret(u, sist),
     enighet:
       s.enighet && virkning
         ? {
             frister: (s.enighet.grunnlag.utfall.frister ?? []).map((f) => ({
-              betegnelse: betegnelseFor(u, f.gjelder),
+              betegnelse: betegnelseFor(sist, f.gjelder),
               dager: f.dager,
             })),
             virkning,

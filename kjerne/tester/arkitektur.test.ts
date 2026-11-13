@@ -1105,7 +1105,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/utregning.ts:avvikIResultatet(server)', 'regelsett', '*'],
   ['frosset/utregning.ts:avvikIResultatet(fra)', 'kommando', '*'],
   ['frosset/utregning.ts:avvikIResultatet(rad)', 'regelsett', '*'],
-  ['kommandoer/nyttelast.ts:kontrollerSvar(server)', 'regelsett', '*'],
+  [
+    'frosset/utregning.ts:avvikIResultatet',
+    'regelsett',
+    'sti serveren',
+    ['kommandoer/nyttelast.ts:kontrollerSvar'],
+  ],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder hjemmel'],
   // #1703: nøkkelen i den tilbudte handlingen. De andre feltene leses bare av visningen.
   ['TilbudtHandling', 'kommando', 'noekkel'],
@@ -2155,6 +2160,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   ['frosset/brevdeler.ts', 'brevtekst', 'verdi', ['spor/vederlag/tekst.ts']],
+  [
+    'frosset/brevdeler.ts',
+    'brevtekst',
+    'kravetErstatter',
+    ['frosset/brevtekst.ts', 'spor/frist/tekst.ts'],
+  ],
   // Byggeklossene i brevteksten som teksten i sporene også bruker (#1783).
   [
     'frosset/brevdeler.ts',

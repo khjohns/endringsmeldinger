@@ -70,23 +70,27 @@ export function likeResultatfelt(felt: string, klient: unknown, server: unknown)
 }
 
 /**
- * Feltene i `SAMMENLIKNES` der klienten har regnet annerledes enn serveren. `liste.felt` er feltet
- * i hver rad i listen, som dagene for hver frist (KA-U74).
+ * Feltene i `SAMMENLIKNES` der klienten har regnet annerledes enn serveren, med serverens verdi
+ * slik meldingen viser den. `liste.felt` er feltet i hver rad i listen, som dagene for hver frist
+ * (KA-U74), og verdien er da hele listen.
  */
 export function avvikIResultatet(
   spor: Spor,
   klient: Record<string, unknown>,
   server: Record<string, unknown>
-): string[] {
-  return SAMMENLIKNES[spor].filter((sti) => {
+): { sti: string; serveren: string }[] {
+  return SAMMENLIKNES[spor].flatMap((sti) => {
     const [liste, felt] = sti.split('.');
-    if (felt === undefined) return !likeResultatfelt(sti, klient[sti], server[sti]);
+    if (felt === undefined)
+      return likeResultatfelt(sti, klient[sti], server[sti])
+        ? []
+        : [{ sti, serveren: String(server[sti]) }];
     const k = klient[liste!] as Record<string, unknown>[];
     const verdier = (server[liste!] as Record<string, unknown>[]).map((rad) => rad[felt]);
-    return (
+    const avviker =
       !Array.isArray(k) ||
       k.length !== verdier.length ||
-      k.some((fra, i) => typeof fra !== 'object' || !likeResultatfelt(felt, fra[felt], verdier[i]))
-    );
+      k.some((fra, i) => typeof fra !== 'object' || !likeResultatfelt(felt, fra[felt], verdier[i]));
+    return avviker ? [{ sti, serveren: JSON.stringify(server[liste!]) }] : [];
   });
 }

@@ -646,6 +646,30 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
       `${FRISTKRAVET} Kravet erstatter TEs krav i brev K201-KOE-017-03 av 4. oktober 2026.\n\nFrist Sluttfristen: 30 dager.`,
     ]);
   });
+
+  it('en frist som er trukket og tatt med igjen i en ny form, sier hvilken frist den erstatter (KA-U79)', () => {
+    const s = sakMedKrav();
+    const utenVarsel = utenFelt(FRISTKRAV, 'varsel');
+    const forste = () => innholdIFristen(s.u().spor.frist.gjeldendeKrav!).frister;
+    const a = forste()[0]!.id;
+    s.send('TE', {
+      ...utenVarsel,
+      innhold: { frister: [{ navn: 'Delfristen', dager: 5 }], trekker: [a] },
+    });
+    const b = forste()[0]!.id;
+    const rad = s.send('TE', {
+      ...utenVarsel,
+      innhold: {
+        frister: [
+          { id: a, navn: 'Sluttfrist', dager: 30 },
+          { id: b, navn: 'Delfristen', dager: 5 },
+        ],
+      },
+    });
+    expect(laast(rad)[0]).toContain(
+      'Frist Sluttfrist: 30 dager. Fristen erstatter frist Sluttfristen i brev K201-KOE-017-03 av 4. oktober 2026.'
+    );
+  });
 });
 
 /**
@@ -1588,6 +1612,22 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     // virkning står med sporets første lag, ikke med forholdets (OV-U33, spørsmål 8 for #1663).
     expect(f).toBe(
       `Byggherrens svar på kravet om fristforlengelse i TEs krav i brev K201-KOE-017-03 av 4. oktober 2026:\n\nPrinsipalt: byggherren gjør gjeldende at TEs varsel etter NS 8407 § 32.2 kom for sent (se svaret på grunnlaget).\n\nSubsidiært: byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 § 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent. ${SPESIFISERING_JA}\n\nVidere subsidiært: byggherren legger ikke til grunn at fremdriften hindres som følge av forholdet (NS 8407 § 33.1).\n\nVidere subsidiært: for frist Sluttfristen godkjenner byggherren 10 dager av de krevde 20 dager.`
+    );
+  });
+
+  it('MM-U2, KA-U74: et lest fristsvar med dagene for en annen frist enn i kravet gjør saken ikke forstått', () => {
+    const s = sakMedKrav();
+    const frist = innholdIFristen(s.u().spor.frist.gjeldendeKrav!).frister[0]!.id;
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
+    });
+    expect(s.u().forstaatt, 'kontrollsak: svaret gjelder fristen i kravet').toBe(true);
+    rad.data.svar = JSON.parse(JSON.stringify(rad.data.svar).replaceAll(frist, randomUUID()));
+    const u = s.u();
+    expect(u.forstaatt).toBe(false);
+    expect(u.begrensninger.map((b) => b.grunn)).toContain(
+      'dagene i svaret er ikke de samme fristene som i kravet'
     );
   });
 

@@ -30,7 +30,13 @@ import { betegnelsen, innholdIFristen, type FristIKravet } from './format.ts';
 export const KONTROLLER_I_FRISTEN = {
   kravet: (k, tidligere) => fristeneStrider(innholdIFristen(k), tidligere, true),
   kravene: () => {},
-  svaret: () => {},
+  // MM-U2, KA-U74: én vurdering av dagene for hver frist i kravet svaret gjelder, i kravets rekkefølge.
+  svaret: (s, krav, ugyldig) => {
+    const iSvaret = s.standpunkter.flatMap((p) => (p.art === 'dager' ? [p.gjelder] : []));
+    const iKravet = innholdIFristen(krav).frister.map((f) => f.id);
+    if (iSvaret.join() !== iKravet.join())
+      ugyldig(s.id, 'dagene i svaret er ikke de samme fristene som i kravet');
+  },
   kanFaaPassivitet: false,
   leserDatoen: false,
   svaretKanGodtas: () => true,
@@ -201,15 +207,16 @@ export function fristeneStrider(
     if (noekler.has(noekkel)) return `har fristen ${omtalen(p)} to ganger`;
     noekler.add(noekkel);
     const id = p.id as string | undefined;
-    const kjent = id === undefined ? undefined : sist.get(id);
-    if (id !== undefined && !kjent && !lagret)
+    if (id !== undefined && !sist.has(id) && !lagret)
       return `har fristen ${id}, som ikke har stått i sporet`;
+    const sto = eier.get(noekkel);
+    // KA-U79: en frist uten `id` er raden den har stått i, og den raden kan være erstattet siden.
+    const rad = id ?? sto;
+    const kjent = rad === undefined ? undefined : sist.get(rad);
     if (kjent?.frist_id !== undefined && p.frist_id !== kjent.frist_id)
       return `bytter den registrerte fristen ${betegnelsen(kjent)} med en annen frist (KA-U79)`;
-    const sto = eier.get(noekkel);
     if (id !== undefined && sto !== undefined && sto !== id)
       return `gir fristen ${omtalen(p)} en ny rad, men den har stått i sporet før (KA-U76)`;
-    const rad = id ?? sto;
     if (rad === undefined) continue;
     if (med.has(rad)) return `har fristen ${omtalen(p)} to ganger`;
     med.add(rad);
