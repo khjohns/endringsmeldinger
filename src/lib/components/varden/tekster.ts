@@ -561,8 +561,6 @@ const KORRIGERT_I_LUKKET =
 
 export const FORHOLDET = {
   utenNavn: 'Forholdet',
-  siste: (b: Brevref, part: Part) =>
-    `Siste brev: ${brevrefFra(b, part)}${b.nummer === null ? '' : `, ${dato(b.registrert)}`}.`,
   registrertTittel: (part: Part) => `Korrespondanse fra ${PARTNAVN[part]}`,
   tilbake: 'Tilbake til forholdet',
   svarIkkeRegistrert: 'Svar ikke registrert.',

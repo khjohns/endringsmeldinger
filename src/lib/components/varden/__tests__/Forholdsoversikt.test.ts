@@ -105,6 +105,14 @@ describe('Siden for forholdet', () => {
     );
   });
 
+  it('under tittelen står bare stillingen, ikke siste brev, som tråden alt viser (oppdragsgiver 13.11 i #1908: «Bare stillingen»)', async () => {
+    const { u } = await vis([PAABEROPELSE, AVSLAG, REGISTRERT]);
+    expect(brevene(u).at(-1)?.art).toBe('registrert');
+    const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
+    expect(tittel.nextElementSibling).toBeNull();
+    expect(screen.queryByText(/^Siste brev:/)).toBeNull();
+  });
+
   it('ingen tekst brukeren ser, sier «grunnlag» (kriterium 1, OV-U76)', async () => {
     const u = await utledning([PAABEROPELSE, REGISTRERT, VEDERLAG, AVSLAG]);
     const { container } = render(Forholdsoversikt, {

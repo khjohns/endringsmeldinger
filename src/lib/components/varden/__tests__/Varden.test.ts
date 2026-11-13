@@ -744,6 +744,19 @@ describe('Varden med brukerforløpet BF-01', () => {
     }
   );
 
+  it('i demoruta fører «Nytt krav om endringsordre» til skjemaet for ny sak i BF-05 (oppdragsgiver 13.11 i #1908: «Ja, til BF-05»)', async () => {
+    render(Demoforloep, {
+      forloep: START,
+      punkt: 'te-har-mottatt-svaret',
+      onpunkt: () => {},
+      nySakLenke: '/demo/BF-05',
+    });
+    const radio = demopanel().getByRole('radio', { name: 'TE' });
+    if (radio.getAttribute('aria-checked') !== 'true') await fireEvent.click(radio);
+    const lenke = await screen.findByRole('link', { name: 'Nytt krav om endringsordre' });
+    expect(lenke.getAttribute('href')).toBe('/demo/BF-05');
+  });
+
   it('topplinja har stien Varden › prosjektet › saken og den innloggede med initialene, ikke rollen (prototypen grunnlagsoversikt.html, oppdragsgiver 06.11)', async () => {
     const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
     const kjernesak = lagKjernesak({

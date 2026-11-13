@@ -33,6 +33,7 @@
       {punkt}
       panel={!brukertest}
       onpunkt={(neste) => gaaTil(forloep.id, neste)}
+      nySakLenke={resolve('/demo/[forlop]', { forlop: 'BF-05' })}
     />
   {/key}
 {:else}

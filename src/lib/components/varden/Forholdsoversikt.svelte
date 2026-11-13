@@ -64,7 +64,8 @@
     u.spor.forhold.trukket ? (forholdsbrev.findLast((b) => b.art === 'trekk') ?? null) : undefined
   );
   // Hvor saken står, i vanlig språk: byggherrens standpunkt når svaret er siste brev, og at svaret
-  // ikke er registrert når påberopelsen er det. Ellers siste brev.
+  // ikke er registrert når påberopelsen er det. Ellers ingenting, fordi tråden alt viser siste brev
+  // (oppdragsgiver 13.11 i #1908: «Bare stillingen»).
   const status = $derived.by(() => {
     if (!siste || siste === trekket) return null;
     const svar = u.spor.forhold.gjeldendeSvar;
@@ -73,7 +74,7 @@
       return FORHOLDET.utfall(s.resultat, siste.registrert);
     if (u.spor.forhold.gjeldendeKrav?.dokument === siste.id)
       return FORHOLDET.venter(siste.registrert);
-    return FORHOLDET.siste(siste, siste.avsender);
+    return null;
   });
 </script>
 
