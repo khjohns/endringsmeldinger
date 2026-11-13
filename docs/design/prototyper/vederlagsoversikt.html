@@ -438,10 +438,10 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 [data-oppsett="a"] .kun-b,[data-oppsett="b"] .kun-a{display:none}
 [data-rolle="TE"] .handling.kun-bh,[data-rolle="BH"] .handling.kun-te,[data-rolle="TE"] .andre.kun-bh,[data-rolle="BH"] .andre.kun-te{display:none}
 [data-utkast="ja"] .uten-utkast-blokk,[data-utkast="nei"] .med-utkast-blokk{display:none}
-[data-oppsett="b"] .topplinje-inner{max-width:1400px}
-[data-oppsett="b"] .kolonner{max-width:1400px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+[data-oppsett="b"] .topplinje-inner{max-width:calc(var(--varden-ark)*2 + 24px)}
+[data-oppsett="b"] .kolonner{max-width:calc(var(--varden-ark)*2 + 24px);grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .sporrad,.sti .sakstittel{display:none}
-@media (min-width:1181px) and (max-width:1799px){
+@media (min-width:1181px) and (max-width:1899px){
   .skall[data-oppsett="b"]{grid-template-columns:minmax(0,1fr)}[data-oppsett="b"] .panel{display:none}
   [data-oppsett="b"] .sporrad{display:flex;flex-basis:100%;gap:4px 24px;flex-wrap:wrap;margin-bottom:-10px;font-size:14px}
   .sporrad a{padding:9px 0;border-bottom:2px solid transparent;color:var(--ink-2);text-decoration:none}
