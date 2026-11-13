@@ -123,15 +123,23 @@
       .map((h) => h.noekkel)
   );
   // Handlingen står ved brevet den svarer på: kravet når parten kan svare, ellers svaret (U-16).
+  // Byggherrens nye svar står ved byggherrens svar, når det ikke er noe annet å svare på (U-16).
+  const revidere = $derived(
+    oversikt && !primaer && !kanGodta && svarbrevet && noekler.includes(`revidere:${spor}`)
+      ? `revidere:${spor}`
+      : null
+  );
   const handlingVed = $derived(
     primaer === `svare:${spor}`
       ? (u.spor[spor].gjeldendeKrav?.dokument ?? null)
-      : primaer || kanGodta
+      : primaer || kanGodta || revidere
         ? (svarbrevet?.id ?? null)
         : null
   );
   const godtaVedBrevet = $derived(oversikt && kanGodta && handlingVed !== null);
-  const andre = $derived(godtaVedBrevet ? menyvalg.filter((n) => n !== `godta:${spor}`) : menyvalg);
+  const andre = $derived(
+    menyvalg.filter((n) => !(godtaVedBrevet && n === `godta:${spor}`) && n !== revidere)
+  );
   const avslag = $derived(
     svaret?.standpunkter.some((s) => s.art === 'forhold' && s.resultat === 'avslaatt') ?? false
   );
@@ -183,6 +191,7 @@
   function virkningen(n: string): string | null {
     if (n === `godta:${spor}` && svarbrevet) return HANDLINGENE.virkning.godta(svarbrevet);
     if (n === 'trekke:forhold') return HANDLINGENE.virkning.trekkForholdet;
+    if (n.startsWith('revidere:') && svarbrevet) return HANDLINGENE.virkning.nyttSvar(svarbrevet);
     if (n.startsWith('trekke:')) return HANDLINGENE.virkning.trekkKravet;
     if (n.startsWith('krav:')) {
       const krav = sporbrev.find((b) => b.id === u.spor[spor].gjeldendeKrav?.dokument) ?? null;
@@ -257,7 +266,7 @@
 {/snippet}
 
 {#snippet ikkeBygget()}
-  {#if primaer && !primaerBygget}
+  {#if (primaer && !primaerBygget) || (revidere && !bygget.includes(revidere))}
     <!-- Den levende regionen står fra start, så teksten leses opp når den kommer (#1636). -->
     <p class="dempet" role="status">{primaerIkkeBygget ? HANDLINGENE.ikkeBygget : ''}</p>
   {/if}
@@ -282,12 +291,22 @@
 {#snippet vedBrevet()}
   {@const linje = [
     primaer ? virkningen(primaer) : null,
+    revidere ? virkningen(revidere) : null,
     godtaVedBrevet ? virkningen(`godta:${spor}`) : null,
   ]
     .filter(Boolean)
     .join(' ')}
   <div class="knapper">
     {#if primaer}{@render primaerknapp(primaer, linje ? `${uid}-vedbrevet` : undefined)}{/if}
+    {#if revidere}
+      {@const r = revidere}
+      <Knapp
+        variant="lenke"
+        onclick={() => (bygget.includes(r) ? velg(r) : (primaerIkkeBygget = true))}
+        aria-describedby={linje ? `${uid}-vedbrevet` : undefined}
+        >{innsigelsestekst(r) ?? BREVTYPER.find((b) => b.type === 'revidere')!.tekst}</Knapp
+      >
+    {/if}
     {#if godtaVedBrevet}
       <Knapp
         onclick={() => velg(`godta:${spor}`)}

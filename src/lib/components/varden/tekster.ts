@@ -481,6 +481,9 @@ export const HANDLINGENE = {
     // kan ikke tas opp igjen (GR-U5).
     trekkForholdet: 'Trekker også kravene om vederlag og frist. Kan ikke tas opp igjen.',
     trekkKravet: 'Kravet kan ikke tas opp igjen.',
+    /** Byggherrens nye svar (U-16 i BF-44). */
+    nyttSvar: (svar: Brevref) =>
+      `Nytt brev med svaret. Svaret i ${brevref(svar)} står som det ble sendt.`,
   },
 };
 

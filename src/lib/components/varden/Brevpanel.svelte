@@ -24,13 +24,15 @@
 </script>
 
 {#if brev.avsnitt}
-  <!-- Rammen kan rulles, så den kan få fokus med tastaturet (WCAG 2.1.1). -->
+  <!-- Rammen i høyre kolonne kan rulles, så den kan få fokus med tastaturet (WCAG 2.1.1). I raden
+       ruller den ikke. -->
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <section
     class="brevpanel"
     class:iRaden
-    tabindex="0"
-    aria-labelledby={`${uid}-tittel`}
+    tabindex={iRaden ? undefined : 0}
+    aria-labelledby={iRaden ? undefined : `${uid}-tittel`}
+    aria-label={iRaden ? TRAADEN.brevetSomSendt(brev) : undefined}
     data-brevpanel={brev.id}
   >
     {#if !iRaden}
@@ -38,8 +40,6 @@
         <h2 id={`${uid}-tittel`}>{TRAADEN.brevet}</h2>
         {#if brev.nummer !== null}<span>{TRAADEN.nummer(brev.nummer)}</span>{/if}
       </div>
-    {:else}
-      <h2 id={`${uid}-tittel`} class="visually-hidden">{TRAADEN.brevetSomSendt(brev)}</h2>
     {/if}
     <Brev
       avsender={brev.avsender}
