@@ -210,23 +210,6 @@
      }
     ]
    },
-   "koe.dagmulktssats": {
-    "kolonner": [
-     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
-     ["sats", "decimal(15,2)", "NOT NULL"]
-    ],
-    "primærnøkkel": ["prosjekt_id"],
-    "unike": [],
-    "unike_indekser": [],
-    "fremmednøkler": [
-     {
-      "kolonner": ["prosjekt_id"],
-      "til": "koe.projects",
-      "til_kolonner": ["id"],
-      "ved_sletting": "NO ACTION"
-     }
-    ]
-   },
    "koe.entra_tenant": {
     "kolonner": [
      ["tenant_id", "uniqueidentifier", "NOT NULL"],
@@ -572,12 +555,59 @@
      }
     ]
    },
+   "koe.kontraktsfrist": {
+    "kolonner": [
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["frist_id", "int", "NOT NULL"],
+     ["nummer", "nvarchar(20)", "NULL"],
+     ["navn", "nvarchar(200)", "NOT NULL"],
+     ["dato", "date", "NOT NULL"],
+     ["dagmulktbelagt", "bit", "NOT NULL"],
+     ["satsgrunnlag", "nvarchar(20)", "NULL"],
+     ["promille", "decimal(9,4)", "NULL"],
+     ["minstebeloep", "decimal(15,2)", "NULL"],
+     ["delens_verdi", "decimal(15,2)", "NULL"],
+     ["beloep_per_dag", "decimal(15,2)", "NULL"]
+    ],
+    "primærnøkkel": ["prosjekt_id", "frist_id"],
+    "unike": [
+     ["prosjekt_id", "navn"]
+    ],
+    "unike_indekser": [
+     "(prosjekt_id, nummer) WHERE ([nummer] IS NOT NULL)"
+    ],
+    "fremmednøkler": [
+     {
+      "kolonner": ["prosjekt_id"],
+      "til": "koe.projects",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
    "koe.kontraktsparter": {
     "kolonner": [
      ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
      ["byggherre_navn", "nvarchar(400)", "NOT NULL"],
      ["totalentreprenor_navn", "nvarchar(400)", "NOT NULL"],
      ["kontraktsforkortelse", "nvarchar(20)", "NOT NULL"]
+    ],
+    "primærnøkkel": ["prosjekt_id"],
+    "unike": [],
+    "unike_indekser": [],
+    "fremmednøkler": [
+     {
+      "kolonner": ["prosjekt_id"],
+      "til": "koe.projects",
+      "til_kolonner": ["id"],
+      "ved_sletting": "NO ACTION"
+     }
+    ]
+   },
+   "koe.kontraktssum": {
+    "kolonner": [
+     ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
+     ["kontraktssum", "decimal(15,2)", "NOT NULL"]
     ],
     "primærnøkkel": ["prosjekt_id"],
     "unike": [],

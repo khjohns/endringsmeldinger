@@ -204,7 +204,6 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
         'koe.brevdokument.prosjekt_id',
         'koe.catenda_contract_teams.internal_project_id',
         'koe.catenda_project_configs.internal_project_id',
-        'koe.dagmulktssats.prosjekt_id',
         'koe.godkjenningshandling.prosjekt_id',
         'koe.godkjenningspakke.prosjekt_id',
         'koe.godkjenningssteg.prosjekt_id',
@@ -212,7 +211,9 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
         'koe.innkommende_behandling.prosjekt_id',
         'koe.jobb.prosjekt_id',
         'koe.kjernebuffer.prosjekt_id',
+        'koe.kontraktsfrist.prosjekt_id',
         'koe.kontraktsparter.prosjekt_id',
+        'koe.kontraktssum.prosjekt_id',
         'koe.kvittering.prosjekt_id',
         'koe.leveringskvittering.prosjekt_id',
         'koe.leveringsoppdrag.prosjekt_id',
@@ -241,6 +242,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
     // når innloggingens liste ble hentet, som kalleren oppgir (DL-U9), og når en
     // sesjon eller et innloggingsforsøk utløper, som prosedyren regner ut (#656),
     // og når HR-bildet ble hentet, som `koe_api.synkroniser_hr` setter for hele bildet (#831).
+    // En kalenderdato fra kontrakten er ikke et tidspunkt (DL-U3 gjelder tidspunktene).
+    const DATOER = ['koe.kontraktsfrist.dato'];
     const UTEN_STANDARD = [
       'koe.app_membership_absences.observed_at',
       'koe.app_membership_sync.synced_at',
@@ -272,15 +275,20 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('identiteten i SQL Server', () => {
           WHERE TYPE_NAME(c.user_type_id) IN (N'datetime2', N'datetimeoffset', N'datetime', N'smalldatetime', N'date', N'time')`
       );
       expect(svar.recordset.length).toBeGreaterThan(0);
-      expect(svar.recordset.filter((r) => r.type !== 'datetime2' || r.scale !== 3)).toEqual([]);
+      const datoer = svar.recordset.filter((r) => DATOER.includes(r.kolonne));
+      expect(datoer.map((r) => [r.kolonne, r.type, r.standard])).toEqual(
+        DATOER.map((k) => [k, 'date', null])
+      );
+      const tidspunkter = svar.recordset.filter((r) => !DATOER.includes(r.kolonne));
+      expect(tidspunkter.filter((r) => r.type !== 'datetime2' || r.scale !== 3)).toEqual([]);
       expect(
-        svar.recordset
+        tidspunkter
           .filter((r) => r.standard === null)
           .map((r) => r.kolonne)
           .sort()
       ).toEqual(UTEN_STANDARD);
       expect(
-        svar.recordset.filter(
+        tidspunkter.filter(
           (r) => r.standard !== null && r.standard !== '(datetrunc(millisecond,sysutcdatetime()))'
         )
       ).toEqual([]);
