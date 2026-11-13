@@ -269,7 +269,7 @@ describe('resultatet for hele fristsvaret i sakslisten (svar 2 A i #1745, HF-U7,
 });
 
 describe('linja i sakslisten (#1022)', () => {
-  it('svar 2: med avslått forhold er fristsvaret subsidiært, som vederlaget (MM-U28)', () => {
+  it('svar 2: med avslått forhold er fristsvaret subsidiært, som vederlaget (OV-U32, svar 2 A i #1745)', () => {
     expect(linje(forloepA).frist.svar).toMatchObject({
       resultat: 'godkjent',
       antall_godkjent: 1,
