@@ -120,7 +120,7 @@ function regnUtFristen(
     er_grunnlag_subsidiaert: false,
     er_hele_fristen_subsidiaer_pga_grunnlag: false,
   };
-  const { er_prekludert } = beregnFrist(fkrav, {
+  const { er_prekludert: prekludert } = beregnFrist(fkrav, {
     frist_varsel_ok: v.frist_varsel_ok as boolean | undefined,
     spesifisert_krav_ok: v.spesifisert_krav_ok as boolean | undefined,
     foresporsel_svar_ok: v.foresporsel_svar_ok as boolean | undefined,
@@ -135,7 +135,7 @@ function regnUtFristen(
   // KA-U78, OV-U32: dagene i hvert lag i rekkefølgen i `virkningerIForholdetOgFristen`.
   // Preklusjon og «ikke hindret» gir 0 dager, og spesifiseringen dagene byggherren måtte forstå.
   const dager = [
-    ...(er_prekludert ? [0] : []),
+    ...(prekludert ? [0] : []),
     ...(v.vilkar_oppfylt === true ? [] : [0]),
     ...(maatteForstaa === null ? [] : [maatteForstaa]),
     f.dager as number,
