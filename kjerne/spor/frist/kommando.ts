@@ -8,7 +8,7 @@ import { HJEMMEL, KRAVINNHOLD } from '../../format/format.ts';
 import { feilI, objekt } from '../../format/skjema.ts';
 import { varseletForNyttSvar } from '../../utledning/utled.ts';
 import { avvis, varseletSendt, type Avvisning } from '../../typer.ts';
-import type { Kommando, Kravform } from '../../kommandoer/kommando.ts';
+import type { Kravform } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
@@ -27,14 +27,11 @@ export const KRAVFORM_I_FRISTEN = {
 } satisfies Kravform;
 
 /** Begrunnelsen for dagene i et fristkrav (`kravetsUtdypning`). */
-function utdypningIFristen(k: Extract<Kommando, { type: 'krav' }>): Avvisning | null {
-  if (k.spor === 'frist')
-    return avvis(
-      'BEGRUNNELSE_MANGLER',
-      'Kravet om fristforlengelse må begrunne antallet dager (NS 8407 § 33.6.1, KA-U33).'
-    );
-  return null;
-}
+const utdypningIFristen = (): Avvisning | null =>
+  avvis(
+    'BEGRUNNELSE_MANGLER',
+    'Kravet om fristforlengelse må begrunne antallet dager (NS 8407 § 33.6.1, KA-U33).'
+  );
 
 /** Nyttelastkontrollen i fristen (`NYTTELAST`). */
 export const NYTTELAST_I_FRISTEN = {

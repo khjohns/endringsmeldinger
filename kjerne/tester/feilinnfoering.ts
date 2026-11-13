@@ -1094,7 +1094,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'et fristkrav uten begrunnelse godtas (§ 33.6.1, KA-U33)',
     fil: `${K}/spor/frist/kommando.ts`,
     endringer: [
-      ["  if (k.spor === 'frist')\n    return avvis(", '  if (false)\n    return avvis('],
+      [
+        'const utdypningIFristen = (): Avvisning | null =>\n',
+        'const utdypningIFristen = (): Avvisning | null => null && ',
+      ],
     ],
     mal: ['et fristkrav uten begrunnelse avvises'],
   },
