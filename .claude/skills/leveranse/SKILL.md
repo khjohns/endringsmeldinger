@@ -161,7 +161,8 @@ ekte saksruta kjøres med `saksrute.ts` før PR-en meldes klar, og skjermbildene
 i PR-en fra grenen `skjermbilder`, slik
 [mockup-nettleser](../mockup-nettleser/SKILL.md#skjermbildene-i-pr-en) sier (#1222).
 
-**Stoppregelen for funn.** Byggeøkta retter funnene mens den har konteksten. Et funn
+**Stoppregelen for funn.** Den gjelder også forslagene fra `/simplify` som ikke
+gjennomføres. Byggeøkta retter funnene mens den har konteksten. Et funn
 rettes i PR-en i to tilfeller:
 
 - Det gir feil resultat nå, eller bryter et vedtak eller kontrakten.

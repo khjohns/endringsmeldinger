@@ -300,6 +300,13 @@ merges. Regelsettet krever ikke at grenen er à jour, og ingen konflikt betyr
 ikke at kombinasjonen er testet: to PR-er uten felles filer kan endre
 hverandres oppførsel. Bruk den nye committen som `expectedHeadSha`.
 
+Unntaket er det som bare er tekst ingen test leser. Er alt som er merget siden PR-ens
+base, Markdown i `.claude/skills/`, `CLAUDE.md` eller `docs/`, trengs ingen
+oppdatering og ny CI før merge. Det gjelder ikke vedtaksregisteret, domenetabellen,
+brukerforløpene og skriptene, fordi vakttestene leser dem. Kontroller filene med
+`git diff --name-only` mellom basen og `main`, og skriv det i merge-kommentaren
+(oppdragsgiver 13.11).
+
 Feilinnføringene trenger ikke kjøres på nytt etter oppdateringen når de var
 grønne på PR-ens forrige commit, og ingen PR som er merget siden, har rørt
 `kjerne/`, `sprakprove/kjernelagring/` eller verktøyet for feilinnføringene. De prøver om testene i kjernen fanger feil,
@@ -355,11 +362,12 @@ Bestillingen til økta sier:
   alt kjørt, kjøres én `/code-review` til på endringene `/simplify` gjorde.
 - **Omfang:** bare kildefilene, ikke testene og `docs/`.
 - **Grenser:** atferden er uendret, og ingen lagrede navn, kontrakter eller
-  predikater endres. Det `/simplify` foreslår ut over det, avvises og føres i
-  PR-en.
+  predikater endres. Et forslag ut over grensene gjennomføres ikke i PR-en.
+  Det er et funn og følger stoppregelen for funn i leveranseskillen, med kilden
+  `/simplify` i «Funn og utfall». Duplisering og to kilder avvises ikke.
 - **Etterpå:** testene kjøres på nytt. Feilinnføringene for kjernen kjøres i CI, og
   for serveren kjøres de ID-ene som hører til endringen.
-- **PR-beskrivelsen** sier hva som ble endret og hva som ble avvist.
+- **PR-beskrivelsen** sier hva som ble endret, og «Funn og utfall» har forslagene som ikke ble gjennomført.
 
 ## Orkestratorens tid og kontekst
 
@@ -404,7 +412,20 @@ Hvorfor grensene finnes, og grensene for arbeidsøktene, står i
 - **Skriv svarene der de kan leses igjen** før de sendes: vedtak i vedtaksregisteret
   og arbeidsvalg i issuet. Meldingen viser dit.
 - **Send færre meldinger.** Hver melding til en stor økt koster en ny lesing av
-  hele konteksten.
+  hele konteksten. Orkestratoren sender en melding bare når økta må gjøre noe:
+  - en bestilling;
+  - et svar;
+  - funn som skal rettes;
+  - en rebase av dens egen PR;
+  - endret eierskap til en fil den arbeider i.
+
+  Den sender ingen orientering om andre økter, som et bytte av økt eller en merge
+  som ikke angår mottakeren. Oppdraget svarer på det som ellers blir spørsmål:
+  - importlinjer i en annen økts fil kan endres i en egen commit uten å spørre;
+  - tekniske valg i egne filer tar økta og fører i PR-en;
+  - `/simplify` står i oppdraget når et kriterium er kjent (oppdragsgiver 13.11).
+- **Én samlet CI-sjekk.** Venter flere PR-er på CI, poller én bakgrunnskommando
+  alle, så orkestratoren vekkes sjeldnere.
 
 Orkestratoren holder tilstanden i issuene og PR-ene, ikke bare i samtalen. Den
 gjentar ikke lange lister i samtalen. Spørsmålene står i én fil som
