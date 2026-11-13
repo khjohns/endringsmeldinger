@@ -4,21 +4,29 @@
  * `regler/frist.ts`.
  */
 
-import { HJEMMEL, KRAVINNHOLD } from '../../format/format.ts';
+import { HJEMMEL } from '../../format/format.ts';
 import { feilI, objekt } from '../../format/skjema.ts';
 import { varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
 import { avvis, varseletSendt, type Avvisning } from '../../typer.ts';
-import type { Kravform } from '../../kommandoer/kommando.ts';
+import type { Kommando, Kravform } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
-import type { Sporsskriving } from '../../kommandoer/skriving.ts';
-import { foresporselForFristsvar, fristkravErFremmet } from './utledning.ts';
+import type { Kontekst, Sporsskriving } from '../../kommandoer/skriving.ts';
+import {
+  foresporselForFristsvar,
+  fristeneISporet,
+  fristeneStrider,
+  fristkravErFremmet,
+  fristnoekkel,
+} from './utledning.ts';
+import { fristinnhold } from './format.ts';
+import { fristvurderinger } from './frysing.ts';
 
 /** Formen på kravet i fristen (`KRAVFORM`). */
 export const KRAVFORM_I_FRISTEN = {
   feil: (innhold) => {
-    const { properties, required, anyOf } = KRAVINNHOLD.frist;
+    const { properties, required, anyOf } = fristinnhold(false);
     return feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
   },
   vedleggIInnholdet: () => [],
@@ -33,10 +41,21 @@ const utdypningIFristen = (): Avvisning | null =>
     'Kravet om fristforlengelse må begrunne antallet dager (NS 8407 § 33.6.1, KA-U33).'
   );
 
+/** KA-U76, KA-U79: fristene i kravet mot de tidligere kravversjonene. */
+function fristsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
+  if (k.spor !== 'frist') return null;
+  const strid = fristeneStrider(
+    k.innhold as Parameters<typeof fristeneStrider>[0],
+    u.spor.frist.krav,
+    false
+  );
+  return strid ? avvis('FRISTENE', `Kravversjonen ${strid}.`) : null;
+}
+
 /** Nyttelastkontrollen i fristen (`NYTTELAST`). */
 export const NYTTELAST_I_FRISTEN = {
   begrunnelse: () => null,
-  kravsperre: () => null,
+  kravsperre: fristsperre,
   innsigelse: () => null,
   utdypning: utdypningIFristen,
   oppgittDatoIKravet: (k) =>
@@ -123,6 +142,7 @@ export const STANDPUNKTER_I_FRISTEN: Sporsstandpunkter = (v, krav, u, nyId) => {
     });
   if (typeof v.vilkar_oppfylt === 'boolean')
     ut.push({ id: nyId(), art: 'hindring', oppfylt: v.vilkar_oppfylt });
+  const frister = fristvurderinger(v, krav);
   if (typeof v.spesifisert_krav_ok === 'boolean')
     ut.push({
       id: nyId(),
@@ -130,13 +150,70 @@ export const STANDPUNKTER_I_FRISTEN: Sporsstandpunkter = (v, krav, u, nyId) => {
       gjelder: krav.id,
       hjemmel: '33.6.1',
       i_tide: v.spesifisert_krav_ok,
-      ...(v.spesifisert_krav_ok ? {} : { dager: v.dager_maatte_forstaa }),
+      // D-5: dagene byggherren måtte forstå, for hver frist i kravet.
+      ...(v.spesifisert_krav_ok
+        ? {}
+        : {
+            maatte_forstaa: frister.map((f) => ({
+              frist: f.gjelder,
+              dager: f.dager_maatte_forstaa,
+            })),
+          }),
     });
-  ut.push({ id: nyId(), art: 'dager' });
+  // KA-U74: dagene for hver frist i kravet.
+  for (const f of frister) ut.push({ id: nyId(), art: 'dager', gjelder: f.gjelder });
   return ut;
 };
 
+/**
+ * Fristene i kravet slik de lagres (KA-U79): en registrert frist får nummeret og navnet fra
+ * fristtabellen for prosjektet (GFK-U23, MM-U50), og en frist uten `id` får `id` til fristen i
+ * kontrakten som har stått med samme `fristnoekkel` i sporet, ellers en ny (KA-U76).
+ * Nyttelastkontrollen har kontrollert fristene mot sporet før dette.
+ */
+function fristeneSomLagres(
+  innhold: Record<string, unknown>,
+  u: Utledning,
+  kontekst: Pick<Kontekst, 'nyId' | 'kontraktsfrister'>
+): Record<string, unknown> {
+  const { eier } = fristeneISporet(u.spor.frist.krav);
+  const frister = (innhold.frister as Record<string, unknown>[]).map((p) => {
+    const id = (p.id as string | undefined) ?? eier.get(fristnoekkel(p)) ?? kontekst.nyId();
+    if (p.frist_id === undefined) return { ...p, id };
+    const f = kontekst.kontraktsfrister.find((x) => x.fristId === p.frist_id)!;
+    return {
+      id,
+      frist_id: f.fristId,
+      ...(f.nummer === null ? {} : { nummer: f.nummer }),
+      navn: f.navn,
+      dager: p.dager,
+    };
+  });
+  return { ...innhold, frister };
+}
+
+/**
+ * KA-U79, GFK-U23: en registrert frist i kravet står i fristtabellen for prosjektet saken
+ * hører til. Prosjektgrensen holdes av fristtabellen i konteksten.
+ */
+function fristIkkeRegistrert(
+  k: Extract<Kommando, { type: 'krav' }>,
+  kontekst: Pick<Kontekst, 'kontraktsfrister'>
+): Avvisning | null {
+  for (const p of (k.innhold.frister ?? []) as Record<string, unknown>[])
+    if (
+      p.frist_id !== undefined &&
+      !kontekst.kontraktsfrister.some((f) => f.fristId === p.frist_id)
+    )
+      return avvis(
+        'FRIST_IKKE_REGISTRERT',
+        `Fristen ${String(p.frist_id)} er ikke registrert for prosjektet. Angi nummeret og navnet kontrakten gir den i stedet (KA-U79).`
+      );
+  return null;
+}
+
 /** Skrivingen i fristen (`SKRIVING`). */
 export const SKRIVING_I_FRISTEN = {
-  kravinnhold: (innhold) => innhold,
+  kravinnhold: fristeneSomLagres,
+  kontekstsperre: fristIkkeRegistrert,
 } satisfies Sporsskriving;

@@ -21,13 +21,14 @@ import {
   type ForesporselOgSvar,
   type Foresporselsrelasjon,
 } from './frysing.ts';
+import { betegnelsen, innholdIFristen, type FristIKravet } from './format.ts';
 
 /**
  * Kontrollene i fristen, som `utledning/utled.ts` slår opp gjennom `KONTROLLER`: lesereglene
- * for forespørselen etter § 33.6.2 (`saken`). Kravene og svarene i fristen har ingen egne (#1745).
+ * for forespørselen etter § 33.6.2 (`saken`) og versjonsregelen for fristene (`kravet`).
  */
 export const KONTROLLER_I_FRISTEN = {
-  kravet: () => null,
+  kravet: (k, tidligere) => fristeneStrider(innholdIFristen(k), tidligere, true),
   kravene: () => {},
   svaret: () => {},
   kanFaaPassivitet: false,
@@ -134,4 +135,88 @@ export function fristkravErFremmet(u: Utledning): boolean {
   for (const d of dokumenterI(u.journal))
     if (d.krav.some((k) => erFristkravIAppen(d, k))) return true;
   return false;
+}
+
+/** En frist i en ny kravversjon, lagret eller i kommandoen, der feltene ikke er kontrollert. */
+type Fristinndata = { id?: unknown; frist_id?: unknown; nummer?: unknown; navn?: unknown };
+
+/**
+ * Samme frist i kontrakten: den samme fristen i fristtabellen, eller samme nummer og navn for en
+ * frist som ikke er registrert. Løsningen skiller ikke en skrivefeil fra en annen frist (KA-U79).
+ */
+export const fristnoekkel = (p: Fristinndata): string =>
+  p.frist_id !== undefined ? `registrert ${p.frist_id}` : `angitt ${p.nummer ?? ''}\u0000${p.navn}`;
+
+const omtalen = (p: Fristinndata): string =>
+  typeof p.navn === 'string'
+    ? betegnelsen(p as { nummer?: string; navn: string })
+    : `registrert som ${p.frist_id}`;
+
+/**
+ * Fristene i de tidligere kravversjonene: den siste formen hver frist hadde, og hvilken frist i
+ * kontrakten som har stått med hvilken `id`.
+ */
+export function fristeneISporet(tidligere: readonly Pick<Krav, 'innhold'>[]): {
+  forrige: ReadonlyMap<string, FristIKravet>;
+  sist: ReadonlyMap<string, FristIKravet>;
+  eier: ReadonlyMap<string, string>;
+} {
+  const versjoner = tidligere.map((k) => innholdIFristen(k).frister);
+  const sist = new Map<string, FristIKravet>();
+  const eier = new Map<string, string>();
+  for (const v of versjoner)
+    for (const p of v) {
+      sist.set(p.id, p);
+      eier.set(fristnoekkel(p), p.id);
+    }
+  return { forrige: new Map((versjoner.at(-1) ?? []).map((p) => [p.id, p])), sist, eier };
+}
+
+/**
+ * Hvorfor fristene i den nye kravversjonen strider mot de tidligere versjonene i sporet, eller
+ * `null` (KA-U76, KA-U79). En frist beholder `id` på tvers av versjonene, også etter et trekk.
+ * I kommandoen er en frist uten `id` den fristen i kontrakten som har stått med samme
+ * `fristnoekkel`, ellers en ny. Med `id` kan en frist som ikke er registrert, erstattes med en
+ * annen frist, men en registrert frist kan ikke byttes. En frist i forrige versjon er med eller
+ * trukket. `lagret` sier om innholdet er en lagret versjon, der serveren har satt `id`.
+ */
+export function fristeneStrider(
+  ny: { frister?: readonly Fristinndata[]; trekker?: readonly unknown[] },
+  tidligere: readonly Pick<Krav, 'innhold'>[],
+  lagret: boolean
+): string | null {
+  const { forrige, sist, eier } = fristeneISporet(tidligere);
+  const trekker = (ny.trekker ?? []) as string[];
+  const trukne = new Set<string>();
+  for (const id of trekker) {
+    const p = forrige.get(id);
+    if (!p) return `trekker fristen ${id}, som ikke er med i forrige kravversjon`;
+    if (trukne.has(id)) return `trekker fristen ${betegnelsen(p)} to ganger`;
+    trukne.add(id);
+  }
+  const noekler = new Set<string>();
+  const med = new Set<string>();
+  for (const p of ny.frister ?? []) {
+    const noekkel = fristnoekkel(p);
+    if (noekler.has(noekkel)) return `har fristen ${omtalen(p)} to ganger`;
+    noekler.add(noekkel);
+    const id = p.id as string | undefined;
+    const kjent = id === undefined ? undefined : sist.get(id);
+    if (id !== undefined && !kjent && !lagret)
+      return `har fristen ${id}, som ikke har stått i sporet`;
+    if (kjent?.frist_id !== undefined && p.frist_id !== kjent.frist_id)
+      return `bytter den registrerte fristen ${betegnelsen(kjent)} med en annen frist (KA-U79)`;
+    const sto = eier.get(noekkel);
+    if (id !== undefined && sto !== undefined && sto !== id)
+      return `gir fristen ${omtalen(p)} en ny rad, men den har stått i sporet før (KA-U76)`;
+    const rad = id ?? sto;
+    if (rad === undefined) continue;
+    if (med.has(rad)) return `har fristen ${omtalen(p)} to ganger`;
+    med.add(rad);
+    if (trukne.has(rad)) return `både tar med og trekker fristen ${omtalen(p)}`;
+  }
+  const mangler = [...forrige.values()].filter((p) => !med.has(p.id) && !trukne.has(p.id));
+  return mangler.length
+    ? `mangler ${mangler.map(betegnelsen).join(', ')} uten at ${mangler.length > 1 ? 'de er trukket' : 'den er trukket'} (KA-U76)`
+    : null;
 }

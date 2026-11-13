@@ -8,12 +8,21 @@ import { FRISTRESULTATER } from '../../regler/typer.ts';
 import {
   artfelt,
   ID,
+  liste,
   objekt,
+  TEKST,
   Uforstaatt,
   type Skjema,
   type Svarlesing,
 } from '../../format/skjema.ts';
-import type { Fristutregning, Hjemmel, Krav, Standpunkt, Standpunktsart } from '../../typer.ts';
+import type {
+  Fristrad,
+  Fristutregning,
+  Hjemmel,
+  Krav,
+  Standpunkt,
+  Standpunktsart,
+} from '../../typer.ts';
 
 /** Standpunktene i svaret på fristkravet, etter `TILLATTE_STANDPUNKTER`. */
 export const TILLATTE_STANDPUNKTER_I_FRISTEN: { art: Standpunktsart; paakrevd: boolean }[] = [
@@ -25,11 +34,49 @@ export const TILLATTE_STANDPUNKTER_I_FRISTEN: { art: Standpunktsart; paakrevd: b
   { art: 'dager', paakrevd: true },
 ];
 
-/** Innholdet i fristkravet, etter `KRAVINNHOLD`. */
-export const FRISTINNHOLD: { properties: Skjema; required: string[]; anyOf?: Skjema[] } = {
-  properties: { dager: { type: 'integer', minimum: 1 } },
-  required: ['dager'],
-};
+const DAGER: Skjema = { type: 'integer', minimum: 1 };
+
+/**
+ * Én frist i kravet med dagene for den (KA-U73, KA-U74, KA-U79): en frist i fristtabellen for
+ * prosjektet (`frist_id`), eller en frist som ikke er registrert, med nummeret og navnet
+ * kontrakten gir den. I kommandoen sender klienten bare `frist_id` og dagene for en registrert
+ * frist, og `id` bare for å erstatte en frist som ikke er registrert. Serveren setter `id`, og
+ * nummeret og navnet fra fristtabellen (`kommandoer/skriving.ts`). Kravet har ingen sum (U-1).
+ */
+function fristIKravet(lagret: boolean): Skjema {
+  return {
+    anyOf: [
+      objekt(
+        {
+          id: ID,
+          frist_id: { type: 'integer', minimum: 1 },
+          ...(lagret ? { nummer: TEKST, navn: TEKST } : {}),
+          dager: DAGER,
+        },
+        lagret ? ['id', 'frist_id', 'navn', 'dager'] : ['frist_id', 'dager']
+      ),
+      objekt(
+        { id: ID, nummer: TEKST, navn: TEKST, dager: DAGER },
+        lagret ? ['id', 'navn', 'dager'] : ['navn', 'dager']
+      ),
+    ],
+  };
+}
+
+/**
+ * Innholdet i fristkravet, lagret eller i kommandoen, etter `KRAVINNHOLD`. `trekker` er fristene
+ * fra forrige versjon TE trekker (KA-U76).
+ */
+export function fristinnhold(lagret: boolean): {
+  properties: Skjema;
+  required: string[];
+  anyOf?: Skjema[];
+} {
+  return {
+    properties: { frister: liste(fristIKravet(lagret)), trekker: liste(ID) },
+    required: ['frister'],
+  };
+}
 
 /** HF-U1, LV-U18 punkt 3: forespørselen etter § 33.6.2 fristkravet svarer på. */
 export const RELASJON_I_FRISTKRAVET: Record<string, Skjema> = { gjelder: ID };
@@ -41,39 +88,81 @@ export const STANDPUNKT_I_FRISTEN: Record<'hindring' | 'spesifisering' | 'dager'
     'art',
     'oppfylt',
   ]),
+  // `gjelder` er kravet. Dagene byggherren måtte forstå, står for hver frist i kravet (D-5).
   spesifisering: objekt(
     {
       ...artfelt('spesifisering'),
       gjelder: ID,
       hjemmel: { const: '33.6.1' },
       i_tide: { type: 'boolean' },
-      dager: { type: 'integer', minimum: 0 },
+      maatte_forstaa: liste(
+        objekt({ frist: ID, dager: { type: 'integer', minimum: 0 } }, ['frist', 'dager'])
+      ),
     },
     ['id', 'art', 'gjelder', 'hjemmel', 'i_tide']
   ),
-  dager: objekt(artfelt('dager'), ['id', 'art']),
+  // KA-U74: ett standpunkt om dagene for hver frist i kravet.
+  dager: objekt({ ...artfelt('dager'), gjelder: ID }, ['id', 'art', 'gjelder']),
 };
 
-/** Serverens utregning etter B-13, etter `UTREGNINGSSKJEMA`. */
+const FRISTRESULTAT: Skjema = { enum: [...FRISTRESULTATER] };
+const DAGER_I_SVARET: Skjema = { type: 'integer', minimum: 0 };
+
+/**
+ * Serverens utregning etter B-13, etter `UTREGNINGSSKJEMA`: én rad per frist, med dagene for den
+ * fristen. Svaret har ingen sum (KA-U74, U-12).
+ */
 export const UTREGNINGSSKJEMA_I_FRISTEN: Skjema = objekt(
   {
-    resultat: { enum: [...FRISTRESULTATER] },
-    godkjent_dager: { type: 'integer', minimum: 0 },
-    subsidiaert_resultat: { enum: [...FRISTRESULTATER] },
-    subsidiaert_godkjent_dager: { type: 'integer', minimum: 0 },
+    frister: liste(
+      objekt(
+        {
+          gjelder: ID,
+          resultat: FRISTRESULTAT,
+          godkjent_dager: DAGER_I_SVARET,
+          subsidiaert_resultat: FRISTRESULTAT,
+          subsidiaert_godkjent_dager: DAGER_I_SVARET,
+        },
+        ['gjelder', 'resultat', 'godkjent_dager']
+      )
+    ),
   },
-  ['resultat', 'godkjent_dager']
+  ['frister']
 );
+
+/** En frist i fristtabellen for prosjektet, slik serveren gir den i `Kontekst` (GFK-U18). */
+export interface Registrertfrist {
+  fristId: number;
+  /** `null` når kontrakten ikke nummererer fristen. */
+  nummer: string | null;
+  navn: string;
+}
+
+/** En frist i en lagret kravversjon, med dagene for den (KA-U74, KA-U79). */
+export interface FristIKravet {
+  id: string;
+  /** Fristen i fristtabellen, eller ingen når fristen ikke er registrert. */
+  frist_id?: number;
+  nummer?: string;
+  navn: string;
+  dager: number;
+}
 
 /** Fristkravet, etter `KRAVINNHOLD.frist`. */
 export interface Fristinnhold {
-  dager: number;
+  frister: FristIKravet[];
+  trekker: string[];
 }
 
 /** Fristkravet i kravet. */
 export const innholdIFristen = (krav: Pick<Krav, 'innhold'>): Fristinnhold => ({
-  dager: krav.innhold.dager as number,
+  frister: krav.innhold.frister as FristIKravet[],
+  trekker: (krav.innhold.trekker as string[] | undefined) ?? [],
 });
+
+/** Fristen slik kontrakten betegner den: nummeret, når den har et, og navnet (U-1). */
+export const betegnelsen = (f: { nummer?: string | null; navn: string }): string =>
+  f.nummer ? `${f.nummer} ${f.navn}` : f.navn;
 
 /**
  * Utregningen i et svar på fristen (#1777). Den lagrede formen er `Svar.utregning`, og leseren
@@ -85,38 +174,81 @@ export const utregningIFristen = (utregning: Record<string, unknown>): Fristutre
 
 type Data = Record<string, unknown>;
 
+/** Raden for fristen `gjelder` i utregningen. */
+const radenFor = (utregning: Data, gjelder: string, sti: string): Fristrad => {
+  const rad = utregningIFristen(utregning).frister.find((r) => r.gjelder === gjelder);
+  if (!rad) throw new Uforstaatt(`${sti}: utregningen har ingen rad for fristen ${gjelder}`);
+  return rad;
+};
+
 /** Standpunktene som er fristens egne, lest av det lagrede svaret. Rettidigheten leses felles. */
 function standpunktIFristen(e: Data, utregning: Data, sti: string): Standpunkt | null {
   const id = e.id as string;
   switch (e.art) {
     case 'hindring':
       return { id, art: 'hindring', oppfylt: e.oppfylt as boolean };
-    case 'spesifisering':
-      // VS-U4: det prinsipale dagtallet står bare når spesifiseringen kom for sent.
-      if (e.i_tide === 'dager' in e)
+    case 'spesifisering': {
+      // VS-U4: dagene byggherren måtte forstå, står bare når spesifiseringen kom for sent.
+      if (e.i_tide === 'maatte_forstaa' in e)
         throw new Uforstaatt(
           `${sti}: dagene i standpunktet etter § 33.6.1 stemmer ikke med rettidigheten`
         );
+      const maatteForstaa = e.maatte_forstaa as { frist: string; dager: number }[] | undefined;
       return {
         id,
         art: 'spesifisering',
         gjelder: e.gjelder as string,
         hjemmel: '33.6.1',
         iTide: e.i_tide as boolean,
-        ...(e.i_tide ? {} : { dager: e.dager as number }),
+        ...(maatteForstaa ? { maatteForstaa: maatteForstaa.map((m) => ({ ...m })) } : {}),
       };
+    }
     case 'dager': {
-      const frist = utregningIFristen(utregning);
+      const gjelder = e.gjelder as string;
+      const rad = radenFor(utregning, gjelder, sti);
       return {
         id,
         art: 'dager',
-        resultat: frist.subsidiaert_resultat ?? frist.resultat,
-        vurdert: frist.subsidiaert_godkjent_dager ?? frist.godkjent_dager,
+        gjelder,
+        resultat: rad.subsidiaert_resultat ?? rad.resultat,
+        vurdert: rad.subsidiaert_godkjent_dager ?? rad.godkjent_dager,
       };
     }
     default:
       return null;
   }
+}
+
+/**
+ * Rekkefølgen i svaret: rettidigheten, hindringen og spesifiseringen én gang (VS-U17, KA-U78),
+ * og så dagene for hver frist, én gang per frist og i samme rekkefølge som radene i utregningen.
+ * Dagene byggherren måtte forstå, gjelder de samme fristene (D-5).
+ */
+function kontrollerStandpunkteneIFristen(ut: Standpunkt[], utregning: Data, sti: string): void {
+  const rekkefoelge = ['rettidighet', 'hindring', 'spesifisering', 'dager'];
+  let forrige = 0;
+  for (const s of ut) {
+    const plass = rekkefoelge.indexOf(s.art);
+    if (plass < forrige || (plass === forrige && s.art !== 'rettidighet' && s.art !== 'dager'))
+      throw new Uforstaatt(`${sti}: standpunktet ${s.art} står i feil rekkefølge i fristen`);
+    forrige = plass;
+  }
+  const dagene = ut.flatMap((s) => (s.art === 'dager' ? [s.gjelder] : []));
+  const radene = utregningIFristen(utregning).frister.map((r) => r.gjelder);
+  if (dagene.join() !== radene.join())
+    throw new Uforstaatt(`${sti}: radene i utregningen er ikke én per frist i standpunktene`);
+  for (const r of utregningIFristen(utregning).frister)
+    if ('subsidiaert_resultat' in r !== 'subsidiaert_godkjent_dager' in r)
+      throw new Uforstaatt(
+        `${sti}: utregningen for fristen ${r.gjelder} har bare halvparten av det subsidiære standpunktet`
+      );
+  const spesifisering = ut.find((s) => s.art === 'spesifisering');
+  const maatteForstaa =
+    spesifisering?.art === 'spesifisering' ? spesifisering.maatteForstaa : undefined;
+  if (maatteForstaa && maatteForstaa.map((m) => m.frist).join() !== dagene.join())
+    throw new Uforstaatt(
+      `${sti}: dagene byggherren måtte forstå, gjelder ikke de samme fristene som standpunktene om dagene`
+    );
 }
 
 /** VS-U24: ett standpunkt for hver bestemmelse, § 33.4 før § 33.6.2. */
@@ -130,9 +262,12 @@ function kontrollerHjemleneIFristen(hjemler: Hjemmel[], sti: string): void {
 /** Lesingen av svaret på fristkravet, etter `SVARLESING` i `format/leser.ts`. */
 export const LESING_I_FRISTEN = {
   standpunkt: standpunktIFristen,
-  gjentas: false,
+  // KA-U74: dagene gjentar seg per frist, så rekkefølgen kontrolleres av
+  // `kontrollerStandpunkteneIFristen`.
+  gjentas: true,
+  kontrollerStandpunktene: kontrollerStandpunkteneIFristen,
   // § 33.6.2 (VS-U17, VS-U19): fristen har også rettidigheten av svaret på forespørselen.
   rettidighet: ['33.6.2'],
-  subsidiaertVerdi: 'subsidiaert_godkjent_dager',
+  subsidiaertVerdi: null,
   kontrollerHjemlene: kontrollerHjemleneIFristen,
 } satisfies Svarlesing;
