@@ -8,7 +8,6 @@
  * brevnummer). Den finner ikke på virkningen.
  */
 
-import { FORHOLDSGRUPPER as KJERNENS_FORHOLD } from '$kjerne/spor/forhold/tekst';
 import { opplistet } from '$kjerne/frosset/brevdeler';
 import { kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
@@ -36,17 +35,6 @@ const KRAVET: Record<Spor, string> = {
   vederlag: 'vederlagsjustering',
   frist: 'fristforlengelse',
 };
-
-/**
- * Forholdene med kjernens kode og navnet, i gruppene fra kjernen (OV-U77, OV-U78). Lista har
- * hjemmet sitt i `kjerne/spor/forhold/tekst.ts`, så brevet og velgeren sier det samme (svaret
- * på Q3 i #1488).
- */
-export const FORHOLDSGRUPPER: { navn: string; forhold: [kode: string, navn: string][] }[] =
-  KJERNENS_FORHOLD.map((g) => ({
-    navn: g.navn,
-    forhold: g.forhold.map((f): [string, string] => [f.kode, f.navn]),
-  }));
 
 /**
  * Tittelen som ble frosset med brevet, med sakens kode (LV-U27, MM-U3 (opphevet av MM-U50)). Et registrert brev har

@@ -14,7 +14,12 @@ import {
   lagreVentende,
   lesVentende,
 } from '$lib/components/varden/ventende';
-import { type SendNySak, type Utfylling, type VedleggForNySak } from '$lib/components/varden/nysak';
+import {
+  FORHOLDENE,
+  type SendNySak,
+  type Utfylling,
+  type VedleggForNySak,
+} from '$lib/components/varden/nysak';
 import type { Kjernevedlegg } from '$lib/api/kjerne';
 import { kravMotNySak, type Saksmerking } from '$lib/kjernesak/brevtekst';
 import { ApiError } from '$lib/api/client';
@@ -277,6 +282,13 @@ describe('skjemaet for ny sak (BF-05)', () => {
       within(panel).getByText(/^Annet forhold byggherren har risikoen for, punkt 33\.1 c$/)
     ).toBeTruthy();
     expect(screen.getByText(/som ikke faller inn under endringer eller svikt/)).toBeTruthy();
+  });
+
+  it('#1845: hvert forhold i velgeren har kontraktens regel for punktet kjernen skriver i brevet', () => {
+    const utenRegel = FORHOLDENE.flatMap((g) => g.forhold)
+      .filter((f) => !f.regel)
+      .map((f) => `${f.navn} (${f.punkt})`);
+    expect(utenRegel).toEqual([]);
   });
 
   it('F-1/GR-U31: ved svikt sier panelet ikke at brevet varsler etter punkt 32.2', async () => {
