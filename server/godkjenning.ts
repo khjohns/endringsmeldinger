@@ -85,13 +85,6 @@ async function kall<T>(arbeid: Promise<T>, hva = 'Godkjenningspakken kan ikke la
 
 const tall = (v: unknown): number | null => (v === null ? null : Number(v));
 
-/** Dagmulktssatsen i prosjektet i konteksten. Bare byggherren ser den. */
-export async function lesDagmulktssats(foresp: Foresp): Promise<number | null> {
-  const r = await foresp().execute('koe_api.dagmulktssats');
-  const satser = r.recordset as unknown as { sats: unknown }[];
-  return satser.length ? tall(satser[0].sats) : null;
-}
-
 export interface Godkjenner {
   brukerId: string;
   /** Rollen i HR-kopien (GFK-U6). */

@@ -16,6 +16,7 @@ import { feilnummer, type Pool } from '../datalag.ts';
 import {
   kjoer,
   kontraktsteamFra,
+  lesFristtabell,
   lesKontraktsparter,
   lesKontraktsteam,
   Registreringsfeil,
@@ -193,7 +194,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     throw new Error('Kallet ble ikke avvist');
   }
 
-  it('driftsrollen har bare EXECUTE på de tolv prosedyrene, og kjøretiden har ingen rett i koe_drift', async () => {
+  it('driftsrollen har bare EXECUTE på de seksten prosedyrene, og kjøretiden har ingen rett i koe_drift', async () => {
     const svar = await o.datalag.base.pool.request().query<{ rolle: string; rett: string }>(
       `SELECT USER_NAME(p.grantee_principal_id) AS rolle,
               CONCAT(p.permission_name, N' ', OBJECT_SCHEMA_NAME(p.major_id), N'.', OBJECT_NAME(p.major_id)) AS rett
@@ -203,15 +204,19 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
            OR (p.class = 3 AND SCHEMA_NAME(p.major_id) = N'koe_drift')`
     );
     expect(svar.recordset.map((r) => `${r.rolle} ${r.rett}`).sort()).toEqual([
+      'koe_driftsrolle EXECUTE koe_drift.fjern_kontraktsfrist',
       'koe_driftsrolle EXECUTE koe_drift.fjern_rolle',
       'koe_driftsrolle EXECUTE koe_drift.fjern_stillingstittel',
       'koe_driftsrolle EXECUTE koe_drift.koble_catenda_identitet',
+      'koe_driftsrolle EXECUTE koe_drift.kontraktsfrister',
       'koe_driftsrolle EXECUTE koe_drift.kontraktsparter',
       'koe_driftsrolle EXECUTE koe_drift.kontraktsteam',
       'koe_driftsrolle EXECUTE koe_drift.kontroller_bytte',
       'koe_driftsrolle EXECUTE koe_drift.registrer_entra_identitet',
       'koe_driftsrolle EXECUTE koe_drift.registrer_prosjekt',
+      'koe_driftsrolle EXECUTE koe_drift.sett_kontraktsfrist',
       'koe_driftsrolle EXECUTE koe_drift.sett_kontraktsparter',
+      'koe_driftsrolle EXECUTE koe_drift.sett_kontraktssum',
       'koe_driftsrolle EXECUTE koe_drift.sett_kontraktsteam',
       'koe_driftsrolle EXECUTE koe_drift.sett_rolle',
       'koe_driftsrolle EXECUTE koe_drift.sett_stillingstittel',
@@ -843,6 +848,242 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
           .execute('koe_drift.sett_kontraktsparter')
       )
     ).toBe(229);
+  });
+
+  // #1408: et navn i brevhodet står på én linje, uten mellomrom av noe slag i endene.
+  it('kontraktsparter avviser kontrolltegn, linjeskift og mellomrom som ikke er U+0020 i navnene (#1408)', async () => {
+    const { prosjekt } = await nyttProsjekt([]);
+    const k = ['--kontraktsforkortelse', 'K201'];
+    for (const feil of [
+      'B\t',
+      '\u00a0B',
+      'B\u3000',
+      '\u200bB',
+      'Bygg\nherren',
+      'B\u2028C',
+      'B\u0085C',
+      'B\u0000C',
+    ])
+      await expect(
+        skript('kontraktsparter', prosjekt, '--byggherre', 'B', '--totalentreprenoer', feil, ...k)
+      ).rejects.toThrow(/Totalentreprenørens navn .*\(52065\)/);
+    expect(await lesKontraktsparter(drift.pool, prosjekt)).toBeNull();
+    await skript(
+      'kontraktsparter',
+      prosjekt,
+      '--byggherre',
+      'Bygg- og eiendom ÆØÅ',
+      '--totalentreprenoer',
+      'T\u00a0AS',
+      ...k
+    );
+    expect(await lesKontraktsparter(drift.pool, prosjekt)).toMatchObject({
+      byggherre_navn: 'Bygg- og eiendom ÆØÅ',
+      totalentreprenor_navn: 'T\u00a0AS',
+    });
+    // Tabellen avviser navnet også uten prosedyren.
+    const annet = (await nyttProsjekt([])).prosjekt;
+    for (const feil of ['B\t', 'Bygg\nherren'])
+      expect(
+        await avvisning(
+          o.datalag.base.pool
+            .request()
+            .input('p', annet)
+            .input('b', feil)
+            .query(
+              "INSERT koe.kontraktsparter (prosjekt_id, byggherre_navn, totalentreprenor_navn, kontraktsforkortelse) VALUES (@p, @b, N'T', N'K201')"
+            )
+        )
+      ).toBe(547);
+  });
+
+  // GFK-U16, GFK-U18 og GFK-U22: driften registrerer kontraktssummen og fristtabellen.
+  // Nummeret er det tekniske valget i #721: tildelt av basen, og det står når fristen rettes.
+  it('kontraktsfrister registrerer fristene med nummer, retter dem uten å endre nummeret og viser satsen', async () => {
+    const { prosjekt } = await nyttProsjekt([]);
+    linjer.length = 0;
+    await skript('kontraktsfrister', prosjekt);
+    expect(linjer).toEqual(['Kontraktssum: (ikke satt)', 'Ingen frister er registrert.']);
+    const sats = ['--dagmulktbelagt', '--promille', '1', '--minstebeloep', '3000'];
+    await skript(
+      'kontraktsfrister',
+      prosjekt,
+      'ny',
+      '--frist',
+      'Sluttfrist',
+      '--dato',
+      '2027-06-30',
+      ...sats
+    );
+    await skript(
+      'kontraktsfrister',
+      prosjekt,
+      'ny',
+      '--frist',
+      'Tett bygg',
+      '--dato',
+      '2026-12-15'
+    );
+    await skript(
+      'kontraktsfrister',
+      prosjekt,
+      'ny',
+      '--frist',
+      'Delfrist A',
+      '--dato',
+      '2027-01-31',
+      ...sats,
+      '--delens-verdi',
+      '400000'
+    );
+    await skript(
+      'kontraktsfrister',
+      prosjekt,
+      'ny',
+      '--frist',
+      'Delfrist B',
+      '--dato',
+      '2027-02-28',
+      '--dagmulktbelagt',
+      '--beloep-per-dag',
+      '2500.50'
+    );
+    linjer.length = 0;
+    await skript('kontraktsfrister', prosjekt);
+    expect(linjer).toEqual([
+      'Kontraktssum: (ikke satt)',
+      '1. Sluttfrist, 2027-06-30, dagmulktbelagt, 1 ‰ av kontraktssummen, minst 3\u00a0000 kr: kontraktssummen mangler',
+      '2. Tett bygg, 2026-12-15, ikke dagmulktbelagt',
+      '3. Delfrist A, 2027-01-31, dagmulktbelagt, 1 ‰ av verdien av delen, 400\u00a0000 kr, minst 3\u00a0000 kr: 3\u00a0000 kr per dag',
+      '4. Delfrist B, 2027-02-28, dagmulktbelagt, avtalt 2\u00a0500,5 kr per dag: 2\u00a0500,5 kr per dag',
+    ]);
+    await skript('kontraktsfrister', prosjekt, 'kontraktssum', '120000000');
+    await skript(
+      'kontraktsfrister',
+      prosjekt,
+      'rett',
+      '2',
+      '--frist',
+      'Tett bygg',
+      '--dato',
+      '2026-12-20',
+      '--dagmulktbelagt'
+    );
+    const tabell = await lesFristtabell(drift.pool, prosjekt);
+    expect(tabell.kontraktssum).toBe(120_000_000);
+    expect(tabell.frister.map((f) => [f.nummer, f.navn, f.dato, f.dagmulktbelagt, f.sats])).toEqual(
+      [
+        [1, 'Sluttfrist', '2027-06-30', true, 120_000],
+        [2, 'Tett bygg', '2026-12-20', true, null],
+        [3, 'Delfrist A', '2027-01-31', true, 3000],
+        [4, 'Delfrist B', '2027-02-28', true, 2500.5],
+      ]
+    );
+  });
+
+  it('kontraktsfrister avviser en sats som ikke passer, et navn som finnes, en dato og et nummer som ikke finnes', async () => {
+    const { prosjekt } = await nyttProsjekt([]);
+    const ny = (...a: string[]) =>
+      skript('kontraktsfrister', prosjekt, 'ny', '--dato', '2027-06-30', ...a);
+    await expect(ny('--frist', 'S', '--promille', '1', '--minstebeloep', '3000')).rejects.toThrow(
+      /bare en frist med --dagmulktbelagt/
+    );
+    await expect(ny('--frist', 'S', '--dagmulktbelagt', '--promille', '1')).rejects.toThrow(
+      /--promille og --minstebeloep/
+    );
+    await expect(
+      ny('--frist', 'S', '--dagmulktbelagt', '--beloep-per-dag', '10', '--promille', '1')
+    ).rejects.toThrow(/--beloep-per-dag kan ikke stå sammen/);
+    await expect(
+      ny('--frist', 'S', '--dagmulktbelagt', '--beloep-per-dag', '10,5')
+    ).rejects.toThrow(/punktum/);
+    await expect(
+      skript('kontraktsfrister', prosjekt, 'ny', '--frist', 'S', '--dato', '2027-02-30')
+    ).rejects.toThrow(/ÅÅÅÅ-MM-DD/);
+    await expect(ny('--frist', ' S')).rejects.toThrow(/Fristens navn .*\(52076\)/);
+    await expect(ny('--frist', 'S\nT')).rejects.toThrow(/\(52076\)/);
+    await ny('--frist', 'S');
+    await expect(ny('--frist', 'S')).rejects.toThrow(/alt en frist med det navnet \(52079\)/);
+    await expect(
+      skript('kontraktsfrister', prosjekt, 'rett', '7', '--frist', 'T', '--dato', '2027-06-30')
+    ).rejects.toThrow(/\(52080\)/);
+    await expect(skript('kontraktsfrister', prosjekt, 'rett', '0')).rejects.toThrow(
+      /positivt heltall/
+    );
+    await expect(skript('kontraktsfrister', prosjekt, 'fjern', '--frist', 'S')).rejects.toThrow(
+      /--frist gjelder bare/
+    );
+    await expect(skript('kontraktsfrister', prosjekt, 'kontraktssum', '0')).rejects.toThrow(
+      /\(52075\)/
+    );
+    await expect(skript('kontraktsparter', prosjekt, '--frist', 'S')).rejects.toThrow(
+      /--frist gjelder bare «kontraktsfrister»/
+    );
+    expect((await lesFristtabell(drift.pool, prosjekt)).frister.map((f) => f.navn)).toEqual(['S']);
+    // Tabellen avviser en sats som ikke passer med grunnlaget, også uten prosedyren.
+    for (const verdier of [
+      "0, N'kontraktssum', 1, 3000, NULL, NULL",
+      "1, N'kontraktssum', 1, NULL, NULL, NULL",
+      "1, N'fast_beloep', 1, NULL, NULL, 10",
+      "1, N'delens_verdi', 1, 3000, NULL, NULL",
+      '0, NULL, 1, NULL, NULL, NULL',
+    ])
+      expect(
+        await avvisning(
+          o.datalag.base.pool
+            .request()
+            .input('p', prosjekt)
+            .query(
+              `INSERT koe.kontraktsfrist (prosjekt_id, nummer, navn, dato, dagmulktbelagt, satsgrunnlag, promille, minstebeloep, delens_verdi, beloep_per_dag) VALUES (@p, 9, N'X', '2027-01-01', ${verdier})`
+            )
+        )
+      ).toBe(547);
+  });
+
+  // Det tekniske valget i #721: et krav kan vise til fristen når prosjektet har saker.
+  it('kontraktsfrister fjerner en frist bare så lenge prosjektet ikke har saker', async () => {
+    const { prosjekt } = await nyttProsjekt([]);
+    await skript('kontraktsfrister', prosjekt, 'ny', '--frist', 'S', '--dato', '2027-06-30');
+    await skript('kontraktsfrister', prosjekt, 'fjern', '1');
+    expect((await lesFristtabell(drift.pool, prosjekt)).frister).toEqual([]);
+    await expect(skript('kontraktsfrister', prosjekt, 'fjern', '1')).rejects.toThrow(/\(52080\)/);
+
+    await skript(
+      'kontraktsfrister',
+      o.prosjekt.id,
+      'ny',
+      '--frist',
+      'Sluttfrist',
+      '--dato',
+      '2027-06-30'
+    );
+    await opprettKjernesak(o);
+    await expect(skript('kontraktsfrister', o.prosjekt.id, 'fjern', '1')).rejects.toThrow(
+      /har saker, så fristen kan ikke fjernes \(52081\)/
+    );
+    await skript(
+      'kontraktsfrister',
+      o.prosjekt.id,
+      'rett',
+      '1',
+      '--frist',
+      'Sluttfrist',
+      '--dato',
+      '2027-07-31'
+    );
+    expect((await lesFristtabell(drift.pool, o.prosjekt.id)).frister[0]?.dato).toBe('2027-07-31');
+  });
+
+  it('kjøretiden kan ikke registrere eller fjerne frister', async () => {
+    for (const [prosedyre, inn] of [
+      ['koe_drift.sett_kontraktssum', { prosjekt: o.prosjekt.id, kontraktssum: 1 }],
+      ['koe_drift.fjern_kontraktsfrist', { prosjekt: o.prosjekt.id, nummer: 1 }],
+      ['koe_drift.kontraktsfrister', { prosjekt: o.prosjekt.id }],
+    ] as const) {
+      const r = o.datalag.kjoeretid.pool.request();
+      for (const [navn, verdi] of Object.entries(inn)) r.input(navn, verdi);
+      expect(await avvisning(r.execute(prosedyre))).toBe(229);
+    }
   });
 });
 

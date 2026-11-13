@@ -670,14 +670,24 @@ funn = []
 belegg = "L 02.11: migrasjonen."
 
 [[relasjon]]
-fra = "koe.dagmulktssats.prosjekt_id"
+fra = "koe.kontraktsfrist.prosjekt_id"
 til = "koe.projects.id"
 art = "fremmednøkkel"
 antall = "mange til én"
 beskrivelse = """
-Prosjektet satsen gjelder i. Uten rad mangler satsen (B-06)."""
+Prosjektet fristen gjelder i. Nummeret er unikt i prosjektet (GFK-U18, #721)."""
 funn = []
-belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+belegg = "L 13.11: migrasjonen. K 13.11: `server/tester/kontraktsfrister.test.ts`."
+
+[[relasjon]]
+fra = "koe.kontraktssum.prosjekt_id"
+til = "koe.projects.id"
+art = "fremmednøkkel"
+antall = "én til én"
+beskrivelse = """
+Prosjektet kontraktssummen gjelder i. Uten rad kan satsen av kontraktssummen ikke regnes (GFK-U3)."""
+funn = []
+belegg = "L 13.11: migrasjonen. K 13.11: `server/tester/kontraktsfrister.test.ts`."
 
 [[relasjon]]
 fra = "koe.kontraktsparter.prosjekt_id"

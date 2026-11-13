@@ -64,9 +64,11 @@ const UTEN_TRIGGER: Record<string, string> = {
   app_sessions: 'Sesjonen slettes ved utlogging og når den er utløpt (B-19, #656).',
   app_oauth_attempts:
     'Innloggingsforsøket slettes når det brukes, og når det er utløpt (B-19, #656).',
-  dagmulktssats: 'Driften setter opp og endrer satsen (#818).',
+  kontraktsfrist:
+    'Driften registrerer og retter fristene, og fjerner en frist så lenge prosjektet ikke har saker (GFK-U22, #721).',
   kontraktsparter:
     'Driften setter og retter navnene på partene; et sendt brev fryser navnene det viste (#1398, LV-U1).',
+  kontraktssum: 'Driften setter og retter kontraktssummen (GFK-U16, GFK-U22).',
   entra_tenant: 'Driften godkjenner og fjerner tenantene for innloggingen med Entra ID (#831).',
   rolle: 'Driften registrerer og endrer grensen per rolle (GFK-U6, GFK-U11).',
   stillingstittel:

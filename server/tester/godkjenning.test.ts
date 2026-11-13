@@ -38,7 +38,6 @@ import {
   type LagretHandling,
   type LagretPakke,
   lagPakke,
-  lesDagmulktssats,
   lesGodkjenningskjede,
   lesPakke,
   PakkeAvsluttet,
@@ -140,7 +139,6 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
           active: true,
         });
       }
-      await settInn(r, 'dagmulktssats', { prosjekt_id: o.prosjekt.id, sats: 5000 });
     });
     await registrerHierarki();
   }, 240_000);
@@ -152,10 +150,7 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
     if (o) await rydd(o);
   }, 60_000);
 
-  it('byggherren leser dagmulktssatsen; entreprenøren og en leser ser den ikke', async () => {
-    expect(await i(som(o.bh.id), (f) => lesDagmulktssats(f))).toBe(5000);
-    const te = som(o.te.id, { side: 'TE', team: catendaId(o.prosjekt.teTeam)! });
-    expect(await i(te, (f) => lesDagmulktssats(f))).toBe(null);
+  it('en leser kan ikke avlede godkjenningskjeden', async () => {
     const leser = randomUUID();
     await eier(async (r) => {
       await settInn(r, 'app_users', {
@@ -174,7 +169,6 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
         active: true,
       });
     });
-    expect(await i(som(leser), (f) => lesDagmulktssats(f))).toBe(null);
     await expect(i(som(leser), (f) => lesGodkjenningskjede(f, EN))).rejects.toThrow(PakkeNektet);
   });
 

@@ -52,9 +52,6 @@ erDiagram
         nvarchar_100 internal_project_id PK, FK
         uniqueidentifier catenda_project_id UK
     }
-    koe_dagmulktssats {
-        nvarchar_100 prosjekt_id PK, FK
-    }
     koe_entra_tenant {
         uniqueidentifier tenant_id PK
     }
@@ -123,7 +120,15 @@ erDiagram
         nvarchar_36 sak_id PK, FK
         nvarchar_100 prosjekt_id FK
     }
+    koe_kontraktsfrist {
+        nvarchar_100 prosjekt_id PK, FK, UK
+        int nummer PK
+        nvarchar_200 navn UK
+    }
     koe_kontraktsparter {
+        nvarchar_100 prosjekt_id PK, FK
+    }
+    koe_kontraktssum {
         nvarchar_100 prosjekt_id PK, FK
     }
     koe_kvittering {
@@ -298,7 +303,8 @@ erDiagram
     koe_projects ||--o{ koe_vedlegg_uten_sak : "prosjekt_id"
     koe_app_users ||--o{ koe_vedlegg_uten_sak : "lastet_opp_av"
     koe_catenda_contract_teams |o..o{ koe_vedlegg_uten_sak : "lastet_opp_team"
-    koe_projects ||--o{ koe_dagmulktssats : "prosjekt_id"
+    koe_projects ||--o{ koe_kontraktsfrist : "prosjekt_id"
+    koe_projects ||--o| koe_kontraktssum : "prosjekt_id"
     koe_projects ||--o| koe_kontraktsparter : "prosjekt_id"
     koe_sak_metadata ||--o{ koe_godkjenningspakke : "(sak_id, prosjekt_id)"
     koe_godkjenningspakke |o--o{ koe_godkjenningspakke : "forrige_pakke_id"
@@ -383,7 +389,8 @@ erDiagram
 | `koe.vedlegg_uten_sak.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet vedlegget er lastet opp i, før saken finnes (#1037). Saken som opprettes, må være i samme prosjekt for at vedlegget flyttes. | — | K 02.11: katalogen. |
 | `koe.vedlegg_uten_sak.lastet_opp_av` | `koe.app_users.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Den som lastet opp vedlegget, `app_users.id` (CLAUDE.md). Bare den samme aktøren kan flytte det inn i en sak. | — | K 02.11: katalogen. |
 | `koe.vedlegg_uten_sak.lastet_opp_team` | `koe.catenda_contract_teams.team_id` | uten fremmednøkkel | mange til én | Teamet som ser og sletter vedlegget til saken er opprettet. Basen avviser et vedlegg uten team (CLAUDE.md). | — | L 02.11: migrasjonen. |
-| `koe.dagmulktssats.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet satsen gjelder i. Uten rad mangler satsen (B-06). | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| `koe.kontraktsfrist.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Prosjektet fristen gjelder i. Nummeret er unikt i prosjektet (GFK-U18, #721). | — | L 13.11: migrasjonen. K 13.11: `server/tester/kontraktsfrister.test.ts`. |
+| `koe.kontraktssum.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Prosjektet kontraktssummen gjelder i. Uten rad kan satsen av kontraktssummen ikke regnes (GFK-U3). | — | L 13.11: migrasjonen. K 13.11: `server/tester/kontraktsfrister.test.ts`. |
 | `koe.kontraktsparter.prosjekt_id` | `koe.projects.id` | fremmednøkkel, ON DELETE NO ACTION | én til én | Prosjektet navnene gjelder i. Uten rad har prosjektet ingen navn på partene (#1398). | — | L 30.10: migrasjonen. K 30.10: `server/tester/prosjekter.test.ts`. |
 | `koe.godkjenningspakke.(sak_id, prosjekt_id)` | `koe.sak_metadata.(sak_id, prosjekt_id)` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Saken svaret i pakken gjelder, i samme prosjekt. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
 | `koe.godkjenningspakke.forrige_pakke_id` | `koe.godkjenningspakke.pakke_id` | fremmednøkkel, ON DELETE NO ACTION | mange til én | Pakken som ble returnert eller trukket, og som denne erstatter. | — | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
@@ -570,7 +577,8 @@ flowchart LR
 | `koe.brevdokument` | — | C25 | — |
 | `koe.vedlegg` | — | C25 | — |
 | `koe.vedlegg_uten_sak` | — | — | — |
-| `koe.dagmulktssats` | — | — | — |
+| `koe.kontraktsfrist` | — | — | — |
+| `koe.kontraktssum` | — | — | — |
 | `koe.kontraktsparter` | — | — | — |
 | `koe.godkjenningspakke` | — | — | — |
 | `koe.godkjenningssteg` | — | — | — |

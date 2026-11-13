@@ -533,21 +533,42 @@ funn = []
 belegg = "L 02.11: migrasjonen. K 02.11: `server/tester/ny_sak.test.ts`."
 
 [[tabell]]
-navn = "koe.dagmulktssats"
+navn = "koe.kontraktsfrist"
 lagring = "SQL Server"
 type = ["grunndata"]
 status = "i bruk"
 beskrivelse = """
-Dagmulktssatsen i prosjektet, som fristdagene verdsettes med i fullmakten
-(GFK-06). Uten rad mangler satsen, og fristdagene kan ikke verdsettes (B-06). Driften
-setter den opp."""
-lagres_fra = "Driften, som eier. Lest av `koe_api.dagmulktssats` fra `server/godkjenning.ts`."
+Fristtabellen fra kontrakten (GFK-U18, #721): fristens nummer i prosjektet, navnet,
+datoen, om fristen er dagmulktbelagt, og opplysningene satsen regnes av (GFK-U16):
+promillen og minstebeløpet av kontraktssummen eller av verdien av delen, eller et avtalt
+fast beløp per dag. Basen tildeler nummeret, og det endres ikke. Driften registrerer og
+retter fristene etter bestilling fra byggherren (GFK-U22), og fjerner en frist bare så
+lenge prosjektet ikke har saker. Begge parter og leserollen leser dem (GFK-U23). Satsen i
+kroner regnes i `server/kontraktsfrister.ts`. Erstatter `koe.dagmulktssats`."""
+lagres_fra = "Driftsskriptet `server/registrering.ts kontraktsfrister`. Lest av `koe_api.kontraktsfrister` fra `server/kontraktsfrister.ts`."
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei. Kontrakten er kilden."
 personopplysninger = "Ingen."
-skrivere = ["database/migrasjoner/20261019110000_godkjenning.sql (tabellen); radene skrives av driften som eier"]
+skrivere = ["database/migrasjoner/20261113100000_kontraktsfrister.sql (`koe_drift.sett_kontraktsfrist` og `koe_drift.fjern_kontraktsfrist`, kalt fra `server/registrering.ts`)"]
 funn = []
-belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+belegg = "L 13.11: migrasjonen. K 13.11: `server/tester/registrering.test.ts` og `server/tester/kontraktsfrister.test.ts`."
+
+[[tabell]]
+navn = "koe.kontraktssum"
+lagring = "SQL Server"
+type = ["grunndata"]
+status = "i bruk"
+beskrivelse = """
+Kontraktssummen i prosjektet, som satsen for en frist med grunnlaget `kontraktssum`
+regnes av (GFK-U16, § 40.3 a). Uten rad kan den satsen ikke regnes (GFK-U3). Driften
+setter og retter den (GFK-U22)."""
+lagres_fra = "Driftsskriptet `server/registrering.ts kontraktsfrister <prosjekt> kontraktssum`. Lest av `koe_api.kontraktsfrister` fra `server/kontraktsfrister.ts`."
+fra_catenda = "Nei."
+kan_gjenoppbygges = "nei. Kontrakten er kilden."
+personopplysninger = "Ingen."
+skrivere = ["database/migrasjoner/20261113100000_kontraktsfrister.sql (`koe_drift.sett_kontraktssum`, kalt fra `server/registrering.ts`)"]
+funn = []
+belegg = "L 13.11: migrasjonen. K 13.11: `server/tester/registrering.test.ts` og `server/tester/kontraktsfrister.test.ts`."
 
 [[tabell]]
 navn = "koe.kontraktsparter"
@@ -564,7 +585,7 @@ lagres_fra = "Driftsskriptet `server/registrering.ts kontraktsparter`. Lest av `
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei. Kontrakten er kilden."
 personopplysninger = "Navnene er normalt virksomheter. Et enkeltpersonforetak har innehaverens navn i foretaksnavnet."
-skrivere = ["database/migrasjoner/20261104100000_sakskode.sql (`koe_drift.sett_kontraktsparter`, innført i `20261030100000_kontraktsparter.sql`, kalt fra `server/registrering.ts`)"]
+skrivere = ["database/migrasjoner/20261113100000_kontraktsfrister.sql (`koe_drift.sett_kontraktsparter`, innført i `20261030100000_kontraktsparter.sql`, kalt fra `server/registrering.ts`)"]
 funn = []
 belegg = "L 30.10: migrasjonen. K 30.10: `server/tester/registrering.test.ts` og `server/tester/prosjekter.test.ts`. L 04.11: `20261104100000_sakskode.sql`. K 04.11: de samme testene."
 
