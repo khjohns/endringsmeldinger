@@ -1,13 +1,15 @@
 /**
  * Frysingen av svaret på fristkravet: det svaret gir i dager, når det godkjenner hele kravet, og
  * serverens utregning og kontrollen av byggherrens vurderinger (B-13). `frosset/standpunkt.ts`
- * slår opp her gjennom `FRYSING`, og `frosset/utregning.ts` gjennom `UTREGNING` (#1783).
+ * slår opp her gjennom `FRYSING`, og `frosset/utregning.ts` gjennom `UTREGNING` (#1783). Svaret
+ * på forespørselen etter § 33.6.2 og hvordan fristkravene står til den, leses av journalen her.
  */
 
 import { beregnFrist, resultatAvDager, type Fristkrav } from '../../regler/frist.ts';
 import { kontrollerSpesifiseringen } from '../../regler/svarkontroll.ts';
 import {
   avvisUkjenteFelt,
+  kravetErDokumentasjon,
   laget,
   prinsipalt,
   standpunktet,
@@ -17,9 +19,8 @@ import {
   type Svarsutregning,
   type Svarvurdering,
 } from '../../frosset/byggeklosser.ts';
-import type { Foresporselsrelasjon } from '../../frosset/standpunkt.ts';
 import { innholdIFristen, utregningIFristen } from './format.ts';
-import type { Krav, Standpunktsvirkning, Utfall } from '../../typer.ts';
+import type { Dokument, Krav, Standpunktsvirkning, Utfall } from '../../typer.ts';
 
 function utfallIFristen(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert: boolean): Utfall {
   if (prekludert) return { dager: 0 };
@@ -112,3 +113,59 @@ export const UTREGNING_I_FRISTEN = {
 
 /** Feltene klienten skal ha regnet likt med serveren (`SAMMENLIKNES`). */
 export const SAMMENLIKNES_I_FRISTEN = ['resultat', 'godkjent_dager'];
+
+export interface ForesporselOgSvar {
+  foresporsel: string;
+  /** Elementet som svarte: et fristkrav (`medKrav`) eller TEs begrunnelse etter annet ledd b. */
+  svar: string | null;
+  medKrav: boolean;
+}
+
+/**
+ * § 33.6.2 (VS-U17, VS-U19, VS-U27): svaret på hver forespørsel. TEs begrunnelse etter annet
+ * ledd b og fristkravet svarer på forespørselen de uttrykkelig viser til i `gjelder`, aldri
+ * etter rekkefølgen i journalen (HF-U1, LV-U18 punkt 3). Et krav i et registrert brev er
+ * dokumentasjon og svarer ikke (OV-U4). Gir forespørselen og elementet som svarte, eller `null`.
+ */
+export function svarPaaForesporsler(
+  dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>
+): ForesporselOgSvar[] {
+  const ut: ForesporselOgSvar[] = [];
+  const ubesvart = (gjelder: string | undefined) =>
+    ut.find((x) => x.foresporsel === gjelder && x.svar === null);
+  for (const d of dokumenter) {
+    for (const u of d.utsagn) {
+      if (u.art === 'foresporsel') ut.push({ foresporsel: u.id, svar: null, medKrav: false });
+      if (u.art === 'foresporselssvar') {
+        const f = ubesvart(u.gjelder);
+        if (f) f.svar = u.id;
+      }
+    }
+    if (kravetErDokumentasjon(d)) continue;
+    for (const krav of d.krav) {
+      const f = krav.spor === 'frist' ? ubesvart(krav.gjelder) : undefined;
+      if (f) Object.assign(f, { svar: krav.id, medKrav: true });
+    }
+  }
+  return ut;
+}
+
+/**
+ * Hvordan fristkravene står til en forespørsel etter § 33.6.2: kravet svarer på den
+ * (fjerde ledd), eller TE har begrunnet etter annet ledd b før kravet, og § 33.6.1 gjelder
+ * (femte ledd). `gjelder` er det rettidigheten etter § 33.6.2 gjelder: kravet eller begrunnelsen.
+ */
+export type Foresporselsrelasjon =
+  | { art: 'svar'; gjelder: string }
+  | { art: 'begrunnelse'; gjelder: string };
+
+export function foresporselsrelasjon(
+  svar: readonly ForesporselOgSvar[]
+): Foresporselsrelasjon | null {
+  // Forespørselen kan bare sendes før det første fristkravet (VS-U19), så det er kravet som
+  // svarer. Senere kravversjoner står i samme forhold til forespørselen (VS-U20).
+  const krav = svar.find((s) => s.medKrav)?.svar;
+  if (krav) return { art: 'svar', gjelder: krav };
+  const begrunnelse = svar.filter((s) => s.svar !== null).at(-1)?.svar;
+  return begrunnelse ? { art: 'begrunnelse', gjelder: begrunnelse } : null;
+}

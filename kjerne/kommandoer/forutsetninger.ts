@@ -9,7 +9,8 @@
  * avvisningen er de samme per konstruksjon (INV-MM-1).
  */
 
-import { fristkravErFremmet, kanFaaInnsigelse, type Utledning } from '../utledning/utled.ts';
+import { kanFaaInnsigelse, type Utledning } from '../utledning/utled.ts';
+import { fristkravErFremmet } from '../spor/frist/utledning.ts';
 import { avvis, erKravpostvarselhjemmel, SPOR } from '../typer.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { FORUTSETNINGER_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
