@@ -252,6 +252,42 @@ describe('regelsettet når ikke frysingen eller teksten', () => {
   });
 });
 
+/** Navnene på toppnivå i hver kilde som også står på toppnivå i en annen, med filene. */
+function sammeNavn(kilder: Record<string, string>): string[] {
+  const filene = new Map<string, string[]>();
+  for (const [fil, kilde] of Object.entries(kilder))
+    for (const [, navn] of kilde.matchAll(
+      /^(?:export )?(?:const|function\*?|type|interface|class) (\w+)/gm
+    ))
+      filene.set(navn, [...(filene.get(navn) ?? []), fil]);
+  return [...filene]
+    .filter(([, f]) => new Set(f).size > 1)
+    .map(([navn, f]) => `${navn}: ${f.join(' ')}`);
+}
+
+// Navneregelen i .claude/rules/kjerne.md: samme navn betyr ikke to ting i to roller i sporet.
+describe('to rollefiler i et spor har ikke samme navn (#1783)', () => {
+  const spor = join(KJERNE, 'spor');
+  it.each(existsSync(spor) ? readdirSync(spor) : [])('%s', (navn) => {
+    const mappe = join(spor, navn);
+    const kilder = Object.fromEntries(
+      readdirSync(mappe)
+        .filter((f) => f.endsWith('.ts'))
+        .map((f) => [f, readFileSync(join(mappe, f), 'utf8')])
+    );
+    expect(sammeNavn(kilder)).toEqual([]);
+  });
+
+  it('finner samme navn i to rollefiler', () => {
+    expect(
+      sammeNavn({
+        'format.ts': 'export const STANDPUNKTER_I_FRISTEN = [];',
+        'kommando.ts': 'export const STANDPUNKTER_I_FRISTEN = () => [];\nfunction lokal() {}',
+      })
+    ).toEqual(['STANDPUNKTER_I_FRISTEN: format.ts kommando.ts']);
+  });
+});
+
 describe('et spor har bare rollefiler (#1783)', () => {
   // Alle filer, ikke bare .ts: en JSON-fil ved siden av en rollefil ville stått utenfor
   // grensene og versjonene.
@@ -639,7 +675,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],
-  ['spor/forhold/utledning.ts:forholdet(svar)', 'relasjon', '*'],
+  ['spor/forhold/utledning.ts:forholdssvaretsVirkning(svar)', 'relasjon', '*'],
   // MM-U17, MM-U50: om svaret er registrert korrespondanse, for visningen.
   ['Utledning', 'relasjon', 'svar', ['utledning/utled.ts:vurdertVedRegistreringen']],
   ['Utledning.svar', 'relasjon', '*', ['utledning/utled.ts:vurdertVedRegistreringen']],
@@ -721,7 +757,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/forhold/frysing.ts',
     'predikat',
     'forholdetErAvklart',
-    ['spor/forhold/utledning.ts:forholdet'],
+    ['spor/forhold/utledning.ts:forholdssvaretsVirkning'],
   ],
   // VS-U24: en egen innsigelse er en påberopelse etter § 33.4 eller § 32.2 bare mot varselet.
   ['frosset/standpunkt.ts', 'relasjon', 'innsigelsenPaaberoper', ['frosset/brevtekst.ts']],
@@ -887,7 +923,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
      rigg_vurdering rigg_varslet_i_tide hold_tilbake`,
   ],
   // #1663, 2a-1b: kommandoens felt oversatt til postene i regelen, og feilene tilbake.
-  ['spor/vederlag/frysing.ts:vederlagssvaret', 'regelsett', 'svar felt'],
+  ['spor/vederlag/frysing.ts:svaretFraVurderingene', 'regelsett', 'svar felt'],
   ['UgyldigVurdering', 'regelsett', 'feil', ['spor/vederlag/frysing.ts']],
   // Kontrollene av vurderingene i svaret, med feltene fra `Svarvurdering` (#1695).
   ['regler/svarkontroll.ts', 'regelsett', 'kontrollerSpesifiseringen', ['spor/frist/frysing.ts']],
@@ -1262,7 +1298,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'spor/forhold/utledning.ts',
     'predikat',
-    'erRegistrertEndringsordre kontrollerEndringsordrene kontrollerKorrigeringene opplysningerOmDatoen forholdet',
+    'erRegistrertEndringsordre kontrollerEndringsordrene kontrollerKorrigeringene opplysningerOmDatoen forholdssvaretsVirkning',
     ['utledning/utled.ts'],
   ],
   [
@@ -1371,7 +1407,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/format.ts',
     'rad',
-    `BESLUTNINGSGRUNNLAG DOKUMENT KRAV OPPLYSNING SAK_OPPRETTET STANDPUNKT STANDPUNKTER_I_SPORET
+    `BESLUTNINGSGRUNNLAG DOKUMENT KRAV OPPLYSNING SAK_OPPRETTET STANDPUNKT TILLATTE_STANDPUNKTER
      SVAR UTSAGN`,
     ['format/leser.ts'],
   ],
@@ -1526,7 +1562,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'spor/vederlag/format.ts',
     'skjema',
-    'STANDPUNKTER_I_VEDERLAGET STANDPUNKT_I_VEDERLAGET UTREGNING_I_VEDERLAGET',
+    'TILLATTE_STANDPUNKTER_I_VEDERLAGET STANDPUNKT_I_VEDERLAGET UTREGNINGSSKJEMA_I_VEDERLAGET',
     ['format/format.ts'],
   ],
   [
@@ -1544,14 +1580,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'spor/frist/format.ts',
     'skjema',
-    'STANDPUNKTER_I_FRISTEN STANDPUNKT_I_FRISTEN FRISTINNHOLD RELASJON_I_FRISTKRAVET UTREGNING_I_FRISTEN',
+    'TILLATTE_STANDPUNKTER_I_FRISTEN STANDPUNKT_I_FRISTEN FRISTINNHOLD RELASJON_I_FRISTKRAVET UTREGNINGSSKJEMA_I_FRISTEN',
     ['format/format.ts'],
   ],
   // #1783: formatet for forholdet i sporet.
   [
     'spor/forhold/format.ts',
     'skjema',
-    'STANDPUNKTER_I_FORHOLDET STANDPUNKT_I_FORHOLDET FORHOLDSINNHOLD',
+    'TILLATTE_STANDPUNKTER_I_FORHOLDET STANDPUNKT_I_FORHOLDET FORHOLDSINNHOLD',
     ['format/format.ts'],
   ],
   // KA-U53, KA-U56, KA-U75: kravpostene en ny versjon får id og betegnelse for, og
@@ -1655,7 +1691,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['format/leser.ts', 'kontekst', 'registrertDato', ['kommandoer/skriving.ts:skriv']],
   // VS-U38: dagen påberopelsen fra appen ble sendt.
   ['format/leser.ts', 'kontekst', 'registrertDato', ['utledning/utled.ts:datoenDetBleSendt']],
-  ['STANDPUNKTER_I_SPORET', 'rad', 'art paakrevd', ['format/leser.ts']],
+  ['TILLATTE_STANDPUNKTER', 'rad', 'art paakrevd', ['format/leser.ts']],
   ['KRAVINNHOLD', 'skjema', 'properties required anyOf'],
   // Kodene i formatet for kategoriene (#335): formen på påberopelsen.
   ['format/koder.ts', 'skjema', 'HOVEDKATEGORIER UNDERKATEGORIER', ['spor/forhold/format.ts']],

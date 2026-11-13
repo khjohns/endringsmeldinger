@@ -23,10 +23,10 @@ import {
   OPPLYSNING,
   SAK_OPPRETTET,
   STANDPUNKT,
-  STANDPUNKTER_I_SPORET,
+  TILLATTE_STANDPUNKTER,
   STANDPUNKTSARTER,
   SVAR,
-  UTREGNING,
+  UTREGNINGSSKJEMA,
   UTSAGN,
   UTSAGNSARTER,
 } from '../format/format.ts';
@@ -106,7 +106,7 @@ describe('registeret over hendelsene kjernen skriver (#320)', () => {
     for (const s of SPOR) {
       expect(feltI(oppfoering('krav', 'spor', s)), `krav ${s}`).toEqual(felt(KRAV[s]));
       expect(feltI(oppfoering('svar', 'spor', s)), `svar ${s}`).toEqual(felt(SVAR[s]));
-      const utregning = UTREGNING[s];
+      const utregning = UTREGNINGSSKJEMA[s];
       if (utregning)
         expect(feltI(oppfoering('del', 'navn', 'utregning', s)), `utregning ${s}`).toEqual(
           felt(utregning)
@@ -127,7 +127,7 @@ describe('registeret over hendelsene kjernen skriver (#320)', () => {
 
   it('har sporene hver art av standpunkter kan stå i', () => {
     for (const a of STANDPUNKTSARTER) {
-      const spor = SPOR.filter((s) => STANDPUNKTER_I_SPORET[s].some((t) => t.art === a));
+      const spor = SPOR.filter((s) => TILLATTE_STANDPUNKTER[s].some((t) => t.art === a));
       expect([...(oppfoering('standpunkt', 'art', a).spor as string[])].sort(), a).toEqual(
         [...spor].sort()
       );

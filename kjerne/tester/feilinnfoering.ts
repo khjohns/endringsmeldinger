@@ -394,8 +394,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '    ...forholdet(spor, elementer, svar, dokumenter),',
-        "    ...forholdet(spor, elementer, svar, dokumenter),\n    endringsordre: spor.forhold.svar.some((svaret) => svaret.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.forhold.gjeldendeKrav?.innhold.hovedkategori), String(spor.forhold.gjeldendeKrav?.innhold.underkategori)) && !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)) ? 'ja' : 'nei',",
+        '    ...forholdssvaretsVirkning(spor, elementer, svar, dokumenter),',
+        "    ...forholdssvaretsVirkning(spor, elementer, svar, dokumenter),\n    endringsordre: spor.forhold.svar.some((svaret) => svaret.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.forhold.gjeldendeKrav?.innhold.hovedkategori), String(spor.forhold.gjeldendeKrav?.innhold.underkategori)) && !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)) ? 'ja' : 'nei',",
       ],
     ],
     mal: ['F-MM-G15'],

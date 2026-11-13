@@ -30,11 +30,11 @@ import {
 import { kontrollerRadene } from '../poster/format.ts';
 
 /**
- * Standpunktene i svaret på vederlaget, etter `STANDPUNKTER_I_SPORET`: § 34.1.2, oppgjørsformen
+ * Standpunktene i svaret på vederlaget, etter `TILLATTE_STANDPUNKTER`: § 34.1.2, oppgjørsformen
  * og beløpet for hver kravpost, § 34.1.3 og de særskilte postene (OV-U27, OV-U28, KA-U57).
  * Rekkefølgen kontrolleres i `kontrollerVederlagsstandpunktene`, fordi kravpostene gjentar seg.
  */
-export const STANDPUNKTER_I_VEDERLAGET: { art: Standpunktsart; paakrevd: boolean }[] = [
+export const TILLATTE_STANDPUNKTER_I_VEDERLAGET: { art: Standpunktsart; paakrevd: boolean }[] = [
   { art: 'rettidighet', paakrevd: false },
   { art: 'oppgjoersform', paakrevd: false },
   { art: 'justering', paakrevd: false },
@@ -185,7 +185,7 @@ export const STANDPUNKT_I_VEDERLAGET: Record<'beloep' | 'oppgjoersform' | 'juste
 };
 
 /** Serverens utregning i svaret på vederlaget, etter B-13. */
-export const UTREGNING_I_VEDERLAGET: Skjema = objekt(
+export const UTREGNINGSSKJEMA_I_VEDERLAGET: Skjema = objekt(
   {
     resultat: { enum: [...VEDERLAGSRESULTATER] },
     godkjent_beloep: { type: 'number', minimum: 0 },

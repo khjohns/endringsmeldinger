@@ -15,8 +15,8 @@ import {
 } from '../../format/skjema.ts';
 import type { Fristutregning, Hjemmel, Krav, Standpunkt, Standpunktsart } from '../../typer.ts';
 
-/** Standpunktene i svaret på fristkravet, etter `STANDPUNKTER_I_SPORET`. */
-export const STANDPUNKTER_I_FRISTEN: { art: Standpunktsart; paakrevd: boolean }[] = [
+/** Standpunktene i svaret på fristkravet, etter `TILLATTE_STANDPUNKTER`. */
+export const TILLATTE_STANDPUNKTER_I_FRISTEN: { art: Standpunktsart; paakrevd: boolean }[] = [
   // § 33.4, så § 33.6.2 (VS-U17). Én for hver hjemmel (`kontrollerHjemleneIFristen`).
   { art: 'rettidighet', paakrevd: false },
   { art: 'rettidighet', paakrevd: false },
@@ -54,8 +54,8 @@ export const STANDPUNKT_I_FRISTEN: Record<'hindring' | 'spesifisering' | 'dager'
   dager: objekt(artfelt('dager'), ['id', 'art']),
 };
 
-/** Serverens utregning etter B-13, etter `UTREGNING`. */
-export const UTREGNING_I_FRISTEN: Skjema = objekt(
+/** Serverens utregning etter B-13, etter `UTREGNINGSSKJEMA`. */
+export const UTREGNINGSSKJEMA_I_FRISTEN: Skjema = objekt(
   {
     resultat: { enum: [...FRISTRESULTATER] },
     godkjent_dager: { type: 'integer', minimum: 0 },
@@ -77,7 +77,7 @@ export const innholdIFristen = (krav: Pick<Krav, 'innhold'>): Fristinnhold => ({
 
 /**
  * Utregningen i et svar på fristen (#1777). Den lagrede formen er `Svar.utregning`, og leseren
- * kontrollerer den mot `UTREGNING` i `format/format.ts`. Frysingen før skrivingen leser
+ * kontrollerer den mot `UTREGNINGSSKJEMA` i `format/format.ts`. Frysingen før skrivingen leser
  * standpunktene med en utregning som ikke er kontrollert, så et felt kan mangle der.
  */
 export const utregningIFristen = (utregning: Record<string, unknown>): Fristutregning =>

@@ -8,7 +8,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { KRAVINNHOLD, UTREGNING } from '../format/format.ts';
+import { KRAVINNHOLD, UTREGNINGSSKJEMA } from '../format/format.ts';
 import { lesJournal } from '../format/leser.ts';
 import { feilI, objekt } from '../format/skjema.ts';
 import { forhaandsvis, laastTekst, vurder } from '../kommandoer/skriving.ts';
@@ -341,7 +341,7 @@ describe('formatet har ingen negative beløp ennå (KA-U22, KA-U9)', () => {
       feilI({ kravposter: [{ ...post, beloep: -100000 }] }, objekt(properties, required))
     ).not.toEqual([]);
     expect(
-      feilI({ resultat: 'godkjent', godkjent_beloep: -100000 }, UTREGNING.vederlag!)
+      feilI({ resultat: 'godkjent', godkjent_beloep: -100000 }, UTREGNINGSSKJEMA.vederlag!)
     ).not.toEqual([]);
   });
 });

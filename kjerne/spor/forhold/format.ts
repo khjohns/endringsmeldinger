@@ -23,8 +23,8 @@ import {
 } from '../../format/skjema.ts';
 import type { Krav, OppgittDatofelt, Standpunkt, Standpunktsart } from '../../typer.ts';
 
-/** Standpunktene i svaret på påberopelsen, etter `STANDPUNKTER_I_SPORET`. */
-export const STANDPUNKTER_I_FORHOLDET: { art: Standpunktsart; paakrevd: boolean }[] = [
+/** Standpunktene i svaret på påberopelsen, etter `TILLATTE_STANDPUNKTER`. */
+export const TILLATTE_STANDPUNKTER_I_FORHOLDET: { art: Standpunktsart; paakrevd: boolean }[] = [
   { art: 'rettidighet', paakrevd: false },
   { art: 'forhold', paakrevd: true },
 ];

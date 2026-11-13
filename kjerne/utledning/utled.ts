@@ -64,7 +64,7 @@ import type { Kjerne } from '../versjon.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 import {
   erRegistrertEndringsordre,
-  forholdet,
+  forholdssvaretsVirkning,
   KONTROLLER_I_FORHOLDET,
   kontrollerEndringsordrene,
   kontrollerKorrigeringene,
@@ -810,7 +810,7 @@ function utledSporene(
         })),
     })),
     spor,
-    ...forholdet(spor, elementer, svar, dokumenter),
+    ...forholdssvaretsVirkning(spor, elementer, svar, dokumenter),
   };
 }
 
