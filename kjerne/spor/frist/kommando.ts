@@ -26,7 +26,7 @@ import {
 import { fristinnhold, innholdIFristen } from './format.ts';
 import { fristvurderinger } from './frysing.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
-import { lageneIUtkastet } from '../../kommandoer/lag.ts';
+import { lageneIUtkastet } from '../../kommandoer/utkastlag.ts';
 
 /** Formen på kravet i fristen (`KRAVFORM`). */
 export const KRAVFORM_I_FRISTEN = {
@@ -209,7 +209,8 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
   const dagene = fristvurderinger(v, krav);
   // Hvert standpunkt i et tidligere lag i sporet åpnet laget etter seg (OV-U32).
   const aapnetLaget = (f: Standpunkt): Forutsetning[] => {
-    if (f.art === 'rettidighet') return [{ innsigelse: f.hjemmel as '33.4' | '33.6.2' }];
+    if (f.art === 'rettidighet')
+      return f.hjemmel === '33.4' || f.hjemmel === '33.6.2' ? [{ innsigelse: f.hjemmel }] : [];
     if (f.art === 'spesifisering') return [{ innsigelse: '33.6.1' }];
     if (f.art === 'hindring') return [{ innsigelse: 'hindring' }];
     return [];

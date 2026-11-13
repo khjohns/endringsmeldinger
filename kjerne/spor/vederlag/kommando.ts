@@ -46,7 +46,7 @@ import type { Innhold, Kommando, Kravform, Svarutkast } from '../../kommandoer/k
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type { Kontekst, Skrivesteg, Sporsskriving, Utfall } from '../../kommandoer/skriving.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
-import { lageneIUtkastet } from '../../kommandoer/lag.ts';
+import { lageneIUtkastet } from '../../kommandoer/utkastlag.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
 

@@ -260,7 +260,7 @@ describe('resultatet for hele fristsvaret i sakslisten (svar 2 A i #1745, HF-U7,
     ['avslått når ingen frist har fått dager', [0, 0], 'avslaatt', 0],
   ] as const)('%s', (_, dager, resultat, antall) => {
     const l = linje(toFrister([...dager]));
-    expect(l.frist.svar).toMatchObject({ resultat, antall_godkjent: antall });
+    expect(l.frist.svar).toMatchObject({ resultat, antall_godkjent: antall, subsidiaert: false });
     expect(l.frist.svar!.frister.map((f) => [f.betegnelse, f.dager])).toEqual([
       ['Sluttfristen', dager[0]],
       ['Delfristen', dager[1]],
@@ -269,6 +269,14 @@ describe('resultatet for hele fristsvaret i sakslisten (svar 2 A i #1745, HF-U7,
 });
 
 describe('linja i sakslisten (#1022)', () => {
+  it('svar 2: med avslått forhold er fristsvaret subsidiært, som vederlaget (MM-U28)', () => {
+    expect(linje(forloepA).frist.svar).toMatchObject({
+      resultat: 'godkjent',
+      antall_godkjent: 1,
+      subsidiaert: true,
+    });
+  });
+
   it('svaret og enigheten på et krav med to kravposter: summen av kravpostene, og enigheten sier hvilken kravpost som ikke har fast beløp (KA-U57 (c), KA-U72, OV-U73, svar 6 A i #1663)', () => {
     const l = linje((sak) => {
       sak.send('TE', PAABEROPELSE);

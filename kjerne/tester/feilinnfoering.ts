@@ -3511,7 +3511,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F423',
     feilklasse:
       'lagene i utkastet flyttes ikke ned med lagene fra svaret på forholdet (OV-U32, OV-U33, #1400)',
-    fil: `${K}/kommandoer/lag.ts`,
+    fil: `${K}/kommandoer/utkastlag.ts`,
     endringer: [["typeof vi === 'number' ? vi + grunner.length : vi", 'vi']],
     mal: [
       'beløpet står subsidiært, bare med avslaget foran',

@@ -770,7 +770,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'utledning/utled.ts:settSubsidiaer',
       'frosset/brevtekst.ts:forholdetsLag',
-      'kommandoer/lag.ts:lageneIUtkastet',
+      'kommandoer/utkastlag.ts:lageneIUtkastet',
     ],
   ],
   // OV-U32, OV-U33: lagene forholdet opptar foran sporet, som linjen etiketteres med.
@@ -1224,7 +1224,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/kommando.ts',
       'frosset/linje.ts',
       'spor/frist/frysing.ts',
-      'kommandoer/lag.ts',
+      'kommandoer/utkastlag.ts',
       'spor/vederlag/frysing.ts',
       'spor/vederlag/tekst.ts',
     ],
@@ -1234,7 +1234,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts',
     'predikat',
     'virkninger',
-    ['kommandoer/lag.ts:lageneIUtkastet', 'frosset/frysing.ts:beslutningsgrunnlag'],
+    ['kommandoer/utkastlag.ts:lageneIUtkastet', 'frosset/frysing.ts:beslutningsgrunnlag'],
   ],
   // GR-U7 og MM-U9: sammenfallet og begrensningen etter § 34.1.3 (VS-U5), lest når brevet fryses.
   [
@@ -1277,13 +1277,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/frist/kommando.ts', 'predikat', 'lagIFristen', ['kommandoer/lag.ts']],
   // OV-U32, OV-U33: lagene i utkastet regnet som brevet regner dem, felles for sporene.
   [
-    'kommandoer/lag.ts',
+    'kommandoer/utkastlag.ts',
     'predikat',
     'lageneIUtkastet',
     ['spor/vederlag/kommando.ts', 'spor/frist/kommando.ts'],
   ],
   [
-    'kommandoer/lag.ts:lageneIUtkastet',
+    'kommandoer/utkastlag.ts:lageneIUtkastet',
     'predikat',
     'grunner virket virkning lag etikett',
     ['spor/vederlag/kommando.ts', 'spor/frist/kommando.ts'],
@@ -2202,7 +2202,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/byggeklosser.ts',
     'brevtekst',
     'etikett',
-    ['frosset/brevtekst.ts', 'kommandoer/lag.ts', 'frosset/linje.ts', 'spor/vederlag/tekst.ts'],
+    [
+      'frosset/brevtekst.ts',
+      'kommandoer/utkastlag.ts',
+      'frosset/linje.ts',
+      'spor/vederlag/tekst.ts',
+    ],
   ],
   ['frosset/linje.ts:beslutningslinje', 'brevtekst', 'tekst', ['frosset/linje.ts']],
   ['frosset/linje.ts:beslutningslinje.plass', 'brevtekst', 'virkning', ['frosset/linje.ts']],

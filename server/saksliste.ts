@@ -175,12 +175,14 @@ export interface Fristdager {
 export interface Fristlinje extends Foreligger, Staaende {
   krav: { frister: Fristdager[] } | null;
   /**
-   * `resultat` gjelder hele svaret, og `antall_godkjent` er fristene som har fått alle dagene
-   * (`resultatForSvaret`). Ingen regel leser dem.
+   * `resultat` gjelder hele svaret, `antall_godkjent` er fristene som har fått alle dagene
+   * (`resultatForSvaret`), og `subsidiaert` sier at et av standpunktene om dagene er subsidiært,
+   * som i vederlaget. Ingen regel leser dem.
    */
   svar: {
     resultat: Fristresultat;
     antall_godkjent: number;
+    subsidiaert: boolean;
     frister: (Fristdager & { resultat: Fristresultat; subsidiaert: boolean })[];
   } | null;
   enighet: { frister: Fristdager[]; virkning: Virkning } | null;
@@ -272,6 +274,7 @@ function fristsvaret(u: Utledning, sist: ReadonlyMap<string, FristIKravet>): Fri
   return {
     resultat: resultatForSvaret(resultater),
     antall_godkjent: resultater.filter((r) => r === 'godkjent').length,
+    subsidiaert: frister.some((f) => f.subsidiaert),
     frister,
   };
 }
