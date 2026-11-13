@@ -14,8 +14,9 @@
   import { tick, untrack } from 'svelte';
   import { kroner } from '$kjerne/frosset/tekst';
   import { krevdProduktivitet, kravposterI } from '$kjerne/spor/vederlag/format';
-  import type { Avsnitt, Kravpost } from '$kjerne/typer';
+  import type { Kravpost } from '$kjerne/typer';
   import type { Utledning } from '$kjerne/utledning/utled';
+  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import {
     varseletFoerKravet,
@@ -73,18 +74,7 @@
     u: Utledning;
     /** Valgene står når TE går til brevkontrollen og tilbake. `null` fyller skjemaet fra saken. */
     valg?: Kravvalg | null;
-    onbrevkontroll: (k: {
-      kommando: Record<string, unknown>;
-      tekst: string[];
-      avsnitt?: Avsnitt[] | null;
-      utdypning?: string;
-      detteSender: { tekst: string; lag: string | null }[];
-      virkninger: string[];
-      merking: string | null;
-      deresRef: string[];
-      tittel: string | null;
-      vedlegg: ReturnType<typeof vedleggIKravet>;
-    }) => void;
+    onbrevkontroll: (k: TilBrevkontrollen & { vedlegg: ReturnType<typeof vedleggIKravet> }) => void;
     onforkast: () => void;
     onvedsiden?: (vedSiden: boolean) => void;
   } = $props();
@@ -506,7 +496,6 @@
       kommando,
       tekst: b.tekst,
       avsnitt: b.avsnitt,
-      utdypning: kommando.utdypning,
       detteSender,
       virkninger: [],
       merking: b.merking,
