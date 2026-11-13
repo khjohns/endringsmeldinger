@@ -675,7 +675,8 @@ export const TRAADEN = {
       return spor.includes('forhold') ? 'Påberopelse av forholdet' : stor(krav.join(' og '));
     if (b.art === 'svar' && spor.length)
       return `Svar på ${[...(spor.includes('forhold') ? ['påberopelsen'] : []), ...krav].join(' og ')}`;
-    return TIDSLINJE.hva(b);
+    // Den frosne tittelen nevner saken, som tråden står i («Korrigering av datoen i sak KOE-17»).
+    return TIDSLINJE.hva(b).replace(/ i sak \S+$/, '');
   },
   nummer: (n: number) => `brev ${n}`,
   /** Et eldre krav, fulgt opp av et nytt brev med kravet (U-5 i BF-44). */

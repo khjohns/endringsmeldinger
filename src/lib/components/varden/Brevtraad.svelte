@@ -324,10 +324,21 @@
     color: var(--ink-3);
     white-space: nowrap;
   }
+  /* Lenken står på linja med 24 px høyde, og treffflaten går utover den (WCAG 2.5.8). */
   .meta :global(.knapp) {
+    position: relative;
     min-height: 24px;
     padding: 0;
     font-size: 14px;
+  }
+  .meta :global(.knapp)::after {
+    content: '';
+    position: absolute;
+    inset: -10px -4px;
+  }
+  /* Lenkeknappen står i flukt med teksten over; luften til siden er treffflate. */
+  .datolinje :global(.knapp) {
+    margin-left: calc(-1 * var(--spacing-2));
   }
   .vises {
     font-size: 14px;
@@ -378,6 +389,7 @@
   .lagene {
     display: grid;
     gap: var(--spacing-2);
+    font-size: 14px;
   }
   .lagene li {
     display: grid;

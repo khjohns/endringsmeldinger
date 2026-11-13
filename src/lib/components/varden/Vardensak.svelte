@@ -600,20 +600,25 @@
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.02em;
   }
+  /* Etiketten står over navnet, så et langt firmanavn får hele bredden (oppdragsgiver 13.11). */
   .parter {
     display: grid;
-    gap: var(--spacing-1);
-    margin-top: var(--spacing-3);
-    font-size: 14px;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-4);
+  }
+  .parter div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
   .parter dt {
-    display: inline;
-    margin-right: 6px;
     color: var(--sidebar-muted);
     font-size: 12px;
   }
   .parter dd {
-    display: inline;
+    font-size: 14px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
   }
   .merknad {
     margin-top: var(--spacing-3);
