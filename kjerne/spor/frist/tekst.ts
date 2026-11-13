@@ -49,15 +49,18 @@ function fristkravtekst(k: Krav, { j }: Tekst): Brevpunkt[] {
     deler.push(
       `Kravet er svar på byggherrens forespørsel etter NS 8407 punkt 33.6.2 i ${j.brevet(j.dokumentetTil(k.gjelder))}.`
     );
+  // KA-U52 punkt 4, LV-U56: setningen om kravet det erstatter står før fristene.
+  if (k.erstatter)
+    deler.push(`Kravet erstatter TEs krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`);
   const forrige = tidligere(k, j).at(-1);
   const foer = new Map(forrige ? innholdIFristen(forrige).frister.map((f) => [f.id, f]) : []);
   const avsnitt = [deler.join(' ')];
   for (const f of innholdIFristen(k).frister) {
-    const var_ = foer.get(f.id);
+    const forrigeFrist = foer.get(f.id);
     const setninger = [`Frist ${betegnelsen(f)}: ${dager(f.dager)}.`];
-    if (var_ && forrige && fristnoekkel(var_) !== fristnoekkel(f))
+    if (forrigeFrist && forrige && fristnoekkel(forrigeFrist) !== fristnoekkel(f))
       setninger.push(
-        `Fristen erstatter frist ${betegnelsen(var_)} i ${j.brevet(forrige.dokument)}.`
+        `Fristen erstatter frist ${betegnelsen(forrigeFrist)} i ${j.brevet(forrige.dokument)}.`
       );
     avsnitt.push(setninger.join(' '));
   }
@@ -91,7 +94,7 @@ export const BREVTEKSTEN_I_FRISTEN = {
   krav: fristkravtekst,
   // VS-U29: også påberopelsen etter § 33.6.2 mot begrunnelsen.
   ogsaaInnsigelserEtter: ['33.6.2'],
-  nevnerErstattet: true,
+  nevnerErstattet: false,
   kravetOm: 'fristforlengelse',
   enigI: 'antallet dager',
   trukket: fristeneMedDager,

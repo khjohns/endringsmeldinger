@@ -99,8 +99,8 @@ const kr = (n: string) => `${n.replace(' ', '\u00a0')}\u00a0kr`;
  */
 function medFristen(v: Data): Data {
   if (!('dager' in v) && !('dager_maatte_forstaa' in v)) return v;
-  const { dager, dager_maatte_forstaa, ...resten } = v;
-  return { ...resten, frister: [{ dager, dager_maatte_forstaa }] };
+  const { dager, dager_maatte_forstaa: maatteForstaa, ...resten } = v;
+  return { ...resten, frister: [{ dager, dager_maatte_forstaa: maatteForstaa }] };
 }
 
 /** Resultatet klienten regnet ut for den ene fristen, som raden for den i utregningen. */
@@ -643,7 +643,7 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
       innhold: { frister: [{ navn: 'Sluttfristen', dager: 30 }] },
     });
     expect(laast(rad)).toEqual([
-      `${FRISTKRAVET}\n\nFrist Sluttfristen: 30 dager. Kravet erstatter TEs krav i brev K201-KOE-017-03 av 4. oktober 2026.`,
+      `${FRISTKRAVET} Kravet erstatter TEs krav i brev K201-KOE-017-03 av 4. oktober 2026.\n\nFrist Sluttfristen: 30 dager.`,
     ]);
   });
 });

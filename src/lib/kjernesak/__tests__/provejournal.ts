@@ -13,7 +13,6 @@ export const SAK = 'sak-1';
 export const MERKING: Saksmerking = {
   sakskode: { kode: 'koe', loepenummer: 17 },
   kontraktsforkortelse: 'K201',
-  kontraktsfrister: [],
 };
 
 export const opprettet: Journalrad = {
@@ -40,6 +39,7 @@ export function skrevet(
     kommando,
     {
       ...MERKING,
+      kontraktsfrister: [],
       sakId: SAK,
       aktoerId: part.toLowerCase(),
       part,

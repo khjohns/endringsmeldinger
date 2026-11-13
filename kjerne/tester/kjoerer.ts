@@ -84,6 +84,12 @@ export function likeVerdier(a: unknown, b: unknown): boolean {
   );
 }
 
+/** Fristtabellen for prosjektet i bevis-sakene (GFK-U18, KA-U79). */
+export const FRISTTABELLEN = [
+  { fristId: 1, nummer: '2', navn: 'Overtakelse' },
+  { fristId: 2, nummer: '3', navn: 'Mekanisk ferdigstillelse' },
+];
+
 export class Forutsetning extends Error {}
 export type Paastand = (holder: boolean, melding: string) => void;
 
@@ -130,7 +136,7 @@ export class Kjoering {
       teamId: `team-${part.toLowerCase()}`,
       sakskode: this.bane.sakskode ?? { kode: 'koe' as const, loepenummer: 17 },
       kontraktsforkortelse: 'K201',
-      kontraktsfrister: [],
+      kontraktsfrister: FRISTTABELLEN,
       tidspunkt: () => this.klokke.neste(),
       nyId: this.navn.nyId,
     };

@@ -47,8 +47,8 @@ import { catendaFraMiljoe, type CatendaOAuth } from './catenda.ts';
 import { opprettPool, sql, utenKontekst, type Pool } from './datalag.ts';
 import { erKalenderdato } from '../kjerne/format/skjema.ts';
 import type { Part } from '../kjerne/typer.ts';
+import { betegnelsen } from '../kjerne/spor/frist/format.ts';
 import {
-  betegnelse,
   fristtabell,
   STANDARDSATS,
   type Fristtabell,
@@ -570,7 +570,7 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
             : `dagmulktbelagt, ${beskrivSats(f.satsopplysninger)}: ${
                 f.sats === null ? 'kontraktssummen mangler' : `${kroner(f.sats)} per dag`
               }`;
-        a.skriv(`ID ${f.fristId}: ${betegnelse(f)}, ${f.dato}, ${dagmulkt}`);
+        a.skriv(`ID ${f.fristId}: ${betegnelsen(f)}, ${f.dato}, ${dagmulkt}`);
       }
       return;
     }

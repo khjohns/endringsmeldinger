@@ -293,6 +293,24 @@ const INNHOLD = {
   // KA-U74, KA-U79: bevis-sakene har én frist, som ikke er registrert. En ny versjon tar den med
   // med sin `id`.
   frist: (h: Handling, u?: Utledning, nyId?: () => string) => {
+    // Flere frister: `frister` med navnet eller `frist_id` i fristtabellen (`FRISTTABELLEN`), og
+    // `trekker` og `erstatter` med navnet på en frist som har stått i sporet.
+    if (Array.isArray(h.frister)) {
+      const idFor = (navn: unknown) => {
+        for (const k of [...(u?.spor.frist.krav ?? [])].reverse()) {
+          const f = innholdIFristen(k).frister.find((x) => x.navn === navn);
+          if (f) return f.id;
+        }
+        return String(navn);
+      };
+      return {
+        frister: (h.frister as Record<string, unknown>[]).map(({ erstatter, ...f }) => ({
+          ...(erstatter === undefined ? {} : { id: idFor(erstatter) }),
+          ...f,
+        })),
+        ...(Array.isArray(h.trekker) ? { trekker: h.trekker.map(idFor) } : {}),
+      };
+    }
     const forrige = u?.spor.frist.gjeldendeKrav;
     const id = forrige ? innholdIFristen(forrige).frister[0]!.id : nyId?.();
     return { frister: [{ ...(id ? { id } : {}), navn: FRISTEN, dager: h.dager }] };
@@ -328,7 +346,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
             ? INNHOLD.vederlag(h, u, undefined, navn)
             : spor === 'forhold'
               ? INNHOLD.forhold(h)
-              : INNHOLD.frist(h),
+              : INNHOLD.frist(h, u),
         ...(typeof h.varsel_sendt === 'string' ? { varsel: varselIKravet(h.varsel_sendt, u) } : {}),
         ...(spor === 'vederlag' ? {} : utdypning(h)),
       };

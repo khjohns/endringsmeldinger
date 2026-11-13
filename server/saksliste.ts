@@ -11,7 +11,7 @@ import type { Dokument, Journalrad, Part, Spor } from '../kjerne/typer.ts';
 import { kalenderdag, registrertDato } from '../kjerne/format/leser.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
-import { innholdIFristen } from '../kjerne/spor/frist/format.ts';
+import { betegnelsen, innholdIFristen } from '../kjerne/spor/frist/format.ts';
 import {
   fasteBeloepIKravet,
   fasteBeloepISvaret,
@@ -164,10 +164,17 @@ export interface Vederlagslinje extends Foreligger, Staaende {
   enighet: { beloep: number | null; uten_fast_beloep: string[]; virkning: Virkning } | null;
 }
 
+/** Én frist i kravet, svaret eller enigheten, med betegnelsen i kontrakten (U-1, KA-U74). */
+export interface Fristdager {
+  betegnelse: string;
+  dager: number;
+}
+
+/** Dagene står per frist og legges ikke sammen (KA-U74). */
 export interface Fristlinje extends Foreligger, Staaende {
-  krav: { dager: number } | null;
-  svar: { resultat: Fristresultat; dager: number; subsidiaert: boolean } | null;
-  enighet: { dager: number | null; virkning: Virkning } | null;
+  krav: { frister: Fristdager[] } | null;
+  svar: { frister: (Fristdager & { resultat: Fristresultat; subsidiaert: boolean })[] } | null;
+  enighet: { frister: Fristdager[]; virkning: Virkning } | null;
 }
 
 /** Én linje i sakslisten. */
@@ -221,10 +228,30 @@ function foreligger(u: Utledning, spor: Spor): Foreligger {
  * Standpunktet om dagene i fristens gjeldende svar, og om det er subsidiært
  * (`standpunktetErSubsidiaert`); leseren fyller da tallet med det subsidiære (MM-U28).
  */
-function fristsvaret(u: Utledning) {
-  const st = u.spor.frist.gjeldendeSvar?.standpunkter.find((p) => p.art === 'dager');
-  if (!st) return null;
-  return { st, subsidiaert: standpunktetErSubsidiaert(u, 'frist', st.id) };
+/** Fristen med `id` i en av kravversjonene i sporet, med betegnelsen i kontrakten. */
+function betegnelseFor(u: Utledning, id: string): string {
+  for (const k of [...u.spor.frist.krav].reverse()) {
+    const f = innholdIFristen(k).frister.find((x) => x.id === id);
+    if (f) return betegnelsen(f);
+  }
+  return id;
+}
+
+/** Byggherrens gjeldende svar på fristen: dagene og resultatet for hver frist. */
+function fristsvaret(u: Utledning): Fristlinje['svar'] {
+  const frister = (u.spor.frist.gjeldendeSvar?.standpunkter ?? []).flatMap((st) =>
+    st.art === 'dager'
+      ? [
+          {
+            betegnelse: betegnelseFor(u, st.gjelder),
+            resultat: st.resultat,
+            dager: st.vurdert,
+            subsidiaert: standpunktetErSubsidiaert(u, 'frist', st.id),
+          },
+        ]
+      : []
+  );
+  return frister.length ? { frister } : null;
 }
 
 const beloepene = (b: FasteBeloep): Beloepene => ({
@@ -274,20 +301,31 @@ function vederlag(u: Utledning): Vederlagslinje {
 function frist(u: Utledning): Fristlinje {
   const s = u.spor.frist;
   const krav = s.gjeldendeKrav;
-  const sv = fristsvaret(u);
   const virkning = enighetensVirkning(u, 'frist');
   return {
     ...foreligger(u, 'frist'),
     kravet_staar: kravetStaar(u, 'frist'),
     har_varsel: harVarsel(u, 'frist'),
     ingen_krav: s.ingenKrav,
-    krav: krav ? { dager: innholdIFristen(krav).dager } : null,
-    svar:
-      sv?.st.art === 'dager'
-        ? { resultat: sv.st.resultat, dager: sv.st.vurdert, subsidiaert: sv.subsidiaert }
-        : null,
+    krav: krav
+      ? {
+          frister: innholdIFristen(krav).frister.map((f) => ({
+            betegnelse: betegnelsen(f),
+            dager: f.dager,
+          })),
+        }
+      : null,
+    svar: fristsvaret(u),
     enighet:
-      s.enighet && virkning ? { dager: s.enighet.grunnlag.utfall.dager ?? null, virkning } : null,
+      s.enighet && virkning
+        ? {
+            frister: (s.enighet.grunnlag.utfall.frister ?? []).map((f) => ({
+              betegnelse: betegnelseFor(u, f.gjelder),
+              dager: f.dager,
+            })),
+            virkning,
+          }
+        : null,
   };
 }
 

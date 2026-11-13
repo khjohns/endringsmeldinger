@@ -58,6 +58,7 @@ const kontekst = {
   tidspunkt: () => new Date('2026-10-16T09:00:00.000Z'),
   nyId: () => crypto.randomUUID(),
   ...MERKING,
+  kontraktsfrister: [],
 };
 
 /** Raden kjernen selv skriver for kommandoen, som versjonen etter `journal`. */

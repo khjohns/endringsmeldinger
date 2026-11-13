@@ -1291,6 +1291,34 @@
       "radetikett": "KA-U75: Brevet sier at totalentreprenøren trekker kravposten, ikke at trekket er et avkall"
     },
     {
+      "id": "KA-U74",
+      "type": "vedtak",
+      "dato": "2026-11-11",
+      "ref": "../plans/vedtak.md#ka-u74",
+      "radetikett": "KA-U74: Dager for hver frist, slik prototypen har det"
+    },
+    {
+      "id": "KA-U76",
+      "type": "vedtak",
+      "dato": "2026-11-11",
+      "ref": "../plans/vedtak.md#ka-u76",
+      "radetikett": "KA-U76: Samme regel som i 1 A. Brevet sier at fristen trekkes, fristen kan tas med igjen i en senere versjon, og partene vurderer betydningen"
+    },
+    {
+      "id": "KA-U79",
+      "type": "vedtak",
+      "dato": "2026-11-13",
+      "ref": "../plans/vedtak.md#ka-u79",
+      "radetikett": "KA-U79: Kravet om fristforlengelse gjelder en eller flere frister i kontrakten"
+    },
+    {
+      "id": "GFK-U23",
+      "type": "vedtak",
+      "dato": "2026-10-31",
+      "ref": "../plans/vedtak.md#gfk-u23",
+      "radetikett": "GFK-U23: fristtabellen må kunne leses av begge parter, siden TE velger frist i kravet"
+    },
+    {
       "id": "KA-U53",
       "type": "vedtak",
       "dato": "2026-11-07",
@@ -3724,6 +3752,30 @@
       ],
       "regelkoder": [
         "UGYLDIG_VURDERING"
+      ]
+    },
+    {
+      "id": "KA-57",
+      "tilfelle": "TE har sendt et fristkrav med dager for én eller flere frister i kontrakten. TE sender en ny kravversjon som utelater en frist uten å trekke den, en som trekker den, en som tar den med igjen etter trekket, en som bytter en registrert frist med en annen, og en som erstatter en frist som ikke er registrert, med den registrerte fristen. TE sender også et krav om en frist som ikke står i fristtabellen for prosjektet.",
+      "forventet": "Kravet angir dagene for hver frist og har ingen sum ([KA-U74](../plans/vedtak.md#ka-u74)). En ny kravversjon tar med eller trekker hver frist i forrige versjon, og en trukket frist kan tas med igjen ([KA-U76](../plans/vedtak.md#ka-u76)). En frist som ikke er registrert, kan erstattes med den registrerte fristen, men en registrert frist kan ikke byttes med en annen ([KA-U79](../plans/vedtak.md#ka-u79)). Et krav om en registrert frist som ikke står i fristtabellen for prosjektet, avvises, og nummeret og navnet i kravet er det fristtabellen sa da kravet ble sendt ([GFK-U23](../plans/vedtak.md#gfk-u23)).",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Løsningen sier ikke at trekket av en frist er et avkall, og kontrollerer ikke at en frist som ikke er registrert, finnes i kontrakten (KA-U76, KA-U79).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U74",
+        "KA-U76",
+        "KA-U79",
+        "GFK-U23"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/spor/frist/utledning.ts#fristeneStrider",
+        "kjerne/spor/frist/kommando.ts#fristIkkeRegistrert"
+      ],
+      "regelkoder": [
+        "FRISTENE",
+        "FRIST_IKKE_REGISTRERT"
       ]
     }
   ],

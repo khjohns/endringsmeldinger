@@ -71,6 +71,7 @@ på kilden, men har ingen kontroller ennå.
 | [FO-U8](../../plans/vedtak.md#fo-u8) | — | — | BF-06 |
 | [GFK-U2](../../plans/vedtak.md#gfk-u2) | — | — | BF-08 |
 | [GFK-U7](../../plans/vedtak.md#gfk-u7) | — | — | BF-06 |
+| [GFK-U24](../../plans/vedtak.md#gfk-u24) | — | — | BF-20 |
 | [GR-U1](../../plans/vedtak.md#gr-u1) | — | — | BF-08 |
 | [GR-U7](../../plans/vedtak.md#gr-u7) | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 forholdet-er-avslaatt, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-04 forholdet-er-avslaatt | BF-01V, BF-08, BF-14 |
 | [GR-U9](../../plans/vedtak.md#gr-u9) | — | — | BF-08 |
@@ -151,6 +152,7 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U76](../../plans/vedtak.md#ka-u76) | — | — | BF-20 |
 | [KA-U77](../../plans/vedtak.md#ka-u77) | — | — | BF-20 |
 | [KA-U78](../../plans/vedtak.md#ka-u78) | — | — | BF-20 |
+| [KA-U79](../../plans/vedtak.md#ka-u79) | — | — | BF-20 |
 | [KT-U3](../../plans/vedtak.md#kt-u3) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U6](../../plans/vedtak.md#kt-u6) | — | BF-05 paaberopelsen-er-sendt | — |
 | [KT-U7](../../plans/vedtak.md#kt-u7) | — | BF-05 start | — |

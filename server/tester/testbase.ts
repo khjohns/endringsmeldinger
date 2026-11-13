@@ -126,7 +126,6 @@ export async function lagOppsett(
           byggherre_navn: 'Byggherren',
           totalentreprenor_navn: 'Totalentreprenøren',
           kontraktsforkortelse: KONTRAKTSFORKORTELSE,
-          kontraktsfrister: [],
         });
       const ekte = prosjekt === p ? kobling : undefined;
       await settInn(r, 'catenda_project_configs', {
