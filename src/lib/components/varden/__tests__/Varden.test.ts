@@ -83,7 +83,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     const punkt = kontrollpunkt(BF, 'bh-har-mottatt-vederlagskravet');
     const { k, bane } = await kjoerBrukerforloep(BF, { til: punkt.id, paastand });
     const demosak = aapne(punkt.id);
-    expect(await screen.findByRole('heading', { name: BF.tittel, level: 2 })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: BF.tittel, level: 1 })).toBeInTheDocument();
     bane.journal = async () => demosak().journal();
 
     // Steg 4: BH vurderer varslingen og beløpet, kontrollerer brevet og sender svaret.
@@ -417,7 +417,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       'Vederlagsjustering',
       'Fristforlengelse',
     ]);
-    const tittel = screen.getByRole('heading', { level: 2, name: BF.tittel });
+    const tittel = screen.getByRole('heading', { level: 1, name: BF.tittel });
     expect(tittel.previousElementSibling?.textContent).toMatch(/^KOE-\d+$/);
   });
 
@@ -438,7 +438,8 @@ describe('Varden med brukerforløpet BF-01', () => {
   it('panelet til venstre felles inn mens brevet leses ved siden av skjemaet, og kommer tilbake når brevet lukkes (oppdragsgiver 30.10, #1391)', async () => {
     aapne('bh-har-mottatt-vederlagskravet');
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
-    const omslaget = () => screen.queryByRole('heading', { level: 2, name: BF.tittel });
+    // Gruppene i panelet står bare når panelet står.
+    const omslaget = () => screen.queryByRole('list', { name: 'Krav' });
     expect(omslaget()).toBeInTheDocument();
 
     // Der panelet er felt inn, står sporene i topplinja (U-16 i BF-44, #1899 punkt 4).
@@ -534,7 +535,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       });
       const radio = demopanel().getByRole('radio', { name: part });
       if (radio.getAttribute('aria-checked') !== 'true') await fireEvent.click(radio);
-      await screen.findByRole('heading', { name: BF.tittel, level: 2 });
+      await screen.findByRole('heading', { name: BF.tittel, level: 1 });
       // Handlingene kjernen gir vederlagssporet (`tilbudte` i `kjerne/kommandoer/handlinger.ts`),
       // uten varslene etter § 34.3.3 og § 34.4, som får skjema i økt 3 (G-8 i BF-14, #1703).
       const tilbudt = kjernesak!.tilbudte
@@ -571,7 +572,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     // Handlingen står ved brevet den svarer på, byggherrens svar (U-16 i BF-44, #1898).
     const primaer = await screen.findByRole('button', { name: 'Oppdater påberopelse' });
     const raden = within(primaer.closest('li')!);
-    expect(raden.getByRole('heading', { level: 3 }).textContent).toMatch(/^Svar på påberopelsen/);
+    expect(raden.getByRole('heading', { level: 4 }).textContent).toMatch(/^Svar på påberopelsen/);
     // Teksten oppdragsgiver ga 06.11 i #1631, med «har risikoen for» som i § 33.1 c.
     expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toMatch(
       /^Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for\./
@@ -628,7 +629,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByText('Laster saken …')).toBeNull();
 
     await fireEvent.click(within(feil).getByRole('button', { name: 'Prøv igjen' }));
-    await screen.findByRole('heading', { name: BF.tittel, level: 2 });
+    await screen.findByRole('heading', { name: BF.tittel, level: 1 });
     expect(screen.queryByRole('alert')).toBeNull();
   });
 
@@ -677,7 +678,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       kontrakt: { prosjekt: 'Prosjekt A', byggherre: 'Byggherre AS' },
     });
 
-    await screen.findByRole('heading', { level: 2, name: BF.tittel });
+    await screen.findByRole('heading', { level: 1, name: BF.tittel });
     const parter = container.querySelector('.parter')!;
     expect([...parter.querySelectorAll('dt')].map((e) => e.textContent)).toEqual(['Byggherre']);
     expect(within(parter as HTMLElement).getByText('Byggherre AS')).toBeTruthy();
@@ -707,7 +708,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     await kjernesak.last();
     const { container } = render(Vardensak, { kjernesak });
 
-    await screen.findByRole('heading', { level: 2, name: BF.tittel });
+    await screen.findByRole('heading', { level: 1, name: BF.tittel });
     expect([...container.querySelectorAll('.parter dd')].map((e) => e.textContent?.trim())).toEqual(
       ['Entreprenør TE', 'Byggherre BH']
     );
@@ -733,7 +734,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       });
       await kjernesak.last();
       render(Vardensak, { kjernesak, nySakLenke: '/demo/ny' });
-      await screen.findByRole('heading', { level: 2, name: BF.tittel });
+      await screen.findByRole('heading', { level: 1, name: BF.tittel });
       const lenker = screen.queryAllByRole('link', { name: 'Nytt krav om endringsordre' });
       expect(lenker).toHaveLength(antall);
       for (const l of lenker) {

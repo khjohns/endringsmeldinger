@@ -89,7 +89,7 @@ const traad = () => within(screen.getByRole('list', { name: 'Brevene i saken, ny
 describe('Siden for forholdet', () => {
   it('tittelen er forholdet selv, uten gruppen over, og under den står hvor saken står (OV-U78, BF-05 U-10)', async () => {
     await vis([PAABEROPELSE, AVSLAG]);
-    const tittel = screen.getByRole('heading', { level: 1, name: 'Irregulær endring' });
+    const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
     expect(tittel.previousElementSibling).toBeNull();
     expect(screen.queryByText('Endringer, jf. punkt 31 og 32')).toBeNull();
     expect(tittel.nextElementSibling?.textContent).toMatch(
@@ -115,7 +115,7 @@ describe('Siden for forholdet', () => {
     const rad = brev[1];
     expect(rad.querySelector('.part')?.textContent).toBe('TE');
     expect(rad.querySelector('.dato .lang')?.textContent).toMatch(/^\d+\. \p{L}+ 2026$/u);
-    expect(within(rad).getByRole('heading', { level: 3 }).textContent?.trim()).toBe(
+    expect(within(rad).getByRole('heading', { level: 4 }).textContent?.trim()).toBe(
       'Påberopelse av forholdet fra totalentreprenøren'
     );
     expect(rad.querySelector('.nr')?.textContent).toBe('brev 1');
@@ -135,10 +135,10 @@ describe('Siden for forholdet', () => {
       'BH',
       'TE',
     ]);
-    expect(brev[1].querySelector('h3')?.textContent).toMatch(/^Krav om vederlagsjustering/);
+    expect(brev[1].querySelector('h4')?.textContent).toMatch(/^Krav om vederlagsjustering/);
     const registrert = brev[2];
     expect(registrert).toHaveClass('kompakt');
-    expect(registrert.querySelector('h3')?.textContent).toMatch(
+    expect(registrert.querySelector('h4')?.textContent).toMatch(
       /^Foreløpig tilbakemelding om pålegget/
     );
     expect(registrert.textContent).toContain('Sendt 20. september 2026, ifølge byggherren.');
@@ -147,7 +147,7 @@ describe('Siden for forholdet', () => {
     // Vedleggene står under brevet sitt (U-5 i BF-44, LV-U14).
     expect(within(registrert).getByRole('list', { name: 'Vedlegg' }).textContent).toMatch(/\S/);
     // Infotipset står ikke i overskriften (#1511).
-    expect(registrert.querySelector('h3 button')).toBeNull();
+    expect(registrert.querySelector('h4 button')).toBeNull();
     expect(brev[0].textContent).not.toContain('Svar ikke registrert');
     expect(u.spor.forhold.gjeldendeSvar).not.toBeNull();
   });
@@ -356,7 +356,7 @@ describe('Brevtråden er felles for sidene, og sporet styrer brevene (#1898 punk
   const FRIST: Handling = { handling: 'krav', spor: 'frist', dager: 10, navn: 'K-f1' };
   const titler = () =>
     screen
-      .getAllByRole('heading', { level: 3 })
+      .getAllByRole('heading', { level: 4 })
       .map((h) => h.textContent?.replace(/ fra \p{L}+$/u, '').trim());
 
   it.each([

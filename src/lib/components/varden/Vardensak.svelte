@@ -309,7 +309,12 @@
           <button
             type="button"
             aria-current={valgt === s ? 'page' : undefined}
-            onclick={() => velgSpor(s)}>{s === 'forhold' ? forholdsnavn : SPORNAVN[s]}</button
+            onclick={() => velgSpor(s)}
+            >{s === 'forhold'
+              ? forholdsnavn
+              : SPORNAVN[s]}{#if s === 'vederlag' && utkastAapent && valgt !== s}<span
+                class="merke-utkast">{SAKEN.utkast}</span
+              >{/if}</button
           >
         {/each}
       </nav>
@@ -319,7 +324,7 @@
     {#if !nySak && u && kjernesak.saksbilde}
       <header class="omslag">
         {#if sakskode}<p class="kode">{sakskode}</p>{/if}
-        <h2>{kjernesak.saksbilde.tittel}</h2>
+        <h1>{kjernesak.saksbilde.tittel}</h1>
         {#if parter.length}
           <dl class="parter">
             {#each parter as [etikett, navn] (etikett)}
@@ -586,7 +591,7 @@
     text-wrap: balance;
   }
   /* Saksomslaget: saken og partene øverst (panel B, oppdragsgiver 13.11). */
-  .omslag h2 {
+  .omslag h1 {
     font-size: 20px;
     font-weight: 600;
     line-height: 1.25;
@@ -681,6 +686,9 @@
     gap: var(--spacing-1) var(--spacing-6);
   }
   .sporrad button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
     padding: 9px 0;
     border: 0;
     border-bottom: 2px solid transparent;
@@ -755,6 +763,7 @@
     }
     .sporene .valgene {
       display: flex;
+      flex-direction: row;
       flex-wrap: nowrap;
       margin: 0;
     }

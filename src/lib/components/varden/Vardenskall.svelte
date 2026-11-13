@@ -73,9 +73,9 @@
   const panelInne = $derived(innfelt || (bred && mellombred.treff));
 
   // Avsenderen nederst har prosjektet og kontraktsformen når kontrakten ikke står over (panel B).
-  const fotlinje = $derived.by(() => {
+  const fotlinjer = $derived.by(() => {
     const k = kontrakt ?? kontraktFraProsjektet();
-    return [k.prosjekt, k.kontraktsform].filter(Boolean).join(' · ');
+    return [k.prosjekt, k.kontraktsform].filter((x): x is string => !!x);
   });
 </script>
 
@@ -102,7 +102,7 @@
           <div class="logo" style:background-image={`url(${osloLogo})`} aria-hidden="true"></div>
           <p>
             <span class="kommune">{SAKEN.kommune}</span><span>{SAKEN.foretak}</span>
-            {#if !visKontrakten && fotlinje}<span>{fotlinje}</span>{/if}
+            {#if !visKontrakten}{#each fotlinjer as linje (linje)}<span>{linje}</span>{/each}{/if}
           </p>
         </div>
         <p class="prototype">{SAKEN.prototype}</p>
@@ -111,6 +111,8 @@
   </div>
 
   <div class="flate">
+    <!-- Der panelet er felt inn, er sakens tittel overskriften for siden, som i omslaget. -->
+    {#if panelInne && sakstittel}<h1 class="visually-hidden">{sakstittel}</h1>{/if}
     <div class="topplinje">
       {#if sti.length}
         <nav class="sti" aria-label={SAKEN.stien}>

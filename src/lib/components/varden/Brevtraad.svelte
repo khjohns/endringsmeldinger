@@ -68,7 +68,7 @@
 </script>
 
 <div class="traadhode">
-  <h2 id={`${uid}-tittel`}>{TRAADEN.tittel(spor)}</h2>
+  <h3 id={`${uid}-tittel`}>{TRAADEN.tittel(spor)}</h3>
 </div>
 <ol class="traad" aria-labelledby={`${uid}-tittel`}>
   {#if venterPaaSvar}
@@ -99,11 +99,11 @@
           ><span class="lang">{dato(datoen)}</span><span class="kort">{kortDatoMedAar(datoen)}</span
           ></span
         >
-        <h3 id={`${uid}-${b.id}`}>
+        <h4 id={`${uid}-${b.id}`}>
           {hva}{#if fulgt}<span class="fulgt">{TRAADEN.fulgtOpp(fulgt)}</span>{/if}<span
             class="visually-hidden">{TRAADEN.fra(b.avsender)}</span
           >
-        </h3>
+        </h4>
         <span class="meta">
           {#if b.nummer !== null}<span class="nr">{TRAADEN.nummer(b.nummer)}</span>{/if}
           {#if registrert && dokumentasjon.includes(b.id)}<span>{TRAADEN.dokumentasjon}</span>{/if}
@@ -213,7 +213,7 @@
   .traadhode {
     padding: var(--spacing-4) var(--spacing-5) 0;
   }
-  .traadhode h2 {
+  .traadhode h3 {
     font-size: 16px;
     font-weight: 600;
   }
@@ -299,7 +299,7 @@
   .dato .kort {
     display: none;
   }
-  h3 {
+  h4 {
     min-width: 0;
     font-size: 16px;
     font-weight: 600;
@@ -310,7 +310,7 @@
     font-weight: 400;
     color: var(--ink-3);
   }
-  .eldre h3 {
+  .eldre h4 {
     color: var(--ink-2);
     font-weight: 500;
   }
@@ -363,7 +363,7 @@
     height: 24px;
     font-size: 10px;
   }
-  .kompakt h3 {
+  .kompakt h4 {
     font-size: 14px;
     font-weight: 500;
     color: var(--ink-2);
@@ -494,7 +494,7 @@
       grid-column: 2;
       grid-row: 1;
     }
-    h3 {
+    h4 {
       grid-column: 1 / 3;
     }
     .innhold,

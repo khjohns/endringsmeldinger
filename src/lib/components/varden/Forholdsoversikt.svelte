@@ -79,7 +79,7 @@
 
 <section class="kort" aria-labelledby={`${uid}-tittel`}>
   <header class="sporhode">
-    <h1 id={`${uid}-tittel`}>{forholdet?.navn ?? FORHOLDET.utenNavn}</h1>
+    <h2 id={`${uid}-tittel`}>{forholdet?.navn ?? FORHOLDET.utenNavn}</h2>
     {#if status}<p class="status">{status}</p>{/if}
     {#if trekket !== undefined}
       <p class="trukket" role="note">{FORHOLDET.trukket(trekket)}</p>
@@ -120,7 +120,7 @@
     padding: var(--spacing-5) var(--spacing-5) 18px;
     border-bottom: var(--rule-subtle);
   }
-  h1 {
+  h2 {
     font-size: 24px;
     font-weight: 600;
     line-height: 1.25;
