@@ -580,7 +580,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts', 'relasjon', 'kanFaaInnsigelse KAN_FAA_INNSIGELSE'],
   ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],
   ['utledning/utled.ts:kontrollerHenvisningene(elementer)', 'relasjon', '*'],
-  ['utledning/utled.ts:kontrollerSvaretPaaForesporselen(elementer)', 'relasjon', '*'],
+  ['spor/frist/utledning.ts:kontrollerSvaretPaaForesporselen(elementer)', 'relasjon', '*'],
   ['utledning/utled.ts:paaberopelser(elementer)', 'relasjon', '*'],
   // MM-U43 punkt 6: stridene ett dokument har med journalen før det.
   ['Strid', 'predikat', 'element grunn', ['utledning/utled.ts:utled']],
@@ -597,19 +597,19 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['ForesporselOgSvar', 'relasjon', 'foresporsel svar medKrav'],
   ['Foresporselsrelasjon', 'relasjon', 'art gjelder'],
   ['spor/frist/frysing.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon'],
-  ['utledning/utled.ts', 'relasjon', 'foresporselForFristsvar'],
+  ['spor/frist/utledning.ts', 'relasjon', 'foresporselForFristsvar'],
   [
     'Utledning',
     'utsagn',
     'journal',
     [
       'utledning/utled.ts:datoenDetBleSendt',
-      'utledning/utled.ts:foresporselForFristsvar',
-      'utledning/utled.ts:fristkravErFremmet',
+      'spor/frist/utledning.ts:foresporselForFristsvar',
+      'spor/frist/utledning.ts:fristkravErFremmet',
     ],
   ],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
-  ['utledning/utled.ts', 'predikat', 'fristkravErFremmet', ['kommandoer/forutsetninger.ts']],
+  ['spor/frist/utledning.ts', 'predikat', 'fristkravErFremmet', ['kommandoer/forutsetninger.ts']],
   // VS-U20, OV-U5, HF-U1, VS-U43 punkt 6: varselet en påberopelse i et nytt svar gjelder, og
   // sperren for svaret på grunnlaget med et registrert varsel etter § 32.2 (#496, #766, #1600).
   [
@@ -730,7 +730,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/byggeklosser.ts',
     'relasjon',
     'kravetErDokumentasjon',
-    ['utledning/utled.ts', 'frosset/standpunkt.ts', 'spor/frist/frysing.ts'],
+    [
+      'utledning/utled.ts',
+      'frosset/standpunkt.ts',
+      'spor/frist/frysing.ts',
+      'spor/frist/utledning.ts',
+    ],
   ],
   // MM-U43 punkt 8: sammenfallet stemmer med standpunktene i samme frosne brev.
   [
@@ -1231,6 +1236,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['spor/vederlag/utledning.ts', 'predikat', 'KONTROLLER_I_VEDERLAGET', ['utledning/utled.ts']],
   ['spor/forhold/utledning.ts', 'predikat', 'KONTROLLER_I_FORHOLDET', ['utledning/utled.ts']],
+  ['spor/frist/utledning.ts', 'predikat', 'KONTROLLER_I_FRISTEN', ['utledning/utled.ts']],
+  // § 33.6.2 (VS-U19, VS-U31, HF-U1): lesereglene for forespørselen, som var i utled.ts (#1783).
+  [
+    'spor/frist/utledning.ts',
+    'relasjon',
+    'kontrollerForesporslene kontrollerSvaretPaaForesporselen',
+    ['utledning/utled.ts'],
+  ],
   // Det utledningen leser av forholdet (#1783), som var i utled.ts før flyttingen.
   [
     'spor/forhold/utledning.ts',
@@ -1796,6 +1809,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['kommandoer/skriving.ts:frysSvarene(s)', 'rad', 'spor', ['kommandoer/skriving.ts']],
   ['kommandoer/skriving.ts:frosneSvar(s)', 'rad', 'spor gjelder', ['kommandoer/skriving.ts']],
   ['kommandoer/skriving.ts:lagret(?)', 'frosset', 'resten', ['kommandoer/skriving.ts']],
+  // Dokumentene i journalen (#787), som var i utled.ts (#1783).
+  ['format/leser.ts', 'rad', 'dokumenterI', ['utledning/utled.ts', 'spor/frist/utledning.ts']],
   [
     'format/leser.ts',
     'rad',

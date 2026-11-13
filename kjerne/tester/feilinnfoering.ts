@@ -887,8 +887,8 @@ const MUTASJONER: Mutasjon[] = [
         "      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', 'Kravene er avgjort.');\n",
       ],
       [
-        "import { fristkravErFremmet, kanFaaInnsigelse, type Utledning } from '../utledning/utled.ts';",
-        "import { fristkravErFremmet, kanFaaInnsigelse, kraveneErAvgjort, type Utledning } from '../utledning/utled.ts';",
+        "import { kanFaaInnsigelse, type Utledning } from '../utledning/utled.ts';",
+        "import { kanFaaInnsigelse, kraveneErAvgjort, type Utledning } from '../utledning/utled.ts';",
       ],
     ],
     mal: ['godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter'],
@@ -2572,14 +2572,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F321',
     feilklasse: 'svaret kan påberope § 33.6.2 mot begrunnelsen uten en egen innsigelse (VS-U29)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/frist/utledning.ts`,
     endringer: [["  if (f?.art !== 'begrunnelse') return f;", '  return f;']],
     mal: ['et krav etter begrunnelsen svarer ikke på forespørselen'],
   },
   {
     id: 'F322',
     feilklasse: '«ikke et svar etter annet ledd» leses som en påberopelse etter § 33.6.2 (VS-U29)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
         "x.art === 'innsigelse' && x.gjelder === f.gjelder && x.grunn === undefined",
@@ -2598,7 +2598,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F324',
     feilklasse: 'et fristkrav i et registrert brev sperrer forespørselen (VS-U33)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
         "    if (!kravetErDokumentasjon(d) && d.krav.some((k) => k.spor === 'frist')) return true;",
@@ -2926,7 +2926,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F346',
     feilklasse: 'utledningen godtar en andre forespørsel i saken (VS-U31)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/frist/utledning.ts`,
     endringer: [['    else if (f !== foresporsler[0])', '    else if (false)']],
     mal: ['VS-U31: en lest rad med en andre forespørsel'],
   },
@@ -3794,7 +3794,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F455',
     feilklasse:
       'et lest fristkrav uten henvisning til den ubesvarte forespørselen godtas (HF-U1, #1567)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/frist/utledning.ts`,
     endringer: [['      k.gjelder === undefined &&', '      false &&']],
     mal: ['fristkrav uten henvisning til den ubesvarte forespørselen'],
   },

@@ -20,6 +20,7 @@
 
 import {
   datoFor,
+  dokumenterI,
   erRegistrert,
   kalenderdag,
   lesJournal,
@@ -28,16 +29,16 @@ import {
 } from '../format/leser.ts';
 import { harProduktivitetspost } from '../spor/vederlag/format.ts';
 import { KONTROLLER_I_VEDERLAGET } from '../spor/vederlag/utledning.ts';
+import {
+  KONTROLLER_I_FRISTEN,
+  kontrollerForesporslene,
+  kontrollerSvaretPaaForesporselen,
+} from '../spor/frist/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import { enighetsgrunnlag, sammenfallStemmer } from '../frosset/standpunkt.ts';
 import { iSporet, kravetErDokumentasjon } from '../frosset/byggeklosser.ts';
-import {
-  foresporselsrelasjon,
-  svarPaaForesporsler,
-  type Foresporselsrelasjon,
-  type ForesporselOgSvar,
-} from '../spor/frist/frysing.ts';
+import { svarPaaForesporsler, type ForesporselOgSvar } from '../spor/frist/frysing.ts';
 import {
   KRAVSPOR,
   SPOR,
@@ -562,7 +563,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
 }
 
 export type Utsagn<A extends LestUtsagn['art']> = Extract<LestUtsagn, { art: A }>;
-type Henvisning = Utsagn<
+export type Henvisning = Utsagn<
   'innsigelse' | 'protest' | 'passivitet' | 'begrunnelse' | 'foresporselssvar'
 >;
 /** Fører en begrensning for elementet `id` etter lesereglene i 4.2. */
@@ -595,20 +596,11 @@ export interface Sporskontroller {
   svaretKanGodtas(u: Utledning): boolean;
 }
 
-const INGEN_KONTROLLER: Sporskontroller = {
-  kravet: () => null,
-  kravene: () => {},
-  svaret: () => {},
-  kanFaaPassivitet: false,
-  leserDatoen: false,
-  svaretKanGodtas: () => true,
-};
-
-/** Kontrollene i hvert spor. Fristen har ingen egne (#1745). */
+/** Kontrollene i hvert spor. */
 const KONTROLLER: Record<Spor, Sporskontroller> = {
   forhold: KONTROLLER_I_FORHOLDET,
   vederlag: KONTROLLER_I_VEDERLAGET,
-  frist: INGEN_KONTROLLER,
+  frist: KONTROLLER_I_FRISTEN,
 };
 
 /** Kontrollene i sporet (`iSporet`). */
@@ -1032,55 +1024,6 @@ function kanGjelde(
   }
 }
 
-/** VS-U19, VS-U33: forespørselen sendes før TE har krevd dager i appen. */
-function kontrollerForesporslene(
-  foresporsler: readonly Utsagn<'foresporsel'>[],
-  fristkravIAppen: readonly Krav[],
-  henvisninger: readonly Henvisning[],
-  bakover: Bakover,
-  ugyldig: Ugyldig
-): void {
-  for (const f of foresporsler)
-    if (fristkravIAppen.some((k) => bakover(f.id, k.id)))
-      ugyldig(f.id, 'forespørselen etter § 33.6.2 står etter et fristkrav (VS-U19)');
-    else if (henvisninger.some((x) => x.art === 'foresporselssvar' && bakover(f.id, x.id)))
-      ugyldig(f.id, 'forespørselen etter § 33.6.2 står etter TEs begrunnelse (VS-U30)');
-    else if (f !== foresporsler[0])
-      ugyldig(f.id, 'saken har alt en forespørsel etter § 33.6.2 fra appen (VS-U31)');
-}
-
-/**
- * HF-U1, LV-U18 punkt 3: fristkravet viser til forespørselen etter § 33.6.2 det svarer på, og
- * et krav om dager i appen mens forespørselen er ubesvart, er svaret og viser til den
- * (avgrensningen i #1567). Et krav i et registrert brev svarer ikke (OV-U4).
- */
-function kontrollerSvaretPaaForesporselen(
-  kravMedUten: ReadonlyMap<string, Krav>,
-  fristkravIAppen: readonly Krav[],
-  elementer: Record<string, Element>,
-  besvart: readonly ForesporselOgSvar[],
-  bakover: Bakover,
-  ugyldig: Ugyldig
-): void {
-  for (const k of kravMedUten.values()) {
-    if (k.gjelder === undefined) continue;
-    if (elementer[k.gjelder]?.art !== 'foresporsel' || !bakover(k.id, k.gjelder))
-      ugyldig(k.id, 'fristkravet viser ikke til en forespørsel etter § 33.6.2 før kravet');
-    else if (!fristkravIAppen.includes(k))
-      ugyldig(k.id, 'et registrert krav svarer ikke på forespørselen etter § 33.6.2 (OV-U4)');
-    else if (!besvart.some((f) => f.foresporsel === k.gjelder && f.svar === k.id))
-      ugyldig(k.id, 'fristkravet viser til en forespørsel etter § 33.6.2 som alt er besvart');
-  }
-  for (const k of fristkravIAppen)
-    if (
-      k.gjelder === undefined &&
-      besvart.some(
-        (f) => bakover(k.id, f.foresporsel) && (f.svar === null || !bakover(k.id, f.svar))
-      )
-    )
-      ugyldig(k.id, 'fristkravet viser ikke til forespørselen etter § 33.6.2 det svarer på');
-}
-
 function kontrollerBestridelsene(
   bestridelser: readonly Utsagn<'bestridelse'>[],
   alleOpplysninger: Map<string, LestOpplysning>,
@@ -1328,36 +1271,6 @@ export function kraveneErAvgjort(u: Utledning): boolean {
 }
 
 /**
- * Hvordan gjeldende fristkrav står til en forespørsel etter § 33.6.2, slik svaret leser det.
- * Etter TEs begrunnelse etter annet ledd b har svaret et standpunkt etter § 33.6.2 bare når
- * byggherren har gjort gjeldende i en egen innsigelse at begrunnelsen kom for sent: svaret
- * gjentar påberopelsen eller gir den opp (VS-U29, VS-U9, VS-U11).
- */
-export function foresporselForFristsvar(u: Utledning): Foresporselsrelasjon | null {
-  const f = foresporselsrelasjon(u.spor.frist.foresporsler);
-  if (f?.art !== 'begrunnelse') return f;
-  for (const d of dokumenterI(u.journal))
-    if (
-      d.avsender === 'BH' &&
-      d.utsagn.some(
-        (x) => x.art === 'innsigelse' && x.gjelder === f.gjelder && x.grunn === undefined
-      )
-    )
-      return f;
-  return null;
-}
-
-/**
- * VS-U19, VS-U33: TE har fremmet et krav om dager i appen, også uten virkning, som
- * kontrollen av forespørselen i utledningen. Et registrert brev stopper den aldri.
- */
-export function fristkravErFremmet(u: Utledning): boolean {
-  for (const d of dokumenterI(u.journal))
-    if (!kravetErDokumentasjon(d) && d.krav.some((k) => k.spor === 'frist')) return true;
-  return false;
-}
-
-/**
  * Dagen kravet eller varselet ble sendt: datoen parten oppga for et registrert krav eller
  * varsel (OV-U80, OV-U5), ellers dagen dokumentet ble registrert i løsningen (VS-U8). `null`
  * når den oppgitte datoen ikke kan leses.
@@ -1372,11 +1285,6 @@ export function datoenDetBleSendt(
     return sendt ? kalenderdag(sendt.dato) : registrertDato(d);
   }
   throw new Error(`${utsagn.id} står ikke i et dokument i journalen.`);
-}
-
-/** Dokumentene i journalen, i rekkefølge, uten å kopiere dem til en liste (#787). */
-function* dokumenterI(journal: readonly Domenehendelse[]): Generator<Dokument> {
-  for (const h of journal) if (h.art === 'dokument') yield h.dokument;
 }
 
 /**
