@@ -7,7 +7,7 @@
  * skrives.
  */
 
-import { KRAVINNHOLD, OPPLYSNINGSSLAG } from '../format/format.ts';
+import { OPPLYSNINGSSLAG } from '../format/format.ts';
 import { KRAVFORM_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import {
@@ -35,6 +35,7 @@ import {
   type Korrespondansetype,
 } from '../typer.ts';
 import { KRAVFORM_I_FORHOLDET, korrigertDato } from '../spor/forhold/kommando.ts';
+import { KRAVFORM_I_FRISTEN } from '../spor/frist/kommando.ts';
 
 export interface Svarutkast {
   spor: Spor;
@@ -397,19 +398,11 @@ export interface Kravform {
   varselVedKravet: boolean;
 }
 
-/** Formen på kravet i hvert spor. Fristen står her til den flyttes (#1745). */
+/** Formen på kravet i hvert spor. */
 const KRAVFORM: Record<Spor, Kravform> = {
   forhold: KRAVFORM_I_FORHOLDET,
   vederlag: KRAVFORM_I_VEDERLAGET,
-  frist: {
-    feil: (innhold) => {
-      const { properties, required, anyOf } = KRAVINNHOLD.frist;
-      return feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
-    },
-    vedleggIInnholdet: () => [],
-    vedleggVedKravet: false,
-    varselVedKravet: true,
-  },
+  frist: KRAVFORM_I_FRISTEN,
 };
 
 /** Feilene i formen, tomme når kommandoen kan vurderes. */
