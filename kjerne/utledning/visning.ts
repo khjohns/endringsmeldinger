@@ -116,12 +116,9 @@ const sendt = (u: Utledning, spor: Spor): boolean =>
 const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
   // Et trukket forhold gir «Trukket» bare der krav, varsel eller «ingen krav» er sendt (GR-U25).
   trukket: (u, spor) => u.spor[spor].trukket && sendt(u, spor),
-  // § 33.6.2: til forespørselen er besvart, og bare mens saken og sporet ikke er lukket (MM-U31).
+  // Til forespørselen er besvart, og bare mens saken og sporet ikke er lukket (MM-U31).
   spesifisert_krav_etterspurt: (u, spor) =>
-    spor === 'frist' &&
-    !u.spor.forhold.trukket &&
-    !sporetErLukket(u) &&
-    u.spor.frist.foresporsler.some((f) => f.svar === null),
+    !u.spor.forhold.trukket && !sporetErLukket(u) && visningI(spor).kravetErEtterspurt(u),
   venter_paa_svar: venterPaaSvar,
   paalegg_frafalt: (u, spor) => visningI(spor).paaleggFrafalt(u),
   enige: (u, spor) => u.spor[spor].enighet !== null,
@@ -241,6 +238,8 @@ export interface Sporsvisning {
   svaretsEtiketter?(u: Utledning, virkning: ReturnType<typeof enighetensVirkning>): string[];
   /** Etiketten for en påberopt passivitet i sporet, eller `null`. */
   passivitetsetikett(u: Utledning): string | null;
+  /** Byggherren har etterspurt et spesifisert krav i sporet som ikke er besvart. */
+  kravetErEtterspurt(u: Utledning): boolean;
 }
 
 /** Visningen i hvert spor. */

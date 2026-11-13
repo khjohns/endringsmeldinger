@@ -2458,7 +2458,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F341',
     feilklasse: 'en ubesvart forespørsel etter § 33.6.2 gir ikke betegnelsen (MM-U30, #1043)',
-    fil: `${K}/utledning/visning.ts`,
+    fil: `${K}/spor/frist/visning.ts`,
     endringer: [['u.spor.frist.foresporsler.some((f) => f.svar === null)', 'false']],
     mal: ['en ubesvart forespørsel etter § 33.6.2 går foran varselet'],
   },
@@ -2475,7 +2475,10 @@ const MUTASJONER: Mutasjon[] = [
       'en ubesvart forespørsel etter § 33.6.2 gir betegnelsen også når sporet er lukket (MM-U31, #1137)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [
-      ['    !sporetErLukket(u) &&\n    u.spor.frist.foresporsler', '    u.spor.frist.foresporsler'],
+      [
+        '!u.spor.forhold.trukket && !sporetErLukket(u) && visningI(spor).kravetErEtterspurt(u)',
+        '!u.spor.forhold.trukket && visningI(spor).kravetErEtterspurt(u)',
+      ],
     ],
     mal: ['en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at avslaget'],
   },
@@ -2484,7 +2487,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en ubesvart forespørsel etter § 33.6.2 gir betegnelsen etter at forholdet er trukket (MM-U31, #1137)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [['    !u.spor.forhold.trukket &&\n', '']],
+    endringer: [
+      [
+        '!u.spor.forhold.trukket && !sporetErLukket(u) && visningI(spor).kravetErEtterspurt(u)',
+        '!sporetErLukket(u) && visningI(spor).kravetErEtterspurt(u)',
+      ],
+    ],
     mal: [
       'en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at forholdet er trukket',
     ],
@@ -4970,6 +4978,18 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/frysing.ts`,
     endringer: [['  hvertITideGirOppInnsigelsen: true,', '  hvertITideGirOppInnsigelsen: false,']],
     mal: ['VS-U20: i fristen gir et tidligere «i tide» etter § 33.4 opp innsigelsen'],
+  },
+  {
+    id: 'F578',
+    feilklasse: 'en ubesvart forespørsel etter § 33.6.2 gir betegnelsen også i vederlaget (#1783)',
+    fil: `${K}/spor/vederlag/visning.ts`,
+    endringer: [
+      [
+        '  kravetErEtterspurt: () => false,',
+        '  kravetErEtterspurt: (u) => u.spor.frist.foresporsler.some((f) => f.svar === null),',
+      ],
+    ],
+    mal: ['en ubesvart forespørsel etter § 33.6.2 gir betegnelsen bare i fristen'],
   },
 ];
 

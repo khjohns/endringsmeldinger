@@ -16,4 +16,5 @@ export const VISNING_I_FORHOLDET = {
     return ut;
   },
   passivitetsetikett: (u) => (u.passivitet.length ? 'passivitet_paaberopt' : null),
+  kravetErEtterspurt: () => false,
 } satisfies Sporsvisning;
