@@ -131,7 +131,9 @@ const VARDEN = [
     navn: 'Varden: brevet før sending',
     vei: iVarden('bh-har-mottatt-vederlagskravet', async (page) => {
       await bhSvarer(page);
-      await page.getByRole('textbox', { name: 'Begrunnelse' }).fill('Varselet kom for sent.');
+      await page
+        .getByRole('textbox', { name: /Varselet om vederlagsjustering/ })
+        .fill('Varselet kom for sent.');
       await page.getByRole('button', { name: 'Se brevet før sending' }).first().click();
       await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).waitFor();
     }),
