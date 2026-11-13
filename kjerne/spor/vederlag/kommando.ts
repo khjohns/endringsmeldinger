@@ -7,19 +7,13 @@
  */
 
 import { HJEMMEL } from '../../format/format.ts';
-import { virkninger } from '../../frosset/standpunkt.ts';
 import {
   beregningsregelLag,
   kravpostvurderinger,
   vederlagsposter,
   type Kravpostvurdering,
 } from './frysing.ts';
-import {
-  etikett,
-  hjemmelenGjelder,
-  laget,
-  type Svarvurdering,
-} from '../../frosset/byggeklosser.ts';
+import { hjemmelenGjelder, laget, type Svarvurdering } from '../../frosset/byggeklosser.ts';
 import { kravposterI, krevdRigg, OPPGJOERSHJEMMEL, vederlagsinnhold } from './format.ts';
 import { erObjekt, feilI, objekt } from '../../format/skjema.ts';
 import { brukteBetegnelser, nesteBetegnelse } from '../poster/utledning.ts';
@@ -46,16 +40,15 @@ import {
   type Kravpostvarselet,
   type Kravpostvarselhjemmel,
   type Standpunkt,
-  type Virkning,
 } from '../../typer.ts';
-import { paaberopelseFor, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
+import { varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
 import type { Innhold, Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type { Kontekst, Skrivesteg, Sporsskriving, Utfall } from '../../kommandoer/skriving.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
+import { lageneIUtkastet } from '../../kommandoer/lag.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
-import { grunnerFraForholdet } from '../forhold/frysing.ts';
 
 type Data = Record<string, unknown>;
 
@@ -511,13 +504,7 @@ export function lagIVederlaget(
     }),
     utregning: {},
   };
-  const g = u.spor.forhold.gjeldendeSvar;
-  const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
-  const virket = virkninger(svar, paaberopelseFor(utkast, u), regler, grunner.length);
-  const forskjoevet = (vi: Virkning): Virkning =>
-    typeof vi === 'number' ? vi + grunner.length : vi;
-  const lag = virket.map((vi) => laget(forskjoevet(vi.virkning)));
-  const flereLag = lag.some((l) => l !== null && l > 1);
+  const { grunner, virket, virkning, lag, etikett } = lageneIUtkastet(svar, utkast, u, regler);
   // Innsigelsene i sporet som er gjort gjeldende og har virkning (OV-U27, OV-U22).
   const paaberopt = (h: Hjemmel) =>
     svar.standpunkter.some(
@@ -548,8 +535,8 @@ export function lagIVederlaget(
           ? { gjelder: s.gjelder }
           : {}),
         besvart: s.art !== 'beloep' || utenFastBeloepIKravposten(u, s.gjelder) || besvart(v, u, s),
-        virkning: forskjoevet(virket[i].virkning),
-        etikett: l !== null && flereLag ? etikett(l) : null,
+        virkning: virkning[i]!,
+        etikett: etikett[i]!,
         forutsetninger: rammer,
       };
     }),

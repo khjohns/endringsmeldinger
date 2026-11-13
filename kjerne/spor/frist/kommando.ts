@@ -7,12 +7,10 @@
 import { HJEMMEL } from '../../format/format.ts';
 import { standpunkterISvaret } from '../../format/leser.ts';
 import { feilI, objekt } from '../../format/skjema.ts';
-import { etikett, laget } from '../../frosset/byggeklosser.ts';
-import { virkninger } from '../../frosset/standpunkt.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
-import { paaberopelseFor, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
-import { avvis, varseletSendt, type Avvisning, type Virkning } from '../../typer.ts';
+import { varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
+import { avvis, varseletSendt, type Avvisning, type Standpunkt } from '../../typer.ts';
 import type { Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
@@ -27,8 +25,8 @@ import {
 } from './utledning.ts';
 import { fristinnhold, innholdIFristen } from './format.ts';
 import { fristvurderinger } from './frysing.ts';
-import { grunnerFraForholdet } from '../forhold/frysing.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
+import { lageneIUtkastet } from '../../kommandoer/lag.ts';
 
 /** Formen på kravet i fristen (`KRAVFORM`). */
 export const KRAVFORM_I_FRISTEN = {
@@ -207,37 +205,37 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
     standpunkter: standpunkterISvaret('frist', { standpunkter: lagret, utregning }),
     utregning,
   };
-  const g = u.spor.forhold.gjeldendeSvar;
-  const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
-  const virket = virkninger(svar, paaberopelseFor(utkast, u), regler, grunner.length);
-  const forskjoevet = (vi: Virkning): Virkning =>
-    typeof vi === 'number' ? vi + grunner.length : vi;
-  const lag = virket.map((vi) => laget(forskjoevet(vi.virkning)));
-  const flereLag = lag.some((l) => l !== null && l > 1);
-  const dagvurderinger = new Map(fristvurderinger(v, krav).map((f) => [f.gjelder, f]));
+  const { grunner, virkning, lag, etikett } = lageneIUtkastet(svar, utkast, u, regler);
+  const dagene = fristvurderinger(v, krav);
+  // Hvert standpunkt i et tidligere lag i sporet åpnet laget etter seg (OV-U32).
+  const aapnetLaget = (f: Standpunkt): Forutsetning[] => {
+    if (f.art === 'rettidighet') return [{ innsigelse: f.hjemmel as '33.4' | '33.6.2' }];
+    if (f.art === 'spesifisering') return [{ innsigelse: '33.6.1' }];
+    if (f.art === 'hindring') return [{ innsigelse: 'hindring' }];
+    return [];
+  };
   return {
     standpunkter: svar.standpunkter.map((s, i) => {
-      const l = lag[i];
-      const rammer: Forutsetning[] = [];
-      if (l !== null) {
-        rammer.push(...grunner.map((grunn) => ({ grunn })));
-        // Hvert standpunkt i et tidligere lag i sporet åpnet laget etter seg (OV-U32).
-        svar.standpunkter.slice(0, i).forEach((f, j) => {
-          const lj = lag[j];
-          if (lj === null || lj >= l || f.art === 'dager') return;
-          if (f.art === 'rettidighet') rammer.push({ innsigelse: f.hjemmel as '33.4' | '33.6.2' });
-          else if (f.art === 'spesifisering') rammer.push({ innsigelse: '33.6.1' });
-          else if (f.art === 'hindring') rammer.push({ innsigelse: 'hindring' });
-        });
-      }
+      const l = lag[i]!;
       return {
         art: s.art,
         ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
         ...(s.art === 'dager' ? { gjelder: s.gjelder } : {}),
-        besvart: s.art !== 'dager' || typeof dagvurderinger.get(s.gjelder)?.dager === 'number',
-        virkning: forskjoevet(virket[i]!.virkning),
-        etikett: l !== null && flereLag ? etikett(l) : null,
-        forutsetninger: rammer,
+        besvart:
+          s.art !== 'dager' ||
+          dagene.some((f) => f.gjelder === s.gjelder && typeof f.dager === 'number'),
+        virkning: virkning[i]!,
+        etikett: etikett[i]!,
+        forutsetninger:
+          l === null
+            ? []
+            : [
+                ...grunner.map((grunn) => ({ grunn })),
+                ...svar.standpunkter.slice(0, i).flatMap((f, j) => {
+                  const lj = lag[j]!;
+                  return lj !== null && lj < l ? aapnetLaget(f) : [];
+                }),
+              ],
       };
     }),
   };

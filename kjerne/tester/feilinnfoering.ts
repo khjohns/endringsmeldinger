@@ -3511,10 +3511,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F423',
     feilklasse:
       'lagene i utkastet flyttes ikke ned med lagene fra svaret på forholdet (OV-U32, OV-U33, #1400)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
+    fil: `${K}/kommandoer/lag.ts`,
     endringer: [["typeof vi === 'number' ? vi + grunner.length : vi", 'vi']],
     mal: [
       'beløpet står subsidiært, bare med avslaget foran',
+      'dagene står subsidiært med avslaget foran',
       'preklusjon etter § 32.2 og avslag står foran sporet',
       'de samme lagene som brevet fryser',
     ],
@@ -5086,24 +5087,11 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/kommando.ts`,
     endringer: [
       [
-        "          else if (f.art === 'hindring') rammer.push({ innsigelse: 'hindring' });",
-        '          else void 0;',
+        "    if (f.art === 'hindring') return [{ innsigelse: 'hindring' }];",
+        "    if (f.art === 'hindring') return [];",
       ],
     ],
     mal: ['KA-U78: varselet for sent, ikke hindret og spesifisert for sent gir fire lag'],
-  },
-  {
-    id: 'F591',
-    feilklasse:
-      'lagene i fristutkastet flyttes ikke ned med lagene fra forholdet (OV-U32, M-8 i BF-20)',
-    fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [
-      [
-        '  const lag = virket.map((vi) => laget(forskjoevet(vi.virkning)));\n  const flereLag = lag.some((l) => l !== null && l > 1);\n  const dagvurderinger',
-        '  const lag = virket.map((vi) => laget(vi.virkning));\n  const flereLag = lag.some((l) => l !== null && l > 1);\n  const dagvurderinger',
-      ],
-    ],
-    mal: ['avslått forhold står foran sporet: dagene står subsidiært med avslaget foran'],
   },
 ];
 
