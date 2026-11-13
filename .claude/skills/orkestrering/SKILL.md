@@ -220,8 +220,8 @@ Oppdraget skal inneholde:
   kjøres med «Den ekte saksruta» i skillen. Det kontrollen ikke dekker, står
   i PR-beskrivelsen;
 - hvem som kjører reviewet, etter «Review i byggeøkta» i arbeidsøkt-skillen. `/simplify`
-  kjøres bare når oppdragsgiver har bestilt eller godkjent den (se
-  «`/simplify`»), og da før `/code-review`.
+  kjøres når orkestratoren har bestilt den (se «`/simplify`»), og da før
+  `/code-review`.
 
 `create_session` setter modellen med `model` og innsatsen med `effort`. Innsatsen
 arves ikke fra orkestratoren. Sett den bare når denne skillen eller oppdragsgiver
@@ -300,6 +300,13 @@ merges. Regelsettet krever ikke at grenen er à jour, og ingen konflikt betyr
 ikke at kombinasjonen er testet: to PR-er uten felles filer kan endre
 hverandres oppførsel. Bruk den nye committen som `expectedHeadSha`.
 
+Unntaket er det som bare er tekst ingen test leser. Er alt som er merget siden PR-ens
+base, Markdown i `.claude/skills/`, `CLAUDE.md` eller `docs/`, trengs ingen
+oppdatering og ny CI før merge. Det gjelder ikke vedtaksregisteret, domenetabellen,
+brukerforløpene og skriptene, fordi vakttestene leser dem. Kontroller filene med
+`git diff --name-only` mellom basen og `main`, og skriv det i merge-kommentaren
+(oppdragsgiver 13.11).
+
 Feilinnføringene trenger ikke kjøres på nytt etter oppdateringen når de var
 grønne på PR-ens forrige commit, og ingen PR som er merget siden, har rørt
 `kjerne/`, `sprakprove/kjernelagring/` eller verktøyet for feilinnføringene. De prøver om testene i kjernen fanger feil,
@@ -328,20 +335,26 @@ før en spørsmålsrunde og før en vedtaks-PR.
 
 ## `/simplify`
 
-`/simplify` kjøres når oppdragsgiver ber om det eller godkjenner orkestratorens
-forslag (leveranseskillen, «Review og funn»). Orkestratoren foreslår den for en gren som
+Orkestratoren bestiller `/simplify` selv når et kriterium under gjelder, uten å spørre
+oppdragsgiver, og sier i avslutningen av runden hvilke grener den er kjørt på
+(oppdragsgiver 13.11). Oppdragsgiver kan også be om den. Den ser etter gjenbruk, duplisering og
+kode som kan forenkles i én diff. Det den finner, avhenger av hva grenen legger til,
+ikke av hvor stor diffen er. Funnene om duplisering og to kilder i runde B og C kom fra
+PR-er på 25 linjer og på 900 (#1845, #1848, #1856, #1861). Orkestratoren bestiller den for en gren som
 
-- har mye ny eller omskrevet produksjonskode, som tommelfingerregel over 500
-  endrede linjer utenom tester og `docs/`. Mål det med `git diff --shortstat`
-  og `--stat`, ikke ved å lese diffen;
+- legger til ny produksjonskode: en ny komponent, modul eller utregning, særlig i
+  visningen og på serveren, der en ny del lett blir en kopi av en som finnes;
 - er bygget i flere omganger, for eksempel med domenesvar som endret retning
   underveis;
-- har tester eller feilinnføringer som fanger endret atferd.
+- rører filer der reviewet tidligere har gitt funn om duplisering eller to kilder for
+  samme verdi.
 
-Foreslå den når runden legges fram, for økter som ventes å gi en slik gren, og
-ellers når en gren viser seg å bli det. Foreslå den ikke for rene
-dokumentendringer, for en PR som er merget, eller for en liten diff som er
-gjennomgått.
+Bestill den ikke for en ren flytting, for `docs/` og skillene, for en liten retting
+eller for en PR som er merget. Bestill den i oppdraget for økter som ventes å gi en slik
+gren. Ellers bestiller du den når byggeøkta melder at et kriterium gjelder
+(«I en orkestrert økt» i [arbeidsøkt-skillen](../arbeidsokt/SKILL.md#i-en-orkestrert-økt)).
+Den koster flere subagenter og ett `/code-review` til, så den skal treffe der den
+finner noe (oppdragsgiver 13.11).
 
 Bestillingen til økta sier:
 
@@ -349,11 +362,12 @@ Bestillingen til økta sier:
   alt kjørt, kjøres én `/code-review` til på endringene `/simplify` gjorde.
 - **Omfang:** bare kildefilene, ikke testene og `docs/`.
 - **Grenser:** atferden er uendret, og ingen lagrede navn, kontrakter eller
-  predikater endres. Det `/simplify` foreslår ut over det, avvises og føres i
-  PR-en.
+  predikater endres. Et forslag ut over grensene gjennomføres ikke i PR-en.
+  Det er et funn og følger stoppregelen for funn i leveranseskillen, med kilden
+  `/simplify` i «Funn og utfall». Duplisering og to kilder avvises ikke.
 - **Etterpå:** testene kjøres på nytt. Feilinnføringene for kjernen kjøres i CI, og
   for serveren kjøres de ID-ene som hører til endringen.
-- **PR-beskrivelsen** sier hva som ble endret og hva som ble avvist.
+- **PR-beskrivelsen** sier hva som ble endret, og «Funn og utfall» har forslagene som ikke ble gjennomført.
 
 ## Orkestratorens tid og kontekst
 
@@ -398,7 +412,20 @@ Hvorfor grensene finnes, og grensene for arbeidsøktene, står i
 - **Skriv svarene der de kan leses igjen** før de sendes: vedtak i vedtaksregisteret
   og arbeidsvalg i issuet. Meldingen viser dit.
 - **Send færre meldinger.** Hver melding til en stor økt koster en ny lesing av
-  hele konteksten.
+  hele konteksten. Orkestratoren sender en melding bare når økta må gjøre noe:
+  - en bestilling;
+  - et svar;
+  - funn som skal rettes;
+  - en rebase av dens egen PR;
+  - endret eierskap til en fil den arbeider i.
+
+  Den sender ingen orientering om andre økter, som et bytte av økt eller en merge
+  som ikke angår mottakeren. Oppdraget svarer på det som ellers blir spørsmål:
+  - importlinjer i en annen økts fil kan endres i en egen commit uten å spørre;
+  - tekniske valg i egne filer tar økta og fører i PR-en;
+  - `/simplify` står i oppdraget når et kriterium er kjent (oppdragsgiver 13.11).
+- **Én samlet CI-sjekk.** Venter flere PR-er på CI, poller én bakgrunnskommando
+  alle, så orkestratoren vekkes sjeldnere.
 
 Orkestratoren holder tilstanden i issuene og PR-ene, ikke bare i samtalen. Den
 gjentar ikke lange lister i samtalen. Spørsmålene står i én fil som

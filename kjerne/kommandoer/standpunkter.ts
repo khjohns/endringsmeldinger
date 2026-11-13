@@ -8,11 +8,8 @@ import { HJEMMEL } from '../format/format.ts';
 import { iSporet, type Svarvurdering } from '../frosset/byggeklosser.ts';
 import { STANDPUNKTER_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import type { Svarutkast } from './kommando.ts';
-import {
-  foresporselForFristsvar,
-  varseletForNyttSvar,
-  type Utledning,
-} from '../utledning/utled.ts';
+import { varseletForNyttSvar, type Utledning } from '../utledning/utled.ts';
+import { foresporselForFristsvar } from '../spor/frist/utledning.ts';
 import type { Krav, Spor } from '../typer.ts';
 import { STANDPUNKTER_I_FORHOLDET } from '../spor/forhold/kommando.ts';
 

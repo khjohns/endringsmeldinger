@@ -18,9 +18,8 @@ import { HJEMMEL } from '../format/format.ts';
 import { sakensKode } from './tekst.ts';
 import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { innsigelsenErOppgitt, innsigelsenPaaberoper, svarPaaForesporsler } from './standpunkt.ts';
+import { innsigelsenErOppgitt, innsigelsenPaaberoper } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
-import { innholdIFristen } from '../spor/frist/format.ts';
 import {
   eksMva,
   erDato,
@@ -31,7 +30,6 @@ import {
   norskDato,
   PRODUKTIVITET,
   stor,
-  verdi,
   type Kravsporsbrevtekst,
   type Saken,
   type Sporsbrevtekst,
@@ -53,7 +51,9 @@ import {
   STANDPUNKTENE_I_FORHOLDET,
 } from '../spor/forhold/tekst.ts';
 import { BREVTEKSTEN_I_VEDERLAGET, STANDPUNKTENE_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
-import { dager, iLagene, kroner, OVERSIKTEN } from './tekst.ts';
+import { BREVTEKSTEN_I_FRISTEN, STANDPUNKTENE_I_FRISTEN } from '../spor/frist/tekst.ts';
+import { svarPaaForesporsler } from '../spor/frist/frysing.ts';
+import { iLagene, kroner, OVERSIKTEN } from './tekst.ts';
 import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
   Avsnitt,
@@ -177,19 +177,6 @@ export function lagBrevtekst(
   if (nytt.dokumentasjon.length)
     legg(nytt.id, `Brevet har vedlegg: ${liste(nytt.dokumentasjon.map((v) => `«${v.filnavn}»`))}.`);
   return avsnitt;
-}
-
-/** Fristkravet (LV-U4 punkt 2–3). */
-function fristkravtekst(k: Krav, { j }: Tekst): Brevpunkt[] {
-  const deler = [
-    `TE krever fristforlengelse på ${dager(innholdIFristen(k).dager)} (NS 8407 § 33.6.1).`,
-  ];
-  // LV-U18 setning 3: kravet som viser til forespørselen, sier det (HF-U1).
-  if (k.gjelder)
-    deler.push(
-      `Kravet er svar på byggherrens forespørsel etter NS 8407 § 33.6.2 i ${j.brevet(j.dokumentetTil(k.gjelder))}.`
-    );
-  return [utenOverskrift(deler)];
 }
 
 /** LV-U4 punkt 2–3 og GR-U16. Kravet i sporet står i `BREVTEKST`. */
@@ -775,7 +762,6 @@ function standpunkttekst(
   j: Journalen,
   innsigelser: Innsigelse[]
 ): string {
-  const paaberopelse = s.spor === 'forhold' ? krav : s.paaberopelse ? j.krav(s.paaberopelse) : null;
   if (erArtISporene(p)) return standpunktetISporet(p.art, p, krav, s, j);
   switch (p.art) {
     case 'rettidighet': {
@@ -804,17 +790,6 @@ function standpunkttekst(
         ? `byggherren gir opp ${henvisning} etter NS 8407 § 5 i ${brevene} og gjør ikke gjeldende at ${varselet} kom for sent.`
         : `byggherren gjør ikke gjeldende at ${varselet} kom for sent.`;
     }
-    case 'hindring': {
-      const hjemmel =
-        innholdIForholdet(paaberopelse).hovedkategori === 'force_majeure' ? '§ 33.3' : '§ 33.1';
-      return `byggherren ${p.oppfylt ? 'legger til grunn' : 'legger ikke til grunn'} at fremdriften hindres som følge av forholdet (NS 8407 ${hjemmel}).`;
-    }
-    case 'spesifisering':
-      return p.iTide
-        ? 'byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (NS 8407 § 33.6.1).'
-        : `byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at TE bare har krav på den fristforlengelsen byggherren måtte forstå at TE hadde krav på, ${dager(p.dager!)} (NS 8407 § 33.6.1).`;
-    case 'dager':
-      return verdi(p.resultat, dager(p.vurdert), dager(innholdIFristen(krav).dager));
   }
 }
 
@@ -1090,33 +1065,24 @@ export function gjengirTro(gjengitt: string, brevtekst: Avsnitt[]): boolean {
 /** Teksten i sporet (`iSporet`). */
 const brevtekstI = <S extends Spor>(spor: S) => iSporet(BREVTEKST, spor);
 
-/** Teksten i hvert spor. Fristen står her til den flyttes til sporet (#1745). */
+/** Teksten i hvert spor. */
 const BREVTEKST: { forhold: Sporsbrevtekst } & Record<Kravspor, Kravsporsbrevtekst> = {
   forhold: BREVTEKSTEN_I_FORHOLDET,
   vederlag: BREVTEKSTEN_I_VEDERLAGET,
-  frist: {
-    navn: 'fristen',
-    svaretGjelder: 'kravet om fristforlengelse',
-    krav: fristkravtekst,
-    // VS-U29: også påberopelsen etter § 33.6.2 mot begrunnelsen.
-    ogsaaInnsigelserEtter: ['33.6.2'],
-    nevnerErstattet: true,
-    kravetOm: 'fristforlengelse',
-    enigI: 'antallet dager',
-    trukket: (krav) => dager(innholdIFristen(krav).dager),
-    ingenKrav: (sak) =>
-      `TE krever ikke fristforlengelse som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag.`,
-  },
+  frist: BREVTEKSTEN_I_FRISTEN,
 };
 
 /** Standpunktene i artene bare ett spor har, med teksten i sporet. */
-type ArtISporene = keyof typeof STANDPUNKTENE_I_VEDERLAGET | keyof typeof STANDPUNKTENE_I_FORHOLDET;
+type ArtISporene =
+  | keyof typeof STANDPUNKTENE_I_VEDERLAGET
+  | keyof typeof STANDPUNKTENE_I_FORHOLDET
+  | keyof typeof STANDPUNKTENE_I_FRISTEN;
 const I_SPORENE: Standpunktstekster<ArtISporene> = adskilte(
-  STANDPUNKTENE_I_FORHOLDET,
-  STANDPUNKTENE_I_VEDERLAGET
+  adskilte(STANDPUNKTENE_I_FORHOLDET, STANDPUNKTENE_I_VEDERLAGET),
+  STANDPUNKTENE_I_FRISTEN
 );
 
-/** Tekstene i to spor samlet. En art i begge gir typefeil, så den ene ikke skjuler den andre. */
+/** Tekstene i sporene samlet, to om gangen. En art i begge gir typefeil, så den ene ikke skjuler den andre. */
 function adskilte<A extends object, B extends object & Partial<Record<keyof A, never>>>(
   a: A,
   b: B

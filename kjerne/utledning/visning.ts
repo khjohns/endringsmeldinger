@@ -14,6 +14,7 @@ import { ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { VISNING_I_FORHOLDET } from '../spor/forhold/visning.ts';
 import { VISNING_I_VEDERLAGET } from '../spor/vederlag/visning.ts';
+import { VISNING_I_FRISTEN } from '../spor/frist/visning.ts';
 import {
   enighetensVirkning,
   paaberopelseFor,
@@ -115,12 +116,9 @@ const sendt = (u: Utledning, spor: Spor): boolean =>
 const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
   // Et trukket forhold gir «Trukket» bare der krav, varsel eller «ingen krav» er sendt (GR-U25).
   trukket: (u, spor) => u.spor[spor].trukket && sendt(u, spor),
-  // § 33.6.2: til forespørselen er besvart, og bare mens saken og sporet ikke er lukket (MM-U31).
+  // Mens forholdet ikke er trukket og saken og sporet ikke er lukket (MM-U31).
   spesifisert_krav_etterspurt: (u, spor) =>
-    spor === 'frist' &&
-    !u.spor.forhold.trukket &&
-    !sporetErLukket(u) &&
-    u.spor.frist.foresporsler.some((f) => f.svar === null),
+    !u.spor.forhold.trukket && !sporetErLukket(u) && visningI(spor).kravetErEtterspurt(u),
   venter_paa_svar: venterPaaSvar,
   paalegg_frafalt: (u, spor) => visningI(spor).paaleggFrafalt(u),
   enige: (u, spor) => u.spor[spor].enighet !== null,
@@ -240,21 +238,15 @@ export interface Sporsvisning {
   svaretsEtiketter?(u: Utledning, virkning: ReturnType<typeof enighetensVirkning>): string[];
   /** Etiketten for en påberopt passivitet i sporet, eller `null`. */
   passivitetsetikett(u: Utledning): string | null;
+  /** Byggherren har etterspurt et spesifisert krav i sporet som ikke er besvart. */
+  kravetErEtterspurt(u: Utledning): boolean;
 }
 
-/** Visningen i hvert spor. Fristen står her til den flyttes til sporet (#1745). */
+/** Visningen i hvert spor. */
 const VISNING: Record<Spor, Sporsvisning> = {
   forhold: VISNING_I_FORHOLDET,
   vederlag: VISNING_I_VEDERLAGET,
-  frist: {
-    paaleggFrafalt: () => false,
-    passivitetsetikett: () => null,
-    // Oppdragsgiver 22.10 (#1126): bare før kravet, som er varselet når sporet ikke har noe.
-    varseletikett: (u) =>
-      !u.spor.frist.varsler['33.4'] && u.spor.frist.krav.length === 0
-        ? 'varsel_ikke_registrert'
-        : null,
-  },
+  frist: VISNING_I_FRISTEN,
 };
 
 /** Visningen i sporet (`iSporet`). */

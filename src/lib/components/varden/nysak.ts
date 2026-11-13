@@ -10,13 +10,12 @@ import { getKontraktsregel, type Kontraktsregel } from '$lib/constants/kontrakts
 import { kravMotNySak, type Brev, type Saksmerking } from '$lib/kjernesak/brevtekst';
 import { PROGRAMFEIL, type Programfeil } from '$lib/kjernesak/kontekst.svelte';
 import { oppgittDato, type OppgittDato } from '$kjerne/spor/forhold/format';
-import { forholdet as kjernensForhold } from '$kjerne/spor/forhold/tekst';
+import { FORHOLDSGRUPPER } from '$kjerne/spor/forhold/tekst';
 import {
   kategoriFraKatalogen,
   tilKatalogen,
   UNDERKATEGORI_FRA_KATALOGEN,
 } from '$kjerne/format/koder';
-import { FORHOLDSGRUPPER } from './tekster';
 import type { Kjerne } from '$kjerne/versjon';
 import type { Part, Vedlegg } from '$kjerne/typer';
 
@@ -75,20 +74,22 @@ export interface Forholdet {
   regel: Kontraktsregel | null;
 }
 
-/** Forholdene i gruppene fra skissen (OV-U77, OV-U78), med katalogens beskrivelse og kontraktsregel. */
+/**
+ * Forholdene i kjernens grupper (OV-U77, OV-U78), så brevet og velgeren sier det samme (svaret på
+ * Q3 i #1488). Regelen slås opp med punktet kjernen skriver (#1845); beskrivelsen er katalogens.
+ */
 export const FORHOLDENE: { navn: string; forhold: Forholdet[] }[] = FORHOLDSGRUPPER.map((g) => ({
   navn: g.navn,
-  forhold: g.forhold.map(([kjernekode, navn]) => {
-    const kode = tilKatalogen(UNDERKATEGORI_FRA_KATALOGEN, kjernekode) as string;
+  forhold: g.forhold.map((f) => {
+    const kode = tilKatalogen(UNDERKATEGORI_FRA_KATALOGEN, f.kode) as string;
     const gruppe = KRAV_STRUKTUR_NS8407.find((k) => k.hjemler.some((h) => h.kode === kode))!;
-    const hjemmel = gruppe.hjemler.find((h) => h.kode === kode)!;
     return {
       gruppe: gruppe.kode,
       kode,
-      navn,
-      punkt: kjernensForhold(kjernekode)!.hjemmel,
-      beskrivelse: hjemmel.beskrivelse,
-      regel: getKontraktsregel(hjemmel.hjemmel_basis),
+      navn: f.navn,
+      punkt: f.hjemmel,
+      beskrivelse: gruppe.hjemler.find((h) => h.kode === kode)!.beskrivelse,
+      regel: getKontraktsregel(f.hjemmel),
     };
   }),
 }));

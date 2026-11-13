@@ -23530,6 +23530,43 @@ tekst = '''
 I GFK-U17 er en hverdag det kontrakten regner som hverdag for dagmulkten, når kontrakten avtaler noe annet enn punkt 40.3. Driften registrerer regelen for prosjektet med fristtabellen (GFK-U22); er det ikke registrert noe, gjelder A. Forhold: presiserer GFK-U17 og GFK-U22.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "GFK-U25"
+dato = 2026-11-13
+hvem = "oppdragsgiver"
+kilde = ["#721", "#1867"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 13.11 i [spørsmålsfila](../vedlegg/fristkrav-2026-11-13/leserolle.md):
+
+### Spørsmålet: Hvem som leser fristtabellen
+
+**Bakgrunn.** Lesingen slipper gjennom totalentreprenøren, byggherren og leserollen, altså den som har lesetilgang til prosjektet uten å være part. GFK-U23 sier bare at «begge parter» skal kunne lese fristtabellen. Før var satsen bare synlig for byggherren. Spørsmålet gjelder hvem som har tilgang, og derfor er det et vedtak.
+
+**Alternativ A (anbefalt).** Fristtabellen, med satsene og kontraktssummen, kan leses av begge parter og av leserollen, fordi visningen av saken leser datoen til fristen. Satsene og kontraktssummen står i kontrakten, som partene har uansett (Del II, E.2.1). Forhold: presiserer GFK-U23.
+
+**Alternativ B.** Leserollen ser fristene, med nummer, navn og dato, men ikke satsene og kontraktssummen. Forhold: presiserer GFK-U23, og serverøkta må dele lesingen.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 13.11, ordrett: «Tilgangen: A». ([spørsmålsfila](../vedlegg/fristkrav-2026-11-13/leserolle.md))'''
+forhold = [
+  { art = "presiserer", vedtak = "gfk-u23" },
+]
+folge = '''
+Gjelder #721 og #1867.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Fristtabellen, med satsene og kontraktssummen, kan leses av begge parter og av leserollen, fordi visningen av saken leser datoen til fristen. Satsene og kontraktssummen står i kontrakten, som partene har uansett (Del II, E.2.1). Forhold: presiserer GFK-U23.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Leserollen ser fristene, med nummer, navn og dato, men ikke satsene og kontraktssummen. Forhold: presiserer GFK-U23, og serverøkta må dele lesingen.'''
+forkastet = true
+
 
 [[gruppe]]
 tittel = "Kontrakt, API og saksopprettelse"

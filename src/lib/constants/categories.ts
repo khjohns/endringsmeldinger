@@ -184,7 +184,7 @@ export const KRAV_STRUKTUR_NS8407: Kontraktsforhold[] = [
     kode: 'ANDRE',
     label: 'Andre forhold byggherren har risikoen for',
     beskrivelse: 'Sekkepost for risikoforhold som ikke er endringer eller "ytelser".',
-    hjemmel_frist: '33.1 c)',
+    hjemmel_frist: '33.1 c',
     hjemmel_vederlag: '34.1.2',
     standard_vederlagsmetode: 'Regningsarbeid (34.4)',
     type_krav: 'Tid og Penger',
@@ -230,7 +230,7 @@ export const KRAV_STRUKTUR_NS8407: Kontraktsforhold[] = [
       {
         kode: 'ANDRE_ANDRE',
         label: 'Annet forhold',
-        hjemmel_basis: '33.1 c)',
+        hjemmel_basis: '33.1 c',
         beskrivelse:
           'Andre forhold byggherren har risikoen for som ikke dekkes av kategoriene over.',
         varselkrav_ref: '33.4 / 34.1.2',

@@ -11,11 +11,8 @@ import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import type { Regelsett } from '../kjerne/regler/regelsett.ts';
 import { KRAVSPOR, type Krav, type Kravspor } from '../kjerne/typer.ts';
-import {
-  foresporselForFristsvar,
-  type Sporutledning,
-  type Utledning,
-} from '../kjerne/utledning/utled.ts';
+import type { Sporutledning, Utledning } from '../kjerne/utledning/utled.ts';
+import { foresporselForFristsvar } from '../kjerne/spor/frist/utledning.ts';
 
 /**
  * Verdien brevet gir byggherren ansvar for, i kroner. `beloep` er `null` når noe i

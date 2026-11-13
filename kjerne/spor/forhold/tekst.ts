@@ -285,6 +285,7 @@ export const SVARET_PAA_PAABEROPELSEN: Record<Forholdsresultat, string> = {
 };
 
 export const LINJEN_I_FORHOLDET = {
+  grunner: () => ({}),
   egetLedd: () => undefined,
   ledd: (svar, v) => {
     const g = standpunktet(svar, 'forhold')!;

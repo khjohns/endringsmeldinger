@@ -212,6 +212,14 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
     expect(betegnelser(paaberopelse, foresporsel, fristkrav).frist).toBe('venter_paa_svar');
   });
 
+  // § 33.6.2 gjelder fristen: forespørselen gir ikke betegnelsen i forholdet og vederlaget.
+  it('en ubesvart forespørsel etter § 33.6.2 gir betegnelsen bare i fristen', () => {
+    const b = betegnelser(paaberopelse, varselIFristen, foresporsel);
+    expect(b.frist).toBe('spesifisert_krav_etterspurt');
+    expect(b.forhold).not.toBe('spesifisert_krav_etterspurt');
+    expect(b.vederlag).not.toBe('spesifisert_krav_etterspurt');
+  });
+
   it('et svar TE ikke har godtatt, gir «Svaret er ikke godtatt»; et svar som godkjenner kravet fullt ut, gir «Enige» ved sammenfall', () => {
     expect(betegnelser(forloepA)).toEqual({
       forhold: 'svar_ikke_godtatt',

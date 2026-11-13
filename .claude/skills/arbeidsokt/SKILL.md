@@ -134,12 +134,20 @@ uten at oppdraget gjentar det:
   Små oppslag gjør økta selv (`CLAUDE.md`, «Arbeidsform»), og subagentene følger
   skillen [`subagenter`](../subagenter/SKILL.md).
 - **Review.** Byggeøkta kjører reviewet selv, etter «Review i byggeøkta».
+- **`/simplify`.** Før `/code-review` ser byggeøkta om et av kriteriene i
+  [orkestreringsskillen, «`/simplify`»](../orkestrering/SKILL.md#simplify) gjelder for
+  grenen. Gjelder et, sier den fra til orkestratoren hvilket, og arbeider videre mens
+  den venter. Er `/simplify` ikke bestilt, kjører den den ikke.
 - **PR-beskrivelsen er rapporten til orkestratoren:** hva som er endret,
   sjekkene som er kjørt med resultat, funn utenfor oppdraget med issuenummer,
   samleissuet med nummer når det finnes, og «Åpne spørsmål». Utfallet av reviewet står
   i tabellen «Funn og utfall», med én rad per funn.
 - **PR mot `main`** med `Closes #n`, eller «Del av #n» når bare en del leveres.
   Økta merger ikke.
+- **Meldingene til orkestratoren** er bare tre: at PR-en er klar, på én linje med
+  nummeret, et spørsmål som krever en avgjørelse, og at økta stopper, med lenke til
+  overleveringen. PR-beskrivelsen er rapporten og gjentas ikke i meldingen. Ingen
+  bekreftelser eller statusmeldinger (oppdragsgiver 13.11).
 - **Meld fra** med `send_message` til `@parent` når PR-en er grønn og
   klar for gjennomgang. Økta pusher ikke etter det uten at orkestratoren
   ber om det. En push etter meldingen kan komme etter mergen og bli stående

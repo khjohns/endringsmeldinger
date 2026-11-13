@@ -14,19 +14,15 @@
 
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
-  laget,
-  prinsipalt,
-  standpunktet,
   type Svarinnhold,
   type Svarsfrysing,
   iSporet,
-  virkningerIForholdetOgFristen,
+  kravetErDokumentasjon,
 } from './byggeklosser.ts';
 import { FRYSING_I_FORHOLDET } from '../spor/forhold/frysing.ts';
 import { FRYSING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
-import { erRegistrert } from '../format/leser.ts';
+import { FRYSING_I_FRISTEN } from '../spor/frist/frysing.ts';
 import { HJEMMEL } from '../format/format.ts';
-import { utregningIFristen } from '../spor/frist/format.ts';
 import type {
   Dokument,
   Enighetsgrunnlag,
@@ -55,13 +51,6 @@ export function virkninger(
 ): Standpunktsvirkning[] {
   return frysingI(svar.spor).virkninger(svar, paaberopelse, regler, forskyvning);
 }
-
-/**
- * OV-U4: kravene i et registrert brev er dokumentasjon og får ingen virkning. Utledningen
- * og `innsigelsenPaaberoper` leser regelen herfra (#787).
- */
-export const kravetErDokumentasjon = (d: Pick<Dokument, 'opplysninger'>): boolean =>
-  erRegistrert(d.opplysninger);
 
 /**
  * VS-U24: en egen innsigelse er en påberopelse etter én bestemmelse bare når det den
@@ -122,64 +111,8 @@ export function innsigelsenErOppgitt(
       (p): p is Extract<Standpunkt, { art: 'rettidighet' }> =>
         p.art === 'rettidighet' && p.hjemmel === hjemmel
     );
-  if (spor === 'frist') return standpunkter.some((p) => p.iTide);
+  if (frysingI(spor).hvertITideGirOppInnsigelsen) return standpunkter.some((p) => p.iTide);
   return standpunkter.at(-1)?.iTide === true;
-}
-
-export interface ForesporselOgSvar {
-  foresporsel: string;
-  /** Elementet som svarte: et fristkrav (`medKrav`) eller TEs begrunnelse etter annet ledd b. */
-  svar: string | null;
-  medKrav: boolean;
-}
-
-/**
- * § 33.6.2 (VS-U17, VS-U19, VS-U27): svaret på hver forespørsel. TEs begrunnelse etter annet
- * ledd b og fristkravet svarer på forespørselen de uttrykkelig viser til i `gjelder`, aldri
- * etter rekkefølgen i journalen (HF-U1, LV-U18 punkt 3). Et krav i et registrert brev er
- * dokumentasjon og svarer ikke (OV-U4). Gir forespørselen og elementet som svarte, eller `null`.
- */
-export function svarPaaForesporsler(
-  dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>
-): ForesporselOgSvar[] {
-  const ut: ForesporselOgSvar[] = [];
-  const ubesvart = (gjelder: string | undefined) =>
-    ut.find((x) => x.foresporsel === gjelder && x.svar === null);
-  for (const d of dokumenter) {
-    for (const u of d.utsagn) {
-      if (u.art === 'foresporsel') ut.push({ foresporsel: u.id, svar: null, medKrav: false });
-      if (u.art === 'foresporselssvar') {
-        const f = ubesvart(u.gjelder);
-        if (f) f.svar = u.id;
-      }
-    }
-    if (kravetErDokumentasjon(d)) continue;
-    for (const krav of d.krav) {
-      const f = krav.spor === 'frist' ? ubesvart(krav.gjelder) : undefined;
-      if (f) Object.assign(f, { svar: krav.id, medKrav: true });
-    }
-  }
-  return ut;
-}
-
-/**
- * Hvordan fristkravene står til en forespørsel etter § 33.6.2: kravet svarer på den
- * (fjerde ledd), eller TE har begrunnet etter annet ledd b før kravet, og § 33.6.1 gjelder
- * (femte ledd). `gjelder` er det rettidigheten etter § 33.6.2 gjelder: kravet eller begrunnelsen.
- */
-export type Foresporselsrelasjon =
-  | { art: 'svar'; gjelder: string }
-  | { art: 'begrunnelse'; gjelder: string };
-
-export function foresporselsrelasjon(
-  svar: readonly ForesporselOgSvar[]
-): Foresporselsrelasjon | null {
-  // Forespørselen kan bare sendes før det første fristkravet (VS-U19), så det er kravet som
-  // svarer. Senere kravversjoner står i samme forhold til forespørselen (VS-U20).
-  const krav = svar.find((s) => s.medKrav)?.svar;
-  if (krav) return { art: 'svar', gjelder: krav };
-  const begrunnelse = svar.filter((s) => s.svar !== null).at(-1)?.svar;
-  return begrunnelse ? { art: 'begrunnelse', gjelder: begrunnelse } : null;
 }
 
 /**
@@ -203,15 +136,6 @@ function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
   return frysingI(svar.spor).utfall(svar, v, avvisesPrinsipalt(svar, v));
 }
 
-function utfallIFristen(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert: boolean): Utfall {
-  if (prekludert) return { dager: 0 };
-  const spesifisering = standpunktet(svar, 'spesifisering');
-  if (spesifisering && prinsipalt(v)?.standpunkt === spesifisering.id)
-    return { dager: spesifisering.dager! };
-  const dager = standpunktet(svar, 'dager')!;
-  return { dager: dager.resultat === 'avslaatt' ? 0 : dager.vurdert };
-}
-
 /**
  * Svaret godkjenner hele kravet i sporet, så standpunktene faller sammen
  * (GR-U7). For forholdet er det en godkjenning uten påberopt preklusjon
@@ -222,28 +146,14 @@ export function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]
   return frysingI(svar.spor).godkjennerHeleKravet(svar, v);
 }
 
-function fristenGodkjent(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
-  // Arbeidsvalget i #479: en påberopelse etter § 33.6.1 i et lag gir aldri sammenfall. Leses av
-  // standpunktene.
-  const spesifisering = standpunktet(svar, 'spesifisering');
-  if (spesifisering && v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning)))
-    return false;
-  return utregningIFristen(svar.utregning).resultat === 'godkjent';
-}
-
 /** Frysingen i sporet (`iSporet`). */
 const frysingI = (spor: Spor): Svarsfrysing => iSporet(FRYSING, spor);
 
-/** Frysingen i hvert spor. Fristen står her til den flyttes til sporet (#1745). */
+/** Frysingen i hvert spor. */
 const FRYSING: Record<Spor, Svarsfrysing> = {
   forhold: FRYSING_I_FORHOLDET,
   vederlag: FRYSING_I_VEDERLAGET,
-  frist: {
-    virkninger: virkningerIForholdetOgFristen,
-    utfall: utfallIFristen,
-    godkjennerHeleKravet: fristenGodkjent,
-    vilkaar: 'forhold_avklart',
-  },
+  frist: FRYSING_I_FRISTEN,
 };
 
 /**

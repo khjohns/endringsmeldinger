@@ -27,12 +27,8 @@ import {
   SAMMENLIKNES,
   utenforOmfanget,
 } from '../frosset/utregning.ts';
-import {
-  datoenDetBleSendt,
-  foresporselForFristsvar,
-  kravSomVarsler,
-  type Utledning,
-} from '../utledning/utled.ts';
+import { datoenDetBleSendt, kravSomVarsler, type Utledning } from '../utledning/utled.ts';
+import { foresporselForFristsvar } from '../spor/frist/utledning.ts';
 import { sisteDatoopplysning } from '../spor/forhold/utledning.ts';
 import {
   avvis,

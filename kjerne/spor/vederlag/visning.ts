@@ -63,4 +63,5 @@ export const VISNING_I_VEDERLAGET = {
       : null,
   paaleggFrafalt: () => false,
   passivitetsetikett: () => null,
+  kravetErEtterspurt: () => false,
 } satisfies Sporsvisning;
