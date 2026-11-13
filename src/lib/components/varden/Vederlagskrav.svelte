@@ -16,7 +16,7 @@
   import { krevdProduktivitet, kravposterI } from '$kjerne/spor/vederlag/format';
   import type { Kravpost } from '$kjerne/typer';
   import type { Utledning } from '$kjerne/utledning/utled';
-  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import {
     varseletFoerKravet,
@@ -486,7 +486,8 @@
       return;
     }
     const b = kjernesak.brev(kommando, vedlegg, true);
-    if (!b || !('tekst' in b) || !b.tekst) {
+    const brevet = kontrollbrev(b);
+    if (!brevet) {
       sendehindring = brevaarsak(b) ?? KRAVSKJEMA.kanIkkeLages;
       await tick();
       document.getElementById(id('hindring'))?.focus();
@@ -494,13 +495,9 @@
     }
     onbrevkontroll({
       kommando,
-      tekst: b.tekst,
-      avsnitt: b.avsnitt,
+      ...brevet,
       detteSender,
       virkninger: [],
-      merking: b.merking,
-      deresRef: b.deresRef,
-      tittel: b.brevtittel,
       vedlegg,
     });
   }

@@ -6,29 +6,42 @@
 -->
 <script module lang="ts">
   import type { Avsnitt } from '$kjerne/typer';
+  import type { Brev as Kjernebrev } from '$lib/kjernesak/brevtekst';
+
+  /**
+   * Brevet kjernen lager for kommandoen, slik brevkontrollen viser det: avsnittene med punktene
+   * og utdypningene (#1824), og Vår ref., Deres ref. og tittelen kjernen fryser i raden
+   * forhåndsvisningen gir (LV-U27, LV-U49, LV-U53). Nettleseren regner dem ikke ut selv, og de
+   * er en del av det avsenderen godkjenner (LV-U2, U-4 i BF-07).
+   */
+  export type Kontrollbrev = {
+    avsnitt: Avsnitt[];
+    merking: string | null;
+    deresRef: string[];
+    tittel: string | null;
+  };
 
   /**
    * Det et skjema sender til brevkontrollen: kommandoen, brevet kjernen lager av den og det
    * panelet sier om sendingen (#1856).
    */
-  export type TilBrevkontrollen = {
+  export type TilBrevkontrollen = Kontrollbrev & {
     kommando: Record<string, unknown>;
-    tekst: string[];
-    /**
-     * Avsnittene kjernen lager, med punktene og utdypningene (#1824). Er de `null`, vises `tekst`.
-     */
-    avsnitt: Avsnitt[] | null;
     detteSender: { tekst: string; lag: string | null }[];
     virkninger: string[];
-    /**
-     * Vår ref., Deres ref. og tittelen kjernen fryser i raden forhåndsvisningen gir (LV-U27,
-     * LV-U49, LV-U53). Nettleseren regner dem ikke ut selv, og de er en del av det avsenderen
-     * godkjenner (LV-U2, U-4 i BF-07).
-     */
-    merking: string | null;
-    deresRef: string[];
-    tittel: string | null;
   };
+
+  /**
+   * Brevet til kontrollen, eller `null` når kjernen ikke lager et brev med tekst: en avvisning,
+   * en programfeil, saken uten merking eller et brev uten tekst, som et registrert brev. Årsaken
+   * står i `b`, og `brevaarsak(b)` er `null` for de to siste.
+   */
+  export function kontrollbrev(
+    b: Kjernebrev | { programfeil: string } | null
+  ): Kontrollbrev | null {
+    if (!b || !('avsnitt' in b) || !b.avsnitt) return null;
+    return { avsnitt: b.avsnitt, merking: b.merking, deresRef: b.deresRef, tittel: b.brevtittel };
+  }
 </script>
 
 <script lang="ts">
@@ -46,7 +59,6 @@
   let {
     kjernesak,
     kommando,
-    tekst,
     avsnitt,
     merking,
     deresRef,
@@ -102,6 +114,8 @@
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
   const hentOrganisasjoner = organisasjonene();
   const partnavn = (p: Part) => `${hentOrganisasjoner()[p] ?? stor(PARTNAVN[p])} (${p})`;
+  // Teksten kommandoen bærer, og som serveren sammenligner med sin egen (LV-U2).
+  const tekst = $derived(avsnitt.map((a) => a.laast));
   let kontrollert = $state(false);
   // Et brev som er endret, for eksempel med et nytt nummer eller en ny Deres ref., kontrolleres
   // på nytt (LV-U46, LV-U51).
@@ -155,7 +169,7 @@
       {deresRef}
       dato={BREVKONTROLL.datoSettes}
       tittel={tittel ?? ''}
-      avsnitt={avsnitt ?? tekst.map((laast) => ({ laast }))}
+      {avsnitt}
     />
   </div>
 
