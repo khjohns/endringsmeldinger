@@ -3,10 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Vederlagsoversikten i Varden</title>
+<title>Vederlagsoversikten i Varden v3</title>
 <!--
-  Prototype v1 av oversikten over vederlagskravet i Varden (#1402). Tilstandene er ankrene
-  #te-utkast, #te, #bh-utkast og #bh. Teksten er prototypetekst, og tallene er et eksempel med
+  Prototype v3 av oversikten over vederlagskravet i Varden (#1402, BF-44): v2 rettet etter systemfila og språkfila.
+  Forslagene F1–F6 står merket til spørsmålene 1–9 i BF-44 er besvart.
+  Tilstandene er ankrene #te-utkast, #te, #bh-utkast, #bh, #te-regning og #bh-regning. Teksten er prototypetekst, og tallene er et eksempel med
   tre lag: forholdet ubesvart, punkt 34.1.2 prinsipalt, punkt 34.1.3 subsidiært. Fargene er Blekk
   (.tema-varden i src/lib/components/kontraktsbord/theme.css), ikke de eldre Varden-skissene.
 -->
@@ -83,7 +84,8 @@ p{margin:0;text-wrap:pretty}
 .topplinje{background:var(--surface);border-bottom:1px solid var(--rule-color);padding-block:14px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
 .topplinje-inner{max-width:calc(var(--varden-ark) + 24px + var(--varden-stoette));margin:0 auto;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
 .rolle{color:var(--ink-2)}
-.demo{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-3)}
+.demo{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px;color:var(--ink-3)}
+[data-regel="regning"] .kun-fast-gruppe{display:none}
 .vis-som{display:inline-flex;border:1px solid var(--rule-strong-color);border-radius:var(--r-knapp);padding:2px}
 .vis-som button{font:inherit;font-size:12px;font-weight:500;border:0;background:none;color:var(--ink-2);padding:4px 12px;border-radius:var(--r-knapp);cursor:pointer;min-height:28px}
 .vis-som button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand)}
@@ -117,6 +119,8 @@ p{margin:0;text-wrap:pretty}
 .knapp.sekundaer{background:transparent;color:var(--brand)}
 .knapp.sekundaer:hover{background:var(--surface-inset)}
 .kun-utkast,.uten-utkast{display:contents}
+.kun-regning-blokk[data-forslag]{margin-top:16px}
+[data-regel="fast"] .kun-regning-blokk,[data-regel="regning"] .kun-fast-blokk{display:none}
 [data-utkast="nei"] .kun-utkast,[data-utkast="ja"] .uten-utkast{display:none}
 
 /* Kort */
@@ -134,13 +138,13 @@ p{margin:0;text-wrap:pretty}
 .stokk .skala i{flex:1;border-right:1px solid var(--ink)}
 .stokk .skala i:nth-child(odd){background:var(--ink)}
 .stokk .skala i:last-child{border-right:0}
-.merke{position:absolute;top:-12px;bottom:-12px;width:2px;margin-left:-1px;background:var(--ink);box-shadow:0 0 0 2px var(--surface)}
-.merke .lapp{position:absolute;bottom:calc(100% + 4px);left:0;transform:translateX(-50%);white-space:nowrap;text-align:center;font-size:12px;line-height:1.3;color:var(--ink-2)}
-.merke .lapp b{display:block;font-size:14px;color:var(--ink);font-weight:600}
-.merke.under .lapp{bottom:auto;top:calc(100% + 4px)}
-.merke.krevd{background:repeating-linear-gradient(var(--ink) 0 4px,transparent 4px 7px);box-shadow:none}
-.merke.start .lapp{transform:none}
-.merke.slutt .lapp{transform:translateX(-100%)}
+.strek{position:absolute;top:-12px;bottom:-12px;width:2px;margin-left:-1px;background:var(--ink);box-shadow:0 0 0 2px var(--surface)}
+.strek .lapp{position:absolute;bottom:calc(100% + 4px);left:0;transform:translateX(-50%);white-space:nowrap;text-align:center;font-size:12px;line-height:1.3;color:var(--ink-2)}
+.strek .lapp b{display:block;font-size:14px;color:var(--ink);font-weight:600}
+.strek.under .lapp{bottom:auto;top:calc(100% + 4px)}
+.strek.krevd{background:repeating-linear-gradient(var(--ink) 0 4px,transparent 4px 7px);box-shadow:none}
+.strek.start .lapp{transform:none}
+.strek.slutt .lapp{transform:translateX(-100%)}
 .skalatall{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-4);margin:44px 4px 0}
 .gap{margin-top:12px;font-size:14px;color:var(--ink-2)}
 .gap b{color:var(--ink)}
@@ -163,7 +167,7 @@ td.n{font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:
 .lagene span{color:var(--ink-2)}
 @media (max-width:560px){.lagene li{grid-template-columns:1fr}}
 
-.forbehold{display:flex;gap:10px;margin-top:20px;padding:12px 14px;background:var(--surface-inset);border-radius:6px;color:var(--ink-2)}
+.forbehold{display:flex;gap:10px;margin-top:20px;padding:12px 14px;background:var(--surface-inset);border:1px solid var(--ink);border-radius:var(--r-innfelt);color:var(--ink)}
 .forbehold svg{flex:none;margin-top:2px}
 .forbehold a{font-weight:500;color:var(--ink)}
 
@@ -208,6 +212,67 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .kommentar-fot summary{cursor:pointer;min-height:40px;display:flex;align-items:center}
 .kommentar-fot summary:hover{color:var(--ink)}
 
+/* Forslagene i v2 */
+.vis-forslag [data-forslag]{outline:2px dashed var(--ink-3);outline-offset:4px;position:relative}
+.vis-forslag [data-forslag]::before{content:attr(data-forslag);position:absolute;top:-13px;right:10px;z-index:3;font:600 11px/1.6 var(--font-sans);letter-spacing:.02em;background:var(--ink);color:var(--surface);padding:0 8px;border-radius:var(--r-knapp);white-space:nowrap}
+.forslag-av{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);cursor:pointer;min-height:32px}
+.forslag-av input{accent-color:var(--brand);width:16px;height:16px;margin:0}
+
+/* F1 Godkjenningen */
+.godkjenning{display:flex;flex-direction:column;gap:10px;padding:14px 16px;background:var(--surface-inset);border-radius:var(--r-innfelt)}
+.steg{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.steg li{position:relative;padding-top:18px;font-size:12px;color:var(--ink-3)}
+.steg li::before{content:"";position:absolute;top:2px;left:0;width:10px;height:10px;border-radius:50%;border:1.5px solid var(--ink-3);background:var(--surface-inset)}
+.steg li::after{content:"";position:absolute;top:7px;left:14px;right:4px;border-top:1px solid var(--rule-strong-color)}
+.steg li:last-child::after{display:none}
+.steg li.ferdig::before{background:var(--ink);border-color:var(--ink)}
+.steg li.naa{color:var(--ink);font-weight:600}
+.steg li.naa::before{border:3px solid var(--ink);background:var(--surface)}
+.godkjenning p{color:var(--ink-2)}
+.godkjenning p b{color:var(--ink)}
+
+/* F2 Tid og frist */
+.frist{display:flex;gap:8px;align-items:baseline;font-size:14px;color:var(--ink-2)}
+.frist b{color:var(--ink)}
+
+/* F3 Andre krav i saken */
+.sammenheng{list-style:none;margin:0;padding:0 20px 8px}
+.sammenheng li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;align-items:baseline;padding:12px 0;border-top:1px solid var(--rule-subtle-color)}
+.sammenheng li:first-child{border-top:0}
+.sammenheng .h{font-weight:500}
+.sammenheng .s{font-size:12px;color:var(--ink-3);grid-column:1}
+.sammenheng .lenke{grid-row:1/3;grid-column:2;align-self:center}
+
+/* F4 Notatene */
+.notater summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:16px 20px;min-height:44px}
+.notater summary::-webkit-details-marker{display:none}
+.notater summary h2{font-size:16px;font-weight:600}
+.notater summary .ant{font-size:12px;color:var(--ink-3);margin-left:auto}
+.notater summary svg.lukk{transition:transform .15s cubic-bezier(.23,1,.32,1);color:var(--ink-3)}
+.notater[open] summary svg.lukk{transform:rotate(180deg)}
+.notater .innhold{padding:0 20px 16px;display:flex;flex-direction:column;gap:12px}
+.notater .laas{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--ink-3)}
+.notat{padding:10px 12px;background:var(--surface-inset);border-radius:var(--r-innfelt)}
+.notat .hvem{font-size:12px;color:var(--ink-3)}
+
+/* F5 Kravet over tid */
+.versjoner{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:12px;color:var(--ink-3)}
+.versjoner li{display:flex;gap:6px;align-items:baseline}
+.versjoner b{font-size:14px;color:var(--ink);font-family:var(--font-mono);font-weight:500}
+.versjoner .pil{color:var(--ink-4)}
+.versjoner li.gjeldende b{font-weight:600}
+
+/* F6 Regningsarbeid */
+.kun-fast,.kun-regning{display:contents}
+[data-regel="fast"] .kun-regning,[data-regel="regning"] .kun-fast{display:none}
+.fakta{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:8px}
+.fakta li{display:grid;grid-template-columns:200px minmax(0,1fr);gap:4px 12px}
+.fakta li span:first-child{color:var(--ink-3)}
+@media (max-width:560px){.fakta li{grid-template-columns:1fr}}
+.regel{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;padding:12px 14px;border:1px solid var(--rule-strong-color);border-radius:var(--r-innfelt)}
+.regel b{font-size:16px}
+.regel span{color:var(--ink-2)}
+
 /* Handlingene */
 .handlinger .kort-kropp{display:flex;flex-direction:column;gap:16px}
 .venter{font-size:14px;color:var(--ink-2)}
@@ -216,7 +281,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .knapp:active{transform:scale(.97)}
 .knapp.primaer{background:var(--brand);color:var(--on-brand)}
 .knapp.primaer:hover{background:var(--ink-2);border-color:var(--ink-2)}
-.virkning{font-size:14px;color:var(--ink-2);padding:12px 14px;background:var(--surface-inset);border-radius:6px}
+.virkning{font-size:14px;color:var(--ink-2);padding:12px 14px;background:var(--surface-inset);border-radius:var(--r-innfelt)}
 .virkning b{color:var(--ink)}
 .andre{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule-subtle-color)}
 .andre li{border-bottom:1px solid var(--rule-subtle-color)}
@@ -246,7 +311,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 @media (max-width:1180px){
   .kolonner{display:flex;flex-direction:column;gap:20px;align-items:stretch}
   .hoved,.stoette{display:contents}
-  .utkast{order:0}.stilling{order:2}.handlinger{order:3}.krav{order:4}.brevkort{order:5}.kommentarer{order:6}.datoer{order:7}
+  .utkast{order:0}.stilling{order:2}.handlinger{order:3}.sammenhengkort{order:4}.krav{order:5}.brevkort{order:6}.notater{order:7}.kommentarer{order:8}.datoer{order:9}
 }
 @media (max-width:860px){
   .skall{grid-template-columns:minmax(0,1fr)}
@@ -269,11 +334,49 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .utkastmerke,.paabegynt,.merke-reg,.merke-n,.inngaar,.status,.lagmerke,.merke,.henv,.endret,.hjemmel{border-radius:var(--r-merke)}
 .fil{border-radius:var(--r-felt)}
 .ark-inn{border-radius:var(--r-kort)}
+/* v3: toppskallet og brevlista fra grunnlagsoversikt.html, Revisjon 31.10 */
+/* Toppskallet: stien og brukermenyen, felles for alle sidene */
+.demolinje{background:var(--surface-inset);border-bottom:1px solid var(--rule-color);padding:6px max(24px,env(safe-area-inset-right,0px)) 6px max(24px,env(safe-area-inset-left,0px))}
+.demolinje .topplinje-inner{justify-content:flex-end}
+.toppskall{background:var(--surface);border-bottom:1px solid var(--rule-color);padding:10px max(24px,env(safe-area-inset-right,0px)) 10px max(24px,env(safe-area-inset-left,0px))}
+.toppskall .topplinje-inner{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center;justify-content:space-between}
+.sti{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:14px;color:var(--ink-3);min-width:0}
+.sti a{color:var(--ink-2);text-decoration:none}
+.sti a:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.sti .merkenavn{font-weight:600;font-size:16px;color:var(--ink);letter-spacing:-.01em}
+.sti [aria-current]{color:var(--ink);font-weight:500}
+.sti .merkenavn[aria-current]{font-weight:600}
+.brukermeny{position:relative}
+.brukermeny summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:4px 8px;border-radius:6px;min-height:40px}
+.brukermeny summary::-webkit-details-marker{display:none}
+.brukermeny summary:hover{background:var(--surface-inset)}
+.brukermeny summary:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.initialer{width:32px;height:32px;border-radius:50%;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font-size:12px;font-weight:600;flex:none}
+.brukermeny .hvem{display:flex;flex-direction:column;line-height:1.25;text-align:left}
+.brukermeny .hvem b{font-weight:600;font-size:14px}
+.brukermeny .hvem span{font-size:12px;color:var(--ink-3)}
+.brukermeny .meny{position:absolute;right:0;top:calc(100% + 6px);z-index:10;min-width:220px;background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);box-shadow:0 0 0 1px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.08);padding:6px;display:flex;flex-direction:column}
+.brukermeny .meny a{padding:10px 12px;border-radius:6px;color:var(--ink);text-decoration:none;min-height:40px;display:flex;align-items:center}
+.brukermeny .meny a:hover{background:var(--surface-inset)}
+.brukermeny .meny hr{border:0;border-top:1px solid var(--rule-subtle-color);margin:4px 0}
+@media (max-width:560px){.brukermeny .hvem{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
+
+/* Prosjektet og koblingene i panelet til venstre */
+.prosjektlenker{display:flex;flex-direction:column;gap:2px;margin-top:-8px}
+.prosjektlenker a{font-size:14px;color:var(--sidebar-muted);text-decoration:none;padding:4px 0}
+.prosjektlenker a:hover{color:var(--sidebar-text);text-decoration:underline;text-underline-offset:3px}
+@media (max-width:860px){.prosjektlenker{flex-direction:row;flex-wrap:wrap;gap:4px 16px;margin-top:0}}
+
+.sporhode .siste{font-size:14px;color:var(--ink-2)}
+.brevliste .m{font-size:14px;color:var(--ink-2)}
+.brevliste .t{font-size:16px}
+.andre .b{font-size:14px;color:var(--ink-2)}
+.datoer .avstand{font-size:14px;color:var(--ink-2)}
 </style>
 </head>
 <body>
 
-<div class="skall" id="skall" data-rolle="TE" data-utkast="ja">
+<div class="skall vis-forslag" id="skall" data-rolle="TE" data-utkast="ja" data-regel="fast">
   <aside class="panel" aria-label="Saken">
     <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
     <div class="sak">
@@ -281,6 +384,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
       <h2>Ny peling med produktivitetstap</h2>
       <p class="id" style="margin-top:8px">Saken har dokumentasjon som er registrert, men ikke sendt herfra.</p>
     </div>
+    <div class="prosjektlenker"><a href="#" class="kun-te">Nytt krav om endringsordre</a><a href="#" class="kun-bh">Ny endringsordre</a></div>
     <nav aria-labelledby="spor-etikett">
       <p class="etikett" id="spor-etikett">Krav og svar</p>
       <ul class="spor">
@@ -301,21 +405,30 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
   </aside>
 
   <div class="flate">
-    <div class="topplinje">
-      <div class="topplinje-inner">
-        <p class="rolle"><span class="kun-te">Du er totalentreprenør (TE)</span><span class="kun-bh">Du er byggherre (BH)</span></p>
-        <div class="demo"><span>Mockup · vis som</span>
+    <div class="demolinje"><div class="topplinje-inner"><div class="demo"><span>Mockup</span>
           <span class="vis-som" role="group" aria-label="Vis som part">
             <button type="button" id="vis-te" aria-pressed="true">TE</button>
             <button type="button" id="vis-bh" aria-pressed="false">BH</button>
           </span>
-          <span class="vis-som" role="group" aria-label="Utkast">
+          <span class="vis-som" role="group" aria-label="Beregning">
+            <button type="button" id="regel-fast" aria-pressed="true">Fast sum</button>
+            <button type="button" id="regel-regning" aria-pressed="false">Regningsarbeid</button>
+          </span>
+          <span class="vis-som kun-fast-gruppe" role="group" aria-label="Utkast">
             <button type="button" id="utkast-ja" aria-pressed="true">Med utkast</button>
             <button type="button" id="utkast-nei" aria-pressed="false">Uten</button>
           </span>
-        </div>
+          <label class="forslag-av"><input type="checkbox" id="vis-forslag" checked> Marker forslagene</label>
+        </div></div></div>
+    <header class="toppskall">
+      <div class="topplinje-inner">
+        <nav class="sti" aria-label="Du er her"><a class="merkenavn" href="prosjekter.html">Varden</a><span aria-hidden="true">›</span><a href="saksliste.html">Skolebygg Nord</a><span aria-hidden="true">›</span><span aria-current="page">E-021</span></nav>
+        <details class="brukermeny">
+          <summary><span class="kun-te"><span class="initialer" aria-hidden="true">PO</span><span class="hvem"><b>Per Olsen</b><span>Totalentreprenør · Totalentreprenør AS</span></span></span><span class="kun-bh"><span class="initialer" aria-hidden="true">ON</span><span class="hvem"><b>Ola Nordmann</b><span>Byggherre · Oslobygg KF</span></span></span></summary>
+          <div class="meny"><a href="prosjekter.html">Prosjektene dine</a><a href="#">Om Varden</a><hr><a href="innlogging.html">Logg ut</a></div>
+        </details>
       </div>
-    </div>
+    </header>
 
     <main class="arbeid">
       <div class="kolonner">
@@ -324,24 +437,29 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
           <section class="utkast" aria-labelledby="utkast-tittel">
             <div class="utkast-hode">
               <div class="linje"><span class="utkastmerke">Utkast · ikke sendt</span>
-                <h2 id="utkast-tittel"><span class="kun-te">Brev 7 · Ny versjon av kravet om justering av vederlaget</span><span class="kun-bh">Brev 7 · Nytt svar på krav om justering av vederlaget</span></h2></div>
-              <p><span class="kun-te">Til byggherren (BH)</span><span class="kun-bh">Til totalentreprenøren (TE)</span></p>
-              <p class="laas"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Bare synlig for teamet ditt til det er sendt</p>
-            </div>
+                <h2 id="utkast-tittel"><span class="kun-te">Brev 7 · Revidert krav om vederlagsjustering</span><span class="kun-bh">Brev 7 · Nytt svar på krav om vederlagsjustering</span></h2></div>
+              <p><span class="kun-te">Til byggherren</span><span class="kun-bh">Til totalentreprenøren</span></p>
+                          </div>
             <div class="utkast-kropp">
               <dl>
-                <div class="kun-te"><dt>Erstatter</dt><dd>Kravet i brev 5 av 20. oktober 2026</dd>
+                <div class="kun-te"><dt>Forrige brev</dt><dd>Kravet i brev 5 av 20. oktober 2026</dd>
                 <dt>Endret så langt</dt><dd>Vederlagsjustering <span class="num">150 000</span> → <span class="num">165 000 kr</span></dd>
                 <dt>Mangler</dt><dd>Begrunnelsen for endringen</dd></div>
-                <div class="kun-bh"><dt>Erstatter</dt><dd>Svaret i brev 6 av 27. oktober 2026</dd>
-                <dt>Endret så langt</dt><dd>Særskilt vederlagsjustering, videre subsidiært <span class="num">30 000</span> → <span class="num">35 000 kr</span></dd>
-                <dt>Mangler</dt><dd>Begrunnelsen for punkt 5</dd></div>
+                <div class="kun-bh"><dt>Forrige brev</dt><dd>Svaret i brev 6 av 27. oktober 2026</dd>
+                <dt>Endret</dt><dd>Særskilt vederlagsjustering, videre subsidiært <span class="num">30 000</span> → <span class="num">35 000 kr</span>, med begrunnelse</dd></div>
                 <dt>Vedlegg</dt><dd><span class="filer inne"><span class="fil ventende"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Mengdeoppstilling akse C–F.pdf</span><span class="fm">Lastes opp når brevet sendes</span></span></span></dd>
                 <dt>Sist lagret</dt><dd>30. oktober 2026 kl. 15.12 av <span class="kun-te">Per Olsen</span><span class="kun-bh">Ola Nordmann</span></dd>
               </dl>
             </div>
+            <div class="kun-bh"><div class="utkast-kropp" style="padding-top:0"><div class="godkjenning" data-forslag="F1 Godkjenningen">
+              <ol class="steg" aria-label="Godkjenningen av svaret">
+                <li class="ferdig">Skrevet</li><li class="naa" aria-current="step">Til godkjenning</li><li>Godkjent</li><li>Sendt til totalentreprenøren</li>
+              </ol>
+              <p><b>Til godkjenning hos Kari Nordmann</b>, prosjektleder, som har fullmakt til svaret. Sendt til godkjenning 30. oktober 2026 kl. 15.20. Endres utkastet, må det godkjennes på nytt.</p>
+            </div></div></div>
             <div class="utkast-fot">
-              <button class="knapp primaer" type="button">Fortsett utkastet</button>
+              <span class="kun-te"><button class="knapp primaer" type="button">Fortsett utkastet</button></span>
+              <span class="kun-bh"><button class="knapp primaer" type="button">Åpne utkastet</button><button class="lenke" type="button">Påminn Kari Nordmann</button></span>
               <button class="lenke" type="button">Forkast utkast</button>
             </div>
           </section>
@@ -349,21 +467,22 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 
           <section class="kort stilling" aria-labelledby="stilling-tittel">
           <header class="sporhode">
-            <p class="over">Krav om justering av vederlaget · tilbud om fast sum (punkt 34.2.1)</p>
+            <p class="over">Vederlagsjustering, jf. punkt&nbsp;34</p>
             <h1>Vederlagsjustering</h1>
-            <p class="tilstand"><b>Byggherren har svart</b> i brev 6, 27. oktober 2026.</p>
+            <p class="siste kun-fast-blokk">Siste brev: brev 6 fra byggherren, 27. oktober 2026<span data-forslag="F2 Tiden">, for 4 dager siden</span>.</p>
+            <p class="siste kun-regning-blokk">Siste brev: brev 6 fra byggherren, 27. oktober 2026.</p>
           </header>
             <div class="kort-hode">
               <h2 id="stilling-tittel">Partenes standpunkter</h2>
-              <span class="kilde">Kravet i brev 5 og svaret i brev 6, slik de ble sendt</span>
+              <span class="kilde">Kravet i brev 5 og svaret i brev 6</span>
             </div>
-            <div class="kort-kropp">
+            <div class="kort-kropp kun-fast-blokk">
               <div class="stokk" role="img" aria-label="Målestokk fra 0 til 190 000 kroner. Prinsipalt 0 kroner, subsidiært 110 000, videre subsidiært 130 000, krevd 190 000.">
                 <div class="skala" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-                <div class="merke start under" style="left:0%" aria-hidden="true"><span class="lapp"><b class="num">0</b>Prinsipalt</span></div>
-                <div class="merke" style="left:57.89%" aria-hidden="true"><span class="lapp"><b class="num">110 000</b>Subsidiært</span></div>
-                <div class="merke under" style="left:68.42%" aria-hidden="true"><span class="lapp"><b class="num">130 000</b>Videre subsidiært</span></div>
-                <div class="merke krevd slutt" style="left:100%" aria-hidden="true"><span class="lapp"><b class="num">190 000</b>Krevd</span></div>
+                <div class="strek start under" style="left:0%" aria-hidden="true"><span class="lapp"><b class="num">0</b>Prinsipalt</span></div>
+                <div class="strek" style="left:57.89%" aria-hidden="true"><span class="lapp"><b class="num">110 000</b>Subsidiært</span></div>
+                <div class="strek under" style="left:68.42%" aria-hidden="true"><span class="lapp"><b class="num">130 000</b>Videre subsidiært</span></div>
+                <div class="strek krevd slutt" style="left:100%" aria-hidden="true"><span class="lapp"><b class="num">190 000</b>Krevd</span></div>
               </div>
               <p class="gap">Om ingen av byggherrens innsigelser fører frem, skiller <b class="num">60 000 kr</b> svaret fra kravet. Beløpene er eks. mva.</p>
 
@@ -374,9 +493,9 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                     <tr>
                       <th scope="col">Post</th>
                       <th scope="col" class="krevdkol">Krevd</th>
-                      <th scope="col">Prinsipalt<small>punkt 34.1.2 fører frem</small></th>
-                      <th scope="col">Subsidiært<small>punkt 34.1.3 fører frem</small></th>
-                      <th scope="col">Videre subsidiært<small>ingen av dem</small></th>
+                      <th scope="col">Prinsipalt</th>
+                      <th scope="col">Subsidiært</th>
+                      <th scope="col">Videre subsidiært</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -389,30 +508,69 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 
               <ul class="lagene" aria-label="Hva hvert lag bygger på">
                 <li><b>Prinsipalt</b><span>Byggherren gjør gjeldende at varselet etter punkt 34.1.2 i brev 3 kom for sent.</span></li>
-                <li><b>Subsidiært</b><span>Gjelder hvis innsigelsen om punkt 34.1.2 ikke fører frem. Byggherren gjør gjeldende at varselet etter punkt 34.1.3 i brev 5 kom for sent, og godkjenner oppgjør som fast sum.</span></li>
-                <li><b>Videre subsidiært</b><span>Gjelder hvis heller ikke innsigelsen om punkt 34.1.3 fører frem.</span></li>
+                <li><b>Subsidiært</b><span>Hvis innsigelsen om varselet etter punkt 34.1.2 ikke fører frem. Byggherren gjør gjeldende at varselet etter punkt 34.1.3 i brev 5 kom for sent, og godkjenner oppgjør som fast sum.</span></li>
+                <li><b>Videre subsidiært</b><span>Hvis heller ikke innsigelsen om varselet etter punkt 34.1.3 fører frem.</span></li>
               </ul>
 
               <div class="forbehold">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-                <p>Svaret gjelder under forutsetning av at forholdet gir grunnlag for kravet. Byggherren har ikke svart på påberopelsen av forholdet i brev 2. <a href="#">Se forholdet</a></p>
+                <p>Svaret gjelder under forutsetning av at forholdet gir grunnlag for kravet. Byggherren har ikke svart på påberopelsen av forholdet i brev 2. <a href="#">Gå til forholdet</a></p>
               </div>
             </div>
+            <div class="kort-kropp kun-regning-blokk" data-forslag="F6 Regningsarbeid">
+              <div class="regel"><b>Regningsarbeid (punkt 34.4)</b><span>Byggherren godkjente regningsarbeid i brev 6. Beløpet regnes etter kostnadene og påslaget (punkt 30.1).</span></div>
+              <div class="tabell">
+                <table>
+                  <thead><tr><th scope="col">Post</th><th scope="col">Kostnadsoverslag<small>punkt 30.2, totalentreprenørens opplysning</small></th><th scope="col">Påløpt, krevd<small>når arbeidet er utført</small></th><th scope="col">Godkjent</th></tr></thead>
+                  <tbody>
+                    <tr><td>Vederlagsjustering<span class="hj">regningsarbeid · punkt 34.4</span></td><td class="n">160 000</td><td class="n" style="font-family:var(--font-sans);color:var(--ink-3)">Ikke krevd ennå</td><td class="n" style="font-family:var(--font-sans);color:var(--ink-3)">–</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <ul class="fakta">
+                <li><span>Varsel før arbeidet</span><span>Brev 3, 6. oktober 2026 (punkt 34.4 første ledd)</span></li>
+                <li><span>Kostnadsoverslag</span><span><span class="num">160 000 kr</span> i brev 5, 20. oktober 2026</span></li>
+                <li><span>Varsel om overskridelse</span><span>Ikke gitt. Ser overslaget ut til å bli overskredet, skal totalentreprenøren varsle uten ugrunnet opphold (punkt 30.2 annet ledd).</span></li>
+                <li><span>Kostnadsoppgavene</span><span>Sendes ukentlig (punkt 30.3).</span></li>
+              </ul>
+              <div class="forbehold">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                <p>Svaret gjelder under forutsetning av at forholdet gir grunnlag for kravet. Byggherren har ikke svart på påberopelsen av forholdet i brev 2. <a href="#">Gå til forholdet</a></p>
+              </div>
+            </div>
+          </section>
+
+          <section class="kort sammenhengkort" aria-labelledby="sammenheng-tittel" data-forslag="F3 Andre krav i saken">
+            <div class="kort-hode" style="padding-bottom:4px"><h2 id="sammenheng-tittel">Andre krav i saken</h2></div>
+            <ul class="sammenheng">
+              <li><span class="h">Byggherrens valg av løsninger og prosjektering</span><span class="s">Ikke besvart · brev 2 fra totalentreprenøren, 2. oktober 2026. Svaret om vederlaget gjelder under forutsetning av at forholdet gir grunnlag for kravet.</span><a class="lenke" href="#">Åpne</a></li>
+              <li><span class="h">Fristforlengelse</span><span class="s">20 dager krevd i brev 4 · svar ikke registrert</span><a class="lenke" href="#">Åpne</a></li>
+              <li><span class="h">Endringsordre</span><span class="s">Saken inngår ikke i en endringsordre.</span></li>
+            </ul>
           </section>
 
           <section class="kort krav" aria-labelledby="krav-tittel">
             <div class="kort-hode">
               <h2 id="krav-tittel">Kravet som gjelder</h2>
-              <span class="kilde">Brev 5 fra TE · 20. oktober 2026</span>
+              <span class="kilde">Brev 5 fra totalentreprenøren · 20. oktober 2026</span>
             </div>
             <div class="kort-kropp">
-              <dl>
+              <dl class="kun-fast-blokk">
                 <dt>Beregning</dt><dd>Tilbud om oppgjør som fast sum (punkt 34.2.1)</dd>
                 <dt>Vederlagsjustering</dt><dd class="num">150 000 kr</dd>
-                <dt>Særskilt justering</dt><dd><span class="num">40 000 kr</span> · nedsatt produktivitet (punkt 34.1.3 annet ledd)</dd>
+                <dt>Særskilt vederlagsjustering</dt><dd><span class="num">40 000 kr</span> · nedsatt produktivitet (punkt 34.1.3 annet ledd)</dd>
                 <dt>Vedlegg</dt><dd><span class="filer inne"><a class="fil" href="#" aria-label="Kalkyle peling.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Kalkyle peling.pdf</span><span class="fm">PDF · 1,2 MB</span></a><a class="fil" href="#" aria-label="Produktivitetsberegning.xlsx, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Produktivitetsberegning.xlsx</span><span class="fm">Excel · 86 kB</span></a></span></dd>
               </dl>
-              <p class="tidligere">Erstatter kravet i brev 3 av 6. oktober 2026 (125 000 kr). Byggherren hadde ikke svart på det.</p>
+              <ol class="versjoner kun-fast-blokk" aria-label="Kravet over tid" data-forslag="F5 Kravet over tid">
+                <li>Brev 3 · 6. okt <b>125 000</b></li><li class="pil" aria-hidden="true">→</li>
+                <li class="gjeldende">Brev 5 · 20. okt <b>190 000</b></li>
+                <span class="kun-te"><span class="kun-utkast"><li class="pil" aria-hidden="true">→</li><li><span class="paabegynt" style="margin:0">Utkast · 205 000</span></li></span></span>
+              </ol>
+              <dl class="kun-regning-blokk">
+                <dt>Beregning</dt><dd>Regningsarbeid (punkt 34.4)</dd>
+                <dt>Kostnadsoverslag</dt><dd><span class="num">160 000 kr</span> (punkt 30.2)</dd>
+                <dt>Vedlegg</dt><dd><span class="filer inne"><a class="fil" href="#" aria-label="Kostnadsoverslag peling.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Kostnadsoverslag peling.pdf</span><span class="fm">PDF · 640 kB</span></a></span></dd>
+              </dl>
             </div>
           </section>
 
@@ -421,15 +579,23 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
               <h2 id="brev-tittel">Brevene</h2>
               <span class="kilde">3 brev · 1 e-post</span>
             </div>
-            <ul class="brevliste">
-              <li><span class="nr">Brev 6</span><span class="t">Svar på krav om justering av vederlaget<span class="m">BH · 27. oktober 2026 · Kari Nordmann, godkjent med fullmakt</span></span><button class="lenke" type="button">Les</button>
-                <span class="filer" aria-label="Vedlegg til brev 6"><a class="fil" href="#" aria-label="Gjennomgang av kalkylen.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Gjennomgang av kalkylen.pdf</span><span class="fm">PDF · 412 kB</span></a><span class="fil ventende"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Mengdekontroll akse C–F.xlsx</span><span class="fm">Ikke levert til Catenda ennå</span></span></span></li>
-              <li><span class="nr">E-post</span><span class="t">E-post fra byggherren <span class="merke-reg">Dokumentasjon</span><span class="m">Sendt 22. oktober 2026 som e-post, ifølge byggherren · lagt til av Ola Nordmann 23. oktober</span></span><button class="lenke" type="button">Les</button><span class="filer"><a class="fil" href="#" aria-label="Avklaring om mengdene i akse C–F.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Avklaring om mengdene i akse C–F.pdf</span><span class="fm">PDF · 96 kB</span></a></span></li>
-              <li><span class="nr">Brev 5</span><span class="t">Krav om justering av vederlaget, ny versjon<span class="m">TE · 20. oktober 2026 · med varsel etter punkt 34.1.3</span></span><button class="lenke" type="button">Les</button>
-                <span class="filer" aria-label="Vedlegg til brev 5"><a class="fil" href="#" aria-label="Kalkyle peling.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Kalkyle peling.pdf</span><span class="fm">PDF · 1,2 MB</span></a><a class="fil" href="#" aria-label="Produktivitetsberegning.xlsx, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Produktivitetsberegning.xlsx</span><span class="fm">Excel · 86 kB</span></a></span></li>
-              <li><span class="nr">Brev 3</span><span class="t">Krav om justering av vederlaget<span class="m">TE · 6. oktober 2026 · med varsel etter punkt 34.1.2 · ingen vedlegg</span></span><button class="lenke" type="button">Les</button></li>
+            <ul class="brevliste kun-regning-blokk">
+              <li><span class="nr">Brev 6</span><span class="t">Svar på krav om vederlagsjustering<span class="m">Byggherren · 27. oktober 2026 · godkjenner regningsarbeid</span></span><button class="lenke" type="button">Les brevet</button></li>
+              <li><span class="nr">E-post</span><span class="t">E-post fra byggherren <span class="merke-reg">Dokumentasjon</span><span class="m">Sendt 22. oktober 2026 som e-post, ifølge byggherren · lagt til av Ola Nordmann 23. oktober</span></span><button class="lenke" type="button">Les brevet</button><span class="filer"><a class="fil" href="#" aria-label="Avklaring om mengdene i akse C–F.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Avklaring om mengdene i akse C–F.pdf</span><span class="fm">PDF · 96 kB</span></a></span></li>
+              <li><span class="nr">Brev 5</span><span class="t">Kostnadsoverslag<span class="m">Totalentreprenøren · 20. oktober 2026 · punkt 30.2</span></span><button class="lenke" type="button">Les brevet</button>
+                <span class="filer"><a class="fil" href="#" aria-label="Kostnadsoverslag peling.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Kostnadsoverslag peling.pdf</span><span class="fm">PDF · 640 kB</span></a></span></li>
+              <li><span class="nr">Brev 3</span><span class="t">Varsel før regningsarbeid og krav om vederlagsjustering<span class="m">Totalentreprenøren · 6. oktober 2026 · punkt 34.4 · ingen vedlegg</span></span><button class="lenke" type="button">Les brevet</button></li>
             </ul>
-            <div class="legg-til"><button class="lenke" type="button">Legg til korrespondanse</button><span>Brev, e-post, møtereferat eller notat som er sendt utenfor Varden.</span></div>
+            <div class="legg-til kun-regning-blokk"><button class="lenke" type="button">Legg til korrespondanse</button><span>Brev, e-post, møtereferat eller notat som er sendt utenfor Varden.</span></div>
+            <ul class="brevliste kun-fast-blokk">
+              <li><span class="nr">Brev 6</span><span class="t">Svar på krav om vederlagsjustering<span class="m">Byggherren · 27. oktober 2026 · Kari Nordmann, godkjent med fullmakt</span></span><button class="lenke" type="button">Les brevet</button>
+                <span class="filer" aria-label="Vedlegg til brev 6"><a class="fil" href="#" aria-label="Gjennomgang av kalkylen.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Gjennomgang av kalkylen.pdf</span><span class="fm">PDF · 412 kB</span></a><span class="fil ventende"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Mengdekontroll akse C–F.xlsx</span><span class="fm">Ikke levert til Catenda ennå</span></span></span></li>
+              <li><span class="nr">E-post</span><span class="t">E-post fra byggherren <span class="merke-reg">Dokumentasjon</span><span class="m">Sendt 22. oktober 2026 som e-post, ifølge byggherren · lagt til av Ola Nordmann 23. oktober</span></span><button class="lenke" type="button">Les brevet</button><span class="filer"><a class="fil" href="#" aria-label="Avklaring om mengdene i akse C–F.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Avklaring om mengdene i akse C–F.pdf</span><span class="fm">PDF · 96 kB</span></a></span></li>
+              <li><span class="nr">Brev 5</span><span class="t">Krav om vederlagsjustering<span class="m">Totalentreprenøren · 20. oktober 2026 · med varsel etter punkt 34.1.3</span></span><button class="lenke" type="button">Les brevet</button>
+                <span class="filer" aria-label="Vedlegg til brev 5"><a class="fil" href="#" aria-label="Kalkyle peling.pdf, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Kalkyle peling.pdf</span><span class="fm">PDF · 1,2 MB</span></a><a class="fil" href="#" aria-label="Produktivitetsberegning.xlsx, åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Produktivitetsberegning.xlsx</span><span class="fm">Excel · 86 kB</span></a></span></li>
+              <li><span class="nr">Brev 3</span><span class="t">Krav om vederlagsjustering<span class="m">Totalentreprenøren · 6. oktober 2026 · med varsel etter punkt 34.1.2 · ingen vedlegg</span></span><button class="lenke" type="button">Les brevet</button></li>
+            </ul>
+            <div class="legg-til kun-fast-blokk"><button class="lenke" type="button">Legg til korrespondanse</button><span>Brev, e-post, møtereferat eller notat som er sendt utenfor Varden.</span></div>
           </section>
 
         </div>
@@ -438,38 +604,70 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
           <section class="kort handlinger" aria-labelledby="handling-tittel">
             <div class="kort-hode"><h2 id="handling-tittel">Det du kan gjøre nå</h2></div>
             <div class="kort-kropp">
-              <div class="kun-te">
-                <span class="uten-utkast"><button class="knapp primaer" type="button">Ta stilling til svaret</button></span>
-                <span class="kun-utkast"><button class="knapp sekundaer" type="button">Ta stilling til svaret</button></span>
-                <p class="virkning">Godtar du svaret, godtar du alle standpunktene i det, også at varselet etter punkt 34.1.2 kom for sent. Beløpet dere da er enige om, er <b class="num">0 kr</b>, under forutsetning av at forholdet gir grunnlag for kravet.</p>
+              <div class="kun-te kun-fast-blokk">
+                <span class="uten-utkast"><button class="knapp primaer" type="button">Revider krav</button></span>
+                <p class="b uten-utkast" style="font-size:14px;color:var(--ink-2)">Nytt brev som følger opp kravet i brev 5. Svaret i brev 6 kan da ikke godtas.</p>
+                <p class="frist" data-forslag="F2 Akseptfristen"><span>Akseptfrist</span><b>10. november 2026</b><span>satt av byggherren i brev 6</span></p>
                 <p class="andre-tittel">Andre handlinger</p>
                 <ul class="andre">
-                  <li><button type="button"><span class="h">Send ny versjon av kravet<span class="kun-utkast"><span class="paabegynt">Utkast påbegynt</span></span></span><span class="b">Erstatter kravet i brev 5. Byggherren svarer på nytt.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
-                  <li><button type="button"><span class="h">Send innlegg</span><span class="b">Fritekst med tittel og henvisning til et brev, for eksempel en protest mot innsigelsen om varselet, eller at svaret kom for sent (punkt 5 tredje ledd).</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                  <li><button type="button"><span class="h">Godta svaret</span><span class="b">Du ser brevet og virkningen av aksepten før du sender.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                  <li><button type="button"><span class="h">Send innlegg</span><span class="b">Fritekst med tittel og henvisning til et brev.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li><button type="button"><span class="h">Trekk kravet</span><span class="b">Avkall på kravet, også det byggherren har godkjent.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                 </ul>
               </div>
-              <div class="kun-bh">
-                <p class="venter">Totalentreprenøren kan godta svaret, sende en ny versjon av kravet eller sende et innlegg.</p>
+              <div class="kun-te kun-regning-blokk">
+                <button class="knapp primaer" type="button">Krev påløpt beløp</button>
+                <p class="virkning" data-forslag="F6 Krav om påløpt beløp">Når arbeidet er utført, krever du det påløpte beløpet med samleoppgaven som vedlegg. Byggherren svarer med godkjent beløp.</p>
                 <p class="andre-tittel">Andre handlinger</p>
                 <ul class="andre">
-                  <li><button type="button"><span class="h">Send nytt svar<span class="kun-utkast"><span class="paabegynt">Utkast påbegynt</span></span></span><span class="b">Erstatter svaret i brev 6. Brev 6 står som det ble sendt.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
-                  <li><button type="button"><span class="h">Gå til forholdet</span><span class="b">Påberopelsen i brev 2 er ikke besvart. Svaret i brev 6 gjelder under forutsetning av at forholdet gir grunnlag for kravet.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                  <li><button type="button"><span class="h">Oppgi nytt kostnadsoverslag</span><span class="b">Nytt brev med overslaget. Det er en opplysning, ikke et tilbud.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                  <li><button type="button"><span class="h">Varsle at overslaget vil bli overskredet</span><span class="b">Uten ugrunnet opphold når det er grunn til å anta det (punkt 30.2 annet ledd).</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                  <li><button type="button"><span class="h">Send innlegg</span><span class="b">Fritekst med tittel og henvisning til et brev.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                </ul>
+              </div>
+              <div class="kun-bh kun-regning-blokk">
+                <p class="venter" data-forslag="F6 Regningsarbeid"><b>Arbeidet pågår som regningsarbeid.</b></p>
+                <p class="andre-tittel">Andre handlinger</p>
+                <ul class="andre">
+                  <li><button type="button"><span class="h">Krev nytt kostnadsoverslag</span><span class="b">Totalentreprenøren skal utarbeide det uten ugrunnet opphold (punkt 30.2).</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                  <li><button type="button"><span class="h">Send innlegg</span><span class="b">Fritekst med tittel og henvisning til et brev.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+                </ul>
+              </div>
+              <div class="kun-bh kun-fast-blokk">
+                <p class="andre-tittel">Andre handlinger</p>
+                <ul class="andre">
+                  <li><button type="button"><span class="h">Send nytt svar<span class="kun-utkast"><span class="paabegynt">Utkast påbegynt</span></span></span><span class="b">Nytt brev med svaret. Svaret i brev 6 står som det ble sendt.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                   <li><button type="button"><span class="h">Send innlegg</span><span class="b">Fritekst med tittel og henvisning til et brev.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
                 </ul>
               </div>
             </div>
           </section>
 
+          <details class="kort notater" data-forslag="F4 Notater for teamet">
+            <summary><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h2>Notater for teamet</h2><span class="ant">2 notater</span><svg class="lukk" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+            <div class="innhold">
+              <p class="laas"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Bare synlig for teamet ditt. Notatene sendes ikke og er ikke en del av brevene.</p>
+              <div class="notat"><p class="hvem"><span class="kun-te">Per Olsen</span><span class="kun-bh">Ola Nordmann</span> · 29. oktober 2026</p><p><span class="kun-te">Sjekk dagboka for 12. september før vi svarer på innsigelsen om varselet.</span><span class="kun-bh">Kalkylen bruker enhetspris for peler over 12 m også for de korte pelene. Ta det med i begrunnelsen.</span></p></div>
+              <div class="notat"><p class="hvem"><span class="kun-te">Lise Berg</span><span class="kun-bh">Kari Nordmann</span> · 28. oktober 2026</p><p><span class="kun-te">Mengdeoppstillingen er klar fra måling 25. oktober.</span><span class="kun-bh">Vi tar vederlaget opp på byggemøtet 4. november.</span></p></div>
+              <button class="lenke" type="button" style="align-self:flex-start">Skriv notat</button>
+            </div>
+          </details>
+
           <section class="kort datoer" aria-labelledby="dato-tittel">
             <div class="kort-hode" style="padding-bottom:12px"><h2 id="dato-tittel">Datoene</h2></div>
-            <ol>
+            <ol class="kun-regning-blokk">
+              <li class="oppgitt"><span class="d">12. september 2026</span><span class="h">Klar over forholdet</span><span class="k">Oppgitt av TE i brev 2</span></li>
+              <li><span class="d">6. oktober 2026</span><span class="h">Varsel før regningsarbeid (punkt 34.4) og krav</span><span class="k">Brev 3 sendt av TE kl. 14.12</span></li>
+              <li><span class="d">20. oktober 2026</span><span class="h">Kostnadsoverslag (punkt 30.2)</span><span class="k">Brev 5 sendt av TE kl. 09.40</span></li>
+              <li><span class="d">27. oktober 2026</span><span class="h">Svar: regningsarbeid godkjent</span><span class="k">Brev 6 sendt av BH kl. 11.05</span></li>
+            </ol>
+            <ol class="kun-fast-blokk">
               <li class="oppgitt"><span class="d">12. september 2026</span><span class="h">Klar over forholdet</span><span class="k">Oppgitt av TE i brev 2</span></li>
               <li><span class="d">6. oktober 2026</span><span class="h">Varsel etter punkt 34.1.2 og krav</span><span class="k">Brev 3 sendt av TE kl. 14.12</span></li>
-              <li><span class="d">20. oktober 2026</span><span class="h">Varsel etter punkt 34.1.3 og ny versjon av kravet</span><span class="k">Brev 5 sendt av TE kl. 09.40</span></li>
+              <li><span class="d">20. oktober 2026</span><span class="h">Varsel etter punkt 34.1.3 og nytt krav</span><span class="k">Brev 5 sendt av TE kl. 09.40</span></li>
               <li><span class="d">27. oktober 2026</span><span class="h">Svar fra byggherren</span><span class="k">Brev 6 sendt av BH kl. 11.05</span></li>
             </ol>
-            <p class="avstand"><span class="num">24</span> kalenderdager fra datoen TE oppgir til varselet etter punkt 34.1.2. Om et varsel kom i tide, avgjør partene.</p>
+            <p class="avstand kun-fast-blokk"><span class="num">24</span> kalenderdager fra datoen totalentreprenøren oppgir til varselet etter punkt 34.1.2.</p>
           </section>
 
           <section class="kort kommentarer" aria-labelledby="kommentar-tittel">
@@ -498,38 +696,40 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 
 <script>
   const skall = document.getElementById('skall');
-  const te = document.getElementById('vis-te'), bh = document.getElementById('vis-bh');
-  function vis(rolle){
-    skall.dataset.rolle = rolle;
-    settAnker();
-    te.setAttribute('aria-pressed', String(rolle === 'TE'));
-    bh.setAttribute('aria-pressed', String(rolle === 'BH'));
-  }
-  te.addEventListener('click', () => vis('TE'));
-  const uj = document.getElementById('utkast-ja'), un = document.getElementById('utkast-nei');
-  function utkast(ja){
-    skall.dataset.utkast = ja ? 'ja' : 'nei';
-    settAnker();
-    uj.setAttribute('aria-pressed', String(ja));
-    un.setAttribute('aria-pressed', String(!ja));
-  }
-  uj.addEventListener('click', () => utkast(true));
-  un.addEventListener('click', () => utkast(false));
-  // Tilstandene er ankrene: #te-utkast, #te, #bh-utkast og #bh.
-  function settAnker(){
-    const a = '#' + skall.dataset.rolle.toLowerCase() + (skall.dataset.utkast === 'ja' ? '-utkast' : '');
+  const knapp = id => document.getElementById(id);
+  const tilstand = { rolle: 'TE', utkast: true, regel: 'fast' };
+  function vis(){
+    skall.dataset.rolle = tilstand.rolle;
+    skall.dataset.regel = tilstand.regel;
+    skall.dataset.utkast = tilstand.utkast && tilstand.regel === 'fast' ? 'ja' : 'nei';
+    knapp('vis-te').setAttribute('aria-pressed', String(tilstand.rolle === 'TE'));
+    knapp('vis-bh').setAttribute('aria-pressed', String(tilstand.rolle === 'BH'));
+    knapp('utkast-ja').setAttribute('aria-pressed', String(tilstand.utkast));
+    knapp('utkast-nei').setAttribute('aria-pressed', String(!tilstand.utkast));
+    knapp('regel-fast').setAttribute('aria-pressed', String(tilstand.regel === 'fast'));
+    knapp('regel-regning').setAttribute('aria-pressed', String(tilstand.regel === 'regning'));
+    // Tilstandene er ankrene: #te-utkast, #te, #bh-utkast, #bh, #te-regning og #bh-regning.
+    const a = '#' + tilstand.rolle.toLowerCase() + (tilstand.regel === 'regning' ? '-regning' : tilstand.utkast ? '-utkast' : '');
     if (location.hash !== a) history.replaceState(null, '', a);
   }
   function lesAnker(){
-    const m = /^#(te|bh)(-utkast)?$/.exec(location.hash);
-    if (!m) return;
-    skall.dataset.rolle = m[1].toUpperCase(); skall.dataset.utkast = m[2] ? 'ja' : 'nei';
-    te.setAttribute('aria-pressed', String(m[1] === 'te')); bh.setAttribute('aria-pressed', String(m[1] === 'bh'));
-    uj.setAttribute('aria-pressed', String(!!m[2])); un.setAttribute('aria-pressed', String(!m[2]));
+    const m = /^#(te|bh)(-utkast|-regning)?$/.exec(location.hash);
+    if (!m) return vis();
+    tilstand.rolle = m[1].toUpperCase();
+    tilstand.regel = m[2] === '-regning' ? 'regning' : 'fast';
+    tilstand.utkast = m[2] === '-utkast';
+    vis();
   }
+  knapp('vis-te').onclick = () => { tilstand.rolle = 'TE'; vis(); };
+  knapp('vis-bh').onclick = () => { tilstand.rolle = 'BH'; vis(); };
+  knapp('utkast-ja').onclick = () => { tilstand.utkast = true; vis(); };
+  knapp('utkast-nei').onclick = () => { tilstand.utkast = false; vis(); };
+  knapp('regel-fast').onclick = () => { tilstand.regel = 'fast'; vis(); };
+  knapp('regel-regning').onclick = () => { tilstand.regel = 'regning'; vis(); };
+  knapp('vis-forslag').onchange = e => skall.classList.toggle('vis-forslag', e.target.checked);
+  if (!location.hash) location.replace('#te-utkast');
   lesAnker();
   addEventListener('hashchange', lesAnker);
-  bh.addEventListener('click', () => vis('BH'));
 </script>
 </body>
 </html>
