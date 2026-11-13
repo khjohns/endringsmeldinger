@@ -30,7 +30,7 @@
   import type { Kravpostvurdering } from '$kjerne/spor/vederlag/frysing';
   import type { Forutsetning } from '$kjerne/spor/vederlag/kommando';
   import type { Utledning } from '$kjerne/utledning/utled';
-  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import type { Kravpost, Standpunkt } from '$kjerne/typer';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
@@ -410,7 +410,8 @@
       return;
     }
     const b = kjernesak.brev(kommando, undefined, true);
-    if (!b || !('tekst' in b) || !b.tekst) {
+    const brevet = kontrollbrev(b);
+    if (!brevet) {
       sendehindring =
         b && 'avvisning' in b && b.avvisning.regel === 'UGYLDIG_VURDERING'
           ? HOVEDLINJER.kanIkkeLages
@@ -422,13 +423,9 @@
     }
     onbrevkontroll({
       kommando,
-      tekst: b.tekst,
-      avsnitt: b.avsnitt,
+      ...brevet,
       detteSender: linjer,
       virkninger,
-      merking: b.merking,
-      deresRef: b.deresRef,
-      tittel: b.brevtittel,
     });
   }
 

@@ -9,7 +9,7 @@
   import type { Spor } from '$kjerne/typer';
   import { tick, untrack, type Snippet } from 'svelte';
   import { sakensKode } from '$kjerne/frosset/tekst';
-  import Brevkontroll, { type TilBrevkontrollen } from './Brevkontroll.svelte';
+  import Brevkontroll, { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Sporlesing from './Sporlesing.svelte';
@@ -201,17 +201,10 @@
       meldingen?.focus();
       return;
     }
-    const b = kjernesak.brev(k.kommando, k.vedlegg, true);
-    if (!b || !('tekst' in b) || !b.tekst) return;
-    arbeid = {
-      ...arbeid,
-      tekst: b.tekst,
-      // LV-U2.
-      avsnitt: b.avsnitt,
-      merking: b.merking,
-      deresRef: b.deresRef,
-      tittel: b.brevtittel,
-    };
+    const brevet = kontrollbrev(kjernesak.brev(k.kommando, k.vedlegg, true));
+    if (!brevet) return;
+    // LV-U2.
+    arbeid = { ...arbeid, ...brevet };
   }
 
   /**
@@ -356,22 +349,8 @@
       {#if arbeid.art === 'kontroll'}
         {@const k = arbeid}
         <Brevkontroll
+          {...k}
           {kjernesak}
-          kommando={k.kommando}
-          tekst={k.tekst}
-          avsnitt={k.avsnitt}
-          merking={k.merking}
-          deresRef={k.deresRef}
-          tittel={k.tittel}
-          handling={k.handling}
-          bareMottaker={k.bareMottaker}
-          svarerPaa={k.svarerPaa}
-          henvisning={k.henvisning}
-          relasjoner={k.relasjoner}
-          detteSender={k.detteSender}
-          virkninger={k.virkninger}
-          sendTekst={k.sendTekst}
-          tilbakeTil={k.tilbakeTil}
           ontilbake={() => (arbeid = k.tilbake)}
           onsendt={sendt}
           onavvist={() => byggPaaNytt(k)}

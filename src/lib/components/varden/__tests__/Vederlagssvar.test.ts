@@ -19,6 +19,7 @@ import {
   opprettet,
   skrevet,
 } from '$lib/kjernesak/__tests__/provejournal';
+import type { TilBrevkontrollen } from '$lib/components/varden/Brevkontroll.svelte';
 import Vederlagssvar from '$lib/components/varden/Vederlagssvar.svelte';
 
 const svikt = skrevet(
@@ -84,11 +85,11 @@ async function svarskjemaet(journal: Journalrad[]) {
     }),
   });
   await kjernesak.last();
-  const sendt: { kommando: Record<string, unknown>; tekst: string[] }[] = [];
+  const sendt: TilBrevkontrollen[] = [];
   render(Vederlagssvar, {
     kjernesak,
     u: kjernesak.utledning!,
-    onbrevkontroll: (k: { kommando: Record<string, unknown>; tekst: string[] }) => sendt.push(k),
+    onbrevkontroll: (k: TilBrevkontrollen) => sendt.push(k),
     onforkast: () => {},
   });
   return sendt;
