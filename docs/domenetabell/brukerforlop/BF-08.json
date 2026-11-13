@@ -158,6 +158,9 @@
             "staar": "Byggherren har ennå ikke svart på totalentreprenørens påberopelse"
           },
           {
+            "staar": "Her kan du nevne et tidligere svar."
+          },
+          {
             "velg": "Ja, på brev 4"
           },
           {
@@ -167,7 +170,7 @@
             "trykk": "Ta med svaret på forholdet i samme brev"
           },
           {
-            "staar": "Avslår du, står punktet først"
+            "staar": "Avslår du, gjelder punktene om vederlaget subsidiært."
           },
           {
             "staar": "Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem"
@@ -181,6 +184,9 @@
         ],
         "start": "handlinger",
         "handlinger": [
+          {
+            "staar": "I eksempelet med avslaget gjorde byggherren også gjeldende at varselet etter punkt 32.2 kom for sent."
+          },
           {
             "staar": "Byggherren svarer på nytt, og svaret i brev 4 kan da ikke godtas."
           },
@@ -255,6 +261,8 @@
     "KA-U46",
     "KA-U49",
     "KA-U51",
+    "LV-U4",
+    "LV-U8",
     "LV-U34",
     "LV-U35",
     "LV-U39",

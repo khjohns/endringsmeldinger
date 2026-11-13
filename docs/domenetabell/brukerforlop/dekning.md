@@ -159,8 +159,9 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U1](../../plans/vedtak.md#lv-u1) | — | — | BF-01V, BF-07 |
 | [LV-U2](../../plans/vedtak.md#lv-u2) | — | — | BF-01V, BF-07 |
 | [LV-U3](../../plans/vedtak.md#lv-u3) | — | — | BF-01V, BF-37 |
-| [LV-U4](../../plans/vedtak.md#lv-u4) | — | BF-05 start | BF-01V |
+| [LV-U4](../../plans/vedtak.md#lv-u4) | — | BF-05 start | BF-01V, BF-08 |
 | [LV-U7](../../plans/vedtak.md#lv-u7) | — | — | BF-01V |
+| [LV-U8](../../plans/vedtak.md#lv-u8) | — | — | BF-08 |
 | [LV-U9](../../plans/vedtak.md#lv-u9) | — | BF-05 paaberopelsen-er-sendt | BF-01V |
 | [LV-U15](../../plans/vedtak.md#lv-u15) | — | — | BF-06 |
 | [LV-U16](../../plans/vedtak.md#lv-u16) | — | — | BF-01V |

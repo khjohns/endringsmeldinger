@@ -548,6 +548,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
                 <div class="valg f-endring fs">
                   <label><input type="radio" name="k-v2" value="enig" checked> <span class="enig-tekst">Enig</span></label>
                   <label><input type="radio" name="k-v2" value="avslag"> Avslo kravet på endringsordre</label>
+                  <label id="k-frafall-l"><input type="radio" name="k-v2" value="frafall"> Frafalt pålegget</label>
                 </div>
                 <div class="valg f-grunn fs">
                   <label><input type="radio" name="k-v2g" value="ja" checked> Byggherren har risikoen</label>
@@ -565,6 +566,11 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
                 <span class="merke">Du utsteder en endringsordre nå</span>
                 <p>Svaret av 5. oktober var ikke en endringsordre. Brevet blir derfor et svar, ikke en bekreftelse, og har denne setningen:</p>
                 <p><q>Svaret er en endringsordre etter NS 8407 punkt 32.3 første ledd a, jf. punkt 31.3: byggherren krever at endringen utføres slik pålegget er beskrevet i totalentreprenørens krav i brev K201-KOE-014-01 av 30. september 2026: «Fasadeplatene på østfasaden byttes til platetype B2 med skjult innfesting, slik byggherren påla i byggemøte 14.»</q></p>
+              </div>
+              <div class="begr" data-spor="D-7">
+                <label for="k-b2" class="begr-tittel" id="k-l2">Begrunnelse (valgfritt)</label>
+                <span class="hjelp" id="k-krav2">Står i bekreftelsen under punktet om forholdet. Den kan vise til det tidligere svaret.</span>
+                <textarea id="k-b2" aria-describedby="k-krav2"></textarea>
               </div>
             </section>
           </form>
@@ -606,10 +612,17 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
             </div>
             <section class="punkt" id="h-forhold" aria-labelledby="hp0" hidden>
               <div class="punkt-hode"><span class="nr" aria-hidden="true">1</span><h2 id="hp0">Forholdet</h2><span class="hjemmel"><span class="fs f-endring">punkt 32.1 og 32.3</span><span class="fs f-grunn">punkt 23.1</span></span></div>
+              <p class="hjelp kun-endring">Punktet om varselet etter punkt 32.2 og begrunnelsen er som i svaret på påberopelsen og vises ikke her.</p>
               <fieldset class="ren"><legend class="spm">Hva svarer du på påberopelsen i brev 4?</legend>
-                <div class="valg"><label><input type="radio" name="h-v" value="enig"> Enig</label><label><input type="radio" name="h-v" value="avslag" checked> Avslår</label></div>
+                <div class="valg f-endring fs"><label><input type="radio" name="h-v" value="enig"> Enig, endringsordre</label><label><input type="radio" name="h-v" value="avslag" checked> Avslår kravet på endringsordre</label><label><input type="radio" name="h-v" value="frafall"> Frafaller pålegget</label></div>
+                <div class="valg f-grunn fs"><label><input type="radio" name="h-vg" value="enig"> Byggherren har risikoen</label><label><input type="radio" name="h-vg" value="avslag" checked> Byggherren har ikke risikoen</label></div>
               </fieldset>
-              <p class="hjelp">Avslår du, står punktet først, og punktene om vederlaget gjelder subsidiært.</p>
+              <div class="eo" id="h-eo" hidden>
+                <span class="merke">Svaret er en endringsordre</span>
+                <p>Brevet sier:</p>
+                <p><q>Svaret er en endringsordre etter NS 8407 punkt 32.3 første ledd a, jf. punkt 31.3: byggherren krever at endringen utføres slik pålegget er beskrevet i totalentreprenørens krav i brev K201-KOE-014-04 av 20. oktober 2026: «Fasadeplatene på østfasaden byttes til platetype B2 med skjult innfesting, slik byggherren påla i byggemøte 14.»</q></p>
+              </div>
+              <p class="hjelp" id="h-forst">Punktet står først i brevet. Avslår du, gjelder punktene om vederlaget subsidiært.</p>
               <div class="notis" id="h-bundet" data-spor="D-15 · S-3" style="margin:0" hidden><p>Du har oppgitt at byggherren svarte i e-post av 23. oktober 2026. Svarer du på forholdet her, kan byggherren være bundet av det tidligere svaret. Brevet nevner ikke e-posten, fordi du ikke har sendt noen henvisning til den. Skal brevet vise til e-posten, kan du bekrefte svaret i den i stedet.</p><a class="lenke" href="#bekreft" style="align-self:flex-start;padding:0">Bekreft svaret i e-posten</a></div>
               <button class="lenke liten" type="button" id="h-fjern" style="align-self:flex-start">Ta ut svaret på forholdet</button>
             </section>
@@ -623,6 +636,11 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
               <div class="fast" id="h-fast">
                 <span class="merke">Fast tekst</span>
                 <p id="h-fast-tekst"></p>
+              </div>
+              <div class="begr">
+                <label for="h-fb" class="begr-tittel">Forbehold for hele svaret (valgfritt)</label>
+                <span class="hjelp" id="h-fbh">Står etter den faste teksten. Her kan du nevne et tidligere svar.</span>
+                <textarea id="h-fb" aria-describedby="h-fbh"></textarea>
               </div>
             </section>
           </form>
@@ -643,6 +661,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
             <button type="button" data-sett-svar="frafall" aria-pressed="false">Frafalt</button>
           </span>
         </div>
+        <p class="hjelp kun-endring" style="margin-bottom:12px">I eksempelet med avslaget gjorde byggherren også gjeldende at varselet etter punkt 32.2 kom for sent.</p>
         <section class="kort handlingskort" aria-labelledby="hk-tittel" data-spor="U-11">
           <div class="kort-hode"><h2 id="hk-tittel">Det du kan gjøre nå</h2></div>
           <div class="blokk" id="hk-innhold"></div>
@@ -702,11 +721,12 @@ const FRAFALL_SETNING = 'Byggherren frafaller pålegget mot å utstede endringso
 function svaret() {
   const forsent = f() === 'endring' && verdi('s-v1') === 'ja';
   let v = f() === 'endring' ? verdi('s-v2') : (verdi('s-v2g') === 'ja' ? 'enig' : 'avslag');
-  if (forsent && v === 'frafall') { $('[name="s-v2"][value="enig"]').checked = true; v = 'enig'; }
+  if (forsent && v === 'frafall') { $('[name="s-v2"][value="frafall"]').checked = false; v = undefined; }
   return { forsent, v, eo: f() === 'endring' && v === 'enig' && !forsent, ny: skall.dataset.ny === 'ja' };
 }
 function virkninger(s) {
   const ut = [];
+  if (!s.v) { ut.push(['hoved', 'Frafallet er tatt bort fordi du gjør gjeldende at varselet kom for sent. Velg standpunktet til forholdet.']); return ut; }
   if (s.ny) ut.push(['', 'Svaret erstatter byggherrens svar i brev 4. Brev 4 står som det ble sendt.']);
   if (s.eo) {
     ut.push(['hoved', 'Svaret er en endringsordre etter punkt 32.3 første ledd a.']);
@@ -725,7 +745,7 @@ function virkninger(s) {
     ut.push(['', 'Svarene på vederlag og frist gjelder subsidiært.']);
     ut.push(['', 'Totalentreprenøren kan godta svaret. Da avsluttes saken med kravene om vederlag og frist. Totalentreprenøren kan også oppdatere påberopelsen eller trekke den.']);
   }
-  ut.push(['dempet', 'Det som registreres, bygger på valgene i skjemaet.']);
+  ut.push(['', 'Det som registreres, bygger på valgene i skjemaet.']);
   return ut;
 }
 function tegnVirkninger(ul, liste) { ul.innerHTML = liste.map(([k, t]) => `<li class="${k}">${t}</li>`).join(''); }
@@ -737,18 +757,18 @@ function tegnSvar() {
   $('#s-frafall-l').hidden = s.forsent; $('#s-frafall-hjelp').hidden = !s.forsent || f() !== 'endring';
   $('#s-eo').hidden = !s.eo;
   $('#s-krav1').textContent = s.forsent ? 'Står i brevet under punkt 1. Begrunnelsen for at varselet kom for sent kan stå her eller i punkt 2.' : 'Står i brevet under punkt 1.';
-  const kreves = f() === 'endring' && (s.forsent || s.v === 'avslag');
+  const kreves = f() === 'endring' && s.v && (s.forsent || s.v === 'avslag');
   $('#s-l2').textContent = kreves ? 'Begrunnelse' : 'Begrunnelse (valgfritt)';
   $('#s-b2').setAttribute('aria-required', String(kreves));
-  $('#s-krav2').textContent = kreves ? (s.forsent ? 'Kreves fordi du gjør gjeldende at varselet kom for sent. Den kan vise til punkt 1.' : 'Kreves fordi du avslår kravet på endringsordre (punkt 32.3 første ledd b).') : 'Står i brevet under punktet om forholdet.';
+  $('#s-krav2').textContent = kreves ? (s.forsent ? 'Kreves fordi du gjør gjeldende at varselet kom for sent. Den kan vise til punkt 1.' : 'Kreves fordi du avslår kravet på endringsordre (punkt 32.3 første ledd b). Den kan vise til et annet punkt.') : 'Står i brevet under punktet om forholdet.';
   const mangler = kreves && !$('#s-b2').value.trim() && !(s.forsent && $('#s-b1').value.trim());
-  const valgtekst = f() === 'endring' ? { enig: s.forsent ? 'Enig subsidiært' : 'Enig, endringsordre', avslag: s.forsent ? 'Avslår subsidiært' : 'Avslår', frafall: 'Frafaller pålegget' }[s.v] : (s.v === 'enig' ? 'Har risikoen' : 'Har ikke risikoen');
+  const valgtekst = !s.v ? 'Ikke valgt' : f() === 'endring' ? { enig: s.forsent ? 'Enig subsidiært' : 'Enig, endringsordre', avslag: s.forsent ? 'Avslår subsidiært' : 'Avslår', frafall: 'Frafaller pålegget' }[s.v] : (s.v === 'enig' ? 'Har risikoen' : 'Har ikke risikoen');
   const punkter = [];
   if (f() === 'endring') punkter.push(['1', 'Varselet etter punkt 32.2', s.forsent ? 'For sent' : 'Ikke gjort gjeldende', '']);
-  punkter.push([f() === 'endring' ? '2' : '1', 'Forholdet', valgtekst, mangler ? 'Begrunnelse mangler' : '']);
+  punkter.push([f() === 'endring' ? '2' : '1', 'Forholdet', valgtekst, !s.v ? 'Standpunkt mangler' : mangler ? 'Begrunnelse mangler' : '']);
   punkter.push([f() === 'endring' ? '3' : '2', 'Forbehold', $('#s-fb').value.trim() ? 'Skrevet' : 'Tomt', '']);
   $('#s-punktliste').innerHTML = punkter.map(([n, t, st, b]) => `<li class="${b ? 'mangler' : ''}"><a href="#svar"><span class="pnr">${n}</span><span class="pt">${t}</span><span class="ps">${st}<span class="pb">${b}</span></span></a></li>`).join('');
-  $('#s-telling').textContent = mangler ? '1 begrunnelse mangler' : 'Alle punktene er besvart';
+  $('#s-telling').textContent = !s.v ? 'Standpunktet til forholdet mangler' : mangler ? '1 begrunnelse mangler' : 'Alle punktene er besvart';
   tegnVirkninger($('#s-virkninger'), virkninger(s));
   $$('.kun-ny').forEach(e => e.hidden = !s.ny);
   $$('.brevnr').forEach(e => e.textContent = s.ny ? 'Brev 5' : 'Brev 4');
@@ -768,6 +788,7 @@ function tegnBrev() {
     if (f() === 'grunn') setning = `Byggherren ${s.v === 'enig' ? 'har' : 'har ikke'} risikoen for forholdet (NS 8407 punkt ${HJEMMEL()}).`;
     else if (s.v === 'frafall') setning = FRAFALL_SETNING;
     else if (s.v === 'avslag') setning = 'Byggherren avslår kravet på endringsordre (NS 8407 punkt 32.3 første ledd b).';
+    else if (!s.v) setning = '';
     else setning = s.forsent ? 'Byggherren er enig i at pålegget innebærer en endring.' : EO_SETNING;
     return `<h2>${n++}. Forholdet</h2>${s.forsent ? '<p class="lagslinje">Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem</p>' : ''}<p data-spor="D-2">${setning}</p>${begr('#s-b2')}`;
   };
@@ -788,7 +809,14 @@ function tegnBekreft() {
   $('#k-annet').style.display = verdi('k-hvor') === 'reg' ? 'none' : 'flex';
   $('#k-maate').hidden = verdi('k-type') !== 'brev';
   const forsent = f() === 'endring' && verdi('k-v1') === 'ja';
+  if (forsent && verdi('k-v2') === 'frafall') $('[name="k-v2"][value="frafall"]').checked = false;
+  $('#k-frafall-l').hidden = forsent;
   const enig = f() === 'endring' ? verdi('k-v2') === 'enig' : verdi('k-v2g') === 'ja';
+  const frafalt = f() === 'endring' && verdi('k-v2') === 'frafall';
+  const kreves = f() === 'endring' && (forsent || verdi('k-v2') === 'avslag');
+  $('#k-l2').textContent = kreves ? 'Begrunnelse' : 'Begrunnelse (valgfritt)';
+  $('#k-b2').setAttribute('aria-required', String(kreves));
+  $('#k-krav2').textContent = (kreves ? (forsent ? 'Kreves fordi du gjorde gjeldende at varselet kom for sent.' : 'Kreves fordi du avslo kravet på endringsordre (punkt 32.3 første ledd b).') + ' ' : 'Står i bekreftelsen under punktet om forholdet. ') + 'Den kan vise til det tidligere svaret.';
   $$('.enig-tekst', $('#bekreft')).forEach(e => e.textContent = forsent ? 'Enig i at pålegget innebærer en endring' : 'Enig');
   const sporEo = f() === 'endring' && enig && !forsent;
   $('#k-eo-spm').hidden = !sporEo;
@@ -805,6 +833,7 @@ function tegnBekreft() {
   const liste = [];
   if (eo === 'ja') liste.push(['hoved', 'Et svar som var en endringsordre, kan ikke bekreftes. Registrer endringsordren i stedet.']);
   else if (nyEo) liste.push(['hoved', 'Svaret er en endringsordre fra datoen brevet sendes.']);
+  else if (frafalt) liste.push(['hoved', 'Pålegget er frafalt, og forholdet er avklart. Det bygger på standpunktet du bekrefter.']);
   else if (enig && !forsent) liste.push(['hoved', 'Enigheten om forholdet registreres ut fra standpunktet du bekrefter.']);
   else liste.push(['hoved', 'Svarene på vederlag og frist gjelder subsidiært. Det bygger på standpunktet du bekrefter.']);
   if (verdi('k-hvor') !== 'reg' && eo !== 'ja') liste.push(['', 'Dokumentet legges til i saken som dokumentasjon og ved bekreftelsen når bekreftelsen sendes. Sendes den ikke, lagres ingenting.']);
@@ -820,7 +849,7 @@ function tegnHenvisning() {
   $('#h-forhold').hidden = !S.samme;
   $('#h-samme').hidden = S.samme;
   $$('#h-note fieldset').forEach(e => e.hidden = S.samme);
-  const avslag = S.samme && verdi('h-v') === 'avslag';
+  const avslag = S.samme && (f() === 'endring' ? verdi('h-v') : verdi('h-vg')) === 'avslag';
   $('#h-nr').textContent = S.samme ? '2' : '1';
   $('#h-lag').hidden = !avslag;
   $('#h-bundet').hidden = !(S.samme && svart === 'ja');
@@ -830,6 +859,7 @@ function tegnHenvisning() {
   if (!S.samme && svart === 'ja') fast = `For byggherrens standpunkt til totalentreprenørens påberopelse av ${p} i brev K201-KOE-014-04 av 20. oktober 2026 vises det til byggherrens e-post av 23. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet. Henvisningen og forbeholdet endrer ikke byggherrens tidligere meddelte standpunkt til forholdet.`;
   $('#h-fast').hidden = !fast;
   $('#h-fast-tekst').textContent = fast;
+  $('#h-eo').hidden = !(S.samme && f() === 'endring' && verdi('h-v') === 'enig');
   const fbSeksjon = $('#h-fast').closest('section');
   fbSeksjon.hidden = !fast;
 }
@@ -895,7 +925,7 @@ document.addEventListener('click', e => {
   else if (b.dataset.settNy) { skall.dataset.ny = b.dataset.settNy; if (b.dataset.settNy === 'ja') $('[name="s-v2"][value="avslag"]').checked = true; tegn(); }
   else if (b.dataset.settPart) { S.part = b.dataset.settPart; tegn(); }
   else if (b.dataset.settSvar) { S.svar = b.dataset.settSvar; tegn(); }
-  else if (b.id === 'h-samme') { S.samme = true; tegn(); $('#h-forhold input:checked').focus(); }
+  else if (b.id === 'h-samme') { S.samme = true; tegn(); $$('#h-forhold input:checked').find(i => i.offsetParent).focus(); }
   else if (b.id === 'h-fjern') { S.samme = false; tegn(); $('#h-samme').focus(); }
 });
 document.addEventListener('change', e => { if (e.target.id === 'spor-knapp') document.body.classList.toggle('vis-spor', e.target.checked); else tegn(); });
