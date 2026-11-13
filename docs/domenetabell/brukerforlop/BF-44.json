@@ -54,6 +54,11 @@
       "dato": "2026-11-13",
       "forhold": "#1402",
       "hva": "Brevene og datoene står i én tråd (forsøk A etter grunnlagsoversikt-v2.html)."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Oppsett B (U-16) med handlingen ved brevet og brevet ved siden av, som bryter ved siden av A."
     }
   ],
   "prototype": {
@@ -154,6 +159,66 @@
         "handlinger": [
           {
             "staar": "Krev nytt kostnadsoverslag"
+          }
+        ]
+      },
+      {
+        "id": "te-oppsett-b",
+        "dekker": [
+          "9"
+        ],
+        "start": "te-b",
+        "handlinger": [
+          {
+            "staar": "Svaret gis under forutsetning av at forholdet gir grunnlag for kravet."
+          },
+          {
+            "staar": "Et nytt krav følger opp kravet i brev 5 og avslår tilbudet i dette svaret, som da ikke kan godtas. Godtar du svaret, ser du brevet og virkningen av aksepten før du sender."
+          },
+          {
+            "trykk": "Brev 5 · Krav om vederlagsjustering"
+          },
+          {
+            "staar": "som tilbud om oppgjør som fast sum (punkt 34.2.1)."
+          }
+        ]
+      },
+      {
+        "id": "te-utkast-oppsett-b",
+        "dekker": [
+          "10"
+        ],
+        "start": "te-utkast-b",
+        "handlinger": [
+          {
+            "staar": "Fortsett utkastet"
+          }
+        ]
+      },
+      {
+        "id": "bh-oppsett-b",
+        "dekker": [
+          "11"
+        ],
+        "start": "bh-b",
+        "handlinger": [
+          {
+            "staar": "Nytt brev med svaret. Svaret i brev 6 står som det ble sendt."
+          }
+        ]
+      },
+      {
+        "id": "te-regning-oppsett-b",
+        "dekker": [
+          "12"
+        ],
+        "start": "te-regning-b",
+        "handlinger": [
+          {
+            "staar": "Nytt brev som følger opp kravet i brev 3, for eksempel med et nytt kostnadsoverslag."
+          },
+          {
+            "staar": "Byggherren godkjenner at vederlagsjusteringen gjøres opp som regningsarbeid (punkt 34.4)."
           }
         ]
       }
