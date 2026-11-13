@@ -31,6 +31,7 @@ import { harProduktivitetspost } from '../spor/vederlag/format.ts';
 import { KONTROLLER_I_VEDERLAGET } from '../spor/vederlag/utledning.ts';
 import {
   KONTROLLER_I_FRISTEN,
+  erFristkravIAppen,
   kontrollerForesporslene,
   kontrollerSvaretPaaForesporselen,
 } from '../spor/frist/utledning.ts';
@@ -680,7 +681,7 @@ function utledSporene(
       plasser(k.id, h);
       registrer(k.id, h, d.avsender, 'krav');
       kravMedUten.set(k.id, k);
-      if (k.spor === 'frist' && !kravetErDokumentasjon(d)) fristkravIAppen.push(k);
+      if (erFristkravIAppen(d, k)) fristkravIAppen.push(k);
       if (harVirkning(k.id)) spor[k.spor].krav.push(k);
     }
     for (const s of d.svar) {

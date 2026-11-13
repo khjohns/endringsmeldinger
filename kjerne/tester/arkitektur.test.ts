@@ -1244,6 +1244,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kontrollerForesporslene kontrollerSvaretPaaForesporselen',
     ['utledning/utled.ts'],
   ],
+  // VS-U33, OV-U4: et krav om dager fremmet i appen, lest likt i kommandoene og utledningen.
+  ['spor/frist/utledning.ts', 'predikat', 'erFristkravIAppen', ['utledning/utled.ts']],
   // Det utledningen leser av forholdet (#1783), som var i utled.ts før flyttingen.
   [
     'spor/forhold/utledning.ts',

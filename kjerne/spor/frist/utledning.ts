@@ -15,7 +15,7 @@ import type {
   Utledning,
   Utsagn,
 } from '../../utledning/utled.ts';
-import type { Krav } from '../../typer.ts';
+import type { Dokument, Krav } from '../../typer.ts';
 import {
   foresporselsrelasjon,
   type ForesporselOgSvar,
@@ -105,11 +105,18 @@ export function foresporselForFristsvar(u: Utledning): Foresporselsrelasjon | nu
 }
 
 /**
+ * VS-U33, OV-U4: kravet i dokumentet er et krav om dager fremmet i appen, ikke dokumentasjon i
+ * et registrert brev. Kommandoene og utledningen leser det likt.
+ */
+export const erFristkravIAppen = (d: Pick<Dokument, 'opplysninger'>, k: Pick<Krav, 'spor'>) =>
+  k.spor === 'frist' && !kravetErDokumentasjon(d);
+
+/**
  * VS-U19, VS-U33: TE har fremmet et krav om dager i appen, også uten virkning, som
  * kontrollen av forespørselen i utledningen. Et registrert brev stopper den aldri.
  */
 export function fristkravErFremmet(u: Utledning): boolean {
   for (const d of dokumenterI(u.journal))
-    if (!kravetErDokumentasjon(d) && d.krav.some((k) => k.spor === 'frist')) return true;
+    if (d.krav.some((k) => erFristkravIAppen(d, k))) return true;
   return false;
 }

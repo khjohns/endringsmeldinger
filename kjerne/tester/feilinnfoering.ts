@@ -2609,7 +2609,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        "    if (!kravetErDokumentasjon(d) && d.krav.some((k) => k.spor === 'frist')) return true;",
+        '    if (d.krav.some((k) => erFristkravIAppen(d, k))) return true;',
         "    if (d.krav.some((k) => k.spor === 'frist')) return true;",
       ],
     ],
@@ -2622,7 +2622,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "      if (k.spor === 'frist' && !kravetErDokumentasjon(d)) fristkravIAppen.push(k);",
+        '      if (erFristkravIAppen(d, k)) fristkravIAppen.push(k);',
         "      if (k.spor === 'frist') fristkravIAppen.push(k);",
       ],
     ],
