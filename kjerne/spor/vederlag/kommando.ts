@@ -22,12 +22,11 @@ import {
 } from '../../frosset/byggeklosser.ts';
 import { kravposterI, krevdRigg, OPPGJOERSHJEMMEL, vederlagsinnhold } from './format.ts';
 import { erObjekt, feilI, objekt } from '../../format/skjema.ts';
-import { brukteBetegnelser } from '../poster/utledning.ts';
+import { brukteBetegnelser, nesteBetegnelse } from '../poster/utledning.ts';
 import {
   kravposteneStrider,
   kravpostvarseletStrider,
   kravpostvarslene,
-  nesteBetegnelse,
   varselhjemmel,
 } from './utledning.ts';
 import { beloep, BroekdelAvOere, heleOere, tilTall } from '../../regler/beloep.ts';
@@ -466,6 +465,9 @@ export type Forutsetning =
   | { innsigelse: '34.1.2' | '34.1.3' | '34.3.3' }
   | { oppgjoersform: string };
 
+/** Lagene i et svarutkast på vederlaget, med den særskilte posten etter § 34.1.3 annet ledd. */
+export type LagIVederlaget = Utkastlag<Forutsetning, { saerskilt?: 'produktivitet' }>;
+
 /**
  * Lagene i et svarutkast på vederlag, også før alle spørsmålene er besvart. Et ubesvart
  * varslingsspørsmål regnes som at innsigelsen ikke er gjort gjeldende, så laget kan endre
@@ -478,7 +480,7 @@ export function lagIVederlaget(
   utkast: Svarutkast,
   u: Utledning,
   regler: Regelsett
-): Utkastlag<Forutsetning> {
+): LagIVederlaget {
   const v = utkast.vurderinger;
   const utenBeloep: Svarvurdering = {
     ...v,

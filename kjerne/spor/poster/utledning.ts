@@ -26,6 +26,12 @@ export function brukteBetegnelser(versjoner: readonly (readonly Post[])[]): Set<
   return new Set(versjoner.flatMap((poster) => poster.map((p) => p.betegnelse)));
 }
 
+/** Betegnelsen en ny post får: tallet etter det høyeste som er brukt i sporet (KA-U53). */
+export function nesteBetegnelse(brukte: ReadonlySet<string>): string {
+  const tall = [...brukte].map((b) => Number(b.slice(1)));
+  return `P${Math.max(0, ...tall) + 1}`;
+}
+
 /**
  * Hvorfor postene i den nye kravversjonen strider mot de tidligere versjonene i sporet, eller
  * `null`. `tidligere` er postene i hver tidligere versjon, i rekkefølgen i sporet. `lagret`
