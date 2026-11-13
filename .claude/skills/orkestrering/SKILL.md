@@ -59,9 +59,10 @@ lukket og oppdragsgiver har fått avslutningen (punkt 5).
 - **Review-oppfølging i hver runde.** Når filene er fordelt, tas de åpne punktene i
   issuene med `review-oppfølging` i filene hver økt likevel endrer, med i bestillingen
   med issuenummer og punkt. Byggeøkta legger ikke til punkter selv. Punkter i filer
-  runden ikke rører, venter, også i FK og F0b før #310, men ikke mer enn fire uker:
-  eldre punkter legges fram for oppdragsgiver ved starten av runden, med en anbefaling
-  om en egen ryddrunde eller avvisning med én linje i issuet.
+  runden ikke rører, venter, men ikke mer enn fire uker: eldre punkter legges fram for
+  oppdragsgiver ved starten av runden, med en anbefaling for hvert om en egen
+  ryddrunde eller avvisning med én linje i issuet. Regelen gjelder også i FK og F0b
+  før #310.
 - **Spørsmål før bygging.** For `kjerne/` kartlegger en subagent i orkestratoren
   først og samler domenespørsmålene etter «Spørsmål og vedtak», og byggeøkta starter
   med svarene i oppdraget. Utenfor kjernen kartlegger og spør økta selv når det er
@@ -73,7 +74,7 @@ lukket og oppdragsgiver har fått avslutningen (punkt 5).
 mange spørsmål og skjermbilder oppdragsgiver skal se på samtidig, av filoverlapp og av
 at hver økt får arbeid som henger sammen (#425). Tekniske issues uten spørsmål kan den
 ta mange av, så lenge filoverlappen tillater det, og de tekniske valgene tas mellom
-orkestratoren og øktene. Et valg som blir en kontrakt, en regel i domenekjernen eller
+orkestratoren og øktene, ikke av oppdragsgiver. Et valg som blir en kontrakt, en regel i domenekjernen eller
 et lagret navn, venter på oppdragsgiver («Spørsmål» i arbeidsøkt-skillen).
 
 Ber oppdragsgiver om en etikett («ta review-oppfølging»), velges runden slik:
@@ -284,8 +285,9 @@ orkestratoren (#425), med overleveringen der arbeidsøkta skriver tilstanden i P
 Vurderingen etter hver sjekk og over om lag 400 000 tokens gjelder resten av sporet:
 er resten større og konteksten mest avsluttede PR-er, gjør den overgangen i «Bølger»,
 også med åpne PR-er, som går videre med øktene som eier dem, mens neste orkestrator
-overtar sjekkene. Ved om lag 800 000 tokens merges PR-ene som er nær merge, og resten
-går til neste runde. I et spor uten bølger skriver den overleveringen og stopper. Den
+overtar sjekkene. Ved om lag 800 000 tokens overleverer den uansett, og når den nærmer
+seg det, avsluttes runden når PR-ene som er nær merge, er merget; resten går til neste
+runde. I et spor uten bølger skriver den overleveringen og stopper. Den
 utsetter ikke overleveringen for å vente på CI, et review eller oppdragsgiver.
 
 ### Bølger
