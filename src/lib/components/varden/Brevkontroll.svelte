@@ -4,10 +4,31 @@
   teksten avsenderen har sett, og serveren avviser en annen (LV-U2). «Send» er alltid aktiv;
   mangler avkrysningen, står det ved den (MM-U32).
 -->
+<script module lang="ts">
+  import type { Avsnitt } from '$kjerne/typer';
+
+  /**
+   * Det et skjema sender til brevkontrollen: kommandoen, brevet kjernen lager av den og det
+   * panelet sier om sendingen (#1856). `avsnitt` er `null` når kjernen ikke gir avsnitt; da vises
+   * `tekst`, med `utdypning` under det siste avsnittet.
+   */
+  export type TilBrevkontrollen = {
+    kommando: Record<string, unknown>;
+    tekst: string[];
+    avsnitt: Avsnitt[] | null;
+    utdypning?: string;
+    detteSender: { tekst: string; lag: string | null }[];
+    virkninger: string[];
+    merking: string | null;
+    deresRef: string[];
+    tittel: string | null;
+  };
+</script>
+
 <script lang="ts">
   import { ChevronLeft, Send } from 'lucide-svelte';
   import { onMount, tick } from 'svelte';
-  import type { Avsnitt, Part } from '$kjerne/typer';
+  import type { Part } from '$kjerne/typer';
   import type { Brevref } from './lesing';
   import type { Brevsending } from './nysak';
   import Brev from './Brev.svelte';
