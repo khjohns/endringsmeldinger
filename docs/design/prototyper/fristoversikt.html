@@ -9,7 +9,7 @@
   tråden med handlingen ved brevet og brevet ved siden av (oppsett B), saksomslaget til venstre (panel B)
   og kortet med kravet og svaret, tilpasset flere frister i ett krav og lagene per frist (KA-U78, #1903).
   v1 er commit 59bd3d0 av denne fila. Tilstandene er ankrene #te, #te-utkast, #bh, #bh-utkast,
-  #te-foresporsel og #bh-foresporsel, og -tabell etter ankeret viser kortet i form B (spørsmål 1).
+  #te-foresporsel og #bh-foresporsel. Svarene på spørsmålene 1–4 er A (oppdragsgiver 13.11).
   «Vis sporbarhet» viser punktene i bestillingen. Teksten er prototypetekst, og datoene og dagene er et
   eksempel. Fargene er Blekk (.tema-varden i src/lib/components/kontraktsbord/theme.css).
 -->
@@ -510,7 +510,6 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 @media (max-width:1180px){.brevpane{display:none !important}}
 /* Fristen (BF-45): lagene som gjelder hele kravet, og én blokk per frist */
 [data-sit="svar"] .kun-foresp,[data-sit="foresp"] .kun-svar{display:none}
-[data-kort="a"] .kun-kort-b,[data-kort="b"] .kun-kort-a{display:none}
 .helekravet{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:12px}
 .helekravet li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px;align-items:baseline}
 .helekravet .navn{font-weight:600}
@@ -534,18 +533,15 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .fristblokk .maal{margin-top:4px}
 .fristblokk .trinn{margin-top:2px}
 .tom-krav{color:var(--ink-2)}
-td .dt{display:block;font-size:12px;color:var(--ink-3);font-weight:400}
 .vedvarsel{display:flex;gap:10px;padding:12px 14px;background:var(--surface-inset);border:1px solid var(--ink);border-radius:var(--r-innfelt);color:var(--ink);font-size:14px}
 .vedvarsel svg{flex:none;margin-top:2px}
 .godkjenning .perfr{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:14px;color:var(--ink-2)}
 .godkjenning .perfr li{display:flex;justify-content:space-between;gap:12px}
-.tabell.frist{display:block}
-@media (max-width:720px){.tabell.frist tr{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 </head>
 <body>
-<span id="te"></span><span id="te-utkast"></span><span id="bh"></span><span id="bh-utkast"></span><span id="te-foresporsel"></span><span id="bh-foresporsel"></span><span id="te-tabell"></span>
-<div class="skall vis-forslag" id="skall" data-rolle="TE" data-utkast="ja" data-sit="svar" data-kort="a" data-oppsett="b" data-panel="b" data-regel="fast">
+<span id="te"></span><span id="te-utkast"></span><span id="bh"></span><span id="bh-utkast"></span><span id="te-foresporsel"></span><span id="bh-foresporsel"></span>
+<div class="skall vis-forslag" id="skall" data-rolle="TE" data-utkast="ja" data-sit="svar" data-oppsett="b" data-panel="b" data-regel="fast">
   <aside class="panel" aria-label="Saken">
     <div class="omslag">
       <p class="id num">E-021</p>
@@ -587,10 +583,6 @@ td .dt{display:block;font-size:12px;color:var(--ink-3);font-weight:400}
           <span class="vis-som kun-svar" role="group" aria-label="Utkast">
             <button type="button" id="utkast-ja" aria-pressed="true">Med utkast</button>
             <button type="button" id="utkast-nei" aria-pressed="false">Uten</button>
-          </span>
-          <span class="vis-som kun-svar" role="group" aria-label="Kortet med kravet og svaret">
-            <button type="button" id="kort-a" aria-pressed="true">Kortet A</button>
-            <button type="button" id="kort-b" aria-pressed="false">B</button>
           </span>
           <label class="forslag-av"><input type="checkbox" id="vis-spor"> Vis sporbarhet</label>
         </div></div></div>
@@ -734,7 +726,7 @@ td .dt{display:block;font-size:12px;color:var(--ink-3);font-weight:400}
                   <li><b>Videre subsidiært</b>, hvis heller ikke innsigelsen om spesifiseringen fører frem: dagene byggherren godkjenner.</li>
                 </ul>
 
-                <div class="kun-kort-a" data-spor="D-1">
+                <div data-spor="U-2 · D-1">
                   <section class="fristblokk" aria-labelledby="f5">
                     <h3 id="f5"><span class="nr">Frist 5</span>Mekanisk ferdigstillelse</h3>
                     <p class="gjeldende">Gjeldende frist 1. juni 2027, som avtalt.</p>
@@ -764,19 +756,6 @@ td .dt{display:block;font-size:12px;color:var(--ink-3);font-weight:400}
                     </div>
                   </section>
                 </div>
-
-                <div class="tabell frist kun-kort-b" data-spor="U-2 · U-4 · D-1">
-                  <table role="table">
-                    <caption class="sr">Dagene per frist</caption>
-                    <thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">Frist</th><th scope="col" role="columnheader" class="krevdkol">Krevd</th><th scope="col" role="columnheader">Subsidiært</th><th scope="col" role="columnheader">Videre subsidiært</th></tr></thead>
-                    <tbody role="rowgroup">
-                      <tr role="row"><td role="cell">Frist 5 Mekanisk ferdigstillelse<span class="hj">Gjeldende frist 1. juni 2027 · avslått: ikke hindret</span></td><td role="cell" class="n krevdkol">25<span class="dt">26.06.2027</span></td><td role="cell" class="n">0</td><td role="cell" class="n">0</td></tr>
-                      <tr role="row"><td role="cell">Frist 7 Overtakelse<span class="hj">Gjeldende frist 26. august 2027, forlenget <span class="num">10</span> dager i sak E-009</span></td><td role="cell" class="n krevdkol">20<span class="dt">15.09.2027</span></td><td role="cell" class="n">8<span class="dt">03.09.2027</span></td><td role="cell" class="n">14<span class="dt">09.09.2027</span></td></tr>
-                      <tr role="row"><td role="cell">Frist 8 Overtakelse av utomhusarbeider<span class="hj">Gjeldende frist 13. september 2027</span></td><td role="cell" class="n krevdkol">20<span class="dt">03.10.2027</span></td><td role="cell" class="n">8<span class="dt">21.09.2027</span></td><td role="cell" class="n">14<span class="dt">27.09.2027</span></td></tr>
-                    </tbody>
-                  </table>
-                  <p class="gap">Dagene er kalenderdager og gjelder hver frist for seg.</p>
-                </div>
               </div>
 
               <div class="forbehold" data-spor="D-11">
@@ -789,7 +768,7 @@ td .dt{display:block;font-size:12px;color:var(--ink-3);font-weight:400}
           <section class="kort andre-b kun-te kun-svar" aria-labelledby="andre-b-tittel" data-spor="U-6">
             <p class="andre-tittel" id="andre-b-tittel">Andre handlinger</p>
             <ul class="andre">
-              <li class="kun-svar" data-forslag="Spørsmål 3" data-spor="U-6 · D-12"><button type="button"><span class="h">Anse avslaget som pålegg om forsering</span><span class="b">Forsering er ikke bygget i Varden og sendes som egen sak.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
+              <li class="kun-svar" data-spor="U-6 · D-12"><button type="button"><span class="h">Anse avslaget som pålegg om forsering</span><span class="b">Forsering er ikke bygget i Varden og sendes som egen sak.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
               <li class="kun-svar" data-spor="D-6"><button type="button"><span class="h">Trekk kravet</span><span class="b">Du gir avkall på hele kravet om fristforlengelse, også det byggherren har godkjent.</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button></li>
             </ul>
           </section>
@@ -854,30 +833,27 @@ td .dt{display:block;font-size:12px;color:var(--ink-3);font-weight:400}
   const knapp = id => document.getElementById(id);
   const FIL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>';
   document.querySelectorAll('.fil').forEach(f => f.insertAdjacentHTML('afterbegin', FIL));
-  const tilstand = { rolle: 'TE', sit: 'svar', utkast: true, kort: 'a' };
+  const tilstand = { rolle: 'TE', sit: 'svar', utkast: true };
   const trykket = (id, p) => knapp(id).setAttribute('aria-pressed', String(p));
   function vis(){
     skall.dataset.rolle = tilstand.rolle;
     skall.dataset.sit = tilstand.sit;
     skall.dataset.utkast = tilstand.utkast && tilstand.sit === 'svar' ? 'ja' : 'nei';
-    skall.dataset.kort = tilstand.kort;
     trykket('vis-te', tilstand.rolle === 'TE'); trykket('vis-bh', tilstand.rolle === 'BH');
     trykket('sit-svar', tilstand.sit === 'svar'); trykket('sit-foresp', tilstand.sit === 'foresp');
     trykket('utkast-ja', tilstand.utkast); trykket('utkast-nei', !tilstand.utkast);
-    trykket('kort-a', tilstand.kort === 'a'); trykket('kort-b', tilstand.kort === 'b');
-    // Tilstandene er ankrene #<part>[-utkast|-foresporsel][-tabell].
-    const a = '#' + tilstand.rolle.toLowerCase() + (tilstand.sit === 'foresp' ? '-foresporsel' : tilstand.utkast ? '-utkast' : '') + (tilstand.kort === 'b' ? '-tabell' : '');
+    // Tilstandene er ankrene #<part>[-utkast|-foresporsel].
+    const a = '#' + tilstand.rolle.toLowerCase() + (tilstand.sit === 'foresp' ? '-foresporsel' : tilstand.utkast ? '-utkast' : '');
     if (location.hash !== a) history.replaceState(null, '', a);
     visSiste();
     maal();
   }
   function lesAnker(){
-    const m = /^#(te|bh)(-utkast|-foresporsel)?(-tabell)?$/.exec(location.hash);
+    const m = /^#(te|bh)(-utkast|-foresporsel)?$/.exec(location.hash);
     if (!m) return vis();
     tilstand.rolle = m[1].toUpperCase();
     tilstand.sit = m[2] === '-foresporsel' ? 'foresp' : 'svar';
     tilstand.utkast = m[2] === '-utkast';
-    tilstand.kort = m[3] ? 'b' : 'a';
     vis();
   }
   knapp('vis-te').onclick = () => { tilstand.rolle = 'TE'; vis(); };
@@ -886,8 +862,6 @@ td .dt{display:block;font-size:12px;color:var(--ink-3);font-weight:400}
   knapp('sit-foresp').onclick = () => { tilstand.sit = 'foresp'; vis(); };
   knapp('utkast-ja').onclick = () => { tilstand.utkast = true; vis(); };
   knapp('utkast-nei').onclick = () => { tilstand.utkast = false; vis(); };
-  knapp('kort-a').onclick = () => { tilstand.kort = 'a'; vis(); };
-  knapp('kort-b').onclick = () => { tilstand.kort = 'b'; vis(); };
   // Brevet leses ved siden av tråden, og under 1180 px i raden (U-16 i BF-44).
   const lager = knapp('brevlager'), paneplass = knapp('brevpane-plass'), panehvilket = knapp('brevpane-hvilket');
   const bred = matchMedia('(min-width: 1181px)');

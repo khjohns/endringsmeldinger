@@ -56,6 +56,11 @@
       "dato": "2026-11-13",
       "forhold": "#1900",
       "hva": "Forløpet er registrert som planlagt, med bestillingen, prototypen v2 og spørsmålene 1–4."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1900",
+      "hva": "Svarene 13.11, A på 1–4, er ført i U-2, U-5 og U-6. Form B av kortet og steg 9 er tatt ut."
     }
   ],
   "prototype": {
@@ -162,18 +167,6 @@
         "handlinger": [
           {
             "staar": "Forespørsel om spesifisert krav"
-          }
-        ]
-      },
-      {
-        "id": "te-kortet-b",
-        "dekker": [
-          "9"
-        ],
-        "start": "te-tabell",
-        "handlinger": [
-          {
-            "staar": "Dagene er kalenderdager og gjelder hver frist for seg."
           }
         ]
       }

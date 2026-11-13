@@ -54,7 +54,7 @@ summen og en tabell per post. Fristen har ingen sum, og to av lagene er like for
 Anbefalingen: A har samme form som vederlaget (kravet åpent og det godkjente fylt, systemfila «Brevene»),
 og dagene for fristene kan sammenlignes på samme skala. B sier det samme med tall og kan bli valget på smal
 skjerm. C setter datoene i kontrakten på samme linje som datoene i tråden, og avstanden mellom fristene
-sier ikke noe om kravet. Prototypen har A og B som en bryter i mockup-linja.
+sier ikke noe om kravet. Prototypen hadde A og B som en bryter i mockup-linja da spørsmålet ble stilt.
 
 **2. Ny dato ved dagene.** Brevet angir bare dagene ([BF-20 D-9](../../domenetabell/brukerforlop/BF-20.md)).
 Skjemaet for kravet viser ny dato regnet fra gjeldende frist (BF-20 U-2).
@@ -97,4 +97,6 @@ annen virkning enn «Trekk kravet».
 
 ## Svarene
 
-Ikke besvart ennå.
+Oppdragsgiver 13.11, gjennom orkestratoren for #1065, ordrett: 1 «A: målestokk per frist», 2 «A: dato ved
+dagene», 3 «A: rad med forklaring», 4 «A: ingen egen handling». Svarene er ført i U-2, U-5 og U-6 i
+[BF-45](../../domenetabell/brukerforlop/BF-45.md). Form B av kortet er tatt ut av prototypen.
