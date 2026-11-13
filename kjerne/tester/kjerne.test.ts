@@ -1552,6 +1552,23 @@ describe('kontrollen av referansene og resultatet i svaret', () => {
     expect(await skrivMed(k, h, annetBeloep)).toBe('ANNET_RESULTAT');
   });
 
+  it('ANNET_RESULTAT: et svar på fristen der klienten har en tom rad i stedet for dagene, avvises (B-13)', async () => {
+    const k = await bygg(minnebane(), [
+      'godkjent_forhold',
+      { handling: 'krav', spor: 'frist', dager: 20 },
+    ]);
+    const h = {
+      handling: 'brev',
+      svar: [{ spor: 'frist', varsel_i_tide: true, spesifisering_i_tide: true, hindring: true }],
+    };
+    expect(await skrivMed(k, h, uendret), 'kontrollsak').toBe('godtatt');
+    const tomRad = (kommando: Data) => {
+      const resultat = (kommando.svar as Data[])[0].resultat as Data;
+      resultat.frister = [null];
+    };
+    expect(await skrivMed(k, h, tomRad)).toBe('ANNET_RESULTAT');
+  });
+
   it('FEIL_SVARREFERANSE: en revisjon av et svar som allerede er revidert, avvises', async () => {
     const k = await bygg(minnebane(), [
       'krav_irreg',
