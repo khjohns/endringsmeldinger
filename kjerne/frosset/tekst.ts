@@ -44,3 +44,21 @@ export function iLagene<T>(ledd: T[], plass: (l: T) => number | null, foerste: n
 
 /** Sakens kode slik brevene omtaler saken, uten utfylling: «KOE-17» (LV-U44, LV-U45). */
 export const sakensKode = (s: Sakskode): string => `${s.kode.toUpperCase()}-${s.loepenummer}`;
+
+/**
+ * Lagslinjen i byggherrens svar (LV-U34, LV-U40): etiketten, eventuelt med innsigelsene laget
+ * bygger på. Visningen og PDF-en viser den for seg.
+ */
+export const erLagslinje = (avsnitt: string): boolean =>
+  /^(Prinsipalt|Subsidiært|Videre subsidiært)(, hvis .+ fører frem)?$/.test(avsnitt);
+
+/** Punktet med oversiktstabellen i svaret (OV-U73). Cellene står adskilt med tabulator. */
+export const OVERSIKTEN = 'oversikt';
+
+/** Radene og cellene i oversiktstabellen; den første raden er kolonnene, den siste summen. */
+export const cellene = (tabell: string): string[][] =>
+  tabell.split('\n').map((rad) => rad.split('\t'));
+
+/** Et punkt for en kravpost har kravpostens faste betegnelse som navn (KA-U53). */
+export const erKravpostpunkt = (punkt: string | undefined): boolean =>
+  punkt !== undefined && /^P[1-9]\d*$/.test(punkt);

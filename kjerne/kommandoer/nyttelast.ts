@@ -20,12 +20,7 @@ import {
   varseletEtter322,
 } from '../spor/forhold/kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import {
-  gjelderVarslingsplikten,
-  hjemmelenGjelder,
-  iSporet,
-  type Svarvurdering,
-} from '../frosset/byggeklosser.ts';
+import { gjelderVarslingsplikten, hjemmelenGjelder, iSporet } from '../frosset/byggeklosser.ts';
 import {
   likeResultatfelt,
   regnUtSvar,
@@ -60,8 +55,8 @@ export type Svarstandpunkter = (s: Svarutkast, utregning: Record<string, unknown
 
 /** Det som er sporets eget i nyttelastkontrollen (#1783). */
 export interface Sporsnyttelast {
-  /** Avgrensningene i svaret som krever en begrunnelse (`avgrensninger`). */
-  avgrensninger(v: Svarvurdering, server: Record<string, unknown>, krav: Krav): string[];
+  /** Det som hindrer svaret fordi en begrunnelse mangler (KA-U46 punkt 1–3), eller `null`. */
+  begrunnelse(s: Svarutkast, krav: Krav, regler: Regelsett): Avvisning | null;
   /** Det i kravet som strider mot kravversjonene før i sporet, eller `null`. */
   kravsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null;
   /** Det som hindrer en innsigelse mot `gjelder` i sporet, eller `null`. */
@@ -77,7 +72,7 @@ const NYTTELAST: Record<Spor, Sporsnyttelast> = {
   forhold: NYTTELAST_I_FORHOLDET,
   vederlag: NYTTELAST_I_VEDERLAGET,
   frist: {
-    avgrensninger: avgrensningerIFristen,
+    begrunnelse: () => null,
     kravsperre: () => null,
     innsigelse: () => null,
     utdypning: utdypningIFristen,
@@ -139,42 +134,7 @@ function kontrollerSvar(
       'ANNET_RESULTAT',
       `Serveren regner ut ${avvik.map((f) => `${f}=${String(server[f])}`).join(', ')}.`
     );
-  // KA-U24 (opphevet av KA-U46), KA-U31: grunnene til at svaret må ha en begrunnelse.
-  const grunner = avgrensninger(s, server, krav);
-  if (utdypningKreves && grunner.length && !s.utdypning?.trim())
-    return avvis(
-      'BEGRUNNELSE_MANGLER',
-      `Svaret må ha en begrunnelse, fordi du ${grunner.slice(0, -1).join(', ')}${grunner.length > 1 ? ' og ' : ''}${grunner.at(-1)}.`
-    );
-  return null;
-}
-
-/**
- * KA-U24, KA-U32: de selvstendige innsigelsene og avgrensningene i svaret som gjør
- * det mindre gunstig for TE enn kravet, og som krever en begrunnelse. Begrensningen etter
- * § 34.1.3 krever begrunnelse også når beløpene er like (valg d i #1047). At et svar bare er subsidiært fordi forholdet er avslått, krever ingen
- * egen begrunnelse. Leser vurderingene og serverens utregning, ikke teksten. Hver grunn
- * står uten subjekt, så meldingen kan si «fordi du …» (#1279).
- */
-function avgrensninger(s: Svarutkast, server: Record<string, unknown>, krav: Krav): string[] {
-  return nyttelastI(s.spor).avgrensninger(s.vurderinger, server, krav);
-}
-
-/** Avgrensningene i svaret på fristen. */
-function avgrensningerIFristen(v: Svarvurdering, server: Record<string, unknown>): string[] {
-  const ut: string[] = [];
-  const fulltGodkjent = (server.subsidiaert_resultat ?? server.resultat) === 'godkjent';
-  if (v.frist_varsel_ok === false) ut.push('gjør gjeldende at varselet etter § 33.4 kom for sent');
-  // VS-U17
-  if (v.foresporsel_svar_ok === false)
-    ut.push('gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent');
-  // VS-U13: uten hjemmel, som er § 33.3 i force majeure.
-  if (v.vilkar_oppfylt === false)
-    ut.push('gjør gjeldende at fremdriften ikke er hindret som følge av forholdet');
-  if (v.spesifisert_krav_ok === false)
-    ut.push('gjør gjeldende at kravet ble spesifisert for sent (§ 33.6.1)');
-  if (!fulltGodkjent) ut.push('ikke godkjenner alle dagene');
-  return ut;
+  return utdypningKreves ? nyttelastI(s.spor).begrunnelse(s, krav, regler) : null;
 }
 
 /**

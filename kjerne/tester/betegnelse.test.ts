@@ -72,7 +72,10 @@ class Sak {
         { krav, paaberopelse: u.spor.forhold.gjeldendeKrav },
         KJERNE.regler
       ),
-      utdypning: 'Byggherrens begrunnelse.',
+      // KA-U47: begrunnelsen står i punktet om forholdet.
+      ...(spor === 'forhold'
+        ? { utdypninger: { forhold: 'Byggherrens begrunnelse.' } }
+        : { utdypning: 'Byggherrens begrunnelse.' }),
     };
   }
 

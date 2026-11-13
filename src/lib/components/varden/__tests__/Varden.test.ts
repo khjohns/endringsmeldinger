@@ -49,9 +49,11 @@ async function bhSvarerIVarden(): Promise<string[]> {
   await fireEvent.input(await screen.findByRole('textbox', { name: 'Beløpet du godkjenner' }), {
     target: { value: '60 000' },
   });
-  await fireEvent.input(screen.getByRole('textbox', { name: /Begrunnelse/ }), {
-    target: { value: BEGRUNNELSE },
-  });
+  // KA-U46: begrunnelsen står under punktet om varselet.
+  await fireEvent.input(
+    await screen.findByRole('textbox', { name: /Varselet om vederlagsjustering/ }),
+    { target: { value: BEGRUNNELSE } }
+  );
   await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
   return avsnittene(
     await screen.findByRole('article', { name: 'Svar på krav om vederlagsjustering i sak KOE-17' })
@@ -60,7 +62,7 @@ async function bhSvarerIVarden(): Promise<string[]> {
 
 /** Avsnittene i brevteksten slik de står i brevet på skjermen. */
 const avsnittene = (brev: HTMLElement) =>
-  [...within(brev).getByTestId('laast-tekst').querySelectorAll('p')].map(
+  [...within(brev).getByTestId('laast-tekst').querySelectorAll('h3, p')].map(
     (p) => p.textContent ?? ''
   );
 
@@ -86,7 +88,10 @@ describe('Varden med brukerforløpet BF-01', () => {
 
     // Steg 4: BH vurderer varslingen og beløpet, kontrollerer brevet og sender svaret.
     const vist = await bhSvarerIVarden();
-    expect(vist.join(' ')).toMatch(/Prinsipalt: byggherren gjør gjeldende at varselet/);
+    // LV-U34: lagslinjen står for seg over påberopelsen, og begrunnelsen under punktet.
+    expect(vist).toContain('Prinsipalt');
+    expect(vist.join(' ')).toMatch(/Byggherren gjør gjeldende at varselet om vederlagsjustering/);
+    expect(vist).toContain(BEGRUNNELSE);
     // MM-U34 punkt 26: skjemaet sier ikke at BH er bundet av svaret eller at det ikke kan revideres.
     // OV-U81 og #1443: hvordan løsningen virker, står på siden «Om Varden», ikke ved feltene.
     // KA-U19: skjemaet sier at virkningen regnes ut fra valgene, i infotipset «Om svaret». Det
@@ -101,7 +106,10 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(svaret.aktor_rolle).toBe('BH');
     // LV-U2: teksten BH kontrollerte, er teksten som er frosset i brevet.
     const frosset = svaret.data.brevtekst as { laast: string; utdypning?: string }[];
-    expect(frosset.flatMap((a) => [a.laast, ...(a.utdypning ? [a.utdypning] : [])])).toEqual(vist);
+    // Et punkt viser overskriften og hvert avsnitt for seg (LV-U70).
+    expect(
+      frosset.flatMap((a) => [...a.laast.split('\n\n'), ...(a.utdypning ? [a.utdypning] : [])])
+    ).toEqual(vist);
     k.registrer(BF.steg![3], [svaret]);
     await kontrollerEtter(forloep, 4, k, paastand);
 
@@ -202,20 +210,8 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(document.body.textContent).not.toMatch(/_vurdering|_beloe?p|mangler;|\bKA-U\d/);
 
     await fireEvent.input(beloep, { target: { value: '60 000' } });
-    // KA-U24: kjernen krever begrunnelse når BH gjør gjeldende sen varsling og ikke godtar hele
-    // beløpet. Det står ved feltet med kjernens grunn, og ikke med regelkoden.
-    const begrunnelse = screen.getByRole('textbox', { name: /Begrunnelse/ });
-    expect(begrunnelse).toHaveAttribute('aria-invalid', 'true');
-    expect(
-      within(
-        screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' })
-      ).getAllByRole('listitem')
-    ).toHaveLength(1);
-    expect(
-      screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' }).textContent
-    ).toMatch(/Svaret må ha en begrunnelse, fordi du/);
-    expect(document.body.textContent).not.toMatch(/BEGRUNNELSE_MANGLER/);
-    await fireEvent.input(begrunnelse, { target: { value: BEGRUNNELSE } });
+    // KA-U46 punkt 1: begrunnelsen er valgfri i hvert punkt i svaret på vederlaget, også når BH
+    // gjør gjeldende sen varsling og ikke godtar hele beløpet.
     expect(screen.queryByRole('group', { name: 'Dette mangler før brevet kan lages:' })).toBeNull();
     await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
     expect(

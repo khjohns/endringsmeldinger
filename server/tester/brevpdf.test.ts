@@ -115,6 +115,59 @@ describe('PDF-en av brevet (#371 del 2)', () => {
     expect(gjengirTro(lest, tekst)).toBe(true);
   });
 
+  it('setter oversiktstabellen i byggherrens svar i kolonner, og lesingen gir cellene tilbake med mellomrom (OV-U73)', async () => {
+    const tabell = [
+      'Post\tKrevd\tPrinsipalt\tSubsidiært',
+      'Vederlagsjustering\t150\u00a0000\u00a0kr\t0\u00a0kr\t100\u00a0000\u00a0kr',
+      'Sum\t150\u00a0000\u00a0kr\t0\u00a0kr\t100\u00a0000\u00a0kr',
+    ].join('\n');
+    const tekst: Avsnitt[] = [
+      {
+        gjelder: 's',
+        punkt: 'oversikt',
+        overskrift: '3. Oversikt',
+        laast: `3. Oversikt\n\n${tabell}`,
+      },
+    ];
+    const lest = lesBrevPdf((await brevdokument(oppdrag(tekst), 'n')).innhold);
+    expect(lest.split('\n').slice(-3)).toEqual(
+      tabell.split('\n').map((r) => r.replace(/\t/g, ' '))
+    );
+    expect(gjengirTro(lest, tekst)).toBe(true);
+  });
+
+  it('en tabulator i partens tekst settes som mellomrom og leses ikke som en rad i tabellen (OV-U73)', async () => {
+    const tekst: Avsnitt[] = [
+      {
+        gjelder: 's',
+        punkt: 'P1',
+        laast: 'Byggherren godkjenner 10 kr.',
+        utdypning: 'Post\tMengde\tPris',
+      },
+    ];
+    const lest = lesBrevPdf((await brevdokument(oppdrag(tekst), 'n')).innhold);
+    expect(lest.split('\n').at(-1)).toBe('Post Mengde Pris');
+    expect(gjengirTro(lest, tekst)).toBe(true);
+  });
+
+  it('en tabell som ikke får plass i bredden, settes som tekst, så ingen celle står over en annen (OV-U73)', async () => {
+    const bred = Array.from({ length: 8 }, () => 'Videre subsidiært').join('\t');
+    const tekst: Avsnitt[] = [
+      {
+        gjelder: 's',
+        punkt: 'oversikt',
+        overskrift: '1. Oversikt',
+        laast: `1. Oversikt\n\nPost\t${bred}`,
+      },
+    ];
+    const lest = lesBrevPdf((await brevdokument(oppdrag(tekst), 'n')).innhold);
+    // Teksten brytes over flere linjer, som et vanlig avsnitt.
+    expect(lest.split('\n').filter((l) => l.includes('Videre subsidiært')).length).toBeGreaterThan(
+      1
+    );
+    expect(gjengirTro(lest, tekst)).toBe(true);
+  });
+
   it('lesingen ser at en side mangler, så kontrollen ikke godtar en utelatelse ved sidebrekk', async () => {
     const tekst = gjengiOppdrag(oppdrag(LANG))!;
     const hel = await skrivBrevPdf(tekst, 'x', new Date(TIDSSTEMPEL), 'TE');

@@ -327,7 +327,10 @@
     "KA-U16",
     "KA-U19",
     "KA-U24",
-    "OV-U4"
+    "OV-U4",
+    "LV-U34",
+    "LV-U71",
+    "OV-U73"
   ],
   "venter_paa": ["#1046"],
   "bevis_saker": [],
@@ -352,6 +355,11 @@
       "dato": "2026-11-01",
       "forhold": "#1456, #1381, MM-U34",
       "hva": "Prototypen, versjon 4: setningen om at byggherren er bundet av svaret er strøket, og svaret på S-11 faller bort (MM-U34 punkt 26). Kildene har vedtakene 01.11 som endrer LV-U4, LV-U31, LV-U32, OV-U28 og HF-U2 (LV-U39, LV-U41, OV-U75, OV-U76, OV-U78, OV-U83), OV-U79 for korrespondansen ved stanset levering, og MM-U33, MM-U35 og EO-U13 for det som kan skje etter aksepten. Etter aksepten sier prototypen at enigheten står, og at TE kan sende en ny kravversjon eller et innlegg (D-7)."
+    },
+    {
+      "dato": "2026-11-12",
+      "forhold": "#1433, LV-U34, OV-U73, KA-U46",
+      "hva": "U-9: begrunnelsen står per punkt i byggherrens svar, og skjemaet har ett felt per punkt og et felt for forbeholdet. Arbeidsvalget A i S-2 gjelder ikke lenger: brevet har nummererte punkter og oversiktstabellen. Kildene har LV-U34, LV-U71 og OV-U73."
     }
   ]
 }

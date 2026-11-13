@@ -139,7 +139,7 @@ FEILINNFOERINGER = [
      "    if (false)\n      return {\n        feil: new TransaksjonAvbrutt('Serveren rullet tilbake transaksjonen under COMMIT.'),",
      "tilbakerulling under COMMIT uten feil"),
     ("S33", "PDF-en utelater siste linje på hver side (#371, LV-U2)", "server/brevpdf.ts",
-     "          side.drawText(l.tekst,", "          if (y > MARG + stoerrelse * LINJEHOEYDE) side.drawText(l.tekst,",
+     "      side.drawText(l.tekst,", "      if (y > MARG + stoerrelse * LINJEHOEYDE) side.drawText(l.tekst,",
      "gjengir en tekst over flere sider tro"),
     ("S34", "basen godtar en PDF med feil sum (#371)", "database/migrasjoner/20261018140000_brevdokument.sql",
      "CONSTRAINT brevdokument_sum CHECK (pdf_sha256 =", "CONSTRAINT brevdokument_sum CHECK (1 = 1 OR pdf_sha256 =",

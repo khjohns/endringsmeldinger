@@ -172,7 +172,7 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U28](../../plans/vedtak.md#lv-u28) | — | — | BF-07 |
 | [LV-U31](../../plans/vedtak.md#lv-u31) | — | — | BF-01V |
 | [LV-U32](../../plans/vedtak.md#lv-u32) | — | — | BF-01V |
-| [LV-U34](../../plans/vedtak.md#lv-u34) | — | — | BF-08 |
+| [LV-U34](../../plans/vedtak.md#lv-u34) | — | — | BF-01V, BF-08 |
 | [LV-U35](../../plans/vedtak.md#lv-u35) | — | BF-02A te-har-mottatt-svaret, BF-05 start | BF-08 |
 | [LV-U39](../../plans/vedtak.md#lv-u39) | — | — | BF-01V, BF-08 |
 | [LV-U40](../../plans/vedtak.md#lv-u40) | — | — | BF-08 |
@@ -196,7 +196,7 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U67](../../plans/vedtak.md#lv-u67) | — | — | BF-01V, BF-06 |
 | [LV-U68](../../plans/vedtak.md#lv-u68) | — | — | BF-01V, BF-06 |
 | [LV-U70](../../plans/vedtak.md#lv-u70) | — | — | BF-14 |
-| [LV-U71](../../plans/vedtak.md#lv-u71) | — | — | BF-14 |
+| [LV-U71](../../plans/vedtak.md#lv-u71) | — | — | BF-01V, BF-14 |
 | [MM-U1](../../plans/vedtak.md#mm-u1) | — | — | BF-20 |
 | [MM-U9](../../plans/vedtak.md#mm-u9) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — | BF-01V, BF-07, BF-08 |
 | [MM-U10](../../plans/vedtak.md#mm-u10) | — | — | BF-37 |
@@ -246,7 +246,7 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U69](../../plans/vedtak.md#ov-u69) | — | — | BF-06, BF-08 |
 | [OV-U70](../../plans/vedtak.md#ov-u70) | — | — | BF-01V |
 | [OV-U72](../../plans/vedtak.md#ov-u72) | — | — | BF-08 |
-| [OV-U73](../../plans/vedtak.md#ov-u73) | — | — | BF-14 |
+| [OV-U73](../../plans/vedtak.md#ov-u73) | — | — | BF-01V, BF-14 |
 | [OV-U75](../../plans/vedtak.md#ov-u75) | — | BF-01 bh-har-mottatt-vederlagskravet, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret | BF-01V |
 | [OV-U76](../../plans/vedtak.md#ov-u76) | — | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-04 forholdet-er-avslaatt, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret, BF-05 start | BF-01V |
 | [OV-U77](../../plans/vedtak.md#ov-u77) | — | BF-05 start | — |

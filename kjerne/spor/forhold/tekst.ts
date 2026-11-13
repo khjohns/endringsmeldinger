@@ -203,24 +203,38 @@ function forholdstekst(k: Krav, { saken, j }: Tekst, regler: Regelsett): string[
 }
 
 /**
- * GR-U14, GR-U15: setningen etter § 31.3 i en godkjenning som er en endringsordre.
- * TEs beskrivelse av pålegget står som utdypningen under kravet i brevet kravet står
- * i, og siteres; appen tolker den ikke (KA-U19). Et registrert krav står som det ble
- * sendt (MM-U17 (opphevet av MM-U50)), og godkjenningen viser til pålegget i det (GR-U13). Et krav fra
- * appen uten beskrivelse kan ikke si hva endringen går ut på, og svaret avvises.
+ * GR-U14, GR-U15 og GR-U32: godkjenningen som er en endringsordre, med hjemmelen også når den
+ * står i overskriften (LV-U36). Totalentreprenørens beskrivelse av pålegget står som
+ * utdypningen under kravet i brevet kravet står i, og siteres; løsningen tolker den ikke
+ * (KA-U19). Et registrert krav står som det ble sendt (MM-U50), og godkjenningen viser til
+ * pålegget i det (GR-U13). Et krav fra løsningen uten beskrivelse kan ikke si hva endringen går
+ * ut på, og svaret avvises.
  */
 function endringsordretekst(krav: Krav, j: Journalen): string {
-  const kravet = `TEs krav i ${j.brevet(krav.dokument)}`;
+  const kravet = `totalentreprenørens krav i ${j.brevet(krav.dokument)}`;
   const innledning =
-    'byggherren godkjenner grunnlaget. Svaret er en endringsordre etter NS 8407 § 32.3 første ledd a, jf. § 31.3: byggherren krever at endringen utføres slik pålegget er beskrevet i';
+    'svaret er en endringsordre etter NS 8407 punkt 32.3 første ledd a, jf. punkt 31.3: byggherren krever at endringen utføres slik pålegget er beskrevet i';
   if (j.erRegistrert(krav.dokument)) return `${innledning} ${kravet}.`;
   const beskrivelse = j.utdypning(krav.id, krav.dokument);
   if (!beskrivelse?.trim())
     throw new BrevetAvvises(
       'PAALEGGET_IKKE_BESKREVET',
-      'Godkjenningen er en endringsordre (§ 32.3 første ledd a), men TEs krav beskriver ikke pålegget, så brevet kan ikke si hva endringen går ut på (§ 31.3, GR-U14). Svaret må sendes utenfor appen.'
+      'Godkjenningen er en endringsordre (punkt 32.3 første ledd a), men totalentreprenørens krav beskriver ikke pålegget, så brevet kan ikke si hva endringen går ut på (punkt 31.3, GR-U14). Svaret må sendes utenfor løsningen.'
     );
   return `${innledning} ${kravet}: «${beskrivelse}».`;
+}
+
+/** Svikt og andre forhold, der svaret sier om byggherren har risikoen for forholdet (LV-U41). */
+export function harRisikoen(paaberopelse: Krav): boolean {
+  const { hovedkategori } = innholdIForholdet(paaberopelse);
+  return hovedkategori === 'svikt' || hovedkategori === 'andre_forhold';
+}
+
+/** Hjemmelen for forholdet i svaret ved svikt og andre forhold (LV-U41). */
+function risikohjemmel(krav: Krav): string {
+  const f = forholdet(innholdIForholdet(krav).underkategori);
+  if (!f) throw new KanIkkeUttrykkes('forholdet i påberopelsen har ingen hjemmel');
+  return `NS 8407 punkt ${f.hjemmel}`;
 }
 
 export const BREVTEKSTEN_I_FORHOLDET = {
@@ -229,20 +243,37 @@ export const BREVTEKSTEN_I_FORHOLDET = {
   krav: (k, t, regler) => [utenOverskrift(forholdstekst(k, t, regler))],
   ogsaaInnsigelserEtter: [],
   nevnerErstattet: false,
+  // LV-U34: punktene i byggherrens svar, som i skjemaet (prototypen `forholdssvar.html`).
+  temaer: () => [
+    { punkt: '32.2', overskrift: 'Varselet etter punkt 32.2' },
+    { punkt: 'forhold', overskrift: 'Forholdet' },
+  ],
 } satisfies Sporsbrevtekst;
 
-/** Teksten for standpunktet til forholdet (`I_SPORENE` i `frosset/brevtekst.ts`). */
+/**
+ * Teksten for standpunktet til forholdet (`I_SPORENE` i `frosset/brevtekst.ts`), med
+ * kontraktens ord i hvert tilfelle (GR-U32, LV-U41). Godkjenningen der punkt 32.2 gjelder, er
+ * en endringsordre, eller en enighet om at pålegget innebærer en endring når byggherren
+ * påberoper at varselet kom for sent. Uten varslingsplikt er forholdet en endringsordre etter
+ * punkt 31.3, eller svikt og andre forhold.
+ */
 export const STANDPUNKTENE_I_FORHOLDET = {
   forhold: (p, krav, s, j) => {
-    if (p.resultat === 'godkjent')
-      return blirEndringsordre(s.beslutningsgrunnlag)
-        ? endringsordretekst(krav, j)
-        : 'byggherren godkjenner grunnlaget.';
-    if (p.resultat === 'avslaatt')
-      return s.beslutningsgrunnlag.varslingsplikt
-        ? 'byggherren avslår kravet på endringsordre (NS 8407 § 32.3 første ledd b).'
-        : 'byggherren avslår grunnlaget.';
-    return 'byggherren frafaller pålegget mot å utstede endringsordre for allerede utført arbeid (NS 8407 § 32.3 første ledd c).';
+    const risiko = harRisikoen(krav);
+    const varslingsplikt = s.beslutningsgrunnlag.varslingsplikt === true;
+    if (p.resultat === 'godkjent') {
+      if (blirEndringsordre(s.beslutningsgrunnlag)) return endringsordretekst(krav, j);
+      if (varslingsplikt) return 'byggherren er enig i at pålegget innebærer en endring.';
+      if (risiko) return `byggherren har risikoen for forholdet (${risikohjemmel(krav)}).`;
+      return 'byggherren er enig i at forholdet er en endringsordre (NS 8407 punkt 31.3).';
+    }
+    if (p.resultat === 'avslaatt') {
+      if (varslingsplikt)
+        return 'byggherren avslår kravet på endringsordre (NS 8407 punkt 32.3 første ledd b).';
+      if (risiko) return `byggherren har ikke risikoen for forholdet (${risikohjemmel(krav)}).`;
+      return 'byggherren avslår forholdet.';
+    }
+    return 'byggherren frafaller pålegget mot å utstede endringsordre for allerede utført arbeid (NS 8407 punkt 32.3 første ledd c).';
   },
 } satisfies Standpunktstekster<'forhold'>;
 
