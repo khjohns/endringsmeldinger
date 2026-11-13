@@ -90,6 +90,11 @@
       "dato": "2026-11-13",
       "forhold": "#1402",
       "hva": "Oversikten bygges i oppsett B, og lenkene til ny sak står i topplinja (oppdragsgiver 13.11)."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Forprøven i oppsett B er kjørt, og funnene K-1–K-3 og K-7–K-11 er rettet. BF-44 er klar til bygging, og demosaken med tre lag (G-14) lages i byggingen (oppdragsgiver 13.11)."
     }
   ],
   "prototype": {
@@ -108,7 +113,7 @@
             "staar": "Siste brev: brev 6 fra byggherren, 27. oktober 2026."
           },
           {
-            "staar": "Svaret gjelder under forutsetning av at forholdet gir grunnlag for kravet."
+            "staar": "Svaret i brev 6 gis under forutsetning av at forholdet gir grunnlag for kravet."
           },
           {
             "staar": "10. november 2026"

@@ -65,6 +65,9 @@ commitene i #1890 (`93b1de7`, `750a8691`, `3b3bbc9`, `773f1f9`, `07907fb`, `09c1
 `2a9b8ce` og `4f8e041`) og endringstabellen i BF-44. Et bevisst valg som bryter et vedtak,
 er fortsatt et funn.
 
+Oppdragsgiver 13.11 etter vurderingen: «Rett de åtte». K-1–K-3 og K-7–K-11 er rettet i
+prototypen og bestillingen, og den mekaniske kontrollen er kjørt igjen uten avvik.
+
 ## Se etter i prøven
 
 1. I `#te-b` på 1440 px: hvilke krav og hvilket forhold har saken, og hvor står de?
