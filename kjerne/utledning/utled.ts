@@ -30,16 +30,14 @@ import { harProduktivitetspost } from '../spor/vederlag/format.ts';
 import { KONTROLLER_I_VEDERLAGET } from '../spor/vederlag/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
+import { enighetsgrunnlag, sammenfallStemmer } from '../frosset/standpunkt.ts';
+import { iSporet, kravetErDokumentasjon } from '../frosset/byggeklosser.ts';
 import {
-  enighetsgrunnlag,
   foresporselsrelasjon,
   svarPaaForesporsler,
   type Foresporselsrelasjon,
   type ForesporselOgSvar,
-  kravetErDokumentasjon,
-  sammenfallStemmer,
-} from '../frosset/standpunkt.ts';
-import { iSporet } from '../frosset/byggeklosser.ts';
+} from '../spor/frist/frysing.ts';
 import {
   KRAVSPOR,
   SPOR,

@@ -5,11 +5,14 @@
 
 import { beloep } from '../regler/beloep.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import type { Foresporselsrelasjon } from './standpunkt.ts';
 import { iSporet, type Svarsutregning, type Svarvurdering } from './byggeklosser.ts';
 import { UTREGNING_I_FORHOLDET } from '../spor/forhold/frysing.ts';
 import { SAMMENLIKNES_I_VEDERLAGET, UTREGNING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
-import { SAMMENLIKNES_I_FRISTEN, UTREGNING_I_FRISTEN } from '../spor/frist/frysing.ts';
+import {
+  SAMMENLIKNES_I_FRISTEN,
+  UTREGNING_I_FRISTEN,
+  type Foresporselsrelasjon,
+} from '../spor/frist/frysing.ts';
 import type { Krav, Spor } from '../typer.ts';
 
 /**

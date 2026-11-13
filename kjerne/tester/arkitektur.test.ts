@@ -596,7 +596,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Sporutledning', 'relasjon', 'kravpostvarsler'],
   ['ForesporselOgSvar', 'relasjon', 'foresporsel svar medKrav'],
   ['Foresporselsrelasjon', 'relasjon', 'art gjelder'],
-  ['frosset/standpunkt.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon'],
+  ['spor/frist/frysing.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon'],
   ['utledning/utled.ts', 'relasjon', 'foresporselForFristsvar'],
   [
     'Utledning',
@@ -726,7 +726,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // VS-U24: en egen innsigelse er en påberopelse etter § 33.4 eller § 32.2 bare mot varselet.
   ['frosset/standpunkt.ts', 'relasjon', 'innsigelsenPaaberoper', ['frosset/brevtekst.ts']],
   // OV-U4: kravene i et registrert brev er dokumentasjon (#787).
-  ['frosset/standpunkt.ts', 'relasjon', 'kravetErDokumentasjon', ['utledning/utled.ts']],
+  [
+    'frosset/byggeklosser.ts',
+    'relasjon',
+    'kravetErDokumentasjon',
+    ['utledning/utled.ts', 'frosset/standpunkt.ts', 'spor/frist/frysing.ts'],
+  ],
   // MM-U43 punkt 8: sammenfallet stemmer med standpunktene i samme frosne brev.
   [
     'frosset/standpunkt.ts',

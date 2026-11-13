@@ -138,8 +138,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "  sammenfallStemmer,\n} from '../frosset/standpunkt.ts';",
-        "  sammenfallStemmer,\n  virkninger as regn,\n} from '../frosset/standpunkt.ts';",
+        "import { enighetsgrunnlag, sammenfallStemmer } from '../frosset/standpunkt.ts';",
+        "import { enighetsgrunnlag, sammenfallStemmer, virkninger as regn } from '../frosset/standpunkt.ts';",
       ],
       [
         '  const svar = svarberegninger(alleSvar, spor);',
@@ -2549,7 +2549,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F319',
     feilklasse:
       'fristkravet som viser til forespørselen, leses ikke som svar på den (HF-U1, LV-U18 setning 3)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/frist/frysing.ts`,
     endringer: [['      if (f) Object.assign(f, { svar: krav.id, medKrav: true });', '']],
     mal: ['kravet som svarer på forespørselen, sier det'],
   },
