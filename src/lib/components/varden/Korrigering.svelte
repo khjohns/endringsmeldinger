@@ -10,7 +10,7 @@
   import { tick } from 'svelte';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Utledning } from '$kjerne/utledning/utled';
-  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Infotips from './Infotips.svelte';
@@ -100,7 +100,8 @@
       return;
     }
     const b = kjernesak.brev(kommando, undefined, true);
-    if (!b || !('tekst' in b) || !b.tekst) {
+    const brevet = kontrollbrev(b);
+    if (!brevet) {
       hindring = brevaarsak(b) ?? KORRIGERING.kanIkkeLages;
       await tick();
       document.getElementById(id('hindring'))?.focus();
@@ -108,13 +109,9 @@
     }
     onbrevkontroll({
       kommando,
-      tekst: b.tekst,
-      avsnitt: b.avsnitt,
+      ...brevet,
       detteSender: linjer,
       virkninger: [FORHOLDET.korrigeringenStaar(lukket, svarbrevet)].filter((v) => v !== null),
-      merking: b.merking,
-      deresRef: b.deresRef,
-      tittel: b.brevtittel,
     });
   }
 

@@ -14,7 +14,7 @@
   import type { Saksmerking } from '$lib/kjernesak/brevtekst';
   import { tekstenKanVaereUtdatert } from '$lib/kjernesak/kontekst.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
-  import Brevkontroll from './Brevkontroll.svelte';
+  import Brevkontroll, { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Knapp from './Knapp.svelte';
@@ -81,14 +81,7 @@
   let feil = $state<Record<string, string>>({});
   let avbryter = $state(false);
   let oppsummering = $state<HTMLElement | null>(null);
-  let kontroll = $state<{
-    tekst: string[];
-    avsnitt: Avsnitt[] | null;
-    merking: string | null;
-    deresRef: string[];
-    brevtittel: string | null;
-    kommando: Record<string, unknown>;
-  } | null>(null);
+  let kontroll = $state<Omit<TilBrevkontrollen, 'detteSender' | 'virkninger'> | null>(null);
 
   const felt = $derived(forhold ? feltene(forhold, KJERNE) : FELTENE_UTEN_FORHOLD);
   const valgt = $derived(forhold ? forholdet(forhold) : null);
@@ -215,22 +208,16 @@
     if (forhold && !ny.tittel && !ny.dato && !ny.endringsordre && !ny.vedlegg) {
       // Kjernen prøver påberopelsen slik serveren gjør, med kravet til beskrivelsen (GR-U15).
       const brev = await brevetMedNummer();
+      const lest = kontrollbrev(brev);
       if (!brev) ny.kjernen = NYSAK.ingenMerking;
       else if ('programfeil' in brev) ny.kjernen = brev.programfeil;
       else if ('avvisning' in brev) {
         if (brev.avvisning.regel === 'BESKRIVELSE_MANGLER')
           ny.beskrivelse = NYSAK.beskriv(felt.beskrivelse.endsWith('pålegget'));
         else ny.kjernen = brev.avvisning.melding;
-      } else if (!Object.keys(ny).length && brev.tekst) {
+      } else if (!Object.keys(ny).length && lest) {
         feil = {};
-        kontroll = {
-          tekst: brev.tekst,
-          avsnitt: brev.avsnitt,
-          merking: brev.merking,
-          deresRef: brev.deresRef,
-          brevtittel: brev.brevtittel,
-          kommando: kommandoene(utfylling(), KJERNE).paaberopelse,
-        };
+        kontroll = { ...lest, kommando: kommandoene(utfylling(), KJERNE).paaberopelse };
         return;
       }
     }
@@ -239,8 +226,8 @@
     oppsummering?.focus();
   }
 
-  const sammeTekst = (a: string[], b: string[]) =>
-    a.length === b.length && a.every((t, i) => t === b[i]);
+  const sammeTekst = (a: Avsnitt[], b: Avsnitt[]) =>
+    a.length === b.length && a.every((t, i) => t.laast === b[i].laast);
 
   /** Brevet med nummeret saken vil få nå (LV-U46), eller `null` når nummeret ikke kan hentes. */
   async function brevetMedNummer() {
@@ -277,23 +264,10 @@
         sendefeil = e instanceof Error ? e.message : String(e);
         if (tekstenKanVaereUtdatert(e)) {
           // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt (LV-U46).
-          const brev = await brevetMedNummer();
+          const lest = kontrollbrev(await brevetMedNummer());
           // Samme tekst betyr at teksten var annerledes av en annen grunn; da står serverens melding.
-          if (
-            brev &&
-            'tekst' in brev &&
-            brev.tekst &&
-            kontroll &&
-            !sammeTekst(brev.tekst, kontroll.tekst)
-          ) {
-            kontroll = {
-              ...kontroll,
-              tekst: brev.tekst,
-              avsnitt: brev.avsnitt,
-              merking: brev.merking,
-              deresRef: brev.deresRef,
-              brevtittel: brev.brevtittel,
-            };
+          if (lest && kontroll && !sammeTekst(lest.avsnitt, kontroll.avsnitt)) {
+            kontroll = { ...kontroll, ...lest };
             sendefeil = NYSAK.nyttNummer;
           }
         }
@@ -336,12 +310,7 @@
 {#if kontroll && valgt}
   <Brevkontroll
     kjernesak={sending}
-    kommando={kontroll.kommando}
-    tekst={kontroll.tekst}
-    avsnitt={kontroll.avsnitt}
-    merking={kontroll.merking}
-    deresRef={kontroll.deresRef}
-    tittel={kontroll.brevtittel}
+    {...kontroll}
     handling={NYSAK.handling}
     svarerPaa={null}
     detteSender={[
