@@ -910,6 +910,8 @@ export const SAKSLISTE = {
   sak: 'Sak',
   krevdVederlag: 'Krevd vederlag',
   krevdFrist: 'Krevd frist',
+  /** Et fristkrav for flere frister har ingen sum (KA-U74). */
+  frister: (n: number) => `${n} frister`,
   eksMva: 'eks. mva.',
   sisteBrev: 'Siste brev',
   /** Avsenderen av sakens siste brev, til brevkoden er bygget (#1174). */

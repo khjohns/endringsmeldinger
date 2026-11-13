@@ -4017,6 +4017,166 @@ forkastet = true
 tekst = '''
 Det egne varselet går foran det første kravet i påberopelsen og i den nye kravversjonen, også når det er datert etter kravet. Kontrollen etter VS-U60 regner fortsatt med det tidligste (VS-U66). Forhold: presiserer samlevedtaket for varslingsdatoen (VS-U43) punkt 10.'''
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U80"
+dato = 2026-11-13
+hvem = "oppdragsgiver"
+kilde = ["#1745"]
+sporsmal = '''
+Spørsmål 1 ordrett slik det står i spørsmålsfila for del 2 av fristen (#1745), stilt 13.11 som nummerert liste i tekst:
+
+**1. Om byggherren svarer på hindringen én gang for hele kravet.**
+
+Bakgrunn: Etter punkt 33.1 har totalentreprenøren krav på fristforlengelse når fremdriften hindres.
+Bestillingen lar byggherren svare på hindringen én gang for hele kravet (M-7), og
+[KA-U78](../../plans/vedtak.md#ka-u78) setter laget for hindringen før dagene. Ingen vedtak sier om
+hindringen kan besvares ulikt for fristene. P-4 i bestillingen står åpen. Et forhold kan hindre
+arbeidet mot én frist og ikke mot en annen. Etter første ekte sak krever et svar per frist et nytt
+format (B-17).
+
+- **A (anbefalt):** Byggherren svarer på hindringen én gang for hele kravet. Mener byggherren at
+  fremdriften ikke ble hindret for en av fristene, avslår byggherren dagene for den fristen og
+  begrunner det. Forhold: avgjør P-4 i BF-20 og stadfester M-7.
+- **B:** Byggherren svarer på hindringen for hver frist. Laget for hindringen etter KA-U78 gjelder
+  bare fristene byggherren mener ikke ble hindret. Forhold: avgjør P-4 i BF-20 og presiserer KA-U78.
+
+Anbefaling: A. Hindringen gjelder forholdet totalentreprenøren påberoper, og bestillingen og
+prototypen som er godkjent, har ett svar. B gir et svar med ulike lag per frist og et skjema med ett
+spørsmål til per frist.
+Hva valget styrer: formatet for svaret, skjemaet og brevet for byggherren, og lagene per frist.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 13.11, ordrett, i én melding med svarene på spørsmål 1–3 i #1745 og S-4 i BF-37 (#1837) og BF-08 (#1834), nummerert 4 og 5: «1A. Les kontrakten, punkt 33.1 fra khjohns/kontrakt. I realiteten er det to vilkår: 1) må foreligge en hindring og 2) årsakssammenheng - hindringen må være forårsaket av forholdet (det som påberopes). Jeg tenker dette tas samlet i en begrunnelse, men vilkårene - vurdergingstema - bør fremgå. Da er jeg enig i at den konkrete begrunnelsen fra BH - både knyttet til antall dager fristforlengelse som gis per frist og om det foreligger en hindring og er årsaksammenheng, gis i en samlet begrunnelse. 2. A. 3. Kan vi ikke bygge lesingen først? 4. A. 5 A» Det betyr spørsmål 1 A. Oppfølgingen til svaret er ført som KA-U81, svar 3 som GFK-U26, 4 som VS-U71 og 5 som GR-U37.'''
+folge = '''
+Gjelder BF-20 (#1745).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Byggherren svarer på hindringen én gang for hele kravet. Mener byggherren at fremdriften ikke ble hindret for en av fristene, avslår byggherren dagene for den fristen og begrunner det. Forhold: avgjør P-4 i BF-20 og stadfester M-7.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Byggherren svarer på hindringen for hver frist. Laget for hindringen etter KA-U78 gjelder bare fristene byggherren mener ikke ble hindret. Forhold: avgjør P-4 i BF-20 og presiserer KA-U78.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at skjemaet nevner begge vilkårene"
+id = "KA-U81"
+dato = 2026-11-13
+hvem = "oppdragsgiver"
+kilde = ["#1745"]
+sporsmal = '''
+Oppfølgingsspørsmålet til svaret på spørsmål 1 (KA-U80) ordrett, stilt 13.11:
+
+**1 (oppfølging). Hvordan skal de to vilkårene i punkt 33.1 fremgå av byggherrens svar?** Du har sagt at hindringen og årsakssammenhengen begrunnes samlet, sammen med dagene for hver frist, men at begge vilkårene skal fremgå som vurderingstema. KA-U78 setter standpunktet om hindringen i laget før dagene.
+- **A1 (anbefalt):** Byggherren tar ett standpunkt, om fremdriften ble hindret av forholdet totalentreprenøren påberoper. Skjemaet og brevet nevner begge vilkårene: at det foreligger en hindring, og at hindringen skyldes forholdet. Byggherren begrunner dem samlet, sammen med dagene for hver frist. Forholdet: presiserer KA-U78 og avgjør P-4 i BF-20.
+- **A2:** Byggherren tar to standpunkter, ett om hindringen og ett om årsakssammenhengen, én gang for hele kravet og i samme lag etter KA-U78, med én samlet begrunnelse. Brevet kan da si for eksempel at fremdriften ble hindret, men ikke av forholdet. Forholdet: presiserer og utvider KA-U78. Rekkefølgen mellom de to vilkårene må også avgjøres.
+- **Hva valget styrer:** formatet for svaret, som ikke kan endres uten migrering etter første ekte sak, og skjemaet og brevet for byggherren.'''
+valgt = "A1"
+svar = '''
+Oppdragsgiver 13.11, ordrett, på oppfølgingsspørsmålet: «A1.»'''
+forhold = [
+  { art = "presiserer", vedtak = "ka-u80" },
+  { art = "presiserer", vedtak = "ka-u78" },
+]
+folge = '''
+Gjelder BF-20 (#1745).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A1"
+tekst = '''
+Byggherren tar ett standpunkt, om fremdriften ble hindret av forholdet totalentreprenøren påberoper. Skjemaet og brevet nevner begge vilkårene: at det foreligger en hindring, og at hindringen skyldes forholdet. Byggherren begrunner dem samlet, sammen med dagene for hver frist. Forholdet: presiserer KA-U78 og avgjør P-4 i BF-20.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "A2"
+tekst = '''
+Byggherren tar to standpunkter, ett om hindringen og ett om årsakssammenhengen, én gang for hele kravet og i samme lag etter KA-U78, med én samlet begrunnelse. Brevet kan da si for eksempel at fremdriften ble hindret, men ikke av forholdet. Forholdet: presiserer og utvider KA-U78. Rekkefølgen mellom de to vilkårene må også avgjøres.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["mm-u10", "ov-u80", "vs-u52"]
+id = "VS-U71"
+dato = 2026-11-13
+hvem = "oppdragsgiver"
+kilde = ["#1837"]
+sporsmal = '''
+Spørsmål 4 (S-4) ordrett slik det står i spørsmålsfila for BF-37 (#1837), stilt 13.11 etter prøven:
+
+## Spørsmål 4 (S-4) etter prøven 13.11: varslene i vederlaget og fristforlengelsen i samme brev
+
+**Bakgrunn.** Oppdragsgiver prøvde prototypen v1 13.11
+([#1837](https://github.com/khjohns/endringsmeldinger/issues/1837#issuecomment-6848151590)). I v1 kunne
+varselet om fristforlengelse stå som en rad i skjemaet «Bare varsle, uten krav» for vederlaget. Etter
+prøven er utgangspunktet ett skjema for vederlaget og ett for fristen, der totalentreprenøren først velger
+om det bare varsles eller om kravet også fremsettes. Skjemaet for vederlaget har ikke varselet om
+fristforlengelse, og skjemaet for fristen har det (U-13 i BF-20). Det er design. Men
+[VS-U67](../../plans/vedtak.md#vs-u67) sier at totalentreprenøren kan sende flere varsler i saken i samme
+brev, «også i vederlaget og fristforlengelsen». Med to skjemaer tilbyr løsningen ikke det lenger, og
+beslutningen må endres eller stå. Forslaget om at alle varsler kan sendes ved påberopelsen av forholdet,
+bygges etter BF-37 (#1886).
+
+Det som ikke er spørsmål: [MM-U10](../../plans/vedtak.md#mm-u10) sier at et brev *kan* inneholde utsagn
+i flere spor, ikke at hvert skjema skal tilby det. Et brev sendt utenfor løsningen som varslet både
+vederlagsjustering og fristforlengelse, registreres én gang med begge varslene
+([OV-U80](../../plans/vedtak.md#ov-u80): «totalentreprenøren velger ett eller flere varsler»), og datoen
+settes én gang. Lista i OV-U80 har ikke varslene etter punkt 34.3.3 og 34.4; dem legger
+[VS-U52](../../plans/vedtak.md#vs-u52) til. Spørsmålet gjelder ikke varselet etter punkt 32.2 eller et
+brev med krav (P-1 i BF-37).
+
+**Alternativene.**
+
+- **A (anbefalt):** Et brev med varsler fra løsningen gjelder én sak. Totalentreprenøren kan sende flere
+  varsler i vederlaget i samme brev, for eksempel for flere arbeider. Varselet om fristforlengelse sendes
+  fra skjemaet for fristen, i et eget brev, ikke sammen med varslene i vederlaget. Varsler i flere saker sendes som ett brev per sak, og
+  et brev sendt utenfor løsningen som varslet i flere saker, registreres i hver sak. Et brev sendt utenfor
+  løsningen som varslet i både vederlaget og fristforlengelsen, registreres én gang med begge varslene
+  (OV-U80, VS-U52). Varsler i begge spor i samme brev fra løsningen venter til påberopelsen av forholdet kan ha
+  dem (#1886). Forhold: endrer VS-U67 («også i vederlaget og fristforlengelsen» utgår for brev fra
+  løsningen), følger MM-U10, OV-U80 og VS-U52.
+- **B:** VS-U67 står. Skjemaene er skilt, men totalentreprenøren kan legge varselet om fristforlengelse
+  fra skjemaet for fristen til et utkast med varsler fra skjemaet for vederlaget, så de sendes som ett
+  brev. Forhold: følger VS-U67 og MM-U10.
+
+**Anbefalingen.** A. Det følger oppdragsgivers ord etter prøven («I vederlagsskjema kan du ikke også
+varsle om frist»), og B krever et utkast som går på tvers av to skjemaer, som ingen prototype har vist.
+At brukerne sjelden trenger begge i samme brev etter påberopelsen, er en antakelse. Påberopelsen er
+stedet oppdragsgiver pekte på for alle varslene (#1886).
+
+**Hva valget styrer.** Om skjemaet for vederlaget og skjemaet for fristen kan dele et utkast, og teksten
+i VS-U67. Under B kan et utkast med varselet om fristforlengelse stoppe hele brevet hvis fristkravet sendes
+først (VS-U16), også varslene i vederlaget. Under A sender totalentreprenøren to brev samme dag.
+
+Alternativene er prøvd mot vedtakene og i tre forløp av en subagent 13.11, og funnene er rettet.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 13.11, ordrett, i én melding med svarene på spørsmål 1–3 i #1745 og S-4 i BF-37 og BF-08, nummerert 4 og 5 (se KA-U80): «4. A.» Det betyr S-4 A i BF-37.'''
+forhold = [
+  { art = "endrer", vedtak = "vs-u67" },
+  { art = "bygger på", vedtak = "mm-u10" },
+  { art = "bygger på", vedtak = "ov-u80" },
+  { art = "bygger på", vedtak = "vs-u52" },
+]
+folge = '''
+Gjelder BF-37 (#1837).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et brev med varsler fra løsningen gjelder én sak. Totalentreprenøren kan sende flere varsler i vederlaget i samme brev, for eksempel for flere arbeider. Varselet om fristforlengelse sendes fra skjemaet for fristen, i et eget brev, ikke sammen med varslene i vederlaget. Varsler i flere saker sendes som ett brev per sak, og et brev sendt utenfor løsningen som varslet i flere saker, registreres i hver sak. Et brev sendt utenfor løsningen som varslet i både vederlaget og fristforlengelsen, registreres én gang med begge varslene (OV-U80, VS-U52). Varsler i begge spor i samme brev fra løsningen venter til påberopelsen av forholdet kan ha dem (#1886). Forhold: endrer VS-U67 («også i vederlaget og fristforlengelsen» utgår for brev fra løsningen), følger MM-U10, OV-U80 og VS-U52.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+VS-U67 står. Skjemaene er skilt, men totalentreprenøren kan legge varselet om fristforlengelse fra skjemaet for fristen til et utkast med varsler fra skjemaet for vederlaget, så de sendes som ett brev. Forhold: følger VS-U67 og MM-U10.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Svar og standpunkt"
@@ -7844,6 +8004,108 @@ tekst = '''
 Som A, men svarer byggherren på forholdet i samme brev, kan byggherren uttrykkelig velge at brevet etter innledningen sier: ‹Byggherren har tidligere svart på forholdet i byggherrens <dokumenttype> av <dato>.› Setningen er valgfri og tas ikke med av opplysningen byggherren ga om svaret utenfor løsningen alene. Forhold: presiserer OV-U46; utvider OV-U46 (skjemaet og brevet ved samme brev); utvider LV-U34 (innledningen).'''
 forkastet = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "«Byggherren laster opp dokumentet som PDF»; at valget av dokumenttype, dato og en kort identifikasjon faller bort for bekreftelsen"
+beslutningsdel = "«Korrespondansen og bekreftelsen lagres i samme handling når bekreftelsen sendes»"
+id = "GR-U37"
+dato = 2026-11-13
+hvem = "oppdragsgiver"
+kilde = ["#1834", "#1306"]
+sporsmal = '''
+Spørsmål 4 (S-4) ordrett slik det står i spørsmålsfila for BF-08 (#1834), stilt 13.11 etter prøven:
+
+## Spørsmål 4: S-4, dokumentet med svaret utenfor løsningen (13.11)
+
+Spørsmålet kommer fra oppdragsgivers prøve av prototypen 13.11
+([#1834](https://github.com/khjohns/endringsmeldinger/issues/1834#issuecomment-6848254614)): «samme
+skjema - ingen steder å laste opp registrert dokument.» Skjemaet er bekreftelsen av et svar gitt
+utenfor løsningen. Spørsmålet stilles på samme måte som S-1–S-3.
+
+**Bakgrunn.** Når byggherren bekrefter et svar gitt utenfor løsningen, oppgir byggherren dokumentet
+«som ved henvisningen etter GR-U26: et registrert dokument, eller dokumenttypen, datoen og en kort
+identifikasjon» ([OV-U46](../../plans/vedtak.md#ov-u46)). Bekreftelsen gir ingen vei til å legge ved
+dokumentet. Et registrert dokument er korrespondanse som alt er lagt til i saken
+([OV-U79](../../plans/vedtak.md#ov-u79)). I dag legges den til et annet sted enn i skjemaet. Ved
+totalentreprenørens varsel er valget gjort den andre veien. Et varsel sendt utenfor løsningen legges
+til som korrespondanse med kategorien varsel i samme forløp ([VS-U38](../../plans/vedtak.md#vs-u38)).
+Et dokument totalentreprenøren legger til i kravskjemaet, legges ved kravet, og kravet viser til det
+([VS-U51](../../plans/vedtak.md#vs-u51)).
+
+Hvilken kategori dokumentet får etter OV-U80, avgjør virkningen. Som svar er det et registrert svar,
+med samme virkning som et svar sendt fra løsningen og med datoen det ble sendt. Da trengs ingen
+bekreftelse. Som dokumentasjon utleder løsningen ingenting av det, og virkningen kommer fra
+bekreftelsen.
+
+**Avgrensning.** Spørsmålet gjelder bare bekreftelsen. Henvisningen i et svar på vederlag eller
+frist ([samlevedtaket](../../plans/vedtak.md#samlevedtak-ubesvart-grunnlag) GR-U34 punkt 6) har samme
+ordlyd, men står uendret. Svaret på spørsmålet om byggherren alt har svart utenfor løsningen, er
+obligatorisk (punkt 1). Krevde henvisningen en PDF, måtte en byggherre uten dokumentet svare «nei».
+Brevet ville da fått forbeholdet ‹Byggherren har ennå ikke svart …› (punkt 3), og den uriktige
+setningen fryses når brevet sendes.
+
+**Hva valget styrer.** Skjemaet for bekreftelsen (`#bekreft` i prototypen), lagringen av dokumentet
+i samme handling, og om bekreftelsen legger det ved. Det bygges i #1306.
+
+- **A (anbefalt):** Er dokumentet med det tidligere svaret ikke lagt til i saken, legger byggherren
+  det til som korrespondanse i samme forløp som bekreftelsen. Byggherren laster opp dokumentet som PDF
+  og oppgir det OV-U79 krever, også hvem som sendte det. Det står som dokumentasjon (OV-U80).
+  Datoen det ble sendt, er datoen for det tidligere svaret i bekreftelsen. Korrespondansen og
+  bekreftelsen lagres i samme handling når bekreftelsen sendes, også når den først går til godkjenning
+  etter fullmakten. Sendes den ikke, lagres ingen av dem. Avvises bekreftelsen fordi det tidligere
+  svaret var en endringsordre (OV-U6), følger dokumentet med til registreringen av endringsordren.
+  Bekreftelsen viser til dokumentet slik brevene ellers viser til korrespondanse (LV-U42, LV-U53), og
+  legger det ved. Korrespondanse som en sendt bekreftelse viser til, kan ikke senere velges som svar
+  på samme versjon av påberopelsen (OV-U84). Valget av dokumenttype, dato og en kort identifikasjon
+  uten dokumentet faller bort for bekreftelsen. Valget av dokumenttype sier ikke noe om formkravet i
+  punkt 5 i NS 8407. Forhold: endrer OV-U46; utvider GR-U35 med vedlegget; snevrer inn OV-U80 og
+  OV-U84; følger LV-U42, LV-U45 og LV-U53; i tråd med VS-U38 og VS-U51. Henvisningen etter GR-U34
+  punkt 6 endres ikke.
+- **B:** Som A, men dokumentet er valgfritt. Uten dokumentet oppgir byggherren dokumenttypen, datoen
+  og en kort identifikasjon som før, og bekreftelsen har ikke noe vedlegg. Forhold: utvider OV-U46 og
+  GR-U35; snevrer inn OV-U80 og OV-U84; følger LV-U42, LV-U45 og LV-U53; i tråd med VS-U38 og VS-U51.
+- **C:** Skjemaet står etter OV-U46. Vil byggherren ha dokumentet i saken, legger byggherren det til
+  som korrespondanse før bekreftelsen og velger det som et registrert dokument. Skjemaet lenker til
+  registreringen. Forhold: presiserer OV-U46 (designdelen).
+
+**Anbefaling: A.** Det er samme mønster som når totalentreprenøren legger til et varsel sendt utenfor
+løsningen (VS-U38). Bekreftelsen er byggherrens opplysning om et dokument, og med A kan
+totalentreprenøren lese dokumentet i saken. B gir to veier, og den ene har ikke noe dokument. At den
+veien sjelden trengs, er en antakelse og ikke prøvd på brukere. A har en kostnad: byggherren må ha
+dokumentet som PDF, også et møtereferat. Et muntlig svar uten referat kan ikke bekreftes etter A. Da
+kan byggherren gi et nytt svar på forholdet. C lar byggherren forlate skjemaet midt i utfyllingen.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 13.11, ordrett, i én melding med svarene på spørsmål 1–3 i #1745 og S-4 i BF-37 og BF-08, nummerert 4 og 5 (se KA-U80): «5 A» Det betyr S-4 A i BF-08.'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u46" },
+  { art = "utvider", vedtak = "gr-u35" },
+  { art = "snevrer inn", vedtak = "ov-u80" },
+  { art = "snevrer inn", vedtak = "ov-u84" },
+  { art = "bygger på", vedtak = "lv-u42" },
+  { art = "bygger på", vedtak = "lv-u45" },
+  { art = "bygger på", vedtak = "lv-u53" },
+]
+folge = '''
+I tråd med VS-U38 og VS-U51. Henvisningen etter GR-U34 punkt 6 endres ikke. Gjelder BF-08 (#1834) og #1306.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Er dokumentet med det tidligere svaret ikke lagt til i saken, legger byggherren det til som korrespondanse i samme forløp som bekreftelsen. Byggherren laster opp dokumentet som PDF og oppgir det OV-U79 krever, også hvem som sendte det. Det står som dokumentasjon (OV-U80). Datoen det ble sendt, er datoen for det tidligere svaret i bekreftelsen. Korrespondansen og bekreftelsen lagres i samme handling når bekreftelsen sendes, også når den først går til godkjenning etter fullmakten. Sendes den ikke, lagres ingen av dem. Avvises bekreftelsen fordi det tidligere svaret var en endringsordre (OV-U6), følger dokumentet med til registreringen av endringsordren. Bekreftelsen viser til dokumentet slik brevene ellers viser til korrespondanse (LV-U42, LV-U53), og legger det ved. Korrespondanse som en sendt bekreftelse viser til, kan ikke senere velges som svar på samme versjon av påberopelsen (OV-U84). Valget av dokumenttype, dato og en kort identifikasjon uten dokumentet faller bort for bekreftelsen. Valget av dokumenttype sier ikke noe om formkravet i punkt 5 i NS 8407. Forhold: endrer OV-U46; utvider GR-U35 med vedlegget; snevrer inn OV-U80 og OV-U84; følger LV-U42, LV-U45 og LV-U53; i tråd med VS-U38 og VS-U51. Henvisningen etter GR-U34 punkt 6 endres ikke.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Som A, men dokumentet er valgfritt. Uten dokumentet oppgir byggherren dokumenttypen, datoen og en kort identifikasjon som før, og bekreftelsen har ikke noe vedlegg. Forhold: utvider OV-U46 og GR-U35; snevrer inn OV-U80 og OV-U84; følger LV-U42, LV-U45 og LV-U53; i tråd med VS-U38 og VS-U51.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Skjemaet står etter OV-U46. Vil byggherren ha dokumentet i saken, legger byggherren det til som korrespondanse før bekreftelsen og velger det som et registrert dokument. Skjemaet lenker til registreringen. Forhold: presiserer OV-U46 (designdelen).'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Varsler, frister og innsigelser"
@@ -22489,6 +22751,43 @@ tekst = '''
 Svaret på fristen får strukturen i samme PR som svarene på forholdet og vederlaget, før flyttingen i runde C.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+klasse = "beslutning"
+bindende_i = ["hf-u29"]
+id = "LV-U73"
+dato = 2026-11-13
+hvem = "oppdragsgiver"
+kilde = ["#1834", "#1065"]
+sporsmal = '''
+Spørsmål 6 ordrett slik det står i [spørsmålsfila](../vedlegg/svar-paa-forholdet-2026-11-12/sporsmal-6.md), stilt 13.11 i chat i runde C (#1065) og lagret der etterpå:
+
+**6. Skal brevet også slutte å si «erstatter»?** Samlevedtaket for byggherrens nye svar, punkt A.2, sier at det nye svaret erstatter det tidligere som byggherrens siste svar i løsningen. Brevet sier i dag ‹Svaret erstatter byggherrens svar i brev … av …› (LV-U34). Etter prinsippet ditt 13.11 er budskapet vedtak og ordlyden design eller beslutning.
+- **A (anbefalt):** Budskapet står: det nye svaret er byggherrens siste svar i løsningen, uten totalentreprenørens aksept. Brevet sier det uten «erstatter», for eksempel ‹Dette er byggherrens nye svar. Byggherrens forrige svar står i brev … av …›. Den konkrete ordlyden avgjøres i byggingen. Endringen føres som beslutning om ordlyden og gjelder bare nye brev (MM-U9).
+- **B:** Brevet beholder «erstatter». Det er bare visningen som endres.
+
+A gir samme ord i visningen og brevet, og et brev som ikke kan leses som om begrunnelsen i det forrige svaret er falt bort. Med B står brevet som i dag.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 13.11, ordrett: «6 A.» Bakgrunnen, oppdragsgiver 13.11, ordrett: «Visning "erstatter". Vedtaket går for langt når det angir ordlyd. Vedtak angir budskap - den konkrete ordlyden er design/beslutning. Jeg mener "erstatter" kan misforstås da det konkrete innholdet i brevene - begrunnelsen -  ofte utfyller hverandre. Derfor er det bedre med noe som enkelt som "Nytt svar" og "forrige svar". for øvrig er prototypen ok.»'''
+forhold = [
+  { art = "endrer", vedtak = "hf-u29" },
+  { art = "endrer", vedtak = "lv-u34" },
+  { art = "endrer", vedtak = "mm-u52" },
+]
+folge = '''
+Gjelder punkt A.2 i HF-U29, setningen om en revisjon i LV-U34 og brevteksten i designdelen til MM-U52. Gjelder #1834.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Budskapet står: det nye svaret er byggherrens siste svar i løsningen, uten totalentreprenørens aksept. Brevet sier det uten «erstatter», for eksempel ‹Dette er byggherrens nye svar. Byggherrens forrige svar står i brev … av …›. Den konkrete ordlyden avgjøres i byggingen. Endringen føres som beslutning om ordlyden og gjelder bare nye brev (MM-U9).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Brevet beholder «erstatter». Det er bare visningen som endres.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
@@ -23567,6 +23866,87 @@ tekst = '''
 Leserollen ser fristene, med nummer, navn og dato, men ikke satsene og kontraktssummen. Forhold: presiserer GFK-U23, og serverøkta må dele lesingen.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+beslutningsdel = "«Lesingen bygges før verdien regnes per frist»"
+id = "GFK-U26"
+dato = 2026-11-13
+hvem = "oppdragsgiver"
+kilde = ["#1745"]
+sporsmal = '''
+Spørsmål 3 ordrett slik det står i spørsmålsfila for del 2 av fristen (#1745), stilt 13.11 som nummerert liste i tekst:
+
+**3. Hvilken dato hverdagene i verdien av svaret telles fra.**
+
+Bakgrunn: Fullmakten og 30 %-grensen ganger satsen med hverdagene i forlengelsen
+([GFK-U17](../../plans/vedtak.md#gfk-u17), [GFK-U24](../../plans/vedtak.md#gfk-u24)), for hver frist
+([GFK-U21](../../plans/vedtak.md#gfk-u21)). Hverdagene telles fra fristen slik den står etter
+fristforlengelse som er registrert som godkjent eller avtalt
+([GFK-U19](../../plans/vedtak.md#gfk-u19)). GFK-U19 forkastet at de telles fra datoen i fristtabellen.
+Løsningen leser i dag ikke forlengelsene i andre saker. Skjemaet for kravet trenger den samme lesingen
+for datoen etter [KA-U77](../../plans/vedtak.md#ka-u77) (U-2, D-9), og der er partene enige bare når
+totalentreprenøren har godtatt dagene. Lesingen på tvers av saker må holde prosjektgrensen. Hvor ofte
+datoen gir et annet antall: når verdien uten hele uker telles fra fristen i tabellen i stedet for den
+forlengede fristen i 2026, blir antallet ulikt i om lag 45 % av tilfellene, i begge retninger. Frist 30.4
+med 14 dager avtalt og 10 dager godkjent i svaret gir 7 hverdager fra tabellen og 8 fra den forlengede
+fristen. Frist 30.3 med 3 dager avtalt og 5 dager godkjent gir 3 og 2. En for lav verdi kan la
+saksbehandleren sende svaret uten nok fullmakt ([GFK-U4](../../plans/vedtak.md#gfk-u4),
+[GFK-U8](../../plans/vedtak.md#gfk-u8), [GFK-U10](../../plans/vedtak.md#gfk-u10)).
+
+- **A:** Til løsningen leser forlengelsene i andre saker, telles hverdagene fra datoen i fristtabellen,
+  og utregningen sier at forlengelser i andre saker ikke er tatt med. Forhold: endrer GFK-U19 til
+  lesingen er bygget.
+- **B:** Hverdagene telles fra fristen etter forlengelsene i andre saker i samme kontrakt, slik GFK-U19
+  sier. En forlengelse er godkjent når byggherren har godkjent dagene i første lag i sitt gjeldende svar,
+  og avtalt når totalentreprenøren har godtatt dagene i et svar eller en endringsordre (KA-U77).
+  Lesingen bygges før verdien regnes per frist. Forhold: presiserer GFK-U19.
+- **C (anbefalt):** Til løsningen leser forlengelsene i andre saker, regnes verdien med det høyeste
+  antallet hverdager forlengelsen kan ha: kalenderdagene minus én søndag for hver hele uke. Utregningen
+  sier det. Verdien blir aldri for lav. Når lesingen er bygget, gjelder B. Forhold: endrer GFK-U19 til
+  lesingen er bygget.
+- **C2:** Som C når ingen annen sak i kontrakten har en forlengelse av fristen. Har en annen sak det, kan
+  dagene ikke verdsettes, og svaret krever hele kjeden, som når satsen mangler
+  ([GFK-U3](../../plans/vedtak.md#gfk-u3)). Forhold: endrer GFK-U19 til lesingen er bygget, og
+  presiserer GFK-U3. Det krever lesingen av om det finnes en forlengelse.
+
+Anbefaling: C. Den gir aldri for lite fullmakt og trenger ikke lesingen på tvers av saker. Prisen er at
+et svar i noen tilfeller trenger en godkjenner mer enn med B, inntil lesingen er bygget. A kan gi for
+lav verdi. B gjør del 2 avhengig av lesingen på tvers av saker. C2 trenger lesingen likevel og sender
+alle svar med forlengelser i andre saker gjennom hele kjeden. Å nekte å lage godkjenningspakken når en
+annen sak har forlengelse, frarådes, fordi byggherren da ikke kan svare i tide.
+Hva valget styrer: verdien fullmakten og godkjenningskjeden regnes av for fristen, og om lesingen på
+tvers av saker må bygges før verdien.'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 13.11, ordrett, i én melding med svarene på spørsmål 1–3 i #1745 og S-4 i BF-37 og BF-08 (se KA-U80): «3. Kan vi ikke bygge lesingen først?» Orkestratoren svarte samme dag: «spørsmål 3 leser jeg som B», og oppdragsgiver svarte på oppfølgingen til spørsmål 1 uten innsigelse. Det betyr B.'''
+forhold = [
+  { art = "presiserer", vedtak = "gfk-u19" },
+]
+folge = '''
+Gjelder BF-20 (#1745).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Til løsningen leser forlengelsene i andre saker, telles hverdagene fra datoen i fristtabellen, og utregningen sier at forlengelser i andre saker ikke er tatt med. Forhold: endrer GFK-U19 til lesingen er bygget.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Hverdagene telles fra fristen etter forlengelsene i andre saker i samme kontrakt, slik GFK-U19 sier. En forlengelse er godkjent når byggherren har godkjent dagene i første lag i sitt gjeldende svar, og avtalt når totalentreprenøren har godtatt dagene i et svar eller en endringsordre (KA-U77). Lesingen bygges før verdien regnes per frist. Forhold: presiserer GFK-U19.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Til løsningen leser forlengelsene i andre saker, regnes verdien med det høyeste antallet hverdager forlengelsen kan ha: kalenderdagene minus én søndag for hver hele uke. Utregningen sier det. Verdien blir aldri for lav. Når lesingen er bygget, gjelder B. Forhold: endrer GFK-U19 til lesingen er bygget.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C2"
+tekst = '''
+Som C når ingen annen sak i kontrakten har en forlengelse av fristen. Har en annen sak det, kan dagene ikke verdsettes, og svaret krever hele kjeden, som når satsen mangler ([GFK-U3](#gfk-u3)). Forhold: endrer GFK-U19 til lesingen er bygget, og presiserer GFK-U3. Det krever lesingen av om det finnes en forlengelse.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Kontrakt, API og saksopprettelse"

@@ -24,7 +24,7 @@ export interface Kontraktsfrist {
   fristId: number;
   /**
    * Kontraktens nummer på fristen, eller `null` når kontrakten ikke nummererer den.
-   * Brevet viser fristen med nummeret og navnet (`betegnelse`).
+   * Brevet viser fristen med nummeret og navnet (`betegnelsen` i `kjerne/spor/frist/format.ts`).
    */
   nummer: string | null;
   navn: string;
@@ -55,11 +55,6 @@ function promilleAv(grunnlag: number, promille: number): number {
   const teller = beloep(grunnlag)! * BigInt(Math.round(promille * 10_000));
   const nevner = 10_000_000n;
   return tilTall((teller * 2n + nevner) / (nevner * 2n));
-}
-
-/** Fristen slik kontrakten betegner den: nummeret, når den har et, og navnet. */
-export function betegnelse(f: { nummer: string | null; navn: string }): string {
-  return f.nummer === null ? f.navn : `${f.nummer} ${f.navn}`;
 }
 
 /** Standardverdiene etter § 40.3 a (GFK-U16), som driften registrerer uttrykkelig. */

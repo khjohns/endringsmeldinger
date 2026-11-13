@@ -466,7 +466,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Krav', 'relasjon', 'id spor erstatter gjelder'],
   ['Krav', 'utsagn', 'innhold'],
   // #1707, #1711: kravinnholdet leses gjennom den typede tilgangen i formatfila for sporet (#1783).
-  ['Krav.innhold', 'utsagn', 'dager', ['spor/frist/format.ts']],
+  ['Krav.innhold', 'utsagn', 'frister trekker', ['spor/frist/format.ts']],
   [
     'Krav.innhold',
     'utsagn',
@@ -480,7 +480,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'endringsordre',
     ['spor/forhold/tekst.ts', 'spor/forhold/kommando.ts:kategorisperre'],
   ],
-  ['Fristinnhold', 'utsagn', 'dager'],
+  // KA-U74, KA-U76, KA-U79: fristene i fristkravet med dagene for hver, og fristene TE trekker.
+  ['Fristinnhold', 'utsagn', 'frister trekker'],
+  ['FristIKravet', 'relasjon', 'id frist_id'],
+  ['FristIKravet', 'utsagn', 'dager'],
+  ['spor/frist/format.ts:betegnelsen', 'utsagn', 'nummer navn'],
   // OV-U95 punkt 19–22 og arbeidsvalget 07.11 i domenetabellen: kravpostene i vederlagskravet, og kravpostene
   // fra forrige versjon TE trekker (KA-U56).
   [
@@ -564,7 +568,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'resultat',
     ['spor/vederlag/frysing.ts:godkjennerHeleKravet'],
   ],
-  ['Fristutregning', 'frosset svar', 'resultat', ['spor/frist/frysing.ts:fristenGodkjent']],
+  ['Fristutregning', 'frosset svar', 'frister', ['spor/frist/frysing.ts:fristenGodkjent']],
+  ['Fristrad', 'frosset svar', 'resultat', ['spor/frist/frysing.ts:fristenGodkjent']],
   ['Utsagn', 'relasjon', 'id art gjelder spor'],
   ['Utsagn', 'utsagn', 'hva'],
   // OV-U5: bestemmelsen TEs varsel er gitt etter, § 33.4 eller § 34.1.2.
@@ -575,8 +580,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Standpunkt',
     'utsagn',
-    'hjemmel iTide resultat godkjent oppfylt vurdert aksepterer oensket dager godtar kreverTilbud',
+    'hjemmel iTide resultat godkjent oppfylt vurdert aksepterer oensket godtar kreverTilbud',
   ],
+  // D-5, KA-U74: dagene byggherren måtte forstå, for hver frist i kravet.
+  ['Standpunkt', 'utsagn', 'maatteForstaa'],
+  ['Standpunkt.maatteForstaa', 'relasjon', 'frist'],
+  ['Standpunkt.maatteForstaa', 'utsagn', 'dager'],
   // OV-U26, OV-U31, VS-U5: posten beløpet gjelder, og beløpet etter begrensningen etter § 34.1.3.
   ['Standpunkt', 'utsagn', 'saerskilt begrenset'],
   ['Opplysning', 'relasjon', 'id hva gjelder dokument brev oppgittAv'],
@@ -651,6 +660,21 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
   ['spor/frist/utledning.ts', 'predikat', 'fristkravErFremmet', ['spor/frist/kommando.ts']],
+  // KA-U76, KA-U79: versjonsregelen for fristene i kravet, og hvilken frist i kontrakten som har
+  // stått med hvilken `id`.
+  ['spor/frist/utledning.ts', 'predikat', 'fristeneStrider', ['spor/frist/kommando.ts']],
+  [
+    'spor/frist/utledning.ts',
+    'relasjon',
+    'fristeneISporet fristnoekkel',
+    ['spor/frist/kommando.ts', 'spor/frist/tekst.ts'],
+  ],
+  ['spor/frist/utledning.ts:fristeneISporet', 'relasjon', 'forrige sist eier'],
+  ['spor/frist/utledning.ts:fristeneStrider', 'kommando', 'frister trekker'],
+  ['Fristinndata', 'kommando', 'id frist_id nummer navn', ['spor/frist/utledning.ts']],
+  ['spor/frist/kommando.ts:fristeneSomLagres(innhold)', 'kommando', 'frister'],
+  ['spor/frist/kommando.ts:fristeneSomLagres(p)', 'kommando', 'id frist_id dager'],
+  ['spor/frist/kommando.ts:fristIkkeRegistrert(p)', 'kommando', 'frist_id'],
   // VS-U20, OV-U5, HF-U1, VS-U43 punkt 6: varselet en påberopelse i et nytt svar gjelder, og
   // sperren for svaret på grunnlaget med et registrert varsel etter § 32.2 (#496, #766, #1600).
   [
@@ -698,7 +722,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts:utledSporene.registrer', 'relasjon', 'id'],
 
   // Utregningen av svaret (utregning.ts), standpunktene (standpunkt.ts) og det brevet fryser.
-  ['frosset/utregning.ts', 'regelsett', `regnUtSvar SAMMENLIKNES likeResultatfelt utenforOmfanget`],
+  ['frosset/utregning.ts', 'regelsett', `regnUtSvar avvikIResultatet utenforOmfanget`],
   ['frosset/byggeklosser.ts', 'frosset', 'prinsipalt'],
   // Lagene i forholdet og fristen, som begge slår opp i (#1783).
   [
@@ -922,8 +946,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Svarvurdering',
     'utsagn',
     `resultat grunnlag_varslet_i_tide hovedkrav_varslet_i_tide kravposter
-     frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok dager_maatte_forstaa vilkar_oppfylt
-     dager produktivitet_vurdering
+     frist_varsel_ok spesifisert_krav_ok foresporsel_svar_ok vilkar_oppfylt
+     frister produktivitet_vurdering
      produktivitet_godkjent_beloep produktivitet_varslet_i_tide produktivitet_begrenset_beloep
      rigg_vurdering rigg_varslet_i_tide hold_tilbake`,
   ],
@@ -953,6 +977,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spesifisert_krav_ok dager_maatte_forstaa dager',
   ],
   ['spor/vederlag/frysing.ts:utenforOmfanget(v)', 'utsagn', `hold_tilbake rigg_vurdering`],
+  // KA-U74: byggherrens vurdering av dagene for hver frist, i kravets rekkefølge.
+  ['spor/frist/frysing.ts:fristvurderinger(x)', 'utsagn', 'dager dager_maatte_forstaa'],
+  ['Dagvurdering', 'relasjon', 'gjelder'],
+  ['Dagvurdering', 'utsagn', 'dager dager_maatte_forstaa'],
+  ['spor/frist/frysing.ts', 'regelsett', 'fristvurderinger', ['spor/frist/kommando.ts']],
 
   // Regelsettet (regler/).
   [
@@ -1067,10 +1096,21 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // MM-U52 punkt 14: endringsordren i underkategorien endringsordre står.
   ['Kommando.innhold', 'utsagn', 'endringsordre', ['spor/forhold/kommando.ts:kategorisperre']],
+  // KA-U79, GFK-U23: fristene i fristkravet kontrolleres mot fristtabellen.
+  ['Kommando.innhold', 'kommando', 'frister', ['spor/frist/kommando.ts:fristIkkeRegistrert']],
   ['Svarutkast', 'kommando', 'spor gjelder regelversjon vurderinger'],
   ['Svarutkast', 'kommando', 'resultat', ['kommandoer/nyttelast.ts']],
-  ['Svarutkast.resultat', 'kommando', '*', ['kommandoer/nyttelast.ts']],
-  ['kommandoer/nyttelast.ts:kontrollerSvar(server)', 'regelsett', '*'],
+  // B-13: feltene klienten regnet ut, sammenliknet med serverens (`SAMMENLIKNES`).
+  ['frosset/utregning.ts:avvikIResultatet(klient)', 'kommando', '*'],
+  ['frosset/utregning.ts:avvikIResultatet(server)', 'regelsett', '*'],
+  ['frosset/utregning.ts:avvikIResultatet(fra)', 'kommando', '*'],
+  ['frosset/utregning.ts:avvikIResultatet(rad)', 'regelsett', '*'],
+  [
+    'frosset/utregning.ts:avvikIResultatet',
+    'regelsett',
+    'sti serveren',
+    ['kommandoer/nyttelast.ts:kontrollerSvar'],
+  ],
   ['Handlingsnoekkel', 'kommando', 'type spor gjelder hjemmel'],
   // #1703: nøkkelen i den tilbudte handlingen. De andre feltene leses bare av visningen.
   ['TilbudtHandling', 'kommando', 'noekkel'],
@@ -1229,7 +1269,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['utledning/utled.ts'],
   ],
   // Skrivingen i sporet (#1783).
-  ['Sporsskriving', 'kommando', 'kravinnhold handlingen postvarsler', ['kommandoer/skriving.ts']],
+  [
+    'Sporsskriving',
+    'kommando',
+    'kravinnhold handlingen postvarsler kontekstsperre',
+    ['kommandoer/skriving.ts'],
+  ],
   // VS-U51, VS-U53: skrivingen gir sporet stegene for en handling med flere rader.
   ['Skrivesteg', 'kommando', 'sendes formen skriv hele', ['spor/vederlag/kommando.ts']],
   ['spor/vederlag/kommando.ts', 'kommando', 'SKRIVING_I_VEDERLAGET', ['kommandoer/skriving.ts']],
@@ -1342,7 +1387,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/frist/format.ts',
     'utsagn',
     'innholdIFristen',
-    ['spor/frist/tekst.ts', 'spor/frist/frysing.ts'],
+    ['spor/frist/tekst.ts', 'spor/frist/frysing.ts', 'spor/frist/utledning.ts'],
+  ],
+  // U-1, KA-U79: fristen slik kontrakten betegner den, i brevet og i meldingene.
+  [
+    'spor/frist/format.ts',
+    'brevtekst',
+    'betegnelsen',
+    ['spor/frist/tekst.ts', 'spor/frist/utledning.ts'],
   ],
   ['VARSELSPOR', 'relasjon', '32.2 33.4 34.1.2 34.1.3 34.3.3 34.4'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
@@ -1379,8 +1431,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Kontekst',
     'kontekst',
-    'sakId aktoerId part teamId tidspunkt nyId sakskode kontraktsforkortelse',
+    'sakId aktoerId part teamId tidspunkt nyId sakskode kontraktsforkortelse kontraktsfrister',
   ],
+  // GFK-U23, KA-U79: fristtabellen for prosjektet, som serveren leser i skrivetransaksjonen.
+  ['Registrertfrist', 'kontekst', 'fristId nummer navn', ['spor/frist/kommando.ts']],
   // LV-U27, LV-U44: sakens kode i tittelen.
   ['Sakskode', 'kontekst', 'kode loepenummer', ['frosset/brevtittel.ts', 'frosset/tekst.ts']],
   // LV-U44, S3 i #1497: brevteksten omtaler saken og tidligere brev med koden.
@@ -1441,7 +1495,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/format.ts',
     'skjema',
     'KRAVINNHOLD OPPLYSNINGSSLAG',
-    ['kommandoer/kommando.ts', 'spor/forhold/kommando.ts', 'spor/frist/kommando.ts'],
+    ['kommandoer/kommando.ts', 'spor/forhold/kommando.ts'],
   ],
   [
     'format/skjema.ts',
@@ -1563,6 +1617,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'properties required anyOf',
     ['spor/vederlag/kommando.ts:kravfeil'],
   ],
+  [
+    'spor/frist/format.ts:fristinnhold',
+    'skjema',
+    'properties required anyOf',
+    ['spor/frist/kommando.ts'],
+  ],
+  ['spor/frist/format.ts', 'skjema', 'fristinnhold', ['spor/frist/kommando.ts']],
   // #1783: formatet for vederlaget i sporet.
   [
     'spor/vederlag/format.ts',
@@ -1585,7 +1646,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'spor/frist/format.ts',
     'skjema',
-    'TILLATTE_STANDPUNKTER_I_FRISTEN STANDPUNKT_I_FRISTEN FRISTINNHOLD RELASJON_I_FRISTKRAVET UTREGNINGSSKJEMA_I_FRISTEN',
+    'TILLATTE_STANDPUNKTER_I_FRISTEN STANDPUNKT_I_FRISTEN fristinnhold RELASJON_I_FRISTKRAVET UTREGNINGSSKJEMA_I_FRISTEN',
     ['format/format.ts'],
   ],
   // #1783: formatet for forholdet i sporet.
@@ -1633,7 +1694,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/kommando.ts:medKravposter'],
   ],
   [
-    'spor/vederlag/utledning.ts',
+    'spor/poster/utledning.ts',
     'relasjon',
     'nesteBetegnelse',
     ['spor/vederlag/kommando.ts:medKravposter'],
@@ -1756,7 +1817,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'spor/frist/format.ts:standpunktIFristen(e)',
     'rad',
-    'id art gjelder i_tide oppfylt dager',
+    'id art gjelder i_tide oppfylt maatte_forstaa',
     ['spor/frist/format.ts'],
   ],
   [
@@ -1804,10 +1865,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'resultat subsidiaert_resultat godkjent_beloep subsidiaert_godkjent_beloep poster',
     ['spor/vederlag/format.ts'],
   ],
+  ['Fristutregning', 'rad', 'frister', ['spor/frist/format.ts']],
   [
-    'Fristutregning',
+    'Fristrad',
     'rad',
-    'resultat godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
+    'gjelder resultat godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
     ['spor/frist/format.ts'],
   ],
   ['Utregningsrad', 'rad', 'gjelder lag', ['spor/vederlag/format.ts']],
@@ -1944,7 +2006,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/brevdeler.ts',
     'brevtekst',
     'utenOverskrift',
-    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts', 'spor/frist/tekst.ts'],
+    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts'],
   ],
   ['Journalrad.data', 'rad', 'sakstittel', ['format/leser.ts']],
   // #801, #1138: skriv kontrollerer tegnene i sakstittelen og filnavnene i brevet.
@@ -2090,9 +2152,20 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/brevdeler.ts',
     'brevtekst',
     'Journalen KanIkkeUttrykkes PRODUKTIVITET eksMva erDato kravpostenI norskDato opplistet punktum tidligere',
-    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts', 'spor/vederlag/tekst.ts'],
+    [
+      'frosset/brevtekst.ts',
+      'spor/forhold/tekst.ts',
+      'spor/vederlag/tekst.ts',
+      'spor/frist/tekst.ts',
+    ],
   ],
-  ['frosset/brevdeler.ts', 'brevtekst', 'verdi', ['spor/vederlag/tekst.ts', 'spor/frist/tekst.ts']],
+  ['frosset/brevdeler.ts', 'brevtekst', 'verdi', ['spor/vederlag/tekst.ts']],
+  [
+    'frosset/brevdeler.ts',
+    'brevtekst',
+    'kravetErstatter',
+    ['frosset/brevtekst.ts', 'spor/frist/tekst.ts'],
+  ],
   // Byggeklossene i brevteksten som teksten i sporene også bruker (#1783).
   [
     'frosset/brevdeler.ts',
@@ -2231,6 +2304,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/brevdeler.ts',
       'spor/forhold/tekst.ts',
       'spor/vederlag/tekst.ts',
+      'spor/frist/tekst.ts',
     ],
   ],
   [
@@ -2736,7 +2810,7 @@ describe('reglene leser bare det LESBART tillater (#308, #329)', () => {
         'Sporutledning.enighet',
         'Svar.beslutningsgrunnlag',
         'spor/forhold/utledning.ts.trekkAvPaaberopelsenErSperret',
-        'Fristutregning.resultat',
+        'Fristrad.resultat',
       ])
     );
   });

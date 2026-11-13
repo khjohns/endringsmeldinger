@@ -263,7 +263,7 @@ python3 docs/verktoy/temavisning.py --sjekk   # bare kontroller
 
 - **Et tema** har `kjerne`, som er vedtakene temaet er valgt etter, og `vedtak`.
   `vedtak` er kjernen og, transitivt, hvert vedtak som endrer, utvider, snevrer inn,
-  presiserer eller opphever et vedtak i temaet etter `forhold` i registeret
+  presiserer, opphever, samler eller bygger på et vedtak i temaet etter `forhold` i registeret
   (arbeidsvalg A i [#454](https://github.com/khjohns/endringsmeldinger/issues/454)).
   Mangler ett, feiler kontrollen. Et nytt vedtak som endrer kjeden, gjør dermed
   testen rød til det er tatt inn i temaet. Et vedtak temaet viser til, står som

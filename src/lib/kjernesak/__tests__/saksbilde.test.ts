@@ -57,6 +57,7 @@ function skrevet(kommando: unknown, journal: Journalrad[], part: 'TE' | 'BH' = '
       aktoerId: '',
       part,
       teamId: null,
+      kontraktsfrister: [],
       ...MERKING,
       tidspunkt: () => new Date('2026-10-16T09:00:00.000Z'),
       nyId: () => crypto.randomUUID(),

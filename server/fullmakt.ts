@@ -10,7 +10,7 @@ import { krevdSamlet } from '../kjerne/spor/vederlag/format.ts';
 import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import type { Regelsett } from '../kjerne/regler/regelsett.ts';
-import { KRAVSPOR, type Krav, type Kravspor } from '../kjerne/typer.ts';
+import { KRAVSPOR, type Fristrad, type Krav, type Kravspor } from '../kjerne/typer.ts';
 import type { Sporutledning, Utledning } from '../kjerne/utledning/utled.ts';
 import { foresporselForFristsvar } from '../kjerne/spor/frist/utledning.ts';
 
@@ -73,11 +73,19 @@ export function brevverdi(
       },
       regler
     );
-    hoved += sporverdi(s.spor, r.godkjent_beloep, r.godkjent_dager);
+    // KA-U74: dagene står per frist og verdsettes hver for seg (GFK-U21). Satsen per frist og
+    // hverdagene etter GFK-U17 kommer med verdien per frist (#1745).
+    const rader = (r.frister ?? []) as Fristrad[];
+    const dager = (f: (rad: Fristrad) => number) => rader.reduce((sum, rad) => sum + f(rad), 0);
+    hoved += sporverdi(
+      s.spor,
+      r.godkjent_beloep,
+      dager((rad) => rad.godkjent_dager)
+    );
     subsidiaert += sporverdi(
       s.spor,
       r.subsidiaert_godkjent_beloep ?? r.godkjent_beloep,
-      r.subsidiaert_godkjent_dager ?? r.godkjent_dager
+      dager((rad) => rad.subsidiaert_godkjent_dager ?? rad.godkjent_dager)
     );
   }
 
@@ -91,7 +99,7 @@ export function brevverdi(
         sporverdi(
           spor,
           spor === 'vederlag' ? tilTall(krevdSamlet(k)) : null,
-          spor === 'frist' ? innholdIFristen(k).dager : null
+          spor === 'frist' ? innholdIFristen(k).frister.reduce((sum, f) => sum + f.dager, 0) : null
         )
       );
       if (v === null) ukjent = true;

@@ -145,14 +145,18 @@ describe('formen på kravet', () => {
       formfeil({
         type: 'krav',
         spor: 'frist',
-        innhold: { dager: 20 },
+        innhold: { frister: [{ navn: 'Sluttfristen', dager: 20 }] },
         varsel: { sendt: '2026-09-02' },
       })
     ).toEqual([]);
   });
 
   it('en ugyldig dato for varselet i fristkravet meldes på feltet i varselet', () => {
-    const fristkrav = { type: 'krav', spor: 'frist', innhold: { dager: 20 } };
+    const fristkrav = {
+      type: 'krav',
+      spor: 'frist',
+      innhold: { frister: [{ navn: 'Sluttfristen', dager: 20 }] },
+    };
     expect(formfeil({ ...fristkrav, varsel: { sendt: '2026-13-40' } })).toEqual([
       '$.varsel.sendt: "2026-13-40" er ikke en dato på formen ÅÅÅÅ-MM-DD',
     ]);
@@ -251,7 +255,7 @@ describe('formatet (7.1.2, 4.4)', () => {
     ['et svar uten utregning', svarIBrevet('S-v2', (s) => delete s.utregning)],
     // KA-U8: en kravversjon på 0 kr eller 0 dager finnes ikke.
     ['et krav på 0 kr', kravet('K-v1', (k) => (k.beloep = 0))],
-    ['et krav på 0 dager', kravet('K-f1', (k) => (k.dager = 0))],
+    ['et krav på 0 dager', kravet('K-f1', (k) => ((k.frister as Data[])[0]!.dager = 0))],
     // B-17: en rad uten format er ikke skrevet av TS-kjernen.
     ['en rad uten format', (r, k) => (radMed(r, k, 'D6').format = null)],
     ['en rad i et nyere format', (r, k) => (radMed(r, k, 'D6').format = 2)],
@@ -568,7 +572,13 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
       ...fraTE([en], []),
       data: { krav: [{ id: randomUUID(), spor, ...innhold }] },
     });
-    expect(forstaatt([...journal, en, krav('frist', { dager: 20 })])).toBe(true);
+    expect(
+      forstaatt([
+        ...journal,
+        en,
+        krav('frist', { frister: [{ id: 'f1', navn: 'Sluttfristen', dager: 20 }] }),
+      ])
+    ).toBe(true);
     const p1 = { id: 'p1', betegnelse: 'P1', beskrivelse: 'P1', oppgjoersform: 'tilbud' };
     expect(
       forstaatt([...journal, en, krav('vederlag', { kravposter: [{ ...p1, beloep: 1 }] })])
@@ -794,7 +804,13 @@ describe('datoene for et registrert krav og varselet i det', () => {
       versjon: siste.versjon + 1,
       aktor_rolle: 'TE',
       data: {
-        krav: [{ id: randomUUID(), spor: 'frist', dager: 20 }],
+        krav: [
+          {
+            id: randomUUID(),
+            spor: 'frist',
+            frister: [{ id: 'f1', navn: 'Sluttfristen', dager: 20 }],
+          },
+        ],
         utsagn: [{ id: varsel, art: 'varsel', hjemmel: '33.4' }],
         opplysninger: [
           { id: randomUUID(), hva: 'sendt', dato: '2026-09-10' },
@@ -934,7 +950,7 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
       svar(false),
     ]);
     const s = (await k.utledning()).svar[k.navn.id('S-f1')];
-    expect(s.svar.utregning.resultat).toBe('avslaatt');
+    expect((s.svar.utregning.frister as { resultat: string }[])[0]!.resultat).toBe('avslaatt');
     expect(s.virkninger.map((p) => [p.art, p.virkning])).toEqual([
       ['rettidighet', 'uten_virkning'],
       ['hindring', 1],
@@ -945,7 +961,7 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
       'Byggherrens standpunkt: prinsipalt avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), subsidiært godkjent med 20 dager.'
     );
     expect((await k.send({ handling: 'aksept', spor: 'frist' }))?.godtatt).toBe(true);
-    expect((await k.utledning()).spor.frist.enighet?.grunnlag.utfall.dager).toBe(0);
+    expect((await k.utledning()).spor.frist.enighet?.grunnlag.utfall.frister?.[0]?.dager).toBe(0);
   });
 
   it('kontrollsak: med fremdriftshindring er de 20 dagene enighet ved sammenfall', async () => {
@@ -956,7 +972,7 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
     ]);
     const u = await k.utledning();
     expect(u.spor.frist.enighet?.grunnlag.kilde).toBe('sammenfall');
-    expect(u.spor.frist.enighet?.grunnlag.utfall.dager).toBe(20);
+    expect(u.spor.frist.enighet?.grunnlag.utfall.frister?.[0]?.dager).toBe(20);
   });
 });
 
@@ -1036,6 +1052,11 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
     (s.utregning as Data).resultat = 'godkjent';
     (s.beslutningsgrunnlag as Data).sammenfall = true;
   };
+  // KA-U74: utregningen i fristen har én rad per frist, og hele kravet er godkjent når hver rad er det.
+  const fristenGodkjentMedSammenfall = (s: Data) => {
+    for (const r of (s.utregning as Data).frister as Data[]) r.resultat = 'godkjent';
+    (s.beslutningsgrunnlag as Data).sammenfall = true;
+  };
   const standpunkt = (svar: Data, art: string) => {
     const p = (svar.standpunkter as Data[]).find((x) => x.art === art);
     expect(p, `forutsetning: svaret har standpunktet ${art}`).toBeDefined();
@@ -1045,11 +1066,18 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
   it('serverens utregning gir dagene byggherren måtte forstå at TE hadde krav på, prinsipalt og de vurderte subsidiært (VS-U4, B-13)', async () => {
     const { k } = await fristsak();
     const s = (await k.utledning()).svar[k.navn.id('S-f1')];
+    const krav = (await k.utledning()).spor.frist.gjeldendeKrav!;
+    const fristId = (krav.innhold.frister as { id: string }[])[0]!.id;
     expect(s.svar.utregning).toEqual({
-      resultat: 'delvis_godkjent',
-      godkjent_dager: 5,
-      subsidiaert_resultat: 'delvis_godkjent',
-      subsidiaert_godkjent_dager: 15,
+      frister: [
+        {
+          gjelder: fristId,
+          resultat: 'delvis_godkjent',
+          godkjent_dager: 5,
+          subsidiaert_resultat: 'delvis_godkjent',
+          subsidiaert_godkjent_dager: 15,
+        },
+      ],
     });
   });
 
@@ -1097,7 +1125,7 @@ describe('byggherrens vurderinger etter § 34.1.2, § 34.2.2 og § 33.6.1 i en l
     ],
     [
       'sammenfall med en påberopelse etter § 33.6.1',
-      async () => ({ ...(await fristsak()), endring: godkjentMedSammenfall }),
+      async () => ({ ...(await fristsak()), endring: fristenGodkjentMedSammenfall }),
       'S-f1',
     ],
     [
@@ -1529,6 +1557,23 @@ describe('kontrollen av referansene og resultatet i svaret', () => {
     expect(await skrivMed(k, h, annetBeloep)).toBe('ANNET_RESULTAT');
   });
 
+  it('ANNET_RESULTAT: et svar på fristen der klienten har en tom rad i stedet for dagene, avvises (B-13)', async () => {
+    const k = await bygg(minnebane(), [
+      'godkjent_forhold',
+      { handling: 'krav', spor: 'frist', dager: 20 },
+    ]);
+    const h = {
+      handling: 'brev',
+      svar: [{ spor: 'frist', varsel_i_tide: true, spesifisering_i_tide: true, hindring: true }],
+    };
+    expect(await skrivMed(k, h, uendret), 'kontrollsak').toBe('godtatt');
+    const tomRad = (kommando: Data) => {
+      const resultat = (kommando.svar as Data[])[0].resultat as Data;
+      resultat.frister = [null];
+    };
+    expect(await skrivMed(k, h, tomRad)).toBe('ANNET_RESULTAT');
+  });
+
   it('FEIL_SVARREFERANSE: en revisjon av et svar som allerede er revidert, avvises', async () => {
     const k = await bygg(minnebane(), [
       'krav_irreg',
@@ -1637,6 +1682,7 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
     teamId: null,
     sakskode: { kode: 'koe' as const, loepenummer: 17 },
     kontraktsforkortelse: 'K201',
+    kontraktsfrister: [],
     tidspunkt: () => new Date(`${dag}T10:00:00Z`),
     nyId: randomUUID,
   });
@@ -1799,6 +1845,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     teamId: null,
     sakskode: { kode: 'koe' as const, loepenummer: 17 },
     kontraktsforkortelse: 'K201',
+    kontraktsfrister: [],
     tidspunkt: () => new Date('2026-10-21T10:00:00Z'),
     nyId: randomUUID,
   });
@@ -2293,10 +2340,15 @@ describe('upåvirket hos leserne (OV-U33)', () => {
     ({
       spor: 'frist',
       standpunkter: [
-        { id: 's', art: 'spesifisering', iTide: false, dager: 20 },
-        { id: 'd', art: 'dager', resultat: 'godkjent', vurdert: 20 },
+        {
+          id: 's',
+          art: 'spesifisering',
+          iTide: false,
+          maatteForstaa: [{ frist: 'f1', dager: 20 }],
+        },
+        { id: 'd', art: 'dager', gjelder: 'f1', resultat: 'godkjent', vurdert: 20 },
       ],
-      utregning: { resultat: 'godkjent', godkjent_dager: 20 },
+      utregning: { frister: [{ gjelder: 'f1', resultat: 'godkjent', godkjent_dager: 20 }] },
       beslutningsgrunnlag: { virkninger: [v('s', spesifisering), v('d', 1)], sammenfall },
     }) as unknown as Svar;
 

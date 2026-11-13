@@ -12567,6 +12567,186 @@
       "forventningsgrunnlag": "avklart_tolkning"
     },
     {
+      "id": "F-MM-KA-U76",
+      "forslag": "KA-U76, KA-U79: en ny kravversjon tar med eller trekker hver frist i forrige versjon, og en registrert frist byttes ikke med en annen",
+      "rader": ["KA-57"],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "frister": [{ "navn": "Sluttfristen", "dager": 20 }, { "frist_id": 1, "dager": 10 }],
+          "navn": "K-f2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["KA-U76"],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "frister": [{ "navn": "Sluttfristen", "dager": 20 }]
+          },
+          "forventet": { "avvist": true, "regel": "FRISTENE" }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": ["KA-U76"],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "frister": [{ "navn": "Sluttfristen", "dager": 20 }],
+            "trekker": ["Overtakelse"]
+          },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["KA-U79"],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "frister": [{ "navn": "Sluttfristen", "dager": 20 }, { "frist_id": 2, "dager": 10, "erstatter": "Overtakelse" }]
+          },
+          "forventet": { "avvist": true, "regel": "FRISTENE" }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": ["KA-U79"],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "frister": [{ "frist_id": 2, "dager": 20, "erstatter": "Sluttfristen" }, { "frist_id": 1, "dager": 10 }]
+          },
+          "forventet": { "avvist": false }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-KA-U76-igjen",
+      "forslag": "KA-U76: en trukket frist kan tas med igjen i en senere kravversjon",
+      "rader": ["KA-57"],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "frister": [{ "navn": "Sluttfristen", "dager": 20 }, { "frist_id": 1, "dager": 10 }],
+          "navn": "K-f2"
+        },
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "frister": [{ "navn": "Sluttfristen", "dager": 20 }],
+          "trekker": ["Overtakelse"],
+          "navn": "K-f3"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 2,
+          "rolle": "mal",
+          "kilde": ["KA-U76"],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "frister": [{ "navn": "Sluttfristen", "dager": 20 }, { "frist_id": 1, "dager": 12 }]
+          },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 2,
+          "rolle": "kontroll",
+          "kilde": ["KA-U76"],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "frister": [{ "navn": "Sluttfristen", "dager": 20 }],
+            "trekker": ["Overtakelse"]
+          },
+          "forventet": { "avvist": true, "regel": "FRISTENE" }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-KA-U79-tilbake",
+      "forslag": "KA-U79: en frist som ikke er registrert og er erstattet med en registrert frist, kan ikke tas med igjen i stedet for den registrerte",
+      "rader": ["KA-57"],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "frist",
+          "frister": [{ "frist_id": 2, "dager": 20, "erstatter": "Sluttfristen" }],
+          "navn": "K-f2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["KA-U79"],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "frister": [{ "navn": "Sluttfristen", "dager": 20 }]
+          },
+          "forventet": { "avvist": true, "regel": "FRISTENE" }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": ["KA-U79"],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "frister": [{ "frist_id": 2, "dager": 25 }]
+          },
+          "forventet": { "avvist": false }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-GFK-U23",
+      "forslag": "KA-U79, GFK-U23: en registrert frist i kravet står i fristtabellen for prosjektet",
+      "rader": ["KA-57"],
+      "start": "krav_irreg",
+      "steg": [],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": ["KA-U79", "GFK-U23"],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "frister": [{ "navn": "Sluttfristen", "dager": 20 }, { "frist_id": 99, "dager": 5 }]
+          },
+          "forventet": { "avvist": true, "regel": "FRIST_IKKE_REGISTRERT" }
+        },
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": ["KA-U79", "GFK-U23"],
+          "prov": {
+            "handling": "krav",
+            "spor": "frist",
+            "frister": [{ "navn": "Sluttfristen", "dager": 20 }, { "frist_id": 1, "dager": 5 }]
+          },
+          "forventet": { "avvist": false }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
       "id": "F-MM-KA-U59",
       "forslag": "KA-U59: byggherren svarer per kravpost, så ett beløp på et krav med flere kravposter avvises, og et svar på hver kravpost godtas",
       "rader": ["KA-56"],

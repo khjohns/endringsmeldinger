@@ -12,8 +12,8 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { transaksjon, type Kontekst } from '../datalag.ts';
+import { betegnelsen as betegnelse } from '../../kjerne/spor/frist/format.ts';
 import {
-  betegnelse,
   lesKontraktsfrister,
   regnSats,
   STANDARDSATS,

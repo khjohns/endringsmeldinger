@@ -115,9 +115,9 @@ export interface Svarvurdering {
   frist_varsel_ok?: unknown;
   spesifisert_krav_ok?: unknown;
   foresporsel_svar_ok?: unknown;
-  dager_maatte_forstaa?: unknown;
   vilkar_oppfylt?: unknown;
-  dager?: unknown;
+  /** Vurderingen av dagene for hver frist i kravet (`Fristvurdering` i `spor/frist/frysing.ts`). */
+  frister?: unknown;
 }
 
 /**

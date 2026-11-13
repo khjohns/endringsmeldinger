@@ -39,6 +39,7 @@ export function skrevet(
     kommando,
     {
       ...MERKING,
+      kontraktsfrister: [],
       sakId: SAK,
       aktoerId: part.toLowerCase(),
       part,

@@ -19,6 +19,8 @@
  * (arbeidsvalg 3 og 4 i #790). Et gjentak med kvittering binder ikke på nytt (KT-U5).
  */
 
+import type { Registrertfrist } from '../kjerne/spor/frist/format.ts';
+import { lesKontraktsfrister } from './kontraktsfrister.ts';
 import { createHash } from 'node:crypto';
 import type { Vedleggsoppslag } from '../kjerne/kommandoer/skriving.ts';
 import type { Journalrad, Vedlegg } from '../kjerne/typer.ts';
@@ -337,6 +339,8 @@ export interface Skrivegrunnlag {
   sakskode: Sakskode;
   /** Kontraktsforkortelsen i prosjektinnstillingene, `null` når prosjektet ikke har den. */
   kontraktsforkortelse: string | null;
+  /** Fristtabellen for prosjektet, som et fristkrav viser til (GFK-U23, KA-U79). */
+  kontraktsfrister: Registrertfrist[];
 }
 
 /**
@@ -398,6 +402,18 @@ async function lesKontraktsforkortelse(foresp: Foresp, kontekst: Kontekst): Prom
     .execute<{ kontraktsforkortelse: string }>('koe_api.kontraktsparter');
   const [rad] = svar.recordset;
   return rad ? rad.kontraktsforkortelse : null;
+}
+
+/**
+ * Fristene i fristtabellen for prosjektet i konteksten, slik kjernen leser dem (GFK-U23,
+ * KA-U79). Lest i skrivetransaksjonen, så prosjektgrensen er den samme som for saken.
+ */
+async function registrerteFrister(foresp: Foresp): Promise<Registrertfrist[]> {
+  return (await lesKontraktsfrister(foresp)).frister.map(({ fristId, nummer, navn }) => ({
+    fristId,
+    nummer,
+    navn,
+  }));
 }
 
 /**
@@ -496,11 +512,20 @@ export async function skrivHendelse<A>(
       // Før tidspunktet, så ventingen på låsen på vedleggene ikke eldes det (#880-1).
       const vedlegg = await lesVedlegg(foresp, kontekst, sakId, vedleggider);
       const kontraktsforkortelse = await lesKontraktsforkortelse(foresp, kontekst);
+      const kontraktsfrister = await registrerteFrister(foresp);
       const tid = await foresp()
         .output('tidspunkt', sql.DateTime2(3))
         .execute('koe_api.skrivetidspunkt');
       const tidspunkt = tid.output.tidspunkt as Date;
-      let utfall = lag({ journal, tidspunkt, maal, vedlegg, sakskode, kontraktsforkortelse });
+      let utfall = lag({
+        journal,
+        tidspunkt,
+        maal,
+        vedlegg,
+        sakskode,
+        kontraktsforkortelse,
+        kontraktsfrister,
+      });
       const skrevet = [...journal];
       for (let nr = 1, tid = tidspunkt, kode = sakskode; ; nr++) {
         // Rulles tilbake, så tidspunktet skrivetidspunkt førte og radene før ikke blir stående.
@@ -583,6 +608,7 @@ export async function opprettSakMedPaaberopelse<A>(
     vedlegg: Vedleggsoppslag;
     sakskode: Sakskode;
     kontraktsforkortelse: string | null;
+    kontraktsfrister: Registrertfrist[];
   }) => Opprettelsesutfall<A>
 ): Promise<{ skriv: true; rad: Journalrad } | Gjentatt | Avvist<A>> {
   const forsoek = () =>
@@ -607,8 +633,15 @@ export async function opprettSakMedPaaberopelse<A>(
         // trenger koden for teksten også da (S3 i #1497), og `koe_api.sakskode` gir EO for BH.
         const sakskode = await lesSakskode(foresp, sakId);
         const kontraktsforkortelse = await lesKontraktsforkortelse(foresp, kontekst);
+        const kontraktsfrister = await registrerteFrister(foresp);
         const tidspunkt = await skrivetidspunkt(foresp);
-        const utfall = lag({ tidspunkt, vedlegg, sakskode, kontraktsforkortelse });
+        const utfall = lag({
+          tidspunkt,
+          vedlegg,
+          sakskode,
+          kontraktsforkortelse,
+          kontraktsfrister,
+        });
         if (!utfall.skriv) return new Tilbakerulling(utfall);
         // Etter `lag`, så kjernens avvisning går foran avslaget her, som i `opprettSak`.
         if (kontekst.side !== 'TE') throw new SkrivingAvvist('Bare TE oppretter en sak.');

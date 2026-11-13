@@ -52,6 +52,7 @@ class Sak {
       teamId: null,
       sakskode: { kode: 'koe' as const, loepenummer: 17 },
       kontraktsforkortelse: 'K201',
+      kontraktsfrister: [],
       tidspunkt: () => naa,
       nyId: randomUUID,
     };
@@ -117,7 +118,12 @@ const vederlagskrav: Steg = (sak) =>
     utdypning: UTDYPNING,
   });
 const fristkrav: Steg = (sak) =>
-  sak.send('TE', { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: UTDYPNING });
+  sak.send('TE', {
+    type: 'krav',
+    spor: 'frist',
+    innhold: { frister: [{ navn: 'Sluttfristen', dager: 20 }] },
+    utdypning: UTDYPNING,
+  });
 const krav: Steg = (sak) => [paaberopelse, vederlagskrav, fristkrav].forEach((s) => s(sak));
 const varselIFristen: Steg = (sak) =>
   sak.send('TE', {
@@ -143,7 +149,7 @@ const forloepA: Steg = (sak) => {
         frist_varsel_ok: true,
         spesifisert_krav_ok: true,
         vilkar_oppfylt: true,
-        dager: 20,
+        frister: [{ dager: 20 }],
       }),
     ],
   });
@@ -338,7 +344,7 @@ const alleGodkjent: Steg = (sak) => {
         frist_varsel_ok: true,
         spesifisert_krav_ok: true,
         vilkar_oppfylt: true,
-        dager: 20,
+        frister: [{ dager: 20 }],
       }),
     ],
   });

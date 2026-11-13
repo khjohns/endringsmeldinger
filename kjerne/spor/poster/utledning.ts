@@ -1,7 +1,7 @@
 /**
  * Versjonsregelen for postene i et krav (#1778), utledet av vederlaget (KA-U53, KA-U56,
- * KA-U75). Sporet kaller den med postene sine og ordet for posten. Om fristen følger den,
- * avgjøres i #1745.
+ * KA-U75). Sporet kaller den med postene sine og ordet for posten. Fristen har
+ * sin egen regel (`fristeneStrider`, KA-U76, KA-U79).
  *
  * Kommandoen og lesingen av journalen bruker samme regel: kommandoen før serveren har satt
  * `id` og betegnelse på de nye postene, journalen etter.
@@ -24,6 +24,12 @@ export interface Versjonsinndata {
 /** Betegnelsene brukt i sporet, også av poster som er trukket. */
 export function brukteBetegnelser(versjoner: readonly (readonly Post[])[]): Set<string> {
   return new Set(versjoner.flatMap((poster) => poster.map((p) => p.betegnelse)));
+}
+
+/** Betegnelsen en ny post får: tallet etter det høyeste som er brukt i sporet (KA-U53). */
+export function nesteBetegnelse(brukte: ReadonlySet<string>): string {
+  const tall = [...brukte].map((b) => Number(b.slice(1)));
+  return `P${Math.max(0, ...tall) + 1}`;
 }
 
 /**

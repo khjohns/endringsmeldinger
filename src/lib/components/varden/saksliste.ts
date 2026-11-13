@@ -110,8 +110,13 @@ export function krevd(
       merknad,
     };
   }
-  if (spor === 'frist' && linje.frist.krav)
-    return { tekst: dager(linje.frist.krav.dager), tall: true, dempet, utenFast: null, merknad };
+  // KA-U74: dagene gjelder hver frist for seg og legges ikke sammen.
+  if (spor === 'frist' && linje.frist.krav) {
+    const { frister } = linje.frist.krav;
+    return frister.length === 1
+      ? { tekst: dager(frister[0]!.dager), tall: true, dempet, utenFast: null, merknad }
+      : { tekst: SAKSLISTE.frister(frister.length), tall: false, dempet, utenFast: null, merknad };
+  }
   if (varslet(l))
     return {
       tekst: SAKSLISTE.varslet,
