@@ -285,16 +285,16 @@ på kilden, men har ingen kontroller ennå.
 | [VS-U38](../../plans/vedtak.md#vs-u38) | — | BF-05 start | BF-14 |
 | [VS-U39](../../plans/vedtak.md#vs-u39) | — | BF-05 start | — |
 | [VS-U43](../../plans/vedtak.md#vs-u43) | BF-02A te-har-mottatt-svaret, BF-05 paaberopelsen-er-sendt | BF-02A te-har-mottatt-svaret | — |
-| [VS-U46](../../plans/vedtak.md#vs-u46) | BF-02A korrigeringen-er-sendt, BF-02D korrigeringen-er-sendt | BF-02A korrigeringen-er-sendt | BF-08 |
+| [VS-U46](../../plans/vedtak.md#vs-u46) | BF-02A korrigeringen-er-sendt, BF-02D korrigeringen-er-sendt | BF-02A korrigeringen-er-sendt | BF-08, BF-37 |
 | [VS-U47](../../plans/vedtak.md#vs-u47) | — | — | BF-14 |
 | [VS-U48](../../plans/vedtak.md#vs-u48) | — | — | BF-14, BF-37 |
 | [VS-U49](../../plans/vedtak.md#vs-u49) | — | — | BF-14, BF-37 |
-| [VS-U50](../../plans/vedtak.md#vs-u50) | — | — | BF-14 |
+| [VS-U50](../../plans/vedtak.md#vs-u50) | — | — | BF-14, BF-37 |
 | [VS-U51](../../plans/vedtak.md#vs-u51) | — | — | BF-14 |
 | [VS-U52](../../plans/vedtak.md#vs-u52) | — | — | BF-14, BF-37 |
 | [VS-U53](../../plans/vedtak.md#vs-u53) | — | — | BF-14, BF-37 |
 | [VS-U54](../../plans/vedtak.md#vs-u54) | — | — | BF-14, BF-37 |
-| [VS-U57](../../plans/vedtak.md#vs-u57) | — | — | BF-14 |
+| [VS-U57](../../plans/vedtak.md#vs-u57) | — | — | BF-14, BF-37 |
 | [VS-U61](../../plans/vedtak.md#vs-u61) | — | — | BF-14, BF-37 |
 | [VS-U62](../../plans/vedtak.md#vs-u62) | — | — | BF-14, BF-37 |
 | [VS-U63](../../plans/vedtak.md#vs-u63) | — | — | BF-14 |
