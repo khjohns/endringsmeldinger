@@ -242,7 +242,9 @@
     "KA-U75",
     "OV-U39",
     "KA-U77",
-    "KA-U78"
+    "KA-U78",
+    "KA-U79",
+    "GFK-U24"
   ],
   "venter_paa": [
     "#1427"
@@ -289,6 +291,11 @@
       "dato": "2026-11-12",
       "forhold": "#1745",
       "hva": "Oppdragsgiver godkjente prototypen med to rettinger (U-14). Klikkstien for svaret ser at fristen ikke er besvart, og velger «Delvis» og så snarveien aktivt."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1745",
+      "hva": "G-2, D-7, D-8, U-2, steg 5, S-2 og P-2 viser til KA-U79 og GFK-U24."
     }
   ]
 }

@@ -27,6 +27,7 @@ import {
   KanIkkeUttrykkes,
   kravpostenI,
   liste,
+  kravetErstatter,
   norskDato,
   PRODUKTIVITET,
   stor,
@@ -185,7 +186,7 @@ function kravtekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
   const punkter = brevtekstI(k.spor).krav(k, t, regler);
   // KA-U52 punkt 4 og LV-U56 (`nevnerErstattet`): setningen står sist i det siste avsnittet.
   if (k.erstatter && brevtekstI(k.spor).nevnerErstattet) {
-    const erstatter = `Kravet erstatter TEs krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`;
+    const erstatter = kravetErstatter(k.erstatter, j);
     const siste = punkter.at(-1);
     if (!siste?.avsnitt.length) punkter.push(utenOverskrift([erstatter]));
     else siste.avsnitt.push(`${siste.avsnitt.pop()} ${erstatter}`);

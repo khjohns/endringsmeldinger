@@ -175,8 +175,9 @@ export type Standpunkt =
   /** § 33.1: om byggherren godtar at fremdriften hindres som følge av forholdet saken gjelder. */
   | { id: string; art: 'hindring'; oppfylt: boolean }
   /**
-   * § 33.6.1, VS-U4: om TE spesifiserte kravet i tide. Ved «nei» er `dager` det byggherren
-   * mener at byggherren måtte forstå at TE hadde krav på, og står prinsipalt.
+   * § 33.6.1, VS-U4: om TE spesifiserte kravet i tide, én gang for hele kravet (M-7 i BF-20). Ved
+   * «nei» er `maatteForstaa` dagene byggherren mener at byggherren måtte forstå at TE hadde krav
+   * på, for hver frist i kravet (D-5), og de står prinsipalt.
    */
   | {
       id: string;
@@ -184,10 +185,13 @@ export type Standpunkt =
       gjelder: string;
       hjemmel: '33.6.1';
       iTide: boolean;
-      dager?: number;
+      maatteForstaa?: { frist: string; dager: number }[];
     }
-  /** `vurdert` er dagene byggherren har vurdert, også når de står subsidiært. */
-  | { id: string; art: 'dager'; resultat: Fristresultat; vurdert: number };
+  /**
+   * Dagene for fristen `gjelder` i kravet (KA-U74). `vurdert` er dagene byggherren har vurdert,
+   * også når de står subsidiært.
+   */
+  | { id: string; art: 'dager'; gjelder: string; resultat: Fristresultat; vurdert: number };
 
 export type Standpunktsart = Standpunkt['art'];
 
@@ -359,6 +363,13 @@ export interface Vederlagsutregning {
 
 /** Utregningen i et svar på fristen, etter `UTREGNINGSSKJEMA_I_FRISTEN` i `spor/frist/format.ts`. */
 export interface Fristutregning {
+  /** Én rad per frist i kravet, i kravets rekkefølge (KA-U74). Dagene legges ikke sammen. */
+  frister: Fristrad[];
+}
+
+/** Utregningen for én frist (`gjelder`) i svaret på fristen. */
+export interface Fristrad {
+  gjelder: string;
   resultat: Fristresultat;
   godkjent_dager: number;
   subsidiaert_resultat?: Fristresultat;
@@ -509,7 +520,8 @@ export interface Utfall {
   beloep?: number;
   /** Kravpostene uten fast beløp i det første laget, som `beloep` ikke regner med (OV-U73). */
   uten_fast_beloep?: string[];
-  dager?: number;
+  /** Dagene for hver frist i kravet (KA-U74). */
+  frister?: { gjelder: string; dager: number }[];
 }
 
 /**

@@ -22,7 +22,7 @@ import {
   TILLATTE_STANDPUNKTER_I_FORHOLDET,
 } from '../spor/forhold/format.ts';
 import {
-  FRISTINNHOLD,
+  fristinnhold,
   RELASJON_I_FRISTKRAVET,
   STANDPUNKT_I_FRISTEN,
   TILLATTE_STANDPUNKTER_I_FRISTEN,
@@ -88,7 +88,7 @@ export const KRAVINNHOLD: Record<
 > = {
   forhold: FORHOLDSINNHOLD,
   vederlag: vederlagsinnhold(true),
-  frist: FRISTINNHOLD,
+  frist: fristinnhold(true),
 };
 
 /** Relasjonene i en kravversjon ut over `erstatter`, per spor. */

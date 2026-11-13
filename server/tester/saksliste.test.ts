@@ -33,7 +33,12 @@ const KRAV_VEDERLAG = {
   innhold: { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 100000 }] },
   utdypning: UTDYPNING,
 };
-const KRAV_FRIST = { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: UTDYPNING };
+const KRAV_FRIST = {
+  type: 'krav',
+  spor: 'frist',
+  innhold: { frister: [{ navn: 'Sluttfristen', dager: 20 }] },
+  utdypning: UTDYPNING,
+};
 
 describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
   let o: Oppsett;
@@ -91,7 +96,11 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
         svar: null,
         venter_paa_svar: true,
       },
-      frist: { krav: { dager: 20 }, svar: null, venter_paa_svar: true },
+      frist: {
+        krav: { frister: [{ betegnelse: 'Sluttfristen', dager: 20 }] },
+        svar: null,
+        venter_paa_svar: true,
+      },
     });
     expect(Date.parse(linje.siste_hendelse)).toBeGreaterThanOrEqual(Date.parse(linje.opprettet));
   });

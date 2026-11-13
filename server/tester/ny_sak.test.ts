@@ -76,6 +76,7 @@ function brevtekst(
       teamId: null,
       sakskode: neste,
       kontraktsforkortelse: KONTRAKTSFORKORTELSE,
+      kontraktsfrister: [],
       tidspunkt: () => new Date(),
       nyId: randomUUID,
     },

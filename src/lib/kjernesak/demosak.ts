@@ -139,6 +139,7 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
         tidspunkt: () => new Date((klokke += 60_000)),
         nyId,
         ...DEMOMERKING,
+        kontraktsfrister: [],
       },
       rader,
       KJERNE,

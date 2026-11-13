@@ -218,7 +218,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
       sakId,
       forventet,
       kommando,
-      ({ journal, tidspunkt, maal, vedlegg, sakskode, kontraktsforkortelse }) => {
+      ({ journal, tidspunkt, maal, vedlegg, sakskode, kontraktsforkortelse, kontraktsfrister }) => {
         const kjernekontekst = (t: Date, kode: Sakskode) => ({
           sakId,
           aktoerId: kontekst.aktor,
@@ -228,6 +228,7 @@ async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Prom
           nyId: avh.nyId,
           sakskode: tilKjernen(kode),
           kontraktsforkortelse,
+          kontraktsfrister,
         });
         // VS-U53: et dokument fra kravskjemaet skrives som et registrert varsel før kravet, og
         // kravet er neste rad, med basens klokke for sin skriving.
@@ -367,7 +368,7 @@ async function opprettMedPaaberopelse(
       sakId,
       kommando,
       vedleggider,
-      ({ tidspunkt, vedlegg, sakskode, kontraktsforkortelse }) => {
+      ({ tidspunkt, vedlegg, sakskode, kontraktsforkortelse, kontraktsfrister }) => {
         const nySak = opprettelse({ type: 'opprett_sak', sakstittel: tittel }, side.rolle);
         if (!nySak.godtatt) return { skriv: false, avvisning: nySak };
         const opprettet: Journalrad = {
@@ -393,6 +394,7 @@ async function opprettMedPaaberopelse(
           nyId: avh.nyId,
           sakskode: tilKjernen(sakskode),
           kontraktsforkortelse,
+          kontraktsfrister,
         });
         const vurdert = vurder(krav, kjernekontekst(tidspunkt), [opprettet], avh.kjerne, vedlegg);
         if (!vurdert.godtatt) return { skriv: false, avvisning: vurdert };

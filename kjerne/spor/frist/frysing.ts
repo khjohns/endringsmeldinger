@@ -6,6 +6,7 @@
  */
 
 import { beregnFrist, resultatAvDager, type Fristkrav } from '../../regler/frist.ts';
+import { UgyldigVurdering } from '../../regler/feil.ts';
 import { kontrollerSpesifiseringen } from '../../regler/svarkontroll.ts';
 import {
   avvisUkjenteFelt,
@@ -20,15 +21,24 @@ import {
   type Svarvurdering,
 } from '../../frosset/byggeklosser.ts';
 import { innholdIFristen, utregningIFristen } from './format.ts';
-import type { Dokument, Krav, Standpunktsvirkning, Utfall } from '../../typer.ts';
+import type { Dokument, Krav, Standpunkt, Standpunktsvirkning, Utfall } from '../../typer.ts';
 
+/** Det svaret gir i dager for hver frist i laget (KA-U74). */
 function utfallIFristen(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert: boolean): Utfall {
-  if (prekludert) return { dager: 0 };
   const spesifisering = standpunktet(svar, 'spesifisering');
-  if (spesifisering && prinsipalt(v)?.standpunkt === spesifisering.id)
-    return { dager: spesifisering.dager! };
-  const dager = standpunktet(svar, 'dager')!;
-  return { dager: dager.resultat === 'avslaatt' ? 0 : dager.vurdert };
+  const maatteForstaa =
+    spesifisering && prinsipalt(v)?.standpunkt === spesifisering.id
+      ? spesifisering.maatteForstaa
+      : undefined;
+  const dagerI = (d: Extract<Standpunkt, { art: 'dager' }>): number => {
+    if (prekludert) return 0;
+    if (maatteForstaa) return maatteForstaa.find((m) => m.frist === d.gjelder)!.dager;
+    return d.resultat === 'avslaatt' ? 0 : d.vurdert;
+  };
+  const frister = svar.standpunkter.flatMap((d) =>
+    d.art === 'dager' ? [{ gjelder: d.gjelder, dager: dagerI(d) }] : []
+  );
+  return { frister };
 }
 
 function fristenGodkjent(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
@@ -37,7 +47,8 @@ function fristenGodkjent(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
   const spesifisering = standpunktet(svar, 'spesifisering');
   if (spesifisering && v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning)))
     return false;
-  return utregningIFristen(svar.utregning).resultat === 'godkjent';
+  // KA-U74: hele kravet er godkjent når hver frist har fått alle dagene.
+  return utregningIFristen(svar.utregning).frister.every((r) => r.resultat === 'godkjent');
 }
 
 export const FRYSING_I_FRISTEN = {
@@ -57,19 +68,49 @@ const FRISTVURDERINGER = new Set<string>([
   'spesifisert_krav_ok',
   'foresporsel_svar_ok',
   'vilkar_oppfylt',
-  'dager',
-  'dager_maatte_forstaa',
+  'frister',
 ]);
 
-/** Utregningen av fristen (§ 33). */
-function regnUtFrist(
+/** Byggherrens vurdering av dagene for én frist i kravet, med fristens `id` (`gjelder`). */
+export interface Dagvurdering {
+  gjelder: string;
+  dager?: unknown;
+  dager_maatte_forstaa?: unknown;
+}
+
+/**
+ * Vurderingene for fristene i kravet, én per frist og i kravets rekkefølge (KA-U74). Svaret
+ * gjelder én kravversjon, så rekkefølgen binder vurderingen til fristen. Kaster
+ * `UgyldigVurdering` når antallet ikke stemmer, eller en vurdering har ukjente felt.
+ */
+export function fristvurderinger(v: Svarvurdering, krav: Krav): Dagvurdering[] {
+  const frister = innholdIFristen(krav).frister;
+  const liste = v.frister;
+  const feil = (grunn: string) => new UgyldigVurdering({ frister: grunn });
+  if (!Array.isArray(liste) || liste.length !== frister.length)
+    throw feil('svaret må ha én vurdering for hver frist i kravet, i samme rekkefølge');
+  return liste.map((x: unknown, i) => {
+    if (typeof x !== 'object' || x === null) throw feil(`vurdering ${i + 1} er ikke et objekt`);
+    const r = x as Record<string, unknown>;
+    const ukjent = Object.keys(r).filter((k) => !['dager', 'dager_maatte_forstaa'].includes(k));
+    if (ukjent.length) throw feil(`vurdering ${i + 1} har feltene ${ukjent.join(', ')}`);
+    return {
+      gjelder: frister[i]!.id,
+      dager: r.dager,
+      dager_maatte_forstaa: r.dager_maatte_forstaa,
+    };
+  });
+}
+
+/** Utregningen av én frist (§ 33), med vurderingene som gjelder hele kravet. */
+function regnUtFristen(
   v: Svarvurdering,
-  krav: Krav,
+  krevd: number,
+  f: Dagvurdering,
   foresporsel: Foresporselsrelasjon | null
 ): Record<string, unknown> {
-  avvisUkjenteFelt(v, FRISTVURDERINGER, 'fristen');
   const fkrav: Fristkrav = {
-    krevd_dager: innholdIFristen(krav).dager,
+    krevd_dager: krevd,
     varsel_type: 'spesifisert',
     er_svar_paa_foresporsel: foresporsel?.art === 'svar',
     har_begrunnelse_etter_b: foresporsel?.art === 'begrunnelse',
@@ -84,9 +125,10 @@ function regnUtFrist(
     spesifisert_krav_ok: v.spesifisert_krav_ok as boolean | undefined,
     foresporsel_svar_ok: v.foresporsel_svar_ok as boolean | undefined,
     vilkar_oppfylt: v.vilkar_oppfylt as boolean | undefined,
-    godkjent_dager: v.dager,
+    godkjent_dager: f.dager,
   });
   const ut: Record<string, unknown> = {
+    gjelder: f.gjelder,
     resultat: r.beregnings_resultat,
     godkjent_dager: r.godkjent_dager,
   };
@@ -94,16 +136,35 @@ function regnUtFrist(
     ut.subsidiaert_resultat = r.subsidiaer_resultat;
     ut.subsidiaert_godkjent_dager = r.subsidiaer_godkjent_dager ?? 0;
   }
-  const maatteForstaa = kontrollerSpesifiseringen(v);
+  const maatteForstaa = kontrollerSpesifiseringen({
+    spesifisert_krav_ok: v.spesifisert_krav_ok,
+    dager_maatte_forstaa: f.dager_maatte_forstaa,
+    dager: f.dager,
+  });
   // VS-U4, rekkefølgen i #479: uten preklusjon og med hindring er dagene byggherren måtte
   // forstå at TE hadde krav på det prinsipale, og de vurderte dagene står subsidiært.
   if (maatteForstaa !== null && r.subsidiaer_resultat === null) {
-    ut.resultat = resultatAvDager(true, fkrav.krevd_dager, maatteForstaa);
+    ut.resultat = resultatAvDager(true, krevd, maatteForstaa);
     ut.godkjent_dager = maatteForstaa;
     ut.subsidiaert_resultat = r.beregnings_resultat;
     ut.subsidiaert_godkjent_dager = r.godkjent_dager;
   }
   return ut;
+}
+
+/** Utregningen av fristen (§ 33): én rad for hver frist i kravet, uten sum (KA-U74). */
+function regnUtFrist(
+  v: Svarvurdering,
+  krav: Krav,
+  foresporsel: Foresporselsrelasjon | null
+): Record<string, unknown> {
+  avvisUkjenteFelt(v, FRISTVURDERINGER, 'fristen');
+  const krevd = innholdIFristen(krav).frister;
+  return {
+    frister: fristvurderinger(v, krav).map((f, i) =>
+      regnUtFristen(v, krevd[i]!.dager, f, foresporsel)
+    ),
+  };
 }
 
 export const UTREGNING_I_FRISTEN = {
@@ -112,7 +173,11 @@ export const UTREGNING_I_FRISTEN = {
 } satisfies Svarsutregning;
 
 /** Feltene klienten skal ha regnet likt med serveren (`SAMMENLIKNES`). */
-export const SAMMENLIKNES_I_FRISTEN = ['resultat', 'godkjent_dager'];
+export const SAMMENLIKNES_I_FRISTEN = [
+  'frister.gjelder',
+  'frister.resultat',
+  'frister.godkjent_dager',
+];
 
 export interface ForesporselOgSvar {
   foresporsel: string;

@@ -84,6 +84,12 @@ export function likeVerdier(a: unknown, b: unknown): boolean {
   );
 }
 
+/** Fristtabellen for prosjektet i bevis-sakene (GFK-U18, KA-U79). */
+export const FRISTTABELLEN = [
+  { fristId: 1, nummer: '2', navn: 'Overtakelse' },
+  { fristId: 2, nummer: '3', navn: 'Mekanisk ferdigstillelse' },
+];
+
 export class Forutsetning extends Error {}
 export type Paastand = (holder: boolean, melding: string) => void;
 
@@ -130,6 +136,7 @@ export class Kjoering {
       teamId: `team-${part.toLowerCase()}`,
       sakskode: this.bane.sakskode ?? { kode: 'koe' as const, loepenummer: 17 },
       kontraktsforkortelse: 'K201',
+      kontraktsfrister: FRISTTABELLEN,
       tidspunkt: () => this.klokke.neste(),
       nyId: this.navn.nyId,
     };
@@ -329,6 +336,9 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       return svaretSomSendt()[hale[1] as 'gjelder' | 'erstatter' | 'dokument'];
     case 'standpunkt': {
       const s = svaretSomSendt().standpunkter.find((x) => x.art === hale[1]);
+      // KA-U74: dagene byggherren måtte forstå, står per frist, og bevis-sakene har én frist.
+      if (s?.art === 'spesifisering' && hale[2] === 'dager')
+        return s.maatteForstaa?.[0]?.dager ?? null;
       return s ? (s as Record<string, unknown>)[hale[2]] : null;
     }
     case 'virkning':
@@ -347,6 +357,9 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       const e = u.spor[hale[0] as 'forhold'].enighet;
       if (hale.length === 1 || e === null) return e === null ? null : 'finnes';
       const felt = hale[1];
+      // KA-U74: dagene står per frist, og bevis-sakene har én frist.
+      if (felt === 'utfall' && hale[2] === 'dager')
+        return e.grunnlag.utfall.frister?.[0]?.dager ?? null;
       if (felt === 'utfall') return e.grunnlag.utfall[hale[2] as 'beloep'] ?? null;
       if (felt === 'virkning' && hale.length === 3)
         return e.grunnlag.virkninger.find((p) => p.art === hale[2])?.virkning ?? null;

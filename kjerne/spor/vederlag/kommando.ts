@@ -413,7 +413,7 @@ const kravpostvarslerIBrevet = (
   kravpostvarslene(k, u.spor.vederlag.krav, foranKravet(nytt, lest, u));
 
 export const SKRIVING_I_VEDERLAGET = {
-  kravinnhold: medKravposter,
+  kravinnhold: (innhold, u, { nyId }) => medKravposter(innhold, u, nyId),
   handlingen: medDokumentvarslene,
   postvarsler: kravpostvarslerIBrevet,
 } satisfies Sporsskriving;

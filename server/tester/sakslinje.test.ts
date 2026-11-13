@@ -60,6 +60,7 @@ class Sak {
       teamId: `team-${part.toLowerCase()}`,
       sakskode: { kode: 'koe' as const, loepenummer: 17 },
       kontraktsforkortelse: 'K201',
+      kontraktsfrister: [],
       tidspunkt: () => naa,
       nyId: randomUUID,
     };
@@ -152,13 +153,18 @@ const krav: Steg = (sak) => {
     },
     utdypning: UTDYPNING,
   });
-  sak.send('TE', { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: UTDYPNING });
+  sak.send('TE', {
+    type: 'krav',
+    spor: 'frist',
+    innhold: { frister: [{ navn: 'Sluttfristen', dager: 20 }] },
+    utdypning: UTDYPNING,
+  });
 };
 const FRIST_I_ORDEN = {
   frist_varsel_ok: true,
   spesifisert_krav_ok: true,
   vilkar_oppfylt: true,
-  dager: 20,
+  frister: [{ dager: 20 }],
 };
 /** Brevet D4 i forløp A i bevis-sakene: forholdet avslått, vederlaget delvis godkjent. */
 const forloepA: Steg = (sak) => {
@@ -294,7 +300,12 @@ describe('linja i sakslisten (#1022)', () => {
         venter_paa_svar: true,
         svar_ikke_godtatt: false,
       },
-      frist: { krav: { dager: 20 }, svar: null, enighet: null, venter_paa_svar: true },
+      frist: {
+        krav: { frister: [{ betegnelse: 'Sluttfristen', dager: 20 }] },
+        svar: null,
+        enighet: null,
+        venter_paa_svar: true,
+      },
     });
   });
 
@@ -336,7 +347,10 @@ describe('linja i sakslisten (#1022)', () => {
       uten_fast_beloep: [],
       virkning: 'virksom',
     });
-    expect(l.frist.enighet).toEqual({ dager: 20, virkning: 'virksom' });
+    expect(l.frist.enighet).toEqual({
+      frister: [{ betegnelse: 'Sluttfristen', dager: 20 }],
+      virkning: 'virksom',
+    });
     expect(l.saksbetegnelse).toBe('kravene_avgjort');
   });
 

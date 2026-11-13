@@ -12,6 +12,7 @@ import { avvisning } from './avvisning.ts';
 import { formfeil, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
 import { korrigertDato, SKRIVING_I_FORHOLDET } from '../spor/forhold/kommando.ts';
 import { SKRIVING_I_FRISTEN } from '../spor/frist/kommando.ts';
+import type { Registrertfrist } from '../spor/frist/format.ts';
 import { frys } from '../frosset/frysing.ts';
 import { standpunkter } from './standpunkter.ts';
 import { lagBrevtekst, lagDeresRef } from '../frosset/brevtekst.ts';
@@ -81,6 +82,12 @@ export interface Kontekst {
    * viser til et tidligere brev med merkingen, og merkingen begynner med den (LV-U53, LV-U44).
    */
   kontraktsforkortelse: string | null;
+  /**
+   * Fristtabellen for prosjektet (GFK-U18, GFK-U23), lest i skrivetransaksjonen. Et fristkrav
+   * viser til en frist i den, og kravet lagrer nummeret og navnet derfra (KA-U79). Tom når
+   * prosjektet ikke har registrerte frister.
+   */
+  kontraktsfrister: readonly Registrertfrist[];
 }
 
 /**
@@ -235,7 +242,13 @@ function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne): Data[] {
 /** Det som er sporets eget i skrivingen (#1783). */
 export interface Sporsskriving {
   /** Innholdet i kravet slik det lagres. */
-  kravinnhold(innhold: Data, u: Utledning, nyId: () => string): Data;
+  kravinnhold(
+    innhold: Data,
+    u: Utledning,
+    kontekst: Pick<Kontekst, 'nyId' | 'kontraktsfrister'>
+  ): Data;
+  /** Det i kravet `k` som strider mot det serveren stempler i konteksten, eller `null`. */
+  kontekstsperre?(k: Extract<Kommando, { type: 'krav' }>, kontekst: Kontekst): Avvisning | null;
   /**
    * Kravet som flere rader, når sporet skriver noe før kravet i samme handling, ellers `null`,
    * og kravet er én rad (VS-U51, VS-U53).
@@ -289,12 +302,13 @@ function dokument(
   k: Kommando,
   u: Utledning,
   kjerne: Kjerne,
-  nyId: () => string,
+  kontekst: Kontekst,
   utdypninger: Utdypninger,
   bygde: Bygde,
   bundne: Vedlegg[],
   ogsaaEtter: readonly Kravpostvarselhjemmel[] = []
 ): Data {
+  const nyId = kontekst.nyId;
   switch (k.type) {
     case 'krav': {
       const forrige = u.spor[k.spor].gjeldendeKrav;
@@ -311,7 +325,7 @@ function dokument(
             spor: k.spor,
             ...(forrige ? { erstatter: forrige.id } : {}),
             ...(foresporsel ? { gjelder: foresporsel.foresporsel } : {}),
-            ...iSporet(SKRIVING, k.spor).kravinnhold(k.innhold, u, nyId),
+            ...iSporet(SKRIVING, k.spor).kravinnhold(k.innhold, u, kontekst),
           },
         ],
       };
@@ -565,6 +579,8 @@ function skriv(
     sendes
   );
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
+  const sperre = k.type === 'krav' ? iSporet(SKRIVING, k.spor).kontekstsperre?.(k, kontekst) : null;
+  if (sperre) return { godtatt: false, feil: 'REGELBRUDD', avvisning: sperre };
   // LV-U14: brevet lagrer ID-en, filnavnet og summen fra mellomlageret.
   const bundne: Vedlegg[] = [];
   for (const id of [...vedleggI(k), ...vedKravet]) {
@@ -582,7 +598,7 @@ function skriv(
   const utdypninger: Utdypninger = new Map();
   let data: Data;
   try {
-    data = dokument(k, u, kjerne, kontekst.nyId, utdypninger, bygde, bundne, ogsaaEtter);
+    data = dokument(k, u, kjerne, kontekst, utdypninger, bygde, bundne, ogsaaEtter);
   } catch (feil) {
     // Frysingen leser standpunktene kjernen nettopp skrev; kan den ikke det, er raden feil.
     if (feil instanceof Uforstaatt)

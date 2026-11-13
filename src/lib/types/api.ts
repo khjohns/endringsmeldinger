@@ -65,17 +65,25 @@ export interface Vederlagslinje extends Foreligger {
   } | null;
 }
 
+/** Én frist med betegnelsen i kontrakten og dagene (U-1). */
+export interface Fristdager {
+  betegnelse: string;
+  dager: number;
+}
+
 export interface Fristlinje extends Foreligger {
   kravet_staar: boolean;
   har_varsel: boolean;
   ingen_krav: boolean;
-  krav: { dager: number } | null;
+  /** Dagene står per frist og legges ikke sammen (KA-U74). */
+  krav: { frister: Fristdager[] } | null;
   svar: {
-    resultat: 'godkjent' | 'delvis_godkjent' | 'avslaatt';
-    dager: number;
-    subsidiaert: boolean;
+    frister: (Fristdager & {
+      resultat: 'godkjent' | 'delvis_godkjent' | 'avslaatt';
+      subsidiaert: boolean;
+    })[];
   } | null;
-  enighet: { dager: number | null; virkning: Enighetsvirkning } | null;
+  enighet: { frister: Fristdager[]; virkning: Enighetsvirkning } | null;
 }
 
 export interface Sakslinje {

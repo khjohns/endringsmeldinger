@@ -19,6 +19,7 @@ import type { Journalrad, Spor } from '../../kjerne/typer.ts';
 import type { Utledning } from '../../kjerne/utledning/utled.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import { brevverdi } from '../fullmakt.ts';
+import { innholdIFristen } from '../../kjerne/spor/frist/format.ts';
 
 const UTDYPNING = 'Byggherren har pålagt en annen fundamentering.';
 const KRAV_PAABEROPELSE = {
@@ -36,7 +37,12 @@ const KRAV_VEDERLAG = {
   spor: 'vederlag',
   innhold: { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 100000 }] },
 };
-const KRAV_FRIST = { type: 'krav', spor: 'frist', innhold: { dager: 20 }, utdypning: UTDYPNING };
+const KRAV_FRIST = {
+  type: 'krav',
+  spor: 'frist',
+  innhold: { frister: [{ navn: 'Sluttfristen', dager: 20 }] },
+  utdypning: UTDYPNING,
+};
 const FORHOLD_GODKJENT = { spor: 'forhold', resultat: 'godkjent', varslet_i_tide: true };
 const SATS = 5000;
 const { regler } = KJERNE;
@@ -67,6 +73,7 @@ function utledning(krav: object[]): Utledning {
       teamId: 'team-te',
       sakskode: { kode: 'koe' as const, loepenummer: 17 },
       kontraktsforkortelse: 'K201',
+      kontraktsfrister: [],
       tidspunkt: () => new Date((klokke += 60_000)),
       nyId: () => randomUUID(),
     };
@@ -107,9 +114,12 @@ function svarutkast(h: Record<string, unknown>, u: Utledning): Svarutkast {
         : {
             frist_varsel_ok: h.varsel_i_tide,
             spesifisert_krav_ok: h.spesifisering_i_tide,
-            dager_maatte_forstaa: h.maatte_forstaa,
             vilkar_oppfylt: h.hindring,
-            dager: h.dager ?? u.spor.frist.gjeldendeKrav?.innhold.dager,
+            // KA-U74: én vurdering per frist. Kravene i testene har én frist.
+            frister: innholdIFristen(u.spor.frist.gjeldendeKrav!).frister.map((f) => ({
+              dager: h.dager ?? f.dager,
+              dager_maatte_forstaa: h.maatte_forstaa,
+            })),
           };
   return {
     spor,

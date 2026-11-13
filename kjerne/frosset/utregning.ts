@@ -68,3 +68,32 @@ export function likeResultatfelt(felt: string, klient: unknown, server: unknown)
     return beloep(klient) === beloep(server);
   return klient === server;
 }
+
+/**
+ * Feltene i `SAMMENLIKNES` der klienten har regnet annerledes enn serveren, med serverens verdi
+ * slik meldingen viser den. `liste.felt` er feltet i hver rad i listen, som dagene for hver frist
+ * (KA-U74), og verdien er da feltet i hver rad.
+ */
+export function avvikIResultatet(
+  spor: Spor,
+  klient: Record<string, unknown>,
+  server: Record<string, unknown>
+): { sti: string; serveren: string }[] {
+  return SAMMENLIKNES[spor].flatMap((sti) => {
+    const [liste, felt] = sti.split('.');
+    if (felt === undefined)
+      return likeResultatfelt(sti, klient[sti], server[sti])
+        ? []
+        : [{ sti, serveren: String(server[sti]) }];
+    const k = klient[liste!] as Record<string, unknown>[];
+    const verdier = (server[liste!] as Record<string, unknown>[]).map((rad) => rad[felt]);
+    const avviker =
+      !Array.isArray(k) ||
+      k.length !== verdier.length ||
+      k.some(
+        (fra, i) =>
+          typeof fra !== 'object' || fra === null || !likeResultatfelt(felt, fra[felt], verdier[i])
+      );
+    return avviker ? [{ sti, serveren: JSON.stringify(verdier) }] : [];
+  });
+}

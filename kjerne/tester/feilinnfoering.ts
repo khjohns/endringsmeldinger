@@ -348,8 +348,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/format.ts`,
     endringer: [
       [
-        "properties: { dager: { type: 'integer', minimum: 1 } },",
-        "properties: { dager: { type: 'integer', minimum: 0 } },",
+        "const DAGER: Skjema = { type: 'integer', minimum: 1 };",
+        "const DAGER: Skjema = { type: 'integer', minimum: 0 };",
       ],
     ],
     mal: ['F-MM-K0', 'et krav på 0 dager'],
@@ -1614,12 +1614,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'aksept av et svar med påberopelse etter § 33.6.1 gir de vurderte dagene, ikke de prinsipale (VS-U4)',
     fil: `${K}/spor/frist/frysing.ts`,
-    endringer: [
-      [
-        'return { dager: spesifisering.dager! };',
-        "return { dager: standpunktet(svar, 'dager')!.vurdert };",
-      ],
-    ],
+    endringer: [['      ? spesifisering.maatteForstaa\n', '      ? undefined\n']],
     mal: ['F-MM-F-33-6-1-nei'],
   },
   {
@@ -1678,7 +1673,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F199',
     feilklasse: 'en lagret spesifisering i tide med prinsipale dager forstås (VS-U4)',
     fil: `${K}/spor/frist/format.ts`,
-    endringer: [["if (e.i_tide === 'dager' in e)", 'if (e.i_tide === undefined)']],
+    endringer: [["if (e.i_tide === 'maatte_forstaa' in e)", 'if (e.i_tide === undefined)']],
     mal: ['spesifiseringen er i tide, men har prinsipale dager'],
   },
   {
@@ -5024,6 +5019,78 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['KA-U1, VS-U27: én begrunnelse per forespørsel'],
+  },
+  {
+    id: 'F581',
+    feilklasse: 'en ny kravversjon kan utelate en frist uten å trekke den (KA-U76)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      [
+        '  const mangler = [...forrige.values()].filter((p) => !med.has(p.id) && !trukne.has(p.id));',
+        '  const mangler = [...forrige.values()].filter(() => false);',
+      ],
+    ],
+    mal: ['F-MM-KA-U76'],
+  },
+  {
+    id: 'F582',
+    feilklasse: 'en registrert frist kan byttes med en annen i samme rad (KA-U79)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      ['    if (kjent?.frist_id !== undefined && p.frist_id !== kjent.frist_id)', '    if (false)'],
+    ],
+    mal: ['F-MM-KA-U76'],
+  },
+  {
+    id: 'F583',
+    feilklasse:
+      'et krav om en frist som ikke står i fristtabellen for prosjektet, godtas (GFK-U23, KA-U79)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      ['      !kontekst.kontraktsfrister.some((f) => f.fristId === p.frist_id)', '      false'],
+    ],
+    mal: ['F-MM-GFK-U23'],
+  },
+  {
+    id: 'F584',
+    feilklasse: 'en trukket frist som tas med igjen, får en ny rad (KA-U76)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['?? eier.get(fristnoekkel(p)) ', '']],
+    mal: ['F-MM-KA-U76-igjen'],
+  },
+  {
+    id: 'F585',
+    feilklasse:
+      'en frist uten `id` som kommer tilbake i en rad som er erstattet med en registrert frist, godtas (KA-U79)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      [
+        '    const kjent = rad === undefined ? undefined : sist.get(rad);',
+        '    const kjent = id === undefined ? undefined : sist.get(id);',
+      ],
+    ],
+    mal: ['F-MM-KA-U79-tilbake'],
+  },
+  {
+    id: 'F586',
+    feilklasse:
+      'leseren godtar et fristsvar med dagene for en annen frist enn i kravet (MM-U2, KA-U74)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [['    if (iSvaret.join() !== iKravet.join())', '    if (false)']],
+    mal: ['et lest fristsvar med dagene for en annen frist enn i kravet'],
+  },
+  {
+    id: 'F587',
+    feilklasse:
+      'brevet sier ikke at en frist som er trukket og tatt med igjen i en ny form, erstatter den siste formen (KA-U79)',
+    fil: `${K}/spor/frist/tekst.ts`,
+    endringer: [
+      [
+        '      sisteForm.set(frist.id, frist);',
+        '      if (v === forrige) sisteForm.set(frist.id, frist);',
+      ],
+    ],
+    mal: ['en frist som er trukket og tatt med igjen i en ny form'],
   },
 ];
 

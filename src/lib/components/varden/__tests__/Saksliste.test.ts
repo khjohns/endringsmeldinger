@@ -158,9 +158,13 @@ describe('Sakslisten i Varden', () => {
         kravet_staar: true,
         har_varsel: false,
         ingen_krav: false,
-        krav: { dager: 15 },
-        svar: { resultat: 'godkjent', dager: 15, subsidiaert: false },
-        enighet: { dager: 15, virkning: 'betinget' },
+        krav: { frister: [{ betegnelse: 'Sluttfristen', dager: 15 }] },
+        svar: {
+          frister: [
+            { betegnelse: 'Sluttfristen', resultat: 'godkjent', dager: 15, subsidiaert: false },
+          ],
+        },
+        enighet: { frister: [{ betegnelse: 'Sluttfristen', dager: 15 }], virkning: 'betinget' },
       },
     });
     vis({ saker: [linje] });
@@ -339,7 +343,7 @@ describe('Sakslisten i Varden', () => {
       kravet_staar: true,
       har_varsel: false,
       ingen_krav: false,
-      krav: { dager },
+      krav: { frister: [{ betegnelse: 'Sluttfristen', dager }] },
       svar: null,
       enighet: null,
     });
