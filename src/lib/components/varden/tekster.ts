@@ -930,14 +930,6 @@ export const SAKSLISTE = {
   ikkeKrevd: 'Ikke krevd',
   varslet: 'Varslet',
   trukket: 'trukket',
-  metode: { regningsarbeid: 'Regningsarbeid', enhetspriser: 'Enhetspriser' } as Record<
-    string,
-    string
-  >,
-  flereOppgjoersformer: 'Flere oppgjørsformer',
-  /** De faste beløpene og kravpostene etter en beregningsregel i samme krav (KA-U61, #1663). */
-  ogRegel: (beloep: string, regel: string) =>
-    `${beloep} og ${regel === 'flere' ? 'andre oppgjørsformer' : regel.toLowerCase()}`,
   utenTittel: 'Uten tittel',
   inngaarIEo: (kode: string) => `Inngår i ${kode}`,
   paaberopelsenTrukket: 'Påberopelsen trukket',

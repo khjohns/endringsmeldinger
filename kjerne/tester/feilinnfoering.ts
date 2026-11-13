@@ -2443,13 +2443,15 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F340',
-    feilklasse: '«Krav sendt» går foran «Enige» i rekkefølgen for betegnelsen (MM-U30, #1043)',
+    feilklasse:
+      '«Krav sendt» går foran «Enige» i rekkefølgen og krever ikke at sporet er uten enighet (MM-U30, #1043, #1140)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [
       [
         "  'enige',\n  'svar_ikke_godtatt',\n  'krav_sendt',\n",
         "  'krav_sendt',\n  'enige',\n  'svar_ikke_godtatt',\n",
       ],
+      ['    u.spor[spor].enighet === null &&\n', ''],
     ],
     mal: ['en enighet i sporet går foran «Krav sendt»'],
   },
@@ -4887,6 +4889,58 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['          : harRisikoen(j.krav(g.gjelder))', '          : false']],
     mal: ['står med ordene det hadde: byggherren har ikke risikoen'],
+  },
+  {
+    id: 'F570',
+    feilklasse:
+      '«Krav sendt» går foran «Trukket» og krever ikke at sporet er uten trekk (MM-U30, #1140)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        "  'trukket',\n  'spesifisert_krav_etterspurt',\n",
+        "  'krav_sendt',\n  'trukket',\n  'spesifisert_krav_etterspurt',\n",
+      ],
+      [
+        "  'svar_ikke_godtatt',\n  'krav_sendt',\n  'ingen_krav',\n",
+        "  'svar_ikke_godtatt',\n  'ingen_krav',\n",
+      ],
+      ['    !u.spor[spor].trukket,\n', '    true,\n'],
+    ],
+    mal: ['er «Trukket», ikke «Krav sendt»'],
+  },
+  {
+    id: 'F571',
+    feilklasse: 'kravet står i en sak der påberopelsen er trukket (#1779, GR-U5)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        'u.forstaatt && (sporetErLukket(u) || u.spor.forhold.trukket)',
+        'u.forstaatt && sporetErLukket(u)',
+      ],
+    ],
+    mal: ['er saken avsluttet og ingen krav står'],
+  },
+  {
+    id: 'F572',
+    feilklasse: 'et svar uten fast beløp får summen 0 kr, ikke ingen sum (OV-U43, #1779)',
+    fil: `${K}/spor/vederlag/format.ts`,
+    endringer: [['sum: beloepene.length ? beloepene.reduce', 'sum: true ? beloepene.reduce']],
+    mal: ['kravet og svaret har summen av de faste beløpene'],
+  },
+  {
+    id: 'F573',
+    feilklasse: 'et krav uten fast beløp får summen 0 kr, ikke ingen sum (OV-U43, #1779)',
+    fil: `${K}/spor/vederlag/format.ts`,
+    endringer: [['sum: samlet > 0n ? samlet : null,', 'sum: samlet,']],
+    mal: ['kravet og svaret har summen av de faste beløpene'],
+  },
+  {
+    id: 'F574',
+    feilklasse:
+      'svaret sier ikke hvor mange kravposter som står uten fast beløp (KA-U72, #1752 punkt 4)',
+    fil: `${K}/spor/vederlag/format.ts`,
+    endringer: [['utenFastBeloep: utenFastBeloep(svar.standpunkter).size,', 'utenFastBeloep: 0,']],
+    mal: ['kravet og svaret har summen av de faste beløpene'],
   },
 ];
 

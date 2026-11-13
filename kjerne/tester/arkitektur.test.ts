@@ -169,7 +169,7 @@ describe('kjernen er ren kode (B-14)', () => {
   it.each([
     ["import { leggTil } from '../../sprakprove/server/lager.ts';", 'utledning/utled.ts'],
     ["import type { Hendelse } from '../../sprakprove/kjerne/typer';", 'format/leser.ts'],
-    ["export * from '../../src/lib/domain/fristDomain.ts';", 'regler/frist.ts'],
+    ["export * from '../../src/lib/components/varden/lesing.ts';", 'regler/frist.ts'],
     ["import pg from 'pg';", 'kommandoer/skriving.ts'],
     ["const pg = await import('pg');", 'utledning/buffer.ts'],
     ["const { Pool } = require('pg');", 'tester/kjoerer.ts'],

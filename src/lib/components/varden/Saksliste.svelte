@@ -298,7 +298,10 @@
                       >{spor === 'vederlag' ? SAKSLISTE.krevdVederlag : SAKSLISTE.krevdFrist}</span
                     >
                     {#if k}
-                      <span class="verdi">{k.tekst}</span>
+                      <span class="celle">
+                        <span class="verdi">{k.tekst}</span>
+                        {#if k.utenFast}<span class="uten">{k.utenFast}</span>{/if}
+                      </span>
                       {#if k.merknad}<span class="merknad">{k.merknad}</span>{/if}
                     {/if}
                   </div>
@@ -454,8 +457,18 @@
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
+  /* Antallet kravposter uten fast beløp står under summen, så kolonnen holder bredden. */
+  .celle {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .uten {
+    color: var(--ink-2);
+  }
   /* Dempet: ikke med i summene (MM-U38). */
-  .krevd.dempet .verdi {
+  .krevd.dempet .verdi,
+  .krevd.dempet .uten {
     color: var(--ink-3);
   }
   .siste-brev {
