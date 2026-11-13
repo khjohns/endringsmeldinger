@@ -26,7 +26,7 @@ import { FRYSING_I_FORHOLDET } from '../spor/forhold/frysing.ts';
 import { FRYSING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
 import { erRegistrert } from '../format/leser.ts';
 import { HJEMMEL } from '../format/format.ts';
-import { utregningIFristen } from '../format/svarinnhold.ts';
+import { utregningIFristen } from '../spor/frist/format.ts';
 import type {
   Dokument,
   Enighetsgrunnlag,

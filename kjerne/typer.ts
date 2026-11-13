@@ -324,7 +324,7 @@ export interface Svar {
   paaberopelse: string | null;
   standpunkter: Standpunkt[];
   /**
-   * Serverens utregning etter B-13, slik den er lagret. Leses gjennom `format/svarinnhold.ts`
+   * Serverens utregning etter B-13, slik den er lagret. Leses gjennom formatfila for sporet
    * med typen for sporet: `Vederlagsutregning` eller `Fristutregning`.
    */
   utregning: Record<string, unknown>;
@@ -357,7 +357,7 @@ export interface Vederlagsutregning {
   poster: Utregningsrad[];
 }
 
-/** Utregningen i et svar på fristen, etter `UTREGNING.frist` i `format/format.ts`. */
+/** Utregningen i et svar på fristen, etter `UTREGNING_I_FRISTEN` i `spor/frist/format.ts`. */
 export interface Fristutregning {
   resultat: Fristresultat;
   godkjent_dager: number;
