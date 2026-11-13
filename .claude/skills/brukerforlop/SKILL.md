@@ -1,6 +1,6 @@
 ---
 name: brukerforlop
-description: Designsløyfa i endringsmeldinger, der brukerhistorien, prototypen og vedtakene avklares og skrives ned før grundig bygging. Bestillingen for et brukerforløp (mål, designmål, domeneforventninger, gjennomføring og spørsmål), forløpet i demoruta eller den klikkbare prototypen for et nytt mønster, avvikene mot kjernen og vedtakene, kontrollene som gjelder, kriteriene for «klar til bygging» og overgangen til leveranseskillen. Også sammenligningen av en bygget visning med forløpet i demoruta, prototypen eller konseptet. Brukes når en brukeroppgave skal designes eller endres før den bygges, og for issues med etiketten `bestilling`.
+description: Designsløyfa i endringsmeldinger, der brukerhistorien, prototypen og vedtakene avklares og skrives ned før grundig bygging. Bestillingen for et brukerforløp (mål, designmål, domeneforventninger, gjennomføring og spørsmål), forløpet i demoruta eller den klikkbare prototypen for et nytt mønster, avvikene mot kjernen og vedtakene, kontrollene som gjelder, kriteriene for «klar til bygging» og overgangen til leveranseskillen. Også sammenligningen av en bygget visning med forløpet i demoruta, prototypen eller konseptet, og gjennomgangen av designet og språket i en skisse i runder. Brukes når en brukeroppgave skal designes eller endres før den bygges, når oppdragsgiver ber om en gjennomgang av en skisse, og for issues med etiketten `bestilling`.
 ---
 
 # Brukerforløp og bestilling før bygging
@@ -142,10 +142,31 @@ For en HTML-skisse av et mønster gjelder dette:
   det, og ikke det gamle konseptstilarket (#1461). Noen eldre prototyper i mappa bruker
   fortsatt det gamle stilarket og er ikke forbilde. Ingenting sendes, og ingen data lagres.
 
+## Gjennomgang i runder
+
+Når oppdragsgiver ber om en gjennomgang av designet eller språket i en skisse eller et forløp,
+gjøres den i runder. Ett kall over hele siden gir grunne funn (BF-44, 13.11).
+
+1. **Les først.** Les skillen `interface-design`, [systemfila](../../../.interface-design/system.md)
+   og [språkfila](../../../docs/sprak.md) før første runde, også når økta ikke har laget skissen.
+   `/design-review` laster ikke `interface-design` og nevner ikke språkfila.
+2. **Helheten.** Se alle tilstandene i nettleseren, på 1440 og 390 px. Er det flere konsepter,
+   anbefal ett og si hva som må rettes i det.
+3. **Én del om gangen.** Kjør `/design-review` på den viktigste komponenten, så de andre. Det
+   systemfila alt har bestemt, er ikke et funn.
+4. **Språket til slutt, som egen runde.** Hent ut all synlig tekst i hver tilstand, også
+   `aria-label`, og les den mot språkfila og systemfila. Teksten endres i designrundene, så en
+   tidlig språkrunde må gjøres om. En vedtatt brevtekst vurderes ikke for endring.
+5. **Døm, så rett.** Hver runde leverer funn med alvorlighet og en konkret retting, og
+   oppdragsgiver svarer før noe endres. Slå opp om en ordlyd er vedtatt før du foreslår å endre den.
+6. **Etter hver runde.** Kjør den mekaniske forprøven, se på 390 px, og før valgene i U-punktene
+   og endringene i bestillingen. Systemfila får bare det som gjelder uavhengig av skissen.
+
 ## Kontrollene
 
 En iterasjon som bare rører `docs/`, krever ingen `/code-review`, `/design-review`,
-`/design-deslop`, feilinnføring eller kjøring av saksruta. Lenkekontrollen og
+`/design-deslop`, feilinnføring eller kjøring av saksruta. `/design-review` kjøres når
+oppdragsgiver ber om en gjennomgang («Gjennomgang i runder»). Lenkekontrollen og
 vakttesten for brukerforløpene kjøres i CI. Kommandoene står i
 [miljø-skillen](../miljo/SKILL.md). Et forløp i demoruta kjøres med `demoruta.mjs`, og en
 HTML-skisse vises i nettleseren med skillen `mockup-nettleser`.

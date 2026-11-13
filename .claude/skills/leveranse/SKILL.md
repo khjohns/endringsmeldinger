@@ -153,6 +153,8 @@ Når oppdragsgiver har sagt fra, kjører byggeøkta `/design-review` i en subage
 kontekst, før `/code-review`, og retter funnene selv. Kommer svaret ikke innen en time,
 følger økta «Hold hurtigbufferen varm» i arbeidsøkt-skillen. Alvorligheten settes av
 `/design-review`; hva som rettes i PR-en, følger stoppregelen for funn under (#1080, #1492).
+Reviewet går i runder, etter steg 1–4 i
+[«Gjennomgang i runder» i `brukerforlop`](../brukerforlop/SKILL.md#gjennomgang-i-runder).
 Endrer en retting visningen etter at oppdragsgiver har sett skjermbildene, sier
 PR-beskrivelsen hva som ble endret i visningen, i et eget punkt.
 
