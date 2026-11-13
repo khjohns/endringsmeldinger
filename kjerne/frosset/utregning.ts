@@ -7,7 +7,7 @@ import { beloep } from '../regler/beloep.ts';
 import { beregnFrist, resultatAvDager, type Fristkrav } from '../regler/frist.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { kontrollerSpesifiseringen } from '../regler/svarkontroll.ts';
-import { innholdIFristen } from '../format/kravinnhold.ts';
+import { innholdIFristen } from '../spor/frist/format.ts';
 import type { Foresporselsrelasjon } from './standpunkt.ts';
 import {
   avvisUkjenteFelt,
