@@ -2798,7 +2798,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F426',
     feilklasse: '«Varsel ikke registrert» står også etter fristkravet (#1126)',
-    fil: `${K}/utledning/visning.ts`,
+    fil: `${K}/spor/frist/visning.ts`,
     endringer: [
       [
         "!u.spor.frist.varsler['33.4'] && u.spor.frist.krav.length === 0",

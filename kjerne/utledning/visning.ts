@@ -14,6 +14,7 @@ import { ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { VISNING_I_FORHOLDET } from '../spor/forhold/visning.ts';
 import { VISNING_I_VEDERLAGET } from '../spor/vederlag/visning.ts';
+import { VISNING_I_FRISTEN } from '../spor/frist/visning.ts';
 import {
   enighetensVirkning,
   paaberopelseFor,
@@ -242,19 +243,11 @@ export interface Sporsvisning {
   passivitetsetikett(u: Utledning): string | null;
 }
 
-/** Visningen i hvert spor. Fristen står her til den flyttes til sporet (#1745). */
+/** Visningen i hvert spor. */
 const VISNING: Record<Spor, Sporsvisning> = {
   forhold: VISNING_I_FORHOLDET,
   vederlag: VISNING_I_VEDERLAGET,
-  frist: {
-    paaleggFrafalt: () => false,
-    passivitetsetikett: () => null,
-    // Oppdragsgiver 22.10 (#1126): bare før kravet, som er varselet når sporet ikke har noe.
-    varseletikett: (u) =>
-      !u.spor.frist.varsler['33.4'] && u.spor.frist.krav.length === 0
-        ? 'varsel_ikke_registrert'
-        : null,
-  },
+  frist: VISNING_I_FRISTEN,
 };
 
 /** Visningen i sporet (`iSporet`). */
