@@ -120,4 +120,28 @@ tvers av saker må bygges før verdien.
 
 ## Svarene
 
-Ikke besvart ennå.
+Oppdragsgivers svar 13.11, ordrett:
+
+> 1A. Les kontrakten, punkt 33.1 fra khjohns/kontrakt. I realiteten er det to vilkår: 1) må foreligge en hindring og 2) årsakssammenheng - hindringen må være forårsaket av forholdet (det som påberopes). Jeg tenker dette tas samlet i en begrunnelse, men vilkårene - vurdergingstema - bør fremgå. Da er jeg enig i at den konkrete begrunnelsen fra BH - både knyttet til antall dager fristforlengelse som gis per frist og om det foreligger en hindring og er årsaksammenheng, gis i en samlet begrunnelse. 2. A. 3. Kan vi ikke bygge lesingen først?
+
+Orkestratoren leser svarene slik: 1 er A, med tillegget om de to vilkårene og én samlet begrunnelse.
+2 er A. 3 er B: lesingen av forlengelsene i andre saker bygges før verdien regnes per frist.
+
+**1 (oppfølging). Hvordan skal de to vilkårene i punkt 33.1 fremgå av byggherrens svar?** Du har sagt
+at hindringen og årsakssammenhengen begrunnes samlet, sammen med dagene for hver frist, men at begge
+vilkårene skal fremgå som vurderingstema. KA-U78 setter standpunktet om hindringen i laget før dagene.
+
+- **A1 (anbefalt):** Byggherren tar ett standpunkt, om fremdriften ble hindret av forholdet
+  totalentreprenøren påberoper. Skjemaet og brevet nevner begge vilkårene: at det foreligger en
+  hindring, og at hindringen skyldes forholdet. Byggherren begrunner dem samlet, sammen med dagene for
+  hver frist. Forholdet: presiserer KA-U78 og avgjør P-4 i BF-20.
+- **A2:** Byggherren tar to standpunkter, ett om hindringen og ett om årsakssammenhengen, én gang for
+  hele kravet og i samme lag etter KA-U78, med én samlet begrunnelse. Brevet kan da si for eksempel at
+  fremdriften ble hindret, men ikke av forholdet. Forholdet: presiserer og utvider KA-U78. Rekkefølgen
+  mellom de to vilkårene må også avgjøres.
+- **Hva valget styrer:** formatet for svaret, som ikke kan endres uten migrering etter første ekte
+  sak, og skjemaet og brevet for byggherren.
+
+Oppdragsgivers svar, ordrett:
+
+> A1.
