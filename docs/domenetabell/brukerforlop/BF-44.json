@@ -70,6 +70,11 @@
       "dato": "2026-11-13",
       "forhold": "#1402",
       "hva": "Kortet med kravet og svaret er bygget om etter designreviewet og språkfila (U-2 og U-13)."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Tråden, hodet og topplinja i oppsett B er rettet etter designreviewet (U-16)."
     }
   ],
   "prototype": {
@@ -187,7 +192,7 @@
             "staar": "Et nytt krav følger opp kravet i brev 5 og avslår tilbudet i dette svaret, som da ikke kan godtas. Godtar du svaret, ser du brevet og virkningen av aksepten før du sender."
           },
           {
-            "trykk": "Brev 5 · Krav om vederlagsjustering"
+            "trykk": "Les brevet: brev 5, Krav om vederlagsjustering"
           },
           {
             "staar": "som tilbud om oppgjør som fast sum (punkt 34.2.1)."
