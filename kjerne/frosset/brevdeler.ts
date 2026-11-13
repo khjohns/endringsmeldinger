@@ -313,8 +313,9 @@ export interface Sporsbrevtekst {
   /** Temaene i byggherrens svar i skjemaets rekkefølge (LV-U34). */
   temaer(krav: Krav, t: Tekst, regler: Regelsett): Tema[];
   /**
-   * Punktet et standpunkt i svaret står i (LV-U34), eller `undefined` for et standpunkt om
-   * rettidighet etter en bestemmelse, som står i punktet for bestemmelsen.
+   * Punktet et standpunkt i svaret står i (LV-U34), eller `undefined` når sporet ikke har et eget
+   * punkt for det. Et standpunkt om rettidighet står da i punktet for bestemmelsen, og et annet
+   * avvises (`punktetFor`).
    */
   punktet(p: Standpunkt, krav: Krav): string | undefined;
   /**

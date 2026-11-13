@@ -169,15 +169,13 @@ export const BREVTEKSTEN_I_FRISTEN = {
   temaer,
   punktet: (p) => {
     switch (p.art) {
-      case 'rettidighet':
-        return undefined;
       case 'hindring':
       case 'spesifisering':
         return p.art;
       case 'dager':
         return p.gjelder;
       default:
-        throw new KanIkkeUttrykkes(`standpunktet ${p.art} har ikke noe punkt i svaret`);
+        return undefined;
     }
   },
   enigI: 'antallet dager',

@@ -275,14 +275,13 @@ function kontrollerUtregningenIFristen(
 ): void {
   const feil = (hva: string) => new Uforstaatt(`${sti}.utregning.frister: ${hva}`);
   const dagene = ut.filter((s) => s.art === 'dager');
+  const virkning = new Map(virkninger.map((v) => [v.standpunkt, v.virkning]));
   const standpunktetI = (lag: number) =>
-    ut.find(
-      (s) => s.art !== 'dager' && virkninger.find((v) => v.standpunkt === s.id)?.virkning === lag
-    );
+    ut.find((s) => s.art !== 'dager' && virkning.get(s.id) === lag);
   const rader = utregningIFristen(utregning).frister;
   kontrollerRadene(rader, dagene, virkninger, 'dagene', feil, (r, d, i) => {
     // OV-U33: ingen innsigelse rammer et upåvirket standpunkt om dagene.
-    const upaavirket = virkninger.find((v) => v.standpunkt === d.id)?.virkning === 'upaavirket';
+    const upaavirket = virkning.get(d.id) === 'upaavirket';
     r.lag.forEach((l, n) => {
       const s = upaavirket ? undefined : standpunktetI(n + 1);
       const dager =

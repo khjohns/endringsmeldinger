@@ -266,7 +266,7 @@ function punktet(p: Standpunkt, krav: Krav): string | undefined {
     case 'beloep':
       return p.saerskilt ? 'produktivitet' : kravpostenI(krav, p.gjelder!).betegnelse;
     default:
-      throw new KanIkkeUttrykkes(`standpunktet ${p.art} har ikke noe punkt i svaret`);
+      return undefined;
   }
 }
 

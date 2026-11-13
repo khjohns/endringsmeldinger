@@ -310,6 +310,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
   const krav = j.krav(s.gjelder);
   const virkning = new Map(s.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning]));
   const innsigelsene = aapneInnsigelser(s, nytt.avsender, j, regler);
+  const sporet = brevtekstI(s.spor);
   const fra = forholdetsLag(s, t, nr);
   const ledd: Svarledd[] = [...fra.ledd];
   const beloepene: Lagbeloep[] = [];
@@ -319,7 +320,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
   };
   for (const p of s.standpunkter.filter(harTekst)) {
     const plass = plassen(p.id);
-    const punkt = punktetFor(p, s, krav);
+    const punkt = punktetFor(p, sporet, krav);
     ledd.push({
       punkt,
       plass,
@@ -344,7 +345,6 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
     }
   }
   const lagene = Math.max(0, ...ledd.map((l) => l.plass ?? 0));
-  const sporet = brevtekstI(s.spor);
   // OV-U73: tabellen har lagene i sporet, så første og siste kolonne er beløpene i utregningen.
   const iSporet = (plass: number | null) => (plass === null ? null : plass - fra.forskyvning);
   const tabell =
@@ -465,8 +465,8 @@ function innledningen(s: Svar, krav: Krav, { j }: Tekst): string {
 }
 
 /** Punktet standpunktet står i (LV-U34): punktet i sporet, eller bestemmelsen for rettidigheten. */
-function punktetFor(p: Standpunkt, s: Svar, krav: Krav): string {
-  const punkt = brevtekstI(s.spor).punktet(p, krav);
+function punktetFor(p: Standpunkt, sporet: Sporsbrevtekst, krav: Krav): string {
+  const punkt = sporet.punktet(p, krav);
   if (punkt !== undefined) return punkt;
   if (p.art === 'rettidighet') return p.hjemmel;
   throw new KanIkkeUttrykkes(`standpunktet ${p.art} har ikke noe punkt i svaret`);

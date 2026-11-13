@@ -766,12 +766,12 @@ function brevtekstFor(
         ),
         // Varslene for sporene brevet har krav i, som kravteksten viser til.
         varsletFoer: Object.fromEntries(
-          (['33.4', '34.1.2', '34.1.3'] as const).flatMap((h) => {
-            const varsel = ny.dokument.krav.some((k) => k.spor === VARSELSPOR[h])
-              ? varseletFoerBrevet(u, h)
-              : undefined;
-            return varsel === undefined ? [] : [[h, varsel]];
-          })
+          (['33.4', '34.1.2', '34.1.3'] as const)
+            .filter((h) => ny.dokument.krav.some((k) => k.spor === VARSELSPOR[h]))
+            .flatMap((h) => {
+              const varsel = varseletFoerBrevet(u, h);
+              return varsel === undefined ? [] : [[h, varsel]];
+            })
         ),
         paaberopelse:
           ny.dokument.krav.find((k) => k.spor === 'forhold') ?? u.spor.forhold.gjeldendeKrav,

@@ -252,11 +252,7 @@ export const BREVTEKSTEN_I_FORHOLDET = {
   nevnerErstattet: false,
   innledning: (krav, { j }) =>
     `Byggherren svarer på totalentreprenørens ${paaberopelsenAvForholdet(krav)} i ${j.brevet(krav.dokument)}.`,
-  punktet: (p) => {
-    if (p.art === 'forhold') return 'forhold';
-    if (p.art === 'rettidighet') return undefined;
-    throw new KanIkkeUttrykkes(`standpunktet ${p.art} har ikke noe punkt i svaret`);
-  },
+  punktet: (p) => (p.art === 'forhold' ? 'forhold' : undefined),
   // LV-U34: punktene i byggherrens svar, som i skjemaet (prototypen `forholdssvar.html`).
   temaer: () => [
     { punkt: '32.2', overskrift: 'Varselet etter punkt 32.2' },
