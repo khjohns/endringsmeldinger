@@ -105,11 +105,20 @@
         "start": "svar",
         "handlinger": [
           {
-            "klikk": "Svaret er gitt utenfor løsningen",
+            "klikk": "Bekreft svaret du ga utenfor løsningen",
             "tilstand": "bekreft"
           },
           {
-            "staar": "Bekreftelsen får sin egen dato når den sendes."
+            "staar": "Bekreftelsen er et nytt brev til totalentreprenøren. Velg de samme standpunktene som i det tidligere svaret."
+          },
+          {
+            "staar": "Det legges til i saken som dokumentasjon og ved bekreftelsen når bekreftelsen sendes."
+          },
+          {
+            "staar": "Hvordan ble brevet sendt?"
+          },
+          {
+            "staar": "Byggherren bekrefter sitt svar"
           },
           {
             "staar": "Byggherren bekrefter sitt svar"
@@ -124,7 +133,7 @@
             "velg": "Ja, det var en endringsordre"
           },
           {
-            "staar": "Bekreftelsen kan ikke sendes."
+            "staar": "Et svar som var en endringsordre, kan ikke bekreftes."
           },
           {
             "klikk": "Tilbake til svaret",
@@ -140,13 +149,16 @@
         "start": "henvisning",
         "handlinger": [
           {
-            "staar": "I løsningen er et svar på brev 1 ikke et svar på brev 4."
+            "staar": "Et svar på brev 1 blir ikke registrert som svar på brev 4."
           },
           {
             "velg": "Nei, ikke på brev 4"
           },
           {
             "staar": "Byggherren har ennå ikke svart på totalentreprenørens påberopelse"
+          },
+          {
+            "staar": "Her kan du nevne et tidligere svar."
           },
           {
             "velg": "Ja, på brev 4"
@@ -158,7 +170,7 @@
             "trykk": "Ta med svaret på forholdet i samme brev"
           },
           {
-            "staar": "Avslår du, står punktet først"
+            "staar": "Avslår du, gjelder punktene om vederlaget subsidiært."
           },
           {
             "staar": "Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem"
@@ -173,19 +185,22 @@
         "start": "handlinger",
         "handlinger": [
           {
+            "staar": "I eksempelet med avslaget gjorde byggherren også gjeldende at varselet etter punkt 32.2 kom for sent."
+          },
+          {
             "staar": "Byggherren svarer på nytt, og svaret i brev 4 kan da ikke godtas."
           },
           {
             "trykk": "Byggherren"
           },
           {
-            "staar": "Erstatter svaret i brev 4. Brev 4 står som det ble sendt."
+            "staar": "Det forrige svaret er brev 4, og det står som det ble sendt."
           },
           {
             "trykk": "Enig"
           },
           {
-            "staar": "Brev 4 står som det ble sendt, også endringsordren i det."
+            "staar": "det står som det ble sendt, også endringsordren i det."
           },
           {
             "trykk": "Frafalt"
@@ -246,11 +261,14 @@
     "KA-U46",
     "KA-U49",
     "KA-U51",
+    "LV-U4",
+    "LV-U8",
     "LV-U34",
     "LV-U35",
     "LV-U39",
     "LV-U40",
     "LV-U41",
+    "LV-U42",
     "LV-U53",
     "MM-U9",
     "MM-U34",
@@ -259,6 +277,8 @@
     "OV-U46",
     "OV-U69",
     "OV-U72",
+    "OV-U79",
+    "OV-U80",
     "VS-U46",
     "GFK-U2",
     "HF-U27"
@@ -286,6 +306,11 @@
       "dato": "2026-11-12",
       "forhold": "#1834",
       "hva": "Domeneforventningene rettet etter kontrollen mot vedtakene, D-15 og S-3 lagt til, og prototypen versjon 3."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1834",
+      "hva": "Prototypen versjon 6 etter oppdragsgivers prøve 13.11: språket etter språkfila, uten stiplet linje ved begrunnelsen, og opplastingen i bekreftelsen etter S-4 A (D-16)."
     }
   ]
 }
