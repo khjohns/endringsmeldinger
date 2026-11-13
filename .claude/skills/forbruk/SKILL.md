@@ -66,7 +66,7 @@ subagent gjøre analysen, med denne bestillingen:
 - `bashOutputMaxChars` i `.claude/settings.json` er satt til 10 000. Kjør
   `python3 -c "print('x' * 15000)"`. Kommer svaret inline og ikke som fil med
   forhåndsvisning, virker ikke innstillingen fra prosjektoppsettet. Det er et funn.
-- Se om grensene i arbeidsøkt-skillen og «Orkestratorens tid og kontekst» i orkestreringsskillen holder, som tegn som skal ses
+- Se om grensene i arbeidsøkt-skillen og «Følg øktene» og «Orkestratorens kontekst» i orkestreringsskillen holder, som tegn som skal ses
   nærmere på: en arbeidsøkt eller orkestrator som endte over om lag 800 000 tokens,
   en som passerte 400 000 uten en vurdering i PR-en, eller en over 150 000 tokens som
   ble vekket etter over en time uten kall; og subagenter over 150 000 tokens eller 80 kall i de øktene

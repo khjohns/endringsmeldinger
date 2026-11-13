@@ -11,8 +11,8 @@ gjør selv. Her står hvordan den bestilles, i alle økter.
 - **Eksempler på de tre tilfellene.** Store rådata: en CI-logg (`ci-logg`), fullt
   testutdata, et søk over hele registeret, transkripsjonene i forbruksskillen. Uavhengig
   kontroll: diffen mot bestillingen (`diffkontroll`), sikkerhetsinvariantene før merge
-  («3. Gjennomgang» i
-  [orkestreringsskillen](../orkestrering/SKILL.md#3-gjennomgang-når-øktene-er-ferdige)) og
+  («Gjennomgang av hver PR» i
+  [orkestreringsskillen](../orkestrering/SKILL.md#gjennomgang-av-hver-pr)) og
   kontrollene i [vedtaksskillen](../vedtak/SKILL.md). Episodene der kontrollen endret
   utfallet, står i episodefilene for [orkestreringen](../orkestrering/episoder.md) og
   [vedtakene](../vedtak/episoder.md).
