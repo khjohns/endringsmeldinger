@@ -31,7 +31,8 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 | [`koe.brevdokument`](#koebrevdokument) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.vedlegg`](#koevedlegg) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.vedlegg_uten_sak`](#koevedlegg_uten_sak) | SQL Server | transaksjon | i bruk | Ja | Nei |
-| [`koe.dagmulktssats`](#koedagmulktssats) | SQL Server | grunndata | i bruk | Nei | Ja |
+| [`koe.kontraktsfrist`](#koekontraktsfrist) | SQL Server | grunndata | i bruk | Nei | Ja |
+| [`koe.kontraktssum`](#koekontraktssum) | SQL Server | grunndata | i bruk | Nei | Ja |
 | [`koe.kontraktsparter`](#koekontraktsparter) | SQL Server | grunndata | i bruk | Nei | Ja |
 | [`koe.godkjenningspakke`](#koegodkjenningspakke) | SQL Server | transaksjon | i bruk | Ja | Nei |
 | [`koe.godkjenningssteg`](#koegodkjenningssteg) | SQL Server | transaksjon | i bruk | Ja | Nei |
@@ -164,7 +165,7 @@ Prosjektene. `id` er prosjektgrensen i alle tabellene med saksdata, uten standar
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | Driften registrerer prosjektet med skriptet `server/registrering.ts`, som kaller `koe_drift.registrer_prosjekt`; bare `koe_driftsrolle` kan kjøre den (F-1, #820). En ny registrering skriver over navnet og beskrivelsen og gjør prosjektet aktivt, men endrer ikke virksomheten; skriptet sier fra når `--organisasjon` er en annen (#836). |
 | Data fra Catenda | Nei. Navnet oppgis av driften med `--navn` til `server/registrering.ts`. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
-| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_membership_absences.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_sync.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_contract_teams.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.dagmulktssats.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.kontraktsparter.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_kode.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg_uten_sak.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
+| Relasjoner | Nøkler: primærnøkkel (id). Vises til fra: koe.app_membership_absences.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_membership_sync.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.app_project_memberships.project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_contract_teams.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.catenda_project_configs.internal_project_id (fremmednøkkel, ON DELETE NO ACTION); koe.kontraktsfrist.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.kontraktsparter.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.kontraktssum.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.prosjekt_med_saker.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_kode.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.sak_metadata.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION); koe.vedlegg_uten_sak.prosjekt_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Ingen kjente. |
 | Skrives av | database/migrasjoner/20261020122000_registrering_bibliotek.sql (`koe_drift.registrer_prosjekt`, kalt fra `server/registrering.ts`) |
@@ -443,22 +444,39 @@ Vedleggene TE laster opp før saken finnes (#1037, svar 1 i #1487): filen, filna
 | Funn | — |
 | Belegg | L 02.11: migrasjonen. K 02.11: `server/tester/ny_sak.test.ts`. |
 
-### `koe.dagmulktssats`
+### `koe.kontraktsfrist`
 
-Dagmulktssatsen i prosjektet, som fristdagene verdsettes med i fullmakten (GFK-06). Uten rad mangler satsen, og fristdagene kan ikke verdsettes (B-06). Driften setter den opp.
+Fristtabellen fra kontrakten (GFK-U18, #721): fristens ID i prosjektet, kontraktens nummer på fristen, navnet, datoen, om fristen er dagmulktbelagt, og opplysningene satsen regnes av (GFK-U16): promillen og minstebeløpet av kontraktssummen eller av verdien av delen, eller et avtalt fast beløp per dag. Basen tildeler ID-en, og den endres ikke. Den er en teknisk nøkkel; brevet viser fristen med kontraktens nummer og navnet (KA-U79). Driften registrerer og retter fristene etter bestilling fra byggherren (GFK-U22), og fjerner en frist bare så lenge prosjektet ikke har saker. Begge parter og leserollen leser dem (GFK-U23). Satsen i kroner regnes i `server/kontraktsfrister.ts`. Erstatter `koe.dagmulktssats`.
 
 | Felt | Innhold |
 | --- | --- |
 | Type | grunndata |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | Driften, som eier. Lest av `koe_api.dagmulktssats` fra `server/godkjenning.ts`. |
+| Hvor fra appen lagres og redigeres | Driftsskriptet `server/registrering.ts kontraktsfrister`. Lest av `koe_api.kontraktsfrister` fra `server/kontraktsfrister.ts`. |
+| Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
+| Relasjoner | Nøkler: primærnøkkel (prosjekt_id, frist_id); unik (prosjekt_id, navn); unik indeks (prosjekt_id, nummer) WHERE ([nummer] IS NOT NULL). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
+| Kan bygges opp igjen | nei. Kontrakten er kilden. |
+| Personopplysninger | Ingen. |
+| Skrives av | database/migrasjoner/20261113100000_kontraktsfrister.sql (`koe_drift.sett_kontraktsfrist` og `koe_drift.fjern_kontraktsfrist`, kalt fra `server/registrering.ts`) |
+| Funn | — |
+| Belegg | L 13.11: migrasjonen. K 13.11: `server/tester/registrering.test.ts` og `server/tester/kontraktsfrister.test.ts`. |
+
+### `koe.kontraktssum`
+
+Kontraktssummen i prosjektet, som satsen for en frist med grunnlaget `kontraktssum` regnes av (GFK-U16, § 40.3 a). Uten rad kan den satsen ikke regnes (GFK-U3). Driften setter og retter den (GFK-U22).
+
+| Felt | Innhold |
+| --- | --- |
+| Type | grunndata |
+| Status | i bruk |
+| Hvor fra appen lagres og redigeres | Driftsskriptet `server/registrering.ts kontraktsfrister <prosjekt> kontraktssum`. Lest av `koe_api.kontraktsfrister` fra `server/kontraktsfrister.ts`. |
 | Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (prosjekt_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Kontrakten er kilden. |
 | Personopplysninger | Ingen. |
-| Skrives av | database/migrasjoner/20261019110000_godkjenning.sql (tabellen); radene skrives av driften som eier |
+| Skrives av | database/migrasjoner/20261113100000_kontraktsfrister.sql (`koe_drift.sett_kontraktssum`, kalt fra `server/registrering.ts`) |
 | Funn | — |
-| Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| Belegg | L 13.11: migrasjonen. K 13.11: `server/tester/registrering.test.ts` og `server/tester/kontraktsfrister.test.ts`. |
 
 ### `koe.kontraktsparter`
 
@@ -473,7 +491,7 @@ Navnene på byggherren og totalentreprenøren i prosjektet (#1398), og kontrakts
 | Relasjoner | Nøkler: primærnøkkel (prosjekt_id). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Kontrakten er kilden. |
 | Personopplysninger | Navnene er normalt virksomheter. Et enkeltpersonforetak har innehaverens navn i foretaksnavnet. |
-| Skrives av | database/migrasjoner/20261104100000_sakskode.sql (`koe_drift.sett_kontraktsparter`, innført i `20261030100000_kontraktsparter.sql`, kalt fra `server/registrering.ts`) |
+| Skrives av | database/migrasjoner/20261113100000_kontraktsfrister.sql (`koe_drift.sett_kontraktsparter`, innført i `20261030100000_kontraktsparter.sql`, kalt fra `server/registrering.ts`) |
 | Funn | — |
 | Belegg | L 30.10: migrasjonen. K 30.10: `server/tester/registrering.test.ts` og `server/tester/prosjekter.test.ts`. L 04.11: `20261104100000_sakskode.sql`. K 04.11: de samme testene. |
 

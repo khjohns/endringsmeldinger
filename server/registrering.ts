@@ -14,6 +14,11 @@
  *     [--bh … --te … --en-totalentreprenoer]
  *   KOE_DRIFT_TILKOBLING=… node server/registrering.ts kontraktsparter oslobygg \
  *     [--byggherre "…" --totalentreprenoer "…" --kontraktsforkortelse K201]
+ *   KOE_DRIFT_TILKOBLING=… node server/registrering.ts kontraktsfrister oslobygg \
+ *     [kontraktssum <kroner> | ny | rett <frist-id> | fjern <frist-id>] \
+ *     [--nummer E.1.2 | --uten-nummer] [--frist "Sluttfrist"] [--dato 2027-06-30] \
+ *     [--ikke-dagmulktbelagt | --dagmulktbelagt [--standardsats | \
+ *       --promille 1 --minstebeloep 3000 [--delens-verdi <kroner>] | --beloep-per-dag <kroner>]]
  *
  * `KOE_DRIFT_TILKOBLING` er tilkoblingsstrengen for en bruker med
  * `koe_driftsrolle`. Med `--bh` og `--te` kontrolleres teamene mot Catenda-
@@ -24,6 +29,15 @@
  * alle TE-teamene hører til samme totalentreprenør, og uten den avvises teamene (DL-U14).
  * `kontraktsparter` setter navnene på byggherren og totalentreprenøren og
  * kontraktsforkortelsen, alle sammen, og viser dem uten flaggene (#1398, #1497).
+ * `kontraktsfrister` viser kontraktssummen og fristtabellen med satsen, setter
+ * kontraktssummen, registrerer en ny frist, retter det som oppgis for en frist og
+ * lar resten stå, eller fjerner en frist så lenge prosjektet ikke har saker (GFK-U16, GFK-U18, GFK-U22).
+ * Med `--promille` og `--minstebeloep` regnes satsen av kontraktssummen, og med
+ * `--delens-verdi` i tillegg av verdien av delen; `--beloep-per-dag` er et avtalt fast
+ * beløp. `--standardsats` er 1 ‰ av kontraktssummen og minst 3000 kr etter § 40.3 a
+ * (GFK-U16), skrevet som vanlige verdier; ellers oppgis promillen og minstebeløpet.
+ * `--nummer` er kontraktens nummer på fristen, som brevet viser med navnet. Fristens ID
+ * er skriptets og basens nøkkel og står ikke i brevet.
  */
 
 import { fileURLToPath } from 'node:url';
@@ -31,7 +45,16 @@ import { parseArgs } from 'node:util';
 import { catendaId, uuidMedBindestreker } from './autorisasjon.ts';
 import { catendaFraMiljoe, type CatendaOAuth } from './catenda.ts';
 import { opprettPool, sql, utenKontekst, type Pool } from './datalag.ts';
+import { erKalenderdato } from '../kjerne/format/skjema.ts';
 import type { Part } from '../kjerne/typer.ts';
+import {
+  betegnelse,
+  fristtabell,
+  STANDARDSATS,
+  type Fristtabell,
+  type Radsett,
+  type Satsopplysninger,
+} from './kontraktsfrister.ts';
 
 export interface Kontraktsteam {
   team_id: string;
@@ -124,20 +147,14 @@ async function registrer(pool: Pool, r: Registrering): Promise<Registrert> {
  * også kaller (#879 punkt 5).
  */
 async function kontrollerBytte(pool: Pool, r: Registrering): Promise<void> {
-  try {
-    await utenKontekst(pool)
+  await iDriften(
+    utenKontekst(pool)
       .input('prosjekt', sql.NVarChar(4000), r.prosjekt)
       .input('catenda_prosjekt', sql.UniqueIdentifier, r.catendaProsjekt)
       .input('bibliotek', sql.UniqueIdentifier, r.bibliotek)
-      .execute('koe_drift.kontroller_bytte');
-  } catch (feil) {
-    const { number, message } = feil as { number?: unknown; message?: unknown };
-    if (number === 52066)
-      throw new Registreringsfeil(`${String(message)} (52066).`, {
-        cause: feil,
-      });
-    throw feil;
-  }
+      .execute('koe_drift.kontroller_bytte'),
+    [52066]
+  );
 }
 
 async function settKontraktsteam(
@@ -174,20 +191,118 @@ async function settKontraktsparter(
   prosjekt: string,
   parter: Kontraktsparter
 ): Promise<void> {
-  try {
-    await utenKontekst(pool)
+  await iDriften(
+    utenKontekst(pool)
       .input('prosjekt', sql.NVarChar(4000), prosjekt)
       .input('byggherre', sql.NVarChar(4000), parter.byggherre_navn)
       .input('totalentreprenor', sql.NVarChar(4000), parter.totalentreprenor_navn)
       .input('kontraktsforkortelse', sql.NVarChar(4000), parter.kontraktsforkortelse)
-      .execute('koe_drift.sett_kontraktsparter');
+      .execute('koe_drift.sett_kontraktsparter'),
+    [52043, 52065, 52073, 52074]
+  );
+}
+
+const FRISTFEIL = [52073, 52075, 52076, 52077, 52078, 52079, 52080, 52081, 52082, 52083];
+
+/** Feilene med et nummer i `kjente` blir en `Registreringsfeil` med meldingen fra prosedyren. */
+async function iDriften<T>(arbeid: Promise<T>, kjente: number[]): Promise<T> {
+  try {
+    return await arbeid;
   } catch (feil) {
     const { number, message } = feil as { number?: unknown; message?: unknown };
-    if (number === 52043 || number === 52065 || number === 52073 || number === 52074)
+    if (typeof number === 'number' && kjente.includes(number))
       throw new Registreringsfeil(`${String(message)} (${number}).`, { cause: feil });
     throw feil;
   }
 }
+
+const iFristene = <T>(arbeid: Promise<T>) => iDriften(arbeid, FRISTFEIL);
+
+/** Kontraktssummen og fristene, med satsen regnet ut (`server/kontraktsfrister.ts`). */
+export async function lesFristtabell(pool: Pool, prosjekt: string): Promise<Fristtabell> {
+  const svar = await utenKontekst(pool)
+    .input('prosjekt', sql.NVarChar(4000), prosjekt)
+    .execute('koe_drift.kontraktsfrister');
+  return fristtabell(svar.recordsets as unknown as Radsett);
+}
+
+export interface NyFrist {
+  /** Kontraktens nummer på fristen, eller `null`. */
+  nummer: string | null;
+  navn: string;
+  /** `ÅÅÅÅ-MM-DD`. */
+  dato: string;
+  dagmulktbelagt: boolean;
+  satsopplysninger: Satsopplysninger | null;
+}
+
+/** Registrerer fristen når `fristId` er `null`, og retter ellers fristen. Gir ID-en. */
+async function settKontraktsfrist(
+  pool: Pool,
+  prosjekt: string,
+  fristId: number | null,
+  f: NyFrist
+): Promise<number> {
+  const s = f.satsopplysninger;
+  const svar = await iFristene(
+    utenKontekst(pool)
+      .input('prosjekt', sql.NVarChar(4000), prosjekt)
+      .input('frist_id', sql.Int, fristId)
+      .input('nummer', sql.NVarChar(4000), f.nummer)
+      .input('navn', sql.NVarChar(4000), f.navn)
+      .input('dato', sql.NVarChar(10), f.dato)
+      .input('dagmulktbelagt', sql.Bit, f.dagmulktbelagt)
+      .input('satsgrunnlag', sql.NVarChar(4000), s?.grunnlag ?? null)
+      .input('promille', sql.Decimal(9, 4), s && 'promille' in s ? s.promille : null)
+      .input('minstebeloep', sql.Decimal(15, 2), s && 'minstebeloep' in s ? s.minstebeloep : null)
+      .input(
+        'delens_verdi',
+        sql.Decimal(15, 2),
+        s?.grunnlag === 'delens_verdi' ? s.delensVerdi : null
+      )
+      .input(
+        'beloep_per_dag',
+        sql.Decimal(15, 2),
+        s?.grunnlag === 'fast_beloep' ? s.beloepPerDag : null
+      )
+      .execute<{ frist_id: number }>('koe_drift.sett_kontraktsfrist')
+  );
+  return svar.recordset[0]!.frist_id;
+}
+
+const kroner = (n: number) =>
+  `${n.toLocaleString('nb-NO', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kr`;
+
+function beskrivSats(s: Satsopplysninger): string {
+  if (s.grunnlag === 'fast_beloep') return `avtalt ${kroner(s.beloepPerDag)} per dag`;
+  const av =
+    s.grunnlag === 'kontraktssum'
+      ? 'kontraktssummen'
+      : `verdien av delen, ${kroner(s.delensVerdi)}`;
+  return `${s.promille} ‰ av ${av}, minst ${kroner(s.minstebeloep)}`;
+}
+
+/**
+ * Et tall med punktum som desimaltegn, i formen kolonnen tar: et beløp har høyst 13
+ * sifre før og 2 etter, en promille høyst 5 før og 4 etter.
+ */
+function desimaltall(verdi: string, navn: string, form: 'beloep' | 'promille'): number {
+  const [foer, etter] = form === 'beloep' ? [13, 2] : [5, 4];
+  if (!new RegExp(`^\\d{1,${foer}}(\\.\\d{1,${etter}})?$`).test(verdi))
+    throw new Registreringsfeil(
+      `--${navn} er ikke et tall med høyst ${foer} sifre, ${etter} desimaler og punktum: ${verdi}`
+    );
+  return Number(verdi);
+}
+
+function fristId(verdi: string | undefined): number {
+  if (!verdi || !/^[1-9]\d{0,8}$/.test(verdi))
+    throw new Registreringsfeil(`Fristens ID er ikke et positivt heltall: ${verdi ?? '(mangler)'}`);
+  return Number(verdi);
+}
+
+/** En kalenderdato SQL Server kan lagre: år 0000 finnes ikke i `date`. */
+const erDato = (verdi: string) => !verdi.startsWith('0000') && erKalenderdato(verdi);
 
 export interface Prosjektteam {
   catendaProsjekt: string;
@@ -235,13 +350,37 @@ const VALG = {
   byggherre: { type: 'string' },
   totalentreprenoer: { type: 'string' },
   kontraktsforkortelse: { type: 'string' },
+  frist: { type: 'string' },
+  dato: { type: 'string' },
+  nummer: { type: 'string' },
+  'uten-nummer': { type: 'boolean' },
+  dagmulktbelagt: { type: 'boolean' },
+  standardsats: { type: 'boolean' },
+  'ikke-dagmulktbelagt': { type: 'boolean' },
+  promille: { type: 'string' },
+  minstebeloep: { type: 'string' },
+  'delens-verdi': { type: 'string' },
+  'beloep-per-dag': { type: 'string' },
 } as const;
 
 type Valg = keyof typeof VALG;
 const FELLES = ['prosjekt', 'bh', 'te', 'en-totalentreprenoer'];
 const PARTER: Valg[] = ['byggherre', 'totalentreprenoer', 'kontraktsforkortelse'];
+const FRISTER: Valg[] = [
+  'nummer',
+  'uten-nummer',
+  'standardsats',
+  'frist',
+  'dato',
+  'dagmulktbelagt',
+  'ikke-dagmulktbelagt',
+  'promille',
+  'minstebeloep',
+  'delens-verdi',
+  'beloep-per-dag',
+];
 const BARE_REGISTRER = (Object.keys(VALG) as Valg[]).filter(
-  (navn) => !FELLES.includes(navn) && !PARTER.includes(navn)
+  (navn) => !FELLES.includes(navn) && !PARTER.includes(navn) && !FRISTER.includes(navn)
 );
 
 /** `--bh a b` blir `--bh a --bh b`, som `nargs="+"` i `catenda_admin.py`. */
@@ -278,8 +417,11 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
     options: VALG,
     allowPositionals: true,
   });
-  const [kommando, prosjektArgument, ...resten] = positionals;
-  if (resten.length) throw new Registreringsfeil(`Ukjente argumenter: ${resten.join(' ')}`);
+  const [kommando, ...argumenter] = positionals;
+  const [prosjektArgument] = argumenter;
+  // `kontraktsfrister` tar handlingen og ID-en etter prosjektet.
+  const ekstra = argumenter.slice(kommando === 'kontraktsfrister' ? 3 : 1);
+  if (ekstra.length) throw new Registreringsfeil(`Ukjente argumenter: ${ekstra.join(' ')}`);
   const oppgittTeam = v.bh || v.te ? kontraktsteamFra(v.bh ?? [], v.te ?? []) : null;
   // Et prosjekt gjelder én entreprisekontrakt, og drift bekrefter det ved registreringen (DL-U14).
   if (oppgittTeam && !v['en-totalentreprenoer'])
@@ -325,7 +467,18 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       );
   };
 
+  function prosjektFra(): string {
+    if (prosjektArgument && v.prosjekt)
+      throw new Registreringsfeil(
+        `Prosjektet er oppgitt to ganger: ${prosjektArgument} og --prosjekt ${v.prosjekt}.`
+      );
+    const prosjekt = prosjektArgument ?? v.prosjekt;
+    if (!prosjekt) throw new Registreringsfeil('Prosjektet må oppgis.');
+    return prosjekt;
+  }
+
   if (kommando !== 'kontraktsparter') avvisFlagg(PARTER, 'kontraktsparter');
+  if (kommando !== 'kontraktsfrister') avvisFlagg(FRISTER, 'kontraktsfrister');
 
   if (kommando === 'registrer') {
     if (prosjektArgument) throw new Registreringsfeil('Prosjektet oppgis med --prosjekt.');
@@ -364,12 +517,7 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
   }
 
   if (kommando === 'kontraktsparter') {
-    if (prosjektArgument && v.prosjekt)
-      throw new Registreringsfeil(
-        `Prosjektet er oppgitt to ganger: ${prosjektArgument} og --prosjekt ${v.prosjekt}.`
-      );
-    const prosjekt = prosjektArgument ?? v.prosjekt;
-    if (!prosjekt) throw new Registreringsfeil('Prosjektet må oppgis.');
+    const prosjekt = prosjektFra();
     avvisFlagg(BARE_REGISTRER, 'registrer');
     if (oppgittTeam) throw new Registreringsfeil('--bh og --te gjelder bare «kontraktsteam».');
     if (
@@ -393,18 +541,159 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
     return;
   }
 
-  if (kommando === 'kontraktsteam') {
-    if (prosjektArgument && v.prosjekt)
-      throw new Registreringsfeil(
-        `Prosjektet er oppgitt to ganger: ${prosjektArgument} og --prosjekt ${v.prosjekt}.`
-      );
-    const prosjekt = prosjektArgument ?? v.prosjekt;
+  if (kommando === 'kontraktsfrister') {
+    // Med --prosjekt er handlingen det første argumentet etter kommandoen.
+    const [prosjekt, hva, argument, ...ukjente] = v.prosjekt
+      ? [v.prosjekt, ...argumenter]
+      : argumenter;
+    if (ukjente.length) throw new Registreringsfeil(`Ukjente argumenter: ${ukjente.join(' ')}`);
     if (!prosjekt) throw new Registreringsfeil('Prosjektet må oppgis.');
-    const ukjente = BARE_REGISTRER.filter((navn) => v[navn] !== undefined);
-    if (ukjente.length)
-      throw new Registreringsfeil(
-        `${ukjente.map((navn) => `--${navn}`).join(', ')} gjelder bare «registrer».`
+    avvisFlagg(BARE_REGISTRER, 'registrer');
+    if (oppgittTeam) throw new Registreringsfeil('--bh og --te gjelder bare «kontraktsteam».');
+    const medFrist = hva === 'ny' || hva === 'rett';
+    if (!medFrist) avvisFlagg(FRISTER, 'kontraktsfrister ny» og «kontraktsfrister rett');
+    if ((hva === 'ny' || hva === undefined) && argument !== undefined)
+      throw new Registreringsfeil(`Ukjente argumenter: ${argument}`);
+    const pool = await a.pool();
+
+    if (hva === undefined) {
+      const tabell = await iFristene(lesFristtabell(pool, prosjekt));
+      a.skriv(
+        `Kontraktssum: ${tabell.kontraktssum === null ? '(ikke satt)' : kroner(tabell.kontraktssum)}`
       );
+      if (!tabell.frister.length) a.skriv('Ingen frister er registrert.');
+      for (const f of tabell.frister) {
+        const dagmulkt = !f.dagmulktbelagt
+          ? 'ikke dagmulktbelagt'
+          : !f.satsopplysninger
+            ? 'dagmulktbelagt, satsen er ikke registrert'
+            : `dagmulktbelagt, ${beskrivSats(f.satsopplysninger)}: ${
+                f.sats === null ? 'kontraktssummen mangler' : `${kroner(f.sats)} per dag`
+              }`;
+        a.skriv(`ID ${f.fristId}: ${betegnelse(f)}, ${f.dato}, ${dagmulkt}`);
+      }
+      return;
+    }
+    if (hva === 'kontraktssum') {
+      const sum = desimaltall(argument ?? '', 'kontraktssum', 'beloep');
+      await iFristene(
+        utenKontekst(pool)
+          .input('prosjekt', sql.NVarChar(4000), prosjekt)
+          .input('kontraktssum', sql.Decimal(15, 2), sum)
+          .execute('koe_drift.sett_kontraktssum')
+      );
+      a.skriv(`Kontraktssummen i ${prosjekt} er lagret: ${kroner(sum)}.`);
+      return;
+    }
+    if (hva === 'fjern') {
+      const id = fristId(argument);
+      await iFristene(
+        utenKontekst(pool)
+          .input('prosjekt', sql.NVarChar(4000), prosjekt)
+          .input('frist_id', sql.Int, id)
+          .execute('koe_drift.fjern_kontraktsfrist')
+      );
+      a.skriv(`Frist ${id} i ${prosjekt} er fjernet.`);
+      return;
+    }
+    if (!medFrist)
+      throw new Registreringsfeil(
+        'Handlingen for kontraktsfrister er «kontraktssum», «ny», «rett» eller «fjern».'
+      );
+    if (v.dagmulktbelagt && v['ikke-dagmulktbelagt'])
+      throw new Registreringsfeil('Oppgi enten --dagmulktbelagt eller --ikke-dagmulktbelagt.');
+    if (v.dato !== undefined && !erDato(v.dato))
+      throw new Registreringsfeil(`--dato er ikke en dato på formen ÅÅÅÅ-MM-DD: ${v.dato}`);
+    const tallFra = (navn: Valg, form: 'beloep' | 'promille') => {
+      const verdi = v[navn];
+      return typeof verdi === 'string' ? desimaltall(verdi, navn, form) : undefined;
+    };
+    const sats = {
+      promille: tallFra('promille', 'promille'),
+      minstebeloep: tallFra('minstebeloep', 'beloep'),
+      delensVerdi: tallFra('delens-verdi', 'beloep'),
+      beloepPerDag: tallFra('beloep-per-dag', 'beloep'),
+    };
+    const satsOppgitt = Object.values(sats).some((x) => x !== undefined);
+    const oppgitt = v.standardsats === true || satsOppgitt;
+    let nySats: Satsopplysninger | null = null;
+    if (v.standardsats) {
+      if (satsOppgitt)
+        throw new Registreringsfeil(
+          '--standardsats kan ikke stå sammen med --promille, --minstebeloep, --delens-verdi eller --beloep-per-dag.'
+        );
+      nySats = STANDARDSATS;
+    } else if (sats.beloepPerDag !== undefined) {
+      if (
+        sats.promille !== undefined ||
+        sats.minstebeloep !== undefined ||
+        sats.delensVerdi !== undefined
+      )
+        throw new Registreringsfeil(
+          '--beloep-per-dag kan ikke stå sammen med --promille, --minstebeloep eller --delens-verdi.'
+        );
+      nySats = { grunnlag: 'fast_beloep', beloepPerDag: sats.beloepPerDag };
+    } else if (oppgitt) {
+      if (sats.promille === undefined || sats.minstebeloep === undefined)
+        throw new Registreringsfeil('Både --promille og --minstebeloep må oppgis.');
+      nySats =
+        sats.delensVerdi === undefined
+          ? { grunnlag: 'kontraktssum', promille: sats.promille, minstebeloep: sats.minstebeloep }
+          : {
+              grunnlag: 'delens_verdi',
+              promille: sats.promille,
+              minstebeloep: sats.minstebeloep,
+              delensVerdi: sats.delensVerdi,
+            };
+    }
+    const oppgittDagmulkt = v.dagmulktbelagt ? true : v['ikke-dagmulktbelagt'] ? false : undefined;
+    if (v.nummer !== undefined && v['uten-nummer'])
+      throw new Registreringsfeil('Oppgi enten --nummer eller --uten-nummer.');
+    const oppgittNummer = v['uten-nummer'] ? null : v.nummer;
+
+    const id = hva === 'rett' ? fristId(argument) : null;
+    let frist: NyFrist;
+    if (id === null) {
+      if (oppgittDagmulkt === undefined)
+        throw new Registreringsfeil('Oppgi --dagmulktbelagt eller --ikke-dagmulktbelagt.');
+      frist = {
+        nummer: oppgittNummer ?? null,
+        navn: paakrevd(v.frist, 'frist'),
+        dato: paakrevd(v.dato, 'dato'),
+        dagmulktbelagt: oppgittDagmulkt,
+        satsopplysninger: nySats,
+      };
+    } else {
+      // Det som ikke er oppgitt, står som før, så en retting av datoen fjerner ikke satsen.
+      if (FRISTER.every((navn) => v[navn] === undefined))
+        throw new Registreringsfeil('Oppgi det som skal rettes.');
+      const naa = (await iFristene(lesFristtabell(pool, prosjekt))).frister.find(
+        (f) => f.fristId === id
+      );
+      if (!naa) throw new Registreringsfeil(`Prosjektet har ingen frist med ID-en ${id}.`);
+      const dagmulktbelagt = oppgittDagmulkt ?? naa.dagmulktbelagt;
+      frist = {
+        nummer: oppgittNummer === undefined ? naa.nummer : oppgittNummer,
+        navn: v.frist ?? naa.navn,
+        dato: v.dato ?? naa.dato,
+        dagmulktbelagt,
+        satsopplysninger: oppgitt ? nySats : dagmulktbelagt ? naa.satsopplysninger : null,
+      };
+    }
+    if (oppgitt && !frist.dagmulktbelagt)
+      throw new Registreringsfeil('Satsen gjelder bare en dagmulktbelagt frist.');
+    const lagret = await settKontraktsfrist(pool, prosjekt, id, frist);
+    a.skriv(
+      id === null
+        ? `Frist ${lagret} i ${prosjekt} er registrert.`
+        : `Frist ${lagret} i ${prosjekt} er rettet.`
+    );
+    return;
+  }
+
+  if (kommando === 'kontraktsteam') {
+    const prosjekt = prosjektFra();
+    avvisFlagg(BARE_REGISTRER, 'registrer');
     const pool = await a.pool();
     const naa = await lesKontraktsteam(pool, prosjekt);
     if (!naa) throw new Registreringsfeil(`Prosjektet ${prosjekt} har ingen kobling til Catenda.`);
@@ -428,7 +717,7 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
   }
 
   throw new Registreringsfeil(
-    'Kommandoen er «registrer», «kontraktsteam» eller «kontraktsparter».'
+    'Kommandoen er «registrer», «kontraktsteam», «kontraktsparter» eller «kontraktsfrister».'
   );
 }
 
