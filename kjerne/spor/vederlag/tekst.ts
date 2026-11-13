@@ -509,6 +509,7 @@ const SAERSKILT_I_LINJEN = 'særskilt justering (§ 34.1.3 annet ledd)';
 
 /** Linjen i vederlagssporet. */
 export const LINJEN_I_VEDERLAGET = {
+  grunner: () => ({}),
   // Begrensningen etter § 34.1.3 er ingen preklusjon, men et eget ledd (VS-U5).
   egetLedd: (svar, v) => begrensningen(svar, v)?.id,
   ledd: leddIVederlaget,
