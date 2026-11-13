@@ -29,11 +29,13 @@ import {
 } from '../frosset/utregning.ts';
 import { datoenDetBleSendt, kravSomVarsler, type Utledning } from '../utledning/utled.ts';
 import { foresporselForFristsvar } from '../spor/frist/utledning.ts';
+import { NYTTELAST_I_FRISTEN } from '../spor/frist/kommando.ts';
 import { sisteDatoopplysning } from '../spor/forhold/utledning.ts';
 import {
   avvis,
   SPOR,
   VARSELSPOR,
+  varseletSendt,
   type Avvisning,
   type Krav,
   type OppgittDatofelt,
@@ -63,18 +65,11 @@ export interface Sporsnyttelast {
   oppgittDatoIKravet(k: Extract<Kommando, { type: 'krav' }>): OppgittDato | null;
 }
 
-/** Nyttelastkontrollen i hvert spor. Fristen står her til den flyttes (#1745). */
+/** Nyttelastkontrollen i hvert spor. */
 const NYTTELAST: Record<Spor, Sporsnyttelast> = {
   forhold: NYTTELAST_I_FORHOLDET,
   vederlag: NYTTELAST_I_VEDERLAGET,
-  frist: {
-    begrunnelse: () => null,
-    kravsperre: () => null,
-    innsigelse: () => null,
-    utdypning: utdypningIFristen,
-    oppgittDatoIKravet: (k) =>
-      k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null,
-  },
+  frist: NYTTELAST_I_FRISTEN,
 };
 
 /** Nyttelastkontrollen i sporet (`iSporet`). */
@@ -145,16 +140,6 @@ function kravetsUtdypning(
 ): Avvisning | null {
   if (k.utdypning?.trim()) return null;
   return nyttelastI(k.spor).utdypning(k, regler);
-}
-
-/** Begrunnelsen for dagene i et fristkrav (`kravetsUtdypning`). */
-function utdypningIFristen(k: Extract<Kommando, { type: 'krav' }>): Avvisning | null {
-  if (k.spor === 'frist')
-    return avvis(
-      'BEGRUNNELSE_MANGLER',
-      'Kravet om fristforlengelse må begrunne antallet dager (NS 8407 § 33.6.1, KA-U33).'
-    );
-  return null;
 }
 
 /**
@@ -242,8 +227,6 @@ function korrigeringEtterVarslene(
   }
   return null;
 }
-
-const varseletSendt = (hjemmel: string) => `varselet etter § ${hjemmel} ble sendt`;
 
 export type OppgittDato = { dato: unknown; gjelder: string; av: 'TE' | 'Byggherren' };
 
