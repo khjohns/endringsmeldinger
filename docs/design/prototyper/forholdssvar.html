@@ -382,7 +382,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
               </span>
             </div>
             <div class="notis kun-ny" data-spor="U-13 · D-12" hidden>
-              <p><b>Svaret erstatter byggherrens svar i brev 4 av 8. oktober 2026.</b> Brev 4 står som det ble sendt. Det forrige svaret er fylt ut, og du endrer det du vil.</p>
+              <p><b>Nytt svar. Det forrige svaret er brev 4 av 8. oktober 2026.</b> Brev 4 står som det ble sendt. Det forrige svaret er fylt ut, og du endrer det du vil.</p>
             </div>
             <div class="notis" data-spor="U-8">
               <p>Har du alt svart på påberopelsen utenfor løsningen, i et brev, en e-post eller et møtereferat?</p>
@@ -727,7 +727,7 @@ function svaret() {
 function virkninger(s) {
   const ut = [];
   if (!s.v) { ut.push(['hoved', 'Frafallet er tatt bort fordi du gjør gjeldende at varselet kom for sent. Velg standpunktet til forholdet.']); return ut; }
-  if (s.ny) ut.push(['', 'Svaret erstatter byggherrens svar i brev 4. Brev 4 står som det ble sendt.']);
+  if (s.ny) ut.push(['', 'Nytt svar. Det forrige svaret er brev 4, og det står som det ble sendt.']);
   if (s.eo) {
     ut.push(['hoved', 'Svaret er en endringsordre etter punkt 32.3 første ledd a.']);
     ut.push(['', 'Enigheten om forholdet registreres uten at totalentreprenøren må godta svaret.']);
@@ -876,10 +876,10 @@ function tegnHandlinger() {
       primaer = '<a class="knapp" href="#svar">Svar</a>';
       linje = e ? 'Du kan være enig, avslå kravet på endringsordre eller frafalle pålegget (punkt 32.3).' : 'Du kan svare at byggherren har eller ikke har risikoen for forholdet (punkt 23.1).';
     }
-    if (S.svar === 'avslag') andre.push(rad('Send nytt svar', 'Erstatter svaret i brev 4. Brev 4 står som det ble sendt.', '#svar'));
+    if (S.svar === 'avslag') andre.push(rad('Send nytt svar', 'Det forrige svaret er brev 4, og det står som det ble sendt.', '#svar'));
     if (S.svar === 'enig') {
       ingen = '<b>Enighet om forholdet er registrert.</b> Kravene om vederlag og frist står for seg.';
-      andre.push(rad('Send nytt svar', 'Erstatter svaret i brev 4. Brev 4 står som det ble sendt' + (e ? ', også endringsordren i det.' : '.'), '#svar'));
+      andre.push(rad('Send nytt svar', 'Det forrige svaret er brev 4, og det står som det ble sendt' + (e ? ', også endringsordren i det.' : '.'), '#svar'));
     }
     if (S.svar === 'frafall') {
       primaer = '<button class="knapp" type="button">Utsted endringsordre for utført arbeid</button>';
