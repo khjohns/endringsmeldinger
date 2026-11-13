@@ -237,6 +237,13 @@ En PR som rører `kjerne/`, fører et vedtak i vedtaksregisteret eller endrer
 `CLAUDE.md` eller en skill, er unntatt og venter på oppdragsgiver. Avslutningen sier
 hvilke PR-er som er merget på forhånd.
 
+En ren flytting i `kjerne/` er likevel omfattet av forhåndsgodkjenningen når formatet
+og atferden er uendret, ingen eksisterende testforventning er endret, feilinnføringene
+er grønne i CI og PR-en sier at den er en ren flytting. En gren som endres til et felt
+med samme virkning, som i #1783, regnes som en flytting når PR-en har test og
+feilinnføring for feltet. Oppdragsgiver 13.11: «Forhåndsgodkjenningen for rene
+flyttinger: ja det er ok».
+
 **Oppdater mot `main`.** Når en PR i runden er merget, oppdateres hver av de neste mot
 `main` (`update_pull_request_branch`) og må ha grønn CI på den nye committen før merge,
 også uten konflikt. Den nye committen er `expectedHeadSha`. Vent på CI med en
