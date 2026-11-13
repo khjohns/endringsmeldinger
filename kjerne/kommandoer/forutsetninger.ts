@@ -119,13 +119,15 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
       // VS-U27: en forespørsel fra appen, i sporet som har den.
       for (const spor of SPOR) {
         const f = u.spor[spor].foresporsler.find((x) => x.foresporsel === h.gjelder);
+        if (!f) continue;
         const foresporsel = forutsetningerI(spor).foresporsel;
-        if (f && foresporsel)
-          return foresporsel.svare(
-            u,
-            f,
-            u.forholdAvvist ? avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT) : null
-          );
+        if (!foresporsel)
+          throw new Error(`${spor} har en forespørsel, men ingen forutsetninger for den.`);
+        return foresporsel.svare(
+          u,
+          f,
+          u.forholdAvvist ? avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT) : null
+        );
       }
       return avvis(
         'INGEN_FORESPORSEL',
@@ -283,9 +285,8 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
     }
     case 'sende_foresporsel': {
       const foresporsel = forutsetningerI(h.spor).foresporsel;
-      return foresporsel
-        ? foresporsel.sende(u, paaberopelseSendt)
-        : avvis('INGEN_FORESPORSEL_I_SPORET', 'Sporet har ingen forespørsel etter § 33.6.2.');
+      if (!foresporsel) throw new Error(`${h.spor} har ingen forespørsel etter § 33.6.2.`);
+      return foresporsel.sende(u, paaberopelseSendt);
     }
     case 'svare':
       if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `TE har ikke sendt ${kravet(h.spor)}.`);

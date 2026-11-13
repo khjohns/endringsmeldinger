@@ -596,8 +596,8 @@ export interface Sporskontroller {
 
 /** Utsagnene i saken en kontroll i sporet (`Sporskontroller.saken`) kan lese. */
 export interface Saksutsagn {
-  /** Dokumentene i journalen, i rekkefølge. */
-  dokumenter: Iterable<Dokument>;
+  /** Dokumentet i hver hendelse i journalen, i rekkefølge. */
+  dokumenter: readonly Dokument[];
   foresporsler: readonly Utsagn<'foresporsel'>[];
   henvisninger: readonly Henvisning[];
   elementer: Record<string, Element>;
@@ -765,19 +765,15 @@ function utledSporene(
   kontrollerTrekk(trekk, alleKrav, spor, bakover, ugyldig);
   kontrollerEndringsordrene(opplysninger, dokumenter, ugyldig);
   kontrollerHenvisningene(henvisninger, elementer, kravMedUten, besvart, bakover, ugyldig);
-  for (const n of SPOR)
-    kontrollerI(n).saken(
-      {
-        dokumenter: dokumenter.values(),
-        foresporsler,
-        henvisninger,
-        elementer,
-        kravMedUten,
-        besvart,
-      },
-      bakover,
-      ugyldig
-    );
+  const saken: Saksutsagn = {
+    dokumenter: journal.flatMap((h) => (h.art === 'dokument' ? [h.dokument] : [])),
+    foresporsler,
+    henvisninger,
+    elementer,
+    kravMedUten,
+    besvart,
+  };
+  for (const n of SPOR) kontrollerI(n).saken(saken, bakover, ugyldig);
   kontrollerBestridelsene(bestridelser, alleOpplysninger, avsenderAv, bakover, ugyldig);
   kontrollerIngenKrav(ingenKrav, spor, bakover, ugyldig);
   kontrollerVarslene(varsler, ugyldig);
