@@ -381,8 +381,9 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   når de bygges i oppsett B (U-16 i BF-44, #1898, #1906). Den står ved kravet når parten kan svare,
   og ved svaret når parten kan godta det eller sende en ny versjon. Hovedhandlingen er primærknappen,
   «Godta …» en sekundær knapp, og byggherrens «Send revidert svar» en lenkeknapp ved byggherrens
-  eget svar, med én linje under om hva de gjør. Resten står i kortet «Andre handlinger» nederst,
-  med trekket sist. Har handlingen ikke noe brev å stå ved, står den i et eget kort over «Andre
+  eget svar, med én linje under om hva de gjør. «Send innlegg» står øverst i tråden, ved «Legg til
+  korrespondanse». De sjeldne handlingene står i kortet «Andre handlinger» nederst, med trekket
+  sist. Har handlingen ikke noe brev å stå ved, står den i et eget kort over «Andre
   handlinger». Reglene for primærhandlingen og lista gjelder som for kortet under.
 - **Kortet «Det du kan gjøre nå»** står øverst i høyre kolonne i lesingen av vederlaget og
   fristen, til sidene for kravene får oppsett B (#1906, #1900). Alle handlingene står synlige,
