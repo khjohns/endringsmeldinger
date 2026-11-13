@@ -403,7 +403,9 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   Under navnet står det løsningen vet om sporet: om et svar er registrert eller godtatt, og siste
   brev eller akseptfristen, som i panel B. Betegnelsen står på siden for sporet (#1631).
 - **Topplinja** har stien «Varden › prosjektet › saken», med sakens kode, og den innloggede
-  med initialene og navnet. Rollen står ikke der (#1631).
+  med initialene og navnet. Rollen står ikke der (#1631). Lenkene som gjelder hele prosjektet,
+  «Nytt krav om endringsordre» for TE og «Ny endringsordre» for BH, står i topplinja ved
+  «Åpne saken i Catenda», ikke i panelet (oppdragsgiver 13.11: «topplinja»).
 - **En melding om prøven**, som at et svar ikke kan gis i Varden, har ikon og en kant i
   blekk (`--ink`) på `--surface-inset`. Den er ikke gul, fordi gult betyr utkast, og
   ikke rød, fordi den ikke er en feil.

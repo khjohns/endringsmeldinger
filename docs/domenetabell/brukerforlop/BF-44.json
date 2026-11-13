@@ -85,6 +85,11 @@
       "dato": "2026-11-13",
       "forhold": "#1402",
       "hva": "Panelet til venstre er saksomslaget i panel B (oppdragsgiver 13.11)."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Oversikten bygges i oppsett B, og lenkene til ny sak står i topplinja (oppdragsgiver 13.11)."
     }
   ],
   "prototype": {
