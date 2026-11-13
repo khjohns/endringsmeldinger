@@ -42,9 +42,7 @@ export const kravposteneStrider = (
     { poster: ny.kravposter, trekker: ny.trekker },
     tidligere.map(kravposterI),
     lagret,
-    'kravpost',
-    'KA-U53, KA-U75',
-    'KA-U56'
+    'kravpost'
   );
 
 /** Varselet en kravpost med den oppgjørsformen trenger, eller `null` (VS-U48, KA-U68). */
