@@ -27,7 +27,7 @@ async function aapneSomTe(punkt: string) {
   });
   const panel = within(screen.getByRole('complementary', { name: 'Demo av brukerforløpet' }));
   await fireEvent.click(panel.getByRole('radio', { name: 'TE' }));
-  await fireEvent.click(await screen.findByRole('button', { name: 'Vederlagsjustering' }));
+  await fireEvent.click(await screen.findByRole('button', { name: /^Vederlagsjustering/ }));
   return () => demosak!;
 }
 

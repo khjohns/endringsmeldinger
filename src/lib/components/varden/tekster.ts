@@ -659,6 +659,47 @@ export const FORHOLDET = {
   ingenFastBeloep: 'Ingen poster med fast beløp',
 };
 
+/**
+ * Brevtråden, felles for sidene for forholdet, vederlaget og fristen (#1898, U-5, U-8 og U-16 i
+ * BF-44, prototypen `vederlagsoversikt.html` i oppsett B).
+ */
+export const TRAADEN = {
+  tittel: (spor: Spor) =>
+    spor === 'forhold' ? 'Brevene i saken, nyeste først' : 'Brevene, nyeste først',
+  /** Hva brevet er, kort: «Svar på krav om vederlagsjustering». Et registrert brev har partens beskrivelse. */
+  hva: (b: Pick<Brevet, 'art' | 'spor' | 'avsender' | 'brevtittel' | 'beskrivelse'>) => {
+    if (b.art === 'registrert') return b.beskrivelse || FORHOLDET.registrertTittel(b.avsender);
+    const spor = (['forhold', 'vederlag', 'frist'] as const).filter((s) => b.spor.includes(s));
+    const krav = spor.filter((s) => s !== 'forhold').map((s) => `krav om ${KRAVET[s]}`);
+    if (b.art === 'krav' && spor.length)
+      return spor.includes('forhold') ? 'Påberopelse av forholdet' : stor(krav.join(' og '));
+    if (b.art === 'svar' && spor.length)
+      return `Svar på ${[...(spor.includes('forhold') ? ['påberopelsen'] : []), ...krav].join(' og ')}`;
+    return TIDSLINJE.hva(b);
+  },
+  nummer: (n: number) => `brev ${n}`,
+  /** Et eldre krav, fulgt opp av et nytt brev med kravet (U-5 i BF-44). */
+  fulgtOpp: (b: Brevref) => ` · fulgt opp i ${brevref(b)}`,
+  /** Avsenderen for skjermleseren, som ser ringen uten tekst (oppdragsgiver 13.11). */
+  fra: (part: Part) => ` fra ${PARTNAVN[part]}`,
+  les: 'Les brevet',
+  lukk: 'Lukk brevet',
+  vises: 'Vises til høyre',
+  knappenavn: (tekst: string, b: Pick<Brevet, 'nummer'>, hva: string) =>
+    `${tekst}: ${b.nummer === null ? hva : `brev ${b.nummer}, ${hva}`}`,
+  dokumentasjon: 'Dokumentasjon',
+  registrert: (part: Part, sendt: string | null, lagtTil: string) =>
+    sendt
+      ? `Sendt ${dato(sendt)}, ifølge ${PARTNAVN[part]}. Lagt til ${dato(lagtTil)}.`
+      : `Lagt til ${dato(lagtTil)}.`,
+  vedlegg: (b: Pick<Brevet, 'nummer'>) =>
+    b.nummer === null ? 'Vedlegg' : `Vedlegg til brev ${b.nummer}`,
+  /** Brevet slik det ble sendt, i høyre kolonne og i raden under 1181 px (U-16). */
+  brevet: 'Brevet',
+  brevetSomSendt: (b: Pick<Brevet, 'nummer'>) =>
+    b.nummer === null ? 'Brevet slik det ble sendt' : `Brev ${b.nummer} slik det ble sendt`,
+};
+
 /** Skjemaet for korrigeringen av datoen (BF-02A, skissen `korrigering-av-datoen.html`). */
 const DATOEN: Record<'paalegg_mottatt' | 'klar_over_forholdet', string> = {
   paalegg_mottatt: 'pålegget ble mottatt',
@@ -781,6 +822,16 @@ export const SAKEN = {
   finnesIkkeForklaring:
     'Saken ble ikke funnet. Kontroller lenken, eller gå tilbake til sakslisten.',
   tilSakslisten: 'Til sakslisten',
+  /** Panelet til venstre som saksomslaget (panel B i `vederlagsoversikt.html`, #1899). */
+  sporene: 'Forholdet og kravene i saken',
+  siste: (b: Brevref, part: Part) =>
+    b.nummer === null && b.omtale
+      ? `Siste: ${b.omtale}`
+      : `Siste: ${brevref(b)} fra ${PARTNAVN[part]}`,
+  /** OV-U86. */
+  dokumentasjonIkkeSendt: 'Saken har dokumentasjon som er registrert, men ikke sendt herfra.',
+  /** Lenkene som gjelder hele prosjektet, i topplinja (oppdragsgiver 13.11, #1899). */
+  nyttKrav: 'Nytt krav om endringsordre',
   ikkeTilgjengelig: 'Dette er ikke bygget i denne prøven av Varden ennå.',
 };
 
