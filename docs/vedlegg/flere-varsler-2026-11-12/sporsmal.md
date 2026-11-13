@@ -172,3 +172,58 @@ Oppdragsgiver svarte ordrett
 > Det var for varsler
 
 Det betyr S-1 A, S-2 A og S-3 C. Vedtakene er [VS-U67](../../plans/vedtak.md#vs-u67), [VS-U68](../../plans/vedtak.md#vs-u68) og [VS-U69](../../plans/vedtak.md#vs-u69).
+
+## Spørsmål 4 (S-4) etter prøven 13.11: varslene i vederlaget og fristforlengelsen i samme brev
+
+**Bakgrunn.** Oppdragsgiver prøvde prototypen v1 13.11
+([#1837](https://github.com/khjohns/endringsmeldinger/issues/1837#issuecomment-6848151590)). I v1 kunne
+varselet om fristforlengelse stå som en rad i skjemaet «Bare varsle, uten krav» for vederlaget. Etter
+prøven er utgangspunktet ett skjema for vederlaget og ett for fristen, der totalentreprenøren først velger
+om det bare varsles eller om kravet også fremsettes. Skjemaet for vederlaget har ikke varselet om
+fristforlengelse, og skjemaet for fristen har det (U-13 i BF-20). Det er design. Men
+[VS-U67](../../plans/vedtak.md#vs-u67) sier at totalentreprenøren kan sende flere varsler i saken i samme
+brev, «også i vederlaget og fristforlengelsen». Med to skjemaer tilbyr løsningen ikke det lenger, og
+beslutningen må endres eller stå. Forslaget om at alle varsler kan sendes ved påberopelsen av forholdet,
+bygges etter BF-37 (#1886).
+
+Det som ikke er spørsmål: [MM-U10](../../plans/vedtak.md#mm-u10) sier at et brev *kan* inneholde utsagn
+i flere spor, ikke at hvert skjema skal tilby det. Et brev sendt utenfor løsningen som varslet både
+vederlagsjustering og fristforlengelse, registreres én gang med begge varslene
+([OV-U80](../../plans/vedtak.md#ov-u80): «totalentreprenøren velger ett eller flere varsler»), og datoen
+settes én gang. Lista i OV-U80 har ikke varslene etter punkt 34.3.3 og 34.4; dem legger
+[VS-U52](../../plans/vedtak.md#vs-u52) til. Spørsmålet gjelder ikke varselet etter punkt 32.2 eller et
+brev med krav (P-1 i BF-37).
+
+**Alternativene.**
+
+- **A (anbefalt):** Et brev med varsler fra løsningen gjelder én sak. Totalentreprenøren kan sende flere
+  varsler i vederlaget i samme brev, for eksempel for flere arbeider. Varselet om fristforlengelse sendes
+  fra skjemaet for fristen, i et eget brev, ikke sammen med varslene i vederlaget. Varsler i flere saker sendes som ett brev per sak, og
+  et brev sendt utenfor løsningen som varslet i flere saker, registreres i hver sak. Et brev sendt utenfor
+  løsningen som varslet i både vederlaget og fristforlengelsen, registreres én gang med begge varslene
+  (OV-U80, VS-U52). Varsler i begge spor i samme brev fra løsningen venter til påberopelsen av forholdet kan ha
+  dem (#1886). Forhold: endrer VS-U67 («også i vederlaget og fristforlengelsen» utgår for brev fra
+  løsningen), følger MM-U10, OV-U80 og VS-U52.
+- **B:** VS-U67 står. Skjemaene er skilt, men totalentreprenøren kan legge varselet om fristforlengelse
+  fra skjemaet for fristen til et utkast med varsler fra skjemaet for vederlaget, så de sendes som ett
+  brev. Forhold: følger VS-U67 og MM-U10.
+
+**Anbefalingen.** A. Det følger oppdragsgivers ord etter prøven («I vederlagsskjema kan du ikke også
+varsle om frist»), og B krever et utkast som går på tvers av to skjemaer, som ingen prototype har vist.
+At brukerne sjelden trenger begge i samme brev etter påberopelsen, er en antakelse. Påberopelsen er
+stedet oppdragsgiver pekte på for alle varslene (#1886).
+
+**Hva valget styrer.** Om skjemaet for vederlaget og skjemaet for fristen kan dele et utkast, og teksten
+i VS-U67. Under B kan et utkast med varselet om fristforlengelse stoppe hele brevet hvis fristkravet sendes
+først (VS-U16), også varslene i vederlaget. Under A sender totalentreprenøren to brev samme dag.
+
+Alternativene er prøvd mot vedtakene og i tre forløp av en subagent 13.11, og funnene er rettet.
+
+## Svaret på S-4
+
+Stilt av orkestratoren 13.11 som nummerert liste i tekst, slik spørsmålet står over (commit `298e884`,
+rettet etter kontrollen). Oppdragsgiver svarte ordrett:
+
+> 4. A.
+
+Det betyr S-4 A: VS-U67 endres. Orkestratoren fører endringen i en egen vedtaks-PR.

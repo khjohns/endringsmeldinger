@@ -1,7 +1,7 @@
 {
   "id": "BF-37",
   "tittel": "TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder",
-  "brukerhistorie": "TE velger «Bare varsle, uten krav» og varsler flere forhold i samme brev: regningsarbeid for to arbeider, justering av en enhetspris og fristforlengelse, hvert med bestemmelsen og arbeidet. TE ser brevet med ett avsnitt per varsel, eller registrerer et brev sendt utenfor løsningen med én dato for alle varslene. I det senere kravet sier TE hvilket varsel kravposten gjelder. BH svarer på hvert varsel for seg.",
+  "brukerhistorie": "TE velger «Bare varsle, uten krav» og varsler flere forhold i samme brev: regningsarbeid for to arbeider og justering av en enhetspris, hvert med varselet og arbeidet. Varselet om fristforlengelse sendes fra skjemaet for fristen. TE ser brevet med ett avsnitt per varsel, eller registrerer et brev sendt utenfor løsningen med én dato for alle varslene. I det senere kravet sier TE hvilket varsel kravposten gjelder. BH svarer på hvert varsel for seg.",
   "status": "planlagt",
   "utgangspunkt": {
     "start": null,
@@ -24,7 +24,7 @@
             "staar": "Ett varsel per rad. Hvert varsel står som et eget avsnitt i brevet."
           },
           {
-            "staar": "Krav om vederlagsjustering (punkt 34.1.2) er gitt i brev 3, 20. oktober 2026."
+            "staar": "Varsel om vederlagsjustering er alt gitt i brev 3."
           },
           {
             "trykk": "Legg til et varsel"
@@ -69,13 +69,13 @@
         "start": "kravpost",
         "handlinger": [
           {
-            "staar": "Hvilket varsel etter punkt 34.4 gjelder P2?"
+            "staar": "Hvilket varsel før regningsarbeidet gjelder P2?"
           },
           {
             "velg": "Ingen av dem. Dette kravet er varselet for P2"
           },
           {
-            "staar": "Brevet sier at kravet er varselet for P2 etter punkt 34.4."
+            "staar": "Brevet sier at kravet er varselet for P2."
           }
         ]
       },
@@ -116,7 +116,10 @@
     "VS-U53",
     "VS-U67",
     "VS-U68",
-    "VS-U69"
+    "VS-U69",
+    "VS-U46",
+    "VS-U50",
+    "VS-U57"
   ],
   "venter_paa": [
     "#1837",
@@ -134,6 +137,16 @@
       "dato": "2026-11-12",
       "forhold": "#1837",
       "hva": "Svarene på S-1–S-3 (A, A, C) er ført i bestillingen, og prototypen følger dem."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1837",
+      "hva": "Prøven 13.11 er tatt inn: varselet om fristforlengelse er ute av skjemaet for vederlaget, og oppsummeringen bruker navnene på varslene (prototypen v2). Spørsmålet S-4 om VS-U67 er stilt."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1837",
+      "hva": "Prøven av v2: linjen om varselet om fristforlengelse er tatt ut av prototypen, og språket i høyre kolonne tas i byggingen (G-5)."
     }
   ]
 }
