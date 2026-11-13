@@ -23908,7 +23908,7 @@ anbefalt = true
 [[gruppe.vedtak.alternativ]]
 navn = "C2"
 tekst = '''
-Som C når ingen annen sak i kontrakten har en forlengelse av fristen. Har en annen sak det, kan dagene ikke verdsettes, og svaret krever hele kjeden, som når satsen mangler ([GFK-U3](../../plans/vedtak.md#gfk-u3)). Forhold: endrer GFK-U19 til lesingen er bygget, og presiserer GFK-U3. Det krever lesingen av om det finnes en forlengelse.'''
+Som C når ingen annen sak i kontrakten har en forlengelse av fristen. Har en annen sak det, kan dagene ikke verdsettes, og svaret krever hele kjeden, som når satsen mangler ([GFK-U3](#gfk-u3)). Forhold: endrer GFK-U19 til lesingen er bygget, og presiserer GFK-U3. Det krever lesingen av om det finnes en forlengelse.'''
 forkastet = true
 
 [[gruppe]]
