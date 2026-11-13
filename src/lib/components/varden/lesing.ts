@@ -10,7 +10,7 @@ import { innholdIForholdet, oppgittDato } from '$kjerne/spor/forhold/format';
 import { FORHOLDSGRUPPER, forholdet } from '$kjerne/spor/forhold/tekst';
 import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
 import { plassene } from '$kjerne/frosset/byggeklosser';
-import { innholdIFristen } from '$kjerne/format/kravinnhold';
+import { innholdIFristen } from '$kjerne/spor/frist/format';
 import { fasteBeloepIKravet, kravposterI, utenFastBeloep } from '$kjerne/spor/vederlag/format';
 import { tilTall } from '$kjerne/regler/beloep';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';

@@ -20,7 +20,7 @@ import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { innsigelsenErOppgitt, innsigelsenPaaberoper, svarPaaForesporsler } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
-import { innholdIFristen } from '../format/kravinnhold.ts';
+import { innholdIFristen } from '../spor/frist/format.ts';
 import {
   eksMva,
   erDato,
