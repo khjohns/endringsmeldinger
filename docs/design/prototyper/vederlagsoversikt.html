@@ -79,6 +79,27 @@ p{margin:0;text-wrap:pretty}
 .spor .navn{display:block;font-size:16px}
 .spor .sist{font-size:12px;color:var(--sidebar-muted)}
 .kontrakten{margin-top:auto}
+/* Panelet står fast i vinduet og har egen fokusfarge, som i Vardenskall */
+@media (min-width:861px){.panel{position:sticky;top:0;height:100vh;overflow-y:auto;align-self:start}}
+.panel :focus-visible{outline-color:var(--sidebar-focus,#8fb0ff)}
+/* Panel B: saksomslaget. Saken og partene øverst, sporene med det som foreligger, avsenderen nederst */
+[data-panel="a"] .kun-panel-b,[data-panel="b"] .kun-panel-a{display:none}
+.omslag .id{font-size:12px;color:var(--sidebar-muted);margin-bottom:6px}
+.omslag h2{font-size:20px;font-weight:600;line-height:1.25;letter-spacing:-.01em}
+.parter{margin:12px 0 0;display:grid;gap:2px;font-size:14px}
+.parter dt{display:inline;margin-right:6px;font-size:12px;color:var(--sidebar-muted)}
+.parter dd{display:inline;margin:0}
+.omslag .merknad{margin-top:12px;font-size:12px;color:var(--sidebar-muted)}
+.sporb{display:flex;flex-direction:column;gap:20px}
+.gruppe{margin-bottom:4px;font-size:12px;color:var(--sidebar-muted)}
+.st{display:block;margin-top:2px;font-size:14px;color:var(--sidebar-muted)}
+.st2{display:block;font-size:12px;color:var(--sidebar-muted)}
+.sporb .spor a[aria-current] .navn{font-weight:600}
+.sporb .spor a[aria-current] .st{color:var(--sidebar-text)}
+.omslagfot{margin-top:auto;padding-top:16px;border-top:1px solid var(--sidebar-border);display:flex;gap:10px;align-items:center}
+.omslagfot .vapen{width:28px;height:28px;flex:none}
+.omslagfot p{display:flex;flex-direction:column;font-size:12px;color:var(--sidebar-muted)}
+.omslagfot b{font-weight:600;color:var(--sidebar-text)}
 .kontrakten dl{margin:0;display:grid;gap:10px}
 .kontrakten dt{font-size:12px;color:var(--sidebar-muted)}
 .kontrakten dd{margin:0;font-size:14px}
@@ -318,7 +339,10 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 @media (max-width:860px){
   .skall{grid-template-columns:minmax(0,1fr)}
   .panel{gap:16px}
-  .kontrakten,.panel .avsender{display:none}
+  .kontrakten,.panel .avsender,.omslagfot,.gruppe,.st2{display:none}
+  .sporb{flex-direction:row;gap:0;overflow-x:auto;margin:0 -20px}
+  .sporb>div{flex:none}
+  .sporb .spor{margin:0;overflow:visible}
   .spor{display:flex;overflow-x:auto;margin:0 -20px}
   .spor li{flex:none}
   .spor a{border-left:0;border-bottom:3px solid transparent;padding:8px 16px}
@@ -488,14 +512,14 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 <span id="te-b"></span><span id="te-utkast-b"></span><span id="bh-b"></span><span id="te-regning-b"></span><span id="te"></span><span id="te-utkast"></span><span id="bh"></span><span id="bh-utkast"></span><span id="te-regning"></span><span id="bh-regning"></span>
 <div class="skall vis-forslag" id="skall" data-rolle="TE" data-utkast="ja" data-regel="fast">
   <aside class="panel" aria-label="Saken">
-    <div class="avsender"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
-    <div class="sak">
+    <div class="avsender kun-panel-a"><div class="vapen" aria-hidden="true">OSLO</div><div><b>Oslo kommune</b><span>Oslobygg KF</span></div></div>
+    <div class="sak kun-panel-a">
       <p class="id num">E-021</p>
       <h2>Ny peling med produktivitetstap</h2>
       <p class="id" style="margin-top:8px">Saken har dokumentasjon som er registrert, men ikke sendt herfra.</p>
     </div>
-    <div class="prosjektlenker"><a href="bf-05-ny-sak.html" class="kun-te">Nytt krav om endringsordre</a><a href="bf-06-endringsordre.html" class="kun-bh">Ny endringsordre</a></div>
-    <nav aria-labelledby="spor-etikett">
+    <div class="prosjektlenker kun-panel-a"><a href="bf-05-ny-sak.html" class="kun-te">Nytt krav om endringsordre</a><a href="bf-06-endringsordre.html" class="kun-bh">Ny endringsordre</a></div>
+    <nav class="kun-panel-a" aria-labelledby="spor-etikett">
       <p class="etikett" id="spor-etikett">Krav og svar</p>
       <ul class="spor">
         <li><a href="grunnlagsoversikt.html"><span class="navn">Byggherrens valg av løsninger og prosjektering</span><span class="sist">Ikke besvart · brev 2 fra TE</span></a></li>
@@ -503,7 +527,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
         <li><a href="fristoversikt.html"><span class="navn">Fristforlengelse</span><span class="sist">Siste: brev 4 fra TE</span></a></li>
       </ul>
     </nav>
-    <section class="kontrakten" aria-labelledby="kontrakt-etikett">
+    <section class="kontrakten kun-panel-a" aria-labelledby="kontrakt-etikett">
       <h2 class="etikett" id="kontrakt-etikett">Kontrakten</h2>
       <dl>
         <div><dt>Prosjekt</dt><dd>Skolebygg Nord</dd></div>
@@ -512,6 +536,32 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
         <div><dt>Totalentreprenør</dt><dd>Totalentreprenør AS</dd></div>
       </dl>
     </section>
+
+    <div class="omslag kun-panel-b">
+      <p class="id num">E-021</p>
+      <h2>Ny peling med produktivitetstap</h2>
+      <dl class="parter">
+        <div><dt>Totalentreprenør</dt><dd>Totalentreprenør AS</dd></div>
+        <div><dt>Byggherre</dt><dd>Oslobygg KF</dd></div>
+      </dl>
+      <p class="merknad">Saken har dokumentasjon som er registrert, men ikke sendt herfra.</p>
+    </div>
+    <nav class="sporb kun-panel-b" aria-label="Forholdet og kravene i saken">
+      <div>
+        <p class="gruppe" id="gr-forhold">Kontraktsforhold</p>
+        <ul class="spor" aria-labelledby="gr-forhold">
+          <li><a href="grunnlagsoversikt.html"><span class="navn">Byggherrens valg av løsninger og prosjektering</span><span class="st">Svar ikke registrert</span><span class="st2">Siste: brev 2 fra totalentreprenøren</span></a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="gruppe" id="gr-krav">Krav</p>
+        <ul class="spor" aria-labelledby="gr-krav">
+          <li><a href="#skall" aria-current="page"><span class="navn">Vederlagsjustering</span><span class="st kun-fast-blokk">Svaret er ikke godtatt</span><span class="st2 kun-fast-blokk">Akseptfrist 10. november 2026</span><span class="st2 kun-regning-blokk">Siste: brev 6 fra byggherren</span></a></li>
+          <li><a href="fristoversikt.html"><span class="navn">Fristforlengelse</span><span class="st">Svar ikke registrert</span><span class="st2">Siste: brev 4 fra totalentreprenøren</span></a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="omslagfot kun-panel-b"><div class="vapen" aria-hidden="true"></div><p><b>Oslo kommune</b><span>Skolebygg Nord · Totalentreprise NS 8407</span></p></div>
   </aside>
 
   <div class="flate">
@@ -531,6 +581,10 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
           <span class="vis-som" role="group" aria-label="Oppsett">
             <button type="button" id="oppsett-a" aria-pressed="true">Oppsett A</button>
             <button type="button" id="oppsett-b" aria-pressed="false">Oppsett B</button>
+          </span>
+          <span class="vis-som" role="group" aria-label="Panel">
+            <button type="button" id="panel-a" aria-pressed="true">Panel A</button>
+            <button type="button" id="panel-b" aria-pressed="false">Panel B</button>
           </span>
           <label class="forslag-av"><input type="checkbox" id="vis-spor"> Vis sporbarhet</label>
         </div></div></div>
@@ -828,12 +882,15 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 <script>
   const skall = document.getElementById('skall');
   const knapp = id => document.getElementById(id);
-  const tilstand = { rolle: 'TE', utkast: true, regel: 'fast', oppsett: 'a' };
+  const tilstand = { rolle: 'TE', utkast: true, regel: 'fast', oppsett: 'a', panel: 'a' };
   function vis(){
     skall.dataset.rolle = tilstand.rolle;
     skall.dataset.regel = tilstand.regel;
     skall.dataset.utkast = tilstand.utkast && tilstand.regel === 'fast' ? 'ja' : 'nei';
     skall.dataset.oppsett = tilstand.oppsett;
+    skall.dataset.panel = tilstand.panel;
+    knapp('panel-a').setAttribute('aria-pressed', String(tilstand.panel === 'a'));
+    knapp('panel-b').setAttribute('aria-pressed', String(tilstand.panel === 'b'));
     knapp('oppsett-a').setAttribute('aria-pressed', String(tilstand.oppsett === 'a'));
     knapp('oppsett-b').setAttribute('aria-pressed', String(tilstand.oppsett === 'b'));
     knapp('vis-te').setAttribute('aria-pressed', String(tilstand.rolle === 'TE'));
@@ -871,6 +928,8 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
   knapp('utkast-nei').onclick = () => { tilstand.utkast = false; vis(); };
   knapp('regel-fast').onclick = () => { tilstand.regel = 'fast'; vis(); };
   knapp('regel-regning').onclick = () => { tilstand.regel = 'regning'; vis(); };
+  knapp('panel-a').onclick = () => { tilstand.panel = 'a'; vis(); };
+  knapp('panel-b').onclick = () => { tilstand.panel = 'b'; vis(); };
   knapp('oppsett-a').onclick = () => { tilstand.oppsett = 'a'; vis(); };
   knapp('oppsett-b').onclick = () => { tilstand.oppsett = 'b'; vis(); };
   // Oppsett B: brevet leses ved siden av tråden, og under 1180 px i raden.
