@@ -898,7 +898,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
   });
 
   // GFK-U16, GFK-U18 og GFK-U22: driften registrerer kontraktssummen og fristtabellen.
-  // Nummeret er det tekniske valget i #721: tildelt av basen, og det står når fristen rettes.
+  // ID-en er det tekniske valget i #721: tildelt av basen, og den står når fristen rettes.
   // Fristens ID er teknisk; kontraktens nummer og navnet er betegnelsen (KA-U79), og
   // --standardsats skriver 1 ‰ og 3000 kr uttrykkelig (GFK-U16).
   it('kontraktsfrister registrerer fristene med ID, retter dem uten å endre ID-en og viser satsen', async () => {
@@ -958,10 +958,10 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     await skript('kontraktsfrister', prosjekt);
     expect(linjer).toEqual([
       'Kontraktssum: (ikke satt)',
-      '1. E.1 Sluttfrist, 2027-06-30, dagmulktbelagt, 1 ‰ av kontraktssummen, minst 3\u00a0000 kr: kontraktssummen mangler',
-      '2. Tett bygg, 2026-12-15, ikke dagmulktbelagt',
-      '3. Delfrist A, 2027-01-31, dagmulktbelagt, 1 ‰ av verdien av delen, 400\u00a0000 kr, minst 3\u00a0000 kr: 3\u00a0000 kr per dag',
-      '4. Delfrist B, 2027-02-28, dagmulktbelagt, avtalt 2\u00a0500,5 kr per dag: 2\u00a0500,5 kr per dag',
+      'ID 1: E.1 Sluttfrist, 2027-06-30, dagmulktbelagt, 1 ‰ av kontraktssummen, minst 3\u00a0000 kr: kontraktssummen mangler',
+      'ID 2: Tett bygg, 2026-12-15, ikke dagmulktbelagt',
+      'ID 3: Delfrist A, 2027-01-31, dagmulktbelagt, 1 ‰ av verdien av delen, 400\u00a0000 kr, minst 3\u00a0000 kr: 3\u00a0000 kr per dag',
+      'ID 4: Delfrist B, 2027-02-28, dagmulktbelagt, avtalt 2\u00a0500,5 kr per dag: 2\u00a0500,5 kr per dag',
     ]);
     await skript('kontraktsfrister', prosjekt, 'kontraktssum', '120000000');
     await skript(
@@ -1008,6 +1008,17 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     await expect(
       skript('kontraktsfrister', prosjekt, 'rett', '3', '--nummer', 'E.3\t')
     ).rejects.toThrow(/\(52082\)/);
+    // Tabellen holder nummeret unikt i prosjektet også uten prosedyren, og flere frister kan være uten.
+    expect(
+      await avvisning(
+        o.datalag.base.pool
+          .request()
+          .input('p', prosjekt)
+          .query(
+            "INSERT koe.kontraktsfrist (prosjekt_id, frist_id, nummer, navn, dato, dagmulktbelagt) VALUES (@p, 9, N'E.2', N'X', '2027-01-01', 0)"
+          )
+      )
+    ).toBe(2601);
     await skript('kontraktsfrister', prosjekt, 'rett', '1', '--uten-nummer');
     expect(
       (await lesFristtabell(drift.pool, prosjekt)).frister.map((f) => [f.fristId, f.nummer])
@@ -1020,7 +1031,7 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     expect(tabell.frister[3]?.satsopplysninger).toBeNull();
   });
 
-  it('kontraktsfrister avviser en sats som ikke passer, et navn som finnes, en dato og et nummer som ikke finnes', async () => {
+  it('kontraktsfrister avviser en sats som ikke passer, et navn som finnes, en dato og en ID som ikke finnes', async () => {
     const { prosjekt } = await nyttProsjekt([]);
     const ny = (...a: string[]) =>
       skript('kontraktsfrister', prosjekt, 'ny', '--dato', '2027-06-30', ...a);

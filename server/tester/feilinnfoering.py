@@ -398,6 +398,11 @@ FEILINNFOERINGER = [
      "  IF @navn COLLATE Latin1_General_100_BIN2_UTF8 LIKE",
      "  IF 1 = 0 AND @navn COLLATE Latin1_General_100_BIN2_UTF8 LIKE",
      "avviser kontrolltegn, linjeskift og mellomrom"),
+    ("S106", "kontraktens nummer på fristen er ikke unikt i tabellen (KA-U79)",
+     "database/migrasjoner/20261113100000_kontraktsfrister.sql",
+     "CREATE UNIQUE INDEX kontraktsfrist_nummer_unik ON koe.kontraktsfrist (prosjekt_id, nummer)",
+     "CREATE INDEX kontraktsfrist_nummer_unik ON koe.kontraktsfrist (prosjekt_id, nummer)",
+     "kontraktsfrister registrerer fristene med ID"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

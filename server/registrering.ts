@@ -576,7 +576,7 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
             : `dagmulktbelagt, ${beskrivSats(f.satsopplysninger)}: ${
                 f.sats === null ? 'kontraktssummen mangler' : `${kroner(f.sats)} per dag`
               }`;
-        a.skriv(`${f.fristId}. ${betegnelse(f)}, ${f.dato}, ${dagmulkt}`);
+        a.skriv(`ID ${f.fristId}: ${betegnelse(f)}, ${f.dato}, ${dagmulkt}`);
       }
       return;
     }
@@ -620,10 +620,11 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       delensVerdi: tallFra('delens-verdi', 'beloep'),
       beloepPerDag: tallFra('beloep-per-dag', 'beloep'),
     };
-    const oppgitt = v.standardsats === true || Object.values(sats).some((x) => x !== undefined);
+    const satsOppgitt = Object.values(sats).some((x) => x !== undefined);
+    const oppgitt = v.standardsats === true || satsOppgitt;
     let nySats: Satsopplysninger | null = null;
     if (v.standardsats) {
-      if (Object.values(sats).some((x) => x !== undefined))
+      if (satsOppgitt)
         throw new Registreringsfeil(
           '--standardsats kan ikke stå sammen med --promille, --minstebeloep, --delens-verdi eller --beloep-per-dag.'
         );
@@ -656,9 +657,9 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       throw new Registreringsfeil('Oppgi enten --nummer eller --uten-nummer.');
     const oppgittNummer = v['uten-nummer'] ? null : v.nummer;
 
+    const id = hva === 'rett' ? fristId(argument) : null;
     let frist: NyFrist;
-    let id: number | null = null;
-    if (hva === 'ny') {
+    if (id === null) {
       if (oppgittDagmulkt === undefined)
         throw new Registreringsfeil('Oppgi --dagmulktbelagt eller --ikke-dagmulktbelagt.');
       frist = {
@@ -670,14 +671,12 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       };
     } else {
       // Det som ikke er oppgitt, står som før, så en retting av datoen fjerner ikke satsen.
-      const rettes = fristId(argument);
-      id = rettes;
       if (FRISTER.every((navn) => v[navn] === undefined))
         throw new Registreringsfeil('Oppgi det som skal rettes.');
       const naa = (await iDriften(lesFristtabell(pool, prosjekt))).frister.find(
-        (f) => f.fristId === rettes
+        (f) => f.fristId === id
       );
-      if (!naa) throw new Registreringsfeil(`Prosjektet har ingen frist med ID-en ${rettes}.`);
+      if (!naa) throw new Registreringsfeil(`Prosjektet har ingen frist med ID-en ${id}.`);
       const dagmulktbelagt = oppgittDagmulkt ?? naa.dagmulktbelagt;
       frist = {
         nummer: oppgittNummer === undefined ? naa.nummer : oppgittNummer,
