@@ -1,5 +1,5 @@
 /**
- * Linja og nøkkeltallene i sakslisten (#1022), regnet av en journal i minnet som er
+ * Linja i sakslisten (#1022), regnet av en journal i minnet som er
  * skrevet med kjernens kommandoer (`forhaandsvis` og `vurder`). Hjelperne i
  * `kjerne/tester/` er utenfor grensen for serveren (`arkitektur.test.ts`). Lesingen
  * fra basen og prosjektgrensen prøves i `saksliste.test.ts`.
@@ -26,7 +26,7 @@ import { type Svarvurdering } from '../../kjerne/frosset/byggeklosser.ts';
 import { kravposterI } from '../../kjerne/spor/vederlag/format.ts';
 import type { Journalrad, Part, Spor } from '../../kjerne/typer.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
-import { noekkeltall, sakslinje, type Sakslinje } from '../saksliste.ts';
+import { sakslinje, type Sakslinje } from '../saksliste.ts';
 import { PAABEROPELSE } from './testbase.ts';
 
 type Steg = (sak: Sak) => void;
@@ -277,17 +277,6 @@ describe('linja i sakslisten (#1022)', () => {
     });
     expect(l.vederlag.krav).toEqual({ beloep: 100000, antall_uten_fast_beloep: 1 });
     expect(l.vederlag.svar).toMatchObject({ beloep: null, antall_uten_fast_beloep: 2 });
-    expect(noekkeltall([l]).vederlag).toMatchObject({ krav_antall: 1, krav_sum: 100000 });
-    // Et krav med bare en beregningsregel telles for seg, ikke som 0 kr (OV-U43).
-    const regning = {
-      ...l,
-      vederlag: { ...l.vederlag, krav: { beloep: null, antall_uten_fast_beloep: 1 } },
-    };
-    expect(noekkeltall([regning]).vederlag).toMatchObject({
-      krav_antall: 0,
-      krav_sum: 0,
-      krav_uten_beloep: 1,
-    });
   });
 
   it('krav uten svar venter på byggherrens svar i alle tre sporene (MM-U29)', () => {
@@ -324,7 +313,7 @@ describe('linja i sakslisten (#1022)', () => {
     });
   });
 
-  it('svar 2: enigheten om det subsidiære beløpet er betinget av ansvaret, og beløpet telles bare som betinget enighet (MM-U28, «Subsidiært» 22.10 i #1052)', () => {
+  it('svar 2: enigheten om det subsidiære beløpet er betinget av ansvaret (MM-U28, «Subsidiært» 22.10 i #1052)', () => {
     const l = linje(forloepA, aksept('vederlag'));
     expect(l.vederlag).toMatchObject({
       krav: { beloep: 100000 },
@@ -333,12 +322,6 @@ describe('linja i sakslisten (#1022)', () => {
       svar_ikke_godtatt: false,
     });
     expect(l.saksbetegnelse).toBeNull();
-    expect(noekkeltall([l]).vederlag).toMatchObject({
-      krav_sum: 100000,
-      svar_subsidiaert_sum: 0,
-      enighet_betinget_sum: 60000,
-      enighet_virksom_sum: 0,
-    });
   });
 
   it('et svar som godkjenner kravet fullt ut, gir enighet ved sammenfall og står ikke som ikke godtatt, i alle tre sporene', () => {
@@ -355,11 +338,6 @@ describe('linja i sakslisten (#1022)', () => {
     });
     expect(l.frist.enighet).toEqual({ dager: 20, virkning: 'virksom' });
     expect(l.saksbetegnelse).toBe('kravene_avgjort');
-    expect(noekkeltall([l]).vederlag).toMatchObject({
-      enighet_virksom_sum: 100000,
-      enighet_betinget_sum: 0,
-      svar_subsidiaert_sum: 0,
-    });
   });
 
   it.each([
@@ -369,7 +347,7 @@ describe('linja i sakslisten (#1022)', () => {
     expect(linje(...steg).saksbetegnelse).toBe(betegnelse);
   });
 
-  it('trukne krav og krav i en avsluttet sak står på linja, men telles ikke i nøkkeltallene (svar 2 fra oppdragsgiver 20.10 i #1029)', () => {
+  it('trukne krav og krav i en avsluttet sak står på linja, men kravet står ikke, så nøkkeltallene i Varden ikke teller det (svar 2 fra oppdragsgiver 20.10 i #1029)', () => {
     const staar = linje(krav);
     const vederlagTrukket = linje(krav, trekk('vederlag'));
     const paaberopelsenTrukket = linje(krav, trekk('forhold'));
@@ -381,15 +359,9 @@ describe('linja i sakslisten (#1022)', () => {
     for (const l of [vederlagTrukket, paaberopelsenTrukket, avslagGodtatt])
       expect(l.vederlag.kravet_staar).toBe(false);
     expect(vederlagTrukket.frist.kravet_staar).toBe(true);
-    expect(
-      noekkeltall([staar, vederlagTrukket, paaberopelsenTrukket, avslagGodtatt])
-    ).toMatchObject({
-      vederlag: { krav_antall: 1, krav_sum: 100000 },
-      frist: { krav_antall: 2 },
-    });
   });
 
-  it('#1050, #1067: når TE godtar avslaget av forholdet alene, venter vederlag og frist ikke på svar og telles ikke (SK-01)', () => {
+  it('#1050, #1067: når TE godtar avslaget av forholdet alene, venter vederlag og frist ikke på svar (SK-01)', () => {
     const avslag: Steg = (sak) =>
       sak.send('BH', {
         type: 'brev',
@@ -403,10 +375,6 @@ describe('linja i sakslisten (#1022)', () => {
       // MM-U30: «Krav sendt» når TE har godtatt avslaget på forholdet uten enighet eller trekk.
       expect(l[spor].betegnelse, spor).toBe('krav_sendt');
     }
-    expect(noekkeltall([l])).toMatchObject({
-      vederlag: { venter_paa_svar: 0 },
-      frist: { venter_paa_svar: 0 },
-    });
   });
 
   it('#1218: med posten etter § 34.1.3 annet ledd er kravet og svaret summen av postene, og svaret er subsidiært når posten er det (OV-U23, OV-U31, OV-U33)', () => {
@@ -447,15 +415,11 @@ describe('linja i sakslisten (#1022)', () => {
     });
   });
 
-  it('#1052: det subsidiære beløpet summeres bare når kravet står, som kravene (svar 3 fra oppdragsgiver 22.10)', () => {
-    expect(noekkeltall([linje(forloepA)]).vederlag.svar_subsidiaert_sum, 'kontroll').toBe(60000);
-    for (const l of [
-      linje(forloepA, aksept('forhold')),
-      linje(forloepA, trekk('vederlag')),
-      linje(forloepA, trekk('forhold')),
-    ]) {
+  it('#1052: det subsidiære svaret står på linja også når kravet eller påberopelsen er trukket, og kravet står da ikke (svar 3 fra oppdragsgiver 22.10)', () => {
+    expect(linje(forloepA).vederlag.kravet_staar, 'kontroll').toBe(true);
+    for (const l of [linje(forloepA, trekk('vederlag')), linje(forloepA, trekk('forhold'))]) {
       expect(l.vederlag.svar).toMatchObject({ beloep: 60000, subsidiaert: true });
-      expect(noekkeltall([l]).vederlag).toMatchObject({ krav_sum: 0, svar_subsidiaert_sum: 0 });
+      expect(l.vederlag.kravet_staar).toBe(false);
     }
   });
 
@@ -494,33 +458,13 @@ describe('linja i sakslisten (#1022)', () => {
     });
   });
 
-  it('en enighet uten virkning telles ikke, heller ikke uten beløp (svar 3 fra oppdragsgiver 20.10 i #1029)', () => {
+  it('enigheten er uten virkning når TE har trukket påberopelsen (svar 3 fra oppdragsgiver 20.10 i #1029)', () => {
     const l = linje(forloepA, aksept('vederlag'), trekk('forhold'));
     expect(l.vederlag.enighet).toEqual({
       beloep: 60000,
       uten_fast_beloep: [],
       virkning: 'uten_virkning',
     });
-    const utenBeloep: Sakslinje = {
-      ...l,
-      vederlag: {
-        ...l.vederlag,
-        enighet: { beloep: null, uten_fast_beloep: [], virkning: 'uten_virkning' },
-      },
-    };
-    const betingetUtenBeloep: Sakslinje = {
-      ...l,
-      vederlag: {
-        ...l.vederlag,
-        enighet: { beloep: null, uten_fast_beloep: [], virkning: 'betinget' },
-      },
-    };
-    expect(noekkeltall([l, utenBeloep]).vederlag).toMatchObject({
-      enighet_uten_beloep: 0,
-      enighet_virksom_sum: 0,
-      enighet_betinget_sum: 0,
-    });
-    expect(noekkeltall([betingetUtenBeloep]).vederlag.enighet_uten_beloep).toBe(1);
   });
 
   it('en sak med et registrert brev har brev utenfor appen, som tillegget i OV-U10', () => {
@@ -620,7 +564,7 @@ describe('linja i sakslisten (#1022)', () => {
     expect(sak.linje().siste_brev).toBeNull();
   });
 
-  it('en sak kjernen ikke forstår, står i lista med betegnelsen og telles ikke i summene (MM-U2, MM-U22)', () => {
+  it('en sak kjernen ikke forstår, står i lista med betegnelsen og uten krav, svar og enighet (MM-U2, MM-U22)', () => {
     const sak = new Sak();
     krav(sak);
     const journal = sak.journal;
@@ -638,10 +582,6 @@ describe('linja i sakslisten (#1022)', () => {
       saksbetegnelse: 'ikke_forstaatt',
       vederlag: { krav: null, svar: null, enighet: null, venter_paa_svar: false },
     });
-    const n = noekkeltall([l, linje(krav)]);
-    expect(n).toMatchObject({ saker: 2, ikke_forstaatt: 1 });
-    expect(n.vederlag).toMatchObject({ krav_antall: 1, krav_sum: 100000, venter_paa_svar: 1 });
-    expect(n.frist).toEqual({ krav_antall: 1, venter_paa_svar: 1 });
   });
 
   it('en sak kjernen ikke forstår, har brev utenfor appen når et brev er registrert (OV-U21, MM-U2)', () => {

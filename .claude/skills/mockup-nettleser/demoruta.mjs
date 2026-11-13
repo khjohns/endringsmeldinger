@@ -118,12 +118,12 @@ if (!NY_SAK && FORUTSETNINGER.length !== ETIKETTER.length - (ETIKETTER[0] === 'p
   throw new Error(`Lagene ${ETIKETTER.join(', ')} i ${arg.forlop} passer ikke med forutsetningene skriptet venter`);
 const forloep = (punkt) =>
   `${arg.url}/demo/${arg.forlop}?punkt=${punkt ?? 'start'}`;
-// Laget er overskriften med kolon i brevet. «Subsidiært» inne i «videre subsidiært», eller i
-// begrunnelsen («Subsidiært godtas …»), teller ikke.
+// Laget står i lagslinjen først på linja i brevet (LV-U34, #1858): «Prinsipalt», «Subsidiært, hvis
+// …» og «Videre subsidiært, hvis …». «Subsidiært» i begrunnelsen («Subsidiært godtas …») teller ikke.
 const LAGET = {
-  prinsipalt: /prinsipalt:/i,
-  subsidiært: /(?<!videre\s)subsidiært:/i,
-  'videre subsidiært': /videre\s+subsidiært:/i,
+  prinsipalt: /^prinsipalt$/im,
+  subsidiært: /^subsidiært, hvis/im,
+  'videre subsidiært': /^videre subsidiært, hvis/im,
 };
 const brevetHarLagene = (tekst) =>
   ETIKETTER.every((e) => LAGET[e].test(tekst)) && /60\s000/.test(tekst);
@@ -235,8 +235,9 @@ try {
   await page.getByRole('radio', { name: 'Godkjenner fast sum (punkt 34.2.1)', exact: true }).check();
   await page.getByRole('radio', { name: 'Deler av beløpet' }).check();
   await page.getByRole('textbox', { name: 'Beløpet du godkjenner' }).fill('60000');
+  // Begrunnelsen står i punktet om varselet (KA-U46, #1858).
   await page
-    .getByRole('textbox', { name: 'Begrunnelse' })
+    .getByRole('textbox', { name: /Varselet om vederlagsjustering/ })
     .fill('Varselet etter § 34.1.2 kom for sent. Subsidiært godtas 60 000 kr.');
   // Beløpet viser til forutsetningene over oppgjørsformen, i samme lag (KA-U72).
   const gjelderHvis = await page.locator('[id*="-form-"][id$="-forutsetninger"] li').allInnerTexts();
