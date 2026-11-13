@@ -2,16 +2,10 @@
  * Linjen for byggherrens standpunkt i beslutningsgrunnlaget (MM-U9), med leddene i sporet.
  */
 
-import {
-  etikett,
-  iSporet,
-  laget,
-  standpunktet,
-  virkningen,
-  type Svarinnhold,
-} from './byggeklosser.ts';
+import { etikett, iSporet, laget, standpunktet, type Svarinnhold } from './byggeklosser.ts';
 import { LINJEN_I_FORHOLDET } from '../spor/forhold/tekst.ts';
 import { LINJEN_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
+import { LINJEN_I_FRISTEN } from '../spor/frist/tekst.ts';
 import { iLagene, SENT_I_LINJEN } from './tekst.ts';
 import {
   erKravpostvarselhjemmel,
@@ -102,22 +96,11 @@ export function beslutningslinje(
   return `Byggherrens standpunkt: ${ledd.map(etikettert).join(', ')}.`;
 }
 
-/** Leddene i hvert spor. Fristen står her til den flyttes til sporet (#1745). */
+/** Leddene i hvert spor. */
 const LINJE: Record<Spor, Sporslinje> = {
   forhold: LINJEN_I_FORHOLDET,
   vederlag: LINJEN_I_VEDERLAGET,
-  frist: {
-    egetLedd: () => undefined,
-    ledd: (svar, v) => {
-      const d = standpunktet(svar, 'dager')!;
-      return [
-        {
-          tekst: d.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`,
-          virkning: virkningen(v, d.id),
-        },
-      ];
-    },
-  },
+  frist: LINJEN_I_FRISTEN,
 };
 
 /** Et ledd i linjen for byggherrens standpunkt, med virkningen som gir laget. */
