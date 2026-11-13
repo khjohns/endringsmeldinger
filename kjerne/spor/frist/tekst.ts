@@ -44,7 +44,8 @@ const fristeneMedDager = (krav: Krav): string =>
  */
 function varselpunkt(t: Tekst): Brevpunkt[] {
   const foer = t.saken.varsletFoer['33.4'];
-  if (t.nytt.utsagn.some((u) => u.art === 'varsel' && u.hjemmel === '33.4')) return [];
+  if (foer === undefined && t.nytt.utsagn.some((u) => u.art === 'varsel' && u.hjemmel === '33.4'))
+    return [];
   return [
     {
       punkt: '33.4',
