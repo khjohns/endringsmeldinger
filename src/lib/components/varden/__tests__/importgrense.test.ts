@@ -1,8 +1,9 @@
 /**
  * Grensen for Varden (#1331): komponentene importerer ingen regler eller utledning utenom
  * kjernen og `lagKjernesak`. Det de kan importere, står i en hviteliste. Alt annet, som
- * oversetterne og projeksjonene i `$lib/kjernesak/`, gir rød test. Importene leses med TypeScript-parseren og løses til absolutte stier, så
- * alias, relative stier, `export … from`, `import()` og `require()` teller likt.
+ * oversetterne og projeksjonene i `$lib/kjernesak/`, gir rød test. Importene leses med
+ * TypeScript-parseren og løses til absolutte stier, så alias, relative stier, `export … from`,
+ * `import()` og `require()` teller likt.
  */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';

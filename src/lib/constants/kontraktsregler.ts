@@ -228,9 +228,8 @@ export const KONTRAKTSREGLER: Record<string, Kontraktsregel> = {
 };
 
 /**
- * Hent kontraktsregel for en hjemmel_basis.
- * Returnerer null hvis hjemmelen ikke har en regeltekst.
+ * Regelteksten for hjemmelen, med nøkkelen i `KONTRAKTSREGLER`. `null` når hjemmelen ikke har en.
  */
-export function getKontraktsregel(hjemmelBasis: string): Kontraktsregel | null {
-  return KONTRAKTSREGLER[hjemmelBasis] ?? null;
+export function getKontraktsregel(hjemmel: string): Kontraktsregel | null {
+  return KONTRAKTSREGLER[hjemmel] ?? null;
 }
