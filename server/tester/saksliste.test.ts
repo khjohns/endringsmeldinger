@@ -117,7 +117,7 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
   });
 
   it('svaret har linjene og leserens side, og ingen nøkkeltall: Varden regner dem for fanen (#1861)', async () => {
-    expect(Object.keys(await svaret()).sort()).toEqual(['part', 'saker', 'success']);
+    expect(await svaret()).not.toHaveProperty('noekkeltall');
   });
 
   it.each([

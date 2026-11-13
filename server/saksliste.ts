@@ -130,7 +130,7 @@ export interface Forholdslinje extends Foreligger {
 
 /**
  * Kravet står: saken er forstått og ikke avsluttet, og kravet er ikke trukket (svar 2 fra
- * oppdragsgiver 20.10 i #1029). Nøkkeltallene og frontenden leser flagget (#1068).
+ * oppdragsgiver 20.10 i #1029). Nøkkeltallene i Varden leser flagget (#1068, #1861).
  */
 interface Staaende {
   kravet_staar: boolean;

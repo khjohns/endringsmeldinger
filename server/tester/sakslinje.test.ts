@@ -1,5 +1,5 @@
 /**
- * Linja og nøkkeltallene i sakslisten (#1022), regnet av en journal i minnet som er
+ * Linja i sakslisten (#1022), regnet av en journal i minnet som er
  * skrevet med kjernens kommandoer (`forhaandsvis` og `vurder`). Hjelperne i
  * `kjerne/tester/` er utenfor grensen for serveren (`arkitektur.test.ts`). Lesingen
  * fra basen og prosjektgrensen prøves i `saksliste.test.ts`.
@@ -313,7 +313,7 @@ describe('linja i sakslisten (#1022)', () => {
     });
   });
 
-  it('svar 2: enigheten om det subsidiære beløpet er betinget av ansvaret, (MM-U28, «Subsidiært» 22.10 i #1052)', () => {
+  it('svar 2: enigheten om det subsidiære beløpet er betinget av ansvaret (MM-U28, «Subsidiært» 22.10 i #1052)', () => {
     const l = linje(forloepA, aksept('vederlag'));
     expect(l.vederlag).toMatchObject({
       krav: { beloep: 100000 },
@@ -413,6 +413,14 @@ describe('linja i sakslisten (#1022)', () => {
       antall_uten_fast_beloep: 0,
       subsidiaert: true,
     });
+  });
+
+  it('#1052: det subsidiære svaret står på linja også når kravet eller påberopelsen er trukket, og kravet står da ikke (svar 3 fra oppdragsgiver 22.10)', () => {
+    expect(linje(forloepA).vederlag.kravet_staar, 'kontroll').toBe(true);
+    for (const l of [linje(forloepA, trekk('vederlag')), linje(forloepA, trekk('forhold'))]) {
+      expect(l.vederlag.svar).toMatchObject({ beloep: 60000, subsidiaert: true });
+      expect(l.vederlag.kravet_staar).toBe(false);
+    }
   });
 
   it('#1050: når TE godtar avslaget av forholdet i forløp A, står det subsidiære svaret i vederlaget ikke som ikke godtatt (SK-01)', () => {
