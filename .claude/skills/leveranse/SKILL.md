@@ -150,7 +150,12 @@ byggeøkta egen diff med kommandoen `/design-deslop` og lar PR-en stå som utkas
 Etter `/design-deslop` legger byggeøkta skjermbildene i PR-en og ber oppdragsgiver se over
 dem. Mens den venter, arbeider den videre etter «Arbeid mens CI går» i arbeidsøkt-skillen.
 Når oppdragsgiver har sagt fra, kjører byggeøkta `/design-review` i en subagent i ny
-kontekst, før `/code-review`, og retter funnene selv. Kommer svaret ikke innen en time,
+kontekst, før `/code-review`, og retter funnene selv. Reviewet går i runder, som for en
+skisse ([«Gjennomgang i runder» i `brukerforlop`](../brukerforlop/SKILL.md#gjennomgang-i-runder)):
+subagenten leser `interface-design`, systemfila og språkfila først, tar én komponent om gangen,
+og skallet til slutt, og går gjennom språket i en egen runde etter designrundene. Den
+sammenligner visningen med prototypen detalj for detalj. Ett kall over hele siden gir
+grunne funn: rundene i #1890 fant mange detaljer som det første reviewet ikke fant. Kommer svaret ikke innen en time,
 følger økta «Hold hurtigbufferen varm» i arbeidsøkt-skillen. Alvorligheten settes av
 `/design-review`; hva som rettes i PR-en, følger stoppregelen for funn under (#1080, #1492).
 Endrer en retting visningen etter at oppdragsgiver har sett skjermbildene, sier

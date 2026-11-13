@@ -80,6 +80,11 @@
       "dato": "2026-11-13",
       "forhold": "#1402",
       "hva": "Tekstene i oversikten er rettet etter språkfila og systemfila."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Panelet til venstre er saksomslaget i panel B (oppdragsgiver 13.11)."
     }
   ],
   "prototype": {

@@ -49,9 +49,9 @@ Beholde inter som font.» Oslo-logoen er fast.
   brødtekst og hjelpetekst, og 20 px er overskriftene. Vekt og farge gjør resten av
   hierarkiet (#198). Brevene har egne skrifter, under «Typografi».
 - **Skallet**: panelet til venstre er mørkt blekk
-  (`--sidebar-bg`) over hele høyden, med byvåpenet og «Oslo kommune / Oslobygg KF» øverst,
-  saken og sporene, og nederst prosjektet, kontraktsformen og partene under «Kontrakten». Etiketten
-  står over verdien, som i «Prosjektet i korte trekk», så lange navn får plass. Et navn som
+  (`--sidebar-bg`) over hele høyden, som et saksomslag: sakens kode, tittelen og partene øverst,
+  sporene i midten og avsenderen nederst, med organisasjonen, prosjektet og kontraktsformen
+  (panel B i `vederlagsoversikt.html`, oppdragsgiver 13.11: «Ja, panel B», [#1065](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6861711203)). Et navn som
   mangler, står ikke der (#1398). Topplinja står over arbeidsflaten, med rollen
   og handlingene som gjelder hele saken. Arbeidet i sporet begynner rett under.
 - **Arbeidet er like bredt som et ark**: hovedkolonnen er høyst
@@ -292,7 +292,7 @@ Et mønster står her når det brukes to ganger eller mer. Verdiene står i komp
 | Knapp | `varden/Knapp.svelte` | Primærhandlingen, sekundære handlinger og lenkeknapper |
 | Utkastkort | `varden/Utkastkort.svelte` | Hodet på et brev som ikke er sendt, i hvert skjema |
 | Brevkontroll | `varden/Brevkontroll.svelte` | Brevet ordrett før sending, med det parten sender og virkningen |
-| Brevtråd | `varden/Brevtraad.svelte` | Brevene om forholdet, med partene og det løsningen sier under brevet |
+| Brevtråd | `varden/Brevtraad.svelte` | Brevene i saken eller i ett spor, med partene og det løsningen sier under brevet. Felles for sidene for forholdet, vederlaget og fristen |
 | Handlingene | `varden/Brevtyper.svelte` | Radene i «Det du kan gjøre nå» |
 | Tidslinje | `varden/Tidslinje.svelte` | Datoene i sporet, også dem parten fyller ut før sending |
 | Melding | `varden/Melding.svelte` | Feil fra serveren, kvitteringen og det løsningen sier om saken |
@@ -385,7 +385,9 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   da ikke kan godtas (MM-U34 punkt 2). Korrigeringen av datoen står ved datoen i brevtråden, ikke i lista, som i skissen for
   BF-02A (#1615). En brevtype som ikke er bygget i Varden, har samme form og pil som de andre
   (#1646).
-- **Brevene om forholdet** står i en tråd. Partene skilles med form, ikke med farge: BH har
+- **Brevene** står i en tråd, og tråden er den samme på sidene for forholdet, vederlaget og
+  fristen. Sidene viser ulike brev: siden for forholdet viser alle brevene i saken, og siden for et
+  krav brevene i sitt spor (oppdragsgiver 13.11, [#1065](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6861711203)). Partene skilles med form, ikke med farge: BH har
   fylt ring og TE åpen ring. Beskrivelsen og begrunnelsen kan være flere sider, så tråden viser
   de første tre linjene, og hele teksten står i brevet bak «Les brevet».
   Samme form gjelder der et krav måles mot et svar: kravet er åpent og det godkjente fylt, på samme
@@ -398,8 +400,8 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   (#1646).
 - **Panelet til venstre** har sakens kode over tittelen, og sporene i to grupper:
   «Kontraktsforhold» med forholdet og «Krav» med vederlagsjusteringen og fristforlengelsen.
-  Navnene står uten linje under; betegnelsen og siste brev står på siden for sporet
-  (#1631).
+  Under navnet står det løsningen vet om sporet: om et svar er registrert eller godtatt, og siste
+  brev eller akseptfristen, som i panel B. Betegnelsen står på siden for sporet (#1631).
 - **Topplinja** har stien «Varden › prosjektet › saken», med sakens kode, og den innloggede
   med initialene og navnet. Rollen står ikke der (#1631).
 - **En melding om prøven**, som at et svar ikke kan gis i Varden, har ikon og en kant i
