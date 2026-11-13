@@ -17,7 +17,7 @@ import type { Fristutregning, Hjemmel, Krav, Standpunkt, Standpunktsart } from '
 
 /** Standpunktene i svaret på fristkravet, etter `STANDPUNKTER_I_SPORET`. */
 export const STANDPUNKTER_I_FRISTEN: { art: Standpunktsart; paakrevd: boolean }[] = [
-  // § 33.4, så § 33.6.2 (VS-U17). Én for hver hjemmel (`leser.ts`).
+  // § 33.4, så § 33.6.2 (VS-U17). Én for hver hjemmel (`kontrollerHjemleneIFristen`).
   { art: 'rettidighet', paakrevd: false },
   { art: 'rettidighet', paakrevd: false },
   { art: 'hindring', paakrevd: false },

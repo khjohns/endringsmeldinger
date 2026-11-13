@@ -55,6 +55,8 @@ type Data = Record<string, unknown>;
  * `HJEMMEL`. `subsidiaertVerdi`: feltet i utregningen som står når, og bare når,
  * `subsidiaert_resultat` står, eller `null` når sporet ikke har det subsidiære i utregningen.
  * `standpunkt`: et standpunkt av en art bare sporet har, eller `null` for en annen art.
+ * `kontrollerHjemlene`: hjemlene i rettidigheten, i rekkefølgen svaret har dem, etter at hvert
+ * standpunkt er lest og før det kontrolleres at de påkrevde standpunktene står.
  * `innsigelserMotPosten`: standpunktene som er innsigelser som rammer bare posten, og som
  * tillater et upåvirket standpunkt ved siden av seg (OV-U33).
  */
