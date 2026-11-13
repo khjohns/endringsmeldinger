@@ -1009,6 +1009,10 @@ const MUTASJONER: Mutasjon[] = [
         '    ...s.standpunkter.filter(harTekst).map((p) => {',
         "    ...s.standpunkter.filter(harTekst).filter((p) => virkning.get(p.id) !== 'uten_virkning').map((p) => {",
       ],
+      [
+        '  for (const p of s.standpunkter.filter(harTekst)) {',
+        "  for (const p of s.standpunkter.filter(harTekst).filter((p) => virkning.get(p.id) !== 'uten_virkning')) {",
+      ],
     ],
     mal: ['et standpunkt appen regner som uten virkning', 'gir byggherren innsigelsen opp'],
   },
@@ -1249,6 +1253,10 @@ const MUTASJONER: Mutasjon[] = [
       [
         '  return `${VARSELET[p.hjemmel]} i ',
         "  return `${VARSELET[p.hjemmel === '32.2' ? '33.4' : '32.2']} i ",
+      ],
+      [
+        'const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ',
+        "const omVarselet = `${VARSELET_I_SVARET[p.hjemmel === '32.2' ? '34.1.2' : '32.2']} i ",
       ],
     ],
     mal: [
@@ -3128,6 +3136,10 @@ const MUTASJONER: Mutasjon[] = [
       [
         '  const forskyvning = forholdet.length;',
         '  const forskyvning = forholdet.length ? 1 : 0;',
+      ],
+      [
+        '    return { forskyvning: grunner.length, ledd: [], henvisninger };',
+        '    return { forskyvning: grunner.length ? 1 : 0, ledd: [], henvisninger };',
       ],
     ],
     mal: ['forholdet prekludert og avslått subsidiært i samme brev'],
