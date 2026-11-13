@@ -32,6 +32,12 @@ oppdragsgiver.
   En *post* er en rad i [vedtaksregisteret](../../../docs/vedtaksregister/README.md), og
   *vedtak* er klassen. Hver post har en klasse, og feltene for delene og det andre hjemmet
   står i [registeret](../../../docs/vedtaksregister/README.md#klassen).
+- **Brevtekstene.** Det prinsipielle budskapet i en brevtekst står i vedtaket. Den
+  konkrete ordlyden er design eller beslutning, for eksempel om det første laget har
+  lagslinjen «Prinsipalt». Et spørsmål om ordlyden stilles derfor ikke som et juridisk
+  spørsmål og føres ikke som vedtak. Oppdragsgiver 13.11, ordrett: «det prinsipielle
+  budskapet fremgår av vedtak. Konkret ordlyd er derimot design eller beslutning, feks om
+  prinsipalt skrives eller ikke.» (#1433)
 - **Hvem som retter klassen.** Klassen er en arbeidsvurdering. Orkestratoren kan rette den,
   men bare etter at en subagent eller en egen økt har kontrollert rettingen uavhengig,
   etter testen over. Rettingen føres i issuet med resultatet av kontrollen. Det samme
