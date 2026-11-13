@@ -393,6 +393,36 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .catenda{padding:0 4px;font-size:14px}
 .akseptfrist{font-size:14px;color:var(--ink-2)}
 .akseptfrist b{color:var(--ink);font-weight:600}
+/* Tråden (forsøk A 13.11, fra grunnlagsoversikt-v2.html): brevene og datoene i én liste */
+.traad-hode{align-items:center}
+.traad{list-style:none;margin:8px 0 0;padding:0 0 8px;position:relative}
+.innlegg{position:relative;padding:12px 20px 12px 68px;display:flex;flex-direction:column;gap:8px}
+.innlegg + .innlegg{border-top:1px solid var(--rule-subtle-color)}
+.innlegg::before{content:"";position:absolute;left:35px;top:0;bottom:0;border-left:1px solid var(--rule-strong-color)}
+.innlegg:first-child::before{top:20px}
+.innlegg:last-child::before{bottom:auto;height:20px}
+.part{position:absolute;left:20px;top:12px;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--ink);background:var(--surface);display:grid;place-items:center;font-size:12px;font-weight:600;letter-spacing:.02em;z-index:1}
+.part.bh{background:var(--ink);color:var(--surface)}
+.rad{display:grid;grid-template-columns:6.5rem minmax(0,1fr) auto;gap:2px 16px;align-items:start;min-height:32px}
+.rad .dato{color:var(--ink-2);white-space:nowrap;line-height:24px}
+.rad h3{font-size:16px;font-weight:600;min-width:0}
+.rad .meta{font-size:12px;line-height:24px;color:var(--ink-3);white-space:nowrap}
+.rad .tittel{all:unset;cursor:pointer;line-height:24px}
+.rad .tittel:hover{text-decoration:underline;text-underline-offset:3px}
+.rad .tittel:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.rad .fulgt{font-weight:400;color:var(--ink-3)}
+.innlegg .innhold{padding-left:calc(6.5rem + 16px);display:flex;flex-direction:column;gap:8px}
+.leselinje{font-size:16px;font-weight:500}
+.leselinje.dempet{color:var(--ink-2);font-weight:400}
+.datolinje{font-size:14px;color:var(--ink-2)}
+.innlegg .filer{display:flex;flex-wrap:wrap;gap:8px}
+.innlegg.eldre .rad h3{color:var(--ink-2);font-weight:500}
+.innlegg.kompakt{padding-top:8px;padding-bottom:8px}
+.innlegg.kompakt .part{top:9px;width:24px;height:24px;left:24px;font-size:10px}
+.innlegg.kompakt .rad h3{font-size:14px;font-weight:500;color:var(--ink-2)}
+.innlegg.kompakt .rad .dato{font-size:14px;color:var(--ink-3)}
+@media (max-width:720px){.rad{grid-template-columns:minmax(0,1fr) auto;gap:0 12px}.rad .dato{grid-column:1/3;font-size:12px;color:var(--ink-3)}.innlegg .innhold{padding-left:0}}
+@media (max-width:560px){.innlegg{padding-left:56px;padding-right:16px}.part{left:12px}.innlegg::before{left:27px}.innlegg.kompakt .part{left:16px}}
 </style>
 </head>
 <body>
@@ -575,28 +605,52 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
             </div>
           </section>
 
-          <section class="kort brevkort" aria-labelledby="brev-tittel">
-            <div class="kort-hode" style="padding-bottom:8px">
-              <h2 id="brev-tittel">Brevene</h2>
-              <span class="kilde">3 brev · 1 e-post</span>
-            </div>
-            <ul class="brevliste kun-regning-blokk" data-spor="U-5">
-              <li><span class="nr">Brev 6</span><span class="t">Svar på krav om vederlagsjustering<span class="m">Byggherren · 27. oktober 2026 · godkjenner regningsarbeid</span></span><button class="lenke" type="button">Les brevet</button></li>
-              <li><span class="nr">E-post</span><span class="t">E-post fra byggherren <span class="merke-reg">Dokumentasjon</span><span class="m">Sendt 22. oktober 2026 som e-post, ifølge byggherren · lagt til av Ola Nordmann 23. oktober</span></span><button class="lenke" type="button">Les brevet</button><span class="filer"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Avklaring om mengdene i akse C–F.pdf</span><span class="fm">PDF · 96 kB</span></a></span></li>
-              <li><span class="nr">Brev 5</span><span class="t">Kostnadsoverslag<span class="m">Totalentreprenøren · 20. oktober 2026 · punkt 30.2</span></span><button class="lenke" type="button">Les brevet</button>
-                <span class="filer"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Kostnadsoverslag peling.pdf</span><span class="fm">PDF · 640 kB</span></a></span></li>
-              <li><span class="nr">Brev 3</span><span class="t">Varsel før regningsarbeid og krav om vederlagsjustering<span class="m">Totalentreprenøren · 6. oktober 2026 · punkt 34.4 · ingen vedlegg</span></span><button class="lenke" type="button">Les brevet</button></li>
-            </ul>
-            <div class="legg-til kun-regning-blokk"><button class="lenke" type="button">Legg til korrespondanse</button><span>Brev, e-post, møtereferat eller notat som er sendt utenfor Varden.</span></div>
-            <ul class="brevliste kun-fast-blokk" data-spor="U-5 · U-9 · U-12">
-              <li><span class="nr">Brev 6</span><span class="t">Svar på krav om vederlagsjustering<span class="m">Byggherren · 27. oktober 2026 · Kari Nordmann, godkjent med fullmakt</span></span><button class="lenke" type="button">Les brevet</button>
-                <span class="filer" aria-label="Vedlegg til brev 6"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Gjennomgang av kalkylen.pdf</span><span class="fm">PDF · 412 kB</span></a><span class="fil ventende"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Mengdekontroll akse C–F.xlsx</span><span class="fm">Ikke levert til Catenda ennå</span></span></span></li>
-              <li><span class="nr">E-post</span><span class="t">E-post fra byggherren <span class="merke-reg" data-spor="D-7">Dokumentasjon</span><span class="m">Sendt 22. oktober 2026 som e-post, ifølge byggherren · lagt til av Ola Nordmann 23. oktober</span></span><button class="lenke" type="button">Les brevet</button><span class="filer"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Avklaring om mengdene i akse C–F.pdf</span><span class="fm">PDF · 96 kB</span></a></span></li>
-              <li><span class="nr">Brev 5</span><span class="t">Krav om vederlagsjustering<span class="m">Totalentreprenøren · 20. oktober 2026 · <span class="num">190 000 kr</span> · med varsel etter punkt 34.1.3</span></span><button class="lenke" type="button">Les brevet</button>
-                <span class="filer" aria-label="Vedlegg til brev 5" data-spor="D-8"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Kalkyle peling.pdf</span><span class="fm">PDF · 1,2 MB</span></a><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Produktivitetsberegning.xlsx</span><span class="fm">Excel · 86 kB</span></a></span></li>
-              <li><span class="nr">Brev 3</span><span class="t">Krav om vederlagsjustering<span class="m">Totalentreprenøren · 6. oktober 2026 · <span class="num">125 000 kr</span> · med varsel etter punkt 34.1.2 · ingen vedlegg</span></span><button class="lenke" type="button">Les brevet</button></li>
-            </ul>
-            <div class="legg-til kun-fast-blokk"><button class="lenke" type="button">Legg til korrespondanse</button><span>Brev, e-post, møtereferat eller notat som er sendt utenfor Varden.</span></div>
+          <section class="kort traadkort" aria-labelledby="traad-tittel" data-spor="U-5 · U-8 · U-9">
+            <div class="kort-hode traad-hode"><h2 id="traad-tittel">Brevene, nyeste først</h2><button class="lenke" type="button">Legg til korrespondanse</button></div>
+            <ol class="traad kun-fast-blokk">
+              <li class="innlegg">
+                <span class="part bh" aria-hidden="true">BH</span>
+                <div class="rad"><span class="dato num">27. okt. 2026</span><h3><button class="tittel" type="button">Svar på krav om vederlagsjustering</button></h3><span class="meta"><span class="nr num">brev 6</span></span></div>
+                <div class="innhold"><p class="datolinje">Godkjent med fullmakt av Kari Nordmann. Sendt kl. 11.05.</p><span class="filer" aria-label="Vedlegg til brev 6"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Gjennomgang av kalkylen.pdf</span><span class="fm">PDF · 412 kB</span></a><span class="fil ventende"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Mengdekontroll akse C–F.xlsx</span><span class="fm">Ikke levert til Catenda ennå</span></span></span></div>
+              </li>
+              <li class="innlegg kompakt" data-spor="D-7">
+                <span class="part bh" aria-hidden="true">BH</span>
+                <div class="rad"><span class="dato num">22. okt. 2026</span><h3><button class="tittel" type="button">Avklaring om mengdene i akse C–F</button></h3><span class="meta"><span>E-post · ifølge byggherren</span></span></div>
+                <div class="innhold"><p class="datolinje">Lagt til av Ola Nordmann 23. oktober 2026.</p><span class="filer"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Avklaring om mengdene i akse C–F.pdf</span><span class="fm">PDF · 96 kB</span></a></span></div>
+              </li>
+              <li class="innlegg">
+                <span class="part " aria-hidden="true">TE</span>
+                <div class="rad"><span class="dato num">20. okt. 2026</span><h3><button class="tittel" type="button">Krav om vederlagsjustering</button></h3><span class="meta"><span class="nr num">brev 5</span></span></div>
+                <div class="innhold"><p class="leselinje" data-spor="U-12"><span class="num">190 000 kr</span>, med varsel etter punkt 34.1.3.</p><span class="filer" aria-label="Vedlegg til brev 5" data-spor="D-8"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Kalkyle peling.pdf</span><span class="fm">PDF · 1,2 MB</span></a><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Produktivitetsberegning.xlsx</span><span class="fm">Excel · 86 kB</span></a></span></div>
+              </li>
+              <li class="innlegg eldre">
+                <span class="part " aria-hidden="true">TE</span>
+                <div class="rad"><span class="dato num">6. okt. 2026</span><h3><button class="tittel" type="button">Krav om vederlagsjustering <span class="fulgt">· fulgt opp i brev 5</span></button></h3><span class="meta"><span class="nr num">brev 3</span></span></div>
+                <div class="innhold"><p class="leselinje dempet"><span class="num">125 000 kr</span>, med varsel etter punkt 34.1.2.</p><p class="datolinje" data-spor="U-8">Klar over forholdet 12. september 2026, ifølge totalentreprenøren i brev 2. <span class="num">24</span> kalenderdager til varselet i dette brevet.</p></div>
+              </li>
+            </ol>
+            <ol class="traad kun-regning-blokk">
+              <li class="innlegg">
+                <span class="part bh" aria-hidden="true">BH</span>
+                <div class="rad"><span class="dato num">27. okt. 2026</span><h3><button class="tittel" type="button">Svar på krav om vederlagsjustering</button></h3><span class="meta"><span class="nr num">brev 6</span></span></div>
+                <div class="innhold"><p class="datolinje">Godkjenner regningsarbeid. Sendt kl. 11.05.</p></div>
+              </li>
+              <li class="innlegg kompakt">
+                <span class="part bh" aria-hidden="true">BH</span>
+                <div class="rad"><span class="dato num">22. okt. 2026</span><h3><button class="tittel" type="button">Avklaring om mengdene i akse C–F</button></h3><span class="meta"><span>E-post · ifølge byggherren</span></span></div>
+                <div class="innhold"><p class="datolinje">Lagt til av Ola Nordmann 23. oktober 2026.</p><span class="filer"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Avklaring om mengdene i akse C–F.pdf</span><span class="fm">PDF · 96 kB</span></a></span></div>
+              </li>
+              <li class="innlegg">
+                <span class="part " aria-hidden="true">TE</span>
+                <div class="rad"><span class="dato num">20. okt. 2026</span><h3><button class="tittel" type="button">Kostnadsoverslag</button></h3><span class="meta"><span class="nr num">brev 5</span></span></div>
+                <div class="innhold"><p class="leselinje"><span class="num">160 000 kr</span> (punkt 30.2).</p><span class="filer"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Kostnadsoverslag peling.pdf</span><span class="fm">PDF · 640 kB</span></a></span></div>
+              </li>
+              <li class="innlegg">
+                <span class="part " aria-hidden="true">TE</span>
+                <div class="rad"><span class="dato num">6. okt. 2026</span><h3><button class="tittel" type="button">Varsel før regningsarbeid og krav om vederlagsjustering</button></h3><span class="meta"><span class="nr num">brev 3</span></span></div>
+                <div class="innhold"><p class="leselinje">Varsel etter punkt 34.4.</p><p class="datolinje">Klar over forholdet 12. september 2026, ifølge totalentreprenøren i brev 2. <span class="num">24</span> kalenderdager til varselet i dette brevet.</p></div>
+              </li>
+            </ol>
           </section>
 
         </div>
@@ -644,23 +698,6 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                 </ul>
               </div>
             </div>
-          </section>
-
-          <section class="kort datoer" aria-labelledby="dato-tittel" data-spor="U-8">
-            <div class="kort-hode" style="padding-bottom:12px"><h2 id="dato-tittel">Datoene</h2></div>
-            <ol class="kun-regning-blokk">
-              <li class="oppgitt"><span class="d">12. september 2026</span><span class="h">Klar over forholdet</span><span class="k">Oppgitt av TE i brev 2</span></li>
-              <li><span class="d">6. oktober 2026</span><span class="h">Varsel før regningsarbeid (punkt 34.4) og krav</span><span class="k">Brev 3 sendt av TE kl. 14.12</span></li>
-              <li><span class="d">20. oktober 2026</span><span class="h">Kostnadsoverslag (punkt 30.2)</span><span class="k">Brev 5 sendt av TE kl. 09.40</span></li>
-              <li><span class="d">27. oktober 2026</span><span class="h">Svar: regningsarbeid godkjent</span><span class="k">Brev 6 sendt av BH kl. 11.05</span></li>
-            </ol>
-            <ol class="kun-fast-blokk">
-              <li class="oppgitt"><span class="d">12. september 2026</span><span class="h">Klar over forholdet</span><span class="k">Oppgitt av TE i brev 2</span></li>
-              <li><span class="d">6. oktober 2026</span><span class="h">Varsel etter punkt 34.1.2 og krav</span><span class="k">Brev 3 sendt av TE kl. 14.12</span></li>
-              <li><span class="d">20. oktober 2026</span><span class="h">Varsel etter punkt 34.1.3 og nytt krav</span><span class="k">Brev 5 sendt av TE kl. 09.40</span></li>
-              <li><span class="d">27. oktober 2026</span><span class="h">Svar fra byggherren</span><span class="k">Brev 6 sendt av BH kl. 11.05</span></li>
-            </ol>
-            <p class="avstand kun-fast-blokk"><span class="num">24</span> kalenderdager fra datoen totalentreprenøren oppgir til varselet etter punkt 34.1.2.</p>
           </section>
 
           <p class="catenda" data-spor="U-15"><a class="lenke" href="https://catenda.example/">Åpne saken i Catenda</a></p>

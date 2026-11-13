@@ -49,6 +49,11 @@
       "dato": "2026-11-13",
       "forhold": "#1402",
       "hva": "Svarene 13.11 (A på 1–9) er ført som U-10–U-15, og prototypen v3 med klikkstiene er lagt til."
+    },
+    {
+      "dato": "2026-11-13",
+      "forhold": "#1402",
+      "hva": "Brevene og datoene står i én tråd (forsøk A etter grunnlagsoversikt-v2.html)."
     }
   ],
   "prototype": {
@@ -76,7 +81,7 @@
             "staar": "Godta svaret"
           },
           {
-            "staar": "E-post fra byggherren"
+            "staar": "Avklaring om mengdene i akse C–F"
           }
         ]
       },
