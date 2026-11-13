@@ -126,8 +126,8 @@ export const brevITraaden = (brev: Brevet[], spor: Spor): Brevet[] =>
  * Brevet med neste versjon av kravet i samme spor, etter ID-en til brevet med den tidligere
  * versjonen. Tråden viser et eldre krav dempet med «fulgt opp i brev 5» (U-5 i BF-44).
  */
-export function oppfoelgingene(u: Utledning): Map<string, Brevref> {
-  const brev = new Map(brevene(u).map((b) => [b.id, b]));
+export function oppfoelgingene(u: Utledning, alle: Brevet[]): Map<string, Brevref> {
+  const brev = new Map(alle.map((b) => [b.id, b]));
   const ut = new Map<string, Brevref>();
   for (const s of ['forhold', 'vederlag', 'frist'] as const) {
     const krav = u.spor[s].krav;

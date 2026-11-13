@@ -15,7 +15,7 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import type { Brevet, Brevref, Innlegget } from './lesing';
-  import { FORHOLDET, TRAADEN, dato, kortDato } from './tekster';
+  import { FORHOLDET, TRAADEN, dato, kortDatoMedAar } from './tekster';
 
   let {
     brev,
@@ -65,7 +65,6 @@
   const uid = $props.id();
 
   const nyestFoerst = $derived(brev.map((b, n) => ({ b, n })).reverse());
-  const aar = (d: string) => d.slice(0, 4);
 </script>
 
 <div class="traadhode">
@@ -84,20 +83,20 @@
     {@const fulgt = fulgtOpp.get(b.id)}
     {@const hva = TRAADEN.hva(b)}
     {@const valgt = vist === b.id}
+    {@const tilHoeyre = valgt && !smal}
     {@const datoen = registrert ? (b.sendt ?? b.registrert) : b.registrert}
     <li
       class="innlegg"
       class:kompakt={registrert}
       class:eldre={!!fulgt}
-      class:valgt={valgt && !smal}
-      aria-current={valgt && !smal ? 'true' : undefined}
+      class:valgt={tilHoeyre}
+      aria-current={tilHoeyre ? 'true' : undefined}
     >
       <!-- Partene skilles med form: BH har fylt ring, TE åpen (oppdragsgiver 06.11, #1646). -->
       <span class="part" class:bh={b.avsender === 'BH'} aria-hidden="true">{b.avsender}</span>
       <div class="rad">
         <span class="dato"
-          ><span class="lang">{dato(datoen)}</span><span class="kort"
-            >{kortDato(datoen)} {aar(datoen)}</span
+          ><span class="lang">{dato(datoen)}</span><span class="kort">{kortDatoMedAar(datoen)}</span
           ></span
         >
         <h3 id={`${uid}-${b.id}`}>
@@ -115,7 +114,7 @@
             <Infotips navn={FORHOLDET.omKorrigeringen} tekst={FORHOLDET.avgjoerIkke} />
           {/if}
           {#if b.avsnitt}
-            {#if valgt && !smal}
+            {#if tilHoeyre}
               <span class="vises">{TRAADEN.vises}</span>
             {:else}
               <Knapp

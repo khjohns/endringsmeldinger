@@ -23,6 +23,7 @@
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import { aksepten } from './kommandoer';
+  import { medietreff } from './medie.svelte';
   import {
     betegnelsene,
     brevene,
@@ -74,7 +75,8 @@
   const uid = $props.id();
 
   const part = $derived(kjernesak.part as Part);
-  const sporbrev = $derived(brevene(u).filter((b) => b.spor.includes(spor)));
+  const alleBrev = $derived(brevene(u));
+  const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes(spor)));
   const siste = $derived(sporbrev.at(-1) ?? null);
   const iSporet = $derived(handlingerISporet(kjernesak.tilbudte, spor));
   const noekler = $derived(iSporet.map((h) => h.noekkel));
@@ -85,18 +87,10 @@
   const vist = $derived(kanGodta && svarbrevet ? svarbrevet : siste);
   const oversikt = $derived(spor === 'forhold');
   // Under 1181 px står brevet i raden i tråden, og ellers i høyre kolonne (U-16 i BF-44).
-  let smal = $state(false);
-  $effect(() => {
-    if (typeof matchMedia !== 'function') return;
-    const mq = matchMedia('(max-width: 1180px)');
-    smal = mq.matches;
-    const endret = () => (smal = mq.matches);
-    mq.addEventListener('change', endret);
-    return () => mq.removeEventListener('change', endret);
-  });
+  const smalt = medietreff('(max-width: 1180px)');
+  const smal = $derived(smalt.treff);
   // Brevet brukeren valgte å lese. I høyre kolonne står det siste brevet med tekst fra start.
   let lest = $state<string | null>(null);
-  const alleBrev = $derived(brevene(u));
   const visesId = $derived(
     lest ?? (smal ? null : (alleBrev.findLast((b) => b.avsnitt !== null)?.id ?? null))
   );
@@ -255,17 +249,11 @@
 {#snippet primaerknapp(p: string, beskrevetAv: string | undefined)}
   {@const tekst =
     innsigelsestekst(p) ?? BREVTYPER.find((b) => b.type === handlingen(p)!.type)!.tekst}
-  {#if primaerBygget}
-    <Knapp variant="primaer" onclick={() => velg(p)} aria-describedby={beskrevetAv}
-      >{tekst}<ChevronRight size={16} aria-hidden="true" /></Knapp
-    >
-  {:else}
-    <Knapp
-      variant="primaer"
-      onclick={() => (primaerIkkeBygget = true)}
-      aria-describedby={beskrevetAv}>{tekst}<ChevronRight size={16} aria-hidden="true" /></Knapp
-    >
-  {/if}
+  <Knapp
+    variant="primaer"
+    onclick={() => (primaerBygget ? velg(p) : (primaerIkkeBygget = true))}
+    aria-describedby={beskrevetAv}>{tekst}<ChevronRight size={16} aria-hidden="true" /></Knapp
+  >
 {/snippet}
 
 {#snippet ikkeBygget()}
@@ -313,14 +301,12 @@
 {/snippet}
 
 {#snippet lestBrevet(b: Brevet)}
-  {#if b.avsnitt}
-    <Brevpanel brev={{ ...b, avsnitt: b.avsnitt }} sak={kjernesak.saksbilde?.tittel ?? ''} iRaden />
-  {/if}
+  <Brevpanel brev={b} sak={kjernesak.saksbilde?.tittel ?? ''} iRaden />
 {/snippet}
 
-{#if oversikt}
-  <Arbeidsflate leser>
-    {#snippet hoved()}
+<Arbeidsflate leser={oversikt}>
+  {#snippet hoved()}
+    {#if oversikt}
       <Forholdsoversikt
         {u}
         betegnelser={betegnelsene(kjernesak.saksbilde)}
@@ -330,7 +316,7 @@
         {onspor}
         {korrigerbare}
         {onkorriger}
-        handlingVed={primaer || godtaVedBrevet ? handlingVed : null}
+        {handlingVed}
         handling={vedBrevet}
         brevet={lestBrevet}
       />
@@ -340,51 +326,42 @@
           {@render nySaklenke()}
         </section>
       {/if}
-    {/snippet}
-    {#snippet hoeyre()}
+    {:else if vist}
+      <div class="linje">
+        <h2 id={`${uid}-brevtittel`} tabindex="-1">
+          {brevhode(vist)}
+          <span class="dempet">
+            · {vist.avsender} · {vist.avsender === part || vist.sendt ? 'sendt' : 'mottatt'}
+            {dato(vist.sendt ?? vist.registrert)}</span
+          >
+        </h2>
+      </div>
+      {#if vist.avsnitt}
+        <Brev
+          avsender={vist.avsender}
+          sak={kjernesak.saksbilde?.tittel ?? ''}
+          merking={vist.merking}
+          deresRef={vist.deresRef}
+          dato={dato(vist.registrert)}
+          tittel={brevtittel(vist)}
+          avsnitt={vist.avsnitt}
+          sendt={vist.registrert}
+        >
+          {#snippet fot()}{MOTTATT.sendt(vist.registrert)}{/snippet}
+        </Brev>
+      {/if}
+    {:else}
+      <p class="tomt">{MOTTATT.ingenBrev}</p>
+    {/if}
+  {/snippet}
+  {#snippet hoeyre()}
+    {#if oversikt}
       {#if visesBrev && !smal}
         {#key visesBrev.id}
-          <Brevpanel
-            brev={{ ...visesBrev, avsnitt: visesBrev.avsnitt! }}
-            sak={kjernesak.saksbilde?.tittel ?? ''}
-          />
+          <Brevpanel brev={visesBrev} sak={kjernesak.saksbilde?.tittel ?? ''} />
         {/key}
       {/if}
-    {/snippet}
-  </Arbeidsflate>
-{:else}
-  <Arbeidsflate>
-    {#snippet hoved()}
-      {#if vist}
-        <div class="linje">
-          <h2 id={`${uid}-brevtittel`} tabindex="-1">
-            {brevhode(vist)}
-            <span class="dempet">
-              · {vist.avsender} · {vist.avsender === part || vist.sendt ? 'sendt' : 'mottatt'}
-              {dato(vist.sendt ?? vist.registrert)}</span
-            >
-          </h2>
-        </div>
-        {#if vist.avsnitt}
-          <Brev
-            avsender={vist.avsender}
-            sak={kjernesak.saksbilde?.tittel ?? ''}
-            merking={vist.merking}
-            deresRef={vist.deresRef}
-            dato={dato(vist.registrert)}
-            tittel={brevtittel(vist)}
-            avsnitt={vist.avsnitt}
-            sendt={vist.registrert}
-          >
-            {#snippet fot()}{MOTTATT.sendt(vist.registrert)}{/snippet}
-          </Brev>
-        {/if}
-      {:else}
-        <p class="tomt">{MOTTATT.ingenBrev}</p>
-      {/if}
-    {/snippet}
-
-    {#snippet hoeyre()}
+    {:else}
       {#if menyvalg.length || harPrimaer}
         <section class="kort handlinger" aria-labelledby={`${uid}-handlinger`}>
           <h2 id={`${uid}-handlinger`}>{FORHOLDET.handlinger}</h2>
@@ -402,9 +379,9 @@
       {/if}
       {@render nySaklenke()}
       <Tidslinje brev={sporbrev} datoer={datoerISporet(u, spor)} />
-    {/snippet}
-  </Arbeidsflate>
-{/if}
+    {/if}
+  {/snippet}
+</Arbeidsflate>
 
 <style>
   .linje {

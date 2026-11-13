@@ -54,6 +54,8 @@
 
   const alle = $derived(brevene(u));
   const traad = $derived(brevITraaden(alle, 'forhold'));
+  const innlegg = $derived(innleggene(u));
+  const fulgtOpp = $derived(oppfoelgingene(u, alle));
   const forholdsbrev = $derived(alle.filter((b) => b.spor.includes('forhold')));
   const forholdet = $derived(forholdetISaken(u));
   const siste = $derived(forholdsbrev.at(-1) ?? null);
@@ -86,8 +88,8 @@
   <Brevtraad
     brev={traad}
     spor="forhold"
-    innlegg={innleggene(u)}
-    fulgtOpp={oppfoelgingene(u)}
+    {innlegg}
+    {fulgtOpp}
     dokumentasjon={u.ikkeVurderteBrev}
     venterPaaSvar={merke === 'venter_paa_svar'}
     {vist}

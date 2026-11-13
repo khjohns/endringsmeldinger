@@ -91,6 +91,14 @@ const KLOKKE = new Intl.DateTimeFormat('nb-NO', {
 export const dato = (d: string) =>
   DATO.format(new Date(/^\d{4}-\d{2}-\d{2}$/.test(d) ? `${d}T12:00:00Z` : d));
 export const kortDato = (d: string) => KORT.format(new Date(d));
+const KORT_AAR = new Intl.DateTimeFormat('nb-NO', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'Europe/Oslo',
+});
+/** «1. okt. 2026», for datoen i en smal rad. */
+export const kortDatoMedAar = (d: string) => KORT_AAR.format(new Date(d));
 export const klokke = (d: string) => KLOKKE.format(new Date(d)).replace(':', '.');
 
 /** Kalenderdagene fra `fra` til `til`, regnet på datoene i Oslo. Ingen vurdering av fristen. */
@@ -552,17 +560,7 @@ export const FORHOLDET = {
   utenNavn: 'Forholdet',
   siste: (b: Brevref, part: Part) =>
     `Siste brev: ${brevrefFra(b, part)}${b.nummer === null ? '' : `, ${dato(b.registrert)}`}.`,
-  traad: 'Brevene om forholdet',
-  tittel: (b: Pick<Brevet, 'nummer' | 'art' | 'brevtittel'>) =>
-    b.nummer === null ? brevtittel(b) : `Brev ${b.nummer} · ${brevtittel(b)}`,
   registrertTittel: (part: Part) => `Korrespondanse fra ${PARTNAVN[part]}`,
-  dokumentasjon: 'Dokumentasjon',
-  sendtHerfra: (part: Part, d: string) => `${stor(PARTNAVN[part])} · ${dato(d)}`,
-  sendtIfoelge: (part: Part, sendt: string, registrert: string) =>
-    `Sendt ${dato(sendt)}, ifølge ${PARTNAVN[part]} · lagt til ${dato(registrert)}`,
-  lagtTil: (part: Part, registrert: string) =>
-    `Fra ${PARTNAVN[part]} · lagt til ${dato(registrert)}`,
-  lesBrevet: 'Les brevet',
   tilbake: 'Tilbake til forholdet',
   svarIkkeRegistrert: 'Svar ikke registrert.',
   trukket: (b: Brevref | null) =>

@@ -13,7 +13,8 @@
     sak,
     iRaden = false,
   }: {
-    brev: Brevet & { avsnitt: NonNullable<Brevet['avsnitt']> };
+    /** Brevet med teksten slik den ble frosset. Et registrert brev har ingen, og vises ikke. */
+    brev: Brevet;
     /** Sakens tittel, som brevhodet viser. */
     sak: string;
     /** Brevet står i raden i tråden, under 1181 px. */
@@ -22,37 +23,39 @@
   const uid = $props.id();
 </script>
 
-<!-- Rammen kan rulles, så den kan få fokus med tastaturet (WCAG 2.1.1). -->
-<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-<section
-  class="brevpanel"
-  class:iRaden
-  tabindex="0"
-  aria-labelledby={`${uid}-tittel`}
-  data-brevpanel={brev.id}
->
-  {#if !iRaden}
-    <div class="hode">
-      <h2 id={`${uid}-tittel`}>{TRAADEN.brevet}</h2>
-      {#if brev.nummer !== null}<span>{TRAADEN.nummer(brev.nummer)}</span>{/if}
-    </div>
-  {:else}
-    <h2 id={`${uid}-tittel`} class="visually-hidden">{TRAADEN.brevetSomSendt(brev)}</h2>
-  {/if}
-  <Brev
-    avsender={brev.avsender}
-    {sak}
-    merking={brev.merking}
-    deresRef={brev.deresRef}
-    dato={dato(brev.registrert)}
-    tittel={brevtittel(brev)}
-    avsnitt={brev.avsnitt}
-    sendt={brev.registrert}
-    innfelt
+{#if brev.avsnitt}
+  <!-- Rammen kan rulles, så den kan få fokus med tastaturet (WCAG 2.1.1). -->
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+  <section
+    class="brevpanel"
+    class:iRaden
+    tabindex="0"
+    aria-labelledby={`${uid}-tittel`}
+    data-brevpanel={brev.id}
   >
-    {#snippet fot()}{MOTTATT.sendt(brev.registrert)}{/snippet}
-  </Brev>
-</section>
+    {#if !iRaden}
+      <div class="hode">
+        <h2 id={`${uid}-tittel`}>{TRAADEN.brevet}</h2>
+        {#if brev.nummer !== null}<span>{TRAADEN.nummer(brev.nummer)}</span>{/if}
+      </div>
+    {:else}
+      <h2 id={`${uid}-tittel`} class="visually-hidden">{TRAADEN.brevetSomSendt(brev)}</h2>
+    {/if}
+    <Brev
+      avsender={brev.avsender}
+      {sak}
+      merking={brev.merking}
+      deresRef={brev.deresRef}
+      dato={dato(brev.registrert)}
+      tittel={brevtittel(brev)}
+      avsnitt={brev.avsnitt}
+      sendt={brev.registrert}
+      innfelt
+    >
+      {#snippet fot()}{MOTTATT.sendt(brev.registrert)}{/snippet}
+    </Brev>
+  </section>
+{/if}
 
 <style>
   .brevpanel {

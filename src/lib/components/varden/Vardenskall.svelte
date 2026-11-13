@@ -14,6 +14,7 @@
   import type { Snippet } from 'svelte';
   import osloLogo from '../../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
   import { kontraktFraProsjektet, type Kontrakt } from './kontrakt';
+  import { medietreff } from './medie.svelte';
   import { SAKEN, initialer } from './tekster';
 
   let {
@@ -68,16 +69,8 @@
   });
   // Panelet felles inn fra 1181 px opp til 1900 px på en side med `bred` (U-16 i BF-44). Sporene og
   // sakens tittel står da i topplinja, og bare da, så sporene står ett sted om gangen.
-  let mellombred = $state(false);
-  $effect(() => {
-    if (!bred || typeof matchMedia !== 'function') return;
-    const mq = matchMedia('(min-width: 1181px) and (max-width: 1899px)');
-    mellombred = mq.matches;
-    const endret = () => (mellombred = mq.matches);
-    mq.addEventListener('change', endret);
-    return () => mq.removeEventListener('change', endret);
-  });
-  const panelInne = $derived(innfelt || (bred && mellombred));
+  const mellombred = medietreff('(min-width: 1181px) and (max-width: 1899px)', () => bred);
+  const panelInne = $derived(innfelt || (bred && mellombred.treff));
 
   // Avsenderen nederst har prosjektet og kontraktsformen når kontrakten ikke står over (panel B).
   const fotlinje = $derived.by(() => {

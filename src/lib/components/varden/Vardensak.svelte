@@ -72,8 +72,9 @@
     kontrakt?: Kontrakt;
   } = $props();
   // Serveren gir partsnavnene når driften har satt dem, men ikke kontraktsformen (#1398).
+  const kontrakten = $derived(kontrakt ?? kontraktFraProsjektet());
   settOrganisasjoner(() => {
-    const k = kontrakt ?? kontraktFraProsjektet();
+    const k = kontrakten;
     // Et tomt navn er ikke et navn (#1398), som i kontraktsradene.
     return { BH: k.byggherre || undefined, TE: k.entreprenoer || undefined };
   });
@@ -142,7 +143,7 @@
   });
   // Stien som i prototypen: Varden › prosjektet › saken, med sakens kode (LV-U46).
   const sti = $derived.by((): Smule[] => {
-    const prosjekt = (kontrakt ?? kontraktFraProsjektet()).prosjekt;
+    const prosjekt = kontrakten.prosjekt;
     return [
       { tekst: SAKEN.merkenavn, href: prosjekter },
       ...(prosjekt ? [{ tekst: prosjekt, href: saksliste }] : []),
@@ -164,13 +165,12 @@
     };
     return { forhold: linje('forhold'), vederlag: linje('vederlag'), frist: linje('frist') };
   });
-  const parter = $derived.by(() => {
-    const k = kontrakt ?? kontraktFraProsjektet();
-    return [
-      [SAKEN.entreprenoer, k.entreprenoer],
-      [SAKEN.byggherre, k.byggherre],
-    ].filter((r): r is [string, string] => !!r[1]);
-  });
+  const parter = $derived(
+    [
+      [SAKEN.entreprenoer, kontrakten.entreprenoer],
+      [SAKEN.byggherre, kontrakten.byggherre],
+    ].filter((r): r is [string, string] => !!r[1])
+  );
   const partensLenke = $derived(kjernesak.part === 'TE' ? (nySakLenke ?? null) : null);
 
   function velgSpor(s: Spor) {
