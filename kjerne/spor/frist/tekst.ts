@@ -44,8 +44,7 @@ const fristeneMedDager = (krav: Krav): string =>
  */
 function varselpunkt(t: Tekst): Brevpunkt[] {
   const foer = t.saken.varsletFoer['33.4'];
-  if (foer === undefined && t.nytt.utsagn.some((u) => u.art === 'varsel' && u.hjemmel === '33.4'))
-    return [];
+  if (t.nytt.utsagn.some((u) => u.art === 'varsel' && u.hjemmel === '33.4')) return [];
   return [
     {
       punkt: '33.4',
@@ -126,15 +125,13 @@ const hindringenEtter = (paaberopelse: Krav | null | undefined): string =>
  * Temaene i byggherrens svar i skjemaets rekkefølge (LV-U34, KA-U78, prototypen
  * `fristsvar.html`): varslene, hindringen, spesifiseringen og dagene for hver frist.
  */
-function temaer(krav: Krav, { saken }: Tekst): Tema[] {
+function temaer(krav: Krav): Tema[] {
   return [
     { punkt: 'forholdet', overskrift: 'Forholdet' },
     { punkt: '33.4', overskrift: 'Varselet om fristforlengelse (punkt 33.4)' },
     { punkt: '33.6.2', overskrift: 'Svaret på forespørselen (punkt 33.6.2)' },
-    {
-      punkt: 'hindring',
-      overskrift: `Hindringen (punkt ${hindringenEtter(saken.paaberopelse)})`,
-    },
+    // Bestemmelsen står i teksten, som leser den av påberopelsen svaret gjelder.
+    { punkt: 'hindring', overskrift: 'Hindringen' },
     { punkt: 'spesifisering', overskrift: 'Spesifiseringen av kravet (punkt 33.6.1)' },
     // KA-U74: ett punkt for dagene i hver frist, med fristens `id`.
     ...innholdIFristen(krav).frister.map((f) => ({

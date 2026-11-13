@@ -390,7 +390,7 @@ const VARSELET_33_4_I_TIDE = (n: number) =>
   `${n}. Varselet om fristforlengelse (punkt 33.4)\n\nByggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent.`;
 /** KA-U81: punktet om hindringen når byggherren legger den til grunn, nummer `n`. */
 const HINDRET = (n: number) =>
-  `${n}. Hindringen (punkt 33.1)\n\nByggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet (punkt 33.1).`;
+  `${n}. Hindringen\n\nByggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet (punkt 33.1).`;
 const SPESIFISERING_JA =
   'Byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (punkt 33.6.1).';
 
@@ -1584,7 +1584,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(laast(rad)).toEqual([
       INNLEDNING_FRIST,
       '1. Varselet om fristforlengelse (punkt 33.4)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent.',
-      '2. Hindringen (punkt 33.1)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet (punkt 33.1).',
+      '2. Hindringen\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet (punkt 33.1).',
       '3. Spesifiseringen av kravet (punkt 33.6.1)\n\nByggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (punkt 33.6.1).',
       '4. Dagene for frist Sluttfristen\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 2 ovenfor fører frem\n\nFor frist Sluttfristen godkjenner byggherren 10 dager av de krevde 20 dager.',
       `5. Forbehold\n\n${FORBEHOLDET}`,
@@ -1640,7 +1640,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       '2. Forholdet\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.',
       INNLEDNING_FRIST,
       '3. Varselet om fristforlengelse (punkt 33.4)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at varselet om fristforlengelse etter punkt 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent.',
-      '4. Hindringen (punkt 33.1)\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nByggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet (punkt 33.1).',
+      '4. Hindringen\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nByggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet (punkt 33.1).',
       '5. Spesifiseringen av kravet (punkt 33.6.1)\n\nByggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (punkt 33.6.1).',
       '6. Dagene for frist Sluttfristen\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 4 ovenfor fører frem\n\nFor frist Sluttfristen godkjenner byggherren 10 dager av de krevde 20 dager.',
       '7. Forbehold',

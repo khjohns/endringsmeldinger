@@ -335,10 +335,10 @@ function oversikt(
     .join('\n');
 }
 
-/** Brevteksten i vederlagssporet. */
 /** Kravet i sporet med kontraktens ord (`kravetOm`). */
 const KRAVET_OM = 'justering av vederlaget';
 
+/** Brevteksten i vederlagssporet. */
 export const BREVTEKSTEN_I_VEDERLAGET = {
   navn: 'vederlaget',
   svaretGjelder: `kravet om ${KRAVET_OM}`,
