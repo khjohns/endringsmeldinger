@@ -44,13 +44,13 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { catendaId, uuidMedBindestreker } from './autorisasjon.ts';
 import { catendaFraMiljoe, type CatendaOAuth } from './catenda.ts';
-import { opprettPool, sql, utenKontekst, type Pool } from './datalag.ts';
+import { feilnummer, opprettPool, sql, utenKontekst, type Pool } from './datalag.ts';
+import { erKalenderdato } from '../kjerne/format/skjema.ts';
 import type { Part } from '../kjerne/typer.ts';
 import {
   betegnelse,
   fristtabell,
   STANDARDSATS,
-  type Fristrad,
   type Fristtabell,
   type Satsopplysninger,
 } from './kontraktsfrister.ts';
@@ -146,20 +146,14 @@ async function registrer(pool: Pool, r: Registrering): Promise<Registrert> {
  * også kaller (#879 punkt 5).
  */
 async function kontrollerBytte(pool: Pool, r: Registrering): Promise<void> {
-  try {
-    await utenKontekst(pool)
+  await iDriften(
+    utenKontekst(pool)
       .input('prosjekt', sql.NVarChar(4000), r.prosjekt)
       .input('catenda_prosjekt', sql.UniqueIdentifier, r.catendaProsjekt)
       .input('bibliotek', sql.UniqueIdentifier, r.bibliotek)
-      .execute('koe_drift.kontroller_bytte');
-  } catch (feil) {
-    const { number, message } = feil as { number?: unknown; message?: unknown };
-    if (number === 52066)
-      throw new Registreringsfeil(`${String(message)} (52066).`, {
-        cause: feil,
-      });
-    throw feil;
-  }
+      .execute('koe_drift.kontroller_bytte'),
+    [52066]
+  );
 }
 
 async function settKontraktsteam(
@@ -196,41 +190,39 @@ async function settKontraktsparter(
   prosjekt: string,
   parter: Kontraktsparter
 ): Promise<void> {
-  try {
-    await utenKontekst(pool)
+  await iDriften(
+    utenKontekst(pool)
       .input('prosjekt', sql.NVarChar(4000), prosjekt)
       .input('byggherre', sql.NVarChar(4000), parter.byggherre_navn)
       .input('totalentreprenor', sql.NVarChar(4000), parter.totalentreprenor_navn)
       .input('kontraktsforkortelse', sql.NVarChar(4000), parter.kontraktsforkortelse)
-      .execute('koe_drift.sett_kontraktsparter');
-  } catch (feil) {
-    const { number, message } = feil as { number?: unknown; message?: unknown };
-    if (number === 52043 || number === 52065 || number === 52073 || number === 52074)
-      throw new Registreringsfeil(`${String(message)} (${number}).`, { cause: feil });
-    throw feil;
-  }
+      .execute('koe_drift.sett_kontraktsparter'),
+    [52043, 52065, 52073, 52074]
+  );
 }
 
 const FRISTFEIL = [52073, 52075, 52076, 52077, 52078, 52079, 52080, 52081, 52082, 52083];
 
-async function iDriften<T>(arbeid: Promise<T>): Promise<T> {
+/** Feilene med et nummer i `kjente` blir en `Registreringsfeil` med meldingen fra prosedyren. */
+async function iDriften<T>(arbeid: Promise<T>, kjente: number[]): Promise<T> {
   try {
     return await arbeid;
   } catch (feil) {
-    const { number, message } = feil as { number?: unknown; message?: unknown };
-    if (typeof number === 'number' && FRISTFEIL.includes(number))
-      throw new Registreringsfeil(`${String(message)} (${number}).`, { cause: feil });
+    const nummer = feilnummer(feil);
+    if (nummer !== undefined && kjente.includes(nummer))
+      throw new Registreringsfeil(`${(feil as Error).message} (${nummer}).`, { cause: feil });
     throw feil;
   }
 }
+
+const iFristene = <T>(arbeid: Promise<T>) => iDriften(arbeid, FRISTFEIL);
 
 /** Kontraktssummen og fristene, med satsen regnet ut (`server/kontraktsfrister.ts`). */
 export async function lesFristtabell(pool: Pool, prosjekt: string): Promise<Fristtabell> {
   const svar = await utenKontekst(pool)
     .input('prosjekt', sql.NVarChar(4000), prosjekt)
     .execute('koe_drift.kontraktsfrister');
-  const [sum, rader] = svar.recordsets as unknown as [{ kontraktssum: unknown }[], Fristrad[]];
-  return fristtabell(sum, rader);
+  return fristtabell(svar.recordsets);
 }
 
 export interface NyFrist {
@@ -251,7 +243,7 @@ async function settKontraktsfrist(
   f: NyFrist
 ): Promise<number> {
   const s = f.satsopplysninger;
-  const svar = await iDriften(
+  const svar = await iFristene(
     utenKontekst(pool)
       .input('prosjekt', sql.NVarChar(4000), prosjekt)
       .input('frist_id', sql.Int, fristId)
@@ -308,14 +300,8 @@ function fristId(verdi: string | undefined): number {
   return Number(verdi);
 }
 
-function erDato(verdi: string): boolean {
-  const d = new Date(`${verdi}T00:00:00Z`);
-  return (
-    /^(?!0000)\d{4}-\d{2}-\d{2}$/.test(verdi) &&
-    !isNaN(d.getTime()) &&
-    d.toISOString().startsWith(verdi)
-  );
-}
+/** En kalenderdato SQL Server kan lagre: år 0000 finnes ikke i `date`. */
+const erDato = (verdi: string) => !verdi.startsWith('0000') && erKalenderdato(verdi);
 
 export interface Prosjektteam {
   catendaProsjekt: string;
@@ -430,9 +416,11 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
     options: VALG,
     allowPositionals: true,
   });
-  const [kommando, prosjektArgument, ...resten] = positionals;
-  const handling = kommando === 'kontraktsfrister' ? resten.splice(0, 2) : [];
-  if (resten.length) throw new Registreringsfeil(`Ukjente argumenter: ${resten.join(' ')}`);
+  const [kommando, ...argumenter] = positionals;
+  const [prosjektArgument, ...resten] = argumenter;
+  // `kontraktsfrister` tar handlingen og ID-en etter prosjektet.
+  if (kommando !== 'kontraktsfrister' && resten.length)
+    throw new Registreringsfeil(`Ukjente argumenter: ${resten.join(' ')}`);
   const oppgittTeam = v.bh || v.te ? kontraktsteamFra(v.bh ?? [], v.te ?? []) : null;
   // Et prosjekt gjelder én entreprisekontrakt, og drift bekrefter det ved registreringen (DL-U14).
   if (oppgittTeam && !v['en-totalentreprenoer'])
@@ -478,6 +466,16 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       );
   };
 
+  function prosjektFra(): string {
+    if (prosjektArgument && v.prosjekt)
+      throw new Registreringsfeil(
+        `Prosjektet er oppgitt to ganger: ${prosjektArgument} og --prosjekt ${v.prosjekt}.`
+      );
+    const prosjekt = prosjektArgument ?? v.prosjekt;
+    if (!prosjekt) throw new Registreringsfeil('Prosjektet må oppgis.');
+    return prosjekt;
+  }
+
   if (kommando !== 'kontraktsparter') avvisFlagg(PARTER, 'kontraktsparter');
   if (kommando !== 'kontraktsfrister') avvisFlagg(FRISTER, 'kontraktsfrister');
 
@@ -518,12 +516,7 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
   }
 
   if (kommando === 'kontraktsparter') {
-    if (prosjektArgument && v.prosjekt)
-      throw new Registreringsfeil(
-        `Prosjektet er oppgitt to ganger: ${prosjektArgument} og --prosjekt ${v.prosjekt}.`
-      );
-    const prosjekt = prosjektArgument ?? v.prosjekt;
-    if (!prosjekt) throw new Registreringsfeil('Prosjektet må oppgis.');
+    const prosjekt = prosjektFra();
     avvisFlagg(BARE_REGISTRER, 'registrer');
     if (oppgittTeam) throw new Registreringsfeil('--bh og --te gjelder bare «kontraktsteam».');
     if (
@@ -550,8 +543,8 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
   if (kommando === 'kontraktsfrister') {
     // Med --prosjekt er handlingen det første argumentet etter kommandoen.
     const [prosjekt, hva, argument, ...ukjente] = v.prosjekt
-      ? [v.prosjekt, prosjektArgument, ...handling]
-      : [prosjektArgument, ...handling];
+      ? [v.prosjekt, ...argumenter]
+      : argumenter;
     if (ukjente.length) throw new Registreringsfeil(`Ukjente argumenter: ${ukjente.join(' ')}`);
     if (!prosjekt) throw new Registreringsfeil('Prosjektet må oppgis.');
     avvisFlagg(BARE_REGISTRER, 'registrer');
@@ -563,7 +556,7 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
     const pool = await a.pool();
 
     if (hva === undefined) {
-      const tabell = await iDriften(lesFristtabell(pool, prosjekt));
+      const tabell = await iFristene(lesFristtabell(pool, prosjekt));
       a.skriv(
         `Kontraktssum: ${tabell.kontraktssum === null ? '(ikke satt)' : kroner(tabell.kontraktssum)}`
       );
@@ -582,7 +575,7 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
     }
     if (hva === 'kontraktssum') {
       const sum = desimaltall(argument ?? '', 'kontraktssum', 'beloep');
-      await iDriften(
+      await iFristene(
         utenKontekst(pool)
           .input('prosjekt', sql.NVarChar(4000), prosjekt)
           .input('kontraktssum', sql.Decimal(15, 2), sum)
@@ -593,7 +586,7 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
     }
     if (hva === 'fjern') {
       const id = fristId(argument);
-      await iDriften(
+      await iFristene(
         utenKontekst(pool)
           .input('prosjekt', sql.NVarChar(4000), prosjekt)
           .input('frist_id', sql.Int, id)
@@ -673,7 +666,7 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       // Det som ikke er oppgitt, står som før, så en retting av datoen fjerner ikke satsen.
       if (FRISTER.every((navn) => v[navn] === undefined))
         throw new Registreringsfeil('Oppgi det som skal rettes.');
-      const naa = (await iDriften(lesFristtabell(pool, prosjekt))).frister.find(
+      const naa = (await iFristene(lesFristtabell(pool, prosjekt))).frister.find(
         (f) => f.fristId === id
       );
       if (!naa) throw new Registreringsfeil(`Prosjektet har ingen frist med ID-en ${id}.`);
@@ -698,17 +691,8 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
   }
 
   if (kommando === 'kontraktsteam') {
-    if (prosjektArgument && v.prosjekt)
-      throw new Registreringsfeil(
-        `Prosjektet er oppgitt to ganger: ${prosjektArgument} og --prosjekt ${v.prosjekt}.`
-      );
-    const prosjekt = prosjektArgument ?? v.prosjekt;
-    if (!prosjekt) throw new Registreringsfeil('Prosjektet må oppgis.');
-    const ukjente = BARE_REGISTRER.filter((navn) => v[navn] !== undefined);
-    if (ukjente.length)
-      throw new Registreringsfeil(
-        `${ukjente.map((navn) => `--${navn}`).join(', ')} gjelder bare «registrer».`
-      );
+    const prosjekt = prosjektFra();
+    avvisFlagg(BARE_REGISTRER, 'registrer');
     const pool = await a.pool();
     const naa = await lesKontraktsteam(pool, prosjekt);
     if (!naa) throw new Registreringsfeil(`Prosjektet ${prosjekt} har ingen kobling til Catenda.`);
