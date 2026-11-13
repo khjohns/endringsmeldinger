@@ -1238,7 +1238,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'kategori',
     [
-      'frosset/linje.ts:beslutningslinje',
+      'spor/frist/tekst.ts',
       'spor/forhold/frysing.ts',
       'frosset/byggeklosser.ts',
       'spor/vederlag/frysing.ts',
@@ -1254,6 +1254,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'frosset/brevtekst.ts',
       'spor/forhold/tekst.ts',
+      'spor/frist/tekst.ts',
       'spor/forhold/utledning.ts:opplysningerOmDatoen',
       'spor/forhold/kommando.ts:kategorisperre',
     ],
@@ -1268,7 +1269,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/frist/format.ts',
     'utsagn',
     'innholdIFristen',
-    ['frosset/brevtekst.ts', 'spor/frist/frysing.ts'],
+    ['spor/frist/tekst.ts', 'spor/frist/frysing.ts'],
   ],
   ['VARSELSPOR', 'relasjon', '32.2 33.4 34.1.2 34.1.3 34.3.3 34.4'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
@@ -1866,7 +1867,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/brevdeler.ts',
     'brevtekst',
     'utenOverskrift',
-    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts'],
+    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts', 'spor/frist/tekst.ts'],
   ],
   ['Journalrad.data', 'rad', 'sakstittel', ['format/leser.ts']],
   // #801, #1138: skriv kontrollerer tegnene i sakstittelen og filnavnene i brevet.
@@ -1943,7 +1944,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:skriv'],
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
-  ['frosset/tekst.ts', 'brevtekst', 'dager OVERSIKTEN', ['frosset/brevtekst.ts']],
+  ['frosset/tekst.ts', 'brevtekst', 'OVERSIKTEN', ['frosset/brevtekst.ts']],
+  ['frosset/tekst.ts', 'brevtekst', 'dager', ['spor/frist/tekst.ts']],
   ['frosset/tekst.ts', 'brevtekst', 'kroner', ['frosset/brevdeler.ts', 'frosset/brevtekst.ts']],
   // Oppslaget i sporet for en rolle, og virkningen av et standpunkt (#1783).
   [
@@ -1968,7 +1970,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/byggeklosser.ts',
     'frosset',
     'virkningen',
-    ['frosset/linje.ts', 'spor/forhold/tekst.ts', 'spor/vederlag/tekst.ts'],
+    ['spor/frist/tekst.ts', 'spor/forhold/tekst.ts', 'spor/vederlag/tekst.ts'],
   ],
   // Teksten i sporene, som brevteksten og linjen slår opp (#1783).
   [
@@ -1990,8 +1992,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'BREVTEKSTEN_I_VEDERLAGET STANDPUNKTENE_I_VEDERLAGET',
     ['frosset/brevtekst.ts'],
   ],
-  ['Sporslinje', 'brevtekst', 'egetLedd ledd', ['frosset/linje.ts']],
+  ['Sporslinje', 'brevtekst', 'grunner egetLedd ledd', ['frosset/linje.ts']],
   ['spor/vederlag/tekst.ts', 'brevtekst', 'LINJEN_I_VEDERLAGET', ['frosset/linje.ts']],
+  [
+    'spor/frist/tekst.ts',
+    'brevtekst',
+    'BREVTEKSTEN_I_FRISTEN STANDPUNKTENE_I_FRISTEN',
+    ['frosset/brevtekst.ts'],
+  ],
+  ['spor/frist/tekst.ts', 'brevtekst', 'LINJEN_I_FRISTEN', ['frosset/linje.ts']],
   [
     'spor/forhold/tekst.ts',
     'brevtekst',
@@ -2003,9 +2012,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/brevdeler.ts',
     'brevtekst',
-    'Journalen KanIkkeUttrykkes PRODUKTIVITET eksMva erDato kravpostenI norskDato opplistet punktum tidligere verdi',
+    'Journalen KanIkkeUttrykkes PRODUKTIVITET eksMva erDato kravpostenI norskDato opplistet punktum tidligere',
     ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts', 'spor/vederlag/tekst.ts'],
   ],
+  ['frosset/brevdeler.ts', 'brevtekst', 'verdi', ['spor/vederlag/tekst.ts', 'spor/frist/tekst.ts']],
   // Byggeklossene i brevteksten som teksten i sporene også bruker (#1783).
   [
     'frosset/brevdeler.ts',
@@ -2069,7 +2079,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Tekst',
     'brevtekst',
     'j saken nytt sak',
-    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts', 'spor/vederlag/tekst.ts'],
+    [
+      'frosset/brevtekst.ts',
+      'spor/forhold/tekst.ts',
+      'spor/vederlag/tekst.ts',
+      'spor/frist/tekst.ts',
+    ],
   ],
   ['frosset/brevtekst.ts:fristsvartekst', 'brevtekst', 'tekst plass', ['frosset/brevtekst.ts']],
   // LV-U34: punktene, lagene og nummereringen i byggherrens svar.
@@ -2157,6 +2172,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/brevdeler.ts',
       'spor/forhold/tekst.ts',
       'spor/vederlag/tekst.ts',
+      'spor/frist/tekst.ts',
     ],
   ],
   // #1711: brevtekstens egen `Element`, ikke elementet i utledningen.
