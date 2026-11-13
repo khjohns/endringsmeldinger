@@ -13,7 +13,7 @@
   import { brevaarsak } from '$lib/kjernesak/kontekst.svelte';
   import type { Part, Spor } from '$kjerne/typer';
   import type { Utledning } from '$kjerne/utledning/utled';
-  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Brevtyper from './Brevtyper.svelte';
@@ -203,18 +203,15 @@
 
   function seAksepten() {
     const b = kjernesak.brev(akseptkommando!, undefined, true);
-    if (!b || !('tekst' in b) || !b.tekst) {
+    const brevet = kontrollbrev(b);
+    if (!brevet) {
       hindring = (b && brevaarsak(b)) ?? STILLING.godta;
       return;
     }
     onakseptbrev({
       kommando: akseptkommando!,
-      tekst: b.tekst,
-      avsnitt: b.avsnitt,
+      ...brevet,
       virkninger: akseptensVirkning(),
-      merking: b.merking,
-      deresRef: b.deresRef,
-      tittel: b.brevtittel,
     });
   }
 </script>

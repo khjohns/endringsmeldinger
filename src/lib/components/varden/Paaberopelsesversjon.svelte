@@ -12,7 +12,7 @@
   import { tick } from 'svelte';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Utledning } from '$kjerne/utledning/utled';
-  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Brevutkast from './Brevutkast.svelte';
@@ -81,7 +81,8 @@
       return;
     }
     const b = kjernesak.brev(kommando, undefined, true);
-    if (!b || !('tekst' in b) || !b.tekst) {
+    const brevet = kontrollbrev(b);
+    if (!brevet) {
       hindring = brevaarsak(b) ?? NYVERSJON.kanIkkeLages;
       await tick();
       document.getElementById(id('hindring'))?.focus();
@@ -89,14 +90,10 @@
     }
     onbrevkontroll({
       kommando,
-      tekst: b.tekst,
-      avsnitt: b.avsnitt,
+      ...brevet,
       // Brevrelasjonene i brevkontrollen sier hva brevet erstatter og viser til.
       detteSender: [],
       virkninger: enig ? [NYVERSJON.enighet(svarbrevet!)] : [],
-      merking: b.merking,
-      deresRef: b.deresRef,
-      tittel: b.brevtittel,
     });
   }
 
