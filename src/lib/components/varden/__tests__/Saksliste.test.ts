@@ -241,6 +241,10 @@ describe('Sakslisten i Varden', () => {
     expect(rad('Blandet').querySelector('.krevd .uten')?.textContent).toBe(
       '2 poster uten fast beløp'
     );
+    // Lest som tekst står summen og antallet med mellomrom mellom.
+    expect(rad('Blandet').querySelector('.krevd .celle')?.textContent?.replace(/\s+/g, ' ')).toBe(
+      '210 000 kr 2 poster uten fast beløp'
+    );
   });
 
   it('tallene i en sak i en endringsordre, et trukket krav og en sak TE har avsluttet, er dempet, og merket sier hva TE har gjort (MM-U38)', () => {

@@ -149,7 +149,7 @@ export const avsluttetAvTe = (u: Utledning): boolean =>
  * står (#1068).
  */
 export const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
-  u.spor[spor].gjeldendeKrav !== null && !u.spor[spor].trukket && !avsluttetAvTe(u);
+  u.forstaatt && u.spor[spor].gjeldendeKrav !== null && !u.spor[spor].trukket && !avsluttetAvTe(u);
 
 /** MM-U30: sporets betegnelse, eller `null` når ingenting er sendt i sporet. */
 export function betegnelse(u: Utledning, spor: Spor): Betegnelse | null {

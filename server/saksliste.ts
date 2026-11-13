@@ -399,6 +399,8 @@ export interface Noekkeltall {
   vederlag: {
     krav_antall: number;
     krav_sum: number;
+    /** Krav som står, uten fast beløp: ukjent er ikke 0 (OV-U43). */
+    krav_uten_beloep: number;
     venter_paa_svar: number;
     svar_subsidiaert_sum: number;
     enighet_virksom_sum: number;
@@ -415,6 +417,7 @@ export function noekkeltall(linjer: readonly Sakslinje[]): Noekkeltall {
     vederlag: {
       krav_antall: 0,
       krav_sum: 0,
+      krav_uten_beloep: 0,
       venter_paa_svar: 0,
       svar_subsidiaert_sum: 0,
       enighet_virksom_sum: 0,
@@ -430,12 +433,15 @@ export function noekkeltall(linjer: readonly Sakslinje[]): Noekkeltall {
     }
     const v = l.vederlag;
     if (v.krav && v.kravet_staar) {
-      n.vederlag.krav_antall += 1;
-      n.vederlag.krav_sum += v.krav.beloep ?? 0;
+      if (v.krav.beloep === null) n.vederlag.krav_uten_beloep += 1;
+      else {
+        n.vederlag.krav_antall += 1;
+        n.vederlag.krav_sum += v.krav.beloep;
+      }
     }
     if (v.venter_paa_svar) n.vederlag.venter_paa_svar += 1;
-    if (v.svar?.subsidiaert && v.kravet_staar && !v.enighet)
-      n.vederlag.svar_subsidiaert_sum += v.svar.beloep ?? 0;
+    if (v.svar?.subsidiaert && v.svar.beloep !== null && v.kravet_staar && !v.enighet)
+      n.vederlag.svar_subsidiaert_sum += v.svar.beloep;
     const e = v.enighet;
     if (e && e.virkning !== 'uten_virkning') {
       if (e.beloep === null) n.vederlag.enighet_uten_beloep += 1;

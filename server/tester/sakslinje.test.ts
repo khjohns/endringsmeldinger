@@ -277,7 +277,17 @@ describe('linja i sakslisten (#1022)', () => {
     });
     expect(l.vederlag.krav).toEqual({ beloep: 100000, antall_uten_fast_beloep: 1 });
     expect(l.vederlag.svar).toMatchObject({ beloep: null, antall_uten_fast_beloep: 2 });
-    expect(noekkeltall([l]).vederlag.krav_sum).toBe(100000);
+    expect(noekkeltall([l]).vederlag).toMatchObject({ krav_antall: 1, krav_sum: 100000 });
+    // Et krav med bare en beregningsregel telles for seg, ikke som 0 kr (OV-U43).
+    const regning = {
+      ...l,
+      vederlag: { ...l.vederlag, krav: { beloep: null, antall_uten_fast_beloep: 1 } },
+    };
+    expect(noekkeltall([regning]).vederlag).toMatchObject({
+      krav_antall: 0,
+      krav_sum: 0,
+      krav_uten_beloep: 1,
+    });
   });
 
   it('krav uten svar venter på byggherrens svar i alle tre sporene (MM-U29)', () => {

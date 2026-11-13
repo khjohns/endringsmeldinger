@@ -287,14 +287,14 @@ export interface FasteBeloep {
 
 /**
  * Det TE krever: `krevdSamlet`, og kravpostene etter en beregningsregel, som ikke har et krevd
- * beløp (KA-U61). Et krav med en kravpost med fast sum har en sum, også når den er 0 kr.
+ * beløp (KA-U61). Et fast beløp er alltid over 0 kr i skjemaet, så 0 kr betyr ingen post med
+ * fast beløp.
  */
 export function fasteBeloepIKravet(krav: Krav): FasteBeloep {
-  const poster = kravposterI(krav);
   const samlet = krevdSamlet(krav);
   return {
-    sum: poster.some((p) => p.oppgjoersform === 'tilbud') || samlet > 0n ? samlet : null,
-    utenFastBeloep: poster.filter((p) => krevdIKravposten(krav, p) === null).length,
+    sum: samlet > 0n ? samlet : null,
+    utenFastBeloep: kravposterI(krav).filter((p) => p.oppgjoersform !== 'tilbud').length,
   };
 }
 

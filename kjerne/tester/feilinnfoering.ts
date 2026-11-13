@@ -4931,12 +4931,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F573',
     feilklasse: 'et krav uten fast beløp får summen 0 kr, ikke ingen sum (OV-U43, #1779)',
     fil: `${K}/spor/vederlag/format.ts`,
-    endringer: [
-      [
-        "sum: poster.some((p) => p.oppgjoersform === 'tilbud') || samlet > 0n ? samlet : null,",
-        'sum: samlet,',
-      ],
-    ],
+    endringer: [['sum: samlet > 0n ? samlet : null,', 'sum: samlet,']],
     mal: ['kravet og svaret har summen av de faste beløpene'],
   },
   {
