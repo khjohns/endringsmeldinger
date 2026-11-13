@@ -383,77 +383,6 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
   };
 }
 
-/**
- * Nøkkeltallene over lista, regnet i serveren. Krav og virksom enighet summeres hver
- * for seg, og betingede og subsidiære tall står for seg (MM-U28). Kravene og de subsidiære
- * beløpene telles bare når kravet står (`kravet_staar`; svar 2 fra oppdragsgiver 20.10 i
- * #1029, svar 3 22.10 i #1052). Et subsidiært beløp TE har godtatt, telles bare som
- * betinget enighet («Subsidiært» 22.10 i #1052). En sak kjernen ikke forstår,
- * og en enighet uten beløp, telles og summeres ikke: ukjent er ikke 0. En enighet uten
- * virkning telles ikke (svar 2 og 3 fra oppdragsgiver 20.10 i #1029). Fristdagene
- * summeres ikke på tvers av saker.
- */
-export interface Noekkeltall {
-  saker: number;
-  ikke_forstaatt: number;
-  vederlag: {
-    krav_antall: number;
-    krav_sum: number;
-    /** Krav som står, uten fast beløp: ukjent er ikke 0 (OV-U43). */
-    krav_uten_beloep: number;
-    venter_paa_svar: number;
-    svar_subsidiaert_sum: number;
-    enighet_virksom_sum: number;
-    enighet_betinget_sum: number;
-    enighet_uten_beloep: number;
-  };
-  frist: { krav_antall: number; venter_paa_svar: number };
-}
-
-export function noekkeltall(linjer: readonly Sakslinje[]): Noekkeltall {
-  const n: Noekkeltall = {
-    saker: linjer.length,
-    ikke_forstaatt: 0,
-    vederlag: {
-      krav_antall: 0,
-      krav_sum: 0,
-      krav_uten_beloep: 0,
-      venter_paa_svar: 0,
-      svar_subsidiaert_sum: 0,
-      enighet_virksom_sum: 0,
-      enighet_betinget_sum: 0,
-      enighet_uten_beloep: 0,
-    },
-    frist: { krav_antall: 0, venter_paa_svar: 0 },
-  };
-  for (const l of linjer) {
-    if (!l.forstaatt) {
-      n.ikke_forstaatt += 1;
-      continue;
-    }
-    const v = l.vederlag;
-    if (v.krav && v.kravet_staar) {
-      if (v.krav.beloep === null) n.vederlag.krav_uten_beloep += 1;
-      else {
-        n.vederlag.krav_antall += 1;
-        n.vederlag.krav_sum += v.krav.beloep;
-      }
-    }
-    if (v.venter_paa_svar) n.vederlag.venter_paa_svar += 1;
-    if (v.svar?.subsidiaert && v.svar.beloep !== null && v.kravet_staar && !v.enighet)
-      n.vederlag.svar_subsidiaert_sum += v.svar.beloep;
-    const e = v.enighet;
-    if (e && e.virkning !== 'uten_virkning') {
-      if (e.beloep === null) n.vederlag.enighet_uten_beloep += 1;
-      else if (e.virkning === 'virksom') n.vederlag.enighet_virksom_sum += e.beloep;
-      else n.vederlag.enighet_betinget_sum += e.beloep;
-    }
-    if (l.frist.krav && l.frist.kravet_staar) n.frist.krav_antall += 1;
-    if (l.frist.venter_paa_svar) n.frist.venter_paa_svar += 1;
-  }
-  return n;
-}
-
 async function sakslisten(
   { bruker, prosjekt, side }: Prosjektforespoersel,
   avh: Required<Avhengigheter>
@@ -466,7 +395,6 @@ async function sakslisten(
       success: true,
       part: side?.rolle ?? null,
       saker: linjer,
-      noekkeltall: noekkeltall(linjer),
     },
   ];
 }

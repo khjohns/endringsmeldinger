@@ -10,7 +10,7 @@
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { transaksjon } from '../datalag.ts';
-import type { Noekkeltall, Sakslinje } from '../saksliste.ts';
+import type { Sakslinje } from '../saksliste.ts';
 import { iTransaksjon } from './sqlserver_migrert.ts';
 import {
   PAABEROPELSE,
@@ -49,7 +49,7 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
       prosjektId: o.prosjekt.id,
     });
     expect(svar.status, JSON.stringify(svar.kropp)).toBe(200);
-    return svar.kropp as { part: unknown; saker: Sakslinje[]; noekkeltall: Noekkeltall };
+    return svar.kropp as { part: unknown; saker: Sakslinje[] };
   };
   const lista = async (leser: Testbruker = o.bh) => (await svaret(leser)).saker;
 
@@ -116,22 +116,8 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
     });
   });
 
-  it('nøkkeltallene regnes av linjene i serveren, og fristdagene summeres ikke', async () => {
-    expect((await svaret()).noekkeltall).toEqual({
-      saker: 2,
-      ikke_forstaatt: 0,
-      vederlag: {
-        krav_antall: 1,
-        krav_sum: 100000,
-        krav_uten_beloep: 0,
-        venter_paa_svar: 1,
-        svar_subsidiaert_sum: 0,
-        enighet_virksom_sum: 0,
-        enighet_betinget_sum: 0,
-        enighet_uten_beloep: 0,
-      },
-      frist: { krav_antall: 1, venter_paa_svar: 1 },
-    });
+  it('svaret har linjene og leserens side, og ingen nøkkeltall: Varden regner dem for fanen (#1861)', async () => {
+    expect(Object.keys(await svaret()).sort()).toEqual(['part', 'saker', 'success']);
   });
 
   it.each([
