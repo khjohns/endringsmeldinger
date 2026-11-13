@@ -2539,7 +2539,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F317',
     feilklasse: 'forespørselen etter § 33.6.2 godtas etter et fristkrav (VS-U19)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/spor/frist/kommando.ts`,
     endringer: [['      if (fristkravErFremmet(u))', '      if (false)']],
     mal: ['VS-U19: forespørselen avvises når TE har krevd dager'],
   },
@@ -2602,7 +2602,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F323',
     feilklasse: 'to begrunnelser godtas mot samme forespørsel (KA-U1)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/spor/frist/kommando.ts`,
     endringer: [['      if (f.svar !== null)', '      if (false)']],
     mal: ['KA-U1, VS-U27: én begrunnelse per forespørsel'],
   },
@@ -2622,11 +2622,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F357',
     feilklasse:
       'et fristkrav i et registrert brev gjør forespørselen ugyldig i utledningen (VS-U33)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        '      if (erFristkravIAppen(d, k)) fristkravIAppen.push(k);',
-        "      if (k.spor === 'frist') fristkravIAppen.push(k);",
+        '      for (const k of d.krav) if (erFristkravIAppen(d, k)) fristkravIAppen.push(k);',
+        "      for (const k of d.krav) if (k.spor === 'frist') fristkravIAppen.push(k);",
       ],
     ],
     mal: ['VS-U33: et fristkrav i et registrert brev stopper ikke forespørselen'],
@@ -2854,9 +2854,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F328',
     feilklasse: 'en ny forespørsel godtas etter TEs begrunnelse (VS-U30)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
+    fil: `${K}/spor/frist/kommando.ts`,
     endringer: [
-      ['      if (s.foresporsler.some((f) => f.svar !== null && !f.medKrav))', '      if (false)'],
+      [
+        '      if (u.spor.frist.foresporsler.some((f) => f.svar !== null && !f.medKrav))',
+        '      if (false)',
+      ],
     ],
     mal: ['VS-U30: etter TEs begrunnelse avvises en ny forespørsel'],
   },
@@ -2930,8 +2933,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F345',
     feilklasse: 'en ny forespørsel godtas når saken alt har en fra appen (VS-U31)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [['      if (s.foresporsler.length)', '      if (false)']],
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['      if (u.spor.frist.foresporsler.length)', '      if (false)']],
     mal: ['VS-U31: en ny forespørsel fra appen avvises'],
   },
   {
@@ -4993,6 +4996,34 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['en ubesvart forespørsel etter § 33.6.2 gir betegnelsen bare i fristen'],
+  },
+  {
+    id: 'F579',
+    feilklasse:
+      'utledningen leser ikke forespørselen etter § 33.6.2 gjennom kroken i fristen (#1783)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      [
+        '  saken: (s, bakover, ugyldig) => {\n',
+        '  saken: (s, bakover, ugyldig) => {\n    if (s) return;\n',
+      ],
+    ],
+    mal: [
+      'VS-U31: en lest rad med en andre forespørsel',
+      'fristkrav uten henvisning til den ubesvarte forespørselen',
+    ],
+  },
+  {
+    id: 'F580',
+    feilklasse: 'kroken i fristen godtar hver begrunnelse på forespørselen etter § 33.6.2 (#1783)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        '    svare: (u, f, avslaget) => {\n',
+        '    svare: (u, f, avslaget) => {\n      if (u) return null;\n',
+      ],
+    ],
+    mal: ['KA-U1, VS-U27: én begrunnelse per forespørsel'],
   },
 ];
 

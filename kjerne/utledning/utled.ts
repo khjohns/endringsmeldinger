@@ -29,12 +29,7 @@ import {
 } from '../format/leser.ts';
 import { harProduktivitetspost } from '../spor/vederlag/format.ts';
 import { KONTROLLER_I_VEDERLAGET } from '../spor/vederlag/utledning.ts';
-import {
-  KONTROLLER_I_FRISTEN,
-  erFristkravIAppen,
-  kontrollerForesporslene,
-  kontrollerSvaretPaaForesporselen,
-} from '../spor/frist/utledning.ts';
+import { KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import { enighetsgrunnlag, sammenfallStemmer } from '../frosset/standpunkt.ts';
@@ -595,6 +590,20 @@ export interface Sporskontroller {
   leserDatoen: boolean;
   /** TE kan godta byggherrens gjeldende svar i sporet (`svarIkkeGodtatt`). */
   svaretKanGodtas(u: Utledning): boolean;
+  /** Lesereglene i 4.2 for utsagnene i saken som er sporets egne, som forespørselen i fristen. */
+  saken(s: Saksutsagn, bakover: Bakover, ugyldig: Ugyldig): void;
+}
+
+/** Utsagnene i saken en kontroll i sporet (`Sporskontroller.saken`) kan lese. */
+export interface Saksutsagn {
+  /** Dokumentet i hver hendelse i journalen, i rekkefølge. */
+  dokumenter: readonly Dokument[];
+  foresporsler: readonly Utsagn<'foresporsel'>[];
+  henvisninger: readonly Henvisning[];
+  elementer: Record<string, Element>;
+  /** Hvert krav i saken, også de uten virkning (MM-U43 punkt 9). */
+  kravMedUten: ReadonlyMap<string, Krav>;
+  besvart: readonly ForesporselOgSvar[];
 }
 
 /** Kontrollene i hvert spor. */
@@ -637,8 +646,6 @@ function utledSporene(
   const opplysninger: LestOpplysning[] = [];
   /** Hvert krav i saken, også de uten virkning (MM-U43 punkt 9). */
   const kravMedUten = new Map<string, Krav>();
-  /** VS-U33: kravene om dager fremmet i appen, også de uten virkning. */
-  const fristkravIAppen: Krav[] = [];
   const dobbelt = new Set<string>();
   const plasser = (id: string, h: { id: string; versjon: number }) => {
     if (plass.has(id)) dobbelt.add(id);
@@ -681,7 +688,6 @@ function utledSporene(
       plasser(k.id, h);
       registrer(k.id, h, d.avsender, 'krav');
       kravMedUten.set(k.id, k);
-      if (erFristkravIAppen(d, k)) fristkravIAppen.push(k);
       if (harVirkning(k.id)) spor[k.spor].krav.push(k);
     }
     for (const s of d.svar) {
@@ -759,15 +765,15 @@ function utledSporene(
   kontrollerTrekk(trekk, alleKrav, spor, bakover, ugyldig);
   kontrollerEndringsordrene(opplysninger, dokumenter, ugyldig);
   kontrollerHenvisningene(henvisninger, elementer, kravMedUten, besvart, bakover, ugyldig);
-  kontrollerForesporslene(foresporsler, fristkravIAppen, henvisninger, bakover, ugyldig);
-  kontrollerSvaretPaaForesporselen(
-    kravMedUten,
-    fristkravIAppen,
+  const saken: Saksutsagn = {
+    dokumenter: journal.flatMap((h) => (h.art === 'dokument' ? [h.dokument] : [])),
+    foresporsler,
+    henvisninger,
     elementer,
+    kravMedUten,
     besvart,
-    bakover,
-    ugyldig
-  );
+  };
+  for (const n of SPOR) kontrollerI(n).saken(saken, bakover, ugyldig);
   kontrollerBestridelsene(bestridelser, alleOpplysninger, avsenderAv, bakover, ugyldig);
   kontrollerIngenKrav(ingenKrav, spor, bakover, ugyldig);
   kontrollerVarslene(varsler, ugyldig);

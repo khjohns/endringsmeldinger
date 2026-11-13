@@ -609,7 +609,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
-  ['spor/frist/utledning.ts', 'predikat', 'fristkravErFremmet', ['kommandoer/forutsetninger.ts']],
+  ['spor/frist/utledning.ts', 'predikat', 'fristkravErFremmet', ['spor/frist/kommando.ts']],
   // VS-U20, OV-U5, HF-U1, VS-U43 punkt 6: varselet en påberopelse i et nytt svar gjelder, og
   // sperren for svaret på grunnlaget med et registrert varsel etter § 32.2 (#496, #766, #1600).
   [
@@ -1184,7 +1184,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporskontroller',
     'predikat',
-    'kravet kravene svaret kanFaaPassivitet leserDatoen svaretKanGodtas',
+    'kravet kravene svaret kanFaaPassivitet leserDatoen svaretKanGodtas saken',
     ['utledning/utled.ts'],
   ],
   // Skrivingen i sporet (#1783).
@@ -1221,9 +1221,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsforutsetninger',
     'predikat',
-    'innsigelsenErIkkeBygget svaret kravet trekket aksepten',
+    'innsigelsenErIkkeBygget svaret kravet trekket aksepten foresporsel',
     ['kommandoer/forutsetninger.ts'],
   ],
+  // VS-U19, VS-U27, VS-U30, VS-U31: forespørselen etter § 33.6.2 i sporet som har den (#1783).
+  ['Foresporselsforutsetninger', 'predikat', 'sende svare', ['kommandoer/forutsetninger.ts']],
   [
     'spor/vederlag/kommando.ts',
     'predikat',
@@ -1248,15 +1250,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/vederlag/utledning.ts', 'predikat', 'KONTROLLER_I_VEDERLAGET', ['utledning/utled.ts']],
   ['spor/forhold/utledning.ts', 'predikat', 'KONTROLLER_I_FORHOLDET', ['utledning/utled.ts']],
   ['spor/frist/utledning.ts', 'predikat', 'KONTROLLER_I_FRISTEN', ['utledning/utled.ts']],
-  // § 33.6.2 (VS-U19, VS-U31, HF-U1): lesereglene for forespørselen, som var i utled.ts (#1783).
+  // § 33.6.2 (VS-U19, VS-U31, HF-U1): utsagnene i saken lesereglene for forespørselen leser,
+  // gjennom `Sporskontroller.saken` (#1783).
   [
-    'spor/frist/utledning.ts',
+    'Saksutsagn',
     'relasjon',
-    'kontrollerForesporslene kontrollerSvaretPaaForesporselen',
-    ['utledning/utled.ts'],
+    'dokumenter foresporsler henvisninger elementer kravMedUten besvart',
+    ['spor/frist/utledning.ts'],
   ],
-  // VS-U33, OV-U4: et krav om dager fremmet i appen, lest likt i kommandoene og utledningen.
-  ['spor/frist/utledning.ts', 'predikat', 'erFristkravIAppen', ['utledning/utled.ts']],
   // Det utledningen leser av forholdet (#1783), som var i utled.ts før flyttingen.
   [
     'spor/forhold/utledning.ts',

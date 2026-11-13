@@ -279,6 +279,7 @@ export const FORUTSETNINGER_I_FORHOLDET = {
   kravet: 'grunnlaget for kravet',
   trekket: trekkAvPaaberopelsen,
   aksepten: akseptAvFrafallet,
+  foresporsel: null,
 } satisfies Sporsforutsetninger;
 
 /**
