@@ -18,7 +18,7 @@ import { HJEMMEL } from '../format/format.ts';
 import { sakensKode } from './tekst.ts';
 import { erRegistrert } from '../format/leser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { innsigelsenErOppgitt, innsigelsenPaaberoper, svarPaaForesporsler } from './standpunkt.ts';
+import { innsigelsenErOppgitt, innsigelsenPaaberoper } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
 import {
   eksMva,
@@ -52,6 +52,7 @@ import {
 } from '../spor/forhold/tekst.ts';
 import { BREVTEKSTEN_I_VEDERLAGET, STANDPUNKTENE_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
 import { BREVTEKSTEN_I_FRISTEN, STANDPUNKTENE_I_FRISTEN } from '../spor/frist/tekst.ts';
+import { svarPaaForesporsler } from '../spor/frist/frysing.ts';
 import { iLagene, kroner, OVERSIKTEN } from './tekst.ts';
 import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {

@@ -646,3 +646,8 @@ export function lesJournal(journal: Journalrad[], format: number): Domenehendels
     }
   });
 }
+
+/** Dokumentene i journalen, i rekkefølge, uten å kopiere dem til en liste (#787). */
+export function* dokumenterI(journal: readonly Domenehendelse[]): Generator<Dokument> {
+  for (const h of journal) if (h.art === 'dokument') yield h.dokument;
+}

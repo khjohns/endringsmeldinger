@@ -138,8 +138,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "  sammenfallStemmer,\n} from '../frosset/standpunkt.ts';",
-        "  sammenfallStemmer,\n  virkninger as regn,\n} from '../frosset/standpunkt.ts';",
+        "import { enighetsgrunnlag, sammenfallStemmer } from '../frosset/standpunkt.ts';",
+        "import { enighetsgrunnlag, sammenfallStemmer, virkninger as regn } from '../frosset/standpunkt.ts';",
       ],
       [
         '  const svar = svarberegninger(alleSvar, spor);',
@@ -887,8 +887,8 @@ const MUTASJONER: Mutasjon[] = [
         "      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', 'Kravene er avgjort.');\n",
       ],
       [
-        "import { fristkravErFremmet, kanFaaInnsigelse, type Utledning } from '../utledning/utled.ts';",
-        "import { fristkravErFremmet, kanFaaInnsigelse, kraveneErAvgjort, type Utledning } from '../utledning/utled.ts';",
+        "import { kanFaaInnsigelse, type Utledning } from '../utledning/utled.ts';",
+        "import { kanFaaInnsigelse, kraveneErAvgjort, type Utledning } from '../utledning/utled.ts';",
       ],
     ],
     mal: ['godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter'],
@@ -2458,7 +2458,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F341',
     feilklasse: 'en ubesvart forespørsel etter § 33.6.2 gir ikke betegnelsen (MM-U30, #1043)',
-    fil: `${K}/utledning/visning.ts`,
+    fil: `${K}/spor/frist/visning.ts`,
     endringer: [['u.spor.frist.foresporsler.some((f) => f.svar === null)', 'false']],
     mal: ['en ubesvart forespørsel etter § 33.6.2 går foran varselet'],
   },
@@ -2475,7 +2475,10 @@ const MUTASJONER: Mutasjon[] = [
       'en ubesvart forespørsel etter § 33.6.2 gir betegnelsen også når sporet er lukket (MM-U31, #1137)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [
-      ['    !sporetErLukket(u) &&\n    u.spor.frist.foresporsler', '    u.spor.frist.foresporsler'],
+      [
+        '!u.spor.forhold.trukket && !sporetErLukket(u) && visningI(spor).kravetErEtterspurt(u)',
+        '!u.spor.forhold.trukket && visningI(spor).kravetErEtterspurt(u)',
+      ],
     ],
     mal: ['en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at avslaget'],
   },
@@ -2484,7 +2487,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en ubesvart forespørsel etter § 33.6.2 gir betegnelsen etter at forholdet er trukket (MM-U31, #1137)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [['    !u.spor.forhold.trukket &&\n', '']],
+    endringer: [
+      [
+        '!u.spor.forhold.trukket && !sporetErLukket(u) && visningI(spor).kravetErEtterspurt(u)',
+        '!sporetErLukket(u) && visningI(spor).kravetErEtterspurt(u)',
+      ],
+    ],
     mal: [
       'en ubesvart forespørsel etter § 33.6.2 gir ingen betegnelse etter at forholdet er trukket',
     ],
@@ -2549,7 +2557,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F319',
     feilklasse:
       'fristkravet som viser til forespørselen, leses ikke som svar på den (HF-U1, LV-U18 setning 3)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/frist/frysing.ts`,
     endringer: [['      if (f) Object.assign(f, { svar: krav.id, medKrav: true });', '']],
     mal: ['kravet som svarer på forespørselen, sier det'],
   },
@@ -2572,14 +2580,14 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F321',
     feilklasse: 'svaret kan påberope § 33.6.2 mot begrunnelsen uten en egen innsigelse (VS-U29)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/frist/utledning.ts`,
     endringer: [["  if (f?.art !== 'begrunnelse') return f;", '  return f;']],
     mal: ['et krav etter begrunnelsen svarer ikke på forespørselen'],
   },
   {
     id: 'F322',
     feilklasse: '«ikke et svar etter annet ledd» leses som en påberopelse etter § 33.6.2 (VS-U29)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
         "x.art === 'innsigelse' && x.gjelder === f.gjelder && x.grunn === undefined",
@@ -2598,10 +2606,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F324',
     feilklasse: 'et fristkrav i et registrert brev sperrer forespørselen (VS-U33)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        "    if (!kravetErDokumentasjon(d) && d.krav.some((k) => k.spor === 'frist')) return true;",
+        '    if (d.krav.some((k) => erFristkravIAppen(d, k))) return true;',
         "    if (d.krav.some((k) => k.spor === 'frist')) return true;",
       ],
     ],
@@ -2614,7 +2622,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "      if (k.spor === 'frist' && !kravetErDokumentasjon(d)) fristkravIAppen.push(k);",
+        '      if (erFristkravIAppen(d, k)) fristkravIAppen.push(k);',
         "      if (k.spor === 'frist') fristkravIAppen.push(k);",
       ],
     ],
@@ -2798,7 +2806,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F426',
     feilklasse: '«Varsel ikke registrert» står også etter fristkravet (#1126)',
-    fil: `${K}/utledning/visning.ts`,
+    fil: `${K}/spor/frist/visning.ts`,
     endringer: [
       [
         "!u.spor.frist.varsler['33.4'] && u.spor.frist.krav.length === 0",
@@ -2926,7 +2934,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F346',
     feilklasse: 'utledningen godtar en andre forespørsel i saken (VS-U31)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/frist/utledning.ts`,
     endringer: [['    else if (f !== foresporsler[0])', '    else if (false)']],
     mal: ['VS-U31: en lest rad med en andre forespørsel'],
   },
@@ -3794,7 +3802,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F455',
     feilklasse:
       'et lest fristkrav uten henvisning til den ubesvarte forespørselen godtas (HF-U1, #1567)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/spor/frist/utledning.ts`,
     endringer: [['      k.gjelder === undefined &&', '      false &&']],
     mal: ['fristkrav uten henvisning til den ubesvarte forespørselen'],
   },
@@ -4970,6 +4978,18 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/frysing.ts`,
     endringer: [['  hvertITideGirOppInnsigelsen: true,', '  hvertITideGirOppInnsigelsen: false,']],
     mal: ['VS-U20: i fristen gir et tidligere «i tide» etter § 33.4 opp innsigelsen'],
+  },
+  {
+    id: 'F578',
+    feilklasse: 'en ubesvart forespørsel etter § 33.6.2 gir betegnelsen også i vederlaget (#1783)',
+    fil: `${K}/spor/vederlag/visning.ts`,
+    endringer: [
+      [
+        '  kravetErEtterspurt: () => false,',
+        '  kravetErEtterspurt: (u) => u.spor.frist.foresporsler.some((f) => f.svar === null),',
+      ],
+    ],
+    mal: ['en ubesvart forespørsel etter § 33.6.2 gir betegnelsen bare i fristen'],
   },
 ];
 
