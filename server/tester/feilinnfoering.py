@@ -403,6 +403,15 @@ FEILINNFOERINGER = [
      "CREATE UNIQUE INDEX kontraktsfrist_nummer_unik ON koe.kontraktsfrist (prosjekt_id, nummer)",
      "CREATE INDEX kontraktsfrist_nummer_unik ON koe.kontraktsfrist (prosjekt_id, nummer)",
      "kontraktsfrister registrerer fristene med ID"),
+    ("S107", "sakslisten gir et fristsvar uten dager delvis godkjent (svar 2 A i #1745)",
+     "server/saksliste.ts",
+     "  if (resultater.every((r) => r === 'avslaatt')) return 'avslaatt';\n", "",
+     "avslått når ingen frist har fått dager"),
+    ("S108", "sakslisten teller fristene med noen dager som godkjent (svar 2 A i #1745)",
+     "server/saksliste.ts",
+     "antall_godkjent: resultater.filter((r) => r === 'godkjent').length,",
+     "antall_godkjent: resultater.filter((r) => r !== 'avslaatt').length,",
+     "delvis godkjent når ingen frist har fått alle dagene"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

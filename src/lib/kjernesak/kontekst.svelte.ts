@@ -373,9 +373,16 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get forbehold() {
       return utledning ? grunnlagetForSvaret(utledning).forbehold : false;
     },
-    /** Lagene i et vederlagssvar BH ennå fyller ut, regnet av kjernen (#1400). */
-    lagForUtkastet: (utkast: Svarutkast) =>
-      utledning ? lagForUtkastet(utkast, utledning, kjerne.regler) : null,
+    /**
+     * Lagene i et vederlagssvar BH ennå fyller ut, regnet av kjernen (#1400). Varden har ikke
+     * svaret på fristen ennå (G-3 i BF-20), så et utkast i et annet spor kaster.
+     */
+    lagForUtkastet: (utkast: Svarutkast) => {
+      if (!utledning) return null;
+      if (utkast.spor !== 'vederlag')
+        throw new Error(`Varden regner bare lagene i et vederlagssvar, ikke ${utkast.spor}`);
+      return lagForUtkastet({ ...utkast, spor: utkast.spor }, utledning, kjerne.regler);
+    },
     /**
      * `false` når saken ikke er en TS-sak i prosjektet: serveren svarte 404. `null`
      * før svaret, og når serveren svarte med en annen feil.

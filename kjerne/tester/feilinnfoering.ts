@@ -3511,10 +3511,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F423',
     feilklasse:
       'lagene i utkastet flyttes ikke ned med lagene fra svaret på forholdet (OV-U32, OV-U33, #1400)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
+    fil: `${K}/kommandoer/utkastlag.ts`,
     endringer: [["typeof vi === 'number' ? vi + grunner.length : vi", 'vi']],
     mal: [
       'beløpet står subsidiært, bare med avslaget foran',
+      'dagene står subsidiært med avslaget foran',
       'preklusjon etter § 32.2 og avslag står foran sporet',
       'de samme lagene som brevet fryser',
     ],
@@ -5078,6 +5079,19 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/format.ts`,
     endringer: [['      if (l.dager !== dager)', '      if (l.dager !== dager && false)']],
     mal: ['en rad med andre dager i et lag enn standpunktet i laget gir fristen'],
+  },
+  {
+    id: 'F590',
+    feilklasse:
+      'lagene i fristutkastet viser ikke at fremdriften ikke ble hindret, som forutsetning (KA-U78, M-8 i BF-20)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        "    if (f.art === 'hindring') return [{ innsigelse: 'hindring' }];",
+        "    if (f.art === 'hindring') return [];",
+      ],
+    ],
+    mal: ['KA-U78: varselet for sent, ikke hindret og spesifisert for sent gir fire lag'],
   },
 ];
 
