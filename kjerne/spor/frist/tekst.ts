@@ -154,18 +154,21 @@ function dagerForFristen(resultat: string, frist: FristIKravet, vurdert: number)
   throw new KanIkkeUttrykkes(`standpunktet ${resultat} har ingen brevtekst`);
 }
 
+/** Kravet i sporet med kontraktens ord (`kravetOm`). */
+const KRAVET_OM = 'fristforlengelse';
+
 export const BREVTEKSTEN_I_FRISTEN = {
   navn: 'fristen',
-  svaretGjelder: 'kravet om fristforlengelse',
+  svaretGjelder: `kravet om ${KRAVET_OM}`,
   krav: fristkravtekst,
   // VS-U29: også påberopelsen etter § 33.6.2 mot begrunnelsen.
   ogsaaInnsigelserEtter: ['33.6.2'],
   nevnerErstattet: false,
   // KA-U33: kravet begrunner antallet dager.
   utdypningensPunkt: { punkt: 'begrunnelse', overskrift: 'Begrunnelse' },
-  kravetOm: 'fristforlengelse',
+  kravetOm: KRAVET_OM,
   innledning: (krav, { j }) =>
-    `Byggherren svarer på totalentreprenørens krav om fristforlengelse i ${j.brevet(krav.dokument)}.`,
+    `Byggherren svarer på totalentreprenørens krav om ${KRAVET_OM} i ${j.brevet(krav.dokument)}.`,
   temaer,
   punktet: (p) => {
     switch (p.art) {

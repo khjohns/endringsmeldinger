@@ -336,9 +336,12 @@ function oversikt(
 }
 
 /** Brevteksten i vederlagssporet. */
+/** Kravet i sporet med kontraktens ord (`kravetOm`). */
+const KRAVET_OM = 'justering av vederlaget';
+
 export const BREVTEKSTEN_I_VEDERLAGET = {
   navn: 'vederlaget',
-  svaretGjelder: 'kravet om justering av vederlaget',
+  svaretGjelder: `kravet om ${KRAVET_OM}`,
   krav: vederlagstekst,
   // VS-U29: også påberopelsen etter § 34.1.3 mot det særskilte varselet (VS-U24, OV-U22).
   ogsaaInnsigelserEtter: ['34.1.3'],
@@ -346,9 +349,9 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
   nevnerErstattet: false,
   // Forbeholdet, som Varden sender som kravets utdypning til #1823 gir det et eget felt.
   utdypningensPunkt: { punkt: 'forbehold', overskrift: 'Forbehold' },
-  kravetOm: 'justering av vederlaget',
+  kravetOm: KRAVET_OM,
   innledning: (krav, { j }) =>
-    `Byggherren svarer på totalentreprenørens krav om justering av vederlaget i ${j.brevet(krav.dokument)}. Beløpene i brevet er eks. mva.`,
+    `Byggherren svarer på totalentreprenørens krav om ${KRAVET_OM} i ${j.brevet(krav.dokument)}. Beløpene i brevet er eks. mva.`,
   temaer,
   punktet,
   oversikt,
