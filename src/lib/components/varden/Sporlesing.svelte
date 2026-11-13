@@ -1,10 +1,10 @@
 <!--
-  Sporet med siste brev i sin helhet (Varden, skjerm D). I forholdet står siden for forholdet i
-  stedet, og «Les brevet» der viser brevet her (#1449): brevet slik det ble frosset da det ble
-  sendt, ikke en ny gjengivelse av dataene. Handlingene står synlige i kortet «Det du kan gjøre nå»
-  øverst i høyre kolonne, uten panel (oppdragsgiver 06.11, #1631): én primærhandling og resten
-  under «Andre handlinger». «Godta svaret» går rett til brevet med aksepten, der virkningen
-  kjernen regner ut, står før sendingen.
+  Sporet med siste brev i sin helhet (Varden, skjerm D). Handlingene står synlige i kortet «Det du
+  kan gjøre nå» øverst i høyre kolonne, uten panel (oppdragsgiver 06.11, #1631): én primærhandling
+  og resten under «Andre handlinger». I forholdet står siden for forholdet i stedet, med brevtråden
+  og brevet slik det ble sendt i høyre kolonne, og handlingen ved brevet den svarer på (oppsett B,
+  U-16 i BF-44, #1898). «Godta svaret» går rett til brevet med aksepten, der virkningen kjernen
+  regner ut, står før sendingen.
 -->
 <script lang="ts">
   import { ArrowRight, ChevronRight } from 'lucide-svelte';
@@ -16,12 +16,14 @@
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
+  import Brevpanel from './Brevpanel.svelte';
   import Brevtyper from './Brevtyper.svelte';
   import Forholdsoversikt from './Forholdsoversikt.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import { aksepten } from './kommandoer';
+  import { medietreff } from './medie.svelte';
   import {
     betegnelsene,
     brevene,
@@ -29,6 +31,7 @@
     datoerISporet,
     hovedkategorien,
     kravposterUtenFastBeloep,
+    type Brevet,
   } from './lesing';
   import {
     BREVTYPER,
@@ -72,7 +75,8 @@
   const uid = $props.id();
 
   const part = $derived(kjernesak.part as Part);
-  const sporbrev = $derived(brevene(u).filter((b) => b.spor.includes(spor)));
+  const alleBrev = $derived(brevene(u));
+  const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes(spor)));
   const siste = $derived(sporbrev.at(-1) ?? null);
   const iSporet = $derived(handlingerISporet(kjernesak.tilbudte, spor));
   const noekler = $derived(iSporet.map((h) => h.noekkel));
@@ -80,11 +84,17 @@
   const svaret = $derived(u.spor[spor].gjeldendeSvar);
   const kanGodta = $derived(svaret !== null && noekler.includes(`godta:${spor}`));
   const svarbrevet = $derived(svaret ? sporbrev.find((b) => b.id === svaret.dokument) : undefined);
-  // Brevet brukeren valgte å lese på siden for forholdet, og `null` på selve siden.
+  const vist = $derived(kanGodta && svarbrevet ? svarbrevet : siste);
+  const oversikt = $derived(spor === 'forhold');
+  // Under 1181 px står brevet i raden i tråden, og ellers i høyre kolonne (U-16 i BF-44).
+  const smalt = medietreff('(max-width: 1180px)');
+  const smal = $derived(smalt.treff);
+  // Brevet brukeren valgte å lese. I høyre kolonne står det siste brevet med tekst fra start.
   let lest = $state<string | null>(null);
-  const oversikt = $derived(spor === 'forhold' && lest === null);
-  const lestBrev = $derived(lest === null ? undefined : sporbrev.find((b) => b.id === lest));
-  const vist = $derived(lestBrev ?? (kanGodta && svarbrevet ? svarbrevet : siste));
+  const visesId = $derived(
+    lest ?? (smal ? null : (alleBrev.findLast((b) => b.avsnitt !== null)?.id ?? null))
+  );
+  const visesBrev = $derived(alleBrev.find((b) => b.id === visesId && b.avsnitt !== null));
   // Handlingene står i et kort øverst i høyre kolonne, på linje med kortet i midten, i alle
   // tilstandene til sporet, som i prototypen `grunnlagsoversikt.html` (oppdragsgiver 05.11, #1631).
   // Primærhandlingen er svaret på motpartens siste brev når kjernen tilbyr det, og etter
@@ -112,21 +122,38 @@
       .filter((h) => h.noekkel !== primaer && h.type !== 'korrigere' && h.type !== 'innsigelse')
       .map((h) => h.noekkel)
   );
+  // Handlingen står ved brevet den svarer på: kravet når parten kan svare, ellers svaret (U-16).
+  // Byggherrens nye svar står ved byggherrens svar, når det ikke er noe annet å svare på (U-16).
+  const revidere = $derived(
+    oversikt && !primaer && !kanGodta && svarbrevet && noekler.includes(`revidere:${spor}`)
+      ? `revidere:${spor}`
+      : null
+  );
+  const handlingVed = $derived(
+    primaer === `svare:${spor}`
+      ? (u.spor[spor].gjeldendeKrav?.dokument ?? null)
+      : primaer || kanGodta || revidere
+        ? (svarbrevet?.id ?? null)
+        : null
+  );
+  const godtaVedBrevet = $derived(oversikt && kanGodta && handlingVed !== null);
+  const andre = $derived(
+    menyvalg.filter((n) => !(godtaVedBrevet && n === `godta:${spor}`) && n !== revidere)
+  );
   const avslag = $derived(
     svaret?.standpunkter.some((s) => s.art === 'forhold' && s.resultat === 'avslaatt') ?? false
   );
 
   async function lesBrevet(id: string) {
+    // I raden lukker knappen brevet igjen. I høyre kolonne blir knappen teksten «Vises til
+    // høyre», så fokus går til brevet.
+    if (smal && visesId === id) {
+      lest = null;
+      return;
+    }
     lest = id;
     await tick();
-    document.getElementById(`${uid}-brevtittel`)?.focus();
-  }
-
-  async function tilbakeTilForholdet() {
-    const id = lest;
-    lest = null;
-    await tick();
-    document.querySelector<HTMLElement>(`[data-les="${id}"]`)?.focus();
+    if (!smal) document.querySelector<HTMLElement>(`[data-brevpanel="${id}"]`)?.focus();
   }
 
   let hindring = $state<string | null>(null);
@@ -164,6 +191,7 @@
   function virkningen(n: string): string | null {
     if (n === `godta:${spor}` && svarbrevet) return HANDLINGENE.virkning.godta(svarbrevet);
     if (n === 'trekke:forhold') return HANDLINGENE.virkning.trekkForholdet;
+    if (n.startsWith('revidere:') && svarbrevet) return HANDLINGENE.virkning.nyttSvar(svarbrevet);
     if (n.startsWith('trekke:')) return HANDLINGENE.virkning.trekkKravet;
     if (n.startsWith('krav:')) {
       const krav = sporbrev.find((b) => b.id === u.spor[spor].gjeldendeKrav?.dokument) ?? null;
@@ -216,10 +244,10 @@
   }
 </script>
 
-{#snippet meny()}
+{#snippet meny(handlinger: string[], tittel: string | null)}
   <Brevtyper
-    tittel={harPrimaer ? HANDLINGENE.andre : null}
-    handlinger={menyvalg}
+    {tittel}
+    {handlinger}
     {bygget}
     tekstFor={innsigelsestekst}
     beskrivelseFor={virkningen}
@@ -227,23 +255,103 @@
   />
 {/snippet}
 
-<Arbeidsflate>
+{#snippet primaerknapp(p: string, beskrevetAv: string | undefined)}
+  {@const tekst =
+    innsigelsestekst(p) ?? BREVTYPER.find((b) => b.type === handlingen(p)!.type)!.tekst}
+  <Knapp
+    variant="primaer"
+    onclick={() => (primaerBygget ? velg(p) : (primaerIkkeBygget = true))}
+    aria-describedby={beskrevetAv}>{tekst}<ChevronRight size={16} aria-hidden="true" /></Knapp
+  >
+{/snippet}
+
+{#snippet ikkeBygget()}
+  {#if (primaer && !primaerBygget) || (revidere && !bygget.includes(revidere))}
+    <!-- Den levende regionen står fra start, så teksten leses opp når den kommer (#1636). -->
+    <p class="dempet" role="status">{primaerIkkeBygget ? HANDLINGENE.ikkeBygget : ''}</p>
+  {/if}
+{/snippet}
+
+{#snippet nySaklenke()}
+  {#if nySak}
+    <!-- Under handlingene, ikke blant dem: de gjelder denne saken, og lenken starter en annen. -->
+    <p class="annen">
+      {FORHOLDET.annen}
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
+      <a href={nySak} target="_blank" rel="noopener"
+        >{FORHOLDET.annenLenke}<ArrowRight size={16} aria-hidden="true" /><span
+          class="visually-hidden">{FORHOLDET.nyFane}</span
+        ></a
+      >
+    </p>
+  {/if}
+{/snippet}
+
+<!-- Handlingen ved brevet den svarer på, med én linje om hva den gjør (U-16 i BF-44). -->
+{#snippet vedBrevet()}
+  {@const linje = [
+    primaer ? virkningen(primaer) : null,
+    revidere ? virkningen(revidere) : null,
+    godtaVedBrevet ? virkningen(`godta:${spor}`) : null,
+  ]
+    .filter(Boolean)
+    .join(' ')}
+  <div class="knapper">
+    {#if primaer}{@render primaerknapp(primaer, linje ? `${uid}-vedbrevet` : undefined)}{/if}
+    {#if revidere}
+      {@const r = revidere}
+      <Knapp
+        variant="lenke"
+        onclick={() => (bygget.includes(r) ? velg(r) : (primaerIkkeBygget = true))}
+        aria-describedby={linje ? `${uid}-vedbrevet` : undefined}
+        >{innsigelsestekst(r) ?? BREVTYPER.find((b) => b.type === 'revidere')!.tekst}</Knapp
+      >
+    {/if}
+    {#if godtaVedBrevet}
+      <Knapp
+        onclick={() => velg(`godta:${spor}`)}
+        aria-describedby={linje ? `${uid}-vedbrevet` : undefined}>{HANDLINGENE.godta(avslag)}</Knapp
+      >
+    {/if}
+  </div>
+  {#if linje}<p class="dempet" id={`${uid}-vedbrevet`}>{linje}</p>{/if}
+  {@render ikkeBygget()}
+  {#if hindring}<Melding art="feil">{hindring}</Melding>{/if}
+{/snippet}
+
+{#snippet lestBrevet(b: Brevet)}
+  <Brevpanel brev={b} sak={kjernesak.saksbilde?.tittel ?? ''} iRaden />
+{/snippet}
+
+<Arbeidsflate leser={oversikt}>
   {#snippet hoved()}
     {#if oversikt}
       <Forholdsoversikt
         {u}
         betegnelser={betegnelsene(kjernesak.saksbilde)}
+        vist={visesId}
+        {smal}
         onles={lesBrevet}
         {onspor}
         {korrigerbare}
         {onkorriger}
+        {handlingVed}
+        handling={vedBrevet}
+        brevet={lestBrevet}
       />
-    {:else if vist}
-      {#if lestBrev}
-        <p class="tilbake">
-          <Knapp variant="lenke" onclick={tilbakeTilForholdet}>{FORHOLDET.tilbake}</Knapp>
-        </p>
+      {#if handlingVed === null && (primaer || hindring)}
+        <!-- Uten et brev å stå ved står handlingen over de andre, så den aldri faller bort. -->
+        <section class="kort andre" aria-label={FORHOLDET.handlinger}>
+          {@render vedBrevet()}
+        </section>
       {/if}
+      {#if andre.length || nySak}
+        <section class="kort andre" aria-label={HANDLINGENE.andre}>
+          {#if andre.length}{@render meny(andre, HANDLINGENE.andre)}{/if}
+          {@render nySaklenke()}
+        </section>
+      {/if}
+    {:else if vist}
       <div class="linje">
         <h2 id={`${uid}-brevtittel`} tabindex="-1">
           {brevhode(vist)}
@@ -271,58 +379,32 @@
       <p class="tomt">{MOTTATT.ingenBrev}</p>
     {/if}
   {/snippet}
-
   {#snippet hoeyre()}
-    {#if menyvalg.length || harPrimaer}
-      <section class="kort handlinger" aria-labelledby={`${uid}-handlinger`}>
-        <h2 id={`${uid}-handlinger`}>{FORHOLDET.handlinger}</h2>
-        {#if primaer}
-          {@const linje = virkningen(primaer)}
-          {@const tekst =
-            innsigelsestekst(primaer) ??
-            BREVTYPER.find((b) => b.type === handlingen(primaer!)!.type)!.tekst}
-          <div class="primaer">
-            {#if primaerBygget}
-              <Knapp
-                variant="primaer"
-                onclick={() => velg(primaer!)}
-                aria-describedby={linje ? `${uid}-primaer` : undefined}
-                >{tekst}<ChevronRight size={16} aria-hidden="true" /></Knapp
-              >
-            {:else}
-              <Knapp
-                variant="primaer"
-                onclick={() => (primaerIkkeBygget = true)}
-                aria-describedby={linje ? `${uid}-primaer` : undefined}
-                >{tekst}<ChevronRight size={16} aria-hidden="true" /></Knapp
-              >
-            {/if}
-            {#if linje}<p class="dempet" id={`${uid}-primaer`}>{linje}</p>{/if}
-            {#if !primaerBygget}
-              <!-- Den levende regionen står fra start, så teksten leses opp når den kommer (#1636). -->
-              <p class="dempet" role="status">
-                {primaerIkkeBygget ? HANDLINGENE.ikkeBygget : ''}
-              </p>
-            {/if}
-          </div>
-        {/if}
-        {@render meny()}
-        {#if hindring}<Melding art="feil">{hindring}</Melding>{/if}
-      </section>
+    {#if oversikt}
+      {#if visesBrev && !smal}
+        {#key visesBrev.id}
+          <Brevpanel brev={visesBrev} sak={kjernesak.saksbilde?.tittel ?? ''} />
+        {/key}
+      {/if}
+    {:else}
+      {#if menyvalg.length || harPrimaer}
+        <section class="kort handlinger" aria-labelledby={`${uid}-handlinger`}>
+          <h2 id={`${uid}-handlinger`}>{FORHOLDET.handlinger}</h2>
+          {#if primaer}
+            {@const linje = virkningen(primaer)}
+            <div class="primaer">
+              {@render primaerknapp(primaer, linje ? `${uid}-primaer` : undefined)}
+              {#if linje}<p class="dempet" id={`${uid}-primaer`}>{linje}</p>{/if}
+              {@render ikkeBygget()}
+            </div>
+          {/if}
+          {@render meny(menyvalg, harPrimaer ? HANDLINGENE.andre : null)}
+          {#if hindring}<Melding art="feil">{hindring}</Melding>{/if}
+        </section>
+      {/if}
+      {@render nySaklenke()}
+      <Tidslinje brev={sporbrev} datoer={datoerISporet(u, spor)} />
     {/if}
-    {#if nySak}
-      <!-- Under kortet, ikke i det: kortet samler valgene i denne saken, og lenken starter en annen. -->
-      <p class="annen">
-        {FORHOLDET.annen}
-        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
-        <a href={nySak} target="_blank" rel="noopener"
-          >{FORHOLDET.annenLenke}<ArrowRight size={16} aria-hidden="true" /><span
-            class="visually-hidden">{FORHOLDET.nyFane}</span
-          ></a
-        >
-      </p>
-    {/if}
-    <Tidslinje brev={sporbrev} datoer={datoerISporet(u, spor)} />
   {/snippet}
 </Arbeidsflate>
 
@@ -341,9 +423,20 @@
   .linje .dempet {
     font-weight: 400;
   }
-  /* Lenken står i flukt med overskriften; knappen har luft til siden for treffflaten. */
-  .tilbake {
-    margin-left: calc(-1 * var(--spacing-2));
+  .knapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-2) var(--spacing-5);
+  }
+  .andre {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
+  }
+  .andre .annen {
+    padding: var(--spacing-2) 0 0;
   }
   .handlinger {
     display: flex;

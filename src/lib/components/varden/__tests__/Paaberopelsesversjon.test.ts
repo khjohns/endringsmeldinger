@@ -44,13 +44,19 @@ async function vis(
   });
   await kjernesak.last();
   render(Vardensak, { kjernesak, spor, nySakLenke });
+  // På siden for forholdet står handlingen ved brevet og resten under «Andre handlinger» (U-16 i
+  // BF-44, #1898), så forventningene gjelder hele arbeidet.
+  if (spor === 'forhold') {
+    await screen.findByRole('list', { name: 'Brevene i saken, nyeste først' });
+    return within(screen.getByRole('main'));
+  }
   return within(
     (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
   );
 }
 
 const tilForholdet = async () =>
-  fireEvent.click(await screen.findByRole('button', { name: 'Irregulær endring' }));
+  fireEvent.click(await screen.findByRole('button', { name: /^Irregulær endring/ }));
 const teksten = () => screen.getByRole('textbox', { name: 'Begrunnelse' });
 const laastTekst = async (tittel: RegExp) =>
   [
@@ -217,10 +223,13 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     );
     await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
     await screen.findByText(/Brevet er sendt til byggherren/);
-    const traaden = within(await screen.findByRole('list', { name: 'Brevene om forholdet' }));
+    const traaden = within(
+      await screen.findByRole('list', { name: 'Brevene i saken, nyeste først' })
+    );
+    // Tråden står nyest først, så den nye versjonen er den første påberopelsen.
     const nyVersjon = traaden
-      .getAllByRole('heading', { name: /^Brev \d+ · Påberopelse/ })
-      .at(-1)!
+      .getAllByRole('heading', { name: /^Påberopelse av forholdet/ })
+      .at(0)!
       .closest('li')!;
     expect(nyVersjon.textContent).toMatch(/Pålegget mottatt 15\. september 2026/);
   });
@@ -237,7 +246,7 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     // TE går tilbake til oversikten og korrigerer datoen ved datoen i brevtråden.
     await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til forholdet' }));
     await fireEvent.click(
-      within(await screen.findByRole('list', { name: 'Brevene om forholdet' })).getByRole(
+      within(await screen.findByRole('list', { name: 'Brevene i saken, nyeste først' })).getByRole(
         'button',
         { name: 'Korriger datoen pålegget ble mottatt' }
       )
@@ -296,12 +305,9 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
 
 describe('veien til en ny sak (BF-10 U-2, GR-U22, OV-U57)', () => {
   it('TE finner «Opprett ny sak» under kortet med handlingene, og den står verken i arbeidsflaten eller bekreftelsen (oppdragsgiver 06.11, PR 1650)', async () => {
-    const kortet = await vis('BF-04', 'forholdet-er-avslaatt', 'TE', 'forhold', '/demo/ny');
-    expect(kortet.queryByRole('link', { name: /Opprett ny sak/ })).toBeNull();
-    const handlingene = screen
-      .getByRole('heading', { name: 'Det du kan gjøre nå' })
-      .closest('section')!;
-    const veien = handlingene.nextElementSibling as HTMLElement;
+    await vis('BF-04', 'forholdet-er-avslaatt', 'TE', 'forhold', '/demo/ny');
+    const handlingene = screen.getByRole('region', { name: 'Andre handlinger' });
+    const veien = handlingene.querySelector('.annen') as HTMLElement;
     expect(veien.textContent).toMatch(/^Annen hjemmel eller endringsordre\?/);
     const lenken = within(veien).getByRole('link', { name: /^Opprett ny sak/ });
     expect(lenken.getAttribute('href')).toBe('/demo/ny');
@@ -324,7 +330,9 @@ describe('veien til en ny sak (BF-10 U-2, GR-U22, OV-U57)', () => {
 
   it('innsigelsen om at svaret kom for sent er ikke en handling på oversikten, selv om kjernen tilbyr den (oppdragsgiver 06.11, PR 1650)', async () => {
     const kortet = await vis('BF-04', 'forholdet-er-avslaatt', 'TE', 'forhold');
-    expect(kortet.queryByText(/kom for sent/)).toBeNull();
+    expect(
+      kortet.queryAllByRole('button').filter((b) => /kom for sent/.test(b.textContent ?? ''))
+    ).toEqual([]);
     expect(kortet.getByRole('button', { name: /^Godta avslaget/ })).toBeTruthy();
   });
 
@@ -344,6 +352,20 @@ describe('primærhandlingen i «Det du kan gjøre nå» (#1649)', () => {
     const kortet = await vis('BF-05', 'paaberopelsen-er-sendt', 'BH', 'forhold');
     const knapper = kortet.getAllByRole('button').filter((k) => k.className.includes('primaer'));
     expect(knapper.map((k) => k.textContent?.trim())).toEqual(['Svar på påberopelsen']);
+  });
+
+  it('BH: «Send revidert svar» står ved byggherrens svar, med hva det gjør, og ikke under «Andre handlinger» (U-16 i BF-44)', async () => {
+    await vis('BF-02A', 'korrigeringen-er-sendt', 'BH', 'forhold');
+    const knappen = screen.getByRole('button', { name: 'Send revidert svar' });
+    const raden = knappen.closest('li')!;
+    expect(raden.querySelector('h4')?.textContent).toMatch(/^Svar på påberopelsen/);
+    expect(document.getElementById(knappen.getAttribute('aria-describedby')!)!.textContent).toBe(
+      'Nytt brev med svaret. Svaret i brev 2 står som det ble sendt.'
+    );
+    const andre = screen.queryByRole('region', { name: 'Andre handlinger' });
+    expect(
+      andre && within(andre).queryByRole('button', { name: /Send revidert svar/ })
+    ).toBeFalsy();
   });
 
   it('BH: etter korrigeringen har kortet ingen primærhandling', async () => {

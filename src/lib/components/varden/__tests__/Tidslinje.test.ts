@@ -49,6 +49,7 @@ describe('Tidslinje', () => {
         svar: [],
         utsagn: [],
         opplysninger: [],
+        dokumentasjon: [],
         brevnummer: nummer,
         merking: nummer === null ? null : `K201-KOE-017-0${nummer}`,
         deresRef: [],
@@ -108,6 +109,8 @@ describe('Tidslinje', () => {
       omtale: null,
       brevtittel: 'Lang tittel i sak KOE-17',
       avsnitt: null,
+      beskrivelse: null,
+      vedlegg: [],
     });
     const { container } = render(Tidslinje, {
       brev: [

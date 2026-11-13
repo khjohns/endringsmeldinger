@@ -54,6 +54,13 @@ Beholde inter som font.» Oslo-logoen er fast.
   (panel B i `vederlagsoversikt.html`, oppdragsgiver 13.11: «Ja, panel B», [#1065](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6861711203)). Et navn som
   mangler, står ikke der (#1398). Topplinja står over arbeidsflaten, med rollen
   og handlingene som gjelder hele saken. Arbeidet i sporet begynner rett under.
+- **Panelet står fra 1900 px** på sidene for saken, også i skjemaene, så det ikke hopper når
+  parten bytter mellom oversikten og et skjema. Fra 1181 til 1899 px er det felt inn: sakens
+  tittel står i stien, og sporene i en rad under den, med merket «Utkast» (U-16 i
+  [BF-44](../docs/domenetabell/brukerforlop/BF-44.md#u-16), #1899). Under 860 px står panelet over
+  arbeidet, og sporene står som én rad med faner.
+- **Overskriftene i saken**: sakens tittel er `h1`, i omslaget eller skjult for øyet når panelet er
+  felt inn. Siden for sporet er `h2`, tråden `h3` og radene i tråden `h4` (#1908).
 - **Arbeidet er like bredt som et ark**: hovedkolonnen er høyst
   `--varden-ark`, like bred som brevet, og panelet til høyre er `--varden-stoette` i lesingen,
   svaret og brevkontrollen. Er det plass til overs, står de samlet og midtstilt, og
@@ -364,13 +371,22 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   brevet bare er synlig for teamet, fordi det er åpenbart for et utkast (oppdragsgiver 12.11 i
   #1663). Sendepanelet i brevkontrollen, og panelet
   med punktene i et langt skjema, sier «Utkast» og «Ikke sendt» ved knappen, så statusen står i
-  bildet også når hodet er rullet ut av det (#1663). Merket «Utkast» i panelet til venstre vises bare når et
-  annet spor er valgt, så statusen aldri står to steder samtidig.
+  bildet også når hodet er rullet ut av det (#1663). Merket «Utkast» i panelet til venstre, og i sporraden der panelet er felt inn,
+  vises bare når et annet spor er valgt, så statusen aldri står to steder samtidig.
 - **Lesing ved siden av** er én lenkeknapp som veksler mellom «Les brevet ved siden av»
   og «Lukk brevet». Rammen følger brevet og er høyst like høy som vinduet, så et
   lengre brev ruller i den. Kolonnene er da like brede, og panelet til venstre er felt inn.
   På smal skjerm står brevet i skjemaet.
-- **Kortet «Det du kan gjøre nå»** står øverst i høyre kolonne. Alle handlingene står synlige,
+- **Handlingen står ved brevet den svarer på** på siden for forholdet, og på sidene for kravene
+  når de bygges i oppsett B (U-16 i BF-44, #1898, #1906). Den står ved kravet når parten kan svare,
+  og ved svaret når parten kan godta det eller sende en ny versjon. Hovedhandlingen er primærknappen,
+  «Godta …» en sekundær knapp, og byggherrens «Send revidert svar» en lenkeknapp ved byggherrens
+  eget svar, med én linje under om hva de gjør. «Send innlegg» står øverst i tråden, ved «Legg til
+  korrespondanse». De sjeldne handlingene står i kortet «Andre handlinger» nederst, med trekket
+  sist. Har handlingen ikke noe brev å stå ved, står den i et eget kort over «Andre
+  handlinger». Reglene for primærhandlingen og lista gjelder som for kortet under.
+- **Kortet «Det du kan gjøre nå»** står øverst i høyre kolonne i lesingen av vederlaget og
+  fristen, til sidene for kravene får oppsett B (#1906, #1900). Alle handlingene står synlige,
   uten panel (#1631). Det har høyst én primærhandling, med en linje om hva
   den gjør. Primærhandlingen er svaret på motpartens siste brev når det ikke er besvart. Etter
   byggherrens svar er den TEs nye versjon («Oppdater påberopelse» i forholdet, «Revider krav»
@@ -392,8 +408,10 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   de første tre linjene, og hele teksten står i brevet bak «Les brevet».
   Samme form gjelder der et krav måles mot et svar: kravet er åpent og det godkjente fylt, på samme
   skala med runde trinn ([U-2 i BF-44](../docs/domenetabell/brukerforlop/BF-44.md#u-2)).
-  Raden for brevet som vises ved siden av, har en strek i blekk til venstre og sier det i tekst,
-  ikke bare med en flate. Raden for et svar som ikke er registrert, har stiplet ring, fordi
+  Raden for brevet som vises ved siden av, har en strek i blekk til venstre og sier det i tekst, ikke bare med en flate.
+  Under 1181 px åpnes brevet i raden, og knappen heter «Lukk brevet» (U-16 i BF-44). Rammen i
+  høyre kolonne kan få fokus med tastaturet, fordi brevet ruller i den. Brevet i raden er ikke et
+  eget tabstopp. Raden for et svar som ikke er registrert, har stiplet ring, fordi
   den ikke er et brev. Det løsningen sier om saken under et brev, som at svaret står
   som det ble sendt, har formen for en melding om
   prøven (`Melding`), ikke formen for metadata. Form og tekst prøves før en ny farge

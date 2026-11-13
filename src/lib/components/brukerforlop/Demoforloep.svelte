@@ -27,6 +27,7 @@
     panel = true,
     onpunkt,
     onstart,
+    nySakLenke,
   }: {
     forloep: Startjournal;
     punkt: string;
@@ -34,6 +35,8 @@
     onpunkt: (punkt: string) => void;
     /** Kalles med saken hver gang forløpet starter, så en test kan lese journalen. */
     onstart?: (demosak: Demosak, kjernesak: Kjernesak) => void;
+    /** Skjemaet for ny sak i demoruta, som lenkene til ny sak i Varden fører til (BF-05). */
+    nySakLenke?: string;
   } = $props();
 
   const HANDLING: Record<string, string> = {
@@ -125,7 +128,13 @@
       {/snippet}
     </Vardensak>
   {:else}
-    <Vardensak kjernesak={aapen.kjernesak} kontrakt={DEMOKONTRAKT} {kvittering} saksliste="/demo" />
+    <Vardensak
+      kjernesak={aapen.kjernesak}
+      kontrakt={DEMOKONTRAKT}
+      {kvittering}
+      saksliste="/demo"
+      {nySakLenke}
+    />
   {/if}
 {/key}
 

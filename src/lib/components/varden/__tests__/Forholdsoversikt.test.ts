@@ -12,7 +12,16 @@ import { kjoer, type Forloep } from '$kjerne/tester/kjoerer';
 import type { Handling } from '$kjerne/tester/klient';
 import Forholdsoversikt from '$lib/components/varden/Forholdsoversikt.svelte';
 import Tidslinje from '$lib/components/varden/Tidslinje.svelte';
-import { brevForLinja, brevene, type Brevet } from '$lib/components/varden/lesing';
+import {
+  brevForLinja,
+  brevene,
+  brevITraaden,
+  oppfoelgingene,
+  type Brevet,
+  type Innlegget,
+} from '$lib/components/varden/lesing';
+import { TRAADEN } from '$lib/components/varden/tekster';
+import { createRawSnippet } from 'svelte';
 import Brevtraad from '$lib/components/varden/Brevtraad.svelte';
 import type { Spor } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
@@ -26,6 +35,11 @@ const betegnelserI = (u: Utledning) => ({
 });
 
 afterEach(cleanup);
+
+/** Brevet i raden, som siden gir tråden. */
+const lestBrev = createRawSnippet((b: () => Brevet) => ({
+  render: () => `<p data-brev="${b().id}">Brevet</p>`,
+}));
 
 const PAABEROPELSE: Handling = {
   handling: 'krav',
@@ -78,7 +92,7 @@ async function vis(steg: Handling[], ekstra: Record<string, unknown> = {}) {
   return { u, lest, valgt };
 }
 
-const traad = () => within(screen.getByRole('list', { name: 'Brevene om forholdet' }));
+const traad = () => within(screen.getByRole('list', { name: 'Brevene i saken, nyeste først' }));
 
 describe('Siden for forholdet', () => {
   it('tittelen er forholdet selv, uten gruppen over, og under den står hvor saken står (OV-U78, BF-05 U-10)', async () => {
@@ -91,6 +105,14 @@ describe('Siden for forholdet', () => {
     );
   });
 
+  it('under tittelen står bare stillingen, ikke siste brev, som tråden alt viser (oppdragsgiver 13.11 i #1908: «Bare stillingen»)', async () => {
+    const { u } = await vis([PAABEROPELSE, AVSLAG, REGISTRERT]);
+    expect(brevene(u).at(-1)?.art).toBe('registrert');
+    const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
+    expect(tittel.nextElementSibling).toBeNull();
+    expect(screen.queryByText(/^Siste brev:/)).toBeNull();
+  });
+
   it('ingen tekst brukeren ser, sier «grunnlag» (kriterium 1, OV-U76)', async () => {
     const u = await utledning([PAABEROPELSE, REGISTRERT, VEDERLAG, AVSLAG]);
     const { container } = render(Forholdsoversikt, {
@@ -101,41 +123,54 @@ describe('Siden for forholdet', () => {
     expect(container.textContent).not.toMatch(/grunnlag/i);
   });
 
-  it('ubesvart påberopelse: brevet har nummer, navnet fra GR-U31, part og dato, og tråden slutter med «Svar ikke registrert» (kriterium 2, MM-U30)', async () => {
+  it('ubesvart påberopelse: raden har parten, datoen, hva brevet er og brevnummeret, og «Svar ikke registrert» står øverst i tråden, nyest først (#1898 punkt 3, U-5 i BF-44, MM-U30)', async () => {
     await vis([PAABEROPELSE]);
     const brev = traad().getAllByRole('listitem');
     expect(brev).toHaveLength(2);
-    expect(within(brev[0]).getByRole('heading', { level: 3 }).textContent?.trim()).toMatch(
-      /^Brev 1 · Påberopelse av irregulær endring/
+    expect(brev[0].textContent).toContain('Svar ikke registrert.');
+    const rad = brev[1];
+    expect(rad.querySelector('.part')?.textContent).toBe('TE');
+    expect(rad.querySelector('.dato .lang')?.textContent).toMatch(/^\d+\. \p{L}+ 2026$/u);
+    expect(within(rad).getByRole('heading', { level: 4 }).textContent?.trim()).toBe(
+      'Påberopelse av forholdet fra totalentreprenøren'
     );
-    expect(brev[0].querySelector('.meta')?.textContent?.trim()).toMatch(
-      /^Totalentreprenøren · \d+\. \w+ 2026 · K201-/
-    );
-    expect(brev[1].textContent).toContain('Svar ikke registrert.');
+    expect(rad.querySelector('.nr')?.textContent).toBe('brev 1');
     expect(
       screen.getByText(/^Sendt til byggherren \d+\. \w+ 2026\. Svar ikke registrert\.$/)
     ).toBeTruthy();
   });
 
-  it('tråden har begge partenes brev og den registrerte korrespondansen med datoen avsenderen oppgir og infotipset (kriterium 2, OV-U85, OV-U81)', async () => {
+  it('tråden har alle brevene i saken nyest først, også kravene og den registrerte korrespondansen, med datoen avsenderen oppgir og infotipset (#1898 punkt 2, OV-U85, OV-U81)', async () => {
     const { u } = await vis([PAABEROPELSE, REGISTRERT, VEDERLAG, AVSLAG]);
-    const brev = traad().getAllByRole('listitem');
-    expect(brev.map((li) => li.querySelector('.part')?.textContent)).toEqual(['TE', 'BH', 'BH']);
-    const registrert = brev[1];
-    expect(registrert.textContent).toContain('Korrespondanse fra byggherren');
-    expect(registrert.textContent).toContain('Sendt 20. september 2026, ifølge byggherren');
+    const brev = traad()
+      .getAllByRole('listitem')
+      .filter((li) => li.classList.contains('innlegg'));
+    expect(brev.map((li) => li.querySelector('.part')?.textContent)).toEqual([
+      'BH',
+      'TE',
+      'BH',
+      'TE',
+    ]);
+    expect(brev[1].querySelector('h4')?.textContent).toMatch(/^Krav om vederlagsjustering/);
+    const registrert = brev[2];
+    expect(registrert).toHaveClass('kompakt');
+    expect(registrert.querySelector('h4')?.textContent).toMatch(
+      /^Foreløpig tilbakemelding om pålegget/
+    );
+    expect(registrert.textContent).toContain('Sendt 20. september 2026, ifølge byggherren.');
     expect(within(registrert).queryByRole('button', { name: /Les brevet/ })).toBeNull();
     expect(within(registrert).getByRole('button', { name: 'Om korrespondansen' })).toBeTruthy();
+    // Vedleggene står under brevet sitt (U-5 i BF-44, LV-U14).
+    expect(within(registrert).getByRole('list', { name: 'Vedlegg' }).textContent).toMatch(/\S/);
     // Infotipset står ikke i overskriften (#1511).
-    expect(registrert.querySelector('h3 button')).toBeNull();
-    // Svaret står etter brevet det svarer på, og saken venter ikke på svar.
-    expect(brev[2].textContent).not.toContain('Svar ikke registrert');
+    expect(registrert.querySelector('h4 button')).toBeNull();
+    expect(brev[0].textContent).not.toContain('Svar ikke registrert');
     expect(u.spor.forhold.gjeldendeSvar).not.toBeNull();
   });
 
   it('påberopelsen viser beskrivelsen av pålegget, som står som utdypningen under kravet, og datoen TE oppgir (prototypen grunnlagsoversikt.html, oppdragsgiver 06.11)', async () => {
     await vis([PAABEROPELSE]);
-    const brev = traad().getAllByRole('listitem')[0];
+    const brev = traad().getAllByRole('listitem')[1];
     expect(brev.querySelector('.sitat')?.textContent).toMatch(
       /Beskrivelse av pålegget\s*«Pålegg om tegl på østfasaden\.»\s*Pålegget mottatt \d+\. \p{L}+ 2026, ifølge totalentreprenøren\./u
     );
@@ -166,10 +201,43 @@ describe('Siden for forholdet', () => {
     expect(screen.getByText('Byggherren avslår forholdet.')).toBeTruthy();
   });
 
-  it('«Les brevet» gir brevet å lese, med brevet som beskrivelse av knappen (#1449)', async () => {
+  it('«Les brevet» gir brevet å lese, og navnet på knappen sier hvilket brev (#1898, U-16 i BF-44)', async () => {
     const { lest, u } = await vis([PAABEROPELSE]);
-    await fireEvent.click(traad().getByRole('button', { name: 'Les brevet' }));
+    await fireEvent.click(
+      traad().getByRole('button', { name: 'Les brevet: brev 1, Påberopelse av forholdet' })
+    );
     expect(lest).toEqual([u.spor.forhold.gjeldendeKrav!.dokument]);
+  });
+
+  it('brevet som vises til høyre, har streken og teksten «Vises til høyre» i stedet for knappen (U-16 i BF-44)', async () => {
+    const u = await utledning([PAABEROPELSE, AVSLAG]);
+    render(Forholdsoversikt, {
+      u,
+      betegnelser: betegnelserI(u),
+      onles: () => {},
+      vist: u.spor.forhold.gjeldendeSvar!.dokument,
+    });
+    const [svaret, kravet] = traad().getAllByRole('listitem');
+    expect(svaret).toHaveAttribute('aria-current', 'true');
+    expect(within(svaret).getByText('Vises til høyre')).toBeTruthy();
+    expect(within(svaret).queryByRole('button', { name: /Les brevet/ })).toBeNull();
+    expect(kravet).not.toHaveAttribute('aria-current');
+  });
+
+  it('under 1181 px står brevet i raden, og knappen lukker det igjen (U-16 i BF-44)', async () => {
+    const u = await utledning([PAABEROPELSE]);
+    const id = u.spor.forhold.gjeldendeKrav!.dokument;
+    render(Forholdsoversikt, {
+      u,
+      betegnelser: betegnelserI(u),
+      onles: () => {},
+      vist: id,
+      smal: true,
+      brevet: lestBrev,
+    });
+    const knappen = traad().getByRole('button', { name: /^Lukk brevet: brev 1/ });
+    expect(knappen).toHaveAttribute('aria-expanded', 'true');
+    expect(knappen.closest('li')!.querySelector('[data-brev]')?.getAttribute('data-brev')).toBe(id);
   });
 
   it('tilknyttede krav står med betegnelsen, det TE krevde med brevet og lenken «Åpne» til kravet (kriterium 3, MM-U30, oppdragsgiver 06.11)', async () => {
@@ -300,6 +368,38 @@ describe('Siden for forholdet', () => {
   });
 });
 
+describe('Brevtråden er felles for sidene, og sporet styrer brevene (#1898 punkt 2)', () => {
+  const FRIST: Handling = { handling: 'krav', spor: 'frist', dager: 10, navn: 'K-f1' };
+  const titler = () =>
+    screen
+      .getAllByRole('heading', { level: 4 })
+      .map((h) => h.textContent?.replace(/ fra \p{L}+$/u, '').trim());
+
+  it.each([
+    [
+      'forhold',
+      'Brevene i saken, nyeste først',
+      ['Krav om fristforlengelse', 'Krav om vederlagsjustering', 'Påberopelse av forholdet'],
+    ],
+    ['vederlag', 'Brevene, nyeste først', ['Krav om vederlagsjustering']],
+    ['frist', 'Brevene, nyeste først', ['Krav om fristforlengelse']],
+  ] as const)(
+    'på siden for %s viser tråden «%s» med brevene %j (oppdragsgiver 13.11: «forhold viser alle»)',
+    async (spor, tittel, forventet) => {
+      const u = await utledning([PAABEROPELSE, VEDERLAG, FRIST]);
+      render(Brevtraad, {
+        brev: brevITraaden(brevene(u), spor),
+        spor,
+        dokumentasjon: [],
+        venterPaaSvar: false,
+        onles: () => {},
+      });
+      expect(screen.getByRole('list', { name: tittel })).toBeTruthy();
+      expect(titler()).toEqual(forventet);
+    }
+  );
+});
+
 describe('Brevet linja for et spor viser til (#1631, code-review)', () => {
   const brev = (id: string, art: Brevet['art'], spor: Spor[]): Brevet =>
     ({ id, art, spor }) as unknown as Brevet;
@@ -331,9 +431,106 @@ describe('Brevet linja for et spor viser til (#1631, code-review)', () => {
       merking: null,
       brevtittel: null,
     } as Brevet;
-    render(Brevtraad, { brev: [r], dokumentasjon: [], venterPaaSvar: false, onles: () => {} });
-    expect(document.querySelector('.meta')?.textContent?.trim()).toBe(
-      'Fra byggherren · lagt til 3. november 2026'
+    render(Brevtraad, {
+      brev: [{ ...r, beskrivelse: null, vedlegg: [] }],
+      spor: 'forhold',
+      dokumentasjon: [],
+      venterPaaSvar: false,
+      onles: () => {},
+    });
+    expect(document.querySelector('.datolinje')?.textContent?.trim()).toBe(
+      'Lagt til 3. november 2026.'
     );
+  });
+});
+
+describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
+  const brev = (id: string, nummer: number, art: Brevet['art'], spor: Spor[]): Brevet =>
+    ({
+      id,
+      nummer,
+      art,
+      spor,
+      avsender: art === 'svar' ? 'BH' : 'TE',
+      registrert: '2026-10-01T10:00:00Z',
+      sendt: null,
+      merking: null,
+      deresRef: [],
+      omtale: null,
+      brevtittel: null,
+      avsnitt: null,
+      forhold: null,
+      beskrivelse: null,
+      vedlegg: [],
+    }) as Brevet;
+
+  it('korrigeringen viser til svaret på forholdet, ikke et senere svar på vederlaget (MM-U52 punkt 10–11)', () => {
+    const k = brev('k5', 5, 'annet', ['forhold']);
+    const innlegg = new Map<string, Innlegget>([
+      [
+        k.id,
+        {
+          gjelderPaalegg: false,
+          utdypning: null,
+          oppgitt: null,
+          opplysning: {
+            id: 'o2',
+            hva: 'klar_over_forholdet',
+            dato: '2026-09-20',
+            brev: k,
+            korrigering: true,
+            forrige: null,
+            siste: true,
+            korrigertI: null,
+          },
+          standpunkter: [],
+        },
+      ],
+    ]);
+    render(Brevtraad, {
+      brev: [
+        brev('p1', 1, 'krav', ['forhold']),
+        brev('s2', 2, 'svar', ['forhold']),
+        brev('v3', 3, 'krav', ['vederlag']),
+        brev('sv4', 4, 'svar', ['vederlag']),
+        k,
+      ],
+      spor: 'forhold',
+      innlegg,
+      dokumentasjon: [],
+      venterPaaSvar: false,
+      onles: () => {},
+    });
+    expect(screen.getByText(/^Svaret i brev 2 står som det ble sendt\./)).toBeTruthy();
+    expect(screen.queryByText(/Svaret i brev 4/)).toBeNull();
+  });
+
+  it('et brev med et krav som gjelder i et annet spor, står ikke som fulgt opp (U-5 i BF-44)', () => {
+    const alle = [
+      brev('b1', 1, 'krav', ['forhold', 'vederlag']),
+      brev('b3', 3, 'krav', ['vederlag']),
+    ];
+    const spor = (krav: string[], gjeldende: string | null) => ({
+      krav: krav.map((dokument) => ({ dokument })),
+      gjeldendeKrav: gjeldende ? { dokument: gjeldende } : null,
+    });
+    const u = (forhold: string | null) =>
+      ({
+        spor: {
+          forhold: spor(forhold ? [forhold] : [], forhold),
+          vederlag: spor(['b1', 'b3'], 'b3'),
+          frist: spor([], null),
+        },
+      }) as unknown as Utledning;
+    expect(oppfoelgingene(u('b1'), alle).has('b1')).toBe(false);
+    // Kontrollsaken: uten påberopelsen i brevet er brev 1 fulgt opp i brev 3.
+    expect(oppfoelgingene(u(null), alle).get('b1')?.nummer).toBe(3);
+  });
+
+  it('en påberopelse som også krever vederlag, sier det i tittelen (U-5 i BF-44)', () => {
+    expect(TRAADEN.hva(brev('b1', 1, 'krav', ['forhold', 'vederlag']))).toBe(
+      'Påberopelse av forholdet og krav om vederlagsjustering'
+    );
+    expect(TRAADEN.hva(brev('b1', 1, 'krav', ['forhold']))).toBe('Påberopelse av forholdet');
   });
 });

@@ -21,8 +21,16 @@
   import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
   import { tomtSvar, type Korrigeringsvalg } from './kommandoer';
   import { kontraktFraProsjektet, settOrganisasjoner, type Kontrakt } from './kontrakt';
-  import { brevene, datoopplysningene, forholdetISaken, type Brevref } from './lesing';
   import {
+    betegnelsene,
+    brevForLinja,
+    brevene,
+    datoopplysningene,
+    forholdetISaken,
+    type Brevref,
+  } from './lesing';
+  import {
+    BETEGNELSE,
     BREVKONTROLL,
     KORRIGERING,
     KRAVSKJEMA,
@@ -32,7 +40,6 @@
     SAKEN,
     SPORNAVN,
     STILLING,
-    dato,
   } from './tekster';
 
   let {
@@ -65,8 +72,9 @@
     kontrakt?: Kontrakt;
   } = $props();
   // Serveren gir partsnavnene når driften har satt dem, men ikke kontraktsformen (#1398).
+  const kontrakten = $derived(kontrakt ?? kontraktFraProsjektet());
   settOrganisasjoner(() => {
-    const k = kontrakt ?? kontraktFraProsjektet();
+    const k = kontrakten;
     // Et tomt navn er ikke et navn (#1398), som i kontraktsradene.
     return { BH: k.byggherre || undefined, TE: k.entreprenoer || undefined };
   });
@@ -135,13 +143,35 @@
   });
   // Stien som i prototypen: Varden › prosjektet › saken, med sakens kode (LV-U46).
   const sti = $derived.by((): Smule[] => {
-    const prosjekt = (kontrakt ?? kontraktFraProsjektet()).prosjekt;
+    const prosjekt = kontrakten.prosjekt;
     return [
       { tekst: SAKEN.merkenavn, href: prosjekter },
       ...(prosjekt ? [{ tekst: prosjekt, href: saksliste }] : []),
       { tekst: nySak ? NYSAK.over : (sakskode ?? SAKEN.nav) },
     ];
   });
+
+  // Det løsningen vet om hvert spor, under navnet i panelet: betegnelsen og siste brev (panel B,
+  // #1899). Ikke hvem som skal handle (system.md, «Visningen sier det løsningen vet»).
+  const sporlinjer = $derived.by(() => {
+    const betegnelser = betegnelsene(kjernesak.saksbilde);
+    const linje = (s: Spor) => {
+      const b = u ? brevForLinja(brev, s, u.spor[s].trukket) : undefined;
+      const kode = betegnelser[s];
+      return {
+        betegnelse: kode ? BETEGNELSE[kode] : null,
+        siste: b ? SAKEN.siste(b, b.avsender) : null,
+      };
+    };
+    return { forhold: linje('forhold'), vederlag: linje('vederlag'), frist: linje('frist') };
+  });
+  const parter = $derived(
+    [
+      [SAKEN.entreprenoer, kontrakten.entreprenoer],
+      [SAKEN.byggherre, kontrakten.byggherre],
+    ].filter((r): r is [string, string] => !!r[1])
+  );
+  const partensLenke = $derived(kjernesak.part === 'TE' ? (nySakLenke ?? null) : null);
 
   function velgSpor(s: Spor) {
     valgt = s;
@@ -260,33 +290,62 @@
   {sti}
   {bruker}
   {kontrakt}
-  visKontrakten={!!(nySak || (u && kjernesak.saksbilde))}
+  visKontrakten={!!nySak}
   innfelt={vedSiden}
+  bred
+  toArk={!nySak && valgt === 'forhold' && arbeid.art === 'les'}
+  sakstittel={nySak ? null : (kjernesak.saksbilde?.tittel ?? null)}
 >
+  {#snippet topplinje()}
+    {#if partensLenke && !nySak}
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
+      <a class="topplenke" href={partensLenke}>{SAKEN.nyttKrav}</a>
+    {/if}
+  {/snippet}
+  {#snippet sporrad()}
+    {#if !nySak && u && kjernesak.saksbilde}
+      <nav class="sporrad" aria-label={SAKEN.sporene}>
+        {#each SPORGRUPPENE.flatMap((g) => g.spor) as s (s)}
+          <button
+            type="button"
+            aria-current={valgt === s ? 'page' : undefined}
+            onclick={() => velgSpor(s)}
+            >{s === 'forhold'
+              ? forholdsnavn
+              : SPORNAVN[s]}{#if s === 'vederlag' && utkastAapent && valgt !== s}<span
+                class="merke-utkast">{SAKEN.utkast}</span
+              >{/if}</button
+          >
+        {/each}
+      </nav>
+    {/if}
+  {/snippet}
   {#snippet panel()}
     {#if !nySak && u && kjernesak.saksbilde}
-      <header class="sakshode">
-        <div class="tittel">
-          {#if sakskode}<p class="kode">{sakskode}</p>{/if}
-          <h1>{kjernesak.saksbilde.tittel}</h1>
-        </div>
-        {#if brev[0]}
-          <dl class="meta">
-            <div>
-              <dt>{SAKEN.opprettet}</dt>
-              <dd>{dato(brev[0].registrert)} av {brev[0].avsender}</dd>
-            </div>
+      <header class="omslag">
+        {#if sakskode}<p class="kode">{sakskode}</p>{/if}
+        <h1>{kjernesak.saksbilde.tittel}</h1>
+        {#if parter.length}
+          <dl class="parter">
+            {#each parter as [etikett, navn] (etikett)}
+              <div>
+                <dt>{etikett}</dt>
+                <dd>{navn}</dd>
+              </div>
+            {/each}
           </dl>
         {/if}
+        {#if u.ikkeVurderteBrev.length}<p class="merknad">{SAKEN.dokumentasjonIkkeSendt}</p>{/if}
       </header>
 
       <!-- Forholdet og kravene som bygger på det, i hver sin gruppe (oppdragsgiver 06.11, #1631). -->
-      <nav class="sporene" aria-label={SAKEN.nav}>
+      <nav class="sporene" aria-label={SAKEN.sporene}>
         {#each SPORGRUPPENE as gruppe (gruppe.id)}
           <div class="gruppe">
             <p class="etikett" id={`spor-${gruppe.id}`}>{gruppe.etikett}</p>
             <ul class="valgene" aria-labelledby={`spor-${gruppe.id}`}>
               {#each gruppe.spor as s (s)}
+                {@const l = sporlinjer[s]}
                 <li>
                   <button
                     type="button"
@@ -300,6 +359,8 @@
                           class="merke-utkast">{SAKEN.utkast}</span
                         >{/if}
                     </span>
+                    {#if l.betegnelse}<span class="st">{l.betegnelse}</span>{/if}
+                    {#if l.siste}<span class="st2">{l.siste}</span>{/if}
                   </button>
                 </li>
               {/each}
@@ -529,35 +590,121 @@
     letter-spacing: var(--sperring-24);
     text-wrap: balance;
   }
-  .sakshode {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-4);
-  }
-  .sakshode h1 {
+  /* Saksomslaget: saken og partene øverst (panel B, oppdragsgiver 13.11). */
+  .omslag h1 {
     font-size: 20px;
+    font-weight: 600;
+    line-height: 1.25;
     letter-spacing: var(--sperring-20);
-  }
-  .tittel {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-1);
+    text-wrap: balance;
   }
   .kode {
+    margin-bottom: var(--spacing-1);
     color: var(--sidebar-muted);
     font-size: 12px;
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.02em;
   }
+  /* Etiketten står over navnet, så et langt firmanavn får hele bredden (oppdragsgiver 13.11). */
+  .parter {
+    display: grid;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-4);
+  }
+  .parter div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .parter dt {
+    color: var(--sidebar-muted);
+    font-size: 12px;
+  }
+  .parter dd {
+    font-size: 14px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+  }
+  .merknad {
+    margin-top: var(--spacing-3);
+    color: var(--sidebar-muted);
+    font-size: 12px;
+  }
   .sporene {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-6);
+    gap: var(--spacing-5);
+  }
+  .sporene .etikett {
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .sporene .valgene {
+    margin: 0 calc(-1 * var(--spacing-5));
+  }
+  .sporene .valg {
+    min-height: 0;
+    padding: 10px var(--spacing-5) 10px 17px;
+    border-radius: 0;
   }
   .navn {
     display: flex;
     align-items: center;
     gap: var(--spacing-2);
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .valg[aria-current='page'] .navn {
+    font-weight: 600;
+  }
+  .st {
+    font-size: 14px;
+    font-weight: 400;
+  }
+  .st2 {
+    color: var(--sidebar-muted);
+    font-size: 12px;
+    font-weight: 400;
+  }
+  .topplenke {
+    color: var(--ink);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .topplenke:hover {
+    text-decoration-thickness: 2px;
+  }
+  .topplenke:focus-visible,
+  .sporrad button:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
+  }
+  .sporrad {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1) var(--spacing-6);
+  }
+  .sporrad button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: 9px 0;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    font: inherit;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .sporrad button:hover {
+    color: var(--ink);
+    border-bottom-color: var(--rule-strong-color);
+  }
+  .sporrad button[aria-current='page'] {
+    color: var(--ink);
+    font-weight: 600;
+    border-bottom-color: var(--ink);
   }
   .merke-utkast {
     padding: 0 var(--spacing-2);
@@ -599,7 +746,41 @@
   .melding:focus {
     outline: none;
   }
+  /* På smal skjerm står sporene som faner over arbeidet (panel B i prototypen). */
   @media (max-width: 860px) {
+    .sporene {
+      flex-direction: row;
+      gap: 0;
+      margin: 0 calc(-1 * var(--spacing-4));
+      overflow-x: auto;
+    }
+    .sporene .etikett,
+    .st2 {
+      display: none;
+    }
+    .sporene .gruppe {
+      flex: none;
+    }
+    .sporene .valgene {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      margin: 0;
+    }
+    .sporene .valg {
+      flex: none;
+      width: auto;
+      max-width: 15rem;
+      padding: var(--spacing-2) var(--spacing-4);
+      border-left: 0;
+      border-bottom: 3px solid transparent;
+    }
+    .sporene .valg[aria-current='page'] {
+      border-bottom-color: var(--sidebar-text);
+    }
+    .navn {
+      font-size: 14px;
+    }
     .arbeid,
     .laster,
     .lastefeil {

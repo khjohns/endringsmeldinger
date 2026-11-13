@@ -1,6 +1,8 @@
 <!--
-  Skallet i Varden: panelet til venstre med avsenderen, innholdet kalleren gir og kontrakten,
-  og arbeidsflaten med topplinja. Saken og sakslisten bruker det samme skallet (#1450).
+  Skallet i Varden: panelet til venstre som et saksomslag, med innholdet kalleren gir øverst og
+  avsenderen nederst (panel B i `vederlagsoversikt.html`, #1899), og arbeidsflaten med topplinja.
+  Saken og sakslisten bruker det samme skallet (#1450). Der panelet er felt inn, står sakens
+  tittel i stien og sporene i en rad under den (U-16 i BF-44).
 -->
 <script lang="ts" module>
   /** Et ledd i stien i topplinja. Det siste leddet er siden brukeren står på. */
@@ -12,6 +14,7 @@
   import type { Snippet } from 'svelte';
   import osloLogo from '../../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
   import { kontraktFraProsjektet, type Kontrakt } from './kontrakt';
+  import { medietreff } from './medie.svelte';
   import { SAKEN, initialer } from './tekster';
 
   let {
@@ -20,8 +23,12 @@
     kontrakt,
     visKontrakten = true,
     innfelt = false,
+    bred = false,
+    toArk = false,
+    sakstittel = null,
     panel,
     topplinje,
+    sporrad,
     children,
   }: {
     /** Stien til siden, fra «Varden» til saken (prototypen `grunnlagsoversikt.html`). */
@@ -36,8 +43,17 @@
     visKontrakten?: boolean;
     /** Panelet er felt inn, så arbeidsflaten får hele bredden (oppdragsgiver 30.10, #1391). */
     innfelt?: boolean;
+    /** Panelet står fra 1900 px, og er felt inn fra 1181 px og opp til det (U-16 i BF-44). */
+    bred?: boolean;
+    /** Arbeidet er to ark ved siden av hverandre, så topplinja følger de kantene. */
+    toArk?: boolean;
+    /** Sakens tittel, som står i stien der panelet er felt inn. */
+    sakstittel?: string | null;
     panel?: Snippet;
+    /** Lenkene i topplinja, som gjelder hele saken eller prosjektet. */
     topplinje?: Snippet;
+    /** Sporene i topplinja der panelet er felt inn. */
+    sporrad?: Snippet;
     children: Snippet;
   } = $props();
 
@@ -51,35 +67,52 @@
       [SAKEN.entreprenoer, k.entreprenoer],
     ].filter((r): r is [string, string] => !!r[1]);
   });
+  // Panelet felles inn fra 1181 px opp til 1900 px på en side med `bred` (U-16 i BF-44). Sporene og
+  // sakens tittel står da i topplinja, og bare da, så sporene står ett sted om gangen.
+  const mellombred = medietreff('(min-width: 1181px) and (max-width: 1899px)', () => bred);
+  const panelInne = $derived(innfelt || (bred && mellombred.treff));
+
+  // Avsenderen nederst har prosjektet og kontraktsformen når kontrakten ikke står over (panel B).
+  const fotlinjer = $derived.by(() => {
+    const k = kontrakt ?? kontraktFraProsjektet();
+    return [k.prosjekt, k.kontraktsform].filter((x): x is string => !!x);
+  });
 </script>
 
-<div class="varden tema-varden" class:innfelt>
-  <div class="panelkolonne" hidden={innfelt}>
+<div class="varden tema-varden" class:innfelt={panelInne} class:toArk={toArk || innfelt}>
+  <div class="panelkolonne" hidden={panelInne}>
     <div class="panel">
-      <div class="avsender">
-        <div class="logo" style:background-image={`url(${osloLogo})`} aria-hidden="true"></div>
-        <p><span class="kommune">{SAKEN.kommune}</span><span>{SAKEN.foretak}</span></p>
-      </div>
       {@render panel?.()}
-      <!-- Prosjektet og partene hører til kontrakten, ikke saken (oppdragsgiver 30.10). -->
-      {#if visKontrakten && kontraktsrader.length}
-        <section class="kontrakten" aria-labelledby="kontrakt-etikett">
-          <h2 class="etikett" id="kontrakt-etikett">{SAKEN.kontrakten}</h2>
-          <dl class="meta">
-            {#each kontraktsrader as [etikett, verdi] (etikett)}
-              <div>
-                <dt>{etikett}</dt>
-                <dd>{verdi}</dd>
-              </div>
-            {/each}
-          </dl>
-        </section>
-      {/if}
-      <p class="prototype">{SAKEN.prototype}</p>
+      <div class="bunn">
+        <!-- Prosjektet og partene hører til kontrakten, ikke saken (oppdragsgiver 30.10). -->
+        {#if visKontrakten && kontraktsrader.length}
+          <section class="kontrakten" aria-labelledby="kontrakt-etikett">
+            <h2 class="etikett" id="kontrakt-etikett">{SAKEN.kontrakten}</h2>
+            <dl class="meta">
+              {#each kontraktsrader as [etikett, verdi] (etikett)}
+                <div>
+                  <dt>{etikett}</dt>
+                  <dd>{verdi}</dd>
+                </div>
+              {/each}
+            </dl>
+          </section>
+        {/if}
+        <div class="avsender">
+          <div class="logo" style:background-image={`url(${osloLogo})`} aria-hidden="true"></div>
+          <p>
+            <span class="kommune">{SAKEN.kommune}</span><span>{SAKEN.foretak}</span>
+            {#if !visKontrakten}{#each fotlinjer as linje (linje)}<span>{linje}</span>{/each}{/if}
+          </p>
+        </div>
+        <p class="prototype">{SAKEN.prototype}</p>
+      </div>
     </div>
   </div>
 
   <div class="flate">
+    <!-- Der panelet er felt inn, er sakens tittel overskriften for siden, som i omslaget. -->
+    {#if panelInne && sakstittel}<h1 class="visually-hidden">{sakstittel}</h1>{/if}
     <div class="topplinje">
       {#if sti.length}
         <nav class="sti" aria-label={SAKEN.stien}>
@@ -89,7 +122,10 @@
                 {#if i > 0}<span class="skille" aria-hidden="true">›</span>{/if}
                 <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
                 {#if smule.href}<a href={smule.href}>{smule.tekst}</a>{:else}<span
-                    aria-current={i === sti.length - 1 ? 'page' : undefined}>{smule.tekst}</span
+                    aria-current={i === sti.length - 1 ? 'page' : undefined}
+                    >{smule.tekst}{#if panelInne && sakstittel && i === sti.length - 1}<span
+                        class="sakstittel">{` · ${sakstittel}`}</span
+                      >{/if}</span
                   >{/if}
               </li>
             {/each}
@@ -103,6 +139,7 @@
           <span class="navn">{bruker.name}</span>
         </p>
       {/if}
+      {#if panelInne && sporrad}<div class="sporrad">{@render sporrad()}</div>{/if}
     </div>
     {@render children()}
   </div>
@@ -129,17 +166,24 @@
     top: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-8);
+    gap: 28px;
     height: 100vh;
     overflow-y: auto;
-    padding: 0 var(--spacing-5) var(--spacing-6);
+    padding: var(--spacing-5) var(--spacing-5) var(--spacing-6);
   }
-  /* Like høy som topplinja, så byvåpenet står på linje med rollen. */
+  /* Avsenderen står nederst, som på et saksomslag (panel B, oppdragsgiver 13.11). */
+  .bunn {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-5);
+    margin-top: auto;
+  }
   .avsender {
     display: flex;
     align-items: center;
     gap: var(--spacing-3);
-    min-height: var(--mockup-topbar-height);
+    padding-top: var(--spacing-4);
+    border-top: 1px solid var(--sidebar-border);
   }
   /* Samme utsnitt av logoen som dagens visning (LeftSidebar.svelte): bare byvåpenet. */
   .logo {
@@ -226,14 +270,6 @@
     outline: 2px solid var(--sidebar-focus);
     outline-offset: -2px;
   }
-  /* Kontrakten står nederst i panelet, som i dagens oversikt (oppdragsgiver 30.10). */
-  .kontrakten,
-  .prototype {
-    margin-top: auto;
-  }
-  .kontrakten + .prototype {
-    margin-top: 0;
-  }
   .prototype {
     align-self: flex-start;
     padding: 0 var(--spacing-2);
@@ -250,13 +286,14 @@
   .varden.innfelt {
     grid-template-columns: minmax(0, 1fr);
   }
-  .innfelt .flate {
+  .toArk .flate {
     --kant: max(var(--spacing-6), calc((100% - 2 * var(--varden-ark) - var(--spacing-6)) / 2));
   }
   .topplinje {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: var(--spacing-4);
+    gap: 0 var(--spacing-6);
     min-height: var(--mockup-topbar-height);
     padding: 0 var(--kant);
     border-bottom: var(--rule);
@@ -303,6 +340,14 @@
     font-weight: 600;
     letter-spacing: -0.01em;
   }
+  .innfelt .topplinje {
+    padding-top: var(--spacing-3);
+  }
+  .sporrad {
+    display: flex;
+    flex-basis: 100%;
+    font-size: 14px;
+  }
   .bruker {
     display: flex;
     align-items: center;
@@ -344,8 +389,8 @@
       gap: var(--spacing-5);
       padding: var(--spacing-4);
     }
-    .avsender {
-      min-height: 44px;
+    .bunn {
+      display: none;
     }
     /* «Vederlagsjustering» og «Krav om endringsordre» får ikke plass i tre kolonner på en
        telefon, så valgene bryter i rader (design-reviewet 01.11, #1450). */
@@ -353,10 +398,6 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
       gap: var(--spacing-2);
-    }
-    .kontrakten,
-    .prototype {
-      margin-top: 0;
     }
     .topplinje {
       flex-wrap: wrap;

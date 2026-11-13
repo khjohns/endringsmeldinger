@@ -42,12 +42,17 @@ const kvitteringen = () =>
 const demopanel = () =>
   within(screen.getByRole('complementary', { name: 'Demo av brukerforløpet' }));
 const traaden = async () =>
-  within(await screen.findByRole('list', { name: 'Brevene om forholdet' }));
-const innlegget = async (tittel: RegExp) =>
-  within((await traaden()).getByRole('heading', { name: tittel }).closest('li')!);
+  within(await screen.findByRole('list', { name: 'Brevene i saken, nyeste først' }));
+/** Raden for brevet med nummeret `n` i tråden. */
+const innlegget = async (n: number) =>
+  within(
+    [...(await traaden()).getAllByRole('listitem')].find(
+      (li) => li.querySelector(':scope > .rad .nr')?.textContent === `brev ${n}`
+    )!
+  );
 
 async function tilForholdet() {
-  await fireEvent.click(await screen.findByRole('button', { name: 'Irregulær endring' }));
+  await fireEvent.click(await screen.findByRole('button', { name: /^Irregulær endring/ }));
 }
 
 async function skrivDatoen(dato: string) {
@@ -123,25 +128,25 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
       )
     );
     // U-1: handlingen står ved den siste opplysningen, ikke ved den første.
-    const foerste = await innlegget(/^Brev 1 ·/);
+    const foerste = await innlegget(1);
     expect(foerste.queryByRole('button', { name: /Korriger datoen/ })).toBeNull();
     expect(
       foerste.getByText(/15\. september 2026, ifølge totalentreprenøren\. Korrigert i brev 3\./)
     ).toBeTruthy();
-    const korrigeringen = await innlegget(/^Brev 3 · Korrigering av datoen/);
+    const korrigeringen = await innlegget(3);
     expect(korrigeringen.getByRole('button', { name: /Korriger datoen/ })).toBeTruthy();
     // U-5: visningen sier ikke hvilken opplysning svaret gjaldt, fordi løsningen ikke tolker
     // svaret (oppdragsgiver 06.11, #1646).
-    expect(
-      (await innlegget(/^Brev 2 ·/)).getByRole('heading').closest('li')!.textContent
-    ).not.toMatch(/opplysning|15\. september 2026|20\. september 2026/);
+    expect((await innlegget(2)).getByRole('heading').closest('li')!.textContent).not.toMatch(
+      /opplysning|15\. september 2026|20\. september 2026/
+    );
   });
 
   it('BF-02A: BH ser den nye og den tidligere datoen, at svaret står som det ble sendt, og ingenting om at varselet nå kom i tide (U-5, U-6, MM-U50)', async () => {
     aapne('BF-02A', 'korrigeringen-er-sendt');
     await fireEvent.click(demopanel().getByRole('radio', { name: 'BH' }));
     await tilForholdet();
-    const korrigeringen = await innlegget(/^Brev 3 · Korrigering av datoen/);
+    const korrigeringen = await innlegget(3);
     expect(
       korrigeringen.getByText(
         /20\. september 2026, ifølge totalentreprenøren\. Korrigerer 15\. september 2026, oppgitt i brev 1\./
@@ -156,15 +161,17 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     expect(screen.queryByRole('button', { name: /Korriger datoen/ })).toBeNull();
     // MM-U50: påberopelsen står, og visningen sier ikke at varselet nå kom i tide.
     expect(
-      (await innlegget(/^Brev 2 ·/)).getByText(/varselet etter punkt 32\.2 i brev 1 kom for sent/)
+      (await innlegget(2)).getByText(/varselet etter punkt 32\.2 i brev 1 kom for sent/)
     ).toBeTruthy();
     expect(document.querySelector('main')!.textContent).not.toMatch(
       /nå kom i tide|likevel i tide|varslet i tide|godkjenner at varselet/
     );
-    // G-7: tidslinja har begge opplysningene, lest av `datoopplysninger`.
-    const linja = within(screen.getByRole('region', { name: /Tidslinje/ }));
-    expect(linja.getByText('Oppgitt av TE i brev 1')).toBeTruthy();
-    expect(linja.getByText('Oppgitt av TE i brev 3')).toBeTruthy();
+    // G-7: begge opplysningene står i tråden, ved brevet de ble oppgitt i (U-8 i BF-44: oversikten
+    // har ikke en egen tidslinje).
+    expect(
+      (await innlegget(1)).getByText(/15\. september 2026, ifølge totalentreprenøren\./)
+    ).toBeTruthy();
+    expect(screen.queryByRole('region', { name: /Tidslinje/ })).toBeNull();
   });
 
   it('en uendret dato, en dato etter dagens dato og et tomt felt stoppes i skjemaet med det som hindrer, og brevet vises ikke (U-3, D-4)', async () => {
@@ -229,9 +236,7 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
   it('«Korriger datoen» står ikke under «Andre handlinger» (U-1, #1615)', async () => {
     aapne('BF-02A', 'te-har-mottatt-svaret');
     await tilForholdet();
-    const kortet = within(
-      (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
-    );
+    const kortet = within(await screen.findByRole('region', { name: 'Andre handlinger' }));
     expect(kortet.queryByText(/Korriger datoen|Handlingen korrigere/)).toBeNull();
   });
 
@@ -257,7 +262,7 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     bane.journal = async () => demosak().journal();
     await tilForholdet();
     expect(
-      (await innlegget(/^Brev 1 ·/)).getByText(
+      (await innlegget(1)).getByText(
         /Saken står lukket, og korrigeringen endrer ikke utfallet\. Byggherren kan ta stilling til den nye datoen i et innlegg\./
       )
     ).toBeTruthy();
@@ -274,9 +279,9 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
       expect(kvitteringen()).toMatch(/Saken står lukket, og utfallet er det samme\./)
     );
     // Teksten om den lukkede saken står én gang ved korrigeringen.
-    expect(
-      (await innlegget(/^Brev 4 ·/)).getAllByText(/^Saken står lukket, og korrigeringen/)
-    ).toHaveLength(1);
+    expect((await innlegget(4)).getAllByText(/^Saken står lukket, og korrigeringen/)).toHaveLength(
+      1
+    );
   });
 
   it('før byggherren har svart, sier verken tråden, brevkontrollen eller kvitteringen at et svar står (U-2, U-4)', () => {

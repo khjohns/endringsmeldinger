@@ -61,6 +61,10 @@ export interface Brevet {
   brevtittel: string | null;
   /** Teksten slik den ble frosset da brevet ble skrevet; `null` for et registrert brev (MM-U17, MM-U50). */
   avsnitt: Avsnitt[] | null;
+  /** Beskrivelsen den som registrerte brevet, oppga (OV-U16), og `null` for et brev sendt herfra. */
+  beskrivelse: string | null;
+  /** Filnavnene på vedleggene brevet binder, i brevets rekkefølge (LV-U14). */
+  vedlegg: string[];
 }
 
 function artAv(d: Dokument): Brevet['art'] {
@@ -75,6 +79,7 @@ function artAv(d: Dokument): Brevet['art'] {
 export function brevene(u: Utledning): Brevet[] {
   const spor = elementenesSpor(u);
   const sendt = new Map(u.registrerteBrev.map((r) => [r.dokument, r.sendt]));
+  const beskrivelse = new Map(u.registrerteBrev.map((r) => [r.dokument, r.beskrivelse]));
   return u.journal.flatMap((h) => {
     if (h.art !== 'dokument') return [];
     const d = h.dokument;
@@ -103,9 +108,39 @@ export function brevene(u: Utledning): Brevet[] {
         omtale: omtalen(d),
         brevtittel: d.brevtittel,
         avsnitt: d.brevtekst,
+        beskrivelse: beskrivelse.get(d.id) ?? null,
+        vedlegg: d.dokumentasjon.map((v) => v.filnavn),
       },
     ];
   });
+}
+
+/**
+ * Brevene i tråden på siden for sporet, i rekkefølgen i journalen: alle brevene i saken på siden
+ * for forholdet, og brevene i sporet på siden for et krav (oppdragsgiver 13.11, #1898).
+ */
+export const brevITraaden = (brev: Brevet[], spor: Spor): Brevet[] =>
+  spor === 'forhold' ? brev : brev.filter((b) => b.spor.includes(spor));
+
+/**
+ * Brevet med neste versjon av kravet i samme spor, etter ID-en til brevet med den tidligere
+ * versjonen. Tråden viser et eldre krav dempet med «fulgt opp i brev 5» (U-5 i BF-44).
+ */
+export function oppfoelgingene(u: Utledning, alle: Brevet[]): Map<string, Brevref> {
+  const brev = new Map(alle.map((b) => [b.id, b]));
+  const SPORENE = ['forhold', 'vederlag', 'frist'] as const;
+  // Et brev med et krav som gjelder i et annet spor, er ikke fulgt opp som helhet.
+  const gjelder = new Set(SPORENE.flatMap((s) => u.spor[s].gjeldendeKrav?.dokument ?? []));
+  const ut = new Map<string, Brevref>();
+  for (const s of SPORENE) {
+    const krav = u.spor[s].krav;
+    for (let i = 0; i + 1 < krav.length; i++) {
+      const neste = brev.get(krav[i + 1].dokument);
+      if (neste && krav[i].dokument !== neste.id && !gjelder.has(krav[i].dokument))
+        ut.set(krav[i].dokument, ref(neste));
+    }
+  }
+  return ut;
 }
 
 /** Det en tekst trenger for å vise til et brev, med eller uten nummer. */
