@@ -134,6 +134,10 @@ uten at oppdraget gjentar det:
   Små oppslag gjør økta selv (`CLAUDE.md`, «Arbeidsform»), og subagentene følger
   skillen [`subagenter`](../subagenter/SKILL.md).
 - **Review.** Byggeøkta kjører reviewet selv, etter «Review i byggeøkta».
+- **`/simplify`.** Før `/code-review` ser byggeøkta om et av kriteriene i
+  [orkestreringsskillen, «`/simplify`»](../orkestrering/SKILL.md#simplify) gjelder for
+  grenen. Gjelder et, sier den fra til orkestratoren hvilket, og arbeider videre mens
+  den venter. Er `/simplify` ikke bestilt, kjører den den ikke.
 - **PR-beskrivelsen er rapporten til orkestratoren:** hva som er endret,
   sjekkene som er kjørt med resultat, funn utenfor oppdraget med issuenummer,
   samleissuet med nummer når det finnes, og «Åpne spørsmål». Utfallet av reviewet står

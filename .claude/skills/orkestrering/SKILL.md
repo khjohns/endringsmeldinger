@@ -329,19 +329,24 @@ før en spørsmålsrunde og før en vedtaks-PR.
 ## `/simplify`
 
 `/simplify` kjøres når oppdragsgiver ber om det eller godkjenner orkestratorens
-forslag (leveranseskillen, «Review og funn»). Orkestratoren foreslår den for en gren som
+forslag (leveranseskillen, «Review og funn»). Den ser etter gjenbruk, duplisering og
+kode som kan forenkles i én diff. Det den finner, avhenger av hva grenen legger til,
+ikke av hvor stor diffen er. Funnene om duplisering og to kilder i runde B og C kom fra
+PR-er på 25 linjer og på 900 (#1845, #1848, #1856, #1861). Orkestratoren foreslår den for en gren som
 
-- har mye ny eller omskrevet produksjonskode, som tommelfingerregel over 500
-  endrede linjer utenom tester og `docs/`. Mål det med `git diff --shortstat`
-  og `--stat`, ikke ved å lese diffen;
+- legger til ny produksjonskode: en ny komponent, modul eller utregning, særlig i
+  visningen og på serveren, der en ny del lett blir en kopi av en som finnes;
 - er bygget i flere omganger, for eksempel med domenesvar som endret retning
   underveis;
-- har tester eller feilinnføringer som fanger endret atferd.
+- rører filer der reviewet tidligere har gitt funn om duplisering eller to kilder for
+  samme verdi.
 
-Foreslå den når runden legges fram, for økter som ventes å gi en slik gren, og
-ellers når en gren viser seg å bli det. Foreslå den ikke for rene
-dokumentendringer, for en PR som er merget, eller for en liten diff som er
-gjennomgått.
+Foreslå den ikke for en ren flytting, for `docs/` og skillene, for en liten retting
+eller for en PR som er merget. Foreslå den når runden legges fram, for økter som ventes
+å gi en slik gren. Ellers foreslår du den når byggeøkta melder at et kriterium gjelder
+(«I en orkestrert økt» i [arbeidsøkt-skillen](../arbeidsokt/SKILL.md#i-en-orkestrert-økt)).
+Den koster flere subagenter og ett `/code-review` til, så den skal treffe der den
+finner noe (oppdragsgiver 13.11).
 
 Bestillingen til økta sier:
 
