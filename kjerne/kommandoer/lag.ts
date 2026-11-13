@@ -5,20 +5,15 @@
 
 import { iSporet } from '../frosset/byggeklosser.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import type { Utkastlag } from '../spor/poster/kommando.ts';
-import { lagIVederlaget, type Forutsetning } from '../spor/vederlag/kommando.ts';
+import { lagIVederlaget, type LagIVederlaget } from '../spor/vederlag/kommando.ts';
 import type { Spor } from '../typer.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Svarutkast } from './kommando.ts';
 
-/** Lagene i et svarutkast i ett spor. */
-export type Sporslag = (
-  utkast: Svarutkast,
-  u: Utledning,
-  regler: Regelsett
-) => Utkastlag<Forutsetning>;
+/** Lagene i et svarutkast i ett spor, med sporets egen type for lagene (`Utkastlag`). */
+export type Sporslag<L> = (utkast: Svarutkast, u: Utledning, regler: Regelsett) => L;
 
-const LAG: Record<Spor, Sporslag | null> = {
+const LAG: Record<Spor, Sporslag<LagIVederlaget> | null> = {
   forhold: null,
   vederlag: lagIVederlaget,
   frist: null,
@@ -29,7 +24,7 @@ export function lagForUtkastet(
   utkast: Svarutkast,
   u: Utledning,
   regler: Regelsett
-): Utkastlag<Forutsetning> {
+): LagIVederlaget {
   const lag = iSporet(LAG, utkast.spor);
   if (!lag) throw new Error(`lagForUtkastet gjelder vederlag, ikke ${utkast.spor}`);
   return lag(utkast, u, regler);

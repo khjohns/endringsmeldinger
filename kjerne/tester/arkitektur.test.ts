@@ -1633,7 +1633,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/kommando.ts:medKravposter'],
   ],
   [
-    'spor/vederlag/utledning.ts',
+    'spor/poster/utledning.ts',
     'relasjon',
     'nesteBetegnelse',
     ['spor/vederlag/kommando.ts:medKravposter'],

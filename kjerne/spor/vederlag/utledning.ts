@@ -28,12 +28,6 @@ import {
 
 type Kravversjonsinndata = { kravposter?: Versjonsinndata['poster']; trekker?: readonly unknown[] };
 
-/** Betegnelsen en ny kravpost får: tallet etter det høyeste som er brukt i sporet (KA-U53). */
-export function nesteBetegnelse(brukte: ReadonlySet<string>): string {
-  const tall = [...brukte].map((b) => Number(b.slice(1)));
-  return `P${Math.max(0, ...tall) + 1}`;
-}
-
 /**
  * Hvorfor kravpostene i den nye kravversjonen strider mot de tidligere versjonene i sporet,
  * eller `null`, etter versjonsregelen for postene (`posteneStrider`). `lagret` sier om
