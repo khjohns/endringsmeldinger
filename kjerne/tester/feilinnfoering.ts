@@ -19,7 +19,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 (opphevet av MM-U52) punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F475 en ny versjon av påberopelsen og endringsordren som står (LV-U56, MM-U52 punkt 14, #1615), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775), og F575–F576 rekkefølgen på hjemlene i rettidigheten i svaret på fristen (VS-U24, #1783). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 (opphevet av MM-U52) punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F475 en ny versjon av påberopelsen og endringsordren som står (LV-U56, MM-U52 punkt 14, #1615), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775), og F575–F576 rekkefølgen på hjemlene i rettidigheten i svaret på fristen (VS-U24, #1783), og F577 innsigelsen hvert «i tide» i fristen gir opp (VS-U20, #1783). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
@@ -1610,7 +1610,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F192',
     feilklasse:
       'aksept av et svar med påberopelse etter § 33.6.1 gir de vurderte dagene, ikke de prinsipale (VS-U4)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/frist/frysing.ts`,
     endringer: [
       [
         'return { dager: spesifisering.dager! };',
@@ -1623,7 +1623,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F193',
     feilklasse:
       'serverens utregning gir de vurderte dagene prinsipalt ved påberopelse etter § 33.6.1 (B-13, VS-U4)',
-    fil: `${K}/frosset/utregning.ts`,
+    fil: `${K}/spor/frist/frysing.ts`,
     endringer: [['ut.godkjent_dager = maatteForstaa;', 'ut.godkjent_dager = r.godkjent_dager;']],
     mal: ['serverens utregning gir dagene byggherren måtte forstå at TE hadde krav på, prinsipalt'],
   },
@@ -1690,7 +1690,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F201',
     feilklasse:
       'en påberopelse etter § 33.6.1 gir sammenfall (arbeidsvalget i #479, MM-U43 punkt 8)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/frist/frysing.ts`,
     endringer: [['v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning))', 'false']],
     mal: ['sammenfall med en påberopelse etter § 33.6.1', 'F-MM-F-33-6-1-alle-dagene'],
   },
@@ -3195,7 +3195,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F387',
     feilklasse: 'en upåvirket spesifisering hindrer sammenfall (OV-U32, #479)',
-    fil: `${K}/frosset/standpunkt.ts`,
+    fil: `${K}/spor/frist/frysing.ts`,
     endringer: [
       [
         'p.standpunkt === spesifisering.id && laget(p.virkning)',
@@ -4556,7 +4556,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F524',
     feilklasse: 'et ukjent felt i vurderingene i svaret på fristen godtas uten virkning (MM-U2)',
-    fil: `${K}/frosset/utregning.ts`,
+    fil: `${K}/spor/frist/frysing.ts`,
     endringer: [["  avvisUkjenteFelt(v, FRISTVURDERINGER, 'fristen');\n", '']],
     mal: ['et ukjent felt i vurderingene i svaret på forholdet og fristen avvises'],
   },
@@ -4962,6 +4962,14 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/format.ts`,
     endringer: [['  kontrollerHjemlene: kontrollerHjemleneIFristen,', '']],
     mal: ['VS-U24: rettidigheten etter § 33.6.2 foran rettidigheten etter § 33.4'],
+  },
+  {
+    id: 'F577',
+    feilklasse:
+      'i fristen gir bare partens siste «i tide» etter § 33.4 opp innsigelsen, ikke hvert (VS-U20, #1783)',
+    fil: `${K}/spor/frist/frysing.ts`,
+    endringer: [['  hvertITideGirOppInnsigelsen: true,', '  hvertITideGirOppInnsigelsen: false,']],
+    mal: ['VS-U20: i fristen gir et tidligere «i tide» etter § 33.4 opp innsigelsen'],
   },
 ];
 
