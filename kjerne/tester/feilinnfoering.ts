@@ -1006,10 +1006,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '    ...s.standpunkter.filter(harTekst).map((p) => {',
-        "    ...s.standpunkter.filter(harTekst).filter((p) => virkning.get(p.id) !== 'uten_virkning').map((p) => {",
-      ],
-      [
         '  for (const p of s.standpunkter.filter(harTekst)) {',
         "  for (const p of s.standpunkter.filter(harTekst).filter((p) => virkning.get(p.id) !== 'uten_virkning')) {",
       ],
@@ -1063,10 +1059,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'const innsigelser = aapneInnsigelser(s, nytt.avsender, j, regler);',
-        'const innsigelser = [];',
-      ],
-      [
         'const innsigelsene = aapneInnsigelser(s, nytt.avsender, j, regler);',
         'const innsigelsene: Innsigelse[] = [];',
       ],
@@ -1115,10 +1107,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'svaret på vederlag og frist sier ikke at forholdet er avslått eller prekludert (A2, B-13 05.10)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      ["  if (s.spor === 'forhold') return [];", '  return [];'],
-      ["  if (s.spor === 'forhold') return ingen;", '  return ingen;'],
-    ],
+    endringer: [["  if (s.spor === 'forhold') return ingen;", '  return ingen;']],
     mal: [
       'forholdet avslått i samme brev',
       'forholdet prekludert og avslått subsidiært i et tidligere brev',
@@ -1129,8 +1118,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F120',
     feilklasse: 'et svar på påberopelsen i et tidligere brev omtales som i samme brev (A2, LV-U3)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['  if (g.dokument === nytt.id) {', '  if (true) {']],
-    // LV-U72: svaret på fristen har dagens tekst.
+    endringer: [['  if (nytt.id === g.dokument) {', '  if (true) {']],
     mal: ['nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)'],
   },
   {
@@ -1200,7 +1188,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F129',
     feilklasse: 'revisjonen viser ikke til svaret den erstatter (HF-U1)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['  if (s.erstatter) {', '  if (false) {']],
+    endringer: [['  return s.erstatter\n', '  return false\n']],
     mal: ['en revisjon viser til svaret den erstatter'],
   },
   {
@@ -1230,8 +1218,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '        : `byggherren gjør ikke gjeldende at ${varselet} kom for sent.`;',
-        "        : 'byggherren gjør ikke gjeldende at varselet kom for sent.';",
+        '    : `byggherren gjør ikke gjeldende at ${omVarselet} kom for sent.`;',
+        "    : 'byggherren gjør ikke gjeldende at varselet kom for sent.';",
       ],
     ],
     mal: ['nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)'],
@@ -1242,7 +1230,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'og gjør ikke gjeldende at ${varselet} kom for sent.`',
+        'og gjør ikke gjeldende at ${omVarselet} kom for sent.`',
         'og gjør ikke gjeldende at varselet kom for sent.`',
       ],
     ],
@@ -1253,10 +1241,6 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'standpunktet om rettidighet nevner feil varsel (LV-U4 punkt 5, LV-U5)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      [
-        '  return `${VARSELET[p.hjemmel]} i ',
-        "  return `${VARSELET[p.hjemmel === '32.2' ? '33.4' : '32.2']} i ",
-      ],
       [
         'const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ',
         "const omVarselet = `${VARSELET_I_SVARET[p.hjemmel === '32.2' ? '34.1.2' : '32.2']} i ",
@@ -2957,8 +2941,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'innsigelser.filter((i) => i.hjemmel === p.hjemmel)',
-        "innsigelser.filter((i) => i.hjemmel === p.hjemmel && i.hjemmel !== '33.6.2')",
+        'innsigelsene.filter((i) => i.hjemmel === p.hjemmel)',
+        "innsigelsene.filter((i) => i.hjemmel === p.hjemmel && i.hjemmel !== '33.6.2')",
       ],
     ],
     mal: ['VS-U29: innsigelsen mot begrunnelsen er en påberopelse etter § 33.6.2'],
@@ -3144,10 +3128,6 @@ const MUTASJONER: Mutasjon[] = [
       'et forhold som er både prekludert og avslått, flytter lagene i sporet bare ett lag (OV-U32, A2)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      [
-        '  const forskyvning = forholdet.length;',
-        '  const forskyvning = forholdet.length ? 1 : 0;',
-      ],
       [
         '    return { forskyvning: grunner.length, ledd: [], henvisninger };',
         '    return { forskyvning: grunner.length ? 1 : 0, ledd: [], henvisninger };',
@@ -3342,7 +3322,6 @@ const MUTASJONER: Mutasjon[] = [
       'svaret på vederlag eller frist uten svar på forholdet har ikke forbeholdet (GR-U26)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      ['    ...forbeholdForForholdet(s, t),\n', ''],
       ['  const forbehold = forbeholdetForForholdet(s, t);', '  const forbehold: string[] = [];'],
     ],
     mal: [
@@ -3382,10 +3361,6 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'oppgjørsformen får ikke etiketten for laget sitt (OV-U33)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
-      [
-        'plass: lag !== null ? lag + forskyvning : null,',
-        "plass: lag !== null && p.art !== 'oppgjoersform' ? lag + forskyvning : null,",
-      ],
       [
         '    const plass = plassen(p.id);',
         "    const plass = p.art === 'oppgjoersform' ? null : plassen(p.id);",
@@ -3436,12 +3411,11 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        "    .map((a) => a.join(' '))\n    .join('\\n\\n');",
-        "    .map((a) => a.join(' '))\n    .join(' ');",
+        '          avsnitt.push(lagslinje(l.plass, p.punkt), tekst);',
+        '          avsnitt.push(`${lagslinje(l.plass, p.punkt)} ${tekst}`);',
       ],
     ],
-    // LV-U72: svaret på fristen har dagens struktur med avsnitt per lag.
-    mal: ['nevner hjemmelen etter § 32.2-preklusjonen (LV-U5)'],
+    mal: ['§ 33.4 for sent, ingen hindring og dagene står i lag 1, 2 og 3'],
   },
   {
     id: 'F415',
@@ -3755,7 +3729,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(p.gjelder))}`;',
+        'const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;',
         'const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(krav.dokument)}`;',
       ],
     ],
@@ -4093,7 +4067,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'leseren forstår et avsnitt med punkt for et element som verken er et krav eller et svar (MM-U2, LV-U70)',
     fil: `${K}/format/leser.ts`,
-    endringer: [["!dokument.svar.some((s) => s.id === a.gjelder && s.spor !== 'frist')", 'false']],
+    endringer: [['!dokument.svar.some((s) => s.id === a.gjelder)', 'false']],
     mal: ['et avsnitt med punkt for et element som ikke er et krav'],
   },
   {
@@ -4236,8 +4210,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/tekst.ts`,
     endringer: [
       [
-        "gitt(varselet, 'Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4)', t)",
-        "''",
+        "              'Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4)',\n              t\n            )",
+        "              'Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4)',\n              t\n            ) && ''",
       ],
     ],
     mal: ['et varsel sendt før det første kravet gjelder'],
@@ -4675,7 +4649,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F535',
     feilklasse:
       'kravet sier ikke at TE opplyser varselet i et dokument som er vedlagt (VS-U51, U-14 i BF-14)',
-    fil: `${K}/spor/vederlag/tekst.ts`,
+    fil: `${K}/frosset/brevdeler.ts`,
     endringer: [
       ['  return dokumentet.length && dokumentet.every(', '  return false && dokumentet.every('],
     ],
@@ -4862,14 +4836,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [['const brevet = j.brevet(g.dokument);', "const brevet = 'samme brev';"]],
     mal: ['forholdet avslått i et tidligere brev', 'subsidiært i et tidligere brev'],
-  },
-  {
-    id: 'F566',
-    feilklasse:
-      'leseren forstår et avsnitt med punkt i svaret på fristen, som har dagens struktur (MM-U2, LV-U72)',
-    fil: `${K}/format/leser.ts`,
-    endringer: [[" && s.spor !== 'frist')", ')']],
-    mal: ['et avsnitt med punkt i svaret på fristen'],
   },
   {
     id: 'F567',

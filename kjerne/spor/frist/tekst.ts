@@ -5,6 +5,7 @@
  */
 
 import {
+  gitt,
   KanIkkeUttrykkes,
   kravetErstatter,
   opplistet,
@@ -12,12 +13,13 @@ import {
   type Brevpunkt,
   type Kravsporsbrevtekst,
   type Standpunktstekster,
+  type Tema,
   type Tekst,
 } from '../../frosset/brevdeler.ts';
 import { standpunktet, virkningen } from '../../frosset/byggeklosser.ts';
 import type { Sporslinje } from '../../frosset/linje.ts';
 import { dager } from '../../frosset/tekst.ts';
-import { innholdIForholdet, kategori } from '../forhold/format.ts';
+import { kategori } from '../forhold/format.ts';
 import { betegnelsen, innholdIFristen, type FristIKravet } from './format.ts';
 import { fristnoekkel } from './utledning.ts';
 import type { Krav } from '../../typer.ts';
@@ -36,22 +38,44 @@ const fristeneMedDager = (krav: Krav): string =>
   );
 
 /**
- * Fristkravet (LV-U4 punkt 2–3): ett punkt per frist med dagene for den, og uten sum (KA-U74,
- * U-1), ett avsnitt per frist. Brevet angir ikke datoen (KA-U77). En frist fra forrige versjon som ikke er med, er
- * trukket (KA-U76), og en frist som ikke er registrert og får en annen frist i samme rad, er
- * erstattet (KA-U79).
+ * Varselet etter § 33.4 i kravet: brevet det ble gitt i (`gitt`), eller at kravet varsler nå
+ * (VS-U15, prototypen `fristkrav-te.html`). Et varsel sendt utenfor løsningen før kravet står i
+ * opplysningen om varselet i samme brev, så punktet står ikke da. Ordlyden er design.
  */
-function fristkravtekst(k: Krav, { j }: Tekst): Brevpunkt[] {
-  const deler = [
-    'Totalentreprenøren krever fristforlengelse for fristene i kontrakten under, med antall dager etter NS 8407 punkt 33.6.1. Dagene gjelder hver frist for seg.',
+function varselpunkt(t: Tekst): Brevpunkt[] {
+  const foer = t.saken.varsletFoer['33.4'];
+  if (foer === undefined && t.nytt.utsagn.some((u) => u.art === 'varsel' && u.hjemmel === '33.4'))
+    return [];
+  return [
+    {
+      punkt: '33.4',
+      overskrift: 'Varselet om fristforlengelse',
+      avsnitt: [
+        foer === undefined
+          ? 'Totalentreprenøren varsler krav om fristforlengelse etter NS 8407 punkt 33.4.'
+          : gitt(foer, 'Varsel om fristforlengelse etter NS 8407 punkt 33.4', t),
+      ],
+    },
   ];
+}
+
+/**
+ * Fristkravet i punkter (LV-U4 punkt 2–3, prototypen `fristkrav-te.html`): forespørselen kravet
+ * svarer på og kravet det erstatter, varselet etter § 33.4, og fristene med dagene for hver, uten
+ * sum (KA-U74, U-1). Brevet angir ikke datoen (KA-U77). En frist fra forrige versjon som ikke er
+ * med, er trukket (KA-U76), og en frist som ikke er registrert og får en annen frist i samme
+ * rad, er erstattet (KA-U79). Begrunnelsen står i punktet `utdypningensPunkt`.
+ */
+function fristkravtekst(k: Krav, t: Tekst): Brevpunkt[] {
+  const { j } = t;
+  const innledning: string[] = [];
   // LV-U18 setning 3: kravet som viser til forespørselen, sier det (HF-U1).
   if (k.gjelder)
-    deler.push(
+    innledning.push(
       `Kravet er svar på byggherrens forespørsel etter NS 8407 punkt 33.6.2 i ${j.brevet(j.dokumentetTil(k.gjelder))}.`
     );
   // KA-U52 punkt 4, LV-U56: setningen om kravet det erstatter står før fristene.
-  if (k.erstatter) deler.push(kravetErstatter(k.erstatter, j));
+  if (k.erstatter) innledning.push(kravetErstatter(k.erstatter, j));
   const versjoner = tidligere(k, j);
   const forrige = versjoner.at(-1);
   const foer = new Map(forrige ? innholdIFristen(forrige).frister.map((f) => [f.id, f]) : []);
@@ -63,7 +87,9 @@ function fristkravtekst(k: Krav, { j }: Tekst): Brevpunkt[] {
       sisteForm.set(frist.id, frist);
       sisteKrav.set(frist.id, v);
     }
-  const avsnitt = [deler.join(' ')];
+  const avsnitt = [
+    'Totalentreprenøren krever fristforlengelse for fristene i kontrakten under, med antall dager etter NS 8407 punkt 33.6.1. Dagene gjelder hver frist for seg.',
+  ];
   for (const f of innholdIFristen(k).frister) {
     const siste = sisteForm.get(f.id);
     const setninger = [`Frist ${betegnelsen(f)}: ${dager(f.dager)}.`];
@@ -83,8 +109,39 @@ function fristkravtekst(k: Krav, { j }: Tekst): Brevpunkt[] {
       `Frist ${betegnelsen(f)}: Totalentreprenøren trekker kravet om forlengelse av fristen, fremsatt i ${j.brevet(forrige.dokument)}.`
     );
   }
-  // Punktene i brevet etter LV-U34 kommer med strukturen etter LV-U72 (#1745).
-  return [{ overskrift: null, avsnitt }];
+  return [
+    ...(innledning.length
+      ? [{ punkt: 'innledning', overskrift: null, avsnitt: [innledning.join(' ')] }]
+      : []),
+    ...varselpunkt(t),
+    { punkt: 'frister', overskrift: 'Fristforlengelse', avsnitt },
+  ];
+}
+
+/** Hjemmelen for hindringen: § 33.3 for force majeure, ellers § 33.1. */
+const hindringenEtter = (paaberopelse: Krav | null | undefined): string =>
+  kategori(paaberopelse).hovedkategori === 'force_majeure' ? '33.3' : '33.1';
+
+/**
+ * Temaene i byggherrens svar i skjemaets rekkefølge (LV-U34, KA-U78, prototypen
+ * `fristsvar.html`): varslene, hindringen, spesifiseringen og dagene for hver frist.
+ */
+function temaer(krav: Krav, { saken }: Tekst): Tema[] {
+  return [
+    { punkt: 'forholdet', overskrift: 'Forholdet' },
+    { punkt: '33.4', overskrift: 'Varselet om fristforlengelse (punkt 33.4)' },
+    { punkt: '33.6.2', overskrift: 'Svaret på forespørselen (punkt 33.6.2)' },
+    {
+      punkt: 'hindring',
+      overskrift: `Hindringen (punkt ${hindringenEtter(saken.paaberopelse)})`,
+    },
+    { punkt: 'spesifisering', overskrift: 'Spesifiseringen av kravet (punkt 33.6.1)' },
+    // KA-U74: ett punkt for dagene i hver frist, med fristens `id`.
+    ...innholdIFristen(krav).frister.map((f) => ({
+      punkt: f.id,
+      overskrift: `Dagene for frist ${betegnelsen(f)}`,
+    })),
+  ];
 }
 
 /** Dagene byggherren godtar for fristen, som en setning med liten forbokstav (KA-U74). */
@@ -104,7 +161,25 @@ export const BREVTEKSTEN_I_FRISTEN = {
   // VS-U29: også påberopelsen etter § 33.6.2 mot begrunnelsen.
   ogsaaInnsigelserEtter: ['33.6.2'],
   nevnerErstattet: false,
+  // KA-U33: kravet begrunner antallet dager.
+  utdypningensPunkt: { punkt: 'begrunnelse', overskrift: 'Begrunnelse' },
   kravetOm: 'fristforlengelse',
+  innledning: (krav, { j }) =>
+    `Byggherren svarer på totalentreprenørens krav om fristforlengelse i ${j.brevet(krav.dokument)}.`,
+  temaer,
+  punktet: (p) => {
+    switch (p.art) {
+      case 'rettidighet':
+        return undefined;
+      case 'hindring':
+      case 'spesifisering':
+        return p.art;
+      case 'dager':
+        return p.gjelder;
+      default:
+        throw new KanIkkeUttrykkes(`standpunktet ${p.art} har ikke noe punkt i svaret`);
+    }
+  },
   enigI: 'antallet dager',
   trukket: fristeneMedDager,
   ingenKrav: (sak) =>
@@ -113,20 +188,21 @@ export const BREVTEKSTEN_I_FRISTEN = {
 
 /** Standpunktene bare fristen har, som en setning med liten forbokstav (LV-U4 punkt 5). */
 export const STANDPUNKTENE_I_FRISTEN = {
+  // KA-U81: ett standpunkt, og teksten nevner begge vilkårene. Ordlyden er design.
   hindring: (p, _krav, s, j) => {
-    const paaberopelse = s.paaberopelse ? j.krav(s.paaberopelse) : null;
-    const hjemmel =
-      innholdIForholdet(paaberopelse).hovedkategori === 'force_majeure' ? '§ 33.3' : '§ 33.1';
-    return `byggherren ${p.oppfylt ? 'legger til grunn' : 'legger ikke til grunn'} at fremdriften hindres som følge av forholdet (NS 8407 ${hjemmel}).`;
+    const hjemmel = hindringenEtter(s.paaberopelse ? j.krav(s.paaberopelse) : null);
+    return p.oppfylt
+      ? `byggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet (NS 8407 punkt ${hjemmel}).`
+      : `byggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet (NS 8407 punkt ${hjemmel}).`;
   },
   spesifisering: (p, krav) =>
     p.iTide
-      ? 'byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (NS 8407 § 33.6.1).'
-      : `byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at TE bare har krav på den fristforlengelsen byggherren måtte forstå at TE hadde krav på: ${opplistet(
+      ? 'byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (NS 8407 punkt 33.6.1).'
+      : `byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at totalentreprenøren bare har krav på den fristforlengelsen byggherren måtte forstå at totalentreprenøren hadde krav på: ${opplistet(
           p.maatteForstaa!.map(
             (m) => `${dager(m.dager)} for frist ${betegnelsen(fristenI(krav, m.frist))}`
           )
-        )} (NS 8407 § 33.6.1).`,
+        )} (NS 8407 punkt 33.6.1).`,
   dager: (p, krav) => dagerForFristen(p.resultat, fristenI(krav, p.gjelder), p.vurdert),
 } satisfies Standpunktstekster<'hindring' | 'spesifisering' | 'dager'>;
 
@@ -135,10 +211,8 @@ export const LINJEN_I_FRISTEN = {
     const spesifisert = standpunktet(svar, 'spesifisering');
     const maatteForstaa = spesifisert?.maatteForstaa;
     return {
-      // Som brevteksten: § 33.1 krever at fremdriften hindres «som følge av» forholdet.
-      hindring: `avslått: fremdriften er ikke hindret som følge av forholdet (§ ${
-        kategori(paaberopelse).hovedkategori === 'force_majeure' ? '33.3' : '33.1'
-      })`,
+      // KA-U81: som brevteksten nevner linjen begge vilkårene.
+      hindring: `avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ ${hindringenEtter(paaberopelse)})`,
       spesifisering: maatteForstaa?.some((m) => m.dager > 0)
         ? `godkjent med ${maatteForstaa.map((m) => m.dager).join(', ')} dager (§ 33.6.1)`
         : 'avslått (§ 33.6.1)',

@@ -8,6 +8,7 @@ import { beloep, tilTall, type Oere } from '../../regler/beloep.ts';
 import { erBeloepetGodkjentFullt } from '../../regler/vederlag.ts';
 import {
   eksMva,
+  gitt,
   KanIkkeUttrykkes,
   kravpostenI,
   opplistet,
@@ -41,7 +42,7 @@ import {
   krevdRigg,
   kravposterI,
 } from './format.ts';
-import { utenGren } from '../../typer.ts';
+import { erKravpostvarselhjemmel, utenGren } from '../../typer.ts';
 import type {
   Krav,
   Kravpost,
@@ -60,24 +61,6 @@ const METODEN = {
   NonNullable<Extract<Standpunkt, { art: 'oppgjoersform' }>['oensket']>,
   string
 >;
-
-/**
- * Varselet gitt før kravet: «… ble gitt i» brevet det står i (VS-U55). Ligger dokumentet ved
- * kravet, er det lagt til i kravskjemaet, og totalentreprenøren opplyser det (VS-U51, VS-U53).
- * Ordlyden er design (U-14 i BF-14), og partene skrives fullt ut (`docs/sprak.md`, #1532).
- */
-function gitt(
-  varselet: Extract<Kravpostvarselet, { art: 'gitt' }>,
-  hva: string,
-  { j, nytt }: Pick<Tekst, 'j' | 'nytt'>
-): string {
-  const brevet = j.brevet(j.dokumentetTil(varselet.varsel));
-  const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
-  const dokumentet = j.dokumentMed(varselet.varsel)?.dokumentasjon ?? [];
-  return dokumentet.length && dokumentet.every((v) => vedlagte.has(v.vedlegg_id))
-    ? `Totalentreprenøren opplyser at ${hva.charAt(0).toLowerCase()}${hva.slice(1)} ble gitt i ${brevet}, som er vedlagt.`
-    : `${hva} ble gitt i ${brevet}.`;
-}
 
 /** Avsnittet for én kravpost. Ordlyden er design (U-6 i BF-14); budskapet står i KA-U61 og KA-U66. */
 function kravposttekst(
@@ -99,7 +82,11 @@ function kravposttekst(
       deler.push(
         varselet.art === 'kravet'
           ? 'Kravet er varsel om justering av enhetsprisene etter NS 8407 punkt 34.3.3.'
-          : gitt(varselet, 'Varselet om justering av enhetsprisene etter NS 8407 punkt 34.3.3', t)
+          : gitt(
+              varselet.varsel,
+              'Varselet om justering av enhetsprisene etter NS 8407 punkt 34.3.3',
+              t
+            )
       );
     if (p.anslag !== undefined)
       deler.push(`Anslaget er ${eksMva(p.anslag)} Anslaget er en opplysning og ikke et tilbud.`);
@@ -111,7 +98,11 @@ function kravposttekst(
       deler.push(
         varselet.art === 'kravet'
           ? 'Kravet er varsel før regningsarbeidet settes i gang (NS 8407 punkt 34.4).'
-          : gitt(varselet, 'Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4)', t)
+          : gitt(
+              varselet.varsel,
+              'Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4)',
+              t
+            )
       );
     if (p.kostnadsoverslag !== undefined)
       deler.push(
@@ -143,9 +134,7 @@ function varselpunkt(hjemmel: '34.1.2' | '34.1.3', t: Tekst): Brevpunkt {
   return {
     punkt: hjemmel,
     overskrift: ordene.overskrift,
-    avsnitt: [
-      foer === undefined ? ordene.naa : gitt({ art: 'gitt', varsel: foer }, ordene.gitt, t),
-    ],
+    avsnitt: [foer === undefined ? ordene.naa : gitt(foer, ordene.gitt, t)],
   };
 }
 
@@ -266,6 +255,21 @@ function temaer(krav: Krav, { saken }: Tekst, regler: Regelsett): Tema[] {
   ];
 }
 
+/** Punktet standpunktet står i (LV-U34). Varselet for en kravpost står med beregningsmetoden. */
+function punktet(p: Standpunkt, krav: Krav): string | undefined {
+  switch (p.art) {
+    case 'rettidighet':
+      return erKravpostvarselhjemmel(p.hjemmel) ? 'metode' : undefined;
+    case 'oppgjoersform':
+    case 'justering':
+      return 'metode';
+    case 'beloep':
+      return p.saerskilt ? 'produktivitet' : kravpostenI(krav, p.gjelder!).betegnelse;
+    default:
+      throw new KanIkkeUttrykkes(`standpunktet ${p.art} har ikke noe punkt i svaret`);
+  }
+}
+
 /** LV-U38: følgen av påberopelsen etter § 34.1.2 for postene i kravet, når svaret ikke har tabell. */
 function ingenBeloep(krav: Krav): string {
   const poster = [
@@ -343,7 +347,10 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
   // Forbeholdet, som Varden sender som kravets utdypning til #1823 gir det et eget felt.
   utdypningensPunkt: { punkt: 'forbehold', overskrift: 'Forbehold' },
   kravetOm: 'justering av vederlaget',
+  innledning: (krav, { j }) =>
+    `Byggherren svarer på totalentreprenørens krav om justering av vederlaget i ${j.brevet(krav.dokument)}. Beløpene i brevet er eks. mva.`,
   temaer,
+  punktet,
   oversikt,
   ingenBeloep,
   enigI: 'beløpet',

@@ -958,7 +958,7 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
       ['dager', 2],
     ]);
     expect(s.svar.beslutningsgrunnlag?.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt avslått: fremdriften er ikke hindret som følge av forholdet (§ 33.1), subsidiært godkjent med 20 dager.'
+      'Byggherrens standpunkt: prinsipalt avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), subsidiært godkjent med 20 dager.'
     );
     expect((await k.send({ handling: 'aksept', spor: 'frist' }))?.godtatt).toBe(true);
     expect((await k.utledning()).spor.frist.enighet?.grunnlag.utfall.frister?.[0]?.dager).toBe(0);
@@ -1543,14 +1543,16 @@ describe('påberopelsen etter § 33.4 gjelder varselet (VS-U20, OV-U5, KK-07)', 
     const { k, rader } = await toKravversjoner(false);
     const brevtekst = radMed(rader, k, 'D-svar').data.brevtekst as {
       gjelder: string;
+      punkt?: string;
       laast: string;
     }[];
-    const avsnitt = brevtekst.find((a) => a.gjelder === k.navn.id('S-f2'))!;
+    // LV-U72: punktet om varselet etter § 33.4 i svaret.
+    const avsnitt = brevtekst.find((a) => a.gjelder === k.navn.id('S-f2') && a.punkt === '33.4')!;
     const foerste = radMed(rader, k, 'K-f1').data.brevnummer;
     if (foerste === radMed(rader, k, 'K-f2').data.brevnummer)
       throw new Error('Forutsetning: kravversjonene står i hvert sitt brev');
     expect(avsnitt.laast).toContain(
-      `§ 33.4 i brev K201-KOE-017-${String(foerste).padStart(2, '0')} av`
+      `punkt 33.4 i brev K201-KOE-017-${String(foerste).padStart(2, '0')} av`
     );
   });
 

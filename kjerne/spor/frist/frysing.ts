@@ -181,6 +181,13 @@ export const SAMMENLIKNES_I_FRISTEN = [
   'frister.godkjent_dager',
 ];
 
+/**
+ * VS-U33, OV-U4. Utledningen og `svarPaaForesporsler` leser det herfra, og kommandoene gjennom
+ * utledningen.
+ */
+export const erFristkravIAppen = (d: Pick<Dokument, 'opplysninger'>, k: Pick<Krav, 'spor'>) =>
+  k.spor === 'frist' && !kravetErDokumentasjon(d);
+
 export interface ForesporselOgSvar {
   foresporsel: string;
   /** Elementet som svarte: et fristkrav (`medKrav`) eller TEs begrunnelse etter annet ledd b. */
@@ -208,9 +215,8 @@ export function svarPaaForesporsler(
         if (f) f.svar = u.id;
       }
     }
-    if (kravetErDokumentasjon(d)) continue;
     for (const krav of d.krav) {
-      const f = krav.spor === 'frist' ? ubesvart(krav.gjelder) : undefined;
+      const f = erFristkravIAppen(d, krav) ? ubesvart(krav.gjelder) : undefined;
       if (f) Object.assign(f, { svar: krav.id, medKrav: true });
     }
   }
