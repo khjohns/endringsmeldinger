@@ -216,7 +216,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F10',
     feilklasse: 'innsigelsen om fremdriftshindring (§ 33.1) forsvinner når brevet skrives',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/frist/kommando.ts`,
     endringer: [
       ["ut.push({ id: nyId(), art: 'hindring', oppfylt: v.vilkar_oppfylt });", 'void 0;'],
     ],
@@ -458,7 +458,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F30',
     feilklasse: 'skriveren utelater `gjelder` i et standpunkt om rettidighet (7.2)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/frist/kommando.ts`,
     endringer: [["      gjelder: varseletForNyttSvar(u, '33.4'),\n", '']],
     mal: ['F-MM-D', 'F-MM-A'],
   },
@@ -1092,9 +1092,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F117',
     feilklasse: 'et fristkrav uten begrunnelse godtas (§ 33.6.1, KA-U33)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/frist/kommando.ts`,
     endringer: [
-      ["  if (k.spor === 'frist')\n    return avvis(", '  if (false)\n    return avvis('],
+      [
+        'const utdypningIFristen = (): Avvisning | null =>\n',
+        'const utdypningIFristen = (): Avvisning | null => null && ',
+      ],
     ],
     mal: ['et fristkrav uten begrunnelse avvises'],
   },
@@ -1637,7 +1640,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F195',
     feilklasse: 'byggherrens vurdering etter § 33.6.1 lagres ikke som standpunkt (#341)',
-    fil: `${K}/kommandoer/standpunkter.ts`,
+    fil: `${K}/spor/frist/kommando.ts`,
     endringer: [
       [
         "if (typeof v.spesifisert_krav_ok === 'boolean')",
@@ -2316,7 +2319,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F299',
     feilklasse: 'datoen for varselet i fristkravet kontrolleres ikke mot brevets dato (#968)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
+    fil: `${K}/spor/frist/kommando.ts`,
     endringer: [
       [
         "k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null,",

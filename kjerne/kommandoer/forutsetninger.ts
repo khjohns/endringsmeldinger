@@ -11,6 +11,7 @@
 
 import { kanFaaInnsigelse, type Utledning } from '../utledning/utled.ts';
 import { fristkravErFremmet } from '../spor/frist/utledning.ts';
+import { FORUTSETNINGER_I_FRISTEN } from '../spor/frist/kommando.ts';
 import { avvis, erKravpostvarselhjemmel, SPOR } from '../typer.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { FORUTSETNINGER_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
@@ -174,17 +175,11 @@ export interface Sporsforutsetninger {
   aksepten(u: Utledning): Avvisning | null;
 }
 
-/** Forutsetningene i hvert spor. Fristen står her til den flyttes (#1745). */
+/** Forutsetningene i hvert spor. */
 const FORUTSETNINGER: Record<Spor, Sporsforutsetninger> = {
   forhold: FORUTSETNINGER_I_FORHOLDET,
   vederlag: FORUTSETNINGER_I_VEDERLAGET,
-  frist: {
-    innsigelsenErIkkeBygget: () => null,
-    svaret: () => null,
-    kravet: 'kravet om fristforlengelse',
-    trekket: () => null,
-    aksepten: () => null,
-  },
+  frist: FORUTSETNINGER_I_FRISTEN,
 };
 
 /** Forutsetningene i sporet (`iSporet`). */

@@ -616,7 +616,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utledning/utled.ts',
     'relasjon',
     'varseletForNyttSvar',
-    ['kommandoer/standpunkter.ts', 'spor/vederlag/kommando.ts', 'spor/forhold/kommando.ts'],
+    ['spor/frist/kommando.ts', 'spor/vederlag/kommando.ts', 'spor/forhold/kommando.ts'],
   ],
   // #1824: varselet etter § 34.1.2 og § 34.1.3 før brevet, som vederlagskravet viser til.
   ['utledning/utled.ts', 'relasjon', 'varseletFoerBrevet', ['kommandoer/skriving.ts:brevtekstFor']],
@@ -1139,6 +1139,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // Avvisningen med regelkoden og meldingen, felles for forutsetningene, nyttelasten og skrivingen.
   ['typer.ts', 'predikat', 'avvis'],
+  // Det en oppgitt dato for et varsel gjelder, i avvisningene (#1783).
+  ['typer.ts', 'predikat', 'varseletSendt', ['kommandoer/nyttelast.ts', 'spor/frist/kommando.ts']],
   // OV-U32: laget en fryst virkning står i, og laget i et svarutkast (#1400).
   [
     'frosset/byggeklosser.ts',
@@ -1234,6 +1236,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'FORUTSETNINGER_I_FORHOLDET korrigering',
     ['kommandoer/forutsetninger.ts'],
   ],
+  [
+    'spor/frist/kommando.ts',
+    'predikat',
+    'FORUTSETNINGER_I_FRISTEN',
+    ['kommandoer/forutsetninger.ts'],
+  ],
+  ['spor/frist/kommando.ts', 'predikat', 'NYTTELAST_I_FRISTEN', ['kommandoer/nyttelast.ts']],
+  ['spor/frist/kommando.ts', 'kommando', 'KRAVFORM_I_FRISTEN', ['kommandoer/kommando.ts']],
+  ['spor/frist/kommando.ts', 'kommando', 'SKRIVING_I_FRISTEN', ['kommandoer/skriving.ts']],
   ['spor/vederlag/utledning.ts', 'predikat', 'KONTROLLER_I_VEDERLAGET', ['utledning/utled.ts']],
   ['spor/forhold/utledning.ts', 'predikat', 'KONTROLLER_I_FORHOLDET', ['utledning/utled.ts']],
   ['spor/frist/utledning.ts', 'predikat', 'KONTROLLER_I_FRISTEN', ['utledning/utled.ts']],
@@ -1369,7 +1380,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'HJEMMEL',
     [
       'format/leser.ts',
-      'kommandoer/standpunkter.ts',
+      'spor/frist/kommando.ts',
       'spor/vederlag/kommando.ts',
       'spor/forhold/frysing.ts',
       'frosset/standpunkt.ts',
@@ -1388,7 +1399,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/format.ts',
     'skjema',
     'KRAVINNHOLD OPPLYSNINGSSLAG',
-    ['kommandoer/kommando.ts', 'spor/forhold/kommando.ts'],
+    ['kommandoer/kommando.ts', 'spor/forhold/kommando.ts', 'spor/frist/kommando.ts'],
   ],
   [
     'format/skjema.ts',
@@ -1406,7 +1417,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/skjema.ts',
     'skjema',
     'objekt',
-    ['spor/vederlag/kommando.ts:kravfeil', 'spor/forhold/kommando.ts'],
+    ['spor/vederlag/kommando.ts:kravfeil', 'spor/forhold/kommando.ts', 'spor/frist/kommando.ts'],
   ],
   // VS-U26: datoen TE oppgir i påberopelsen. Bare formkontrollen, kontrollen mot
   // brevets dato og brevteksten leser den, så ingen regel vurderer rettidigheten av den.
@@ -1801,6 +1812,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'STANDPUNKTER_I_FORHOLDET',
     ['kommandoer/standpunkter.ts'],
   ],
+  // Standpunktene i fristen (#1783).
+  ['spor/frist/kommando.ts', 'utsagn', 'STANDPUNKTER_I_FRISTEN', ['kommandoer/standpunkter.ts']],
   ['frosset/frysing.ts:frys(svar)', 'rad', 'spor utregning', ['frosset/frysing.ts']],
   [
     'kommandoer/skriving.ts:frysBrev(s)',
