@@ -44,7 +44,7 @@ export const FRYSING_I_FRISTEN = {
   utfall: utfallIFristen,
   godkjennerHeleKravet: fristenGodkjent,
   vilkaar: 'forhold_avklart',
-  // VS-U20, arbeidsvalget 15.10 i #309: parten er bundet av hvert «i tide» etter § 33.4.
+  // VS-U20, arbeidsvalget 15.10 i #309. Gjelder rettidigheten etter § 33.4 og § 33.6.2.
   hvertITideGirOppInnsigelsen: true,
 } satisfies Svarsfrysing;
 

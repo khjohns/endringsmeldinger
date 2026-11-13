@@ -152,8 +152,8 @@ export interface Svarsfrysing {
   /** Vilkåret for enigheten om svaret (GR-U7, `enighetsgrunnlag`). */
   vilkaar: Enighetsgrunnlag['vilkaar'];
   /**
-   * Hvert senere «i tide» fra parten gir opp en egen innsigelse, ikke bare partens siste
-   * standpunkt (`innsigelsenErOppgitt` i `frosset/standpunkt.ts`).
+   * `innsigelsenErOppgitt` i `frosset/standpunkt.ts` leser hvert senere standpunkt om
+   * rettidigheten etter hjemmelen, ikke bare partens siste.
    */
   hvertITideGirOppInnsigelsen: boolean;
 }
