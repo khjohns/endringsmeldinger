@@ -98,6 +98,7 @@ describe.skipIf(!TESTBASE_URL)(
             teamId: null,
             sakskode: await sakskodeFor(o, sakId, bruker === o.bh ? 'BH' : 'TE'),
             kontraktsforkortelse: KONTRAKTSFORKORTELSE,
+            kontraktsfrister: [],
             tidspunkt: () => new Date(),
             nyId: randomUUID,
           },

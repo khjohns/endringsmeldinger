@@ -21,12 +21,7 @@ import {
 } from '../spor/forhold/kommando.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { gjelderVarslingsplikten, hjemmelenGjelder, iSporet } from '../frosset/byggeklosser.ts';
-import {
-  likeResultatfelt,
-  regnUtSvar,
-  SAMMENLIKNES,
-  utenforOmfanget,
-} from '../frosset/utregning.ts';
+import { avvikIResultatet, regnUtSvar, utenforOmfanget } from '../frosset/utregning.ts';
 import { datoenDetBleSendt, kravSomVarsler, type Utledning } from '../utledning/utled.ts';
 import { foresporselForFristsvar } from '../spor/frist/utledning.ts';
 import { NYTTELAST_I_FRISTEN } from '../spor/frist/kommando.ts';
@@ -119,11 +114,11 @@ function kontrollerSvar(
   // #520: et felt som ikke gjelder kategorien, avvises av utregningen før dette. Skrivingen
   // registrerer standpunktene og utregningen for brevet her (#814).
   svarstandpunkter(s, server);
-  const avvik = SAMMENLIKNES[s.spor].filter((f) => !likeResultatfelt(f, s.resultat[f], server[f]));
+  const avvik = avvikIResultatet(s.spor, s.resultat, server);
   if (avvik.length)
     return avvis(
       'ANNET_RESULTAT',
-      `Serveren regner ut ${avvik.map((f) => `${f}=${String(server[f])}`).join(', ')}.`
+      `Serveren regner ut ${avvik.map((f) => (f.includes('.') ? `${f}=${JSON.stringify(server[f.split('.')[0]!])}` : `${f}=${String(server[f])}`)).join(', ')}.`
     );
   return utdypningKreves ? nyttelastI(s.spor).begrunnelse(s, krav, regler) : null;
 }

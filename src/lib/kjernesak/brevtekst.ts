@@ -51,6 +51,9 @@ const stemplet = (sakId: string, part: Part, merking: Saksmerking): Kontekst => 
   teamId: null,
   tidspunkt: () => new Date(),
   nyId: () => crypto.randomUUID(),
+  // Nettleseren leser ikke fristtabellen ennå, så forhåndsvisningen av et krav om en registrert
+  // frist avvises til handlingen for fristkravet bygges (G-3 i BF-20).
+  kontraktsfrister: [],
 });
 
 export function brevFor(

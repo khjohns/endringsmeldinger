@@ -13,6 +13,7 @@ import { regnUtSvar } from '../frosset/utregning.ts';
 import { vederlagsposter } from '../spor/vederlag/frysing.ts';
 import { type Svarvurdering } from '../frosset/byggeklosser.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
+import { innholdIFristen } from '../spor/frist/format.ts';
 import { hindrerSvarPaaKravet } from '../spor/vederlag/kommando.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import type { Korrespondansetype, Krav, Part, Spor } from '../typer.ts';
@@ -158,9 +159,12 @@ function vurderinger(spor: Spor, h: Record<string, unknown>, krav: Krav | null):
   return {
     frist_varsel_ok: h.varsel_i_tide,
     spesifisert_krav_ok: h.spesifisering_i_tide,
-    dager_maatte_forstaa: h.maatte_forstaa,
     vilkar_oppfylt: h.hindring,
-    dager: h.dager ?? krav?.innhold.dager,
+    // KA-U74: én vurdering per frist i kravet. Bevis-sakene har én frist.
+    frister: (krav ? innholdIFristen(krav).frister : [{ dager: undefined }]).map((f) => ({
+      dager: h.dager ?? f.dager,
+      dager_maatte_forstaa: h.maatte_forstaa,
+    })),
   };
 }
 
@@ -286,8 +290,17 @@ const INNHOLD = {
       ],
     };
   },
-  frist: (h: Handling) => ({ dager: h.dager }),
+  // KA-U74, KA-U79: bevis-sakene har én frist, som ikke er registrert. En ny versjon tar den med
+  // med sin `id`.
+  frist: (h: Handling, u?: Utledning, nyId?: () => string) => {
+    const forrige = u?.spor.frist.gjeldendeKrav;
+    const id = forrige ? innholdIFristen(forrige).frister[0]!.id : nyId?.();
+    return { frister: [{ ...(id ? { id } : {}), navn: FRISTEN, dager: h.dager }] };
+  },
 };
+
+/** Fristen i bevis-sakene. */
+const FRISTEN = 'Sluttfristen';
 
 /**
  * Varselet TE oppgir i fristkravet. Registrerer kravet varselet, ligger brevet med det
@@ -489,7 +502,7 @@ export function radFor(
                 },
               ],
             }
-          : { dager: 20 },
+          : { frister: [{ id: 'f1', navn: FRISTEN, dager: 20 }] },
     };
     const v = vurderinger(spor, s, krav);
     const standpunkter: Record<string, unknown>[] = [];
@@ -503,7 +516,9 @@ export function radFor(
       });
     if (spor === 'forhold')
       standpunkter.push({ id: navn.nyId(), art: 'forhold', resultat: s.resultat });
-    else if (spor === 'frist') standpunkter.push({ id: navn.nyId(), art: 'dager' });
+    else if (spor === 'frist')
+      for (const f of innholdIFristen(krav).frister)
+        standpunkter.push({ id: navn.nyId(), art: 'dager', gjelder: f.id });
     else
       for (const post of vederlagsposter(v, krav))
         standpunkter.push({

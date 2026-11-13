@@ -126,6 +126,7 @@ export async function lagOppsett(
           byggherre_navn: 'Byggherren',
           totalentreprenor_navn: 'Totalentreprenøren',
           kontraktsforkortelse: KONTRAKTSFORKORTELSE,
+          kontraktsfrister: [],
         });
       const ekte = prosjekt === p ? kobling : undefined;
       await settInn(r, 'catenda_project_configs', {
@@ -411,6 +412,7 @@ export async function medLaastTekst(
       teamId: null,
       sakskode: await sakskodeFor(o, sakId),
       kontraktsforkortelse: KONTRAKTSFORKORTELSE,
+      kontraktsfrister: [],
       tidspunkt: () => new Date(),
       nyId: randomUUID,
     },

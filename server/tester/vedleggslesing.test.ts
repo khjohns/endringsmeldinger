@@ -118,6 +118,7 @@ describe.skipIf(!TESTBASE_URL)('lesingen av vedleggene i skrivingen', () => {
         teamId: null,
         sakskode: await sakskodeFor(o, sakId),
         kontraktsforkortelse: KONTRAKTSFORKORTELSE,
+        kontraktsfrister: [],
         tidspunkt: () => new Date(),
         nyId: randomUUID,
       },

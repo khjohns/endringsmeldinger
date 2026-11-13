@@ -8,7 +8,6 @@ import {
   KanIkkeUttrykkes,
   opplistet,
   tidligere,
-  utenOverskrift,
   type Brevpunkt,
   type Kravsporsbrevtekst,
   type Standpunktstekster,
@@ -37,7 +36,7 @@ const fristeneMedDager = (krav: Krav): string =>
 
 /**
  * Fristkravet (LV-U4 punkt 2–3): ett punkt per frist med dagene for den, og uten sum (KA-U74,
- * U-1). Brevet angir ikke datoen (KA-U77). En frist fra forrige versjon som ikke er med, er
+ * U-1), ett avsnitt per frist. Brevet angir ikke datoen (KA-U77). En frist fra forrige versjon som ikke er med, er
  * trukket (KA-U76), og en frist som ikke er registrert og får en annen frist i samme rad, er
  * erstattet (KA-U79).
  */
@@ -52,7 +51,7 @@ function fristkravtekst(k: Krav, { j }: Tekst): Brevpunkt[] {
     );
   const forrige = tidligere(k, j).at(-1);
   const foer = new Map(forrige ? innholdIFristen(forrige).frister.map((f) => [f.id, f]) : []);
-  const punkter: Brevpunkt[] = [utenOverskrift(deler)];
+  const avsnitt = [deler.join(' ')];
   for (const f of innholdIFristen(k).frister) {
     const var_ = foer.get(f.id);
     const setninger = [`Frist ${betegnelsen(f)}: ${dager(f.dager)}.`];
@@ -60,7 +59,7 @@ function fristkravtekst(k: Krav, { j }: Tekst): Brevpunkt[] {
       setninger.push(
         `Fristen erstatter frist ${betegnelsen(var_)} i ${j.brevet(forrige.dokument)}.`
       );
-    punkter.push({ punkt: f.id, overskrift: null, avsnitt: [setninger.join(' ')] });
+    avsnitt.push(setninger.join(' '));
   }
   for (const id of innholdIFristen(k).trekker) {
     const f = foer.get(id);
@@ -68,15 +67,12 @@ function fristkravtekst(k: Krav, { j }: Tekst): Brevpunkt[] {
       throw new KanIkkeUttrykkes(
         `trekket gjelder fristen ${id}, som ikke står i forrige kravversjon`
       );
-    punkter.push({
-      punkt: f.id,
-      overskrift: null,
-      avsnitt: [
-        `Frist ${betegnelsen(f)}: Totalentreprenøren trekker kravet om forlengelse av fristen, fremsatt i ${j.brevet(forrige.dokument)}.`,
-      ],
-    });
+    avsnitt.push(
+      `Frist ${betegnelsen(f)}: Totalentreprenøren trekker kravet om forlengelse av fristen, fremsatt i ${j.brevet(forrige.dokument)}.`
+    );
   }
-  return punkter;
+  // Punktene i brevet etter LV-U34 kommer med strukturen etter LV-U72 (#1745).
+  return [{ overskrift: null, avsnitt }];
 }
 
 /** Dagene byggherren godtar for fristen, som en setning med liten forbokstav (KA-U74). */

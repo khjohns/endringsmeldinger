@@ -75,7 +75,7 @@ const FRISTVURDERINGER = new Set<string>([
 ]);
 
 /** Byggherrens vurdering av dagene for én frist i kravet, med fristens `id` (`gjelder`). */
-export interface Fristvurdering {
+export interface Dagvurdering {
   gjelder: string;
   dager?: unknown;
   dager_maatte_forstaa?: unknown;
@@ -86,7 +86,7 @@ export interface Fristvurdering {
  * gjelder én kravversjon, så rekkefølgen binder vurderingen til fristen. Kaster
  * `UgyldigVurdering` når antallet ikke stemmer, eller en vurdering har ukjente felt.
  */
-export function fristvurderinger(v: Svarvurdering, krav: Krav): Fristvurdering[] {
+export function fristvurderinger(v: Svarvurdering, krav: Krav): Dagvurdering[] {
   const frister = innholdIFristen(krav).frister;
   const liste = v.frister;
   const feil = (grunn: string) => new UgyldigVurdering({ frister: grunn });
@@ -109,7 +109,7 @@ export function fristvurderinger(v: Svarvurdering, krav: Krav): Fristvurdering[]
 function regnUtFristen(
   v: Svarvurdering,
   krevd: number,
-  f: Fristvurdering,
+  f: Dagvurdering,
   foresporsel: Foresporselsrelasjon | null
 ): Record<string, unknown> {
   const fkrav: Fristkrav = {
@@ -176,7 +176,11 @@ export const UTREGNING_I_FRISTEN = {
 } satisfies Svarsutregning;
 
 /** Feltene klienten skal ha regnet likt med serveren (`SAMMENLIKNES`). */
-export const SAMMENLIKNES_I_FRISTEN = ['frister'];
+export const SAMMENLIKNES_I_FRISTEN = [
+  'frister.gjelder',
+  'frister.resultat',
+  'frister.godkjent_dager',
+];
 
 export interface ForesporselOgSvar {
   foresporsel: string;

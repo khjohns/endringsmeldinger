@@ -60,6 +60,7 @@ class Sak {
       teamId: `team-${part.toLowerCase()}`,
       sakskode: { kode: 'koe' as const, loepenummer: 17 },
       kontraktsforkortelse: 'K201',
+      kontraktsfrister: [],
       tidspunkt: () => naa,
       nyId: randomUUID,
     };
