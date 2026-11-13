@@ -7,7 +7,7 @@
 <!--
   Prototype v3 av oversikten over vederlagskravet i Varden (#1402, BF-44): v2 rettet etter systemfila og språkfila.
   Oppsett A og B er to forsøk etter grunnlagsoversikt-v2.html (13.11): A har tråden med brevene, B i tillegg
-  handlingen ved brevet og brevet ved siden av (U-16). Ankrene for B slutter på -b.
+  handlingen ved brevet og brevet ved siden av, med tråden over kravet og svaret (U-16). Ankrene for B slutter på -b.
   Spørsmålene 1–9 i BF-44 er besvart A 13.11. «Vis sporbarhet» viser punktene i bestillingen.
   Tilstandene er ankrene #te-utkast, #te, #bh-utkast, #bh, #te-regning og #bh-regning. Teksten er prototypetekst, og tallene er et eksempel med
   tre lag: forholdet ubesvart, punkt 34.1.2 prinsipalt, punkt 34.1.3 subsidiært. Fargene er Blekk
@@ -429,10 +429,18 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 :root{--font-brev:'Source Serif 4','Noto Sans',serif;--font-brev-bh:'Oslo Sans','Noto Sans',sans-serif}
 [data-oppsett="a"] .kun-b,[data-oppsett="b"] .kun-a{display:none}
 [data-rolle="TE"] .handling.kun-bh,[data-rolle="BH"] .handling.kun-te,[data-rolle="TE"] .andre.kun-bh,[data-rolle="BH"] .andre.kun-te{display:none}
-[data-utkast="ja"] .uten-utkast-blokk{display:none}
+[data-utkast="ja"] .uten-utkast-blokk,[data-utkast="nei"] .med-utkast-blokk{display:none}
 [data-oppsett="b"] .topplinje-inner{max-width:1400px}
 [data-oppsett="b"] .kolonner{max-width:1400px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-@media (min-width:1181px){.skall[data-oppsett="b"]{grid-template-columns:minmax(0,1fr)}[data-oppsett="b"] .panel{display:none}}
+.sporrad,.sti .sakstittel{display:none}
+@media (min-width:1181px) and (max-width:1799px){
+  .skall[data-oppsett="b"]{grid-template-columns:minmax(0,1fr)}[data-oppsett="b"] .panel{display:none}
+  [data-oppsett="b"] .sporrad{display:flex;flex-basis:100%;gap:4px 24px;flex-wrap:wrap;margin-bottom:-10px;font-size:14px}
+  .sporrad a{padding:6px 0 8px;border-bottom:2px solid transparent;color:var(--ink-2);text-decoration:none}
+  .sporrad a:hover{color:var(--ink);border-bottom-color:var(--rule-strong-color,var(--ink-3))}
+  .sporrad a[aria-current]{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
+  [data-oppsett="b"] .sti .sakstittel{display:inline}
+}
 .handling{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding-top:4px}
 .handling .knapper{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
 .handling p{font-size:14px;color:var(--ink-2)}
@@ -456,6 +464,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
 .brev p + p{margin-top:12px}
 .brev .lagslinje{display:block;font-style:italic;color:var(--ink-2)}
 .brevfot{margin-top:20px;padding-top:12px;border-top:1px solid var(--rule-color);font-family:var(--font-sans);font-size:14px;color:var(--ink-3)}
+.brevpane .brevfot{position:sticky;bottom:0;margin:20px -28px -24px;padding:12px 28px 16px;background:var(--surface)}
 .innlegg .brevplass .brev{margin-top:4px;background:var(--surface-inset);border-radius:var(--r-innfelt)}
 @media (max-width:1180px){.brevpane{display:none !important}}
 </style>
@@ -513,11 +522,12 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
         </div></div></div>
     <header class="toppskall">
       <div class="topplinje-inner">
-        <nav class="sti" aria-label="Du er her"><a class="merkenavn" href="prosjekter.html">Varden</a><span aria-hidden="true">›</span><a href="saksliste.html">Skolebygg Nord</a><span aria-hidden="true">›</span><span aria-current="page">E-021</span></nav>
+        <nav class="sti" aria-label="Du er her"><a class="merkenavn" href="prosjekter.html">Varden</a><span aria-hidden="true">›</span><a href="saksliste.html">Skolebygg Nord</a><span aria-hidden="true">›</span><span aria-current="page">E-021<span class="sakstittel"> · Ny peling med produktivitetstap</span></span></nav>
         <details class="brukermeny">
           <summary><span class="kun-te"><span class="initialer" aria-hidden="true">PO</span><span class="hvem"><b>Per Olsen</b><span>Totalentreprenør · Totalentreprenør AS</span></span></span><span class="kun-bh"><span class="initialer" aria-hidden="true">ON</span><span class="hvem"><b>Ola Nordmann</b><span>Byggherre · Oslobygg KF</span></span></span></summary>
           <div class="meny"><a href="prosjekter.html">Prosjektene dine</a><a href="prosjekter.html">Om Varden</a><hr><a href="innlogging.html">Logg ut</a></div>
         </details>
+        <nav class="sporrad" aria-label="Krav og svar i saken"><a href="grunnlagsoversikt.html">Byggherrens valg av løsninger og prosjektering</a><a href="#skall" aria-current="page">Vederlagsjustering</a><a href="fristoversikt.html">Fristforlengelse</a></nav>
       </div>
     </header>
 
@@ -652,7 +662,8 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
                 <div class="rad"><span class="dato num">27. okt. 2026</span><h3><button class="tittel les" type="button" aria-controls="brev-6" aria-label="Brev 6 · Svar på krav om vederlagsjustering">Svar på krav om vederlagsjustering</button></h3><span class="meta"><span class="nr num">brev 6</span></span></div>
                 <div class="innhold"><p class="datolinje">Godkjent med fullmakt av Kari Nordmann. Sendt kl. 11.05.</p><span class="filer" aria-label="Vedlegg til brev 6"><a class="fil" href="https://catenda.example/" title="Åpnes i Catenda"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Gjennomgang av kalkylen.pdf</span><span class="fm">PDF · 412 kB</span></a><span class="fil ventende"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg><span>Mengdekontroll akse C–F.xlsx</span><span class="fm">Ikke levert til Catenda ennå</span></span></span><div class="brevplass"></div><div class="handling kun-b kun-te">
                   <div class="knapper"><span class="uten-utkast"><button class="knapp primaer" type="button">Revider krav</button></span><button class="lenke" type="button">Godta svaret</button></div>
-                  <p>Et nytt krav følger opp kravet i brev 5 og avslår tilbudet i dette svaret, som da ikke kan godtas. Godtar du svaret, ser du brevet og virkningen av aksepten før du sender.</p>
+                  <p class="uten-utkast-blokk">Et nytt krav følger opp kravet i brev 5 og avslår tilbudet i dette svaret, som da ikke kan godtas. Godtar du svaret, ser du brevet og virkningen av aksepten før du sender.</p>
+                  <p class="med-utkast-blokk">Utkastet til brev 7 avslår tilbudet i dette svaret når det sendes, og svaret kan da ikke godtas. Godtar du svaret, ser du brevet og virkningen av aksepten før du sender.</p>
                 </div><div class="handling kun-b kun-bh uten-utkast-blokk">
                   <div class="knapper"><button class="lenke" type="button">Send nytt svar</button></div>
                   <p>Nytt brev med svaret. Svaret i brev 6 står som det ble sendt.</p>
@@ -825,7 +836,16 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
     // Tilstandene er ankrene #<part>[-utkast|-regning][-b], for eksempel #te, #bh-utkast og #te-b.
     const a = '#' + tilstand.rolle.toLowerCase() + (tilstand.regel === 'regning' ? '-regning' : tilstand.utkast ? '-utkast' : '') + (tilstand.oppsett === 'b' ? '-b' : '');
     if (location.hash !== a) history.replaceState(null, '', a);
+    ordne();
     visSiste();
+    maal();
+  }
+  // Oppsett B: hodet og tråden står først, så handlingen ved det siste brevet er synlig uten rulling.
+  const stilling = document.querySelector('.stilling'), traad = document.querySelector('.traadkort'), sporhode = document.querySelector('.sporhode');
+  function ordne(){
+    const b = tilstand.oppsett === 'b';
+    (b ? traad : stilling).prepend(sporhode);
+    if (b) stilling.before(traad); else traad.before(stilling);
   }
   function lesAnker(){
     const m = /^#(te|bh)(-utkast|-regning)?(-b)?$/.exec(location.hash);
@@ -870,6 +890,10 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
   }
   document.querySelectorAll('.les').forEach(k => k.addEventListener('click', () => { if (tilstand.oppsett === 'b') visBrev(k.getAttribute('aria-controls')); }));
   bred.addEventListener('change', () => { nullstill(); visSiste(); });
+  // Rammen rundt brevet slutter i vinduet, også før topplinja er rullet ut.
+  const pane = document.querySelector('.brevpane');
+  const maal = () => { pane.style.maxHeight = (innerHeight - Math.max(24, pane.getBoundingClientRect().top) - 24) + 'px'; };
+  addEventListener('scroll', maal, { passive: true }); addEventListener('resize', maal);
   knapp('vis-spor').onchange = e => skall.classList.toggle('vis-spor', e.target.checked);
   if (!location.hash) location.replace('#te-utkast');
   lesAnker();
