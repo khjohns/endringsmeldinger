@@ -345,11 +345,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F21',
     feilklasse: 'et krav på 0 dager godtas (KA-U8)',
-    fil: `${K}/format/format.ts`,
+    fil: `${K}/spor/frist/format.ts`,
     endringer: [
       [
-        "frist: { properties: { dager: { type: 'integer', minimum: 1 } }, required: ['dager'] },",
-        "frist: { properties: { dager: { type: 'integer', minimum: 0 } }, required: ['dager'] },",
+        "properties: { dager: { type: 'integer', minimum: 1 } },",
+        "properties: { dager: { type: 'integer', minimum: 0 } },",
       ],
     ],
     mal: ['F-MM-K0', 'et krav på 0 dager'],
@@ -1674,7 +1674,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F199',
     feilklasse: 'en lagret spesifisering i tide med prinsipale dager forstås (VS-U4)',
-    fil: `${K}/format/leser.ts`,
+    fil: `${K}/spor/frist/format.ts`,
     endringer: [["if (e.i_tide === 'dager' in e)", 'if (e.i_tide === undefined)']],
     mal: ['spesifiseringen er i tide, men har prinsipale dager'],
   },

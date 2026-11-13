@@ -5,7 +5,7 @@
  * JSON skiller ikke 5 fra 5.0 i JavaScript, så `integer` godtar 5.0.
  */
 
-import type { Avvisning, Standpunkt, Standpunktsvirkning } from '../typer.ts';
+import type { Avvisning, Hjemmel, Standpunkt, Standpunktsvirkning } from '../typer.ts';
 import { SETTBARE_TEGN } from './tegnsett.ts';
 
 export type Skjema = Record<string, unknown>;
@@ -63,6 +63,7 @@ export interface Svarlesing {
   rettidighet: readonly string[];
   subsidiaertVerdi: string | null;
   standpunkt?: (e: Data, utregning: Data, sti: string) => Standpunkt | null;
+  kontrollerHjemlene?: (hjemler: Hjemmel[], sti: string) => void;
   kontrollerStandpunktene?: (ut: Standpunkt[], utregning: Data, sti: string) => void;
   kontrollerUtregningen?: (
     ut: Standpunkt[],
