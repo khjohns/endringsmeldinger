@@ -4,8 +4,9 @@
 #
 # kjerne:  vedtakene temaet er valgt etter.
 # vedtak:  kjernen og, transitivt, hvert vedtak som endrer, utvider, snevrer inn,
-#          presiserer eller opphever et vedtak i temaet etter `forhold` i
-#          registeret (arbeidsvalg A i #454). Mangler ett, feiler kontrollen.
+#          presiserer, opphever, samler eller bygger på et vedtak i temaet etter
+#          `forhold` i registeret (arbeidsvalg A i #454). Mangler ett, feiler
+#          kontrollen.
 
 [[tema]]
 id = "grunnlagssvar-som-endringsordre"
