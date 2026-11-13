@@ -82,22 +82,22 @@ p{margin:0;text-wrap:pretty}
 /* Panelet står fast i vinduet og har egen fokusfarge, som i Vardenskall */
 @media (min-width:861px){.panel{position:sticky;top:0;height:100vh;overflow-y:auto;align-self:start}}
 .panel :focus-visible{outline-color:var(--sidebar-focus,#8fb0ff)}
+.panel .spor a:focus-visible{outline-offset:-2px}
 /* Panel B: saksomslaget. Saken og partene øverst, sporene med det som foreligger, avsenderen nederst */
 [data-panel="a"] .kun-panel-b,[data-panel="b"] .kun-panel-a{display:none}
-.omslag .id{font-size:12px;color:var(--sidebar-muted);margin-bottom:6px}
+.omslag .id{font-size:12px;color:var(--sidebar-muted);margin-bottom:4px}
 .omslag h2{font-size:20px;font-weight:600;line-height:1.25;letter-spacing:-.01em}
-.parter{margin:12px 0 0;display:grid;gap:2px;font-size:14px}
+.parter{margin:12px 0 0;display:grid;gap:4px;font-size:14px}
 .parter dt{display:inline;margin-right:6px;font-size:12px;color:var(--sidebar-muted)}
 .parter dd{display:inline;margin:0}
 .omslag .merknad{margin-top:12px;font-size:12px;color:var(--sidebar-muted)}
 .sporb{display:flex;flex-direction:column;gap:20px}
-.gruppe{margin-bottom:4px;font-size:12px;color:var(--sidebar-muted)}
-.st{display:block;margin-top:2px;font-size:14px;color:var(--sidebar-muted)}
+.gruppe{margin-bottom:4px;font-size:12px;font-weight:600;color:var(--sidebar-muted)}
+.st{display:block;font-size:14px}
 .st2{display:block;font-size:12px;color:var(--sidebar-muted)}
+.sporb .spor .navn{font-weight:500}
 .sporb .spor a[aria-current] .navn{font-weight:600}
-.sporb .spor a[aria-current] .st{color:var(--sidebar-text)}
-.omslagfot{margin-top:auto;padding-top:16px;border-top:1px solid var(--sidebar-border);display:flex;gap:10px;align-items:center}
-.omslagfot .vapen{width:28px;height:28px;flex:none}
+.omslagfot{margin-top:auto;padding-top:16px;border-top:1px solid var(--sidebar-border)}
 .omslagfot p{display:flex;flex-direction:column;font-size:12px;color:var(--sidebar-muted)}
 .omslagfot b{font-weight:600;color:var(--sidebar-text)}
 .kontrakten dl{margin:0;display:grid;gap:10px}
@@ -561,7 +561,7 @@ a.fil:hover{background:var(--surface-inset);border-color:var(--rule-strong-color
         </ul>
       </div>
     </nav>
-    <div class="omslagfot kun-panel-b"><div class="vapen" aria-hidden="true"></div><p><b>Oslo kommune</b><span>Skolebygg Nord · Totalentreprise NS 8407</span></p></div>
+    <div class="omslagfot kun-panel-b"><p><b>Oslo kommune</b><span>Skolebygg Nord · Totalentreprise NS 8407</span></p></div>
   </aside>
 
   <div class="flate">
