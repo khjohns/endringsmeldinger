@@ -30,7 +30,8 @@
   import type { Kravpostvurdering } from '$kjerne/spor/vederlag/frysing';
   import type { Forutsetning } from '$kjerne/spor/vederlag/kommando';
   import type { Utledning } from '$kjerne/utledning/utled';
-  import type { Avsnitt, Kravpost, Standpunkt } from '$kjerne/typer';
+  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import type { Kravpost, Standpunkt } from '$kjerne/typer';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
@@ -88,16 +89,7 @@
     u: Utledning;
     /** Valgene står når BH går til brevkontrollen og tilbake. */
     valg?: Svarvalg;
-    onbrevkontroll: (k: {
-      kommando: Record<string, unknown>;
-      tekst: string[];
-      avsnitt: Avsnitt[] | null;
-      detteSender: { tekst: string; lag: string | null }[];
-      virkninger: string[];
-      merking: string | null;
-      deresRef: string[];
-      tittel: string | null;
-    }) => void;
+    onbrevkontroll: (k: TilBrevkontrollen) => void;
     /** BH har bekreftet at utkastet skal forkastes. */
     onforkast: () => void;
     /** Brevet leses i en ramme ved siden av skjemaet, eller ikke lenger. */

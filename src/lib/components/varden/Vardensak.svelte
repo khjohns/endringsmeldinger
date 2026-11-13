@@ -6,10 +6,10 @@
 -->
 <script lang="ts">
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
-  import type { Avsnitt, Spor } from '$kjerne/typer';
+  import type { Spor } from '$kjerne/typer';
   import { tick, untrack, type Snippet } from 'svelte';
   import { sakensKode } from '$kjerne/frosset/tekst';
-  import Brevkontroll from './Brevkontroll.svelte';
+  import Brevkontroll, { type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Sporlesing from './Sporlesing.svelte';
@@ -71,17 +71,7 @@
     return { BH: k.byggherre || undefined, TE: k.entreprenoer || undefined };
   });
 
-  type Kontroll = {
-    kommando: Record<string, unknown>;
-    tekst: string[];
-    /** Avsnittene med punktene, når skjemaet har dem fra kjernen (#1824). */
-    avsnitt?: Avsnitt[] | null;
-    utdypning?: string;
-    detteSender: { tekst: string; lag: string | null }[];
-    virkninger: string[];
-    merking: string | null;
-    deresRef: string[];
-    tittel: string | null;
+  type Kontroll = TilBrevkontrollen & {
     handling: string;
     /** Bare mottakeren i faktaene, for den nye versjonen (oppdragsgiver 07.11, PR 1650). */
     bareMottaker?: boolean;
@@ -217,7 +207,7 @@
       ...arbeid,
       tekst: b.tekst,
       // LV-U2.
-      avsnitt: arbeid.avsnitt === undefined ? undefined : b.avsnitt,
+      avsnitt: b.avsnitt,
       merking: b.merking,
       deresRef: b.deresRef,
       tittel: b.brevtittel,
@@ -370,7 +360,6 @@
           kommando={k.kommando}
           tekst={k.tekst}
           avsnitt={k.avsnitt}
-          utdypning={k.utdypning}
           merking={k.merking}
           deresRef={k.deresRef}
           tittel={k.tittel}
@@ -530,19 +519,14 @@
               melding = null;
               if (Object.hasOwn(skjemaene, n)) skjemaene[n]();
             }}
-            onakseptbrev={({ kommando, tekst, virkninger, merking, deresRef, tittel }) => {
+            onakseptbrev={(k) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
               melding = null;
               arbeid = {
                 art: 'kontroll',
                 versjon: kjernesak.versjon,
-                kommando,
-                tekst,
+                ...k,
                 detteSender: svaret ? [{ tekst: STILLING.godtarBrev(svaret), lag: null }] : [],
-                virkninger,
-                merking,
-                deresRef,
-                tittel,
                 handling: BREVKONTROLL.sendAksepten,
                 sendTekst: BREVKONTROLL.sendAksepten,
                 tilbakeTil: 'saken',

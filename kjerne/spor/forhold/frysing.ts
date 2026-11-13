@@ -106,6 +106,7 @@ export const FRYSING_I_FORHOLDET = {
   utfall: () => ({}),
   godkjennerHeleKravet: (svar) => standpunktet(svar, 'forhold')?.resultat === 'godkjent',
   vilkaar: null,
+  hvertITideGirOppInnsigelsen: false,
 } satisfies Svarsfrysing;
 
 // ---------- Utregningen av svaret (B-13) ----------

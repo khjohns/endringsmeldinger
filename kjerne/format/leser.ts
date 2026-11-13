@@ -23,8 +23,8 @@ import {
   SVAR,
   UTSAGN,
 } from './format.ts';
-import { utregningIFristen } from './svarinnhold.ts';
 import { LESING_I_FORHOLDET } from '../spor/forhold/format.ts';
+import { LESING_I_FRISTEN } from '../spor/frist/format.ts';
 import { LESING_I_VEDERLAGET } from '../spor/vederlag/format.ts';
 import { avvikIMerkingen, avvikITittelen } from '../frosset/brevtittel.ts';
 import {
@@ -155,12 +155,7 @@ function element(
 const SVARLESING: Record<Spor, Svarlesing> = {
   forhold: LESING_I_FORHOLDET,
   vederlag: LESING_I_VEDERLAGET,
-  // § 33.6.2 (VS-U17, VS-U19): fristen har også rettidigheten av svaret på forespørselen.
-  frist: {
-    gjentas: false,
-    rettidighet: ['33.6.2'],
-    subsidiaertVerdi: 'subsidiaert_godkjent_dager',
-  },
+  frist: LESING_I_FRISTEN,
 };
 
 /**
@@ -175,7 +170,6 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
   const tillatt = STANDPUNKTER_I_SPORET[spor];
   const utregning = (svar.utregning ?? {}) as Data;
   const lesing = SVARLESING[spor];
-  const frist = utregningIFristen(utregning);
   let neste = 0;
   const ut = liste.map((v, i): Standpunkt => {
     const e = element(v, STANDPUNKT, 'art', `${sti}.standpunkter[${i}]`);
@@ -208,39 +202,14 @@ export function standpunkterISvaret(spor: Spor, svar: Data, sti = '$.svar'): Sta
           iTide: e.i_tide as boolean,
           ...('begrenset_beloep' in e ? { begrenset: e.begrenset_beloep as number } : {}),
         };
-      case 'hindring':
-        return { id, art, oppfylt: e.oppfylt as boolean };
-      case 'spesifisering':
-        // VS-U4: det prinsipale dagtallet står bare når spesifiseringen kom for sent.
-        if (e.i_tide === 'dager' in e)
-          throw new Uforstaatt(
-            `${sti}: dagene i standpunktet etter § 33.6.1 stemmer ikke med rettidigheten`
-          );
-        return {
-          id,
-          art,
-          gjelder: e.gjelder as string,
-          hjemmel: '33.6.1',
-          iTide: e.i_tide as boolean,
-          ...(e.i_tide ? {} : { dager: e.dager as number }),
-        };
-      case 'dager':
-        return {
-          id,
-          art,
-          resultat: frist.subsidiaert_resultat ?? frist.resultat,
-          vurdert: frist.subsidiaert_godkjent_dager ?? frist.godkjent_dager,
-        };
       default:
         throw new Uforstaatt(`${sti}: standpunktet ${art} hører ikke til ${spor}`);
     }
   });
-  // VS-U24: ett standpunkt for hver bestemmelse, § 33.4 før § 33.6.2.
-  const hjemler = ut.flatMap((s) => (s.art === 'rettidighet' ? [s.hjemmel] : []));
-  if (spor === 'frist' && hjemler.length > 1 && (hjemler[0] !== '33.4' || hjemler[1] !== '33.6.2'))
-    throw new Uforstaatt(
-      `${sti}: rettidigheten står ${hjemler.map((h) => `etter § ${h}`).join(', ')}, men bare § 33.4 og deretter § 33.6.2 er lov`
-    );
+  lesing.kontrollerHjemlene?.(
+    ut.flatMap((s) => (s.art === 'rettidighet' ? [s.hjemmel] : [])),
+    sti
+  );
   for (const t of tillatt)
     if (t.paakrevd && !ut.some((s) => s.art === t.art))
       throw new Uforstaatt(`${sti}: svaret på ${spor} mangler standpunktet ${t.art}`);

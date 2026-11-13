@@ -99,6 +99,8 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     expect(vist[0]).toBe(
       'Totalentreprenøren oppgir nå at pålegget ble mottatt 20. september 2026. I brev K201-KOE-017-01 av 1. oktober 2026 oppga totalentreprenøren 15. september 2026.'
     );
+    const brevet = screen.getByRole('article', { name: 'Korrigering av datoen i sak KOE-17' });
+    expect(within(brevet).getByText(FORKLARING)).toBeTruthy();
     const kontrollen = screen.getByRole('region', { name: 'Sending' });
     expect(within(kontrollen).getByText('Viser til')).toBeTruthy();
     expect(kontrollen.textContent).toMatch(/Svaret i brev 2 står som det ble sendt\./);
