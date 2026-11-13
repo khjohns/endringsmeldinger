@@ -15,13 +15,19 @@
  * (#320), og en vakttest holder det likt med det som eksporteres her.
  */
 
-import { FRISTRESULTATER } from '../regler/typer.ts';
 import { artfelt, DATO, ID, liste, objekt, TEKST, type Skjema } from './skjema.ts';
 import {
   FORHOLDSINNHOLD,
   STANDPUNKT_I_FORHOLDET,
   STANDPUNKTER_I_FORHOLDET,
 } from '../spor/forhold/format.ts';
+import {
+  FRISTINNHOLD,
+  RELASJON_I_FRISTKRAVET,
+  STANDPUNKT_I_FRISTEN,
+  STANDPUNKTER_I_FRISTEN,
+  UTREGNING_I_FRISTEN,
+} from '../spor/frist/format.ts';
 import {
   STANDPUNKT_I_VEDERLAGET,
   STANDPUNKTER_I_VEDERLAGET,
@@ -66,14 +72,7 @@ export const HJEMMEL: Record<Spor, Hjemmel> = {
 export const STANDPUNKTER_I_SPORET: Record<Spor, { art: Standpunktsart; paakrevd: boolean }[]> = {
   forhold: STANDPUNKTER_I_FORHOLDET,
   vederlag: STANDPUNKTER_I_VEDERLAGET,
-  frist: [
-    // § 33.4, så § 33.6.2 (VS-U17). Én for hver hjemmel (`leser.ts`).
-    { art: 'rettidighet', paakrevd: false },
-    { art: 'rettidighet', paakrevd: false },
-    { art: 'hindring', paakrevd: false },
-    { art: 'spesifisering', paakrevd: false },
-    { art: 'dager', paakrevd: true },
-  ],
+  frist: STANDPUNKTER_I_FRISTEN,
 };
 
 /**
@@ -89,7 +88,14 @@ export const KRAVINNHOLD: Record<
 > = {
   forhold: FORHOLDSINNHOLD,
   vederlag: vederlagsinnhold(true),
-  frist: { properties: { dager: { type: 'integer', minimum: 1 } }, required: ['dager'] },
+  frist: FRISTINNHOLD,
+};
+
+/** Relasjonene i en kravversjon ut over `erstatter`, per spor. */
+const RELASJONER_I_KRAVET: Record<Spor, Record<string, Skjema>> = {
+  forhold: {},
+  vederlag: {},
+  frist: RELASJON_I_FRISTKRAVET,
 };
 
 const sporfelt = (spor: Spor) => ({ id: ID, spor: { const: spor } });
@@ -101,8 +107,7 @@ export const KRAV: Record<Spor, Skjema> = Object.fromEntries(
       {
         ...sporfelt(s),
         erstatter: ID,
-        // HF-U1, LV-U18 punkt 3: forespørselen etter § 33.6.2 fristkravet svarer på.
-        ...(s === 'frist' ? { gjelder: ID } : {}),
+        ...RELASJONER_I_KRAVET[s],
         ...KRAVINNHOLD[s].properties,
       },
       ['id', 'spor', ...KRAVINNHOLD[s].required],
@@ -125,37 +130,14 @@ export const STANDPUNKT: Record<Standpunktsart, Skjema> = {
   ),
   ...STANDPUNKT_I_FORHOLDET,
   ...STANDPUNKT_I_VEDERLAGET,
-  hindring: objekt({ ...artfelt('hindring'), oppfylt: { type: 'boolean' } }, [
-    'id',
-    'art',
-    'oppfylt',
-  ]),
-  spesifisering: objekt(
-    {
-      ...artfelt('spesifisering'),
-      gjelder: ID,
-      hjemmel: { const: '33.6.1' },
-      i_tide: { type: 'boolean' },
-      dager: { type: 'integer', minimum: 0 },
-    },
-    ['id', 'art', 'gjelder', 'hjemmel', 'i_tide']
-  ),
-  dager: objekt(artfelt('dager'), ['id', 'art']),
+  ...STANDPUNKT_I_FRISTEN,
 };
 
 /** Serverens utregning etter B-13. Forholdet har ingen. */
 export const UTREGNING: Record<Spor, Skjema | null> = {
   forhold: null,
   vederlag: UTREGNING_I_VEDERLAGET,
-  frist: objekt(
-    {
-      resultat: { enum: [...FRISTRESULTATER] },
-      godkjent_dager: { type: 'integer', minimum: 0 },
-      subsidiaert_resultat: { enum: [...FRISTRESULTATER] },
-      subsidiaert_godkjent_dager: { type: 'integer', minimum: 0 },
-    },
-    ['resultat', 'godkjent_dager']
-  ),
+  frist: UTREGNING_I_FRISTEN,
 };
 
 export const BESLUTNINGSGRUNNLAG: Skjema = objekt(

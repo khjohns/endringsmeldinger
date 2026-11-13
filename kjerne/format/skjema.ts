@@ -5,7 +5,7 @@
  * JSON skiller ikke 5 fra 5.0 i JavaScript, så `integer` godtar 5.0.
  */
 
-import type { Avvisning, Standpunkt, Standpunktsvirkning } from '../typer.ts';
+import type { Avvisning, Hjemmel, Standpunkt, Standpunktsvirkning } from '../typer.ts';
 import { SETTBARE_TEGN } from './tegnsett.ts';
 
 export type Skjema = Record<string, unknown>;
@@ -55,6 +55,8 @@ type Data = Record<string, unknown>;
  * `HJEMMEL`. `subsidiaertVerdi`: feltet i utregningen som står når, og bare når,
  * `subsidiaert_resultat` står, eller `null` når sporet ikke har det subsidiære i utregningen.
  * `standpunkt`: et standpunkt av en art bare sporet har, eller `null` for en annen art.
+ * `kontrollerHjemlene`: hjemlene i rettidigheten, i rekkefølgen svaret har dem, etter at hvert
+ * standpunkt er lest og før det kontrolleres at de påkrevde standpunktene står.
  * `innsigelserMotPosten`: standpunktene som er innsigelser som rammer bare posten, og som
  * tillater et upåvirket standpunkt ved siden av seg (OV-U33).
  */
@@ -63,6 +65,7 @@ export interface Svarlesing {
   rettidighet: readonly string[];
   subsidiaertVerdi: string | null;
   standpunkt?: (e: Data, utregning: Data, sti: string) => Standpunkt | null;
+  kontrollerHjemlene?: (hjemler: Hjemmel[], sti: string) => void;
   kontrollerStandpunktene?: (ut: Standpunkt[], utregning: Data, sti: string) => void;
   kontrollerUtregningen?: (
     ut: Standpunkt[],

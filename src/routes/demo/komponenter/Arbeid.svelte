@@ -87,16 +87,11 @@
     onvelg={(n) => {
       if (Object.hasOwn(skjemaene, n)) skjemaene[n]();
     }}
-    onakseptbrev={({ kommando, tekst, virkninger, merking, deresRef, tittel }) => {
+    onakseptbrev={(k) => {
       const svaret = brev.find((b) => b.id === u.spor[spor].gjeldendeSvar?.dokument);
       kontroll = {
-        kommando,
-        tekst,
+        ...k,
         detteSender: svaret ? [{ tekst: STILLING.godtarBrev(svaret), lag: null }] : [],
-        virkninger,
-        merking,
-        deresRef,
-        tittel,
         handling: BREVKONTROLL.sendAksepten,
         sendTekst: BREVKONTROLL.sendAksepten,
         tilbakeTil: 'saken',

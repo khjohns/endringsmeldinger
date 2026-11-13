@@ -424,9 +424,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Domenehendelse', 'relasjon', 'art id versjon dokument grunn'],
   ['Krav', 'relasjon', 'id spor erstatter gjelder'],
   ['Krav', 'utsagn', 'innhold'],
-  // #1707, #1711: kravinnholdet leses gjennom den typede tilgangen per spor, i `format/kravinnhold.ts`
-  // eller i formatfila for sporet (#1783).
-  ['Krav.innhold', 'utsagn', 'dager', ['format/kravinnhold.ts']],
+  // #1707, #1711: kravinnholdet leses gjennom den typede tilgangen i formatfila for sporet (#1783).
+  ['Krav.innhold', 'utsagn', 'dager', ['spor/frist/format.ts']],
   [
     'Krav.innhold',
     'utsagn',
@@ -1259,7 +1258,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/utledning.ts', 'spor/vederlag/tekst.ts'],
   ],
   [
-    'format/kravinnhold.ts',
+    'spor/frist/format.ts',
     'utsagn',
     'innholdIFristen',
     ['frosset/brevtekst.ts', 'frosset/utregning.ts'],
@@ -1372,6 +1371,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/kommando.ts',
       'spor/forhold/format.ts',
       'spor/vederlag/format.ts',
+      'spor/frist/format.ts',
     ],
   ],
   [
@@ -1493,7 +1493,19 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/skjema.ts',
     'skjema',
     'artfelt',
-    ['format/format.ts', 'spor/forhold/format.ts', 'spor/vederlag/format.ts'],
+    [
+      'format/format.ts',
+      'spor/forhold/format.ts',
+      'spor/vederlag/format.ts',
+      'spor/frist/format.ts',
+    ],
+  ],
+  // #1783: formatet for fristen i sporet.
+  [
+    'spor/frist/format.ts',
+    'skjema',
+    'STANDPUNKTER_I_FRISTEN STANDPUNKT_I_FRISTEN FRISTINNHOLD RELASJON_I_FRISTKRAVET UTREGNING_I_FRISTEN',
+    ['format/format.ts'],
   ],
   // #1783: formatet for forholdet i sporet.
   [
@@ -1618,7 +1630,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'hovedkategori underkategori',
     ['format/koder.ts'],
   ],
-  ['regler/typer.ts', 'regelsett', 'FRISTRESULTATER', ['format/format.ts']],
+  ['regler/typer.ts', 'regelsett', 'FRISTRESULTATER', ['spor/frist/format.ts']],
   ['regler/typer.ts', 'regelsett', 'FORHOLDSRESULTATER', ['spor/forhold/format.ts']],
   ['regler/typer.ts', 'regelsett', 'VEDERLAGSRESULTATER SAERSKILTE', ['spor/vederlag/format.ts']],
 
@@ -1657,8 +1669,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:standpunkterISvaret(e)',
     'rad',
-    'id art gjelder hjemmel i_tide oppfylt dager begrenset_beloep',
+    'id art gjelder hjemmel i_tide begrenset_beloep',
     ['format/leser.ts'],
+  ],
+  [
+    'spor/frist/format.ts:standpunktIFristen(e)',
+    'rad',
+    'id art gjelder i_tide oppfylt dager',
+    ['spor/frist/format.ts'],
   ],
   [
     'spor/forhold/format.ts:standpunktIForholdet(e)',
@@ -1676,12 +1694,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Svarlesing',
     'skjema',
-    `gjentas rettidighet subsidiaertVerdi standpunkt kontrollerStandpunktene kontrollerUtregningen
-     innsigelserMotPosten`,
+    `gjentas rettidighet subsidiaertVerdi standpunkt kontrollerHjemlene kontrollerStandpunktene
+     kontrollerUtregningen innsigelserMotPosten`,
     ['format/leser.ts'],
   ],
   ['spor/forhold/format.ts', 'rad', 'LESING_I_FORHOLDET', ['format/leser.ts']],
   ['spor/vederlag/format.ts', 'rad', 'LESING_I_VEDERLAGET', ['format/leser.ts']],
+  ['spor/frist/format.ts', 'rad', 'LESING_I_FRISTEN', ['format/leser.ts']],
   // OV-U31, KA-U57 (e): radene i utregningen per post og lag, mot standpunktene og totalene.
   // Resultatet og dagene i standpunktet leses av utregningen (4.3 i designnotatet, #331 punkt 4).
   // Utregningen leses med typen for sporet (#1777).
@@ -1691,12 +1710,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'standpunkter utregning',
     ['format/leser.ts'],
   ],
-  [
-    'format/svarinnhold.ts',
-    'rad',
-    'utregningIFristen',
-    ['format/leser.ts', 'frosset/standpunkt.ts:fristenGodkjent'],
-  ],
+  ['spor/frist/format.ts', 'rad', 'utregningIFristen', ['frosset/standpunkt.ts:fristenGodkjent']],
   [
     'spor/vederlag/format.ts',
     'rad',
@@ -1713,7 +1727,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Fristutregning',
     'rad',
     'resultat godkjent_dager subsidiaert_resultat subsidiaert_godkjent_dager',
-    ['format/leser.ts'],
+    ['spor/frist/format.ts'],
   ],
   ['Utregningsrad', 'rad', 'gjelder lag', ['spor/vederlag/format.ts']],
   ['Utregningslag', 'rad', 'beloep', ['spor/vederlag/format.ts']],
@@ -1785,7 +1799,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/skjema.ts',
     'rad',
     'Uforstaatt',
-    ['format/leser.ts', 'kommandoer/skriving.ts', 'frosset/frysing.ts', 'spor/vederlag/format.ts'],
+    [
+      'format/leser.ts',
+      'kommandoer/skriving.ts',
+      'frosset/frysing.ts',
+      'spor/vederlag/format.ts',
+      'spor/frist/format.ts',
+    ],
   ],
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
   // av samme slag (MM-U1, MM-U7).

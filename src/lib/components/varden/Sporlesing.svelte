@@ -13,6 +13,7 @@
   import { brevaarsak } from '$lib/kjernesak/kontekst.svelte';
   import type { Part, Spor } from '$kjerne/typer';
   import type { Utledning } from '$kjerne/utledning/utled';
+  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Brevtyper from './Brevtyper.svelte';
@@ -65,15 +66,8 @@
     nySak?: string;
     /** TE velger «Korriger datoen» ved opplysningen (U-1 i BF-02A). */
     onkorriger?: (opplysning: string) => void;
-    onakseptbrev: (k: {
-      kommando: Record<string, unknown>;
-      tekst: string[];
-      /** Virkningen av aksepten slik kjernen regner den, til brevkontrollen. */
-      virkninger: string[];
-      merking: string | null;
-      deresRef: string[];
-      tittel: string | null;
-    }) => void;
+    /** Aksepten til brevkontrollen, med virkningen slik kjernen regner den. */
+    onakseptbrev: (k: Omit<TilBrevkontrollen, 'detteSender'>) => void;
   } = $props();
   const uid = $props.id();
 
@@ -216,6 +210,7 @@
     onakseptbrev({
       kommando: akseptkommando!,
       tekst: b.tekst,
+      avsnitt: b.avsnitt,
       virkninger: akseptensVirkning(),
       merking: b.merking,
       deresRef: b.deresRef,

@@ -364,6 +364,12 @@ describe('skjemaet for ny sak (BF-05)', () => {
     const panel = await screen.findByRole('region', { name: 'Sending' });
     expect(within(panel).getByText('Send påberopelsen til byggherren')).toBeTruthy();
     expect(screen.getByText('Påberopelse av irregulær endring i sak KOE-17')).toBeTruthy();
+    // Beskrivelsen står i avsnittene kjernen lager, slik brevet sendes (LV-U2, #1856).
+    expect(
+      within(screen.getByRole('article', { name: /Påberopelse av irregulær endring/ })).getByText(
+        BESKRIVELSE
+      )
+    ).toBeTruthy();
     await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til skjemaet' }));
     expect((screen.getByLabelText('Tittel på saken') as HTMLInputElement).value).toBe(
       'Teglforblending på fasaden'
