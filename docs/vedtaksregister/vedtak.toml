@@ -4019,13 +4019,12 @@ Det egne varselet går foran det første kravet i påberopelsen og i den nye kra
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "at skjemaet nevner begge vilkårene"
 id = "KA-U80"
 dato = 2026-11-13
 hvem = "oppdragsgiver"
 kilde = ["#1745"]
 sporsmal = '''
-Spørsmål 1 ordrett slik det står i spørsmålsfila for del 2 av fristen (#1745), stilt 13.11 som nummerert liste i tekst, og oppfølgingsspørsmålet samme dag:
+Spørsmål 1 ordrett slik det står i spørsmålsfila for del 2 av fristen (#1745), stilt 13.11 som nummerert liste i tekst:
 
 **1. Om byggherren svarer på hindringen én gang for hele kravet.**
 
@@ -4045,7 +4044,34 @@ format (B-17).
 Anbefaling: A. Hindringen gjelder forholdet totalentreprenøren påberoper, og bestillingen og
 prototypen som er godkjent, har ett svar. B gir et svar med ulike lag per frist og et skjema med ett
 spørsmål til per frist.
-Hva valget styrer: formatet for svaret, skjemaet og brevet for byggherren, og lagene per frist.
+Hva valget styrer: formatet for svaret, skjemaet og brevet for byggherren, og lagene per frist.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 13.11, ordrett, i én melding med svarene på spørsmål 1–3 i #1745 og S-4 i BF-37 (#1837) og BF-08 (#1834), nummerert 4 og 5: «1A. Les kontrakten, punkt 33.1 fra khjohns/kontrakt. I realiteten er det to vilkår: 1) må foreligge en hindring og 2) årsakssammenheng - hindringen må være forårsaket av forholdet (det som påberopes). Jeg tenker dette tas samlet i en begrunnelse, men vilkårene - vurdergingstema - bør fremgå. Da er jeg enig i at den konkrete begrunnelsen fra BH - både knyttet til antall dager fristforlengelse som gis per frist og om det foreligger en hindring og er årsaksammenheng, gis i en samlet begrunnelse. 2. A. 3. Kan vi ikke bygge lesingen først? 4. A. 5 A» Det betyr spørsmål 1 A. Oppfølgingen til svaret er ført som KA-U81, svar 3 som GFK-U26, 4 som VS-U71 og 5 som GR-U37.'''
+folge = '''
+Gjelder BF-20 (#1745).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Byggherren svarer på hindringen én gang for hele kravet. Mener byggherren at fremdriften ikke ble hindret for en av fristene, avslår byggherren dagene for den fristen og begrunner det. Forhold: avgjør P-4 i BF-20 og stadfester M-7.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Byggherren svarer på hindringen for hver frist. Laget for hindringen etter KA-U78 gjelder bare fristene byggherren mener ikke ble hindret. Forhold: avgjør P-4 i BF-20 og presiserer KA-U78.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at skjemaet nevner begge vilkårene"
+id = "KA-U81"
+dato = 2026-11-13
+hvem = "oppdragsgiver"
+kilde = ["#1745"]
+sporsmal = '''
+Oppfølgingsspørsmålet til svaret på spørsmål 1 (KA-U80) ordrett, stilt 13.11:
 
 **1 (oppfølging). Hvordan skal de to vilkårene i punkt 33.1 fremgå av byggherrens svar?** Du har sagt at hindringen og årsakssammenhengen begrunnes samlet, sammen med dagene for hver frist, men at begge vilkårene skal fremgå som vurderingstema. KA-U78 setter standpunktet om hindringen i laget før dagene.
 - **A1 (anbefalt):** Byggherren tar ett standpunkt, om fremdriften ble hindret av forholdet totalentreprenøren påberoper. Skjemaet og brevet nevner begge vilkårene: at det foreligger en hindring, og at hindringen skyldes forholdet. Byggherren begrunner dem samlet, sammen med dagene for hver frist. Forholdet: presiserer KA-U78 og avgjør P-4 i BF-20.
@@ -4053,12 +4079,13 @@ Hva valget styrer: formatet for svaret, skjemaet og brevet for byggherren, og la
 - **Hva valget styrer:** formatet for svaret, som ikke kan endres uten migrering etter første ekte sak, og skjemaet og brevet for byggherren.'''
 valgt = "A1"
 svar = '''
-Oppdragsgiver 13.11, ordrett, i én melding med svarene på spørsmål 1–3 i #1745 og S-4 i BF-37 (#1837) og BF-08 (#1834), nummerert 4 og 5: «1A. Les kontrakten, punkt 33.1 fra khjohns/kontrakt. I realiteten er det to vilkår: 1) må foreligge en hindring og 2) årsakssammenheng - hindringen må være forårsaket av forholdet (det som påberopes). Jeg tenker dette tas samlet i en begrunnelse, men vilkårene - vurdergingstema - bør fremgå. Da er jeg enig i at den konkrete begrunnelsen fra BH - både knyttet til antall dager fristforlengelse som gis per frist og om det foreligger en hindring og er årsaksammenheng, gis i en samlet begrunnelse. 2. A. 3. Kan vi ikke bygge lesingen først? 4. A. 5 A» Oppfølgingen til spørsmål 1, ordrett: «A1.» Det betyr 1 A1. Svar 2 A er design og føres i BF-20. Svar 3 er ført som GFK-U26, 4 som VS-U71 og 5 som GR-U37.'''
+Oppdragsgiver 13.11, ordrett, på oppfølgingsspørsmålet: «A1.»'''
 forhold = [
+  { art = "presiserer", vedtak = "ka-u80" },
   { art = "presiserer", vedtak = "ka-u78" },
 ]
 folge = '''
-Avgjør P-4 i BF-20 (#1745).'''
+Gjelder BF-20 (#1745).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A1"
@@ -4070,12 +4097,6 @@ anbefalt = true
 navn = "A2"
 tekst = '''
 Byggherren tar to standpunkter, ett om hindringen og ett om årsakssammenhengen, én gang for hele kravet og i samme lag etter KA-U78, med én samlet begrunnelse. Brevet kan da si for eksempel at fremdriften ble hindret, men ikke av forholdet. Forholdet: presiserer og utvider KA-U78. Rekkefølgen mellom de to vilkårene må også avgjøres.'''
-forkastet = true
-
-[[gruppe.vedtak.alternativ]]
-navn = "B"
-tekst = '''
-Byggherren svarer på hindringen for hver frist. Laget for hindringen etter KA-U78 gjelder bare fristene byggherren mener ikke ble hindret. Forhold: avgjør P-4 i BF-20 og presiserer KA-U78.'''
 forkastet = true
 
 [[gruppe.vedtak]]
@@ -23871,6 +23892,7 @@ Gjelder BF-20 (#1745).'''
 navn = "A"
 tekst = '''
 Til løsningen leser forlengelsene i andre saker, telles hverdagene fra datoen i fristtabellen, og utregningen sier at forlengelser i andre saker ikke er tatt med. Forhold: endrer GFK-U19 til lesingen er bygget.'''
+forkastet = true
 
 [[gruppe.vedtak.alternativ]]
 navn = "B"
@@ -23887,6 +23909,7 @@ anbefalt = true
 navn = "C2"
 tekst = '''
 Som C når ingen annen sak i kontrakten har en forlengelse av fristen. Har en annen sak det, kan dagene ikke verdsettes, og svaret krever hele kjeden, som når satsen mangler ([GFK-U3](../../plans/vedtak.md#gfk-u3)). Forhold: endrer GFK-U19 til lesingen er bygget, og presiserer GFK-U3. Det krever lesingen av om det finnes en forlengelse.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Kontrakt, API og saksopprettelse"
