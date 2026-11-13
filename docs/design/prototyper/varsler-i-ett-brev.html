@@ -3,15 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Flere varsler i ett brev, v1</title>
+<title>Flere varsler i ett brev, v2</title>
 <!--
-  Prototype v1 for BF-37 (docs/domenetabell/brukerforlop/BF-37.md): totalentreprenøren sender flere
+  Prototype v2 for BF-37 (docs/domenetabell/brukerforlop/BF-37.md): totalentreprenøren sender flere
   varsler i ett brev, hvert med bestemmelsen og arbeidet varselet gjelder (punkt 5 i #1823).
   Stilarket er kopiert fra vederlagskrav-te-v4.html, commit 99c7d6d, som er grunnlaget for BF-14.
   Mønsteret er nytt: skjemaet «Bare varsle, uten krav» (U-11 i BF-14) blir en liste med varsler.
   Tilstandene er ankrene #varsler, #brev, #registrer, #kravpost og #svar.
   Teksten er prototypetekst. Ingenting sendes, og ingen data lagres.
-  Skissen følger svarene 12.11 på S-1–S-3 i BF-37 (A, A, C).
+  Skissen følger svarene 12.11 på S-1–S-3 i BF-37 (A, A, C). v2 tar inn prøven 13.11: skjemaet for
+  vederlaget har ikke varselet om fristforlengelse (U-4), og oppsummeringen bruker navnene på varslene.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -470,7 +471,7 @@ a.liten-knapp{color:inherit}
 .vrad .vnr{font-weight:600;font-variant-numeric:tabular-nums}
 .vrad .vbest{font-weight:600}
 .vrad .vb{grid-column:2;color:var(--ink-2)}
-.vrad .vb.mangler{color:var(--danger,#b3261e)}
+.vrad .vb.mangler,.punktliste .ps.mangler{color:var(--danger,#b3261e)}
 .vrad .vhandling{grid-row:1;grid-column:3;display:flex;gap:12px}
 .vskjema{display:flex;flex-direction:column;gap:14px;padding:14px 0 18px 16px;margin:4px 0 8px;border-left:2px solid var(--ink)}
 .gitt{font-size:14px;color:var(--ink-2);padding:8px 0}
@@ -500,7 +501,7 @@ a.liten-knapp{color:inherit}
   <div class="flate">
     <div class="topplinje">
       <div class="demo-bryter">
-        <p style="margin:0">Du er totalentreprenør (TE) · <span class="dempet">prototype v1 for BF-37, eksempeldata</span></p>
+        <p style="margin:0">Du er totalentreprenør (TE) · <span class="dempet">prototype v2 for BF-37, eksempeldata</span></p>
         <span style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><span class="d">Vis</span>
           <span class="segment" role="group" aria-label="Tilstand">
             <button type="button" data-anker="varsler" aria-pressed="true">Varslene</button>
@@ -523,7 +524,7 @@ a.liten-knapp{color:inherit}
             <div class="valg"><a class="liten-knapp" href="#varsler">Send kravet</a><a class="liten-knapp" href="#varsler" aria-current="page">Bare varsle, uten krav</a></div>
           </nav>
 
-          <section class="punkt nummerert" aria-labelledby="varsler" data-spor="U-2 · U-3 · U-4 · D-1 · D-2 · D-3">
+          <section class="punkt nummerert" aria-labelledby="varsler" data-spor="U-2 · U-3 · U-4 · D-2 · D-3">
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="varsler">Varslene i brevet</h2></div>
             <p class="oppgitt" id="radhjelp">Ett varsel per rad. Hvert varsel står som et eget avsnitt i brevet.</p>
             <div id="varselrader" class="postliste"></div>
@@ -549,7 +550,7 @@ a.liten-knapp{color:inherit}
         <aside class="stoette" aria-label="Brevet samlet">
           <section class="kort">
             <div class="kort-hode"><h2>Varslene</h2><p id="antall"></p></div>
-            <nav aria-label="Varslene i brevet"><ol class="punktliste" id="punktliste"></ol></nav>
+            <nav aria-label="Varslene i brevet" data-spor="U-9"><ol class="punktliste" id="punktliste"></ol></nav>
             <div class="blokk" id="mangler" data-spor="U-3"></div>
             <div class="blokk send" data-spor="U-5 · U-6"><a class="knapp" id="primaer" href="#brev">Se brevet før sending</a><p class="godkj"><span class="utkastmerke">Utkast</span><span>Ikke sendt. Lagret kl. 10.12.</span></p></div>
           </section>
@@ -567,8 +568,8 @@ a.liten-knapp{color:inherit}
           </section>
           <section class="punkt" aria-labelledby="kp-v">
             <div class="punkt-hode"><h2 id="kp-v">Varslene</h2></div>
-            <fieldset class="oppgj" data-spor="D-5"><legend class="spm">Hvilket varsel etter punkt 34.4 gjelder P2?</legend>
-              <span class="hjelp">Saken har to varsler etter punkt 34.4 som ingen kravpost viser til. Velg det som gjelder arbeidet i P2.</span>
+            <fieldset class="oppgj" data-spor="D-5"><legend class="spm">Hvilket varsel før regningsarbeidet gjelder P2?</legend>
+              <span class="hjelp">Saken har to varsler før regningsarbeidet settes i gang som ingen kravpost viser til. Velg det som gjelder arbeidet i P2.</span>
               <div class="valg lett liste">
                 <label><input type="radio" name="kpv" value="1" checked> Varsel 1 i brev 4, 3. november 2026: «Ekstra graving i grøften ved kum 4»</label>
                 <label><input type="radio" name="kpv" value="2"> Varsel 2 i brev 4, 3. november 2026: «Omlegging av fjernvarmerør langs fasade nord»</label>
@@ -585,7 +586,7 @@ a.liten-knapp{color:inherit}
             <div class="utkast-hode"><div class="linje"><span class="utkastmerke">Utkast</span><h1 id="svartittel">Brev 5 · Svar på varslene i brev 4</h1></div><p>Du er byggherre (BH) i denne tilstanden. Til totalentreprenøren (TE)</p></div>
             <section class="punkt" aria-labelledby="bs-v">
               <div class="punkt-hode"><h2 id="bs-v">Varslene i brev 4</h2></div>
-              <p class="oppgitt">Ett svar per varsel. Har du ingen innsigelse mot et varsel etter punkt 34.4, trenger du ikke svare på det.</p>
+              <p class="oppgitt">Ett svar per varsel. Har du ingen innsigelse mot et varsel, trenger du ikke svare på det.</p>
               <div id="svarrader"></div>
             </section>
           </form>
@@ -601,21 +602,21 @@ a.liten-knapp{color:inherit}
 </div>
 
 <script>
-// Bestemmelsene. «en» = kan bare gis én gang i sporet (D-2). «arbeid» = beskrivelsen er påkrevd (S-2).
+// Varslene. «en» = kan bare gis én gang i sporet (D-2). «arbeid» = beskrivelsen er påkrevd (S-2).
+// Navnene er «varselnavn» i src/lib/components/varden/tekster.ts. Varselet om fristforlengelse står i
+// skjemaet for fristen (U-4).
 const B = {
-  '34.4':   { navn: 'Regningsarbeid, før arbeidet settes i gang', ref: 'punkt 34.4', spor: 'Vederlagsjustering', arbeid: true },
-  '34.3.3': { navn: 'Justering av enhetsprisene', ref: 'punkt 34.3.3 første ledd', spor: 'Vederlagsjustering', arbeid: true },
-  '34.1.2': { navn: 'Krav om vederlagsjustering', ref: 'punkt 34.1.2', spor: 'Vederlagsjustering', en: true },
-  '34.1.3': { navn: 'Særskilt vederlagsjustering for nedsatt produktivitet eller forstyrrelser', ref: 'punkt 34.1.3 tredje ledd', spor: 'Vederlagsjustering', en: true },
-  '33.4':   { navn: 'Fristforlengelse', ref: 'punkt 33.4', spor: 'Fristforlengelse', en: true },
+  '34.4':   { navn: 'Varsel før regningsarbeidet settes i gang', ref: 'pkt. 34.4', arbeid: true },
+  '34.3.3': { navn: 'Varsel om justering av enhetsprisene', ref: 'pkt. 34.3.3', arbeid: true },
+  '34.1.2': { navn: 'Varsel om vederlagsjustering', ref: 'pkt. 34.1.2', en: true },
+  '34.1.3': { navn: 'Varsel om særskilt vederlagsjustering', ref: 'pkt. 34.1.3', en: true },
 };
 // Gitt før i saken (eksempeldata): varselet etter punkt 34.1.2 i brev 3.
-const GITT = { '34.1.2': 'brev 3, 20. oktober 2026' };
+const GITT = { '34.1.2': 'brev 3' };
 let rader = [
   { h: '34.4', arbeid: 'Ekstra graving i grøften ved kum 4' },
   { h: '34.4', arbeid: 'Omlegging av fjernvarmerør langs fasade nord' },
   { h: '34.3.3', arbeid: 'Økte mengder sprengstein i byggegropen, post 03.21' },
-  { h: '33.4', arbeid: '' },
 ];
 let aapen = null;
 const skall = document.querySelector('.skall');
@@ -625,16 +626,17 @@ const ledig = (h, i) => !(B[h].en && brukt(h, i));
 // S-2 A: påkrevd i et brev fra løsningen, valgfritt i et registrert dokument (som GR-U15).
 const paakrevd = r => B[r.h].arbeid && skall.dataset.maate !== 'utenfor';
 const mangler = r => paakrevd(r) && !r.arbeid.trim();
+const tomtArbeid = r => mangler(r) ? 'Mangler arbeidet varselet gjelder' : B[r.h].arbeid ? 'Arbeidet er ikke oppgitt' : 'Gjelder hele kravet';
 
 function radHtml(r, i) {
   const b = B[r.h];
   const linje = `<div class="vrad" id="v-${i}"><span class="vnr">${i + 1}</span><span class="vbest">${esc(b.navn)} <span class="hjemmel">${b.ref}</span></span>
     <span class="vhandling"><button class="lenke liten" type="button" data-endre="${i}" aria-expanded="${aapen === i}">${aapen === i ? 'Ferdig' : 'Endre'}</button><button class="lenke liten" type="button" data-fjern="${i}">Fjern</button></span>
-    <span class="vb${mangler(r) ? ' mangler' : ''}">${r.arbeid ? esc(r.arbeid) : mangler(r) ? 'Mangler arbeidet varselet gjelder' : b.spor === 'Fristforlengelse' ? 'Står i fristforlengelsen' : 'Gjelder hele vederlagskravet'}</span></div>`;
+    <span class="vb${mangler(r) ? ' mangler' : ''}">${r.arbeid ? esc(r.arbeid) : tomtArbeid(r)}</span></div>`;
   if (aapen !== i) return linje;
   const valg = Object.keys(B).filter(h => h === r.h || ledig(h, i)).map(h =>
-    `<label><input type="radio" name="vh-${i}" value="${h}"${h === r.h ? ' checked' : ''}> ${esc(B[h].navn)} (${B[h].ref})</label>`).join('');
-  return linje + `<div class="vskjema" data-spor="U-2 · U-3 · U-4">
+    `<label><input type="radio" name="vh-${i}" value="${h}"${h === r.h ? ' checked' : ''}> ${esc(B[h].navn)} <span class="hjemmel">${B[h].ref}</span></label>`).join('');
+  return linje + `<div class="vskjema" data-spor="U-2 · U-3">
     <fieldset class="oppgj"><legend class="spm">Hva varsler du?</legend><div class="valg lett liste">${valg}</div></fieldset>
     ${b.arbeid ? `<div class="beloepfelt" data-spor="D-3"><label for="va-${i}">Arbeidet varselet gjelder${paakrevd(r) ? '' : ' (valgfritt)'}</label>
       <span class="hjelp">Står i brevet. Velg ett varsel per arbeid, så du senere kan si hvilket varsel en kravpost gjelder.</span>
@@ -647,22 +649,29 @@ function brevtekst(r) {
   if (r.h === '34.4') return `Totalentreprenøren varsler etter NS 8407 punkt 34.4 at ${a ? `arbeidet «${esc(a)}»` : 'arbeidet'} vil kreves gjort opp som regningsarbeid. Varselet gis før arbeidet settes i gang.`;
   if (r.h === '34.3.3') return `Totalentreprenøren varsler krav om justering av enhetsprisene etter NS 8407 punkt 34.3.3 første ledd${a ? ` for «${esc(a)}»` : ''}.`;
   if (r.h === '34.1.2') return `Totalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2.${a ? ` ${esc(a)}` : ''}`;
-  if (r.h === '34.1.3') return `Totalentreprenøren varsler krav om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 punkt 34.1.3 tredje ledd.${a ? ` ${esc(a)}` : ''}`;
-  return `Totalentreprenøren varsler krav om fristforlengelse etter NS 8407 punkt 33.4.${a ? ` ${esc(a)}` : ''}`;
+  if (r.h === '34.1.3') return `Totalentreprenøren varsler krav om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 punkt 34.1.3 annet ledd.${a ? ` ${esc(a)}` : ''}`;
+  return '';
 }
 
 function tegn() {
   const utenfor = skall.dataset.maate === 'utenfor';
   document.getElementById('varselrader').innerHTML = rader.map(radHtml).join('');
   document.getElementById('gitte').innerHTML = Object.entries(GITT).map(([h, hvor]) =>
-    `<p class="gitt"><b>${esc(B[h].navn)} (${B[h].ref})</b> er gitt i ${hvor}.</p>`).join('');
+    `<p class="gitt"><b>${esc(B[h].navn)}</b> er alt gitt i ${hvor}. Du kan varsle på nytt til vederlagskravet er sendt.</p>`).join('');
   document.getElementById('legg-til').hidden = !Object.keys(B).some(h => ledig(h, -1));
   document.getElementById('antall').textContent = `${rader.length} varsler i ${utenfor ? 'det registrerte dokumentet' : 'brevet'}.`;
+  oppsummer();
+}
+
+// Oppsummeringen, brevet, kravposten og svaret. Kalles også ved inntasting, så feltet beholder fokus.
+
+function oppsummer() {
+  const utenfor = skall.dataset.maate === 'utenfor';
   document.getElementById('punktliste').innerHTML = rader.map((r, i) =>
-    `<li><a href="#varsler" data-gaa="${i}"><span class="pnr">${i + 1}</span><span class="pt">${B[r.h].ref}${r.arbeid ? ` · ${esc(r.arbeid)}` : ''}</span></a></li>`).join('');
+    `<li><a href="#varsler" data-gaa="${i}"><span class="pnr">${i + 1}</span><span class="pt">${esc(B[r.h].navn)}</span><span class="ps${mangler(r) ? ' mangler' : ''}">${r.arbeid ? esc(r.arbeid) : tomtArbeid(r)}</span></a></li>`).join('');
   const m = rader.filter(mangler).length;
   document.getElementById('mangler').innerHTML = m ? `<p class="virkning"><b>${m === 1 ? 'Ett varsel mangler' : m + ' varsler mangler'} arbeidet varselet gjelder.</b> Brevet sendes ikke før det er fylt ut.</p>`
-    : `<p class="virkning">${utenfor ? 'Løsningen lager ingen brevtekst for et registrert dokument. Dokumentet er det du meddelte.' : 'Hvert varsel står som et eget avsnitt i brevet, med bestemmelsen og arbeidet.'}</p>`;
+    : `<p class="virkning">${utenfor ? 'Løsningen lager ingen brevtekst for et registrert dokument. Dokumentet er det du meddelte.' : 'Hvert varsel står som et eget avsnitt i brevet, med arbeidet det gjelder.'}</p>`;
   const p = document.getElementById('primaer');
   p.textContent = utenfor ? 'Registrer varslene' : 'Se brevet før sending';
   p.setAttribute('href', utenfor ? '#registrer' : '#brev');
@@ -673,22 +682,23 @@ function tegn() {
   document.getElementById('brevark').innerHTML = `
     <p class="dempet">Brev 4 · til byggherren · E-017 · prototypetekst</p>
     <h1>Varsel</h1>
-    <ol class="varselliste">${rader.map(r => `<li><h2>${esc(B[r.h].navn)}</h2><p>${brevtekst(r)}</p></li>`).join('')}</ol>
+    <ol class="varselliste">${rader.map(r => `<li><h2>${esc(B[r.h].navn)}</h2><p>${brevtekst(r)}</p>${mangler(r) ? '<p class="virkning"><b>Mangler arbeidet varselet gjelder.</b> Brevet sendes ikke før det er fylt ut.</p>' : ''}</li>`).join('')}</ol>
     <div style="display:flex;gap:12px;flex-wrap:wrap"><a class="liten-knapp" href="#varsler">Tilbake til skjemaet</a><button class="liten-knapp sterk" type="button"${m ? ' disabled' : ''}>Send brevet</button></div>`;
 
   const kv = document.querySelector('input[name="kpv"]:checked')?.value;
   document.getElementById('kp-virkning').innerHTML = kv === '0'
-    ? 'Brevet sier at kravet er varselet for P2 etter punkt 34.4. Varslene i brev 4 gjelder ikke P2.'
-    : `Brevet sier at varselet for P2 ble gitt i brev 4, varsel ${kv}. Byggherrens svar på det varselet gjelder P2, ikke de andre kravpostene.`;
+    ? 'Brevet sier at kravet er varselet for P2. Varslene i brev 4 gjelder ikke P2.'
+    : `Brevet sier at varselet for P2 ble gitt i brev 4, varsel ${kv}. Gjør byggherren gjeldende i svaret på det varselet at det kom for sent, står det bare mot kravpostene som gjelder varselet.`;
 
   document.getElementById('svarrader').innerHTML = rader.map((r, i) => {
     const b = B[r.h];
     const hode = `<div class="hode"><b>${i + 1}. ${esc(b.navn)} <span class="hjemmel">${b.ref}</span></b></div>${r.arbeid ? `<span class="hjelp">«${esc(r.arbeid)}»</span>` : ''}`;
-    if (r.h === '34.4') return `<div class="svar-rad">${hode}<p>Ingen innsigelse. <button class="lenke liten" type="button">Varselet kom for sent</button></p></div>`;
-    if (r.h === '33.4') return `<div class="svar-rad">${hode}<p class="hjelp">Svaret på et varsel om fristforlengelse som står alene, hører til BF-20 (P-2).</p></div>`;
-    return `<div class="svar-rad">${hode}<fieldset class="oppgj"><legend class="spm">Varselet</legend><div class="valg lett"><label><input type="radio" name="bs-${i}" checked> Kom i tide</label><label><input type="radio" name="bs-${i}"> Kom for sent</label></div></fieldset></div>`;
+    const sent = `<p>Ingen innsigelse mot varselet. <button class="lenke liten" type="button">Varselet kom for sent</button></p>`;
+    // VS-U57: svaret på et varsel om justering av enhetsprisene har standpunktet til justeringen.
+    if (r.h === '34.3.3') return `<div class="svar-rad">${hode}<fieldset class="oppgj"><legend class="spm">Justeringen av enhetsprisene</legend><div class="valg lett"><label><input type="radio" name="bs-${i}"> Godtar justeringen</label><label><input type="radio" name="bs-${i}"> Bestrider justeringen</label></div></fieldset>${sent}</div>`;
+    return `<div class="svar-rad">${hode}${sent}</div>`;
   }).join('');
-  document.getElementById('svar-brev').innerHTML = `<ul class="stand">${rader.filter(r => r.h !== '34.4' && r.h !== '33.4').map(r => `<li>Byggherren gjør ikke gjeldende at varselet ${r.h === '34.3.3' ? 'om justering av enhetsprisene' : ''}${r.arbeid ? ` for «${esc(r.arbeid)}»` : ''} kom for sent.</li>`).join('')}</ul>`;
+  document.getElementById('svar-brev').innerHTML = `<ul class="stand">${rader.filter(r => r.h === '34.3.3').map(r => `<li>Standpunktet til justeringen av enhetsprisene${r.arbeid ? ` for «${esc(r.arbeid)}»` : ''} står her når du har valgt det.</li>`).join('')}</ul><p class="hjelp">Et varsel du ikke har innsigelse mot, står ikke i brevet.</p>`;
 }
 
 document.addEventListener('click', e => {
@@ -707,7 +717,7 @@ document.addEventListener('change', e => {
   if (n === 'kpv') tegn();
 });
 document.addEventListener('input', e => { if (e.target.dataset.arbeid !== undefined) { rader[+e.target.dataset.arbeid].arbeid = e.target.value; const r = rader[+e.target.dataset.arbeid];
-  const vb = document.querySelector(`#v-${e.target.dataset.arbeid} .vb`); vb.textContent = r.arbeid || (mangler(r) ? 'Mangler arbeidet varselet gjelder' : ''); vb.classList.toggle('mangler', mangler(r)); } });
+  const vb = document.querySelector(`#v-${e.target.dataset.arbeid} .vb`); vb.textContent = r.arbeid || tomtArbeid(r); vb.classList.toggle('mangler', mangler(r)); oppsummer(); } });
 document.getElementById('spor-knapp').addEventListener('change', e => document.body.classList.toggle('vis-spor', e.target.checked));
 
 // Tilstandene er ankrene #varsler, #brev, #registrer, #kravpost og #svar.
