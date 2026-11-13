@@ -189,7 +189,8 @@
             {#if i.opplysning?.korrigering}
               {@const staar = FORHOLDET.korrigeringenStaar(
                 lukket,
-                brev.slice(0, n).findLast((x) => x.art === 'svar') ?? null
+                brev.slice(0, n).findLast((x) => x.art === 'svar' && x.spor.includes('forhold')) ??
+                  null
               )}
               {#if staar}<Melding art="info" levende={false}>{staar}</Melding>{/if}
             {/if}
@@ -374,8 +375,6 @@
   .datolinje {
     font-size: 14px;
     color: var(--ink-2);
-  }
-  .datolinje {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;

@@ -339,6 +339,12 @@
         handling={vedBrevet}
         brevet={lestBrevet}
       />
+      {#if handlingVed === null && (primaer || hindring)}
+        <!-- Uten et brev å stå ved står handlingen over de andre, så den aldri faller bort. -->
+        <section class="kort andre" aria-label={FORHOLDET.handlinger}>
+          {@render vedBrevet()}
+        </section>
+      {/if}
       {#if andre.length || nySak}
         <section class="kort andre" aria-label={HANDLINGENE.andre}>
           {#if andre.length}{@render meny(andre, HANDLINGENE.andre)}{/if}

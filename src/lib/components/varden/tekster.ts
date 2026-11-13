@@ -673,7 +673,9 @@ export const TRAADEN = {
     const spor = (['forhold', 'vederlag', 'frist'] as const).filter((s) => b.spor.includes(s));
     const krav = spor.filter((s) => s !== 'forhold').map((s) => `krav om ${KRAVET[s]}`);
     if (b.art === 'krav' && spor.length)
-      return spor.includes('forhold') ? 'Påberopelse av forholdet' : stor(krav.join(' og '));
+      return spor.includes('forhold')
+        ? ['Påberopelse av forholdet', ...krav].join(' og ')
+        : stor(krav.join(' og '));
     if (b.art === 'svar' && spor.length)
       return `Svar på ${[...(spor.includes('forhold') ? ['påberopelsen'] : []), ...krav].join(' og ')}`;
     // Den frosne tittelen nevner saken, som tråden står i («Korrigering av datoen i sak KOE-17»).

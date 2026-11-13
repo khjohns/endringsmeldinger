@@ -12,7 +12,15 @@ import { kjoer, type Forloep } from '$kjerne/tester/kjoerer';
 import type { Handling } from '$kjerne/tester/klient';
 import Forholdsoversikt from '$lib/components/varden/Forholdsoversikt.svelte';
 import Tidslinje from '$lib/components/varden/Tidslinje.svelte';
-import { brevForLinja, brevene, brevITraaden, type Brevet } from '$lib/components/varden/lesing';
+import {
+  brevForLinja,
+  brevene,
+  brevITraaden,
+  oppfoelgingene,
+  type Brevet,
+  type Innlegget,
+} from '$lib/components/varden/lesing';
+import { TRAADEN } from '$lib/components/varden/tekster';
 import { createRawSnippet } from 'svelte';
 import Brevtraad from '$lib/components/varden/Brevtraad.svelte';
 import type { Spor } from '$kjerne/typer';
@@ -425,5 +433,96 @@ describe('Brevet linja for et spor viser til (#1631, code-review)', () => {
     expect(document.querySelector('.datolinje')?.textContent?.trim()).toBe(
       'Lagt til 3. november 2026.'
     );
+  });
+});
+
+describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
+  const brev = (id: string, nummer: number, art: Brevet['art'], spor: Spor[]): Brevet =>
+    ({
+      id,
+      nummer,
+      art,
+      spor,
+      avsender: art === 'svar' ? 'BH' : 'TE',
+      registrert: '2026-10-01T10:00:00Z',
+      sendt: null,
+      merking: null,
+      deresRef: [],
+      omtale: null,
+      brevtittel: null,
+      avsnitt: null,
+      forhold: null,
+      beskrivelse: null,
+      vedlegg: [],
+    }) as Brevet;
+
+  it('korrigeringen viser til svaret på forholdet, ikke et senere svar på vederlaget (MM-U52 punkt 10–11)', () => {
+    const k = brev('k5', 5, 'annet', ['forhold']);
+    const innlegg = new Map<string, Innlegget>([
+      [
+        k.id,
+        {
+          gjelderPaalegg: false,
+          utdypning: null,
+          oppgitt: null,
+          opplysning: {
+            id: 'o2',
+            hva: 'klar_over_forholdet',
+            dato: '2026-09-20',
+            brev: k,
+            korrigering: true,
+            forrige: null,
+            siste: true,
+            korrigertI: null,
+          },
+          standpunkter: [],
+        },
+      ],
+    ]);
+    render(Brevtraad, {
+      brev: [
+        brev('p1', 1, 'krav', ['forhold']),
+        brev('s2', 2, 'svar', ['forhold']),
+        brev('v3', 3, 'krav', ['vederlag']),
+        brev('sv4', 4, 'svar', ['vederlag']),
+        k,
+      ],
+      spor: 'forhold',
+      innlegg,
+      dokumentasjon: [],
+      venterPaaSvar: false,
+      onles: () => {},
+    });
+    expect(screen.getByText(/^Svaret i brev 2 står som det ble sendt\./)).toBeTruthy();
+    expect(screen.queryByText(/Svaret i brev 4/)).toBeNull();
+  });
+
+  it('et brev med et krav som gjelder i et annet spor, står ikke som fulgt opp (U-5 i BF-44)', () => {
+    const alle = [
+      brev('b1', 1, 'krav', ['forhold', 'vederlag']),
+      brev('b3', 3, 'krav', ['vederlag']),
+    ];
+    const spor = (krav: string[], gjeldende: string | null) => ({
+      krav: krav.map((dokument) => ({ dokument })),
+      gjeldendeKrav: gjeldende ? { dokument: gjeldende } : null,
+    });
+    const u = (forhold: string | null) =>
+      ({
+        spor: {
+          forhold: spor(forhold ? [forhold] : [], forhold),
+          vederlag: spor(['b1', 'b3'], 'b3'),
+          frist: spor([], null),
+        },
+      }) as unknown as Utledning;
+    expect(oppfoelgingene(u('b1'), alle).has('b1')).toBe(false);
+    // Kontrollsaken: uten påberopelsen i brevet er brev 1 fulgt opp i brev 3.
+    expect(oppfoelgingene(u(null), alle).get('b1')?.nummer).toBe(3);
+  });
+
+  it('en påberopelse som også krever vederlag, sier det i tittelen (U-5 i BF-44)', () => {
+    expect(TRAADEN.hva(brev('b1', 1, 'krav', ['forhold', 'vederlag']))).toBe(
+      'Påberopelse av forholdet og krav om vederlagsjustering'
+    );
+    expect(TRAADEN.hva(brev('b1', 1, 'krav', ['forhold']))).toBe('Påberopelse av forholdet');
   });
 });

@@ -128,12 +128,16 @@ export const brevITraaden = (brev: Brevet[], spor: Spor): Brevet[] =>
  */
 export function oppfoelgingene(u: Utledning, alle: Brevet[]): Map<string, Brevref> {
   const brev = new Map(alle.map((b) => [b.id, b]));
+  const SPORENE = ['forhold', 'vederlag', 'frist'] as const;
+  // Et brev med et krav som gjelder i et annet spor, er ikke fulgt opp som helhet.
+  const gjelder = new Set(SPORENE.flatMap((s) => u.spor[s].gjeldendeKrav?.dokument ?? []));
   const ut = new Map<string, Brevref>();
-  for (const s of ['forhold', 'vederlag', 'frist'] as const) {
+  for (const s of SPORENE) {
     const krav = u.spor[s].krav;
     for (let i = 0; i + 1 < krav.length; i++) {
       const neste = brev.get(krav[i + 1].dokument);
-      if (neste && krav[i].dokument !== neste.id) ut.set(krav[i].dokument, ref(neste));
+      if (neste && krav[i].dokument !== neste.id && !gjelder.has(krav[i].dokument))
+        ut.set(krav[i].dokument, ref(neste));
     }
   }
   return ut;
