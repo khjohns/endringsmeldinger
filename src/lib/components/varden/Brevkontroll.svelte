@@ -4,10 +4,37 @@
   teksten avsenderen har sett, og serveren avviser en annen (LV-U2). «Send» er alltid aktiv;
   mangler avkrysningen, står det ved den (MM-U32).
 -->
+<script module lang="ts">
+  import type { Avsnitt } from '$kjerne/typer';
+
+  /**
+   * Det et skjema sender til brevkontrollen: kommandoen, brevet kjernen lager av den og det
+   * panelet sier om sendingen (#1856).
+   */
+  export type TilBrevkontrollen = {
+    kommando: Record<string, unknown>;
+    tekst: string[];
+    /**
+     * Avsnittene kjernen lager, med punktene og utdypningene (#1824). Er de `null`, vises `tekst`.
+     */
+    avsnitt: Avsnitt[] | null;
+    detteSender: { tekst: string; lag: string | null }[];
+    virkninger: string[];
+    /**
+     * Vår ref., Deres ref. og tittelen kjernen fryser i raden forhåndsvisningen gir (LV-U27,
+     * LV-U49, LV-U53). Nettleseren regner dem ikke ut selv, og de er en del av det avsenderen
+     * godkjenner (LV-U2, U-4 i BF-07).
+     */
+    merking: string | null;
+    deresRef: string[];
+    tittel: string | null;
+  };
+</script>
+
 <script lang="ts">
   import { ChevronLeft, Send } from 'lucide-svelte';
   import { onMount, tick } from 'svelte';
-  import type { Avsnitt, Part } from '$kjerne/typer';
+  import type { Part } from '$kjerne/typer';
   import type { Brevref } from './lesing';
   import type { Brevsending } from './nysak';
   import Brev from './Brev.svelte';
@@ -20,7 +47,6 @@
     kjernesak,
     kommando,
     tekst,
-    utdypning,
     avsnitt,
     merking,
     deresRef,
@@ -38,25 +64,9 @@
     ontilbake,
     onsendt,
     onavvist,
-  }: {
+  }: TilBrevkontrollen & {
     /** Saken brevet sendes i. Ved en ny sak er det skjemaets sending (`NySak.svelte`). */
     kjernesak: Brevsending;
-    kommando: Record<string, unknown>;
-    tekst: string[];
-    utdypning?: string;
-    /**
-     * Avsnittene kjernen lager, med punktene og utdypningene (#1824). Uten dem vises `tekst`, med
-     * `utdypning` under det siste avsnittet.
-     */
-    avsnitt?: Avsnitt[] | null;
-    /**
-     * Vår ref., Deres ref. og tittelen kjernen fryser i raden forhåndsvisningen gir (LV-U27,
-     * LV-U49, LV-U53). Nettleseren regner dem ikke ut selv, og de er en del av det avsenderen
-     * godkjenner (LV-U2, U-4 i BF-07).
-     */
-    merking: string | null;
-    deresRef: string[];
-    tittel: string | null;
     /** Det avsenderen gjør, eller emnet i utkastet, som overskrift i panelet. */
     handling: string;
     /**
@@ -71,8 +81,6 @@
      * (oppdragsgiver 06.11, PR 1650). De står i stedet for `svarerPaa`.
      */
     relasjoner?: { hva: string; brev: string }[];
-    detteSender: { tekst: string; lag: string | null }[];
-    virkninger: string[];
     /**
      * Handlingen kan ikke gjøres om, som trekket av påberopelsen. Virkningen står da i svak rød,
      * bare her i brevkontrollen (oppdragsgiver 06.11, #1615).
@@ -147,11 +155,7 @@
       {deresRef}
       dato={BREVKONTROLL.datoSettes}
       tittel={tittel ?? ''}
-      avsnitt={avsnitt ??
-        tekst.map((laast, i) => ({
-          laast,
-          utdypning: i === tekst.length - 1 ? utdypning : undefined,
-        }))}
+      avsnitt={avsnitt ?? tekst.map((laast) => ({ laast }))}
     />
   </div>
 

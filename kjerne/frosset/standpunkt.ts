@@ -13,20 +13,12 @@
  */
 
 import type { Regelsett } from '../regler/regelsett.ts';
-import {
-  laget,
-  prinsipalt,
-  standpunktet,
-  type Svarinnhold,
-  type Svarsfrysing,
-  iSporet,
-  virkningerIForholdetOgFristen,
-} from './byggeklosser.ts';
+import { type Svarinnhold, type Svarsfrysing, iSporet } from './byggeklosser.ts';
 import { FRYSING_I_FORHOLDET } from '../spor/forhold/frysing.ts';
 import { FRYSING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
+import { FRYSING_I_FRISTEN } from '../spor/frist/frysing.ts';
 import { erRegistrert } from '../format/leser.ts';
 import { HJEMMEL } from '../format/format.ts';
-import { utregningIFristen } from '../format/svarinnhold.ts';
 import type {
   Dokument,
   Enighetsgrunnlag,
@@ -122,7 +114,7 @@ export function innsigelsenErOppgitt(
       (p): p is Extract<Standpunkt, { art: 'rettidighet' }> =>
         p.art === 'rettidighet' && p.hjemmel === hjemmel
     );
-  if (spor === 'frist') return standpunkter.some((p) => p.iTide);
+  if (frysingI(spor).hvertITideGirOppInnsigelsen) return standpunkter.some((p) => p.iTide);
   return standpunkter.at(-1)?.iTide === true;
 }
 
@@ -203,15 +195,6 @@ function utfall(svar: Svarinnhold, v: Standpunktsvirkning[]): Utfall {
   return frysingI(svar.spor).utfall(svar, v, avvisesPrinsipalt(svar, v));
 }
 
-function utfallIFristen(svar: Svarinnhold, v: Standpunktsvirkning[], prekludert: boolean): Utfall {
-  if (prekludert) return { dager: 0 };
-  const spesifisering = standpunktet(svar, 'spesifisering');
-  if (spesifisering && prinsipalt(v)?.standpunkt === spesifisering.id)
-    return { dager: spesifisering.dager! };
-  const dager = standpunktet(svar, 'dager')!;
-  return { dager: dager.resultat === 'avslaatt' ? 0 : dager.vurdert };
-}
-
 /**
  * Svaret godkjenner hele kravet i sporet, så standpunktene faller sammen
  * (GR-U7). For forholdet er det en godkjenning uten påberopt preklusjon
@@ -222,28 +205,14 @@ export function godkjennerHeleKravet(svar: Svarinnhold, v: Standpunktsvirkning[]
   return frysingI(svar.spor).godkjennerHeleKravet(svar, v);
 }
 
-function fristenGodkjent(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
-  // Arbeidsvalget i #479: en påberopelse etter § 33.6.1 i et lag gir aldri sammenfall. Leses av
-  // standpunktene.
-  const spesifisering = standpunktet(svar, 'spesifisering');
-  if (spesifisering && v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning)))
-    return false;
-  return utregningIFristen(svar.utregning).resultat === 'godkjent';
-}
-
 /** Frysingen i sporet (`iSporet`). */
 const frysingI = (spor: Spor): Svarsfrysing => iSporet(FRYSING, spor);
 
-/** Frysingen i hvert spor. Fristen står her til den flyttes til sporet (#1745). */
+/** Frysingen i hvert spor. */
 const FRYSING: Record<Spor, Svarsfrysing> = {
   forhold: FRYSING_I_FORHOLDET,
   vederlag: FRYSING_I_VEDERLAGET,
-  frist: {
-    virkninger: virkningerIForholdetOgFristen,
-    utfall: utfallIFristen,
-    godkjennerHeleKravet: fristenGodkjent,
-    vilkaar: 'forhold_avklart',
-  },
+  frist: FRYSING_I_FRISTEN,
 };
 
 /**

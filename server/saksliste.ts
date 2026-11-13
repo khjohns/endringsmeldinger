@@ -11,7 +11,7 @@ import type { Dokument, Journalrad, Part, Spor } from '../kjerne/typer.ts';
 import { kalenderdag, registrertDato } from '../kjerne/format/leser.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
-import { innholdIFristen } from '../kjerne/format/kravinnhold.ts';
+import { innholdIFristen } from '../kjerne/spor/frist/format.ts';
 import {
   fasteBeloepIKravet,
   fasteBeloepISvaret,

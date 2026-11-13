@@ -24,13 +24,14 @@ import { gjengi, gjengirTro, lagBrevtekst } from '../frosset/brevtekst.ts';
 import { brevmerking } from '../frosset/brevtittel.ts';
 import { postlisten } from '../spor/vederlag/frysing.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
+import { innsigelsenErOppgitt } from '../frosset/standpunkt.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { kroner } from '../frosset/tekst.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
 import { HOVEDKATEGORIER, KATEGORIER } from '../format/koder.ts';
-import { erRegistrert, kalenderdag, lesJournal } from '../format/leser.ts';
+import { erRegistrert, kalenderdag, lesJournal, standpunkterISvaret } from '../format/leser.ts';
 import {
   forhaandsvis,
   frysBrev,
@@ -2393,6 +2394,36 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     );
   });
 
+  it('VS-U20: i fristen gir et tidligere «i tide» etter § 33.4 opp innsigelsen, også når det siste svaret sier «for sent» (arbeidsvalget 15.10 i #309)', () => {
+    const rettidighet = (
+      spor: 'frist' | 'vederlag',
+      hjemmel: '33.4' | '34.1.2',
+      iTide: boolean
+    ) => ({
+      spor,
+      standpunkter: [
+        { id: randomUUID(), art: 'rettidighet' as const, gjelder: 'k', hjemmel, iTide },
+      ],
+    });
+    expect(
+      innsigelsenErOppgitt('frist', [rettidighet('frist', '33.4', false)]),
+      'kontrollsak: bare «for sent» gir den ikke opp'
+    ).toBe(false);
+    expect(
+      innsigelsenErOppgitt('vederlag', [
+        rettidighet('vederlag', '34.1.2', true),
+        rettidighet('vederlag', '34.1.2', false),
+      ]),
+      'kontrollsak: i vederlaget teller det siste standpunktet'
+    ).toBe(false);
+    expect(
+      innsigelsenErOppgitt('frist', [
+        rettidighet('frist', '33.4', true),
+        rettidighet('frist', '33.4', false),
+      ])
+    ).toBe(true);
+  });
+
   describe('varselet etter § 32.2 er det samme i hver påberopelsesversjon (VS-U24, arbeidsvalget 15.10 i #500)', () => {
     const medNyVersjon = () => {
       const s = medInnsigelse();
@@ -3590,6 +3621,27 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       'byggherren gjør gjeldende at TEs svar på forespørselen etter NS 8407 § 33.6.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent.'
     );
     expect((rad.data.svar as Data[])[0].utregning).toMatchObject({ resultat: 'avslaatt' });
+  });
+
+  it('VS-U24: rettidigheten etter § 33.6.2 foran rettidigheten etter § 33.4 er ikke forstått', () => {
+    const { s } = medForesporsel();
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const rad = fristsvar(
+      s,
+      { ...utenFelt(FRIST_FULLT[0], 'spesifisert_krav_ok'), foresporsel_svar_ok: false },
+      { resultat: 'avslaatt', godkjent_dager: 0 }
+    );
+    const svar = (rad.data.svar as Data[])[0];
+    const standpunkter = svar.standpunkter as Data[];
+    expect(
+      standpunkter.filter((p) => p.art === 'rettidighet').map((p) => p.hjemmel),
+      'kontrollsak: begge hjemlene står, § 33.4 først'
+    ).toEqual(['33.4', '33.6.2']);
+    expect(() => standpunkterISvaret('frist', svar)).not.toThrow();
+    const ombyttet = [standpunkter[1], standpunkter[0], ...standpunkter.slice(2)];
+    expect(() => standpunkterISvaret('frist', { ...svar, standpunkter: ombyttet })).toThrow(
+      /bare § 33.4 og deretter § 33.6.2 er lov/
+    );
   });
 
   it('begrunnelsen etter annet ledd b har setning 2 i LV-U18 og TEs tekst som utdypning', () => {

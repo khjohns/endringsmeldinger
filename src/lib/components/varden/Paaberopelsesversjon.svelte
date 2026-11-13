@@ -12,6 +12,7 @@
   import { tick } from 'svelte';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Utledning } from '$kjerne/utledning/utled';
+  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Brevutkast from './Brevutkast.svelte';
@@ -37,16 +38,7 @@
     u: Utledning;
     /** Teksten TE har skrevet, `null` før TE har åpnet skjemaet. Den står mens TE er på oversikten. */
     tekst?: string | null;
-    onbrevkontroll: (k: {
-      kommando: Record<string, unknown>;
-      tekst: string[];
-      utdypning?: string;
-      detteSender: { tekst: string; lag: string | null }[];
-      virkninger: string[];
-      merking: string | null;
-      deresRef: string[];
-      tittel: string | null;
-    }) => void;
+    onbrevkontroll: (k: TilBrevkontrollen) => void;
     onforkast: () => void;
     /** Tilbake til oversikten over forholdet. Teksten står til TE kommer tilbake. */
     ontilbake: () => void;
@@ -98,7 +90,7 @@
     onbrevkontroll({
       kommando,
       tekst: b.tekst,
-      utdypning: kommando.utdypning,
+      avsnitt: b.avsnitt,
       // Brevrelasjonene i brevkontrollen sier hva brevet erstatter og viser til.
       detteSender: [],
       virkninger: enig ? [NYVERSJON.enighet(svarbrevet!)] : [],

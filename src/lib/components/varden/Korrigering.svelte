@@ -10,6 +10,7 @@
   import { tick } from 'svelte';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Utledning } from '$kjerne/utledning/utled';
+  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Infotips from './Infotips.svelte';
@@ -35,16 +36,7 @@
     gjelder: string;
     /** Datoen og forklaringen står når TE går til brevkontrollen og tilbake. */
     valg?: Korrigeringsvalg;
-    onbrevkontroll: (k: {
-      kommando: Record<string, unknown>;
-      tekst: string[];
-      utdypning?: string;
-      detteSender: { tekst: string; lag: string | null }[];
-      virkninger: string[];
-      merking: string | null;
-      deresRef: string[];
-      tittel: string | null;
-    }) => void;
+    onbrevkontroll: (k: TilBrevkontrollen) => void;
     /** TE har bekreftet at utkastet skal forkastes. */
     onforkast: () => void;
   } = $props();
@@ -117,7 +109,7 @@
     onbrevkontroll({
       kommando,
       tekst: b.tekst,
-      utdypning: kommando.utdypning,
+      avsnitt: b.avsnitt,
       detteSender: linjer,
       virkninger: [FORHOLDET.korrigeringenStaar(lukket, svarbrevet)].filter((v) => v !== null),
       merking: b.merking,
