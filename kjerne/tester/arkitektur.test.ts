@@ -1238,7 +1238,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'kategori',
     [
-      'frosset/linje.ts:beslutningslinje',
+      'spor/frist/tekst.ts',
       'spor/forhold/frysing.ts',
       'frosset/byggeklosser.ts',
       'spor/vederlag/frysing.ts',
@@ -1992,7 +1992,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'BREVTEKSTEN_I_VEDERLAGET STANDPUNKTENE_I_VEDERLAGET',
     ['frosset/brevtekst.ts'],
   ],
-  ['Sporslinje', 'brevtekst', 'egetLedd ledd', ['frosset/linje.ts']],
+  ['Sporslinje', 'brevtekst', 'grunner egetLedd ledd', ['frosset/linje.ts']],
   ['spor/vederlag/tekst.ts', 'brevtekst', 'LINJEN_I_VEDERLAGET', ['frosset/linje.ts']],
   [
     'spor/frist/tekst.ts',
@@ -2012,14 +2012,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/brevdeler.ts',
     'brevtekst',
-    'Journalen KanIkkeUttrykkes PRODUKTIVITET eksMva erDato kravpostenI norskDato opplistet punktum tidligere verdi',
-    [
-      'frosset/brevtekst.ts',
-      'spor/forhold/tekst.ts',
-      'spor/vederlag/tekst.ts',
-      'spor/frist/tekst.ts',
-    ],
+    'Journalen KanIkkeUttrykkes PRODUKTIVITET eksMva erDato kravpostenI norskDato opplistet punktum tidligere',
+    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts', 'spor/vederlag/tekst.ts'],
   ],
+  ['frosset/brevdeler.ts', 'brevtekst', 'verdi', ['spor/vederlag/tekst.ts', 'spor/frist/tekst.ts']],
   // Byggeklossene i brevteksten som teksten i sporene også bruker (#1783).
   [
     'frosset/brevdeler.ts',

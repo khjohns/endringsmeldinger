@@ -1081,7 +1081,7 @@ const I_SPORENE: Standpunktstekster<ArtISporene> = adskilte(
   STANDPUNKTENE_I_FRISTEN
 );
 
-/** Tekstene i to spor samlet. En art i begge gir typefeil, så den ene ikke skjuler den andre. */
+/** Tekstene i sporene samlet, to om gangen. En art i begge gir typefeil, så den ene ikke skjuler den andre. */
 function adskilte<A extends object, B extends object & Partial<Record<keyof A, never>>>(
   a: A,
   b: B

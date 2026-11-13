@@ -2,7 +2,7 @@
  * Linjen for byggherrens standpunkt i beslutningsgrunnlaget (MM-U9), med leddene i sporet.
  */
 
-import { etikett, iSporet, laget, standpunktet, type Svarinnhold } from './byggeklosser.ts';
+import { etikett, iSporet, laget, type Svarinnhold } from './byggeklosser.ts';
 import { LINJEN_I_FORHOLDET } from '../spor/forhold/tekst.ts';
 import { LINJEN_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
 import { LINJEN_I_FRISTEN } from '../spor/frist/tekst.ts';
@@ -15,7 +15,6 @@ import {
   type Standpunktsvirkning,
   type Virkning,
 } from '../typer.ts';
-import { kategori } from '../spor/forhold/format.ts';
 
 /**
  * Linjen i brevet for svaret: byggherrens standpunkt, med den prinsipale grunnen først
@@ -31,7 +30,6 @@ export function beslutningslinje(
   forskyvning: number,
   kravet?: Krav | null
 ): string {
-  const spesifisert = standpunktet(svar, 'spesifisering');
   // Fristsvaret kan prekludere etter både § 33.4 og § 33.6.2 tredje ledd (VS-U17). Begge er
   // prinsipale, så de er ett ledd med den prinsipale grunnen (vedtaket 05.10).
   // Et upåvirket standpunkt eller et uten virkning er ingen grunn (OV-U32, HF-U2).
@@ -59,13 +57,7 @@ export function beslutningslinje(
   const grunntekst: Record<string, string> = {
     // HF-U11, MM-U23: byggherrens påberopelse slik brevet sier den, ikke appens slutning.
     rettidighet: `${sene.join(' og ')} kom for sent`,
-    // Som brevteksten: § 33.1 krever at fremdriften hindres «som følge av» forholdet.
-    hindring: `avslått: fremdriften er ikke hindret som følge av forholdet (§ ${
-      kategori(paaberopelse).hovedkategori === 'force_majeure' ? '33.3' : '33.1'
-    })`,
-    spesifisering: spesifisert?.dager
-      ? `godkjent med ${spesifisert.dager} dager (§ 33.6.1)`
-      : 'avslått (§ 33.6.1)',
+    ...iSporet(LINJE, svar.spor).grunner(svar, paaberopelse),
   };
   const grunner = v.filter(
     (p) =>
@@ -111,6 +103,8 @@ export interface Linjeledd {
 
 /** Leddene i linjen i ett spor, som `frosset/linje.ts` slår opp gjennom `LINJE` (#1783). */
 export interface Sporslinje {
+  /** Grunnene i sporet ut over rettidigheten, per art, når standpunktet har et lag. */
+  grunner(svar: Svarinnhold, paaberopelse: Krav | null | undefined): Record<string, string>;
   /** Standpunktet om rettidighet som står som et eget ledd i sporet og ikke som grunn (VS-U5). */
   egetLedd(svar: Svarinnhold, v: Standpunktsvirkning[]): string | undefined;
   /**

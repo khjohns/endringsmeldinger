@@ -15,7 +15,7 @@ import {
 import { standpunktet, virkningen } from '../../frosset/byggeklosser.ts';
 import type { Sporslinje } from '../../frosset/linje.ts';
 import { dager } from '../../frosset/tekst.ts';
-import { innholdIForholdet } from '../forhold/format.ts';
+import { innholdIForholdet, kategori } from '../forhold/format.ts';
 import { innholdIFristen } from './format.ts';
 import type { Krav } from '../../typer.ts';
 
@@ -62,6 +62,18 @@ export const STANDPUNKTENE_I_FRISTEN = {
 } satisfies Standpunktstekster<'hindring' | 'spesifisering' | 'dager'>;
 
 export const LINJEN_I_FRISTEN = {
+  grunner: (svar, paaberopelse) => {
+    const spesifisert = standpunktet(svar, 'spesifisering');
+    return {
+      // Som brevteksten: § 33.1 krever at fremdriften hindres «som følge av» forholdet.
+      hindring: `avslått: fremdriften er ikke hindret som følge av forholdet (§ ${
+        kategori(paaberopelse).hovedkategori === 'force_majeure' ? '33.3' : '33.1'
+      })`,
+      spesifisering: spesifisert?.dager
+        ? `godkjent med ${spesifisert.dager} dager (§ 33.6.1)`
+        : 'avslått (§ 33.6.1)',
+    };
+  },
   egetLedd: () => undefined,
   ledd: (svar, v) => {
     const d = standpunktet(svar, 'dager')!;
