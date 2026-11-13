@@ -193,3 +193,95 @@ kommentaren under. Oppdragsgiver svarte 12.11, ordrett ([#1834, 6833550575](http
 - **S-3:** A.
 
 Vedtakene for S-1 og S-3 er [GR-U35](../../plans/vedtak.md#gr-u35) og [GR-U36](../../plans/vedtak.md#gr-u36).
+
+Orkestratoren stilte S-4 13.11 slik det står på 2993b46, som nummerert liste i tekst. Oppdragsgiver
+svarte 13.11, ordrett:
+
+> 5 A
+
+- **S-4:** A. Orkestratoren fører vedtaket i en egen vedtaks-PR.
+
+## Spørsmål 4: S-4, dokumentet med svaret utenfor løsningen (13.11)
+
+Spørsmålet kommer fra oppdragsgivers prøve av prototypen 13.11
+([#1834](https://github.com/khjohns/endringsmeldinger/issues/1834#issuecomment-6848254614)): «samme
+skjema - ingen steder å laste opp registrert dokument.» Skjemaet er bekreftelsen av et svar gitt
+utenfor løsningen. Spørsmålet stilles på samme måte som S-1–S-3.
+
+**Bakgrunn.** Når byggherren bekrefter et svar gitt utenfor løsningen, oppgir byggherren dokumentet
+«som ved henvisningen etter GR-U26: et registrert dokument, eller dokumenttypen, datoen og en kort
+identifikasjon» ([OV-U46](../../plans/vedtak.md#ov-u46)). Bekreftelsen gir ingen vei til å legge ved
+dokumentet. Et registrert dokument er korrespondanse som alt er lagt til i saken
+([OV-U79](../../plans/vedtak.md#ov-u79)). I dag legges den til et annet sted enn i skjemaet. Ved
+totalentreprenørens varsel er valget gjort den andre veien. Et varsel sendt utenfor løsningen legges
+til som korrespondanse med kategorien varsel i samme forløp ([VS-U38](../../plans/vedtak.md#vs-u38)).
+Et dokument totalentreprenøren legger til i kravskjemaet, legges ved kravet, og kravet viser til det
+([VS-U51](../../plans/vedtak.md#vs-u51)).
+
+Hvilken kategori dokumentet får etter OV-U80, avgjør virkningen. Som svar er det et registrert svar,
+med samme virkning som et svar sendt fra løsningen og med datoen det ble sendt. Da trengs ingen
+bekreftelse. Som dokumentasjon utleder løsningen ingenting av det, og virkningen kommer fra
+bekreftelsen.
+
+**Avgrensning.** Spørsmålet gjelder bare bekreftelsen. Henvisningen i et svar på vederlag eller
+frist ([samlevedtaket](../../plans/vedtak.md#samlevedtak-ubesvart-grunnlag) GR-U34 punkt 6) har samme
+ordlyd, men står uendret. Svaret på spørsmålet om byggherren alt har svart utenfor løsningen, er
+obligatorisk (punkt 1). Krevde henvisningen en PDF, måtte en byggherre uten dokumentet svare «nei».
+Brevet ville da fått forbeholdet ‹Byggherren har ennå ikke svart …› (punkt 3), og den uriktige
+setningen fryses når brevet sendes.
+
+**Hva valget styrer.** Skjemaet for bekreftelsen (`#bekreft` i prototypen), lagringen av dokumentet
+i samme handling, og om bekreftelsen legger det ved. Det bygges i #1306.
+
+- **A (anbefalt):** Er dokumentet med det tidligere svaret ikke lagt til i saken, legger byggherren
+  det til som korrespondanse i samme forløp som bekreftelsen. Byggherren laster opp dokumentet som PDF
+  og oppgir det OV-U79 krever, også hvem som sendte det. Det står som dokumentasjon (OV-U80).
+  Datoen det ble sendt, er datoen for det tidligere svaret i bekreftelsen. Korrespondansen og
+  bekreftelsen lagres i samme handling når bekreftelsen sendes, også når den først går til godkjenning
+  etter fullmakten. Sendes den ikke, lagres ingen av dem. Avvises bekreftelsen fordi det tidligere
+  svaret var en endringsordre (OV-U6), følger dokumentet med til registreringen av endringsordren.
+  Bekreftelsen viser til dokumentet slik brevene ellers viser til korrespondanse (LV-U42, LV-U53), og
+  legger det ved. Korrespondanse som en sendt bekreftelse viser til, kan ikke senere velges som svar
+  på samme versjon av påberopelsen (OV-U84). Valget av dokumenttype, dato og en kort identifikasjon
+  uten dokumentet faller bort for bekreftelsen. Valget av dokumenttype sier ikke noe om formkravet i
+  punkt 5 i NS 8407. Forhold: endrer OV-U46; utvider GR-U35 med vedlegget; snevrer inn OV-U80 og
+  OV-U84; følger LV-U42, LV-U45 og LV-U53; i tråd med VS-U38 og VS-U51. Henvisningen etter GR-U34
+  punkt 6 endres ikke.
+- **B:** Som A, men dokumentet er valgfritt. Uten dokumentet oppgir byggherren dokumenttypen, datoen
+  og en kort identifikasjon som før, og bekreftelsen har ikke noe vedlegg. Forhold: utvider OV-U46 og
+  GR-U35; snevrer inn OV-U80 og OV-U84; følger LV-U42, LV-U45 og LV-U53; i tråd med VS-U38 og VS-U51.
+- **C:** Skjemaet står etter OV-U46. Vil byggherren ha dokumentet i saken, legger byggherren det til
+  som korrespondanse før bekreftelsen og velger det som et registrert dokument. Skjemaet lenker til
+  registreringen. Forhold: presiserer OV-U46 (designdelen).
+
+**Anbefaling: A.** Det er samme mønster som når totalentreprenøren legger til et varsel sendt utenfor
+løsningen (VS-U38). Bekreftelsen er byggherrens opplysning om et dokument, og med A kan
+totalentreprenøren lese dokumentet i saken. B gir to veier, og den ene har ikke noe dokument. At den
+veien sjelden trengs, er en antakelse og ikke prøvd på brukere. A har en kostnad: byggherren må ha
+dokumentet som PDF, også et møtereferat. Et muntlig svar uten referat kan ikke bekreftes etter A. Da
+kan byggherren gi et nytt svar på forholdet. C lar byggherren forlate skjemaet midt i utfyllingen.
+
+### Kontrollen av S-4
+
+En subagent prøvde alternativene mot vedtakene én gang 13.11, med fem forløp. Funnene, og hvordan de er
+rettet:
+
+1. **Henvisningen.** A gjaldt først også henvisningen etter GR-U34 punkt 6. Byggherren uten dokument
+   måtte da svare «nei», og brevet fikk en uriktig setning. Spørsmålet gjelder nå bare bekreftelsen
+   (avgrensningen).
+2. **Avsenderen.** «Med byggherren som avsender» var feil, fordi et møtereferat ofte er sendt av en
+   annen. A sier nå at avsenderen oppgis etter OV-U79.
+3. **To virkninger av samme svar.** Som avsender kunne byggherren senere velge dokumentasjonen som
+   svar etter OV-U84, og da fikk det samme svaret virkning to ganger. A og B sperrer det nå, og
+   forholdet sier at de snevrer inn OV-U80 og OV-U84.
+4. **Forholdet.** Forholdet er utfylt med GR-U35, LV-U42, LV-U45 og LV-U53, og setningen om
+   formkravet i punkt 5 er tatt med fra GR-U34 punkt 6. Henvisningen til VS-U34 er tatt ut, fordi
+   VS-U38 er det nærmeste mønsteret.
+5. **Avvist bekreftelse og godkjenning.** A sier nå at dokumentet følger med til registreringen etter
+   OV-U6, og at korrespondansen lagres først når bekreftelsen sendes, også etter godkjenningen.
+6. **C.** Forholdet var «ingen» og er nå «presiserer OV-U46 (designdelen)».
+
+Ett funn hører ikke til spørsmålet. Et skriftlig svar kan alt i dag legges til som korrespondanse med
+kategorien svar (OV-U80). Det gir virkning med datoen svaret ble sendt, uten bekreftelse. Når
+bekreftelsen likevel er riktig valg for et skriftlig svar, er et eget spørsmål. Det er ført som P-3 i
+BF-08.
