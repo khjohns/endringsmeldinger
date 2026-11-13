@@ -5086,8 +5086,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/tekst.ts`,
     endringer: [
       [
-        '    for (const frist of innholdIFristen(v).frister) sist.set(frist.id, { frist, krav: v });',
-        '    for (const frist of innholdIFristen(v).frister) if (v === forrige) sist.set(frist.id, { frist, krav: v });',
+        '      sisteForm.set(frist.id, frist);',
+        '      if (v === forrige) sisteForm.set(frist.id, frist);',
       ],
     ],
     mal: ['en frist som er trukket og tatt med igjen i en ny form'],

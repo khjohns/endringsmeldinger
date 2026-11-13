@@ -56,16 +56,20 @@ function fristkravtekst(k: Krav, { j }: Tekst): Brevpunkt[] {
   const forrige = versjoner.at(-1);
   const foer = new Map(forrige ? innholdIFristen(forrige).frister.map((f) => [f.id, f]) : []);
   // KA-U79: en frist som er trukket og tatt med igjen, sammenliknes med den siste formen den hadde.
-  const sist = new Map<string, { frist: FristIKravet; krav: Krav }>();
+  const sisteForm = new Map<string, FristIKravet>();
+  const sisteKrav = new Map<string, Krav>();
   for (const v of versjoner)
-    for (const frist of innholdIFristen(v).frister) sist.set(frist.id, { frist, krav: v });
+    for (const frist of innholdIFristen(v).frister) {
+      sisteForm.set(frist.id, frist);
+      sisteKrav.set(frist.id, v);
+    }
   const avsnitt = [deler.join(' ')];
   for (const f of innholdIFristen(k).frister) {
-    const siste = sist.get(f.id);
+    const siste = sisteForm.get(f.id);
     const setninger = [`Frist ${betegnelsen(f)}: ${dager(f.dager)}.`];
-    if (siste && fristnoekkel(siste.frist) !== fristnoekkel(f))
+    if (siste && fristnoekkel(siste) !== fristnoekkel(f))
       setninger.push(
-        `Fristen erstatter frist ${betegnelsen(siste.frist)} i ${j.brevet(siste.krav.dokument)}.`
+        `Fristen erstatter frist ${betegnelsen(siste)} i ${j.brevet(sisteKrav.get(f.id)!.dokument)}.`
       );
     avsnitt.push(setninger.join(' '));
   }
