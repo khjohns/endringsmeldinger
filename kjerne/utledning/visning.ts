@@ -27,7 +27,7 @@ import {
   type RegistrertBrev,
   type Utledning,
 } from './utled.ts';
-import { SPOR, type Spor } from '../typer.ts';
+import { SPOR, type Kravspor, type Spor } from '../typer.ts';
 
 export type Statuskode =
   | 'kan_ikke_utledes'
@@ -105,7 +105,8 @@ export const BETEGNELSER = [
 
 export type Betegnelse = (typeof BETEGNELSER)[number];
 
-const harVarsel = (u: Utledning, spor: Spor): boolean =>
+/** Sporet har et varsel løsningen kjenner (OV-U5), uavhengig av betegnelsen (MM-U30, MM-U37). */
+export const harVarsel = (u: Utledning, spor: Spor): boolean =>
   Object.keys(u.spor[spor].varsler).length > 0 || u.spor[spor].kravpostvarsler.length > 0;
 
 const sendt = (u: Utledning, spor: Spor): boolean =>
@@ -124,12 +125,31 @@ const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
   paalegg_frafalt: (u, spor) => visningI(spor).paaleggFrafalt(u),
   enige: (u, spor) => u.spor[spor].enighet !== null,
   svar_ikke_godtatt: svarIkkeGodtatt,
-  // MM-U30: TE har godtatt avslaget på grunnlaget (GR-U27). At sporet verken har enighet eller
-  // trekk, følger av rekkefølgen: «Trukket» og «Enige» står foran.
-  krav_sendt: (u, spor) => sporetErLukket(u) && u.spor[spor].gjeldendeKrav !== null,
+  // MM-U30: TE har godtatt avslaget på grunnlaget (GR-U27), og sporet har verken enighet eller
+  // trekk.
+  krav_sendt: (u, spor) =>
+    sporetErLukket(u) &&
+    u.spor[spor].gjeldendeKrav !== null &&
+    u.spor[spor].enighet === null &&
+    !u.spor[spor].trukket,
   ingen_krav: (u, spor) => u.spor[spor].ingenKrav,
   varslet: harVarsel,
 };
+
+/**
+ * TE har avsluttet saken: avslaget på forholdet er godtatt (GR-U27), eller påberopelsen er
+ * trukket (GR-U5). Leses av utsagnene, ikke av betegnelsen (MM-U22).
+ */
+export const avsluttetAvTe = (u: Utledning): boolean =>
+  u.forstaatt && (sporetErLukket(u) || u.spor.forhold.trukket);
+
+/**
+ * Kravet i sporet står: saken er forstått og ikke avsluttet av TE, og kravet er ikke trukket
+ * (svar 2 fra oppdragsgiver 20.10 i #1029). Nøkkeltallene i sakslisten teller bare et krav som
+ * står (#1068).
+ */
+export const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
+  u.spor[spor].gjeldendeKrav !== null && !u.spor[spor].trukket && !avsluttetAvTe(u);
 
 /** MM-U30: sporets betegnelse, eller `null` når ingenting er sendt i sporet. */
 export function betegnelse(u: Utledning, spor: Spor): Betegnelse | null {

@@ -87,7 +87,7 @@ describe.skipIf(!TESTBASE_URL)('sakslisten i prosjektet (#1022)', () => {
       forstaatt: true,
       saksbetegnelse: null,
       vederlag: {
-        krav: { beloep: 100000, oppgjoersformer: ['tilbud'] },
+        krav: { beloep: 100000, antall_uten_fast_beloep: 0 },
         svar: null,
         venter_paa_svar: true,
       },

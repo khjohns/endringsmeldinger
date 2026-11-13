@@ -242,9 +242,42 @@ describe('linja i sakslisten (#1022)', () => {
     expect(l.vederlag.svar).toEqual({
       resultat: 'delvis_godkjent',
       beloep: 100000,
+      antall_uten_fast_beloep: 1,
       subsidiaert: false,
     });
     expect(l.vederlag.enighet).toMatchObject({ beloep: 100000, uten_fast_beloep: ['P2'] });
+  });
+
+  it('et krav og et svar uten fast beløp har ingen sum, og antallet kravposter uten fast beløp (KA-U61, KA-U72, arbeidsvalget 12.11 i #1779)', () => {
+    const l = linje((sak) => {
+      sak.send('TE', PAABEROPELSE);
+      sak.send('TE', {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: {
+          kravposter: [
+            { beskrivelse: 'Fundamentering', oppgjoersform: 'tilbud', beloep: 100000 },
+            { beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid' },
+          ],
+        },
+        utdypning: UTDYPNING,
+      });
+      sak.send('BH', {
+        type: 'brev',
+        svar: [
+          sak.svar('forhold', { resultat: 'godkjent', grunnlag_varslet_i_tide: true }),
+          sak.svar('vederlag', {
+            kravposter: [
+              { gjelder: 'P1', aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' },
+              { gjelder: 'P2', aksepterer: true },
+            ],
+          }),
+        ],
+      });
+    });
+    expect(l.vederlag.krav).toEqual({ beloep: 100000, antall_uten_fast_beloep: 1 });
+    expect(l.vederlag.svar).toMatchObject({ beloep: null, antall_uten_fast_beloep: 2 });
+    expect(noekkeltall([l]).vederlag.krav_sum).toBe(100000);
   });
 
   it('krav uten svar venter på byggherrens svar i alle tre sporene (MM-U29)', () => {
@@ -256,7 +289,7 @@ describe('linja i sakslisten (#1022)', () => {
       underkategori: 'irregulaer_endring',
       forhold: { svar: null, venter_paa_svar: true, svar_ikke_godtatt: false },
       vederlag: {
-        krav: { beloep: 100000, oppgjoersformer: ['tilbud'] },
+        krav: { beloep: 100000, antall_uten_fast_beloep: 0 },
         svar: null,
         enighet: null,
         venter_paa_svar: true,
@@ -332,7 +365,7 @@ describe('linja i sakslisten (#1022)', () => {
     const paaberopelsenTrukket = linje(krav, trekk('forhold'));
     const avslagGodtatt = linje(forloepA, aksept('forhold'));
     for (const l of [vederlagTrukket, paaberopelsenTrukket, avslagGodtatt])
-      expect(l.vederlag.krav).toEqual({ beloep: 100000, oppgjoersformer: ['tilbud'] });
+      expect(l.vederlag.krav).toEqual({ beloep: 100000, antall_uten_fast_beloep: 0 });
     expect(vederlagTrukket.vederlag.betegnelse).toBe('trukket');
     expect(staar.vederlag.kravet_staar).toBe(true);
     for (const l of [vederlagTrukket, paaberopelsenTrukket, avslagGodtatt])
@@ -395,10 +428,11 @@ describe('linja i sakslisten (#1022)', () => {
       });
     };
     const l = linje(medPost);
-    expect(l.vederlag.krav).toEqual({ beloep: 140000, oppgjoersformer: ['tilbud'] });
+    expect(l.vederlag.krav).toEqual({ beloep: 140000, antall_uten_fast_beloep: 0 });
     expect(l.vederlag.svar).toEqual({
       resultat: 'delvis_godkjent',
       beloep: 130000,
+      antall_uten_fast_beloep: 0,
       subsidiaert: true,
     });
   });

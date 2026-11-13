@@ -13,8 +13,7 @@ import { dager, kroner } from '$kjerne/frosset/tekst';
 import { kalenderdag } from '$kjerne/format/leser';
 import { getKontraktsforholdLabel } from '$lib/constants/categories';
 import { FORHOLDENE } from './nysak';
-import { SAKSLISTE } from './tekster';
-import { beregningsregelen } from './lesing';
+import { FORHOLDET, SAKSLISTE } from './tekster';
 
 /** Sakstypene i panelet etter KT-U9. Forsering står ikke der ennå (svaret på M4). */
 export type Fane = 'koe' | 'eo';
@@ -67,13 +66,16 @@ export type Krevd = {
   tall: boolean;
   /** Ikke med i summene: kravet eller varselet står ikke, eller saken inngår i en endringsordre. */
   dempet: boolean;
+  /** Antallet kravposter uten fast beløp ved summen, som i «Tilknyttede krav» (#1779). */
+  utenFast: string | null;
   /** «trukket» når kravet i sporet er trukket og saken ellers ikke er avsluttet av TE. */
   merknad: string | null;
 };
 
 /**
- * Det TE har krevd i sporet: beløpet eller dagene, «Varslet», beregningsregelen eller
- * «Ikke krevd» (MM-U37). «Varslet» leses av `har_varsel` og `ingen_krav` fra serveren, ikke av
+ * Det TE har krevd i sporet: beløpet eller dagene, «Ingen poster med fast beløp», «Varslet» eller
+ * «Ikke krevd» (MM-U37). Summen står med antallet kravposter uten fast beløp, i samme form som
+ * «Tilknyttede krav» (arbeidsvalget 12.11 i #1779). «Varslet» leses av `har_varsel` og `ingen_krav` fra serveren, ikke av
  * betegnelsen, som er en annen når byggherren har bedt om spesifisert krav eller sporet er
  * trukket (MM-U30). En sak kjernen ikke forstår, har ingen celle, så tallene ikke leses som
  * riktige (MM-U2).
@@ -89,32 +91,36 @@ export function krevd(
   const trukket = l.betegnelse === 'trukket';
   const merknad = trukket && !avsluttetAvTe(linje) ? SAKSLISTE.trukket : null;
   if (spor === 'vederlag' && linje.vederlag.krav) {
-    const { beloep, oppgjoersformer } = linje.vederlag.krav;
-    // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Har kravet også faste
-    // beløp, står summen av dem med beregningsregelen ved siden av (#1663).
-    const regelen = beregningsregelen(oppgjoersformer);
-    const regel =
-      regelen === null || regelen === 'flere' ? regelen : (SAKSLISTE.metode[regelen] ?? regelen);
-    if (regel === null) return { tekst: kroner(beloep), tall: true, dempet, merknad };
-    if (!oppgjoersformer.includes('tilbud') && beloep <= 0)
+    // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Uten et fast beløp
+    // er kravet ikke med i summene: ukjent er ikke 0 (OV-U43).
+    const { beloep, antall_uten_fast_beloep: n } = linje.vederlag.krav;
+    if (beloep === null)
       return {
-        tekst: regel === 'flere' ? SAKSLISTE.flereOppgjoersformer : regel,
+        tekst: FORHOLDET.ingenFastBeloep,
         tall: false,
         dempet: true,
+        utenFast: null,
         merknad,
       };
-    return { tekst: SAKSLISTE.ogRegel(kroner(beloep), regel), tall: true, dempet, merknad };
+    return {
+      tekst: kroner(beloep),
+      tall: true,
+      dempet,
+      utenFast: n ? FORHOLDET.utenFastBeloep(n) : null,
+      merknad,
+    };
   }
   if (spor === 'frist' && linje.frist.krav)
-    return { tekst: dager(linje.frist.krav.dager), tall: true, dempet, merknad };
+    return { tekst: dager(linje.frist.krav.dager), tall: true, dempet, utenFast: null, merknad };
   if (varslet(l))
     return {
       tekst: SAKSLISTE.varslet,
       tall: false,
       dempet: !varselITallene(linje, spor, iEndringsordre),
+      utenFast: null,
       merknad,
     };
-  return { tekst: SAKSLISTE.ikkeKrevd, tall: false, dempet: false, merknad: null };
+  return { tekst: SAKSLISTE.ikkeKrevd, tall: false, dempet: false, utenFast: null, merknad: null };
 }
 
 /** TE har varslet i sporet og ikke sagt «ingen krav» (KA-U12), som serveren gir det. */
@@ -159,11 +165,7 @@ export function noekkeltall(linjer: readonly Sakslinje[], eo: Endringsordrer): N
     const v = l.vederlag;
     // Et krav med faste beløp telles med summen av dem, også når det har kravposter etter en
     // beregningsregel (KA-U61, #1663).
-    if (
-      v.krav &&
-      v.kravet_staar &&
-      (v.krav.oppgjoersformer.includes('tilbud') || v.krav.beloep > 0)
-    ) {
+    if (v.krav && v.kravet_staar && v.krav.beloep !== null) {
       n.vederlag.krav += 1;
       n.vederlag.sum += v.krav.beloep;
     } else if (v.krav && v.kravet_staar) n.vederlag.utenBeloep += 1;

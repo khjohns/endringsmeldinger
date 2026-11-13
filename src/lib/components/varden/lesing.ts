@@ -11,7 +11,7 @@ import { FORHOLDSGRUPPER, forholdet } from '$kjerne/spor/forhold/tekst';
 import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
 import { plassene } from '$kjerne/frosset/byggeklosser';
 import { innholdIFristen } from '$kjerne/format/kravinnhold';
-import { krevdIKravposten, kravposterI, krevdSamlet } from '$kjerne/spor/vederlag/format';
+import { fasteBeloepIKravet, kravposterI, utenFastBeloep } from '$kjerne/spor/vederlag/format';
 import { tilTall } from '$kjerne/regler/beloep';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { TilbudtHandling } from '$kjerne/kommandoer/handlinger';
@@ -19,7 +19,6 @@ import type {
   Avsnitt,
   Dokument,
   Krav,
-  Oppgjoersform,
   Part,
   Spor,
   Standpunkt,
@@ -417,39 +416,26 @@ function summertPerLag(poster: { tall: number; lag: string | null }[]) {
   return [...oere].map(([lag, o]) => ({ tall: o / 100, lag }));
 }
 
-/** Oppgjørsformen til kravpostene etter en beregningsregel, `flere` når de har ulike, ellers `null`. */
-export function beregningsregelen(
-  former: readonly Oppgjoersform[]
-): Exclude<Oppgjoersform, 'tilbud'> | 'flere' | null {
-  const regler = new Set(former.filter((f) => f !== 'tilbud'));
-  return regler.size === 0 ? null : regler.size === 1 ? [...regler][0]! : 'flere';
-}
-
 export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): TilknyttetKrav {
   const s = u.spor[spor];
   const krav = s.gjeldendeKrav;
   const kravbrev = krav && brevet(u, krav.dokument);
   const svar = s.gjeldendeSvar;
   const svarbrev = svar && brevet(u, svar.dokument);
-  const tall = (): number | null => {
-    if (!krav) return null;
-    if (spor === 'frist') return innholdIFristen(krav).dager;
-    // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Summen er de faste
-    // beløpene, og visningen sier hvor mange poster som ikke har et fast beløp (#1752).
-    const fast =
-      kravposterI(krav).some((p) => p.oppgjoersform === 'tilbud') || krevdSamlet(krav) > 0n;
-    return fast ? tilTall(krevdSamlet(krav)) : null;
-  };
+  // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Summen er de faste
+  // beløpene, og visningen sier hvor mange poster som ikke har et fast beløp (#1752).
+  const fastKrevd = krav && spor === 'vederlag' ? fasteBeloepIKravet(krav) : null;
   return {
     spor,
     krevd:
       krav && kravbrev
         ? {
-            tall: tall(),
-            utenFast:
-              spor === 'vederlag'
-                ? kravposterI(krav).filter((p) => krevdIKravposten(krav, p) === null).length
-                : 0,
+            tall: fastKrevd
+              ? fastKrevd.sum === null
+                ? null
+                : tilTall(fastKrevd.sum)
+              : innholdIFristen(krav).dager,
+            utenFast: fastKrevd?.utenFastBeloep ?? 0,
             brev: ref(kravbrev),
           }
         : null,
@@ -465,9 +451,7 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
                     : []
               )
             ),
-            utenFast: svar.standpunkter.filter(
-              (x) => x.art === 'beloep' && x.godkjent === undefined && x.gjelder
-            ).length,
+            utenFast: spor === 'vederlag' ? utenFastBeloep(svar.standpunkter).size : 0,
             brev: ref(svarbrev),
           }
         : null,

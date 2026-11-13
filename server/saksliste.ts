@@ -7,15 +7,22 @@
  */
 
 import type { Fristresultat, Forholdsresultat, Vederlagsresultat } from '../kjerne/regler/typer.ts';
-import type { Dokument, Journalrad, Kravspor, Oppgjoersform, Part, Spor } from '../kjerne/typer.ts';
+import type { Dokument, Journalrad, Part, Spor } from '../kjerne/typer.ts';
 import { kalenderdag, registrertDato } from '../kjerne/format/leser.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
 import { innholdIFristen } from '../kjerne/format/kravinnhold.ts';
-import { kravposterI, krevdSamlet } from '../kjerne/spor/vederlag/format.ts';
-import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
+import {
+  fasteBeloepIKravet,
+  fasteBeloepISvaret,
+  kravposterI,
+  type FasteBeloep,
+} from '../kjerne/spor/vederlag/format.ts';
+import { tilTall } from '../kjerne/regler/beloep.ts';
 import {
   betegnelse,
+  harVarsel,
+  kravetStaar,
   harIkkeVurdertBrev,
   saksbetegnelse,
   type Betegnelse,
@@ -136,14 +143,20 @@ interface Staaende {
   ingen_krav: boolean;
 }
 
+/**
+ * `beloep` er summen av de faste beløpene i kroner, eller `null` når ingen post har et fast
+ * beløp, og `antall_uten_fast_beloep` er kravpostene summen ikke regner med (`FasteBeloep`,
+ * arbeidsvalget 12.11 i #1779).
+ */
+interface Beloepene {
+  beloep: number | null;
+  antall_uten_fast_beloep: number;
+}
+
 export interface Vederlagslinje extends Foreligger, Staaende {
-  /**
-   * `beloep` er summen av de faste beløpene (OV-U73), og `oppgjoersformer` er oppgjørsformene i
-   * kravpostene, uten gjentakelser (OV-U95 punkt 19). Et krav med bare postene utenfor
-   * kravpostene har ingen oppgjørsform.
-   */
-  krav: { beloep: number; oppgjoersformer: Oppgjoersform[] } | null;
-  svar: { resultat: Vederlagsresultat; beloep: number; subsidiaert: boolean } | null;
+  krav: Beloepene | null;
+  /** Beløpet er det byggherren godtar om ingen påberopelse fører fram (OV-U31). */
+  svar: (Beloepene & { resultat: Vederlagsresultat; subsidiaert: boolean }) | null;
   /**
    * `uten_fast_beloep` er betegnelsene på kravpostene uten fast beløp i det første laget, som
    * `beloep` ikke regner med (OV-U73, svar 6 A i #1663).
@@ -214,32 +227,25 @@ function fristsvaret(u: Utledning) {
   return { st, subsidiaert: standpunktetErSubsidiaert(u, 'frist', st.id) };
 }
 
+const beloepene = (b: FasteBeloep): Beloepene => ({
+  beloep: b.sum === null ? null : tilTall(b.sum),
+  antall_uten_fast_beloep: b.utenFastBeloep,
+});
+
 /**
- * Vederlaget som byggherren godtar om ingen påberopelse fører fram: summen av postene
- * (OV-U31). Subsidiært når en av postene er det.
+ * Byggherrens gjeldende svar på vederlaget, med resultatet i det første standpunktet til et
+ * beløp. Subsidiært når et av standpunktene til beløpene er det (`standpunktetErSubsidiaert`).
  */
-function vederlagssvaret(u: Utledning) {
-  const poster = (u.spor.vederlag.gjeldendeSvar?.standpunkter ?? []).filter(
-    (p) => p.art === 'beloep'
-  );
-  if (!poster.length) return null;
+function vederlagssvaret(u: Utledning): Vederlagslinje['svar'] {
+  const svar = u.spor.vederlag.gjeldendeSvar;
+  const poster = (svar?.standpunkter ?? []).filter((p) => p.art === 'beloep');
+  if (!svar || !poster.length) return null;
   return {
     resultat: poster[0]!.resultat,
-    // OV-U73, KA-U72: en kravpost uten beløp regnes ikke med.
-    beloep: tilTall(poster.reduce((sum, p) => sum + (beloep(p.godkjent) ?? 0n), 0n)),
+    ...beloepene(fasteBeloepISvaret(svar)),
     subsidiaert: poster.some((p) => standpunktetErSubsidiaert(u, 'vederlag', p.id)),
   };
 }
-
-/** Avslaget på forholdet er godtatt, eller påberopelsen er trukket. Leses av predikatene, ikke av betegnelsen (MM-U22). */
-const avsluttet = (u: Utledning): boolean =>
-  u.forstaatt && (u.forholdAvvist || u.spor.forhold.trukket);
-
-const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
-  u.spor[spor].gjeldendeKrav !== null && !u.spor[spor].trukket && !avsluttet(u);
-
-const harVarsel = (u: Utledning, spor: Kravspor): boolean =>
-  Object.keys(u.spor[spor].varsler).length > 0 || u.spor[spor].kravpostvarsler.length > 0;
 
 function vederlag(u: Utledning): Vederlagslinje {
   const s = u.spor.vederlag;
@@ -249,12 +255,7 @@ function vederlag(u: Utledning): Vederlagslinje {
     kravet_staar: kravetStaar(u, 'vederlag'),
     har_varsel: harVarsel(u, 'vederlag'),
     ingen_krav: s.ingenKrav,
-    krav: s.gjeldendeKrav
-      ? {
-          beloep: tilTall(krevdSamlet(s.gjeldendeKrav)),
-          oppgjoersformer: [...new Set(kravposterI(s.gjeldendeKrav).map((p) => p.oppgjoersform))],
-        }
-      : null,
+    krav: s.gjeldendeKrav ? beloepene(fasteBeloepIKravet(s.gjeldendeKrav)) : null,
     svar: vederlagssvaret(u),
     enighet:
       s.enighet && virkning
@@ -430,11 +431,11 @@ export function noekkeltall(linjer: readonly Sakslinje[]): Noekkeltall {
     const v = l.vederlag;
     if (v.krav && v.kravet_staar) {
       n.vederlag.krav_antall += 1;
-      n.vederlag.krav_sum += v.krav.beloep;
+      n.vederlag.krav_sum += v.krav.beloep ?? 0;
     }
     if (v.venter_paa_svar) n.vederlag.venter_paa_svar += 1;
     if (v.svar?.subsidiaert && v.kravet_staar && !v.enighet)
-      n.vederlag.svar_subsidiaert_sum += v.svar.beloep;
+      n.vederlag.svar_subsidiaert_sum += v.svar.beloep ?? 0;
     const e = v.enighet;
     if (e && e.virkning !== 'uten_virkning') {
       if (e.beloep === null) n.vederlag.enighet_uten_beloep += 1;
