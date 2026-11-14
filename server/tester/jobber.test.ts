@@ -17,7 +17,7 @@ import {
 } from '../catenda.ts';
 import { transaksjon } from '../datalag.ts';
 import { kjoerEnJobb, LEASETID_S, startJobbkjoerer } from '../jobber.ts';
-import { lesLeveringsmaal } from '../lager.ts';
+import { lesSakensMaal } from '../lager.ts';
 import { opprettKjoeretid, sql } from './sqlserver.ts';
 import { avvisning } from './sqlserver_migrert.ts';
 import {
@@ -99,10 +99,10 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
       )
     ).recordset;
   const topicen = (sakId: string) =>
-    transaksjon(
+    lesSakensMaal(
       o.datalag.kjoeretid.pool,
       { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const },
-      (foresp) => lesLeveringsmaal(foresp, sakId)
+      sakId
     );
   const kjoer = () =>
     kjoerEnJobb({
@@ -557,7 +557,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     await kvitter(l1, 'samme-topic');
     expect(await avvisning(kvitter(l2, 'samme-topic'))).toBe(UNIK);
     const topics = await Promise.all([topicen(a), topicen(b)]);
-    expect(topics.map((t) => t.topic_id).sort()).toEqual([null, 'samme-topic']);
+    expect(topics.map((t) => t?.topic_id).sort()).toEqual([null, 'samme-topic']);
   });
 
   it('12: updated_at på koblingen følger en UPDATE (#618)', async () => {

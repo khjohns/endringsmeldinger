@@ -42,8 +42,10 @@ export interface Leveringsmaal {
   folder_id: string | null;
   board_id: string | null;
   topic_id: string | null;
-  topic_nummer: number | null;
 }
+
+/** Målet med topicens nummer, som lenken til saken bruker. Leveringsoppdraget fryser det uten nummeret. */
+export type SakensMaal = Leveringsmaal & { topic_nummer: number | null };
 
 export interface Oppdragsrad {
   id: string;
@@ -197,7 +199,8 @@ async function aktornavn(foresp: Foresp, sakId: string): Promise<Map<string, str
 export async function lesLeveringsmaal(foresp: Foresp, sakId: string): Promise<Leveringsmaal> {
   const maal = await lesMaal(foresp, sakId);
   if (!maal) throw new IngenLeveringsmaal(`Saken ${sakId} har ingen aktiv kobling til Catenda.`);
-  return maal;
+  const { catenda_project_id, library_id, folder_id, board_id, topic_id } = maal;
+  return { catenda_project_id, library_id, folder_id, board_id, topic_id };
 }
 
 /**
@@ -208,14 +211,14 @@ export function lesSakensMaal(
   pool: Pool,
   kontekst: Kontekst,
   sakId: string
-): Promise<Leveringsmaal | null> {
+): Promise<SakensMaal | null> {
   return transaksjon(pool, kontekst, (foresp) => lesMaal(foresp, sakId));
 }
 
 /** Målet i prosjektet i konteksten, eller `null` uten aktiv kobling. */
-async function lesMaal(foresp: Foresp, sakId: string): Promise<Leveringsmaal | null> {
+async function lesMaal(foresp: Foresp, sakId: string): Promise<SakensMaal | null> {
   const svar = await foresp()
     .input('sak_id', sql.NVarChar(36), sakId)
-    .execute<Leveringsmaal>('koe_api.leveringsmaal');
+    .execute<SakensMaal>('koe_api.leveringsmaal');
   return svar.recordset[0] ?? null;
 }

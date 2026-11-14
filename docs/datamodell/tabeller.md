@@ -555,7 +555,7 @@ Kvitteringen for hver obligatoriske operasjon i leveringen av et brev (#371 del 
 | Type | transaksjon |
 | Status | i bruk |
 | Hvor fra appen lagres og redigeres | `koe_api.kvitter_dokument` og `koe_api.kvitter_levering`, kalt av jobbkjøreren i `server/jobber.ts`. |
-| Data fra Catenda | Ja, ID-ene og nummeret er Catendas. Dataflyt: fra Catenda i C25 (arket Dataflyt). |
+| Data fra Catenda | Ja, ID-ene er Catendas. Dataflyt: fra Catenda i C25 (arket Dataflyt). |
 | Relasjoner | Nøkler: primærnøkkel (leveringsoppdrag_id, operasjon). Viser til: (leveringsoppdrag_id, prosjekt_id) → koe.leveringsoppdrag.(id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION); (leveringsoppdrag_id, forutsetning) → koe.leveringskvittering.(leveringsoppdrag_id, operasjon) (fremmednøkkel, ON DELETE NO ACTION); forsoek_id → koe.jobbforsoek.forsoek_id (uten fremmednøkkel). Vises til fra: koe.toemmingsvern.(leveringskvittering_oppdrag_id, leveringskvittering_operasjon) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Nei. |
@@ -589,7 +589,7 @@ Sakens topic i Catenda, med boardet og topicens løpenummer i prosjektet (`bimsy
 | Type | grunndata |
 | Status | uavklart |
 | Hvor fra appen lagres og redigeres | `koe_api.kvitter_topic`, kalt av jobbkjøreren i `server/jobber.ts` etter at topicen er laget i Catenda (#741), og `koe_api.koble_topic`, kalt bare fra `koe_api.opprett_sak` når saken opprettes fra en topic i innboksen (W-1b.1, #819). |
-| Data fra Catenda | Ja, ID-ene er Catendas. Dataflyt: fra Catenda i C22, C24; til Catenda i C25 (arket Dataflyt). |
+| Data fra Catenda | Ja, ID-ene og nummeret er Catendas. Dataflyt: fra Catenda i C22, C24; til Catenda i C25 (arket Dataflyt). |
 | Relasjoner | Nøkler: primærnøkkel (sak_id); unik (catenda_topic_id). Viser til: (sak_id, prosjekt_id) → koe.sak_metadata.(sak_id, prosjekt_id) (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.sak_catenda_topic_sak_id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei |
 | Personopplysninger | Nei. |

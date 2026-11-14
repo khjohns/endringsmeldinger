@@ -671,7 +671,10 @@ export interface LagetTopic {
  */
 export function topicnummer(svar: unknown): number | null {
   const nummer = erObjekt(svar) ? svar.bimsync_issue_number : undefined;
-  return typeof nummer === 'number' && Number.isSafeInteger(nummer) && nummer > 0 ? nummer : null;
+  // Kolonnen er `int` i SQL Server.
+  return Number.isInteger(nummer) && (nummer as number) > 0 && (nummer as number) <= 2147483647
+    ? (nummer as number)
+    : null;
 }
 
 /** Typen topicen for en sak fra appen får (#741 punkt 15). */
@@ -808,9 +811,22 @@ const normalisertAdresse = (verdi: string) => URL.parse(verdi)?.href ?? verdi;
  * `authorization_code` går også mot adressen, og brokeren slipper den ikke gjennom.
  */
 export function grunnadresse(verdi: string, appEnv: string | undefined): string {
+  const origin = httpsOrigin(verdi, appEnv === 'development');
+  if (!origin)
+    throw new Error(
+      'CATENDA_GRUNNADRESSE må være en https-origin, eller localhost over http i utvikling'
+    );
+  return origin;
+}
+
+/**
+ * Originen i `verdi` når den er en https-adresse uten sti, query, fragment og
+ * brukeropplysninger, eller localhost over http når `lokalTillatt`; ellers null.
+ */
+function httpsOrigin(verdi: string, lokalTillatt: boolean): string | null {
   const adresse = URL.parse(verdi);
   const lokal =
-    appEnv === 'development' &&
+    lokalTillatt &&
     adresse?.protocol === 'http:' &&
     ['localhost', '127.0.0.1'].includes(adresse.hostname);
   if (
@@ -822,9 +838,7 @@ export function grunnadresse(verdi: string, appEnv: string | undefined): string 
     adresse.username ||
     adresse.password
   )
-    throw new Error(
-      'CATENDA_GRUNNADRESSE må være en https-origin, eller localhost over http i utvikling'
-    );
+    return null;
   return adresse.origin;
 }
 
@@ -846,17 +860,8 @@ export type Sakslenke = (maal: Topicmaal) => string | null;
 export function sakslenkeFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): Sakslenke | null {
   const verdi = miljoe.CATENDA_NETTADRESSE;
   if (!verdi) return null;
-  const adresse = URL.parse(verdi);
-  if (
-    adresse?.protocol !== 'https:' ||
-    adresse.pathname !== '/' ||
-    adresse.search ||
-    adresse.hash ||
-    adresse.username ||
-    adresse.password
-  )
-    throw new Error('CATENDA_NETTADRESSE er ikke en https-origin');
-  const { origin } = adresse;
+  const origin = httpsOrigin(verdi, false);
+  if (!origin) throw new Error('CATENDA_NETTADRESSE er ikke en https-origin');
   return ({ catenda_project_id, topic_nummer }) => {
     const prosjekt = catendaId(catenda_project_id);
     if (!prosjekt || !topic_nummer) return null;

@@ -659,7 +659,7 @@ Catenda ga, og endres ikke. Bare kjøreveien, `koe_jobbkjoerer`, kan legge inn e
 rad. Kjøretiden leser tidspunktet for `dokumentreferanse` som «levert» i
 visningen av saken (`lesOppdrag` i `server/lager.ts`, #764)."""
 lagres_fra = "`koe_api.kvitter_dokument` og `koe_api.kvitter_levering`, kalt av jobbkjøreren i `server/jobber.ts`."
-fra_catenda = "Ja, ID-ene og nummeret er Catendas."
+fra_catenda = "Ja, ID-ene er Catendas."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Nei."
 skrivere = ["database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_dokument`, innført i `20261018120000_levering.sql`, kalt fra `server/jobber.ts`)", "database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql (`koe_api.kvitter_levering`, innført i `20261018120000_levering.sql`, kalt fra `server/jobber.ts`)"]
@@ -705,7 +705,7 @@ Catenda-prosjektet og nummeret (U-15 i BF-44, #1906). Samme topic hører ikke ti
 En sak fra en topic i Catenda kobles til topicen i transaksjonen som oppretter
 saken (W-1b.1, #819). Bare kjøreveien, `koe_jobbkjoerer`, kan legge inn en rad."""
 lagres_fra = "`koe_api.kvitter_topic`, kalt av jobbkjøreren i `server/jobber.ts` etter at topicen er laget i Catenda (#741), og `koe_api.koble_topic`, kalt bare fra `koe_api.opprett_sak` når saken opprettes fra en topic i innboksen (W-1b.1, #819)."
-fra_catenda = "Ja, ID-ene er Catendas."
+fra_catenda = "Ja, ID-ene og nummeret er Catendas."
 kan_gjenoppbygges = "nei"
 personopplysninger = "Nei."
 skrivere = ["database/migrasjoner/20261114200000_topicnummer.sql (`koe_api.kvitter_topic`, innført i `20261018100000_jobber.sql`, kalt fra `server/jobber.ts`)", "database/migrasjoner/20261114200000_topicnummer.sql (`koe_api.koble_topic`, innført i `20261020130000_innkommende_behandling.sql`, kalt fra `opprett_sak`, sist definert i samme fil)"]
