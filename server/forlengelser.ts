@@ -11,7 +11,6 @@ import {
 } from '../kjerne/spor/frist/utledning.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Foresp } from './datalag.ts';
-import { skrevetAvKjernen } from './lager.ts';
 import { lesAlleSakene, type LestSak } from './saksliste.ts';
 
 /** Dagene for en frist i en annen sak. */
@@ -43,8 +42,9 @@ export async function lesForlengelsene(
   for (const sak of await lesAlleSakene(foresp)) {
     if (sak.sakId === utenom) continue;
     lest.sakskoder.set(sak.sakId, sak.sakskode);
-    const u = skrevetAvKjernen(sak.journal) ? utledJournal(sak.journal, kjerne) : null;
-    if (!u?.forstaatt) {
+    // MM-U2: kjernen gjør en rad den ikke har skrevet, ukjent (`lesJournal`).
+    const u = utledJournal(sak.journal, kjerne);
+    if (!u.forstaatt) {
       lest.ikkeForstaatt.push(sak.sakId);
       continue;
     }

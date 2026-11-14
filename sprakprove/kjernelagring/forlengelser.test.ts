@@ -35,14 +35,14 @@ const PAABEROPELSE: Handling = {
   underkategori: 'irregulaer_endring',
   navn: 'K-g1',
 };
-const fristsaken = (dager: number, aksept: boolean): Handling[] => [
+const fristsaken = (dager: number, aksept: boolean, forholdet = 'godkjent'): Handling[] => [
   PAABEROPELSE,
   { handling: 'krav', spor: 'frist', frister: [{ frist_id: 1, dager: 10 }], navn: 'K-f1' },
   {
     handling: 'brev',
     navn: 'D3',
     svar: [
-      { spor: 'forhold', navn: 'S-g1', resultat: 'godkjent', varslet_i_tide: true },
+      { spor: 'forhold', navn: 'S-g1', resultat: forholdet, varslet_i_tide: true },
       {
         spor: 'frist',
         navn: 'S-f1',
@@ -68,7 +68,7 @@ describe.skipIf(!TESTBASE_URL)('fristgrunnlaget for fullmakten i SQL Server', ()
     const g = await les(k, sakId);
     expect(g.ikkeForstaatt).toEqual([]);
     const f = g.frister.get(1)!;
-    return { dato: f.dato, sats: f.sats, saker: f.forlengelser.map((x) => [x.sakId, x.grunnlag]) };
+    return { dato: f.dato, sats: f.sats, saker: f.tattMed.map((x) => [x.sakId, x.grunnlag]) };
   };
   const bh = (): Kontekst => ({
     aktor: o.bh.id,
@@ -162,6 +162,30 @@ describe.skipIf(!TESTBASE_URL)('fristgrunnlaget for fullmakten i SQL Server', ()
         },
       ]);
     }
+  });
+
+  it('GFK-U27, KA-U77: dager byggherren har godkjent subsidiært til avslaget av forholdet, flytter ikke datoen og nevnes som ikke tatt med', async () => {
+    const subsidiaert = await sak(fristsaken(2, false, 'avslaatt'));
+    const ny = (await basebane(o)).sakId;
+    const g = await les(bh(), ny);
+    expect(g.ikkeForstaatt).toEqual([]);
+    expect(g.frister.get(1)).toMatchObject({
+      dato: '2026-12-23',
+      ikkeTattMed: [
+        { sakId: subsidiaert, fristId: 1, dager: 2, grunnlag: 'subsidiaert_til_forholdet' },
+      ],
+    });
+    const { frister } = await fristtabellen(o.te);
+    expect(frister[0]).toMatchObject({
+      dato_etter_forlengelsene: '2026-12-19',
+      forlengelser: [{ sak_id: avtalt, sakskode: KODE, dager: 3 }],
+    });
+    expect(frister[0]!.ikke_tatt_med).toContainEqual({
+      sak_id: subsidiaert,
+      sakskode: KODE,
+      dager: 2,
+      grunnlag: 'subsidiaert_til_forholdet',
+    });
   });
 
   it('prosjektgrensen: en avtalt forlengelse i en sak i et annet prosjekt er ikke med i fristtabellen', async () => {
