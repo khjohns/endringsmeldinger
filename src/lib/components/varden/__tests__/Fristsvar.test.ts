@@ -165,7 +165,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     await radio('Varslet for sent');
     expect(
       screen.getByText(
-        'For hele kravet. Prinsipalt: varselet etter punkt 33.4 kom for sent, og kravet er tapt for alle fristene.'
+        'For hele kravet. Prinsipalt: du gjør gjeldende at varselet etter punkt 33.4 kom for sent, og at kravet er tapt for alle fristene.'
       )
     ).toBeInTheDocument();
   });

@@ -422,10 +422,10 @@ export const FRISTSVAR = {
   dagerTittel: 'Fristforlengelse',
   heleKravetTapt: (hjemmel: '33.4' | '33.6.2') =>
     hjemmel === '33.4'
-      ? 'varselet etter punkt 33.4 kom for sent, og kravet er tapt for alle fristene'
-      : 'svaret på forespørselen etter punkt 33.6.2 kom for sent, og kravet er tapt for alle fristene',
+      ? 'du gjør gjeldende at varselet etter punkt 33.4 kom for sent, og at kravet er tapt for alle fristene'
+      : 'du gjør gjeldende at svaret på forespørselen etter punkt 33.6.2 kom for sent, og at kravet er tapt for alle fristene',
   heleKravetIkkeHindret:
-    'fremdriften ble ikke hindret av forholdet, og ingen av fristene forlenges',
+    'du legger ikke til grunn at fremdriften er hindret av forholdet, og ingen av fristene forlenges',
   forHeleKravet: (linjer: string[]) => `For hele kravet. ${linjer.map((l) => `${l}.`).join(' ')}`,
   ettSvarPerFrist: 'Ett svar per frist. Åpne en frist for å svare på den.',
   godkjennAlle: 'Godkjenn dagene som krevd for alle fristene',
@@ -455,7 +455,7 @@ export const FRISTSVAR = {
   manglerDager: 'Velg hvor mange av dagene du godkjenner.',
   manglerDeldager: 'Skriv dagene du godkjenner, som et helt antall.',
   deldagerUtenfor: (krevd: number) =>
-    `Dagene du godkjenner må være flere enn 0 og færre enn ${krevd}.`,
+    `Totalentreprenøren krever ${dager(krevd)}. Du kan ikke godkjenne flere.`,
   manglerMaatteForstaa:
     'Skriv dagene du måtte forstå at totalentreprenøren hadde krav på, som et helt antall.',
   maatteForstaaForMange: 'Dagene du måtte forstå kan ikke være flere enn dagene du godkjenner.',

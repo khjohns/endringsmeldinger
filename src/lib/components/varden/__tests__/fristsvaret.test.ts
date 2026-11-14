@@ -133,7 +133,8 @@ describe('dagene i feltene', () => {
     expect(godkjenteDager(tomFrist(), 25)).toBeUndefined();
   });
 
-  // U-14 og prototypen `fristkrav-te.html#svar`: tallet i «Godkjente dager» styrer valget.
+  // U-14 og prototypen `fristkrav-te.html#svar`: tallet i «Godkjente dager» styrer valget, også et
+  // tall over kravet, som skjemaet avviser før brevet lages (`deldagerFeil`).
   it.each([
     ['25', 'alle', 25],
     ['0', 'avslaatt', 0],
@@ -155,6 +156,10 @@ describe('dagene i feltene', () => {
     expect(godkjenteDagerIFeltet({ ...tomFrist(), dager: 'alle' }, 25)).toBe('25');
     expect(godkjenteDagerIFeltet({ ...tomFrist(), dager: 'avslaatt' }, 25)).toBe('0');
     expect(godkjenteDagerIFeltet(tomFrist(), 25)).toBe('');
+    // Det BH skrev, står mens det er tallet for valget.
+    const skrevet = tomFrist();
+    skrivGodkjenteDager(skrevet, '025', 25);
+    expect(godkjenteDagerIFeltet(skrevet, 25)).toBe('025');
   });
 
   it('«Delvis» tar ikke med seg de krevde dagene fra «Som krevd»', () => {

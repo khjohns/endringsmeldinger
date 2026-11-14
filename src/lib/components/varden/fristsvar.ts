@@ -74,8 +74,10 @@ export function godkjenteDager(f: Fristvalg, krevd: number): number | undefined 
 
 /** Tallet i feltet «Godkjente dager», som følger valget (U-14, prototypen `fristkrav-te.html#svar`). */
 export function godkjenteDagerIFeltet(f: Fristvalg, krevd: number): string {
-  if (f.dager === 'alle') return String(krevd);
-  if (f.dager === 'avslaatt') return '0';
+  // Det BH skrev, står så lenge det er tallet for valget, så teksten ikke byttes under markøren.
+  const n = heleDager(f.deldager);
+  if (f.dager === 'alle') return n === krevd ? f.deldager : String(krevd);
+  if (f.dager === 'avslaatt') return n === 0 ? f.deldager : '0';
   return f.deldager;
 }
 

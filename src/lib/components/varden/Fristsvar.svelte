@@ -271,7 +271,9 @@
     ).flatMap(([innsigelse, svar, t]) => {
       if (svar !== false) return [];
       const lag = lagene?.standpunkter.find((x) =>
-        innsigelse === 'hindring' ? x.art === 'hindring' : x.hjemmel === innsigelse
+        innsigelse === 'hindring'
+          ? x.art === 'hindring'
+          : x.art === 'rettidighet' && x.hjemmel === innsigelse
       )?.etikett;
       return [lag ? `${stor(lag)}: ${t}` : stor(t)];
     })
