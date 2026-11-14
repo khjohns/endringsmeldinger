@@ -9,7 +9,7 @@ import { NYTTELAST_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import { UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { ELDRE_SVAR } from './forutsetninger.ts';
-import { norskDato } from '../frosset/brevdeler.ts';
+import { norskDato, PARTEN } from '../frosset/brevdeler.ts';
 import { datoFor, kalenderdag } from '../format/leser.ts';
 import { erKalenderdato } from '../format/skjema.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
@@ -217,7 +217,7 @@ function korrigeringEtterVarslene(
     if (sendt !== null && sendt < ny)
       return avvis(
         'VARSEL_FOER_GRUNNLAGSDATOEN',
-        `Korrigeringen oppgir at ${DATOEN_GJELDER[felt]} ${norskDato(ny)}, etter at varselet etter punkt ${hjemmel} ble sendt ${norskDato(sendt)} (VS-U59, VS-U60, VS-U66).`
+        `Korrigeringen oppgir at ${DATOEN_GJELDER[felt]} ${norskDato(ny)}, etter at varselet etter punkt ${hjemmel} ble sendt ${norskDato(sendt)}.`
       );
   }
   return null;
@@ -292,7 +292,7 @@ function retting(retter: string, part: Part, u: Utledning): Avvisning | null {
       'Rettingen må gjelde et brev registrert som dokumentasjon i saken.'
     );
   if (brev.avsender !== part)
-    return avvis('FEIL_PART', `Bare ${brev.avsender} kan rette sin egen registrering (OV-U17).`);
+    return avvis('FEIL_PART', `Bare ${PARTEN[brev.avsender]} kan rette sin egen registrering.`);
   if (brev.rettetAv !== null)
     return avvis(
       'REGISTRERINGEN_ER_RETTET',
@@ -334,7 +334,7 @@ export function nyttelastkontroll(
           ? null
           : avvis(
               'VEDLEGG_MANGLER',
-              'Kravet oppgir datoen varselet etter § 33.4 ble sendt, men brevet med varselet ligger ikke ved (OV-U5).'
+              'Kravet oppgir datoen varselet etter punkt 33.4 ble sendt, men brevet med varselet ligger ikke ved.'
             );
       const sendt = datoFor(
         varsel,
@@ -346,20 +346,20 @@ export function nyttelastkontroll(
       if (sendt === undefined)
         return avvis(
           'VARSEL_REGISTRERT',
-          'Varselet er sendt fra appen eller registrert uten dato for sendingen, og kravet kan ikke oppgi en (SK-12).'
+          'Varselet er sendt herfra eller registrert uten dato for sendingen, og kravet kan ikke oppgi en.'
         );
       const registrert = kalenderdag(sendt.dato);
       if (registrert === null)
         return avvis(
           'VARSEL_REGISTRERT',
-          'Datoen varselet er registrert med, kan ikke leses som en dato, så kravet kan ikke kontrolleres mot den (SK-12).'
+          'Datoen varselet er registrert med, kan ikke leses som en dato, så kravet kan ikke kontrolleres mot den.'
         );
       // SK-12: et registrert varsel beholder datoen det fikk første gang (rad KA-19).
       return registrert === kalenderdag(k.varsel.sendt)
         ? null
         : avvis(
             'VARSEL_REGISTRERT',
-            'Varselet er registrert med en annen dato og kan ikke flyttes (SK-12).'
+            'Varselet er registrert med en annen dato og kan ikke flyttes.'
           );
     }
     case 'brev':
@@ -397,7 +397,7 @@ export function nyttelastkontroll(
         ? null
         : avvis(
             'VARSLINGSPLIKT_GJELDER_IKKE',
-            '§ 32.2 gjelder ikke kategorien, så § 32.3 annet ledd gjelder heller ikke (GR-U11).'
+            'Varslingsplikten etter punkt 32.2 gjelder ikke forholdet som er påberopt, så punkt 32.3 annet ledd gjelder heller ikke.'
           );
     }
     case 'registrert_brev':
@@ -425,7 +425,7 @@ export function nyttelastkontroll(
           ? null
           : avvis(
               'UGYLDIG_INNSIGELSE',
-              'Bare TEs begrunnelse etter § 33.6.2 annet ledd b kan påstås ikke å være et svar etter annet ledd.'
+              'Bare totalentreprenørens begrunnelse etter punkt 33.6.2 annet ledd bokstav b kan påstås ikke å være et svar etter annet ledd.'
             );
       for (const spor of SPOR) {
         const hinder = nyttelastI(spor).innsigelse(k.gjelder, u, regler);

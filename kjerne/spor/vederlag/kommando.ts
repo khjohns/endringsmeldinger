@@ -220,7 +220,7 @@ function innsigelseMotVarselet(gjelder: string, u: Utledning, regler: Regelsett)
   )
     return avvis(
       'VARSLINGSPLIKT_GJELDER_IKKE',
-      '§ 34.1.2 gjelder bare svikt og andre forhold, ikke kategorien i grunnlaget, så byggherren tar ikke stilling til om varselet kom i tide (KA-46).'
+      'Punkt 34.1.2 gjelder bare svikt og andre forhold, ikke forholdet som er påberopt, så byggherren tar ikke stilling til om varselet kom i tide.'
     );
   return null;
 }
@@ -343,7 +343,7 @@ function medVarslene(
         feil: 'REGELBRUDD',
         avvisning: avvis(
           'KRAVPOSTVARSELET',
-          `Kravpost nr. ${j + 1} har et varsel, men oppgjørsformen krever ikke varsel etter § 34.3.3 eller § 34.4 (VS-U50).`
+          `Kravpost nr. ${j + 1} har et varsel, men oppgjørsformen krever ikke varsel etter punkt 34.3.3 eller 34.4.`
         ),
       };
     if (!hjemler.includes(hjemmel)) hjemler.push(hjemmel);

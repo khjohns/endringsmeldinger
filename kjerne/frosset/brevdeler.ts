@@ -100,6 +100,9 @@ type Element =
   | { art: 'opplysning'; opplysning: Opplysning }
   | { art: 'dokument'; dokument: Dokument };
 
+/** Parten skrevet fullt ut, midt i en setning i brevet eller en melding (LV-U35). */
+export const PARTEN: Record<Part, string> = { TE: 'totalentreprenøren', BH: 'byggherren' };
+
 /** Parten med eieform, skrevet fullt ut i brevet (LV-U35, LV-U42). */
 export const PARTENS: Record<Part, string> = { TE: 'totalentreprenørens', BH: 'byggherrens' };
 

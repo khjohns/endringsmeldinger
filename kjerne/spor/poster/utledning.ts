@@ -1,7 +1,8 @@
 /**
  * Versjonsregelen for postene i et krav (#1778), utledet av vederlaget (KA-U53, KA-U56,
  * KA-U75). Sporet kaller den med postene sine og ordet for posten. Fristen har
- * sin egen regel (`fristeneStrider`, KA-U76, KA-U79).
+ * sin egen regel (`fristeneStrider`, KA-U76, KA-U79), men deler kontrollen av trekket og av
+ * postene som mangler (`trekketStrider`, `utelattUtenTrekk`).
  *
  * Kommandoen og lesingen av journalen bruker samme regel: kommandoen før serveren har satt
  * `id` og betegnelse på de nye postene, journalen etter.
@@ -50,12 +51,8 @@ export function posteneStrider(
   const foer = new Map(tidligere.flat().map((p) => [p.id, p]));
   const brukte = brukteBetegnelser(tidligere);
   const trekker = (ny.trekker ?? []) as string[];
-  const trukne = new Set<string>();
-  for (const id of trekker) {
-    if (!forrige.has(id)) return `trekker ${posten} ${id}, som ikke er med i forrige kravversjon`;
-    if (trukne.has(id)) return `trekker ${posten} ${forrige.get(id)!.betegnelse} to ganger`;
-    trukne.add(id);
-  }
+  const trekket = trekketStrider(trekker, forrige, posten, (p) => p.betegnelse);
+  if (trekket) return trekket;
   const sett = new Set<string>();
   const betegnelser = new Set<string>();
   for (const p of ny.poster ?? []) {
@@ -78,8 +75,47 @@ export function posteneStrider(
     if (!kjent && brukte.has(betegnelse))
       return `gir en ny ${post} betegnelsen ${betegnelse}, som er brukt før i sporet (KA-U53, KA-U75)`;
   }
-  const mangler = [...forrige.values()].filter((p) => !sett.has(p.id) && !trekker.includes(p.id));
+  return utelattUtenTrekk(
+    forrige,
+    (id) => sett.has(id) || trekker.includes(id),
+    (p) => p.betegnelse,
+    'KA-U56'
+  );
+}
+
+/**
+ * Hvorfor trekket i den nye kravversjonen strider mot forrige versjon, eller `null`: hver post
+ * det trekker, er med i forrige versjon og trekkes én gang. Vederlaget og fristen bruker samme
+ * kontroll (#1956). `posten` er ordet for posten i bestemt form.
+ */
+export function trekketStrider<P extends Pick<Post, 'id'>>(
+  trekker: readonly string[],
+  forrige: ReadonlyMap<string, P>,
+  posten: string,
+  betegnelse: (p: P) => string
+): string | null {
+  const trukne = new Set<string>();
+  for (const id of trekker) {
+    const p = forrige.get(id);
+    if (!p) return `trekker ${posten} ${id}, som ikke er med i forrige kravversjon`;
+    if (trukne.has(id)) return `trekker ${posten} ${betegnelse(p)} to ganger`;
+    trukne.add(id);
+  }
+  return null;
+}
+
+/**
+ * Postene i forrige versjon som den nye kravversjonen verken tar med eller trekker, som
+ * meldingen med vedtaket for sporet, eller `null` (KA-U56, KA-U76).
+ */
+export function utelattUtenTrekk<P extends Pick<Post, 'id'>>(
+  forrige: ReadonlyMap<string, P>,
+  beholdt: (id: string) => boolean,
+  betegnelse: (p: P) => string,
+  vedtak: string
+): string | null {
+  const mangler = [...forrige.values()].filter((p) => !beholdt(p.id));
   return mangler.length
-    ? `mangler ${mangler.map((p) => p.betegnelse).join(', ')} uten at ${mangler.length > 1 ? 'de er trukket' : 'den er trukket'} (KA-U56)`
+    ? `mangler ${mangler.map(betegnelse).join(', ')} uten at ${mangler.length > 1 ? 'de er trukket' : 'den er trukket'} (${vedtak})`
     : null;
 }

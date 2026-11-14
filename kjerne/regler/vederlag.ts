@@ -450,7 +450,7 @@ export function kontrollerOppgjoersformen(
     feil[felt] = `gjelder bare når ${hva}`;
   // OV-U95 punkt 1 og 5: byggherren mener ikke den beregningsregelen TE krever.
   else if (regel && p.oensket_oppgjoersform === post.oppgjoersform)
-    feil[felt] = 'er oppgjørsformen TE krever';
+    feil[felt] = 'er oppgjørsformen totalentreprenøren krever';
   if (p.krever_tilbud != null && typeof p.krever_tilbud !== 'boolean')
     feil[`${navn}.krever_tilbud`] = 'er verken true eller false';
   else if (kreverTilbud && !regel)

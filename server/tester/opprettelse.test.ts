@@ -176,7 +176,7 @@ describe.skipIf(!TESTBASE_URL)('opprettelsen av en sak over HTTP (#370)', () => 
     const svar = await opprett({ kommando: OPPRETT }, o.bh);
     expect(svar.status).toBe(400);
     expect(svar.kropp).toMatchObject({ error: 'REGELBRUDD', rule: 'FEIL_PART' });
-    expect(svar.kropp.message).toBe('Bare TE kan opprette en KOE-sak.');
+    expect(svar.kropp.message).toBe('Bare totalentreprenøren kan opprette en KOE-sak.');
     expect(await antall()).toEqual(for_);
   });
 
