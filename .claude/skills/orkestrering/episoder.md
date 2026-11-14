@@ -30,6 +30,24 @@ sammen.
 I FK runde 5 fant subagenten et hull i rettighetene som to runder
 `/code-review high` hadde oversett (PR #372).
 
+## «Kjernen før visningen»
+
+I runde C 14.11 stoppet byggingen av fristskjemaene i Varden seks ganger på mangler i
+kjernen eller på serveren, som bestillingen BF-20 ikke hadde i G-tabellen: fristtabellen
+for visningen (#1923), datoen per frist (#1936), vedlegg og forbehold ved kravet (#1823),
+datoen etter forlengelsene i andre saker (#1946), og tekster fra kjernen (#1931, #1943).
+Hver mangel ble funnet midt i byggingen, ga et spørsmål til orkestratoren og et avvik til
+oppdragsgiver, og fire Varden-økter brukte om lag 330 000–570 000 tokens hver på ett eller
+to skjemaer.
+
+## «Gjennomgang av hver PR»: spørsmålene fra en byggeøkt
+
+I runde C 14.11 sendte orkestratoren kjerneøktas spørsmål om forlengelsene videre uten at
+en subagent hadde prøvd alternativene mot vedtakene («Prøv hvert alternativ» i
+vedtaksskillen). To premisser var feil: at byggherren som godkjenner hele kravet, trenger
+totalentreprenørens svar (GR-U7), og at totalentreprenøren godtar en endringsordre
+(EO-U39). Oppdragsgiver måtte rette dem, og spørsmålene ble stilt tre ganger.
+
 ## Hvorfor reglene i orkestreringsskillen er som de er
 
 - **Filoverlapp (punkt 1).** Parallelle PR-er i samme fil gir konflikter ved hver
