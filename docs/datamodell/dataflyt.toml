@@ -221,8 +221,8 @@ kode = [
     "server/catenda.ts:CatendaOAuth",
 ]
 data = """
-Topicens tittel, type og forfatter (`bimsync_creation_author.user.ref`), med
-integrasjonens token. Kroppen fra webhooken leses ikke for dem. 404 gir utfallet
+Topicens tittel, type, forfatter (`bimsync_creation_author.user.ref`) og nummer
+(`bimsync_issue_number`), med integrasjonens token. Kroppen fra webhooken leses ikke for dem. 404 gir utfallet
 `ugyldig_hendelse` uten sak."""
 
 [[flyt.steg]]
@@ -262,8 +262,8 @@ kode = [
     "server/kommandoer.ts:opprettSak",
 ]
 data = """
-Topicens tittel blir sakstittelen i `sak_opprettet`, og topicen og boardet blir
-koblingen i `koe.sak_catenda_topic`, skrevet av `koe_api.koble_topic` fra
+Topicens tittel blir sakstittelen i `sak_opprettet`, og topicen, boardet og topicens
+nummer blir koblingen i `koe.sak_catenda_topic`, skrevet av `koe_api.koble_topic` fra
 `koe_api.opprett_sak`. Kvitteringen i `koe.kvittering` har en kommando-ID avledet
 av hendelsen i innboksen. Forfatteren løses til en brukerrad med navnet og e-posten
 fra medlemslisten, som ved medlemssynkroniseringen, og bare for et medlem."""
@@ -378,11 +378,11 @@ Løkka i jobbkjøreren: `kjoerEnJobb` i `server/jobber.ts` henter en jobb av typ
 `catenda_topic` med `koe_api.hent_jobb`."""
 beskrivelse = """
 Integrasjonen lager topicen på boardet med sakens tittel og en lenke til saken, med
-sitt eget token. ID-en i svaret kvitteres med `koe_api.kvitter_topic` i
+sitt eget token. ID-en og nummeret i svaret kvitteres med `koe_api.kvitter_topic` i
 `koe.sak_catenda_topic`, i samme form som topicene fra webhooken (#819). En topic
 avstemmes ikke ved et nytt forsøk."""
 funn = []
-belegg = "L 08.11: `kjoerEnJobb` i `server/jobber.ts`, `topicoppretter` og `opprettTopic` i `server/catenda.ts` og `koe_api.kvitter_topic` i `database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql`."
+belegg = "L 08.11: `kjoerEnJobb` i `server/jobber.ts`, `topicoppretter` og `opprettTopic` i `server/catenda.ts` og `koe_api.kvitter_topic` i `database/migrasjoner/20261020120000_vedleggsbinding_og_tom_id.sql`. L 14.11: nummeret, `database/migrasjoner/20261114200000_topicnummer.sql`."
 
 [[flyt.steg]]
 fra = "koe.jobb"
@@ -402,7 +402,7 @@ endepunkt = "Svaret fra Catenda"
 kode = [
     "server/jobber.ts:kjoerEnJobb",
 ]
-data = "ID-en til topicen (`guid`), i samme form som topicene fra webhooken, med `koe_api.kvitter_topic`."
+data = "ID-en til topicen (`guid`), i samme form som topicene fra webhooken, og topicens nummer (`bimsync_issue_number`), som lenken til saken i Catenda bruker (U-15 i BF-44), med `koe_api.kvitter_topic`."
 
 [[flyt]]
 id = "C25"

@@ -420,12 +420,14 @@ describe('topicen på boardet for innboksen (#819)', () => {
         title: 'Rystelser',
         topic_type: TOPICTYPE,
         bimsync_creation_author: { user: { ref: BRUKER, name: 'Kari' } },
+        bimsync_issue_number: 23,
       },
     });
     expect(await new CatendaOAuth(oppsett()).topic(board, topic, 't')).toEqual({
       tittel: 'Rystelser',
       type: TOPICTYPE,
       forfatter: hex(BRUKER),
+      nummer: 23,
     });
     expect(mottatt[0].sti).toBe(`/opencde/bcf/3.0/projects/${board}/topics/${topic}`);
     expect(mottatt[0].autorisasjon).toBe('Bearer t');
@@ -433,7 +435,10 @@ describe('topicen på boardet for innboksen (#819)', () => {
 
   it('en topic uten forfatter gir forfatteren null', async () => {
     svar = () => ({ json: { guid: topic, title: 'x', topic_type: TOPICTYPE } });
-    expect((await new CatendaOAuth(oppsett()).topic(board, topic, 't'))?.forfatter).toBeNull();
+    expect(await new CatendaOAuth(oppsett()).topic(board, topic, 't')).toMatchObject({
+      forfatter: null,
+      nummer: null,
+    });
   });
 
   it('en topic Catenda ikke finner på boardet (404), gir null', async () => {
@@ -513,10 +518,16 @@ describe('topicen for en sak fra appen (#741)', () => {
     beskrivelse: 'Saken: https://app.example.no/p/s/kjerne',
   };
 
-  it('poster tittelen, beskrivelsen og typen uten status, og gir GUID-en (punkt 15)', async () => {
-    svar = () => ({ status: 201, json: { guid: 'topic-1', title: topic.tittel } });
+  it('poster tittelen, beskrivelsen og typen uten status, og gir GUID-en og nummeret (punkt 15)', async () => {
+    svar = () => ({
+      status: 201,
+      json: { guid: 'topic-1', title: topic.tittel, bimsync_issue_number: 24 },
+    });
     const oauth = new CatendaOAuth(oppsett());
-    expect(await oauth.opprettTopic(BOARD, topic, 'integrasjon')).toBe('topic-1');
+    expect(await oauth.opprettTopic(BOARD, topic, 'integrasjon')).toEqual({
+      guid: 'topic-1',
+      nummer: 24,
+    });
     const [m] = mottatt;
     expect(m.metode).toBe('POST');
     expect(m.sti).toBe(`/opencde/bcf/3.0/projects/${BOARD}/topics`);
@@ -527,6 +538,18 @@ describe('topicen for en sak fra appen (#741)', () => {
       topic_type: TOPICTYPE,
     });
     expect(TOPICTYPE).toBe('Krav om endringsordre');
+  });
+
+  it.each([
+    ['uten nummer', {}],
+    ['med et nummer som ikke er et positivt heltall', { bimsync_issue_number: 0 }],
+    ['med nummeret som tekst', { bimsync_issue_number: '24' }],
+  ])('gir GUID-en og ikke noe nummer for et svar %s', async (_, ekstra) => {
+    svar = () => ({ status: 201, json: { guid: 'topic-1', ...ekstra } });
+    expect(await new CatendaOAuth(oppsett()).opprettTopic(BOARD, topic, 'i')).toEqual({
+      guid: 'topic-1',
+      nummer: null,
+    });
   });
 
   it.each([400, 403, 404, 429])(

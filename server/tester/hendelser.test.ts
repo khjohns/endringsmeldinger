@@ -79,6 +79,8 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
   /** Topicene slik Catenda har dem, med boardet og topicen i `catendaId()`-formen. */
   const iCatenda = new Map<string, Topic>();
   const noekkel = (board: string, topic: string) => `${catendaId(board)}/${catendaId(topic)}`;
+  /** Nummeret topicen har i Catenda, ulikt for hver topic, så feil topics nummer oppdages. */
+  const nummerFor = (topic: string) => parseInt(catendaId(topic)!.slice(0, 7), 16) + 1;
   /** Kommentarene på topicene i Catenda, med samme nøkkel. */
   const kommentarer = new Map<string, Kommentar[]>();
   const kommentarerPaa = (topic: string) => kommentarer.get(noekkel(board, topic)) ?? [];
@@ -108,7 +110,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     };
     avh = {
       datalag: o.datalag.kjoeretid.pool,
-      catenda: { opprettTopic: async () => 'ingen' },
+      catenda: { opprettTopic: async () => ({ guid: 'ingen', nummer: null }) },
       dokumenter: {} as Jobbavhengigheter['dokumenter'],
       innboks,
       saksadresse: (p, sak) => `https://app.example.no/${p}/${sak}/kjerne`,
@@ -156,7 +158,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
       iKroppen = {} as { forfatter?: string; type?: string; tittel?: string },
     } = {}
   ) => {
-    iCatenda.set(noekkel(boardId, topic), { tittel, type, forfatter });
+    iCatenda.set(noekkel(boardId, topic), { tittel, type, forfatter, nummer: nummerFor(topic) });
     return {
       createdBy: {
         id: iKroppen.forfatter ?? forfatter,
@@ -244,9 +246,13 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
 
   const sakerForTopic = async (topic: string) =>
     (
-      await somJobbkjoerer<{ sak_id: string; catenda_board_id: string }>(
+      await somJobbkjoerer<{
+        sak_id: string;
+        catenda_board_id: string;
+        catenda_topic_nummer: number;
+      }>(
         o,
-        'SELECT sak_id, catenda_board_id FROM koe.sak_catenda_topic WHERE catenda_topic_id = @t',
+        'SELECT sak_id, catenda_board_id, catenda_topic_nummer FROM koe.sak_catenda_topic WHERE catenda_topic_id = @t',
         { t: topic }
       )
     ).recordset;
@@ -259,8 +265,9 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
       prosjekt_id: o.prosjekt.id,
       catenda_topic_id: topic,
     });
+    // Med topicens nummer fra Catenda, som lenken til saken bruker (U-15 i BF-44).
     expect(await sakerForTopic(topic)).toEqual([
-      { sak_id: utfall.sak_id, catenda_board_id: board },
+      { sak_id: utfall.sak_id, catenda_board_id: board, catenda_topic_nummer: nummerFor(topic) },
     ]);
     const [hendelse] = await transaksjon(
       avh.datalag,
@@ -509,7 +516,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     expect(andre).toEqual(foerste);
     expect(await behandleEnHendelse(avh)).toBe(true);
     expect(await sakerForTopic(topic)).toEqual([
-      { sak_id: foerste.sakId, catenda_board_id: board },
+      { sak_id: foerste.sakId, catenda_board_id: board, catenda_topic_nummer: nummerFor(topic) },
     ]);
   });
 
@@ -532,7 +539,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
       expect.objectContaining({ utfall: 'sak_opprettet', sak_id: foerste.sakId }),
     ]);
     expect(await sakerForTopic(topic)).toEqual([
-      { sak_id: foerste.sakId, catenda_board_id: board },
+      { sak_id: foerste.sakId, catenda_board_id: board, catenda_topic_nummer: nummerFor(topic) },
     ]);
     // Kontrollsak: uten kvittering gir samme forfatter nå ingen side.
     const kontroll = await motta(kropp(randomUUID()));
@@ -642,7 +649,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     const [utfall] = await utfallFor(id);
     expect(utfall).toEqual(expect.objectContaining({ utfall: 'sak_opprettet' }));
     expect(await sakerForTopic(topic)).toEqual([
-      { sak_id: utfall.sak_id, catenda_board_id: board },
+      { sak_id: utfall.sak_id, catenda_board_id: board, catenda_topic_nummer: nummerFor(topic) },
     ]);
     expect(teller.hentinger).toBe(1);
 
@@ -872,7 +879,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     );
     expect(rettet).toMatchObject({ utfall: 'sak_opprettet', catenda_topic_id: topic });
     expect(await sakerForTopic(topic)).toEqual([
-      { sak_id: rettet.sak_id, catenda_board_id: board },
+      { sak_id: rettet.sak_id, catenda_board_id: board, catenda_topic_nummer: nummerFor(topic) },
     ]);
     const [hendelse] = await transaksjon(
       avh.datalag,
