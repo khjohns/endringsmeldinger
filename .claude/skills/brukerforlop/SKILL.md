@@ -136,7 +136,8 @@ For en HTML-skisse av et mønster gjelder dette:
   tilbake og kontrollere det som sendes. Stillbilder prøver ikke en arbeidsmåte.
 - «Vis sporbarhet» viser punktene i bestillingen på elementene (`data-spor`).
 - Versjonen står i skissen og i bestillingen. En godkjent versjon er en commit.
-- Teksten er prototypetekst. En vedtatt brevtekst står ordrett.
+- Teksten er prototypetekst. Ordlyd som står i en post i vedtaksregisteret, står ordrett til
+  den er klassifisert på nytt ([vedtaksskillen](../vedtak/SKILL.md), «Ordlyden i visningen og brevene»).
 - En HTML-skisse følger designet i [systemfila](../../../.interface-design/system.md) og
   tokenene i `theme.css`, slik `docs/design/prototyper/grunnlagsoversikt.html` viser
   det, og ikke det gamle konseptstilarket (#1461). Noen eldre prototyper i mappa bruker
@@ -156,9 +157,10 @@ gjøres den i runder. Ett kall over hele siden gir grunne funn (BF-44, 13.11).
    systemfila alt har bestemt, er ikke et funn.
 4. **Språket til slutt, som egen runde.** Hent ut all synlig tekst i hver tilstand, også
    `aria-label`, og les den mot språkfila og systemfila. Teksten endres i designrundene, så en
-   tidlig språkrunde må gjøres om. En vedtatt brevtekst vurderes ikke for endring.
+   tidlig språkrunde må gjøres om. Ordlyd som står i en post i vedtaksregisteret, endres
+   gjennom registeret (vedtaksskillen, «Ordlyden i visningen og brevene»).
 5. **Døm, så rett.** Hver runde leverer funn med alvorlighet og en konkret retting, og
-   oppdragsgiver svarer før noe endres. Slå opp om en ordlyd er vedtatt før du foreslår å endre den.
+   oppdragsgiver svarer før noe endres. Slå opp om ordlyden står i en post i vedtaksregisteret før du foreslår å endre den.
 6. **Etter hver runde.** Kjør den mekaniske forprøven, se på 390 px, og før valgene i U-punktene
    og endringene i bestillingen. Systemfila får bare det som gjelder uavhengig av skissen.
 
