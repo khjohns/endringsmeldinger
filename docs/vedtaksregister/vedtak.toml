@@ -6559,12 +6559,12 @@ En betinget enighet om dagene teller som avtalt etter KA-U77 og GFK-U26. Et subs
 anbefalt = true
 
 [[gruppe.vedtak.alternativ]]
-navn = "B"
+navn = "B som stilt"
 tekst = '''
 Bare en enighet der forholdet også er avklart, teller som avtalt. Et subsidiært svar teller ikke.'''
 
 [[gruppe.vedtak.alternativ]]
-navn = "C"
+navn = "C som stilt"
 tekst = '''
 Både en betinget enighet og et subsidiært svar teller, så lenge dagene står i første lag.'''
 
