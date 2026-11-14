@@ -102,6 +102,25 @@ export function fristvurderinger(v: Svarvurdering, krav: Krav): Dagvurdering[] {
   });
 }
 
+/**
+ * Kravet slik regelsettet leser det for én frist med `krevd` dager, ut fra forespørselen etter
+ * § 33.6.2 svaret gjelder. Lagene i et svarutkast leser spørsmålene av det samme (#1925).
+ */
+export const fristkravet = (
+  krevd: number,
+  foresporsel: Foresporselsrelasjon | null
+): Fristkrav => ({
+  krevd_dager: krevd,
+  varsel_type: 'spesifisert',
+  er_svar_paa_foresporsel: foresporsel?.art === 'svar',
+  har_begrunnelse_etter_b: foresporsel?.art === 'begrunnelse',
+  // § 33.4 vurderes også når kravet svarer på forespørselen, som uten den.
+  har_innsigelse_mot_varsel: true,
+  har_tidligere_varsel_i_tide: false,
+  er_grunnlag_subsidiaert: false,
+  er_hele_fristen_subsidiaer_pga_grunnlag: false,
+});
+
 /** Utregningen av én frist (§ 33), med vurderingene som gjelder hele kravet. */
 function regnUtFristen(
   v: Svarvurdering,
@@ -109,17 +128,7 @@ function regnUtFristen(
   f: Dagvurdering,
   foresporsel: Foresporselsrelasjon | null
 ): Record<string, unknown> {
-  const fkrav: Fristkrav = {
-    krevd_dager: krevd,
-    varsel_type: 'spesifisert',
-    er_svar_paa_foresporsel: foresporsel?.art === 'svar',
-    har_begrunnelse_etter_b: foresporsel?.art === 'begrunnelse',
-    // § 33.4 vurderes også når kravet svarer på forespørselen, som uten den.
-    har_innsigelse_mot_varsel: true,
-    har_tidligere_varsel_i_tide: false,
-    er_grunnlag_subsidiaert: false,
-    er_hele_fristen_subsidiaer_pga_grunnlag: false,
-  };
+  const fkrav = fristkravet(krevd, foresporsel);
   const { er_prekludert: prekludert } = beregnFrist(fkrav, {
     frist_varsel_ok: v.frist_varsel_ok as boolean | undefined,
     spesifisert_krav_ok: v.spesifisert_krav_ok as boolean | undefined,

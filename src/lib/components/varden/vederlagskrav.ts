@@ -53,7 +53,7 @@ export interface Kravvalg {
   poster: Kravpostvalg[];
   /** Kravet etter § 34.1.3 annet ledd, med beløpet som tekst, eller `null` uten posten. */
   saerskilt: { beloep: string } | null;
-  /** Forbeholdet, sendt som kravets `utdypning` til kjernen har et eget felt (#1823). */
+  /** Forbeholdet i kravet (LV-U74). */
   forbehold: string;
   /** Teller for nøklene til nye poster. */
   nye: number;
@@ -188,7 +188,7 @@ export function vederlagskravet(v: Kravvalg, varslene: readonly (Varselet | null
   });
   const trekker = v.poster.filter((p) => p.trukket && p.id).map((p) => p.id!);
   const saerskilt = v.saerskilt ? beloepet(v.saerskilt.beloep) : undefined;
-  const utdypning = v.forbehold.trim();
+  const forbehold = v.forbehold.trim();
   return {
     type: 'krav' as const,
     spor: 'vederlag' as const,
@@ -197,7 +197,7 @@ export function vederlagskravet(v: Kravvalg, varslene: readonly (Varselet | null
       saerskilt: v.saerskilt ? { produktivitet: { beloep: saerskilt } } : undefined,
       trekker: trekker.length ? trekker : undefined,
     }),
-    ...(utdypning ? { utdypning } : {}),
+    ...(forbehold ? { forbehold } : {}),
   };
 }
 

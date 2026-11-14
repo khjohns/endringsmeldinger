@@ -43,6 +43,14 @@ describe('vederlagskravet', () => {
     ]);
   });
 
+  it('sender forbeholdet i feltet «forbehold», ikke som utdypningen for hele kravet (LV-U74)', () => {
+    const v = { ...valg(), forbehold: ' Forutsetter dagtid. ' };
+    const k = vederlagskravet(v, [null, null]) as Record<string, unknown>;
+    expect(k.forbehold).toBe('Forutsetter dagtid.');
+    expect(k).not.toHaveProperty('utdypning');
+    expect(vederlagskravet(valg(), [null, null]), 'kontrollsak').not.toHaveProperty('forbehold');
+  });
+
   it('sender varselvalget bare for en post kravet ellers er varselet for (VS-U49, VS-U50)', () => {
     const v = valg();
     v.poster[1].varsel = { ...tomtVarselvalg(), art: 'saken', varsel: 'v1' };

@@ -58,6 +58,7 @@ import {
   type Part,
   type Sakskode,
   type Standpunkt,
+  type Standpunktsvirkning,
 } from '../typer.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import {
@@ -334,6 +335,8 @@ const PAABEROPELSE = {
 
 /** OV-U5: kravet registrerer varselet, så brevet med det ligger ved (arbeidsvalget i #909). */
 const VARSELBREVET = '7f1c2d3e-0000-4000-8000-000000003304';
+/** Et vedlegg ved kravet om fristforlengelse (#1823). */
+const PLAN = '7f1c2d3e-0000-4000-8000-000000003361';
 
 const FRISTKRAV = {
   type: 'krav',
@@ -626,6 +629,81 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
   // LV-U56 og tilfellene 1, 5 og 6 i BF-10-brevtekst.md: den låste delen sier bare hva
   // påberopelsen gjelder, og datoen. Den sier ikke at noe erstattes, og gjentar ikke varselet
   // etter punkt 32.2.
+  describe('forbeholdet i kravet (KA-U82, LV-U74)', () => {
+    const forbeholdet = 'Kravet forutsetter at pelearbeidet kan gjøres på dagtid.';
+    const paaberopt = () => {
+      const s = sak();
+      s.send('TE', PAABEROPELSE);
+      return s;
+    };
+
+    it('fristkravet har forbeholdet under «Forbehold» sist, etter begrunnelsen, og raden leses tilbake med det', () => {
+      const s = paaberopt();
+      const rad = s.send('TE', { ...FRISTKRAV, forbehold: forbeholdet });
+      expect(
+        tekst(rad).filter((a) => a.punkt === 'begrunnelse' || a.punkt === 'forbehold')
+      ).toEqual([
+        {
+          gjelder: s.krav('frist'),
+          punkt: 'begrunnelse',
+          overskrift: '2. Begrunnelse',
+          laast: '2. Begrunnelse',
+          utdypning: FRISTKRAV.utdypning,
+        },
+        {
+          gjelder: s.krav('frist'),
+          punkt: 'forbehold',
+          overskrift: '3. Forbehold',
+          laast: '3. Forbehold',
+          utdypning: forbeholdet,
+        },
+      ]);
+      expect(
+        tekst(rad)
+          .filter((a) => a.gjelder === s.krav('frist'))
+          .at(-1)!.punkt,
+        'forbeholdet er det siste punktet i kravet'
+      ).toBe('forbehold');
+      expect(s.u().forstaatt).toBe(true);
+    });
+
+    it('forbeholdet oppfyller ikke kravet om begrunnelse i fristkravet (KA-U82, KA-U33)', () => {
+      const s = paaberopt();
+      expect(
+        s.avvisning('TE', { ...utenFelt(FRISTKRAV, 'utdypning'), forbehold: forbeholdet })
+      ).toEqual({
+        regel: 'BEGRUNNELSE_MANGLER',
+        melding: 'Kravet om fristforlengelse må begrunne antallet dager.',
+      });
+      expect(s.avvist('TE', { ...FRISTKRAV, forbehold: forbeholdet }), 'kontrollsak').toBeNull();
+    });
+
+    it('vederlagskravet har forbeholdet under «Forbehold» sist', () => {
+      const s = paaberopt();
+      const rad = s.send('TE', {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: tilbud(125000),
+        forbehold: forbeholdet,
+      });
+      expect(tekst(rad).at(-1)).toEqual({
+        gjelder: s.krav('vederlag'),
+        punkt: 'forbehold',
+        overskrift: '2. Forbehold',
+        laast: '2. Forbehold',
+        utdypning: forbeholdet,
+      });
+    });
+
+    it('påberopelsen av forholdet har ikke noe forbehold (KA-U82)', () => {
+      const s = sak();
+      expect(s.avvisning('TE', { ...PAABEROPELSE, forbehold: forbeholdet })?.melding).toBe(
+        '$.forbehold: påberopelsen av forholdet har ikke noe forbehold'
+      );
+      expect(s.avvist('TE', PAABEROPELSE), 'kontrollsak').toBeNull();
+    });
+  });
+
   describe('en ny versjon av påberopelsen (LV-U56)', () => {
     const nyVersjon = (innhold: Data) => {
       const s = sak();
@@ -1130,9 +1208,9 @@ describe('kravet til begrunnelse og beskrivelse (KA-U46, KA-U47, KA-U31–KA-U33
     const vederlag = { type: 'krav', spor: 'vederlag', innhold: tilbud(1) };
     expect(s.avvist('TE', vederlag)).toBeNull();
     const rad = s.send('TE', { ...vederlag, utdypning: 'Kalkylen er vedlagt.' });
-    // Utdypningen for hele vederlagskravet står i punktet «Forbehold» (LV-U71).
+    // Utdypningen for hele vederlagskravet er begrunnelsen (LV-U74).
     expect(tekst(rad).at(-1)).toMatchObject({
-      punkt: 'forbehold',
+      punkt: 'begrunnelse',
       utdypning: 'Kalkylen er vedlagt.',
     });
   });
@@ -1461,7 +1539,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     ]);
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Sluttfristen (§ 33.6.1), subsidiært godkjent med 15 dager.'
+      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Sluttfristen (§ 33.6.1), subsidiært godkjent med 15 dager for frist Sluttfristen.'
     );
   });
 
@@ -1480,7 +1558,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt godkjent med 1 dag for frist Sluttfristen (§ 33.6.1), subsidiært godkjent med 1 dag.'
+      'Byggherrens standpunkt: prinsipalt godkjent med 1 dag for frist Sluttfristen (§ 33.6.1), subsidiært godkjent med 1 dag for frist Sluttfristen.'
     );
   });
 
@@ -1527,9 +1605,9 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       'måtte forstå at totalentreprenøren hadde krav på: 0 dager for frist Sluttfristen og 5 dager for frist Delfristen (punkt 33.6.1).'
     );
     const b2 = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
-    // Leddene for dagene nevner ikke fristen (#1943).
+    // Leddene for dagene nevner fristen (#1943).
     expect(b2.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Delfristen (§ 33.6.1), subsidiært godkjent med 15 dager, godkjent med 10 dager.'
+      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Delfristen (§ 33.6.1), subsidiært godkjent med 15 dager for frist Sluttfristen, godkjent med 10 dager for frist Delfristen.'
     );
   });
 
@@ -1553,6 +1631,29 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(LINJEN_I_FRISTEN.grunner(kontroll, null, kravet).spesifisering).toBe(
       'godkjent med 5 dager for frist Sluttfristen (§ 33.6.1)'
     );
+  });
+
+  it('leddene for dagene nevner fristen også når kravet har én frist, og kan ikke leses uten kravet (#1943, MM-U2)', () => {
+    const s = sakMedKrav();
+    const kravet = s.u().spor.frist.gjeldendeKrav!;
+    const a = innholdIFristen(kravet).frister[0]!.id;
+    const svar = {
+      spor: 'frist',
+      standpunkter: [
+        { id: 'd1', art: 'dager', gjelder: a, resultat: 'avslaatt', vurdert: 0 },
+        { id: 'd2', art: 'dager', gjelder: a, resultat: 'delvis_godkjent', vurdert: 7 },
+      ],
+      utregning: {},
+    } as unknown as Parameters<typeof LINJEN_I_FRISTEN.ledd>[0];
+    const v = [
+      { standpunkt: 'd1', art: 'dager', virkning: 0 },
+      { standpunkt: 'd2', art: 'dager', virkning: 1 },
+    ] satisfies Standpunktsvirkning[];
+    expect(LINJEN_I_FRISTEN.ledd(svar, v, kravet).map((l) => l.tekst)).toEqual([
+      'avslått for frist Sluttfristen',
+      'godkjent med 7 dager for frist Sluttfristen',
+    ]);
+    expect(() => LINJEN_I_FRISTEN.ledd(svar, v, undefined)).toThrow(Uforstaatt);
   });
 
   it('§ 34.1.2 «nei» med hele beløpet godkjent subsidiært godtas uten begrunnelse (KA-U46 punkt 1)', () => {
@@ -1645,7 +1746,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), videre subsidiært godkjent med 5 dager for frist Sluttfristen (§ 33.6.1), videre subsidiært godkjent med 10 dager.'
+      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), videre subsidiært godkjent med 5 dager for frist Sluttfristen (§ 33.6.1), videre subsidiært godkjent med 10 dager for frist Sluttfristen.'
     );
   });
 
@@ -1669,7 +1770,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 2, 3]);
     expect(b.uten_virkning).toHaveLength(1);
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), videre subsidiært godkjent med 10 dager.'
+      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), videre subsidiært godkjent med 10 dager for frist Sluttfristen.'
     );
     // KA-U78: varselet, hindringen og dagene i hvert sitt lag. Standpunktet uten virkning (§ 33.6.1
     // i tide) står uten lagslinje (spørsmål 8 i spørsmålsfila for #1663, 09.11).
@@ -3634,13 +3735,39 @@ describe('vedleggene ved påberopelsen (VS-U38)', () => {
     ]);
   });
 
-  it('et vedlegg ved et fristkrav utenfor varselet avvises i formen (OV-U5)', () => {
+  it('et vedlegg ved vederlagskravet avvises i formen (VS-U38, #1823)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
-    expect(s.avvisning('TE', { ...FRISTKRAV, dokumentasjon: [VARSELBREVET] })?.melding).toBe(
-      '$.dokumentasjon: bare påberopelsen har vedlegg ved kravet'
+    const krav = { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) };
+    expect(s.avvisning('TE', { ...krav, dokumentasjon: [VARSELBREVET] })?.melding).toBe(
+      '$.dokumentasjon: bare påberopelsen og kravet om fristforlengelse har vedlegg ved kravet'
     );
-    expect(s.avvist('TE', FRISTKRAV), 'kontrollsak').toBeNull();
+    expect(s.avvist('TE', krav), 'kontrollsak').toBeNull();
+  });
+
+  it('fristkravet har vedleggene ved kravet og brevet med varselet i samme brev, og brevet nevner begge (#1823, OV-U5)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const rad = s.send('TE', { ...FRISTKRAV, dokumentasjon: [PLAN] });
+    expect(rad.data.dokumentasjon).toEqual([
+      expect.objectContaining({ vedlegg_id: PLAN }),
+      expect.objectContaining({ vedlegg_id: VARSELBREVET }),
+    ]);
+    expect(laast(rad).at(-1)).toBe(`Brevet har vedlegg: «${PLAN}.pdf» og «${VARSELBREVET}.pdf».`);
+    expect(s.u().forstaatt).toBe(true);
+  });
+
+  it('fristkravet med vedlegg, uten varsel i kravet, lagrer vedleggene', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const rad = s.send('TE', { ...utenFelt(FRISTKRAV, 'varsel'), dokumentasjon: [PLAN] });
+    expect(rad.data.dokumentasjon).toEqual([expect.objectContaining({ vedlegg_id: PLAN })]);
+  });
+
+  it('samme vedlegg ved fristkravet og ved varselet avvises i formen', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    expect(s.avvist('TE', { ...FRISTKRAV, dokumentasjon: [VARSELBREVET] })).toBe('UGYLDIG_FORM');
   });
 
   it('samme vedlegg to ganger ved påberopelsen avvises i formen', () => {
@@ -3728,7 +3855,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     );
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 og svaret på forespørselen etter § 33.6.2 kom for sent, subsidiært godkjent med 20 dager.'
+      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 og svaret på forespørselen etter § 33.6.2 kom for sent, subsidiært godkjent med 20 dager for frist Sluttfristen.'
     );
     // OV-U32, LV-U34: begge påberopelsene står i lag 1, hver i sitt punkt, og lagslinjen for
     // dagene i lag 2 viser til begge.
@@ -3757,7 +3884,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       { resultat: 'avslaatt', godkjent_dager: 0 }
     );
     expect(((rad.data.svar as Data[])[0].beslutningsgrunnlag as Data).linje).toBe(
-      'Byggherrens standpunkt: prinsipalt svaret på forespørselen etter § 33.6.2 kom for sent, subsidiært godkjent med 20 dager.'
+      'Byggherrens standpunkt: prinsipalt svaret på forespørselen etter § 33.6.2 kom for sent, subsidiært godkjent med 20 dager for frist Sluttfristen.'
     );
   });
 
@@ -8522,9 +8649,30 @@ describe('lagene i et fristsvar som ikke er ferdig utfylt (M-8 i BF-20, KA-U78, 
   const fristen = (s: ReturnType<typeof sak>) =>
     innholdIFristen(s.u().spor.frist.gjeldendeKrav!).frister[0]!.id;
 
-  it('kontrollsak: med godkjent forhold og ingenting besvart står dagene uten lag, ubesvart og uten forutsetninger', () => {
+  it('kontrollsak: med godkjent forhold og ingenting besvart står spørsmålene ubesvart og uten virkning, og dagene uten lag og uten forutsetninger (S1-A, #1925)', () => {
     const s = saken({ resultat: 'godkjent' });
     expect(lagene(s, { frister: [{}] })).toEqual([
+      {
+        standpunkt: 'rettidighet 33.4',
+        besvart: false,
+        virkning: 'uten_virkning',
+        etikett: null,
+        forutsetninger: [],
+      },
+      {
+        standpunkt: 'hindring',
+        besvart: false,
+        virkning: 'uten_virkning',
+        etikett: null,
+        forutsetninger: [],
+      },
+      {
+        standpunkt: 'spesifisering',
+        besvart: false,
+        virkning: 'uten_virkning',
+        etikett: null,
+        forutsetninger: [],
+      },
       {
         standpunkt: 'dager',
         gjelder: 'fristen',
@@ -8583,11 +8731,25 @@ describe('lagene i et fristsvar som ikke er ferdig utfylt (M-8 i BF-20, KA-U78, 
     const s = saken({ resultat: 'avslaatt' });
     expect(lagene(s, { vilkar_oppfylt: false, frister: [{}] })).toEqual([
       {
+        standpunkt: 'rettidighet 33.4',
+        besvart: false,
+        virkning: 'uten_virkning',
+        etikett: null,
+        forutsetninger: [],
+      },
+      {
         standpunkt: 'hindring',
         besvart: true,
         virkning: 2,
         etikett: 'subsidiært',
         forutsetninger: [{ grunn: 'avslaatt' }],
+      },
+      {
+        standpunkt: 'spesifisering',
+        besvart: false,
+        virkning: 'uten_virkning',
+        etikett: null,
+        forutsetninger: [],
       },
       {
         standpunkt: 'dager',
@@ -8598,6 +8760,45 @@ describe('lagene i et fristsvar som ikke er ferdig utfylt (M-8 i BF-20, KA-U78, 
         forutsetninger: [{ grunn: 'avslaatt' }, { innsigelse: 'hindring' }],
       },
     ]);
+  });
+
+  it('spesifisert for sent uten dagene byggherren måtte forstå gir lagene, med spesifiseringen besvart (#1925)', () => {
+    const s = saken({ resultat: 'godkjent' });
+    const lag = lagene(s, {
+      spesifisert_krav_ok: false,
+      frister: [{ dager_maatte_forstaa: null }],
+    });
+    expect(lag.map((l) => [l.standpunkt, l.besvart, l.virkning])).toEqual([
+      ['rettidighet 33.4', false, 'uten_virkning'],
+      ['hindring', false, 'uten_virkning'],
+      ['spesifisering', true, 1],
+      ['dager', false, 2],
+    ]);
+  });
+
+  it('når kravet svarer på forespørselen, står spørsmålet om forespørselen ubesvart og spesifiseringen ikke (KA-U78 siste setning, #1925)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), { grunnlag_varslet_i_tide: true, resultat: 'godkjent' }),
+      ],
+    });
+    s.send('BH', { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' });
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    expect(lagene(s, { frister: [{}] }).map((l) => [l.standpunkt, l.besvart])).toEqual([
+      ['rettidighet 33.4', false],
+      ['rettidighet 33.6.2', false],
+      ['hindring', false],
+      ['dager', false],
+    ]);
+    expect(
+      lagene(s, { foresporsel_svar_ok: true, frister: [{}] }).find(
+        (l) => l.standpunkt === 'rettidighet 33.6.2'
+      )?.besvart,
+      'besvart'
+    ).toBe(true);
   });
 
   it('vurderingene må være én per frist i kravet, som i svaret (KA-U74)', () => {
@@ -10571,11 +10772,11 @@ describe('rigg og drift i vederlagskravet avvises til posten er bygget (MM-U2, #
  * skrives fullt ut (LV-U35).
  */
 describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i BF-14)', () => {
-  const vederlagskrav = (innhold: Data, utdypning?: string, utdypninger?: Data) => ({
+  const vederlagskrav = (innhold: Data, forbehold?: string, utdypninger?: Data) => ({
     type: 'krav',
     spor: 'vederlag',
     innhold,
-    ...(utdypning ? { utdypning } : {}),
+    ...(forbehold ? { forbehold } : {}),
     ...(utdypninger ? { utdypninger } : {}),
   });
   /** Svikt, der varslingsplikten etter § 34.1.2 gjelder (§ 34.1.2, VS-U3). */
@@ -10638,7 +10839,7 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
     expect(avsnitt[1].laast.startsWith('P2 Spunt.')).toBe(true);
   });
 
-  it('forbeholdet står sist under sin egen overskrift, og teksten er partens utdypning, ikke den låste delen', () => {
+  it('forbeholdet står sist under sin egen overskrift, og teksten er partens utdypning, ikke den låste delen (KA-U82, LV-U74)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     const forbehold = 'Totalentreprenøren tar forbehold om å justere kravet når omfanget er kjent.';
@@ -10655,23 +10856,21 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
     expect(uten.map((a) => a.punkt)).not.toContain('forbehold');
   });
 
-  it('utdypningen per punkt står under punktet den gjelder, og forbeholdet kan sendes per punkt (LV-U71)', () => {
+  it('utdypningen per punkt står under punktet den gjelder, begrunnelsen for hele kravet etter postene og forbeholdet sist (LV-U71, LV-U74)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     const avsnitt = tekst(
-      s.send(
-        'TE',
-        vederlagskrav(to(125000), undefined, {
-          P2: 'Spunten er prosjektert på nytt.',
-          forbehold: 'Forbeholdet.',
-        })
-      )
+      s.send('TE', {
+        ...vederlagskrav(to(125000), 'Forbeholdet.', { P2: 'Spunten er prosjektert på nytt.' }),
+        utdypning: 'Kalkylen er vedlagt.',
+      })
     );
-    expect(avsnitt.map((a) => [a.punkt, a.utdypning])).toEqual([
-      ['P1', undefined],
-      ['P2', 'Spunten er prosjektert på nytt.'],
-      ['tilbud', undefined],
-      ['forbehold', 'Forbeholdet.'],
+    expect(avsnitt.map((a) => [a.punkt, a.overskrift, a.utdypning])).toEqual([
+      ['P1', '1. Vederlagsjustering', undefined],
+      ['P2', undefined, 'Spunten er prosjektert på nytt.'],
+      ['tilbud', undefined, undefined],
+      ['begrunnelse', '2. Begrunnelse', 'Kalkylen er vedlagt.'],
+      ['forbehold', '3. Forbehold', 'Forbeholdet.'],
     ]);
   });
 

@@ -1301,6 +1301,23 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Lagene i et svarutkast i sporet (#1778).
   ['spor/vederlag/kommando.ts', 'predikat', 'lagIVederlaget', ['kommandoer/lag.ts']],
   ['spor/frist/kommando.ts', 'predikat', 'lagIFristen', ['kommandoer/lag.ts']],
+  // #1925: et ubesvart spørsmål i svarutkastet regnes som besvart uten innsigelse (S1-A).
+  [
+    'spor/frist/kommando.ts:utfylt',
+    'kommando',
+    'v ubesvart',
+    ['spor/frist/kommando.ts:lagIFristen'],
+  ],
+  [
+    'spor/frist/kommando.ts',
+    'relasjon',
+    'SPOERSMAALET.*',
+    ['spor/frist/kommando.ts:spoersmaaletFor'],
+  ],
+  ['spor/frist/kommando.ts:utfylt(r)', 'kommando', 'dager_maatte_forstaa'],
+  // Spørsmålene regelsettet stiller i fristen, også i lagene i et svarutkast (#1925).
+  ['regler/frist.ts', 'regelsett', 'beregnSynlighet', ['spor/frist/kommando.ts:utfylt']],
+  ['spor/frist/frysing.ts', 'predikat', 'fristkravet', ['spor/frist/kommando.ts:utfylt']],
   // OV-U32, OV-U33: lagene i utkastet regnet som brevet regner dem, felles for sporene.
   [
     'kommandoer/utkastlag.ts',
@@ -1389,7 +1406,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'kategori',
     [
-      'spor/frist/tekst.ts',
+      'spor/frist/format.ts:hindringenEtter',
       'spor/forhold/frysing.ts',
       'frosset/byggeklosser.ts',
       'spor/vederlag/frysing.ts',
@@ -1433,6 +1450,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'betegnelsen',
     ['spor/frist/tekst.ts', 'spor/frist/utledning.ts'],
   ],
+  // Hjemmelen for hindringen, i brevet og skjemaene (KA-U81, #1925).
+  ['spor/frist/format.ts', 'brevtekst', 'hindringenEtter', ['spor/frist/tekst.ts']],
   ['VARSELSPOR', 'relasjon', '32.2 33.4 34.1.2 34.1.3 34.3.3 34.4'],
   ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
@@ -2044,7 +2063,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Avsnitt', 'brevtekst', 'laast punkt overskrift', ['format/leser.ts']],
   ['Brevpunkt', 'brevtekst', 'punkt overskrift avsnitt', ['frosset/brevtekst.ts']],
   // LV-U71: utdypningen per punkt kopieres til teksten under punktet.
-  ['Utdypning', 'brevtekst', 'utdypning utdypninger', ['frosset/brevtekst.ts']],
+  ['Utdypning', 'brevtekst', 'utdypning utdypninger forbehold', ['frosset/brevtekst.ts']],
   [
     'frosset/brevtekst.ts:lagBrevtekst.leggPunkter',
     'brevtekst',
@@ -2086,6 +2105,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:svar', 'spor/forhold/kommando.ts:begrunnelseIForholdet'],
   ],
   ['Kommando', 'kommando', 'utdypninger', ['kommandoer/skriving.ts:dokument']],
+  // KA-U82, LV-U74: forbeholdet i kravet står i brevteksten og leses ikke av noen regel.
+  ['Kommando', 'kommando', 'forbehold', ['kommandoer/skriving.ts:dokument']],
   [
     'Kommando',
     'kommando',

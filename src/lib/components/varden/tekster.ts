@@ -1274,7 +1274,7 @@ export const KRAVSKJEMA = {
   dokumentdatoHjelp: 'Datoen avsenderen oppgir.',
   dokumentet: 'Dokumentet',
   dokumentetHjelp: 'Legges til i saken som et eget brev og ved kravet. Opptil 15 MB.',
-  // 4. Forbeholdet, som kravets utdypning til kjernen har et eget felt (svar 1 A 12.11 i #1663, #1823).
+  // 4. Forbeholdet, i kravets eget felt (LV-U74).
   forbehold: 'Forbehold (valgfritt)',
   forbeholdHjelp: 'Står i brevet under kravet.',
   // Det som mangler, med feltet (MM-U32, språkfila: «<Verb> <feltet>.»).

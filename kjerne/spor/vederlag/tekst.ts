@@ -346,8 +346,8 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
   ogsaaInnsigelserEtter: ['34.1.3'],
   // Kravet sier selv hvilket krav det erstatter, i innledningen (#1824).
   nevnerErstattet: false,
-  // Forbeholdet, som Varden sender som kravets utdypning til #1823 gir det et eget felt.
-  utdypningensPunkt: { punkt: 'forbehold', overskrift: 'Forbehold' },
+  // LV-U74: utdypningen for hele kravet er begrunnelsen, foran «Forbehold».
+  utdypningensPunkt: { punkt: 'begrunnelse', overskrift: 'Begrunnelse' },
   kravetOm: KRAVET_OM,
   innledning: (krav, { j }) =>
     `Byggherren svarer på totalentreprenørens krav om ${KRAVET_OM} i ${j.brevet(krav.dokument)}. Beløpene i brevet er eks. mva.`,
