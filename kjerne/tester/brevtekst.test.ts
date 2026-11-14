@@ -28,6 +28,8 @@ import { innsigelsenErOppgitt } from '../frosset/standpunkt.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { innholdIFristen } from '../spor/frist/format.ts';
+import { LINJEN_I_FRISTEN } from '../spor/frist/tekst.ts';
+import { Uforstaatt } from '../format/skjema.ts';
 import { kroner } from '../frosset/tekst.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
@@ -1459,7 +1461,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     ]);
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager (§ 33.6.1), subsidiært godkjent med 15 dager.'
+      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Sluttfristen (§ 33.6.1), subsidiært godkjent med 15 dager.'
     );
   });
 
@@ -1478,7 +1480,78 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt godkjent med 1 dag (§ 33.6.1), subsidiært godkjent med 1 dag.'
+      'Byggherrens standpunkt: prinsipalt godkjent med 1 dag for frist Sluttfristen (§ 33.6.1), subsidiært godkjent med 1 dag.'
+    );
+  });
+
+  it('med to frister nevner linjen fristen dagene byggherren måtte forstå gjelder, og ikke en frist med 0 dager som brevteksten nevner (#1931, VS-U4)', () => {
+    const s = sakMedKrav();
+    s.send('TE', {
+      ...utenFelt(FRISTKRAV, 'varsel'),
+      innhold: {
+        frister: [
+          {
+            id: innholdIFristen(s.u().spor.frist.gjeldendeKrav!).frister[0]!.id,
+            navn: 'Sluttfristen',
+            dager: 20,
+          },
+          { navn: 'Delfristen', dager: 10 },
+        ],
+      },
+    });
+    const [a, b] = innholdIFristen(s.u().spor.frist.gjeldendeKrav!).frister.map((f) => f.id);
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'frist',
+          s.krav('frist'),
+          {
+            ...utenFelt(FRIST_FULLT[0], 'dager'),
+            spesifisert_krav_ok: false,
+            frister: [
+              { dager: 15, dager_maatte_forstaa: 0 },
+              { dager: 10, dager_maatte_forstaa: 5 },
+            ],
+          },
+          {
+            frister: [
+              { gjelder: a, resultat: 'avslaatt', godkjent_dager: 0 },
+              { gjelder: b, resultat: 'delvis_godkjent', godkjent_dager: 5 },
+            ],
+          }
+        ),
+      ],
+    });
+    expect(laast(rad).join('\n\n')).toContain(
+      'måtte forstå at totalentreprenøren hadde krav på: 0 dager for frist Sluttfristen og 5 dager for frist Delfristen (punkt 33.6.1).'
+    );
+    const b2 = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
+    // Leddene for dagene nevner ikke fristen (#1943).
+    expect(b2.linje).toBe(
+      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Delfristen (§ 33.6.1), subsidiært godkjent med 15 dager, godkjent med 10 dager.'
+    );
+  });
+
+  it('et fristsvar med dagene byggherren måtte forstå, uten kjent krav eller for en frist kravet ikke har, kan ikke leses i linjen (MM-U2, #1931)', () => {
+    const svar = {
+      spor: 'frist',
+      standpunkter: [
+        { id: 's', art: 'spesifisering', iTide: false, maatteForstaa: [{ frist: 'a', dager: 5 }] },
+      ],
+      utregning: {},
+    } as unknown as Parameters<typeof LINJEN_I_FRISTEN.grunner>[0];
+    expect(() => LINJEN_I_FRISTEN.grunner(svar, null, undefined)).toThrow(Uforstaatt);
+    const s = sakMedKrav();
+    const kravet = s.u().spor.frist.gjeldendeKrav!;
+    expect(() => LINJEN_I_FRISTEN.grunner(svar, null, kravet)).toThrow(Uforstaatt);
+    const a = innholdIFristen(kravet).frister[0]!.id;
+    const kontroll = {
+      ...svar,
+      standpunkter: [{ ...svar.standpunkter[0]!, maatteForstaa: [{ frist: a, dager: 5 }] }],
+    } as typeof svar;
+    expect(LINJEN_I_FRISTEN.grunner(kontroll, null, kravet).spesifisering).toBe(
+      'godkjent med 5 dager for frist Sluttfristen (§ 33.6.1)'
     );
   });
 
@@ -1572,7 +1645,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), videre subsidiært godkjent med 5 dager (§ 33.6.1), videre subsidiært godkjent med 10 dager.'
+      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), videre subsidiært godkjent med 5 dager for frist Sluttfristen (§ 33.6.1), videre subsidiært godkjent med 10 dager.'
     );
   });
 

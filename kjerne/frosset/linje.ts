@@ -57,7 +57,7 @@ export function beslutningslinje(
   const grunntekst: Record<string, string> = {
     // HF-U11, MM-U23: byggherrens påberopelse slik brevet sier den, ikke appens slutning.
     rettidighet: `${sene.join(' og ')} kom for sent`,
-    ...iSporet(LINJE, svar.spor).grunner(svar, paaberopelse),
+    ...iSporet(LINJE, svar.spor).grunner(svar, paaberopelse, kravet),
   };
   const grunner = v.filter(
     (p) =>
@@ -103,8 +103,15 @@ export interface Linjeledd {
 
 /** Leddene i linjen i ett spor, som `frosset/linje.ts` slår opp gjennom `LINJE` (#1783). */
 export interface Sporslinje {
-  /** Grunnene i sporet ut over rettidigheten, per art, når standpunktet har et lag. */
-  grunner(svar: Svarinnhold, paaberopelse: Krav | null | undefined): Record<string, string>;
+  /**
+   * Grunnene i sporet ut over rettidigheten, per art, når standpunktet har et lag. `kravet` er
+   * kravet svaret gjelder.
+   */
+  grunner(
+    svar: Svarinnhold,
+    paaberopelse: Krav | null | undefined,
+    kravet: Krav | null | undefined
+  ): Record<string, string>;
   /** Standpunktet om rettidighet som står som et eget ledd i sporet og ikke som grunn (VS-U5). */
   egetLedd(svar: Svarinnhold, v: Standpunktsvirkning[]): string | undefined;
   /**
