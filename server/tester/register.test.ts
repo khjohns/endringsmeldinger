@@ -81,6 +81,7 @@ const UTEN_SAK = [
   'POST /api/projects/<prosjekt>/members/sync',
   'PATCH /api/projects/<prosjekt>/members/00000000-0000-0000-0000-000000000000',
   'GET /api/projects/<prosjekt>/saker',
+  'GET /api/projects/<prosjekt>/kontraktsfrister',
 ];
 const NY_SAK = [
   'POST /api/kjerne/saker',
