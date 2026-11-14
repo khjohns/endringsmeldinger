@@ -11,7 +11,7 @@ import type { Korrespondansetype } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { heleDager } from './fristsvar';
 import { definert } from './kommandoer';
-import type { Kjernevedlegg } from './nysak';
+import { vedleggskart, type Kjernevedlegg } from './nysak';
 import { FRISTKRAV } from './tekster';
 
 /** Én frist i kravet, som TE har fylt den ut. */
@@ -102,12 +102,6 @@ const fristen = (p: Fristpostvalg): Record<string, unknown> =>
     dager: heleDager(p.dager),
   });
 
-/** Forespørselen etter punkt 33.6.2 TE kan svare på (`svare_paa_foresporsel:<id>`), eller `null`. */
-export function aapenForesporsel(handlinger: readonly string[]): string | null {
-  const n = handlinger.find((h) => h.startsWith('svare_paa_foresporsel:'));
-  return n ? n.slice('svare_paa_foresporsel:'.length) : null;
-}
-
 /**
  * Kommandoen TE sender: varselet etter punkt 33.4 fra løsningen eller registrert (VS-U15,
  * VS-U16), begrunnelsen etter punkt 33.6.2 annet ledd bokstav b (VS-U17), eller kravet. Kravet er
@@ -149,13 +143,7 @@ export function fristkravet(
 }
 
 /** Vedleggene kommandoen viser til, så kjernen kan lage brevet før sendingen (OV-U5). */
-export const vedleggIFristkravet = (v: Fristkravvalg) =>
-  new Map(
-    (v.utenfor?.vedlegg ?? []).map(({ vedlegg_id, filnavn, innhold_sha256 }) => [
-      vedlegg_id,
-      { vedlegg_id, filnavn, innhold_sha256 },
-    ])
-  );
+export const vedleggIFristkravet = (v: Fristkravvalg) => vedleggskart(v.utenfor?.vedlegg ?? []);
 
 /** Det som mangler, med feltet det gjelder (`<prefiks>-<felt>`). Kjernen avviser det samme. */
 export function manglerIFristkravet(

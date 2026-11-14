@@ -19,7 +19,9 @@
   import { tomtFristsvar } from './fristsvar';
   import Vederlagskrav from './Vederlagskrav.svelte';
   import Fristkrav from './Fristkrav.svelte';
-  import { startvalg as fristkravstart, type Fristkravvalg } from './fristkrav';
+  import { startvalg as fristkravstart, tomtUtenforvalg, type Fristkravvalg } from './fristkrav';
+  /** Handlingene i fristen som åpner skjemaet for kravet (BF-20). */
+  const FRISTSKJEMAET = new Set(['krav', 'sende_varsel', 'varsle', 'svare_paa_foresporsel']);
   import type { Kravvalg } from './vederlagskrav';
   import Korrigering from './Korrigering.svelte';
   import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
@@ -312,31 +314,35 @@
     'krav:frist': () => (arbeid = { art: 'fristkrav' }),
     // U-13: varselet etter punkt 33.4 alene, i skjemaet for kravet (BF-20 steg 4).
     'sende_varsel:frist': () => fristskjema('varsel'),
-    'varsle:frist': () => fristskjema('varsel'),
+    'varsle:frist': () => fristskjema('varsel', true),
   };
-  /** Skjemaet for kravet om fristforlengelse, med varselet alene eller kravet valgt. */
-  function fristskjema(hva: Fristkravvalg['hva']) {
-    if (u) fristkravvalg = { ...(fristkravvalg ?? fristkravstart(u)), hva };
+  /**
+   * Skjemaet for kravet om fristforlengelse, med varselet alene eller kravet valgt. Uten
+   * `sende_varsel:frist` registreres varselet (VS-U16).
+   */
+  function fristskjema(hva: Fristkravvalg['hva'], registrer = false) {
+    if (u) {
+      const v = fristkravvalg ?? fristkravstart(u);
+      fristkravvalg = {
+        ...v,
+        hva,
+        utenfor: registrer ? (v.utenfor ?? tomtUtenforvalg()) : v.utenfor,
+      };
+    }
     arbeid = { art: 'fristkrav' };
   }
   // U-11: svaret på forespørselen etter punkt 33.6.2 åpner skjemaet for kravet.
-  const skjemanoeklene = $derived([
-    ...Object.keys(skjemaene),
-    ...kjernesak.handlinger.filter((n) => n.startsWith('svare_paa_foresporsel:')),
-  ]);
-  const aapne = (n: string) =>
-    Object.hasOwn(skjemaene, n)
-      ? skjemaene[n]()
-      : n.startsWith('svare_paa_foresporsel:') && fristskjema('krav');
-  /** Skjemaet for fristen er åpent når kjernen tilbyr kravet, varselet eller svaret på forespørselen. */
+  const foresporselssvar = $derived(
+    kjernesak.tilbudte.filter((h) => h.type === 'svare_paa_foresporsel').map((h) => h.noekkel)
+  );
+  const skjemanoeklene = $derived([...Object.keys(skjemaene), ...foresporselssvar]);
+  function aapne(n: string) {
+    if (Object.hasOwn(skjemaene, n)) skjemaene[n]();
+    else if (foresporselssvar.includes(n)) fristskjema('krav');
+  }
+  /** Fristskjemaet står åpent når kjernen tilbyr en av handlingene det åpnes fra. */
   const fristskjemaTilbudt = $derived(
-    kjernesak.handlinger.some(
-      (n) =>
-        n === 'krav:frist' ||
-        n === 'sende_varsel:frist' ||
-        n === 'varsle:frist' ||
-        n.startsWith('svare_paa_foresporsel:')
-    )
+    kjernesak.tilbudte.some((h) => h.spor === 'frist' && FRISTSKJEMAET.has(h.type))
   );
 
   /**

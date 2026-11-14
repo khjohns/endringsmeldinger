@@ -42,6 +42,15 @@ export type Paaberopelse = {
 /** Vedlegget i mellomlageret, med størrelsen, som `Kjernevedlegg` i `$lib/api/kjerne`. */
 export type Kjernevedlegg = Vedlegg & { stoerrelse: number };
 
+/** Vedleggene kommandoen viser til, med ID-en som nøkkel, så kjernen kan lage brevet (VS-U53). */
+export const vedleggskart = (vedlegg: readonly Kjernevedlegg[]) =>
+  new Map(
+    vedlegg.map(({ vedlegg_id, filnavn, innhold_sha256 }) => [
+      vedlegg_id,
+      { vedlegg_id, filnavn, innhold_sha256 },
+    ])
+  );
+
 /**
  * Grensen for vedleggene før saken finnes (#1037): `lastOppVedleggForNySak` og
  * `slettVedleggForNySak` i saksruta, og minnet i demoruta.

@@ -26,7 +26,6 @@
   import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
   import {
-    aapenForesporsel,
     fristene,
     fristkravet,
     manglerIFristkravet,
@@ -38,8 +37,22 @@
     type Fristpostvalg,
   } from './fristkrav';
   import { heleDager } from './fristsvar';
-  import { brevene, datoerISporet, hovedkategorien, klarOverForholdet } from './lesing';
-  import { FRISTKRAV, HOVEDLINJER, KRAVSKJEMA, SKJEMA, dato, kalenderdager } from './tekster';
+  import {
+    brevMedUtsagn,
+    brevene,
+    datoerISporet,
+    hovedkategorien,
+    klarOverForholdet,
+  } from './lesing';
+  import {
+    FRISTKRAV,
+    HOVEDLINJER,
+    KRAVSKJEMA,
+    SKJEMA,
+    dagensDato,
+    dato,
+    kalenderdager,
+  } from './tekster';
 
   let {
     kjernesak,
@@ -87,7 +100,7 @@
   const hindringPunkt = $derived(hovedkategorien(u) === 'force_majeure' ? '33.3' : '33.1');
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes('frist')));
   const datoer = $derived(datoerISporet(u, 'frist'));
-  const iDag = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+  const iDag = dagensDato();
   const klarOver = $derived(klarOverForholdet(u));
 
   // U-13: varselet alene kan sendes før det første kravet, når kjernen tilbyr det (VS-U15, VS-U16).
@@ -96,25 +109,29 @@
   const kanVarsle = $derived(
     !forrige && kjernesak.handlinger.includes('krav:frist') && (kanSende || kanRegistrere)
   );
-  const varsel = $derived(v.hva === 'varsel');
   // U-11: forespørselen etter punkt 33.6.2 TE kan svare på, og brevet den står i.
-  const foresporsel = $derived(varsel ? null : aapenForesporsel(kjernesak.handlinger));
-  const foresporselsbrev = $derived.by(() => {
-    if (!foresporsel) return null;
-    const h = u.journal.find(
-      (x) => x.art === 'dokument' && x.dokument.utsagn.some((y) => y.id === foresporsel)
-    );
-    return h?.art === 'dokument' ? brevMed(h.dokument.id) : null;
-  });
-  const bokstavB = $derived(foresporsel !== null && v.bokstav === 'b');
+  const foresporsel = $derived(
+    v.hva === 'varsel'
+      ? null
+      : (kjernesak.tilbudte.find((h) => h.type === 'svare_paa_foresporsel')?.gjelder ?? null)
+  );
+  const foresporselsbrev = $derived(foresporsel ? brevMedUtsagn(u, foresporsel) : null);
+  /** Varselet alene, svaret etter punkt 33.6.2 annet ledd bokstav b, eller kravet med dagene. */
+  const modus = $derived(
+    v.hva === 'varsel' ? 'varsel' : foresporsel && v.bokstav === 'b' ? 'svar' : 'krav'
+  );
+  const varsel = $derived(modus === 'varsel');
+  const bokstavB = $derived(modus === 'svar');
   // Varselet gitt før, utenfor løsningen, kan oppgis når saken ikke har et (U-6, OV-U5).
-  const kanGiUtenfor = $derived(!varselbrev && !bokstavB);
-  const utenfor = $derived(kanGiUtenfor || (varsel && kanRegistrere) ? v.utenfor : null);
-  // Et varsel registreres når TE bare varsler og ikke kan sende det fra løsningen.
-  $effect.pre(() => {
-    if (varsel && !kanSende && !v.utenfor) v.utenfor = tomtUtenforvalg();
-  });
+  const utenfor = $derived(
+    (!varselbrev && !bokstavB) || (varsel && kanRegistrere) ? v.utenfor : null
+  );
   const registreres = $derived(varsel && utenfor !== null);
+  /** Et varsel registreres når TE bare varsler og ikke kan sende det fra løsningen. */
+  function velgHva(hva: Fristkravvalg['hva'] | null) {
+    v.hva = hva ?? 'krav';
+    if (v.hva === 'varsel' && !kanSende) v.utenfor ??= tomtUtenforvalg();
+  }
 
   /** Navnet fristen står med i skjemaet og panelet, som i brevet (`betegnelsen` i kjernen). */
   function navnet(p: Fristpostvalg): string {
@@ -143,35 +160,23 @@
     return d === undefined ? FRISTKRAV.ikkeOppgitt : dager(d);
   };
   const linjer = $derived(
-    varsel
-      ? [{ tekst: FRISTKRAV.detteVarsler, lag: null }]
-      : bokstavB
-        ? [{ tekst: FRISTKRAV.detteSvarer, lag: null }]
-        : v.frister.map((p) => ({
-            tekst: p.trukket
-              ? FRISTKRAV.trukketLinje(navnet(p))
-              : FRISTKRAV.linje(navnet(p), dagene(p)),
-            lag: null,
-          }))
+    modus === 'krav'
+      ? v.frister.map((p) => ({
+          tekst: p.trukket
+            ? FRISTKRAV.trukketLinje(navnet(p))
+            : FRISTKRAV.linje(navnet(p), dagene(p)),
+          lag: null,
+        }))
+      : [{ tekst: FRISTKRAV.dette[modus], lag: null }]
   );
   // Kalenderdagene fra datoen TE oppgir, til varselet eller i dag. Løsningen vurderer dem ikke.
   const dagerEtterKlarOver = $derived.by(() => {
     if (!klarOver) return null;
-    if (varselbrev) {
-      const sendt = varselbrev.sendt ?? varselbrev.registrert;
-      return FRISTKRAV.dagerTilVarselet(klarOver.dato, sendt, kalenderdager(klarOver.dato, sendt));
-    }
-    if (utenfor?.dato)
-      return FRISTKRAV.dagerTilVarselet(
-        klarOver.dato,
-        utenfor.dato,
-        kalenderdager(klarOver.dato, utenfor.dato)
-      );
-    return FRISTKRAV.dagerTilIDag(klarOver.dato, kalenderdager(klarOver.dato, iDag));
+    const varslet = varselbrev ? (varselbrev.sendt ?? varselbrev.registrert) : utenfor?.dato;
+    return varslet
+      ? FRISTKRAV.dagerTilVarselet(klarOver.dato, varslet, kalenderdager(klarOver.dato, varslet))
+      : FRISTKRAV.dagerTilIDag(klarOver.dato, kalenderdager(klarOver.dato, iDag));
   });
-  const tittel = $derived(
-    varsel ? FRISTKRAV.varselAleneTittel : bokstavB ? FRISTKRAV.foresporselTittel : FRISTKRAV.tittel
-  );
   const grense = {
     lastOpp: (fil: File) => kjernesak.lastOppVedlegg(fil),
     // Et vedlegg i mellomlageret som ikke bindes av varselet, blir liggende til det ryddes.
@@ -220,19 +225,17 @@
       ...brevet,
       detteSender: [
         {
-          tekst: varsel
-            ? FRISTKRAV.detteVarsler
-            : bokstavB
-              ? FRISTKRAV.detteSvarer
-              : FRISTKRAV.detteSender(fristene(v).length),
+          tekst:
+            modus === 'krav' ? FRISTKRAV.detteSender(fristene(v).length) : FRISTKRAV.dette[modus],
           lag: null,
         },
       ],
-      virkninger: varsel
-        ? [FRISTKRAV.virkningVarsel(klarOver ? kalenderdager(klarOver.dato, iDag) : null)]
-        : bokstavB
-          ? [FRISTKRAV.virkningB]
-          : [],
+      virkninger:
+        modus === 'varsel'
+          ? [FRISTKRAV.virkningVarsel(klarOver ? kalenderdager(klarOver.dato, iDag) : null)]
+          : modus === 'svar'
+            ? [FRISTKRAV.virkningB]
+            : [],
     });
   }
 
@@ -407,7 +410,7 @@
   {#snippet hoved()}
     <Utkastkort
       id={id('tittel')}
-      {tittel}
+      tittel={FRISTKRAV.titler[modus]}
       undertittel={forrige ? FRISTKRAV.nyVersjon(forrige) : null}
       mottaker={SKJEMA.tilBH}
     >
@@ -434,7 +437,7 @@
             navn={id('hva')}
             spoersmaal={FRISTKRAV.hvaSender}
             valg={FRISTKRAV.hvaValg}
-            bind:verdi={() => v.hva, (x) => (v.hva = x ?? 'krav')}
+            bind:verdi={() => v.hva, velgHva}
             beskrevetAv={id('hva-hjelp')}
             lett
             stablet

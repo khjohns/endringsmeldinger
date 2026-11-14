@@ -43,7 +43,7 @@
     type Brevet,
     type Brevref,
   } from './lesing';
-  import { brevhode, brevtittel, dato, kalenderdager, KRAVSKJEMA } from './tekster';
+  import { brevhode, brevtittel, dagensDato, dato, kalenderdager, KRAVSKJEMA } from './tekster';
   import {
     PNS_GRENSE,
     fordelingenPaaPns,
@@ -291,7 +291,7 @@
   };
   const klarOver = $derived(klarOverForholdet(u));
   // Dagens dato i norsk tid, som i `NySak.svelte`.
-  const iDag = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+  const iDag = dagensDato();
   const vederlagsvarselet = $derived(varseletFoerKravet(u, '34.1.2'));
   const saerskiltvarselet = $derived(varseletFoerKravet(u, '34.1.3'));
   // Et varsel TE velger for en post i skjemaet, står ved posten og ikke som et varsel uten post.

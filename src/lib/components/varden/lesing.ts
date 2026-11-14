@@ -157,6 +157,14 @@ const ref = ({ id, nummer, registrert, omtale, art }: Brevref): Brevref => ({
 /** Brevet med dokumentet `id`. */
 export const brevet = (u: Utledning, id: string) => brevene(u).find((b) => b.id === id) ?? null;
 
+/** Brevet utsagnet `id` står i, som forespørselen etter § 33.6.2. */
+export function brevMedUtsagn(u: Utledning, id: string) {
+  const h = u.journal.find(
+    (x) => x.art === 'dokument' && x.dokument.utsagn.some((y) => y.id === id)
+  );
+  return h?.art === 'dokument' ? brevet(u, h.dokument.id) : null;
+}
+
 /** En dato en part har oppgitt i et brev, med brevet den står i. */
 export interface OppgittDato {
   dato: string;

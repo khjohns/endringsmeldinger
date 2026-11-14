@@ -101,6 +101,9 @@ const KORT_AAR = new Intl.DateTimeFormat('nb-NO', {
 export const kortDatoMedAar = (d: string) => KORT_AAR.format(new Date(d));
 export const klokke = (d: string) => KLOKKE.format(new Date(d)).replace(':', '.');
 
+/** Dagens dato i Oslo, ÅÅÅÅ-MM-DD, for `max` i et datofelt og dagene til i dag. */
+export const dagensDato = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+
 /** Kalenderdagene fra `fra` til `til`, regnet på datoene i Oslo. Ingen vurdering av fristen. */
 export function kalenderdager(fra: string, til: string): number {
   const dag = (d: string) => {
@@ -1338,7 +1341,11 @@ export const KRAVSKJEMA = {
 
 /** TEs krav om fristforlengelse (G-3 i BF-20, prototypen `fristkrav-te.html#nytt-krav`). */
 export const FRISTKRAV = {
-  tittel: 'Krav om fristforlengelse',
+  titler: {
+    krav: 'Krav om fristforlengelse',
+    varsel: 'Varsel om fristforlengelse etter punkt 33.4',
+    svar: 'Svar på byggherrens forespørsel etter punkt 33.6.2',
+  },
   nyVersjon: (krav: Brevref) => `Ny versjon av kravet i ${brevref(krav)}`,
   // 1. Varselet.
   varselTittel: 'Varselet om fristforlengelse',
@@ -1354,7 +1361,6 @@ export const FRISTKRAV = {
   ],
   hvaHjelp:
     'Du skal varsle uten ugrunnet opphold, også før du kan angi dagene (punkt 33.4). Sender du kravet, er det også varselet.',
-  varselAleneTittel: 'Varsel om fristforlengelse etter punkt 33.4',
   varselAleneHjelp:
     'Varsles det for sent, tapes kravet på fristforlengelse. Når du har grunnlag for å beregne omfanget, skal du uten ugrunnet opphold angi og begrunne antall dager (punkt 33.6.1).',
   hvordanVarsler: 'Hvordan varsler du?',
@@ -1364,7 +1370,6 @@ export const FRISTKRAV = {
   },
   registrer: 'Registrer varselet',
   registrert: 'Varselet er registrert.',
-  detteVarsler: 'Varselet etter punkt 33.4, uten dager',
   // U-6: varselet gitt før, utenfor løsningen (OV-U5, VS-U16).
   gittFoer: 'Varselet er gitt før, utenfor løsningen',
   gittFoerHjelp: 'Brevet sier når, og brevet du varslet i, legges ved.',
@@ -1381,7 +1386,6 @@ export const FRISTKRAV = {
   dagerTilVarselet: (d: string, varslet: string, n: number) =>
     `Du oppgir at du ble klar over forholdet ${dato(d)}. Varselet ble gitt ${dato(varslet)}, ${n} kalenderdager etter.`,
   // U-11: svaret på forespørselen etter punkt 33.6.2 (VS-U17, VS-U19).
-  foresporselTittel: 'Svar på byggherrens forespørsel etter punkt 33.6.2',
   foresporsel: (b: Brevref, mottatt: string, dagerSiden: number) =>
     `Byggherren ber deg angi og begrunne antall dager (${brevref(b)}, ${dato(mottatt)}, mottatt ${dagerSiden === 0 ? 'i dag' : `for ${dagerSiden} ${dagerSiden === 1 ? 'dag' : 'dager'} siden`}). Svarer du ikke uten ugrunnet opphold, tapes kravet på fristforlengelse (punkt 33.6.2 tredje ledd).`,
   hvordanSvarer: 'Hvordan svarer du?',
@@ -1392,7 +1396,11 @@ export const FRISTKRAV = {
   grunnBTittel: 'Hvorfor du ennå ikke kan beregne dagene',
   grunnBHjelp:
     'Når du kan beregne dagene, skal du uten ugrunnet opphold angi og begrunne dem. Da gjelder punkt 33.6.1 for kravet (punkt 33.6.2 femte ledd).',
-  detteSvarer: 'Begrunnelse etter punkt 33.6.2 annet ledd bokstav b',
+  /** Linja i panelet og «Dette sender du» for varselet alene og svaret etter bokstav b. */
+  dette: {
+    varsel: 'Varselet etter punkt 33.4, uten dager',
+    svar: 'Begrunnelse etter punkt 33.6.2 annet ledd bokstav b',
+  },
   virkningB:
     'Svaret er en begrunnelse etter punkt 33.6.2 annet ledd bokstav b. For kravet du sender senere, gjelder punkt 33.6.1 (punkt 33.6.2 femte ledd).',
   virkningVarsel: (n: number | null) =>
