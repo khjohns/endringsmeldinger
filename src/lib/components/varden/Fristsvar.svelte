@@ -152,10 +152,16 @@
   );
   const etter = $derived(kjernesak.forhaandsvist(kommando));
   // Hvert spørsmål står i laget sitt uansett svaret (OV-U33), så kjernen spørres med de ubesvarte
-  // spørsmålene besvart uten innsigelse: da har hvert av dem et standpunkt, og ingen nye lag.
+  // spørsmålene besvart uten innsigelse: da har hvert av dem et standpunkt, og ingen nye lag. Dagene
+  // påvirker ikke lagene, men kjernen kontrollerer at dagene byggherren måtte forstå er tall.
   const lagene = $derived.by(() => {
     const s = kommando.svar[0];
     const v = s.vurderinger;
+    const frister = (v.frister as Record<string, unknown>[]).map((f) =>
+      v.spesifisert_krav_ok === false
+        ? { ...f, dager_maatte_forstaa: f.dager_maatte_forstaa ?? 0 }
+        : f
+    );
     return kjernesak.lagForUtkastet(
       {
         ...s,
@@ -165,6 +171,7 @@
           ...(foresporselen ? { foresporsel_svar_ok: v.foresporsel_svar_ok ?? true } : {}),
           vilkar_oppfylt: v.vilkar_oppfylt ?? true,
           spesifisert_krav_ok: v.spesifisert_krav_ok ?? true,
+          frister,
         },
       },
       'frist'
@@ -297,7 +304,7 @@
     ...(nyttSvar?.beslutningsgrunnlag.sammenfall ? [VIRKNING.sammenfall] : []),
     ...(kjernesak.forbehold ? [VIRKNING.forbehold] : []),
     ...(nyttSvar?.standpunkter.some(
-      (s) => (s.art === 'rettidighet' || s.art === 'spesifisering') && !s.iTide
+      (s) => s.art === 'rettidighet' && s.hjemmel === '33.4' && !s.iTide
     )
       ? [BREVKONTROLL.akseptOmfatter]
       : []),

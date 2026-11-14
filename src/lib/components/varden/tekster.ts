@@ -250,6 +250,8 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post
     case 'dager': {
       const hva = `Fristforlengelse${forPosten}`;
       if (s.resultat === 'avslaatt') return `${hva}: ${hvemLiten} avslår dagene`;
+      if (s.vurdert === krevd)
+        return `${hva}: ${hvemLiten} godkjenner ${dager(s.vurdert)}, som krevd`;
       return `${hva}: ${hvemLiten} godkjenner ${dager(s.vurdert)}${krevd !== undefined ? ` av ${dager(krevd)}` : ''}`;
     }
     default:
