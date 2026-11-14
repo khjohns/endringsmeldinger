@@ -778,7 +778,8 @@
      ["sak_id", "nvarchar(36)", "NOT NULL"],
      ["prosjekt_id", "nvarchar(100)", "NOT NULL"],
      ["catenda_board_id", "nvarchar(100)", "NOT NULL"],
-     ["catenda_topic_id", "nvarchar(100)", "NOT NULL"]
+     ["catenda_topic_id", "nvarchar(100)", "NOT NULL"],
+     ["catenda_topic_nummer", "int", "NULL"]
     ],
     "primærnøkkel": ["sak_id"],
     "unike": [
