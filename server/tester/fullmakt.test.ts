@@ -18,7 +18,7 @@ import {
 import type { Journalrad, Spor } from '../../kjerne/typer.ts';
 import type { Utledning } from '../../kjerne/utledning/utled.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
-import { brevverdi, fristgrunnlaget, fullmaktsverdi, type Fristgrunnlag } from '../fullmakt.ts';
+import { fristgrunnlaget, fullmaktsverdi, type Fristgrunnlag } from '../fullmakt.ts';
 import type { Fristtabell } from '../kontraktsfrister.ts';
 import { innholdIFristen } from '../../kjerne/spor/frist/format.ts';
 
@@ -57,6 +57,12 @@ const DATOEN = '2026-09-30';
 const FORHOLD_GODKJENT = { spor: 'forhold', resultat: 'godkjent', varslet_i_tide: true };
 const SATS = 5000;
 const { regler } = KJERNE;
+
+/** Summen og gulvet i verdien for fullmakten, som kjeden avledes av (GFK-U8). */
+const brevverdi = (...a: Parameters<typeof fullmaktsverdi>) => {
+  const { beloep, gulv } = fullmaktsverdi(...a);
+  return { beloep, gulv };
+};
 
 function utledning(krav: object[]): Utledning {
   const sakId = randomUUID();
@@ -612,6 +618,34 @@ describe('linjene i verdien for fullmakten (U-10 i BF-45)', () => {
       lag: 'subsidiaert',
       frister: [
         { fristId: 1, dager: 15, hverdager: 13, sats: SATS, verdi: 13 * SATS, ikkeVerdsatt: null },
+      ],
+    });
+  });
+
+  it('GFK-U4: har bare det subsidiære laget dager som ikke kan verdsettes, er linjene fra det, så grunnen står', () => {
+    // Prinsipalt 0 dager (måtte forstå 0 etter § 33.6.1), subsidiært 15 for en frist som ikke er registrert.
+    const krav = {
+      ...KRAV_FRIST,
+      innhold: { frister: [{ nummer: '4', navn: 'Rekkverket', dager: 15 }] },
+    };
+    const v = linjene(
+      krav,
+      { ...FRISTSVAR, spesifisering_i_tide: false, maatte_forstaa: 0, dager: 15 },
+      new Map()
+    );
+    expect(v).toEqual({
+      beloep: null,
+      gulv: 0,
+      lag: 'subsidiaert',
+      frister: [
+        {
+          fristId: null,
+          dager: 15,
+          hverdager: null,
+          sats: null,
+          verdi: null,
+          ikkeVerdsatt: 'ikke_registrert',
+        },
       ],
     });
   });

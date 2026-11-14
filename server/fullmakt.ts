@@ -44,7 +44,10 @@ const oere = (kr: number) => tilTall(beloep(kr)!);
 export interface Fristgrunnlag {
   dato: string | null;
   dagmulktbelagt: boolean;
-  /** Kroner per dag, eller `null` når fristen ikke er dagmulktbelagt eller satsen mangler. */
+  /**
+   * Kroner per dag i fristtabellen, eller `null` når satsen ikke kan regnes (GFK-U3). Dager for en
+   * frist som ikke er dagmulktbelagt, verdsettes ikke, uansett sats (GFK-U20).
+   */
   sats: number | null;
   /**
    * Dagene for fristen i de andre sakene som forlenger den for fullmakten: avtalt og godkjent
@@ -90,6 +93,8 @@ export interface Fristverdi {
 /**
  * Verdien av brevet med linjene den er regnet av: dagene for hver frist i laget som gir verdien,
  * i rekkefølgen i brevet. `lag` er standpunktet som gir den største verdien (presiseringen 24.09).
+ * Har bare ett av standpunktene dager som ikke kan verdsettes, er `lag` det, fordi verdien der kan
+ * være den største (GFK-U4).
  */
 export interface Fullmaktsverdi extends Brevverdi {
   lag: 'prinsipalt' | 'subsidiaert';
@@ -105,7 +110,13 @@ function fristverdi(
   const g = fristId === undefined ? undefined : frister.get(fristId);
   const linje = { fristId: fristId ?? null, dager };
   if (dager === 0)
-    return { ...linje, hverdager: 0, sats: g?.sats ?? null, verdi: 0, ikkeVerdsatt: null };
+    return {
+      ...linje,
+      hverdager: 0,
+      sats: g?.dagmulktbelagt ? g.sats : null,
+      verdi: 0,
+      ikkeVerdsatt: null,
+    };
   const ikke = (ikkeVerdsatt: IkkeVerdsatt): Fristverdi => ({
     ...linje,
     hverdager: null,
@@ -118,7 +129,7 @@ function fristverdi(
   if (g.sats === null) return ikke('sats_mangler');
   if (g.dato === null) return ikke('dato_ukjent');
   const hverdager = hverdagerIForlengelsen(g.dato, dager);
-  return { ...linje, hverdager, sats: g.sats, verdi: g.sats * hverdager, ikkeVerdsatt: null };
+  return { ...linje, hverdager, sats: g.sats, verdi: oere(g.sats * hverdager), ikkeVerdsatt: null };
 }
 
 /**
@@ -212,25 +223,19 @@ export function fullmaktsverdi(
     }
   }
 
-  const lag = subsidiaert > hoved ? 'subsidiaert' : 'prinsipalt';
-  const verdi = oere(Math.max(hoved, subsidiaert));
+  const [h, sub] = [oere(hoved), oere(subsidiaert)];
+  const [hUkjent, subUkjent] = [hovedlinjer, subsidiaerlinjer].map((l) =>
+    l.some((v) => v.verdi === null)
+  );
+  const subsidiaerGjelder = hUkjent === subUkjent ? sub > h : subUkjent;
+  const lag: Fullmaktsverdi['lag'] = subsidiaerGjelder ? 'subsidiaert' : 'prinsipalt';
+  const verdi = Math.max(h, sub);
   return {
     beloep: ukjent ? null : verdi,
     gulv: verdi,
     lag,
     frister: lag === 'prinsipalt' ? hovedlinjer : subsidiaerlinjer,
   };
-}
-
-/** Summen og gulvet i `fullmaktsverdi`, som kjeden avledes av (GFK-U8). */
-export function brevverdi(
-  svar: readonly Svarutkast[],
-  u: Utledning,
-  frister: ReadonlyMap<number, Fristgrunnlag>,
-  regler: Regelsett
-): Brevverdi {
-  const { beloep, gulv } = fullmaktsverdi(svar, u, frister, regler);
-  return { beloep, gulv };
 }
 
 /**
@@ -255,7 +260,7 @@ export function fristgrunnlaget(
         {
           dato: datoenEtterForlengelsene(f.dato, f.fristId, tattMed, ikkeForstaatt),
           dagmulktbelagt: f.dagmulktbelagt,
-          sats: f.dagmulktbelagt ? f.sats : null,
+          sats: f.sats,
           tattMed: forFristen(f.fristId, tattMed),
           ikkeTattMed: forFristen(f.fristId, ikkeTattMed),
         },
@@ -266,7 +271,7 @@ export function fristgrunnlaget(
 }
 
 /**
- * Fristgrunnlaget for brevverdien i saken `sakId`: fristtabellen og forlengelsene i de andre
+ * Fristgrunnlaget for verdien for fullmakten i saken `sakId`: fristtabellen og forlengelsene i de andre
  * sakene i prosjektet (GFK-U26). Det skal leses i saksbehandlerens transaksjon når pakken lages,
  * fordi lesefilteret gir godkjenneren en tom fristtabell og ingen andre saker (GFK-U9, #1780).
  * Ingen inngang lager pakken ennå (G-6 i BF-45).
