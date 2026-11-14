@@ -219,7 +219,7 @@ describe('vakttestene for brukerforløpene', () => {
     );
   });
 
-  // Kilde: #1308, del 2. Korrigeringen etter MM-U52 punkt 10, 13 og 24 er bygget i kjernen (#1611).
+  // Kilde: #1308, del 2. Korrigeringen etter MM-U55 punkt 10, 13 og 24 er bygget i kjernen (#1611).
   it('korrigeringen (BF-02A, BF-02D) og datosperren (BF-02C) er kjørbare (#1308)', () => {
     const status = Object.fromEntries(BRUKERFORLOEP.map((b) => [b.id, b.status]));
     expect(status['BF-02A']).toBe('kjørbar');

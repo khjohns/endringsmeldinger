@@ -87,7 +87,7 @@ describe('sporet og hjemmelen i de tilbudte handlingene (#1703)', () => {
     expect(new Set(varslene.map(({ h }) => h.hjemmel))).toEqual(new Set(Object.keys(VARSLENE)));
   });
 
-  it('svaret på en forespørsel hører til fristen (§ 33.6.2), korrigeringen til forholdet (MM-U52)', () => {
+  it('svaret på en forespørsel hører til fristen (§ 33.6.2), korrigeringen til forholdet (MM-U55)', () => {
     for (const { h } of alle) {
       if (h.type === 'svare_paa_foresporsel') expect(h.spor).toBe('frist');
       if (h.type === 'korrigere') expect(h.spor).toBe('forhold');

@@ -74,7 +74,7 @@ export function kontrollerEndringsordrene(
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): en korrigering viser bakover
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): en korrigering viser bakover
  * til grunnlagskravet eller en tidligere korrigering, som har opplysningen den endrer.
  */
 export function kontrollerKorrigeringene(
@@ -95,7 +95,7 @@ export function kontrollerKorrigeringene(
 /**
  * TEs opplysninger om datoen etter VS-U26 (`Datoopplysning`), i rekkefølgen i journalen: hver
  * versjon av grunnlagskravet som oppgir en annen dato enn TEs siste opplysning om samme dato, og
- * hver korrigering (punkt 10 i samlevedtaket for retting av sendt brev, MM-U41 (opphevet av MM-U52)).
+ * hver korrigering (punkt 10 i samlevedtaket for retting av sendt brev, MM-U55).
  */
 export function opplysningerOmDatoen(
   journal: readonly Domenehendelse[],
@@ -131,7 +131,7 @@ export function opplysningerOmDatoen(
 
 /**
  * TEs siste opplysning om datoen i feltet (punkt 10 i samlevedtaket for retting av sendt brev,
- * MM-U41 (opphevet av MM-U52)), eller `null` når TE ikke har oppgitt den.
+ * MM-U55), eller `null` når TE ikke har oppgitt den.
  */
 export function sisteDatoopplysning(u: Utledning, felt: OppgittDatofelt): Datoopplysning | null {
   return u.datoopplysninger.filter((o) => o.felt === felt).at(-1) ?? null;

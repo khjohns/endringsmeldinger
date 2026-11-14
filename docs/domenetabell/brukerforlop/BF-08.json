@@ -270,6 +270,7 @@
     "LV-U41",
     "LV-U42",
     "LV-U53",
+    "LV-U73",
     "MM-U9",
     "MM-U34",
     "OV-U6",
@@ -311,6 +312,11 @@
       "dato": "2026-11-13",
       "forhold": "#1834",
       "hva": "Prototypen versjon 6 etter oppdragsgivers prøve 13.11: språket etter språkfila, uten stiplet linje ved begrunnelsen, og opplastingen i bekreftelsen etter S-4 A (D-16)."
+    },
+    {
+      "dato": "2026-11-14",
+      "forhold": "#1932",
+      "hva": "D-12 viser til LV-U73 og brevteksten i kjernen i stedet for å sitere setningen med «erstatter»."
     }
   ]
 }
