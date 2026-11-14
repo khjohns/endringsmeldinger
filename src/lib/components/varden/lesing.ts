@@ -10,7 +10,7 @@ import { innholdIForholdet, oppgittDato } from '$kjerne/spor/forhold/format';
 import { FORHOLDSGRUPPER, forholdet } from '$kjerne/spor/forhold/tekst';
 import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
 import { plassene } from '$kjerne/frosset/byggeklosser';
-import { innholdIFristen } from '$kjerne/spor/frist/format';
+import { betegnelsen, innholdIFristen } from '$kjerne/spor/frist/format';
 import { fasteBeloepIKravet, kravposterI, utenFastBeloep } from '$kjerne/spor/vederlag/format';
 import { tilTall } from '$kjerne/regler/beloep';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
@@ -429,7 +429,21 @@ export interface TilknyttetKrav {
     utenFast: number;
     brev: Brevref;
   } | null;
+  /**
+   * Fristene i kravet når det har flere enn én, hver med betegnelsen i kontrakten, dagene TE
+   * krevde og dagene i byggherrens svar i hvert lag (KA-U74). Dagene legges ikke sammen, så da er
+   * `krevd.tall` `null` og `svaret.poster` tom. Tom for vederlaget og for én frist.
+   */
+  frister: Fristen[];
   grunner: Subsidiaergrunn[];
+}
+
+/** Én frist i «Tilknyttede krav». `svaret` er tom når svaret ikke har dagene for fristen. */
+export interface Fristen {
+  id: string;
+  betegnelse: string;
+  krevd: number;
+  svaret: { tall: number; lag: string | null }[];
 }
 
 /**
@@ -460,10 +474,21 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
   // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Summen er de faste
   // beløpene, og visningen sier hvor mange poster som ikke har et fast beløp (#1752).
   const fastKrevd = krav && spor === 'vederlag' ? fasteBeloepIKravet(krav) : null;
-  // KA-U74: dagene står per frist og legges ikke sammen. Visningen av flere frister kommer med
-  // handlingen for fristkravet (G-3 i BF-20); til da viser raden dagene bare for én frist.
-  const fristene = krav && spor === 'frist' ? innholdIFristen(krav).frister : [];
-  const enFrist = fristene.length === 1;
+  const linjene = svar && svarbrev ? standpunktene(svar, u) : [];
+  // KA-U74: dagene står per frist og legges ikke sammen. Med én frist står dagene for den som
+  // tallet for kravet og svaret, og med flere står de per frist i `frister`.
+  const alle = (krav && spor === 'frist' ? innholdIFristen(krav).frister : []).map((f) => ({
+    id: f.id,
+    betegnelse: betegnelsen(f),
+    krevd: f.dager,
+  }));
+  const enFrist = alle.length === 1;
+  const dageneFor = (id: string) =>
+    linjene.flatMap((l) =>
+      'standpunkt' in l && l.standpunkt.art === 'dager' && l.standpunkt.gjelder === id
+        ? [{ tall: l.standpunkt.vurdert, lag: l.lag }]
+        : []
+    );
   return {
     spor,
     krevd:
@@ -474,7 +499,7 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
                 ? null
                 : tilTall(fastKrevd.sum)
               : enFrist
-                ? fristene[0]!.dager
+                ? alle[0]!.krevd
                 : null,
             utenFast: fastKrevd?.utenFastBeloep ?? 0,
             brev: ref(kravbrev),
@@ -483,19 +508,20 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
     svaret:
       svar && svarbrev
         ? {
-            poster: summertPerLag(
-              standpunktene(svar, u).flatMap((l) =>
-                'standpunkt' in l && l.standpunkt.art === 'beloep'
-                  ? [{ tall: l.standpunkt.godkjent!, lag: l.lag }]
-                  : enFrist && 'standpunkt' in l && l.standpunkt.art === 'dager'
-                    ? [{ tall: l.standpunkt.vurdert, lag: l.lag }]
-                    : []
-              )
-            ),
+            poster: enFrist
+              ? summertPerLag(dageneFor(alle[0]!.id))
+              : summertPerLag(
+                  linjene.flatMap((l) =>
+                    'standpunkt' in l && l.standpunkt.art === 'beloep'
+                      ? [{ tall: l.standpunkt.godkjent!, lag: l.lag }]
+                      : []
+                  )
+                ),
             utenFast: spor === 'vederlag' ? utenFastBeloep(svar.standpunkter).size : 0,
             brev: ref(svarbrev),
           }
         : null,
+    frister: alle.length > 1 ? alle.map((f) => ({ ...f, svaret: dageneFor(f.id) })) : [],
     grunner: s.subsidiaer,
   };
 }

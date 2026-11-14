@@ -69,6 +69,7 @@ på kilden, men har ingen kontroller ennå.
 | [EO-U37](../../plans/vedtak.md#eo-u37) | — | — | BF-06 |
 | [EO-U38](../../plans/vedtak.md#eo-u38) | — | — | BF-03, BF-06, BF-10, BF-14 |
 | [EO-U39](../../plans/vedtak.md#eo-u39) | — | — | BF-03, BF-06, BF-08, BF-10, BF-14 |
+| [EO-U41](../../plans/vedtak.md#eo-u41) | — | — | BF-20 |
 | [FO-U1](../../plans/vedtak.md#fo-u1) | — | — | BF-06, BF-45 |
 | [FO-U5](../../plans/vedtak.md#fo-u5) | — | — | BF-45 |
 | [FO-U8](../../plans/vedtak.md#fo-u8) | — | — | BF-06 |
@@ -82,6 +83,8 @@ på kilden, men har ingen kontroller ennå.
 | [GFK-U21](../../plans/vedtak.md#gfk-u21) | — | — | BF-45 |
 | [GFK-U24](../../plans/vedtak.md#gfk-u24) | — | — | BF-20, BF-45 |
 | [GFK-U26](../../plans/vedtak.md#gfk-u26) | — | — | BF-45 |
+| [GFK-U27](../../plans/vedtak.md#gfk-u27) | — | — | BF-20 |
+| [GFK-U28](../../plans/vedtak.md#gfk-u28) | — | — | BF-20 |
 | [GR-U1](../../plans/vedtak.md#gr-u1) | — | — | BF-08 |
 | [GR-U7](../../plans/vedtak.md#gr-u7) | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 forholdet-er-avslaatt, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-04 forholdet-er-avslaatt | BF-01V, BF-08, BF-14, BF-44, BF-45 |
 | [GR-U8](../../plans/vedtak.md#gr-u8) | — | — | BF-44 |
@@ -102,6 +105,8 @@ på kilden, men har ingen kontroller ennå.
 | [GR-U34](../../plans/vedtak.md#gr-u34) | — | — | BF-08, BF-44, BF-45 |
 | [GR-U35](../../plans/vedtak.md#gr-u35) | — | — | BF-08 |
 | [GR-U36](../../plans/vedtak.md#gr-u36) | — | — | BF-08 |
+| [GR-U38](../../plans/vedtak.md#gr-u38) | — | — | BF-20 |
+| [GR-U39](../../plans/vedtak.md#gr-u39) | — | — | BF-20 |
 | [HF-U1](../../plans/vedtak.md#hf-u1) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — | BF-01V, BF-03, BF-07, BF-08 |
 | [HF-U2](../../plans/vedtak.md#hf-u2) | — | — | BF-01V |
 | [HF-U5](../../plans/vedtak.md#hf-u5) | — | — | BF-20, BF-45 |
