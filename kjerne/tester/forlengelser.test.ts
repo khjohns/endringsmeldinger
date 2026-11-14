@@ -3,8 +3,8 @@
  * fristen fra (GFK-U19, GFK-U26). Avtalt er dagene i en enighet, også en betinget enighet og en
  * enighet ved sammenfall (GR-U7, GR-U38, GR-U39, KA-U77). Godkjent er dagene i første lag i
  * byggherrens gjeldende svar uten enighet. Dagene byggherren bare har godkjent subsidiært, nevnes
- * som ikke tatt med (svarene på spørsmål 1, 2 og C i
- * `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal-2.md`). Fristtabellen i kjøringen er `FRISTTABELLEN`.
+ * som ikke tatt med (GFK-U27, GFK-U28, U-15 i BF-20). Fristtabellen i kjøringen er
+ * `FRISTTABELLEN`.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -101,7 +101,7 @@ describe('forlengelsene i saken (GFK-U26)', () => {
     ]);
   });
 
-  it('første lag er null dager når varselet etter § 33.4 kom for sent, så fristen er ikke forlenget, og de subsidiært godkjente dagene nevnes som ikke tatt med (spørsmål 1 i sporsmal-2.md)', async () => {
+  it('første lag er null dager når varselet etter § 33.4 kom for sent, så fristen er ikke forlenget, og de subsidiært godkjente dagene nevnes som ikke tatt med (GFK-U27, U-15 i BF-20)', async () => {
     expect(
       await lesingen([
         PAABEROPELSE,
@@ -149,7 +149,7 @@ describe('forlengelsene i saken (GFK-U26)', () => {
     ).toEqual([]);
   });
 
-  it('subsidiært: et svar uten enighet som er subsidiært til avslaget av forholdet, merkes og forlenger ikke fristen (avklaringen C i sporsmal-2.md)', async () => {
+  it('subsidiært: et svar uten enighet som er subsidiært til avslaget av forholdet, merkes og forlenger ikke fristen (GFK-U27)', async () => {
     expect(
       await lesingen([
         PAABEROPELSE,
@@ -165,7 +165,7 @@ describe('forlengelsene i saken (GFK-U26)', () => {
     });
   });
 
-  it('subsidiært: avslår byggherren forholdet etter fristsvaret, tas dagene ut, og fristsvaret er uendret (spørsmål 2 i sporsmal-2.md, GR-U26)', async () => {
+  it('subsidiært: avslår byggherren forholdet etter fristsvaret, tas dagene ut, og fristsvaret er uendret (GFK-U28, GR-U26)', async () => {
     expect(
       await lesingen([
         PAABEROPELSE,

@@ -581,8 +581,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Fristlag', 'frosset svar', 'dager', [FORLENGELSENE]],
   ['Enighetsgrunnlag', 'frosset svar', 'utfall', [FORLENGELSENE]],
   ['Utfall', 'frosset svar', 'frister frister.gjelder frister.dager', [FORLENGELSENE]],
-  // MM-U9: et fristsvar som er subsidiært til avslaget av forholdet, tas ikke med (avklaringen C i
-  // `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal-2.md`).
+  // MM-U9: et fristsvar som er subsidiært til avslaget av forholdet, tas ikke med (GFK-U27, GFK-U28).
   ['Sporutledning', 'relasjon', 'subsidiaer', [FORLENGELSENE]],
   // GFK-U19: fristen etter dagene i de andre sakene som forlenger den.
   [

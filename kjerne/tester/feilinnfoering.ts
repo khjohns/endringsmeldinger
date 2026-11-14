@@ -5114,8 +5114,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F591',
-    feilklasse:
-      'et subsidiært svar uten enighet forlenger fristen (GFK-U26, avklaringen C i sporsmal-2.md)',
+    feilklasse: 'et subsidiært svar uten enighet forlenger fristen (GFK-U26, GFK-U27)',
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       ['  const tilForholdet = s.subsidiaer.length > 0;', '  const tilForholdet = false;'],
@@ -5153,7 +5152,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F597',
     feilklasse:
-      'dager byggherren bare har godkjent subsidiært i fristen, nevnes ikke som ikke tatt med (GFK-U26, spørsmål 1 i sporsmal-2.md)',
+      'dager byggherren bare har godkjent subsidiært i fristen, nevnes ikke som ikke tatt med (GFK-U27, U-15 i BF-20)',
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [['    else if (siste > 0)', '    else if (false)']],
     mal: ['første lag er null dager når varselet etter § 33.4 kom for sent'],
