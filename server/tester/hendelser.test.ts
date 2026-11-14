@@ -514,7 +514,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     expect(andre).toEqual(foerste);
     expect(await behandleEnHendelse(avh)).toBe(true);
     expect(await sakerForTopic(topic)).toEqual([
-      { sak_id: foerste.sakId, catenda_board_id: board },
+      { sak_id: foerste.sakId, catenda_board_id: board, catenda_topic_nummer: 726 },
     ]);
   });
 
@@ -537,7 +537,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
       expect.objectContaining({ utfall: 'sak_opprettet', sak_id: foerste.sakId }),
     ]);
     expect(await sakerForTopic(topic)).toEqual([
-      { sak_id: foerste.sakId, catenda_board_id: board },
+      { sak_id: foerste.sakId, catenda_board_id: board, catenda_topic_nummer: 726 },
     ]);
     // Kontrollsak: uten kvittering gir samme forfatter nå ingen side.
     const kontroll = await motta(kropp(randomUUID()));
@@ -647,7 +647,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     const [utfall] = await utfallFor(id);
     expect(utfall).toEqual(expect.objectContaining({ utfall: 'sak_opprettet' }));
     expect(await sakerForTopic(topic)).toEqual([
-      { sak_id: utfall.sak_id, catenda_board_id: board },
+      { sak_id: utfall.sak_id, catenda_board_id: board, catenda_topic_nummer: 726 },
     ]);
     expect(teller.hentinger).toBe(1);
 
@@ -877,7 +877,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     );
     expect(rettet).toMatchObject({ utfall: 'sak_opprettet', catenda_topic_id: topic });
     expect(await sakerForTopic(topic)).toEqual([
-      { sak_id: rettet.sak_id, catenda_board_id: board },
+      { sak_id: rettet.sak_id, catenda_board_id: board, catenda_topic_nummer: 726 },
     ]);
     const [hendelse] = await transaksjon(
       avh.datalag,
