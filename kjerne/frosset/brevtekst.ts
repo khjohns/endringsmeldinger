@@ -74,7 +74,7 @@ import type {
 import { innholdIForholdet } from '../spor/forhold/format.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 
-const PART: Record<Part, string> = { TE: 'TE', BH: 'Byggherren' };
+const PART: Record<Part, string> = { TE: 'Totalentreprenøren', BH: 'Byggherren' };
 
 /**
  * Brevteksten for dokumentet `nytt`, som parten sender i appen nå. `foer` er
@@ -237,9 +237,9 @@ function aapneInnsigelser(
 
 /** Bestemmelsen varselet er gitt etter; etter OV-U25 gjelder varselet i § 34.1.3 tredje ledd bare annet ledd (LV-U29). */
 const VARSLET_ETTER: Record<Kravvarselhjemmel, string> = {
-  '33.4': 'NS 8407 § 33.4',
-  '34.1.2': 'NS 8407 § 34.1.2',
-  '34.1.3': 'NS 8407 § 34.1.3 tredje ledd',
+  '33.4': 'NS 8407 punkt 33.4',
+  '34.1.2': 'NS 8407 punkt 34.1.2',
+  '34.1.3': 'NS 8407 punkt 34.1.3 tredje ledd',
   '34.3.3': 'NS 8407 punkt 34.3.3 første ledd',
   '34.4': 'NS 8407 punkt 34.4',
 };
@@ -456,11 +456,11 @@ function utenGjentattNs(tekst: string, ns: { nevnt: boolean }): string {
   });
 }
 
-/** Innledningen i svaret (LV-U34, LV-U41), med setningen om svaret det erstatter. */
+/** Innledningen i svaret (LV-U34, LV-U41), med setningene om byggherrens forrige svar (LV-U73). */
 function innledningen(s: Svar, krav: Krav, { j }: Tekst): string {
   const innledning = brevtekstI(s.spor).innledning(krav, { j });
   return s.erstatter
-    ? `${innledning} Svaret erstatter byggherrens svar i ${j.brevet(j.svar(s.erstatter).dokument)}.`
+    ? `${innledning} Dette er byggherrens nye svar. Byggherrens forrige svar står i ${j.brevet(j.svar(s.erstatter).dokument)}.`
     : innledning;
 }
 
@@ -626,21 +626,21 @@ function beskriv(id: string, j: Journalen): string {
   switch (e.art) {
     case 'krav': {
       const om = brevtekstI(e.krav.spor).kravetOm;
-      return `TEs krav${om ? ` om ${om}` : ''} i ${j.brevet(e.krav.dokument)}`;
+      return `totalentreprenørens krav${om ? ` om ${om}` : ''} i ${j.brevet(e.krav.dokument)}`;
     }
     case 'svar':
       return `byggherrens svar i ${j.brevet(e.svar.dokument)}`;
     case 'standpunkt':
       // LV-U20: påberopelsen etter § 33.6.2 gjelder TEs svar på forespørselen, ikke et varsel.
       return erPaaberopelseEtter3362(id, e.svar)
-        ? `påberopelsen av at TEs svar på forespørselen etter NS 8407 § 33.6.2 kom for sent i svaret i ${j.brevet(e.svar.dokument)}`
+        ? `påberopelsen av at totalentreprenørens svar på forespørselen etter NS 8407 punkt 33.6.2 kom for sent i svaret i ${j.brevet(e.svar.dokument)}`
         : `påberopelsen av for sen varsling i svaret i ${j.brevet(e.svar.dokument)}`;
     case 'utsagn':
       if (e.utsagn.art === 'varsel')
-        return `TEs varsel ${VARSEL_OM[uttrykkbar(e.utsagn.hjemmel)]} i ${j.brevet(e.dokument)}`;
+        return `totalentreprenørens varsel ${VARSEL_OM[uttrykkbar(e.utsagn.hjemmel)]} i ${j.brevet(e.dokument)}`;
       if (e.utsagn.art === 'innsigelse') return `innsigelsen i ${j.brevet(e.dokument)}`;
       if (e.utsagn.art === 'foresporselssvar')
-        return `TEs svar i ${j.brevet(e.dokument)} på forespørselen etter NS 8407 § 33.6.2`;
+        return `totalentreprenørens svar i ${j.brevet(e.dokument)} på forespørselen etter NS 8407 punkt 33.6.2`;
       break;
     case 'dokument':
       return `innsigelsene i ${j.brevet(e.dokument.id)}`;
@@ -684,26 +684,26 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       // VS-U15: et brev med bare varselet, uten en dato for det, er selve varselet.
       // LV-U19: varselet etter § 34.1.2 har samme form.
       if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)
-        return `TE varsler etter ${VARSLET_ETTER[hjemmel]} at TE vil kreve ${VIL_KREVE[hjemmel]} som følge av forholdet i ${sak}.`;
+        return `Totalentreprenøren varsler etter ${VARSLET_ETTER[hjemmel]} at totalentreprenøren vil kreve ${VIL_KREVE[hjemmel]} som følge av forholdet i ${sak}.`;
       if (dato?.hva !== 'sendt')
         throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');
-      return `TE opplyser at varsel ${VARSEL_OM[hjemmel]} ble sendt ${norskDato(dato.dato)}.`;
+      return `Totalentreprenøren opplyser at varsel ${VARSEL_OM[hjemmel]} ble sendt ${norskDato(dato.dato)}.`;
     }
     case 'aksept': {
       const svar = j.svar(u.gjelder);
-      const aksept = `TE godtar byggherrens svar på ${brevtekstI(svar.spor).svaretGjelder} i ${j.brevet(svar.dokument)}.`;
+      const aksept = `Totalentreprenøren godtar byggherrens svar på ${brevtekstI(svar.spor).svaretGjelder} i ${j.brevet(svar.dokument)}.`;
       // GR-U7: enigheten gjelder beløpet eller dagene, ikke standpunktet til forholdet.
       if (svar.spor === 'forhold' || !saken.subsidiaer[svar.spor].length) return aksept;
-      return `${aksept} TE er enig i ${brevtekstI(svar.spor).enigI}, men ikke i byggherrens standpunkt til grunnlaget.`;
+      return `${aksept} Totalentreprenøren er enig i ${brevtekstI(svar.spor).enigI}, men ikke i byggherrens standpunkt til grunnlaget.`;
     }
     case 'trekk': {
       const krav = j.krav(u.gjelder);
       // KA-U22, ordrett med saken satt inn.
       if (krav.spor === 'forhold')
-        return `TE trekker sitt krav i ${sak}. Trekket er avkall på alle krav i saken, også vederlag og fristforlengelse byggherren har godkjent. Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.`;
+        return `Totalentreprenøren trekker sitt krav i ${sak}. Trekket er avkall på alle krav i saken, også vederlag og fristforlengelse byggherren har godkjent. Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.`;
       const sporet = brevtekstI(krav.spor);
       const verdi = sporet.trukket(krav);
-      return `TE trekker kravet om ${sporet.kravetOm} i ${sak}, fremsatt i ${j.brevet(krav.dokument)} (${verdi}). Trekket er avkall på dette kravet, også det byggherren har godkjent.`;
+      return `Totalentreprenøren trekker kravet om ${sporet.kravetOm} i ${sak}, fremsatt i ${j.brevet(krav.dokument)} (${verdi}). Trekket er avkall på dette kravet, også det byggherren har godkjent.`;
     }
     case 'ingen_krav':
       // KA-U22 og KA-U25, ordrett med saken satt inn.
@@ -712,19 +712,19 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       // VS-U29: standpunktet om at begrunnelsen ikke er et svar etter § 33.6.2 annet ledd, uten
       // henvisningen til § 5 (arbeidsvalget 21.10 i #1095).
       if (u.grunn === 'ikke_svar')
-        return `${part} gjør gjeldende at ${beskriv(u.gjelder, j)} ikke er et svar etter NS 8407 § 33.6.2 annet ledd.`;
-      return `${part} gjør gjeldende at ${beskriv(u.gjelder, j)} kom for sent (NS 8407 § 5 tredje ledd).`;
+        return `${part} gjør gjeldende at ${beskriv(u.gjelder, j)} ikke er et svar etter NS 8407 punkt 33.6.2 annet ledd.`;
+      return `${part} gjør gjeldende at ${beskriv(u.gjelder, j)} kom for sent (NS 8407 punkt 5 tredje ledd).`;
     case 'foresporsel':
       // LV-U18 setning 1, ordrett med saken satt inn.
-      return `Byggherren ber etter NS 8407 § 33.6.2 TE angi og begrunne det antall dager TE krever som fristforlengelse som følge av forholdet i ${sak}. Svarer ikke TE, tapes kravet på fristforlengelse. Har TE ikke grunnlag for å beregne kravet, skal TE i stedet begrunne hvorfor grunnlaget ikke foreligger.`;
+      return `Byggherren ber etter NS 8407 punkt 33.6.2 totalentreprenøren angi og begrunne det antall dager totalentreprenøren krever som fristforlengelse som følge av forholdet i ${sak}. Svarer ikke totalentreprenøren, tapes kravet på fristforlengelse. Har totalentreprenøren ikke grunnlag for å beregne kravet, skal totalentreprenøren i stedet begrunne hvorfor grunnlaget ikke foreligger.`;
     case 'foresporselssvar':
       // LV-U18 setning 2. TEs begrunnelse følger som utdypningen.
-      return `TE svarer på byggherrens forespørsel etter NS 8407 § 33.6.2 i ${j.brevet(j.dokumentetTil(u.gjelder))} at grunnlaget for å beregne kravet ikke foreligger (§ 33.6.2 annet ledd b).`;
+      return `Totalentreprenøren svarer på byggherrens forespørsel etter NS 8407 punkt 33.6.2 i ${j.brevet(j.dokumentetTil(u.gjelder))} at grunnlaget for å beregne kravet ikke foreligger (punkt 33.6.2 annet ledd b).`;
     case 'protest':
       return `${part} protesterer mot ${beskriv(u.gjelder, j)}.`;
     case 'passivitet': {
       const krav = j.krav(u.gjelder);
-      return `TE gjør gjeldende at byggherren ikke svarte uten ugrunnet opphold på TEs varsel etter NS 8407 § 32.2 i ${j.brevet(krav.dokument)}, og at pålegget derfor anses å innebære en endring (NS 8407 § 32.3 annet ledd).`;
+      return `Totalentreprenøren gjør gjeldende at byggherren ikke svarte uten ugrunnet opphold på totalentreprenørens varsel etter NS 8407 punkt 32.2 i ${j.brevet(krav.dokument)}, og at pålegget derfor anses å innebære en endring (punkt 32.3 annet ledd).`;
     }
     case 'bestridelse': {
       const e = j.element(u.gjelder);
@@ -764,9 +764,9 @@ function opplysningen(o: Opplysning, j: Journalen): string {
   switch (o.hva) {
     case 'sendt':
     case 'mottatt':
-      return `${o.gjelder ? `varselet etter NS 8407 § ${varselhjemmel(o.gjelder, j)} i brevet` : 'brevet'} ble ${o.hva} ${norskDato(o.dato)}`;
+      return `${o.gjelder ? `varselet etter NS 8407 punkt ${varselhjemmel(o.gjelder, j)} i brevet` : 'brevet'} ble ${o.hva} ${norskDato(o.dato)}`;
     case 'endringsordre':
-      return `${o.brev === o.dokument ? 'brevet' : j.brevet(o.brev)} ${o.oppfylt ? 'var' : 'ikke var'} en endringsordre etter NS 8407 § 31.3`;
+      return `${o.brev === o.dokument ? 'brevet' : j.brevet(o.brev)} ${o.oppfylt ? 'var' : 'ikke var'} en endringsordre etter NS 8407 punkt 31.3`;
     case 'kan_ikke_uttrykkes':
       return `${o.brev === o.dokument ? 'brevet' : j.brevet(o.brev)} har et forbehold eller annet innhold som ikke er uttrykt i appen`;
   }

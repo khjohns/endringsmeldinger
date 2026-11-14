@@ -1287,8 +1287,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n        return `TE varsler etter',
-        "      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n        throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');\n      if (false)\n        return `TE varsler etter",
+        '      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n        return `Totalentreprenøren varsler etter',
+        "      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n        throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');\n      if (false)\n        return `Totalentreprenøren varsler etter",
       ],
     ],
     mal: ['med teksten i VS-U15', 'F-VS-U15a'],
@@ -1299,8 +1299,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'at TE vil kreve ${VIL_KREVE[hjemmel]} som følge av forholdet i ${sak}.`',
-        'at TE vil kreve ${VIL_KREVE[hjemmel]}.`',
+        'at totalentreprenøren vil kreve ${VIL_KREVE[hjemmel]} som følge av forholdet i ${sak}.`',
+        'at totalentreprenøren vil kreve ${VIL_KREVE[hjemmel]}.`',
       ],
     ],
     mal: ['med teksten i VS-U15', 'med teksten i LV-U19'],

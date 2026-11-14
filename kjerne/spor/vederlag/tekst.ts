@@ -231,7 +231,7 @@ function kravetsBeloep(krav: Krav): string {
     return krevd === null ? [] : [`${eksMva(tilTall(krevd))} i ${p.betegnelse}`];
   });
   const post = krevdProduktivitet(krav);
-  if (post !== null) deler.push(`${eksMva(tilTall(post))} etter NS 8407 § 34.1.3 annet ledd`);
+  if (post !== null) deler.push(`${eksMva(tilTall(post))} etter NS 8407 punkt 34.1.3 annet ledd`);
   const rigg = krevdRigg(krav);
   if (rigg !== null) deler.push(`${eksMva(tilTall(rigg))} for rigg og drift`);
   return deler.length ? deler.join(' og ') : 'uten krevd beløp';

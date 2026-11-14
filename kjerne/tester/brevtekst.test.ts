@@ -429,7 +429,7 @@ describe('de faste tekstene står ordrett (KA-U22, KA-U25, LV-U4 punkt 13)', () 
     const s = sakMedKrav();
     const rad = s.send('TE', { type: 'trekk', spor: 'forhold' });
     expect(laast(rad)).toEqual([
-      `TE trekker sitt krav ${I_SAKEN}. Trekket er avkall på alle krav i saken, også vederlag og fristforlengelse byggherren har godkjent. Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.`,
+      `Totalentreprenøren trekker sitt krav ${I_SAKEN}. Trekket er avkall på alle krav i saken, også vederlag og fristforlengelse byggherren har godkjent. Trekket opphever ikke et pålegg, en endringsordre, en utførelsesplikt eller byggherrens rettigheter etter en avtale.`,
     ]);
   });
 
@@ -442,7 +442,7 @@ describe('de faste tekstene står ordrett (KA-U22, KA-U25, LV-U4 punkt 13)', () 
     expect(tekst(rad)).toEqual([
       {
         gjelder: (rad.data.utsagn as Data[])[0].id,
-        laast: `TE trekker kravet om justering av vederlaget ${I_SAKEN}, fremsatt i brev K201-KOE-017-04 av 5. oktober 2026 (${KR('150 000')} i P1). Trekket er avkall på dette kravet, også det byggherren har godkjent.`,
+        laast: `Totalentreprenøren trekker kravet om justering av vederlaget ${I_SAKEN}, fremsatt i brev K201-KOE-017-04 av 5. oktober 2026 (${KR('150 000')} i P1). Trekket er avkall på dette kravet, også det byggherren har godkjent.`,
       },
     ]);
   });
@@ -451,7 +451,7 @@ describe('de faste tekstene står ordrett (KA-U22, KA-U25, LV-U4 punkt 13)', () 
     const s = sakMedKrav();
     const rad = s.send('TE', { type: 'trekk', spor: 'frist' });
     expect(laast(rad)).toEqual([
-      `TE trekker kravet om fristforlengelse ${I_SAKEN}, fremsatt i brev K201-KOE-017-03 av 4. oktober 2026 (20 dager for frist Sluttfristen). Trekket er avkall på dette kravet, også det byggherren har godkjent.`,
+      `Totalentreprenøren trekker kravet om fristforlengelse ${I_SAKEN}, fremsatt i brev K201-KOE-017-03 av 4. oktober 2026 (20 dager for frist Sluttfristen). Trekket er avkall på dette kravet, også det byggherren har godkjent.`,
     ]);
   });
 
@@ -469,7 +469,7 @@ describe('de faste tekstene står ordrett (KA-U22, KA-U25, LV-U4 punkt 13)', () 
     s.send('TE', PAABEROPELSE);
     const rad = s.send('TE', { type: 'ingen_krav', spor: 'frist' });
     expect(laast(rad)).toEqual([
-      `TE krever ikke fristforlengelse som følge av forholdet ${I_SAKEN}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag.`,
+      `Totalentreprenøren krever ikke fristforlengelse som følge av forholdet ${I_SAKEN}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag.`,
     ]);
   });
 });
@@ -613,7 +613,7 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
       },
       expect.objectContaining({
         laast:
-          'TE opplyser at varsel om fristforlengelse etter NS 8407 § 33.4 ble sendt 28. september 2026.',
+          'Totalentreprenøren opplyser at varsel om fristforlengelse etter NS 8407 punkt 33.4 ble sendt 28. september 2026.',
       }),
       { gjelder: f.event_id, laast: `Brevet har vedlegg: «${VARSELBREVET}.pdf».` },
     ]);
@@ -668,7 +668,7 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
       innhold: { frister: [{ navn: 'Sluttfristen', dager: 30 }] },
     });
     expect(laast(rad)).toEqual([
-      'Kravet erstatter TEs krav i brev K201-KOE-017-03 av 4. oktober 2026.',
+      'Kravet erstatter totalentreprenørens krav i brev K201-KOE-017-03 av 4. oktober 2026.',
       varseletGitt('K201-KOE-017-03 av 4. oktober 2026'),
       fristforlengelse(2, 30),
       '3. Begrunnelse',
@@ -804,7 +804,7 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
       spor: 'forhold',
       innhold: { hovedkategori: 'endring', underkategori: 'endringsordre', endringsordre: 'EO 12' },
     });
-    expect(laast(rad)[0]).not.toContain('TE opplyser');
+    expect(laast(rad)[0]).not.toContain('Totalentreprenøren opplyser');
   });
 });
 
@@ -1463,6 +1463,25 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
+  it('linjen skriver «1 dag» for én dag, prinsipalt og subsidiært, som brevteksten (#1870)', () => {
+    const s = sakMedKrav();
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'frist',
+          s.krav('frist'),
+          { ...FRIST_FULLT[0], spesifisert_krav_ok: false, dager_maatte_forstaa: 1, dager: 1 },
+          { resultat: 'delvis_godkjent', godkjent_dager: 1 }
+        ),
+      ],
+    });
+    const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
+    expect(b.linje).toBe(
+      'Byggherrens standpunkt: prinsipalt godkjent med 1 dag (§ 33.6.1), subsidiært godkjent med 1 dag.'
+    );
+  });
+
   it('§ 34.1.2 «nei» med hele beløpet godkjent subsidiært godtas uten begrunnelse (KA-U46 punkt 1)', () => {
     const s = sviktMedVederlag();
     const brevet = (utdypning: string | null) => ({
@@ -1767,7 +1786,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     // LV-U34: setningen om svaret det erstatter står i innledningen.
     expect(laast(rad)[0]).toBe(
-      `${INNLEDNING_FRIST} Svaret erstatter byggherrens svar i brev K201-KOE-017-04 av 5. oktober 2026.`
+      `${INNLEDNING_FRIST} Dette er byggherrens nye svar. Byggherrens forrige svar står i brev K201-KOE-017-04 av 5. oktober 2026.`
     );
     expect(laast(rad)[4]).toBe(
       '4. Dagene for frist Sluttfristen\n\nFor frist Sluttfristen godkjenner byggherren 15 dager av de krevde 20 dager.'
@@ -2053,7 +2072,7 @@ describe('forbeholdet når forholdet ikke er besvart (GR-U26)', () => {
     });
     const tekst = laast(rad);
     expect(tekst).toEqual([
-      `${innledning('brev K201-KOE-017-02 av 3. oktober 2026')} Svaret erstatter byggherrens svar i brev K201-KOE-017-04 av 5. oktober 2026.`,
+      `${innledning('brev K201-KOE-017-02 av 3. oktober 2026')} Dette er byggherrens nye svar. Byggherrens forrige svar står i brev K201-KOE-017-04 av 5. oktober 2026.`,
       ...punktene(1, '110 000'),
       `3. Forbehold\n\n${forbeholdet('brev K201-KOE-017-05 av 6. oktober 2026')}`,
     ]);
@@ -2214,7 +2233,7 @@ describe('aksepten (LV-U4 punkt 6)', () => {
       regelversjon: KJERNE.regler.versjon,
     });
     expect(laast(rad)).toEqual([
-      'TE godtar byggherrens svar på kravet om justering av vederlaget i brev K201-KOE-017-04 av 5. oktober 2026.',
+      'Totalentreprenøren godtar byggherrens svar på kravet om justering av vederlaget i brev K201-KOE-017-04 av 5. oktober 2026.',
     ]);
   });
 
@@ -2242,7 +2261,7 @@ describe('aksepten (LV-U4 punkt 6)', () => {
       regelversjon: KJERNE.regler.versjon,
     });
     expect(laast(rad)).toEqual([
-      'TE godtar byggherrens svar på kravet om fristforlengelse i brev K201-KOE-017-04 av 5. oktober 2026. TE er enig i antallet dager, men ikke i byggherrens standpunkt til grunnlaget.',
+      'Totalentreprenøren godtar byggherrens svar på kravet om fristforlengelse i brev K201-KOE-017-04 av 5. oktober 2026. Totalentreprenøren er enig i antallet dager, men ikke i byggherrens standpunkt til grunnlaget.',
     ]);
   });
   it('godkjenner byggherren forholdet etter et subsidiært svar, leser aksepten saken når den sendes (GR-U1, arbeidsvalget om LV-U4 punkt 6)', () => {
@@ -2273,7 +2292,7 @@ describe('aksepten (LV-U4 punkt 6)', () => {
       regelversjon: KJERNE.regler.versjon,
     });
     expect(laast(rad)).toEqual([
-      'TE godtar byggherrens svar på kravet om justering av vederlaget i brev K201-KOE-017-04 av 5. oktober 2026.',
+      'Totalentreprenøren godtar byggherrens svar på kravet om justering av vederlaget i brev K201-KOE-017-04 av 5. oktober 2026.',
     ]);
   });
 });
@@ -2289,7 +2308,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     const s = sakMedKrav();
     const rad = s.send('BH', { type: 'innsigelse', gjelder: s.krav('vederlag') });
     expect(laast(rad)).toEqual([
-      'Byggherren gjør gjeldende at TEs krav om justering av vederlaget i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent (NS 8407 § 5 tredje ledd).',
+      'Byggherren gjør gjeldende at totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent (NS 8407 punkt 5 tredje ledd).',
     ]);
   });
 
@@ -3583,7 +3602,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
   it('forespørselen har setning 1 i LV-U18, uten dager og uten oppgitt dato', () => {
     const { rad } = medForesporsel();
     expect(laast(rad)).toEqual([
-      `Byggherren ber etter NS 8407 § 33.6.2 TE angi og begrunne det antall dager TE krever som fristforlengelse som følge av forholdet ${I_SAKEN}. Svarer ikke TE, tapes kravet på fristforlengelse. Har TE ikke grunnlag for å beregne kravet, skal TE i stedet begrunne hvorfor grunnlaget ikke foreligger.`,
+      `Byggherren ber etter NS 8407 punkt 33.6.2 totalentreprenøren angi og begrunne det antall dager totalentreprenøren krever som fristforlengelse som følge av forholdet ${I_SAKEN}. Svarer ikke totalentreprenøren, tapes kravet på fristforlengelse. Har totalentreprenøren ikke grunnlag for å beregne kravet, skal totalentreprenøren i stedet begrunne hvorfor grunnlaget ikke foreligger.`,
     ]);
     expect(rad.data.opplysninger).toBeUndefined();
   });
@@ -3793,7 +3812,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       {
         gjelder: b,
         laast:
-          'TE svarer på byggherrens forespørsel etter NS 8407 § 33.6.2 i brev K201-KOE-017-02 av 3. oktober 2026 at grunnlaget for å beregne kravet ikke foreligger (§ 33.6.2 annet ledd b).',
+          'Totalentreprenøren svarer på byggherrens forespørsel etter NS 8407 punkt 33.6.2 i brev K201-KOE-017-02 av 3. oktober 2026 at grunnlaget for å beregne kravet ikke foreligger (punkt 33.6.2 annet ledd b).',
         utdypning: begrunnelseB,
       },
     ]);
@@ -3832,7 +3851,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const { s, b } = medBegrunnelse();
     const innsigelse = s.send('BH', { type: 'innsigelse', gjelder: b });
     expect(laast(innsigelse)).toEqual([
-      'Byggherren gjør gjeldende at TEs svar i brev K201-KOE-017-03 av 4. oktober 2026 på forespørselen etter NS 8407 § 33.6.2 kom for sent (NS 8407 § 5 tredje ledd).',
+      'Byggherren gjør gjeldende at totalentreprenørens svar i brev K201-KOE-017-03 av 4. oktober 2026 på forespørselen etter NS 8407 punkt 33.6.2 kom for sent (NS 8407 punkt 5 tredje ledd).',
     ]);
     s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
     const rad = fristsvar(
@@ -4044,10 +4063,10 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const tekst = (gjelder: string) =>
       lagBrevtekst(protest(gjelder), s.u().journal, saken, KJERNE.regler)[0].laast;
     expect(tekst(id('33.6.2'))).toBe(
-      'TE protesterer mot påberopelsen av at TEs svar på forespørselen etter NS 8407 § 33.6.2 kom for sent i svaret i brev K201-KOE-017-04 av 5. oktober 2026.'
+      'Totalentreprenøren protesterer mot påberopelsen av at totalentreprenørens svar på forespørselen etter NS 8407 punkt 33.6.2 kom for sent i svaret i brev K201-KOE-017-04 av 5. oktober 2026.'
     );
     expect(tekst(id('33.4')), 'kontrollsak: § 33.4 har dagens tekst').toBe(
-      'TE protesterer mot påberopelsen av for sen varsling i svaret i brev K201-KOE-017-04 av 5. oktober 2026.'
+      'Totalentreprenøren protesterer mot påberopelsen av for sen varsling i svaret i brev K201-KOE-017-04 av 5. oktober 2026.'
     );
   });
 
@@ -4055,7 +4074,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const { s, b } = medBegrunnelse();
     const rad = s.send('BH', { type: 'innsigelse', gjelder: b, grunn: 'ikke_svar' });
     expect(laast(rad)).toEqual([
-      'Byggherren gjør gjeldende at TEs svar i brev K201-KOE-017-03 av 4. oktober 2026 på forespørselen etter NS 8407 § 33.6.2 ikke er et svar etter NS 8407 § 33.6.2 annet ledd.',
+      'Byggherren gjør gjeldende at totalentreprenørens svar i brev K201-KOE-017-03 av 4. oktober 2026 på forespørselen etter NS 8407 punkt 33.6.2 ikke er et svar etter NS 8407 punkt 33.6.2 annet ledd.',
     ]);
     // Ingen påberopelse etter § 33.6.2 å gjenta i svaret på kravet.
     s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
@@ -4093,7 +4112,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
     expect(tekst(varsel)).toEqual([
       {
         gjelder: id,
-        laast: `TE varsler etter NS 8407 § 33.4 at TE vil kreve fristforlengelse som følge av forholdet ${I_SAKEN}.`,
+        laast: `Totalentreprenøren varsler etter NS 8407 punkt 33.4 at totalentreprenøren vil kreve fristforlengelse som følge av forholdet ${I_SAKEN}.`,
       },
     ]);
     // VS-U8: datoen er serverens, så brevet har ingen opplysning om når det ble sendt.
@@ -4149,14 +4168,16 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
   it('serveren avviser en annen tekst enn den den lager (A1)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
-    expect(s.avvist('TE', { ...sendVarsel, brevtekst: ['TE varsler.'] })).toBe('ANNEN_BREVTEKST');
+    expect(s.avvist('TE', { ...sendVarsel, brevtekst: ['Totalentreprenøren varsler.'] })).toBe(
+      'ANNEN_BREVTEKST'
+    );
   });
 
   it('innsigelsen viser til varselet i brevet det står i (LV-U4 punkt 7)', () => {
     const { s, id } = medVarsel();
     const rad = s.send('BH', { type: 'innsigelse', gjelder: id });
     expect(laast(rad)).toEqual([
-      'Byggherren gjør gjeldende at TEs varsel om fristforlengelse etter NS 8407 § 33.4 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent (NS 8407 § 5 tredje ledd).',
+      'Byggherren gjør gjeldende at totalentreprenørens varsel om fristforlengelse etter NS 8407 punkt 33.4 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent (NS 8407 punkt 5 tredje ledd).',
     ]);
   });
 
@@ -4247,7 +4268,7 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
     expect(tekst(varsel)).toEqual([
       {
         gjelder: id,
-        laast: `TE varsler etter NS 8407 § 34.1.2 at TE vil kreve justering av vederlaget som følge av forholdet ${I_SAKEN}.`,
+        laast: `Totalentreprenøren varsler etter NS 8407 punkt 34.1.2 at totalentreprenøren vil kreve justering av vederlaget som følge av forholdet ${I_SAKEN}.`,
       },
     ]);
     // VS-U8: datoen er serverens, så brevet har ingen opplysning om når det ble sendt.
@@ -4337,7 +4358,7 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
     const { s, id } = medVarsel();
     const innsigelse = s.send('BH', { type: 'innsigelse', gjelder: id });
     expect(laast(innsigelse)).toEqual([
-      'Byggherren gjør gjeldende at TEs varsel om vederlagsjustering etter NS 8407 § 34.1.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent (NS 8407 § 5 tredje ledd).',
+      'Byggherren gjør gjeldende at totalentreprenørens varsel om vederlagsjustering etter NS 8407 punkt 34.1.2 i brev K201-KOE-017-02 av 3. oktober 2026 kom for sent (NS 8407 punkt 5 tredje ledd).',
     ]);
     s.send('TE', vederlagskrav);
     expect(laast(svarMedPaaberopelse(s))[3]).toContain(
@@ -6914,7 +6935,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
     expect(tekst(varsel)).toEqual([
       {
         gjelder: id,
-        laast: `TE varsler etter NS 8407 § 34.1.3 tredje ledd at TE vil kreve særskilt justering av vederlaget etter annet ledd for ${produktivitet} som følge av forholdet ${I_SAKEN}.`,
+        laast: `Totalentreprenøren varsler etter NS 8407 punkt 34.1.3 tredje ledd at totalentreprenøren vil kreve særskilt justering av vederlaget etter annet ledd for ${produktivitet} som følge av forholdet ${I_SAKEN}.`,
       },
     ]);
     expect(varsel.data.utsagn).toEqual([{ id, art: 'varsel', hjemmel: '34.1.3' }]);
@@ -6995,7 +7016,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
     );
     const trekk = s.send('TE', { type: 'trekk', spor: 'vederlag' });
     expect(tekst(trekk)[0].laast).toContain(
-      `(${KR('150 000')} i P1 og ${KR('40 000')} etter NS 8407 § 34.1.3 annet ledd)`
+      `(${KR('150 000')} i P1 og ${KR('40 000')} etter NS 8407 punkt 34.1.3 annet ledd)`
     );
   });
 
@@ -8889,7 +8910,7 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
     const s = sak();
     const trekk = s.send('TE', trekkEtterEpost(s));
     expect(tekst(trekk)[0].laast).toContain(
-      'TE trekker kravet om justering av vederlaget i sak KOE-17 («Endret fundamentering»), fremsatt i brev K201-KOE-017-02 av 4. oktober 2026'
+      'Totalentreprenøren trekker kravet om justering av vederlaget i sak KOE-17 («Endret fundamentering»), fremsatt i brev K201-KOE-017-02 av 4. oktober 2026'
     );
   });
 
@@ -9747,10 +9768,10 @@ describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, V
   it('TE sender varselet etter punkt 34.4 og etter punkt 34.3.3 fra løsningen uten krav (VS-U48)', () => {
     const s = paaberopt();
     expect(laast(s.send('TE', sendVarsel('34.4')))).toEqual([
-      `TE varsler etter NS 8407 punkt 34.4 at TE vil kreve oppgjør som regningsarbeid som følge av forholdet ${I_SAKEN}.`,
+      `Totalentreprenøren varsler etter NS 8407 punkt 34.4 at totalentreprenøren vil kreve oppgjør som regningsarbeid som følge av forholdet ${I_SAKEN}.`,
     ]);
     expect(laast(s.send('TE', sendVarsel('34.3.3')))).toEqual([
-      `TE varsler etter NS 8407 punkt 34.3.3 første ledd at TE vil kreve justering av enhetsprisene som følge av forholdet ${I_SAKEN}.`,
+      `Totalentreprenøren varsler etter NS 8407 punkt 34.3.3 første ledd at totalentreprenøren vil kreve justering av enhetsprisene som følge av forholdet ${I_SAKEN}.`,
     ]);
     expect(s.u().spor.vederlag.kravpostvarsler.map((v) => v.hjemmel)).toEqual(['34.4', '34.3.3']);
     expect(s.u().spor.vederlag.varsler, 'ikke et varsel etter SK-12').toEqual({});
