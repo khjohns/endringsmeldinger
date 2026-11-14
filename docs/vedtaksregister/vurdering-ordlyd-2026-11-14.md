@@ -247,6 +247,13 @@ byggherren alt har gitt utenfor løsningen, og ikke utsteder en endringsordre n�
 Svaret føres her og i vedtaksskillen, ikke som en post i registeret, fordi det gjelder hvordan
 testen for klassen leses.
 
+## Svaret
+
+Oppdragsgiver 14.11, ordrett: «Ja», altså A, det anbefalte alternativet
+([kommentaren i #1534](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6874501642),
+spørsmål 1). Svaret er ført i vedtaksskillen under «Ordlyden i visningen og brevene». Ingen
+post er endret.
+
 ## Verifikasjon og grenser
 
 - Kjørt: utvalget med et skript over registeret på `main`, og `vedtaksregister.py --vis` for hver
