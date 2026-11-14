@@ -1,23 +1,25 @@
 # Samlevedtak: retting av sendt brev, versjon 3
 
-Kartlegging 14.11.2026, kontrollert på `66a5d60` (gren `claude/vedtaksregister-steg4-1534`).
+Kartlegging 14.11.2026, kontrollert på `86c657c` (gren `claude/vedtaksregister-steg4-1534`).
 Del av #1534. `vedtaksregister.py --sjekk` varsler at MM-U52 har fått 10 endringer etter at
 temaet ble samlet, og at den neste skrives som et samlevedtak (svar 6 og 10 i #1534). Fila viser
 til punktene i [MM-U52](../plans/vedtak.md#samlevedtak-retting-2) uten å gjengi dem. Den
 foreløpige ID-en for versjon 3 settes når posten føres. Fila skriver ikke i `vedtak.toml`.
 
-**Begrepet.** Nye setninger sier «påberopelsen av forholdet» og «forholdet», etter oppdragsgiver
-14.11: «forholdet gir grunnlag for krav om vederlagsjustering òg fristforlengelse». Gamle tekster
-siteres ordrett, også når de sier «grunnlagskravet».
+**Begrepet.** Nye setninger sier «påberopelsen av forholdet» og «forholdet» (oppdragsgiver 14.11).
+Gamle tekster siteres ordrett, også når de sier «grunnlagskravet».
 
 **Grensen.** Versjon 3 tar med endringene av MM-U52 og det som trengs for å lese regelen av ett
 vedtak. Den utvider ikke det MM-U52 sier om GR-U22 og OV-U55 (kjeden for påberopelsen kartlegges
-for seg).
+for seg i [vurderingen av påberopelsen](vurdering-samlevedtak-paaberopelsen-2026-11-14.md)).
+Datoregelen har hjemmet i punkt 10 her, og punkt 8 i det samlevedtaket viser hit. Punkt 14 viser
+dit (spørsmål 3). **Prinsippet 14.11** (under føring i PR #1917): «Vedtak må angi budskapet - men
+ikke konkret ordlyd». Punktene versjon 3 endrer, sier budskapet; titler og brevtekst står i
+designdelen.
 
 ## De 10 endringene
 
-Tellingen: sju poster har forhold direkte til MM-U52 (`--kjede MM-U52`), og tre presiserer
-VS-U59 i kjeden. 7 + 3 = 10, som varselet.
+Sju poster har forhold direkte til MM-U52 (`--kjede`), og tre står i kjeden under VS-U59: 7 + 3 = 10.
 
 | Post | Forhold | Hva den endrer i MM-U52 |
 | --- | --- | --- |
@@ -34,9 +36,9 @@ VS-U59 i kjeden. 7 + 3 = 10, som varselet.
 
 ## Motsigelser
 
-- **M1 LV-U56 mot punkt 10.** Punkt 10 (LV-U54): «Brevet det vises til, er det siste brevet med
-  en korrigering.» og «Den gjengir totalentreprenørens siste opplysning, med henvisning til
-  brevet med korrigeringen». LV-U56: «Brevet viser ikke til tidligere brev ellers, sier ikke at
+- **M1 LV-U56 mot punkt 10.** Punkt 10, fra LV-U54: «Brevet det vises til, er det siste brevet
+  med en korrigering.» Punkt 10, fra MM-U41 punkt 10: «Den gjengir totalentreprenørens siste
+  opplysning, med henvisning til brevet med korrigeringen». LV-U56: «Brevet viser ikke til tidligere brev ellers, sier ikke at
   noe erstattes». LV-U56 er senere og endrer; den nevner bare de tidligere datoene med brevene.
   Løses i E3.
 - **M2 LV-U73 mot designdelen.** Designdelen: «Et nytt svar sier: ‹Svaret erstatter byggherrens
@@ -46,13 +48,10 @@ VS-U59 i kjeden. 7 + 3 = 10, som varselet.
   er senere.» VS-U59: «En endring av datoen i grunnlagskravet avvises når den nye datoen er
   senere enn datoen for et varsel …». Innsnevringen sier ikke om den gjelder i et spor med
   enighet og i en lukket sak, der punkt 10 og 24 sier at korrigeringen «godtas». Spørsmål 1.
-- **M4 MM-U53 mot punkt 15.** Punkt 15: «En opplysning i fritekst rettes ikke etter punkt 1–5.»
-  og utdypingen er et innlegg. MM-U53 lar brevet etter punkt 10 ha en forklaring i fritekst. Ingen
-  motsigelse i innhold, men punkt 15 leses feil uten unntaket. Løses i E4.
-- **M5 EO-U39 mot punkt 6.** Punkt 6: «i en KOE-sak som en endringsordre omfatter, avvises de».
-  EO-U39 spørsmål 3: nytt svar «til en sendt endringsordre eller en godkjent registrering av en
-  endringsordre i en EO-sak omfatter saken», «også etter en endringsordre registrert som svar».
-  Presisering, løses i E1.
+- **M4 MM-U53 mot punkt 15** («En opplysning i fritekst rettes ikke etter punkt 1–5.»): ingen
+  motsigelse i innhold, men punkt 15 trenger unntaket (E4).
+- **M5 EO-U39 mot punkt 6** («i en KOE-sak som en endringsordre omfatter, avvises de»): EO-U39
+  spørsmål 3 presiserer grensen (E1).
 
 ## Utkastet til versjon 3
 
@@ -63,19 +62,19 @@ står. Ny tekst med kilde:
   I en KOE-sak avvises de når en sendt endringsordre eller en godkjent registrering av en
   endringsordre i en EO-sak omfatter saken (punkt 12 og 13 i samlevedtaket for endringsordren),
   også etter en endringsordre registrert som svar.» (EO-U39 spørsmål 3; E1)
+- **Punkt 10, budskapet i stedet for brevtekstene.** «Totalentreprenøren korrigerer datoen i et
+  eget brev om korrigeringen, som nevner den nye datoen og den tidligere datoen med brevet den ble
+  oppgitt i. Brevet kan ha totalentreprenørens forklaring i fritekst; forklaringen er valgfri, og
+  løsningen tolker den ikke. En ny versjon av påberopelsen av forholdet kan ikke endre datoen. Den
+  sier datoen som gjelder, og hver tidligere dato med brevet den ble oppgitt i.» (MM-U41 punkt 10;
+  MM-U53; LV-U56; E3, E4) Titlene og brevtekstene flyttes til designdelen.
 - **Punkt 10, ny setning etter «… også når datoen er senere.»** «Korrigeringen avvises når den
-  nye datoen er senere enn datoen for det tidligste varselet om forholdet etter samme punkt i
-  NS 8407 som er sendt eller registrert: totalentreprenørens eget varsel eller kravet som er det
-  første varselet løsningen kjenner (samlevedtaket for varslingsdatoen punkt 6–8). Meldingen
-  nevner begge datoene. Er varselet registrert som sendt utenfor løsningen, kan
-  totalentreprenøren først rette datoen for varselet etter punkt 8. Er varselet sendt fra
-  løsningen, står datoen for det fast.» (VS-U59; VS-U60; VS-U66; E2)
-- **Punkt 10, i stedet for LV-U54-delen og «med henvisning til brevet med korrigeringen».** «En
-  ny versjon av påberopelsen av forholdet kan ikke endre datoen. Den sier den datoen som gjelder
-  etter korrigeringen, og de tidligere datoene med brevet hver ble oppgitt i (LV-U56).» (LV-U56; E3)
-- **Punkt 10, nye setninger.** «Brevet med korrigeringen har tittelen ‹Korrigering av datoen i
-  sak <kode>›.» (LV-U55) «Det kan ha totalentreprenørens forklaring i fritekst under den vedtatte
-  teksten. Forklaringen er valgfri, og løsningen tolker den ikke.» (MM-U53; E4)
+  nye datoen er senere enn datoen for et varsel om forholdet som er sendt eller registrert, eller
+  for kravet som er det første varselet løsningen kjenner (samlevedtaket for varslingsdatoen
+  punkt 6–8). Hvilket av dem som teller, står i VS-U66. Meldingen nevner begge datoene. Er
+  varselet registrert som sendt utenfor løsningen, kan totalentreprenøren først rette datoen for
+  varselet etter punkt 8. Er varselet sendt fra løsningen, står datoen for det fast.» (VS-U59;
+  VS-U60; VS-U66; E2)
 - **Punkt 15, tillegg.** «Forklaringen i brevet etter punkt 10 er ikke et innlegg.» (MM-U53,
   forholdet «snevrer inn … MM-U34 punkt 24, også slik punkt 15 viser til den»; E4)
 - **Punkt 20 og 22.** «EO-U34 punkt 12» blir «punkt 12 i samlevedtaket for endringsordren».
@@ -84,28 +83,31 @@ står. Ny tekst med kilde:
 - **Punkt 24, tillegg.** «Rettingen av varseldatoen og kravdatoen i en slik sak står i punkt 68 i
   samlevedtaket for endringsordren.» (EO-U39 punkt 68; MM-U52 spørsmål 3; E6) Etter svaret på
   spørsmål 1 også: «Avvisningen etter punkt 10 gjelder også her.» (VS-U59; spørsmål 1 A)
+- **Punkt 14.** Viser til punkt 7 i samlevedtaket for påberopelsen av forholdet for hva som står
+  når påberopelsen er sendt, og til punkt 9 der for et annet forhold, og beholder: «Et forslag om
+  å rette betegnelsen på endringsordren sendes som innlegg.» (MM-U41 punkt 14; spørsmål 3 C)
 - **Designdelen, i stedet for setningen med ‹Svaret erstatter …›.** «Brevet med et nytt svar
-  sier at svaret er byggherrens siste svar i løsningen, uten totalentreprenørens aksept, uten
-  ordet «erstatter». Brevteksten står i punkt 2 i samlevedtaket for revisjon av byggherrens svar,
-  versjon 2.» (LV-U73; HF-U29 punkt 2; EO-U39 spørsmål 1; E7, spørsmål 2 A)
+  sier at svaret er byggherrens siste svar i løsningen, uten totalentreprenørens aksept, og
+  bruker ikke ordet «erstatter». Ordlyden avgjøres i byggingen (LV-U73).» (LV-U73; E7, spørsmål
+  2 A) Designdelen får også brevtekstene fra punkt 10: tittelen ‹Korrigering av datoen i sak
+  <kode>› (LV-U55), ‹Totalentreprenøren oppgir nå at …› (MM-U41 punkt 10) og ordlyden etter
+  LV-U56 for en ny versjon av påberopelsen. (E4)
 - **Beslutningsdelen.** «retting av datoen i grunnlagskravet (punkt 10)» blir «korrigeringen av
   datoen i påberopelsen av forholdet (punkt 10)». (Oppdragsgiver 14.11; E8)
 
 ### Endret innhold
 
-- **E1** punkt 6: gammel tekst «i en KOE-sak som en endringsordre omfatter, avvises de». Ny: grensen
-  er en sendt endringsordre eller en godkjent registrering i en EO-sak (EO-U39 spørsmål 3).
-- **E2** punkt 10: gammel tekst «også når datoen er senere» står, men med avvisningen etter VS-U59,
-  VS-U60 og VS-U66. «etter OV-U11» i VS-U59 leses som punkt 8, fordi MM-U52 samler OV-U11.
-- **E3** punkt 10: LV-U54-teksten og «Brevet det vises til, er det siste brevet med en korrigering.»
-  faller (LV-U56).
-- **E4** punkt 10 og 15: tittelen og forklaringen (LV-U55, MM-U53).
+- **E1** punkt 6: grensen etter EO-U39 spørsmål 3 (M5).
+- **E2** punkt 10: avvisningen etter VS-U59–VS-U66; «etter OV-U11» leses som punkt 8 (MM-U52 samler OV-U11).
+- **E3** punkt 10: LV-U54-teksten og henvisningen til brevet med korrigeringen faller (M1; LV-U56).
+- **E4** punkt 10 og 15: forklaringen (MM-U53); tittelen (LV-U55) og brevteksten fra MM-U41
+  punkt 10 flyttes til designdelen (prinsippet 14.11).
 - **E5** punkt 20 og 22: henvisningen til den opphevede EO-U34, og henvisningen til KA-U52.
 - **E6** punkt 24: henvisningen til EO-U39 punkt 68, der punkt 25 i versjon 2 ble ført (svar 3 C).
-- **E7** designdelen: ‹Svaret erstatter …› faller (LV-U73).
+- **E7** designdelen: ‹Svaret erstatter …› faller; budskapet står, ordlyden etter LV-U73.
 - **E8** språket: «grunnlagskravet», «grunnlaget» og «ny grunnlagsversjon» blir «påberopelsen av
-  forholdet» og «ny versjon av påberopelsen» i punkt 10, 14, 24 og beslutningsdelen. Innholdet i
-  punkt 14 er uendret (spørsmål 3).
+  forholdet» og «ny versjon av påberopelsen» i punkt 10, 24 og beslutningsdelen. Punkt 14 viser
+  til samlevedtaket for påberopelsen (spørsmål 3 C).
 - **Hovedregelen** (OV-U92, OV-U93) for raden `mm-u34 endrer ov-u51` i
   `KJENTE_FORHOLD_TIL_OPPHEVET`: **(b)**. Versjon 3 sier: «Forholdet ‹MM-U34 endrer OV-U51› har
   ikke noe å virke på: OV-U51 er opphevet av OV-U52, og OV-U52 av samlevedtaket.» Belegg: MM-U41
@@ -117,47 +119,51 @@ står. Ny tekst med kilde:
 
 Versjon 3 opphever MM-U52 (svar 4 A, fordi E1–E3 og E7 endrer innholdet), og henvisningene til
 MM-U52 gjelder versjon 3 (OV-U92 (a)). Forholdene i MM-U52 føres videre. Den samler LV-U55,
-MM-U53, VS-U59, VS-U60 og VS-U66. EO-U39, KA-U52, LV-U56 og LV-U73 endrer også andre poster og
-står med sine forhold. VS-U70 samles ikke.
+MM-U53, VS-U59 og VS-U60. VS-U66 står og presiseres: første setning, «Registreringen godtas …»,
+gjelder registreringen av et eget varsel (VS-U43) og har ikke noe hjem i retting; samlet ville den
+enten falle bort eller stå i feil samlevedtak. Punkt 10 viser derfor til VS-U66. EO-U39, KA-U52,
+LV-U56, LV-U73 og VS-U70 endrer også andre poster og står med sine forhold.
 
 ## Spørsmålene til oppdragsgiver
 
 1. **Avvisningen i en lukket sak og etter enighet.** Bakgrunn: M3. Belegg: punkt 24, «godtas også
    korrigeringen av datoen etter punkt 10, og den endrer ikke utfallet»; VS-U59 nevner ikke
-   punkt 24. Alternativer: **A** «Avvisningen etter VS-U59, VS-U60 og VS-U66 gjelder også i et
-   spor med enighet, når kravene er avgjort og i en lukket sak (punkt 10 og 24).» **B** «I et spor
-   med enighet, når kravene er avgjort og i en lukket sak godtas korrigeringen uten kontrollen mot
-   varslene.» Anbefaling: A. Rekkefølgen mellom datoene er den samme uansett utfall, og kjernen
+   punkt 24. Alternativer: **A** «Avvisningen etter punkt 10 gjelder også i et spor med enighet,
+   når kravene er avgjort og i en lukket sak.» Forhold: snevrer inn punkt 24. **B** «I et spor med
+   enighet, når kravene er avgjort og i en lukket sak godtas korrigeringen uten kontrollen mot
+   varslene.» Forhold: presiserer VS-U59. Anbefaling: A. Rekkefølgen mellom datoene er den samme uansett utfall, og kjernen
    kontrollerer alt slik (kodefunn K1). Styrer: punkt 24 og om K1 er riktig.
 2. **Brevteksten for et nytt svar.** Bakgrunn: M2. Belegg: LV-U73 «Den konkrete ordlyden
-   avgjøres i byggingen»; HF-U29 punkt 2 har brevteksten og varianten for en endringsordre
-   registrert som svar. Alternativer: **A** «Designdelen sier budskapet og viser til punkt 2 i
-   samlevedtaket for revisjon av byggherrens svar, versjon 2, for brevteksten.» **B** «Designdelen
-   har eksempelet fra LV-U73: ‹Dette er byggherrens nye svar. Byggherrens forrige svar står i brev
-   … av …›.» Anbefaling: A, så brevteksten har ett hjem. Styrer: E7.
-3. **Begrepet i punkt 14.** Bakgrunn: oppdragsgiver 14.11. Belegg: punkt 14 «Når
-   totalentreprenøren har sendt grunnlaget … En ny grunnlagsversjon kan ikke endre dem.»
-   Alternativer: **A** «Versjon 3 sier ‹påberopelsen av forholdet› og ‹ny versjon av påberopelsen›
-   i alle punkter, også punkt 14, uten å endre innholdet.» **B** «Versjon 3 endrer ordene bare i
-   punkt 10, 24 og beslutningsdelen; punkt 14 venter på samlevedtaket for påberopelsen av
-   forholdet.» Anbefaling: A; ett vedtak med ett begrep. Styrer: E8.
+   avgjøres i byggingen»; HF-U29 punkt 2 har fortsatt ‹Svaret erstatter byggherrens svar i brev …›.
+   Alternativer: **A** «Brevet med et nytt svar sier at svaret er byggherrens siste svar i
+   løsningen, uten totalentreprenørens aksept, og bruker ikke ordet ‹erstatter›. Ordlyden avgjøres
+   i byggingen.» **B** «Som A, med eksempelet ‹Dette er byggherrens nye svar. Byggherrens forrige
+   svar står i brev … av …›.» Anbefaling: A; vedtaket sier budskapet (prinsippet 14.11). Styrer: E7.
+3. **Punkt 14.** Bakgrunn: oppdragsgiver 14.11 og samlevedtaket for påberopelsen. Belegg: punkt 14
+   «Når totalentreprenøren har sendt grunnlaget … En ny grunnlagsversjon kan ikke endre dem.»
+   Alternativer: **A** «Punkt 14 står med ‹påberopelsen av forholdet› i stedet for ‹grunnlaget›.»
+   **B** «Punkt 14 står uendret til samlevedtaket for påberopelsen av forholdet føres.» **C**
+   «Punkt 14: Hva som står når påberopelsen av forholdet er sendt, står i punkt 7 i samlevedtaket
+   for påberopelsen av forholdet, og et annet forhold påberopes etter punkt 9 der. Et forslag om å
+   rette betegnelsen på endringsordren sendes som innlegg.» Anbefaling: C; regelen får ett hjem.
+   Styrer: punkt 14 og E8.
 4. **Forholdene.** Bakgrunn: svar 4 A og hovedregelen. Alternativer: **A** som «Forholdene» over,
-   med (b) for `mm-u34 endrer ov-u51`. **B** «Som A, men VS-U59, VS-U60 og VS-U66 samles ikke;
+   med (b) for `mm-u34 endrer ov-u51`. **B** «Som A, men VS-U59 og VS-U60 samles ikke;
    punkt 10 viser til dem.» Anbefaling: A; punkt 10 leses da av ett vedtak, og varselet starter
-   på null. Styrer: `folge` i den nye posten og raden i `KJENTE_FORHOLD_TIL_OPPHEVET`.
+   på null. VS-U66 samles ikke i noen av dem (se «Forholdene»). Styrer: `folge` i den nye posten og raden i `KJENTE_FORHOLD_TIL_OPPHEVET`.
 
 ## Kodefunn
 
 - **K1** `korrigeringEtterVarslene` i [`nyttelast.ts`](../../kjerne/kommandoer/nyttelast.ts) kalles
   for hver korrigering, uten unntak for en lukket sak eller enighet. Riktig etter 1 A, feil etter 1 B.
 - **K2** [`brevtekst.ts`](../../kjerne/frosset/brevtekst.ts) har fortsatt «Svaret erstatter
-  byggherrens svar i …» (LV-U73 gjelder #1834). Ikke kontrollert om #1834 er åpent.
-- LV-U55 og LV-U56 er lest i `brevtittel.ts` og `spor/forhold/tekst.ts` («oppga tidligere»).
+  byggherrens svar i …» (LV-U73 gjelder #1834), og HF-U29 punkt 2 har samme tekst. Ikke
+  kontrollert om #1834 er åpent.
 
 ## Verifikasjon og grenser
 
-Kjørt: `--sjekk`, `--kjede MM-U52`, `--vis` for de ti postene, MM-U52, LV-U55 og MM-U53. Lest i
-`vedtak.md`: teksten til MM-U52, punkt 12, 13 og 68 i EO-U39, punkt 5 i KA-U52 og punkt 2 i HF-U29.
+Kjørt: `--sjekk`, `--kjede MM-U52` og `--vis` for de ti postene og MM-U52. Lest i `vedtak.md`:
+MM-U52, EO-U39 punkt 12, 13 og 68, KA-U52 punkt 5 og HF-U29 punkt 2.
 Lest ut av koden, ikke kjørt: K1 og K2. Ikke kontrollert: tellemåten i `vedtaksregister.py` utover
 summen 7 + 3; om VS-U70 bør påvirke ordlyden i punkt 10 (vår lesing: nei); kjeden for påberopelsen
 (GR-U22, OV-U55). VS-U60 viser til «VS-U43 punkt 6–8», VS-U70 til «punkt 7–9»; hvilken nummerering som gjelder, er ikke kontrollert. NS 8407 er ikke sitert; ingen ny setning bygger på ordlyden der.

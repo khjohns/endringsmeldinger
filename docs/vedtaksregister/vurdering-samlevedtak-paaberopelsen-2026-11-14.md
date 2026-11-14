@@ -1,6 +1,6 @@
 # Vurdering: samlevedtak for påberopelsen av forholdet – ny versjon, forholdet står og ny sak
 
-Dato: 14.11.2026. Kontrollert commit: `66a5d60` (grenen `claude/vedtaksregister-steg4-1534`).
+Dato: 14.11.2026. Kontrollert commit: `86c657c` (grenen `claude/vedtaksregister-steg4-1534`).
 Del av #1534 (steg 4, trinn 2).
 
 Utgangspunktet er raden «Grunnlagskravet: ny versjon, hjemmel og ny sak» i tabellen «Kjedene» i
@@ -15,8 +15,8 @@ bruker ordene.
 
 NS 8407 punkt 32.2 første setning, ordrett: «Mottar totalentreprenøren pålegg som angitt i 32.1, skal
 han uten ugrunnet opphold varsle byggherren dersom han vil påberope seg dette som en endring.»
-Kontrakten sier ikke noe om en ny versjon av påberopelsen eller om å bytte forhold. Regelen om det er
-løsningens (vedtakene under), ikke kontraktens ordlyd.
+Kontrakten sier ikke noe om en ny versjon av påberopelsen eller om å bytte forhold; regelen er
+vedtakenes.
 
 ## Postene i kjeden
 
@@ -38,7 +38,6 @@ løsningens (vedtakene under), ikke kontraktens ordlyd.
 | OV-U55 | gjeldende, endret fire ganger | s1–s4 om forholdet og ny sak står; utdyping og betegnelse er tatt av MM-U52 punkt 14–15 | endrer OV-U54; utvider GR-U22; snevrer inn MM-U21 (opphevet); endret av MM-U34, LV-U53, KA-U52, MM-U52 |
 | OV-U57 | gjeldende | Ny sak i første versjon: opprettelse uten trekk og uten overføring | presiserer GR-U22 og GR-U19; VS-U45 bygger på |
 | rad-073 (B-13) | gjeldende | Endret underkategori etter svar krever nytt svar | utvidet av GR-U1; snevret inn av GR-U2 (opphevet) og GR-U19 |
-| Kommet til | | | |
 | VS-U45 | gjeldende; innholdet står i VS-U43 punkt 6 | Brevet i den gamle saken kan oppgis som eget varsel i den nye | bygger på GR-U22 og OV-U57; snevrer inn VS-U37 (opphevet) |
 | KA-U52 | gjeldende (samlevedtak) | Punkt 1–10 om kravversjon; punkt 10 viser til MM-U52 punkt 14 for hjemmelen | endrer GR-U1, OV-U55 |
 | MM-U52 | gjeldende (samlevedtak v2) | Punkt 10 (datoen), 14 (hjemmelen), 15 (utdyping) | snevrer inn GR-U22; endrer OV-U54, OV-U55, OV-U56 |
@@ -80,19 +79,16 @@ enighet» i OV-U55 på nytt. Avslagsleddet i OV-U55 står derfor ordrett.
 svar på grunnlaget krever nytt svar.» GR-U22 Følge: «underkategorien kan ikke lenger endres, så raden
 i B-13 om endret underkategori (05.10, #215) får ikke noe å gjelde for.» Raden er likevel gjeldende.
 
-**M6. GR-U1 er tømt, men står som gjeldende.** s1 står i KA-U52 punkt 1 og 3. s2 er delvis strøket
-(KA-U52 E6), og resten («grunnlaget venter på nytt svar, og en aksept av forrige svar avvises») står i
-HF-U23 punkt 9. s3 står i GR-U34 punkt 14. Leddet «også når underkategorien er uendret» forutsetter
+**M6. GR-U1 er tømt, men står som gjeldende.** s1 står i KA-U52 punkt 1 og 3, s2 er delvis strøket
+(KA-U52 E6) og ellers i HF-U23 punkt 9, og s3 står i GR-U34 punkt 14. Leddet «også når underkategorien er uendret» forutsetter
 at underkategorien kan endres, og det kan den ikke (M2).
 
 **U1. Endringsordrens betegnelse.** GR-U22 Følge: «Endringsordrens dato eller nummer kan rettes i en
-ny versjon med samme underkategori.» Det motsier OV-U55 s1 og MM-U52 punkt 14 («Et forslag om å rette
-betegnelsen på endringsordren sendes som innlegg»). Følge er ikke vedtakstekst, og kjernen følger
-OV-U55 (se kodefunn), så dette er en foreldet merknad, ikke en motsigelse i vedtakene.
+ny versjon med samme underkategori.» Det motsier OV-U55 s1 og MM-U52 punkt 14, men Følge er ikke
+vedtakstekst, og kjernen følger OV-U55 (kodefunn). Merknaden er foreldet.
 
-**U2. HF-U21 viser til HF-U8, som er samlet.** HF-U21: «Bindingen varer som etter HF-U5 og HF-U8.»
-HF-U8 er samlet i HF-U23, og HF-U29 punkt 12 viser tilbake: «Om svaret på vederlag og frist binder
-etter en ny grunnlagsversjon, følger HF-U21 og kjeden for grunnlagskravet.»
+**U2. HF-U21 viser til HF-U8, som er samlet i HF-U23.** HF-U21: «Bindingen varer som etter HF-U5 og
+HF-U8.» HF-U29 punkt 12 viser tilbake: «… følger HF-U21 og kjeden for grunnlagskravet.»
 
 ## Utkast til samlevedtaket
 
@@ -104,14 +100,15 @@ annet gjeldende hjem, viser punktet dit.
 1. Hver oppdatering totalentreprenøren sender av påberopelsen av forholdet, er en ny versjon av
    påberopelsen. Den følger samlevedtaket for kravversjon (KA-U52 punkt 1–10). (GR-U1 s1; KA-U52
    punkt 1)
-2. Sender totalentreprenøren en ny versjon, venter forholdet på byggherrens nye svar, og svaret på
-   den tidligere versjonen kan ikke godtas i løsningen, etter HF-U23 punkt 9. (GR-U1 s2; HF-U23
-   punkt 9; E1)
+2. Sender totalentreprenøren en ny versjon, venter forholdet på byggherrens nye svar. At svaret
+   på den tidligere versjonen ikke kan godtas, er beslutningsdelen i HF-U23 punkt 9. (GR-U1 s2;
+   HF-U23 punkt 9; E1)
 3. Løsningen sier ikke at en ny versjon av påberopelsen avslår byggherrens svar på forholdet.
    (HF-U23 punkt 9; svar på spørsmål 2; E4)
 4. En ny versjon av påberopelsen med samme forhold endrer ikke bindingen i byggherrens svar på
    vederlag eller fristforlengelse og er ikke et avslag på dem (avtaleloven § 5). Bindingen varer
-   som etter HF-U5 og HF-U23. (HF-U21 s1–s3; U2)
+   som etter HF-U5 og HF-U23. (HF-U21 s1–s3; U2) At et subsidiært standpunkt forblir
+   subsidiært (HF-U21 s4), står i punkt 5.
 5. Hva en ny versjon gjør med et svar på vederlag eller frist og med en betinget enighet, står i
    GR-U34 punkt 12 og 14. Hva den gjør med et frafall, står i GR-U20 og GR-U23. (GR-U1 s3; GR-U34;
    E1)
@@ -123,10 +120,8 @@ annet gjeldende hjem, viser punktet dit.
    påberopelse av en endringsordre etter punkt 31.3, hvilken endringsordre påberopelsen gjelder. En
    ny versjon kan ikke endre dem. Totalentreprenøren kan sende en ny versjon med samme forhold, for
    eksempel med en utfylt beskrivelse. (GR-U22 s1–s2; OV-U55 s1–s2; MM-U52 punkt 14; E2)
-8. Datoen totalentreprenøren har oppgitt for når pålegget ble mottatt eller totalentreprenøren ble
-   klar over forholdet, endres ikke i en ny versjon, men etter MM-U52 punkt 10. Betegnelsen på
-   endringsordren rettes etter MM-U52 punkt 14 siste setning. (OV-U55 s3; MM-U52 punkt 10 og 14;
-   KA-U52 punkt 10)
+8. Datoen for når pålegget ble mottatt eller totalentreprenøren ble klar over forholdet, følger
+   MM-U52 punkt 10, og betegnelsen på endringsordren MM-U52 punkt 14 siste setning. (OV-U55 s3)
 
 ###### C. Et annet forhold går i en ny sak
 
@@ -145,8 +140,9 @@ annet gjeldende hjem, viser punktet dit.
 
 ###### Designdel
 
-- Skjemaets tekst før sending av den nye saken står i OV-U57 («Den nye saken endrer ikke krav, svar
-  eller enigheter …») og i brukerforløpet. Nøkkeltallene følger MM-U45 punkt 9. (OV-U57)
+- Før sending sier skjemaet at den nye saken ikke endrer krav, svar eller enigheter i den gamle,
+  og at løsningen ikke avgjør om kravet omfattes av en tidligere enighet, eller om varsling og
+  frister er ivaretatt. Ordlyden står i brukerforløpet (PR #1917). (OV-U57)
 
 ###### Endret innhold
 
@@ -164,7 +160,8 @@ annet gjeldende hjem, viser punktet dit.
   Overføringen er ikke et avkall, og den nye saken viser til varselet i den gamle» i GR-U22,
   «Om enigheten og bindingen følger kravene til en ny sak, avgjøres særskilt» i OV-U55 og
   «Overføringen tilbys først når virkningen er vedtatt (#569)» i OV-U57 gjelder ikke (spørsmål 3 A).
-  En overføring krever et nytt vedtak. GR-U22 og OV-U57 gjelder som «Samlet». Forholdet «GR-U22
+  En overføring krever et nytt vedtak. Skjemateksten i OV-U57 er design (se designdelen). GR-U22 og
+  OV-U57 gjelder som «Samlet». Forholdet «GR-U22
   snevrer inn KA-U22» bar overføringen og har ikke noe å virke på: (b). Det samme gjelder
   «avgjøres særskilt etter OV-U55 og OV-U57» i begrunnelsen til VS-U43 E2, som punkt 10 avgjør
   (samlevedtaket presiserer VS-U43 punkt 6).
@@ -176,7 +173,8 @@ annet gjeldende hjem, viser punktet dit.
   15 (MM-U41 E5), og forholdet er MM-U52s å føre (se «Grensen mot MM-U52»).
 - **E5. HF-U21.** Står i punkt 4. «HF-U8» leses som HF-U23, som samlet HF-U8. HF-U21 gjelder som
   «Samlet», og henvisningen i HF-U29 punkt 12 til «HF-U21 og kjeden for grunnlagskravet» gjelder
-  samlevedtaket. Forholdene til HF-U5 og GR-U1 står.
+  samlevedtaket. HF-U21 s4 («Et subsidiært standpunkt forblir subsidiært (GR-U1)») står i GR-U34 punkt 14
+  (punkt 5). Forholdene til HF-U5 og GR-U1 står.
 - **E6. B-13, endret underkategori (rad-073).** Oppheves: forholdet kan ikke endres (punkt 7), så
   raden har ikke noe å gjelde for (GR-U22 Følge). Henvisningene til den gjelder punkt 7.
 - **E7. KA-U52 punkt 10.** «eller hjemmelen, etter MM-U52 punkt 10 og 14» gjelder forholdet etter
@@ -189,12 +187,11 @@ GR-U16 står (klasse design) og samles ikke. GR-U20 og GR-U23 hører til frafall
 
 ## Grensen mot MM-U52
 
-- MM-U52 er tatt som gitt. Samlevedtaket samler ikke MM-U52, og ikke MM-U41, OV-U52, OV-U54 eller
-  OV-U80, som MM-U52 og KA-U52 har opphevet eller samlet.
-- **Punkt for versjon 3:** MM-U52 punkt 14 gjengir regelen om at forholdet står (fra OV-U55 via
-  MM-U41 punkt 14). Med dette samlevedtaket bør punkt 14 første til tredje setning vise til punkt 7
-  her i stedet for å gjengi det, og siste setning («Et forslag om å rette betegnelsen på
-  endringsordren sendes som innlegg») stå. Ellers har regelen to hjem i to samlevedtak.
+- Samlevedtaket samler ikke MM-U52 eller det MM-U52 og KA-U52 har opphevet eller samlet.
+- Avgjort med versjon 3 av MM-U52: punkt 14 der viser til punkt 7 her for at forholdet står, og
+  beholder setningen om betegnelsen på endringsordren. Regelen om et annet forhold står i punkt 9
+  her, og versjon 3 viser dit. Datoregelen har hjemmet i punkt 10 i versjon 3, og punkt 8 her viser
+  bare dit.
 - «MM-U52 snevrer inn GR-U22» står. Et samlet vedtak beholder forholdene sine.
 
 ## Spørsmålene til oppdragsgiver
@@ -212,12 +209,12 @@ regelkoden for et endret forhold.
 **2. Avslår en ny versjon av påberopelsen byggherrens svar på forholdet?** *Bakgrunn:* M4. *Belegg:*
 OV-U55 («den avslår byggherrens tilbud i grunnlagssporet etter avslagsregelen») mot HF-U23 punkt 9
 («Løsningen sier ikke at svaret er avslått eller har falt bort»).
-- **A.** «Løsningen sier ikke at en ny versjon av påberopelsen avslår byggherrens svar på forholdet.
-  Svaret på den tidligere versjonen kan ikke godtas i løsningen, og løsningen avgjør ikke om
-  byggherren fortsatt er bundet av det.»
+- **A.** «Løsningen sier ikke at en ny versjon av påberopelsen avslår byggherrens svar på forholdet,
+  og avgjør ikke om byggherren fortsatt er bundet av det. Forhold: endrer OV-U55 (avslagsleddet
+  faller).» At svaret ikke kan godtas, står i beslutningsdelen i HF-U23 punkt 9.
 - **B.** «En ny versjon av påberopelsen er totalentreprenørens avslag på byggherrens svar på
   forholdet, og svaret faller bort som tilbud. Det gjelder bare forholdet, ikke svarene på vederlag
-  og fristforlengelse.»
+  og fristforlengelse. Forhold: endrer HF-U23 punkt 9 og KA-U52 E3 for forholdet.»
 *Anbefaling:* A. Det følger KA-U52 E3 og HF-U23 punkt 9, som gjelder alle spor. B ville gjøre
 forholdet til et unntak. *Styrer:* brevteksten og tilstanden etter en ny versjon (punkt 3).
 
@@ -228,7 +225,8 @@ nytt vedtak om overføring.
 - **A.** «Den nye saken er en ny påberopelse. Det som er sendt, svart eller registrert i den gamle
   saken, følger ikke med i løsningen, og løsningen avgjør ikke om det gjelder den nye påberopelsen.
   Påberopelsen i den gamle saken står til totalentreprenøren trekker den eller saken avsluttes etter
-  de reglene som ellers gjelder. En overføring av krav mellom saker krever et nytt vedtak.»
+  de reglene som ellers gjelder. En overføring av krav mellom saker krever et nytt vedtak. Forhold:
+  endrer GR-U22 og OV-U57 (overføringen faller).»
 - **B.** «Som A, men vedtaket om overføring står: når overføringen bygges, overfører
   totalentreprenøren kravene til den nye saken, overføringen er ikke et avkall, og hva som følger
   med, avgjøres i et eget vedtak før overføringen bygges.»
@@ -240,7 +238,8 @@ kontrakten overlater til dem. *Styrer:* punkt 10 og 12, E3, og om #569 trenger e
 
 - `kjerne/spor/forhold/kommando.ts`, `kategorisperre`: avviser et annet forhold og en annen
   endringsordre (`ANNEN_HJEMMEL` og den neste avvisningen), i tråd med OV-U55 s1. Feilmeldingen sier
-  «Grunnlaget er sendt …», mot GR-U31 og OV-U82 og språkfila. Kommentaren viser til «GR-U22 og MM-U52
+  «Grunnlaget er sendt …», mot GR-U31 og OV-U82 og språkfila. Det samme gjelder `datosperre`
+  («En ny versjon av grunnlaget …») og `kontrollerKorrigering` («I kategorien i grunnlaget …»). Kommentaren viser til «GR-U22 og MM-U52
   punkt 14» og må vise til samlevedtaket når det er vedtatt. Lest, ikke kjørt.
 
 ## Verifikasjon og grenser
@@ -249,9 +248,8 @@ kontrakten overlater til dem. *Styrer:* punkt 10 og 12, E3, og om #569 trenger e
   MM-U52 punkt 10–15, MM-U41 E1–E7, HF-U23 punkt 9, GR-U34 punkt 12 og 14, VS-U43 punkt 6 og E2,
   raden i `KJENTE_FORHOLD_TIL_OPPHEVET` og «Hovedregelen» i
   [vurderingen av kjente avvik](vurdering-kjente-avvik-2026-11-05.md#hovedregelen).
-- Ikke lest i sin helhet: MM-U34 (bare setningen om GR-U2, sitert gjennom `--vis`), HF-U29 utover
-  punkt 12, GR-U20 og GR-U23 utover radene. Hvilket samlevedtak som nå bærer MM-U34 punkt 11, er ikke
-  kontrollert.
+- Ikke lest i sin helhet: MM-U34 (bare setningen om GR-U2), HF-U29 utover punkt 12, GR-U20 og
+  GR-U23. Hvilket samlevedtak som nå bærer MM-U34 punkt 11, er ikke kontrollert.
 - Ikke kontrollert: at E1–E7 navngir alle setningene som faller, mot `--forhold`; at VS-U45 er tatt
   helt inn i VS-U43 punkt 6 (den står som gjeldende og samles ikke her).
-- Ingen kode er kjørt. Kodefunnet er lest ut av én fil.
+- Ingen kode er kjørt.
