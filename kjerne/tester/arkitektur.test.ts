@@ -1824,6 +1824,65 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['format/leser.ts', 'kontekst', 'registrertDato', ['kommandoer/skriving.ts:skriv']],
   // VS-U38: dagen påberopelsen fra appen ble sendt.
   ['format/leser.ts', 'kontekst', 'registrertDato', ['utledning/utled.ts:datoenDetBleSendt']],
+  // HF-U23: akseptfristen i svaret, som brevet ved aksepten sammenlikner med dagen den sendes.
+  ['format/leser.ts', 'kontekst', 'registrertDato', ['frosset/brevtekst.ts:utsagnstekst']],
+  [
+    'Svar',
+    'utsagn',
+    'akseptfrist',
+    ['frosset/brevtekst.ts:utsagnstekst', 'frosset/brevtekst.ts:svarpunkter'],
+  ],
+  [
+    'regler/akseptfrist.ts',
+    'regelsett',
+    'etterAkseptfristen',
+    ['frosset/brevtekst.ts:utsagnstekst'],
+  ],
+  ['Svarutkast', 'kommando', 'akseptfrist', ['kommandoer/skriving.ts:svar']],
+  ['format/skjema.ts', 'skjema', 'KALENDERDAG', ['format/format.ts', 'kommandoer/kommando.ts']],
+  // #1588: merkingen og tittelen i samme brev nevner samme sak (LV-U27, LV-U48).
+  [
+    'frosset/brevtittel.ts',
+    'brevtekst',
+    'ulikSakIMerkingenOgTittelen',
+    ['format/leser.ts:lesDokument'],
+  ],
+  ['format/leser.ts:lesSvar(e)', 'rad', 'akseptfrist', ['format/leser.ts']],
+  // HF-U23 punkt 1 og 2: kontrollen av akseptfristen leser svarene slik brevet fryser dem.
+  [
+    'kommandoer/nyttelast.ts:akseptfristeneIBrevet(s)',
+    'frosset svar',
+    'akseptfrist spor utregning beslutningsgrunnlag',
+    ['kommandoer/nyttelast.ts:akseptfristeneIBrevet'],
+  ],
+  [
+    'UTEN_AKSEPTFRIST',
+    'brevtekst',
+    'forholdet avslag hele_kravet',
+    ['kommandoer/nyttelast.ts:akseptfristeneIBrevet'],
+  ],
+  [
+    'regler/akseptfrist.ts',
+    'regelsett',
+    'utenAkseptfrist ugyldigAkseptfrist',
+    ['kommandoer/nyttelast.ts:akseptfristeneIBrevet', 'kommandoer/nyttelast.ts:ugyldigFrist'],
+  ],
+  [
+    'spor/vederlag/format.ts',
+    'frosset svar',
+    'godkjennerBeloepIEtLag',
+    ['kommandoer/nyttelast.ts'],
+  ],
+  ['spor/frist/format.ts', 'frosset svar', 'godkjennerDagerIEtLag', ['kommandoer/nyttelast.ts']],
+  ['Svaretsomfang', 'frosset svar', 'spor godkjennerNoe sammenfall', ['regler/akseptfrist.ts']],
+  ['regler/hverdager.ts', 'regelsett', 'erHverdag erLoerdag', ['regler/akseptfrist.ts']],
+  [
+    'kommandoer/nyttelast.ts',
+    'kommando',
+    'akseptfristeneIBrevet',
+    ['kommandoer/skriving.ts:skriv'],
+  ],
+  ['kommandoer/skriving.ts:skriv(data)', 'rad', 'svar', ['kommandoer/skriving.ts:skriv']],
   ['TILLATTE_STANDPUNKTER', 'rad', 'art paakrevd', ['format/leser.ts']],
   ['KRAVINNHOLD', 'skjema', 'properties required anyOf'],
   // Kodene i formatet for kategoriene (#335): formen på påberopelsen.
@@ -1942,6 +2001,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // KA-U78, OV-U32: dagene for fristen i hvert lag.
   ['Fristlag', 'rad', 'dager', ['spor/frist/format.ts']],
   ['Utregningsrad', 'rad', 'gjelder lag', ['spor/vederlag/format.ts']],
+  // HF-U29 punkt 8: den særskilte posten i beløpene per lag.
+  ['Utregningsrad', 'rad', 'saerskilt', ['spor/vederlag/format.ts:beloepeneILagene']],
   ['Utregningslag', 'rad', 'beloep', ['spor/vederlag/format.ts']],
   // #1778: radene per post og lagene i dem, som vederlaget kontrollerer med beløpene.
   ['Postrad', 'rad', 'lag lag.lag', ['spor/poster/format.ts:kontrollerRadene']],
@@ -2359,6 +2420,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'norskDato',
     [
       'kommandoer/nyttelast.ts:oppgittDatoEtterBrevet',
+      'kommandoer/nyttelast.ts:ugyldigFrist',
       'spor/forhold/kommando.ts:varseletEtter322',
       'spor/forhold/kommando.ts:datosperre',
       'spor/forhold/kommando.ts:kontrollerKorrigering',

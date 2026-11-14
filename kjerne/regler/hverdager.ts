@@ -64,6 +64,9 @@ function regnUtFridager(aar: number): Set<number> {
 /** Om dagen er en hverdag etter GFK-U24. */
 export const erHverdag = (dato: Dato): boolean => hverdagPaa(tilTid(dato));
 
+/** Om dagen er en lørdag. */
+export const erLoerdag = (dato: Dato): boolean => new Date(tilTid(dato)).getUTCDay() === 6;
+
 function hverdagPaa(tid: number): boolean {
   const d = new Date(tid);
   return d.getUTCDay() !== 0 && !fridager(d.getUTCFullYear()).has(tid);

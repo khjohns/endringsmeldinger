@@ -6,7 +6,8 @@
 import { hjemmelenGjelder } from '../../frosset/byggeklosser.ts';
 import { postlisten, type Paaberopt, type Vederlagspost } from './frysing.ts';
 import { vurdertVedRegistreringen, type Utledning } from '../../utledning/utled.ts';
-import type { Sporsvisning } from '../../utledning/visning.ts';
+import type { Sporssenkning, Sporsvisning } from '../../utledning/visning.ts';
+import { beloepeneILagene, kravposterI } from './format.ts';
 import type { Part, Svar } from '../../typer.ts';
 import { lagFraForholdet } from '../forhold/frysing.ts';
 
@@ -54,6 +55,38 @@ export function vederlagssvaret(u: Utledning, svar: Svar): Vederlagssvaret {
   };
 }
 
+/**
+ * Kravpostene der svaret godtar justeringen etter § 34.3.2 i det første laget, eller uten at en
+ * innsigelse rammer den (OV-U32).
+ */
+function godtattPrinsipalt(svar: Svar): Set<string> {
+  const virkning = new Map(
+    svar.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning])
+  );
+  return new Set(
+    svar.standpunkter.flatMap((s) => {
+      const v = virkning.get(s.id);
+      return s.art === 'justering' && s.godtar && (v === 1 || v === 'upaavirket')
+        ? [s.gjelder]
+        : [];
+    })
+  );
+}
+
+/** HF-U29 punkt 8 i vederlaget, med HF-U31, HF-U32 og HF-U33. */
+const SENKNING_I_VEDERLAGET: Sporssenkning = {
+  godkjentILagene: (svar) => beloepeneILagene(svar.utregning),
+  justeringIkkeGodtatt: (ny, tidligere) => {
+    const naa = godtattPrinsipalt(ny);
+    return [...godtattPrinsipalt(tidligere)].filter((gjelder) => !naa.has(gjelder));
+  },
+  // Punkt 34.3.3 annet ledd gjelder en kravpost med enhetspriser.
+  bestemmelse: (gjelder, krav) =>
+    kravposterI(krav).some((p) => gjelder.includes(p.id) && p.oppgjoersform === 'enhetspriser')
+      ? '34.3.3'
+      : null,
+};
+
 export const VISNING_I_VEDERLAGET = {
   // OV-U15: der TE krever endring, kreves det ikke varsel etter § 34.1.2 (§ 34.1.1).
   varseletikett: (u, regler) =>
@@ -64,4 +97,5 @@ export const VISNING_I_VEDERLAGET = {
   paaleggFrafalt: () => false,
   passivitetsetikett: () => null,
   kravetErEtterspurt: () => false,
+  senkning: SENKNING_I_VEDERLAGET,
 } satisfies Sporsvisning;

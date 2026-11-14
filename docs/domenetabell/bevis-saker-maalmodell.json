@@ -10132,6 +10132,217 @@
       "forventningsgrunnlag": "avklart_tolkning"
     },
     {
+      "id": "F-MM-HF-U23-akseptfrist",
+      "forslag": "#502. Samlevedtaket for akseptfristen, punkt 1 og 2: hvilke svar som kan ha en akseptfrist, og hvilke datoer. Svaret sendes søndag 20. september 2026.",
+      "rader": [
+        "KA-58"
+      ],
+      "start": "krav_irreg",
+      "steg": [],
+      "kontroller": [
+        {
+          "etter": 0,
+          "rolle": "kontroll",
+          "kilde": [
+            "HF-U23"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "vurdering": "delvis",
+                "godkjent_belop": 60000,
+                "akseptfrist": "2026-09-21",
+                "navn": "S-a1"
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": false,
+            "svar.S-a1.akseptfrist": "2026-09-21"
+          }
+        },
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U23"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "vurdering": "delvis",
+                "godkjent_belop": 60000,
+                "akseptfrist": "2026-09-19"
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "AKSEPTFRIST_UGYLDIG_DATO"
+          }
+        },
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U23"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "vurdering": "delvis",
+                "godkjent_belop": 60000,
+                "akseptfrist": "2026-09-26"
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "AKSEPTFRIST_UGYLDIG_DATO"
+          }
+        },
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U23",
+            "GR-U7"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "vurdering": "godkjent",
+                "akseptfrist": "2026-09-21"
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "AKSEPTFRIST_IKKE_TILLATT"
+          }
+        },
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U23"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "vederlag",
+                "vurdering": "avslaatt",
+                "akseptfrist": "2026-09-21"
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "AKSEPTFRIST_IKKE_TILLATT"
+          }
+        },
+        {
+          "etter": 0,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U23"
+          ],
+          "prov": {
+            "handling": "brev",
+            "svar": [
+              {
+                "spor": "forhold",
+                "resultat": "avslaatt",
+                "varslet_i_tide": true,
+                "akseptfrist": "2026-09-21"
+              }
+            ]
+          },
+          "forventet": {
+            "avvist": true,
+            "regel": "AKSEPTFRIST_IKKE_TILLATT"
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
+      "id": "F-MM-HF-U29-senkning-frist",
+      "forslag": "#502. Samlevedtaket for revisjon, versjon 2, punkt 8, med HF-U31: færre dager for fristen i et nytt svar viser punkt 33.7 annet ledd",
+      "rader": [
+        "KA-49"
+      ],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "brev",
+          "navn": "D3",
+          "svar": [
+            {
+              "spor": "frist",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true,
+              "dager": 15,
+              "navn": "S-f1"
+            }
+          ]
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": [
+            "HF-U29",
+            "HF-U31"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "frist",
+            "varsel_i_tide": true,
+            "spesifisering_i_tide": true,
+            "hindring": true,
+            "dager": 10
+          },
+          "forventet": {
+            "avvist": false,
+            "visning.senkning.frist.bestemmelse": "33.7"
+          }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": [
+            "HF-U29",
+            "HF-U31"
+          ],
+          "prov": {
+            "handling": "revisjon",
+            "spor": "frist",
+            "varsel_i_tide": true,
+            "spesifisering_i_tide": true,
+            "hindring": true,
+            "dager": 15
+          },
+          "forventet": {
+            "avvist": false,
+            "visning.senkning.frist": null
+          }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
       "id": "F-MM-HF-U14",
       "forslag": "MM-U34 punkt 15: HF-U14 er opphevet, og en revisjon som tar tilbake aksepten av beregningsmåten, godtas (#502)",
       "rader": [

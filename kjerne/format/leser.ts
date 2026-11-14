@@ -26,7 +26,11 @@ import {
 import { LESING_I_FORHOLDET } from '../spor/forhold/format.ts';
 import { LESING_I_FRISTEN } from '../spor/frist/format.ts';
 import { LESING_I_VEDERLAGET } from '../spor/vederlag/format.ts';
-import { avvikIMerkingen, avvikITittelen } from '../frosset/brevtittel.ts';
+import {
+  avvikIMerkingen,
+  avvikITittelen,
+  ulikSakIMerkingenOgTittelen,
+} from '../frosset/brevtittel.ts';
 import {
   erKalenderdato,
   erObjekt,
@@ -283,6 +287,9 @@ function lesBeslutningsgrunnlag(
 
 function lesSvar(v: unknown, dokument: string, sti: string): Svar {
   const e = element(v, SVAR, 'spor', sti);
+  // HF-U23 punkt 2: akseptfristen er en dag som finnes.
+  if (e.akseptfrist !== undefined && !erKalenderdato(e.akseptfrist as string))
+    throw new Uforstaatt(`${sti}.akseptfrist: finnes ikke i kalenderen`);
   const spor = e.spor as Spor;
   const standpunkter = standpunkterISvaret(spor, e, sti);
   const beslutningsgrunnlag = lesBeslutningsgrunnlag(
@@ -304,6 +311,7 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
     gjelder: e.gjelder as string,
     erstatter: (e.erstatter as string | undefined) ?? null,
     paaberopelse: (e.paaberopelse as string | undefined) ?? null,
+    akseptfrist: (e.akseptfrist as string | undefined) ?? null,
     standpunkter,
     utregning: (e.utregning as Data | undefined) ?? {},
     beslutningsgrunnlag,
@@ -516,6 +524,8 @@ function lesDokument(h: Journalrad): Dokument {
       erRegistrert(dokument.opplysninger)
     );
     if (avvik) throw new Uforstaatt(avvik);
+    if (data.brevtittel !== undefined && ulikSakIMerkingenOgTittelen(data.merking, data.brevtittel))
+      throw new Uforstaatt('merkingen og brevtittelen nevner ulike saker (LV-U27, LV-U48)');
   }
   // LV-U27, LV-U23: Deres ref. står i hodet på et brev fra løsningen, som har merkingen.
   if (data.deres_ref !== undefined && data.merking === undefined)

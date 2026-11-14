@@ -15,7 +15,7 @@
  * (#320), og en vakttest holder det likt med det som eksporteres her.
  */
 
-import { artfelt, DATO, ID, liste, objekt, TEKST, type Skjema } from './skjema.ts';
+import { artfelt, DATO, ID, KALENDERDAG, liste, objekt, TEKST, type Skjema } from './skjema.ts';
 import {
   FORHOLDSINNHOLD,
   STANDPUNKT_I_FORHOLDET,
@@ -165,7 +165,8 @@ export const SVAR: Record<Spor, Skjema> = Object.fromEntries(
           ...sporfelt(s),
           gjelder: ID,
           erstatter: ID,
-          ...(s === 'forhold' ? {} : { paaberopelse: ID }),
+          // HF-U23 punkt 1 og 2: akseptfristen, bare i et svar på vederlag eller frist.
+          ...(s === 'forhold' ? {} : { paaberopelse: ID, akseptfrist: KALENDERDAG }),
           standpunkter: { type: 'array', minItems: 1 },
           ...(utregning ? { utregning } : {}),
           beslutningsgrunnlag: BESLUTNINGSGRUNNLAG,

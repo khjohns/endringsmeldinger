@@ -9,6 +9,7 @@
 import { SKRIVING_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { avvisning } from './avvisning.ts';
+import { akseptfristeneIBrevet } from './nyttelast.ts';
 import { formfeil, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
 import { korrigertDato, SKRIVING_I_FORHOLDET } from '../spor/forhold/kommando.ts';
 import { SKRIVING_I_FRISTEN } from '../spor/frist/kommando.ts';
@@ -191,6 +192,7 @@ function svar(
     ...(erstatter ? { erstatter } : {}),
     // #342: påberopelsesversjonen svaret regnes mot, som `regnUtSvar` i nyttelastkontrollen.
     ...(s.spor === 'forhold' ? {} : { paaberopelse: u.spor.forhold.gjeldendeKrav!.id }),
+    ...(s.akseptfrist !== undefined ? { akseptfrist: s.akseptfrist } : {}),
     standpunkter: bygd.standpunkter,
   };
   // B-13: serverens utregning lagres, ikke klientens. Svaret på påberopelsen har ingen.
@@ -610,6 +612,10 @@ function skriv(
       throw new Skrivefeil(`Kjernen forstår ikke dokumentet den selv skriver: ${feil.message}`);
     throw feil;
   }
+  // HF-U23 punkt 1 og 2: akseptfristen kontrolleres mot svaret slik brevet fryser det, fordi
+  // sammenfallet (GR-U7) bare finnes i det frosne svaret.
+  const frist = Array.isArray(data.svar) ? akseptfristeneIBrevet(data.svar, brevetsDato) : null;
+  if (frist) return { godtatt: false, feil: 'REGELBRUDD', avvisning: frist };
   const rad: Journalrad = {
     event_id: eventId,
     sak_id: kontekst.sakId,

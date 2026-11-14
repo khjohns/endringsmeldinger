@@ -16,7 +16,8 @@
 
 import { HJEMMEL } from '../format/format.ts';
 import { sakensKode } from './tekst.ts';
-import { erRegistrert } from '../format/leser.ts';
+import { erRegistrert, registrertDato } from '../format/leser.ts';
+import { etterAkseptfristen } from '../regler/akseptfrist.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { innsigelsenErOppgitt, innsigelsenPaaberoper } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
@@ -141,14 +142,18 @@ export function lagBrevtekst(
         );
       perPunkt[FORBEHOLDET.punkt] = forbehold;
     }
+    // HF-U23 punkt 5: linjen med akseptfristen har ingen utdypning, og står sist.
+    if (perPunkt[AKSEPTFRISTEN] && brevpunkter.some((p) => p.punkt === AKSEPTFRISTEN))
+      throw new UtdypningUtenPunkt('Linjen med akseptfristen har ingen utdypning.');
     const punktene = [
-      ...brevpunkter,
+      ...brevpunkter.filter((p) => p.punkt !== AKSEPTFRISTEN),
       ...[egen, forbehold ? FORBEHOLDET : undefined]
         .filter(
           (e): e is { punkt: string; overskrift: string } =>
             e !== undefined && !!perPunkt[e.punkt] && !brevpunkter.some((p) => p.punkt === e.punkt)
         )
         .map((e) => ({ punkt: e.punkt, overskrift: e.overskrift, avsnitt: [] as string[] })),
+      ...brevpunkter.filter((p) => p.punkt === AKSEPTFRISTEN),
     ];
     for (const { punkt, overskrift: o, avsnitt: a } of punktene) {
       if (punkt === undefined)
@@ -295,6 +300,8 @@ const SPORENE: readonly Spor[] = ['forhold', 'vederlag', 'frist'];
 
 /** Punktet for utdypningen for hele svaret, under den faste teksten etter GR-U34 (KA-U49 punkt 1). */
 const FORBEHOLDET = { punkt: 'forbehold', overskrift: 'Forbehold' } as const;
+/** Punktet med akseptfristen sist i svaret (HF-U23 punkt 2, arbeidsvalget 14.11 i #502). */
+const AKSEPTFRISTEN = 'akseptfrist';
 
 const punktnoekkel = (gjelder: string, punkt: string) => `${gjelder}\u0000${punkt}`;
 
@@ -454,6 +461,14 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
     }
     brevpunkter.push({ punkt: p.punkt, overskrift: p.overskrift, avsnitt });
   }
+  // HF-U23 punkt 2, LV-U2, LV-U3: brevet meddeler akseptfristen med datoen, sist i svaret og uten
+  // å si hva den betyr (punkt 5). Ordlyden og plassen er arbeidsvalget 14.11 i #502.
+  if (s.akseptfrist !== null)
+    brevpunkter.push({
+      punkt: AKSEPTFRISTEN,
+      overskrift: null,
+      avsnitt: [`Akseptfrist: ${norskDato(s.akseptfrist)}.`],
+    });
   return brevpunkter;
 }
 
@@ -706,10 +721,16 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
     }
     case 'aksept': {
       const svar = j.svar(u.gjelder);
-      const aksept = `Totalentreprenøren godtar byggherrens svar på ${brevtekstI(svar.spor).svaretGjelder} i ${j.brevet(svar.dokument)}.`;
+      const godtar = `Totalentreprenøren godtar byggherrens svar på ${brevtekstI(svar.spor).svaretGjelder} i ${j.brevet(svar.dokument)}.`;
       // GR-U7: enigheten gjelder beløpet eller dagene, ikke standpunktet til forholdet.
-      if (svar.spor === 'forhold' || !saken.subsidiaer[svar.spor].length) return aksept;
-      return `${aksept} Totalentreprenøren er enig i ${brevtekstI(svar.spor).enigI}, men ikke i byggherrens standpunkt til grunnlaget.`;
+      const aksept =
+        svar.spor === 'forhold' || !saken.subsidiaer[svar.spor].length
+          ? godtar
+          : `${godtar} Totalentreprenøren er enig i ${brevtekstI(svar.spor).enigI}, men ikke i byggherrens standpunkt til grunnlaget.`;
+      // HF-U23 punkt 7: brevet sier bare at aksepten er sendt etter fristen (punkt 5).
+      return etterAkseptfristen(svar.akseptfrist, registrertDato(nytt))
+        ? `${aksept} Aksepten er sendt etter akseptfristen ${norskDato(svar.akseptfrist!)} i byggherrens svar.`
+        : aksept;
     }
     case 'trekk': {
       const krav = j.krav(u.gjelder);
