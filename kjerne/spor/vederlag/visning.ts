@@ -55,18 +55,30 @@ export function vederlagssvaret(u: Utledning, svar: Svar): Vederlagssvaret {
   };
 }
 
+/**
+ * Kravpostene der svaret godtar justeringen etter § 34.3.2 i det første laget, eller uten at en
+ * innsigelse rammer den (OV-U32).
+ */
+function godtattPrinsipalt(svar: Svar): Set<string> {
+  const virkning = new Map(
+    svar.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning])
+  );
+  return new Set(
+    svar.standpunkter.flatMap((s) => {
+      const v = virkning.get(s.id);
+      return s.art === 'justering' && s.godtar && (v === 1 || v === 'upaavirket')
+        ? [s.gjelder]
+        : [];
+    })
+  );
+}
+
 /** HF-U29 punkt 8 i vederlaget, med HF-U31, HF-U32 og HF-U33. */
 const SENKNING_I_VEDERLAGET: Sporssenkning = {
   godkjentILagene: (svar) => beloepeneILagene(svar.utregning),
   justeringIkkeGodtatt: (ny, tidligere) => {
-    const godtatt = (svar: Svar) =>
-      new Set(
-        svar.standpunkter.flatMap((s) => (s.art === 'justering' && s.godtar ? [s.gjelder] : []))
-      );
-    const foer = godtatt(tidligere);
-    return ny.standpunkter.flatMap((s) =>
-      s.art === 'justering' && !s.godtar && foer.has(s.gjelder) ? [s.gjelder] : []
-    );
+    const naa = godtattPrinsipalt(ny);
+    return [...godtattPrinsipalt(tidligere)].filter((gjelder) => !naa.has(gjelder));
   },
   // Punkt 34.3.3 annet ledd gjelder en kravpost med enhetspriser.
   bestemmelse: (gjelder, krav) =>

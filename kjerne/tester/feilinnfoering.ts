@@ -5343,7 +5343,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'det godkjente prinsipalt sammenliknes ikke i et nytt svar (HF-U29 punkt 8, HF-U32)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [["      ['prinsipalt', lagene[0] ?? 0, nye[0] ?? 0],", '']],
+    endringer: [
+      [
+        '        ? lagene.map((a, i) => [i + 1, a, nye[i] ?? null])',
+        '        ? lagene.slice(1).map((a, i) => [i + 2, a, nye[i + 1] ?? null])',
+      ],
+    ],
     mal: [
       'er senket prinsipalt, ikke subsidiært (HF-U32)',
       'færre dager for fristen viser punkt 33.7 annet ledd',
@@ -5351,10 +5356,16 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F616',
-    feilklasse: 'subsidiært sammenliknes også når begge svar har ett lag (HF-U29 punkt 8, HF-U32)',
+    feilklasse:
+      'bare det første laget sammenliknes i svar med like mange lag (HF-U29 punkt 8, HF-U32)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [['    if (lagene.length > 1 || nye.length > 1)', '    if (lagene.length > 0)']],
-    mal: ['et lavere beløp for en kravpost med fast sum viser det tidligere svaret'],
+    endringer: [
+      [
+        '        ? lagene.map((a, i) => [i + 1, a, nye[i] ?? null])',
+        '        ? lagene.slice(0, 1).map((a, i) => [i + 1, a, nye[i] ?? null])',
+      ],
+    ],
+    mal: ['hvert lag, også det subsidiære (HF-U32)'],
   },
   {
     id: 'F617',
@@ -5366,16 +5377,10 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F618',
-    feilklasse:
-      'et skifte i justeringen av enhetsprisene gir ingen senkning (HF-U29 punkt 8, HF-U33)',
+    feilklasse: 'en justering som bare står subsidiært, regnes som godtatt (HF-U32, HF-U33)',
     fil: `${K}/spor/vederlag/visning.ts`,
-    endringer: [
-      [
-        "(s.art === 'justering' && s.godtar ? [s.gjelder] : [])",
-        "(s.art === 'justering' && !s.godtar ? [s.gjelder] : [])",
-      ],
-    ],
-    mal: ['godtar byggherren ikke lenger justeringen av enhetsprisene i et nytt svar'],
+    endringer: [["(v === 1 || v === 'upaavirket')", "(v !== 'uten_virkning')"]],
+    mal: ['godtar byggherren justeringen av enhetsprisene bare subsidiært i et nytt svar'],
   },
   {
     id: 'F619',

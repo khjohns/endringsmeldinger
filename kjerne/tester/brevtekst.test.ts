@@ -10121,6 +10121,19 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     });
   });
 
+  it('godtar byggherren justeringen av enhetsprisene bare subsidiært i et nytt svar, er det en senkning (HF-U32, HF-U33)', () => {
+    const s = sakMed(justert);
+    s.send('BH', svaret(s, { P2: { aksepterer: true, godtar_justering: true } }));
+    const ny = svaret(s, {
+      P2: { aksepterer: true, varslet_i_tide: false, godtar_justering: true },
+    });
+    s.send('BH', { type: 'revisjon', erstatter: gjeldende(s).id, svar: (ny.svar as Data[])[0] });
+    expect(visning(s.u(), KJERNE.regler).spor.vederlag.senkning).toMatchObject({
+      justeringIkkeGodtatt: [kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[0]!.id],
+      bestemmelse: '34.3.3',
+    });
+  });
+
   it('godtar byggherren justeringen igjen i et nytt svar, er ingenting senket (kontrollsak, HF-U29 punkt 8)', () => {
     const s = sakMed(justert);
     s.send('BH', svaret(s, { P2: { aksepterer: true, godtar_justering: false } }));
@@ -11191,7 +11204,7 @@ describe('senkningen i et nytt svar (HF-U29 punkt 8)', () => {
     s.send('BH', revisjon(s, vederlag(s, 80000)));
     expect(senkning(s, 'vederlag')).toEqual({
       tidligereSvar: tidligere,
-      senket: [{ gjelder: p1I(s), lag: 'prinsipalt', foer: 100000, naa: 80000 }],
+      senket: [{ gjelder: p1I(s), lag: 1, foer: 100000, naa: 80000 }],
       justeringIkkeGodtatt: [],
       bestemmelse: null,
     });
@@ -11209,7 +11222,7 @@ describe('senkningen i et nytt svar (HF-U29 punkt 8)', () => {
     s.send('BH', { type: 'brev', svar: [frist(s, 15)] });
     s.send('BH', revisjon(s, frist(s, 10)));
     expect(senkning(s, 'frist')).toMatchObject({
-      senket: [{ lag: 'prinsipalt', foer: 15, naa: 10 }],
+      senket: [{ lag: 1, foer: 15, naa: 10 }],
       bestemmelse: '33.7',
     });
   });
@@ -11221,10 +11234,37 @@ describe('senkningen i et nytt svar (HF-U29 punkt 8)', () => {
     expect(senkning(s, 'frist')?.senket).toEqual([
       {
         gjelder: innholdIFristen(s.u().spor.frist.gjeldendeKrav!).frister[0]!.id,
-        lag: 'prinsipalt',
+        lag: 1,
         foer: 15,
         naa: 0,
       },
+    ]);
+  });
+
+  it('i svar med like mange lag sammenliknes hvert lag, også det subsidiære (HF-U32)', () => {
+    const s = sakMedKrav();
+    s.send('BH', { type: 'brev', svar: [frist(s, 15, false)] });
+    s.send('BH', revisjon(s, frist(s, 10, false)));
+    expect(senkning(s, 'frist')?.senket).toMatchObject([{ lag: 2, foer: 15, naa: 10 }]);
+  });
+
+  it('et tilbud som ikke lenger er akseptert, er senket, og svaret tar ikke stilling til beløpet (HF-U29 punkt 8, KA-U72, OV-U73)', () => {
+    const s = sakMedKrav();
+    s.send('BH', { type: 'brev', svar: [vederlag(s, 100000)] });
+    s.send(
+      'BH',
+      revisjon(
+        s,
+        svar(
+          'vederlag',
+          s.krav('vederlag'),
+          P1({ aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' }),
+          { resultat: 'delvis_godkjent', godkjent_beloep: 0 }
+        )
+      )
+    );
+    expect(senkning(s, 'vederlag')?.senket).toEqual([
+      { gjelder: p1I(s), lag: 1, foer: 100000, naa: null },
     ]);
   });
 

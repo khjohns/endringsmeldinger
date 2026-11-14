@@ -95,9 +95,11 @@ export interface Visning {
  */
 export interface Senket {
   gjelder: string;
-  lag: 'prinsipalt' | 'subsidiaert';
-  foer: number;
-  naa: number;
+  /** Laget i sporet, fra 1 (prinsipalt). Lagene regnes uten forholdet (OV-U32). */
+  lag: number;
+  /** `null` når svaret ikke tar stilling til et beløp i laget (KA-U72, OV-U73). */
+  foer: number | null;
+  naa: number | null;
 }
 
 /**
@@ -296,8 +298,11 @@ export interface Sporsvisning {
 /** Det som er sporets eget i senkningen etter HF-U29 punkt 8. */
 export interface Sporssenkning {
   /** Det byggherren godkjente for hver post eller frist i svaret, ett tall per lag fra det første. */
-  godkjentILagene(svar: Svar): ReadonlyMap<string, readonly number[]>;
-  /** Kravpostene der `tidligere` godtar justeringen etter § 34.3.2, og `ny` ikke gjør det. */
+  godkjentILagene(svar: Svar): ReadonlyMap<string, readonly (number | null)[]>;
+  /**
+   * Kravpostene der `tidligere` godtar justeringen etter § 34.3.2 prinsipalt, og `ny` ikke gjør
+   * det, eller bare subsidiært (HF-U32, HF-U33).
+   */
   justeringIkkeGodtatt?(ny: Svar, tidligere: Svar): string[];
   /** Bestemmelsen visningen viser når postene eller fristene `gjelder` er senket i svaret på `krav`. */
   bestemmelse(gjelder: readonly string[], krav: Krav): Senkning['bestemmelse'];
@@ -305,9 +310,9 @@ export interface Sporssenkning {
 
 /**
  * HF-U29 punkt 8 for det gjeldende svaret i sporet, med HF-U30–HF-U33:
- * hver post og frist sammenliknes med svaret det nye svaret erstatter på samme kravversjon,
- * prinsipalt og subsidiært hver for seg. Subsidiært sammenliknes bare når et av svarene har mer
- * enn ett lag, ellers er det samme tall. `null` når ingenting er senket.
+ * hver post og frist sammenliknes med svaret det nye svaret erstatter på samme kravversjon, lag
+ * for lag når svarene har like mange lag, og ellers det første og det siste laget. Et lag uten et
+ * beløp regnes som 0 i sammenlikningen. `null` når ingenting er senket.
  */
 export function senkningen(u: Utledning, spor: Spor): Senkning | null {
   const sporet = visningI(spor).senkning;
@@ -320,13 +325,16 @@ export function senkningen(u: Utledning, spor: Spor): Senkning | null {
   const senket: Senket[] = [];
   for (const [gjelder, lagene] of foer) {
     const nye = naa.get(gjelder) ?? [];
-    const sammenliknet: [Senket['lag'], number, number][] = [
-      ['prinsipalt', lagene[0] ?? 0, nye[0] ?? 0],
-    ];
-    if (lagene.length > 1 || nye.length > 1)
-      sammenliknet.push(['subsidiaert', lagene.at(-1) ?? 0, nye.at(-1) ?? 0]);
+    const antall = Math.max(lagene.length, nye.length, 1);
+    const sammenliknet: [number, number | null, number | null][] =
+      lagene.length === nye.length
+        ? lagene.map((a, i) => [i + 1, a, nye[i] ?? null])
+        : [
+            [1, lagene[0] ?? null, nye[0] ?? null],
+            [antall, lagene.at(-1) ?? null, nye.at(-1) ?? null],
+          ];
     for (const [lag, foer, naa] of sammenliknet)
-      if (naa < foer) senket.push({ gjelder, lag, foer, naa });
+      if ((naa ?? 0) < (foer ?? 0)) senket.push({ gjelder, lag, foer, naa });
   }
   const justeringIkkeGodtatt = sporet.justeringIkkeGodtatt?.(ny, tidligere) ?? [];
   if (!senket.length && !justeringIkkeGodtatt.length) return null;

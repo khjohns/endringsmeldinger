@@ -318,20 +318,22 @@ export const utregningIVederlaget = (utregning: Record<string, unknown>): Vederl
   utregning as unknown as Vederlagsutregning;
 
 /**
- * Beløpet byggherren godkjente for hver post i svaret, ett tall per lag fra det første. En post
- * uten fast beløp i laget har 0 der (KA-U72).
+ * Beløpet byggherren godkjente for hver post i svaret, ett per lag fra det første. `null` der
+ * posten ikke har et fast beløp i laget (KA-U72).
  */
-export const beloepeneILagene = (utregning: Record<string, unknown>): Map<string, number[]> =>
+export const beloepeneILagene = (
+  utregning: Record<string, unknown>
+): Map<string, (number | null)[]> =>
   new Map(
     utregningIVederlaget(utregning).poster.map((p) => [
       p.gjelder ?? p.saerskilt!,
-      p.lag.map((l) => l.beloep ?? 0),
+      p.lag.map((l) => l.beloep ?? null),
     ])
   );
 
 /** Svaret godkjenner et beløp for en post i et av lagene (HF-U23 punkt 1). */
 export const godkjennerBeloepIEtLag = (utregning: Record<string, unknown>): boolean =>
-  [...beloepeneILagene(utregning).values()].some((lagene) => lagene.some((b) => b > 0));
+  [...beloepeneILagene(utregning).values()].some((lagene) => lagene.some((b) => (b ?? 0) > 0));
 
 /**
  * Et standpunkt bare vederlaget har, lest av elementet leseren har kontrollert mot skjemaet, med
