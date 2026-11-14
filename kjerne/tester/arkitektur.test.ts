@@ -1998,6 +1998,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/skriving.ts',
       'frosset/frysing.ts',
       'spor/vederlag/format.ts',
+      'spor/frist/tekst.ts',
       'spor/frist/format.ts',
     ],
   ],
