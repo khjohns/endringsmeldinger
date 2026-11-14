@@ -6506,6 +6506,65 @@ TFR-01'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+id = "GR-U38"
+dato = 2026-11-14
+hvem = "oppdragsgiver"
+kilde = ["#1745"]
+sporsmal = '''
+Spørsmål 1 ordrett slik det ble stilt 14.11 i [spørsmålsfila](../vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md):
+
+### 1. Kravet gjelder flere frister, og byggherren har godkjent alle dagene for bare noen av dem
+
+**Bakgrunn.** Et krav kan gjelde flere frister i kontrakten, og byggherren svarer for hver frist
+([KA-U73](../../plans/vedtak.md#ka-u73), [KA-U79](../../plans/vedtak.md#ka-u79)). Løsningen regner i dag
+partene som enige uten aksept bare når byggherren har godkjent alle dagene for alle fristene. Godkjenner
+byggherren alle dagene for frist A, men ikke for frist B, må totalentreprenøren godta svaret før det er
+enighet om noe. Aksepten gjelder hele svaret.
+
+**Belegg.** GR-U7: «Godkjenner byggherren hele kravet i sporet, er partene enige uten aksept». Vedtaket er
+fra 08.10, før kravet fikk flere frister. Ingen vedtak avgjør hva som gjelder for én frist.
+
+- **A (anbefalt):** Partene er enige uten aksept bare når byggherren har godkjent alle dagene for alle
+  fristene i kravet. Ellers blir det enighet først når totalentreprenøren godtar svaret, og aksepten
+  gjelder hele svaret. For verdien fullmakten regnes av, teller dagene byggherren har godkjent for frist
+  A likevel som godkjent (GFK-U26).
+- **B:** For en frist byggherren har godkjent alle dagene for, er partene enige om den fristen uten aksept,
+  også når svaret om en annen frist står åpent.
+
+**Hva valget styrer.** Med A bruker løsningen samme enighet for hele kravet som i dag, og
+totalentreprenørens skjema tar ikke med frist A før svaret er godtatt. B krever nye regler for enighet,
+revisjon og trekk per frist. Revisjonsretten og låsen etter GR-U7 gjelder i dag hele svaret.'''
+valgt = "A uten setningen om fullmakten"
+svar = '''
+Oppdragsgiver 14.11, ordrett: «A, A: det er registrert enighet om frist. Hvordan fullmakten regnes hvis
+BH godtar er et annet spørsmål. B: ellers blir EO mye mer komplisert. Uenigheter går gjennom KOE.
+Stilltiende er "aksept" (uten at løsningen sier det). Slik er det også for vederlagsposter. 4A.» Valgt i spørsmål 1: «A uten setningen om fullmakten». Hvordan fullmakten regnes når byggherren har godkjent dagene for bare noen av fristene, er ikke avgjort («Hvordan fullmakten regnes hvis BH godtar er et annet spørsmål»). ([spørsmålsfila](../vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md))'''
+forhold = [
+  { art = "presiserer", vedtak = "gr-u7" },
+  { art = "presiserer", vedtak = "ka-u77" },
+]
+folge = '''
+Gjelder BF-20 (#1745). Siste setning i alternativ A, om verdien fullmakten regnes av (GFK-U26), er ikke avgjort og er ikke ført.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A uten setningen om fullmakten"
+tekst = '''
+Partene er enige uten aksept bare når byggherren har godkjent alle dagene for alle fristene i kravet. Ellers blir det enighet først når totalentreprenøren godtar svaret, og aksepten gjelder hele svaret.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A som stilt"
+tekst = '''
+Partene er enige uten aksept bare når byggherren har godkjent alle dagene for alle fristene i kravet. Ellers blir det enighet først når totalentreprenøren godtar svaret, og aksepten gjelder hele svaret. For verdien fullmakten regnes av, teller dagene byggherren har godkjent for frist A likevel som godkjent (GFK-U26).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B som stilt"
+tekst = '''
+For en frist byggherren har godkjent alle dagene for, er partene enige om den fristen uten aksept, også når svaret om en annen frist står åpent.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
 id = "GR-U39"
 dato = 2026-11-14
 hvem = "oppdragsgiver"
@@ -15785,6 +15844,87 @@ tekst = "Sier brevet ikke noe om det bestridte utsagnet, står det som bestridt 
 [[gruppe.vedtak.sitat]]
 kilde = "hovedplanen"
 tekst = "Registreringen går gjennom godkjenningen etter fullmakten og lukker sakene den omfatter når den er godkjent."
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "EO-U40"
+dato = 2026-11-14
+hvem = "oppdragsgiver"
+kilde = ["#1745"]
+sporsmal = '''
+Spørsmål 3 ordrett slik det ble stilt 14.11 i [spørsmålsfila](../vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md), med avklaringene samme dag:
+
+### 3. Dagene i en endringsordre
+
+**Bakgrunn.** Samlevedtaket for endringsordren (EO-U39, versjon 3, merget 12.11 i #1634) sier det
+oppdragsgiver sier: det finnes ingen aksept av endringsordren som helhet, og uenighet går som ny KOE
+(punkt 33 og 35). Men punkt 29 sier at totalentreprenøren kan godta et utsagn i EO-saken, for eksempel
+tilbudet om frist. Dagene i en endringsordre er byggherrens tilbud, eller en gjengivelse av en registrert
+enighet (punkt 21). KA-U77 og GFK-U26 viser til en slik aksept av utsagnet («godtatt dagene i en
+endringsordre»). Det finnes ingen åpen PR med en nyere versjon av samlevedtaket.
+
+Spørsmålet stopper ikke PR 3, fordi endringsordren ikke leses ennå.
+
+- **A (anbefalt):** Punkt 29 står. Ordlyden i KA-U77 og GFK-U26 presiseres til «godtatt utsagnet om frist i
+  en endringsordre», så den ikke kan leses som en aksept av endringsordren.
+- **B:** Totalentreprenøren godtar heller ikke et utsagn i endringsordren. Dagene i en endringsordre
+  teller som godkjent av byggherren for fullmakten, og som avtalt bare når endringsordren gjengir en
+  registrert enighet. Det endrer punkt 29 i EO-U39, KA-U77 og GFK-U26.
+
+### Avklaringene om svar 3, 14.11
+
+Orkestratoren spurte om (A) aksepten av et utsagn i en endringsordre forsvinner helt, slik at punkt 29–32,
+34, 55 og 56 i EO-U39 endres, og (B) om andre setning i punkt 33 («Fravær av protest er ikke enighet»)
+erstattes av «Løsningen registrerer ikke enighet om et utsagn fordi totalentreprenøren ikke protesterer,
+og sier ikke hva det betyr at protesten mangler.» (alternativ A), eller står (alternativ B).
+
+Oppdragsgiver 14.11, ordrett:
+
+> A:
+>
+> TE godkjenner ikke EO.
+>
+> BH bør i utgangspunktet sørge for å være enig med TE dersom EO bygger på tidligere KOE. Hvis TE likevel er
+> uenig må han sende ny KOE. Tanke: for regningsarbeid og enhetspriser (mengdeavregning) må BH oppgi et
+> anslag for arbeidet. Det kan være skjult for TE, dersom det ikke er et overslag hentet fra KOE. Anslag er
+> nødvendig for å beregne fullmakt til å godkjenne EO.
+>
+> 2A
+
+- **A:** Ja. Totalentreprenøren godtar ikke en endringsordre eller et utsagn i den. Uenighet går gjennom en
+  ny KOE.
+- **B:** A, lest av «2A» som svar på den andre avklaringen.
+- **Tanken om anslaget** for regningsarbeid og enhetspriser er ikke et svar på et spørsmål. Den kontrolleres
+  mot vedtakene om fullmakten for endringsordren før den eventuelt stilles som eget spørsmål.
+- Avklaringen om fullmakten i svar 1 og 2 står åpen.'''
+valgt = "B med avklaringene"
+svar = '''
+Oppdragsgiver 14.11, ordrett: «A, A: det er registrert enighet om frist. Hvordan fullmakten regnes hvis
+BH godtar er et annet spørsmål. B: ellers blir EO mye mer komplisert. Uenigheter går gjennom KOE.
+Stilltiende er "aksept" (uten at løsningen sier det). Slik er det også for vederlagsposter. 4A.» Avklaringene, ordrett: «A: TE godkjenner ikke EO. BH bør i utgangspunktet sørge for å være enig med TE dersom EO bygger på tidligere KOE. Hvis TE likevel er uenig må han sende ny KOE. […] 2A». Valgt i spørsmål 3: «B med avklaringene». Tanken om anslaget for regningsarbeid og enhetspriser i avklaringen er ikke et svar og er ikke ført. ([spørsmålsfila](../vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md))'''
+forhold = [
+  { art = "endrer", vedtak = "eo-u39" },
+  { art = "endrer", vedtak = "ka-u77" },
+  { art = "endrer", vedtak = "gfk-u26" },
+]
+folge = '''
+Gjelder BF-20 (#1745). Endringsordren leses ikke i kjernen ennå.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B med avklaringene"
+tekst = '''
+Totalentreprenøren godtar heller ikke et utsagn i endringsordren. Dagene i en endringsordre teller som godkjent av byggherren for fullmakten, og som avtalt bare når endringsordren gjengir en registrert enighet. Det endrer punkt 29 i EO-U39, KA-U77 og GFK-U26. Totalentreprenøren godtar ikke en endringsordre eller et utsagn i den, heller ikke et utsagn om vederlag. Er totalentreprenøren uenig, går uenigheten gjennom en ny KOE. Punkt 29–32, 34, 55 og 56 i EO-U39 gjelder ikke lenger som regler om totalentreprenørens aksept av et utsagn. Andre setning i punkt 33 erstattes av: «Løsningen registrerer ikke enighet om et utsagn fordi totalentreprenøren ikke protesterer, og sier ikke hva det betyr at protesten mangler.» Forhold: endrer EO-U39 punkt 29–34, 55 og 56, KA-U77 og GFK-U26.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A som stilt"
+tekst = '''
+Punkt 29 står. Ordlyden i KA-U77 og GFK-U26 presiseres til «godtatt utsagnet om frist i en endringsordre», så den ikke kan leses som en aksept av endringsordren.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B som stilt"
+tekst = '''
+Totalentreprenøren godtar heller ikke et utsagn i endringsordren. Dagene i en endringsordre teller som godkjent av byggherren for fullmakten, og som avtalt bare når endringsordren gjengir en registrert enighet. Det endrer punkt 29 i EO-U39, KA-U77 og GFK-U26.'''
 
 [[gruppe]]
 tittel = "Sendte brev, regelendring og saker kjernen ikke forstår"
