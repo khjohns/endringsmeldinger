@@ -179,7 +179,7 @@ function varseletFoerGrunnlagsdatoen(
   if (grunnlag === null || dag === null || dag >= grunnlag.dag) return null;
   return avvis(
     'VARSEL_FOER_GRUNNLAGSDATOEN',
-    `Varselet etter punkt ${hjemmel} er oppgitt sendt ${norskDato(dag)}, før datoen ${DATOEN_GJELDER[grunnlag.felt]}, ${norskDato(grunnlag.dag)}, slik TE har oppgitt den i grunnlagskravet (VS-U58).`
+    `Varselet etter punkt ${hjemmel} er oppgitt sendt ${norskDato(dag)}, før datoen ${DATOEN_GJELDER[grunnlag.felt]}, ${norskDato(grunnlag.dag)}, slik totalentreprenøren har oppgitt den i påberopelsen.`
   );
 }
 
@@ -223,7 +223,11 @@ function korrigeringEtterVarslene(
   return null;
 }
 
-export type OppgittDato = { dato: unknown; gjelder: string; av: 'TE' | 'Byggherren' };
+export type OppgittDato = {
+  dato: unknown;
+  gjelder: string;
+  av: 'Totalentreprenøren' | 'Byggherren';
+};
 
 /**
  * Datoen parten oppgir i kommandoen og det den gjelder: datoen varslingsplikten løper
@@ -232,14 +236,15 @@ export type OppgittDato = { dato: unknown; gjelder: string; av: 'TE' | 'Byggherr
  * byggherrens registrerte begrunnelse ble sendt (KA-U35 (opphevet av KA-U46)).
  */
 function oppgittDatoI(k: Kommando): OppgittDato | null {
-  if (k.type === 'varsel') return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'TE' };
+  if (k.type === 'varsel')
+    return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'Totalentreprenøren' };
   if (k.type === 'begrunnelse')
     return k.sendt === undefined
       ? null
       : { dato: k.sendt, gjelder: 'brevet med begrunnelsen ble sendt', av: 'Byggherren' };
   if (k.type === 'korrigering') {
     const { felt, dato } = korrigertDato(k);
-    return { dato, gjelder: DATOEN_GJELDER[felt], av: 'TE' };
+    return { dato, gjelder: DATOEN_GJELDER[felt], av: 'Totalentreprenøren' };
   }
   return k.type === 'krav' ? nyttelastI(k.spor).oppgittDatoIKravet(k) : null;
 }

@@ -350,7 +350,9 @@ describe('datoen varslingsplikten løper fra, i påberopelsen (VS-U26)', () => {
     (hovedkategori, underkategori) => {
       const felt = Object.keys(datoen(hovedkategori, underkategori))[0];
       expect(krav({ hovedkategori, underkategori })).toEqual([
-        expect.stringMatching(new RegExp(`^\\$\\.innhold\\.${felt}: TE må oppgi datoen`)),
+        expect.stringMatching(
+          new RegExp(`^\\$\\.innhold\\.${felt}: totalentreprenøren må oppgi datoen`)
+        ),
       ]);
     }
   );

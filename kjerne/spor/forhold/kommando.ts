@@ -40,7 +40,9 @@ function datofeil(innhold: Innhold): string[] {
   if (felt === null) return [];
   const dato = innhold[felt];
   if (dato === undefined)
-    return [`$.innhold.${felt}: TE må oppgi datoen ${DATOEN_GJELDER[felt]} (VS-U26)`];
+    return [
+      `$.innhold.${felt}: totalentreprenøren må oppgi datoen ${DATOEN_GJELDER[felt]} (VS-U26)`,
+    ];
   return erKalenderdato(dato)
     ? []
     : [`$.innhold.${felt}: ${JSON.stringify(dato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`];
@@ -106,12 +108,12 @@ function kategorisperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): A
   )
     return avvis(
       'ANNEN_HJEMMEL',
-      'Grunnlaget er sendt, og en ny versjon kan ikke endre hovedkategorien eller underkategorien (GR-U22).'
+      'Påberopelsen er sendt, så en oppdatert påberopelse kan ikke endre forholdet eller gruppen det hører til. Et annet forhold påberopes i en ny sak.'
     );
   if (tekst(k.innhold.endringsordre) !== forrige.endringsordre)
     return avvis(
       'ANNEN_ENDRINGSORDRE',
-      `Grunnlaget er sendt, og en ny versjon kan ikke endre endringsordren «${forrige.endringsordre}». En annen endringsordre påberopes i en ny sak (GR-U40 punkt 7 og 9).`
+      `Påberopelsen er sendt, så en oppdatert påberopelse kan ikke endre endringsordren «${forrige.endringsordre}». En annen endringsordre påberopes i en ny sak.`
     );
   return null;
 }
@@ -127,14 +129,16 @@ function datosperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvis
   if (felt === null || siste === null || k.innhold[felt] === siste.dato) return null;
   return avvis(
     'DATOEN_KAN_IKKE_ENDRES',
-    `En ny versjon av grunnlaget kan ikke endre datoen ${DATOEN_GJELDER[felt]}. TEs siste opplysning er ${norskDato(siste.dato)}. Datoen korrigeres i et eget brev.`
+    `En oppdatert påberopelse kan ikke endre datoen ${DATOEN_GJELDER[felt]}. Totalentreprenørens siste opplysning er ${norskDato(siste.dato)}. Datoen korrigeres i et eget brev.`
   );
 }
 
 /** Datoen varslingsplikten løper fra i påberopelsen (VS-U26). */
 function oppgittDatoIForholdet(k: Extract<Kommando, { type: 'krav' }>): OppgittDato | null {
   const felt = oppgittDato(k.innhold.hovedkategori, k.innhold.underkategori);
-  return felt === null ? null : { dato: k.innhold[felt], gjelder: DATOEN_GJELDER[felt], av: 'TE' };
+  return felt === null
+    ? null
+    : { dato: k.innhold[felt], gjelder: DATOEN_GJELDER[felt], av: 'Totalentreprenøren' };
 }
 
 /**
@@ -152,12 +156,12 @@ export function kontrollerKorrigering(
   if (felt !== kategoriensFelt)
     return avvis(
       'UGYLDIG_KORRIGERING',
-      `I kategorien i grunnlaget oppgir TE datoen ${DATOEN_GJELDER[kategoriensFelt!]}, ikke datoen ${DATOEN_GJELDER[felt]}.`
+      `For forholdet som er påberopt, oppgir totalentreprenøren datoen ${DATOEN_GJELDER[kategoriensFelt!]}, ikke datoen ${DATOEN_GJELDER[felt]}.`
     );
   return sisteDatoopplysning(u, felt)?.dato === dato
     ? avvis(
         'DATOEN_ER_UENDRET',
-        `TE har alt oppgitt at ${DATOEN_GJELDER[felt]} ${norskDato(dato)}. Korrigeringen må oppgi en annen dato.`
+        `Totalentreprenøren har alt oppgitt at ${DATOEN_GJELDER[felt]} ${norskDato(dato)}. Korrigeringen må oppgi en annen dato.`
       )
     : null;
 }
@@ -208,7 +212,7 @@ function svaretPaaberoperRegistrertVarsel(u: Utledning, hva: 'Svaret' | 'Revisjo
   return registrert && varseletForNyttSvar(u, '32.2') === registrert.id
     ? avvis(
         'IKKE_I_FOERSTE_VERSJON',
-        `${hva} på grunnlaget kan ikke sendes ennå, fordi TE har registrert et varsel etter punkt 32.2 sendt utenfor løsningen, og brevet kan ikke vise til det. Brevet kan registreres som dokumentasjon.`
+        `${hva} på forholdet kan ikke sendes ennå, fordi totalentreprenøren har registrert et varsel etter punkt 32.2 sendt utenfor løsningen, og brevet kan ikke vise til det. Brevet kan registreres som dokumentasjon.`
       )
     : null;
 }
@@ -222,26 +226,29 @@ function svaretPaaberoperRegistrertVarsel(u: Utledning, hva: 'Svaret' | 'Revisjo
 export function korrigering(gjelder: string, u: Utledning): Avvisning | null {
   const krav = u.spor.forhold.gjeldendeKrav;
   if (!krav)
-    return avvis('PAABEROPELSE_IKKE_SENDT', 'Grunnlaget må være sendt før datoen kan korrigeres.');
+    return avvis(
+      'PAABEROPELSE_IKKE_SENDT',
+      'Påberopelsen må være sendt før datoen kan korrigeres.'
+    );
   const { hovedkategori, underkategori } = kategori(krav);
   const felt = oppgittDato(hovedkategori, underkategori);
   // Punkt 10: i underkategorien endringsordre oppgir TE ingen slik dato.
   if (felt === null)
     return avvis(
       'INGEN_DATO_I_KATEGORIEN',
-      'TE oppgir ikke en dato for når pålegget ble mottatt eller TE ble klar over forholdet i underkategorien endringsordre, så det er ingen dato å korrigere.'
+      'I en påberopelse av en endringsordre oppgir totalentreprenøren ikke når pålegget ble mottatt eller totalentreprenøren ble klar over forholdet, så det er ingen dato å korrigere.'
     );
   const siste = sisteDatoopplysning(u, felt);
   if (!siste)
     return avvis(
       'UGYLDIG_KORRIGERING',
-      `TE har ikke oppgitt datoen ${DATOEN_GJELDER[felt]}, så det er ingen opplysning å korrigere.`
+      `Totalentreprenøren har ikke oppgitt datoen ${DATOEN_GJELDER[felt]}, så det er ingen opplysning å korrigere.`
     );
   return siste.id === gjelder
     ? null
     : avvis(
         'UGYLDIG_KORRIGERING',
-        `Korrigeringen må vise til brevet med TEs siste opplysning om datoen ${DATOEN_GJELDER[felt]}.`
+        `Korrigeringen må vise til brevet med totalentreprenørens siste opplysning om datoen ${DATOEN_GJELDER[felt]}.`
       );
 }
 
@@ -250,7 +257,7 @@ function trekkAvPaaberopelsen(u: Utledning): Avvisning | null {
   if (trekkAvPaaberopelsenErSperret(u))
     return avvis(
       'FORHOLD_ER_ENDRINGSORDRE',
-      'Byggherren har godkjent grunnlaget i et svar som er en endringsordre. Grunnlaget kan ikke trekkes, heller ikke etter en ny kravversjon eller et nytt svar.'
+      'Byggherren har godkjent forholdet i et svar som er en endringsordre. Påberopelsen kan ikke trekkes, heller ikke etter en oppdatert påberopelse eller et nytt svar.'
     );
   return null;
 }

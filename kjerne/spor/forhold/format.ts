@@ -50,7 +50,7 @@ export type OppgittDato = (typeof OPPGITT_DATO)[keyof typeof OPPGITT_DATO];
  */
 export const DATOEN_GJELDER: Record<OppgittDato, string> = {
   paalegg_mottatt: 'pålegget ble mottatt',
-  klar_over_forholdet: 'TE ble klar over forholdet',
+  klar_over_forholdet: 'totalentreprenøren ble klar over forholdet',
 };
 
 const OPPGITTE_DATOER = [...new Set(Object.values(OPPGITT_DATO))] as OppgittDato[];
