@@ -1,14 +1,20 @@
 /**
  * Forlengelsene en sak gir fristene i fristtabellen, som en annen sak i samme kontrakt regner
- * fristen fra (GFK-U19, GFK-U26). Avtalt er dagene TE har godtatt (KA-U77), og godkjent er dagene
- * i første lag i byggherrens gjeldende svar. Fristtabellen i kjøringen er `FRISTTABELLEN`.
+ * fristen fra (GFK-U19, GFK-U26). Avtalt er dagene i en enighet, også en betinget enighet og en
+ * enighet ved sammenfall (GR-U7, KA-U77, og svarene på spørsmål 1 og 2 i
+ * `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md`). Godkjent er dagene i første lag i
+ * byggherrens gjeldende svar uten enighet. Fristtabellen i kjøringen er `FRISTTABELLEN`.
  */
 
 import { describe, expect, it } from 'vitest';
 import { minnebane } from './bane.ts';
 import { kjoer, type Forloep } from './kjoerer.ts';
 import type { Handling } from './klient.ts';
-import { forlengelseneISaken } from '../spor/frist/utledning.ts';
+import {
+  forlengelseneISaken,
+  forlengerFristen,
+  fristenEtterForlengelsene,
+} from '../spor/frist/utledning.ts';
 
 async function forlengelsene(steg: Handling[]) {
   const forloep: Forloep = { id: 'forlengelser', rader: [], start: null, steg, kontroller: [] };
@@ -82,12 +88,12 @@ describe('forlengelsene i saken (GFK-U26)', () => {
     ]);
   });
 
-  it('godkjent: byggherren har godkjent alle dagene TE krevde, uten at TE har godtatt noe', async () => {
+  it('avtalt: byggherren har godkjent alle dagene TE krevde, og partene er enige uten aksept (GR-U7)', async () => {
     expect(
       await forlengelsene([PAABEROPELSE, FRISTKRAVET, brevet(forholdet('godkjent'), fristen())])
     ).toEqual([
-      { fristId: 1, dager: 10, grunnlag: 'godkjent' },
-      { fristId: 2, dager: 6, grunnlag: 'godkjent' },
+      { fristId: 1, dager: 10, grunnlag: 'avtalt' },
+      { fristId: 2, dager: 6, grunnlag: 'avtalt' },
     ]);
   });
 
@@ -133,9 +139,36 @@ describe('forlengelsene i saken (GFK-U26)', () => {
     ).toEqual([]);
   });
 
-  it('et fristsvar som er subsidiært til avslaget av forholdet, er ingen godkjent forlengelse (MM-U9)', async () => {
+  it('subsidiært: et svar uten enighet som er subsidiært til avslaget av forholdet, merkes og forlenger ikke fristen (spørsmål 2)', async () => {
+    const f = await forlengelsene([
+      PAABEROPELSE,
+      FRISTKRAVET,
+      brevet(forholdet('avslaatt'), fristen({ dager: 3 })),
+    ]);
+    expect(f).toEqual([
+      { fristId: 1, dager: 3, grunnlag: 'subsidiaert' },
+      { fristId: 2, dager: 3, grunnlag: 'subsidiaert' },
+    ]);
+    expect(f.filter(forlengerFristen)).toEqual([]);
+  });
+
+  it('avtalt: alle dagene er godkjent subsidiært, og enigheten er betinget (spørsmål 2)', async () => {
     expect(
       await forlengelsene([PAABEROPELSE, FRISTKRAVET, brevet(forholdet('avslaatt'), fristen())])
+    ).toEqual([
+      { fristId: 1, dager: 10, grunnlag: 'avtalt' },
+      { fristId: 2, dager: 6, grunnlag: 'avtalt' },
+    ]);
+  });
+
+  it('en enighet uten virkning gir ingen forlengelse: avslaget av forholdet er godtatt (GR-U7, KA-U6)', async () => {
+    expect(
+      await forlengelsene([
+        PAABEROPELSE,
+        FRISTKRAVET,
+        brevet(forholdet('avslaatt'), fristen()),
+        { handling: 'aksept', spor: 'forhold', navn: 'A0' },
+      ])
     ).toEqual([]);
   });
 
@@ -155,5 +188,18 @@ describe('forlengelsene i saken (GFK-U26)', () => {
         { fristId: 2, dager: 3, grunnlag: 'godkjent' },
       ]
     );
+  });
+});
+
+describe('fristen etter forlengelsene (GFK-U19)', () => {
+  it('summerer dagene som forlenger fristen, for den fristen', () => {
+    expect(
+      fristenEtterForlengelsene('2026-12-16', 2, [
+        { fristId: 2, dager: 3, grunnlag: 'avtalt' },
+        { fristId: 2, dager: 4, grunnlag: 'godkjent' },
+        { fristId: 2, dager: 9, grunnlag: 'subsidiaert' },
+        { fristId: 1, dager: 30, grunnlag: 'godkjent' },
+      ])
+    ).toBe('2026-12-23');
   });
 });

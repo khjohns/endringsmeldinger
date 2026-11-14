@@ -5,18 +5,20 @@
  * lov om helligdager og helligdagsfred § 2.
  */
 
+import { erKalenderdato } from '../format/skjema.ts';
+
 /** En dato som `ÅÅÅÅ-MM-DD`, regnet i UTC så sommertiden ikke flytter dagen. */
 type Dato = string;
 
 const DAG = 86_400_000;
 
 const tilTid = (dato: Dato): number => {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dato);
-  if (!m) throw new Error(`${dato} er ikke en dato på formen ÅÅÅÅ-MM-DD`);
-  const tid = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-  if (new Date(tid).toISOString().slice(0, 10) !== dato) throw new Error(`${dato} finnes ikke`);
-  return tid;
+  if (!erKalenderdato(dato))
+    throw new Error(`${dato} finnes ikke, eller er ikke på formen ÅÅÅÅ-MM-DD`);
+  return Date.parse(`${dato}T00:00:00Z`);
 };
+
+const tilDato = (tid: number): Dato => new Date(tid).toISOString().slice(0, 10);
 
 /** Første påskedag i den gregorianske kalenderen (Meeus/Jones/Butcher). */
 function paaskedag(aar: number): number {
@@ -52,8 +54,9 @@ function fridager(aar: number): Set<number> {
 }
 
 /** Om dagen er en hverdag etter GFK-U24. */
-export function erHverdag(dato: Dato): boolean {
-  const tid = tilTid(dato);
+export const erHverdag = (dato: Dato): boolean => hverdagPaa(tilTid(dato));
+
+function hverdagPaa(tid: number): boolean {
   const d = new Date(tid);
   return d.getUTCDay() !== 0 && !fridager(d.getUTCFullYear()).has(tid);
 }
@@ -65,9 +68,9 @@ export function erHverdag(dato: Dato): boolean {
  */
 export function hverdagerIForlengelsen(fra: Dato, dager: number): number {
   kalenderdager(dager);
-  tilTid(fra);
+  const start = tilTid(fra);
   let antall = 0;
-  for (let n = 1; n <= dager; n++) if (erHverdag(forlengetFrist(fra, n))) antall++;
+  for (let n = 1; n <= dager; n++) if (hverdagPaa(start + n * DAG)) antall++;
   return antall;
 }
 
@@ -77,7 +80,7 @@ export function hverdagerIForlengelsen(fra: Dato, dager: number): number {
  */
 export function forlengetFrist(dato: Dato, dager: number): Dato {
   kalenderdager(dager);
-  return new Date(tilTid(dato) + dager * DAG).toISOString().slice(0, 10);
+  return tilDato(tilTid(dato) + dager * DAG);
 }
 
 function kalenderdager(dager: number): void {

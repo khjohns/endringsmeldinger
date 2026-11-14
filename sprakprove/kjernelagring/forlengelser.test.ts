@@ -52,6 +52,13 @@ describe.skipIf(!TESTBASE_URL)('fristgrunnlaget for fullmakten i SQL Server', ()
 
   const les = (k: Kontekst, sakId: string) =>
     transaksjon(o.datalag.kjoeretid.pool, k, (f) => lesFristgrunnlaget(f, sakId, KJERNE));
+  /** Datoen, satsen og sakene i forlengelsene for Overtakelsen. */
+  const overtakelsen = async (k: Kontekst, sakId: string) => {
+    const g = await les(k, sakId);
+    expect(g.ikkeForstaatt).toEqual([]);
+    const f = g.frister.get(1)!;
+    return { dato: f.dato, sats: f.sats, saker: f.forlengelser.map((x) => [x.sakId, x.grunnlag]) };
+  };
   const bh = (): Kontekst => ({
     aktor: o.bh.id,
     prosjekt: o.prosjekt.id,
@@ -88,17 +95,26 @@ describe.skipIf(!TESTBASE_URL)('fristgrunnlaget for fullmakten i SQL Server', ()
   });
 
   it('GFK-U19, GFK-U26: datoen er fristen etter forlengelsene i de andre sakene, ikke i saken selv', async () => {
-    expect(await les(bh(), godkjent)).toEqual(new Map([[1, { dato: '2026-12-19', sats: 1000 }]]));
-    expect(await les(bh(), avtalt)).toEqual(new Map([[1, { dato: '2026-12-20', sats: 1000 }]]));
+    expect(await overtakelsen(bh(), godkjent)).toEqual({
+      dato: '2026-12-19',
+      sats: 1000,
+      saker: [[avtalt, 'avtalt']],
+    });
+    expect(await overtakelsen(bh(), avtalt)).toEqual({
+      dato: '2026-12-20',
+      sats: 1000,
+      saker: [[godkjent, 'godkjent']],
+    });
   });
 
   it('i en ny sak telles begge forlengelsene', async () => {
     const ny = (await basebane(o)).sakId;
-    expect(await les(bh(), ny)).toEqual(new Map([[1, { dato: '2026-12-23', sats: 1000 }]]));
+    expect((await overtakelsen(bh(), ny)).dato).toBe('2026-12-23');
   });
 
   it('uten siden og et av prosjektets team i konteksten er fristtabellen tom, så fristdagene kan ikke verdsettes', async () => {
-    expect(await les({ aktor: o.bh.id, prosjekt: o.prosjekt.id }, avtalt)).toEqual(new Map());
-    expect(await les({ ...bh(), prosjekt: o.annetProsjekt.id }, avtalt)).toEqual(new Map());
+    const tomt = { frister: new Map(), ikkeForstaatt: [] };
+    expect(await les({ aktor: o.bh.id, prosjekt: o.prosjekt.id }, avtalt)).toEqual(tomt);
+    expect(await les({ ...bh(), prosjekt: o.annetProsjekt.id }, avtalt)).toEqual(tomt);
   });
 });

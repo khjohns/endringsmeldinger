@@ -583,6 +583,22 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Utfall', 'frosset svar', 'frister frister.gjelder frister.dager', [FORLENGELSENE]],
   // MM-U9: et fristsvar som er subsidiært til avslaget av forholdet, forlenger ikke fristen.
   ['Sporutledning', 'relasjon', 'subsidiaer', [FORLENGELSENE]],
+  // GFK-U19: fristen etter dagene i de andre sakene som forlenger den.
+  [
+    'Forlengelse',
+    'frosset svar',
+    'grunnlag fristId dager',
+    [
+      'spor/frist/utledning.ts:forlengerFristen',
+      'spor/frist/utledning.ts:fristenEtterForlengelsene',
+    ],
+  ],
+  [
+    'regler/hverdager.ts',
+    'regelsett',
+    'forlengetFrist',
+    ['spor/frist/utledning.ts:fristenEtterForlengelsene'],
+  ],
   ['Utsagn', 'relasjon', 'id art gjelder spor'],
   ['Utsagn', 'utsagn', 'hva'],
   // OV-U5: bestemmelsen TEs varsel er gitt etter, § 33.4 eller § 34.1.2.

@@ -5096,22 +5096,34 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F591',
     feilklasse:
-      'et fristsvar som er subsidiært til avslaget av forholdet, forlenger fristen (GFK-U26, MM-U9)',
-    fil: `${K}/spor/frist/utledning.ts`,
-    endringer: [['  if (!avtalt && s.subsidiaer.length > 0) return [];', '']],
-    mal: ['subsidiært til avslaget av forholdet, er ingen godkjent forlengelse'],
-  },
-  {
-    id: 'F592',
-    feilklasse: 'et svar som faller sammen med kravet, regnes som avtalt uten TEs aksept (KA-U77)',
+      'et subsidiært svar uten enighet forlenger fristen (GFK-U26, spørsmål 2 i fristen-del2-pr3)',
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        "  const avtalt = s.enighet?.grunnlag.kilde === 'aksept' && !u.forholdAvvist;",
-        '  const avtalt = s.enighet !== null && !u.forholdAvvist;',
+        "export const forlengerFristen = (f: Forlengelse): boolean => f.grunnlag !== 'subsidiaert';",
+        'export const forlengerFristen = (f: Forlengelse): boolean => f !== null;',
       ],
     ],
-    mal: ['uten at TE har godtatt noe'],
+    mal: ['subsidiært: et svar uten enighet'],
+  },
+  {
+    id: 'F592',
+    feilklasse: 'en enighet uten virkning forlenger fristen (GR-U7, KA-U6)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [['  if (s.enighet && u.forholdAvvist) return [];', '']],
+    mal: ['en enighet uten virkning gir ingen forlengelse'],
+  },
+  {
+    id: 'F596',
+    feilklasse: 'dagene for en annen frist forlenger fristen (GFK-U19)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      [
+        '.filter((f) => f.fristId === fristId && forlengerFristen(f))',
+        '.filter((f) => forlengerFristen(f))',
+      ],
+    ],
+    mal: ['summerer dagene som forlenger fristen'],
   },
   {
     id: 'F593',

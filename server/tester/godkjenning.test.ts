@@ -489,12 +489,12 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
 
   it('GFK-U9: godkjenneren i en åpen pakke leser ingen fristtabell, så verdien regnes av saksbehandleren når pakken lages (#1780)', async () => {
     const grunnlaget = (k: Kontekst) => i(k, (f) => lesFristgrunnlaget(f, sakId, KJERNE));
-    expect(await grunnlaget(som(o.bh.id))).toEqual(
-      new Map([[1, { dato: '2027-06-30', sats: 5000 }]])
+    expect((await grunnlaget(som(o.bh.id))).frister).toEqual(
+      new Map([[1, { dato: '2027-06-30', sats: 5000, forlengelser: [] }]])
     );
     await i(som(o.bh.id), (f) => lagPakke(f, pakke(TO)));
     expect((await synlig(godkjenner(leder)))[0]).toBe(1);
-    expect(await grunnlaget(godkjenner(leder))).toEqual(new Map());
+    expect(await grunnlaget(godkjenner(leder))).toEqual({ frister: new Map(), ikkeForstaatt: [] });
   });
 
   it('GFK-U9: en returnert pakke lukker tilgangen, og en pakke i en annen sak gir ingen tilgang til denne', async () => {

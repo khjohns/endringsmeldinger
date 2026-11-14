@@ -6,9 +6,14 @@
  * `server/godkjenning.ts`.
  */
 import { regnUtSvar } from '../kjerne/frosset/utregning.ts';
-import { innholdIFristen, type FristIKravet } from '../kjerne/spor/frist/format.ts';
-import { forlengelseneISaken, type Forlengelse } from '../kjerne/spor/frist/utledning.ts';
-import { forlengetFrist, hverdagerIForlengelsen } from '../kjerne/regler/hverdager.ts';
+import { innholdIFristen } from '../kjerne/spor/frist/format.ts';
+import {
+  foresporselForFristsvar,
+  forlengelseneISaken,
+  fristenEtterForlengelsene,
+  type Forlengelse,
+} from '../kjerne/spor/frist/utledning.ts';
+import { hverdagerIForlengelsen } from '../kjerne/regler/hverdager.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Foresp } from './datalag.ts';
@@ -20,7 +25,6 @@ import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import type { Regelsett } from '../kjerne/regler/regelsett.ts';
 import { KRAVSPOR, type Fristrad, type Krav } from '../kjerne/typer.ts';
 import type { Sporutledning, Utledning } from '../kjerne/utledning/utled.ts';
-import { foresporselForFristsvar } from '../kjerne/spor/frist/utledning.ts';
 
 /**
  * Verdien brevet gir byggherren ansvar for, i kroner. `beloep` er `null` når noe i
@@ -43,6 +47,22 @@ export interface Fristgrunnlag {
   dato: string | null;
   /** Kroner per dag, eller `null` når fristen ikke er dagmulktbelagt eller satsen mangler. */
   sats: number | null;
+  /** Dagene for fristen i de andre sakene, også de som ikke er tatt med (spørsmål 4 A). */
+  forlengelser: SakensForlengelse[];
+}
+
+/** Dagene for en frist i en annen sak. */
+export interface SakensForlengelse extends Forlengelse {
+  sakId: string;
+}
+
+/**
+ * Fristgrunnlaget for verdien, og sakene utregningen nevner: forlengelsene per frist, og
+ * sakene kjernen ikke forstår (MM-U2), som gjør datoen ukjent.
+ */
+export interface Fristgrunnlaget {
+  frister: Map<number, Fristgrunnlag>;
+  ikkeForstaatt: string[];
 }
 
 /**
@@ -70,9 +90,9 @@ export function brevverdi(
   let hoved = 0;
   let subsidiaert = 0;
   let ukjent = false;
-  const fristverdi = (frist: FristIKravet | undefined, dager: number): number => {
+  const fristverdi = (fristId: number | undefined, dager: number): number => {
     if (dager === 0) return 0;
-    const g = frist?.frist_id === undefined ? undefined : frister.get(frist.frist_id);
+    const g = fristId === undefined ? undefined : frister.get(fristId);
     if (!g || g.sats === null || g.dato === null) {
       ukjent = true;
       return 0;
@@ -99,11 +119,11 @@ export function brevverdi(
       subsidiaert += (r.subsidiaert_godkjent_beloep ?? r.godkjent_beloep) as number;
       continue;
     }
-    const iKravet = new Map(innholdIFristen(krav).frister.map((f) => [f.id, f]));
+    const fristId = new Map(innholdIFristen(krav).frister.map((f) => [f.id, f.frist_id]));
     for (const rad of (r.frister ?? []) as Fristrad[]) {
-      const frist = iKravet.get(rad.gjelder);
-      hoved += fristverdi(frist, rad.godkjent_dager);
-      subsidiaert += fristverdi(frist, rad.subsidiaert_godkjent_dager ?? rad.godkjent_dager);
+      const id = fristId.get(rad.gjelder);
+      hoved += fristverdi(id, rad.godkjent_dager);
+      subsidiaert += fristverdi(id, rad.subsidiaert_godkjent_dager ?? rad.godkjent_dager);
     }
   }
 
@@ -116,7 +136,7 @@ export function brevverdi(
       const v = kravverdi(u.spor[spor], (k) =>
         spor === 'vederlag'
           ? tilTall(krevdSamlet(k))
-          : innholdIFristen(k).frister.reduce((sum, f) => sum + fristverdi(f, f.dager), 0)
+          : innholdIFristen(k).frister.reduce((sum, f) => sum + fristverdi(f.frist_id, f.dager), 0)
       );
       if (v === null) ukjent = true;
       else {
@@ -132,63 +152,52 @@ export function brevverdi(
 
 /**
  * Fristene i fristtabellen med datoen etter forlengelsene i de andre sakene (GFK-U19,
- * GFK-U26) og satsen. Uten `forlengelser` kan datoen ikke regnes, fordi en sak kjernen ikke
- * forstår, kan ha forlenget fristen (MM-U2).
+ * GFK-U26) og satsen. Forstår ikke kjernen en av sakene, kan datoen ikke regnes, fordi saken
+ * kan ha forlenget fristen (MM-U2).
  */
 export function fristgrunnlaget(
   tabell: Fristtabell,
-  forlengelser: readonly Forlengelse[] | null
-): Map<number, Fristgrunnlag> {
-  return new Map(
-    tabell.frister.map((f) => [
-      f.fristId,
-      {
-        dato:
-          forlengelser === null
+  forlengelser: readonly SakensForlengelse[],
+  ikkeForstaatt: readonly string[]
+): Fristgrunnlaget {
+  return {
+    frister: new Map(
+      tabell.frister.map((f) => [
+        f.fristId,
+        {
+          dato: ikkeForstaatt.length
             ? null
-            : forlengetFrist(
-                f.dato,
-                forlengelser
-                  .filter((x) => x.fristId === f.fristId)
-                  .reduce((sum, x) => sum + x.dager, 0)
-              ),
-        sats: f.dagmulktbelagt ? f.sats : null,
-      },
-    ])
-  );
+            : fristenEtterForlengelsene(f.dato, f.fristId, forlengelser),
+          sats: f.dagmulktbelagt ? f.sats : null,
+          forlengelser: forlengelser.filter((x) => x.fristId === f.fristId),
+        },
+      ])
+    ),
+    ikkeForstaatt: [...ikkeForstaatt],
+  };
 }
 
 /**
- * Forlengelsene i de andre sakene i prosjektet i konteksten (GFK-U26), eller `null` når en
- * av dem ikke er forstått av kjernen (MM-U2).
- */
-export async function lesForlengelsene(
-  foresp: Foresp,
-  sakId: string,
-  kjerne: Kjerne
-): Promise<Forlengelse[] | null> {
-  const forlengelser: Forlengelse[] = [];
-  for (const sak of await lesSakene(foresp)) {
-    if (sak.sakId === sakId) continue;
-    const u = utledJournal(sak.journal, kjerne);
-    if (!u.forstaatt) return null;
-    forlengelser.push(...forlengelseneISaken(u));
-  }
-  return forlengelser;
-}
-
-/**
- * Fristgrunnlaget for brevverdien i saken `sakId`, lest i saksbehandlerens transaksjon når
- * pakken lages. Godkjenneren regner ikke verdien på nytt: lesefilteret gir godkjenneren en
- * tom fristtabell og ingen andre saker (GFK-U9).
+ * Fristgrunnlaget for brevverdien i saken `sakId`: fristtabellen og forlengelsene i de andre
+ * sakene i prosjektet (GFK-U26), lest i saksbehandlerens transaksjon når pakken lages.
+ * Godkjenneren regner ikke verdien på nytt: lesefilteret gir godkjenneren en tom fristtabell
+ * og ingen andre saker (GFK-U9).
  */
 export async function lesFristgrunnlaget(
   foresp: Foresp,
   sakId: string,
   kjerne: Kjerne
-): Promise<Map<number, Fristgrunnlag>> {
+): Promise<Fristgrunnlaget> {
   const tabell = await lesKontraktsfrister(foresp);
-  return fristgrunnlaget(tabell, await lesForlengelsene(foresp, sakId, kjerne));
+  const forlengelser: SakensForlengelse[] = [];
+  const ikkeForstaatt: string[] = [];
+  for (const sak of await lesSakene(foresp)) {
+    if (sak.sakId === sakId) continue;
+    const u = utledJournal(sak.journal, kjerne);
+    if (!u.forstaatt) ikkeForstaatt.push(sak.sakId);
+    else for (const f of forlengelseneISaken(u)) forlengelser.push({ ...f, sakId: sak.sakId });
+  }
+  return fristgrunnlaget(tabell, forlengelser, ikkeForstaatt);
 }
 
 function kravverdi(sp: Sporutledning, verdi: (krav: Krav) => number): number | null {
