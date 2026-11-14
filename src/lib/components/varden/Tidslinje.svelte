@@ -100,7 +100,7 @@
         </ol>
       {/if}
       {#if fristene.length}
-        <h3 class="gruppe" id={`${uid}-fristene`}>{TIDSLINJE.fristene}</h3>
+        <p class="gruppe" id={`${uid}-fristene`}>{TIDSLINJE.fristene}</p>
         <ol class="liste" aria-labelledby={`${uid}-fristene`}>
           {#each fristene as f (f.noekkel)}
             <li class="rad">

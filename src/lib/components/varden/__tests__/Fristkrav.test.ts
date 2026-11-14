@@ -216,6 +216,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Endre Sluttfristen' }));
     await fireEvent.click(screen.getByRole('button', { name: 'Trekk fristen Sluttfristen' }));
     expect(screen.getByText('Sluttfristen: trekkes')).toBeInTheDocument();
+    expect(screen.getByText(/^Kravet om forlengelse av sluttfristen trekkes/)).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Angre trekket av Sluttfristen' })
     ).toBeInTheDocument();

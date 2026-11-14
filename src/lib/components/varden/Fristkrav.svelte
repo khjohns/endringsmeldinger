@@ -524,7 +524,7 @@
             onclick={() => fjern(p)}>{FRISTKRAV.fjern}</Knapp
           >
         {/if}
-        <Knapp variant="sekundaer" onclick={() => lukk(p)}>{FRISTKRAV.ferdig}</Knapp>
+        <Knapp onclick={() => lukk(p)}>{FRISTKRAV.ferdig}</Knapp>
       </div>
     {:else}
       {@const n = heleDager(p.dager)}
@@ -538,7 +538,10 @@
           {#if d?.dagmulktbelagt}<span class="merke">{FRISTKRAV.dagmulktMerke}</span>{/if}
         </h4>
         <p class="dato-celle">
-          <span class="visually-hidden">{FRISTKRAV.kolonner[2]}:</span>{d ? dato(d.dato) : '–'}
+          <span class="visually-hidden">{FRISTKRAV.kolonner[2]}:</span><span
+            class="prefiks-smal"
+            aria-hidden="true">{FRISTKRAV.kolonner[2]}</span
+          >{d ? dato(d.dato) : '–'}
         </p>
         <p class="dager-celle" class:mangler-tekst={!p.trukket && !n}>
           <span class="visually-hidden">{FRISTKRAV.kolonner[3]}:</span>{p.trukket
@@ -554,7 +557,9 @@
           onclick={() => (p.trukket ? trekk(p) : aapne(p))}
           >{p.trukket ? FRISTKRAV.angre : FRISTKRAV.endre}</Knapp
         >
-        {#if p.trukket}<p class="under">{FRISTKRAV.trukketMerk(navnet(p))}</p>{/if}
+        {#if p.trukket}<p class="under">
+            {FRISTKRAV.trukketMerk(FRISTKRAV.omtale(deler.nummer, deler.navn))}
+          </p>{/if}
       </div>
     {/if}
   </li>
@@ -897,7 +902,8 @@
   .mangler-tekst {
     color: var(--ink-3);
   }
-  .nr-smal {
+  .nr-smal,
+  .prefiks-smal {
     display: none;
     margin-right: var(--spacing-2);
     font-variant-numeric: tabular-nums;
@@ -933,6 +939,13 @@
     }
     .nr-smal {
       display: inline;
+    }
+    .prefiks-smal {
+      display: inline;
+    }
+    .dato-celle {
+      color: var(--ink-3);
+      font-size: 12px;
     }
     .linje > p {
       grid-column: 1;
