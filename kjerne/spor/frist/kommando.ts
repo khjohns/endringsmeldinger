@@ -24,7 +24,8 @@ import {
   fristnoekkel,
 } from './utledning.ts';
 import { fristinnhold, innholdIFristen } from './format.ts';
-import { fristvurderinger } from './frysing.ts';
+import { fristkravet, fristvurderinger } from './frysing.ts';
+import { beregnSynlighet } from '../../regler/frist.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
 import { lageneIUtkastet } from '../../kommandoer/utkastlag.ts';
 
@@ -35,7 +36,8 @@ export const KRAVFORM_I_FRISTEN = {
     return feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
   },
   vedleggIInnholdet: () => [],
-  vedleggVedKravet: false,
+  // #1823: vedleggene ved kravet, ved siden av brevet med varselet (OV-U5).
+  vedleggVedKravet: true,
   varselVedKravet: true,
 } satisfies Kravform;
 
@@ -185,16 +187,64 @@ export type Forutsetning =
 /** Lagene i et svarutkast på fristen. Fristen har ingen egne felt i standpunktet. */
 export type LagIFristen = Utkastlag<Forutsetning>;
 
+type Spoersmaal =
+  | 'frist_varsel_ok'
+  | 'foresporsel_svar_ok'
+  | 'vilkar_oppfylt'
+  | 'spesifisert_krav_ok';
+
+/** Spørsmålet i svaret hvert standpunkt om hele kravet svarer på. */
+const SPOERSMAALET: Readonly<Record<string, Spoersmaal>> = {
+  'rettidighet 33.4': 'frist_varsel_ok',
+  'rettidighet 33.6.2': 'foresporsel_svar_ok',
+  hindring: 'vilkar_oppfylt',
+  spesifisering: 'spesifisert_krav_ok',
+};
+
+/** Spørsmålet standpunktet svarer på, eller `null` for dagene. */
+function spoersmaaletFor(s: Standpunkt): Spoersmaal | null {
+  if (s.art === 'dager') return null;
+  const noekkel = s.art === 'rettidighet' ? `${s.art} ${s.hjemmel}` : s.art;
+  const felt = SPOERSMAALET[noekkel];
+  if (!felt) throw new Error(`standpunktet ${noekkel} svarer ikke på noe spørsmål i fristen`);
+  return felt;
+}
+
+/**
+ * Vurderingene i utkastet med hvert ubesvart spørsmål regelsettet stiller (`beregnSynlighet`),
+ * besvart uten innsigelse (S1-A), og spørsmålene som var ubesvart (#1925, KA-U78).
+ */
+function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
+  const synlig = beregnSynlighet(fristkravet(0, foresporselForFristsvar(u)));
+  const gjelder: Record<Spoersmaal, boolean> = { ...synlig, vilkar_oppfylt: true };
+  const mangler = (x: unknown) => x === null || x === undefined;
+  const ubesvart = new Set(
+    (Object.keys(gjelder) as Spoersmaal[]).filter((felt) => gjelder[felt] && mangler(v[felt]))
+  );
+  const utfylt: Record<string, unknown> = { ...v };
+  for (const felt of ubesvart) utfylt[felt] = true;
+  if (utfylt.spesifisert_krav_ok === false && Array.isArray(v.frister))
+    utfylt.frister = v.frister.map((r: unknown) =>
+      r !== null &&
+      typeof r === 'object' &&
+      mangler((r as Record<string, unknown>).dager_maatte_forstaa)
+        ? { ...r, dager_maatte_forstaa: 0 }
+        : r
+    );
+  return { v: utfylt, ubesvart };
+}
+
 /**
  * Lagene i et svarutkast på fristen, også før alle spørsmålene er besvart (M-8 i BF-20). Et
- * ubesvart spørsmål om varselet, hindringen eller spesifiseringen regnes som at innsigelsen ikke
- * er gjort gjeldende, så laget kan endre seg når det besvares (S1-A). Lagene fra forholdet leses
- * av gjeldende svar på forholdet, som i vederlaget. Dagene påvirker ikke lagene, så utregningen
- * har én rad per frist uten dagene som er vurdert (#1796). Kaster `UgyldigVurdering` når
- * vurderingene av fristene ikke er én per frist i kravet.
+ * ubesvart spørsmål om varselet, forespørselen, hindringen eller spesifiseringen regnes som at
+ * innsigelsen ikke er gjort gjeldende, så laget kan endre seg når det besvares (S1-A), og
+ * standpunktet står med `besvart: false` (#1925). Lagene fra forholdet leses av gjeldende svar
+ * på forholdet, som i vederlaget. Dagene påvirker ikke lagene, så utregningen har én rad per
+ * frist uten dagene som er vurdert (#1796). Kaster `UgyldigVurdering` når vurderingene av
+ * fristene ikke er én per frist i kravet.
  */
 export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett): LagIFristen {
-  const v = utkast.vurderinger;
+  const { v, ubesvart } = utfylt(utkast.vurderinger, u);
   const krav = u.spor.frist.gjeldendeKrav!;
   let n = 0;
   const lagret = STANDPUNKTER_I_FRISTEN(v, krav, u, () => `utkast-${n++}`);
@@ -228,8 +278,9 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
         ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
         ...(s.art === 'dager' ? { gjelder: s.gjelder } : {}),
         besvart:
-          s.art !== 'dager' ||
-          dagene.some((f) => f.gjelder === s.gjelder && typeof f.dager === 'number'),
+          s.art === 'dager'
+            ? dagene.some((f) => f.gjelder === s.gjelder && typeof f.dager === 'number')
+            : !ubesvart.has(spoersmaaletFor(s)!),
         virkning: virkning[i]!,
         etikett: etikett[i]!,
         forutsetninger:

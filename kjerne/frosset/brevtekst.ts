@@ -101,18 +101,21 @@ export function lagBrevtekst(
 
   const avsnitt: Avsnitt[] = [];
   const legg = (gjelder: string, laast: string) => {
-    const { utdypning, utdypninger: perPunkt } = utdypninger.get(gjelder) ?? {};
+    const { utdypning, utdypninger: perPunkt, forbehold } = utdypninger.get(gjelder) ?? {};
     if (perPunkt && Object.keys(perPunkt).length)
       throw new UtdypningUtenPunkt(
         'Utdypningen per punkt gjelder et element i brevet uten punkter.'
       );
+    if (forbehold)
+      throw new UtdypningUtenPunkt('Forbeholdet gjelder et element i brevet uten punkter.');
     avsnitt.push({ gjelder, laast, ...(utdypning ? { utdypning } : {}) });
   };
   // LV-U34, LV-U40: punktene er nummerert gjennom hele brevet, så «punkt 1 ovenfor» er entydig.
   let nummer = 0;
   const nummerert = new Map<string, number>();
   // LV-U70 og LV-U71: ett avsnitt per punkt, med partens utdypning for punktet under det.
-  // Utdypningen for hele elementet står i punktet `egen` (forbeholdet), sist.
+  // Utdypningen for hele elementet står i punktet `egen`, sist. Forbeholdet i et krav står
+  // etter den (KA-U82, LV-U74).
   const leggPunkter = (
     gjelder: string,
     brevpunkter: Brevpunkt[],
@@ -120,7 +123,7 @@ export function lagBrevtekst(
   ) => {
     if (!brevpunkter.some((p) => p.punkt !== undefined))
       return legg(gjelder, brevpunkter.flatMap((p) => p.avsnitt).join('\n\n'));
-    const { utdypning, utdypninger: oppgitt } = utdypninger.get(gjelder) ?? {};
+    const { utdypning, utdypninger: oppgitt, forbehold } = utdypninger.get(gjelder) ?? {};
     const perPunkt: Record<string, string> = { ...oppgitt };
     if (utdypning) {
       if (!egen)
@@ -131,10 +134,22 @@ export function lagBrevtekst(
         );
       perPunkt[egen.punkt] = utdypning;
     }
-    const punktene =
-      egen && perPunkt[egen.punkt] && !brevpunkter.some((p) => p.punkt === egen.punkt)
-        ? [...brevpunkter, { punkt: egen.punkt, overskrift: egen.overskrift, avsnitt: [] }]
-        : brevpunkter;
+    if (forbehold) {
+      if (perPunkt[FORBEHOLDET.punkt])
+        throw new UtdypningUtenPunkt(
+          'Forbeholdet og utdypningen for punktet «Forbehold» er to tekster for samme punkt.'
+        );
+      perPunkt[FORBEHOLDET.punkt] = forbehold;
+    }
+    const punktene = [
+      ...brevpunkter,
+      ...[egen, forbehold ? FORBEHOLDET : undefined]
+        .filter(
+          (e): e is { punkt: string; overskrift: string } =>
+            e !== undefined && !!perPunkt[e.punkt] && !brevpunkter.some((p) => p.punkt === e.punkt)
+        )
+        .map((e) => ({ punkt: e.punkt, overskrift: e.overskrift, avsnitt: [] as string[] })),
+    ];
     for (const { punkt, overskrift: o, avsnitt: a } of punktene) {
       if (punkt === undefined)
         throw new KanIkkeUttrykkes(`et punkt i brevteksten for ${gjelder} har ikke noe navn`);
