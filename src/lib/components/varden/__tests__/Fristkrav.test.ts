@@ -46,8 +46,6 @@ async function kravskjemaet(journal: Journalrad[]) {
 
 const seBrevet = () =>
   fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
-const velg = (felt: HTMLElement, verdi: string) =>
-  fireEvent.change(felt, { target: { value: verdi } });
 const skriv = (felt: HTMLElement, verdi: string) =>
   fireEvent.input(felt, { target: { value: verdi } });
 
@@ -68,11 +66,12 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
 
   it('en frist fra fristtabellen og en som ikke er registrert gir én frist hver i kommandoen, med dagene for hver (KA-U74, KA-U79)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
-    await velg(screen.getByLabelText('Frist'), '1');
+    await fireEvent.click(screen.getByRole('radio', { name: '5 Mekanisk ferdigstillelse' }));
     await skriv(screen.getByLabelText('Dager'), '25');
     await fireEvent.click(screen.getByRole('button', { name: 'Legg til frist' }));
-    const frister = screen.getAllByLabelText('Frist');
-    await velg(frister[1]!, 'annen');
+    await fireEvent.click(
+      screen.getAllByRole('radio', { name: 'En frist som ikke er registrert' })[1]!
+    );
     await skriv(screen.getByLabelText('Navnet i kontrakten'), 'Sluttfristen');
     await skriv(screen.getAllByLabelText('Dager')[1]!, '10');
     await skriv(
@@ -99,7 +98,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
 
   it('et krav på 0 dager er ikke et krav, og feltet sier det (D-1, KA-U8)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
-    await velg(screen.getByLabelText('Frist'), '2');
+    await fireEvent.click(screen.getByRole('radio', { name: 'Overtakelse' }));
     await skriv(screen.getByLabelText('Dager'), '0');
     await skriv(screen.getByRole('textbox', { name: 'Begrunnelse' }), 'Begrunnelse.');
     await seBrevet();

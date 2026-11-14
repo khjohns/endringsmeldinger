@@ -1353,7 +1353,6 @@ export const FRISTKRAV = {
   delAvArbeidene:
     'Gjelder forlengelsen bare deler av arbeidene, beskriv det i begrunnelsen. Andelen av rigg og drift oppgis i posten for rigg og drift i vederlagskravet (Del II, tillegget til punkt 34.1.3).',
   fristEtikett: 'Frist',
-  velgFrist: 'Velg en frist',
   ikkeRegistrert: 'En frist som ikke er registrert',
   ikkeRegistrertHjelp:
     'Fristen står ikke i fristtabellen for prosjektet. Skriv nummeret og navnet kontrakten gir den. Ny dato vises ikke for en frist som ikke er registrert.',

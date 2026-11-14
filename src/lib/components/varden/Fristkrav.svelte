@@ -21,6 +21,7 @@
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
+  import Valg from './Valg.svelte';
   import {
     fristkravet,
     manglerIFristkravet,
@@ -211,29 +212,26 @@
       </span>
     </div>
     {#if !p.trukket}
-      <div class="tallfelt">
-        <label for={sid}>{FRISTKRAV.fristEtikett}</label>
-        <select
-          id={sid}
-          class:ugyldig={fFeil}
-          disabled={p.id !== null}
-          value={p.frist === null ? '' : String(p.frist)}
-          onchange={(e) => {
-            const x = e.currentTarget.value;
-            p.frist = x === '' ? null : x === 'annen' ? 'annen' : Number(x);
-          }}
-          aria-describedby={fFeil ? `${sid}-feil` : undefined}
-          aria-invalid={fFeil ? 'true' : undefined}
-        >
-          <option value="">{FRISTKRAV.velgFrist}</option>
-          {#each tabell as f (f.fristId)}
-            <option value={String(f.fristId)}>{[f.nummer, f.navn].filter(Boolean).join(' ')}</option
-            >
-          {/each}
-          <option value="annen">{FRISTKRAV.ikkeRegistrert}</option>
-        </select>
-        {#if fFeil}<p class="feilmelding" id={`${sid}-feil`}>{fFeil}</p>{/if}
-      </div>
+      {#if p.id === null}
+        <Valg
+          navn={sid}
+          spoersmaal={FRISTKRAV.fristEtikett}
+          valg={[
+            ...tabell.map((f) => ({
+              verdi: String(f.fristId),
+              tekst: [f.nummer, f.navn].filter(Boolean).join(' '),
+            })),
+            { verdi: 'annen', tekst: FRISTKRAV.ikkeRegistrert },
+          ]}
+          bind:verdi={
+            () => (p.frist === null ? null : String(p.frist)),
+            (x) => (p.frist = x === null || x === 'annen' ? x : Number(x))
+          }
+          feil={fFeil}
+          lett
+          stablet
+        />
+      {/if}
       {#if p.frist === 'annen'}
         <p class="dempet">{FRISTKRAV.ikkeRegistrertHjelp}</p>
         <div class="rad">
@@ -436,21 +434,6 @@
     font-size: 15px;
     color: var(--ink);
   }
-  select {
-    max-width: 100%;
-    min-height: 44px;
-    padding: 0 var(--spacing-3);
-    border: var(--control-border);
-    border-radius: var(--r-felt);
-    font: 16px var(--font-sans);
-    color: var(--ink);
-    background: var(--surface);
-  }
-  select:disabled {
-    color: var(--ink-2);
-    background: var(--surface-inset);
-  }
-  select:focus-visible,
   textarea:focus-visible,
   .inndata:focus-within {
     outline: 2px solid var(--control-focus);
@@ -498,7 +481,6 @@
     resize: vertical;
   }
   .inndata.ugyldig,
-  select.ugyldig,
   textarea.ugyldig {
     border-color: var(--danger);
     box-shadow: inset 0 0 0 1px var(--danger);
