@@ -808,6 +808,54 @@ export function grunnadresse(verdi: string, appEnv: string | undefined): string 
   return adresse.origin;
 }
 
+/** Delene lenken til saken i Catenda settes sammen av, fra `koe_api.leveringsmaal`. */
+export interface Topicmaal {
+  catenda_project_id: string;
+  board_id: string | null;
+  topic_id: string | null;
+}
+
+/** Lenken til sakens topic i Catenda, eller `null` når saken ikke har topicen ennå. */
+export type Sakslenke = (maal: Topicmaal) => string | null;
+
+const LENKEDELER = ['prosjekt', 'board', 'topic'] as const;
+
+/**
+ * Lenken til saken i Catenda (U-15 i BF-44), fra malen i `CATENDA_SAKSLENKE`, med
+ * `{prosjekt}`, `{board}` og `{topic}` for ID-ene. Malen er driftens: formen på lenken
+ * i Catenda står ikke i API-et, og verten har ingen standardverdi. Uten malen gir
+ * lesingen ingen lenke. En mal som ikke er en https-adresse med `{topic}` i stien,
+ * eller som har en annen plassholder, kastes med det som hindrer.
+ */
+export function sakslenkeFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): Sakslenke | null {
+  const mal = miljoe.CATENDA_SAKSLENKE;
+  if (!mal) return null;
+  const ukjent = [...mal.matchAll(/\{([^}]*)\}/g)]
+    .map((m) => m[1])
+    .filter((d) => !(LENKEDELER as readonly string[]).includes(d));
+  // Verten står foran den første plassholderen, så en ID aldri avgjør hvor lenken peker.
+  const foran = mal.slice(0, mal.indexOf('{'));
+  const origin = URL.parse(foran)?.origin;
+  const hindring = ukjent.length
+    ? `har plassholderen {${ukjent[0]}}; bare {prosjekt}, {board} og {topic} er lov`
+    : !mal.includes('{topic}')
+      ? 'mangler {topic}'
+      : URL.parse(mal.replace(/\{(prosjekt|board|topic)\}/g, '0'))?.protocol !== 'https:'
+        ? 'er ikke en https-adresse'
+        : !origin || !foran.startsWith(`${origin}/`)
+          ? 'har en plassholder foran stien; verten og porten må stå fast'
+          : null;
+  if (hindring) throw new Error(`CATENDA_SAKSLENKE ${hindring}`);
+  // Topicen lagres med boardet (`koe.sak_catenda_topic`), så de mangler sammen.
+  return ({ catenda_project_id, board_id, topic_id }) => {
+    if (!topic_id || !board_id) return null;
+    const verdi = { prosjekt: catenda_project_id, board: board_id, topic: topic_id };
+    return mal.replace(/\{(prosjekt|board|topic)\}/g, (_, d: keyof typeof verdi) =>
+      encodeURIComponent(verdi[d])
+    );
+  };
+}
+
 /**
  * Klienten og integrasjonsnøkkelen fra miljøet. Mangler klient-ID, hemmelighet
  * eller tilbakekallsadresse, kastes feil. Kontrollen av adressene gjør inngangen.

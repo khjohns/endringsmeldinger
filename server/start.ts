@@ -30,6 +30,8 @@
  * - Med både innloggingen og Catenda satt opp starter jobbkjøreren (`jobber.ts`, #741), som lager
  *   topicen for en ny sak med integrasjonens token. Lenken i topicen peker til
  *   `AUTH_FRONTEND_URL`. Uten Catenda venter jobbene i basen.
+ * - `CATENDA_SAKSLENKE` er malen for lenken fra saken til topicen i Catenda
+ *   (`sakslenkeFraMiljoe` i `catenda.ts`). Uten den har saken ingen lenke.
  */
 
 import { createServer } from 'node:http';
@@ -43,7 +45,9 @@ import {
   integrasjonen,
   dokumentleverandoer,
   innboksintegrasjon,
+  sakslenkeFraMiljoe,
   topicoppretter,
+  type Sakslenke,
 } from './catenda.ts';
 import { opprettPool, sql } from './datalag.ts';
 import { graphFraMiljoe, type Graph } from './hrdata.ts';
@@ -107,6 +111,13 @@ try {
 } catch (feil) {
   console.warn(`HR-synkroniseringen er ikke satt opp: ${(feil as Error).message}`);
 }
+// Uten malen har saken ingen lenke til Catenda (U-15 i BF-44).
+let sakslenke: Sakslenke | null = null;
+try {
+  sakslenke = sakslenkeFraMiljoe();
+} catch (feil) {
+  console.warn(`Lenken til saken i Catenda er ikke satt opp: ${(feil as Error).message}`);
+}
 let jobber: Jobbkjoerer | null = null;
 if (klient && innlogging) {
   const { frontend } = innlogging;
@@ -122,7 +133,14 @@ if (klient && innlogging) {
 }
 
 const server = createServer(
-  lagServer({ datalag, catenda, innlogging, webhook, vekkJobbkjoereren: () => jobber?.vekk() })
+  lagServer({
+    datalag,
+    catenda,
+    innlogging,
+    webhook,
+    sakslenke,
+    vekkJobbkjoereren: () => jobber?.vekk(),
+  })
 );
 const lytteadresse = process.env.KOE_LYTTEADRESSE || '127.0.0.1';
 server.listen(Number(process.argv[2] ?? 0), lytteadresse, () => {
