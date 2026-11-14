@@ -706,7 +706,7 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
  * VS-U26: datoen varslingsplikten løper fra står i brevteksten som TEs opplysning.
  * At en dato etter brevets dato avvises, er arbeidsvalg 1 i #664, og vurderer ikke
  * rettidigheten. Datoen endres i en korrigering, ikke i en ny kravversjon (punkt 10 i
- * samlevedtaket for retting av sendt brev, MM-U41 (opphevet av MM-U52)).
+ * samlevedtaket for retting av sendt brev, MM-U55).
  */
 describe('datoen varslingsplikten løper fra (VS-U26)', () => {
   it('en dato etter brevets dato avvises; samme dag godtas (arbeidsvalg 1 i #664)', () => {
@@ -811,13 +811,13 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
 });
 
 /**
- * Punkt 10 og 11 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)), med partene skrevet fullt
+ * Punkt 10 og 11 i samlevedtaket for retting av sendt brev (MM-U55), med partene skrevet fullt
  * ut (LV-U35) og henvisningen etter LV-U53. Teksten i en ny grunnlagsversjon etter en
  * korrigering er LV-U56, og korrigeringen i en lukket sak er MM-U51. At korrigeringen avvises
  * når henvisningen er ugyldig, når datoen er uendret og når datoen er etter brevets dato, er
  * arbeidsvalgene i avgrensningen av #1308.
  */
-describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt brev, MM-U41 (opphevet av MM-U52))', () => {
+describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt brev, MM-U55)', () => {
   /** Korrigeringen med henvisning til TEs siste opplysning om datoen. */
   const korrigering = (
     s: ReturnType<typeof sak>,
@@ -4647,7 +4647,7 @@ describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', (
     expect(s.avvist('TE', krav('2026-09-25'))).toBeNull();
   });
 
-  it('kontrollerer varselet mot den korrigerte datoen (VS-U58, MM-U52 punkt 10)', () => {
+  it('kontrollerer varselet mot den korrigerte datoen (VS-U58, MM-U55 punkt 10)', () => {
     const s = medForhold();
     s.send('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20'));
     expect(s.avvist('TE', registrering('forhold', '32.2', '2026-09-22'))).toBeNull();
@@ -5615,7 +5615,7 @@ describe('en ny påberopelsesversjon beholder hjemmelen (GR-U22)', () => {
     ],
     ['samme hjemmel i irregulær endring', null, PAABEROPELSE.innhold, null],
     ['samme hjemmel i svikt', svikt, svikt, null],
-    // MM-U52 punkt 14: endringsordren står.
+    // GR-U40 punkt 7: endringsordren står.
     [
       'en annen endringsordre med uendret underkategori',
       endringsordre,
@@ -5629,13 +5629,13 @@ describe('en ny påberopelsesversjon beholder hjemmelen (GR-U22)', () => {
     expect(s.avvist('TE', versjon(neste))).toBe(regel);
   });
 
-  it('meldingen ved en annen endringsordre sier hvilken endringsordre som står (MM-U52 punkt 14)', () => {
+  it('meldingen ved en annen endringsordre sier hvilken endringsordre som står (GR-U40 punkt 7 og 9)', () => {
     const s = sak();
     s.send('TE', versjon(endringsordre));
     expect(s.avvisning('TE', versjon({ ...endringsordre, endringsordre: 'EO-2' }))).toEqual({
       regel: 'ANNEN_ENDRINGSORDRE',
       melding:
-        'Grunnlaget er sendt, og en ny versjon kan ikke endre endringsordren «EO-1». En annen endringsordre påberopes i en ny sak (MM-U52 punkt 14).',
+        'Grunnlaget er sendt, og en ny versjon kan ikke endre endringsordren «EO-1». En annen endringsordre påberopes i en ny sak (GR-U40 punkt 7 og 9).',
     });
   });
 
