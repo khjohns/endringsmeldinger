@@ -53,7 +53,7 @@ export function opprettelse(kommando: unknown, part: Part): Opprettelsesutfall {
     return {
       godtatt: false,
       feil: 'REGELBRUDD',
-      avvisning: avvis('FEIL_PART', 'Bare TE kan opprette en KOE-sak.'),
+      avvisning: avvis('FEIL_PART', 'Bare totalentreprenøren kan opprette en KOE-sak.'),
     };
   const data = { sakstittel: k.sakstittel.trim(), sakstype: 'standard' as const };
   // Kjernen må forstå det den selv skriver (MM-U2).

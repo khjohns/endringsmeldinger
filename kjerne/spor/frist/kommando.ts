@@ -41,10 +41,7 @@ export const KRAVFORM_I_FRISTEN = {
 
 /** Begrunnelsen for dagene i et fristkrav (`kravetsUtdypning`). */
 const utdypningIFristen = (): Avvisning | null =>
-  avvis(
-    'BEGRUNNELSE_MANGLER',
-    'Kravet om fristforlengelse må begrunne antallet dager (NS 8407 § 33.6.1, KA-U33).'
-  );
+  avvis('BEGRUNNELSE_MANGLER', 'Kravet om fristforlengelse må begrunne antallet dager.');
 
 /** KA-U76, KA-U79: fristene i kravet mot de tidligere kravversjonene. */
 function fristsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
@@ -73,7 +70,10 @@ function fristenErLukket(u: Utledning, avslaget: Avvisning | null): Avvisning | 
   if (avslaget) return avslaget;
   if (u.spor.frist.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
   if (u.spor.frist.ingenKrav)
-    return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves fristforlengelse.');
+    return avvis(
+      'INGEN_KRAV_I_SPORET',
+      'Totalentreprenøren har sagt at det ikke kreves fristforlengelse.'
+    );
   return null;
 }
 
@@ -93,25 +93,28 @@ export const FORUTSETNINGER_I_FRISTEN = {
         );
       if (u.spor.frist.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (u.spor.frist.ingenKrav)
-        return avvis('INGEN_KRAV_I_SPORET', 'TE har sagt at det ikke kreves fristforlengelse.');
+        return avvis(
+          'INGEN_KRAV_I_SPORET',
+          'Totalentreprenøren har sagt at det ikke kreves fristforlengelse.'
+        );
       // VS-U19, VS-U33: fra appen så lenge TE ikke har krevd dager i appen.
       if (fristkravErFremmet(u))
         return avvis(
           'FRISTKRAV_SENDT',
-          'TE har krevd dager i appen, så forespørselen etter § 33.6.2 kan ikke sendes.'
+          'Totalentreprenøren har krevd dager her, så forespørselen etter punkt 33.6.2 kan ikke sendes.'
         );
       // VS-U30: ingen ny forespørsel fra appen etter TEs begrunnelse etter annet ledd b.
       if (u.spor.frist.foresporsler.some((f) => f.svar !== null && !f.medKrav))
         return avvis(
           'FORESPORSEL_BEGRUNNET',
-          'TE har svart på en forespørsel med en begrunnelse etter § 33.6.2 annet ledd b, så en ny forespørsel kan ikke sendes fra appen.'
+          'Totalentreprenøren har svart på en forespørsel med en begrunnelse etter punkt 33.6.2 annet ledd bokstav b, så en ny forespørsel kan ikke sendes herfra.'
         );
       // VS-U31: høyst én forespørsel fra appen i saken. En registrert forespørsel gjør saken
       // uforstått (format/leser.ts); et brev registrert som dokumentasjon teller ikke (OV-U4).
       if (u.spor.frist.foresporsler.length)
         return avvis(
           'FORESPORSEL_SENDT',
-          'Forespørselen etter § 33.6.2 er alt sendt fra appen. En ny forespørsel sendes utenfor appen.'
+          'Forespørselen etter punkt 33.6.2 er alt sendt herfra. En ny forespørsel sendes på annen måte.'
         );
       return null;
     },
@@ -288,7 +291,7 @@ function fristIkkeRegistrert(
     )
       return avvis(
         'FRIST_IKKE_REGISTRERT',
-        `Fristen ${String(p.frist_id)} er ikke registrert for prosjektet. Angi nummeret og navnet kontrakten gir den i stedet (KA-U79).`
+        `Fristen ${String(p.frist_id)} er ikke registrert for prosjektet. Angi nummeret og navnet kontrakten gir den i stedet.`
       );
   return null;
 }

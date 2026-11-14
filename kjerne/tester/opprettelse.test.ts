@@ -41,7 +41,10 @@ describe('opprettelsen av en KOE-sak (#664)', () => {
     expect(opprettelse({ type: 'opprett_sak', sakstittel: 'Ny peling' }, 'BH')).toEqual({
       godtatt: false,
       feil: 'REGELBRUDD',
-      avvisning: { regel: 'FEIL_PART', melding: 'Bare TE kan opprette en KOE-sak.' },
+      avvisning: {
+        regel: 'FEIL_PART',
+        melding: 'Bare totalentreprenøren kan opprette en KOE-sak.',
+      },
     });
   });
 

@@ -14,6 +14,7 @@ import type { ForesporselOgSvar } from '../spor/frist/frysing.ts';
 import { FORUTSETNINGER_I_FRISTEN } from '../spor/frist/kommando.ts';
 import { avvis, erKravpostvarselhjemmel, SPOR } from '../typer.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
+import { PARTEN } from '../frosset/brevdeler.ts';
 import { FORUTSETNINGER_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import type {
   Avvisning,
@@ -131,7 +132,7 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
       }
       return avvis(
         'INGEN_FORESPORSEL',
-        'Begrunnelsen må gjelde en forespørsel etter § 33.6.2 fra byggherren.'
+        'Begrunnelsen må gjelde en forespørsel etter punkt 33.6.2 fra byggherren.'
       );
     }
     case 'korrigere':
@@ -153,7 +154,7 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
 }
 
 const AVSLAGET_GODTATT =
-  'TE har godtatt svaret på grunnlaget, som avslår det eller påberoper preklusjon, og saken er lukket (GR-U27).';
+  'Totalentreprenøren har godtatt svaret på påberopelsen, som avslår forholdet eller påberoper preklusjon, og saken er lukket.';
 
 /** KA-U1, HF-U8: avvisningen sier ikke at det eldre svaret er avslått eller har falt bort. */
 export const ELDRE_SVAR =
@@ -218,7 +219,8 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
   if (!u.forstaatt)
     return avvis('SAK_IKKE_FORSTAATT', 'Saken har hendelser denne versjonen ikke kan tolke.');
   const eier = PART[h.type];
-  if (eier !== null && eier !== part) return avvis('FEIL_PART', `Bare ${eier} kan gjøre dette.`);
+  if (eier !== null && eier !== part)
+    return avvis('FEIL_PART', `Bare ${PARTEN[eier]} kan gjøre dette.`);
   if ('gjelder' in h) return henvisning(h, part, u);
   // GR-U27: TEs aksept av et svar som avslår forholdet eller påberoper preklusjon, lukker saken. MM-U34 punkt 12: at
   // kravene er avgjort, sperrer ikke.
@@ -232,7 +234,10 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket og kan ikke tas opp igjen.');
       // KA-U12: «ingen krav» lukker sporet på samme måte som et trekk.
       if (h.spor !== 'forhold' && s.ingenKrav)
-        return avvis('INGEN_KRAV_I_SPORET', `TE har sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`);
+        return avvis(
+          'INGEN_KRAV_I_SPORET',
+          `Totalentreprenøren har sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`
+        );
       // MM-U34 punkt 9: også i et spor med registrert enighet, fram til endringsordren.
       if (h.spor !== 'forhold' && !paaberopelseSendt)
         return avvis(
@@ -241,7 +246,8 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         );
       return null;
     case 'trekke':
-      if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `TE har ikke sendt ${kravet(h.spor)}.`);
+      if (!s.gjeldendeKrav)
+        return avvis('INGEN_KRAV', `Totalentreprenøren har ikke sendt ${kravet(h.spor)}.`);
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');
       // KA-U22: et avtalt fradrag (KA-U9) avvises av formatet, og sperren bygges med det. En
       // merking av et registrert brev gir ingen sperre (OV-U4, OV-U7).
@@ -252,10 +258,13 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (s.ingenKrav)
         return avvis(
           'INGEN_KRAV_I_SPORET',
-          `TE har allerede sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`
+          `Totalentreprenøren har allerede sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`
         );
       if (s.krav.length)
-        return avvis('KRAV_I_SPORET', `TE har sendt ${kravet(h.spor)}. Trekk kravet i stedet.`);
+        return avvis(
+          'KRAV_I_SPORET',
+          `Totalentreprenøren har sendt ${kravet(h.spor)}. Trekk kravet i stedet.`
+        );
       if (!paaberopelseSendt)
         return avvis(
           'PAABEROPELSE_IKKE_SENDT',
@@ -268,20 +277,23 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         return avvis('PAABEROPELSE_IKKE_SENDT', 'Påberopelsen må være sendt før du kan varsle.');
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (h.spor !== 'forhold' && s.ingenKrav)
-        return avvis('INGEN_KRAV_I_SPORET', `TE har sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`);
+        return avvis(
+          'INGEN_KRAV_I_SPORET',
+          `Totalentreprenøren har sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`
+        );
       const hjemmel = 'hjemmel' in h ? h.hjemmel : VARSEL_I_SPORET[h.spor];
       // VS-U48, VS-U52: saken kan ha flere varsler etter § 34.3.3 og § 34.4, før og etter kravet.
       if (erKravpostvarselhjemmel(hjemmel)) return null;
       // SK-12 og MM-U1: et registrert varsel kan ikke flyttes. Et utledet varsel er ikke registrert.
       if (s.varsler[hjemmel])
-        return avvis('VARSEL_REGISTRERT', 'Varselet er registrert og kan ikke flyttes (SK-12).');
+        return avvis('VARSEL_REGISTRERT', 'Varselet er registrert og kan ikke flyttes.');
       // OV-U8: det særskilte varselet etter § 34.1.3 kan sendes også etter vederlagskravet.
       if ('hjemmel' in h) return null;
       // VS-U16, OV-U5: etter kravet i sporet kan varselet fra appen bare få en senere dato
       // enn kravet. Et varsel sendt tidligere utenfor appen registreres (MM-U8 (opphevet av MM-U50)).
       if (h.type === 'sende_varsel' && s.krav.length) {
         const sendt =
-          'er sendt, så et varsel fra appen kommer etter det. Et varsel sendt tidligere utenfor appen kan registreres med sin dato.';
+          'er sendt, så et varsel sendt herfra kommer etter det. Et varsel sendt tidligere på annen måte kan registreres med sin dato.';
         return KRAVET_ER_SENDT[h.spor](sendt);
       }
       return null;
@@ -292,7 +304,8 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       return foresporsel.sende(u, paaberopelseSendt);
     }
     case 'svare':
-      if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `TE har ikke sendt ${kravet(h.spor)}.`);
+      if (!s.gjeldendeKrav)
+        return avvis('INGEN_KRAV', `Totalentreprenøren har ikke sendt ${kravet(h.spor)}.`);
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (s.gjeldendeSvar)
         return avvis('ALLEREDE_SVART', 'Du har allerede svart på denne versjonen. Revider svaret.');

@@ -23,6 +23,7 @@ import {
   type Foresporselsrelasjon,
 } from './frysing.ts';
 import { betegnelsen, innholdIFristen, utregningIFristen, type FristIKravet } from './format.ts';
+import { trekketStrider, utelattUtenTrekk } from '../poster/utledning.ts';
 
 /**
  * Kontrollene i fristen, som `utledning/utled.ts` slår opp gjennom `KONTROLLER`: lesereglene
@@ -264,13 +265,9 @@ export function fristeneStrider(
 ): string | null {
   const { forrige, sist, eier } = fristeneISporet(tidligere);
   const trekker = (ny.trekker ?? []) as string[];
-  const trukne = new Set<string>();
-  for (const id of trekker) {
-    const p = forrige.get(id);
-    if (!p) return `trekker fristen ${id}, som ikke er med i forrige kravversjon`;
-    if (trukne.has(id)) return `trekker fristen ${betegnelsen(p)} to ganger`;
-    trukne.add(id);
-  }
+  const trekket = trekketStrider(trekker, forrige, 'fristen', betegnelsen);
+  if (trekket) return trekket;
+  const trukket = new Set(trekker);
   const noekler = new Set<string>();
   const med = new Set<string>();
   for (const p of ny.frister ?? []) {
@@ -291,10 +288,7 @@ export function fristeneStrider(
     if (rad === undefined) continue;
     if (med.has(rad)) return `har fristen ${omtalen(p)} to ganger`;
     med.add(rad);
-    if (trukne.has(rad)) return `både tar med og trekker fristen ${omtalen(p)}`;
+    if (trukket.has(rad)) return `både tar med og trekker fristen ${omtalen(p)}`;
   }
-  const mangler = [...forrige.values()].filter((p) => !med.has(p.id) && !trukne.has(p.id));
-  return mangler.length
-    ? `mangler ${mangler.map(betegnelsen).join(', ')} uten at ${mangler.length > 1 ? 'de er trukket' : 'den er trukket'} (KA-U76)`
-    : null;
+  return utelattUtenTrekk(forrige, (id) => med.has(id) || trukket.has(id), betegnelsen, 'KA-U76');
 }
