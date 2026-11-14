@@ -277,7 +277,7 @@ function globalPlaywright() {
  */
 async function klipperInnhold(side: { evaluate<T>(f: () => T): Promise<T> }): Promise<string[]> {
   return side.evaluate(() =>
-    [...document.querySelectorAll('body *')]
+    [...document.querySelectorAll('html, body, body *')]
       .filter((e) => /hidden|clip/.test(getComputedStyle(e).overflowY))
       .filter((e) => e.clientHeight > 100 && e.scrollHeight > e.clientHeight + 1)
       .map((e) => `${e.tagName.toLowerCase()}.${[...e.classList].join('.')} (${e.scrollHeight} av ${e.clientHeight} px)`)
@@ -703,6 +703,7 @@ try {
   await te.goto(`${FRONTEND}/${katalog.prosjekt}`);
   await te.getByText(tittel).filter({ visible: true }).first().waitFor({ timeout: 30_000 });
   await te.screenshot({ path: join(UT, 'saksliste-te.png'), fullPage: true });
+  klippet.push(...(await klipperInnhold(te)).map((k) => `TE: ${k} i sakslisten`));
   if (klippet.length) throw new Error(`Saken klipper innhold brukeren ikke kan rulle til: ${klippet.join(', ')}`);
   if (values.feil) {
     // Feiltilstandene ved sendingen i Varden (#1676): TE godtar BHs svar på vederlagskravet i
