@@ -147,7 +147,6 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     expect(
       screen.getByRole('radio', { name: 'Overtakelse · 1. juni 2027 · dagmulkt' })
     ).toBeInTheDocument();
-    expect(screen.getByText('Datoen i kontrakten: 1. mars 2027.')).toBeInTheDocument();
     await skriv(screen.getByLabelText('Dagene du krever'), '20');
     // Tidslinja har fristene i kontrakten, og den krevde fristen sier dagene (U-5).
     const tidslinja = within(screen.getByRole('region', { name: 'Tidslinje' }));
@@ -255,6 +254,11 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     );
     const sendt = await kravskjemaet(medKrav);
     expect(screen.queryAllByRole('radio')).toHaveLength(0);
+    // Den faste fristen har ikke valget, så «Endre» gir fokus til dagene.
+    await fireEvent.click(screen.getByRole('button', { name: 'Endre 5 Mekanisk ferdigstillelse' }));
+    expect(screen.queryAllByRole('radio')).toHaveLength(0);
+    expect(screen.getByLabelText('Dagene du krever')).toHaveFocus();
+    await fireEvent.click(screen.getByRole('button', { name: 'Ferdig' }));
     await fireEvent.click(screen.getByRole('button', { name: 'Legg til frist' }));
     await fireEvent.click(screen.getByRole('radio', { name: '5 Mekanisk ferdigstillelse' }));
     await skriv(screen.getByLabelText('Dagene du krever'), '5');

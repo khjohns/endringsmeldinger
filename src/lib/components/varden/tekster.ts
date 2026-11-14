@@ -1341,6 +1341,11 @@ export const KRAVSKJEMA = {
 };
 
 /** TEs krav om fristforlengelse (G-3 i BF-20, prototypen `fristkrav-te.html#nytt-krav`). */
+const DAGMULKT = 'dagmulkt';
+/** Første bokstav liten, ikke i en forkortelse som «PBE». */
+const liten = (t: string) =>
+  t.length > 1 && t[1] === t[1]!.toUpperCase() ? t : t.charAt(0).toLowerCase() + t.slice(1);
+
 export const FRISTKRAV = {
   titler: {
     krav: 'Krav om fristforlengelse',
@@ -1437,7 +1442,8 @@ export const FRISTKRAV = {
   leggTil: 'Legg til frist',
   // Tabellen med fristene, én åpen rad om gangen (prototypen `#nytt-krav`).
   kolonner: ['Nr.', 'Frist', 'I kontrakten', 'Dager'],
-  dagmulkt: 'Dagmulkt',
+  dagmulkt: DAGMULKT,
+  dagmulktMerke: stor(DAGMULKT),
   endre: 'Endre',
   endreFrist: (navn: string) => `Endre ${navn}`,
   ferdig: 'Ferdig',
@@ -1446,18 +1452,17 @@ export const FRISTKRAV = {
   iKontrakten: (d: string, dagmulkt: boolean) =>
     `Datoen i kontrakten: ${dato(d)}.${dagmulkt ? ' Fristen er dagmulktbelagt.' : ''}`,
   fristvalg: (navn: string, d: string, dagmulkt: boolean) =>
-    `${navn} · ${dato(d)}${dagmulkt ? ' · dagmulkt' : ''}`,
+    `${navn} · ${dato(d)}${dagmulkt ? ` · ${DAGMULKT}` : ''}`,
   trukketMerk: (navn: string) =>
     `Kravet om forlengelse av ${navn} trekkes i denne versjonen. Brevet sier det uttrykkelig.`,
   /** Fristen omtalt i en setning: «frist 2 (overtakelse)». */
   omtale: (nummer: string | null, navn: string) =>
-    nummer ? `frist ${nummer} (${navn.toLowerCase()})` : navn.toLowerCase(),
+    nummer ? `frist ${nummer} (${liten(navn)})` : liten(navn),
   // U-4: snarveien for de senere fristene i kontrakten.
   snarvei: (d: string, senere: string[], kilde: string) =>
     `Krev også ${d} for ${liste(senere)}, som for ${kilde}`,
   // U-5: fristene i tidslinja.
   krevd: (d: string) => `krevd forlenget ${d}`,
-  dagmulktLiten: 'dagmulkt',
   trekkHjelp:
     'En frist du tar ut, trekkes uttrykkelig. Brevet sier det, og fristen kan tas med igjen i en senere versjon.',
   // 3. Begrunnelsen.

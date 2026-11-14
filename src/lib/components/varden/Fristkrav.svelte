@@ -141,14 +141,16 @@
   const utenNavn = $derived(v.frister.filter((p) => p.frist === null && !p.navn.trim()));
   /** Navnet fristen står med i skjemaet og panelet, som i brevet (`betegnelsen` i kjernen). */
   function navnet(p: Fristpostvalg): string {
+    const d = delene(p);
+    return d.navn ? betegnelsen(d) : FRISTKRAV.nyFrist(utenNavn.indexOf(p) + 1, utenNavn.length);
+  }
+  /** Nummeret og navnet i fristtabellen eller i raden, `navn` tom før fristen har et (U-1). */
+  function delene(p: Fristpostvalg): { nummer: string | null; navn: string } {
     if (typeof p.frist === 'number') {
       const f = tabell.find((x) => x.fristId === p.frist);
-      if (f) return betegnelsen(f);
+      if (f) return { nummer: f.nummer, navn: f.navn };
     }
-    const navn = p.navn.trim();
-    return navn
-      ? betegnelsen({ nummer: p.nummer.trim(), navn })
-      : FRISTKRAV.nyFrist(utenNavn.indexOf(p) + 1, utenNavn.length);
+    return { nummer: p.nummer.trim() || null, navn: p.navn.trim() };
   }
 
   /** Valgene slik kommandoen leser dem: et varsel utenfor bare der skjemaet viser det. */
@@ -205,25 +207,23 @@
     }),
     { verdi: 'annen', tekst: FRISTKRAV.ikkeRegistrert },
   ]);
-  /** Nummeret og navnet i kolonnene, som `navnet` (U-1). */
-  function delene(p: Fristpostvalg): { nummer: string | null; navn: string } {
-    if (typeof p.frist === 'number') {
-      const f = tabell.find((x) => x.fristId === p.frist);
-      if (f) return { nummer: f.nummer, navn: f.navn };
-    }
-    const navn = p.navn.trim();
-    return navn ? { nummer: p.nummer.trim() || null, navn } : { nummer: null, navn: navnet(p) };
-  }
 
   // Én frist er åpen om gangen, og en ny, tom frist står åpen (prototypen `#nytt-krav`).
   let aapen = $state<string | null>(
     untrack(() => v.frister.find((p) => p.id === null && p.frist === null)?.noekkel ?? null)
   );
-  async function aapne(p: Fristpostvalg, felt = 'frist') {
+  /** Fokus på det valgte i en gruppe, ellers det første feltet, ellers elementet selv. */
+  const fokuser = (el: HTMLElement | null) =>
+    (
+      el?.querySelector<HTMLElement>('input:checked') ??
+      el?.querySelector<HTMLElement>('input') ??
+      el
+    )?.focus();
+  async function aapne(p: Fristpostvalg) {
     aapen = p.noekkel;
     await tick();
-    const el = document.getElementById(id(`${felt}-${p.noekkel}`));
-    (el?.querySelector<HTMLElement>('input:checked, input') ?? el)?.focus();
+    // En fast frist fra forrige versjon har ikke valget av fristen.
+    fokuser(document.getElementById(id(`${fastFrist(p) ? 'dager' : 'frist'}-${p.noekkel}`)));
   }
   async function lukk(p: Fristpostvalg) {
     aapen = null;
@@ -252,21 +252,27 @@
     e.preventDefault();
     aapen = p.noekkel;
     await tick();
-    const el = document.getElementById(m.felt);
-    (el?.querySelector<HTMLElement>('input') ?? el)?.focus();
+    fokuser(document.getElementById(m.felt));
   }
 
-  // U-4: de senere fristene i kontrakten kan få like mange dager som den seneste fristen i kravet.
+  // Snarveien (BF-20 U-4).
   const snarvei = $derived.by(() => {
-    const kilde = v.frister
-      .filter((p) => !p.trukket && datoFor(p) && (heleDager(p.dager) ?? 0) > 0)
-      .sort((a, b) => datoFor(b)!.dato.localeCompare(datoFor(a)!.dato))[0];
-    if (!kilde) return null;
-    const fra = datoFor(kilde)!.dato;
-    const senere = tabell.filter((f) => {
-      const d = fristdatoer.get(f.fristId);
-      return d && d.dato > fra && !v.frister.some((p) => p.frist === f.fristId);
+    const med = v.frister.flatMap((p) => {
+      const d = datoFor(p);
+      return !p.trukket && d && (heleDager(p.dager) ?? 0) > 0 ? [{ p, dato: d.dato }] : [];
     });
+    const seneste = med.sort((a, b) => b.dato.localeCompare(a.dato))[0];
+    if (!seneste) return null;
+    const kilde = seneste.p;
+    const senere = tabell
+      .flatMap((f) => {
+        const d = fristdatoer.get(f.fristId);
+        return d && d.dato > seneste.dato && !v.frister.some((p) => p.frist === f.fristId)
+          ? [{ f, dato: d.dato }]
+          : [];
+      })
+      .sort((a, b) => a.dato.localeCompare(b.dato))
+      .map((x) => x.f);
     if (!senere.length) return null;
     const k = delene(kilde);
     return {
@@ -288,7 +294,7 @@
     document.getElementById(id(`endre-${nye[0]!.noekkel}`))?.focus();
   }
 
-  // U-5: fristene i kontrakten i tidslinja, med dagene kravet krever. Ny dato venter på G-2 (U-2).
+  // Fristene i tidslinja (BF-20 U-5). Ny dato venter på G-2 (U-2).
   const fristeneITidslinja = $derived(
     tabell.flatMap((f) => {
       const d = fristdatoer.get(f.fristId);
@@ -298,7 +304,7 @@
       const n = p ? heleDager(p.dager) : undefined;
       const kilde = [
         n ? FRISTKRAV.krevd(dager(n)) : null,
-        d.dagmulktbelagt ? FRISTKRAV.dagmulktLiten : null,
+        d.dagmulktbelagt ? FRISTKRAV.dagmulkt : null,
       ];
       return [
         {
@@ -476,7 +482,7 @@
       <div class="frist-hode">
         <h4 id={`${sid}-tittel`}>{navnet(p)}</h4>
         {#if ny}<span class="merke">{FRISTKRAV.nyIVersjonen}</span>{/if}
-        {#if d?.dagmulktbelagt}<span class="merke">{FRISTKRAV.dagmulkt}</span>{/if}
+        {#if d?.dagmulktbelagt}<span class="merke">{FRISTKRAV.dagmulktMerke}</span>{/if}
       </div>
       {#if !fastFrist(p)}
         <Valg
@@ -492,7 +498,10 @@
           stablet
         />
       {/if}
-      {#if d}<p class="dempet">{FRISTKRAV.iKontrakten(d.dato, d.dagmulktbelagt)}</p>{/if}
+      <!-- Datoen står i valget; for en fast frist fra forrige versjon står den her. -->
+      {#if d && fastFrist(p)}<p class="dempet">
+          {FRISTKRAV.iKontrakten(d.dato, d.dagmulktbelagt)}
+        </p>{/if}
       {#if p.frist === 'annen'}
         <p class="dempet">{FRISTKRAV.ikkeRegistrertHjelp}</p>
         {@render felt(p, 'nummer', FRISTKRAV.nummerEtikett, null)}
@@ -525,10 +534,10 @@
         <span class="nr">{deler.nummer ?? ''}</span>
         <h4 class="navn" id={`${sid}-tittel`}>
           <span class="visually-hidden">{navnet(p)}</span><span aria-hidden="true"
-            >{deler.navn}</span
+            >{#if deler.nummer}<span class="nr-smal">{deler.nummer}</span>{/if}{deler.navn}</span
           >
           {#if ny}<span class="merke">{FRISTKRAV.nyIVersjonen}</span>{/if}
-          {#if d?.dagmulktbelagt}<span class="merke">{FRISTKRAV.dagmulkt}</span>{/if}
+          {#if d?.dagmulktbelagt}<span class="merke">{FRISTKRAV.dagmulktMerke}</span>{/if}
         </h4>
         <p class="dato-celle">
           <span class="visually-hidden">{FRISTKRAV.kolonner[2]}:</span>{d ? dato(d.dato) : '–'}
@@ -890,6 +899,11 @@
   .mangler-tekst {
     color: var(--ink-3);
   }
+  .nr-smal {
+    display: none;
+    margin-right: var(--spacing-2);
+    font-variant-numeric: tabular-nums;
+  }
   .under {
     grid-column: 2 / -1;
     color: var(--ink-3);
@@ -919,6 +933,9 @@
     .nr {
       display: none;
     }
+    .nr-smal {
+      display: inline;
+    }
     .linje > p {
       grid-column: 1;
     }
@@ -926,7 +943,7 @@
       grid-column: 2;
       grid-row: 1;
     }
-    .under {
+    .linje > .under {
       grid-column: 1 / -1;
     }
   }

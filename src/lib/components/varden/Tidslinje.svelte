@@ -21,7 +21,7 @@
     datoer: OppgittDato[];
     /** Datoene i et brev som ennå ikke er sendt, med teksten skjemaet gir dem. */
     utfylt?: { naar: string; hva: string; kilde: string }[];
-    /** Fristene i kontrakten, etter datoen, i en egen gruppe (BF-20 U-5). En krevd frist har fylt ring. */
+    /** Fristene i kontrakten i en egen gruppe (BF-20 U-5). */
     frister?: { noekkel: string; naar: string; hva: string; kilde: string; krevd: boolean }[];
     aapen?: boolean;
   } = $props();
@@ -73,29 +73,32 @@
   );
   const uid = $props.id();
   const fristene = $derived([...frister].sort((a, b) => a.naar.localeCompare(b.naar)));
-  const antall = $derived(oppfoeringer.length + fristene.length);
 </script>
 
 <section class="kort" aria-label={TIDSLINJE.tittel}>
-  {#if antall}
+  {#if oppfoeringer.length || fristene.length}
     <details open={aapen}>
       <summary class="hode">
         <span class="tittel">{TIDSLINJE.tittel}</span>
-        <span class="antall">{TIDSLINJE.oppfoeringer(antall)}</span>
+        {#if oppfoeringer.length}
+          <span class="antall">{TIDSLINJE.oppfoeringer(oppfoeringer.length)}</span>
+        {/if}
         <ChevronRight size={16} aria-hidden="true" />
       </summary>
-      <ol class="liste">
-        {#each oppfoeringer as o (o.noekkel)}
-          <li class="rad">
-            <span class="merke merke-{o.merke}" aria-hidden="true"></span>
-            <div>
-              <p class="naar">{dato(o.naar)}</p>
-              <p class="hva">{o.hva}</p>
-              <p class="kilde">{o.kilde}</p>
-            </div>
-          </li>
-        {/each}
-      </ol>
+      {#if oppfoeringer.length}
+        <ol class="liste">
+          {#each oppfoeringer as o (o.noekkel)}
+            <li class="rad">
+              <span class="merke merke-{o.merke}" aria-hidden="true"></span>
+              <div>
+                <p class="naar">{dato(o.naar)}</p>
+                <p class="hva">{o.hva}</p>
+                <p class="kilde">{o.kilde}</p>
+              </div>
+            </li>
+          {/each}
+        </ol>
+      {/if}
       {#if fristene.length}
         <h3 class="gruppe" id={`${uid}-fristene`}>{TIDSLINJE.fristene}</h3>
         <ol class="liste" aria-labelledby={`${uid}-fristene`}>
