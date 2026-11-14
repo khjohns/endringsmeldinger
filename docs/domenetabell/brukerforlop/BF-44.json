@@ -19,7 +19,6 @@
     "KA-U1",
     "GR-U7",
     "GR-U8",
-    "GR-U6",
     "HF-U23",
     "OV-U54",
     "KA-U51",
@@ -95,6 +94,11 @@
       "dato": "2026-11-13",
       "forhold": "#1402",
       "hva": "Forprøven i oppsett B er kjørt, og funnene K-1–K-3 og K-7–K-11 er rettet. BF-44 er klar til bygging, og demosaken med tre lag (G-14) lages i byggingen (oppdragsgiver 13.11)."
+    },
+    {
+      "dato": "2026-11-14",
+      "forhold": "#1913",
+      "hva": "D-4 viser til GR-U7 og ikke lenger til GR-U6, som GR-U7 erstattet 08.10."
     }
   ],
   "prototype": {
