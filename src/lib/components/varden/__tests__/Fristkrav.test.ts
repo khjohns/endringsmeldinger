@@ -19,6 +19,7 @@ import {
   linje,
   medFristvarsel,
   medGrunnlag,
+  opprettet,
   skrevet,
 } from '$lib/kjernesak/__tests__/provejournal';
 import type { TilBrevkontrollen } from '$lib/components/varden/Brevkontroll.svelte';
@@ -360,6 +361,29 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     });
     // Brevet sier når varselet ble gitt (OV-U5).
     expect(JSON.stringify(sendt[0]!.avsnitt)).toMatch(/5\. oktober 2026/);
+  });
+
+  it('et varsel gitt før sier kalenderdagene fra datoen TE ble klar over forholdet først når datoen for varselet er oppgitt (U-6)', async () => {
+    const klarOver = skrevet([opprettet], 'TE', {
+      type: 'krav',
+      spor: 'forhold',
+      innhold: {
+        hovedkategori: 'svikt',
+        underkategori: 'grunnforhold',
+        klar_over_forholdet: '2026-10-01',
+      },
+      utdypning: 'Leire der rapporten sa fjell.',
+    });
+    await kravskjemaet(klarOver);
+    expect(screen.getByText(/Sendes varselet i dag/)).toBeInTheDocument();
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Varselet er gitt før, utenfor løsningen' })
+    );
+    expect(screen.queryByText(/Sendes varselet i dag/)).not.toBeInTheDocument();
+    await skriv(screen.getByLabelText('Datoen for varselet'), '2026-10-05');
+    expect(
+      screen.getByText(/Varselet ble gitt 5\. oktober 2026, 4 kalenderdager etter/)
+    ).toBeInTheDocument();
   });
 
   it('byggherrens forespørsel etter punkt 33.6.2 vises, og bokstav b sender begrunnelsen som svar på den (U-11, VS-U17)', async () => {

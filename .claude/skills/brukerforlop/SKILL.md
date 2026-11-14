@@ -184,6 +184,13 @@ igjen, er avgrenset og har et tidspunkt for avklaring. Én brukerprøve er en f�
 kontroll, ikke bevis: funnene vurderes, og det kontrolleres at ingen vesentlige spørsmål
 blokkerer leveransen. Et vedtak et svar krever, er ført før byggingen bestilles.
 
+Før forløpet meldes klart, kontrollerer en subagent G-tabellen mot koden: for hvert
+U- og D-punkt med brev, beløp, datoer, handlinger eller felt skjemaet sender, at kjernen
+har det, og at det når visningen gjennom en inngang på serveren. Det som mangler, blir
+G-rader og issues mot kjernen eller serveren, og de bygges før visningen («Kjernen før
+visningen» i orkestreringsskillen; episoden står i
+[episodefila](../orkestrering/episoder.md#kjernen-før-visningen)).
+
 ## Overgangen til bygging
 
 - Byggeissuet viser til bestillingen og den godkjente commiten av prototypen, eller av

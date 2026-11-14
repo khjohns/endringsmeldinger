@@ -182,12 +182,10 @@
   const dagerEtterKlarOver = $derived.by(() => {
     // Står varselet i saken, sier linja om brevet dagene.
     if (!klarOver || (!varsel && varselbrev)) return null;
-    // Varselet som registreres nå, ellers varselet i saken eller det som er gitt før.
-    const varslet = registreres
-      ? utenfor?.dato
-      : varselbrev
-        ? (varselbrev.sendt ?? varselbrev.registrert)
-        : utenfor?.dato;
+    // Varselet som registreres nå eller er gitt før, med dagene først når datoen er oppgitt.
+    const fraUtenfor = registreres || !varselbrev;
+    if (fraUtenfor && utenfor && !utenfor.dato) return null;
+    const varslet = fraUtenfor ? utenfor?.dato : (varselbrev.sendt ?? varselbrev.registrert);
     return varslet
       ? FRISTKRAV.dagerTilVarselet(klarOver.dato, varslet, kalenderdager(klarOver.dato, varslet))
       : FRISTKRAV.dagerTilIDag(klarOver.dato, kalenderdager(klarOver.dato, iDag));
@@ -588,7 +586,7 @@
       {/if}
 
       {#if kanVarsle}
-        <section class="spoersmaal" aria-labelledby={id('hva')}>
+        <section class="spoersmaal">
           <Valg
             navn={id('hva')}
             spoersmaal={FRISTKRAV.hvaSender}
@@ -603,7 +601,7 @@
       {/if}
 
       {#if foresporsel && foresporselsbrev}
-        <section class="spoersmaal" aria-labelledby={id('bokstav')}>
+        <section class="spoersmaal">
           <p class="status">
             {FRISTKRAV.foresporsel(
               foresporselsbrev,
