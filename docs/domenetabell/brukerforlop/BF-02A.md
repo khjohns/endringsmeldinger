@@ -11,7 +11,7 @@ den ekte saksruta.
 | Status | Utkast 06.11. S-1 og S-2 er besvart 05.11 og kjernen er rettet etter svarene i #1624. Arbeidet følges i [#1615](https://github.com/khjohns/endringsmeldinger/issues/1615) |
 | Demoruta | `/demo/BF-02A`, `/demo/BF-02C` og `/demo/BF-02D`, med kjernen i nettleseren |
 | Prototypen | [`korrigering-av-datoen.html`](../../design/prototyper/korrigering-av-datoen.html), for skjemaet for korrigeringen og det låste datofeltet i en ny grunnlagsversjon, som ingen komponent har (G-2). Versjon 3, 06.11 |
-| Bygger på | [MM-U52](../../plans/vedtak.md#mm-u52) punkt 10, 11, 13 og 24 og designdelen, med svarene «1 A, 2 A» 05.11 ([MM-U51](../../plans/vedtak.md#mm-u51)), [LV-U56](../../plans/vedtak.md#lv-u56) og de lagrede navnene i [#1308](https://github.com/khjohns/endringsmeldinger/issues/1308) |
+| Bygger på | [MM-U52](../../plans/vedtak.md#mm-u52) og [MM-U55](../../plans/vedtak.md#mm-u55) punkt 10, 11, 13 og 24 og designdelen, med svarene «1 A, 2 A» 05.11 ([MM-U51](../../plans/vedtak.md#mm-u51)), [LV-U56](../../plans/vedtak.md#lv-u56) og de lagrede navnene i [#1308](https://github.com/khjohns/endringsmeldinger/issues/1308) |
 
 Hver opplysning under har en ID: **M** for målene, **U** for det brukeren skal finne og
 forstå, **D** for domeneforventningene, **G** for gjennomføringen, **S** for de åpne
@@ -47,7 +47,7 @@ finner ut at pålegget ble mottatt 20.09.2026.
 
 ## Avgrensningen
 
-- Rettingen av varseldatoen etter punkt 8 i MM-U52 hører til #1309.
+- Rettingen av varseldatoen etter punkt 8 i MM-U52 og MM-U55 hører til #1309.
 - Et krav sendt utenfor løsningen og lagt til som korrespondanse med kategorien krav, og en
   korrigering sendt utenfor løsningen, venter på registreringen i #807. Kjernen kan i dag
   ikke legge til et krav med datofeltene, og en registrert korrigering står som dokumentasjon
@@ -94,14 +94,14 @@ finner ut at pålegget ble mottatt 20.09.2026.
 
 - **D-1** Korrigeringen er et eget brev med henvisning til brevet med opplysningen. Den er
   ikke en ny kravversjon og avslår ikke BHs svar. Teksten er den ordrette teksten i punkt 10
-  ([MM-U52](../../plans/vedtak.md#mm-u52), med [LV-U53](../../plans/vedtak.md#lv-u53) og
+  ([MM-U52](../../plans/vedtak.md#mm-u52) og [MM-U55](../../plans/vedtak.md#mm-u55), med [LV-U53](../../plans/vedtak.md#lv-u53) og
   [LV-U35](../../plans/vedtak.md#lv-u35)).
 - **D-2** Den nye opplysningen gjelder straks som TEs siste opplysning, uten BHs godkjenning,
   også når datoen er senere. Et svar BH alt har gitt, står med virkningen det hadde, og en
   påberopelse BH alt har fremsatt, står med tidspunktet. Sporet venter ikke på et nytt svar
-  (MM-U52 punkt 10–11, [VS-U46](../../plans/vedtak.md#vs-u46)).
+  (MM-U52 og MM-U55 punkt 10–11, [VS-U46](../../plans/vedtak.md#vs-u46)).
 - **D-3** Løsningen avgjør ikke hvilken dato som er riktig, når varslingsfristen begynte å
-  løpe eller om varselet var rettidig (MM-U52 punkt 11, [MM-U50](../../plans/vedtak.md#mm-u50)
+  løpe eller om varselet var rettidig (MM-U52 og MM-U55 punkt 11, [MM-U50](../../plans/vedtak.md#mm-u50)
   punkt 6).
 - **D-4** Korrigeringen avvises når datoen er uendret (`DATOEN_ER_UENDRET`), når den ikke
   gjelder TEs siste opplysning (`UGYLDIG_KORRIGERING`), når datoen er etter brevets dato, og i
@@ -113,7 +113,7 @@ finner ut at pålegget ble mottatt 20.09.2026.
   dato og brevet den ble oppgitt i, den opprinnelige først ([LV-U56](../../plans/vedtak.md#lv-u56)).
 - **D-6** I en sak som er lukket etter GR-U27, godtas korrigeringen og endrer ikke utfallet.
   Saken står lukket, og BH kan ta stilling i et innlegg
-  ([MM-U51](../../plans/vedtak.md#mm-u51), MM-U52 punkt 24, [MM-U47](../../plans/vedtak.md#mm-u47)).
+  ([MM-U51](../../plans/vedtak.md#mm-u51), MM-U52 og MM-U55 punkt 24, [MM-U47](../../plans/vedtak.md#mm-u47)).
 
 ## Gjennomføringen
 
@@ -158,7 +158,7 @@ Spørsmålene står ordrett i [BF-02A-sporsmal.md](BF-02A-sporsmal.md), med svar
 
 | Dato | Grunnlag | Hva |
 | --- | --- | --- |
-| 05.11.2026 | #1308, MM-U52, svarene «1 A, 2 A» | Første versjon |
+| 05.11.2026 | #1308, MM-U52 (opphevet av MM-U55), svarene «1 A, 2 A» | Første versjon |
 | 06.11.2026 | #1624, #1615, svaret på S-4b i BF-10 | G-6 og G-8 er bygget. G-7 er presisert. Skissen er versjon 3: en ny versjon avslår ikke svaret, men svaret kan da ikke godtas i løsningen. Korrigeringen går gjennom brevkontrollen, med samme utkastkort som de andre skjemaene (svaret på S-4b i BF-10). Skissen viser fortsatt brevet ved siden av skjemaet |
 | 06.11.2026 | #1615, LV-U56, LV-U57 | D-5 følger LV-U56: en ny grunnlagsversjon etter en korrigering nevner hver tidligere dato med brevet, den opprinnelige først. Setningen om datoen er ‹Pålegget ble mottatt <dato>.› (LV-U57) |
 | 06.11.2026 | #1615 | G-2 og G-7 er bygget i Varden. U-7 venter på skjemaet for «Oppdater påberopelse» (BF-10) |

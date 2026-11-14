@@ -6233,7 +6233,7 @@ grunnlaget; et subsidiært standpunkt er et avslag som viser hvor nær partene e
 Forkastet: GR-U6, og å avvise aksept av vederlag og frist til grunnlaget er godkjent
 (det ville hindret sakens fremdrift)'''
 vedtatt = "08.10, oppdragsgiver (#274)"
-forhold = [{ art = "presiserer", vedtak = "ka-u5" }, { art = "opphever", vedtak = "gr-u6" }]
+forhold = [{ art = "opphever", vedtak = "gr-u6" }]
 folge = '''
 Erstatter GR-U6. DT-11 er lukket. Presisert av [GR-U10](#gr-u10) (09.10): for grunnlaget
 er en godkjenning uten påberopt preklusjon enighet ved sammenfall. Presisert av
@@ -6802,11 +6802,123 @@ GR-U26 sier ikke hvorfor de ble forkastet.
 appen er forbeholdet ikke et vilkår etter HF-U7»; GR-U26 og OV-U45 «grunnlaget». Samlevedtaket
 bruker «i løsningen» og «forholdet» (LV-U41 s9; AGENTS.md om betegnelsen). Innholdet er ikke
 endret. Spørsmålet i skjemaet er design og står i BF-01.
+
+##### <a id="samlevedtak-paaberopelsen"></a>Samlevedtaket for påberopelsen av forholdet – ny versjon, forholdet står og ny sak (GR-U40)
+
+Teksten under er samlevedtaket [GR-U40](#gr-u40), vedtatt 14.11 av oppdragsgiver (#1534), ordrett
+slik det ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-paaberopelsen-2026-11-14.md),
+med svarene 1 A, 2 A og 3 A. Det samler [GR-U1](#gr-u1), [GR-U19](#gr-u19), [GR-U22](#gr-u22),
+[HF-U21](#hf-u21), [OV-U57](#ov-u57) og [OV-U55](#ov-u55) s1–s4.
+
+Samlevedtaket er et *vedtak*. Kildene står i parentes; «s» er setningen i posten. Der en regel har et
+annet gjeldende hjem, viser punktet dit.
+
+###### A. Ny versjon av påberopelsen
+
+1. Hver oppdatering totalentreprenøren sender av påberopelsen av forholdet, er en ny versjon av
+   påberopelsen. Den følger samlevedtaket for kravversjon (KA-U52 punkt 1–10). (GR-U1 s1; KA-U52
+   punkt 1)
+2. Sender totalentreprenøren en ny versjon, venter forholdet på byggherrens nye svar. At svaret
+   på den tidligere versjonen ikke kan godtas, er beslutningsdelen i HF-U23 punkt 9. (GR-U1 s2;
+   HF-U23 punkt 9; E1)
+3. Løsningen sier ikke at en ny versjon av påberopelsen avslår byggherrens svar på forholdet.
+   (HF-U23 punkt 9; svar på spørsmål 2; E4)
+4. En ny versjon av påberopelsen med samme forhold endrer ikke bindingen i byggherrens svar på
+   vederlag eller fristforlengelse og er ikke et avslag på dem (avtaleloven § 5). Bindingen varer
+   som etter HF-U5 og HF-U23. (HF-U21 s1–s3; U2) At et subsidiært standpunkt forblir
+   subsidiært (HF-U21 s4), står i punkt 5.
+5. Hva en ny versjon gjør med et svar på vederlag eller frist og med en betinget enighet, står i
+   GR-U34 punkt 12 og 14. Hva den gjør med et frafall, står i GR-U20 og GR-U23. (GR-U1 s3; GR-U34;
+   E1)
+6. Brevet med en ny versjon følger LV-U56. (LV-U56)
+
+###### B. Forholdet står
+
+7. Når totalentreprenøren har sendt påberopelsen, står forholdet og gruppen det hører til, og i en
+   påberopelse av en endringsordre etter punkt 31.3, hvilken endringsordre påberopelsen gjelder. En
+   ny versjon kan ikke endre dem. Totalentreprenøren kan sende en ny versjon med samme forhold, for
+   eksempel med en utfylt beskrivelse. (GR-U22 s1–s2; OV-U55 s1–s2; MM-U52 punkt 14; E2)
+8. Datoen for når pålegget ble mottatt eller totalentreprenøren ble klar over forholdet, følger
+   MM-U52 punkt 10, og betegnelsen på endringsordren MM-U52 punkt 14 siste setning. (OV-U55 s3)
+
+###### C. Et annet forhold går i en ny sak
+
+9. Vil totalentreprenøren påberope et annet forhold eller en annen endringsordre, oppretter
+   totalentreprenøren en ny sak. Det er opprettelse av en ny sak, ikke overføring eller retting av
+   den gamle, og den skjer uten trekk. Den gamle saken bevares, og sakene viser til hverandre.
+   (GR-U22 s3; OV-U55 s4; OV-U57 s1–s3; E3)
+10. Den nye saken endrer ikke krav, svar eller enigheter i den gamle saken. Det som er sendt,
+    svart eller registrert i den gamle saken, følger ikke med til den nye i løsningen, og
+    løsningen avgjør ikke om det gjelder den nye påberopelsen. Det avgjør partene. (OV-U57 s4;
+    svar på spørsmål 3; E3)
+11. I den nye saken kan totalentreprenøren oppgi brevet med påberopelsen i den gamle saken som
+    eget varsel etter punkt 32.2, etter VS-U43 punkt 6. (VS-U45; VS-U43 punkt 6)
+12. Påberopelsen i den gamle saken står til totalentreprenøren trekker den etter samlevedtaket for
+    trekk, eller saken avsluttes etter de reglene som ellers gjelder. (OV-U57; KA-U51; E3)
+
+###### Designdel
+
+- Før sending sier skjemaet at den nye saken ikke endrer krav, svar eller enigheter i den gamle,
+  og at løsningen ikke avgjør om kravet omfattes av en tidligere enighet, eller om varsling og
+  frister er ivaretatt. Ordlyden står i brukerforløpet (PR #1917). (OV-U57)
+
+###### Endret innhold
+
+- **E1. GR-U1.** Setningene står i punkt 1, 2 og 5, og i KA-U52, HF-U23 punkt 9 og GR-U34 punkt 14.
+  «også når underkategorien er uendret» og «som ved endret underkategori» gjelder ikke: forholdet
+  kan ikke endres (punkt 7). GR-U1 gjelder som «Samlet i samlevedtaket for påberopelsen».
+  Forholdene til GR-U1 står (ingen er til et opphevet vedtak).
+- **E2. GR-U22 s1–s2, OV-U55 s1–s3 og GR-U19.** Står i punkt 7 og 8. I GR-U19 gjelder «og
+  underkategorien kan bare endres når § 32.2 gjelder likt før og etter», «Skiftet ut og inn av § 32.2
+  kan da ikke skje» og «trekker TE kravet og sender en ny sak» ikke (GR-U22, OV-U57). GR-U19 gjelder
+  som «Samlet». **Forholdet `gr-u22 endrer gr-u2`: (b).** GR-U2 er opphevet av MM-U34 punkt 11, som
+  sier det samme om forholdet («at hovedkategori og underkategori står, følger av OV-U55»), og
+  samlevedtaket tar ikke innholdet i GR-U2. Forholdet har ikke noe å virke på og fjernes.
+- **E3. GR-U22 s3–s4, OV-U55 og OV-U57 om ny sak.** Punkt 9–12. «og overfører kravene dit.
+  Overføringen er ikke et avkall, og den nye saken viser til varselet i den gamle» i GR-U22,
+  «Om enigheten og bindingen følger kravene til en ny sak, avgjøres særskilt» i OV-U55 og
+  «Overføringen tilbys først når virkningen er vedtatt (#569)» i OV-U57 gjelder ikke (spørsmål 3 A).
+  En overføring krever et nytt vedtak. Skjemateksten i OV-U57 er design (se designdelen). GR-U22 og
+  OV-U57 gjelder som «Samlet». Forholdet «GR-U22
+  snevrer inn KA-U22» bar overføringen og har ikke noe å virke på: (b). Det samme gjelder
+  «avgjøres særskilt etter OV-U55 og OV-U57» i begrunnelsen til VS-U43 E2, som punkt 10 avgjør
+  (samlevedtaket presiserer VS-U43 punkt 6).
+- **E4. OV-U55, avslaget.** «og den avslår byggherrens tilbud i grunnlagssporet etter
+  avslagsregelen» gjelder ikke (spørsmål 2 A), og «sperrene etter enighet (KA-U7, OV-U3)» leses
+  etter KA-U52 E4. OV-U55 samles så langt det gjelder forholdet, endringsordren og ny sak (s1–s4).
+  Resten av OV-U55 står slik MM-U34, LV-U53, KA-U52 og MM-U52 har endret det. Forholdet «OV-U55
+  snevrer inn MM-U21» (MM-U21 er opphevet av MM-U52): (b). Setningen det bar, står i MM-U52 punkt
+  15 (MM-U41 E5), og forholdet er MM-U52s å føre (se «Grensen mot MM-U52»).
+- **E5. HF-U21.** Står i punkt 4. «HF-U8» leses som HF-U23, som samlet HF-U8. HF-U21 gjelder som
+  «Samlet», og henvisningen i HF-U29 punkt 12 til «HF-U21 og kjeden for grunnlagskravet» gjelder
+  samlevedtaket. HF-U21 s4 («Et subsidiært standpunkt forblir subsidiært (GR-U1)») står i GR-U34 punkt 14
+  (punkt 5). Forholdene til HF-U5 og GR-U1 står.
+- **E6. B-13, endret underkategori (rad-073).** Oppheves: forholdet kan ikke endres (punkt 7), så
+  raden har ikke noe å gjelde for (GR-U22 Følge). Henvisningene til den gjelder punkt 7.
+- **E7. KA-U52 punkt 10.** «eller hjemmelen, etter MM-U52 punkt 10 og 14» gjelder forholdet etter
+  punkt 7 i dette samlevedtaket.
+
+###### Forholdene
+
+Samler GR-U1, GR-U19, GR-U22, HF-U21, OV-U57 og OV-U55 s1–s4; opphever rad-073
+(B-13 endret underkategori); endrer OV-U55 (E4) og KA-U52 punkt 10 (E7); presiserer VS-U43 punkt 6
+(punkt 10) og HF-U29 punkt 12 (E5); bygger på KA-U52, HF-U23, GR-U34, LV-U56, KA-U51 og VS-U45.
+GR-U16 står (klasse design) og samles ikke. GR-U20 og GR-U23 hører til frafallet og samles ikke.
+
+###### Grensen mot MM-U52
+
+- Samlevedtaket samler ikke MM-U52 eller det MM-U52 og KA-U52 har opphevet eller samlet.
+- Avgjort med versjon 3 av MM-U52: punkt 14 der viser til punkt 7 her for at forholdet står, og
+  beholder setningen om betegnelsen på endringsordren. Regelen om et annet forhold står i punkt 9
+  her, og versjon 3 viser dit. Datoregelen har hjemmet i punkt 10 i versjon 3, og punkt 8 her viser
+  bare dit.
+- «MM-U52 snevrer inn GR-U22» står. Et samlet vedtak beholder forholdene sine.
 '''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
 anker = "gr-u1"
+forhold = [{ art = "utvider", vedtak = "b-13-endret-underkategori" }]
 vedtak = '''
 GR-U1: en ny kravversjon av grunnlaget åpner sporet også når underkategorien er uendret,
 som for vederlag og frist. Svaret på forrige versjon faller i tilstanden og står i
@@ -6816,11 +6928,12 @@ grunnlaget besvares igjen, som ved endret underkategori'''
 vedtatt = "08.10, oppdragsgiver"
 folge = '''
 Ikke bygget (DT-04). Utvider vedtaket om endret underkategori 05.10 (#215) til alle
-grunnlagsversjoner etter et svar som ikke er låst'''
+grunnlagsversjoner etter et svar som ikke er låst. Utvider [B-13 endret underkategori](#b-13-endret-underkategori).'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
 anker = "gr-u2"
+forhold = [{ art = "snevrer inn", vedtak = "b-13-endret-underkategori" }]
 vedtak = '''
 GR-U2: et grunnlag byggherren har godkjent og som er låst, kan ikke endres, heller ikke
 underkategorien. Vedtaket om endret underkategori 05.10 (#215) gjelder svar som ikke er
@@ -6828,7 +6941,7 @@ låst: avslått, prekludert etter § 32.2 og frafalt'''
 vedtatt = "08.10, oppdragsgiver"
 folge = '''
 Presisert 09.10 av [GR-U10](#gr-u10): «låst» er enighet ved sammenfall. Som i dag:
-`NOT_LOCKED` avviser oppdateringen'''
+`NOT_LOCKED` avviser oppdateringen. Snevrer inn [B-13 endret underkategori](#b-13-endret-underkategori).'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
@@ -6841,8 +6954,7 @@ enighet. Frafall (GR-U9) er byggherrens standpunkt og kan fortsatt revideres'''
 vedtatt = "09.10, oppdragsgiver"
 forhold = [
   { art = "presiserer", vedtak = "gr-u7" },
-  { art = "presiserer", vedtak = "gr-u2" },
-]
+  ]
 folge = '''
 Presiserer GR-U2 og GR-U7. Retter avviket i målmodellen som #312 beskriver. At svaret er
 en endringsordre etter § 32.3 a, gjelder underkategoriene som § 32.2 gjelder for
@@ -7052,6 +7164,7 @@ står. I tråd med [HF-U1](#hf-u1): et utsagn viser uttrykkelig til det det gjel
 Brevteksten gjengir opplysningen ([LV-U4](#lv-u4), punkt 1). Ikke bygget Bygget, kontrollert 20.10 (#417): formkontrollen krever endringsordrens dato eller nummer i underkategorien endringsordre og avviser feltet i andre underkategorier (`kategorisperre` i `kjerne/kommandoer/nyttelast.ts`), et registrert krav uten feltet er ikke forstått, og brevteksten gjengir opplysningen (`kjerne/frosset/brevtekst.ts`), med test i `kjerne/tester/koder.test.ts`, `kjerne/tester/brevtekst.test.ts` og `src/lib/components/kontraktsbord/__tests__/NewCaseKjerne.test.ts`. Kontrollert 08.11 (#1678): `NewCaseKjerne.test.ts` er slettet med dagens visning (#1516). Skjemaet for ny sak i Varden krever feltet (`src/lib/components/varden/nysak.ts`), med test i `src/lib/components/varden/__tests__/NySak.test.ts`.'''
 
 [[gruppe.vedtak]]
+anker = "b-13-endret-underkategori"
 klasse = "vedtak"
 vedtak = '''
 B-13 endret underkategori etter byggherrens svar på grunnlaget krever nytt svar.
@@ -7383,7 +7496,7 @@ svar = '''
 Jeg bare tenkte at jeg ikke ser noe reellt behov for at TE skal kunne endre grunnlag. TE må selv ta asnavr for å velge riktig hjemmel, og hvis feil, opprette ny sak og overføre krav. Da slipper vi alle disse reglene som må kunne beregne og hensynta at TE går frem og tilbake
 
 Oppfølging: A: hjemmelen står (Anbefalt)'''
-forhold = [{ art = "endrer", vedtak = "gr-u19" }, { art = "opphever", vedtak = "gr-u21" }, { art = "snevrer inn", vedtak = "ka-u22" }, { art = "endrer", vedtak = "gr-u2" }]
+forhold = [{ art = "endrer", vedtak = "gr-u19" }, { art = "opphever", vedtak = "gr-u21" }]
 folge = '''
 Spørsmålet kom etter at oppdragsgiver svarte på spørsmålet om frafall og ny grunnlagsversjon (GR-U23) med «fikk du svaret mitt om det å ikke kunne endre grunnlag?». Alternativ A sier «Utvider KA-U22 med et unntak». Ført som «snevrer inn», slik unntaket i OV-U5 fra OV-U4 er ført. Forholdet til GR-U2 fant kontrollen av føringen 16.10: underkategorien kan ikke lenger endres, så raden i B-13 om endret underkategori (05.10, #215) får ikke noe å gjelde for. Forholdet mellom overføringen og OV-U5 er ikke avklart, og heller ikke om byggherrens binding (HF-U5) og en enighet følger kravene til den nye saken (#569). Del 1 bygget 16.10 i PR #588 (#569): en ny grunnlagsversjon med en annen hovedkategori eller underkategori avvises med regelkoden ANNEN_HJEMMEL, også når § 32.2 gjelder likt. Endringsordrens dato eller nummer kan rettes i en ny versjon med samme underkategori. En journal som alt har et skifte, leses som før (MM-U18). PROJEKSJONSVERSJON 21. Overføringen til ny sak er ikke bygget (#569).'''
 
@@ -8228,6 +8341,105 @@ forkastet = true
 navn = "C"
 tekst = '''
 Skjemaet står etter OV-U46. Vil byggherren ha dokumentet i saken, legger byggherren det til som korrespondanse før bekreftelsen og velger det som et registrert dokument. Skjemaet lenker til registreringen. Forhold: presiserer OV-U46 (designdelen).'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "avsnittet «Designdel» i samlevedtaket"
+id = "GR-U40"
+dato = 2026-11-14
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålene ordrett slik de ble stilt 14.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/a499a51/docs/vedtaksregister/vurdering-samlevedtak-paaberopelsen-2026-11-14.md#spørsmålene-til-oppdragsgiver). Alternativene står i posten.
+
+**1. Samlevedtaket.** *Bakgrunn:* regelen om ny versjon av påberopelsen og om et annet forhold står
+i seks poster og fire samlevedtak (M1, M2, M6). *Belegg:* tabellen og M1–M6.
+- **A.** «Samlevedtaket for påberopelsen av forholdet gjelder med E1–E7. GR-U1, GR-U19, GR-U22,
+  HF-U21, OV-U57 og OV-U55 s1–s4 gjelder som «Samlet i samlevedtaket for påberopelsen». Raden i
+  B-13 om endret underkategori oppheves, og henvisningene til den gjelder punkt 7. I postene det
+  samler eller endrer, gjelder setningene E1–E7 navngir, ikke lenger.»
+- **B.** «Samme som A, med rettelsene du gir per punkt eller E-punkt.»
+*Anbefaling:* A. *Styrer:* hvilke poster kjernen og vedtakshenvisningene (#452) viser til for
+regelkoden for et endret forhold.
+
+**2. Avslår en ny versjon av påberopelsen byggherrens svar på forholdet?** *Bakgrunn:* M4. *Belegg:*
+OV-U55 («den avslår byggherrens tilbud i grunnlagssporet etter avslagsregelen») mot HF-U23 punkt 9
+(«Løsningen sier ikke at svaret er avslått eller har falt bort»).
+- **A.** «Løsningen sier ikke at en ny versjon av påberopelsen avslår byggherrens svar på forholdet,
+  og avgjør ikke om byggherren fortsatt er bundet av det. Forhold: endrer OV-U55 (avslagsleddet
+  faller).» At svaret ikke kan godtas, står i beslutningsdelen i HF-U23 punkt 9.
+- **B.** «En ny versjon av påberopelsen er totalentreprenørens avslag på byggherrens svar på
+  forholdet, og svaret faller bort som tilbud. Det gjelder bare forholdet, ikke svarene på vederlag
+  og fristforlengelse. Forhold: endrer HF-U23 punkt 9 og KA-U52 E3 for forholdet.»
+*Anbefaling:* A. Det følger KA-U52 E3 og HF-U23 punkt 9, som gjelder alle spor. B ville gjøre
+forholdet til et unntak. *Styrer:* brevteksten og tilstanden etter en ny versjon (punkt 3).
+
+**3. Hva følger med fra den gamle saken til den nye?** *Bakgrunn:* M3. GR-U22 vedtok en overføring
+som «ikke er et avkall», mens OV-U57 utsatte den, og tre poster lar virkningen stå åpen. *Belegg:*
+GR-U22, OV-U55, OV-U57 og VS-U43 E2, sitert i M3. Alternativene sier hva som gjelder til et eventuelt
+nytt vedtak om overføring.
+- **A.** «Den nye saken er en ny påberopelse. Det som er sendt, svart eller registrert i den gamle
+  saken, følger ikke med i løsningen, og løsningen avgjør ikke om det gjelder den nye påberopelsen.
+  Påberopelsen i den gamle saken står til totalentreprenøren trekker den eller saken avsluttes etter
+  de reglene som ellers gjelder. En overføring av krav mellom saker krever et nytt vedtak. Forhold:
+  endrer GR-U22 og OV-U57 (overføringen faller).»
+- **B.** «Som A, men vedtaket om overføring står: når overføringen bygges, overfører
+  totalentreprenøren kravene til den nye saken, overføringen er ikke et avkall, og hva som følger
+  med, avgjøres i et eget vedtak før overføringen bygges.»
+*Anbefaling:* A. Antakelse, ikke prøvd: en sak med annet forhold er sjelden i første versjon, og B
+binder en virkning («ikke et avkall») til en handling som ikke finnes. A lar partene avgjøre det
+kontrakten overlater til dem. *Styrer:* punkt 10 og 12, E3, og om #569 trenger et nytt spørsmål.
+'''
+valgt = "1 A, 2 A, 3 A"
+svar = '''
+Oppdragsgiver 14.11, ordrett ([#1534, 6874501642](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6874501642)): «Ja». Det er det anbefalte alternativet i hvert spørsmål, spørsmål 2–4 i tabellen i kommentaren. Valgt samlet: 1 A, 2 A, 3 A.'''
+forhold = [
+  { art = "samler", vedtak = "gr-u1" },
+  { art = "samler", vedtak = "gr-u19" },
+  { art = "samler", vedtak = "gr-u22" },
+  { art = "samler", vedtak = "hf-u21" },
+  { art = "samler", vedtak = "ov-u57" },
+  { art = "samler", vedtak = "ov-u55" },
+  { art = "opphever", vedtak = "b-13-endret-underkategori" },
+  { art = "endrer", vedtak = "ov-u55" },
+  { art = "endrer", vedtak = "gr-u22" },
+  { art = "endrer", vedtak = "ov-u57" },
+  { art = "endrer", vedtak = "ka-u52" },
+  { art = "presiserer", vedtak = "vs-u43" },
+  { art = "presiserer", vedtak = "hf-u29" },
+  { art = "bygger på", vedtak = "ka-u52" },
+  { art = "bygger på", vedtak = "hf-u23" },
+  { art = "bygger på", vedtak = "gr-u34" },
+  { art = "bygger på", vedtak = "lv-u56" },
+  { art = "bygger på", vedtak = "ka-u51" },
+  { art = "bygger på", vedtak = "vs-u45" },
+]
+folge = '''
+Teksten står under tabellen, i [Samlevedtaket for påberopelsen av forholdet](#samlevedtak-paaberopelsen). Samler GR-U1, GR-U19, GR-U22, HF-U21, OV-U57 og OV-U55 s1–s4, og opphever raden i B-13 om endret underkategori (svar 1 A). Endrer OV-U55 (svar 2 A), GR-U22 og OV-U57 (svar 3 A) og KA-U52 punkt 10 (E7). Presiserer VS-U43 punkt 6 og HF-U29 punkt 12. Bygger på KA-U52, HF-U23, GR-U34, LV-U56, KA-U51 og VS-U45. Forholdene «GR-U22 endrer GR-U2», «GR-U22 snevrer inn KA-U22» og «OV-U55 snevrer inn MM-U21» er fjernet etter OV-U92 (b) (E2, E3 og E4).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 A, 2 A, 3 A"
+tekst = '''
+Spørsmål 1: Samlevedtaket for påberopelsen av forholdet gjelder med E1–E7. GR-U1, GR-U19, GR-U22, HF-U21, OV-U57 og OV-U55 s1–s4 gjelder som «Samlet i samlevedtaket for påberopelsen». Raden i B-13 om endret underkategori oppheves, og henvisningene til den gjelder punkt 7. I postene det samler eller endrer, gjelder setningene E1–E7 navngir, ikke lenger. Spørsmål 2: Løsningen sier ikke at en ny versjon av påberopelsen avslår byggherrens svar på forholdet, og avgjør ikke om byggherren fortsatt er bundet av det. Forhold: endrer OV-U55 (avslagsleddet faller). Spørsmål 3: Den nye saken er en ny påberopelse. Det som er sendt, svart eller registrert i den gamle saken, følger ikke med i løsningen, og løsningen avgjør ikke om det gjelder den nye påberopelsen. Påberopelsen i den gamle saken står til totalentreprenøren trekker den eller saken avsluttes etter de reglene som ellers gjelder. En overføring av krav mellom saker krever et nytt vedtak. Forhold: endrer GR-U22 og OV-U57 (overføringen faller).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 B"
+tekst = '''
+Samme som A, med rettelsene du gir per punkt eller E-punkt.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2 B"
+tekst = '''
+En ny versjon av påberopelsen er totalentreprenørens avslag på byggherrens svar på forholdet, og svaret faller bort som tilbud. Det gjelder bare forholdet, ikke svarene på vederlag og fristforlengelse. Forhold: endrer HF-U23 punkt 9 og KA-U52 E3 for forholdet.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3 B"
+tekst = '''
+Som A, men vedtaket om overføring står: når overføringen bygges, overfører totalentreprenøren kravene til den nye saken, overføringen er ikke et avkall, og hva som følger med, avgjøres i et eget vedtak før overføringen bygges.'''
 forkastet = true
 
 [[gruppe]]
@@ -10144,7 +10356,7 @@ A: ja (avtl. § 6, KA-U1, KA-U5). B: nei, byggherrens binding etter HF-U5 er nok
 valgt = "Ja"
 svar = '''
 Ja til alle anbefalingene'''
-forhold = [{ art = "opphever", vedtak = "ka-u3" }, { art = "opphever", vedtak = "ka-u5" }, { art = "presiserer", vedtak = "ka-u6" }, { art = "presiserer", vedtak = "ka-u7" }, { art = "presiserer", vedtak = "ka-u10" }, { art = "presiserer", vedtak = "ka-u11" }, { art = "presiserer", vedtak = "ka-u14" }, { art = "presiserer", vedtak = "gr-u2" }, { art = "presiserer", vedtak = "gr-u8" }, { art = "presiserer", vedtak = "gr-u10" }, { art = "presiserer", vedtak = "mm-u3" }, { art = "presiserer", vedtak = "mm-u11" }, { art = "presiserer", vedtak = "mm-u16" }, { art = "presiserer", vedtak = "mm-u18" }, { art = "presiserer", vedtak = "mm-u19" }, { art = "presiserer", vedtak = "ov-u3" }]
+forhold = [{ art = "opphever", vedtak = "ka-u3" }, { art = "opphever", vedtak = "ka-u5" }, { art = "presiserer", vedtak = "ka-u6" }, { art = "presiserer", vedtak = "ka-u7" }, { art = "presiserer", vedtak = "ka-u10" }, { art = "presiserer", vedtak = "ka-u11" }, { art = "presiserer", vedtak = "ka-u14" }, { art = "presiserer", vedtak = "gr-u8" }, { art = "presiserer", vedtak = "gr-u10" }, { art = "presiserer", vedtak = "mm-u3" }, { art = "presiserer", vedtak = "mm-u11" }, { art = "presiserer", vedtak = "mm-u16" }, { art = "presiserer", vedtak = "mm-u18" }, { art = "presiserer", vedtak = "mm-u19" }, { art = "presiserer", vedtak = "ov-u3" }]
 folge = '''
 Presiserer også SK-01. Innsnevringen av EO-U5 og EO-U2 følger av svaret på spørsmål 3 i vurderingen ([EO-U10](#eo-u10)). Grunnlaget er vurderingen av vedtakene mot NS 8407 og avtaleloven (#504). Byggestatus er ikke vurdert.'''
 
@@ -11801,7 +12013,7 @@ tekst = "En ny grunnlagsversjon kan ikke endre datoen."
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
-bindende_i = ["mm-u52"]
+bindende_i = ["mm-u55"]
 id = "VS-U44"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
@@ -17237,6 +17449,253 @@ registrering omfatter, avviser løsningen krav, svar, aksept og trekk.» og «In
 og innsigelser etter punkt 5 tredje ledd godtas.» Ny tekst: punkt 24 (MM-U51, uendret innhold).
 
 **E8 Redaksjonelt (punkt 5–7, 10, 18, 20 og 24).** Selvhenvisningene «punkt 8 i samlevedtaket for retting av sendt brev» (05.11 1 C og 2 A) og «punkt 10 i samlevedtaket for retting av sendt brev» (MM-U51, LV-U54) står som «punkt 8» og «punkt 10». De betingede setningene i kursiv i punkt 5 og 7 i versjon 1 («Ved spørsmål 2 A …») er skrevet etter svaret 2 A (MM-U42). «etter punkt 20» i punkt 6 viser til aksepten fra 05.11 1 C. Ikke nytt innhold.
+
+##### <a id="samlevedtak-retting-3"></a>Samlevedtaket for retting av sendt brev, versjon 3 (MM-U55)
+
+Teksten under er samlevedtaket [MM-U55](#mm-u55), vedtatt 14.11 av oppdragsgiver (#1534), slik det
+ble lagt fram i [vurderingen](../vedtaksregister/vurdering-samlevedtak-retting-av-sendt-brev-v3-2026-11-14.md),
+med svarene 1 A, 2 A, 3 C og 4 A. Det er versjon 2 ([MM-U52](#mm-u52)) med endringene i utkastet
+og «Endret innhold» E1–E8. Samlevedtaket opphever MM-U52, og henvisningene til MM-U52 gjelder
+versjon 3. Det samler [LV-U55](#lv-u55), [MM-U53](#mm-u53), [VS-U59](#vs-u59) og [VS-U60](#vs-u60).
+Kildene står i parentes etter hver setning. «05.11 1 C» og så videre er svarene 05.11 som versjon 2
+viser til, og «spørsmål 1 A» og så videre er svarene 14.11 på spørsmålene i vurderingen. «E1»–«E8» er «Endret innhold» i versjon 3, og «E6 i versjon 2» og så videre er «Endret innhold» i versjon 2.
+
+###### Forslaget
+
+Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Punkt 1–5, 7–9, 11–13, 16–19, 21 og
+23 står som i versjon 2. Punkt 6, 10, 14, 15, 20, 22 og 24, designdelen og beslutningsdelen er endret
+etter E1–E8 under. Nummereringen står, så «punkt 8» og «punkt 10» i andre vedtak og i
+brukerforløpene gjelder det samme.
+
+###### A. Hva en retting er
+
+1. En retting er et nytt utsagn fra avsenderen, med henvisning til brevet den retter, og brevet
+   står uendret. (MM-U41 punkt 1)
+2. En retting sendes av avsenderens side som et nytt brev fra løsningen. Det første brevet og
+   dokumentet i Catenda står. (MM-U41 punkt 2)
+3. Løsningen avgjør ikke om avsenderen er løst (MM-U50 punkt 8). (MM-U41 punkt 3; E6 i versjon 2)
+
+###### B. Virkningen etter hvem rettingen er til fordel for
+
+4. En retting i motpartens favør gjelder som en revisjon i motpartens favør. (MM-U41 punkt 4)
+5. En retting til avsenderens fordel er et tilbud om å endre det brevet sa, og den gjelder når
+   motparten godtar den. Punkt 5 gjelder ikke for et standpunkt i et krav eller et svar; der
+   gjelder punkt 6. (MM-U41 punkt 5 med svaret 2 A, MM-U42)
+6. En retting av et standpunkt i et krav eller et svar sendes som en ny kravversjon eller et nytt
+   svar, også når den er til avsenderens fordel, og med henvisning til brevet den retter. Et
+   nytt svar erstatter det tidligere som byggherrens siste svar i løsningen, uten
+   totalentreprenørens aksept, og en ny kravversjon venter på byggherrens svar. Tidligere brev
+   bevares uendret, og løsningen avgjør ikke om endringen er rettslig virksom (MM-U50 punkt 8).
+   Det gjelder så langt et nytt svar eller en ny kravversjon er tillatt. I en KOE-sak avvises de
+   når en sendt endringsordre eller en godkjent registrering av en endringsordre i en EO-sak
+   omfatter saken (punkt 12 og 13 i samlevedtaket for endringsordren), også etter en endringsordre
+   registrert som svar. (EO-U39 spørsmål 3; E1) For andre opplysninger i et brev er en retting til
+   avsenderens fordel et tilbud som gjelder når motparten godtar den. (MM-U42; E6 i versjon 2) At et nytt
+   svar erstatter det tidligere som byggherrens siste svar i løsningen, gjelder standpunktene i
+   svaret, ikke aksepten av en retting etter punkt 20. (05.11 1 C, forholdet; E1 i versjon 2)
+7. En retting fra byggherren går gjennom godkjenningen etter fullmakten som et svar med det
+   innholdet rettingen gir, også når rettingen er et tilbud til byggherrens fordel. Et nytt svar
+   etter punkt 6 går gjennom godkjenningen som andre svar. (MM-U41 punkt 7)
+
+###### C. Opplysninger med egne regler
+
+8. En feil dato totalentreprenøren har oppgitt for et varsel sendt utenfor løsningen, rettes
+   etter punkt 1–5. Totalentreprenøren sender en retting med henvisning til brevet med
+   opplysningen, og opplysningen i det brevet står uendret. En senere dato er en retting i
+   byggherrens favør og gjelder straks som premiss for nye svar. En tidligere dato er til
+   totalentreprenørens fordel og gjelder først når byggherren godtar rettingen; til da gjelder
+   datoen totalentreprenøren først oppga. Et svar byggherren alt har gitt, står med virkningen
+   det hadde, og byggherren kan ta stilling på nytt. At datoen settes én gang, betyr at
+   totalentreprenøren ikke kan endre den alene til sin egen fordel. Løsningen avgjør ikke
+   hvilken dato som er riktig (MM-U50 punkt 6). Mener mottakeren at datoen er feil, sier
+   mottakeren det i begrunnelsen for svaret eller i et innlegg. (MM-U41 punkt 8; E6 i versjon 2) Hvilken
+   dato en ny retting sammenlignes med, og hva «datoen totalentreprenøren først oppga» er etter
+   en tidligere retting, står i punkt 19. Punkt 8, 19 og 21–23 gjelder også datoen for et krav sendt utenfor løsningen (punkt 18). (05.11 2 A og 3.1 A; E2 i versjon 2; E3 i versjon 2)
+9. Avsenderen retter en feil kategori eller et feil varsel etter punkt 1–5, unntatt for en
+   endringsordre (punkt 16). En retting som gir et varsel en tidligere dato, gjelder først når
+   motparten godtar den, og et svar motparten alt har gitt, står med virkningen det hadde.
+   (MM-U41 punkt 9)
+10. Totalentreprenøren kan endre sin opplysning etter VS-U26 om når pålegget ble mottatt eller
+    totalentreprenøren ble klar over forholdet. Totalentreprenøren korrigerer datoen i et eget brev
+    om korrigeringen, som nevner den nye datoen og den tidligere datoen med brevet den ble oppgitt
+    i. Brevet kan ha totalentreprenørens forklaring i fritekst; forklaringen er valgfri, og
+    løsningen tolker den ikke. (MM-U41 punkt 10; MM-U53; LV-U56; E3, E4) Brevet er ikke en ny
+    kravversjon og avslår ikke byggherrens svar. Den nye opplysningen gjelder straks som
+    totalentreprenørens siste opplysning, uten byggherrens godkjenning, også når datoen er senere.
+    (MM-U41 punkt 10) Korrigeringen avvises når den nye datoen er senere enn datoen for et varsel
+    om forholdet som er sendt eller registrert, eller for kravet som er det første varselet
+    løsningen kjenner (samlevedtaket for varslingsdatoen punkt 6–8). Hvilket av dem som teller,
+    står i VS-U66. Meldingen nevner begge datoene. Er varselet registrert som sendt utenfor
+    løsningen, kan totalentreprenøren først rette datoen for varselet etter punkt 8. Er varselet
+    sendt fra løsningen, står datoen for det fast. (VS-U59; VS-U60; VS-U66; E2) Den nye
+    opplysningen erstatter ikke innholdet i tidligere brev eller premissene i tidligere svar. En ny
+    versjon av påberopelsen av forholdet kan ikke endre datoen. Den sier datoen som gjelder, og hver
+    tidligere dato med brevet den ble oppgitt i. (MM-U41 punkt 10; LV-U56; E3, E8) I
+    underkategorien endringsordre, der totalentreprenøren ikke oppgir noen slik dato, avvises
+    brevet. Brevet godtas også i et spor med enighet og når kravene er avgjort, og det endrer
+    ikke utfallet. (MM-U41 punkt 10; E5 i versjon 2) Avvisningen etter punkt 10 gjelder også i et spor med
+    enighet, når kravene er avgjort og i en lukket sak. (VS-U59; spørsmål 1 A)
+11. For opplysningen i punkt 10 gjelder: et svar byggherren alt har gitt, står med virkningen
+    det hadde. Byggherren tar stilling til opplysningen i et senere svar der rettidigheten etter
+    den aktuelle bestemmelsen behandles, eller i et nytt svar. Sporet venter ikke på et nytt
+    svar i løsningen, og løsningen avgjør ikke om korrigeringen gir byggherren en plikt etter
+    kontrakten (MM-U50 punkt 6). Løsningen avgjør ikke hvilken opplysning som er riktig, når
+    varslingsfristen begynte å løpe eller om varselet var rettidig. En påberopelse byggherren
+    alt har fremsatt, bevares med tidspunktet (VS-U9). (MM-U41 punkt 11; E6 i versjon 2) For en lukket sak gjelder punkt 24. (MM-U51, forholdet)
+12. Totalentreprenøren kan endre opplysningen om når totalentreprenøren ble klar over at økte
+    utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid ville påløpe
+    (punkt 34.1.3 annet ledd), i et eget utsagn med henvisning til varselet det gjelder. Den nye
+    opplysningen gjelder straks som totalentreprenørens siste opplysning, uten byggherrens
+    godkjenning, også når datoen er senere. Den erstatter ikke innholdet i tidligere brev eller
+    premissene i tidligere svar. Løsningen avgjør ikke hvilken dato som faktisk eller rettslig
+    skal legges til grunn, og beregner ikke rettidighet eller preklusjonsvirkning. Et svar
+    byggherren alt har gitt, står med virkningen det hadde. Byggherren tar stilling i et senere
+    svar der rettidigheten behandles, eller i et nytt svar. Sporet venter ikke på et nytt svar i
+    løsningen. Endringen gjelder bare totalentreprenørens opplysning om når totalentreprenøren
+    faktisk ble klar over det, ikke varseldatoen etter punkt 8 og ikke når totalentreprenøren
+    burde ha blitt klar over det. (MM-U41 punkt 12)
+13. En endring som bare retter en faktisk opplysning totalentreprenøren har oppgitt i kravet,
+    som en dato, et nummer eller en henvisning, uten å endre det totalentreprenøren krever, er
+    en korrigering. Korrigeringen er et eget utsagn etter punkt 1–5, ikke en ny kravversjon, og
+    lar svaret stå. Totalentreprenøren kan likevel sende en ny kravversjon. (MM-U41 punkt 13)
+    Datoen et krav sendt utenfor løsningen og lagt til med kategorien krav ble sendt, rettes etter punkt 18, ikke som en korrigering. (05.11 2 A, forholdet; E3 i versjon 2) For datoen totalentreprenøren oppgir i et krav sendt fra løsningen for en tidligere sending av samme krav utenfor løsningen, står setningen i OV-U5 (punkt 18). (05.11 2 A; E3 i versjon 2)
+14. Hva som står når påberopelsen av forholdet er sendt, står i punkt 7 i samlevedtaket for
+    påberopelsen av forholdet, og et annet forhold påberopes etter punkt 9 der. Et forslag om å
+    rette betegnelsen på endringsordren sendes som innlegg. (MM-U41 punkt 14; spørsmål 3 C; E8)
+15. Totalentreprenørens utdyping, byggherrens senere begrunnelse og bestridelsen av en
+    opplysning blir innlegg etter MM-U34 punkt 24. En opplysning i fritekst rettes ikke etter
+    punkt 1–5. (MM-U41 punkt 15) Forklaringen i brevet etter punkt 10 er ikke et innlegg. (MM-U53;
+    E4)
+
+###### D. Det samlevedtaket ikke gjelder
+
+16. For en endringsordre, også en registrert endringsordre og en endringsordre registrert som
+    svar, gjelder samlevedtaket for endringsordren foran punkt 1–15 og 18–23: endringsordren
+    rettes ikke i løsningen, og en feil tas opp etter punkt 42, 50 og 58 der. At EO-U9 er
+    opphevet, åpner ikke for revisjon. (MM-U41 punkt 16; «og 18–23» E4 i versjon 2) Punkt 24 sier selv hva som godtas i en sak en endringsordre omfatter.
+17. En registrering av et brev sendt utenfor løsningen rettes etter OV-U17 og OV-U18.
+    (MM-U41 punkt 17)
+
+###### E. Rettingen av varseldatoen og kravdatoen etter punkt 8
+
+18. Rettingen etter punkt 8 gjelder også datoen for et krav sendt utenfor løsningen og lagt til
+    som korrespondanse med kategorien krav, med de samme reglene som for varseldatoen:
+    totalentreprenøren sender en retting med henvisning til brevet med opplysningen, og
+    opplysningen i det brevet står uendret. En senere dato er en retting i byggherrens favør og
+    gjelder straks som premiss for nye svar. En tidligere dato er til totalentreprenørens fordel
+    og gjelder først når byggherren godtar rettingen; til da gjelder datoen totalentreprenøren
+    først oppga. Et svar byggherren alt har gitt, står med virkningen det hadde, og byggherren
+    kan ta stilling på nytt. Løsningen avgjør ikke hvilken dato som er riktig (MM-U50 punkt 6).
+    Setningen «Datoen oppgis når kravet sendes, og endres ikke senere.» i OV-U5 gjelder ikke
+    datoen for et krav lagt til med kategorien krav. For datoen totalentreprenøren oppgir i et
+    krav sendt fra løsningen for en tidligere sending av samme krav utenfor løsningen, står
+    setningen. (05.11 2 A) «En feil dato» i VS-U34 gjelder både varselet og kravet. (05.11 2 A,
+    forholdet) Punkt 17 gjelder ikke datoen. (05.11 2 A, forholdet) I punkt 19 og 21–23 gjelder «varseldatoen» også denne datoen. (05.11 3, innledningen:
+    «Ved 2 A gjelder punktene også datoen for kravet.»)
+19. En ny retting av varseldatoen sammenlignes med datoen som gjelder når rettingen sendes.
+    Datoen som gjelder, er datoen i den rettingen som sist begynte å gjelde, enten straks fordi
+    den var til en senere dag, eller da byggherren godtok den; uten en slik retting er det
+    datoen totalentreprenøren først oppga. En dato før den er til totalentreprenørens fordel og
+    gjelder først når byggherren godtar rettingen; til da gjelder datoen som gjaldt da rettingen
+    ble sendt. En dato etter den er i byggherrens favør og gjelder straks som premiss for nye
+    svar. Godtar byggherren en eldre retting som sto åpen, etter at en senere retting til en
+    senere dag har begynt å gjelde, gjelder datoen i den godtatte rettingen fra aksepten.
+    (05.11 3.1 A)
+20. Byggherren godtar totalentreprenørens retting til en tidligere varseldato i et svar i
+    sporet varselet gjelder, sammen med standpunktet om varselet kom i tide, eller i et nytt
+    svar etter punkt 6. Aksepten går da gjennom godkjenningen etter fullmakten med svaret.
+    Aksepten og standpunktet om rettidigheten er to ulike opplysninger i svaret, og aksepten er
+    ikke i seg selv et «i tide»-standpunkt. Et nytt svar etter punkt 6 tar ikke bort en aksept i
+    svaret det erstatter. I en sak som er lukket etter GR-U27, og i en KOE-sak som en sendt
+    endringsordre eller en godkjent registrering av en endringsordre omfatter, avvises et nytt
+    svar (punkt 6; GR-U27; punkt 12 i samlevedtaket for endringsordren), og rettingen kan da ikke godtas i løsningen. Til
+    byggherren har godtatt rettingen, gjelder datoen etter punkt 8, også når byggherren ikke
+    svarer. (05.11 1 C) Hva en ny kravversjon gjør med en aksept i et svar, står i punkt 5 i
+    samlevedtaket for kravversjon. (KA-U52 svar 2 A; E5)
+21. Totalentreprenørens retting til en tidligere varseldato har ingen akseptfrist. Løsningen
+    sperrer ikke byggherrens aksept fordi tid har gått, og sier ikke at rettingen har falt bort
+    eller ikke lenger binder totalentreprenøren (MM-U50 punkt 8). (05.11 3.2 A)
+22. Sender totalentreprenøren en ny retting av samme varseldato mens en tidligere retting til
+    en tidligere dato står åpen, står begge åpne, og byggherren kan godta hvilken som helst av
+    dem i løsningen, unntatt når aksepten avvises etter GR-U27 eller punkt 12 i samlevedtaket for endringsordren. (E5) Løsningen
+    sier ikke at den tidligere rettingen er tatt tilbake, og avgjør ikke om totalentreprenøren
+    fortsatt er bundet av den (MM-U50 punkt 8). Vil totalentreprenøren si at den tidligere
+    rettingen ikke lenger står, sier totalentreprenøren det i den nye rettingen eller i et
+    innlegg. Aksepten viser til rettingen den gjelder. (05.11 3.3 B)
+23. Har byggherren godtatt én retting av varseldatoen, kan de andre rettingene av samme dato som
+    sto åpne da aksepten ble sendt, ikke godtas i løsningen. Det er en begrensning i løsningen.
+    Løsningen sier ikke at de andre rettingene er avslått eller har falt bort, og avgjør ikke om
+    totalentreprenøren fortsatt er bundet av dem (MM-U50 punkt 8). Vil byggherren godta en av
+    dem, kan totalentreprenøren sende den på nytt som en ny retting. (05.11 3.4 B) Et nytt svar kan ikke godta en av de andre rettingene. (05.11 3.4 B, forholdet)
+
+###### F. Retting i en lukket sak
+
+24. I en sak som er lukket etter GR-U27, og i en KOE-sak som en sendt endringsordre eller en
+    godkjent registrering av en endringsordre omfatter, godtas også korrigeringen av datoen
+    etter punkt 10, og den endrer ikke utfallet. Den nye opplysningen gjelder straks som
+    totalentreprenørens siste opplysning. Et svar byggherren alt har gitt, står med virkningen
+    det hadde, og en påberopelse byggherren alt har fremsatt, bevares med tidspunktet (VS-U9).
+    Byggherren kan ta stilling til opplysningen i et innlegg, og saken står lukket. Løsningen
+    avgjør ikke om korrigeringen gir byggherren en plikt etter kontrakten (MM-U50 punkt 6).
+    (MM-U51; E6 i versjon 2) Rettingen av varseldatoen og kravdatoen i en slik sak står i punkt 68 i samlevedtaket
+    for endringsordren. (EO-U39 punkt 68; MM-U52 spørsmål 3; E6) Avvisningen etter punkt 10
+    gjelder også her. (VS-U59; spørsmål 1 A)
+
+###### Designdel
+
+Motparten ser rettingen som et nytt brev med henvisning til brevet den retter. En retting til
+avsenderens fordel vises som et tilbud til motparten har godtatt den, unntatt et nytt svar eller
+en ny kravversjon etter punkt 6. Brevet med et nytt svar sier at svaret er byggherrens siste svar
+i løsningen, uten totalentreprenørens aksept, og bruker ikke ordet «erstatter». Ordlyden avgjøres i
+byggingen (LV-U73). (LV-U73; E7, spørsmål 2 A) Visningen viser at svaret avviker fra en registrert enighet
+(MM-U34 punkt 9). Skjemaet for en ny kravversjon anbefaler korrigeringen etter punkt 13 (MM-U34
+punkt 1). Tidligere opplysninger beholdes og vises, og visningen sier hvilken opplysning et svar
+gjaldt. Hjemmet for punkt 10 er brukerforløpene BF-02A, BF-02C og BF-05; for resten skrives et
+forløp når rettingen bygges. (MM-U41, designdelen; E5 i versjon 2) Brevet med korrigeringen etter punkt 10 har
+tittelen ‹Korrigering av datoen i sak <kode>› (LV-U55) og sier: ‹Totalentreprenøren oppgir nå at
+<pålegget ble mottatt \| totalentreprenøren ble klar over forholdet> <dato>. I brev <merking> av
+<dato> oppga totalentreprenøren <dato>.› (MM-U41 punkt 10) Ordlyden i brevet med en ny versjon av
+påberopelsen etter en korrigering står i LV-U56. (E4)
+
+###### Beslutningsdel
+
+Før første ekte sak bygges totalentreprenørens korrigering av datoen i påberopelsen av forholdet (punkt 10; E8),
+rettingen av datoen etter punkt 12 og rettingen av varseldatoen etter punkt 8, som beholder sin
+egen modell. For andre rettinger skal det før første ekte sak finnes en avklart og gjennomførbar
+korrigeringsprosess; den kan være manuell. Det som står åpent om rettingen under B-16 i
+hovedplanen (aktørrettigheter, godkjenning og innsyn for motparten), avgjøres for den manuelle
+prosessen før første ekte sak. Den fullstendige rettingsflyten etter punkt 1–7 kan bygges
+senere. (MM-U41, beslutningsdelen) Rettingen av kravdatoen etter punkt 18 bygges før første ekte
+sak sammen med rettingen av varseldatoen og har samme modell. (05.11 2 A; E3 i versjon 2)
+
+###### Endret innhold
+
+- **E1** punkt 6: grensen etter EO-U39 spørsmål 3 (M5).
+- **E2** punkt 10: avvisningen etter VS-U59–VS-U66; «etter OV-U11» leses som punkt 8 (MM-U52 samler OV-U11).
+- **E3** punkt 10: LV-U54-teksten og henvisningen til brevet med korrigeringen faller (M1; LV-U56).
+- **E4** punkt 10 og 15: forklaringen (MM-U53); tittelen (LV-U55) og brevteksten fra MM-U41
+  punkt 10 flyttes til designdelen (prinsippet 14.11).
+- **E5** punkt 20 og 22: henvisningen til den opphevede EO-U34, og henvisningen til KA-U52.
+- **E6** punkt 24: henvisningen til EO-U39 punkt 68, der punkt 25 i versjon 2 ble ført (svar 3 C).
+- **E7** designdelen: ‹Svaret erstatter …› faller; budskapet står, ordlyden etter LV-U73.
+- **E8** språket: «grunnlagskravet», «grunnlaget» og «ny grunnlagsversjon» blir «påberopelsen av
+  forholdet» og «ny versjon av påberopelsen» i punkt 10, 24 og beslutningsdelen. Punkt 14 viser
+  til samlevedtaket for påberopelsen (spørsmål 3 C).
+- **Hovedregelen** (OV-U92, OV-U93) for raden `mm-u34 endrer ov-u51` i
+  `KJENTE_FORHOLD_TIL_OPPHEVET`: **(b)**. Versjon 3 sier: «Forholdet ‹MM-U34 endrer OV-U51› har
+  ikke noe å virke på: OV-U51 er opphevet av OV-U52, og OV-U52 av samlevedtaket.» Belegg: MM-U41
+  E2, «Punkt 15 strøk en tilsvarende setning i OV-U51, men OV-U51 var alt opphevet 25.10 av
+  OV-U52». De ti andre radene gjelder ikke poster versjon 3 samler eller endrer. `gr-u22 endrer
+  gr-u2` hører til kjeden for påberopelsen og tas der.
+
+###### Forholdene
+
+Versjon 3 opphever MM-U52 (svar 4 A, fordi E1–E3 og E7 endrer innholdet), og henvisningene til
+MM-U52 gjelder versjon 3 (OV-U92 (a)). Forholdene i MM-U52 føres videre. Den samler LV-U55,
+MM-U53, VS-U59 og VS-U60. VS-U66 står og presiseres: første setning, «Registreringen godtas …»,
+gjelder registreringen av et eget varsel (VS-U43) og har ikke noe hjem i retting; samlet ville den
+enten falle bort eller stå i feil samlevedtak. Punkt 10 viser derfor til VS-U66. EO-U39, KA-U52,
+LV-U56, LV-U73 og VS-U70 endrer også andre poster og står med sine forhold.
 '''
 
 [[gruppe.vedtak]]
@@ -17257,7 +17716,7 @@ B-03. Avgjort 10.10 av [B-03, dokumentet](#b-03-dokument): ett dokument per brev
 
 [[gruppe.vedtak]]
 klasse = "beslutning"
-bindende_i = ["mm-u52"]
+bindende_i = ["mm-u55"]
 anker = "b-03-dokument"
 vedtak = '''
 B-03, dokumentet: hvert brev som leveres til Catenda, blir ett dokument der, også når
@@ -18964,7 +19423,7 @@ Alternativene slik de står i kommentaren:
 valgt = "Bare relasjonen"
 svar = '''
 «Bare relasjonen (Recommended)»'''
-forhold = [{ art = "presiserer", vedtak = "mm-u22" }, { art = "presiserer", vedtak = "mm-u24" }, { art = "presiserer", vedtak = "mm-u29" }]
+forhold = [{ art = "presiserer", vedtak = "mm-u22" }, { art = "presiserer", vedtak = "mm-u24" }]
 folge = '''
 Spørsmålet og alternativene står på #1043 (kommentaren 6339847386). Svaret er gitt med spørsmålsverktøyet 22.10.'''
 
@@ -19938,7 +20397,7 @@ Punkt 12 rettes: Visningen «Alle fremsatte krav er avgjort» erstattes med «Re
 Ingen øvrige følgeendringer strykes. Før vedtakene i én samlet vedtaks-PR og legg den frem før merge som foreslått.»
 
 Svarene 1B, 2A og 3A står i [kommentaren før](https://github.com/khjohns/endringsmeldinger/issues/1336#issuecomment-6468031356) og er ført som EO-U11, GR-U27 og EO-U12.'''
-forhold = [{ art = "endrer", vedtak = "ov-u54" }, { art = "endrer", vedtak = "lv-u4" }, { art = "endrer", vedtak = "hf-u8" }, { art = "endrer", vedtak = "ov-u55" }, { art = "endrer", vedtak = "ov-u67" }, { art = "endrer", vedtak = "hf-u21" }, { art = "endrer", vedtak = "hf-u5" }, { art = "endrer", vedtak = "hf-u6" }, { art = "endrer", vedtak = "hf-u4" }, { art = "endrer", vedtak = "gr-u17" }, { art = "endrer", vedtak = "gr-u20" }, { art = "endrer", vedtak = "gr-u23" }, { art = "endrer", vedtak = "hf-u22" }, { art = "opphever", vedtak = "ka-u7" }, { art = "endrer", vedtak = "hf-u9" }, { art = "endrer", vedtak = "gr-u7" }, { art = "endrer", vedtak = "gr-u10" }, { art = "opphever", vedtak = "gr-u2" }, { art = "endrer", vedtak = "ka-u11" }, { art = "endrer", vedtak = "ov-u3" }, { art = "endrer", vedtak = "ka-u28" }, { art = "opphever", vedtak = "gr-u24" }, { art = "endrer", vedtak = "vs-u7" }, { art = "endrer", vedtak = "mm-u19" }, { art = "presiserer", vedtak = "ka-u6" }, { art = "endrer", vedtak = "mm-u7" }, { art = "opphever", vedtak = "ov-u65" }, { art = "opphever", vedtak = "ov-u66" }, { art = "endrer", vedtak = "ov-u68" }, { art = "endrer", vedtak = "hf-u10" }, { art = "endrer", vedtak = "ov-u51" }, { art = "endrer", vedtak = "ov-u38" }, { art = "endrer", vedtak = "ka-u27" }, { art = "opphever", vedtak = "hf-u14" }, { art = "endrer", vedtak = "fo-u7" }, { art = "endrer", vedtak = "ov-u4" }, { art = "endrer", vedtak = "ov-u7" }, { art = "endrer", vedtak = "ka-u1" }, { art = "endrer", vedtak = "hf-u7" }, { art = "endrer", vedtak = "hf-u16" }, { art = "opphever", vedtak = "hf-u17" }, { art = "opphever", vedtak = "hf-u19" }, { art = "endrer", vedtak = "hf-u18" }, { art = "endrer", vedtak = "lv-u7" }, { art = "endrer", vedtak = "mm-u24" }, { art = "endrer", vedtak = "ov-u49" }, { art = "endrer", vedtak = "eo-u3" }, { art = "opphever", vedtak = "eo-u2" }, { art = "opphever", vedtak = "eo-u5" }, { art = "opphever", vedtak = "eo-u10" }, { art = "endrer", vedtak = "ka-u26" }, { art = "endrer", vedtak = "ka-u12" }, { art = "endrer", vedtak = "eo-u1" }, { art = "opphever", vedtak = "eo-u6" }, { art = "opphever", vedtak = "eo-u7" }, { art = "opphever", vedtak = "eo-u9" }, { art = "endrer", vedtak = "eo-u8" }, { art = "opphever", vedtak = "ov-u64" }, { art = "endrer", vedtak = "vs-u9" }, { art = "endrer", vedtak = "mp-u6" }, { art = "endrer", vedtak = "ka-u34" }, { art = "endrer", vedtak = "ov-u48" }]
+forhold = [{ art = "endrer", vedtak = "ov-u54" }, { art = "endrer", vedtak = "lv-u4" }, { art = "endrer", vedtak = "hf-u8" }, { art = "endrer", vedtak = "ov-u55" }, { art = "endrer", vedtak = "ov-u67" }, { art = "endrer", vedtak = "hf-u21" }, { art = "endrer", vedtak = "hf-u5" }, { art = "endrer", vedtak = "hf-u6" }, { art = "endrer", vedtak = "hf-u4" }, { art = "endrer", vedtak = "gr-u17" }, { art = "endrer", vedtak = "gr-u20" }, { art = "endrer", vedtak = "gr-u23" }, { art = "endrer", vedtak = "hf-u22" }, { art = "opphever", vedtak = "ka-u7" }, { art = "endrer", vedtak = "hf-u9" }, { art = "endrer", vedtak = "gr-u7" }, { art = "endrer", vedtak = "gr-u10" }, { art = "opphever", vedtak = "gr-u2" }, { art = "endrer", vedtak = "ka-u11" }, { art = "endrer", vedtak = "ov-u3" }, { art = "opphever", vedtak = "gr-u24" }, { art = "endrer", vedtak = "vs-u7" }, { art = "endrer", vedtak = "mm-u19" }, { art = "presiserer", vedtak = "ka-u6" }, { art = "endrer", vedtak = "mm-u7" }, { art = "opphever", vedtak = "ov-u65" }, { art = "opphever", vedtak = "ov-u66" }, { art = "endrer", vedtak = "ov-u68" }, { art = "endrer", vedtak = "hf-u10" }, { art = "endrer", vedtak = "ov-u38" }, { art = "endrer", vedtak = "ka-u27" }, { art = "opphever", vedtak = "hf-u14" }, { art = "endrer", vedtak = "fo-u7" }, { art = "endrer", vedtak = "ov-u4" }, { art = "endrer", vedtak = "ov-u7" }, { art = "endrer", vedtak = "ka-u1" }, { art = "endrer", vedtak = "hf-u7" }, { art = "endrer", vedtak = "hf-u16" }, { art = "opphever", vedtak = "hf-u17" }, { art = "opphever", vedtak = "hf-u19" }, { art = "endrer", vedtak = "hf-u18" }, { art = "endrer", vedtak = "lv-u7" }, { art = "endrer", vedtak = "mm-u24" }, { art = "endrer", vedtak = "eo-u3" }, { art = "opphever", vedtak = "eo-u2" }, { art = "opphever", vedtak = "eo-u5" }, { art = "opphever", vedtak = "eo-u10" }, { art = "endrer", vedtak = "ka-u12" }, { art = "endrer", vedtak = "eo-u1" }, { art = "opphever", vedtak = "eo-u6" }, { art = "opphever", vedtak = "eo-u7" }, { art = "opphever", vedtak = "eo-u9" }, { art = "endrer", vedtak = "eo-u8" }, { art = "opphever", vedtak = "ov-u64" }, { art = "endrer", vedtak = "vs-u9" }, { art = "endrer", vedtak = "mp-u6" }, { art = "endrer", vedtak = "ka-u34" }]
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
@@ -23031,6 +23490,115 @@ anbefalt = true
 navn = "B"
 tekst = '''
 Brevet beholder «erstatter». Det er bare visningen som endres.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "avsnittet «Designdel» i samlevedtaket"
+beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
+id = "MM-U55"
+dato = 2026-11-14
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålene ordrett slik de ble stilt 14.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/a499a51/docs/vedtaksregister/vurdering-samlevedtak-retting-av-sendt-brev-v3-2026-11-14.md#spørsmålene-til-oppdragsgiver). «Forholdene» i spørsmål 4 står i samme fil, under «Forholdene (spørsmål 4)». Alternativene står i posten.
+
+1. **Avvisningen i en lukket sak og etter enighet.** Bakgrunn: M3. Belegg: punkt 24, «godtas også
+   korrigeringen av datoen etter punkt 10, og den endrer ikke utfallet»; VS-U59 nevner ikke
+   punkt 24. Alternativer: **A** «Avvisningen etter punkt 10 gjelder også i et spor med enighet,
+   når kravene er avgjort og i en lukket sak.» Forhold: snevrer inn punkt 24. **B** «I et spor med
+   enighet, når kravene er avgjort og i en lukket sak godtas korrigeringen uten kontrollen mot
+   varslene.» Forhold: presiserer VS-U59. Anbefaling: A. Rekkefølgen mellom datoene er den samme uansett utfall, og kjernen
+   kontrollerer alt slik (kodefunn K1). Styrer: punkt 24 og om K1 er riktig.
+2. **Brevteksten for et nytt svar.** Bakgrunn: M2. Belegg: LV-U73 «Den konkrete ordlyden
+   avgjøres i byggingen»; HF-U29 punkt 2 har fortsatt ‹Svaret erstatter byggherrens svar i brev …›.
+   Alternativer: **A** «Brevet med et nytt svar sier at svaret er byggherrens siste svar i
+   løsningen, uten totalentreprenørens aksept, og bruker ikke ordet ‹erstatter›. Ordlyden avgjøres
+   i byggingen.» **B** «Som A, med eksempelet ‹Dette er byggherrens nye svar. Byggherrens forrige
+   svar står i brev … av …›.» Anbefaling: A; vedtaket sier budskapet (prinsippet 14.11). Styrer: E7.
+3. **Punkt 14.** Bakgrunn: oppdragsgiver 14.11 og samlevedtaket for påberopelsen. Belegg: punkt 14
+   «Når totalentreprenøren har sendt grunnlaget … En ny grunnlagsversjon kan ikke endre dem.»
+   Alternativer: **A** «Punkt 14 står med ‹påberopelsen av forholdet› i stedet for ‹grunnlaget›.»
+   **B** «Punkt 14 står uendret til samlevedtaket for påberopelsen av forholdet føres.» **C**
+   «Punkt 14: Hva som står når påberopelsen av forholdet er sendt, står i punkt 7 i samlevedtaket
+   for påberopelsen av forholdet, og et annet forhold påberopes etter punkt 9 der. Et forslag om å
+   rette betegnelsen på endringsordren sendes som innlegg.» Anbefaling: C; regelen får ett hjem.
+   Styrer: punkt 14 og E8.
+4. **Forholdene.** Bakgrunn: svar 4 A og hovedregelen. Alternativer: **A** som «Forholdene» over,
+   med (b) for `mm-u34 endrer ov-u51`. **B** «Som A, men VS-U59 og VS-U60 samles ikke;
+   punkt 10 viser til dem.» Anbefaling: A; punkt 10 leses da av ett vedtak, og varselet starter
+   på null. VS-U66 samles ikke i noen av dem (se «Forholdene»). Styrer: `folge` i den nye posten og raden i `KJENTE_FORHOLD_TIL_OPPHEVET`.
+'''
+valgt = "1 A, 2 A, 3 C, 4 A"
+svar = '''
+Oppdragsgiver 14.11, ordrett ([#1534, 6874501642](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6874501642)): «Ja». Det er det anbefalte alternativet i hvert spørsmål, spørsmål 5–8 i tabellen i kommentaren, der spørsmål 7 (spørsmål 3 her) er C. Valgt samlet: 1 A, 2 A, 3 C, 4 A.'''
+forhold = [
+  { art = "opphever", vedtak = "mm-u52" },
+  { art = "samler", vedtak = "lv-u55" },
+  { art = "samler", vedtak = "mm-u53" },
+  { art = "samler", vedtak = "vs-u59" },
+  { art = "samler", vedtak = "vs-u60" },
+  { art = "presiserer", vedtak = "vs-u66" },
+  { art = "opphever", vedtak = "mm-u41" },
+  { art = "opphever", vedtak = "mm-u42" },
+  { art = "samler", vedtak = "mm-u51" },
+  { art = "samler", vedtak = "lv-u54" },
+  { art = "presiserer", vedtak = "vs-u34" },
+  { art = "presiserer", vedtak = "ov-u5" },
+  { art = "presiserer", vedtak = "ka-u1" },
+  { art = "samler", vedtak = "ov-u11" },
+  { art = "samler", vedtak = "ov-u80" },
+  { art = "opphever", vedtak = "mm-u21" },
+  { art = "opphever", vedtak = "mm-u26" },
+  { art = "opphever", vedtak = "ov-u52" },
+  { art = "opphever", vedtak = "ov-u53" },
+  { art = "endrer", vedtak = "ov-u41" },
+  { art = "endrer", vedtak = "ov-u54" },
+  { art = "endrer", vedtak = "ov-u55" },
+  { art = "endrer", vedtak = "ov-u56" },
+  { art = "snevrer inn", vedtak = "gr-u22" },
+  { art = "presiserer", vedtak = "vs-u26" },
+  { art = "utvider", vedtak = "ov-u3" },
+  { art = "utvider", vedtak = "lv-u4" },
+  { art = "presiserer", vedtak = "mm-u34" },
+]
+folge = '''
+Teksten står under tabellen, i [Samlevedtaket for retting av sendt brev, versjon 3](#samlevedtak-retting-3). Opphever MM-U52, og henvisningene til MM-U52 gjelder versjon 3; samler LV-U55, MM-U53, VS-U59 og VS-U60, og presiserer VS-U66 (svar 4 A). Forholdene til MM-U41, MM-U42, MM-U51, LV-U54, VS-U34, OV-U5, KA-U1, OV-U11, OV-U80, MM-U21, MM-U26, OV-U52, OV-U53, OV-U41, OV-U54, OV-U55, OV-U56, GR-U22, VS-U26, OV-U3, LV-U4 og MM-U34 er overtatt fra MM-U52. Forholdet «MM-U34 endrer OV-U51» er fjernet etter OV-U92 (b) (hovedregelen i «Endret innhold»).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 A, 2 A, 3 C, 4 A"
+tekst = '''
+Spørsmål 1: Avvisningen etter punkt 10 gjelder også i et spor med enighet, når kravene er avgjort og i en lukket sak. Forhold: snevrer inn punkt 24. Spørsmål 2: Brevet med et nytt svar sier at svaret er byggherrens siste svar i løsningen, uten totalentreprenørens aksept, og bruker ikke ordet ‹erstatter›. Ordlyden avgjøres i byggingen. Spørsmål 3: Punkt 14: Hva som står når påberopelsen av forholdet er sendt, står i punkt 7 i samlevedtaket for påberopelsen av forholdet, og et annet forhold påberopes etter punkt 9 der. Et forslag om å rette betegnelsen på endringsordren sendes som innlegg. Spørsmål 4: Som «Forholdene» over, med (b) for «mm-u34 endrer ov-u51».'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1 B"
+tekst = '''
+I et spor med enighet, når kravene er avgjort og i en lukket sak godtas korrigeringen uten kontrollen mot varslene. Forhold: presiserer VS-U59.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "2 B"
+tekst = '''
+Som A, med eksempelet ‹Dette er byggherrens nye svar. Byggherrens forrige svar står i brev … av …›.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3 A"
+tekst = '''
+Punkt 14 står med ‹påberopelsen av forholdet› i stedet for ‹grunnlaget›.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "3 B"
+tekst = '''
+Punkt 14 står uendret til samlevedtaket for påberopelsen av forholdet føres.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "4 B"
+tekst = '''
+Som A, men VS-U59 og VS-U60 samles ikke; punkt 10 viser til dem.'''
 forkastet = true
 
 [[gruppe]]
@@ -26574,7 +27142,6 @@ forhold = [
   { art = "endrer", vedtak = "lv-u30" },
   { art = "endrer", vedtak = "ov-u3" },
   { art = "endrer", vedtak = "ov-u10" },
-  { art = "presiserer", vedtak = "mm-u28" },
   { art = "presiserer", vedtak = "mm-u30" },
   { art = "presiserer", vedtak = "gr-u7" },
   { art = "utvider", vedtak = "ka-u7" },
@@ -27171,7 +27738,7 @@ Spørsmål 5b. En ny kravversjon som avslag på byggherrens svar (HF-U8)
 valgt = "Revurderingen av 5b"
 svar = '''
 «Enig med dere». Revurderingen av 5b, med låsen, utdypingen, byggherrens senere begrunnelse etter KA-U34 og rettingen av betegnelsen på endringsordren: ja. Den endrer 5b-B.'''
-forhold = [{ art = "endrer", vedtak = "ov-u54" }, { art = "utvider", vedtak = "gr-u22" }, { art = "snevrer inn", vedtak = "mm-u21" }, { art = "endrer", vedtak = "ov-u7" }, { art = "utvider", vedtak = "ov-u3" }, { art = "utvider", vedtak = "lv-u4" }, { art = "presiserer", vedtak = "gr-u16" }]
+forhold = [{ art = "endrer", vedtak = "ov-u54" }, { art = "utvider", vedtak = "gr-u22" }, { art = "endrer", vedtak = "ov-u7" }, { art = "utvider", vedtak = "ov-u3" }, { art = "utvider", vedtak = "lv-u4" }, { art = "presiserer", vedtak = "gr-u16" }]
 folge = '''
 Følger mønsteret i KA-U34. Bygges i #1308. Låsen og betegnelsen bygges i #569.'''
 
@@ -28981,6 +29548,48 @@ tekst = '''
 Et forhold fjernes etter (b) bare når punktet sier med ord at forholdet eller setningen ikke gjelder eller ikke har noe å virke på. Ellers står forholdet etter (c).'''
 anbefalt = true
 
+[[gruppe.vedtak]]
+klasse = "beslutning"
+id = "OV-U96"
+dato = 2026-11-14
+hvem = "oppdragsgiver"
+kilde = ["#1534", "#1065"]
+sporsmal = '''
+Spørsmålet ordrett slik det ble stilt 14.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/a499a51/docs/vedtaksregister/vurdering-kjente-forhold-2026-11-14.md#spørsmålet-til-oppdragsgiver). «Tabellen over» er tabellen under «Funnet» i samme fil.
+
+> **1. De ni historiske forholdene.** Ingen av de ni forholdene er en motsigelse, og ingen
+> samlevedtak for kjedene er planlagt.
+>
+> - **A.** Ett vedtak sier for hvert av de ni forholdene at det ikke har noe å virke på, med
+>   begrunnelsen i tabellen over, og forholdene fjernes etter OV-U92 (b). Vedtaket endrer
+>   ingen regel. Forhold: bygger på OV-U92 og OV-U93.
+> - **B.** Forholdene står etter OV-U92 (c) til neste samlevedtak som rører kjeden.
+>
+> **Anbefaling: A.** Lista over kjente avvik skal bare krympe, og med B blir den stående uten
+> at noe arbeid er planlagt. A krever ingen avgjørelse om innholdet, bare at begrunnelsen
+> holder. **Valget styrer** om radene fjernes nå eller blir stående.
+'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 14.11, ordrett ([#1534, 6874501642](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6874501642)): «Ja». Det er det anbefalte alternativet, A, spørsmål 9 i tabellen i kommentaren.'''
+forhold = [
+  { art = "bygger på", vedtak = "ov-u92" },
+  { art = "bygger på", vedtak = "ov-u93" },
+]
+folge = '''
+Bygger på OV-U92 og OV-U93. Forholdene «GR-U10 presiserer GR-U2», «HF-U9 presiserer GR-U2», «GR-U7 presiserer KA-U5», «MM-U30 presiserer MM-U29», «MM-U34 endrer KA-U26», «MM-U34 endrer KA-U28», «MM-U34 endrer OV-U48», «MM-U34 endrer OV-U49» og «OV-U43 presiserer MM-U28» har ikke noe å virke på og er fjernet etter OV-U92 (b), med begrunnelsen i tabellen under «Funnet» i vurderingen.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Ett vedtak sier for hvert av de ni forholdene at det ikke har noe å virke på, med begrunnelsen i tabellen over, og forholdene fjernes etter OV-U92 (b). Vedtaket endrer ingen regel. Forhold: bygger på OV-U92 og OV-U93.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Forholdene står etter OV-U92 (c) til neste samlevedtak som rører kjeden.'''
+forkastet = true
 
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
