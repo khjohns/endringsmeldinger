@@ -9137,9 +9137,14 @@ describe('brevtittelen fryses med brevet (MM-U3, MM-U50, svaret 03.11 i #1488)',
     expect(
       lestMed(s, rad, { brevtittel: 'Påberopelse av irregulær endring i sak KOE-3 og forsinkelse' })
     ).toBe('ukjent');
-    // Leseren kjenner igjen formen fra medSakskode, men ikke koden, som ikke står i journalen (DM-06).
+    // Leseren kjenner igjen formen fra medSakskode. Koden står ikke for seg i journalen (DM-06), men
+    // merkingen i samme brev har den, og de to må nevne samme sak (#1588).
+    expect(
+      lestMed(s, rad, { brevtittel: 'Påberopelse av irregulær endring i sak KOE-17' }),
+      'kontrollsak: samme sak som merkingen'
+    ).toBe('dokument');
     expect(lestMed(s, rad, { brevtittel: 'Påberopelse av irregulær endring i sak KOE-3' })).toBe(
-      'dokument'
+      'ukjent'
     );
   });
 
@@ -9305,6 +9310,21 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
     expect(med({ brevnummer: undefined })).toBe('ukjent');
   });
 
+  it('en merking med en annen sak enn brevtittelen er ikke forstått (LV-U27, LV-U48, MM-U2, #1588)', () => {
+    const s = sak();
+    const rad = s.send('TE', PAABEROPELSE);
+    expect(rad.data.brevtittel, 'forutsetning: tittelen nevner saken').toMatch(/ i sak KOE-17$/);
+    const med = (data: Data) =>
+      lesJournal(
+        [...s.journal.slice(0, -1), { ...rad, data: { ...rad.data, ...data } }],
+        KJERNE.leserformat
+      ).at(-1)!.art;
+    expect(med({}), 'kontrollsak').toBe('dokument');
+    expect(med({ merking: 'K201-EO-005-01' })).toBe('ukjent');
+    expect(med({ merking: 'K201-KOE-018-01' })).toBe('ukjent');
+    expect(med({ merking: 'K201-EO-017-01' }), 'samme løpenummer, annen kode').toBe('ukjent');
+  });
+
   it.each([
     ['uten forkortelsen og sakens kode', 'X-01'],
     ['med to sifre i løpenummeret', 'K201-KOE-17-01'],
@@ -9322,7 +9342,13 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
           KJERNE.leserformat
         ).at(-1)!.art;
       expect(med({ merking: 'K201-KOE-017-01' }), 'kontrollsak').toBe('dokument');
-      expect(med({ merking: 'K201-EO-1234-01' }), 'kontrollsak med fire sifre').toBe('dokument');
+      expect(
+        med({
+          merking: 'K201-KOE-1017-01',
+          brevtittel: (rad.data.brevtittel as string).replace('KOE-17', 'KOE-1017'),
+        }),
+        'kontrollsak med fire sifre, og tittelen med samme sak'
+      ).toBe('dokument');
       expect(med({ merking })).toBe('ukjent');
     }
   );

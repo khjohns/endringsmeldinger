@@ -26,7 +26,11 @@ import {
 import { LESING_I_FORHOLDET } from '../spor/forhold/format.ts';
 import { LESING_I_FRISTEN } from '../spor/frist/format.ts';
 import { LESING_I_VEDERLAGET } from '../spor/vederlag/format.ts';
-import { avvikIMerkingen, avvikITittelen } from '../frosset/brevtittel.ts';
+import {
+  avvikIMerkingen,
+  avvikITittelen,
+  ulikSakIMerkingenOgTittelen,
+} from '../frosset/brevtittel.ts';
 import {
   erKalenderdato,
   erObjekt,
@@ -517,6 +521,8 @@ function lesDokument(h: Journalrad): Dokument {
       erRegistrert(dokument.opplysninger)
     );
     if (avvik) throw new Uforstaatt(avvik);
+    if (data.brevtittel !== undefined && ulikSakIMerkingenOgTittelen(data.merking, data.brevtittel))
+      throw new Uforstaatt('merkingen og brevtittelen nevner ulike saker (LV-U27, LV-U48)');
   }
   // LV-U27, LV-U23: Deres ref. står i hodet på et brev fra løsningen, som har merkingen.
   if (data.deres_ref !== undefined && data.merking === undefined)

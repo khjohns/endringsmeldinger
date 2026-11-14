@@ -8,9 +8,9 @@ import type { Journalrad } from '../typer.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { vedleggI, type Kommando, type Svarutkast } from '../kommandoer/kommando.ts';
 import type { Vedleggsoppslag } from '../kommandoer/skriving.ts';
+import { standpunkter as standpunkterIUtkastet } from '../kommandoer/standpunkter.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
-import { vederlagsposter } from '../spor/vederlag/frysing.ts';
 import { type Svarvurdering } from '../frosset/byggeklosser.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { innholdIFristen } from '../spor/frist/format.ts';
@@ -545,31 +545,14 @@ export function radFor(
             }
           : { frister: [{ id: 'f1', navn: FRISTEN, dager: 20 }] },
     };
-    if (spor === 'vederlag' && s.produktivitet !== undefined)
-      throw new Error('En registrert rad lager ikke posten etter § 34.1.3; send svaret i et brev.');
     const v = vurderinger(spor, s, krav);
-    const standpunkter: Record<string, unknown>[] = [];
-    if (spor === 'forhold' && typeof s.varslet_i_tide === 'boolean')
-      standpunkter.push({
-        id: navn.nyId(),
-        art: 'rettidighet',
-        gjelder,
-        hjemmel: '32.2',
-        i_tide: s.varslet_i_tide,
-      });
-    if (spor === 'forhold')
-      standpunkter.push({ id: navn.nyId(), art: 'forhold', resultat: s.resultat });
-    else if (spor === 'frist')
-      for (const f of innholdIFristen(krav).frister)
-        standpunkter.push({ id: navn.nyId(), art: 'dager', gjelder: f.id });
-    else
-      for (const post of vederlagsposter(v, krav))
-        standpunkter.push({
-          id: navn.nyId(),
-          art: 'beloep',
-          beloep: post.godkjent,
-          ...('gjelder' in post ? { gjelder: post.gjelder } : { saerskilt: post.saerskilt }),
-        });
+    // #1984: standpunktene som kjernen lager dem når brevet skrives.
+    const standpunkter = standpunkterIUtkastet(
+      { spor, vurderinger: v } as Svarutkast,
+      krav,
+      u,
+      () => navn.nyId()
+    );
     const svar: Record<string, unknown> = {
       id: navn.ta(s.navn),
       spor,

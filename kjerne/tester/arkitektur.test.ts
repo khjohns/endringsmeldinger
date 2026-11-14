@@ -1835,6 +1835,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['Svarutkast', 'kommando', 'akseptfrist', ['kommandoer/skriving.ts:svar']],
   ['format/skjema.ts', 'skjema', 'KALENDERDAG', ['format/format.ts', 'kommandoer/kommando.ts']],
+  // #1588: merkingen og tittelen i samme brev nevner samme sak (LV-U27, LV-U48).
+  [
+    'frosset/brevtittel.ts',
+    'brevtekst',
+    'ulikSakIMerkingenOgTittelen',
+    ['format/leser.ts:lesDokument'],
+  ],
   ['format/leser.ts:lesSvar(e)', 'rad', 'akseptfrist', ['format/leser.ts']],
   // HF-U23 punkt 1 og 2: kontrollen av akseptfristen leser svarene slik brevet fryser dem.
   [
