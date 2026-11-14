@@ -5349,10 +5349,7 @@ const MUTASJONER: Mutasjon[] = [
         '        ? lagene.slice(1).map((a, i) => [i + 2, a, nye[i + 1] ?? null])',
       ],
     ],
-    mal: [
-      'er senket prinsipalt, ikke subsidiært (HF-U32)',
-      'færre dager for fristen viser punkt 33.7 annet ledd',
-    ],
+    mal: ['færre dager for fristen viser punkt 33.7 annet ledd'],
   },
   {
     id: 'F616',
