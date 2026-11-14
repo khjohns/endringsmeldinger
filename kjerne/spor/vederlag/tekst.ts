@@ -10,6 +10,7 @@ import {
   eksMva,
   gitt,
   KanIkkeUttrykkes,
+  kravetErstatter,
   kravpostenI,
   opplistet,
   PRODUKTIVITET,
@@ -156,9 +157,7 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
     punkter.push({
       punkt: 'innledning',
       overskrift: null,
-      avsnitt: [
-        `Kravet erstatter totalentreprenørens krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`,
-      ],
+      avsnitt: [kravetErstatter(k.erstatter, j)],
     });
   // VS-U3, OV-U15: varselet etter § 34.1.2 nevnes der varslingsplikten gjelder forholdet.
   if (hjemmelenGjelder('34.1.2', saken.paaberopelse, regler))

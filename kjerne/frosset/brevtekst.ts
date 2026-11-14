@@ -40,6 +40,7 @@ import {
   type Lagbeloep,
   type Tema,
   type Utdypninger,
+  PARTENS,
   utenOverskrift,
   UtdypningUtenPunkt,
 } from './brevdeler.ts';
@@ -626,21 +627,21 @@ function beskriv(id: string, j: Journalen): string {
   switch (e.art) {
     case 'krav': {
       const om = brevtekstI(e.krav.spor).kravetOm;
-      return `totalentreprenørens krav${om ? ` om ${om}` : ''} i ${j.brevet(e.krav.dokument)}`;
+      return `${PARTENS.TE} krav${om ? ` om ${om}` : ''} i ${j.brevet(e.krav.dokument)}`;
     }
     case 'svar':
       return `byggherrens svar i ${j.brevet(e.svar.dokument)}`;
     case 'standpunkt':
       // LV-U20: påberopelsen etter § 33.6.2 gjelder TEs svar på forespørselen, ikke et varsel.
       return erPaaberopelseEtter3362(id, e.svar)
-        ? `påberopelsen av at totalentreprenørens svar på forespørselen etter NS 8407 punkt 33.6.2 kom for sent i svaret i ${j.brevet(e.svar.dokument)}`
+        ? `påberopelsen av at ${PARTENS.TE} svar på forespørselen etter NS 8407 punkt 33.6.2 kom for sent i svaret i ${j.brevet(e.svar.dokument)}`
         : `påberopelsen av for sen varsling i svaret i ${j.brevet(e.svar.dokument)}`;
     case 'utsagn':
       if (e.utsagn.art === 'varsel')
-        return `totalentreprenørens varsel ${VARSEL_OM[uttrykkbar(e.utsagn.hjemmel)]} i ${j.brevet(e.dokument)}`;
+        return `${PARTENS.TE} varsel ${VARSEL_OM[uttrykkbar(e.utsagn.hjemmel)]} i ${j.brevet(e.dokument)}`;
       if (e.utsagn.art === 'innsigelse') return `innsigelsen i ${j.brevet(e.dokument)}`;
       if (e.utsagn.art === 'foresporselssvar')
-        return `totalentreprenørens svar i ${j.brevet(e.dokument)} på forespørselen etter NS 8407 punkt 33.6.2`;
+        return `${PARTENS.TE} svar i ${j.brevet(e.dokument)} på forespørselen etter NS 8407 punkt 33.6.2`;
       break;
     case 'dokument':
       return `innsigelsene i ${j.brevet(e.dokument.id)}`;
@@ -712,7 +713,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       // VS-U29: standpunktet om at begrunnelsen ikke er et svar etter § 33.6.2 annet ledd, uten
       // henvisningen til § 5 (arbeidsvalget 21.10 i #1095).
       if (u.grunn === 'ikke_svar')
-        return `${part} gjør gjeldende at ${beskriv(u.gjelder, j)} ikke er et svar etter NS 8407 punkt 33.6.2 annet ledd.`;
+        return `${part} gjør gjeldende at ${beskriv(u.gjelder, j)} ikke er et svar etter punkt 33.6.2 annet ledd.`;
       return `${part} gjør gjeldende at ${beskriv(u.gjelder, j)} kom for sent (NS 8407 punkt 5 tredje ledd).`;
     case 'foresporsel':
       // LV-U18 setning 1, ordrett med saken satt inn.
@@ -724,7 +725,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       return `${part} protesterer mot ${beskriv(u.gjelder, j)}.`;
     case 'passivitet': {
       const krav = j.krav(u.gjelder);
-      return `Totalentreprenøren gjør gjeldende at byggherren ikke svarte uten ugrunnet opphold på totalentreprenørens varsel etter NS 8407 punkt 32.2 i ${j.brevet(krav.dokument)}, og at pålegget derfor anses å innebære en endring (punkt 32.3 annet ledd).`;
+      return `Totalentreprenøren gjør gjeldende at byggherren ikke svarte uten ugrunnet opphold på ${PARTENS.TE} varsel etter NS 8407 punkt 32.2 i ${j.brevet(krav.dokument)}, og at pålegget derfor anses å innebære en endring (punkt 32.3 annet ledd).`;
     }
     case 'bestridelse': {
       const e = j.element(u.gjelder);

@@ -1784,7 +1784,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       erstatter: s.u().spor.frist.gjeldendeSvar!.id,
       svar: dager(15),
     });
-    // LV-U34: setningen om svaret det erstatter står i innledningen.
+    // LV-U73: setningene om byggherrens forrige svar står i innledningen (LV-U34).
     expect(laast(rad)[0]).toBe(
       `${INNLEDNING_FRIST} Dette er byggherrens nye svar. Byggherrens forrige svar står i brev K201-KOE-017-04 av 5. oktober 2026.`
     );
@@ -4074,7 +4074,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const { s, b } = medBegrunnelse();
     const rad = s.send('BH', { type: 'innsigelse', gjelder: b, grunn: 'ikke_svar' });
     expect(laast(rad)).toEqual([
-      'Byggherren gjør gjeldende at totalentreprenørens svar i brev K201-KOE-017-03 av 4. oktober 2026 på forespørselen etter NS 8407 punkt 33.6.2 ikke er et svar etter NS 8407 punkt 33.6.2 annet ledd.',
+      'Byggherren gjør gjeldende at totalentreprenørens svar i brev K201-KOE-017-03 av 4. oktober 2026 på forespørselen etter NS 8407 punkt 33.6.2 ikke er et svar etter punkt 33.6.2 annet ledd.',
     ]);
     // Ingen påberopelse etter § 33.6.2 å gjenta i svaret på kravet.
     s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
