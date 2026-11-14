@@ -49,7 +49,6 @@ import {
   type Avsnitt,
   type Avvisning,
   type Beslutningsgrunnlag,
-  type Dokument,
   type Journalrad,
   type Krav,
   type Domenehendelse,
@@ -262,13 +261,14 @@ export interface Sporsskriving {
   ): Utfall | null;
   /**
    * Varselet for hver post i kravet `k` i det nye dokumentet som trenger et, etter postens `id`,
-   * til brevteksten. `lest` er journalen før dokumentet.
+   * til brevteksten. `lest` er journalen før dokumentet, og `vedKravet` vedleggene i dokumentene
+   * kravskjemaet la til som varsel for en kravpost i samme handling.
    */
   postvarsler?(
     k: Krav,
-    nytt: Dokument,
     lest: readonly Domenehendelse[],
-    u: Utledning
+    u: Utledning,
+    vedKravet: readonly string[]
   ): Record<string, Kravpostvarselet>;
 }
 
@@ -627,7 +627,7 @@ function skriv(
   let brevtittel: string | null = null;
   let deresRef: string[] = [];
   try {
-    const brevet = brevtekstFor(rad, lest, u, kjerne, utdypninger, kontekst);
+    const brevet = brevtekstFor(rad, lest, u, kjerne, utdypninger, kontekst, vedKravet);
     brevtekst = brevet?.tekst ?? null;
     brevtittel = brevet?.tittel ?? null;
     deresRef = brevet?.deresRef ?? [];
@@ -741,7 +741,8 @@ function brevtekstFor(
   u: Utledning,
   kjerne: Kjerne,
   utdypninger: Utdypninger,
-  { sakskode }: Pick<Kontekst, 'sakskode'>
+  { sakskode }: Pick<Kontekst, 'sakskode'>,
+  vedKravet: readonly string[]
 ): { tekst: Avsnitt[]; tittel: string | null; deresRef: string[] } | null {
   const [ny] = lesJournal([rad], kjerne.leserformat);
   if (ny.art !== 'dokument')
@@ -765,7 +766,7 @@ function brevtekstFor(
         avklartVedFrafall: u.frafalt,
         kravpostvarsler: Object.fromEntries(
           ny.dokument.krav.flatMap((k) =>
-            Object.entries(iSporet(SKRIVING, k.spor).postvarsler?.(k, ny.dokument, lest, u) ?? {})
+            Object.entries(iSporet(SKRIVING, k.spor).postvarsler?.(k, lest, u, vedKravet) ?? {})
           )
         ),
         // Varslene for sporene brevet har krav i, som kravteksten viser til.

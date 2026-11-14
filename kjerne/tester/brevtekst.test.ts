@@ -10367,6 +10367,20 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     expect(s.u().forstaatt).toBe(true);
   });
 
+  it('et registrert varsel som én kravpost viser til og som også ligger ved kravet, gjelder fortsatt en annen post (VS-U55, #1823)', () => {
+    const s = paaberopt();
+    const varselet = registrertVarsel('34.4');
+    s.send('TE', varselet);
+    const varsel = varslene(s)[0]!.id;
+    const rad = s.send('TE', {
+      ...vederlagskrav([{ ...regning, varsel }, regning]),
+      dokumentasjon: varselet.dokumentasjon,
+    });
+    const tekst = laast(rad).join(' ');
+    expect(tekst.match(/ble gitt i totalentreprenørens e-post/g)).toHaveLength(2);
+    expect(tekst).not.toContain(varselRegning);
+  });
+
   it('en kravpost i en ny versjon kan gjenta varselet den viste til, men ikke vise til et annet (KA-U56, VS-U50)', () => {
     const s = paaberopt();
     s.send('TE', sendVarsel('34.4'));
@@ -11062,15 +11076,27 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
       const s = sak();
       s.send('TE', PAABEROPELSE);
       s.send('TE', vederlagskrav(saerskilt));
-      expect(s.avvisning('TE', vederlagskrav(trekk))?.melding).toBe(
-        '$.innhold.trekker_saerskilt: den særskilte vederlagsjusteringen er den eneste posten og kan ikke trekkes alene; totalentreprenøren trekker da vederlagskravet (KA-U83)'
-      );
+      expect(s.avvisning('TE', vederlagskrav(trekk))).toEqual({
+        regel: 'KRAVPOSTENE',
+        melding:
+          'Kravversjonen har ingen poster igjen når den særskilte vederlagsjusteringen er trukket; totalentreprenøren trekker da vederlagskravet (KA-U83).',
+      });
       expect(s.avvist('TE', vederlagskrav(tilbud(125000, trekk))), 'kontrollsak').toBeNull();
-      // Et tomt trekk, eller et trekk av kravpostene også, får ikke meldingen om den eneste posten.
-      for (const innhold of [{ trekker_saerskilt: [] }, { ...trekk, trekker: [randomUUID()] }])
-        expect(s.avvisning('TE', vederlagskrav(innhold))?.melding).not.toContain(
-          'den eneste posten'
-        );
+      expect(s.avvist('TE', vederlagskrav({ trekker_saerskilt: [] })), 'tomt trekk').toBe(
+        'UGYLDIG_FORM'
+      );
+    });
+
+    it('et trekk uten andre poster får meldingen om det som hindrer: posten som mangler, eller posten som ikke er med i forrige versjon', () => {
+      const s = medPosten();
+      expect(s.avvisning('TE', vederlagskrav(trekk))?.melding).toBe(
+        'Kravversjonen mangler P1 uten at den er trukket (KA-U56).'
+      );
+      const f = sak();
+      f.send('TE', PAABEROPELSE);
+      expect(f.avvisning('TE', vederlagskrav(trekk))?.melding).toBe(
+        'Kravversjonen trekker den særskilte vederlagsjusteringen, som ikke er med i forrige kravversjon.'
+      );
     });
 
     it('en lagret versjon uten posten og uten trekk har en begrensning, og trekket leses tilbake', () => {

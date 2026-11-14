@@ -138,7 +138,11 @@ export function vederlagsinnhold(lagret: boolean): {
       trekker_saerskilt: liste({ enum: ['produktivitet'] }),
     },
     required: [],
-    anyOf: [{ required: ['kravposter'] }, { required: ['saerskilt'] }],
+    anyOf: [
+      { required: ['kravposter'] },
+      { required: ['saerskilt'] },
+      { required: ['trekker_saerskilt'] },
+    ],
   };
 }
 

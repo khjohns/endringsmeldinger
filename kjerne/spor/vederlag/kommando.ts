@@ -32,7 +32,6 @@ import {
   avvis,
   erKravpostvarselhjemmel,
   type Avvisning,
-  type Dokument,
   type Domenehendelse,
   type Hjemmel,
   type Journalrad,
@@ -169,23 +168,9 @@ const harRiggOgDrift = (innhold: unknown): boolean => {
   return erObjekt(saerskilt) && Object.hasOwn(saerskilt, 'rigg_og_drift');
 };
 
-/**
- * Kravet trekker den særskilte vederlagsjusteringen og verken har eller trekker andre poster
- * (KA-U83).
- */
-const bareTrekkAvSaerskilt = (innhold: unknown): boolean =>
-  erObjekt(innhold) &&
-  Array.isArray((innhold as Innhold).trekker_saerskilt) &&
-  ((innhold as Innhold).trekker_saerskilt as unknown[]).length > 0 &&
-  !['kravposter', 'saerskilt', 'trekker'].some((felt) => Object.hasOwn(innhold, felt));
-
 /** Feilene i innholdet i vederlagskravet (`formfeil`). */
 function kravfeil(innhold: unknown): string[] {
   const { properties, required, anyOf } = vederlagsinnhold(false);
-  if (bareTrekkAvSaerskilt(innhold))
-    return [
-      '$.innhold.trekker_saerskilt: den særskilte vederlagsjusteringen er den eneste posten og kan ikke trekkes alene; totalentreprenøren trekker da vederlagskravet (KA-U83)',
-    ];
   const rigg = harRiggOgDrift(innhold);
   const feil = rigg
     ? [
@@ -403,31 +388,30 @@ function medVarslene(
 
 /**
  * Varslene etter § 34.3.3 og § 34.4 før kravet, uten dokumentene kravskjemaet la til i samme
- * handling: kravet legger dem ved, og de gjelder bare kravposten som viser til dem (VS-U51, VS-U53).
- * Kravet kan også ha egne vedlegg (#1823), så et varsel holdes utenfor bare når en kravpost i
- * kravet viser til det.
+ * handling (`vedKravet`): de gjelder bare kravposten som viser til dem (VS-U51, VS-U53). Et
+ * vedlegg kravet har ellers (#1823), holder ikke et varsel utenfor (VS-U55).
  */
-function foranKravet(k: Krav, nytt: Dokument, lest: readonly Domenehendelse[], u: Utledning) {
-  const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
-  const viserTil = new Set(kravposterI(k).map((p) => p.varsel));
+function foranKravet(lest: readonly Domenehendelse[], u: Utledning, vedKravet: readonly string[]) {
+  const vedlagte = new Set(vedKravet.map((id) => id.toLowerCase()));
   const dokumenter = new Map(
     lest.flatMap((h) => (h.art === 'dokument' ? [[h.id, h.dokument] as const] : []))
   );
   return u.spor.vederlag.kravpostvarsler.filter(
     (v) =>
-      !viserTil.has(v.id) ||
-      !dokumenter.get(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))
+      !dokumenter
+        .get(v.dokument)
+        ?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id.toLowerCase()))
   );
 }
 
 /** Varselet for hver kravpost i vederlagskravet som trenger et, til brevteksten (A6). */
 const kravpostvarslerIBrevet = (
   k: Krav,
-  nytt: Dokument,
   lest: readonly Domenehendelse[],
-  u: Utledning
+  u: Utledning,
+  vedKravet: readonly string[]
 ): Record<string, Kravpostvarselet> =>
-  kravpostvarslene(k, u.spor.vederlag.krav, foranKravet(k, nytt, lest, u));
+  kravpostvarslene(k, u.spor.vederlag.krav, foranKravet(lest, u, vedKravet));
 
 export const SKRIVING_I_VEDERLAGET = {
   kravinnhold: (innhold, u, { nyId }) => medKravposter(innhold, u, nyId),

@@ -65,6 +65,8 @@ export function saerskiltStrider(
   const trekket = trekketStrider(trekk, iForrige, () => posten);
   if (trekket) return trekket;
   if (trekk.length && saerskilt.produktivitet) return `både tar med og trekker ${posten}`;
+  if (trekk.length && !kravposterI(ny).length)
+    return `har ingen poster igjen når ${posten} er trukket; totalentreprenøren trekker da vederlagskravet (KA-U83)`;
   return utelattUtenTrekk(
     iForrige,
     () => trekk.length > 0 || saerskilt.produktivitet !== undefined,

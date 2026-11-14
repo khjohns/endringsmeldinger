@@ -3093,10 +3093,7 @@ const MUTASJONER: Mutasjon[] = [
       'vederlagskravet krever kravposter, også med posten etter § 34.1.3 (OV-U89 punkt 6)',
     fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
-      [
-        "    anyOf: [{ required: ['kravposter'] }, { required: ['saerskilt'] }],\n",
-        "    anyOf: [{ required: ['kravposter'] }],\n",
-      ],
+      ["      { required: ['saerskilt'] },\n      { required: ['trekker_saerskilt'] },\n", ''],
     ],
     mal: ['vederlagskravet kan ha bare posten'],
   },
@@ -3106,7 +3103,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
-        "    anyOf: [{ required: ['kravposter'] }, { required: ['saerskilt'] }],\n",
+        "    anyOf: [\n      { required: ['kravposter'] },\n      { required: ['saerskilt'] },\n      { required: ['trekker_saerskilt'] },\n    ],\n",
         '    anyOf: [],\n',
       ],
     ],
@@ -4057,8 +4054,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F626',
     feilklasse:
       'trekket av den særskilte vederlagsjusteringen som eneste post sier ikke at vederlagskravet trekkes i stedet (KA-U83)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['  if (bareTrekkAvSaerskilt(innhold))', '  if (false)']],
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [['  if (trekk.length && !kravposterI(ny).length)', '  if (false)']],
     mal: ['er posten den eneste i kravet'],
   },
   {
@@ -4075,9 +4072,17 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F628',
     feilklasse:
       'et varsel sendt før kravet gjelder ikke kravposten når totalentreprenøren legger brevet med varselet ved kravet (VS-U55, #1823)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['!viserTil.has(v.id) ||', 'false ||']],
-    mal: ['et registrert varsel som også ligger ved kravet, gjelder fortsatt kravposten'],
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        'postvarsler?.(k, lest, u, vedKravet)',
+        'postvarsler?.(k, lest, u, ny.dokument.dokumentasjon.map((v) => v.vedlegg_id))',
+      ],
+    ],
+    mal: [
+      'et registrert varsel som også ligger ved kravet, gjelder fortsatt kravposten',
+      'et registrert varsel som én kravpost viser til og som også ligger ved kravet',
+    ],
   },
   {
     id: 'F620',
@@ -4770,7 +4775,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'dokumentet fra kravskjemaet for én kravpost blir også varselet for en annen post i det første kravet (VS-U51, D-16)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['!viserTil.has(v.id) ||', 'true ||']],
+    endringer: [
+      [
+        'const vedlagte = new Set(vedKravet.map((id) => id.toLowerCase()));',
+        'const vedlagte = new Set<string>();',
+      ],
+    ],
     mal: ['dokumentet for én kravpost er ikke varselet for en annen post'],
   },
   {
