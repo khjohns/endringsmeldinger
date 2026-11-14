@@ -6,8 +6,16 @@
  * Satsen i kroner regnes her, ikke i kjernen.
  */
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
+import type { Forlengelse } from '../kjerne/spor/frist/utledning.ts';
 import { lesekontekst } from './autorisasjon.ts';
 import { tall, transaksjon, type Foresp } from './datalag.ts';
+import {
+  datoenEtterForlengelsene,
+  lesForlengelsene,
+  type Forlengelsene,
+  type SakensForlengelse,
+} from './forlengelser.ts';
+import type { LestSak } from './saksliste.ts';
 import type { Avhengigheter, Prosjektforespoersel, Rute, Svar } from './rutetyper.ts';
 
 export type Satsgrunnlag = 'kontraktssum' | 'delens_verdi' | 'fast_beloep';
@@ -137,9 +145,29 @@ export async function lesKontraktsfrister(foresp: Foresp): Promise<Fristtabell> 
   return fristtabell(r.recordsets as unknown as Radsett);
 }
 
+/** Grunnen til at dagene i en annen sak ikke er tatt med i datoen (KA-U77). */
+type IkkeAvtalt = Exclude<Forlengelse['grunnlag'], 'avtalt'>;
+
+/** En annen sak i samme kontrakt, slik klienten får den. */
+export interface Sakslinje {
+  sak_id: string;
+  /** Koden saken har, eller `null` før saken har et brev fra løsningen (LV-U46). */
+  sakskode: LestSak['sakskode'];
+}
+
+/** Dagene for en frist i en annen sak, slik klienten får dem. */
+export interface Forlengelseslinje extends Sakslinje {
+  /** Kalenderdagene (NS 8407 punkt 1.2). */
+  dager: number;
+}
+
 /**
- * En frist i fristtabellen slik klienten får den, til kravskjemaet (KA-U79, BF-20 G-3).
+ * En frist i fristtabellen slik klienten får den, til kravskjemaet (KA-U79, BF-20 G-3 og U-2).
  * Feltnavnene er en kontrakt med klienten.
+ *
+ * Forlengelsene er lest i alle sakene klienten kan lese i prosjektet, også saken skjemaet
+ * fylles ut i. Skjemaet skal regne datoen uten dagene i den saken og ikke nevne den (KA-U77,
+ * HF-U5); det gjør ikke inngangen, som ikke får sak-ID fra klienten.
  */
 export interface Fristlinje {
   frist_id: number;
@@ -148,28 +176,76 @@ export interface Fristlinje {
   /** Fristens dato i kontrakten, `ÅÅÅÅ-MM-DD`, til U-4, U-5 og datoen ved hver frist i BF-20. */
   dato: string;
   dagmulktbelagt: boolean;
+  /**
+   * Datoen etter forlengelsene i `forlengelser` (KA-U77), `ÅÅÅÅ-MM-DD`, eller `null` når en sak
+   * i `saker_ikke_forstaatt` kan ha forlenget fristen (MM-U2).
+   */
+  dato_etter_forlengelsene: string | null;
+  /** Dagene partene er enige om i andre saker (KA-U77, GR-U38, GR-U39). */
+  forlengelser: Forlengelseslinje[];
+  /**
+   * Dagene i andre saker som ikke er tatt med, med grunnen (KA-U77): `godkjent` er godkjent av
+   * byggherren uten at partene er enige, og de subsidiære er godkjent subsidiært
+   * (`Forlengelse` i `kjerne/spor/frist/utledning.ts`).
+   */
+  ikke_tatt_med: (Forlengelseslinje & { grunnlag: IkkeAvtalt })[];
+}
+
+/** Fristtabellen med forlengelsene i sakene, slik inngangen gir den. */
+export function fristlinjer(
+  tabell: Fristtabell,
+  { tattMed, ikkeTattMed, ikkeForstaatt, sakskoder }: Forlengelsene
+): { frister: Fristlinje[]; saker_ikke_forstaatt: Sakslinje[] } {
+  const sak = (sakId: string): Sakslinje => ({
+    sak_id: sakId,
+    sakskode: sakskoder.get(sakId) ?? null,
+  });
+  const linje = (x: SakensForlengelse): Forlengelseslinje => ({ ...sak(x.sakId), dager: x.dager });
+  const avtalt = tattMed.filter((f) => f.grunnlag === 'avtalt');
+  const ikkeAvtalt = [...tattMed, ...ikkeTattMed].filter(
+    (f): f is SakensForlengelse & { grunnlag: IkkeAvtalt } => f.grunnlag !== 'avtalt'
+  );
+  return {
+    frister: tabell.frister.map((f) => {
+      const forFristen = <T extends SakensForlengelse>(l: T[]) =>
+        l.filter((x) => x.fristId === f.fristId);
+      return {
+        frist_id: f.fristId,
+        nummer: f.nummer,
+        navn: f.navn,
+        dato: f.dato,
+        dagmulktbelagt: f.dagmulktbelagt,
+        dato_etter_forlengelsene: datoenEtterForlengelsene(
+          f.dato,
+          f.fristId,
+          avtalt,
+          ikkeForstaatt
+        ),
+        forlengelser: forFristen(avtalt).map(linje),
+        ikke_tatt_med: forFristen(ikkeAvtalt).map((x) => ({ ...linje(x), grunnlag: x.grunnlag })),
+      };
+    }),
+    saker_ikke_forstaatt: ikkeForstaatt.map(sak),
+  };
 }
 
 async function fristtabellsvar(
   { bruker, prosjekt, side }: Prosjektforespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
-  const tabell = await transaksjon(
+  const linjer = await transaksjon(
     avh.datalag,
     lesekontekst(bruker, prosjekt.prosjektId, side),
-    lesKontraktsfrister
+    async (foresp) =>
+      fristlinjer(await lesKontraktsfrister(foresp), await lesForlengelsene(foresp, avh.kjerne))
   );
-  const frister: Fristlinje[] = tabell.frister.map((f) => ({
-    frist_id: f.fristId,
-    nummer: f.nummer,
-    navn: f.navn,
-    dato: f.dato,
-    dagmulktbelagt: f.dagmulktbelagt,
-  }));
-  return [200, { success: true, frister }];
+  return [200, { success: true, ...linjer }];
 }
 
-/** Fristtabellen for prosjektet, for begge parter og leserollen (GFK-U25, DL-U15). */
+/**
+ * Fristtabellen for prosjektet med forlengelsene i sakene, for begge parter og leserollen
+ * (GFK-U25, DL-U15, KA-U77).
+ */
 export const KONTRAKTSFRISTRUTER: readonly Rute[] = [
   {
     metode: 'GET',
@@ -177,7 +253,8 @@ export const KONTRAKTSFRISTRUTER: readonly Rute[] = [
     eksempel: (p) => `/api/projects/${p}/kontraktsfrister`,
     tilgang: {
       prosjektrolle: 'viewer',
-      utenSak: 'Fristtabellen fra kontrakten; den gjelder prosjektet, ikke én sak.',
+      utenSak:
+        'Fristtabellen fra kontrakten med dagene i sakene i prosjektet som forlenger fristene; den gjelder prosjektet, ikke én sak. Sakene leses under lesefilteret, som sakslisten.',
       kontraktsrolle: 'lesing',
     },
     behandle: fristtabellsvar,

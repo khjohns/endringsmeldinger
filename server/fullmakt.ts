@@ -7,19 +7,16 @@
  */
 import { regnUtSvar } from '../kjerne/frosset/utregning.ts';
 import { innholdIFristen } from '../kjerne/spor/frist/format.ts';
-import {
-  foresporselForFristsvar,
-  forlengelseneISaken,
-  fristenEtterForlengelsene,
-  type Forlengelse,
-} from '../kjerne/spor/frist/utledning.ts';
+import { foresporselForFristsvar } from '../kjerne/spor/frist/utledning.ts';
 import { hverdagerIForlengelsen } from '../kjerne/regler/hverdager.ts';
-import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Foresp } from './datalag.ts';
 import { lesKontraktsfrister, type Fristtabell } from './kontraktsfrister.ts';
-import { lesAlleSakene } from './saksliste.ts';
-import { skrevetAvKjernen } from './lager.ts';
+import {
+  datoenEtterForlengelsene,
+  lesForlengelsene,
+  type SakensForlengelse,
+} from './forlengelser.ts';
 import { krevdSamlet } from '../kjerne/spor/vederlag/format.ts';
 import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
@@ -53,11 +50,6 @@ export interface Fristgrunnlag {
   /** Dagene for fristen som ikke er tatt med, for utregningen (svaret på spørsmål 4 i
    * `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md`). */
   ikkeTattMed: SakensForlengelse[];
-}
-
-/** Dagene for en frist i en annen sak. */
-export interface SakensForlengelse extends Forlengelse {
-  sakId: string;
 }
 
 /**
@@ -174,7 +166,7 @@ export function fristgrunnlaget(
       tabell.frister.map((f) => [
         f.fristId,
         {
-          dato: ikkeForstaatt.length ? null : fristenEtterForlengelsene(f.dato, f.fristId, tattMed),
+          dato: datoenEtterForlengelsene(f.dato, f.fristId, tattMed, ikkeForstaatt),
           sats: f.dagmulktbelagt ? f.sats : null,
           forlengelser: forFristen(f.fristId, tattMed),
           ikkeTattMed: forFristen(f.fristId, ikkeTattMed),
@@ -197,20 +189,8 @@ export async function lesFristgrunnlaget(
   kjerne: Kjerne
 ): Promise<Fristgrunnlaget> {
   const tabell = await lesKontraktsfrister(foresp);
-  const forlengelser: SakensForlengelse[] = [];
-  const ikkeMed: SakensForlengelse[] = [];
-  const ikkeForstaatt: string[] = [];
-  for (const sak of await lesAlleSakene(foresp)) {
-    if (sak.sakId === sakId) continue;
-    const u = skrevetAvKjernen(sak.journal) ? utledJournal(sak.journal, kjerne) : null;
-    if (!u?.forstaatt) ikkeForstaatt.push(sak.sakId);
-    else {
-      const { tattMed, ikkeTattMed } = forlengelseneISaken(u);
-      for (const f of tattMed) forlengelser.push({ ...f, sakId: sak.sakId });
-      for (const f of ikkeTattMed) ikkeMed.push({ ...f, sakId: sak.sakId });
-    }
-  }
-  return fristgrunnlaget(tabell, { tattMed: forlengelser, ikkeTattMed: ikkeMed }, ikkeForstaatt);
+  const { tattMed, ikkeTattMed, ikkeForstaatt } = await lesForlengelsene(foresp, kjerne, sakId);
+  return fristgrunnlaget(tabell, { tattMed, ikkeTattMed }, ikkeForstaatt);
 }
 
 function kravverdi(sp: Sporutledning, verdi: (krav: Krav) => number): number | null {
