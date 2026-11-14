@@ -33,7 +33,9 @@ lukket og oppdragsgiver har fått avslutningen (punkt 5).
 
 ## Før merge
 
-1. PR-en er gått gjennom («Gjennomgang av hver PR», punkt 3).
+1. PR-en er gått gjennom («Gjennomgang av hver PR», punkt 3). For funnene i punkt 2
+   er arbeidsflyten «Funnkontroll» grønn, og har PR-en funn som er ført videre, har
+   agenten `funnkontroll` lest dem (#1951).
 2. Oppdragsgiver har godkjent, per PR eller på forhånd, og vilkårene og unntakene i
    «Forhåndsgodkjenning» er sjekket (punkt 4).
 3. PR-en er oppdatert mot `main`, eller et unntak gjelder, CI er grønn på siste
