@@ -8762,7 +8762,8 @@ describe('lagene i et fristsvar som ikke er ferdig utfylt (M-8 i BF-20, KA-U78, 
     ]);
   });
 
-  // Varden sender fristen uten feltet når det er udefinert, og null når det er tømt (#1971).
+  // Fristen kan stå uten feltet eller med null, og begge fylles med 0 dager (#1971). Testen
+  // ser at `lagene` ikke kaster, så feilinnføringene feiler på en assertion.
   it.each([
     ['uten feltet', {}],
     ['med null', { dager_maatte_forstaa: null }],

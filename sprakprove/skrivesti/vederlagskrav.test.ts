@@ -138,7 +138,7 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet med kravposter mot TS-serveren',
     else expect(avsnitt.every((a) => a.utdypning === undefined)).toBe(true);
   });
 
-  it('serveren lagrer forbeholdet som Varden sender i feltet, etter begrunnelsen (KA-U82, LV-U74)', async () => {
+  it('serveren lagrer forbeholdet i feltet `forbehold` etter begrunnelsen (KA-U82, LV-U74)', async () => {
     const sakId = await medPaaberopelse();
     const forbehold = 'Kravet forutsetter at fundamenteringen kan gjøres på dagtid.';
     const utdypning = 'Tilbudet gjelder ny fundamentering.';
