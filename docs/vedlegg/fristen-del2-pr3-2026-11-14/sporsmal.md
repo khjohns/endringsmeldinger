@@ -122,3 +122,30 @@ Stilltiende er "aksept" (uten at løsningen sier det). Slik er det også for ved
 - **Spørsmål 3:** B, med presiseringen at uenighet går gjennom KOE, at det stilltiende er aksept uten at
   løsningen sier det, og at det samme gjelder vederlagspostene i en endringsordre.
 - **Spørsmål 4:** A.
+
+### Avklaringene om svar 3, 14.11
+
+Orkestratoren spurte om (A) aksepten av et utsagn i en endringsordre forsvinner helt, slik at punkt 29–32,
+34, 55 og 56 i EO-U39 endres, og (B) om andre setning i punkt 33 («Fravær av protest er ikke enighet»)
+erstattes av «Løsningen registrerer ikke enighet om et utsagn fordi totalentreprenøren ikke protesterer,
+og sier ikke hva det betyr at protesten mangler.» (alternativ A), eller står (alternativ B).
+
+Oppdragsgiver 14.11, ordrett:
+
+> A:
+>
+> TE godkjenner ikke EO.
+>
+> BH bør i utgangspunktet sørge for å være enig med TE dersom EO bygger på tidligere KOE. Hvis TE likevel er
+> uenig må han sende ny KOE. Tanke: for regningsarbeid og enhetspriser (mengdeavregning) må BH oppgi et
+> anslag for arbeidet. Det kan være skjult for TE, dersom det ikke er et overslag hentet fra KOE. Anslag er
+> nødvendig for å beregne fullmakt til å godkjenne EO.
+>
+> 2A
+
+- **A:** Ja. Totalentreprenøren godtar ikke en endringsordre eller et utsagn i den. Uenighet går gjennom en
+  ny KOE.
+- **B:** A, lest av «2A» som svar på den andre avklaringen.
+- **Tanken om anslaget** for regningsarbeid og enhetspriser er ikke et svar på et spørsmål. Den kontrolleres
+  mot vedtakene om fullmakten for endringsordren før den eventuelt stilles som eget spørsmål.
+- Avklaringen om fullmakten i svar 1 og 2 står åpen.
