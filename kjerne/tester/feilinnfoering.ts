@@ -5110,7 +5110,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F592',
     feilklasse: 'en enighet uten virkning forlenger fristen (GR-U7, KA-U6)',
     fil: `${K}/spor/frist/utledning.ts`,
-    endringer: [['  if (s.enighet && u.forholdAvvist) return ingen;', '']],
+    endringer: [['  if (u.forholdAvvist) return ingen;', '']],
     mal: ['en enighet uten virkning gir ingen forlengelse'],
   },
   {

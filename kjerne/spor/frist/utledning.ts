@@ -159,7 +159,8 @@ export interface Forlengelse {
  * uten enighet, som ikke tas med før spørsmål 2 er avgjort. Gjeldende svar er svaret på gjeldende
  * krav, så et nytt krav avslutter forlengelsen (HF-U5). Et trukket krav og en enighet uten virkning
  * gir ingen (GR-U7, KA-U6). En frist som ikke er registrert, kobles ikke til fristtabellen (KA-U79).
- * Endringsordrene leses ikke (svaret på spørsmål 3).
+ * Endringsordrene leses ikke, fordi kjernen ikke har dem; svaret på spørsmål 3 sier hvordan de
+ * skal telle når de leses.
  */
 export function forlengelseneISaken(u: Utledning): {
   tattMed: Forlengelse[];
@@ -168,9 +169,9 @@ export function forlengelseneISaken(u: Utledning): {
   const s = u.spor.frist;
   const ingen = { tattMed: [], ikkeTattMed: [] };
   if (s.trukket || !s.gjeldendeKrav || !s.gjeldendeSvar) return ingen;
-  // GR-U7, KA-U6: enigheten er uten virkning når forholdet er avvist ved enighet
-  // (`enighetensVirkning`; et trukket krav er alt ute).
-  if (s.enighet && u.forholdAvvist) return ingen;
+  // GR-U7, KA-U6: er forholdet avvist ved enighet, har dagene ingen virkning, med eller uten
+  // enighet i fristen (`enighetensVirkning`; et trukket krav er alt ute).
+  if (u.forholdAvvist) return ingen;
   const subsidiaert = !s.enighet && s.subsidiaer.length > 0;
   const grunnlag: Forlengelse['grunnlag'] = s.enighet
     ? 'avtalt'

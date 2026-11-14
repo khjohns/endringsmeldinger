@@ -178,6 +178,17 @@ describe('forlengelsene i saken (GFK-U26)', () => {
     ).toEqual([]);
   });
 
+  it('avslaget av forholdet er godtatt, men ikke fristsvaret: dagene har ingen virkning og er ikke et åpent spørsmål (GR-U7, KA-U6)', async () => {
+    expect(
+      await lesingen([
+        PAABEROPELSE,
+        FRISTKRAVET,
+        brevet(forholdet('avslaatt'), fristen({ dager: 3 })),
+        { handling: 'aksept', spor: 'forhold', navn: 'A0' },
+      ])
+    ).toEqual({ tattMed: [], ikkeTattMed: [] });
+  });
+
   it('avtalt: TE har godtatt svaret før forholdet er avklart, og enigheten er betinget (GR-U7)', async () => {
     expect(
       await forlengelsene([PAABEROPELSE, FRISTKRAVET, brevet(fristen({ dager: 3 })), AKSEPT])
