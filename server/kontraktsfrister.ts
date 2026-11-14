@@ -9,7 +9,7 @@ import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import { fristenEtterForlengelsene, type Forlengelse } from '../kjerne/spor/frist/utledning.ts';
 import { lesekontekst } from './autorisasjon.ts';
 import { tall, transaksjon, type Foresp } from './datalag.ts';
-import { lesForlengelsene, type Forlengelsene } from './forlengelser.ts';
+import { lesForlengelsene, type Forlengelsene, type SakensForlengelse } from './forlengelser.ts';
 import type { LestSak } from './saksliste.ts';
 import type { Avhengigheter, Prosjektforespoersel, Rute, Svar } from './rutetyper.ts';
 
@@ -140,6 +140,9 @@ export async function lesKontraktsfrister(foresp: Foresp): Promise<Fristtabell> 
   return fristtabell(r.recordsets as unknown as Radsett);
 }
 
+/** Grunnen til at dagene i en annen sak ikke er tatt med i datoen (KA-U77). */
+type IkkeAvtalt = Exclude<Forlengelse['grunnlag'], 'avtalt'>;
+
 /** En annen sak i samme kontrakt, slik klienten får den. */
 export interface Sakslinje {
   sak_id: string;
@@ -180,7 +183,7 @@ export interface Fristlinje {
    * byggherren uten at partene er enige, og de subsidiære er godkjent subsidiært
    * (`Forlengelse` i `kjerne/spor/frist/utledning.ts`).
    */
-  ikke_tatt_med: (Forlengelseslinje & { grunnlag: Exclude<Forlengelse['grunnlag'], 'avtalt'> })[];
+  ikke_tatt_med: (Forlengelseslinje & { grunnlag: IkkeAvtalt })[];
 }
 
 /** Fristtabellen med forlengelsene i sakene, slik inngangen gir den. */
@@ -192,29 +195,28 @@ export function fristlinjer(
     sak_id: sakId,
     sakskode: sakskoder.get(sakId) ?? null,
   });
+  const linje = (x: SakensForlengelse): Forlengelseslinje => ({ ...sak(x.sakId), dager: x.dager });
   const avtalt = tattMed.filter((f) => f.grunnlag === 'avtalt');
-  const ikkeAvtalt = [...tattMed, ...ikkeTattMed].filter((f) => f.grunnlag !== 'avtalt');
+  const ikkeAvtalt = [...tattMed, ...ikkeTattMed].filter(
+    (f): f is SakensForlengelse & { grunnlag: IkkeAvtalt } => f.grunnlag !== 'avtalt'
+  );
   return {
-    frister: tabell.frister.map((f) => ({
-      frist_id: f.fristId,
-      nummer: f.nummer,
-      navn: f.navn,
-      dato: f.dato,
-      dagmulktbelagt: f.dagmulktbelagt,
-      dato_etter_forlengelsene: ikkeForstaatt.length
-        ? null
-        : fristenEtterForlengelsene(f.dato, f.fristId, avtalt),
-      forlengelser: avtalt
-        .filter((x) => x.fristId === f.fristId)
-        .map((x) => ({ ...sak(x.sakId), dager: x.dager })),
-      ikke_tatt_med: ikkeAvtalt
-        .filter((x) => x.fristId === f.fristId)
-        .map((x) => ({
-          ...sak(x.sakId),
-          dager: x.dager,
-          grunnlag: x.grunnlag as Exclude<Forlengelse['grunnlag'], 'avtalt'>,
-        })),
-    })),
+    frister: tabell.frister.map((f) => {
+      const forFristen = <T extends SakensForlengelse>(l: T[]) =>
+        l.filter((x) => x.fristId === f.fristId);
+      return {
+        frist_id: f.fristId,
+        nummer: f.nummer,
+        navn: f.navn,
+        dato: f.dato,
+        dagmulktbelagt: f.dagmulktbelagt,
+        dato_etter_forlengelsene: ikkeForstaatt.length
+          ? null
+          : fristenEtterForlengelsene(f.dato, f.fristId, avtalt),
+        forlengelser: forFristen(avtalt).map(linje),
+        ikke_tatt_med: forFristen(ikkeAvtalt).map((x) => ({ ...linje(x), grunnlag: x.grunnlag })),
+      };
+    }),
     saker_ikke_forstaatt: ikkeForstaatt.map(sak),
   };
 }

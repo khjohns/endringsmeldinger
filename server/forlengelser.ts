@@ -40,12 +40,13 @@ export async function lesForlengelsene(
     if (sak.sakId === utenom) continue;
     l.sakskoder.set(sak.sakId, sak.sakskode);
     const u = skrevetAvKjernen(sak.journal) ? utledJournal(sak.journal, kjerne) : null;
-    if (!u?.forstaatt) l.ikkeForstaatt.push(sak.sakId);
-    else {
-      const { tattMed, ikkeTattMed } = forlengelseneISaken(u);
-      for (const f of tattMed) l.tattMed.push({ ...f, sakId: sak.sakId });
-      for (const f of ikkeTattMed) l.ikkeTattMed.push({ ...f, sakId: sak.sakId });
+    if (!u?.forstaatt) {
+      l.ikkeForstaatt.push(sak.sakId);
+      continue;
     }
+    const { tattMed, ikkeTattMed } = forlengelseneISaken(u);
+    for (const f of tattMed) l.tattMed.push({ ...f, sakId: sak.sakId });
+    for (const f of ikkeTattMed) l.ikkeTattMed.push({ ...f, sakId: sak.sakId });
   }
   return l;
 }
