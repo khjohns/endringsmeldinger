@@ -216,7 +216,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
           top: forbi.includes(navn) ? 0 : window.innerHeight,
         } as DOMRect);
     };
-    // Saken ruller i et element inne i skallet, ikke i vinduet (`.project-shell`).
+    // Et indre element som ruller, teller som dokumentet.
     const rulleflate = avsnitt('Vederlagsjustering').parentElement!;
     const rull = async () => {
       await fireEvent.scroll(rulleflate);

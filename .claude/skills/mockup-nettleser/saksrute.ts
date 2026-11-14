@@ -271,6 +271,19 @@ function globalPlaywright() {
   return krev('playwright');
 }
 
+/**
+ * Beholderne som klipper innhold på siden: `overflow-y` er `hidden` eller `clip`, og de har mer
+ * innhold enn de viser (#1630). Grensen på 100 px holder skjult tekst for skjermlesere utenfor.
+ */
+async function klipperInnhold(side: { evaluate<T>(f: () => T): Promise<T> }): Promise<string[]> {
+  return side.evaluate(() =>
+    [...document.querySelectorAll('body *')]
+      .filter((e) => /hidden|clip/.test(getComputedStyle(e).overflowY))
+      .filter((e) => e.clientHeight > 100 && e.scrollHeight > e.clientHeight + 1)
+      .map((e) => `${e.tagName.toLowerCase()}.${[...e.classList].join('.')} (${e.scrollHeight} av ${e.clientHeight} px)`)
+  );
+}
+
 // --- Kjøringen -------------------------------------------------------------------
 
 const base = await kopierMigrertTestbase('saksrute');
@@ -657,6 +670,7 @@ try {
 
   if (!sak) throw new Error('Ingen sak å vise');
   const saksrute = `/${katalog.prosjekt}/${sak}`;
+  const klippet: string[] = [];
   for (const [navn, side] of [
     ['te', te],
     ['bh', bh],
@@ -679,7 +693,17 @@ try {
     await side.getByText(tittel).filter({ visible: true }).first().waitFor({ timeout: 30_000 });
     await side.waitForTimeout(500);
     await side.screenshot({ path: join(UT, `saksrute-${navn}.png`), fullPage: true });
+    klippet.push(...(await klipperInnhold(side)).map((k) => `${navn.toUpperCase()}: ${k}`));
+    await side.setViewportSize({ width: 390, height: 844 });
+    await side.waitForTimeout(500);
+    await side.screenshot({ path: join(UT, `saksrute-${navn}-390.png`), fullPage: true });
+    klippet.push(...(await klipperInnhold(side)).map((k) => `${navn.toUpperCase()}: ${k} ved 390 px`));
+    await side.setViewportSize({ width: 1440, height: 900 });
   }
+  await te.goto(`${FRONTEND}/${katalog.prosjekt}`);
+  await te.getByText(tittel).filter({ visible: true }).first().waitFor({ timeout: 30_000 });
+  await te.screenshot({ path: join(UT, 'saksliste-te.png'), fullPage: true });
+  if (klippet.length) throw new Error(`Saken klipper innhold brukeren ikke kan rulle til: ${klippet.join(', ')}`);
   if (values.feil) {
     // Feiltilstandene ved sendingen i Varden (#1676): TE godtar BHs svar på vederlagskravet i
     // brevkontrollen, og `page.route` svarer på kommandoruta i stedet for serveren. Kroppene har
