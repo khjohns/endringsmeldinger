@@ -28,6 +28,8 @@ import { innsigelsenErOppgitt } from '../frosset/standpunkt.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { innholdIFristen } from '../spor/frist/format.ts';
+import { LINJEN_I_FRISTEN } from '../spor/frist/tekst.ts';
+import { Uforstaatt } from '../format/skjema.ts';
 import { kroner } from '../frosset/tekst.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
@@ -1482,7 +1484,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
-  it('med to frister nevner linjen fristen dagene byggherren måtte forstå gjelder, også en med 0 dager, som brevteksten (#1931, VS-U4)', () => {
+  it('med to frister nevner linjen fristen dagene byggherren måtte forstå gjelder, og ikke en frist med 0 dager som brevteksten nevner (#1931, VS-U4)', () => {
     const s = sakMedKrav();
     s.send('TE', {
       ...utenFelt(FRISTKRAV, 'varsel'),
@@ -1527,8 +1529,19 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     const b2 = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     // Leddene for dagene nevner ikke fristen (#1943).
     expect(b2.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt godkjent med 0 dager for frist Sluttfristen og 5 dager for frist Delfristen (§ 33.6.1), subsidiært godkjent med 15 dager, godkjent med 10 dager.'
+      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Delfristen (§ 33.6.1), subsidiært godkjent med 15 dager, godkjent med 10 dager.'
     );
+  });
+
+  it('et fristsvar med dagene byggherren måtte forstå, uten kjent krav, kan ikke leses i linjen (MM-U2, #1931)', () => {
+    const svar = {
+      spor: 'frist',
+      standpunkter: [
+        { id: 's', art: 'spesifisering', iTide: false, maatteForstaa: [{ frist: 'a', dager: 5 }] },
+      ],
+      utregning: {},
+    } as unknown as Parameters<typeof LINJEN_I_FRISTEN.grunner>[0];
+    expect(() => LINJEN_I_FRISTEN.grunner(svar, null, undefined)).toThrow(Uforstaatt);
   });
 
   it('§ 34.1.2 «nei» med hele beløpet godkjent subsidiært godtas uten begrunnelse (KA-U46 punkt 1)', () => {

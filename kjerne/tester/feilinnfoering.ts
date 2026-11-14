@@ -5164,11 +5164,11 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/tekst.ts`,
     endringer: [
       [
-        '                `${dager(m.dager)} for frist ${betegnelsen(fristenI(kravetFor(kravet), m.frist))}`',
-        '                dager(m.dager)',
+        '              .map((m) => maatteForstaaForFristen(kravetFor(kravet), m.frist, m.dager))',
+        '              .map((m) => dager(m.dager))',
       ],
     ],
-    mal: ['med to frister nevner linjen fristen'],
+    mal: ['med to frister nevner linjen fristen', 'linjen skriver «1 dag» for én dag'],
   },
   {
     id: 'F594',
