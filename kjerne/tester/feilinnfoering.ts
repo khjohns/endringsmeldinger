@@ -5112,6 +5112,70 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['KA-U78: varselet for sent, ikke hindret og spesifisert for sent gir fire lag'],
   },
+  {
+    id: 'F591',
+    feilklasse: 'et subsidiært svar uten enighet forlenger fristen (GFK-U26, GFK-U27)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      ['  const tilForholdet = s.subsidiaer.length > 0;', '  const tilForholdet = false;'],
+    ],
+    mal: ['subsidiært: et svar uten enighet'],
+  },
+  {
+    id: 'F592',
+    feilklasse: 'en enighet uten virkning forlenger fristen (GR-U7, KA-U6)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [['  if (u.forholdAvvist) return { tattMed, ikkeTattMed };', '']],
+    mal: ['en enighet uten virkning gir ingen forlengelse'],
+  },
+  {
+    id: 'F596',
+    feilklasse: 'dagene for en annen frist forlenger fristen (GFK-U19)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      ['forlengelser.filter((f) => f.fristId === fristId)', 'forlengelser.filter(() => true)'],
+    ],
+    mal: ['summerer dagene som forlenger fristen'],
+  },
+  {
+    id: 'F593',
+    feilklasse: 'forlengelsen er dagene i det siste laget, ikke i det første (GFK-U26, KA-U78)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      [
+        '    const foerste = r.lag[0]?.dager ?? 0;',
+        '    const foerste = r.lag.at(-1)?.dager ?? 0;',
+      ],
+    ],
+    mal: ['første lag er null dager når varselet etter § 33.4 kom for sent'],
+  },
+  {
+    id: 'F597',
+    feilklasse:
+      'dager byggherren bare har godkjent subsidiært i fristen, nevnes ikke som ikke tatt med (GFK-U27, U-15 i BF-20)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [['    else if (siste > 0)', '    else if (false)']],
+    mal: ['første lag er null dager når varselet etter § 33.4 kom for sent'],
+  },
+  {
+    id: 'F594',
+    feilklasse: 'et trukket fristkrav forlenger fristen (GFK-U26, KA-U6)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      [
+        '  if (s.trukket || !s.gjeldendeKrav || !s.gjeldendeSvar) return { tattMed, ikkeTattMed };',
+        '  if (!s.gjeldendeKrav || !s.gjeldendeSvar) return { tattMed, ikkeTattMed };',
+      ],
+    ],
+    mal: ['et trukket krav gir ingen forlengelse'],
+  },
+  {
+    id: 'F595',
+    feilklasse: 'søndagene regnes som hverdager i forlengelsen (GFK-U24)',
+    fil: `${K}/regler/hverdager.ts`,
+    endringer: [['  return d.getUTCDay() !== 0 && !fridager', '  return !fridager']],
+    mal: ['hverdagene i forlengelsen (GFK-U17)'],
+  },
 ];
 
 interface Testresultat {

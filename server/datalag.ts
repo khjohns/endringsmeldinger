@@ -89,6 +89,9 @@ export const UNIK_NOEKKEL = 2627;
 /** Forespørslene i én transaksjon, med konteksten satt. */
 export type Foresp = () => sql.Request;
 
+/** Et tall fra en `decimal`-kolonne, som driveren gir som tekst, eller `null` for NULL. */
+export const tall = (v: unknown): number | null => (v === null ? null : Number(v));
+
 /**
  * Utfallet «rull tilbake og svar med `svar`» fra arbeidet i `transaksjon`: ingenting
  * i transaksjonen committes, og kalleren får svaret.

@@ -1074,21 +1074,7 @@ def bindende_i_opphevet(register: dict) -> list[str]:
 # økta som følger #1534). Dagens tilfeller rettes i samlevedtakene i steg 4, og
 # lista skal bare krympe.
 FORHOLD_TIL_OPPHEVET = ("presiserer", "utvider", "snevrer inn", "endrer", "bygger på")
-KJENTE_FORHOLD_TIL_OPPHEVET = frozenset(
-    {
-        ("gr-u10", "presiserer", "gr-u2", "#1534, steg 4"),
-        ("gr-u22", "endrer", "gr-u2", "#1534, steg 4"),
-        ("gr-u7", "presiserer", "ka-u5", "#1534, steg 4"),
-        ("hf-u9", "presiserer", "gr-u2", "#1534, steg 4"),
-        ("mm-u30", "presiserer", "mm-u29", "#1534, steg 4"),
-        ("mm-u34", "endrer", "ka-u26", "#1534, steg 4"),
-        ("mm-u34", "endrer", "ka-u28", "#1534, steg 4"),
-        ("mm-u34", "endrer", "ov-u48", "#1534, steg 4"),
-        ("mm-u34", "endrer", "ov-u49", "#1534, steg 4"),
-        ("mm-u34", "endrer", "ov-u51", "#1534, steg 4"),
-        ("ov-u43", "presiserer", "mm-u28", "#1534, steg 4"),
-    }
-)
+KJENTE_FORHOLD_TIL_OPPHEVET: frozenset = frozenset()
 _AVVIKSISSUE = re.compile(r"#\d+(?:, steg \d+)?")
 
 
@@ -1623,6 +1609,19 @@ FORHOLD_FJERNET_ETTER_MERGE = {
     ("eo-u36", "presiserer", "eo-u16"): "E13 i EO-U39, svar 4 A 05.11, OV-U92 (b), #1534",
     ("eo-u37", "snevrer inn", "eo-u16"): "E13 i EO-U39, svar 4 A 05.11, OV-U92 (b), #1534",
     ("vs-u65", "bygger på", "hf-u25"): "svar 5 A 05.11 og README-regelen (svar 4 A 04.11), orkestratoren 12.11, #1534",
+    ("gr-u22", "endrer", "gr-u2"): "E2 i GR-U40, svar 1 A 14.11, OV-U92 (b), #1534",
+    ("gr-u22", "snevrer inn", "ka-u22"): "E3 i GR-U40, svar 1 A og 3 A 14.11, OV-U92 (b), #1534",
+    ("ov-u55", "snevrer inn", "mm-u21"): "E4 i GR-U40, svar 1 A 14.11, OV-U92 (b), #1534",
+    ("mm-u34", "endrer", "ov-u51"): "hovedregelen i MM-U55, svar 4 A 14.11, OV-U92 (b), #1534",
+    ("mm-u34", "endrer", "ka-u26"): "OV-U96, svar A 14.11, OV-U92 (b), #1534",
+    ("mm-u34", "endrer", "ka-u28"): "OV-U96, svar A 14.11, OV-U92 (b), #1534",
+    ("mm-u34", "endrer", "ov-u48"): "OV-U96, svar A 14.11, OV-U92 (b), #1534",
+    ("mm-u34", "endrer", "ov-u49"): "OV-U96, svar A 14.11, OV-U92 (b), #1534",
+    ("gr-u10", "presiserer", "gr-u2"): "OV-U96, svar A 14.11, OV-U92 (b), #1534",
+    ("hf-u9", "presiserer", "gr-u2"): "OV-U96, svar A 14.11, OV-U92 (b), #1534",
+    ("gr-u7", "presiserer", "ka-u5"): "OV-U96, svar A 14.11, OV-U92 (b), #1534",
+    ("mm-u30", "presiserer", "mm-u29"): "OV-U96, svar A 14.11, OV-U92 (b), #1534",
+    ("ov-u43", "presiserer", "mm-u28"): "OV-U96, svar A 14.11, OV-U92 (b), #1534",
 }
 
 

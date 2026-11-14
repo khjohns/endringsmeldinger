@@ -68,6 +68,7 @@
           "tekst": "TE ser at datoen kan korrigeres også i den lukkede saken, og at korrigeringen ikke endrer utfallet.",
           "kilde": [
             "MM-U52",
+            "MM-U55",
             "MM-U51",
             "GR-U27"
           ]
@@ -83,6 +84,7 @@
           "rolle": "mal",
           "kilde": [
             "MM-U52",
+            "MM-U55",
             "MM-U51",
             "VS-U46"
           ],
@@ -104,6 +106,7 @@
           "tekst": "BH ser korrigeringen, at saken står lukket med det samme utfallet, og at BH kan ta stilling til opplysningen i et innlegg.",
           "kilde": [
             "MM-U52",
+            "MM-U55",
             "MM-U51",
             "MM-U47"
           ]

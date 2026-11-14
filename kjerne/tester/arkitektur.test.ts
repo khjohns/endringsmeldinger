@@ -442,6 +442,9 @@ type Klasse =
    */
   | 'brevtekst';
 
+/** GFK-U26: lesingen av forlengelsene i en sak. */
+const FORLENGELSENE = 'spor/frist/utledning.ts:forlengelseneISaken';
+
 /**
  * Det reglene får lese: `[eier, klasse, felt, steder]`, med feltene skilt med
  * mellomrom. Eieren er typen, konstanten eller modulen feltet er deklarert i,
@@ -570,6 +573,29 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['Fristutregning', 'frosset svar', 'frister', ['spor/frist/frysing.ts:fristenGodkjent']],
   ['Fristrad', 'frosset svar', 'resultat', ['spor/frist/frysing.ts:fristenGodkjent']],
+  // GFK-U26: dagene i første lag i byggherrens gjeldende svar, og dagene TE har godtatt.
+  ['Svar', 'frosset svar', 'utregning', [FORLENGELSENE]],
+  ['spor/frist/format.ts', 'frosset svar', 'utregningIFristen', [FORLENGELSENE]],
+  ['Fristutregning', 'frosset svar', 'frister', [FORLENGELSENE]],
+  ['Fristrad', 'frosset svar', 'gjelder lag', [FORLENGELSENE]],
+  ['Fristlag', 'frosset svar', 'dager', [FORLENGELSENE]],
+  ['Enighetsgrunnlag', 'frosset svar', 'utfall', [FORLENGELSENE]],
+  ['Utfall', 'frosset svar', 'frister frister.gjelder frister.dager', [FORLENGELSENE]],
+  // MM-U9: et fristsvar som er subsidiært til avslaget av forholdet, tas ikke med (GFK-U27, GFK-U28).
+  ['Sporutledning', 'relasjon', 'subsidiaer', [FORLENGELSENE]],
+  // GFK-U19: fristen etter dagene i de andre sakene som forlenger den.
+  [
+    'Forlengelse',
+    'frosset svar',
+    'fristId dager',
+    ['spor/frist/utledning.ts:fristenEtterForlengelsene'],
+  ],
+  [
+    'regler/hverdager.ts',
+    'regelsett',
+    'forlengetFrist',
+    ['spor/frist/utledning.ts:fristenEtterForlengelsene'],
+  ],
   ['Utsagn', 'relasjon', 'id art gjelder spor'],
   ['Utsagn', 'utsagn', 'hva'],
   // OV-U5: bestemmelsen TEs varsel er gitt etter, § 33.4 eller § 34.1.2.
