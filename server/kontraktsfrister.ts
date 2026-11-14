@@ -7,7 +7,7 @@
  */
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
 import { lesekontekst } from './autorisasjon.ts';
-import { transaksjon, type Foresp } from './datalag.ts';
+import { tall, transaksjon, type Foresp } from './datalag.ts';
 import type { Avhengigheter, Prosjektforespoersel, Rute, Svar } from './rutetyper.ts';
 
 export type Satsgrunnlag = 'kontraktssum' | 'delens_verdi' | 'fast_beloep';
@@ -83,25 +83,23 @@ export interface Fristrad {
   beloep_per_dag: unknown;
 }
 
-const tall = (v: unknown): number => Number(v);
-
 export function satsopplysninger(rad: Fristrad): Satsopplysninger | null {
   switch (rad.satsgrunnlag) {
     case 'kontraktssum':
       return {
         grunnlag: 'kontraktssum',
-        promille: tall(rad.promille),
-        minstebeloep: tall(rad.minstebeloep),
+        promille: tall(rad.promille)!,
+        minstebeloep: tall(rad.minstebeloep)!,
       };
     case 'delens_verdi':
       return {
         grunnlag: 'delens_verdi',
-        promille: tall(rad.promille),
-        minstebeloep: tall(rad.minstebeloep),
-        delensVerdi: tall(rad.delens_verdi),
+        promille: tall(rad.promille)!,
+        minstebeloep: tall(rad.minstebeloep)!,
+        delensVerdi: tall(rad.delens_verdi)!,
       };
     case 'fast_beloep':
-      return { grunnlag: 'fast_beloep', beloepPerDag: tall(rad.beloep_per_dag) };
+      return { grunnlag: 'fast_beloep', beloepPerDag: tall(rad.beloep_per_dag)! };
     case null:
       return null;
   }

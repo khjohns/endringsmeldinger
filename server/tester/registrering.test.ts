@@ -958,10 +958,10 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
     await skript('kontraktsfrister', prosjekt);
     expect(linjer).toEqual([
       'Kontraktssum: (ikke satt)',
-      'ID 1: E.1 Sluttfrist, 2027-06-30, dagmulktbelagt, 1 ‰ av kontraktssummen, minst 3\u00a0000 kr: kontraktssummen mangler',
+      'ID 1: E.1 Sluttfrist, 2027-06-30, dagmulktbelagt, 1 ‰ av kontraktssummen, minst 3\u00a0000\u00a0kr: kontraktssummen mangler',
       'ID 2: Tett bygg, 2026-12-15, ikke dagmulktbelagt',
-      'ID 3: Delfrist A, 2027-01-31, dagmulktbelagt, 1 ‰ av verdien av delen, 400\u00a0000 kr, minst 3\u00a0000 kr: 3\u00a0000 kr per dag',
-      'ID 4: Delfrist B, 2027-02-28, dagmulktbelagt, avtalt 2\u00a0500,5 kr per dag: 2\u00a0500,5 kr per dag',
+      'ID 3: Delfrist A, 2027-01-31, dagmulktbelagt, 1 ‰ av verdien av delen, 400\u00a0000\u00a0kr, minst 3\u00a0000\u00a0kr: 3\u00a0000\u00a0kr per dag',
+      'ID 4: Delfrist B, 2027-02-28, dagmulktbelagt, avtalt 2\u00a0500,50\u00a0kr per dag: 2\u00a0500,50\u00a0kr per dag',
     ]);
     await skript('kontraktsfrister', prosjekt, 'kontraktssum', '120000000');
     await skript(
@@ -1129,6 +1129,9 @@ describe.skipIf(!TESTBASE_URL)('registreringen mot SQL Server', () => {
       "1, N'fast_beloep', 1, NULL, NULL, 10",
       "1, N'delens_verdi', 1, 3000, NULL, NULL",
       '0, NULL, 1, NULL, NULL, NULL',
+      // Formen på grunnlaget prøves før `=`, og et ukjent grunnlag avvises (#1883).
+      "1, N'fast_beloep ', NULL, NULL, NULL, 10",
+      "0, N'annet', NULL, NULL, NULL, NULL",
     ])
       expect(
         await avvisning(
