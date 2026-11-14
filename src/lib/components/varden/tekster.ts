@@ -420,6 +420,13 @@ export const FRISTSVAR = {
   spesifisertForSent: 'Spesifisert for sent',
   spesifiseringGrense: 'Om kravet ble spesifisert i tide, avgjør partene.',
   dagerTittel: 'Fristforlengelse',
+  heleKravetTapt: (hjemmel: '33.4' | '33.6.2') =>
+    hjemmel === '33.4'
+      ? 'varselet etter punkt 33.4 kom for sent, og kravet er tapt for alle fristene'
+      : 'svaret på forespørselen etter punkt 33.6.2 kom for sent, og kravet er tapt for alle fristene',
+  heleKravetIkkeHindret:
+    'fremdriften ble ikke hindret av forholdet, og ingen av fristene forlenges',
+  forHeleKravet: (linjer: string[]) => `For hele kravet. ${linjer.map((l) => `${l}.`).join(' ')}`,
   ettSvarPerFrist: 'Ett svar per frist. Åpne en frist for å svare på den.',
   godkjennAlle: 'Godkjenn dagene som krevd for alle fristene',
   teKrever: (n: number) => `Totalentreprenøren krever ${dager(n)}`,
@@ -431,11 +438,11 @@ export const FRISTSVAR = {
   dagerSpoersmaalITide: 'Dagene du godtar hvis kravet ble spesifisert i tide',
   maatteForstaaLinje: (n: number) => `${dager(n)} du måtte forstå`,
   maatteForstaaPerFrist: (linjer: string[]) => `: ${opplistet(linjer)}`,
-  alle: 'Alle dagene',
-  deler: 'Deler av dagene',
-  avslaatt: 'Avslår dagene',
-  deldagerEtikett: 'Dagene du godkjenner',
-  deldagerHjelp: (krevd: number) => `Mer enn 0 og færre enn ${krevd} kalenderdager.`,
+  alle: (krevd: number) => `Som krevd, ${dager(krevd)}`,
+  deler: 'Delvis',
+  avslaatt: 'Avslått',
+  deldagerEtikett: 'Godkjente dager',
+  deldagerHjelp: 'Valget over følger tallet.',
   innsigelsenVarsel: 'innsigelsen om at varselet etter punkt 33.4 kom for sent',
   innsigelsenForesporsel:
     'innsigelsen om at svaret på forespørselen etter punkt 33.6.2 kom for sent',
@@ -459,7 +466,7 @@ export const FRISTSVAR = {
       ? `${dager(n)}, godkjent som krevd`
       : n === 0
         ? 'Avslått'
-        : `${dager(n)} av ${dager(krevd)} godkjent`,
+        : `${n} av ${dager(krevd)} godkjent`,
 };
 
 export const HOVEDLINJER = {

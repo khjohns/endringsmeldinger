@@ -72,6 +72,31 @@ export function godkjenteDager(f: Fristvalg, krevd: number): number | undefined 
   return undefined;
 }
 
+/** Tallet i feltet «Godkjente dager», som følger valget (U-14, prototypen `fristkrav-te.html#svar`). */
+export function godkjenteDagerIFeltet(f: Fristvalg, krevd: number): string {
+  if (f.dager === 'alle') return String(krevd);
+  if (f.dager === 'avslaatt') return '0';
+  return f.deldager;
+}
+
+/**
+ * Tallet BH skriver i «Godkjente dager» styrer valget: som krevd, avslått eller delvis. Et tomt felt
+ * tar bort valget, unntatt «Delvis», som BH har valgt før tallet er skrevet.
+ */
+export function skrivGodkjenteDager(f: Fristvalg, tekst: string, krevd: number): void {
+  f.deldager = tekst;
+  const n = heleDager(tekst);
+  if (tekst.trim() === '') f.dager = f.dager === 'deler' ? 'deler' : null;
+  else f.dager = n === krevd ? 'alle' : n === 0 ? 'avslaatt' : 'deler';
+}
+
+/** Valget for dagene. «Delvis» tar ikke med seg tallet fra et annet valg. */
+export function velgDagene(f: Fristvalg, d: Dagevalg | null, krevd: number): void {
+  const n = heleDager(f.deldager);
+  if (d === 'deler' && f.dager !== 'deler' && (n === krevd || n === 0)) f.deldager = '';
+  f.dager = d;
+}
+
 /** Én vurdering per frist i kravet, i kravets rekkefølge (`fristvurderinger` i kjernen). */
 function vurderingene(
   v: Fristsvarvalg,

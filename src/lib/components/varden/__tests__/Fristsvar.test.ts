@@ -147,4 +147,26 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
       { dager: 10, dager_maatte_forstaa: 5 },
     ]);
   });
+
+  it('«Godkjente dager» står tomt fra start, og tallet velger «Som krevd», «Delvis» eller «Avslått» (U-14)', async () => {
+    await svarskjemaet(medFristkrav);
+    const felt = screen.getByLabelText('Godkjente dager');
+    expect(felt).toHaveValue('');
+    await fireEvent.input(felt, { target: { value: '25' } });
+    expect(screen.getByRole('radio', { name: 'Som krevd, 25 dager' })).toBeChecked();
+    await fireEvent.input(felt, { target: { value: '12' } });
+    expect(screen.getByRole('radio', { name: 'Delvis' })).toBeChecked();
+    await radio('Avslått');
+    expect(felt).toHaveValue('0');
+  });
+
+  it('innsigelsen om varselet etter punkt 33.4 står én gang over fristene (U-12)', async () => {
+    await svarskjemaet(medFristkrav);
+    await radio('Varslet for sent');
+    expect(
+      screen.getByText(
+        'For hele kravet. Prinsipalt: varselet etter punkt 33.4 kom for sent, og kravet er tapt for alle fristene.'
+      )
+    ).toBeInTheDocument();
+  });
 });

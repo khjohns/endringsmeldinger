@@ -36,9 +36,12 @@
     godkjenteDager,
     heleDager,
     fristvalget,
+    godkjenteDagerIFeltet,
+    skrivGodkjenteDager,
     tomFrist,
     tomtFristsvar,
     type Fristsvarvalg,
+    velgDagene,
     type Fristvalg,
   } from './fristsvar';
   import {
@@ -252,6 +255,27 @@
     const d = godkjenteDager(fristvalget(valg, f.id), f.dager);
     return d === undefined ? [] : [FRISTSVAR.leselinjeDager(d, f.dager)];
   };
+  // U-12: en innsigelse som rammer hele kravet, står én gang over fristene, med laget kjernen gir
+  // den i utkastet, så den står så snart den er valgt.
+  const forHeleKravet = $derived(
+    (
+      [
+        ['33.4', valg.varselITide, FRISTSVAR.heleKravetTapt('33.4')],
+        [
+          '33.6.2',
+          foresporselen ? valg.foresporselITide : null,
+          FRISTSVAR.heleKravetTapt('33.6.2'),
+        ],
+        ['hindring', valg.hindret, FRISTSVAR.heleKravetIkkeHindret],
+      ] as const
+    ).flatMap(([innsigelse, svar, t]) => {
+      if (svar !== false) return [];
+      const lag = lagene?.standpunkter.find((x) =>
+        innsigelse === 'hindring' ? x.art === 'hindring' : x.hjemmel === innsigelse
+      )?.etikett;
+      return [lag ? `${stor(lag)}: ${t}` : stor(t)];
+    })
+  );
   const utkastbrev = $derived.by(() => {
     const b = kjernesak.brev(kommando);
     return b && 'tekst' in b ? b : null;
@@ -434,35 +458,35 @@
           : FRISTSVAR.dagerSpoersmaal}
         beskrevetAv={dagforutsetninger.length ? `${uid}-dager-${f.id}-forutsetninger` : undefined}
         valg={[
-          { verdi: 'alle', tekst: FRISTSVAR.alle },
+          { verdi: 'alle', tekst: FRISTSVAR.alle(f.dager) },
           { verdi: 'deler', tekst: FRISTSVAR.deler },
           { verdi: 'avslaatt', tekst: FRISTSVAR.avslaatt },
         ]}
-        bind:verdi={v.dager}
+        bind:verdi={() => v.dager, (d) => velgDagene(v, d, f.dager)}
         feil={feil(`dager-${f.id}`)}
         lett
-        stablet
       />
     </div>
-    {#if v.dager === 'deler'}
-      {@const id = `${uid}-deldager-${f.id}`}
-      {@const dFeil = feil(`deldager-${f.id}`)}
-      <div class="tallfelt">
-        <label for={id}>{FRISTSVAR.deldagerEtikett}</label>
-        <span id={`${id}-hjelp`} class="dempet">{FRISTSVAR.deldagerHjelp(f.dager)}</span>
-        <span class="inndata" class:ugyldig={dFeil}>
-          <input
-            {id}
-            inputmode="numeric"
-            bind:value={v.deldager}
-            aria-describedby={dFeil ? `${id}-hjelp ${id}-feil` : `${id}-hjelp`}
-            aria-invalid={dFeil ? 'true' : undefined}
-          />
-          <span class="enhet" aria-hidden="true">dager</span>
-        </span>
-        {#if dFeil}<p class="feilmelding" id={`${id}-feil`}>{dFeil}</p>{/if}
-      </div>
-    {/if}
+    <!-- U-14: «Godkjente dager» står alltid, tomt til byggherren har valgt, og tallet styrer valget. -->
+    {@const id = `${uid}-deldager-${f.id}`}
+    {@const dFeil = feil(`deldager-${f.id}`)}
+    <div class="tallfelt">
+      <label for={id}>{FRISTSVAR.deldagerEtikett}</label>
+      <span id={`${id}-hjelp`} class="dempet">{FRISTSVAR.deldagerHjelp}</span>
+      <span class="inndata" class:ugyldig={dFeil}>
+        <input
+          {id}
+          inputmode="numeric"
+          bind:value={
+            () => godkjenteDagerIFeltet(v, f.dager), (t) => skrivGodkjenteDager(v, t, f.dager)
+          }
+          aria-describedby={dFeil ? `${id}-hjelp ${id}-feil` : `${id}-hjelp`}
+          aria-invalid={dFeil ? 'true' : undefined}
+        />
+        <span class="enhet" aria-hidden="true">dager</span>
+      </span>
+      {#if dFeil}<p class="feilmelding" id={`${id}-feil`}>{dFeil}</p>{/if}
+    </div>
   {/if}
 {/snippet}
 
@@ -660,6 +684,9 @@
           <h3 id={`${uid}-sp-dager`}>{FRISTSVAR.dagerTittel}</h3>
           <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 33.5 og 33.7</span>
         </div>
+        {#if forHeleKravet.length}
+          <p class="helekravet">{FRISTSVAR.forHeleKravet(forHeleKravet)}</p>
+        {/if}
         {#if flere}
           <p class="dempet">{FRISTSVAR.ettSvarPerFrist}</p>
           <div class="snarveier">
@@ -903,6 +930,11 @@
   }
   .dempet {
     color: var(--ink-3);
+    font-size: 14px;
+  }
+  .helekravet {
+    margin: 0;
+    color: var(--ink-2);
     font-size: 14px;
   }
   .handling {

@@ -13,9 +13,12 @@ import { medGrunnlag, skrevet } from '$lib/kjernesak/__tests__/provejournal';
 import {
   fristsvaret,
   godkjenteDager,
+  godkjenteDagerIFeltet,
   heleDager,
+  skrivGodkjenteDager,
   tomFrist,
   tomtFristsvar,
+  velgDagene,
   type Fristsvarvalg,
 } from '../fristsvar';
 
@@ -128,5 +131,36 @@ describe('dagene i feltene', () => {
     expect(godkjenteDager({ ...tomFrist(), dager: 'alle' }, 25)).toBe(25);
     expect(godkjenteDager({ ...tomFrist(), dager: 'avslaatt' }, 25)).toBe(0);
     expect(godkjenteDager(tomFrist(), 25)).toBeUndefined();
+  });
+
+  // U-14 og prototypen `fristkrav-te.html#svar`: tallet i «Godkjente dager» styrer valget.
+  it.each([
+    ['25', 'alle', 25],
+    ['0', 'avslaatt', 0],
+    ['12', 'deler', 12],
+    ['30', 'deler', 30],
+    ['x', 'deler', undefined],
+    ['', null, undefined],
+  ] as const)('«%s» i «Godkjente dager» velger %s', (tekst, valget, dagene) => {
+    const f = tomFrist();
+    skrivGodkjenteDager(f, tekst, 25);
+    expect(f.dager).toBe(valget);
+    expect(godkjenteDager(f, 25)).toBe(dagene);
+  });
+
+  it('«Delvis» står når feltet tømmes, og feltet følger valget', () => {
+    const f = { ...tomFrist(), dager: 'deler' as const, deldager: '12' };
+    skrivGodkjenteDager(f, '', 25);
+    expect(f.dager).toBe('deler');
+    expect(godkjenteDagerIFeltet({ ...tomFrist(), dager: 'alle' }, 25)).toBe('25');
+    expect(godkjenteDagerIFeltet({ ...tomFrist(), dager: 'avslaatt' }, 25)).toBe('0');
+    expect(godkjenteDagerIFeltet(tomFrist(), 25)).toBe('');
+  });
+
+  it('«Delvis» tar ikke med seg de krevde dagene fra «Som krevd»', () => {
+    const f = tomFrist();
+    skrivGodkjenteDager(f, '25', 25);
+    velgDagene(f, 'deler', 25);
+    expect(f).toEqual({ ...tomFrist(), dager: 'deler' });
   });
 });
