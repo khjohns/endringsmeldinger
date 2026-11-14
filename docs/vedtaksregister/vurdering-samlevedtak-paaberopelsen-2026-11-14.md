@@ -234,6 +234,17 @@ nytt vedtak om overføring.
 binder en virkning («ikke et avkall») til en handling som ikke finnes. A lar partene avgjøre det
 kontrakten overlater til dem. *Styrer:* punkt 10 og 12, E3, og om #569 trenger et nytt spørsmål.
 
+## Svarene
+
+Oppdragsgiver 14.11, ordrett: «Ja», altså det anbefalte alternativet i hvert spørsmål ([kommentaren i #1534](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6874501642),
+spørsmål 2–4 i tabellen):
+
+| Spørsmål her | Svar |
+| --- | --- |
+| 1. Samlevedtaket | A |
+| 2. Avslår en ny versjon av påberopelsen byggherrens svar på forholdet? | A |
+| 3. Hva følger med fra den gamle saken til den nye? | A |
+
 ## Kodefunn
 
 - `kjerne/spor/forhold/kommando.ts`, `kategorisperre`: avviser et annet forhold og en annen

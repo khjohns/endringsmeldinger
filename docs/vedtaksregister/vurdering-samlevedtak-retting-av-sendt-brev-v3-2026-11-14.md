@@ -152,6 +152,18 @@ LV-U56, LV-U73 og VS-U70 endrer også andre poster og står med sine forhold.
    punkt 10 viser til dem.» Anbefaling: A; punkt 10 leses da av ett vedtak, og varselet starter
    på null. VS-U66 samles ikke i noen av dem (se «Forholdene»). Styrer: `folge` i den nye posten og raden i `KJENTE_FORHOLD_TIL_OPPHEVET`.
 
+## Svarene
+
+Oppdragsgiver 14.11, ordrett: «Ja», altså det anbefalte alternativet i hvert spørsmål ([kommentaren i #1534](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6874501642),
+spørsmål 5–8 i tabellen):
+
+| Spørsmål her | Svar |
+| --- | --- |
+| 1. Avvisningen i en lukket sak og etter enighet | A |
+| 2. Brevteksten for et nytt svar | A |
+| 3. Punkt 14 | C |
+| 4. Forholdene | A |
+
 ## Kodefunn
 
 - **K1** `korrigeringEtterVarslene` i [`nyttelast.ts`](../../kjerne/kommandoer/nyttelast.ts) kalles

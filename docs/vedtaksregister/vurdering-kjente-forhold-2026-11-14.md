@@ -47,6 +47,11 @@ Radene kan derfor bli stående lenge etter (c).
 > at noe arbeid er planlagt. A krever ingen avgjørelse om innholdet, bare at begrunnelsen
 > holder. **Valget styrer** om radene fjernes nå eller blir stående.
 
+## Svaret
+
+Oppdragsgiver 14.11, ordrett: «Ja», altså A, det anbefalte alternativet ([kommentaren i #1534](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6874501642), spørsmål 9 i
+tabellen).
+
 ## Verifikasjon og grenser
 
 - Lest ut av registeret med `vedtaksregister.py --vis` og `--kjede`. Søket etter (a) og (b) gikk
