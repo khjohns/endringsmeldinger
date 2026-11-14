@@ -1,0 +1,39 @@
+# #1951: tabellen «Funn og utfall» og avvikstabellen i PR-beskrivelsen. Kontrollen og
+# utfallene den godtar, står i docstringen i docs/verktoy/funnkontroll.py.
+#
+# Egen arbeidsflyt fordi den også kjøres når beskrivelsen endres (`edited`), uten at
+# resten av CI kjøres på nytt. Ikke på utkast (#390), som ci.yml.
+name: Funnkontroll
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+concurrency:
+  group: funnkontroll-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  funnkontroll:
+    name: Funn og utfall i PR-beskrivelsen
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    steps:
+      # Hele historikken, så commitene radene viser til, kan slås opp med git.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Kontroller funnene
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 docs/verktoy/funnkontroll.py --hendelse "$GITHUB_EVENT_PATH"
