@@ -1352,7 +1352,7 @@ export const FRISTKRAV = {
     'Angi dagene for hver frist kravet gjelder. Fristene står i kontrakten (Del II punkt E.1). Dagene gjelder hver frist for seg og legges ikke sammen. Dagene er kalenderdager (punkt 1.2).',
   delAvArbeidene:
     'Gjelder forlengelsen bare deler av arbeidene, beskriv det i begrunnelsen. Andelen av rigg og drift oppgis i posten for rigg og drift i vederlagskravet (Del II, tillegget til punkt 34.1.3).',
-  fristEtikett: 'Frist',
+  fristEtikett: 'Fristen',
   ikkeRegistrert: 'En frist som ikke er registrert',
   ikkeRegistrertHjelp:
     'Fristen står ikke i fristtabellen for prosjektet. Skriv nummeret og navnet kontrakten gir den. Ny dato vises ikke for en frist som ikke er registrert.',
