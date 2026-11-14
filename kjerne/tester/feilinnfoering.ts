@@ -1927,10 +1927,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'en påberopelse fra appen uten datoen godtas (VS-U26, #664)',
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
-      [
-        '  if (dato === undefined)\n    return [\n',
-        '  if (dato === undefined)\n    return []; [\n',
-      ],
+      ['  if (dato === undefined)\n    return [`', '  if (dato === undefined)\n    return []; [`'],
     ],
     mal: [
       'et krav fra appen i endring/irregulaer_endring',

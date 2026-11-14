@@ -69,7 +69,7 @@ export function kontrollerSvarPaaPaaberopelsen(
   if (resultat === null) {
     feil.resultat = 'mangler';
   } else if (!regler.gyldigeForholdsresultater(hovedkategori, underkategori).includes(resultat)) {
-    feil.resultat = `«${resultat}» kan ikke velges i denne kategorien (punkt 32.3 første ledd bokstav c)`;
+    feil.resultat = `«${resultat}» kan ikke velges i denne kategorien (punkt 32.3 første ledd c)`;
   }
   if (regler.gjelderVarslingsplikten(hovedkategori, underkategori)) {
     if (varsletITide === null) feil.grunnlag_varslet_i_tide = 'mangler (punkt 32.2)';

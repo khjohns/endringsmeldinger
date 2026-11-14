@@ -3925,7 +3925,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     );
     // Linja slik kjernen frøs den før #1302. Kjernen regner den ikke ut på nytt.
     const gammel =
-      'Byggherrens standpunkt: prinsipalt prekludert (punkt 33.4), subsidiært godkjent med 20 dager.';
+      'Byggherrens standpunkt: prinsipalt prekludert (§ 33.4), subsidiært godkjent med 20 dager.';
     ((rad.data.svar as Data[])[0].beslutningsgrunnlag as Data).linje = gammel;
     const lest = lesJournal(s.journal, KJERNE.leserformat).find((h) => h.id === rad.event_id)!;
     expect(lest.art === 'dokument' && lest.dokument.svar![0].beslutningsgrunnlag.linje).toBe(
@@ -10331,7 +10331,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     kravposter[0]!.varsel = krav.id;
     const u = s.u();
     expect(u.forstaatt).toBe(false);
-    expect(JSON.stringify(u.begrensninger)).toContain('ikke er et varsel etter § 34.4');
+    expect(JSON.stringify(u.begrensninger)).toContain('ikke er et varsel etter punkt 34.4');
   });
 
   it('et varsel i saken som én kravpost viser til, gjelder også en annen post med samme beregningsregel i det første kravet (D-16, VS-U50)', () => {

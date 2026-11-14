@@ -18,7 +18,7 @@ export function kontrollerForholdet(
   const feil: Record<string, string> = {};
   const resultat = v.resultat as never;
   if (!regler.gyldigeForholdsresultater(hovedkategori, underkategori).includes(resultat))
-    feil.resultat = `«${String(v.resultat)}» kan ikke velges i denne kategorien (punkt 32.3 første ledd bokstav c)`;
+    feil.resultat = `«${String(v.resultat)}» kan ikke velges i denne kategorien (punkt 32.3 første ledd c)`;
   const iTide = v.grunnlag_varslet_i_tide;
   if (regler.gjelderVarslingsplikten(hovedkategori, underkategori)) {
     if (typeof iTide !== 'boolean') feil.grunnlag_varslet_i_tide = 'mangler (punkt 32.2)';

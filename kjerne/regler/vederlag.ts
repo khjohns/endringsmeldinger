@@ -453,6 +453,7 @@ export function kontrollerOppgjoersformen(
     feil[felt] = 'er oppgjørsformen totalentreprenøren krever';
   if (p.krever_tilbud != null && typeof p.krever_tilbud !== 'boolean')
     feil[`${navn}.krever_tilbud`] = 'er verken true eller false';
+  // KA-U69
   else if (kreverTilbud && !regel)
     feil[`${navn}.krever_tilbud`] =
       'gjelder bare en kravpost etter en beregningsregel (punkt 34.2.1)';

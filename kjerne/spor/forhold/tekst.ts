@@ -210,7 +210,7 @@ function endringsordretekst(krav: Krav, j: Journalen): string {
   if (!beskrivelse?.trim())
     throw new BrevetAvvises(
       'PAALEGGET_IKKE_BESKREVET',
-      'Godkjenningen er en endringsordre (punkt 32.3 første ledd a), men totalentreprenørens krav beskriver ikke pålegget, så brevet kan ikke si hva endringen går ut på (punkt 31.3, GR-U14). Svaret må sendes utenfor løsningen.'
+      'Godkjenningen er en endringsordre (punkt 32.3 første ledd a), men totalentreprenørens krav beskriver ikke pålegget, så brevet kan ikke si hva endringen går ut på (punkt 31.3). Svaret må sendes utenfor løsningen.'
     );
   return `${innledning} ${kravet}: «${beskrivelse}».`;
 }
