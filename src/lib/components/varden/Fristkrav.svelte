@@ -30,7 +30,7 @@
     type Fristpostvalg,
   } from './fristkrav';
   import { heleDager } from './fristsvar';
-  import { brevene, datoerISporet } from './lesing';
+  import { brevene, datoerISporet, hovedkategorien } from './lesing';
   import { FRISTKRAV, HOVEDLINJER, SKJEMA } from './tekster';
 
   let {
@@ -63,6 +63,8 @@
   const varselbrev = $derived(
     brevMed(u.spor.frist.varsler['33.4']?.dokument ?? u.spor.frist.krav[0]?.dokument)
   );
+  // § 33.3 for force majeure, ellers § 33.1, som brevteksten i kjernen og svarskjemaet.
+  const hindringPunkt = $derived(hovedkategorien(u) === 'force_majeure' ? '33.3' : '33.1');
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes('frist')));
   const datoer = $derived(datoerISporet(u, 'frist'));
 
@@ -283,7 +285,9 @@
       <section class="spoersmaal" aria-labelledby={id('sp-frister')}>
         <div class="sp-hode">
           <h3 id={id('sp-frister')}>{FRISTKRAV.fristerTittel}</h3>
-          <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 33.1 og 33.6.1</span>
+          <span class="hjemmel"
+            ><BookOpen size={14} aria-hidden="true" />punkt {hindringPunkt} og 33.6.1</span
+          >
         </div>
         <p class="dempet">{FRISTKRAV.fristerHjelp}</p>
         {#if forrige}<p class="dempet">{FRISTKRAV.trekkHjelp}</p>{/if}
