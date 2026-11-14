@@ -5164,11 +5164,23 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/tekst.ts`,
     endringer: [
       [
-        '              .map((m) => maatteForstaaForFristen(kravetFor(kravet), m.frist, m.dager))',
-        '              .map((m) => dager(m.dager))',
+        '            medDager.map((m) => maatteForstaaForFristen(krav(), m.frist, m.dager))',
+        '            medDager.map((m) => dager(m.dager))',
       ],
     ],
     mal: ['med to frister nevner linjen fristen', 'linjen skriver «1 dag» for én dag'],
+  },
+  {
+    id: 'F599',
+    feilklasse: 'linjen for spesifiseringen i fristen tar med en frist med 0 dager (#1931)',
+    fil: `${K}/spor/frist/tekst.ts`,
+    endringer: [
+      [
+        '    const medDager = spesifisert?.maatteForstaa?.filter((m) => m.dager > 0) ?? [];',
+        '    const medDager = spesifisert?.maatteForstaa?.filter((m) => m.dager >= 0) ?? [];',
+      ],
+    ],
+    mal: ['med to frister nevner linjen fristen'],
   },
   {
     id: 'F594',

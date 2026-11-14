@@ -208,25 +208,34 @@ export const STANDPUNKTENE_I_FRISTEN = {
   dager: (p, krav) => dagerForFristen(p.resultat, fristenI(krav, p.gjelder), p.vurdert),
 } satisfies Standpunktstekster<'hindring' | 'spesifisering' | 'dager'>;
 
-/** Kravet svaret gjelder. Et fristsvar uten kjent krav kan ikke leses (MM-U2). */
-function kravetFor(kravet: Krav | null | undefined): Krav {
+/**
+ * Kravet svaret gjelder, med fristene `frister`. Et fristsvar uten kjent krav, eller med en frist
+ * kravet ikke har, kan ikke leses (MM-U2).
+ */
+function kravetMedFristene(kravet: Krav | null | undefined, frister: string[]): Krav {
   if (!kravet) throw new Uforstaatt('fristsvaret gjelder et krav som ikke er kjent');
+  const ider = new Set(innholdIFristen(kravet).frister.map((f) => f.id));
+  const ukjent = frister.find((f) => !ider.has(f));
+  if (ukjent !== undefined) throw new Uforstaatt(`kravet har ikke fristen ${ukjent}`);
   return kravet;
 }
 
 export const LINJEN_I_FRISTEN = {
   grunner: (svar, paaberopelse, kravet) => {
     const spesifisert = standpunktet(svar, 'spesifisering');
-    const maatteForstaa = spesifisert?.maatteForstaa;
+    const medDager = spesifisert?.maatteForstaa?.filter((m) => m.dager > 0) ?? [];
+    const krav = () =>
+      kravetMedFristene(
+        kravet,
+        medDager.map((m) => m.frist)
+      );
     return {
       // KA-U81: som brevteksten nevner linjen begge vilkårene.
       hindring: `avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ ${hindringenEtter(paaberopelse)})`,
-      // Fristene med dager, med fristens betegnelse som i brevteksten (#1931).
-      spesifisering: maatteForstaa?.some((m) => m.dager > 0)
+      // Bare fristene med dager, med fristens betegnelse som i brevteksten (#1931).
+      spesifisering: medDager.length
         ? `godkjent med ${opplistet(
-            maatteForstaa
-              .filter((m) => m.dager > 0)
-              .map((m) => maatteForstaaForFristen(kravetFor(kravet), m.frist, m.dager))
+            medDager.map((m) => maatteForstaaForFristen(krav(), m.frist, m.dager))
           )} (§ 33.6.1)`
         : 'avslått (§ 33.6.1)',
     };

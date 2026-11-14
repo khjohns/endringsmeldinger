@@ -1533,7 +1533,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
-  it('et fristsvar med dagene byggherren måtte forstå, uten kjent krav, kan ikke leses i linjen (MM-U2, #1931)', () => {
+  it('et fristsvar med dagene byggherren måtte forstå, uten kjent krav eller for en frist kravet ikke har, kan ikke leses i linjen (MM-U2, #1931)', () => {
     const svar = {
       spor: 'frist',
       standpunkter: [
@@ -1542,6 +1542,17 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       utregning: {},
     } as unknown as Parameters<typeof LINJEN_I_FRISTEN.grunner>[0];
     expect(() => LINJEN_I_FRISTEN.grunner(svar, null, undefined)).toThrow(Uforstaatt);
+    const s = sakMedKrav();
+    const kravet = s.u().spor.frist.gjeldendeKrav!;
+    expect(() => LINJEN_I_FRISTEN.grunner(svar, null, kravet)).toThrow(Uforstaatt);
+    const a = innholdIFristen(kravet).frister[0]!.id;
+    const kontroll = {
+      ...svar,
+      standpunkter: [{ ...svar.standpunkter[0]!, maatteForstaa: [{ frist: a, dager: 5 }] }],
+    } as typeof svar;
+    expect(LINJEN_I_FRISTEN.grunner(kontroll, null, kravet).spesifisering).toBe(
+      'godkjent med 5 dager for frist Sluttfristen (§ 33.6.1)'
+    );
   });
 
   it('§ 34.1.2 «nei» med hele beløpet godkjent subsidiært godtas uten begrunnelse (KA-U46 punkt 1)', () => {
