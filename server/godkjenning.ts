@@ -13,6 +13,7 @@ import {
   KONFLIKT,
   NEKTET,
   sql,
+  tall,
   UGYLDIG,
   UNIK_INDEKS,
   UNIK_NOEKKEL,
@@ -82,8 +83,6 @@ async function kall<T>(arbeid: Promise<T>, hva = 'Godkjenningspakken kan ikke la
     throw feil;
   }
 }
-
-const tall = (v: unknown): number | null => (v === null ? null : Number(v));
 
 export interface Godkjenner {
   brukerId: string;

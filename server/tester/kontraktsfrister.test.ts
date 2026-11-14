@@ -7,7 +7,8 @@
  * - GFK-U23: begge parter leser fristtabellen, og leserollen leser det saken viser
  *   (DL-U15); prosjektgrensen i CLAUDE.md;
  * - GFK-U25: inngangen gir fristtabellen til begge parter og leserollen, så kravskjemaet
- *   kan velge frist (BF-20 G-3). Feltene i svaret er arbeidsvalget 14.11 i #1745.
+ *   kan velge frist (BF-20 G-3). Feltene i svaret er arbeidsvalget 14.11 i #1745, med
+ *   datoen for U-4 og U-5 i BF-20.
  * Avrundingen til nærmeste øre er det tekniske valget i PR-en, ikke et vedtak.
  */
 import { randomUUID } from 'node:crypto';
@@ -236,16 +237,34 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
         prosjektId: o.prosjekt.id,
       });
 
-    it('GFK-U25: begge parter og leserollen får fristene, med feltene i arbeidsvalget 14.11 i #1745: ID, nummer, navn og dagmulkt', async () => {
+    it('GFK-U25: begge parter og leserollen får fristene, med feltene i arbeidsvalget 14.11 i #1745: ID, nummer, navn, dato og dagmulkt', async () => {
       for (const bruker of [o.bh, o.te, o.leser]) {
         const svar = await svaret(bruker);
         expect(svar.status, JSON.stringify(svar.kropp)).toBe(200);
         expect(svar.kropp).toEqual({
           success: true,
           frister: [
-            { frist_id: 1, nummer: 'E.1', navn: 'Sluttfrist', dagmulktbelagt: true },
-            { frist_id: 2, nummer: null, navn: 'Tett bygg', dagmulktbelagt: false },
-            { frist_id: 3, nummer: null, navn: 'Overtakelse av utomhus', dagmulktbelagt: true },
+            {
+              frist_id: 1,
+              nummer: 'E.1',
+              navn: 'Sluttfrist',
+              dato: '2027-06-30',
+              dagmulktbelagt: true,
+            },
+            {
+              frist_id: 2,
+              nummer: null,
+              navn: 'Tett bygg',
+              dato: '2026-12-15',
+              dagmulktbelagt: false,
+            },
+            {
+              frist_id: 3,
+              nummer: null,
+              navn: 'Overtakelse av utomhus',
+              dato: '2027-09-01',
+              dagmulktbelagt: true,
+            },
           ],
         });
       }

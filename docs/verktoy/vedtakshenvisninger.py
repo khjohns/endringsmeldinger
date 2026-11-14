@@ -66,6 +66,7 @@ HISTORISKE_DOKUMENTER = frozenset(
     {
         "docs/domenetabell/brukerforlop/BF-05-sporsmal.md",
         "docs/domenetabell/brukerforlop/BF-06-sporsmal.md",
+        "docs/domenetabell/brukerforlop/BF-10-sporsmal.md",
     }
 )
 GRUNNLAGSMAPPER = ("kjerne/frosset/", "kjerne/kommandoer/", "kjerne/regler/")
@@ -109,6 +110,33 @@ KJENTE_AVVIK = (
     ("server/tester/sakslinje.test.ts", "MM-U29", 2, "#1545"),
     ("kjerne/kommandoer/forutsetninger.ts", "OV-U8", 1, "#1576"),
     ("kjerne/tester/feilinnfoering.ts", "OV-U8", 1, "#1576"),
+    ("kjerne/format/format.ts", "MM-U52", 1, "#1939"),
+    ("kjerne/frosset/brevtekst.ts", "MM-U52", 1, "#1939"),
+    ("kjerne/frosset/brevtittel.ts", "MM-U52", 1, "#1939"),
+    ("kjerne/kommandoer/handlinger.ts", "MM-U52", 2, "#1939"),
+    ("kjerne/kommandoer/kommando.ts", "MM-U52", 1, "#1939"),
+    ("kjerne/kommandoer/nyttelast.ts", "MM-U52", 1, "#1939"),
+    ("kjerne/kommandoer/skriving.ts", "MM-U52", 1, "#1939"),
+    ("kjerne/spor/forhold/kommando.ts", "MM-U52", 5, "#1939"),
+    ("kjerne/spor/forhold/utledning.ts", "MM-U52", 3, "#1939"),
+    ("kjerne/tester/arkitektur.test.ts", "MM-U52", 2, "#1939"),
+    ("kjerne/tester/brevtekst.test.ts", "MM-U52", 7, "#1939"),
+    ("kjerne/tester/brukerforloep.test.ts", "MM-U52", 1, "#1939"),
+    ("kjerne/tester/feilinnfoering.ts", "MM-U52", 11, "#1939"),
+    ("kjerne/tester/handlinger.test.ts", "MM-U52", 1, "#1939"),
+    ("kjerne/tester/kjoerer.ts", "MM-U52", 1, "#1939"),
+    ("kjerne/tester/klient.ts", "MM-U52", 1, "#1939"),
+    ("kjerne/typer.ts", "MM-U52", 1, "#1939"),
+    ("kjerne/utledning/utled.ts", "MM-U52", 4, "#1939"),
+    ("src/lib/components/varden/Brevtraad.svelte", "MM-U52", 1, "#1939"),
+    ("src/lib/components/varden/Korrigering.svelte", "MM-U52", 1, "#1939"),
+    ("src/lib/components/varden/__tests__/Forholdsoversikt.test.ts", "MM-U52", 1, "#1939"),
+    ("src/lib/components/varden/__tests__/Korrigering.test.ts", "MM-U52", 2, "#1939"),
+    ("src/lib/components/varden/__tests__/Paaberopelsesversjon.test.ts", "MM-U52", 1, "#1939"),
+    ("src/lib/components/varden/__tests__/lesing.test.ts", "MM-U52", 1, "#1939"),
+    ("src/lib/components/varden/kommandoer.ts", "MM-U52", 2, "#1939"),
+    ("src/lib/components/varden/lesing.ts", "MM-U52", 4, "#1939"),
+    ("src/lib/components/varden/tekster.ts", "MM-U52", 4, "#1939"),
 )
 # En post med klassen design som eneste grunnlag i kjernen eller i en bevis-sak, i samme form
 # som KJENTE_AVVIK. Henvisningene skrives om når designet flyttes i steg 4. Lista skal bare
@@ -117,6 +145,7 @@ KJENTE_DESIGNAVVIK = (
     ("docs/domenetabell/bevis-saker-maalmodell.json", "MM-U22", 2, "#1534, steg 4"),
     ("kjerne/spor/forhold/tekst.ts", "OV-U77", 1, "#1534, steg 4"),
     ("kjerne/spor/forhold/tekst.ts", "OV-U78", 1, "#1534, steg 4"),
+    ("kjerne/frosset/brevtittel.ts", "LV-U55", 1, "#1939"),
 )
 
 

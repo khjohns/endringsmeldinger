@@ -550,7 +550,10 @@ lagres_fra = "Driftsskriptet `server/registrering.ts kontraktsfrister`. Lest av 
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei. Kontrakten er kilden."
 personopplysninger = "Ingen."
-skrivere = ["database/migrasjoner/20261113100000_kontraktsfrister.sql (`koe_drift.sett_kontraktsfrist` og `koe_drift.fjern_kontraktsfrist`, kalt fra `server/registrering.ts`)"]
+skrivere = [
+  "database/migrasjoner/20261114100000_kontraktsfrist_satsregel.sql (`koe_drift.sett_kontraktsfrist`, kalt fra `server/registrering.ts`)",
+  "database/migrasjoner/20261113100000_kontraktsfrister.sql (`koe_drift.fjern_kontraktsfrist`, kalt fra `server/registrering.ts`)",
+]
 funn = []
 belegg = "L 13.11: migrasjonen. K 13.11: `server/tester/registrering.test.ts` og `server/tester/kontraktsfrister.test.ts`."
 

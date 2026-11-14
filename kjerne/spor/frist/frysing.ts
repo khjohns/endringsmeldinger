@@ -47,7 +47,7 @@ function fristenGodkjent(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
   const spesifisering = standpunktet(svar, 'spesifisering');
   if (spesifisering && v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning)))
     return false;
-  // KA-U74: hele kravet er godkjent når hver frist har fått alle dagene.
+  // GR-U7, GR-U38: hele kravet er godkjent når hver frist har fått alle dagene.
   return utregningIFristen(svar.utregning).frister.every((r) => r.resultat === 'godkjent');
 }
 
