@@ -137,6 +137,11 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       { id: expect.any(String), nummer: '5', navn: 'Mekanisk ferdigstillelse', dager: 30 },
     ]);
     expect(innhold.trekker).toHaveLength(1);
+    // «Dette sender du» sier at fristen trekkes, som brevet (U-10).
+    expect(sendt[0]!.detteSender.map((l) => l.tekst)).toEqual([
+      '5 Mekanisk ferdigstillelse: 30 dager',
+      'Sluttfristen: trekkes',
+    ]);
   });
 
   it('en registrert frist fra forrige versjon står fast med ID-en og fristen i tabellen, og samme frist kan ikke velges to ganger (U-10, KA-U79)', async () => {

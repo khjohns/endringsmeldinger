@@ -24,7 +24,6 @@
   import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
   import {
-    fristene,
     fristkravet,
     manglerIFristkravet,
     nyFristpost,
@@ -80,6 +79,8 @@
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes('frist')));
   const datoer = $derived(datoerISporet(u, 'frist'));
 
+  // Radene som ennå ikke har en frist eller et navn, nummereres bare seg imellom (U-1).
+  const utenNavn = $derived(v.frister.filter((p) => p.frist === null && !p.navn.trim()));
   /** Navnet fristen står med i skjemaet og panelet, som i brevet (`betegnelsen` i kjernen). */
   function navnet(p: Fristpostvalg): string {
     if (typeof p.frist === 'number') {
@@ -89,7 +90,7 @@
     const navn = p.navn.trim();
     return navn
       ? betegnelsen({ nummer: p.nummer.trim(), navn })
-      : FRISTKRAV.nyFrist(v.frister.indexOf(p) + 1);
+      : FRISTKRAV.nyFrist(utenNavn.indexOf(p) + 1, utenNavn.length);
   }
 
   const mangler = $derived(manglerIFristkravet(v, uid, navnet));
@@ -150,10 +151,8 @@
     onbrevkontroll({
       kommando,
       ...brevet,
-      detteSender: fristene(v).map((p) => ({
-        tekst: FRISTKRAV.linje(navnet(p), dagene(p)),
-        lag: null,
-      })),
+      // Som panelet: hver frist med dagene, og en frist som trekkes (U-10).
+      detteSender: linjer,
       virkninger: [
         ...(varselbrev ? [] : [FRISTKRAV.virkningVarsel]),
         ...(svaret ? [FRISTKRAV.virkningNyVersjon(svaret)] : []),

@@ -1360,7 +1360,7 @@ export const FRISTKRAV = {
   dagerEtikett: 'Dagene du krever',
   kalenderdager: 'Kalenderdager.',
   /** Raden før fristen er valgt, uten et tall som kan leses som nummeret i E.1 (U-1). */
-  nyFrist: (n: number) => (n === 1 ? 'Ny frist' : `Ny frist ${n}`),
+  nyFrist: (n: number, av: number) => (av === 1 ? 'Ny frist' : `Ny frist ${n}`),
   nyIVersjonen: 'Ny i denne versjonen',
   trekkes: 'Trekkes',
   trekk: (navn: string) => `Trekk fristen ${navn}`,
@@ -1400,7 +1400,6 @@ export const FRISTKRAV = {
   ingenFristerMangler: 'Kravet må gjelde minst én frist.',
   forkastTekst:
     'Fristene og begrunnelsen du har skrevet i utkastet, slettes. Det kan ikke gjøres om.',
-  detteSender: (n: number) => (n === 1 ? 'Kravet gjelder én frist' : `Kravet gjelder ${n} frister`),
   // «Når du sender» (U-9, U-10).
   virkningVarsel:
     'Kravet er også varselet etter punkt 33.4. Varsles det for sent, tapes kravet på fristforlengelse.',
