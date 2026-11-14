@@ -433,6 +433,11 @@ FEILINNFOERINGER = [
      "      kontraktsrolle: 'lesing',\n    },\n    behandle: fristtabellsvar,",
      "    },\n    behandle: fristtabellsvar,",
      "DL-U15: et medlem uten kontraktsteam og uten leserolle får ingen fristtabell"),
+    ("S115", "en prosjektinngang står uten kontraktsrolle og uten begrunnelse (#1922)",
+     "server/prosjekter.ts",
+     "        ikke: 'Medlemslisten er ikke saksdata, og hvem som er medlem, avgjøres av prosjektrollen, ikke av kontraktssiden.',\n",
+     "        ikke: '',\n",
+     "eller har en begrunnelse for at den ikke krever kontraktsrolle (#1922)"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

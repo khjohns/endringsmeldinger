@@ -115,6 +115,17 @@ describe('registeret over inngangene', () => {
     }
   );
 
+  it.each(RUTER.filter(erUtenSak).map((r) => [navn(r), r] as const))(
+    '%s leser saksdata med kontraktsrolle eller leserolle, eller har en begrunnelse for at den ikke krever kontraktsrolle (#1922)',
+    (_navn, r) => {
+      const k = r.tilgang.kontraktsrolle as unknown;
+      if (k !== 'lesing')
+        expect((k as { ikke?: unknown } | undefined)?.ikke, 'kontraktsrolle mangler').toEqual(
+          expect.stringMatching(/\S.{20,}/)
+        );
+    }
+  );
+
   it('en fast sti treffer bare seg selv, også med tegn som betyr noe i et regulært uttrykk (#716 punkt 4)', () => {
     const { sti } = fast('/api/a.b+c?(d)');
     expect('/api/a.b+c?(d)').toMatch(sti);
