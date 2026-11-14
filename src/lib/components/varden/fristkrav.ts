@@ -1,13 +1,17 @@
 /**
- * TEs krav om fristforlengelse i Varden (G-3 i BF-20), i kjernens format: én rad per frist i
+ * TEs krav om fristforlengelse i Varden (BF-20), i kjernens format: én rad per frist i
  * kontrakten, med dagene for hver frist for seg (KA-U74), og en frist i fristtabellen for
- * prosjektet eller en frist som ikke er registrert, med nummeret og navnet (KA-U79).
+ * prosjektet eller en frist som ikke er registrert, med nummeret og navnet (KA-U79). Skjemaet
+ * sender også varselet etter punkt 33.4 alene (U-13, VS-U15, VS-U16) og svaret på byggherrens
+ * forespørsel etter punkt 33.6.2 (U-11, VS-U17).
  */
 
 import { innholdIFristen } from '$kjerne/spor/frist/format';
+import type { Korrespondansetype } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { heleDager } from './fristsvar';
 import { definert } from './kommandoer';
+import type { Kjernevedlegg } from './nysak';
 import { FRISTKRAV } from './tekster';
 
 /** Én frist i kravet, som TE har fylt den ut. */
@@ -26,11 +30,31 @@ export interface Fristpostvalg {
   trukket: boolean;
 }
 
+/**
+ * Varselet etter punkt 33.4 sendt utenfor løsningen (OV-U5, VS-U16): datoen og brevet. `type`
+ * kreves bare når varselet registreres for seg (LV-U42); i kravet står datoen og brevet.
+ */
+export interface Utenforvalg {
+  dato: string;
+  type: Korrespondansetype | null;
+  vedlegg: Kjernevedlegg[];
+}
+
 export interface Fristkravvalg {
+  /** Kravet med dagene, eller bare varselet etter punkt 33.4 (U-13). */
+  hva: 'krav' | 'varsel';
+  /** Varselet gitt før, utenfor løsningen (U-6), eller `null` når brevet er varselet. */
+  utenfor: Utenforvalg | null;
+  /** Svaret på forespørselen etter punkt 33.6.2: dagene (a) eller begrunnelsen (b) (U-11). */
+  bokstav: 'a' | 'b';
   frister: Fristpostvalg[];
   /** Begrunnelsen, som kjernen krever (`BEGRUNNELSE_MANGLER`). */
   begrunnelse: string;
+  /** Begrunnelsen etter punkt 33.6.2 annet ledd bokstav b. */
+  grunnB: string;
 }
+
+export const tomtUtenforvalg = (): Utenforvalg => ({ dato: '', type: null, vedlegg: [] });
 
 let teller = 0;
 const nyNoekkel = () => `f${++teller}`;
@@ -47,9 +71,11 @@ export const nyFristpost = (): Fristpostvalg => ({
 
 /** Valgene fra gjeldende krav, eller én tom frist i det første kravet (U-10). */
 export function startvalg(u: Utledning): Fristkravvalg {
+  const felles = { hva: 'krav' as const, utenfor: null, bokstav: 'a' as const, grunnB: '' };
   const krav = u.spor.frist.gjeldendeKrav;
-  if (!krav) return { frister: [nyFristpost()], begrunnelse: '' };
+  if (!krav) return { ...felles, frister: [nyFristpost()], begrunnelse: '' };
   return {
+    ...felles,
     frister: innholdIFristen(krav).frister.map((f) => ({
       noekkel: nyNoekkel(),
       id: f.id,
@@ -76,36 +102,85 @@ const fristen = (p: Fristpostvalg): Record<string, unknown> =>
     dager: heleDager(p.dager),
   });
 
+/** Forespørselen etter punkt 33.6.2 TE kan svare på (`svare_paa_foresporsel:<id>`), eller `null`. */
+export function aapenForesporsel(handlinger: readonly string[]): string | null {
+  const n = handlinger.find((h) => h.startsWith('svare_paa_foresporsel:'));
+  return n ? n.slice('svare_paa_foresporsel:'.length) : null;
+}
+
 /**
- * Kravet TE sender. Kjernen kontrollerer fristene mot fristtabellen og sporet, og at begrunnelsen
- * finnes, og avviser det den ikke godtar. Kravet er varselet etter punkt 33.4 når saken ikke har
- * et (`varselVedKravet` i kjernen).
+ * Kommandoen TE sender: varselet etter punkt 33.4 fra løsningen eller registrert (VS-U15,
+ * VS-U16), begrunnelsen etter punkt 33.6.2 annet ledd bokstav b (VS-U17), eller kravet. Kravet er
+ * varselet når saken ikke har et (`varselVedKravet` i kjernen), og et krav mens forespørselen er
+ * ubesvart, svarer på den (`kommandoer/skriving.ts`). Kjernen avviser det den ikke godtar.
  */
-export function fristkravet(v: Fristkravvalg): Record<string, unknown> {
+export function fristkravet(
+  v: Fristkravvalg,
+  foresporsel: string | null = null
+): Record<string, unknown> {
+  const dokumentasjon = (x: Utenforvalg) => x.vedlegg.map((f) => f.vedlegg_id);
+  if (v.hva === 'varsel')
+    return v.utenfor
+      ? definert({
+          type: 'varsel',
+          spor: 'frist',
+          hjemmel: '33.4',
+          sendt: v.utenfor.dato,
+          // Kjernen avviser en registrering uten typen; skjemaet sier fra ved feltet først.
+          korrespondansetype: v.utenfor.type ?? undefined,
+          dokumentasjon: dokumentasjon(v.utenfor),
+        })
+      : { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' };
+  if (foresporsel && v.bokstav === 'b')
+    return { type: 'foresporselssvar', gjelder: foresporsel, utdypning: v.grunnB };
   const trekker = v.frister.filter((p) => p.trukket && p.id).map((p) => p.id!);
-  return {
+  return definert({
     type: 'krav',
     spor: 'frist',
     innhold: definert({
       frister: fristene(v).map(fristen),
       trekker: trekker.length ? trekker : undefined,
     }),
+    varsel: v.utenfor
+      ? { sendt: v.utenfor.dato, dokumentasjon: dokumentasjon(v.utenfor) }
+      : undefined,
     utdypning: v.begrunnelse,
-  };
+  });
 }
+
+/** Vedleggene kommandoen viser til, så kjernen kan lage brevet før sendingen (OV-U5). */
+export const vedleggIFristkravet = (v: Fristkravvalg) =>
+  new Map(
+    (v.utenfor?.vedlegg ?? []).map(({ vedlegg_id, filnavn, innhold_sha256 }) => [
+      vedlegg_id,
+      { vedlegg_id, filnavn, innhold_sha256 },
+    ])
+  );
 
 /** Det som mangler, med feltet det gjelder (`<prefiks>-<felt>`). Kjernen avviser det samme. */
 export function manglerIFristkravet(
   v: Fristkravvalg,
   prefiks: string,
-  navnet: (p: Fristpostvalg) => string
+  navnet: (p: Fristpostvalg) => string,
+  foresporsel: string | null = null
 ): { felt: string; tekst: string }[] {
-  const med = fristene(v);
   const ut: { felt: string; tekst: string }[] = [];
-  if (!med.length) ut.push({ felt: `${prefiks}-legg-til`, tekst: FRISTKRAV.ingenFristerMangler });
+  const legg = (felt: string, tekst: string) => ut.push({ felt: `${prefiks}-${felt}`, tekst });
+  if (v.utenfor) {
+    if (!v.utenfor.dato) legg('utenfor-dato', FRISTKRAV.manglerVarseldato);
+    if (v.hva === 'varsel' && !v.utenfor.type) legg('utenfor-type', FRISTKRAV.manglerType);
+    if (!v.utenfor.vedlegg.length) legg('utenfor-brev', FRISTKRAV.manglerVarselbrev);
+  }
+  if (v.hva === 'varsel') return ut;
+  if (foresporsel && v.bokstav === 'b') {
+    if (!v.grunnB.trim()) legg('grunn-b', FRISTKRAV.manglerGrunnB);
+    return ut;
+  }
+  const med = fristene(v);
+  if (!med.length) legg('legg-til', FRISTKRAV.ingenFristerMangler);
   for (const p of med) {
     const f = (felt: string, tekst: string) =>
-      ut.push({ felt: `${prefiks}-${felt}-${p.noekkel}`, tekst: `${navnet(p)}: ${tekst}` });
+      legg(`${felt}-${p.noekkel}`, `${navnet(p)}: ${tekst}`);
     if (p.frist === null) f('frist', FRISTKRAV.manglerFrist);
     else if (typeof p.frist === 'number' && v.frister.some((q) => q !== p && q.frist === p.frist))
       f('frist', FRISTKRAV.toGanger);
@@ -114,7 +189,6 @@ export function manglerIFristkravet(
     if (d === undefined) f('dager', FRISTKRAV.manglerDager);
     else if (d === 0) f('dager', FRISTKRAV.nullDager);
   }
-  if (!v.begrunnelse.trim())
-    ut.push({ felt: `${prefiks}-begrunnelse`, tekst: FRISTKRAV.manglerBegrunnelse });
+  if (!v.begrunnelse.trim()) legg('begrunnelse', FRISTKRAV.manglerBegrunnelse);
   return ut;
 }

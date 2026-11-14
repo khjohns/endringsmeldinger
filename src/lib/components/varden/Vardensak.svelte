@@ -19,7 +19,7 @@
   import { tomtFristsvar } from './fristsvar';
   import Vederlagskrav from './Vederlagskrav.svelte';
   import Fristkrav from './Fristkrav.svelte';
-  import type { Fristkravvalg } from './fristkrav';
+  import { startvalg as fristkravstart, type Fristkravvalg } from './fristkrav';
   import type { Kravvalg } from './vederlagskrav';
   import Korrigering from './Korrigering.svelte';
   import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
@@ -36,6 +36,7 @@
   import {
     BETEGNELSE,
     BREVKONTROLL,
+    FRISTKRAV,
     KORRIGERING,
     KRAVSKJEMA,
     MOTTATT,
@@ -309,8 +310,34 @@
     'krav:forhold': () => (arbeid = { art: 'nyversjon' }),
     'krav:vederlag': () => (arbeid = { art: 'vederlagskrav' }),
     'krav:frist': () => (arbeid = { art: 'fristkrav' }),
+    // U-13: varselet etter punkt 33.4 alene, i skjemaet for kravet (BF-20 steg 4).
+    'sende_varsel:frist': () => fristskjema('varsel'),
+    'varsle:frist': () => fristskjema('varsel'),
   };
-  const skjemanoeklene = Object.keys(skjemaene);
+  /** Skjemaet for kravet om fristforlengelse, med varselet alene eller kravet valgt. */
+  function fristskjema(hva: Fristkravvalg['hva']) {
+    if (u) fristkravvalg = { ...(fristkravvalg ?? fristkravstart(u)), hva };
+    arbeid = { art: 'fristkrav' };
+  }
+  // U-11: svaret på forespørselen etter punkt 33.6.2 åpner skjemaet for kravet.
+  const skjemanoeklene = $derived([
+    ...Object.keys(skjemaene),
+    ...kjernesak.handlinger.filter((n) => n.startsWith('svare_paa_foresporsel:')),
+  ]);
+  const aapne = (n: string) =>
+    Object.hasOwn(skjemaene, n)
+      ? skjemaene[n]()
+      : n.startsWith('svare_paa_foresporsel:') && fristskjema('krav');
+  /** Skjemaet for fristen er åpent når kjernen tilbyr kravet, varselet eller svaret på forespørselen. */
+  const fristskjemaTilbudt = $derived(
+    kjernesak.handlinger.some(
+      (n) =>
+        n === 'krav:frist' ||
+        n === 'sende_varsel:frist' ||
+        n === 'varsle:frist' ||
+        n.startsWith('svare_paa_foresporsel:')
+    )
+  );
 
   /**
    * Skjemaet for korrigeringen vises når kjernen tilbyr den og opplysningen står i et brev i saken
@@ -551,13 +578,20 @@
           onvedsiden={(v) => (vedSiden = v)}
           onbrevkontroll={(k) => tilKravkontroll('vederlag', k)}
         />
-      {:else if arbeid.art === 'fristkrav' && valgt === 'frist' && kjernesak.handlinger.includes('krav:frist')}
+      {:else if arbeid.art === 'fristkrav' && valgt === 'frist' && fristskjemaTilbudt}
         <Fristkrav
           {kjernesak}
           {u}
           bind:valg={fristkravvalg}
           onforkast={() => forkastKravet('frist')}
           onbrevkontroll={(k) => tilKravkontroll('frist', k)}
+          onregistrert={async () => {
+            fristkravvalg = null;
+            arbeid = { art: 'les' };
+            melding = { tekst: FRISTKRAV.registrert, art: 'sendt' };
+            await tick();
+            meldingen?.focus();
+          }}
         />
       {:else if arbeid.art === 'svar' && valgt === 'vederlag' && kjernesak.handlinger.includes('svare:vederlag')}
         <Vederlagssvar
@@ -594,7 +628,7 @@
             skjemaene={skjemanoeklene}
             onvelg={(n) => {
               melding = null;
-              if (Object.hasOwn(skjemaene, n)) skjemaene[n]();
+              aapne(n);
             }}
             onakseptbrev={(k) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
