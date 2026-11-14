@@ -290,3 +290,16 @@ def test_tabell_med_utfall_utenfor_seksjonen_kontrolleres_ikke():
         "\n## Verifikasjon\n\n| Feilklasse | Utfall |\n| --- | --- |\n| F1 | |\n"
     )
     assert _kontroller(tekst).feil == []
+
+
+@pytest.mark.parametrize(
+    "utfall", ["Rettet i beskrivelsen", "Rettet i denne beskrivelsen: under «Eierskap»"]
+)
+def test_retting_i_beskrivelsen_trenger_ingen_commit(utfall):
+    assert _kontroller(_funn(utfall)).feil == []
+
+
+def test_rettet_med_annen_tekst_uten_commit_avvises_fortsatt():
+    assert "«rettet» uten commit" in " ".join(
+        _kontroller(_funn("Rettet: radioknapper")).feil
+    )

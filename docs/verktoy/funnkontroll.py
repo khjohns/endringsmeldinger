@@ -8,7 +8,8 @@ Kjøres fra repo-roten:
 Utfallene skriptet godtar, er de stoppregelen for funn i leveranseskillen
 («Review og funn») tillater. En rad i «Funn og utfall» holder når utfallet er
 
-- rettet, med en commit som finnes i repoet;
+- rettet, med en commit som finnes i repoet, eller «rettet i beskrivelsen» når rettingen
+  står i PR-beskrivelsen selv;
 - avvist, med en begrunnelse etter ordet;
 - ført videre, med en henvisning til et issue eller en kommentar som finnes. Står
   det «krav i», må henvisningen være lenken til kommentaren;
@@ -62,6 +63,7 @@ LUKKER = re.compile(
     r"(\d+)",
     re.IGNORECASE,
 )
+I_BESKRIVELSEN = re.compile(r"\brettet i (denne |pr-)?beskrivelsen\b")
 IKKE_RETTET = re.compile(
     r"ikke rettet|prøvd rettet|tilbakeført|satt tilbake|rettes\b", re.IGNORECASE
 )
@@ -548,6 +550,8 @@ def _kontroller_funnrad(
         godkjent = True
 
     if rettet:
+        if not shaer and I_BESKRIVELSEN.search(liten):
+            return
         if not shaer:
             if not godkjent:
                 resultat.feil.append(_rad_feil(rad, "«rettet» uten commit"))
