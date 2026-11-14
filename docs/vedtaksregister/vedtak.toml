@@ -4234,6 +4234,59 @@ tekst = '''
 VS-U67 står. Skjemaene er skilt, men totalentreprenøren kan legge varselet om fristforlengelse fra skjemaet for fristen til et utkast med varsler fra skjemaet for vederlaget, så de sendes som ett brev. Forhold: følger VS-U67 og MM-U10.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "KA-U83"
+dato = 2026-11-14
+hvem = "oppdragsgiver"
+kilde = ["#1823", "#502"]
+sporsmal = '''
+Spørsmål 5 ordrett slik det står i [kommentaren i #502](https://github.com/khjohns/endringsmeldinger/issues/502#issuecomment-6883744258), stilt og besvart 14.11:
+
+**5. Hva betyr det at totalentreprenøren trekker kravet om særskilt vederlagsjustering etter punkt 34.1.3 annet ledd i en ny versjon av vederlagskravet?**
+
+Vedtakene sier ikke om den særskilte vederlagsjusteringen er en kravpost. OV-U95 punkt 13 og 19 skiller den fra kravpostene («egne poster»), mens KA-U56 (OV-U95 punkt 21) og KA-U75 sier «kravpost». KA-U56 krever at en kravpost trekkes uttrykkelig, og etter KA-U75 er trekket ikke et avkall, og posten kan tas med igjen. Bestillingen for kravskjemaet (BF-14, avvik D-4) leser KA-U56 som om den gjelder også den særskilte posten. Skissen v4 sier at «trekket er et avkall», som er foreldet etter KA-U75. I dag kan posten endres, men ikke fjernes, i en ny versjon (arbeidsvalget svar 3 A i #1663).
+
+- **A (anbefalt, valgt):** Totalentreprenøren trekker den særskilte vederlagsjusteringen uttrykkelig i en ny kravversjon, og brevet sier at han trekker kravet, ikke at trekket er et avkall. Kravet kan tas med igjen i en senere kravversjon. En ny kravversjon uten posten og uten trekk tas ikke imot. Er posten den eneste i kravet, kan den ikke trekkes alene: totalentreprenøren trekker da vederlagskravet etter KA-U22, og KA-U51 punkt 11 gjelder. Varselet etter punkt 34.1.3 tredje ledd står som det ble sendt. Forhold: utvider OV-U95 punkt 21 (KA-U56) og KA-U75 til den særskilte vederlagsjusteringen, og presiserer KA-U75 for den eneste posten. Kostnaden for byggherren: kravet kan komme tilbake, og vil han hevde at trekket var et avkall, må han gjøre det gjeldende i begrunnelsen (KA-U75).
+- B: Trekket er et avkall på kravet i posten. Posten kan ikke tas med igjen (som KA-U51 punkt 11), og skjemaet sier det før trekket sendes. Forhold: utvider KA-U22 til den særskilte vederlagsjusteringen og avgrenser KA-U75. Kostnaden for totalentreprenøren: kravet er tapt for godt, mens en kravpost kan tas med igjen. At posten har eget varsel, skiller den ikke fra kravposter med varsel etter punkt 34.3.3 eller 34.4 (VS-U48).
+- C: Posten kan bare tas ut ved at hele vederlagskravet trekkes, med avkall (KA-U22). Kostnaden: totalentreprenøren må gi avkall på hele vederlaget eller la posten stå med 1 kr, og byggherren må svare på et krav som ikke er ment. Strider mot forutsetningen i svar 3 A i #1663.
+
+Styrer: brevet ved trekket, hva løsningen avviser i en ny versjon, og om posten kan komme tilbake.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 14.11, ordrett ([#502, 6883744258](https://github.com/khjohns/endringsmeldinger/issues/502#issuecomment-6883744258)): «Som anbefalt på alle spørsmålene». Det betyr 1 A, 2 A, 3 A, 4 B, 5 A og 6 A.'''
+forhold = [
+  { art = "utvider", vedtak = "ov-u95" },
+  { art = "utvider", vedtak = "ka-u56" },
+  { art = "utvider", vedtak = "ka-u75" },
+  { art = "presiserer", vedtak = "ka-u75" },
+]
+folge = '''
+Forholdet står i alternativ A: utvider OV-U95 punkt 21 (KA-U56) og KA-U75 til den særskilte vederlagsjusteringen, og presiserer KA-U75 for den eneste posten. Bygges i #1823.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Totalentreprenøren trekker den særskilte vederlagsjusteringen uttrykkelig i en ny kravversjon, og brevet sier at han trekker kravet, ikke at trekket er et avkall. Kravet kan tas med igjen i en senere kravversjon. En ny kravversjon uten posten og uten trekk tas ikke imot. Er posten den eneste i kravet, kan den ikke trekkes alene: totalentreprenøren trekker da vederlagskravet etter KA-U22, og KA-U51 punkt 11 gjelder. Varselet etter punkt 34.1.3 tredje ledd står som det ble sendt. Forhold: utvider OV-U95 punkt 21 (KA-U56) og KA-U75 til den særskilte vederlagsjusteringen, og presiserer KA-U75 for den eneste posten. Kostnaden for byggherren: kravet kan komme tilbake, og vil han hevde at trekket var et avkall, må han gjøre det gjeldende i begrunnelsen (KA-U75).'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Trekket er et avkall på kravet i posten. Posten kan ikke tas med igjen (som KA-U51 punkt 11), og skjemaet sier det før trekket sendes. Forhold: utvider KA-U22 til den særskilte vederlagsjusteringen og avgrenser KA-U75. Kostnaden for totalentreprenøren: kravet er tapt for godt, mens en kravpost kan tas med igjen. At posten har eget varsel, skiller den ikke fra kravposter med varsel etter punkt 34.3.3 eller 34.4 (VS-U48).'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Posten kan bare tas ut ved at hele vederlagskravet trekkes, med avkall (KA-U22). Kostnaden: totalentreprenøren må gi avkall på hele vederlaget eller la posten stå med 1 kr, og byggherren må svare på et krav som ikke er ment. Strider mot forutsetningen i svar 3 A i #1663.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "egne poster"
+utdrag = true
+
 [[gruppe]]
 tittel = "Svar og standpunkt"
 etter = '''
@@ -6228,6 +6281,187 @@ tekst = "Vilkår og forbehold skrives i begrunnelsen for punktet de gjelder, ell
 [[gruppe.vedtak.sitat]]
 kilde = "hovedplanen"
 tekst = "Vilkår, forbehold og andre betingelser skriver parten i begrunnelsen eller i et innlegg (MM-U33 steg 2 og 3)."
+
+[[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["hf-u29"]
+id = "HF-U30"
+dato = 2026-11-14
+hvem = "oppdragsgiver"
+kilde = ["#502"]
+sporsmal = '''
+Spørsmål 1 ordrett slik det står i [kommentaren i #502](https://github.com/khjohns/endringsmeldinger/issues/502#issuecomment-6883744258), stilt og besvart 14.11, med den felles bakgrunnen for spørsmål 1–4:
+
+Felles bakgrunn: samlevedtaket for revisjon, versjon 2 (HF-U29), punkt 8: når byggherren i et nytt svar senker dager eller beløp han har godkjent, viser løsningen det tidligere svaret, og for frist og enhetspriser punkt 33.7 annet ledd eller punkt 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen (VS-U2). Spørsmål 1–4 avgjør hvor bredt punkt 8 gjelder.
+
+**1. Gjelder punkt 8 når byggherren svarer på en ny versjon av kravet?**
+
+HF-U29 punkt 1 gjelder et nytt svar «på en kravversjon byggherren alt har svart på». KA-49 (avklart tolkning) sier at et nytt svar på en ny kravversjon ikke er en revisjon. Punkt 8 sier det ikke uttrykkelig.
+
+- **A (anbefalt, valgt):** Punkt 8 gjelder et nytt svar på samme kravversjon. Svarer byggherren på en ny kravversjon, sammenlikner løsningen ikke med svaret på den tidligere versjonen. Forhold: presiserer HF-U29 punkt 8.
+- B: Punkt 8 gjelder også svaret på en ny kravversjon. Det sammenliknes med byggherrens siste svar på den tidligere versjonen, kravpost for kravpost og frist for frist. En post som er tatt ut, sammenliknes ikke, og en ny post har ikke noe å sammenliknes med. Forhold: utvider HF-U29 punkt 8, og KA-49 må rettes.
+
+Anbefaling: A. Med en ny kravversjon har totalentreprenøren selv endret kravet, og et lavere beløp i svaret kan speile et lavere krav. Kontrakten gir ingen regel for hva som er en tilsvarende senkning. Styrer: om visningen bare sammenlikner svar på samme kravversjon.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 14.11, ordrett ([#502, 6883744258](https://github.com/khjohns/endringsmeldinger/issues/502#issuecomment-6883744258)): «Som anbefalt på alle spørsmålene». Det betyr 1 A, 2 A, 3 A, 4 B, 5 A og 6 A.'''
+forhold = [
+  { art = "presiserer", vedtak = "hf-u29" },
+]
+folge = '''
+Bygges i #502.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Punkt 8 gjelder et nytt svar på samme kravversjon. Svarer byggherren på en ny kravversjon, sammenlikner løsningen ikke med svaret på den tidligere versjonen. Forhold: presiserer HF-U29 punkt 8.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Punkt 8 gjelder også svaret på en ny kravversjon. Det sammenliknes med byggherrens siste svar på den tidligere versjonen, kravpost for kravpost og frist for frist. En post som er tatt ut, sammenliknes ikke, og en ny post har ikke noe å sammenliknes med. Forhold: utvider HF-U29 punkt 8, og KA-49 må rettes.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "på en kravversjon byggherren alt har svart på"
+utdrag = true
+
+[[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["hf-u29"]
+id = "HF-U31"
+dato = 2026-11-14
+hvem = "oppdragsgiver"
+kilde = ["#502"]
+sporsmal = '''
+Spørsmål 2 ordrett slik det står i [kommentaren i #502](https://github.com/khjohns/endringsmeldinger/issues/502#issuecomment-6883744258), stilt og besvart 14.11, med den felles bakgrunnen for spørsmål 1–4:
+
+Felles bakgrunn: samlevedtaket for revisjon, versjon 2 (HF-U29), punkt 8: når byggherren i et nytt svar senker dager eller beløp han har godkjent, viser løsningen det tidligere svaret, og for frist og enhetspriser punkt 33.7 annet ledd eller punkt 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen (VS-U2). Spørsmål 1–4 avgjør hvor bredt punkt 8 gjelder.
+
+**2. Hva sammenliknes?**
+
+Punkt 8 sier «det tidligere svaret», og HF-U29 punkt 2 sier at det nye svaret erstatter det tidligere. Ingen av dem sier om summen eller hver kravpost og hver frist sammenliknes, eller om det er det forrige svaret eller det høyeste byggherren har godkjent. Eksempel: svar 1 godkjenner 300 000 kr, svar 2 godkjenner 250 000 kr og svar 3 godkjenner 280 000 kr.
+
+- **A (anbefalt, valgt):** Hver kravpost og hver frist sammenliknes for seg med svaret det nye svaret erstatter. Forhold: presiserer HF-U29 punkt 8.
+- B: Hver kravpost og hver frist sammenliknes for seg med det høyeste byggherren har godkjent i et svar på kravversjonen, og løsningen viser svaret med det høyeste godkjente. Forhold: utvider HF-U29 punkt 8.
+- C: Det samlede godkjente beløpet sammenliknes med svaret som erstattes. Dagene sammenliknes for hver frist, fordi dager for ulike frister ikke kan legges sammen. Forhold: snevrer inn HF-U29 punkt 8, der byggherren godkjenner beløpet per kravpost (OV-U95 punkt 23).
+
+Anbefaling: A. Punkt 8 og punkt 2 peker på svaret som erstattes. Byggherren godkjenner beløpet for hver kravpost (OV-U95 punkt 23, VS-U57) og dagene for hver frist (KA-U79), og kravpostene har faste betegnelser gjennom versjonene (KA-U53). En post som senkes, blir ikke usynlig fordi en annen heves. Styrer: hvilke tall som sammenliknes. I eksempelet viser A senkningen bare ved svar 2, B også ved svar 3.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 14.11, ordrett ([#502, 6883744258](https://github.com/khjohns/endringsmeldinger/issues/502#issuecomment-6883744258)): «Som anbefalt på alle spørsmålene». Det betyr 1 A, 2 A, 3 A, 4 B, 5 A og 6 A.'''
+forhold = [
+  { art = "presiserer", vedtak = "hf-u29" },
+]
+folge = '''
+Bygges i #502.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Hver kravpost og hver frist sammenliknes for seg med svaret det nye svaret erstatter. Forhold: presiserer HF-U29 punkt 8.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Hver kravpost og hver frist sammenliknes for seg med det høyeste byggherren har godkjent i et svar på kravversjonen, og løsningen viser svaret med det høyeste godkjente. Forhold: utvider HF-U29 punkt 8.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Det samlede godkjente beløpet sammenliknes med svaret som erstattes. Dagene sammenliknes for hver frist, fordi dager for ulike frister ikke kan legges sammen. Forhold: snevrer inn HF-U29 punkt 8, der byggherren godkjenner beløpet per kravpost (OV-U95 punkt 23).'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "det tidligere svaret"
+utdrag = true
+
+[[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["hf-u29"]
+id = "HF-U32"
+dato = 2026-11-14
+hvem = "oppdragsgiver"
+kilde = ["#502"]
+sporsmal = '''
+Spørsmål 3 ordrett slik det står i [kommentaren i #502](https://github.com/khjohns/endringsmeldinger/issues/502#issuecomment-6883744258), stilt og besvart 14.11, med den felles bakgrunnen for spørsmål 1–4:
+
+Felles bakgrunn: samlevedtaket for revisjon, versjon 2 (HF-U29), punkt 8: når byggherren i et nytt svar senker dager eller beløp han har godkjent, viser løsningen det tidligere svaret, og for frist og enhetspriser punkt 33.7 annet ledd eller punkt 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen (VS-U2). Spørsmål 1–4 avgjør hvor bredt punkt 8 gjelder.
+
+**3. Er det en senkning når en godkjenning flyttes fra prinsipalt til subsidiært?**
+
+Kommentaren 26.10 i #502 viste at dette ikke var avgjort. Har byggherren tidligere sagt at varselet kom i tide, gjelder MM-U34 punkt 6 og HF-U29 punkt 11, og det tilfellet er ikke med her. Eksempel: byggherren godtok beregningsregelen og godkjente 300 000 kr prinsipalt. I et nytt svar godtar han ikke lenger regelen, og de 300 000 kr står bare subsidiært.
+
+- **A (anbefalt, valgt):** Prinsipalt og subsidiært sammenliknes hver for seg. Står beløp eller dager byggherren godkjente prinsipalt, nå bare subsidiært, er det en senkning etter punkt 8. Forhold: utvider HF-U29 punkt 8.
+- B: Bare beløpet og dagene byggherren godkjenner, uansett om prinsipalt eller subsidiært, sammenliknes. Forhold: presiserer HF-U29 punkt 8.
+
+Anbefaling: A. Fristen og bestemmelsen (VS-U2) er mest verdt når byggherren kommer med en ny innsigelse senere. Løsningen viser bare og avgjør ikke. Styrer: om en ny innsigelse som ikke endrer beløpet, gir visningen etter punkt 8.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 14.11, ordrett ([#502, 6883744258](https://github.com/khjohns/endringsmeldinger/issues/502#issuecomment-6883744258)): «Som anbefalt på alle spørsmålene». Det betyr 1 A, 2 A, 3 A, 4 B, 5 A og 6 A.'''
+forhold = [
+  { art = "utvider", vedtak = "hf-u29" },
+]
+folge = '''
+Bygges i #502.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Prinsipalt og subsidiært sammenliknes hver for seg. Står beløp eller dager byggherren godkjente prinsipalt, nå bare subsidiært, er det en senkning etter punkt 8. Forhold: utvider HF-U29 punkt 8.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Bare beløpet og dagene byggherren godkjenner, uansett om prinsipalt eller subsidiært, sammenliknes. Forhold: presiserer HF-U29 punkt 8.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["hf-u29"]
+id = "HF-U33"
+dato = 2026-11-14
+hvem = "oppdragsgiver"
+kilde = ["#502"]
+sporsmal = '''
+Spørsmål 4 ordrett slik det står i [kommentaren i #502](https://github.com/khjohns/endringsmeldinger/issues/502#issuecomment-6883744258), stilt og besvart 14.11, med den felles bakgrunnen for spørsmål 1–4:
+
+Felles bakgrunn: samlevedtaket for revisjon, versjon 2 (HF-U29), punkt 8: når byggherren i et nytt svar senker dager eller beløp han har godkjent, viser løsningen det tidligere svaret, og for frist og enhetspriser punkt 33.7 annet ledd eller punkt 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen (VS-U2). Spørsmål 1–4 avgjør hvor bredt punkt 8 gjelder.
+
+**4. Når vises punkt 34.3.3 annet ledd for en post med enhetspriser? (henger sammen med spørsmål 3)**
+
+Byggherrens standpunkt til justeringen av enhetsprisene etter punkt 34.3.2 er eget for hver kravpost og godkjenner ikke priser, mengder eller beløp (VS-U57). En post med enhetspriser har bare et anslag, og byggherren godkjenner ikke noe beløp for den (OV-U95 punkt 5 og 19), så et godkjent beløp som kan senkes, finnes knapt. Punkt 34.3.3 annet ledd gjelder svaret på varselet om justering: den som ikke svarer i tide, mister innsigelsene.
+
+- A: Punkt 34.3.3 annet ledd vises når byggherren senker det godkjente beløpet for en kravpost med enhetspriser, etter sammenlikningen i spørsmål 2 og 3. Forhold: presiserer HF-U29 punkt 8.
+- **B (anbefalt, valgt):** Som A, og i tillegg når byggherren i et nytt svar ikke lenger godtar justeringen av enhetsprisene etter punkt 34.3.2 for en kravpost. Forhold: utvider HF-U29 punkt 8.
+
+Anbefaling: B. En innsigelse mot justeringen som først kommer i et nytt svar, kan rammes av svarfristen i punkt 34.3.3 annet ledd, og med A vises bestemmelsen nesten aldri. Styrer: om et skifte i justeringen gir visningen med punkt 34.3.3 annet ledd.'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 14.11, ordrett ([#502, 6883744258](https://github.com/khjohns/endringsmeldinger/issues/502#issuecomment-6883744258)): «Som anbefalt på alle spørsmålene». Det betyr 1 A, 2 A, 3 A, 4 B, 5 A og 6 A.'''
+forhold = [
+  { art = "utvider", vedtak = "hf-u29" },
+]
+folge = '''
+Bygges i #502.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Punkt 34.3.3 annet ledd vises når byggherren senker det godkjente beløpet for en kravpost med enhetspriser, etter sammenlikningen i spørsmål 2 og 3. Forhold: presiserer HF-U29 punkt 8.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Som A, og i tillegg når byggherren i et nytt svar ikke lenger godtar justeringen av enhetsprisene etter punkt 34.3.2 for en kravpost. Forhold: utvider HF-U29 punkt 8.'''
+anbefalt = true
 
 [[gruppe]]
 tittel = "Aksept og enighet"
@@ -23685,6 +23919,53 @@ forkastet = true
 navn = "4 B"
 tekst = '''
 Som A, men VS-U59 og VS-U60 samles ikke; punkt 10 viser til dem.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = "at standpunktet står rett etter setningen om at kravet erstatter et tidligere krav"
+id = "LV-U75"
+dato = 2026-11-14
+hvem = "oppdragsgiver"
+kilde = ["#1823", "#502"]
+sporsmal = '''
+Spørsmål 6 ordrett slik det står i [kommentaren i #502](https://github.com/khjohns/endringsmeldinger/issues/502#issuecomment-6883744258), stilt og besvart 14.11:
+
+**6. Hvor står totalentreprenørens standpunkt til byggherrens svar når han sender en ny versjon av kravet om vederlagsjustering eller fristforlengelse?**
+
+KA-U52 punkt 4, annen setning (med MM-U34 punkt 1), og LV-U52 sier at når byggherren har svart på versjonen som erstattes, legger brevet til en setning om at totalentreprenørens standpunkt til svaret fremgår av begrunnelsen. Setningen er ikke bygget. LV-U56 tok den bort for påberopelsen av forholdet, men der har standpunktet ikke eget felt. Skissene for vederlagskravet (v4) og fristkravet har et eget, valgfritt felt for standpunktet, rett etter setningen om at kravet erstatter et tidligere, først i brevet. At skissen er godkjent, gjelder plasseringen, ikke ordlyden (BF-14).
+
+- **A (anbefalt, valgt):** Standpunktet er en valgfri tekst rett etter setningen om at kravet erstatter et tidligere krav. Brevet har ingen henvisningssetning, og byggherrens svar står under Deres ref. (LV-U50). Forhold: endrer KA-U52 punkt 4, annen setning (med MM-U34 punkt 1), og opphever det som står igjen av LV-U52 etter LV-U53 og LV-U56. Kostnaden for byggherren: skriver totalentreprenøren ikke noe standpunkt, ser han ikke av brevet om svaret bestrides.
+- B: LV-U52 står. Har byggherren svart på versjonen som erstattes, har brevet henvisningssetningen, og standpunktet skrives under «Begrunnelse», uten eget felt. Forhold: i tråd med KA-U52 punkt 4 og LV-U52. Snur svar 1 A i #1663 og punkt 4 i #1823. Uten skrevet standpunkt sier brevet noe som ikke står der (LV-U3).
+- C: Henvisningssetningen står bare når totalentreprenøren har skrevet et standpunkt, og viser til der det står. Forhold: snevrer inn LV-U52 og KA-U52 punkt 4. Brevet nevner da svaret to ganger.
+
+Styrer: brevet for en ny kravversjon i begge spor, om skjemaet har eget felt, og hva #1379 bygger.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 14.11, ordrett ([#502, 6883744258](https://github.com/khjohns/endringsmeldinger/issues/502#issuecomment-6883744258)): «Som anbefalt på alle spørsmålene». Det betyr 1 A, 2 A, 3 A, 4 B, 5 A og 6 A.'''
+forhold = [
+  { art = "endrer", vedtak = "ka-u52" },
+  { art = "endrer", vedtak = "lv-u52" },
+]
+folge = '''
+Forholdet står i alternativ A: endrer KA-U52 punkt 4, annen setning (med MM-U34 punkt 1), og opphever det som står igjen av LV-U52 etter LV-U53 og LV-U56. MM-U34 er samlet i KA-U52. Forholdet til LV-U52 er ført som «endrer», fordi LV-U53 og LV-U56 endrer LV-U52 og forløpene viser til den. Det kan bli «opphever» når de er rettet. Bygges i #1823.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Standpunktet er en valgfri tekst rett etter setningen om at kravet erstatter et tidligere krav. Brevet har ingen henvisningssetning, og byggherrens svar står under Deres ref. (LV-U50). Forhold: endrer KA-U52 punkt 4, annen setning (med MM-U34 punkt 1), og opphever det som står igjen av LV-U52 etter LV-U53 og LV-U56. Kostnaden for byggherren: skriver totalentreprenøren ikke noe standpunkt, ser han ikke av brevet om svaret bestrides.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+LV-U52 står. Har byggherren svart på versjonen som erstattes, har brevet henvisningssetningen, og standpunktet skrives under «Begrunnelse», uten eget felt. Forhold: i tråd med KA-U52 punkt 4 og LV-U52. Snur svar 1 A i #1663 og punkt 4 i #1823. Uten skrevet standpunkt sier brevet noe som ikke står der (LV-U3).'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Henvisningssetningen står bare når totalentreprenøren har skrevet et standpunkt, og viser til der det står. Forhold: snevrer inn LV-U52 og KA-U52 punkt 4. Brevet nevner da svaret to ganger.'''
 forkastet = true
 
 [[gruppe]]
