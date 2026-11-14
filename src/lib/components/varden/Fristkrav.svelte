@@ -162,19 +162,29 @@
   p: Fristpostvalg,
   navn: 'nummer' | 'navn' | 'dager',
   etikett: string,
-  hjelp: string | null
+  hjelp: string | null,
+  etter: string | null = null
 )}
   {@const fid = id(`${navn}-${p.noekkel}`)}
   {@const f = feil(`${navn}-${p.noekkel}`)}
-  <div class="tallfelt" class:smalt={navn !== 'navn'}>
+  <div class="tallfelt">
     <label for={fid}>{etikett}</label>
     {#if hjelp}<span class="dempet" id={`${fid}-hjelp`}>{hjelp}</span>{/if}
-    <span class="inndata" class:ugyldig={f} class:tekst={navn !== 'dager'}>
+    <span
+      class="inndata"
+      class:ugyldig={f}
+      class:tekst={navn === 'navn'}
+      class:kort={navn === 'nummer'}
+    >
       <input
         id={fid}
         inputmode={navn === 'dager' ? 'numeric' : undefined}
         bind:value={p[navn]}
-        aria-describedby={[hjelp ? `${fid}-hjelp` : '', f ? `${fid}-feil` : '']
+        aria-describedby={[
+          hjelp ? `${fid}-hjelp` : '',
+          etter ? `${fid}-etter` : '',
+          f ? `${fid}-feil` : '',
+        ]
           .filter(Boolean)
           .join(' ') || undefined}
         aria-invalid={f ? 'true' : undefined}
@@ -182,6 +192,7 @@
       {#if navn === 'dager'}<span class="enhet" aria-hidden="true">dager</span>{/if}
     </span>
     {#if f}<p class="feilmelding" id={`${fid}-feil`}>{f}</p>{/if}
+    {#if etter}<p class="dempet liten" id={`${fid}-etter`}>{etter}</p>{/if}
   </div>
 {/snippet}
 
@@ -234,12 +245,16 @@
       {/if}
       {#if p.frist === 'annen'}
         <p class="dempet">{FRISTKRAV.ikkeRegistrertHjelp}</p>
-        <div class="rad">
-          {@render felt(p, 'nummer', FRISTKRAV.nummerEtikett, FRISTKRAV.nummerHjelp)}
-          {@render felt(p, 'navn', FRISTKRAV.navnEtikett, null)}
-        </div>
+        {@render felt(p, 'nummer', FRISTKRAV.nummerEtikett, FRISTKRAV.nummerHjelp)}
+        {@render felt(p, 'navn', FRISTKRAV.navnEtikett, null)}
       {/if}
-      {@render felt(p, 'dager', FRISTKRAV.dagerEtikett, FRISTKRAV.delAvArbeidene)}
+      {@render felt(
+        p,
+        'dager',
+        FRISTKRAV.dagerEtikett,
+        FRISTKRAV.kalenderdager,
+        FRISTKRAV.delAvArbeidene
+      )}
     {/if}
   </li>
 {/snippet}
@@ -306,7 +321,13 @@
           <h3 id={id('sp-begrunnelse')}>{FRISTKRAV.begrunnelseTittel}</h3>
           <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 33.5 og 33.6.1</span>
         </div>
-        <span class="dempet" id={id('begrunnelse-hjelp')}>{FRISTKRAV.begrunnelseHjelp}</span>
+        <div class="dempet" id={id('begrunnelse-hjelp')}>
+          <p>{FRISTKRAV.begrunnelseHjelp}</p>
+          <ul class="hensyn">
+            {#each FRISTKRAV.hensyn as h (h)}<li>{h}</li>{/each}
+          </ul>
+          <p>{FRISTKRAV.fremdriftsplan}</p>
+        </div>
         <textarea
           id={id('begrunnelse')}
           rows="6"
@@ -416,15 +437,6 @@
     color: var(--ink-2);
     font-size: 12px;
   }
-  .rad {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-4);
-  }
-  .rad > :last-child {
-    flex: 1;
-    min-width: 200px;
-  }
   .tallfelt {
     display: flex;
     flex-direction: column;
@@ -450,6 +462,9 @@
   .inndata.tekst {
     width: 100%;
   }
+  .inndata.kort {
+    width: 140px;
+  }
   .inndata input {
     flex: 1;
     min-width: 0;
@@ -461,7 +476,7 @@
     background: var(--surface);
     outline: none;
   }
-  .inndata:not(.tekst) input {
+  .inndata:not(.tekst, .kort) input {
     text-align: right;
     font-variant-numeric: tabular-nums;
   }
@@ -518,6 +533,13 @@
   .dempet {
     color: var(--ink-3);
     font-size: 14px;
+  }
+  .liten {
+    font-size: 13px;
+  }
+  .hensyn {
+    padding-left: var(--spacing-5);
+    list-style: disc;
   }
   .handling {
     display: flex;

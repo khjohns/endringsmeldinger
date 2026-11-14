@@ -67,13 +67,13 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
   it('en frist fra fristtabellen og en som ikke er registrert gir én frist hver i kommandoen, med dagene for hver (KA-U74, KA-U79)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
     await fireEvent.click(screen.getByRole('radio', { name: '5 Mekanisk ferdigstillelse' }));
-    await skriv(screen.getByLabelText('Dager'), '25');
+    await skriv(screen.getByLabelText('Dagene du krever'), '25');
     await fireEvent.click(screen.getByRole('button', { name: 'Legg til frist' }));
     await fireEvent.click(
       screen.getAllByRole('radio', { name: 'En frist som ikke er registrert' })[1]!
     );
     await skriv(screen.getByLabelText('Navnet i kontrakten'), 'Sluttfristen');
-    await skriv(screen.getAllByLabelText('Dager')[1]!, '10');
+    await skriv(screen.getAllByLabelText('Dagene du krever')[1]!, '10');
     await skriv(
       screen.getByRole('textbox', { name: 'Begrunnelse' }),
       'Pelingen tar fire uker lenger.'
@@ -99,7 +99,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
   it('et krav på 0 dager er ikke et krav, og feltet sier det (D-1, KA-U8)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
     await fireEvent.click(screen.getByRole('radio', { name: 'Overtakelse' }));
-    await skriv(screen.getByLabelText('Dager'), '0');
+    await skriv(screen.getByLabelText('Dagene du krever'), '0');
     await skriv(screen.getByRole('textbox', { name: 'Begrunnelse' }), 'Begrunnelse.');
     await seBrevet();
     expect(sendt).toHaveLength(0);
@@ -124,7 +124,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     expect(screen.getByText(/Varselet ble sendt i brev/)).toBeInTheDocument();
     await fireEvent.click(screen.getByRole('button', { name: 'Trekk Sluttfristen' }));
     expect(screen.getByText('Sluttfristen: trekkes')).toBeInTheDocument();
-    await skriv(screen.getByLabelText('Dager'), '30');
+    await skriv(screen.getByLabelText('Dagene du krever'), '30');
     await skriv(
       screen.getByRole('textbox', { name: 'Begrunnelse' }),
       'Pelingen tar seks uker lenger.'

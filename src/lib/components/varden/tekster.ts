@@ -1359,7 +1359,8 @@ export const FRISTKRAV = {
   nummerEtikett: 'Nummer i kontrakten',
   nummerHjelp: 'Valgfritt.',
   navnEtikett: 'Navnet i kontrakten',
-  dagerEtikett: 'Dager',
+  dagerEtikett: 'Dagene du krever',
+  kalenderdager: 'Kalenderdager.',
   frist: (n: number) => `Frist ${n}`,
   nyIVersjonen: 'Ny i denne versjonen',
   trekkes: 'Trekkes',
@@ -1375,7 +1376,13 @@ export const FRISTKRAV = {
   // 3. Begrunnelsen.
   begrunnelseTittel: 'Begrunnelse',
   begrunnelseHjelp:
-    'Kravet skal begrunnes. Fristforlengelsen skal svare til virkningen forholdet har hatt på fremdriften. Det tas blant annet hensyn til nødvendig avbrudd, forskyvning av arbeidet til en ugunstigere eller gunstigere årstid, og den samlede virkningen av tidligere varslede forhold. Vis gjerne til fremdriftsplanen med kritisk linje (Del II punkt 172).',
+    'Kravet skal begrunnes. Fristforlengelsen skal svare til virkningen forholdet har hatt på fremdriften. Det tas blant annet hensyn til',
+  hensyn: [
+    'nødvendig avbrudd',
+    'forskyvning av arbeidet til en ugunstigere eller gunstigere årstid',
+    'den samlede virkningen av tidligere varslede forhold.',
+  ],
+  fremdriftsplan: 'Vis gjerne til fremdriftsplanen med kritisk linje (Del II punkt 172).',
   // Panelet.
   punktene: 'Punktene',
   ingenFrister: 'Legg til en frist, så står dagene her.',
