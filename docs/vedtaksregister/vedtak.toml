@@ -23564,7 +23564,7 @@ valgt = "A"
 svar = '''
 Oppdragsgiver 14.11, ordrett, i orkestreringsøkta ([#1065](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6878556108)): «Ja til alle anbefalinger». Det betyr J1 A og T1 A.'''
 folge = '''
-Gjelder ved KA-U82. I tråd med LV-U71. Bygges i #1823, fristdelen først.'''
+Gjelder ved KA-U82. I tråd med LV-U71. Bygges i #1823.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
