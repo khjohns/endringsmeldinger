@@ -1334,3 +1334,69 @@ export const KRAVSKJEMA = {
     poster: (n: number) => `${n === 1 ? 'Én kravpost' : `${n} kravposter`} i vederlagsjusteringen`,
   },
 };
+
+/** TEs krav om fristforlengelse (G-3 i BF-20, prototypen `fristkrav-te.html#nytt-krav`). */
+export const FRISTKRAV = {
+  tittel: 'Krav om fristforlengelse',
+  til: 'Til byggherren (BH)',
+  nyVersjon: (krav: Brevref) => `Ny versjon av kravet i ${brevref(krav)}`,
+  // 1. Varselet.
+  varselTittel: 'Varselet om fristforlengelse',
+  varselHjelp:
+    'Varselet skal gis uten ugrunnet opphold etter at du ble eller burde ha blitt klar over forholdet, også før du kan angi dagene. Varsles det for sent, tapes kravet. Varselet gjelder hele kravet, med alle fristene.',
+  kravetErVarselet: 'Dette kravet er varselet.',
+  varseletSendt: (b: Brevref) => `Varselet ble sendt i ${brevref(b)}, ${kortDato(b.registrert)}.`,
+  // 2. Fristene.
+  fristerTittel: 'Fristforlengelse',
+  fristerHjelp:
+    'Angi dagene for hver frist kravet gjelder. Fristene står i kontrakten (Del II punkt E.1). Dagene gjelder hver frist for seg og legges ikke sammen. Dagene er kalenderdager (punkt 1.2).',
+  delAvArbeidene:
+    'Gjelder forlengelsen bare deler av arbeidene, beskriv det i begrunnelsen. Andelen av rigg og drift oppgis i posten for rigg og drift i vederlagskravet (Del II, tillegget til punkt 34.1.3).',
+  fristEtikett: 'Frist',
+  velgFrist: 'Velg en frist',
+  ikkeRegistrert: 'En frist som ikke er registrert',
+  ikkeRegistrertHjelp:
+    'Fristen står ikke i fristtabellen for prosjektet. Skriv nummeret og navnet kontrakten gir den. Ny dato vises ikke for en frist som ikke er registrert.',
+  nummerEtikett: 'Nummer i kontrakten',
+  nummerHjelp: 'Valgfritt.',
+  navnEtikett: 'Navnet i kontrakten',
+  dagerEtikett: 'Dager',
+  frist: (n: number) => `Frist ${n}`,
+  nyIVersjonen: 'Ny i denne versjonen',
+  trekkes: 'Trekkes',
+  trekk: (navn: string) => `Trekk ${navn}`,
+  trekkTekst: 'Trekk fristen',
+  angre: 'Angre',
+  angreTrekk: (navn: string) => `Angre trekket av ${navn}`,
+  fjern: 'Fjern',
+  fjernFrist: (navn: string) => `Fjern ${navn}`,
+  leggTil: 'Legg til frist',
+  trekkHjelp:
+    'En frist du tar ut, trekkes uttrykkelig. Brevet sier det, og fristen kan tas med igjen i en senere versjon.',
+  // 3. Begrunnelsen.
+  begrunnelseTittel: 'Begrunnelse',
+  begrunnelseHjelp:
+    'Kravet skal begrunnes. Fristforlengelsen skal svare til virkningen forholdet har hatt på fremdriften. Det tas blant annet hensyn til nødvendig avbrudd, forskyvning av arbeidet til en ugunstigere eller gunstigere årstid, og den samlede virkningen av tidligere varslede forhold. Vis gjerne til fremdriftsplanen med kritisk linje (Del II punkt 172).',
+  // Panelet.
+  punktene: 'Punktene',
+  ingenFrister: 'Legg til en frist, så står dagene her.',
+  linje: (navn: string, d: string) => `${navn}: ${d}`,
+  ikkeOppgitt: 'dagene er ikke oppgitt',
+  trukketLinje: (navn: string) => `${navn}: trekkes`,
+  utenNavn: 'Frist uten navn',
+  // Det som mangler.
+  manglerFrist: 'Velg fristen kravet gjelder.',
+  manglerNavn: 'Skriv navnet kontrakten gir fristen.',
+  manglerDager: 'Skriv dagene som et helt antall.',
+  nullDager: 'Et krav på 0 dager er ikke et krav. Skriv dagene du krever.',
+  manglerBegrunnelse: 'Skriv begrunnelsen for kravet.',
+  ingenFristerMangler: 'Kravet må gjelde minst én frist.',
+  forkastTekst:
+    'Fristene og begrunnelsen du har skrevet i utkastet, slettes. Det kan ikke gjøres om.',
+  kontroller: 'Kontroller og send',
+  sendTekst: 'Send til byggherren',
+  tilbakeTil: 'utkastet',
+  kvittering: 'Brevet er sendt til byggherren.',
+  kanIkkeLages: 'Brevet kan ikke lages ennå.',
+  detteSender: (n: number) => (n === 1 ? 'Kravet gjelder én frist' : `Kravet gjelder ${n} frister`),
+};

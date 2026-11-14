@@ -18,6 +18,8 @@
   import Fristsvar from './Fristsvar.svelte';
   import { tomtFristsvar } from './fristsvar';
   import Vederlagskrav from './Vederlagskrav.svelte';
+  import Fristkrav from './Fristkrav.svelte';
+  import type { Fristkravvalg } from './fristkrav';
   import type { Kravvalg } from './vederlagskrav';
   import Korrigering from './Korrigering.svelte';
   import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
@@ -36,6 +38,7 @@
     BREVKONTROLL,
     KORRIGERING,
     KRAVSKJEMA,
+    FRISTKRAV,
     MOTTATT,
     NYVERSJON,
     NYSAK,
@@ -107,6 +110,7 @@
     | { art: 'korrigering'; gjelder: string }
     | { art: 'nyversjon' }
     | { art: 'vederlagskrav' }
+    | { art: 'fristkrav' }
     | ({ art: 'kontroll' } & Kontroll);
 
   const SPORGRUPPENE: { id: string; etikett: string; spor: Spor[] }[] = [
@@ -119,6 +123,8 @@
   let svarvalg = $state(tomtSvar());
   // Kravet om vederlagsjustering står når TE går til brevkontrollen og tilbake (BF-14).
   let kravvalg = $state<Kravvalg | null>(null);
+  // Kravet om fristforlengelse står på samme måte (G-3 i BF-20).
+  let fristkravvalg = $state<Fristkravvalg | null>(null);
   // Datoen og forklaringen står når TE går til brevkontrollen og tilbake (U-3 i BF-02A).
   let korrigeringsvalg = $state<Korrigeringsvalg>({ dato: '', forklaring: '' });
   // Teksten i den nye versjonen står mens TE korrigerer datoen (U-2 i BF-10).
@@ -226,6 +232,7 @@
       korrigeringsvalg = { dato: '', forklaring: '' };
     if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'nyversjon') nyVersjonstekst = null;
     if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'vederlagskrav') kravvalg = null;
+    if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'fristkrav') fristkravvalg = null;
     arbeid = { art: 'les' };
     melding = { tekst: kvittering ?? MOTTATT.dittBrev, art: 'sendt' };
   }
@@ -278,6 +285,7 @@
     },
     'krav:forhold': () => (arbeid = { art: 'nyversjon' }),
     'krav:vederlag': () => (arbeid = { art: 'vederlagskrav' }),
+    'krav:frist': () => (arbeid = { art: 'fristkrav' }),
   };
   const skjemanoeklene = Object.keys(skjemaene);
 
@@ -300,6 +308,7 @@
 
   async function forkastKravet() {
     kravvalg = null;
+    fristkravvalg = null;
     arbeid = { art: 'les' };
     melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
     await tick();
@@ -540,6 +549,39 @@
               ],
               kvittering: KRAVSKJEMA.kvittering,
               tilbake: { art: 'vederlagskrav' },
+              utkastet: null,
+            };
+          }}
+        />
+      {:else if arbeid.art === 'fristkrav' && valgt === 'frist' && kjernesak.handlinger.includes('krav:frist')}
+        <Fristkrav
+          {kjernesak}
+          {u}
+          bind:valg={fristkravvalg}
+          onforkast={forkastKravet}
+          onbrevkontroll={(k) => {
+            const kravet = brev.find((b) => b.id === u.spor.frist.gjeldendeKrav?.dokument);
+            const svaret = brev.find((b) => b.id === u.spor.frist.gjeldendeSvar?.dokument);
+            melding = null;
+            arbeid = {
+              art: 'kontroll',
+              versjon: kjernesak.versjon,
+              ...k,
+              handling: FRISTKRAV.kontroller,
+              bareMottaker: true,
+              sendTekst: FRISTKRAV.sendTekst,
+              tilbakeTil: FRISTKRAV.tilbakeTil,
+              svarerPaa: null,
+              relasjoner: [
+                ...(kravet
+                  ? [{ hva: NYVERSJON.forrigeBrev, brev: KRAVSKJEMA.forrigeKravet(kravet) }]
+                  : []),
+                ...(svaret
+                  ? [{ hva: BREVKONTROLL.viserTil, brev: NYVERSJON.viserTilBrev(svaret) }]
+                  : []),
+              ],
+              kvittering: FRISTKRAV.kvittering,
+              tilbake: { art: 'fristkrav' },
               utkastet: null,
             };
           }}

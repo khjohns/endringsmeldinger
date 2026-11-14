@@ -40,20 +40,26 @@ export type Brev =
  * Sakens kode og kontraktsforkortelsen, lest fra serveren før forhåndsvisningen. Teksten
  * omtaler saken med koden og et tidligere brev med merkingen (S3 i #1497, LV-U53).
  */
-export type Saksmerking = Pick<Kontekst, 'sakskode' | 'kontraktsforkortelse'>;
+export type Saksmerking = Pick<Kontekst, 'sakskode' | 'kontraktsforkortelse'> & {
+  /**
+   * Fristtabellen for prosjektet (KA-U79, `KONTRAKTSFRISTRUTER` i `server/kontraktsfrister.ts`),
+   * som serveren lager teksten med. Uten den avviser forhåndsvisningen et krav om en registrert
+   * frist, som før en ny sak har fristtabellen.
+   */
+  kontraktsfrister?: Kontekst['kontraktsfrister'];
+};
 
 const stemplet = (sakId: string, part: Part, merking: Saksmerking): Kontekst => ({
   // Aktøren, tidspunktet og ID-ene settes av serveren og endrer ikke den låste teksten.
-  ...merking,
+  sakskode: merking.sakskode,
+  kontraktsforkortelse: merking.kontraktsforkortelse,
   sakId,
   aktoerId: '',
   part,
   teamId: null,
   tidspunkt: () => new Date(),
   nyId: () => crypto.randomUUID(),
-  // Nettleseren leser ikke fristtabellen ennå, så forhåndsvisningen av et krav om en registrert
-  // frist avvises til handlingen for fristkravet bygges (G-3 i BF-20).
-  kontraktsfrister: [],
+  kontraktsfrister: merking.kontraktsfrister ?? [],
 });
 
 export function brevFor(

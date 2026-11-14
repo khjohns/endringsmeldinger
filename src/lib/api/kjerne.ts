@@ -84,9 +84,32 @@ const somMerking = ({ kode, loepenummer, kontraktsforkortelse }: Sakskodesvar): 
  * Koden saken har, eller den sakens første brev vil få, og kontraktsforkortelsen, som
  * brevteksten trenger (LV-U46, LV-U53). Inngangen krever kontraktsside.
  */
-export const hentSaksmerking = (sakId: string, prosjektId: string) =>
-  apiFetch<Sakskodesvar>(`${sti(sakId)}/sakskode`, { headers: prosjekthode(prosjektId) }).then(
-    somMerking
+export async function hentSaksmerking(sakId: string, prosjektId: string): Promise<Saksmerking> {
+  const [kode, frister] = await Promise.all([
+    apiFetch<Sakskodesvar>(`${sti(sakId)}/sakskode`, { headers: prosjekthode(prosjektId) }),
+    hentKontraktsfrister(prosjektId),
+  ]);
+  return { ...somMerking(kode), kontraktsfrister: frister };
+}
+
+/** En frist i fristtabellen slik serveren gir den (`Fristlinje` i `server/kontraktsfrister.ts`). */
+interface Fristlinje {
+  frist_id: number;
+  nummer: string | null;
+  navn: string;
+  dagmulktbelagt: boolean;
+}
+
+/**
+ * Fristtabellen for prosjektet, som kravet om fristforlengelse viser til (KA-U79, GFK-U25), i
+ * formen kjernen lager teksten med.
+ */
+export const hentKontraktsfrister = (prosjektId: string) =>
+  apiFetch<{ frister: Fristlinje[] }>(
+    `/api/projects/${encodeURIComponent(prosjektId)}/kontraktsfrister`,
+    { headers: prosjekthode(prosjektId) }
+  ).then(({ frister }) =>
+    frister.map(({ frist_id, nummer, navn }) => ({ fristId: frist_id, nummer, navn }))
   );
 
 /** Som `hentSaksmerking`, for en ny sak: det neste nummeret for koden (LV-U46). Bare TE. */
