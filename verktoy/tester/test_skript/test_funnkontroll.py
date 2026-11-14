@@ -45,7 +45,7 @@ Del av #1940. Closes #1950.
 | Bryteren er ikke bygget | Vederlagssvaret har den ikke | #1940 |
 | Radioknapper | Felles komponent | Godkjent av oppdragsgiver 14.11 |
 | Hele raden er lenke | Tittelen er lenken | Godtatt av oppdragsgiver 12.11 (#1950) |
-| Datoen manglet | Rettet i `1fc3849e` | |
+| Datoen manglet | Kjernen ga ikke datoen | Rettet i `1fc3849e` |
 
 ## Åpne spørsmål
 
@@ -175,3 +175,81 @@ def test_rebaset_commit_finnes_i_github_men_ikke_i_git():
     finnes = funnkontroll.commitoppslag(oppslag, git=False)
     assert finnes("b48f815")
     assert not finnes("cb4d6f1")
+
+
+def _kontroller(tekst: str, oppslag: dict | None = None):
+    funnkontroll = last("funnkontroll")
+    filoppslag = funnkontroll.FilOppslag(oppslag or OPPSLAG)
+    return funnkontroll.kontroller(
+        tekst, 1960, filoppslag, funnkontroll.commitoppslag(filoppslag, git=False)
+    )
+
+
+def _funn(utfall: str, hode: str = "| Funn | Kilde | Utfall |") -> str:
+    kolonner = hode.count("|") - 1
+    rad = "| Funnet |" + " Kilde |" * (kolonner - 2) + f" {utfall} |"
+    return f"## Funn og utfall\n\n{hode}\n|{' --- |' * kolonner}\n{rad}\n"
+
+
+@pytest.mark.parametrize(
+    "utfall",
+    ["Spørsmål til oppdragsgiver om punkt 31.3", "Venter på oppdragsgiver, jf. § 33.8"],
+)
+def test_et_punkt_i_ns_8407_er_ikke_en_dato_for_svaret(utfall):
+    assert "«Åpne spørsmål» er tom" in " ".join(_kontroller(_funn(utfall)).feil)
+
+
+@pytest.mark.parametrize(
+    "lenke",
+    [
+        "https://github.com/khjohns/endringsmeldinger/commit/1fc3849e",
+        "https://github.com/khjohns/endringsmeldinger/pull/1960/commits/1fc3849e",
+    ],
+)
+def test_commit_som_lenke_godtas(lenke):
+    assert _kontroller(_funn(f"Rettet i {lenke}")).feil == []
+
+
+def test_rettet_avvik_med_commit_som_ikke_finnes_avvises():
+    tekst = "### Avvik fra prototypen\n\n| Avvik | Status |\n| --- | --- |\n| x | Rettet i `deadbee1` |\n"
+    assert "commiten deadbee1 finnes ikke" in " ".join(_kontroller(tekst).feil)
+
+
+@pytest.mark.parametrize(
+    "hode", ["| Nr | Funn | Utfall |", "| Funn | Kilde | **Utfall** |"]
+)
+def test_annet_tabellhode_under_funn_og_utfall_kontrolleres(hode):
+    assert "utfallet mangler" in " ".join(_kontroller(_funn("", hode)).feil)
+
+
+def test_tabell_under_funn_og_utfall_uten_kolonnen_utfall_avvises():
+    tekst = "## Funn og utfall\n\n| Funn | Kilde |\n| --- | --- |\n| a | b |\n"
+    assert "ingen kolonne «Utfall»" in " ".join(_kontroller(tekst).feil)
+
+
+def test_avvik_med_godkjenning_i_grunnlaget_holder():
+    tekst = "### Avvik fra prototypen\n\n| Avvik | Grunnlag | Forslag |\n| --- | --- | --- |\n| Panelet | Mønsteret fra #1940 (godkjent 14.11) | Beholdes |\n"
+    assert _kontroller(tekst).feil == []
+
+
+def test_avvik_med_henvisning_bare_i_grunnlaget_avvises():
+    tekst = "### Avvik fra prototypen\n\n| Avvik | Grunnlag | Forslag |\n| --- | --- | --- |\n| Bryteren | Som i #1940 | |\n"
+    assert "i siste kolonne" in " ".join(_kontroller(tekst).feil)
+
+
+def test_foering_i_lukket_issue_avvises():
+    oppslag = {**OPPSLAG, "lukkede": [1905]}
+    feil = _kontroller(_funn("Oppfølgingsissue #1905"), oppslag).feil
+    assert "#1905 er lukket" in " ".join(feil)
+
+
+def test_ingen_funn_som_tekst_under_funn_og_utfall_holder():
+    assert _kontroller("## Funn og utfall\n\nIngen funn.\n").feil == []
+
+
+def test_issue_lukket_med_lenke_er_ingen_foering():
+    tekst = (
+        "Closes https://github.com/khjohns/endringsmeldinger/issues/1905\n\n"
+        + _funn("Oppfølgingsissue #1905")
+    )
+    assert "lukkes av PR-en" in " ".join(_kontroller(tekst).feil)

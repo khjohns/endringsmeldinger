@@ -43,15 +43,21 @@ REPO = "khjohns/endringsmeldinger"
 OVERSKRIFT = re.compile(r"^(#{1,6})\s+(.*?)\s*#*\s*$")
 SKILLELINJE = re.compile(r"^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$")
 ISSUELENKE = re.compile(
-    r"https://github\.com/(?P<repo>[\w.-]+/[\w.-]+)/(?:issues|pull)/(?P<nr>\d+)"
+    r"https://github\.com/(?P<repo>[\w.-]+/[\w.-]+)/(?:issues|pull)/(?P<nr>\d+)(?!/commits?/)"
     r"(?:#issuecomment-(?P<kommentar>\d+))?[^\s)\]>]*"
 )
+COMMITLENKE = re.compile(r"https://github\.com/[\w./-]*?/commits?/([0-9a-f]{7,40})\b")
 MD_LENKE = re.compile(r"\[([^\]]*)\]\(\s*<?([^)\s>]*)>?\s*\)")
 KORT_HENVISNING = re.compile(r"(?<![\w/&#])#(\d+)\b")
 COMMIT = re.compile(r"(?<![\w/#-])([0-9a-f]{7,40})(?![\w-])")
-DATO = re.compile(r"\b\d{1,2}\.\s?\d{1,2}\.?(?:\d{2,4})?\b")
+DATO = re.compile(
+    r"(?<![\d.])(?<!punkt )(?<!pkt\. )(?<!§ )(?P<dag>\d{1,2})\.\s?(?P<mnd>\d{1,2})\b(?!\.\d)"
+)
 LUKKER = re.compile(
-    r"\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)", re.IGNORECASE
+    r"\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?):?\s+"
+    r"(?:khjohns/endringsmeldinger#|https://github\.com/khjohns/endringsmeldinger/issues/|#)"
+    r"(\d+)",
+    re.IGNORECASE,
 )
 IKKE_RETTET = re.compile(
     r"ikke rettet|prøvd rettet|tilbakeført|satt tilbake|rettes\b", re.IGNORECASE
@@ -188,11 +194,20 @@ def henvisninger(tekst: str) -> list[Henvisning]:
 
 
 def commits(tekst: str) -> list[str]:
-    return [
+    fra_lenker = COMMITLENKE.findall(tekst)
+    rest = COMMITLENKE.sub(" ", tekst)
+    return fra_lenker + [
         c
-        for c in COMMIT.findall(tekst)
+        for c in COMMIT.findall(rest)
         if re.search(r"\d", c) and re.search(r"[a-f]", c)
     ]
+
+
+def har_dato(tekst: str) -> bool:
+    return any(
+        1 <= int(t["dag"]) <= 31 and 1 <= int(t["mnd"]) <= 12
+        for t in DATO.finditer(tekst)
+    )
 
 
 def _har_innhold(seksjonstekst: str | None) -> bool:
@@ -201,7 +216,9 @@ def _har_innhold(seksjonstekst: str | None) -> bool:
     tekst = re.sub(r"<!--.*?-->", "", seksjonstekst, flags=re.DOTALL).strip()
     if not tekst:
         return False
-    return not re.fullmatch(r"(?i)[*_]*(ingen|ingen åpne spørsmål|–|-)[.*_]*", tekst)
+    return not re.fullmatch(
+        r"(?i)[*_]*(ingen|ingen funn|ingen åpne spørsmål|–|-)[.*_]*", tekst
+    )
 
 
 class GitHubOppslag:
@@ -210,7 +227,7 @@ class GitHubOppslag:
     def __init__(self, token: str, repo: str = REPO):
         self.token = token
         self.repo = repo
-        self._issues: dict[int, bool] = {}
+        self._issues: dict[int, str | None] = {}
         self._kommentarer: dict[int, int | None] = {}
 
     def _hent(self, sti: str) -> dict | None:
@@ -230,9 +247,11 @@ class GitHubOppslag:
                 return None
             raise
 
-    def issue(self, nr: int) -> bool:
+    def issue(self, nr: int) -> str | None:
+        """«open» eller «closed», eller None når issuet ikke finnes."""
         if nr not in self._issues:
-            self._issues[nr] = self._hent(f"issues/{nr}") is not None
+            data = self._hent(f"issues/{nr}")
+            self._issues[nr] = data["state"] if data else None
         return self._issues[nr]
 
     def commit(self, sha: str) -> bool:
@@ -258,6 +277,7 @@ class FilOppslag:
 
     def __init__(self, data: dict):
         self.issues = {int(n) for n in data.get("issues", [])}
+        self.lukkede = {int(n) for n in data.get("lukkede", [])}
         self.kommentarer = {
             int(k): int(v) for k, v in data.get("kommentarer", {}).items()
         }
@@ -266,8 +286,10 @@ class FilOppslag:
     def commit(self, sha: str) -> bool:
         return any(c.startswith(sha) or sha.startswith(c) for c in self.commits)
 
-    def issue(self, nr: int) -> bool:
-        return nr in self.issues
+    def issue(self, nr: int) -> str | None:
+        if nr in self.lukkede:
+            return "closed"
+        return "open" if nr in self.issues else None
 
     def kommentar(self, kid: int) -> int | None:
         return self.kommentarer.get(kid)
@@ -308,7 +330,10 @@ def _kontroller_henvisninger(
     lukkes: set[int],
     oppslag,
     resultat: Resultat,
+    aapen: bool = False,
 ) -> list[Henvisning]:
+    """Henvisningene som holder. Med `aapen` må issuet være åpent, fordi et funn som føres
+    i et lukket issue, ikke blir fulgt opp."""
     gyldige = []
     for ref in refs:
         if ref.repo.lower() != REPO:
@@ -343,9 +368,18 @@ def _kontroller_henvisninger(
                         )
                     )
                     continue
-            elif not oppslag.issue(ref.issue):
-                resultat.feil.append(_rad_feil(rad, f"{ref} finnes ikke"))
-                continue
+            else:
+                tilstand = oppslag.issue(ref.issue)
+                if tilstand is None:
+                    resultat.feil.append(_rad_feil(rad, f"{ref} finnes ikke"))
+                    continue
+                if aapen and tilstand != "open":
+                    resultat.feil.append(
+                        _rad_feil(
+                            rad, f"{ref} er lukket, så funnet blir ikke fulgt opp"
+                        )
+                    )
+                    continue
         gyldige.append(ref)
     return gyldige
 
@@ -368,25 +402,31 @@ def kontroller(
     aapne = _har_innhold(seksjon(tekst, "Åpne spørsmål"))
 
     funnseksjon = seksjon(tekst, "Funn og utfall")
-    alle = tabeller(tekst)
+    alle = [(o, [_kolonnenavn(c) for c in h], r) for o, h, r in tabeller(tekst)]
+    i_seksjonen = [_kolonnenavn(h[0]) for _, h, _ in tabeller(funnseksjon or "")]
     funntabeller = [
         (o, h, r)
         for o, h, r in alle
-        if h
-        and h[0].lower().startswith("funn")
-        and any(c.lower() == "utfall" for c in h)
-    ]
-    if (
-        funnseksjon is not None
-        and _har_innhold(funnseksjon)
-        and not tabeller(funnseksjon)
-    ):
-        resultat.feil.append(
-            "«Funn og utfall» har tekst, men ingen tabell med én rad per funn"
+        if "utfall" in h
+        and (
+            h[0].startswith("funn")
+            or (funnseksjon is not None and _er_i(o, funnseksjon))
         )
+    ]
+    if funnseksjon is not None and _har_innhold(funnseksjon):
+        if not i_seksjonen:
+            resultat.feil.append(
+                "«Funn og utfall» har tekst, men ingen tabell med én rad per funn"
+            )
+        elif not any(
+            _er_i(o, funnseksjon) or h[0].startswith("funn") for o, h, _ in funntabeller
+        ):
+            resultat.feil.append(
+                "tabellen under «Funn og utfall» har ingen kolonne «Utfall»"
+            )
 
     for overskrift, hode, rader in funntabeller:
-        kolonne = [c.lower() for c in hode].index("utfall")
+        kolonne = hode.index("utfall")
         for linje, celler in rader:
             if not any(celler):
                 continue
@@ -397,19 +437,35 @@ def kontroller(
             )
 
     for overskrift, hode, rader in alle:
-        if not hode or any(c.lower() == "utfall" for c in hode):
+        if not hode or "utfall" in hode:
             continue
         if not (
-            hode[0].lower().startswith("avvik")
-            or "avvik fra prototypen" in overskrift.lower()
+            hode[0].startswith("avvik") or "avvik fra prototypen" in overskrift.lower()
         ):
             continue
         for linje, celler in rader:
             if not any(celler):
                 continue
-            rad = Rad("avvikstabellen", linje, celler, " ".join(celler[1:]))
-            _kontroller_avviksrad(rad, pr, lukkes, oppslag, resultat)
+            rad = Rad(
+                "avvikstabellen", linje, celler, celler[-1] if len(celler) > 1 else ""
+            )
+            _kontroller_avviksrad(rad, pr, lukkes, oppslag, commit_finnes, resultat)
     return resultat
+
+
+def _kolonnenavn(celle: str) -> str:
+    return celle.strip(" *_`").lower()
+
+
+def _er_i(overskrift: str, seksjonstekst: str) -> bool:
+    """Tabellen står i seksjonen: overskriften den står under, er seksjonen eller en
+    underoverskrift i den."""
+    if overskrift.lower().startswith("funn og utfall"):
+        return True
+    return any(
+        (t := OVERSKRIFT.match(linje)) and t.group(2) == overskrift
+        for linje in seksjonstekst.splitlines()
+    )
 
 
 FORING = re.compile(r"oppfølging|krav i|ført|issue|delvis|^\[?#\d", re.IGNORECASE)
@@ -447,7 +503,9 @@ def _kontroller_funnrad(
 
     godkjent = False
     if refs and (FORING.search(liten) or not (rettet and shaer)):
-        gyldige = _kontroller_henvisninger(rad, refs, pr, lukkes, oppslag, resultat)
+        gyldige = _kontroller_henvisninger(
+            rad, refs, pr, lukkes, oppslag, resultat, aapen=True
+        )
         if re.search(r"\bkrav i\b", liten) and not any(r.kommentar for r in refs):
             resultat.feil.append(
                 _rad_feil(
@@ -485,7 +543,7 @@ def _kontroller_funnrad(
         godkjent = True
 
     if "spørsmål" in liten or "oppdragsgiver" in liten:
-        besvart = "oppdragsgiver" in liten and DATO.search(liten)
+        besvart = "oppdragsgiver" in liten and har_dato(liten)
         if besvart or aapne:
             godkjent = True
         elif not godkjent:
@@ -507,16 +565,30 @@ def _kontroller_funnrad(
         )
 
 
-def _kontroller_avviksrad(rad: Rad, pr, lukkes, oppslag, resultat: Resultat) -> None:
+def _godkjent(tekst: str, *ord: str) -> bool:
+    return (
+        any(o in tekst for o in ord)
+        and har_dato(tekst)
+        and not re.search(r"legges fram|skal legges|godkjennes|venter", tekst)
+    )
+
+
+def _kontroller_avviksrad(
+    rad: Rad, pr, lukkes, oppslag, commit_finnes, resultat: Resultat
+) -> None:
+    if any("ikke et designavvik" in c.lower() for c in rad.celler):
+        return
     tekst = rad.utfall.lower()
-    if "ikke et designavvik" in tekst:
+    shaer = commits(tekst)
+    if re.search(r"\brettet\b", tekst) and shaer:
+        mangler = [s for s in shaer if commit_finnes and not commit_finnes(s)]
+        if mangler:
+            resultat.feil.append(
+                _rad_feil(rad, f"commiten {', '.join(mangler)} finnes ikke")
+            )
         return
-    if re.search(r"\brettet\b", tekst) and commits(tekst):
-        return
-    if (
-        "oppdragsgiver" in tekst
-        and DATO.search(tekst)
-        and not re.search(r"legges fram|skal legges|må godkjennes|venter", tekst)
+    if _godkjent(tekst, "oppdragsgiver") or any(
+        _godkjent(c.lower(), "godkjent", "godtatt", "avgjort") for c in rad.celler
     ):
         return
     refs = henvisninger(rad.utfall)
@@ -526,7 +598,8 @@ def _kontroller_avviksrad(rad: Rad, pr, lukkes, oppslag, resultat: Resultat) -> 
     resultat.feil.append(
         _rad_feil(
             rad,
-            "avviket har verken et issue eller en godkjenning fra oppdragsgiver med dato",
+            "avviket har verken et issue eller en godkjenning fra oppdragsgiver med dato "
+            "i siste kolonne",
         )
     )
 
@@ -585,7 +658,16 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
 
-    resultat = kontroller(tekst, pr, oppslag, commitoppslag(oppslag, not args.uten_git))
+    try:
+        resultat = kontroller(
+            tekst, pr, oppslag, commitoppslag(oppslag, not args.uten_git)
+        )
+    except (urllib.error.URLError, TimeoutError) as feil:
+        print(
+            f"funnkontroll: GitHub-API-et svarte ikke ({feil}). Kjør jobben på nytt.",
+            file=sys.stderr,
+        )
+        return 2
 
     if args.fort_videre:
         print(json.dumps(resultat.fort_videre, ensure_ascii=False, indent=2))
