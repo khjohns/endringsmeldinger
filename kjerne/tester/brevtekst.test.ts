@@ -10134,6 +10134,21 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     });
   });
 
+  it('avslår byggherren i et nytt svar justeringen av enhetsprisene som var godtatt subsidiært, er det en senkning (HF-U32, HF-U33)', () => {
+    const s = sakMed(justert);
+    const sent = (godtar: boolean) =>
+      svaret(s, { P2: { aksepterer: true, varslet_i_tide: false, godtar_justering: godtar } });
+    s.send('BH', sent(true));
+    s.send('BH', {
+      type: 'revisjon',
+      erstatter: gjeldende(s).id,
+      svar: (sent(false).svar as Data[])[0],
+    });
+    expect(visning(s.u(), KJERNE.regler).spor.vederlag.senkning?.justeringIkkeGodtatt).toEqual([
+      kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[0]!.id,
+    ]);
+  });
+
   it('godtar byggherren justeringen igjen i et nytt svar, er ingenting senket (kontrollsak, HF-U29 punkt 8)', () => {
     const s = sakMed(justert);
     s.send('BH', svaret(s, { P2: { aksepterer: true, godtar_justering: false } }));

@@ -297,7 +297,10 @@ export interface Sporsvisning {
 
 /** Det som er sporets eget i senkningen etter HF-U29 punkt 8. */
 export interface Sporssenkning {
-  /** Det byggherren godkjente for hver post eller frist i svaret, ett tall per lag fra det første. */
+  /**
+   * Det byggherren godkjente for hver post eller frist i svaret, per lag fra det første. `null` der
+   * svaret ikke tar stilling til et beløp i laget (KA-U72).
+   */
   godkjentILagene(svar: Svar): ReadonlyMap<string, readonly (number | null)[]>;
   /**
    * Kravpostene der `tidligere` godtar justeringen etter § 34.3.2 prinsipalt, og `ny` ikke gjør
@@ -311,8 +314,8 @@ export interface Sporssenkning {
 /**
  * HF-U29 punkt 8 for det gjeldende svaret i sporet, med HF-U30–HF-U33:
  * hver post og frist sammenliknes med svaret det nye svaret erstatter på samme kravversjon, lag
- * for lag når svarene har like mange lag, og ellers det første og det siste laget. Et lag uten et
- * beløp regnes som 0 i sammenlikningen. `null` når ingenting er senket.
+ * for lag når svarene har like mange lag, og ellers det første og det siste laget i hvert. Et lag
+ * uten et fast beløp regnes som 0 i sammenlikningen. `null` når ingenting er senket.
  */
 export function senkningen(u: Utledning, spor: Spor): Senkning | null {
   const sporet = visningI(spor).senkning;
@@ -325,14 +328,13 @@ export function senkningen(u: Utledning, spor: Spor): Senkning | null {
   const senket: Senket[] = [];
   for (const [gjelder, lagene] of foer) {
     const nye = naa.get(gjelder) ?? [];
-    const antall = Math.max(lagene.length, nye.length, 1);
     const sammenliknet: [number, number | null, number | null][] =
       lagene.length === nye.length
         ? lagene.map((a, i) => [i + 1, a, nye[i] ?? null])
-        : [
-            [1, lagene[0] ?? null, nye[0] ?? null],
-            [antall, lagene.at(-1) ?? null, nye.at(-1) ?? null],
-          ];
+        : [[1, lagene[0] ?? null, nye[0] ?? null]];
+    // Med ulikt antall lag sammenliknes det siste laget i hvert, med laget i det nye svaret.
+    if (lagene.length !== nye.length && Math.max(lagene.length, nye.length) > 1)
+      sammenliknet.push([Math.max(nye.length, 1), lagene.at(-1) ?? null, nye.at(-1) ?? null]);
     for (const [lag, foer, naa] of sammenliknet)
       if ((naa ?? 0) < (foer ?? 0)) senket.push({ gjelder, lag, foer, naa });
   }

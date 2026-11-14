@@ -5379,7 +5379,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F618',
     feilklasse: 'en justering som bare står subsidiært, regnes som godtatt (HF-U32, HF-U33)',
     fil: `${K}/spor/vederlag/visning.ts`,
-    endringer: [["(v === 1 || v === 'upaavirket')", "(v !== 'uten_virkning')"]],
+    endringer: [['(naa.get(gjelder) ?? Infinity) > lag', '!naa.has(gjelder)']],
     mal: ['godtar byggherren justeringen av enhetsprisene bare subsidiært i et nytt svar'],
   },
   {

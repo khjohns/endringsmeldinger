@@ -56,19 +56,18 @@ export function vederlagssvaret(u: Utledning, svar: Svar): Vederlagssvaret {
 }
 
 /**
- * Kravpostene der svaret godtar justeringen etter § 34.3.2 i det første laget, eller uten at en
- * innsigelse rammer den (OV-U32).
+ * Laget der svaret godtar justeringen etter § 34.3.2 for hver kravpost, fra 1. En justering ingen
+ * innsigelse rammer, står i det første (OV-U32).
  */
-function godtattPrinsipalt(svar: Svar): Set<string> {
+function justeringenGodtattI(svar: Svar): Map<string, number> {
   const virkning = new Map(
     svar.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning])
   );
-  return new Set(
+  return new Map(
     svar.standpunkter.flatMap((s) => {
       const v = virkning.get(s.id);
-      return s.art === 'justering' && s.godtar && (v === 1 || v === 'upaavirket')
-        ? [s.gjelder]
-        : [];
+      if (s.art !== 'justering' || !s.godtar || v === undefined || v === 'uten_virkning') return [];
+      return [[s.gjelder, v === 'upaavirket' ? 1 : v] as const];
     })
   );
 }
@@ -76,9 +75,12 @@ function godtattPrinsipalt(svar: Svar): Set<string> {
 /** HF-U29 punkt 8 i vederlaget, med HF-U31, HF-U32 og HF-U33. */
 const SENKNING_I_VEDERLAGET: Sporssenkning = {
   godkjentILagene: (svar) => beloepeneILagene(svar.utregning),
+  // HF-U32, HF-U33: justeringen er ikke lenger godtatt, eller godtatt bare i et senere lag.
   justeringIkkeGodtatt: (ny, tidligere) => {
-    const naa = godtattPrinsipalt(ny);
-    return [...godtattPrinsipalt(tidligere)].filter((gjelder) => !naa.has(gjelder));
+    const naa = justeringenGodtattI(ny);
+    return [...justeringenGodtattI(tidligere)].flatMap(([gjelder, lag]) =>
+      (naa.get(gjelder) ?? Infinity) > lag ? [gjelder] : []
+    );
   },
   // Punkt 34.3.3 annet ledd gjelder en kravpost med enhetspriser.
   bestemmelse: (gjelder, krav) =>
