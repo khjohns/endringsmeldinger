@@ -2,7 +2,7 @@
  * Sakslisten i prosjektet (#1022): sakene TS-kjernen har skrevet, med krav, svar og
  * enighet per spor regnet av kjernen ved lesing (MM-U28 (opphevet av MM-U37)) og det som foreligger
  * (MM-U29 (opphevet av MM-U40)). Saken har ingen samlet status, bare en betegnelse i de fire tilfellene
- * i MM-U22. Ingenting i lista er lagret som oppsummering (AGENTS.md, «Kontrakten
+ * i MM-U22. Ingenting i lista er lagret som oppsummering (CLAUDE.md, «Kontrakten
  * først»). Feltnavnene er kontrakter (B-17); betydningen står i domenetabellen.
  */
 

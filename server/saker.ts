@@ -142,7 +142,7 @@ async function visSaken(
     throw feil;
   }
   const { journal, oppdrag, navn, navnefeil } = saken;
-  // Et navneoppslag som feiler, gir identiteten (AGENTS.md). Loggen har feilen, ingen navn.
+  // Et navneoppslag som feiler, gir identiteten (CLAUDE.md). Loggen har feilen, ingen navn.
   if ('navnefeil' in saken) loggFeil(`Navneoppslaget i saken ${sakId} feilet`, navnefeil, 'warn');
   return [
     200,

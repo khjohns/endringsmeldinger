@@ -109,7 +109,7 @@ export interface Felles {
 
 type Behandler<F> = (f: F, avh: Required<Avhengigheter>) => Promise<Svar>;
 
-/** En inngang med sesjon og prosjekttilgang (AGENTS.md). */
+/** En inngang med sesjon og prosjekttilgang (CLAUDE.md). */
 export interface Saksrute extends Felles {
   tilgang: Tilgang;
   /** Kroppen er en fil, som leses etter tilgangskontrollen og ikke tolkes som JSON. */

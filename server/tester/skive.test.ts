@@ -9,7 +9,7 @@
  * Forventningene har kilde i vedtakene: LV-U1 (oppdraget fryses i samme
  * transaksjon som hendelsen, og et lagret oppdrag er ikke en levering), B-03,
  * dokumentet (ett dokument per brev), B-17 (Python leser oppdraget, ikke
- * journalen) og sikkerhetsinvariantene i AGENTS.md (aktørfeltene, `event_id`
+ * journalen) og sikkerhetsinvariantene i CLAUDE.md (aktørfeltene, `event_id`
  * og tidsstempelet settes av serveren). Statusen i visningen er kjernens og
  * fastholdes her bare som det serveren gir videre.
  */

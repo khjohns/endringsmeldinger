@@ -693,7 +693,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F57',
-    feilklasse: 'bufferen leses på tvers av prosjektgrensen (AGENTS.md, #316)',
+    feilklasse: 'bufferen leses på tvers av prosjektgrensen (CLAUDE.md, #316)',
     fil: 'sprakprove/kjernelagring/bane.ts',
     endringer: [
       [
@@ -705,7 +705,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F58',
-    feilklasse: 'bufferen skrives på tvers av prosjektgrensen (AGENTS.md, #316)',
+    feilklasse: 'bufferen skrives på tvers av prosjektgrensen (CLAUDE.md, #316)',
     fil: 'sprakprove/kjernelagring/bane.ts',
     endringer: [
       [

@@ -37,7 +37,7 @@ const ugyldig = (avvisning: Avvisning): Opprettelsesutfall => ({
   avvisning,
 });
 
-/** Raden kommandoen gir, eller avvisningen. Parten er serverens (AGENTS.md). */
+/** Raden kommandoen gir, eller avvisningen. Parten er serverens (CLAUDE.md). */
 export function opprettelse(kommando: unknown, part: Part): Opprettelsesutfall {
   const ulagringsbar = tekstSomIkkeKanLagres(kommando);
   if (ulagringsbar) return ugyldig(ulagringsbar);

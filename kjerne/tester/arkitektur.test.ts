@@ -7,7 +7,7 @@
  * - Ingen regel når visningen eller bufferen, direkte eller gjennom en annen
  *   modul. Visningen regner status og etiketter; bufferen lagrer visningen.
  * - Reglene leser bare det hvitelisten `LESBART` tillater (#308, #329,
- *   «Kontrakten først, aldri status» i AGENTS.md). Typesjekkeren løser hver
+ *   «Kontrakten først, aldri status» i CLAUDE.md). Typesjekkeren løser hver
  *   feltlesing og hver verdi importert fra en annen modul i kjernen til
  *   deklarasjonen. Det som er deklarert i kjernen, må stå i lista med en klasse:
  *   utsagn, relasjon, frosset, predikat og så videre. En status eller en annen
@@ -408,7 +408,7 @@ describe('INV-MM-9: reglene leser ikke visningen', () => {
 /**
  * Hva en verdi reglene leser, er. En oppsummering har ingen klasse: et utfall,
  * en status eller en etikett som står for flere utsagn, leses ikke av noen regel
- * («Kontrakten først, aldri status» i AGENTS.md, MM-U11, MM-U50).
+ * («Kontrakten først, aldri status» i CLAUDE.md, MM-U11, MM-U50).
  */
 type Klasse =
   /** Det en part har sagt i et dokument: krav, svar, varsel, aksept, trekk, opplysning (2.2). */

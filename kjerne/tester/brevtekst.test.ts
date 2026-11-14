@@ -4724,7 +4724,7 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
 
   // VS-U43 punkt 6 og 10 med E3: påberopelsen gjelder det registrerte varselet når det har en
   // tidligere dato. Brevteksten for det registrerte varselet bygges i #1600, så kjernen
-  // avviser svaret med en regelkode i stedet for å nevne grunnlagskravet (AGENTS.md,
+  // avviser svaret med en regelkode i stedet for å nevne grunnlagskravet (CLAUDE.md,
   // «Domenekjernen»), og svaret tilbys ikke.
   it('byggherrens svar på grunnlaget når varselet etter § 32.2 er registrert, avvises og tilbys ikke til varselet har brevtekst', () => {
     const s = medPaaberopelse();
@@ -7076,7 +7076,7 @@ describe('tegn PDF-en av brevet ikke kan vise, avvises når brevet skrives (#801
     expect(s.avvist('TE', med('fundament\u00adering → peling\r\n\tny linje'))).toBeNull();
   });
 
-  // #1138: meldingen sier hva som hindrer (AGENTS.md, «Skriv etter hva teksten gjør»).
+  // #1138: meldingen sier hva som hindrer (CLAUDE.md, «Skriv etter hva teksten gjør»).
   const iSakstittelen = {
     regel: 'UGYLDIG_FORM',
     melding: 'Sakstittelen har tegnet «😀» (U+1F600), som PDF-en av brevet ikke kan vise.',

@@ -1,7 +1,7 @@
 /**
  * Identiteten og tabellene i den første migrasjonen (#53, del 1), i en base
  * bygget fra `database/migrasjoner/`. Kildene er sikkerhetsinvariantene i
- * AGENTS.md (én brukerrad per person, samme issuer og normaliserte subjekt,
+ * CLAUDE.md (én brukerrad per person, samme issuer og normaliserte subjekt,
  * ingen default for prosjekt, fail-closed), SQ-20 og SQ-21 i
  * `docs/prove-azuresql-2026-10-11.md`, og DL-U3 for tidspunktene. Krever
  * `KOE_SQLSERVER_TILKOBLING`.

@@ -2,7 +2,7 @@
  * Kommandoene opprett sak og skriv hendelse (#53, del 3a), som kjøretiden: en
  * innlogging som er medlem av `koe_runtime`, gjennom `transaksjon()` og
  * `server/kommandoer.ts`, i en base bygget fra `database/migrasjoner/`. Kildene er
- * sikkerhetsinvariantene i AGENTS.md (aktørfeltene fra serveren, prosjektgrensen),
+ * sikkerhetsinvariantene i CLAUDE.md (aktørfeltene fra serveren, prosjektgrensen),
  * DL-U3 med svaret 16.10 i #53 (brevet regnes med basens klokke, og basen avviser
  * et annet tidspunkt), DL-U4 (teamet når det er entydig), DL-U6 (saksnummeret er
  * en tilfeldig ID appen lager), LV-U1 (oppdraget med brevet) og arbeidsvalgene for

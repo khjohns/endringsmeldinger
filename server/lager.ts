@@ -150,7 +150,7 @@ export interface LestSak {
  * konteksten. Med `navn` leses navnet bak aktørene etter journalen, i samme
  * transaksjon, så navnene gjelder de samme hendelsene (#835 punkt 2). Navnet er
  * en visningsdetalj: et oppslag som feiler, gir ingen navn og `navnefeil`, og
- * velter ikke lesingen (AGENTS.md). Transaksjonen rulles da tilbake, også når
+ * velter ikke lesingen (CLAUDE.md). Transaksjonen rulles da tilbake, også når
  * basen alt har gjort det med XACT_ABORT, og det som er lest før, gjelder.
  *
  * @throws SakFinnesIkke

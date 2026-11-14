@@ -2,7 +2,7 @@
  * Vedleggsinngangene og mellomlageret (V-1, del av #790) over HTTP mot en base bygget
  * fra migrasjonene. Forventningene har kilde i kartleggingen i #790 og svarene 18.10:
  * - et ubundet vedlegg er et utkast og finnes bare for teamet som lastet det opp
- *   (invarianten om utkast i AGENTS.md, arbeidsvalg 1 og 3);
+ *   (invarianten om utkast i CLAUDE.md, arbeidsvalg 1 og 3);
  * - et bundet vedlegg ses av begge kontraktssider og slettes ikke (arbeidsvalg 4,
  *   «Vedlegg er kontraktskorrespondanse»);
  * - filen ligger hos oss med SHA-256 som basen kontrollerer, grensen er 15 MiB, og

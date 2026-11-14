@@ -3,7 +3,7 @@
  *
  * Kildene for forventningene: arbeidsvalget 20.10 i #375 («Som i dag, ny form»),
  * arbeidsvalgene 20.10 i #1022 (leserens part fra serveren, summene i serveren),
- * og prosjektgrensen i sikkerhetsinvariantene i AGENTS.md. Krav, svar og enighet per
+ * og prosjektgrensen i sikkerhetsinvariantene i CLAUDE.md. Krav, svar og enighet per
  * spor prøves i `sakslinje.test.ts`. At betegnelsene er de samme som i visningen av
  * saken, er kravet at de er kjernens betegnelser (MM-U30) og ikke en egen oppsummering.
  */
