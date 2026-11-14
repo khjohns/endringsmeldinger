@@ -20,9 +20,10 @@ import {
   type Kontraktstilgang,
   type Prosjekttilgang,
 } from './autorisasjon.ts';
-import { UsikkertUtfall, UUID } from './datalag.ts';
+import { UsikkertUtfall, UUID, type Kontekst, type Pool } from './datalag.ts';
 import { fast, lagret, loggFeil, ugyldig, feilsvar } from './inngang.ts';
-import { lesSaken, type Leveringsmaal } from './lager.ts';
+import { lesSaken, lesSakensMaal, type Leveringsmaal } from './lager.ts';
+import type { Sakslenke } from './catenda.ts';
 import {
   IngenTopicBoard,
   KommandoIdBrukt,
@@ -136,19 +137,14 @@ async function visSaken(
   const kontekst = lesekontekst(bruker, prosjekt.prosjektId, side);
   let saken;
   try {
-    saken = await lesSaken(avh.datalag, kontekst, sakId, {
-      navn: true,
-      catenda: Boolean(avh.sakslenke),
-    });
+    saken = await lesSaken(avh.datalag, kontekst, sakId, { navn: true });
   } catch (feil) {
     if (feil instanceof SakFinnesIkke) return finnesIkke();
     throw feil;
   }
-  const { journal, oppdrag, navn, navnefeil, maal } = saken;
+  const { journal, oppdrag, navn, navnefeil } = saken;
   // Et navneoppslag som feiler, gir identiteten (CLAUDE.md). Loggen har feilen, ingen navn.
   if ('navnefeil' in saken) loggFeil(`Navneoppslaget i saken ${sakId} feilet`, navnefeil, 'warn');
-  if ('maalfeil' in saken)
-    loggFeil(`Oppslaget av lenken til Catenda i saken ${sakId} feilet`, saken.maalfeil, 'warn');
   return [
     200,
     {
@@ -175,9 +171,30 @@ async function visSaken(
         opprettet: o.opprettet,
         levert: o.levert,
       })),
-      catenda_lenke: avh.sakslenke && maal ? avh.sakslenke(maal) : null,
+      catenda_lenke: avh.sakslenke
+        ? await catendaLenke(avh.datalag, kontekst, sakId, avh.sakslenke)
+        : null,
     },
   ];
+}
+
+/**
+ * Lenken til saken i Catenda. Den er en visningsdetalj: et oppslag som feiler, gir
+ * ingen lenke og velter ikke lesingen, som navnet (CLAUDE.md).
+ */
+async function catendaLenke(
+  datalag: Pool,
+  kontekst: Kontekst,
+  sakId: string,
+  sakslenke: Sakslenke
+): Promise<string | null> {
+  try {
+    const maal = await lesSakensMaal(datalag, kontekst, sakId);
+    return maal && sakslenke(maal);
+  } catch (feil) {
+    loggFeil(`Oppslaget av lenken til Catenda i saken ${sakId} feilet`, feil, 'warn');
+    return null;
+  }
 }
 
 /**

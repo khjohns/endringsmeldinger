@@ -50,6 +50,8 @@ describe('malen for lenken til saken i Catenda', () => {
     ['{board} i verten', 'https://{board}.catenda.test/{topic}'],
     ['en plassholder rett etter verten', 'https://catenda.test{topic}'],
     ['en plassholder i porten', 'https://catenda.test:{topic}/'],
+    ['en plassholder i en IP-adresse', 'https://10.0.0.{topic}'],
+    ['en plassholder foran en port', 'https://catenda.test:{topic}443/'],
   ])('avviser en mal med %s', (_, mal) => {
     expect(() => sakslenkeFraMiljoe({ CATENDA_SAKSLENKE: mal })).toThrow(/CATENDA_SAKSLENKE/);
   });

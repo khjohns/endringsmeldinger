@@ -824,8 +824,8 @@ const LENKEDELER = ['prosjekt', 'board', 'topic'] as const;
  * Lenken til saken i Catenda (U-15 i BF-44), fra malen i `CATENDA_SAKSLENKE`, med
  * `{prosjekt}`, `{board}` og `{topic}` for ID-ene. Malen er driftens: formen på lenken
  * i Catenda står ikke i API-et, og verten har ingen standardverdi. Uten malen gir
- * lesingen ingen lenke; en mal som ikke er en https-adresse med `{topic}`, eller som
- * har en annen plassholder, kastes.
+ * lesingen ingen lenke. En mal som ikke er en https-adresse med `{topic}` i stien,
+ * eller som har en annen plassholder, kastes med det som hindrer.
  */
 export function sakslenkeFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): Sakslenke | null {
   const mal = miljoe.CATENDA_SAKSLENKE;
@@ -833,18 +833,19 @@ export function sakslenkeFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): Sak
   const ukjent = [...mal.matchAll(/\{([^}]*)\}/g)]
     .map((m) => m[1])
     .filter((d) => !(LENKEDELER as readonly string[]).includes(d));
-  const prove = URL.parse(mal.replace(/\{(prosjekt|board|topic)\}/g, '0'));
   // Verten står foran den første plassholderen, så en ID aldri avgjør hvor lenken peker.
-  const foran = URL.parse(mal.slice(0, mal.indexOf('{')));
-  if (
-    ukjent.length ||
-    !mal.includes('{topic}') ||
-    prove?.protocol !== 'https:' ||
-    foran?.origin !== prove.origin
-  )
-    throw new Error(
-      'CATENDA_SAKSLENKE må være en https-adresse med {topic} etter verten, og bare {prosjekt}, {board} og {topic}'
-    );
+  const foran = mal.slice(0, mal.indexOf('{'));
+  const origin = URL.parse(foran)?.origin;
+  const hindring = ukjent.length
+    ? `har plassholderen {${ukjent[0]}}; bare {prosjekt}, {board} og {topic} er lov`
+    : !mal.includes('{topic}')
+      ? 'mangler {topic}'
+      : URL.parse(mal.replace(/\{(prosjekt|board|topic)\}/g, '0'))?.protocol !== 'https:'
+        ? 'er ikke en https-adresse'
+        : !origin || !foran.startsWith(`${origin}/`)
+          ? 'har en plassholder foran stien; verten og porten må stå fast'
+          : null;
+  if (hindring) throw new Error(`CATENDA_SAKSLENKE ${hindring}`);
   // Topicen lagres med boardet (`koe.sak_catenda_topic`), så de mangler sammen.
   return ({ catenda_project_id, board_id, topic_id }) => {
     if (!topic_id || !board_id) return null;

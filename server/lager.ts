@@ -143,10 +143,6 @@ export interface LestSak {
   navn: Map<string, string>;
   /** Feilen fra navneoppslaget, når det feilet. */
   navnefeil?: unknown;
-  /** Sakens mål i Catenda med `catenda`; `null` uten aktiv kobling, uten `catenda` og når oppslaget feilet. */
-  maal: Leveringsmaal | null;
-  /** Feilen fra oppslaget av målet, når det feilet. */
-  maalfeil?: unknown;
 }
 
 /**
@@ -155,9 +151,7 @@ export interface LestSak {
  * transaksjon, så navnene gjelder de samme hendelsene (#835 punkt 2). Navnet er
  * en visningsdetalj: et oppslag som feiler, gir ingen navn og `navnefeil`, og
  * velter ikke lesingen (CLAUDE.md). Transaksjonen rulles da tilbake, også når
- * basen alt har gjort det med XACT_ABORT, og det som er lest før, gjelder. Med
- * `catenda` leses sakens mål i Catenda til slutt, som lenken til saken settes sammen
- * av. Det er også en visningsdetalj: et oppslag som feiler, gir `maalfeil` på samme måte.
+ * basen alt har gjort det med XACT_ABORT, og det som er lest før, gjelder.
  *
  * @throws SakFinnesIkke
  */
@@ -165,26 +159,19 @@ export async function lesSaken(
   pool: Pool,
   kontekst: Kontekst,
   sakId: string,
-  { navn = false, catenda = false } = {}
+  { navn = false } = {}
 ): Promise<LestSak> {
   return transaksjon(pool, kontekst, async (foresp) => {
     const journal = await lesJournal(foresp, sakId, false);
     if (!skrevetAvKjernen(journal))
       throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
     const oppdrag = await lesOppdrag(foresp, sakId, journal.at(-1)!.versjon);
-    let lest: LestSak = { journal, oppdrag, maal: null, navn: new Map<string, string>() };
-    if (navn) {
-      try {
-        lest = { ...lest, navn: await aktornavn(foresp, sakId) };
-      } catch (navnefeil) {
-        return new Tilbakerulling({ ...lest, navnefeil });
-      }
-    }
-    if (!catenda) return lest;
+    const lest = { journal, oppdrag, navn: new Map<string, string>() };
+    if (!navn) return lest;
     try {
-      return { ...lest, maal: await lesMaal(foresp, sakId) };
-    } catch (maalfeil) {
-      return new Tilbakerulling({ ...lest, maalfeil });
+      return { ...lest, navn: await aktornavn(foresp, sakId) };
+    } catch (navnefeil) {
+      return new Tilbakerulling({ ...lest, navnefeil });
     }
   });
 }
@@ -210,6 +197,18 @@ export async function lesLeveringsmaal(foresp: Foresp, sakId: string): Promise<L
   const maal = await lesMaal(foresp, sakId);
   if (!maal) throw new IngenLeveringsmaal(`Saken ${sakId} har ingen aktiv kobling til Catenda.`);
   return maal;
+}
+
+/**
+ * Sakens mål i Catenda i prosjektet i konteksten, i en egen lesing, eller `null` uten
+ * aktiv kobling. Lenken til saken settes sammen av det (U-15 i BF-44).
+ */
+export function lesSakensMaal(
+  pool: Pool,
+  kontekst: Kontekst,
+  sakId: string
+): Promise<Leveringsmaal | null> {
+  return transaksjon(pool, kontekst, (foresp) => lesMaal(foresp, sakId));
 }
 
 /** Målet i prosjektet i konteksten, eller `null` uten aktiv kobling. */
