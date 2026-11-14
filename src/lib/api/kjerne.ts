@@ -5,6 +5,7 @@
 
 import { ApiError, apiFetch } from '$lib/api/client';
 import type { Saksmerking } from '$lib/kjernesak/brevtekst';
+import type { Registrertfrist } from '$kjerne/spor/frist/format';
 import type { Journalrad, Korrespondansetype, Part, Vedlegg } from '$kjerne/typer';
 import type { Visning } from '$kjerne/utledning/visning';
 
@@ -87,9 +88,9 @@ const somMerking = ({ kode, loepenummer, kontraktsforkortelse }: Sakskodesvar): 
 export async function hentSaksmerking(sakId: string, prosjektId: string): Promise<Saksmerking> {
   const [kode, frister] = await Promise.all([
     apiFetch<Sakskodesvar>(`${sti(sakId)}/sakskode`, { headers: prosjekthode(prosjektId) }),
-    hentKontraktsfrister(prosjektId),
+    kontraktsfristerI(prosjektId),
   ]);
-  return { ...somMerking(kode), kontraktsfrister: frister };
+  return { ...somMerking(kode), ...(frister ? { kontraktsfrister: frister } : {}) };
 }
 
 /** En frist i fristtabellen slik serveren gir den (`Fristlinje` i `server/kontraktsfrister.ts`). */
@@ -97,20 +98,34 @@ interface Fristlinje {
   frist_id: number;
   nummer: string | null;
   navn: string;
-  dagmulktbelagt: boolean;
 }
+
+const fristtabellene = new Map<string, Promise<Registrertfrist[] | null>>();
 
 /**
  * Fristtabellen for prosjektet, som kravet om fristforlengelse viser til (KA-U79, GFK-U25), i
- * formen kjernen lager teksten med.
+ * formen kjernen lager teksten med. Den gjelder prosjektet, så den hentes én gang. Feiler
+ * hentingen, er den `null`, og saken lastes likevel: da avviser forhåndsvisningen et krav om en
+ * registrert frist, og tabellen hentes igjen ved neste lasting.
  */
-export const hentKontraktsfrister = (prosjektId: string) =>
-  apiFetch<{ frister: Fristlinje[] }>(
-    `/api/projects/${encodeURIComponent(prosjektId)}/kontraktsfrister`,
-    { headers: prosjekthode(prosjektId) }
-  ).then(({ frister }) =>
-    frister.map(({ frist_id, nummer, navn }) => ({ fristId: frist_id, nummer, navn }))
-  );
+function kontraktsfristerI(prosjektId: string): Promise<Registrertfrist[] | null> {
+  let tabell = fristtabellene.get(prosjektId);
+  if (!tabell) {
+    tabell = apiFetch<{ frister: Fristlinje[] }>(
+      `/api/projects/${encodeURIComponent(prosjektId)}/kontraktsfrister`,
+      { headers: prosjekthode(prosjektId) }
+    ).then(
+      ({ frister }) =>
+        frister.map(({ frist_id, nummer, navn }) => ({ fristId: frist_id, nummer, navn })),
+      () => {
+        fristtabellene.delete(prosjektId);
+        return null;
+      }
+    );
+    fristtabellene.set(prosjektId, tabell);
+  }
+  return tabell;
+}
 
 /** Som `hentSaksmerking`, for en ny sak: det neste nummeret for koden (LV-U46). Bare TE. */
 export const hentSaksmerkingForNySak = (prosjektId: string) =>

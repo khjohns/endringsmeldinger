@@ -7,6 +7,7 @@
 import { innholdIFristen } from '$kjerne/spor/frist/format';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { heleDager } from './fristsvar';
+import { definert } from './kommandoer';
 import { FRISTKRAV } from './tekster';
 
 /** Én frist i kravet, som TE har fylt den ut. */
@@ -62,18 +63,18 @@ export function startvalg(u: Utledning): Fristkravvalg {
   };
 }
 
+/** Fristene som står i kravet, uten dem TE trekker. */
+export const fristene = (v: Fristkravvalg) => v.frister.filter((p) => !p.trukket);
+
 /** Fristen i kommandoen: en frist i fristtabellen med ID-en, ellers nummeret og navnet. */
-function fristen(p: Fristpostvalg): Record<string, unknown> {
-  const dager = heleDager(p.dager);
-  const nummer = p.nummer.trim();
-  return {
-    ...(p.id ? { id: p.id } : {}),
+const fristen = (p: Fristpostvalg): Record<string, unknown> =>
+  definert({
+    id: p.id ?? undefined,
     ...(typeof p.frist === 'number'
       ? { frist_id: p.frist }
-      : { ...(nummer ? { nummer } : {}), navn: p.navn.trim() }),
-    ...(dager === undefined ? {} : { dager }),
-  };
-}
+      : { nummer: p.nummer.trim() || undefined, navn: p.navn.trim() }),
+    dager: heleDager(p.dager),
+  });
 
 /**
  * Kravet TE sender. Kjernen kontrollerer fristene mot fristtabellen og sporet, og at begrunnelsen
@@ -85,10 +86,10 @@ export function fristkravet(v: Fristkravvalg): Record<string, unknown> {
   return {
     type: 'krav',
     spor: 'frist',
-    innhold: {
-      frister: v.frister.filter((p) => !p.trukket).map(fristen),
-      ...(trekker.length ? { trekker } : {}),
-    },
+    innhold: definert({
+      frister: fristene(v).map(fristen),
+      trekker: trekker.length ? trekker : undefined,
+    }),
     utdypning: v.begrunnelse,
   };
 }
@@ -99,7 +100,7 @@ export function manglerIFristkravet(
   prefiks: string,
   navnet: (p: Fristpostvalg) => string
 ): { felt: string; tekst: string }[] {
-  const med = v.frister.filter((p) => !p.trukket);
+  const med = fristene(v);
   const ut: { felt: string; tekst: string }[] = [];
   if (!med.length) ut.push({ felt: `${prefiks}-legg-til`, tekst: FRISTKRAV.ingenFristerMangler });
   for (const p of med) {

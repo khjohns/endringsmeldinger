@@ -1338,7 +1338,6 @@ export const KRAVSKJEMA = {
 /** TEs krav om fristforlengelse (G-3 i BF-20, prototypen `fristkrav-te.html#nytt-krav`). */
 export const FRISTKRAV = {
   tittel: 'Krav om fristforlengelse',
-  til: 'Til byggherren (BH)',
   nyVersjon: (krav: Brevref) => `Ny versjon av kravet i ${brevref(krav)}`,
   // 1. Varselet.
   varselTittel: 'Varselet om fristforlengelse',
@@ -1389,7 +1388,6 @@ export const FRISTKRAV = {
   linje: (navn: string, d: string) => `${navn}: ${d}`,
   ikkeOppgitt: 'dagene er ikke oppgitt',
   trukketLinje: (navn: string) => `${navn}: trekkes`,
-  utenNavn: 'Frist uten navn',
   // Det som mangler.
   manglerFrist: 'Velg fristen kravet gjelder.',
   manglerNavn: 'Skriv navnet kontrakten gir fristen.',
@@ -1399,10 +1397,5 @@ export const FRISTKRAV = {
   ingenFristerMangler: 'Kravet må gjelde minst én frist.',
   forkastTekst:
     'Fristene og begrunnelsen du har skrevet i utkastet, slettes. Det kan ikke gjøres om.',
-  kontroller: 'Kontroller og send',
-  sendTekst: 'Send til byggherren',
-  tilbakeTil: 'utkastet',
-  kvittering: 'Brevet er sendt til byggherren.',
-  kanIkkeLages: 'Brevet kan ikke lages ennå.',
   detteSender: (n: number) => (n === 1 ? 'Kravet gjelder én frist' : `Kravet gjelder ${n} frister`),
 };

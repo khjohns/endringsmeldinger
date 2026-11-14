@@ -38,7 +38,6 @@
     BREVKONTROLL,
     KORRIGERING,
     KRAVSKJEMA,
-    FRISTKRAV,
     MOTTATT,
     NYVERSJON,
     NYSAK,
@@ -205,6 +204,30 @@
       svarerPaa: krav ?? null,
       tilbake: { art: 'svar' },
       utkastet: s,
+    };
+  }
+
+  /** Brevkontrollen for TEs krav i sporet, med forrige krav og svaret på det som relasjoner. */
+  function tilKravkontroll(s: Svarspor, k: TilBrevkontrollen & Pick<Kontroll, 'vedlegg'>) {
+    const kravet = brev.find((b) => b.id === u?.spor[s].gjeldendeKrav?.dokument);
+    const svaret = brev.find((b) => b.id === u?.spor[s].gjeldendeSvar?.dokument);
+    melding = null;
+    arbeid = {
+      art: 'kontroll',
+      versjon: kjernesak.versjon,
+      ...k,
+      handling: KRAVSKJEMA.kontroller,
+      bareMottaker: true,
+      sendTekst: KRAVSKJEMA.sendTekst,
+      tilbakeTil: KRAVSKJEMA.tilbakeTil,
+      svarerPaa: null,
+      relasjoner: [
+        ...(kravet ? [{ hva: NYVERSJON.forrigeBrev, brev: KRAVSKJEMA.forrigeKravet(kravet) }] : []),
+        ...(svaret ? [{ hva: BREVKONTROLL.viserTil, brev: NYVERSJON.viserTilBrev(svaret) }] : []),
+      ],
+      kvittering: KRAVSKJEMA.kvittering,
+      tilbake: { art: s === 'vederlag' ? 'vederlagskrav' : 'fristkrav' },
+      utkastet: null,
     };
   }
 
@@ -526,32 +549,7 @@
           bind:valg={kravvalg}
           onforkast={forkastKravet}
           onvedsiden={(v) => (vedSiden = v)}
-          onbrevkontroll={(k) => {
-            const kravet = brev.find((b) => b.id === u.spor.vederlag.gjeldendeKrav?.dokument);
-            const svaret = brev.find((b) => b.id === u.spor.vederlag.gjeldendeSvar?.dokument);
-            melding = null;
-            arbeid = {
-              art: 'kontroll',
-              versjon: kjernesak.versjon,
-              ...k,
-              handling: KRAVSKJEMA.kontroller,
-              bareMottaker: true,
-              sendTekst: KRAVSKJEMA.sendTekst,
-              tilbakeTil: KRAVSKJEMA.tilbakeTil,
-              svarerPaa: null,
-              relasjoner: [
-                ...(kravet
-                  ? [{ hva: NYVERSJON.forrigeBrev, brev: KRAVSKJEMA.forrigeKravet(kravet) }]
-                  : []),
-                ...(svaret
-                  ? [{ hva: BREVKONTROLL.viserTil, brev: NYVERSJON.viserTilBrev(svaret) }]
-                  : []),
-              ],
-              kvittering: KRAVSKJEMA.kvittering,
-              tilbake: { art: 'vederlagskrav' },
-              utkastet: null,
-            };
-          }}
+          onbrevkontroll={(k) => tilKravkontroll('vederlag', k)}
         />
       {:else if arbeid.art === 'fristkrav' && valgt === 'frist' && kjernesak.handlinger.includes('krav:frist')}
         <Fristkrav
@@ -559,32 +557,7 @@
           {u}
           bind:valg={fristkravvalg}
           onforkast={forkastKravet}
-          onbrevkontroll={(k) => {
-            const kravet = brev.find((b) => b.id === u.spor.frist.gjeldendeKrav?.dokument);
-            const svaret = brev.find((b) => b.id === u.spor.frist.gjeldendeSvar?.dokument);
-            melding = null;
-            arbeid = {
-              art: 'kontroll',
-              versjon: kjernesak.versjon,
-              ...k,
-              handling: FRISTKRAV.kontroller,
-              bareMottaker: true,
-              sendTekst: FRISTKRAV.sendTekst,
-              tilbakeTil: FRISTKRAV.tilbakeTil,
-              svarerPaa: null,
-              relasjoner: [
-                ...(kravet
-                  ? [{ hva: NYVERSJON.forrigeBrev, brev: KRAVSKJEMA.forrigeKravet(kravet) }]
-                  : []),
-                ...(svaret
-                  ? [{ hva: BREVKONTROLL.viserTil, brev: NYVERSJON.viserTilBrev(svaret) }]
-                  : []),
-              ],
-              kvittering: FRISTKRAV.kvittering,
-              tilbake: { art: 'fristkrav' },
-              utkastet: null,
-            };
-          }}
+          onbrevkontroll={(k) => tilKravkontroll('frist', k)}
         />
       {:else if arbeid.art === 'svar' && valgt === 'vederlag' && kjernesak.handlinger.includes('svare:vederlag')}
         <Vederlagssvar

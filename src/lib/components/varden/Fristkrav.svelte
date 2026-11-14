@@ -10,6 +10,7 @@
   import { BookOpen } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
   import { dager } from '$kjerne/frosset/tekst';
+  import { betegnelsen } from '$kjerne/spor/frist/format';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -23,6 +24,7 @@
   import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
   import {
+    fristene,
     fristkravet,
     manglerIFristkravet,
     nyFristpost,
@@ -73,13 +75,14 @@
   function navnet(p: Fristpostvalg): string {
     if (typeof p.frist === 'number') {
       const f = tabell.find((x) => x.fristId === p.frist);
-      if (f) return [f.nummer, f.navn].filter(Boolean).join(' ');
+      if (f) return betegnelsen(f);
     }
-    const n = [p.nummer.trim(), p.navn.trim()].filter(Boolean).join(' ');
-    return n || FRISTKRAV.frist(v.frister.indexOf(p) + 1);
+    const navn = p.navn.trim();
+    return navn
+      ? betegnelsen({ nummer: p.nummer.trim(), navn })
+      : FRISTKRAV.frist(v.frister.indexOf(p) + 1);
   }
 
-  const kommando = $derived(fristkravet(v));
   const mangler = $derived(manglerIFristkravet(v, uid, navnet));
   let forsoekt = $state(false);
   const feil = (felt: string): string | null =>
@@ -88,17 +91,21 @@
   let oppsummering = $state<HTMLElement | null>(null);
   let sendehindring = $state<string | null>(null);
 
+  const dagene = (p: Fristpostvalg) => {
+    const d = heleDager(p.dager);
+    return d === undefined ? FRISTKRAV.ikkeOppgitt : dager(d);
+  };
   const linjer = $derived(
-    v.frister.map((p) => {
-      if (p.trukket) return { tekst: FRISTKRAV.trukketLinje(navnet(p)), lag: null };
-      const d = heleDager(p.dager);
-      return {
-        tekst: FRISTKRAV.linje(navnet(p), d === undefined ? FRISTKRAV.ikkeOppgitt : dager(d)),
-        lag: null,
-      };
-    })
+    v.frister.map((p) => ({
+      tekst: p.trukket ? FRISTKRAV.trukketLinje(navnet(p)) : FRISTKRAV.linje(navnet(p), dagene(p)),
+      lag: null,
+    }))
   );
-  const antall = $derived(v.frister.filter((p) => !p.trukket).length);
+  // Fristene i fristtabellen og en frist som ikke er registrert (KA-U79).
+  const fristvalg = $derived([
+    ...tabell.map((f) => ({ verdi: String(f.fristId), tekst: betegnelsen(f) })),
+    { verdi: 'annen', tekst: FRISTKRAV.ikkeRegistrert },
+  ]);
 
   async function leggTil() {
     const p = nyFristpost();
@@ -121,10 +128,11 @@
       oppsummering?.focus();
       return;
     }
+    const kommando = fristkravet(v);
     const b = kjernesak.brev(kommando, undefined, true);
     const brevet = kontrollbrev(b);
     if (!brevet) {
-      sendehindring = brevaarsak(b) ?? FRISTKRAV.kanIkkeLages;
+      sendehindring = brevaarsak(b) ?? HOVEDLINJER.kanIkkeLages;
       await tick();
       document.getElementById(id('hindring'))?.focus();
       return;
@@ -132,7 +140,7 @@
     onbrevkontroll({
       kommando,
       ...brevet,
-      detteSender: [{ tekst: FRISTKRAV.detteSender(antall), lag: null }],
+      detteSender: [{ tekst: FRISTKRAV.detteSender(fristene(v).length), lag: null }],
       virkninger: [],
     });
   }
@@ -227,13 +235,7 @@
         <Valg
           navn={sid}
           spoersmaal={FRISTKRAV.fristEtikett}
-          valg={[
-            ...tabell.map((f) => ({
-              verdi: String(f.fristId),
-              tekst: [f.nummer, f.navn].filter(Boolean).join(' '),
-            })),
-            { verdi: 'annen', tekst: FRISTKRAV.ikkeRegistrert },
-          ]}
+          valg={fristvalg}
           bind:verdi={
             () => (p.frist === null ? null : String(p.frist)),
             (x) => (p.frist = x === null || x === 'annen' ? x : Number(x))
@@ -265,7 +267,7 @@
       id={id('tittel')}
       tittel={FRISTKRAV.tittel}
       undertittel={forrige ? FRISTKRAV.nyVersjon(forrige) : null}
-      mottaker={FRISTKRAV.til}
+      mottaker={SKJEMA.tilBH}
     >
       {#if forsoekt && mangler.length}
         <div

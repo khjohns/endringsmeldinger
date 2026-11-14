@@ -40,19 +40,17 @@ export type Brev =
  * Sakens kode og kontraktsforkortelsen, lest fra serveren før forhåndsvisningen. Teksten
  * omtaler saken med koden og et tidligere brev med merkingen (S3 i #1497, LV-U53).
  */
-export type Saksmerking = Pick<Kontekst, 'sakskode' | 'kontraktsforkortelse'> & {
-  /**
-   * Fristtabellen for prosjektet (KA-U79, `KONTRAKTSFRISTRUTER` i `server/kontraktsfrister.ts`),
-   * som serveren lager teksten med. Uten den avviser forhåndsvisningen et krav om en registrert
-   * frist, som før en ny sak har fristtabellen.
-   */
-  kontraktsfrister?: Kontekst['kontraktsfrister'];
-};
+/**
+ * Med fristtabellen for prosjektet (KA-U79, `KONTRAKTSFRISTRUTER` i `server/kontraktsfrister.ts`),
+ * som serveren lager teksten med. Uten den avviser forhåndsvisningen et krav om en registrert
+ * frist, som for en ny sak.
+ */
+export type Saksmerking = Pick<Kontekst, 'sakskode' | 'kontraktsforkortelse'> &
+  Partial<Pick<Kontekst, 'kontraktsfrister'>>;
 
 const stemplet = (sakId: string, part: Part, merking: Saksmerking): Kontekst => ({
   // Aktøren, tidspunktet og ID-ene settes av serveren og endrer ikke den låste teksten.
-  sakskode: merking.sakskode,
-  kontraktsforkortelse: merking.kontraktsforkortelse,
+  ...merking,
   sakId,
   aktoerId: '',
   part,
