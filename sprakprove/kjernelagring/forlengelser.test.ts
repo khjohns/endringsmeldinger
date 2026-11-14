@@ -76,9 +76,9 @@ describe.skipIf(!TESTBASE_URL)('fristgrunnlaget for fullmakten i SQL Server', ()
     side: 'BH',
     team: catendaId(o.prosjekt.bhTeam)!,
   });
-  const sak = async (steg: Handling[]) => {
+  const sak = async (steg: Handling[], i: Oppsett = o) => {
     const forloep: Forloep = { id: 'forlengelser', rader: [], start: null, steg, kontroller: [] };
-    const bane = await basebane(o);
+    const bane = await basebane(i);
     await kjoer(forloep, bane);
     return bane.sakId;
   };
@@ -106,11 +106,11 @@ describe.skipIf(!TESTBASE_URL)('fristgrunnlaget for fullmakten i SQL Server', ()
     await server?.stopp();
     if (o) await rydd(o);
   });
-  const fristtabellen = async (bruker: Testbruker) => {
+  const fristtabellen = async (bruker: Testbruker, prosjektId = o.prosjekt.id) => {
     server ??= await startServer(o);
-    const svar = await kall(server.url, `/api/projects/${o.prosjekt.id}/kontraktsfrister`, {
+    const svar = await kall(server.url, `/api/projects/${prosjektId}/kontraktsfrister`, {
       bruker,
-      prosjektId: o.prosjekt.id,
+      prosjektId,
     });
     expect(svar.status, JSON.stringify(svar.kropp)).toBe(200);
     return svar.kropp as {
@@ -161,6 +161,31 @@ describe.skipIf(!TESTBASE_URL)('fristgrunnlaget for fullmakten i SQL Server', ()
           ikke_tatt_med: [{ sak_id: godkjent, sakskode: KODE, dager: 4, grunnlag: 'godkjent' }],
         },
       ]);
+    }
+  });
+
+  it('prosjektgrensen: en avtalt forlengelse i en sak i et annet prosjekt er ikke med i fristtabellen', async () => {
+    const annet = { ...o, prosjekt: o.annetProsjekt };
+    await iTransaksjon(o.datalag.base.pool, null, (r) =>
+      settInn(r, 'kontraktsfrist', {
+        prosjekt_id: o.annetProsjekt.id,
+        frist_id: 1,
+        navn: 'Overtakelse',
+        dato: '2026-12-16',
+        dagmulktbelagt: false,
+      })
+    );
+    const utenfor = await sak(fristsaken(5, true), annet);
+    // Kontrollsak: i sitt eget prosjekt forlenger saken fristen.
+    const egen = await fristtabellen(o.utenfor, o.annetProsjekt.id);
+    expect(egen.frister[0]).toMatchObject({
+      dato_etter_forlengelsene: '2026-12-21',
+      forlengelser: [{ sak_id: utenfor, sakskode: null, dager: 5 }],
+    });
+    for (const bruker of [o.te, o.bh, o.leser]) {
+      const { frister, saker_ikke_forstaatt } = await fristtabellen(bruker);
+      expect(JSON.stringify({ frister, saker_ikke_forstaatt })).not.toContain(utenfor);
+      expect(frister[0]).toMatchObject({ dato_etter_forlengelsene: '2026-12-19' });
     }
   });
 
