@@ -384,7 +384,7 @@ FEILINNFOERINGER = [
      "const grunnlag = kontraktssum;",
      "satsen for en delfrist regnes av verdien av delen"),
     ("S103", "fristtabellen leses uten at aktøren kan lese saker i prosjektet (GFK-U23)",
-     "database/migrasjoner/20261113100000_kontraktsfrister.sql",
+     "database/migrasjoner/20261114100000_kontraktsfrist_satsregel.sql",
      "DECLARE @leser bit = IIF(EXISTS (SELECT 1 FROM koe_sikkerhet.medlem(@prosjekt)), 1, 0);",
      "DECLARE @leser bit = 1;",
      "leser ingenting"),
@@ -424,6 +424,14 @@ FEILINNFOERINGER = [
      "server/fullmakt.ts",
      "sats: f.dagmulktbelagt ? f.sats : null,", "sats: f.sats,",
      "GFK-U20: dager for en frist som ikke er dagmulktbelagt"),
+    ("S112", "satsregelen godtar et grunnlag med mellomrom til slutt (#1883)",
+     "database/migrasjoner/20261114100000_kontraktsfrist_satsregel.sql",
+     "  IF @satsgrunnlag COLLATE Latin1_General_100_BIN2_UTF8 LIKE N'%[^a-z_]%' RETURN 0;\n", "",
+     "kontraktsfrister avviser en sats som ikke passer"),
+    ("S113", "fristtabellen godtar et navn som finnes, når nummeret er nytt (#1883)",
+     "database/migrasjoner/20261114100000_kontraktsfrist_satsregel.sql",
+     "  IF @navnet_finnes = 1\n", "  IF @navnet_finnes = 1 AND 1 = 0\n",
+     "kontraktsfrister avviser en sats som ikke passer"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
