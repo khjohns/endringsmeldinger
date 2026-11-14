@@ -1354,16 +1354,16 @@ export const FRISTKRAV = {
   fristEtikett: 'Fristen',
   ikkeRegistrert: 'En frist som ikke er registrert',
   ikkeRegistrertHjelp:
-    'Fristen står ikke i fristtabellen for prosjektet. Skriv nummeret og navnet kontrakten gir den. Ny dato vises ikke for en frist som ikke er registrert.',
-  nummerEtikett: 'Nummer i kontrakten',
-  nummerHjelp: 'Valgfritt.',
+    'Fristen står ikke i fristtabellen for prosjektet. Skriv nummeret og navnet kontrakten gir den.',
+  nummerEtikett: 'Nummer i kontrakten (valgfritt)',
   navnEtikett: 'Navnet i kontrakten',
   dagerEtikett: 'Dagene du krever',
   kalenderdager: 'Kalenderdager.',
-  frist: (n: number) => `Frist ${n}`,
+  /** Raden før fristen er valgt, uten et tall som kan leses som nummeret i E.1 (U-1). */
+  nyFrist: (n: number) => (n === 1 ? 'Ny frist' : `Ny frist ${n}`),
   nyIVersjonen: 'Ny i denne versjonen',
   trekkes: 'Trekkes',
-  trekk: (navn: string) => `Trekk ${navn}`,
+  trekk: (navn: string) => `Trekk fristen ${navn}`,
   trekkTekst: 'Trekk fristen',
   angre: 'Angre',
   angreTrekk: (navn: string) => `Angre trekket av ${navn}`,
@@ -1401,4 +1401,9 @@ export const FRISTKRAV = {
   forkastTekst:
     'Fristene og begrunnelsen du har skrevet i utkastet, slettes. Det kan ikke gjøres om.',
   detteSender: (n: number) => (n === 1 ? 'Kravet gjelder én frist' : `Kravet gjelder ${n} frister`),
+  // «Når du sender» (U-9, U-10).
+  virkningVarsel:
+    'Kravet er også varselet etter punkt 33.4. Varsles det for sent, tapes kravet på fristforlengelse.',
+  virkningNyVersjon: (svar: Brevref) =>
+    `Etter at den nye versjonen er sendt, kan svaret i ${brevref(svar)} ikke godtas, og byggherren er ikke lenger bundet av det.`,
 };

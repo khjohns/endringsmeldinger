@@ -59,7 +59,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     expect(sendt).toHaveLength(0);
     const oppsummering = screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' });
     expect(
-      within(oppsummering).getByText('Frist 1: Velg fristen kravet gjelder.')
+      within(oppsummering).getByText('Ny frist: Velg fristen kravet gjelder.')
     ).toBeInTheDocument();
     expect(within(oppsummering).getByText('Skriv begrunnelsen for kravet.')).toBeInTheDocument();
   });
@@ -122,7 +122,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     });
     const sendt = await kravskjemaet(medKrav);
     expect(screen.getByText(/Varselet ble sendt i brev/)).toBeInTheDocument();
-    await fireEvent.click(screen.getByRole('button', { name: 'Trekk Sluttfristen' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Trekk fristen Sluttfristen' }));
     expect(screen.getByText('Sluttfristen: trekkes')).toBeInTheDocument();
     await skriv(screen.getByLabelText('Dagene du krever'), '30');
     await skriv(

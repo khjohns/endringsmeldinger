@@ -94,18 +94,29 @@ export function fristkravet(v: Fristkravvalg): Record<string, unknown> {
   };
 }
 
+/** Det som mangler: teksten i oppsummeringen, og ved feltet uten navnet på raden (`ved`). */
+export interface Mangel {
+  felt: string;
+  tekst: string;
+  ved?: string;
+}
+
 /** Det som mangler, med feltet det gjelder (`<prefiks>-<felt>`). Kjernen avviser det samme. */
 export function manglerIFristkravet(
   v: Fristkravvalg,
   prefiks: string,
   navnet: (p: Fristpostvalg) => string
-): { felt: string; tekst: string }[] {
+): Mangel[] {
   const med = fristene(v);
-  const ut: { felt: string; tekst: string }[] = [];
+  const ut: Mangel[] = [];
   if (!med.length) ut.push({ felt: `${prefiks}-legg-til`, tekst: FRISTKRAV.ingenFristerMangler });
   for (const p of med) {
     const f = (felt: string, tekst: string) =>
-      ut.push({ felt: `${prefiks}-${felt}-${p.noekkel}`, tekst: `${navnet(p)}: ${tekst}` });
+      ut.push({
+        felt: `${prefiks}-${felt}-${p.noekkel}`,
+        tekst: `${navnet(p)}: ${tekst}`,
+        ved: tekst,
+      });
     if (p.frist === null) f('frist', FRISTKRAV.manglerFrist);
     else if (typeof p.frist === 'number' && v.frister.some((q) => q !== p && q.frist === p.frist))
       f('frist', FRISTKRAV.toGanger);
