@@ -182,7 +182,7 @@ export const BREVTEKSTEN_I_FRISTEN = {
   enigI: 'antallet dager',
   trukket: fristeneMedDager,
   ingenKrav: (sak) =>
-    `TE krever ikke fristforlengelse som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag.`,
+    `Totalentreprenøren krever ikke fristforlengelse som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag.`,
 } satisfies Kravsporsbrevtekst;
 
 /** Standpunktene bare fristen har, som en setning med liten forbokstav (LV-U4 punkt 5). */
@@ -213,7 +213,7 @@ export const LINJEN_I_FRISTEN = {
       // KA-U81: som brevteksten nevner linjen begge vilkårene.
       hindring: `avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ ${hindringenEtter(paaberopelse)})`,
       spesifisering: maatteForstaa?.some((m) => m.dager > 0)
-        ? `godkjent med ${maatteForstaa.map((m) => m.dager).join(', ')} dager (§ 33.6.1)`
+        ? `godkjent med ${maatteForstaa.map((m) => dager(m.dager)).join(', ')} (§ 33.6.1)`
         : 'avslått (§ 33.6.1)',
     };
   },
@@ -223,7 +223,7 @@ export const LINJEN_I_FRISTEN = {
       d.art === 'dager'
         ? [
             {
-              tekst: d.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${d.vurdert} dager`,
+              tekst: d.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${dager(d.vurdert)}`,
               virkning: virkningen(v, d.id),
             },
           ]
