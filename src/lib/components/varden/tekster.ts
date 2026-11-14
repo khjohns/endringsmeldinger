@@ -9,7 +9,7 @@
  */
 
 import { opplistet } from '$kjerne/frosset/brevdeler';
-import { kroner } from '$kjerne/frosset/tekst';
+import { dager, kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Betegnelse } from '$kjerne/utledning/visning';
 import type { Kravpost, Oppgjoersform, Part, Spor, Standpunkt } from '$kjerne/typer';
@@ -207,6 +207,10 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post
       // VS-U63.
       if (s.hjemmel === '34.4')
         return `${hvem} gjør gjeldende at varselet etter punkt 34.4${forPosten} ikke ble gitt eller kom for sent`;
+      if (s.hjemmel === '33.6.2')
+        return s.iTide
+          ? `${hvem} godkjenner at svaret på forespørselen etter punkt 33.6.2 kom i tide`
+          : `${hvem} gjør gjeldende at svaret på forespørselen etter punkt 33.6.2 kom for sent`;
       return s.iTide
         ? `${hvem} godkjenner at varselet etter punkt ${s.hjemmel}${forPosten} kom i tide`
         : `${hvem} gjør gjeldende at varselet etter punkt ${s.hjemmel}${forPosten} kom for sent` +
@@ -234,8 +238,22 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post
     }
     case 'forhold':
       return `${hvem} svarer på forholdet: ${s.resultat}`;
+    // KA-U81: standpunktet om hindringen nevner begge vilkårene.
+    case 'hindring':
+      return s.oppfylt
+        ? `${hvem} legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet`
+        : `${hvem} legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet`;
+    case 'spesifisering':
+      return s.iTide
+        ? `${hvem} godkjenner at kravet ble spesifisert i tide (punkt 33.6.1)`
+        : `${hvem} gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1)`;
+    case 'dager': {
+      const hva = `Fristforlengelse${forPosten}`;
+      if (s.resultat === 'avslaatt') return `${hva}: ${hvemLiten} avslår dagene`;
+      return `${hva}: ${hvemLiten} godkjenner ${dager(s.vurdert)}${krevd !== undefined ? ` av ${dager(krevd)}` : ''}`;
+    }
     default:
-      return `${hvem} tar stilling til ${s.art}`;
+      return `${hvem} tar stilling til ${(s satisfies never as Standpunkt).art}`;
   }
 }
 
@@ -368,6 +386,73 @@ export const SKJEMA = {
   /** Hinderet kjernen gir for kravet (`hindrerSvarPaaKravet`). */
   ikkeStoettetHinder: (hinder: string) =>
     `${hinder}. Svaret på det kan ikke skrives i denne prøven av Varden ennå.`,
+};
+
+/**
+ * Skjemaet for byggherrens svar på kravet om fristforlengelse (G-4 i BF-20, prototypene
+ * `fristsvar.html` og `fristkrav-te.html#svar`). Ordene som er felles med svaret på vederlaget,
+ * står i `SKJEMA`.
+ */
+export const FRISTSVAR = {
+  varselTittel: 'Varselet om fristforlengelse',
+  varselSpoersmaal: 'Kom varselet i tide?',
+  kravSendt: (d: string, b: Brevref) =>
+    b.omtale && b.art === 'registrert'
+      ? `Kravet om fristforlengelse står i ${b.omtale}.`
+      : `Kravet om fristforlengelse ble sendt ${dato(d)} (${brevref(b)}).`,
+  foresporselTittel: 'Svaret på forespørselen',
+  foresporselSpoersmaal: 'Kom svaret på forespørselen om dagene i tide?',
+  foresporselITide: 'Svarte i tide',
+  foresporselForSent: 'Svarte for sent',
+  // KA-U81: spørsmålet og valgene nevner begge vilkårene.
+  hindringTittel: 'Hindringen',
+  hindringSpoersmaal:
+    'Legger du til grunn at fremdriften er hindret, og at hindringen skyldes forholdet?',
+  hindret: 'Ja, fremdriften er hindret, og hindringen skyldes forholdet',
+  ikkeHindret: 'Nei, fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet',
+  hindringHjelp:
+    'Svaret gjelder hele kravet. Mener du at fremdriften ikke er hindret for én av fristene, avslår du dagene for den fristen og begrunner det.',
+  spesifiseringTittel: 'Spesifiseringen av kravet',
+  spesifiseringSpoersmaal: 'Ble kravet spesifisert i tide?',
+  spesifisertITide: 'Spesifisert i tide',
+  spesifisertForSent: 'Spesifisert for sent',
+  spesifiseringGrense: 'Om kravet ble spesifisert i tide, avgjør partene.',
+  dagerTittel: 'Fristforlengelse',
+  ettSvarPerFrist: 'Ett svar per frist. Åpne en frist for å svare på den.',
+  godkjennAlle: 'Godkjenn dagene som krevd for alle fristene',
+  teKrever: (n: number) => `Totalentreprenøren krever ${dager(n)}`,
+  maatteForstaaEtikett: 'Dagene du måtte forstå at totalentreprenøren hadde krav på',
+  maatteForstaaHjelp: (krevd: number) =>
+    `Er kravet spesifisert for sent, har totalentreprenøren bare krav på det du måtte forstå. Krevd: ${dager(krevd)}.`,
+  dagerSpoersmaal: 'Hvor mange av dagene godkjenner du?',
+  alle: 'Alle dagene',
+  deler: 'Deler av dagene',
+  avslaatt: 'Avslår dagene',
+  deldagerEtikett: 'Dagene du godkjenner',
+  deldagerHjelp: (krevd: number) => `Mer enn 0 og færre enn ${krevd} kalenderdager.`,
+  innsigelsenVarsel: 'innsigelsen om at varselet etter punkt 33.4 kom for sent',
+  innsigelsenForesporsel:
+    'innsigelsen om at svaret på forespørselen etter punkt 33.6.2 kom for sent',
+  standpunktetHindring: 'standpunktet ditt om at fremdriften ikke er hindret av forholdet',
+  innsigelsenSpesifisering: 'innsigelsen om at kravet ble spesifisert for sent',
+  manglerVarsel: 'Velg om varselet kom i tide.',
+  manglerForesporsel: 'Velg om svaret på forespørselen kom i tide.',
+  manglerHindring: 'Velg om du legger til grunn at fremdriften er hindret av forholdet.',
+  manglerSpesifisering: 'Velg om kravet ble spesifisert i tide.',
+  manglerDager: 'Velg hvor mange av dagene du godkjenner.',
+  manglerDeldager: 'Skriv dagene du godkjenner, som et helt antall.',
+  deldagerUtenfor: (krevd: number) =>
+    `Dagene du godkjenner må være flere enn 0 og færre enn ${krevd}.`,
+  manglerMaatteForstaa:
+    'Skriv dagene du måtte forstå at totalentreprenøren hadde krav på, som et helt antall.',
+  maatteForstaaForMange: 'Dagene du måtte forstå kan ikke være flere enn dagene du godkjenner.',
+  ikkeBesvart: 'Ikke besvart',
+  leselinjeDager: (n: number, krevd: number) =>
+    n === krevd
+      ? `${dager(n)}, godkjent som krevd`
+      : n === 0
+        ? 'Avslått'
+        : `${dager(n)} av ${dager(krevd)} godkjent`,
 };
 
 export const HOVEDLINJER = {
