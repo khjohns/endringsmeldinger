@@ -155,7 +155,7 @@ const erVarselOmForholdet = (hjemmel: string): hjemmel is VarselOmForholdet =>
 
 /**
  * Datoen TE har oppgitt i grunnlagskravet etter VS-U26 (VS-U43 punkt 1–5), med en korrigering
- * etter MM-U52 punkt 10. `null` når kategorien ikke har en dato, eller datoen ikke kan leses.
+ * etter MM-U55 punkt 10. `null` når kategorien ikke har en dato, eller datoen ikke kan leses.
  */
 function grunnlagsdatoen(u: Utledning): { felt: OppgittDatofelt; dag: string } | null {
   const { hovedkategori, underkategori } = kategori(u.spor.forhold.gjeldendeKrav);
