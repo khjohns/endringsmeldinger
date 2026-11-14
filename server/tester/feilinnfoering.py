@@ -438,6 +438,14 @@ FEILINNFOERINGER = [
      "        ikke: 'Medlemslisten er ikke saksdata, og hvem som er medlem, avgjøres av prosjektrollen, ikke av kontraktssiden.',\n",
      "        ikke: '',\n",
      "eller har en begrunnelse for at den ikke krever kontraktsrolle (#1922)"),
+    ("S116", "datoen i kravskjemaet tar med dager byggherren har godkjent uten enighet (KA-U77, GR-U38)",
+     "server/kontraktsfrister.ts",
+     "const avtalt = tattMed.filter((f) => f.grunnlag === 'avtalt');", "const avtalt = tattMed;",
+     "KA-U77, GR-U38: dager byggherren har godkjent uten enighet"),
+    ("S117", "en sak kjernen ikke forstår, gjør ikke datoen ukjent (MM-U2)",
+     "server/forlengelser.ts",
+     "  ikkeForstaatt.length ? null : fristenEtterForlengelsene", "  false ? null : fristenEtterForlengelsene",
+     "MM-U2: en sak kjernen ikke forstår, gjør datoen ukjent for hver frist"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
