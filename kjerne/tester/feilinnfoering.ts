@@ -5096,7 +5096,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F591',
     feilklasse:
-      'et subsidiært svar uten enighet forlenger fristen (GFK-U26, spørsmål 2 i fristen-del2-pr3)',
+      'et subsidiært svar uten enighet forlenger fristen (GFK-U26, avklaringen C i sporsmal-2.md)',
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       ['  const tilForholdet = s.subsidiaer.length > 0;', '  const tilForholdet = false;'],

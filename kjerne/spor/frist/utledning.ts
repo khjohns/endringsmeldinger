@@ -139,10 +139,10 @@ export function fristkravErFremmet(u: Utledning): boolean {
 
 /**
  * Dagene i én sak for en frist i fristtabellen (GFK-U26), med grunnlaget for dem. Kilden for
- * grunnlagene er svarene i `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md` og
- * `sporsmal-2.md` til vedtakene er ført:
- * - `avtalt`: dagene i en enighet om byggherrens gjeldende svar, også en betinget enighet og en
- *   enighet ved sammenfall (GR-U7);
+ * grunnlagene uten vedtak er svarene i
+ * `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal-2.md` til vedtakene er ført:
+ * - `avtalt`: dagene i en enighet om byggherrens gjeldende svar, også en betinget enighet (GR-U39)
+ *   og en enighet ved sammenfall (GR-U7, GR-U38);
  * - `godkjent`: dagene i første lag i byggherrens gjeldende svar, uten enighet;
  * - `subsidiaert_til_forholdet`: dagene i første lag når svaret er subsidiært til et avslag av
  *   forholdet, også et avslag sendt etter fristsvaret (spørsmål 2 i `sporsmal-2.md`);
@@ -164,7 +164,8 @@ export interface Forlengelse {
  * på gjeldende krav, så et nytt krav avslutter forlengelsen (HF-U5). Et trukket krav og en enighet
  * uten virkning gir ingen (GR-U7, KA-U6). En frist som ikke er registrert, kobles ikke til
  * fristtabellen (KA-U79). Endringsordrene leses ikke, fordi kjernen ikke har dem; når de leses,
- * telles forlengelsen fra endringsordren, og KOE-saken tas ut (spørsmål 3 i `sporsmal-2.md`).
+ * teller dagene i dem etter EO-U40, og forlengelsen telles fra endringsordren og ikke fra
+ * KOE-saken (spørsmål 3 i `sporsmal-2.md`).
  */
 export function forlengelseneISaken(u: Utledning): {
   tattMed: Forlengelse[];

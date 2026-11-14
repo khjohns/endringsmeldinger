@@ -47,8 +47,7 @@ function fristenGodkjent(svar: Svarinnhold, v: Standpunktsvirkning[]): boolean {
   const spesifisering = standpunktet(svar, 'spesifisering');
   if (spesifisering && v.some((p) => p.standpunkt === spesifisering.id && laget(p.virkning)))
     return false;
-  // GR-U7 og svaret på spørsmål 1 i `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md`: hele
-  // kravet er godkjent når hver frist har fått alle dagene.
+  // GR-U7, GR-U38: hele kravet er godkjent når hver frist har fått alle dagene.
   return utregningIFristen(svar.utregning).frister.every((r) => r.resultat === 'godkjent');
 }
 

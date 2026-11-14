@@ -50,7 +50,8 @@ export interface Fristgrunnlag {
   sats: number | null;
   /** Dagene for fristen i de andre sakene som forlenger den. */
   forlengelser: SakensForlengelse[];
-  /** Dagene for fristen som ikke er tatt med, for utregningen (svaret på spørsmål 4). */
+  /** Dagene for fristen som ikke er tatt med, for utregningen (svaret på spørsmål 4 i
+   * `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md`). */
   ikkeTattMed: SakensForlengelse[];
 }
 

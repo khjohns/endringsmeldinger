@@ -425,7 +425,7 @@ describe('verdien av dagene per frist (GFK-U17–GFK-U21, GFK-U24)', () => {
       { sakId: 'b', fristId: 2, dager: 4, grunnlag: 'godkjent' as const },
       { sakId: 'c', fristId: 1, dager: 30, grunnlag: 'godkjent' as const },
     ];
-    // Spørsmål 2 i `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md`: ikke tatt med.
+    // Avklaringen C i `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal-2.md`: ikke tatt med.
     const ikkeTattMed = [
       { sakId: 'd', fristId: 2, dager: 9, grunnlag: 'subsidiaert_til_forholdet' as const },
     ];

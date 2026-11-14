@@ -1,10 +1,10 @@
 /**
  * Forlengelsene en sak gir fristene i fristtabellen, som en annen sak i samme kontrakt regner
  * fristen fra (GFK-U19, GFK-U26). Avtalt er dagene i en enighet, også en betinget enighet og en
- * enighet ved sammenfall (GR-U7, KA-U77, og svarene på spørsmål 1 og 2 i
- * `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md`). Godkjent er dagene i første lag i
+ * enighet ved sammenfall (GR-U7, GR-U38, GR-U39, KA-U77). Godkjent er dagene i første lag i
  * byggherrens gjeldende svar uten enighet. Dagene byggherren bare har godkjent subsidiært, nevnes
- * som ikke tatt med (svarene på spørsmål 1, 2 og C i `sporsmal-2.md`). Fristtabellen i kjøringen er `FRISTTABELLEN`.
+ * som ikke tatt med (svarene på spørsmål 1, 2 og C i
+ * `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal-2.md`). Fristtabellen i kjøringen er `FRISTTABELLEN`.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -149,7 +149,7 @@ describe('forlengelsene i saken (GFK-U26)', () => {
     ).toEqual([]);
   });
 
-  it('subsidiært: et svar uten enighet som er subsidiært til avslaget av forholdet, merkes og forlenger ikke fristen (spørsmål 2)', async () => {
+  it('subsidiært: et svar uten enighet som er subsidiært til avslaget av forholdet, merkes og forlenger ikke fristen (avklaringen C i sporsmal-2.md)', async () => {
     expect(
       await lesingen([
         PAABEROPELSE,
@@ -182,7 +182,7 @@ describe('forlengelsene i saken (GFK-U26)', () => {
     });
   });
 
-  it('avtalt: alle dagene er godkjent subsidiært, og enigheten er betinget (spørsmål 2)', async () => {
+  it('avtalt: alle dagene er godkjent subsidiært, og enigheten er betinget (GR-U39)', async () => {
     expect(
       await forlengelsene([PAABEROPELSE, FRISTKRAVET, brevet(forholdet('avslaatt'), fristen())])
     ).toEqual([
