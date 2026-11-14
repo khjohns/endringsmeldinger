@@ -136,7 +136,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
   const kjoer = () =>
     kjoerEnJobb({
       datalag: o.datalag.kjoeretid.pool,
-      catenda: { opprettTopic: async () => `topic-${randomUUID()}` },
+      catenda: { opprettTopic: async () => ({ guid: `topic-${randomUUID()}`, nummer: null }) },
       dokumenter: catenda,
       saksadresse: () => 'x',
       logg,
@@ -867,12 +867,14 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
         .input('leasetid_sekunder', sql.Int, LEASETID_S)
         .execute<{ lease: string }>('koe_api.hent_jobb')
     ).recordset;
-    const kvitter = (prosedyre: string, felt: string, l: string) =>
-      o.datalag.kjoeretid.pool
+    const kvitter = (prosedyre: string, felt: string, l: string) => {
+      const r = o.datalag.kjoeretid.pool
         .request()
         .input('lease', sql.UniqueIdentifier, l)
-        .input(felt, sql.NVarChar(100), 'x')
-        .execute(prosedyre);
+        .input(felt, sql.NVarChar(100), 'x');
+      if (prosedyre === 'koe_api.kvitter_topic') r.input('topic_nummer', sql.Int, null);
+      return r.execute(prosedyre);
+    };
     expect(await avvisning(kvitter('koe_api.kvitter_levering', 'referanse_id', lease))).toBe(
       FREMMEDNOEKKEL
     );
@@ -1118,7 +1120,10 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
     const kjoer = () =>
       kjoerEnJobb({
         datalag,
-        catenda: { opprettTopic: async () => 'topic', ...tillegg.catenda },
+        catenda: {
+          opprettTopic: async () => ({ guid: 'topic', nummer: null }),
+          ...tillegg.catenda,
+        },
         dokumenter: {
           finnDokument: async () => null,
           lastOppDokument: async () => null,

@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `0b8000c112cb0b60bacac9346a4c38c36d3178bcb5b14f5de4e76280e015a1a5`
+Kontrollsum (SHA-256 over utdraget visningen leser): `364451d1bfaeee4560983dd140aa53f5bac816243ee3c50bb81ac3cf073aa999`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1033,9 +1033,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Utvider [OV-U95](#ov-u95). Utvider [KA-U56](#ka-u56). Utvider [KA-U75](#ka-u75). Presiserer [KA-U75](#ka-u75). Forholdet står i alternativ A: utvider OV-U95 punkt 21 (KA-U56) og KA-U75 til den særskilte vederlagsjusteringen, og presiserer KA-U75 for den eneste posten. Bygges i #1823.
 
-**Regelrader:** —
+**Regelrader:** [KA-58](#rad-ka-58)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-KA-U83 (målmodellen)
 
 ### <a id="ka-u45"></a>KA-U45
 
@@ -1729,7 +1729,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Samler [HF-U8](../../plans/vedtak.md#hf-u8). Samler [HF-U15](#hf-u15). Samler [HF-U16](#hf-u16). Samler [HF-U18](#hf-u18). Samler [LV-U7](../../plans/vedtak.md#lv-u7). Samler [MM-U34](#mm-u34). Opphever [HF-U20](#hf-u20). Endrer [HF-U5](#hf-u5). Endrer [OV-U54](#ov-u54). Endrer [LV-U9](../../plans/vedtak.md#lv-u9). Presisert 05.11 av [KA-U52](#ka-u52). Lagt til grunn 14.11 av [GR-U40](#gr-u40). Teksten står under tabellen, i [Samlevedtaket for akseptfristen](../../plans/vedtak.md#samlevedtak-akseptfrist). Forholdene står i spørsmål 1: «samler HF-U8, HF-U15 (uten setningen om avkall), HF-U16, HF-U18, LV-U7 og MM-U34 punkt 17». Forholdet til MM-U34 gjelder bare punkt 17, og forholdet til HF-U15 gjelder ikke setningen om avkall (E7). Spørsmål 1 sier også: «HF-U22 og LV-U31 står, uten forholdet til de opphevede vedtakene.»
 
-**Regelrader:** [KA-58](#rad-ka-58)
+**Regelrader:** [KA-59](#rad-ka-59)
 
 **Bevis-saker som viser til vedtaket:** F-MM-HF-U23-akseptfrist (målmodellen)
 
@@ -4136,4 +4136,5 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-ka-55"></a>KA-55 | TE har sendt et vederlagskrav med kravposten P1. TE sender en ny kravversjon som verken tar med eller trekker P1, en som tar med P1, og en som trekker P1. Etter trekket sender TE en ny kravversjon som tar med P1 igjen. | [KA-U56](#ka-u56), [KA-U75](#ka-u75), [KA-U53](#ka-u53), [OV-U95](#ov-u95) | F-MM-KA-U56 (målmodellen), F-MM-KA-U75 (målmodellen) |
 | <a id="rad-ka-56"></a>KA-56 | TE har sendt et vederlagskrav. Byggherren svarer med ett beløp for hele kravet, når kravet har én kravpost med fast sum, og når det har flere kravposter. | [KA-U59](#ka-u59), [OV-U95](#ov-u95) | F-MM-KA-U59 (målmodellen) |
 | <a id="rad-ka-57"></a>KA-57 | TE har sendt et fristkrav med dager for én eller flere frister i kontrakten. TE sender en ny kravversjon som utelater en frist uten å trekke den, en som trekker den, en som tar den med igjen etter trekket, en som bytter en registrert frist med en annen, og en som erstatter en frist som ikke er registrert, med den registrerte fristen. TE sender også et krav om en frist som ikke står i fristtabellen for prosjektet. | [KA-U76](#ka-u76), [KA-U79](#ka-u79) | F-MM-KA-U76 (målmodellen), F-MM-KA-U76-igjen (målmodellen), F-MM-KA-U79-tilbake (målmodellen), F-MM-GFK-U23 (målmodellen) |
-| <a id="rad-ka-58"></a>KA-58 | Byggherren setter en akseptfrist i et svar: på vederlag eller frist, som godkjenner en del av kravet prinsipalt eller subsidiært, som avslår helt eller godkjenner hele kravet, eller på forholdet. Fristen ligger før svaret, på svarets dato, på en lørdag, en søndag eller en helligdag. TE godtar svaret senest den dagen fristen gjelder, eller senere. | [HF-U23](#hf-u23) | F-MM-HF-U23-akseptfrist (målmodellen) |
+| <a id="rad-ka-58"></a>KA-58 | TE har sendt et vederlagskrav med den særskilte vederlagsjusteringen etter § 34.1.3 annet ledd. TE sender en ny kravversjon som verken tar med eller trekker posten, en som trekker den, og en som tar den med igjen etter trekket. TE trekker også posten når den er den eneste i kravet. | [KA-U83](#ka-u83) | F-MM-KA-U83 (målmodellen) |
+| <a id="rad-ka-59"></a>KA-59 | Byggherren setter en akseptfrist i et svar: på vederlag eller frist, som godkjenner en del av kravet prinsipalt eller subsidiært, som avslår helt eller godkjenner hele kravet, eller på forholdet. Fristen ligger før svaret, på svarets dato, på en lørdag, en søndag eller en helligdag. TE godtar svaret senest den dagen fristen gjelder, eller senere. | [HF-U23](#hf-u23) | F-MM-HF-U23-akseptfrist (målmodellen) |

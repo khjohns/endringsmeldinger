@@ -252,6 +252,12 @@ export interface Sporsskriving {
   ): Data;
   /** Det i kravet `k` som strider mot det serveren stempler i konteksten, eller `null`. */
   kontekstsperre?(k: Extract<Kommando, { type: 'krav' }>, kontekst: Kontekst): Avvisning | null;
+  /** Det i kravet `k` som strider mot dokumentene i saken, eller `null`. `lest` er journalen. */
+  saksperre?(
+    k: Extract<Kommando, { type: 'krav' }>,
+    lest: readonly Domenehendelse[],
+    u: Utledning
+  ): Avvisning | null;
   /**
    * Kravet som flere rader, når sporet skriver noe før kravet i samme handling, ellers `null`,
    * og kravet er én rad (VS-U51, VS-U53).
@@ -586,7 +592,11 @@ function skriv(
     sendes
   );
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
-  const sperre = k.type === 'krav' ? iSporet(SKRIVING, k.spor).kontekstsperre?.(k, kontekst) : null;
+  const sperre =
+    k.type === 'krav'
+      ? (iSporet(SKRIVING, k.spor).kontekstsperre?.(k, kontekst) ??
+        iSporet(SKRIVING, k.spor).saksperre?.(k, lest, u))
+      : null;
   if (sperre) return { godtatt: false, feil: 'REGELBRUDD', avvisning: sperre };
   // LV-U14: brevet lagrer ID-en, filnavnet og summen fra mellomlageret.
   const bundne: Vedlegg[] = [];

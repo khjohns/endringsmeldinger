@@ -367,8 +367,8 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
 export type Innhold = Record<string, unknown>;
 
 /**
- * Feltet med datoen og vedleggene kommandoen viser til: brevets, kravets (påberopelsen, VS-U38,
- * og fristkravet, #1823), og varselets i et fristkrav (OV-U5). Et fristkrav kan ha begge, og
+ * Feltet med datoen og vedleggene kommandoen viser til: brevets, kravets (VS-U38, #1823), og
+ * varselets i et fristkrav (OV-U5). Et fristkrav kan ha begge, og
  * vedleggene står da i samme brev. Feilmeldingene har stien herfra (#984).
  */
 const brevfelt = (k: Kommando): { sti: string; sendt?: unknown; dokumentasjon?: string[] } => {
@@ -404,8 +404,6 @@ export interface Kravform {
   feil(innhold: unknown): string[];
   /** Vedleggene innholdet i kravet viser til, utenom brevets. */
   vedleggIInnholdet(innhold: Innhold): string[];
-  /** Kravet kan ha vedlegg (`dokumentasjon`), som påberopelsen (VS-U38) og fristkravet (#1823). */
-  vedleggVedKravet: boolean;
   /** Kravet kan ha et varsel (`varsel`), som fristkravet (OV-U5). */
   varselVedKravet: boolean;
 }
@@ -417,6 +415,9 @@ const KRAVFORM: Record<Spor, Kravform> = {
   frist: KRAVFORM_I_FRISTEN,
 };
 
+/** Vedlegget som ID, som skiller ett vedlegg fra et annet: en UUID er den samme med store og små bokstaver. */
+const vedleggsnoekkel = (id: string): string => id.toLowerCase();
+
 /** Feilene i formen, tomme når kommandoen kan vurderes. */
 export function formfeil(kommando: unknown): string[] {
   if (!erObjekt(kommando)) return ['Kommandoen må være et objekt.'];
@@ -425,15 +426,21 @@ export function formfeil(kommando: unknown): string[] {
     return [`Ukjent kommando: ${String(type)}`];
   const feil = feilI(kommando, SKJEMA[type as Kommando['type']]);
   if (type === 'krav' && !feil.length) {
-    const k = kommando as { spor: Spor; innhold: unknown };
+    const k = kommando as { spor: Spor; innhold: unknown; dokumentasjon?: string[] };
     const form = iSporet(KRAVFORM, k.spor);
-    feil.push(...form.feil(k.innhold));
+    const innholdsfeil = form.feil(k.innhold);
+    feil.push(...innholdsfeil);
     if (!form.varselVedKravet && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter punkt 33.4');
-    // VS-U38: vedleggene ved påberopelsen; fristkravet har også brevet med varselet i `varsel`.
-    if (!form.vedleggVedKravet && 'dokumentasjon' in k)
+    // VS-U51: dokumentet med varselet for en kravpost ligger alt ved kravet.
+    const iInnholdet = new Set(
+      innholdsfeil.length || !k.dokumentasjon?.length
+        ? []
+        : form.vedleggIInnholdet(k.innhold as Innhold).map(vedleggsnoekkel)
+    );
+    if (k.dokumentasjon?.some((v) => iInnholdet.has(vedleggsnoekkel(v))))
       feil.push(
-        '$.dokumentasjon: bare påberopelsen og kravet om fristforlengelse har vedlegg ved kravet'
+        '$.dokumentasjon: vedlegget ved kravet er også dokumentet med varselet for en kravpost'
       );
     // KA-U82: forbeholdet gjelder ikke påberopelsen av forholdet.
     if (k.spor === 'forhold' && 'forbehold' in k)
@@ -459,8 +466,7 @@ export function formfeil(kommando: unknown): string[] {
     if (new Set(spor).size !== spor.length) feil.push('$.svar: to svar i samme spor');
   }
   const vedlegg = feil.length ? [] : dokumentasjon;
-  // En UUID er den samme med store og små bokstaver.
-  if (new Set(vedlegg.map((v) => v.toLowerCase())).size !== vedlegg.length)
+  if (new Set(vedlegg.map(vedleggsnoekkel)).size !== vedlegg.length)
     feil.push(`${sti}dokumentasjon: samme vedlegg står to ganger`);
   if (type === 'registrert_brev' && !feil.length) {
     const k = kommando as { spor?: Spor[]; beskrivelse: string };

@@ -121,7 +121,8 @@ function kravpost(lagret: boolean): Skjema {
  * Innholdet i vederlagskravet, lagret eller i kommandoen. `saerskilt` er postene utenfor
  * kravpostene: kravet etter § 34.1.3 annet ledd (OV-U89 punkt 6). Rigg og drift i forlenget
  * byggetid (OV-U89 punkt 17) er ikke i formatet før #1724 har satt formen, så en lagret rad med
- * posten er ikke forstått (#1775). `trekker` er kravpostene fra forrige versjon TE trekker (KA-U56).
+ * posten er ikke forstått (#1775). `trekker` er kravpostene fra forrige versjon TE trekker (KA-U56), og
+ * `trekker_saerskilt` den særskilte posten fra forrige versjon TE trekker (KA-U83).
  * Formen følger OV-U95 punkt 19–22 og arbeidsvalget 07.11 i domenetabellen.
  */
 export function vederlagsinnhold(lagret: boolean): {
@@ -134,9 +135,14 @@ export function vederlagsinnhold(lagret: boolean): {
       kravposter: liste(kravpost(lagret)),
       saerskilt: objekt({ produktivitet: BELOEPSPOST }, ['produktivitet']),
       trekker: liste(ID),
+      trekker_saerskilt: liste({ enum: ['produktivitet'] }),
     },
     required: [],
-    anyOf: [{ required: ['kravposter'] }, { required: ['saerskilt'] }],
+    anyOf: [
+      { required: ['kravposter'] },
+      { required: ['saerskilt'] },
+      { required: ['trekker_saerskilt'] },
+    ],
   };
 }
 
@@ -217,6 +223,7 @@ export interface Vederlagsinnhold {
   kravposter: readonly Kravpost[];
   saerskilt: { produktivitet?: { beloep: number }; rigg_og_drift?: { beloep: number } };
   trekker: readonly string[];
+  trekker_saerskilt: readonly 'produktivitet'[];
 }
 
 /** Vederlagskravet i kravet. */
@@ -226,6 +233,7 @@ export function innholdIVederlaget(krav: Pick<Krav, 'innhold'>): Vederlagsinnhol
     kravposter: innhold.kravposter ?? [],
     saerskilt: innhold.saerskilt ?? {},
     trekker: innhold.trekker ?? [],
+    trekker_saerskilt: innhold.trekker_saerskilt ?? [],
   };
 }
 

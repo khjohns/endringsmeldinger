@@ -259,6 +259,7 @@ const INNHOLD = {
   // en kravpost i en tidligere versjon, og kravposten sendes med dens id (KA-U56, KA-U75).
   // `produktivitet` er beløpet i posten etter § 34.1.3 annet ledd (OV-U89 punkt 6), bare i
   // versjonen handlingen lager; uten `belop` og `kravposter` har kravet bare posten (OV-U23).
+  // `trekker_saerskilt: true` trekker posten fra forrige versjon (KA-U83).
   vederlag: (h: Handling, u?: Utledning, nyId?: () => string, navn?: Navn) => ({
     ...(typeof h.produktivitet === 'number' && h.belop === undefined && !h.kravposter
       ? {}
@@ -266,6 +267,7 @@ const INNHOLD = {
     ...(typeof h.produktivitet === 'number'
       ? { saerskilt: { produktivitet: { beloep: h.produktivitet } } }
       : {}),
+    ...(h.trekker_saerskilt === true ? { trekker_saerskilt: ['produktivitet'] } : {}),
   }),
   // KA-U74, KA-U79: bevis-sakene har én frist, som ikke er registrert. En ny versjon tar den med
   // med sin `id`.

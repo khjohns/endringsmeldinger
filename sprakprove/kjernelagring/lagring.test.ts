@@ -147,6 +147,40 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
     expect(kravet.dokumentasjon.map((v) => v.vedlegg_id)).toContain(plan);
   });
 
+  it('vederlagskravet som trekker den særskilte vederlagsjusteringen og har et vedlegg ved kravet, lagres og leses igjen med begge (KA-U83, #1823)', async () => {
+    const bane = await basebane(o);
+    const k = await bygg(bane, [
+      { handling: 'krav', spor: 'forhold', underkategori: 'irregulaer_endring' },
+      { handling: 'krav', spor: 'vederlag', belop: 120000, produktivitet: 40000 },
+    ]);
+    const plan = randomUUID();
+    const journal = await bane.journal();
+    const utfall = await k.prov(
+      { handling: 'krav', spor: 'vederlag', belop: 120000, trekker_saerskilt: true },
+      (kommando) => {
+        kommando.dokumentasjon = [plan];
+      }
+    );
+    if (!utfall.godtatt)
+      throw new Error(`Forutsetning: kravet ble avvist: ${utfall.avvisning.regel}`);
+    await skrivRader(o, utfall.hendelser, journal.at(-1)!.versjon);
+    const lest = await journalen(o, bane.sakId);
+    const u = utledJournal(lest, KJERNE);
+    expect(u.forstaatt).toBe(true);
+    expect(u.begrensninger).toEqual([]);
+    const kravet = lest.at(-1)!.data as {
+      krav: { trekker_saerskilt?: string[]; saerskilt?: unknown }[];
+      brevtekst: { punkt?: string; laast: string }[];
+      dokumentasjon: { vedlegg_id: string }[];
+    };
+    expect(kravet.krav[0]!.trekker_saerskilt).toEqual(['produktivitet']);
+    expect(kravet.krav[0]!.saerskilt).toBeUndefined();
+    expect(kravet.brevtekst.find((a) => a.punkt === 'produktivitet')?.laast).toContain(
+      'Totalentreprenøren trekker kravet om særskilt justering av vederlaget'
+    );
+    expect(kravet.dokumentasjon.map((v) => v.vedlegg_id)).toEqual([plan]);
+  });
+
   it('en referanse til et svar i en annen sak gir en sak som ikke er forstått (7.1.4)', async () => {
     const a = await bygg(await basebane(o), ['forlop_a']);
     const baneB = await basebane(o);

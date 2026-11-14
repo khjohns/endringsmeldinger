@@ -265,7 +265,10 @@ export function fristeneStrider(
 ): string | null {
   const { forrige, sist, eier } = fristeneISporet(tidligere);
   const trekker = (ny.trekker ?? []) as string[];
-  const trekket = trekketStrider(trekker, forrige, 'fristen', betegnelsen);
+  const trekket = trekketStrider(trekker, forrige, (id) => {
+    const f = forrige.get(id);
+    return `fristen ${f ? betegnelsen(f) : id}`;
+  });
   if (trekket) return trekket;
   const trukket = new Set(trekker);
   const noekler = new Set<string>();

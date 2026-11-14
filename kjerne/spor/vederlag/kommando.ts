@@ -19,6 +19,7 @@ import { erObjekt, feilI, objekt } from '../../format/skjema.ts';
 import { brukteBetegnelser, nesteBetegnelse } from '../poster/utledning.ts';
 import {
   kravposteneStrider,
+  saerskiltStrider,
   kravpostvarseletStrider,
   kravpostvarslene,
   varselhjemmel,
@@ -193,14 +194,18 @@ const vedleggIKravpostene = (innhold: Innhold): string[] =>
 export const KRAVFORM_I_VEDERLAGET = {
   feil: kravfeil,
   vedleggIInnholdet: vedleggIKravpostene,
-  vedleggVedKravet: false,
   varselVedKravet: false,
 } satisfies Kravform;
 
-/** KA-U56 og KA-U75: kravpostene mot de tidligere kravversjonene, og VS-U50: varselet for posten. */
+/**
+ * KA-U56 og KA-U75: kravpostene mot de tidligere kravversjonene, KA-U83: den særskilte
+ * vederlagsjusteringen mot forrige versjon, og VS-U50: varselet for posten.
+ */
 function kravpostsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
   if (k.spor !== 'vederlag') return null;
-  const strid = kravposteneStrider(k.innhold, u.spor.vederlag.krav, false);
+  const strid =
+    kravposteneStrider(k.innhold, u.spor.vederlag.krav, false) ??
+    saerskiltStrider({ innhold: k.innhold }, u.spor.vederlag.krav);
   if (strid) return avvis('KRAVPOSTENE', `Kravversjonen ${strid}.`);
   const varselet = kravpostvarseletStrider(
     { innhold: k.innhold },
@@ -405,8 +410,36 @@ const kravpostvarslerIBrevet = (
 ): Record<string, Kravpostvarselet> =>
   kravpostvarslene(k, u.spor.vederlag.krav, foranKravet(nytt, lest, u));
 
+/**
+ * Et vedlegg ved kravet som alt ligger ved et varsel for en kravpost i saken (VS-U55). Kravet viser
+ * til varselet, og et dokument ved kravet som også er et varsel, er dokumentet kravskjemaet la
+ * til som varsel i samme handling (`foranKravet`, VS-U51).
+ */
+function vedleggetErEtVarsel(
+  k: Extract<Kommando, { type: 'krav' }>,
+  lest: readonly Domenehendelse[],
+  u: Utledning
+): Avvisning | null {
+  const ved = new Set((k.dokumentasjon ?? []).map((id) => id.toLowerCase()));
+  if (!ved.size) return null;
+  const varslene = new Set(u.spor.vederlag.kravpostvarsler.map((v) => v.dokument));
+  const dokumentet = lest.find(
+    (h) =>
+      h.art === 'dokument' &&
+      varslene.has(h.id) &&
+      h.dokument.dokumentasjon.some((v) => ved.has(v.vedlegg_id.toLowerCase()))
+  );
+  return dokumentet
+    ? avvis(
+        'KRAVPOSTVARSELET',
+        'Et vedlegg ved kravet ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.'
+      )
+    : null;
+}
+
 export const SKRIVING_I_VEDERLAGET = {
   kravinnhold: (innhold, u, { nyId }) => medKravposter(innhold, u, nyId),
+  saksperre: vedleggetErEtVarsel,
   handlingen: medDokumentvarslene,
   postvarsler: kravpostvarslerIBrevet,
 } satisfies Sporsskriving;

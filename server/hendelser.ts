@@ -365,7 +365,7 @@ export async function behandle(
         if (!vurdert.godtatt) return { skriv: false as const, avvisning: vurdert.avvisning };
         return { format: vurdert.format, data: vurdert.data };
       },
-      { topic: { board, topic: topicId } }
+      { topic: { board, topic: topicId, nummer: topic.nummer } }
     );
     if ('avvisning' in utfall) return ut('avvist', utfall.avvisning.melding);
     return { ...ut('sak_opprettet'), sakId: utfall.sak_id };

@@ -30,7 +30,7 @@
  * - Med både innloggingen og Catenda satt opp starter jobbkjøreren (`jobber.ts`, #741), som lager
  *   topicen for en ny sak med integrasjonens token. Lenken i topicen peker til
  *   `AUTH_FRONTEND_URL`. Uten Catenda venter jobbene i basen.
- * - `CATENDA_SAKSLENKE` er malen for lenken fra saken til topicen i Catenda
+ * - `CATENDA_NETTADRESSE` er verten for lenken fra saken til topicen i Catenda
  *   (`sakslenkeFraMiljoe` i `catenda.ts`). Uten den har saken ingen lenke.
  */
 
@@ -111,7 +111,7 @@ try {
 } catch (feil) {
   console.warn(`HR-synkroniseringen er ikke satt opp: ${(feil as Error).message}`);
 }
-// Uten malen har saken ingen lenke til Catenda (U-15 i BF-44).
+// Uten verten har saken ingen lenke til Catenda (U-15 i BF-44).
 let sakslenke: Sakslenke | null = null;
 try {
   sakslenke = sakslenkeFraMiljoe();
