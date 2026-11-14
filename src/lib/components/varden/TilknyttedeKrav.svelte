@@ -67,8 +67,7 @@
 
 <!-- Skillet står med hardt mellomrom etter beløpet, så ingen linje begynner med «·». -->
 {#snippet utenFast(n: number)}&nbsp;<span class="uten"
-    ><span aria-hidden="true"> · </span><span class="visually-hidden">, </span>
-    {FORHOLDET.utenFastBeloep(n)}</span
+    ><span aria-hidden="true">·</span> {FORHOLDET.utenFastBeloep(n)}</span
   >{/snippet}
 
 <!-- KA-U74: dagene står per frist og legges ikke sammen. -->
