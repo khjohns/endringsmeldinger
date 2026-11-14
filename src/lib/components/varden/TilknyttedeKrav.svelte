@@ -79,7 +79,8 @@
       <li>
         <span class="frist">{f.betegnelse}</span>
         {#if f.dager.length}<span class="verdi"
-            >{#each f.dager as p, j (j)}<span class="num">{dager(p.tall)}</span
+            >{#each f.dager as p, j (j)}{#if j}<span aria-hidden="true"> · </span>{/if}<span
+                class="num">{dager(p.tall)}</span
               >{#if p.lag}&nbsp;<span class="lag">{p.lag}</span>{/if}{/each}</span
           >{:else}<span class="dempet">{FORHOLDET.ikkeSvart}</span>{/if}
       </li>
@@ -134,8 +135,9 @@
                     {#if k.frister.length}{@render perFrist(
                         k.frister.map((f) => ({ betegnelse: f.betegnelse, dager: f.svaret }))
                       )}{:else if k.svaret.poster.length}<span class="verdi"
-                        >{#each k.svaret.poster as p, i (i)}{#if i}{/if}<span class="num"
-                            >{tall(k.spor, p.tall)}</span
+                        >{#each k.svaret.poster as p, i (i)}{#if i}<span aria-hidden="true">
+                              ·
+                            </span>{/if}<span class="num">{tall(k.spor, p.tall)}</span
                           >{#if p.lag}&nbsp;<span class="lag">{p.lag}</span
                             >{/if}{/each}{#if k.svaret.utenFast}{@render utenFast(
                             k.svaret.utenFast
@@ -267,7 +269,7 @@
   .frister {
     flex-basis: 100%;
     display: grid;
-    grid-template-columns: fit-content(60%) minmax(0, 1fr);
+    grid-template-columns: minmax(0, max-content) auto;
     gap: var(--spacing-1) var(--spacing-3);
     margin: 0;
     padding: 0;
@@ -280,7 +282,7 @@
     align-items: baseline;
   }
   .frist {
-    color: var(--ink-2);
+    color: var(--ink);
   }
   .num {
     font-size: 16px;
@@ -305,6 +307,9 @@
     color: var(--ink-2);
   }
   @media (max-width: 560px) {
+    .tall {
+      gap: var(--spacing-3);
+    }
     .tall div {
       grid-template-columns: 1fr;
       gap: 0;
