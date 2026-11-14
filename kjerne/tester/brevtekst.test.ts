@@ -1459,7 +1459,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     ]);
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager (§ 33.6.1), subsidiært godkjent med 15 dager.'
+      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Sluttfristen (§ 33.6.1), subsidiært godkjent med 15 dager.'
     );
   });
 
@@ -1478,7 +1478,56 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt godkjent med 1 dag (§ 33.6.1), subsidiært godkjent med 1 dag.'
+      'Byggherrens standpunkt: prinsipalt godkjent med 1 dag for frist Sluttfristen (§ 33.6.1), subsidiært godkjent med 1 dag.'
+    );
+  });
+
+  it('med to frister nevner linjen fristen dagene byggherren måtte forstå gjelder, også en med 0 dager, som brevteksten (#1931, VS-U4)', () => {
+    const s = sakMedKrav();
+    s.send('TE', {
+      ...utenFelt(FRISTKRAV, 'varsel'),
+      innhold: {
+        frister: [
+          {
+            id: innholdIFristen(s.u().spor.frist.gjeldendeKrav!).frister[0]!.id,
+            navn: 'Sluttfristen',
+            dager: 20,
+          },
+          { navn: 'Delfristen', dager: 10 },
+        ],
+      },
+    });
+    const [a, b] = innholdIFristen(s.u().spor.frist.gjeldendeKrav!).frister.map((f) => f.id);
+    const rad = s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'frist',
+          s.krav('frist'),
+          {
+            ...utenFelt(FRIST_FULLT[0], 'dager'),
+            spesifisert_krav_ok: false,
+            frister: [
+              { dager: 15, dager_maatte_forstaa: 0 },
+              { dager: 10, dager_maatte_forstaa: 5 },
+            ],
+          },
+          {
+            frister: [
+              { gjelder: a, resultat: 'avslaatt', godkjent_dager: 0 },
+              { gjelder: b, resultat: 'delvis_godkjent', godkjent_dager: 5 },
+            ],
+          }
+        ),
+      ],
+    });
+    expect(laast(rad).join('\n\n')).toContain(
+      'måtte forstå at totalentreprenøren hadde krav på: 0 dager for frist Sluttfristen og 5 dager for frist Delfristen (punkt 33.6.1).'
+    );
+    const b2 = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
+    // Leddene for dagene nevner ikke fristen (#1943).
+    expect(b2.linje).toBe(
+      'Byggherrens standpunkt: prinsipalt godkjent med 0 dager for frist Sluttfristen og 5 dager for frist Delfristen (§ 33.6.1), subsidiært godkjent med 15 dager, godkjent med 10 dager.'
     );
   });
 
@@ -1572,7 +1621,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), videre subsidiært godkjent med 5 dager (§ 33.6.1), videre subsidiært godkjent med 10 dager.'
+      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), videre subsidiært godkjent med 5 dager for frist Sluttfristen (§ 33.6.1), videre subsidiært godkjent med 10 dager.'
     );
   });
 

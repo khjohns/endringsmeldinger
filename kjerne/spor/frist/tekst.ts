@@ -31,6 +31,11 @@ function fristenI(krav: Krav, gjelder: string): FristIKravet {
   return f;
 }
 
+function kravetFor(kravet: Krav | null | undefined): Krav {
+  if (!kravet) throw new KanIkkeUttrykkes('linjen har ikke kravet svaret gjelder');
+  return kravet;
+}
+
 /** Fristene og dagene i kravet, som brevet omtaler kravet med i trekket (KA-U22). */
 const fristeneMedDager = (krav: Krav): string =>
   opplistet(
@@ -206,14 +211,20 @@ export const STANDPUNKTENE_I_FRISTEN = {
 } satisfies Standpunktstekster<'hindring' | 'spesifisering' | 'dager'>;
 
 export const LINJEN_I_FRISTEN = {
-  grunner: (svar, paaberopelse) => {
+  grunner: (svar, paaberopelse, kravet) => {
     const spesifisert = standpunktet(svar, 'spesifisering');
     const maatteForstaa = spesifisert?.maatteForstaa;
     return {
       // KA-U81: som brevteksten nevner linjen begge vilkårene.
       hindring: `avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ ${hindringenEtter(paaberopelse)})`,
+      // Dagene for hver frist, med fristens betegnelse som i brevteksten (#1931).
       spesifisering: maatteForstaa?.some((m) => m.dager > 0)
-        ? `godkjent med ${maatteForstaa.map((m) => dager(m.dager)).join(', ')} (§ 33.6.1)`
+        ? `godkjent med ${opplistet(
+            maatteForstaa.map(
+              (m) =>
+                `${dager(m.dager)} for frist ${betegnelsen(fristenI(kravetFor(kravet), m.frist))}`
+            )
+          )} (§ 33.6.1)`
         : 'avslått (§ 33.6.1)',
     };
   },
