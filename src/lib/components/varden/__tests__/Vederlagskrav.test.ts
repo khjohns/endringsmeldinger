@@ -194,7 +194,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     expect(typeof p2.varsel).toBe('string');
   });
 
-  it('panelet «Punktene» markerer punktet for avsnittet du står i, også når et indre element ruller og i bunnen, og hver kravpost er en lenke til kravposten (U-15 i BF-14, #1827)', async () => {
+  it('panelet «Punktene» markerer punktet for avsnittet du står i, når dokumentet eller et indre element ruller og i bunnen, og hver kravpost er en lenke til kravposten (U-15 i BF-14, #1827)', async () => {
     await aapneSomTe('forholdet-er-godkjent');
     await fireEvent.click(
       within(
@@ -216,13 +216,21 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
           top: forbi.includes(navn) ? 0 : window.innerHeight,
         } as DOMRect);
     };
-    // Saken ruller i et element inne i skallet, ikke i vinduet (`.project-shell`).
+    // Et indre element som ruller, teller som dokumentet.
     const rulleflate = avsnitt('Vederlagsjustering').parentElement!;
     const rull = async () => {
       await fireEvent.scroll(rulleflate);
       await new Promise((ferdig) => requestAnimationFrame(ferdig));
     };
     toppen([]);
+    await rull();
+    expect(merket()).toEqual(['Vederlagsjustering']);
+    // Saksruta ruller dokumentet (#1630).
+    toppen(['Vederlagsjustering', 'Varslene']);
+    await fireEvent.scroll(document);
+    await new Promise((ferdig) => requestAnimationFrame(ferdig));
+    expect(merket()).toEqual(['Varslene']);
+    toppen(['Vederlagsjustering']);
     await rull();
     expect(merket()).toEqual(['Vederlagsjustering']);
     toppen(['Vederlagsjustering', 'Varslene']);

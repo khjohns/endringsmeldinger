@@ -13,29 +13,19 @@
 
 <svelte:head><title>Saker — {projectMeta.name}</title></svelte:head>
 
-<div class="rull">
-  <Saksliste
-    saker={query.data?.saker ?? []}
-    part={query.data?.part ?? null}
-    laster={query.isLoading}
-    feil={query.isError
-      ? query.error instanceof Error
-        ? query.error.message
-        : 'Prøv igjen senere.'
-      : null}
-    onproevIgjen={() => query.refetch()}
-    prosjektNavn={projectMeta.name}
-    sakslenke={(sakId) => resolve('/[prosjektId]/[sakId]', { prosjektId, sakId })}
-    nyttKrav={resolve('/[prosjektId]/ny', { prosjektId })}
-    prosjekter={resolve('/')}
-    bruker={page.data.user}
-  />
-</div>
-
-<style>
-  /* `.project-shell` i layouten er like høy som vinduet og ruller ikke, så lista ruller her. */
-  .rull {
-    height: 100%;
-    overflow-y: auto;
-  }
-</style>
+<Saksliste
+  saker={query.data?.saker ?? []}
+  part={query.data?.part ?? null}
+  laster={query.isLoading}
+  feil={query.isError
+    ? query.error instanceof Error
+      ? query.error.message
+      : 'Prøv igjen senere.'
+    : null}
+  onproevIgjen={() => query.refetch()}
+  prosjektNavn={projectMeta.name}
+  sakslenke={(sakId) => resolve('/[prosjektId]/[sakId]', { prosjektId, sakId })}
+  nyttKrav={resolve('/[prosjektId]/ny', { prosjektId })}
+  prosjekter={resolve('/')}
+  bruker={page.data.user}
+/>

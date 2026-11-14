@@ -137,8 +137,18 @@ function vurderinger(spor: Spor, h: Record<string, unknown>, krav: Krav | null):
           s,
         }))
       : poster.slice(0, 1).map((p) => ({ gjelder: p.id, s: h }));
+    // `produktivitet` i handlingen gir svaret på posten etter § 34.1.3 annet ledd (VS-U5, OV-U27).
+    const p = h.produktivitet as Record<string, unknown> | null | undefined;
     return {
       hovedkrav_varslet_i_tide: h.varslet_i_tide,
+      ...(typeof p === 'object' && p !== null
+        ? {
+            produktivitet_vurdering: p.vurdering,
+            produktivitet_godkjent_beloep: p.godkjent_belop,
+            produktivitet_varslet_i_tide: p.varslet_i_tide,
+            produktivitet_begrenset_beloep: p.begrenset_belop,
+          }
+        : {}),
       kravposter: svarene.map(({ gjelder, s }) => ({
         gjelder,
         vurdering: s.vurdering,
@@ -246,50 +256,16 @@ const INNHOLD = {
   // Én kravpost med fast sum, P1, som følger med fra forrige versjon (OV-U95 punkt 19, arbeidsvalget 07.11 i domenetabellen).
   // `kravposter` og `trekker` i handlingen gir kravpostene selv; `post` er betegnelsen til
   // en kravpost i en tidligere versjon, og kravposten sendes med dens id (KA-U56, KA-U75).
-  vederlag: (h: Handling, u?: Utledning, nyId?: () => string, navn?: Navn) => {
-    if (Array.isArray(h.kravposter)) {
-      const tidligere = (u?.spor.vederlag.krav ?? []).flatMap((k) => kravposterI(k));
-      const idFor = (betegnelse: unknown) =>
-        tidligere.find((p) => p.betegnelse === betegnelse)?.id ?? 'ukjent-kravpost';
-      return {
-        kravposter: (h.kravposter as Record<string, unknown>[]).map((p) => ({
-          ...(typeof p.post === 'string' ? { id: idFor(p.post) } : {}),
-          beskrivelse: 'Kravposten i bevis-saken',
-          oppgjoersform: p.oppgjoersform ?? 'tilbud',
-          ...(p.justert === undefined ? {} : { justert: p.justert }),
-          ...(p.belop === undefined ? {} : { beloep: p.belop }),
-          // VS-U50, VS-U54: etiketten til et varsel i saken, eller et dokument fra kravskjemaet
-          // med datoen (VS-U53), som får et vedlegg.
-          ...(typeof p.varsel === 'string'
-            ? { varsel: navn?.id(`${p.varsel}#varsel`) }
-            : typeof p.varsel === 'object' && p.varsel !== null
-              ? {
-                  varsel: {
-                    korrespondansetype: 'brev',
-                    dokumentasjon: [navn?.nyId() ?? 'vedlegg'],
-                    ...(p.varsel as Record<string, unknown>),
-                  },
-                }
-              : {}),
-        })),
-        ...(Array.isArray(h.trekker) ? { trekker: h.trekker.map(idFor) } : {}),
-      };
-    }
-    const forrige = u?.spor.vederlag.gjeldendeKrav;
-    const p1 = forrige ? kravposterI(forrige)[0] : undefined;
-    const id = p1?.id ?? nyId?.();
-    return {
-      kravposter: [
-        {
-          ...(id ? { id } : {}),
-          ...(nyId ? { betegnelse: p1?.betegnelse ?? 'P1' } : {}),
-          beskrivelse: 'Kravposten i bevis-saken',
-          oppgjoersform: 'tilbud',
-          beloep: h.belop,
-        },
-      ],
-    };
-  },
+  // `produktivitet` er beløpet i posten etter § 34.1.3 annet ledd (OV-U89 punkt 6), bare i
+  // versjonen handlingen lager; uten `belop` og `kravposter` har kravet bare posten (OV-U23).
+  vederlag: (h: Handling, u?: Utledning, nyId?: () => string, navn?: Navn) => ({
+    ...(typeof h.produktivitet === 'number' && h.belop === undefined && !h.kravposter
+      ? {}
+      : kravposterIKravet(h, u, nyId, navn)),
+    ...(typeof h.produktivitet === 'number'
+      ? { saerskilt: { produktivitet: { beloep: h.produktivitet } } }
+      : {}),
+  }),
   // KA-U74, KA-U79: bevis-sakene har én frist, som ikke er registrert. En ny versjon tar den med
   // med sin `id`.
   frist: (h: Handling, u?: Utledning, nyId?: () => string) => {
@@ -316,6 +292,52 @@ const INNHOLD = {
     return { frister: [{ ...(id ? { id } : {}), navn: FRISTEN, dager: h.dager }] };
   },
 };
+
+/** Kravpostene i vederlagskravet for handlingen; se `INNHOLD.vederlag`. */
+function kravposterIKravet(h: Handling, u?: Utledning, nyId?: () => string, navn?: Navn) {
+  if (Array.isArray(h.kravposter)) {
+    const tidligere = (u?.spor.vederlag.krav ?? []).flatMap((k) => kravposterI(k));
+    const idFor = (betegnelse: unknown) =>
+      tidligere.find((p) => p.betegnelse === betegnelse)?.id ?? 'ukjent-kravpost';
+    return {
+      kravposter: (h.kravposter as Record<string, unknown>[]).map((p) => ({
+        ...(typeof p.post === 'string' ? { id: idFor(p.post) } : {}),
+        beskrivelse: 'Kravposten i bevis-saken',
+        oppgjoersform: p.oppgjoersform ?? 'tilbud',
+        ...(p.justert === undefined ? {} : { justert: p.justert }),
+        ...(p.belop === undefined ? {} : { beloep: p.belop }),
+        // VS-U50, VS-U54: etiketten til et varsel i saken, eller et dokument fra kravskjemaet
+        // med datoen (VS-U53), som får et vedlegg.
+        ...(typeof p.varsel === 'string'
+          ? { varsel: navn?.id(`${p.varsel}#varsel`) }
+          : typeof p.varsel === 'object' && p.varsel !== null
+            ? {
+                varsel: {
+                  korrespondansetype: 'brev',
+                  dokumentasjon: [navn?.nyId() ?? 'vedlegg'],
+                  ...(p.varsel as Record<string, unknown>),
+                },
+              }
+            : {}),
+      })),
+      ...(Array.isArray(h.trekker) ? { trekker: h.trekker.map(idFor) } : {}),
+    };
+  }
+  const forrige = u?.spor.vederlag.gjeldendeKrav;
+  const p1 = forrige ? kravposterI(forrige)[0] : undefined;
+  const id = p1?.id ?? nyId?.();
+  return {
+    kravposter: [
+      {
+        ...(id ? { id } : {}),
+        ...(nyId ? { betegnelse: p1?.betegnelse ?? 'P1' } : {}),
+        beskrivelse: 'Kravposten i bevis-saken',
+        oppgjoersform: 'tilbud',
+        beloep: h.belop,
+      },
+    ],
+  };
+}
 
 /** Fristen i bevis-sakene. */
 const FRISTEN = 'Sluttfristen';
@@ -522,6 +544,8 @@ export function radFor(
             }
           : { frister: [{ id: 'f1', navn: FRISTEN, dager: 20 }] },
     };
+    if (spor === 'vederlag' && s.produktivitet !== undefined)
+      throw new Error('En registrert rad lager ikke posten etter § 34.1.3; send svaret i et brev.');
     const v = vurderinger(spor, s, krav);
     const standpunkter: Record<string, unknown>[] = [];
     if (spor === 'forhold' && typeof s.varslet_i_tide === 'boolean')

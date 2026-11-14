@@ -395,9 +395,9 @@
   ]);
 
   // Punktet i panelet for avsnittet du står i (U-15 i BF-14, `aria-current`): det siste avsnittet
-  // som har passert en linje 30 % ned i vinduet, eller det siste når rullingen er i bunnen. Saken
-  // ruller i et element inne i skallet, så rullingen fanges på `document` i capture-fasen. Lytteren
-  // lages på nytt bare når avsnittene endres, ikke for hver status.
+  // som har passert en linje 30 % ned i vinduet, eller det siste når rullingen er i bunnen. Rullingen
+  // fanges på `document` i capture-fasen, så den teller både når dokumentet ruller og når et indre
+  // element med skjemaet gjør det. Lytteren lages på nytt bare når avsnittene endres.
   const punktider = $derived(punkter.map((p) => p.id).join(' '));
   let aktivtPunkt = $state<string | null>(null);
   $effect(() => {
