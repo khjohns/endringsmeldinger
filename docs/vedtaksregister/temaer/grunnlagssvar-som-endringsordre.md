@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `f24ad11aeb340f3d2c7c8fff280d2ab9a04188248d5fb5b0693d595df0d71550`
+Kontrollsum (SHA-256 over utdraget visningen leser): `47865294f9ce935926fe1ae22470cf1fc0bc5551a4d9c42d82005e8a0cfa91f5`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1033,9 +1033,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Utvider [OV-U95](#ov-u95). Utvider [KA-U56](#ka-u56). Utvider [KA-U75](#ka-u75). Presiserer [KA-U75](#ka-u75). Forholdet står i alternativ A: utvider OV-U95 punkt 21 (KA-U56) og KA-U75 til den særskilte vederlagsjusteringen, og presiserer KA-U75 for den eneste posten. Bygges i #1823.
 
-**Regelrader:** —
+**Regelrader:** [KA-58](#rad-ka-58)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-KA-U83 (målmodellen)
 
 ### <a id="ka-u45"></a>KA-U45
 
@@ -4136,3 +4136,4 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-ka-55"></a>KA-55 | TE har sendt et vederlagskrav med kravposten P1. TE sender en ny kravversjon som verken tar med eller trekker P1, en som tar med P1, og en som trekker P1. Etter trekket sender TE en ny kravversjon som tar med P1 igjen. | [KA-U56](#ka-u56), [KA-U75](#ka-u75), [KA-U53](#ka-u53), [OV-U95](#ov-u95) | F-MM-KA-U56 (målmodellen), F-MM-KA-U75 (målmodellen) |
 | <a id="rad-ka-56"></a>KA-56 | TE har sendt et vederlagskrav. Byggherren svarer med ett beløp for hele kravet, når kravet har én kravpost med fast sum, og når det har flere kravposter. | [KA-U59](#ka-u59), [OV-U95](#ov-u95) | F-MM-KA-U59 (målmodellen) |
 | <a id="rad-ka-57"></a>KA-57 | TE har sendt et fristkrav med dager for én eller flere frister i kontrakten. TE sender en ny kravversjon som utelater en frist uten å trekke den, en som trekker den, en som tar den med igjen etter trekket, en som bytter en registrert frist med en annen, og en som erstatter en frist som ikke er registrert, med den registrerte fristen. TE sender også et krav om en frist som ikke står i fristtabellen for prosjektet. | [KA-U76](#ka-u76), [KA-U79](#ka-u79) | F-MM-KA-U76 (målmodellen), F-MM-KA-U76-igjen (målmodellen), F-MM-KA-U79-tilbake (målmodellen), F-MM-GFK-U23 (målmodellen) |
+| <a id="rad-ka-58"></a>KA-58 | TE har sendt et vederlagskrav med den særskilte vederlagsjusteringen etter § 34.1.3 annet ledd. TE sender en ny kravversjon som verken tar med eller trekker posten, en som trekker den, og en som tar den med igjen etter trekket. TE trekker også posten når den er den eneste i kravet. | [KA-U83](#ka-u83) | F-MM-KA-U83 (målmodellen) |
