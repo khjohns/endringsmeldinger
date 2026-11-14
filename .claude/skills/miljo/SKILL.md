@@ -265,20 +265,14 @@ plattformen gjør.
   `gh api -X PUT repos/<eier>/<repo>/pulls/<n>/update-branch -f expected_head_sha=<SHA>`
   og `gh api -X PUT repos/<eier>/<repo>/pulls/<n>/merge -f sha=<hele SHA-en> -f merge_method=merge`.
 
-### Omvei: `CssSyntaxError` i Varden-testene (#1394)
+### `CssSyntaxError` i komponenttestene (#1394, #1840)
 
-I checkouten `/home/user/endringsmeldinger` kan `Demoforloep.test.ts` og `Varden.test.ts`
-feile før en test kjører, med `CssSyntaxError: Invalid declaration` fra
-`@tailwindcss/vite:generate:serve`. Årsaken er ikke funnet. Å stoppe `vite dev`, slette
-`node_modules/.vite`, kjøre `npx svelte-kit sync` eller bytte `.svelte-kit` hjalp ikke
-(kontrollert 29.10). Omveien er et eget arbeidstre:
+`CssSyntaxError: Invalid declaration` fra `@tailwindcss/vite:generate:serve`, med
+`failed to load virtual css module` foran, kommer av en Svelte-komponent i
+`node_modules/.vitest-cache` uten CSS-modulen sin. Det skjer når en kjøring avbrytes
+mellom de to skrivingene. `vite.config.ts` holder komponentene utenfor cachen (#1972).
+På en gren uten den rettingen er omveien:
 
 ```bash
-git worktree add ../wt origin/main && cp -r node_modules ../wt/
-# kopier inn grenens endrede filer, kjør npx vitest run i ../wt
-git worktree remove --force ../wt
+npx vitest --clearCache
 ```
-
-`node_modules` som symlenke fungerte også i et arbeidstre under `.claude/worktrees/`
-(kontrollert 03.11, Varden-testene: 21 grønne). `npx vitest --clearCache` er ikke prøvd mot
-feilen, og den står ikke her før den er det.

@@ -676,7 +676,7 @@ try {
     if (lest.status !== 200 || lest.kropp?.part !== navn.toUpperCase())
       throw new Error(`${navn.toUpperCase()} leste ikke saken med sin egen part`);
     await side.goto(`${FRONTEND}${saksrute}`);
-    await side.getByText(tittel).first().waitFor({ timeout: 30_000 });
+    await side.getByText(tittel).filter({ visible: true }).first().waitFor({ timeout: 30_000 });
     await side.waitForTimeout(500);
     await side.screenshot({ path: join(UT, `saksrute-${navn}.png`), fullPage: true });
   }
@@ -719,7 +719,7 @@ try {
     const godta = te.getByRole('button', { name: /^Godta svaret/ });
     for (const tilstand of FEILTILSTANDER) {
       await te.goto(`${FRONTEND}${saksrute}`);
-      await te.getByText('Vederlagsjustering', { exact: true }).first().click({ timeout: 30_000 });
+      await te.getByText('Vederlagsjustering', { exact: true }).filter({ visible: true }).first().click({ timeout: 30_000 });
       await godta.first().waitFor({ timeout: 30_000 }).catch((feil: unknown) => {
         throw new Error('--feil trenger et kontrollpunkt der TE kan godta BHs svar (--til)', { cause: feil });
       });

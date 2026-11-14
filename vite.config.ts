@@ -21,8 +21,23 @@ function tsServeren(): Plugin {
   return { name: 'ts-serveren', configureServer: prefiks, configurePreviewServer: prefiks };
 }
 
+/**
+ * Holder Svelte-komponentene utenfor modulcachen i vitest (`node_modules/.vitest-cache`).
+ * CSS-modulen til en komponent leses fra kompileringen av komponenten. Hentes komponenten
+ * fra cachen uten CSS-modulen, finnes ingen kompilering, og `@tailwindcss/vite` leser hele
+ * `.svelte`-fila som CSS (`CssSyntaxError`, #1840, #1394).
+ */
+function svelteUtenforModulcachen(): Plugin {
+  return {
+    name: 'svelte-utenfor-modulcachen',
+    configureVitest({ defineCacheKeyGenerator }) {
+      defineCacheKeyGenerator(({ id }) => (id.endsWith('.svelte') ? false : undefined));
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [tsServeren(), tailwindcss(), sveltekit()],
+  plugins: [tsServeren(), svelteUtenforModulcachen(), tailwindcss(), sveltekit()],
   resolve: {
     conditions: ['browser', 'svelte'],
   },
