@@ -14,12 +14,15 @@
     brev,
     datoer,
     utfylt = [],
+    frister = [],
     aapen = true,
   }: {
     brev: Brevet[];
     datoer: OppgittDato[];
     /** Datoene i et brev som ennå ikke er sendt, med teksten skjemaet gir dem. */
     utfylt?: { naar: string; hva: string; kilde: string }[];
+    /** Fristene i kontrakten, etter datoen, i en egen gruppe (BF-20 U-5). En krevd frist har fylt ring. */
+    frister?: { noekkel: string; naar: string; hva: string; kilde: string; krevd: boolean }[];
     aapen?: boolean;
   } = $props();
 
@@ -68,14 +71,17 @@
       ),
     ].sort((a, b) => a.naar.localeCompare(b.naar))
   );
+  const uid = $props.id();
+  const fristene = $derived([...frister].sort((a, b) => a.naar.localeCompare(b.naar)));
+  const antall = $derived(oppfoeringer.length + fristene.length);
 </script>
 
 <section class="kort" aria-label={TIDSLINJE.tittel}>
-  {#if oppfoeringer.length}
+  {#if antall}
     <details open={aapen}>
       <summary class="hode">
         <span class="tittel">{TIDSLINJE.tittel}</span>
-        <span class="antall">{TIDSLINJE.oppfoeringer(oppfoeringer.length)}</span>
+        <span class="antall">{TIDSLINJE.oppfoeringer(antall)}</span>
         <ChevronRight size={16} aria-hidden="true" />
       </summary>
       <ol class="liste">
@@ -90,6 +96,22 @@
           </li>
         {/each}
       </ol>
+      {#if fristene.length}
+        <h3 class="gruppe" id={`${uid}-fristene`}>{TIDSLINJE.fristene}</h3>
+        <ol class="liste" aria-labelledby={`${uid}-fristene`}>
+          {#each fristene as f (f.noekkel)}
+            <li class="rad">
+              <span class="merke {f.krevd ? 'merke-sendt' : 'merke-oppgitt'}" aria-hidden="true"
+              ></span>
+              <div>
+                <p class="naar">{dato(f.naar)}</p>
+                <p class="hva">{f.hva}</p>
+                {#if f.kilde}<p class="kilde">{f.kilde}</p>{/if}
+              </div>
+            </li>
+          {/each}
+        </ol>
+      {/if}
     </details>
   {:else}
     <!-- Uten oppføringer er det ingenting å åpne, så hodet er ingen knapp (#1391). -->
@@ -153,6 +175,12 @@
   .antall {
     color: var(--ink-3);
     font-size: 12px;
+  }
+  .gruppe {
+    padding: 0 var(--spacing-5) var(--spacing-3);
+    color: var(--ink-3);
+    font-size: 12px;
+    font-weight: 600;
   }
   .liste {
     padding: 0 var(--spacing-5) var(--spacing-5);

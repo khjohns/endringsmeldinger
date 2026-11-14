@@ -8,7 +8,7 @@
  * brevnummer). Den finner ikke på virkningen.
  */
 
-import { opplistet } from '$kjerne/frosset/brevdeler';
+import { liste, opplistet } from '$kjerne/frosset/brevdeler';
 import { dager, kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Betegnelse } from '$kjerne/utledning/visning';
@@ -641,6 +641,7 @@ export const TIDSLINJE = {
   sendt: (part: Part, b: Brevref) => `${brevrefStor(b)} sendt av ${part}`,
   registrert: (part: Part, lagtTil: string) => `Sendt ifølge ${part}, lagt til ${dato(lagtTil)}`,
   tom: 'Ingen datoer eller brev ennå.',
+  fristene: 'Fristene i kontrakten',
 };
 
 /** Betegnelsene i MM-U30, slik lista står i system.md. */
@@ -1434,6 +1435,29 @@ export const FRISTKRAV = {
   fjern: 'Fjern',
   fjernFrist: (navn: string) => `Fjern ${navn}`,
   leggTil: 'Legg til frist',
+  // Tabellen med fristene, én åpen rad om gangen (prototypen `#nytt-krav`).
+  kolonner: ['Nr.', 'Frist', 'I kontrakten', 'Dager'],
+  dagmulkt: 'Dagmulkt',
+  endre: 'Endre',
+  endreFrist: (navn: string) => `Endre ${navn}`,
+  ferdig: 'Ferdig',
+  dagerMangler: 'Ikke oppgitt',
+  /** Datoen i fristtabellen. Gjeldende frist med forlengelsene i andre saker venter på G-2 (U-2). */
+  iKontrakten: (d: string, dagmulkt: boolean) =>
+    `Datoen i kontrakten: ${dato(d)}.${dagmulkt ? ' Fristen er dagmulktbelagt.' : ''}`,
+  fristvalg: (navn: string, d: string, dagmulkt: boolean) =>
+    `${navn} · ${dato(d)}${dagmulkt ? ' · dagmulkt' : ''}`,
+  trukketMerk: (navn: string) =>
+    `Kravet om forlengelse av ${navn} trekkes i denne versjonen. Brevet sier det uttrykkelig.`,
+  /** Fristen omtalt i en setning: «frist 2 (overtakelse)». */
+  omtale: (nummer: string | null, navn: string) =>
+    nummer ? `frist ${nummer} (${navn.toLowerCase()})` : navn.toLowerCase(),
+  // U-4: snarveien for de senere fristene i kontrakten.
+  snarvei: (d: string, senere: string[], kilde: string) =>
+    `Krev også ${d} for ${liste(senere)}, som for ${kilde}`,
+  // U-5: fristene i tidslinja.
+  krevd: (d: string) => `krevd forlenget ${d}`,
+  dagmulktLiten: 'dagmulkt',
   trekkHjelp:
     'En frist du tar ut, trekkes uttrykkelig. Brevet sier det, og fristen kan tas med igjen i en senere versjon.',
   // 3. Begrunnelsen.

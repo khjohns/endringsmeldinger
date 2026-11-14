@@ -191,24 +191,126 @@
       : FRISTKRAV.dagerTilIDag(klarOver.dato, kalenderdager(klarOver.dato, iDag));
   });
   const grense = vedleggsgrense((fil) => kjernesak.lastOppVedlegg(fil));
-  // Fristene i fristtabellen og en frist som ikke er registrert (KA-U79).
+  const fristdatoer = $derived(new Map(kjernesak.fristdatoer.map((d) => [d.fristId, d])));
+  const datoFor = (p: Fristpostvalg) =>
+    typeof p.frist === 'number' ? (fristdatoer.get(p.frist) ?? null) : null;
+  // Fristene i fristtabellen med datoen i kontrakten, og en frist som ikke er registrert (KA-U79).
   const fristvalg = $derived([
-    ...tabell.map((f) => ({ verdi: String(f.fristId), tekst: betegnelsen(f) })),
+    ...tabell.map((f) => {
+      const d = fristdatoer.get(f.fristId);
+      return {
+        verdi: String(f.fristId),
+        tekst: d ? FRISTKRAV.fristvalg(betegnelsen(f), d.dato, d.dagmulktbelagt) : betegnelsen(f),
+      };
+    }),
     { verdi: 'annen', tekst: FRISTKRAV.ikkeRegistrert },
   ]);
+  /** Nummeret og navnet i kolonnene, som `navnet` (U-1). */
+  function delene(p: Fristpostvalg): { nummer: string | null; navn: string } {
+    if (typeof p.frist === 'number') {
+      const f = tabell.find((x) => x.fristId === p.frist);
+      if (f) return { nummer: f.nummer, navn: f.navn };
+    }
+    const navn = p.navn.trim();
+    return navn ? { nummer: p.nummer.trim() || null, navn } : { nummer: null, navn: navnet(p) };
+  }
 
+  // Én frist er åpen om gangen, og en ny, tom frist står åpen (prototypen `#nytt-krav`).
+  let aapen = $state<string | null>(
+    untrack(() => v.frister.find((p) => p.id === null && p.frist === null)?.noekkel ?? null)
+  );
+  async function aapne(p: Fristpostvalg, felt = 'frist') {
+    aapen = p.noekkel;
+    await tick();
+    const el = document.getElementById(id(`${felt}-${p.noekkel}`));
+    (el?.querySelector<HTMLElement>('input:checked, input') ?? el)?.focus();
+  }
+  async function lukk(p: Fristpostvalg) {
+    aapen = null;
+    await tick();
+    document.getElementById(id(`endre-${p.noekkel}`))?.focus();
+  }
   async function leggTil() {
     const p = nyFristpost();
     v.frister.push(p);
-    await tick();
-    document.getElementById(id(`frist-${p.noekkel}`))?.focus();
+    await aapne(p);
   }
   async function fjern(p: Fristpostvalg) {
     const i = v.frister.indexOf(p);
     v.frister.splice(i, 1);
+    aapen = null;
     await tick();
     document.getElementById(id('legg-til'))?.focus();
   }
+  async function trekk(p: Fristpostvalg) {
+    p.trukket = !p.trukket;
+    if (p.trukket) await lukk(p);
+  }
+  async function gaaTil(m: Mangel, e: Event) {
+    const p = m.post && v.frister.find((q) => q.noekkel === m.post);
+    if (!p || aapen === p.noekkel) return;
+    e.preventDefault();
+    aapen = p.noekkel;
+    await tick();
+    const el = document.getElementById(m.felt);
+    (el?.querySelector<HTMLElement>('input') ?? el)?.focus();
+  }
+
+  // U-4: de senere fristene i kontrakten kan få like mange dager som den seneste fristen i kravet.
+  const snarvei = $derived.by(() => {
+    const kilde = v.frister
+      .filter((p) => !p.trukket && datoFor(p) && (heleDager(p.dager) ?? 0) > 0)
+      .sort((a, b) => datoFor(b)!.dato.localeCompare(datoFor(a)!.dato))[0];
+    if (!kilde) return null;
+    const fra = datoFor(kilde)!.dato;
+    const senere = tabell.filter((f) => {
+      const d = fristdatoer.get(f.fristId);
+      return d && d.dato > fra && !v.frister.some((p) => p.frist === f.fristId);
+    });
+    if (!senere.length) return null;
+    const k = delene(kilde);
+    return {
+      kilde,
+      senere,
+      tekst: FRISTKRAV.snarvei(
+        dager(heleDager(kilde.dager)!),
+        senere.map((f) => FRISTKRAV.omtale(f.nummer, f.navn)),
+        FRISTKRAV.omtale(k.nummer, k.navn)
+      ),
+    };
+  });
+  async function brukSnarvei() {
+    if (!snarvei) return;
+    const { kilde, senere } = snarvei;
+    const nye = senere.map((f) => ({ ...nyFristpost(), frist: f.fristId, dager: kilde.dager }));
+    v.frister.push(...nye);
+    await tick();
+    document.getElementById(id(`endre-${nye[0]!.noekkel}`))?.focus();
+  }
+
+  // U-5: fristene i kontrakten i tidslinja, med dagene kravet krever. Ny dato venter på G-2 (U-2).
+  const fristeneITidslinja = $derived(
+    tabell.flatMap((f) => {
+      const d = fristdatoer.get(f.fristId);
+      if (!d) return [];
+      const p =
+        modus === 'krav' ? v.frister.find((q) => q.frist === f.fristId && !q.trukket) : undefined;
+      const n = p ? heleDager(p.dager) : undefined;
+      const kilde = [
+        n ? FRISTKRAV.krevd(dager(n)) : null,
+        d.dagmulktbelagt ? FRISTKRAV.dagmulktLiten : null,
+      ];
+      return [
+        {
+          noekkel: `frist-${f.fristId}`,
+          naar: d.dato,
+          hva: betegnelsen(f),
+          kilde: kilde.filter((x) => x !== null).join(' · '),
+          krevd: !!n,
+        },
+      ];
+    })
+  );
 
   async function seBrevet() {
     sendehindring = null;
@@ -361,29 +463,21 @@
   {@const ny = p.id === null && forrige !== null}
   {@const sid = id(`frist-${p.noekkel}`)}
   {@const fFeil = feil(`frist-${p.noekkel}`)}
-  <li class="frist" class:trukket={p.trukket} aria-labelledby={`${sid}-tittel`}>
-    <div class="frist-hode">
-      <h4 id={`${sid}-tittel`}>{navnet(p)}</h4>
-      {#if ny}<span class="merke">{FRISTKRAV.nyIVersjonen}</span>{/if}
-      {#if p.trukket}<span class="merke">{FRISTKRAV.trekkes}</span>{/if}
-      <span class="frist-handling">
-        {#if p.id !== null}
-          <Knapp
-            variant="lenke"
-            aria-label={p.trukket ? FRISTKRAV.angreTrekk(navnet(p)) : FRISTKRAV.trekk(navnet(p))}
-            onclick={() => (p.trukket = !p.trukket)}
-            >{p.trukket ? FRISTKRAV.angre : FRISTKRAV.trekkTekst}</Knapp
-          >
-        {:else if v.frister.length > 1}
-          <Knapp
-            variant="lenke"
-            aria-label={FRISTKRAV.fjernFrist(navnet(p))}
-            onclick={() => fjern(p)}>{FRISTKRAV.fjern}</Knapp
-          >
-        {/if}
-      </span>
-    </div>
-    {#if !p.trukket}
+  {@const d = datoFor(p)}
+  {@const deler = delene(p)}
+  {@const aapnet = aapen === p.noekkel && !p.trukket}
+  <li
+    class="frist"
+    class:trukket={p.trukket}
+    class:er-aapen={aapnet}
+    aria-labelledby={`${sid}-tittel`}
+  >
+    {#if aapnet}
+      <div class="frist-hode">
+        <h4 id={`${sid}-tittel`}>{navnet(p)}</h4>
+        {#if ny}<span class="merke">{FRISTKRAV.nyIVersjonen}</span>{/if}
+        {#if d?.dagmulktbelagt}<span class="merke">{FRISTKRAV.dagmulkt}</span>{/if}
+      </div>
       {#if !fastFrist(p)}
         <Valg
           navn={sid}
@@ -398,6 +492,7 @@
           stablet
         />
       {/if}
+      {#if d}<p class="dempet">{FRISTKRAV.iKontrakten(d.dato, d.dagmulktbelagt)}</p>{/if}
       {#if p.frist === 'annen'}
         <p class="dempet">{FRISTKRAV.ikkeRegistrertHjelp}</p>
         {@render felt(p, 'nummer', FRISTKRAV.nummerEtikett, null)}
@@ -410,6 +505,50 @@
         FRISTKRAV.kalenderdager,
         FRISTKRAV.delAvArbeidene
       )}
+      <div class="fot">
+        {#if p.id !== null}
+          <Knapp variant="lenke" aria-label={FRISTKRAV.trekk(navnet(p))} onclick={() => trekk(p)}
+            >{FRISTKRAV.trekkTekst}</Knapp
+          >
+        {:else if v.frister.length > 1}
+          <Knapp
+            variant="lenke"
+            aria-label={FRISTKRAV.fjernFrist(navnet(p))}
+            onclick={() => fjern(p)}>{FRISTKRAV.fjern}</Knapp
+          >
+        {/if}
+        <Knapp variant="sekundaer" onclick={() => lukk(p)}>{FRISTKRAV.ferdig}</Knapp>
+      </div>
+    {:else}
+      {@const n = heleDager(p.dager)}
+      <div class="linje">
+        <span class="nr">{deler.nummer ?? ''}</span>
+        <h4 class="navn" id={`${sid}-tittel`}>
+          <span class="visually-hidden">{navnet(p)}</span><span aria-hidden="true"
+            >{deler.navn}</span
+          >
+          {#if ny}<span class="merke">{FRISTKRAV.nyIVersjonen}</span>{/if}
+          {#if d?.dagmulktbelagt}<span class="merke">{FRISTKRAV.dagmulkt}</span>{/if}
+        </h4>
+        <p class="dato-celle">
+          <span class="visually-hidden">{FRISTKRAV.kolonner[2]}:</span>{d ? dato(d.dato) : '–'}
+        </p>
+        <p class="dager-celle" class:mangler-tekst={!p.trukket && !n}>
+          <span class="visually-hidden">{FRISTKRAV.kolonner[3]}:</span>{p.trukket
+            ? FRISTKRAV.trekkes
+            : n
+              ? dager(n)
+              : FRISTKRAV.dagerMangler}
+        </p>
+        <Knapp
+          variant="lenke"
+          id={id(`endre-${p.noekkel}`)}
+          aria-label={p.trukket ? FRISTKRAV.angreTrekk(navnet(p)) : FRISTKRAV.endreFrist(navnet(p))}
+          onclick={() => (p.trukket ? trekk(p) : aapne(p))}
+          >{p.trukket ? FRISTKRAV.angre : FRISTKRAV.endre}</Knapp
+        >
+        {#if p.trukket}<p class="under">{FRISTKRAV.trukketMerk(navnet(p))}</p>{/if}
+      </div>
     {/if}
   </li>
 {/snippet}
@@ -433,7 +572,7 @@
           <p id={id('mangler')}>{SKJEMA.mangler}</p>
           <ul>
             {#each mangler as m (m.felt)}
-              <li><a href={`#${m.felt}`}>{m.tekst}</a></li>
+              <li><a href={`#${m.felt}`} onclick={(e) => gaaTil(m, e)}>{m.tekst}</a></li>
             {/each}
           </ul>
         </div>
@@ -575,11 +714,20 @@
             <Melding art="feil" levende={false}>{FRISTKRAV.ingenFristtabell}</Melding>
           {/if}
           {#if forrige}<p class="dempet">{FRISTKRAV.trekkHjelp}</p>{/if}
+          <div class="kolonner" aria-hidden="true">
+            {#each FRISTKRAV.kolonner as k (k)}<span>{k}</span>{/each}
+            <span></span>
+          </div>
           <ul class="frister">
             {#each v.frister as p (p.noekkel)}
               {@render fristrad(p)}
             {/each}
           </ul>
+          {#if snarvei}
+            <div class="snarvei">
+              <Knapp variant="lenke" onclick={brukSnarvei}>{snarvei.tekst}</Knapp>
+            </div>
+          {/if}
           <div>
             <Knapp variant="sekundaer" id={id('legg-til')} onclick={leggTil}
               >{FRISTKRAV.leggTil}</Knapp
@@ -635,7 +783,7 @@
         tom={FRISTKRAV.ingenFrister}
       />
     </div>
-    <Tidslinje brev={sporbrev} {datoer} />
+    <Tidslinje brev={sporbrev} {datoer} frister={fristeneITidslinja} />
   {/snippet}
 </Arbeidsflate>
 
@@ -690,20 +838,97 @@
   .frister {
     display: flex;
     flex-direction: column;
-    border-top: var(--rule);
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
   .frist {
+    border-bottom: var(--rule);
+  }
+  .frist.er-aapen {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-3);
-    padding: var(--spacing-4) 0;
-    border-bottom: var(--rule);
+    padding: var(--spacing-4) 0 var(--spacing-4) var(--spacing-4);
+    border-left: 3px solid var(--ink);
   }
-  .frist.trukket h4 {
+  /* Som kravpostene i vederlagskravet: «Endre» med 44 px trykkflate står på linja. */
+  .kolonner,
+  .linje {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 2fr) minmax(0, 1.3fr) minmax(0, 1fr) 64px;
+    column-gap: var(--spacing-4);
+    align-items: center;
+  }
+  .kolonner {
+    padding-bottom: var(--spacing-2);
+    border-bottom: var(--rule);
+    color: var(--ink-3);
+    font-size: 12px;
+  }
+  .linje {
+    row-gap: var(--spacing-1);
+    padding: var(--spacing-2) 0;
+    font-size: 14px;
+  }
+  .linje h4 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-size: 14px;
+  }
+  .nr,
+  .dato-celle,
+  .dager-celle {
+    font-variant-numeric: tabular-nums;
+  }
+  .frist.trukket .navn,
+  .frist.trukket .dato-celle {
     color: var(--ink-3);
   }
-  .frist-handling {
+  .mangler-tekst {
+    color: var(--ink-3);
+  }
+  .under {
+    grid-column: 2 / -1;
+    color: var(--ink-3);
+    font-size: 12px;
+  }
+  .fot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+  }
+  .fot > :global(:only-child) {
     margin-left: auto;
+  }
+  .snarvei > :global(.knapp) {
+    justify-content: flex-start;
+    padding-inline: 0;
+    text-align: left;
+  }
+  @media (max-width: 640px) {
+    .kolonner {
+      display: none;
+    }
+    .linje {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .nr {
+      display: none;
+    }
+    .linje > p {
+      grid-column: 1;
+    }
+    .linje > :global(.knapp) {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .under {
+      grid-column: 1 / -1;
+    }
   }
   .merke {
     padding: 0 var(--spacing-2);

@@ -4,7 +4,7 @@
  */
 
 import { ApiError, apiFetch } from '$lib/api/client';
-import type { Saksmerking } from '$lib/kjernesak/brevtekst';
+import type { Fristdato, Saksmerking } from '$lib/kjernesak/brevtekst';
 import type { Registrertfrist } from '$kjerne/spor/frist/format';
 import type { Journalrad, Korrespondansetype, Part, Vedlegg } from '$kjerne/typer';
 import type { Visning } from '$kjerne/utledning/visning';
@@ -90,7 +90,19 @@ export async function hentSaksmerking(sakId: string, prosjektId: string): Promis
     apiFetch<Sakskodesvar>(`${sti(sakId)}/sakskode`, { headers: prosjekthode(prosjektId) }),
     kontraktsfristerI(prosjektId),
   ]);
-  return { ...somMerking(kode), ...(frister ? { kontraktsfrister: frister } : {}) };
+  return {
+    ...somMerking(kode),
+    ...(frister
+      ? {
+          kontraktsfrister: frister.map(({ fristId, nummer, navn }) => ({ fristId, nummer, navn })),
+          fristdatoer: frister.map(({ fristId, dato, dagmulktbelagt }) => ({
+            fristId,
+            dato,
+            dagmulktbelagt,
+          })),
+        }
+      : {}),
+  };
 }
 
 /** En frist i fristtabellen slik serveren gir den (`Fristlinje` i `server/kontraktsfrister.ts`). */
@@ -98,6 +110,8 @@ interface Fristlinje {
   frist_id: number;
   nummer: string | null;
   navn: string;
+  dato: string;
+  dagmulktbelagt: boolean;
 }
 
 /**
@@ -105,13 +119,21 @@ interface Fristlinje {
  * formen kjernen lager teksten med. Den hentes ved hver lasting, så forhåndsvisningen bruker
  * tabellen serveren lager teksten med. Feiler hentingen, er den `null`, og saken lastes likevel.
  */
-const kontraktsfristerI = (prosjektId: string): Promise<Registrertfrist[] | null> =>
+const kontraktsfristerI = (
+  prosjektId: string
+): Promise<(Registrertfrist & Omit<Fristdato, 'fristId'>)[] | null> =>
   apiFetch<{ frister: Fristlinje[] }>(
     `/api/projects/${encodeURIComponent(prosjektId)}/kontraktsfrister`,
     { headers: prosjekthode(prosjektId) }
   ).then(
     ({ frister }) =>
-      frister.map(({ frist_id, nummer, navn }) => ({ fristId: frist_id, nummer, navn })),
+      frister.map(({ frist_id, nummer, navn, dato, dagmulktbelagt }) => ({
+        fristId: frist_id,
+        nummer,
+        navn,
+        dato,
+        dagmulktbelagt,
+      })),
     () => null
   );
 
