@@ -10987,10 +10987,12 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
     it('brevet sier at totalentreprenøren trekker kravet, og den nye versjonen har ikke posten', () => {
       const s = medPosten();
       const rad = s.send('TE', vederlagskrav(tilbud(125000, trekk)));
-      const punktet = tekst(rad).find((a) => a.punkt === 'produktivitet');
-      expect(punktet?.overskrift).toMatch(/^\d+\. Særskilt vederlagsjustering$/);
-      expect(punktet?.laast).toBe(
-        `${punktet?.overskrift}\n\nTotalentreprenøren trekker kravet om særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd, fremsatt i brev K201-KOE-017-02 av 3. oktober 2026.`
+      const punktet: Partial<Avsnitt> = tekst(rad).find((a) => a.punkt === 'produktivitet') ?? {};
+      expect(punktet).toMatchObject({
+        overskrift: expect.stringMatching(/^\d+\. Særskilt vederlagsjustering$/),
+      });
+      expect(punktet.laast).toBe(
+        `${punktet.overskrift}\n\nTotalentreprenøren trekker kravet om særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd, fremsatt i brev K201-KOE-017-02 av 3. oktober 2026.`
       );
       expect(laast(rad).join(' ')).not.toContain('avkall');
       expect(laast(rad).join(' '), 'posten er ikke et tilbud lenger').not.toContain(
