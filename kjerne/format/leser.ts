@@ -287,6 +287,9 @@ function lesBeslutningsgrunnlag(
 
 function lesSvar(v: unknown, dokument: string, sti: string): Svar {
   const e = element(v, SVAR, 'spor', sti);
+  // HF-U23 punkt 2: akseptfristen er en dag som finnes.
+  if (e.akseptfrist !== undefined && !erKalenderdato(e.akseptfrist as string))
+    throw new Uforstaatt(`${sti}.akseptfrist: finnes ikke i kalenderen`);
   const spor = e.spor as Spor;
   const standpunkter = standpunkterISvaret(spor, e, sti);
   const beslutningsgrunnlag = lesBeslutningsgrunnlag(

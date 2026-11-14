@@ -2001,6 +2001,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // KA-U78, OV-U32: dagene for fristen i hvert lag.
   ['Fristlag', 'rad', 'dager', ['spor/frist/format.ts']],
   ['Utregningsrad', 'rad', 'gjelder lag', ['spor/vederlag/format.ts']],
+  // HF-U29 punkt 8: den særskilte posten i beløpene per lag.
+  ['Utregningsrad', 'rad', 'saerskilt', ['spor/vederlag/format.ts:beloepeneILagene']],
   ['Utregningslag', 'rad', 'beloep', ['spor/vederlag/format.ts']],
   // #1778: radene per post og lagene i dem, som vederlaget kontrollerer med beløpene.
   ['Postrad', 'rad', 'lag lag.lag', ['spor/poster/format.ts:kontrollerRadene']],

@@ -4,7 +4,7 @@
  */
 
 import type { Sporsvisning } from '../../utledning/visning.ts';
-import { utregningIFristen } from './format.ts';
+import { dageneILagene } from './format.ts';
 
 export const VISNING_I_FRISTEN = {
   paaleggFrafalt: () => false,
@@ -18,10 +18,7 @@ export const VISNING_I_FRISTEN = {
       : null,
   // HF-U29 punkt 8, HF-U31 og HF-U32: dagene for hver frist, og punkt 33.7 annet ledd.
   senkning: {
-    godkjentILagene: (svar) =>
-      new Map(
-        utregningIFristen(svar.utregning).frister.map((f) => [f.gjelder, f.lag.map((l) => l.dager)])
-      ),
+    godkjentILagene: (svar) => dageneILagene(svar.utregning),
     bestemmelse: () => '33.7',
   },
 } satisfies Sporsvisning;

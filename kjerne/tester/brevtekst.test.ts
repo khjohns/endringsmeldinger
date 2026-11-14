@@ -11018,6 +11018,32 @@ describe('akseptfristen (HF-U23)', () => {
     expect(tekst(rad).at(-1)?.overskrift, 'linjen har ingen overskrift').toBeUndefined();
   });
 
+  it('linjen med akseptfristen står etter utdypningen under «Forbehold», og har ingen utdypning (punkt 5, arbeidsvalget 14.11 i #502)', () => {
+    const s = sakMedKrav();
+    expect(
+      s.avvisning(
+        'BH',
+        brev({ ...medFrist(delvis(s), '2026-10-09'), utdypninger: { akseptfrist: 'Tekst.' } })
+      )?.melding
+    ).toBe('Linjen med akseptfristen har ingen utdypning.');
+    const rad = s.send('BH', brev(medFrist(delvis(s), '2026-10-09')));
+    expect(laast(rad).at(-1)).toBe('Akseptfrist: 9. oktober 2026.');
+    expect(tekst(rad).at(-2)?.utdypning, 'forutsetning: svaret har en utdypning').toBe(BEGRUNNELSE);
+  });
+
+  it('en lagret akseptfrist som ikke finnes i kalenderen, er ikke forstått (MM-U2)', () => {
+    const s = sakMedKrav();
+    const rad = s.send('BH', brev(medFrist(delvis(s), '2026-10-09')));
+    const med = (akseptfrist: string) => {
+      const data = structuredClone(rad.data) as Data;
+      (data.svar as Data[])[0].akseptfrist = akseptfrist;
+      return lesJournal([...s.journal.slice(0, -1), { ...rad, data }], KJERNE.leserformat).at(-1)!
+        .art;
+    };
+    expect(med('2026-10-09'), 'kontrollsak').toBe('dokument');
+    expect(med('2026-02-30')).toBe('ukjent');
+  });
+
   it('et svar uten akseptfrist har ingen (punkt 3)', () => {
     const s = sakMedKrav();
     const rad = s.send('BH', brev(delvis(s)));

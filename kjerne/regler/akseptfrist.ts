@@ -1,8 +1,4 @@
-/**
- * Akseptfristen i byggherrens svar, etter samlevedtaket for akseptfristen (HF-U23): hvilke svar
- * som kan ha en (punkt 1), hvilke datoer som kan settes (punkt 2), og om en aksept er sendt
- * etter fristen (punkt 7). Løsningen knytter ingen virkning til fristen (punkt 5).
- */
+/** Akseptfristen i byggherrens svar: HF-U23 punkt 1, 2 og 7, og ingen virkning etter punkt 5. */
 
 import { erKalenderdato } from '../format/skjema.ts';
 import { erHverdag, erLoerdag } from './hverdager.ts';
@@ -17,10 +13,7 @@ export interface Svaretsomfang {
   sammenfall: boolean;
 }
 
-/**
- * Hvorfor svaret ikke kan ha en akseptfrist (HF-U23 punkt 1), eller `null` når det kan: et svar
- * på forholdet, et helt avslag og et svar som godkjenner hele kravet, har ingen.
- */
+/** Hvorfor svaret ikke kan ha en akseptfrist etter HF-U23 punkt 1, eller `null` når det kan. */
 export function utenAkseptfrist(s: Svaretsomfang): 'forholdet' | 'avslag' | 'hele_kravet' | null {
   if (s.spor === 'forhold') return 'forholdet';
   if (!s.godkjennerNoe) return 'avslag';
@@ -28,9 +21,8 @@ export function utenAkseptfrist(s: Svaretsomfang): 'forholdet' | 'avslag' | 'hel
 }
 
 /**
- * Hvorfor byggherren ikke kan sette akseptfristen `frist` i et svar datert `svardato`, eller
- * `null` når den kan (HF-U23 punkt 2): datoen finnes ikke, ligger før datoen for svaret, eller
- * faller på en lørdag, helligdag eller høytidsdag. Begge er på formen ÅÅÅÅ-MM-DD.
+ * Hvorfor byggherren ikke kan sette akseptfristen `frist` i et svar datert `svardato` etter HF-U23
+ * punkt 2, eller `null` når den kan. Begge er på formen ÅÅÅÅ-MM-DD.
  */
 export function ugyldigAkseptfrist(
   frist: string,
@@ -43,9 +35,8 @@ export function ugyldigAkseptfrist(
 }
 
 /**
- * Aksepten registrert dagen `dag` er sendt etter akseptfristen `frist` (HF-U23 punkt 2 og 7):
- * fristen er ute ved utgangen av datoen i norsk tid. Begge er kalenderdager i norsk tid. Usann
- * uten frist.
+ * Aksepten registrert dagen `dag` er sendt etter akseptfristen `frist` etter HF-U23 punkt 2 og 7.
+ * Begge er kalenderdager i norsk tid. Usann uten frist.
  */
 export const etterAkseptfristen = (frist: string | null, dag: string): boolean =>
   frist !== null && dag > frist;

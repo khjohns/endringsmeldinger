@@ -30,7 +30,7 @@ import {
   type RegistrertBrev,
   type Utledning,
 } from './utled.ts';
-import { SPOR, type Krav, type Kravspor, type Spor, type Svar } from '../typer.ts';
+import { SPOR, type Dokument, type Krav, type Kravspor, type Spor, type Svar } from '../typer.ts';
 
 export type Statuskode =
   | 'kan_ikke_utledes'
@@ -220,11 +220,16 @@ function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
  * HF-U23 punkt 7 og designdelen: TE har godtatt svaret etter akseptfristen. Etiketten står ved
  * den registrerte enigheten, og løsningen avgjør ikke virkningen (punkt 5 og 8).
  */
+function dokumentet(u: Utledning, id: string): Dokument | undefined {
+  for (const d of dokumenterI(u.journal)) if (d.id === id) return d;
+  return undefined;
+}
+
 function akseptertEtterFristen(u: Utledning, spor: Spor): boolean {
   const enighet = u.spor[spor].enighet;
   if (enighet?.grunnlag.kilde !== 'aksept') return false;
   const frist = u.spor[spor].svar.find((x) => x.id === enighet.grunnlag.svar)?.akseptfrist ?? null;
-  const aksept = [...dokumenterI(u.journal)].find((d) => d.id === enighet.holder);
+  const aksept = dokumentet(u, enighet.holder);
   return !!aksept && etterAkseptfristen(frist, registrertDato(aksept));
 }
 

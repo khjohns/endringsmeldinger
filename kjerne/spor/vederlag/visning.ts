@@ -7,7 +7,7 @@ import { hjemmelenGjelder } from '../../frosset/byggeklosser.ts';
 import { postlisten, type Paaberopt, type Vederlagspost } from './frysing.ts';
 import { vurdertVedRegistreringen, type Utledning } from '../../utledning/utled.ts';
 import type { Sporssenkning, Sporsvisning } from '../../utledning/visning.ts';
-import { kravposterI, utregningIVederlaget } from './format.ts';
+import { beloepeneILagene, kravposterI } from './format.ts';
 import type { Part, Svar } from '../../typer.ts';
 import { lagFraForholdet } from '../forhold/frysing.ts';
 
@@ -57,13 +57,7 @@ export function vederlagssvaret(u: Utledning, svar: Svar): Vederlagssvaret {
 
 /** HF-U29 punkt 8 i vederlaget, med HF-U31, HF-U32 og HF-U33. */
 const SENKNING_I_VEDERLAGET: Sporssenkning = {
-  godkjentILagene: (svar) =>
-    new Map(
-      utregningIVederlaget(svar.utregning).poster.map((p) => [
-        p.gjelder ?? p.saerskilt!,
-        p.lag.map((l) => l.beloep ?? 0),
-      ])
-    ),
+  godkjentILagene: (svar) => beloepeneILagene(svar.utregning),
   justeringIkkeGodtatt: (ny, tidligere) => {
     const godtatt = (svar: Svar) =>
       new Set(

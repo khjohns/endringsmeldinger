@@ -5295,7 +5295,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F610',
     feilklasse: 'bare dagene godkjent prinsipalt gir en akseptfrist (HF-U23 punkt 1, #502)',
     fil: `${K}/spor/frist/format.ts`,
-    endringer: [['f.lag.some((l) => l.dager > 0)', '(f.lag[0]?.dager ?? 0) > 0']],
+    endringer: [['lagene.some((d) => d > 0)', '(lagene[0] ?? 0) > 0']],
     mal: ['bare subsidiært, kan ha en akseptfrist (punkt 1)'],
   },
   {

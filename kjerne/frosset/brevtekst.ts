@@ -142,14 +142,18 @@ export function lagBrevtekst(
         );
       perPunkt[FORBEHOLDET.punkt] = forbehold;
     }
+    // HF-U23 punkt 5: linjen med akseptfristen har ingen utdypning, og står sist.
+    if (perPunkt[AKSEPTFRISTEN])
+      throw new UtdypningUtenPunkt('Linjen med akseptfristen har ingen utdypning.');
     const punktene = [
-      ...brevpunkter,
+      ...brevpunkter.filter((p) => p.punkt !== AKSEPTFRISTEN),
       ...[egen, forbehold ? FORBEHOLDET : undefined]
         .filter(
           (e): e is { punkt: string; overskrift: string } =>
             e !== undefined && !!perPunkt[e.punkt] && !brevpunkter.some((p) => p.punkt === e.punkt)
         )
         .map((e) => ({ punkt: e.punkt, overskrift: e.overskrift, avsnitt: [] as string[] })),
+      ...brevpunkter.filter((p) => p.punkt === AKSEPTFRISTEN),
     ];
     for (const { punkt, overskrift: o, avsnitt: a } of punktene) {
       if (punkt === undefined)
@@ -296,6 +300,8 @@ const SPORENE: readonly Spor[] = ['forhold', 'vederlag', 'frist'];
 
 /** Punktet for utdypningen for hele svaret, under den faste teksten etter GR-U34 (KA-U49 punkt 1). */
 const FORBEHOLDET = { punkt: 'forbehold', overskrift: 'Forbehold' } as const;
+/** Punktet med akseptfristen sist i svaret (HF-U23 punkt 2, arbeidsvalget 14.11 i #502). */
+const AKSEPTFRISTEN = 'akseptfrist';
 
 const punktnoekkel = (gjelder: string, punkt: string) => `${gjelder}\u0000${punkt}`;
 
@@ -459,7 +465,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
   // å si hva den betyr (punkt 5). Ordlyden og plassen er arbeidsvalget 14.11 i #502.
   if (s.akseptfrist !== null)
     brevpunkter.push({
-      punkt: 'akseptfrist',
+      punkt: AKSEPTFRISTEN,
       overskrift: null,
       avsnitt: [`Akseptfrist: ${norskDato(s.akseptfrist)}.`],
     });
