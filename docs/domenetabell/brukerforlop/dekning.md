@@ -102,6 +102,8 @@ på kilden, men har ingen kontroller ennå.
 | [GR-U34](../../plans/vedtak.md#gr-u34) | — | — | BF-08, BF-44, BF-45 |
 | [GR-U35](../../plans/vedtak.md#gr-u35) | — | — | BF-08 |
 | [GR-U36](../../plans/vedtak.md#gr-u36) | — | — | BF-08 |
+| [GR-U38](../../plans/vedtak.md#gr-u38) | — | — | BF-20 |
+| [GR-U39](../../plans/vedtak.md#gr-u39) | — | — | BF-20 |
 | [HF-U1](../../plans/vedtak.md#hf-u1) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — | BF-01V, BF-03, BF-07, BF-08 |
 | [HF-U2](../../plans/vedtak.md#hf-u2) | — | — | BF-01V |
 | [HF-U5](../../plans/vedtak.md#hf-u5) | — | — | BF-20, BF-45 |
