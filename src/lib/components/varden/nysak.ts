@@ -60,6 +60,14 @@ export interface VedleggForNySak {
   slett(vedleggId: string): Promise<unknown>;
 }
 
+/**
+ * Grensen for vedleggene i et skjema i en sak som finnes. Et vedlegg i mellomlageret som ikke
+ * bindes av kommandoen, blir liggende til det ryddes.
+ */
+export const vedleggsgrense = (
+  lastOpp: (fil: File) => Promise<Kjernevedlegg>
+): VedleggForNySak => ({ lastOpp, slett: async () => {} });
+
 /** Filene serveren tar imot (`STOERSTE_VEDLEGG` i `server/vedlegg.ts`). */
 export const STOERSTE_VEDLEGG = 15 * 1024 * 1024;
 

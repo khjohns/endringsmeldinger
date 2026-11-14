@@ -55,6 +55,7 @@ export interface Fristkravvalg {
 }
 
 export const tomtUtenforvalg = (): Utenforvalg => ({ dato: '', type: null, vedlegg: [] });
+export const erTomt = (u: Utenforvalg) => !u.dato && u.type === null && u.vedlegg.length === 0;
 
 let teller = 0;
 const nyNoekkel = () => `f${++teller}`;

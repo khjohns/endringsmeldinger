@@ -31,12 +31,14 @@
     nyFristpost,
     startvalg,
     tomtUtenforvalg,
+    erTomt,
     vedleggIFristkravet,
     type Fristkravvalg,
     type Fristpostvalg,
     type Mangel,
   } from './fristkrav';
   import { heleDager } from './fristsvar';
+  import { vedleggsgrense } from './nysak';
   import {
     brevMedUtsagn,
     brevene,
@@ -119,19 +121,20 @@
   const foresporselsbrev = $derived(foresporsel ? brevMedUtsagn(u, foresporsel) : null);
   /** Varselet alene, svaret etter punkt 33.6.2 annet ledd bokstav b, eller kravet med dagene. */
   const modus = $derived(
-    v.hva === 'varsel' ? 'varsel' : foresporsel && v.bokstav === 'b' ? 'svar' : 'krav'
+    v.hva === 'varsel' ? 'varsel' : foresporselsbrev && v.bokstav === 'b' ? 'svar' : 'krav'
   );
   const varsel = $derived(modus === 'varsel');
   const bokstavB = $derived(modus === 'svar');
-  // Varselet gitt før, utenfor løsningen, kan oppgis når saken ikke har et (U-6, OV-U5).
-  const utenfor = $derived(
-    (!varselbrev && !bokstavB) || (varsel && kanRegistrere) ? v.utenfor : null
-  );
+  // Varselet alene registreres bare når kjernen tilbyr det (VS-U16). I kravet kan varselet gitt
+  // før, utenfor løsningen, oppgis når saken ikke har et (U-6, OV-U5).
+  const utenfor = $derived((varsel ? kanRegistrere : !varselbrev && !bokstavB) ? v.utenfor : null);
   const registreres = $derived(varsel && utenfor !== null);
   /** Et varsel registreres når TE bare varsler og ikke kan sende det fra løsningen. */
   function velgHva(hva: Fristkravvalg['hva'] | null) {
     v.hva = hva ?? 'krav';
     if (v.hva === 'varsel' && !kanSende) v.utenfor ??= tomtUtenforvalg();
+    // En registrering TE ikke har fylt ut, blir ikke et varsel gitt før i kravet.
+    if (v.hva === 'krav' && v.utenfor && erTomt(v.utenfor)) v.utenfor = null;
   }
 
   // Radene som ennå ikke har en frist eller et navn, nummereres bare seg imellom (U-1).
@@ -176,16 +179,17 @@
   // Kalenderdagene fra datoen TE oppgir, til varselet eller i dag. Løsningen vurderer dem ikke.
   const dagerEtterKlarOver = $derived.by(() => {
     if (!klarOver) return null;
-    const varslet = varselbrev ? (varselbrev.sendt ?? varselbrev.registrert) : utenfor?.dato;
+    // Varselet som registreres nå, ellers varselet i saken eller det som er gitt før.
+    const varslet = registreres
+      ? utenfor?.dato
+      : varselbrev
+        ? (varselbrev.sendt ?? varselbrev.registrert)
+        : utenfor?.dato;
     return varslet
       ? FRISTKRAV.dagerTilVarselet(klarOver.dato, varslet, kalenderdager(klarOver.dato, varslet))
       : FRISTKRAV.dagerTilIDag(klarOver.dato, kalenderdager(klarOver.dato, iDag));
   });
-  const grense = {
-    lastOpp: (fil: File) => kjernesak.lastOppVedlegg(fil),
-    // Et vedlegg i mellomlageret som ikke bindes av varselet, blir liggende til det ryddes.
-    slett: async () => {},
-  };
+  const grense = vedleggsgrense((fil) => kjernesak.lastOppVedlegg(fil));
   // Fristene i fristtabellen og en frist som ikke er registrert (KA-U79).
   const fristvalg = $derived([
     ...tabell.map((f) => ({ verdi: String(f.fristId), tekst: betegnelsen(f) })),

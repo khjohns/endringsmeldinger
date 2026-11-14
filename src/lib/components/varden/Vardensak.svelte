@@ -21,7 +21,11 @@
   import Fristkrav from './Fristkrav.svelte';
   import { startvalg as fristkravstart, tomtUtenforvalg, type Fristkravvalg } from './fristkrav';
   /** Handlingene i fristen som åpner skjemaet for kravet (BF-20). */
-  const FRISTSKJEMAET = new Set(['krav', 'sende_varsel', 'varsle', 'svare_paa_foresporsel']);
+  // Handlingstypene i fristen som holder kravskjemaet åpent, med varselet alene eller kravet valgt.
+  const FRISTSKJEMAET: Record<Fristkravvalg['hva'], ReadonlySet<string>> = {
+    varsel: new Set(['sende_varsel', 'varsle']),
+    krav: new Set(['krav', 'svare_paa_foresporsel']),
+  };
   import type { Kravvalg } from './vederlagskrav';
   import Korrigering from './Korrigering.svelte';
   import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
@@ -311,7 +315,7 @@
     },
     'krav:forhold': () => (arbeid = { art: 'nyversjon' }),
     'krav:vederlag': () => (arbeid = { art: 'vederlagskrav' }),
-    'krav:frist': () => (arbeid = { art: 'fristkrav' }),
+    'krav:frist': () => fristskjema('krav'),
     // U-13: varselet etter punkt 33.4 alene, i skjemaet for kravet (BF-20 steg 4).
     'sende_varsel:frist': () => fristskjema('varsel'),
     'varsle:frist': () => fristskjema('varsel', true),
@@ -326,7 +330,8 @@
       fristkravvalg = {
         ...v,
         hva,
-        utenfor: registrer ? (v.utenfor ?? tomtUtenforvalg()) : v.utenfor,
+        // «Send varsel» sender fra løsningen, og registrerer ikke et varsel som er påbegynt.
+        utenfor: registrer ? (v.utenfor ?? tomtUtenforvalg()) : hva === 'varsel' ? null : v.utenfor,
       };
     }
     arbeid = { art: 'fristkrav' };
@@ -342,7 +347,9 @@
   }
   /** Fristskjemaet står åpent når kjernen tilbyr en av handlingene det åpnes fra. */
   const fristskjemaTilbudt = $derived(
-    kjernesak.tilbudte.some((h) => h.spor === 'frist' && FRISTSKJEMAET.has(h.type))
+    kjernesak.tilbudte.some(
+      (h) => h.spor === 'frist' && FRISTSKJEMAET[fristkravvalg?.hva ?? 'krav'].has(h.type)
+    )
   );
 
   /**

@@ -256,6 +256,25 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     await vi.waitFor(() => expect(sendt.registrert()).toBe(true));
   });
 
+  it('en registrering av varselet som ikke er fylt ut, blir ikke med når TE går tilbake til kravet, og kravet er varselet (U-6, U-13)', async () => {
+    const sendt = await kravskjemaet(medGrunnlag);
+    await fireEvent.click(
+      screen.getByRole('radio', { name: 'Bare varsle etter punkt 33.4, uten dager' })
+    );
+    await fireEvent.click(
+      screen.getByRole('radio', { name: 'Registrer et brev sendt utenfor løsningen' })
+    );
+    await fireEvent.click(screen.getByRole('radio', { name: 'Send kravet med dagene' }));
+    expect(screen.queryByLabelText('Datoen for varselet')).not.toBeInTheDocument();
+    await fireEvent.click(screen.getByRole('radio', { name: 'Overtakelse' }));
+    await skriv(screen.getByLabelText('Dagene du krever'), '20');
+    await skriv(screen.getByRole('textbox', { name: 'Begrunnelse' }), 'Begrunnelse.');
+    await seBrevet();
+    expect(sendt).toHaveLength(1);
+    expect(sendt[0]!.kommando).toMatchObject({ type: 'krav' });
+    expect(sendt[0]!.kommando).not.toHaveProperty('varsel');
+  });
+
   it('et varsel gitt før, utenfor løsningen, står i kravet med datoen og brevet som vedlegg (U-6, OV-U5)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
     await fireEvent.click(
