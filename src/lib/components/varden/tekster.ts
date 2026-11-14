@@ -1380,7 +1380,7 @@ export const FRISTKRAV = {
   varseldatoHjelp: 'Datoen settes én gang.',
   varselbrevet: 'Brevet du varslet i',
   varselbrevetHjelp: 'Legges ved. Opptil 15 MB.',
-  // Datoen TE ble klar over forholdet, fra påberopelsen eller korrigeringen (MM-U52 punkt 10).
+  // Datoen TE ble klar over forholdet, fra påberopelsen eller korrigeringen (`klarOverForholdet`).
   klarOver: 'Når ble du klar over forholdet?',
   oppgittI: (b: Brevref) => `Oppgitt i ${brevref(b)}.`,
   dagerTilIDag: (d: string, n: number) =>
