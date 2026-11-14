@@ -275,6 +275,9 @@ export const PROSJEKTRUTER: readonly Rute[] = [
       prosjektrolle: 'viewer',
       utenSak:
         'Prosjektet selv, som frontenden henter før en side i prosjektet vises; det finnes ingen sak.',
+      kontraktsrolle: {
+        ikke: 'Navnet og innstillingene for prosjektet er ikke saksdata, og hvert medlem trenger dem før kontraktssiden er kjent.',
+      },
     },
     behandle: visProsjektet,
   },
@@ -285,6 +288,9 @@ export const PROSJEKTRUTER: readonly Rute[] = [
     tilgang: {
       prosjektrolle: 'viewer',
       utenSak: 'Medlemmene i prosjektet, fra Catenda; de hører til prosjektet, ikke til en sak.',
+      kontraktsrolle: {
+        ikke: 'Medlemslisten er ikke saksdata, og hvem som er medlem, avgjøres av prosjektrollen, ikke av kontraktssiden.',
+      },
     },
     behandle: medlemmene,
   },
@@ -295,6 +301,9 @@ export const PROSJEKTRUTER: readonly Rute[] = [
     tilgang: {
       prosjektrolle: 'admin',
       utenSak: 'Synkroniseringen av medlemmene i prosjektet fra Catenda; den gjelder ingen sak.',
+      kontraktsrolle: {
+        ikke: 'Synkroniseringen er administrasjon av prosjektet og krever prosjektrollen admin; den leser og skriver ingen saksdata.',
+      },
     },
     behandle: synkroniser,
   },
@@ -306,6 +315,9 @@ export const PROSJEKTRUTER: readonly Rute[] = [
       prosjektrolle: 'admin',
       utenSak:
         'Leserollen til et medlem i prosjektet; medlemskapet hører til prosjektet, ikke til en sak.',
+      kontraktsrolle: {
+        ikke: 'Leserollen er administrasjon av prosjektet og krever prosjektrollen admin; den leser og skriver ingen saksdata.',
+      },
     },
     behandle: begrensMedlem,
   },
