@@ -24223,7 +24223,7 @@ forhold = [
   { art = "presiserer", vedtak = "gfk-u26" },
 ]
 folge = '''
-Gjelder BF-20 (#1745). Setningen om fullmakten i alternativ A i GR-U38 og andre setning i alternativ A i GR-U39 gjelder etter dette svaret.'''
+Gjelder BF-20 (#1745). Setningen om fullmakten i alternativ A i GR-U38 og andre setning i alternativ A i GR-U39 gjelder etter alternativ a.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "a"
@@ -24262,6 +24262,8 @@ svar = '''
 Oppdragsgiver 14.11, ordrett: «C a, E1: A, E2: A, E3: B. Det er EO som definerer hva BH har godkjent. En KOE sak, selv om det er registrert enighet, kan ha forbehold som appen ikke forstår. EO er sånt sett mer autoritativt.» Valgt i spørsmål 2 («E2»): A. ([spørsmålsfila](../vedlegg/fristen-del2-pr3-2026-11-14/sporsmal-2.md))'''
 forhold = [
   { art = "presiserer", vedtak = "gfk-u26" },
+  { art = "bygger på", vedtak = "gr-u26" },
+  { art = "presiserer", vedtak = "mm-u50" },
 ]
 folge = '''
 Gjelder BF-20 (#1745).'''
