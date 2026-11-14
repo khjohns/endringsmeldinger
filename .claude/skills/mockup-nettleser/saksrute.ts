@@ -676,7 +676,7 @@ try {
     if (lest.status !== 200 || lest.kropp?.part !== navn.toUpperCase())
       throw new Error(`${navn.toUpperCase()} leste ikke saken med sin egen part`);
     await side.goto(`${FRONTEND}${saksrute}`);
-    await side.getByText(tittel).first().waitFor({ timeout: 30_000 });
+    await side.getByText(tittel).filter({ visible: true }).first().waitFor({ timeout: 30_000 });
     await side.waitForTimeout(500);
     await side.screenshot({ path: join(UT, `saksrute-${navn}.png`), fullPage: true });
   }
