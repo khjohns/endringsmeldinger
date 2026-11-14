@@ -24,9 +24,6 @@ import { lagForUtkastet } from '$kjerne/kommandoer/lag';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import type { LagIFristen } from '$kjerne/spor/frist/kommando';
 import type { LagIVederlaget } from '$kjerne/spor/vederlag/kommando';
-
-/** Lagene i et svarutkast, med typen for sporet (`lagForUtkastet` i kjernen). */
-type Utkastlagene = { vederlag: LagIVederlaget; frist: LagIFristen };
 import { visning } from '$kjerne/utledning/visning';
 import { KJERNE, type Kjerne } from '$kjerne/versjon';
 import type { Part } from '$kjerne/typer';
@@ -233,6 +230,20 @@ export function lagKjernesak(valg: Kjernesakvalg) {
    * Saken med raden kommandoen ville gitt, som `utledetMed`. `null` før saken er lastet,
    * uten side, når kjernen avviser kommandoen og ved en programfeil i kjernen.
    */
+  /**
+   * Lagene i et svar på vederlaget eller fristen BH ennå fyller ut, regnet av kjernen (#1400,
+   * M-8 i BF-20). `spor` gir typen for lagene, og et utkast i et annet spor kaster.
+   */
+  function lagene(utkast: Svarutkast, spor: 'vederlag'): LagIVederlaget | null;
+  function lagene(utkast: Svarutkast, spor: 'frist'): LagIFristen | null;
+  function lagene(utkast: Svarutkast, spor: 'vederlag' | 'frist') {
+    if (!utledning) return null;
+    if (utkast.spor !== spor) throw new Error(`Utkastet gjelder ${utkast.spor}, ikke ${spor}`);
+    return spor === 'vederlag'
+      ? lagForUtkastet({ ...utkast, spor }, utledning, kjerne.regler)
+      : lagForUtkastet({ ...utkast, spor }, utledning, kjerne.regler);
+  }
+
   function forhaandsvist(kommando: Record<string, unknown>, vedlegg?: Vedleggsoppslag) {
     if (!sak?.merking || !part) return null;
     try {
@@ -378,18 +389,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get forbehold() {
       return utledning ? grunnlagetForSvaret(utledning).forbehold : false;
     },
-    /**
-     * Lagene i et svar på vederlaget eller fristen BH ennå fyller ut, regnet av kjernen (#1400,
-     * M-8 i BF-20). `spor` gir typen for lagene, og et utkast i et annet spor kaster.
-     */
-    lagForUtkastet: <S extends keyof Utkastlagene>(
-      utkast: Svarutkast,
-      spor: S
-    ): Utkastlagene[S] | null => {
-      if (!utledning) return null;
-      if (utkast.spor !== spor) throw new Error(`Utkastet gjelder ${utkast.spor}, ikke ${spor}`);
-      return lagForUtkastet(utkast, utledning, kjerne.regler) as Utkastlagene[S];
-    },
+    lagForUtkastet: lagene,
     /**
      * `false` når saken ikke er en TS-sak i prosjektet: serveren svarte 404. `null`
      * før svaret, og når serveren svarte med en annen feil.

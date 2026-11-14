@@ -1,20 +1,16 @@
 /**
  * Byggherrens svar på kravet om fristforlengelse i Varden (G-4 i BF-20), i kjernens format.
  * Svaret har ett standpunkt til varselet, forespørselen, hindringen og spesifiseringen for hele
- * kravet, og dagene for hver frist (KA-U74, KA-U80). Resultatet regnes av kjernen
- * (`regnUtSvar`), og er vurderingene ufullstendige, er det tomt, så kjernen avviser kommandoen
- * med sin egen melding før brevet vises.
+ * kravet, og dagene for hver frist (KA-U74, KA-U80).
  */
 
-import { regnUtSvar } from '$kjerne/frosset/utregning';
 import type { Svarvurdering } from '$kjerne/frosset/byggeklosser';
-import { UgyldigVurdering } from '$kjerne/regler/feil';
 import type { Regelsett } from '$kjerne/regler/regelsett';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import { innholdIFristen, type FristIKravet } from '$kjerne/spor/frist/format';
 import { foresporselForFristsvar } from '$kjerne/spor/frist/utledning';
 import type { Utledning } from '$kjerne/utledning/utled';
-import { definert } from './kommandoer';
+import { definert, svarbrevet } from './kommandoer';
 
 export type Dagevalg = 'alle' | 'deler' | 'avslaatt';
 
@@ -68,9 +64,6 @@ export function heleDager(tekst: string): number | undefined {
   return /^\d+$/.test(t) ? Number(t) : undefined;
 }
 
-/** Om svaret tar stilling til forespørselen etter punkt 33.6.2 (VS-U17, VS-U29), med kjernens lesing. */
-export const spoerOmForesporselen = (u: Utledning): boolean => foresporselForFristsvar(u) !== null;
-
 /** Dagene BH godkjenner for fristen, eller `undefined` når de ikke er besvart. */
 export function godkjenteDager(f: Fristvalg, krevd: number): number | undefined {
   if (f.dager === 'alle') return krevd;
@@ -83,11 +76,11 @@ export function godkjenteDager(f: Fristvalg, krevd: number): number | undefined 
 function vurderingene(
   v: Fristsvarvalg,
   frister: readonly FristIKravet[],
-  u: Utledning
+  medForesporsel: boolean
 ): Svarvurdering {
   return definert({
     frist_varsel_ok: v.varselITide ?? undefined,
-    foresporsel_svar_ok: spoerOmForesporselen(u) ? (v.foresporselITide ?? undefined) : undefined,
+    foresporsel_svar_ok: medForesporsel ? (v.foresporselITide ?? undefined) : undefined,
     vilkar_oppfylt: v.hindret ?? undefined,
     spesifisert_krav_ok: v.spesifisertITide ?? undefined,
     frister: frister.map((f) => {
@@ -102,8 +95,8 @@ function vurderingene(
 }
 
 /**
- * BHs svar på gjeldende fristkrav, eller `null` når saken ikke har et krav. Begrunnelsen står bare
- * for `punktene` brevet har, så en tekst for et punkt som er falt bort, ikke stopper brevet.
+ * BHs svar på gjeldende fristkrav, eller `null` når saken ikke har et krav (`svarbrevet`). Svaret
+ * tar stilling til forespørselen etter punkt 33.6.2 når kjernen leser en (VS-U17, VS-U29).
  */
 export function fristsvaret(
   v: Fristsvarvalg,
@@ -113,40 +106,14 @@ export function fristsvaret(
 ): { type: 'brev'; svar: Svarutkast[] } | null {
   const krav = u.spor.frist.gjeldendeKrav;
   if (!krav) return null;
-  const vurderinger = vurderingene(v, innholdIFristen(krav).frister, u);
-  let resultat: Record<string, unknown> = {};
-  try {
-    resultat = regnUtSvar(
-      'frist',
-      vurderinger,
-      {
-        krav,
-        paaberopelse: u.spor.forhold.gjeldendeKrav,
-        foresporsel: foresporselForFristsvar(u),
-      },
-      regler
-    );
-  } catch (feil) {
-    if (!(feil instanceof UgyldigVurdering)) throw feil;
-  }
-  const utdypning = v.forbehold.trim();
-  const utdypninger = Object.fromEntries(
-    Object.entries(v.begrunnelser)
-      .map(([punkt, tekst]) => [punkt, tekst.trim()] as const)
-      .filter(([punkt, tekst]) => tekst && punktene.includes(punkt))
+  const foresporsel = foresporselForFristsvar(u);
+  return svarbrevet(
+    'frist',
+    krav,
+    vurderingene(v, innholdIFristen(krav).frister, foresporsel !== null),
+    { paaberopelse: u.spor.forhold.gjeldendeKrav, foresporsel },
+    v,
+    regler,
+    punktene
   );
-  return {
-    type: 'brev',
-    svar: [
-      {
-        spor: 'frist',
-        gjelder: krav.id,
-        regelversjon: regler.versjon,
-        vurderinger,
-        resultat,
-        ...(utdypning ? { utdypning } : {}),
-        ...(Object.keys(utdypninger).length ? { utdypninger } : {}),
-      },
-    ],
-  };
 }

@@ -185,6 +185,23 @@
     if (valgt !== 'forhold') utkastAapent[valgt] = false;
   }
 
+  // Brevkontrollen for BHs svar i sporet, som svarer på gjeldende krav.
+  function tilSvarkontroll(s: Svarspor, k: TilBrevkontrollen) {
+    const krav = brev.find((b) => b.id === u?.spor[s].gjeldendeKrav?.dokument);
+    melding = null;
+    arbeid = {
+      art: 'kontroll',
+      versjon: kjernesak.versjon,
+      ...k,
+      handling: BREVKONTROLL.sendSvaret,
+      sendTekst: BREVKONTROLL.sendSvaret,
+      tilbakeTil: 'utkastet',
+      svarerPaa: krav ?? null,
+      tilbake: { art: 'svar' },
+      erUtkastet: true,
+    };
+  }
+
   function velgSpor(s: Spor) {
     valgt = s;
     arbeid = harUtkast(s) ? { art: 'svar' } : { art: 'les' };
@@ -536,21 +553,7 @@
           bind:valg={svarvalg}
           onforkast={forkast}
           onvedsiden={(v) => (vedSiden = v)}
-          onbrevkontroll={(k) => {
-            const krav = brev.find((b) => b.id === u.spor.vederlag.gjeldendeKrav?.dokument);
-            melding = null;
-            arbeid = {
-              art: 'kontroll',
-              versjon: kjernesak.versjon,
-              ...k,
-              handling: BREVKONTROLL.sendSvaret,
-              sendTekst: BREVKONTROLL.sendSvaret,
-              tilbakeTil: 'utkastet',
-              svarerPaa: krav ?? null,
-              tilbake: { art: 'svar' },
-              erUtkastet: true,
-            };
-          }}
+          onbrevkontroll={(k) => tilSvarkontroll('vederlag', k)}
         />
       {:else if arbeid.art === 'svar' && valgt === 'frist' && kjernesak.handlinger.includes('svare:frist')}
         <Fristsvar
@@ -559,21 +562,7 @@
           bind:valg={fristsvarvalg}
           onforkast={forkast}
           onvedsiden={(v) => (vedSiden = v)}
-          onbrevkontroll={(k) => {
-            const krav = brev.find((b) => b.id === u.spor.frist.gjeldendeKrav?.dokument);
-            melding = null;
-            arbeid = {
-              art: 'kontroll',
-              versjon: kjernesak.versjon,
-              ...k,
-              handling: BREVKONTROLL.sendSvaret,
-              sendTekst: BREVKONTROLL.sendSvaret,
-              tilbakeTil: 'utkastet',
-              svarerPaa: krav ?? null,
-              tilbake: { art: 'svar' },
-              erUtkastet: true,
-            };
-          }}
+          onbrevkontroll={(k) => tilSvarkontroll('frist', k)}
         />
       {:else}
         {#key valgt}

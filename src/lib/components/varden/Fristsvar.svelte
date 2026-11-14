@@ -6,20 +6,19 @@
   hele kravet, og dagene for hver frist (KA-U74, KA-U80). Kommandoen bygges i `fristsvar.ts`, og
   kjernen regner resultatet og lagene, lager brevet og avviser det den ikke godtar.
 -->
-<script module lang="ts">
-  // Som i `Vederlagssvar.svelte`: den faste linja gjengis bare for det siste skjemaet.
-  const vilHaLinja = $state<string[]>([]);
-</script>
-
 <script lang="ts">
   import { BookOpen, FileText } from 'lucide-svelte';
-  import { tick, untrack } from 'svelte';
+  import { tick } from 'svelte';
   import { betegnelsen, innholdIFristen } from '$kjerne/spor/frist/format';
+  import { foresporselForFristsvar } from '$kjerne/spor/frist/utledning';
   import type { Forutsetning } from '$kjerne/spor/frist/kommando';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
+  import { fastLinje } from './fastlinje.svelte';
+  import { medietreff } from './medie.svelte';
+  import Forkastutkast from './Forkastutkast.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
@@ -35,7 +34,7 @@
     fristsvaret,
     godkjenteDager,
     heleDager,
-    spoerOmForesporselen,
+    fristvalget,
     tomFrist,
     tomtFristsvar,
     type Fristsvarvalg,
@@ -113,7 +112,8 @@
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes('frist')));
   const datoer = $derived(datoerISporet(u, 'frist'));
   const klarOver = $derived(klarOverForholdet(u));
-  const foresporselen = $derived(spoerOmForesporselen(u));
+  // VS-U17, VS-U29: svaret tar stilling til forespørselen når kjernen leser en.
+  const foresporselen = $derived(foresporselForFristsvar(u) !== null);
   // § 33.3 for force majeure, ellers § 33.1, som brevteksten i kjernen.
   const hindringPunkt = $derived(hovedkategorien(u) === 'force_majeure' ? '33.3' : '33.1');
 
@@ -177,18 +177,15 @@
       'frist'
     );
   });
-  const forutsetninger = (art: string, gjelder?: string): Forutsetning[] =>
-    lagene?.standpunkter.find(
-      (x) => x.art === art && (gjelder === undefined || x.gjelder === gjelder)
-    )?.forutsetninger ?? [];
-  const grunnene = $derived(
-    frister[0] ? forutsetninger('dager', frister[0].id).filter((f) => 'grunn' in f) : []
-  );
-  const hindringslagene = $derived(forutsetninger('hindring'));
-  const spesifiseringslagene = $derived(forutsetninger('spesifisering'));
+  type Lagene = NonNullable<typeof lagene>['standpunkter'][number];
+  const forutsetninger = (passer: (x: Lagene) => boolean): Forutsetning[] =>
+    lagene?.standpunkter.find(passer)?.forutsetninger ?? [];
+  const forDagene = (id: string) => forutsetninger((x) => x.art === 'dager' && x.gjelder === id);
+  const grunnene = $derived(frister[0] ? forDagene(frister[0].id).filter((f) => 'grunn' in f) : []);
+  const hindringslagene = $derived(forutsetninger((x) => x.art === 'hindring'));
+  const spesifiseringslagene = $derived(forutsetninger((x) => x.art === 'spesifisering'));
   const foresporselslagene = $derived(
-    lagene?.standpunkter.find((x) => x.art === 'rettidighet' && x.hjemmel === '33.6.2')
-      ?.forutsetninger ?? []
+    forutsetninger((x) => x.art === 'rettidighet' && x.hjemmel === '33.6.2')
   );
   const grunnlagsbrev = $derived.by(() => {
     const g = u.spor.forhold.gjeldendeSvar;
@@ -199,37 +196,35 @@
     return s && !u.spor.frist.svar.some((x) => x.id === s.id) ? s : null;
   });
   const fristen = (id: string) => frister.find((f) => f.id === id);
+  // Standpunktene i svaret slik kjernen forhåndsviser det, med laget brevet gir dem.
+  const nyeStandpunkter = $derived(nyttSvar ? standpunktene(nyttSvar, etter!) : []);
   const linjer = $derived(
-    nyttSvar
-      ? standpunktene(nyttSvar, etter!).map((l) => {
-          const f =
-            'standpunkt' in l && l.standpunkt.art === 'dager'
-              ? fristen(l.standpunkt.gjelder)
-              : undefined;
-          return {
-            tekst:
-              'grunn' in l
-                ? grunntekst(l.grunn, true, l.brev)
-                : standpunkttekst(l.standpunkt, true, f?.dager, f && flere ? f.navn : undefined),
-            lag: l.lag,
-          };
-        })
-      : []
+    nyeStandpunkter.map((l) => {
+      const f =
+        'standpunkt' in l && l.standpunkt.art === 'dager'
+          ? fristen(l.standpunkt.gjelder)
+          : undefined;
+      return {
+        tekst:
+          'grunn' in l
+            ? grunntekst(l.grunn, true, l.brev)
+            : standpunkttekst(l.standpunkt, true, f?.dager, f && flere ? f.navn : undefined),
+        lag: l.lag,
+      };
+    })
   );
   const stor = (t: string) => `${t[0]!.toUpperCase()}${t.slice(1)}`;
   // Leselinjen for en lukket frist: dagene slik kjernen leser dem, eller valget til svaret er
   // fullstendig.
   const leselinje = (f: Fristpost): string[] => {
-    const fra = nyttSvar
-      ? standpunktene(nyttSvar, etter!).flatMap((l) => {
-          if (!('standpunkt' in l) || l.standpunkt.art !== 'dager') return [];
-          if (l.standpunkt.gjelder !== f.id) return [];
-          const t = FRISTSVAR.leselinjeDager(l.standpunkt.vurdert, f.dager);
-          return [l.lag ? `${stor(l.lag)}: ${t[0]!.toLowerCase()}${t.slice(1)}` : t];
-        })
-      : [];
+    const fra = nyeStandpunkter.flatMap((l) => {
+      if (!('standpunkt' in l) || l.standpunkt.art !== 'dager') return [];
+      if (l.standpunkt.gjelder !== f.id) return [];
+      const t = FRISTSVAR.leselinjeDager(l.standpunkt.vurdert, f.dager);
+      return [l.lag ? `${stor(l.lag)}: ${t[0]!.toLowerCase()}${t.slice(1)}` : t];
+    });
     if (fra.length) return fra;
-    const d = godkjenteDager(valg.frister[f.id] ?? tomFrist(), f.dager);
+    const d = godkjenteDager(fristvalget(valg, f.id), f.dager);
     return d === undefined ? [] : [FRISTSVAR.leselinjeDager(d, f.dager)];
   };
   const utkastbrev = $derived.by(() => {
@@ -249,35 +244,34 @@
   // (`kontrollerSpesifiseringen` i kjernen).
   const maatteForstaaFeil = (f: Fristpost): string | null => {
     if (valg.spesifisertITide !== false) return null;
-    const v = valg.frister[f.id] ?? tomFrist();
+    const v = fristvalget(valg, f.id);
     const d = heleDager(v.maatteForstaa);
     if (d === undefined) return FRISTSVAR.manglerMaatteForstaa;
     const godtar = godkjenteDager(v, f.dager);
     return godtar !== undefined && d > godtar ? FRISTSVAR.maatteForstaaForMange : null;
   };
+  // Spørsmålene som gjelder hele kravet, med feltet og det som mangler.
+  const heleKravet = $derived([
+    { felt: 'varsel', ubesvart: valg.varselITide === null, tekst: FRISTSVAR.manglerVarsel },
+    {
+      felt: 'foresporsel',
+      ubesvart: foresporselen && valg.foresporselITide === null,
+      tekst: FRISTSVAR.manglerForesporsel,
+    },
+    { felt: 'hindret', ubesvart: valg.hindret === null, tekst: FRISTSVAR.manglerHindring },
+    {
+      felt: 'spesifisert',
+      ubesvart: valg.spesifisertITide === null,
+      tekst: FRISTSVAR.manglerSpesifisering,
+    },
+  ]);
   const mangler = $derived(
     [
-      {
-        felt: `${uid}-varsel`,
+      ...heleKravet.map((m) => ({
+        felt: `${uid}-${m.felt}`,
         frist: null,
-        tekst: valg.varselITide === null ? FRISTSVAR.manglerVarsel : null,
-      },
-      {
-        felt: `${uid}-foresporsel`,
-        frist: null,
-        tekst:
-          foresporselen && valg.foresporselITide === null ? FRISTSVAR.manglerForesporsel : null,
-      },
-      {
-        felt: `${uid}-hindret`,
-        frist: null,
-        tekst: valg.hindret === null ? FRISTSVAR.manglerHindring : null,
-      },
-      {
-        felt: `${uid}-spesifisert`,
-        frist: null,
-        tekst: valg.spesifisertITide === null ? FRISTSVAR.manglerSpesifisering : null,
-      },
+        tekst: m.ubesvart ? m.tekst : null,
+      })),
       ...frister.flatMap((f) => {
         const i = (tekst: string | null) =>
           tekst ? SKJEMA.iPosten(flere ? f.navn : null, tekst) : null;
@@ -334,70 +328,20 @@
     onbrevkontroll({ kommando, ...brevet, detteSender: linjer, virkninger });
   }
 
-  let bekreftForkast = $state(false);
-  let forkastSpoersmaal = $state<HTMLElement | null>(null);
-  async function spoerOmForkast() {
-    bekreftForkast = true;
-    await tick();
-    forkastSpoersmaal?.focus();
-  }
-  async function behold() {
-    bekreftForkast = false;
-    await tick();
-    document.getElementById(`${uid}-forkast`)?.focus();
-  }
-
   // Brevet leses ved siden av skjemaet, og på smal skjerm i skjemaet (oppdragsgiver 29.10, #1391).
-  let smal = $state(false);
-  $effect(() => {
-    if (typeof window.matchMedia !== 'function') return;
-    const mq = window.matchMedia('(max-width: 1180px)');
-    const sett = () => (smal = mq.matches);
-    sett();
-    mq.addEventListener('change', sett);
-    return () => mq.removeEventListener('change', sett);
-  });
+  const vindu = medietreff('(max-width: 1180px)');
+  const smal = $derived(vindu.treff);
   let leser = $state(false);
   $effect(() => {
     onvedsiden?.(leser && !smal);
     return () => onvedsiden?.(false);
   });
-
-  // Panelet følger rullingen bare når det får plass i vinduet; ellers vises en kompakt linje
-  // nederst når panelet er ute av syne (skjerm E).
   let panel = $state<HTMLElement | null>(null);
-  let faarPlass = $state(true);
-  let iSyne = $state(true);
-  $effect(() => {
-    const el = panel;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const maal = () => (faarPlass = el.offsetHeight + 32 <= window.innerHeight);
-    const ro = new ResizeObserver(maal);
-    ro.observe(el);
-    window.addEventListener('resize', maal);
-    const io =
-      typeof IntersectionObserver === 'undefined'
-        ? null
-        : new IntersectionObserver(([e]) => (iSyne = e.isIntersecting));
-    io?.observe(el);
-    maal();
-    return () => {
-      ro.disconnect();
-      io?.disconnect();
-      window.removeEventListener('resize', maal);
-    };
-  });
-  const vilVise = $derived(!faarPlass && !iSyne && !(leser && !smal));
-  $effect(() => {
-    if (!vilVise) return;
-    untrack(() => vilHaLinja.push(uid));
-    return () =>
-      untrack(() => {
-        const i = vilHaLinja.indexOf(uid);
-        if (i >= 0) vilHaLinja.splice(i, 1);
-      });
-  });
-  const visKompakt = $derived(vilVise && vilHaLinja.at(-1) === uid);
+  const linja = fastLinje(
+    uid,
+    () => panel,
+    () => leser && !smal
+  );
 </script>
 
 {#snippet forutsetning(f: Forutsetning)}
@@ -451,7 +395,7 @@
         </div>
       </div>
     {/if}
-    {@const dagforutsetninger = forutsetninger('dager', f.id)}
+    {@const dagforutsetninger = forDagene(f.id)}
     <div class="betinget">
       <Gjelderhvis
         id={`${uid}-dager-${f.id}-forutsetninger`}
@@ -738,21 +682,7 @@
       </section>
 
       <div class="skjemafot">
-        {#if bekreftForkast}
-          <div class="bekreft" role="group" aria-labelledby={`${uid}-forkast-spoersmaal`}>
-            <p id={`${uid}-forkast-spoersmaal`} tabindex="-1" bind:this={forkastSpoersmaal}>
-              {SKJEMA.forkastSpoersmaal}
-            </p>
-            <div class="knapper">
-              <Knapp onclick={onforkast}>{SKJEMA.forkastJa}</Knapp>
-              <Knapp variant="lenke" onclick={behold}>{SKJEMA.behold}</Knapp>
-            </div>
-          </div>
-        {:else}
-          <Knapp variant="lenke" id={`${uid}-forkast`} onclick={spoerOmForkast}
-            >{SKJEMA.forkast}</Knapp
-          >
-        {/if}
+        <Forkastutkast tekst={FRISTSVAR.forkastTekst} {onforkast} />
       </div>
     </Utkastkort>
   {/snippet}
@@ -772,7 +702,7 @@
         <div class="lesebunn">{@render sendeknapp()}</div>
       </section>
     {:else}
-      <div class="feste" class:fast={faarPlass} bind:this={panel}>
+      <div class="feste" class:fast={linja.faarPlass} bind:this={panel}>
         <Hovedlinjer {linjer} alternativer={false} handling={sendeknapp} />
       </div>
       <Tidslinje brev={sporbrev} {datoer} />
@@ -780,7 +710,7 @@
   {/snippet}
 </Arbeidsflate>
 
-{#if visKompakt}
+{#if linja.visKompakt}
   <div class="kompakt" role="region" aria-label="Hovedlinjene og brevkontrollen">
     <Knapp variant="primaer" onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp>
     <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}>Se hovedlinjene</Knapp>
@@ -938,20 +868,6 @@
   .skjemafot {
     padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
     border-top: var(--rule);
-  }
-  .bekreft {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
-    padding: var(--spacing-2) 0;
-  }
-  .bekreft p:focus {
-    outline: none;
-  }
-  .knapper {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-3);
   }
   .innebrev {
     padding: var(--spacing-4) var(--spacing-4) 0;
