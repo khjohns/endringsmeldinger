@@ -43,11 +43,18 @@ export type Brev =
  * frist, som for en ny sak.
  */
 export type Saksmerking = Pick<Kontekst, 'sakskode' | 'kontraktsforkortelse'> &
-  Partial<Pick<Kontekst, 'kontraktsfrister'>>;
+  Partial<Pick<Kontekst, 'kontraktsfrister'>> & { fristdatoer?: readonly Fristdato[] };
+
+/**
+ * Datoen og dagmulkten for en frist i fristtabellen, som skjemaet viser ved fristen (BF-20 U-4 og
+ * U-5). Kjernen lager ikke teksten med dem.
+ */
+export type Fristdato = { fristId: number; dato: string; dagmulktbelagt: boolean };
 
 const stemplet = (sakId: string, part: Part, merking: Saksmerking): Kontekst => ({
   // Aktøren, tidspunktet og ID-ene settes av serveren og endrer ikke den låste teksten.
-  ...merking,
+  sakskode: merking.sakskode,
+  kontraktsforkortelse: merking.kontraktsforkortelse,
   sakId,
   aktoerId: '',
   part,

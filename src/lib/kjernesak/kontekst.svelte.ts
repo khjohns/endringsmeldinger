@@ -6,7 +6,7 @@
 
 import { getContext, setContext } from 'svelte';
 import { ApiError } from '$lib/api/client';
-import { brevFor, utledetMed, type Brev } from './brevtekst';
+import { brevFor, utledetMed, type Brev, type Fristdato } from './brevtekst';
 import type { Registrertfrist } from '$kjerne/spor/frist/format';
 import { somJournal } from './journal';
 import { lagSaksbilde } from './saksbilde';
@@ -360,6 +360,10 @@ export function lagKjernesak(valg: Kjernesakvalg) {
      */
     get kontraktsfrister(): readonly Registrertfrist[] | null {
       return sak?.merking?.kontraktsfrister ?? null;
+    },
+    /** Datoen og dagmulkten for fristene i tabellen, tom når serveren ikke gir dem (demoruta). */
+    get fristdatoer(): readonly Fristdato[] {
+      return sak?.merking?.fristdatoer ?? [];
     },
     get versjon() {
       return utledning?.versjon ?? null;

@@ -14,12 +14,15 @@
     brev,
     datoer,
     utfylt = [],
+    frister = [],
     aapen = true,
   }: {
     brev: Brevet[];
     datoer: OppgittDato[];
     /** Datoene i et brev som ennå ikke er sendt, med teksten skjemaet gir dem. */
     utfylt?: { naar: string; hva: string; kilde: string }[];
+    /** Fristene i kontrakten i en egen gruppe (BF-20 U-5). */
+    frister?: { noekkel: string; naar: string; hva: string; kilde: string; krevd: boolean }[];
     aapen?: boolean;
   } = $props();
 
@@ -68,28 +71,50 @@
       ),
     ].sort((a, b) => a.naar.localeCompare(b.naar))
   );
+  const uid = $props.id();
+  const fristene = $derived([...frister].sort((a, b) => a.naar.localeCompare(b.naar)));
 </script>
 
 <section class="kort" aria-label={TIDSLINJE.tittel}>
-  {#if oppfoeringer.length}
+  {#if oppfoeringer.length || fristene.length}
     <details open={aapen}>
       <summary class="hode">
         <span class="tittel">{TIDSLINJE.tittel}</span>
-        <span class="antall">{TIDSLINJE.oppfoeringer(oppfoeringer.length)}</span>
+        {#if oppfoeringer.length}
+          <span class="antall">{TIDSLINJE.oppfoeringer(oppfoeringer.length)}</span>
+        {/if}
         <ChevronRight size={16} aria-hidden="true" />
       </summary>
-      <ol class="liste">
-        {#each oppfoeringer as o (o.noekkel)}
-          <li class="rad">
-            <span class="merke merke-{o.merke}" aria-hidden="true"></span>
-            <div>
-              <p class="naar">{dato(o.naar)}</p>
-              <p class="hva">{o.hva}</p>
-              <p class="kilde">{o.kilde}</p>
-            </div>
-          </li>
-        {/each}
-      </ol>
+      {#if oppfoeringer.length}
+        <ol class="liste">
+          {#each oppfoeringer as o (o.noekkel)}
+            <li class="rad">
+              <span class="merke merke-{o.merke}" aria-hidden="true"></span>
+              <div>
+                <p class="naar">{dato(o.naar)}</p>
+                <p class="hva">{o.hva}</p>
+                <p class="kilde">{o.kilde}</p>
+              </div>
+            </li>
+          {/each}
+        </ol>
+      {/if}
+      {#if fristene.length}
+        <p class="gruppe" id={`${uid}-fristene`}>{TIDSLINJE.fristene}</p>
+        <ol class="liste" aria-labelledby={`${uid}-fristene`}>
+          {#each fristene as f (f.noekkel)}
+            <li class="rad">
+              <span class="merke {f.krevd ? 'merke-sendt' : 'merke-oppgitt'}" aria-hidden="true"
+              ></span>
+              <div>
+                <p class="naar">{dato(f.naar)}</p>
+                <p class="hva">{f.hva}</p>
+                {#if f.kilde}<p class="kilde">{f.kilde}</p>{/if}
+              </div>
+            </li>
+          {/each}
+        </ol>
+      {/if}
     </details>
   {:else}
     <!-- Uten oppføringer er det ingenting å åpne, så hodet er ingen knapp (#1391). -->
@@ -153,6 +178,12 @@
   .antall {
     color: var(--ink-3);
     font-size: 12px;
+  }
+  .gruppe {
+    padding: 0 var(--spacing-5) var(--spacing-3);
+    color: var(--ink-3);
+    font-size: 12px;
+    font-weight: 600;
   }
   .liste {
     padding: 0 var(--spacing-5) var(--spacing-5);

@@ -151,6 +151,8 @@ export interface Mangel {
   felt: string;
   tekst: string;
   ved?: string;
+  /** Raden feltet står i, som åpnes når TE går til feltet. */
+  post?: string;
 }
 
 /** Det som mangler, med feltet det gjelder (`<prefiks>-<felt>`). Kjernen avviser det samme. */
@@ -161,8 +163,13 @@ export function manglerIFristkravet(
   foresporsel: string | null = null
 ): Mangel[] {
   const ut: Mangel[] = [];
-  const legg = (felt: string, tekst: string, ved?: string) =>
-    ut.push({ felt: `${prefiks}-${felt}`, tekst, ...(ved ? { ved } : {}) });
+  const legg = (felt: string, tekst: string, ved?: string, post?: string) =>
+    ut.push({
+      felt: `${prefiks}-${felt}`,
+      tekst,
+      ...(ved ? { ved } : {}),
+      ...(post ? { post } : {}),
+    });
   if (v.utenfor) {
     if (!v.utenfor.dato) legg('utenfor-dato', FRISTKRAV.manglerVarseldato);
     if (v.hva === 'varsel' && !v.utenfor.type) legg('utenfor-type', FRISTKRAV.manglerType);
@@ -177,7 +184,7 @@ export function manglerIFristkravet(
   if (!med.length) legg('legg-til', FRISTKRAV.ingenFristerMangler);
   for (const p of med) {
     const f = (felt: string, tekst: string) =>
-      legg(`${felt}-${p.noekkel}`, `${navnet(p)}: ${tekst}`, tekst);
+      legg(`${felt}-${p.noekkel}`, `${navnet(p)}: ${tekst}`, tekst, p.noekkel);
     if (p.frist === null) f('frist', FRISTKRAV.manglerFrist);
     else if (typeof p.frist === 'number' && v.frister.some((q) => q !== p && q.frist === p.frist))
       f('frist', FRISTKRAV.toGanger);
