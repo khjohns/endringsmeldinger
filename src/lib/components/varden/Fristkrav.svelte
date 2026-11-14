@@ -178,7 +178,8 @@
   );
   // Kalenderdagene fra datoen TE oppgir, til varselet eller i dag. Løsningen vurderer dem ikke.
   const dagerEtterKlarOver = $derived.by(() => {
-    if (!klarOver) return null;
+    // Står varselet i saken, sier linja om brevet dagene.
+    if (!klarOver || (!varsel && varselbrev)) return null;
     // Varselet som registreres nå, ellers varselet i saken eller det som er gitt før.
     const varslet = registreres
       ? utenfor?.dato
@@ -417,7 +418,7 @@
   {#snippet hoved()}
     <Utkastkort
       id={id('tittel')}
-      tittel={FRISTKRAV.titler[modus]}
+      tittel={FRISTKRAV.titler[foresporselsbrev && !varsel ? 'svar' : modus]}
       undertittel={forrige ? FRISTKRAV.nyVersjon(forrige) : null}
       mottaker={SKJEMA.tilBH}
     >
@@ -508,7 +509,14 @@
             {/if}
             {#if utenfor}{@render varselUtenfor(true)}{/if}
           {:else if varselbrev}
-            <p class="status">{FRISTKRAV.varseletSendt(varselbrev)}</p>
+            <p class="status">
+              {FRISTKRAV.varseletSendt(
+                varselbrev,
+                klarOver
+                  ? kalenderdager(klarOver.dato, varselbrev.sendt ?? varselbrev.registrert)
+                  : null
+              )}
+            </p>
           {:else if utenfor}
             <p class="status">{FRISTKRAV.gittFoer}.</p>
             <p class="dempet">{FRISTKRAV.gittFoerHjelp}</p>

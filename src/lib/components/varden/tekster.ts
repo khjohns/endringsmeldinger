@@ -1352,8 +1352,9 @@ export const FRISTKRAV = {
   varselHjelp:
     'Varselet skal gis uten ugrunnet opphold etter at du ble eller burde ha blitt klar over forholdet, også før du kan angi dagene. Varsles det for sent, tapes kravet. Varselet gjelder hele kravet, med alle fristene.',
   kravetErVarselet: 'Dette kravet er varselet.',
-  varseletSendt: (b: Brevref & { sendt: string | null }) =>
-    `Varselet ble sendt i ${brevref(b)}, ${dato(b.sendt ?? b.registrert)}.`,
+  /** Med kalenderdagene etter datoen TE oppgir at TE ble klar over forholdet, som i prototypen. */
+  varseletSendt: (b: Brevref & { sendt: string | null }, etter: number | null) =>
+    `Varselet ble sendt i ${brevref(b)}, ${dato(b.sendt ?? b.registrert)}${etter === null ? '' : `, ${etter} kalenderdager etter at du ble klar over forholdet`}.`,
   // U-13: varselet alene, uten dager (VS-U15).
   hvaSender: 'Hva sender du?',
   hvaValg: [
