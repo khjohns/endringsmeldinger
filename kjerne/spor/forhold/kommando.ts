@@ -93,7 +93,7 @@ function utdypningIForholdet(
 }
 
 /**
- * GR-U22 og GR-U40 punkt 7: når forholdet er sendt, står hovedkategorien, underkategorien og,
+ * GR-U40 punkt 7 og 9: når forholdet er sendt, står hovedkategorien, underkategorien og,
  * i underkategorien endringsordre, endringsordren. En annen hjemmel eller en annen endringsordre
  * går i en ny sak. Om det er samme forhold, avgjør ikke appen (MM-U12 (opphevet av MM-U50)).
  */
