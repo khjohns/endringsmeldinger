@@ -104,6 +104,11 @@ export type Kommando = (
        * (LV-U71). Brevteksten setter den under punktet.
        */
       utdypninger?: Record<string, string>;
+      /**
+       * Vilkårene og forbeholdene som gjelder hele kravet om fristforlengelse eller
+       * vederlagsjustering (KA-U82, LV-U74). Brevteksten setter dem under «Forbehold», sist.
+       */
+      forbehold?: string;
     }
   | { type: 'brev'; svar: Svarutkast[] }
   | { type: 'revisjon'; erstatter: string; svar: Svarutkast }
@@ -236,6 +241,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       dokumentasjon: liste(ID),
       utdypning: TEKST,
       utdypninger: UTDYPNINGER,
+      forbehold: TEKST,
       ...BREVTEKST,
     },
     ['type', 'spor', 'innhold']
@@ -360,22 +366,27 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
 export type Innhold = Record<string, unknown>;
 
 /**
- * Feltet med datoen og vedleggene kommandoen viser til: brevets, påberopelsens (VS-U38),
- * eller varselets i et fristkrav (OV-U5). Feilmeldingene har stien herfra (#984).
+ * Feltet med datoen og vedleggene kommandoen viser til: brevets, kravets (påberopelsen, VS-U38,
+ * og fristkravet, #1823), og varselets i et fristkrav (OV-U5). Et fristkrav kan ha begge, og
+ * vedleggene står da i samme brev. Feilmeldingene har stien herfra (#984).
  */
-const brevfelt = (k: Kommando): { sti: string; sendt?: unknown; dokumentasjon?: string[] } =>
-  k.type === 'krav'
-    ? k.dokumentasjon
-      ? { sti: '$.', dokumentasjon: k.dokumentasjon }
-      : { sti: '$.varsel.', ...k.varsel }
-    : {
-        sti: '$.',
-        ...('sendt' in k ? { sendt: k.sendt } : {}),
-        ...('dokumentasjon' in k ? { dokumentasjon: k.dokumentasjon } : {}),
-      };
+const brevfelt = (k: Kommando): { sti: string; sendt?: unknown; dokumentasjon?: string[] } => {
+  if (k.type !== 'krav')
+    return {
+      sti: '$.',
+      ...('sendt' in k ? { sendt: k.sendt } : {}),
+      ...('dokumentasjon' in k ? { dokumentasjon: k.dokumentasjon } : {}),
+    };
+  const dokumentasjon = [...(k.dokumentasjon ?? []), ...(k.varsel?.dokumentasjon ?? [])];
+  return {
+    sti: k.varsel ? '$.varsel.' : '$.',
+    ...(k.varsel ? { sendt: k.varsel.sendt } : {}),
+    ...(dokumentasjon.length ? { dokumentasjon } : {}),
+  };
+};
 
 /**
- * Vedleggene kommandoen viser til: brevets, påberopelsens (VS-U38), varselets i et fristkrav
+ * Vedleggene kommandoen viser til: brevets, kravets (VS-U38, #1823), varselets i et fristkrav
  * (OV-U5), eller dokumentene kravskjemaet legger til som varsel for en kravpost (VS-U53).
  */
 export const vedleggI = (k: Kommando): string[] => [
@@ -392,7 +403,7 @@ export interface Kravform {
   feil(innhold: unknown): string[];
   /** Vedleggene innholdet i kravet viser til, utenom brevets. */
   vedleggIInnholdet(innhold: Innhold): string[];
-  /** Kravet kan ha vedlegg (`dokumentasjon`), som påberopelsen (VS-U38). */
+  /** Kravet kan ha vedlegg (`dokumentasjon`), som påberopelsen (VS-U38) og fristkravet (#1823). */
   vedleggVedKravet: boolean;
   /** Kravet kan ha et varsel (`varsel`), som fristkravet (OV-U5). */
   varselVedKravet: boolean;
@@ -418,9 +429,14 @@ export function formfeil(kommando: unknown): string[] {
     feil.push(...form.feil(k.innhold));
     if (!form.varselVedKravet && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
-    // VS-U38: vedleggene ved påberopelsen; et fristkrav har brevet med varselet i `varsel`.
+    // VS-U38: vedleggene ved påberopelsen; fristkravet har også brevet med varselet i `varsel`.
     if (!form.vedleggVedKravet && 'dokumentasjon' in k)
-      feil.push('$.dokumentasjon: bare påberopelsen har vedlegg ved kravet');
+      feil.push(
+        '$.dokumentasjon: bare påberopelsen og kravet om fristforlengelse har vedlegg ved kravet'
+      );
+    // KA-U82: forbeholdet gjelder ikke påberopelsen av forholdet.
+    if (k.spor === 'forhold' && 'forbehold' in k)
+      feil.push('$.forbehold: påberopelsen av forholdet har ikke noe forbehold');
   }
   // OV-U5: varselet etter § 33.4 står i fristen, varselet etter § 34.1.2 i vederlaget.
   if ((type === 'varsel' || type === 'send_varsel') && !feil.length) {

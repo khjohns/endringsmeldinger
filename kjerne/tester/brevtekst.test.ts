@@ -335,6 +335,8 @@ const PAABEROPELSE = {
 
 /** OV-U5: kravet registrerer varselet, så brevet med det ligger ved (arbeidsvalget i #909). */
 const VARSELBREVET = '7f1c2d3e-0000-4000-8000-000000003304';
+/** Et vedlegg ved kravet om fristforlengelse (#1823). */
+const PLAN = '7f1c2d3e-0000-4000-8000-000000003361';
 
 const FRISTKRAV = {
   type: 'krav',
@@ -627,6 +629,81 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
   // LV-U56 og tilfellene 1, 5 og 6 i BF-10-brevtekst.md: den låste delen sier bare hva
   // påberopelsen gjelder, og datoen. Den sier ikke at noe erstattes, og gjentar ikke varselet
   // etter punkt 32.2.
+  describe('forbeholdet i kravet (KA-U82, LV-U74)', () => {
+    const forbeholdet = 'Kravet forutsetter at pelearbeidet kan gjøres på dagtid.';
+    const paaberopt = () => {
+      const s = sak();
+      s.send('TE', PAABEROPELSE);
+      return s;
+    };
+
+    it('fristkravet har forbeholdet under «Forbehold» sist, etter begrunnelsen, og raden leses tilbake med det', () => {
+      const s = paaberopt();
+      const rad = s.send('TE', { ...FRISTKRAV, forbehold: forbeholdet });
+      expect(
+        tekst(rad).filter((a) => a.punkt === 'begrunnelse' || a.punkt === 'forbehold')
+      ).toEqual([
+        {
+          gjelder: s.krav('frist'),
+          punkt: 'begrunnelse',
+          overskrift: '2. Begrunnelse',
+          laast: '2. Begrunnelse',
+          utdypning: FRISTKRAV.utdypning,
+        },
+        {
+          gjelder: s.krav('frist'),
+          punkt: 'forbehold',
+          overskrift: '3. Forbehold',
+          laast: '3. Forbehold',
+          utdypning: forbeholdet,
+        },
+      ]);
+      expect(
+        tekst(rad)
+          .filter((a) => a.gjelder === s.krav('frist'))
+          .at(-1)!.punkt,
+        'forbeholdet er det siste punktet i kravet'
+      ).toBe('forbehold');
+      expect(s.u().forstaatt).toBe(true);
+    });
+
+    it('forbeholdet oppfyller ikke kravet om begrunnelse i fristkravet (KA-U82, KA-U33)', () => {
+      const s = paaberopt();
+      expect(
+        s.avvisning('TE', { ...utenFelt(FRISTKRAV, 'utdypning'), forbehold: forbeholdet })
+      ).toEqual({
+        regel: 'BEGRUNNELSE_MANGLER',
+        melding: 'Kravet om fristforlengelse må begrunne antallet dager.',
+      });
+      expect(s.avvist('TE', { ...FRISTKRAV, forbehold: forbeholdet }), 'kontrollsak').toBeNull();
+    });
+
+    it('vederlagskravet har forbeholdet under «Forbehold» sist', () => {
+      const s = paaberopt();
+      const rad = s.send('TE', {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: tilbud(125000),
+        forbehold: forbeholdet,
+      });
+      expect(tekst(rad).at(-1)).toEqual({
+        gjelder: s.krav('vederlag'),
+        punkt: 'forbehold',
+        overskrift: '2. Forbehold',
+        laast: '2. Forbehold',
+        utdypning: forbeholdet,
+      });
+    });
+
+    it('påberopelsen av forholdet har ikke noe forbehold (KA-U82)', () => {
+      const s = sak();
+      expect(s.avvisning('TE', { ...PAABEROPELSE, forbehold: forbeholdet })?.melding).toBe(
+        '$.forbehold: påberopelsen av forholdet har ikke noe forbehold'
+      );
+      expect(s.avvist('TE', PAABEROPELSE), 'kontrollsak').toBeNull();
+    });
+  });
+
   describe('en ny versjon av påberopelsen (LV-U56)', () => {
     const nyVersjon = (innhold: Data) => {
       const s = sak();
@@ -3658,13 +3735,39 @@ describe('vedleggene ved påberopelsen (VS-U38)', () => {
     ]);
   });
 
-  it('et vedlegg ved et fristkrav utenfor varselet avvises i formen (OV-U5)', () => {
+  it('et vedlegg ved vederlagskravet avvises i formen (VS-U38, #1823)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
-    expect(s.avvisning('TE', { ...FRISTKRAV, dokumentasjon: [VARSELBREVET] })?.melding).toBe(
-      '$.dokumentasjon: bare påberopelsen har vedlegg ved kravet'
+    const krav = { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) };
+    expect(s.avvisning('TE', { ...krav, dokumentasjon: [VARSELBREVET] })?.melding).toBe(
+      '$.dokumentasjon: bare påberopelsen og kravet om fristforlengelse har vedlegg ved kravet'
     );
-    expect(s.avvist('TE', FRISTKRAV), 'kontrollsak').toBeNull();
+    expect(s.avvist('TE', krav), 'kontrollsak').toBeNull();
+  });
+
+  it('fristkravet har vedleggene ved kravet og brevet med varselet i samme brev, og brevet nevner begge (#1823, OV-U5)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const rad = s.send('TE', { ...FRISTKRAV, dokumentasjon: [PLAN] });
+    expect((rad.data.dokumentasjon as Data[]).map((v) => v.vedlegg_id)).toEqual([
+      PLAN,
+      VARSELBREVET,
+    ]);
+    expect(laast(rad).at(-1)).toBe(`Brevet har vedlegg: «${PLAN}.pdf» og «${VARSELBREVET}.pdf».`);
+    expect(s.u().forstaatt).toBe(true);
+  });
+
+  it('fristkravet med vedlegg, uten varsel i kravet, lagrer vedleggene', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const rad = s.send('TE', { ...utenFelt(FRISTKRAV, 'varsel'), dokumentasjon: [PLAN] });
+    expect((rad.data.dokumentasjon as Data[]).map((v) => v.vedlegg_id)).toEqual([PLAN]);
+  });
+
+  it('samme vedlegg ved fristkravet og ved varselet avvises i formen', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    expect(s.avvist('TE', { ...FRISTKRAV, dokumentasjon: [VARSELBREVET] })).toBe('UGYLDIG_FORM');
   });
 
   it('samme vedlegg to ganger ved påberopelsen avvises i formen', () => {

@@ -2054,7 +2054,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Avsnitt', 'brevtekst', 'laast punkt overskrift', ['format/leser.ts']],
   ['Brevpunkt', 'brevtekst', 'punkt overskrift avsnitt', ['frosset/brevtekst.ts']],
   // LV-U71: utdypningen per punkt kopieres til teksten under punktet.
-  ['Utdypning', 'brevtekst', 'utdypning utdypninger', ['frosset/brevtekst.ts']],
+  ['Utdypning', 'brevtekst', 'utdypning utdypninger forbehold', ['frosset/brevtekst.ts']],
   [
     'frosset/brevtekst.ts:lagBrevtekst.leggPunkter',
     'brevtekst',
@@ -2096,6 +2096,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:svar', 'spor/forhold/kommando.ts:begrunnelseIForholdet'],
   ],
   ['Kommando', 'kommando', 'utdypninger', ['kommandoer/skriving.ts:dokument']],
+  // KA-U82, LV-U74: forbeholdet i kravet står i brevteksten og leses ikke av noen regel.
+  ['Kommando', 'kommando', 'forbehold', ['kommandoer/skriving.ts:dokument']],
   [
     'Kommando',
     'kommando',
