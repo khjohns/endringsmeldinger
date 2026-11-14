@@ -823,7 +823,9 @@ const LENKEDELER = ['prosjekt', 'board', 'topic'] as const;
 /**
  * Lenken til saken i Catenda (U-15 i BF-44), fra malen i `CATENDA_SAKSLENKE`, med
  * `{prosjekt}`, `{board}` og `{topic}` for ID-ene. Malen er driftens: formen på lenken
- * i Catenda står ikke i API-et, og verten har ingen standardverdi. Uten malen gir
+ * i Catenda står ikke i API-et, og verten har ingen standardverdi. `{prosjekt}` er
+ * Catenda-ID-en uten bindestreker (`catendaId()`), som i lenken til en topic i Catenda
+ * (oppdragsgiver 14.11 i #1906). Uten malen gir
  * lesingen ingen lenke. En mal som ikke er en https-adresse med `{topic}` i stien,
  * eller som har en annen plassholder, kastes med det som hindrer.
  */
@@ -848,8 +850,9 @@ export function sakslenkeFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): Sak
   if (hindring) throw new Error(`CATENDA_SAKSLENKE ${hindring}`);
   // Topicen lagres med boardet (`koe.sak_catenda_topic`), så de mangler sammen.
   return ({ catenda_project_id, board_id, topic_id }) => {
-    if (!topic_id || !board_id) return null;
-    const verdi = { prosjekt: catenda_project_id, board: board_id, topic: topic_id };
+    const prosjekt = catendaId(catenda_project_id);
+    if (!prosjekt || !topic_id || !board_id) return null;
+    const verdi = { prosjekt, board: board_id, topic: topic_id };
     return mal.replace(/\{(prosjekt|board|topic)\}/g, (_, d: keyof typeof verdi) =>
       encodeURIComponent(verdi[d])
     );

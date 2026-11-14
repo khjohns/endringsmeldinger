@@ -22,7 +22,11 @@ import {
 } from './testbase.ts';
 
 const MAL = 'https://catenda.test/prosjekt/{prosjekt}/board/{board}/topic/{topic}';
-const maal = { catenda_project_id: 'p-1', board_id: 'b 1', topic_id: 't/1' };
+const maal = {
+  catenda_project_id: '5c3a6c40-36e0-4b5a-8069-98d02a98b040',
+  board_id: 'b 1',
+  topic_id: 't/1',
+};
 
 describe('malen for lenken til saken i Catenda', () => {
   it('uten CATENDA_SAKSLENKE har saken ingen lenke, og verten har ingen standardverdi', () => {
@@ -32,8 +36,23 @@ describe('malen for lenken til saken i Catenda', () => {
 
   it('setter inn ID-ene kodet for adressen', () => {
     expect(sakslenkeFraMiljoe({ CATENDA_SAKSLENKE: MAL })!(maal)).toBe(
-      'https://catenda.test/prosjekt/p-1/board/b%201/topic/t%2F1'
+      'https://catenda.test/prosjekt/5c3a6c4036e04b5a806998d02a98b040/board/b%201/topic/t%2F1'
     );
+  });
+
+  // Kilde: lenken til en topic i Catenda, fra oppdragsgiver 14.11 i #1906.
+  it('setter inn prosjekt-ID-en uten bindestreker, som i lenken til en topic i Catenda', () => {
+    const lenke = sakslenkeFraMiljoe({
+      CATENDA_SAKSLENKE: 'https://hub.catenda.com/project/{prosjekt}/issues/{topic}',
+    })!;
+    expect(lenke({ ...maal, catenda_project_id: '5C3A6C40-36E0-4B5A-8069-98D02A98B040' })).toBe(
+      'https://hub.catenda.com/project/5c3a6c4036e04b5a806998d02a98b040/issues/t%2F1'
+    );
+  });
+
+  it('gir ingen lenke for en prosjekt-ID som ikke er en Catenda-ID', () => {
+    const lenke = sakslenkeFraMiljoe({ CATENDA_SAKSLENKE: MAL })!;
+    expect(lenke({ ...maal, catenda_project_id: 'p-1' })).toBeNull();
   });
 
   it('gir ingen lenke før saken har en topic', () => {
@@ -101,7 +120,7 @@ describe.skipIf(!TESTBASE_URL)('lenken til saken i Catenda i lesingen av saken',
     ['et medlem med leserolle', () => o.leser],
   ])('%s får lenken til sakens topic i prosjektets Catenda-prosjekt', async (_, leser) => {
     expect(await lenken(medMal, medTopic, leser())).toBe(
-      `https://catenda.test/prosjekt/${o.prosjekt.catendaProsjekt}/board/board-a/topic/topic-a`
+      `https://catenda.test/prosjekt/${o.prosjekt.catendaProsjekt.replaceAll('-', '')}/board/board-a/topic/topic-a`
     );
   });
 
