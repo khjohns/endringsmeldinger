@@ -108,7 +108,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
     };
     avh = {
       datalag: o.datalag.kjoeretid.pool,
-      catenda: { opprettTopic: async () => 'ingen' },
+      catenda: { opprettTopic: async () => ({ guid: 'ingen', nummer: null }) },
       dokumenter: {} as Jobbavhengigheter['dokumenter'],
       innboks,
       saksadresse: (p, sak) => `https://app.example.no/${p}/${sak}/kjerne`,
@@ -156,7 +156,7 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
       iKroppen = {} as { forfatter?: string; type?: string; tittel?: string },
     } = {}
   ) => {
-    iCatenda.set(noekkel(boardId, topic), { tittel, type, forfatter });
+    iCatenda.set(noekkel(boardId, topic), { tittel, type, forfatter, nummer: 726 });
     return {
       createdBy: {
         id: iKroppen.forfatter ?? forfatter,
@@ -244,9 +244,13 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
 
   const sakerForTopic = async (topic: string) =>
     (
-      await somJobbkjoerer<{ sak_id: string; catenda_board_id: string }>(
+      await somJobbkjoerer<{
+        sak_id: string;
+        catenda_board_id: string;
+        catenda_topic_nummer: number;
+      }>(
         o,
-        'SELECT sak_id, catenda_board_id FROM koe.sak_catenda_topic WHERE catenda_topic_id = @t',
+        'SELECT sak_id, catenda_board_id, catenda_topic_nummer FROM koe.sak_catenda_topic WHERE catenda_topic_id = @t',
         { t: topic }
       )
     ).recordset;
@@ -259,8 +263,9 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
       prosjekt_id: o.prosjekt.id,
       catenda_topic_id: topic,
     });
+    // Med topicens nummer fra Catenda, som lenken til saken bruker (U-15 i BF-44).
     expect(await sakerForTopic(topic)).toEqual([
-      { sak_id: utfall.sak_id, catenda_board_id: board },
+      { sak_id: utfall.sak_id, catenda_board_id: board, catenda_topic_nummer: 726 },
     ]);
     const [hendelse] = await transaksjon(
       avh.datalag,

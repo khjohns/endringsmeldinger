@@ -38,6 +38,7 @@ const UNIK = 2627;
 const BLOKKERT = 33504;
 const INGEN_RETT = 229;
 const KAN_IKKE_BLI = 15517;
+const TOPICNUMMER = 726;
 
 interface Jobb {
   jobb_id: string;
@@ -112,7 +113,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
           try {
             const id = await svar();
             merkEndring();
-            return id;
+            return { guid: id, nummer: TOPICNUMMER };
           } catch (feil) {
             // Som `forespoersel`: en endring Catenda avviser, setter ikke flagget (#921).
             if (!(feil instanceof CatendaAvvisning)) merkEndring();
@@ -134,6 +135,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
       .request()
       .input('lease', sql.UniqueIdentifier, lease)
       .input('topic_id', sql.NVarChar(100), topic)
+      .input('topic_nummer', sql.Int, null)
       .execute('koe_api.kvitter_topic');
   const sakerMedTittel = async (tittel: string) =>
     (
@@ -248,6 +250,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
             .input('kommando_sha256', sql.NVarChar(4000), '0'.repeat(64))
             .input('catenda_board_id', sql.NVarChar(100), null)
             .input('catenda_topic_id', sql.NVarChar(100), null)
+            .input('catenda_topic_nummer', sql.Int, null)
             .output('sak_id', sql.NVarChar(36))
             .output('event_id', sql.NVarChar(36))
             .output('tidsstempel', sql.DateTime2(3))
@@ -276,6 +279,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
         .input('kommando_sha256', sql.NVarChar(4000), '0'.repeat(64))
         .input('catenda_board_id', sql.NVarChar(100), null)
         .input('catenda_topic_id', sql.NVarChar(100), null)
+        .input('catenda_topic_nummer', sql.Int, null)
         .output('sak_id', sql.NVarChar(36))
         .output('event_id', sql.NVarChar(36))
         .output('tidsstempel', sql.DateTime2(3))
@@ -301,7 +305,12 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
         },
       },
     ]);
-    expect(await topicen(sakId)).toMatchObject({ topic_id: 'topic-skiva', board_id: board });
+    // Nummeret fra svaret lagres med topicen; lenken til saken bruker det (U-15 i BF-44).
+    expect(await topicen(sakId)).toMatchObject({
+      topic_id: 'topic-skiva',
+      board_id: board,
+      topic_nummer: TOPICNUMMER,
+    });
     expect((await jobben(sakId))[0].tilstand).toBe('utfoert');
     expect(await forsoekene(sakId)).toEqual([
       expect.objectContaining({ utfall: 'utfoert', melding: null }),
@@ -585,7 +594,7 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
     const loekke = startJobbkjoerer(
       {
         datalag: o.datalag.kjoeretid.pool,
-        catenda: { opprettTopic: async () => svar() },
+        catenda: { opprettTopic: async () => ({ guid: await svar(), nummer: TOPICNUMMER }) },
         dokumenter: utenDokumenter,
         saksadresse: () => 'x',
         logg,

@@ -42,6 +42,7 @@ export interface Leveringsmaal {
   folder_id: string | null;
   board_id: string | null;
   topic_id: string | null;
+  topic_nummer: number | null;
 }
 
 export interface Oppdragsrad {

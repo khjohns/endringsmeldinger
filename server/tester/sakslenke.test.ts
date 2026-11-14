@@ -1,7 +1,7 @@
 /**
  * Lenken fra saken til topicen i Catenda, som siden for vederlaget viser som «Åpne saken
- * i Catenda» (U-15 i BF-44, #1906). Malen er driftens (`CATENDA_SAKSLENKE`), og ID-ene er
- * de lagrede i `koe_api.leveringsmaal`. Testene mot testbasen krever
+ * i Catenda» (U-15 i BF-44, #1906). Verten er driftens (`CATENDA_NETTADRESSE`), og
+ * prosjektet og topicens nummer er de lagrede i `koe_api.leveringsmaal`. Testene mot testbasen krever
  * `KOE_SQLSERVER_TILKOBLING`.
  */
 
@@ -21,67 +21,54 @@ import {
   type Testbruker,
 } from './testbase.ts';
 
-const MAL = 'https://catenda.test/prosjekt/{prosjekt}/board/{board}/topic/{topic}';
-const maal = {
-  catenda_project_id: '5c3a6c40-36e0-4b5a-8069-98d02a98b040',
-  board_id: 'b 1',
-  topic_id: 't/1',
-};
+// Kilde for formen: lenken til en topic i Catenda fra oppdragsgiver 14.11 i #1906.
+const NETTADRESSE = 'https://hub.catenda.com';
+const maal = { catenda_project_id: '5c3a6c40-36e0-4b5a-8069-98d02a98b040', topic_nummer: 726 };
 
-describe('malen for lenken til saken i Catenda', () => {
-  it('uten CATENDA_SAKSLENKE har saken ingen lenke, og verten har ingen standardverdi', () => {
+describe('lenken til saken i Catenda fra verten', () => {
+  it('uten CATENDA_NETTADRESSE har saken ingen lenke, og verten har ingen standardverdi', () => {
     expect(sakslenkeFraMiljoe({})).toBeNull();
-    expect(sakslenkeFraMiljoe({ CATENDA_SAKSLENKE: '' })).toBeNull();
+    expect(sakslenkeFraMiljoe({ CATENDA_NETTADRESSE: '' })).toBeNull();
   });
 
-  it('setter inn ID-ene kodet for adressen', () => {
-    expect(sakslenkeFraMiljoe({ CATENDA_SAKSLENKE: MAL })!(maal)).toBe(
-      'https://catenda.test/prosjekt/5c3a6c4036e04b5a806998d02a98b040/board/b%201/topic/t%2F1'
+  it('har prosjekt-ID-en uten bindestreker og topicens nummer, som lenken i Catenda', () => {
+    const lenke = sakslenkeFraMiljoe({ CATENDA_NETTADRESSE: NETTADRESSE })!;
+    expect(lenke({ ...maal, catenda_project_id: maal.catenda_project_id.toUpperCase() })).toBe(
+      'https://hub.catenda.com/project/5c3a6c4036e04b5a806998d02a98b040/issues/726'
     );
   });
 
-  // Kilde: lenken til en topic i Catenda, fra oppdragsgiver 14.11 i #1906.
-  it('setter inn prosjekt-ID-en uten bindestreker, som i lenken til en topic i Catenda', () => {
-    const lenke = sakslenkeFraMiljoe({
-      CATENDA_SAKSLENKE: 'https://hub.catenda.com/project/{prosjekt}/issues/{topic}',
-    })!;
-    expect(lenke({ ...maal, catenda_project_id: '5C3A6C40-36E0-4B5A-8069-98D02A98B040' })).toBe(
-      'https://hub.catenda.com/project/5c3a6c4036e04b5a806998d02a98b040/issues/t%2F1'
+  it('godtar verten med / til slutt', () => {
+    expect(sakslenkeFraMiljoe({ CATENDA_NETTADRESSE: `${NETTADRESSE}/` })!(maal)).toBe(
+      'https://hub.catenda.com/project/5c3a6c4036e04b5a806998d02a98b040/issues/726'
     );
   });
 
-  it('gir ingen lenke for en prosjekt-ID som ikke er en Catenda-ID', () => {
-    const lenke = sakslenkeFraMiljoe({ CATENDA_SAKSLENKE: MAL })!;
+  it('gir ingen lenke uten topicens nummer, eller for en prosjekt-ID som ikke er en Catenda-ID', () => {
+    const lenke = sakslenkeFraMiljoe({ CATENDA_NETTADRESSE: NETTADRESSE })!;
+    expect(lenke({ ...maal, topic_nummer: null })).toBeNull();
     expect(lenke({ ...maal, catenda_project_id: 'p-1' })).toBeNull();
   });
 
-  it('gir ingen lenke før saken har en topic', () => {
-    const lenke = sakslenkeFraMiljoe({ CATENDA_SAKSLENKE: MAL })!;
-    expect(lenke({ ...maal, board_id: null, topic_id: null })).toBeNull();
-  });
-
   it.each([
-    ['http i stedet for https', 'http://catenda.test/{topic}'],
-    ['uten {topic}', 'https://catenda.test/{prosjekt}/{board}'],
-    ['en ukjent plassholder', 'https://catenda.test/{topic}?s={sak}'],
-    ['ikke en adresse', '{topic}'],
-    ['{topic} i verten', 'https://{topic}/'],
-    ['{board} i verten', 'https://{board}.catenda.test/{topic}'],
-    ['en plassholder rett etter verten', 'https://catenda.test{topic}'],
-    ['en plassholder i porten', 'https://catenda.test:{topic}/'],
-    ['en plassholder i en IP-adresse', 'https://10.0.0.{topic}'],
-    ['en plassholder foran en port', 'https://catenda.test:{topic}443/'],
-  ])('avviser en mal med %s', (_, mal) => {
-    expect(() => sakslenkeFraMiljoe({ CATENDA_SAKSLENKE: mal })).toThrow(/CATENDA_SAKSLENKE/);
+    ['http i stedet for https', 'http://hub.catenda.com'],
+    ['en sti', 'https://hub.catenda.com/project'],
+    ['en spørring', 'https://hub.catenda.com/?a=1'],
+    ['brukernavn', 'https://u@hub.catenda.com'],
+    ['ikke en adresse', 'hub.catenda.com'],
+  ])('avviser en verdi med %s', (_, verdi) => {
+    expect(() => sakslenkeFraMiljoe({ CATENDA_NETTADRESSE: verdi })).toThrow(
+      'CATENDA_NETTADRESSE er ikke en https-origin'
+    );
   });
 });
 
 describe.skipIf(!TESTBASE_URL)('lenken til saken i Catenda i lesingen av saken', () => {
   let o: Oppsett;
-  let medMal: KjorendeServer;
-  let utenMal: KjorendeServer;
+  let medVert: KjorendeServer;
+  let utenVert: KjorendeServer;
   let medTopic: string;
-  const sakslenke: Sakslenke = sakslenkeFraMiljoe({ CATENDA_SAKSLENKE: MAL })!;
+  const sakslenke: Sakslenke = sakslenkeFraMiljoe({ CATENDA_NETTADRESSE: NETTADRESSE })!;
 
   const lenken = async (server: KjorendeServer, sakId: string, leser: Testbruker) => {
     const svar = await kall(server.url, `/api/kjerne/saker/${sakId}`, {
@@ -93,24 +80,24 @@ describe.skipIf(!TESTBASE_URL)('lenken til saken i Catenda i lesingen av saken',
   };
 
   /** Sakens topic i Catenda, lagt inn som kjøreveien, `koe_jobbkjoerer` (#741). */
-  const settTopic = (sakId: string, board: string, topic: string) =>
+  const settTopic = (sakId: string, topic: string, nummer: number | null) =>
     somJobbkjoerer(
       o,
-      `INSERT koe.sak_catenda_topic (sak_id, prosjekt_id, catenda_board_id, catenda_topic_id)
-       VALUES (@sak_id, @prosjekt_id, @board, @topic)`,
-      { sak_id: sakId, prosjekt_id: o.prosjekt.id, board, topic }
+      `INSERT koe.sak_catenda_topic (sak_id, prosjekt_id, catenda_board_id, catenda_topic_id, catenda_topic_nummer)
+       VALUES (@sak_id, @prosjekt_id, N'board-a', @topic, @nummer)`,
+      { sak_id: sakId, prosjekt_id: o.prosjekt.id, topic, nummer }
     );
 
   beforeAll(async () => {
     o = await lagOppsett();
-    medMal = await startServer(o, { sakslenke });
-    utenMal = await startServer(o);
+    medVert = await startServer(o, { sakslenke });
+    utenVert = await startServer(o);
     medTopic = await opprettKjernesak(o);
-    await settTopic(medTopic, 'board-a', 'topic-a');
+    await settTopic(medTopic, 'topic-a', 726);
   });
   afterAll(async () => {
-    await medMal?.stopp();
-    await utenMal?.stopp();
+    await medVert?.stopp();
+    await utenVert?.stopp();
     if (o) await rydd(o);
   });
 
@@ -119,18 +106,24 @@ describe.skipIf(!TESTBASE_URL)('lenken til saken i Catenda i lesingen av saken',
     ['BH', () => o.bh],
     ['et medlem med leserolle', () => o.leser],
   ])('%s får lenken til sakens topic i prosjektets Catenda-prosjekt', async (_, leser) => {
-    expect(await lenken(medMal, medTopic, leser())).toBe(
-      `https://catenda.test/prosjekt/${o.prosjekt.catendaProsjekt.replaceAll('-', '')}/board/board-a/topic/topic-a`
+    expect(await lenken(medVert, medTopic, leser())).toBe(
+      `https://hub.catenda.com/project/${o.prosjekt.catendaProsjekt.replaceAll('-', '')}/issues/726`
     );
   });
 
   it('en sak uten topic i Catenda ennå har ingen lenke', async () => {
     const sakId = await opprettKjernesak(o);
-    expect(await lenken(medMal, sakId, o.bh)).toBeNull();
+    expect(await lenken(medVert, sakId, o.bh)).toBeNull();
   });
 
-  it('uten malen har saken ingen lenke, også med topic', async () => {
-    expect(await lenken(utenMal, medTopic, o.bh)).toBeNull();
+  it('en topic uten nummer, koblet før nummeret ble lagret, gir ingen lenke', async () => {
+    const sakId = await opprettKjernesak(o);
+    await settTopic(sakId, 'topic-uten-nummer', null);
+    expect(await lenken(medVert, sakId, o.bh)).toBeNull();
+  });
+
+  it('uten verten har saken ingen lenke, også med topic', async () => {
+    expect(await lenken(utenVert, medTopic, o.bh)).toBeNull();
   });
 
   it('målet leses bare i sakens prosjekt', async () => {
@@ -140,7 +133,7 @@ describe.skipIf(!TESTBASE_URL)('lenken til saken i Catenda i lesingen av saken',
       );
     // Kontrollsak: i sakens prosjekt gir prosedyren topicen.
     const i = await maalet({ aktor: o.bh.id, prosjekt: o.prosjekt.id, side: 'BH' });
-    expect(i.recordset.map((r) => r.topic_id)).toEqual(['topic-a']);
+    expect(i.recordset.map((r) => [r.topic_id, r.topic_nummer])).toEqual([['topic-a', 726]]);
     const utenfor = await maalet({ aktor: o.utenfor.id, prosjekt: o.annetProsjekt.id });
     expect(utenfor.recordset).toEqual([]);
   });
@@ -150,7 +143,7 @@ describe.skipIf(!TESTBASE_URL)('lenken til saken i Catenda i lesingen av saken',
     const rett = (s: string) => o.datalag.base.pool.request().query(s);
     await rett('REVOKE EXECUTE ON koe_api.leveringsmaal FROM koe_runtime');
     try {
-      const svar = await kall(medMal.url, `/api/kjerne/saker/${medTopic}`, {
+      const svar = await kall(medVert.url, `/api/kjerne/saker/${medTopic}`, {
         bruker: o.bh,
         prosjektId: o.prosjekt.id,
       });

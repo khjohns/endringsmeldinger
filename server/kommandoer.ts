@@ -237,7 +237,7 @@ function kvittertRad(journal: Journalrad[], eventId: string): Journalrad {
  * den i transaksjonen, og ingen ny topic lages.
  */
 export interface Opprettelsesvalg {
-  topic?: { board: string; topic: string };
+  topic?: { board: string; topic: string; nummer: number | null };
 }
 
 /**
@@ -297,6 +297,7 @@ export async function opprettSak<A>(
         .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
         .input('catenda_board_id', sql.NVarChar(100), topic?.board ?? null)
         .input('catenda_topic_id', sql.NVarChar(100), topic?.topic ?? null)
+        .input('catenda_topic_nummer', sql.Int, topic?.nummer ?? null)
         .output('sak_id', sql.NVarChar(36))
         .output('event_id', sql.NVarChar(36))
         .output('tidsstempel', sql.DateTime2(3))
@@ -658,6 +659,7 @@ export async function opprettSakMedPaaberopelse<A>(
           .input('kommando_sha256', sql.NVarChar(4000), kommando.sha256)
           .input('catenda_board_id', sql.NVarChar(100), null)
           .input('catenda_topic_id', sql.NVarChar(100), null)
+          .input('catenda_topic_nummer', sql.Int, null)
           .output('sak_id', sql.NVarChar(36), sakId)
           .output('event_id', sql.NVarChar(36), opprettet.event_id)
           .output('tidsstempel', sql.DateTime2(3))

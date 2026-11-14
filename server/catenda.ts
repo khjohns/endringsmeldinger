@@ -388,6 +388,7 @@ export class CatendaOAuth {
       tittel: tekst(svar.title),
       type: tekst(svar.topic_type),
       forfatter: erObjekt(forfatter) ? catendaId(forfatter.ref) : null,
+      nummer: topicnummer(svar),
     };
   }
 
@@ -441,17 +442,20 @@ export class CatendaOAuth {
   }
 
   /**
-   * Lager topicen på boardet og gir topicens GUID. Statusen er boardets standard
+   * Lager topicen på boardet og gir topicens GUID og nummer. Statusen er boardets standard
    * (#741 punkt 15).
    *
    * @throws UsikkertCatendautfall når topicen kan være laget; ellers CatendaUtilgjengelig
    */
-  async opprettTopic(boardId: string, topic: NyTopic, token: string): Promise<string> {
+  async opprettTopic(boardId: string, topic: NyTopic, token: string): Promise<LagetTopic> {
     const svar = await forespoersel(this.#oppsett, 'POST', `${boardsti(boardId)}/topics`, {
       token,
       json: { title: topic.tittel, description: topic.beskrivelse, topic_type: TOPICTYPE },
     });
-    return idFraSvar(svar, 'guid', 'Catenda svarte uten topic');
+    return {
+      guid: idFraSvar(svar, 'guid', 'Catenda svarte uten topic'),
+      nummer: topicnummer(svar),
+    };
   }
 
   /**
@@ -647,11 +651,27 @@ function referansesti(boardId: string, topicId: string): string {
   return `${topicsti(boardId, topicId)}/document_references`;
 }
 
-/** En topic lest fra Catenda. `forfatter` er null når topicen ikke har en. */
+/** En topic lest fra Catenda. `forfatter` og `nummer` er null når topicen ikke har dem. */
 export interface Topic {
   tittel: string;
   type: string;
   forfatter: string | null;
+  nummer: number | null;
+}
+
+/** Topicen Catenda laget: GUID-en, og nummeret, eller null når svaret ikke har det. */
+export interface LagetTopic {
+  guid: string;
+  nummer: number | null;
+}
+
+/**
+ * Topicens løpenummer i prosjektet (`bimsync_issue_number`), som lenken til topicen i
+ * Catenda bruker (U-15 i BF-44), eller null når svaret ikke har et positivt heltall.
+ */
+export function topicnummer(svar: unknown): number | null {
+  const nummer = erObjekt(svar) ? svar.bimsync_issue_number : undefined;
+  return typeof nummer === 'number' && Number.isSafeInteger(nummer) && nummer > 0 ? nummer : null;
 }
 
 /** Typen topicen for en sak fra appen får (#741 punkt 15). */
@@ -811,51 +831,36 @@ export function grunnadresse(verdi: string, appEnv: string | undefined): string 
 /** Delene lenken til saken i Catenda settes sammen av, fra `koe_api.leveringsmaal`. */
 export interface Topicmaal {
   catenda_project_id: string;
-  board_id: string | null;
-  topic_id: string | null;
+  topic_nummer: number | null;
 }
 
-/** Lenken til sakens topic i Catenda, eller `null` når saken ikke har topicen ennå. */
+/** Lenken til sakens topic i Catenda, eller `null` når topicen eller nummeret mangler. */
 export type Sakslenke = (maal: Topicmaal) => string | null;
 
-const LENKEDELER = ['prosjekt', 'board', 'topic'] as const;
-
 /**
- * Lenken til saken i Catenda (U-15 i BF-44), fra malen i `CATENDA_SAKSLENKE`, med
- * `{prosjekt}`, `{board}` og `{topic}` for ID-ene. Malen er driftens: formen på lenken
- * i Catenda står ikke i API-et, og verten har ingen standardverdi. `{prosjekt}` er
- * Catenda-ID-en uten bindestreker (`catendaId()`), som i lenken til en topic i Catenda
- * (oppdragsgiver 14.11 i #1906). Uten malen gir
- * lesingen ingen lenke. En mal som ikke er en https-adresse med `{topic}` i stien,
- * eller som har en annen plassholder, kastes med det som hindrer.
+ * Lenken til saken i Catenda (U-15 i BF-44): `<CATENDA_NETTADRESSE>/project/<prosjekt>/issues/<nummer>`,
+ * med Catenda-prosjektet i `catendaId()`-formen og topicens nummer, som i lenken til en topic
+ * i Catenda (oppdragsgiver 14.11 i #1906). Verten har ingen standardverdi: uten den gir
+ * lesingen ingen lenke. En verdi som ikke er en https-origin, kastes.
  */
 export function sakslenkeFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): Sakslenke | null {
-  const mal = miljoe.CATENDA_SAKSLENKE;
-  if (!mal) return null;
-  const ukjent = [...mal.matchAll(/\{([^}]*)\}/g)]
-    .map((m) => m[1])
-    .filter((d) => !(LENKEDELER as readonly string[]).includes(d));
-  // Verten står foran den første plassholderen, så en ID aldri avgjør hvor lenken peker.
-  const foran = mal.slice(0, mal.indexOf('{'));
-  const origin = URL.parse(foran)?.origin;
-  const hindring = ukjent.length
-    ? `har plassholderen {${ukjent[0]}}; bare {prosjekt}, {board} og {topic} er lov`
-    : !mal.includes('{topic}')
-      ? 'mangler {topic}'
-      : URL.parse(mal.replace(/\{(prosjekt|board|topic)\}/g, '0'))?.protocol !== 'https:'
-        ? 'er ikke en https-adresse'
-        : !origin || !foran.startsWith(`${origin}/`)
-          ? 'har en plassholder foran stien; verten og porten må stå fast'
-          : null;
-  if (hindring) throw new Error(`CATENDA_SAKSLENKE ${hindring}`);
-  // Topicen lagres med boardet (`koe.sak_catenda_topic`), så de mangler sammen.
-  return ({ catenda_project_id, board_id, topic_id }) => {
+  const verdi = miljoe.CATENDA_NETTADRESSE;
+  if (!verdi) return null;
+  const adresse = URL.parse(verdi);
+  if (
+    adresse?.protocol !== 'https:' ||
+    adresse.pathname !== '/' ||
+    adresse.search ||
+    adresse.hash ||
+    adresse.username ||
+    adresse.password
+  )
+    throw new Error('CATENDA_NETTADRESSE er ikke en https-origin');
+  const { origin } = adresse;
+  return ({ catenda_project_id, topic_nummer }) => {
     const prosjekt = catendaId(catenda_project_id);
-    if (!prosjekt || !topic_id || !board_id) return null;
-    const verdi = { prosjekt, board: board_id, topic: topic_id };
-    return mal.replace(/\{(prosjekt|board|topic)\}/g, (_, d: keyof typeof verdi) =>
-      encodeURIComponent(verdi[d])
-    );
+    if (!prosjekt || !topic_nummer) return null;
+    return `${origin}/project/${prosjekt}/issues/${topic_nummer}`;
   };
 }
 
@@ -916,7 +921,7 @@ export function topicoppretter(catenda: Integrasjon): Topicoppretter {
 
 /** `opprettTopic` endrer noe i Catenda og kaller `merkEndring` før forespørselen sendes. */
 export interface Topicoppretter {
-  opprettTopic(boardId: string, topic: NyTopic): Promise<string>;
+  opprettTopic(boardId: string, topic: NyTopic): Promise<LagetTopic>;
 }
 
 /**

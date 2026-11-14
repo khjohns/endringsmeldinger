@@ -242,9 +242,10 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
         })
       );
       // Samme form som topicene fra webhooken, så den unike begrensningen gjelder begge (#819).
-      const topicId = uuidMedBindestreker(topic) ?? topic;
+      const topicId = uuidMedBindestreker(topic.guid) ?? topic.guid;
       await kvittering(false)('koe_api.kvitter_topic', {
         topic_id: [sql.NVarChar(100), topicId],
+        topic_nummer: [sql.Int, topic.nummer],
       });
       logg.info(`Jobben ${jobb.jobb_id} laget topicen ${topicId} for saken ${jobb.sak_id}.`);
     } else if (jobb.jobbtype === 'levering') {
@@ -426,7 +427,10 @@ export async function skrivEnKommentar(avh: Jobbavhengigheter): Promise<boolean>
 
 type Kvitter = (
   prosedyre: string,
-  parametre: Record<string, [type: sql.ISqlType | (() => sql.ISqlType), verdi: string | null]>
+  parametre: Record<
+    string,
+    [type: sql.ISqlType | (() => sql.ISqlType), verdi: string | number | null]
+  >
 ) => Promise<void>;
 
 interface Vedleggsrad {

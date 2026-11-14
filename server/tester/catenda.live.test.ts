@@ -270,11 +270,11 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
       return verdi;
     }
 
-    // topic-api-openapi.yaml, POST …/topics: svaret har topicens `guid`. Topic-typen er
+    // topic-api-openapi.yaml, POST …/topics: svaret har topicens `guid` og `bimsync_issue_number`. Topic-typen er
     // `TOPICTYPE` (#741 punkt 15), og boardet må kjenne den.
-    it('B1: opprettTopic gir en GUID, og topic-typen godtas på boardet', async () => {
+    it('B1: opprettTopic gir en GUID og et nummer, og topic-typen godtas på boardet', async () => {
       const tittel = `${PREFIKS}${randomUUID()}`;
-      const guid = await lag(`topic ${tittel}`, () =>
+      const { guid, nummer } = await lag(`topic ${tittel}`, () =>
         oauth.opprettTopic(
           board,
           {
@@ -293,8 +293,11 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
         guid: string;
         title: string;
         topic_type: string;
+        bimsync_issue_number: number;
       };
       expect(lest).toMatchObject({ guid: topic, title: tittel, topic_type: TOPICTYPE });
+      // Nummeret er det lenken til topicen i Catenda bruker (U-15 i BF-44).
+      expect(nummer).toBe(lest.bimsync_issue_number);
     });
 
     // topic-api-openapi.yaml, GET …/topics/{guid}: `bimsync_creation_author.user` er en
@@ -304,6 +307,7 @@ describe.skipIf(!LIVE)('Catenda gjennom brokeren', { timeout: 30_000 }, () => {
       const paa = krev(topic, 'topicen fra B1');
       const lest = await oauth.topic(board, paa, token);
       expect(lest).toMatchObject({ type: TOPICTYPE, forfatter: await oauth.egenId(token) });
+      expect(lest?.nummer).toEqual(expect.any(Number));
     });
 
     // topic-api-openapi.yaml, schema `comment`: `author`. Catenda setter den til `email` fra
