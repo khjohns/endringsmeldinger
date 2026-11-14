@@ -5234,6 +5234,32 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['påberopelsen av forholdet har ikke noe forbehold'],
   },
   {
+    id: 'F606',
+    feilklasse:
+      'dagene byggherren måtte forstå fylles bare ut når feltet er null, ikke når det mangler (#1971)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        'mangler((r as Record<string, unknown>).dager_maatte_forstaa)',
+        '(r as Record<string, unknown>).dager_maatte_forstaa === null',
+      ],
+    ],
+    mal: ['spesifisert for sent uten dagene byggherren måtte forstå, uten feltet'],
+  },
+  {
+    id: 'F607',
+    feilklasse:
+      'dagene byggherren måtte forstå fylles bare ut når feltet mangler, ikke når det er null (#1971)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        'mangler((r as Record<string, unknown>).dager_maatte_forstaa)',
+        '(r as Record<string, unknown>).dager_maatte_forstaa === undefined',
+      ],
+    ],
+    mal: ['spesifisert for sent uten dagene byggherren måtte forstå, med null'],
+  },
+  {
     id: 'F594',
     feilklasse: 'et trukket fristkrav forlenger fristen (GFK-U26, KA-U6)',
     fil: `${K}/spor/frist/utledning.ts`,
