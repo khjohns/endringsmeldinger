@@ -143,8 +143,10 @@ export interface LestSak {
   navn: Map<string, string>;
   /** Feilen fra navneoppslaget, når det feilet. */
   navnefeil?: unknown;
-  /** Sakens mål i Catenda med `catenda`; `null` uten aktiv kobling og uten `catenda`. */
+  /** Sakens mål i Catenda med `catenda`; `null` uten aktiv kobling, uten `catenda` og når oppslaget feilet. */
   maal: Leveringsmaal | null;
+  /** Feilen fra oppslaget av målet, når det feilet. */
+  maalfeil?: unknown;
 }
 
 /**
@@ -152,9 +154,10 @@ export interface LestSak {
  * konteksten. Med `navn` leses navnet bak aktørene etter journalen, i samme
  * transaksjon, så navnene gjelder de samme hendelsene (#835 punkt 2). Navnet er
  * en visningsdetalj: et oppslag som feiler, gir ingen navn og `navnefeil`, og
- * velter ikke lesingen (CLAUDE.md). Med `catenda` leses sakens mål i Catenda, som
- * lenken til saken settes sammen av. Transaksjonen rulles da tilbake, også når
- * basen alt har gjort det med XACT_ABORT, og det som er lest før, gjelder.
+ * velter ikke lesingen (CLAUDE.md). Transaksjonen rulles da tilbake, også når
+ * basen alt har gjort det med XACT_ABORT, og det som er lest før, gjelder. Med
+ * `catenda` leses sakens mål i Catenda til slutt, som lenken til saken settes sammen
+ * av. Det er også en visningsdetalj: et oppslag som feiler, gir `maalfeil` på samme måte.
  *
  * @throws SakFinnesIkke
  */
@@ -169,13 +172,19 @@ export async function lesSaken(
     if (!skrevetAvKjernen(journal))
       throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
     const oppdrag = await lesOppdrag(foresp, sakId, journal.at(-1)!.versjon);
-    const maal = catenda ? await lesMaal(foresp, sakId) : null;
-    const lest = { journal, oppdrag, maal, navn: new Map<string, string>() };
-    if (!navn) return lest;
+    let lest: LestSak = { journal, oppdrag, maal: null, navn: new Map<string, string>() };
+    if (navn) {
+      try {
+        lest = { ...lest, navn: await aktornavn(foresp, sakId) };
+      } catch (navnefeil) {
+        return new Tilbakerulling({ ...lest, navnefeil });
+      }
+    }
+    if (!catenda) return lest;
     try {
-      return { ...lest, navn: await aktornavn(foresp, sakId) };
-    } catch (navnefeil) {
-      return new Tilbakerulling({ ...lest, navnefeil });
+      return { ...lest, maal: await lesMaal(foresp, sakId) };
+    } catch (maalfeil) {
+      return new Tilbakerulling({ ...lest, maalfeil });
     }
   });
 }

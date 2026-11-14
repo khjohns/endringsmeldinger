@@ -833,10 +833,17 @@ export function sakslenkeFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): Sak
   const ukjent = [...mal.matchAll(/\{([^}]*)\}/g)]
     .map((m) => m[1])
     .filter((d) => !(LENKEDELER as readonly string[]).includes(d));
-  const prove = mal.replace(/\{(prosjekt|board|topic)\}/g, '0');
-  if (ukjent.length || !mal.includes('{topic}') || URL.parse(prove)?.protocol !== 'https:')
+  const prove = URL.parse(mal.replace(/\{(prosjekt|board|topic)\}/g, '0'));
+  // Verten står foran den første plassholderen, så en ID aldri avgjør hvor lenken peker.
+  const foran = URL.parse(mal.slice(0, mal.indexOf('{')));
+  if (
+    ukjent.length ||
+    !mal.includes('{topic}') ||
+    prove?.protocol !== 'https:' ||
+    foran?.origin !== prove.origin
+  )
     throw new Error(
-      'CATENDA_SAKSLENKE må være en https-adresse med {topic}, og bare {prosjekt}, {board} og {topic}'
+      'CATENDA_SAKSLENKE må være en https-adresse med {topic} etter verten, og bare {prosjekt}, {board} og {topic}'
     );
   // Topicen lagres med boardet (`koe.sak_catenda_topic`), så de mangler sammen.
   return ({ catenda_project_id, board_id, topic_id }) => {

@@ -5,8 +5,9 @@
  * `KOE_SQLSERVER_TILKOBLING`.
  */
 
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { sakslenkeFraMiljoe, type Sakslenke } from '../catenda.ts';
+import { transaksjon, type Kontekst } from '../datalag.ts';
 import {
   kall,
   lagOppsett,
@@ -45,6 +46,10 @@ describe('malen for lenken til saken i Catenda', () => {
     ['uten {topic}', 'https://catenda.test/{prosjekt}/{board}'],
     ['en ukjent plassholder', 'https://catenda.test/{topic}?s={sak}'],
     ['ikke en adresse', '{topic}'],
+    ['{topic} i verten', 'https://{topic}/'],
+    ['{board} i verten', 'https://{board}.catenda.test/{topic}'],
+    ['en plassholder rett etter verten', 'https://catenda.test{topic}'],
+    ['en plassholder i porten', 'https://catenda.test:{topic}/'],
   ])('avviser en mal med %s', (_, mal) => {
     expect(() => sakslenkeFraMiljoe({ CATENDA_SAKSLENKE: mal })).toThrow(/CATENDA_SAKSLENKE/);
   });
@@ -107,13 +112,35 @@ describe.skipIf(!TESTBASE_URL)('lenken til saken i Catenda i lesingen av saken',
     expect(await lenken(utenMal, medTopic, o.bh)).toBeNull();
   });
 
-  it('en sak i et annet prosjekt gir ingen lenke, bare avvisningen', async () => {
-    const sakId = await opprettKjernesak(o, o.annetProsjekt);
-    const svar = await kall(medMal.url, `/api/kjerne/saker/${sakId}`, {
-      bruker: o.bh,
-      prosjektId: o.prosjekt.id,
-    });
-    expect(svar.status).toBe(403);
-    expect(svar.kropp).not.toHaveProperty('catenda_lenke');
+  it('målet leses bare i sakens prosjekt', async () => {
+    const maalet = (kontekst: Kontekst) =>
+      transaksjon(o.datalag.kjoeretid.pool, kontekst, (foresp) =>
+        foresp().input('sak_id', medTopic).execute('koe_api.leveringsmaal')
+      );
+    // Kontrollsak: i sakens prosjekt gir prosedyren topicen.
+    const i = await maalet({ aktor: o.bh.id, prosjekt: o.prosjekt.id, side: 'BH' });
+    expect(i.recordset.map((r) => r.topic_id)).toEqual(['topic-a']);
+    const utenfor = await maalet({ aktor: o.utenfor.id, prosjekt: o.annetProsjekt.id });
+    expect(utenfor.recordset).toEqual([]);
+  });
+
+  it('et oppslag av målet som feiler, gir ingen lenke og velter ikke lesingen', async () => {
+    const advarsel = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const rett = (s: string) => o.datalag.base.pool.request().query(s);
+    await rett('REVOKE EXECUTE ON koe_api.leveringsmaal FROM koe_runtime');
+    try {
+      const svar = await kall(medMal.url, `/api/kjerne/saker/${medTopic}`, {
+        bruker: o.bh,
+        prosjektId: o.prosjekt.id,
+      });
+      expect(svar.status, JSON.stringify(svar.kropp)).toBe(200);
+      expect(svar.kropp.catenda_lenke).toBeNull();
+      expect((svar.kropp.journal as unknown[]).length).toBe(1);
+      expect(advarsel).toHaveBeenCalledOnce();
+      expect(advarsel.mock.calls[0][0]).toContain('lenken til Catenda');
+    } finally {
+      await rett('GRANT EXECUTE ON koe_api.leveringsmaal TO koe_runtime');
+      advarsel.mockRestore();
+    }
   });
 });

@@ -138,7 +138,7 @@ async function visSaken(
   try {
     saken = await lesSaken(avh.datalag, kontekst, sakId, {
       navn: true,
-      catenda: avh.sakslenke !== null,
+      catenda: Boolean(avh.sakslenke),
     });
   } catch (feil) {
     if (feil instanceof SakFinnesIkke) return finnesIkke();
@@ -147,6 +147,8 @@ async function visSaken(
   const { journal, oppdrag, navn, navnefeil, maal } = saken;
   // Et navneoppslag som feiler, gir identiteten (CLAUDE.md). Loggen har feilen, ingen navn.
   if ('navnefeil' in saken) loggFeil(`Navneoppslaget i saken ${sakId} feilet`, navnefeil, 'warn');
+  if ('maalfeil' in saken)
+    loggFeil(`Oppslaget av lenken til Catenda i saken ${sakId} feilet`, saken.maalfeil, 'warn');
   return [
     200,
     {
@@ -173,7 +175,7 @@ async function visSaken(
         opprettet: o.opprettet,
         levert: o.levert,
       })),
-      catenda_lenke: maal && avh.sakslenke ? avh.sakslenke(maal) : null,
+      catenda_lenke: avh.sakslenke && maal ? avh.sakslenke(maal) : null,
     },
   ];
 }
