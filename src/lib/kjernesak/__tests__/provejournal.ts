@@ -5,6 +5,7 @@ import { forhaandsvis, utledJournal, type Vedleggsoppslag } from '$kjerne/komman
 import { KJERNE } from '$kjerne/versjon';
 import { kravposterI } from '$kjerne/spor/vederlag/format';
 import type { Journalrad, Part } from '$kjerne/typer';
+import type { Kontekst } from '$kjerne/kommandoer/skriving';
 import type { Journallinje } from '$lib/api/kjerne';
 
 export const SAK = 'sak-1';
@@ -33,13 +34,14 @@ export function skrevet(
   journal: Journalrad[],
   part: Part,
   kommando: unknown,
-  vedlegg: Vedleggsoppslag = new Map()
+  vedlegg: Vedleggsoppslag = new Map(),
+  kontraktsfrister: Kontekst['kontraktsfrister'] = []
 ): Journalrad[] {
   const utfall = forhaandsvis(
     kommando,
     {
       ...MERKING,
-      kontraktsfrister: [],
+      kontraktsfrister,
       sakId: SAK,
       aktoerId: part.toLowerCase(),
       part,

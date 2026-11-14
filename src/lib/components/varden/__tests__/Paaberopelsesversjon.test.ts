@@ -375,14 +375,14 @@ describe('primærhandlingen i «Det du kan gjøre nå» (#1649)', () => {
     ).toHaveLength(0);
   });
 
-  it('i fristsporet er kravet i «Andre handlinger» ikke bygget, fordi bare den nye versjonen av påberopelsen er bygget i Varden, og et klikk sier det (BF-10, BF-02B, #1636)', async () => {
+  it('i fristsporet åpner kravet i «Andre handlinger» kravskjemaet for fristen (G-3 i BF-20, #1636)', async () => {
     const kortet = await vis('BF-04', 'forholdet-er-avslaatt', 'TE', 'frist');
     const raden = kortet.getByText(
       (_, e) => e?.getAttribute('data-handling') === 'krav:frist'
     ) as HTMLElement;
-    expect(within(raden).queryByRole('link')).toBeNull();
     await fireEvent.click(within(raden).getByRole('button'));
-    expect(within(raden).getByRole('status')).toHaveTextContent(HANDLINGENE.ikkeBygget);
+    expect(await screen.findByText('Krav om fristforlengelse')).toBeTruthy();
+    expect(screen.queryByText(HANDLINGENE.ikkeBygget)).toBeNull();
   });
 
   it('i demoruta er «Revider krav» primær etter svaret og åpner kravskjemaet for vederlaget (#1636, BF-14)', async () => {

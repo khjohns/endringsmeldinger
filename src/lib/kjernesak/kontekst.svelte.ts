@@ -7,6 +7,7 @@
 import { getContext, setContext } from 'svelte';
 import { ApiError } from '$lib/api/client';
 import { brevFor, utledetMed, type Brev } from './brevtekst';
+import type { Registrertfrist } from '$kjerne/spor/frist/format';
 import { somJournal } from './journal';
 import { lagSaksbilde } from './saksbilde';
 import { sendForsoek, usikkertUtfall } from './forsoek';
@@ -352,6 +353,13 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     },
     get sak() {
       return sak;
+    },
+    /**
+     * Fristtabellen for prosjektet, som kravet om fristforlengelse velger fra (KA-U79), eller
+     * `null` når den ikke kunne hentes.
+     */
+    get kontraktsfrister(): readonly Registrertfrist[] | null {
+      return sak?.merking?.kontraktsfrister ?? null;
     },
     get versjon() {
       return utledning?.versjon ?? null;
