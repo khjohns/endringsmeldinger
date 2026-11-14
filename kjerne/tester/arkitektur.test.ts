@@ -581,17 +581,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Fristlag', 'frosset svar', 'dager', [FORLENGELSENE]],
   ['Enighetsgrunnlag', 'frosset svar', 'utfall', [FORLENGELSENE]],
   ['Utfall', 'frosset svar', 'frister frister.gjelder frister.dager', [FORLENGELSENE]],
-  // MM-U9: et fristsvar som er subsidiært til avslaget av forholdet, forlenger ikke fristen.
+  // MM-U9: et fristsvar som er subsidiært til avslaget av forholdet, tas ikke med (spørsmål 2).
   ['Sporutledning', 'relasjon', 'subsidiaer', [FORLENGELSENE]],
   // GFK-U19: fristen etter dagene i de andre sakene som forlenger den.
   [
     'Forlengelse',
     'frosset svar',
-    'grunnlag fristId dager',
-    [
-      'spor/frist/utledning.ts:forlengerFristen',
-      'spor/frist/utledning.ts:fristenEtterForlengelsene',
-    ],
+    'fristId dager',
+    ['spor/frist/utledning.ts:fristenEtterForlengelsene'],
   ],
   [
     'regler/hverdager.ts',

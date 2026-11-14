@@ -39,8 +39,16 @@ function paaskedag(aar: number): number {
   return Date.UTC(aar, maaned - 1, dag);
 }
 
+const FRIDAGENE = new Map<number, ReadonlySet<number>>();
+
 /** Helligdagene som ikke er søndager, og høytidsdagene, i året. */
-function fridager(aar: number): Set<number> {
+function fridager(aar: number): ReadonlySet<number> {
+  let dagene = FRIDAGENE.get(aar);
+  if (!dagene) FRIDAGENE.set(aar, (dagene = regnUtFridager(aar)));
+  return dagene;
+}
+
+function regnUtFridager(aar: number): Set<number> {
   const paaske = paaskedag(aar);
   const fraPaaske = [-3, -2, 0, 1, 39, 49, 50].map((n) => paaske + n * DAG);
   const faste = [

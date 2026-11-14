@@ -5100,8 +5100,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        "export const forlengerFristen = (f: Forlengelse): boolean => f.grunnlag !== 'subsidiaert';",
-        'export const forlengerFristen = (f: Forlengelse): boolean => f !== null;',
+        '  const subsidiaert = !s.enighet && s.subsidiaer.length > 0;',
+        '  const subsidiaert = false;',
       ],
     ],
     mal: ['subsidiært: et svar uten enighet'],
@@ -5110,7 +5110,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F592',
     feilklasse: 'en enighet uten virkning forlenger fristen (GR-U7, KA-U6)',
     fil: `${K}/spor/frist/utledning.ts`,
-    endringer: [['  if (s.enighet && u.forholdAvvist) return [];', '']],
+    endringer: [['  if (s.enighet && u.forholdAvvist) return ingen;', '']],
     mal: ['en enighet uten virkning gir ingen forlengelse'],
   },
   {
@@ -5118,10 +5118,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'dagene for en annen frist forlenger fristen (GFK-U19)',
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
-      [
-        '.filter((f) => f.fristId === fristId && forlengerFristen(f))',
-        '.filter((f) => forlengerFristen(f))',
-      ],
+      ['forlengelser.filter((f) => f.fristId === fristId)', 'forlengelser.filter(() => true)'],
     ],
     mal: ['summerer dagene som forlenger fristen'],
   },
@@ -5140,8 +5137,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        '  if (s.trukket || !s.gjeldendeKrav || !s.gjeldendeSvar) return [];',
-        '  if (!s.gjeldendeKrav || !s.gjeldendeSvar) return [];',
+        '  if (s.trukket || !s.gjeldendeKrav || !s.gjeldendeSvar) return ingen;',
+        '  if (!s.gjeldendeKrav || !s.gjeldendeSvar) return ingen;',
       ],
     ],
     mal: ['et trukket krav gir ingen forlengelse'],

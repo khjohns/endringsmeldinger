@@ -10,16 +10,19 @@ import { describe, expect, it } from 'vitest';
 import { minnebane } from './bane.ts';
 import { kjoer, type Forloep } from './kjoerer.ts';
 import type { Handling } from './klient.ts';
-import {
-  forlengelseneISaken,
-  forlengerFristen,
-  fristenEtterForlengelsene,
-} from '../spor/frist/utledning.ts';
+import { forlengelseneISaken, fristenEtterForlengelsene } from '../spor/frist/utledning.ts';
 
-async function forlengelsene(steg: Handling[]) {
+async function lesingen(steg: Handling[]) {
   const forloep: Forloep = { id: 'forlengelser', rader: [], start: null, steg, kontroller: [] };
   const k = await kjoer(forloep, minnebane({ sakstittel: 'Fasaden' }));
   return forlengelseneISaken(await k.utledning());
+}
+
+/** Dagene som forlenger fristen; de som ikke tas med, må være ingen. */
+async function forlengelsene(steg: Handling[]) {
+  const { tattMed, ikkeTattMed } = await lesingen(steg);
+  expect(ikkeTattMed).toEqual([]);
+  return tattMed;
 }
 
 const PAABEROPELSE: Handling = {
@@ -140,16 +143,19 @@ describe('forlengelsene i saken (GFK-U26)', () => {
   });
 
   it('subsidiært: et svar uten enighet som er subsidiært til avslaget av forholdet, merkes og forlenger ikke fristen (spørsmål 2)', async () => {
-    const f = await forlengelsene([
-      PAABEROPELSE,
-      FRISTKRAVET,
-      brevet(forholdet('avslaatt'), fristen({ dager: 3 })),
-    ]);
-    expect(f).toEqual([
-      { fristId: 1, dager: 3, grunnlag: 'subsidiaert' },
-      { fristId: 2, dager: 3, grunnlag: 'subsidiaert' },
-    ]);
-    expect(f.filter(forlengerFristen)).toEqual([]);
+    expect(
+      await lesingen([
+        PAABEROPELSE,
+        FRISTKRAVET,
+        brevet(forholdet('avslaatt'), fristen({ dager: 3 })),
+      ])
+    ).toEqual({
+      tattMed: [],
+      ikkeTattMed: [
+        { fristId: 1, dager: 3, grunnlag: 'subsidiaert' },
+        { fristId: 2, dager: 3, grunnlag: 'subsidiaert' },
+      ],
+    });
   });
 
   it('avtalt: alle dagene er godkjent subsidiært, og enigheten er betinget (spørsmål 2)', async () => {
@@ -197,7 +203,6 @@ describe('fristen etter forlengelsene (GFK-U19)', () => {
       fristenEtterForlengelsene('2026-12-16', 2, [
         { fristId: 2, dager: 3, grunnlag: 'avtalt' },
         { fristId: 2, dager: 4, grunnlag: 'godkjent' },
-        { fristId: 2, dager: 9, grunnlag: 'subsidiaert' },
         { fristId: 1, dager: 30, grunnlag: 'godkjent' },
       ])
     ).toBe('2026-12-23');

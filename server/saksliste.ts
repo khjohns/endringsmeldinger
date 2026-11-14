@@ -80,6 +80,11 @@ export async function lesSakslisten(pool: Pool, kontekst: Kontekst): Promise<Les
 
 /** Det samme som `lesSakslisten`, i en transaksjon som alt har konteksten. */
 export async function lesSakene(foresp: Foresp): Promise<LestSak[]> {
+  return (await lesAlleSakene(foresp)).filter((s) => skrevetAvKjernen(s.journal));
+}
+
+/** Sakene i prosjektet i konteksten, også de TS-kjernen ikke har skrevet. */
+export async function lesAlleSakene(foresp: Foresp): Promise<LestSak[]> {
   const rader = (await foresp().execute<Listerad>('koe_api.saksliste')).recordset;
   const saker = new Map<string, LestSak>();
   for (const r of rader) {
@@ -111,7 +116,7 @@ export async function lesSakene(foresp: Foresp): Promise<LestSak[]> {
       data: JSON.parse(r.data) as Record<string, unknown>,
     });
   }
-  return [...saker.values()].filter((s) => skrevetAvKjernen(s.journal));
+  return [...saker.values()];
 }
 
 const tekst = (v: unknown): string | null => (typeof v === 'string' ? v : null);

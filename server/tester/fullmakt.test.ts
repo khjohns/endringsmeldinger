@@ -143,7 +143,7 @@ function svarutkast(h: Record<string, unknown>, u: Utledning): Svarutkast {
 
 /** Overtakelsen med satsen, regnet fra `DATOEN`. */
 const medSats = (sats: number | null): Map<number, Fristgrunnlag> =>
-  new Map([[1, { dato: DATOEN, sats, forlengelser: [] }]]);
+  new Map([[1, { dato: DATOEN, sats, forlengelser: [], ikkeTattMed: [] }]]);
 
 const verdi = async (krav: object[], svar: Record<string, unknown>[], sats: number | null) => {
   const u = utledning(krav);
@@ -371,6 +371,7 @@ describe('verdien av et vederlagskrav med flere kravposter (KA-U57 (c), OV-U31)'
 });
 
 describe('verdien av dagene per frist (GFK-U17–GFK-U21, GFK-U24)', () => {
+  const INGEN = { tattMed: [], ikkeTattMed: [] };
   const tabell = (endret: Partial<Fristtabell['frister'][number]> = {}): Fristtabell => ({
     kontraktssum: null,
     frister: [
@@ -411,7 +412,7 @@ describe('verdien av dagene per frist (GFK-U17–GFK-U21, GFK-U24)', () => {
           { frist_id: 1, dager: 10 },
           { frist_id: 2, dager: 7 },
         ],
-        fristgrunnlaget(tabell(), [], []).frister
+        fristgrunnlaget(tabell(), INGEN, []).frister
       )
     ).toEqual({ beloep: 9 * SATS + 6 * 1000, gulv: 51000 });
   });
@@ -423,11 +424,14 @@ describe('verdien av dagene per frist (GFK-U17–GFK-U21, GFK-U24)', () => {
       { sakId: 'a', fristId: 2, dager: 3, grunnlag: 'avtalt' as const },
       { sakId: 'b', fristId: 2, dager: 4, grunnlag: 'godkjent' as const },
       { sakId: 'c', fristId: 1, dager: 30, grunnlag: 'godkjent' as const },
-      // Spørsmål 2 i `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md`: ikke tatt med.
-      { sakId: 'd', fristId: 2, dager: 9, grunnlag: 'subsidiaert' as const },
     ];
+    // Spørsmål 2 i `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md`: ikke tatt med.
+    const ikkeTattMed = [{ sakId: 'd', fristId: 2, dager: 9, grunnlag: 'subsidiaert' as const }];
     expect(
-      verdiAv([{ frist_id: 2, dager: 7 }], fristgrunnlaget(tabell(), forlengelser, []).frister)
+      verdiAv(
+        [{ frist_id: 2, dager: 7 }],
+        fristgrunnlaget(tabell(), { tattMed: forlengelser, ikkeTattMed }, []).frister
+      )
     ).toEqual({
       beloep: 4 * 1000,
       gulv: 4 * 1000,
@@ -441,14 +445,17 @@ describe('verdien av dagene per frist (GFK-U17–GFK-U21, GFK-U24)', () => {
           { frist_id: 1, dager: 10 },
           { frist_id: 2, dager: 7 },
         ],
-        fristgrunnlaget(tabell({ dagmulktbelagt: false }), [], []).frister
+        fristgrunnlaget(tabell({ dagmulktbelagt: false }), INGEN, []).frister
       )
     ).toEqual({ beloep: null, gulv: 9 * SATS });
   });
 
   it('GFK-U3: dager for en dagmulktbelagt frist uten sats kan ikke verdsettes', () => {
     expect(
-      verdiAv([{ frist_id: 2, dager: 7 }], fristgrunnlaget(tabell({ sats: null }), [], []).frister)
+      verdiAv(
+        [{ frist_id: 2, dager: 7 }],
+        fristgrunnlaget(tabell({ sats: null }), INGEN, []).frister
+      )
     ).toEqual({ beloep: null, gulv: 0 });
   });
 
@@ -459,7 +466,7 @@ describe('verdien av dagene per frist (GFK-U17–GFK-U21, GFK-U24)', () => {
           { frist_id: 1, dager: 10 },
           { nummer: '4', navn: 'Rekkverket', dager: 5 },
         ],
-        fristgrunnlaget(tabell(), [], []).frister
+        fristgrunnlaget(tabell(), INGEN, []).frister
       )
     ).toEqual({ beloep: null, gulv: 9 * SATS });
   });
@@ -468,7 +475,7 @@ describe('verdien av dagene per frist (GFK-U17–GFK-U21, GFK-U24)', () => {
     expect(
       verdiAv(
         [{ frist_id: 1, dager: 10 }],
-        fristgrunnlaget(tabell(), [], ['en sak kjernen ikke forstår']).frister
+        fristgrunnlaget(tabell(), INGEN, ['en sak kjernen ikke forstår']).frister
       )
     ).toEqual({
       beloep: null,
@@ -476,14 +483,17 @@ describe('verdien av dagene per frist (GFK-U17–GFK-U21, GFK-U24)', () => {
     });
   });
 
-  it('spørsmål 4 A: grunnlaget har dagene i hver sak for fristen, også de som ikke er tatt med', () => {
-    const forlengelser = [
-      { sakId: 'a', fristId: 2, dager: 3, grunnlag: 'avtalt' as const },
-      { sakId: 'd', fristId: 2, dager: 9, grunnlag: 'subsidiaert' as const },
-    ];
-    const g = fristgrunnlaget(tabell(), forlengelser, ['e']);
-    expect(g.frister.get(2)).toEqual({ dato: null, sats: 1000, forlengelser });
-    expect(g.frister.get(1)!.forlengelser).toEqual([]);
+  it('spørsmål 4: grunnlaget har dagene i hver sak for fristen, også de som ikke er tatt med, og sakene kjernen ikke forstår', () => {
+    const tattMed = [{ sakId: 'a', fristId: 2, dager: 3, grunnlag: 'avtalt' as const }];
+    const ikkeTattMed = [{ sakId: 'd', fristId: 2, dager: 9, grunnlag: 'subsidiaert' as const }];
+    const g = fristgrunnlaget(tabell(), { tattMed, ikkeTattMed }, ['e']);
+    expect(g.frister.get(2)).toEqual({
+      dato: null,
+      sats: 1000,
+      forlengelser: tattMed,
+      ikkeTattMed,
+    });
+    expect(g.frister.get(1)).toMatchObject({ forlengelser: [], ikkeTattMed: [] });
     expect(g.ikkeForstaatt).toEqual(['e']);
   });
 });

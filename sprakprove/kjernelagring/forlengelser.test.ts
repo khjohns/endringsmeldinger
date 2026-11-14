@@ -13,7 +13,7 @@ import { catendaId } from '../../server/autorisasjon.ts';
 import { transaksjon, type Kontekst } from '../../server/datalag.ts';
 import { lesFristgrunnlaget } from '../../server/fullmakt.ts';
 import { iTransaksjon, settInn } from '../../server/tester/sqlserver_migrert.ts';
-import { lagOppsett, rydd, type Oppsett } from '../../server/tester/testbase.ts';
+import { lagOppsett, opprettKjernesak, rydd, type Oppsett } from '../../server/tester/testbase.ts';
 import { basebane, GRENSER, TESTBASE_URL } from './bane.ts';
 
 vi.setConfig(GRENSER);
@@ -116,5 +116,13 @@ describe.skipIf(!TESTBASE_URL)('fristgrunnlaget for fullmakten i SQL Server', ()
     const tomt = { frister: new Map(), ikkeForstaatt: [] };
     expect(await les({ aktor: o.bh.id, prosjekt: o.prosjekt.id }, avtalt)).toEqual(tomt);
     expect(await les({ ...bh(), prosjekt: o.annetProsjekt.id }, avtalt)).toEqual(tomt);
+  });
+
+  // Til slutt, fordi saken gjør datoen ukjent for testene over.
+  it('MM-U2: en sak kjernen ikke har skrevet, gjør datoen ukjent og nevnes', async () => {
+    const ukjent = await opprettKjernesak(o, o.prosjekt, null);
+    const g = await les(bh(), avtalt);
+    expect(g.ikkeForstaatt).toEqual([ukjent]);
+    expect(g.frister.get(1)!.dato).toBeNull();
   });
 });

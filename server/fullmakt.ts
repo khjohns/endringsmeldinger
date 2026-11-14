@@ -18,7 +18,8 @@ import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Foresp } from './datalag.ts';
 import { lesKontraktsfrister, type Fristtabell } from './kontraktsfrister.ts';
-import { lesSakene } from './saksliste.ts';
+import { lesAlleSakene } from './saksliste.ts';
+import { skrevetAvKjernen } from './lager.ts';
 import { krevdSamlet } from '../kjerne/spor/vederlag/format.ts';
 import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
@@ -47,8 +48,10 @@ export interface Fristgrunnlag {
   dato: string | null;
   /** Kroner per dag, eller `null` når fristen ikke er dagmulktbelagt eller satsen mangler. */
   sats: number | null;
-  /** Dagene for fristen i de andre sakene, også de som ikke er tatt med (spørsmål 4 A). */
+  /** Dagene for fristen i de andre sakene som forlenger den. */
   forlengelser: SakensForlengelse[];
+  /** Dagene for fristen som ikke er tatt med, for utregningen (svaret på spørsmål 4). */
+  ikkeTattMed: SakensForlengelse[];
 }
 
 /** Dagene for en frist i en annen sak. */
@@ -58,7 +61,7 @@ export interface SakensForlengelse extends Forlengelse {
 
 /**
  * Fristgrunnlaget for verdien, og sakene utregningen nevner: forlengelsene per frist, og
- * sakene kjernen ikke forstår (MM-U2), som gjør datoen ukjent.
+ * sakene kjernen ikke forstår eller ikke har skrevet (MM-U2), som gjør datoen ukjent.
  */
 export interface Fristgrunnlaget {
   frister: Map<number, Fristgrunnlag>;
@@ -157,19 +160,23 @@ export function brevverdi(
  */
 export function fristgrunnlaget(
   tabell: Fristtabell,
-  forlengelser: readonly SakensForlengelse[],
+  {
+    tattMed,
+    ikkeTattMed,
+  }: { tattMed: readonly SakensForlengelse[]; ikkeTattMed: readonly SakensForlengelse[] },
   ikkeForstaatt: readonly string[]
 ): Fristgrunnlaget {
+  const forFristen = (fristId: number, l: readonly SakensForlengelse[]) =>
+    l.filter((x) => x.fristId === fristId);
   return {
     frister: new Map(
       tabell.frister.map((f) => [
         f.fristId,
         {
-          dato: ikkeForstaatt.length
-            ? null
-            : fristenEtterForlengelsene(f.dato, f.fristId, forlengelser),
+          dato: ikkeForstaatt.length ? null : fristenEtterForlengelsene(f.dato, f.fristId, tattMed),
           sats: f.dagmulktbelagt ? f.sats : null,
-          forlengelser: forlengelser.filter((x) => x.fristId === f.fristId),
+          forlengelser: forFristen(f.fristId, tattMed),
+          ikkeTattMed: forFristen(f.fristId, ikkeTattMed),
         },
       ])
     ),
@@ -179,9 +186,9 @@ export function fristgrunnlaget(
 
 /**
  * Fristgrunnlaget for brevverdien i saken `sakId`: fristtabellen og forlengelsene i de andre
- * sakene i prosjektet (GFK-U26), lest i saksbehandlerens transaksjon når pakken lages.
- * Godkjenneren regner ikke verdien på nytt: lesefilteret gir godkjenneren en tom fristtabell
- * og ingen andre saker (GFK-U9).
+ * sakene i prosjektet (GFK-U26). Det skal leses i saksbehandlerens transaksjon når pakken lages,
+ * fordi lesefilteret gir godkjenneren en tom fristtabell og ingen andre saker (GFK-U9, #1780).
+ * Ingen inngang lager pakken ennå (G-6 i BF-45).
  */
 export async function lesFristgrunnlaget(
   foresp: Foresp,
@@ -190,14 +197,19 @@ export async function lesFristgrunnlaget(
 ): Promise<Fristgrunnlaget> {
   const tabell = await lesKontraktsfrister(foresp);
   const forlengelser: SakensForlengelse[] = [];
+  const ikkeMed: SakensForlengelse[] = [];
   const ikkeForstaatt: string[] = [];
-  for (const sak of await lesSakene(foresp)) {
+  for (const sak of await lesAlleSakene(foresp)) {
     if (sak.sakId === sakId) continue;
-    const u = utledJournal(sak.journal, kjerne);
-    if (!u.forstaatt) ikkeForstaatt.push(sak.sakId);
-    else for (const f of forlengelseneISaken(u)) forlengelser.push({ ...f, sakId: sak.sakId });
+    const u = skrevetAvKjernen(sak.journal) ? utledJournal(sak.journal, kjerne) : null;
+    if (!u?.forstaatt) ikkeForstaatt.push(sak.sakId);
+    else {
+      const { tattMed, ikkeTattMed } = forlengelseneISaken(u);
+      for (const f of tattMed) forlengelser.push({ ...f, sakId: sak.sakId });
+      for (const f of ikkeTattMed) ikkeMed.push({ ...f, sakId: sak.sakId });
+    }
   }
-  return fristgrunnlaget(tabell, forlengelser, ikkeForstaatt);
+  return fristgrunnlaget(tabell, { tattMed: forlengelser, ikkeTattMed: ikkeMed }, ikkeForstaatt);
 }
 
 function kravverdi(sp: Sporutledning, verdi: (krav: Krav) => number): number | null {
