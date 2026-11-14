@@ -811,7 +811,7 @@ const normalisertAdresse = (verdi: string) => URL.parse(verdi)?.href ?? verdi;
  * `authorization_code` går også mot adressen, og brokeren slipper den ikke gjennom.
  */
 export function grunnadresse(verdi: string, appEnv: string | undefined): string {
-  const origin = httpsOrigin(verdi, appEnv === 'development');
+  const origin = originFra(verdi, appEnv === 'development');
   if (!origin)
     throw new Error(
       'CATENDA_GRUNNADRESSE må være en https-origin, eller localhost over http i utvikling'
@@ -823,7 +823,7 @@ export function grunnadresse(verdi: string, appEnv: string | undefined): string 
  * Originen i `verdi` når den er en https-adresse uten sti, query, fragment og
  * brukeropplysninger, eller localhost over http når `lokalTillatt`; ellers null.
  */
-function httpsOrigin(verdi: string, lokalTillatt: boolean): string | null {
+function originFra(verdi: string, lokalTillatt: boolean): string | null {
   const adresse = URL.parse(verdi);
   const lokal =
     lokalTillatt &&
@@ -860,7 +860,7 @@ export type Sakslenke = (maal: Topicmaal) => string | null;
 export function sakslenkeFraMiljoe(miljoe: NodeJS.ProcessEnv = process.env): Sakslenke | null {
   const verdi = miljoe.CATENDA_NETTADRESSE;
   if (!verdi) return null;
-  const origin = httpsOrigin(verdi, false);
+  const origin = originFra(verdi, false);
   if (!origin) throw new Error('CATENDA_NETTADRESSE er ikke en https-origin');
   return ({ catenda_project_id, topic_nummer }) => {
     const prosjekt = catendaId(catenda_project_id);
