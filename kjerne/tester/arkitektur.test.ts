@@ -1782,13 +1782,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'oppgittDatoEtterBrevet',
     ['kommandoer/avvisning.ts:avvisning'],
   ],
-  // #698: det datoen gjelder, med de samme ordene i meldingene og skjemaet. Brevet skriver
-  // partene fullt ut (LV-U35) og har ordene i `DATOEN_I_BREVET`.
+  // #698, #1952: det datoen gjelder, med de samme ordene i meldingene, skjemaet og brevet.
   [
     'spor/forhold/format.ts',
     'brevtekst',
     'DATOEN_GJELDER',
-    ['kommandoer/nyttelast.ts', 'spor/forhold/kommando.ts'],
+    [
+      'kommandoer/nyttelast.ts',
+      'spor/forhold/kommando.ts',
+      'spor/forhold/tekst.ts',
+      'frosset/brevtekst.ts',
+    ],
   ],
   // Brevets dato er serverens tidspunkt i norsk tid (VS-U8).
   ['format/leser.ts', 'kontekst', 'registrertDato', ['kommandoer/skriving.ts:skriv']],
@@ -2191,7 +2195,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'spor/forhold/tekst.ts',
     'brevtekst',
-    'BREVTEKSTEN_I_FORHOLDET STANDPUNKTENE_I_FORHOLDET DATOEN_I_BREVET paaberopelsenAvForholdet harRisikoen',
+    'BREVTEKSTEN_I_FORHOLDET STANDPUNKTENE_I_FORHOLDET paaberopelsenAvForholdet harRisikoen',
     ['frosset/brevtekst.ts'],
   ],
   ['spor/forhold/tekst.ts', 'brevtekst', 'LINJEN_I_FORHOLDET', ['frosset/linje.ts']],

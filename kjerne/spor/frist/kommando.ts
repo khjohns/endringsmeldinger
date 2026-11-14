@@ -63,7 +63,9 @@ export const NYTTELAST_I_FRISTEN = {
   innsigelse: () => null,
   utdypning: utdypningIFristen,
   oppgittDatoIKravet: (k) =>
-    k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null,
+    k.varsel
+      ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'Totalentreprenøren' }
+      : null,
 } satisfies Sporsnyttelast;
 
 /** Et utsagn i fristen som ikke er et krav, når sporet er lukket (GR-U27, GR-U5, KA-U12). */
@@ -87,7 +89,7 @@ export const FORUTSETNINGER_I_FRISTEN = {
       if (!paaberopelseSendt)
         return avvis(
           'PAABEROPELSE_IKKE_SENDT',
-          'Grunnlaget må være sendt før du kan sende forespørselen.'
+          'Påberopelsen må være sendt før du kan sende forespørselen.'
         );
       if (u.spor.frist.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (u.spor.frist.ingenKrav)

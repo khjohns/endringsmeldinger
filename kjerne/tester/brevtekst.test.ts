@@ -719,7 +719,7 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
     expect(s.avvisning('TE', med('2026-10-03'))).toEqual({
       regel: 'DATO_ETTER_BREVET',
       melding:
-        'TE har oppgitt at pålegget ble mottatt 3. oktober 2026, etter brevets dato 2. oktober 2026.',
+        'Totalentreprenøren har oppgitt at pålegget ble mottatt 3. oktober 2026, etter brevets dato 2. oktober 2026.',
     });
     expect(s.avvist('TE', med('2026-10-02'))).toBeNull();
     const svikt = {
@@ -732,7 +732,7 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
       },
     };
     expect(s.avvisning('TE', svikt)?.melding).toBe(
-      'TE har oppgitt at TE ble klar over forholdet 3. oktober 2026, etter brevets dato 2. oktober 2026.'
+      'Totalentreprenøren har oppgitt at totalentreprenøren ble klar over forholdet 3. oktober 2026, etter brevets dato 2. oktober 2026.'
     );
   });
 
@@ -750,7 +750,7 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
     });
     const krav = (sendt: string) => ({ ...FRISTKRAV, varsel: { ...FRISTKRAV.varsel, sendt } });
     const melding =
-      'TE har oppgitt at varselet etter § 33.4 ble sendt 4. oktober 2026, etter brevets dato 3. oktober 2026.';
+      'Totalentreprenøren har oppgitt at varselet etter § 33.4 ble sendt 4. oktober 2026, etter brevets dato 3. oktober 2026.';
     expect(s.avvisning('TE', varsel('2026-10-04'))).toEqual({
       regel: 'DATO_ETTER_BREVET',
       melding,
@@ -936,7 +936,7 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
     ).toEqual({
       regel: 'DATOEN_KAN_IKKE_ENDRES',
       melding:
-        'En ny versjon av grunnlaget kan ikke endre datoen pålegget ble mottatt. TEs siste opplysning er 25. september 2026. Datoen korrigeres i et eget brev.',
+        'En oppdatert påberopelse kan ikke endre datoen pålegget ble mottatt. Totalentreprenørens siste opplysning er 25. september 2026. Datoen korrigeres i et eget brev.',
     });
     expect(laast(s.send('TE', PAABEROPELSE))[0], 'kontrollsak: samme dato').toContain(
       MOTTATT_TEKST
@@ -1014,13 +1014,13 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
     expect(s.avvisning('TE', korrigering(s, 'klar_over_forholdet', '2026-09-25'))).toEqual({
       regel: 'DATOEN_ER_UENDRET',
       melding:
-        'TE har alt oppgitt at TE ble klar over forholdet 25. september 2026. Korrigeringen må oppgi en annen dato.',
+        'Totalentreprenøren har alt oppgitt at totalentreprenøren ble klar over forholdet 25. september 2026. Korrigeringen må oppgi en annen dato.',
     });
     // Brevet med korrigeringen er datert 3. oktober 2026.
     expect(s.avvisning('TE', korrigering(s, 'klar_over_forholdet', '2026-10-04'))).toEqual({
       regel: 'DATO_ETTER_BREVET',
       melding:
-        'TE har oppgitt at TE ble klar over forholdet 4. oktober 2026, etter brevets dato 3. oktober 2026.',
+        'Totalentreprenøren har oppgitt at totalentreprenøren ble klar over forholdet 4. oktober 2026, etter brevets dato 3. oktober 2026.',
     });
     expect(
       s.avvist('TE', korrigering(s, 'klar_over_forholdet', '2026-10-03')),
@@ -5629,13 +5629,13 @@ describe('en ny påberopelsesversjon beholder hjemmelen (GR-U22)', () => {
     expect(s.avvist('TE', versjon(neste))).toBe(regel);
   });
 
-  it('meldingen ved en annen endringsordre sier hvilken endringsordre som står (GR-U40 punkt 7 og 9)', () => {
+  it('meldingen ved en annen endringsordre sier hvilken endringsordre som står, og at en annen påberopes i en ny sak (GR-U40 punkt 7 og 9, #1952)', () => {
     const s = sak();
     s.send('TE', versjon(endringsordre));
     expect(s.avvisning('TE', versjon({ ...endringsordre, endringsordre: 'EO-2' }))).toEqual({
       regel: 'ANNEN_ENDRINGSORDRE',
       melding:
-        'Grunnlaget er sendt, og en ny versjon kan ikke endre endringsordren «EO-1». En annen endringsordre påberopes i en ny sak (GR-U40 punkt 7 og 9).',
+        'Påberopelsen er sendt, så en oppdatert påberopelse kan ikke endre endringsordren «EO-1». En annen endringsordre påberopes i en ny sak.',
     });
   });
 

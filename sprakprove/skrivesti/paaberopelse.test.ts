@@ -154,6 +154,6 @@ describe.skipIf(!TESTBASE_URL)('påberopelsen fra skjemaet i Varden mot TS-serve
     const { svar } = await send(sakId, paaberopelse(utfylling({})));
     expect(svar.status).toBe(400);
     expect(svar.kropp.error).toBe('UGYLDIG_FORM');
-    expect(svar.kropp.message).toContain('TE må oppgi datoen pålegget ble mottatt');
+    expect(svar.kropp.message).toContain('totalentreprenøren må oppgi datoen pålegget ble mottatt');
   });
 });
