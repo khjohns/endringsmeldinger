@@ -9,8 +9,9 @@
 <script lang="ts">
   import { BookOpen, FileText } from 'lucide-svelte';
   import { tick } from 'svelte';
+  import { dager } from '$kjerne/frosset/tekst';
   import { betegnelsen, innholdIFristen } from '$kjerne/spor/frist/format';
-  import { foresporselForFristsvar } from '$kjerne/spor/frist/utledning';
+  import { foresporselenISvaret } from '$lib/kjernesak/fristsvar';
   import type { Forutsetning } from '$kjerne/spor/frist/kommando';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
@@ -113,7 +114,7 @@
   const datoer = $derived(datoerISporet(u, 'frist'));
   const klarOver = $derived(klarOverForholdet(u));
   // VS-U17, VS-U29: svaret tar stilling til forespørselen når kjernen leser en.
-  const foresporselen = $derived(foresporselForFristsvar(u) !== null);
+  const foresporselen = $derived(foresporselenISvaret(u) !== null);
   // § 33.3 for force majeure, ellers § 33.1, som brevteksten i kjernen.
   const hindringPunkt = $derived(hovedkategorien(u) === 'force_majeure' ? '33.3' : '33.1');
 
@@ -218,7 +219,14 @@
         tekst:
           'grunn' in l
             ? grunntekst(l.grunn, true, l.brev)
-            : standpunkttekst(l.standpunkt, true, f?.dager, f && flere ? f.navn : undefined),
+            : standpunkttekst(l.standpunkt, true, f?.dager, f && flere ? f.navn : undefined) +
+              (l.standpunkt.art === 'spesifisering' && l.standpunkt.maatteForstaa
+                ? FRISTSVAR.maatteForstaaPerFrist(
+                    l.standpunkt.maatteForstaa.map(
+                      (m) => `${dager(m.dager)} for ${fristen(m.frist)?.navn ?? m.frist}`
+                    )
+                  )
+                : ''),
         lag: l.lag,
       };
     })
@@ -227,11 +235,18 @@
   // Leselinjen for en lukket frist: dagene slik kjernen leser dem, eller valget til svaret er
   // fullstendig.
   const leselinje = (f: Fristpost): string[] => {
+    const medLag = (t: string, lag: string | null) =>
+      lag ? `${stor(lag)}: ${t[0]!.toLowerCase()}${t.slice(1)}` : t;
+    // D-5: dagene byggherren måtte forstå står i laget sitt før dagene byggherren godtar.
     const fra = nyeStandpunkter.flatMap((l) => {
-      if (!('standpunkt' in l) || l.standpunkt.art !== 'dager') return [];
-      if (l.standpunkt.gjelder !== f.id) return [];
-      const t = FRISTSVAR.leselinjeDager(l.standpunkt.vurdert, f.dager);
-      return [l.lag ? `${stor(l.lag)}: ${t[0]!.toLowerCase()}${t.slice(1)}` : t];
+      if (!('standpunkt' in l)) return [];
+      const s = l.standpunkt;
+      if (s.art === 'spesifisering') {
+        const m = s.maatteForstaa?.find((x) => x.frist === f.id);
+        return m ? [medLag(FRISTSVAR.maatteForstaaLinje(m.dager), l.lag)] : [];
+      }
+      if (s.art !== 'dager' || s.gjelder !== f.id) return [];
+      return [medLag(FRISTSVAR.leselinjeDager(s.vurdert, f.dager), l.lag)];
     });
     if (fra.length) return fra;
     const d = godkjenteDager(fristvalget(valg, f.id), f.dager);
@@ -414,7 +429,9 @@
       />
       <Valg
         navn={`${uid}-dager-${f.id}`}
-        spoersmaal={FRISTSVAR.dagerSpoersmaal}
+        spoersmaal={valg.spesifisertITide === false
+          ? FRISTSVAR.dagerSpoersmaalITide
+          : FRISTSVAR.dagerSpoersmaal}
         beskrevetAv={dagforutsetninger.length ? `${uid}-dager-${f.id}-forutsetninger` : undefined}
         valg={[
           { verdi: 'alle', tekst: FRISTSVAR.alle },

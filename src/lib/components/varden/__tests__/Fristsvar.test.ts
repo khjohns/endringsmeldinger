@@ -132,6 +132,14 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
       screen.getByLabelText('Dagene du måtte forstå at totalentreprenøren hadde krav på'),
       { target: { value: '5' } }
     );
+    // U-12, D-5: hovedlinjene og leselinjen har dagene byggherren måtte forstå per frist.
+    expect(
+      screen.getByText(/spesifisert for sent \(punkt 33\.6\.1\): 15 dager for 5 Mekanisk/)
+    ).toBeInTheDocument();
+    expect(screen.getByText(/15 dager du måtte forstå/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('group', { name: 'Dagene du godtar hvis kravet ble spesifisert i tide' })
+    ).toBeInTheDocument();
     await seBrevet();
     expect(sendt).toHaveLength(1);
     expect(vurderingen(sendt).frister).toEqual([

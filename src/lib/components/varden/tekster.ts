@@ -427,6 +427,10 @@ export const FRISTSVAR = {
   maatteForstaaHjelp: (krevd: number) =>
     `Er kravet spesifisert for sent, har totalentreprenøren bare krav på det du måtte forstå. Krevd: ${dager(krevd)}.`,
   dagerSpoersmaal: 'Hvor mange av dagene godkjenner du?',
+  // U-14: når du gjør gjeldende at kravet ble spesifisert for sent.
+  dagerSpoersmaalITide: 'Dagene du godtar hvis kravet ble spesifisert i tide',
+  maatteForstaaLinje: (n: number) => `${dager(n)} du måtte forstå`,
+  maatteForstaaPerFrist: (linjer: string[]) => `: ${opplistet(linjer)}`,
   alle: 'Alle dagene',
   deler: 'Deler av dagene',
   avslaatt: 'Avslår dagene',

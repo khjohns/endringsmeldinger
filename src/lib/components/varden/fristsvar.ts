@@ -8,7 +8,7 @@ import type { Svarvurdering } from '$kjerne/frosset/byggeklosser';
 import type { Regelsett } from '$kjerne/regler/regelsett';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
 import { innholdIFristen, type FristIKravet } from '$kjerne/spor/frist/format';
-import { foresporselForFristsvar } from '$kjerne/spor/frist/utledning';
+import { foresporselenISvaret } from '$lib/kjernesak/fristsvar';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { definert, svarbrevet } from './kommandoer';
 
@@ -106,7 +106,7 @@ export function fristsvaret(
 ): { type: 'brev'; svar: Svarutkast[] } | null {
   const krav = u.spor.frist.gjeldendeKrav;
   if (!krav) return null;
-  const foresporsel = foresporselForFristsvar(u);
+  const foresporsel = foresporselenISvaret(u);
   return svarbrevet(
     'frist',
     krav,
