@@ -58,7 +58,7 @@
       {#if aapen === p.betegnelse}
         <div class="posthode">
           <h4>
-            {#if flere}<span class="betegnelse">{navn(p)}</span>{/if}
+            {#if flere || !p.beskrivelse}<span class="betegnelse">{navn(p)}</span>{/if}
             {p.beskrivelse}
           </h4>
           <p class="dempet">{krever(p)}</p>

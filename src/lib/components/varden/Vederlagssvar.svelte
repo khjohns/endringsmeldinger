@@ -866,7 +866,9 @@
 {#if linja.visKompakt}
   <div class="kompakt" role="region" aria-label="Hovedlinjene og brevkontrollen">
     <Knapp variant="primaer" onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp>
-    <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}>Se hovedlinjene</Knapp>
+    <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}
+      >{HOVEDLINJER.seHovedlinjene}</Knapp
+    >
   </div>
 {/if}
 

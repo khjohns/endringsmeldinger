@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
   import { BookOpen, FileText } from 'lucide-svelte';
-  import { tick } from 'svelte';
+  import { tick, untrack } from 'svelte';
   import { betegnelsen, innholdIFristen } from '$kjerne/spor/frist/format';
   import { foresporselForFristsvar } from '$kjerne/spor/frist/utledning';
   import type { Forutsetning } from '$kjerne/spor/frist/kommando';
@@ -119,8 +119,9 @@
 
   let valgtFrist = $state<string | null>(null);
   let postliste = $state<Postliste<Fristpost> | null>(null);
-  $effect(() => {
-    for (const f of frister) if (!valg.frister[f.id]) valg.frister[f.id] = tomFrist();
+  // Valgene for hver frist finnes før skjemaet tegnes første gang.
+  untrack(() => {
+    for (const f of frister) valg.frister[f.id] ??= tomFrist();
   });
   const valgFor = (id: string): Fristvalg => (valg.frister[id] ??= tomFrist());
   function godkjennAlle() {
@@ -133,7 +134,15 @@
   // kjernen lager uten begrunnelsene. Valgene uten tekstene, så lista ikke lages på nytt for hvert
   // tegn i et tekstfelt.
   const punktene = $derived.by(() => {
-    const valgene = { ...valg, begrunnelser: {}, forbehold: '' };
+    const valgene = {
+      varselITide: valg.varselITide,
+      foresporselITide: valg.foresporselITide,
+      hindret: valg.hindret,
+      spesifisertITide: valg.spesifisertITide,
+      frister: valg.frister,
+      begrunnelser: {},
+      forbehold: '',
+    };
     const b = kjernesak.brev(fristsvaret(valgene, u, kjernesak.regler)!);
     const avsnitt = b && 'avsnitt' in b ? (b.avsnitt ?? []) : [];
     return avsnitt.flatMap((a) =>
@@ -153,7 +162,8 @@
   const etter = $derived(kjernesak.forhaandsvist(kommando));
   // Hvert spørsmål står i laget sitt uansett svaret (OV-U33), så kjernen spørres med de ubesvarte
   // spørsmålene besvart uten innsigelse: da har hvert av dem et standpunkt, og ingen nye lag. Dagene
-  // påvirker ikke lagene, men kjernen kontrollerer at dagene byggherren måtte forstå er tall.
+  // påvirker ikke lagene, men kjernen kontrollerer formen på standpunktene i utkastet, og der må
+  // dagene byggherren måtte forstå være tall.
   const lagene = $derived.by(() => {
     const s = kommando.svar[0];
     const v = s.vurderinger;
@@ -713,7 +723,9 @@
 {#if linja.visKompakt}
   <div class="kompakt" role="region" aria-label="Hovedlinjene og brevkontrollen">
     <Knapp variant="primaer" onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp>
-    <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}>Se hovedlinjene</Knapp>
+    <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}
+      >{HOVEDLINJER.seHovedlinjene}</Knapp
+    >
   </div>
 {/if}
 

@@ -464,6 +464,7 @@ export const HOVEDLINJER = {
   alternativer: 'alternativer, ikke tillegg',
   krevd: (b: number) => `${kroner(b)} krevd`,
   seBrevet: 'Se brevet før sending',
+  seHovedlinjene: 'Se hovedlinjene',
   kanIkkeLages: 'Brevet kan ikke lages ennå.',
   beloepUtenfor: (krevd: number) =>
     `Beløpet du godkjenner må være mer enn 0 kr og mindre enn ${kroner(krevd)}.`,

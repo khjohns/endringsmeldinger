@@ -227,10 +227,6 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   }
 
   /**
-   * Saken med raden kommandoen ville gitt, som `utledetMed`. `null` før saken er lastet,
-   * uten side, når kjernen avviser kommandoen og ved en programfeil i kjernen.
-   */
-  /**
    * Lagene i et svar på vederlaget eller fristen BH ennå fyller ut, regnet av kjernen (#1400,
    * M-8 i BF-20). `spor` gir typen for lagene, og et utkast i et annet spor kaster.
    */
@@ -239,11 +235,13 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   function lagene(utkast: Svarutkast, spor: 'vederlag' | 'frist') {
     if (!utledning) return null;
     if (utkast.spor !== spor) throw new Error(`Utkastet gjelder ${utkast.spor}, ikke ${spor}`);
-    return spor === 'vederlag'
-      ? lagForUtkastet({ ...utkast, spor }, utledning, kjerne.regler)
-      : lagForUtkastet({ ...utkast, spor }, utledning, kjerne.regler);
+    return lagForUtkastet(utkast, utledning, kjerne.regler);
   }
 
+  /**
+   * Saken med raden kommandoen ville gitt, som `utledetMed`. `null` før saken er lastet,
+   * uten side, når kjernen avviser kommandoen og ved en programfeil i kjernen.
+   */
   function forhaandsvist(kommando: Record<string, unknown>, vedlegg?: Vedleggsoppslag) {
     if (!sak?.merking || !part) return null;
     try {

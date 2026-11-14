@@ -93,8 +93,8 @@
     /** Kvitteringen etter sendingen, ellers den generelle. */
     kvittering?: string;
     tilbake: Arbeid;
-    /** Brevet er svarutkastet, som tømmes når det er sendt. */
-    erUtkastet: boolean;
+    /** Sporet når brevet er svarutkastet i sporet, som tømmes når det er sendt. */
+    utkastet: Svarspor | null;
     /** Sakens versjon da brevkontrollen ble åpnet. */
     versjon: number | null;
     /** Vedleggene kommandoen viser til, som kjernen trenger for brevet (VS-U53). */
@@ -178,11 +178,11 @@
   );
   const partensLenke = $derived(kjernesak.part === 'TE' ? (nySakLenke ?? null) : null);
 
-  // Utkastet i det valgte sporet: det sendte svaret eller det forkastede utkastet.
-  function tomtUtkast() {
-    if (valgt === 'vederlag') svarvalg = tomtSvar();
-    if (valgt === 'frist') fristsvarvalg = tomtFristsvar();
-    if (valgt !== 'forhold') utkastAapent[valgt] = false;
+  // Svarutkastet i sporet er sendt eller forkastet.
+  function tomtUtkast(s: Svarspor) {
+    if (s === 'vederlag') svarvalg = tomtSvar();
+    else fristsvarvalg = tomtFristsvar();
+    utkastAapent[s] = false;
   }
 
   // Brevkontrollen for BHs svar i sporet, som svarer på gjeldende krav.
@@ -198,7 +198,7 @@
       tilbakeTil: 'utkastet',
       svarerPaa: krav ?? null,
       tilbake: { art: 'svar' },
-      erUtkastet: true,
+      utkastet: s,
     };
   }
 
@@ -220,9 +220,7 @@
 
   function sendt() {
     // Bare det sendte svaret tømmer utkastet; en aksept i et annet spor lar det stå (BF-01 S-8).
-    if (arbeid.art === 'kontroll' && arbeid.erUtkastet) {
-      tomtUtkast();
-    }
+    if (arbeid.art === 'kontroll' && arbeid.utkastet) tomtUtkast(arbeid.utkastet);
     const kvittering = arbeid.art === 'kontroll' ? arbeid.kvittering : undefined;
     if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'korrigering')
       korrigeringsvalg = { dato: '', forklaring: '' };
@@ -309,7 +307,7 @@
   }
 
   async function forkast() {
-    tomtUtkast();
+    if (valgt !== 'forhold') tomtUtkast(valgt);
     arbeid = { art: 'les' };
     melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
     await tick();
@@ -472,7 +470,7 @@
                 !!u.spor.forhold.gjeldendeSvar
               ),
               tilbake: { art: 'korrigering', gjelder },
-              erUtkastet: false,
+              utkastet: null,
             };
           }}
         />
@@ -508,7 +506,7 @@
               ],
               kvittering: NYVERSJON.kvittering,
               tilbake: { art: 'nyversjon' },
-              erUtkastet: false,
+              utkastet: null,
             };
           }}
         />
@@ -542,7 +540,7 @@
               ],
               kvittering: KRAVSKJEMA.kvittering,
               tilbake: { art: 'vederlagskrav' },
-              erUtkastet: false,
+              utkastet: null,
             };
           }}
         />
@@ -596,7 +594,7 @@
                 tilbakeTil: 'saken',
                 svarerPaa: svaret ?? null,
                 tilbake: harUtkast(valgt) ? { art: 'svar' } : { art: 'les' },
-                erUtkastet: false,
+                utkastet: null,
               };
             }}
           />
