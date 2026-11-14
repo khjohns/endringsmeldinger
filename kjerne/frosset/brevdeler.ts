@@ -247,7 +247,7 @@ export type Utdypninger = ReadonlyMap<string, Utdypning>;
 export interface Utdypning {
   utdypning?: string;
   utdypninger?: Readonly<Record<string, string>>;
-  /** Forbeholdet i et krav, som står under «Forbehold» sist i kravet (KA-U82, LV-U74). */
+  /** Forbeholdet i et krav (KA-U82, LV-U74). */
   forbehold?: string;
 }
 

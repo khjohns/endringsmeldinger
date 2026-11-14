@@ -104,10 +104,7 @@ export type Kommando = (
        * (LV-U71). Brevteksten setter den under punktet.
        */
       utdypninger?: Record<string, string>;
-      /**
-       * Vilkårene og forbeholdene som gjelder hele kravet om fristforlengelse eller
-       * vederlagsjustering (KA-U82, LV-U74). Brevteksten setter dem under «Forbehold», sist.
-       */
+      /** Forbeholdet i kravet om fristforlengelse eller vederlagsjustering (KA-U82, LV-U74). */
       forbehold?: string;
     }
   | { type: 'brev'; svar: Svarutkast[] }

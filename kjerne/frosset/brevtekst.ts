@@ -102,18 +102,20 @@ export function lagBrevtekst(
   const avsnitt: Avsnitt[] = [];
   const legg = (gjelder: string, laast: string) => {
     const { utdypning, utdypninger: perPunkt, forbehold } = utdypninger.get(gjelder) ?? {};
-    if ((perPunkt && Object.keys(perPunkt).length) || forbehold)
+    if (perPunkt && Object.keys(perPunkt).length)
       throw new UtdypningUtenPunkt(
         'Utdypningen per punkt gjelder et element i brevet uten punkter.'
       );
+    if (forbehold)
+      throw new UtdypningUtenPunkt('Forbeholdet gjelder et element i brevet uten punkter.');
     avsnitt.push({ gjelder, laast, ...(utdypning ? { utdypning } : {}) });
   };
   // LV-U34, LV-U40: punktene er nummerert gjennom hele brevet, så «punkt 1 ovenfor» er entydig.
   let nummer = 0;
   const nummerert = new Map<string, number>();
   // LV-U70 og LV-U71: ett avsnitt per punkt, med partens utdypning for punktet under det.
-  // Utdypningen for hele elementet står i punktet `egen` (forbeholdet i svaret, begrunnelsen i
-  // fristkravet). Forbeholdet i et krav står under «Forbehold», sist (KA-U82, LV-U74).
+  // Utdypningen for hele elementet står i punktet `egen`, sist. Forbeholdet i et krav står
+  // etter den (KA-U82, LV-U74).
   const leggPunkter = (
     gjelder: string,
     brevpunkter: Brevpunkt[],
@@ -139,17 +141,14 @@ export function lagBrevtekst(
         );
       perPunkt[FORBEHOLDET.punkt] = forbehold;
     }
-    const tillagt = [egen, FORBEHOLDET].filter(
-      (e): e is { punkt: string; overskrift: string } =>
-        e !== undefined && !!perPunkt[e.punkt] && !brevpunkter.some((p) => p.punkt === e.punkt)
-    );
     const punktene = [
       ...brevpunkter,
-      ...[...new Map(tillagt.map((e) => [e.punkt, e])).values()].map((e) => ({
-        punkt: e.punkt,
-        overskrift: e.overskrift,
-        avsnitt: [] as string[],
-      })),
+      ...[egen, forbehold ? FORBEHOLDET : undefined]
+        .filter(
+          (e): e is { punkt: string; overskrift: string } =>
+            e !== undefined && !!perPunkt[e.punkt] && !brevpunkter.some((p) => p.punkt === e.punkt)
+        )
+        .map((e) => ({ punkt: e.punkt, overskrift: e.overskrift, avsnitt: [] as string[] })),
     ];
     for (const { punkt, overskrift: o, avsnitt: a } of punktene) {
       if (punkt === undefined)

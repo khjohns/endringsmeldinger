@@ -1208,9 +1208,9 @@ describe('kravet til begrunnelse og beskrivelse (KA-U46, KA-U47, KA-U31–KA-U33
     const vederlag = { type: 'krav', spor: 'vederlag', innhold: tilbud(1) };
     expect(s.avvist('TE', vederlag)).toBeNull();
     const rad = s.send('TE', { ...vederlag, utdypning: 'Kalkylen er vedlagt.' });
-    // Utdypningen for hele vederlagskravet står i punktet «Forbehold» (LV-U71).
+    // Utdypningen for hele vederlagskravet er begrunnelsen (LV-U74).
     expect(tekst(rad).at(-1)).toMatchObject({
-      punkt: 'forbehold',
+      punkt: 'begrunnelse',
       utdypning: 'Kalkylen er vedlagt.',
     });
   });
@@ -10763,11 +10763,11 @@ describe('rigg og drift i vederlagskravet avvises til posten er bygget (MM-U2, #
  * skrives fullt ut (LV-U35).
  */
 describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i BF-14)', () => {
-  const vederlagskrav = (innhold: Data, utdypning?: string, utdypninger?: Data) => ({
+  const vederlagskrav = (innhold: Data, forbehold?: string, utdypninger?: Data) => ({
     type: 'krav',
     spor: 'vederlag',
     innhold,
-    ...(utdypning ? { utdypning } : {}),
+    ...(forbehold ? { forbehold } : {}),
     ...(utdypninger ? { utdypninger } : {}),
   });
   /** Svikt, der varslingsplikten etter § 34.1.2 gjelder (§ 34.1.2, VS-U3). */
@@ -10830,7 +10830,7 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
     expect(avsnitt[1].laast.startsWith('P2 Spunt.')).toBe(true);
   });
 
-  it('forbeholdet står sist under sin egen overskrift, og teksten er partens utdypning, ikke den låste delen', () => {
+  it('forbeholdet står sist under sin egen overskrift, og teksten er partens utdypning, ikke den låste delen (KA-U82, LV-U74)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     const forbehold = 'Totalentreprenøren tar forbehold om å justere kravet når omfanget er kjent.';
@@ -10847,23 +10847,21 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
     expect(uten.map((a) => a.punkt)).not.toContain('forbehold');
   });
 
-  it('utdypningen per punkt står under punktet den gjelder, og forbeholdet kan sendes per punkt (LV-U71)', () => {
+  it('utdypningen per punkt står under punktet den gjelder, begrunnelsen for hele kravet etter postene og forbeholdet sist (LV-U71, LV-U74)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     const avsnitt = tekst(
-      s.send(
-        'TE',
-        vederlagskrav(to(125000), undefined, {
-          P2: 'Spunten er prosjektert på nytt.',
-          forbehold: 'Forbeholdet.',
-        })
-      )
+      s.send('TE', {
+        ...vederlagskrav(to(125000), 'Forbeholdet.', { P2: 'Spunten er prosjektert på nytt.' }),
+        utdypning: 'Kalkylen er vedlagt.',
+      })
     );
-    expect(avsnitt.map((a) => [a.punkt, a.utdypning])).toEqual([
-      ['P1', undefined],
-      ['P2', 'Spunten er prosjektert på nytt.'],
-      ['tilbud', undefined],
-      ['forbehold', 'Forbeholdet.'],
+    expect(avsnitt.map((a) => [a.punkt, a.overskrift, a.utdypning])).toEqual([
+      ['P1', '1. Vederlagsjustering', undefined],
+      ['P2', undefined, 'Spunten er prosjektert på nytt.'],
+      ['tilbud', undefined, undefined],
+      ['begrunnelse', '2. Begrunnelse', 'Kalkylen er vedlagt.'],
+      ['forbehold', '3. Forbehold', 'Forbeholdet.'],
     ]);
   });
 
