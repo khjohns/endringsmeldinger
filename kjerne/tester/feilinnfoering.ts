@@ -5184,6 +5184,22 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['med to frister nevner linjen fristen'],
   },
   {
+    id: 'F600',
+    feilklasse: 'leddet for dagene i linjen for fristen nevner ikke fristen (#1943)',
+    fil: `${K}/spor/frist/tekst.ts`,
+    endringer: [
+      ['godkjent med ${dager(d.vurdert)} ${frist}`', 'godkjent med ${dager(d.vurdert)}`'],
+    ],
+    mal: ['med to frister nevner linjen fristen', 'leddene for dagene nevner fristen'],
+  },
+  {
+    id: 'F601',
+    feilklasse: 'leddet for avslaget av dagene i linjen for fristen nevner ikke fristen (#1943)',
+    fil: `${K}/spor/frist/tekst.ts`,
+    endringer: [['? `avslått ${frist}`', "? 'avslått'"]],
+    mal: ['leddene for dagene nevner fristen'],
+  },
+  {
     id: 'F594',
     feilklasse: 'et trukket fristkrav forlenger fristen (GFK-U26, KA-U6)',
     fil: `${K}/spor/frist/utledning.ts`,

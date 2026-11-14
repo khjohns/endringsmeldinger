@@ -11,7 +11,7 @@
   import { BookOpen } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
   import { dager } from '$kjerne/frosset/tekst';
-  import { betegnelsen, innholdIFristen } from '$kjerne/spor/frist/format';
+  import { betegnelsen, hindringenEtter, innholdIFristen } from '$kjerne/spor/frist/format';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -39,13 +39,7 @@
   } from './fristkrav';
   import { heleDager } from './fristsvar';
   import { vedleggsgrense } from './nysak';
-  import {
-    brevMedUtsagn,
-    brevene,
-    datoerISporet,
-    hovedkategorien,
-    klarOverForholdet,
-  } from './lesing';
+  import { brevMedUtsagn, brevene, datoerISporet, klarOverForholdet } from './lesing';
   import {
     FRISTKRAV,
     HOVEDLINJER,
@@ -99,8 +93,7 @@
   const varselbrev = $derived(
     brevMed(u.spor.frist.varsler['33.4']?.dokument ?? u.spor.frist.krav[0]?.dokument)
   );
-  // § 33.3 for force majeure, ellers § 33.1, som brevteksten i kjernen og svarskjemaet.
-  const hindringPunkt = $derived(hovedkategorien(u) === 'force_majeure' ? '33.3' : '33.1');
+  const hindringPunkt = $derived(hindringenEtter(u.spor.forhold.gjeldendeKrav));
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes('frist')));
   const datoer = $derived(datoerISporet(u, 'frist'));
   const iDag = dagensDato();

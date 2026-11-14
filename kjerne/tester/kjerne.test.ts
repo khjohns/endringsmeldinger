@@ -959,7 +959,7 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
       ['dager', 2],
     ]);
     expect(s.svar.beslutningsgrunnlag?.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), subsidiært godkjent med 20 dager.'
+      'Byggherrens standpunkt: prinsipalt avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), subsidiært godkjent med 20 dager for frist Sluttfristen.'
     );
     expect((await k.send({ handling: 'aksept', spor: 'frist' }))?.godtatt).toBe(true);
     expect((await k.utledning()).spor.frist.enighet?.grunnlag.utfall.frister?.[0]?.dager).toBe(0);

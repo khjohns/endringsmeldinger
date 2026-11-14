@@ -25,6 +25,7 @@ import type {
   Standpunktsvirkning,
 } from '../../typer.ts';
 import { kontrollerRadene } from '../poster/format.ts';
+import { kategori } from '../forhold/format.ts';
 
 /** Standpunktene i svaret på fristkravet, etter `TILLATTE_STANDPUNKTER`. */
 export const TILLATTE_STANDPUNKTER_I_FRISTEN: { art: Standpunktsart; paakrevd: boolean }[] = [
@@ -325,3 +326,7 @@ export const LESING_I_FRISTEN = {
   subsidiaertVerdi: null,
   kontrollerHjemlene: kontrollerHjemleneIFristen,
 } satisfies Svarlesing;
+
+/** Hjemmelen for hindringen: punkt 33.3 for force majeure, ellers 33.1. Brevet og skjemaene viser den. */
+export const hindringenEtter = (paaberopelse: Krav | null | undefined): string =>
+  kategori(paaberopelse).hovedkategori === 'force_majeure' ? '33.3' : '33.1';
