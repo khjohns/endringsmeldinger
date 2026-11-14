@@ -59,12 +59,10 @@ const MERKINGEN = new RegExp(`^[A-Z0-9]+-(${SAKSKODENE})-(00[1-9]|0[1-9]\\d|[1-9
 export const medSakskode = (tittel: string, s: Sakskode): string =>
   `${tittel} i sak ${sakensKode(s)}`;
 
-/** Det `medSakskode` legger til, slik leseren kjenner det igjen. */
-const SAKSKODE_ETTER_TITTELEN = new RegExp(`^ i sak (${SAKSKODENE})-[1-9]\\d*$`);
-
-/** Sakens kode og løpenummer i slutten av tittelen og i merkingen, som `brevmerking` lager den. */
-const SAKEN_I_TITTELEN = new RegExp(` i sak (${SAKSKODENE})-([1-9]\\d*)$`);
-const SAKEN_I_MERKINGEN = new RegExp(`-(${SAKSKODENE})-(\\d{3,})-\\d+$`);
+/** Det `medSakskode` legger til, slik leseren kjenner det igjen, med koden og løpenummeret. */
+const I_SAK = ` i sak (${SAKSKODENE})-([1-9]\\d*)$`;
+const SAKSKODE_ETTER_TITTELEN = new RegExp(`^${I_SAK}`);
+const SAKEN_I_TITTELEN = new RegExp(I_SAK);
 
 /**
  * Merkingen og tittelen i samme brev nevner hver sin sak (LV-U27, LV-U48). En sak har én kode, så
@@ -75,7 +73,10 @@ export function ulikSakIMerkingenOgTittelen(merking: string, tittel: string): bo
     const m = uttrykk.exec(tekst);
     return m ? `${m[1]}-${Number(m[2])}` : null;
   };
-  const [i, j] = [saken(merking, SAKEN_I_MERKINGEN), saken(tittel, SAKEN_I_TITTELEN)];
+  const [i, j] = [
+    saken(merking.slice(0, merking.lastIndexOf('-')), MERKINGEN),
+    saken(tittel, SAKEN_I_TITTELEN),
+  ];
   return i !== null && j !== null && i !== j;
 }
 
