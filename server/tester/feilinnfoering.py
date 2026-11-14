@@ -412,6 +412,11 @@ FEILINNFOERINGER = [
      "antall_godkjent: resultater.filter((r) => r === 'godkjent').length,",
      "antall_godkjent: resultater.filter((r) => r !== 'avslaatt').length,",
      "delvis godkjent når ingen frist har fått alle dagene"),
+    ("S114", "fristtabellen gis uten kontraktsteam eller leserolle (GFK-U25, DL-U15)",
+     "server/kontraktsfrister.ts",
+     "      kontraktsrolle: 'lesing',\n    },\n    behandle: fristtabellen,",
+     "      kontraktsrolle: { ikke: 'feilinnføring' },\n    },\n    behandle: fristtabellen,",
+     "DL-U15: et medlem uten kontraktsteam og uten leserolle får ingen fristtabell"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

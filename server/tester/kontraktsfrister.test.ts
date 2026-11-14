@@ -5,7 +5,9 @@
  * - GFK-U18: hver frist har sin sats, og en delfrist regnes av verdien av delen
  *   (§ 40.3 b); en frist som ikke er dagmulktbelagt, har ingen dagmulkt (GFK-U20);
  * - GFK-U23: begge parter leser fristtabellen, og leserollen leser det saken viser
- *   (DL-U15); prosjektgrensen i CLAUDE.md.
+ *   (DL-U15); prosjektgrensen i CLAUDE.md;
+ * - GFK-U25: inngangen gir fristtabellen til begge parter og leserollen, så kravskjemaet
+ *   kan velge frist (BF-20 G-3). Feltene i svaret er arbeidsvalget 14.11 i #1745.
  * Avrundingen til nærmeste øre er det tekniske valget i PR-en, ikke et vedtak.
  */
 import { randomUUID } from 'node:crypto';
@@ -20,7 +22,16 @@ import {
   type Fristtabell,
 } from '../kontraktsfrister.ts';
 import { iTransaksjon, settInn } from './sqlserver_migrert.ts';
-import { lagOppsett, rydd, TESTBASE_URL, type Oppsett } from './testbase.ts';
+import {
+  kall,
+  lagOppsett,
+  rydd,
+  startServer,
+  TESTBASE_URL,
+  type KjorendeServer,
+  type Oppsett,
+  type Testbruker,
+} from './testbase.ts';
 
 describe('regnSats', () => {
   const a = (promille: number, minstebeloep: number) =>
@@ -209,5 +220,39 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
       await expect(o.datalag.kjoeretid.pool.request().query(sql)).rejects.toThrow(
         /permission was denied/
       );
+  });
+
+  describe('inngangen for fristtabellen', () => {
+    let server: KjorendeServer;
+    beforeAll(async () => {
+      server = await startServer(o);
+    });
+    afterAll(async () => {
+      await server?.stopp();
+    });
+    const svaret = (bruker: Testbruker) =>
+      kall(server.url, `/api/projects/${o.prosjekt.id}/kontraktsfrister`, {
+        bruker,
+        prosjektId: o.prosjekt.id,
+      });
+
+    it('GFK-U25: begge parter og leserollen får fristene med ID, nummer, navn og dagmulkt, uten satsen og datoen', async () => {
+      for (const bruker of [o.bh, o.te, o.leser]) {
+        const svar = await svaret(bruker);
+        expect(svar.status, JSON.stringify(svar.kropp)).toBe(200);
+        expect(svar.kropp).toEqual({
+          success: true,
+          frister: [
+            { frist_id: 1, nummer: 'E.1', navn: 'Sluttfrist', dagmulktbelagt: true },
+            { frist_id: 2, nummer: null, navn: 'Tett bygg', dagmulktbelagt: false },
+            { frist_id: 3, nummer: null, navn: 'Overtakelse av utomhus', dagmulktbelagt: true },
+          ],
+        });
+      }
+    });
+
+    it('DL-U15: et medlem uten kontraktsteam og uten leserolle får ingen fristtabell', async () => {
+      expect((await svaret(o.utenTeam)).status).toBe(403);
+    });
   });
 });
