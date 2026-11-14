@@ -374,6 +374,27 @@ describe('fristene i «Tilknyttede krav» (KA-U74, punkt 3 i 2b-2 i #1745)', () 
     ]);
   });
 
+  it('etter en ny versjon med én frist står de krevde dagene for den, og svaret på den forrige versjonen gir ingen dager (KA-U74)', async () => {
+    const k = tilknyttetKrav(
+      await utledning([
+        PAABEROPELSE,
+        TO_FRISTER,
+        fristsvar(10),
+        {
+          handling: 'krav',
+          spor: 'frist',
+          navn: 'K-f2',
+          frister: [{ navn: 'Sluttfristen', dager: 10, erstatter: 'Sluttfristen' }],
+          trekker: ['Mekanisk ferdigstillelse'],
+        },
+      ]),
+      'frist'
+    );
+    expect(k.krevd!.tall).toBe(10);
+    expect(k.svaret).toBeNull();
+    expect(k.frister).toEqual([]);
+  });
+
   it('kontrollsak: med én frist står dagene som tallet for kravet og svaret, uten `frister`', async () => {
     const k = tilknyttetKrav(
       await utledning([

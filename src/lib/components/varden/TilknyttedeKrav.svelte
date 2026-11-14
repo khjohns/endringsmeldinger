@@ -82,7 +82,7 @@
             >{#each f.dager as p, j (j)}{#if j}<span aria-hidden="true"> · </span>{/if}<span
                 class="num">{dager(p.tall)}</span
               >{#if p.lag}&nbsp;<span class="lag">{p.lag}</span>{/if}{/each}</span
-          >{:else}<span class="dempet">{FORHOLDET.ikkeSvart}</span>{/if}
+          >{:else}<span class="dempet">{FORHOLDET.ikkeISvaret}</span>{/if}
       </li>
     {/each}
   </ul>

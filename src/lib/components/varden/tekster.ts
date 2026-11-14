@@ -578,6 +578,8 @@ export const FORHOLDET = {
   krevd: 'Krevd',
   byggherren: 'Byggherren',
   ikkeSvart: 'Svar ikke registrert',
+  /** En frist byggherrens svar ikke har dager for (KA-U74). */
+  ikkeISvaret: 'Ikke i svaret',
   forholdsrot: (navn: string, svar: { resultat: string; brev: Brevref } | null) =>
     svar ? `${navn} · ${svar.resultat} i ${brevref(svar.brev)}` : navn,
   resultat: {
