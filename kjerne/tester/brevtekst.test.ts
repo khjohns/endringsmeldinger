@@ -10597,7 +10597,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
         ...vederlagskrav([{ ...regning, varsel: varselet }]),
         dokumentasjon: [PLAN],
       });
-      expect((krav.data.dokumentasjon as Data[]).map((v) => v.vedlegg_id)).toEqual([
+      expect(((krav.data.dokumentasjon ?? []) as Data[]).map((v) => v.vedlegg_id)).toEqual([
         PLAN,
         varselet.dokumentasjon[0],
       ]);
