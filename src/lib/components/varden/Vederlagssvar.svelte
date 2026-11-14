@@ -9,15 +9,9 @@
   øverst i skjemaet (MM-U32, BF-01 S-3 med reserven B, fordi kjernen ikke lager tekst for et
   ufullstendig svar). «Forkast utkast» står nederst i skjemaet og spør først.
 -->
-<script module lang="ts">
-  // Skjemaene på siden som vil vise den faste linja. Den gjengis bare for det siste, så
-  // flere eksemplarer ikke ligger oppå hverandre (showcasen viser flere skjemaer).
-  const vilHaLinja = $state<string[]>([]);
-</script>
-
 <script lang="ts">
   import { BookOpen, FileText, Info } from 'lucide-svelte';
-  import { tick, untrack } from 'svelte';
+  import { tick } from 'svelte';
   import { harProduktivitetspost, kravposterI } from '$kjerne/spor/vederlag/format';
   import { erKravpostpunkt, kroner, OVERSIKTEN } from '$kjerne/frosset/tekst';
   import {
@@ -31,6 +25,8 @@
   import type { Forutsetning } from '$kjerne/spor/vederlag/kommando';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
+  import { fastLinje } from './fastlinje.svelte';
+  import { medietreff } from './medie.svelte';
   import type { Kravpost, Standpunkt } from '$kjerne/typer';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
@@ -173,7 +169,9 @@
   });
   // Innsigelsene beløpet bygger på, for hver kravpost, regnet av kjernen fra det som er besvart.
   const beloepslagene = $derived(
-    stoppet ? null : kjernesak.lagForUtkastet(utkastForBeloepet(kommando.svar[0], valg, krav))
+    stoppet
+      ? null
+      : kjernesak.lagForUtkastet(utkastForBeloepet(kommando.svar[0], valg, krav), 'vederlag')
   );
   const forutsetninger = (p: Kravpost): Forutsetning[] =>
     beloepslagene?.standpunkter.find(
@@ -203,7 +201,7 @@
           : { ...utenOppgjoersform(v), aksepterer: true };
       }),
     };
-    return kjernesak.lagForUtkastet({ ...s, vurderinger });
+    return kjernesak.lagForUtkastet({ ...s, vurderinger }, 'vederlag');
   });
   type IPosten = { f: Forutsetning; post?: Kravpost };
   const iPosten = (liste: Forutsetning[], post?: Kravpost): IPosten[] =>
@@ -233,7 +231,7 @@
           : v;
       }),
     };
-    return kjernesak.lagForUtkastet({ ...s, vurderinger });
+    return kjernesak.lagForUtkastet({ ...s, vurderinger }, 'vederlag');
   });
   const regelforutsetninger = (p: Kravpost, art: 'rettidighet' | 'justering'): IPosten[] =>
     iPosten(
@@ -444,59 +442,19 @@
 
   // Brevet leses i en ramme ved siden av skjemaet, og på smal skjerm i skjemaet, der
   // høyre kolonne står under arbeidet (oppdragsgiver 29.10, #1391).
-  let smal = $state(false);
-  $effect(() => {
-    if (typeof window.matchMedia !== 'function') return;
-    const mq = window.matchMedia('(max-width: 1180px)');
-    const sett = () => (smal = mq.matches);
-    sett();
-    mq.addEventListener('change', sett);
-    return () => mq.removeEventListener('change', sett);
-  });
+  const vindu = medietreff('(max-width: 1180px)');
+  const smal = $derived(vindu.treff);
   let leser = $state(false);
   $effect(() => {
     onvedsiden?.(leser && !smal);
     return () => onvedsiden?.(false);
   });
-
-  // Panelet følger rullingen bare når det får plass i vinduet; ellers vises en kompakt linje
-  // nederst når panelet er ute av syne (skjerm E).
   let panel = $state<HTMLElement | null>(null);
-  let faarPlass = $state(true);
-  let iSyne = $state(true);
-  // Panelet fjernes når brevet leses ved siden av, så målingen bindes på nytt hver gang det
-  // settes inn.
-  $effect(() => {
-    const el = panel;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const maal = () => (faarPlass = el.offsetHeight + 32 <= window.innerHeight);
-    const ro = new ResizeObserver(maal);
-    ro.observe(el);
-    window.addEventListener('resize', maal);
-    const io =
-      typeof IntersectionObserver === 'undefined'
-        ? null
-        : new IntersectionObserver(([e]) => (iSyne = e.isIntersecting));
-    io?.observe(el);
-    maal();
-    return () => {
-      ro.disconnect();
-      io?.disconnect();
-      window.removeEventListener('resize', maal);
-    };
-  });
-
-  const vilVise = $derived(!stoppet && !faarPlass && !iSyne && !(leser && !smal));
-  $effect(() => {
-    if (!vilVise) return;
-    untrack(() => vilHaLinja.push(uid));
-    return () =>
-      untrack(() => {
-        const i = vilHaLinja.indexOf(uid);
-        if (i >= 0) vilHaLinja.splice(i, 1);
-      });
-  });
-  const visKompakt = $derived(vilVise && vilHaLinja.at(-1) === uid);
+  const linja = fastLinje(
+    uid,
+    () => panel,
+    () => stoppet || (leser && !smal)
+  );
 </script>
 
 <!-- Forutsetningene i en kravpost gjelder den, også innsigelsen etter § 34.3.3 (`innenforKravposten`). -->
@@ -897,7 +855,7 @@
         {#if !stoppet}<div class="lesebunn">{@render sendeknapp()}</div>{/if}
       </section>
     {:else}
-      <div class="feste" class:fast={faarPlass} bind:this={panel}>
+      <div class="feste" class:fast={linja.faarPlass} bind:this={panel}>
         <Hovedlinjer {linjer} {alternativer} handling={stoppet ? undefined : sendeknapp} />
       </div>
       <Tidslinje brev={sporbrev} {datoer} />
@@ -905,10 +863,12 @@
   {/snippet}
 </Arbeidsflate>
 
-{#if visKompakt}
+{#if linja.visKompakt}
   <div class="kompakt" role="region" aria-label="Hovedlinjene og brevkontrollen">
     <Knapp variant="primaer" onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp>
-    <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}>Se hovedlinjene</Knapp>
+    <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}
+      >{HOVEDLINJER.seHovedlinjene}</Knapp
+    >
   </div>
 {/if}
 
