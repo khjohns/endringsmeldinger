@@ -414,11 +414,11 @@ FEILINNFOERINGER = [
      "delvis godkjent når ingen frist har fått alle dagene"),
     ("S109", "fullmakten ganger satsen med kalenderdagene, ikke hverdagene (GFK-U17)",
      "server/fullmakt.ts",
-     "return g.sats * hverdagerIForlengelsen(g.dato, dager);", "return g.sats * dager;",
+     "verdi: oere(g.sats * hverdager),", "verdi: oere(g.sats * dager),",
      "GFK-U21: dagene for hver frist verdsettes"),
     ("S111", "dager for en frist som ikke er dagmulktbelagt, verdsettes med satsen (GFK-U20)",
      "server/fullmakt.ts",
-     "sats: f.dagmulktbelagt ? f.sats : null,", "sats: f.sats,",
+     "  if (!g.dagmulktbelagt) return", "  if (false) return",
      "GFK-U20: dager for en frist som ikke er dagmulktbelagt"),
     ("S112", "satsregelen godtar et grunnlag med mellomrom til slutt (#1883)",
      "database/migrasjoner/20261114100000_kontraktsfrist_satsregel.sql",
@@ -450,6 +450,14 @@ FEILINNFOERINGER = [
      "server/forlengelser.ts",
      "    if (!u.forstaatt) {", "    if (false) {",
      "MM-U2: en sak kjernen ikke har skrevet, gjør datoen ukjent og nevnes"),
+    ("S119", "linjene for fullmakten tas fra det prinsipale laget når det subsidiære gir verdien (presiseringen 24.09)",
+     "server/fullmakt.ts",
+     "hUkjent === subUkjent ? sub > h : subUkjent", "hUkjent === subUkjent ? h > sub : subUkjent",
+     "presiseringen 24.09: linjene er fra laget som gir den største verdien"),
+    ("S120", "linjene tas fra laget med størst kjent verdi når det andre har dager som ikke kan verdsettes (GFK-U4)",
+     "server/fullmakt.ts",
+     "hUkjent === subUkjent ? sub > h : subUkjent", "hUkjent === subUkjent ? sub > h : hUkjent",
+     "GFK-U4: har bare det subsidiære laget dager som ikke kan verdsettes"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

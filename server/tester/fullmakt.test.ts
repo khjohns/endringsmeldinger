@@ -18,7 +18,7 @@ import {
 import type { Journalrad, Spor } from '../../kjerne/typer.ts';
 import type { Utledning } from '../../kjerne/utledning/utled.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
-import { brevverdi, fristgrunnlaget, type Fristgrunnlag } from '../fullmakt.ts';
+import { fristgrunnlaget, fullmaktsverdi, type Fristgrunnlag } from '../fullmakt.ts';
 import type { Fristtabell } from '../kontraktsfrister.ts';
 import { innholdIFristen } from '../../kjerne/spor/frist/format.ts';
 
@@ -57,6 +57,12 @@ const DATOEN = '2026-09-30';
 const FORHOLD_GODKJENT = { spor: 'forhold', resultat: 'godkjent', varslet_i_tide: true };
 const SATS = 5000;
 const { regler } = KJERNE;
+
+/** Summen og gulvet i verdien for fullmakten, som kjeden avledes av (GFK-U8). */
+const brevverdi = (...a: Parameters<typeof fullmaktsverdi>) => {
+  const { beloep, gulv } = fullmaktsverdi(...a);
+  return { beloep, gulv };
+};
 
 function utledning(krav: object[]): Utledning {
   const sakId = randomUUID();
@@ -143,7 +149,7 @@ function svarutkast(h: Record<string, unknown>, u: Utledning): Svarutkast {
 
 /** Overtakelsen med satsen, regnet fra `DATOEN`. */
 const medSats = (sats: number | null): Map<number, Fristgrunnlag> =>
-  new Map([[1, { dato: DATOEN, sats, tattMed: [], ikkeTattMed: [] }]]);
+  new Map([[1, { dato: DATOEN, dagmulktbelagt: true, sats, tattMed: [], ikkeTattMed: [] }]]);
 
 const verdi = async (krav: object[], svar: Record<string, unknown>[], sats: number | null) => {
   const u = utledning(krav);
@@ -493,11 +499,173 @@ describe('verdien av dagene per frist (GFK-U17–GFK-U21, GFK-U24)', () => {
     const g = fristgrunnlaget(tabell(), { tattMed, ikkeTattMed }, ['e']);
     expect(g.frister.get(2)).toEqual({
       dato: null,
+      dagmulktbelagt: true,
       sats: 1000,
       tattMed,
       ikkeTattMed,
     });
     expect(g.frister.get(1)).toMatchObject({ tattMed: [], ikkeTattMed: [] });
     expect(g.ikkeForstaatt).toEqual(['e']);
+  });
+});
+
+/**
+ * Linjene verdien er regnet av, som pakken til godkjenning viser (U-10 i BF-45): dagene,
+ * hverdagene, satsen og verdien for hver frist i rekkefølgen i brevet, fra laget som gir verdien.
+ * Kildene er GFK-U17, GFK-U20, GFK-U21, GFK-U3 og KA-U79 for linjene, og presiseringen 24.09
+ * («det største gjelder») for laget.
+ */
+describe('linjene i verdien for fullmakten (U-10 i BF-45)', () => {
+  const grunnlag = (dagmulktbelagt: boolean, sats: number | null): Fristgrunnlag => ({
+    dato: DATOEN,
+    dagmulktbelagt,
+    sats,
+    tattMed: [],
+    ikkeTattMed: [],
+  });
+  const FRISTSVAR = {
+    spor: 'frist',
+    varsel_i_tide: true,
+    spesifisering_i_tide: true,
+    hindring: true,
+  };
+  const linjene = (krav: object, svar: Record<string, unknown>, g: Map<number, Fristgrunnlag>) => {
+    const u = utledning([KRAV_PAABEROPELSE, krav]);
+    return fullmaktsverdi([svarutkast(svar, u)], u, g, regler);
+  };
+
+  it('GFK-U21, GFK-U20, KA-U79: hver frist står med dagene, hverdagene, satsen og verdien, eller grunnen til at den ikke kan verdsettes', () => {
+    const krav = {
+      ...KRAV_FRIST,
+      innhold: {
+        frister: [
+          { frist_id: 1, dager: 20 },
+          { frist_id: 2, dager: 7 },
+          { nummer: '4', navn: 'Rekkverket', dager: 5 },
+        ],
+      },
+    };
+    const v = linjene(
+      krav,
+      FRISTSVAR,
+      new Map([
+        [1, grunnlag(true, SATS)],
+        [2, grunnlag(false, null)],
+      ])
+    );
+    expect(v).toEqual({
+      beloep: null,
+      gulv: 17 * SATS,
+      lag: 'prinsipalt',
+      frister: [
+        { fristId: 1, dager: 20, hverdager: 17, sats: SATS, verdi: 17 * SATS, ikkeVerdsatt: null },
+        {
+          fristId: 2,
+          dager: 7,
+          hverdager: null,
+          sats: null,
+          verdi: null,
+          ikkeVerdsatt: 'ikke_dagmulktbelagt',
+        },
+        {
+          fristId: null,
+          dager: 5,
+          hverdager: null,
+          sats: null,
+          verdi: null,
+          ikkeVerdsatt: 'ikke_registrert',
+        },
+      ],
+    });
+  });
+
+  it('GFK-U3: en dagmulktbelagt frist uten sats står med grunnen, og null dager har verdien 0', () => {
+    const krav = {
+      ...KRAV_FRIST,
+      innhold: {
+        frister: [
+          { frist_id: 1, dager: 20 },
+          { frist_id: 2, dager: 7 },
+        ],
+      },
+    };
+    const g = new Map([
+      [1, grunnlag(true, null)],
+      [2, grunnlag(false, null)],
+    ]);
+    expect(linjene(krav, FRISTSVAR, g).frister.map((f) => f.ikkeVerdsatt)).toEqual([
+      'sats_mangler',
+      'ikke_dagmulktbelagt',
+    ]);
+    const avslag = linjene(krav, { ...FRISTSVAR, dager: 0 }, g);
+    expect(avslag).toMatchObject({ beloep: 0, gulv: 0 });
+    expect(avslag.frister.map((f) => [f.verdi, f.ikkeVerdsatt])).toEqual([
+      [0, null],
+      [0, null],
+    ]);
+  });
+
+  it('presiseringen 24.09: linjene er fra laget som gir den største verdien, her det subsidiære', () => {
+    // Som «det største gjelder» over: måtte forstå 5 dager etter § 33.6.1, subsidiært 15.
+    const v = linjene(
+      KRAV_FRIST,
+      { ...FRISTSVAR, spesifisering_i_tide: false, maatte_forstaa: 5, dager: 15 },
+      new Map([[1, grunnlag(true, SATS)]])
+    );
+    expect(v).toEqual({
+      beloep: 13 * SATS,
+      gulv: 13 * SATS,
+      lag: 'subsidiaert',
+      frister: [
+        { fristId: 1, dager: 15, hverdager: 13, sats: SATS, verdi: 13 * SATS, ikkeVerdsatt: null },
+      ],
+    });
+  });
+
+  it('GFK-U4: har bare det subsidiære laget dager som ikke kan verdsettes, er linjene fra det, så grunnen står', () => {
+    // Prinsipalt 0 dager (måtte forstå 0 etter § 33.6.1), subsidiært 15 for en frist som ikke er registrert.
+    const krav = {
+      ...KRAV_FRIST,
+      innhold: { frister: [{ nummer: '4', navn: 'Rekkverket', dager: 15 }] },
+    };
+    const v = linjene(
+      krav,
+      { ...FRISTSVAR, spesifisering_i_tide: false, maatte_forstaa: 0, dager: 15 },
+      new Map()
+    );
+    expect(v).toEqual({
+      beloep: null,
+      gulv: 0,
+      lag: 'subsidiaert',
+      frister: [
+        {
+          fristId: null,
+          dager: 15,
+          hverdager: null,
+          sats: null,
+          verdi: null,
+          ikkeVerdsatt: 'ikke_registrert',
+        },
+      ],
+    });
+  });
+
+  it('godkjenner brevet forholdet, står dagene i TEs krav som linjer når fristsporet ikke besvares (presiseringen 24.09)', () => {
+    const u = utledning([KRAV_PAABEROPELSE, KRAV_FRIST]);
+    const v = fullmaktsverdi(
+      [svarutkast(FORHOLD_GODKJENT, u)],
+      u,
+      new Map([[1, grunnlag(true, SATS)]]),
+      regler
+    );
+    // Vederlagskravet er ikke sendt og kan ikke verdsettes, så bare gulvet er tallfestet.
+    expect(v).toEqual({
+      beloep: null,
+      gulv: 17 * SATS,
+      lag: 'prinsipalt',
+      frister: [
+        { fristId: 1, dager: 20, hverdager: 17, sats: SATS, verdi: 17 * SATS, ikkeVerdsatt: null },
+      ],
+    });
   });
 });
