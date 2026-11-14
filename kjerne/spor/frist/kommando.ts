@@ -89,7 +89,7 @@ export const FORUTSETNINGER_I_FRISTEN = {
       if (!paaberopelseSendt)
         return avvis(
           'PAABEROPELSE_IKKE_SENDT',
-          'Grunnlaget må være sendt før du kan sende forespørselen.'
+          'Påberopelsen må være sendt før du kan sende forespørselen.'
         );
       if (u.spor.frist.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (u.spor.frist.ingenKrav)

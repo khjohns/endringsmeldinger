@@ -235,7 +235,10 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
         return avvis('INGEN_KRAV_I_SPORET', `TE har sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`);
       // MM-U34 punkt 9: også i et spor med registrert enighet, fram til endringsordren.
       if (h.spor !== 'forhold' && !paaberopelseSendt)
-        return avvis('PAABEROPELSE_IKKE_SENDT', 'Grunnlaget må være sendt før du kan sende krav.');
+        return avvis(
+          'PAABEROPELSE_IKKE_SENDT',
+          'Påberopelsen må være sendt før du kan sende krav.'
+        );
       return null;
     case 'trekke':
       if (!s.gjeldendeKrav) return avvis('INGEN_KRAV', `TE har ikke sendt ${kravet(h.spor)}.`);
@@ -256,13 +259,13 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (!paaberopelseSendt)
         return avvis(
           'PAABEROPELSE_IKKE_SENDT',
-          'Grunnlaget må være sendt før du kan si «ingen krav».'
+          'Påberopelsen må være sendt før du kan si «ingen krav».'
         );
       return null;
     case 'varsle':
     case 'sende_varsel': {
       if (!paaberopelseSendt)
-        return avvis('PAABEROPELSE_IKKE_SENDT', 'Grunnlaget må være sendt før du kan varsle.');
+        return avvis('PAABEROPELSE_IKKE_SENDT', 'Påberopelsen må være sendt før du kan varsle.');
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       if (h.spor !== 'forhold' && s.ingenKrav)
         return avvis('INGEN_KRAV_I_SPORET', `TE har sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`);

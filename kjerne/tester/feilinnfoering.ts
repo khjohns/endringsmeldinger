@@ -863,8 +863,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "      if (!paaberopelseSendt)\n        return avvis(\n          'PAABEROPELSE_IKKE_SENDT',\n          'Grunnlaget må være sendt før du kan si «ingen krav».'",
-        "      if (!paaberopelseSendt && !s)\n        return avvis(\n          'PAABEROPELSE_IKKE_SENDT',\n          'Grunnlaget må være sendt før du kan si «ingen krav».'",
+        "      if (!paaberopelseSendt)\n        return avvis(\n          'PAABEROPELSE_IKKE_SENDT',\n          'Påberopelsen må være sendt før du kan si «ingen krav».'",
+        "      if (!paaberopelseSendt && !s)\n        return avvis(\n          'PAABEROPELSE_IKKE_SENDT',\n          'Påberopelsen må være sendt før du kan si «ingen krav».'",
       ],
     ],
     mal: ['F-MM-IK4'],

@@ -1387,7 +1387,7 @@ describe('aksept uten gjeldende svar sier om det finnes et eldre svar (KA-U1, HF
     const a = await melding([]);
     expect(a).toEqual({
       regel: 'IKKE_GJELDENDE_SVAR',
-      melding: 'Byggherren har ikke svart på grunnlaget for kravet.',
+      melding: 'Byggherren har ikke svart på påberopelsen av forholdet.',
     });
   });
 

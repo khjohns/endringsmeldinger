@@ -46,7 +46,6 @@ import {
 } from './brevdeler.ts';
 import {
   BREVTEKSTEN_I_FORHOLDET,
-  DATOEN_I_BREVET,
   harRisikoen,
   paaberopelsenAvForholdet,
   STANDPUNKTENE_I_FORHOLDET,
@@ -72,7 +71,7 @@ import type {
   Kravvarselhjemmel,
   Varselhjemmel,
 } from '../typer.ts';
-import { innholdIForholdet } from '../spor/forhold/format.ts';
+import { DATOEN_GJELDER, innholdIForholdet } from '../spor/forhold/format.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 
 const PART: Record<Part, string> = { TE: 'Totalentreprenøren', BH: 'Byggherren' };
@@ -750,7 +749,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
             : [null, null];
       if (dokument === null || typeof tidligere !== 'string')
         throw new KanIkkeUttrykkes(`${u.gjelder} har ingen opplysning om datoen`);
-      return `Totalentreprenøren oppgir nå at ${DATOEN_I_BREVET[u.felt]} ${norskDato(u.dato)}. I ${j.brevet(dokument)} oppga totalentreprenøren ${norskDato(tidligere)}.`;
+      return `Totalentreprenøren oppgir nå at ${DATOEN_GJELDER[u.felt]} ${norskDato(u.dato)}. I ${j.brevet(dokument)} oppga totalentreprenøren ${norskDato(tidligere)}.`;
     }
     case 'begrunnelse': {
       // KA-U34: byggherrens tekst følger som utdypningen.

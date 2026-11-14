@@ -44,9 +44,8 @@ export const OPPGITT_DATO = {
 export type OppgittDato = (typeof OPPGITT_DATO)[keyof typeof OPPGITT_DATO];
 
 /**
- * Det datoen gjelder, med ordene meldingene og skjemaet bruker (VS-U26, #698):
- * «TE har oppgitt at pålegget ble mottatt …», «datoen pålegget ble mottatt». Brevet har ordene
- * i `DATOEN_I_BREVET` (LV-U56).
+ * Det datoen gjelder, med partene skrevet fullt ut, i meldingene, skjemaet og brevet (VS-U26,
+ * LV-U35, LV-U56, #698, #1952): «datoen pålegget ble mottatt».
  */
 export const DATOEN_GJELDER: Record<OppgittDato, string> = {
   paalegg_mottatt: 'pålegget ble mottatt',
