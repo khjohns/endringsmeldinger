@@ -8762,19 +8762,24 @@ describe('lagene i et fristsvar som ikke er ferdig utfylt (M-8 i BF-20, KA-U78, 
     ]);
   });
 
-  it('spesifisert for sent uten dagene byggherren måtte forstå gir lagene, med spesifiseringen besvart (#1925)', () => {
-    const s = saken({ resultat: 'godkjent' });
-    const lag = lagene(s, {
-      spesifisert_krav_ok: false,
-      frister: [{ dager_maatte_forstaa: null }],
-    });
-    expect(lag.map((l) => [l.standpunkt, l.besvart, l.virkning])).toEqual([
-      ['rettidighet 33.4', false, 'uten_virkning'],
-      ['hindring', false, 'uten_virkning'],
-      ['spesifisering', true, 1],
-      ['dager', false, 2],
-    ]);
-  });
+  // Varden sender fristen uten feltet når det er udefinert, og null når det er tømt (#1971).
+  it.each([
+    ['uten feltet', {}],
+    ['med null', { dager_maatte_forstaa: null }],
+  ])(
+    'spesifisert for sent uten dagene byggherren måtte forstå, %s, gir lagene, med spesifiseringen besvart (#1925)',
+    (_, frist) => {
+      const s = saken({ resultat: 'godkjent' });
+      const v = { spesifisert_krav_ok: false, frister: [frist] };
+      expect(() => lagene(s, v)).not.toThrow();
+      expect(lagene(s, v).map((l) => [l.standpunkt, l.besvart, l.virkning])).toEqual([
+        ['rettidighet 33.4', false, 'uten_virkning'],
+        ['hindring', false, 'uten_virkning'],
+        ['spesifisering', true, 1],
+        ['dager', false, 2],
+      ]);
+    }
+  );
 
   it('når kravet svarer på forespørselen, står spørsmålet om forespørselen ubesvart og spesifiseringen ikke (KA-U78 siste setning, #1925)', () => {
     const s = sak();

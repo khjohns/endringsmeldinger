@@ -5227,6 +5227,19 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['har forbeholdet under «Forbehold» sist'],
   },
   {
+    id: 'F606',
+    feilklasse:
+      'dagene byggherren måtte forstå fylles bare ut når feltet er null, ikke når det mangler (#1971)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        'mangler((r as Record<string, unknown>).dager_maatte_forstaa)',
+        '(r as Record<string, unknown>).dager_maatte_forstaa === null',
+      ],
+    ],
+    mal: ['spesifisert for sent uten dagene byggherren måtte forstå, uten feltet'],
+  },
+  {
     id: 'F605',
     feilklasse: 'påberopelsen av forholdet godtar et forbehold (KA-U82)',
     fil: `${K}/kommandoer/kommando.ts`,
