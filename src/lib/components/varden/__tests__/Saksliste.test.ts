@@ -160,6 +160,9 @@ describe('Sakslisten i Varden', () => {
         ingen_krav: false,
         krav: { frister: [{ betegnelse: 'Sluttfristen', dager: 15 }] },
         svar: {
+          resultat: 'godkjent',
+          antall_godkjent: 1,
+          subsidiaert: false,
           frister: [
             { betegnelse: 'Sluttfristen', resultat: 'godkjent', dager: 15, subsidiaert: false },
           ],
