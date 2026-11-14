@@ -80,6 +80,7 @@
           "rolle": "kontroll",
           "kilde": [
             "MM-U52",
+            "MM-U55",
             "OV-U54"
           ],
           "prov": {
@@ -94,7 +95,8 @@
         {
           "rolle": "forutsetning",
           "kilde": [
-            "MM-U52"
+            "MM-U52",
+            "MM-U55"
           ],
           "forventet": {
             "handlinger.TE": {
@@ -110,6 +112,7 @@
           "tekst": "TE ser forskjellen før valget: etter en ny versjon av påberopelsen kan svaret ikke godtas i løsningen, mens påberopelsen og svaret står som de ble sendt etter korrigeringen.",
           "kilde": [
             "MM-U52",
+            "MM-U55",
             "KA-U52"
           ]
         },
@@ -117,13 +120,15 @@
           "tekst": "TE ser i skjemaet for den nye versjonen at datoen står låst som TEs siste opplysning, og at datoen korrigeres i et eget brev.",
           "kilde": [
             "MM-U52",
+            "MM-U55",
             "MM-U34"
           ]
         },
         {
           "tekst": "TE kommer fra skjemaet til korrigeringen uten å miste det TE har skrevet.",
           "kilde": [
-            "MM-U52"
+            "MM-U52",
+            "MM-U55"
           ]
         }
       ]
@@ -136,7 +141,8 @@
         {
           "rolle": "mal",
           "kilde": [
-            "MM-U52"
+            "MM-U52",
+            "MM-U55"
           ],
           "prov": {
             "handling": "krav",
@@ -151,7 +157,8 @@
         {
           "rolle": "mal",
           "kilde": [
-            "MM-U52"
+            "MM-U52",
+            "MM-U55"
           ],
           "forventet": {
             "gjeldende_krav.forhold": "K-g1",
@@ -167,6 +174,7 @@
           "tekst": "TE ser at den nye versjonen gjengir 20.09.2026 og nevner at TE tidligere oppga 15.09.2026 i det første brevet, og at TE ikke kan sende 15.09.2026.",
           "kilde": [
             "MM-U52",
+            "MM-U55",
             "LV-U56",
             "LV-U53"
           ]

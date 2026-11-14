@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `1a07062ba480883e36c46002c0d7867723425f3b18227ddf520e002f9aa3d722`
+Kontrollsum (SHA-256 over utdraget visningen leser): `efc3c42d7188cdd0e65419ef33f4dd46393ef12d30241937ed605f0fd072c4fd`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -3060,9 +3060,9 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Følge:** Opphever [MM-U52](#mm-u52). Samler [LV-U55](#lv-u55). Samler [MM-U53](#mm-u53). Samler [VS-U59](#vs-u59). Samler [VS-U60](#vs-u60). Presiserer [VS-U66](#vs-u66). Opphever [MM-U41](#mm-u41). Opphever [MM-U42](#mm-u42). Samler [MM-U51](#mm-u51). Samler [LV-U54](#lv-u54). Presiserer [VS-U34](#vs-u34). Presiserer [OV-U5](#ov-u5). Presiserer [KA-U1](../../plans/vedtak.md#ka-u1). Samler [OV-U11](#ov-u11). Samler [OV-U80](#ov-u80). Opphever [MM-U21](../../plans/vedtak.md#mm-u21). Opphever [MM-U26](../../plans/vedtak.md#mm-u26). Opphever [OV-U52](#ov-u52). Opphever [OV-U53](#ov-u53). Endrer [OV-U41](#ov-u41). Endrer [OV-U54](#ov-u54). Endrer [OV-U55](#ov-u55). Endrer [OV-U56](#ov-u56). Snevrer inn [GR-U22](#gr-u22). Presiserer [VS-U26](../../plans/vedtak.md#vs-u26). Utvider [OV-U3](../../plans/vedtak.md#ov-u3). Utvider [LV-U4](../../plans/vedtak.md#lv-u4). Presiserer [MM-U34](#mm-u34). Teksten står under tabellen, i [Samlevedtaket for retting av sendt brev, versjon 3](../../plans/vedtak.md#samlevedtak-retting-3). Opphever MM-U52, og henvisningene til MM-U52 gjelder versjon 3; samler LV-U55, MM-U53, VS-U59 og VS-U60, og presiserer VS-U66 (svar 4 A). Forholdene til MM-U41, MM-U42, MM-U51, LV-U54, VS-U34, OV-U5, KA-U1, OV-U11, OV-U80, MM-U21, MM-U26, OV-U52, OV-U53, OV-U41, OV-U54, OV-U55, OV-U56, GR-U22, VS-U26, OV-U3, LV-U4 og MM-U34 er overtatt fra MM-U52. Forholdet «MM-U34 endrer OV-U51» er fjernet etter OV-U92 (b) (hovedregelen i «Endret innhold»).
 
-**Regelrader:** —
+**Regelrader:** [GR-36](#rad-gr-36), [GR-37](#rad-gr-37)
 
-**Bevis-saker som viser til vedtaket:** —
+**Bevis-saker som viser til vedtaket:** F-MM-A5a (målmodellen), F-MM-B1 (målmodellen), F-MM-B2 (målmodellen), F-MM-KORR1 (målmodellen), F-MM-KORR2 (målmodellen), F-MM-KORR3 (målmodellen), F-MM-KORR4 (målmodellen)
 
 ### <a id="gfk-u2"></a>GFK-U2
 
@@ -4001,8 +4001,8 @@ Radene i [domenetabellen](../../domenetabell/README.md#tabellen) som viser til e
 | <a id="rad-gr-33"></a>GR-33 | Byggherren har frafalt pålegget i et svar sendt fra appen, TE sender en ny grunnlagsversjon, og den venter på byggherrens svar. Et annet sendt krav står åpent, for eksempel fristkravet. | [MM-U34](#mm-u34), [GR-U23](#gr-u23), [GR-U20](#gr-u20), [GR-U17](#gr-u17), [MM-U50](#mm-u50), [OV-U4](#ov-u4) | F-MM-G42 (målmodellen), F-MM-G42x (målmodellen) |
 | <a id="rad-gr-34"></a>GR-34 | TE sender et varsel etter § 32.2 fra appen uten beskrivelse av pålegget. | [GR-U15](#gr-u15) | F-MM-GR-U15-beskrivelse (målmodellen) |
 | <a id="rad-gr-35"></a>GR-35 | Byggherren godkjenner fra appen et grunnlag som blir en endringsordre etter § 32.3 første ledd a, og TEs krav, sendt fra appen, har ingen beskrivelse av pålegget, for eksempel fordi en annen skriver har lagret det. | [GR-U14](#gr-u14), [GR-U15](#gr-u15), [GR-U12](#gr-u12), [GR-U13](#gr-u13) | F-MM-GR-U14-uten-beskrivelse (målmodellen) |
-| <a id="rad-gr-36"></a>GR-36 | TE korrigerer sin opplysning om datoen pålegget ble mottatt eller TE ble klar over forholdet, i et eget brev fra løsningen med henvisning til brevet med opplysningen. Byggherren har svart og påberopt at varselet kom for sent, og saken kan være avgjort ved enighet eller lukket. | [MM-U41](#mm-u41), [MM-U52](#mm-u52), [MM-U51](#mm-u51), [LV-U53](#lv-u53), [GR-U27](#gr-u27), [MM-U50](#mm-u50) | F-MM-KORR1 (målmodellen), F-MM-KORR2 (målmodellen), F-MM-KORR4 (målmodellen) |
-| <a id="rad-gr-37"></a>GR-37 | TE sender en ny grunnlagsversjon etter at TE har oppgitt datoen pålegget ble mottatt eller TE ble klar over forholdet, med eller uten en korrigering av datoen. | [MM-U41](#mm-u41), [MM-U52](#mm-u52), [LV-U56](#lv-u56), [LV-U53](#lv-u53) | F-MM-KORR3 (målmodellen) |
+| <a id="rad-gr-36"></a>GR-36 | TE korrigerer sin opplysning om datoen pålegget ble mottatt eller TE ble klar over forholdet, i et eget brev fra løsningen med henvisning til brevet med opplysningen. Byggherren har svart og påberopt at varselet kom for sent, og saken kan være avgjort ved enighet eller lukket. | [MM-U41](#mm-u41), [MM-U52](#mm-u52), [MM-U55](#mm-u55), [MM-U51](#mm-u51), [LV-U53](#lv-u53), [GR-U27](#gr-u27), [MM-U50](#mm-u50) | F-MM-KORR1 (målmodellen), F-MM-KORR2 (målmodellen), F-MM-KORR4 (målmodellen) |
+| <a id="rad-gr-37"></a>GR-37 | TE sender en ny grunnlagsversjon etter at TE har oppgitt datoen pålegget ble mottatt eller TE ble klar over forholdet, med eller uten en korrigering av datoen. | [MM-U41](#mm-u41), [MM-U52](#mm-u52), [MM-U55](#mm-u55), [LV-U56](#lv-u56), [LV-U53](#lv-u53) | F-MM-KORR3 (målmodellen) |
 | <a id="rad-ka-32"></a>KA-32 | Et registrert brev er merket med noe appen ikke kan uttrykke, i brevet selv eller senere av en av partene. | [KA-U45](#ka-u45), [MM-U50](#mm-u50), [MM-U43](#mm-u43), [OV-U6](#ov-u6), [OV-U4](#ov-u4) | — |
 | <a id="rad-ka-33"></a>KA-33 | Den som sendte et merket brev, avklarer at standpunktene i det gjelder uten forbehold, eller sier noe nytt i sporet. | [MM-U50](#mm-u50), [KA-U45](#ka-u45), [MM-U43](#mm-u43) | — |
 | <a id="rad-ka-34"></a>KA-34 | TE trekker vederlag, frist eller grunnlaget når en enighet trekket rammer, bygger på et merket brev, og merkingen gjelder sporet enigheten gjelder. | [OV-U4](#ov-u4), [KA-U45](#ka-u45) | — |
