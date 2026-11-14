@@ -232,12 +232,11 @@ export function korrigering(gjelder: string, u: Utledning): Avvisning | null {
     );
   const { hovedkategori, underkategori } = kategori(krav);
   const felt = oppgittDato(hovedkategori, underkategori);
-  // Punkt 10: i en påberopelse av en endringsordre og ved force majeure oppgis ingen slik dato
-  // (`OPPGITT_DATO`).
+  // MM-U55 punkt 10: kategoriene uten dato i `OPPGITT_DATO`, også endringsordren og force majeure.
   if (felt === null)
     return avvis(
       'INGEN_DATO_I_KATEGORIEN',
-      'Forholdet som er påberopt, har ingen dato for når pålegget ble mottatt eller totalentreprenøren ble klar over det, så det er ingen dato å korrigere.'
+      'I påberopelsen av dette forholdet oppgir totalentreprenøren ikke når pålegget ble mottatt eller når totalentreprenøren ble klar over forholdet, så det er ingen dato å korrigere.'
     );
   const siste = sisteDatoopplysning(u, felt);
   if (!siste)
