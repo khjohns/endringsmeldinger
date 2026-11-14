@@ -4010,7 +4010,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et vedlegg ved vederlagskravet kan også være dokumentet med varselet for en kravpost (VS-U51, #1823)',
     fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [['        iInnholdet.has(v.toLowerCase())', '        false']],
+    endringer: [['iInnholdet.has(vedleggsnoekkel(v))', 'false']],
     mal: ['et vedlegg ved vederlagskravet som også er dokumentet med varselet for en kravpost'],
   },
   {
@@ -4018,7 +4018,9 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en ny kravversjon kan utelate den særskilte vederlagsjusteringen uten å trekke den (KA-U83)',
     fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [['  if (hadde && !trekk && !ny.saerskilt.produktivitet)', '  if (false)']],
+    endringer: [
+      ['    () => trekk.length > 0 || saerskilt.produktivitet !== undefined,', '    () => true,'],
+    ],
     mal: [
       'en ny versjon som verken tar med eller trekker posten, avvises',
       'en lagret versjon uten posten og uten trekk har en begrensning',
@@ -4030,7 +4032,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en ny kravversjon kan trekke den særskilte vederlagsjusteringen som ikke står i forrige versjon (KA-U83)',
     fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [['  if (trekk && !hadde) return', '  if (false) return']],
+    endringer: [['  if (trekk.length && !hadde) return', '  if (false) return']],
     mal: ['et trekk gjelder posten i forrige versjon'],
   },
   {
@@ -4038,7 +4040,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en ny kravversjon kan både ta med og trekke den særskilte vederlagsjusteringen (KA-U83)',
     fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [['  if (trekk && ny.saerskilt.produktivitet) return', '  if (false) return']],
+    endringer: [['  if (trekk.length && saerskilt.produktivitet) return', '  if (false) return']],
     mal: ['et trekk gjelder posten i forrige versjon'],
   },
   {
@@ -4046,12 +4048,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'brevet sier ikke at totalentreprenøren trekker den særskilte vederlagsjusteringen (KA-U83)',
     fil: `${K}/spor/vederlag/tekst.ts`,
-    endringer: [
-      [
-        "  if (innholdIVederlaget(k).trekker_saerskilt.includes('produktivitet')) {",
-        '  if (false) {',
-      ],
-    ],
+    endringer: [["  if (innhold.trekker_saerskilt.includes('produktivitet')) {", '  if (false) {']],
     mal: ['brevet sier at totalentreprenøren trekker kravet'],
   },
   {
@@ -4059,7 +4056,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'trekket av den særskilte vederlagsjusteringen som eneste post sier ikke at vederlagskravet trekkes i stedet (KA-U83)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['    : bareTrekkAvSaerskilt(innhold)', '    : false']],
+    endringer: [['  if (bareTrekkAvSaerskilt(innhold))', '  if (false)']],
     mal: ['er posten den eneste i kravet'],
   },
   {
@@ -4068,10 +4065,7 @@ const MUTASJONER: Mutasjon[] = [
       'kommandoen prøver ikke den særskilte vederlagsjusteringen mot forrige versjon før kravet skrives (KA-U83)',
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
-      [
-        '    saerskiltStrider(innholdIVederlaget({ innhold: k.innhold }), u.spor.vederlag.krav);',
-        '    null;',
-      ],
+      ['    saerskiltStrider({ innhold: k.innhold }, u.spor.vederlag.krav);', '    null;'],
     ],
     mal: ['en ny versjon som verken tar med eller trekker posten, avvises'],
   },

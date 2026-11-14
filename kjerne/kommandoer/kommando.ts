@@ -411,6 +411,9 @@ const KRAVFORM: Record<Spor, Kravform> = {
   frist: KRAVFORM_I_FRISTEN,
 };
 
+/** Vedlegget som ID, som skiller ett vedlegg fra et annet: en UUID er den samme med store og små bokstaver. */
+const vedleggsnoekkel = (id: string): string => id.toLowerCase();
+
 /** Feilene i formen, tomme når kommandoen kan vurderes. */
 export function formfeil(kommando: unknown): string[] {
   if (!erObjekt(kommando)) return ['Kommandoen må være et objekt.'];
@@ -419,20 +422,14 @@ export function formfeil(kommando: unknown): string[] {
     return [`Ukjent kommando: ${String(type)}`];
   const feil = feilI(kommando, SKJEMA[type as Kommando['type']]);
   if (type === 'krav' && !feil.length) {
-    const k = kommando as { spor: Spor; innhold: unknown };
+    const k = kommando as { spor: Spor; innhold: unknown; dokumentasjon?: string[] };
     const form = iSporet(KRAVFORM, k.spor);
     feil.push(...form.feil(k.innhold));
     if (!form.varselVedKravet && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter punkt 33.4');
     // VS-U51: dokumentet med varselet for en kravpost ligger alt ved kravet.
-    const iInnholdet = new Set(
-      form.vedleggIInnholdet(k.innhold as Innhold).map((v) => v.toLowerCase())
-    );
-    if (
-      (k as { dokumentasjon?: string[] }).dokumentasjon?.some((v) =>
-        iInnholdet.has(v.toLowerCase())
-      )
-    )
+    const iInnholdet = new Set(form.vedleggIInnholdet(k.innhold as Innhold).map(vedleggsnoekkel));
+    if (k.dokumentasjon?.some((v) => iInnholdet.has(vedleggsnoekkel(v))))
       feil.push(
         '$.dokumentasjon: vedlegget ved kravet er også dokumentet med varselet for en kravpost'
       );
@@ -460,8 +457,7 @@ export function formfeil(kommando: unknown): string[] {
     if (new Set(spor).size !== spor.length) feil.push('$.svar: to svar i samme spor');
   }
   const vedlegg = feil.length ? [] : dokumentasjon;
-  // En UUID er den samme med store og små bokstaver.
-  if (new Set(vedlegg.map((v) => v.toLowerCase())).size !== vedlegg.length)
+  if (new Set(vedlegg.map(vedleggsnoekkel)).size !== vedlegg.length)
     feil.push(`${sti}dokumentasjon: samme vedlegg står to ganger`);
   if (type === 'registrert_brev' && !feil.length) {
     const k = kommando as { spor?: Spor[]; beskrivelse: string };

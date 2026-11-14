@@ -12,10 +12,9 @@ import {
   innholdIVederlaget,
   kravposterI,
   OPPGJOERSHJEMMEL,
-  type Vederlagsinnhold,
 } from './format.ts';
 import type { Bakover, LestVarsel, Sporskontroller, Ugyldig } from '../../utledning/utled.ts';
-import { posteneStrider, type Versjonsinndata } from '../poster/utledning.ts';
+import { posteneStrider, utelattUtenTrekk, type Versjonsinndata } from '../poster/utledning.ts';
 import {
   erKravpostvarselhjemmel,
   type Krav,
@@ -51,19 +50,22 @@ export const kravposteneStrider = (
  * står i forrige versjon, trekkes, én gang. En post som er trukket, kan tas med igjen.
  */
 export function saerskiltStrider(
-  ny: Pick<Vederlagsinnhold, 'saerskilt' | 'trekker_saerskilt'>,
-  tidligere: readonly Pick<Krav, 'innhold'>[]
+  ny: Pick<Krav, 'innhold'>,
+  tidligere: readonly Krav[]
 ): string | null {
   const posten = 'den særskilte vederlagsjusteringen';
+  const { saerskilt, trekker_saerskilt: trekk } = innholdIVederlaget(ny);
   const forrige = tidligere.at(-1);
   const hadde = forrige !== undefined && harProduktivitetspost(forrige);
-  const trekk = ny.trekker_saerskilt.length;
-  if (trekk > 1) return `trekker ${posten} to ganger`;
-  if (trekk && !hadde) return `trekker ${posten}, som ikke er med i forrige kravversjon`;
-  if (trekk && ny.saerskilt.produktivitet) return `både tar med og trekker ${posten}`;
-  if (hadde && !trekk && !ny.saerskilt.produktivitet)
-    return `mangler ${posten} uten at den er trukket (KA-U83)`;
-  return null;
+  if (trekk.length > 1) return `trekker ${posten} to ganger`;
+  if (trekk.length && !hadde) return `trekker ${posten}, som ikke er med i forrige kravversjon`;
+  if (trekk.length && saerskilt.produktivitet) return `både tar med og trekker ${posten}`;
+  return utelattUtenTrekk(
+    new Map(hadde ? [['produktivitet', { id: 'produktivitet' }]] : []),
+    () => trekk.length > 0 || saerskilt.produktivitet !== undefined,
+    () => posten,
+    'KA-U83'
+  );
 }
 
 /** Varselet en kravpost med den oppgjørsformen trenger, eller `null` (VS-U48, KA-U68). */
@@ -226,10 +228,8 @@ function kravpoststandpunktetStrider(
 
 /** Kontrollene i vederlaget, som `utledning/utled.ts` slår opp gjennom `KONTROLLER`. */
 export const KONTROLLER_I_VEDERLAGET = {
-  kravet: (k, tidligere) => {
-    const innhold = innholdIVederlaget(k);
-    return kravposteneStrider(innhold, tidligere, true) ?? saerskiltStrider(innhold, tidligere);
-  },
+  kravet: (k, tidligere) =>
+    kravposteneStrider(innholdIVederlaget(k), tidligere, true) ?? saerskiltStrider(k, tidligere),
   kravene: kontrollerKravpostvarslene,
   svaret: kontrollerPostene,
   kanFaaPassivitet: false,

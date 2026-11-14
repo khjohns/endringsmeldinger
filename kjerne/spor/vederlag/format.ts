@@ -248,7 +248,7 @@ function lesKrevd(krav: Krav, verdi: number | undefined): Oere | null {
 }
 
 /** OV-U23: kravet krever posten etter § 34.1.3 annet ledd (`saerskilt.produktivitet`). */
-export const harProduktivitetspost = (krav: Pick<Krav, 'innhold'>): boolean =>
+export const harProduktivitetspost = (krav: Krav): boolean =>
   innholdIVederlaget(krav).saerskilt.produktivitet !== undefined;
 
 /** Kravpostene i en lagret kravversjon (OV-U95 punkt 19). */

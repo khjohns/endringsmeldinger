@@ -1437,11 +1437,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/format.ts',
     'utsagn',
     'innholdIVederlaget',
-    [
-      'spor/vederlag/utledning.ts',
-      'spor/vederlag/tekst.ts',
-      'spor/vederlag/kommando.ts:kravpostsperre',
-    ],
+    ['spor/vederlag/utledning.ts', 'spor/vederlag/tekst.ts'],
   ],
   [
     'spor/frist/format.ts',
@@ -1761,6 +1757,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'predikat',
     'trekketStrider utelattUtenTrekk',
     ['spor/frist/utledning.ts:fristeneStrider'],
+  ],
+  // KA-U83: den særskilte vederlagsjusteringen mangler som en post uten trekk.
+  [
+    'spor/poster/utledning.ts',
+    'predikat',
+    'utelattUtenTrekk',
+    ['spor/vederlag/utledning.ts:saerskiltStrider'],
   ],
   [
     'spor/poster/utledning.ts',
