@@ -65,6 +65,8 @@ export interface Vederlagslinje extends Foreligger {
   } | null;
 }
 
+type Fristresultat = 'godkjent' | 'delvis_godkjent' | 'avslaatt';
+
 /** Én frist med betegnelsen i kontrakten og dagene (U-1). */
 export interface Fristdager {
   betegnelse: string;
@@ -77,11 +79,15 @@ export interface Fristlinje extends Foreligger {
   ingen_krav: boolean;
   /** Dagene står per frist og legges ikke sammen (KA-U74). */
   krav: { frister: Fristdager[] } | null;
+  /**
+   * `resultat` gjelder hele svaret, `antall_godkjent` er fristene som har fått alle dagene, og
+   * `subsidiaert` sier at et av standpunktene om dagene er subsidiært, som i `server/saksliste.ts`.
+   */
   svar: {
-    frister: (Fristdager & {
-      resultat: 'godkjent' | 'delvis_godkjent' | 'avslaatt';
-      subsidiaert: boolean;
-    })[];
+    resultat: Fristresultat;
+    antall_godkjent: number;
+    subsidiaert: boolean;
+    frister: (Fristdager & { resultat: Fristresultat; subsidiaert: boolean })[];
   } | null;
   enighet: { frister: Fristdager[]; virkning: Enighetsvirkning } | null;
 }
