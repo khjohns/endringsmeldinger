@@ -1256,6 +1256,13 @@
       "radetikett": "MM-U52: Spørsmål 1: Samlevedtaket for retting av sendt brev, versjon 2, gjelder med E1–E8"
     },
     {
+      "id": "MM-U55",
+      "type": "vedtak",
+      "dato": "2026-11-14",
+      "ref": "../plans/vedtak.md#mm-u55",
+      "radetikett": "MM-U55: Spørsmål 1: Avvisningen etter punkt 10 gjelder også i et spor med enighet"
+    },
+    {
       "id": "LV-U56",
       "type": "vedtak",
       "dato": "2026-11-06",
@@ -2947,6 +2954,7 @@
       "kilder": [
         "MM-U41",
         "MM-U52",
+        "MM-U55",
         "MM-U51",
         "VS-U26",
         "VS-U9",
@@ -2979,6 +2987,7 @@
       "kilder": [
         "MM-U41",
         "MM-U52",
+        "MM-U55",
         "LV-U56",
         "VS-U26",
         "LV-U53"

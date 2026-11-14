@@ -126,8 +126,11 @@ export interface Prosjektrute extends Felles {
   tilgang: {
     prosjektrolle: 'viewer' | 'member' | 'admin';
     utenSak: string;
-    /** Lister saker: kontraktsrolle eller leserolle (DL-U15). */
-    kontraktsrolle?: 'lesing';
+    /**
+     * `lesing` når inngangen leser saksdata: kontraktsrolle eller leserolle (DL-U15). Ellers
+     * en skriftlig begrunnelse for at den ikke krever kontraktsrolle (#1922).
+     */
+    kontraktsrolle: 'lesing' | { ikke: string };
   };
   behandle: Behandler<Prosjektforespoersel>;
 }

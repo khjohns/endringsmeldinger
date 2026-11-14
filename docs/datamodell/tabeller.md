@@ -457,7 +457,7 @@ Fristtabellen fra kontrakten (GFK-U18, #721): fristens ID i prosjektet, kontrakt
 | Relasjoner | Nøkler: primærnøkkel (prosjekt_id, frist_id); unik (prosjekt_id, navn); unik indeks (prosjekt_id, nummer) WHERE ([nummer] IS NOT NULL). Viser til: prosjekt_id → koe.projects.id (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. Kontrakten er kilden. |
 | Personopplysninger | Ingen. |
-| Skrives av | database/migrasjoner/20261113100000_kontraktsfrister.sql (`koe_drift.sett_kontraktsfrist` og `koe_drift.fjern_kontraktsfrist`, kalt fra `server/registrering.ts`) |
+| Skrives av | database/migrasjoner/20261114100000_kontraktsfrist_satsregel.sql (`koe_drift.sett_kontraktsfrist`, kalt fra `server/registrering.ts`); database/migrasjoner/20261113100000_kontraktsfrister.sql (`koe_drift.fjern_kontraktsfrist`, kalt fra `server/registrering.ts`) |
 | Funn | — |
 | Belegg | L 13.11: migrasjonen. K 13.11: `server/tester/registrering.test.ts` og `server/tester/kontraktsfrister.test.ts`. |
 

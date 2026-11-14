@@ -48,6 +48,7 @@ import { opprettPool, sql, utenKontekst, type Pool } from './datalag.ts';
 import { erKalenderdato } from '../kjerne/format/skjema.ts';
 import type { Part } from '../kjerne/typer.ts';
 import { betegnelsen } from '../kjerne/spor/frist/format.ts';
+import { kroner } from '../kjerne/frosset/tekst.ts';
 import {
   fristtabell,
   STANDARDSATS,
@@ -269,9 +270,6 @@ async function settKontraktsfrist(
   );
   return svar.recordset[0]!.frist_id;
 }
-
-const kroner = (n: number) =>
-  `${n.toLocaleString('nb-NO', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kr`;
 
 function beskrivSats(s: Satsopplysninger): string {
   if (s.grunnlag === 'fast_beloep') return `avtalt ${kroner(s.beloepPerDag)} per dag`;
@@ -608,6 +606,8 @@ export async function kjoer(argv: string[], a: Avhengigheter): Promise<void> {
       const verdi = v[navn];
       return typeof verdi === 'string' ? desimaltall(verdi, navn, form) : undefined;
     };
+    // Kontrollene av flaggene under gir en melding per flagg. Satsregelen er `koe.satsen_passer`
+    // i basen, som avviser det som slipper gjennom her, med 52078 (#1883).
     const sats = {
       promille: tallFra('promille', 'promille'),
       minstebeloep: tallFra('minstebeloep', 'beloep'),
