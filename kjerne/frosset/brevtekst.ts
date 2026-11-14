@@ -143,7 +143,7 @@ export function lagBrevtekst(
       perPunkt[FORBEHOLDET.punkt] = forbehold;
     }
     // HF-U23 punkt 5: linjen med akseptfristen har ingen utdypning, og står sist.
-    if (perPunkt[AKSEPTFRISTEN])
+    if (perPunkt[AKSEPTFRISTEN] && brevpunkter.some((p) => p.punkt === AKSEPTFRISTEN))
       throw new UtdypningUtenPunkt('Linjen med akseptfristen har ingen utdypning.');
     const punktene = [
       ...brevpunkter.filter((p) => p.punkt !== AKSEPTFRISTEN),

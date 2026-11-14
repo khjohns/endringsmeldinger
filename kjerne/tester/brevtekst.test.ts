@@ -11028,7 +11028,7 @@ describe('akseptfristen (HF-U23)', () => {
     ).toBe('Linjen med akseptfristen har ingen utdypning.');
     const rad = s.send('BH', brev(medFrist(delvis(s), '2026-10-09')));
     expect(laast(rad).at(-1)).toBe('Akseptfrist: 9. oktober 2026.');
-    expect(tekst(rad).at(-2)?.utdypning, 'forutsetning: svaret har en utdypning').toBe(BEGRUNNELSE);
+    expect(tekst(rad).at(-2)).toMatchObject({ punkt: 'forbehold', utdypning: BEGRUNNELSE });
   });
 
   it('en lagret akseptfrist som ikke finnes i kalenderen, er ikke forstått (MM-U2)', () => {

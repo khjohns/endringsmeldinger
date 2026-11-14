@@ -216,15 +216,15 @@ function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   return ulikeVirkninger(u.svar[g.id].virkninger, virkninger(g, paaberopelseFor(g, u), regler));
 }
 
-/**
- * HF-U23 punkt 7 og designdelen: TE har godtatt svaret etter akseptfristen. Etiketten står ved
- * den registrerte enigheten, og løsningen avgjør ikke virkningen (punkt 5 og 8).
- */
 function dokumentet(u: Utledning, id: string): Dokument | undefined {
   for (const d of dokumenterI(u.journal)) if (d.id === id) return d;
   return undefined;
 }
 
+/**
+ * HF-U23 punkt 7 og designdelen: TE har godtatt svaret etter akseptfristen. Etiketten står ved
+ * den registrerte enigheten, og løsningen avgjør ikke virkningen (punkt 5 og 8).
+ */
 function akseptertEtterFristen(u: Utledning, spor: Spor): boolean {
   const enighet = u.spor[spor].enighet;
   if (enighet?.grunnlag.kilde !== 'aksept') return false;
