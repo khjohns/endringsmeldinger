@@ -9,7 +9,7 @@ import { NYTTELAST_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import { UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { ELDRE_SVAR } from './forutsetninger.ts';
-import { norskDato, PARTEN } from '../frosset/brevdeler.ts';
+import { norskDato, PARTEN, PARTENS } from '../frosset/brevdeler.ts';
 import { datoFor, kalenderdag } from '../format/leser.ts';
 import { erKalenderdato } from '../format/skjema.ts';
 import type { Kommando, Svarutkast } from './kommando.ts';
@@ -292,7 +292,10 @@ function retting(retter: string, part: Part, u: Utledning): Avvisning | null {
       'Rettingen må gjelde et brev registrert som dokumentasjon i saken.'
     );
   if (brev.avsender !== part)
-    return avvis('FEIL_PART', `Bare ${PARTEN[brev.avsender]} kan rette sin egen registrering.`);
+    return avvis(
+      'FEIL_PART',
+      `Registreringen er ${PARTENS[brev.avsender]}, og bare ${PARTEN[brev.avsender]} kan rette den.`
+    );
   if (brev.rettetAv !== null)
     return avvis(
       'REGISTRERINGEN_ER_RETTET',

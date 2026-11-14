@@ -132,7 +132,7 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
       }
       return avvis(
         'INGEN_FORESPORSEL',
-        'Begrunnelsen må gjelde en forespørsel etter § 33.6.2 fra byggherren.'
+        'Begrunnelsen må gjelde en forespørsel etter punkt 33.6.2 fra byggherren.'
       );
     }
     case 'korrigere':

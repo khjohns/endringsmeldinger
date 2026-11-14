@@ -2226,7 +2226,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['frosset/brevtekst.ts', 'spor/frist/tekst.ts', 'spor/vederlag/tekst.ts'],
   ],
   // LV-U35: partene skrives fullt ut, i eiendomsform, i brevteksten.
-  ['frosset/brevdeler.ts', 'brevtekst', 'PARTENS', ['frosset/brevtekst.ts']],
+  [
+    'frosset/brevdeler.ts',
+    'brevtekst',
+    'PARTENS',
+    ['frosset/brevtekst.ts', 'kommandoer/nyttelast.ts:retting'],
+  ],
   // Byggeklossene i brevteksten som teksten i sporene også bruker (#1783).
   [
     'frosset/brevdeler.ts',

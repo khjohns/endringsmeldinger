@@ -53,6 +53,7 @@ export function posteneStrider(
   const trekker = (ny.trekker ?? []) as string[];
   const trekket = trekketStrider(trekker, forrige, posten, (p) => p.betegnelse);
   if (trekket) return trekket;
+  const trukket = new Set(trekker);
   const sett = new Set<string>();
   const betegnelser = new Set<string>();
   for (const p of ny.poster ?? []) {
@@ -62,7 +63,7 @@ export function posteneStrider(
       sett.add(id);
     }
     const kjent = id === undefined ? undefined : (forrige.get(id) ?? foer.get(id));
-    if (id !== undefined && trekker.includes(id))
+    if (id !== undefined && trukket.has(id))
       return `både tar med og trekker ${posten} ${forrige.get(id)!.betegnelse}`;
     if (id !== undefined && !kjent && !lagret)
       return `har ${posten} ${id}, som ikke har stått i sporet`;
@@ -77,7 +78,7 @@ export function posteneStrider(
   }
   return utelattUtenTrekk(
     forrige,
-    (id) => sett.has(id) || trekker.includes(id),
+    (id) => sett.has(id) || trukket.has(id),
     (p) => p.betegnelse,
     'KA-U56'
   );

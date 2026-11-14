@@ -5016,7 +5016,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F581',
     feilklasse: 'en ny kravversjon kan utelate en frist uten å trekke den (KA-U76)',
     fil: `${K}/spor/frist/utledning.ts`,
-    endringer: [['    (id) => med.has(id) || trekker.includes(id),', '    () => true,']],
+    endringer: [['(id) => med.has(id) || trukket.has(id), betegnelsen', '() => true, betegnelsen']],
     mal: ['F-MM-KA-U76'],
   },
   {

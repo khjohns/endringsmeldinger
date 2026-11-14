@@ -267,6 +267,7 @@ export function fristeneStrider(
   const trekker = (ny.trekker ?? []) as string[];
   const trekket = trekketStrider(trekker, forrige, 'fristen', betegnelsen);
   if (trekket) return trekket;
+  const trukket = new Set(trekker);
   const noekler = new Set<string>();
   const med = new Set<string>();
   for (const p of ny.frister ?? []) {
@@ -287,12 +288,7 @@ export function fristeneStrider(
     if (rad === undefined) continue;
     if (med.has(rad)) return `har fristen ${omtalen(p)} to ganger`;
     med.add(rad);
-    if (trekker.includes(rad)) return `både tar med og trekker fristen ${omtalen(p)}`;
+    if (trukket.has(rad)) return `både tar med og trekker fristen ${omtalen(p)}`;
   }
-  return utelattUtenTrekk(
-    forrige,
-    (id) => med.has(id) || trekker.includes(id),
-    betegnelsen,
-    'KA-U76'
-  );
+  return utelattUtenTrekk(forrige, (id) => med.has(id) || trukket.has(id), betegnelsen, 'KA-U76');
 }
