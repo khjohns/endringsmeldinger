@@ -12,12 +12,5 @@
 </script>
 
 <QueryClientProvider client={queryClient}>
-  <div class="project-shell">{@render children()}</div>
+  {@render children()}
 </QueryClientProvider>
-
-<style>
-  .project-shell {
-    height: 100dvh;
-    overflow: hidden;
-  }
-</style>
