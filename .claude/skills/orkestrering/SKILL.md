@@ -69,6 +69,10 @@ lukket og oppdragsgiver har fått avslutningen (punkt 5).
   mange spørsmål, og bygger videre hvis svarene kommer mens konteksten er varm; ellers
   tar en ny økt over med svarene («Mens et spørsmål venter» i arbeidsøkt-skillen,
   #484).
+- **Kjernen før visningen.** Manglene kontrollen i «Klar til bygging» i
+  [`brukerforlop`](../brukerforlop/SKILL.md#klar-til-bygging) finner, går til en
+  kjerneøkt før byggeøkta for visningen starter. Mens de bygges, tar Varden-økta et
+  issue som ikke trenger dem.
 
 **Størrelsen på runden.** Ingen fast grense på antall PR-er. Runden avgrenses av hvor
 mange spørsmål og skjermbilder oppdragsgiver skal se på samtidig, av filoverlapp og av
@@ -249,7 +253,9 @@ flyttinger: ja det er ok».
 `main` (`update_pull_request_branch`) og må ha grønn CI på den nye committen før merge,
 også uten konflikt. Den nye committen er `expectedHeadSha`. Vent på CI med en
 bakgrunnskommando som poller `check-runs` på committen, ikke med `sleep` i
-forgrunnen.
+forgrunnen. Rett etter oppdateringen har committen ingen kjøringer, så pollingen venter
+til de påkrevde jobbene finnes, ikke bare til ingen kjøring står igjen. En PR som går
+under unntaket for tekst, kan merges først uten at de andre må oppdateres på nytt.
 
 - **Unntaket for tekst.** Er alt som er merget siden PR-ens base, Markdown i
   `.claude/skills/`, `CLAUDE.md` eller `docs/`, trengs ingen oppdatering og ny CI. Det
