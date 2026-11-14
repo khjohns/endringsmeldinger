@@ -32,6 +32,7 @@ import {
   avvis,
   erKravpostvarselhjemmel,
   type Avvisning,
+  type Dokument,
   type Domenehendelse,
   type Hjemmel,
   type Journalrad,
@@ -388,33 +389,57 @@ function medVarslene(
 
 /**
  * Varslene etter § 34.3.3 og § 34.4 før kravet, uten dokumentene kravskjemaet la til i samme
- * handling (`vedKravet`): de gjelder bare kravposten som viser til dem (VS-U51, VS-U53). Et
- * vedlegg kravet har ellers (#1823), holder ikke et varsel utenfor (VS-U55).
+ * handling: kravet legger dem ved, og de gjelder bare kravposten som viser til dem (VS-U51, VS-U53).
  */
-function foranKravet(lest: readonly Domenehendelse[], u: Utledning, vedKravet: readonly string[]) {
-  const vedlagte = new Set(vedKravet.map((id) => id.toLowerCase()));
+function foranKravet(nytt: Dokument, lest: readonly Domenehendelse[], u: Utledning) {
+  const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
   const dokumenter = new Map(
     lest.flatMap((h) => (h.art === 'dokument' ? [[h.id, h.dokument] as const] : []))
   );
   return u.spor.vederlag.kravpostvarsler.filter(
-    (v) =>
-      !dokumenter
-        .get(v.dokument)
-        ?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id.toLowerCase()))
+    (v) => !dokumenter.get(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))
   );
 }
 
 /** Varselet for hver kravpost i vederlagskravet som trenger et, til brevteksten (A6). */
 const kravpostvarslerIBrevet = (
   k: Krav,
+  nytt: Dokument,
   lest: readonly Domenehendelse[],
-  u: Utledning,
-  vedKravet: readonly string[]
+  u: Utledning
 ): Record<string, Kravpostvarselet> =>
-  kravpostvarslene(k, u.spor.vederlag.krav, foranKravet(lest, u, vedKravet));
+  kravpostvarslene(k, u.spor.vederlag.krav, foranKravet(nytt, lest, u));
+
+/**
+ * Et vedlegg ved kravet som alt ligger ved et varsel for en kravpost i saken (VS-U55). Kravet viser
+ * til varselet, og et dokument ved kravet som også er et varsel, er dokumentet kravskjemaet la
+ * til som varsel i samme handling (`foranKravet`, VS-U51).
+ */
+function vedleggetErEtVarsel(
+  k: Extract<Kommando, { type: 'krav' }>,
+  lest: readonly Domenehendelse[],
+  u: Utledning
+): Avvisning | null {
+  const ved = new Set((k.dokumentasjon ?? []).map((id) => id.toLowerCase()));
+  if (!ved.size) return null;
+  const varslene = new Set(u.spor.vederlag.kravpostvarsler.map((v) => v.dokument));
+  const dokumentet = lest.find(
+    (h) =>
+      h.art === 'dokument' &&
+      varslene.has(h.id) &&
+      h.dokument.dokumentasjon.some((v) => ved.has(v.vedlegg_id.toLowerCase()))
+  );
+  return dokumentet
+    ? avvis(
+        'KRAVPOSTVARSELET',
+        'Et vedlegg ved kravet ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.'
+      )
+    : null;
+}
 
 export const SKRIVING_I_VEDERLAGET = {
   kravinnhold: (innhold, u, { nyId }) => medKravposter(innhold, u, nyId),
+  saksperre: vedleggetErEtVarsel,
   handlingen: medDokumentvarslene,
   postvarsler: kravpostvarslerIBrevet,
 } satisfies Sporsskriving;

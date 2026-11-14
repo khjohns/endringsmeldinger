@@ -10353,32 +10353,21 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     expect(tekst.match(/ble gitt i totalentreprenørens e-post/g)).toHaveLength(2);
   });
 
-  it('et registrert varsel som også ligger ved kravet, gjelder fortsatt kravposten, og kravet er ikke varselet (VS-U55, #1823)', () => {
-    const s = paaberopt();
-    const varselet = registrertVarsel('34.4');
-    s.send('TE', varselet);
-    const rad = s.send('TE', {
-      ...vederlagskrav([regning]),
-      dokumentasjon: varselet.dokumentasjon,
-    });
-    const tekst = laast(rad).join(' ');
-    expect(tekst).toContain('ble gitt i totalentreprenørens e-post');
-    expect(tekst).not.toContain(varselRegning);
-    expect(s.u().forstaatt).toBe(true);
-  });
-
-  it('et registrert varsel som én kravpost viser til og som også ligger ved kravet, gjelder fortsatt en annen post (VS-U55, #1823)', () => {
+  it('et vedlegg ved kravet som alt ligger ved et varsel for en kravpost i saken, avvises, så brevet ikke tar varselet for et dokument fra kravskjemaet (VS-U55, VS-U51, #1823)', () => {
     const s = paaberopt();
     const varselet = registrertVarsel('34.4');
     s.send('TE', varselet);
     const varsel = varslene(s)[0]!.id;
-    const rad = s.send('TE', {
-      ...vederlagskrav([{ ...regning, varsel }, regning]),
-      dokumentasjon: varselet.dokumentasjon,
-    });
-    const tekst = laast(rad).join(' ');
-    expect(tekst.match(/ble gitt i totalentreprenørens e-post/g)).toHaveLength(2);
-    expect(tekst).not.toContain(varselRegning);
+    for (const poster of [[regning], [{ ...regning, varsel }, regning]])
+      expect(
+        s.avvisning('TE', { ...vederlagskrav(poster), dokumentasjon: varselet.dokumentasjon })
+      ).toEqual({
+        regel: 'KRAVPOSTVARSELET',
+        melding:
+          'Et vedlegg ved kravet ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.',
+      });
+    const rad = s.send('TE', { ...vederlagskrav([regning]), dokumentasjon: [PLAN] });
+    expect(laast(rad).join(' '), 'kontrollsak').toContain('ble gitt i totalentreprenørens e-post');
   });
 
   it('en kravpost i en ny versjon kan gjenta varselet den viste til, men ikke vise til et annet (KA-U56, VS-U50)', () => {
@@ -11079,7 +11068,7 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
       expect(s.avvisning('TE', vederlagskrav(trekk))).toEqual({
         regel: 'KRAVPOSTENE',
         melding:
-          'Kravversjonen har ingen poster igjen når den særskilte vederlagsjusteringen er trukket; totalentreprenøren trekker da vederlagskravet (KA-U83).',
+          'Kravversjonen har ingen poster igjen når den særskilte vederlagsjusteringen er trukket (KA-U83).',
       });
       expect(s.avvist('TE', vederlagskrav(tilbud(125000, trekk))), 'kontrollsak').toBeNull();
       expect(s.avvist('TE', vederlagskrav({ trekker_saerskilt: [] })), 'tomt trekk').toBe(

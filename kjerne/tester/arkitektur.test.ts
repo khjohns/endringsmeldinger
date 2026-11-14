@@ -1171,8 +1171,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/vederlag/kommando.ts:medVarslene', 'utsagn', 'hjemmel'],
   ['Dokumentpost', 'kommando', 'varsel'],
   // VS-U51, VS-U53: dokumentet fra kravskjemaet gjelder bare kravposten som viser til det.
-  ['Dokument', 'utsagn', 'dokumentasjon', ['spor/vederlag/kommando.ts:foranKravet']],
-  ['Utsagn', 'relasjon', 'dokument', ['spor/vederlag/kommando.ts:foranKravet']],
+  [
+    'Dokument',
+    'utsagn',
+    'dokumentasjon',
+    ['spor/vederlag/kommando.ts:foranKravet', 'spor/vederlag/kommando.ts:vedleggetErEtVarsel'],
+  ],
+  [
+    'Utsagn',
+    'relasjon',
+    'dokument',
+    ['spor/vederlag/kommando.ts:foranKravet', 'spor/vederlag/kommando.ts:vedleggetErEtVarsel'],
+  ],
   [
     'kommandoer/kommando.ts:formfeil',
     'kommando',
@@ -1303,7 +1313,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsskriving',
     'kommando',
-    'kravinnhold handlingen postvarsler kontekstsperre',
+    'kravinnhold handlingen postvarsler kontekstsperre saksperre',
     ['kommandoer/skriving.ts'],
   ],
   // VS-U51, VS-U53: skrivingen gir sporet stegene for en handling med flere rader.
@@ -2387,7 +2397,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Vedlegg',
     'relasjon',
     'vedlegg_id',
-    ['spor/vederlag/kommando.ts:foranKravet', 'frosset/brevdeler.ts'],
+    [
+      'spor/vederlag/kommando.ts:foranKravet',
+      'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
+      'frosset/brevdeler.ts',
+    ],
   ],
   // Arbeidsvalg 10 i #790: teksten lister vedleggene med filnavnet.
   ['Vedlegg', 'utsagn', 'filnavn', ['frosset/brevtekst.ts', 'kommandoer/skriving.ts:skriv']],

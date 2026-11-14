@@ -4055,7 +4055,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'trekket av den særskilte vederlagsjusteringen som eneste post sier ikke at vederlagskravet trekkes i stedet (KA-U83)',
     fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [['  if (trekk.length && !kravposterI(ny).length)', '  if (false)']],
+    endringer: [
+      [
+        '  if (trekk.length && !kravposterI(ny).length && !Object.keys(saerskilt).length)',
+        '  if (false)',
+      ],
+    ],
     mal: ['er posten den eneste i kravet'],
   },
   {
@@ -4071,18 +4076,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F628',
     feilklasse:
-      'et varsel sendt før kravet gjelder ikke kravposten når totalentreprenøren legger brevet med varselet ved kravet (VS-U55, #1823)',
-    fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [
-      [
-        'postvarsler?.(k, lest, u, vedKravet)',
-        'postvarsler?.(k, lest, u, ny.dokument.dokumentasjon.map((v) => v.vedlegg_id))',
-      ],
-    ],
-    mal: [
-      'et registrert varsel som også ligger ved kravet, gjelder fortsatt kravposten',
-      'et registrert varsel som én kravpost viser til og som også ligger ved kravet',
-    ],
+      'et vedlegg ved kravet som alt ligger ved et varsel for en kravpost, tar varselet bort fra kravposten (VS-U55, #1823)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['  return dokumentet\n    ? avvis(', '  return false\n    ? avvis(']],
+    mal: ['et vedlegg ved kravet som alt ligger ved et varsel for en kravpost i saken, avvises'],
   },
   {
     id: 'F620',
@@ -4777,8 +4774,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        'const vedlagte = new Set(vedKravet.map((id) => id.toLowerCase()));',
-        'const vedlagte = new Set<string>();',
+        '(v) => !dokumenter.get(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))',
+        '(v) => !!v',
       ],
     ],
     mal: ['dokumentet for én kravpost er ikke varselet for en annen post'],
