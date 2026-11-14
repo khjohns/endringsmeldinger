@@ -450,7 +450,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
     case 'ikke_i_saken':
       return { type: 'ikke_i_saken', retter: navn.id(h.retter as string) };
     case 'korrigering': {
-      // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): datoen i feltet kategorien
+      // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U55)): datoen i feltet kategorien
       // har, uten `gjelder` til TEs siste opplysning. `felt` prøver et annet felt.
       const krav = u.spor.forhold.gjeldendeKrav;
       const felt =

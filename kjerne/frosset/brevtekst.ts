@@ -739,7 +739,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       return `${part} bekrefter at standpunktene i ${j.brevet(e.opplysning.brev)} om ${liste(e.opplysning.spor.map((s) => brevtekstI(s).navn))} gjelder uten forbehold fra og med dette brevet.`;
     }
     case 'korrigering': {
-      // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)), med partene skrevet fullt
+      // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U55)), med partene skrevet fullt
       // ut (LV-U35) og henvisningen etter LV-U53.
       const e = j.element(u.gjelder);
       const [dokument, tidligere] =

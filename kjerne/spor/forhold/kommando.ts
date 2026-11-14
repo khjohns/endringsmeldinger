@@ -93,7 +93,7 @@ function utdypningIForholdet(
 }
 
 /**
- * GR-U22 og MM-U52 punkt 14: når forholdet er sendt, står hovedkategorien, underkategorien og,
+ * GR-U22 og MM-U55 punkt 14: når forholdet er sendt, står hovedkategorien, underkategorien og,
  * i underkategorien endringsordre, endringsordren. En annen hjemmel eller en annen endringsordre
  * går i en ny sak. Om det er samme forhold, avgjør ikke appen (MM-U12 (opphevet av MM-U50)).
  */
@@ -111,13 +111,13 @@ function kategorisperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): A
   if (tekst(k.innhold.endringsordre) !== forrige.endringsordre)
     return avvis(
       'ANNEN_ENDRINGSORDRE',
-      `Grunnlaget er sendt, og en ny versjon kan ikke endre endringsordren «${forrige.endringsordre}». En annen endringsordre påberopes i en ny sak (MM-U52 punkt 14).`
+      `Grunnlaget er sendt, og en ny versjon kan ikke endre endringsordren «${forrige.endringsordre}». En annen endringsordre påberopes i en ny sak (MM-U55 punkt 14).`
     );
   return null;
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): en ny grunnlagsversjon kan ikke
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U55)): en ny grunnlagsversjon kan ikke
  * endre datoen etter VS-U26, og gjengir TEs siste opplysning. Datoen endres i en korrigering.
  */
 function datosperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
@@ -138,7 +138,7 @@ function oppgittDatoIForholdet(k: Extract<Kommando, { type: 'krav' }>): OppgittD
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): korrigeringen har datoen
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U55)): korrigeringen har datoen
  * kategorien har, og endrer TEs siste opplysning (arbeidsvalget i avgrensningen av #1308).
  * Forutsetningene har kontrollert at den viser til den siste opplysningen.
  */
@@ -214,7 +214,7 @@ function svaretPaaberoperRegistrertVarsel(u: Utledning, hva: 'Svaret' | 'Revisjo
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): TE korrigerer sin siste
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U55)): TE korrigerer sin siste
  * opplysning om datoen kategorien har, med henvisning til brevet med den. Brevet godtas også i et
  * spor med enighet, når kravene er avgjort og i en sak lukket etter GR-U27, også ved trekk etter
  * GR-U5 (MM-U51), så ingen av dem sperrer.

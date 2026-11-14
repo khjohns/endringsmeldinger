@@ -51,7 +51,7 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
     if (KAN_FAA_INNSIGELSE.has(e.art)) ut.push({ type: 'innsigelse', gjelder: id });
     if (e.art === 'foresporsel') ut.push({ type: 'svare_paa_foresporsel', gjelder: id });
   }
-  // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U52)): korrigeringen viser til TEs
+  // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U55)): korrigeringen viser til TEs
   // siste opplysning om datoen.
   for (const o of u.datoopplysninger) ut.push({ type: 'korrigere', gjelder: o.id });
   return ut;
@@ -73,7 +73,7 @@ export function elementenesSpor(u: Utledning): Map<string, Spor> {
       if (f.svar) sporet.set(f.svar, spor);
     }
   }
-  // Korrigeringen gjelder datoen i et krav i forholdet (MM-U52, `spor/forhold/utledning.ts`).
+  // Korrigeringen gjelder datoen i et krav i forholdet (MM-U55, `spor/forhold/utledning.ts`).
   for (const o of u.datoopplysninger) sporet.set(o.id, 'forhold');
   return sporet;
 }

@@ -3790,7 +3790,7 @@
   ],
   "koder_uten_rad": {
     "SVAR_PER_KRAVPOST": "Kontrollen av kommandoen: svaret på rigg og drift er ikke bygget, så svaret på et krav med posten tilbys ikke (arbeidsvalg 5 i spørsmålsfila 10.11 for #1663). Det er en avgrensning i byggingen, og ingen rad sier avvisningen.",
-    "ANNEN_ENDRINGSORDRE": "Kontrollen av kommandoen: når grunnlaget er sendt, står endringsordren i underkategorien endringsordre, og en annen endringsordre påberopes i en ny sak (MM-U52 punkt 14). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
+    "ANNEN_ENDRINGSORDRE": "Kontrollen av kommandoen: når grunnlaget er sendt, står endringsordren i underkategorien endringsordre, og en annen endringsordre påberopes i en ny sak (MM-U55 punkt 14). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "FORESPORSEL_BEGRUNNET": "Kontrollen av kommandoen: etter TEs begrunnelse etter § 33.6.2 annet ledd b sendes ingen ny forespørsel fra appen (VS-U30). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "FORESPORSEL_SENDT": "Kontrollen av kommandoen: høyst én forespørsel etter § 33.6.2 fra appen i saken; en senere sendes utenfor appen (VS-U31). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "INGEN_FORESPORSEL": "Kontrollen av kommandoen: TEs begrunnelse etter § 33.6.2 annet ledd b gjelder en forespørsel fra appen (VS-U27). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
