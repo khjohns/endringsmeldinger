@@ -26,7 +26,8 @@
  * kjøres først én gang uten mutasjon (#945). For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil er assertions, ikke import, oppsett eller en brutt forutsetning
- * (`.claude/rules/tester.md`).
+ * (`.claude/rules/tester.md`). Unntatt er forutsetningene mutasjonen selv oppgir, om
+ * atferden den endrer (`forutsetninger`, #1859).
  *
  * Mutasjonene fordeles på flere kopier av arbeidstreet, med lokale endringer,
  * som kjører samtidig (#378). Lagringstestene i `sprakprove/kjernelagring/` lager
@@ -80,6 +81,14 @@ interface Mutasjon {
   endringer: [fra: string, til: string][];
   /** Deler av testnavnet (`fullName`) som må feile, avgrenset som i `treffer`. */
   mal: string[];
+  /**
+   * Forutsetningene som hører til atferden mutasjonen endrer, og som derfor kan feile uten en
+   * assertion (#1859). `test` er en del av testnavnet eller suitenavnet, avgrenset som i
+   * `treffer`, og `melding` en del av feilmeldingen. Bare en uvedkommende forutsetning skal
+   * stoppe mutasjonen (`.claude/rules/tester.md`), så hver oppføring er en forutsetning om
+   * akkurat det mutasjonen fjerner.
+   */
+  forutsetninger?: { test: string; melding: string }[];
 }
 
 const K = 'kjerne';
@@ -1287,8 +1296,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n        return `TE varsler etter',
-        "      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n        throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');\n      if (false)\n        return `TE varsler etter",
+        '      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n        return `Totalentreprenøren varsler etter',
+        "      if (dato === undefined && nytt.utsagn.length === 1 && !nytt.krav.length && !nytt.svar.length)\n        throw new KanIkkeUttrykkes('et varsel i et brev fra appen har datoen det ble sendt');\n      if (false)\n        return `Totalentreprenøren varsler etter",
       ],
     ],
     mal: ['med teksten i VS-U15', 'F-VS-U15a'],
@@ -1299,8 +1308,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'at TE vil kreve ${VIL_KREVE[hjemmel]} som følge av forholdet i ${sak}.`',
-        'at TE vil kreve ${VIL_KREVE[hjemmel]}.`',
+        'at totalentreprenøren vil kreve ${VIL_KREVE[hjemmel]} som følge av forholdet i ${sak}.`',
+        'at totalentreprenøren vil kreve ${VIL_KREVE[hjemmel]}.`',
       ],
     ],
     mal: ['med teksten i VS-U15', 'med teksten i LV-U19'],
@@ -2030,6 +2039,16 @@ const MUTASJONER: Mutasjon[] = [
       ['i_tide: v.grunnlag_varslet_i_tide,', 'i_tide: v.hovedkrav_varslet_i_tide,'],
     ],
     mal: ['påberoper «for sent» etter § 32.2 etter «i tide», godtas og leses som påberopelse'],
+    // Svaret på forholdet har ikke feltet for § 34.1.2, så mutasjonen fjerner påberopelsen etter
+    // § 32.2. Brukerforløpene og regelendringen bygger på den: uten den er forholdet avklart.
+    forutsetninger: [
+      {
+        test: 'brukerforløpene',
+        melding: 'BF-02A etter steg 2 [MM-U52, VS-U43]: standpunkt.S-g1.rettidighet.iTide er null',
+      },
+      { test: 'brukerforløpene', melding: 'steg 3 (aksept) avvist: ENIGHET_I_SPORET' },
+      { test: 'regelendringen', melding: 'aksept ble avvist: ENIGHET_I_SPORET' },
+    ],
   },
   {
     id: 'F267',
@@ -5396,6 +5415,11 @@ function suitefeilene(rapport: Rapport): Suitefeil[] {
   ];
 }
 
+/** Elementene som ikke oppfyller `godtatt`, og de som gjør det. */
+function delEtter<T>(liste: T[], godtatt: (x: T) => boolean): [T[], T[]] {
+  return [liste.filter((x) => !godtatt(x)), liste.filter(godtatt)];
+}
+
 const suitenavn = (f: Suitefeil, k: Arbeidskopi) =>
   `${relative(k.rot, f.fil)}${f.suite ? ` > ${f.suite}` : ''}`;
 
@@ -5409,15 +5433,25 @@ interface Utfall {
   linjer: string[];
 }
 
+/** Om feilen er en av forutsetningene `m` oppgir (#1859). */
+const iForutsetningene = (m: Mutasjon, navn: string, melding: string) =>
+  (m.forutsetninger ?? []).some((f) => treffer(navn, f.test) && melding.includes(f.melding));
+
 function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): Utfall {
   const tester = rapport.testResults.flatMap((f) => f.assertionResults);
   const feilet = tester.filter((t) => t.status === 'failed');
-  const suitefeil = suitefeilene(rapport);
-  const ikkeAssertion = feilet.filter(
-    (t) => !t.failureMessages.join('\n').includes('AssertionError')
+  const [suitefeil, godtattSuite] = delEtter(suitefeilene(rapport), (f) =>
+    iForutsetningene(m, suitenavn(f, k), f.melding)
+  );
+  const [ikkeAssertion, godtattTest] = delEtter(
+    feilet.filter((t) => !t.failureMessages.join('\n').includes('AssertionError')),
+    (t) => iForutsetningene(m, t.fullName, t.failureMessages.join('\n'))
   );
   const manglerMal = m.mal.filter(
-    (mal) => !feilet.some((t) => treffer(t.fullName, mal) && !ikkeAssertion.includes(t))
+    (mal) =>
+      !feilet.some(
+        (t) => treffer(t.fullName, mal) && !ikkeAssertion.includes(t) && !godtattTest.includes(t)
+      )
   );
   const oppdaget = !suitefeil.length && !ikkeAssertion.length && !manglerMal.length;
   // #1133: uavgjort bare når hver feil som ikke er en assertion, er et tidsavbrudd, og hvert mål
@@ -5447,6 +5481,8 @@ function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): Utfall {
         (t) =>
           `  ${TIDSAVBRUDD.test(t.failureMessages.join('\n')) ? 'tidsavbrudd' : 'ikke en assertion'}: ${t.fullName}`
       ),
+      ...godtattSuite.map((f) => `  forutsetning (oppgitt): ${suitenavn(f, k)}`),
+      ...godtattTest.map((t) => `  forutsetning (oppgitt): ${t.fullName}`),
       ...manglerMal.flatMap((mal) => [
         `  målet feilet ikke på en assertion: ${mal}`,
         ...tester

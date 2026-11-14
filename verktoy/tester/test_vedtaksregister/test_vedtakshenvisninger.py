@@ -65,6 +65,35 @@ def test_mm_u9_gjoer_mm_u4_til_mm_u6_opphevet(register):
     assert {"MM-U4", "MM-U9", "B-13", "B-17"} <= kjente
 
 
+def test_gr_u7_gjoer_gr_u6_opphevet(register):
+    # Forventningen er Følge hos GR-U6: «Erstattet 2026-10-08 av GR-U7». Forholdet stod bare
+    # i teksten, så vakten slapp GR-U6 gjennom i BF-44 (#1913).
+    _, opphevet = vh.vedtak(register)
+    assert opphevet["GR-U6"] == {"GR-U7"}
+
+
+def test_et_vedtak_foelge_sier_er_erstattet_eller_opphevet_har_posten_som_opphever_det(
+    register,
+):
+    # Vakten leser bare forholdet `opphever`. Står erstatningen bare i Følge, slipper en
+    # henvisning til det gamle vedtaket gjennom (#1913).
+    merket = re.compile(
+        r"^\*\*(?:Erstattet|Opphevet)[^*]*? av \[[^\]]+\]\(#([^)]+)\)", re.M
+    )
+    oppheverne = collections.defaultdict(set)
+    for p in vr.poster(register):
+        for f in p.get("forhold", []):
+            if f["art"] == "opphever":
+                oppheverne[f["vedtak"]].add(vr.anker(p))
+    mangler = [
+        (vr.anker(p), av)
+        for p in vr.poster(register)
+        for av in merket.findall(p.get("folge") or "")
+        if av not in oppheverne[vr.anker(p)]
+    ]
+    assert mangler == []
+
+
 def test_et_opphevet_vedtak_med_anker_som_ikke_er_id_en_gjelder_b_id_en():
     register = {
         "gruppe": [

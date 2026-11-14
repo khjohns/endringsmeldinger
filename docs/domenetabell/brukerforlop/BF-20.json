@@ -244,7 +244,12 @@
     "KA-U77",
     "KA-U78",
     "KA-U79",
-    "GFK-U24"
+    "GFK-U24",
+    "GR-U38",
+    "GR-U39",
+    "GFK-U27",
+    "GFK-U28",
+    "EO-U41"
   ],
   "venter_paa": [
     "#1427"
@@ -296,6 +301,16 @@
       "dato": "2026-11-13",
       "forhold": "#1745",
       "hva": "G-2, D-7, D-8, U-2, steg 5, S-2 og P-2 viser til KA-U79 og GFK-U24."
+    },
+    {
+      "dato": "2026-11-14",
+      "forhold": "#1745",
+      "hva": "U-2 viser til GR-U38 og GR-U39. U-15 er ny etter svar 4 A 14.11: hva utregningen i byggherrens svar viser."
+    },
+    {
+      "dato": "2026-11-14",
+      "forhold": "#1745",
+      "hva": "U-15 nevner også en sak der dagene bare er godkjent subsidiært (svar 1 A i sporsmal-2.md). Kildene har GFK-U27, GFK-U28 og EO-U41."
     }
   ]
 }

@@ -70,6 +70,27 @@
     ><span aria-hidden="true">·</span> {FORHOLDET.utenFastBeloep(n)}</span
   >{/snippet}
 
+<!-- KA-U74: dagene står per frist og legges ikke sammen. -->
+{#snippet perFrist(
+  frister: { betegnelse: string; dager: { tall: number; lag: string | null }[] }[]
+)}
+  <ul class="frister">
+    {#each frister as f, i (i)}
+      <li>
+        <span class="frist">{f.betegnelse}</span>
+        {#if f.dager.length}<span class="verdi"
+            >{#each f.dager as p, j (j)}{#if j}<span aria-hidden="true"> · </span><span
+                  class="visually-hidden"
+                  >,
+                </span>{/if}<span class="num">{dager(p.tall)}</span>{#if p.lag}&nbsp;<span
+                  class="lag">{p.lag}</span
+                >{/if}{/each}</span
+          >{:else}<span class="dempet">{FORHOLDET.ikkeISvaret}</span>{/if}
+      </li>
+    {/each}
+  </ul>
+{/snippet}
+
 <section class="kort" aria-labelledby={`${uid}-tittel`}>
   <header class="hode">
     <h2 id={`${uid}-tittel`}>{FORHOLDET.tilknyttede}</h2>
@@ -97,7 +118,12 @@
                 <div>
                   <dt>{FORHOLDET.krevd}</dt>
                   <dd>
-                    {#if k.krevd.tall !== null}<span class="verdi"
+                    {#if k.frister.length}{@render perFrist(
+                        k.frister.map((f) => ({
+                          betegnelse: f.betegnelse,
+                          dager: [{ tall: f.krevd, lag: null }],
+                        }))
+                      )}{:else if k.krevd.tall !== null}<span class="verdi"
                         ><span class="num">{tall(k.spor, k.krevd.tall)}</span
                         >{#if k.krevd.utenFast}{@render utenFast(k.krevd.utenFast)}{/if}</span
                       >{:else if k.spor === 'vederlag'}{FORHOLDET.ingenFastBeloep}{/if}
@@ -109,8 +135,12 @@
                 <dt>{FORHOLDET.byggherren}</dt>
                 <dd>
                   {#if k.svaret}
-                    {#if k.svaret.poster.length}<span class="verdi"
-                        >{#each k.svaret.poster as p, i (i)}{#if i}{/if}<span class="num"
+                    {#if k.frister.length}{@render perFrist(
+                        k.frister.map((f) => ({ betegnelse: f.betegnelse, dager: f.svaret }))
+                      )}{:else if k.svaret.poster.length}<span class="verdi"
+                        >{#each k.svaret.poster as p, i (i)}{#if i}<span aria-hidden="true">
+                              ·
+                            </span><span class="visually-hidden">, </span>{/if}<span class="num"
                             >{tall(k.spor, p.tall)}</span
                           >{#if p.lag}&nbsp;<span class="lag">{p.lag}</span
                             >{/if}{/each}{#if k.svaret.utenFast}{@render utenFast(
@@ -174,13 +204,13 @@
     border-radius: 50%;
     background: var(--surface);
   }
-  ul {
+  .tre > ul {
     list-style: none;
     margin: 0 0 0 7px;
     padding: 0;
     border-left: 1px solid var(--rule-strong-color);
   }
-  li {
+  .tre > ul > li {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -188,11 +218,11 @@
     margin-left: var(--spacing-4);
     padding: var(--spacing-4) 0;
   }
-  li + li {
+  .tre > ul > li + li {
     border-top: var(--rule-subtle);
   }
   /* Grenen fra treet til kravet. */
-  li::before {
+  .tre > ul > li::before {
     content: '';
     position: absolute;
     left: calc(-1 * var(--spacing-4));
@@ -239,6 +269,25 @@
     align-items: baseline;
     gap: var(--spacing-1) var(--spacing-3);
   }
+  /* Dagene står i én kolonne, så fristene kan sammenlignes. */
+  .frister {
+    flex-basis: 100%;
+    display: grid;
+    grid-template-columns: minmax(min-content, max-content) auto;
+    gap: var(--spacing-1) var(--spacing-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .frister li {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-items: baseline;
+  }
+  .frist {
+    color: var(--ink);
+  }
   .num {
     font-size: 16px;
     font-variant-numeric: tabular-nums;
@@ -262,6 +311,9 @@
     color: var(--ink-2);
   }
   @media (max-width: 560px) {
+    .tall {
+      gap: var(--spacing-3);
+    }
     .tall div {
       grid-template-columns: 1fr;
       gap: 0;

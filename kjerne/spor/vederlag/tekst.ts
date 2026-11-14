@@ -10,6 +10,7 @@ import {
   eksMva,
   gitt,
   KanIkkeUttrykkes,
+  kravetErstatter,
   kravpostenI,
   opplistet,
   PRODUKTIVITET,
@@ -156,9 +157,7 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
     punkter.push({
       punkt: 'innledning',
       overskrift: null,
-      avsnitt: [
-        `Kravet erstatter totalentreprenørens krav i ${j.brevet(j.krav(k.erstatter).dokument)}.`,
-      ],
+      avsnitt: [kravetErstatter(k.erstatter, j)],
     });
   // VS-U3, OV-U15: varselet etter § 34.1.2 nevnes der varslingsplikten gjelder forholdet.
   if (hjemmelenGjelder('34.1.2', saken.paaberopelse, regler))
@@ -231,7 +230,7 @@ function kravetsBeloep(krav: Krav): string {
     return krevd === null ? [] : [`${eksMva(tilTall(krevd))} i ${p.betegnelse}`];
   });
   const post = krevdProduktivitet(krav);
-  if (post !== null) deler.push(`${eksMva(tilTall(post))} etter NS 8407 § 34.1.3 annet ledd`);
+  if (post !== null) deler.push(`${eksMva(tilTall(post))} etter NS 8407 punkt 34.1.3 annet ledd`);
   const rigg = krevdRigg(krav);
   if (rigg !== null) deler.push(`${eksMva(tilTall(rigg))} for rigg og drift`);
   return deler.length ? deler.join(' og ') : 'uten krevd beløp';

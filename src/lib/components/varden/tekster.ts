@@ -38,8 +38,8 @@ const KRAVET: Record<Spor, string> = {
 };
 
 /**
- * Tittelen som ble frosset med brevet, med sakens kode (LV-U27, MM-U3 (opphevet av MM-U50)). Et registrert brev har
- * ingen, og får etiketten «Korrespondanse» (MM-U17 (opphevet av MM-U50)).
+ * Tittelen som ble frosset med brevet, med sakens kode (LV-U27; frosset etter LV-U2 og LV-U25,
+ * med MM-U9). Et registrert brev har ingen, og får etiketten «Korrespondanse».
  */
 export const brevtittel = (b: { art?: Brevet['art']; brevtittel: string | null }) =>
   b.brevtittel ?? (b.art === 'registrert' ? 'Korrespondanse' : 'Brev');
@@ -678,6 +678,8 @@ export const FORHOLDET = {
   krevd: 'Krevd',
   byggherren: 'Byggherren',
   ikkeSvart: 'Svar ikke registrert',
+  /** En frist byggherrens svar ikke har dager for (KA-U74). */
+  ikkeISvaret: 'Ikke i svaret',
   forholdsrot: (navn: string, svar: { resultat: string; brev: Brevref } | null) =>
     svar ? `${navn} · ${svar.resultat} i ${brevref(svar.brev)}` : navn,
   resultat: {
