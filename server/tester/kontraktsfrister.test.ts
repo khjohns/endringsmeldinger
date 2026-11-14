@@ -32,6 +32,7 @@ import { iTransaksjon, settInn } from './sqlserver_migrert.ts';
 import {
   kall,
   lagOppsett,
+  opprettKjernesak,
   rydd,
   startServer,
   TESTBASE_URL,
@@ -377,6 +378,17 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
       const svar = await svaret(o.utenTeam);
       expect(svar.status).toBe(403);
       expect(svar.kropp.error).toBe('CONTRACT_ROLE_REQUIRED');
+    });
+
+    // Til slutt, fordi saken gjør datoen ukjent for testene over.
+    it('MM-U2: en sak kjernen ikke har skrevet, gjør datoen ukjent og nevnes', async () => {
+      const ukjent = await opprettKjernesak(o, o.prosjekt, null);
+      const svar = await svaret(o.te);
+      expect(svar.status, JSON.stringify(svar.kropp)).toBe(200);
+      expect(svar.kropp.saker_ikke_forstaatt).toEqual([{ sak_id: ukjent, sakskode: null }]);
+      expect(
+        (svar.kropp.frister as Record<string, unknown>[]).map((f) => f.dato_etter_forlengelsene)
+      ).toEqual([null, null, null]);
     });
   });
 });

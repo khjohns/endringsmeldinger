@@ -446,12 +446,20 @@ FEILINNFOERINGER = [
      "server/forlengelser.ts",
      "  ikkeForstaatt.length ? null : fristenEtterForlengelsene", "  false ? null : fristenEtterForlengelsene",
      "MM-U2: en sak kjernen ikke forstår, gjør datoen ukjent for hver frist"),
+    ("S118", "en sak kjernen ikke har skrevet, utledes som en kjernesak (MM-U2, #1928)",
+     "server/forlengelser.ts",
+     "const u = skrevetAvKjernen(sak.journal) ? utledJournal(sak.journal, kjerne) : null;",
+     "const u = utledJournal(sak.journal, kjerne);",
+     "MM-U2: en sak kjernen ikke har skrevet, gjør datoen ukjent og nevnes"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
 # Slapp den gjennom, ville kontrollerRad i kommandoer.ts avvist raden, fordi
 # basen stempler aktøren fra sesjonen i skrivekonteksten (#750).
-FORVENTET_OVERLEVER = {"S8"}
+# S118 er ekvivalent i dag: kjernen leser journalen med sitt leserformat og gir
+# `forstaatt: false` for en sak den ikke har skrevet, så vakten i serveren er et
+# ekstra vern. Testen fastholder utfallet om en av dem svikter (#1928).
+FORVENTET_OVERLEVER = {"S8", "S118"}
 
 MIGRASJONER = "database/migrasjoner"
 NAVN = r"((?:\[[^\]]+\]|\w+)(?:\.(?:\[[^\]]+\]|\w+))*)"
