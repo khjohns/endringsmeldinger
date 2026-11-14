@@ -86,7 +86,7 @@ export interface Svarberegning {
    */
   gjaldtEtAnnetVarsel: string[];
   /**
-   * Designdelen i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U55)): TEs opplysning om datoen
+   * Designdelen i samlevedtaket for retting av sendt brev (MM-U55): TEs opplysning om datoen
    * etter VS-U26 som var TEs siste da svaret på grunnlaget ble gitt (`Datoopplysning.id`).
    * `null` i de andre sporene og når TE ikke hadde oppgitt datoen.
    */
@@ -102,7 +102,7 @@ export interface Svarberegning {
 }
 
 /**
- * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U55)): én opplysning fra TE om datoen
+ * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): én opplysning fra TE om datoen
  * etter VS-U26, i grunnlagskravet eller i en korrigering. En ny kravversjon som gjengir TEs
  * siste opplysning, er ikke en ny opplysning.
  */
@@ -240,7 +240,7 @@ export interface Utledning {
   /** VS-U12: TEs påberopelse av byggherrens passivitet etter § 32.3 annet ledd. */
   passivitet: Paaberopelse[];
   /**
-   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U55)): TEs opplysninger om datoen
+   * Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): TEs opplysninger om datoen
    * etter VS-U26, i rekkefølgen i journalen. Den siste med et felt er TEs siste opplysning om
    * den datoen, og de andre er de tidligere (designdelen). Løsningen avgjør ikke hvilken som er
    * riktig (punkt 11).
@@ -1143,7 +1143,7 @@ function svarberegninger(
 }
 
 /**
- * Designdelen i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U55)): opplysningen om datoen som var
+ * Designdelen i samlevedtaket for retting av sendt brev (MM-U55): opplysningen om datoen som var
  * TEs siste da svaret på grunnlaget ble gitt.
  */
 function settDatoopplysningene(

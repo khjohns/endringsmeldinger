@@ -424,7 +424,7 @@ function dokument(
       return { utsagn };
     }
     case 'korrigering': {
-      // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U55)): datoen i feltet kravet har.
+      // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): datoen i feltet kravet har.
       const { felt, dato } = korrigertDato(k);
       const id = nyId();
       // MM-U53: TEs forklaring følger som utdypningen.

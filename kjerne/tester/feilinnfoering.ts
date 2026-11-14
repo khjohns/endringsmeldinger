@@ -19,7 +19,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U41 (opphevet av MM-U55) punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F475 en ny versjon av påberopelsen og endringsordren som står (LV-U56, MM-U55 punkt 14, #1615), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775), og F575–F576 rekkefølgen på hjemlene i rettidigheten i svaret på fristen (VS-U24, #1783), og F577 innsigelsen hvert «i tide» i fristen gir opp (VS-U20, #1783). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U55 punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F475 en ny versjon av påberopelsen og endringsordren som står (LV-U56, GR-U40 punkt 7, #1615), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775), og F575–F576 rekkefølgen på hjemlene i rettidigheten i svaret på fristen (VS-U24, #1783), og F577 innsigelsen hvert «i tide» i fristen gir opp (VS-U20, #1783). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
@@ -3804,7 +3804,7 @@ const MUTASJONER: Mutasjon[] = [
   },
 
   // #1308: TEs korrigering av datoen etter punkt 10 og 11 i samlevedtaket for retting av sendt
-  // brev (MM-U41 (opphevet av MM-U55)), i en lukket sak (MM-U51), og den nye grunnlagsversjonen (LV-U56).
+  // brev (MM-U55), i en lukket sak (MM-U51), og den nye grunnlagsversjonen (LV-U56).
   {
     id: 'F456',
     feilklasse:
@@ -3831,7 +3831,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F458',
-    feilklasse: 'en ny grunnlagsversjon kan endre datoen (MM-U41 (opphevet av MM-U55) punkt 10)',
+    feilklasse: 'en ny grunnlagsversjon kan endre datoen (MM-U55 punkt 10)',
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
@@ -3855,8 +3855,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F460',
-    feilklasse:
-      'korrigeringen viser ikke til brevet med opplysningen (MM-U41 (opphevet av MM-U55) punkt 10, LV-U53)',
+    feilklasse: 'korrigeringen viser ikke til brevet med opplysningen (MM-U55 punkt 10, LV-U53)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
@@ -3869,7 +3868,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F462',
     feilklasse:
-      'svaret leses som om det gjaldt TEs senere opplysning (MM-U41 (opphevet av MM-U55) designdelen og punkt 11)',
+      'svaret leses som om det gjaldt TEs senere opplysning (MM-U55 designdelen og punkt 11)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['versjonen(o.id) < versjonen(b.svar.id)', 'versjonen(o.id) > 0']],
     mal: ['den nye opplysningen gjelder straks', 'F-MM-KORR1', 'F-MM-KORR2'],
@@ -3877,7 +3876,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F463',
     feilklasse:
-      'korrigeringen i underkategorien endringsordre avvises ikke som en kategori uten dato (MM-U41 (opphevet av MM-U55) punkt 10)',
+      'korrigeringen i underkategorien endringsordre avvises ikke som en kategori uten dato (MM-U55 punkt 10)',
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [["      'INGEN_DATO_I_KATEGORIEN',", "      'UGYLDIG_KORRIGERING',"]],
     mal: ['korrigeringen avvises i underkategorien endringsordre', 'F-MM-KORR4'],
@@ -3885,7 +3884,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F464',
     feilklasse:
-      'en ny kravversjon som gjengir datoen, leses som en ny opplysning (MM-U41 (opphevet av MM-U55) punkt 10)',
+      'en ny kravversjon som gjengir datoen, leses som en ny opplysning (MM-U55 punkt 10)',
     fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
@@ -3947,10 +3946,10 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['avslag og påberopt preklusjon etter § 32.2 opptar første og andre lag, posten tredje'],
   },
 
-  // #1615: en ny versjon av påberopelsen (LV-U56) og endringsordren som står (MM-U55 punkt 14).
+  // #1615: en ny versjon av påberopelsen (LV-U56) og endringsordren som står (GR-U40 punkt 7).
   {
     id: 'F470',
-    feilklasse: 'en ny påberopelsesversjon kan endre endringsordren (MM-U55 punkt 14)',
+    feilklasse: 'en ny påberopelsesversjon kan endre endringsordren (GR-U40 punkt 7)',
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       ['  if (tekst(k.innhold.endringsordre) !== forrige.endringsordre)', '  if (false)'],

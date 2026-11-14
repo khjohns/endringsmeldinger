@@ -1112,7 +1112,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'hovedkategori underkategori',
     ['spor/forhold/kommando.ts:kategorisperre'],
   ],
-  // MM-U55 punkt 14: endringsordren i underkategorien endringsordre står.
+  // GR-U40 punkt 7: endringsordren i underkategorien endringsordre står.
   ['Kommando.innhold', 'utsagn', 'endringsordre', ['spor/forhold/kommando.ts:kategorisperre']],
   // KA-U79, GFK-U23: fristene i fristkravet kontrolleres mot fristtabellen.
   ['Kommando.innhold', 'kommando', 'frister', ['spor/frist/kommando.ts:fristIkkeRegistrert']],
@@ -1569,7 +1569,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/forhold/utledning.ts:opplysningerOmDatoen',
     ],
   ],
-  // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U41 (opphevet av MM-U55)): TEs korrigering av datoen
+  // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55): TEs korrigering av datoen
   // etter VS-U26, og TEs opplysninger om datoen i grunnlagskravet og i korrigeringene. Den
   // siste er TEs siste opplysning; ingen regel vurderer rettidigheten (punkt 11).
   ['Utsagn', 'utsagn', 'felt dato'],
