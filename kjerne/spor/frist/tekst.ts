@@ -19,6 +19,7 @@ import {
 import { standpunktet, virkningen } from '../../frosset/byggeklosser.ts';
 import type { Sporslinje } from '../../frosset/linje.ts';
 import { dager } from '../../frosset/tekst.ts';
+import { Uforstaatt } from '../../format/skjema.ts';
 import { kategori } from '../forhold/format.ts';
 import { betegnelsen, innholdIFristen, type FristIKravet } from './format.ts';
 import { fristnoekkel } from './utledning.ts';
@@ -30,6 +31,10 @@ function fristenI(krav: Krav, gjelder: string): FristIKravet {
   if (!f) throw new KanIkkeUttrykkes(`kravet har ikke fristen ${gjelder}`);
   return f;
 }
+
+/** Dagene byggherren måtte forstå for én frist, med fristens betegnelse (VS-U4). */
+const maatteForstaaForFristen = (krav: Krav, frist: string, antall: number): string =>
+  `${dager(antall)} for frist ${betegnelsen(fristenI(krav, frist))}`;
 
 /** Fristene og dagene i kravet, som brevet omtaler kravet med i trekket (KA-U22). */
 const fristeneMedDager = (krav: Krav): string =>
@@ -198,22 +203,40 @@ export const STANDPUNKTENE_I_FRISTEN = {
     p.iTide
       ? 'byggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (NS 8407 punkt 33.6.1).'
       : `byggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at totalentreprenøren bare har krav på den fristforlengelsen byggherren måtte forstå at totalentreprenøren hadde krav på: ${opplistet(
-          p.maatteForstaa!.map(
-            (m) => `${dager(m.dager)} for frist ${betegnelsen(fristenI(krav, m.frist))}`
-          )
+          p.maatteForstaa!.map((m) => maatteForstaaForFristen(krav, m.frist, m.dager))
         )} (NS 8407 punkt 33.6.1).`,
   dager: (p, krav) => dagerForFristen(p.resultat, fristenI(krav, p.gjelder), p.vurdert),
 } satisfies Standpunktstekster<'hindring' | 'spesifisering' | 'dager'>;
 
+/**
+ * Kravet svaret gjelder, med fristene `frister`. Et fristsvar uten kjent krav, eller med en frist
+ * kravet ikke har, kan ikke leses (MM-U2).
+ */
+function kravetMedFristene(kravet: Krav | null | undefined, frister: string[]): Krav {
+  if (!kravet) throw new Uforstaatt('fristsvaret gjelder et krav som ikke er kjent');
+  const ider = new Set(innholdIFristen(kravet).frister.map((f) => f.id));
+  const ukjent = frister.find((f) => !ider.has(f));
+  if (ukjent !== undefined) throw new Uforstaatt(`kravet har ikke fristen ${ukjent}`);
+  return kravet;
+}
+
 export const LINJEN_I_FRISTEN = {
-  grunner: (svar, paaberopelse) => {
+  grunner: (svar, paaberopelse, kravet) => {
     const spesifisert = standpunktet(svar, 'spesifisering');
-    const maatteForstaa = spesifisert?.maatteForstaa;
+    const medDager = spesifisert?.maatteForstaa?.filter((m) => m.dager > 0) ?? [];
+    const krav = () =>
+      kravetMedFristene(
+        kravet,
+        medDager.map((m) => m.frist)
+      );
     return {
       // KA-U81: som brevteksten nevner linjen begge vilkårene.
       hindring: `avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ ${hindringenEtter(paaberopelse)})`,
-      spesifisering: maatteForstaa?.some((m) => m.dager > 0)
-        ? `godkjent med ${maatteForstaa.map((m) => dager(m.dager)).join(', ')} (§ 33.6.1)`
+      // Bare fristene med dager, med fristens betegnelse som i brevteksten (#1931).
+      spesifisering: medDager.length
+        ? `godkjent med ${opplistet(
+            medDager.map((m) => maatteForstaaForFristen(krav(), m.frist, m.dager))
+          )} (§ 33.6.1)`
         : 'avslått (§ 33.6.1)',
     };
   },

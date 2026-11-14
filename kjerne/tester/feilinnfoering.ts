@@ -5158,6 +5158,31 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['første lag er null dager når varselet etter § 33.4 kom for sent'],
   },
   {
+    id: 'F598',
+    feilklasse:
+      'linjen for spesifiseringen i fristen nevner ikke fristen dagene byggherren måtte forstå gjelder (#1931, VS-U4)',
+    fil: `${K}/spor/frist/tekst.ts`,
+    endringer: [
+      [
+        '            medDager.map((m) => maatteForstaaForFristen(krav(), m.frist, m.dager))',
+        '            medDager.map((m) => dager(m.dager))',
+      ],
+    ],
+    mal: ['med to frister nevner linjen fristen', 'linjen skriver «1 dag» for én dag'],
+  },
+  {
+    id: 'F599',
+    feilklasse: 'linjen for spesifiseringen i fristen tar med en frist med 0 dager (#1931)',
+    fil: `${K}/spor/frist/tekst.ts`,
+    endringer: [
+      [
+        '    const medDager = spesifisert?.maatteForstaa?.filter((m) => m.dager > 0) ?? [];',
+        '    const medDager = spesifisert?.maatteForstaa?.filter((m) => m.dager >= 0) ?? [];',
+      ],
+    ],
+    mal: ['med to frister nevner linjen fristen'],
+  },
+  {
     id: 'F594',
     feilklasse: 'et trukket fristkrav forlenger fristen (GFK-U26, KA-U6)',
     fil: `${K}/spor/frist/utledning.ts`,
