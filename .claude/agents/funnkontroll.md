@@ -49,7 +49,9 @@ Noter i tillegg, uten at det endrer dommen:
 
 - at issuet er lukket uten at funnet er rettet;
 - at et oppfølgingsissue mangler etiketten `review-oppfølging` eller sjekklisten;
-- at et krav er ført i et issue som ikke bygger den delen kravet gjelder.
+- at et krav er ført i et issue som ikke bygger den delen kravet gjelder;
+- at funnet bare står i en overlevering eller en omtale av PR-en, ikke som et krav
+  eller et punkt. Overleveringen er ikke noe utfall.
 
 Rapporter på norsk bokmål, én tabell for alle radene:
 

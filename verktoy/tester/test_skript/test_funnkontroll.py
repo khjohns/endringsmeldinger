@@ -117,6 +117,10 @@ def _bytt_utfall(utfall: str) -> str:
             "finnes ikke",
         ),
         ("", "utfallet mangler"),
+        (
+            "Spørsmål: ført i overleveringen i #1905",
+            "overleveringen er ikke noe utfall",
+        ),
     ],
 )
 def test_utfall_stoppregelen_ikke_tillater_avvises(tmp_path, utfall, melding):

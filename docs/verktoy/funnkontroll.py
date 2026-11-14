@@ -15,7 +15,8 @@ Utfallene skriptet godtar, er de stoppregelen for funn i leveranseskillen
 - spørsmål, når «Åpne spørsmål» i beskrivelsen har innhold, eller når utfallet
   sier at oppdragsgiver har svart, med datoen.
 
-En rad som begynner med «Ingen funn», er ikke et funn. En henvisning til PR-en
+En rad som begynner med «Ingen funn», er ikke et funn. Overleveringen er ikke noe
+utfall. En henvisning til PR-en
 selv, eller til et issue PR-en lukker, er ingen føring. En rad i avvikstabellen
 (brukerforlop, «Sammenligne en bygget visning») holder med et issue eller en
 godkjenning fra oppdragsgiver med dato, unntatt «Ikke et designavvik».
@@ -433,6 +434,15 @@ def _kontroller_funnrad(
         begrunnelse = re.sub(r"^avvist[\s:.,;—–-]*", "", liten).strip(" *_")
         if not begrunnelse:
             resultat.feil.append(_rad_feil(rad, "«avvist» uten begrunnelse"))
+        return
+
+    if "overlevering" in liten:
+        resultat.feil.append(
+            _rad_feil(
+                rad,
+                "overleveringen er ikke noe utfall; før funnet som krav eller i et issue",
+            )
+        )
         return
 
     godkjent = False
