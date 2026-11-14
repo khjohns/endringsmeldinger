@@ -70,6 +70,23 @@
     ><span aria-hidden="true">·</span> {FORHOLDET.utenFastBeloep(n)}</span
   >{/snippet}
 
+<!-- KA-U74: dagene står per frist og legges ikke sammen. -->
+{#snippet perFrist(
+  frister: { betegnelse: string; dager: { tall: number; lag: string | null }[] }[]
+)}
+  <ul class="frister">
+    {#each frister as f, i (i)}
+      <li>
+        <span class="frist">{f.betegnelse}</span>
+        {#if f.dager.length}<span class="verdi"
+            >{#each f.dager as p, j (j)}<span class="num">{dager(p.tall)}</span
+              >{#if p.lag}&nbsp;<span class="lag">{p.lag}</span>{/if}{/each}</span
+          >{:else}<span class="dempet">{FORHOLDET.ikkeSvart}</span>{/if}
+      </li>
+    {/each}
+  </ul>
+{/snippet}
+
 <section class="kort" aria-labelledby={`${uid}-tittel`}>
   <header class="hode">
     <h2 id={`${uid}-tittel`}>{FORHOLDET.tilknyttede}</h2>
@@ -97,7 +114,12 @@
                 <div>
                   <dt>{FORHOLDET.krevd}</dt>
                   <dd>
-                    {#if k.krevd.tall !== null}<span class="verdi"
+                    {#if k.frister.length}{@render perFrist(
+                        k.frister.map((f) => ({
+                          betegnelse: f.betegnelse,
+                          dager: [{ tall: f.krevd, lag: null }],
+                        }))
+                      )}{:else if k.krevd.tall !== null}<span class="verdi"
                         ><span class="num">{tall(k.spor, k.krevd.tall)}</span
                         >{#if k.krevd.utenFast}{@render utenFast(k.krevd.utenFast)}{/if}</span
                       >{:else if k.spor === 'vederlag'}{FORHOLDET.ingenFastBeloep}{/if}
@@ -109,7 +131,9 @@
                 <dt>{FORHOLDET.byggherren}</dt>
                 <dd>
                   {#if k.svaret}
-                    {#if k.svaret.poster.length}<span class="verdi"
+                    {#if k.frister.length}{@render perFrist(
+                        k.frister.map((f) => ({ betegnelse: f.betegnelse, dager: f.svaret }))
+                      )}{:else if k.svaret.poster.length}<span class="verdi"
                         >{#each k.svaret.poster as p, i (i)}{#if i}{/if}<span class="num"
                             >{tall(k.spor, p.tall)}</span
                           >{#if p.lag}&nbsp;<span class="lag">{p.lag}</span
@@ -238,6 +262,32 @@
     flex-wrap: wrap;
     align-items: baseline;
     gap: var(--spacing-1) var(--spacing-3);
+  }
+  .frister {
+    flex-basis: 100%;
+    display: grid;
+    gap: var(--spacing-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: 0;
+  }
+  .frister li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--spacing-3);
+    margin: 0;
+    padding: 0;
+  }
+  .frister li::before {
+    content: none;
+  }
+  .frister li + li {
+    border-top: 0;
+  }
+  .frist {
+    min-width: 0;
   }
   .num {
     font-size: 16px;
