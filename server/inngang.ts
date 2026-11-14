@@ -81,7 +81,7 @@ const lagretUtenSvar = (): Svar => [
 /**
  * Logger en feil serveren ikke kan svare på annet enn generelt: stedet,
  * feilklassen, feilnummeret fra basen og kallstakken, uten meldingen. Meldingen
- * kan bære et token, et navn eller et svar fra Catenda (AGENTS.md, #867 punkt 5).
+ * kan bære et token, et navn eller et svar fra Catenda (CLAUDE.md, #867 punkt 5).
  */
 export function loggFeil(hvor: string, feil: unknown, nivaa: 'error' | 'warn' = 'error'): void {
   const klasse = (feil as Error)?.constructor?.name ?? typeof feil;

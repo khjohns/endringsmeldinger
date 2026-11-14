@@ -2,7 +2,7 @@
  * `koe_drift.koble_catenda_identitet` mot testbasen (#1002). Kildene er
  * avgjørelsen 20.10 i #1002 («Driftsprosedyre før #310»: driften kobler
  * Catenda-identiteten til brukeren HR-synkroniseringen laget, før personen
- * skriver noe) og sikkerhetsinvariantene i AGENTS.md (én `aktor_id` per person,
+ * skriver noe) og sikkerhetsinvariantene i CLAUDE.md (én `aktor_id` per person,
  * en identitet endres ikke, fail-closed). Krever `KOE_SQLSERVER_TILKOBLING`.
  */
 

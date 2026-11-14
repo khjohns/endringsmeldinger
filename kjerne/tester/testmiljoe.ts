@@ -3,7 +3,7 @@
  * før. Et brukerforløp i demoruta får faste ID-er og en testklokke, så en omstart gir
  * samme journal med samme ID-er og tidsstempler (#1330). Faste ID-er og testklokken
  * gjelder bare test- og demomiljøet; serveren setter fortsatt `event_id` og
- * `tidsstempel` selv (AGENTS.md, «Sikkerhetsinvarianter»).
+ * `tidsstempel` selv (CLAUDE.md, «Sikkerhetsinvarianter»).
  */
 
 export type NyId = () => string;

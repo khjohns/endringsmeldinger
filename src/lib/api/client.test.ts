@@ -155,7 +155,7 @@ it('does not let a delayed token response repopulate the cache after it was clea
   expect(tokenRequests).toBe(2);
 });
 
-// Kilde: AGENTS.md, «Språk»: grensesnittet er på bokmål, og en feilmelding sier hva som hindrer (#1151).
+// Kilde: CLAUDE.md, «Språk»: grensesnittet er på bokmål, og en feilmelding sier hva som hindrer (#1151).
 it('et brutt nett gir meldingen på bokmål, ikke den engelske «Network error» (#1151)', async () => {
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
   await expect(apiFetch('/api/saker')).rejects.toMatchObject({ status: 0, message: NETTFEIL });
@@ -169,7 +169,7 @@ it('et brutt nett under hentingen av CSRF-tokenet gir samme melding (#1151)', as
   });
 });
 
-// Kilde: AGENTS.md, «Språk»: grensesnittet er på bokmål, og en feilmelding sier hva som hindrer (#1158).
+// Kilde: CLAUDE.md, «Språk»: grensesnittet er på bokmål, og en feilmelding sier hva som hindrer (#1158).
 it('et svar merket JSON med ugyldig kropp gir meldingen på bokmål, ikke nettleserens SyntaxError (#1158)', async () => {
   const ugyldig = new Response('<html>Bad Gateway</html>', {
     status: 200,

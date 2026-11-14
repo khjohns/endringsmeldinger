@@ -509,7 +509,7 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
 });
 
 describe('vedleggene før saken uten entydig team (#1037)', () => {
-  // Uten team finnes det ikke noe utkast å lese eller skrive (AGENTS.md), så slettingen
+  // Uten team finnes det ikke noe utkast å lese eller skrive (CLAUDE.md), så slettingen
   // svarer 403 før basen spørres; et datalag som kaster, viser at den ikke spørres. For
   // opplastingen avviser `lesFil` uten team før kroppen leses.
   const slett = VEDLEGG_FOER_SAKEN.find((r) => r.metode === 'DELETE')!;

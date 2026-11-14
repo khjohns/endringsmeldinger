@@ -2,7 +2,7 @@
  * Det ruteren og inngangene deler (`inngang.ts`). Forventningen for hodene er
  * #854 punkt 2: kontrollen før sesjonen endres, prøver de samme hodene som
  * ruteren skriver. Forventningen for loggen er policyen i #867 punkt 5: ingen
- * melding, som kan bære et token eller et navn (AGENTS.md).
+ * melding, som kan bære et token eller et navn (CLAUDE.md).
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest';

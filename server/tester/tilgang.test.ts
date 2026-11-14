@@ -1,7 +1,7 @@
 /**
  * Radsikkerheten og rettighetene for kjøretiden (#53, del 2), i en base bygget
  * fra `database/migrasjoner/`, etter mønsteret i prøvens `tilgang.test.ts`.
- * Kildene er sikkerhetsinvariantene i AGENTS.md (prosjektgrensen ved hvert
+ * Kildene er sikkerhetsinvariantene i CLAUDE.md (prosjektgrensen ved hvert
  * lesepunkt, notater fail-closed på team, aktørfeltene fra serveren), DL-U4
  * (teamet i journalen når det er entydig, siden alltid), DL-U5 (radsikkerheten
  * og rettighetene for kjøretiden nå), MS-05 og `NotatRepository.slett`

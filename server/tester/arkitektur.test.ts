@@ -1,7 +1,7 @@
 /**
  * Grensene rundt TS-serveren (B-18, B-17):
  * - Serveren importerer kjernen fra `kjerne/`, ikke kjernens tester og ikke
- *   språkprøven (`sprakprove/` er prøvekode, AGENTS.md) eller frontenden.
+ *   språkprøven (`sprakprove/` er prøvekode, CLAUDE.md) eller frontenden.
  * - Ut over det bruker serveren bare Node. Testene kan i tillegg bruke Vitest.
  * - Ingen fil i `kjerne/`, `server/` eller `sprakprove/`, også `.js`, `.mjs` og
  *   `.cjs`, importerer `pg`, `pg-pool`, `pg-native` eller `postgres`, eller leser

@@ -2845,7 +2845,7 @@ describe('leseren av svaret på det særskilte kravet (OV-U27, OV-U31, MM-U2)', 
     );
   });
 
-  it('et svar uten beløpsstandpunkt sier at standpunktet mangler, ikke at postene ikke summerer (AGENTS.md: feilmeldingen sier hva som hindrer)', () => {
+  it('et svar uten beløpsstandpunkt sier at standpunktet mangler, ikke at postene ikke summerer (CLAUDE.md: feilmeldingen sier hva som hindrer)', () => {
     expect(
       les([
         { id: 'm', art: 'oppgjoersform', gjelder: 'kravpost', hjemmel: '34.2.2', aksepterer: true },

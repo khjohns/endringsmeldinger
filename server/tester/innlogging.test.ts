@@ -6,7 +6,7 @@
  * `backend/lib/auth/domain.py` og `/api/csrf-token` i
  * `backend/routes/utility_routes.py`. Kravene om returstien og feilene står i
  * kommentarene til #659, og kravet om identiteten i sikkerhetsinvariantene i
- * AGENTS.md: samme issuer og normaliserte subjekt, og ingen sesjon når
+ * CLAUDE.md: samme issuer og normaliserte subjekt, og ingen sesjon når
  * identiteten ikke kan avgjøres.
  *
  * Medlemskapet ved innlogging (F0b-5b, #638) følger `AuthService.login`: listen

@@ -11,7 +11,7 @@
  * - `require_contract_role` og `contract_membership`: én entydig side, ellers 403;
  * - #53, kommentar 6212192068: teamet er et kontraktsteam på avsenderens side, og
  *   `null` når avsenderen er med i flere av dem;
- * - sikkerhetsinvariantene i AGENTS.md: ingen defaultverdi for prosjektet, og en
+ * - sikkerhetsinvariantene i CLAUDE.md: ingen defaultverdi for prosjektet, og en
  *   `X-Project-ID` som basen ville tolket som et annet prosjekt (52043), nektes.
  * Krever `KOE_SQLSERVER_TILKOBLING`.
  */

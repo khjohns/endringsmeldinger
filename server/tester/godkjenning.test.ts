@@ -1,7 +1,7 @@
 /**
  * Kjeden fra hierarkiet og godkjenningspakkene (S-1a, #818, og S-1c, #831) mot en base
  * bygget fra migrasjonene. Forventningene har kilde i:
- * - invarianten om utkast i AGENTS.md: pakken finnes bare for teamet som laget den,
+ * - invarianten om utkast i CLAUDE.md: pakken finnes bare for teamet som laget den,
  *   og uten entydig team finnes den ikke;
  * - GFK-U9: godkjenneren i kjeden når saken og pakken mens pakken er åpen, også uten
  *   medlemskap og team; etterpå bare sin egen handling; ingen interne notater;
