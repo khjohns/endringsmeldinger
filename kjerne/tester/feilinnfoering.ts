@@ -806,7 +806,10 @@ const MUTASJONER: Mutasjon[] = [
       'en hendelse som endrer utfallet etter at saken er lukket, leses med virkning (MM-U43 punkt 6, SK-01, KA-U11)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ["  u.forholdAvvist\n    ? 'TE har godtatt svaret", "  false\n    ? 'TE har godtatt svaret"],
+      [
+        "  u.forholdAvvist\n    ? 'totalentreprenøren har godtatt svaret",
+        "  false\n    ? 'totalentreprenøren har godtatt svaret",
+      ],
     ],
     mal: ['F-MM-U326h'],
   },
@@ -5013,12 +5016,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F581',
     feilklasse: 'en ny kravversjon kan utelate en frist uten å trekke den (KA-U76)',
     fil: `${K}/spor/frist/utledning.ts`,
-    endringer: [
-      [
-        '  const mangler = [...forrige.values()].filter((p) => !med.has(p.id) && !trukne.has(p.id));',
-        '  const mangler = [...forrige.values()].filter(() => false);',
-      ],
-    ],
+    endringer: [['(id) => med.has(id) || trukket.has(id), betegnelsen', '() => true, betegnelsen']],
     mal: ['F-MM-KA-U76'],
   },
   {

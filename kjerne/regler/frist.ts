@@ -110,10 +110,10 @@ export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
     !mangler(v.foresporsel_svar_ok)
   )
     feil.foresporsel_svar_ok =
-      'kravet svarer ikke på en forespørsel, og byggherren har ikke gjort gjeldende i en egen innsigelse at TEs siste begrunnelse etter § 33.6.2 annet ledd b kom for sent';
+      'kravet svarer ikke på en forespørsel, og byggherren har ikke gjort gjeldende i en egen innsigelse at totalentreprenørens siste begrunnelse etter § 33.6.2 annet ledd b kom for sent';
   if (krav.er_svar_paa_foresporsel && v.spesifisert_krav_ok === false) {
     feil.spesifisert_krav_ok =
-      '§ 33.6.1 kan ikke påberopes når TE har svart på forespørselen (§ 33.6.2 fjerde ledd)';
+      '§ 33.6.1 kan ikke påberopes når totalentreprenøren har svart på forespørselen (§ 33.6.2 fjerde ledd)';
   }
   const dager = v.godkjent_dager;
   if (mangler(dager)) feil.godkjent_dager = 'mangler (§ 33.5)';

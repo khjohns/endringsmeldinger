@@ -8,7 +8,7 @@
  * brevnummer). Den finner ikke på virkningen.
  */
 
-import { liste, opplistet } from '$kjerne/frosset/brevdeler';
+import { liste, opplistet, PARTEN } from '$kjerne/frosset/brevdeler';
 import { dager, kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Betegnelse } from '$kjerne/utledning/visning';
@@ -16,8 +16,6 @@ import type { Kravpost, Oppgjoersform, Part, Spor, Standpunkt } from '$kjerne/ty
 import { OPPGJOERSHJEMMEL } from '$kjerne/spor/vederlag/format';
 import type { Regel } from './kommandoer';
 import type { Brevet, Brevref, OppgittDato, Standpunktet } from './lesing';
-
-export const PARTNAVN: Record<Part, string> = { TE: 'totalentreprenøren', BH: 'byggherren' };
 
 export const SPORNAVN: Record<Spor, string> = {
   forhold: 'Forholdet',
@@ -203,7 +201,7 @@ export function leselinjene(linjer: Standpunktet[], post: Kravpost): string[] {
  */
 export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post?: string): string {
   const forPosten = post ? ` for ${post}` : '';
-  const hvemLiten = du ? 'du' : PARTNAVN.BH;
+  const hvemLiten = du ? 'du' : PARTEN.BH;
   const hvem = `${hvemLiten[0]!.toUpperCase()}${hvemLiten.slice(1)}`;
   switch (s.art) {
     case 'rettidighet':
@@ -666,7 +664,7 @@ const KORRIGERT_I_LUKKET =
 
 export const FORHOLDET = {
   utenNavn: 'Forholdet',
-  registrertTittel: (part: Part) => `Korrespondanse fra ${PARTNAVN[part]}`,
+  registrertTittel: (part: Part) => `Korrespondanse fra ${PARTEN[part]}`,
   tilbake: 'Tilbake til forholdet',
   svarIkkeRegistrert: 'Svar ikke registrert.',
   trukket: (b: Brevref | null) =>
@@ -722,7 +720,7 @@ export const FORHOLDET = {
   begrunnelsen: 'Begrunnelsen',
   forklaringen: 'Forklaringen',
   oppgitt: (hva: 'paalegg_mottatt' | 'klar_over_forholdet', d: string, part: Part) =>
-    `${hva === 'paalegg_mottatt' ? 'Pålegget mottatt' : 'Klar over forholdet'} ${dato(d)}, ifølge ${PARTNAVN[part]}.`,
+    `${hva === 'paalegg_mottatt' ? 'Pålegget mottatt' : 'Klar over forholdet'} ${dato(d)}, ifølge ${PARTEN[part]}.`,
   // Korrigeringen av datoen (BF-02A, MM-U52 punkt 10 og designdelen).
   korriger: 'Korriger datoen',
   korrigerNavn: (hva: 'paalegg_mottatt' | 'klar_over_forholdet') =>
@@ -790,7 +788,7 @@ export const TRAADEN = {
   /** Et eldre krav, fulgt opp av et nytt brev med kravet (U-5 i BF-44). */
   fulgtOpp: (b: Brevref) => ` · fulgt opp i ${brevref(b)}`,
   /** Avsenderen for skjermleseren, som ser ringen uten tekst (oppdragsgiver 13.11). */
-  fra: (part: Part) => ` fra ${PARTNAVN[part]}`,
+  fra: (part: Part) => ` fra ${PARTEN[part]}`,
   les: 'Les brevet',
   lukk: 'Lukk brevet',
   vises: 'Vises til høyre',
@@ -799,7 +797,7 @@ export const TRAADEN = {
   dokumentasjon: 'Dokumentasjon',
   registrert: (part: Part, sendt: string | null, lagtTil: string) =>
     sendt
-      ? `Sendt ${dato(sendt)}, ifølge ${PARTNAVN[part]}. Lagt til ${dato(lagtTil)}.`
+      ? `Sendt ${dato(sendt)}, ifølge ${PARTEN[part]}. Lagt til ${dato(lagtTil)}.`
       : `Lagt til ${dato(lagtTil)}.`,
   vedlegg: (b: Pick<Brevet, 'nummer'>) =>
     b.nummer === null ? 'Vedlegg' : `Vedlegg til brev ${b.nummer}`,
@@ -873,9 +871,9 @@ export const NYVERSJON = {
   brevrad: (b: Brevref & { avsender: Part }) =>
     `${brevrefStor(b)} · ${
       b.art === 'svar'
-        ? `${stor(PARTNAVN[b.avsender])}s svar`
+        ? `${stor(PARTEN[b.avsender])}s svar`
         : b.art === 'krav'
-          ? `${stor(PARTNAVN[b.avsender])}s påberopelse`
+          ? `${stor(PARTEN[b.avsender])}s påberopelse`
           : stor(brevref(b))
     }`,
   utenTekst: 'Teksten i dette brevet står ikke her. Åpne det fra oversikten.',
@@ -936,7 +934,7 @@ export const SAKEN = {
   siste: (b: Brevref, part: Part) =>
     b.nummer === null && b.omtale
       ? `Siste: ${b.omtale}`
-      : `Siste: ${brevref(b)} fra ${PARTNAVN[part]}`,
+      : `Siste: ${brevref(b)} fra ${PARTEN[part]}`,
   /** OV-U86. */
   dokumentasjonIkkeSendt: 'Saken har dokumentasjon som er registrert, men ikke sendt herfra.',
   /** Lenkene som gjelder hele prosjektet, i topplinja (oppdragsgiver 13.11, #1899). */

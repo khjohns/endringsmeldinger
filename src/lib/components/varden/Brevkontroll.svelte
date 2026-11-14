@@ -54,7 +54,8 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import { organisasjonene } from './kontrakt';
-  import { BREVKONTROLL, PARTNAVN } from './tekster';
+  import { BREVKONTROLL } from './tekster';
+  import { PARTEN } from '$kjerne/frosset/brevdeler';
 
   let {
     kjernesak,
@@ -113,7 +114,7 @@
   const avsender = $derived(kjernesak.part as Part);
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
   const hentOrganisasjoner = organisasjonene();
-  const partnavn = (p: Part) => `${hentOrganisasjoner()[p] ?? stor(PARTNAVN[p])} (${p})`;
+  const partnavn = (p: Part) => `${hentOrganisasjoner()[p] ?? stor(PARTEN[p])} (${p})`;
   // Teksten kommandoen bærer, og som serveren sammenligner med sin egen (LV-U2).
   const tekst = $derived(avsnitt.map((a) => a.laast));
   let kontrollert = $state(false);
