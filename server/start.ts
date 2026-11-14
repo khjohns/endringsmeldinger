@@ -111,7 +111,7 @@ try {
 } catch (feil) {
   console.warn(`HR-synkroniseringen er ikke satt opp: ${(feil as Error).message}`);
 }
-// Uten malen har saken ingen lenke til Catenda (U-15 i BF-44).
+// Uten verten har saken ingen lenke til Catenda (U-15 i BF-44).
 let sakslenke: Sakslenke | null = null;
 try {
   sakslenke = sakslenkeFraMiljoe();
