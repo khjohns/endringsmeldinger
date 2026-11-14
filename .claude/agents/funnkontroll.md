@@ -51,7 +51,12 @@ Noter i tillegg, uten at det endrer dommen:
 - at et oppfølgingsissue mangler etiketten `review-oppfølging` eller sjekklisten;
 - at et krav er ført i et issue som ikke bygger den delen kravet gjelder;
 - at funnet bare står i en overlevering eller en omtale av PR-en, ikke som et krav
-  eller et punkt. Overleveringen er ikke noe utfall.
+  eller et punkt. Overleveringen er ikke noe utfall;
+- at funnet etter stoppregelen burde vært avvist i stedet for ført, og hvorfor: en
+  docstring, ytelse uten måling, testkode, verktøy eller dokumentasjon som ikke kan gjøre
+  en test grønn for feil atferd i produktkoden, eller «kan gi feil senere» uten en
+  endring som er planlagt i et issue eller et vedtak. Duplisering og to kilder for samme
+  verdi føres alltid.
 
 Rapporter på norsk bokmål, én tabell for alle radene:
 
@@ -60,5 +65,6 @@ Rapporter på norsk bokmål, én tabell for alle radene:
 
 «Funn» er høyst ti ord fra funnet. «Ført i» er issuet og kommentar-ID-en. «Grunn» er én
 linje: for «ført» hvor det står (punktet eller kommentaren), for «delvis» og «ikke ført»
-hva som mangler. Etter tabellen: antall rader per dom, og merknadene. Gjengi ikke
+hva som mangler. Etter tabellen: antall rader per dom, og merknadene, én linje per
+merknad med PR og linje, så de kan føres i #1958. Gjengi ikke
 issuetekster eller kommentarer, og foreslå ikke rettinger.
