@@ -3749,9 +3749,9 @@ describe('vedleggene ved påberopelsen (VS-U38)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     const rad = s.send('TE', { ...FRISTKRAV, dokumentasjon: [PLAN] });
-    expect((rad.data.dokumentasjon as Data[]).map((v) => v.vedlegg_id)).toEqual([
-      PLAN,
-      VARSELBREVET,
+    expect(rad.data.dokumentasjon).toEqual([
+      expect.objectContaining({ vedlegg_id: PLAN }),
+      expect.objectContaining({ vedlegg_id: VARSELBREVET }),
     ]);
     expect(laast(rad).at(-1)).toBe(`Brevet har vedlegg: «${PLAN}.pdf» og «${VARSELBREVET}.pdf».`);
     expect(s.u().forstaatt).toBe(true);
@@ -3761,7 +3761,7 @@ describe('vedleggene ved påberopelsen (VS-U38)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     const rad = s.send('TE', { ...utenFelt(FRISTKRAV, 'varsel'), dokumentasjon: [PLAN] });
-    expect((rad.data.dokumentasjon as Data[]).map((v) => v.vedlegg_id)).toEqual([PLAN]);
+    expect(rad.data.dokumentasjon).toEqual([expect.objectContaining({ vedlegg_id: PLAN })]);
   });
 
   it('samme vedlegg ved fristkravet og ved varselet avvises i formen', () => {
