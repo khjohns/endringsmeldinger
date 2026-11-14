@@ -143,6 +143,8 @@ export interface LestSak {
   navn: Map<string, string>;
   /** Feilen fra navneoppslaget, når det feilet. */
   navnefeil?: unknown;
+  /** Sakens mål i Catenda med `catenda`; `null` uten aktiv kobling og uten `catenda`. */
+  maal: Leveringsmaal | null;
 }
 
 /**
@@ -150,7 +152,8 @@ export interface LestSak {
  * konteksten. Med `navn` leses navnet bak aktørene etter journalen, i samme
  * transaksjon, så navnene gjelder de samme hendelsene (#835 punkt 2). Navnet er
  * en visningsdetalj: et oppslag som feiler, gir ingen navn og `navnefeil`, og
- * velter ikke lesingen (CLAUDE.md). Transaksjonen rulles da tilbake, også når
+ * velter ikke lesingen (CLAUDE.md). Med `catenda` leses sakens mål i Catenda, som
+ * lenken til saken settes sammen av. Transaksjonen rulles da tilbake, også når
  * basen alt har gjort det med XACT_ABORT, og det som er lest før, gjelder.
  *
  * @throws SakFinnesIkke
@@ -159,14 +162,15 @@ export async function lesSaken(
   pool: Pool,
   kontekst: Kontekst,
   sakId: string,
-  { navn = false } = {}
+  { navn = false, catenda = false } = {}
 ): Promise<LestSak> {
   return transaksjon(pool, kontekst, async (foresp) => {
     const journal = await lesJournal(foresp, sakId, false);
     if (!skrevetAvKjernen(journal))
       throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
     const oppdrag = await lesOppdrag(foresp, sakId, journal.at(-1)!.versjon);
-    const lest = { journal, oppdrag, navn: new Map<string, string>() };
+    const maal = catenda ? await lesMaal(foresp, sakId) : null;
+    const lest = { journal, oppdrag, maal, navn: new Map<string, string>() };
     if (!navn) return lest;
     try {
       return { ...lest, navn: await aktornavn(foresp, sakId) };
@@ -194,10 +198,15 @@ async function aktornavn(foresp: Foresp, sakId: string): Promise<Map<string, str
  * da skrives ikke brevet.
  */
 export async function lesLeveringsmaal(foresp: Foresp, sakId: string): Promise<Leveringsmaal> {
+  const maal = await lesMaal(foresp, sakId);
+  if (!maal) throw new IngenLeveringsmaal(`Saken ${sakId} har ingen aktiv kobling til Catenda.`);
+  return maal;
+}
+
+/** Målet i prosjektet i konteksten, eller `null` uten aktiv kobling. */
+async function lesMaal(foresp: Foresp, sakId: string): Promise<Leveringsmaal | null> {
   const svar = await foresp()
     .input('sak_id', sql.NVarChar(36), sakId)
     .execute<Leveringsmaal>('koe_api.leveringsmaal');
-  if (!svar.recordset[0])
-    throw new IngenLeveringsmaal(`Saken ${sakId} har ingen aktiv kobling til Catenda.`);
-  return svar.recordset[0];
+  return svar.recordset[0] ?? null;
 }

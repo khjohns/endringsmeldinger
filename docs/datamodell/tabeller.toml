@@ -697,7 +697,9 @@ beskrivelse = """
 Sakens topic i Catenda, med boardet. Én rad per sak, som bare kan legges til:
 topicen lages etter at saken er lagret, og saksraden er uforanderlig.
 `koe_api.leveringsmaal` leser den, og leveringsoppdraget fryser topicen, eller
-null uten rad (F0b-7, #661). Samme topic hører ikke til to saker (#741 punkt 17).
+null uten rad (F0b-7, #661). Lesingen av saken leser den med samme prosedyre og
+setter sammen lenken til topicen i Catenda med malen i `CATENDA_SAKSLENKE` (U-15 i
+BF-44, #1906). Samme topic hører ikke til to saker (#741 punkt 17).
 En sak fra en topic i Catenda kobles til topicen i transaksjonen som oppretter
 saken (W-1b.1, #819). Bare kjøreveien, `koe_jobbkjoerer`, kan legge inn en rad."""
 lagres_fra = "`koe_api.kvitter_topic`, kalt av jobbkjøreren i `server/jobber.ts` etter at topicen er laget i Catenda (#741), og `koe_api.koble_topic`, kalt bare fra `koe_api.opprett_sak` når saken opprettes fra en topic i innboksen (W-1b.1, #819)."
