@@ -386,9 +386,9 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
       const svar = await svaret(o.te);
       expect(svar.status, JSON.stringify(svar.kropp)).toBe(200);
       expect(svar.kropp.saker_ikke_forstaatt).toEqual([{ sak_id: ukjent, sakskode: null }]);
-      expect(
-        (svar.kropp.frister as Record<string, unknown>[]).map((f) => f.dato_etter_forlengelsene)
-      ).toEqual([null, null, null]);
+      const frister = svar.kropp.frister as Record<string, unknown>[];
+      expect(frister).toHaveLength(tabellen.frister.length);
+      expect(frister.every((f) => f.dato_etter_forlengelsene === null)).toBe(true);
     });
   });
 });
