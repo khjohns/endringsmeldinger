@@ -10106,7 +10106,7 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     ]);
   });
 
-  it('godtar byggherren ikke lenger justeringen av enhetsprisene i et nytt svar, viser visningen det tidligere svaret og punkt 34.3.3 annet ledd (HF-U29 punkt 8, svar 4 B 14.11 i #502)', () => {
+  it('godtar byggherren ikke lenger justeringen av enhetsprisene i et nytt svar, viser visningen det tidligere svaret og punkt 34.3.3 annet ledd (HF-U29 punkt 8, HF-U33)', () => {
     const s = sakMed(justert);
     s.send('BH', svaret(s, { P2: { aksepterer: true, godtar_justering: true } }));
     const tidligere = gjeldende(s).id;
@@ -11011,10 +11011,18 @@ describe('akseptfristen (HF-U23)', () => {
     expect(s.u().spor.vederlag.gjeldendeSvar!.akseptfrist).toBe('2026-10-09');
   });
 
+  it('svarbrevet meddeler akseptfristen med datoen, sist i svaret (punkt 2, LV-U2, LV-U3, arbeidsvalget 14.11 i #502)', () => {
+    const s = sakMedKrav();
+    const rad = s.send('BH', brev(medFrist(delvis(s), '2026-10-09')));
+    expect(laast(rad).at(-1)).toBe('Akseptfrist: 9. oktober 2026.');
+    expect(tekst(rad).at(-1)?.overskrift, 'linjen har ingen overskrift').toBeUndefined();
+  });
+
   it('et svar uten akseptfrist har ingen (punkt 3)', () => {
     const s = sakMedKrav();
-    s.send('BH', brev(delvis(s)));
+    const rad = s.send('BH', brev(delvis(s)));
     expect(s.u().spor.vederlag.gjeldendeSvar!.akseptfrist).toBeNull();
+    expect(laast(rad).join('\n')).not.toContain('Akseptfrist');
   });
 
   it('et svar som godkjenner dagene bare subsidiært, kan ha en akseptfrist (punkt 1)', () => {
@@ -11122,8 +11130,8 @@ describe('akseptfristen (HF-U23)', () => {
 /**
  * HF-U29 punkt 8: senker byggherren i et nytt svar dager eller beløp byggherren har godkjent,
  * viser visningen det tidligere svaret og, for fristen, punkt 33.7 annet ledd. Svarene 14.11 i
- * #502: samme kravversjon (1 A), hver kravpost og frist mot svaret det erstatter (2 A), og
- * prinsipalt og subsidiært hver for seg (3 A).
+ * HF-U30–HF-U32: samme kravversjon, hver kravpost og frist mot svaret det erstatter, og
+ * prinsipalt og subsidiært hver for seg.
  */
 describe('senkningen i et nytt svar (HF-U29 punkt 8)', () => {
   const revisjon = (s: ReturnType<typeof sakMedKrav>, nytt: Data) => ({
@@ -11150,7 +11158,7 @@ describe('senkningen i et nytt svar (HF-U29 punkt 8)', () => {
   const senkning = (s: ReturnType<typeof sakMedKrav>, spor: 'vederlag' | 'frist') =>
     visning(s.u(), KJERNE.regler).spor[spor].senkning;
 
-  it('et lavere beløp for en kravpost med fast sum viser det tidligere svaret, uten bestemmelse (2 A)', () => {
+  it('et lavere beløp for en kravpost med fast sum viser det tidligere svaret, uten bestemmelse (HF-U31)', () => {
     const s = sakMedKrav();
     s.send('BH', { type: 'brev', svar: [vederlag(s, 100000)] });
     const tidligere = s.u().spor.vederlag.gjeldendeSvar!.id;
@@ -11180,7 +11188,7 @@ describe('senkningen i et nytt svar (HF-U29 punkt 8)', () => {
     });
   });
 
-  it('dager godkjent prinsipalt som nå bare står subsidiært, er senket prinsipalt, ikke subsidiært (3 A)', () => {
+  it('dager godkjent prinsipalt som nå bare står subsidiært, er senket prinsipalt, ikke subsidiært (HF-U32)', () => {
     const s = sakMedKrav();
     s.send('BH', { type: 'brev', svar: [frist(s, 15)] });
     s.send('BH', revisjon(s, frist(s, 15, false)));
@@ -11194,7 +11202,7 @@ describe('senkningen i et nytt svar (HF-U29 punkt 8)', () => {
     ]);
   });
 
-  it('mot svaret det erstatter, ikke det høyeste: 100 000, 60 000 og så 80 000 viser senkningen bare ved det andre (2 A)', () => {
+  it('mot svaret det erstatter, ikke det høyeste: 100 000, 60 000 og så 80 000 viser senkningen bare ved det andre (HF-U31)', () => {
     const s = sakMedKrav();
     s.send('BH', { type: 'brev', svar: [vederlag(s, 100000)] });
     s.send('BH', revisjon(s, vederlag(s, 60000)));
@@ -11203,7 +11211,7 @@ describe('senkningen i et nytt svar (HF-U29 punkt 8)', () => {
     expect(senkning(s, 'vederlag')).toBeNull();
   });
 
-  it('et svar på en ny kravversjon sammenliknes ikke med svaret på den tidligere (1 A)', () => {
+  it('et svar på en ny kravversjon sammenliknes ikke med svaret på den tidligere (HF-U30)', () => {
     const s = sakMedKrav();
     s.send('BH', { type: 'brev', svar: [vederlag(s, 100000)] });
     s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(120000) });

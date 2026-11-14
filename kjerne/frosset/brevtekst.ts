@@ -455,6 +455,14 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
     }
     brevpunkter.push({ punkt: p.punkt, overskrift: p.overskrift, avsnitt });
   }
+  // HF-U23 punkt 2, LV-U2, LV-U3: brevet meddeler akseptfristen med datoen, sist i svaret og uten
+  // å si hva den betyr (punkt 5). Ordlyden og plassen er arbeidsvalget 14.11 i #502.
+  if (s.akseptfrist !== null)
+    brevpunkter.push({
+      punkt: 'akseptfrist',
+      overskrift: null,
+      avsnitt: [`Akseptfrist: ${norskDato(s.akseptfrist)}.`],
+    });
   return brevpunkter;
 }
 
@@ -714,8 +722,8 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
           ? godtar
           : `${godtar} Totalentreprenøren er enig i ${brevtekstI(svar.spor).enigI}, men ikke i byggherrens standpunkt til grunnlaget.`;
       // HF-U23 punkt 7: brevet sier bare at aksepten er sendt etter fristen (punkt 5).
-      return svar.akseptfrist !== null && etterAkseptfristen(svar.akseptfrist, registrertDato(nytt))
-        ? `${aksept} Aksepten er sendt etter akseptfristen ${norskDato(svar.akseptfrist)} i byggherrens svar.`
+      return etterAkseptfristen(svar.akseptfrist, registrertDato(nytt))
+        ? `${aksept} Aksepten er sendt etter akseptfristen ${norskDato(svar.akseptfrist!)} i byggherrens svar.`
         : aksept;
     }
     case 'trekk': {

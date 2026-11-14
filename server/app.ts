@@ -114,6 +114,7 @@ export function lagServer(avh: Avhengigheter) {
     ...avh,
     innlogging: avh.innlogging ?? null,
     webhook: avh.webhook ?? null,
+    sakslenke: avh.sakslenke ?? null,
   };
 
   /**

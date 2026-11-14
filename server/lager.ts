@@ -194,10 +194,27 @@ async function aktornavn(foresp: Foresp, sakId: string): Promise<Map<string, str
  * da skrives ikke brevet.
  */
 export async function lesLeveringsmaal(foresp: Foresp, sakId: string): Promise<Leveringsmaal> {
+  const maal = await lesMaal(foresp, sakId);
+  if (!maal) throw new IngenLeveringsmaal(`Saken ${sakId} har ingen aktiv kobling til Catenda.`);
+  return maal;
+}
+
+/**
+ * Sakens mål i Catenda i prosjektet i konteksten, i en egen lesing, eller `null` uten
+ * aktiv kobling. Lenken til saken settes sammen av det (U-15 i BF-44).
+ */
+export function lesSakensMaal(
+  pool: Pool,
+  kontekst: Kontekst,
+  sakId: string
+): Promise<Leveringsmaal | null> {
+  return transaksjon(pool, kontekst, (foresp) => lesMaal(foresp, sakId));
+}
+
+/** Målet i prosjektet i konteksten, eller `null` uten aktiv kobling. */
+async function lesMaal(foresp: Foresp, sakId: string): Promise<Leveringsmaal | null> {
   const svar = await foresp()
     .input('sak_id', sql.NVarChar(36), sakId)
     .execute<Leveringsmaal>('koe_api.leveringsmaal');
-  if (!svar.recordset[0])
-    throw new IngenLeveringsmaal(`Saken ${sakId} har ingen aktiv kobling til Catenda.`);
-  return svar.recordset[0];
+  return svar.recordset[0] ?? null;
 }

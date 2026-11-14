@@ -20,9 +20,10 @@ import {
   type Kontraktstilgang,
   type Prosjekttilgang,
 } from './autorisasjon.ts';
-import { UsikkertUtfall, UUID } from './datalag.ts';
+import { UsikkertUtfall, UUID, type Kontekst, type Pool } from './datalag.ts';
 import { fast, lagret, loggFeil, ugyldig, feilsvar } from './inngang.ts';
-import { lesSaken, type Leveringsmaal } from './lager.ts';
+import { lesSaken, lesSakensMaal, type Leveringsmaal } from './lager.ts';
+import type { Sakslenke } from './catenda.ts';
 import {
   IngenTopicBoard,
   KommandoIdBrukt,
@@ -170,8 +171,30 @@ async function visSaken(
         opprettet: o.opprettet,
         levert: o.levert,
       })),
+      catenda_lenke: avh.sakslenke
+        ? await catendaLenke(avh.datalag, kontekst, sakId, avh.sakslenke)
+        : null,
     },
   ];
+}
+
+/**
+ * Lenken til saken i Catenda. Den er en visningsdetalj: et oppslag som feiler, gir
+ * ingen lenke og velter ikke lesingen, som navnet (CLAUDE.md).
+ */
+async function catendaLenke(
+  datalag: Pool,
+  kontekst: Kontekst,
+  sakId: string,
+  sakslenke: Sakslenke
+): Promise<string | null> {
+  try {
+    const maal = await lesSakensMaal(datalag, kontekst, sakId);
+    return maal && sakslenke(maal);
+  } catch (feil) {
+    loggFeil(`Oppslaget av lenken til Catenda i saken ${sakId} feilet`, feil, 'warn');
+    return null;
+  }
 }
 
 /**

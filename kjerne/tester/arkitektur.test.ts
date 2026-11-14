@@ -1826,7 +1826,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['format/leser.ts', 'kontekst', 'registrertDato', ['utledning/utled.ts:datoenDetBleSendt']],
   // HF-U23: akseptfristen i svaret, som brevet ved aksepten sammenlikner med dagen den sendes.
   ['format/leser.ts', 'kontekst', 'registrertDato', ['frosset/brevtekst.ts:utsagnstekst']],
-  ['Svar', 'utsagn', 'akseptfrist', ['frosset/brevtekst.ts:utsagnstekst']],
+  [
+    'Svar',
+    'utsagn',
+    'akseptfrist',
+    ['frosset/brevtekst.ts:utsagnstekst', 'frosset/brevtekst.ts:svarpunkter'],
+  ],
   [
     'regler/akseptfrist.ts',
     'regelsett',
@@ -1860,20 +1865,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regler/akseptfrist.ts',
     'regelsett',
     'utenAkseptfrist ugyldigAkseptfrist',
-    ['kommandoer/nyttelast.ts:akseptfristeneIBrevet'],
+    ['kommandoer/nyttelast.ts:akseptfristeneIBrevet', 'kommandoer/nyttelast.ts:ugyldigFrist'],
   ],
   [
     'spor/vederlag/format.ts',
     'frosset svar',
     'godkjennerBeloepIEtLag',
-    ['kommandoer/nyttelast.ts:akseptfristeneIBrevet'],
+    ['kommandoer/nyttelast.ts'],
   ],
-  [
-    'spor/frist/format.ts',
-    'frosset svar',
-    'godkjennerDagerIEtLag',
-    ['kommandoer/nyttelast.ts:akseptfristeneIBrevet'],
-  ],
+  ['spor/frist/format.ts', 'frosset svar', 'godkjennerDagerIEtLag', ['kommandoer/nyttelast.ts']],
   ['Svaretsomfang', 'frosset svar', 'spor godkjennerNoe sammenfall', ['regler/akseptfrist.ts']],
   ['regler/hverdager.ts', 'regelsett', 'erHverdag erLoerdag', ['regler/akseptfrist.ts']],
   [
@@ -2418,7 +2418,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'norskDato',
     [
       'kommandoer/nyttelast.ts:oppgittDatoEtterBrevet',
-      'kommandoer/nyttelast.ts:akseptfristeneIBrevet',
+      'kommandoer/nyttelast.ts:ugyldigFrist',
       'spor/forhold/kommando.ts:varseletEtter322',
       'spor/forhold/kommando.ts:datosperre',
       'spor/forhold/kommando.ts:kontrollerKorrigering',

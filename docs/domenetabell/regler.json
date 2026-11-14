@@ -1403,11 +1403,32 @@
       "radetikett": "HF-U29: Spørsmål 1: Når byggherrens tidligere svar er en endringsordre registrert som svar"
     },
     {
-      "id": "AV-502",
-      "type": "arbeidsvalg",
-      "issue": 502,
+      "id": "HF-U30",
+      "type": "vedtak",
       "dato": "2026-11-14",
-      "merknad": "Oppdragsgivers svar 14.11 på spørsmål 1–4 i kommentaren 6883744258 i #502 («Som anbefalt på alle spørsmålene»: 1 A, 2 A, 3 A og 4 B), om hvilke svar og tall HF-U29 punkt 8 sammenlikner. Føres som vedtak i en egen PR."
+      "ref": "../plans/vedtak.md#hf-u30",
+      "radetikett": "HF-U30: Punkt 8 gjelder et nytt svar på samme kravversjon"
+    },
+    {
+      "id": "HF-U31",
+      "type": "vedtak",
+      "dato": "2026-11-14",
+      "ref": "../plans/vedtak.md#hf-u31",
+      "radetikett": "HF-U31: Hver kravpost og hver frist sammenliknes for seg med svaret det nye svaret erstatter"
+    },
+    {
+      "id": "HF-U32",
+      "type": "vedtak",
+      "dato": "2026-11-14",
+      "ref": "../plans/vedtak.md#hf-u32",
+      "radetikett": "HF-U32: Prinsipalt og subsidiært sammenliknes hver for seg"
+    },
+    {
+      "id": "HF-U33",
+      "type": "vedtak",
+      "dato": "2026-11-14",
+      "ref": "../plans/vedtak.md#hf-u33",
+      "radetikett": "HF-U33: Som A, og i tillegg når byggherren i et nytt svar ikke lenger godtar justeringen av enhetsprisene etter punkt 34"
     }
   ],
   "rader": [
@@ -3634,7 +3655,7 @@
     {
       "id": "KA-49",
       "tilfelle": "Byggherren reviderer et svar sendt fra appen som TE ikke har godtatt, og revisjonen senker noe byggherren har innrømmet i svaret: godkjent grunnlag, godkjent beløp eller godkjente dager, prinsipalt eller subsidiært, at fremdriften er hindret etter § 33.1, dagene byggherren måtte forstå etter § 33.6.1 når begge svar sier «for sent».",
-      "forventet": "Revisjonen godtas, også når den senker et standpunkt (MM-U34 punkt 4). Tidligere brev bevares uendret. Senker revisjonen dager eller beløp byggherren har godkjent, viser løsningen det tidligere svaret og, for frist og enhetspriser, § 33.7 annet ledd eller § 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen ([HF-U29](../plans/vedtak.md#hf-u29) punkt 8). Hver kravpost og frist sammenliknes med svaret det nye svaret erstatter på samme kravversjon, prinsipalt og subsidiært hver for seg, og for en kravpost med enhetspriser vises bestemmelsen også når byggherren ikke lenger godtar justeringen etter § 34.3.2 (AV-502). Et nytt svar på en ny kravversjon er ikke en revisjon. Et registrert svar er dokumentasjon (OV-U4).",
+      "forventet": "Revisjonen godtas, også når den senker et standpunkt (MM-U34 punkt 4). Tidligere brev bevares uendret. Senker revisjonen dager eller beløp byggherren har godkjent, viser løsningen det tidligere svaret og, for frist og enhetspriser, § 33.7 annet ledd eller § 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen ([HF-U29](../plans/vedtak.md#hf-u29) punkt 8). Bare et nytt svar på samme kravversjon sammenliknes ([HF-U30](../plans/vedtak.md#hf-u30)), hver kravpost og frist for seg mot svaret det erstatter ([HF-U31](../plans/vedtak.md#hf-u31)), prinsipalt og subsidiært hver for seg ([HF-U32](../plans/vedtak.md#hf-u32)), og for en kravpost med enhetspriser vises bestemmelsen også når byggherren ikke lenger godtar justeringen etter § 34.3.2 ([HF-U33](../plans/vedtak.md#hf-u33)). Et nytt svar på en ny kravversjon er ikke en revisjon. Et registrert svar er dokumentasjon (OV-U4).",
       "bh_standpunkt": "Det byggherren har innrømmet i et sendt svar, deretter en revisjon som senker det.",
       "rettslig_virkning": "Løsningen avgjør ikke om endringen er rettslig virksom (MM-U12).",
       "rettidighet": "—",
@@ -3648,7 +3669,10 @@
         "MM-U50",
         "OV-U4",
         "HF-U29",
-        "AV-502"
+        "HF-U30",
+        "HF-U31",
+        "HF-U32",
+        "HF-U33"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },

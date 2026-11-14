@@ -4,6 +4,7 @@
  * etter fristen (punkt 7). Løsningen knytter ingen virkning til fristen (punkt 5).
  */
 
+import { erKalenderdato } from '../format/skjema.ts';
 import { erHverdag, erLoerdag } from './hverdager.ts';
 import type { Spor } from '../typer.ts';
 
@@ -28,13 +29,14 @@ export function utenAkseptfrist(s: Svaretsomfang): 'forholdet' | 'avslag' | 'hel
 
 /**
  * Hvorfor byggherren ikke kan sette akseptfristen `frist` i et svar datert `svardato`, eller
- * `null` når den kan (HF-U23 punkt 2): fristen ligger før datoen for svaret, eller faller på en
- * lørdag, helligdag eller høytidsdag. Begge er kalenderdager på formen ÅÅÅÅ-MM-DD.
+ * `null` når den kan (HF-U23 punkt 2): datoen finnes ikke, ligger før datoen for svaret, eller
+ * faller på en lørdag, helligdag eller høytidsdag. Begge er på formen ÅÅÅÅ-MM-DD.
  */
 export function ugyldigAkseptfrist(
   frist: string,
   svardato: string
-): 'foer_svaret' | 'loerdag' | 'helligdag' | null {
+): 'finnes_ikke' | 'foer_svaret' | 'loerdag' | 'helligdag' | null {
+  if (!erKalenderdato(frist)) return 'finnes_ikke';
   if (frist < svardato) return 'foer_svaret';
   if (erLoerdag(frist)) return 'loerdag';
   return erHverdag(frist) ? null : 'helligdag';
@@ -42,6 +44,8 @@ export function ugyldigAkseptfrist(
 
 /**
  * Aksepten registrert dagen `dag` er sendt etter akseptfristen `frist` (HF-U23 punkt 2 og 7):
- * fristen er ute ved utgangen av datoen i norsk tid. Begge er kalenderdager i norsk tid.
+ * fristen er ute ved utgangen av datoen i norsk tid. Begge er kalenderdager i norsk tid. Usann
+ * uten frist.
  */
-export const etterAkseptfristen = (frist: string, dag: string): boolean => dag > frist;
+export const etterAkseptfristen = (frist: string | null, dag: string): boolean =>
+  frist !== null && dag > frist;

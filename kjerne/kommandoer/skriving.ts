@@ -612,7 +612,8 @@ function skriv(
       throw new Skrivefeil(`Kjernen forstår ikke dokumentet den selv skriver: ${feil.message}`);
     throw feil;
   }
-  // HF-U23 punkt 1 og 2: akseptfristen kontrolleres mot svaret slik brevet fryser det.
+  // HF-U23 punkt 1 og 2: akseptfristen kontrolleres mot svaret slik brevet fryser det, fordi
+  // sammenfallet (GR-U7) bare finnes i det frosne svaret.
   const frist = Array.isArray(data.svar) ? akseptfristeneIBrevet(data.svar, brevetsDato) : null;
   if (frist) return { godtatt: false, feil: 'REGELBRUDD', avvisning: frist };
   const rad: Journalrad = {

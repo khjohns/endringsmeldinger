@@ -5322,12 +5322,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en aksept den dagen fristen gjelder, regnes som sendt etter fristen (HF-U23 punkt 2, #502)',
     fil: `${K}/regler/akseptfrist.ts`,
-    endringer: [
-      [
-        '(frist: string, dag: string): boolean => dag > frist;',
-        '(frist: string, dag: string): boolean => dag >= frist;',
-      ],
-    ],
+    endringer: [['  frist !== null && dag > frist;', '  frist !== null && dag >= frist;']],
     mal: ['sier ingenting om fristen (punkt 2 og 5, kontrollsak)', 'regnes i norsk tid (punkt 2)'],
   },
   {
@@ -5337,8 +5332,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'return svar.akseptfrist !== null && etterAkseptfristen(',
-        'return svar.akseptfrist === "" && etterAkseptfristen(',
+        'return etterAkseptfristen(svar.akseptfrist, registrertDato(nytt))',
+        'return false && etterAkseptfristen(svar.akseptfrist, registrertDato(nytt))',
       ],
     ],
     mal: ['godtar TE svaret etter akseptfristen, sier brevet det'],
@@ -5346,18 +5341,17 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F615',
     feilklasse:
-      'det godkjente prinsipalt sammenliknes ikke i et nytt svar (HF-U29 punkt 8, svar 3 A i #502)',
+      'det godkjente prinsipalt sammenliknes ikke i et nytt svar (HF-U29 punkt 8, HF-U32)',
     fil: `${K}/utledning/visning.ts`,
-    endringer: [["    sammenlikn('prinsipalt', lagene[0] ?? 0, nye[0] ?? 0);", '']],
+    endringer: [["      ['prinsipalt', lagene[0] ?? 0, nye[0] ?? 0],", '']],
     mal: [
-      'er senket prinsipalt, ikke subsidiært (3 A)',
+      'er senket prinsipalt, ikke subsidiært (HF-U32)',
       'færre dager for fristen viser punkt 33.7 annet ledd',
     ],
   },
   {
     id: 'F616',
-    feilklasse:
-      'subsidiært sammenliknes også når begge svar har ett lag (HF-U29 punkt 8, svar 3 A i #502)',
+    feilklasse: 'subsidiært sammenliknes også når begge svar har ett lag (HF-U29 punkt 8, HF-U32)',
     fil: `${K}/utledning/visning.ts`,
     endringer: [['    if (lagene.length > 1 || nye.length > 1)', '    if (lagene.length > 0)']],
     mal: ['et lavere beløp for en kravpost med fast sum viser det tidligere svaret'],
@@ -5365,7 +5359,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F617',
     feilklasse:
-      'punkt 34.3.3 annet ledd vises ikke for en kravpost med enhetspriser (HF-U29 punkt 8, svar 4 B i #502)',
+      'punkt 34.3.3 annet ledd vises ikke for en kravpost med enhetspriser (HF-U29 punkt 8, HF-U33)',
     fil: `${K}/spor/vederlag/visning.ts`,
     endringer: [["p.oppgjoersform === 'enhetspriser'", "p.oppgjoersform === 'regningsarbeid'"]],
     mal: ['godtar byggherren ikke lenger justeringen av enhetsprisene i et nytt svar'],
@@ -5373,7 +5367,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F618',
     feilklasse:
-      'et skifte i justeringen av enhetsprisene gir ingen senkning (HF-U29 punkt 8, svar 4 B i #502)',
+      'et skifte i justeringen av enhetsprisene gir ingen senkning (HF-U29 punkt 8, HF-U33)',
     fil: `${K}/spor/vederlag/visning.ts`,
     endringer: [
       [

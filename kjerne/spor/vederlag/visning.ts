@@ -55,7 +55,7 @@ export function vederlagssvaret(u: Utledning, svar: Svar): Vederlagssvaret {
   };
 }
 
-/** HF-U29 punkt 8 i vederlaget, med svar 2 A, 3 A og 4 B 14.11 i #502. */
+/** HF-U29 punkt 8 i vederlaget, med HF-U31, HF-U32 og HF-U33. */
 const SENKNING_I_VEDERLAGET: Sporssenkning = {
   godkjentILagene: (svar) =>
     new Map(

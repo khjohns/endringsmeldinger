@@ -13,6 +13,7 @@ import {
   type Kontraktstilgang,
   type Prosjekttilgang,
 } from './autorisasjon.ts';
+import type { Sakslenke } from './catenda.ts';
 import type { Pool as Datalag } from './datalag.ts';
 import type { Innlogging } from './innlogging.ts';
 import { feilsvar } from './inngang.ts';
@@ -34,6 +35,8 @@ export interface Avhengigheter {
   nyId?: () => string;
   /** Vekker jobbkjøreren etter en opprettelse, så topicen kommer uten å vente på pollingen. */
   vekkJobbkjoereren?: () => void;
+  /** Lenken til saken i Catenda. Uten den har lesingen av saken ingen lenke. */
+  sakslenke?: Sakslenke | null;
 }
 
 /** Status, JSON-kroppen, bytene i en fil eller ingen kropp, og hoder. */

@@ -36,6 +36,7 @@ import {
   varseletSendt,
   type Avvisning,
   type Krav,
+  type Kravspor,
   type OppgittDatofelt,
   type Part,
   type Spor,
@@ -291,6 +292,24 @@ const UTEN_AKSEPTFRIST = {
   hele_kravet: 'Svaret godkjenner hele kravet og kan ikke ha en akseptfrist.',
 } as const;
 
+/** Svaret godkjenner beløp eller dager i et av lagene, lest gjennom formatfila for sporet. */
+const GODKJENNER_I_ET_LAG: Record<Kravspor, (utregning: Record<string, unknown>) => boolean> = {
+  vederlag: godkjennerBeloepIEtLag,
+  frist: godkjennerDagerIEtLag,
+};
+
+/** Det som hindrer akseptfristen etter HF-U23 punkt 2, som meldingen sier det. */
+function ugyldigFrist(
+  grunn: NonNullable<ReturnType<typeof ugyldigAkseptfrist>>,
+  frist: string,
+  svardato: string
+): string {
+  if (grunn === 'finnes_ikke') return `Akseptfristen ${frist} finnes ikke i kalenderen.`;
+  const dato = `Akseptfristen ${norskDato(frist)}`;
+  if (grunn === 'foer_svaret') return `${dato} er før datoen for svaret, ${norskDato(svardato)}.`;
+  return `${dato} er en ${grunn === 'loerdag' ? 'lørdag' : 'helligdag eller høytidsdag'}.`;
+}
+
 /**
  * HF-U23 punkt 1 og 2: akseptfristen i hvert svar i brevet, kontrollert mot svaret slik det er
  * frosset (`sammenfall`) og mot brevets dato, en kalenderdag i norsk tid. `svarene` er svarene i
@@ -304,26 +323,17 @@ export function akseptfristeneIBrevet(
     const frist = s.akseptfrist;
     if (typeof frist !== 'string') continue;
     const spor = s.spor as Spor;
-    const utregning = (s.utregning ?? {}) as Record<string, unknown>;
     const uten = utenAkseptfrist({
       spor,
       godkjennerNoe:
-        spor === 'vederlag'
-          ? godkjennerBeloepIEtLag(utregning)
-          : spor === 'frist' && godkjennerDagerIEtLag(utregning),
+        spor !== 'forhold' &&
+        GODKJENNER_I_ET_LAG[spor]((s.utregning ?? {}) as Record<string, unknown>),
       sammenfall: (s.beslutningsgrunnlag as { sammenfall: boolean }).sammenfall,
     });
     if (uten) return avvis('AKSEPTFRIST_IKKE_TILLATT', UTEN_AKSEPTFRIST[uten]);
-    if (!erKalenderdato(frist))
-      return avvis('AKSEPTFRIST_UGYLDIG_DATO', `Akseptfristen ${frist} finnes ikke i kalenderen.`);
     const ugyldig = ugyldigAkseptfrist(frist, brevetsDato);
     if (ugyldig)
-      return avvis(
-        'AKSEPTFRIST_UGYLDIG_DATO',
-        ugyldig === 'foer_svaret'
-          ? `Akseptfristen ${norskDato(frist)} er før datoen for svaret, ${norskDato(brevetsDato)}.`
-          : `Akseptfristen ${norskDato(frist)} er en ${ugyldig === 'loerdag' ? 'lørdag' : 'helligdag eller høytidsdag'}.`
-      );
+      return avvis('AKSEPTFRIST_UGYLDIG_DATO', ugyldigFrist(ugyldig, frist, brevetsDato));
   }
   return null;
 }
