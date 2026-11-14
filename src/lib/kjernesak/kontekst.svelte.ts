@@ -22,6 +22,11 @@ import { utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving'
 import { tilbudte } from '$kjerne/kommandoer/handlinger';
 import { lagForUtkastet } from '$kjerne/kommandoer/lag';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
+import type { LagIFristen } from '$kjerne/spor/frist/kommando';
+import type { LagIVederlaget } from '$kjerne/spor/vederlag/kommando';
+
+/** Lagene i et svarutkast, med typen for sporet (`lagForUtkastet` i kjernen). */
+type Utkastlagene = { vederlag: LagIVederlaget; frist: LagIFristen };
 import { visning } from '$kjerne/utledning/visning';
 import { KJERNE, type Kjerne } from '$kjerne/versjon';
 import type { Part } from '$kjerne/typer';
@@ -374,14 +379,16 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       return utledning ? grunnlagetForSvaret(utledning).forbehold : false;
     },
     /**
-     * Lagene i et vederlagssvar BH ennå fyller ut, regnet av kjernen (#1400). Varden har ikke
-     * svaret på fristen ennå (G-3 i BF-20), så et utkast i et annet spor kaster.
+     * Lagene i et svar på vederlaget eller fristen BH ennå fyller ut, regnet av kjernen (#1400,
+     * M-8 i BF-20). `spor` gir typen for lagene, og et utkast i et annet spor kaster.
      */
-    lagForUtkastet: (utkast: Svarutkast) => {
+    lagForUtkastet: <S extends keyof Utkastlagene>(
+      utkast: Svarutkast,
+      spor: S
+    ): Utkastlagene[S] | null => {
       if (!utledning) return null;
-      if (utkast.spor !== 'vederlag')
-        throw new Error(`Varden regner bare lagene i et vederlagssvar, ikke ${utkast.spor}`);
-      return lagForUtkastet({ ...utkast, spor: utkast.spor }, utledning, kjerne.regler);
+      if (utkast.spor !== spor) throw new Error(`Utkastet gjelder ${utkast.spor}, ikke ${spor}`);
+      return lagForUtkastet(utkast, utledning, kjerne.regler) as Utkastlagene[S];
     },
     /**
      * `false` når saken ikke er en TS-sak i prosjektet: serveren svarte 404. `null`

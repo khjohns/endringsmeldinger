@@ -173,7 +173,9 @@
   });
   // Innsigelsene beløpet bygger på, for hver kravpost, regnet av kjernen fra det som er besvart.
   const beloepslagene = $derived(
-    stoppet ? null : kjernesak.lagForUtkastet(utkastForBeloepet(kommando.svar[0], valg, krav))
+    stoppet
+      ? null
+      : kjernesak.lagForUtkastet(utkastForBeloepet(kommando.svar[0], valg, krav), 'vederlag')
   );
   const forutsetninger = (p: Kravpost): Forutsetning[] =>
     beloepslagene?.standpunkter.find(
@@ -203,7 +205,7 @@
           : { ...utenOppgjoersform(v), aksepterer: true };
       }),
     };
-    return kjernesak.lagForUtkastet({ ...s, vurderinger });
+    return kjernesak.lagForUtkastet({ ...s, vurderinger }, 'vederlag');
   });
   type IPosten = { f: Forutsetning; post?: Kravpost };
   const iPosten = (liste: Forutsetning[], post?: Kravpost): IPosten[] =>
@@ -233,7 +235,7 @@
           : v;
       }),
     };
-    return kjernesak.lagForUtkastet({ ...s, vurderinger });
+    return kjernesak.lagForUtkastet({ ...s, vurderinger }, 'vederlag');
   });
   const regelforutsetninger = (p: Kravpost, art: 'rettidighet' | 'justering'): IPosten[] =>
     iPosten(
