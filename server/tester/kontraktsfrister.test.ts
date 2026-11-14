@@ -236,7 +236,7 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
         prosjektId: o.prosjekt.id,
       });
 
-    it('GFK-U25: begge parter og leserollen får fristene med ID, nummer, navn og dagmulkt, uten satsen og datoen', async () => {
+    it('GFK-U25: begge parter og leserollen får fristene, med feltene i arbeidsvalget 14.11 i #1745: ID, nummer, navn og dagmulkt', async () => {
       for (const bruker of [o.bh, o.te, o.leser]) {
         const svar = await svaret(bruker);
         expect(svar.status, JSON.stringify(svar.kropp)).toBe(200);
@@ -252,7 +252,9 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
     });
 
     it('DL-U15: et medlem uten kontraktsteam og uten leserolle får ingen fristtabell', async () => {
-      expect((await svaret(o.utenTeam)).status).toBe(403);
+      const svar = await svaret(o.utenTeam);
+      expect(svar.status).toBe(403);
+      expect(svar.kropp.error).toBe('CONTRACT_ROLE_REQUIRED');
     });
   });
 });

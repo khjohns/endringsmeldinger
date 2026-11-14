@@ -141,7 +141,7 @@ export async function lesKontraktsfrister(foresp: Foresp): Promise<Fristtabell> 
 
 /**
  * En frist i fristtabellen slik klienten får den, til kravskjemaet (KA-U79, BF-20 G-3).
- * Feltnavnene er kontrakter (B-17).
+ * Feltnavnene er en kontrakt med klienten.
  */
 export interface Fristlinje {
   frist_id: number;
@@ -150,7 +150,7 @@ export interface Fristlinje {
   dagmulktbelagt: boolean;
 }
 
-async function fristtabellen(
+async function fristtabellsvar(
   { bruker, prosjekt, side }: Prosjektforespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
@@ -179,6 +179,6 @@ export const KONTRAKTSFRISTRUTER: readonly Rute[] = [
       utenSak: 'Fristtabellen fra kontrakten; den gjelder prosjektet, ikke én sak.',
       kontraktsrolle: 'lesing',
     },
-    behandle: fristtabellen,
+    behandle: fristtabellsvar,
   },
 ];

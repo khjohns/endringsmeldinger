@@ -414,8 +414,8 @@ FEILINNFOERINGER = [
      "delvis godkjent når ingen frist har fått alle dagene"),
     ("S114", "fristtabellen gis uten kontraktsteam eller leserolle (GFK-U25, DL-U15)",
      "server/kontraktsfrister.ts",
-     "      kontraktsrolle: 'lesing',\n    },\n    behandle: fristtabellen,",
-     "      kontraktsrolle: { ikke: 'feilinnføring' },\n    },\n    behandle: fristtabellen,",
+     "      kontraktsrolle: 'lesing',\n    },\n    behandle: fristtabellsvar,",
+     "    },\n    behandle: fristtabellsvar,",
      "DL-U15: et medlem uten kontraktsteam og uten leserolle får ingen fristtabell"),
 ]
 
