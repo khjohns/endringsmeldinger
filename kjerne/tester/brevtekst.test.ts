@@ -58,6 +58,7 @@ import {
   type Part,
   type Sakskode,
   type Standpunkt,
+  type Standpunktsvirkning,
 } from '../typer.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import {
@@ -1461,7 +1462,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     ]);
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Sluttfristen (§ 33.6.1), subsidiært godkjent med 15 dager.'
+      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Sluttfristen (§ 33.6.1), subsidiært godkjent med 15 dager for frist Sluttfristen.'
     );
   });
 
@@ -1480,7 +1481,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt godkjent med 1 dag for frist Sluttfristen (§ 33.6.1), subsidiært godkjent med 1 dag.'
+      'Byggherrens standpunkt: prinsipalt godkjent med 1 dag for frist Sluttfristen (§ 33.6.1), subsidiært godkjent med 1 dag for frist Sluttfristen.'
     );
   });
 
@@ -1527,9 +1528,9 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       'måtte forstå at totalentreprenøren hadde krav på: 0 dager for frist Sluttfristen og 5 dager for frist Delfristen (punkt 33.6.1).'
     );
     const b2 = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
-    // Leddene for dagene nevner ikke fristen (#1943).
+    // Leddene for dagene nevner fristen (#1943).
     expect(b2.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Delfristen (§ 33.6.1), subsidiært godkjent med 15 dager, godkjent med 10 dager.'
+      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Delfristen (§ 33.6.1), subsidiært godkjent med 15 dager for frist Sluttfristen, godkjent med 10 dager for frist Delfristen.'
     );
   });
 
@@ -1553,6 +1554,29 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(LINJEN_I_FRISTEN.grunner(kontroll, null, kravet).spesifisering).toBe(
       'godkjent med 5 dager for frist Sluttfristen (§ 33.6.1)'
     );
+  });
+
+  it('leddene for dagene nevner fristen også når kravet har én frist, og kan ikke leses uten kravet (#1943, MM-U2)', () => {
+    const s = sakMedKrav();
+    const kravet = s.u().spor.frist.gjeldendeKrav!;
+    const a = innholdIFristen(kravet).frister[0]!.id;
+    const svar = {
+      spor: 'frist',
+      standpunkter: [
+        { id: 'd1', art: 'dager', gjelder: a, resultat: 'avslaatt', vurdert: 0 },
+        { id: 'd2', art: 'dager', gjelder: a, resultat: 'delvis_godkjent', vurdert: 7 },
+      ],
+      utregning: {},
+    } as unknown as Parameters<typeof LINJEN_I_FRISTEN.ledd>[0];
+    const v = [
+      { standpunkt: 'd1', art: 'dager', virkning: 0 },
+      { standpunkt: 'd2', art: 'dager', virkning: 1 },
+    ] satisfies Standpunktsvirkning[];
+    expect(LINJEN_I_FRISTEN.ledd(svar, v, kravet).map((l) => l.tekst)).toEqual([
+      'avslått for frist Sluttfristen',
+      'godkjent med 7 dager for frist Sluttfristen',
+    ]);
+    expect(() => LINJEN_I_FRISTEN.ledd(svar, v, undefined)).toThrow(Uforstaatt);
   });
 
   it('§ 34.1.2 «nei» med hele beløpet godkjent subsidiært godtas uten begrunnelse (KA-U46 punkt 1)', () => {
@@ -1645,7 +1669,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), videre subsidiært godkjent med 5 dager for frist Sluttfristen (§ 33.6.1), videre subsidiært godkjent med 10 dager.'
+      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), videre subsidiært godkjent med 5 dager for frist Sluttfristen (§ 33.6.1), videre subsidiært godkjent med 10 dager for frist Sluttfristen.'
     );
   });
 
@@ -1669,7 +1693,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 2, 3]);
     expect(b.uten_virkning).toHaveLength(1);
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), videre subsidiært godkjent med 10 dager.'
+      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), videre subsidiært godkjent med 10 dager for frist Sluttfristen.'
     );
     // KA-U78: varselet, hindringen og dagene i hvert sitt lag. Standpunktet uten virkning (§ 33.6.1
     // i tide) står uten lagslinje (spørsmål 8 i spørsmålsfila for #1663, 09.11).
@@ -3728,7 +3752,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     );
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 og svaret på forespørselen etter § 33.6.2 kom for sent, subsidiært godkjent med 20 dager.'
+      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 og svaret på forespørselen etter § 33.6.2 kom for sent, subsidiært godkjent med 20 dager for frist Sluttfristen.'
     );
     // OV-U32, LV-U34: begge påberopelsene står i lag 1, hver i sitt punkt, og lagslinjen for
     // dagene i lag 2 viser til begge.
@@ -3757,7 +3781,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       { resultat: 'avslaatt', godkjent_dager: 0 }
     );
     expect(((rad.data.svar as Data[])[0].beslutningsgrunnlag as Data).linje).toBe(
-      'Byggherrens standpunkt: prinsipalt svaret på forespørselen etter § 33.6.2 kom for sent, subsidiært godkjent med 20 dager.'
+      'Byggherrens standpunkt: prinsipalt svaret på forespørselen etter § 33.6.2 kom for sent, subsidiært godkjent med 20 dager for frist Sluttfristen.'
     );
   });
 

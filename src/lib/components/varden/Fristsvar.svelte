@@ -11,6 +11,7 @@
   import { tick } from 'svelte';
   import { dager } from '$kjerne/frosset/tekst';
   import { betegnelsen, innholdIFristen } from '$kjerne/spor/frist/format';
+  import { hindringenEtter } from '$kjerne/spor/frist/tekst';
   import { foresporselenISvaret } from '$lib/kjernesak/fristsvar';
   import type { Forutsetning } from '$kjerne/spor/frist/kommando';
   import type { Utledning } from '$kjerne/utledning/utled';
@@ -44,14 +45,7 @@
     velgDagene,
     type Fristvalg,
   } from './fristsvar';
-  import {
-    brevene,
-    brevet,
-    datoerISporet,
-    hovedkategorien,
-    klarOverForholdet,
-    standpunktene,
-  } from './lesing';
+  import { brevene, brevet, datoerISporet, klarOverForholdet, standpunktene } from './lesing';
   import {
     BREVKONTROLL,
     FRISTSVAR,
@@ -118,8 +112,7 @@
   const klarOver = $derived(klarOverForholdet(u));
   // VS-U17, VS-U29: svaret tar stilling til forespørselen når kjernen leser en.
   const foresporselen = $derived(foresporselenISvaret(u) !== null);
-  // § 33.3 for force majeure, ellers § 33.1, som brevteksten i kjernen.
-  const hindringPunkt = $derived(hovedkategorien(u) === 'force_majeure' ? '33.3' : '33.1');
+  const hindringPunkt = $derived(hindringenEtter(u.spor.forhold.gjeldendeKrav));
 
   let valgtFrist = $state<string | null>(null);
   let postliste = $state<Postliste<Fristpost> | null>(null);

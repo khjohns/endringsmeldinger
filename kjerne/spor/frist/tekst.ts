@@ -123,8 +123,8 @@ function fristkravtekst(k: Krav, t: Tekst): Brevpunkt[] {
   ];
 }
 
-/** Hjemmelen for hindringen: § 33.3 for force majeure, ellers § 33.1. */
-const hindringenEtter = (paaberopelse: Krav | null | undefined): string =>
+/** Hjemmelen for hindringen: § 33.3 for force majeure, ellers § 33.1. Skjemaene viser den også. */
+export const hindringenEtter = (paaberopelse: Krav | null | undefined): string =>
   kategori(paaberopelse).hovedkategori === 'force_majeure' ? '33.3' : '33.1';
 
 /**
@@ -241,15 +241,19 @@ export const LINJEN_I_FRISTEN = {
     };
   },
   egetLedd: () => undefined,
-  ledd: (svar, v) =>
-    svar.standpunkter.flatMap((d) =>
-      d.art === 'dager'
-        ? [
-            {
-              tekst: d.resultat === 'avslaatt' ? 'avslått' : `godkjent med ${dager(d.vurdert)}`,
-              virkning: virkningen(v, d.id),
-            },
-          ]
-        : []
-    ),
+  // Hvert ledd for dagene nevner fristen, også når kravet har én frist (#1943).
+  ledd: (svar, v, kravet) =>
+    svar.standpunkter.flatMap((d) => {
+      if (d.art !== 'dager') return [];
+      const frist = `for frist ${betegnelsen(fristenI(kravetMedFristene(kravet, [d.gjelder]), d.gjelder))}`;
+      return [
+        {
+          tekst:
+            d.resultat === 'avslaatt'
+              ? `avslått ${frist}`
+              : `godkjent med ${dager(d.vurdert)} ${frist}`,
+          virkning: virkningen(v, d.id),
+        },
+      ];
+    }),
 } satisfies Sporslinje;
