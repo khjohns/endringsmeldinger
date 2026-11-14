@@ -36,7 +36,7 @@
     type Utfylling,
     type VedleggForNySak,
   } from './nysak';
-  import { NYSAK, SKJEMA } from './tekster';
+  import { NYSAK, SKJEMA, dagensDato } from './tekster';
 
   let {
     sakId,
@@ -85,8 +85,7 @@
 
   const felt = $derived(forhold ? feltene(forhold, KJERNE) : FELTENE_UTEN_FORHOLD);
   const valgt = $derived(forhold ? forholdet(forhold) : null);
-  // Dagens dato i norsk tid, som `dagensDato` i `skjemadata.ts` (VS-U8).
-  const iDag = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+  const iDag = dagensDato();
   const varselet = $derived(felt.punkt322 && alleredeVarslet === true);
   // Panelet og tidslinja står fast når de får plass i vinduet, som panelet i vederlagssvaret.
   // Ellers står bare panelet fast, og tidslinja ruller under det (oppdragsgiver 02.11).

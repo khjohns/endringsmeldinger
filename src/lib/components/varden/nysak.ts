@@ -42,6 +42,15 @@ export type Paaberopelse = {
 /** Vedlegget i mellomlageret, med størrelsen, som `Kjernevedlegg` i `$lib/api/kjerne`. */
 export type Kjernevedlegg = Vedlegg & { stoerrelse: number };
 
+/** Vedleggene kommandoen viser til, med ID-en som nøkkel, så kjernen kan lage brevet (VS-U53). */
+export const vedleggskart = (vedlegg: readonly Kjernevedlegg[]) =>
+  new Map(
+    vedlegg.map(({ vedlegg_id, filnavn, innhold_sha256 }) => [
+      vedlegg_id,
+      { vedlegg_id, filnavn, innhold_sha256 },
+    ])
+  );
+
 /**
  * Grensen for vedleggene før saken finnes (#1037): `lastOppVedleggForNySak` og
  * `slettVedleggForNySak` i saksruta, og minnet i demoruta.
@@ -50,6 +59,14 @@ export interface VedleggForNySak {
   lastOpp(fil: File): Promise<Kjernevedlegg>;
   slett(vedleggId: string): Promise<unknown>;
 }
+
+/**
+ * Grensen for vedleggene i et skjema i en sak som finnes. Et vedlegg i mellomlageret som ikke
+ * bindes av kommandoen, blir liggende til det ryddes.
+ */
+export const vedleggsgrense = (
+  lastOpp: (fil: File) => Promise<Kjernevedlegg>
+): VedleggForNySak => ({ lastOpp, slett: async () => {} });
 
 /** Filene serveren tar imot (`STOERSTE_VEDLEGG` i `server/vedlegg.ts`). */
 export const STOERSTE_VEDLEGG = 15 * 1024 * 1024;

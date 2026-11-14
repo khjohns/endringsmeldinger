@@ -10,7 +10,7 @@ import type { Korrespondansetype, Kravpost, Oppgjoersform } from '$kjerne/typer'
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Varselet } from '$lib/kjernesak/vederlagskrav';
 import { lesKroner, visKroner } from '$lib/utils/belop';
-import type { Kjernevedlegg } from './nysak';
+import { vedleggskart, type Kjernevedlegg } from './nysak';
 import { beloepet, definert } from './kommandoer';
 import { KRAVSKJEMA } from './tekster';
 
@@ -204,16 +204,12 @@ export function vederlagskravet(v: Kravvalg, varslene: readonly (Varselet | null
 /** Vedleggene kommandoen viser til, så kjernen kan lage brevet før sendingen (VS-U53). */
 export function vedleggIKravet(v: Kravvalg, varslene: readonly (Varselet | null)[]) {
   // Bare dokumentene kommandoen viser til, som i `vederlagskravet`.
-  const alle = postene(v).flatMap((p, i) => {
-    if (varslene[i]?.art !== 'kravet') return [];
-    const valg = gjeldendeVarselvalg(v, p);
-    return valg.art === 'dokument' ? valg.vedlegg : [];
-  });
-  return new Map(
-    alle.map(({ vedlegg_id, filnavn, innhold_sha256 }) => [
-      vedlegg_id,
-      { vedlegg_id, filnavn, innhold_sha256 },
-    ])
+  return vedleggskart(
+    postene(v).flatMap((p, i) => {
+      if (varslene[i]?.art !== 'kravet') return [];
+      const valg = gjeldendeVarselvalg(v, p);
+      return valg.art === 'dokument' ? valg.vedlegg : [];
+    })
   );
 }
 

@@ -35,6 +35,7 @@
   import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
   import { beloepet } from './kommandoer';
+  import { vedleggsgrense } from './nysak';
   import {
     brevene,
     datoerISporet,
@@ -43,7 +44,7 @@
     type Brevet,
     type Brevref,
   } from './lesing';
-  import { brevhode, brevtittel, dato, kalenderdager, KRAVSKJEMA } from './tekster';
+  import { brevhode, brevtittel, dagensDato, dato, kalenderdager, KRAVSKJEMA } from './tekster';
   import {
     PNS_GRENSE,
     fordelingenPaaPns,
@@ -290,8 +291,7 @@
     return b.art === 'krav' ? KRAVSKJEMA.gittMedKravet(b) : KRAVSKJEMA.gittI(b);
   };
   const klarOver = $derived(klarOverForholdet(u));
-  // Dagens dato i norsk tid, som i `NySak.svelte`.
-  const iDag = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
+  const iDag = dagensDato();
   const vederlagsvarselet = $derived(varseletFoerKravet(u, '34.1.2'));
   const saerskiltvarselet = $derived(varseletFoerKravet(u, '34.1.3'));
   // Et varsel TE velger for en post i skjemaet, står ved posten og ikke som et varsel uten post.
@@ -321,11 +321,7 @@
   const smaa = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
   const medDokument = (p: Kravpostvalg) =>
     med.filter((q) => q !== p && q.varsel.art === 'dokument' && varselFor(q)?.art === 'kravet');
-  const grense = {
-    lastOpp: (fil: File) => kjernesak.lastOppVedlegg(fil),
-    // Et vedlegg i mellomlageret som ikke bindes av kravet, blir liggende til det ryddes.
-    slett: async () => {},
-  };
+  const grense = vedleggsgrense((fil) => kjernesak.lastOppVedlegg(fil));
 
   const summer = $derived(summene(v));
   const pns = $derived(fordelingenPaaPns(v));

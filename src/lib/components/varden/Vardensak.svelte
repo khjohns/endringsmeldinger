@@ -19,7 +19,13 @@
   import { tomtFristsvar } from './fristsvar';
   import Vederlagskrav from './Vederlagskrav.svelte';
   import Fristkrav from './Fristkrav.svelte';
-  import type { Fristkravvalg } from './fristkrav';
+  import { startvalg as fristkravstart, tomtUtenforvalg, type Fristkravvalg } from './fristkrav';
+  /** Handlingene i fristen som åpner skjemaet for kravet (BF-20). */
+  // Handlingstypene i fristen som holder kravskjemaet åpent, med varselet alene eller kravet valgt.
+  const FRISTSKJEMAET: Record<Fristkravvalg['hva'], ReadonlySet<string>> = {
+    varsel: new Set(['sende_varsel', 'varsle']),
+    krav: new Set(['krav', 'svare_paa_foresporsel']),
+  };
   import type { Kravvalg } from './vederlagskrav';
   import Korrigering from './Korrigering.svelte';
   import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
@@ -36,6 +42,7 @@
   import {
     BETEGNELSE,
     BREVKONTROLL,
+    FRISTKRAV,
     KORRIGERING,
     KRAVSKJEMA,
     MOTTATT,
@@ -308,9 +315,42 @@
     },
     'krav:forhold': () => (arbeid = { art: 'nyversjon' }),
     'krav:vederlag': () => (arbeid = { art: 'vederlagskrav' }),
-    'krav:frist': () => (arbeid = { art: 'fristkrav' }),
+    'krav:frist': () => fristskjema('krav'),
+    // U-13: varselet etter punkt 33.4 alene, i skjemaet for kravet (BF-20 steg 4).
+    'sende_varsel:frist': () => fristskjema('varsel'),
+    'varsle:frist': () => fristskjema('varsel', true),
   };
-  const skjemanoeklene = Object.keys(skjemaene);
+  /**
+   * Skjemaet for kravet om fristforlengelse, med varselet alene eller kravet valgt. Uten
+   * `sende_varsel:frist` registreres varselet (VS-U16).
+   */
+  function fristskjema(hva: Fristkravvalg['hva'], registrer = false) {
+    if (u) {
+      const v = fristkravvalg ?? fristkravstart(u);
+      fristkravvalg = {
+        ...v,
+        hva,
+        // «Send varsel» sender fra løsningen, og registrerer ikke et varsel som er påbegynt.
+        utenfor: registrer ? (v.utenfor ?? tomtUtenforvalg()) : hva === 'varsel' ? null : v.utenfor,
+      };
+    }
+    arbeid = { art: 'fristkrav' };
+  }
+  // U-11: svaret på forespørselen etter punkt 33.6.2 åpner skjemaet for kravet.
+  const foresporselssvar = $derived(
+    kjernesak.tilbudte.filter((h) => h.type === 'svare_paa_foresporsel').map((h) => h.noekkel)
+  );
+  const skjemanoeklene = $derived([...Object.keys(skjemaene), ...foresporselssvar]);
+  function aapne(n: string) {
+    if (Object.hasOwn(skjemaene, n)) skjemaene[n]();
+    else if (foresporselssvar.includes(n)) fristskjema('krav');
+  }
+  /** Fristskjemaet står åpent når kjernen tilbyr en av handlingene det åpnes fra. */
+  const fristskjemaTilbudt = $derived(
+    kjernesak.tilbudte.some(
+      (h) => h.spor === 'frist' && FRISTSKJEMAET[fristkravvalg?.hva ?? 'krav'].has(h.type)
+    )
+  );
 
   /**
    * Skjemaet for korrigeringen vises når kjernen tilbyr den og opplysningen står i et brev i saken
@@ -551,13 +591,20 @@
           onvedsiden={(v) => (vedSiden = v)}
           onbrevkontroll={(k) => tilKravkontroll('vederlag', k)}
         />
-      {:else if arbeid.art === 'fristkrav' && valgt === 'frist' && kjernesak.handlinger.includes('krav:frist')}
+      {:else if arbeid.art === 'fristkrav' && valgt === 'frist' && fristskjemaTilbudt}
         <Fristkrav
           {kjernesak}
           {u}
           bind:valg={fristkravvalg}
           onforkast={() => forkastKravet('frist')}
           onbrevkontroll={(k) => tilKravkontroll('frist', k)}
+          onregistrert={async () => {
+            fristkravvalg = null;
+            arbeid = { art: 'les' };
+            melding = { tekst: FRISTKRAV.registrert, art: 'sendt' };
+            await tick();
+            meldingen?.focus();
+          }}
         />
       {:else if arbeid.art === 'svar' && valgt === 'vederlag' && kjernesak.handlinger.includes('svare:vederlag')}
         <Vederlagssvar
@@ -594,7 +641,7 @@
             skjemaene={skjemanoeklene}
             onvelg={(n) => {
               melding = null;
-              if (Object.hasOwn(skjemaene, n)) skjemaene[n]();
+              aapne(n);
             }}
             onakseptbrev={(k) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
