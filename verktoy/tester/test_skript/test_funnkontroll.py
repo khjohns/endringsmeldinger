@@ -253,3 +253,40 @@ def test_issue_lukket_med_lenke_er_ingen_foering():
         + _funn("Oppfølgingsissue #1905")
     )
     assert "lukkes av PR-en" in " ".join(_kontroller(tekst).feil)
+
+
+def test_dato_med_aarstall_er_en_dato_for_svaret():
+    assert _kontroller(_funn("Avgjort av oppdragsgiver 14.11.2026: «B»")).feil == []
+
+
+def test_commitlenke_i_pr_gir_ingen_henvisning_til_et_kortere_nummer():
+    funnkontroll = last("funnkontroll")
+    lenke = "https://github.com/khjohns/endringsmeldinger/pull/1950/commits/abc1234"
+    assert funnkontroll.henvisninger(f"Delvis rettet i {lenke}") == []
+
+
+def test_ikke_godkjent_er_ingen_godkjenning():
+    tekst = "### Avvik fra prototypen\n\n| Avvik | Grunnlag | Forslag |\n| --- | --- | --- |\n| Panelet | Ikke godkjent 14.11 | Beholdes |\n"
+    assert "i siste kolonne" in " ".join(_kontroller(tekst).feil)
+
+
+def test_krav_i_kommentar_i_lukket_issue_avvises():
+    oppslag = {**OPPSLAG, "lukkede": [1925]}
+    lenke = "https://github.com/khjohns/endringsmeldinger/issues/1925#issuecomment-6875558236"
+    feil = _kontroller(_funn(f"Krav i [#1925]({lenke})"), oppslag).feil
+    assert "#1925 er lukket" in " ".join(feil)
+
+
+def test_avvikstabell_under_funn_og_utfall_er_ingen_funntabell_uten_utfall():
+    tekst = (
+        "## Funn og utfall\n\n### Avvik fra prototypen\n\n"
+        "| Avvik | Grunnlag | Forslag |\n| --- | --- | --- |\n| Panelet | x | #1940 |\n"
+    )
+    assert _kontroller(tekst).feil == []
+
+
+def test_tabell_med_utfall_utenfor_seksjonen_kontrolleres_ikke():
+    tekst = _funn("Avvist: testkode") + (
+        "\n## Verifikasjon\n\n| Feilklasse | Utfall |\n| --- | --- |\n| F1 | |\n"
+    )
+    assert _kontroller(tekst).feil == []

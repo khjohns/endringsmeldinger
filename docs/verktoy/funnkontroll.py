@@ -25,10 +25,13 @@ Skriptet kontrollerer formen og at henvisningene finnes, ikke at funnet står i
 issuet med nok til å rettes. Det gjør agenten `funnkontroll`, for radene
 `--fort-videre` skriver ut. Issuene og kommentarene slås opp i GitHub-API-et med
 `GITHUB_TOKEN`, eller i en JSON-fil med `--oppslag` ({"issues": [n, ...],
-"kommentarer": {"id": n}}). Commitene slås opp med git i arbeidstreet.
+"lukkede": [n, ...], "kommentarer": {"id": n}, "commits": ["sha", ...]}). Et funn som
+føres videre, må stå i et åpent issue. Commitene slås opp med git i arbeidstreet, og
+deretter i GitHub.
 """
 
 import argparse
+import http.client
 import json
 import os
 import re
@@ -43,7 +46,7 @@ REPO = "khjohns/endringsmeldinger"
 OVERSKRIFT = re.compile(r"^(#{1,6})\s+(.*?)\s*#*\s*$")
 SKILLELINJE = re.compile(r"^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$")
 ISSUELENKE = re.compile(
-    r"https://github\.com/(?P<repo>[\w.-]+/[\w.-]+)/(?:issues|pull)/(?P<nr>\d+)(?!/commits?/)"
+    r"https://github\.com/(?P<repo>[\w.-]+/[\w.-]+)/(?:issues|pull)/(?P<nr>\d+)(?!\d|/commits?/)"
     r"(?:#issuecomment-(?P<kommentar>\d+))?[^\s)\]>]*"
 )
 COMMITLENKE = re.compile(r"https://github\.com/[\w./-]*?/commits?/([0-9a-f]{7,40})\b")
@@ -51,7 +54,7 @@ MD_LENKE = re.compile(r"\[([^\]]*)\]\(\s*<?([^)\s>]*)>?\s*\)")
 KORT_HENVISNING = re.compile(r"(?<![\w/&#])#(\d+)\b")
 COMMIT = re.compile(r"(?<![\w/#-])([0-9a-f]{7,40})(?![\w-])")
 DATO = re.compile(
-    r"(?<![\d.])(?<!punkt )(?<!pkt\. )(?<!§ )(?P<dag>\d{1,2})\.\s?(?P<mnd>\d{1,2})\b(?!\.\d)"
+    r"(?<![\d.])(?<!punkt )(?<!pkt\. )(?<!§ )(?P<dag>\d{1,2})\.\s?(?P<mnd>\d{1,2})(?:\.\d{4}|\.\d{2})?(?!\d|\.\d)"
 )
 LUKKER = re.compile(
     r"\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?):?\s+"
@@ -115,8 +118,11 @@ def _uten_kodeblokker(tekst: str) -> list[str]:
     return linjer
 
 
-def tabeller(tekst: str) -> list[tuple[str, list[str], list[tuple[int, list[str]]]]]:
-    """Tabellene i teksten: overskriften de står under, hodet og radene med linjenummer."""
+def tabeller(
+    tekst: str,
+) -> list[tuple[str, list[str], list[tuple[int, list[str]]], int]]:
+    """Tabellene i teksten: overskriften de står under, hodet, radene med linjenummer og
+    linjenummeret for hodet."""
     linjer = _uten_kodeblokker(tekst)
     resultat = []
     overskrift = ""
@@ -136,15 +142,16 @@ def tabeller(tekst: str) -> list[tuple[str, list[str], list[tuple[int, list[str]
             while j < len(linjer) and linjer[j].lstrip().startswith("|"):
                 rader.append((j + 1, _celler(linjer[j])))
                 j += 1
-            resultat.append((overskrift, hode, rader))
+            resultat.append((overskrift, hode, rader, i + 1))
             i = j
             continue
         i += 1
     return resultat
 
 
-def seksjon(tekst: str, navn: str) -> str | None:
-    """Teksten under overskriften `navn`, fram til neste overskrift på samme nivå eller over."""
+def seksjonsomraade(tekst: str, navn: str) -> tuple[int, int] | None:
+    """Linjene under overskriften `navn` (fra og med, til), med linjenummer fra 1, fram
+    til neste overskrift på samme nivå eller over."""
     linjer = _uten_kodeblokker(tekst)
     start = None
     nivaa = 0
@@ -153,13 +160,19 @@ def seksjon(tekst: str, navn: str) -> str | None:
         if not treff:
             continue
         if start is not None and len(treff.group(1)) <= nivaa:
-            return "\n".join(tekst.splitlines()[start:i])
+            return start, i + 1
         if start is None and treff.group(2).strip().lower().startswith(navn.lower()):
-            start = i + 1
+            start = i + 2
             nivaa = len(treff.group(1))
-    if start is None:
+    return None if start is None else (start, len(linjer) + 1)
+
+
+def seksjon(tekst: str, navn: str) -> str | None:
+    """Teksten under overskriften `navn`, fram til neste overskrift på samme nivå eller over."""
+    omraade = seksjonsomraade(tekst, navn)
+    if omraade is None:
         return None
-    return "\n".join(tekst.splitlines()[start:])
+    return "\n".join(tekst.splitlines()[omraade[0] - 1 : omraade[1] - 1])
 
 
 def henvisninger(tekst: str) -> list[Henvisning]:
@@ -368,6 +381,14 @@ def _kontroller_henvisninger(
                         )
                     )
                     continue
+                if aapen and oppslag.issue(ref.issue) != "open":
+                    resultat.feil.append(
+                        _rad_feil(
+                            rad,
+                            f"#{ref.issue} er lukket, så funnet blir ikke fulgt opp",
+                        )
+                    )
+                    continue
             else:
                 tilstand = oppslag.issue(ref.issue)
                 if tilstand is None:
@@ -402,25 +423,28 @@ def kontroller(
     aapne = _har_innhold(seksjon(tekst, "Åpne spørsmål"))
 
     funnseksjon = seksjon(tekst, "Funn og utfall")
-    alle = [(o, [_kolonnenavn(c) for c in h], r) for o, h, r in tabeller(tekst)]
-    i_seksjonen = [_kolonnenavn(h[0]) for _, h, _ in tabeller(funnseksjon or "")]
+    omraade = seksjonsomraade(tekst, "Funn og utfall")
+    alle = [
+        (
+            o,
+            [_kolonnenavn(c) for c in h],
+            r,
+            omraade is not None and omraade[0] <= l < omraade[1],
+        )
+        for o, h, r, l in tabeller(tekst)
+    ]
     funntabeller = [
         (o, h, r)
-        for o, h, r in alle
-        if "utfall" in h
-        and (
-            h[0].startswith("funn")
-            or (funnseksjon is not None and _er_i(o, funnseksjon))
-        )
+        for o, h, r, i in alle
+        if "utfall" in h and (i or h[0].startswith("funn"))
     ]
     if funnseksjon is not None and _har_innhold(funnseksjon):
-        if not i_seksjonen:
+        i_seksjonen = [h for _, h, _, i in alle if i and not _er_avvikstabell(h, "")]
+        if not any(i for *_, i in alle):
             resultat.feil.append(
                 "«Funn og utfall» har tekst, men ingen tabell med én rad per funn"
             )
-        elif not any(
-            _er_i(o, funnseksjon) or h[0].startswith("funn") for o, h, _ in funntabeller
-        ):
+        elif i_seksjonen and not any("utfall" in h for h in i_seksjonen):
             resultat.feil.append(
                 "tabellen under «Funn og utfall» har ingen kolonne «Utfall»"
             )
@@ -436,12 +460,8 @@ def kontroller(
                 rad, pr, lukkes, aapne, oppslag, commit_finnes, resultat
             )
 
-    for overskrift, hode, rader in alle:
-        if not hode or "utfall" in hode:
-            continue
-        if not (
-            hode[0].startswith("avvik") or "avvik fra prototypen" in overskrift.lower()
-        ):
+    for overskrift, hode, rader, _ in alle:
+        if not _er_avvikstabell(hode, overskrift):
             continue
         for linje, celler in rader:
             if not any(celler):
@@ -457,14 +477,13 @@ def _kolonnenavn(celle: str) -> str:
     return celle.strip(" *_`").lower()
 
 
-def _er_i(overskrift: str, seksjonstekst: str) -> bool:
-    """Tabellen står i seksjonen: overskriften den står under, er seksjonen eller en
-    underoverskrift i den."""
-    if overskrift.lower().startswith("funn og utfall"):
-        return True
-    return any(
-        (t := OVERSKRIFT.match(linje)) and t.group(2) == overskrift
-        for linje in seksjonstekst.splitlines()
+def _er_avvikstabell(hode: list[str], overskrift: str) -> bool:
+    return (
+        bool(hode)
+        and "utfall" not in hode
+        and (
+            hode[0].startswith("avvik") or "avvik fra prototypen" in overskrift.lower()
+        )
     )
 
 
@@ -567,7 +586,7 @@ def _kontroller_funnrad(
 
 def _godkjent(tekst: str, *ord: str) -> bool:
     return (
-        any(o in tekst for o in ord)
+        any(re.search(rf"(?<!ikke )\b{o}\b", tekst) for o in ord)
         and har_dato(tekst)
         and not re.search(r"legges fram|skal legges|godkjennes|venter", tekst)
     )
@@ -662,7 +681,13 @@ def main(argv: list[str] | None = None) -> int:
         resultat = kontroller(
             tekst, pr, oppslag, commitoppslag(oppslag, not args.uten_git)
         )
-    except (urllib.error.URLError, TimeoutError) as feil:
+    except urllib.error.HTTPError as feil:
+        print(
+            f"funnkontroll: GitHub-API-et svarte {feil.code} ({feil.reason}) for {feil.url}.",
+            file=sys.stderr,
+        )
+        return 2
+    except (urllib.error.URLError, OSError, http.client.HTTPException) as feil:
         print(
             f"funnkontroll: GitHub-API-et svarte ikke ({feil}). Kjør jobben på nytt.",
             file=sys.stderr,
