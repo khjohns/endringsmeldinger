@@ -1345,7 +1345,7 @@ export const FRISTKRAV = {
   varselHjelp:
     'Varselet skal gis uten ugrunnet opphold etter at du ble eller burde ha blitt klar over forholdet, også før du kan angi dagene. Varsles det for sent, tapes kravet. Varselet gjelder hele kravet, med alle fristene.',
   kravetErVarselet: 'Dette kravet er varselet.',
-  varseletSendt: (b: Brevref) => `Varselet ble sendt i ${brevref(b)}, ${kortDato(b.registrert)}.`,
+  varseletSendt: (b: Brevref) => `Varselet ble sendt i ${brevref(b)}, ${dato(b.registrert)}.`,
   // U-13: varselet alene, uten dager (VS-U15).
   hvaSender: 'Hva sender du?',
   hvaValg: [
@@ -1383,7 +1383,7 @@ export const FRISTKRAV = {
   // U-11: svaret på forespørselen etter punkt 33.6.2 (VS-U17, VS-U19).
   foresporselTittel: 'Svar på byggherrens forespørsel etter punkt 33.6.2',
   foresporsel: (b: Brevref, mottatt: string, dagerSiden: number) =>
-    `Byggherren ber deg angi og begrunne antall dager (${brevref(b)}, ${dato(mottatt)}, mottatt for ${dagerSiden} ${dagerSiden === 1 ? 'dag' : 'dager'} siden). Svarer du ikke uten ugrunnet opphold, tapes kravet på fristforlengelse (punkt 33.6.2 tredje ledd).`,
+    `Byggherren ber deg angi og begrunne antall dager (${brevref(b)}, ${dato(mottatt)}, mottatt ${dagerSiden === 0 ? 'i dag' : `for ${dagerSiden} ${dagerSiden === 1 ? 'dag' : 'dager'} siden`}). Svarer du ikke uten ugrunnet opphold, tapes kravet på fristforlengelse (punkt 33.6.2 tredje ledd).`,
   hvordanSvarer: 'Hvordan svarer du?',
   bokstavValg: [
     { verdi: 'a' as const, tekst: 'Angi og begrunne dagene (bokstav a)' },
