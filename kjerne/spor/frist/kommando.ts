@@ -185,16 +185,62 @@ export type Forutsetning =
 /** Lagene i et svarutkast på fristen. Fristen har ingen egne felt i standpunktet. */
 export type LagIFristen = Utkastlag<Forutsetning>;
 
+type Spoersmaal =
+  | 'frist_varsel_ok'
+  | 'foresporsel_svar_ok'
+  | 'vilkar_oppfylt'
+  | 'spesifisert_krav_ok';
+
+/** Spørsmålet i svaret hvert standpunkt om hele kravet svarer på. */
+const SPOERSMAALET: Record<string, Spoersmaal> = {
+  'rettidighet 33.4': 'frist_varsel_ok',
+  'rettidighet 33.6.2': 'foresporsel_svar_ok',
+  hindring: 'vilkar_oppfylt',
+  spesifisering: 'spesifisert_krav_ok',
+};
+
+/**
+ * Vurderingene i utkastet med hvert ubesvart spørsmål om hele kravet besvart uten innsigelse
+ * (S1-A), og spørsmålene som var ubesvart. Spørsmålet om forespørselen gjelder bare når svaret
+ * har en forespørsel, og spesifiseringen ikke når kravet svarer på forespørselen (KA-U78 siste
+ * setning). Påberoper byggherren at kravet er spesifisert for sent, regnes en frist uten dagene
+ * byggherren måtte forstå med 0 dager.
+ */
+function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
+  const f = foresporselForFristsvar(u);
+  const gjelder: Record<Spoersmaal, boolean> = {
+    frist_varsel_ok: true,
+    foresporsel_svar_ok: f !== null,
+    vilkar_oppfylt: true,
+    spesifisert_krav_ok: f?.art !== 'svar',
+  };
+  const ubesvart = new Set(
+    (Object.keys(gjelder) as Spoersmaal[]).filter(
+      (felt) => gjelder[felt] && (v[felt] === null || v[felt] === undefined)
+    )
+  );
+  const utfylt: Record<string, unknown> = { ...v };
+  for (const felt of ubesvart) utfylt[felt] = true;
+  if (utfylt.spesifisert_krav_ok === false && Array.isArray(v.frister))
+    utfylt.frister = v.frister.map((r: unknown) =>
+      r !== null && typeof r === 'object' && !('dager_maatte_forstaa' in r)
+        ? { ...r, dager_maatte_forstaa: 0 }
+        : r
+    );
+  return { v: utfylt, ubesvart };
+}
+
 /**
  * Lagene i et svarutkast på fristen, også før alle spørsmålene er besvart (M-8 i BF-20). Et
- * ubesvart spørsmål om varselet, hindringen eller spesifiseringen regnes som at innsigelsen ikke
- * er gjort gjeldende, så laget kan endre seg når det besvares (S1-A). Lagene fra forholdet leses
- * av gjeldende svar på forholdet, som i vederlaget. Dagene påvirker ikke lagene, så utregningen
- * har én rad per frist uten dagene som er vurdert (#1796). Kaster `UgyldigVurdering` når
- * vurderingene av fristene ikke er én per frist i kravet.
+ * ubesvart spørsmål om varselet, forespørselen, hindringen eller spesifiseringen regnes som at
+ * innsigelsen ikke er gjort gjeldende, så laget kan endre seg når det besvares (S1-A), og
+ * standpunktet står med `besvart: false` (#1925). Lagene fra forholdet leses av gjeldende svar
+ * på forholdet, som i vederlaget. Dagene påvirker ikke lagene, så utregningen har én rad per
+ * frist uten dagene som er vurdert (#1796). Kaster `UgyldigVurdering` når vurderingene av
+ * fristene ikke er én per frist i kravet.
  */
 export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett): LagIFristen {
-  const v = utkast.vurderinger;
+  const { v, ubesvart } = utfylt(utkast.vurderinger, u);
   const krav = u.spor.frist.gjeldendeKrav!;
   let n = 0;
   const lagret = STANDPUNKTER_I_FRISTEN(v, krav, u, () => `utkast-${n++}`);
@@ -210,7 +256,12 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
     standpunkter: standpunkterISvaret('frist', { standpunkter: lagret, utregning }),
     utregning,
   };
-  const { grunner, virkning, lag, etikett } = lageneIUtkastet(svar, utkast, u, regler);
+  const { grunner, virkning, lag, etikett } = lageneIUtkastet(
+    svar,
+    { ...utkast, vurderinger: v },
+    u,
+    regler
+  );
   const dagene = fristvurderinger(v, krav);
   // Hvert standpunkt i et tidligere lag i sporet åpnet laget etter seg (OV-U32).
   const aapnetLaget = (f: Standpunkt): Forutsetning[] => {
@@ -228,8 +279,11 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
         ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
         ...(s.art === 'dager' ? { gjelder: s.gjelder } : {}),
         besvart:
-          s.art !== 'dager' ||
-          dagene.some((f) => f.gjelder === s.gjelder && typeof f.dager === 'number'),
+          s.art === 'dager'
+            ? dagene.some((f) => f.gjelder === s.gjelder && typeof f.dager === 'number')
+            : !ubesvart.has(
+                SPOERSMAALET[s.art === 'rettidighet' ? `${s.art} ${s.hjemmel}` : s.art]!
+              ),
         virkning: virkning[i]!,
         etikett: etikett[i]!,
         forutsetninger:

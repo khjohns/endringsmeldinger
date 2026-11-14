@@ -1301,6 +1301,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Lagene i et svarutkast i sporet (#1778).
   ['spor/vederlag/kommando.ts', 'predikat', 'lagIVederlaget', ['kommandoer/lag.ts']],
   ['spor/frist/kommando.ts', 'predikat', 'lagIFristen', ['kommandoer/lag.ts']],
+  // #1925: et ubesvart spørsmål i svarutkastet regnes som besvart uten innsigelse (S1-A).
+  [
+    'spor/frist/kommando.ts:utfylt',
+    'kommando',
+    'v ubesvart',
+    ['spor/frist/kommando.ts:lagIFristen'],
+  ],
+  ['spor/frist/kommando.ts', 'relasjon', 'SPOERSMAALET.*', ['spor/frist/kommando.ts:lagIFristen']],
   // OV-U32, OV-U33: lagene i utkastet regnet som brevet regner dem, felles for sporene.
   [
     'kommandoer/utkastlag.ts',

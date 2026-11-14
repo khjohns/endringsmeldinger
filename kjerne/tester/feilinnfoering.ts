@@ -5200,6 +5200,21 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['leddene for dagene nevner fristen'],
   },
   {
+    id: 'F602',
+    feilklasse:
+      'lagene i et fristsvar har spesifiseringen når kravet svarer på forespørselen (KA-U78 siste setning)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [["    spesifisert_krav_ok: f?.art !== 'svar',", '    spesifisert_krav_ok: true,']],
+    mal: ['når kravet svarer på forespørselen, står spørsmålet om forespørselen ubesvart'],
+  },
+  {
+    id: 'F603',
+    feilklasse: 'et ubesvart spørsmål i et fristsvar står som besvart i lagene (#1925)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [[': !ubesvart.has(', ': true || !ubesvart.has(']],
+    mal: ['står spørsmålene ubesvart og uten virkning', 'med spesifiseringen besvart'],
+  },
+  {
     id: 'F594',
     feilklasse: 'et trukket fristkrav forlenger fristen (GFK-U26, KA-U6)',
     fil: `${K}/spor/frist/utledning.ts`,

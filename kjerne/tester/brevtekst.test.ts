@@ -8546,9 +8546,30 @@ describe('lagene i et fristsvar som ikke er ferdig utfylt (M-8 i BF-20, KA-U78, 
   const fristen = (s: ReturnType<typeof sak>) =>
     innholdIFristen(s.u().spor.frist.gjeldendeKrav!).frister[0]!.id;
 
-  it('kontrollsak: med godkjent forhold og ingenting besvart står dagene uten lag, ubesvart og uten forutsetninger', () => {
+  it('kontrollsak: med godkjent forhold og ingenting besvart står spørsmålene ubesvart og uten virkning, og dagene uten lag og uten forutsetninger (S1-A, #1925)', () => {
     const s = saken({ resultat: 'godkjent' });
     expect(lagene(s, { frister: [{}] })).toEqual([
+      {
+        standpunkt: 'rettidighet 33.4',
+        besvart: false,
+        virkning: 'uten_virkning',
+        etikett: null,
+        forutsetninger: [],
+      },
+      {
+        standpunkt: 'hindring',
+        besvart: false,
+        virkning: 'uten_virkning',
+        etikett: null,
+        forutsetninger: [],
+      },
+      {
+        standpunkt: 'spesifisering',
+        besvart: false,
+        virkning: 'uten_virkning',
+        etikett: null,
+        forutsetninger: [],
+      },
       {
         standpunkt: 'dager',
         gjelder: 'fristen',
@@ -8607,11 +8628,25 @@ describe('lagene i et fristsvar som ikke er ferdig utfylt (M-8 i BF-20, KA-U78, 
     const s = saken({ resultat: 'avslaatt' });
     expect(lagene(s, { vilkar_oppfylt: false, frister: [{}] })).toEqual([
       {
+        standpunkt: 'rettidighet 33.4',
+        besvart: false,
+        virkning: 'uten_virkning',
+        etikett: null,
+        forutsetninger: [],
+      },
+      {
         standpunkt: 'hindring',
         besvart: true,
         virkning: 2,
         etikett: 'subsidiært',
         forutsetninger: [{ grunn: 'avslaatt' }],
+      },
+      {
+        standpunkt: 'spesifisering',
+        besvart: false,
+        virkning: 'uten_virkning',
+        etikett: null,
+        forutsetninger: [],
       },
       {
         standpunkt: 'dager',
@@ -8621,6 +8656,36 @@ describe('lagene i et fristsvar som ikke er ferdig utfylt (M-8 i BF-20, KA-U78, 
         etikett: 'videre subsidiært',
         forutsetninger: [{ grunn: 'avslaatt' }, { innsigelse: 'hindring' }],
       },
+    ]);
+  });
+
+  it('spesifisert for sent uten dagene byggherren måtte forstå gir lagene, med spesifiseringen besvart (#1925)', () => {
+    const s = saken({ resultat: 'godkjent' });
+    const lag = lagene(s, { spesifisert_krav_ok: false, frister: [{}] });
+    expect(lag.map((l) => [l.standpunkt, l.besvart, l.virkning])).toEqual([
+      ['rettidighet 33.4', false, 'uten_virkning'],
+      ['hindring', false, 'uten_virkning'],
+      ['spesifisering', true, 1],
+      ['dager', false, 2],
+    ]);
+  });
+
+  it('når kravet svarer på forespørselen, står spørsmålet om forespørselen ubesvart og spesifiseringen ikke (KA-U78 siste setning, #1925)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), { grunnlag_varslet_i_tide: true, resultat: 'godkjent' }),
+      ],
+    });
+    s.send('BH', { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' });
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    expect(lagene(s, { frister: [{}] }).map((l) => [l.standpunkt, l.besvart])).toEqual([
+      ['rettidighet 33.4', false],
+      ['rettidighet 33.6.2', false],
+      ['hindring', false],
+      ['dager', false],
     ]);
   });
 
