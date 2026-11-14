@@ -6,10 +6,15 @@
  * Satsen i kroner regnes her, ikke i kjernen.
  */
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
-import { fristenEtterForlengelsene, type Forlengelse } from '../kjerne/spor/frist/utledning.ts';
+import type { Forlengelse } from '../kjerne/spor/frist/utledning.ts';
 import { lesekontekst } from './autorisasjon.ts';
 import { tall, transaksjon, type Foresp } from './datalag.ts';
-import { lesForlengelsene, type Forlengelsene, type SakensForlengelse } from './forlengelser.ts';
+import {
+  datoenEtterForlengelsene,
+  lesForlengelsene,
+  type Forlengelsene,
+  type SakensForlengelse,
+} from './forlengelser.ts';
 import type { LestSak } from './saksliste.ts';
 import type { Avhengigheter, Prosjektforespoersel, Rute, Svar } from './rutetyper.ts';
 
@@ -161,8 +166,8 @@ export interface Forlengelseslinje extends Sakslinje {
  * Feltnavnene er en kontrakt med klienten.
  *
  * Forlengelsene er lest i alle sakene klienten kan lese i prosjektet, også saken skjemaet
- * fylles ut i. Den saken regner datoen uten sine egne dager, med `fristenEtterForlengelsene`
- * i kjernen og `forlengelser` uten saken, og nevner ikke seg selv (KA-U77, HF-U5).
+ * fylles ut i. Skjemaet skal regne datoen uten dagene i den saken og ikke nevne den (KA-U77,
+ * HF-U5); det gjør ikke inngangen, som ikke får sak-ID fra klienten.
  */
 export interface Fristlinje {
   frist_id: number;
@@ -210,9 +215,12 @@ export function fristlinjer(
         navn: f.navn,
         dato: f.dato,
         dagmulktbelagt: f.dagmulktbelagt,
-        dato_etter_forlengelsene: ikkeForstaatt.length
-          ? null
-          : fristenEtterForlengelsene(f.dato, f.fristId, avtalt),
+        dato_etter_forlengelsene: datoenEtterForlengelsene(
+          f.dato,
+          f.fristId,
+          avtalt,
+          ikkeForstaatt
+        ),
         forlengelser: forFristen(avtalt).map(linje),
         ikke_tatt_med: forFristen(ikkeAvtalt).map((x) => ({ ...linje(x), grunnlag: x.grunnlag })),
       };
@@ -245,7 +253,8 @@ export const KONTRAKTSFRISTRUTER: readonly Rute[] = [
     eksempel: (p) => `/api/projects/${p}/kontraktsfrister`,
     tilgang: {
       prosjektrolle: 'viewer',
-      utenSak: 'Fristtabellen fra kontrakten; den gjelder prosjektet, ikke én sak.',
+      utenSak:
+        'Fristtabellen fra kontrakten med dagene i sakene i prosjektet som forlenger fristene; den gjelder prosjektet, ikke én sak. Sakene leses under lesefilteret, som sakslisten.',
       kontraktsrolle: 'lesing',
     },
     behandle: fristtabellsvar,

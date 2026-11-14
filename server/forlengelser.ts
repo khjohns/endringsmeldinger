@@ -4,7 +4,11 @@
  * herfra. Hver sak leses med kjernen (`forlengelseneISaken`).
  */
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
-import { forlengelseneISaken, type Forlengelse } from '../kjerne/spor/frist/utledning.ts';
+import {
+  forlengelseneISaken,
+  fristenEtterForlengelsene,
+  type Forlengelse,
+} from '../kjerne/spor/frist/utledning.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Foresp } from './datalag.ts';
 import { skrevetAvKjernen } from './lager.ts';
@@ -30,7 +34,7 @@ export async function lesForlengelsene(
   kjerne: Kjerne,
   utenom?: string
 ): Promise<Forlengelsene> {
-  const l: Forlengelsene = {
+  const lest: Forlengelsene = {
     tattMed: [],
     ikkeTattMed: [],
     ikkeForstaatt: [],
@@ -38,15 +42,27 @@ export async function lesForlengelsene(
   };
   for (const sak of await lesAlleSakene(foresp)) {
     if (sak.sakId === utenom) continue;
-    l.sakskoder.set(sak.sakId, sak.sakskode);
+    lest.sakskoder.set(sak.sakId, sak.sakskode);
     const u = skrevetAvKjernen(sak.journal) ? utledJournal(sak.journal, kjerne) : null;
     if (!u?.forstaatt) {
-      l.ikkeForstaatt.push(sak.sakId);
+      lest.ikkeForstaatt.push(sak.sakId);
       continue;
     }
     const { tattMed, ikkeTattMed } = forlengelseneISaken(u);
-    for (const f of tattMed) l.tattMed.push({ ...f, sakId: sak.sakId });
-    for (const f of ikkeTattMed) l.ikkeTattMed.push({ ...f, sakId: sak.sakId });
+    for (const f of tattMed) lest.tattMed.push({ ...f, sakId: sak.sakId });
+    for (const f of ikkeTattMed) lest.ikkeTattMed.push({ ...f, sakId: sak.sakId });
   }
-  return l;
+  return lest;
 }
+
+/**
+ * Fristen `dato` etter `forlengelser`, eller `null` når en sak kjernen ikke forstår, kan ha
+ * forlenget den (MM-U2).
+ */
+export const datoenEtterForlengelsene = (
+  dato: string,
+  fristId: number,
+  forlengelser: readonly Forlengelse[],
+  ikkeForstaatt: readonly string[]
+): string | null =>
+  ikkeForstaatt.length ? null : fristenEtterForlengelsene(dato, fristId, forlengelser);

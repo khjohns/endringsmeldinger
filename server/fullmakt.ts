@@ -7,15 +7,16 @@
  */
 import { regnUtSvar } from '../kjerne/frosset/utregning.ts';
 import { innholdIFristen } from '../kjerne/spor/frist/format.ts';
-import {
-  foresporselForFristsvar,
-  fristenEtterForlengelsene,
-} from '../kjerne/spor/frist/utledning.ts';
+import { foresporselForFristsvar } from '../kjerne/spor/frist/utledning.ts';
 import { hverdagerIForlengelsen } from '../kjerne/regler/hverdager.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Foresp } from './datalag.ts';
 import { lesKontraktsfrister, type Fristtabell } from './kontraktsfrister.ts';
-import { lesForlengelsene, type SakensForlengelse } from './forlengelser.ts';
+import {
+  datoenEtterForlengelsene,
+  lesForlengelsene,
+  type SakensForlengelse,
+} from './forlengelser.ts';
 import { krevdSamlet } from '../kjerne/spor/vederlag/format.ts';
 import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
@@ -165,7 +166,7 @@ export function fristgrunnlaget(
       tabell.frister.map((f) => [
         f.fristId,
         {
-          dato: ikkeForstaatt.length ? null : fristenEtterForlengelsene(f.dato, f.fristId, tattMed),
+          dato: datoenEtterForlengelsene(f.dato, f.fristId, tattMed, ikkeForstaatt),
           sats: f.dagmulktbelagt ? f.sats : null,
           forlengelser: forFristen(f.fristId, tattMed),
           ikkeTattMed: forFristen(f.fristId, ikkeTattMed),

@@ -442,9 +442,9 @@ FEILINNFOERINGER = [
      "server/kontraktsfrister.ts",
      "const avtalt = tattMed.filter((f) => f.grunnlag === 'avtalt');", "const avtalt = tattMed;",
      "KA-U77, GR-U38: dager byggherren har godkjent uten enighet"),
-    ("S117", "en sak kjernen ikke forstår, gjør ikke datoen i kravskjemaet ukjent (MM-U2)",
-     "server/kontraktsfrister.ts",
-     "      dato_etter_forlengelsene: ikkeForstaatt.length\n", "      dato_etter_forlengelsene: false\n",
+    ("S117", "en sak kjernen ikke forstår, gjør ikke datoen ukjent (MM-U2)",
+     "server/forlengelser.ts",
+     "  ikkeForstaatt.length ? null : fristenEtterForlengelsene", "  false ? null : fristenEtterForlengelsene",
      "MM-U2: en sak kjernen ikke forstår, gjør datoen ukjent for hver frist"),
 ]
 
