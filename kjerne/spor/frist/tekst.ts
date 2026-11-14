@@ -20,8 +20,7 @@ import { standpunktet, virkningen } from '../../frosset/byggeklosser.ts';
 import type { Sporslinje } from '../../frosset/linje.ts';
 import { dager } from '../../frosset/tekst.ts';
 import { Uforstaatt } from '../../format/skjema.ts';
-import { kategori } from '../forhold/format.ts';
-import { betegnelsen, innholdIFristen, type FristIKravet } from './format.ts';
+import { betegnelsen, hindringenEtter, innholdIFristen, type FristIKravet } from './format.ts';
 import { fristnoekkel } from './utledning.ts';
 import type { Krav } from '../../typer.ts';
 
@@ -122,10 +121,6 @@ function fristkravtekst(k: Krav, t: Tekst): Brevpunkt[] {
     { punkt: 'frister', overskrift: 'Fristforlengelse', avsnitt },
   ];
 }
-
-/** Hjemmelen for hindringen: § 33.3 for force majeure, ellers § 33.1. Skjemaene viser den også. */
-export const hindringenEtter = (paaberopelse: Krav | null | undefined): string =>
-  kategori(paaberopelse).hovedkategori === 'force_majeure' ? '33.3' : '33.1';
 
 /**
  * Temaene i byggherrens svar i skjemaets rekkefølge (LV-U34, KA-U78, prototypen
@@ -242,18 +237,22 @@ export const LINJEN_I_FRISTEN = {
   },
   egetLedd: () => undefined,
   // Hvert ledd for dagene nevner fristen, også når kravet har én frist (#1943).
-  ledd: (svar, v, kravet) =>
-    svar.standpunkter.flatMap((d) => {
-      if (d.art !== 'dager') return [];
-      const frist = `for frist ${betegnelsen(fristenI(kravetMedFristene(kravet, [d.gjelder]), d.gjelder))}`;
-      return [
-        {
-          tekst:
-            d.resultat === 'avslaatt'
-              ? `avslått ${frist}`
-              : `godkjent med ${dager(d.vurdert)} ${frist}`,
-          virkning: virkningen(v, d.id),
-        },
-      ];
-    }),
+  ledd: (svar, v, kravet) => {
+    const dagene = svar.standpunkter.filter((d) => d.art === 'dager');
+    if (!dagene.length) return [];
+    const krav = kravetMedFristene(
+      kravet,
+      dagene.map((d) => d.gjelder)
+    );
+    return dagene.map((d) => {
+      const frist = `for frist ${betegnelsen(fristenI(krav, d.gjelder))}`;
+      return {
+        tekst:
+          d.resultat === 'avslaatt'
+            ? `avslått ${frist}`
+            : `godkjent med ${dager(d.vurdert)} ${frist}`,
+        virkning: virkningen(v, d.id),
+      };
+    });
+  },
 } satisfies Sporslinje;

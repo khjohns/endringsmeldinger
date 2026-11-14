@@ -11,8 +11,7 @@
   import { BookOpen } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
   import { dager } from '$kjerne/frosset/tekst';
-  import { betegnelsen, innholdIFristen } from '$kjerne/spor/frist/format';
-  import { hindringenEtter } from '$kjerne/spor/frist/tekst';
+  import { betegnelsen, hindringenEtter, innholdIFristen } from '$kjerne/spor/frist/format';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -94,7 +93,6 @@
   const varselbrev = $derived(
     brevMed(u.spor.frist.varsler['33.4']?.dokument ?? u.spor.frist.krav[0]?.dokument)
   );
-  // § 33.3 for force majeure, ellers § 33.1, som brevteksten i kjernen og svarskjemaet.
   const hindringPunkt = $derived(hindringenEtter(u.spor.forhold.gjeldendeKrav));
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes('frist')));
   const datoer = $derived(datoerISporet(u, 'frist'));

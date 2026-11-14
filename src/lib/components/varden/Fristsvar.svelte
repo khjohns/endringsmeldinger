@@ -10,8 +10,7 @@
   import { BookOpen, FileText } from 'lucide-svelte';
   import { tick } from 'svelte';
   import { dager } from '$kjerne/frosset/tekst';
-  import { betegnelsen, innholdIFristen } from '$kjerne/spor/frist/format';
-  import { hindringenEtter } from '$kjerne/spor/frist/tekst';
+  import { betegnelsen, hindringenEtter, innholdIFristen } from '$kjerne/spor/frist/format';
   import { foresporselenISvaret } from '$lib/kjernesak/fristsvar';
   import type { Forutsetning } from '$kjerne/spor/frist/kommando';
   import type { Utledning } from '$kjerne/utledning/utled';
