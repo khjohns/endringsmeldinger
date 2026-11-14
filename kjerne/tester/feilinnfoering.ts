@@ -19,7 +19,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U55 punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F475 en ny versjon av påberopelsen og endringsordren som står (LV-U56, GR-U40 punkt 7, #1615), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775), og F575–F576 rekkefølgen på hjemlene i rettidigheten i svaret på fristen (VS-U24, #1783), og F577 innsigelsen hvert «i tide» i fristen gir opp (VS-U20, #1783). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U55 punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F475 en ny versjon av påberopelsen og endringsordren som står (LV-U56, GR-U40 punkt 7, #1615), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775), og F575–F576 rekkefølgen på hjemlene i rettidigheten i svaret på fristen (VS-U24, #1783), og F577 innsigelsen hvert «i tide» i fristen gir opp (VS-U20, #1783), og F608–F618 akseptfristen og senkningen i et nytt svar (HF-U23, HF-U29 punkt 8, #502). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
@@ -5274,6 +5274,114 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/regler/hverdager.ts`,
     endringer: [['  return d.getUTCDay() !== 0 && !fridager', '  return !fridager']],
     mal: ['hverdagene i forlengelsen (GFK-U17)'],
+  },
+  {
+    id: 'F608',
+    feilklasse: 'akseptfristen kontrolleres ikke når brevet skrives (HF-U23 punkt 1 og 2, #502)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      ["  if (frist) return { godtatt: false, feil: 'REGELBRUDD', avvisning: frist };", ''],
+    ],
+    mal: ['kan ikke ha en akseptfrist (punkt 1)', 'samme dag godtas (punkt 2)'],
+  },
+  {
+    id: 'F609',
+    feilklasse: 'et svar som godkjenner hele kravet, kan ha en akseptfrist (HF-U23 punkt 1, #502)',
+    fil: `${K}/regler/akseptfrist.ts`,
+    endringer: [["  return s.sammenfall ? 'hele_kravet' : null;", '  return null;']],
+    mal: ['kan ikke ha en akseptfrist (punkt 1)'],
+  },
+  {
+    id: 'F610',
+    feilklasse: 'bare dagene godkjent prinsipalt gir en akseptfrist (HF-U23 punkt 1, #502)',
+    fil: `${K}/spor/frist/format.ts`,
+    endringer: [['f.lag.some((l) => l.dager > 0)', '(f.lag[0]?.dager ?? 0) > 0']],
+    mal: ['bare subsidiært, kan ha en akseptfrist (punkt 1)'],
+  },
+  {
+    id: 'F611',
+    feilklasse: 'akseptfristen kan falle på en lørdag (HF-U23 punkt 2, #502)',
+    fil: `${K}/regler/akseptfrist.ts`,
+    endringer: [["  if (erLoerdag(frist)) return 'loerdag';", '']],
+    mal: ['falle på en lørdag, helligdag eller høytidsdag'],
+  },
+  {
+    id: 'F612',
+    feilklasse: 'akseptfristen kan ikke være samme dag som svaret (HF-U23 punkt 2, #502)',
+    fil: `${K}/regler/akseptfrist.ts`,
+    endringer: [
+      [
+        "  if (frist < svardato) return 'foer_svaret';",
+        "  if (frist <= svardato) return 'foer_svaret';",
+      ],
+    ],
+    mal: ['samme dag godtas (punkt 2)'],
+  },
+  {
+    id: 'F613',
+    feilklasse:
+      'en aksept den dagen fristen gjelder, regnes som sendt etter fristen (HF-U23 punkt 2, #502)',
+    fil: `${K}/regler/akseptfrist.ts`,
+    endringer: [
+      [
+        '(frist: string, dag: string): boolean => dag > frist;',
+        '(frist: string, dag: string): boolean => dag >= frist;',
+      ],
+    ],
+    mal: ['sier ingenting om fristen (punkt 2 og 5, kontrollsak)', 'regnes i norsk tid (punkt 2)'],
+  },
+  {
+    id: 'F614',
+    feilklasse:
+      'brevet ved en aksept etter fristen sier ingenting om fristen (HF-U23 punkt 7, #502)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        'return svar.akseptfrist !== null && etterAkseptfristen(',
+        'return svar.akseptfrist === "" && etterAkseptfristen(',
+      ],
+    ],
+    mal: ['godtar TE svaret etter akseptfristen, sier brevet det'],
+  },
+  {
+    id: 'F615',
+    feilklasse:
+      'det godkjente prinsipalt sammenliknes ikke i et nytt svar (HF-U29 punkt 8, svar 3 A i #502)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [["    sammenlikn('prinsipalt', lagene[0] ?? 0, nye[0] ?? 0);", '']],
+    mal: [
+      'er senket prinsipalt, ikke subsidiært (3 A)',
+      'færre dager for fristen viser punkt 33.7 annet ledd',
+    ],
+  },
+  {
+    id: 'F616',
+    feilklasse:
+      'subsidiært sammenliknes også når begge svar har ett lag (HF-U29 punkt 8, svar 3 A i #502)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['    if (lagene.length > 1 || nye.length > 1)', '    if (lagene.length > 0)']],
+    mal: ['et lavere beløp for en kravpost med fast sum viser det tidligere svaret'],
+  },
+  {
+    id: 'F617',
+    feilklasse:
+      'punkt 34.3.3 annet ledd vises ikke for en kravpost med enhetspriser (HF-U29 punkt 8, svar 4 B i #502)',
+    fil: `${K}/spor/vederlag/visning.ts`,
+    endringer: [["p.oppgjoersform === 'enhetspriser'", "p.oppgjoersform === 'regningsarbeid'"]],
+    mal: ['godtar byggherren ikke lenger justeringen av enhetsprisene i et nytt svar'],
+  },
+  {
+    id: 'F618',
+    feilklasse:
+      'et skifte i justeringen av enhetsprisene gir ingen senkning (HF-U29 punkt 8, svar 4 B i #502)',
+    fil: `${K}/spor/vederlag/visning.ts`,
+    endringer: [
+      [
+        "(s.art === 'justering' && s.godtar ? [s.gjelder] : [])",
+        "(s.art === 'justering' && !s.godtar ? [s.gjelder] : [])",
+      ],
+    ],
+    mal: ['godtar byggherren ikke lenger justeringen av enhetsprisene i et nytt svar'],
   },
 ];
 

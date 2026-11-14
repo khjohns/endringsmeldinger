@@ -115,17 +115,19 @@ spor = "vederlag"
 beskrivelse = """
 Byggherrens svar på en kravversjon av vederlaget, med serverens utregning.
 `grunnlagskrav` er grunnlagsversjonen svaret ble regnet mot. Om svaret er
-subsidiært til grunnlaget, leses av den og lagres ikke (#342)."""
-felt = ["id", "spor", "gjelder", "erstatter", "paaberopelse", "standpunkter", "utregning", "beslutningsgrunnlag"]
-grunnlag = "B-13, MM-U9, HF-U1, GR-U1, GR-U4"
+subsidiært til grunnlaget, leses av den og lagres ikke (#342). `akseptfrist` er
+akseptfristen byggherren satte, en kalenderdag uten virkning i løsningen (HF-U23)."""
+felt = ["id", "spor", "gjelder", "erstatter", "paaberopelse", "akseptfrist", "standpunkter", "utregning", "beslutningsgrunnlag"]
+grunnlag = "B-13, MM-U9, HF-U1, GR-U1, GR-U4, HF-U23"
 
 [[svar]]
 spor = "frist"
 beskrivelse = """
 Byggherrens svar på en kravversjon av fristen, med serverens utregning.
-`grunnlagskrav` er grunnlagsversjonen svaret ble regnet mot (#342)."""
-felt = ["id", "spor", "gjelder", "erstatter", "paaberopelse", "standpunkter", "utregning", "beslutningsgrunnlag"]
-grunnlag = "B-13, MM-U9, HF-U1, GR-U1, GR-U4"
+`grunnlagskrav` er grunnlagsversjonen svaret ble regnet mot (#342). `akseptfrist` er
+akseptfristen byggherren satte, en kalenderdag uten virkning i løsningen (HF-U23)."""
+felt = ["id", "spor", "gjelder", "erstatter", "paaberopelse", "akseptfrist", "standpunkter", "utregning", "beslutningsgrunnlag"]
+grunnlag = "B-13, MM-U9, HF-U1, GR-U1, GR-U4, HF-U23"
 
 # Standpunktene i et svar, i rekkefølgen brevet setter dem. Arten avgjør
 # feltene. Et standpunkt byggherren ikke har tatt, utelates (KA-U4).

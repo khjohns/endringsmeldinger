@@ -10,6 +10,8 @@
  */
 
 import type { Regelsett } from '../regler/regelsett.ts';
+import { etterAkseptfristen } from '../regler/akseptfrist.ts';
+import { registrertDato } from '../format/leser.ts';
 import { ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { VISNING_I_FORHOLDET } from '../spor/forhold/visning.ts';
@@ -28,7 +30,7 @@ import {
   type RegistrertBrev,
   type Utledning,
 } from './utled.ts';
-import { SPOR, type Kravspor, type Spor } from '../typer.ts';
+import { SPOR, type Krav, type Kravspor, type Spor, type Svar } from '../typer.ts';
 
 export type Statuskode =
   | 'kan_ikke_utledes'
@@ -53,6 +55,8 @@ export interface Visning {
       betegnelse: Betegnelse | null;
       /** OV-U62: begge partenes brev registrert som dokumentasjon, vist ved kravet. */
       registrerteBrev: BrevVedKravet[];
+      /** HF-U29 punkt 8: det gjeldende svaret senker det byggherren har godkjent, eller `null`. */
+      senkning: Senkning | null;
     }
   >;
   /** OV-U4, OV-U16: brevene registrert som dokumentasjon, også når saken ikke er forstått. */
@@ -82,6 +86,33 @@ export interface Visning {
    */
   vurderingsgrunnlag: Record<Kilde, string[]>;
   merknader: string[];
+}
+
+/**
+ * En kravpost, den særskilte posten eller en frist der byggherren har godkjent mindre enn i svaret
+ * som er erstattet, i det første laget (prinsipalt) eller i det siste (subsidiært). Svar 2 A og 3 A
+ * 14.11 i #502: hver post og frist for seg, og prinsipalt og subsidiært hver for seg.
+ */
+export interface Senket {
+  gjelder: string;
+  lag: 'prinsipalt' | 'subsidiaert';
+  foer: number;
+  naa: number;
+}
+
+/**
+ * HF-U29 punkt 8: det nye svaret senker beløp eller dager byggherren har godkjent. Visningen viser
+ * det tidligere svaret og bestemmelsen med frist, uten å trekke konklusjonen (VS-U2, VS-U10).
+ * Bare et nytt svar på samme kravversjon sammenliknes (svar 1 A 14.11 i #502).
+ */
+export interface Senkning {
+  /** Svaret det nye svaret erstatter (HF-U29 punkt 2). */
+  tidligereSvar: string;
+  senket: Senket[];
+  /** Kravpostene der byggherren ikke lenger godtar justeringen av enhetsprisene (svar 4 B). */
+  justeringIkkeGodtatt: string[];
+  /** Punkt 33.7 annet ledd for fristen, punkt 34.3.3 annet ledd for en post med enhetspriser. */
+  bestemmelse: '33.7' | '34.3.3' | null;
 }
 
 /** OV-U62: et registrert brev ved kravet, med avsenderen og avsenderens beskrivelse. */
@@ -185,6 +216,22 @@ function regelenErEndret(u: Utledning, spor: Spor, regler: Regelsett): boolean {
   return ulikeVirkninger(u.svar[g.id].virkninger, virkninger(g, paaberopelseFor(g, u), regler));
 }
 
+/**
+ * HF-U23 punkt 7 og designdelen: TE har godtatt svaret etter akseptfristen. Etiketten står ved
+ * den registrerte enigheten, og løsningen avgjør ikke virkningen (punkt 5 og 8).
+ */
+function akseptertEtterFristen(u: Utledning, spor: Spor): boolean {
+  const enighet = u.spor[spor].enighet;
+  if (enighet?.grunnlag.kilde !== 'aksept') return false;
+  const frist = u.spor[spor].svar.find((x) => x.id === enighet.grunnlag.svar)?.akseptfrist;
+  const aksept = u.journal.find((h) => h.art === 'dokument' && h.id === enighet.holder);
+  return (
+    !!frist &&
+    aksept?.art === 'dokument' &&
+    etterAkseptfristen(frist, registrertDato(aksept.dokument))
+  );
+}
+
 function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
   const s = u.spor[spor];
   const ut: string[] = [];
@@ -198,6 +245,7 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
     if (virkning === 'uten_virkning') ut.push('enighet_uten_virkning');
     if (s.gjeldendeKrav && s.subsidiaer.length) ut.push('subsidiaert');
   }
+  if (akseptertEtterFristen(u, spor)) ut.push('aksept_etter_akseptfristen');
   if (regelenErEndret(u, spor, regler))
     ut.push(s.enighet ? 'regel_endret_etter_enighet' : 'regel_endret_etter_brevet');
   if (s.gjeldendeSvar && vurdertVedRegistreringen(u, s.gjeldendeSvar.id))
@@ -240,6 +288,55 @@ export interface Sporsvisning {
   passivitetsetikett(u: Utledning): string | null;
   /** Byggherren har etterspurt et spesifisert krav i sporet som ikke er besvart. */
   kravetErEtterspurt(u: Utledning): boolean;
+  /** Det sporet gir senkningen etter HF-U29 punkt 8. Forholdet har ingen. */
+  senkning?: Sporssenkning;
+}
+
+/** Det som er sporets eget i senkningen etter HF-U29 punkt 8. */
+export interface Sporssenkning {
+  /** Det byggherren godkjente for hver post eller frist i svaret, ett tall per lag fra det første. */
+  godkjentILagene(svar: Svar): ReadonlyMap<string, readonly number[]>;
+  /** Kravpostene der `tidligere` godtar justeringen etter § 34.3.2, og `ny` ikke gjør det. */
+  justeringIkkeGodtatt(ny: Svar, tidligere: Svar): string[];
+  /** Bestemmelsen visningen viser når postene eller fristene `gjelder` er senket i svaret på `krav`. */
+  bestemmelse(gjelder: readonly string[], krav: Krav): Senkning['bestemmelse'];
+}
+
+/**
+ * HF-U29 punkt 8 for det gjeldende svaret i sporet, med svarene 14.11 i #502 (1 A, 2 A, 3 A, 4 B):
+ * hver post og frist sammenliknes med svaret det nye svaret erstatter på samme kravversjon,
+ * prinsipalt og subsidiært hver for seg. Subsidiært sammenliknes bare når et av svarene har mer
+ * enn ett lag, ellers er det samme tall. `null` når ingenting er senket.
+ */
+export function senkningen(u: Utledning, spor: Spor): Senkning | null {
+  const sporet = visningI(spor).senkning;
+  const ny = u.spor[spor].gjeldendeSvar;
+  if (!sporet || !ny?.erstatter) return null;
+  const tidligere = u.spor[spor].svar.find((x) => x.id === ny.erstatter);
+  const krav = u.spor[spor].krav.find((k) => k.id === ny.gjelder);
+  if (!tidligere || !krav || tidligere.gjelder !== ny.gjelder) return null;
+  const [foer, naa] = [sporet.godkjentILagene(tidligere), sporet.godkjentILagene(ny)];
+  const senket: Senket[] = [];
+  for (const [gjelder, lagene] of foer) {
+    const nye = naa.get(gjelder) ?? [0];
+    const sammenlikn = (lag: Senket['lag'], a: number, b: number) => {
+      if (b < a) senket.push({ gjelder, lag, foer: a, naa: b });
+    };
+    sammenlikn('prinsipalt', lagene[0] ?? 0, nye[0] ?? 0);
+    if (lagene.length > 1 || nye.length > 1)
+      sammenlikn('subsidiaert', lagene.at(-1) ?? 0, nye.at(-1) ?? 0);
+  }
+  const justeringIkkeGodtatt = sporet.justeringIkkeGodtatt(ny, tidligere);
+  if (!senket.length && !justeringIkkeGodtatt.length) return null;
+  return {
+    tidligereSvar: tidligere.id,
+    senket,
+    justeringIkkeGodtatt,
+    bestemmelse: sporet.bestemmelse(
+      [...new Set([...senket.map((s) => s.gjelder), ...justeringIkkeGodtatt])],
+      krav
+    ),
+  };
 }
 
 /** Visningen i hvert spor. */
@@ -374,6 +471,7 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
           etiketter: u.forstaatt ? etiketter(u, s, regler) : [],
           betegnelse: betegnelse(u, s),
           registrerteBrev: u.forstaatt ? brevVedKravet(u, s) : [],
+          senkning: u.forstaatt ? senkningen(u, s) : null,
         },
       ])
     ) as Visning['spor'],

@@ -182,6 +182,10 @@ export const betegnelsen = (f: { nummer?: string | null; navn: string }): string
 export const utregningIFristen = (utregning: Record<string, unknown>): Fristutregning =>
   utregning as unknown as Fristutregning;
 
+/** Svaret godkjenner dager for en frist i et av lagene, prinsipalt eller subsidiært (HF-U23 punkt 1). */
+export const godkjennerDagerIEtLag = (utregning: Record<string, unknown>): boolean =>
+  utregningIFristen(utregning).frister.some((f) => f.lag.some((l) => l.dager > 0));
+
 type Data = Record<string, unknown>;
 
 /** Raden for fristen `gjelder` i utregningen. */

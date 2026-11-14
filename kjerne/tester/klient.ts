@@ -203,6 +203,7 @@ function svarutkast(
     vurderinger: v,
     resultat,
     ...svarutdypning(spor, h),
+    ...(typeof h.akseptfrist === 'string' ? { akseptfrist: h.akseptfrist } : {}),
   };
 }
 

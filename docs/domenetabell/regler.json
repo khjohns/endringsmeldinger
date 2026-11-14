@@ -1387,6 +1387,27 @@
       "dato": "2026-11-08",
       "ref": "../plans/vedtak.md#vs-u55",
       "radetikett": "VS-U55: Er et varsel gitt før kravet, viser kravet kort til det"
+    },
+    {
+      "id": "HF-U23",
+      "type": "vedtak",
+      "dato": "2026-11-04",
+      "ref": "../plans/vedtak.md#hf-u23",
+      "radetikett": "HF-U23: Samlevedtaket for akseptfristen"
+    },
+    {
+      "id": "HF-U29",
+      "type": "vedtak",
+      "dato": "2026-11-05",
+      "ref": "../plans/vedtak.md#hf-u29",
+      "radetikett": "HF-U29: Spørsmål 1: Når byggherrens tidligere svar er en endringsordre registrert som svar"
+    },
+    {
+      "id": "AV-502",
+      "type": "arbeidsvalg",
+      "issue": 502,
+      "dato": "2026-11-14",
+      "merknad": "Oppdragsgivers svar 14.11 på spørsmål 1–4 i kommentaren 6883744258 i #502 («Som anbefalt på alle spørsmålene»: 1 A, 2 A, 3 A og 4 B), om hvilke svar og tall HF-U29 punkt 8 sammenlikner. Føres som vedtak i en egen PR."
     }
   ],
   "rader": [
@@ -3613,7 +3634,7 @@
     {
       "id": "KA-49",
       "tilfelle": "Byggherren reviderer et svar sendt fra appen som TE ikke har godtatt, og revisjonen senker noe byggherren har innrømmet i svaret: godkjent grunnlag, godkjent beløp eller godkjente dager, prinsipalt eller subsidiært, at fremdriften er hindret etter § 33.1, dagene byggherren måtte forstå etter § 33.6.1 når begge svar sier «for sent».",
-      "forventet": "Revisjonen godtas, også når den senker et standpunkt (MM-U34 punkt 4). Tidligere brev bevares uendret. Senker revisjonen dager eller beløp byggherren har godkjent, viser løsningen det tidligere svaret og, for frist og enhetspriser, § 33.7 annet ledd eller § 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen (HF-U22). Et nytt svar på en ny kravversjon er ikke en revisjon. Et registrert svar er dokumentasjon (OV-U4).",
+      "forventet": "Revisjonen godtas, også når den senker et standpunkt (MM-U34 punkt 4). Tidligere brev bevares uendret. Senker revisjonen dager eller beløp byggherren har godkjent, viser løsningen det tidligere svaret og, for frist og enhetspriser, § 33.7 annet ledd eller § 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen ([HF-U29](../plans/vedtak.md#hf-u29) punkt 8). Hver kravpost og frist sammenliknes med svaret det nye svaret erstatter på samme kravversjon, prinsipalt og subsidiært hver for seg, og for en kravpost med enhetspriser vises bestemmelsen også når byggherren ikke lenger godtar justeringen etter § 34.3.2 (AV-502). Et nytt svar på en ny kravversjon er ikke en revisjon. Et registrert svar er dokumentasjon (OV-U4).",
       "bh_standpunkt": "Det byggherren har innrømmet i et sendt svar, deretter en revisjon som senker det.",
       "rettslig_virkning": "Løsningen avgjør ikke om endringen er rettslig virksom (MM-U12).",
       "rettidighet": "—",
@@ -3621,12 +3642,13 @@
       "kilder": [
         "MM-U34",
         "HF-U5",
-        "HF-U22",
         "HF-U21",
         "HF-U8",
         "MM-U12",
         "MM-U50",
-        "OV-U4"
+        "OV-U4",
+        "HF-U29",
+        "AV-502"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -3785,6 +3807,24 @@
       "regelkoder": [
         "FRISTENE",
         "FRIST_IKKE_REGISTRERT"
+      ]
+    },
+    {
+      "id": "KA-58",
+      "tilfelle": "Byggherren setter en akseptfrist i et svar: på vederlag eller frist, som godkjenner en del av kravet prinsipalt eller subsidiært, som avslår helt eller godkjenner hele kravet, eller på forholdet. Fristen ligger før svaret, på svarets dato, på en lørdag, en søndag eller en helligdag. TE godtar svaret senest den dagen fristen gjelder, eller senere.",
+      "forventet": "Bare et svar på vederlag eller frist som godkjenner et beløp eller dager, prinsipalt eller subsidiært, uten å godkjenne hele kravet, kan ha en akseptfrist, og datoen kan ikke ligge før svaret eller falle på en lørdag, helligdag eller høytidsdag ([HF-U23](../plans/vedtak.md#hf-u23) punkt 1 og 2). Fristen lagres i svaret som en opplysning uten virkning (punkt 4 og 5). Godtar TE svaret etter fristen, registreres aksepten som andre aksepter, og brevet sier at aksepten er sendt etter akseptfristen (punkt 7 og 8).",
+      "bh_standpunkt": "Svaret med akseptfristen.",
+      "rettslig_virkning": "Løsningen knytter ingen virkning til akseptfristen og avgjør ikke om aksepten kom fram i tide etter avtaleloven § 2 (HF-U23 punkt 5).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "HF-U23",
+        "GR-U7"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "regelkoder": [
+        "AKSEPTFRIST_IKKE_TILLATT",
+        "AKSEPTFRIST_UGYLDIG_DATO"
       ]
     }
   ],

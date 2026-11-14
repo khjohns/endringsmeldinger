@@ -326,6 +326,11 @@ export interface Svar {
    * `null` i et svar på forholdet.
    */
   paaberopelse: string | null;
+  /**
+   * Akseptfristen byggherren satte i svaret, som en kalenderdag (HF-U23 punkt 1 og 2). En
+   * opplysning uten virkning i løsningen (punkt 5). `null` uten frist, og alltid i forholdet.
+   */
+  akseptfrist: string | null;
   standpunkter: Standpunkt[];
   /**
    * Serverens utregning etter B-13, slik den er lagret. Leses gjennom formatfila for sporet

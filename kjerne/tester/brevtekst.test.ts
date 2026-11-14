@@ -26,6 +26,7 @@ import { postlisten } from '../spor/vederlag/frysing.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { innsigelsenErOppgitt } from '../frosset/standpunkt.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
+import { etterAkseptfristen } from '../regler/akseptfrist.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
 import { innholdIFristen } from '../spor/frist/format.ts';
 import { LINJEN_I_FRISTEN } from '../spor/frist/tekst.ts';
@@ -10078,6 +10079,29 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
       'standpunktet til beløpet har et beløp for en kravpost etter en beregningsregel',
     ]);
   });
+
+  it('godtar byggherren ikke lenger justeringen av enhetsprisene i et nytt svar, viser visningen det tidligere svaret og punkt 34.3.3 annet ledd (HF-U29 punkt 8, svar 4 B 14.11 i #502)', () => {
+    const s = sakMed(justert);
+    s.send('BH', svaret(s, { P2: { aksepterer: true, godtar_justering: true } }));
+    const tidligere = gjeldende(s).id;
+    const ny = svaret(s, { P2: { aksepterer: true, godtar_justering: false } });
+    s.send('BH', { type: 'revisjon', erstatter: tidligere, svar: (ny.svar as Data[])[0] });
+    const p2 = kravposterI(s.u().spor.vederlag.gjeldendeKrav!).find((p) => p.betegnelse === 'P2')!;
+    expect(visning(s.u(), KJERNE.regler).spor.vederlag.senkning).toEqual({
+      tidligereSvar: tidligere,
+      senket: [],
+      justeringIkkeGodtatt: [p2.id],
+      bestemmelse: '34.3.3',
+    });
+  });
+
+  it('godtar byggherren justeringen igjen i et nytt svar, er ingenting senket (kontrollsak, HF-U29 punkt 8)', () => {
+    const s = sakMed(justert);
+    s.send('BH', svaret(s, { P2: { aksepterer: true, godtar_justering: false } }));
+    const ny = svaret(s, { P2: { aksepterer: true, godtar_justering: true } });
+    s.send('BH', { type: 'revisjon', erstatter: gjeldende(s).id, svar: (ny.svar as Data[])[0] });
+    expect(visning(s.u(), KJERNE.regler).spor.vederlag.senkning).toBeNull();
+  });
 });
 
 describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, VS-U55, D-16 i BF-14, #1663)', () => {
@@ -10934,5 +10958,231 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
     expect(proev((a) => (a[1].punkt = 'P1'))).toBe(false);
     expect(proev((a) => delete a[1].punkt)).toBe(false);
     expect(proev((a) => delete a[0].punkt)).toBe(false);
+  });
+});
+
+/**
+ * Akseptfristen i byggherrens svar, etter samlevedtaket for akseptfristen (HF-U23): hvilke svar
+ * som kan ha en (punkt 1), datoene (punkt 2), at den lagres som en opplysning (punkt 4 og 5) og
+ * brevet ved en aksept etter fristen (punkt 7). Sakene i `sakMedKrav()` får svaret mandag
+ * 5. oktober 2026 og aksepten dagen etter.
+ */
+describe('akseptfristen (HF-U23)', () => {
+  const medFrist = (svaret: Data, akseptfrist: string) => ({ ...svaret, akseptfrist });
+  const brev = (...svarene: Data[]) => ({ type: 'brev', svar: svarene });
+  const delvis = (s: ReturnType<typeof sakMedKrav>) =>
+    svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1]);
+  const aksept = (s: ReturnType<typeof sakMedKrav>, spor: 'vederlag' | 'frist') => ({
+    type: 'aksept',
+    spor,
+    svar: s.u().spor[spor].gjeldendeSvar!.id,
+    regelversjon: KJERNE.regler.versjon,
+  });
+
+  it('et svar som godkjenner en del av beløpet, kan ha en akseptfrist, og den lagres i svaret (punkt 1 og 4)', () => {
+    const s = sakMedKrav();
+    s.send('BH', brev(medFrist(delvis(s), '2026-10-09')));
+    expect(s.u().spor.vederlag.gjeldendeSvar!.akseptfrist).toBe('2026-10-09');
+  });
+
+  it('et svar uten akseptfrist har ingen (punkt 3)', () => {
+    const s = sakMedKrav();
+    s.send('BH', brev(delvis(s)));
+    expect(s.u().spor.vederlag.gjeldendeSvar!.akseptfrist).toBeNull();
+  });
+
+  it('et svar som godkjenner dagene bare subsidiært, kan ha en akseptfrist (punkt 1)', () => {
+    const s = sakMedKrav();
+    const subsidiaert = svar(
+      'frist',
+      s.krav('frist'),
+      { ...FRIST_FULLT[0], frist_varsel_ok: false },
+      { resultat: 'avslaatt', godkjent_dager: 0 }
+    );
+    s.send('BH', brev(medFrist(subsidiaert, '2026-10-09')));
+    expect(s.u().spor.frist.gjeldendeSvar!.akseptfrist).toBe('2026-10-09');
+  });
+
+  it('et svar på forholdet, et helt avslag og et svar som godkjenner hele kravet, kan ikke ha en akseptfrist (punkt 1)', () => {
+    const s = sakMedKrav();
+    const forholdet = svar('forhold', s.krav('forhold'), {
+      resultat: 'avslaatt',
+      grunnlag_varslet_i_tide: true,
+    });
+    const avslag = svar(
+      'vederlag',
+      s.krav('vederlag'),
+      P1({ vurdering: 'avslaatt', aksepterer: true }),
+      { resultat: 'avslaatt', godkjent_beloep: 0 }
+    );
+    const fullt = svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1]);
+    expect(s.avvisning('BH', brev(medFrist(forholdet, '2026-10-09')))).toEqual({
+      regel: 'AKSEPTFRIST_IKKE_TILLATT',
+      melding: 'Et svar på påberopelsen av forholdet har ingen akseptfrist.',
+    });
+    expect(s.avvisning('BH', brev(medFrist(avslag, '2026-10-09')))).toEqual({
+      regel: 'AKSEPTFRIST_IKKE_TILLATT',
+      melding:
+        'Svaret godkjenner verken beløp eller dager, prinsipalt eller subsidiært, og kan ikke ha en akseptfrist.',
+    });
+    expect(s.avvisning('BH', brev(medFrist(fullt, '2026-10-09')))).toEqual({
+      regel: 'AKSEPTFRIST_IKKE_TILLATT',
+      melding: 'Svaret godkjenner hele kravet og kan ikke ha en akseptfrist.',
+    });
+    expect(
+      s.avvist('BH', brev(avslag, fullt)),
+      'kontrollsak: de samme svarene uten frist'
+    ).toBeNull();
+  });
+
+  it('fristen kan ikke ligge før datoen for svaret eller falle på en lørdag, helligdag eller høytidsdag; samme dag godtas (punkt 2)', () => {
+    const s = sakMedKrav();
+    const med = (dato: string) => s.avvisning('BH', brev(medFrist(delvis(s), dato)));
+    expect(med('2026-10-04')).toEqual({
+      regel: 'AKSEPTFRIST_UGYLDIG_DATO',
+      melding: 'Akseptfristen 4. oktober 2026 er før datoen for svaret, 5. oktober 2026.',
+    });
+    expect(med('2026-10-10')).toEqual({
+      regel: 'AKSEPTFRIST_UGYLDIG_DATO',
+      melding: 'Akseptfristen 10. oktober 2026 er en lørdag.',
+    });
+    expect(med('2026-10-11')?.melding, 'en søndag er en helligdag').toBe(
+      'Akseptfristen 11. oktober 2026 er en helligdag eller høytidsdag.'
+    );
+    expect(med('2026-12-25')?.regel, 'første juledag').toBe('AKSEPTFRIST_UGYLDIG_DATO');
+    expect(med('2027-05-17')?.regel, 'høytidsdagen 17. mai').toBe('AKSEPTFRIST_UGYLDIG_DATO');
+    expect(med('2026-02-30')?.melding).toBe('Akseptfristen 2026-02-30 finnes ikke i kalenderen.');
+    expect(med('2026-10-05'), 'kontrollsak: samme dag som svaret').toBeNull();
+    expect(med('2026-10-09'), 'kontrollsak: en fredag').toBeNull();
+  });
+
+  it('en frist med klokkeslett avvises som form', () => {
+    const s = sakMedKrav();
+    expect(s.avvist('BH', brev(medFrist(delvis(s), '2026-10-09T12:00:00Z')))).toBe('UGYLDIG_FORM');
+  });
+
+  it('godtar TE svaret etter akseptfristen, sier brevet det, og visningen viser det ved enigheten (punkt 7 og designdelen)', () => {
+    const s = sakMedKrav();
+    // Svaret sendes 5. oktober med frist samme dag, og aksepten 6. oktober.
+    s.send('BH', brev(medFrist(delvis(s), '2026-10-05')));
+    const rad = s.send('TE', aksept(s, 'vederlag'));
+    expect(laast(rad)).toEqual([
+      'Totalentreprenøren godtar byggherrens svar på kravet om justering av vederlaget i brev K201-KOE-017-04 av 5. oktober 2026. Aksepten er sendt etter akseptfristen 5. oktober 2026 i byggherrens svar.',
+    ]);
+    expect(s.u().spor.vederlag.enighet, 'punkt 8: registrert som andre aksepter').not.toBeNull();
+    expect(visning(s.u(), KJERNE.regler).spor.vederlag.etiketter).toContain(
+      'aksept_etter_akseptfristen'
+    );
+  });
+
+  it('en aksept senest den dagen fristen gjelder, sier ingenting om fristen (punkt 2 og 5, kontrollsak)', () => {
+    const s = sakMedKrav();
+    s.send('BH', brev(medFrist(delvis(s), '2026-10-06')));
+    const rad = s.send('TE', aksept(s, 'vederlag'));
+    expect(laast(rad)).toEqual([
+      'Totalentreprenøren godtar byggherrens svar på kravet om justering av vederlaget i brev K201-KOE-017-04 av 5. oktober 2026.',
+    ]);
+    expect(visning(s.u(), KJERNE.regler).spor.vederlag.etiketter).not.toContain(
+      'aksept_etter_akseptfristen'
+    );
+  });
+
+  it('dagen aksepten sendes, regnes i norsk tid (punkt 2)', () => {
+    expect(etterAkseptfristen('2026-10-05', '2026-10-06')).toBe(true);
+    expect(etterAkseptfristen('2026-10-05', '2026-10-05')).toBe(false);
+  });
+});
+
+/**
+ * HF-U29 punkt 8: senker byggherren i et nytt svar dager eller beløp byggherren har godkjent,
+ * viser visningen det tidligere svaret og, for fristen, punkt 33.7 annet ledd. Svarene 14.11 i
+ * #502: samme kravversjon (1 A), hver kravpost og frist mot svaret det erstatter (2 A), og
+ * prinsipalt og subsidiært hver for seg (3 A).
+ */
+describe('senkningen i et nytt svar (HF-U29 punkt 8)', () => {
+  const revisjon = (s: ReturnType<typeof sakMedKrav>, nytt: Data) => ({
+    type: 'revisjon',
+    erstatter: s.u().spor[nytt.spor as 'vederlag' | 'frist'].gjeldendeSvar!.id,
+    svar: nytt,
+  });
+  const vederlag = (s: ReturnType<typeof sakMedKrav>, beloep: number) =>
+    svar(
+      'vederlag',
+      s.krav('vederlag'),
+      P1({ vurdering: 'delvis', godkjent_beloep: beloep, aksepterer: true }),
+      { resultat: 'delvis_godkjent', godkjent_beloep: beloep }
+    );
+  const frist = (s: ReturnType<typeof sakMedKrav>, dager: number, iTide = true) =>
+    svar(
+      'frist',
+      s.krav('frist'),
+      { ...FRIST_FULLT[0], frist_varsel_ok: iTide, dager },
+      iTide
+        ? { resultat: 'delvis_godkjent', godkjent_dager: dager }
+        : { resultat: 'avslaatt', godkjent_dager: 0 }
+    );
+  const senkning = (s: ReturnType<typeof sakMedKrav>, spor: 'vederlag' | 'frist') =>
+    visning(s.u(), KJERNE.regler).spor[spor].senkning;
+
+  it('et lavere beløp for en kravpost med fast sum viser det tidligere svaret, uten bestemmelse (2 A)', () => {
+    const s = sakMedKrav();
+    s.send('BH', { type: 'brev', svar: [vederlag(s, 100000)] });
+    const tidligere = s.u().spor.vederlag.gjeldendeSvar!.id;
+    s.send('BH', revisjon(s, vederlag(s, 80000)));
+    expect(senkning(s, 'vederlag')).toEqual({
+      tidligereSvar: tidligere,
+      senket: [{ gjelder: p1I(s), lag: 'prinsipalt', foer: 100000, naa: 80000 }],
+      justeringIkkeGodtatt: [],
+      bestemmelse: null,
+    });
+  });
+
+  it('et høyere beløp senker ingenting (kontrollsak)', () => {
+    const s = sakMedKrav();
+    s.send('BH', { type: 'brev', svar: [vederlag(s, 100000)] });
+    s.send('BH', revisjon(s, vederlag(s, 110000)));
+    expect(senkning(s, 'vederlag')).toBeNull();
+  });
+
+  it('færre dager for fristen viser punkt 33.7 annet ledd', () => {
+    const s = sakMedKrav();
+    s.send('BH', { type: 'brev', svar: [frist(s, 15)] });
+    s.send('BH', revisjon(s, frist(s, 10)));
+    expect(senkning(s, 'frist')).toMatchObject({
+      senket: [{ lag: 'prinsipalt', foer: 15, naa: 10 }],
+      bestemmelse: '33.7',
+    });
+  });
+
+  it('dager godkjent prinsipalt som nå bare står subsidiært, er senket prinsipalt, ikke subsidiært (3 A)', () => {
+    const s = sakMedKrav();
+    s.send('BH', { type: 'brev', svar: [frist(s, 15)] });
+    s.send('BH', revisjon(s, frist(s, 15, false)));
+    expect(senkning(s, 'frist')?.senket).toEqual([
+      {
+        gjelder: innholdIFristen(s.u().spor.frist.gjeldendeKrav!).frister[0]!.id,
+        lag: 'prinsipalt',
+        foer: 15,
+        naa: 0,
+      },
+    ]);
+  });
+
+  it('mot svaret det erstatter, ikke det høyeste: 100 000, 60 000 og så 80 000 viser senkningen bare ved det andre (2 A)', () => {
+    const s = sakMedKrav();
+    s.send('BH', { type: 'brev', svar: [vederlag(s, 100000)] });
+    s.send('BH', revisjon(s, vederlag(s, 60000)));
+    expect(senkning(s, 'vederlag')).not.toBeNull();
+    s.send('BH', revisjon(s, vederlag(s, 80000)));
+    expect(senkning(s, 'vederlag')).toBeNull();
+  });
+
+  it('et svar på en ny kravversjon sammenliknes ikke med svaret på den tidligere (1 A)', () => {
+    const s = sakMedKrav();
+    s.send('BH', { type: 'brev', svar: [vederlag(s, 100000)] });
+    s.send('TE', { type: 'krav', spor: 'vederlag', innhold: tilbud(120000) });
+    s.send('BH', { type: 'brev', svar: [vederlag(s, 50000)] });
+    expect(s.u().spor.vederlag.gjeldendeSvar!.erstatter).toBeNull();
+    expect(senkning(s, 'vederlag')).toBeNull();
   });
 });

@@ -6,7 +6,8 @@
 import { hjemmelenGjelder } from '../../frosset/byggeklosser.ts';
 import { postlisten, type Paaberopt, type Vederlagspost } from './frysing.ts';
 import { vurdertVedRegistreringen, type Utledning } from '../../utledning/utled.ts';
-import type { Sporsvisning } from '../../utledning/visning.ts';
+import type { Sporssenkning, Sporsvisning } from '../../utledning/visning.ts';
+import { kravposterI, utregningIVederlaget } from './format.ts';
 import type { Part, Svar } from '../../typer.ts';
 import { lagFraForholdet } from '../forhold/frysing.ts';
 
@@ -54,6 +55,32 @@ export function vederlagssvaret(u: Utledning, svar: Svar): Vederlagssvaret {
   };
 }
 
+/** HF-U29 punkt 8 i vederlaget, med svar 2 A, 3 A og 4 B 14.11 i #502. */
+const SENKNING_I_VEDERLAGET: Sporssenkning = {
+  godkjentILagene: (svar) =>
+    new Map(
+      utregningIVederlaget(svar.utregning).poster.map((p) => [
+        p.gjelder ?? p.saerskilt!,
+        p.lag.map((l) => l.beloep ?? 0),
+      ])
+    ),
+  justeringIkkeGodtatt: (ny, tidligere) => {
+    const godtatt = (svar: Svar) =>
+      new Set(
+        svar.standpunkter.flatMap((s) => (s.art === 'justering' && s.godtar ? [s.gjelder] : []))
+      );
+    const foer = godtatt(tidligere);
+    return ny.standpunkter.flatMap((s) =>
+      s.art === 'justering' && !s.godtar && foer.has(s.gjelder) ? [s.gjelder] : []
+    );
+  },
+  // Punkt 34.3.3 annet ledd gjelder en kravpost med enhetspriser.
+  bestemmelse: (gjelder, krav) =>
+    kravposterI(krav).some((p) => gjelder.includes(p.id) && p.oppgjoersform === 'enhetspriser')
+      ? '34.3.3'
+      : null,
+};
+
 export const VISNING_I_VEDERLAGET = {
   // OV-U15: der TE krever endring, kreves det ikke varsel etter § 34.1.2 (§ 34.1.1).
   varseletikett: (u, regler) =>
@@ -64,4 +91,5 @@ export const VISNING_I_VEDERLAGET = {
   paaleggFrafalt: () => false,
   passivitetsetikett: () => null,
   kravetErEtterspurt: () => false,
+  senkning: SENKNING_I_VEDERLAGET,
 } satisfies Sporsvisning;

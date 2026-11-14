@@ -317,6 +317,10 @@ export function fasteBeloepISvaret(svar: Pick<Svar, 'standpunkter'>): FasteBeloe
 export const utregningIVederlaget = (utregning: Record<string, unknown>): Vederlagsutregning =>
   utregning as unknown as Vederlagsutregning;
 
+/** Svaret godkjenner et beløp for en post i et av lagene, prinsipalt eller subsidiært (HF-U23 punkt 1). */
+export const godkjennerBeloepIEtLag = (utregning: Record<string, unknown>): boolean =>
+  utregningIVederlaget(utregning).poster.some((p) => p.lag.some((l) => (l.beloep ?? 0) > 0));
+
 /**
  * Et standpunkt bare vederlaget har, lest av elementet leseren har kontrollert mot skjemaet, med
  * beløpet fra utregningen, eller `null` for en annen art. Kaster `Uforstaatt`.

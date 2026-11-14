@@ -16,7 +16,8 @@
 
 import { HJEMMEL } from '../format/format.ts';
 import { sakensKode } from './tekst.ts';
-import { erRegistrert } from '../format/leser.ts';
+import { erRegistrert, registrertDato } from '../format/leser.ts';
+import { etterAkseptfristen } from '../regler/akseptfrist.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { innsigelsenErOppgitt, innsigelsenPaaberoper } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
@@ -706,10 +707,16 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
     }
     case 'aksept': {
       const svar = j.svar(u.gjelder);
-      const aksept = `Totalentreprenøren godtar byggherrens svar på ${brevtekstI(svar.spor).svaretGjelder} i ${j.brevet(svar.dokument)}.`;
+      const godtar = `Totalentreprenøren godtar byggherrens svar på ${brevtekstI(svar.spor).svaretGjelder} i ${j.brevet(svar.dokument)}.`;
       // GR-U7: enigheten gjelder beløpet eller dagene, ikke standpunktet til forholdet.
-      if (svar.spor === 'forhold' || !saken.subsidiaer[svar.spor].length) return aksept;
-      return `${aksept} Totalentreprenøren er enig i ${brevtekstI(svar.spor).enigI}, men ikke i byggherrens standpunkt til grunnlaget.`;
+      const aksept =
+        svar.spor === 'forhold' || !saken.subsidiaer[svar.spor].length
+          ? godtar
+          : `${godtar} Totalentreprenøren er enig i ${brevtekstI(svar.spor).enigI}, men ikke i byggherrens standpunkt til grunnlaget.`;
+      // HF-U23 punkt 7: brevet sier bare at aksepten er sendt etter fristen (punkt 5).
+      return svar.akseptfrist !== null && etterAkseptfristen(svar.akseptfrist, registrertDato(nytt))
+        ? `${aksept} Aksepten er sendt etter akseptfristen ${norskDato(svar.akseptfrist)} i byggherrens svar.`
+        : aksept;
     }
     case 'trekk': {
       const krav = j.krav(u.gjelder);

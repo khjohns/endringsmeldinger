@@ -16,6 +16,7 @@ import {
   erObjekt,
   feilI,
   ID,
+  KALENDERDAG,
   liste,
   objekt,
   TEKST,
@@ -49,6 +50,8 @@ export interface Svarutkast {
   utdypning?: string;
   /** Byggherrens utdypning per punkt i svaret, med punktet som nøkkel (LV-U71). */
   utdypninger?: Record<string, string>;
+  /** Akseptfristen, som en kalenderdag (HF-U23 punkt 1 og 2). Kontrolleres når brevet skrives. */
+  akseptfrist?: string;
 }
 
 /**
@@ -211,6 +214,7 @@ const SVARUTKAST = objekt(
     resultat: { type: 'object' },
     utdypning: TEKST,
     utdypninger: UTDYPNINGER,
+    akseptfrist: KALENDERDAG,
   },
   ['spor', 'gjelder', 'regelversjon', 'vurderinger', 'resultat']
 );

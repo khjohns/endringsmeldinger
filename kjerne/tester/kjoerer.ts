@@ -333,7 +333,7 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
     case 'gjeldende_svar':
       return u.spor[hale[0] as 'forhold'].gjeldendeSvar?.id ?? null;
     case 'svar':
-      return svaretSomSendt()[hale[1] as 'gjelder' | 'erstatter' | 'dokument'];
+      return svaretSomSendt()[hale[1] as 'gjelder' | 'erstatter' | 'dokument' | 'akseptfrist'];
     case 'standpunkt': {
       const s = svaretSomSendt().standpunkter.find((x) => x.art === hale[1]);
       // KA-U74: dagene byggherren måtte forstå, står per frist, og bevis-sakene har én frist.
@@ -438,6 +438,11 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       if (hale[0] === 'etiketter') return v.spor[hale[1] as 'forhold'].etiketter;
       if (hale[0] === 'opplysning') return v.opplysninger[id(hale[1])] ?? null;
       if (hale[0] === 'merknader') return v.merknader;
+      // HF-U29 punkt 8: senkningen i det gjeldende svaret, eller ett felt i den.
+      if (hale[0] === 'senkning') {
+        const senkning = v.spor[hale[1] as 'forhold'].senkning;
+        return hale[2] ? (senkning?.[hale[2] as 'bestemmelse'] ?? null) : senkning;
+      }
       // OV-U62: begge partenes registrerte brev ved kravet i sporet.
       if (hale[0] === 'registrerte_brev')
         return v.spor[hale[1] as 'forhold'].registrerteBrev.map((b) => b.dokument);

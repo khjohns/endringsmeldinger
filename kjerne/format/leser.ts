@@ -304,6 +304,7 @@ function lesSvar(v: unknown, dokument: string, sti: string): Svar {
     gjelder: e.gjelder as string,
     erstatter: (e.erstatter as string | undefined) ?? null,
     paaberopelse: (e.paaberopelse as string | undefined) ?? null,
+    akseptfrist: (e.akseptfrist as string | undefined) ?? null,
     standpunkter,
     utregning: (e.utregning as Data | undefined) ?? {},
     beslutningsgrunnlag,
