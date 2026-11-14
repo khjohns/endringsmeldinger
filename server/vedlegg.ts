@@ -431,7 +431,7 @@ async function slettUtenSak(
 
 const UTEN_SAK = '/api/kjerne/vedlegg';
 const BARE_TE =
-  'Du er på BH-siden. Vedlegg til en ny sak lastes opp og slettes av TE, som oppretter saken.';
+  'Du er på byggherrens side. Vedlegg til en ny sak lastes opp og slettes av totalentreprenøren, som oppretter saken.';
 const NY_SAK_BEGRUNNELSE =
   'Vedlegget til en sak som ennå ikke finnes: saken opprettes med påberopelsen, så stien har ingen sak. Prosjektet er det i `X-Project-ID`, og bare TE laster opp (KT-U10, #1037).';
 

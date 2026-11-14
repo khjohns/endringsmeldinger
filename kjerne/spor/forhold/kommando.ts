@@ -40,9 +40,7 @@ function datofeil(innhold: Innhold): string[] {
   if (felt === null) return [];
   const dato = innhold[felt];
   if (dato === undefined)
-    return [
-      `$.innhold.${felt}: totalentreprenøren må oppgi datoen ${DATOEN_GJELDER[felt]} (VS-U26)`,
-    ];
+    return [`$.innhold.${felt}: totalentreprenøren må oppgi datoen ${DATOEN_GJELDER[felt]}`];
   return erKalenderdato(dato)
     ? []
     : [`$.innhold.${felt}: ${JSON.stringify(dato)} er ikke en dato på formen ÅÅÅÅ-MM-DD`];
@@ -81,7 +79,7 @@ function begrunnelseIForholdet(s: Svarutkast, krav: Krav, regler: Regelsett): Av
   );
 }
 
-/** Beskrivelsen av pålegget i et varsel etter § 32.2 (`kravetsUtdypning`). */
+/** GR-U15: beskrivelsen av pålegget i et varsel etter § 32.2 (`kravetsUtdypning`). */
 function utdypningIForholdet(
   k: Extract<Kommando, { type: 'krav' }>,
   regler: Regelsett
@@ -89,7 +87,7 @@ function utdypningIForholdet(
   if (k.spor === 'forhold' && gjelderVarslingsplikten(k, regler))
     return avvis(
       'BESKRIVELSE_MANGLER',
-      'Varselet etter NS 8407 § 32.2 må beskrive pålegget, så en godkjenning kan si hva endringen går ut på (GR-U15).'
+      'Varselet etter NS 8407 punkt 32.2 må beskrive pålegget, så en godkjenning kan si hva endringen går ut på.'
     );
   return null;
 }
@@ -176,19 +174,19 @@ export function varseletEtter322(sendt: string, u: Utledning, regler: Regelsett)
   if (!gjelderVarslingsplikten(u.spor.forhold.gjeldendeKrav, regler))
     return avvis(
       'VARSLINGSPLIKT_GJELDER_IKKE',
-      'Varslingsplikten etter punkt 32.2 gjelder ikke forholdet som er påberopt, så det er ikke noe varsel etter punkt 32.2 å registrere (VS-U39).'
+      'Varslingsplikten etter punkt 32.2 gjelder ikke forholdet som er påberopt, så det er ikke noe varsel etter punkt 32.2 å registrere.'
     );
   const paaberopelsen = foerste ? datoenDetBleSendt(u, foerste) : null;
   const dag = kalenderdag(sendt);
   if (paaberopelsen === null || dag === null)
     return avvis(
       'DATO_KAN_IKKE_LESES',
-      'Datoen for varselet etter punkt 32.2 eller for påberopelsen av forholdet kan ikke leses, så det kan ikke avgjøres om varselet ble sendt før påberopelsen (VS-U38).'
+      'Datoen for varselet etter punkt 32.2 eller for påberopelsen av forholdet kan ikke leses, så det kan ikke avgjøres om varselet ble sendt før påberopelsen.'
     );
   if (dag > paaberopelsen)
     return avvis(
       'VARSEL_ETTER_PAABEROPELSEN',
-      `Varselet etter punkt 32.2 er oppgitt sendt ${norskDato(dag)}, etter påberopelsen av forholdet, som ble sendt ${norskDato(paaberopelsen)} (VS-U38).`
+      `Varselet etter punkt 32.2 er oppgitt sendt ${norskDato(dag)}, etter påberopelsen av forholdet, som ble sendt ${norskDato(paaberopelsen)}.`
     );
   return null;
 }
@@ -267,7 +265,7 @@ function akseptAvFrafallet(u: Utledning): Avvisning | null {
   if (u.frafalt)
     return avvis(
       'FRAFALL_KAN_IKKE_GODTAS',
-      'Løsningen registrerer ikke en aksept av et frafall etter § 32.3 c. Det er en begrensning i løsningen (GR-U9).'
+      'Løsningen registrerer ikke en aksept av et frafall etter punkt 32.3 første ledd c. Det er en begrensning i løsningen.'
     );
   return null;
 }

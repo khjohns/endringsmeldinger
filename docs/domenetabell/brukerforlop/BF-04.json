@@ -157,7 +157,7 @@
           "med": {
             "spor": "vederlag",
             "svar": "S-v1",
-            "standpunkt": "Byggherrens standpunkt: subsidiært varselet etter § 34.1.2 kom for sent, videre subsidiært godkjent med 60 000 kr."
+            "standpunkt": "Byggherrens standpunkt: subsidiært varselet etter punkt 34.1.2 kom for sent, videre subsidiært godkjent med 60 000 kr."
           }
         }
       ],
@@ -229,6 +229,11 @@
       "dato": "2026-11-01",
       "forhold": "#1456, LV-U41, OV-U75, OV-U76, MM-U35",
       "hva": "Beskrivelsene og forståelsen sier «forholdet» og «punkt 34.1.2», og svaret på forholdet står med ordene i LV-U41. Påberopelsen i svaret av at varselet kom for sent heter ikke lenger innsigelse, så den ikke blandes med innsigelsen etter punkt 5 tredje ledd, som er et innlegg (MM-U35). Linja i beslutningsgrunnlaget kontrolleres fortsatt med «§ 34.1.2», som kjernen lager i dag; den rettes når LV-U39 er bygget (#1433)."
+    },
+    {
+      "dato": "2026-11-14",
+      "forhold": "#1965, LV-U39",
+      "hva": "Linja i beslutningsgrunnlaget kontrolleres med «punkt 34.1.2», som kjernen nå lager for nye svar."
     }
   ]
 }

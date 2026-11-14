@@ -5,7 +5,7 @@
  * en nyere), DL-U8 (en liste hentet før deaktiveringen ved innlogging gjør ikke
  * medlemmet aktivt igjen), DL-U9 (en slik liste gir heller ikke en bruker uten
  * medlemskap et nytt medlemskap), B-04 punkt 1 (basens klokke) og 4 (alderen på listen),
- * sikkerhetsinvariantene i AGENTS.md (én brukerrad per person, normalisert subjekt)
+ * sikkerhetsinvariantene i CLAUDE.md (én brukerrad per person, normalisert subjekt)
  * og arbeidsvalget 16.10 i #53 (koblingen settes av driften). At innloggingen ikke
  * endrer et prosjekt med en liste hentet senere, og at innloggingen gjelder ved
  * samme tidspunkt, er arbeidsvalg i #53 som følger av DL-U7 og DL-U8. DL-U10:
@@ -279,7 +279,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('medlemssynkroniseringen i SQL Server', (
     ['for kort', (s) => s.slice(1)],
     ['tomt', () => ''],
   ])(
-    'et subjekt som ikke er normalisert (%s), avvises før noe skrives (AGENTS.md)',
+    'et subjekt som ikke er normalisert (%s), avvises før noe skrives (CLAUDE.md)',
     async (_, form) => {
       const p = await prosjekt();
       const gyldig = medlem();

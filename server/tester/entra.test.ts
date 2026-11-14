@@ -5,7 +5,7 @@
  * miljøet finnes).
  *
  * Kildene er akseptkriteriene for del 1 i kartleggingen i #831, sikkerhets-
- * invariantene i AGENTS.md (én `aktor_id`, samme issuer og normaliserte subjekt,
+ * invariantene i CLAUDE.md (én `aktor_id`, samme issuer og normaliserte subjekt,
  * fail-closed for identiteten, CSRF i autentiseringen) og GFK-U5 (Entra-sesjonen
  * gir ingen prosjekttilgang). At hver saks- og prosjektinngang gir 403 for en
  * Entra-sesjon, prøves i `register.test.ts`.

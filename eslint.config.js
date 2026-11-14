@@ -32,7 +32,7 @@ export default ts.config(
     },
   },
   {
-    // Kjernen (B-14): norske navn etter «Språk» i AGENTS.md, og ae/oe/aa for æ/ø/å.
+    // Kjernen (B-14): norske navn etter «Språk» i CLAUDE.md, og ae/oe/aa for æ/ø/å.
     // Egenskaper er data over grensen (snake_case) og navn utenfra, så de sjekkes
     // ikke for format, men heller ikke de kan ha æ, ø eller å.
     files: ['kjerne/**/*.ts'],

@@ -1,7 +1,7 @@
 /**
  * Saksregisteret, journalen, notatet, leveringsoppdraget og kjernebufferen
  * (#53, del 2), i en base bygget fra `database/migrasjoner/`. Kildene er
- * sikkerhetsinvariantene i AGENTS.md (avsenderen er `app_users.id`, et notat
+ * sikkerhetsinvariantene i CLAUDE.md (avsenderen er `app_users.id`, et notat
  * uten team finnes ikke, ingen default for prosjekt), DL-U4 (teamet i journalen
  * når det er entydig), MS-05 (notatet kan endres og slettes), LV-U1 (oppdraget
  * fryses med brevet) og arbeidsvalgene 1–4 i #53 (bufferen i egen tabell,
@@ -383,7 +383,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('journalen i SQL Server', () => {
       expect(await antall('notat', s.sak_id)).toBe(0);
     });
 
-    it('et notat uten team avvises (515, AGENTS.md)', async () => {
+    it('et notat uten team avvises (515, CLAUDE.md)', async () => {
       const { s } = await lagretSak();
       const feil = await avvisning(
         iKontekst((r) => settInn(r, 'notat', notat(s, { aktor_team_id: null })))

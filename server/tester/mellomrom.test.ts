@@ -2,7 +2,7 @@
  * Mellomrom til slutt i nøkler og ID-er (#566, #581), i en base bygget fra
  * `database/migrasjoner/`. `=`, `IN`, `UNIQUE` og fremmednøkler i SQL Server ser
  * bort fra mellomrom til slutt, så `p1 ` ville truffet `p1` og blitt lagret som
- * en andre verdiform. Kilden er sikkerhetsinvariantene i AGENTS.md (én verdiform
+ * en andre verdiform. Kilden er sikkerhetsinvariantene i CLAUDE.md (én verdiform
  * i journalen, ingen andre form for prosjektet) og DL-U6 (saksnummeret er en
  * tilfeldig ID appen lager). Predikatene prøves i `tilgang.test.ts`. Krever
  * `KOE_SQLSERVER_TILKOBLING`.

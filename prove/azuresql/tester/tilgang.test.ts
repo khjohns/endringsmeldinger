@@ -3,7 +3,7 @@
  * kontekst for lesing, kommandoer for bindende skriving. Kontrakten for
  * konteksten står i design v2 for B-02, avsnitt 4, og akseptkriteriet for
  * gjenbrukt forbindelse i F0b i hovedplanen. Sikkerhetsinvariantene står i
- * `AGENTS.md`: prosjektgrensen, skjerming på team (fail-closed) og at
+ * `CLAUDE.md`: prosjektgrensen, skjerming på team (fail-closed) og at
  * aktørfeltene settes av serveren.
  */
 

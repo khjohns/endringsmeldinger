@@ -7,7 +7,7 @@
  * (OV-U1, #696 krav 1), saksnummeret lages av basen (DL-U6), svaret har formen
  * klienten venter, `{ sak_id, versjon }` (#689), og aktørfeltene, `event_id`,
  * tidsstempelet og prosjektet settes av serveren (sikkerhetsinvariantene i
- * AGENTS.md). En sak fra kjøretiden står aldri uten `sak_opprettet` (#696 krav 2).
+ * CLAUDE.md). En sak fra kjøretiden står aldri uten `sak_opprettet` (#696 krav 2).
  */
 
 import { randomUUID } from 'node:crypto';

@@ -744,7 +744,7 @@ try {
     const godta = te.getByRole('button', { name: /^Godta svaret/ });
     for (const tilstand of FEILTILSTANDER) {
       await te.goto(`${FRONTEND}${saksrute}`);
-      await te.getByText('Vederlagsjustering', { exact: true }).first().click({ timeout: 30_000 });
+      await te.getByText('Vederlagsjustering', { exact: true }).filter({ visible: true }).first().click({ timeout: 30_000 });
       await godta.first().waitFor({ timeout: 30_000 }).catch((feil: unknown) => {
         throw new Error('--feil trenger et kontrollpunkt der TE kan godta BHs svar (--til)', { cause: feil });
       });

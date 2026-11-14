@@ -693,7 +693,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F57',
-    feilklasse: 'bufferen leses på tvers av prosjektgrensen (AGENTS.md, #316)',
+    feilklasse: 'bufferen leses på tvers av prosjektgrensen (CLAUDE.md, #316)',
     fil: 'sprakprove/kjernelagring/bane.ts',
     endringer: [
       [
@@ -705,7 +705,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F58',
-    feilklasse: 'bufferen skrives på tvers av prosjektgrensen (AGENTS.md, #316)',
+    feilklasse: 'bufferen skrives på tvers av prosjektgrensen (CLAUDE.md, #316)',
     fil: 'sprakprove/kjernelagring/bane.ts',
     endringer: [
       [
@@ -1927,10 +1927,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'en påberopelse fra appen uten datoen godtas (VS-U26, #664)',
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
-      [
-        '  if (dato === undefined)\n    return [\n',
-        '  if (dato === undefined)\n    return []; [\n',
-      ],
+      ['  if (dato === undefined)\n    return [`', '  if (dato === undefined)\n    return []; [`'],
     ],
     mal: [
       'et krav fra appen i endring/irregulaer_endring',
@@ -5232,6 +5229,32 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/kommando.ts`,
     endringer: [["if (k.spor === 'forhold' && 'forbehold' in k)", 'if (false)']],
     mal: ['påberopelsen av forholdet har ikke noe forbehold'],
+  },
+  {
+    id: 'F606',
+    feilklasse:
+      'dagene byggherren måtte forstå fylles bare ut når feltet er null, ikke når det mangler (#1971)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        'mangler((r as Record<string, unknown>).dager_maatte_forstaa)',
+        '(r as Record<string, unknown>).dager_maatte_forstaa === null',
+      ],
+    ],
+    mal: ['spesifisert for sent uten dagene byggherren måtte forstå, uten feltet'],
+  },
+  {
+    id: 'F607',
+    feilklasse:
+      'dagene byggherren måtte forstå fylles bare ut når feltet mangler, ikke når det er null (#1971)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        'mangler((r as Record<string, unknown>).dager_maatte_forstaa)',
+        '(r as Record<string, unknown>).dager_maatte_forstaa === undefined',
+      ],
+    ],
+    mal: ['spesifisert for sent uten dagene byggherren måtte forstå, med null'],
   },
   {
     id: 'F594',

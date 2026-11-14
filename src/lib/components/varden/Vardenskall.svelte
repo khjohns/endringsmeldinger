@@ -35,7 +35,7 @@
     sti?: Smule[];
     /**
      * Den innloggede, med navnet fra sesjonen. Firmanavnet venter på at serveren leser teamet i
-     * Catenda: kontraktssiden er ikke organisasjonen (AGENTS.md, «Domenet»).
+     * Catenda: kontraktssiden er ikke organisasjonen (CLAUDE.md, «Domenet»).
      */
     bruker?: { name: string } | null;
     /** Prosjektet og partene i demoruta. Ellers leses de av prosjektet (#1398). */

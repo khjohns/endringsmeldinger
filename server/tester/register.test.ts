@@ -1,6 +1,6 @@
 /**
  * Registeret over inngangene i TS-serveren (sikkerhetsinvariantene i
- * AGENTS.md, #91 for kontraktsrollen). Hver inngang i `RUTER` prøves over HTTP
+ * CLAUDE.md, #91 for kontraktsrollen). Hver inngang i `RUTER` prøves over HTTP
  * mot testbasen, så en ny inngang prøves uten at testen endres:
  * - uten sesjon: 401;
  * - en endring uten CSRF-token, eller med feil token: 403 fra autentiseringen;

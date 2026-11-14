@@ -329,14 +329,14 @@ function kontroller(svar: Vederlagssvar, regler: Varslingsplikt): void {
     const felt = `${navn}.begrenset_beloep`;
     const begrenset = p.begrenset_beloep;
     if (p.varslet_i_tide === null || p.varslet_i_tide === undefined)
-      feil[`${navn}.varslet_i_tide`] = 'mangler (§ 34.1.3)';
+      feil[`${navn}.varslet_i_tide`] = 'mangler (punkt 34.1.3)';
     if (p.varslet_i_tide !== false) {
       if (begrenset !== null && begrenset !== undefined)
-        feil[felt] = 'gjelder bare en påberopt begrensning (§ 34.1.3)';
+        feil[felt] = 'gjelder bare en påberopt begrensning (punkt 34.1.3)';
       return;
     }
     if (begrenset === null || begrenset === undefined) {
-      feil[felt] = 'mangler (§ 34.1.3)';
+      feil[felt] = 'mangler (punkt 34.1.3)';
       return;
     }
     const b = lesOere(felt, begrenset);
@@ -351,18 +351,18 @@ function kontroller(svar: Vederlagssvar, regler: Varslingsplikt): void {
     regler.gjelderVarslingspliktenForVederlag(svar.hovedkategori) &&
     (svar.varslet_i_tide === null || svar.varslet_i_tide === undefined)
   )
-    feil.varslet_i_tide = 'mangler (§ 34.1.2)';
+    feil.varslet_i_tide = 'mangler (punkt 34.1.2)';
   for (const p of svar.poster) {
     const navn = postnoekkel(p);
     kontrollerBeloepet(navn, p);
     if ('gjelder' in p) {
       if (p.aksepterer === null || p.aksepterer === undefined)
-        feil[`${navn}.aksepterer`] = 'mangler (§ 34.2.2)';
+        feil[`${navn}.aksepterer`] = 'mangler (punkt 34.2.2)';
     } else if (p.saerskilt === 'produktivitet') kontrollerBegrensningen(navn, p);
     // OV-U89 punkt 9: påberopelsen etter § 34.1.3 gjelder bare kravet etter annet ledd.
     else if (p.varslet_i_tide !== null && p.varslet_i_tide !== undefined)
       feil[`${navn}.varslet_i_tide`] =
-        'påberopelsen etter § 34.1.3 gjelder bare kravet om nedsatt produktivitet og forstyrrelser';
+        'påberopelsen etter punkt 34.1.3 gjelder bare kravet om nedsatt produktivitet og forstyrrelser';
   }
   if (Object.keys(feil).length) throw new UgyldigVurdering(feil);
 }
@@ -415,7 +415,7 @@ export function kontrollerVarseletForVederlag(
     !regler.gjelderVarslingspliktenForVederlag(hovedkategori)
   )
     throw new UgyldigVurdering({
-      hovedkrav_varslet_i_tide: 'gjelder bare svikt og andre forhold (§ 34.1.2)',
+      hovedkrav_varslet_i_tide: 'gjelder bare svikt og andre forhold (punkt 34.1.2)',
     });
 }
 
@@ -439,7 +439,7 @@ export function kontrollerOppgjoersformen(
   const felt = `${navn}.oensket_oppgjoersform`;
   const regel = post.oppgjoersform !== 'tilbud';
   const kreverTilbud = p.krever_tilbud === true;
-  const hva = regel ? 'beregningsregelen ikke godtas' : 'tilbudet ikke aksepteres (§ 34.2.2)';
+  const hva = regel ? 'beregningsregelen ikke godtas' : 'tilbudet ikke aksepteres (punkt 34.2.2)';
   // Arbeidsvalget i #479: uten aksept oppgir byggherren oppgjørsformen, ellers ikke. Svar 3 A
   // 10.11 for #1663: med kravet om tilbud er den valgfri.
   if (p.oensket_oppgjoersform != null && !METODER.includes(p.oensket_oppgjoersform as never))
@@ -453,9 +453,10 @@ export function kontrollerOppgjoersformen(
     feil[felt] = 'er oppgjørsformen totalentreprenøren krever';
   if (p.krever_tilbud != null && typeof p.krever_tilbud !== 'boolean')
     feil[`${navn}.krever_tilbud`] = 'er verken true eller false';
+  // KA-U69
   else if (kreverTilbud && !regel)
     feil[`${navn}.krever_tilbud`] =
-      'gjelder bare en kravpost etter en beregningsregel (§ 34.2.1, KA-U69)';
+      'gjelder bare en kravpost etter en beregningsregel (punkt 34.2.1)';
   // KA-U71: kravet om tilbud og en godtatt beregningsregel utelukker hverandre.
   else if (kreverTilbud && p.aksepterer !== false)
     feil[`${navn}.krever_tilbud`] =
@@ -475,6 +476,7 @@ export function kontrollerOppgjoersformen(
   else if (p.godtar_justering != null && !justert)
     feil[`${navn}.godtar_justering`] = 'gjelder bare en kravpost med justerte enhetspriser';
   else if (justert && p.aksepterer === true && p.godtar_justering == null)
-    feil[`${navn}.godtar_justering`] = 'mangler når byggherren godtar beregningsregelen (§ 34.3.2)';
+    feil[`${navn}.godtar_justering`] =
+      'mangler når byggherren godtar beregningsregelen (punkt 34.3.2)';
   if (Object.keys(feil).length) throw new UgyldigVurdering(feil);
 }

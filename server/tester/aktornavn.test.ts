@@ -2,7 +2,7 @@
  * Navnet bak en hendelse i visningen av saken (F-1b, #104, DM-08), mot
  * testbasen. Krever `KOE_SQLSERVER_TILKOBLING`.
  *
- * Forventningene har kilde i sikkerhetsinvariantene i AGENTS.md (journalen
+ * Forventningene har kilde i sikkerhetsinvariantene i CLAUDE.md (journalen
  * bærer `aktor_id`; navnet slås opp ved visning, og et oppslag som feiler,
  * faller tilbake til identiteten og velter aldri visningen) og i svaret fra
  * oppdragsgiver 18.10 i #764: navnet vises for alle som kan lese saken.

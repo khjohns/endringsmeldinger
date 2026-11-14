@@ -21,13 +21,13 @@ export const dager = (n: number) => `${n} ${n === 1 ? 'dag' : 'dager'}`;
 
 /** Det byggherren gjør gjeldende kom for sent, i kortform av `VARSELET` i brevteksten (LV-U4 punkt 5). */
 export const SENT_I_LINJEN: Record<Hjemmel, string> = {
-  '32.2': 'varselet etter § 32.2',
-  '33.4': 'varselet etter § 33.4',
-  '33.6.2': 'svaret på forespørselen etter § 33.6.2',
-  '34.1.2': 'varselet etter § 34.1.2',
-  '34.1.3': 'varselet etter § 34.1.3',
-  '34.3.3': 'varselet etter § 34.3.3',
-  '34.4': 'varselet etter § 34.4',
+  '32.2': 'varselet etter punkt 32.2',
+  '33.4': 'varselet etter punkt 33.4',
+  '33.6.2': 'svaret på forespørselen etter punkt 33.6.2',
+  '34.1.2': 'varselet etter punkt 34.1.2',
+  '34.1.3': 'varselet etter punkt 34.1.3',
+  '34.3.3': 'varselet etter punkt 34.3.3',
+  '34.4': 'varselet etter punkt 34.4',
 };
 
 /**

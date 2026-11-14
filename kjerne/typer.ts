@@ -559,4 +559,4 @@ export interface Avvisning {
 export const avvis = (regel: string, melding: string): Avvisning => ({ regel, melding });
 
 /** Det en oppgitt dato for et varsel gjelder, i avvisningene. */
-export const varseletSendt = (hjemmel: string) => `varselet etter § ${hjemmel} ble sendt`;
+export const varseletSendt = (hjemmel: string) => `varselet etter punkt ${hjemmel} ble sendt`;

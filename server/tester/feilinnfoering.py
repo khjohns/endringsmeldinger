@@ -296,7 +296,7 @@ FEILINNFOERINGER = [
      "  { success: true, kode, loepenummer, tildelt: false, kontraktsforkortelse },",
      "brevkontrollen leser nummeret sakens første brev vil få"),
     ("S77", "BH får nummeret for en ny sak (KT-U10, #1497)", "server/saker.ts",
-     "  bareTE: 'Du er på BH-siden. En ny sak opprettes av TE.',\n", "",
+     "  bareTE: 'Du er på byggherrens side. En ny sak opprettes av totalentreprenøren.',\n", "",
      "BH får ikke nummeret for en ny sak"),
     ("S78", "varselet i en ny sak kan ikke ha korrespondansetypen (LV-U42, D1 A i #1497)", "server/nysak.ts",
      "new Set(['sendt', 'korrespondansetype', 'dokumentasjon'])", "new Set(['sendt', 'dokumentasjon'])",

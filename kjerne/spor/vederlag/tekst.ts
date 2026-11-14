@@ -467,7 +467,7 @@ function leddIVederlaget(
           : '';
     if (b.saerskilt && begrenset)
       sine.push({
-        tekst: `begrenset etter § 34.1.3 til ${kroner(begrenset.begrenset!)}`,
+        tekst: `begrenset etter punkt 34.1.3 til ${kroner(begrenset.begrenset!)}`,
         virkning: virkning(begrenset.id),
       });
     // KA-U57 (d), KA-U60, KA-U54: standpunktet til oppgjørsformen gjelder kravposten og står i
@@ -480,8 +480,8 @@ function leddIVederlaget(
       sine.push({
         tekst:
           form.hjemmel === '34.2.2'
-            ? `tilbudet${forPosten} ikke akseptert (§ 34.2.2)`
-            : `beregningsregelen${forPosten} ikke godtatt (§ ${form.hjemmel})`,
+            ? `tilbudet${forPosten} ikke akseptert (punkt 34.2.2)`
+            : `beregningsregelen${forPosten} ikke godtatt (punkt ${form.hjemmel})`,
         virkning: virkning(form.id),
       });
     const varselet = svar.standpunkter.find(
@@ -501,7 +501,7 @@ function leddIVederlaget(
     );
     if (justering)
       sine.push({
-        tekst: `justeringen av enhetsprisene${forPosten} bestridt (§ 34.3.2)`,
+        tekst: `justeringen av enhetsprisene${forPosten} bestridt (punkt 34.3.2)`,
         virkning: virkning(justering.id),
       });
     // En kravpost uten beløp (KA-U72) har ikke et ledd for beløpet.
@@ -514,7 +514,7 @@ function leddIVederlaget(
 }
 
 /** Posten etter § 34.1.3 annet ledd i linjen. */
-const SAERSKILT_I_LINJEN = 'særskilt justering (§ 34.1.3 annet ledd)';
+const SAERSKILT_I_LINJEN = 'særskilt justering (punkt 34.1.3 annet ledd)';
 
 /** Linjen i vederlagssporet. */
 export const LINJEN_I_VEDERLAGET = {

@@ -138,6 +138,25 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet med kravposter mot TS-serveren',
     else expect(avsnitt.every((a) => a.utdypning === undefined)).toBe(true);
   });
 
+  it('serveren lagrer forbeholdet i feltet `forbehold` etter begrunnelsen (KA-U82, LV-U74)', async () => {
+    const sakId = await medPaaberopelse();
+    const forbehold = 'Kravet forutsetter at fundamenteringen kan gjøres på dagtid.';
+    const utdypning = 'Tilbudet gjelder ny fundamentering.';
+    const { svar, tekst } = await send(sakId, { ...vederlagskrav(250000, utdypning), forbehold });
+    expect(svar.status, JSON.stringify(svar.kropp)).toBe(201);
+
+    const avsnitt = (await hent(sakId)).journal.at(-1)!.data.brevtekst as {
+      punkt?: string;
+      laast: string;
+      utdypning?: string;
+    }[];
+    expect(avsnitt.map((a) => a.laast)).toEqual(tekst);
+    expect(avsnitt.slice(-2)).toMatchObject([
+      { punkt: 'begrunnelse', utdypning },
+      { punkt: 'forbehold', utdypning: forbehold },
+    ]);
+  });
+
   it('en kravpost med beløp som ikke er over null, avvises med UGYLDIG_FORM og ingen brevkontroll', async () => {
     const sakId = await medPaaberopelse();
     const { svar, tekst } = await send(sakId, vederlagskrav(0));
