@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
   import { BookOpen, FileText } from 'lucide-svelte';
-  import { tick, untrack } from 'svelte';
+  import { tick } from 'svelte';
   import { betegnelsen, innholdIFristen } from '$kjerne/spor/frist/format';
   import { foresporselForFristsvar } from '$kjerne/spor/frist/utledning';
   import type { Forutsetning } from '$kjerne/spor/frist/kommando';
@@ -119,9 +119,9 @@
 
   let valgtFrist = $state<string | null>(null);
   let postliste = $state<Postliste<Fristpost> | null>(null);
-  // Valgene for hver frist finnes før skjemaet tegnes første gang.
-  untrack(() => {
-    for (const f of frister) valg.frister[f.id] ??= tomFrist();
+  // Valgene for hver frist i gjeldende krav finnes før skjemaet tegnes, også når kravet er nytt.
+  $effect.pre(() => {
+    for (const f of frister) if (!valg.frister[f.id]) valg.frister[f.id] = tomFrist();
   });
   const valgFor = (id: string): Fristvalg => (valg.frister[id] ??= tomFrist());
   function godkjennAlle() {
