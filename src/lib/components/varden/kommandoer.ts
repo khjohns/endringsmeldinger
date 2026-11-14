@@ -188,32 +188,29 @@ function vurderingene(v: Svarvalg, krav: Krav, hovedvarselet: boolean): Svarvurd
 }
 
 /**
- * BHs svar på gjeldende vederlagskrav, eller `null` når saken ikke har et krav. Begrunnelsen står
- * bare for `punktene` brevet har, så en tekst for et punkt som er falt bort, ikke stopper brevet.
+ * Brevet med BHs svar på kravet i sporet. Resultatet regnes av kjernen, og er tomt når
+ * vurderingene ikke kan regnes ut, så kjernen avviser kommandoen med sin egen melding. Begrunnelsen
+ * står bare for `punktene` brevet har, så en tekst for et punkt som er falt bort, ikke stopper
+ * brevet, og forbeholdet er utdypningen for hele svaret.
  */
-export function vederlagssvaret(
-  v: Svarvalg,
-  u: Utledning,
+export function svarbrevet(
+  spor: 'vederlag' | 'frist',
+  krav: Krav,
+  vurderinger: Svarvurdering,
+  kontekst: Omit<Parameters<typeof regnUtSvar>[2], 'krav'>,
+  tekster: { begrunnelser: Record<string, string>; forbehold: string },
   regler: Regelsett,
-  punktene: readonly string[] = []
-): { type: 'brev'; svar: Svarutkast[] } | null {
-  const krav = u.spor.vederlag.gjeldendeKrav;
-  if (!krav) return null;
-  const vurderinger = vurderingene(v, krav, spoerOmHovedvarselet(u, regler));
+  punktene: readonly string[]
+): { type: 'brev'; svar: Svarutkast[] } {
   let resultat: Record<string, unknown> = {};
   try {
-    resultat = regnUtSvar(
-      'vederlag',
-      vurderinger,
-      { krav, paaberopelse: u.spor.forhold.gjeldendeKrav },
-      regler
-    );
+    resultat = regnUtSvar(spor, vurderinger, { ...kontekst, krav }, regler);
   } catch (feil) {
     if (!(feil instanceof UgyldigVurdering || feil instanceof UgyldigBeloep)) throw feil;
   }
-  const utdypning = v.forbehold.trim();
+  const utdypning = tekster.forbehold.trim();
   const utdypninger = Object.fromEntries(
-    Object.entries(v.begrunnelser)
+    Object.entries(tekster.begrunnelser)
       .map(([punkt, tekst]) => [punkt, tekst.trim()] as const)
       .filter(([punkt, tekst]) => tekst && punktene.includes(punkt))
   );
@@ -221,7 +218,7 @@ export function vederlagssvaret(
     type: 'brev',
     svar: [
       {
-        spor: 'vederlag',
+        spor,
         gjelder: krav.id,
         regelversjon: regler.versjon,
         vurderinger,
@@ -231,6 +228,26 @@ export function vederlagssvaret(
       },
     ],
   };
+}
+
+/** BHs svar på gjeldende vederlagskrav, eller `null` når saken ikke har et krav (`svarbrevet`). */
+export function vederlagssvaret(
+  v: Svarvalg,
+  u: Utledning,
+  regler: Regelsett,
+  punktene: readonly string[] = []
+): { type: 'brev'; svar: Svarutkast[] } | null {
+  const krav = u.spor.vederlag.gjeldendeKrav;
+  if (!krav) return null;
+  return svarbrevet(
+    'vederlag',
+    krav,
+    vurderingene(v, krav, spoerOmHovedvarselet(u, regler)),
+    { paaberopelse: u.spor.forhold.gjeldendeKrav },
+    v,
+    regler,
+    punktene
+  );
 }
 
 /** TEs aksept av svaret `svar`, med regelversjonen brevet forhåndsvises med (KA-U10, MM-U50). */

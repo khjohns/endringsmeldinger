@@ -147,6 +147,8 @@ export interface Fristlinje {
   frist_id: number;
   nummer: string | null;
   navn: string;
+  /** Fristens dato i kontrakten, `ÅÅÅÅ-MM-DD`, til U-4, U-5 og datoen ved hver frist i BF-20. */
+  dato: string;
   dagmulktbelagt: boolean;
 }
 
@@ -163,6 +165,7 @@ async function fristtabellsvar(
     frist_id: f.fristId,
     nummer: f.nummer,
     navn: f.navn,
+    dato: f.dato,
     dagmulktbelagt: f.dagmulktbelagt,
   }));
   return [200, { success: true, frister }];

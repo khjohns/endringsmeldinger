@@ -37,6 +37,8 @@ const MODULER = new Set(
     'kjernesak/brevtekst',
     // Varslene for kravpostene i TEs krav, lest av kjernen (BF-14, #1663). Kaller bare kjernen.
     'kjernesak/vederlagskrav',
+    // Forespørselen byggherrens svar på fristen tar stilling til (G-4 i BF-20). Kaller bare kjernen.
+    'kjernesak/fristsvar',
     // Typene for linja i sakslisten, som serveren regner med kjernen (#1450). Bare typer.
     'types/api',
   ].map((m) => join(LIB, m))
