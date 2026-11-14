@@ -414,7 +414,7 @@ FEILINNFOERINGER = [
      "delvis godkjent når ingen frist har fått alle dagene"),
     ("S109", "fullmakten ganger satsen med kalenderdagene, ikke hverdagene (GFK-U17)",
      "server/fullmakt.ts",
-     "verdi: g!.sats! * hverdager,", "verdi: g!.sats! * dager,",
+     "verdi: g.sats * hverdager,", "verdi: g.sats * dager,",
      "GFK-U21: dagene for hver frist verdsettes"),
     ("S111", "dager for en frist som ikke er dagmulktbelagt, verdsettes med satsen (GFK-U20)",
      "server/fullmakt.ts",
@@ -457,7 +457,7 @@ FEILINNFOERINGER = [
      "presiseringen 24.09: linjene er fra laget som gir den største verdien"),
     ("S120", "en frist uten dagmulkt står som en frist der satsen mangler (GFK-U20, U-10 i BF-45)",
      "server/fullmakt.ts",
-     "    : !g.dagmulktbelagt\n", "    : false\n",
+     "  if (!g.dagmulktbelagt) return", "  if (false) return",
      "GFK-U21, GFK-U20, KA-U79: hver frist står med dagene"),
 ]
 

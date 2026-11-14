@@ -103,22 +103,22 @@ function fristverdi(
   dager: number
 ): Fristverdi {
   const g = fristId === undefined ? undefined : frister.get(fristId);
-  const ikkeVerdsatt: IkkeVerdsatt | null = !g
-    ? 'ikke_registrert'
-    : !g.dagmulktbelagt
-      ? 'ikke_dagmulktbelagt'
-      : g.sats === null
-        ? 'sats_mangler'
-        : g.dato === null
-          ? 'dato_ukjent'
-          : null;
   const linje = { fristId: fristId ?? null, dager };
   if (dager === 0)
     return { ...linje, hverdager: 0, sats: g?.sats ?? null, verdi: 0, ikkeVerdsatt: null };
-  if (ikkeVerdsatt !== null)
-    return { ...linje, hverdager: null, sats: null, verdi: null, ikkeVerdsatt };
-  const hverdager = hverdagerIForlengelsen(g!.dato!, dager);
-  return { ...linje, hverdager, sats: g!.sats, verdi: g!.sats! * hverdager, ikkeVerdsatt };
+  const ikke = (ikkeVerdsatt: IkkeVerdsatt): Fristverdi => ({
+    ...linje,
+    hverdager: null,
+    sats: null,
+    verdi: null,
+    ikkeVerdsatt,
+  });
+  if (!g) return ikke('ikke_registrert');
+  if (!g.dagmulktbelagt) return ikke('ikke_dagmulktbelagt');
+  if (g.sats === null) return ikke('sats_mangler');
+  if (g.dato === null) return ikke('dato_ukjent');
+  const hverdager = hverdagerIForlengelsen(g.dato, dager);
+  return { ...linje, hverdager, sats: g.sats, verdi: g.sats * hverdager, ikkeVerdsatt: null };
 }
 
 /**
