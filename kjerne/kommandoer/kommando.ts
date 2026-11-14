@@ -424,11 +424,16 @@ export function formfeil(kommando: unknown): string[] {
   if (type === 'krav' && !feil.length) {
     const k = kommando as { spor: Spor; innhold: unknown; dokumentasjon?: string[] };
     const form = iSporet(KRAVFORM, k.spor);
-    feil.push(...form.feil(k.innhold));
+    const innholdsfeil = form.feil(k.innhold);
+    feil.push(...innholdsfeil);
     if (!form.varselVedKravet && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter punkt 33.4');
     // VS-U51: dokumentet med varselet for en kravpost ligger alt ved kravet.
-    const iInnholdet = new Set(form.vedleggIInnholdet(k.innhold as Innhold).map(vedleggsnoekkel));
+    const iInnholdet = new Set(
+      innholdsfeil.length || !k.dokumentasjon?.length
+        ? []
+        : form.vedleggIInnholdet(k.innhold as Innhold).map(vedleggsnoekkel)
+    );
     if (k.dokumentasjon?.some((v) => iInnholdet.has(vedleggsnoekkel(v))))
       feil.push(
         '$.dokumentasjon: vedlegget ved kravet er også dokumentet med varselet for en kravpost'

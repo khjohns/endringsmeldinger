@@ -169,12 +169,15 @@ const harRiggOgDrift = (innhold: unknown): boolean => {
   return erObjekt(saerskilt) && Object.hasOwn(saerskilt, 'rigg_og_drift');
 };
 
-/** Kravet trekker den særskilte vederlagsjusteringen og har ingen andre poster (KA-U83). */
+/**
+ * Kravet trekker den særskilte vederlagsjusteringen og verken har eller trekker andre poster
+ * (KA-U83).
+ */
 const bareTrekkAvSaerskilt = (innhold: unknown): boolean =>
   erObjekt(innhold) &&
-  Object.hasOwn(innhold, 'trekker_saerskilt') &&
-  !Object.hasOwn(innhold, 'kravposter') &&
-  !Object.hasOwn(innhold, 'saerskilt');
+  Array.isArray((innhold as Innhold).trekker_saerskilt) &&
+  ((innhold as Innhold).trekker_saerskilt as unknown[]).length > 0 &&
+  !['kravposter', 'saerskilt', 'trekker'].some((felt) => Object.hasOwn(innhold, felt));
 
 /** Feilene i innholdet i vederlagskravet (`formfeil`). */
 function kravfeil(innhold: unknown): string[] {
@@ -401,14 +404,19 @@ function medVarslene(
 /**
  * Varslene etter § 34.3.3 og § 34.4 før kravet, uten dokumentene kravskjemaet la til i samme
  * handling: kravet legger dem ved, og de gjelder bare kravposten som viser til dem (VS-U51, VS-U53).
+ * Kravet kan også ha egne vedlegg (#1823), så et varsel holdes utenfor bare når en kravpost i
+ * kravet viser til det.
  */
-function foranKravet(nytt: Dokument, lest: readonly Domenehendelse[], u: Utledning) {
+function foranKravet(k: Krav, nytt: Dokument, lest: readonly Domenehendelse[], u: Utledning) {
   const vedlagte = new Set(nytt.dokumentasjon.map((v) => v.vedlegg_id));
+  const viserTil = new Set(kravposterI(k).map((p) => p.varsel));
   const dokumenter = new Map(
     lest.flatMap((h) => (h.art === 'dokument' ? [[h.id, h.dokument] as const] : []))
   );
   return u.spor.vederlag.kravpostvarsler.filter(
-    (v) => !dokumenter.get(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))
+    (v) =>
+      !viserTil.has(v.id) ||
+      !dokumenter.get(v.dokument)?.dokumentasjon.some((d) => vedlagte.has(d.vedlegg_id))
   );
 }
 
@@ -419,7 +427,7 @@ const kravpostvarslerIBrevet = (
   lest: readonly Domenehendelse[],
   u: Utledning
 ): Record<string, Kravpostvarselet> =>
-  kravpostvarslene(k, u.spor.vederlag.krav, foranKravet(nytt, lest, u));
+  kravpostvarslene(k, u.spor.vederlag.krav, foranKravet(k, nytt, lest, u));
 
 export const SKRIVING_I_VEDERLAGET = {
   kravinnhold: (innhold, u, { nyId }) => medKravposter(innhold, u, nyId),

@@ -519,6 +519,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'spor/vederlag/utledning.ts:kravpostvarslene',
       'spor/vederlag/utledning.ts:kravpostvarseletStrider',
+      'spor/vederlag/kommando.ts:foranKravet',
     ],
   ],
   // KA-U54, KA-U64, KA-U68, OV-U95 punkt 5: svaret på en kravpost etter en beregningsregel.
@@ -1648,6 +1649,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kravposter saerskilt saerskilt.produktivitet',
     ['spor/vederlag/kommando.ts:oerefeil'],
   ],
+  // KA-U83: trekket av den særskilte vederlagsjusteringen som eneste post.
+  [
+    'spor/vederlag/kommando.ts:bareTrekkAvSaerskilt(innhold)',
+    'kommando',
+    'trekker_saerskilt',
+    ['spor/vederlag/kommando.ts:bareTrekkAvSaerskilt'],
+  ],
   // #1775: rigg og drift i forlenget byggetid avvises til #1724 har satt formen.
   [
     'spor/vederlag/kommando.ts:harRiggOgDrift(innhold)',
@@ -1762,7 +1770,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'spor/poster/utledning.ts',
     'predikat',
-    'utelattUtenTrekk',
+    'trekketStrider utelattUtenTrekk',
     ['spor/vederlag/utledning.ts:saerskiltStrider'],
   ],
   [

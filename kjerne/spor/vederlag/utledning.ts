@@ -14,7 +14,12 @@ import {
   OPPGJOERSHJEMMEL,
 } from './format.ts';
 import type { Bakover, LestVarsel, Sporskontroller, Ugyldig } from '../../utledning/utled.ts';
-import { posteneStrider, utelattUtenTrekk, type Versjonsinndata } from '../poster/utledning.ts';
+import {
+  posteneStrider,
+  trekketStrider,
+  utelattUtenTrekk,
+  type Versjonsinndata,
+} from '../poster/utledning.ts';
 import {
   erKravpostvarselhjemmel,
   type Krav,
@@ -46,8 +51,7 @@ export const kravposteneStrider = (
 
 /**
  * Hvorfor den særskilte vederlagsjusteringen i den nye kravversjonen strider mot forrige
- * versjon, eller `null` (KA-U83): posten tas med eller trekkes uttrykkelig, og bare en post som
- * står i forrige versjon, trekkes, én gang. En post som er trukket, kan tas med igjen.
+ * versjon etter KA-U83, eller `null`.
  */
 export function saerskiltStrider(
   ny: Pick<Krav, 'innhold'>,
@@ -57,11 +61,12 @@ export function saerskiltStrider(
   const { saerskilt, trekker_saerskilt: trekk } = innholdIVederlaget(ny);
   const forrige = tidligere.at(-1);
   const hadde = forrige !== undefined && harProduktivitetspost(forrige);
-  if (trekk.length > 1) return `trekker ${posten} to ganger`;
-  if (trekk.length && !hadde) return `trekker ${posten}, som ikke er med i forrige kravversjon`;
+  const iForrige = new Map(hadde ? [['produktivitet', { id: 'produktivitet' }]] : []);
+  const trekket = trekketStrider(trekk, iForrige, () => posten);
+  if (trekket) return trekket;
   if (trekk.length && saerskilt.produktivitet) return `både tar med og trekker ${posten}`;
   return utelattUtenTrekk(
-    new Map(hadde ? [['produktivitet', { id: 'produktivitet' }]] : []),
+    iForrige,
     () => trekk.length > 0 || saerskilt.produktivitet !== undefined,
     () => posten,
     'KA-U83'

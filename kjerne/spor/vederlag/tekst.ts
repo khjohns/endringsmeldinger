@@ -37,6 +37,7 @@ import type { Linjeledd, Sporslinje } from '../../frosset/linje.ts';
 import { kroner, SENT_I_LINJEN } from '../../frosset/tekst.ts';
 import { begrensningen } from './frysing.ts';
 import {
+  harProduktivitetspost,
   innholdIVederlaget,
   krevdIKravposten,
   krevdProduktivitet,
@@ -201,9 +202,9 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
         `Totalentreprenøren krever ${poster.length ? 'i tillegg ' : ''}særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd for ${PRODUKTIVITET} med ${eksMva(tilTall(post))}`,
       ],
     });
-  // KA-U83: trekket sier at totalentreprenøren trekker kravet, ikke at det er et avkall.
+  // KA-U83.
   if (innhold.trekker_saerskilt.includes('produktivitet')) {
-    if (!forrige || krevdProduktivitet(forrige) === null)
+    if (!forrige || !harProduktivitetspost(forrige))
       throw new KanIkkeUttrykkes(
         'trekket gjelder den særskilte vederlagsjusteringen, som ikke står i forrige kravversjon'
       );

@@ -51,7 +51,11 @@ export function posteneStrider(
   const foer = new Map(tidligere.flat().map((p) => [p.id, p]));
   const brukte = brukteBetegnelser(tidligere);
   const trekker = (ny.trekker ?? []) as string[];
-  const trekket = trekketStrider(trekker, forrige, posten, (p) => p.betegnelse);
+  const trekket = trekketStrider(
+    trekker,
+    forrige,
+    (id) => `${posten} ${forrige.get(id)?.betegnelse ?? id}`
+  );
   if (trekket) return trekket;
   const trukket = new Set(trekker);
   const sett = new Set<string>();
@@ -87,19 +91,18 @@ export function posteneStrider(
 /**
  * Hvorfor trekket i den nye kravversjonen strider mot forrige versjon, eller `null`: hver post
  * det trekker, er med i forrige versjon og trekkes én gang. Vederlaget og fristen bruker samme
- * kontroll (#1956). `posten` er ordet for posten i bestemt form.
+ * kontroll (#1956), og vederlaget også for den særskilte vederlagsjusteringen (KA-U83). `navn`
+ * er posten med betegnelsen, eller med ID-en når den ikke er med i forrige versjon.
  */
 export function trekketStrider<P extends Pick<Post, 'id'>>(
   trekker: readonly string[],
   forrige: ReadonlyMap<string, P>,
-  posten: string,
-  betegnelse: (p: P) => string
+  navn: (id: string) => string
 ): string | null {
   const trukne = new Set<string>();
   for (const id of trekker) {
-    const p = forrige.get(id);
-    if (!p) return `trekker ${posten} ${id}, som ikke er med i forrige kravversjon`;
-    if (trukne.has(id)) return `trekker ${posten} ${betegnelse(p)} to ganger`;
+    if (!forrige.has(id)) return `trekker ${navn(id)}, som ikke er med i forrige kravversjon`;
+    if (trukne.has(id)) return `trekker ${navn(id)} to ganger`;
     trukne.add(id);
   }
   return null;

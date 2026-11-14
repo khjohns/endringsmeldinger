@@ -47,7 +47,7 @@ import {
   type Utfall,
 } from '../kommandoer/skriving.ts';
 import { medKravpostIder, medP1, medP1IkkeAkseptert, mellomlager, P1 } from './klient.ts';
-import type { Kommando, Svarutkast } from '../kommandoer/kommando.ts';
+import { formfeil, type Kommando, type Svarutkast } from '../kommandoer/kommando.ts';
 import { oppgittDatoEtterBrevet } from '../kommandoer/nyttelast.ts';
 import {
   KRAVSPOR,
@@ -10353,6 +10353,20 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     expect(tekst.match(/ble gitt i totalentreprenørens e-post/g)).toHaveLength(2);
   });
 
+  it('et registrert varsel som også ligger ved kravet, gjelder fortsatt kravposten, og kravet er ikke varselet (VS-U55, #1823)', () => {
+    const s = paaberopt();
+    const varselet = registrertVarsel('34.4');
+    s.send('TE', varselet);
+    const rad = s.send('TE', {
+      ...vederlagskrav([regning]),
+      dokumentasjon: varselet.dokumentasjon,
+    });
+    const tekst = laast(rad).join(' ');
+    expect(tekst).toContain('ble gitt i totalentreprenørens e-post');
+    expect(tekst).not.toContain(varselRegning);
+    expect(s.u().forstaatt).toBe(true);
+  });
+
   it('en kravpost i en ny versjon kan gjenta varselet den viste til, men ikke vise til et annet (KA-U56, VS-U50)', () => {
     const s = paaberopt();
     s.send('TE', sendVarsel('34.4'));
@@ -10601,6 +10615,10 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
         '$.dokumentasjon: vedlegget ved kravet er også dokumentet med varselet for en kravpost'
       );
       expect(s.avvist('TE', { ...krav, dokumentasjon: [PLAN] }), 'kontrollsak').toBeNull();
+      // Et innhold med feil form gir feil i formen, også med vedlegg ved kravet, og kaster ikke.
+      for (const innhold of [{ kravposter: 5 }, { kravposter: [null] }])
+        for (const ved of [{}, { dokumentasjon: [PLAN] }])
+          expect(formfeil({ type: 'krav', spor: 'vederlag', innhold, ...ved })).not.toEqual([]);
     });
   });
 });
@@ -11048,6 +11066,11 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
         '$.innhold.trekker_saerskilt: den særskilte vederlagsjusteringen er den eneste posten og kan ikke trekkes alene; totalentreprenøren trekker da vederlagskravet (KA-U83)'
       );
       expect(s.avvist('TE', vederlagskrav(tilbud(125000, trekk))), 'kontrollsak').toBeNull();
+      // Et tomt trekk, eller et trekk av kravpostene også, får ikke meldingen om den eneste posten.
+      for (const innhold of [{ trekker_saerskilt: [] }, { ...trekk, trekker: [randomUUID()] }])
+        expect(s.avvisning('TE', vederlagskrav(innhold))?.melding).not.toContain(
+          'den eneste posten'
+        );
     });
 
     it('en lagret versjon uten posten og uten trekk har en begrensning, og trekket leses tilbake', () => {
