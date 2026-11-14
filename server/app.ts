@@ -32,6 +32,7 @@ import { INNLOGGINGSRUTER } from './innlogging.ts';
 import { feilsvar, FOR_STOR, lesInntil, loggFeil, reserveFor, svarhoder } from './inngang.ts';
 import { PROSJEKTRUTER } from './prosjekter.ts';
 import { SAKSLISTERUTER } from './saksliste.ts';
+import { KONTRAKTSFRISTRUTER } from './kontraktsfrister.ts';
 import { lesFil, VEDLEGG_FOER_SAKEN, VEDLEGGSRUTER } from './vedlegg.ts';
 import { BREVRUTER } from './brev.ts';
 import { WEBHOOKRUTER } from './webhook.ts';
@@ -100,6 +101,7 @@ export const RUTER: readonly Rute[] = [
   ...INNLOGGINGSRUTER,
   ...PROSJEKTRUTER,
   ...SAKSLISTERUTER,
+  ...KONTRAKTSFRISTRUTER,
   ...WEBHOOKRUTER,
 ];
 

@@ -83,7 +83,6 @@ på kilden, men har ingen kontroller ennå.
 | [GFK-U24](../../plans/vedtak.md#gfk-u24) | — | — | BF-20, BF-45 |
 | [GFK-U26](../../plans/vedtak.md#gfk-u26) | — | — | BF-45 |
 | [GR-U1](../../plans/vedtak.md#gr-u1) | — | — | BF-08 |
-| [GR-U6](../../plans/vedtak.md#gr-u6) | — | — | BF-44 |
 | [GR-U7](../../plans/vedtak.md#gr-u7) | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 forholdet-er-avslaatt, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-04 forholdet-er-avslaatt | BF-01V, BF-08, BF-14, BF-44, BF-45 |
 | [GR-U8](../../plans/vedtak.md#gr-u8) | — | — | BF-44 |
 | [GR-U9](../../plans/vedtak.md#gr-u9) | — | — | BF-08 |
