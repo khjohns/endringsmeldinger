@@ -6233,7 +6233,7 @@ grunnlaget; et subsidiært standpunkt er et avslag som viser hvor nær partene e
 Forkastet: GR-U6, og å avvise aksept av vederlag og frist til grunnlaget er godkjent
 (det ville hindret sakens fremdrift)'''
 vedtatt = "08.10, oppdragsgiver (#274)"
-forhold = [{ art = "presiserer", vedtak = "ka-u5" }]
+forhold = [{ art = "presiserer", vedtak = "ka-u5" }, { art = "opphever", vedtak = "gr-u6" }]
 folge = '''
 Erstatter GR-U6. DT-11 er lukket. Presisert av [GR-U10](#gr-u10) (09.10): for grunnlaget
 er en godkjenning uten påberopt preklusjon enighet ved sammenfall. Presisert av
@@ -6246,7 +6246,7 @@ Byggestatus i Python: aksepten godtas uavhengig av grunnlaget (K 08.10). Statuse
 enigheten `godkjent`, som om kravet var oppgjort, og et svar som godkjenner hele kravet,
 gir «allerede avsluttet» ved aksept; enighet og oppgjort som egne begreper prøves i
 språkprøven (#274). At en enighet står mens grunnlaget venter, er bygget 09.10 (SK-03,
-rad GR-23). At et fullt godkjent svar er låst for revisjon, er ikke bygget (#298)'''
+rad GR-23). At et fullt godkjent svar er låst for revisjon, er ikke bygget (#298). Opphever [GR-U6](#gr-u6)'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
@@ -6261,7 +6261,7 @@ utfallet), og en aksept som faller ved revisjon (betinget aksept, i strid med KA
 vedtatt = "08.10, oppdragsgiver"
 folge = '''
 **Erstattet 2026-10-08 av [GR-U7](#gr-u7)** før det ble bygget. Vinduet konstruerte en
-regel modellen trengte, ikke kontrakten'''
+regel modellen trengte, ikke kontrakten. Opphevet 08.10 av [GR-U7](#gr-u7)'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
