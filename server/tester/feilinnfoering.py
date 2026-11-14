@@ -446,6 +446,10 @@ FEILINNFOERINGER = [
      "server/forlengelser.ts",
      "  ikkeForstaatt.length ? null : fristenEtterForlengelsene", "  false ? null : fristenEtterForlengelsene",
      "MM-U2: en sak kjernen ikke forstår, gjør datoen ukjent for hver frist"),
+    ("S118", "en sak kjernen ikke forstår, leses som en forstått sak (MM-U2, #1928)",
+     "server/forlengelser.ts",
+     "    if (!u.forstaatt) {", "    if (false) {",
+     "MM-U2: en sak kjernen ikke har skrevet, gjør datoen ukjent og nevnes"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

@@ -143,7 +143,7 @@ function svarutkast(h: Record<string, unknown>, u: Utledning): Svarutkast {
 
 /** Overtakelsen med satsen, regnet fra `DATOEN`. */
 const medSats = (sats: number | null): Map<number, Fristgrunnlag> =>
-  new Map([[1, { dato: DATOEN, sats, forlengelser: [], ikkeTattMed: [] }]]);
+  new Map([[1, { dato: DATOEN, sats, tattMed: [], ikkeTattMed: [] }]]);
 
 const verdi = async (krav: object[], svar: Record<string, unknown>[], sats: number | null) => {
   const u = utledning(krav);
@@ -494,10 +494,10 @@ describe('verdien av dagene per frist (GFK-U17–GFK-U21, GFK-U24)', () => {
     expect(g.frister.get(2)).toEqual({
       dato: null,
       sats: 1000,
-      forlengelser: tattMed,
+      tattMed,
       ikkeTattMed,
     });
-    expect(g.frister.get(1)).toMatchObject({ forlengelser: [], ikkeTattMed: [] });
+    expect(g.frister.get(1)).toMatchObject({ tattMed: [], ikkeTattMed: [] });
     expect(g.ikkeForstaatt).toEqual(['e']);
   });
 });

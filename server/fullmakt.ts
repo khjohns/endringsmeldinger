@@ -45,8 +45,11 @@ export interface Fristgrunnlag {
   dato: string | null;
   /** Kroner per dag, eller `null` når fristen ikke er dagmulktbelagt eller satsen mangler. */
   sats: number | null;
-  /** Dagene for fristen i de andre sakene som forlenger den. */
-  forlengelser: SakensForlengelse[];
+  /**
+   * Dagene for fristen i de andre sakene som forlenger den for fullmakten: avtalt og godkjent
+   * (GFK-U26). Skjemaet tar bare med de avtalte (`fristlinjer` i `server/kontraktsfrister.ts`).
+   */
+  tattMed: SakensForlengelse[];
   /** Dagene for fristen som ikke er tatt med, for utregningen (svaret på spørsmål 4 i
    * `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md`). */
   ikkeTattMed: SakensForlengelse[];
@@ -168,7 +171,7 @@ export function fristgrunnlaget(
         {
           dato: datoenEtterForlengelsene(f.dato, f.fristId, tattMed, ikkeForstaatt),
           sats: f.dagmulktbelagt ? f.sats : null,
-          forlengelser: forFristen(f.fristId, tattMed),
+          tattMed: forFristen(f.fristId, tattMed),
           ikkeTattMed: forFristen(f.fristId, ikkeTattMed),
         },
       ])
