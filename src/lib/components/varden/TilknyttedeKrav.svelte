@@ -67,7 +67,8 @@
 
 <!-- Skillet står med hardt mellomrom etter beløpet, så ingen linje begynner med «·». -->
 {#snippet utenFast(n: number)}&nbsp;<span class="uten"
-    ><span aria-hidden="true">·</span> {FORHOLDET.utenFastBeloep(n)}</span
+    ><span aria-hidden="true"> · </span><span class="visually-hidden">, </span>
+    {FORHOLDET.utenFastBeloep(n)}</span
   >{/snippet}
 
 <!-- KA-U74: dagene står per frist og legges ikke sammen. -->
@@ -79,9 +80,12 @@
       <li>
         <span class="frist">{f.betegnelse}</span>
         {#if f.dager.length}<span class="verdi"
-            >{#each f.dager as p, j (j)}{#if j}<span aria-hidden="true"> · </span>{/if}<span
-                class="num">{dager(p.tall)}</span
-              >{#if p.lag}&nbsp;<span class="lag">{p.lag}</span>{/if}{/each}</span
+            >{#each f.dager as p, j (j)}{#if j}<span aria-hidden="true"> · </span><span
+                  class="visually-hidden"
+                  >,
+                </span>{/if}<span class="num">{dager(p.tall)}</span>{#if p.lag}&nbsp;<span
+                  class="lag">{p.lag}</span
+                >{/if}{/each}</span
           >{:else}<span class="dempet">{FORHOLDET.ikkeISvaret}</span>{/if}
       </li>
     {/each}
@@ -137,7 +141,8 @@
                       )}{:else if k.svaret.poster.length}<span class="verdi"
                         >{#each k.svaret.poster as p, i (i)}{#if i}<span aria-hidden="true">
                               ·
-                            </span>{/if}<span class="num">{tall(k.spor, p.tall)}</span
+                            </span><span class="visually-hidden">, </span>{/if}<span class="num"
+                            >{tall(k.spor, p.tall)}</span
                           >{#if p.lag}&nbsp;<span class="lag">{p.lag}</span
                             >{/if}{/each}{#if k.svaret.utenFast}{@render utenFast(
                             k.svaret.utenFast
@@ -269,7 +274,7 @@
   .frister {
     flex-basis: 100%;
     display: grid;
-    grid-template-columns: minmax(0, max-content) auto;
+    grid-template-columns: minmax(min-content, max-content) auto;
     gap: var(--spacing-1) var(--spacing-3);
     margin: 0;
     padding: 0;

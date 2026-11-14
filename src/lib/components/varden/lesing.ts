@@ -474,7 +474,7 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
   // En kravpost etter en beregningsregel har ikke et krevd beløp (KA-U61). Summen er de faste
   // beløpene, og visningen sier hvor mange poster som ikke har et fast beløp (#1752).
   const fastKrevd = krav && spor === 'vederlag' ? fasteBeloepIKravet(krav) : null;
-  const linjene = svar ? standpunktene(svar, u) : [];
+  const linjene = svar && svarbrev ? standpunktene(svar, u) : [];
   // KA-U74: dagene står per frist og legges ikke sammen. Med én frist står dagene for den som
   // tallet for kravet og svaret, og med flere står de per frist i `frister`.
   const alle = (krav && spor === 'frist' ? innholdIFristen(krav).frister : []).map((f) => ({
@@ -509,7 +509,7 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
       svar && svarbrev
         ? {
             poster: enFrist
-              ? dageneFor(alle[0]!.id)
+              ? summertPerLag(dageneFor(alle[0]!.id))
               : summertPerLag(
                   linjene.flatMap((l) =>
                     'standpunkt' in l && l.standpunkt.art === 'beloep'
