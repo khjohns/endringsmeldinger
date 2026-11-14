@@ -138,10 +138,10 @@ function vurderinger(spor: Spor, h: Record<string, unknown>, krav: Krav | null):
         }))
       : poster.slice(0, 1).map((p) => ({ gjelder: p.id, s: h }));
     // `produktivitet` i handlingen gir svaret på posten etter § 34.1.3 annet ledd (VS-U5, OV-U27).
-    const p = h.produktivitet as Record<string, unknown> | undefined;
+    const p = h.produktivitet as Record<string, unknown> | null | undefined;
     return {
       hovedkrav_varslet_i_tide: h.varslet_i_tide,
-      ...(p
+      ...(typeof p === 'object' && p !== null
         ? {
             produktivitet_vurdering: p.vurdering,
             produktivitet_godkjent_beloep: p.godkjent_belop,
@@ -256,9 +256,12 @@ const INNHOLD = {
   // Én kravpost med fast sum, P1, som følger med fra forrige versjon (OV-U95 punkt 19, arbeidsvalget 07.11 i domenetabellen).
   // `kravposter` og `trekker` i handlingen gir kravpostene selv; `post` er betegnelsen til
   // en kravpost i en tidligere versjon, og kravposten sendes med dens id (KA-U56, KA-U75).
-  // `produktivitet` er beløpet i posten etter § 34.1.3 annet ledd (OV-U89 punkt 6).
+  // `produktivitet` er beløpet i posten etter § 34.1.3 annet ledd (OV-U89 punkt 6), bare i
+  // versjonen handlingen lager; uten `belop` og `kravposter` har kravet bare posten (OV-U23).
   vederlag: (h: Handling, u?: Utledning, nyId?: () => string, navn?: Navn) => ({
-    ...kravposterIKravet(h, u, nyId, navn),
+    ...(typeof h.produktivitet === 'number' && h.belop === undefined && !h.kravposter
+      ? {}
+      : kravposterIKravet(h, u, nyId, navn)),
     ...(typeof h.produktivitet === 'number'
       ? { saerskilt: { produktivitet: { beloep: h.produktivitet } } }
       : {}),
@@ -541,6 +544,8 @@ export function radFor(
             }
           : { frister: [{ id: 'f1', navn: FRISTEN, dager: 20 }] },
     };
+    if (spor === 'vederlag' && s.produktivitet !== undefined)
+      throw new Error('En registrert rad lager ikke posten etter § 34.1.3; send svaret i et brev.');
     const v = vurderinger(spor, s, krav);
     const standpunkter: Record<string, unknown>[] = [];
     if (spor === 'forhold' && typeof s.varslet_i_tide === 'boolean')

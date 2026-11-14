@@ -13,7 +13,7 @@ import type { Handling } from './klient.ts';
 import { plassene } from '../frosset/byggeklosser.ts';
 import { kroner } from '../frosset/tekst.ts';
 import { vederlagssvaret } from '../spor/vederlag/visning.ts';
-import { utregningIVederlaget } from '../spor/vederlag/format.ts';
+import { krevdProduktivitet, kravposterI, utregningIVederlaget } from '../spor/vederlag/format.ts';
 
 async function utledning(steg: Handling[]) {
   const forloep: Forloep = { id: 'lagene', rader: [], start: null, steg, kontroller: [] };
@@ -154,6 +154,12 @@ describe('svaret på kravet med posten etter § 34.1.3 gjennom klienten (BF-44, 
     underkategori: 'prosjektering',
     navn: 'K-g1',
   };
+  const varselet: Handling = {
+    handling: 'varsel',
+    spor: 'vederlag',
+    hjemmel: '34.1.3',
+    sendt: '2026-09-18',
+  };
   const kravet: Handling = {
     handling: 'krav',
     spor: 'vederlag',
@@ -176,15 +182,19 @@ describe('svaret på kravet med posten etter § 34.1.3 gjennom klienten (BF-44, 
   };
 
   it('prinsipalt 0 kr, subsidiært 110 000 kr og videre subsidiært 130 000 kr', async () => {
-    const u = await utledning([paaberopelse, kravet, brevet(svaret)]);
+    const u = await utledning([paaberopelse, varselet, kravet, brevet(svaret)]);
     const svar = u.spor.vederlag.svar[0];
-    // OV-U31: prinsipalt og om ingen innsigelse fører fram er lagret; mellomlaget er ikke det.
+    // Den lagrede utregningen (OV-U31).
     const ut = utregningIVederlaget(svar.utregning);
     expect([ut.godkjent_beloep, ut.subsidiaert_godkjent_beloep]).toEqual([0, 130000]);
-    // Laget og beløpet per post: begrensningen etter § 34.1.3 gir 10 000 kr i det subsidiære
-    // laget, så summen der er 100 000 + 10 000 kr.
+    // Laget og beløpet per post: begrensningen etter § 34.1.3 står i det subsidiære laget.
+    const poster = vederlagssvaret(u, svar).poster;
+    const iLag2 = poster.map((p) =>
+      p.begrensning?.lag === 2 ? p.begrensning.beloep : p.lag === 2 ? (p.godkjent ?? 0) : 0
+    );
+    expect(iLag2.reduce((x, y) => x + y, 0)).toBe(110000);
     expect(
-      vederlagssvaret(u, svar).poster.map((p) => [
+      poster.map((p) => [
         p.lag,
         p.godkjent,
         p.begrensning && [p.begrensning.lag, p.begrensning.beloep],
@@ -199,5 +209,14 @@ describe('svaret på kravet med posten etter § 34.1.3 gjennom klienten (BF-44, 
         `34.1.3 til ${kroner(10000)}, videre subsidiært godkjent med ${kroner(30000)} for ` +
         'særskilt justering (punkt 34.1.3 annet ledd).'
     );
+  });
+
+  it('et krav med bare posten har ingen kravpost (OV-U23)', async () => {
+    const u = await utledning([
+      paaberopelse,
+      { handling: 'krav', spor: 'vederlag', produktivitet: 40000, navn: 'K-v1' },
+    ]);
+    const krav = u.spor.vederlag.gjeldendeKrav!;
+    expect([kravposterI(krav).length, krevdProduktivitet(krav)]).toEqual([0, 4000000n]);
   });
 });
