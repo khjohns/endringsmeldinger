@@ -20,10 +20,14 @@ Rådene under er med egne ord.
 - Lenketekster sier hvor lenken fører. «Les mer» står ikke alene.
 - Klarspråk gjelder hvordan det sies, ikke hva. Domenebegrepene (EO, KOE, varsel,
   forsering), henvisningene til NS 8407 som «punkt 33.8» ([OV-U75](plans/vedtak.md#ov-u75), [LV-U39](plans/vedtak.md#lv-u39)) og
-  vedtatt ordlyd står som de er. I brevene og visningen
+  ordlyd som står i en post i vedtaksregisteret, står som de er. I brevene og visningen
   skrives partene fullt ut (se «Ordene i brevene og skjemaene»). Presisjonskravet
-  i [`CLAUDE.md`](../CLAUDE.md) går foran. En vedtatt ordlyd endres bare gjennom
-  [vedtaksregisteret](vedtaksregister/README.md).
+  i [`CLAUDE.md`](../CLAUDE.md) går foran.
+- Et vedtak angir budskapet, ikke den konkrete ordlyden. Ordlyden i visningen og brevene
+  er design eller beslutning og står i brukerforløpet, i systemfila eller her. En post
+  i [vedtaksregisteret](vedtaksregister/README.md) som fastsetter ordlyd, endres gjennom
+  registeret til ordlyden er klassifisert på nytt
+  ([vedtaksskillen](../.claude/skills/vedtak/SKILL.md), «Ordlyden i visningen og brevene»).
 
 ## Hva løsningen kalles
 
@@ -58,8 +62,9 @@ Eksempler fra sparringen om spørsmål 2 i
   sendt fra.
 
 Regelen gjelder ny og omskrevet tekst. Den er ingen grunn til å skrive om vedtak,
-sitater, lagrede navn eller vedtatt brevtekst; en vedtatt ordlyd endres bare gjennom
-[vedtaksregisteret](vedtaksregister/README.md). Merknaden «Appen vurderer ikke
+sitater, lagrede navn eller et sendt brev. Ordlyden i en post i
+[vedtaksregisteret](vedtaksregister/README.md) endres bare gjennom registeret, til den er
+klassifisert på nytt. Merknaden «Appen vurderer ikke
 innholdet» (OV-U4, OV-U19) er endret av [OV-U81](plans/vedtak.md#ov-u81) og [OV-U86](plans/vedtak.md#ov-u86).
 
 ## Ordene i brevene og skjemaene

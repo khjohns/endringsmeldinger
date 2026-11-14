@@ -32,12 +32,36 @@ oppdragsgiver.
   En *post* er en rad i [vedtaksregisteret](../../../docs/vedtaksregister/README.md), og
   *vedtak* er klassen. Hver post har en klasse, og feltene for delene og det andre hjemmet
   står i [registeret](../../../docs/vedtaksregister/README.md#klassen).
-- **Brevtekstene.** Det prinsipielle budskapet i en brevtekst står i vedtaket. Den
-  konkrete ordlyden er design eller beslutning, for eksempel om det første laget har
-  lagslinjen «Prinsipalt». Et spørsmål om ordlyden stilles derfor ikke som et juridisk
-  spørsmål og føres ikke som vedtak. Oppdragsgiver 13.11, ordrett: «det prinsipielle
+- **Ordlyden i visningen og brevene.** Et vedtak angir budskapet, ikke den konkrete
+  ordlyden. Det gjelder all synlig tekst i visningen og brevene: brevtekstene, overskriftene,
+  knappene, etikettene og meldingene. Den konkrete ordlyden er design eller beslutning, for
+  eksempel om det første laget i et brev har lagslinjen «Prinsipalt», eller hva en knapp
+  heter. Den står i brukerforløpet, [systemfila](../../../.interface-design/system.md) eller
+  [språkfila](../../../docs/sprak.md). Et spørsmål om ordlyden stilles derfor ikke som et
+  juridisk spørsmål og føres ikke som vedtak. Oppdragsgiver 13.11, ordrett: «det prinsipielle
   budskapet fremgår av vedtak. Konkret ordlyd er derimot design eller beslutning, feks om
-  prinsipalt skrives eller ikke.» (#1433)
+  prinsipalt skrives eller ikke.» (#1433) Oppdragsgiver 14.11, ordrett: «flere vedtak angir
+  ordlyd for frontend. Det mener jeg blir feil - det er design eller beslutninger. Vedtak må
+  angi budskapet - men ikke konkret ordlyd.» (#1534)
+
+  Et sendt brev betyr det det sa da ([MM-U50](../../../docs/plans/vedtak.md#mm-u50)), så
+  prinsippet endrer aldri et brev som er sendt. En post som i dag fastsetter ordlyd, får
+  ordlyden som designdel eller beslutningsdel når den klassifiseres på nytt etter #1534. Til
+  da endres den ordlyden gjennom vedtaksregisteret, som en omklassifisering og ikke som et
+  nytt juridisk spørsmål.
+
+  Er ordlyden det som gjør brevet til en bestemt rettslig handling eller avgrenser den,
+  gjelder svaret 1 A i
+  [vurderingen av ordlyd](../../../docs/vedtaksregister/vurdering-ordlyd-2026-11-14.md#svaret)
+  (oppdragsgiver 14.11, ordrett: «Ja»): «Vedtaket sier hva brevet skal meddele: handlingen,
+  virkningen og avgrensningen, for eksempel at byggherren bekrefter et svar byggherren alt har
+  gitt, og ikke utsteder en endringsordre nå. Den konkrete ordlyden er design eller
+  beslutning, som i LV-U73. En ny ordlyd må meddele det samme, og en ordlyd som ville endre
+  handlingen, virkningen eller avgrensningen, krever nytt vedtak. En ny ordlyd for en slik
+  setning tas i bruk først når en uavhengig kontroll har prøvd den mot budskapet i vedtaket.
+  Kontrollen føres i issuet, og er det tvil om budskapet er det samme, stilles det som
+  spørsmål. En ny ordlyd gjelder bare nye brev. Et sendt brev står slik det ble sendt
+  (MM-U50).»
 - **Hvem som retter klassen.** Klassen er en arbeidsvurdering. Orkestratoren kan rette den,
   men bare etter at en subagent eller en egen økt har kontrollert rettingen uavhengig,
   etter testen over. Rettingen føres i issuet med resultatet av kontrollen. Det samme
