@@ -26,7 +26,7 @@ import { postlisten } from '../spor/vederlag/frysing.ts';
 import { regnUtSvar } from '../frosset/utregning.ts';
 import { innsigelsenErOppgitt } from '../frosset/standpunkt.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
-import { kravposterI } from '../spor/vederlag/format.ts';
+import { harProduktivitetspost, kravposterI } from '../spor/vederlag/format.ts';
 import { innholdIFristen } from '../spor/frist/format.ts';
 import { LINJEN_I_FRISTEN } from '../spor/frist/tekst.ts';
 import { Uforstaatt } from '../format/skjema.ts';
@@ -47,7 +47,7 @@ import {
   type Utfall,
 } from '../kommandoer/skriving.ts';
 import { medKravpostIder, medP1, medP1IkkeAkseptert, mellomlager, P1 } from './klient.ts';
-import type { Kommando, Svarutkast } from '../kommandoer/kommando.ts';
+import { formfeil, type Kommando, type Svarutkast } from '../kommandoer/kommando.ts';
 import { oppgittDatoEtterBrevet } from '../kommandoer/nyttelast.ts';
 import {
   KRAVSPOR,
@@ -3735,14 +3735,18 @@ describe('vedleggene ved påberopelsen (VS-U38)', () => {
     ]);
   });
 
-  it('et vedlegg ved vederlagskravet avvises i formen (VS-U38, #1823)', () => {
+  it('vederlagskravet lagrer vedleggene ved kravet (#1823 punkt 3)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
-    const krav = { type: 'krav', spor: 'vederlag', innhold: tilbud(125000) };
-    expect(s.avvisning('TE', { ...krav, dokumentasjon: [VARSELBREVET] })?.melding).toBe(
-      '$.dokumentasjon: bare påberopelsen og kravet om fristforlengelse har vedlegg ved kravet'
-    );
-    expect(s.avvist('TE', krav), 'kontrollsak').toBeNull();
+    const rad = s.send('TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: tilbud(125000),
+      dokumentasjon: [PLAN],
+    });
+    expect(rad.data.dokumentasjon).toEqual([expect.objectContaining({ vedlegg_id: PLAN })]);
+    expect(laast(rad).at(-1)).toBe(`Brevet har vedlegg: «${PLAN}.pdf».`);
+    expect(s.u().forstaatt).toBe(true);
   });
 
   it('fristkravet har vedleggene ved kravet og brevet med varselet i samme brev, og brevet nevner begge (#1823, OV-U5)', () => {
@@ -10349,6 +10353,23 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
     expect(tekst.match(/ble gitt i totalentreprenørens e-post/g)).toHaveLength(2);
   });
 
+  it('et vedlegg ved kravet som alt ligger ved et varsel for en kravpost i saken, avvises, så brevet ikke tar varselet for et dokument fra kravskjemaet (VS-U55, VS-U51, #1823)', () => {
+    const s = paaberopt();
+    const varselet = registrertVarsel('34.4');
+    s.send('TE', varselet);
+    const varsel = varslene(s)[0]!.id;
+    for (const poster of [[regning], [{ ...regning, varsel }, regning]])
+      expect(
+        s.avvisning('TE', { ...vederlagskrav(poster), dokumentasjon: varselet.dokumentasjon })
+      ).toEqual({
+        regel: 'KRAVPOSTVARSELET',
+        melding:
+          'Et vedlegg ved kravet ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.',
+      });
+    const rad = s.send('TE', { ...vederlagskrav([regning]), dokumentasjon: [PLAN] });
+    expect(laast(rad).join(' '), 'kontrollsak').toContain('ble gitt i totalentreprenørens e-post');
+  });
+
   it('en kravpost i en ny versjon kan gjenta varselet den viste til, men ikke vise til et annet (KA-U56, VS-U50)', () => {
     const s = paaberopt();
     s.send('TE', sendVarsel('34.4'));
@@ -10569,18 +10590,38 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       expect(feil?.melding).toContain('Varselet for kravpost nr. 1');
     });
 
-    it('et vederlagskrav med et vedlegg som ikke er dokumentet med varselet for en kravpost, gjør saken ikke forstått (VS-U51, MM-U2)', () => {
+    it('vederlagskravet har egne vedlegg og dokumentet med varselet for en kravpost i samme brev, og brevet nevner begge (#1823 punkt 3, VS-U51)', () => {
       const s = paaberopt();
-      const krav = s.send('TE', vederlagskrav([{ ...regning, varsel: dokument() }]));
-      expect(s.u().forstaatt, 'kontrollsak').toBe(true);
-      const ved = (krav.data.dokumentasjon ?? []) as Data[];
-      expect(ved, 'kravet legger dokumentet ved (VS-U51)').toHaveLength(1);
-      ved[0] = { ...ved[0], vedlegg_id: randomUUID() };
-      expect(JSON.stringify(s.u().begrensninger)).toContain('VS-U51');
-      // Klienten kan ikke legge ved noe selv (VS-U38).
-      expect(s.avvist('TE', { ...vederlagskrav([regning]), dokumentasjon: [randomUUID()] })).toBe(
-        'UGYLDIG_FORM'
+      const varselet = dokument();
+      const krav = s.send('TE', {
+        ...vederlagskrav([{ ...regning, varsel: varselet }]),
+        dokumentasjon: [PLAN],
+      });
+      expect(((krav.data.dokumentasjon ?? []) as Data[]).map((v) => v.vedlegg_id)).toEqual([
+        PLAN,
+        varselet.dokumentasjon[0],
+      ]);
+      expect(laast(krav).at(-1)).toBe(
+        `Brevet har vedlegg: «${PLAN}.pdf» og «${varselet.dokumentasjon[0]}.pdf».`
       );
+      expect(s.u().forstaatt).toBe(true);
+    });
+
+    it('et vedlegg ved vederlagskravet som også er dokumentet med varselet for en kravpost, avvises i formen (VS-U51)', () => {
+      const s = paaberopt();
+      const varselet = dokument();
+      const krav = vederlagskrav([{ ...regning, varsel: varselet }]);
+      expect(
+        s.avvisning('TE', { ...krav, dokumentasjon: [varselet.dokumentasjon[0]!.toUpperCase()] })
+          ?.melding
+      ).toBe(
+        '$.dokumentasjon: vedlegget ved kravet er også dokumentet med varselet for en kravpost'
+      );
+      expect(s.avvist('TE', { ...krav, dokumentasjon: [PLAN] }), 'kontrollsak').toBeNull();
+      // Et innhold med feil form gir feil i formen, også med vedlegg ved kravet, og kaster ikke.
+      for (const innhold of [{ kravposter: 5 }, { kravposter: [null] }])
+        for (const ved of [{}, { dokumentasjon: [PLAN] }])
+          expect(formfeil({ type: 'krav', spor: 'vederlag', innhold, ...ved })).not.toEqual([]);
     });
   });
 });
@@ -10903,6 +10944,161 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
       laast: 'Kravet erstatter totalentreprenørens krav i brev K201-KOE-017-02 av 3. oktober 2026.',
     });
     expect(innledning.overskrift).toBeUndefined();
+  });
+
+  describe('totalentreprenørens standpunkt til svaret i en ny kravversjon (LV-U75)', () => {
+    const standpunktet = 'Totalentreprenøren er ikke enig i at kravet kom for sent.';
+    const ingenHenvisning = (avsnitt: Avsnitt[]) =>
+      expect(avsnitt.map((a) => a.laast).join('\n\n')).not.toContain('fremgår av');
+
+    it('vederlagskravet har standpunktet rett etter setningen om kravet det erstatter, uten henvisningssetning', () => {
+      const s = sakMedKrav();
+      const avsnitt = tekst(
+        s.send('TE', vederlagskrav(tilbud(130000), undefined, { innledning: standpunktet }))
+      );
+      expect(avsnitt[0]).toMatchObject({
+        punkt: 'innledning',
+        laast:
+          'Kravet erstatter totalentreprenørens krav i brev K201-KOE-017-02 av 3. oktober 2026.',
+        utdypning: standpunktet,
+      });
+      expect(avsnitt[0]!.overskrift).toBeUndefined();
+      expect(avsnitt[1]!.punkt, 'kravpostene står etter standpunktet').toBe('P1');
+      ingenHenvisning(avsnitt);
+    });
+
+    it('fristkravet har standpunktet rett etter setningen om kravet det erstatter', () => {
+      const s = sakMedKrav();
+      const avsnitt = tekst(
+        s.send('TE', {
+          ...utenFelt(FRISTKRAV, 'varsel'),
+          innhold: { frister: [{ navn: 'Sluttfristen', dager: 30 }] },
+          utdypninger: { innledning: standpunktet },
+        })
+      );
+      expect(avsnitt[0]).toMatchObject({
+        punkt: 'innledning',
+        laast:
+          'Kravet erstatter totalentreprenørens krav i brev K201-KOE-017-03 av 4. oktober 2026.',
+        utdypning: standpunktet,
+      });
+      ingenHenvisning(avsnitt);
+    });
+
+    it('det første kravet har ingen setning om et krav det erstatter, og et standpunkt avvises (LV-U71)', () => {
+      const s = sak();
+      s.send('TE', PAABEROPELSE);
+      expect(
+        s.avvist('TE', vederlagskrav(tilbud(125000), undefined, { innledning: standpunktet }))
+      ).toBe('UGYLDIG_FORM');
+      expect(s.avvist('TE', vederlagskrav(tilbud(125000))), 'kontrollsak').toBeNull();
+    });
+  });
+
+  describe('trekket av den særskilte vederlagsjusteringen (KA-U83)', () => {
+    const saerskilt = { saerskilt: { produktivitet: { beloep: 40000 } } };
+    const medPosten = () => {
+      const s = sak();
+      s.send('TE', PAABEROPELSE);
+      s.send('TE', vederlagskrav(tilbud(125000, saerskilt)));
+      return s;
+    };
+    const trekk = { trekker_saerskilt: ['produktivitet'] };
+
+    it('brevet sier at totalentreprenøren trekker kravet, og den nye versjonen har ikke posten', () => {
+      const s = medPosten();
+      const rad = s.send('TE', vederlagskrav(tilbud(125000, trekk)));
+      const punktet: Partial<Avsnitt> = tekst(rad).find((a) => a.punkt === 'produktivitet') ?? {};
+      expect(punktet).toMatchObject({
+        overskrift: expect.stringMatching(/^\d+\. Særskilt vederlagsjustering$/),
+      });
+      expect(punktet.laast).toBe(
+        `${punktet.overskrift}\n\nTotalentreprenøren trekker kravet om særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd, fremsatt i brev K201-KOE-017-02 av 3. oktober 2026.`
+      );
+      expect(laast(rad).join(' ')).not.toContain('avkall');
+      expect(laast(rad).join(' '), 'posten er ikke et tilbud lenger').not.toContain(
+        'den særskilte vederlagsjusteringen er et tilbud'
+      );
+      expect(harProduktivitetspost(s.u().spor.vederlag.gjeldendeKrav!)).toBe(false);
+      expect(s.u().forstaatt).toBe(true);
+    });
+
+    it('en ny versjon som verken tar med eller trekker posten, avvises', () => {
+      const s = medPosten();
+      expect(s.avvisning('TE', vederlagskrav(tilbud(125000)))).toEqual({
+        regel: 'KRAVPOSTENE',
+        melding:
+          'Kravversjonen mangler den særskilte vederlagsjusteringen uten at den er trukket (KA-U83).',
+      });
+      expect(s.avvist('TE', vederlagskrav(tilbud(125000, saerskilt))), 'tatt med').toBeNull();
+      expect(s.avvist('TE', vederlagskrav(tilbud(125000, trekk))), 'trukket').toBeNull();
+    });
+
+    it('et trekk gjelder posten i forrige versjon, én gang, og posten kan ikke både tas med og trekkes', () => {
+      const s = sak();
+      s.send('TE', PAABEROPELSE);
+      s.send('TE', vederlagskrav(tilbud(125000)));
+      expect(s.avvist('TE', vederlagskrav(tilbud(125000, trekk))), 'ikke i forrige').toBe(
+        'KRAVPOSTENE'
+      );
+      const m = medPosten();
+      expect(m.avvist('TE', vederlagskrav(tilbud(125000, { ...saerskilt, ...trekk })))).toBe(
+        'KRAVPOSTENE'
+      );
+      expect(
+        m.avvist(
+          'TE',
+          vederlagskrav(tilbud(125000, { trekker_saerskilt: ['produktivitet', 'produktivitet'] }))
+        )
+      ).toBe('KRAVPOSTENE');
+    });
+
+    it('posten kan tas med igjen i en senere versjon', () => {
+      const s = medPosten();
+      s.send('TE', vederlagskrav(tilbud(125000, trekk)));
+      s.send('TE', vederlagskrav(tilbud(125000, saerskilt)));
+      expect(harProduktivitetspost(s.u().spor.vederlag.gjeldendeKrav!)).toBe(true);
+      expect(s.u().forstaatt).toBe(true);
+    });
+
+    it('er posten den eneste i kravet, trekkes den ikke alene, og vederlagskravet trekkes i stedet (KA-U22)', () => {
+      const s = sak();
+      s.send('TE', PAABEROPELSE);
+      s.send('TE', vederlagskrav(saerskilt));
+      expect(s.avvisning('TE', vederlagskrav(trekk))).toEqual({
+        regel: 'KRAVPOSTENE',
+        melding:
+          'Kravversjonen har ingen poster igjen når den særskilte vederlagsjusteringen er trukket (KA-U83).',
+      });
+      expect(s.avvist('TE', vederlagskrav(tilbud(125000, trekk))), 'kontrollsak').toBeNull();
+      expect(s.avvist('TE', vederlagskrav({ trekker_saerskilt: [] })), 'tomt trekk').toBe(
+        'UGYLDIG_FORM'
+      );
+    });
+
+    it('et trekk uten andre poster får meldingen om det som hindrer: posten som mangler, eller posten som ikke er med i forrige versjon', () => {
+      const s = medPosten();
+      expect(s.avvisning('TE', vederlagskrav(trekk))?.melding).toBe(
+        'Kravversjonen mangler P1 uten at den er trukket (KA-U56).'
+      );
+      const f = sak();
+      f.send('TE', PAABEROPELSE);
+      expect(f.avvisning('TE', vederlagskrav(trekk))?.melding).toBe(
+        'Kravversjonen trekker den særskilte vederlagsjusteringen, som ikke er med i forrige kravversjon.'
+      );
+    });
+
+    it('en lagret versjon uten posten og uten trekk har en begrensning, og trekket leses tilbake', () => {
+      const s = medPosten();
+      const rad = s.send('TE', vederlagskrav(tilbud(125000, trekk)));
+      const kravet = (rad.data.krav as Data[])[0]!;
+      expect(kravet.trekker_saerskilt).toEqual(['produktivitet']);
+      expect(JSON.stringify(s.u().begrensninger), 'kontrollsak').not.toContain('KA-U83');
+      delete kravet.trekker_saerskilt;
+      expect(JSON.stringify(s.u().begrensninger)).toContain(
+        'mangler den særskilte vederlagsjusteringen uten at den er trukket (KA-U83)'
+      );
+    });
   });
 
   it('et avsnitt med punkt for et element som ikke er et krav, gjør saken ikke forstått (MM-U2)', () => {

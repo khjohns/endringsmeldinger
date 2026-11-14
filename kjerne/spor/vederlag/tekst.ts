@@ -37,6 +37,7 @@ import type { Linjeledd, Sporslinje } from '../../frosset/linje.ts';
 import { kroner, SENT_I_LINJEN } from '../../frosset/tekst.ts';
 import { begrensningen } from './frysing.ts';
 import {
+  harProduktivitetspost,
   innholdIVederlaget,
   krevdIKravposten,
   krevdProduktivitet,
@@ -142,8 +143,8 @@ function varselpunkt(hjemmel: '34.1.2' | '34.1.3', t: Tekst): Brevpunkt {
 /**
  * Vederlagskravet i punkter med overskrift (#1824, prototype v4 i BF-14): kravet det erstatter
  * (KA-U52 punkt 4), varslene, kravpostene med trekket (KA-U56), postene utenfor kravpostene
- * (OV-U95 punkt 3, OV-U89 punkt 17) og hvilke poster som er tilbud etter § 34.2.1 (KA-U61,
- * KA-U65). Rigg og drift kalles ikke tilbud. Partene skrives fullt ut (LV-U35).
+ * (OV-U95 punkt 3, OV-U89 punkt 17) med trekket av den særskilte (KA-U83), og hvilke poster som
+ * er tilbud etter § 34.2.1 (KA-U61, KA-U65). Rigg og drift kalles ikke tilbud. Partene skrives fullt ut (LV-U35).
  */
 function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
   const { j, saken } = t;
@@ -173,7 +174,8 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
     avsnitt: [kravposttekst(p, saken.kravpostvarsler[p.id], t)],
   }));
   const forrige = tidligere(k, j).at(-1);
-  for (const id of innholdIVederlaget(k).trekker) {
+  const innhold = innholdIVederlaget(k);
+  for (const id of innhold.trekker) {
     const p = forrige && kravposterI(forrige).find((q) => q.id === id);
     if (!p)
       throw new KanIkkeUttrykkes(
@@ -200,6 +202,20 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
         `Totalentreprenøren krever ${poster.length ? 'i tillegg ' : ''}særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd for ${PRODUKTIVITET} med ${eksMva(tilTall(post))}`,
       ],
     });
+  // KA-U83.
+  if (innhold.trekker_saerskilt.includes('produktivitet')) {
+    if (!forrige || !harProduktivitetspost(forrige))
+      throw new KanIkkeUttrykkes(
+        'trekket gjelder den særskilte vederlagsjusteringen, som ikke står i forrige kravversjon'
+      );
+    punkter.push({
+      punkt: 'produktivitet',
+      overskrift: 'Særskilt vederlagsjustering',
+      avsnitt: [
+        `Totalentreprenøren trekker kravet om særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd, fremsatt i ${j.brevet(forrige.dokument)}.`,
+      ],
+    });
+  }
   if (rigg !== null)
     punkter.push({
       punkt: 'rigg_og_drift',
@@ -344,8 +360,6 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
   krav: vederlagstekst,
   // VS-U29: også påberopelsen etter § 34.1.3 mot det særskilte varselet (VS-U24, OV-U22).
   ogsaaInnsigelserEtter: ['34.1.3'],
-  // Kravet sier selv hvilket krav det erstatter, i innledningen (#1824).
-  nevnerErstattet: false,
   // LV-U74: utdypningen for hele kravet er begrunnelsen, foran «Forbehold».
   utdypningensPunkt: { punkt: 'begrunnelse', overskrift: 'Begrunnelse' },
   kravetOm: KRAVET_OM,

@@ -26,7 +26,6 @@ import {
   KanIkkeUttrykkes,
   kravpostenI,
   liste,
-  kravetErstatter,
   norskDato,
   PRODUKTIVITET,
   stor,
@@ -41,7 +40,6 @@ import {
   type Tema,
   type Utdypninger,
   PARTENS,
-  utenOverskrift,
   UtdypningUtenPunkt,
 } from './brevdeler.ts';
 import {
@@ -172,8 +170,11 @@ export function lagBrevtekst(
       );
   };
 
-  for (const k of nytt.krav)
-    leggPunkter(k.id, kravtekst(k, t, regler), brevtekstI(k.spor).utdypningensPunkt);
+  for (const k of nytt.krav) {
+    // LV-U4 punkt 2–3 og GR-U16. Kravet i sporet står i `BREVTEKST`.
+    const tekst = brevtekstI(k.spor);
+    leggPunkter(k.id, tekst.krav(k, t, regler), tekst.utdypningensPunkt);
+  }
   // LV-U34, LV-U72: svaret på forholdet står først, så lagslinjene i de andre svarene kan vise til det.
   const svarene = [...nytt.svar].sort((a, b) => SPORENE.indexOf(a.spor) - SPORENE.indexOf(b.spor));
   const ns = { nevnt: false };
@@ -190,20 +191,6 @@ export function lagBrevtekst(
   if (nytt.dokumentasjon.length)
     legg(nytt.id, `Brevet har vedlegg: ${liste(nytt.dokumentasjon.map((v) => `«${v.filnavn}»`))}.`);
   return avsnitt;
-}
-
-/** LV-U4 punkt 2–3 og GR-U16. Kravet i sporet står i `BREVTEKST`. */
-function kravtekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
-  const { j } = t;
-  const punkter = brevtekstI(k.spor).krav(k, t, regler);
-  // KA-U52 punkt 4 og LV-U56 (`nevnerErstattet`): setningen står sist i det siste avsnittet.
-  if (k.erstatter && brevtekstI(k.spor).nevnerErstattet) {
-    const erstatter = kravetErstatter(k.erstatter, j);
-    const siste = punkter.at(-1);
-    if (!siste?.avsnitt.length) punkter.push(utenOverskrift([erstatter]));
-    else siste.avsnitt.push(`${siste.avsnitt.pop()} ${erstatter}`);
-  }
-  return punkter;
 }
 
 /** En innsigelse med brevet den står i. */

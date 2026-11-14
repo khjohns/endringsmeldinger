@@ -519,7 +519,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'spor/vederlag/utledning.ts:kravpostvarslene',
       'spor/vederlag/utledning.ts:kravpostvarseletStrider',
-      'spor/vederlag/utledning.ts:kontrollerVedleggeneVedKravet',
     ],
   ],
   // KA-U54, KA-U64, KA-U68, OV-U95 punkt 5: svaret på en kravpost etter en beregningsregel.
@@ -544,6 +543,19 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // OV-U23: posten etter § 34.1.3 annet ledd i vederlagskravet.
   ['Vederlagsinnhold', 'utsagn', 'saerskilt', ['spor/vederlag/format.ts']],
+  // KA-U83: den særskilte vederlagsjusteringen tas med eller trekkes uttrykkelig.
+  [
+    'Vederlagsinnhold',
+    'utsagn',
+    'saerskilt saerskilt.produktivitet trekker_saerskilt',
+    ['spor/vederlag/utledning.ts:saerskiltStrider'],
+  ],
+  [
+    'Vederlagsinnhold',
+    'utsagn',
+    'trekker_saerskilt',
+    ['spor/vederlag/format.ts:innholdIVederlaget', 'spor/vederlag/tekst.ts'],
+  ],
   [
     'Vederlagsinnhold.saerskilt',
     'utsagn',
@@ -1159,8 +1171,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/vederlag/kommando.ts:medVarslene', 'utsagn', 'hjemmel'],
   ['Dokumentpost', 'kommando', 'varsel'],
   // VS-U51, VS-U53: dokumentet fra kravskjemaet gjelder bare kravposten som viser til det.
-  ['Dokument', 'utsagn', 'dokumentasjon', ['spor/vederlag/kommando.ts:foranKravet']],
-  ['Utsagn', 'relasjon', 'dokument', ['spor/vederlag/kommando.ts:foranKravet']],
+  [
+    'Dokument',
+    'utsagn',
+    'dokumentasjon',
+    ['spor/vederlag/kommando.ts:foranKravet', 'spor/vederlag/kommando.ts:vedleggetErEtVarsel'],
+  ],
+  [
+    'Utsagn',
+    'relasjon',
+    'dokument',
+    ['spor/vederlag/kommando.ts:foranKravet', 'spor/vederlag/kommando.ts:vedleggetErEtVarsel'],
+  ],
   [
     'kommandoer/kommando.ts:formfeil',
     'kommando',
@@ -1291,7 +1313,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsskriving',
     'kommando',
-    'kravinnhold handlingen postvarsler kontekstsperre',
+    'kravinnhold handlingen postvarsler kontekstsperre saksperre',
     ['kommandoer/skriving.ts'],
   ],
   // VS-U51, VS-U53: skrivingen gir sporet stegene for en handling med flere rader.
@@ -1346,12 +1368,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/nyttelast.ts'],
   ],
   // Formen på kravet i sporet (#1783).
-  [
-    'Kravform',
-    'kommando',
-    'feil vedleggIInnholdet vedleggVedKravet varselVedKravet',
-    ['kommandoer/kommando.ts'],
-  ],
+  ['Kravform', 'kommando', 'feil vedleggIInnholdet varselVedKravet', ['kommandoer/kommando.ts']],
   ['spor/vederlag/kommando.ts', 'kommando', 'KRAVFORM_I_VEDERLAGET', ['kommandoer/kommando.ts']],
   ['spor/forhold/kommando.ts', 'kommando', 'KRAVFORM_I_FORHOLDET', ['kommandoer/kommando.ts']],
   [
@@ -1743,12 +1760,20 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/utledning.ts:kravposteneStrider'],
   ],
   ['spor/vederlag/utledning.ts', 'predikat', 'kravposteneStrider', ['spor/vederlag/kommando.ts']],
+  ['spor/vederlag/utledning.ts', 'predikat', 'saerskiltStrider', ['spor/vederlag/kommando.ts']],
   // #1956: fristen deler kontrollen av trekket og av postene som mangler.
   [
     'spor/poster/utledning.ts',
     'predikat',
     'trekketStrider utelattUtenTrekk',
     ['spor/frist/utledning.ts:fristeneStrider'],
+  ],
+  // KA-U83: den særskilte vederlagsjusteringen mangler som en post uten trekk.
+  [
+    'spor/poster/utledning.ts',
+    'predikat',
+    'trekketStrider utelattUtenTrekk',
+    ['spor/vederlag/utledning.ts:saerskiltStrider'],
   ],
   [
     'spor/poster/utledning.ts',
@@ -2080,12 +2105,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'UtdypningUtenPunkt',
     ['frosset/brevtekst.ts', 'kommandoer/skriving.ts:skriv'],
   ],
-  [
-    'frosset/brevdeler.ts',
-    'brevtekst',
-    'utenOverskrift',
-    ['frosset/brevtekst.ts', 'spor/forhold/tekst.ts'],
-  ],
+  ['frosset/brevdeler.ts', 'brevtekst', 'utenOverskrift', ['spor/forhold/tekst.ts']],
   ['Journalrad.data', 'rad', 'sakstittel', ['format/leser.ts']],
   // #801, #1138: skriv kontrollerer tegnene i sakstittelen og filnavnene i brevet.
   [
@@ -2195,7 +2215,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsbrevtekst',
     'brevtekst',
-    'krav navn ogsaaInnsigelserEtter svaretGjelder nevnerErstattet utdypningensPunkt innledning temaer punktet oversikt ingenBeloep',
+    'krav navn ogsaaInnsigelserEtter svaretGjelder utdypningensPunkt innledning temaer punktet oversikt ingenBeloep',
     ['frosset/brevtekst.ts'],
   ],
   // LV-U34 og OV-U73: temaene og beløpene per lag i byggherrens svar.
@@ -2244,7 +2264,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/brevdeler.ts',
     'brevtekst',
     'kravetErstatter',
-    ['frosset/brevtekst.ts', 'spor/frist/tekst.ts', 'spor/vederlag/tekst.ts'],
+    ['spor/frist/tekst.ts', 'spor/vederlag/tekst.ts'],
   ],
   // LV-U35: partene skrives fullt ut, i eiendomsform, i brevteksten.
   [
@@ -2373,20 +2393,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'dokumentasjon',
     ['frosset/brevtekst.ts', 'format/leser.ts', 'frosset/brevdeler.ts'],
   ],
-  // VS-U51, VS-U53: dokumentet med varselet for en kravpost ligger ved kravet, og teksten sier det.
-  [
-    'Dokument',
-    'utsagn',
-    'dokumentasjon',
-    ['spor/vederlag/utledning.ts:kontrollerVedleggeneVedKravet'],
-  ],
   [
     'Vedlegg',
     'relasjon',
     'vedlegg_id',
     [
-      'spor/vederlag/utledning.ts:kontrollerVedleggeneVedKravet',
       'spor/vederlag/kommando.ts:foranKravet',
+      'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
       'frosset/brevdeler.ts',
     ],
   ],

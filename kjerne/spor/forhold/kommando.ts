@@ -54,7 +54,6 @@ export const KRAVFORM_I_FORHOLDET = {
     return feil.length ? feil : datofeil(innhold as Innhold);
   },
   vedleggIInnholdet: () => [],
-  vedleggVedKravet: true,
   varselVedKravet: false,
 } satisfies Kravform;
 

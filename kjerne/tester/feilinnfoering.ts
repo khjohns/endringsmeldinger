@@ -19,7 +19,7 @@
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
  * OV-U7 (#587), og F170 og F304 den leste begrunnelsen og passiviteten etter at
  * kravene er avgjort (OV-U7, #994), og F312–F315 det som foreligger i et lukket spor
- * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434–F435 vedleggene ved påberopelsen (VS-U38, #1487), og F456–F464 korrigeringen av datoen (MM-U55 punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F475 en ny versjon av påberopelsen og endringsordren som står (LV-U56, GR-U40 punkt 7, #1615), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775), og F575–F576 rekkefølgen på hjemlene i rettidigheten i svaret på fristen (VS-U24, #1783), og F577 innsigelsen hvert «i tide» i fristen gir opp (VS-U20, #1783). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
+ * og etter et frafall (#1050), og F330–F333 tegnene PDF-en av brevet ikke kan vise (#801), og F353–F356 brevet registrert som dokumentasjon (OV-U4, OV-U16, #1045), og F406–F411 forbeholdet for ubesvart forhold og oppgjør som fast sum (GR-U26, LV-U31, OV-U33, #1239, #1240), og F412–F414 postlisten og avsnittene per lag i svarbrevet (#1047, #1267), og F415–F418 beløpsvurderingen som motsier beløpet og brøkdeler av øre (#1301, OV-U58), og F419–F420 «delvis» med det krevde eller 0 kr (KA-U42), og F434 vedleggene ved påberopelsen og kravet (VS-U38, #1487, #1823), og F456–F464 korrigeringen av datoen (MM-U55 punkt 10 og 11, MM-U51, #1308), og F467–F469 lagene svaret på forholdet opptok foran sporet i brevet (OV-U32, OV-U33, #1449), og F470–F473 en ny versjon av påberopelsen og endringsordren som står (LV-U56, GR-U40 punkt 7, #1615), og F475 og F620 kravet en ny kravversjon erstatter (KA-U52 punkt 4, #1823), og F621 vedlegget ved vederlagskravet (VS-U51, #1823), og F622–F627 trekket av den særskilte vederlagsjusteringen (KA-U83, #1823), og F628 et varsel før kravet som også ligger ved kravet (VS-U55, #1823), og F517–F522 varselet om forholdet før datoen i grunnlagskravet (VS-U58, VS-U59, #1730), og F523–F524 et ukjent felt i vurderingene i svaret på forholdet og fristen (MM-U2, #1732), og F525–F526 kravet som er det første varselet, i korrigeringen (VS-U60, #1753), og F552 det tidligste av det egne varselet og kravet (VS-U66, #1754), og F553 formen på merkingen (LV-U48, #1588), og F544–F546 lagene i vederlagssvaret (OV-U32, #1774), og F547–F548 rigg og drift i vederlagskravet (MM-U2, #1775), og F575–F576 rekkefølgen på hjemlene i rettidigheten i svaret på fristen (VS-U24, #1783), og F577 innsigelsen hvert «i tide» i fristen gir opp (VS-U20, #1783). Én mutasjon om gangen per arbeidskopi, Vitest over hele `kjerne/`
  * og `sprakprove/kjernelagring/` uten isolasjon mellom filene, og originalteksten
  * settes tilbake etterpå. Med `FEILINNFOERING_UTVALG=1`, som workflowen setter på en
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
@@ -3093,10 +3093,7 @@ const MUTASJONER: Mutasjon[] = [
       'vederlagskravet krever kravposter, også med posten etter § 34.1.3 (OV-U89 punkt 6)',
     fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
-      [
-        "    anyOf: [{ required: ['kravposter'] }, { required: ['saerskilt'] }],\n",
-        "    anyOf: [{ required: ['kravposter'] }],\n",
-      ],
+      ["      { required: ['saerskilt'] },\n      { required: ['trekker_saerskilt'] },\n", ''],
     ],
     mal: ['vederlagskravet kan ha bare posten'],
   },
@@ -3106,7 +3103,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/format.ts`,
     endringer: [
       [
-        "    anyOf: [{ required: ['kravposter'] }, { required: ['saerskilt'] }],\n",
+        "    anyOf: [\n      { required: ['kravposter'] },\n      { required: ['saerskilt'] },\n      { required: ['trekker_saerskilt'] },\n    ],\n",
         '    anyOf: [],\n',
       ],
     ],
@@ -3585,14 +3582,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'vedleggene ved påberopelsen slås ikke opp (VS-U38, LV-U14)',
     fil: `${K}/kommandoer/kommando.ts`,
     endringer: [['[...(k.dokumentasjon ?? []), ...', '[...']],
-    mal: ['påberopelsen lagrer vedlegget med ID, filnavn og sum'],
-  },
-  {
-    id: 'F435',
-    feilklasse: 'vederlagskravet godtar vedlegg ved kravet (VS-U38, #1823)',
-    fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [["if (!form.vedleggVedKravet && 'dokumentasjon' in k)", 'if (false)']],
-    mal: ['et vedlegg ved vederlagskravet avvises i formen'],
+    mal: [
+      'påberopelsen lagrer vedlegget med ID, filnavn og sum',
+      'vederlagskravet lagrer vedleggene ved kravet',
+    ],
   },
   {
     id: 'F436',
@@ -4003,24 +3996,103 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
-    id: 'F474',
-    feilklasse: 'en ny påberopelsesversjon sier at den erstatter det tidligere kravet (LV-U56)',
-    fil: `${K}/spor/forhold/tekst.ts`,
-    endringer: [['  nevnerErstattet: false,', '  nevnerErstattet: true,']],
-    mal: ['underkategorien endringsordre har ingen dato'],
+    id: 'F475',
+    feilklasse: 'en ny versjon av fristkravet viser ikke til kravet den erstatter (KA-U52 punkt 4)',
+    fil: `${K}/spor/frist/tekst.ts`,
+    endringer: [['  if (k.erstatter) innledning.push(', '  if (false) innledning.push(']],
+    mal: ['en ny kravversjon viser til den den erstatter'],
   },
   {
-    id: 'F475',
+    id: 'F621',
     feilklasse:
-      'en ny versjon av vederlags- eller fristkravet viser ikke til kravet den erstatter (KA-U52 punkt 4)',
-    fil: `${K}/frosset/brevtekst.ts`,
+      'et vedlegg ved vederlagskravet kan også være dokumentet med varselet for en kravpost (VS-U51, #1823)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [['iInnholdet.has(vedleggsnoekkel(v))', 'false']],
+    mal: ['et vedlegg ved vederlagskravet som også er dokumentet med varselet for en kravpost'],
+  },
+  {
+    id: 'F622',
+    feilklasse:
+      'en ny kravversjon kan utelate den særskilte vederlagsjusteringen uten å trekke den (KA-U83)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      ['    () => trekk.length > 0 || saerskilt.produktivitet !== undefined,', '    () => true,'],
+    ],
+    mal: [
+      'en ny versjon som verken tar med eller trekker posten, avvises',
+      'en lagret versjon uten posten og uten trekk har en begrensning',
+      'F-MM-KA-U83',
+    ],
+  },
+  {
+    id: 'F623',
+    feilklasse:
+      'en ny kravversjon kan trekke den særskilte vederlagsjusteringen som ikke står i forrige versjon, eller trekke den to ganger (KA-U83)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [
+      ['const trekket = trekketStrider(trekk, iForrige, () => posten);', 'const trekket = null;'],
+    ],
+    mal: ['et trekk gjelder posten i forrige versjon'],
+  },
+  {
+    id: 'F624',
+    feilklasse:
+      'en ny kravversjon kan både ta med og trekke den særskilte vederlagsjusteringen (KA-U83)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
+    endringer: [['  if (trekk.length && saerskilt.produktivitet) return', '  if (false) return']],
+    mal: ['et trekk gjelder posten i forrige versjon'],
+  },
+  {
+    id: 'F625',
+    feilklasse:
+      'brevet sier ikke at totalentreprenøren trekker den særskilte vederlagsjusteringen (KA-U83)',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [["  if (innhold.trekker_saerskilt.includes('produktivitet')) {", '  if (false) {']],
+    mal: ['brevet sier at totalentreprenøren trekker kravet'],
+  },
+  {
+    id: 'F626',
+    feilklasse:
+      'trekket av den særskilte vederlagsjusteringen som eneste post sier ikke at vederlagskravet trekkes i stedet (KA-U83)',
+    fil: `${K}/spor/vederlag/utledning.ts`,
     endringer: [
       [
-        '  if (k.erstatter && brevtekstI(k.spor).nevnerErstattet)',
-        '  if (k.erstatter && !brevtekstI(k.spor).nevnerErstattet)',
+        '  if (trekk.length && !kravposterI(ny).length && !Object.keys(saerskilt).length)',
+        '  if (false)',
       ],
     ],
-    mal: ['en ny kravversjon viser til den den erstatter'],
+    mal: ['er posten den eneste i kravet'],
+  },
+  {
+    id: 'F627',
+    feilklasse:
+      'kommandoen prøver ikke den særskilte vederlagsjusteringen mot forrige versjon før kravet skrives (KA-U83)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      ['    saerskiltStrider({ innhold: k.innhold }, u.spor.vederlag.krav);', '    null;'],
+    ],
+    mal: ['en ny versjon som verken tar med eller trekker posten, avvises'],
+  },
+  {
+    id: 'F628',
+    feilklasse:
+      'et vedlegg ved kravet som alt ligger ved et varsel for en kravpost, tar varselet bort fra kravposten (VS-U55, #1823)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['  return dokumentet\n    ? avvis(', '  return false\n    ? avvis(']],
+    mal: ['et vedlegg ved kravet som alt ligger ved et varsel for en kravpost i saken, avvises'],
+  },
+  {
+    id: 'F620',
+    feilklasse:
+      'en ny versjon av vederlagskravet viser ikke til kravet den erstatter (KA-U52 punkt 4)',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [
+      [
+        "  if (k.erstatter)\n    punkter.push({\n      punkt: 'innledning',",
+        "  if (false)\n    punkter.push({\n      punkt: 'innledning',",
+      ],
+    ],
+    mal: ['en ny versjon sier først hvilket krav den erstatter'],
   },
   {
     id: 'F476',
@@ -4684,19 +4756,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [['[...vedleggI(k), ...vedKravet]', '[...vedleggI(k)]']],
     mal: ['dokumentet står som et eget registrert varsel før kravet'],
-  },
-  {
-    id: 'F537',
-    feilklasse:
-      'et vederlagskrav med et vedlegg som ikke er dokumentet med varselet for en kravpost, gjør saken forstått (VS-U51, MM-U2)',
-    fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [
-      [
-        '    if (ved.some((v) => !varslene.has(v.vedlegg_id)))',
-        '    if (ved.some((v) => !varslene.has(v.vedlegg_id) && false))',
-      ],
-    ],
-    mal: ['et vederlagskrav med et vedlegg som ikke er dokumentet med varselet for en kravpost'],
   },
   {
     id: 'F538',

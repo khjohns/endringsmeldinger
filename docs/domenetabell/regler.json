@@ -1298,6 +1298,13 @@
       "radetikett": "KA-U75: Brevet sier at totalentreprenøren trekker kravposten, ikke at trekket er et avkall"
     },
     {
+      "id": "KA-U83",
+      "type": "vedtak",
+      "dato": "2026-11-14",
+      "ref": "../plans/vedtak.md#ka-u83",
+      "radetikett": "KA-U83: Totalentreprenøren trekker den særskilte vederlagsjusteringen uttrykkelig i en ny kravversjon"
+    },
+    {
       "id": "KA-U74",
       "type": "vedtak",
       "dato": "2026-11-11",
@@ -3459,7 +3466,7 @@
     {
       "id": "VS-09",
       "tilfelle": "TE legger i kravskjemaet til et dokument sendt utenfor løsningen som varselet etter § 34.3.3 eller § 34.4 for en kravpost.",
-      "forventet": "Dokumentet står i saken som et eget brev: registrert korrespondanse med kategorien varsel, med TE som avsender og datoen det ble sendt, før kravet ([VS-U53](../plans/vedtak.md#vs-u53)). Kravposten viser til det ([VS-U54](../plans/vedtak.md#vs-u54)), og kravet legger dokumentet ved og sier at det er TE som opplyser at varselet ble gitt i det ([VS-U51](../plans/vedtak.md#vs-u51)). Oppgir flere kravposter samme dokument, er det ett brev med ett varsel per bestemmelse postene trenger ([VS-U52](../plans/vedtak.md#vs-u52)), og kravet legger det ved én gang; samme dokument med ulik dato eller med andre vedlegg avvises. Varselet og kravet skrives i én transaksjon, så et avvist krav etterlater ikke varselet. Et vederlagskrav med et annet vedlegg gjør saken ikke forstått.",
+      "forventet": "Dokumentet står i saken som et eget brev: registrert korrespondanse med kategorien varsel, med TE som avsender og datoen det ble sendt, før kravet ([VS-U53](../plans/vedtak.md#vs-u53)). Kravposten viser til det ([VS-U54](../plans/vedtak.md#vs-u54)), og kravet legger dokumentet ved og sier at det er TE som opplyser at varselet ble gitt i det ([VS-U51](../plans/vedtak.md#vs-u51)). Oppgir flere kravposter samme dokument, er det ett brev med ett varsel per bestemmelse postene trenger ([VS-U52](../plans/vedtak.md#vs-u52)), og kravet legger det ved én gang; samme dokument med ulik dato eller med andre vedlegg avvises. Varselet og kravet skrives i én transaksjon, så et avvist krav etterlater ikke varselet. Kravet kan i tillegg ha egne vedlegg (#1823), men ikke dokumentet med varselet en gang til, og ikke et vedlegg som alt ligger ved et varsel for en kravpost i saken, så et varsel sendt før kravet fortsatt gjelder kravposten ([VS-U55](../plans/vedtak.md#vs-u55)).",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Løsningen kontrollerer ikke at dokumentet er et varsel for posten, og byggherren kan bestride datoen (VS-U50).",
       "rettidighet": "—",
@@ -3473,7 +3480,7 @@
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/spor/vederlag/kommando.ts#medVarslene",
-        "kjerne/spor/vederlag/utledning.ts#kontrollerVedleggeneVedKravet"
+        "kjerne/spor/vederlag/kommando.ts#vedleggetErEtVarsel"
       ],
       "regelkoder": [
         "KRAVPOSTVARSELET"
@@ -3785,6 +3792,26 @@
       "regelkoder": [
         "FRISTENE",
         "FRIST_IKKE_REGISTRERT"
+      ]
+    },
+    {
+      "id": "KA-58",
+      "tilfelle": "TE har sendt et vederlagskrav med den særskilte vederlagsjusteringen etter § 34.1.3 annet ledd. TE sender en ny kravversjon som verken tar med eller trekker posten, en som trekker den, og en som tar den med igjen etter trekket. TE trekker også posten når den er den eneste i kravet.",
+      "forventet": "En ny kravversjon tar med eller trekker uttrykkelig den særskilte vederlagsjusteringen i forrige versjon, og brevet sier at totalentreprenøren trekker kravet ([KA-U83](../plans/vedtak.md#ka-u83)). Versjonen som verken tar med eller trekker posten, avvises, og en lagret versjon uten posten og uten trekk har en begrensning. Et trekk av en post som ikke står i forrige versjon, eller som også tas med, avvises. Posten kan tas med igjen i en senere kravversjon. Er posten den eneste i kravet, avvises trekket, og TE trekker vederlagskravet ([KA-U22](../plans/vedtak.md#ka-u22)).",
+      "bh_standpunkt": "—",
+      "rettslig_virkning": "Løsningen sier ikke at trekket er et avkall, og varselet etter § 34.1.3 tredje ledd står som det ble sendt. Vil byggherren hevde at trekket var et avkall, gjør han det gjeldende i begrunnelsen (KA-U83, KA-U75).",
+      "rettidighet": "—",
+      "tidsakse": "registrering",
+      "kilder": [
+        "KA-U83",
+        "KA-U22"
+      ],
+      "tolkningsstatus": "avklart_tolkning",
+      "funksjoner": [
+        "kjerne/spor/vederlag/utledning.ts#saerskiltStrider"
+      ],
+      "regelkoder": [
+        "KRAVPOSTENE"
       ]
     }
   ],
