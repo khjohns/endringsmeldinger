@@ -412,6 +412,18 @@ FEILINNFOERINGER = [
      "antall_godkjent: resultater.filter((r) => r === 'godkjent').length,",
      "antall_godkjent: resultater.filter((r) => r !== 'avslaatt').length,",
      "delvis godkjent når ingen frist har fått alle dagene"),
+    ("S109", "fullmakten ganger satsen med kalenderdagene, ikke hverdagene (GFK-U17)",
+     "server/fullmakt.ts",
+     "return g.sats * hverdagerIForlengelsen(g.dato, dager);", "return g.sats * dager;",
+     "GFK-U21: dagene for hver frist verdsettes"),
+    ("S110", "forlengelsene av en annen frist flytter datoen (GFK-U19)",
+     "server/fullmakt.ts",
+     ".filter((x) => x.fristId === f.fristId)", ".filter(() => true)",
+     "GFK-U19: hverdagene telles fra fristen etter forlengelsene"),
+    ("S111", "dager for en frist som ikke er dagmulktbelagt, verdsettes med satsen (GFK-U20)",
+     "server/fullmakt.ts",
+     "sats: f.dagmulktbelagt ? f.sats : null,", "sats: f.sats,",
+     "GFK-U20: dager for en frist som ikke er dagmulktbelagt"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

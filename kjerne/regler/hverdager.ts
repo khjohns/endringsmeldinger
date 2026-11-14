@@ -64,13 +64,23 @@ export function erHverdag(dato: Dato): boolean {
  * svaret (NS 8407 punkt 1.2).
  */
 export function hverdagerIForlengelsen(fra: Dato, dager: number): number {
+  kalenderdager(dager);
+  tilTid(fra);
+  let antall = 0;
+  for (let n = 1; n <= dager; n++) if (erHverdag(forlengetFrist(fra, n))) antall++;
+  return antall;
+}
+
+/**
+ * Fristen `dato` forlenget med `dager` kalenderdager (NS 8407 punkt 1.2): fristen etter
+ * forlengelsene hverdagene telles fra (GFK-U19, GFK-U26).
+ */
+export function forlengetFrist(dato: Dato, dager: number): Dato {
+  kalenderdager(dager);
+  return new Date(tilTid(dato) + dager * DAG).toISOString().slice(0, 10);
+}
+
+function kalenderdager(dager: number): void {
   if (!Number.isInteger(dager) || dager < 0)
     throw new Error(`${dager} er ikke et antall kalenderdager`);
-  const start = tilTid(fra);
-  let antall = 0;
-  for (let n = 1; n <= dager; n++) {
-    const tid = start + n * DAG;
-    if (erHverdag(new Date(tid).toISOString().slice(0, 10))) antall++;
-  }
-  return antall;
 }

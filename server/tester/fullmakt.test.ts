@@ -1,7 +1,7 @@
 /**
  * Verdien fullmakten for byggherrens svar regnes av (S-1a, #818). Forventningene er
- * GFK-06 med presiseringen 24.09 og GFK-U3. Kjeden prøves mot hierarkiet i
- * `godkjenning.test.ts` (GFK-U8).
+ * GFK-06 med presiseringen 24.09 og GFK-U3, og for fristdagene GFK-U17–GFK-U21 og GFK-U24.
+ * Kjeden prøves mot hierarkiet i `godkjenning.test.ts` (GFK-U8).
  * Kravene skrives gjennom kjernens `vurder`, så de er kjernens kravversjoner (KA-U2),
  * og beløpene og dagene i svaret er kjernens utregning (B-13).
  */
@@ -18,7 +18,8 @@ import {
 import type { Journalrad, Spor } from '../../kjerne/typer.ts';
 import type { Utledning } from '../../kjerne/utledning/utled.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
-import { brevverdi } from '../fullmakt.ts';
+import { brevverdi, fristgrunnlaget, type Fristgrunnlag } from '../fullmakt.ts';
+import type { Fristtabell } from '../kontraktsfrister.ts';
 import { innholdIFristen } from '../../kjerne/spor/frist/format.ts';
 
 const UTDYPNING = 'Byggherren har pålagt en annen fundamentering.';
@@ -37,12 +38,22 @@ const KRAV_VEDERLAG = {
   spor: 'vederlag',
   innhold: { kravposter: [{ beskrivelse: 'Kravposten', oppgjoersform: 'tilbud', beloep: 100000 }] },
 };
+// Overtakelsen er fristen i fristtabellen (KA-U79).
 const KRAV_FRIST = {
   type: 'krav',
   spor: 'frist',
-  innhold: { frister: [{ navn: 'Sluttfristen', dager: 20 }] },
+  innhold: { frister: [{ frist_id: 1, dager: 20 }] },
   utdypning: UTDYPNING,
 };
+const FRISTTABELLEN = [
+  { fristId: 1, nummer: '2', navn: 'Overtakelse' },
+  { fristId: 2, nummer: '3', navn: 'Mekanisk ferdigstillelse' },
+];
+/**
+ * Onsdag 30. september 2026. Dagene etter er hverdager, utenom søndagene 4., 11. og 18. oktober
+ * (GFK-U24): 20 kalenderdager er 17 hverdager, og 15 er 13.
+ */
+const DATOEN = '2026-09-30';
 const FORHOLD_GODKJENT = { spor: 'forhold', resultat: 'godkjent', varslet_i_tide: true };
 const SATS = 5000;
 const { regler } = KJERNE;
@@ -73,7 +84,7 @@ function utledning(krav: object[]): Utledning {
       teamId: 'team-te',
       sakskode: { kode: 'koe' as const, loepenummer: 17 },
       kontraktsforkortelse: 'K201',
-      kontraktsfrister: [],
+      kontraktsfrister: FRISTTABELLEN,
       tidspunkt: () => new Date((klokke += 60_000)),
       nyId: () => randomUUID(),
     };
@@ -130,21 +141,25 @@ function svarutkast(h: Record<string, unknown>, u: Utledning): Svarutkast {
   };
 }
 
+/** Overtakelsen med satsen, regnet fra `DATOEN`. */
+const medSats = (sats: number | null): Map<number, Fristgrunnlag> =>
+  new Map([[1, { dato: DATOEN, sats }]]);
+
 const verdi = async (krav: object[], svar: Record<string, unknown>[], sats: number | null) => {
   const u = utledning(krav);
   return brevverdi(
     svar.map((h) => svarutkast(h, u)),
     u,
-    sats,
+    medSats(sats),
     regler
   );
 };
 
 describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
-  it('godkjent forhold uten svar på kravsporene har verdien i TEs krav, dagene ganget med satsen', async () => {
+  it('godkjent forhold uten svar på kravsporene har verdien i TEs krav, hverdagene ganget med satsen', async () => {
     expect(
       await verdi([KRAV_PAABEROPELSE, KRAV_VEDERLAG, KRAV_FRIST], [FORHOLD_GODKJENT], SATS)
-    ).toEqual({ beloep: 100000 + 20 * SATS, gulv: 200000 });
+    ).toEqual({ beloep: 100000 + 17 * SATS, gulv: 185000 });
   });
 
   it('verdien regnes i hele øre som reglene regner beløp, ikke som flyttallet', async () => {
@@ -207,7 +222,7 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
     });
   });
 
-  it('GFK-U3: fristdager uten dagmulktssats kan ikke verdsettes', async () => {
+  it('GFK-U3: fristdager uten sats kan ikke verdsettes', async () => {
     expect(
       await verdi([KRAV_PAABEROPELSE, KRAV_VEDERLAG, KRAV_FRIST], [FORHOLD_GODKJENT], null)
     ).toEqual({ beloep: null, gulv: 100000 });
@@ -248,7 +263,7 @@ describe('verdien av brevet (GFK-06, presiseringen 24.09)', () => {
         ],
         SATS
       )
-    ).toEqual({ beloep: 15 * SATS, gulv: 15 * SATS });
+    ).toEqual({ beloep: 13 * SATS, gulv: 13 * SATS });
   });
 });
 
@@ -302,7 +317,7 @@ describe('verdien av et vederlagskrav med posten etter § 34.1.3 annet ledd', ()
       resultat: {},
     };
     // Prinsipalt 110 000 kr, subsidiært 130 000 kr (`subsidiaert_godkjent_beloep`).
-    expect(brevverdi([svar], u, SATS, regler)).toEqual({ beloep: 130000, gulv: 130000 });
+    expect(brevverdi([svar], u, medSats(SATS), regler)).toEqual({ beloep: 130000, gulv: 130000 });
   });
 });
 
@@ -338,9 +353,9 @@ describe('verdien av et vederlagskrav med flere kravposter (KA-U57 (c), OV-U31)'
       },
       resultat: {},
     });
-    expect(brevverdi([svar({ vurdering: 'godkjent', aksepterer: true })], u, SATS, regler)).toEqual(
-      { beloep: 120000, gulv: 120000 }
-    );
+    expect(
+      brevverdi([svar({ vurdering: 'godkjent', aksepterer: true })], u, medSats(SATS), regler)
+    ).toEqual({ beloep: 120000, gulv: 120000 });
     // KA-U72: svaret tar ikke stilling til beløpet for P2, så summen er 80 000 kr. Hvordan
     // fullmakten skal regnes når byggherren mener en beregningsregel for en kravpost med fast
     // sum, er ikke avgjort (FK, #1663). Forventningen fastholder dagens atferd.
@@ -348,9 +363,107 @@ describe('verdien av et vederlagskrav med flere kravposter (KA-U57 (c), OV-U31)'
       brevverdi(
         [svar({ aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' })],
         u,
-        SATS,
+        medSats(SATS),
         regler
       )
     ).toEqual({ beloep: 80000, gulv: 80000 });
+  });
+});
+
+describe('verdien av dagene per frist (GFK-U17–GFK-U21, GFK-U24)', () => {
+  const tabell = (endret: Partial<Fristtabell['frister'][number]> = {}): Fristtabell => ({
+    kontraktssum: null,
+    frister: [
+      {
+        ...FRISTTABELLEN[0]!,
+        dato: DATOEN,
+        dagmulktbelagt: true,
+        satsopplysninger: null,
+        sats: SATS,
+      },
+      {
+        ...FRISTTABELLEN[1]!,
+        dato: '2026-12-16',
+        dagmulktbelagt: true,
+        satsopplysninger: null,
+        sats: 1000,
+        ...endret,
+      },
+    ],
+  });
+  const kravet = (frister: object[]) => ({
+    ...KRAV_FRIST,
+    innhold: { frister },
+  });
+  /** Verdien av svaret som godkjenner alle dagene i fristkravet. */
+  const verdiAv = (frister: object[], g: ReadonlyMap<number, Fristgrunnlag>) => {
+    const u = utledning([KRAV_PAABEROPELSE, kravet(frister)]);
+    const svar = { spor: 'frist', varsel_i_tide: true, spesifisering_i_tide: true, hindring: true };
+    return brevverdi([svarutkast(svar, u)], u, g, regler);
+  };
+
+  it('GFK-U21: dagene for hver frist verdsettes med satsen for fristen og summeres', () => {
+    // Overtakelsen: 10 kalenderdager fra 30.09 er 9 hverdager. Mekanisk ferdigstillelse: 7 fra
+    // 16.12 er 6, uten søndagen 20.12.
+    expect(
+      verdiAv(
+        [
+          { frist_id: 1, dager: 10 },
+          { frist_id: 2, dager: 7 },
+        ],
+        fristgrunnlaget(tabell(), [])
+      )
+    ).toEqual({ beloep: 9 * SATS + 6 * 1000, gulv: 51000 });
+  });
+
+  it('GFK-U19: hverdagene telles fra fristen etter forlengelsene i de andre sakene', () => {
+    // Forlenget med 3 + 4 dager til 23.12: av de 7 dagene etter er 25., 26. og 27. desember
+    // fridager (hverdager.test.ts).
+    const forlengelser = [
+      { fristId: 2, dager: 3, grunnlag: 'avtalt' as const },
+      { fristId: 2, dager: 4, grunnlag: 'godkjent' as const },
+      { fristId: 1, dager: 30, grunnlag: 'godkjent' as const },
+    ];
+    expect(verdiAv([{ frist_id: 2, dager: 7 }], fristgrunnlaget(tabell(), forlengelser))).toEqual({
+      beloep: 4 * 1000,
+      gulv: 4 * 1000,
+    });
+  });
+
+  it('GFK-U20: dager for en frist som ikke er dagmulktbelagt, er et krav som ikke er tallfestet', () => {
+    expect(
+      verdiAv(
+        [
+          { frist_id: 1, dager: 10 },
+          { frist_id: 2, dager: 7 },
+        ],
+        fristgrunnlaget(tabell({ dagmulktbelagt: false }), [])
+      )
+    ).toEqual({ beloep: null, gulv: 9 * SATS });
+  });
+
+  it('GFK-U3: dager for en dagmulktbelagt frist uten sats kan ikke verdsettes', () => {
+    expect(
+      verdiAv([{ frist_id: 2, dager: 7 }], fristgrunnlaget(tabell({ sats: null }), []))
+    ).toEqual({ beloep: null, gulv: 0 });
+  });
+
+  it('KA-U79: dager for en frist som ikke er registrert, kan ikke verdsettes uten sats', () => {
+    expect(
+      verdiAv(
+        [
+          { frist_id: 1, dager: 10 },
+          { nummer: '4', navn: 'Rekkverket', dager: 5 },
+        ],
+        fristgrunnlaget(tabell(), [])
+      )
+    ).toEqual({ beloep: null, gulv: 9 * SATS });
+  });
+
+  it('MM-U2: kan forlengelsene i de andre sakene ikke leses, kan fristdagene ikke verdsettes', () => {
+    expect(verdiAv([{ frist_id: 1, dager: 10 }], fristgrunnlaget(tabell(), null))).toEqual({
+      beloep: null,
+      gulv: 0,
+    });
   });
 });

@@ -25,13 +25,16 @@
  *   indeks er en avsluttet pakke og ikke en rå databasefeil, og pakken er godkjent når
  *   hvert steg er det;
  * - #860 punkt 2: bruddet prøves også på de tre unike indeksene (2601), med en rad som
- *   lagres mens prosedyren venter.
+ *   lagres mens prosedyren venter;
+ * - kravet i #1780 (6846581663): satsen og datoen for fullmakten leses av saksbehandleren
+ *   når pakken lages, fordi godkjenneren ikke leser fristtabellen.
  */
 import { randomBytes, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { feilnummer, transaksjon, type Kontekst } from '../datalag.ts';
-import type { Brevverdi } from '../fullmakt.ts';
+import { lesFristgrunnlaget, type Brevverdi } from '../fullmakt.ts';
+import { KJERNE } from '../../kjerne/versjon.ts';
 import {
   erGodkjent,
   IngenRoller,
@@ -141,6 +144,17 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
       }
     });
     await registrerHierarki();
+    await eier((r) =>
+      settInn(r, 'kontraktsfrist', {
+        prosjekt_id: o.prosjekt.id,
+        frist_id: 1,
+        navn: 'Overtakelse',
+        dato: '2027-06-30',
+        dagmulktbelagt: true,
+        satsgrunnlag: 'fast_beloep',
+        beloep_per_dag: 5000,
+      })
+    );
   }, 240_000);
   // Hver test har sin egen sak, fordi teamet bare kan ha én åpen pakke i saken.
   beforeEach(async () => {
@@ -471,6 +485,16 @@ describe.skipIf(!TESTBASE_URL)('kjeden og godkjenningspakkene i SQL Server', () 
       await endre(`UPDATE koe.projects SET is_active = 1 WHERE id = '${o.prosjekt.id}'`);
       await medMedlemskap();
     }
+  });
+
+  it('GFK-U9: godkjenneren i en åpen pakke leser ingen fristtabell, så verdien regnes av saksbehandleren når pakken lages (#1780)', async () => {
+    const grunnlaget = (k: Kontekst) => i(k, (f) => lesFristgrunnlaget(f, sakId, KJERNE));
+    expect(await grunnlaget(som(o.bh.id))).toEqual(
+      new Map([[1, { dato: '2027-06-30', sats: 5000 }]])
+    );
+    await i(som(o.bh.id), (f) => lagPakke(f, pakke(TO)));
+    expect((await synlig(godkjenner(leder)))[0]).toBe(1);
+    expect(await grunnlaget(godkjenner(leder))).toEqual(new Map());
   });
 
   it('GFK-U9: en returnert pakke lukker tilgangen, og en pakke i en annen sak gir ingen tilgang til denne', async () => {

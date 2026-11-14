@@ -38,7 +38,7 @@ import {
 } from '../kjerne/utledning/utled.ts';
 import type { Avhengigheter, Prosjektforespoersel, Rute, Svar } from './rutetyper.ts';
 import { lesekontekst } from './autorisasjon.ts';
-import { transaksjon, type Kontekst, type Pool } from './datalag.ts';
+import { transaksjon, type Foresp, type Kontekst, type Pool } from './datalag.ts';
 import { skrevetAvKjernen } from './lager.ts';
 import { innholdIForholdet } from '../kjerne/spor/forhold/format.ts';
 
@@ -75,10 +75,12 @@ export interface LestSak {
  * er ikke med, som i `lesSaken`.
  */
 export async function lesSakslisten(pool: Pool, kontekst: Kontekst): Promise<LestSak[]> {
-  const rader = await transaksjon(pool, kontekst, async (foresp) => {
-    const svar = await foresp().execute<Listerad>('koe_api.saksliste');
-    return svar.recordset;
-  });
+  return transaksjon(pool, kontekst, lesSakene);
+}
+
+/** Det samme som `lesSakslisten`, i en transaksjon som alt har konteksten. */
+export async function lesSakene(foresp: Foresp): Promise<LestSak[]> {
+  const rader = (await foresp().execute<Listerad>('koe_api.saksliste')).recordset;
   const saker = new Map<string, LestSak>();
   for (const r of rader) {
     let sak = saker.get(r.sak_id);

@@ -4,7 +4,7 @@
  * (2026: 5. april, 2027: 28. mars).
  */
 import { describe, expect, it } from 'vitest';
-import { erHverdag, hverdagerIForlengelsen } from '../regler/hverdager.ts';
+import { erHverdag, forlengetFrist, hverdagerIForlengelsen } from '../regler/hverdager.ts';
 
 describe('hverdagene etter NS 8407 punkt 40.3 (GFK-U24)', () => {
   it.each([
@@ -53,5 +53,17 @@ describe('hverdagene i forlengelsen (GFK-U17)', () => {
     expect(() => hverdagerIForlengelsen('2026-02-30', 1)).toThrow('finnes ikke');
     expect(() => hverdagerIForlengelsen('16.11.2026', 1)).toThrow('ÅÅÅÅ-MM-DD');
     expect(() => hverdagerIForlengelsen('2026-11-16', 1.5)).toThrow('kalenderdager');
+  });
+});
+
+describe('fristen etter forlengelsene (GFK-U19, NS 8407 punkt 1.2)', () => {
+  it('forlenger med kalenderdager, også over et årsskifte og en skuddag', () => {
+    expect(forlengetFrist('2026-12-20', 15)).toBe('2027-01-04');
+    expect(forlengetFrist('2028-02-28', 1)).toBe('2028-02-29');
+    expect(forlengetFrist('2026-11-16', 0)).toBe('2026-11-16');
+  });
+
+  it('avviser et antall som ikke er kalenderdager', () => {
+    expect(() => forlengetFrist('2026-11-16', -1)).toThrow('kalenderdager');
   });
 });

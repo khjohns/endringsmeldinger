@@ -21,7 +21,7 @@ import {
   type ForesporselOgSvar,
   type Foresporselsrelasjon,
 } from './frysing.ts';
-import { betegnelsen, innholdIFristen, type FristIKravet } from './format.ts';
+import { betegnelsen, innholdIFristen, utregningIFristen, type FristIKravet } from './format.ts';
 
 /**
  * Kontrollene i fristen, som `utledning/utled.ts` slår opp gjennom `KONTROLLER`: lesereglene
@@ -134,6 +134,45 @@ export function fristkravErFremmet(u: Utledning): boolean {
   for (const d of dokumenterI(u.journal))
     if (d.krav.some((k) => erFristkravIAppen(d, k))) return true;
   return false;
+}
+
+/** En forlengelse av en frist i fristtabellen, i én sak (GFK-U26). */
+export interface Forlengelse {
+  fristId: number;
+  /** Kalenderdagene fristen er forlenget med (NS 8407 punkt 1.2). */
+  dager: number;
+  /** `avtalt` når TE har godtatt dagene (KA-U77), ellers `godkjent` av byggherren. */
+  grunnlag: 'godkjent' | 'avtalt';
+}
+
+/**
+ * GFK-U26: forlengelsene av fristene i fristtabellen som saken gir, og som en annen sak i samme
+ * kontrakt regner fristen fra (GFK-U19). Avtalt er dagene TE har godtatt i byggherrens gjeldende
+ * svar, når aksepten ikke er uten virkning (KA-U77, KA-U6). Godkjent er dagene i første lag i byggherrens
+ * gjeldende svar, når svaret ikke er subsidiært til et avslag av forholdet (MM-U9). Gjeldende
+ * svar er svaret på gjeldende krav, så et nytt krav avslutter forlengelsen (HF-U5). En frist som
+ * ikke er registrert, gir ingen forlengelse i fristtabellen (KA-U79). Endringsordrene er ikke
+ * med, fordi kjernen ikke har dem ennå.
+ */
+export function forlengelseneISaken(u: Utledning): Forlengelse[] {
+  const s = u.spor.frist;
+  if (s.trukket || !s.gjeldendeKrav || !s.gjeldendeSvar) return [];
+  // KA-U6: en aksept er uten virkning når forholdet er avvist ved enighet (`enighetensVirkning`).
+  const avtalt = s.enighet?.grunnlag.kilde === 'aksept' && !u.forholdAvvist;
+  if (!avtalt && s.subsidiaer.length > 0) return [];
+  const dagene = avtalt
+    ? (s.enighet!.grunnlag.utfall.frister ?? [])
+    : utregningIFristen(s.gjeldendeSvar.utregning).frister.map((r) => ({
+        gjelder: r.gjelder,
+        dager: r.lag[0]?.dager ?? 0,
+      }));
+  const frister = new Map(innholdIFristen(s.gjeldendeKrav).frister.map((f) => [f.id, f]));
+  return dagene.flatMap(({ gjelder, dager }) => {
+    const fristId = frister.get(gjelder)?.frist_id;
+    return fristId !== undefined && dager > 0
+      ? [{ fristId, dager, grunnlag: avtalt ? ('avtalt' as const) : ('godkjent' as const) }]
+      : [];
+  });
 }
 
 /** En frist i en ny kravversjon, lagret eller i kommandoen, der feltene ikke er kontrollert. */

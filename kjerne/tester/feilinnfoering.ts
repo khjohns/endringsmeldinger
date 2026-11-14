@@ -5093,6 +5093,54 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['KA-U78: varselet for sent, ikke hindret og spesifisert for sent gir fire lag'],
   },
+  {
+    id: 'F591',
+    feilklasse:
+      'et fristsvar som er subsidiært til avslaget av forholdet, forlenger fristen (GFK-U26, MM-U9)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [['  if (!avtalt && s.subsidiaer.length > 0) return [];', '']],
+    mal: ['subsidiært til avslaget av forholdet, er ingen godkjent forlengelse'],
+  },
+  {
+    id: 'F592',
+    feilklasse: 'et svar som faller sammen med kravet, regnes som avtalt uten TEs aksept (KA-U77)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      [
+        "  const avtalt = s.enighet?.grunnlag.kilde === 'aksept' && !u.forholdAvvist;",
+        '  const avtalt = s.enighet !== null && !u.forholdAvvist;',
+      ],
+    ],
+    mal: ['uten at TE har godtatt noe'],
+  },
+  {
+    id: 'F593',
+    feilklasse: 'forlengelsen er dagene i det siste laget, ikke i det første (GFK-U26, KA-U78)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      ['        dager: r.lag[0]?.dager ?? 0,', '        dager: r.lag.at(-1)?.dager ?? 0,'],
+    ],
+    mal: ['første lag er null dager når varselet etter § 33.4 kom for sent'],
+  },
+  {
+    id: 'F594',
+    feilklasse: 'et trukket fristkrav forlenger fristen (GFK-U26, KA-U6)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      [
+        '  if (s.trukket || !s.gjeldendeKrav || !s.gjeldendeSvar) return [];',
+        '  if (!s.gjeldendeKrav || !s.gjeldendeSvar) return [];',
+      ],
+    ],
+    mal: ['et trukket krav gir ingen forlengelse'],
+  },
+  {
+    id: 'F595',
+    feilklasse: 'søndagene regnes som hverdager i forlengelsen (GFK-U24)',
+    fil: `${K}/regler/hverdager.ts`,
+    endringer: [['  return d.getUTCDay() !== 0 && !fridager', '  return !fridager']],
+    mal: ['hverdagene i forlengelsen (GFK-U17)'],
+  },
 ];
 
 interface Testresultat {
