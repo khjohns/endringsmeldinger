@@ -36,8 +36,6 @@ export const KRAVFORM_I_FRISTEN = {
     return feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
   },
   vedleggIInnholdet: () => [],
-  // #1823: vedleggene ved kravet, ved siden av brevet med varselet (OV-U5).
-  vedleggVedKravet: true,
   varselVedKravet: true,
 } satisfies Kravform;
 

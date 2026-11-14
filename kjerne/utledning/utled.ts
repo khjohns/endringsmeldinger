@@ -574,12 +574,11 @@ export type Bakover = (fra: string, til: string) => boolean;
 export interface Sporskontroller {
   /** Hvorfor kravversjonen `k` strider mot de tidligere versjonene i sporet, etter «som». */
   kravet(k: Krav, tidligere: readonly Krav[]): string | null;
-  /** Kravversjonene i sporet mot varslene og dokumentene de står i. */
+  /** Kravversjonene i sporet mot varslene. */
   kravene(
     krav: readonly Krav[],
     varsler: readonly LestVarsel[],
     bakover: Bakover,
-    dokumentetTil: (id: string) => Dokument | undefined,
     ugyldig: Ugyldig
   ): void;
   /** Svaret `s` mot kravversjonen det gjelder. */
@@ -743,14 +742,7 @@ function utledSporene(
     dokumenter.get(plass.get(id)?.hendelse ?? '')?.avsender;
 
   kontrollerKravkjedene(spor, ugyldig);
-  for (const n of SPOR)
-    kontrollerI(n).kravene(
-      spor[n].krav,
-      varsler,
-      bakover,
-      (id) => dokumenter.get(plass.get(id)?.hendelse ?? ''),
-      ugyldig
-    );
+  for (const n of SPOR) kontrollerI(n).kravene(spor[n].krav, varsler, bakover, ugyldig);
   // Lesingen kaster ikke for en dato den ikke kan lese; uten dato gjelder det egne varselet.
   const dokumentet = new Map([...dokumenter.values()].map((d) => [d.id, d]));
   const sendt = (v: Pick<Krav, 'id' | 'dokument'>): string | null => {

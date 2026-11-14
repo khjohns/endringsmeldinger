@@ -14,11 +14,18 @@ import {
   type Kravpostvurdering,
 } from './frysing.ts';
 import { hjemmelenGjelder, laget, type Svarvurdering } from '../../frosset/byggeklosser.ts';
-import { kravposterI, krevdRigg, OPPGJOERSHJEMMEL, vederlagsinnhold } from './format.ts';
+import {
+  innholdIVederlaget,
+  kravposterI,
+  krevdRigg,
+  OPPGJOERSHJEMMEL,
+  vederlagsinnhold,
+} from './format.ts';
 import { erObjekt, feilI, objekt } from '../../format/skjema.ts';
 import { brukteBetegnelser, nesteBetegnelse } from '../poster/utledning.ts';
 import {
   kravposteneStrider,
+  saerskiltStrider,
   kravpostvarseletStrider,
   kravpostvarslene,
   varselhjemmel,
@@ -168,6 +175,13 @@ const harRiggOgDrift = (innhold: unknown): boolean => {
   return erObjekt(saerskilt) && Object.hasOwn(saerskilt, 'rigg_og_drift');
 };
 
+/** Kravet trekker den særskilte vederlagsjusteringen og har ingen andre poster (KA-U83). */
+const bareTrekkAvSaerskilt = (innhold: unknown): boolean =>
+  erObjekt(innhold) &&
+  Object.hasOwn(innhold, 'trekker_saerskilt') &&
+  !Object.hasOwn(innhold, 'kravposter') &&
+  !Object.hasOwn(innhold, 'saerskilt');
+
 /** Feilene i innholdet i vederlagskravet (`formfeil`). */
 function kravfeil(innhold: unknown): string[] {
   const { properties, required, anyOf } = vederlagsinnhold(false);
@@ -176,7 +190,11 @@ function kravfeil(innhold: unknown): string[] {
     ? [
         '$.innhold.saerskilt.rigg_og_drift: posten for rigg og drift i forlenget byggetid er ikke bygget ennå, så kravet kan ikke sendes med den',
       ]
-    : feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
+    : bareTrekkAvSaerskilt(innhold)
+      ? [
+          '$.innhold.trekker_saerskilt: den særskilte vederlagsjusteringen er den eneste posten og kan ikke trekkes alene; totalentreprenøren trekker da vederlagskravet (KA-U83)',
+        ]
+      : feilI(innhold, objekt(properties, required, anyOf), '$.innhold');
   if (!feil.length) feil.push(...oerefeil(innhold as Innhold));
   return feil;
 }
@@ -193,14 +211,18 @@ const vedleggIKravpostene = (innhold: Innhold): string[] =>
 export const KRAVFORM_I_VEDERLAGET = {
   feil: kravfeil,
   vedleggIInnholdet: vedleggIKravpostene,
-  vedleggVedKravet: false,
   varselVedKravet: false,
 } satisfies Kravform;
 
-/** KA-U56 og KA-U75: kravpostene mot de tidligere kravversjonene, og VS-U50: varselet for posten. */
+/**
+ * KA-U56 og KA-U75: kravpostene mot de tidligere kravversjonene, KA-U83: den særskilte
+ * vederlagsjusteringen mot forrige versjon, og VS-U50: varselet for posten.
+ */
 function kravpostsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
   if (k.spor !== 'vederlag') return null;
-  const strid = kravposteneStrider(k.innhold, u.spor.vederlag.krav, false);
+  const strid =
+    kravposteneStrider(k.innhold, u.spor.vederlag.krav, false) ??
+    saerskiltStrider(innholdIVederlaget({ innhold: k.innhold }), u.spor.vederlag.krav);
   if (strid) return avvis('KRAVPOSTENE', `Kravversjonen ${strid}.`);
   const varselet = kravpostvarseletStrider(
     { innhold: k.innhold },

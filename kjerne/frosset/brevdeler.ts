@@ -297,15 +297,10 @@ export interface Sporsbrevtekst {
   navn: string;
   /** Det et svar eller en aksept gjelder, med kontraktens ord (LV-U4 punkt 4 og 6). */
   svaretGjelder: string;
-  /** Kravet (LV-U4 punkt 2–3) i punkter, uten setningen om kravet det erstatter. */
+  /** Kravet (LV-U4 punkt 2–3) i punkter. */
   krav(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[];
   /** Påberopelsene utenom hjemmelen for sporet som svaret gjentar eller gir opp (VS-U29). */
   ogsaaInnsigelserEtter: readonly Hjemmel[];
-  /**
-   * Brevteksten legger til setningen om kravet en ny versjon erstatter (KA-U52 punkt 4, LV-U56).
-   * Vederlagskravet har setningen selv, i innledningen (#1824).
-   */
-  nevnerErstattet: boolean;
   /**
    * Punktet partens utdypning for hele kravet står i, når den er et eget punkt sist i kravet
    * (LV-U71).

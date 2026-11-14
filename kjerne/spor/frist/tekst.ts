@@ -161,7 +161,6 @@ export const BREVTEKSTEN_I_FRISTEN = {
   krav: fristkravtekst,
   // VS-U29: også påberopelsen etter § 33.6.2 mot begrunnelsen.
   ogsaaInnsigelserEtter: ['33.6.2'],
-  nevnerErstattet: false,
   // KA-U33: kravet begrunner antallet dager.
   utdypningensPunkt: { punkt: 'begrunnelse', overskrift: 'Begrunnelse' },
   kravetOm: KRAVET_OM,

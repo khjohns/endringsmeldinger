@@ -363,8 +363,8 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
 export type Innhold = Record<string, unknown>;
 
 /**
- * Feltet med datoen og vedleggene kommandoen viser til: brevets, kravets (påberopelsen, VS-U38,
- * og fristkravet, #1823), og varselets i et fristkrav (OV-U5). Et fristkrav kan ha begge, og
+ * Feltet med datoen og vedleggene kommandoen viser til: brevets, kravets (VS-U38, #1823), og
+ * varselets i et fristkrav (OV-U5). Et fristkrav kan ha begge, og
  * vedleggene står da i samme brev. Feilmeldingene har stien herfra (#984).
  */
 const brevfelt = (k: Kommando): { sti: string; sendt?: unknown; dokumentasjon?: string[] } => {
@@ -400,8 +400,6 @@ export interface Kravform {
   feil(innhold: unknown): string[];
   /** Vedleggene innholdet i kravet viser til, utenom brevets. */
   vedleggIInnholdet(innhold: Innhold): string[];
-  /** Kravet kan ha vedlegg (`dokumentasjon`), som påberopelsen (VS-U38) og fristkravet (#1823). */
-  vedleggVedKravet: boolean;
   /** Kravet kan ha et varsel (`varsel`), som fristkravet (OV-U5). */
   varselVedKravet: boolean;
 }
@@ -426,10 +424,17 @@ export function formfeil(kommando: unknown): string[] {
     feil.push(...form.feil(k.innhold));
     if (!form.varselVedKravet && 'varsel' in k)
       feil.push('$.varsel: bare et fristkrav har varsel etter punkt 33.4');
-    // VS-U38: vedleggene ved påberopelsen; fristkravet har også brevet med varselet i `varsel`.
-    if (!form.vedleggVedKravet && 'dokumentasjon' in k)
+    // VS-U51: dokumentet med varselet for en kravpost ligger alt ved kravet.
+    const iInnholdet = new Set(
+      form.vedleggIInnholdet(k.innhold as Innhold).map((v) => v.toLowerCase())
+    );
+    if (
+      (k as { dokumentasjon?: string[] }).dokumentasjon?.some((v) =>
+        iInnholdet.has(v.toLowerCase())
+      )
+    )
       feil.push(
-        '$.dokumentasjon: bare påberopelsen og kravet om fristforlengelse har vedlegg ved kravet'
+        '$.dokumentasjon: vedlegget ved kravet er også dokumentet med varselet for en kravpost'
       );
     // KA-U82: forbeholdet gjelder ikke påberopelsen av forholdet.
     if (k.spor === 'forhold' && 'forbehold' in k)

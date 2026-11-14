@@ -12443,6 +12443,55 @@
       "forventningsgrunnlag": "avklart_tolkning"
     },
     {
+      "id": "F-MM-KA-U83",
+      "forslag": "KA-U83: en ny kravversjon tar med eller trekker den særskilte vederlagsjusteringen i forrige versjon",
+      "rader": ["KA-58"],
+      "start": "krav_irreg",
+      "steg": [
+        {
+          "handling": "krav",
+          "spor": "vederlag",
+          "kravposter": [{ "post": "P1", "belop": 120000 }],
+          "produktivitet": 40000,
+          "navn": "K-v2"
+        }
+      ],
+      "kontroller": [
+        {
+          "etter": 1,
+          "rolle": "mal",
+          "kilde": ["KA-U83"],
+          "prov": { "handling": "krav", "spor": "vederlag", "kravposter": [{ "post": "P1", "belop": 120000 }] },
+          "forventet": { "avvist": true, "regel": "KRAVPOSTENE" }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": ["KA-U83"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "post": "P1", "belop": 120000 }],
+            "trekker_saerskilt": true
+          },
+          "forventet": { "avvist": false }
+        },
+        {
+          "etter": 1,
+          "rolle": "kontroll",
+          "kilde": ["KA-U83"],
+          "prov": {
+            "handling": "krav",
+            "spor": "vederlag",
+            "kravposter": [{ "post": "P1", "belop": 120000 }],
+            "produktivitet": 40000
+          },
+          "forventet": { "avvist": false }
+        }
+      ],
+      "forventningsgrunnlag": "avklart_tolkning"
+    },
+    {
       "id": "F-MM-VS-U50",
       "forslag": "VS-U50, VS-U54: kravposten viser til et varsel etter samme bestemmelse i saken",
       "rader": ["VS-08"],

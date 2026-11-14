@@ -12,12 +12,12 @@ import {
   innholdIVederlaget,
   kravposterI,
   OPPGJOERSHJEMMEL,
+  type Vederlagsinnhold,
 } from './format.ts';
 import type { Bakover, LestVarsel, Sporskontroller, Ugyldig } from '../../utledning/utled.ts';
 import { posteneStrider, type Versjonsinndata } from '../poster/utledning.ts';
 import {
   erKravpostvarselhjemmel,
-  type Dokument,
   type Krav,
   type Kravpost,
   type Kravpostvarselet,
@@ -44,6 +44,27 @@ export const kravposteneStrider = (
     lagret,
     'kravpost'
   );
+
+/**
+ * Hvorfor den særskilte vederlagsjusteringen i den nye kravversjonen strider mot forrige
+ * versjon, eller `null` (KA-U83): posten tas med eller trekkes uttrykkelig, og bare en post som
+ * står i forrige versjon, trekkes, én gang. En post som er trukket, kan tas med igjen.
+ */
+export function saerskiltStrider(
+  ny: Pick<Vederlagsinnhold, 'saerskilt' | 'trekker_saerskilt'>,
+  tidligere: readonly Pick<Krav, 'innhold'>[]
+): string | null {
+  const posten = 'den særskilte vederlagsjusteringen';
+  const forrige = tidligere.at(-1);
+  const hadde = forrige !== undefined && harProduktivitetspost(forrige);
+  const trekk = ny.trekker_saerskilt.length;
+  if (trekk > 1) return `trekker ${posten} to ganger`;
+  if (trekk && !hadde) return `trekker ${posten}, som ikke er med i forrige kravversjon`;
+  if (trekk && ny.saerskilt.produktivitet) return `både tar med og trekker ${posten}`;
+  if (hadde && !trekk && !ny.saerskilt.produktivitet)
+    return `mangler ${posten} uten at den er trukket (KA-U83)`;
+  return null;
+}
 
 /** Varselet en kravpost med den oppgjørsformen trenger, eller `null` (VS-U48, KA-U68). */
 export const varselhjemmel = (
@@ -136,30 +157,6 @@ function kontrollerKravpostvarslene(
 }
 
 /**
- * VS-U51, VS-U53: et vederlagskrav har bare dokumentene kravskjemaet la til som varselet for en
- * kravpost som vedlegg, og de står i det registrerte varselet kravposten viser til.
- */
-function kontrollerVedleggeneVedKravet(
-  krav: readonly Krav[],
-  dokumentetTil: (id: string) => Dokument | undefined,
-  ugyldig: Ugyldig
-): void {
-  for (const k of krav) {
-    const ved = dokumentetTil(k.id)?.dokumentasjon ?? [];
-    const varslene = new Set(
-      kravposterI(k).flatMap((p) =>
-        p.varsel ? (dokumentetTil(p.varsel)?.dokumentasjon ?? []).map((v) => v.vedlegg_id) : []
-      )
-    );
-    if (ved.some((v) => !varslene.has(v.vedlegg_id)))
-      ugyldig(
-        k.id,
-        'vederlagskravet har et vedlegg som ikke er dokumentet med varselet for en kravpost (VS-U51)'
-      );
-  }
-}
-
-/**
  * OV-U23, KA-U57 (c): svaret på vederlaget har ett beløp for hver post i kravet og ingen
  * andre. Oppgjørsformen står rett foran beløpet for samme kravpost (leseren), så den følger med.
  */
@@ -229,11 +226,11 @@ function kravpoststandpunktetStrider(
 
 /** Kontrollene i vederlaget, som `utledning/utled.ts` slår opp gjennom `KONTROLLER`. */
 export const KONTROLLER_I_VEDERLAGET = {
-  kravet: (k, tidligere) => kravposteneStrider(innholdIVederlaget(k), tidligere, true),
-  kravene: (krav, varsler, bakover, dokumentetTil, ugyldig) => {
-    kontrollerKravpostvarslene(krav, varsler, bakover, ugyldig);
-    kontrollerVedleggeneVedKravet(krav, dokumentetTil, ugyldig);
+  kravet: (k, tidligere) => {
+    const innhold = innholdIVederlaget(k);
+    return kravposteneStrider(innhold, tidligere, true) ?? saerskiltStrider(innhold, tidligere);
   },
+  kravene: kontrollerKravpostvarslene,
   svaret: kontrollerPostene,
   kanFaaPassivitet: false,
   leserDatoen: false,
