@@ -336,6 +336,80 @@ describe('«Tilknyttede krav» og postene uten fast beløp (#1752 punkt 2, oppdr
   });
 });
 
+describe('fristene i «Tilknyttede krav» (KA-U74, punkt 3 i 2b-2 i #1745)', () => {
+  const TO_FRISTER: Handling = {
+    handling: 'krav',
+    spor: 'frist',
+    navn: 'K-f1',
+    frister: [
+      { nummer: '5', navn: 'Mekanisk ferdigstillelse', dager: 25 },
+      { navn: 'Sluttfristen', dager: 10 },
+    ],
+  };
+  const fristsvar = (dager: number) =>
+    brevet(forholdet('godkjent'), {
+      spor: 'frist',
+      navn: 'S-f1',
+      varsel_i_tide: true,
+      spesifisering_i_tide: true,
+      hindring: true,
+      dager,
+    });
+
+  it('med to frister står dagene per frist med betegnelsen, og kravet har ikke ett tall', async () => {
+    const k = tilknyttetKrav(await utledning([PAABEROPELSE, TO_FRISTER]), 'frist');
+    expect(k.krevd!.tall).toBeNull();
+    expect(k.frister.map((f) => [f.betegnelse, f.krevd, f.svaret])).toEqual([
+      ['5 Mekanisk ferdigstillelse', 25, []],
+      ['Sluttfristen', 10, []],
+    ]);
+  });
+
+  it('med to frister står byggherrens dager per frist, og dagene legges ikke sammen', async () => {
+    const k = tilknyttetKrav(await utledning([PAABEROPELSE, TO_FRISTER, fristsvar(10)]), 'frist');
+    expect(k.svaret!.poster).toEqual([]);
+    expect(k.frister.map((f) => f.svaret)).toEqual([
+      [{ tall: 10, lag: null }],
+      [{ tall: 10, lag: null }],
+    ]);
+  });
+
+  it('etter en ny versjon med én frist står de krevde dagene for den, og svaret på den forrige versjonen gir ingen dager (KA-U74)', async () => {
+    const k = tilknyttetKrav(
+      await utledning([
+        PAABEROPELSE,
+        TO_FRISTER,
+        fristsvar(10),
+        {
+          handling: 'krav',
+          spor: 'frist',
+          navn: 'K-f2',
+          frister: [{ navn: 'Sluttfristen', dager: 10, erstatter: 'Sluttfristen' }],
+          trekker: ['Mekanisk ferdigstillelse'],
+        },
+      ]),
+      'frist'
+    );
+    expect(k.krevd!.tall).toBe(10);
+    expect(k.svaret).toBeNull();
+    expect(k.frister).toEqual([]);
+  });
+
+  it('kontrollsak: med én frist står dagene som tallet for kravet og svaret, uten `frister`', async () => {
+    const k = tilknyttetKrav(
+      await utledning([
+        PAABEROPELSE,
+        { handling: 'krav', spor: 'frist', navn: 'K-f1', dager: 25 },
+        fristsvar(10),
+      ]),
+      'frist'
+    );
+    expect(k.krevd!.tall).toBe(25);
+    expect(k.svaret!.poster).toEqual([{ tall: 10, lag: null }]);
+    expect(k.frister).toEqual([]);
+  });
+});
+
 describe('sporene et brev hører til, fra kjernen (#1663)', () => {
   it('et brev med en korrigering hører til forholdet, også når det korrigerer en korrigering (MM-U52)', async () => {
     const u = await utledning([
