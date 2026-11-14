@@ -215,24 +215,30 @@ trenger samme behandling, men er ikke vurdert her:
 ## Spørsmålet til oppdragsgiver
 
 Grensetilfellene over har én ting felles: ordlyden i brevet er det som gjør brevet til en
-bestemt rettslig handling, eller avgrenser den. Eksempler er at byggherren ‹bekrefter› en
-endringsordre som alt er gitt (GR-U35), er ‹enig i at pålegget innebærer en endring›
+bestemt rettslig handling, eller avgrenser den. Eksempler er at byggherren ‹bekrefter› et svar
+byggherren alt har gitt utenfor løsningen, og ikke utsteder en endringsordre nå (GR-U35), er ‹enig i at pålegget innebærer en endring›
 (GR-U32), eller hvor langt et avkall rekker (KA-U25, LV-U4). Spørsmålet er stilt slik:
 
 > **1. Ordlyd som bærer en rettslig handling.** Når ordlyden i et brev er det som gjør brevet
 > til en bestemt rettslig handling eller avgrenser den:
 >
 > - **A.** Vedtaket sier hva brevet skal meddele: handlingen, virkningen og avgrensningen, for
->   eksempel at byggherren bekrefter en endringsordre som alt er gitt, og ikke gir en ny. Den
->   konkrete ordlyden er design eller beslutning. En ny ordlyd må meddele det samme, og en
->   ordlyd som ville endre handlingen, virkningen eller avgrensningen, krever nytt vedtak.
->   Forhold: presiserer prinsippet 14.11 i vedtaksskillen. Ingen post endres av svaret.
+>   eksempel at byggherren bekrefter et svar byggherren alt har gitt, og ikke utsteder en
+>   endringsordre nå. Den konkrete ordlyden er design eller beslutning, som i LV-U73. En ny
+>   ordlyd må meddele det samme, og en ordlyd som ville endre handlingen, virkningen eller
+>   avgrensningen, krever nytt vedtak. En ny ordlyd for en slik setning tas i bruk først når
+>   en uavhengig kontroll har prøvd den mot budskapet i vedtaket. Kontrollen føres i issuet,
+>   og er det tvil om budskapet er det samme, stilles det som spørsmål. En ny ordlyd gjelder
+>   bare nye brev. Et sendt brev står slik det ble sendt (MM-U50). Forhold: presiserer
+>   prinsippet 14.11 i vedtaksskillen. Ingen post endres av svaret.
 > - **B.** Ordlyden står i vedtaket når den selv bærer den rettslige handlingen, og endres bare
->   med nytt vedtak. Forhold: snevrer inn prinsippet 14.11 for disse tilfellene.
+>   med nytt vedtak. Et sendt brev står slik det ble sendt (MM-U50). Forhold: snevrer inn
+>   prinsippet 14.11 for disse tilfellene.
 >
 > **Anbefaling: A.** Den følger prinsippet 14.11 og testen i vedtaksskillen, der en endring
 > som ville endre noe et vedtak sier, krever nytt vedtak. Med A beholder budskapet sin
-> rettslige presisjon uten at ordene låses. B gir to slags ordlyd i registeret og krever en
+> rettslige presisjon uten at ordene låses, og kontrollen hindrer at et brev sier mindre eller
+> noe annet enn virkningen løsningen regner (MM-U50, KA-U16). B gir to slags ordlyd i registeret og krever en
 > avgjørelse per post om ordene «bærer» handlingen.
 >
 > **Valget styrer** forslaget for de 22 grensetilfellene: med A blir budskapet stående som
@@ -245,7 +251,9 @@ testen for klassen leses.
 
 - Kjørt: utvalget med et skript over registeret på `main`, og `vedtaksregister.py --vis` for hver
   post. Tabellene er subagentenes vurdering, lest ut av postene og ikke kontrollert uavhengig.
-  Klassen kontrolleres uavhengig før den føres.
+  Klassen kontrolleres uavhengig før den føres. Spørsmålet er prøvd én gang mot vedtakene av en
+  egen subagent. Den fant tre feil, og alle er rettet: gjengivelsen av GR-U35, kontrollen av en
+  ny ordlyd i A og setningen om et sendt brev i A og B.
 - Ikke vurdert: de fire samlevedtakene under «Ikke vurdert», og ordlyd uten tegnene utvalget
   leter etter.
 - LV-U55, LV-U57, EO-U15 og OV-U86 er alt design, men mangler `flyttet_til`. Det rettes i
