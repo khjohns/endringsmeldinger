@@ -16,6 +16,7 @@
     leselinje,
     foersteFelt,
     valgene,
+    navn = (p) => p.betegnelse,
   }: {
     poster: readonly P[];
     /** Starten på ID-ene i lista, så feltene i posten kan nås fra oppsummeringen. */
@@ -30,6 +31,8 @@
     foersteFelt: (betegnelse: string) => string;
     /** Valgene i den åpne posten. */
     valgene: Snippet<[P]>;
+    /** Navnet posten vises med, når `betegnelse` er en nøkkel og ikke et navn. */
+    navn?: (p: P) => string;
   } = $props();
 
   const flere = $derived(poster.length > 1);
@@ -55,7 +58,7 @@
       {#if aapen === p.betegnelse}
         <div class="posthode">
           <h4>
-            {#if flere}<span class="betegnelse">{p.betegnelse}</span>{/if}
+            {#if flere || !p.beskrivelse}<span class="betegnelse">{navn(p)}</span>{/if}
             {p.beskrivelse}
           </h4>
           <p class="dempet">{krever(p)}</p>
@@ -71,7 +74,7 @@
         <div class="postlinje">
           <div class="postnavn">
             <h4>
-              <span class="betegnelse">{p.betegnelse}</span>
+              <span class="betegnelse">{navn(p)}</span>
               {p.beskrivelse}
             </h4>
             <p class="dempet">{krever(p)}</p>
@@ -89,9 +92,7 @@
           <Knapp
             variant="lenke"
             id={`${prefiks}-endre-${p.betegnelse}`}
-            aria-label={lest.length
-              ? SKJEMA.endrePost(p.betegnelse)
-              : SKJEMA.svarPaaPost(p.betegnelse)}
+            aria-label={lest.length ? SKJEMA.endrePost(navn(p)) : SKJEMA.svarPaaPost(navn(p))}
             onclick={() => aapne(p.betegnelse)}>{lest.length ? SKJEMA.endre : SKJEMA.svarPaa}</Knapp
           >
         </div>

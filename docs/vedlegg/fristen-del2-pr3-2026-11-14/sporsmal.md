@@ -148,4 +148,4 @@ Oppdragsgiver 14.11, ordrett:
 - **B:** A, lest av «2A» som svar på den andre avklaringen.
 - **Tanken om anslaget** for regningsarbeid og enhetspriser er ikke et svar på et spørsmål. Den kontrolleres
   mot vedtakene om fullmakten for endringsordren før den eventuelt stilles som eget spørsmål.
-- Avklaringen om fullmakten i svar 1 og 2 står åpen.
+- Avklaringen om fullmakten i svar 1 og 2 er besvart 14.11 med (a), i [sporsmal-2.md](sporsmal-2.md).
