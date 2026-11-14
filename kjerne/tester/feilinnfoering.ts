@@ -863,8 +863,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
-        "      if (!paaberopelseSendt)\n        return avvis(\n          'PAABEROPELSE_IKKE_SENDT',\n          'Grunnlaget må være sendt før du kan si «ingen krav».'",
-        "      if (!paaberopelseSendt && !s)\n        return avvis(\n          'PAABEROPELSE_IKKE_SENDT',\n          'Grunnlaget må være sendt før du kan si «ingen krav».'",
+        "      if (!paaberopelseSendt)\n        return avvis(\n          'PAABEROPELSE_IKKE_SENDT',\n          'Påberopelsen må være sendt før du kan si «ingen krav».'",
+        "      if (!paaberopelseSendt && !s)\n        return avvis(\n          'PAABEROPELSE_IKKE_SENDT',\n          'Påberopelsen må være sendt før du kan si «ingen krav».'",
       ],
     ],
     mal: ['F-MM-IK4'],
@@ -1924,7 +1924,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'en påberopelse fra appen uten datoen godtas (VS-U26, #664)',
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
-      ['  if (dato === undefined)\n    return [`', '  if (dato === undefined)\n    return []; [`'],
+      [
+        '  if (dato === undefined)\n    return [\n',
+        '  if (dato === undefined)\n    return []; [\n',
+      ],
     ],
     mal: [
       'et krav fra appen i endring/irregulaer_endring',
@@ -2309,7 +2312,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        "  if (k.type === 'varsel') return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'TE' };",
+        "  if (k.type === 'varsel')\n    return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'Totalentreprenøren' };\n",
         '',
       ],
     ],
@@ -2321,8 +2324,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/kommando.ts`,
     endringer: [
       [
-        "k.varsel ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'TE' } : null,",
-        'null,',
+        "    k.varsel\n      ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'Totalentreprenøren' }\n      : null,",
+        '    null,',
       ],
     ],
     mal: ['en dato for varselet etter § 33.4 etter brevets dato avvises'],

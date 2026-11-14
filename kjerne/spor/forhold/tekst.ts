@@ -27,7 +27,7 @@ import {
 import { gjelderVarslingsplikten, standpunktet, virkningen } from '../../frosset/byggeklosser.ts';
 import type { Sporslinje } from '../../frosset/linje.ts';
 import { sakensKode } from '../../frosset/tekst.ts';
-import { innholdIForholdet, type OppgittDato } from './format.ts';
+import { DATOEN_GJELDER, innholdIForholdet, type OppgittDato } from './format.ts';
 import { blirEndringsordre } from './frysing.ts';
 import type { Dokument, Krav } from '../../typer.ts';
 
@@ -125,15 +125,6 @@ export function paaberoptForhold(d: Pick<Dokument, 'krav' | 'svar'>) {
 const LEDD_I_33_1: Record<string, string> = { svikt: 'b', andre_forhold: 'c' };
 
 /**
- * Datoen totalentreprenøren oppgir, med partene skrevet fullt ut i brevet (VS-U26, LV-U35).
- * Meldingene og skjemaet har ordene i `DATOEN_GJELDER`.
- */
-export const DATOEN_I_BREVET: Record<OppgittDato, string> = {
-  paalegg_mottatt: 'pålegget ble mottatt',
-  klar_over_forholdet: 'totalentreprenøren ble klar over forholdet',
-};
-
-/**
  * Påberopelsen av forholdet: LV-U41 og LV-U43 for det første brevet, LV-U56 for en ny versjon,
  * med partene skrevet fullt ut (LV-U35) og henvisningen med «punkt» (LV-U39). Sakstittelen er
  * navnet på forholdet og står én gang. Datoen står som i LV-U57 og LV-U56.
@@ -151,7 +142,7 @@ function forholdstekst(k: Krav, { saken, j }: Tekst, regler: Regelsett): string[
     const opplysninger = saken.datoopplysninger.filter((o) => o.felt === felt);
     const tidligere = nyVersjon ? opplysninger.slice(0, -1) : [];
     return [
-      stor(`${DATOEN_I_BREVET[felt]} ${norskDato(oppgitt)}.`),
+      stor(`${DATOEN_GJELDER[felt]} ${norskDato(oppgitt)}.`),
       ...(tidligere.length
         ? [
             `Totalentreprenøren oppga tidligere ${liste(tidligere.map((o) => `${norskDato(o.dato)} i ${j.brevet(o.dokument)}`))}.`,
