@@ -6504,6 +6504,70 @@ vedtatt = "19.09"
 folge = '''
 TFR-01'''
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "GR-U39"
+dato = 2026-11-14
+hvem = "oppdragsgiver"
+kilde = ["#1745"]
+sporsmal = '''
+Spørsmål 2 ordrett slik det ble stilt 14.11 i [spørsmålsfila](../vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md):
+
+### 2. Svaret i den andre saken er subsidiært fordi forholdet er avslått
+
+**Bakgrunn.** Byggherren har avslått forholdet og svart subsidiært på fristkravet.
+
+- Har byggherren godkjent alle dagene, eller har totalentreprenøren godtatt svaret, er partene enige om
+  dagene, men ikke om ansvaret. Enigheten er betinget, og kravet er ikke oppgjort før forholdet er
+  avklart (GR-U7).
+- Har byggherren godkjent bare noen av dagene, og totalentreprenøren ikke svart, finnes ingen enighet.
+
+**Belegg.** GFK-U26 og KA-U77 sier ikke om en betinget enighet eller et subsidiært svar teller.
+
+- **A (anbefalt):** En betinget enighet om dagene teller som avtalt etter KA-U77 og GFK-U26. Et subsidiært
+  svar uten enighet teller ikke som godkjent etter GFK-U26, fordi fristen etter byggherrens eget
+  standpunkt ikke er forlenget. Utregningen nevner saken som ikke tatt med, med grunnen.
+- **B:** Bare en enighet der forholdet også er avklart, teller som avtalt. Et subsidiært svar teller
+  ikke.
+- **C:** Både en betinget enighet og et subsidiært svar teller, så lenge dagene står i første lag.
+
+**Hva valget styrer.** Valget gjelder både datoen i totalentreprenørens skjema og verdien i byggherrens
+svar. Med B teller færre saker til forholdet er avklart. Med C teller en forlengelse byggherren
+bestrider ansvaret for.'''
+valgt = "A, første setning"
+svar = '''
+Oppdragsgiver 14.11, ordrett: «A, A: det er registrert enighet om frist. Hvordan fullmakten regnes hvis
+BH godtar er et annet spørsmål. B: ellers blir EO mye mer komplisert. Uenigheter går gjennom KOE.
+Stilltiende er "aksept" (uten at løsningen sier det). Slik er det også for vederlagsposter. 4A.» Valgt i spørsmål 2: «A, første setning», det vil si A for enigheten. Hvordan et subsidiært svar uten enighet teller for fullmakten, er ikke avgjort («et annet spørsmål»). ([spørsmålsfila](../vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md))'''
+forhold = [
+  { art = "presiserer", vedtak = "gr-u7" },
+  { art = "presiserer", vedtak = "ka-u77" },
+  { art = "presiserer", vedtak = "gfk-u26" },
+]
+folge = '''
+Gjelder BF-20 (#1745). Resten av alternativ A, om et subsidiært svar uten enighet, er ikke avgjort og er ikke ført.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A, første setning"
+tekst = '''
+En betinget enighet om dagene teller som avtalt etter KA-U77 og GFK-U26.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A som stilt"
+tekst = '''
+En betinget enighet om dagene teller som avtalt etter KA-U77 og GFK-U26. Et subsidiært svar uten enighet teller ikke som godkjent etter GFK-U26, fordi fristen etter byggherrens eget standpunkt ikke er forlenget. Utregningen nevner saken som ikke tatt med, med grunnen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Bare en enighet der forholdet også er avklart, teller som avtalt. Et subsidiært svar teller ikke.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Både en betinget enighet og et subsidiært svar teller, så lenge dagene står i første lag.'''
+
 [[gruppe]]
 tittel = "Grunnlag, frafall og trekk av grunnlaget"
 etter = '''
