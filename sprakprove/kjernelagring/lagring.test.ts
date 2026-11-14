@@ -122,6 +122,31 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
     );
   });
 
+  it('fristkravet med forbeholdet og et vedlegg ved kravet lagres, og raden leses igjen med begge (KA-U82, LV-U74, #1823)', async () => {
+    const bane = await basebane(o);
+    const k = await bygg(bane, [
+      { handling: 'krav', spor: 'forhold', underkategori: 'irregulaer_endring' },
+    ]);
+    const plan = randomUUID();
+    const forbehold = 'Kravet forutsetter at pelearbeidet kan gjøres på dagtid.';
+    const journal = await bane.journal();
+    const utfall = await k.prov({ handling: 'krav', spor: 'frist', dager: 20 }, (kommando) => {
+      kommando.forbehold = forbehold;
+      kommando.dokumentasjon = [plan];
+    });
+    if (!utfall.godtatt)
+      throw new Error(`Forutsetning: kravet ble avvist: ${utfall.avvisning.regel}`);
+    await skrivRader(o, utfall.hendelser, journal.at(-1)!.versjon);
+    const lest = await journalen(o, bane.sakId);
+    expect(utledJournal(lest, KJERNE).forstaatt).toBe(true);
+    const kravet = lest.at(-1)!.data as {
+      brevtekst: { punkt?: string; utdypning?: string }[];
+      dokumentasjon: { vedlegg_id: string }[];
+    };
+    expect(kravet.brevtekst.find((a) => a.punkt === 'forbehold')?.utdypning).toBe(forbehold);
+    expect(kravet.dokumentasjon.map((v) => v.vedlegg_id)).toContain(plan);
+  });
+
   it('en referanse til et svar i en annen sak gir en sak som ikke er forstått (7.1.4)', async () => {
     const a = await bygg(await basebane(o), ['forlop_a']);
     const baneB = await basebane(o);

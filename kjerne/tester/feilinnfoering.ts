@@ -2337,7 +2337,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F300',
     feilklasse: 'vedleggene i varselet i fristkravet slås ikke opp (OV-U5, LV-U14)',
     fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [[": { sti: '$.varsel.', ...k.varsel }", ": { sti: '$.varsel.' }"]],
+    endringer: [[', ...(k.varsel?.dokumentasjon ?? [])]', ']']],
     mal: [
       'fristkravet har datoen for varselet og brevet med det',
       'samme vedlegg to ganger i varselet',
@@ -3587,15 +3587,15 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F434',
     feilklasse: 'vedleggene ved påberopelsen slås ikke opp (VS-U38, LV-U14)',
     fil: `${K}/kommandoer/kommando.ts`,
-    endringer: [["? { sti: '$.', dokumentasjon: k.dokumentasjon }", "? { sti: '$.' }"]],
+    endringer: [['[...(k.dokumentasjon ?? []), ...', '[...']],
     mal: ['påberopelsen lagrer vedlegget med ID, filnavn og sum'],
   },
   {
     id: 'F435',
-    feilklasse: 'et fristkrav godtar vedlegg utenfor varselet (VS-U38, OV-U5)',
+    feilklasse: 'vederlagskravet godtar vedlegg ved kravet (VS-U38, #1823)',
     fil: `${K}/kommandoer/kommando.ts`,
     endringer: [["if (!form.vedleggVedKravet && 'dokumentasjon' in k)", 'if (false)']],
-    mal: ['et vedlegg ved et fristkrav utenfor varselet avvises i formen'],
+    mal: ['et vedlegg ved vederlagskravet avvises i formen'],
   },
   {
     id: 'F436',
@@ -5198,6 +5198,40 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/tekst.ts`,
     endringer: [['? `avslått ${frist}`', "? 'avslått'"]],
     mal: ['leddene for dagene nevner fristen'],
+  },
+  {
+    id: 'F602',
+    feilklasse:
+      'lagene i et fristsvar har spesifiseringen når kravet svarer på forespørselen (KA-U78 siste setning)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        '{ ...synlig, vilkar_oppfylt: true }',
+        '{ ...synlig, spesifisert_krav_ok: true, vilkar_oppfylt: true }',
+      ],
+    ],
+    mal: ['når kravet svarer på forespørselen, står spørsmålet om forespørselen ubesvart'],
+  },
+  {
+    id: 'F603',
+    feilklasse: 'et ubesvart spørsmål i et fristsvar står som besvart i lagene (#1925)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [[': !ubesvart.has(', ': true || !ubesvart.has(']],
+    mal: ['står spørsmålene ubesvart og uten virkning', 'med spesifiseringen besvart'],
+  },
+  {
+    id: 'F604',
+    feilklasse: 'forbeholdet i kravet står ikke i brevteksten (KA-U82, LV-U74)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['          forbehold: k.forbehold,\n', '']],
+    mal: ['har forbeholdet under «Forbehold» sist'],
+  },
+  {
+    id: 'F605',
+    feilklasse: 'påberopelsen av forholdet godtar et forbehold (KA-U82)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [["if (k.spor === 'forhold' && 'forbehold' in k)", 'if (false)']],
+    mal: ['påberopelsen av forholdet har ikke noe forbehold'],
   },
   {
     id: 'F594',
