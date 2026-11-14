@@ -414,7 +414,7 @@ FEILINNFOERINGER = [
      "delvis godkjent når ingen frist har fått alle dagene"),
     ("S109", "fullmakten ganger satsen med kalenderdagene, ikke hverdagene (GFK-U17)",
      "server/fullmakt.ts",
-     "return g.sats * hverdagerIForlengelsen(g.dato, dager);", "return g.sats * dager;",
+     "verdi: g!.sats! * hverdager,", "verdi: g!.sats! * dager,",
      "GFK-U21: dagene for hver frist verdsettes"),
     ("S111", "dager for en frist som ikke er dagmulktbelagt, verdsettes med satsen (GFK-U20)",
      "server/fullmakt.ts",
@@ -450,6 +450,15 @@ FEILINNFOERINGER = [
      "server/forlengelser.ts",
      "    if (!u.forstaatt) {", "    if (false) {",
      "MM-U2: en sak kjernen ikke har skrevet, gjør datoen ukjent og nevnes"),
+    ("S119", "linjene for fullmakten tas fra det prinsipale laget når det subsidiære gir verdien (presiseringen 24.09)",
+     "server/fullmakt.ts",
+     "const lag = subsidiaert > hoved ? 'subsidiaert' : 'prinsipalt';",
+     "const lag = hoved > subsidiaert ? 'subsidiaert' : 'prinsipalt';",
+     "presiseringen 24.09: linjene er fra laget som gir den største verdien"),
+    ("S120", "en frist uten dagmulkt står som en frist der satsen mangler (GFK-U20, U-10 i BF-45)",
+     "server/fullmakt.ts",
+     "    : !g.dagmulktbelagt\n", "    : false\n",
+     "GFK-U21, GFK-U20, KA-U79: hver frist står med dagene"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
