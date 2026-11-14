@@ -100,32 +100,20 @@ interface Fristlinje {
   navn: string;
 }
 
-const fristtabellene = new Map<string, Promise<Registrertfrist[] | null>>();
-
 /**
  * Fristtabellen for prosjektet, som kravet om fristforlengelse viser til (KA-U79, GFK-U25), i
- * formen kjernen lager teksten med. Den gjelder prosjektet, så den hentes én gang. Feiler
- * hentingen, er den `null`, og saken lastes likevel: da avviser forhåndsvisningen et krav om en
- * registrert frist, og tabellen hentes igjen ved neste lasting.
+ * formen kjernen lager teksten med. Den hentes ved hver lasting, så forhåndsvisningen bruker
+ * tabellen serveren lager teksten med. Feiler hentingen, er den `null`, og saken lastes likevel.
  */
-function kontraktsfristerI(prosjektId: string): Promise<Registrertfrist[] | null> {
-  let tabell = fristtabellene.get(prosjektId);
-  if (!tabell) {
-    tabell = apiFetch<{ frister: Fristlinje[] }>(
-      `/api/projects/${encodeURIComponent(prosjektId)}/kontraktsfrister`,
-      { headers: prosjekthode(prosjektId) }
-    ).then(
-      ({ frister }) =>
-        frister.map(({ frist_id, nummer, navn }) => ({ fristId: frist_id, nummer, navn })),
-      () => {
-        fristtabellene.delete(prosjektId);
-        return null;
-      }
-    );
-    fristtabellene.set(prosjektId, tabell);
-  }
-  return tabell;
-}
+const kontraktsfristerI = (prosjektId: string): Promise<Registrertfrist[] | null> =>
+  apiFetch<{ frister: Fristlinje[] }>(
+    `/api/projects/${encodeURIComponent(prosjektId)}/kontraktsfrister`,
+    { headers: prosjekthode(prosjektId) }
+  ).then(
+    ({ frister }) =>
+      frister.map(({ frist_id, nummer, navn }) => ({ fristId: frist_id, nummer, navn })),
+    () => null
+  );
 
 /** Som `hentSaksmerking`, for en ny sak: det neste nummeret for koden (LV-U46). Bare TE. */
 export const hentSaksmerkingForNySak = (prosjektId: string) =>

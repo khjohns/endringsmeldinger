@@ -10,7 +10,7 @@
   import { BookOpen } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
   import { dager } from '$kjerne/frosset/tekst';
-  import { betegnelsen } from '$kjerne/spor/frist/format';
+  import { betegnelsen, innholdIFristen } from '$kjerne/spor/frist/format';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -56,7 +56,14 @@
   if (!untrack(() => valg)) valg = startvalg(untrack(() => u));
   const v = $derived(valg!);
 
-  const tabell = $derived(kjernesak.kontraktsfrister);
+  const tabell = $derived(kjernesak.kontraktsfrister ?? []);
+  // En frist som var registrert i forrige versjon, er fast. En som ikke var det, kan byttes med en
+  // frist i fristtabellen (`fristeneStrider` i kjernen).
+  const fastFrist = (p: Fristpostvalg) =>
+    p.id !== null &&
+    innholdIFristen(u.spor.frist.gjeldendeKrav!).frister.some(
+      (f) => f.id === p.id && f.frist_id !== undefined
+    );
   const alleBrev = $derived(brevene(u));
   const brevMed = (dokument: string | null | undefined) =>
     alleBrev.find((b) => b.id === dokument) ?? null;
@@ -231,7 +238,7 @@
       </span>
     </div>
     {#if !p.trukket}
-      {#if p.id === null}
+      {#if !fastFrist(p)}
         <Valg
           navn={sid}
           spoersmaal={FRISTKRAV.fristEtikett}
@@ -305,6 +312,9 @@
           >
         </div>
         <p class="dempet">{FRISTKRAV.fristerHjelp}</p>
+        {#if kjernesak.kontraktsfrister === null}
+          <Melding art="feil" levende={false}>{FRISTKRAV.ingenFristtabell}</Melding>
+        {/if}
         {#if forrige}<p class="dempet">{FRISTKRAV.trekkHjelp}</p>{/if}
         <ul class="frister">
           {#each v.frister as p (p.noekkel)}

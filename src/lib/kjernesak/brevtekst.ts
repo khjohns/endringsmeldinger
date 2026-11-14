@@ -38,10 +38,7 @@ export type Brev =
 
 /**
  * Sakens kode og kontraktsforkortelsen, lest fra serveren før forhåndsvisningen. Teksten
- * omtaler saken med koden og et tidligere brev med merkingen (S3 i #1497, LV-U53).
- */
-/**
- * Med fristtabellen for prosjektet (KA-U79, `KONTRAKTSFRISTRUTER` i `server/kontraktsfrister.ts`),
+ * omtaler saken med koden og et tidligere brev med merkingen (S3 i #1497, LV-U53). Med fristtabellen for prosjektet (KA-U79, `KONTRAKTSFRISTRUTER` i `server/kontraktsfrister.ts`),
  * som serveren lager teksten med. Uten den avviser forhåndsvisningen et krav om en registrert
  * frist, som for en ny sak.
  */

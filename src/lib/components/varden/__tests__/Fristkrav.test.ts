@@ -138,4 +138,34 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     ]);
     expect(innhold.trekker).toHaveLength(1);
   });
+
+  it('en registrert frist fra forrige versjon står fast med ID-en og fristen i tabellen, og samme frist kan ikke velges to ganger (U-10, KA-U79)', async () => {
+    const medKrav = skrevet(
+      medGrunnlag,
+      'TE',
+      {
+        type: 'krav',
+        spor: 'frist',
+        innhold: { frister: [{ frist_id: 1, dager: 25 }] },
+        utdypning: 'Pelingen tar fire uker lenger.',
+      },
+      new Map(),
+      FRISTTABELLEN
+    );
+    const sendt = await kravskjemaet(medKrav);
+    expect(screen.queryAllByRole('radio')).toHaveLength(0);
+    await fireEvent.click(screen.getByRole('button', { name: 'Legg til frist' }));
+    await fireEvent.click(screen.getByRole('radio', { name: '5 Mekanisk ferdigstillelse' }));
+    await skriv(screen.getAllByLabelText('Dagene du krever')[1]!, '5');
+    await skriv(screen.getByRole('textbox', { name: 'Begrunnelse' }), 'Begrunnelse.');
+    await seBrevet();
+    expect(sendt).toHaveLength(0);
+    expect(screen.getAllByText(/Fristen står allerede i kravet/).length).toBeGreaterThan(0);
+    await fireEvent.click(screen.getByRole('button', { name: 'Fjern 5 Mekanisk ferdigstillelse' }));
+    await seBrevet();
+    expect(sendt).toHaveLength(1);
+    expect((sendt[0]!.kommando as { innhold: { frister: unknown[] } }).innhold.frister).toEqual([
+      { id: expect.any(String), frist_id: 1, dager: 25 },
+    ]);
+  });
 });

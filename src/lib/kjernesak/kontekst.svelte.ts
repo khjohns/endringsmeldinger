@@ -354,9 +354,12 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get sak() {
       return sak;
     },
-    /** Fristtabellen for prosjektet, som kravet om fristforlengelse velger fra (KA-U79). */
-    get kontraktsfrister(): readonly Registrertfrist[] {
-      return sak?.merking?.kontraktsfrister ?? [];
+    /**
+     * Fristtabellen for prosjektet, som kravet om fristforlengelse velger fra (KA-U79), eller
+     * `null` når den ikke kunne hentes.
+     */
+    get kontraktsfrister(): readonly Registrertfrist[] | null {
+      return sak?.merking?.kontraktsfrister ?? null;
     },
     get versjon() {
       return utledning?.versjon ?? null;

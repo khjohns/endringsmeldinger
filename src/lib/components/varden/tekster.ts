@@ -1390,6 +1390,9 @@ export const FRISTKRAV = {
   trukketLinje: (navn: string) => `${navn}: trekkes`,
   // Det som mangler.
   manglerFrist: 'Velg fristen kravet gjelder.',
+  toGanger: 'Fristen står allerede i kravet. Velg en annen frist, eller fjern denne raden.',
+  ingenFristtabell:
+    'Fristtabellen for prosjektet kunne ikke hentes. Last saken på nytt for å velge en frist fra den.',
   manglerNavn: 'Skriv navnet kontrakten gir fristen.',
   manglerDager: 'Skriv dagene som et helt antall.',
   nullDager: 'Et krav på 0 dager er ikke et krav. Skriv dagene du krever.',

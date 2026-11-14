@@ -107,6 +107,8 @@ export function manglerIFristkravet(
     const f = (felt: string, tekst: string) =>
       ut.push({ felt: `${prefiks}-${felt}-${p.noekkel}`, tekst: `${navnet(p)}: ${tekst}` });
     if (p.frist === null) f('frist', FRISTKRAV.manglerFrist);
+    else if (typeof p.frist === 'number' && v.frister.some((q) => q !== p && q.frist === p.frist))
+      f('frist', FRISTKRAV.toGanger);
     if (p.frist === 'annen' && !p.navn.trim()) f('navn', FRISTKRAV.manglerNavn);
     const d = heleDager(p.dager);
     if (d === undefined) f('dager', FRISTKRAV.manglerDager);

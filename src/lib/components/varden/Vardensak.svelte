@@ -329,9 +329,9 @@
     meldingen?.focus();
   }
 
-  async function forkastKravet() {
-    kravvalg = null;
-    fristkravvalg = null;
+  async function forkastKravet(spor: Svarspor) {
+    if (spor === 'vederlag') kravvalg = null;
+    else fristkravvalg = null;
     arbeid = { art: 'les' };
     melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
     await tick();
@@ -547,7 +547,7 @@
           {kjernesak}
           {u}
           bind:valg={kravvalg}
-          onforkast={forkastKravet}
+          onforkast={() => forkastKravet('vederlag')}
           onvedsiden={(v) => (vedSiden = v)}
           onbrevkontroll={(k) => tilKravkontroll('vederlag', k)}
         />
@@ -556,7 +556,7 @@
           {kjernesak}
           {u}
           bind:valg={fristkravvalg}
-          onforkast={forkastKravet}
+          onforkast={() => forkastKravet('frist')}
           onbrevkontroll={(k) => tilKravkontroll('frist', k)}
         />
       {:else if arbeid.art === 'svar' && valgt === 'vederlag' && kjernesak.handlinger.includes('svare:vederlag')}
