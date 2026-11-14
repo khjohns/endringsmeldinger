@@ -3550,7 +3550,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     expect(s.avvisning('TE', utenBrevet)).toEqual({
       regel: 'VEDLEGG_MANGLER',
       melding:
-        'Kravet oppgir datoen varselet etter § 33.4 ble sendt, men brevet med varselet ligger ikke ved (OV-U5).',
+        'Kravet oppgir datoen varselet etter punkt 33.4 ble sendt, men brevet med varselet ligger ikke ved.',
     });
     expect(s.avvist('TE', FRISTKRAV), 'kontrollsak').toBeNull();
   });
@@ -4092,6 +4092,57 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(medB.avvist('BH', foresporsel)).toBe('FORESPORSEL_BEGRUNNET');
   });
 
+  it('meldingene som stopper forespørselen, sier påberopelsen og skriver partene fullt ut (språkfila, #1953, #1955)', () => {
+    const uten = sak();
+    expect(uten.avvisning('BH', foresporsel)).toEqual({
+      regel: 'PAABEROPELSE_IKKE_SENDT',
+      melding: 'Påberopelsen må være sendt før du kan sende forespørselen.',
+    });
+    expect(uten.avvisning('TE', FRISTKRAV)).toEqual({
+      regel: 'PAABEROPELSE_IKKE_SENDT',
+      melding: 'Påberopelsen må være sendt før du kan sende krav.',
+    });
+    const { s } = medForesporsel();
+    expect(s.avvisning('TE', foresporsel)).toEqual({
+      regel: 'FEIL_PART',
+      melding: 'Bare byggherren kan gjøre dette.',
+    });
+    expect(s.avvisning('BH', foresporsel)).toEqual({
+      regel: 'FORESPORSEL_SENDT',
+      melding:
+        'Forespørselen etter punkt 33.6.2 er alt sendt herfra. En ny forespørsel sendes på annen måte.',
+    });
+    const { s: medB } = medBegrunnelse();
+    expect(medB.avvisning('BH', foresporsel)).toEqual({
+      regel: 'FORESPORSEL_BEGRUNNET',
+      melding:
+        'Totalentreprenøren har svart på en forespørsel med en begrunnelse etter punkt 33.6.2 annet ledd bokstav b, så en ny forespørsel kan ikke sendes herfra.',
+    });
+    const medKrav = sak();
+    medKrav.send('TE', PAABEROPELSE);
+    medKrav.send('TE', FRISTKRAV);
+    expect(medKrav.avvisning('BH', foresporsel)).toEqual({
+      regel: 'FRISTKRAV_SENDT',
+      melding:
+        'Totalentreprenøren har krevd dager her, så forespørselen etter punkt 33.6.2 kan ikke sendes.',
+    });
+    expect(medKrav.avvisning('TE', { type: 'ingen_krav', spor: 'frist' })).toEqual({
+      regel: 'KRAV_I_SPORET',
+      melding: 'Totalentreprenøren har sendt kravet om fristforlengelse. Trekk kravet i stedet.',
+    });
+    const ingen = sak();
+    ingen.send('TE', PAABEROPELSE);
+    ingen.send('TE', { type: 'ingen_krav', spor: 'frist' });
+    expect(ingen.avvisning('BH', foresporsel)).toEqual({
+      regel: 'INGEN_KRAV_I_SPORET',
+      melding: 'Totalentreprenøren har sagt at det ikke kreves fristforlengelse.',
+    });
+    expect(ingen.avvisning('TE', FRISTKRAV)).toEqual({
+      regel: 'INGEN_KRAV_I_SPORET',
+      melding: 'Totalentreprenøren har sagt at det ikke kreves fristforlengelse.',
+    });
+  });
+
   it('LV-U20: protesten mot påberopelsen etter § 33.6.2 sier at den gjelder TEs svar på forespørselen', () => {
     const { s } = medForesporsel();
     s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
@@ -4441,7 +4492,11 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
 
   it('der TE krever endring, avvises innsigelsen mot varselet som vurderingen (KA-46, OV-U15)', () => {
     const { s, id } = medVarsel('endring');
-    expect(s.avvist('BH', { type: 'innsigelse', gjelder: id })).toBe('VARSLINGSPLIKT_GJELDER_IKKE');
+    expect(s.avvisning('BH', { type: 'innsigelse', gjelder: id })).toEqual({
+      regel: 'VARSLINGSPLIKT_GJELDER_IKKE',
+      melding:
+        'Punkt 34.1.2 gjelder bare svikt og andre forhold, ikke forholdet som er påberopt, så byggherren tar ikke stilling til om varselet kom i tide.',
+    });
   });
 
   it('etter «i tide» i et svar fra appen godtas en innsigelse mot varselet (MM-U34 punkt 6, HF-U4, VS-U24)', () => {
@@ -6777,6 +6832,17 @@ describe('det som foreligger i et lukket spor og etter et frafall (#1050, #1067)
       expect(venterPaaSvar(s.u(), spor), spor).toBe(false);
       expect(etiketter(s, spor), spor).not.toContain('venter_paa_svar');
     }
+  });
+
+  it('GR-U27: etter at TE har godtatt avslaget av forholdet, sier meldingen påberopelsen og forholdet (språkfila, #1953)', () => {
+    const s = sakMedKrav();
+    s.send('BH', { type: 'brev', svar: [utregnet(s, 'forhold', avslag)] });
+    godtar(s, 'forhold');
+    expect(s.avvisning('TE', { type: 'trekk', spor: 'frist' })).toEqual({
+      regel: 'FORHOLD_AVVIST',
+      melding:
+        'Totalentreprenøren har godtatt svaret på påberopelsen, som avslår forholdet eller påberoper preklusjon, og saken er lukket.',
+    });
   });
 
   it('SK-01: når TE godtar avslaget av forholdet i forløp A, står det subsidiære svaret i vederlaget ikke som ikke godtatt', () => {
@@ -9557,7 +9623,7 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
         'BH',
         svaret(s, { P2: { aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' } })
       )?.melding
-    ).toContain('P2.oensket_oppgjoersform: er oppgjørsformen TE krever');
+    ).toContain('P2.oensket_oppgjoersform: er oppgjørsformen totalentreprenøren krever');
     const rad = s.send(
       'BH',
       svaret(s, { P2: { aksepterer: false, oensket_oppgjoersform: 'enhetspriser' } })

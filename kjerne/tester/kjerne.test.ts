@@ -2064,6 +2064,10 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
   it('OV-U17: bare samme side retter; kontrollsak: BH retter sin egen', async () => {
     const { journal, rad } = await medBrevFraBH();
     expect(regel(journal, registrering({ retter: rad.event_id }), 'TE')).toBe('FEIL_PART');
+    // Meldingen sier hvem registreringen er fra, med partene skrevet fullt ut (språkfila, #1953).
+    expect(prov(journal, registrering({ retter: rad.event_id }), 'TE')).toMatchObject({
+      avvisning: { melding: 'Registreringen er byggherrens, og bare byggherren kan rette den.' },
+    });
     expect(regel(journal, { type: 'ikke_i_saken', retter: rad.event_id }, 'TE')).toBe('FEIL_PART');
     expect(regel(journal, registrering({ retter: rad.event_id }), 'BH')).toBe('godtatt');
   });

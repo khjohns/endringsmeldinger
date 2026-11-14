@@ -10,7 +10,8 @@
   import type { Avsnitt, Part } from '$kjerne/typer';
   import { cellene, erKravpostpunkt, erLagslinje, OVERSIKTEN } from '$kjerne/frosset/tekst';
   import { organisasjonene } from './kontrakt';
-  import { MOTTATT, PARTNAVN } from './tekster';
+  import { MOTTATT } from './tekster';
+  import { PARTEN } from '$kjerne/frosset/brevdeler';
 
   let {
     avsender,
@@ -75,16 +76,14 @@
   {#if hode}<header class="hode">
       <div class="topp">
         <p class="avsender">
-          <b>{organisasjoner[avsender] ?? stor(PARTNAVN[avsender])}</b>
-          {#if organisasjoner[avsender]}<span>{stor(PARTNAVN[avsender])}</span>{/if}
+          <b>{organisasjoner[avsender] ?? stor(PARTEN[avsender])}</b>
+          {#if organisasjoner[avsender]}<span>{stor(PARTEN[avsender])}</span>{/if}
         </p>
         {#if sendt}<span class="stempel" data-testid="stempel">{MOTTATT.sendtMerke(sendt)}</span
           >{/if}
       </div>
       <p class="mottaker">
-        {#if organisasjoner[mottaker]}{organisasjoner[mottaker]}<br />{/if}{stor(
-          PARTNAVN[mottaker]
-        )}
+        {#if organisasjoner[mottaker]}{organisasjoner[mottaker]}<br />{/if}{stor(PARTEN[mottaker])}
       </p>
       <dl class="ref">
         <div class="sak">

@@ -1724,6 +1724,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/utledning.ts:kravposteneStrider'],
   ],
   ['spor/vederlag/utledning.ts', 'predikat', 'kravposteneStrider', ['spor/vederlag/kommando.ts']],
+  // #1956: fristen deler kontrollen av trekket og av postene som mangler.
+  [
+    'spor/poster/utledning.ts',
+    'predikat',
+    'trekketStrider utelattUtenTrekk',
+    ['spor/frist/utledning.ts:fristeneStrider'],
+  ],
   [
     'spor/poster/utledning.ts',
     'relasjon',
@@ -2219,7 +2226,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['frosset/brevtekst.ts', 'spor/frist/tekst.ts', 'spor/vederlag/tekst.ts'],
   ],
   // LV-U35: partene skrives fullt ut, i eiendomsform, i brevteksten.
-  ['frosset/brevdeler.ts', 'brevtekst', 'PARTENS', ['frosset/brevtekst.ts']],
+  [
+    'frosset/brevdeler.ts',
+    'brevtekst',
+    'PARTENS',
+    ['frosset/brevtekst.ts', 'kommandoer/nyttelast.ts:retting'],
+  ],
   // Byggeklossene i brevteksten som teksten i sporene også bruker (#1783).
   [
     'frosset/brevdeler.ts',
@@ -2312,6 +2324,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Dokument', 'relasjon', 'id registrert', ['frosset/brevtekst.ts', 'frosset/brevdeler.ts']],
   // Datoen appen registrerte brevet.
   ['Dokument', 'relasjon', 'registrert', ['format/leser.ts:registrertDato']],
+  // LV-U35: partene skrives fullt ut, også i meldingen når kommandoen avvises (#1953).
+  [
+    'frosset/brevdeler.ts',
+    'brevtekst',
+    'PARTEN',
+    ['kommandoer/forutsetninger.ts:forutsetninger', 'kommandoer/nyttelast.ts:retting'],
+  ],
   // Datoene i meldingen, skrevet som i brevet.
   [
     'frosset/brevdeler.ts',
