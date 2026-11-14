@@ -246,7 +246,7 @@ export function kommentartekst(
         'Topicen er ikke et varsel eller krav i appen. Varsel og krav sendes fra saken i appen.'
       );
     case 'topic_fra_bh':
-      return 'Saken er ikke opprettet i appen. Bare TE kan opprette en KOE-sak der.';
+      return 'Saken er ikke opprettet i appen. Bare totalentreprenøren kan opprette en KOE-sak der.';
     case 'sakstype_ikke_stoettet':
       return 'Saken er ikke opprettet i appen. Topicer av denne typen kan ikke behandles i appen ennå.';
     case 'tittel_kan_ikke_vises':

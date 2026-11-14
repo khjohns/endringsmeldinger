@@ -87,7 +87,7 @@
           "med": {
             "spor": "vederlag",
             "svar": "S-v1",
-            "standpunkt": "Byggherrens standpunkt: prinsipalt varselet etter § 34.1.2 kom for sent, subsidiært godkjent med 60\u00a0000\u00a0kr."
+            "standpunkt": "Byggherrens standpunkt: prinsipalt varselet etter punkt 34.1.2 kom for sent, subsidiært godkjent med 60\u00a0000\u00a0kr."
           }
         }
       ],
@@ -157,6 +157,11 @@
       "dato": "2026-11-01",
       "forhold": "#1456, LV-U41, OV-U75, OV-U76",
       "hva": "Beskrivelsene og forståelsen sier «forholdet» og «punkt 34.1.2». Svaret på forholdet står med ordene i LV-U41. Linja i beslutningsgrunnlaget kontrolleres fortsatt med «§ 34.1.2», som kjernen lager i dag; den rettes når LV-U39 er bygget (#1433)."
+    },
+    {
+      "dato": "2026-11-14",
+      "forhold": "#1965, LV-U39",
+      "hva": "Linja i beslutningsgrunnlaget kontrolleres med «punkt 34.1.2», som kjernen nå lager for nye svar."
     }
   ]
 }

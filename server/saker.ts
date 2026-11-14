@@ -595,6 +595,6 @@ export const SAKSKODE_FOR_NY_SAK: Opprettelsesrute = {
     nySak:
       'Brevkontrollen for en ny sak viser nummeret saken vil få (LV-U46), før saken finnes, så stien har ingen sak. Prosjektet er det i `X-Project-ID`.',
   },
-  bareTE: 'Du er på BH-siden. En ny sak opprettes av TE.',
+  bareTE: 'Du er på byggherrens side. En ny sak opprettes av totalentreprenøren.',
   behandle: visSakskodeForNySak,
 };

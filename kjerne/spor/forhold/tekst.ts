@@ -210,7 +210,7 @@ function endringsordretekst(krav: Krav, j: Journalen): string {
   if (!beskrivelse?.trim())
     throw new BrevetAvvises(
       'PAALEGGET_IKKE_BESKREVET',
-      'Godkjenningen er en endringsordre (punkt 32.3 første ledd a), men totalentreprenørens krav beskriver ikke pålegget, så brevet kan ikke si hva endringen går ut på (punkt 31.3, GR-U14). Svaret må sendes utenfor løsningen.'
+      'Godkjenningen er en endringsordre (punkt 32.3 første ledd a), men totalentreprenørens krav beskriver ikke pålegget, så brevet kan ikke si hva endringen går ut på (punkt 31.3). Svaret må sendes utenfor løsningen.'
     );
   return `${innledning} ${kravet}: «${beskrivelse}».`;
 }
@@ -282,7 +282,7 @@ export const STANDPUNKTENE_I_FORHOLDET = {
 export const SVARET_PAA_PAABEROPELSEN: Record<Forholdsresultat, string> = {
   godkjent: 'godkjent',
   avslaatt: 'avslått',
-  paalegg_frafalt: 'pålegget frafalt (§ 32.3 c)',
+  paalegg_frafalt: 'pålegget frafalt (punkt 32.3 første ledd c)',
 };
 
 export const LINJEN_I_FORHOLDET = {

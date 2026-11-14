@@ -226,13 +226,13 @@ export const LINJEN_I_FRISTEN = {
       );
     return {
       // KA-U81: som brevteksten nevner linjen begge vilkårene.
-      hindring: `avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ ${hindringenEtter(paaberopelse)})`,
+      hindring: `avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (punkt ${hindringenEtter(paaberopelse)})`,
       // Bare fristene med dager, med fristens betegnelse som i brevteksten (#1931).
       spesifisering: medDager.length
         ? `godkjent med ${opplistet(
             medDager.map((m) => maatteForstaaForFristen(krav(), m.frist, m.dager))
-          )} (§ 33.6.1)`
-        : 'avslått (§ 33.6.1)',
+          )} (punkt 33.6.1)`
+        : 'avslått (punkt 33.6.1)',
     };
   },
   egetLedd: () => undefined,

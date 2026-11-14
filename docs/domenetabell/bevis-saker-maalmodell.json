@@ -613,7 +613,7 @@
           "forventet": {
             "virkning.S-g1.rettidighet": 1,
             "virkning.S-g1.forhold": 2,
-            "beslutningsgrunnlag.S-g1.linje": "Byggherrens standpunkt: prinsipalt varselet etter § 32.2 kom for sent, subsidiært avslått.",
+            "beslutningsgrunnlag.S-g1.linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært avslått.",
             "beslutningsgrunnlag.S-g1.regelversjon": "n",
             "subsidiaer_aarsaker.vederlag": ["prekludert", "avslaatt"],
             "handlinger.TE": { "inneholder": ["godta:forhold"] }
@@ -657,7 +657,7 @@
             "nye_hendelser": 0,
             "virkning.S-g1.rettidighet": 1,
             "virkning.S-g1.forhold": 2,
-            "beslutningsgrunnlag.S-g1.linje": "Byggherrens standpunkt: prinsipalt varselet etter § 32.2 kom for sent, subsidiært avslått.",
+            "beslutningsgrunnlag.S-g1.linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært avslått.",
             "beslutningsgrunnlag.S-g1.regelversjon": "n",
             "forhold_avklart": false,
             "forhold_avvist": false,
@@ -807,7 +807,7 @@
             "svar.S-g2.erstatter": "S-g1",
             "beslutningsgrunnlag.S-g2.regelversjon": "n+1",
             "beslutningsgrunnlag.S-g2.linje": "Byggherrens standpunkt: avslått.",
-            "beslutningsgrunnlag.S-g1.linje": "Byggherrens standpunkt: prinsipalt varselet etter § 32.2 kom for sent, subsidiært avslått.",
+            "beslutningsgrunnlag.S-g1.linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært avslått.",
             "subsidiaer_aarsaker.vederlag": ["avslaatt"],
             "visning.etiketter.forhold": { "mangler": ["regel_endret_etter_brevet"] },
             "handlinger.TE": { "inneholder": ["godta:forhold"] }

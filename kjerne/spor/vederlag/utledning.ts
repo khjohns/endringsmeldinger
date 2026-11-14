@@ -107,16 +107,16 @@ export function kravpostvarseletStrider(
     const posten = p.betegnelse ? `kravposten ${p.betegnelse}` : `kravpost nr. ${i + 1}`;
     const hjemmel = varselhjemmel(p);
     if (hjemmel === null)
-      return `${posten} viser til et varsel, men oppgjørsformen krever ikke varsel etter § 34.3.3 eller § 34.4 (VS-U50)`;
+      return `${posten} viser til et varsel, men oppgjørsformen krever ikke varsel etter punkt 34.3.3 eller 34.4`;
     // KA-U75: også en kravpost som er trukket og tas med igjen, sammenlignes med siste versjon den sto i.
     const somFoer = [...tidligere]
       .reverse()
       .map((k) => kravposterI(k).find((q) => q.id === p.id))
       .find((q) => q !== undefined);
     if (hattFoer(p, hjemmel, tidligere) && somFoer?.varsel !== p.varsel)
-      return `${posten} viser til et varsel, men hadde oppgjørsformen i en tidligere kravversjon (VS-U49, VS-U50)`;
+      return `${posten} viser til et varsel, men hadde oppgjørsformen i en tidligere kravversjon`;
     if (!varsler.some((v) => v.id === p.varsel && v.hjemmel === hjemmel))
-      return `${posten} viser til et varsel som ikke er et varsel etter § ${hjemmel} sendt eller registrert i saken før kravet (VS-U50)`;
+      return `${posten} viser til et varsel som ikke er et varsel etter punkt ${hjemmel} sendt eller registrert i saken før kravet`;
   }
   return null;
 }

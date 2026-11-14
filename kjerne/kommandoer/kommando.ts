@@ -425,7 +425,7 @@ export function formfeil(kommando: unknown): string[] {
     const form = iSporet(KRAVFORM, k.spor);
     feil.push(...form.feil(k.innhold));
     if (!form.varselVedKravet && 'varsel' in k)
-      feil.push('$.varsel: bare et fristkrav har varsel etter § 33.4');
+      feil.push('$.varsel: bare et fristkrav har varsel etter punkt 33.4');
     // VS-U38: vedleggene ved påberopelsen; fristkravet har også brevet med varselet i `varsel`.
     if (!form.vedleggVedKravet && 'dokumentasjon' in k)
       feil.push(
@@ -439,7 +439,7 @@ export function formfeil(kommando: unknown): string[] {
   if ((type === 'varsel' || type === 'send_varsel') && !feil.length) {
     const k = kommando as { spor: Spor; hjemmel: Varselhjemmel };
     if (VARSELSPOR[k.hjemmel] !== k.spor)
-      feil.push(`$.hjemmel: et varsel etter § ${k.hjemmel} står ikke i sporet ${k.spor}`);
+      feil.push(`$.hjemmel: et varsel etter punkt ${k.hjemmel} står ikke i sporet ${k.spor}`);
   }
   const {
     sti,
