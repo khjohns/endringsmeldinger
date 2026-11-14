@@ -13,6 +13,7 @@ import type { Handling } from './klient.ts';
 import { plassene } from '../frosset/byggeklosser.ts';
 import { kroner } from '../frosset/tekst.ts';
 import { vederlagssvaret } from '../spor/vederlag/visning.ts';
+import { utregningIVederlaget } from '../spor/vederlag/format.ts';
 
 async function utledning(steg: Handling[]) {
   const forloep: Forloep = { id: 'lagene', rader: [], start: null, steg, kontroller: [] };
@@ -141,5 +142,62 @@ describe('plassen til grunnene fra forholdet foran sporet (OV-U32, OV-U33, LV-U4
     ]);
     const beloep = svar.standpunkter.find((x) => x.art === 'beloep')!;
     expect(p.standpunkt(beloep.id)).toEqual({ lag: 3, etikett: 'videre subsidiært' });
+  });
+});
+
+// G-14 i #1906: demosaken for BF-44 gjennom klienten. Tallene er utgangspunktet i BF-44.md.
+describe('svaret på kravet med posten etter § 34.1.3 gjennom klienten (BF-44, VS-U5, OV-U27)', () => {
+  const paaberopelse: Handling = {
+    handling: 'krav',
+    spor: 'forhold',
+    hovedkategori: 'svikt',
+    underkategori: 'prosjektering',
+    navn: 'K-g1',
+  };
+  const kravet: Handling = {
+    handling: 'krav',
+    spor: 'vederlag',
+    belop: 150000,
+    produktivitet: 40000,
+    navn: 'K-v1',
+  };
+  const svaret = {
+    spor: 'vederlag',
+    navn: 'S-v1',
+    varslet_i_tide: false,
+    vurdering: 'delvis',
+    godkjent_belop: 100000,
+    produktivitet: {
+      vurdering: 'delvis',
+      godkjent_belop: 30000,
+      varslet_i_tide: false,
+      begrenset_belop: 10000,
+    },
+  };
+
+  it('prinsipalt 0 kr, subsidiært 110 000 kr og videre subsidiært 130 000 kr', async () => {
+    const u = await utledning([paaberopelse, kravet, brevet(svaret)]);
+    const svar = u.spor.vederlag.svar[0];
+    // OV-U31: prinsipalt og om ingen innsigelse fører fram er lagret; mellomlaget er ikke det.
+    const ut = utregningIVederlaget(svar.utregning);
+    expect([ut.godkjent_beloep, ut.subsidiaert_godkjent_beloep]).toEqual([0, 130000]);
+    // Laget og beløpet per post: begrensningen etter § 34.1.3 gir 10 000 kr i det subsidiære
+    // laget, så summen der er 100 000 + 10 000 kr.
+    expect(
+      vederlagssvaret(u, svar).poster.map((p) => [
+        p.lag,
+        p.godkjent,
+        p.begrensning && [p.begrensning.lag, p.begrensning.beloep],
+      ])
+    ).toEqual([
+      [2, 100000, null],
+      [3, 30000, [2, 10000]],
+    ]);
+    expect(svar.beslutningsgrunnlag.linje).toBe(
+      'Byggherrens standpunkt: prinsipalt varselet etter punkt 34.1.2 kom for sent, ' +
+        `subsidiært godkjent med ${kroner(100000)} for justeringen ellers, begrenset etter punkt ` +
+        `34.1.3 til ${kroner(10000)}, videre subsidiært godkjent med ${kroner(30000)} for ` +
+        'særskilt justering (punkt 34.1.3 annet ledd).'
+    );
   });
 });
