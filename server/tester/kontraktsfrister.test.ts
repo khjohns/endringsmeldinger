@@ -8,7 +8,11 @@
  *   (DL-U15); prosjektgrensen i CLAUDE.md;
  * - GFK-U25: inngangen gir fristtabellen til begge parter og leserollen, så kravskjemaet
  *   kan velge frist (BF-20 G-3). Feltene i svaret er arbeidsvalget 14.11 i #1745, med
- *   datoen for U-4 og U-5 i BF-20.
+ *   datoen for U-4 og U-5 i BF-20;
+ * - KA-U77, GR-U38 og GR-U39: datoen i kravskjemaet regnes med dagene partene er enige om i
+ *   andre saker, og det som ikke er tatt med, nevnes med grunnen; MM-U2: en sak kjernen ikke
+ *   forstår, gjør datoen ukjent. Lesingen av ekte saker mot SQL Server prøves i
+ *   `sprakprove/kjernelagring/forlengelser.test.ts`.
  * Avrundingen til nærmeste øre er det tekniske valget i PR-en, ikke et vedtak.
  */
 import { randomUUID } from 'node:crypto';
@@ -16,7 +20,9 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { transaksjon, type Kontekst } from '../datalag.ts';
 import { betegnelsen as betegnelse } from '../../kjerne/spor/frist/format.ts';
+import type { Forlengelsene } from '../forlengelser.ts';
 import {
+  fristlinjer,
   lesKontraktsfrister,
   regnSats,
   STANDARDSATS,
@@ -26,6 +32,7 @@ import { iTransaksjon, settInn } from './sqlserver_migrert.ts';
 import {
   kall,
   lagOppsett,
+  opprettKjernesak,
   rydd,
   startServer,
   TESTBASE_URL,
@@ -90,6 +97,92 @@ describe('betegnelse', () => {
   it('KA-U79: brevet viser fristen med kontraktens nummer og navnet, ikke ID-en', () => {
     expect(betegnelse({ nummer: 'E.1.2', navn: 'Tett bygg' })).toBe('E.1.2 Tett bygg');
     expect(betegnelse({ nummer: null, navn: 'Tett bygg' })).toBe('Tett bygg');
+  });
+});
+
+describe('fristlinjer', () => {
+  const frist = (fristId: number, dato: string): Fristtabell['frister'][number] => ({
+    fristId,
+    nummer: null,
+    navn: `Frist ${fristId}`,
+    dato,
+    dagmulktbelagt: false,
+    satsopplysninger: null,
+    sats: null,
+  });
+  const TABELL: Fristtabell = {
+    kontraktssum: null,
+    frister: [frist(1, '2027-06-30'), frist(2, '2026-12-15')],
+  };
+  const KODE = { kode: 'koe' as const, loepenummer: 4 };
+  const lest = (l: Partial<Forlengelsene>): Forlengelsene => ({
+    tattMed: [],
+    ikkeTattMed: [],
+    ikkeForstaatt: [],
+    sakskoder: new Map([
+      ['a', KODE],
+      ['b', null],
+      ['c', null],
+    ]),
+    ...l,
+  });
+
+  it('KA-U77: datoen regnes med de avtalte dagene i alle sakene, frist for frist, og sakene nevnes', () => {
+    const { frister, saker_ikke_forstaatt } = fristlinjer(
+      TABELL,
+      lest({
+        tattMed: [
+          { sakId: 'a', fristId: 1, dager: 3, grunnlag: 'avtalt' },
+          { sakId: 'b', fristId: 1, dager: 2, grunnlag: 'avtalt' },
+          { sakId: 'b', fristId: 2, dager: 5, grunnlag: 'avtalt' },
+        ],
+      })
+    );
+    expect(saker_ikke_forstaatt).toEqual([]);
+    expect(frister.map((f) => [f.frist_id, f.dato, f.dato_etter_forlengelsene])).toEqual([
+      [1, '2027-06-30', '2027-07-05'],
+      [2, '2026-12-15', '2026-12-20'],
+    ]);
+    expect(frister[0]!.forlengelser).toEqual([
+      { sak_id: 'a', sakskode: KODE, dager: 3 },
+      { sak_id: 'b', sakskode: null, dager: 2 },
+    ]);
+    expect(frister[0]!.ikke_tatt_med).toEqual([]);
+  });
+
+  it('KA-U77, GR-U38: dager byggherren har godkjent uten enighet, og subsidiære dager, er ikke tatt med og nevnes med grunnen', () => {
+    const { frister } = fristlinjer(
+      TABELL,
+      lest({
+        tattMed: [{ sakId: 'a', fristId: 1, dager: 3, grunnlag: 'godkjent' }],
+        ikkeTattMed: [
+          { sakId: 'b', fristId: 1, dager: 4, grunnlag: 'subsidiaert_til_forholdet' },
+          { sakId: 'c', fristId: 2, dager: 6, grunnlag: 'subsidiaert_i_fristen' },
+        ],
+      })
+    );
+    expect(frister.map((f) => f.dato_etter_forlengelsene)).toEqual(['2027-06-30', '2026-12-15']);
+    expect(frister.map((f) => f.forlengelser)).toEqual([[], []]);
+    expect(frister.map((f) => f.ikke_tatt_med)).toEqual([
+      [
+        { sak_id: 'a', sakskode: KODE, dager: 3, grunnlag: 'godkjent' },
+        { sak_id: 'b', sakskode: null, dager: 4, grunnlag: 'subsidiaert_til_forholdet' },
+      ],
+      [{ sak_id: 'c', sakskode: null, dager: 6, grunnlag: 'subsidiaert_i_fristen' }],
+    ]);
+  });
+
+  it('MM-U2: en sak kjernen ikke forstår, gjør datoen ukjent for hver frist og nevnes', () => {
+    const { frister, saker_ikke_forstaatt } = fristlinjer(
+      TABELL,
+      lest({
+        tattMed: [{ sakId: 'a', fristId: 1, dager: 3, grunnlag: 'avtalt' }],
+        ikkeForstaatt: ['c'],
+      })
+    );
+    expect(frister.map((f) => f.dato_etter_forlengelsene)).toEqual([null, null]);
+    expect(frister[0]!.forlengelser).toEqual([{ sak_id: 'a', sakskode: KODE, dager: 3 }]);
+    expect(saker_ikke_forstaatt).toEqual([{ sak_id: 'c', sakskode: null }]);
   });
 });
 
@@ -237,6 +330,13 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
         prosjektId: o.prosjekt.id,
       });
 
+    // Prosjektet har ingen saker, så ingen frist er forlenget (KA-U77).
+    const utenForlengelser = (dato: string) => ({
+      dato_etter_forlengelsene: dato,
+      forlengelser: [],
+      ikke_tatt_med: [],
+    });
+
     it('GFK-U25: begge parter og leserollen får fristene, med feltene i arbeidsvalget 14.11 i #1745: ID, nummer, navn, dato og dagmulkt', async () => {
       for (const bruker of [o.bh, o.te, o.leser]) {
         const svar = await svaret(bruker);
@@ -250,6 +350,7 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
               navn: 'Sluttfrist',
               dato: '2027-06-30',
               dagmulktbelagt: true,
+              ...utenForlengelser('2027-06-30'),
             },
             {
               frist_id: 2,
@@ -257,6 +358,7 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
               navn: 'Tett bygg',
               dato: '2026-12-15',
               dagmulktbelagt: false,
+              ...utenForlengelser('2026-12-15'),
             },
             {
               frist_id: 3,
@@ -264,8 +366,10 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
               navn: 'Overtakelse av utomhus',
               dato: '2027-09-01',
               dagmulktbelagt: true,
+              ...utenForlengelser('2027-09-01'),
             },
           ],
+          saker_ikke_forstaatt: [],
         });
       }
     });
@@ -274,6 +378,17 @@ describe.skipIf(!TESTBASE_URL)('fristtabellen i SQL Server', () => {
       const svar = await svaret(o.utenTeam);
       expect(svar.status).toBe(403);
       expect(svar.kropp.error).toBe('CONTRACT_ROLE_REQUIRED');
+    });
+
+    // Til slutt, fordi saken gjør datoen ukjent for testene over.
+    it('MM-U2: en sak kjernen ikke har skrevet, gjør datoen ukjent og nevnes', async () => {
+      const ukjent = await opprettKjernesak(o, o.prosjekt, null);
+      const svar = await svaret(o.te);
+      expect(svar.status, JSON.stringify(svar.kropp)).toBe(200);
+      expect(svar.kropp.saker_ikke_forstaatt).toEqual([{ sak_id: ukjent, sakskode: null }]);
+      const frister = svar.kropp.frister as Record<string, unknown>[];
+      expect(frister).toHaveLength(tabellen.frister.length);
+      expect(frister.every((f) => f.dato_etter_forlengelsene === null)).toBe(true);
     });
   });
 });

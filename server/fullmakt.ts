@@ -7,19 +7,16 @@
  */
 import { regnUtSvar } from '../kjerne/frosset/utregning.ts';
 import { innholdIFristen } from '../kjerne/spor/frist/format.ts';
-import {
-  foresporselForFristsvar,
-  forlengelseneISaken,
-  fristenEtterForlengelsene,
-  type Forlengelse,
-} from '../kjerne/spor/frist/utledning.ts';
+import { foresporselForFristsvar } from '../kjerne/spor/frist/utledning.ts';
 import { hverdagerIForlengelsen } from '../kjerne/regler/hverdager.ts';
-import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import type { Foresp } from './datalag.ts';
 import { lesKontraktsfrister, type Fristtabell } from './kontraktsfrister.ts';
-import { lesAlleSakene } from './saksliste.ts';
-import { skrevetAvKjernen } from './lager.ts';
+import {
+  datoenEtterForlengelsene,
+  lesForlengelsene,
+  type SakensForlengelse,
+} from './forlengelser.ts';
 import { krevdSamlet } from '../kjerne/spor/vederlag/format.ts';
 import type { Svarutkast } from '../kjerne/kommandoer/kommando.ts';
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
@@ -46,18 +43,20 @@ const oere = (kr: number) => tilTall(beloep(kr)!);
  */
 export interface Fristgrunnlag {
   dato: string | null;
-  /** Kroner per dag, eller `null` når fristen ikke er dagmulktbelagt eller satsen mangler. */
+  dagmulktbelagt: boolean;
+  /**
+   * Kroner per dag i fristtabellen, eller `null` når satsen ikke kan regnes (GFK-U3). Dager for en
+   * frist som ikke er dagmulktbelagt, verdsettes ikke, uansett sats (GFK-U20).
+   */
   sats: number | null;
-  /** Dagene for fristen i de andre sakene som forlenger den. */
-  forlengelser: SakensForlengelse[];
+  /**
+   * Dagene for fristen i de andre sakene som forlenger den for fullmakten: avtalt og godkjent
+   * (GFK-U26). Skjemaet tar bare med de avtalte (`fristlinjer` i `server/kontraktsfrister.ts`).
+   */
+  tattMed: SakensForlengelse[];
   /** Dagene for fristen som ikke er tatt med, for utregningen (svaret på spørsmål 4 i
    * `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md`). */
   ikkeTattMed: SakensForlengelse[];
-}
-
-/** Dagene for en frist i en annen sak. */
-export interface SakensForlengelse extends Forlengelse {
-  sakId: string;
 }
 
 /**
@@ -67,6 +66,70 @@ export interface SakensForlengelse extends Forlengelse {
 export interface Fristgrunnlaget {
   frister: Map<number, Fristgrunnlag>;
   ikkeForstaatt: string[];
+}
+
+/** Hvorfor dagene for en frist ikke kan verdsettes (KA-U79, GFK-U20, GFK-U3, MM-U2). */
+export type IkkeVerdsatt =
+  | 'ikke_registrert'
+  | 'ikke_dagmulktbelagt'
+  | 'sats_mangler'
+  | 'dato_ukjent';
+
+/** Verdien av dagene for én frist i brevet (GFK-U17, GFK-U21, U-10 i BF-45). */
+export interface Fristverdi {
+  /** Fristen i fristtabellen, eller `null` når kravet viser til en frist som ikke er registrert. */
+  fristId: number | null;
+  /** Kalenderdagene. */
+  dager: number;
+  /** Hverdagene i forlengelsen (GFK-U24), eller `null` når dagene ikke kan verdsettes. */
+  hverdager: number | null;
+  /** Kroner per dag, eller `null` når dagene ikke kan verdsettes. */
+  sats: number | null;
+  /** Kroner, eller `null` når dagene ikke kan verdsettes. */
+  verdi: number | null;
+  ikkeVerdsatt: IkkeVerdsatt | null;
+}
+
+/**
+ * Verdien av brevet med linjene den er regnet av: dagene for hver frist i laget som gir verdien,
+ * i rekkefølgen i brevet. `lag` er standpunktet som gir den største verdien (presiseringen 24.09).
+ * Har bare ett av standpunktene dager som ikke kan verdsettes, er `lag` det, fordi verdien der kan
+ * være den største (GFK-U4).
+ */
+export interface Fullmaktsverdi extends Brevverdi {
+  lag: 'prinsipalt' | 'subsidiaert';
+  frister: Fristverdi[];
+}
+
+/** Dagene for fristen `fristId` verdsatt med fristgrunnlaget (GFK-U17, GFK-U19–GFK-U21, GFK-U24). */
+function fristverdi(
+  frister: ReadonlyMap<number, Fristgrunnlag>,
+  fristId: number | undefined,
+  dager: number
+): Fristverdi {
+  const g = fristId === undefined ? undefined : frister.get(fristId);
+  const linje = { fristId: fristId ?? null, dager };
+  if (dager === 0)
+    return {
+      ...linje,
+      hverdager: 0,
+      sats: g?.dagmulktbelagt ? g.sats : null,
+      verdi: 0,
+      ikkeVerdsatt: null,
+    };
+  const ikke = (ikkeVerdsatt: IkkeVerdsatt): Fristverdi => ({
+    ...linje,
+    hverdager: null,
+    sats: null,
+    verdi: null,
+    ikkeVerdsatt,
+  });
+  if (!g) return ikke('ikke_registrert');
+  if (!g.dagmulktbelagt) return ikke('ikke_dagmulktbelagt');
+  if (g.sats === null) return ikke('sats_mangler');
+  if (g.dato === null) return ikke('dato_ukjent');
+  const hverdager = hverdagerIForlengelsen(g.dato, dager);
+  return { ...linje, hverdager, sats: g.sats, verdi: oere(g.sats * hverdager), ikkeVerdsatt: null };
 }
 
 /**
@@ -79,29 +142,29 @@ export interface Fristgrunnlaget {
  * Dagene for hver frist verdsettes for seg og summeres (GFK-U21): satsen for fristen ganger
  * hverdagene i forlengelsen fra datoen i `frister` (GFK-U17, GFK-U19, GFK-U24). Dager for en
  * frist som ikke er registrert, ikke er dagmulktbelagt, mangler sats eller dato, kan ikke
- * verdsettes (GFK-U3, GFK-U20, KA-U79).
+ * verdsettes (GFK-U3, GFK-U20, KA-U79). Null dager har verdien 0 for enhver frist.
  *
  * Svarene må være kontrollert av kjernen først. Kaster det kjernens utregning
  * kaster (`regnUtSvar`): `UgyldigVurdering` og `UgyldigBeloep`, og `Error` for et krevd
  * beløp som ikke kan leses.
  */
-export function brevverdi(
+export function fullmaktsverdi(
   svar: readonly Svarutkast[],
   u: Utledning,
   frister: ReadonlyMap<number, Fristgrunnlag>,
   regler: Regelsett
-): Brevverdi {
+): Fullmaktsverdi {
   let hoved = 0;
   let subsidiaert = 0;
   let ukjent = false;
-  const fristverdi = (fristId: number | undefined, dager: number): number => {
-    if (dager === 0) return 0;
-    const g = fristId === undefined ? undefined : frister.get(fristId);
-    if (!g || g.sats === null || g.dato === null) {
-      ukjent = true;
-      return 0;
-    }
-    return g.sats * hverdagerIForlengelsen(g.dato, dager);
+  const hovedlinjer: Fristverdi[] = [];
+  const subsidiaerlinjer: Fristverdi[] = [];
+  /** Verdien i kroner, med linjen i `linjer`; dager som ikke kan verdsettes, gjør verdien ukjent. */
+  const verdsett = (fristId: number | undefined, dager: number, linjer: Fristverdi[]): number => {
+    const v = fristverdi(frister, fristId, dager);
+    linjer.push(v);
+    if (v.verdi === null) ukjent = true;
+    return v.verdi ?? 0;
   };
 
   for (const s of svar) {
@@ -126,8 +189,12 @@ export function brevverdi(
     const fristId = new Map(innholdIFristen(krav).frister.map((f) => [f.id, f.frist_id]));
     for (const rad of (r.frister ?? []) as Fristrad[]) {
       const id = fristId.get(rad.gjelder);
-      hoved += fristverdi(id, rad.godkjent_dager);
-      subsidiaert += fristverdi(id, rad.subsidiaert_godkjent_dager ?? rad.godkjent_dager);
+      hoved += verdsett(id, rad.godkjent_dager, hovedlinjer);
+      subsidiaert += verdsett(
+        id,
+        rad.subsidiaert_godkjent_dager ?? rad.godkjent_dager,
+        subsidiaerlinjer
+      );
     }
   }
 
@@ -137,11 +204,17 @@ export function brevverdi(
     for (const spor of KRAVSPOR) {
       if (besvart.has(spor)) continue;
       // OV-U23: vederlagskravet er justeringen ellers og posten etter § 34.1.3 annet ledd.
+      const kravlinjer: Fristverdi[] = [];
       const v = kravverdi(u.spor[spor], (k) =>
         spor === 'vederlag'
           ? tilTall(krevdSamlet(k))
-          : innholdIFristen(k).frister.reduce((sum, f) => sum + fristverdi(f.frist_id, f.dager), 0)
+          : innholdIFristen(k).frister.reduce(
+              (sum, f) => sum + verdsett(f.frist_id, f.dager, kravlinjer),
+              0
+            )
       );
+      hovedlinjer.push(...kravlinjer);
+      subsidiaerlinjer.push(...kravlinjer);
       if (v === null) ukjent = true;
       else {
         hoved += v;
@@ -150,8 +223,19 @@ export function brevverdi(
     }
   }
 
-  const verdi = oere(Math.max(hoved, subsidiaert));
-  return { beloep: ukjent ? null : verdi, gulv: verdi };
+  const [h, sub] = [oere(hoved), oere(subsidiaert)];
+  const [hUkjent, subUkjent] = [hovedlinjer, subsidiaerlinjer].map((l) =>
+    l.some((v) => v.verdi === null)
+  );
+  const subsidiaerGjelder = hUkjent === subUkjent ? sub > h : subUkjent;
+  const lag: Fullmaktsverdi['lag'] = subsidiaerGjelder ? 'subsidiaert' : 'prinsipalt';
+  const verdi = Math.max(h, sub);
+  return {
+    beloep: ukjent ? null : verdi,
+    gulv: verdi,
+    lag,
+    frister: lag === 'prinsipalt' ? hovedlinjer : subsidiaerlinjer,
+  };
 }
 
 /**
@@ -174,9 +258,10 @@ export function fristgrunnlaget(
       tabell.frister.map((f) => [
         f.fristId,
         {
-          dato: ikkeForstaatt.length ? null : fristenEtterForlengelsene(f.dato, f.fristId, tattMed),
-          sats: f.dagmulktbelagt ? f.sats : null,
-          forlengelser: forFristen(f.fristId, tattMed),
+          dato: datoenEtterForlengelsene(f.dato, f.fristId, tattMed, ikkeForstaatt),
+          dagmulktbelagt: f.dagmulktbelagt,
+          sats: f.sats,
+          tattMed: forFristen(f.fristId, tattMed),
           ikkeTattMed: forFristen(f.fristId, ikkeTattMed),
         },
       ])
@@ -186,7 +271,7 @@ export function fristgrunnlaget(
 }
 
 /**
- * Fristgrunnlaget for brevverdien i saken `sakId`: fristtabellen og forlengelsene i de andre
+ * Fristgrunnlaget for verdien for fullmakten i saken `sakId`: fristtabellen og forlengelsene i de andre
  * sakene i prosjektet (GFK-U26). Det skal leses i saksbehandlerens transaksjon når pakken lages,
  * fordi lesefilteret gir godkjenneren en tom fristtabell og ingen andre saker (GFK-U9, #1780).
  * Ingen inngang lager pakken ennå (G-6 i BF-45).
@@ -197,20 +282,8 @@ export async function lesFristgrunnlaget(
   kjerne: Kjerne
 ): Promise<Fristgrunnlaget> {
   const tabell = await lesKontraktsfrister(foresp);
-  const forlengelser: SakensForlengelse[] = [];
-  const ikkeMed: SakensForlengelse[] = [];
-  const ikkeForstaatt: string[] = [];
-  for (const sak of await lesAlleSakene(foresp)) {
-    if (sak.sakId === sakId) continue;
-    const u = skrevetAvKjernen(sak.journal) ? utledJournal(sak.journal, kjerne) : null;
-    if (!u?.forstaatt) ikkeForstaatt.push(sak.sakId);
-    else {
-      const { tattMed, ikkeTattMed } = forlengelseneISaken(u);
-      for (const f of tattMed) forlengelser.push({ ...f, sakId: sak.sakId });
-      for (const f of ikkeTattMed) ikkeMed.push({ ...f, sakId: sak.sakId });
-    }
-  }
-  return fristgrunnlaget(tabell, { tattMed: forlengelser, ikkeTattMed: ikkeMed }, ikkeForstaatt);
+  const { tattMed, ikkeTattMed, ikkeForstaatt } = await lesForlengelsene(foresp, kjerne, sakId);
+  return fristgrunnlaget(tabell, { tattMed, ikkeTattMed }, ikkeForstaatt);
 }
 
 function kravverdi(sp: Sporutledning, verdi: (krav: Krav) => number): number | null {
