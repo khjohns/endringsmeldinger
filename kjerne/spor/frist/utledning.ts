@@ -139,60 +139,70 @@ export function fristkravErFremmet(u: Utledning): boolean {
 
 /**
  * Dagene i én sak for en frist i fristtabellen (GFK-U26), med grunnlaget for dem. Kilden for
- * grunnlagene er `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md` til vedtakene er ført:
- * - `avtalt`: dagene i en enighet om byggherrens gjeldende svar, også en betinget enighet (svaret
- *   på spørsmål 2) og en enighet ved sammenfall (avgrensningen, GR-U7);
+ * grunnlagene er svarene i `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md` og
+ * `sporsmal-2.md` til vedtakene er ført:
+ * - `avtalt`: dagene i en enighet om byggherrens gjeldende svar, også en betinget enighet og en
+ *   enighet ved sammenfall (GR-U7);
  * - `godkjent`: dagene i første lag i byggherrens gjeldende svar, uten enighet;
- * - `subsidiaert`: de samme dagene når svaret er subsidiært til et avslag av forholdet. Om de
- *   forlenger fristen for fullmakten, er ikke avgjort (spørsmål 2).
+ * - `subsidiaert_til_forholdet`: dagene i første lag når svaret er subsidiært til et avslag av
+ *   forholdet, også et avslag sendt etter fristsvaret (spørsmål 2 i `sporsmal-2.md`);
+ * - `subsidiaert_i_fristen`: dagene i siste lag når første lag gir ingen dager, fordi byggherren
+ *   prinsipalt avslår dagene i fristen (spørsmål 1 i `sporsmal-2.md`).
+ * Bare `avtalt` og `godkjent` forlenger fristen for fullmakten (avklaringen C i `sporsmal-2.md`).
  */
 export interface Forlengelse {
   fristId: number;
   /** Kalenderdagene (NS 8407 punkt 1.2). */
   dager: number;
-  grunnlag: 'godkjent' | 'avtalt' | 'subsidiaert';
+  grunnlag: 'godkjent' | 'avtalt' | 'subsidiaert_til_forholdet' | 'subsidiaert_i_fristen';
 }
 
 /**
  * Dagene i saken for fristene i fristtabellen, som en annen sak i samme kontrakt regner fristen fra
- * (GFK-U19, GFK-U26). `tattMed` forlenger fristen. `ikkeTattMed` er dagene i et subsidiært svar
- * uten enighet, som ikke tas med før spørsmål 2 er avgjort. Gjeldende svar er svaret på gjeldende
- * krav, så et nytt krav avslutter forlengelsen (HF-U5). Et trukket krav og en enighet uten virkning
- * gir ingen (GR-U7, KA-U6). En frist som ikke er registrert, kobles ikke til fristtabellen (KA-U79).
- * Endringsordrene leses ikke, fordi kjernen ikke har dem; svaret på spørsmål 3 sier hvordan de
- * skal telle når de leses.
+ * (GFK-U19, GFK-U26). `tattMed` forlenger fristen. `ikkeTattMed` er dagene byggherren bare har
+ * godkjent subsidiært, uten enighet, som utregningen nevner med grunnen. Gjeldende svar er svaret
+ * på gjeldende krav, så et nytt krav avslutter forlengelsen (HF-U5). Et trukket krav og en enighet
+ * uten virkning gir ingen (GR-U7, KA-U6). En frist som ikke er registrert, kobles ikke til
+ * fristtabellen (KA-U79). Endringsordrene leses ikke, fordi kjernen ikke har dem; når de leses,
+ * telles forlengelsen fra endringsordren, og KOE-saken tas ut (spørsmål 3 i `sporsmal-2.md`).
  */
 export function forlengelseneISaken(u: Utledning): {
   tattMed: Forlengelse[];
   ikkeTattMed: Forlengelse[];
 } {
   const s = u.spor.frist;
-  const ingen = { tattMed: [], ikkeTattMed: [] };
-  if (s.trukket || !s.gjeldendeKrav || !s.gjeldendeSvar) return ingen;
+  const tattMed: Forlengelse[] = [];
+  const ikkeTattMed: Forlengelse[] = [];
+  if (s.trukket || !s.gjeldendeKrav || !s.gjeldendeSvar) return { tattMed, ikkeTattMed };
   // GR-U7, KA-U6: er forholdet avvist ved enighet, har dagene ingen virkning, med eller uten
   // enighet i fristen (`enighetensVirkning`; et trukket krav er alt ute).
-  if (u.forholdAvvist) return ingen;
-  const subsidiaert = !s.enighet && s.subsidiaer.length > 0;
-  const grunnlag: Forlengelse['grunnlag'] = s.enighet
-    ? 'avtalt'
-    : subsidiaert
-      ? 'subsidiaert'
-      : 'godkjent';
-  // `utfallIFristen` gir alltid dagene per frist.
-  const dagene = s.enighet
-    ? s.enighet.grunnlag.utfall.frister!
-    : utregningIFristen(s.gjeldendeSvar.utregning).frister.map((r) => ({
-        gjelder: r.gjelder,
-        dager: r.lag[0]?.dager ?? 0,
-      }));
+  if (u.forholdAvvist) return { tattMed, ikkeTattMed };
   const frister = new Map(innholdIFristen(s.gjeldendeKrav).frister.map((f) => [f.id, f]));
-  const forlengelser = dagene.flatMap(({ gjelder, dager }) => {
-    const fristId = frister.get(gjelder)?.frist_id;
-    return fristId !== undefined && dager > 0 ? [{ fristId, dager, grunnlag }] : [];
-  });
-  return subsidiaert
-    ? { tattMed: [], ikkeTattMed: forlengelser }
-    : { tattMed: forlengelser, ikkeTattMed: [] };
+  const fristId = (gjelder: string) => frister.get(gjelder)?.frist_id;
+  if (s.enighet) {
+    // `utfallIFristen` gir alltid dagene per frist.
+    for (const { gjelder, dager } of s.enighet.grunnlag.utfall.frister!) {
+      const id = fristId(gjelder);
+      if (id !== undefined && dager > 0) tattMed.push({ fristId: id, dager, grunnlag: 'avtalt' });
+    }
+    return { tattMed, ikkeTattMed };
+  }
+  const tilForholdet = s.subsidiaer.length > 0;
+  for (const r of utregningIFristen(s.gjeldendeSvar.utregning).frister) {
+    const id = fristId(r.gjelder);
+    if (id === undefined) continue;
+    const foerste = r.lag[0]?.dager ?? 0;
+    const siste = r.lag.at(-1)?.dager ?? 0;
+    if (foerste > 0)
+      (tilForholdet ? ikkeTattMed : tattMed).push({
+        fristId: id,
+        dager: foerste,
+        grunnlag: tilForholdet ? 'subsidiaert_til_forholdet' : 'godkjent',
+      });
+    else if (siste > 0)
+      ikkeTattMed.push({ fristId: id, dager: siste, grunnlag: 'subsidiaert_i_fristen' });
+  }
+  return { tattMed, ikkeTattMed };
 }
 
 /** Fristen `dato` etter dagene i `forlengelser` som gjelder fristen `fristId` (GFK-U19). */

@@ -3,7 +3,8 @@
  * fristen fra (GFK-U19, GFK-U26). Avtalt er dagene i en enighet, også en betinget enighet og en
  * enighet ved sammenfall (GR-U7, KA-U77, og svarene på spørsmål 1 og 2 i
  * `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md`). Godkjent er dagene i første lag i
- * byggherrens gjeldende svar uten enighet. Fristtabellen i kjøringen er `FRISTTABELLEN`.
+ * byggherrens gjeldende svar uten enighet. Dagene byggherren bare har godkjent subsidiært, nevnes
+ * som ikke tatt med (svarene på spørsmål 1, 2 og C i `sporsmal-2.md`). Fristtabellen i kjøringen er `FRISTTABELLEN`.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -100,14 +101,20 @@ describe('forlengelsene i saken (GFK-U26)', () => {
     ]);
   });
 
-  it('første lag er null dager når varselet etter § 33.4 kom for sent, så fristen er ikke forlenget', async () => {
+  it('første lag er null dager når varselet etter § 33.4 kom for sent, så fristen er ikke forlenget, og de subsidiært godkjente dagene nevnes som ikke tatt med (spørsmål 1 i sporsmal-2.md)', async () => {
     expect(
-      await forlengelsene([
+      await lesingen([
         PAABEROPELSE,
         FRISTKRAVET,
         brevet(forholdet('godkjent'), fristen({ varsel_i_tide: false })),
       ])
-    ).toEqual([]);
+    ).toEqual({
+      tattMed: [],
+      ikkeTattMed: [
+        { fristId: 1, dager: 10, grunnlag: 'subsidiaert_i_fristen' },
+        { fristId: 2, dager: 6, grunnlag: 'subsidiaert_i_fristen' },
+      ],
+    });
   });
 
   it('et nytt krav etter svaret avslutter forlengelsen (HF-U5)', async () => {
@@ -152,8 +159,25 @@ describe('forlengelsene i saken (GFK-U26)', () => {
     ).toEqual({
       tattMed: [],
       ikkeTattMed: [
-        { fristId: 1, dager: 3, grunnlag: 'subsidiaert' },
-        { fristId: 2, dager: 3, grunnlag: 'subsidiaert' },
+        { fristId: 1, dager: 3, grunnlag: 'subsidiaert_til_forholdet' },
+        { fristId: 2, dager: 3, grunnlag: 'subsidiaert_til_forholdet' },
+      ],
+    });
+  });
+
+  it('subsidiært: avslår byggherren forholdet etter fristsvaret, tas dagene ut, og fristsvaret er uendret (spørsmål 2 i sporsmal-2.md, GR-U26)', async () => {
+    expect(
+      await lesingen([
+        PAABEROPELSE,
+        FRISTKRAVET,
+        brevet(fristen({ dager: 3 })),
+        { handling: 'brev', navn: 'D4', svar: [forholdet('avslaatt')] },
+      ])
+    ).toEqual({
+      tattMed: [],
+      ikkeTattMed: [
+        { fristId: 1, dager: 3, grunnlag: 'subsidiaert_til_forholdet' },
+        { fristId: 2, dager: 3, grunnlag: 'subsidiaert_til_forholdet' },
       ],
     });
   });

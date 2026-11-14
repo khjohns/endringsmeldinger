@@ -5099,10 +5099,7 @@ const MUTASJONER: Mutasjon[] = [
       'et subsidiært svar uten enighet forlenger fristen (GFK-U26, spørsmål 2 i fristen-del2-pr3)',
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
-      [
-        '  const subsidiaert = !s.enighet && s.subsidiaer.length > 0;',
-        '  const subsidiaert = false;',
-      ],
+      ['  const tilForholdet = s.subsidiaer.length > 0;', '  const tilForholdet = false;'],
     ],
     mal: ['subsidiært: et svar uten enighet'],
   },
@@ -5110,7 +5107,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F592',
     feilklasse: 'en enighet uten virkning forlenger fristen (GR-U7, KA-U6)',
     fil: `${K}/spor/frist/utledning.ts`,
-    endringer: [['  if (u.forholdAvvist) return ingen;', '']],
+    endringer: [['  if (u.forholdAvvist) return { tattMed, ikkeTattMed };', '']],
     mal: ['en enighet uten virkning gir ingen forlengelse'],
   },
   {
@@ -5127,8 +5124,19 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'forlengelsen er dagene i det siste laget, ikke i det første (GFK-U26, KA-U78)',
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
-      ['        dager: r.lag[0]?.dager ?? 0,', '        dager: r.lag.at(-1)?.dager ?? 0,'],
+      [
+        '    const foerste = r.lag[0]?.dager ?? 0;',
+        '    const foerste = r.lag.at(-1)?.dager ?? 0;',
+      ],
     ],
+    mal: ['første lag er null dager når varselet etter § 33.4 kom for sent'],
+  },
+  {
+    id: 'F597',
+    feilklasse:
+      'dager byggherren bare har godkjent subsidiært i fristen, nevnes ikke som ikke tatt med (GFK-U26, spørsmål 1 i sporsmal-2.md)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [['    else if (siste > 0)', '    else if (false)']],
     mal: ['første lag er null dager når varselet etter § 33.4 kom for sent'],
   },
   {
@@ -5137,8 +5145,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        '  if (s.trukket || !s.gjeldendeKrav || !s.gjeldendeSvar) return ingen;',
-        '  if (!s.gjeldendeKrav || !s.gjeldendeSvar) return ingen;',
+        '  if (s.trukket || !s.gjeldendeKrav || !s.gjeldendeSvar) return { tattMed, ikkeTattMed };',
+        '  if (!s.gjeldendeKrav || !s.gjeldendeSvar) return { tattMed, ikkeTattMed };',
       ],
     ],
     mal: ['et trukket krav gir ingen forlengelse'],

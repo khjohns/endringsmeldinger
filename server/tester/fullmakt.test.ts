@@ -426,7 +426,9 @@ describe('verdien av dagene per frist (GFK-U17–GFK-U21, GFK-U24)', () => {
       { sakId: 'c', fristId: 1, dager: 30, grunnlag: 'godkjent' as const },
     ];
     // Spørsmål 2 i `docs/vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md`: ikke tatt med.
-    const ikkeTattMed = [{ sakId: 'd', fristId: 2, dager: 9, grunnlag: 'subsidiaert' as const }];
+    const ikkeTattMed = [
+      { sakId: 'd', fristId: 2, dager: 9, grunnlag: 'subsidiaert_til_forholdet' as const },
+    ];
     expect(
       verdiAv(
         [{ frist_id: 2, dager: 7 }],
@@ -485,7 +487,9 @@ describe('verdien av dagene per frist (GFK-U17–GFK-U21, GFK-U24)', () => {
 
   it('spørsmål 4: grunnlaget har dagene i hver sak for fristen, også de som ikke er tatt med, og sakene kjernen ikke forstår', () => {
     const tattMed = [{ sakId: 'a', fristId: 2, dager: 3, grunnlag: 'avtalt' as const }];
-    const ikkeTattMed = [{ sakId: 'd', fristId: 2, dager: 9, grunnlag: 'subsidiaert' as const }];
+    const ikkeTattMed = [
+      { sakId: 'd', fristId: 2, dager: 9, grunnlag: 'subsidiaert_til_forholdet' as const },
+    ];
     const g = fristgrunnlaget(tabell(), { tattMed, ikkeTattMed }, ['e']);
     expect(g.frister.get(2)).toEqual({
       dato: null,
