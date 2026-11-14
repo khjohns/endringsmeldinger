@@ -828,7 +828,7 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
     });
     const krav = (sendt: string) => ({ ...FRISTKRAV, varsel: { ...FRISTKRAV.varsel, sendt } });
     const melding =
-      'Totalentreprenøren har oppgitt at varselet etter § 33.4 ble sendt 4. oktober 2026, etter brevets dato 3. oktober 2026.';
+      'Totalentreprenøren har oppgitt at varselet etter punkt 33.4 ble sendt 4. oktober 2026, etter brevets dato 3. oktober 2026.';
     expect(s.avvisning('TE', varsel('2026-10-04'))).toEqual({
       regel: 'DATO_ETTER_BREVET',
       melding,
@@ -1510,7 +1510,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     ]);
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.sammenfall).toBe(false);
-    expect(b.linje).toBe('Byggherrens standpunkt: tilbudet ikke akseptert (§ 34.2.2).');
+    expect(b.linje).toBe('Byggherrens standpunkt: tilbudet ikke akseptert (punkt 34.2.2).');
   });
 
   it('§ 33.6.1 «nei»: dagene byggherren måtte forstå at TE hadde krav på, står prinsipalt, og de vurderte dagene subsidiært (VS-U4)', () => {
@@ -1539,7 +1539,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     ]);
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Sluttfristen (§ 33.6.1), subsidiært godkjent med 15 dager for frist Sluttfristen.'
+      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Sluttfristen (punkt 33.6.1), subsidiært godkjent med 15 dager for frist Sluttfristen.'
     );
   });
 
@@ -1558,7 +1558,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt godkjent med 1 dag for frist Sluttfristen (§ 33.6.1), subsidiært godkjent med 1 dag for frist Sluttfristen.'
+      'Byggherrens standpunkt: prinsipalt godkjent med 1 dag for frist Sluttfristen (punkt 33.6.1), subsidiært godkjent med 1 dag for frist Sluttfristen.'
     );
   });
 
@@ -1607,7 +1607,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     const b2 = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     // Leddene for dagene nevner fristen (#1943).
     expect(b2.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Delfristen (§ 33.6.1), subsidiært godkjent med 15 dager for frist Sluttfristen, godkjent med 10 dager for frist Delfristen.'
+      'Byggherrens standpunkt: prinsipalt godkjent med 5 dager for frist Delfristen (punkt 33.6.1), subsidiært godkjent med 15 dager for frist Sluttfristen, godkjent med 10 dager for frist Delfristen.'
     );
   });
 
@@ -1629,7 +1629,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       standpunkter: [{ ...svar.standpunkter[0]!, maatteForstaa: [{ frist: a, dager: 5 }] }],
     } as typeof svar;
     expect(LINJEN_I_FRISTEN.grunner(kontroll, null, kravet).spesifisering).toBe(
-      'godkjent med 5 dager for frist Sluttfristen (§ 33.6.1)'
+      'godkjent med 5 dager for frist Sluttfristen (punkt 33.6.1)'
     );
   });
 
@@ -1746,7 +1746,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), videre subsidiært godkjent med 5 dager for frist Sluttfristen (§ 33.6.1), videre subsidiært godkjent med 10 dager for frist Sluttfristen.'
+      'Byggherrens standpunkt: prinsipalt varselet etter punkt 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (punkt 33.1), videre subsidiært godkjent med 5 dager for frist Sluttfristen (punkt 33.6.1), videre subsidiært godkjent med 10 dager for frist Sluttfristen.'
     );
   });
 
@@ -1770,7 +1770,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect((b.virkninger as Data[]).map((v) => v.lag)).toEqual([1, 2, 3]);
     expect(b.uten_virkning).toHaveLength(1);
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), videre subsidiært godkjent med 10 dager for frist Sluttfristen.'
+      'Byggherrens standpunkt: prinsipalt varselet etter punkt 33.4 kom for sent, subsidiært avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (punkt 33.1), videre subsidiært godkjent med 10 dager for frist Sluttfristen.'
     );
     // KA-U78: varselet, hindringen og dagene i hvert sitt lag. Standpunktet uten virkning (§ 33.6.1
     // i tide) står uten lagslinje (spørsmål 8 i spørsmålsfila for #1663, 09.11).
@@ -3855,7 +3855,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     );
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt varselet etter § 33.4 og svaret på forespørselen etter § 33.6.2 kom for sent, subsidiært godkjent med 20 dager for frist Sluttfristen.'
+      'Byggherrens standpunkt: prinsipalt varselet etter punkt 33.4 og svaret på forespørselen etter punkt 33.6.2 kom for sent, subsidiært godkjent med 20 dager for frist Sluttfristen.'
     );
     // OV-U32, LV-U34: begge påberopelsene står i lag 1, hver i sitt punkt, og lagslinjen for
     // dagene i lag 2 viser til begge.
@@ -3884,7 +3884,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       { resultat: 'avslaatt', godkjent_dager: 0 }
     );
     expect(((rad.data.svar as Data[])[0].beslutningsgrunnlag as Data).linje).toBe(
-      'Byggherrens standpunkt: prinsipalt svaret på forespørselen etter § 33.6.2 kom for sent, subsidiært godkjent med 20 dager for frist Sluttfristen.'
+      'Byggherrens standpunkt: prinsipalt svaret på forespørselen etter punkt 33.6.2 kom for sent, subsidiært godkjent med 20 dager for frist Sluttfristen.'
     );
   });
 
@@ -3925,7 +3925,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     );
     // Linja slik kjernen frøs den før #1302. Kjernen regner den ikke ut på nytt.
     const gammel =
-      'Byggherrens standpunkt: prinsipalt prekludert (§ 33.4), subsidiært godkjent med 20 dager.';
+      'Byggherrens standpunkt: prinsipalt prekludert (punkt 33.4), subsidiært godkjent med 20 dager.';
     ((rad.data.svar as Data[])[0].beslutningsgrunnlag as Data).linje = gammel;
     const lest = lesJournal(s.journal, KJERNE.leserformat).find((h) => h.id === rad.event_id)!;
     expect(lest.art === 'dokument' && lest.dokument.svar![0].beslutningsgrunnlag.linje).toBe(
@@ -7487,7 +7487,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     ]);
     // AK 4 i #1199: en upåvirket post er ingen grunn og får ingen etikett i linjen.
     expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
-      `Byggherrens standpunkt: godkjent med ${kroner(100000)} for justeringen ellers, prinsipalt begrenset etter § 34.1.3 til ${kroner(10000)}, subsidiært godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
+      `Byggherrens standpunkt: godkjent med ${kroner(100000)} for justeringen ellers, prinsipalt begrenset etter punkt 34.1.3 til ${kroner(10000)}, subsidiært godkjent med ${kroner(30000)} for særskilt justering (punkt 34.1.3 annet ledd).`
     );
   });
 
@@ -7548,7 +7548,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     ]);
     expect(laast(rad).join(' ')).not.toContain('justeringen ellers');
     expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
-      `Byggherrens standpunkt: prinsipalt tilbudet ikke akseptert (§ 34.2.2), begrenset etter § 34.1.3 til ${kroner(10000)}, subsidiært godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
+      `Byggherrens standpunkt: prinsipalt tilbudet ikke akseptert (punkt 34.2.2), begrenset etter punkt 34.1.3 til ${kroner(10000)}, subsidiært godkjent med ${kroner(30000)} for særskilt justering (punkt 34.1.3 annet ledd).`
     );
   });
 
@@ -7598,7 +7598,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       ['beloep', 'upaavirket'],
     ]);
     expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
-      `Byggherrens standpunkt: tilbudet ikke akseptert (§ 34.2.2), godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
+      `Byggherrens standpunkt: tilbudet ikke akseptert (punkt 34.2.2), godkjent med ${kroner(30000)} for særskilt justering (punkt 34.1.3 annet ledd).`
     );
     expect(laast(rad).slice(1)).toEqual([
       '1. Varselet om særskilt vederlagsjustering (punkt 34.1.3)\n\nByggherren gjør ikke gjeldende at varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter NS 8407 punkt 34.1.3 tredje ledd i brev K201-KOE-017-04 av 5. oktober 2026 kom for sent.',
@@ -7667,7 +7667,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     ]);
     // OV-U32: standpunktene i samme lag står under én etikett, også i linjen.
     expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
-      `Byggherrens standpunkt: prinsipalt varselet etter § 34.1.2 kom for sent, subsidiært godkjent med ${kroner(100000)} for justeringen ellers, begrenset etter § 34.1.3 til ${kroner(10000)}, videre subsidiært godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
+      `Byggherrens standpunkt: prinsipalt varselet etter punkt 34.1.2 kom for sent, subsidiært godkjent med ${kroner(100000)} for justeringen ellers, begrenset etter punkt 34.1.3 til ${kroner(10000)}, videre subsidiært godkjent med ${kroner(30000)} for særskilt justering (punkt 34.1.3 annet ledd).`
     );
   });
 
@@ -7679,7 +7679,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       { resultat: 'delvis_godkjent', godkjent_beloep: 130000 }
     );
     expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
-      `Byggherrens standpunkt: godkjent med ${kroner(100000)} for justeringen ellers, godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
+      `Byggherrens standpunkt: godkjent med ${kroner(100000)} for justeringen ellers, godkjent med ${kroner(30000)} for særskilt justering (punkt 34.1.3 annet ledd).`
     );
   });
 
@@ -7711,7 +7711,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     ]);
     // OV-U32, OV-U33: lagene flyttes ett ned, og laget med justeringen og begrensningen har én etikett.
     expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
-      `Byggherrens standpunkt: subsidiært godkjent med ${kroner(100000)} for justeringen ellers, begrenset etter § 34.1.3 til ${kroner(10000)}, videre subsidiært godkjent med ${kroner(30000)} for særskilt justering (§ 34.1.3 annet ledd).`
+      `Byggherrens standpunkt: subsidiært godkjent med ${kroner(100000)} for justeringen ellers, begrenset etter punkt 34.1.3 til ${kroner(10000)}, videre subsidiært godkjent med ${kroner(30000)} for særskilt justering (punkt 34.1.3 annet ledd).`
     );
   });
 
@@ -9664,7 +9664,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     ]);
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
-      'Byggherrens standpunkt: godkjent med 100\u00a0000\u00a0kr for P1, tilbudet for P2 ikke akseptert (§ 34.2.2).'
+      'Byggherrens standpunkt: godkjent med 100\u00a0000\u00a0kr for P1, tilbudet for P2 ikke akseptert (punkt 34.2.2).'
     );
     // OV-U73: P2 har ikke fast beløp og regnes ikke med.
     const utregning = (rad.data.svar as Data[])[0].utregning as Data;
@@ -9932,7 +9932,7 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     // Ordlyden i linjen er design; at hvert standpunkt står i linjen med TEs oppgjørsform som
     // hjemmel, er KA-U54 og KA-U68.
     expect(gjeldende(s).beslutningsgrunnlag.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt beregningsregelen ikke godtatt (§ 34.3), subsidiært varselet etter § 34.3.3 kom for sent, videre subsidiært justeringen av enhetsprisene bestridt (§ 34.3.2).'
+      'Byggherrens standpunkt: prinsipalt beregningsregelen ikke godtatt (punkt 34.3), subsidiært varselet etter punkt 34.3.3 kom for sent, videre subsidiært justeringen av enhetsprisene bestridt (punkt 34.3.2).'
     );
   });
 
@@ -10003,7 +10003,7 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
       ['beloep', 2],
     ]);
     expect(gjeldende(s).beslutningsgrunnlag.linje).toBe(
-      'Byggherrens standpunkt: godkjent med 125\u00a0000\u00a0kr for P1, prinsipalt beregningsregelen for P2 ikke godtatt (§ 34.3), subsidiært justeringen av enhetsprisene for P2 bestridt (§ 34.3.2).'
+      'Byggherrens standpunkt: godkjent med 125\u00a0000\u00a0kr for P1, prinsipalt beregningsregelen for P2 ikke godtatt (punkt 34.3), subsidiært justeringen av enhetsprisene for P2 bestridt (punkt 34.3.2).'
     );
   });
 
@@ -10029,7 +10029,7 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
       ['beloep', 2],
     ]);
     expect(gjeldende(s).beslutningsgrunnlag.linje).toBe(
-      'Byggherrens standpunkt: godkjent med 125\u00a0000\u00a0kr for P1, prinsipalt varselet etter § 34.3.3 for P2 kom for sent, beregningsregelen for P3 ikke godtatt (§ 34.3), subsidiært varselet etter § 34.3.3 for P3 kom for sent.'
+      'Byggherrens standpunkt: godkjent med 125\u00a0000\u00a0kr for P1, prinsipalt varselet etter punkt 34.3.3 for P2 kom for sent, beregningsregelen for P3 ikke godtatt (punkt 34.3), subsidiært varselet etter punkt 34.3.3 for P3 kom for sent.'
     );
   });
 

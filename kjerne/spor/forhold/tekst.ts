@@ -282,7 +282,7 @@ export const STANDPUNKTENE_I_FORHOLDET = {
 export const SVARET_PAA_PAABEROPELSEN: Record<Forholdsresultat, string> = {
   godkjent: 'godkjent',
   avslaatt: 'avslått',
-  paalegg_frafalt: 'pålegget frafalt (§ 32.3 c)',
+  paalegg_frafalt: 'pålegget frafalt (punkt 32.3 første ledd c)',
 };
 
 export const LINJEN_I_FORHOLDET = {

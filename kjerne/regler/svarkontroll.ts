@@ -18,16 +18,16 @@ export function kontrollerForholdet(
   const feil: Record<string, string> = {};
   const resultat = v.resultat as never;
   if (!regler.gyldigeForholdsresultater(hovedkategori, underkategori).includes(resultat))
-    feil.resultat = `«${String(v.resultat)}» kan ikke velges i denne kategorien (§ 32.3 c)`;
+    feil.resultat = `«${String(v.resultat)}» kan ikke velges i denne kategorien (punkt 32.3 første ledd bokstav c)`;
   const iTide = v.grunnlag_varslet_i_tide;
   if (regler.gjelderVarslingsplikten(hovedkategori, underkategori)) {
-    if (typeof iTide !== 'boolean') feil.grunnlag_varslet_i_tide = 'mangler (§ 32.2)';
+    if (typeof iTide !== 'boolean') feil.grunnlag_varslet_i_tide = 'mangler (punkt 32.2)';
     // #235: frafall skjer mot endringsordre og kan ikke kombineres med preklusjon.
     else if (v.resultat === 'paalegg_frafalt' && !iTide)
       feil.grunnlag_varslet_i_tide =
         'frafall kan ikke kombineres med at grunnlaget er varslet for sent';
   } else if (iTide !== undefined) {
-    feil.grunnlag_varslet_i_tide = 'gjelder bare § 32.2';
+    feil.grunnlag_varslet_i_tide = 'gjelder bare punkt 32.2';
   }
   if (Object.keys(feil).length) throw new UgyldigVurdering(feil);
 }
@@ -45,12 +45,12 @@ export function kontrollerSpesifiseringen(v: {
   if (v.spesifisert_krav_ok !== false) {
     if (d != null)
       throw new UgyldigVurdering({
-        dager_maatte_forstaa: 'gjelder bare når kravet er spesifisert for sent (§ 33.6.1)',
+        dager_maatte_forstaa: 'gjelder bare når kravet er spesifisert for sent (punkt 33.6.1)',
       });
     return null;
   }
   const feil = (grunn: string) => new UgyldigVurdering({ dager_maatte_forstaa: grunn });
-  if (d === undefined || d === null) throw feil('mangler (§ 33.6.1)');
+  if (d === undefined || d === null) throw feil('mangler (punkt 33.6.1)');
   if (typeof d !== 'number' || !Number.isInteger(d) || d < 0)
     throw feil('er ikke et helt antall dager');
   // `beregnFrist` har kontrollert at de vurderte dagene er høyst de krevde.

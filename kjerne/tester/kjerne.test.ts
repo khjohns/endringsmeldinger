@@ -959,7 +959,7 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
       ['dager', 2],
     ]);
     expect(s.svar.beslutningsgrunnlag?.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (§ 33.1), subsidiært godkjent med 20 dager for frist Sluttfristen.'
+      'Byggherrens standpunkt: prinsipalt avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (punkt 33.1), subsidiært godkjent med 20 dager for frist Sluttfristen.'
     );
     expect((await k.send({ handling: 'aksept', spor: 'frist' }))?.godtatt).toBe(true);
     expect((await k.utledning()).spor.frist.enighet?.grunnlag.utfall.frister?.[0]?.dager).toBe(0);
@@ -2461,7 +2461,7 @@ describe('forskyvningen fra forholdet i linjen (OV-U32, OV-U33, #1199)', () => {
   it('lagene i fristsporet flyttes ned hver for seg', async () => {
     const { linje } = await linjene({ resultat: 'avslaatt' }, { varsel_i_tide: false });
     expect(linje('S-f1')).toMatch(
-      /^Byggherrens standpunkt: subsidiært varselet etter § 33\.4 kom for sent, videre subsidiært /
+      /^Byggherrens standpunkt: subsidiært varselet etter punkt 33\.4 kom for sent, videre subsidiært /
     );
   });
 
@@ -2656,7 +2656,7 @@ describe('regelsettet for det særskilte kravet (VS-U5, OV-U27)', () => {
         { ...svar, poster: [{ ...kravpost, aksepterer: undefined }, produktivitet] },
         GJELDENDE_REGLER
       )
-    ).toThrow('k1.aksepterer: mangler (§ 34.2.2)');
+    ).toThrow('k1.aksepterer: mangler (punkt 34.2.2)');
   });
 });
 

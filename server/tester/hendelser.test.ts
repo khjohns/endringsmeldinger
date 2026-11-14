@@ -792,7 +792,8 @@ describe.skipIf(!TESTBASE_URL)('behandlingen av innboksen fra webhooken (#819)',
         { id }
       )
     ).recordset;
-  const BH_KOMMENTAR = 'Saken er ikke opprettet i appen. Bare TE kan opprette en KOE-sak der.';
+  const BH_KOMMENTAR =
+    'Saken er ikke opprettet i appen. Bare totalentreprenøren kan opprette en KOE-sak der.';
 
   it('arbeidsvalget under OV-U1 i #819: når saken er lagret, får topicen én kommentar med saksnummeret og lenken (KT-U6)', async () => {
     const topic = randomUUID();

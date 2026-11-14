@@ -286,7 +286,8 @@ export async function opprettSak<A>(
         return kvittertRad(await lesJournal(foresp, kvittering.sak_id, false), kvittering.event_id);
       const vurdert = lag();
       if (vurdert.skriv === false) return new Tilbakerulling(vurdert);
-      if (kontekst.side !== 'TE') throw new SkrivingAvvist('Bare TE oppretter en sak.');
+      if (kontekst.side !== 'TE')
+        throw new SkrivingAvvist('Bare totalentreprenøren oppretter en sak.');
       const { format } = vurdert;
       const data = JSON.stringify(vurdert.data);
       const svar = await foresp()
@@ -644,7 +645,8 @@ export async function opprettSakMedPaaberopelse<A>(
         });
         if (!utfall.skriv) return new Tilbakerulling(utfall);
         // Etter `lag`, så kjernens avvisning går foran avslaget her, som i `opprettSak`.
-        if (kontekst.side !== 'TE') throw new SkrivingAvvist('Bare TE oppretter en sak.');
+        if (kontekst.side !== 'TE')
+          throw new SkrivingAvvist('Bare totalentreprenøren oppretter en sak.');
         const { opprettet, rad } = utfall;
         kontrollerRad(opprettet, null, kontekst, sakId, 0, tidspunkt);
         if (opprettet.event_type !== 'sak_opprettet')

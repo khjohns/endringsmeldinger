@@ -81,7 +81,7 @@ function begrunnelseIForholdet(s: Svarutkast, krav: Krav, regler: Regelsett): Av
   );
 }
 
-/** Beskrivelsen av pålegget i et varsel etter § 32.2 (`kravetsUtdypning`). */
+/** GR-U15: beskrivelsen av pålegget i et varsel etter § 32.2 (`kravetsUtdypning`). */
 function utdypningIForholdet(
   k: Extract<Kommando, { type: 'krav' }>,
   regler: Regelsett
@@ -89,7 +89,7 @@ function utdypningIForholdet(
   if (k.spor === 'forhold' && gjelderVarslingsplikten(k, regler))
     return avvis(
       'BESKRIVELSE_MANGLER',
-      'Varselet etter NS 8407 § 32.2 må beskrive pålegget, så en godkjenning kan si hva endringen går ut på (GR-U15).'
+      'Varselet etter NS 8407 punkt 32.2 må beskrive pålegget, så en godkjenning kan si hva endringen går ut på.'
     );
   return null;
 }
@@ -267,7 +267,7 @@ function akseptAvFrafallet(u: Utledning): Avvisning | null {
   if (u.frafalt)
     return avvis(
       'FRAFALL_KAN_IKKE_GODTAS',
-      'Løsningen registrerer ikke en aksept av et frafall etter § 32.3 c. Det er en begrensning i løsningen (GR-U9).'
+      'Løsningen registrerer ikke en aksept av et frafall etter punkt 32.3 første ledd bokstav c. Det er en begrensning i løsningen.'
     );
   return null;
 }

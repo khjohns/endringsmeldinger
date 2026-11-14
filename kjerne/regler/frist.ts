@@ -95,10 +95,10 @@ export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
   const feil: Record<string, string> = {};
   const synlig = beregnSynlighet(krav);
   const spoersmaal: [boolean, keyof Fristvurdering, string][] = [
-    [synlig.frist_varsel_ok, 'frist_varsel_ok', '§ 33.4'],
-    [synlig.spesifisert_krav_ok, 'spesifisert_krav_ok', '§ 33.6.1'],
-    [synlig.foresporsel_svar_ok, 'foresporsel_svar_ok', '§ 33.6.2'],
-    [true, 'vilkar_oppfylt', '§ 33.1'],
+    [synlig.frist_varsel_ok, 'frist_varsel_ok', 'punkt 33.4'],
+    [synlig.spesifisert_krav_ok, 'spesifisert_krav_ok', 'punkt 33.6.1'],
+    [synlig.foresporsel_svar_ok, 'foresporsel_svar_ok', 'punkt 33.6.2'],
+    [true, 'vilkar_oppfylt', 'punkt 33.1'],
   ];
   for (const [gjelder, felt, hjemmel] of spoersmaal) {
     if (gjelder && mangler(v[felt])) feil[felt] = `mangler (${hjemmel})`;
@@ -110,13 +110,13 @@ export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
     !mangler(v.foresporsel_svar_ok)
   )
     feil.foresporsel_svar_ok =
-      'kravet svarer ikke på en forespørsel, og byggherren har ikke gjort gjeldende i en egen innsigelse at totalentreprenørens siste begrunnelse etter § 33.6.2 annet ledd b kom for sent';
+      'kravet svarer ikke på en forespørsel, og byggherren har ikke gjort gjeldende i en egen innsigelse at totalentreprenørens siste begrunnelse etter punkt 33.6.2 annet ledd bokstav b kom for sent';
   if (krav.er_svar_paa_foresporsel && v.spesifisert_krav_ok === false) {
     feil.spesifisert_krav_ok =
-      '§ 33.6.1 kan ikke påberopes når totalentreprenøren har svart på forespørselen (§ 33.6.2 fjerde ledd)';
+      'punkt 33.6.1 kan ikke påberopes når totalentreprenøren har svart på forespørselen (punkt 33.6.2 fjerde ledd)';
   }
   const dager = v.godkjent_dager;
-  if (mangler(dager)) feil.godkjent_dager = 'mangler (§ 33.5)';
+  if (mangler(dager)) feil.godkjent_dager = 'mangler (punkt 33.5)';
   else if (!erHeltall(dager)) feil.godkjent_dager = 'er ikke et helt antall dager';
   else if (dager < 0) feil.godkjent_dager = 'kan ikke være negativt';
   else if (dager > krav.krevd_dager) feil.godkjent_dager = 'er flere enn de krevde dagene';
