@@ -6,7 +6,9 @@
  * Satsen i kroner regnes her, ikke i kjernen.
  */
 import { beloep, tilTall } from '../kjerne/regler/beloep.ts';
-import type { Foresp } from './datalag.ts';
+import { lesekontekst } from './autorisasjon.ts';
+import { transaksjon, type Foresp } from './datalag.ts';
+import type { Avhengigheter, Prosjektforespoersel, Rute, Svar } from './rutetyper.ts';
 
 export type Satsgrunnlag = 'kontraktssum' | 'delens_verdi' | 'fast_beloep';
 
@@ -136,3 +138,47 @@ export async function lesKontraktsfrister(foresp: Foresp): Promise<Fristtabell> 
   const r = await foresp().execute('koe_api.kontraktsfrister');
   return fristtabell(r.recordsets as unknown as Radsett);
 }
+
+/**
+ * En frist i fristtabellen slik klienten får den, til kravskjemaet (KA-U79, BF-20 G-3).
+ * Feltnavnene er en kontrakt med klienten.
+ */
+export interface Fristlinje {
+  frist_id: number;
+  nummer: string | null;
+  navn: string;
+  dagmulktbelagt: boolean;
+}
+
+async function fristtabellsvar(
+  { bruker, prosjekt, side }: Prosjektforespoersel,
+  avh: Required<Avhengigheter>
+): Promise<Svar> {
+  const tabell = await transaksjon(
+    avh.datalag,
+    lesekontekst(bruker, prosjekt.prosjektId, side),
+    lesKontraktsfrister
+  );
+  const frister: Fristlinje[] = tabell.frister.map((f) => ({
+    frist_id: f.fristId,
+    nummer: f.nummer,
+    navn: f.navn,
+    dagmulktbelagt: f.dagmulktbelagt,
+  }));
+  return [200, { success: true, frister }];
+}
+
+/** Fristtabellen for prosjektet, for begge parter og leserollen (GFK-U25, DL-U15). */
+export const KONTRAKTSFRISTRUTER: readonly Rute[] = [
+  {
+    metode: 'GET',
+    sti: /^\/api\/projects\/([^/]+)\/kontraktsfrister$/,
+    eksempel: (p) => `/api/projects/${p}/kontraktsfrister`,
+    tilgang: {
+      prosjektrolle: 'viewer',
+      utenSak: 'Fristtabellen fra kontrakten; den gjelder prosjektet, ikke én sak.',
+      kontraktsrolle: 'lesing',
+    },
+    behandle: fristtabellsvar,
+  },
+];
