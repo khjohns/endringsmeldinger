@@ -8764,7 +8764,10 @@ describe('lagene i et fristsvar som ikke er ferdig utfylt (M-8 i BF-20, KA-U78, 
 
   it('spesifisert for sent uten dagene byggherren måtte forstå gir lagene, med spesifiseringen besvart (#1925)', () => {
     const s = saken({ resultat: 'godkjent' });
-    const lag = lagene(s, { spesifisert_krav_ok: false, frister: [{}] });
+    const lag = lagene(s, {
+      spesifisert_krav_ok: false,
+      frister: [{ dager_maatte_forstaa: null }],
+    });
     expect(lag.map((l) => [l.standpunkt, l.besvart, l.virkning])).toEqual([
       ['rettidighet 33.4', false, 'uten_virkning'],
       ['hindring', false, 'uten_virkning'],
@@ -8790,6 +8793,12 @@ describe('lagene i et fristsvar som ikke er ferdig utfylt (M-8 i BF-20, KA-U78, 
       ['hindring', false],
       ['dager', false],
     ]);
+    expect(
+      lagene(s, { foresporsel_svar_ok: true, frister: [{}] }).find(
+        (l) => l.standpunkt === 'rettidighet 33.6.2'
+      )?.besvart,
+      'besvart'
+    ).toBe(true);
   });
 
   it('vurderingene må være én per frist i kravet, som i svaret (KA-U74)', () => {

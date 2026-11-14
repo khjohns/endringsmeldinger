@@ -5204,7 +5204,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'lagene i et fristsvar har spesifiseringen når kravet svarer på forespørselen (KA-U78 siste setning)',
     fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [["    spesifisert_krav_ok: f?.art !== 'svar',", '    spesifisert_krav_ok: true,']],
+    endringer: [
+      [
+        '{ ...synlig, vilkar_oppfylt: true }',
+        '{ ...synlig, spesifisert_krav_ok: true, vilkar_oppfylt: true }',
+      ],
+    ],
     mal: ['når kravet svarer på forespørselen, står spørsmålet om forespørselen ubesvart'],
   },
   {

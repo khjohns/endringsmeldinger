@@ -24,7 +24,8 @@ import {
   fristnoekkel,
 } from './utledning.ts';
 import { fristinnhold, innholdIFristen } from './format.ts';
-import { fristvurderinger } from './frysing.ts';
+import { fristkravet, fristvurderinger } from './frysing.ts';
+import { beregnSynlighet } from '../../regler/frist.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
 import { lageneIUtkastet } from '../../kommandoer/utkastlag.ts';
 
@@ -193,38 +194,40 @@ type Spoersmaal =
   | 'spesifisert_krav_ok';
 
 /** Spørsmålet i svaret hvert standpunkt om hele kravet svarer på. */
-const SPOERSMAALET: Record<string, Spoersmaal> = {
+const SPOERSMAALET: Readonly<Record<string, Spoersmaal>> = {
   'rettidighet 33.4': 'frist_varsel_ok',
   'rettidighet 33.6.2': 'foresporsel_svar_ok',
   hindring: 'vilkar_oppfylt',
   spesifisering: 'spesifisert_krav_ok',
 };
 
+/** Spørsmålet standpunktet svarer på, eller `null` for dagene. */
+function spoersmaaletFor(s: Standpunkt): Spoersmaal | null {
+  if (s.art === 'dager') return null;
+  const noekkel = s.art === 'rettidighet' ? `${s.art} ${s.hjemmel}` : s.art;
+  const felt = SPOERSMAALET[noekkel];
+  if (!felt) throw new Error(`standpunktet ${noekkel} svarer ikke på noe spørsmål i fristen`);
+  return felt;
+}
+
 /**
- * Vurderingene i utkastet med hvert ubesvart spørsmål om hele kravet besvart uten innsigelse
- * (S1-A), og spørsmålene som var ubesvart. Spørsmålet om forespørselen gjelder bare når svaret
- * har en forespørsel, og spesifiseringen ikke når kravet svarer på forespørselen (KA-U78 siste
- * setning). Påberoper byggherren at kravet er spesifisert for sent, regnes en frist uten dagene
- * byggherren måtte forstå med 0 dager.
+ * Vurderingene i utkastet med hvert ubesvart spørsmål regelsettet stiller (`beregnSynlighet`),
+ * besvart uten innsigelse (S1-A), og spørsmålene som var ubesvart (#1925, KA-U78).
  */
 function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
-  const f = foresporselForFristsvar(u);
-  const gjelder: Record<Spoersmaal, boolean> = {
-    frist_varsel_ok: true,
-    foresporsel_svar_ok: f !== null,
-    vilkar_oppfylt: true,
-    spesifisert_krav_ok: f?.art !== 'svar',
-  };
+  const synlig = beregnSynlighet(fristkravet(0, foresporselForFristsvar(u)));
+  const gjelder: Record<Spoersmaal, boolean> = { ...synlig, vilkar_oppfylt: true };
+  const mangler = (x: unknown) => x === null || x === undefined;
   const ubesvart = new Set(
-    (Object.keys(gjelder) as Spoersmaal[]).filter(
-      (felt) => gjelder[felt] && (v[felt] === null || v[felt] === undefined)
-    )
+    (Object.keys(gjelder) as Spoersmaal[]).filter((felt) => gjelder[felt] && mangler(v[felt]))
   );
   const utfylt: Record<string, unknown> = { ...v };
   for (const felt of ubesvart) utfylt[felt] = true;
   if (utfylt.spesifisert_krav_ok === false && Array.isArray(v.frister))
     utfylt.frister = v.frister.map((r: unknown) =>
-      r !== null && typeof r === 'object' && !('dager_maatte_forstaa' in r)
+      r !== null &&
+      typeof r === 'object' &&
+      mangler((r as Record<string, unknown>).dager_maatte_forstaa)
         ? { ...r, dager_maatte_forstaa: 0 }
         : r
     );
@@ -257,12 +260,7 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
     standpunkter: standpunkterISvaret('frist', { standpunkter: lagret, utregning }),
     utregning,
   };
-  const { grunner, virkning, lag, etikett } = lageneIUtkastet(
-    svar,
-    { ...utkast, vurderinger: v },
-    u,
-    regler
-  );
+  const { grunner, virkning, lag, etikett } = lageneIUtkastet(svar, utkast, u, regler);
   const dagene = fristvurderinger(v, krav);
   // Hvert standpunkt i et tidligere lag i sporet åpnet laget etter seg (OV-U32).
   const aapnetLaget = (f: Standpunkt): Forutsetning[] => {
@@ -282,9 +280,7 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
         besvart:
           s.art === 'dager'
             ? dagene.some((f) => f.gjelder === s.gjelder && typeof f.dager === 'number')
-            : !ubesvart.has(
-                SPOERSMAALET[s.art === 'rettidighet' ? `${s.art} ${s.hjemmel}` : s.art]!
-              ),
+            : !ubesvart.has(spoersmaaletFor(s)!),
         virkning: virkning[i]!,
         etikett: etikett[i]!,
         forutsetninger:

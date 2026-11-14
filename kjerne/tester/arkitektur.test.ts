@@ -1308,7 +1308,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'v ubesvart',
     ['spor/frist/kommando.ts:lagIFristen'],
   ],
-  ['spor/frist/kommando.ts', 'relasjon', 'SPOERSMAALET.*', ['spor/frist/kommando.ts:lagIFristen']],
+  [
+    'spor/frist/kommando.ts',
+    'relasjon',
+    'SPOERSMAALET.*',
+    ['spor/frist/kommando.ts:spoersmaaletFor'],
+  ],
+  ['spor/frist/kommando.ts:utfylt(r)', 'kommando', 'dager_maatte_forstaa'],
+  // Spørsmålene regelsettet stiller i fristen, også i lagene i et svarutkast (#1925).
+  ['regler/frist.ts', 'regelsett', 'beregnSynlighet', ['spor/frist/kommando.ts:utfylt']],
+  ['spor/frist/frysing.ts', 'predikat', 'fristkravet', ['spor/frist/kommando.ts:utfylt']],
   // OV-U32, OV-U33: lagene i utkastet regnet som brevet regner dem, felles for sporene.
   [
     'kommandoer/utkastlag.ts',
