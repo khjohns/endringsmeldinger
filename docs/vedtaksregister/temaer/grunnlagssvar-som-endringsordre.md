@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `382b1dc7cb6e7dce0e054727c10368b594120df05750f1ac96338ace299ced8f`
+Kontrollsum (SHA-256 over utdraget visningen leser): `31fa37f63e64b37be452f915653615cc6aba66f1f1b27e0504c706b41a3ffb1a`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1115,7 +1115,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 14.11, oppdragsgiver (#1745)
 
-**Følge:** Presiserer [GR-U7](../../plans/vedtak.md#gr-u7). Presiserer [KA-U77](#ka-u77). Presiserer [GFK-U26](../../plans/vedtak.md#gfk-u26). Gjelder BF-20 (#1745). Resten av alternativ A, om et subsidiært svar uten enighet, er ikke avgjort og er ikke ført.
+**Følge:** Presiserer [GR-U7](../../plans/vedtak.md#gr-u7). Presiserer [KA-U77](#ka-u77). Presiserer [GFK-U26](../../plans/vedtak.md#gfk-u26). Gjelder BF-20 (#1745). Andre og tredje setning i alternativ A er ikke avgjort og er ikke ført.
 
 **Regelrader:** —
 
@@ -2163,13 +2163,13 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 ### <a id="eo-u40"></a>EO-U40
 
-> EO-U40: Totalentreprenøren godtar heller ikke et utsagn i endringsordren. Dagene i en endringsordre teller som godkjent av byggherren for fullmakten, og som avtalt bare når endringsordren gjengir en registrert enighet. Det endrer punkt 29 i EO-U39, KA-U77 og GFK-U26. Totalentreprenøren godtar ikke en endringsordre eller et utsagn i den, heller ikke et utsagn om vederlag. Er totalentreprenøren uenig, går uenigheten gjennom en ny KOE. Punkt 29–32, 34, 55 og 56 i EO-U39 gjelder ikke lenger som regler om totalentreprenørens aksept av et utsagn. Andre setning i punkt 33 erstattes av: «Løsningen registrerer ikke enighet om et utsagn fordi totalentreprenøren ikke protesterer, og sier ikke hva det betyr at protesten mangler.» Forhold: endrer EO-U39 punkt 29–34, 55 og 56, KA-U77 og GFK-U26.
+> EO-U40: Totalentreprenøren godtar heller ikke et utsagn i endringsordren. Dagene i en endringsordre teller som godkjent av byggherren for fullmakten, og som avtalt bare når endringsordren gjengir en registrert enighet. Totalentreprenøren godtar ikke en endringsordre eller et utsagn i den, heller ikke et utsagn om vederlag. Er totalentreprenøren uenig, går uenigheten gjennom en ny KOE. Punkt 29–32, 34, 55 og 56 i EO-U39 endres slik at totalentreprenøren ikke godtar et utsagn. Andre setning i punkt 33 erstattes av: «Løsningen registrerer ikke enighet om et utsagn fordi totalentreprenøren ikke protesterer, og sier ikke hva det betyr at protesten mangler.» Forhold: endrer EO-U39 punkt 29–34, 55 og 56, KA-U77 og GFK-U26.
 
 **Forkastet:** «Punkt 29 står. Ordlyden i KA-U77 og GFK-U26 presiseres til «godtatt utsagnet om frist i en endringsordre», så den ikke kan leses som en aksept av endringsordren.»
 
 **Vedtatt:** 14.11, oppdragsgiver (#1745)
 
-**Følge:** Endrer [EO-U39](#eo-u39). Endrer [KA-U77](#ka-u77). Endrer [GFK-U26](../../plans/vedtak.md#gfk-u26). Gjelder BF-20 (#1745). Endringsordren leses ikke i kjernen ennå.
+**Følge:** Endrer [EO-U39](#eo-u39). Endrer [KA-U77](#ka-u77). Endrer [GFK-U26](../../plans/vedtak.md#gfk-u26). Gjelder BF-20 (#1745).
 
 **Regelrader:** —
 

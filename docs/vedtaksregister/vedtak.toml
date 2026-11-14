@@ -6597,14 +6597,14 @@ valgt = "A, første setning"
 svar = '''
 Oppdragsgiver 14.11, ordrett: «A, A: det er registrert enighet om frist. Hvordan fullmakten regnes hvis
 BH godtar er et annet spørsmål. B: ellers blir EO mye mer komplisert. Uenigheter går gjennom KOE.
-Stilltiende er "aksept" (uten at løsningen sier det). Slik er det også for vederlagsposter. 4A.» Valgt i spørsmål 2: «A, første setning», det vil si A for enigheten. Hvordan et subsidiært svar uten enighet teller for fullmakten, er ikke avgjort («et annet spørsmål»). ([spørsmålsfila](../vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md))'''
+Stilltiende er "aksept" (uten at løsningen sier det). Slik er det også for vederlagsposter. 4A.» Valgt i spørsmål 2: «A, første setning», etter lesingen i spørsmålsfila: A for enigheten. Hvordan et subsidiært svar uten enighet teller for fullmakten, er ikke avgjort («et annet spørsmål»). ([spørsmålsfila](../vedlegg/fristen-del2-pr3-2026-11-14/sporsmal.md))'''
 forhold = [
   { art = "presiserer", vedtak = "gr-u7" },
   { art = "presiserer", vedtak = "ka-u77" },
   { art = "presiserer", vedtak = "gfk-u26" },
 ]
 folge = '''
-Gjelder BF-20 (#1745). Resten av alternativ A, om et subsidiært svar uten enighet, er ikke avgjort og er ikke ført.'''
+Gjelder BF-20 (#1745). Andre og tredje setning i alternativ A er ikke avgjort og er ikke ført.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A, første setning"
@@ -15908,12 +15908,12 @@ forhold = [
   { art = "endrer", vedtak = "gfk-u26" },
 ]
 folge = '''
-Gjelder BF-20 (#1745). Endringsordren leses ikke i kjernen ennå.'''
+Gjelder BF-20 (#1745).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "B med avklaringene"
 tekst = '''
-Totalentreprenøren godtar heller ikke et utsagn i endringsordren. Dagene i en endringsordre teller som godkjent av byggherren for fullmakten, og som avtalt bare når endringsordren gjengir en registrert enighet. Det endrer punkt 29 i EO-U39, KA-U77 og GFK-U26. Totalentreprenøren godtar ikke en endringsordre eller et utsagn i den, heller ikke et utsagn om vederlag. Er totalentreprenøren uenig, går uenigheten gjennom en ny KOE. Punkt 29–32, 34, 55 og 56 i EO-U39 gjelder ikke lenger som regler om totalentreprenørens aksept av et utsagn. Andre setning i punkt 33 erstattes av: «Løsningen registrerer ikke enighet om et utsagn fordi totalentreprenøren ikke protesterer, og sier ikke hva det betyr at protesten mangler.» Forhold: endrer EO-U39 punkt 29–34, 55 og 56, KA-U77 og GFK-U26.'''
+Totalentreprenøren godtar heller ikke et utsagn i endringsordren. Dagene i en endringsordre teller som godkjent av byggherren for fullmakten, og som avtalt bare når endringsordren gjengir en registrert enighet. Totalentreprenøren godtar ikke en endringsordre eller et utsagn i den, heller ikke et utsagn om vederlag. Er totalentreprenøren uenig, går uenigheten gjennom en ny KOE. Punkt 29–32, 34, 55 og 56 i EO-U39 endres slik at totalentreprenøren ikke godtar et utsagn. Andre setning i punkt 33 erstattes av: «Løsningen registrerer ikke enighet om et utsagn fordi totalentreprenøren ikke protesterer, og sier ikke hva det betyr at protesten mangler.» Forhold: endrer EO-U39 punkt 29–34, 55 og 56, KA-U77 og GFK-U26.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A som stilt"
