@@ -35,6 +35,7 @@
     vedleggIFristkravet,
     type Fristkravvalg,
     type Fristpostvalg,
+    type Mangel,
   } from './fristkrav';
   import { heleDager } from './fristsvar';
   import {
@@ -91,6 +92,7 @@
   const brevMed = (dokument: string | null | undefined) =>
     alleBrev.find((b) => b.id === dokument) ?? null;
   const forrige = $derived(brevMed(u.spor.frist.gjeldendeKrav?.dokument));
+  const svaret = $derived(brevMed(u.spor.frist.gjeldendeSvar?.dokument));
   // Varselet etter punkt 33.4 er det registrerte varselet, ellers det første kravet i sporet
   // (`varselVedKravet` i kjernen). Uten noen av dem er dette kravet varselet (U-6).
   const varselbrev = $derived(
@@ -142,7 +144,7 @@
     const navn = p.navn.trim();
     return navn
       ? betegnelsen({ nummer: p.nummer.trim(), navn })
-      : FRISTKRAV.frist(v.frister.indexOf(p) + 1);
+      : FRISTKRAV.nyFrist(v.frister.indexOf(p) + 1);
   }
 
   /** Valgene slik kommandoen leser dem: et varsel utenfor bare der skjemaet viser det. */
@@ -150,7 +152,8 @@
   const mangler = $derived(manglerIFristkravet(gjeldende, uid, navnet, foresporsel));
   let forsoekt = $state(false);
   const feil = (felt: string): string | null =>
-    forsoekt ? (mangler.find((m) => m.felt === id(felt))?.tekst ?? null) : null;
+    forsoekt ? feltfeil(mangler.find((m) => m.felt === id(felt))) : null;
+  const feltfeil = (m: Mangel | undefined) => (m ? (m.ved ?? m.tekst) : null);
   const begrunnelseFeil = $derived(feil('begrunnelse'));
   let oppsummering = $state<HTMLElement | null>(null);
   let sendehindring = $state<string | null>(null);
@@ -223,19 +226,19 @@
       kommando,
       vedlegg,
       ...brevet,
-      detteSender: [
-        {
-          tekst:
-            modus === 'krav' ? FRISTKRAV.detteSender(fristene(v).length) : FRISTKRAV.dette[modus],
-          lag: null,
-        },
-      ],
+      detteSender:
+        modus === 'krav'
+          ? fristene(v).map((p) => ({ tekst: FRISTKRAV.linje(navnet(p), dagene(p)), lag: null }))
+          : [{ tekst: FRISTKRAV.dette[modus], lag: null }],
       virkninger:
         modus === 'varsel'
           ? [FRISTKRAV.virkningVarsel(klarOver ? kalenderdager(klarOver.dato, iDag) : null)]
           : modus === 'svar'
             ? [FRISTKRAV.virkningB]
-            : [],
+            : [
+                ...(varselbrev || utenfor ? [] : [FRISTKRAV.virkningKravetErVarselet]),
+                ...(svaret ? [FRISTKRAV.virkningNyVersjon(svaret)] : []),
+              ],
     });
   }
 
@@ -341,6 +344,7 @@
           .filter(Boolean)
           .join(' ') || undefined}
         aria-invalid={f ? 'true' : undefined}
+        aria-required={navn === 'nummer' ? undefined : 'true'}
       />
       {#if navn === 'dager'}<span class="enhet" aria-hidden="true">dager</span>{/if}
     </span>
@@ -392,7 +396,7 @@
       {/if}
       {#if p.frist === 'annen'}
         <p class="dempet">{FRISTKRAV.ikkeRegistrertHjelp}</p>
-        {@render felt(p, 'nummer', FRISTKRAV.nummerEtikett, FRISTKRAV.nummerHjelp)}
+        {@render felt(p, 'nummer', FRISTKRAV.nummerEtikett, null)}
         {@render felt(p, 'navn', FRISTKRAV.navnEtikett, null)}
       {/if}
       {@render felt(
@@ -541,6 +545,7 @@
               ? `${id('grunn-b-hjelp')} ${id('grunn-b-feil')}`
               : id('grunn-b-hjelp')}
             aria-invalid={fB ? 'true' : undefined}
+            aria-required="true"
           ></textarea>
           {#if fB}<p class="feilmelding" id={id('grunn-b-feil')}>{fB}</p>{/if}
         </section>
@@ -595,6 +600,7 @@
               ? `${id('begrunnelse-hjelp')} ${id('begrunnelse-feil')}`
               : id('begrunnelse-hjelp')}
             aria-invalid={begrunnelseFeil ? 'true' : undefined}
+            aria-required="true"
           ></textarea>
           {#if begrunnelseFeil}<p class="feilmelding" id={id('begrunnelse-feil')}>
               {begrunnelseFeil}
@@ -649,7 +655,7 @@
     color: var(--ink);
   }
   h4 {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
     color: var(--ink);
   }
@@ -701,8 +707,8 @@
     gap: var(--spacing-2);
   }
   label {
-    font-size: 15px;
-    color: var(--ink);
+    font-size: 14px;
+    color: var(--ink-2);
   }
   textarea:focus-visible,
   .datofelt:focus-visible,
@@ -830,7 +836,7 @@
     font-size: 14px;
   }
   .liten {
-    font-size: 13px;
+    font-size: 12px;
   }
   .hensyn {
     padding-left: var(--spacing-5);

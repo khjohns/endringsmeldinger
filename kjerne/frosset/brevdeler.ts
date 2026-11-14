@@ -101,7 +101,7 @@ type Element =
   | { art: 'dokument'; dokument: Dokument };
 
 /** Parten med eieform, skrevet fullt ut i brevet (LV-U35, LV-U42). */
-const PARTENS: Record<Part, string> = { TE: 'totalentreprenørens', BH: 'byggherrens' };
+export const PARTENS: Record<Part, string> = { TE: 'totalentreprenørens', BH: 'byggherrens' };
 
 /** Typen registrert korrespondanse slik brevet nevner den (LV-U42). */
 const KORRESPONDANSEN: Record<Korrespondansetype, string> = { brev: 'brev', e_post: 'e-post' };
@@ -262,7 +262,7 @@ export const opplistet = (a: string[]) =>
 
 /** KA-U52 punkt 4, LV-U56: setningen om kravversjonen et krav erstatter. */
 export const kravetErstatter = (erstatter: string, j: Journalen): string =>
-  `Kravet erstatter TEs krav i ${j.brevet(j.krav(erstatter).dokument)}.`;
+  `Kravet erstatter ${PARTENS.TE} krav i ${j.brevet(j.krav(erstatter).dokument)}.`;
 
 /** Kravversjonene før `k` i sporet, eldste først. */
 export function tidligere(k: Krav, j: Journalen): Krav[] {
@@ -308,7 +308,7 @@ export interface Sporsbrevtekst {
   utdypningensPunkt?: { punkt: string; overskrift: string };
   /** Kravet i sporet med kontraktens ord, når kravet har et: «kravet om <…>». */
   kravetOm?: string;
-  /** Innledningen i byggherrens svar, uten setningen om svaret det erstatter (LV-U34, LV-U41). */
+  /** Innledningen i byggherrens svar, uten setningene om byggherrens forrige svar (LV-U34, LV-U41, LV-U73). */
   innledning(krav: Krav, t: Pick<Tekst, 'j'>): string;
   /** Temaene i byggherrens svar i skjemaets rekkefølge (LV-U34). */
   temaer(krav: Krav, t: Tekst, regler: Regelsett): Tema[];

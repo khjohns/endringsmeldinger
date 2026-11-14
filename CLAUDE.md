@@ -34,8 +34,9 @@ Les den før du skriver eller endrer synlig tekst.
 «løsningen». I tekniske beskrivelser navngis den aktuelle delen, for eksempel kjernen,
 visningen eller registreringen. I brukerrettet tekst foretrekkes konkrete beskrivelser
 av handlingen. Partenes brev omtaler normalt partene, handlingene og dokumentene, ikke
-programvaren. Ikke endre sitater, lagrede navn eller vedtatt brevtekst som en ren
-språkretting. Begrunnelsen og eksemplene står i
+programvaren. Ikke endre sitater, lagrede navn, et sendt brev eller ordlyd som står i
+en post i vedtaksregisteret, som en ren språkretting. Et vedtak angir budskapet, ikke
+ordlyden (vedtaksskillen). Begrunnelsen og eksemplene står i
 [språkfila](docs/sprak.md#hva-løsningen-kalles).
 
 Egne funksjoner, klasser, variabler og regel- og feilkoder har norske navn:

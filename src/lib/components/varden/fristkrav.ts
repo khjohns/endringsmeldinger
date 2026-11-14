@@ -145,15 +145,23 @@ export function fristkravet(
 /** Vedleggene kommandoen viser til, så kjernen kan lage brevet før sendingen (OV-U5). */
 export const vedleggIFristkravet = (v: Fristkravvalg) => vedleggskart(v.utenfor?.vedlegg ?? []);
 
+/** Det som mangler: teksten i oppsummeringen, og ved feltet uten navnet på raden (`ved`). */
+export interface Mangel {
+  felt: string;
+  tekst: string;
+  ved?: string;
+}
+
 /** Det som mangler, med feltet det gjelder (`<prefiks>-<felt>`). Kjernen avviser det samme. */
 export function manglerIFristkravet(
   v: Fristkravvalg,
   prefiks: string,
   navnet: (p: Fristpostvalg) => string,
   foresporsel: string | null = null
-): { felt: string; tekst: string }[] {
-  const ut: { felt: string; tekst: string }[] = [];
-  const legg = (felt: string, tekst: string) => ut.push({ felt: `${prefiks}-${felt}`, tekst });
+): Mangel[] {
+  const ut: Mangel[] = [];
+  const legg = (felt: string, tekst: string, ved?: string) =>
+    ut.push({ felt: `${prefiks}-${felt}`, tekst, ...(ved ? { ved } : {}) });
   if (v.utenfor) {
     if (!v.utenfor.dato) legg('utenfor-dato', FRISTKRAV.manglerVarseldato);
     if (v.hva === 'varsel' && !v.utenfor.type) legg('utenfor-type', FRISTKRAV.manglerType);
@@ -168,7 +176,7 @@ export function manglerIFristkravet(
   if (!med.length) legg('legg-til', FRISTKRAV.ingenFristerMangler);
   for (const p of med) {
     const f = (felt: string, tekst: string) =>
-      legg(`${felt}-${p.noekkel}`, `${navnet(p)}: ${tekst}`);
+      legg(`${felt}-${p.noekkel}`, `${navnet(p)}: ${tekst}`, tekst);
     if (p.frist === null) f('frist', FRISTKRAV.manglerFrist);
     else if (typeof p.frist === 'number' && v.frister.some((q) => q !== p && q.frist === p.frist))
       f('frist', FRISTKRAV.toGanger);
