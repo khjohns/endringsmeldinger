@@ -198,13 +198,13 @@
     border-radius: 50%;
     background: var(--surface);
   }
-  ul {
+  .tre > ul {
     list-style: none;
     margin: 0 0 0 7px;
     padding: 0;
     border-left: 1px solid var(--rule-strong-color);
   }
-  li {
+  .tre > ul > li {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -212,11 +212,11 @@
     margin-left: var(--spacing-4);
     padding: var(--spacing-4) 0;
   }
-  li + li {
+  .tre > ul > li + li {
     border-top: var(--rule-subtle);
   }
   /* Grenen fra treet til kravet. */
-  li::before {
+  .tre > ul > li::before {
     content: '';
     position: absolute;
     left: calc(-1 * var(--spacing-4));
@@ -263,31 +263,24 @@
     align-items: baseline;
     gap: var(--spacing-1) var(--spacing-3);
   }
+  /* Dagene står i én kolonne, så fristene kan sammenlignes. */
   .frister {
     flex-basis: 100%;
     display: grid;
-    gap: var(--spacing-1);
+    grid-template-columns: fit-content(60%) minmax(0, 1fr);
+    gap: var(--spacing-1) var(--spacing-3);
     margin: 0;
     padding: 0;
     list-style: none;
-    border: 0;
   }
   .frister li {
-    display: flex;
-    flex-wrap: wrap;
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
     align-items: baseline;
-    gap: 0 var(--spacing-3);
-    margin: 0;
-    padding: 0;
-  }
-  .frister li::before {
-    content: none;
-  }
-  .frister li + li {
-    border-top: 0;
   }
   .frist {
-    min-width: 0;
+    color: var(--ink-2);
   }
   .num {
     font-size: 16px;
