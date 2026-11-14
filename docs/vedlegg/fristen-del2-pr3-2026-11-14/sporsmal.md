@@ -111,4 +111,14 @@ svar også teller godkjente forlengelser, kan de to datoene avvike.
 
 ## Svarene
 
-Føres her ordrett når de kommer.
+Oppdragsgiver 14.11, ordrett: «A, A: det er registrert enighet om frist. Hvordan fullmakten regnes hvis
+BH godtar er et annet spørsmål. B: ellers blir EO mye mer komplisert. Uenigheter går gjennom KOE.
+Stilltiende er "aksept" (uten at løsningen sier det). Slik er det også for vederlagsposter. 4A.»
+
+- **Spørsmål 1:** A.
+- **Spørsmål 2:** A for enigheten: en betinget enighet om dagene er registrert enighet om fristen og teller
+  som avtalt. Hvordan et subsidiært svar uten enighet teller for fullmakten, er ikke avgjort («et annet
+  spørsmål»).
+- **Spørsmål 3:** B, med presiseringen at uenighet går gjennom KOE, at det stilltiende er aksept uten at
+  løsningen sier det, og at det samme gjelder vederlagspostene i en endringsordre.
+- **Spørsmål 4:** A.
