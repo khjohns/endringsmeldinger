@@ -1443,8 +1443,10 @@ export const FRISTKRAV = {
     'Gjelder forlengelsen bare deler av arbeidene, beskriv det i begrunnelsen. Andelen av rigg og drift oppgis i posten for rigg og drift i vederlagskravet (Del II, tillegget til punkt 34.1.3).',
   fristEtikett: 'Fristen',
   ikkeRegistrert: 'En frist som ikke er registrert',
-  ikkeRegistrertHjelp:
-    'Fristen står ikke i fristtabellen for prosjektet. Skriv nummeret og navnet kontrakten gir den.',
+  // Hvorfor fristen ikke har ny dato, står ved den (`FRISTEN.ikkeRegistrert`, KA-U79).
+  ikkeRegistrertHjelp: 'Skriv nummeret og navnet kontrakten gir den.',
+  /** Cellen for ny dato i raden for en frist som ikke er registrert (KA-U79). */
+  ikkeRegistrertKort: 'Ikke registrert',
   nummerEtikett: 'Nummer i kontrakten (valgfritt)',
   navnEtikett: 'Navnet i kontrakten',
   dagerEtikett: 'Dagene du krever',
@@ -1471,6 +1473,11 @@ export const FRISTKRAV = {
   /** Etter forlengelsene i andre saker ved gjeldende frist (U-2, D-9, prototypen). */
   iTillegg:
     'Den nye datoen forutsetter at dagene du krever, kommer i tillegg til forlengelsen som er avtalt.',
+  /** Forlengelsene i andre saker under navnet i raden (U-2, prototypen): «forlenget 10 dager i sak KOE-2». */
+  forlengetI: (f: { dager: number; sak: string }[]) =>
+    `forlenget ${liste(f.map((x) => `${dager(x.dager)} i sak ${x.sak}`))}`,
+  /** I tidslinja når gjeldende frist ikke kan regnes (MM-U2). */
+  nyDatoUkjent: 'ny dato kan ikke regnes nå',
   /** Ny dato ved dagene, regnet fra gjeldende frist (U-1, D-9). */
   nyDato: (d: string, dagmulkt: boolean) =>
     `Ny dato: ${dato(d)}.${dagmulkt ? ' Fristen er dagmulktbelagt.' : ''}`,

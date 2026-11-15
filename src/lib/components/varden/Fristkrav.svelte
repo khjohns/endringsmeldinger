@@ -10,7 +10,7 @@
 <script lang="ts">
   import { BookOpen } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
-  import { dager } from '$kjerne/frosset/tekst';
+  import { dager, sakensKode } from '$kjerne/frosset/tekst';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '$kjerne/spor/frist/format';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
@@ -323,6 +323,7 @@
       const ny = n ? nyFrist(g, n) : null;
       const kilde = [
         n ? FRISTKRAV.krevd(dager(n), ny ? naa : null) : null,
+        n && !ny ? FRISTKRAV.nyDatoUkjent : null,
         d.dagmulktbelagt ? FRISTKRAV.dagmulkt : null,
       ];
       return [
@@ -331,7 +332,7 @@
           naar: ny ?? naa,
           hva: betegnelsen(f),
           kilde: kilde.filter((x) => x !== null).join(' · '),
-          krevd: !!n,
+          krevd: !!ny,
         },
       ];
     })
@@ -451,7 +452,8 @@
   etikett: string,
   hjelp: string | null,
   etter: string | null = null,
-  nyDato: string | null | undefined = undefined
+  nyDato: string | null | undefined = undefined,
+  gjeldende: string | null = null
 )}
   {@const fid = id(`${navn}-${p.noekkel}`)}
   {@const f = feil(`${navn}-${p.noekkel}`)}
@@ -470,6 +472,7 @@
         bind:value={p[navn]}
         aria-describedby={[
           hjelp ? `${fid}-hjelp` : '',
+          gjeldende ?? '',
           nyDato ? `${fid}-ny` : '',
           etter ? `${fid}-etter` : '',
           f ? `${fid}-feil` : '',
@@ -531,6 +534,7 @@
           registrert={p.frist !== 'annen'}
           {sakslenke}
           tillegg={FRISTKRAV.iTillegg}
+          id={`${sid}-gjeldende`}
         />
       {/if}
       {#if p.frist === 'annen'}
@@ -544,7 +548,8 @@
         FRISTKRAV.dagerEtikett,
         FRISTKRAV.kalenderdager,
         FRISTKRAV.delAvArbeidene,
-        nyDato ? FRISTKRAV.nyDato(nyDato, d?.dagmulktbelagt ?? false) : null
+        nyDato ? FRISTKRAV.nyDato(nyDato, d?.dagmulktbelagt ?? false) : null,
+        typeof p.frist === 'number' && g ? `${sid}-gjeldende` : null
       )}
       <div class="fot">
         {#if p.id !== null}
@@ -588,7 +593,9 @@
           {#if nyDato && !p.trukket}<span class="visually-hidden">{FRISTKRAV.kolonner[4]}:</span
             ><span class="prefiks-smal" aria-hidden="true">{FRISTKRAV.kolonner[4]}</span>{dato(
               nyDato
-            )}{/if}
+            )}{:else if p.frist === 'annen' && !p.trukket}<span class="visually-hidden"
+              >{FRISTKRAV.kolonner[4]}:</span
+            ><span class="ukjent">{FRISTKRAV.ikkeRegistrertKort}</span>{/if}
         </p>
         <Knapp
           variant="lenke"
@@ -597,6 +604,14 @@
           onclick={() => (p.trukket ? trekk(p) : aapne(p))}
           >{p.trukket ? FRISTKRAV.angre : FRISTKRAV.endre}</Knapp
         >
+        {#if g?.art === 'kjent' && g.forlengelser.length && !p.trukket}<p class="under">
+            {FRISTKRAV.forlengetI(
+              g.forlengelser.map((f) => ({
+                dager: f.dager,
+                sak: f.sakskode ? sakensKode(f.sakskode) : f.sakId,
+              }))
+            )}
+          </p>{/if}
         {#if p.trukket}<p class="under">
             {FRISTKRAV.trukketMerk(FRISTKRAV.omtale(deler.nummer, deler.navn))}
           </p>{/if}
@@ -923,6 +938,9 @@
     padding: var(--spacing-2) 0;
     font-size: 14px;
   }
+  .ukjent {
+    color: var(--ink-3);
+  }
   .linje h4 {
     display: flex;
     flex-wrap: wrap;
@@ -986,6 +1004,10 @@
     .dato-celle {
       color: var(--ink-3);
       font-size: 12px;
+    }
+    .ny-celle {
+      color: var(--ink-2);
+      font-size: 14px;
     }
     .ny-celle:not(:has(*)) {
       display: none;

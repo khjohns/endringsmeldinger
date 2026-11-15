@@ -452,12 +452,16 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       expect(gjeldende).toHaveTextContent(
         'Den nye datoen forutsetter at dagene du krever, kommer i tillegg til forlengelsen som er avtalt.'
       );
-      await skriv(screen.getByLabelText('Dagene du krever'), '20');
+      const feltet = screen.getByLabelText('Dagene du krever');
+      expect(feltet.getAttribute('aria-describedby')).toContain(gjeldende.id);
+      await skriv(feltet, '20');
       expect(screen.getByText('Ny dato: 31. mars 2027.')).toBeInTheDocument();
       await fireEvent.click(screen.getByRole('button', { name: 'Ferdig' }));
       const raden = screen.getByRole('listitem', { name: '5 Mekanisk ferdigstillelse' });
       expect(raden).toHaveTextContent(/Gjeldende:\s*Gjeldende11\. mars 2027/);
       expect(raden).toHaveTextContent(/Ny dato:\s*Ny dato31\. mars 2027/);
+      expect(raden).toHaveTextContent('forlenget 10 dager i sak sak-a');
+      expect(raden).not.toHaveTextContent(`i sak ${SAK}`);
     });
 
     it('tidslinja har den krevde fristen på den nye datoen, i rekkefølgen fristene får hvis kravet godtas (U-5)', async () => {
@@ -488,6 +492,11 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       ).toBeInTheDocument();
       await skriv(screen.getByLabelText('Dagene du krever'), '20');
       expect(screen.queryByText(/^Ny dato: /)).not.toBeInTheDocument();
+      // Tidslinja viser ikke datoen i kontrakten som en ny dato.
+      const tidslinja = within(screen.getByRole('region', { name: 'Tidslinje' }));
+      expect(
+        tidslinja.getByText('krevd forlenget 20 dager · ny dato kan ikke regnes nå')
+      ).toBeInTheDocument();
     });
 
     it('en frist som ikke er registrert, har ingen ny dato, og skjemaet sier hvorfor (KA-U79)', async () => {
@@ -500,6 +509,10 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       ).toBeInTheDocument();
       await skriv(screen.getByLabelText('Dagene du krever'), '20');
       expect(screen.queryByText(/^Ny dato: /)).not.toBeInTheDocument();
+      await fireEvent.click(screen.getByRole('button', { name: 'Ferdig' }));
+      expect(
+        screen.getAllByRole('listitem').find((li) => li.classList.contains('frist'))
+      ).toHaveTextContent(/Ny dato:\s*Ikke registrert/);
     });
   });
 });
