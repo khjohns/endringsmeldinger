@@ -104,8 +104,8 @@
   );
 
   const begrunnelseId = (punkt: string) => `${uid}-begrunnelse-${punkt}`;
-  // Punktene i skjemaet der begrunnelsen som kreves, kan stå. Holder ett av flere, sier
-  // seksjonen det én gang, og ingen av feltene er påkrevd alene (design-review i #2031).
+  // Punktene i skjemaet der begrunnelsen som kreves, kan stå (D-7). Holder ett av flere, sier
+  // seksjonen det én gang, og ingen av feltene er påkrevd alene.
   const kreverPunktene = $derived(
     begrunnelseKreves?.punktene.filter((p) => punktene.some((x) => x.punkt === p)) ?? []
   );

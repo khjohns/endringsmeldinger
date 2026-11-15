@@ -111,6 +111,13 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     ).toBeInTheDocument();
   });
 
+  it('svarer byggherren på forholdet før varselet, står «Enig, endringsordre» når svaret om varselet er «Nei» (U-4)', async () => {
+    await svarskjemaet(medGrunnlag);
+    await radio('Enig, endringsordre');
+    await radio('Nei');
+    expect(screen.getByRole('radio', { name: 'Enig, endringsordre' })).toBeChecked();
+  });
+
   it('når varselet påberopes for sent, er frafall ikke et valg, og skjemaet sier hvorfor (D-6, U-4)', async () => {
     await svarskjemaet(medGrunnlag);
     await radio('Frafaller pålegget');
