@@ -3901,6 +3901,26 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(forstaatt(true)).toBe(false);
   });
 
+  it('et fristkrav lagt til, sendt før en ubesvart forespørsel, avvises til det kan legges til uten å svare på den (HF-U1, oppdragsgiver 15.11 i #2011)', () => {
+    const lagtTil = (sendt: (foresporselen: string) => string) => {
+      const s = sak();
+      s.send('TE', PAABEROPELSE);
+      const dag = s.send('BH', foresporsel).tidsstempel.slice(0, 10);
+      const { varsel: _varsel, utdypning: _utdypning, ...krav } = FRISTKRAV;
+      return s.avvist('TE', {
+        ...krav,
+        sendt: sendt(dag),
+        korrespondansetype: 'brev',
+        dokumentasjon: [randomUUID()],
+      });
+    };
+    expect(lagtTil(() => '2026-09-01')).toBe('FRISTKRAV_FOER_FORESPOERSELEN');
+    expect(
+      lagtTil((dag) => dag),
+      'kontrollsak: sendt samme dag som forespørselen'
+    ).toBeNull();
+  });
+
   it('VS-U47 spørsmål 2: et fristkrav lagt til med kravskjemaet stopper forespørselen fra løsningen', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);

@@ -1904,6 +1904,14 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['et krav sendt før det siste godtas, utenfor rekken, og erstatter ikke det siste'],
   },
   {
+    id: 'F658',
+    feilklasse:
+      'et fristkrav lagt til, sendt før en ubesvart forespørsel, godtas og knyttes til den (HF-U1, oppdragsgiver 15.11 i #2011)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['(f) => f.svar === null && sendt <', '(f) => false && sendt <']],
+    mal: ['et fristkrav lagt til, sendt før en ubesvart forespørsel, avvises'],
+  },
+  {
     id: 'F224',
     feilklasse:
       'en innsigelse mot en påberopelsesversjon der § 32.2 ikke gjelder, leses som en påberopelse etter § 32.2 (VS-U24, GR-U11)',

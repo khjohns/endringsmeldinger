@@ -511,6 +511,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `FORHOLD_ER_ENDRINGSORDRE` | GR-28 | — |
 | `FRAFALL_KAN_IKKE_GODTAS` | GR-26 | — |
 | `FRISTENE` | KA-57 | — |
+| `FRISTKRAV_FOER_FORESPOERSELEN` | — | Kontrollen av kommandoen: et fristkrav lagt til, sendt før en forespørsel etter § 33.6.2 som er ubesvart i løsningen, er ikke svar på den (HF-U1, LV-U18 punkt 3; oppdragsgiver 15.11 i #2011). Til det er bygget, avvises det og legges til som dokumentasjon. Avvisningen prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `FRISTKRAV_SENDT` | VS-06 | — |
 | `FRIST_IKKE_REGISTRERT` | KA-57 | — |
 | `IKKE_GJELDENDE_PAA_SENDEDATOEN` | — | Kontrollen av kommandoen: en registrering av et svar eller en aksept som ikke får virkning med datoen avsenderen oppgir, avvises (OV-U98). KA-50 sier avvisningen, men ingen bevis-sak for målmodellen prøver kommandoen med en oppgitt dato; den prøves i `kjerne/tester/registrering.test.ts`. |

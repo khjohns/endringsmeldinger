@@ -1229,6 +1229,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts', 'relasjon', 'sendtFoerSisteKrav', ['kommandoer/skriving.ts:dokument']],
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/skriving.ts:dokument']],
   ['Registrering', 'kommando', 'sendt', ['kommandoer/skriving.ts:dokument']],
+  // HF-U1 (oppdragsgiver 15.11 i #2011): et fristkrav sendt før en ubesvart forespørsel.
+  ['format/leser.ts', 'relasjon', 'kalenderdag', ['spor/frist/kommando.ts:fristsperre']],
+  ['Registrering', 'kommando', 'sendt', ['spor/frist/kommando.ts:fristsperre']],
+  [
+    'utledning/utled.ts',
+    'relasjon',
+    'datoenDetBleSendt',
+    ['spor/frist/kommando.ts:dagenForespoerselenBleSendt'],
+  ],
+  ['Utledning', 'relasjon', 'journal', ['spor/frist/kommando.ts:dagenForespoerselenBleSendt']],
+  ['Dokument', 'relasjon', 'id', ['spor/frist/kommando.ts:dagenForespoerselenBleSendt']],
   // MM-U43 punkt 9: et svar uten virkning gir ikke opp innsigelsen (OV-U105).
   ['Utledning', 'relasjon', 'utenVirkning', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Utledning.utenVirkning', 'relasjon', 'element', ['kommandoer/skriving.ts:brevtekstFor']],
