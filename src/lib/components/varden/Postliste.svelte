@@ -17,6 +17,7 @@
     navn,
     beskrivelse,
     krever,
+    kravet,
     leselinje,
     foersteFelt,
     valgene,
@@ -32,8 +33,10 @@
     navn: (p: P) => string;
     /** Det TE kalte posten, etter navnet. Med én post står den alene. */
     beskrivelse?: (p: P) => string;
-    /** Kravet i posten. */
+    /** Kravet i posten, som en setning under navnet i den åpne posten. */
     krever: (p: P) => string;
+    /** Kravet i kortform, i kolonnen «Kravet» i en lukket post. */
+    kravet: (p: P) => string;
     /** Svaret i en lukket post, én linje per standpunkt. Tom før posten er besvart. */
     leselinje: (p: P) => string[];
     /** Feltet som får fokus når posten åpnes. */
@@ -99,7 +102,10 @@
         {@const lest = leselinje(p)}
         <div class="postlinje">
           {@render tittel(p, false)}
-          <p class="krav">{krever(p)}</p>
+          <p class="krav">
+            <span class="visually-hidden">{SVARSKJEMA.kravetKolonne}:</span>
+            {kravet(p)}
+          </p>
           <div class="lest">
             <span class="visually-hidden">{SKJEMA.svaretKolonne}:</span>
             {#if lest.length}

@@ -486,6 +486,7 @@
         kolonne={SVARSKJEMA.fristKolonne}
         navn={(f) => f.navn}
         krever={(f) => FRISTSVAR.teKrever(f.dager)}
+        kravet={(f) => dager(f.dager)}
         {leselinje}
         foersteFelt={(f) =>
           valg.spesifisertITide === false ? `${uid}-maatte-${f.id}` : `${uid}-dager-${f.id}`}

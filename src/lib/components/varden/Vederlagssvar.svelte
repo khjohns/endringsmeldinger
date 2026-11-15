@@ -48,6 +48,7 @@
   import {
     BREVKONTROLL,
     HOVEDLINJER,
+    KRAVSKJEMA,
     SKJEMA,
     grunntekst,
     leselinjene,
@@ -533,6 +534,7 @@
         beskrivelse={(p) => p.beskrivelse}
         krever={(p) =>
           etterRegel(p) ? SKJEMA.teKreverRegel(p) : SKJEMA.teKrever(krevdI(p), p.pns)}
+        kravet={(p) => (etterRegel(p) ? KRAVSKJEMA.formnavn[p.oppgjoersform] : kroner(krevdI(p)))}
         {leselinje}
         foersteFelt={(p) => `${uid}-form-${p.betegnelse}`}
         valgene={postvalgene}

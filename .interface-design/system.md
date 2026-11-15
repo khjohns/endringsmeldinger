@@ -152,7 +152,8 @@ en ny farge prøves form og tekst (#1646).
   en handling som ikke kan gjøres om, som «Trekk påberopelsen», og ikke ellers i flaten. Teksten
   sier selv at handlingen ikke kan gjøres om (`kanIkkeGjoeresOm` i `Brevkontroll`; #1615). Ingen brevkontroll i Varden bruker den ennå, fordi trekket ikke er bygget.
 - **Rød knapp** (`variant="fare"`) står bare i dialogen som bekrefter en handling som ikke kan
-  gjøres om, som «Forkast utkast» i den nye versjonen av påberopelsen (PR 1650).
+  gjøres om, som «Forkast utkast» i den nye versjonen av påberopelsen og i svarskjemaene for
+  vederlaget og fristen (PR 1650, #1925).
 - **En farge sier aldri det appen ikke kan slutte.** Ingen rødt for «for sent» og
   ingen farge for alvorlighet ved en frist. Vedtakene i [vedtaksfila](../docs/plans/vedtak.md)
   avgjør hva visningen kan si.
@@ -367,10 +368,11 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   avvisning av et svar uten begrunnelse står ved begrunnelsen. `Knapp` er inaktiv bare
   mens en sending pågår.
 - **«Forkast utkast»** er en lenkeknapp nederst i skjemaet, adskilt fra primærhandlingen.
-  Den spør i skjemaet, med «Forkast» og «Behold utkastet», uten dialog. Unntaket er den nye
-  versjonen av påberopelsen, der den spør i en dialog med «Behold utkastet» og en rød «Forkast
-  utkast» (`Knapp` med `variant="fare"`). Rødt på en knapp står bare der handlingen ikke kan
-  gjøres om, og teksten sier det (PR 1650).
+  I den nye versjonen av påberopelsen, i kravskjemaet for fristen og i svarskjemaene for
+  vederlaget og fristen spør den i en dialog (`Forkastutkast`) med «Behold utkastet» og en rød
+  «Forkast utkast» (`Knapp` med `variant="fare"`). De andre skjemaene spør i skjemaet, med
+  «Forkast» og «Behold utkastet». Rødt på en knapp står bare der handlingen ikke kan gjøres om,
+  og teksten sier det (PR 1650, #1925).
 - **Utkastet sier det selv.** Hodet på utkastkortet sier «Utkast · ikke sendt». Det sier ikke at
   brevet bare er synlig for teamet, fordi det er åpenbart for et utkast (oppdragsgiver 12.11 i
   #1663). Sendepanelet i brevkontrollen, og panelet
