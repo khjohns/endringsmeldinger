@@ -24009,6 +24009,104 @@ tekst = '''
 Henvisningssetningen står bare når totalentreprenøren har skrevet et standpunkt, og viser til der det står. Forhold: snevrer inn LV-U52 og KA-U52 punkt 4. Brevet nevner da svaret to ganger.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "MM-U56"
+dato = 2026-11-15
+hvem = "oppdragsgiver"
+kilde = ["#2011"]
+sporsmal = '''
+Spørsmål 1, ordrett slik det ble stilt 15.11 i [kommentaren i #2011](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-6894553699):
+
+> ### Spørsmål 1 (juridisk): Innlegget i forholdet
+>
+> **Bakgrunn.** [MM-U54](https://github.com/khjohns/endringsmeldinger/blob/main/docs/plans/vedtak.md#mm-u54) ble vedtatt 06.11 som svar på S-7 i spørsmålene til brukerforløpet BF-10,
+> der spørsmålet var om totalentreprenørens
+> utdyping av påberopelsen skulle sendes som ny versjon eller innlegg. Ordrett: «I forholdet sender
+> totalentreprenøren en ny versjon av påberopelsen, ikke et innlegg. Innlegget gjelder vederlag og
+> frist, og byggherrens senere begrunnelse.»
+>
+> Etterpå har [OV-U99](https://github.com/khjohns/endringsmeldinger/blob/main/docs/plans/vedtak.md#ov-u99) punkt 3 og 4 sagt at protest, bestridelse, den egne innsigelsen
+> etter punkt 5 og påberopt passivitet sendes som innlegg. Flere av dem hører til forholdet:
+> påberopelsen av passivitet etter punkt 32.3 annet ledd viser til totalentreprenørens varsel etter
+> punkt 32.2 ([VS-U12](https://github.com/khjohns/endringsmeldinger/blob/main/docs/plans/vedtak.md#vs-u12)); protesten mot byggherrens påberopelse av at varselet etter punkt
+> 32.2 kom for sent; bestridelsen av en opplysning i påberopelsen. [MM-U47](https://github.com/khjohns/endringsmeldinger/blob/main/docs/plans/vedtak.md#samlevedtak-protest-innlegg)
+> punkt 10 sier: «Har TE godtatt byggherrens avslag av grunnlaget, kan partene fortsatt sende
+> innlegg. Innsigelse, protest, påberopt passivitet og bestridelse av en opplysning sendes da som
+> innlegg etter punkt 1 og beslutningsdelen, og registreres og vises uten virkning på utfallet i
+> løsningen.»
+>
+> Leses MM-U54 etter ordlyden, har totalentreprenøren ikke noe innlegg i forholdet, og byggherren
+> bare for den senere begrunnelsen. Da må totalentreprenøren sende en protest i en ny versjon av
+> påberopelsen. Etter en ny versjon venter forholdet på nytt svar, og byggherrens svar på den
+> tidligere versjonen kan ikke godtas i løsningen (KA-U52 punkt 3, som S-7 sier). Etter at
+> totalentreprenøren har godtatt avslaget (GR-U27), avviser løsningen en ny versjon, så da har
+> totalentreprenøren ingen vei, selv om MM-U47 punkt 10 sier at innlegget kan sendes. Løsningen
+> tolker ikke hva et innlegg inneholder (MM-U47 punkt 4), så den kan ikke skille en utdyping fra en
+> protest i et innlegg.
+>
+> **Hvorfor #1377 trenger svaret:** det avgjør om «Send innlegg» tilbys totalentreprenøren og
+> byggherren på siden for forholdet, og hva kjernen godtar der.
+>
+> - **A (anbefalt):** «I forholdet kan begge parter sende innlegg, som i vederlaget og fristen, også
+>   etter at totalentreprenøren har godtatt avslaget av grunnlaget og etter en endringsordre (MM-U47
+>   punkt 5 og 10). Vil totalentreprenøren endre eller utdype påberopelsen, sender totalentreprenøren
+>   en ny versjon av påberopelsen. Løsningen tolker ikke hva innlegget inneholder.» Forhold: endrer
+>   MM-U54 (begge setningene); tar opp igjen for innlegget det forkastede alternativet «Begge
+>   beholdes, som i dag.» i MM-U54; i tråd med MM-U47 punkt 4, 5 og 10 og OV-U99 punkt 3 og 4.
+>   Hvordan skjemaet leder en endring av påberopelsen til ny versjon, er design (BF-10).
+> - **B:** «MM-U54 står. I forholdet sender totalentreprenøren også protest, bestridelse, den egne
+>   innsigelsen etter punkt 5 og påberopt passivitet i en ny versjon av påberopelsen. Byggherren
+>   sender innlegg i forholdet bare med en senere begrunnelse. Kan en ny versjon ikke sendes, for
+>   eksempel etter at totalentreprenøren har godtatt avslaget av grunnlaget, legger parten brevet
+>   til som dokumentasjon.» Forhold: snevrer inn MM-U47 punkt 10 og OV-U99 punkt 3 og 4 for
+>   forholdet.
+> - **C:** «I forholdet sender totalentreprenøren en ny versjon av påberopelsen så lenge den kan
+>   sendes. Når saken er lukket etter GR-U27 eller med endringsordre, kan begge parter sende innlegg
+>   i forholdet. Byggherren kan sende innlegg i forholdet også før det.» Forhold: snevrer inn
+>   MM-U54 for en lukket sak, og for byggherren; i tråd med MM-U47 punkt 10.
+>
+> Anbefaling: A. MM-U54 svarte på utdypingen, og leses den for alt totalentreprenøren vil si i
+> forholdet, mister totalentreprenøren muligheten til å godta byggherrens svar i løsningen bare ved
+> å protestere (B), og har ingen vei etter et godtatt avslag. Kostnaden ved A: en part kan sende en
+> utdyping som innlegg, og forholdet venter da ikke på nytt svar i løsningen. Løsningen avgjør ikke
+> om et nytt brev gir byggherren en ny svarplikt (S-7). At totalentreprenører vil protestere i
+> forholdet, er en antakelse; ingen brukerprøve har prøvd det.
+>
+> **Styrer:** om kjernen godtar innlegg fra totalentreprenøren i forholdet, «Send innlegg» på siden
+> for forholdet (#1998, supplementet 15.11), og S-7 og BF-10.
+'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 15.11, første runde, ordrett: «i praksis kan alle argumenter for TE og BH fremmes som nye versjoner av sendt/svar til påberopelsen . Også protest, innsigelse mv da det kun er begrunnelse som oppdateres. Hele argumentasjonsrekken blir da samlet. For krav fungerer ikke dette da kravene og svar på dem er knyttet til et skjema. Men brukeropplevelsen kan også forvirre om protest mv sendes i innlegg for krav, men ikke for forholdet. Hva anbefaler du?»
+
+Økta anbefalte A, og at argumentasjonsrekken samles i visningen ([svarene](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-6898347703)).
+
+Oppdragsgiver 15.11, andre runde, ordrett: «Følger dine anbefalinger». Svaret er A, det anbefalte alternativet.'''
+forhold = [
+  { art = "endrer", vedtak = "mm-u54" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «endrer MM-U54 (begge setningene); tar opp igjen for innlegget det forkastede alternativet «Begge beholdes, som i dag.» i MM-U54; i tråd med MM-U47 punkt 4, 5 og 10 og OV-U99 punkt 3 og 4.» Design (BF-10), fra anbefalingen oppdragsgiver fulgte: innleggene i forholdet vises i samme kronologiske rekke som versjonene av påberopelsen og svarene. Bygges i #1377.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+I forholdet kan begge parter sende innlegg, som i vederlaget og fristen, også etter at totalentreprenøren har godtatt avslaget av grunnlaget og etter en endringsordre (MM-U47 punkt 5 og 10). Vil totalentreprenøren endre eller utdype påberopelsen, sender totalentreprenøren en ny versjon av påberopelsen. Løsningen tolker ikke hva innlegget inneholder.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+MM-U54 står. I forholdet sender totalentreprenøren også protest, bestridelse, den egne innsigelsen etter punkt 5 og påberopt passivitet i en ny versjon av påberopelsen. Byggherren sender innlegg i forholdet bare med en senere begrunnelse. Kan en ny versjon ikke sendes, for eksempel etter at totalentreprenøren har godtatt avslaget av grunnlaget, legger parten brevet til som dokumentasjon.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+I forholdet sender totalentreprenøren en ny versjon av påberopelsen så lenge den kan sendes. Når saken er lukket etter GR-U27 eller med endringsordre, kan begge parter sende innlegg i forholdet. Byggherren kan sende innlegg i forholdet også før det.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Fullmakt og intern godkjenning"
 
@@ -30370,6 +30468,164 @@ anbefalt = true
 navn = "F2"
 tekst = '''
 Bekreftelsen etter OV-U46, med GR-U35–GR-U37, står og venter i første versjon (OV-U99 punkt 2). Til den er bygget, legger byggherren et svar gitt utenfor løsningen til som korrespondanse og velger at det er et svar (OV-U80, OV-U98), eller sender et nytt svar fra løsningen.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U103"
+dato = 2026-11-15
+hvem = "oppdragsgiver"
+kilde = ["#2011"]
+sporsmal = '''
+Spørsmål 3, ordrett slik det ble stilt 15.11 i [kommentaren i #2011](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-6894553699):
+
+> ### Spørsmål 3 (juridisk): Et svar sendt før byggherrens gjeldende svar på samme kravversjon
+>
+> **Bakgrunn.** [OV-U98](https://github.com/khjohns/endringsmeldinger/blob/main/docs/plans/vedtak.md#ov-u98) har en regel for krav sendt før siste krav, men ingen for et svar
+> sendt før byggherrens gjeldende svar på samme kravversjon. Ordlyden: «Et svar som legges til,
+> gjelder kravversjonen det svarer på, og godtas når den var gjeldende da svaret ble sendt.» og
+> «Ellers avgjør rekkefølgen utsagnene ble lagt til i løsningen, sperrene og hva som er gjeldende».
+> Leses ordlyden slik, blir det eldre svaret det gjeldende, fordi det ble lagt til sist, og det
+> erstatter byggherrens nyere svar (HF-U29 punkt 2).
+>
+> - **A (anbefalt):** «Et svar sendt før byggherrens gjeldende svar på samme kravversjon blir ikke
+>   gjeldende og erstatter ikke det nyere svaret. Det vises som byggherrens svar med datoen det ble
+>   sendt. Har totalentreprenøren godtatt det eldre svaret før det nyere ble sendt, godtas aksepten
+>   etter OV-U98, og gir enighet om det eldre svaret med det det sa (A6). Det nyere svaret står med
+>   virkningen det hadde.» Forhold:
+>   presiserer OV-U98 (samme regel som for kravet); i tråd med HF-U29 punkt 3.
+> - **B (kjerneøktas forslag):** Som A, uten siste setning. Aksepten av det eldre svaret står da som
+>   dokumentasjon, fordi svaret aldri var gjeldende i løsningen. Forhold: presiserer OV-U98.
+> - **C:** «Rekkefølgen avgjør: et svar som legges til, blir byggherrens gjeldende svar på
+>   kravversjonen og erstatter det byggherren har sendt før, også når det ble sendt før det.»
+>   Forhold: i tråd med OV-U98 etter ordlyden; HF-U29 punkt 2 gjelder.
+>
+> Anbefaling: A. Kjerneøkta anbefalte B; A er B med et tillegg fra prøvingen av arbeidsflyten
+> (forløp 3 under): uten tillegget får totalentreprenøren ikke registrert en aksept gitt før
+> byggherrens nyere svar, selv om OV-U98 sier at et svar sendt etter aksepten står med virkningen det
+> hadde. C lar byggherren i praksis ta tilbake et nyere svar ved å legge til et eldre. Kostnaden ved
+> A og B: påberopelsen av sent varsel i det eldre svaret leses ikke som den første påberopelsen
+> (VS-U46 punkt 6); byggherren må gjenta den i det gjeldende svaret.
+>
+> **Styrer:** forventet resultat 2 og 3 i #2011, og hvilket svar totalentreprenøren kan godta.
+'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 15.11, første runde, ordrett: «A eller B - usikker.»
+
+Oppdragsgiver 15.11, andre runde, ordrett: «Følger dine anbefalinger». Svaret er A, det anbefalte alternativet ([svarene](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-6898347703)).'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u98" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «presiserer OV-U98 (samme regel som for kravet); i tråd med HF-U29 punkt 3.» «A6» er arbeidsvalget A6 i [spørsmålsfila](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-6894553699). Forutsetter #2022. Bygges i #2011.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et svar sendt før byggherrens gjeldende svar på samme kravversjon blir ikke gjeldende og erstatter ikke det nyere svaret. Det vises som byggherrens svar med datoen det ble sendt. Har totalentreprenøren godtatt det eldre svaret før det nyere ble sendt, godtas aksepten etter OV-U98, og gir enighet om det eldre svaret med det det sa (A6). Det nyere svaret står med virkningen det hadde.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Som A, uten siste setning. Aksepten av det eldre svaret står da som dokumentasjon, fordi svaret aldri var gjeldende i løsningen.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Rekkefølgen avgjør: et svar som legges til, blir byggherrens gjeldende svar på kravversjonen og erstatter det byggherren har sendt før, også når det ble sendt før det.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U105"
+dato = 2026-11-15
+hvem = "oppdragsgiver"
+kilde = ["#2011"]
+sporsmal = '''
+Spørsmål 6, ordrett slik det ble stilt 15.11 i [kommentaren i #2011](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-6894553699):
+
+> ### Spørsmål 6 (juridisk): Et svar lagt til fra et brev sendt utenfor løsningen, og påberopelsen av sent varsel
+>
+> Nummeret følger lista fra kjerneøkta for #2011; punkt 1 og 5 der er arbeidsvalgene A5 og A6.
+>
+> **Bakgrunn.** Byggherren har i et svar påberopt at totalentreprenørens varsel kom for sent. Senere
+> legger byggherren til et svar sendt utenfor løsningen, med svarskjemaet, og sier der uttrykkelig at
+> det samme varselet kom i tide. Spørsmålet er om det svaret gir opp påberopelsen, slik et svar sendt
+> fra løsningen gjør.
+>
+> Tre vedtak trekker hver sin vei:
+> - [VS-U46](https://github.com/khjohns/endringsmeldinger/blob/main/docs/plans/vedtak.md#samlevedtak-sent-varsel) punkt 10: «Byggherren kan i et senere svar uttrykkelig gi
+>   opp påberopelsen eller si at varselet kom i tide, og brevet sier det. Det er partens nye utsagn
+>   som endrer standpunktet.» Punkt 12, tredje setning: «Et registrert brev gir ikke noe standpunkt
+>   om påberopelsen, enten det ikke sier noe om rettidigheten eller uttrykkelig gir den opp, og
+>   følger MM-U43 punkt 9.» E10 i VS-U46 sier at punkt 12 skriver VS-U11 «slik OV-U4 endret dem», og
+>   at «Innholdet er ikke endret i forhold til OV-U4.»
+> - [OV-U80](https://github.com/khjohns/endringsmeldinger/blob/main/docs/plans/vedtak.md#ov-u80), vedtatt 01.11, før VS-U46 (05.11), endret OV-U4: «Når skjemaet er fylt ut,
+>   har kravet eller svaret samme virkning i løsningen som et krav eller svar sendt derfra, med
+>   datoen det ble sendt.»
+> - [OV-U98](https://github.com/khjohns/endringsmeldinger/blob/main/docs/plans/vedtak.md#ov-u98) (15.11): «Et brev sendt utenfor løsningen får virkning i løsningen bare når
+>   avsenderen legger det til som et varsel, et krav, et svar …»
+>
+> Ingen av de tre har et forhold til de andre om dette i vedtaksfila. Setningen i
+> [HF-U4](https://github.com/khjohns/endringsmeldinger/blob/main/docs/plans/vedtak.md#hf-u4) som kjerneøkta viste til («Taushet, et registrert brev og en konkret tolkning
+> av et senere brev gir ikke slik virkning (VS-U11, OV-U4).»), er den sjuende setningen der. Den
+> gjelder sperren i første setning, og svar 2a i VS-U46 sier: «endrer HF-U4 første, andre og sjuende
+> setning, som ikke lenger gjelder for byggherren». Det som gjelder i dag, er punkt 12 i VS-U46.
+>
+> Den egne innsigelsen som eget brev (VS-U46 punkt 15–18) sendes som innlegg i første versjon
+> (OV-U99 punkt 4), og løsningen leser den ikke. Spørsmålet gjelder derfor påberopelsen i et svar.
+> Når den egne innsigelsen bygges, gjelder svaret også for den, så langt punkt 17 i VS-U46 gjør den
+> til en påberopelse etter en bestemmelse (#1657).
+>
+> - **A (anbefalt, også av kjerneøkta):** «Et svar byggherren har sendt utenfor løsningen og lagt
+>   til som svar med svarskjemaet etter OV-U80, har samme virkning for påberopelsen som et svar sendt
+>   fra løsningen. Sier byggherren i skjemaet uttrykkelig at varselet kom i tide, eller gir
+>   påberopelsen opp, er påberopelsen oppgitt fra datoen svaret ble sendt (VS-U46 punkt 10 og 12,
+>   første setning). Sier svaret ikke noe om varselet, leses det med påberopelsen (VS-U46 punkt 9).
+>   Byggherren kan senere påberope det samme på nytt etter VS-U46 punkt 13, som et nytt utsagn med
+>   sitt eget tidspunkt (punkt 6). Om en godkjenning i et svar som er lagt til, er en endringsordre,
+>   avgjøres etter OV-U6 og EO-U39 punkt 45, ikke av at påberopelsen er oppgitt. Et brev som står som
+>   dokumentasjon, gir ikke noe standpunkt om påberopelsen.» Forhold: snevrer inn VS-U46 punkt 12,
+>   tredje setning, til et brev som står som dokumentasjon; i tråd med OV-U80 og OV-U98. HF-U4,
+>   sjuende setning, er alt endret av VS-U46 og berøres ikke.
+> - **B:** «Påberopelsen står til byggherren gir den opp eller sier at varselet kom i tide i et svar
+>   sendt fra løsningen. Et svar lagt til fra et brev sendt utenfor løsningen gir ikke noe standpunkt
+>   om påberopelsen, heller ikke når byggherren i skjemaet har sagt at varselet kom i tide (VS-U46
+>   punkt 12).» Forhold: står ved VS-U46 punkt 12; snevrer inn OV-U80 og OV-U98 («samme virkning»)
+>   for påberopelsen.
+>
+> Anbefaling: A. VS-U46 punkt 12 sier i E10 at den gjengir OV-U4 uten å endre innholdet, men OV-U4
+> var alt endret av OV-U80 for krav og svar med skjemaet utfylt. A gir svaret den virkningen OV-U80
+> og OV-U98 sier. Under B ber skjemaet byggherren om et standpunkt løsningen så ser bort fra, og
+> løsningen viser påberopelsen som stående mens byggherrens eget brev sier at varselet kom i tide.
+> Kostnaden ved A: et feil standpunkt i skjemaet gir opp påberopelsen, og en ny påberopelse får nytt
+> tidspunkt. Det er det samme som for et svar sendt fra løsningen, og skjemaet er det samme.
+>
+> **Styrer:** om et svar lagt til etter #2011 kan gi opp en påberopelse, og regelen som i dag ser
+> bort fra registrerte brev når den leser om byggherren har gitt opp en innsigelse.
+'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 15.11, ordrett: «A - virker riktig uansett gitt BH må registrere  i skjema at dette er innholdet i brev sendt utenfor løsningen» Svaret er A, det anbefalte alternativet ([svarene](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-6898347703)).'''
+forhold = [
+  { art = "snevrer inn", vedtak = "vs-u46" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «snevrer inn VS-U46 punkt 12, tredje setning, til et brev som står som dokumentasjon; i tråd med OV-U80 og OV-U98. HF-U4, sjuende setning, er alt endret av VS-U46 og berøres ikke.» Bygges i #2011.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et svar byggherren har sendt utenfor løsningen og lagt til som svar med svarskjemaet etter OV-U80, har samme virkning for påberopelsen som et svar sendt fra løsningen. Sier byggherren i skjemaet uttrykkelig at varselet kom i tide, eller gir påberopelsen opp, er påberopelsen oppgitt fra datoen svaret ble sendt (VS-U46 punkt 10 og 12, første setning). Sier svaret ikke noe om varselet, leses det med påberopelsen (VS-U46 punkt 9). Byggherren kan senere påberope det samme på nytt etter VS-U46 punkt 13, som et nytt utsagn med sitt eget tidspunkt (punkt 6). Om en godkjenning i et svar som er lagt til, er en endringsordre, avgjøres etter OV-U6 og EO-U39 punkt 45, ikke av at påberopelsen er oppgitt. Et brev som står som dokumentasjon, gir ikke noe standpunkt om påberopelsen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Påberopelsen står til byggherren gir den opp eller sier at varselet kom i tide i et svar sendt fra løsningen. Et svar lagt til fra et brev sendt utenfor løsningen gir ikke noe standpunkt om påberopelsen, heller ikke når byggherren i skjemaet har sagt at varselet kom i tide (VS-U46 punkt 12).'''
 forkastet = true
 
 [[gruppe]]
