@@ -18,14 +18,15 @@ vedtaksregisteret er endret. Spørsmålene står til slutt, ordrett slik de stil
 `dokument_registrert`; en handling er et dokument med krav, svar eller utsagn. *Varden* er
 visningen i `src/lib/components/varden/`. «Ikke bygget» i Varden betyr at kjernen tilbyr handlingen
 og knappen vises, men skjemaet svarer «Denne handlingen er ikke bygget i prøven ennå.»
-(`tekster.ts`, `Vardensak.svelte`, tabellen `skjemaene`). *Anbefaling* er forslaget i spørsmål 2.
+(`Sporlesing.svelte`, `Brevtyper.svelte`, tabellen `skjemaene` i `Vardensak.svelte`). *Anbefaling* er forslaget i spørsmål 2.
 
 ## Grunnsettet
 
 | Handling | Part | Spor | Kilde | Kjernen | Varden | Anbefaling |
 | --- | --- | --- | --- | --- | --- | --- |
 | Påberopelse av forholdet, med ny sak | TE | grunnlag | 32.1, 32.2; GR-U40, KT-U9, KT-U11 | `opprett_sak` + `krav` (forhold) | bygget (`NySak`) | grunnsett |
-| Varsel, sendt fra løsningen | TE | alle | 32.2, 33.4, 34.1.2, 34.1.3; VS-U15, VS-U43, OV-U89 | `send_varsel` | bare frist (33.4) | grunnsett |
+| Varsel, sendt fra løsningen | TE | vederlag, frist | 33.4, 34.1.2, 34.1.3; VS-U15, VS-U43, OV-U89 | `send_varsel` | bare frist (33.4) | grunnsett |
+| Varsel etter 32.2, registrert | TE | grunnlag | 32.2; VS-U34, GR-U31 | `varsel` med hjemmel 32.2; godtas, men tilbys ikke | finnes ikke | grunnsett |
 | Krav om vederlagsjustering | TE | vederlag | 34; OV-U95 | `krav` (vederlag) | bygget | grunnsett |
 | Krav om fristforlengelse | TE | frist | 33.5, 33.6.1; KA-U73, KA-U74 | `krav` (frist) | bygget | grunnsett |
 | Svar på påberopelsen, også frafall etter 32.3 c | BH | grunnlag | 32.3; KA-U46, GR-U9 | `brev` med `svar` | **ikke bygget** (`svare:forhold`) | grunnsett |
@@ -47,13 +48,13 @@ grunnsettet (spørsmål 3).
 | 2.2 | Nytt svar på samme kravversjon | BH | alle | HF-U29, LV-U73 (B) | `revisjon` | ikke bygget (`revidere:*`) | Beholde. Uten den kan byggherren ikke endre standpunkt før en ny kravversjon kommer |
 | 2.3 | Aksept av svaret | TE | alle | KA-U1, GR-U7, GR-U8 | `aksept` | bygget | Beholde. Uten den kan løsningen ikke vise enighet, og sporet står åpent |
 | 2.4 | Trekk av påberopelsen, kravet eller en kravpost | TE | alle | KA-U51, GR-U30 | `trekk`, felt `trekker` | trekk i ny kravversjon bygget, eget trekk ikke bygget | Beholde. Trekket er et avkall som lukker sporet; som innlegg ville sporet stå åpent |
-| 2.5 | «Ingen krav» i et spor | TE | vederlag, frist | KA-U12, KA-U15, KA-U17 | `ingen_krav` | finnes ikke | Utsette, som KA-U15 sier for første versjon. Et spor uten krav lukkes da ikke av løsningen (#493) |
+| 2.5 | «Ingen krav» i et spor | TE | vederlag, frist | KA-U12, KA-U15, KA-U17 | `ingen_krav`, godtas og tilbys (K1) | ikke bygget, vises som ukjent handling | Utsette, som KA-U15 sier for første versjon. Et spor uten krav lukkes da ikke av løsningen (#493) |
 | 2.6 | Forespørsel etter 33.6.2 og svaret på den | BH, TE | frist | 33.6.2; VS-U47 | `foresporsel`, `foresporselssvar` | svaret bygget, forespørselen ikke | Beholde. Forespørselen gir en frist med preklusiv virkning som løsningen må lese |
-| 2.7 | Registrering av et brev sendt utenfor løsningen | begge | alle | OV-U79, OV-U84, OV-U85, KA-U20 | `registrert_brev`, `varsel` (registrert) | bare varsel i frist | Beholde. Uten den regnes fristene bare av brev sendt herfra |
-| 2.8 | Byggherrens bekreftelse av et svar gitt utenfor løsningen | BH | grunnlag | GR-U35–GR-U37 | `brev` med `svar` | ikke funnet | Beholde, som en form for svar |
+| 2.7 | Registrering av et brev sendt utenfor løsningen | begge | alle | OV-U79, OV-U84, OV-U85, KA-U20 | `registrert_brev`, `varsel` (registrert) | varsel etter 33.4 og varsel for en kravpost; andre brev vises ikke | Beholde. Uten den regnes fristene bare av brev sendt herfra |
+| 2.8 | Byggherrens bekreftelse av et svar gitt utenfor løsningen | BH | grunnlag | GR-U35–GR-U37 | finnes ikke | finnes ikke | Beholde, som en form for svar |
 | 2.9 | Retting av de navngitte datoene i et sendt brev | TE | grunnlag | OV-U56 (B), MM-U55 | `korrigering` | bygget | Beholde for datoene OV-U56 nevner. Andre rettinger går som manuell prosess (OV-U56) |
-| 2.10 | Godkjenning med fullmakt før byggherren sender | BH | alle | GFK-U1–GFK-U28, GFK-U5 (B) | ikke i kjernen | finnes ikke (bare avsenderens egen kontroll, LV-U2) | Beholde vedtakene. Bygges når GFK-U5 er oppfylt |
-| 2.11 | Interne notater | team | alle | ingen post; invarianten i `CLAUDE.md`, MS-05 | finnes ikke | finnes ikke | Utsette. Ingen handling i første versjon, og invarianten står til de bygges |
+| 2.10 | Godkjenning med fullmakt før byggherren sender | BH | alle | GFK-U1–GFK-U28, GFK-U5 (B) | ingen handling; datalaget i `server/godkjenning.ts` og `server/fullmakt.ts`, uten rute | finnes ikke (bare avsenderens egen kontroll, LV-U2) | Beholde vedtakene. Bygges når GFK-U5 er oppfylt |
+| 2.11 | Interne notater | team | alle | ingen post; invarianten i `CLAUDE.md`, MS-05 | finnes ikke; tabellen `koe.notat` med radsikkerhet finnes i migrasjonene | finnes ikke | Utsette. Ingen handling i første versjon, og invarianten står til de bygges |
 
 ## Avgrensninger som følger av vedtak
 
@@ -62,14 +63,14 @@ Disse stilles ikke som spørsmål. De følger av vedtakene som står i kolonnen.
 | Handling | Kilde | Kjernen | Avgrensning |
 | --- | --- | --- | --- |
 | Forsering og endringsordre som egen sak | OV-U1, OV-U2 slik EO-U39 endret den; FO-U1–FO-U8 | avvises | Utsatt, som oppdragsgiver sier 14.11 |
-| Innsigelse etter punkt 5 som egen handling | OV-U1, VS-U46; #1657 | `innsigelse` godtas | Avgjøres i #1657, ikke her |
-| Protest, bestridelse, påberopt passivitet | MM-U48, MM-U47 punkt 10 og beslutningsdelen | avvises (`IKKE_I_FOERSTE_VERSJON`), men har skrivegrener | Sendes som innlegg. Kommandoene kan fjernes fra kjernen (arbeidsvalg) |
+| Innsigelse etter punkt 5 som egen handling | OV-U1, VS-U46; #1657 | `innsigelse` godtas, unntatt mot varsel etter 32.2 og for kravposter; Varden viser den ikke | Avgjøres i #1657, ikke her |
+| Protest, bestridelse, påberopt passivitet | MM-U48, MM-U47 punkt 10 og beslutningsdelen | avvises (`IKKE_I_FOERSTE_VERSJON`); protest og passivitet har skrivegrener | Sendes som innlegg. Kommandoene kan fjernes fra kjernen (arbeidsvalg) |
 | Senere begrunnelse fra byggherren | KA-U34 og KA-U35, opphevet av KA-U46 | avvises, men har skrivegren | Sendes som innlegg. Kommandoen kan fjernes (arbeidsvalg) |
-| Merking og avklaring | KA-U20 (merkingen ikke i første versjon) | avvises | Kommandoen `avklaring` kan fjernes (arbeidsvalg) |
+| Merking og avklaring | KA-U20 (merkingen ikke i første versjon) | avvises | Kommandoene `merking` og `avklaring` kan fjernes (arbeidsvalg) |
 
 ## Tilstandene
 
-Kjernen utleder én betegnelse per spor (`kjerne/utledning/visning.ts`, `betegnelse`), i denne
+Kjernen utleder høyst én betegnelse per spor (`kjerne/utledning/visning.ts`, `betegnelse`), i denne
 rekkefølgen: trukket, spesifisert krav etterspurt, venter på svar, pålegg frafalt, enige, svaret er
 ikke godtatt, krav sendt, ingen krav, varslet. Saken får en betegnelse (`saksbetegnelse`): ikke
 forstått, avslaget på forholdet godtatt, påberopelsen trukket, kravene avgjort. Svarets resultat er
@@ -77,8 +78,9 @@ standpunktet (godkjent, delvis godkjent, avslått, pålegg frafalt), ikke en sta
 design (MM-U22, MM-U30) og etiketter i visningen. Ingen regel leser dem (`CLAUDE.md`, «Ingen regel
 leser en oppsummering»).
 
-Hver betegnelse viser et utsagn fra en handling: *krav sendt*, *venter på svar* og *varslet* fra
-grunnsettet; *enige* og *svaret er ikke godtatt* fra aksepten (2.3); *trukket* fra trekket (2.4);
+Hver betegnelse viser et utsagn fra en handling: *venter på svar*, *svaret er ikke godtatt* og
+*varslet* fra grunnsettet; *enige* og *krav sendt* (som forutsetter at avslaget på forholdet er
+godtatt, `FORELIGGER.krav_sendt`) fra aksepten (2.3); *trukket* fra trekket (2.4);
 *ingen krav* fra 2.5; *spesifisert krav etterspurt* fra forespørselen (2.6); *pålegg frafalt* fra
 svaret på påberopelsen; *ikke forstått* fra MM-U2 og MM-U43. En betegnelse finnes derfor bare så
 lenge handlingen den viser, finnes (punkt 4 i forslaget).
@@ -150,6 +152,17 @@ MM-U47 punkt 10 forutsetter det. Styrer: rekkefølgen i #1065.
 ### Svarene
 
 Ikke besvart.
+
+## Kodefunn
+
+Samles i én kommentar i #1987 når spørsmålene er besvart (vedtaksskillen, samlevedtakene).
+
+- **K1.** Kjernen godtar og tilbyr «ingen krav» (`forutsetninger.ts`, `handlinger.ts` `kandidater`),
+  mens KA-U15 sier at den ikke bygges i første versjon. Varden viser den som en ukjent handling
+  (`tekster.ts` `ukjentHandling`).
+- **K2.** Kommandoene for protest, passivitet og senere begrunnelse avvises, men har skrivegrener i
+  `skriving.ts`. Bestridelse, merking og avklaring avvises og kaster i skrivingen.
+- **K3.** Varselet etter 32.2 godtas av kjernen, men tilbys ikke (`kandidater`).
 
 ## Verifikasjon og grenser
 
