@@ -19,6 +19,7 @@ import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 import { kravetOgSvaret, trinnene } from '$lib/components/varden/vederlagsoversikt';
 import { brevene } from '$lib/components/varden/lesing';
+import { VEDERLAGET } from '$lib/components/varden/tekster';
 import type { Utledning } from '$kjerne/utledning/utled';
 
 const kravetOgSvaretI = (u: Utledning) => kravetOgSvaret(u, brevene(u));
@@ -106,6 +107,7 @@ describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
       ['videre subsidiært', 130000],
     ]);
     expect(k.lagene[1]!.vilkaar.map((v) => v.art)).toEqual(['grunn']);
+    expect(VEDERLAGET.laget(k.lagene[0]!)).toBe('Byggherren har avslått forholdet i brev 2.');
   });
 
   it('før byggherren har svart, står kravet uten lag (U-4)', async () => {
@@ -117,6 +119,8 @@ describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
 
   it('målestokken har runde trinn: 0, 50 000, 100 000 og 150 000 for 190 000 kr (U-2)', () => {
     expect(trinnene(190000)).toEqual([0, 50000, 100000, 150000]);
+    // Trinnet ved enden står ikke, så tallet ikke går ut over målestokken.
+    expect(trinnene(100000)).toEqual([0, 25000, 50000, 75000]);
   });
 });
 

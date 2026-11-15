@@ -1553,7 +1553,7 @@ export const VEDERLAGET = {
   /** Vilkåret og det laget bygger på, i én setning ved beløpet (U-2). */
   laget: (l: Laget): string => {
     const grunnlag = [
-      ...l.grunner.map((g) => VEDERLAGET.innsigelsen({ art: 'grunn', ...g })),
+      ...l.grunner.map((g) => grunntekst(g.grunn, false, g.brev)),
       ...l.standpunkter.map((s) => VEDERLAGET.standpunkt(s.standpunkt, s.brev)),
     ]
       .map((t, i) => (i ? liten(t) : t))

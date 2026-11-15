@@ -195,7 +195,8 @@ export function trinnene(stoerst: number): number[] {
   const raa = stoerst / 4;
   const grunn = 10 ** Math.floor(Math.log10(raa));
   const steg = [1, 2, 2.5, 5, 10].map((f) => f * grunn).find((x) => x >= raa)!;
-  return Array.from({ length: Math.floor(stoerst / steg) + 1 }, (_, i) => i * steg);
+  // Trinnet ved enden av skalaen står ikke, så tallet ikke går ut over målestokken.
+  return Array.from({ length: Math.ceil(stoerst / steg) }, (_, i) => i * steg);
 }
 
 /** Summen av de faste beløpene i hvert krav i vederlaget, etter brevet med kravet (U-12). */
