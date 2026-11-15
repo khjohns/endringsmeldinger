@@ -448,11 +448,13 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
     expect(forstaatt(await lest.journal())).toBe(true);
   });
 
-  // En registrert passivitet er dokumentasjon uten virkning (OV-U4), så passiviteten er sendt herfra.
+  // En registrert passivitet er dokumentasjon (OV-U98), så passiviteten er sendt herfra. Kravet er
+  // sendt før grunnlagskravet og står utenfor rekken (OV-U102).
   it('en påberopt passivitet sendt herfra mot den er forstått', async () => {
     const bane = minnebane();
     await bygg(bane, [
-      ...foer,
+      ...foer.slice(0, 2),
+      { ...(foer[2] as { handling: string }), sendt: '2026-09-19' },
       { handling: 'rad', art: 'passivitet', gjelder: 'K-g2', part: 'TE', navn: 'D5' },
     ]);
     expect(forstaatt(await bane.journal())).toBe(true);

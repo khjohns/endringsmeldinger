@@ -656,7 +656,7 @@ function utsagnetStrider(
     return 'en aksept av et svar med registrert enighet (GR-U8)';
   // GR-U8 for et svar som ikke lenger er gjeldende: en aksept lagt til med datoen den ble sendt,
   // kan gjelde et eldre svar (OV-U98), og leseren godtar ingen av disse (`kontrollerAksepter`).
-  if (sporet && u.spor[sporet].svar.find((s) => s.id === gjelder)!.beslutningsgrunnlag.sammenfall)
+  if (sporet && u.spor[sporet].svar.find((s) => s.id === gjelder)?.beslutningsgrunnlag.sammenfall)
     return 'en aksept av et svar partene er enige om ved sammenfall (GR-U8)';
   if (
     sporet &&

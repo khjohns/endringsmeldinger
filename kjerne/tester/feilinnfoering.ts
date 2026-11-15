@@ -594,6 +594,11 @@ const MUTASJONER: Mutasjon[] = [
         '  if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)',
         '  if (false)',
       ],
+      // GR-U8 også for et svar som ikke lenger er gjeldende (OV-U98).
+      [
+        '?.beslutningsgrunnlag.sammenfall)\n    return',
+        '?.beslutningsgrunnlag.sammenfall && false)\n    return',
+      ],
     ],
     mal: ['en aksept av et svar med sammenfall er ikke forstått'],
   },
@@ -840,6 +845,12 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [['      if (!registrert) konflikter.push(', '      if (true) konflikter.push(']],
     mal: ['F-MM-U326l'],
+    // Et svar lagt til, sendt før kravet, strider (OV-U98); med mutasjonen blir saken uforstått, og
+    // det neste steget avvises.
+    forutsetninger: [
+      { test: 'F-MM-R1-kontroll', melding: 'avvist: SAK_IKKE_FORSTAATT' },
+      { test: 'F-MM-G42x', melding: 'avvist: SAK_IKKE_FORSTAATT' },
+    ],
   },
   {
     id: 'F78',
@@ -908,7 +919,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F84',
     feilklasse:
-      'en påberopt passivitet mot en påberopelsesversjon uten virkning stopper saken (MM-U43 punkt 6, VS-U12)',
+      'en påberopt passivitet mot en påberopelsesversjon utenfor rekken stopper saken (MM-U43 punkt 6, VS-U12, OV-U102)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -1828,7 +1839,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et svar datert før byggherrens gjeldende svar på kravversjonen erstatter det (OV-U103)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['gjeldende &&\n', 'false &&\n']],
+    endringer: [
+      [
+        'foerDagen(sendt, datoenDetBleSendt(u, gjeldende), () => medSvaret(gjeldende.id))',
+        'foerDagen(sendt, datoenDetBleSendt(u, gjeldende), () => medSvaret(gjeldende.id)) && false',
+      ],
+    ],
     mal: [
       'en revisjon datert før svaret den erstatter, får ingen virkning',
       'kommandoen avviser en revisjon datert før svaret den erstatter',
@@ -4405,7 +4421,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'leseren godtar bare det egne varselet i påberopelsen, ikke det første kravet som ble sendt før det (VS-U70)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['if (p.gjelder !== tidligste && p.gjelder !== eget)', 'if (p.gjelder !== eget)']],
+    endringer: [
+      [
+        'if (p.gjelder !== tidligste && p.gjelder !== eget)',
+        'if (p.gjelder !== (eget ?? tidligste))',
+      ],
+    ],
     mal: ['byggherrens påberopelse etter § 34.1.2 gjelder det første kravet'],
   },
   {
