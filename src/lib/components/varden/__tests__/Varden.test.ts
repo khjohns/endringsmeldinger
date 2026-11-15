@@ -119,13 +119,11 @@ describe('Varden med brukerforløpet BF-01', () => {
       name: 'Svar på krav om vederlagsjustering i sak KOE-17',
     });
     expect(avsnittene(mottatt)).toEqual(vist);
-    // Aksepten er primærhandlingen, med linja om hva den gjør, og resten
-    // står synlig under «Andre handlinger», uten panel (oppdragsgiver 06.11, #1631).
-    const kortet = within(
-      screen.getByRole('heading', { name: 'Det du kan gjøre nå' }).closest('section')!
-    );
-    expect(kortet.getByText(/^Du godtar hele svaret i brev 4\./)).toBeTruthy();
-    expect(kortet.getByText('Andre handlinger')).toBeTruthy();
+    // Aksepten står ved byggherrens svar, med linja om hva den gjør, og resten står synlig under
+    // «Andre handlinger», uten panel (U-16 i BF-44, oppdragsgiver 06.11, #1631).
+    const kortet = within(screen.getByRole('main'));
+    expect(kortet.getByText(/Du godtar hele svaret i brev 4\./)).toBeTruthy();
+    expect(kortet.getByRole('region', { name: 'Andre handlinger' })).toBeTruthy();
     await fireEvent.click(kortet.getByRole('button', { name: /^Godta svaret/ }));
     // KA-U1, GR-U7: aksepten omfatter påberopelsen, og kjernen gir beløpet 0 kr etter den. Det
     // står i brevkontrollen før sendingen.
@@ -584,7 +582,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByRole('button', { name: /Ta stilling/ })).toBeNull();
   });
 
-  it('etter svaret på vederlagskravet er primærhandlingen for TE «Revider krav» (oppdragsgiver 06.11, #1631)', async () => {
+  it('etter svaret på vederlagskravet er primærhandlingen for TE «Revider krav», som sier at det nye kravet avslår tilbudet (oppdragsgiver 06.11, #1631, U-6 og D-6 i BF-44, OV-U54)', async () => {
     const demosak = lagDemosak(finnForloep('BF-04')!, 'te-har-mottatt-svaret', 'TE');
     const kjernesak = lagKjernesak({
       sakId: demosak.sakId,
@@ -595,12 +593,12 @@ describe('Varden med brukerforløpet BF-01', () => {
     });
     await kjernesak.last();
     render(Vardensak, { kjernesak, spor: 'vederlag' });
-    const kortet = within(
-      (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
-    );
+    await screen.findByRole('list', { name: 'Brevene, nyeste først' });
+    const kortet = within(screen.getByRole('main'));
     const primaer = kortet.getByRole('button', { name: 'Revider krav' });
-    expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toBe(
-      'Juster kravet eller begrunnelsen. Byggherren svarer på nytt.'
+    expect(primaer.className).toContain('knapp-primaer');
+    expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toMatch(
+      /^Et nytt krav følger opp kravet i brev 3 og avslår tilbudet i svaret\./
     );
     expect(kortet.getByRole('button', { name: /^Godta svaret/ })).toBeTruthy();
   });

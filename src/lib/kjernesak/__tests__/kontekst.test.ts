@@ -75,6 +75,7 @@ const svar = (journal: Journalrad[], part: Kjernesak['part'] = null): LastetKjer
   visning: { status: { kode: 'fra_serveren', tekst: 'Fra serveren' } } as unknown as Visning,
   journal: journal.map(linje),
   leveringsoppdrag: [],
+  catenda_lenke: null,
   merking: MERKING,
 });
 

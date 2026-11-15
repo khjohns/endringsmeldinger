@@ -33,6 +33,11 @@ export interface Kjernesak {
   visning: Visning;
   journal: Journallinje[];
   leveringsoppdrag: Leveringsoppdrag[];
+  /**
+   * Lenken til saken i Catenda, eller `null` når driften ikke har satt `CATENDA_SAKSLENKE`,
+   * saken ennå ikke har en topic i Catenda, eller oppslaget feilet (#1985).
+   */
+  catenda_lenke: string | null;
 }
 
 const SAKER = '/api/kjerne/saker';

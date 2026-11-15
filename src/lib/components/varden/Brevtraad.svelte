@@ -15,7 +15,7 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import type { Brevet, Brevref, Innlegget } from './lesing';
-  import { FORHOLDET, TRAADEN, dato, kortDatoMedAar } from './tekster';
+  import { FORHOLDET, TRAADEN, VEDERLAGET, dato, kortDatoMedAar } from './tekster';
 
   let {
     brev,
@@ -33,6 +33,8 @@
     handlingVed = null,
     handling,
     brevet,
+    beloep = new Map(),
+    akseptfrist = null,
   }: {
     /** Brevene i tråden i rekkefølgen i journalen (`brevITraaden`). Tråden viser dem nyest først. */
     brev: Brevet[];
@@ -61,6 +63,10 @@
     handling?: Snippet;
     /** Brevet slik det ble sendt, i raden. */
     brevet?: Snippet<[Brevet]>;
+    /** Beløpet i kravet ved brevet med kravet (U-12 i BF-44). */
+    beloep?: Map<string, number>;
+    /** Akseptfristen i byggherrens svar, ved brevet med svaret (U-11, U-16 i BF-44). */
+    akseptfrist?: { brev: string; dato: string } | null;
   } = $props();
   const uid = $props.id();
 
@@ -85,6 +91,8 @@
     {@const valgt = vist === b.id}
     {@const tilHoeyre = valgt && !smal}
     {@const datoen = registrert ? (b.sendt ?? b.registrert) : b.registrert}
+    {@const kravbeloep = beloep.get(b.id)}
+    {@const frist = akseptfrist?.brev === b.id ? akseptfrist.dato : null}
     <li
       class="innlegg"
       class:kompakt={registrert}
@@ -128,8 +136,11 @@
           {/if}
         </span>
       </div>
-      {#if registrert || i || b.vedlegg.length}
+      {#if registrert || i || b.vedlegg.length || kravbeloep !== undefined || frist}
         <div class="innhold">
+          {#if kravbeloep !== undefined}<p class="beloep">
+              {VEDERLAGET.kravbeloep(kravbeloep)}
+            </p>{/if}
           {#if registrert}
             <p class="datolinje">{TRAADEN.registrert(b.avsender, b.sendt, b.registrert)}</p>
           {/if}
@@ -201,6 +212,9 @@
                 <li class="fil"><File size={14} aria-hidden="true" /><span>{fil}</span></li>
               {/each}
             </ul>
+          {/if}
+          {#if frist}
+            <p class="akseptfrist">{VEDERLAGET.akseptfrist} <b>{dato(frist)}</b>.</p>
           {/if}
         </div>
       {/if}
@@ -463,6 +477,21 @@
     align-items: flex-start;
     gap: var(--spacing-2);
     padding-top: var(--spacing-1);
+  }
+  .beloep {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .akseptfrist {
+    padding-top: var(--spacing-2);
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .akseptfrist b {
+    font-weight: 600;
+    color: var(--ink);
   }
   .tom p {
     font-size: 14px;

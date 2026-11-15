@@ -44,10 +44,12 @@ async function vis(
   });
   await kjernesak.last();
   render(Vardensak, { kjernesak, spor, nySakLenke });
-  // På siden for forholdet står handlingen ved brevet og resten under «Andre handlinger» (U-16 i
-  // BF-44, #1898), så forventningene gjelder hele arbeidet.
-  if (spor === 'forhold') {
-    await screen.findByRole('list', { name: 'Brevene i saken, nyeste først' });
+  // På sidene for forholdet og vederlaget står handlingen ved brevet og resten under «Andre
+  // handlinger» (U-16 i BF-44, #1898, #1906), så forventningene gjelder hele arbeidet.
+  if (spor !== 'frist') {
+    await screen.findByRole('list', {
+      name: spor === 'forhold' ? 'Brevene i saken, nyeste først' : 'Brevene, nyeste først',
+    });
     return within(screen.getByRole('main'));
   }
   return within(
@@ -354,18 +356,16 @@ describe('primærhandlingen i «Det du kan gjøre nå» (#1649)', () => {
     expect(knapper.map((k) => k.textContent?.trim())).toEqual(['Svar på påberopelsen']);
   });
 
-  it('BH: «Send revidert svar» står ved byggherrens svar, med hva det gjør, og ikke under «Andre handlinger» (U-16 i BF-44)', async () => {
+  it('BH: «Send nytt svar» står ved byggherrens svar, med hva det gjør, og ikke under «Andre handlinger» (U-16 i BF-44)', async () => {
     await vis('BF-02A', 'korrigeringen-er-sendt', 'BH', 'forhold');
-    const knappen = screen.getByRole('button', { name: 'Send revidert svar' });
+    const knappen = screen.getByRole('button', { name: 'Send nytt svar' });
     const raden = knappen.closest('li')!;
     expect(raden.querySelector('h4')?.textContent).toMatch(/^Svar på påberopelsen/);
     expect(document.getElementById(knappen.getAttribute('aria-describedby')!)!.textContent).toBe(
       'Nytt brev med svaret. Svaret i brev 2 står som det ble sendt.'
     );
     const andre = screen.queryByRole('region', { name: 'Andre handlinger' });
-    expect(
-      andre && within(andre).queryByRole('button', { name: /Send revidert svar/ })
-    ).toBeFalsy();
+    expect(andre && within(andre).queryByRole('button', { name: /Send nytt svar/ })).toBeFalsy();
   });
 
   it('BH: etter korrigeringen har kortet ingen primærhandling', async () => {

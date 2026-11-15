@@ -48,6 +48,7 @@
     MOTTATT,
     NYVERSJON,
     NYSAK,
+    FORHOLDET,
     SAKEN,
     SPORNAVN,
     STILLING,
@@ -175,9 +176,12 @@
     const linje = (s: Spor) => {
       const b = u ? brevForLinja(brev, s, u.spor[s].trukket) : undefined;
       const kode = betegnelser[s];
+      // Akseptfristen i et svar som ikke er godtatt, står i stedet for siste brev (U-11 i BF-44).
+      const svar = u?.spor[s].gjeldendeSvar;
+      const frist = svar?.akseptfrist && !u?.spor[s].enighet ? svar.akseptfrist : null;
       return {
         betegnelse: kode ? BETEGNELSE[kode] : null,
-        siste: b ? SAKEN.siste(b, b.avsender) : null,
+        siste: frist ? SAKEN.akseptfrist(frist) : b ? SAKEN.siste(b, b.avsender) : null,
       };
     };
     return { forhold: linje('forhold'), vederlag: linje('vederlag'), frist: linje('frist') };
@@ -394,13 +398,20 @@
   visKontrakten={!!nySak}
   innfelt={vedSiden}
   bred
-  toArk={!nySak && valgt === 'forhold' && arbeid.art === 'les'}
+  toArk={!nySak && (valgt === 'forhold' || valgt === 'vederlag') && arbeid.art === 'les'}
   sakstittel={nySak ? null : (kjernesak.saksbilde?.tittel ?? null)}
 >
   {#snippet topplinje()}
     {#if partensLenke && !nySak}
       <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
       <a class="topplenke" href={partensLenke}>{SAKEN.nyttKrav}</a>
+    {/if}
+    {#if kjernesak.sak?.catenda_lenke && !nySak}
+      <!-- Saken i Catenda, uten kommentarene fra Catenda til #1627 er avgjort (U-15 i BF-44). -->
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- lenken går ut av appen -->
+      <a class="topplenke" href={kjernesak.sak.catenda_lenke} target="_blank" rel="noopener"
+        >{SAKEN.iCatenda}<span class="visually-hidden">{FORHOLDET.nyFane}</span></a
+      >
     {/if}
   {/snippet}
   {#snippet sporrad()}

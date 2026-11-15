@@ -1,7 +1,7 @@
 <!--
   Sporet med siste brev i sin helhet (Varden, skjerm D). Handlingene står synlige i kortet «Det du
   kan gjøre nå» øverst i høyre kolonne, uten panel (oppdragsgiver 06.11, #1631): én primærhandling
-  og resten under «Andre handlinger». I forholdet står siden for forholdet i stedet, med brevtråden
+  og resten under «Andre handlinger». I forholdet og vederlaget står siden for sporet i stedet, med brevtråden
   og brevet slik det ble sendt i høyre kolonne, og handlingen ved brevet den svarer på (oppsett B,
   U-16 i BF-44, #1898). «Godta svaret» går rett til brevet med aksepten, der virkningen kjernen
   regner ut, står før sendingen.
@@ -22,6 +22,7 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
+  import Vederlagsoversikt from './Vederlagsoversikt.svelte';
   import { aksepten } from './kommandoer';
   import { medietreff } from './medie.svelte';
   import {
@@ -85,7 +86,8 @@
   const kanGodta = $derived(svaret !== null && noekler.includes(`godta:${spor}`));
   const svarbrevet = $derived(svaret ? sporbrev.find((b) => b.id === svaret.dokument) : undefined);
   const vist = $derived(kanGodta && svarbrevet ? svarbrevet : siste);
-  const oversikt = $derived(spor === 'forhold');
+  // Sidene for forholdet og vederlaget har tråden og brevet ved siden av (oppsett B, U-16).
+  const oversikt = $derived(spor === 'forhold' || spor === 'vederlag');
   // Under 1181 px står brevet i raden i tråden, og ellers i høyre kolonne (U-16 i BF-44).
   const smalt = medietreff('(max-width: 1180px)');
   const smal = $derived(smalt.treff);
@@ -198,7 +200,9 @@
       if (kanGodta)
         return spor === 'forhold'
           ? HANDLINGENE.virkning.oppdaterPaaberopelse(hovedkategorien(u))
-          : HANDLINGENE.virkning.reviderKrav;
+          : spor === 'vederlag' && krav
+            ? HANDLINGENE.virkning.avslaarTilbudet(krav)
+            : HANDLINGENE.virkning.reviderKrav;
       return HANDLINGENE.virkning.nyVersjon(spor, krav, svarbrevet ?? null);
     }
     return null;
@@ -326,19 +330,33 @@
 <Arbeidsflate leser={oversikt}>
   {#snippet hoved()}
     {#if oversikt}
-      <Forholdsoversikt
-        {u}
-        betegnelser={betegnelsene(kjernesak.saksbilde)}
-        vist={visesId}
-        {smal}
-        onles={lesBrevet}
-        {onspor}
-        {korrigerbare}
-        {onkorriger}
-        {handlingVed}
-        handling={vedBrevet}
-        brevet={lestBrevet}
-      />
+      {#if spor === 'vederlag'}
+        <Vederlagsoversikt
+          {u}
+          venterPaaSvar={betegnelsene(kjernesak.saksbilde).vederlag === 'venter_paa_svar'}
+          vist={visesId}
+          {smal}
+          onles={lesBrevet}
+          onforholdet={onspor ? () => onspor('forhold') : undefined}
+          {handlingVed}
+          handling={vedBrevet}
+          brevet={lestBrevet}
+        />
+      {:else}
+        <Forholdsoversikt
+          {u}
+          betegnelser={betegnelsene(kjernesak.saksbilde)}
+          vist={visesId}
+          {smal}
+          onles={lesBrevet}
+          {onspor}
+          {korrigerbare}
+          {onkorriger}
+          {handlingVed}
+          handling={vedBrevet}
+          brevet={lestBrevet}
+        />
+      {/if}
       {#if handlingVed === null && (primaer || hindring)}
         <!-- Uten et brev å stå ved står handlingen over de andre, så den aldri faller bort. -->
         <section class="kort andre" aria-label={FORHOLDET.handlinger}>

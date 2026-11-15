@@ -81,6 +81,7 @@ async function svarskjemaet(journal: Journalrad[]) {
       visning: null as never,
       journal: journal.map(linje),
       leveringsoppdrag: [],
+      catenda_lenke: null,
       merking: MERKING,
     }),
   });
