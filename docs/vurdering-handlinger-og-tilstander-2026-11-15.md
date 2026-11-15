@@ -182,8 +182,8 @@ rekkefølge. En helhetsvurdering skrives bare der en port står på «delvis».
 | 4 Tilstander | Hvilke tilstander handlingen åpner og lukker; hver tilstand har en vei ut |
 | Kostnad | Ny regel i kjernen, nytt skjema i Varden, eller ingen av delene |
 
-**Prøvd på fem tilfeller.** Trekk: beholde, én handling i to former (eget trekk og i en ny
-kravversjon). Nytt svar (HF-U29): beholde, en form av svar. Innsigelsen etter punkt 5: innlegg i
+**Prøvd på fem tilfeller.** Trekk: beholde (rettet 15.11 etter oppdragsgivers kontroll: trekk av
+en kravpost er en form av ny kravversjon, ikke av trekket). Nytt svar (HF-U29): beholde, en form av svar. Innsigelsen etter punkt 5: innlegg i
 første versjon; ingen regel leser den egne innsigelsen da (VS-U46, beslutningsdelen). Bekreftelsen (OV-U46): senere, med registrert svar som omvei. «Ingen krav»:
 port 1 ja (KA-U17), port 3 senere (OV-U7). Port 0: «venter på svar» og «varslet» holder; «svaret er
 ikke godtatt» og «krav sendt» feiler.
@@ -217,6 +217,25 @@ og OV-U6:
 - Forespørselen etter 33.6.2 registreres alltid (VS-U19), men OV-U80 har den ikke blant valgene;
   B1 utvider OV-U80. Kjernen avviser i dag en registrert forespørsel.
 
+**Oppdragsgivers kontroll av siden 15.11, ordrett** (kontrollspørsmålene på siden «Handlinger
+gjennom portene»):
+1. «fritekst aksept registrer ikke enighet, det er OK.»
+2. «trekk: blander man her trekk av hele kravet, og trekk av enkelt kravpost?» Rettet: trekk av
+   hele kravet er en egen handling (KA-U51); trekk av en kravpost er en form av ny kravversjon
+   (OV-U95 punkt G).
+3. «ja, samme skjema. Men må være tydelig for bruker at det er en revisjon; at dette er svart ut
+   tidligere» Kravet til utformingen i port 2 for nytt svar.
+4. «handlingen er viktig for at BH skal kunne be om at dager blir spesifisert. Det er viktig for BH
+   sin kontroll og oversikt over prosjektet. En slik handling har konsekvenser for både BH og TE,
+   spesifisert i kontrakten og vanskelig for en bruker å forstå uten god kjennskap til kontrakten,
+   og derfor tenker jeg det er viktig å ha dette strukturert som egen handling» Gir port 2 en grunn
+   til: en virkning brukeren vanskelig forstår uten kjennskap til kontrakten, taler for en
+   strukturert handling som forklarer den.
+5. «innsigelse fremmer enkelt i fritekstinnlegg. Konsekvenser fører partene i kravskjema - kan
+   vurderes p legge inn som et strukturert forbehold i kravskjema der det svares på krav eller
+   svar» Ideen om et strukturert forbehold berører KA-U16, KA-U49 og VS-U46 og stilles for seg i
+   #1657, ikke i denne runden.
+
 Skjemaet er fylt ut i «Skjemaet», og spørsmålene etter drøftingen står i «Spørsmålene etter drøftingen».
 
 ## Skjemaet
@@ -240,7 +259,7 @@ men mangler i kjernen eller Varden. Hyppighet er ikke brukt som grunn, fordi den
 | # | Handling | 1 Finnes? | 2 Form | 3 Når | 4 Tilstander | Kostnad | Utfall |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | U1 | Aksept av svaret | Ja. «Enige» og sperren etter enighet leser den (KA-U1) | Strukturert, egen. Brevet sier hvilket svar som godtas | Nå. Uten den er enighet ved sammenfall (GR-U10) den eneste veien; et innlegg leses ikke som aksept | Åpner «enige», lukker «byggherren har svart» | Ingen | Beholde |
-| U2 | Trekk | Ja. Avkall som lukker sporet (KA-U51) | Strukturert. Én handling i to former: eget trekk, og trekk av en kravpost i en ny kravversjon (OV-U95 punkt G). Brevet sier hva som trekkes, og at det er et avkall | Nå. Ingen omvei for trekk av hele kravet | Åpner «trukket», som er sluttilstand | Skjema i Varden for eget trekk | Beholde. Hull i Varden |
+| U2 | Trekk av påberopelsen eller hele kravet | Ja. Avkall som lukker sporet (KA-U51) | Strukturert, egen. Trekk av en kravpost er ikke en form av trekket, men av ny kravversjon (OV-U95 punkt G): kravet står, og sporet lukkes ikke. Brevet sier hva som trekkes, og at det er et avkall | Nå. Ingen omvei | Åpner «trukket», som er sluttilstand | Skjema i Varden for eget trekk | Beholde. Hull i Varden |
 | U3 | Forespørsel etter 33.6.2, og svaret på den | Ja. Fristen leser den (VS-U47) | Strukturert, egen | Nå. Fristen løper fra forespørselen | Åpner «spesifisert krav etterspurt»; svaret lukker den | Skjema i Varden for forespørselen | Beholde. Hull i Varden |
 | U4 | «Ingen krav» | Ja. Avkall (KA-U17) | Strukturert | Senere. Tidspunktet betyr ingenting, og OV-U7 utsetter den | «Ingen krav» går ut | Kjernen slutter å tilby den (K1) | Utsette |
 | U5 | Registrering som dokumentasjon (OV-U79) | Ikke et utsagn med virkning. Behovet: korrespondansen hører til saken, og den er veien til å reparere senere (OV-U84) | Strukturert | Nå | Ingen | Skjema i Varden; kjernen har `registrert_brev` | Beholde. Hull i Varden |
@@ -331,7 +350,8 @@ Forutsetter A1 og B1. Svar «ja», eller rett enkeltpunkter. Belegget står i «
 
 «Handlingene i første versjon er disse:
 1. Beholdes nå: påberopelsen, varselet, kravet med ny versjon, svaret med nytt svar, innlegget,
-   aksepten, trekket (eget, og av en kravpost i en ny kravversjon), forespørselen etter punkt
+   aksepten, trekket av påberopelsen eller hele kravet (trekk av en kravpost er en form av ny
+   kravversjon), forespørselen etter punkt
    33.6.2 og svaret på den, registreringen som dokumentasjon, registreringen med virkning ved
    innleggingen for varsel, krav og svar (OV-U80) og registreringen av forespørselen (OV-U16, VS-U47
    punkt 5), byggherrens endringsordre registrert som svar i KOE-saken (EO-U39 punkt 43–46), og
