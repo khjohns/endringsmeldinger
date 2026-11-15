@@ -486,7 +486,7 @@ export function nyttelastkontroll(
           ? null
           : avvis(
               'UGYLDIG_INNSIGELSE',
-              'Bare totalentreprenørens begrunnelse etter punkt 33.6.2 annet ledd bokstav b kan påstås ikke å være et svar etter annet ledd.'
+              'Bare totalentreprenørens begrunnelse etter punkt 33.6.2 annet ledd b kan påstås ikke å være et svar etter annet ledd.'
             );
       for (const spor of SPOR) {
         const hinder = nyttelastI(spor).innsigelse(k.gjelder, u, regler);

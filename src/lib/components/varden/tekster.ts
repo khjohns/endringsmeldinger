@@ -1427,10 +1427,10 @@ export const FRISTKRAV = {
   /** Linja i panelet og «Dette sender du» for varselet alene og svaret etter bokstav b. */
   dette: {
     varsel: 'Varselet etter punkt 33.4, uten dager',
-    svar: 'Begrunnelse etter punkt 33.6.2 annet ledd bokstav b',
+    svar: 'Begrunnelse etter punkt 33.6.2 annet ledd b',
   },
   virkningB:
-    'Svaret er en begrunnelse etter punkt 33.6.2 annet ledd bokstav b. For kravet du sender senere, gjelder punkt 33.6.1 (punkt 33.6.2 femte ledd).',
+    'Svaret er en begrunnelse etter punkt 33.6.2 annet ledd b. For kravet du sender senere, gjelder punkt 33.6.1 (punkt 33.6.2 femte ledd).',
   virkningVarsel: (n: number | null) =>
     n === null
       ? 'Varselet etter punkt 33.4 sendes i dag. Varsles det for sent, tapes kravet.'

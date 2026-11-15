@@ -4288,7 +4288,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(medB.avvisning('BH', foresporsel)).toEqual({
       regel: 'FORESPORSEL_BEGRUNNET',
       melding:
-        'Totalentreprenøren har svart på en forespørsel med en begrunnelse etter punkt 33.6.2 annet ledd bokstav b, så en ny forespørsel kan ikke sendes herfra.',
+        'Totalentreprenøren har svart på en forespørsel med en begrunnelse etter punkt 33.6.2 annet ledd b, så en ny forespørsel kan ikke sendes herfra.',
     });
     const medKrav = sak();
     medKrav.send('TE', PAABEROPELSE);
