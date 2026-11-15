@@ -502,6 +502,20 @@ Svarene er dermed A1, B1, C slik forslaget står (punkt 4: innlegg i første ver
 D1 og E1. Om innsigelsen og passiviteten skal være innlegg også etter første versjon, og om
 innsigelsen skal bli et forbehold i skjemaet for krav og svar, avgjøres i #1657.
 
+Om MM-U40 og designdelen i A1, oppdragsgiver 15.11, ordrett: «MM-U40: I prinsippet riktig.
+Løsningen gjør det i noen grad: feks oppfordre til å svare på et krav, bare ved at frontend viser
+tydelig "svar på krav" ved brevet om kravet. Men så mye mer oppfordring bør unnlates: løsningen vet
+ikke hva som er sagt mellom partene i innlegg eller utenfor løsningen og å dermed gi en illusjon om
+at den vet som må ta neste steg blir feil.» Kartleggingsøkta foreslo en ny tekst i MM-U24
+(betegnelsene sier hvem som har sagt hva, ikke hvem som skal handle; det vises bare ved handlingen
+parten kan gjøre). Oppdragsgiver 15.11, ordrett: «Enig om at bekreftelse da utgår og om forslaget
+til MM-U24». MM-U24 i `.interface-design/system.md` er rettet, og MM-U40 står.
+
+Om bekreftelsen etter OV-U46: kartleggingsøkta foreslo 15.11 at bekreftelsen utgår, fordi et
+registrert svar (OV-U80, OV-U98) gir riktig dato og bare én meddelelse, og at det krever et nytt
+vedtak som opphever OV-U46 og brevtekstene i GR-U35–GR-U37. Oppdragsgiver 15.11, ordrett: «Enig om
+at bekreftelse da utgår og om forslaget til MM-U24». Vedtaksteksten stilles for seg (spørsmål F).
+
 ## Kodefunn
 
 Samles i én kommentar i #1987 når spørsmålene er besvart (vedtaksskillen, samlevedtakene).

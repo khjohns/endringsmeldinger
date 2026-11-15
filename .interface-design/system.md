@@ -266,8 +266,11 @@ punktet. Det juridiske står i vedtakene, ikke her.
   [MM-U37](../docs/plans/vedtak.md#mm-u37)).
 - <a id="mm-u24"></a>**MM-U24** Ved kravet står det som foreligger: et krav uten registrert svar
   fra byggherren, et svar TE ikke har godtatt (med akseptfristen), eller en aksept etter fristen
-  uten registrert svar fra byggherren. Betegnelsene sier hvem som har sagt hva, og hvem som står
-  for tur ([OV-U97](../docs/plans/vedtak.md#ov-u97), [OV-U99](../docs/plans/vedtak.md#ov-u99)). Fristveiledningen står ved kravet, regnet fra sendingen. Visningen
+  uten registrert svar fra byggherren. Betegnelsene sier hvem som har sagt hva, og ikke hvem som
+  skal handle. At en part kan svare, vises bare ved handlingen parten kan gjøre, for eksempel
+  «Svar på kravet» ved brevet om kravet. Løsningen vet ikke hva partene har sagt i innlegg eller
+  utenfor løsningen (oppdragsgiver 15.11; snevrer inn designdelen i
+  [OV-U97](../docs/plans/vedtak.md#ov-u97)). Fristveiledningen står ved kravet, regnet fra sendingen. Visningen
   sier ikke at en part har plikt, at en frist er oversittet, eller at TE ikke har flere krav
   (presiserer [VS-U2](../docs/plans/vedtak.md#vs-u2), [VS-U10](../docs/plans/vedtak.md#vs-u10), [HF-U5](../docs/plans/vedtak.md#hf-u5), [LV-U7](../docs/plans/vedtak.md#lv-u7) og [OV-U4](../docs/plans/vedtak.md#ov-u4); bindende i
   [LV-U9](../docs/plans/vedtak.md#lv-u9) og [HF-U11](../docs/plans/vedtak.md#hf-u11); endret av [MM-U34](../docs/plans/vedtak.md#mm-u34)).
