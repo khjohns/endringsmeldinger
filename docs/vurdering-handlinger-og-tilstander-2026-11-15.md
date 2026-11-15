@@ -183,8 +183,8 @@ rekkefølge. En helhetsvurdering skrives bare der en port står på «delvis».
 | Kostnad | Ny regel i kjernen, nytt skjema i Varden, eller ingen av delene |
 
 **Prøvd på fem tilfeller.** Trekk: beholde, én handling i to former (eget trekk og i en ny
-kravversjon). Nytt svar (HF-U29): beholde, en form av svar. Innsigelsen etter punkt 5: innlegg,
-ingen regel leser den. Bekreftelsen (OV-U46): senere, med registrert svar som omvei. «Ingen krav»:
+kravversjon). Nytt svar (HF-U29): beholde, en form av svar. Innsigelsen etter punkt 5: innlegg i
+første versjon; ingen regel leser den egne innsigelsen da (VS-U46, beslutningsdelen). Bekreftelsen (OV-U46): senere, med registrert svar som omvei. «Ingen krav»:
 port 1 ja (KA-U17), port 3 senere (OV-U7). Port 0: «venter på svar» og «varslet» holder; «svaret er
 ikke godtatt» og «krav sendt» feiler.
 
@@ -211,11 +211,11 @@ og OV-U6:
   har egne vilkår (OV-U6).
 - Bekreftelsen (OV-U46) er ikke en form av registreringen: den er et nytt brev fra løsningen, og
   fristene regnes fra det. Om OV-U46 skal stå ved siden av OV-U80, er et vedtaksspørsmål.
-- Registreringen kan repareres ved sin utforming: korrespondansen legges til nå, og avsenderen
-  velger senere med den opprinnelige datoen (OV-U84). Valget kan bygges senere, hvis ikke MM-U55
-  krever det før første ekte sak.
-- Ikke kontrollert: hvordan forespørselen etter 33.6.2 registreres (VS-U47 nevner en registrert
-  forespørsel, OV-U80 har den ikke blant valgene).
+- Rettet etter prøvingen: registreringen med virkning ved innleggingen (OV-U80) bygges nå, fordi
+  omveien gir ny dato, og MM-U55 punkt 8 og 18 og EO-U39 forutsetter den. Bare det senere valget
+  (OV-U84) kan vente (spørsmål C punkt 1–2).
+- Forespørselen etter 33.6.2 registreres alltid (VS-U19), men OV-U80 har den ikke blant valgene;
+  B1 utvider OV-U80. Kjernen avviser i dag en registrert forespørsel.
 
 Skjemaet er fylt ut i «Skjemaet», og spørsmålene etter drøftingen står i «Spørsmålene etter drøftingen».
 
@@ -232,7 +232,7 @@ men mangler i kjernen eller Varden. Hyppighet er ikke brukt som grunn, fordi den
 | G1 | Påberopelse av forholdet, med ny sak | Ja. Varslingsfristen etter 32.2 og byggherrens svar etter 32.3 leser den (GR-U40) | Strukturert, egen | Nå | Åpner «venter på svar» | Ingen | Beholde |
 | G2 | Varsel fra løsningen (33.4, 34.1.2, 34.1.3) | Ja. Om kravet er varslet i tide, leses av varselet (VS-U15, OV-U89) | Strukturert, egen. Kan sendes før kravet | Nå. Virkningen avhenger av datoen | Åpner «varslet» | Skjema i Varden for vederlag | Beholde. Hull i Varden for vederlag |
 | G3 | Krav om vederlagsjustering eller fristforlengelse, også ny versjon | Ja | Strukturert. Ny versjon er en form av kravet (GR-U40, KA-U52) | Nå | Åpner «venter på svar» | Ingen | Beholde |
-| G4 | Svar i hvert spor, også frafall, nytt svar og bekreftelse | Ja. Enigheten leser svaret (KA-U1) | Strukturert. Nytt svar (HF-U29) og bekreftelse (OV-U46) er former av svaret. Brevet viser at et svar som står, erstattes | Svar og nytt svar nå. Bekreftelsen senere: registrert svar med opprinnelig dato er omveien (OV-U80), se U6 | Åpner «byggherren har svart» og «pålegg frafalt», lukker «venter på svar» | Skjema i Varden for svaret på påberopelsen og for nytt svar | Beholde svar og nytt svar. Bekreftelsen venter. Hull i Varden |
+| G4 | Svar i hvert spor, også frafall, nytt svar og bekreftelse | Ja. Enigheten leser svaret (KA-U1) | Strukturert. Nytt svar (HF-U29) og bekreftelse (OV-U46) er former av svaret. Brevet viser at et svar som står, erstattes | Svar og nytt svar nå. Bekreftelsen senere: registrert svar med opprinnelig dato dekker behovet (OV-U80, U6) | Åpner «byggherren har svart» og «pålegg frafalt», lukker «venter på svar» | Skjema i Varden for svaret på påberopelsen og for nytt svar | Beholde svar og nytt svar. Bekreftelsen venter. Hull i Varden |
 | G5 | Innlegg i fritekst | Nei. Ingen regel leser det (MM-U47 punkt 4) | Innlegg. Tar innsigelsen etter punkt 5, protest, bestridelse, passivitet, senere begrunnelse og utdyping | Nå | Merket for innlegg etter siste brev (port 0) | Ny kommando uten regel i kjernen; skjema i Varden | Beholde. Hull i kjernen og Varden |
 
 ### Utover grunnsettet
@@ -244,9 +244,9 @@ men mangler i kjernen eller Varden. Hyppighet er ikke brukt som grunn, fordi den
 | U3 | Forespørsel etter 33.6.2, og svaret på den | Ja. Fristen leser den (VS-U47) | Strukturert, egen | Nå. Fristen løper fra forespørselen | Åpner «spesifisert krav etterspurt»; svaret lukker den | Skjema i Varden for forespørselen | Beholde. Hull i Varden |
 | U4 | «Ingen krav» | Ja. Avkall (KA-U17) | Strukturert | Senere. Tidspunktet betyr ingenting, og OV-U7 utsetter den | «Ingen krav» går ut | Kjernen slutter å tilby den (K1) | Utsette |
 | U5 | Registrering som dokumentasjon (OV-U79) | Ikke et utsagn med virkning. Behovet: korrespondansen hører til saken, og den er veien til å reparere senere (OV-U84) | Strukturert | Nå | Ingen | Skjema i Varden; kjernen har `registrert_brev` | Beholde. Hull i Varden |
-| U6 | Registrering med virkning: varsel, krav, svar, forespørsel, endringsordre som svar | Ja for varsel, krav, svar og forespørsel: fristene regnes fra sendedatoen (OV-U80, VS-U19) | Former av varsel, krav og svar, valgt av avsenderen (OV-U84) | Varsel nå: MM-U55 krever retting av varseldatoen før første ekte sak. Endringsordren som svar nå (OV-U2, OV-U6). Krav, svar og forespørsel senere, reparerbart etter OV-U84 | Som handlingen registreringen er en form av | Valget etter OV-U84 for krav, svar og forespørsel | Varsel og endringsordre som svar beholdes. Resten venter (spørsmål B og C) |
+| U6 | Registrering med virkning ved innleggingen: varsel, krav, svar, forespørsel, endringsordre som svar | Ja: fristene regnes fra sendedatoen (OV-U80, VS-U19). Uten den kan ingen svare på et krav, eller godta et svar, sendt utenfor | Former av varsel, krav og svar (OV-U80). Det senere valget for korrespondanse som alt er lagt til (OV-U84), er en egen form | Nå. Omveien, å sende på nytt fra løsningen, gir ny dato. MM-U55 punkt 8 og 18 og EO-U39 forutsetter registreringen. OV-U84 senere | Som handlingen registreringen er en form av | Kjernen leser registrert krav og svar, men har ingen kommando som skriver dem; registrert forespørsel avvises. Ny kommando og regel i kjernen; skjema i Varden | Beholde nå, OV-U84 venter. Hull i kjernen og Varden |
 | U7 | Retting av datoer i et sendt brev | Ja (MM-U55) | Strukturert | Nå for datoene i beslutningsdelen i MM-U55 | Ingen ny | Bare korrigeringen av datoen i påberopelsen (punkt 10) er bygget. Rettingen av varseldatoen (punkt 8) og kravdatoen (punkt 18): ny kommando i kjernen og skjema i Varden. Den manuelle korrigeringsprosessen for andre rettinger skal være avklart | Beholde. Hull i kjernen og Varden |
-| U8 | Godkjenning med fullmakt | Ikke et utsagn til motparten. Byggherrens organisering av fullmakten, og tilgang (K4) | – | Senere (GFK-U5) | Ingen | Rute i serveren og skjema; datalaget finnes | Beholde vedtakene. Bygges etter GFK-U5 |
+| U8 | Godkjenning med fullmakt | Ikke et utsagn til motparten. Byggherrens organisering av fullmakten, og tilgang (K4) | – | Senere (GFK-U5) | Ingen | Rute i serveren og skjema; datalaget finnes | Beholde vedtakene. Bygges etter GFK-U5; hva som gjelder før det, er spørsmål E |
 | U9 | Interne notater | Ikke et utsagn til motparten. Samordning i teamet (antakelse); K4 er høy | – | Senere. De er ikke i journalen (MS-05), så utsettelsen kan repareres fullt ut | Ingen | Tabellen `koe.notat` finnes | Utsette |
 
 ### Tilstandene (port 0)
@@ -272,8 +272,9 @@ innsigelsen og passiviteten som egne handlinger (T1).
 
 ## Spørsmålene etter drøftingen
 
-Stilt direkte til oppdragsgiver. A og B er juridiske eller beslutninger med juridisk side, C er
-samlet tilslutning til skjemaet, og D er prioritering. Svarene føres under «Svarene etter
+Stilt direkte til oppdragsgiver. A, B og E er juridiske eller beslutninger med juridisk side, C
+er samlet tilslutning til skjemaet, og D er prioritering. Prøvd mot vedtakene og koden av to
+subagenter, og de usikre punktene drøftet med sparringsøkta, før de ble stilt. Svarene føres under «Svarene etter
 drøftingen» og deretter av orkestratoren i vedtaksregisteret.
 
 ### Spørsmål A: regelen for handlinger og tilstander
@@ -330,38 +331,77 @@ Forutsetter A1 og B1. Svar «ja», eller rett enkeltpunkter. Belegget står i «
 
 «Handlingene i første versjon er disse:
 1. Beholdes nå: påberopelsen, varselet, kravet med ny versjon, svaret med nytt svar, innlegget,
-   aksepten, trekket (eget og i en ny kravversjon), forespørselen etter punkt 33.6.2 og svaret på
-   den, registreringen som dokumentasjon, registreringen av varsel, byggherrens endringsordre
-   registrert som svar (OV-U2, OV-U6) og rettingen av datoene beslutningsdelen i MM-U55 nevner.
-2. Venter: bekreftelsen etter OV-U46, valget etter OV-U84 for krav, svar og forespørsel sendt
-   utenfor løsningen, «ingen krav» (OV-U7), godkjenning med fullmakt (GFK-U5) og interne notater.
-   Interne notater får en handling først ved et nytt vedtak.
-3. Sendes som innlegg: innsigelsen etter punkt 5, protest, bestridelse, påberopt passivitet og
-   byggherrens senere begrunnelse (VS-U46, MM-U48, KA-U46).
-4. Forsering og endringsordre som egen sak venter, som før (OV-U1, OV-U2, EO-U39).
-5. Tilstandene følger porten i A1. Betegnelsen for at kravene er avgjort etter OV-U3, sier hva som
+   aksepten, trekket (eget, og av en kravpost i en ny kravversjon), forespørselen etter punkt
+   33.6.2 og svaret på den, registreringen som dokumentasjon, registreringen med virkning ved
+   innleggingen for varsel, krav, svar og forespørsel (OV-U80, VS-U19), byggherrens endringsordre
+   registrert som svar (EO-U39 punkt 43–46), og rettingen av datoene beslutningsdelen i MM-U55
+   nevner, med den manuelle korrigeringsprosessen for andre rettinger.
+2. Venter: bekreftelsen etter OV-U46, det senere valget for korrespondanse som alt er lagt til som
+   dokumentasjon (OV-U84), «ingen krav» (OV-U7) og interne notater. Til valget etter OV-U84 er
+   bygget, legger avsenderen korrespondansen til på nytt med valget. Interne notater får en
+   handling først ved et nytt vedtak.
+3. Protest, bestridelse og byggherrens senere begrunnelse sendes som innlegg til et nytt vedtak
+   sier noe annet (MM-U48, KA-U46).
+4. Den egne innsigelsen etter punkt 5 og påberopt passivitet sendes som innlegg i første versjon.
+   Reglene for dem står (VS-U46, VS-U12).
+5. Forsering og endringsordre som egen sak venter, som før (OV-U1, OV-U2, EO-U39).
+6. Tilstandene følger porten i A1. Betegnelsen for at kravene er avgjort etter OV-U3, sier hva som
    har skjedd, ikke at kravene er avgjort. Predikatet i OV-U3 står.»
 
-Forhold: presiserer OV-U1. Punkt 2 utsetter bekreftelsen etter OV-U46 og valget etter OV-U84 for
-krav, svar og forespørsel til etter første ekte sak; vedtakene står. Punkt 3 er i tråd med VS-U46
-og oppdragsgivers svar 15.11 om innsigelsen (#1657). Anbefaling: ja. Styrer: hva kjernen beholder,
-hva Varden bygger, og betegnelsene.
+Forhold: endrer OV-U1 for rekkefølgen, slik OV-U7 gjorde: bekreftelsen, valget etter OV-U84 og
+«ingen krav» venter, og vedtakene om dem står. Punkt 2, andre setning, gjelder til OV-U84 er bygget,
+og tar ikke opp igjen alternativet OV-U84 forkastet som varig regel. Punkt 4 er det VS-U46 alt
+sier. Punkt 6 endrer OV-U10 (teksten «Alle krav sendt i appen er avgjort») og, med oppdragsgivers
+svar 1, MM-U30 (betegnelsene «Byggherren har svart», «Krav sendt» og «Ingen krav», og merknaden for
+innlegg); begge er design. Anbefaling: ja. Styrer: hva kjernen beholder, hva Varden bygger, og
+betegnelsene.
+
+Tapet ved punkt 4 (sparringen 15.11): VS-U46 punkt 6 bevarer den første påberopelsen og tidspunktet.
+Sender byggherren innsigelsen tidlig i et innlegg og påberoper den i svaret senere, viser løsningen
+svarets tidspunkt som det første. Løsningen konkluderer ikke, så det er en skjevhet i visningen,
+ikke en feil regel. Om innsigelsen skal være innlegg også etter første versjon, stilles i #1657;
+da faller VS-U46 punkt 17, og forholdet blir «endrer VS-U46».
 
 ### Spørsmål D: rekkefølgen (prioritering, ikke juridisk)
 
 Hullene i det som beholdes nå: innlegget (kjernen og Varden); byggherrens svar på påberopelsen,
 varselet i vederlag, eget trekk, nytt svar, forespørselen og registreringen som dokumentasjon
 (Varden); rettingen av varseldatoen og kravdatoen etter MM-U55 (kjernen og Varden), og den
-manuelle korrigeringsprosessen for andre rettinger.
+manuelle korrigeringsprosessen for andre rettinger; registreringen med virkning (OV-U80) for
+krav, svar, forespørsel og endringsordren som svar (kjernen og Varden).
 
 - **D1 (anbefalt):** Grunnsettet først: innlegget og svaret på påberopelsen, så varselet i
-  vederlag. Deretter eget trekk, nytt svar, forespørselen, registreringen og rettingene etter
-  MM-U55. Orkestratoren
+  vederlag. Deretter registreringen med virkning og rettingene etter MM-U55, som første ekte sak
+  trenger for brev sendt utenfor løsningen. Så eget trekk, nytt svar og forespørselen. Orkestratoren
   oppretter issuene og fører rekkefølgen i #1065.
 - **D2:** Rekkefølgen i #1065 står uendret.
 
 Anbefaling: D1. Uten innlegget og svaret på påberopelsen kan en sak ikke føres gjennom
 grunnsettet. Styrer: rekkefølgen i #1065.
+
+### Spørsmål E: byggherrens svar før godkjenningen er bygget
+
+Belegg: GFK-U5 sier at godkjenningsinngangene bygges når innlogging med Entra ID og roller fra
+HR-dataene finnes. Den sier ikke hva som gjelder for byggherrens svar før det. Posten «Ubegrenset
+fullmakt kan sende alene når beløpet ikke kan verdsettes» krever hele kjeden for alle andre, og
+OV-U80 og EO-U39 punkt 45 sender registrerte svar gjennom fullmakten. I dag bruker ingen rute i
+serveren `server/fullmakt.ts` eller `server/godkjenning.ts`, så et svar sendes uten kontroll av
+fullmakten. Klasse: beslutning med juridisk side.
+
+- **E1:** «Byggherrens svar sendes ikke fra løsningen før godkjenningen er bygget.» Forhold:
+  ingen; første ekte sak venter på GFK-U5.
+- **E2:** «Før godkjenningen er bygget, sender bare den som har registrert fullmakt som dekker
+  svaret, alene. Andre avvises.» Forhold: presiserer GFK-U5; bygger på fullmaktsregisteret, som
+  ligger nær alternativet GFK-U5 forkastet.
+- **E3:** «Før godkjenningen er bygget, sender byggherrens representant svaret alene, og fullmakten
+  håndteres utenfor løsningen. Løsningen kontrollerer ikke beløpsgrensen.» Forhold: setter i
+  første versjon til side kjeden etter posten om ubegrenset fullmakt, OV-U80 og EO-U39 punkt 45,
+  for svar sendt før GFK-U5 er oppfylt.
+
+Anbefaling: ingen sterk. E3 er den eneste veien til en første ekte sak uten Entra ID, og den
+beskriver det koden gjør i dag. Kostnaden er at løsningen sender brev uten å ha kontrollert
+fullmakten, og at byggherren bærer kontrollen utenfor. E1 er den sikreste, men binder første ekte
+sak til GFK-U5. Styrer: om første ekte sak venter på Entra ID, og hva brevkontrollen må si.
 
 ### Svarene etter drøftingen
 
