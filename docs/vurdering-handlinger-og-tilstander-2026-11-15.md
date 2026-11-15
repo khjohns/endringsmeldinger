@@ -334,18 +334,24 @@ forespørsel etter punkt 33.6.2 sendt utenfor alltid registreres. OV-U84 lar avs
 senere, med datoen brevet ble sendt. Klasse: vedtak.
 
 - **B1 (anbefalt, etter prøven av arbeidsflyten):** «Et brev sendt utenfor løsningen får virkning
-  i løsningen bare når avsenderen legger det til som et varsel, et krav, et svar, en endringsordre,
-  en forespørsel etter punkt 33.6.2 eller totalentreprenørens aksept av byggherrens svar, fordi
-  virkningen avhenger av når brevet ble sendt. Annet står som dokumentasjon, og parten sender
-  utsagnet fra løsningen. Datoen avsenderen oppgir at brevet ble sendt, er datoen for utsagnet i
-  løsningen. Ellers avgjør rekkefølgen utsagnene ble lagt til i løsningen, sperrene og hva som er
-  gjeldende, med unntakene i OV-U80 og OV-U84. Et krav eller svar som ble sendt før avsenderens
-  siste krav eller svar i sporet, blir ikke gjeldende og står som dokumentasjon. En aksept som
-  legges til, gjelder svaret som var gjeldende da aksepten ble sendt, med mindre
-  totalentreprenøren har sendt en ny kravversjon etterpå. Et svar byggherren har gitt etter
-  aksepten, står med virkningen det hadde.» Forhold: endrer OV-U80 (setningen om aksept) og
-  utvider den med endringsordren, forespørselen og aksepten; presiserer KA-U1 (gjeldende svar på
-  sendedatoen), EO-U39 punkt 43, HF-U23 punkt 7, HF-U29 punkt 3, OV-U84 og MM-U55 punkt 8 og 18.
+  i løsningen bare når avsenderen legger det til som et varsel, et krav, et svar (også byggherrens
+  endringsordre som svar), en forespørsel etter punkt 33.6.2 eller totalentreprenørens aksept av
+  byggherrens svar, fordi virkningen avhenger av når brevet ble sendt. Annet står som
+  dokumentasjon, og parten sender utsagnet fra løsningen. Datoen avsenderen oppgir at brevet ble
+  sendt, er datoen for utsagnet i løsningen. Ellers avgjør rekkefølgen utsagnene ble lagt til i
+  løsningen, sperrene og hva som er gjeldende, med unntakene i OV-U80, OV-U84 og VS-U19. Et krav
+  som er sendt før totalentreprenørens siste krav i sporet, blir ikke gjeldende, men datoen det ble
+  sendt, gjelder som totalentreprenørens opplysning. Et svar som legges til, gjelder kravversjonen
+  det svarer på, og godtas når den var gjeldende da svaret ble sendt. En aksept som legges til,
+  gjelder svaret den godtar, og godtas når det var byggherrens gjeldende svar da aksepten ble
+  sendt. Et svar byggherren har sendt etter aksepten, står med virkningen det hadde. Hvilket krav
+  eller svar som er gjeldende, avgjøres når det legges til, og en senere retting av datoen endrer
+  det ikke.» Forhold: endrer OV-U80 (setningen om aksept, og at et tidligere krav ikke blir
+  gjeldende selv om valget ellers ville vært godtatt) og utvider den med forespørselen og
+  aksepten; snevrer inn OV-U84 (et senere valg av et tidligere krav blir ikke gjeldende);
+  presiserer KA-U1 og GR-U7 (gjeldende svar på sendedatoen), HF-U23 punkt 8 og MM-U55 punkt 8 og
+  18 (en retting av datoen endrer ikke hva som er gjeldende); følger KA-U52 punkt 5, EO-U39 punkt
+  43, OV-U5, OV-U85, VS-U19 (VS-U47 punkt 5) og HF-U29 punkt 3.
 - **B2 (det første forslaget):** «Et brev sendt utenfor løsningen får virkning i løsningen bare
   når det er et varsel, et krav, et svar eller en forespørsel etter punkt 33.6.2, fordi fristene
   regnes fra når brevet ble sendt. Annet legges til som dokumentasjon, og parten sender utsagnet
@@ -354,14 +360,13 @@ senere, med datoen brevet ble sendt. Klasse: vedtak.
   OV-U84.» Forhold: presiserer OV-U80 og OV-U84; utvider OV-U80 med forespørselen.
 - **B3:** «OV-U80, OV-U84 og VS-U19 står uten en felles regel.» Forhold: ingen.
 
-Prøven av arbeidsflyten (15.11, fem forløp) fant tre hull i B2:
+Prøven av arbeidsflyten (15.11, fem forløp) fant to hull i B2, og prøvingen av B1 mot vedtakene
+rettet teksten én gang (endringsordren er alt et valg i svaret etter OV-U80 og OV-U6):
 - Aksept på e-post dag 1, nytt svar fra løsningen dag 5, registrert dag 6: etter B2 kan aksepten
   bare stå som dokumentasjon, og totalentreprenøren mister enigheten i oversikten. Hadde aksepten
   gått gjennom løsningen, ville enigheten stått ved siden av det nye svaret (HF-U29 punkt 3).
-- En endringsordre utenfor løsningen er verken varsel, krav, svar eller forespørsel, og ville bli
-  dokumentasjon, mot EO-U39 punkt 43.
 - Krav v1 registrert etter v2 fra løsningen blir gjeldende etter rekkefølgen, uten at noen mente
-  det.
+  det. B1 holder v1 utenfor, men bevarer datoen det ble sendt.
 
 Trekket trenger ikke virkning ved registrering: ingen frist eller sperre avhenger av datoen.
 
@@ -372,7 +377,7 @@ valgt av avsenderen, uten å tolke det (design). En registrering mottakeren gjø
 avsenderen bekrefter, krever et eget vedtak og anbefales ikke nå.
 
 Anbefaling: B1. Den svarer på spørsmålet ditt med én grunn, at virkningen avhenger av når brevet
-ble sendt, og den tetter de tre hullene. Kostnaden er at aksepten registrert med virkning må
+ble sendt, og den tetter hullene. Kostnaden er at aksepten registrert med virkning må
 prøves mot svaret som var gjeldende da den ble sendt, og at byggherren kan se en enighet ved siden
 av et nytt svar byggherren trodde virket. Styrer: hva registreringen tilbyr, og at registrering av
 varsel, krav, svar og aksept er former av samme handling.
