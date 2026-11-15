@@ -21,6 +21,7 @@
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Datoer from './Datoer.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
+  import Sitat from './Sitat.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
   import Valg from './Valg.svelte';
@@ -219,7 +220,7 @@
     </div>
 
     {#if f.varslingsplikt}
-      <Spoersmaal id={`${uid}-sp-varsel`} tittel={FORHOLDSSVAR.varselTittel} hjemmel="32.2">
+      <Spoersmaal id={`${uid}-sp-varsel`} tittel={FORHOLDSSVAR.varselTittel}>
         <Datoer linjer={datoene} />
         <Valg
           navn={`${uid}-varsel`}
@@ -253,12 +254,11 @@
       />
       {#if frafallMangler}<p class="dempet">{frafallMangler}</p>{/if}
       {#if forholdspunktet}
-        <div class="endringsordre">
-          <span class="merke">{FORHOLDSSVAR.endringsordreMerke}</span>
+        <Sitat etikett={FORHOLDSSVAR.endringsordreMerke}>
           <p>{FORHOLDSSVAR.brevetSier}</p>
           <blockquote>{forholdspunktet}</blockquote>
           <p class="dempet">{FORHOLDSSVAR.setningenStaar}</p>
-        </div>
+        </Sitat>
       {/if}
       {#if virkning}<p class="virkning">{virkning}</p>{/if}
     </Spoersmaal>
@@ -277,21 +277,7 @@
     flex: none;
     margin-top: 2px;
   }
-  /* Sitatmønsteret i tråden (`.sitat` i Brevtraad.svelte), i byggherrens brevskrift. */
-  .endringsordre {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-1);
-    padding-left: var(--spacing-3);
-    border-left: 2px solid var(--rule-strong-color);
-  }
-  .merke {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-  }
+  /* Setningen i byggherrens brevskrift. */
   blockquote {
     white-space: pre-line;
     font-family: var(--font-brev-bh);

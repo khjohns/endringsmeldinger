@@ -1,9 +1,8 @@
 <!--
-  Et spørsmål i svarskjemaet: overskriften, et infotips og merket med bestemmelsen i NS 8407
-  (OV-U75), og feltene under (#1925).
+  Et spørsmål i svarskjemaet: overskriften med bestemmelsen i NS 8407 som dempet tekst (OV-U75,
+  «Høyst tre nivåer av flater» i `system.md`), et infotips og feltene under (#1925, #2035).
 -->
 <script lang="ts">
-  import { BookOpen } from 'lucide-svelte';
   import type { Snippet } from 'svelte';
   import Infotips from './Infotips.svelte';
   import { SVARSKJEMA } from './svarskjema';
@@ -32,13 +31,9 @@
   <div class="sp-hode">
     <h3 {id}>
       {#if tillegg}{`${tittel} · `}<span class="num">{tillegg}</span>{:else}{tittel}{/if}
+      {#if hjemmel}<span class="hjemmel">{SVARSKJEMA.hjemmel(hjemmel)}</span>{/if}
     </h3>
     {#if info}<Infotips navn={info.navn} tekst={info.tekst} />{/if}
-    {#if hjemmel}
-      <span class="hjemmel"
-        ><BookOpen size={14} aria-hidden="true" />{SVARSKJEMA.hjemmel(hjemmel)}</span
-      >
-    {/if}
   </div>
   {@render children()}
 </section>
@@ -67,15 +62,10 @@
     white-space: nowrap;
   }
   .hjemmel {
-    margin-left: auto;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-1);
-    padding: 0 var(--spacing-2);
-    border: var(--rule-strong);
-    border-radius: var(--r-merke);
-    color: var(--ink-2);
-    font-size: 12px;
+    margin-left: var(--spacing-1);
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink-3);
     white-space: nowrap;
   }
 </style>

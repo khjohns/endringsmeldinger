@@ -13,6 +13,7 @@
 <script lang="ts">
   import { FileText, Info } from 'lucide-svelte';
   import { tick, type Snippet } from 'svelte';
+  import { SVARTITTEL } from '$kjerne/frosset/brevtittel';
   import type { Spor } from '$kjerne/typer';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
@@ -210,7 +211,7 @@
             art: 'svar',
             brevtittel: brevMedTekst.brevtittel,
           })
-        : null}
+        : SVARTITTEL[spor]}
       mottaker={SKJEMA.tilTE}
     >
       {#snippet infotips()}<Infotips navn={SKJEMA.omSvaret} tekst={VIRKNING.alltid} />{/snippet}
@@ -264,40 +265,47 @@
 
         {@render spoersmaal(feil)}
 
-        <section class="begrunnelser" aria-labelledby={`${uid}-sp-begrunnelse`}>
-          <h3 id={`${uid}-sp-begrunnelse`}>{SKJEMA.begrunnelse}</h3>
-          <p class="dempet" id={`${uid}-begrunnelse-hjelp`}>
-            {SKJEMA.begrunnelseHjelp(!begrunnelseKreves)}
-          </p>
-          {#if kreverPunktene.length > 1}
-            <p class="dempet" id={`${uid}-begrunnelse-kreves`}>{begrunnelseKreves!.grunn}</p>
+        <!-- Begrunnelsene står under punktene i brevet, så de vises når brevet har punkter.
+             Forbeholdet står alltid, så teksten ikke blir borte når brevet ikke kan lages. -->
+        <section
+          class="begrunnelser"
+          aria-labelledby={punktene.length ? `${uid}-sp-begrunnelse` : undefined}
+        >
+          {#if punktene.length}
+            <h3 id={`${uid}-sp-begrunnelse`}>{SKJEMA.begrunnelse}</h3>
+            <p class="dempet" id={`${uid}-begrunnelse-hjelp`}>{SKJEMA.begrunnelseHjelp}</p>
+            {#if kreverPunktene.length > 1}
+              <p class="dempet" id={`${uid}-begrunnelse-kreves`}>{begrunnelseKreves!.grunn}</p>
+            {/if}
+            {#each punktene as p (p.punkt)}
+              {@const id = begrunnelseId(p.punkt)}
+              {@const bFeil = feil(id)}
+              <div class="begrunnelse">
+                <label for={id}
+                  >{kreves(p.punkt) || kanStaa(p.punkt) ? p.navn : SKJEMA.valgfritt(p.navn)}</label
+                >
+                {#if kreves(p.punkt)}
+                  <span class="dempet" id={`${id}-kreves`}>{begrunnelseKreves!.grunn}</span>
+                {/if}
+                <textarea
+                  {id}
+                  rows="2"
+                  bind:value={tekster.begrunnelser[p.punkt]}
+                  aria-required={kreves(p.punkt) ? 'true' : undefined}
+                  aria-invalid={bFeil ? 'true' : undefined}
+                  aria-describedby={[
+                    `${uid}-begrunnelse-hjelp`,
+                    kreves(p.punkt) ? `${id}-kreves` : '',
+                    kanStaa(p.punkt) ? `${uid}-begrunnelse-kreves` : '',
+                    bFeil ? `${id}-feil` : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                ></textarea>
+                {#if bFeil}<p class="feilmelding" id={`${id}-feil`}>{bFeil}</p>{/if}
+              </div>
+            {/each}
           {/if}
-          {#each punktene as p (p.punkt)}
-            {@const id = begrunnelseId(p.punkt)}
-            {@const bFeil = feil(id)}
-            <div class="begrunnelse">
-              <label for={id}>{p.navn}</label>
-              {#if kreves(p.punkt)}
-                <span class="dempet" id={`${id}-kreves`}>{begrunnelseKreves!.grunn}</span>
-              {/if}
-              <textarea
-                {id}
-                rows="2"
-                bind:value={tekster.begrunnelser[p.punkt]}
-                aria-required={kreves(p.punkt) ? 'true' : undefined}
-                aria-invalid={bFeil ? 'true' : undefined}
-                aria-describedby={[
-                  `${uid}-begrunnelse-hjelp`,
-                  kreves(p.punkt) ? `${id}-kreves` : '',
-                  kanStaa(p.punkt) ? `${uid}-begrunnelse-kreves` : '',
-                  bFeil ? `${id}-feil` : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              ></textarea>
-              {#if bFeil}<p class="feilmelding" id={`${id}-feil`}>{bFeil}</p>{/if}
-            </div>
-          {/each}
           <div class="begrunnelse forbehold">
             <label for={`${uid}-forbehold`}>{SKJEMA.forbehold}</label>
             <span class="dempet" id={`${uid}-forbehold-hjelp`}>{SKJEMA.forbeholdHjelp}</span>
@@ -385,7 +393,7 @@
     color: var(--ink-2);
   }
   /* Forbeholdet gjelder hele svaret og står sist i brevet, skilt fra punktene. */
-  .begrunnelse.forbehold {
+  .begrunnelse.forbehold:not(:first-child) {
     margin-top: var(--spacing-3);
     padding-top: var(--spacing-4);
     border-top: var(--rule);
