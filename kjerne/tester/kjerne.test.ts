@@ -2597,13 +2597,14 @@ describe('upåvirket hos leserne (OV-U33)', () => {
     ]);
   });
 
-  it('kontrollsak: upåvirket ved siden av en påberopelse i første lag leses', async () => {
+  // Forventningen var at dagene ved siden av en påberopelse i første lag leses (OV-U33).
+  // OV-U100 snevrer inn OV-U33: hver påberopelse i fristen rammer dagene.
+  it('upåvirkede dager i fristen er ikke forstått, også ved siden av en påberopelse i første lag (OV-U100)', async () => {
     const { k, rader } = await forloep();
-    const lest = lesJournal(
-      upaavirket(rader, k, 'S-f1', 'dager', 'rettidighet'),
-      KJERNE.leserformat
-    );
-    expect(lest.filter((h) => h.art === 'ukjent')).toEqual([]);
+    expect(uforstaatt(rader), 'kontrollsak').toEqual([]);
+    expect(uforstaatt(upaavirket(rader, k, 'S-f1', 'dager', 'rettidighet'))).toEqual([
+      expect.stringMatching(/har dagene upåvirket, men hver påberopelse i fristen rammer dem/),
+    ]);
   });
 });
 

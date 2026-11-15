@@ -2246,7 +2246,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:skriv'],
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
-  ['frosset/tekst.ts', 'brevtekst', 'OVERSIKTEN', ['frosset/brevtekst.ts']],
+  ['frosset/tekst.ts', 'brevtekst', 'OVERSIKTEN FORBEHOLDET', ['frosset/brevtekst.ts']],
   ['frosset/tekst.ts', 'brevtekst', 'dager', ['spor/frist/tekst.ts']],
   ['frosset/tekst.ts', 'brevtekst', 'kroner', ['frosset/brevdeler.ts', 'frosset/brevtekst.ts']],
   // Oppslaget i sporet for en rolle, og virkningen av et standpunkt (#1783).
@@ -2278,7 +2278,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsbrevtekst',
     'brevtekst',
-    'krav navn ogsaaInnsigelserEtter svaretGjelder utdypningensPunkt innledning temaer punktet oversikt ingenBeloep',
+    'krav navn ogsaaInnsigelserEtter svaretGjelder utdypningensPunkt innledning temaer punktet erInnsigelse rettidighetUtenVarsel oversikt ingenBeloep',
     ['frosset/brevtekst.ts'],
   ],
   // LV-U34 og OV-U73: temaene og beløpene per lag i byggherrens svar.
@@ -2286,7 +2286,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Lagbeloep', 'brevtekst', 'post plass beloep', ['spor/vederlag/tekst.ts']],
   // OV-U73: tabellen får lagene i sporet, uten lagene fra forholdet.
   ['Lagbeloep', 'brevtekst', 'plass', ['frosset/brevtekst.ts']],
-  ['spor/vederlag/tekst.ts:oversikt', 'brevtekst', 'post krevd', ['spor/vederlag/tekst.ts']],
+  ['PostenIOversikten', 'brevtekst', 'post navn krevd', ['spor/vederlag/tekst.ts']],
   ['Kravsporsbrevtekst', 'brevtekst', 'enigI ingenKrav kravetOm trukket', ['frosset/brevtekst.ts']],
   [
     'spor/vederlag/tekst.ts',
@@ -2417,7 +2417,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // LV-U34: punktene, lagene og nummereringen i byggherrens svar.
   ['Svarledd', 'brevtekst', 'punkt plass innsigelse tekst', ['frosset/brevtekst.ts']],
   ['Nummerering', 'brevtekst', 'foer nummerert ns', ['frosset/brevtekst.ts']],
-  ['FORBEHOLDET', 'brevtekst', 'punkt', ['frosset/brevtekst.ts']],
   [
     'frosset/brevtekst.ts:forholdetsLag',
     'brevtekst',
@@ -2508,7 +2507,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/brevdeler.ts:Element',
     'brevtekst',
-    'art dokument krav opplysning svar utsagn',
+    'art dokument krav opplysning standpunkt svar utsagn',
     ['frosset/brevtekst.ts', 'frosset/brevdeler.ts'],
   ],
   // Forholdene med navnet og hjemmelen (svaret på Q3 i #1488, LV-U43).

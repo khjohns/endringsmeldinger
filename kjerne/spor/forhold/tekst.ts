@@ -232,7 +232,7 @@ function risikohjemmel(krav: Krav): string {
 export function paaberopelsenAvForholdet(paaberopelse: Krav): string {
   const f = forholdet(innholdIForholdet(paaberopelse).underkategori);
   if (!f) throw new KanIkkeUttrykkes('forholdet i påberopelsen har ikke noe navn');
-  return `påberopelse av ${f.navn.toLowerCase()}`;
+  return paaberopelsenAv(f.navn).toLowerCase();
 }
 
 export const BREVTEKSTEN_I_FORHOLDET = {
@@ -243,6 +243,7 @@ export const BREVTEKSTEN_I_FORHOLDET = {
   innledning: (krav, { j }) =>
     `Byggherren svarer på totalentreprenørens ${paaberopelsenAvForholdet(krav)} i ${j.brevet(krav.dokument)}.`,
   punktet: (p) => (p.art === 'forhold' ? 'forhold' : undefined),
+  erInnsigelse: (p) => p.art === 'forhold' && p.resultat === 'avslaatt',
   // LV-U34: punktene i byggherrens svar, som i skjemaet (prototypen `forholdssvar.html`).
   temaer: () => [
     { punkt: '32.2', overskrift: 'Varselet etter punkt 32.2' },

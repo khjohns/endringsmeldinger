@@ -8,13 +8,8 @@
 
 import { cellene, OVERSIKTEN } from '$kjerne/frosset/tekst';
 import { beloep, tilTall, type Oere } from '$kjerne/regler/beloep';
-import {
-  beloepeneILagene,
-  krevdIKravposten,
-  krevdProduktivitet,
-  krevdSamlet,
-  kravposterI,
-} from '$kjerne/spor/vederlag/format';
+import { beloepeneILagene, krevdSamlet } from '$kjerne/spor/vederlag/format';
+import { posteneIOversikten } from '$kjerne/spor/vederlag/tekst';
 import type { Krav, Kravpost, Oppgjoersform } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { underOverskriften, type Brevet } from './lesing';
@@ -28,7 +23,7 @@ export interface Laget extends Svarlaget {
 
 /** En post i kravet som gjelder, med oppgjørsformen og det krevde beløpet (U-4). */
 export interface Posten {
-  /** «Vederlagsjustering», betegnelsen når kravet har flere, eller «Særskilt vederlagsjustering». */
+  /** Navnet raden har i oversiktstabellen (`posteneIOversikten`). */
   navn: string;
   oppgjoersform: Oppgjoersform | null;
   krevd: number | null;
@@ -49,27 +44,16 @@ export interface KravetOgSvaret {
   forbehold: boolean;
 }
 
-const SAERSKILT = 'Særskilt vederlagsjustering';
 const somTall = (oere: Oere | null) => (oere === null ? null : tilTall(oere));
 
-/** Postene i kravet med navnene oversiktstabellen gir dem (`kjerne/spor/vederlag/tekst.ts`). */
-function postene(krav: Krav): Posten[] {
-  const kravposter = kravposterI(krav);
-  const produktivitet = krevdProduktivitet(krav);
-  return [
-    ...kravposter.map(
-      (p): Posten => ({
-        navn: kravposter.length > 1 ? p.betegnelse : 'Vederlagsjustering',
-        oppgjoersform: p.oppgjoersform,
-        krevd: somTall(krevdIKravposten(krav, p)),
-        kravpost: p,
-      })
-    ),
-    ...(produktivitet === null
-      ? []
-      : [{ navn: SAERSKILT, oppgjoersform: null, krevd: tilTall(produktivitet), kravpost: null }]),
-  ];
-}
+/** Postene i kravet med navnene oversiktstabellen gir dem (`posteneIOversikten`). */
+const postene = (krav: Krav): Posten[] =>
+  posteneIOversikten(krav).map((p) => ({
+    navn: p.navn,
+    oppgjoersform: p.kravpost?.oppgjoersform ?? null,
+    krevd: somTall(p.krevd),
+    kravpost: p.kravpost,
+  }));
 
 /**
  * Kravet som gjelder i vederlaget og byggherrens svar på det, eller `null` uten krav. `alle` er

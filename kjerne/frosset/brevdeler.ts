@@ -319,6 +319,17 @@ export interface Sporsbrevtekst {
    */
   punktet(p: Standpunkt, krav: Krav): string | undefined;
   /**
+   * Et standpunkt i en art bare sporet har, er en innsigelse et senere lag bygger på (LV-U34,
+   * OV-U32). Rettidigheten er felles (`erInnsigelse` i `brevtekst.ts`).
+   */
+  erInnsigelse(p: Exclude<Standpunkt, { art: 'rettidighet' }>): boolean;
+  /**
+   * Rettidigheten etter en bestemmelse i sporet som ikke gjelder et varsel: elementet brevet
+   * standpunktets `gjelder` står i. En protest omtaler påberopelsen da med det som kom for sent,
+   * ikke som for sen varsling.
+   */
+  rettidighetUtenVarsel?: Partial<Record<Hjemmel, (gjelder: string, j: Journalen) => string>>;
+  /**
    * Oversiktstabellen i svaret (OV-U73), eller `null` når svaret ikke har en. `beloepene` og
    * `lagene` er lagene i sporet; `forskyvning` er lagene fra forholdet foran (OV-U32).
    */

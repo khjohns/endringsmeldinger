@@ -273,8 +273,8 @@ function kontrollerStandpunkteneIFristen(ut: Standpunkt[], utregning: Data, sti:
  * KA-U78, OV-U32: hver rad har ett lag for hvert lag i beslutningsgrunnlaget (`kontrollerRadene`),
  * med dagene standpunktet i laget gir fristen: 0 for preklusjon etter § 33.4 eller § 33.6.2 og for
  * at fremdriften ikke ble hindret, dagene byggherren måtte forstå for spesifiseringen, og de
- * vurderte dagene i det siste laget og i hvert lag for et upåvirket standpunkt. Det første laget er `godkjent_dager`, og det subsidiære står
- * bare med mer enn ett lag.
+ * vurderte dagene i det siste laget. Dagene er aldri upåvirket. Det første laget er
+ * `godkjent_dager`, og det subsidiære står bare med mer enn ett lag.
  */
 function kontrollerUtregningenIFristen(
   ut: Standpunkt[],
@@ -289,10 +289,11 @@ function kontrollerUtregningenIFristen(
     ut.find((s) => s.art !== 'dager' && virkning.get(s.id) === lag);
   const rader = utregningIFristen(utregning).frister;
   kontrollerRadene(rader, dagene, virkninger, 'dagene', feil, (r, d, i) => {
-    // OV-U33: ingen innsigelse rammer et upåvirket standpunkt om dagene.
-    const upaavirket = virkning.get(d.id) === 'upaavirket';
+    // OV-U100.
+    if (virkning.get(d.id) === 'upaavirket')
+      throw feil(`rad ${i + 1} har dagene upåvirket, men hver påberopelse i fristen rammer dem`);
     r.lag.forEach((l, n) => {
-      const s = upaavirket ? undefined : standpunktetI(n + 1);
+      const s = standpunktetI(n + 1);
       const dager =
         s?.art === 'spesifisering'
           ? s.maatteForstaa?.find((m) => m.frist === d.gjelder)?.dager
@@ -302,6 +303,11 @@ function kontrollerUtregningenIFristen(
       if (l.dager !== dager)
         throw feil(`rad ${i + 1} har ikke dagene standpunktet i lag ${n + 1} gir fristen`);
     });
+    // Arbeidsvalget 15.11 i #1905 punkt 1.
+    if (r.resultat === 'avslaatt' && r.godkjent_dager !== 0)
+      throw feil(`rad ${i + 1} avslår fristen prinsipalt, men godkjenner dager`);
+    if (r.subsidiaert_resultat === 'avslaatt' && r.subsidiaert_godkjent_dager !== 0)
+      throw feil(`rad ${i + 1} avslår fristen subsidiært, men godkjenner dager`);
     if (r.lag[0]!.dager !== r.godkjent_dager)
       throw feil(
         `rad ${i + 1} har ikke dagene byggherren godkjenner prinsipalt i det første laget`

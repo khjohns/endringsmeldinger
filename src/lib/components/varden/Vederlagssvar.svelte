@@ -13,7 +13,7 @@
   import { BookOpen, FileText, Info } from 'lucide-svelte';
   import { tick } from 'svelte';
   import { harProduktivitetspost, kravposterI } from '$kjerne/spor/vederlag/format';
-  import { erKravpostpunkt, kroner, OVERSIKTEN } from '$kjerne/frosset/tekst';
+  import { erKravpostpunkt, FORBEHOLDET, kroner, OVERSIKTEN } from '$kjerne/frosset/tekst';
   import {
     brevaarsak,
     hindrerSvarPaaKravet,
@@ -132,7 +132,7 @@
   }
 
   // Innledningen og tabellen har ingen begrunnelse, og forbeholdet har sitt eget felt.
-  const UTEN_BEGRUNNELSE = ['innledning', OVERSIKTEN, 'forbehold'];
+  const UTEN_BEGRUNNELSE = ['innledning', OVERSIKTEN, FORBEHOLDET];
   // KA-U46 og LV-U71: ett felt for begrunnelsen per punkt i brevet, i brevets rekkefølge. Punktene
   // leses av brevet kjernen lager uten begrunnelsene, så et felt aldri gjelder et punkt brevet ikke har.
   // Valgene uten tekstene, så lista ikke lages på nytt for hvert tegn i et tekstfelt.

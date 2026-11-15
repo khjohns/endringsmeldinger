@@ -55,6 +55,8 @@ import type {
 
 // ---------- Brevteksten (LV-U4) ----------
 
+const SAERSKILT_JUSTERING = 'Særskilt vederlagsjustering';
+
 /** Metoden byggherren mener vederlaget skal justeres etter, når tilbudet ikke er akseptert. */
 const METODEN = {
   enhetspriser: 'etter enhetspriser (NS 8407 punkt 34.3)',
@@ -197,7 +199,7 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
   if (post !== null)
     punkter.push({
       punkt: 'produktivitet',
-      overskrift: 'Særskilt vederlagsjustering',
+      overskrift: SAERSKILT_JUSTERING,
       avsnitt: [
         `Totalentreprenøren krever ${poster.length ? 'i tillegg ' : ''}særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd for ${PRODUKTIVITET} med ${eksMva(tilTall(post))}`,
       ],
@@ -210,7 +212,7 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
       );
     punkter.push({
       punkt: 'produktivitet',
-      overskrift: 'Særskilt vederlagsjustering',
+      overskrift: SAERSKILT_JUSTERING,
       avsnitt: [
         `Totalentreprenøren trekker kravet om særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd, fremsatt i ${j.brevet(forrige.dokument)}.`,
       ],
@@ -266,7 +268,7 @@ function temaer(krav: Krav, { saken }: Tekst, regler: Regelsett): Tema[] {
       overskrift: `Vederlagsjustering (punkt ${hjemmel})`,
       ...(alle.length > 1 ? { foerst: `${p.betegnelse} ${punktum(p.beskrivelse)}` } : {}),
     })),
-    { punkt: 'produktivitet', overskrift: 'Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)' },
+    { punkt: 'produktivitet', overskrift: `${SAERSKILT_JUSTERING} (punkt 34.1.3 annet ledd)` },
   ];
 }
 
@@ -294,6 +296,44 @@ function ingenBeloep(krav: Krav): string {
   return `Byggherren godkjenner etter dette ikke noe beløp for ${poster.join(' eller ')}.`;
 }
 
+/** En post i kravet, med navnet oversiktstabellen gir raden for den. */
+export interface PostenIOversikten {
+  /** Punktet for posten i svaret (`punktet`): betegnelsen, eller `'produktivitet'`. */
+  post: string;
+  /** `null` for den særskilte justeringen etter § 34.1.3 annet ledd. */
+  kravpost: Kravpost | null;
+  /**
+   * Betegnelsen når kravet har flere kravposter, og ellers «Vederlagsjustering» (OV-U73).
+   * Visningen finner posten i raden på navnet.
+   */
+  navn: string;
+  krevd: Oere | null;
+}
+
+/** Postene i kravet, i rekkefølgen i oversiktstabellen, med den særskilte sist (OV-U73). */
+export function posteneIOversikten(krav: Krav): PostenIOversikten[] {
+  const kravposter = kravposterI(krav);
+  const produktivitet = krevdProduktivitet(krav);
+  return [
+    ...kravposter.map((p) => ({
+      post: p.betegnelse,
+      kravpost: p,
+      navn: kravposter.length > 1 ? p.betegnelse : 'Vederlagsjustering',
+      krevd: krevdIKravposten(krav, p),
+    })),
+    ...(produktivitet === null
+      ? []
+      : [
+          {
+            post: 'produktivitet',
+            kravpost: null,
+            navn: SAERSKILT_JUSTERING,
+            krevd: produktivitet,
+          },
+        ]),
+  ];
+}
+
 /**
  * OV-U73 og KA-U57 (e): tabellen med én rad per post med fast beløp, det krevde beløpet og det
  * byggherren godkjenner i hvert lag, og en sumrad, når svaret har minst to slike poster og minst
@@ -307,20 +347,11 @@ function oversikt(
   lagene: number,
   forskyvning: number
 ): string | null {
-  const poster = [
-    ...kravposterI(krav).map((p) => ({ post: p.betegnelse, krevd: krevdIKravposten(krav, p) })),
-    { post: 'produktivitet', krevd: krevdProduktivitet(krav) },
-  ].filter(
-    (p): p is { post: string; krevd: Oere } =>
+  const poster = posteneIOversikten(krav).filter(
+    (p): p is PostenIOversikten & { krevd: Oere } =>
       p.krevd !== null && beloepene.some((b) => b.post === p.post)
   );
   if (poster.length < 2 || lagene < 2) return null;
-  const navn = (post: string) =>
-    post === 'produktivitet'
-      ? 'Særskilt vederlagsjustering'
-      : kravposterI(krav).length > 1
-        ? post
-        : 'Vederlagsjustering';
   const iLaget = (post: string, lag: number) =>
     beloepene
       .filter((b) => b.post === post && (b.plass ?? 0) <= lag)
@@ -328,7 +359,7 @@ function oversikt(
       .at(-1)?.beloep ?? 0;
   const kolonner = Array.from({ length: lagene }, (_, i) => i + 1);
   const rader = poster.map((p) => [
-    navn(p.post),
+    p.navn,
     kroner(tilTall(p.krevd)),
     ...kolonner.map((lag) => kroner(iLaget(p.post, lag))),
   ]);
@@ -367,6 +398,8 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
     `Byggherren svarer på totalentreprenørens krav om ${KRAVET_OM} i ${j.brevet(krav.dokument)}. Beløpene i brevet er eks. mva.`,
   temaer,
   punktet,
+  erInnsigelse: (p) =>
+    (p.art === 'oppgjoersform' && !p.aksepterer) || (p.art === 'justering' && !p.godtar),
   oversikt,
   ingenBeloep,
   enigI: 'beløpet',
