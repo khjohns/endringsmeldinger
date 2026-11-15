@@ -32,7 +32,7 @@ Kolonnene for kjernen er handlingsnøklene (`noekkel` i [`forutsetninger.ts`](..
 
 | ID | Handling | Part | Spor | Kilde | 1 Finnes? | 2 Form | 3 Når | 4 Tilstander | Nøkler | Kommandoer | Skjema | Mangler |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| U4 | «Ingen krav» | TE | vederlag, frist | KA-U17, OV-U7, OV-U99 | Ja. Avkall. | Strukturert. | Senere. Tidspunktet betyr ingenting. | «Ingen krav» går ut. | `ingen_krav:vederlag`, `ingen_krav:frist` | `ingen_krav` | – | Kjernen slutter å tilby den (K1). |
+| U4 | «Ingen krav» | TE | vederlag, frist | KA-U17, OV-U7, OV-U99 | Ja. Avkall. | Strukturert. | Senere. Tidspunktet betyr ingenting. | «Ingen krav» går ut. | `ingen_krav:vederlag`, `ingen_krav:frist` | `ingen_krav` | – | Kjernen slutter å tilby den (K1, #2016). |
 | U9 | Interne notater | TE og BH | saken | OV-U99 | Ikke et utsagn til motparten. | Ingen. Notatet står i `koe.notat`, ikke i journalen. | Senere, og først ved et nytt vedtak. | Ingen. | – | – | – | Ingen. Tabellen finnes. |
 | V1 | Det senere valget for korrespondanse som er lagt til som dokumentasjon | TE og BH | forhold, vederlag, frist | OV-U84, OV-U17, OV-U99 | Ja. Valget gir korrespondansen virkning. | En form av U6. | Senere. Til den er bygget, legger avsenderen korrespondansen til på nytt med valget. | Som U6. | – | – | – | Ingen nå. |
 | V2 | Forsering | TE | frist | punkt 33.8, OV-U1, OV-U99 | Ja. | Egen sak. | Senere. | Ingen nå. | – | – | – | Ingen nå. |
@@ -53,8 +53,8 @@ Kolonnene for kjernen er handlingsnøklene (`noekkel` i [`forutsetninger.ts`](..
 
 | ID | Handling | Part | Spor | Kilde | 1 Finnes? | 2 Form | 3 Når | 4 Tilstander | Nøkler | Kommandoer | Skjema | Mangler |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| O1 | Merking av et registrert brev | TE og BH | forhold, vederlag, frist | KA-U45 | Nei. Sperrene er opphevet. | Ingen. Motpartens syn sendes som innlegg. | Aldri. | Ingen. | `merke:*` | `merking` | – | Ingen. Kommandoen avvises. |
-| O2 | Avklaring av en merking | TE og BH | forhold, vederlag, frist | KA-U45 | Nei. Sperrene er opphevet. | Ingen. | Aldri. | Ingen. | `avklare:*` | `avklaring` | – | Ingen. Kommandoen avvises. |
+| O1 | Merking av et registrert brev | TE og BH | forhold, vederlag, frist | KA-U45 | Nei. Sperrene er opphevet. | Ingen. Motpartens syn sendes som innlegg. | Aldri. | Ingen. | `merke:*` | `merking` | – | Kommandoen avvises, og fjernes fra kjernen i #2019. |
+| O2 | Avklaring av en merking | TE og BH | forhold, vederlag, frist | KA-U45 | Nei. Sperrene er opphevet. | Ingen. | Aldri. | Ingen. | `avklare:*` | `avklaring` | – | Kommandoen avvises, og fjernes fra kjernen i #2019. |
 | O3 | Byggherrens bekreftelse av et svar gitt utenfor løsningen | BH | forhold, vederlag, frist | OV-U101, GR-U35, GR-U37, OV-U46 | Nei. Et svar lagt til med virkning dekker behovet. | Ingen. Svaret legges til etter U6. | Aldri. | Ingen. | – | – | – | Ingen. |
 
 ## Tilstandene (port 0)

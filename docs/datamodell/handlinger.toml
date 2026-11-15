@@ -254,7 +254,7 @@ status = "venter"
 noekler = ["ingen_krav:vederlag", "ingen_krav:frist"]
 kommandoer = ["ingen_krav"]
 skjema = []
-mangler = "Kjernen slutter å tilby den (K1)."
+mangler = "Kjernen slutter å tilby den (K1, #2016)."
 
 [[handling]]
 id = "U9"
@@ -438,7 +438,7 @@ status = "opphevet"
 noekler = ["merke:*"]
 kommandoer = ["merking"]
 skjema = []
-mangler = "Ingen. Kommandoen avvises."
+mangler = "Kommandoen avvises, og fjernes fra kjernen i #2019."
 
 [[handling]]
 id = "O2"
@@ -454,7 +454,7 @@ status = "opphevet"
 noekler = ["avklare:*"]
 kommandoer = ["avklaring"]
 skjema = []
-mangler = "Ingen. Kommandoen avvises."
+mangler = "Kommandoen avvises, og fjernes fra kjernen i #2019."
 
 [[handling]]
 id = "O3"
