@@ -351,6 +351,17 @@ export interface Fristtabellen {
   sakslenke?: (sakId: string) => string;
 }
 
+/** Fristtabellen for saken `kjernesak`, som siden for fristen og kravskjemaet regner gjeldende frist av. */
+export const fristtabellen = (
+  kjernesak: Kjernesakkontekst,
+  sakslenke?: (sakId: string) => string
+): Fristtabellen => ({
+  datoer: kjernesak.fristdatoer,
+  sakId: kjernesak.sakId,
+  ikkeForstaatt: kjernesak.sakerIkkeForstaatt,
+  sakslenke,
+});
+
 /** Det sidene for forholdet, vederlaget og fristen får fra `Sporlesing` (oppsett B, #1997). */
 export interface Sideprops {
   u: Utledning;

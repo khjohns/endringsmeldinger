@@ -497,22 +497,27 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       expect(
         tidslinja.getByText('krevd forlenget 20 dager · ny dato kan ikke regnes nå')
       ).toBeInTheDocument();
+      await fireEvent.click(screen.getByRole('button', { name: 'Ferdig' }));
+      const raden = screen.getByRole('listitem', { name: '5 Mekanisk ferdigstillelse' });
+      expect(raden).toHaveTextContent(/Gjeldende:\s*Gjeldende–/);
+      expect(raden).toHaveTextContent(/Ny dato:\s*Ny datoKan ikke regnes nå/);
     });
 
     it('en frist som ikke er registrert, har ingen ny dato, og skjemaet sier hvorfor (KA-U79)', async () => {
       await kravskjemaet(medGrunnlag, FORLENGET);
       await fireEvent.click(screen.getByRole('radio', { name: 'En frist som ikke er registrert' }));
-      expect(
-        screen.getByText(
-          'Gjeldende frist er ikke kjent, fordi fristen ikke er registrert for prosjektet.'
-        )
-      ).toBeInTheDocument();
+      const hvorfor = screen.getByText(
+        'Gjeldende frist er ikke kjent, fordi fristen ikke er registrert for prosjektet.'
+      );
+      expect(screen.getByLabelText('Dagene du krever').getAttribute('aria-describedby')).toContain(
+        hvorfor.id
+      );
       await skriv(screen.getByLabelText('Dagene du krever'), '20');
       expect(screen.queryByText(/^Ny dato: /)).not.toBeInTheDocument();
       await fireEvent.click(screen.getByRole('button', { name: 'Ferdig' }));
       expect(
         screen.getAllByRole('listitem').find((li) => li.classList.contains('frist'))
-      ).toHaveTextContent(/Ny dato:\s*Ikke registrert/);
+      ).toHaveTextContent(/Ny dato:\s*Ny datoIkke registrert/);
     });
   });
 });

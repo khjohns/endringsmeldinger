@@ -1447,6 +1447,8 @@ export const FRISTKRAV = {
   ikkeRegistrertHjelp: 'Skriv nummeret og navnet kontrakten gir den.',
   /** Cellen for ny dato i raden for en frist som ikke er registrert (KA-U79). */
   ikkeRegistrertKort: 'Ikke registrert',
+  /** Cellen for ny dato når gjeldende frist ikke kan regnes (MM-U2). */
+  kanIkkeRegnes: 'Kan ikke regnes nå',
   nummerEtikett: 'Nummer i kontrakten (valgfritt)',
   navnEtikett: 'Navnet i kontrakten',
   dagerEtikett: 'Dagene du krever',

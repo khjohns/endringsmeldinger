@@ -10,7 +10,7 @@
 <script lang="ts">
   import { BookOpen } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
-  import { dager, sakensKode } from '$kjerne/frosset/tekst';
+  import { dager } from '$kjerne/frosset/tekst';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '$kjerne/spor/frist/format';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
@@ -38,15 +38,15 @@
     type Fristpostvalg,
     type Mangel,
   } from './fristkrav';
-  import { gjeldendeFrist, nyFrist, type GjeldendeFrist } from './fristoversikt';
+  import { gjeldendeFrist, nyFrist, sakensNavn, type GjeldendeFrist } from './fristoversikt';
   import { heleDager } from './fristsvar';
   import { vedleggsgrense } from './nysak';
   import {
     brevMedUtsagn,
     brevene,
     datoerISporet,
+    fristtabellen,
     klarOverForholdet,
-    type Fristtabellen,
   } from './lesing';
   import {
     FRISTKRAV,
@@ -199,12 +199,7 @@
   const datoFor = (p: Fristpostvalg) =>
     typeof p.frist === 'number' ? (fristdatoer.get(p.frist) ?? null) : null;
   // Gjeldende frist regnes uten forlengelsene i denne saken (KA-U77 «andre saker», HF-U5).
-  const fristtabell: Fristtabellen = $derived({
-    datoer: kjernesak.fristdatoer,
-    sakId: kjernesak.sakId,
-    ikkeForstaatt: kjernesak.sakerIkkeForstaatt,
-    sakslenke,
-  });
+  const fristtabell = $derived(fristtabellen(kjernesak, sakslenke));
   const gjeldendeFor = (fristId: number | null): GjeldendeFrist =>
     fristId === null ? null : gjeldendeFrist(fristId, fristtabell);
   /** Datoen som gjelder nå: gjeldende frist når den kan regnes, ellers datoen i kontrakten. */
@@ -332,7 +327,7 @@
           naar: ny ?? naa,
           hva: betegnelsen(f),
           kilde: kilde.filter((x) => x !== null).join(' · '),
-          krevd: !!ny,
+          krevd: !!n,
         },
       ];
     })
@@ -549,7 +544,7 @@
         FRISTKRAV.kalenderdager,
         FRISTKRAV.delAvArbeidene,
         nyDato ? FRISTKRAV.nyDato(nyDato, d?.dagmulktbelagt ?? false) : null,
-        typeof p.frist === 'number' && g ? `${sid}-gjeldende` : null
+        (typeof p.frist === 'number' && g) || p.frist === 'annen' ? `${sid}-gjeldende` : null
       )}
       <div class="fot">
         {#if p.id !== null}
@@ -580,7 +575,7 @@
           <span class="visually-hidden">{FRISTKRAV.kolonner[2]}:</span><span
             class="prefiks-smal"
             aria-hidden="true">{FRISTKRAV.kolonner[2]}</span
-          >{datoenNaa(g) ? dato(datoenNaa(g)!) : '–'}
+          >{g?.art === 'kjent' ? dato(g.dato) : '–'}
         </p>
         <p class="dager-celle" class:mangler-tekst={!p.trukket && !n}>
           <span class="visually-hidden">{FRISTKRAV.kolonner[3]}:</span>{p.trukket
@@ -593,9 +588,12 @@
           {#if nyDato && !p.trukket}<span class="visually-hidden">{FRISTKRAV.kolonner[4]}:</span
             ><span class="prefiks-smal" aria-hidden="true">{FRISTKRAV.kolonner[4]}</span>{dato(
               nyDato
-            )}{:else if p.frist === 'annen' && !p.trukket}<span class="visually-hidden"
-              >{FRISTKRAV.kolonner[4]}:</span
-            ><span class="ukjent">{FRISTKRAV.ikkeRegistrertKort}</span>{/if}
+            )}{:else if !p.trukket && (p.frist === 'annen' || g?.art === 'ukjent')}<span
+              class="visually-hidden">{FRISTKRAV.kolonner[4]}:</span
+            ><span class="prefiks-smal" aria-hidden="true">{FRISTKRAV.kolonner[4]}</span><span
+              class="ukjent"
+              >{p.frist === 'annen' ? FRISTKRAV.ikkeRegistrertKort : FRISTKRAV.kanIkkeRegnes}</span
+            >{/if}
         </p>
         <Knapp
           variant="lenke"
@@ -608,7 +606,7 @@
             {FRISTKRAV.forlengetI(
               g.forlengelser.map((f) => ({
                 dager: f.dager,
-                sak: f.sakskode ? sakensKode(f.sakskode) : f.sakId,
+                sak: sakensNavn(f),
               }))
             )}
           </p>{/if}

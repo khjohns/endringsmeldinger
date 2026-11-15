@@ -4,8 +4,7 @@
   (MM-U2, KA-U79). Brukes i kortet «Kravet og svaret» (BF-45 U-5) og i kravskjemaet (BF-20 U-2).
 -->
 <script lang="ts">
-  import { sakensKode } from '$kjerne/frosset/tekst';
-  import type { GjeldendeFrist } from './fristoversikt';
+  import { sakensNavn, type GjeldendeFrist } from './fristoversikt';
   import { FRISTEN } from './tekster';
 
   let {
@@ -33,8 +32,9 @@
           ? ' og '
           : ', '}{/if}{FRISTEN.forlengelsen(f.dager)}
       <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
-      {#if sakslenke}<a href={sakslenke(f.sakId)}>{f.sakskode ? sakensKode(f.sakskode) : f.sakId}</a
-        >{:else}{f.sakskode ? sakensKode(f.sakskode) : f.sakId}{/if}{/each}.{#if tillegg}
+      {#if sakslenke}<a href={sakslenke(f.sakId)}>{sakensNavn(f)}</a>{:else}{sakensNavn(
+          f
+        )}{/if}{/each}.{#if tillegg}
       {tillegg}{/if}
   </p>
 {:else if g?.art === 'kjent'}
