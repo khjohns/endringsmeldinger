@@ -28,6 +28,7 @@
     "EO-U39",
     "OV-U57",
     "MM-U54",
+    "MM-U56",
     "LV-U56",
     "LV-U57",
     "KA-U19"
@@ -43,6 +44,11 @@
       "dato": "2026-11-06",
       "forhold": "#1615",
       "hva": "Forløpet er registrert som planlagt, med bestillingen i BF-10.md. Brevteksten etter KA-U52 punkt 4 er ikke bygget, og Varden har ikke skjemaet."
+    },
+    {
+      "dato": "2026-11-15",
+      "forhold": "MM-U56",
+      "hva": "D-4: begge parter kan sende innlegg i forholdet. Vil TE endre eller utdype påberopelsen, sender TE en ny versjon."
     }
   ],
   "bestilling": "BF-10.md"
