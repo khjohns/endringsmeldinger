@@ -102,6 +102,11 @@ oppdragsgiver.
 - **En virkning gjengis med alle vilkårene.** Sier et alternativ, en anbefaling eller en
   tekst i en skisse hvor lenge noe binder eller gjelder, tas hvert vilkår i vedtaket med,
   også de som ikke virker aktuelle i saken (#1336).
+- **En ny handling eller tilstand prøves mot portene.** Et spørsmål om en handling utover
+  grunnsettet, eller en ny betegnelse, stilles med portene i
+  [vurderingsfila](../../../docs/vurdering-handlinger-og-tilstander-2026-11-15.md#skjemaet) som
+  mal og viser til [OV-U97](../../../docs/plans/vedtak.md#ov-u97). Svaret føres som rad i
+  [handlingsregisteret](../../../docs/datamodell/handlinger.toml) i samme PR som vedtaket.
 - **Skill belegg fra antakelse i anbefalingen.** Bygger en anbefaling på hva brukere
   gjør eller trenger, som «den vanligste veien», sier den at det er en antakelse, eller
   viser til prøven som fant det (#1336).

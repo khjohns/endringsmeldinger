@@ -41,6 +41,7 @@ utgangspunkt, og må leses mot gjeldende vedtak og referanser.
 | [Tabellregisteret](datamodell/tabeller.md) | Tabeller i SQL Server og data utenfor databasen. Kilde: [tabeller.toml](datamodell/tabeller.toml) |
 | [Relasjoner og dataflyt](datamodell/relasjoner.md) | Koblinger, ER-diagrammer og utveksling med Catenda. Kilder: [relasjoner.toml](datamodell/relasjoner.toml), [dataflyt.toml](datamodell/dataflyt.toml) og [katalog.json](datamodell/katalog.json) |
 | [Kjernehendelsene](datamodell/kjernehendelser.md) | Hendelsestyper og felt som TS-kjernen skriver. Kilde: [kjernehendelser.toml](datamodell/kjernehendelser.toml) |
+| [Handlingene og tilstandene](datamodell/handlinger.md) | Hver handling og betegnelse med part, spor, kilde og status, etter OV-U97. Kilde: [handlinger.toml](datamodell/handlinger.toml) |
 | [Språkfila](sprak.md) · [designsystemet](../.interface-design/system.md) | Ord, brevtekst, tokens og mønstre i Varden |
 | [Beslutningslogg](adr/README.md) | Juridiske drøftelser: [varsling og kontraktsforhold](adr/001-varsling-og-kontraktsforhold.md) og [særskilt krav og varsel etter § 34.1.2](adr/002-saerskilt-krav-og-varsel-etter-34-1-2.md). Vedtakene står i vedtaksfila |
 | [Catendas API-spesifikasjoner](tredjepart-api/) | Uendrede kopier av tredjepartens OpenAPI-spesifikasjoner |

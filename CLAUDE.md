@@ -115,6 +115,9 @@ side. Skjerming av interne notater og utkast går på **team**, ikke på side.
   ikke kan, avvises og forenkles ikke.
 - **Løsningen avgjør ikke det kontrakten overlater til partene**, en oppmann eller
   domstolene.
+- **En handling eller tilstand har en rad i
+  [handlingsregisteret](docs/datamodell/handlinger.toml)**, og en handling utover
+  grunnsettet krever et vedtak etter [OV-U97](docs/plans/vedtak.md#ov-u97).
 
 Begrepene står i [domenetabellen](docs/domenetabell/README.md) og i
 [modellforslaget, 2.2](docs/forslag-maalmodell-2026-10-09.md#22-byggeklossene), som ikke
