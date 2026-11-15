@@ -20,7 +20,6 @@ import {
 import {
   FRISTEN,
   leselinjene,
-  metodenavn,
   SKJEMA,
   standpunkttekst,
   STILLING,
@@ -459,10 +458,7 @@ describe('Standpunktet etter en leddsetning (#2000)', () => {
 });
 
 describe('Meldingen om oppgjørsformen etter en regel (#1848)', () => {
-  it('nevner oppgjørsformen med navnet og punktet, som valgene i skjemaet, ikke koden', () => {
-    expect(SKJEMA.manglerFormRegel('regningsarbeid')).toBe(
-      `Velg om du godkjenner ${metodenavn('regningsarbeid')}.`
-    );
+  it('nevner oppgjørsformen med navnet og punktet i NS 8407, ikke koden (punkt 34.4, #1848)', () => {
     expect(SKJEMA.manglerFormRegel('regningsarbeid')).toBe(
       'Velg om du godkjenner regningsarbeid (punkt 34.4).'
     );

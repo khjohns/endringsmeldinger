@@ -168,7 +168,7 @@ describe('Varden med brukerforløpet BF-01', () => {
         .map((l) => l.textContent)
     ).toEqual([
       'Velg om varselet kom i tide.',
-      'Velg om du godkjenner fast sum.',
+      'Velg om du godkjenner fast sum (punkt 34.2.1).',
       'Velg hvor mye av beløpet du godkjenner.',
     ]);
     const ved = (spoersmaal: string) =>

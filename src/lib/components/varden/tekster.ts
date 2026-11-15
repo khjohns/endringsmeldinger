@@ -198,6 +198,8 @@ export function leselinjene(linjer: Standpunktet[], post: Kravpost): string[] {
  * «byggherren» ellers. `krevd` er det totalentreprenøren krevde for posten. `post` er betegnelsen på kravposten
  * standpunktet gjelder, når kravet har flere (KA-U57). `etterLeddsetning` gir verbet før
  * subjektet, for en setning som begynner med en leddsetning: «…, legger byggherren til grunn …».
+ * Det gjelder standpunktene som begynner med parten. Beløpet og dagene begynner med posten
+ * («Fristforlengelse: …») og har eget lag, så de står aldri etter en leddsetning (`FRISTEN.utenLag`).
  */
 export function standpunkttekst(
   s: Standpunkt,
@@ -386,7 +388,7 @@ export const SKJEMA = {
   forbeholdHjelp: 'Valgfritt. Står sist i brevet. Det erstatter ikke begrunnelsen i et punkt.',
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
-  manglerForm: 'Velg om du godkjenner fast sum.',
+  manglerForm: `Velg om du godkjenner ${metodenavn('tilbud')}.`,
   manglerFormRegel: (m: Regel) => `Velg om du godkjenner ${metodenavn(m)}.`,
   manglerVarselJustering: 'Velg om varselet om justering av enhetsprisene kom i tide.',
   manglerJustering: 'Velg om du godkjenner justeringen av enhetsprisene.',

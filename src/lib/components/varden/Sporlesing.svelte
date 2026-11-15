@@ -137,54 +137,6 @@
       ? `revidere:${spor}`
       : null
   );
-  const handlingVed = $derived.by(() => {
-    const n = primaer ?? (kanGodta ? `godta:${spor}` : revidere);
-    return n ? (omtalen(n)?.ved?.() ?? null) : null;
-  });
-  const godtaVedBrevet = $derived(kanGodta && handlingVed !== null);
-  // Forsering står for totalentreprenøren når byggherren prinsipalt har avslått dager (U-6 i
-  // BF-45, FO-U1, svar 3 A). «Andre handlinger» setter den foran «Trekk kravet» (`BREVTYPER`).
-  const forsering = $derived(
-    spor === 'frist' && part === 'TE' && kanGodta && prinsipaltAvslaatteDager(u)
-  );
-  const andre = $derived([
-    ...menyvalg.filter((n) => !(godtaVedBrevet && n === `godta:${spor}`) && n !== revidere),
-    ...(forsering ? [FORSERING] : []),
-  ]);
-  const avslag = $derived(
-    svaret?.standpunkter.some((s) => s.art === 'forhold' && s.resultat === 'avslaatt') ?? false
-  );
-
-  async function lesBrevet(id: string) {
-    // I raden lukker knappen brevet igjen. I høyre kolonne blir knappen teksten «Vises til
-    // høyre», så fokus går til brevet.
-    if (smal && visesId === id) {
-      lest = null;
-      return;
-    }
-    lest = id;
-    await tick();
-    if (!smal) document.querySelector<HTMLElement>(`[data-brevpanel="${id}"]`)?.focus();
-  }
-
-  let hindring = $state<string | null>(null);
-
-  const akseptkommando = $derived(
-    kanGodta && svaret ? aksepten(spor, svaret.id, kjernesak.regelversjon) : null
-  );
-  // Virkningen av aksepten slik kjernen regner den, av svaret slik det ble sendt (KA-U10, MM-U50).
-  const enighet = $derived(
-    akseptkommando ? (kjernesak.forhaandsvist(akseptkommando)?.spor[spor].enighet ?? null) : null
-  );
-  // Hjemlene for innsigelsene mot varslene som har virkning, uten § 34.4 (KA-U64), hver én gang.
-  const paaberopt = $derived([
-    ...new Set(
-      (svaret?.standpunkter ?? []).flatMap((s) =>
-        s.art === 'rettidighet' && !s.iTide && s.hjemmel !== '34.4' ? [s.hjemmel] : []
-      )
-    ),
-  ]);
-
   /** Teksten, linja under og brevet handlingen står ved, for én type handling. */
   interface Omtale {
     /** Teksten på knappen eller raden; uten den gjelder teksten i `BREVTYPER`. */
@@ -253,7 +205,56 @@
     },
     forsering: { linje: () => FRISTEN.forseringLinje },
   };
-  const omtalen = (n: string): Omtale | undefined => OMTALE[n.split(':')[0]];
+  const omtalen = (n: string): Omtale | undefined =>
+    OMTALE[n === FORSERING ? 'forsering' : (handlingen(n)?.type ?? '')];
+
+  const handlingVed = $derived.by(() => {
+    const n = primaer ?? (kanGodta ? `godta:${spor}` : revidere);
+    return n ? (omtalen(n)?.ved?.() ?? null) : null;
+  });
+  const godtaVedBrevet = $derived(kanGodta && handlingVed !== null);
+  // Forsering står for totalentreprenøren når byggherren prinsipalt har avslått dager (U-6 i
+  // BF-45, FO-U1, svar 3 A). «Andre handlinger» setter den foran «Trekk kravet» (`BREVTYPER`).
+  const forsering = $derived(
+    spor === 'frist' && part === 'TE' && kanGodta && prinsipaltAvslaatteDager(u)
+  );
+  const andre = $derived([
+    ...menyvalg.filter((n) => !(godtaVedBrevet && n === `godta:${spor}`) && n !== revidere),
+    ...(forsering ? [FORSERING] : []),
+  ]);
+  const avslag = $derived(
+    svaret?.standpunkter.some((s) => s.art === 'forhold' && s.resultat === 'avslaatt') ?? false
+  );
+
+  async function lesBrevet(id: string) {
+    // I raden lukker knappen brevet igjen. I høyre kolonne blir knappen teksten «Vises til
+    // høyre», så fokus går til brevet.
+    if (smal && visesId === id) {
+      lest = null;
+      return;
+    }
+    lest = id;
+    await tick();
+    if (!smal) document.querySelector<HTMLElement>(`[data-brevpanel="${id}"]`)?.focus();
+  }
+
+  let hindring = $state<string | null>(null);
+
+  const akseptkommando = $derived(
+    kanGodta && svaret ? aksepten(spor, svaret.id, kjernesak.regelversjon) : null
+  );
+  // Virkningen av aksepten slik kjernen regner den, av svaret slik det ble sendt (KA-U10, MM-U50).
+  const enighet = $derived(
+    akseptkommando ? (kjernesak.forhaandsvist(akseptkommando)?.spor[spor].enighet ?? null) : null
+  );
+  // Hjemlene for innsigelsene mot varslene som har virkning, uten § 34.4 (KA-U64), hver én gang.
+  const paaberopt = $derived([
+    ...new Set(
+      (svaret?.standpunkter ?? []).flatMap((s) =>
+        s.art === 'rettidighet' && !s.iTide && s.hjemmel !== '34.4' ? [s.hjemmel] : []
+      )
+    ),
+  ]);
 
   /** Teksten for et varsel med hjemmelen, og ellers teksten i `OMTALE`. */
   function innsigelsestekst(n: string): string | null {

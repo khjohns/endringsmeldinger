@@ -86,8 +86,18 @@ const brevenePerUtledning = new WeakMap<Utledning, Brevet[]>();
 export function brevene(u: Utledning): Brevet[] {
   const lest = brevenePerUtledning.get(u);
   if (lest) return lest;
-  // Frosset, så en kaller som endrer lista, feiler i stedet for å endre den for de andre.
-  const brev = Object.freeze(lesBrevene(u)) as Brevet[];
+  // Frosset, også brevene og listene i dem, så en kaller som endrer noe, feiler i stedet for å
+  // endre det for de andre.
+  const brev = Object.freeze(
+    lesBrevene(u).map((b) =>
+      Object.freeze({
+        ...b,
+        spor: Object.freeze(b.spor),
+        avsnitt: b.avsnitt && Object.freeze([...b.avsnitt]),
+        vedlegg: Object.freeze(b.vedlegg),
+      })
+    )
+  ) as Brevet[];
   brevenePerUtledning.set(u, brev);
   return brev;
 }

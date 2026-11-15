@@ -142,9 +142,13 @@
   $effect(() => {
     if (!faner.treff || !sporene) return;
     void valgt;
-    sporene
-      .querySelector<HTMLElement>('[aria-current="page"]')
-      ?.scrollIntoView?.({ inline: 'nearest', block: 'nearest' });
+    const fane = sporene.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!fane) return;
+    // Bare sidelengs i fanene, så siden ikke hopper (code-review i #2021).
+    const f = fane.getBoundingClientRect();
+    const n = sporene.getBoundingClientRect();
+    if (f.left < n.left) sporene.scrollLeft += f.left - n.left;
+    else if (f.right > n.right) sporene.scrollLeft += f.right - n.right;
   });
   let arbeid = $state<Arbeid>({ art: 'les' });
   let svarvalg = $state(tomtSvar());
