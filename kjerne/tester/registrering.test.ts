@@ -560,12 +560,13 @@ describe('et svar sendt før byggherrens gjeldende svar på kravversjonen blir i
           etter: 2,
           rolle: 'kontroll',
           kilde: ['OV-U103', 'OV-U104'],
-          forventet: {
-            forstaatt: true,
-            uten_virkning: [],
-            'gjeldende_svar.forhold': 'S-r',
-            'visning.merknader': { inneholder: ['sendt_samme_dag'] },
-          },
+          forventet: { forstaatt: true, uten_virkning: [], 'gjeldende_svar.forhold': 'S-r' },
+        },
+        {
+          etter: 2,
+          rolle: 'mal',
+          kilde: ['OV-U104'],
+          forventet: { 'visning.merknader': { inneholder: ['sendt_samme_dag'] } },
         },
       ]
     ));

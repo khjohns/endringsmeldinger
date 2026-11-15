@@ -975,7 +975,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'påberopelsen etter § 33.4 viser til kravversjonen svaret gjelder, ikke det første fristkravet (VS-U20, OV-U5, KK-07)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['    krav,\n    () => true,', '    krav.slice(-1),\n    () => true,']],
+    endringer: [
+      [
+        '  const [foerste] = s.krav.filter(varsler);',
+        '  const [foerste] = s.krav.filter(varsler).slice(-1);',
+      ],
+    ],
     mal: [
       'uten registrert varsel gjelder den det første fristkravet',
       'brevet sier at varselet er det første fristkravet',
