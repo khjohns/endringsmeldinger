@@ -6463,6 +6463,47 @@ tekst = '''
 Som A, og i tillegg når byggherren i et nytt svar ikke lenger godtar justeringen av enhetsprisene etter punkt 34.3.2 for en kravpost. Forhold: utvider HF-U29 punkt 8.'''
 anbefalt = true
 
+[[gruppe.vedtak]]
+klasse = "design"
+bindende_i = ["hf-u29"]
+id = "HF-U34"
+dato = 2026-11-15
+hvem = "oppdragsgiver"
+kilde = ["#502", "#1989"]
+sporsmal = '''
+Spørsmålet ordrett slik det står i [kommentaren i #1989](https://github.com/khjohns/endringsmeldinger/pull/1989#issuecomment-6884924561), stilt 14.11 og besvart 15.11:
+
+**Er det en senkning når beløp eller dager blir subsidiære fordi byggherren avslår forholdet?**
+
+*Bakgrunn:* Brev 1 godkjenner forholdet og 100 000 kr. I brev 2 avslår byggherren forholdet og står ved 100 000 kr. Brevet setter nå beløpet under «Subsidiært:» (OV-U32). Etter ordlyden er det en senkning etter HF-U32: beløpet var godkjent prinsipalt og står nå bare subsidiært. Eksempelet da HF-U32 ble vedtatt, gjaldt en innsigelse i vederlagssporet.
+
+- **A (anbefalt, valgt):** Beløp eller dager som blir subsidiære fordi byggherren avslår forholdet eller påberoper punkt 32.2, er ikke en senkning etter punkt 8 i HF-U29. Bare lagene i sporet sammenliknes (OV-U32). Visningen viser beløpet og dagene som subsidiære etter avslaget, slik GR-U26 sier. Forhold: snevrer inn HF-U32.
+- B: Det er en senkning etter punkt 8. Visningen viser det tidligere svaret, og ved fristen også punkt 33.7 annet ledd. Forhold: i tråd med HF-U32 (presiserer den).
+
+*Anbefaling: A.* Innsigelsen er ny for forholdet, ikke for beløpet eller dagene. Med B ville visningen vist bestemmelser som gjelder innsigelser i sporet. Avslaget av forholdet vises allerede i forholdet og i brevet.
+
+*Valget styrer* om et nytt avslag av forholdet gir visningen etter punkt 8 i vederlaget og fristen.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 15.11, ordrett: «1989: A».'''
+forhold = [
+  { art = "snevrer inn", vedtak = "hf-u32" },
+]
+folge = '''
+Bygges i #502.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Beløp eller dager som blir subsidiære fordi byggherren avslår forholdet eller påberoper punkt 32.2, er ikke en senkning etter punkt 8 i HF-U29. Bare lagene i sporet sammenliknes (OV-U32). Visningen viser beløpet og dagene som subsidiære etter avslaget, slik GR-U26 sier. Forhold: snevrer inn HF-U32.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Det er en senkning etter punkt 8. Visningen viser det tidligere svaret, og ved fristen også punkt 33.7 annet ledd. Forhold: i tråd med HF-U32 (presiserer den).'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Aksept og enighet"
 
