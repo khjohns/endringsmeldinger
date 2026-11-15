@@ -30301,6 +30301,77 @@ tekst = '''
 Dagene i en frist kan være upåvirket, slik OV-U33 tillater. Leseren godtar det som i dag. Forhold: i tråd med OV-U33.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U101"
+dato = 2026-11-15
+hvem = "oppdragsgiver"
+kilde = ["#1987"]
+sporsmal = '''
+Spørsmål F, ordrett slik det ble stilt 15.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/a83ed8f/docs/vurdering-handlinger-og-tilstander-2026-11-15.md#spørsmål-f-bekreftelsen-utgår):
+
+> ### Spørsmål F: bekreftelsen utgår
+>
+> Stilt 15.11 etter oppdragsgivers svar «Enig om at bekreftelse da utgår og om forslaget til MM-U24».
+> Prøvd mot vedtakene av en subagent før det ble stilt. Klasse: vedtak.
+>
+> - **F1 (anbefalt):** «Byggherren bekrefter ikke i et brev fra løsningen et svar på forholdet
+>   byggherren har gitt utenfor løsningen. Har byggherren svart i et brev eller et annet dokument,
+>   legger byggherren det til som korrespondanse og velger at det er et svar (OV-U80). Svaret får da
+>   virkning i løsningen med datoen byggherren oppgir at det ble sendt. Det gjelder kravversjonen det
+>   svarer på, og godtas når den versjonen var gjeldende da svaret ble sendt (OV-U98). Løsningen lager
+>   ingen brevtekst, og svaret går gjennom godkjenningen etter fullmakten. Et forbehold i svaret
+>   tolkes ikke (samlevedtaket for vilkår og forbehold, punkt 4 og 10). Byggherrens endringsordre
+>   registreres som svar på vilkårene i OV-U6. Kan svaret ikke legges til som svar, eller vil
+>   byggherren gi en endringsordre nå, sender byggherren et nytt svar fra løsningen. Det får virkning
+>   når det sendes. Henvisningen til et svar utenfor løsningen (GR-U34 punkt 6–7) og det nye svaret
+>   etter en henvisning (OV-U46, GR-U36) står.» Forhold: opphever GR-U35 og GR-U37; endrer OV-U46
+>   (setningene om bekreftelsen utgår, setningene om det nye svaret etter en henvisning står); endrer
+>   KA-U49 (punkt 11 utgår); endrer OV-U99 (punkt 2: bekreftelsen strykes fra det som venter);
+>   bygger på OV-U80 og OV-U98. GR-U34 punkt 6–7, GR-U36, LV-U53, OV-U84 og OV-U69 står.
+> - **F2:** «Bekreftelsen etter OV-U46, med GR-U35–GR-U37, står og venter i første versjon (OV-U99
+>   punkt 2). Til den er bygget, legger byggherren et svar gitt utenfor løsningen til som
+>   korrespondanse og velger at det er et svar (OV-U80, OV-U98), eller sender et nytt svar fra
+>   løsningen.» Forhold: OV-U99 står.
+>
+> Følgene av F1, fra prøvingen: akseptfristen og bindingen regnes fra datoen svaret ble sendt, ikke
+> fra en bekreftelse, så fristen kan være ute når svaret registreres (HF-U24 dekker en aksept etter
+> fristen); veien der byggherren utsteder en endringsordre i bekreftelsen faller bort, og byggherren
+> sender i stedet et nytt svar (GR-U14); et registrert svar har ingen brevkontroll, fordi det ikke
+> har brevtekst (OV-U80). Berørt: BF-08 og #1834 (bekreftelsen i steg 4 og prototypen
+> `forholdssvar.html`), raden for GR-U35 i `dekning.md`, og #1306, som snevres inn til
+> henvisningen. Bekreftelsen er ikke bygget i koden.
+>
+> Anbefaling: F1. Styrer: at bestillingen i #1834 bygger svaret på påberopelsen og registreringen,
+> ikke bekreftelsen.
+'''
+valgt = "F1"
+svar = '''
+Oppdragsgiver 15.11, ordrett: «F1 er OK.» Svaret er F1, det anbefalte alternativet. Før spørsmålet ble stilt, sa oppdragsgiver 15.11, ordrett: «Enig om at bekreftelse da utgår og om forslaget til MM-U24».'''
+forhold = [
+  { art = "opphever", vedtak = "gr-u35" },
+  { art = "opphever", vedtak = "gr-u37" },
+  { art = "endrer", vedtak = "ov-u46" },
+  { art = "endrer", vedtak = "ka-u49" },
+  { art = "endrer", vedtak = "ov-u99" },
+  { art = "bygger på", vedtak = "ov-u80" },
+  { art = "bygger på", vedtak = "ov-u98" },
+]
+folge = '''
+Endrer OV-U46: setningene om bekreftelsen utgår, og setningene om det nye svaret etter en henvisning står. Endrer KA-U49: punkt 11 utgår. Endrer OV-U99: punkt 2, bekreftelsen strykes fra det som venter. GR-U34 punkt 6–7, GR-U36, LV-U53, OV-U84 og OV-U69 står. Gjelder BF-08 (#1834) og #1306.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "F1"
+tekst = '''
+Byggherren bekrefter ikke i et brev fra løsningen et svar på forholdet byggherren har gitt utenfor løsningen. Har byggherren svart i et brev eller et annet dokument, legger byggherren det til som korrespondanse og velger at det er et svar (OV-U80). Svaret får da virkning i løsningen med datoen byggherren oppgir at det ble sendt. Det gjelder kravversjonen det svarer på, og godtas når den versjonen var gjeldende da svaret ble sendt (OV-U98). Løsningen lager ingen brevtekst, og svaret går gjennom godkjenningen etter fullmakten. Et forbehold i svaret tolkes ikke (samlevedtaket for vilkår og forbehold, punkt 4 og 10). Byggherrens endringsordre registreres som svar på vilkårene i OV-U6. Kan svaret ikke legges til som svar, eller vil byggherren gi en endringsordre nå, sender byggherren et nytt svar fra løsningen. Det får virkning når det sendes. Henvisningen til et svar utenfor løsningen (GR-U34 punkt 6–7) og det nye svaret etter en henvisning (OV-U46, GR-U36) står.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "F2"
+tekst = '''
+Bekreftelsen etter OV-U46, med GR-U35–GR-U37, står og venter i første versjon (OV-U99 punkt 2). Til den er bygget, legger byggherren et svar gitt utenfor løsningen til som korrespondanse og velger at det er et svar (OV-U80, OV-U98), eller sender et nytt svar fra løsningen.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
 etter = '''

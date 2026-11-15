@@ -507,6 +507,8 @@ henvisningen. Bekreftelsen er ikke bygget i koden.
 Anbefaling: F1. Styrer: at bestillingen i #1834 bygger svaret på påberopelsen og registreringen,
 ikke bekreftelsen.
 
+Svar: oppdragsgiver 15.11, ordrett: «F1 er OK.»
+
 ### Svarene etter drøftingen
 
 Oppdragsgiver 15.11, ordrett: «Som anbefalt, men en avklaring: for innlegg trenger vi vel kun
