@@ -54,6 +54,8 @@ export interface Saken {
   varsletFoer: Partial<Record<'33.4' | '34.1.2' | '34.1.3', string>>;
   /** Påberopelsen vederlagskravet bygger på: i brevet, ellers gjeldende versjon før det. */
   paaberopelse: Krav | null;
+  /** Elementene uten virkning (MM-U43 punkt 9): et svar blant dem gir ikke opp en innsigelse. */
+  utenVirkning: readonly string[];
 }
 
 /** Kravet en kommando om et kommende avsnitt ikke kan uttrykke. Brevet skrives ikke. */

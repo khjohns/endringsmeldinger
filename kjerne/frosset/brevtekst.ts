@@ -214,11 +214,12 @@ interface Innsigelse {
  * uttrykkelig, i rekkefølgen de kom, med brevet de står i. Svaret gjentar dem eller
  * gir dem opp. Et svar lagt til med svarskjemaet gir den opp som et svar fra løsningen, fra
  * dagen det ble sendt (OV-U105), så et svar sendt før innsigelsen gir den ikke opp (OV-U104).
+ * Et svar uten virkning gir den ikke opp (MM-U43 punkt 9).
  */
 function aapneInnsigelser(
   svar: Svar,
   avsender: Part,
-  j: Journalen,
+  { j, saken }: Pick<Tekst, 'j' | 'saken'>,
   regler: Regelsett
 ): Innsigelse[] {
   const svarFraParten: { svar: Svar; dag: string | null }[] = [];
@@ -226,7 +227,8 @@ function aapneInnsigelser(
   for (const d of j.dokumenter) {
     if (d.avsender !== avsender || d.svar.includes(svar)) continue;
     const dag = dagenSendt({ id: d.id, dokument: d.id }, d);
-    svarFraParten.push(...d.svar.map((s) => ({ svar: s, dag })));
+    for (const s of d.svar)
+      if (!saken.utenVirkning.includes(s.id)) svarFraParten.push({ svar: s, dag });
     for (const u of d.utsagn)
       // VS-U29: standpunktet om at begrunnelsen ikke er et svar, er ingen påberopelse.
       if (u.art === 'innsigelse' && u.grunn === undefined)
@@ -326,7 +328,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
   const { j, nytt } = t;
   const krav = j.krav(s.gjelder);
   const virkning = new Map(s.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning]));
-  const innsigelsene = aapneInnsigelser(s, nytt.avsender, j, regler);
+  const innsigelsene = aapneInnsigelser(s, nytt.avsender, t, regler);
   const sporet = brevtekstI(s.spor);
   const fra = forholdetsLag(s, t, nr);
   const ledd: Svarledd[] = [...fra.ledd];

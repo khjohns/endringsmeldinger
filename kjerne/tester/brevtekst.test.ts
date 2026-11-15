@@ -2817,19 +2817,22 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
           }),
         ],
       });
-      const etterITide = (sendt: string) => {
+      /** `utenVirkning`: svaret gjelder kravversjonen den nye påberopelsen har erstattet (OV-U98). */
+      const etterITide = (sendt: string, utenVirkning = false) => {
         const s = medInnsigelse();
+        const gjelder = s.krav('forhold');
+        if (utenVirkning) s.send('TE', PAABEROPELSE);
         s.rad('BH', {
           svar: [
             {
               id: randomUUID(),
               spor: 'forhold',
-              gjelder: s.krav('forhold'),
+              gjelder,
               standpunkter: [
                 {
                   id: randomUUID(),
                   art: 'rettidighet',
-                  gjelder: s.krav('forhold'),
+                  gjelder,
                   hjemmel: '32.2',
                   i_tide: true,
                 },
@@ -2840,7 +2843,8 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
           opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: sendt }],
           korrespondansetype: 'brev',
         });
-        s.send('TE', PAABEROPELSE);
+        if (utenVirkning) expect(s.u().utenVirkning, 'forutsetning').toHaveLength(1);
+        else s.send('TE', PAABEROPELSE);
         // Byggherren kan påberope det samme på nytt (VS-U46 punkt 13).
         expect(s.avvist('BH', forSent(s))).toBeNull();
         return laast(s.send('BH', forSent(s)))[1];
@@ -2850,6 +2854,10 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       expect(etterITide('2026-10-04'), 'kontrollsak: svaret er sendt før innsigelsen').toContain(
         innsigelsen
       );
+      expect(
+        etterITide('2026-12-01', true),
+        'et svar uten virkning gir den ikke opp (MM-U43 punkt 9)'
+      ).toContain(innsigelsen);
     });
 
     /** GR-U11: § 32.2 gjelder ikke kategorien. */
@@ -4384,6 +4392,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,
       kravpostvarsler: {},
+      utenVirkning: [],
       varsletFoer: {},
       paaberopelse: null,
     };
@@ -4484,6 +4493,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,
       kravpostvarsler: {},
+      utenVirkning: [],
       varsletFoer: {},
       paaberopelse: null,
     };
@@ -5214,6 +5224,7 @@ describe('vedleggene står i teksten (A4)', () => {
     subsidiaer: { vederlag: [], frist: [] },
     avklartVedFrafall: false,
     kravpostvarsler: {},
+    utenVirkning: [],
     varsletFoer: {},
     paaberopelse: null,
   };

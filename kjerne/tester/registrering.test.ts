@@ -471,9 +471,18 @@ describe('kommandoen for et krav sendt utenfor løsningen (OV-U80, OV-U98, OV-U1
     expect(data.brevtekst).toBeUndefined();
   });
 
-  it('et krav sendt før det siste godtas, utenfor rekken (OV-U102)', async () => {
+  it('et krav sendt før det siste godtas, utenfor rekken, og erstatter ikke det siste (OV-U102)', async () => {
     const utfall = await provKravet('2026-09-21');
     expect(utfall.godtatt ? null : utfall.avvisning).toBeNull();
+    if (!utfall.godtatt) return;
+    const [krav] = (utfall.hendelser[0].data as { krav: Record<string, unknown>[] }).krav;
+    expect(krav.erstatter).toBeUndefined();
+    const kontroll = await provKravet('2026-09-23');
+    expect(
+      kontroll.godtatt &&
+        (kontroll.hendelser[0].data as { krav: Record<string, unknown>[] }).krav[0].erstatter,
+      'kontrollsak: et krav sendt etter det siste erstatter det'
+    ).toEqual(expect.any(String));
   });
 
   it('et krav lagt til med en utdypning, eller med typen uten datoen, avvises som feil form', async () => {
@@ -488,6 +497,10 @@ describe('kommandoen for et krav sendt utenfor løsningen (OV-U80, OV-U98, OV-U1
       sendt: undefined,
     });
     expect(utenDato).toMatchObject({ godtatt: false, avvisning: { regel: 'UGYLDIG_FORM' } });
+    expect(await provKravet('2026-02-30'), 'en dato som ikke finnes (OV-U98)').toMatchObject({
+      godtatt: false,
+      avvisning: { regel: 'UGYLDIG_FORM' },
+    });
   });
 });
 
@@ -574,5 +587,56 @@ describe('et svar sendt før byggherrens gjeldende svar på kravversjonen blir i
       kontroll.godtatt ? null : kontroll.avvisning,
       'kontrollsak: sendt etter svaret'
     ).toBeNull();
+  });
+});
+
+describe('varselet etter § 32.2 og et krav utenfor rekken (VS-U38, OV-U102)', () => {
+  const varselet: Handling = { handling: 'varsel', spor: 'frist', sendt: '2026-09-20' };
+  const felt = {
+    spor: 'forhold',
+    hjemmel: '32.2',
+    korrespondansetype: 'brev',
+    dokumentasjon: [VEDLEGG],
+  };
+
+  it('et varsel sendt etter et eldre krav avvises, fordi påberopelsen først ble sendt med det', async () => {
+    expect(
+      await provRegistrering(
+        [registrertGrunnlagskrav('K-g0', '2026-09-19')],
+        varselet,
+        '2026-09-20',
+        felt
+      )
+    ).toMatchObject({ godtatt: false, avvisning: { regel: 'VARSEL_ETTER_PAABEROPELSEN' } });
+    const kontroll = await provRegistrering([], varselet, '2026-09-20', felt);
+    expect(
+      kontroll.godtatt ? null : kontroll.avvisning,
+      'kontrollsak: uten det eldre kravet'
+    ).toBeNull();
+  });
+});
+
+describe('et krav utenfor rekken prøves ikke mot kravversjonene i den (OV-U102)', () => {
+  const toPoster: Handling = {
+    handling: 'krav',
+    spor: 'vederlag',
+    kravposter: [{ post: 'P1', belop: 60000 }, { belop: 40000 }],
+  };
+  const enPost: Handling = {
+    handling: 'krav',
+    spor: 'vederlag',
+    kravposter: [{ post: 'P1', belop: 60000 }],
+  };
+
+  it('et eldre krav med færre kravposter enn det siste godtas utenfor rekken', async () => {
+    const utfall = await provRegistrering([toPoster], enPost, '2026-09-23');
+    expect(utfall.godtatt ? null : utfall.avvisning).toBeNull();
+  });
+
+  it('kontrollsak: sendt etter det siste prøves det mot kravpostene (KA-U56)', async () => {
+    expect(await provRegistrering([toPoster], enPost, '2026-09-25')).toMatchObject({
+      godtatt: false,
+      avvisning: { regel: 'KRAVPOSTENE' },
+    });
   });
 });

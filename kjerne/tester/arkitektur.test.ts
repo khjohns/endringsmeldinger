@@ -1212,8 +1212,29 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kommandoer/kommando.ts',
     'predikat',
     'erRegistrering',
-    ['kommandoer/skriving.ts:skriv', 'kommandoer/nyttelast.ts:oppgittDatoI'],
+    [
+      'kommandoer/skriving.ts:skriv',
+      'kommandoer/skriving.ts:dokument',
+      'kommandoer/nyttelast.ts:oppgittDatoI',
+      'kommandoer/nyttelast.ts:nyttelastkontroll',
+    ],
   ],
+  // OV-U102: et krav lagt til, sendt før det siste, står utenfor rekken.
+  [
+    'utledning/utled.ts',
+    'relasjon',
+    'sendtFoerSisteKrav',
+    ['kommandoer/nyttelast.ts:nyttelastkontroll', 'kommandoer/skriving.ts:dokument'],
+  ],
+  ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/skriving.ts:dokument']],
+  ['Registrering', 'kommando', 'sendt', ['kommandoer/skriving.ts:dokument']],
+  // MM-U43 punkt 9: et svar uten virkning gir ikke opp innsigelsen (OV-U105).
+  ['Utledning', 'relasjon', 'utenVirkning', ['kommandoer/skriving.ts:brevtekstFor']],
+  ['Utledning.utenVirkning', 'relasjon', 'element', ['kommandoer/skriving.ts:brevtekstFor']],
+  ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:aapneInnsigelser']],
+  // OV-U102, OV-U104: hva stridene i ett dokument gjør, og sammenlikningene samme dag.
+  ['Strid', 'predikat', 'element utenforRekken', ['utledning/utled.ts:strid']],
+  ['Utledning.sendtSammeDag', 'relasjon', 'element med'],
   // OV-U80: et registrert svar har ingen tekst fra løsningen.
   ['Svarutkast', 'kommando', 'utdypning utdypninger', ['kommandoer/kommando.ts:formfeil']],
   // OV-U98: en registrering godtas bare når utledningen gir den virkning.

@@ -34,6 +34,7 @@ import { brevmerking, lagBrevtittel, medSakskode } from '../frosset/brevtittel.t
 import {
   brevtekstI,
   erRegistrert,
+  kalenderdag,
   lesJournal,
   registrertDato,
   standpunkterISvaret,
@@ -46,6 +47,7 @@ import {
 } from '../format/skjema.ts';
 import {
   paaberopelseFor,
+  sendtFoerSisteKrav,
   utled,
   utledJournal,
   varseletFoerBrevet,
@@ -323,7 +325,7 @@ const SKRIVING: Record<Spor, Sporsskriving> = {
 
 /** Meldingen når en registrering ikke får virkning med datoen avsenderen oppgir (OV-U98). */
 const UTEN_VIRKNING_MELDING = (grunn: string) =>
-  `Brevet kan ikke legges til med virkning. Det er ${grunn.replace(/ \(.*\)$/, '')}.`;
+  `Brevet kan ikke legges til med virkning: ${grunn.replace(/ \(.*\)$/, '')}.`;
 
 /**
  * OV-U80, OV-U98: et krav, et svar eller en aksept lagt til med datoen avsenderen oppgir, typen
@@ -352,7 +354,9 @@ function dokument(
   const nyId = kontekst.nyId;
   switch (k.type) {
     case 'krav': {
-      const forrige = u.spor[k.spor].gjeldendeKrav;
+      // OV-U102: et krav lagt til, sendt før det siste, står utenfor rekken og erstatter ikke det.
+      const sendt = erRegistrering(k) ? kalenderdag(k.sendt) : null;
+      const forrige = sendtFoerSisteKrav(u, k.spor, sendt) ? null : u.spor[k.spor].gjeldendeKrav;
       const id = nyId();
       if (k.utdypning !== undefined || k.utdypninger || k.forbehold !== undefined)
         utdypninger.set(id, {
@@ -831,6 +835,7 @@ function brevtekstFor(
         sakskode,
         tittel: sak.tittel,
         svarPaaPaaberopelsen: u.spor.forhold.gjeldendeSvar?.id ?? null,
+        utenVirkning: u.utenVirkning.map((x) => x.element),
         datoopplysninger: u.datoopplysninger,
         subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
         avklartVedFrafall: u.frafalt,

@@ -1071,7 +1071,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'const innsigelsene = aapneInnsigelser(s, nytt.avsender, j, regler);',
+        'const innsigelsene = aapneInnsigelser(s, nytt.avsender, t, regler);',
         'const innsigelsene: Innsigelse[] = [];',
       ],
     ],
@@ -1810,8 +1810,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '    svarFraParten.push(...d.svar.map(',
-        '    if (!erRegistrert(d.opplysninger)) svarFraParten.push(...d.svar.map(',
+        'if (!saken.utenVirkning.includes(s.id)) svarFraParten',
+        'if (!saken.utenVirkning.includes(s.id) && !erRegistrert(d.opplysninger)) svarFraParten',
       ],
     ],
     mal: ['et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt'],
@@ -1854,6 +1854,42 @@ const MUTASJONER: Mutasjon[] = [
       'kontrollsak: en revisjon sendt samme dag som svaret erstatter det',
       'et krav sendt samme dag som det siste blir gjeldende',
     ],
+  },
+  {
+    id: 'F653',
+    feilklasse: 'et svar uten virkning gir opp innsigelsen i brevteksten (MM-U43 punkt 9, OV-U105)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['if (!saken.utenVirkning.includes(s.id)) ', '']],
+    mal: ['et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt'],
+  },
+  {
+    id: 'F654',
+    feilklasse: 'et krav utenfor rekken prøves mot kravpostene i rekken i utledningen (OV-U102)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['  if (utenforRekken) return null;\n', '']],
+    mal: ['et eldre krav med færre kravposter enn det siste godtas utenfor rekken'],
+  },
+  {
+    id: 'F655',
+    feilklasse: 'et krav utenfor rekken prøves mot kravpostene i rekken i kommandoen (OV-U102)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['const sperre = utenforRekken ? null : ', 'const sperre = ']],
+    mal: ['et eldre krav med færre kravposter enn det siste godtas utenfor rekken'],
+  },
+  {
+    id: 'F656',
+    feilklasse:
+      'et varsel etter § 32.2 sendt etter et krav utenfor rekken godtas (VS-U38, OV-U102)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [['[foerste, ...u.spor.forhold.kravUtenforRekken]', '[foerste]']],
+    mal: ['et varsel sendt etter et eldre krav avvises'],
+  },
+  {
+    id: 'F657',
+    feilklasse: 'et krav utenfor rekken lagres som erstatning for det siste (OV-U102)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['sendtFoerSisteKrav(u, k.spor, sendt) ? null : ', '']],
+    mal: ['et krav sendt før det siste godtas, utenfor rekken, og erstatter ikke det siste'],
   },
   {
     id: 'F224',
@@ -1969,14 +2005,19 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F250',
     feilklasse: 'en dato etter brevets dato godtas (arbeidsvalg 1 i #664)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['dag <= brevetsDato) return null;', 'dag <= brevetsDato || true) return null;']],
+    endringer: [['    if (dag !== null && dag > brevetsDato)\n', '    if (false)\n']],
     mal: ['en dato etter brevets dato avvises'],
   },
   {
     id: 'F251',
     feilklasse: 'en dato samme dag som brevet avvises (arbeidsvalg 1 i #664)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['dag <= brevetsDato) return null;', 'dag < brevetsDato) return null;']],
+    endringer: [
+      [
+        '    if (dag !== null && dag > brevetsDato)\n',
+        '    if (dag !== null && dag >= brevetsDato)\n',
+      ],
+    ],
     mal: ['samme dag godtas', 'brevets dato er datoen i norsk tid'],
   },
   {
@@ -2336,7 +2377,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        "  if (k.type === 'varsel')\n    return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'Totalentreprenøren' };\n",
+        "  if (k.type === 'varsel')\n    return [{ dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'Totalentreprenøren' }];\n",
         '',
       ],
     ],

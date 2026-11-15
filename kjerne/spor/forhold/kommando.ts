@@ -175,7 +175,11 @@ export function varseletEtter322(sendt: string, u: Utledning, regler: Regelsett)
       'VARSLINGSPLIKT_GJELDER_IKKE',
       'Varslingsplikten etter punkt 32.2 gjelder ikke forholdet som er påberopt, så det er ikke noe varsel etter punkt 32.2 å registrere.'
     );
-  const paaberopelsen = foerste ? datoenDetBleSendt(u, foerste) : null;
+  // OV-U102: et krav utenfor rekken gir datoen påberopelsen først ble sendt.
+  const datoer = foerste
+    ? [foerste, ...u.spor.forhold.kravUtenforRekken].map((k) => datoenDetBleSendt(u, k))
+    : [null];
+  const paaberopelsen = datoer.includes(null) ? null : datoer.sort()[0];
   const dag = kalenderdag(sendt);
   if (paaberopelsen === null || dag === null)
     return avvis(

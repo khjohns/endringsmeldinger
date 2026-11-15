@@ -114,8 +114,13 @@ function registreringensForm(
     return 'korrespondansetype' in kommando || 'dokumentasjon' in kommando
       ? ['$.sendt: bare et brev lagt til med datoen det ble sendt, har typen og vedlegg']
       : [];
+  const sendt = (kommando as Registrering).sendt;
   return [
     ...tekstfeil(),
+    // OV-U98: datoen sammenliknes som kalenderdag med det som er sendt før.
+    ...(typeof sendt === 'string' && !erKalenderdato(sendt)
+      ? [`$.sendt: ${JSON.stringify(sendt)} er ikke en dato på formen ÅÅÅÅ-MM-DD`]
+      : []),
     ...('korrespondansetype' in kommando ? [] : ['$.korrespondansetype: typen mangler']),
     ...((kommando as Registrering).dokumentasjon?.length
       ? []

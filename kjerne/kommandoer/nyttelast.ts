@@ -22,7 +22,12 @@ import {
 import type { Regelsett } from '../regler/regelsett.ts';
 import { gjelderVarslingsplikten, hjemmelenGjelder, iSporet } from '../frosset/byggeklosser.ts';
 import { avvikIResultatet, regnUtSvar, utenforOmfanget } from '../frosset/utregning.ts';
-import { datoenDetBleSendt, kravSomVarsler, type Utledning } from '../utledning/utled.ts';
+import {
+  datoenDetBleSendt,
+  kravSomVarsler,
+  sendtFoerSisteKrav,
+  type Utledning,
+} from '../utledning/utled.ts';
 import { foresporselForFristsvar } from '../spor/frist/utledning.ts';
 import { NYTTELAST_I_FRISTEN } from '../spor/frist/kommando.ts';
 import { godkjennerDagerIEtLag } from '../spor/frist/format.ts';
@@ -239,25 +244,29 @@ export type OppgittDato = {
  * sendt utenfor appen, registrert for seg eller i fristkravet (OV-U5), og datoen
  * byggherrens registrerte begrunnelse ble sendt (KA-U35 (opphevet av KA-U46)).
  */
-function oppgittDatoI(k: Kommando): OppgittDato | null {
+function oppgittDatoI(k: Kommando): OppgittDato[] {
   if (k.type === 'varsel')
-    return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'Totalentreprenøren' };
+    return [{ dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'Totalentreprenøren' }];
   // OV-U98: kravet, svaret eller aksepten som legges til, er ikke sendt etter dagen det legges til.
-  if (erRegistrering(k))
-    return {
-      dato: k.sendt,
-      gjelder: 'brevet ble sendt',
-      av: k.type === 'aksept' || k.type === 'krav' ? 'Totalentreprenøren' : 'Byggherren',
-    };
+  const registrering: OppgittDato[] = erRegistrering(k)
+    ? [
+        {
+          dato: k.sendt,
+          gjelder: 'brevet ble sendt',
+          av: k.type === 'aksept' || k.type === 'krav' ? 'Totalentreprenøren' : 'Byggherren',
+        },
+      ]
+    : [];
   if (k.type === 'begrunnelse')
     return k.sendt === undefined
-      ? null
-      : { dato: k.sendt, gjelder: 'brevet med begrunnelsen ble sendt', av: 'Byggherren' };
+      ? []
+      : [{ dato: k.sendt, gjelder: 'brevet med begrunnelsen ble sendt', av: 'Byggherren' }];
   if (k.type === 'korrigering') {
     const { felt, dato } = korrigertDato(k);
-    return { dato, gjelder: DATOEN_GJELDER[felt], av: 'Totalentreprenøren' };
+    return [{ dato, gjelder: DATOEN_GJELDER[felt], av: 'Totalentreprenøren' }];
   }
-  return k.type === 'krav' ? nyttelastI(k.spor).oppgittDatoIKravet(k) : null;
+  const iKravet = k.type === 'krav' ? nyttelastI(k.spor).oppgittDatoIKravet(k) : null;
+  return [...registrering, ...(iKravet ? [iKravet] : [])];
 }
 
 /**
@@ -281,14 +290,16 @@ export function oppgittDatoEtterBrevet(k: Kommando, brevetsDato: string): Avvisn
         )
       : null;
   }
-  const oppgitt = oppgittDatoI(k);
-  // #766: en dato som ikke kan tolkes, kontrolleres ikke her, som når den mangler (KA-U38).
-  const dag = typeof oppgitt?.dato === 'string' ? kalenderdag(oppgitt.dato) : null;
-  if (oppgitt === null || dag === null || dag <= brevetsDato) return null;
-  return avvis(
-    'DATO_ETTER_BREVET',
-    `${oppgitt.av} har oppgitt at ${oppgitt.gjelder} ${norskDato(dag)}, etter brevets dato ${norskDato(brevetsDato)}.`
-  );
+  for (const oppgitt of oppgittDatoI(k)) {
+    // #766: en dato som ikke kan tolkes, kontrolleres ikke her, som når den mangler (KA-U38).
+    const dag = typeof oppgitt.dato === 'string' ? kalenderdag(oppgitt.dato) : null;
+    if (dag !== null && dag > brevetsDato)
+      return avvis(
+        'DATO_ETTER_BREVET',
+        `${oppgitt.av} har oppgitt at ${oppgitt.gjelder} ${norskDato(dag)}, etter brevets dato ${norskDato(brevetsDato)}.`
+      );
+  }
+  return null;
 }
 
 /** Hvorfor et svar ikke kan ha en akseptfrist (HF-U23 punkt 1), som meldingen sier det. */
@@ -386,7 +397,10 @@ export function nyttelastkontroll(
 ): Avvisning | null {
   switch (k.type) {
     case 'krav': {
-      const sperre = nyttelastI(k.spor).kravsperre(k, u);
+      // OV-U102: et krav sendt før det siste står utenfor rekken og prøves ikke mot den.
+      const utenforRekken =
+        erRegistrering(k) && sendtFoerSisteKrav(u, k.spor, kalenderdag(k.sendt));
+      const sperre = utenforRekken ? null : nyttelastI(k.spor).kravsperre(k, u);
       if (sperre) return sperre;
       const utdypning = utdypningKreves ? kravetsUtdypning(k, regler) : null;
       if (utdypning) return utdypning;

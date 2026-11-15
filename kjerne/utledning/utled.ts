@@ -477,11 +477,13 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>, samme: Sam
   const utenVirkning = (id: string | null) => id !== null && uten.has(id);
   const med = (element: string, grunn: string | null): Strid[] =>
     grunn ? [{ element, grunn }] : [];
+  const registrert = erRegistrert(d.opplysninger) ? registreringenStrider(d, u, samme) : [];
+  const eldre = new Set(registrert.filter((x) => x.utenforRekken).map((x) => x.element));
   return [
-    ...d.krav.flatMap((k) => med(k.id, kravetStrider(k, u))),
+    ...d.krav.flatMap((k) => med(k.id, kravetStrider(k, u, eldre.has(k.id)))),
     ...d.svar.flatMap((s) => med(s.id, svaretStrider(s, u, utenVirkning))),
     ...d.utsagn.flatMap((x) => med(x.id, utsagnetStrider(x, u, utenVirkning))),
-    ...(erRegistrert(d.opplysninger) ? registreringenStrider(d, u, samme) : []),
+    ...registrert,
   ];
 }
 
@@ -502,6 +504,21 @@ function foerDagen(a: string | null, b: string | null, samme?: () => void): bool
 
 /** OV-U104: elementet ble sammenliknet med `med`, sendt samme dag. */
 type SammeDag = (element: string, med: string) => void;
+
+/**
+ * OV-U102: et krav sendt på dagen `dag` er sendt før totalentreprenørens siste krav i sporet.
+ * Kommandoen og `registreringenStrider` leser regelen herfra. `samme` får det siste kravet når
+ * de er sendt samme dag (OV-U104).
+ */
+export function sendtFoerSisteKrav(
+  u: Utledning,
+  spor: Spor,
+  dag: string | null,
+  samme: (siste: string) => void = () => {}
+): boolean {
+  const siste = u.spor[spor].gjeldendeKrav;
+  return siste !== null && foerDagen(dag, datoenDetBleSendt(u, siste), () => samme(siste.id));
+}
 
 /**
  * OV-U98: kravversjonen `k` var gjeldende på dagen `dag`: den var sendt, og versjonen som
@@ -553,8 +570,12 @@ function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Stri
   };
   const strider: Strid[] = [];
   for (const k of d.krav) {
-    const siste = u.spor[k.spor].gjeldendeKrav;
-    if (siste && foerDagen(dag(k.id), datoenDetBleSendt(u, siste), () => samme(k.id, siste.id)))
+    if (dag(k.id) === null)
+      strider.push({
+        element: k.id,
+        grunn: 'et krav med en sendedato som ikke kan leses (OV-U98)',
+      });
+    else if (sendtFoerSisteKrav(u, k.spor, dag(k.id), (siste) => samme(k.id, siste)))
       strider.push({
         element: k.id,
         grunn: 'et krav sendt før totalentreprenørens siste krav i sporet (OV-U98, OV-U102)',
@@ -596,11 +617,13 @@ function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Stri
 }
 
 /** Hvorfor kravversjonen strider mot journalen før den, eller `null`. */
-function kravetStrider(k: Krav, u: Utledning): string | null {
+function kravetStrider(k: Krav, u: Utledning, utenforRekken: boolean): string | null {
   const l = lukket(u);
   if (l) return `en kravversjon etter at ${l}`;
   if (u.spor[k.spor].trukket) return 'en kravversjon etter at kravet er trukket (GR-U5)';
   if (u.spor[k.spor].ingenKrav) return 'en kravversjon i et spor med «ingen krav» (KA-U12)';
+  // OV-U102: et krav utenfor rekken prøves ikke mot kravversjonene i den.
+  if (utenforRekken) return null;
   const poster = kontrollerI(k.spor).kravet(k, u.spor[k.spor].krav);
   return poster ? `en kravversjon som ${poster}` : null;
 }
@@ -676,9 +699,10 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     if (!foer.forstaatt) break;
     const registrert = erRegistrert(h.dokument.opplysninger);
     const dokumentasjon = dokumentasjonIBrevet(h.dokument);
-    const stridene = strid(h.dokument, foer, uten, (element, med) =>
-      sendtSammeDag.push({ element, med })
-    );
+    const stridene = strid(h.dokument, foer, uten, (element, med) => {
+      if (!sendtSammeDag.some((x) => x.element === element && x.med === med))
+        sendtSammeDag.push({ element, med });
+    });
     for (const x of stridene) {
       if (!registrert) konflikter.push({ hendelse: h.id, grunn: x.grunn });
       else if (dokumentasjon.has(x.element)) continue;
@@ -1529,7 +1553,7 @@ function foerstSendt<K>(krav: readonly K[], sendt: (k: K) => string | null): K |
   for (const k of krav) {
     const dato = sendt(k);
     const tidligste = foerst === undefined ? null : sendt(foerst);
-    if (foerst === undefined || (dato !== null && (tidligste === null || dato < tidligste)))
+    if (foerst === undefined || (dato !== null && tidligste !== null && dato < tidligste))
       foerst = k;
   }
   return foerst;
