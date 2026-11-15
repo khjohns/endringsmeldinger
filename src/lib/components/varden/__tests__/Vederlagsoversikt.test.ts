@@ -201,10 +201,10 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
     const [vedSvaret, ikkeLevert] = linjer;
     expect(vedSvaret!.closest('li')?.textContent).toContain('Akseptfrist');
     expect(vedSvaret!.textContent).toMatch(
-      /^Sendt kl\.\s\d{2}\.\d{2}\. Levert til Catenda \d{1,2}\. \p{L}+ \d{4} kl\.\s\d{2}\.\d{2}\.$/u
+      /^Sendt kl\.\u00a0\d{2}\.\d{2}\. Levert til Catenda \d{1,2}\. \p{L}+ \d{4} kl\.\u00a0\d{2}\.\d{2}\.$/u
     );
     expect(ikkeLevert!.textContent).toMatch(
-      /^Sendt kl\.\s\d{2}\.\d{2}\. Ikke levert til Catenda ennå\.$/
+      /^Sendt kl\.\u00a0\d{2}\.\d{2}\. Ikke levert til Catenda ennå\.$/
     );
   });
 

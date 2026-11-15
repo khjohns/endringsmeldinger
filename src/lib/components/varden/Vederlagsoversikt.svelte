@@ -40,6 +40,9 @@
   const beloepene = $derived(kravbeloepene(u));
   const varslene = $derived(varsleneIKravene(u, alle));
   const fulgtOpp = $derived(oppfoelgingene(u, alle));
+  // Beløpet i et krav om vederlag som et senere krav i sporet følger opp, står dempet, også når
+  // brevet har et krav som gjelder i et annet spor og tittelen derfor ikke er dempet (U-5).
+  const eldreKrav = $derived(new Set(u.spor.vederlag.krav.slice(0, -1).map((k) => k.dokument)));
   const akseptfrist = $derived(akseptfristen(u, 'vederlag'));
   // Datoen TE oppgir for når TE ble klar over forholdet, under brevet med varselet etter punkt
   // 34.1.2, med avstanden i kalenderdager (U-8, G-6).
@@ -53,7 +56,7 @@
 {#snippet oeverst(b: Brevet)}
   {@const n = beloepene.get(b.id)}
   {@const levert = levering.get(b.id)}
-  {#if n !== undefined}<p class="beloep" class:dempet={fulgtOpp.has(b.id)}>
+  {#if n !== undefined}<p class="beloep" class:dempet={eldreKrav.has(b.id)}>
       {VEDERLAGET.kravbeloep(n, varslene.get(b.id))}
     </p>{/if}
   {#if levert !== undefined && (levert === null || akseptfrist?.brev === b.id)}
