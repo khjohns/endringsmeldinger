@@ -6,10 +6,10 @@
 <title>Svaret på forholdet i Varden</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <!--
-  Prototype v6 (13.11) av byggherrens svar på totalentreprenørens påberopelse av forholdet,
+  Prototype v7 (15.11) av byggherrens svar på totalentreprenørens påberopelse av forholdet,
   bestillingen BF-08 (docs/domenetabell/brukerforlop/BF-08.md, #1834). Mønsteret og stilarket er
-  fra fristsvar.html, rettet etter .interface-design/system.md i v2, mot vedtakene i v3 etter prøven av S-3 i v4 og etter svarene på S-1–S-3 i v5 og etter prøven 13.11 og S-4 A i v6 (språket etter docs/sprak.md, uten stiplet linje ved begrunnelsen, og opplastingen i bekreftelsen). Tilstandene er ankrene #svar,
-  #brev, #bekreft, #henvisning, #handlinger og #godta. Teksten er prototypetekst; de vedtatte
+  fra fristsvar.html, rettet etter .interface-design/system.md i v2, mot vedtakene i v3 etter prøven av S-3 i v4 og etter svarene på S-1–S-3 i v5 og etter prøven 13.11 og S-4 A i v6 (språket etter docs/sprak.md, uten stiplet linje ved begrunnelsen, og opplastingen i bekreftelsen), og uten bekreftelsen etter OV-U101 i v7. Tilstandene er ankrene #svar,
+  #brev, #henvisning, #handlinger og #godta. Teksten er prototypetekst; de vedtatte
   brevsetningene står ordrett etter D-2 i bestillingen. «Vis sporbarhet» viser punktene i
   bestillingen på elementene. Ingenting sendes.
 -->
@@ -351,7 +351,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
       <div class="verktoyrad">
         <p class="sti">Varden › K201 › <span class="num">E-014</span></p>
         <span class="hoyre">
-          <span class="demomerke" id="rolle">Prototype v6 · du ser saken som byggherren</span>
+          <span class="demomerke" id="rolle">Prototype v7 · du ser saken som byggherren</span>
           <span class="segment" role="group" aria-label="Forholdet i eksempelet">
             <button type="button" data-sett-f="endring" aria-pressed="true">Irregulær endring</button>
             <button type="button" data-sett-f="grunn" aria-pressed="false">Uforutsette forhold ved grunnen</button>
@@ -384,9 +384,9 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
             <div class="notis kun-ny" data-spor="U-13 · D-12" hidden>
               <p><b>Nytt svar. Det forrige svaret er brev 4 av 8. oktober 2026.</b> Brev 4 står som det ble sendt. Det forrige svaret er fylt ut, og du endrer det du vil.</p>
             </div>
-            <div class="notis" data-spor="U-8">
-              <p>Har du alt svart på påberopelsen utenfor løsningen, i et brev, en e-post eller et møtereferat?</p>
-              <a class="lenke" href="#bekreft" style="align-self:flex-start;padding:0">Bekreft svaret du ga utenfor løsningen</a>
+            <div class="notis" data-spor="U-14">
+              <p>Har du alt svart på påberopelsen utenfor løsningen, i et brev, en e-post eller et møtereferat? Legg svaret til i saken som korrespondanse, og velg at det er et svar. Det gjelder fra datoen du oppgir at det ble sendt.</p>
+              <button class="lenke" type="button" style="align-self:flex-start;padding:0">Legg til korrespondanse</button>
             </div>
 
             <!-- Punkt 1: varselet etter punkt 32.2 -->
@@ -500,91 +500,6 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
         </div>
       </section>
 
-      <!-- ============ #bekreft ============ -->
-      <section class="tilstand" id="bekreft" aria-label="Bekreftelsen av et svar gitt utenfor løsningen">
-        <div class="kolonner">
-          <form class="utkast" aria-labelledby="k-tittel" novalidate onsubmit="return false">
-            <div class="utkast-hode">
-              <div class="linje"><span class="utkastmerke">Utkast · ikke sendt</span><h1 id="k-tittel">Brev 4 · <span id="k-tittel-tekst">Bekreftelse av svar gitt utenfor løsningen</span></h1></div>
-              <p>Til totalentreprenøren</p>
-            </div>
-            <div class="svarpaa">
-              <span>Gjelder påberopelsen i brev 1 fra totalentreprenøren · 30. sep 2026</span>
-              <a class="lenke" href="#svar">Tilbake til svaret</a>
-            </div>
-            <div class="notis" data-spor="U-8">
-              <p>Bekreftelsen er et nytt brev til totalentreprenøren. Velg de samme standpunktene som i det tidligere svaret.</p>
-            </div>
-            <section class="punkt" aria-labelledby="kp1">
-              <div class="punkt-hode"><h2 id="kp1">Det tidligere svaret</h2></div>
-              <fieldset class="ren" data-spor="D-9"><legend class="spm">Hvor er dokumentet med svaret?</legend>
-                <div class="valg"><label><input type="radio" name="k-hvor" value="reg"> Det er lagt til i saken</label><label><input type="radio" name="k-hvor" value="annet" checked> Det er ikke lagt til i saken</label></div>
-              </fieldset>
-              <p class="hjelp" id="k-reg" hidden>Saken har ingen korrespondanse fra byggherren som kan velges. Velg «Det er ikke lagt til i saken», og last opp dokumentet.</p>
-              <div id="k-annet" data-spor="D-16" style="display:flex;flex-direction:column;gap:16px">
-                <fieldset class="ren"><legend class="tittel" style="font-weight:500">Hva slags dokument er det?</legend>
-                  <div class="valg"><label><input type="radio" name="k-type" value="brev" checked> Brev</label><label><input type="radio" name="k-type" value="e-post"> E-post</label><label><input type="radio" name="k-type" value="møtereferat"> Møtereferat</label><label><input type="radio" name="k-type" value="notat"> Notat eller annet dokument</label></div>
-                </fieldset>
-                <fieldset class="ren"><legend class="tittel" style="font-weight:500">Hvem sendte det?</legend>
-                  <div class="valg"><label><input type="radio" name="k-avs" value="byggherrens" checked> Byggherren</label><label><input type="radio" name="k-avs" value="totalentreprenørens"> Totalentreprenøren</label></div>
-                </fieldset>
-                <fieldset class="ren" id="k-maate"><legend class="tittel" style="font-weight:500">Hvordan ble brevet sendt?</legend>
-                  <div class="valg"><label><input type="radio" name="k-sendt" value="post"> Per post</label><label><input type="radio" name="k-sendt" value="pdf" checked> Som PDF i e-post</label><label><input type="radio" name="k-sendt" value="hotell"> I prosjekthotellet</label><label><input type="radio" name="k-sendt" value="annet"> På annen måte</label></div>
-                </fieldset>
-                <div class="felt"><label for="k-dato">Datoen det ble sendt</label><span class="hjelp" id="k-datoh">Bekreftelsen viser til svaret med denne datoen. Selve bekreftelsen får datoen den sendes.</span><input id="k-dato" type="date" value="2026-10-05" aria-describedby="k-datoh"></div>
-                <div class="felt"><label for="k-id">Kort beskrivelse</label><span class="hjelp" id="k-idh">Med egne ord, for eksempel hva dokumentet gjelder.</span><input id="k-id" type="text" value="Svar fra prosjektlederen om fasadeplatene" aria-describedby="k-idh"></div>
-                <div class="felt"><span class="tittel" id="k-dok">Dokumentet</span><span class="hjelp" id="k-dokh">PDF. Det legges til i saken som dokumentasjon og ved bekreftelsen når bekreftelsen sendes.</span><button class="liten-knapp" type="button" aria-describedby="k-dok k-dokh" style="align-self:flex-start">Last opp dokumentet</button></div>
-              </div>
-            </section>
-            <section class="punkt kun-endring" aria-labelledby="kp2">
-              <div class="punkt-hode"><span class="nr" aria-hidden="true">1</span><h2 id="kp2">Varselet etter punkt 32.2</h2></div>
-              <fieldset class="ren"><legend class="spm">Gjorde du gjeldende at varselet kom for sent?</legend>
-                <div class="valg"><label><input type="radio" name="k-v1" value="nei" checked> Nei</label><label><input type="radio" name="k-v1" value="ja"> Ja, varselet kom for sent</label></div>
-              </fieldset>
-            </section>
-            <section class="punkt" aria-labelledby="kp3">
-              <div class="punkt-hode"><span class="nr" aria-hidden="true"><span class="kun-endring">2</span><span class="fs f-grunn">1</span></span><h2 id="kp3">Forholdet</h2></div>
-              <fieldset class="ren"><legend class="spm">Hva svarte du på påberopelsen?</legend>
-                <div class="valg f-endring fs">
-                  <label><input type="radio" name="k-v2" value="enig" checked> <span class="enig-tekst">Enig</span></label>
-                  <label><input type="radio" name="k-v2" value="avslag"> Avslo kravet på endringsordre</label>
-                  <label id="k-frafall-l"><input type="radio" name="k-v2" value="frafall"> Frafalt pålegget</label>
-                </div>
-                <div class="valg f-grunn fs">
-                  <label><input type="radio" name="k-v2g" value="ja" checked> Byggherren har risikoen</label>
-                  <label><input type="radio" name="k-v2g" value="nei"> Byggherren har ikke risikoen</label>
-                </div>
-              </fieldset>
-              <fieldset class="ren" id="k-eo-spm" data-spor="D-9"><legend class="spm">Var svaret av 5. oktober en endringsordre etter punkt 31.3?</legend>
-                <div class="valg"><label><input type="radio" name="k-eo" value="ja"> Ja, det var en endringsordre</label><label><input type="radio" name="k-eo" value="nei"> Nei, ikke en endringsordre</label></div>
-              </fieldset>
-              <div class="avvist" id="k-avvist" hidden>
-                <p><b>Et svar som var en endringsordre, kan ikke bekreftes.</b> Registrer endringsordren som svaret på påberopelsen. Dokumentet følger med. Endringsordren går til godkjenning etter fullmakten.</p>
-                <button class="knapp" type="button" style="width:auto;align-self:flex-start">Registrer endringsordren</button>
-              </div>
-              <div class="eo" id="k-ny-eo" hidden>
-                <span class="merke">Du utsteder en endringsordre nå</span>
-                <p>Svaret av 5. oktober var ikke en endringsordre. Brevet blir derfor et svar, ikke en bekreftelse, og har denne setningen:</p>
-                <p><q>Svaret er en endringsordre etter NS 8407 punkt 32.3 første ledd a, jf. punkt 31.3: byggherren krever at endringen utføres slik pålegget er beskrevet i totalentreprenørens krav i brev K201-KOE-014-01 av 30. september 2026: «Fasadeplatene på østfasaden byttes til platetype B2 med skjult innfesting, slik byggherren påla i byggemøte 14.»</q></p>
-              </div>
-              <div class="begr" data-spor="D-7">
-                <label for="k-b2" class="begr-tittel" id="k-l2">Begrunnelse (valgfritt)</label>
-                <span class="hjelp" id="k-krav2">Står i bekreftelsen under punktet om forholdet. Den kan vise til det tidligere svaret.</span>
-                <textarea id="k-b2" aria-describedby="k-krav2"></textarea>
-              </div>
-            </section>
-          </form>
-          <aside class="stoette" aria-label="Innledningen i brevet">
-            <section class="kort">
-              <div class="kort-hode"><h2>Innledningen i brevet</h2><p>Prototypetekst etter GR-U35</p></div>
-              <div class="blokk"><p id="k-innledning"></p></div>
-              <div class="blokk"><ul class="virkninger" id="k-virkninger"></ul></div>
-              <div class="blokk" id="k-sendeblokk"><p class="ved-knapp"><span class="utkastmerke">Utkast</span> Ikke sendt</p><button class="knapp" type="button" id="k-knapp">Se brevet før sending</button></div>
-            </section>
-          </aside>
-        </div>
-      </section>
-
       <!-- ============ #henvisning ============ -->
       <section class="tilstand" id="henvisning" aria-label="Svaret på vederlagskravet mens forholdet ikke er besvart">
         <div class="kolonner">
@@ -623,7 +538,7 @@ a.rad:hover .h{text-decoration:underline;text-underline-offset:3px}
                 <p><q>Svaret er en endringsordre etter NS 8407 punkt 32.3 første ledd a, jf. punkt 31.3: byggherren krever at endringen utføres slik pålegget er beskrevet i totalentreprenørens krav i brev K201-KOE-014-04 av 20. oktober 2026: «Fasadeplatene på østfasaden byttes til platetype B2 med skjult innfesting, slik byggherren påla i byggemøte 14.»</q></p>
               </div>
               <p class="hjelp" id="h-forst">Punktet står først i brevet. Avslår du, gjelder punktene om vederlaget subsidiært.</p>
-              <div class="notis" id="h-bundet" data-spor="D-15 · S-3" style="margin:0" hidden><p>Du har oppgitt at byggherren svarte i e-post av 23. oktober 2026. Svarer du på forholdet her, kan byggherren være bundet av det tidligere svaret. Brevet nevner ikke e-posten, fordi du ikke har sendt noen henvisning til den. Skal brevet vise til e-posten, kan du bekrefte svaret i den i stedet.</p><a class="lenke" href="#bekreft" style="align-self:flex-start;padding:0">Bekreft svaret i e-posten</a></div>
+              <div class="notis" id="h-bundet" data-spor="D-15 · S-3" style="margin:0" hidden><p>Du har oppgitt at byggherren svarte i e-post av 23. oktober 2026. Svarer du på forholdet her, kan byggherren være bundet av det tidligere svaret. Brevet nevner ikke e-posten, fordi du ikke har sendt noen henvisning til den. Skal e-posten gjelde som svaret, legger du den til i saken som korrespondanse og velger at det er et svar, i stedet for å svare på forholdet her.</p></div>
               <button class="lenke liten" type="button" id="h-fjern" style="align-self:flex-start">Ta ut svaret på forholdet</button>
             </section>
             <section class="punkt" aria-labelledby="hp1">
@@ -803,44 +718,6 @@ function tegnBrev() {
   tegnVirkninger($('#b-virkninger'), virkninger(s));
 }
 
-/* Bekreftelsen */
-function tegnBekreft() {
-  $('#k-reg').hidden = verdi('k-hvor') !== 'reg';
-  $('#k-annet').style.display = verdi('k-hvor') === 'reg' ? 'none' : 'flex';
-  $('#k-maate').hidden = verdi('k-type') !== 'brev';
-  const forsent = f() === 'endring' && verdi('k-v1') === 'ja';
-  if (forsent && verdi('k-v2') === 'frafall') $('[name="k-v2"][value="frafall"]').checked = false;
-  $('#k-frafall-l').hidden = forsent;
-  const enig = f() === 'endring' ? verdi('k-v2') === 'enig' : verdi('k-v2g') === 'ja';
-  const frafalt = f() === 'endring' && verdi('k-v2') === 'frafall';
-  const kreves = f() === 'endring' && (forsent || verdi('k-v2') === 'avslag');
-  $('#k-l2').textContent = kreves ? 'Begrunnelse' : 'Begrunnelse (valgfritt)';
-  $('#k-b2').setAttribute('aria-required', String(kreves));
-  $('#k-krav2').textContent = (kreves ? (forsent ? 'Kreves fordi du gjorde gjeldende at varselet kom for sent.' : 'Kreves fordi du avslo kravet på endringsordre (punkt 32.3 første ledd b).') + ' ' : 'Står i bekreftelsen under punktet om forholdet. ') + 'Den kan vise til det tidligere svaret.';
-  $$('.enig-tekst', $('#bekreft')).forEach(e => e.textContent = forsent ? 'Enig i at pålegget innebærer en endring' : 'Enig');
-  const sporEo = f() === 'endring' && enig && !forsent;
-  $('#k-eo-spm').hidden = !sporEo;
-  const eo = sporEo ? verdi('k-eo') : null;
-  $('#k-avvist').hidden = eo !== 'ja';
-  $('#k-ny-eo').hidden = eo !== 'nei';
-  $('#k-sendeblokk').hidden = eo === 'ja';
-  const nyEo = eo === 'nei';
-  $('#k-tittel-tekst').textContent = nyEo ? `Svar på påberopelsen av ${PAABEROPELSEN()}` : 'Bekreftelse av svar gitt utenfor løsningen';
-  const type = verdi('k-type'), dato = new Date($('#k-dato').value || '2026-10-05').toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' });
-  $('#k-innledning').textContent = nyEo
-    ? `Byggherren svarer på totalentreprenørens påberopelse av ${PAABEROPELSEN()} i brev K201-KOE-014-01 av 30. september 2026.`
-    : `Byggherren bekrefter sitt svar på totalentreprenørens påberopelse av ${PAABEROPELSEN()} i brev K201-KOE-014-01 av 30. september 2026, gitt i ${verdi('k-hvor') === 'reg' ? 'korrespondansen' : verdi('k-avs') + ' ' + (type === 'notat' ? 'notat' : type)} av ${dato}.`;
-  const liste = [];
-  if (eo === 'ja') liste.push(['hoved', 'Et svar som var en endringsordre, kan ikke bekreftes. Registrer endringsordren i stedet.']);
-  else if (nyEo) liste.push(['hoved', 'Svaret er en endringsordre fra datoen brevet sendes.']);
-  else if (frafalt) liste.push(['hoved', 'Pålegget er frafalt, og forholdet er avklart. Det bygger på standpunktet du bekrefter.']);
-  else if (enig && !forsent) liste.push(['hoved', 'Enigheten om forholdet registreres ut fra standpunktet du bekrefter.']);
-  else liste.push(['hoved', 'Svarene på vederlag og frist gjelder subsidiært. Det bygger på standpunktet du bekrefter.']);
-  if (verdi('k-hvor') !== 'reg' && eo !== 'ja') liste.push(['', 'Dokumentet legges til i saken som dokumentasjon og ved bekreftelsen når bekreftelsen sendes. Sendes den ikke, lagres ingenting.']);
-  liste.push(['', 'Bekreftelsen går til godkjenning etter fullmakten, og du ser brevet før sending, som for et svar.']);
-  tegnVirkninger($('#k-virkninger'), liste);
-}
-
 /* Henvisningen og svaret i samme brev */
 function tegnHenvisning() {
   const svart = verdi('h-svart');
@@ -915,7 +792,7 @@ function tegnHandlinger() {
 function tegn() {
   $$('[data-sett-f]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.settF === f())));
   $$('[data-sett-ny]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.settNy === (skall.dataset.ny || 'nei'))));
-  tegnSvar(); tegnBrev(); tegnBekreft(); tegnHenvisning(); tegnHandlinger();
+  tegnSvar(); tegnBrev(); tegnHenvisning(); tegnHandlinger();
 }
 
 document.addEventListener('click', e => {
@@ -931,12 +808,12 @@ document.addEventListener('click', e => {
 document.addEventListener('change', e => { if (e.target.id === 'spor-knapp') document.body.classList.toggle('vis-spor', e.target.checked); else tegn(); });
 document.addEventListener('input', () => tegn());
 
-const TILSTANDER = ['svar', 'brev', 'bekreft', 'henvisning', 'handlinger', 'godta'];
+const TILSTANDER = ['svar', 'brev', 'henvisning', 'handlinger', 'godta'];
 function lesAnker() {
   const a = TILSTANDER.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'svar';
   $$('.tilstand').forEach(t => t.classList.toggle('aktiv', t.id === a));
   const te = a === 'godta' || (a === 'handlinger' && S.part === 'TE');
-  $('#rolle').textContent = 'Prototype v6 · du ser saken som ' + (te ? 'totalentreprenøren' : 'byggherren');
+  $('#rolle').textContent = 'Prototype v7 · du ser saken som ' + (te ? 'totalentreprenøren' : 'byggherren');
   tegn();
   window.scrollTo(0, 0);
 }
