@@ -6,10 +6,11 @@
   brevet (MM-U50), og den nye fristen er regnet fra gjeldende frist (G-4).
 -->
 <script lang="ts">
-  import { dager, sakensKode } from '$kjerne/frosset/tekst';
+  import { dager } from '$kjerne/frosset/tekst';
   import { stor } from '$kjerne/frosset/brevdeler';
   import type { Utledning } from '$kjerne/utledning/utled';
   import Forbeholdet from './Forbeholdet.svelte';
+  import Gjeldendefrist from './Gjeldendefrist.svelte';
   import Kravkort from './Kravkort.svelte';
   import Maalrad, { maalestokken } from './Maalrad.svelte';
   import type { Brevet, Fristtabellen } from './lesing';
@@ -18,7 +19,6 @@
     gjeldendeFrist,
     nyFrist,
     stoerstAntall,
-    type GjeldendeFrist,
     type KravetOgSvaretIFristen,
   } from './fristoversikt';
 
@@ -44,27 +44,6 @@
   const { trinn, andel, steg, ende } = $derived(maalestokken(stoerst, true));
   const sistePerFrist = $derived(k.perFrist.at(-1)?.lag);
 </script>
-
-{#snippet gjeldende(g: GjeldendeFrist, fristId: number | null)}
-  {#if g?.art === 'kjent' && g.forlengelser.length}
-    <p class="gjeldende">
-      {FRISTEN.forlenget(g.dato, g.iKontrakten)}
-      {#each g.forlengelser as f, i (i)}{#if i}{i === g.forlengelser.length - 1
-            ? ' og '
-            : ', '}{/if}{FRISTEN.forlengelsen(f.dager)}
-        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
-        {#if fristtabell.sakslenke}<a href={fristtabell.sakslenke(f.sakId)}
-            >{f.sakskode ? sakensKode(f.sakskode) : f.sakId}</a
-          >{:else}{f.sakskode ? sakensKode(f.sakskode) : f.sakId}{/if}{/each}.
-    </p>
-  {:else if g?.art === 'kjent'}
-    <p class="gjeldende">{FRISTEN.somIKontrakten(g.dato)}</p>
-  {:else if g?.art === 'ukjent'}
-    <p class="gjeldende">{FRISTEN.ukjent(g.iKontrakten)}</p>
-  {:else if fristId === null}
-    <p class="gjeldende">{FRISTEN.ikkeRegistrert}</p>
-  {/if}
-{/snippet}
 
 <Kravkort tittel={FRISTEN.kortet} kilde={VEDERLAGET.kilde(k.kravbrev, k.svarbrev)} {steg}>
   {#if k.felles.length || k.utenLag.length}
@@ -115,7 +94,7 @@
           {#if f.nummer}<span class="nr">{FRISTEN.frist(f.nummer)}</span>{/if}
           {f.navn}
         </h4>
-        {@render gjeldende(g, f.fristId)}
+        <Gjeldendefrist {g} registrert={f.fristId !== null} sakslenke={fristtabell.sakslenke} />
         <ul class="rader" aria-label={f.navn}>
           <li>
             <Maalrad
@@ -175,7 +154,6 @@
   .lag p,
   .vilkaar,
   .dempet,
-  .gjeldende,
   .avslag,
   .ikke-svart {
     white-space: pre-line;
@@ -214,16 +192,6 @@
     margin-right: var(--spacing-1);
     font-weight: 400;
     color: var(--ink-2);
-  }
-  .gjeldende {
-    margin-top: var(--spacing-1);
-  }
-  .gjeldende a {
-    color: var(--ink);
-    text-underline-offset: 3px;
-  }
-  .gjeldende a:hover {
-    text-decoration-thickness: 2px;
   }
   .rader {
     display: grid;
