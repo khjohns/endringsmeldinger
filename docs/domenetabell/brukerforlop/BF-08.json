@@ -1,7 +1,7 @@
 {
   "id": "BF-08",
   "tittel": "Byggherren svarer på påberopelsen av forholdet, og totalentreprenøren tar stilling til svaret",
-  "brukerhistorie": "BH svarer på gjeldende versjon av TEs påberopelse av forholdet med kontraktens valg for forholdet, gjør eventuelt gjeldende at varselet etter punkt 32.2 kom for sent, og ser før sending om svaret er en endringsordre, om partene blir enige om forholdet og hva det gjør med svarene på vederlag og frist. Har BH svart utenfor løsningen, bekrefter BH det svaret, eller viser til det i svaret på vederlag eller frist, eller svarer på forholdet i samme brev. BH kan sende et nytt svar. TE ser hva svaret betyr og hva TE kan gjøre, og godtar avslaget med beskjed om at saken avsluttes.",
+  "brukerhistorie": "BH svarer på gjeldende versjon av TEs påberopelse av forholdet med kontraktens valg for forholdet, gjør eventuelt gjeldende at varselet etter punkt 32.2 kom for sent, og ser før sending om svaret er en endringsordre, om partene blir enige om forholdet og hva det gjør med svarene på vederlag og frist. Har BH svart utenfor løsningen, legger BH svaret til som korrespondanse med kategorien svar, eller viser til det i svaret på vederlag eller frist, eller svarer på forholdet i samme brev. BH kan sende et nytt svar. TE ser hva svaret betyr og hva TE kan gjøre, og godtar avslaget med beskjed om at saken avsluttes.",
   "status": "planlagt",
   "utgangspunkt": {
     "start": null,
@@ -18,6 +18,9 @@
         ],
         "start": "svar",
         "handlinger": [
+          {
+            "staar": "Legg svaret til i saken som korrespondanse, og velg at det er et svar."
+          },
           {
             "staar": "Svaret er en endringsordre etter punkt 32.3 første ledd a."
           },
@@ -93,50 +96,6 @@
           },
           {
             "klikk": "Tilbake til skjemaet",
-            "tilstand": "svar"
-          }
-        ]
-      },
-      {
-        "id": "bekreftelsen",
-        "dekker": [
-          "4"
-        ],
-        "start": "svar",
-        "handlinger": [
-          {
-            "klikk": "Bekreft svaret du ga utenfor løsningen",
-            "tilstand": "bekreft"
-          },
-          {
-            "staar": "Bekreftelsen er et nytt brev til totalentreprenøren. Velg de samme standpunktene som i det tidligere svaret."
-          },
-          {
-            "staar": "Det legges til i saken som dokumentasjon og ved bekreftelsen når bekreftelsen sendes."
-          },
-          {
-            "staar": "Hvordan ble brevet sendt?"
-          },
-          {
-            "staar": "Byggherren bekrefter sitt svar"
-          },
-          {
-            "staar": "Byggherren bekrefter sitt svar"
-          },
-          {
-            "velg": "Nei, ikke en endringsordre"
-          },
-          {
-            "staar": "Du utsteder en endringsordre nå"
-          },
-          {
-            "velg": "Ja, det var en endringsordre"
-          },
-          {
-            "staar": "Et svar som var en endringsordre, kan ikke bekreftes."
-          },
-          {
-            "klikk": "Tilbake til svaret",
             "tilstand": "svar"
           }
         ]
@@ -269,23 +228,22 @@
     "LV-U39",
     "LV-U40",
     "LV-U41",
-    "LV-U42",
     "LV-U53",
     "LV-U73",
     "MM-U9",
     "MM-U34",
     "OV-U6",
-    "OV-U12",
     "OV-U46",
     "OV-U69",
     "OV-U72",
-    "OV-U79",
     "OV-U80",
+    "OV-U98",
     "VS-U46",
     "GFK-U2",
     "HF-U27"
   ],
   "venter_paa": [
+    "#2009",
     "#1306",
     "#1433",
     "#1380",
@@ -318,6 +276,11 @@
       "dato": "2026-11-14",
       "forhold": "#1932",
       "hva": "D-12 viser til LV-U73 og brevteksten i kjernen i stedet for å sitere setningen med «erstatter»."
+    },
+    {
+      "dato": "2026-11-15",
+      "forhold": "#1834",
+      "hva": "Bekreftelsen er tatt ut etter OV-U101: klikkstien for steg 4, GR-U35 og kildene bare bekreftelsen brukte. Prototypen versjon 7 viser veien til korrespondansen med kategorien svar (U-14)."
     }
   ]
 }

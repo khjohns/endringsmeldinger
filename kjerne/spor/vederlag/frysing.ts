@@ -357,7 +357,7 @@ export function kravpostvurderinger(
     const post = poster.find((k) => k.id === p.gjelder);
     if (!post)
       throw new UgyldigVurdering({
-        kravposter: `kravet har ikke kravposten «${String(p.gjelder)}» (OV-U23)`,
+        kravposter: `kravet har ikke kravposten «${String(p.gjelder)}»`,
       });
     if (svarene.has(post.id))
       throw new UgyldigVurdering({ [post.betegnelse]: 'er besvart mer enn én gang' });
@@ -469,8 +469,7 @@ function regnUtVederlag(
   ];
   if (krevdProduktivitet(krav) === null)
     for (const felt of produktivitet)
-      if (v[felt] != null)
-        throw new UgyldigVurdering({ [felt]: 'kravet har ikke denne posten (OV-U23)' });
+      if (v[felt] != null) throw new UgyldigVurdering({ [felt]: 'kravet har ikke denne posten' });
   const { hovedkategori } = kategori(paaberopelse);
   kontrollerVarseletForVederlag(v, hovedkategori, regler);
   for (const { post, svar } of kravpostvurderinger(v, krav))

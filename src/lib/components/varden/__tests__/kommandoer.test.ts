@@ -10,13 +10,7 @@ import { KJERNE } from '$kjerne/versjon';
 import type { Journalrad } from '$kjerne/typer';
 import { medVederlag, opprettet, skrevet } from '$lib/kjernesak/__tests__/provejournal';
 import { kravposterI } from '$kjerne/spor/vederlag/format';
-import {
-  tomPost,
-  tomtSvar,
-  utkastForBeloepet,
-  vederlagssvaret,
-  type Postvalg,
-} from '../kommandoer';
+import { tomPost, tomtSvar, vederlagssvaret, type Postvalg } from '../kommandoer';
 import { lagForUtkastet } from '$kjerne/kommandoer/lag';
 
 const grunnforhold = skrevet([opprettet], 'TE', {
@@ -171,10 +165,9 @@ describe('svaret per kravpost (KA-U57, #1663)', () => {
     ]);
   });
 
-  it('lagene for beløpet i en kravpost med svar på oppgjørsformen har laget for den, også når en annen kravpost mangler svaret (KA-U57, OV-U33)', () => {
+  it('lagene i en kravpost står også før oppgjørsformen er besvart, med standpunktet ubesvart, og den besvarte kravposten har sitt eget svar (KA-U57, OV-U33, #1925)', () => {
     const u = utledJournal(toPoster, KJERNE);
-    const krav = u.spor.vederlag.gjeldendeKrav!;
-    const [p1, p2] = kravposterI(krav);
+    const [p1, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
     const valg = {
       iTide: true,
       poster: {
@@ -184,18 +177,16 @@ describe('svaret per kravpost (KA-U57, #1663)', () => {
       begrunnelser: {},
       forbehold: '',
     } satisfies Parameters<typeof vederlagssvaret>[0];
-    const utkast = utkastForBeloepet(vederlagssvaret(valg, u, KJERNE.regler)!.svar[0], valg, krav);
+    const utkast = vederlagssvaret(valg, u, KJERNE.regler)!.svar[0];
     const [v1, v2] = utkast.vurderinger.kravposter as Record<string, unknown>[];
     expect(v1).toMatchObject({ gjelder: p1!.id, aksepterer: false });
-    expect(v2, 'P2 uten valgt form står uten den').not.toHaveProperty('aksepterer');
-    const lag = lagForUtkastet(utkast, u, KJERNE.regler);
-    expect(
-      lag.standpunkter.some((x) => x.art === 'oppgjoersform' && x.gjelder === p1!.id),
-      'laget for oppgjørsformen i P1'
-    ).toBe(true);
-    expect(lag.standpunkter.some((x) => x.art === 'oppgjoersform' && x.gjelder === p2!.id)).toBe(
-      false
-    );
+    expect(v2, 'P2 uten valgt form sendes uten den').not.toHaveProperty('aksepterer');
+    const formen = (id: string) =>
+      lagForUtkastet(utkast, u, KJERNE.regler).standpunkter.find(
+        (x) => x.art === 'oppgjoersform' && x.gjelder === id
+      );
+    expect(formen(p1!.id)?.besvart, 'laget for oppgjørsformen i P1').toBe(true);
+    expect(formen(p2!.id)?.besvart, 'laget for oppgjørsformen i P2, ubesvart').toBe(false);
   });
 
   it('en kravpost uten valg står uten vurdering, så kjernen avviser svaret', () => {
@@ -303,17 +294,15 @@ describe('svaret på en kravpost etter en beregningsregel (#1756, BF-14 D-7, D-1
     expect(tekst).toContain('Subsidiært');
   });
 
-  it('lagene kan regnes før oppgjørsformen er besvart: kravposten står med regelen godtatt (#1756 punkt 1)', () => {
-    const valg = valgene({});
-    const utkast = utkastForBeloepet(vederlagssvaret(valg, u, KJERNE.regler)!.svar[0], valg, krav);
+  it('lagene kan regnes før oppgjørsformen er besvart: beløpet står med regelen godtatt, og oppgjørsformen ubesvart (#1756 punkt 1, #1925)', () => {
+    const utkast = vederlagssvaret(valgene({}), u, KJERNE.regler)!.svar[0];
     expect((utkast.vurderinger.kravposter as Record<string, unknown>[])[0]).toEqual({
       gjelder: p1!.id,
-      aksepterer: true,
     });
     const lag = lagForUtkastet(utkast, u, KJERNE.regler);
-    expect(lag.standpunkter.some((x) => x.art === 'oppgjoersform' && x.gjelder === p1!.id)).toBe(
-      true
-    );
+    expect(
+      lag.standpunkter.find((x) => x.art === 'oppgjoersform' && x.gjelder === p1!.id)?.besvart
+    ).toBe(false);
   });
 });
 

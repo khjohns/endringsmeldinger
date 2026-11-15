@@ -34,7 +34,7 @@ import {
 } from '../../frosset/byggeklosser.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
 import type { Linjeledd, Sporslinje } from '../../frosset/linje.ts';
-import { kroner, SENT_I_LINJEN } from '../../frosset/tekst.ts';
+import { INNLEDNINGEN, kroner, SENT_I_LINJEN } from '../../frosset/tekst.ts';
 import { begrensningen } from './frysing.ts';
 import {
   harProduktivitetspost,
@@ -158,7 +158,7 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
   const punkter: Brevpunkt[] = [];
   if (k.erstatter)
     punkter.push({
-      punkt: 'innledning',
+      punkt: INNLEDNINGEN,
       overskrift: null,
       avsnitt: [kravetErstatter(k.erstatter, j)],
     });
