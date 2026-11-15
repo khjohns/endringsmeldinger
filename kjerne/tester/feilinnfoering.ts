@@ -5491,7 +5491,7 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en merking med en annen sak enn brevtittelen er ikke forstått'],
   },
   {
-    id: 'F629',
+    id: 'F634',
     feilklasse:
       'force majeure får en dato varslingsplikten løper fra (VS-U26, VS-U43 punkt 1, #1955)',
     fil: `${K}/spor/forhold/format.ts`,
