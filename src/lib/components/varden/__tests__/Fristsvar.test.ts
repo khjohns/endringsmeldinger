@@ -170,4 +170,33 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
       )
     ).toBeInTheDocument();
   });
+
+  // Lagene før alle spørsmålene er besvart (OV-U33): et ubesvart spørsmål regnes som at
+  // innsigelsen ikke er gjort gjeldende (S1-A i #1411), og kjernen fyller det ut (#1925).
+  const gjelderHvisForDagene = () =>
+    [...document.querySelectorAll('[id*="-dager-"][id$="-forutsetninger"] li')].map((li) =>
+      li.textContent?.trim()
+    );
+
+  it('før noe er besvart, står dagene uten «Gjelder hvis» (OV-U33, S1-A)', async () => {
+    await svarskjemaet(medFristkrav);
+    expect(gjelderHvisForDagene()).toEqual([]);
+  });
+
+  it('med bare varselet for sent står dagene subsidiært etter den innsigelsen alene, mens hindringen og spesifiseringen er ubesvart (OV-U33, S1-A)', async () => {
+    await svarskjemaet(medFristkrav);
+    await radio('Varslet for sent');
+    expect(gjelderHvisForDagene()).toEqual([
+      'innsigelsen om at varselet etter punkt 33.4 kom for sent ikke fører frem',
+    ]);
+  });
+
+  it('kravet spesifisert for sent uten dagene byggherren måtte forstå gir dagene laget etter spesifiseringen (D-5, OV-U33)', async () => {
+    await svarskjemaet(medFristkrav);
+    await radio('Spesifisert for sent');
+    expect(screen.getAllByRole('textbox', { name: /måtte forstå/i })[0]).toHaveValue('');
+    expect(gjelderHvisForDagene()).toEqual([
+      'innsigelsen om at kravet ble spesifisert for sent ikke fører frem',
+    ]);
+  });
 });

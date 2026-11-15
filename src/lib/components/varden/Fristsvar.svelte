@@ -7,31 +7,22 @@
   kjernen regner resultatet og lagene, lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
-  import { BookOpen, FileText } from 'lucide-svelte';
-  import { tick } from 'svelte';
   import { stor } from '$kjerne/frosset/brevdeler';
-  import { dager, FORBEHOLDET } from '$kjerne/frosset/tekst';
+  import { dager } from '$kjerne/frosset/tekst';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '$kjerne/spor/frist/format';
   import { foresporselenISvaret } from '$lib/kjernesak/fristsvar';
   import type { Forutsetning } from '$kjerne/spor/frist/kommando';
   import type { Utledning } from '$kjerne/utledning/utled';
-  import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+  import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
-  import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
-  import { fastLinje } from './fastlinje.svelte';
-  import { medietreff } from './medie.svelte';
-  import Forkastutkast from './Forkastutkast.svelte';
-  import Arbeidsflate from './Arbeidsflate.svelte';
-  import Brev from './Brev.svelte';
+  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
-  import Hovedlinjer from './Hovedlinjer.svelte';
-  import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
-  import Melding from './Melding.svelte';
   import Postliste from './Postliste.svelte';
-  import Tidslinje from './Tidslinje.svelte';
-  import Utkastkort from './Utkastkort.svelte';
+  import Spoersmaal from './Spoersmaal.svelte';
+  import Svarskjema from './Svarskjema.svelte';
   import Valg from './Valg.svelte';
+  import Varseldatoer from './Varseldatoer.svelte';
   import {
     fristsvaret,
     godkjenteDager,
@@ -43,21 +34,10 @@
     tomtFristsvar,
     type Fristsvarvalg,
     velgDagene,
-    type Fristvalg,
   } from './fristsvar';
-  import { brevene, brevet, datoerISporet, klarOverForholdet, standpunktene } from './lesing';
-  import {
-    BREVKONTROLL,
-    FRISTSVAR,
-    HOVEDLINJER,
-    SKJEMA,
-    brevhode,
-    brevtittel,
-    dato,
-    grunntekst,
-    kalenderdager,
-    standpunkttekst,
-  } from './tekster';
+  import { brevet, standpunktene } from './lesing';
+  import { kravbrevetI, SVARSKJEMA, type Mangel } from './svarskjema';
+  import { BREVKONTROLL, FRISTSVAR, SKJEMA, grunntekst, standpunkttekst } from './tekster';
 
   let {
     kjernesak,
@@ -79,37 +59,16 @@
   } = $props();
   const uid = $props.id();
 
-  /** En frist i `Postliste`: `betegnelse` er fristens `id`, så den kan stå i ID-ene i skjemaet. */
-  type Fristpost = {
-    id: string;
-    betegnelse: string;
-    beskrivelse: string;
-    navn: string;
-    dager: number;
-  };
+  type Fristpost = { id: string; navn: string; dager: number };
 
   const krav = $derived(u.spor.frist.gjeldendeKrav!);
   const frister = $derived(
     innholdIFristen(krav).frister.map(
-      (f): Fristpost => ({
-        id: f.id,
-        betegnelse: f.id,
-        beskrivelse: '',
-        navn: betegnelsen(f),
-        dager: f.dager,
-      })
+      (f): Fristpost => ({ id: f.id, navn: betegnelsen(f), dager: f.dager })
     )
   );
   const flere = $derived(frister.length > 1);
-  const alleBrev = $derived(brevene(u));
-  const kravbrevet = $derived(alleBrev.find((b) => b.id === krav.dokument)!);
-  // Datoen kravet ble sendt, som i svaret på vederlaget (LV-U42, OV-U85, #1596).
-  const kravSendt = $derived(
-    kravbrevet.sendt ?? (kravbrevet.art === 'registrert' ? null : kravbrevet.registrert)
-  );
-  const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes('frist')));
-  const datoer = $derived(datoerISporet(u, 'frist'));
-  const klarOver = $derived(klarOverForholdet(u));
+  const kravbrevet = $derived(kravbrevetI(u, 'frist'));
   // VS-U17, VS-U29: svaret tar stilling til forespørselen når kjernen leser en.
   const foresporselen = $derived(foresporselenISvaret(u) !== null);
   const hindringPunkt = $derived(hindringenEtter(u.spor.forhold.gjeldendeKrav));
@@ -118,47 +77,32 @@
   let postliste = $state<Postliste<Fristpost> | null>(null);
   // Valgene for hver frist i gjeldende krav finnes før skjemaet tegnes, også når kravet er nytt.
   $effect.pre(() => {
-    for (const f of frister) if (!valg.frister[f.id]) valg.frister[f.id] = tomFrist();
+    for (const f of frister) valg.frister[f.id] ??= tomFrist();
   });
-  const valgFor = (id: string): Fristvalg => (valg.frister[id] ??= tomFrist());
   function godkjennAlle() {
-    for (const f of frister) valgFor(f.id).dager = 'alle';
+    for (const f of frister) (valg.frister[f.id] ??= tomFrist()).dager = 'alle';
   }
 
-  // Innledningen har ingen begrunnelse, og forbeholdet har sitt eget felt.
-  const UTEN_BEGRUNNELSE = ['innledning', FORBEHOLDET];
-  // LV-U71: ett felt for begrunnelsen per punkt i brevet, i brevets rekkefølge, lest av brevet
-  // kjernen lager uten begrunnelsene. Valgene uten tekstene, så lista ikke lages på nytt for hvert
-  // tegn i et tekstfelt.
-  const punktene = $derived.by(() => {
-    const valgene = {
-      varselITide: valg.varselITide,
-      foresporselITide: valg.foresporselITide,
-      hindret: valg.hindret,
-      spesifisertITide: valg.spesifisertITide,
-      frister: valg.frister,
-      begrunnelser: {},
-      forbehold: '',
-    };
-    const b = kjernesak.brev(fristsvaret(valgene, u, kjernesak.regler)!);
-    const avsnitt = b && 'avsnitt' in b ? (b.avsnitt ?? []) : [];
-    return avsnitt.flatMap((a) =>
-      a.punkt === undefined || UTEN_BEGRUNNELSE.includes(a.punkt)
-        ? []
-        : [{ punkt: a.punkt, navn: a.overskrift ?? a.laast.split('\n\n')[0]! }]
-    );
-  });
-  const kommando = $derived(
+  // Svaret uten begrunnelsene og forbeholdet, så det ikke regnes på nytt for hvert tegn i et
+  // tekstfelt (#1925).
+  const utkast = $derived(
     fristsvaret(
-      valg,
+      {
+        varselITide: valg.varselITide,
+        foresporselITide: valg.foresporselITide,
+        hindret: valg.hindret,
+        spesifisertITide: valg.spesifisertITide,
+        frister: valg.frister,
+        begrunnelser: {},
+        forbehold: '',
+      },
       u,
-      kjernesak.regler,
-      punktene.map((p) => p.punkt)
+      kjernesak.regler
     )!
   );
-  const etter = $derived(kjernesak.forhaandsvist(kommando));
+  const etter = $derived(kjernesak.forhaandsvist(utkast));
   // OV-U33: lagene står også før spørsmålene er besvart (`lagIFristen`).
-  const lagene = $derived(kjernesak.lagForUtkastet(kommando.svar[0], 'frist'));
+  const lagene = $derived(kjernesak.lagForUtkastet(utkast.svar[0], 'frist'));
   type Lagene = NonNullable<typeof lagene>['standpunkter'][number];
   const forutsetninger = (passer: (x: Lagene) => boolean): Forutsetning[] =>
     lagene?.standpunkter.find(passer)?.forutsetninger ?? [];
@@ -245,10 +189,6 @@
       return [lag ? `${stor(lag)}: ${t}` : stor(t)];
     })
   );
-  const utkastbrev = $derived.by(() => {
-    const b = kjernesak.brev(kommando);
-    return b && 'tekst' in b ? b : null;
-  });
 
   // Det som mangler, med skjemaets ord. Kjernen avviser det samme med feltkoder.
   const deldagerFeil = (f: Fristpost): string | null => {
@@ -268,49 +208,38 @@
     const godtar = godkjenteDager(v, f.dager);
     return godtar !== undefined && d > godtar ? FRISTSVAR.maatteForstaaForMange : null;
   };
-  // Spørsmålene som gjelder hele kravet, med feltet og det som mangler.
-  const heleKravet = $derived([
-    { felt: 'varsel', ubesvart: valg.varselITide === null, tekst: FRISTSVAR.manglerVarsel },
-    {
-      felt: 'foresporsel',
-      ubesvart: foresporselen && valg.foresporselITide === null,
-      tekst: FRISTSVAR.manglerForesporsel,
-    },
-    { felt: 'hindret', ubesvart: valg.hindret === null, tekst: FRISTSVAR.manglerHindring },
-    {
-      felt: 'spesifisert',
-      ubesvart: valg.spesifisertITide === null,
-      tekst: FRISTSVAR.manglerSpesifisering,
-    },
-  ]);
   const mangler = $derived(
     [
-      ...heleKravet.map((m) => ({
-        felt: `${uid}-${m.felt}`,
-        frist: null,
-        tekst: m.ubesvart ? m.tekst : null,
-      })),
+      // Spørsmålene som gjelder hele kravet.
+      { felt: 'varsel', post: null, tekst: valg.varselITide === null && FRISTSVAR.manglerVarsel },
+      {
+        felt: 'foresporsel',
+        post: null,
+        tekst: foresporselen && valg.foresporselITide === null && FRISTSVAR.manglerForesporsel,
+      },
+      { felt: 'hindret', post: null, tekst: valg.hindret === null && FRISTSVAR.manglerHindring },
+      {
+        felt: 'spesifisert',
+        post: null,
+        tekst: valg.spesifisertITide === null && FRISTSVAR.manglerSpesifisering,
+      },
       ...frister.flatMap((f) => {
         const i = (tekst: string | null) =>
           tekst ? SKJEMA.iPosten(flere ? f.navn : null, tekst) : null;
         return [
-          { felt: `${uid}-maatte-${f.id}`, frist: f.id, tekst: i(maatteForstaaFeil(f)) },
+          { felt: `maatte-${f.id}`, post: f.id, tekst: i(maatteForstaaFeil(f)) },
           {
-            felt: `${uid}-dager-${f.id}`,
-            frist: f.id,
+            felt: `dager-${f.id}`,
+            post: f.id,
             tekst: i(valg.frister[f.id]?.dager ? null : FRISTSVAR.manglerDager),
           },
-          { felt: `${uid}-deldager-${f.id}`, frist: f.id, tekst: i(deldagerFeil(f)) },
+          { felt: `deldager-${f.id}`, post: f.id, tekst: i(deldagerFeil(f)) },
         ];
       }),
-    ].filter((m): m is { felt: string; frist: string | null; tekst: string } => m.tekst !== null)
+    ].flatMap((m): Mangel[] =>
+      m.tekst ? [{ ...m, felt: `${uid}-${m.felt}`, tekst: m.tekst }] : []
+    )
   );
-  // Beskjedene vises først når BH har prøvd å se brevet (MM-U32), og forsvinner når feltet er besvart.
-  let forsoekt = $state(false);
-  const feil = (felt: string): string | null =>
-    forsoekt ? (mangler.find((m) => m.felt === `${uid}-${felt}`)?.tekst ?? null) : null;
-  let oppsummering = $state<HTMLElement | null>(null);
-  let sendehindring = $state<string | null>(null);
 
   const virkninger = $derived([
     ...(nyttSvar?.beslutningsgrunnlag.sammenfall ? [VIRKNING.sammenfall] : []),
@@ -321,45 +250,6 @@
       ? [BREVKONTROLL.akseptOmfatter]
       : []),
   ]);
-
-  async function seBrevet() {
-    sendehindring = null;
-    if (mangler.length) {
-      forsoekt = true;
-      const foerste = mangler.find((m) => m.frist !== null);
-      if (foerste) valgtFrist = foerste.frist;
-      await tick();
-      oppsummering?.focus();
-      return;
-    }
-    const b = kjernesak.brev(kommando, undefined, true);
-    const brevet = kontrollbrev(b);
-    if (!brevet) {
-      sendehindring =
-        b && 'avvisning' in b && b.avvisning.regel === 'UGYLDIG_VURDERING'
-          ? HOVEDLINJER.kanIkkeLages
-          : (brevaarsak(b) ?? HOVEDLINJER.kanIkkeLages);
-      await tick();
-      document.getElementById(`${uid}-hindring`)?.focus();
-      return;
-    }
-    onbrevkontroll({ kommando, ...brevet, detteSender: linjer, virkninger });
-  }
-
-  // Brevet leses ved siden av skjemaet, og på smal skjerm i skjemaet (oppdragsgiver 29.10, #1391).
-  const vindu = medietreff('(max-width: 1180px)');
-  const smal = $derived(vindu.treff);
-  let leser = $state(false);
-  $effect(() => {
-    onvedsiden?.(leser && !smal);
-    return () => onvedsiden?.(false);
-  });
-  let panel = $state<HTMLElement | null>(null);
-  const linja = fastLinje(
-    uid,
-    () => panel,
-    () => leser && !smal
-  );
 </script>
 
 {#snippet forutsetning(f: Forutsetning)}
@@ -376,445 +266,234 @@
   {/if}
 {/snippet}
 
-<!-- Dagene byggherren måtte forstå står først i fristen når kravet er spesifisert for sent (D-5),
-     så dagene byggherren godtar om kravet kom i tide (U-14, D-5, prototypen `fristkrav-te.html#svar`). -->
-{#snippet fristvalgene(f: Fristpost)}
-  {@const v = valg.frister[f.id]}
-  {#if v}
-    {#if valg.spesifisertITide === false}
-      {@const id = `${uid}-maatte-${f.id}`}
-      {@const mFeil = feil(`maatte-${f.id}`)}
-      <div class="betinget">
-        <Gjelderhvis
-          id={`${id}-forutsetninger`}
-          liste={spesifiseringslagene}
-          punkt={forutsetning}
-        />
-        <div class="tallfelt">
-          <label for={id}>{FRISTSVAR.maatteForstaaEtikett}</label>
-          <span id={`${id}-hjelp`} class="dempet">{FRISTSVAR.maatteForstaaHjelp(f.dager)}</span>
-          <span class="inndata" class:ugyldig={mFeil}>
-            <input
-              {id}
-              inputmode="numeric"
-              bind:value={v.maatteForstaa}
-              aria-describedby={[
-                spesifiseringslagene.length ? `${id}-forutsetninger` : '',
-                `${id}-hjelp`,
-                mFeil ? `${id}-feil` : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              aria-invalid={mFeil ? 'true' : undefined}
+<Svarskjema
+  {kjernesak}
+  {u}
+  spor="frist"
+  {utkast}
+  medTekstene={(punktene) => fristsvaret(valg, u, kjernesak.regler, punktene)!}
+  bind:tekster={valg}
+  {linjer}
+  {virkninger}
+  {mangler}
+  poster={() => postliste}
+  {onbrevkontroll}
+  {onforkast}
+  {onvedsiden}
+>
+  {#snippet spoersmaal(feil)}
+    <!-- Dagene byggherren måtte forstå står først i fristen når kravet er spesifisert for sent
+         (D-5), så dagene byggherren godtar om kravet kom i tide (U-14, D-5, prototypen
+         `fristkrav-te.html#svar`). -->
+    {#snippet fristvalgene(f: Fristpost)}
+      {@const v = valg.frister[f.id]}
+      {#if v}
+        {#if valg.spesifisertITide === false}
+          {@const id = `${uid}-maatte-${f.id}`}
+          {@const mFeil = feil(id)}
+          <div class="betinget">
+            <Gjelderhvis
+              id={`${id}-forutsetninger`}
+              liste={spesifiseringslagene}
+              punkt={forutsetning}
             />
-            <span class="enhet" aria-hidden="true">dager</span>
-          </span>
-          {#if mFeil}<p class="feilmelding" id={`${id}-feil`}>{mFeil}</p>{/if}
-        </div>
-      </div>
-    {/if}
-    {@const dagforutsetninger = forDagene(f.id)}
-    <div class="betinget">
-      <Gjelderhvis
-        id={`${uid}-dager-${f.id}-forutsetninger`}
-        liste={dagforutsetninger}
-        punkt={forutsetning}
-      />
-      <Valg
-        navn={`${uid}-dager-${f.id}`}
-        spoersmaal={valg.spesifisertITide === false
-          ? FRISTSVAR.dagerSpoersmaalITide
-          : FRISTSVAR.dagerSpoersmaal}
-        beskrevetAv={dagforutsetninger.length ? `${uid}-dager-${f.id}-forutsetninger` : undefined}
-        valg={[
-          { verdi: 'alle', tekst: FRISTSVAR.alle(f.dager) },
-          { verdi: 'deler', tekst: FRISTSVAR.deler },
-          { verdi: 'avslaatt', tekst: FRISTSVAR.avslaatt },
-        ]}
-        bind:verdi={() => v.dager, (d) => velgDagene(v, d, f.dager)}
-        feil={feil(`dager-${f.id}`)}
-        lett
-      />
-    </div>
-    <!-- U-14: «Godkjente dager» står alltid, tomt til byggherren har valgt, og tallet styrer valget. -->
-    {@const id = `${uid}-deldager-${f.id}`}
-    {@const dFeil = feil(`deldager-${f.id}`)}
-    <div class="tallfelt">
-      <label for={id}>{FRISTSVAR.deldagerEtikett}</label>
-      <span id={`${id}-hjelp`} class="dempet">{FRISTSVAR.deldagerHjelp}</span>
-      <span class="inndata" class:ugyldig={dFeil}>
-        <input
-          {id}
-          inputmode="numeric"
-          bind:value={
-            () => godkjenteDagerIFeltet(v, f.dager), (t) => skrivGodkjenteDager(v, t, f.dager)
-          }
-          aria-describedby={dFeil ? `${id}-hjelp ${id}-feil` : `${id}-hjelp`}
-          aria-invalid={dFeil ? 'true' : undefined}
-        />
-        <span class="enhet" aria-hidden="true">dager</span>
-      </span>
-      {#if dFeil}<p class="feilmelding" id={`${id}-feil`}>{dFeil}</p>{/if}
-    </div>
-  {/if}
-{/snippet}
-
-{#snippet kravbrev(innfelt: boolean)}
-  <Brev
-    avsender={kravbrevet.avsender}
-    sak={kjernesak.saksbilde?.tittel ?? ''}
-    merking={kravbrevet.merking}
-    deresRef={kravbrevet.deresRef}
-    dato={dato(kravbrevet.registrert)}
-    tittel={brevtittel(kravbrevet)}
-    avsnitt={kravbrevet.avsnitt ?? []}
-    {innfelt}
-  />
-{/snippet}
-
-{#snippet sendeknapp()}
-  <div class="handling">
-    <Knapp
-      variant="primaer"
-      onclick={seBrevet}
-      aria-describedby={sendehindring ? `${uid}-hindring` : undefined}>{HOVEDLINJER.seBrevet}</Knapp
-    >
-  </div>
-  {#if sendehindring}
-    <Melding art="feil" levende={false} id={`${uid}-hindring`} tabindex="-1"
-      >{sendehindring}</Melding
-    >
-  {/if}
-{/snippet}
-
-<Arbeidsflate leser={leser && !smal}>
-  {#snippet hoved()}
-    <Utkastkort
-      id={`${uid}-tittel`}
-      tittel={utkastbrev
-        ? brevhode({ merking: utkastbrev.merking, art: 'svar', brevtittel: utkastbrev.brevtittel })
-        : null}
-      mottaker={SKJEMA.tilTE}
-    >
-      {#snippet infotips()}<Infotips navn={SKJEMA.omSvaret} tekst={VIRKNING.alltid} />{/snippet}
-      <div class="svarerpaa">
-        <FileText size={16} aria-hidden="true" />
-        <span>{SKJEMA.svarerPaa(kravbrevet)}</span>
-        <Knapp
-          variant="lenke"
-          onclick={() => (leser = !leser)}
-          aria-expanded={leser}
-          aria-controls={`${uid}-kravbrev`}
-        >
-          {leser ? SKJEMA.lukkBrevet : smal ? SKJEMA.lesBrevetHer : SKJEMA.lesBrevet}
-        </Knapp>
-      </div>
-      {#if leser && smal}
-        <div class="innebrev" id={`${uid}-kravbrev`}>{@render kravbrev(false)}</div>
-      {/if}
-
-      {#if forsoekt && mangler.length}
-        <div
-          class="mangler"
-          role="group"
-          tabindex="-1"
-          bind:this={oppsummering}
-          aria-labelledby={`${uid}-mangler`}
-        >
-          <p id={`${uid}-mangler`}>{SKJEMA.mangler}</p>
-          <ul>
-            {#each mangler as m (m.felt)}
-              <li>
-                <a
-                  href={`#${m.felt}`}
-                  onclick={(e) => {
-                    if (m.frist === null || !postliste || postliste.erAapen(m.frist)) return;
-                    e.preventDefault();
-                    postliste.aapne(m.frist, m.felt);
-                  }}>{m.tekst}</a
-                >
-              </li>
-            {/each}
-          </ul>
-        </div>
-      {/if}
-
-      <section class="spoersmaal" aria-labelledby={`${uid}-sp-varsel`}>
-        <div class="sp-hode">
-          <h3 id={`${uid}-sp-varsel`}>{FRISTSVAR.varselTittel}</h3>
-          <Infotips navn={SKJEMA.datoInfoNavn} tekst={SKJEMA.datoInfo} />
-          <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 33.4</span>
-        </div>
-        <Gjelderhvis id={`${uid}-varsel-forutsetninger`} liste={grunnene} punkt={forutsetning} />
-        <div class="datoer">
-          {#if klarOver}<p>{SKJEMA.klarOver(klarOver.dato, klarOver.brev)}</p>{/if}
-          <p>{FRISTSVAR.kravSendt(kravSendt ?? kravbrevet.registrert, kravbrevet)}</p>
-          {#if klarOver && kravSendt}
-            <p><strong>{SKJEMA.avstand(kalenderdager(klarOver.dato, kravSendt))}</strong></p>
-          {/if}
-          <p class="dempet">{SKJEMA.datoGrense}</p>
-        </div>
-        <Valg
-          navn={`${uid}-varsel`}
-          spoersmaal={FRISTSVAR.varselSpoersmaal}
-          beskrevetAv={grunnene.length ? `${uid}-varsel-forutsetninger` : undefined}
-          valg={[
-            { verdi: true, tekst: SKJEMA.iTide },
-            { verdi: false, tekst: SKJEMA.forSent },
-          ]}
-          bind:verdi={valg.varselITide}
-          feil={feil('varsel')}
-        />
-      </section>
-
-      {#if foresporselen}
-        <section class="spoersmaal" aria-labelledby={`${uid}-sp-foresporsel`}>
-          <div class="sp-hode">
-            <h3 id={`${uid}-sp-foresporsel`}>{FRISTSVAR.foresporselTittel}</h3>
-            <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 33.6.2</span>
+            <div class="tallfelt">
+              <label for={id}>{FRISTSVAR.maatteForstaaEtikett}</label>
+              <span id={`${id}-hjelp`} class="dempet">{FRISTSVAR.maatteForstaaHjelp(f.dager)}</span>
+              <span class="inndata" class:ugyldig={mFeil}>
+                <input
+                  {id}
+                  inputmode="numeric"
+                  bind:value={v.maatteForstaa}
+                  aria-describedby={[
+                    spesifiseringslagene.length ? `${id}-forutsetninger` : '',
+                    `${id}-hjelp`,
+                    mFeil ? `${id}-feil` : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  aria-invalid={mFeil ? 'true' : undefined}
+                />
+                <span class="enhet" aria-hidden="true">dager</span>
+              </span>
+              {#if mFeil}<p class="feilmelding" id={`${id}-feil`}>{mFeil}</p>{/if}
+            </div>
           </div>
+        {/if}
+        {@const dagforutsetninger = forDagene(f.id)}
+        <div class="betinget">
           <Gjelderhvis
-            id={`${uid}-foresporsel-forutsetninger`}
-            liste={foresporselslagene}
+            id={`${uid}-dager-${f.id}-forutsetninger`}
+            liste={dagforutsetninger}
             punkt={forutsetning}
           />
           <Valg
-            navn={`${uid}-foresporsel`}
-            spoersmaal={FRISTSVAR.foresporselSpoersmaal}
-            beskrevetAv={foresporselslagene.length
-              ? `${uid}-foresporsel-forutsetninger`
+            navn={`${uid}-dager-${f.id}`}
+            spoersmaal={valg.spesifisertITide === false
+              ? FRISTSVAR.dagerSpoersmaalITide
+              : FRISTSVAR.dagerSpoersmaal}
+            beskrevetAv={dagforutsetninger.length
+              ? `${uid}-dager-${f.id}-forutsetninger`
               : undefined}
             valg={[
-              { verdi: true, tekst: FRISTSVAR.foresporselITide },
-              { verdi: false, tekst: FRISTSVAR.foresporselForSent },
+              { verdi: 'alle', tekst: FRISTSVAR.alle(f.dager) },
+              { verdi: 'deler', tekst: FRISTSVAR.deler },
+              { verdi: 'avslaatt', tekst: FRISTSVAR.avslaatt },
             ]}
-            bind:verdi={valg.foresporselITide}
-            feil={feil('foresporsel')}
+            bind:verdi={() => v.dager, (d) => velgDagene(v, d, f.dager)}
+            feil={feil(`${uid}-dager-${f.id}`)}
+            lett
           />
-        </section>
+        </div>
+        <!-- U-14: «Godkjente dager» står alltid, tomt til byggherren har valgt, og tallet styrer
+             valget. -->
+        {@const id = `${uid}-deldager-${f.id}`}
+        {@const dFeil = feil(id)}
+        <div class="tallfelt">
+          <label for={id}>{FRISTSVAR.deldagerEtikett}</label>
+          <span id={`${id}-hjelp`} class="dempet">{FRISTSVAR.deldagerHjelp}</span>
+          <span class="inndata" class:ugyldig={dFeil}>
+            <input
+              {id}
+              inputmode="numeric"
+              bind:value={
+                () => godkjenteDagerIFeltet(v, f.dager), (t) => skrivGodkjenteDager(v, t, f.dager)
+              }
+              aria-describedby={dFeil ? `${id}-hjelp ${id}-feil` : `${id}-hjelp`}
+              aria-invalid={dFeil ? 'true' : undefined}
+            />
+            <span class="enhet" aria-hidden="true">dager</span>
+          </span>
+          {#if dFeil}<p class="feilmelding" id={`${id}-feil`}>{dFeil}</p>{/if}
+        </div>
       {/if}
+    {/snippet}
 
-      <section class="spoersmaal" aria-labelledby={`${uid}-sp-hindring`}>
-        <div class="sp-hode">
-          <h3 id={`${uid}-sp-hindring`}>{FRISTSVAR.hindringTittel}</h3>
-          <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt {hindringPunkt}</span
-          >
-        </div>
-        <Gjelderhvis
-          id={`${uid}-hindret-forutsetninger`}
-          liste={hindringslagene}
-          punkt={forutsetning}
-        />
-        <p class="dempet" id={`${uid}-hindret-hjelp`}>{FRISTSVAR.hindringHjelp}</p>
-        <Valg
-          navn={`${uid}-hindret`}
-          spoersmaal={FRISTSVAR.hindringSpoersmaal}
-          beskrevetAv={hindringslagene.length
-            ? `${uid}-hindret-forutsetninger ${uid}-hindret-hjelp`
-            : `${uid}-hindret-hjelp`}
-          valg={[
-            { verdi: true, tekst: FRISTSVAR.hindret },
-            { verdi: false, tekst: FRISTSVAR.ikkeHindret },
-          ]}
-          bind:verdi={valg.hindret}
-          feil={feil('hindret')}
-          stablet
-        />
-      </section>
-
-      <section class="spoersmaal" aria-labelledby={`${uid}-sp-spesifisering`}>
-        <div class="sp-hode">
-          <h3 id={`${uid}-sp-spesifisering`}>{FRISTSVAR.spesifiseringTittel}</h3>
-          <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 33.6.1</span>
-        </div>
-        <Gjelderhvis
-          id={`${uid}-spesifisert-forutsetninger`}
-          liste={spesifiseringslagene}
-          punkt={forutsetning}
-        />
-        <p class="dempet">{FRISTSVAR.spesifiseringGrense}</p>
-        <Valg
-          navn={`${uid}-spesifisert`}
-          spoersmaal={FRISTSVAR.spesifiseringSpoersmaal}
-          beskrevetAv={spesifiseringslagene.length
-            ? `${uid}-spesifisert-forutsetninger`
-            : undefined}
-          valg={[
-            { verdi: true, tekst: FRISTSVAR.spesifisertITide },
-            { verdi: false, tekst: FRISTSVAR.spesifisertForSent },
-          ]}
-          bind:verdi={valg.spesifisertITide}
-          feil={feil('spesifisert')}
-        />
-      </section>
-
-      <section class="spoersmaal" aria-labelledby={`${uid}-sp-dager`}>
-        <div class="sp-hode">
-          <h3 id={`${uid}-sp-dager`}>{FRISTSVAR.dagerTittel}</h3>
-          <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 33.5 og 33.7</span>
-        </div>
-        {#if forHeleKravet.length}
-          <p class="helekravet">{FRISTSVAR.forHeleKravet(forHeleKravet)}</p>
-        {/if}
-        {#if flere}
-          <p class="dempet">{FRISTSVAR.ettSvarPerFrist}</p>
-          <div class="snarveier">
-            <Knapp variant="lenke" onclick={godkjennAlle}>{FRISTSVAR.godkjennAlle}</Knapp>
-          </div>
-        {/if}
-        <Postliste
-          bind:this={postliste}
-          bind:valgt={valgtFrist}
-          poster={frister}
-          prefiks={uid}
-          navn={(f) => f.navn}
-          krever={(f) => FRISTSVAR.teKrever(f.dager)}
-          {leselinje}
-          foersteFelt={(id) =>
-            valg.spesifisertITide === false ? `${uid}-maatte-${id}` : `${uid}-dager-${id}`}
-          valgene={fristvalgene}
-        />
-      </section>
-
-      <section class="spoersmaal" aria-labelledby={`${uid}-sp-begrunnelse`}>
-        <div class="sp-hode">
-          <h3 id={`${uid}-sp-begrunnelse`}>{SKJEMA.begrunnelse}</h3>
-        </div>
-        <p class="dempet" id={`${uid}-begrunnelse-hjelp`}>{SKJEMA.begrunnelseHjelp}</p>
-        {#each punktene as p (p.punkt)}
-          <div class="begrunnelse">
-            <label for={`${uid}-begrunnelse-${p.punkt}`}>{p.navn}</label>
-            <textarea
-              id={`${uid}-begrunnelse-${p.punkt}`}
-              rows="2"
-              bind:value={valg.begrunnelser[p.punkt]}
-              aria-describedby={`${uid}-begrunnelse-hjelp`}
-            ></textarea>
-          </div>
-        {/each}
-        <div class="begrunnelse forbehold">
-          <label for={`${uid}-forbehold`}>{SKJEMA.forbehold}</label>
-          <span class="dempet" id={`${uid}-forbehold-hjelp`}>{SKJEMA.forbeholdHjelp}</span>
-          <textarea
-            id={`${uid}-forbehold`}
-            rows="3"
-            bind:value={valg.forbehold}
-            aria-describedby={`${uid}-forbehold-hjelp`}
-          ></textarea>
-        </div>
-      </section>
-
-      <div class="skjemafot">
-        <Forkastutkast tekst={FRISTSVAR.forkastTekst} {onforkast} />
-      </div>
-    </Utkastkort>
-  {/snippet}
-
-  {#snippet hoeyre()}
-    {#if leser && !smal}
-      <section class="leseramme" id={`${uid}-kravbrev`} aria-labelledby={`${uid}-lesetittel`}>
-        <h2 class="lesetittel" id={`${uid}-lesetittel`}>
-          {brevhode(kravbrevet)}
-          <span class="dempet">· {kravbrevet.avsender} · {dato(kravbrevet.registrert)}</span>
-        </h2>
-        <!-- Rammen ruller for seg selv, så den må kunne nås med tastaturet. -->
-        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-        <div class="brevrulle" tabindex="0" role="region" aria-labelledby={`${uid}-lesetittel`}>
-          {@render kravbrev(true)}
-        </div>
-        <div class="lesebunn">{@render sendeknapp()}</div>
-      </section>
-    {:else}
-      <div class="feste" class:fast={linja.faarPlass} bind:this={panel}>
-        <Hovedlinjer {linjer} alternativer={false} handling={sendeknapp} />
-      </div>
-      <Tidslinje brev={sporbrev} {datoer} />
-    {/if}
-  {/snippet}
-</Arbeidsflate>
-
-{#if linja.visKompakt}
-  <div class="kompakt" role="region" aria-label="Hovedlinjene og brevkontrollen">
-    <Knapp variant="primaer" onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp>
-    <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}
-      >{HOVEDLINJER.seHovedlinjene}</Knapp
+    <Spoersmaal
+      id={`${uid}-sp-varsel`}
+      tittel={FRISTSVAR.varselTittel}
+      hjemmel="33.4"
+      info={{ navn: SKJEMA.datoInfoNavn, tekst: SKJEMA.datoInfo }}
     >
-  </div>
-{/if}
+      <Gjelderhvis id={`${uid}-varsel-forutsetninger`} liste={grunnene} punkt={forutsetning} />
+      <Varseldatoer {u} {kravbrevet} sendt={FRISTSVAR.kravSendt} />
+      <Valg
+        navn={`${uid}-varsel`}
+        spoersmaal={FRISTSVAR.varselSpoersmaal}
+        beskrevetAv={grunnene.length ? `${uid}-varsel-forutsetninger` : undefined}
+        valg={[
+          { verdi: true, tekst: SKJEMA.iTide },
+          { verdi: false, tekst: SKJEMA.forSent },
+        ]}
+        bind:verdi={valg.varselITide}
+        feil={feil(`${uid}-varsel`)}
+      />
+    </Spoersmaal>
+
+    {#if foresporselen}
+      <Spoersmaal
+        id={`${uid}-sp-foresporsel`}
+        tittel={FRISTSVAR.foresporselTittel}
+        hjemmel="33.6.2"
+      >
+        <Gjelderhvis
+          id={`${uid}-foresporsel-forutsetninger`}
+          liste={foresporselslagene}
+          punkt={forutsetning}
+        />
+        <Valg
+          navn={`${uid}-foresporsel`}
+          spoersmaal={FRISTSVAR.foresporselSpoersmaal}
+          beskrevetAv={foresporselslagene.length ? `${uid}-foresporsel-forutsetninger` : undefined}
+          valg={[
+            { verdi: true, tekst: FRISTSVAR.foresporselITide },
+            { verdi: false, tekst: FRISTSVAR.foresporselForSent },
+          ]}
+          bind:verdi={valg.foresporselITide}
+          feil={feil(`${uid}-foresporsel`)}
+        />
+      </Spoersmaal>
+    {/if}
+
+    <Spoersmaal id={`${uid}-sp-hindring`} tittel={FRISTSVAR.hindringTittel} hjemmel={hindringPunkt}>
+      <Gjelderhvis
+        id={`${uid}-hindret-forutsetninger`}
+        liste={hindringslagene}
+        punkt={forutsetning}
+      />
+      <p class="dempet" id={`${uid}-hindret-hjelp`}>{FRISTSVAR.hindringHjelp}</p>
+      <Valg
+        navn={`${uid}-hindret`}
+        spoersmaal={FRISTSVAR.hindringSpoersmaal}
+        beskrevetAv={hindringslagene.length
+          ? `${uid}-hindret-forutsetninger ${uid}-hindret-hjelp`
+          : `${uid}-hindret-hjelp`}
+        valg={[
+          { verdi: true, tekst: FRISTSVAR.hindret },
+          { verdi: false, tekst: FRISTSVAR.ikkeHindret },
+        ]}
+        bind:verdi={valg.hindret}
+        feil={feil(`${uid}-hindret`)}
+        stablet
+      />
+    </Spoersmaal>
+
+    <Spoersmaal
+      id={`${uid}-sp-spesifisering`}
+      tittel={FRISTSVAR.spesifiseringTittel}
+      hjemmel="33.6.1"
+    >
+      <Gjelderhvis
+        id={`${uid}-spesifisert-forutsetninger`}
+        liste={spesifiseringslagene}
+        punkt={forutsetning}
+      />
+      <p class="dempet">{FRISTSVAR.spesifiseringGrense}</p>
+      <Valg
+        navn={`${uid}-spesifisert`}
+        spoersmaal={FRISTSVAR.spesifiseringSpoersmaal}
+        beskrevetAv={spesifiseringslagene.length ? `${uid}-spesifisert-forutsetninger` : undefined}
+        valg={[
+          { verdi: true, tekst: FRISTSVAR.spesifisertITide },
+          { verdi: false, tekst: FRISTSVAR.spesifisertForSent },
+        ]}
+        bind:verdi={valg.spesifisertITide}
+        feil={feil(`${uid}-spesifisert`)}
+      />
+    </Spoersmaal>
+
+    <Spoersmaal id={`${uid}-sp-dager`} tittel={FRISTSVAR.dagerTittel} hjemmel="33.5 og 33.7">
+      {#if forHeleKravet.length}
+        <p class="helekravet">{FRISTSVAR.forHeleKravet(forHeleKravet)}</p>
+      {/if}
+      {#if flere}
+        <p class="dempet">{FRISTSVAR.ettSvarPerFrist}</p>
+        <div class="snarveier">
+          <Knapp variant="lenke" onclick={godkjennAlle}>{FRISTSVAR.godkjennAlle}</Knapp>
+        </div>
+      {/if}
+      <Postliste
+        bind:this={postliste}
+        bind:valgt={valgtFrist}
+        poster={frister}
+        prefiks={uid}
+        kolonne={SVARSKJEMA.fristKolonne}
+        navn={(f) => f.navn}
+        krever={(f) => FRISTSVAR.teKrever(f.dager)}
+        {leselinje}
+        foersteFelt={(f) =>
+          valg.spesifisertITide === false ? `${uid}-maatte-${f.id}` : `${uid}-dager-${f.id}`}
+        valgene={fristvalgene}
+      />
+    </Spoersmaal>
+  {/snippet}
+</Svarskjema>
 
 <style>
-  .svarerpaa {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--spacing-3);
-    padding: var(--spacing-3) var(--spacing-6);
-    background: var(--surface-inset);
-    border-top: var(--rule);
-    border-bottom: var(--rule);
-  }
-  .svarerpaa > span {
-    margin-right: auto;
-  }
-  .spoersmaal {
-    padding: var(--spacing-5) var(--spacing-6);
-    border-bottom: var(--rule);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
-  }
-  .spoersmaal:last-child {
-    border-bottom: 0;
-  }
-  .sp-hode {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-3);
-  }
-  h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--ink);
-  }
-  .hjemmel {
-    margin-left: auto;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-1);
-    padding: 0 var(--spacing-2);
-    border: var(--rule-strong);
-    border-radius: var(--r-merke);
-    color: var(--ink-2);
-    font-size: 12px;
-    white-space: nowrap;
-  }
-  .datoer {
-    padding: var(--spacing-3) var(--spacing-4);
-    background: var(--surface-inset);
-    border-radius: var(--r-innfelt);
-    font-size: 14px;
-  }
-  .tallfelt,
-  .begrunnelse {
+  .tallfelt {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-2);
-  }
-  /* Feltnavnet er punktet i brevet, under overskriften «Begrunnelse» (design-review #1858). */
-  .begrunnelse label {
-    font-size: 15px;
-    color: var(--ink-2);
-  }
-  /* Forbeholdet gjelder hele svaret og står sist i brevet, skilt fra punktene. */
-  .begrunnelse.forbehold {
-    margin-top: var(--spacing-3);
-    padding-top: var(--spacing-4);
-    border-top: var(--rule);
-  }
-  .begrunnelse.forbehold label {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--ink);
   }
   .inndata {
     display: inline-flex;
@@ -823,8 +502,7 @@
     border: var(--control-border);
     border-radius: var(--r-felt);
   }
-  .inndata:focus-within,
-  textarea:focus-visible {
+  .inndata:focus-within {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
   }
@@ -848,39 +526,6 @@
     border-left: var(--rule);
     color: var(--ink-3);
   }
-  textarea {
-    padding: var(--spacing-3);
-    border: var(--control-border);
-    border-radius: var(--r-felt);
-    font: inherit;
-    background: var(--surface);
-    resize: vertical;
-  }
-  .mangler {
-    margin: var(--spacing-5) var(--spacing-6) 0;
-    padding: var(--spacing-4);
-    border-left: 3px solid var(--danger);
-    background: var(--danger-bg);
-  }
-  .mangler:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
-  .mangler p {
-    font-weight: 600;
-  }
-  .mangler ul {
-    margin-top: var(--spacing-2);
-    padding-left: var(--spacing-5);
-    list-style: disc;
-  }
-  .mangler a {
-    color: var(--ink);
-    text-underline-offset: 3px;
-  }
-  .mangler a:hover {
-    text-decoration-thickness: 2px;
-  }
   .feilmelding {
     color: var(--danger);
     font-size: 14px;
@@ -890,13 +535,6 @@
     border-color: var(--danger);
     box-shadow: inset 0 0 0 1px var(--danger);
   }
-  .skjemafot {
-    padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
-    border-top: var(--rule);
-  }
-  .innebrev {
-    padding: var(--spacing-4) var(--spacing-4) 0;
-  }
   .dempet {
     color: var(--ink-3);
     font-size: 14px;
@@ -905,70 +543,6 @@
     margin: 0;
     color: var(--ink-2);
     font-size: 14px;
-  }
-  .handling {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-2);
-  }
-  /* Over tidslinja, som ruller under: den åpne chevronen er rotert og ville ellers ligget
-     øverst og tatt klikkene i panelet. */
-  .feste.fast {
-    position: sticky;
-    top: var(--spacing-4);
-    z-index: 1;
-  }
-  /* Lesing ved siden av: rammen følger brevet og er høyst like høy som vinduet under
-     topplinja. Et lengre brev ruller i den, og «Se brevet før sending» står fast i bunnen
-     (oppdragsgiver 29.10, #1391). */
-  .leseramme {
-    position: sticky;
-    top: var(--spacing-4);
-    display: flex;
-    flex-direction: column;
-    max-height: calc(100dvh - var(--mockup-topbar-height) - var(--spacing-10));
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: var(--r-kort);
-    overflow: hidden;
-  }
-  .lesetittel {
-    padding: var(--spacing-3) var(--spacing-5);
-    border-bottom: var(--rule);
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .lesetittel .dempet {
-    font-weight: 400;
-  }
-  .brevrulle {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-  }
-  .brevrulle:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: -2px;
-  }
-  .lesebunn {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
-    padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
-    border-top: var(--rule);
-  }
-  .kompakt {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 20;
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--spacing-3);
-    padding: var(--spacing-3) var(--spacing-6);
-    background: var(--surface);
-    border-top: var(--rule-strong);
   }
   /* «Gjelder hvis» hører til spørsmålet under seg, ikke til det over (U-8). */
   .betinget {
