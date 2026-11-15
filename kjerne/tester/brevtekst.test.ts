@@ -10542,6 +10542,10 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
           'Et vedlegg i varselet for kravpost nr. 1 ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.',
       });
       expect(s.journal.length, 'ingen rad skrives').toBe(foer);
+      expect(
+        s.avvist('BH', vederlagskrav([{ ...regning, varsel: delt }, regning])),
+        'byggherren får grunnen til at kravet ikke kan sendes, før vedleggene i varslene'
+      ).toBe('FEIL_PART');
       // Kontrollsak: med et eget dokument gjelder varselet i saken den andre posten (D-16, VS-U55).
       const tekst = laast(
         s.send('TE', vederlagskrav([{ ...regning, varsel: dokument() }, regning]))

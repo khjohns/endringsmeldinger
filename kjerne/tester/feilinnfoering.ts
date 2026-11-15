@@ -4080,7 +4080,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        '  return liggerVedEtVarsel(k.dokumentasjon ?? [], lest, u)\n    ? avvis(',
+        '  return (k.dokumentasjon ?? []).some((id) => iVarslene.has(id.toLowerCase()))\n    ? avvis(',
         '  return false\n    ? avvis(',
       ],
     ],
@@ -4092,10 +4092,7 @@ const MUTASJONER: Mutasjon[] = [
       'et dokument fra kravskjemaet som deler et vedlegg med et varsel i saken, tar varselet bort fra en annen kravpost (VS-U55, #1993)',
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
-      [
-        '    (p) => erDokumentvarsel(p.varsel) && liggerVedEtVarsel(p.varsel.dokumentasjon, lest, u)',
-        '    (p) => false',
-      ],
+      ['  if (dokumentnoekkel(dokumentet).some((id) => iVarslene.has(id)))', '  if (false)'],
     ],
     mal: [
       'et dokument fra kravskjemaet med et vedlegg som alt ligger ved et varsel i saken, avvises',

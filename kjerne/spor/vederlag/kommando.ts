@@ -45,7 +45,13 @@ import {
 import { varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
 import type { Innhold, Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
-import type { Kontekst, Skrivesteg, Sporsskriving, Utfall } from '../../kommandoer/skriving.ts';
+import type {
+  Kontekst,
+  LestSak,
+  Skrivesteg,
+  Sporsskriving,
+  Utfall,
+} from '../../kommandoer/skriving.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
 import { lageneIUtkastet } from '../../kommandoer/utkastlag.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
@@ -303,20 +309,6 @@ function medDokumentvarslene(
       dokumentene.set(id, like);
     }
   }
-  // VS-U55 (#1993): ellers holder `foranKravet` varselet i saken utenfor for de andre kravpostene.
-  const { lest, u } = skriving.saken(journal);
-  const i = poster.findIndex(
-    (p) => erDokumentvarsel(p.varsel) && liggerVedEtVarsel(p.varsel.dokumentasjon, lest, u)
-  );
-  if (i >= 0)
-    return {
-      godtatt: false,
-      feil: 'REGELBRUDD',
-      avvisning: avvis(
-        'KRAVPOSTVARSELET',
-        `Et vedlegg i varselet for kravpost nr. ${i + 1} ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.`
-      ),
-    };
   const kjede = (kx: Kontekst, jx: Journalrad[]) => medVarslene(k, [], kx, jx, skriving);
   if (skriving.sendes) {
     const proeve = skriving.hele(kjede(kontekst, journal), kontekst, journal);
@@ -379,6 +371,18 @@ function medVarslene(
         melding: `Varselet for kravpost nr. ${i + 1}: ${varselet.avvisning.melding}`,
       },
     };
+  // VS-U55 (#1993): ellers holder `foranKravet` varselet i saken utenfor for de andre kravpostene.
+  // `journal` har ikke dokumentet, og et vedlegg hører til ett dokument i kravskjemaet.
+  const iVarslene = vedleggIVarslene(skriving.saken(journal));
+  if (dokumentnoekkel(dokumentet).some((id) => iVarslene.has(id)))
+    return {
+      godtatt: false,
+      feil: 'REGELBRUDD',
+      avvisning: avvis(
+        'KRAVPOSTVARSELET',
+        `Et vedlegg i varselet for kravpost nr. ${i + 1} ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.`
+      ),
+    };
   const [rad] = varselet.hendelser;
   const utsagn = new Map(
     (rad!.data.utsagn as { id: string; hjemmel: string }[]).map((x) => [x.hjemmel, x.id])
@@ -434,7 +438,8 @@ function vedleggetErEtVarsel(
   lest: readonly Domenehendelse[],
   u: Utledning
 ): Avvisning | null {
-  return liggerVedEtVarsel(k.dokumentasjon ?? [], lest, u)
+  const iVarslene = vedleggIVarslene({ lest, u });
+  return (k.dokumentasjon ?? []).some((id) => iVarslene.has(id.toLowerCase()))
     ? avvis(
         'KRAVPOSTVARSELET',
         'Et vedlegg ved kravet ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.'
@@ -442,20 +447,15 @@ function vedleggetErEtVarsel(
     : null;
 }
 
-/** Om et av vedleggene `ider` alt ligger ved et varsel for en kravpost i saken (VS-U55). */
-function liggerVedEtVarsel(
-  ider: readonly string[],
-  lest: readonly Domenehendelse[],
-  u: Utledning
-): boolean {
-  const ved = new Set(ider.map((id) => id.toLowerCase()));
-  if (!ved.size) return false;
+/** Vedleggene ved varslene for en kravpost i saken, med små bokstaver (VS-U55). */
+function vedleggIVarslene({ lest, u }: LestSak): Set<string> {
   const varslene = new Set(u.spor.vederlag.kravpostvarsler.map((v) => v.dokument));
-  return lest.some(
-    (h) =>
-      h.art === 'dokument' &&
-      varslene.has(h.id) &&
-      h.dokument.dokumentasjon.some((v) => ved.has(v.vedlegg_id.toLowerCase()))
+  return new Set(
+    lest.flatMap((h) =>
+      h.art === 'dokument' && varslene.has(h.id)
+        ? h.dokument.dokumentasjon.map((v) => v.vedlegg_id.toLowerCase())
+        : []
+    )
   );
 }
 

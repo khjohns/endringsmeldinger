@@ -1175,13 +1175,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Dokument',
     'utsagn',
     'dokumentasjon',
-    ['spor/vederlag/kommando.ts:foranKravet', 'spor/vederlag/kommando.ts:liggerVedEtVarsel'],
+    ['spor/vederlag/kommando.ts:foranKravet', 'spor/vederlag/kommando.ts:vedleggIVarslene'],
   ],
   [
     'Utsagn',
     'relasjon',
     'dokument',
-    ['spor/vederlag/kommando.ts:foranKravet', 'spor/vederlag/kommando.ts:liggerVedEtVarsel'],
+    ['spor/vederlag/kommando.ts:foranKravet', 'spor/vederlag/kommando.ts:vedleggIVarslene'],
   ],
   [
     'kommandoer/kommando.ts:formfeil',
@@ -1319,7 +1319,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // VS-U51, VS-U53: skrivingen gir sporet stegene for en handling med flere rader.
   ['Skrivesteg', 'kommando', 'sendes formen skriv hele saken', ['spor/vederlag/kommando.ts']],
   // VS-U55 (#1993): dokumentet fra kravskjemaet prøves mot varslene i saken før det skrives.
-  ['LestSak', 'kommando', 'lest u', ['spor/vederlag/kommando.ts:medDokumentvarslene']],
+  ['LestSak', 'kommando', 'lest u', ['spor/vederlag/kommando.ts:vedleggIVarslene']],
   ['spor/vederlag/kommando.ts', 'kommando', 'SKRIVING_I_VEDERLAGET', ['kommandoer/skriving.ts']],
   ['spor/forhold/kommando.ts', 'kommando', 'SKRIVING_I_FORHOLDET', ['kommandoer/skriving.ts']],
   // Lagene i et svarutkast i sporet (#1778).
@@ -2463,7 +2463,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'vedlegg_id',
     [
       'spor/vederlag/kommando.ts:foranKravet',
-      'spor/vederlag/kommando.ts:liggerVedEtVarsel',
+      'spor/vederlag/kommando.ts:vedleggIVarslene',
       'frosset/brevdeler.ts',
     ],
   ],
