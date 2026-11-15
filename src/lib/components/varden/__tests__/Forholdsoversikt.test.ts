@@ -95,13 +95,13 @@ async function vis(steg: Handling[], ekstra: Record<string, unknown> = {}) {
 const traad = () => within(screen.getByRole('list', { name: 'Brevene i saken, nyeste først' }));
 
 describe('Siden for forholdet', () => {
-  it('tittelen er forholdet selv, uten gruppen over, og under den står hvor saken står (OV-U78, BF-05 U-10)', async () => {
+  it('tittelen er forholdet selv, uten gruppen over, og under den står hvor saken står med kontraktens ord for irregulær endring (OV-U78, BF-05 U-10, GR-U32)', async () => {
     await vis([PAABEROPELSE, AVSLAG]);
     const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
     expect(tittel.previousElementSibling).toBeNull();
     expect(screen.queryByText('Endringer, jf. punkt 31 og 32')).toBeNull();
     expect(tittel.nextElementSibling?.textContent).toMatch(
-      /^Byggherren avslo forholdet \d+\. \w+ 2026\.$/
+      /^Byggherren svarte \d+\. \w+ 2026 og avslår kravet på endringsordre \(punkt 32\.3 første ledd b\)\.$/
     );
   });
 
@@ -189,16 +189,24 @@ describe('Siden for forholdet', () => {
         .map((li) => li.textContent?.replace(/\s+/g, ' ').trim())
     ).toEqual([
       'Prinsipalt Byggherren gjør gjeldende at varselet etter punkt 32.2 i brev 1 kom for sent.',
-      'Subsidiært Byggherren avslår forholdet.',
+      'Subsidiært Byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).',
     ]);
     expect(screen.getByText('«Ingen endring.»')).toBeTruthy();
     expect(screen.getByText('Begrunnelsen')).toBeTruthy();
+    // Statuslinjen sier begge lagene med ordene i tråden (oppdragsgiver 15.11 i #2038: «B»).
+    const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
+    expect(tittel.nextElementSibling?.textContent).toMatch(
+      /^Byggherren svarte \d+\. \w+ 2026 og gjør gjeldende at varselet etter punkt 32\.2 kom for sent\. Subsidiært avslår byggherren kravet på endringsordre \(punkt 32\.3 første ledd b\)\.$/
+    );
   });
 
-  it('svaret i ett lag står uten etiketter for lagene (OV-U32)', async () => {
+  it('svaret i ett lag står uten etiketter for lagene, med brevets ord for avslaget ved irregulær endring (OV-U32, GR-U32)', async () => {
     await vis([PAABEROPELSE, AVSLAG]);
     expect(screen.queryByRole('list', { name: 'Standpunktene i svaret' })).toBeNull();
-    expect(screen.getByText('Byggherren avslår forholdet.')).toBeTruthy();
+    expect(
+      screen.getByText('Byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).')
+    ).toBeTruthy();
+    expect(screen.queryByText('Byggherren avslår forholdet.')).toBeNull();
   });
 
   it('«Les brevet» gir brevet å lese, og navnet på knappen sier hvilket brev (#1898, U-16 i BF-44)', async () => {
@@ -255,10 +263,12 @@ describe('Siden for forholdet', () => {
     expect(valgt).toEqual(['vederlag']);
   });
 
-  it('når forholdet er avslått, står forholdet med svaret øverst, og et ubesvart krav sier at et svar blir subsidiært så lenge byggherren står fast på svaret (vedtaket 05.10)', async () => {
+  it('når forholdet er avslått, står forholdet med svaret øverst med ordene i statuslinjen, og et ubesvart krav sier at et svar blir subsidiært så lenge byggherren står fast på svaret (vedtaket 05.10, GR-U32, #2040)', async () => {
     await vis([PAABEROPELSE, VEDERLAG, AVSLAG]);
     const kortet = screen.getByRole('region', { name: 'Tilknyttede krav' });
-    expect(kortet.querySelector('.rot')?.textContent).toBe('Irregulær endring · avslått i brev 3');
+    expect(kortet.querySelector('.rot')?.textContent).toBe(
+      'Irregulær endring · Brev 3: byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b)'
+    );
     expect(kortet.textContent).toContain(
       'Et svar blir subsidiært så lenge byggherren står fast på brev 3.'
     );
