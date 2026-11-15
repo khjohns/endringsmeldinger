@@ -170,11 +170,17 @@ function vurderinger(spor: Spor, h: Record<string, unknown>, krav: Krav | null):
     frist_varsel_ok: h.varsel_i_tide,
     spesifisert_krav_ok: h.spesifisering_i_tide,
     vilkar_oppfylt: h.hindring,
-    // KA-U74: én vurdering per frist i kravet. Bevis-sakene har én frist.
-    frister: (krav ? innholdIFristen(krav).frister : [{ dager: undefined }]).map((f) => ({
-      dager: h.dager ?? f.dager,
-      dager_maatte_forstaa: h.maatte_forstaa,
-    })),
+    // KA-U74: én vurdering per frist i kravet. `frister` i steget gir dagene og dagene byggherren
+    // måtte forstå for hver frist i kravets rekkefølge; ellers gjelder `dager` alle fristene.
+    frister: (krav ? innholdIFristen(krav).frister : [{ dager: undefined }]).map((f, i) => {
+      const egen = Array.isArray(h.frister)
+        ? (h.frister as Record<string, unknown>[])[i]
+        : undefined;
+      return {
+        dager: egen?.dager ?? h.dager ?? f.dager,
+        dager_maatte_forstaa: egen?.maatte_forstaa ?? h.maatte_forstaa,
+      };
+    }),
   };
 }
 
@@ -202,9 +208,28 @@ function svarutkast(
     regelversjon: regler.versjon,
     vurderinger: v,
     resultat,
-    ...svarutdypning(spor, h),
+    ...svarutdypning(spor, h, krav),
     ...(typeof h.akseptfrist === 'string' ? { akseptfrist: h.akseptfrist } : {}),
   };
+}
+
+/**
+ * Punktet for dagene i en frist er fristens `id`, som serveren setter (`temaer` i
+ * `kjerne/spor/frist/tekst.ts`). Steget skriver navnet på fristen i stedet.
+ */
+function punkteneIFristen(
+  utdypninger: Record<string, string>,
+  spor: Spor,
+  krav: Krav | null
+): Record<string, string> {
+  if (spor !== 'frist' || !krav) return utdypninger;
+  const frister = innholdIFristen(krav).frister;
+  return Object.fromEntries(
+    Object.entries(utdypninger).map(([punkt, tekst]) => [
+      frister.find((f) => f.navn === punkt)?.id ?? punkt,
+      tekst,
+    ])
+  );
 }
 
 /**
@@ -213,10 +238,10 @@ function svarutkast(
  * på vederlaget har ingen begrunnelse med mindre steget har en, og da står den under «Forbehold».
  * `utdypninger` går videre som den står.
  */
-function svarutdypning(spor: Spor, h: Record<string, unknown>) {
+function svarutdypning(spor: Spor, h: Record<string, unknown>, krav: Krav | null) {
   if (typeof h.utdypninger === 'object' && h.utdypninger !== null)
     return {
-      utdypninger: h.utdypninger as Record<string, string>,
+      utdypninger: punkteneIFristen(h.utdypninger as Record<string, string>, spor, krav),
       ...(typeof h.utdypning === 'string' ? { utdypning: h.utdypning } : {}),
     };
   if (spor === 'forhold')

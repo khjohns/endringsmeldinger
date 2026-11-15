@@ -5,10 +5,6 @@
   (#1898) og «Tilknyttede krav». Brevtråden er den samme som på sidene for kravene.
 -->
 <script lang="ts">
-  import type { Snippet } from 'svelte';
-  import type { Betegnelse } from '$kjerne/utledning/visning';
-  import type { Spor } from '$kjerne/typer';
-  import type { Utledning } from '$kjerne/utledning/utled';
   import Brevtraad from './Brevtraad.svelte';
   import TilknyttedeKrav from './TilknyttedeKrav.svelte';
   import {
@@ -17,7 +13,7 @@
     forholdetISaken,
     innleggene,
     oppfoelgingene,
-    type Brevet,
+    type Sideprops,
   } from './lesing';
   import { FORHOLDET } from './tekster';
 
@@ -33,23 +29,7 @@
     handlingVed = null,
     handling,
     brevet,
-  }: {
-    u: Utledning;
-    /** Betegnelsen i MM-U30 for hvert spor, fra saksbildet (`betegnelsene`). */
-    betegnelser: Record<Spor, Betegnelse | null>;
-    /** Opplysningene om datoen TE kan korrigere (`korrigere:<id>`). */
-    korrigerbare?: string[];
-    /** Brevet som vises ved siden av tråden, eller i raden når `smal`. */
-    vist?: string | null;
-    smal?: boolean;
-    onles: (id: string) => void;
-    onspor?: (spor: Spor) => void;
-    onkorriger?: (opplysning: string) => void;
-    /** Brevet handlingen svarer på (U-16 i BF-44). */
-    handlingVed?: string | null;
-    handling?: Snippet;
-    brevet?: Snippet<[Brevet]>;
-  } = $props();
+  }: Sideprops = $props();
   const uid = $props.id();
 
   const alle = $derived(brevene(u));

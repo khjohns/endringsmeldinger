@@ -17,7 +17,9 @@ import Vardensak from '$lib/components/varden/Vardensak.svelte';
 import Vederlagsoversikt from '$lib/components/varden/Vederlagsoversikt.svelte';
 import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import { akseptfristen, kravetOgSvaret, trinnene } from '$lib/components/varden/vederlagsoversikt';
+import { kravetOgSvaret } from '$lib/components/varden/vederlagsoversikt';
+import { trinnene } from '$lib/components/varden/Maalrad.svelte';
+import { akseptfristen } from '$lib/components/varden/svarlagene';
 import { brevene } from '$lib/components/varden/lesing';
 import { VEDERLAGET } from '$lib/components/varden/tekster';
 import type { Utledning } from '$kjerne/utledning/utled';
@@ -50,9 +52,9 @@ async function vis(steg: Handling[]) {
   const forholdet: string[] = [];
   render(Vederlagsoversikt, {
     u,
-    venterPaaSvar: false,
+    betegnelser: { forhold: null, vederlag: null, frist: null },
     onles: () => {},
-    onforholdet: () => forholdet.push('forhold'),
+    onspor: (s) => forholdet.push(s),
   });
   return { u, forholdet };
 }

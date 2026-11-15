@@ -147,6 +147,14 @@ const VARDEN = [
     ),
   },
   {
+    navn: 'Varden: siden for fristforlengelsen med tre frister (BF-45)',
+    vei: iVarden(
+      'bh-har-registrert-fremdriftsplanen',
+      (page) => page.getByRole('button', { name: /^Fristforlengelse/ }).first().click(),
+      'BF-45'
+    ),
+  },
+  {
     navn: 'Varden: akseptbrevet før sending',
     vei: iVarden('te-har-mottatt-svaret', (page) =>
       page.getByRole('button', { name: /^Godta svaret/ }).click()

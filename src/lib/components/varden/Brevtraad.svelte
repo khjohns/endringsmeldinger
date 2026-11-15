@@ -90,7 +90,9 @@
     {@const hva = TRAADEN.hva(b)}
     {@const valgt = vist === b.id}
     {@const tilHoeyre = valgt && !smal}
-    {@const datoen = registrert ? (b.sendt ?? b.registrert) : b.registrert}
+    <!-- Datoen er når brevet kom i saken; sendedatoen parten oppgir for et registrert brev står
+         i linja under (svar 1 A i #1999). -->
+    {@const datoen = b.registrert}
     <li
       class="innlegg"
       class:kompakt={registrert}
