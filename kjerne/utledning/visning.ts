@@ -11,13 +11,14 @@
 
 import type { Regelsett } from '../regler/regelsett.ts';
 import { etterAkseptfristen } from '../regler/akseptfrist.ts';
-import { dokumenterI, registrertDato } from '../format/leser.ts';
+import { dokumenterI } from '../format/leser.ts';
 import { ulikeVirkninger, virkninger } from '../frosset/standpunkt.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { VISNING_I_FORHOLDET } from '../spor/forhold/visning.ts';
 import { VISNING_I_VEDERLAGET } from '../spor/vederlag/visning.ts';
 import { VISNING_I_FRISTEN } from '../spor/frist/visning.ts';
 import {
+  datoenDetBleSendt,
   enighetensVirkning,
   paaberopelseFor,
   kilden,
@@ -225,14 +226,16 @@ function dokumentet(u: Utledning, id: string): Dokument | undefined {
 
 /**
  * HF-U23 punkt 7 og designdelen: TE har godtatt svaret etter akseptfristen. Etiketten står ved
- * den registrerte enigheten, og løsningen avgjør ikke virkningen (punkt 5 og 8).
+ * den registrerte enigheten, og løsningen avgjør ikke virkningen (punkt 5 og 8). En aksept
+ * lagt til i løsningen er gitt dagen den ble sendt (OV-U98).
  */
 function akseptertEtterFristen(u: Utledning, spor: Spor): boolean {
   const enighet = u.spor[spor].enighet;
   if (enighet?.grunnlag.kilde !== 'aksept') return false;
   const frist = u.spor[spor].svar.find((x) => x.id === enighet.grunnlag.svar)?.akseptfrist ?? null;
   const aksept = dokumentet(u, enighet.holder);
-  return !!aksept && etterAkseptfristen(frist, registrertDato(aksept));
+  const sendt = aksept ? datoenDetBleSendt(u, { id: enighet.holder, dokument: aksept.id }) : null;
+  return sendt !== null && etterAkseptfristen(frist, sendt);
 }
 
 function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {

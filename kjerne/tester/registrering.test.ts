@@ -277,6 +277,22 @@ describe('kommandoene for svar og aksept sendt utenfor løsningen (OV-U80, OV-U9
     });
   });
 
+  it('akseptfristen i et registrert svar regnes fra dagen svaret ble sendt, ikke dagen det legges til (HF-U23 punkt 1, OV-U98)', async () => {
+    // Svaret på vederlagskravet (22.09) sendt 23.09 legges til 24.09, med fristen 23.09.
+    const svar = (akseptfrist: string): Handling => ({
+      handling: 'brev',
+      svar: [
+        { spor: 'vederlag', vurdering: 'delvis', godkjent_belop: 60000, navn: 'S-r', akseptfrist },
+      ],
+    });
+    const godtatt = await provRegistrering([], svar('2026-09-23'), '2026-09-23');
+    expect(godtatt.godtatt ? null : godtatt.avvisning).toBeNull();
+    expect(
+      await provRegistrering([], svar('2026-09-22'), '2026-09-23'),
+      'kontrollsak: en frist før svaret ble sendt'
+    ).toMatchObject({ godtatt: false, avvisning: { regel: 'AKSEPTFRIST_UGYLDIG_DATO' } });
+  });
+
   it('en registrering uten typen eller vedlegget avvises som feil form', async () => {
     const utenType = await provRegistrering([avslag('S-g1')], aksept, '2026-09-24', {
       dokumentasjon: [VEDLEGG],

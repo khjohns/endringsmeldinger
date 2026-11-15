@@ -5520,6 +5520,27 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['men ikke ved force majeure'],
   },
+  {
+    id: 'F635',
+    feilklasse:
+      'akseptfristen i et registrert svar prøves mot dagen det legges til, ikke dagen det ble sendt (HF-U23 punkt 1, OV-U98)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['erRegistrering(k) ? k.sendt : brevetsDato', 'brevetsDato']],
+    mal: ['akseptfristen i et registrert svar regnes fra dagen svaret ble sendt'],
+  },
+  {
+    id: 'F636',
+    feilklasse:
+      'en registrert aksept merkes etter akseptfristen etter dagen den ble lagt til, ikke dagen den ble sendt (HF-U23 punkt 7, OV-U98)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        'datoenDetBleSendt(u, { id: enighet.holder, dokument: aksept.id })',
+        'dokumenterI(u.journal).find((d) => d.id === aksept.id)!.registrert.slice(0, 10)',
+      ],
+    ],
+    mal: ['utenfor løsningen og lagt til senere, merkes etter dagen den ble sendt'],
+  },
 ];
 
 interface Testresultat {

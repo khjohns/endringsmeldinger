@@ -1207,7 +1207,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Registrering',
     'kommando',
     'sendt korrespondansetype dokumentasjon',
-    ['kommandoer/kommando.ts', 'kommandoer/nyttelast.ts', 'kommandoer/skriving.ts:registrering'],
+    [
+      'kommandoer/kommando.ts',
+      'kommandoer/nyttelast.ts',
+      'kommandoer/skriving.ts:registrering',
+      // HF-U23 punkt 1, OV-U98: akseptfristen regnes fra dagen svaret ble sendt.
+      'kommandoer/skriving.ts:skriv',
+    ],
   ],
   [
     'kommandoer/kommando.ts',

@@ -97,6 +97,28 @@ export const erRegistrering = (
 ): k is Extract<Kommando, { type: 'brev' | 'revisjon' | 'aksept' }> & { sendt: string } =>
   (k.type === 'brev' || k.type === 'revisjon' || k.type === 'aksept') && k.sendt !== undefined;
 
+/**
+ * Formen for et brev sendt utenfor løsningen og lagt til med datoen (`sendt`): typen og brevet
+ * som vedlegg, og ingen tekst fra løsningen (`tekstfeil`). Uten `sendt` har kommandoen verken
+ * typen eller vedlegg (OV-U80, KA-U34, KA-U35).
+ */
+function registreringensForm(
+  kommando: Record<string, unknown>,
+  tekstfeil: () => string[]
+): string[] {
+  if (!('sendt' in kommando))
+    return 'korrespondansetype' in kommando || 'dokumentasjon' in kommando
+      ? ['$.sendt: bare et brev lagt til med datoen det ble sendt, har typen og vedlegg']
+      : [];
+  return [
+    ...tekstfeil(),
+    ...('korrespondansetype' in kommando ? [] : ['$.korrespondansetype: typen mangler']),
+    ...((kommando as Registrering).dokumentasjon?.length
+      ? []
+      : ['$.dokumentasjon: brevet som ble sendt, må ligge ved']),
+  ];
+}
+
 export type Kommando = (
   | {
       type: 'krav';
@@ -508,37 +530,26 @@ export function formfeil(kommando: unknown): string[] {
     if (k.spor && new Set(k.spor).size !== k.spor.length)
       feil.push('$.spor: samme spor står to ganger');
   }
-  if (type === 'begrunnelse' && !feil.length) {
-    const k = kommando as { utdypning?: unknown; dokumentasjon?: unknown[] };
-    if ('sendt' in kommando) {
-      // KA-U35: den registrerte begrunnelsen har ingen tekst i appen, og brevet ligger ved.
-      if ('utdypning' in k) feil.push('$.utdypning: en registrert begrunnelse har ingen tekst');
-      if (!('korrespondansetype' in kommando))
-        feil.push('$.korrespondansetype: typen mangler for den registrerte begrunnelsen');
-      if (!k.dokumentasjon?.length)
-        feil.push('$.dokumentasjon: brevet med begrunnelsen må ligge ved');
-    } else if ('korrespondansetype' in kommando)
-      feil.push('$.korrespondansetype: bare en registrert begrunnelse har typen');
-    else if ('dokumentasjon' in k)
-      // KA-U34: brevet fra appen har bare setningen og teksten.
-      feil.push('$.dokumentasjon: bare en registrert begrunnelse har vedlegg');
-  }
+  if (type === 'begrunnelse' && !feil.length)
+    // KA-U35: den registrerte begrunnelsen har ingen tekst i appen. KA-U34: brevet fra appen har
+    // bare setningen og teksten.
+    feil.push(
+      ...registreringensForm(kommando, () =>
+        'utdypning' in kommando ? ['$.utdypning: en registrert begrunnelse har ingen tekst'] : []
+      )
+    );
   if ((type === 'brev' || type === 'revisjon' || type === 'aksept') && !feil.length) {
-    const k = kommando as { svar: unknown };
-    const utkast = (
-      type === 'brev' ? (k.svar as Svarutkast[]) : type === 'revisjon' ? [k.svar] : []
-    ) as Svarutkast[];
-    if ('sendt' in kommando) {
-      // OV-U80: registreringen har ingen tekst fra løsningen, og brevet ligger ved.
-      if ('brevtekst' in kommando) feil.push('$.brevtekst: en registrering har ingen brevtekst');
-      if (utkast.some((s) => s.utdypning !== undefined || s.utdypninger !== undefined))
-        feil.push('$.svar: et registrert svar har ingen utdypning');
-      if (!('korrespondansetype' in kommando))
-        feil.push('$.korrespondansetype: typen mangler for registreringen');
-      if (!(kommando as Registrering).dokumentasjon?.length)
-        feil.push('$.dokumentasjon: brevet som ble sendt, må ligge ved');
-    } else if ('korrespondansetype' in kommando || 'dokumentasjon' in kommando)
-      feil.push('$.sendt: bare en registrering har typen og vedlegg');
+    const svar = (kommando as { svar?: unknown }).svar;
+    const utkast = (type === 'brev' ? svar : type === 'revisjon' ? [svar] : []) as Svarutkast[];
+    // OV-U80: registreringen har ingen tekst fra løsningen.
+    feil.push(
+      ...registreringensForm(kommando, () => [
+        ...('brevtekst' in kommando ? ['$.brevtekst: en registrering har ingen brevtekst'] : []),
+        ...(utkast.some((s) => s.utdypning !== undefined || s.utdypninger !== undefined)
+          ? ['$.svar: et registrert svar har ingen utdypning']
+          : []),
+      ])
+    );
   }
   if (type === 'korrigering' && !feil.length) {
     const { felt, dato } = korrigertDato(

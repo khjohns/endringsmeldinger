@@ -323,7 +323,7 @@ const SKRIVING: Record<Spor, Sporsskriving> = {
 
 /** Meldingen når en registrering ikke får virkning med datoen avsenderen oppgir (OV-U98). */
 const UTEN_VIRKNING_MELDING = (grunn: string) =>
-  `Brevet kan ikke legges til med datoen det ble sendt. Det er ${grunn.replace(/ \([^)]*\)/g, '')}.`;
+  `Brevet kan ikke legges til med datoen det ble sendt. Det er ${grunn.replace(/ \(.*\)$/, '')}.`;
 
 /**
  * OV-U80, OV-U98: et svar eller en aksept lagt til med datoen avsenderen oppgir, typen og
@@ -663,8 +663,11 @@ function skriv(
     throw feil;
   }
   // HF-U23 punkt 1 og 2: akseptfristen kontrolleres mot svaret slik brevet fryser det, fordi
-  // sammenfallet (GR-U7) bare finnes i det frosne svaret.
-  const frist = Array.isArray(data.svar) ? akseptfristeneIBrevet(data.svar, brevetsDato) : null;
+  // sammenfallet (GR-U7) bare finnes i det frosne svaret. Et registrert svar er gitt dagen det
+  // ble sendt (OV-U98).
+  const frist = Array.isArray(data.svar)
+    ? akseptfristeneIBrevet(data.svar, erRegistrering(k) ? k.sendt : brevetsDato)
+    : null;
   if (frist) return { godtatt: false, feil: 'REGELBRUDD', avvisning: frist };
   const rad: Journalrad = {
     event_id: eventId,

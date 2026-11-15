@@ -11589,6 +11589,35 @@ describe('akseptfristen (HF-U23)', () => {
     );
   });
 
+  it.each([
+    ['innen fristen', '2026-10-06', false],
+    ['etter fristen (kontrollsak)', '2026-10-07', true],
+  ] as [string, string, boolean][])(
+    'en aksept sendt %s utenfor løsningen og lagt til senere, merkes etter dagen den ble sendt (punkt 7, OV-U98)',
+    (_n, sendt, etter) => {
+      const s = sakMedKrav();
+      s.send('BH', brev(medFrist(delvis(s), '2026-10-06')));
+      const svaret = s.u().spor.vederlag.gjeldendeSvar!.id;
+      // Svaret er sendt 05.10, og aksepten legges til 06.10; dagen etter er 07.10.
+      s.send('BH', {
+        type: 'brev',
+        svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
+      });
+      s.rad('TE', {
+        utsagn: [
+          { id: randomUUID(), art: 'aksept', gjelder: svaret, regelversjon: KJERNE.regler.versjon },
+        ],
+        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: sendt }],
+        korrespondansetype: 'brev',
+      });
+      const u = s.u();
+      expect(u.spor.vederlag.enighet, 'forutsetning: aksepten har virkning').not.toBeNull();
+      expect(
+        visning(u, KJERNE.regler).spor.vederlag.etiketter.includes('aksept_etter_akseptfristen')
+      ).toBe(etter);
+    }
+  );
+
   it('dagen aksepten sendes, regnes i norsk tid (punkt 2)', () => {
     expect(etterAkseptfristen('2026-10-05', '2026-10-06')).toBe(true);
     expect(etterAkseptfristen('2026-10-05', '2026-10-05')).toBe(false);
