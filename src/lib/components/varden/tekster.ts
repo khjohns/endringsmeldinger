@@ -1460,8 +1460,12 @@ export const FRISTKRAV = {
     'Gjelder forlengelsen bare deler av arbeidene, beskriv det i begrunnelsen. Andelen av rigg og drift oppgis i posten for rigg og drift i vederlagskravet (Del II, tillegget til punkt 34.1.3).',
   fristEtikett: 'Fristen',
   ikkeRegistrert: 'En frist som ikke er registrert',
-  ikkeRegistrertHjelp:
-    'Fristen står ikke i fristtabellen for prosjektet. Skriv nummeret og navnet kontrakten gir den.',
+  // Hvorfor fristen ikke har ny dato, står ved den (`FRISTEN.ikkeRegistrert`, KA-U79).
+  ikkeRegistrertHjelp: 'Skriv nummeret og navnet kontrakten gir den.',
+  /** Cellen for ny dato i raden for en frist som ikke er registrert (KA-U79). */
+  ikkeRegistrertKort: 'Ikke registrert',
+  /** Cellen for ny dato når gjeldende frist ikke kan regnes (MM-U2). */
+  kanIkkeRegnes: 'Kan ikke regnes nå',
   nummerEtikett: 'Nummer i kontrakten (valgfritt)',
   navnEtikett: 'Navnet i kontrakten',
   dagerEtikett: 'Dagene du krever',
@@ -1478,16 +1482,24 @@ export const FRISTKRAV = {
   fjernFrist: (navn: string) => `Fjern ${navn}`,
   leggTil: 'Legg til frist',
   // Tabellen med fristene, én åpen rad om gangen (prototypen `#nytt-krav`).
-  kolonner: ['Nr.', 'Frist', 'I kontrakten', 'Dager'],
+  kolonner: ['Nr.', 'Frist', 'Gjeldende', 'Dager', 'Ny dato'],
   dagmulkt: DAGMULKT,
   dagmulktMerke: stor(DAGMULKT),
   endre: 'Endre',
   endreFrist: (navn: string) => `Endre ${navn}`,
   ferdig: 'Ferdig',
   dagerMangler: 'Ikke oppgitt',
-  /** Datoen i fristtabellen. Gjeldende frist med forlengelsene i andre saker venter på G-2 (U-2). */
-  iKontrakten: (d: string, dagmulkt: boolean) =>
-    `Datoen i kontrakten: ${dato(d)}.${dagmulkt ? ' Fristen er dagmulktbelagt.' : ''}`,
+  /** Etter forlengelsene i andre saker ved gjeldende frist (U-2, D-9, prototypen). */
+  iTillegg:
+    'Den nye datoen forutsetter at dagene du krever, kommer i tillegg til forlengelsen som er avtalt.',
+  /** Forlengelsene i andre saker under navnet i raden (U-2, prototypen): «forlenget 10 dager i sak KOE-2». */
+  forlengetI: (f: { dager: number; sak: string }[]) =>
+    `forlenget ${liste(f.map((x) => `${dager(x.dager)} i sak ${x.sak}`))}`,
+  /** I tidslinja når gjeldende frist ikke kan regnes (MM-U2). */
+  nyDatoUkjent: 'ny dato kan ikke regnes nå',
+  /** Ny dato ved dagene, regnet fra gjeldende frist (U-1, D-9). */
+  nyDato: (d: string, dagmulkt: boolean) =>
+    `Ny dato: ${dato(d)}.${dagmulkt ? ' Fristen er dagmulktbelagt.' : ''}`,
   fristvalg: (navn: string, d: string, dagmulkt: boolean) =>
     `${navn} · ${dato(d)}${dagmulkt ? ` · ${DAGMULKT}` : ''}`,
   trukketMerk: (navn: string) =>
@@ -1498,8 +1510,8 @@ export const FRISTKRAV = {
   // U-4: snarveien for de senere fristene i kontrakten.
   snarvei: (d: string, senere: string[], kilde: string) =>
     `Krev også ${d} for ${liste(senere)}, som for ${kilde}`,
-  // U-5: fristene i tidslinja.
-  krevd: (d: string) => `krevd forlenget ${d}`,
+  // U-5: fristene i tidslinja, med datoen den nye datoen er regnet fra.
+  krevd: (d: string, fra: string | null) => `krevd forlenget ${d}${fra ? ` fra ${dato(fra)}` : ''}`,
   trekkHjelp:
     'En frist du tar ut, trekkes uttrykkelig. Brevet sier det, og fristen kan tas med igjen i en senere versjon.',
   // 3. Begrunnelsen.

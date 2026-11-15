@@ -624,6 +624,7 @@
         <Fristkrav
           {kjernesak}
           {u}
+          {sakslenke}
           bind:valg={fristkravvalg}
           onforkast={() => forkastKravet('frist')}
           onbrevkontroll={(k) => tilKravkontroll('frist', k)}

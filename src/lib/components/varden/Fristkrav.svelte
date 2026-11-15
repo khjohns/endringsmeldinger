@@ -1,9 +1,9 @@
 <!--
   TE krever fristforlengelse (G-3 i BF-20, prototypen `fristkrav-te.html#nytt-krav`): én rad per
   frist i kontrakten med dagene for den fristen (U-1, KA-U74), og fristen fra fristtabellen for
-  prosjektet eller en frist som ikke er registrert (KA-U79). En ny versjon har fristene fra forrige
-  versjon, og en frist som tas ut, trekkes (U-10). Gjeldende frist og ny dato venter på G-2 (U-2,
-  arbeidsvalget 14.11 i #1745). Skjemaet sender også varselet etter punkt 33.4 alene (U-13), med et
+  prosjektet eller en frist som ikke er registrert (KA-U79). Hver frist har gjeldende frist og ny
+  dato, regnet med forlengelsene partene er enige om i andre saker (U-2, D-9, KA-U77). En ny versjon
+  har fristene fra forrige versjon, og en frist som tas ut, trekkes (U-10). Skjemaet sender også varselet etter punkt 33.4 alene (U-13), med et
   varsel gitt før utenfor løsningen (U-6), og svaret på forespørselen etter punkt 33.6.2 (U-11).
   Kommandoen bygges i `fristkrav.ts`, og kjernen lager brevet og avviser det den ikke godtar.
 -->
@@ -19,6 +19,7 @@
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Filvalg from './Filvalg.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
+  import Gjeldendefrist from './Gjeldendefrist.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
@@ -37,9 +38,16 @@
     type Fristpostvalg,
     type Mangel,
   } from './fristkrav';
+  import { gjeldendeFrist, nyFrist, sakensNavn, type GjeldendeFrist } from './fristoversikt';
   import { heleDager } from './fristsvar';
   import { vedleggsgrense } from './nysak';
-  import { brevMedUtsagn, brevene, datoerISporet, klarOverForholdet } from './lesing';
+  import {
+    brevMedUtsagn,
+    brevene,
+    datoerISporet,
+    fristtabellen,
+    klarOverForholdet,
+  } from './lesing';
   import {
     FRISTKRAV,
     HOVEDLINJER,
@@ -57,6 +65,7 @@
     onbrevkontroll,
     onforkast,
     onregistrert,
+    sakslenke,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -68,6 +77,8 @@
     onforkast: () => void;
     /** Varselet sendt utenfor løsningen er registrert (U-13). */
     onregistrert: () => void;
+    /** Lenken til en annen sak i prosjektet, som en forlengelse av en frist står i (U-2). */
+    sakslenke?: (sakId: string) => string;
   } = $props();
   const uid = $props.id();
   const id = (felt: string) => `${uid}-${felt}`;
@@ -187,13 +198,22 @@
   const fristdatoer = $derived(new Map(kjernesak.fristdatoer.map((d) => [d.fristId, d])));
   const datoFor = (p: Fristpostvalg) =>
     typeof p.frist === 'number' ? (fristdatoer.get(p.frist) ?? null) : null;
+  // Gjeldende frist regnes uten forlengelsene i denne saken (KA-U77 «andre saker», HF-U5).
+  const fristtabell = $derived(fristtabellen(kjernesak, sakslenke));
+  const gjeldendeFor = (fristId: number | null): GjeldendeFrist =>
+    fristId === null ? null : gjeldendeFrist(fristId, fristtabell);
+  /** Datoen som gjelder nå: gjeldende frist når den kan regnes, ellers datoen i kontrakten. */
+  const datoenNaa = (g: GjeldendeFrist) =>
+    g?.art === 'kjent' ? g.dato : g?.art === 'ukjent' ? g.iKontrakten : null;
   // Fristene i fristtabellen med datoen i kontrakten, og en frist som ikke er registrert (KA-U79).
   const fristvalg = $derived([
     ...tabell.map((f) => {
       const d = fristdatoer.get(f.fristId);
+      const naa = datoenNaa(gjeldendeFor(f.fristId));
       return {
         verdi: String(f.fristId),
-        tekst: d ? FRISTKRAV.fristvalg(betegnelsen(f), d.dato, d.dagmulktbelagt) : betegnelsen(f),
+        tekst:
+          d && naa ? FRISTKRAV.fristvalg(betegnelsen(f), naa, d.dagmulktbelagt) : betegnelsen(f),
       };
     }),
     { verdi: 'annen', tekst: FRISTKRAV.ikkeRegistrert },
@@ -285,7 +305,7 @@
     document.getElementById(id(`endre-${nye[0]!.noekkel}`))?.focus();
   }
 
-  // Fristene i tidslinja (BF-20 U-5). Ny dato venter på G-2 (U-2).
+  // Fristene i tidslinja med ny dato, i den rekkefølgen de får hvis kravet godtas (U-5, U-2).
   const fristeneITidslinja = $derived(
     tabell.flatMap((f) => {
       const d = fristdatoer.get(f.fristId);
@@ -293,14 +313,18 @@
       const p =
         modus === 'krav' ? v.frister.find((q) => q.frist === f.fristId && !q.trukket) : undefined;
       const n = p ? heleDager(p.dager) : undefined;
+      const g = gjeldendeFor(f.fristId);
+      const naa = datoenNaa(g) ?? d.dato;
+      const ny = n ? nyFrist(g, n) : null;
       const kilde = [
-        n ? FRISTKRAV.krevd(dager(n)) : null,
+        n ? FRISTKRAV.krevd(dager(n), ny ? naa : null) : null,
+        n && !ny ? FRISTKRAV.nyDatoUkjent : null,
         d.dagmulktbelagt ? FRISTKRAV.dagmulkt : null,
       ];
       return [
         {
           noekkel: `frist-${f.fristId}`,
-          naar: d.dato,
+          naar: ny ?? naa,
           hva: betegnelsen(f),
           kilde: kilde.filter((x) => x !== null).join(' · '),
           krevd: !!n,
@@ -422,7 +446,9 @@
   navn: 'nummer' | 'navn' | 'dager',
   etikett: string,
   hjelp: string | null,
-  etter: string | null = null
+  etter: string | null = null,
+  nyDato: string | null | undefined = undefined,
+  gjeldende: string | null = null
 )}
   {@const fid = id(`${navn}-${p.noekkel}`)}
   {@const f = feil(`${navn}-${p.noekkel}`)}
@@ -441,6 +467,8 @@
         bind:value={p[navn]}
         aria-describedby={[
           hjelp ? `${fid}-hjelp` : '',
+          gjeldende ?? '',
+          nyDato ? `${fid}-ny` : '',
           etter ? `${fid}-etter` : '',
           f ? `${fid}-feil` : '',
         ]
@@ -452,6 +480,10 @@
       {#if navn === 'dager'}<span class="enhet" aria-hidden="true">dager</span>{/if}
     </span>
     {#if f}<p class="feilmelding" id={`${fid}-feil`}>{f}</p>{/if}
+    <!-- Den levende regionen står fra start, så den nye datoen leses opp når den kommer (#1636). -->
+    {#if nyDato !== undefined}<p class="dempet" id={`${fid}-ny`} aria-live="polite">
+        {nyDato ?? ''}
+      </p>{/if}
     {#if etter}<p class="dempet liten" id={`${fid}-etter`}>{etter}</p>{/if}
   </div>
 {/snippet}
@@ -461,6 +493,8 @@
   {@const sid = id(`frist-${p.noekkel}`)}
   {@const fFeil = feil(`frist-${p.noekkel}`)}
   {@const d = datoFor(p)}
+  {@const g = gjeldendeFor(typeof p.frist === 'number' ? p.frist : null)}
+  {@const nyDato = nyFrist(g, heleDager(p.dager) ?? 0)}
   {@const deler = delene(p)}
   {@const aapnet = aapen === p.noekkel && !p.trukket}
   <li
@@ -489,10 +523,15 @@
           stablet
         />
       {/if}
-      <!-- Datoen står i valget; for en fast frist fra forrige versjon står den her. -->
-      {#if d && fastFrist(p)}<p class="dempet">
-          {FRISTKRAV.iKontrakten(d.dato, d.dagmulktbelagt)}
-        </p>{/if}
+      {#if p.frist !== null}
+        <Gjeldendefrist
+          {g}
+          registrert={p.frist !== 'annen'}
+          {sakslenke}
+          tillegg={FRISTKRAV.iTillegg}
+          id={`${sid}-gjeldende`}
+        />
+      {/if}
       {#if p.frist === 'annen'}
         <p class="dempet">{FRISTKRAV.ikkeRegistrertHjelp}</p>
         {@render felt(p, 'nummer', FRISTKRAV.nummerEtikett, null)}
@@ -503,7 +542,9 @@
         'dager',
         FRISTKRAV.dagerEtikett,
         FRISTKRAV.kalenderdager,
-        FRISTKRAV.delAvArbeidene
+        FRISTKRAV.delAvArbeidene,
+        nyDato ? FRISTKRAV.nyDato(nyDato, d?.dagmulktbelagt ?? false) : null,
+        (typeof p.frist === 'number' && g) || p.frist === 'annen' ? `${sid}-gjeldende` : null
       )}
       <div class="fot">
         {#if p.id !== null}
@@ -534,7 +575,7 @@
           <span class="visually-hidden">{FRISTKRAV.kolonner[2]}:</span><span
             class="prefiks-smal"
             aria-hidden="true">{FRISTKRAV.kolonner[2]}</span
-          >{d ? dato(d.dato) : '–'}
+          >{g?.art === 'kjent' ? dato(g.dato) : '–'}
         </p>
         <p class="dager-celle" class:mangler-tekst={!p.trukket && !n}>
           <span class="visually-hidden">{FRISTKRAV.kolonner[3]}:</span>{p.trukket
@@ -543,6 +584,17 @@
               ? dager(n)
               : FRISTKRAV.dagerMangler}
         </p>
+        <p class="dato-celle ny-celle">
+          {#if nyDato && !p.trukket}<span class="visually-hidden">{FRISTKRAV.kolonner[4]}:</span
+            ><span class="prefiks-smal" aria-hidden="true">{FRISTKRAV.kolonner[4]}</span>{dato(
+              nyDato
+            )}{:else if !p.trukket && (p.frist === 'annen' || g?.art === 'ukjent')}<span
+              class="visually-hidden">{FRISTKRAV.kolonner[4]}:</span
+            ><span class="prefiks-smal" aria-hidden="true">{FRISTKRAV.kolonner[4]}</span><span
+              class="ukjent"
+              >{p.frist === 'annen' ? FRISTKRAV.ikkeRegistrertKort : FRISTKRAV.kanIkkeRegnes}</span
+            >{/if}
+        </p>
         <Knapp
           variant="lenke"
           id={id(`endre-${p.noekkel}`)}
@@ -550,6 +602,14 @@
           onclick={() => (p.trukket ? trekk(p) : aapne(p))}
           >{p.trukket ? FRISTKRAV.angre : FRISTKRAV.endre}</Knapp
         >
+        {#if g?.art === 'kjent' && g.forlengelser.length && !p.trukket}<p class="under">
+            {FRISTKRAV.forlengetI(
+              g.forlengelser.map((f) => ({
+                dager: f.dager,
+                sak: sakensNavn(f),
+              }))
+            )}
+          </p>{/if}
         {#if p.trukket}<p class="under">
             {FRISTKRAV.trukketMerk(FRISTKRAV.omtale(deler.nummer, deler.navn))}
           </p>{/if}
@@ -861,7 +921,7 @@
   .kolonner,
   .linje {
     display: grid;
-    grid-template-columns: 40px minmax(0, 2fr) minmax(0, 1.3fr) minmax(0, 1fr) 64px;
+    grid-template-columns: 40px minmax(0, 2fr) minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.3fr) 64px;
     column-gap: var(--spacing-4);
     align-items: center;
   }
@@ -875,6 +935,9 @@
     row-gap: var(--spacing-1);
     padding: var(--spacing-2) 0;
     font-size: 14px;
+  }
+  .ukjent {
+    color: var(--ink-3);
   }
   .linje h4 {
     display: flex;
@@ -939,6 +1002,13 @@
     .dato-celle {
       color: var(--ink-3);
       font-size: 12px;
+    }
+    .ny-celle {
+      color: var(--ink-2);
+      font-size: 14px;
+    }
+    .ny-celle:not(:has(*)) {
+      display: none;
     }
     .linje > p {
       grid-column: 1;
