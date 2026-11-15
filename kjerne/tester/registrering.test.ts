@@ -616,7 +616,7 @@ describe('varselet etter § 32.2 og et krav utenfor rekken (VS-U38, OV-U102)', (
   });
 });
 
-describe('et krav utenfor rekken prøves ikke mot kravversjonene i den (OV-U102)', () => {
+describe('innholdet i et krav utenfor rekken (OV-U102)', () => {
   const toPoster: Handling = {
     handling: 'krav',
     spor: 'vederlag',
@@ -628,13 +628,8 @@ describe('et krav utenfor rekken prøves ikke mot kravversjonene i den (OV-U102)
     kravposter: [{ post: 'P1', belop: 60000 }],
   };
 
-  it('et eldre krav med færre kravposter enn det siste godtas utenfor rekken', async () => {
-    const utfall = await provRegistrering([toPoster], enPost, '2026-09-23');
-    expect(utfall.godtatt ? null : utfall.avvisning).toBeNull();
-  });
-
-  it('kontrollsak: sendt etter det siste prøves det mot kravpostene (KA-U56)', async () => {
-    expect(await provRegistrering([toPoster], enPost, '2026-09-25')).toMatchObject({
+  it('kommandoen prøver fortsatt kravpostene mot rekken, til innholdet i et krav utenfor den er avklart (dagens atferd, #2011)', async () => {
+    expect(await provRegistrering([toPoster], enPost, '2026-09-23')).toMatchObject({
       godtatt: false,
       avvisning: { regel: 'KRAVPOSTENE' },
     });

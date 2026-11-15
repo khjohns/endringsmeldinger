@@ -22,12 +22,7 @@ import {
 import type { Regelsett } from '../regler/regelsett.ts';
 import { gjelderVarslingsplikten, hjemmelenGjelder, iSporet } from '../frosset/byggeklosser.ts';
 import { avvikIResultatet, regnUtSvar, utenforOmfanget } from '../frosset/utregning.ts';
-import {
-  datoenDetBleSendt,
-  kravSomVarsler,
-  sendtFoerSisteKrav,
-  type Utledning,
-} from '../utledning/utled.ts';
+import { datoenDetBleSendt, kravSomVarsler, type Utledning } from '../utledning/utled.ts';
 import { foresporselForFristsvar } from '../spor/frist/utledning.ts';
 import { NYTTELAST_I_FRISTEN } from '../spor/frist/kommando.ts';
 import { godkjennerDagerIEtLag } from '../spor/frist/format.ts';
@@ -397,10 +392,7 @@ export function nyttelastkontroll(
 ): Avvisning | null {
   switch (k.type) {
     case 'krav': {
-      // OV-U102: et krav sendt før det siste står utenfor rekken og prøves ikke mot den.
-      const utenforRekken =
-        erRegistrering(k) && sendtFoerSisteKrav(u, k.spor, kalenderdag(k.sendt));
-      const sperre = utenforRekken ? null : nyttelastI(k.spor).kravsperre(k, u);
+      const sperre = nyttelastI(k.spor).kravsperre(k, u);
       if (sperre) return sperre;
       const utdypning = utdypningKreves ? kravetsUtdypning(k, regler) : null;
       if (utdypning) return utdypning;

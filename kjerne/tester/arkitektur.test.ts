@@ -730,7 +730,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utledning/utled.ts',
     'relasjon',
     'kravSomVarsler',
-    ['kommandoer/nyttelast.ts:varslerOmForholdet'],
+    ['kommandoer/nyttelast.ts:varslerOmForholdet', 'spor/forhold/kommando.ts:varseletEtter322'],
+  ],
+  // VS-U38, OV-U102: påberopelsen som ble sendt først, som utledningen leser den.
+  [
+    'utledning/utled.ts',
+    'relasjon',
+    'varseletFoerSvaret',
+    ['spor/forhold/kommando.ts:varseletEtter322'],
   ],
   // VS-U38: varselet etter § 32.2 kan ikke være sendt etter påberopelsen. VS-U59: en korrigering
   // kan ikke flytte datoen i grunnlagskravet til etter et varsel om forholdet.
@@ -739,7 +746,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'relasjon',
     'datoenDetBleSendt',
     [
-      'spor/forhold/kommando.ts:varseletEtter322',
+      'spor/forhold/kommando.ts:varseletEtter322.dagen',
       'kommandoer/nyttelast.ts:korrigeringEtterVarslene',
     ],
   ],
@@ -1216,24 +1223,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/skriving.ts:skriv',
       'kommandoer/skriving.ts:dokument',
       'kommandoer/nyttelast.ts:oppgittDatoI',
-      'kommandoer/nyttelast.ts:nyttelastkontroll',
     ],
   ],
   // OV-U102: et krav lagt til, sendt før det siste, står utenfor rekken.
-  [
-    'utledning/utled.ts',
-    'relasjon',
-    'sendtFoerSisteKrav',
-    ['kommandoer/nyttelast.ts:nyttelastkontroll', 'kommandoer/skriving.ts:dokument'],
-  ],
+  ['utledning/utled.ts', 'relasjon', 'sendtFoerSisteKrav', ['kommandoer/skriving.ts:dokument']],
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/skriving.ts:dokument']],
   ['Registrering', 'kommando', 'sendt', ['kommandoer/skriving.ts:dokument']],
   // MM-U43 punkt 9: et svar uten virkning gir ikke opp innsigelsen (OV-U105).
   ['Utledning', 'relasjon', 'utenVirkning', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Utledning.utenVirkning', 'relasjon', 'element', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:aapneInnsigelser']],
-  // OV-U102, OV-U104: hva stridene i ett dokument gjør, og sammenlikningene samme dag.
-  ['Strid', 'predikat', 'element utenforRekken', ['utledning/utled.ts:strid']],
+  // OV-U104: sammenlikningene samme dag.
   ['Utledning.sendtSammeDag', 'relasjon', 'element med'],
   // OV-U80: et registrert svar har ingen tekst fra løsningen.
   ['Svarutkast', 'kommando', 'utdypning utdypninger', ['kommandoer/kommando.ts:formfeil']],

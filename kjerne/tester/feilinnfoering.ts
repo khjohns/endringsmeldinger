@@ -1863,25 +1863,16 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt'],
   },
   {
-    id: 'F654',
-    feilklasse: 'et krav utenfor rekken prøves mot kravpostene i rekken i utledningen (OV-U102)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['  if (utenforRekken) return null;\n', '']],
-    mal: ['et eldre krav med færre kravposter enn det siste godtas utenfor rekken'],
-  },
-  {
-    id: 'F655',
-    feilklasse: 'et krav utenfor rekken prøves mot kravpostene i rekken i kommandoen (OV-U102)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['const sperre = utenforRekken ? null : ', 'const sperre = ']],
-    mal: ['et eldre krav med færre kravposter enn det siste godtas utenfor rekken'],
-  },
-  {
     id: 'F656',
     feilklasse:
       'et varsel etter § 32.2 sendt etter et krav utenfor rekken godtas (VS-U38, OV-U102)',
     fil: `${K}/spor/forhold/kommando.ts`,
-    endringer: [['[foerste, ...u.spor.forhold.kravUtenforRekken]', '[foerste]']],
+    endringer: [
+      [
+        "kravSomVarsler('32.2', u.spor.forhold, () => true)",
+        "kravSomVarsler('32.2', { krav: u.spor.forhold.krav, kravUtenforRekken: [] }, () => true)",
+      ],
+    ],
     mal: ['et varsel sendt etter et eldre krav avvises'],
   },
   {

@@ -477,13 +477,11 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>, samme: Sam
   const utenVirkning = (id: string | null) => id !== null && uten.has(id);
   const med = (element: string, grunn: string | null): Strid[] =>
     grunn ? [{ element, grunn }] : [];
-  const registrert = erRegistrert(d.opplysninger) ? registreringenStrider(d, u, samme) : [];
-  const eldre = new Set(registrert.filter((x) => x.utenforRekken).map((x) => x.element));
   return [
-    ...d.krav.flatMap((k) => med(k.id, kravetStrider(k, u, eldre.has(k.id)))),
+    ...d.krav.flatMap((k) => med(k.id, kravetStrider(k, u))),
     ...d.svar.flatMap((s) => med(s.id, svaretStrider(s, u, utenVirkning))),
     ...d.utsagn.flatMap((x) => med(x.id, utsagnetStrider(x, u, utenVirkning))),
-    ...registrert,
+    ...(erRegistrert(d.opplysninger) ? registreringenStrider(d, u, samme) : []),
   ];
 }
 
@@ -570,12 +568,7 @@ function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Stri
   };
   const strider: Strid[] = [];
   for (const k of d.krav) {
-    if (dag(k.id) === null)
-      strider.push({
-        element: k.id,
-        grunn: 'et krav med en sendedato som ikke kan leses (OV-U98)',
-      });
-    else if (sendtFoerSisteKrav(u, k.spor, dag(k.id), (siste) => samme(k.id, siste)))
+    if (sendtFoerSisteKrav(u, k.spor, dag(k.id), (siste) => samme(k.id, siste)))
       strider.push({
         element: k.id,
         grunn: 'et krav sendt før totalentreprenørens siste krav i sporet (OV-U98, OV-U102)',
@@ -617,13 +610,11 @@ function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Stri
 }
 
 /** Hvorfor kravversjonen strider mot journalen før den, eller `null`. */
-function kravetStrider(k: Krav, u: Utledning, utenforRekken: boolean): string | null {
+function kravetStrider(k: Krav, u: Utledning): string | null {
   const l = lukket(u);
   if (l) return `en kravversjon etter at ${l}`;
   if (u.spor[k.spor].trukket) return 'en kravversjon etter at kravet er trukket (GR-U5)';
   if (u.spor[k.spor].ingenKrav) return 'en kravversjon i et spor med «ingen krav» (KA-U12)';
-  // OV-U102: et krav utenfor rekken prøves ikke mot kravversjonene i den.
-  if (utenforRekken) return null;
   const poster = kontrollerI(k.spor).kravet(k, u.spor[k.spor].krav);
   return poster ? `en kravversjon som ${poster}` : null;
 }
