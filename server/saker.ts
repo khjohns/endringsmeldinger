@@ -21,7 +21,7 @@ import {
   type Prosjekttilgang,
 } from './autorisasjon.ts';
 import { UsikkertUtfall, UUID, type Kontekst, type Pool } from './datalag.ts';
-import { fast, lagret, loggFeil, ugyldig, feilsvar } from './inngang.ts';
+import { fast, lagret, loggFeil, ugyldig, feilsvar, ukjenteFelt } from './inngang.ts';
 import { lesSaken, lesSakensMaal, type Leveringsmaal } from './lager.ts';
 import type { Sakslenke } from './catenda.ts';
 import {
@@ -212,11 +212,12 @@ const skrivekontekst = (bruker: Bruker, prosjekt: Prosjekttilgang, side: Kontrak
 const tilKjernen = ({ kode, loepenummer }: Sakskode): Kjernesakskode => ({ kode, loepenummer });
 
 const KOMMANDOKROPP = new Set(['expected_version', 'kommando', 'kommando_id']);
+const OPPRETTELSESKROPP = new Set(['kommando', 'kommando_id']);
 
 async function sendKommando(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {
   const { bruker, prosjekt, side, sakId, kropp } = f;
-  const ukjente = Object.keys(kropp).filter((k) => !KOMMANDOKROPP.has(k));
-  if (ukjente.length) return ugyldig(`Ukjente felt: ${ukjente.join(', ')}.`);
+  const ukjent = ukjenteFelt(kropp, KOMMANDOKROPP);
+  if (ukjent) return ukjent;
   const forventet = kropp.expected_version;
   if (!erHeltall(forventet)) return ugyldig('expected_version må være et heltall ≥ 0.');
   if (kropp.kommando === undefined) return ugyldig('kommando er påkrevd.');
@@ -495,8 +496,8 @@ async function opprettNySak(
 ): Promise<Svar> {
   if ('ny_sak_id' in forespoersel.kropp) return opprettMedPaaberopelse(forespoersel, avh);
   const { bruker, prosjekt, side, kropp } = forespoersel;
-  const ukjente = Object.keys(kropp).filter((k) => k !== 'kommando' && k !== 'kommando_id');
-  if (ukjente.length) return ugyldig(`Ukjente felt: ${ukjente.join(', ')}.`);
+  const ukjent = ukjenteFelt(kropp, OPPRETTELSESKROPP);
+  if (ukjent) return ukjent;
   if (kropp.kommando === undefined) return ugyldig('kommando er påkrevd.');
   const id = kommandoId(kropp);
   if (id === null) return ugyldig('kommando_id mangler eller er ikke en UUID med små bokstaver.');

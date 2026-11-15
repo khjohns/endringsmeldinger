@@ -8,18 +8,19 @@
  */
 
 import type { Bruker } from './autorisasjon.ts';
-import { transaksjon, Tilbakerulling, UUID, type Kontekst } from './datalag.ts';
+import { transaksjon, Tilbakerulling, UUID, type Foresp, type Kontekst } from './datalag.ts';
 import {
   lesEgneHandlinger,
   lesPakke,
   PakkeAvsluttet,
+  pakkenErSynlig,
   PakkeNektet,
   registrerHandling,
   RollenMistet,
+  ventendeGodkjenner,
   type LagretHandling,
-  type LagretPakke,
 } from './godkjenning.ts';
-import { feilsvar, ugyldig } from './inngang.ts';
+import { feilsvar, ugyldig, ukjenteFelt } from './inngang.ts';
 import type { Avhengigheter, Godkjennerforespoersel, Godkjennerrute, Svar } from './rutetyper.ts';
 
 const kontekst = (bruker: Bruker, prosjektId: string): Kontekst => ({
@@ -41,13 +42,19 @@ const handlingssvar = (h: LagretHandling) => ({
   tidspunkt: h.tidspunkt,
 });
 
-/** Steget som venter, telt fra 1, eller `null` når alle er godkjent. */
-function ventendeSteg(p: LagretPakke): number | null {
-  const godkjent = new Set(
-    p.handlinger.filter((h) => h.handling === 'godkjent').map((h) => h.steg)
-  );
-  const i = p.godkjennere.findIndex((_, n) => !godkjent.has(n + 1));
-  return i < 0 ? null : i + 1;
+/**
+ * Pakken mens den er åpen, eller godkjennerens egne handlinger når den er lukket (GFK-U9);
+ * `null` når aktøren verken når pakken eller har handlet i den.
+ */
+async function forGodkjenneren<T>(
+  foresp: Foresp,
+  pakkeId: string,
+  les: (foresp: Foresp, pakkeId: string) => Promise<T | null>
+): Promise<{ pakke: T } | { egne: LagretHandling[] } | null> {
+  const pakke = await les(foresp, pakkeId);
+  if (pakke) return { pakke };
+  const egne = await lesEgneHandlinger(foresp, pakkeId);
+  return egne.length ? { egne } : null;
 }
 
 async function visPakken(
@@ -55,19 +62,16 @@ async function visPakken(
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
   if (!UUID.test(pakkeId)) return ingenPakke();
-  const lest = await transaksjon(avh.datalag, kontekst(bruker, prosjektId), async (foresp) => {
-    const pakke = await lesPakke(foresp, pakkeId);
-    return { pakke, egne: pakke ? [] : await lesEgneHandlinger(foresp, pakkeId) };
-  });
-  const p = lest.pakke;
-  if (!p) {
-    if (!lest.egne.length) return ingenPakke();
+  const lest = await transaksjon(avh.datalag, kontekst(bruker, prosjektId), (foresp) =>
+    forGodkjenneren(foresp, pakkeId, lesPakke)
+  );
+  if (!lest) return ingenPakke();
+  if ('egne' in lest)
     return [
       200,
       { success: true, status: 'lukket', egne_handlinger: lest.egne.map(handlingssvar) },
     ];
-  }
-  const steg = ventendeSteg(p);
+  const p = lest.pakke;
   return [
     200,
     {
@@ -82,7 +86,7 @@ async function visPakken(
         opprettet: p.opprettet,
         kjede: p.godkjennere.map((id, n) => ({ steg: n + 1, godkjenner_id: id })),
         handlinger: p.handlinger.map(handlingssvar),
-        venter_paa_deg: steg !== null && p.godkjennere[steg - 1] === bruker.id,
+        venter_paa_deg: ventendeGodkjenner(p) === bruker.id,
       },
     },
   ];
@@ -95,8 +99,8 @@ async function registrer(
   { bruker, prosjektId, pakkeId, kropp }: Godkjennerforespoersel,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
-  const ukjent = Object.keys(kropp).filter((k) => !HANDLINGSKROPP.has(k));
-  if (ukjent.length) return ugyldig(`Ukjente felt i kroppen: ${ukjent.join(', ')}.`);
+  const ukjent = ukjenteFelt(kropp, HANDLINGSKROPP);
+  if (ukjent) return ukjent;
   const { handling, begrunnelse = null } = kropp;
   if (handling !== 'godkjent' && handling !== 'returnert')
     return ugyldig('Handlingen må være «godkjent» eller «returnert».');
@@ -107,10 +111,8 @@ async function registrer(
   if (!UUID.test(pakkeId)) return ingenPakke();
   try {
     return await transaksjon(avh.datalag, kontekst(bruker, prosjektId), async (foresp) => {
-      if (!(await lesPakke(foresp, pakkeId)))
-        return new Tilbakerulling(
-          (await lesEgneHandlinger(foresp, pakkeId)).length ? lukket() : ingenPakke()
-        );
+      const lest = await forGodkjenneren(foresp, pakkeId, pakkenErSynlig);
+      if (!lest || 'egne' in lest) return new Tilbakerulling(lest ? lukket() : ingenPakke());
       await registrerHandling(foresp, pakkeId, handling, begrunnelse || null);
       return [200, { success: true, handling }] satisfies Svar;
     });

@@ -15,6 +15,14 @@ export const feilsvar = (status: number, error: string, message: string): Svar =
   { success: false, error, message },
 ];
 export const ugyldig = (melding: string) => feilsvar(400, 'UGYLDIG_FORESPOERSEL', melding);
+/** 400 når kroppen har felt utenom `tillatte`, ellers `null` (sikkerhetsinvariantene i CLAUDE.md). */
+export function ukjenteFelt(
+  kropp: Record<string, unknown>,
+  tillatte: ReadonlySet<string>
+): Svar | null {
+  const ukjente = Object.keys(kropp).filter((k) => !tillatte.has(k));
+  return ukjente.length ? ugyldig(`Ukjente felt: ${ukjente.join(', ')}.`) : null;
+}
 /** Koden og meldingen for en kropp over grensen. */
 export const FOR_STOR = ['PAYLOAD_TOO_LARGE', 'Forespørselen er for stor.'] as const;
 

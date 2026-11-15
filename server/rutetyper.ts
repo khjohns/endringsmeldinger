@@ -205,8 +205,9 @@ export const erUtenProsjekt = (r: Rute): r is Sesjonsrute => 'utenProsjekt' in r
 export const erUtenSak = (r: Rute): r is Prosjektrute => 'utenSak' in r.tilgang;
 export const erOpprettelse = (r: Rute): r is Opprettelsesrute => 'nySak' in r.tilgang;
 export const erGodkjenner = (r: Rute): r is Godkjennerrute => 'utenMedlemskap' in r.tilgang;
-export const erSaksrute = (r: Rute): r is Saksrute =>
-  !erAapen(r) && !erUtenProsjekt(r) && !erUtenSak(r) && !erOpprettelse(r) && !erGodkjenner(r);
+/** Hver rutetype utenom saksinngangen; en ny rutetype står her, ellers leses den som en sak. */
+const ANDRE_RUTETYPER = [erAapen, erUtenProsjekt, erUtenSak, erOpprettelse, erGodkjenner];
+export const erSaksrute = (r: Rute): r is Saksrute => !ANDRE_RUTETYPER.some((er) => er(r));
 
 /** Et nytt svar hver gang, så ingen kode kan endre kroppen i et senere svar (#763 punkt 7). */
 export const uventet = () => feilsvar(500, 'INTERNAL_ERROR', 'Uventet feil.');

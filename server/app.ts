@@ -18,7 +18,7 @@
 import { randomUUID } from 'node:crypto';
 import { STATUS_CODES, type IncomingMessage, type ServerResponse } from 'node:http';
 import { KJERNE } from '../kjerne/versjon.ts';
-import { ulagringsbarTekst } from '../kjerne/format/skjema.ts';
+import { erObjekt, ulagringsbarTekst } from '../kjerne/format/skjema.ts';
 import {
   krevGodkjennertilgang,
   krevInnlogging,
@@ -28,6 +28,7 @@ import {
   krevSesjon,
   Nektet,
   UTEN_STI,
+  type Bruker,
   type FraSti,
 } from './autorisasjon.ts';
 import { INNLOGGINGSRUTER } from './innlogging.ts';
@@ -128,6 +129,28 @@ export function lagServer(avh: Avhengigheter) {
    * i én rekkefølge for hver inngang med prosjekt (#825). Uten sak i stien prøves
    * bare sakene kroppen viser til.
    */
+  /**
+   * Innloggingen, så kroppen og så `tilgang`, i én rekkefølge for hver inngang med sesjon og
+   * prosjekt (#825). Innloggingen kommer først, så en uinnlogget forespørsel ikke får kroppen
+   * lest og tolket. En kropp som ikke kan leses, avvises etter tilgangskontrollen, som i Flask.
+   */
+  async function innloggetMedKropp<T>(
+    metode: Felles['metode'],
+    foresporsel: IncomingMessage,
+    fil: boolean,
+    tilgang: (bruker: Bruker, nyttelast: unknown) => Promise<T>
+  ) {
+    const bruker = await krevInnlogging(full.datalag, foresporsel);
+    const innhold = metode === 'GET' || fil ? { verdi: {} } : await lesKropp(foresporsel);
+    const avgjort = await tilgang(bruker, 'feil' in innhold ? {} : innhold.verdi);
+    if ('feil' in innhold) throw innhold.feil;
+    return { bruker, avgjort, kropp: innhold.verdi };
+  }
+
+  /**
+   * Prosjekttilgangen og kontraktsrollen fra registeret. Uten sak i stien prøves bare sakene
+   * kroppen viser til.
+   */
   async function tilgangOgKropp(
     tilgang: Tilgang | Prosjektrute['tilgang'],
     metode: Felles['metode'],
@@ -135,30 +158,31 @@ export function lagServer(avh: Avhengigheter) {
     fraSti: FraSti,
     fil = false
   ) {
-    // Innloggingen først, så en uinnlogget forespørsel ikke får kroppen lest og tolket.
-    // En kropp som ikke kan leses, avvises etter tilgangskontrollen, som i Flask.
-    const bruker = await krevInnlogging(full.datalag, foresporsel);
-    const innhold = metode === 'GET' || fil ? { verdi: {} } : await lesKropp(foresporsel);
     const krav = 'kontraktsrolle' in tilgang ? tilgang.kontraktsrolle : undefined;
-    const { side, ...prosjekt } = await krevProsjekttilgang(
-      full.datalag,
-      full.catenda,
+    const { bruker, avgjort, kropp } = await innloggetMedKropp(
+      metode,
       foresporsel,
-      bruker,
-      tilgang.prosjektrolle,
-      'feil' in innhold ? {} : innhold.verdi,
-      fraSti,
-      async (t) =>
-        krav === 'kreves'
-          ? krevKontraktsrolle(full.datalag, full.catenda, t)
-          : krav === 'lesing'
-            ? krevLesing(full.datalag, full.catenda, t)
-            : null
+      fil,
+      (bruker, nyttelast) =>
+        krevProsjekttilgang(
+          full.datalag,
+          full.catenda,
+          foresporsel,
+          bruker,
+          tilgang.prosjektrolle,
+          nyttelast,
+          fraSti,
+          async (t) =>
+            krav === 'kreves'
+              ? krevKontraktsrolle(full.datalag, full.catenda, t)
+              : krav === 'lesing'
+                ? krevLesing(full.datalag, full.catenda, t)
+                : null
+        )
     );
-    if ('feil' in innhold) throw innhold.feil;
+    const { side, ...prosjekt } = avgjort;
     // `krevProsjekttilgang` har avvist en kropp som ikke er et objekt (403).
-    const kropp = innhold.verdi as Record<string, unknown>;
-    return { bruker, prosjekt, side, kropp };
+    return { bruker, prosjekt, side, kropp: kropp as Record<string, unknown> };
   }
 
   async function saksrute(
@@ -238,22 +262,15 @@ export function lagServer(avh: Avhengigheter) {
     } catch {
       return feilsvar(404, 'NOT_FOUND', 'Ukjent pakke.');
     }
-    const bruker = await krevInnlogging(full.datalag, foresporsel);
-    const innhold = r.metode === 'GET' ? { verdi: {} } : await lesKropp(foresporsel);
-    const { prosjektId } = await krevGodkjennertilgang(
-      full.datalag,
-      full.catenda,
+    const { bruker, avgjort, kropp } = await innloggetMedKropp(
+      r.metode,
       foresporsel,
-      bruker
+      false,
+      (bruker) => krevGodkjennertilgang(full.datalag, full.catenda, foresporsel, bruker)
     );
-    if ('feil' in innhold) throw innhold.feil;
-    const kropp = innhold.verdi;
-    if (typeof kropp !== 'object' || kropp === null || Array.isArray(kropp))
+    if (!erObjekt(kropp))
       return feilsvar(400, 'UGYLDIG_FORESPOERSEL', 'Kroppen må være et objekt.');
-    return r.behandle(
-      { bruker, prosjektId, pakkeId, kropp: kropp as Record<string, unknown> },
-      full
-    );
+    return r.behandle({ bruker, prosjektId: avgjort.prosjektId, pakkeId, kropp }, full);
   }
 
   async function kjoer(

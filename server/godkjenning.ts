@@ -259,9 +259,22 @@ export async function lesEgneHandlinger(
   return r.recordset.map(somHandling);
 }
 
-/** Godkjent i hvert steg i kjeden, og verken returnert eller trukket. Stegene telles fra 1. */
-export function erGodkjent(p: LagretPakke): boolean {
-  if (p.handlinger.some((h) => h.handling !== 'godkjent')) return false;
-  const godkjent = new Set(p.handlinger.map((h) => h.steg));
-  return p.godkjennere.every((_, i) => godkjent.has(i + 1));
+/** Godkjenneren i det første steget uten godkjenning, eller `null`. Stegene telles fra 1. */
+export function ventendeGodkjenner(p: LagretPakke): string | null {
+  const godkjent = new Set(
+    p.handlinger.filter((h) => h.handling === 'godkjent').map((h) => h.steg)
+  );
+  return p.godkjennere.find((_, i) => !godkjent.has(i + 1)) ?? null;
+}
+
+/** Godkjent i hvert steg i kjeden, og verken returnert eller trukket. */
+export const erGodkjent = (p: LagretPakke): boolean =>
+  p.handlinger.every((h) => h.handling === 'godkjent') && ventendeGodkjenner(p) === null;
+
+/** `true` når aktøren i konteksten når pakken, uten å lese den. */
+export async function pakkenErSynlig(foresp: Foresp, pakkeId: string): Promise<true | null> {
+  const r = await foresp()
+    .input('pakke_id', sql.UniqueIdentifier, pakkeId)
+    .query('SELECT 1 AS finnes FROM koe.godkjenningspakke WHERE pakke_id = @pakke_id;');
+  return r.recordset.length ? true : null;
 }

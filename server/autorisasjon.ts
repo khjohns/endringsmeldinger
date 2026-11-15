@@ -342,6 +342,26 @@ export const UTEN_STI = Object.freeze({ utenSti: true } as const);
  */
 export type FraSti = { sakId: string } | { prosjektId: string } | typeof UTEN_STI;
 
+const ingenTilgang = () => new Nektet(403, 'FORBIDDEN', 'Du har ikke tilgang.');
+
+/** Prosjektet i `X-Project-ID`. Uten et gyldig hode er prosjektet ukjent, og svaret er 403 (CLAUDE.md). */
+function prosjektFraHodet(foresporsel: IncomingMessage): string {
+  const hode = foresporsel.headers['x-project-id'];
+  const prosjektId = typeof hode === 'string' && hode ? hode : null;
+  if (!prosjektId || !gyldigProsjektId(prosjektId)) throw ingenTilgang();
+  return prosjektId;
+}
+
+/**
+ * En `Nektet` går videre. Ellers logges årsaken, og svaret sier bare at tilgangen ikke kunne
+ * bekreftes, som ruteren i `app.ts` (#867 punkt 1).
+ */
+function utilgjengelig(hva: string, feil: unknown): never {
+  if (feil instanceof Nektet) throw feil;
+  loggFeil(hva, feil);
+  throw new Nektet(503, 'ACCESS_UNAVAILABLE', 'Tilgang kunne ikke bekreftes. Prøv igjen senere.');
+}
+
 /**
  * `require_project_access(min_role)`. `fraSti` er saken eller prosjektet i URL-en;
  * prosjektet må være prosjektet i `X-Project-ID`. `nyttelast` er JSON-kroppen,
@@ -358,15 +378,12 @@ export async function krevProsjekttilgang(
   fraSti: FraSti,
   kontraktsside: (tilgang: Prosjekttilgang) => Promise<Kontraktstilgang | null> = async () => null
 ): Promise<Prosjekttilgang & { side: Kontraktstilgang | null }> {
-  const nekt = () => new Nektet(403, 'FORBIDDEN', 'Du har ikke tilgang.');
-  const hode = foresporsel.headers['x-project-id'];
-  const prosjektId = typeof hode === 'string' && hode ? hode : null;
-  if (!prosjektId || !gyldigProsjektId(prosjektId)) throw nekt();
+  const prosjektId = prosjektFraHodet(foresporsel);
   // Ellers kunne stien vise et annet prosjekt enn det tilgangen er avgjort for (#724 punkt 1).
-  if ('prosjektId' in fraSti && fraSti.prosjektId !== prosjektId) throw nekt();
+  if ('prosjektId' in fraSti && fraSti.prosjektId !== prosjektId) throw ingenTilgang();
   try {
     const oppsett = await prosjektoppsett(db, prosjektId);
-    if (!oppsett) throw nekt();
+    if (!oppsett) throw ingenTilgang();
     const synkronisert = await oppdaterMedlemslisten(
       db,
       catenda,
@@ -375,17 +392,17 @@ export async function krevProsjekttilgang(
     );
     const medlemskap = await prosjektmedlemskap(db, bruker.id, prosjektId);
     const rolle = medlemskap ? (medlemskap.leserolle ? 'viewer' : medlemskap.rolle) : null;
-    if (rolle === null || !(rolle in PROSJEKTROLLER)) throw nekt();
-    if (PROSJEKTROLLER[rolle] < PROSJEKTROLLER[minsteRolle]) throw nekt();
+    if (rolle === null || !(rolle in PROSJEKTROLLER)) throw ingenTilgang();
+    if (PROSJEKTROLLER[rolle] < PROSJEKTROLLER[minsteRolle]) throw ingenTilgang();
     if (typeof nyttelast !== 'object' || nyttelast === null || Array.isArray(nyttelast))
-      throw nekt();
+      throw ingenTilgang();
     const kropp = nyttelast as Record<string, unknown>;
     if (
       kropp.prosjekt_id !== undefined &&
       kropp.prosjekt_id !== null &&
       kropp.prosjekt_id !== prosjektId
     )
-      throw nekt();
+      throw ingenTilgang();
     const saker = sakerDetVisesTil(kropp);
     const hovedsak = ('sakId' in fraSti ? fraSti.sakId : null) ?? kropp.sak_id ?? kropp.sakId;
     if (typeof hovedsak === 'string' && hovedsak) saker.add(hovedsak);
@@ -399,13 +416,10 @@ export async function krevProsjekttilgang(
     };
     // Prosjektgrensen gjelder hver sak det vises til, også klientoppgitte relasjoner (RV-07).
     const iProsjektet = await sakerIProsjektet(db, bruker, prosjektId, saker);
-    for (const sakId of saker) if (!iProsjektet.has(sakId)) throw nekt();
+    for (const sakId of saker) if (!iProsjektet.has(sakId)) throw ingenTilgang();
     return { ...tilgang, side: await kontraktsside(tilgang) };
   } catch (feil) {
-    if (feil instanceof Nektet) throw feil;
-    // Som ruteren i `app.ts`: årsaken logges, svaret sier bare at tilgangen ikke kunne bekreftes (#867 punkt 1).
-    loggFeil('Prosjekttilgangen kunne ikke avgjøres', feil);
-    throw new Nektet(503, 'ACCESS_UNAVAILABLE', 'Tilgang kunne ikke bekreftes. Prøv igjen senere.');
+    utilgjengelig('Prosjekttilgangen kunne ikke avgjøres', feil);
   }
 }
 
@@ -524,7 +538,7 @@ function somKontraktstilgang([rolle, teamId]: [
   return rolle === 'TE' || rolle === 'BH' ? { rolle, teamId } : null;
 }
 
-/** Prosjektets kontraktsteam per side, for et aktivt medlem uten leserolle (`koe_api.kontraktsteam`). */
+/** Prosjektets kontraktsteam per side, med `koe_api.kontraktsteam`. Tomt uten aktivt medlemskap og med leserolle. */
 async function kontraktsteamene(
   db: Pool,
   aktor: string,
@@ -542,18 +556,20 @@ async function kontraktsteamene(
   return team;
 }
 
-/** Teamene subjektet er med i i Catenda, slått opp samtidig (#716 punkt 5). */
+/** Teamene blant `teamene` subjektet er med i i Catenda, slått opp samtidig (#716 punkt 5). */
 async function teamMedSubjektet(
   catenda: Pick<Catenda, 'teammedlemmer'>,
   catendaProsjekt: string,
   subjekt: string,
-  teamene: [Rolle, string][]
+  teamene: Partial<Record<Rolle, Set<string>>>
 ): Promise<[Rolle, string][]> {
   const treff = await Promise.all(
-    teamene.map(async ([rolle, teamId]): Promise<[Rolle, string] | null> => {
-      const medlemmer = await catenda.teammedlemmer(catendaProsjekt, teamId);
-      return [...medlemmer].map(catendaId).includes(subjekt) ? [rolle, teamId] : null;
-    })
+    (['TE', 'BH'] as const).flatMap((rolle) =>
+      [...(teamene[rolle] ?? [])].map(async (teamId): Promise<[Rolle, string] | null> => {
+        const medlemmer = await catenda.teammedlemmer(catendaProsjekt, teamId);
+        return [...medlemmer].map(catendaId).includes(subjekt) ? [rolle, teamId] : null;
+      })
+    )
   );
   return treff.filter((t) => t !== null);
 }
@@ -574,14 +590,28 @@ async function kontraktsside(
   const team = await kontraktsteamene(db, aktor, prosjektId);
   if (!team.TE.size || !team.BH.size || [...team.TE].some((t) => team.BH.has(t)))
     return [null, null];
-  const treff = await teamMedSubjektet(catenda, oppsett.catendaProsjekt, subjekt, [
-    ...[...team.TE].map((t): [Rolle, string] => ['TE', t]),
-    ...[...team.BH].map((t): [Rolle, string] => ['BH', t]),
-  ]);
+  const treff = await teamMedSubjektet(catenda, oppsett.catendaProsjekt, subjekt, team);
   const roller = new Set(treff.map(([r]) => r));
   if (roller.size !== 1) return [null, null];
   const lag = new Set(treff.map(([, t]) => t));
   return [[...roller][0], lag.size === 1 ? [...lag][0] : null];
+}
+
+/** Aktøren er medlem og med i et av prosjektets team for totalentreprenøren i Catenda. */
+async function iTeamForTE(
+  db: Pool,
+  catenda: Catenda,
+  catendaProsjekt: string,
+  aktor: string,
+  prosjektId: string
+): Promise<boolean> {
+  const [medlemskap, team] = await Promise.all([
+    prosjektmedlemskap(db, aktor, prosjektId),
+    kontraktsteamene(db, aktor, prosjektId),
+  ]);
+  const subjekt = medlemskap ? catendaId(medlemskap.subjekt) : null;
+  if (!subjekt || !team.TE.size) return false;
+  return (await teamMedSubjektet(catenda, catendaProsjekt, subjekt, { TE: team.TE })).length > 0;
 }
 
 /** Meldingen når godkjenneren er med i et team for totalentreprenøren i prosjektet. */
@@ -602,33 +632,15 @@ export async function krevGodkjennertilgang(
   foresporsel: IncomingMessage,
   bruker: Bruker
 ): Promise<{ prosjektId: string }> {
-  const nekt = () => new Nektet(403, 'FORBIDDEN', 'Du har ikke tilgang.');
-  const hode = foresporsel.headers['x-project-id'];
-  const prosjektId = typeof hode === 'string' && hode ? hode : null;
-  if (!prosjektId || !gyldigProsjektId(prosjektId)) throw nekt();
+  const prosjektId = prosjektFraHodet(foresporsel);
   let paaTE: boolean;
   try {
     const oppsett = await prosjektoppsett(db, prosjektId);
-    if (!oppsett) throw nekt();
+    if (!oppsett) throw ingenTilgang();
     await oppdaterMedlemslisten(db, catenda, prosjektId, oppsett.catendaProsjekt);
-    const medlemskap = await prosjektmedlemskap(db, bruker.id, prosjektId);
-    const subjekt = medlemskap ? catendaId(medlemskap.subjekt) : null;
-    const te = subjekt ? [...(await kontraktsteamene(db, bruker.id, prosjektId)).TE] : [];
-    paaTE =
-      subjekt !== null &&
-      te.length > 0 &&
-      (
-        await teamMedSubjektet(
-          catenda,
-          oppsett.catendaProsjekt,
-          subjekt,
-          te.map((t): [Rolle, string] => ['TE', t])
-        )
-      ).length > 0;
+    paaTE = await iTeamForTE(db, catenda, oppsett.catendaProsjekt, bruker.id, prosjektId);
   } catch (feil) {
-    if (feil instanceof Nektet) throw feil;
-    loggFeil('Tilgangen for godkjenneren kunne ikke avgjøres', feil);
-    throw new Nektet(503, 'ACCESS_UNAVAILABLE', 'Tilgang kunne ikke bekreftes. Prøv igjen senere.');
+    utilgjengelig('Tilgangen for godkjenneren kunne ikke avgjøres', feil);
   }
   if (paaTE) throw new Nektet(403, 'FORBIDDEN', GODKJENNER_PAA_TE);
   return { prosjektId };
