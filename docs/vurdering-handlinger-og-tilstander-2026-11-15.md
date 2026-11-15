@@ -472,6 +472,41 @@ side for alle svar. E2 er den eneste veien til en første ekte sak uten Entra ID
 løsningen sender byggherrens brev uten å ha kontrollert fullmakten. Styrer: om godkjenningen bygges
 før første ekte sak, og rekkefølgen i #1065.
 
+### Spørsmål F: bekreftelsen utgår
+
+Stilt 15.11 etter oppdragsgivers svar «Enig om at bekreftelse da utgår og om forslaget til MM-U24».
+Prøvd mot vedtakene av en subagent før det ble stilt. Klasse: vedtak.
+
+- **F1 (anbefalt):** «Byggherren bekrefter ikke i et brev fra løsningen et svar på forholdet
+  byggherren har gitt utenfor løsningen. Har byggherren svart i et brev eller et annet dokument,
+  legger byggherren det til som korrespondanse og velger at det er et svar (OV-U80). Svaret får da
+  virkning i løsningen med datoen byggherren oppgir at det ble sendt. Det gjelder kravversjonen det
+  svarer på, og godtas når den versjonen var gjeldende da svaret ble sendt (OV-U98). Løsningen lager
+  ingen brevtekst, og svaret går gjennom godkjenningen etter fullmakten. Et forbehold i svaret
+  tolkes ikke (samlevedtaket for vilkår og forbehold, punkt 4 og 10). Byggherrens endringsordre
+  registreres som svar på vilkårene i OV-U6. Kan svaret ikke legges til som svar, eller vil
+  byggherren gi en endringsordre nå, sender byggherren et nytt svar fra løsningen. Det får virkning
+  når det sendes. Henvisningen til et svar utenfor løsningen (GR-U34 punkt 6–7) og det nye svaret
+  etter en henvisning (OV-U46, GR-U36) står.» Forhold: opphever GR-U35 og GR-U37; endrer OV-U46
+  (setningene om bekreftelsen utgår, setningene om det nye svaret etter en henvisning står); endrer
+  KA-U49 (punkt 11 utgår); endrer OV-U99 (punkt 2: bekreftelsen strykes fra det som venter);
+  bygger på OV-U80 og OV-U98. GR-U34 punkt 6–7, GR-U36, LV-U53, OV-U84 og OV-U69 står.
+- **F2:** «Bekreftelsen etter OV-U46, med GR-U35–GR-U37, står og venter i første versjon (OV-U99
+  punkt 2). Til den er bygget, legger byggherren et svar gitt utenfor løsningen til som
+  korrespondanse og velger at det er et svar (OV-U80, OV-U98), eller sender et nytt svar fra
+  løsningen.» Forhold: OV-U99 står.
+
+Følgene av F1, fra prøvingen: akseptfristen og bindingen regnes fra datoen svaret ble sendt, ikke
+fra en bekreftelse, så fristen kan være ute når svaret registreres (HF-U24 dekker en aksept etter
+fristen); veien der byggherren utsteder en endringsordre i bekreftelsen faller bort, og byggherren
+sender i stedet et nytt svar (GR-U14); et registrert svar har ingen brevkontroll, fordi det ikke
+har brevtekst (OV-U80). Berørt: BF-08 og #1834 (bekreftelsen i steg 4 og prototypen
+`forholdssvar.html`), raden for GR-U35 i `dekning.md`, og #1306, som snevres inn til
+henvisningen. Bekreftelsen er ikke bygget i koden.
+
+Anbefaling: F1. Styrer: at bestillingen i #1834 bygger svaret på påberopelsen og registreringen,
+ikke bekreftelsen.
+
 ### Svarene etter drøftingen
 
 Oppdragsgiver 15.11, ordrett: «Som anbefalt, men en avklaring: for innlegg trenger vi vel kun
