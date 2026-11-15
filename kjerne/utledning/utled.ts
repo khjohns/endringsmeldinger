@@ -254,7 +254,7 @@ export interface Utledning {
   /**
    * GR-U7: byggherren har godkjent forholdet uten virksom preklusjon etter
    * § 32.2, eller frafalt pålegget, etter brevet eller enigheten om det. Venter en ny
-   * påberopelsesversjon på svar, og var det siste svaret sendt fra appen et frafall, er
+   * påberopelsesversjon på svar, og var det siste svaret et frafall, er
    * forholdet avklart ved frafallet (GR-U23).
    */
   forholdAvklart: boolean;
@@ -606,6 +606,17 @@ function utsagnetStrider(
     return 'en aksept av et frafall (GR-U9)';
   if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)
     return 'en aksept av et svar med registrert enighet (GR-U8)';
+  // GR-U8 for et svar som ikke lenger er gjeldende: en aksept lagt til med datoen den ble sendt,
+  // kan gjelde et eldre svar (OV-U98), og leseren godtar ingen av disse (`kontrollerAksepter`).
+  if (sporet && u.spor[sporet].svar.find((s) => s.id === gjelder)!.beslutningsgrunnlag.sammenfall)
+    return 'en aksept av et svar partene er enige om ved sammenfall (GR-U8)';
+  if (
+    sporet &&
+    [...dokumenterI(u.journal)].some((d) =>
+      d.utsagn.some((a) => a.art === 'aksept' && a.gjelder === gjelder && !utenVirkning(a.id))
+    )
+  )
+    return 'en aksept av et svar totalentreprenøren alt har godtatt (GR-U8)';
   return null;
 }
 

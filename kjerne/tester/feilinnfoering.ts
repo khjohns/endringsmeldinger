@@ -5541,6 +5541,19 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['utenfor løsningen og lagt til senere, merkes etter dagen den ble sendt'],
   },
+  {
+    id: 'F637',
+    feilklasse:
+      'en registrert aksept av et svar som alt er godtatt, prøves ikke etter GR-U8 når svaret ikke lenger er gjeldende (MM-U43 punkt 9, OV-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "d.utsagn.some((a) => a.art === 'aksept' && a.gjelder === gjelder && !utenVirkning(a.id))",
+        'false',
+      ],
+    ],
+    mal: ['alt har godtatt, avvises også når svaret senere er revidert'],
+  },
 ];
 
 interface Testresultat {

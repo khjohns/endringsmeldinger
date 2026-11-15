@@ -293,6 +293,27 @@ describe('kommandoene for svar og aksept sendt utenfor løsningen (OV-U80, OV-U9
     ).toMatchObject({ godtatt: false, avvisning: { regel: 'AKSEPTFRIST_UGYLDIG_DATO' } });
   });
 
+  it('en aksept av et svar totalentreprenøren alt har godtatt, avvises også når svaret senere er revidert (GR-U8, MM-U43 punkt 9)', async () => {
+    const svaret: Handling = {
+      handling: 'brev',
+      svar: [{ spor: 'vederlag', vurdering: 'delvis', godkjent_belop: 60000, navn: 'S-v' }],
+    };
+    const revisjon: Handling = {
+      handling: 'revisjon',
+      spor: 'vederlag',
+      vurdering: 'delvis',
+      godkjent_belop: 50000,
+      navn: 'S-v2',
+    };
+    const aksepten: Handling = { handling: 'aksept', spor: 'vederlag', svar: 'S-v' };
+    // Svaret 24.09, aksepten fra løsningen 25.09, revisjonen 26.09; den nye aksepten er sendt 25.09.
+    expect(
+      await provRegistrering([svaret, aksepten, revisjon], aksepten, '2026-09-25')
+    ).toMatchObject({ godtatt: false, avvisning: { regel: 'IKKE_GJELDENDE_PAA_SENDEDATOEN' } });
+    const kontroll = await provRegistrering([svaret, revisjon], aksepten, '2026-09-24');
+    expect(kontroll.godtatt ? null : kontroll.avvisning, 'kontrollsak: uten aksepten').toBeNull();
+  });
+
   it('en registrering uten typen eller vedlegget avvises som feil form', async () => {
     const utenType = await provRegistrering([avslag('S-g1')], aksept, '2026-09-24', {
       dokumentasjon: [VEDLEGG],

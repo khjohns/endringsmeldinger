@@ -692,6 +692,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'journal',
     [
       'utledning/utled.ts:datoenDetBleSendt',
+      // GR-U8, OV-U98: aksepten av et svar som ikke lenger er gjeldende, er alt godtatt.
+      'utledning/utled.ts:utsagnetStrider',
       'spor/frist/utledning.ts:foresporselForFristsvar',
       'spor/frist/utledning.ts:fristkravErFremmet',
     ],

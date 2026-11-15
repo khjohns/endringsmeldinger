@@ -323,7 +323,7 @@ const SKRIVING: Record<Spor, Sporsskriving> = {
 
 /** Meldingen når en registrering ikke får virkning med datoen avsenderen oppgir (OV-U98). */
 const UTEN_VIRKNING_MELDING = (grunn: string) =>
-  `Brevet kan ikke legges til med datoen det ble sendt. Det er ${grunn.replace(/ \(.*\)$/, '')}.`;
+  `Brevet kan ikke legges til med virkning. Det er ${grunn.replace(/ \(.*\)$/, '')}.`;
 
 /**
  * OV-U80, OV-U98: et svar eller en aksept lagt til med datoen avsenderen oppgir, typen og
