@@ -158,7 +158,7 @@ const AVSLAGET_GODTATT =
 
 /** KA-U1, HF-U8: avvisningen sier ikke at det eldre svaret er avslått eller har falt bort. */
 export const ELDRE_SVAR =
-  'Aksepten må gjelde byggherrens gjeldende svar på kravet. Et eldre svar kan ikke godtas i løsningen. Det er en begrensning i løsningen, og svaret er ikke avslått eller falt bort av det (KA-U1, HF-U8).';
+  'Aksepten må gjelde byggherrens gjeldende svar på kravet. Et eldre svar kan ikke godtas i løsningen. Det er en begrensning i løsningen, og svaret er ikke avslått eller falt bort av det.';
 
 /** Det som er sporets eget i forutsetningene (#1783). */
 export interface Sporsforutsetninger {
@@ -300,7 +300,7 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
     }
     case 'sende_foresporsel': {
       const foresporsel = forutsetningerI(h.spor).foresporsel;
-      if (!foresporsel) throw new Error(`${h.spor} har ingen forespørsel etter § 33.6.2.`);
+      if (!foresporsel) throw new Error(`${h.spor} har ingen forespørsel etter punkt 33.6.2.`);
       return foresporsel.sende(u, paaberopelseSendt);
     }
     case 'svare':
