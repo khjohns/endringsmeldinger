@@ -195,7 +195,7 @@
   }
   h3 {
     margin-bottom: var(--spacing-2);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
   }
   .lag + .lag {
@@ -248,7 +248,11 @@
     margin-top: var(--spacing-1);
   }
   .gjeldende a {
-    color: inherit;
+    color: var(--ink);
+    text-underline-offset: 3px;
+  }
+  .gjeldende a:hover {
+    text-decoration-thickness: 2px;
   }
   .rader {
     display: grid;

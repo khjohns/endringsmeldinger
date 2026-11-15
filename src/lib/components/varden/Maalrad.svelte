@@ -132,4 +132,11 @@
   .trinn span:last-child {
     flex: 1 1 0;
   }
+  /* Smal skjerm: laget står over dagene (U-5 i BF-45). */
+  @media (max-width: 560px) {
+    .kompakt {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
 </style>
