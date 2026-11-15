@@ -314,26 +314,3 @@ export function nyVersjonAvPaaberopelsen(u: Utledning, tekst: string) {
     ...(utdypning ? { utdypning } : {}),
   };
 }
-
-/**
- * Utkastet kjernen regner lagene for beløpet av (#1400, S1-A og S2-A). En kravpost med fast sum
- * uten valgt oppgjørsform står uten den, siden kjernen ikke forstår en avslått metode uten ønsket
- * metode. En kravpost etter en beregningsregel uten svar på oppgjørsformen står med regelen
- * godtatt, fordi beløpet for den bare har et lag når standpunktet til regelen er der (#1756,
- * punkt 1). De andre kravpostene beholder sitt eget svar på oppgjørsformen (KA-U57).
- */
-export function utkastForBeloepet(utkast: Svarutkast, v: Svarvalg, krav: Krav): Svarutkast {
-  const ubesvarte = new Map(
-    kravposterI(krav)
-      .filter((p) => !formBesvart(postvalget(v, p.betegnelse), p))
-      .map((p) => [p.id as unknown, p])
-  );
-  const vurderte = (utkast.vurderinger.kravposter ?? []) as Record<string, unknown>[];
-  const kravposter = vurderte.map((p) => {
-    const post = ubesvarte.get(p.gjelder);
-    if (!post) return p;
-    if (etterRegel(post)) return { ...p, aksepterer: true };
-    return { gjelder: p.gjelder, vurdering: p.vurdering, godkjent_beloep: p.godkjent_beloep };
-  });
-  return { ...utkast, vurderinger: { ...utkast.vurderinger, kravposter } };
-}

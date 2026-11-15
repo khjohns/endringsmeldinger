@@ -517,12 +517,19 @@ export type Forutsetning =
 export type LagIVederlaget = Utkastlag<Forutsetning, { saerskilt?: 'produktivitet' }>;
 
 /**
- * Lagene i et svarutkast på vederlag, også før alle spørsmålene er besvart. Et ubesvart
- * varslingsspørsmål regnes som at innsigelsen ikke er gjort gjeldende, så laget kan endre
- * seg når det besvares (S1-A). Lagene fra forholdet leses av gjeldende svar på forholdet,
- * som frysingen gjør når brevet ikke selv har et svar på forholdet. Beløpene påvirker ikke
- * lagene og tas ut før standpunktene bygges. Kaster `UgyldigVurdering` for svar på
- * kravpostene som `kravpostvurderinger` avviser.
+ * Lagene i et svarutkast på vederlag, også før alle spørsmålene er besvart (OV-U33, #1925). Et
+ * ubesvart spørsmål fylles ut slik at standpunktet står i laget sitt, og står med `besvart:
+ * false`:
+ * - beløpet, og varselet etter § 34.1.2 og § 34.1.3: en ubesvart beregningsregel regnes som
+ *   godtatt, og et ubesvart varsel som at innsigelsen ikke er gjort gjeldende (S1-A);
+ * - oppgjørsformen: laget står uansett svaret (OV-U33, LV-U31), så hver beregningsregel regnes
+ *   som ikke godtatt, med den andre regelen, siden en godtatt regel ikke åpner noe lag (VS-U4),
+ *   og fast sum som godtatt;
+ * - varselet etter § 34.3.3 og justeringen: som beløpet, med en ubesvart innsigelse gjort
+ *   gjeldende, fordi de står i laget sitt etter svaret på oppgjørsformen (VS-U4, VS-U56).
+ * Lagene fra forholdet leses av gjeldende svar på forholdet, som frysingen gjør når brevet ikke
+ * selv har et svar på forholdet. Beløpene påvirker ikke lagene og tas ut før standpunktene
+ * bygges. Kaster `UgyldigVurdering` for svar på kravpostene som `kravpostvurderinger` avviser.
  */
 export function lagIVederlaget(
   utkast: Svarutkast,
@@ -530,6 +537,80 @@ export function lagIVederlaget(
   regler: Regelsett
 ): LagIVederlaget {
   const v = utkast.vurderinger;
+  const svarene = kravpostvurderinger(v, u.spor.vederlag.gjeldendeKrav!);
+  const utfylt = (fyll: (svar: Kravpostvurdering, post: Kravpost) => Kravpostvurdering) => ({
+    ...v,
+    kravposter: svarene.map(({ post, svar }) => fyll({ ...svar, gjelder: post.id }, post)),
+  });
+  const ubesvart = (x: unknown) => typeof x !== 'boolean';
+  const regelGodtatt = (svar: Kravpostvurdering, post: Kravpost) =>
+    post.oppgjoersform !== 'tilbud' && ubesvart(svar.aksepterer)
+      ? { ...svar, aksepterer: true }
+      : svar;
+  const forBeloepet = utfylt(regelGodtatt);
+  const forFormen = utfylt((_, post) =>
+    post.oppgjoersform === 'tilbud'
+      ? { gjelder: post.id, aksepterer: true }
+      : {
+          gjelder: post.id,
+          aksepterer: false,
+          oensket_oppgjoersform:
+            post.oppgjoersform === 'enhetspriser' ? 'regningsarbeid' : 'enhetspriser',
+        }
+  );
+  const forVarselet = utfylt((svar, post) => {
+    const fylt = regelGodtatt(svar, post);
+    return post.oppgjoersform === 'enhetspriser' && post.justert === true
+      ? {
+          ...fylt,
+          varslet_i_tide: fylt.varslet_i_tide ?? false,
+          godtar_justering: fylt.godtar_justering ?? false,
+        }
+      : fylt;
+  });
+  const svaret = (gjelder: string | undefined) =>
+    svarene.find(({ post }) => post.id === gjelder)?.svar ?? {};
+  // Standpunktene for en kravpost foran beløpet står i laget utfyllingen for dem gir.
+  const iKravposten = (s: Standpunkt) =>
+    s.art === 'oppgjoersform' ||
+    s.art === 'justering' ||
+    (s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel));
+  const formene = lagIUtfyllingen(forFormen, utkast, u, regler).filter(
+    ({ s }) => s.art === 'oppgjoersform'
+  );
+  const varslene = lagIUtfyllingen(forVarselet, utkast, u, regler).filter(
+    ({ s }) => s.art !== 'oppgjoersform' && iKravposten(s)
+  );
+  const iPosten = (liste: typeof formene, gjelder: string) =>
+    liste.filter(({ s }) => 'gjelder' in s && s.gjelder === gjelder);
+  return {
+    standpunkter: lagIUtfyllingen(forBeloepet, utkast, u, regler).flatMap(({ s, lag }) => {
+      if (iKravposten(s)) return [];
+      if (s.art !== 'beloep' || s.saerskilt || s.gjelder === undefined) return [lag];
+      // Brevets rekkefølge: oppgjørsformen, varselet og justeringen foran beløpet i kravposten.
+      const svar = svaret(s.gjelder);
+      return [
+        ...iPosten(formene, s.gjelder).map((x) => ({
+          ...x.lag,
+          besvart: !ubesvart(svar.aksepterer),
+        })),
+        ...iPosten(varslene, s.gjelder).map((x) => ({
+          ...x.lag,
+          besvart: !ubesvart(x.s.art === 'justering' ? svar.godtar_justering : svar.varslet_i_tide),
+        })),
+        lag,
+      ];
+    }),
+  };
+}
+
+/** Lagene i svarutkastet med vurderingene `v` (`lagIVederlaget`). */
+function lagIUtfyllingen(
+  v: Svarvurdering,
+  utkast: Svarutkast,
+  u: Utledning,
+  regler: Regelsett
+): { s: Standpunkt; lag: LagIVederlaget['standpunkter'][number] }[] {
   const utenBeloep: Svarvurdering = {
     ...v,
     kravposter: kravpostvurderinger(v, u.spor.vederlag.gjeldendeKrav!).map(({ post, svar }) => ({
@@ -565,37 +646,36 @@ export function lagIVederlaget(
     svar.standpunkter.some(
       (s, i) => s.art === 'rettidighet' && s.hjemmel === h && laget(virket[i].virkning) !== null
     );
-  return {
-    standpunkter: svar.standpunkter.map((s, i) => {
-      const l = lag[i];
-      const rammer: Forutsetning[] = [];
-      if (l !== null) {
-        rammer.push(...grunner.map((grunn) => ({ grunn })));
-        const egen = s.art === 'rettidighet' ? s.hjemmel : null;
-        // § 34.1.2 rammer hele kravet; § 34.1.3 bare posten etter annet ledd (OV-U22, VS-U5).
-        if (egen !== '34.1.2' && paaberopt('34.1.2')) rammer.push({ innsigelse: '34.1.2' });
-        if (s.art === 'beloep' && s.saerskilt && paaberopt('34.1.3'))
-          rammer.push({ innsigelse: '34.1.3' });
-        rammer.push(...innenforKravposten(svar.standpunkter, i));
-      }
-      return {
-        art: s.art,
-        ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
-        ...(s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel)
-          ? { gjelder: s.gjelder }
-          : {}),
-        ...(s.art === 'beloep' && s.saerskilt ? { saerskilt: s.saerskilt } : {}),
-        ...((s.art === 'beloep' || s.art === 'oppgjoersform' || s.art === 'justering') &&
-        s.gjelder !== undefined
-          ? { gjelder: s.gjelder }
-          : {}),
-        besvart: s.art !== 'beloep' || utenFastBeloepIKravposten(u, s.gjelder) || besvart(v, u, s),
-        virkning: virkning[i]!,
-        etikett: etikett[i]!,
-        forutsetninger: rammer,
-      };
-    }),
-  };
+  return svar.standpunkter.map((s, i) => {
+    const l = lag[i];
+    const rammer: Forutsetning[] = [];
+    if (l !== null) {
+      rammer.push(...grunner.map((grunn) => ({ grunn })));
+      const egen = s.art === 'rettidighet' ? s.hjemmel : null;
+      // § 34.1.2 rammer hele kravet; § 34.1.3 bare posten etter annet ledd (OV-U22, VS-U5).
+      if (egen !== '34.1.2' && paaberopt('34.1.2')) rammer.push({ innsigelse: '34.1.2' });
+      if (s.art === 'beloep' && s.saerskilt && paaberopt('34.1.3'))
+        rammer.push({ innsigelse: '34.1.3' });
+      rammer.push(...innenforKravposten(svar.standpunkter, i));
+    }
+    const lagt = {
+      art: s.art,
+      ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
+      ...(s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel)
+        ? { gjelder: s.gjelder }
+        : {}),
+      ...(s.art === 'beloep' && s.saerskilt ? { saerskilt: s.saerskilt } : {}),
+      ...((s.art === 'beloep' || s.art === 'oppgjoersform' || s.art === 'justering') &&
+      s.gjelder !== undefined
+        ? { gjelder: s.gjelder }
+        : {}),
+      besvart: s.art !== 'beloep' || utenFastBeloepIKravposten(u, s.gjelder) || besvart(v, u, s),
+      virkning: virkning[i]!,
+      etikett: etikett[i]!,
+      forutsetninger: rammer,
+    };
+    return { s, lag: lagt };
+  });
 }
 
 /**

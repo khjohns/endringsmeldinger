@@ -928,6 +928,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'gjelder vurdering godkjent_beloep aksepterer oensket_oppgjoersform krever_tilbud varslet_i_tide godtar_justering',
   ],
   ['spor/vederlag/kommando.ts:besvart', 'utsagn', 'saerskilt gjelder'],
+  // #1925: standpunktet og laget utfyllingen gir det, i lagene i et svarutkast på vederlaget.
+  ['spor/vederlag/kommando.ts:lagIUtfyllingen', 'relasjon', 's lag'],
   // OV-U32, OV-U33: plassen hvert standpunkt har i det frosne brevet, som postlisten og
   // visningen leser.
   [

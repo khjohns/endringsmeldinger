@@ -10,7 +10,6 @@
   import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import { lesKroner } from '$lib/utils/belop';
-  import type { Kravpostvurdering } from '$kjerne/spor/vederlag/frysing';
   import type { Forutsetning } from '$kjerne/spor/vederlag/kommando';
   import type { Utledning } from '$kjerne/utledning/utled';
   import type { Kravpost, Standpunkt } from '$kjerne/typer';
@@ -36,7 +35,6 @@
     spoerOmVarselet,
     tomPost,
     tomtSvar,
-    utkastForBeloepet,
     vederlagssvaret,
     type Postvalg,
     type Regel,
@@ -113,85 +111,25 @@
     )!
   );
   const etter = $derived(kjernesak.forhaandsvist(utkast));
-  const vurderteIUtkastet = (s: (typeof utkast.svar)[number]) =>
-    (s.vurderinger.kravposter ?? []) as Kravpostvurdering[];
-  const utenOppgjoersform = (p: Kravpostvurdering) => ({
-    gjelder: p.gjelder,
-    vurdering: p.vurdering,
-    godkjent_beloep: p.godkjent_beloep,
-  });
-  // Innsigelsene beløpet bygger på, for hver kravpost, regnet av kjernen fra det som er besvart.
-  const beloepslagene = $derived(
-    stoppet
-      ? null
-      : kjernesak.lagForUtkastet(utkastForBeloepet(utkast.svar[0], valg, krav), 'vederlag')
-  );
-  const forutsetninger = (p: Kravpost): Forutsetning[] =>
-    beloepslagene?.standpunkter.find(
-      (x) => x.art === 'beloep' && !x.saerskilt && x.gjelder === p.id
-    )?.forutsetninger ?? [];
-  // Grunnene fra grunnlaget står først i hver liste kjernen gir, og gjelder også varselet
-  // (oppdragsgiver 30.10, 1A i #1411).
-  const grunnene = $derived(poster[0] ? forutsetninger(poster[0]).filter((f) => 'grunn' in f) : []);
-  // Oppgjørsformen står i laget sitt uansett svaret (OV-U33, LV-U31), så kjernen spørres med
-  // et svar på formen som har et lag, også før den er besvart (oppdragsgiver 30.10 i #1411, S2-A
-  // i #1400): tilbudet akseptert, eller beregningsregelen ikke godtatt, siden en godtatt regel
-  // ikke åpner noe lag (VS-U4).
-  const formlagene = $derived.by(() => {
-    if (stoppet) return null;
-    const s = utkast.svar[0];
-    const vurderinger = {
-      ...s.vurderinger,
-      kravposter: vurderteIUtkastet(s).map((v) => {
-        const post = poster.find((p) => p.id === v.gjelder);
-        const regel = post ? regelen(post) : null;
-        return regel
-          ? {
-              gjelder: v.gjelder,
-              aksepterer: false,
-              oensket_oppgjoersform: denAndreRegelen(regel),
-            }
-          : { ...utenOppgjoersform(v), aksepterer: true };
-      }),
-    };
-    return kjernesak.lagForUtkastet({ ...s, vurderinger }, 'vederlag');
-  });
+  // OV-U33: lagene står også før spørsmålene er besvart (`lagIVederlaget`).
+  const lagene = $derived(stoppet ? null : kjernesak.lagForUtkastet(utkast.svar[0], 'vederlag'));
   type IPosten = { f: Forutsetning; post?: Kravpost };
   const iPosten = (liste: Forutsetning[], post?: Kravpost): IPosten[] =>
     liste.map((f) => ({ f, post }));
-  const formforutsetninger = (p: Kravpost): IPosten[] =>
-    iPosten(
-      formlagene?.standpunkter.find((x) => x.art === 'oppgjoersform' && x.gjelder === p.id)
-        ?.forutsetninger ?? [],
-      p
-    );
-  // Varselet etter § 34.3.3 og justeringen står i laget sitt etter svaret på oppgjørsformen, så
-  // kjernen spørres med innsigelsen og justeringen gjort gjeldende når de ikke er besvart (VS-U4,
-  // VS-U56).
-  const regellagene = $derived.by(() => {
-    if (stoppet || !harRegel) return null;
-    const s = utkastForBeloepet(utkast.svar[0], valg, krav);
-    const vurderinger = {
-      ...s.vurderinger,
-      kravposter: vurderteIUtkastet(s).map((v) => {
-        const post = poster.find((p) => p.id === v.gjelder);
-        return post && justerte(post)
-          ? {
-              ...v,
-              varslet_i_tide: v.varslet_i_tide ?? false,
-              godtar_justering: v.godtar_justering ?? false,
-            }
-          : v;
-      }),
-    };
-    return kjernesak.lagForUtkastet({ ...s, vurderinger }, 'vederlag');
-  });
+  const iLaget = (
+    p: Kravpost,
+    art: 'beloep' | 'oppgjoersform' | 'rettidighet' | 'justering'
+  ): Forutsetning[] =>
+    lagene?.standpunkter.find((x) => x.art === art && !x.saerskilt && x.gjelder === p.id)
+      ?.forutsetninger ?? [];
+  // Grunnene fra grunnlaget står først i hver liste kjernen gir, og gjelder også varselet
+  // (oppdragsgiver 30.10, 1A i #1411).
+  const grunnene = $derived(
+    poster[0] ? iLaget(poster[0], 'beloep').filter((f) => 'grunn' in f) : []
+  );
+  const formforutsetninger = (p: Kravpost): IPosten[] => iPosten(iLaget(p, 'oppgjoersform'), p);
   const regelforutsetninger = (p: Kravpost, art: 'rettidighet' | 'justering'): IPosten[] =>
-    iPosten(
-      regellagene?.standpunkter.find((x) => x.art === art && x.gjelder === p.id)?.forutsetninger ??
-        [],
-      p
-    );
+    iPosten(iLaget(p, art), p);
   const grunnlagsbrev = $derived.by(() => {
     const g = u.spor.forhold.gjeldendeSvar;
     return g ? brevet(u, g.dokument) : null;
