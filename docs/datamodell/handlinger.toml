@@ -1,0 +1,591 @@
+# Handlingene og tilstandene i løsningen (#2003), etter regelen i OV-U97.
+#
+# Rett her, ikke i handlinger.md. Den lages av
+#   /tmp/venv/bin/python docs/verktoy/datamodell.py
+# Radene og utfallet i portene er fra avsnittet «Skjemaet» i
+# docs/vurdering-handlinger-og-tilstander-2026-11-15.md, rettet etter svarene som står
+# der («Svarene etter drøftingen») og etter OV-U99 og OV-U101. Portene står i
+# «Drøftingen 15.11» i samme fil.
+#
+# Én rad per handling slik brukeren ser den, ikke per kommando. En kommando kan høre til
+# flere rader, og en rad kan ha flere former.
+#
+# Feltene i en handling:
+#   id          G1–G5 er grunnsettet og U1–U9 det som er utover det, som i vurderingsfila.
+#               I1–I5 sendes som innlegg, O1–O3 er opphevet og V1–V4 venter.
+#   part        TE, BH eller «TE og BH».
+#   spor        forhold, vederlag og frist, eller tom for saken.
+#   kilde       bestemmelsen i NS 8407 og vedtakene. Hver vedtaks-ID finnes i
+#               vedtaksregisteret, og en opphevet ID står med den som opphever den.
+#   finnes, form, naar, tilstander
+#               utfallet i port 1–4.
+#   status      grunnsett, naa, venter, innlegg eller opphevet (OV-U99, OV-U101).
+#   noekler     handlingsnøklene i kjernen (`noekkel` i kjerne/kommandoer/forutsetninger.ts),
+#               med `*` for elementet nøkkelen gjelder.
+#   kommandoer  kommandotypene i kjernen (`Kommando` i kjerne/kommandoer/kommando.ts).
+#   skjema      nøklene i `skjemaene` i src/lib/components/varden/Vardensak.svelte.
+#   mangler     det som mangler i kjernen og Varden, eller «Ingen».
+#
+# [[betegnelse]] er tilstandene (port 0): sporets betegnelse (`BETEGNELSER` i
+# kjerne/utledning/visning.ts) og sakens (`Saksbetegnelse`). Status er holder, endres,
+# utgaar eller ny. Etikettene ved siden av betegnelsen er ikke med.
+#
+# [[avvik]] er den lukkede listen: handlingsnøkler kjernen tilbyr, men som har status
+# venter, innlegg eller opphevet. Hvert avvik har issuet som fjerner det, og fjernes
+# her i samme PR.
+
+format = 1
+
+# ---------------------------------------------------------------------------
+# Grunnsettet (OV-U97)
+# ---------------------------------------------------------------------------
+
+[[handling]]
+id = "G1"
+navn = "Påberopelse av forholdet, med ny sak og ny versjon"
+part = "TE"
+spor = ["forhold"]
+kilde = ["punkt 32.1", "punkt 32.2", "GR-U40", "OV-U97"]
+finnes = "Ja. Varslingsfristen etter 32.2 og byggherrens svar etter 32.3 leser den."
+form = "Strukturert, egen. Ny versjon er en form av påberopelsen."
+naar = "Nå."
+tilstander = "Åpner «venter på svar»."
+status = "grunnsett"
+noekler = ["krav:forhold"]
+kommandoer = ["krav"]
+skjema = ["krav:forhold"]
+mangler = "Ingen."
+
+[[handling]]
+id = "G2"
+navn = "Varsel fra løsningen"
+part = "TE"
+spor = ["vederlag", "frist"]
+kilde = ["punkt 33.4", "punkt 34.1.2", "punkt 34.1.3", "punkt 34.3.3", "punkt 34.4", "VS-U15", "OV-U89", "OV-U25", "VS-U48", "VS-U52"]
+finnes = "Ja. Om kravet er varslet i tide, leses av varselet."
+form = "Strukturert, egen. Kan sendes før kravet."
+naar = "Nå. Virkningen avhenger av datoen."
+tilstander = "Åpner «varslet»."
+status = "grunnsett"
+noekler = ["sende_varsel:frist", "sende_varsel:vederlag", "sende_varsel:34.1.3", "sende_varsel:34.3.3", "sende_varsel:34.4"]
+kommandoer = ["send_varsel"]
+skjema = ["sende_varsel:frist"]
+mangler = "Skjemaet i Varden for varselet i vederlaget."
+
+[[handling]]
+id = "G3"
+navn = "Krav om vederlagsjustering eller fristforlengelse, med ny versjon"
+part = "TE"
+spor = ["vederlag", "frist"]
+kilde = ["GR-U40", "KA-U52", "OV-U95", "OV-U99"]
+finnes = "Ja."
+form = "Strukturert. Ny versjon, også trekk av en kravpost, er en form av kravet."
+naar = "Nå."
+tilstander = "Åpner «venter på svar»."
+status = "grunnsett"
+noekler = ["krav:vederlag", "krav:frist"]
+kommandoer = ["krav"]
+skjema = ["krav:vederlag", "krav:frist"]
+mangler = "Ingen."
+
+[[handling]]
+id = "G4"
+navn = "Svar i hvert spor, med frafall av pålegget og nytt svar"
+part = "BH"
+spor = ["forhold", "vederlag", "frist"]
+kilde = ["punkt 32.3", "KA-U1", "HF-U29", "OV-U99", "OV-U101"]
+finnes = "Ja. Enigheten leser svaret."
+form = "Strukturert. Nytt svar er en form av svaret, og brevet viser at et svar som står, erstattes."
+naar = "Nå."
+tilstander = "Åpner «byggherren har svart» og «pålegg frafalt», og lukker «venter på svar»."
+status = "grunnsett"
+noekler = ["svare:forhold", "svare:vederlag", "svare:frist", "revidere:forhold", "revidere:vederlag", "revidere:frist"]
+kommandoer = ["brev", "revisjon"]
+skjema = ["svare:vederlag", "svare:frist"]
+mangler = "Skjemaet i Varden for svaret på påberopelsen og for nytt svar."
+
+[[handling]]
+id = "G5"
+navn = "Innlegg i fritekst"
+part = "TE og BH"
+spor = []
+kilde = ["MM-U47", "MM-U48", "OV-U97", "OV-U99"]
+finnes = "Nei. Ingen regel leser det."
+form = "Innlegg. Tar det I1–I5 gjelder, og utdyping."
+naar = "Nå."
+tilstander = "Merket som innlegg etter siste brev."
+status = "grunnsett"
+noekler = []
+kommandoer = []
+skjema = []
+mangler = "Kommandoen i kjernen, uten regel, og skjemaet i Varden."
+
+# ---------------------------------------------------------------------------
+# Utover grunnsettet, beholdt nå (OV-U99 punkt 1)
+# ---------------------------------------------------------------------------
+
+[[handling]]
+id = "U1"
+navn = "Aksept av svaret"
+part = "TE"
+spor = ["forhold", "vederlag", "frist"]
+kilde = ["KA-U1", "GR-U10", "OV-U99"]
+finnes = "Ja. «Enige» og sperren etter enighet leser den."
+form = "Strukturert, egen. Brevet sier hvilket svar som godtas."
+naar = "Nå. Uten den er enighet ved sammenfall den eneste veien, og et innlegg leses ikke som aksept."
+tilstander = "Åpner «enige» og lukker «byggherren har svart»."
+status = "naa"
+noekler = ["godta:forhold", "godta:vederlag", "godta:frist"]
+kommandoer = ["aksept"]
+skjema = []
+mangler = "Ingen. Varden åpner aksepten i sporet, ikke fra `skjemaene`."
+
+[[handling]]
+id = "U2"
+navn = "Trekk av påberopelsen eller hele kravet"
+part = "TE"
+spor = ["forhold", "vederlag", "frist"]
+kilde = ["KA-U51", "OV-U95", "OV-U99"]
+finnes = "Ja. Avkall som lukker sporet."
+form = "Strukturert, egen. Trekk av en kravpost er en form av G3. Brevet sier hva som trekkes, og at det er et avkall."
+naar = "Nå. Ingen omvei."
+tilstander = "Åpner «trukket», som er sluttilstand."
+status = "naa"
+noekler = ["trekke:forhold", "trekke:vederlag", "trekke:frist"]
+kommandoer = ["trekk"]
+skjema = []
+mangler = "Skjemaet i Varden for trekket av hele kravet."
+
+[[handling]]
+id = "U3"
+navn = "Forespørsel etter punkt 33.6.2, og svaret på den"
+part = "TE og BH"
+spor = ["frist"]
+kilde = ["punkt 33.6.2", "VS-U47", "OV-U99"]
+finnes = "Ja. Fristen leser den."
+form = "Strukturert, egen. Byggherren spør, og totalentreprenøren svarer."
+naar = "Nå. Fristen løper fra forespørselen."
+tilstander = "Åpner «spesifisert krav etterspurt», og svaret lukker den."
+status = "naa"
+noekler = ["sende_foresporsel:frist", "svare_paa_foresporsel:*"]
+kommandoer = ["foresporsel", "foresporselssvar"]
+skjema = []
+mangler = "Skjemaet i Varden for forespørselen."
+
+[[handling]]
+id = "U5"
+navn = "Registrering som dokumentasjon"
+part = "TE og BH"
+spor = []
+kilde = ["OV-U79", "OV-U98", "OV-U99"]
+finnes = "Ikke et utsagn med virkning. Korrespondansen hører til saken."
+form = "Strukturert, med retting av registreringen."
+naar = "Nå."
+tilstander = "Ingen."
+status = "naa"
+noekler = ["registrere_brev"]
+kommandoer = ["registrert_brev", "ikke_i_saken"]
+skjema = []
+mangler = "Skjemaet i Varden."
+
+[[handling]]
+id = "U6"
+navn = "Registrering med virkning ved innleggingen"
+part = "TE og BH"
+spor = ["forhold", "vederlag", "frist"]
+kilde = ["OV-U80", "OV-U98", "OV-U99", "VS-U19", "VS-U34", "EO-U39", "OV-U16"]
+finnes = "Ja. Fristene regnes fra datoen brevet ble sendt."
+form = "Former av varsel, krav, svar, endringsordre som svar, aksept og forespørsel."
+naar = "Nå. Omveien, å sende på nytt fra løsningen, gir ny dato."
+tilstander = "Som handlingen registreringen er en form av."
+status = "naa"
+noekler = ["varsle:vederlag", "varsle:frist", "varsle:32.2", "varsle:34.1.3", "varsle:34.3.3", "varsle:34.4"]
+kommandoer = ["varsel"]
+skjema = ["varsle:frist"]
+mangler = "Kommandoene i kjernen for registrert krav, svar, endringsordre, aksept og forespørsel, og skjemaene i Varden. Varselet etter 32.2 godtas, men tilbys ikke (K3)."
+
+[[handling]]
+id = "U7"
+navn = "Retting av datoene i et sendt brev"
+part = "TE"
+spor = ["forhold", "vederlag", "frist"]
+kilde = ["MM-U55", "OV-U98", "OV-U99"]
+finnes = "Ja."
+form = "Strukturert. Den manuelle korrigeringsprosessen tar andre rettinger."
+naar = "Nå for datoene i beslutningsdelen i MM-U55."
+tilstander = "Ingen ny."
+status = "naa"
+noekler = ["korrigere:*"]
+kommandoer = ["korrigering"]
+skjema = []
+mangler = "Rettingen av varseldatoen (punkt 8) og kravdatoen (punkt 18): kommandoen i kjernen og skjemaet i Varden. Korrigeringen av datoen i påberopelsen (punkt 10) er bygget."
+
+[[handling]]
+id = "U8"
+navn = "Godkjenning med fullmakt"
+part = "BH"
+spor = []
+kilde = ["GFK-U2", "GFK-U5", "GFK-U14", "OV-U80"]
+finnes = "Ikke et utsagn til motparten. Byggherrens organisering av fullmakten."
+form = "Ingen."
+naar = "Før første ekte sak etter gjeldende vedtak."
+tilstander = "Ingen."
+status = "naa"
+noekler = []
+kommandoer = []
+skjema = []
+mangler = "Ruten i serveren og skjemaet. Datalaget finnes (K5)."
+
+# ---------------------------------------------------------------------------
+# Venter (OV-U99 punkt 2 og 5)
+# ---------------------------------------------------------------------------
+
+[[handling]]
+id = "U4"
+navn = "«Ingen krav»"
+part = "TE"
+spor = ["vederlag", "frist"]
+kilde = ["KA-U17", "OV-U7", "OV-U99"]
+finnes = "Ja. Avkall."
+form = "Strukturert."
+naar = "Senere. Tidspunktet betyr ingenting."
+tilstander = "«Ingen krav» går ut."
+status = "venter"
+noekler = ["ingen_krav:vederlag", "ingen_krav:frist"]
+kommandoer = ["ingen_krav"]
+skjema = []
+mangler = "Kjernen slutter å tilby den (K1, #2016)."
+
+[[handling]]
+id = "U9"
+navn = "Interne notater"
+part = "TE og BH"
+spor = []
+kilde = ["OV-U99"]
+finnes = "Ikke et utsagn til motparten."
+form = "Ingen. Notatet står i `koe.notat`, ikke i journalen."
+naar = "Senere, og først ved et nytt vedtak."
+tilstander = "Ingen."
+status = "venter"
+noekler = []
+kommandoer = []
+skjema = []
+mangler = "Ingen. Tabellen finnes."
+
+[[handling]]
+id = "V1"
+navn = "Det senere valget for korrespondanse som er lagt til som dokumentasjon"
+part = "TE og BH"
+spor = ["forhold", "vederlag", "frist"]
+kilde = ["OV-U84", "OV-U17", "OV-U99"]
+finnes = "Ja. Valget gir korrespondansen virkning."
+form = "En form av U6."
+naar = "Senere. Til den er bygget, legger avsenderen korrespondansen til på nytt med valget."
+tilstander = "Som U6."
+status = "venter"
+noekler = []
+kommandoer = []
+skjema = []
+mangler = "Ingen nå."
+
+[[handling]]
+id = "V2"
+navn = "Forsering"
+part = "TE"
+spor = ["frist"]
+kilde = ["punkt 33.8", "OV-U1", "OV-U99"]
+finnes = "Ja."
+form = "Egen sak."
+naar = "Senere."
+tilstander = "Ingen nå."
+status = "venter"
+noekler = []
+kommandoer = []
+skjema = []
+mangler = "Ingen nå."
+
+[[handling]]
+id = "V3"
+navn = "Endringsordre som egen sak"
+part = "BH"
+spor = []
+kilde = ["punkt 31.3", "OV-U1", "OV-U99"]
+finnes = "Ja."
+form = "Egen sak. Endringsordren som svar i KOE-saken er en form av G4 og U6."
+naar = "Senere."
+tilstander = "Ingen nå."
+status = "venter"
+noekler = []
+kommandoer = []
+skjema = []
+mangler = "Ingen nå."
+
+[[handling]]
+id = "V4"
+navn = "Justering av enhetspriser etter punkt 34.3.3"
+part = "TE og BH"
+spor = ["vederlag"]
+kilde = ["punkt 34.3.3", "OV-U1", "OV-U99"]
+finnes = "Ja."
+form = "Egen."
+naar = "Senere."
+tilstander = "Ingen nå."
+status = "venter"
+noekler = []
+kommandoer = []
+skjema = []
+mangler = "Ingen nå."
+
+# ---------------------------------------------------------------------------
+# Sendes som innlegg (OV-U99 punkt 3 og 4)
+# ---------------------------------------------------------------------------
+
+[[handling]]
+id = "I1"
+navn = "Den egne innsigelsen etter punkt 5"
+part = "TE og BH"
+spor = ["forhold", "vederlag", "frist"]
+kilde = ["punkt 5", "VS-U46", "OV-U99"]
+finnes = "Nei. Utsagn uten virkning på utfallet."
+form = "Innlegg i første versjon. Om det gjelder varig, avgjøres i #1657."
+naar = "Som G5."
+tilstander = "Som G5."
+status = "innlegg"
+noekler = ["innsigelse:*"]
+kommandoer = ["innsigelse"]
+skjema = []
+mangler = "Kjernen slutter å tilby den (K4)."
+
+[[handling]]
+id = "I2"
+navn = "Protest mot en innsigelse"
+part = "TE og BH"
+spor = ["forhold", "vederlag", "frist"]
+kilde = ["VS-U1", "VS-U9", "OV-U7", "OV-U99"]
+finnes = "Nei."
+form = "Innlegg."
+naar = "Som G5."
+tilstander = "Som G5."
+status = "innlegg"
+noekler = ["protest:*"]
+kommandoer = ["protest"]
+skjema = []
+mangler = "Ingen. Kommandoen avvises."
+
+[[handling]]
+id = "I3"
+navn = "Bestridelse"
+part = "TE og BH"
+spor = ["forhold", "vederlag", "frist"]
+kilde = ["MM-U7", "MM-U14", "MM-U48", "OV-U7", "OV-U99"]
+finnes = "Nei."
+form = "Innlegg."
+naar = "Som G5."
+tilstander = "Som G5."
+status = "innlegg"
+noekler = ["bestride:*"]
+kommandoer = ["bestridelse"]
+skjema = []
+mangler = "Ingen. Kommandoen avvises."
+
+[[handling]]
+id = "I4"
+navn = "Påberopt passivitet"
+part = "TE"
+spor = ["forhold", "vederlag", "frist"]
+kilde = ["VS-U12", "OV-U99"]
+finnes = "Nei."
+form = "Innlegg i første versjon. Om det gjelder varig, avgjøres i #1657."
+naar = "Som G5."
+tilstander = "Som G5."
+status = "innlegg"
+noekler = ["passivitet:*"]
+kommandoer = ["passivitet"]
+skjema = []
+mangler = "Ingen. Kommandoen avvises."
+
+[[handling]]
+id = "I5"
+navn = "Byggherrens senere begrunnelse"
+part = "BH"
+spor = ["forhold", "vederlag", "frist"]
+kilde = ["KA-U46", "OV-U99"]
+finnes = "Nei."
+form = "Innlegg."
+naar = "Som G5."
+tilstander = "Som G5."
+status = "innlegg"
+noekler = ["begrunne:*"]
+kommandoer = ["begrunnelse"]
+skjema = []
+mangler = "Ingen. Kommandoen avvises."
+
+# ---------------------------------------------------------------------------
+# Opphevet
+# ---------------------------------------------------------------------------
+
+[[handling]]
+id = "O1"
+navn = "Merking av et registrert brev"
+part = "TE og BH"
+spor = ["forhold", "vederlag", "frist"]
+kilde = ["KA-U45"]
+finnes = "Nei. Sperrene er opphevet."
+form = "Ingen. Motpartens syn sendes som innlegg."
+naar = "Aldri."
+tilstander = "Ingen."
+status = "opphevet"
+noekler = ["merke:*"]
+kommandoer = ["merking"]
+skjema = []
+mangler = "Kommandoen avvises, og fjernes fra kjernen i #2019."
+
+[[handling]]
+id = "O2"
+navn = "Avklaring av en merking"
+part = "TE og BH"
+spor = ["forhold", "vederlag", "frist"]
+kilde = ["KA-U45"]
+finnes = "Nei. Sperrene er opphevet."
+form = "Ingen."
+naar = "Aldri."
+tilstander = "Ingen."
+status = "opphevet"
+noekler = ["avklare:*"]
+kommandoer = ["avklaring"]
+skjema = []
+mangler = "Kommandoen avvises, og fjernes fra kjernen i #2019."
+
+[[handling]]
+id = "O3"
+navn = "Byggherrens bekreftelse av et svar gitt utenfor løsningen"
+part = "BH"
+spor = ["forhold", "vederlag", "frist"]
+kilde = ["OV-U101", "GR-U35", "GR-U37", "OV-U46"]
+finnes = "Nei. Et svar lagt til med virkning dekker behovet."
+form = "Ingen. Svaret legges til etter U6."
+naar = "Aldri."
+tilstander = "Ingen."
+status = "opphevet"
+noekler = []
+kommandoer = []
+skjema = []
+mangler = "Ingen."
+
+# ---------------------------------------------------------------------------
+# Tilstandene (port 0). Betydningen sier hvem som har sagt hva.
+# ---------------------------------------------------------------------------
+
+[[betegnelse]]
+noekkel = "trukket"
+nivaa = "spor"
+betydning = "TE har trukket. Sluttilstand."
+kilde = ["KA-U51", "OV-U97"]
+status = "holder"
+
+[[betegnelse]]
+noekkel = "spesifisert_krav_etterspurt"
+nivaa = "spor"
+betydning = "BH har spurt etter punkt 33.6.2. TE står for tur."
+kilde = ["VS-U47", "OV-U97"]
+status = "holder"
+
+[[betegnelse]]
+noekkel = "venter_paa_svar"
+nivaa = "spor"
+betydning = "TE har krevd. BH står for tur."
+kilde = ["OV-U97"]
+status = "holder"
+
+[[betegnelse]]
+noekkel = "paalegg_frafalt"
+nivaa = "spor"
+betydning = "BH har frafalt pålegget etter punkt 32.3 c."
+kilde = ["punkt 32.3", "OV-U97"]
+status = "holder"
+
+[[betegnelse]]
+noekkel = "enige"
+nivaa = "spor"
+betydning = "TE har godtatt BHs svar, eller kravet og svaret sammenfaller."
+kilde = ["KA-U1", "GR-U10", "OV-U97"]
+status = "holder"
+
+[[betegnelse]]
+noekkel = "svar_ikke_godtatt"
+nivaa = "spor"
+betydning = "BH har svart. Erstattes av «byggherren har svart», fordi den antyder et standpunkt TE ikke har tatt."
+kilde = ["OV-U99"]
+status = "endres"
+
+[[betegnelse]]
+noekkel = "krav_sendt"
+nivaa = "spor"
+betydning = "TE har godtatt et svar på påberopelsen som ikke avklarer forholdet, og kravet står uten enighet. Saken har alt sin betegnelse."
+kilde = ["OV-U99"]
+status = "utgaar"
+
+[[betegnelse]]
+noekkel = "ingen_krav"
+nivaa = "spor"
+betydning = "TE har sagt «ingen krav». Går ut med U4."
+kilde = ["OV-U7", "OV-U99"]
+status = "utgaar"
+
+[[betegnelse]]
+noekkel = "varslet"
+nivaa = "spor"
+betydning = "TE har varslet. TE står for tur med kravet."
+kilde = ["OV-U97"]
+status = "holder"
+
+[[betegnelse]]
+noekkel = "innlegg_etter_siste_brev"
+nivaa = "spor"
+betydning = "En part har sendt innlegg etter siste strukturerte handling. Merknad uten tolkning."
+kilde = ["OV-U97", "OV-U99"]
+status = "ny"
+
+[[betegnelse]]
+noekkel = "ikke_forstaatt"
+nivaa = "sak"
+betydning = "Løsningen forstår ikke saken."
+kilde = ["MM-U2", "MM-U43"]
+status = "holder"
+
+[[betegnelse]]
+noekkel = "avslaget_paa_forholdet_godtatt"
+nivaa = "sak"
+betydning = "TE har godtatt avslaget på forholdet."
+kilde = ["MM-U22", "OV-U97"]
+status = "holder"
+
+[[betegnelse]]
+noekkel = "paaberopelsen_trukket"
+nivaa = "sak"
+betydning = "TE har trukket påberopelsen."
+kilde = ["MM-U22", "OV-U97"]
+status = "holder"
+
+[[betegnelse]]
+noekkel = "kravene_avgjort"
+nivaa = "sak"
+betydning = "Predikatet i OV-U3. Betegnelsen skal si hva som har skjedd, ikke at kravene er avgjort."
+kilde = ["OV-U3", "OV-U99"]
+status = "endres"
+
+# ---------------------------------------------------------------------------
+# Den lukkede listen. Kjernen tilbyr disse, mot statusen i raden.
+# ---------------------------------------------------------------------------
+
+[[avvik]]
+noekler = ["ingen_krav:vederlag", "ingen_krav:frist"]
+handling = "U4"
+funn = "K1"
+issue = 2016
+
+[[avvik]]
+noekler = ["innsigelse:*"]
+handling = "I1"
+funn = "K4"
+issue = 1657

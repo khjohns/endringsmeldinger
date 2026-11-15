@@ -39,7 +39,11 @@ Prototypen og forløpet i demoruta viser til punktene i bestillingen og gjentar 
    bare prøves i demoruta. Systemfila har retningen, tokenene og mønstrene som er
    besluttet, og skissen følger dem. Et valg som avviker fra systemfila, står i
    bestillingen med begrunnelsen. Forløpet prøves i demoruta, og en HTML-skisse lages bare for et nytt
-   mønster («Prototypen»). Skissen kan vise handlinger og tilstander som ikke finnes (#1331). Er spørsmålet
+   mønster («Prototypen»). Skissen kan vise handlinger og tilstander som ikke finnes (#1331). En
+   handling eller betegnelse uten rad i [handlingsregisteret](../../../docs/datamodell/handlinger.toml)
+   går gjennom portene i [vurderingsfila](../../../docs/vurdering-handlinger-og-tilstander-2026-11-15.md#skjemaet)
+   før prototypen lages, og spørsmålet om den stilles etter [OV-U97](../../../docs/plans/vedtak.md#ov-u97)
+   i steg 5. Er spørsmålet
    bare plassering eller ordlyd, og den nye visningen er bygget for oppgaven, kan det
    prøves der i stedet.
 4. **Kontroller forskjellene** mellom ønsket løsning og det kjernen og vedtakene gir.

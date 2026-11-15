@@ -1,7 +1,7 @@
 """Lager tabellbeskrivelsen og de andre visningene fra registrene i docs/datamodell/.
 
 Kjøres fra repo-roten: /tmp/venv/bin/python docs/verktoy/datamodell.py
-Skriver docs/datamodell/tabeller.md, kjernehendelser.md, relasjoner.md og
+Skriver docs/datamodell/tabeller.md, kjernehendelser.md, handlinger.md, relasjoner.md og
 tabellbeskrivelse.xlsx, men bare når innholdet er endret. Excel-fila krever openpyxl,
 så den trenger venv-en i `.claude/skills/miljo/SKILL.md`. Katalogen over skjemaet,
 katalog.json, lages av katalog.py mot en testbase i SQL Server.
@@ -17,7 +17,9 @@ if "verktoy.laster" not in sys.modules:
     sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 from verktoy.laster import last
 
-kh, kat, rel, df, lk = last("kjernehendelser", "katalog", "relasjoner", "dataflyt", "lenkekontroll")
+kh, hr, kat, rel, df, lk = last(
+    "kjernehendelser", "handlinger", "katalog", "relasjoner", "dataflyt", "lenkekontroll"
+)
 
 ROT = pathlib.Path(__file__).resolve().parents[2]
 MAPPE = ROT / "docs" / "datamodell"
@@ -526,8 +528,9 @@ def relasjoner_markdown(register: dict, k: dict | None = None) -> str:
 def main() -> int:
     register = les()
     kjernen = kh.les()
+    handlingene = hr.les()
     k = kilder()
-    feil = valider(register, funnregisteret()) + kh.valider(kjernen)
+    feil = valider(register, funnregisteret()) + kh.valider(kjernen) + hr.valider(handlingene)
     feil += kontroller_relasjoner(register, k)
     if feil:
         print("Registeret eller katalogen er ikke gyldig:", *feil, sep="\n  ")
@@ -536,6 +539,7 @@ def main() -> int:
         (MARKDOWN, markdown(register, k)),
         (RELASJONER, relasjoner_markdown(register, k)),
         (kh.MARKDOWN, kh.markdown(kjernen)),
+        (hr.MARKDOWN, hr.markdown(handlingene)),
     ):
         if not sti.exists() or sti.read_text(encoding="utf-8") != ny:
             sti.write_text(ny, encoding="utf-8")
@@ -545,7 +549,8 @@ def main() -> int:
         print(f"skrev {EXCEL.relative_to(ROT)}")
     print(
         f"{len(register['tabell'])} tabeller, {len(register.get('utenfor', []))} utenfor databasene, "
-        f"{len(kjernen['hendelse'])} hendelsestyper i kjernen, {len(k['relasjoner']['relasjon'])} relasjoner, "
+        f"{len(kjernen['hendelse'])} hendelsestyper i kjernen, {len(handlingene['handling'])} handlinger, "
+        f"{len(k['relasjoner']['relasjon'])} relasjoner, "
         f"{len(df.piler(k['dataflyt']))} piler i dataflyten"
     )
     return 0
