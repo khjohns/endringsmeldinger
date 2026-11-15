@@ -52,6 +52,9 @@ export const sakensKode = (s: Sakskode): string => `${s.kode.toUpperCase()}-${s.
 export const erLagslinje = (avsnitt: string): boolean =>
   /^(Prinsipalt|Subsidiært|Videre subsidiært)(, hvis .+ fører frem)?$/.test(avsnitt);
 
+/** Punktet med innledningen i svaret, først i brevet og uten overskrift. */
+export const INNLEDNINGEN = 'innledning';
+
 /** Punktet med oversiktstabellen i svaret (OV-U73). Cellene står adskilt med tabulator. */
 export const OVERSIKTEN = 'oversikt';
 

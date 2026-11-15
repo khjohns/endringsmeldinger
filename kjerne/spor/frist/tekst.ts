@@ -19,7 +19,7 @@ import {
 } from '../../frosset/brevdeler.ts';
 import { standpunktet, virkningen } from '../../frosset/byggeklosser.ts';
 import type { Sporslinje } from '../../frosset/linje.ts';
-import { dager } from '../../frosset/tekst.ts';
+import { dager, INNLEDNINGEN } from '../../frosset/tekst.ts';
 import { Uforstaatt } from '../../format/skjema.ts';
 import { betegnelsen, hindringenEtter, innholdIFristen, type FristIKravet } from './format.ts';
 import { svarPaaForesporsler } from './frysing.ts';
@@ -117,7 +117,7 @@ function fristkravtekst(k: Krav, t: Tekst): Brevpunkt[] {
   }
   return [
     ...(innledning.length
-      ? [{ punkt: 'innledning', overskrift: null, avsnitt: [innledning.join(' ')] }]
+      ? [{ punkt: INNLEDNINGEN, overskrift: null, avsnitt: [innledning.join(' ')] }]
       : []),
     ...varselpunkt(t),
     { punkt: 'frister', overskrift: 'Fristforlengelse', avsnitt },

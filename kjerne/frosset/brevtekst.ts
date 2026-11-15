@@ -51,7 +51,7 @@ import {
 } from '../spor/forhold/tekst.ts';
 import { BREVTEKSTEN_I_VEDERLAGET, STANDPUNKTENE_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
 import { BREVTEKSTEN_I_FRISTEN, STANDPUNKTENE_I_FRISTEN } from '../spor/frist/tekst.ts';
-import { FORBEHOLDET, kroner, OVERSIKTEN } from './tekst.ts';
+import { FORBEHOLDET, INNLEDNINGEN, kroner, OVERSIKTEN } from './tekst.ts';
 import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
   Avsnitt,
@@ -424,7 +424,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
   };
 
   const brevpunkter: Brevpunkt[] = [
-    { punkt: 'innledning', overskrift: null, avsnitt: [innledningen(s, krav, t)] },
+    { punkt: INNLEDNINGEN, overskrift: null, avsnitt: [innledningen(s, krav, t)] },
   ];
   for (const p of punkter) {
     const avsnitt: string[] = p.foerst ? [p.foerst] : [];

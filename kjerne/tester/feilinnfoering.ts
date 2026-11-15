@@ -4133,8 +4133,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/tekst.ts`,
     endringer: [
       [
-        "  if (k.erstatter)\n    punkter.push({\n      punkt: 'innledning',",
-        "  if (false)\n    punkter.push({\n      punkt: 'innledning',",
+        '  if (k.erstatter)\n    punkter.push({\n      punkt: INNLEDNINGEN,',
+        '  if (false)\n    punkter.push({\n      punkt: INNLEDNINGEN,',
       ],
     ],
     mal: ['en ny versjon sier først hvilket krav den erstatter'],
