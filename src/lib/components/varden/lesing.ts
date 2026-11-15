@@ -29,6 +29,8 @@ import type {
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Betegnelse } from '$kjerne/utledning/visning';
 import { elementenesSpor, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+import type { Fristdato } from '$lib/kjernesak/brevtekst';
+import type { Snippet } from 'svelte';
 
 /**
  * Ett brev i saken. `nummer` er brevets nummer i saken, som brevteksten kaller «brev 5»
@@ -45,7 +47,7 @@ export interface Brevet {
    */
   sendt: string | null;
   spor: Spor[];
-  art: 'krav' | 'svar' | 'aksept' | 'trekk' | 'innsigelse' | 'registrert' | 'annet';
+  art: 'krav' | 'svar' | 'aksept' | 'trekk' | 'innsigelse' | 'varsel' | 'registrert' | 'annet';
   /** Kjernens kode for forholdet et krav i forholdssporet påberoper, ellers `null`. */
   forhold: string | null;
   /** Vår ref., merkingen som ble frosset med brevet (LV-U53, LV-U24), eller `null`. */
@@ -71,7 +73,7 @@ function artAv(d: Dokument): Brevet['art'] {
   if (d.brevtekst === null) return 'registrert';
   if (d.svar.length) return 'svar';
   if (d.krav.length) return 'krav';
-  const u = d.utsagn.find((x) => ['aksept', 'trekk', 'innsigelse'].includes(x.art));
+  const u = d.utsagn.find((x) => ['aksept', 'trekk', 'innsigelse', 'varsel'].includes(x.art));
   return (u?.art as Brevet['art']) ?? 'annet';
 }
 
@@ -338,6 +340,41 @@ export const betegnelsene = (
   return { forhold: kode('forhold'), vederlag: kode('vederlag'), frist: kode('frist') };
 };
 
+/** Fristtabellen og sakene i prosjektet, som gjeldende frist regnes av (KA-U77, BF-45 U-5). */
+export interface Fristtabellen {
+  datoer: readonly Fristdato[];
+  /** Saken siden viser, som forlengelsene i den ikke regnes med i (KA-U77). */
+  sakId: string;
+  /** Sakene kjernen ikke forstår, som kan ha forlenget en frist (MM-U2). */
+  ikkeForstaatt: readonly string[];
+  /** Lenken til en annen sak i prosjektet. */
+  sakslenke?: (sakId: string) => string;
+}
+
+/** Det sidene for forholdet, vederlaget og fristen får fra `Sporlesing` (oppsett B, #1997). */
+export interface Sideprops {
+  u: Utledning;
+  /** Betegnelsen i MM-U30 for hvert spor, fra saksbildet (`betegnelsene`). */
+  betegnelser: Record<Spor, Betegnelse | null>;
+  /** Fristtabellen, til siden for fristen. */
+  fristtabell?: Fristtabellen;
+  /** Opplysningene om datoen TE kan korrigere (`korrigere:<id>`), til siden for forholdet. */
+  korrigerbare?: string[];
+  /** Brevet som vises ved siden av tråden, eller i raden når `smal`. */
+  vist?: string | null;
+  /** Under 1181 px står brevet i raden, ikke i høyre kolonne (U-16 i BF-44). */
+  smal?: boolean;
+  onles: (id: string) => void;
+  /** Brukeren går til et annet spor, som forholdet fra forbeholdet. */
+  onspor?: (spor: Spor) => void;
+  onkorriger?: (opplysning: string) => void;
+  /** Brevet handlingen svarer på (U-16 i BF-44). */
+  handlingVed?: string | null;
+  handling?: Snippet;
+  /** Brevet slik det ble sendt, i raden. */
+  brevet?: Snippet<[Brevet]>;
+}
+
 /**
  * Innholdet i et brev i tråden om forholdet, som i prototypen `grunnlagsoversikt.html`: TEs
  * beskrivelse, som står som utdypningen under kravet i brevteksten (`brevtekst.ts`), og datoen
@@ -533,3 +570,15 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
     grunner: s.subsidiaer,
   };
 }
+
+/**
+ * Avsnittene i et punkt i brevet, uten overskriften, som står først i den låste delen. Står den
+ * ikke først, står hele den låste delen, så ingen tekst faller bort (#1824).
+ */
+export const underOverskriften = (a: Pick<Avsnitt, 'laast' | 'overskrift'>): string[] =>
+  (a.overskrift && a.laast.startsWith(a.overskrift)
+    ? a.laast.slice(a.overskrift.length).trimStart()
+    : a.laast
+  )
+    .split('\n\n')
+    .filter((del) => del !== '');

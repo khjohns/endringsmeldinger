@@ -13,6 +13,8 @@ export type Skjema = Record<string, unknown>;
 export const ID: Skjema = { type: 'string', minLength: 1 };
 export const TEKST: Skjema = { type: 'string', minLength: 1 };
 export const DATO: Skjema = { type: 'string', minLength: 10 };
+/** En kalenderdag på formen ÅÅÅÅ-MM-DD, uten klokkeslett. At dagen finnes, kontrolleres for seg. */
+export const KALENDERDAG: Skjema = { type: 'string', pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' };
 export const liste = (items: Skjema): Skjema => ({ type: 'array', minItems: 1, items });
 
 export const objekt = (properties: Skjema, required: string[], anyOf?: Skjema[]): Skjema => ({

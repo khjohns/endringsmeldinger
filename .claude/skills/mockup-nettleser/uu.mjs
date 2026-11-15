@@ -100,10 +100,10 @@ async function startVite(url) {
   throw new Error(`vite svarte ikke på ${url} innen 60 s`);
 }
 
-// Varden i demoruta med BF-01: hver tilstand starter ved kontrollpunktet sitt. Demopanelet
-// legges sammen først, så det ikke står over det som prøves.
-const iVarden = (punkt, vei) => async (page) => {
-  await page.goto(`${arg.url}/demo/BF-01?punkt=${punkt}`, {
+// Varden i demoruta, med BF-01 om ikke et annet forløp er gitt: hver tilstand starter ved
+// kontrollpunktet sitt. Demopanelet legges sammen først, så det ikke står over det som prøves.
+const iVarden = (punkt, vei, forloep = 'BF-01') => async (page) => {
+  await page.goto(`${arg.url}/demo/${forloep}?punkt=${punkt}`, {
     waitUntil: 'networkidle',
   });
   await page.getByRole('heading', { level: 1 }).waitFor();
@@ -137,6 +137,22 @@ const VARDEN = [
       await page.getByRole('button', { name: 'Se brevet før sending' }).first().click();
       await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).waitFor();
     }),
+  },
+  {
+    navn: 'Varden: siden for vederlaget med tre lag (BF-44)',
+    vei: iVarden(
+      'bh-har-registrert-eposten',
+      (page) => page.getByRole('button', { name: /^Vederlagsjustering/ }).first().click(),
+      'BF-44'
+    ),
+  },
+  {
+    navn: 'Varden: siden for fristforlengelsen med tre frister (BF-45)',
+    vei: iVarden(
+      'bh-har-registrert-fremdriftsplanen',
+      (page) => page.getByRole('button', { name: /^Fristforlengelse/ }).first().click(),
+      'BF-45'
+    ),
   },
   {
     navn: 'Varden: akseptbrevet før sending',

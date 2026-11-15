@@ -365,6 +365,10 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get fristdatoer(): readonly Fristdato[] {
       return sak?.merking?.fristdatoer ?? [];
     },
+    /** Sakene i prosjektet kjernen ikke forstår, som kan ha forlenget en frist (MM-U2, KA-U77). */
+    get sakerIkkeForstaatt(): readonly string[] {
+      return sak?.merking?.sakerIkkeForstaatt ?? [];
+    },
     get versjon() {
       return utledning?.versjon ?? null;
     },

@@ -30261,6 +30261,46 @@ Handlingene i første versjon er disse:
 6. Tilstandene følger porten i A1. Betegnelsen for at kravene er avgjort etter OV-U3, sier hva som har skjedd, ikke at kravene er avgjort. Predikatet i OV-U3 står.'''
 anbefalt = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U100"
+dato = 2026-11-15
+hvem = "oppdragsgiver"
+kilde = ["#1905"]
+sporsmal = '''
+Spørsmål 1 ordrett slik orkestratoren stilte det til oppdragsgiver 15.11, etter kontrollen mot vedtakene. Spørsmålet kom fra kjerneøkta for punkt 2 i #1905:
+
+**1. Kan dagene i en frist være upåvirket av en påberopelse? (#1905 punkt 2)**
+
+OV-U33 sier at et standpunkt i vederlaget eller fristen er upåvirket bare på bestemte vilkår, og åpner for det i fristen. Leseren i kjernen godtar i dag «upåvirket» for dagene i fristen, men kjernen skriver det aldri. Kjerneøkta mener at hver påberopelse i fristen gjelder hele kravet, og viser til hindringen (KA-U80), spesifiseringen og punkt 33.6.2 (KA-U78) og varselet etter punkt 33.4. Da rammes hver frist, og dagene kan ikke være upåvirket.
+
+Kontrollen fant én innvending. KA-U80 sier: «Mener byggherren at fremdriften ikke ble hindret for en av fristene, avslår byggherren dagene for den fristen.» Det kan leses slik at hindringen vurderes frist for frist, og at en frist som ikke avslås, kan være upåvirket.
+
+- **A (anbefalt, valgt):** Hver påberopelse i fristen gjelder hele kravet, og dagene i en frist er aldri upåvirket. Saker med «upåvirket» for dagene i fristen leses ikke av kjernen. Forhold: snevrer inn OV-U33 for fristen.
+- B: Dagene i en frist kan være upåvirket, slik OV-U33 tillater. Leseren godtar det som i dag. Forhold: i tråd med OV-U33.
+
+*Valget styrer* om kjernen avviser saker med «upåvirket» for dagene i fristen. Ingen brev som er sendt i dag, har det, men noen tester har det. Med A føres svaret som vedtak, fordi det snevrer inn OV-U33.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 15.11, ordrett: «Spørsmål: A,A». Det første svaret gjelder dette spørsmålet.'''
+forhold = [
+  { art = "snevrer inn", vedtak = "ov-u33" },
+]
+folge = '''
+Bygges i #1905.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Hver påberopelse i fristen gjelder hele kravet, og dagene i en frist er aldri upåvirket. Saker med «upåvirket» for dagene i fristen leses ikke av kjernen. Forhold: snevrer inn OV-U33 for fristen.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Dagene i en frist kan være upåvirket, slik OV-U33 tillater. Leseren godtar det som i dag. Forhold: i tråd med OV-U33.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
 etter = '''

@@ -10,6 +10,7 @@
   import type { Avsnitt, Part } from '$kjerne/typer';
   import { cellene, erKravpostpunkt, erLagslinje, OVERSIKTEN } from '$kjerne/frosset/tekst';
   import { organisasjonene } from './kontrakt';
+  import { underOverskriften } from './lesing';
   import { MOTTATT } from './tekster';
   import { PARTEN } from '$kjerne/frosset/brevdeler';
 
@@ -58,18 +59,6 @@
   const hentOrganisasjoner = organisasjonene();
   const organisasjoner = $derived(hentOrganisasjoner());
   const stor = (s: string) => s[0].toUpperCase() + s.slice(1);
-
-  /**
-   * Avsnittene i et punkt, uten overskriften, som står først i den låste delen. Står den ikke
-   * først, vises hele den låste delen, så ingen tekst faller bort.
-   */
-  const underOverskriften = (a: Pick<Avsnitt, 'laast' | 'overskrift'>): string[] =>
-    (a.overskrift && a.laast.startsWith(a.overskrift)
-      ? a.laast.slice(a.overskrift.length).trimStart()
-      : a.laast
-    )
-      .split('\n\n')
-      .filter((del) => del !== '');
 </script>
 
 <article class="brev" class:innfelt class:dempet class:bh={avsender === 'BH'} aria-label={tittel}>

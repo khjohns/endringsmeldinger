@@ -43,6 +43,7 @@
     saksliste={resolve('/[prosjektId]', { prosjektId })}
     prosjekter={resolve('/')}
     nySakLenke={resolve('/[prosjektId]/ny', { prosjektId })}
+    sakslenke={(annen) => resolve('/[prosjektId]/[sakId]', { prosjektId, sakId: annen })}
     bruker={page.data.user}
   />
 {/key}

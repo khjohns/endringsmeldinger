@@ -4,6 +4,7 @@
  */
 
 import type { Sporsvisning } from '../../utledning/visning.ts';
+import { dageneILagene } from './format.ts';
 
 export const VISNING_I_FRISTEN = {
   paaleggFrafalt: () => false,
@@ -15,4 +16,9 @@ export const VISNING_I_FRISTEN = {
     !u.spor.frist.varsler['33.4'] && u.spor.frist.krav.length === 0
       ? 'varsel_ikke_registrert'
       : null,
+  // HF-U29 punkt 8, HF-U31 og HF-U32: dagene for hver frist, og punkt 33.7 annet ledd.
+  senkning: {
+    godkjentILagene: (svar) => dageneILagene(svar.utregning),
+    bestemmelse: () => '33.7',
+  },
 } satisfies Sporsvisning;
