@@ -108,8 +108,9 @@
   // Begrunnelsen som kreves, er besvart når ett av punktene den kan stå i, har tekst.
   const alleMangler = $derived.by((): Mangel[] => {
     const k = begrunnelseKreves;
-    const foerste = k && punktene.find((p) => k.punktene.includes(p.punkt));
-    if (!k || !foerste || k.punktene.some((p) => tekster.begrunnelser[p]?.trim())) return mangler;
+    if (!k || k.punktene.some((p) => tekster.begrunnelser[p]?.trim())) return mangler;
+    const foerste = punktene.find((p) => k.punktene.includes(p.punkt));
+    if (!foerste) return mangler;
     return [...mangler, { felt: begrunnelseId(foerste.punkt), post: null, tekst: k.mangler }];
   });
 
@@ -259,7 +260,7 @@
         <section class="begrunnelser" aria-labelledby={`${uid}-sp-begrunnelse`}>
           <h3 id={`${uid}-sp-begrunnelse`}>{SKJEMA.begrunnelse}</h3>
           <p class="dempet" id={`${uid}-begrunnelse-hjelp`}>
-            {begrunnelseKreves ? SKJEMA.begrunnelseHjelpKreves : SKJEMA.begrunnelseHjelp}
+            {SKJEMA.begrunnelseHjelp(!begrunnelseKreves)}
           </p>
           {#each punktene as p (p.punkt)}
             {@const id = begrunnelseId(p.punkt)}

@@ -65,11 +65,12 @@ export const kanFrafalle = (f: Forholdet, v: Pick<Forholdssvarvalg, 'forSent'>):
 export function begrunnelsenKreves(
   f: Forholdet,
   v: Pick<Forholdssvarvalg, 'forSent' | 'resultat'>
-): { punktene: string[]; grunn: string } | null {
+): { punktene: string[]; grunn: string; mangler: string } | null {
+  const mangler = FORHOLDSSVAR.manglerBegrunnelse;
   if (f.varslingsplikt && v.forSent === true)
-    return { punktene: ['forhold', '32.2'], grunn: FORHOLDSSVAR.krevesForSent };
+    return { punktene: ['forhold', '32.2'], grunn: FORHOLDSSVAR.krevesForSent, mangler };
   if (f.varslingsplikt && v.resultat === 'avslaatt')
-    return { punktene: ['forhold'], grunn: FORHOLDSSVAR.krevesAvslag };
+    return { punktene: ['forhold'], grunn: FORHOLDSSVAR.krevesAvslag, mangler };
   return null;
 }
 

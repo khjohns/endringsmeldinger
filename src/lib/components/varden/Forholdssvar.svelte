@@ -34,7 +34,7 @@
     valgteksten,
     type Forholdssvarvalg,
   } from './forholdssvar';
-  import { standpunktene } from './lesing';
+  import { standpunktene, underOverskriften } from './lesing';
   import { kravbrevetI, kravetSendt, manglene } from './svarskjema';
   import { brevref, dato, kalenderdager } from './tekster';
 
@@ -95,15 +95,11 @@
       .filter((r) => r !== 'paalegg_frafalt' || frafallMulig)
       .map((r) => ({ verdi: r, tekst: valgteksten(r, f, valg.forSent) }))
   );
-  const frafallMangler = $derived(
-    !f.varslingsplikt
-      ? null
-      : !f.byggherrensPaalegg
-        ? FORHOLDSSVAR.ikkeFrafallIkkeEget
-        : frafallMulig
-          ? null
-          : FORHOLDSSVAR.ikkeFrafallForSent
-  );
+  const frafallMangler = $derived.by(() => {
+    if (!f.varslingsplikt) return null;
+    if (!f.byggherrensPaalegg) return FORHOLDSSVAR.ikkeFrafallIkkeEget;
+    return frafallMulig ? null : FORHOLDSSVAR.ikkeFrafallForSent;
+  });
 
   // Svaret uten begrunnelsene og forbeholdet, så det ikke regnes på nytt for hvert tegn i et
   // tekstfelt (#1925).
@@ -127,9 +123,7 @@
     if (!endringsordre) return null;
     const b = kjernesak.brev(utkast);
     const a = b && 'avsnitt' in b ? b.avsnitt?.find((x) => x.punkt === 'forhold') : undefined;
-    if (!a) return null;
-    // Punktet uten overskriften, som er det første avsnittet i den låste teksten.
-    return a.overskrift ? a.laast.slice(a.overskrift.length).trim() : a.laast;
+    return a ? underOverskriften(a).join('\n\n') : null;
   });
 
   const linjer = $derived(
@@ -158,22 +152,15 @@
       : []
   );
   // U-7 og D-5: hva svaret gjør, lest av kjernens utledning av utkastet.
-  const virkning = $derived(
-    !nyttSvar
-      ? null
-      : endringsordre
-        ? FORHOLDSSVAR.virkningEndringsordre
-        : etter?.frafalt
-          ? FORHOLDSSVAR.virkningFrafall
-          : etter?.forholdAvklart
-            ? FORHOLDSSVAR.virkningEnighet
-            : FORHOLDSSVAR.virkningSubsidiaert
-  );
-
-  const kreves = $derived.by(() => {
-    const k = begrunnelsenKreves(f, valg);
-    return k && { ...k, mangler: FORHOLDSSVAR.manglerBegrunnelse };
+  const virkning = $derived.by(() => {
+    if (!nyttSvar) return null;
+    if (endringsordre) return FORHOLDSSVAR.virkningEndringsordre;
+    if (etter?.frafalt) return FORHOLDSSVAR.virkningFrafall;
+    if (etter?.forholdAvklart) return FORHOLDSSVAR.virkningEnighet;
+    return FORHOLDSSVAR.virkningSubsidiaert;
   });
+
+  const kreves = $derived(begrunnelsenKreves(f, valg));
   const mangler = $derived(
     manglene(uid, [
       {
