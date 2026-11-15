@@ -476,6 +476,21 @@ FEILINNFOERINGER = [
      "server/godkjenner.ts",
      "  if (ukjent) return ukjent;", "  if (false) return ukjent;",
      "kroppen: ukjente felt"),
+    ("S125", "godkjenneren leser et vedleggsutkast i saken (G1 i #831)",
+     "database/migrasjoner/20261115120000_godkjenner_brev_og_liste.sql",
+     "SELECT tilgang FROM koe_sikkerhet.godkjenner_i_sak(@prosjekt_id, @sak_id)\n WHERE @bundet_av_event_id IS NOT NULL;",
+     "SELECT tilgang FROM koe_sikkerhet.godkjenner_i_sak(@prosjekt_id, @sak_id);",
+     "men ikke et vedleggsutkast"),
+    ("S126", "listen over pakkene har returnerte og trukne pakker (G2 i #831)",
+     "database/migrasjoner/20261115120000_godkjenner_brev_og_liste.sql",
+     "     WHERE NOT EXISTS (SELECT 1 FROM koe.godkjenningshandling h\n                        WHERE h.pakke_id = p.pakke_id AND h.handling <> N'godkjent')",
+     "     WHERE 1 = 1 OR NOT EXISTS (SELECT 1 FROM koe.godkjenningshandling h\n                        WHERE h.pakke_id = p.pakke_id AND h.handling <> N'godkjent')",
+     "G2: listen har de åpne pakkene"),
+    ("S127", "listen over pakkene filtrerer ikke på aktørens plass i kjeden (G2 i #831)",
+     "database/migrasjoner/20261115120000_godkjenner_brev_og_liste.sql",
+     "s.pakke_id = a.pakke_id AND s.godkjenner_id = @aktor",
+     "s.pakke_id = a.pakke_id AND (s.godkjenner_id = @aktor OR 1 = 1)",
+     "G2: listen har de åpne pakkene"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

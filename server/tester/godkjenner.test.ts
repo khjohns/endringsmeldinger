@@ -12,7 +12,7 @@
  * - sikkerhetsinvariantene i CLAUDE.md: sesjon, CSRF, prosjektet i `X-Project-ID` og ukjente
  *   felt i kroppen avvises.
  */
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { transaksjon, type Kontekst } from '../datalag.ts';
@@ -26,6 +26,7 @@ import {
   lagOppsett,
   opprettKjernesak,
   rydd,
+  sendKommando,
   startServer,
   TESTBASE_URL,
   type KjorendeServer,
@@ -335,5 +336,122 @@ describe.skipIf(!TESTBASE_URL)('inngangene for godkjenneren mot testbasen', () =
     } finally {
       await nede.stopp();
     }
+  });
+
+  /**
+   * TEs krav sendt som brev i saken, med leveringsoppdraget, og et sendt vedlegg og et utkast
+   * lagt inn av eieren med TEs kontekst.
+   */
+  async function medBrevOgVedlegg(sakId: string) {
+    const krav = await sendKommando(server.url, o, sakId, { versjon: 1 });
+    if (krav.status !== 201) throw new Error(`Kravet ble avvist: ${JSON.stringify(krav.kropp)}`);
+    const fil = Buffer.from('%PDF-1.4 vedlegg');
+    const [bundet, utkast] = [randomUUID(), randomUUID()];
+    const te = {
+      aktor: o.te.id,
+      prosjekt: o.prosjekt.id,
+      side: 'TE',
+      team: catendaId(o.prosjekt.teTeam)!,
+    };
+    let eventId = '';
+    await iTransaksjon(o.datalag.base.pool, te, async (r) => {
+      const h = await r().input('sak', sakId).query<{
+        event_id: string;
+      }>('SELECT o.event_id FROM koe.leveringsoppdrag o WHERE o.sak_id = @sak');
+      eventId = h.recordset[0].event_id;
+      for (const [id, binding] of [
+        [bundet, eventId],
+        [utkast, null],
+      ] as const)
+        await settInn(r, 'vedlegg', {
+          vedlegg_id: id,
+          prosjekt_id: o.prosjekt.id,
+          sak_id: sakId,
+          filnavn: `${id}.pdf`,
+          stoerrelse: fil.length,
+          innhold_sha256: createHash('sha256').update(fil).digest('hex'),
+          innhold: fil,
+          lastet_opp_av: o.te.id,
+          lastet_opp_side: 'TE',
+          lastet_opp_team: catendaId(o.prosjekt.teTeam)!,
+          bundet_av_event_id: binding,
+        });
+    });
+    return { bundet, utkast, eventId };
+  }
+
+  /** Saken pakken gjelder, lest som saksbehandleren. */
+  const sakenTil = async (pakke: string) =>
+    (
+      await transaksjon(o.datalag.kjoeretid.pool, somBh(), (f) =>
+        f()
+          .input('p', pakke)
+          .query<{ sak_id: string }>('SELECT sak_id FROM koe.godkjenningspakke WHERE pakke_id = @p')
+      )
+    ).recordset[0].sak_id;
+
+  it('G1: godkjenneren leser saken, de sendte brevene og vedleggene, men ikke et vedleggsutkast', async () => {
+    const pakke = await nyPakke(TO);
+    const sakId = await sakenTil(pakke);
+    const { bundet, utkast, eventId } = await medBrevOgVedlegg(sakId);
+
+    const saken = await les(leder, `${pakke}/saken`);
+    expect(saken.status).toBe(200);
+    expect((saken.kropp.journal as unknown[]).length).toBeGreaterThan(0);
+    expect((saken.kropp.leveringsoppdrag as { event_id: string }[]).map((x) => x.event_id)).toEqual(
+      [eventId]
+    );
+
+    const vedlegg = await les(leder, `${pakke}/vedlegg`);
+    expect((vedlegg.kropp.vedlegg as { vedlegg_id: string }[]).map((v) => v.vedlegg_id)).toEqual([
+      bundet,
+    ]);
+    const fil = await fetch(`${server.url}${sti(pakke)}/vedlegg/${bundet}`, {
+      headers: { Cookie: `__Host-koe_session=${leder.token}`, 'X-Project-ID': o.prosjekt.id },
+    });
+    expect(fil.status).toBe(200);
+    expect((await les(leder, `${pakke}/vedlegg/${utkast}`)).status).toBe(404);
+
+    const forBh = await fetch(`${server.url}/api/kjerne/saker/${sakId}/brev/${eventId}`, {
+      headers: { Cookie: `__Host-koe_session=${o.bh.token}`, 'X-Project-ID': o.prosjekt.id },
+    });
+    expect(forBh.status).toBe(200);
+    const brev = await fetch(`${server.url}${sti(pakke)}/brev/${eventId}`, {
+      headers: { Cookie: `__Host-koe_session=${leder.token}`, 'X-Project-ID': o.prosjekt.id },
+    });
+    expect(brev.status).toBe(200);
+    expect(brev.headers.get('content-type')).toBe('application/pdf');
+  });
+
+  it('G1: utenfor kjeden, og etter at pakken er lukket, når godkjenneren ikke saken', async () => {
+    const pakke = await nyPakke(TO);
+    for (const ressurs of ['saken', 'vedlegg', `brev/${randomUUID()}`])
+      expect((await les(utenforKjeden, `${pakke}/${ressurs}`)).status, ressurs).toBe(404);
+    expect((await handle(leder, pakke, { handling: 'returnert' })).status).toBe(200);
+    for (const ressurs of ['saken', 'vedlegg'])
+      expect((await les(leder, `${pakke}/${ressurs}`)).status, ressurs).toBe(404);
+  });
+
+  it('G2: listen har de åpne pakkene der aktøren står i kjeden, på tvers av prosjektene, og ingen lukkede', async () => {
+    const aapen = await nyPakke(TO);
+    const lukket = await nyPakke(TO);
+    expect((await handle(leder, lukket, { handling: 'returnert' })).status).toBe(200);
+    const liste = async (bruker: Testbruker) => {
+      const svar = await kall(server.url, '/api/godkjenning/pakker', { bruker, prosjektId: null });
+      expect(svar.status).toBe(200);
+      return svar.kropp.pakker as { pakke_id: string; venter_paa_deg: boolean }[];
+    };
+    const forLeder = await liste(leder);
+    expect(forLeder.find((p) => p.pakke_id === aapen)).toMatchObject({
+      pakke_id: aapen,
+      prosjekt_id: o.prosjekt.id,
+      sak_id: await sakenTil(aapen),
+      steg: 1,
+      venter_paa_deg: true,
+    });
+    expect(forLeder.map((p) => p.pakke_id)).not.toContain(lukket);
+    expect((await liste(direktoer)).find((p) => p.pakke_id === aapen)?.venter_paa_deg).toBe(false);
+    expect(await liste(utenforKjeden)).toEqual([]);
+    expect(await liste(o.bh)).toEqual([]);
   });
 });

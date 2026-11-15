@@ -10,6 +10,7 @@
 
 import type { Avhengigheter, Forespoersel, Saksrute, Svar } from './rutetyper.ts';
 import { lesekontekst } from './autorisasjon.ts';
+import type { Kontekst, Pool } from './datalag.ts';
 import { feilsvar } from './inngang.ts';
 import { lesSaken, SakFinnesIkke } from './lager.ts';
 import { brevdokument, filnavn, UgjengivbartBrev } from './levering.ts';
@@ -17,17 +18,21 @@ import { asciiReserve, attrTegn } from './vedlegg.ts';
 
 const brevFinnesIkke = () => feilsvar(404, 'BREV_FINNES_IKKE', 'Brevet finnes ikke i saken.');
 
-async function lastNedBrev(
+const lastNedBrev = (
   { bruker, prosjekt, side, sakId, ressurs }: Forespoersel,
   avh: Required<Avhengigheter>
+) => brevSomPdf(avh.datalag, lesekontekst(bruker, prosjekt.prosjektId, side), sakId, ressurs);
+
+/** Det sendte brevet med hendelsen `ressurs` i saken som PDF, når aktøren i konteksten når saken. */
+export async function brevSomPdf(
+  datalag: Pool,
+  kontekst: Kontekst,
+  sakId: string,
+  ressurs: string | null
 ): Promise<Svar> {
   let oppdrag;
   try {
-    ({ oppdrag } = await lesSaken(
-      avh.datalag,
-      lesekontekst(bruker, prosjekt.prosjektId, side),
-      sakId
-    ));
+    ({ oppdrag } = await lesSaken(datalag, kontekst, sakId));
   } catch (feil) {
     if (feil instanceof SakFinnesIkke)
       return feilsvar(404, 'SAK_FINNES_IKKE', 'Saken finnes ikke.');

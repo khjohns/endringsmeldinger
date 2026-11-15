@@ -17,7 +17,9 @@ import {
   UGYLDIG,
   UNIK_INDEKS,
   UNIK_NOEKKEL,
+  utenKontekst,
   type Foresp,
+  type Pool,
 } from './datalag.ts';
 import type { Brevverdi } from './fullmakt.ts';
 
@@ -271,10 +273,46 @@ export function ventendeGodkjenner(p: LagretPakke): string | null {
 export const erGodkjent = (p: LagretPakke): boolean =>
   p.handlinger.every((h) => h.handling === 'godkjent') && ventendeGodkjenner(p) === null;
 
-/** `true` når aktøren i konteksten når pakken, uten å lese den. */
-export async function pakkenErSynlig(foresp: Foresp, pakkeId: string): Promise<true | null> {
-  const r = await foresp()
-    .input('pakke_id', sql.UniqueIdentifier, pakkeId)
-    .query('SELECT 1 AS finnes FROM koe.godkjenningspakke WHERE pakke_id = @pakke_id;');
-  return r.recordset.length ? true : null;
+/** Saken pakken gjelder, når aktøren i konteksten når pakken, ellers `null`. */
+export async function pakkensSak(foresp: Foresp, pakkeId: string): Promise<string | null> {
+  const r = await foresp().input('pakke_id', sql.UniqueIdentifier, pakkeId).query<{
+    sak_id: string;
+  }>('SELECT sak_id FROM koe.godkjenningspakke WHERE pakke_id = @pakke_id;');
+  return r.recordset[0]?.sak_id ?? null;
+}
+
+export interface VentendePakke {
+  pakkeId: string;
+  prosjektId: string;
+  prosjektnavn: string;
+  sakId: string;
+  opprettet: Date;
+  /** Aktørens steg i kjeden, telt fra 1. */
+  steg: number;
+  venterPaaDeg: boolean;
+}
+
+/**
+ * De åpne pakkene der aktøren står i kjeden, på tvers av prosjektene (G2 i #831), fra
+ * `koe_api.ventende_pakker`. Aktøren kommer fra sesjonen.
+ */
+export async function lesVentendePakker(pool: Pool, aktor: string): Promise<VentendePakke[]> {
+  const r = await utenKontekst(pool).input('aktor', sql.UniqueIdentifier, aktor).execute<{
+    pakke_id: string;
+    prosjekt_id: string;
+    prosjektnavn: string;
+    sak_id: string;
+    opprettet: Date;
+    steg: number;
+    venter_paa_deg: boolean;
+  }>('koe_api.ventende_pakker');
+  return r.recordset.map((p) => ({
+    pakkeId: p.pakke_id,
+    prosjektId: p.prosjekt_id,
+    prosjektnavn: p.prosjektnavn,
+    sakId: p.sak_id,
+    opprettet: p.opprettet,
+    steg: p.steg,
+    venterPaaDeg: p.venter_paa_deg,
+  }));
 }

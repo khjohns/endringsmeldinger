@@ -130,11 +130,16 @@ function sakenSomVises(journal: Journalrad[], kjerne: Kjerne) {
   return { versjon: u.versjon, visning: visning(u, kjerne.regler) };
 }
 
-async function visSaken(
-  { bruker, prosjekt, side, sakId }: Forespoersel,
-  avh: Required<Avhengigheter>
+const visSaken = ({ bruker, prosjekt, side, sakId }: Forespoersel, avh: Required<Avhengigheter>) =>
+  sakssvar(avh, lesekontekst(bruker, prosjekt.prosjektId, side), sakId, side?.rolle ?? null);
+
+/** Saken slik aktøren i konteksten når den, med `part` som leserens side. */
+export async function sakssvar(
+  avh: Required<Avhengigheter>,
+  kontekst: Kontekst,
+  sakId: string,
+  part: Kontraktstilgang['rolle'] | null
 ): Promise<Svar> {
-  const kontekst = lesekontekst(bruker, prosjekt.prosjektId, side);
   let saken;
   try {
     saken = await lesSaken(avh.datalag, kontekst, sakId, { navn: true });
@@ -149,7 +154,7 @@ async function visSaken(
     200,
     {
       success: true,
-      part: side?.rolle ?? null,
+      part,
       ...sakenSomVises(journal, avh.kjerne),
       journal: journal.map((r) => ({
         event_id: r.event_id,

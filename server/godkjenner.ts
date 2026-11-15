@@ -13,15 +13,26 @@ import {
   lesEgneHandlinger,
   lesPakke,
   PakkeAvsluttet,
-  pakkenErSynlig,
+  pakkensSak,
   PakkeNektet,
   registrerHandling,
   RollenMistet,
+  lesVentendePakker,
   ventendeGodkjenner,
   type LagretHandling,
 } from './godkjenning.ts';
-import { feilsvar, ugyldig, ukjenteFelt } from './inngang.ts';
-import type { Avhengigheter, Godkjennerforespoersel, Godkjennerrute, Svar } from './rutetyper.ts';
+import { brevSomPdf } from './brev.ts';
+import { fast, feilsvar, ugyldig, ukjenteFelt } from './inngang.ts';
+import { sakssvar } from './saker.ts';
+import { vedleggISaken, vedleggsfil } from './vedlegg.ts';
+import type {
+  Avhengigheter,
+  Godkjennerforespoersel,
+  Godkjennerrute,
+  Innlogget,
+  Sesjonsrute,
+  Svar,
+} from './rutetyper.ts';
 
 const kontekst = (bruker: Bruker, prosjektId: string): Kontekst => ({
   aktor: bruker.id,
@@ -111,7 +122,7 @@ async function registrer(
   if (!UUID.test(pakkeId)) return ingenPakke();
   try {
     return await transaksjon(avh.datalag, kontekst(bruker, prosjektId), async (foresp) => {
-      const lest = await forGodkjenneren(foresp, pakkeId, pakkenErSynlig);
+      const lest = await forGodkjenneren(foresp, pakkeId, pakkensSak);
       if (!lest || 'egne' in lest) return new Tilbakerulling(lest ? lukket() : ingenPakke());
       await registrerHandling(foresp, pakkeId, handling, begrunnelse || null);
       return [200, { success: true, handling }] satisfies Svar;
@@ -131,9 +142,45 @@ async function registrer(
   }
 }
 
+/**
+ * En lesing i saken pakken gjelder, mens pakken er åpen og aktøren står i kjeden (G1 i #831).
+ * Konteksten er den samme, så basen slipper aktøren til saken bare som godkjenner.
+ */
+const iSaken =
+  (
+    les: (
+      avh: Required<Avhengigheter>,
+      k: Kontekst,
+      sakId: string,
+      ressurs: string | null
+    ) => Promise<Svar>
+  ) =>
+  async (
+    { bruker, prosjektId, pakkeId, ressurs }: Godkjennerforespoersel,
+    avh: Required<Avhengigheter>
+  ): Promise<Svar> => {
+    if (!UUID.test(pakkeId)) return ingenPakke();
+    const k = kontekst(bruker, prosjektId);
+    const sakId = await transaksjon(avh.datalag, k, (foresp) => pakkensSak(foresp, pakkeId));
+    return sakId ? les(avh, k, sakId, ressurs) : ingenPakke();
+  };
+
 const PAKKE = '([^/]+)';
+const RESSURS = '([^/]+)';
 const UTEN_MEDLEMSKAP =
   'Godkjenneren i kjeden følger lederhierarkiet i HR-kopien (GFK-U8) og er typisk ikke medlem av prosjektet eller teamet. Prosjektet er det i `X-Project-ID`; basen slipper aktøren til pakken bare som godkjenner i en åpen pakke (`koe_sikkerhet.godkjenner`, GFK-U9), og en aktør i et team for totalentreprenøren avvises.';
+
+const lesning = (
+  sti: string,
+  eksempel: string,
+  behandle: Godkjennerrute['behandle']
+): Godkjennerrute => ({
+  metode: 'GET',
+  sti: new RegExp(`^/api/godkjenning/pakker/${PAKKE}/${sti}$`),
+  eksempel: (p) => `/api/godkjenning/pakker/${p}/${eksempel}`,
+  tilgang: { utenMedlemskap: UTEN_MEDLEMSKAP },
+  behandle,
+});
 
 export const GODKJENNERRUTER: readonly Godkjennerrute[] = [
   {
@@ -150,4 +197,56 @@ export const GODKJENNERRUTER: readonly Godkjennerrute[] = [
     tilgang: { utenMedlemskap: UTEN_MEDLEMSKAP },
     behandle: registrer,
   },
+  lesning(
+    'saken',
+    'saken',
+    iSaken((avh, k, sakId) => sakssvar(avh, k, sakId, null))
+  ),
+  lesning(
+    `brev/${RESSURS}`,
+    'brev/00000000-0000-4000-8000-000000000000',
+    iSaken((avh, k, sakId, ressurs) => brevSomPdf(avh.datalag, k, sakId, ressurs))
+  ),
+  lesning(
+    'vedlegg',
+    'vedlegg',
+    iSaken((avh, k, sakId) => vedleggISaken(avh.datalag, k, sakId))
+  ),
+  lesning(
+    `vedlegg/${RESSURS}`,
+    'vedlegg/00000000-0000-4000-8000-000000000000',
+    iSaken((avh, k, sakId, ressurs) => vedleggsfil(avh.datalag, k, sakId, ressurs))
+  ),
 ];
+
+async function visVentendePakker(
+  { sesjon }: Innlogget,
+  avh: Required<Avhengigheter>
+): Promise<Svar> {
+  const pakker = await lesVentendePakker(avh.datalag, sesjon.bruker.id);
+  return [
+    200,
+    {
+      success: true,
+      pakker: pakker.map((p) => ({
+        pakke_id: p.pakkeId,
+        prosjekt_id: p.prosjektId,
+        prosjektnavn: p.prosjektnavn,
+        sak_id: p.sakId,
+        opprettet: p.opprettet,
+        steg: p.steg,
+        venter_paa_deg: p.venterPaaDeg,
+      })),
+    },
+  ];
+}
+
+export const VENTENDE_PAKKER: Sesjonsrute = {
+  metode: 'GET',
+  ...fast('/api/godkjenning/pakker'),
+  tilgang: {
+    utenProsjekt:
+      'Listen over de åpne pakkene der aktøren står i kjeden, på tvers av prosjektene (G2 i #831): godkjenneren er typisk ikke medlem av prosjektene (GFK-U8). `koe_api.ventende_pakker` filtrerer på aktøren fra sesjonen og på at pakken er åpen, og raden har bare saken, prosjektet og pakken.',
+  },
+  behandle: visVentendePakker,
+};

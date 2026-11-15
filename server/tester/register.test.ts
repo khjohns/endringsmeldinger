@@ -76,6 +76,7 @@ const UTEN_PROSJEKT = [
   'POST /api/auth/logout',
   'GET /api/csrf-token',
   'GET /api/projects',
+  'GET /api/godkjenning/pakker',
 ];
 const UTEN_SAK = [
   'GET /api/projects/<prosjekt>',
@@ -89,6 +90,10 @@ const UTEN_SAK = [
 const UTEN_MEDLEMSKAP = [
   'GET /api/godkjenning/pakker/<pakke>',
   'POST /api/godkjenning/pakker/<pakke>/handlinger',
+  'GET /api/godkjenning/pakker/<pakke>/saken',
+  'GET /api/godkjenning/pakker/<pakke>/brev/00000000-0000-4000-8000-000000000000',
+  'GET /api/godkjenning/pakker/<pakke>/vedlegg',
+  'GET /api/godkjenning/pakker/<pakke>/vedlegg/00000000-0000-4000-8000-000000000000',
 ];
 const NY_SAK = [
   'POST /api/kjerne/saker',

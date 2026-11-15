@@ -38,7 +38,7 @@ import { SAKSLISTERUTER } from './saksliste.ts';
 import { KONTRAKTSFRISTRUTER } from './kontraktsfrister.ts';
 import { lesFil, VEDLEGG_FOER_SAKEN, VEDLEGGSRUTER } from './vedlegg.ts';
 import { BREVRUTER } from './brev.ts';
-import { GODKJENNERRUTER } from './godkjenner.ts';
+import { GODKJENNERRUTER, VENTENDE_PAKKER } from './godkjenner.ts';
 import { WEBHOOKRUTER } from './webhook.ts';
 import { KJERNERUTER, OPPRETTELSE, SAKSKODE_FOR_NY_SAK } from './saker.ts';
 import {
@@ -109,6 +109,7 @@ export const RUTER: readonly Rute[] = [
   ...SAKSLISTERUTER,
   ...KONTRAKTSFRISTRUTER,
   ...GODKJENNERRUTER,
+  VENTENDE_PAKKER,
   ...WEBHOOKRUTER,
 ];
 
@@ -257,10 +258,12 @@ export function lagServer(avh: Avhengigheter) {
     foresporsel: IncomingMessage
   ): Promise<Svar> {
     let pakkeId: string;
+    let ressurs: string | null;
     try {
       pakkeId = decodeURIComponent(treff[1]);
+      ressurs = treff[2] === undefined ? null : decodeURIComponent(treff[2]);
     } catch {
-      return feilsvar(404, 'NOT_FOUND', 'Ukjent pakke.');
+      return feilsvar(404, 'NOT_FOUND', 'Ukjent pakke eller ressurs.');
     }
     const { bruker, avgjort, kropp } = await innloggetMedKropp(
       r.metode,
@@ -270,7 +273,7 @@ export function lagServer(avh: Avhengigheter) {
     );
     if (!erObjekt(kropp))
       return feilsvar(400, 'UGYLDIG_FORESPOERSEL', 'Kroppen må være et objekt.');
-    return r.behandle({ bruker, prosjektId: avgjort.prosjektId, pakkeId, kropp }, full);
+    return r.behandle({ bruker, prosjektId: avgjort.prosjektId, pakkeId, ressurs, kropp }, full);
   }
 
   async function kjoer(

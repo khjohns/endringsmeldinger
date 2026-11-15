@@ -38,7 +38,10 @@ prosjekt gir `FORBIDDEN` uten at Catenda spørres om teamet (#1106).
   i `X-Project-ID`, men ikke medlemskap, og avviser en aktør i et team for
   totalentreprenøren. Konteksten har aktøren og prosjektet, uten side og team, så bare
   predikatet `koe_sikkerhet.godkjenner` slipper aktøren til pakken. Stien har pakken,
-  aldri en sak godkjenneren oppgir selv.
+  aldri en sak godkjenneren oppgir selv. Saken, de sendte brevene og vedleggene leses
+  gjennom pakken, under `godkjenner_i_sak` (G1 i #831). Listen over pakkene som venter,
+  er `GET /api/godkjenning/pakker` uten prosjekt; `koe_api.ventende_pakker` kjører som
+  `koe_godkjenneroppslag` og filtrerer selv på aktøren fra sesjonen (G2).
 - **Serverstemplede felt.** En kommando har ingen aktør, ID eller tidspunkt.
   Kroppen avvises med ukjente felt, og kjernens skjema avviser ukjente felt i
   kommandoen. Aktøren er `app_users.id` fra sesjonen.

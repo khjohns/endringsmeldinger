@@ -159,6 +159,8 @@ export interface Godkjennerforespoersel {
   bruker: Bruker;
   prosjektId: string;
   pakkeId: string;
+  /** Andre gruppe i stien, som brevet eller vedlegget, eller `null`. */
+  ressurs: string | null;
   /** `{}` for `GET`. */
   kropp: Record<string, unknown>;
 }

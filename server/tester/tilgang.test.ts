@@ -636,6 +636,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.topicens_prosjekt',
         'GRANT EXECUTE koe_api.vedlegg_i_levering',
         'GRANT EXECUTE koe_api.vedleggsinnhold',
+        'GRANT EXECUTE koe_api.ventende_pakker',
         'GRANT SELECT koe.godkjenningshandling',
         'GRANT SELECT koe.godkjenningspakke',
         'GRANT SELECT koe.godkjenningssteg',
@@ -688,6 +689,23 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'koe_api.vedlegg_i_levering',
         'koe_api.vedleggsinnhold',
       ]);
+    });
+
+    it('godkjenneroppslaget har ingen rettigheter, bare eierskapskjeden i prosedyren som kjører som det (G2 i #831)', async () => {
+      const svar = await base.pool.request().query<{ rett: string; innlogging: number }>(
+        `SELECT CONCAT(p.state_desc, N' ', p.permission_name, N' ', p.class_desc) AS rett,
+                (SELECT COUNT(*) FROM sys.database_principals d
+                  WHERE d.name = N'koe_godkjenneroppslag' AND d.authentication_type_desc = N'NONE') AS innlogging
+           FROM sys.database_permissions p
+          WHERE p.grantee_principal_id = DATABASE_PRINCIPAL_ID(N'koe_godkjenneroppslag')`
+      );
+      expect(svar.recordset).toEqual([{ rett: 'GRANT CONNECT DATABASE', innlogging: 1 }]);
+      const somDen = await base.pool.request().query<{ prosedyre: string }>(
+        `SELECT CONCAT(OBJECT_SCHEMA_NAME(m.object_id), N'.', OBJECT_NAME(m.object_id)) AS prosedyre
+           FROM sys.sql_modules m
+          WHERE m.execute_as_principal_id = DATABASE_PRINCIPAL_ID(N'koe_godkjenneroppslag')`
+      );
+      expect(somDen.recordset.map((r) => r.prosedyre)).toEqual(['koe_api.ventende_pakker']);
     });
 
     it('grenseoppslaget har ingen rettigheter, bare eierskapskjeden i de to prosedyrene som kjører som det (#1106)', async () => {
