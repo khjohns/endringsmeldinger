@@ -20,6 +20,7 @@ import {
   type Brevet,
   type Brevref,
   type Forholdsordene,
+  type Innlegget,
   type Forholdstilfelle,
   type OppgittDato,
   type Standpunktet,
@@ -290,44 +291,43 @@ export function standpunkttekst(
   }
 }
 
+/** Et utsagn uten subjektet, med verbet for seg, så leddet kan stå først («Subsidiært er …»). */
+type Utsagnet = readonly [verb: string, resten: string];
+
 /**
  * Byggherrens standpunkt til forholdet i hvert tilfelle, med ordene brevet har (GR-U32, LV-U41,
- * `STANDPUNKTENE_I_FORHOLDET` i kjernen), uten subjektet.
+ * `STANDPUNKTENE_I_FORHOLDET` i kjernen) i kortform.
  */
-const I_FORHOLDET: Record<Forholdstilfelle, string> = {
-  frafall: 'frafaller pålegget (punkt 32.3 første ledd c)',
-  endringsordre: 'er enig, og svaret er en endringsordre (punkt 32.3 første ledd a)',
-  enig_i_endring: 'er enig i at pålegget innebærer en endring',
-  har_risikoen: 'har risikoen for forholdet',
-  enig_31_3: 'er enig i at forholdet er en endringsordre (punkt 31.3)',
-  avslag_endringsordre: 'avslår kravet på endringsordre (punkt 32.3 første ledd b)',
-  har_ikke_risikoen: 'har ikke risikoen for forholdet',
-  avslag: 'avslår forholdet',
+const I_FORHOLDET: Record<Forholdstilfelle, Utsagnet> = {
+  frafall: ['frafaller', 'pålegget (punkt 32.3 første ledd c)'],
+  endringsordre: ['er', 'enig, og svaret er en endringsordre (punkt 32.3 første ledd a)'],
+  enig_i_endring: ['er', 'enig i at pålegget innebærer en endring'],
+  har_risikoen: ['har', 'risikoen for forholdet'],
+  enig_31_3: ['er', 'enig i at forholdet er en endringsordre (punkt 31.3)'],
+  avslag_endringsordre: ['avslår', 'kravet på endringsordre (punkt 32.3 første ledd b)'],
+  har_ikke_risikoen: ['har', 'ikke risikoen for forholdet'],
+  avslag: ['avslår', 'forholdet'],
 };
 
 /**
- * Byggherrens standpunkt i svaret på forholdet, uten subjektet: varselet eller forholdet. Tråden
- * og statuslinjen bruker begge denne, så de sier det samme.
+ * Byggherrens standpunkt i svaret på forholdet: varselet eller forholdet. Tråden og statuslinjen
+ * bruker begge denne, så de sier det samme.
  */
 function iSvaretPaaForholdet(
   s: Standpunkt,
   brev: Brevref | null,
   f: Forholdsordene
-): string | null {
+): Utsagnet | null {
   const i = brev ? ` i ${brevref(brev)}` : '';
   if (s.art === 'rettidighet')
     return s.iTide
-      ? `godkjenner at varselet etter punkt ${s.hjemmel}${i} kom i tide`
-      : `gjør gjeldende at varselet etter punkt ${s.hjemmel}${i} kom for sent`;
+      ? ['godkjenner', `at varselet etter punkt ${s.hjemmel}${i} kom i tide`]
+      : ['gjør', `gjeldende at varselet etter punkt ${s.hjemmel}${i} kom for sent`];
   if (s.art === 'forhold') return I_FORHOLDET[forholdstilfellet(s.resultat, f)];
   return null;
 }
 
-/** Standpunktet etter et ledd foran, som «Subsidiært er byggherren enig …» (verbet først). */
-const etterLeddet = (ledd: string, utsagn: string) => {
-  const [verb, ...resten] = utsagn.split(' ');
-  return `${stor(ledd)} ${verb} byggherren ${resten.join(' ')}.`;
-};
+const utsagnet = ([verb, resten]: Utsagnet) => `${verb} ${resten}`;
 
 export const SKJEMA = {
   overskrift: 'Svar på kravet',
@@ -784,30 +784,30 @@ export const FORHOLDET = {
    * Hvor saken står, under tittelen på oversikten (oppdragsgiver 06.11, PR 1650), med kontraktens
    * ord etter forholdet, som `standpunkt`.
    */
-  utfall: (
-    linjer: readonly { standpunkt: Standpunkt; lag: string | null }[],
-    d: string,
-    f: Forholdsordene
-  ): string => {
+  utfall: (rader: Innlegget['standpunkter'], d: string): string => {
     // Med en innsigelse om varselet står lagene slik brevet ga dem (oppdragsgiver 15.11 i #2038:
     // «B»). Ellers bare standpunktet til forholdet.
-    const med = linjer.some((l) => l.lag)
-      ? linjer
-      : linjer.filter((l) => l.standpunkt.art === 'forhold');
-    const [foerste, ...resten] = med.flatMap((l) => {
-      const utsagn = iSvaretPaaForholdet(l.standpunkt, null, f);
-      return utsagn ? [{ utsagn, lag: l.lag, standpunkt: l.standpunkt }] : [];
+    const begge = rader.some(
+      (r) => r.lag || (r.standpunkt.art === 'rettidighet' && !r.standpunkt.iTide)
+    );
+    const med = begge ? rader : rader.filter((r) => r.standpunkt.art === 'forhold');
+    const svarte = `Byggherren svarte ${dato(d)}`;
+    // Den første linja står etter «svarte» når den ikke er subsidiær; ellers står hver linje for seg.
+    const foerste = med[0];
+    const iStarten = foerste && (foerste.lag === null || foerste.lag === 'prinsipalt');
+    const setninger = med.map((r, i) => {
+      const u = iSvaretPaaForholdet(r.standpunkt, null, r.ordene);
+      if (i === 0 && iStarten) {
+        if (!u) return `${svarte}. ${standpunkttekst(r.standpunkt, false)}.`;
+        const eo = r.standpunkt.art === 'forhold' && u === I_FORHOLDET.endringsordre;
+        return eo && med.length === 1
+          ? `${svarte} med en endringsordre (punkt 32.3 første ledd a).`
+          : `${svarte} og ${utsagnet(u)}.`;
+      }
+      if (!u) return `${standpunkttekst(r.standpunkt, false)}.`;
+      return r.lag ? `${stor(r.lag)} ${u[0]} byggherren ${u[1]}.` : `Byggherren ${utsagnet(u)}.`;
     });
-    if (!foerste) return `Byggherren svarte ${dato(d)}.`;
-    const s = foerste.standpunkt;
-    const start =
-      !resten.length && s.art === 'forhold' && forholdstilfellet(s.resultat, f) === 'endringsordre'
-        ? `Byggherren svarte ${dato(d)} med en endringsordre (punkt 32.3 første ledd a).`
-        : `Byggherren svarte ${dato(d)} og ${foerste.utsagn}.`;
-    return [
-      start,
-      ...resten.map((r) => (r.lag ? etterLeddet(r.lag, r.utsagn) : `Byggherren ${r.utsagn}.`)),
-    ].join(' ');
+    return iStarten ? setninger.join(' ') : [`${svarte}.`, ...setninger].join(' ');
   },
   venter: (d: string) => `Sendt til byggherren ${dato(d)}. Svar ikke registrert.`,
   /** BF-10 U-2: en annen hjemmel eller endringsordre går i en ny sak (GR-U22, OV-U57). */
@@ -850,8 +850,8 @@ export const FORHOLDET = {
    * kontraktens ord etter forholdet.
    */
   standpunkt: (s: Standpunkt, brev: Brevref | null, f: Forholdsordene): string => {
-    const utsagn = iSvaretPaaForholdet(s, brev, f);
-    return utsagn ? `Byggherren ${utsagn}.` : `${standpunkttekst(s, false)}.`;
+    const u = iSvaretPaaForholdet(s, brev, f);
+    return u ? `Byggherren ${utsagnet(u)}.` : `${standpunkttekst(s, false)}.`;
   },
   /** Antallet poster uten fast beløp ved summen (KA-U61, KA-U72; oppdragsgiver 12.11 i #1752). */
   utenFastBeloep: (n: number) => `${n} ${n === 1 ? 'post' : 'poster'} uten fast beløp`,

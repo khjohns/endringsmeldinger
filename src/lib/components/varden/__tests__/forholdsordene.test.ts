@@ -6,8 +6,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { Forholdsresultat } from '$kjerne/regler/typer';
-import type { Standpunkt } from '$kjerne/typer';
-import type { Forholdsordene } from '$lib/components/varden/lesing';
+import type { Forholdsordene, Innlegget } from '$lib/components/varden/lesing';
 import { FORHOLDET } from '$lib/components/varden/tekster';
 
 const ord = (o: Partial<Forholdsordene>): Forholdsordene => ({
@@ -81,27 +80,34 @@ describe('ordene for standpunktet til forholdet (GR-U32, LV-U41)', () => {
     expect(FORHOLDET.standpunkt({ id: 's', art: 'forhold', resultat }, null, f)).toBe(setning);
     expect(
       FORHOLDET.utfall(
-        [{ standpunkt: { id: 's', art: 'forhold', resultat }, lag: null }],
-        '2026-11-03T10:00:00Z',
-        f
+        [{ standpunkt: { id: 's', art: 'forhold', resultat }, lag: null, brev: null, ordene: f }],
+        '2026-11-03T10:00:00Z'
       )
     ).toMatch(utfall);
   });
 
   it('med en innsigelse om varselet sier statuslinjen begge lagene, med ordene i tråden (oppdragsgiver 15.11 i #2038: «B»)', () => {
-    const f = ord({ varslingsplikt: true });
-    const linjer = [
+    const ordene = ord({ varslingsplikt: true });
+    const linjer: Innlegget['standpunkter'] = [
       {
-        standpunkt: { id: 'v', art: 'rettidighet', hjemmel: '32.2', iTide: false } as Standpunkt,
+        standpunkt: { id: 'v', art: 'rettidighet', gjelder: 'k', hjemmel: '32.2', iTide: false },
         lag: 'prinsipalt',
+        brev: null,
+        ordene,
       },
       {
-        standpunkt: { id: 's', art: 'forhold', resultat: 'godkjent' } as Standpunkt,
+        standpunkt: { id: 's', art: 'forhold', resultat: 'godkjent' },
         lag: 'subsidiært',
+        brev: null,
+        ordene,
       },
     ];
-    expect(FORHOLDET.utfall(linjer, '2026-11-15T10:00:00Z', f)).toBe(
+    expect(FORHOLDET.utfall(linjer, '2026-11-15T10:00:00Z')).toBe(
       'Byggherren svarte 15. november 2026 og gjør gjeldende at varselet etter punkt 32.2 kom for sent. Subsidiært er byggherren enig i at pålegget innebærer en endring.'
+    );
+    // Står den subsidiære linja først, står den ikke som et standpunkt uten forbehold.
+    expect(FORHOLDET.utfall([linjer[1], linjer[0]], '2026-11-15T10:00:00Z')).toBe(
+      'Byggherren svarte 15. november 2026. Subsidiært er byggherren enig i at pålegget innebærer en endring. Prinsipalt gjør byggherren gjeldende at varselet etter punkt 32.2 kom for sent.'
     );
   });
 });

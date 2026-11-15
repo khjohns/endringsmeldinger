@@ -11,8 +11,6 @@
     brevITraaden,
     brevene,
     forholdetISaken,
-    forholdsordene,
-    standpunktene,
     innleggene,
     oppfoelgingene,
     type Sideprops,
@@ -51,13 +49,9 @@
   const status = $derived.by(() => {
     if (!siste || siste === trekket) return null;
     const svar = u.spor.forhold.gjeldendeSvar;
-    const s = svar?.standpunkter.find((x) => x.art === 'forhold');
-    if (svar?.dokument === siste.id && s?.art === 'forhold')
-      return FORHOLDET.utfall(
-        standpunktene(svar, u).flatMap((l) => ('standpunkt' in l ? [l] : [])),
-        siste.registrert,
-        forholdsordene(svar, u)
-      );
+    const rader = svar?.dokument === siste.id ? innlegg.get(siste.id)?.standpunkter : undefined;
+    if (rader?.some((r) => r.standpunkt.art === 'forhold'))
+      return FORHOLDET.utfall(rader, siste.registrert);
     if (u.spor.forhold.gjeldendeKrav?.dokument === siste.id)
       return FORHOLDET.venter(siste.registrert);
     return null;
