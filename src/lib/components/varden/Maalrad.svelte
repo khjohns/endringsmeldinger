@@ -14,10 +14,19 @@
     return Array.from({ length: Math.ceil(stoerst / steg) }, (_, i) => i * steg);
   }
 
-  /** Skalaen for målestokken: trinnene, lengden for en verdi og avstanden mellom strekene. */
-  export function maalestokken(stoerst: number) {
-    const trinn = trinnene(stoerst);
-    const andel = (n: number) => (stoerst > 0 ? `${(n / stoerst) * 100}%` : '0');
+  /**
+   * Skalaen for målestokken: trinnene, lengden for en verdi og avstanden mellom strekene. Med
+   * `tilTrinn` slutter skalaen på neste runde trinn, så det største kravet ikke fyller målet
+   * (prototypen `fristoversikt.html`).
+   */
+  export function maalestokken(stoerst: number, tilTrinn = false) {
+    const steget = trinnene(stoerst)[1] ?? stoerst;
+    const skala = tilTrinn && steget > 0 ? (Math.floor(stoerst / steget) + 1) * steget : stoerst;
+    // Trinnet ved enden av skalaen står ikke, så tallet ikke går ut over målestokken.
+    const trinn = tilTrinn
+      ? Array.from({ length: Math.round(skala / steget) }, (_, i) => i * steget)
+      : trinnene(stoerst);
+    const andel = (n: number) => (skala > 0 ? `${(n / skala) * 100}%` : '0');
     return { trinn, andel, steg: trinn.length > 1 ? andel(trinn[1]!) : '100%' };
   }
 </script>

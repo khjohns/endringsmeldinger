@@ -401,7 +401,7 @@
   visKontrakten={!!nySak}
   innfelt={vedSiden}
   bred
-  toArk={!nySak && (valgt === 'forhold' || valgt === 'vederlag') && arbeid.art === 'les'}
+  toArk={!nySak && arbeid.art === 'les'}
   sakstittel={nySak ? null : (kjernesak.saksbilde?.tittel ?? null)}
 >
   {#snippet topplinje()}

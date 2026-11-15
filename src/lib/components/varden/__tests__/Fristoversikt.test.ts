@@ -17,6 +17,7 @@ import { START } from '$kjerne/tester/brukerforloep';
 import { testklokke } from '$kjerne/tester/testmiljoe';
 import type { Part } from '$kjerne/typer';
 import Fristoversikt from '$lib/components/varden/Fristoversikt.svelte';
+import { maalestokken } from '$lib/components/varden/Maalrad.svelte';
 import Vardensak from '$lib/components/varden/Vardensak.svelte';
 import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
@@ -126,6 +127,15 @@ describe('Kravet og svaret i fristen, lest av kjernen (BF-45)', () => {
       [20, []],
       [20, []],
     ]);
+  });
+});
+
+describe('Målestokken for dagene (U-2)', () => {
+  it('skalaen slutter på neste runde trinn, så det største kravet ikke fyller målet, og trinnet ved enden står ikke', () => {
+    const m = maalestokken(25, true);
+    expect(m.trinn).toEqual([0, 10, 20]);
+    expect(m.andel(25)).toBe(`${(25 / 30) * 100}%`);
+    expect(maalestokken(20, true).trinn).toEqual([0, 5, 10, 15, 20]);
   });
 });
 

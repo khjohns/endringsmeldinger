@@ -1652,8 +1652,7 @@ export const FRISTEN = {
   forlengelsen: (n: number) => `${dager(n)} i sak`,
   ukjent: (iKontrakten: string) =>
     `Fristen er ${dato(iKontrakten)} i kontrakten. Gjeldende frist kan ikke regnes nå, fordi en annen sak i prosjektet ikke kan leses.`,
-  ikkeRegistrert:
-    'Fristen er ikke registrert i fristtabellen for prosjektet, så gjeldende frist er ikke kjent.',
+  ikkeRegistrert: 'Gjeldende frist er ikke kjent, fordi fristen ikke er registrert for prosjektet.',
   /** Vilkåret for et lag under «Per frist»: «hvis innsigelsen om varselet ikke fører frem» (U-4). */
   vilkaar: (innsigelser: Innsigelsen[], heller: boolean) =>
     liten(VEDERLAGET.vilkaar(innsigelser.map(VEDERLAGET.innsigelsen), heller)),

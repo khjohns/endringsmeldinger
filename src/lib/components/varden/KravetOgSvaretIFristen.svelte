@@ -40,7 +40,7 @@
 
   const svart = $derived(k.svarbrev !== null);
   const stoerst = $derived(stoerstAntall(k));
-  const { trinn, andel, steg } = $derived(maalestokken(stoerst));
+  const { trinn, andel, steg } = $derived(maalestokken(stoerst, true));
   const sistePerFrist = $derived(k.perFrist.at(-1)?.lag);
 </script>
 
