@@ -97,7 +97,7 @@ export const FORUTSETNINGER_I_FRISTEN = {
           'INGEN_KRAV_I_SPORET',
           'Totalentreprenøren har sagt at det ikke kreves fristforlengelse.'
         );
-      // VS-U19, VS-U33: fra appen så lenge TE ikke har krevd dager i appen.
+      // VS-U19, VS-U47 spørsmål 2: fra appen så lenge TE ikke har krevd dager.
       if (fristkravErFremmet(u))
         return avvis(
           'FRISTKRAV_SENDT',

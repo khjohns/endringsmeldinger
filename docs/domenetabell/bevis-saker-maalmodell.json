@@ -2525,7 +2525,7 @@
         "KA-50"
       ],
       "start": null,
-      "forslag": "#595 punkt 1, OV-U4 og GR-U22: TE sender grunnlaget fra appen med pålegg (IRREG) og registrerer så et brev med en ny kravversjon med valg av løsning. Den registrerte kravversjonen er dokumentasjon og ikke gjeldende krav, så en ny versjon fra appen med samme underkategori som den sendte godtas, og en med den registrerte underkategorien avvises",
+      "forslag": "#595 punkt 1, OV-U98 (#2011) og GR-U22: TE sender grunnlaget fra løsningen med pålegg (IRREG) og legger så til et brev med en ny kravversjon med valg av løsning, sendt dagen før. Den lagt til kravversjonen er sendt før totalentreprenørens siste krav i sporet og blir ikke gjeldende, så en ny versjon fra appen med samme underkategori som den sendte godtas, og en med den registrerte underkategorien avvises",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2541,7 +2541,7 @@
           "underkategori": "valg_av_loesning",
           "part": "TE",
           "navn": "K-g2",
-          "sendt": "2026-09-25"
+          "sendt": "2026-09-19"
         }
       ],
       "kontroller": [
@@ -2549,7 +2549,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4"
+            "OV-U98"
           ],
           "forventet": {
             "forstaatt": true,
@@ -2561,7 +2561,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U98",
             "GR-U22",
             "GR-U1"
           ],
@@ -2579,7 +2579,7 @@
           "rolle": "mal",
           "kilde": [
             "GR-U22",
-            "OV-U4"
+            "OV-U98"
           ],
           "forventet": {
             "avvist": true,
@@ -4049,7 +4049,7 @@
         "KA-37"
       ],
       "start": "godkjent_forhold",
-      "forslag": "OV-U4: TEs registrerte kravversjon i et spor med enighet er dokumentasjon, og enigheten står",
+      "forslag": "OV-U80 og OV-U98, som endrer OV-U4 (#2011): TEs kravversjon lagt til i et spor med enighet har samme virkning som en ny versjon fra løsningen: den blir gjeldende krav, og enigheten om den forrige versjonen gjelder ikke den nye",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4067,13 +4067,13 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
-            "MM-U43"
+            "OV-U80",
+            "OV-U98"
           ],
           "forventet": {
             "forstaatt": true,
-            "gjeldende_krav.forhold": "K-g1",
-            "enighet.forhold.kilde": "sammenfall",
+            "gjeldende_krav.forhold": "K-g2",
+            "enighet.forhold": null,
             "uten_virkning": []
           }
         }
@@ -4716,7 +4716,7 @@
         "KA-37"
       ],
       "start": "godkjent_forhold",
-      "forslag": "OV-U4 og KA-U12: TEs registrerte kravversjon etter «ingen krav» er dokumentasjon og blir ikke gjeldende krav",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011), KA-U12 og MM-U43 punkt 9: TEs kravversjon lagt til etter «ingen krav» strider mot det og får ingen virkning, som en versjon fra løsningen",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4739,12 +4739,15 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
-            "KA-U12"
+            "OV-U80",
+            "KA-U12",
+            "MM-U43"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "K-v1"
+            ],
             "gjeldende_krav.vederlag": null,
             "visning.etiketter.vederlag": {
               "inneholder": [
@@ -4799,7 +4802,7 @@
         "KA-37"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4: TEs registrerte kravversjon etter trekk er dokumentasjon, og trekket står",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011), GR-U5 og MM-U43 punkt 9: TEs kravversjon lagt til etter trekk strider mot trekket og får ingen virkning, og trekket står",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4822,12 +4825,15 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
-            "KA-U12"
+            "OV-U80",
+            "GR-U5",
+            "MM-U43"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "K-v2"
+            ],
             "gjeldende_krav.vederlag": "K-v1",
             "trukket.vederlag": true
           }
@@ -6802,7 +6808,7 @@
         "KA-40"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U80 (som endrer OV-U4, #2011) og MM-U43 punkt 9: TEs registrerte kravversjon i et trukket spor og byggherrens registrerte svar på den får ingen virkning, og saken er forstått",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011), GR-U5 og MM-U43 punkt 9: TEs kravversjon lagt til i et trukket spor og byggherrens svar lagt til på den får ingen virkning, og saken er forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6835,11 +6841,14 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U80"
+            "OV-U80",
+            "GR-U5"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": []
+            "uten_virkning": [
+              "K-v2"
+            ]
           }
         },
         {
@@ -6852,6 +6861,7 @@
           "forventet": {
             "forstaatt": true,
             "uten_virkning": [
+              "K-v2",
               "S-v1"
             ],
             "gjeldende_svar.vederlag": null

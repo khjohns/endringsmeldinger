@@ -2027,7 +2027,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
-  it('et registrert krav er dokumentasjon, så byggherren kan ikke godkjenne det fra appen (OV-U4)', () => {
+  it('et krav lagt til med kravskjemaet blir gjeldende krav, og byggherren svarer på det fra løsningen (OV-U80, OV-U98)', () => {
     const s = sak();
     const id = randomUUID();
     s.rad('TE', {
@@ -2039,12 +2039,15 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     const u = s.u();
     expect(u.forstaatt).toBe(true);
-    expect(u.spor.forhold.gjeldendeKrav, 'kravet er ikke gjeldende krav (OV-U4)').toBeNull();
+    expect(u.spor.forhold.gjeldendeKrav?.id, 'kravet er gjeldende krav (OV-U80)').toBe(id);
     const godkjent = {
       type: 'brev',
       svar: [svar('forhold', id, { resultat: 'godkjent', grunnlag_varslet_i_tide: true })],
     };
-    expect(s.avvist('BH', godkjent), 'kravet i brevet er ikke et krav (OV-U4)').toBe('INGEN_KRAV');
+    expect(
+      s.avvist('BH', godkjent),
+      'samme virkning som et krav fra løsningen (OV-U80)'
+    ).toBeNull();
   });
 
   it('et krav fra appen uten beskrivelse gir ingen godkjenning som endringsordre (GR-U14)', () => {
@@ -2569,10 +2572,10 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       ],
     });
 
-    it('brevteksten gjentar den ikke i svaret, men innsigelsen mot kravet fra appen', () => {
+    it('brevteksten gjentar den i svaret, som innsigelsen mot kravet fra løsningen (OV-U80)', () => {
       const { s, registrert } = medRegistrertKrav();
       s.send('BH', { type: 'innsigelse', gjelder: registrert });
-      expect(laast(s.send('BH', avslag(s))).join('\n\n')).not.toContain('jf. innsigelsen');
+      expect(laast(s.send('BH', avslag(s)))[1]).toContain('jf. innsigelsen');
       // Kontrollsak: samme forløp med innsigelsen mot påberopelsen fra appen.
       const k = medRegistrertKrav().s;
       k.send('BH', { type: 'innsigelse', gjelder: k.krav('forhold') });
@@ -3439,19 +3442,14 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     expect(u.spor.frist.trukket).toBe(true);
   });
 
-  it('med et registrert brev sier visningen også at saken har brev sendt utenfor appen (OV-U10)', () => {
+  it('med et brev lagt til som dokumentasjon sier visningen også at saken har brev sendt utenfor appen (OV-U10)', () => {
     const s = utenFrist();
-    s.rad('TE', {
-      krav: [
-        {
-          id: randomUUID(),
-          spor: 'forhold',
-          hovedkategori: 'endring',
-          underkategori: 'irregulaer_endring',
-        },
-      ],
-      opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
+    s.send('TE', {
+      type: 'registrert_brev',
+      sendt: '2026-09-30',
       korrespondansetype: 'brev',
+      beskrivelse: 'Referat fra byggemøte',
+      dokumentasjon: [randomUUID()],
     });
     const u = s.u();
     expect(u.forstaatt, 'forutsetning: saken er forstått').toBe(true);
@@ -3865,7 +3863,32 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(s.avvist('BH', foresporsel)).toBe('FRISTKRAV_SENDT');
   });
 
-  it('VS-U33: et fristkrav i et registrert brev stopper ikke forespørselen fra appen', () => {
+  const fristkravLagtTil = {
+    krav: [
+      { id: 'K-lagt-til', spor: 'frist', frister: [{ id: 'f1', navn: 'Sluttfristen', dager: 20 }] },
+    ],
+    opplysninger: [{ id: 'O-sendt', hva: 'sendt', dato: '2026-10-01' }],
+    korrespondansetype: 'brev',
+  };
+
+  it('VS-U47 spørsmål 2: en forespørsel etter et fristkrav lagt til med kravskjemaet gjør saken uforstått', () => {
+    const utsagnet = (() => {
+      const k = sak();
+      k.send('TE', PAABEROPELSE);
+      return (k.send('BH', foresporsel).data.utsagn as Data[])[0];
+    })();
+    const forstaatt = (medKravet: boolean) => {
+      const s = sak();
+      s.send('TE', PAABEROPELSE);
+      if (medKravet) s.rad('TE', structuredClone(fristkravLagtTil));
+      s.rad('BH', { utsagn: [{ ...utsagnet, id: randomUUID() }] });
+      return s.u().forstaatt;
+    };
+    expect(forstaatt(false), 'kontrollsak: forespørselen uten kravet').toBe(true);
+    expect(forstaatt(true)).toBe(false);
+  });
+
+  it('VS-U47 spørsmål 2: et fristkrav lagt til med kravskjemaet stopper forespørselen fra løsningen', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     s.rad('TE', {
@@ -3879,9 +3902,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-01' }],
       korrespondansetype: 'brev',
     });
-    expect(s.avvist('BH', foresporsel)).toBeNull();
-    // Kjernen forstår journalen med forespørselen etter det registrerte kravet (send kaster ellers).
-    s.send('BH', foresporsel);
+    expect(s.avvist('BH', foresporsel)).toBe('FRISTKRAV_SENDT');
   });
 
   it('VS-U33: et fristkrav fremmet i appen stopper forespørselen (kontrollsak)', () => {

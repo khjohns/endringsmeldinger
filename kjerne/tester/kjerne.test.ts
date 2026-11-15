@@ -744,9 +744,9 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     expect(visning(u, GJELDENDE_REGLER).merknader).toContain('brev_utenfor_appen');
   });
 
-  // OV-U12: et krav i et registrert brev er dokumentasjon uten virkning (OV-U4), så
+  // OV-U98: kravet er sendt før totalentreprenørens siste krav og blir ikke gjeldende, så
   // referansekontrollen i utledningen finner ikke kravet endringsordren viser til.
-  it('en endringsordre registrert som svar på et krav som bare er dokumentasjon, er ikke forstått (OV-U12)', async () => {
+  it('en endringsordre lagt til som svar på et krav sendt før det siste, er ikke forstått (OV-U12, OV-U98)', async () => {
     const bane = minnebane();
     await bygg(bane, [
       'krav_irreg',
@@ -757,7 +757,7 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
         spor: 'forhold',
         underkategori: 'irregulaer_endring',
         navn: 'K-g2',
-        sendt: '2026-09-29',
+        sendt: '2026-09-19',
       },
       {
         ...registrert({ sendt: '2026-09-30', endringsordre: true }),

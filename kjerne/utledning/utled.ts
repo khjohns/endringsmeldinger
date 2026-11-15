@@ -33,7 +33,7 @@ import { KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import { enighetsgrunnlag, sammenfallStemmer } from '../frosset/standpunkt.ts';
-import { iSporet, kravetErDokumentasjon } from '../frosset/byggeklosser.ts';
+import { iSporet } from '../frosset/byggeklosser.ts';
 import { svarPaaForesporsler, type ForesporselOgSvar } from '../spor/frist/frysing.ts';
 import {
   KRAVSPOR,
@@ -441,12 +441,8 @@ const REGISTRERT_MED_VIRKNING = new Set<string>(['varsel', 'aksept']);
  * denne funksjonen (punkt 4 i #1167).
  */
 function dokumentasjonIBrevet(d: Dokument): Set<string> {
-  const krav = kravetErDokumentasjon(d) ? d.krav.map((k) => k.id) : [];
-  if (!erRegistrert(d.opplysninger)) return new Set(krav);
-  return new Set([
-    ...krav,
-    ...d.utsagn.filter((x) => !REGISTRERT_MED_VIRKNING.has(x.art)).map((x) => x.id),
-  ]);
+  if (!erRegistrert(d.opplysninger)) return new Set();
+  return new Set([...d.utsagn.filter((x) => !REGISTRERT_MED_VIRKNING.has(x.art)).map((x) => x.id)]);
 }
 
 /**

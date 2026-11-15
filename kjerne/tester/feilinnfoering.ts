@@ -948,8 +948,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        '    if (krav)\n',
-        "    if (krav && krav.spor !== 'forhold') return '33.4';\n    if (krav)\n",
+        '    if (krav) return',
+        "    if (krav && krav.spor !== 'forhold') return '33.4';\n    if (krav) return",
       ],
     ],
     mal: [
@@ -974,7 +974,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F100',
     feilklasse: 'en innsigelse mot TEs varsel etter § 32.2 leses ikke som en påberopelse (VS-U24)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [["        ? '32.2'", '        ? null']],
+    endringer: [["varslingsplikt(krav) ? '32.2'", 'varslingsplikt(krav) ? null']],
     mal: [
       'svaret gjentar innsigelsen og viser til den',
       'gir byggherren innsigelsen opp, sier brevet det uttrykkelig',
@@ -1824,10 +1824,7 @@ const MUTASJONER: Mutasjon[] = [
       'en innsigelse mot en påberopelsesversjon der § 32.2 ikke gjelder, leses som en påberopelse etter § 32.2 (VS-U24, GR-U11)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
-      [
-        "krav.spor === 'forhold' && !kravetErDokumentasjon(d) && varslingsplikt(krav)",
-        "krav.spor === 'forhold' && !kravetErDokumentasjon(d) && true",
-      ],
+      ["krav.spor === 'forhold' && varslingsplikt(krav)", "krav.spor === 'forhold' && true"],
     ],
     mal: [
       'en innsigelse mot en versjon der § 32.2 ikke gjelder, gjentas ikke og gis ikke opp i svaret på en senere versjon',
@@ -1902,12 +1899,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F246',
     feilklasse:
-      'et krav, svar, en aksept eller et trekk i et registrert brev får virkning igjen (OV-U4, #574)',
+      'et trekk eller et annet utsagn i et registrert brev enn et varsel eller en aksept får virkning (OV-U98, #574)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      ['  if (!erRegistrert(d.opplysninger)) return new Set(krav);', '  return new Set();'],
-    ],
-    mal: ['F-MM-G44', 'F-MM-G45-kontroll', 'F-MM-G46'],
+    endringer: [['  if (!erRegistrert(d.opplysninger)) return new Set();', '  return new Set();']],
+    mal: ['OV-U19, OV-U4: en registrert begrunnelse', 'punkt 4 i #1167: alt i et registrert brev'],
   },
   {
     id: 'F248',
@@ -2054,10 +2049,15 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F270',
     feilklasse:
-      'en innsigelse mot en påberopelse i et registrert brev regnes som påberopelse etter § 32.2 (arbeidsvalg 1 i #770, #536)',
+      'en innsigelse mot en påberopelse lagt til med kravskjemaet regnes ikke som påberopelse etter § 32.2 (OV-U80)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['&& !kravetErDokumentasjon(d) &&', '&& true &&']],
-    mal: ['brevteksten gjentar den ikke i svaret'],
+    endringer: [
+      [
+        "krav.spor === 'forhold' && varslingsplikt(krav)",
+        "krav.spor === 'forhold' && d.opplysninger.length === 0 && varslingsplikt(krav)",
+      ],
+    ],
+    mal: ['brevteksten gjentar den i svaret, som innsigelsen mot kravet fra løsningen'],
   },
   {
     id: 'F271',
@@ -2384,7 +2384,7 @@ const MUTASJONER: Mutasjon[] = [
         "kode === 'alle_krav_avgjort' && false",
       ],
     ],
-    mal: ['med et registrert brev sier visningen også'],
+    mal: ['med et brev lagt til som dokumentasjon sier visningen også'],
   },
   {
     id: 'F311',
@@ -2597,28 +2597,31 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F324',
-    feilklasse: 'et fristkrav i et registrert brev sperrer forespørselen (VS-U33)',
+    feilklasse:
+      'et fristkrav lagt til med kravskjemaet sperrer ikke forespørselen (VS-U47 spørsmål 2)',
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        '    if (d.krav.some((k) => erFristkravIAppen(d, k))) return true;',
-        "    if (d.krav.some((k) => k.spor === 'frist')) return true;",
+        "if (d.krav.some((k) => k.spor === 'frist')) return true;",
+        "if (d.krav.some((k) => k.spor === 'frist' && d.opplysninger.length === 0)) return true;",
       ],
     ],
-    mal: ['VS-U33: et fristkrav i et registrert brev stopper ikke forespørselen'],
+    mal: ['VS-U47 spørsmål 2: et fristkrav lagt til med kravskjemaet stopper forespørselen'],
   },
   {
     id: 'F357',
     feilklasse:
-      'et fristkrav i et registrert brev gjør forespørselen ugyldig i utledningen (VS-U33)',
+      'et fristkrav lagt til med kravskjemaet gjør ikke en senere forespørsel ugyldig i utledningen (VS-U47 spørsmål 2)',
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        '      for (const k of d.krav) if (erFristkravIAppen(d, k)) fristkravIAppen.push(k);',
-        "      for (const k of d.krav) if (k.spor === 'frist') fristkravIAppen.push(k);",
+        "if (k.spor === 'frist') fristkrav.push(k);",
+        "if (k.spor === 'frist' && d.opplysninger.length === 0) fristkrav.push(k);",
       ],
     ],
-    mal: ['VS-U33: et fristkrav i et registrert brev stopper ikke forespørselen'],
+    mal: [
+      'VS-U47 spørsmål 2: en forespørsel etter et fristkrav lagt til med kravskjemaet gjør saken uforstått',
+    ],
   },
   {
     id: 'F358',
@@ -2709,8 +2712,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '    ...krav,\n    ...d.utsagn',
-        '    ...krav,\n    ...d.svar.map((s) => s.id),\n    ...d.utsagn',
+        '  return new Set([...d.utsagn',
+        '  return new Set([...d.svar.map((s) => s.id), ...d.utsagn',
       ],
     ],
     mal: [
@@ -2732,6 +2735,21 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['OV-U19, OV-U4: en registrert begrunnelse', 'punkt 4 i #1167: alt i et registrert brev'],
+  },
+  {
+    id: 'F642',
+    feilklasse: 'et krav lagt til med kravskjemaet er dokumentasjon (OV-U80, OV-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '  return new Set([...d.utsagn',
+        '  return new Set([...d.krav.map((k) => k.id), ...d.utsagn',
+      ],
+    ],
+    mal: [
+      'et krav lagt til med kravskjemaet blir gjeldende krav, og byggherren svarer på det fra løsningen',
+      'F-MM-U326f',
+    ],
   },
   {
     id: 'F369',

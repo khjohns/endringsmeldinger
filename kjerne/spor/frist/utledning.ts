@@ -17,7 +17,6 @@ import type {
 } from '../../utledning/utled.ts';
 import type { Krav } from '../../typer.ts';
 import {
-  erFristkravIAppen,
   foresporselsrelasjon,
   type ForesporselOgSvar,
   type Foresporselsrelasjon,
@@ -43,14 +42,13 @@ export const KONTROLLER_I_FRISTEN = {
   leserDatoen: false,
   svaretKanGodtas: () => true,
   saken: (s, bakover, ugyldig) => {
-    // VS-U33: kravene om dager fremmet i appen, også de uten virkning.
-    const fristkravIAppen: Krav[] = [];
-    for (const d of s.dokumenter)
-      for (const k of d.krav) if (erFristkravIAppen(d, k)) fristkravIAppen.push(k);
-    kontrollerForesporslene(s.foresporsler, fristkravIAppen, s.henvisninger, bakover, ugyldig);
+    // VS-U47 spørsmål 2: kravene om dager, også de lagt til og de uten virkning.
+    const fristkrav: Krav[] = [];
+    for (const d of s.dokumenter) for (const k of d.krav) if (k.spor === 'frist') fristkrav.push(k);
+    kontrollerForesporslene(s.foresporsler, fristkrav, s.henvisninger, bakover, ugyldig);
     kontrollerSvaretPaaForesporselen(
       s.kravMedUten,
-      fristkravIAppen,
+      fristkrav,
       s.elementer,
       s.besvart,
       bakover,
@@ -60,18 +58,18 @@ export const KONTROLLER_I_FRISTEN = {
 } satisfies Sporskontroller;
 
 /**
- * VS-U19, VS-U33: forespørselen sendes før TE har krevd dager i appen, ikke etter TEs begrunnelse
+ * VS-U19, VS-U47 spørsmål 2: forespørselen sendes før TE har krevd dager, ikke etter TEs begrunnelse
  * (VS-U30), og høyst én gang fra appen (VS-U31).
  */
 function kontrollerForesporslene(
   foresporsler: readonly Utsagn<'foresporsel'>[],
-  fristkravIAppen: readonly Krav[],
+  fristkrav: readonly Krav[],
   henvisninger: readonly Henvisning[],
   bakover: Bakover,
   ugyldig: Ugyldig
 ): void {
   for (const f of foresporsler)
-    if (fristkravIAppen.some((k) => bakover(f.id, k.id)))
+    if (fristkrav.some((k) => bakover(f.id, k.id)))
       ugyldig(f.id, 'forespørselen etter punkt 33.6.2 står etter et fristkrav');
     else if (henvisninger.some((x) => x.art === 'foresporselssvar' && bakover(f.id, x.id)))
       ugyldig(f.id, 'forespørselen etter punkt 33.6.2 står etter totalentreprenørens begrunnelse');
@@ -81,12 +79,12 @@ function kontrollerForesporslene(
 
 /**
  * HF-U1, LV-U18 punkt 3: fristkravet viser til forespørselen etter § 33.6.2 det svarer på, og
- * et krav om dager i appen mens forespørselen er ubesvart, er svaret og viser til den
- * (avgrensningen i #1567). Et krav i et registrert brev svarer ikke (OV-U4).
+ * et krav om dager mens forespørselen er ubesvart, er svaret og viser til den
+ * (avgrensningen i #1567). Et krav lagt til med kravskjemaet svarer også (VS-U47 spørsmål 2).
  */
 function kontrollerSvaretPaaForesporselen(
   kravMedUten: ReadonlyMap<string, Krav>,
-  fristkravIAppen: readonly Krav[],
+  fristkrav: readonly Krav[],
   elementer: Record<string, Element>,
   besvart: readonly ForesporselOgSvar[],
   bakover: Bakover,
@@ -96,12 +94,10 @@ function kontrollerSvaretPaaForesporselen(
     if (k.gjelder === undefined) continue;
     if (elementer[k.gjelder]?.art !== 'foresporsel' || !bakover(k.id, k.gjelder))
       ugyldig(k.id, 'fristkravet viser ikke til en forespørsel etter punkt 33.6.2 før kravet');
-    else if (!fristkravIAppen.includes(k))
-      ugyldig(k.id, 'et registrert krav svarer ikke på forespørselen etter punkt 33.6.2');
     else if (!besvart.some((f) => f.foresporsel === k.gjelder && f.svar === k.id))
       ugyldig(k.id, 'fristkravet viser til en forespørsel etter punkt 33.6.2 som alt er besvart');
   }
-  for (const k of fristkravIAppen)
+  for (const k of fristkrav)
     if (
       k.gjelder === undefined &&
       besvart.some(
@@ -132,12 +128,11 @@ export function foresporselForFristsvar(u: Utledning): Foresporselsrelasjon | nu
 }
 
 /**
- * VS-U19, VS-U33: TE har fremmet et krav om dager i appen, også uten virkning, som
- * kontrollen av forespørselen i utledningen. Et registrert brev stopper den aldri.
+ * VS-U19, VS-U47 spørsmål 2: TE har fremmet et krav om dager, fra løsningen eller lagt til med
+ * kravskjemaet, også uten virkning, som kontrollen av forespørselen i utledningen.
  */
 export function fristkravErFremmet(u: Utledning): boolean {
-  for (const d of dokumenterI(u.journal))
-    if (d.krav.some((k) => erFristkravIAppen(d, k))) return true;
+  for (const d of dokumenterI(u.journal)) if (d.krav.some((k) => k.spor === 'frist')) return true;
   return false;
 }
 

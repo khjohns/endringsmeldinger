@@ -13,12 +13,7 @@
  */
 
 import type { Regelsett } from '../regler/regelsett.ts';
-import {
-  type Svarinnhold,
-  type Svarsfrysing,
-  iSporet,
-  kravetErDokumentasjon,
-} from './byggeklosser.ts';
+import { type Svarinnhold, type Svarsfrysing, iSporet } from './byggeklosser.ts';
 import { FRYSING_I_FORHOLDET } from '../spor/forhold/frysing.ts';
 import { FRYSING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
 import { FRYSING_I_FRISTEN } from '../spor/frist/frysing.ts';
@@ -59,9 +54,8 @@ export function virkninger(
  * varsel etter § 32.2 i forholdet, som er påberopelsen når § 32.2 gjelder kategorien
  * i det (GR-U11). Varselet etter § 32.2 er det samme i hver påberopelsesversjon
  * (arbeidsvalget 15.10 i #500). Svaret i sporet gjentar den eller gir den opp. Mot et
- * annet krav eller et svar er den uten virkning. Et krav i et registrert brev er
- * dokumentasjon (OV-U4), så en innsigelse mot det er heller ingen påberopelse; byggherren
- * påberoper § 32.2 i svaret (arbeidsvalg 1 i #770). Kommandoene, utledningen og
+ * annet krav eller et svar er den uten virkning. Et krav lagt til med kravskjemaet har samme
+ * virkning som et krav sendt fra løsningen (OV-U80). Kommandoene, utledningen og
  * brevteksten finner det innsigelsen gjelder, i `dokumenter` her (#536). `varslingsplikt`
  * sier om § 32.2 gjelder kategorien: brevteksten spør regelsettet når brevet skrives,
  * utledningen leser det som er frosset (MM-U43 punkt 8, #776).
@@ -81,10 +75,7 @@ export function innsigelsenPaaberoper(
           ? '33.6.2'
           : null;
     const krav = d.krav.find((k) => k.id === gjelder);
-    if (krav)
-      return krav.spor === 'forhold' && !kravetErDokumentasjon(d) && varslingsplikt(krav)
-        ? '32.2'
-        : null;
+    if (krav) return krav.spor === 'forhold' && varslingsplikt(krav) ? '32.2' : null;
   }
   return null;
 }

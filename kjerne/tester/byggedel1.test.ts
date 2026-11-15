@@ -366,7 +366,7 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
     },
   ];
 
-  it('et registrert svar regnet mot den er dokumentasjon, og saken er forstått (OV-U4)', async () => {
+  it('et svar lagt til og regnet mot den gjelder som et svar fra løsningen, og saken er forstått (OV-U80, OV-U98)', async () => {
     const bane = minnebane();
     const k = await bygg(bane, [
       ...foer,
@@ -385,8 +385,8 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
     ]);
     const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
     expect(u.forstaatt).toBe(true);
-    expect(u.spor.forhold.gjeldendeKrav?.id).toBe(k.navn.id('K-g1'));
-    expect(u.spor.vederlag.gjeldendeSvar).toBeNull();
+    expect(u.spor.forhold.gjeldendeKrav?.id).toBe(k.navn.id('K-g2'));
+    expect(u.spor.vederlag.gjeldendeSvar?.id).toBe(k.navn.id('S-v1'));
     expect(u.utenVirkning).toEqual([]);
   });
 
