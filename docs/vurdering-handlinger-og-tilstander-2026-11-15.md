@@ -543,9 +543,11 @@ Om MM-U40 og designdelen i A1, oppdragsgiver 15.11, ordrett: «MM-U40: I prinsip
 Løsningen gjør det i noen grad: feks oppfordre til å svare på et krav, bare ved at frontend viser
 tydelig "svar på krav" ved brevet om kravet. Men så mye mer oppfordring bør unnlates: løsningen vet
 ikke hva som er sagt mellom partene i innlegg eller utenfor løsningen og å dermed gi en illusjon om
-at den vet som må ta neste steg blir feil.» Kartleggingsøkta foreslo en ny tekst i MM-U24
-(betegnelsene sier hvem som har sagt hva, ikke hvem som skal handle; det vises bare ved handlingen
-parten kan gjøre). Oppdragsgiver 15.11, ordrett: «Enig om at bekreftelse da utgår og om forslaget
+at den vet som må ta neste steg blir feil.» Kartleggingsøkta foreslo 15.11 denne teksten i MM-U24,
+ordrett: «Betegnelsene sier hvem som har sagt hva, og ikke hvem som skal handle. At en part kan
+svare, vises bare ved handlingen parten kan gjøre, for eksempel «Svar på kravet» ved brevet om
+kravet. Løsningen vet ikke hva partene har sagt i innlegg eller utenfor løsningen (oppdragsgiver
+15.11; snevrer inn designdelen i OV-U97).» Oppdragsgiver 15.11, ordrett: «Enig om at bekreftelse da utgår og om forslaget
 til MM-U24». MM-U24 i `.interface-design/system.md` er rettet, og MM-U40 står.
 
 Om bekreftelsen etter OV-U46: kartleggingsøkta foreslo 15.11 at bekreftelsen utgår, fordi et

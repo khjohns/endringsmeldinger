@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `ce718d4df42d11974a2f50bbae3bfef2e3c2b2b6d1a1cefeb7df074e4365f3eb`
+Kontrollsum (SHA-256 over utdraget visningen leser): `67c9c5ca99bf37b4e81fa2f633e6693337d1eb94893a2dcd25a306194b67893e`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -4135,7 +4135,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 15.11, oppdragsgiver (#1987)
 
-**Følge:** Opphever [GR-U35](#gr-u35). Opphever [GR-U37](#gr-u37). Endrer [OV-U46](#ov-u46). Endrer [KA-U49](#ka-u49). Endrer [OV-U99](#ov-u99). Bygger på [OV-U80](#ov-u80). Bygger på [OV-U98](#ov-u98). Endrer OV-U46: setningene om bekreftelsen utgår, og setningene om det nye svaret etter en henvisning står. Endrer KA-U49: punkt 11 utgår. Endrer OV-U99: punkt 2, bekreftelsen strykes fra det som venter. GR-U34 punkt 6–7, GR-U36, LV-U53, OV-U84 og OV-U69 står. Gjelder BF-08 (#1834) og #1306.
+**Følge:** Opphever [GR-U35](#gr-u35). Opphever [GR-U37](#gr-u37). Endrer [OV-U46](#ov-u46). Endrer [KA-U49](#ka-u49). Endrer [OV-U99](#ov-u99). Bygger på [OV-U80](#ov-u80). Bygger på [OV-U98](#ov-u98). Forholdet slik det sto i alternativet F1: «opphever GR-U35 og GR-U37; endrer OV-U46 (setningene om bekreftelsen utgår, setningene om det nye svaret etter en henvisning står); endrer KA-U49 (punkt 11 utgår); endrer OV-U99 (punkt 2: bekreftelsen strykes fra det som venter); bygger på OV-U80 og OV-U98. GR-U34 punkt 6–7, GR-U36, LV-U53, OV-U84 og OV-U69 står.» Bygges i #1834.
 
 **Regelrader:** —
 
