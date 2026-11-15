@@ -158,7 +158,7 @@ const AVSLAGET_GODTATT =
 
 /** KA-U1, HF-U8: avvisningen sier ikke at det eldre svaret er avslått eller har falt bort. */
 export const ELDRE_SVAR =
-  'Aksepten må gjelde byggherrens gjeldende svar på kravet. Et eldre svar kan ikke godtas i løsningen. Det er en begrensning i løsningen, og svaret er ikke avslått eller falt bort av det.';
+  'Aksepten må gjelde byggherrens gjeldende svar på kravet. Et eldre svar kan ikke godtas herfra. Det er en begrensning i løsningen, og svaret er ikke avslått eller falt bort av det.';
 
 /** Det som er sporets eget i forutsetningene (#1783). */
 export interface Sporsforutsetninger {

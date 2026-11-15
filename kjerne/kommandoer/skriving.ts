@@ -742,7 +742,10 @@ function tekstavvik(vist: string[] | undefined, laget: Avsnitt[] | null): Avvisn
   if (laget === null)
     return vist === undefined
       ? null
-      : avvis('ANNEN_BREVTEKST', 'Et registrert brev har ingen tekst fra løsningen.');
+      : avvis(
+          'ANNEN_BREVTEKST',
+          'Et registrert brev er sendt på annen måte og har ingen tekst herfra.'
+        );
   if (vist === undefined)
     return avvis(
       'BREVTEKST_MANGLER',

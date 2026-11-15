@@ -50,7 +50,6 @@ import {
 import { medKravpostIder, medP1, medP1IkkeAkseptert, mellomlager, P1 } from './klient.ts';
 import { formfeil, type Kommando, type Svarutkast } from '../kommandoer/kommando.ts';
 import { oppgittDatoEtterBrevet } from '../kommandoer/nyttelast.ts';
-import { forutsetninger } from '../kommandoer/forutsetninger.ts';
 import {
   KRAVSPOR,
   type Avsnitt,
@@ -3804,6 +3803,29 @@ describe('vedleggene ved påberopelsen (VS-U38)', () => {
   });
 });
 
+describe('meldingene før påberopelsen er sendt (språkfila, #1955)', () => {
+  it('«ingen krav» og varselet avvises med en melding som sier «påberopelsen», ikke «grunnlaget»', () => {
+    const uten = sak();
+    expect(uten.avvisning('TE', { type: 'ingen_krav', spor: 'frist' })).toEqual({
+      regel: 'PAABEROPELSE_IKKE_SENDT',
+      melding: 'Påberopelsen må være sendt før du kan si «ingen krav».',
+    });
+    expect(
+      uten.avvisning('TE', {
+        type: 'varsel',
+        korrespondansetype: 'brev',
+        spor: 'frist',
+        hjemmel: '33.4',
+        sendt: '2026-09-28',
+        dokumentasjon: [randomUUID()],
+      })
+    ).toEqual({
+      regel: 'PAABEROPELSE_IKKE_SENDT',
+      melding: 'Påberopelsen må være sendt før du kan varsle.',
+    });
+  });
+});
+
 describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U29, LV-U18)', () => {
   const foresporsel = { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' };
   const begrunnelseB = 'Omfanget av omprosjekteringen er ikke kjent ennå.';
@@ -4240,20 +4262,6 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(s.avvist('BH', foresporsel), 'kontrollsak: før begrunnelsen').toBe('FORESPORSEL_SENDT');
     const { s: medB } = medBegrunnelse();
     expect(medB.avvist('BH', foresporsel)).toBe('FORESPORSEL_BEGRUNNET');
-  });
-
-  it('før påberopelsen er sendt, sier hver melding «påberopelsen», ikke «grunnlaget» (språkfila, #1955)', () => {
-    const uten = sak();
-    const u = uten.u();
-    const avvisning = (h: Parameters<typeof forutsetninger>[0]) => forutsetninger(h, 'TE', u);
-    expect(avvisning({ type: 'ingen_krav', spor: 'frist' })).toEqual({
-      regel: 'PAABEROPELSE_IKKE_SENDT',
-      melding: 'Påberopelsen må være sendt før du kan si «ingen krav».',
-    });
-    expect(avvisning({ type: 'varsle', spor: 'frist' })).toEqual({
-      regel: 'PAABEROPELSE_IKKE_SENDT',
-      melding: 'Påberopelsen må være sendt før du kan varsle.',
-    });
   });
 
   it('meldingene som stopper forespørselen, sier påberopelsen og skriver partene fullt ut (språkfila, #1953, #1955)', () => {
