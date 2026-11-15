@@ -258,7 +258,9 @@
 
         <section class="begrunnelser" aria-labelledby={`${uid}-sp-begrunnelse`}>
           <h3 id={`${uid}-sp-begrunnelse`}>{SKJEMA.begrunnelse}</h3>
-          <p class="dempet" id={`${uid}-begrunnelse-hjelp`}>{SKJEMA.begrunnelseHjelp}</p>
+          <p class="dempet" id={`${uid}-begrunnelse-hjelp`}>
+            {begrunnelseKreves ? SKJEMA.begrunnelseHjelpKreves : SKJEMA.begrunnelseHjelp}
+          </p>
           {#each punktene as p (p.punkt)}
             {@const id = begrunnelseId(p.punkt)}
             {@const bFeil = feil(id)}

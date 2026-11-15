@@ -19,6 +19,8 @@
   import Vederlagssvar from './Vederlagssvar.svelte';
   import Fristsvar from './Fristsvar.svelte';
   import { tomtFristsvar } from './fristsvar';
+  import Forholdssvar from './Forholdssvar.svelte';
+  import { tomtForholdssvar } from './forholdssvar';
   import Vederlagskrav from './Vederlagskrav.svelte';
   import Fristkrav from './Fristkrav.svelte';
   import { startvalg as fristkravstart, tomtUtenforvalg, type Fristkravvalg } from './fristkrav';
@@ -114,13 +116,13 @@
     kvittering?: string;
     tilbake: Arbeid;
     /** Sporet når brevet er svarutkastet i sporet, som tømmes når det er sendt. */
-    utkastet: Svarspor | null;
+    utkastet: Spor | null;
     /** Sakens versjon da brevkontrollen ble åpnet. */
     versjon: number | null;
     /** Vedleggene kommandoen viser til, som kjernen trenger for brevet (VS-U53). */
     vedlegg?: ReadonlyMap<string, { vedlegg_id: string; filnavn: string; innhold_sha256: string }>;
   };
-  type Svarspor = Exclude<Spor, 'forhold'>;
+  type Kravspor = Exclude<Spor, 'forhold'>;
   type Arbeid =
     | { art: 'les' }
     | { art: 'svar' }
@@ -165,9 +167,14 @@
   let vedSiden = $state(false);
   // Utkastet til svaret står til det er sendt eller forkastet, også når BH velger et annet
   // spor (BF-01 S-8). Merket i panelet vises bare når et annet spor er valgt (#1391).
-  let utkastAapent = $state<Record<Svarspor, boolean>>({ vederlag: false, frist: false });
+  let utkastAapent = $state<Record<Spor, boolean>>({
+    forhold: false,
+    vederlag: false,
+    frist: false,
+  });
   let fristsvarvalg = $state(tomtFristsvar());
-  const harUtkast = (s: Spor) => s !== 'forhold' && utkastAapent[s];
+  let forholdssvarvalg = $state(tomtForholdssvar());
+  const harUtkast = (s: Spor) => utkastAapent[s];
   let melding = $state<{ tekst: string; art: 'sendt' | 'forkastet' | 'endret' } | null>(
     untrack(() => (kvittering ? { tekst: kvittering, art: 'sendt' } : null))
   );
@@ -213,14 +220,15 @@
   const partensLenke = $derived(kjernesak.part === 'TE' ? (nySakLenke ?? null) : null);
 
   // Svarutkastet i sporet er sendt eller forkastet.
-  function tomtUtkast(s: Svarspor) {
+  function tomtUtkast(s: Spor) {
     if (s === 'vederlag') svarvalg = tomtSvar();
-    else fristsvarvalg = tomtFristsvar();
+    else if (s === 'frist') fristsvarvalg = tomtFristsvar();
+    else forholdssvarvalg = tomtForholdssvar();
     utkastAapent[s] = false;
   }
 
   // Brevkontrollen for BHs svar i sporet, som svarer på gjeldende krav.
-  function tilSvarkontroll(s: Svarspor, k: TilBrevkontrollen) {
+  function tilSvarkontroll(s: Spor, k: TilBrevkontrollen) {
     const krav = brev.find((b) => b.id === u?.spor[s].gjeldendeKrav?.dokument);
     melding = null;
     arbeid = {
@@ -237,7 +245,7 @@
   }
 
   /** Brevkontrollen for TEs krav i sporet, med forrige krav og svaret på det som relasjoner. */
-  function tilKravkontroll(s: Svarspor, k: TilBrevkontrollen & Pick<Kontroll, 'vedlegg'>) {
+  function tilKravkontroll(s: Kravspor, k: TilBrevkontrollen & Pick<Kontroll, 'vedlegg'>) {
     const kravet = brev.find((b) => b.id === u?.spor[s].gjeldendeKrav?.dokument);
     const svaret = brev.find((b) => b.id === u?.spor[s].gjeldendeSvar?.dokument);
     melding = null;
@@ -327,6 +335,10 @@
    * nøkkel her blir en knapp som åpner noe; resten sier at handlingen ikke er bygget (#1636, #1663).
    */
   const skjemaene: Record<string, () => void> = {
+    'svare:forhold': () => {
+      utkastAapent.forhold = true;
+      arbeid = { art: 'svar' };
+    },
     'svare:vederlag': () => {
       utkastAapent.vederlag = true;
       arbeid = { art: 'svar' };
@@ -391,7 +403,7 @@
     meldingen?.focus();
   }
 
-  async function forkastKravet(spor: Svarspor) {
+  async function forkastKravet(spor: Kravspor) {
     if (spor === 'vederlag') kravvalg = null;
     else fristkravvalg = null;
     arbeid = { art: 'les' };
@@ -401,7 +413,7 @@
   }
 
   async function forkast() {
-    if (valgt !== 'forhold') tomtUtkast(valgt);
+    tomtUtkast(valgt);
     arbeid = { art: 'les' };
     melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
     await tick();
@@ -635,6 +647,15 @@
             await tick();
             meldingen?.focus();
           }}
+        />
+      {:else if arbeid.art === 'svar' && valgt === 'forhold' && kjernesak.handlinger.includes('svare:forhold')}
+        <Forholdssvar
+          {kjernesak}
+          {u}
+          bind:valg={forholdssvarvalg}
+          onforkast={forkast}
+          onvedsiden={(v) => (vedSiden = v)}
+          onbrevkontroll={(k) => tilSvarkontroll('forhold', k)}
         />
       {:else if arbeid.art === 'svar' && valgt === 'vederlag' && kjernesak.handlinger.includes('svare:vederlag')}
         <Vederlagssvar

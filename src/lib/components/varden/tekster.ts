@@ -390,6 +390,9 @@ export const SKJEMA = {
   begrunnelse: 'Begrunnelse',
   begrunnelseHjelp:
     'Valgfritt. Begrunnelsen står i brevet under punktet den gjelder, og kan vise til et annet punkt.',
+  // Når en begrunnelse kreves, sier feltet det, og hjelpen sier ikke «Valgfritt» (D-7 i BF-08).
+  begrunnelseHjelpKreves:
+    'Begrunnelsen står i brevet under punktet den gjelder, og kan vise til et annet punkt.',
   forbehold: 'Forbehold for hele svaret',
   forbeholdHjelp: 'Valgfritt. Står sist i brevet. Det erstatter ikke begrunnelsen i et punkt.',
   mangler: 'Dette mangler før brevet kan lages:',

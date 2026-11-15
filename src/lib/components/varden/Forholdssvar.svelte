@@ -126,9 +126,10 @@
   const forholdspunktet = $derived.by(() => {
     if (!endringsordre) return null;
     const b = kjernesak.brev(utkast);
-    return b && 'avsnitt' in b
-      ? (b.avsnitt?.find((a) => a.punkt === 'forhold')?.laast ?? null)
-      : null;
+    const a = b && 'avsnitt' in b ? b.avsnitt?.find((x) => x.punkt === 'forhold') : undefined;
+    if (!a) return null;
+    // Punktet uten overskriften, som er det første avsnittet i den låste teksten.
+    return a.overskrift ? a.laast.slice(a.overskrift.length).trim() : a.laast;
   });
 
   const linjer = $derived(
@@ -314,6 +315,7 @@
     color: var(--ink-3);
   }
   blockquote {
+    white-space: pre-line;
     font-family: var(--font-brev-bh);
     color: var(--ink);
   }
