@@ -556,6 +556,10 @@ function forbeholdetForForholdet(s: Svar, { j, saken, nytt }: Tekst): string[] {
   ];
 }
 
+/** Rettidigheten i sporet som ikke gjelder et varsel (`Sporsbrevtekst.rettidighetUtenVarsel`). */
+const utenVarsel = (p: Extract<Standpunkt, { art: 'rettidighet' }>, sporet: Sporsbrevtekst) =>
+  sporet.rettidighetUtenVarsel?.[p.hjemmel];
+
 /** Varselet et standpunkt om rettidighet i svaret gjelder (LV-U34). */
 const VARSELET_I_SVARET: Record<Hjemmel, string> = {
   '32.2': 'totalentreprenørens varsel etter NS 8407 punkt 32.2',
@@ -591,8 +595,7 @@ function rettidighetstekst(
       ? `byggherren gjør gjeldende at ${om} kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.`
       : `byggherren gjør gjeldende at ${om} ikke ble gitt eller kom for sent.`;
   }
-  const egen = sporet.rettidighetEtter?.[p.hjemmel];
-  const gjelder = egen ? egen.varselet(p.gjelder, j) : p.gjelder;
+  const gjelder = utenVarsel(p, sporet)?.(p.gjelder, j) ?? p.gjelder;
   const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;
   if (!p.iTide && p.hjemmel === '34.1.3')
     return `byggherren gjør gjeldende at ${omVarselet} kom for sent${jf}, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet.`;
@@ -625,14 +628,12 @@ function beskriv(id: string, j: Journalen): string {
     case 'svar':
       return `byggherrens svar i ${j.brevet(e.svar.dokument)}`;
     case 'standpunkt': {
-      const p = e.svar.standpunkter.find((x) => x.id === id);
-      const egen =
-        p?.art === 'rettidighet'
-          ? brevtekstI(e.svar.spor).rettidighetEtter?.[p.hjemmel]
-          : undefined;
-      return egen
-        ? egen.paaberopelsen(e.svar, j)
-        : `påberopelsen av for sen varsling i svaret i ${j.brevet(e.svar.dokument)}`;
+      const p = e.standpunkt;
+      const hva =
+        p.art === 'rettidighet' && utenVarsel(p, brevtekstI(e.svar.spor))
+          ? `at ${VARSELET_I_SVARET[p.hjemmel]} kom for sent`
+          : 'for sen varsling';
+      return `påberopelsen av ${hva} i svaret i ${j.brevet(e.svar.dokument)}`;
     }
     case 'utsagn':
       if (e.utsagn.art === 'varsel')

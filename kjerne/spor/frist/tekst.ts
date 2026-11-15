@@ -9,10 +9,9 @@ import {
   KanIkkeUttrykkes,
   kravetErstatter,
   opplistet,
-  PARTENS,
   tidligere,
   type Brevpunkt,
-  type Egenrettidighet,
+  type Journalen,
   type Kravsporsbrevtekst,
   type Standpunktstekster,
   type Tema,
@@ -159,18 +158,14 @@ function dagerForFristen(resultat: string, frist: FristIKravet, vurdert: number)
 const KRAVET_OM = 'fristforlengelse';
 
 /**
- * Rettidigheten etter § 33.6.2 gjelder TEs svar på forespørselen. Brevet er det forespørselen
- * står i (LV-U18 setning 4), og påberopelsen gjelder svaret, ikke et varsel (LV-U20).
+ * Rettidigheten etter § 33.6.2 gjelder TEs svar på forespørselen, ikke et varsel (LV-U20), og
+ * brevet er det forespørselen står i (LV-U18 setning 4).
  */
-const RETTIDIGHETEN_ETTER_33_6_2: Egenrettidighet = {
-  varselet: (gjelder, j) => {
-    const f = svarPaaForesporsler(j.dokumenter).find((x) => x.svar === gjelder);
-    if (!f) throw new KanIkkeUttrykkes(`${gjelder} er ikke et svar på en forespørsel`);
-    return f.foresporsel;
-  },
-  paaberopelsen: (svar, j) =>
-    `påberopelsen av at ${PARTENS.TE} svar på forespørselen etter NS 8407 punkt 33.6.2 kom for sent i svaret i ${j.brevet(svar.dokument)}`,
-};
+function foresporselenTil(gjelder: string, j: Journalen): string {
+  const f = svarPaaForesporsler(j.dokumenter).find((x) => x.svar === gjelder);
+  if (!f) throw new KanIkkeUttrykkes(`${gjelder} er ikke et svar på en forespørsel`);
+  return f.foresporsel;
+}
 
 export const BREVTEKSTEN_I_FRISTEN = {
   navn: 'fristen',
@@ -198,7 +193,7 @@ export const BREVTEKSTEN_I_FRISTEN = {
   // KA-U78: hindringen og spesifiseringen står i et eget lag når byggherren påberoper dem.
   erInnsigelse: (p) =>
     (p.art === 'hindring' && !p.oppfylt) || (p.art === 'spesifisering' && !p.iTide),
-  rettidighetEtter: { '33.6.2': RETTIDIGHETEN_ETTER_33_6_2 },
+  rettidighetUtenVarsel: { '33.6.2': foresporselenTil },
   enigI: 'antallet dager',
   trukket: fristeneMedDager,
   ingenKrav: (sak) =>

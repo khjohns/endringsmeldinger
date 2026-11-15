@@ -6918,6 +6918,54 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
         expect.stringContaining('rad 1 har ikke dagene standpunktet i lag 1 gir fristen'),
       ]);
     });
+
+    // Arbeidsvalget 15.11 i #1905 punkt 1: «avslått» gir 0 dager. Den omvendte retningen krever
+    // kravet (`resultatAvDager` gir «godkjent» for et krav på 0 dager).
+    it.each([
+      [
+        'prinsipalt',
+        (r: Data, resultat: string) => {
+          r.resultat = resultat;
+        },
+      ],
+      [
+        'subsidiært',
+        (r: Data, resultat: string) => {
+          // § 33.4 er påberopt i første lag, så dagene står i det andre.
+          Object.assign(r, {
+            resultat: 'avslaatt',
+            godkjent_dager: 0,
+            subsidiaert_resultat: resultat,
+            subsidiaert_godkjent_dager: r.godkjent_dager,
+            lag: [
+              { lag: 1, dager: 0 },
+              { lag: 2, dager: r.godkjent_dager },
+            ],
+          });
+        },
+      ],
+    ])(
+      'en rad som avslår fristen %s, men godkjenner dager, er ikke forstått (#1905)',
+      (hvordan, endre) => {
+        const grunner = (resultat: string) => {
+          const sak = sakMedKrav();
+          brev(sak, 'frist', dager);
+          const svaret = kopi(sak, (v) => {
+            if (hvordan === 'subsidiært')
+              (v.standpunkter as Data[]).find((x) => x.art === 'rettidighet')!.i_tide = false;
+            const r = ((v.utregning as Data).frister as Data[])[0]!;
+            expect(r.godkjent_dager, 'forutsetning: svaret godkjenner dager').toBeGreaterThan(0);
+            endre(r, resultat === 'avslaatt' ? resultat : (r.resultat as string));
+          });
+          sak.rad('BH', { svar: [svaret] });
+          return sak.u().begrensninger.map((b) => b.grunn);
+        };
+        expect(grunner('som utregnet'), 'kontrollsak').toEqual([]);
+        expect(grunner('avslaatt')).toEqual([
+          expect.stringContaining(`avslår fristen ${hvordan}, men godkjenner dager`),
+        ]);
+      }
+    );
   });
 });
 

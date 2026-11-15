@@ -2278,17 +2278,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsbrevtekst',
     'brevtekst',
-    'krav navn ogsaaInnsigelserEtter svaretGjelder utdypningensPunkt innledning temaer punktet erInnsigelse rettidighetEtter oversikt ingenBeloep',
+    'krav navn ogsaaInnsigelserEtter svaretGjelder utdypningensPunkt innledning temaer punktet erInnsigelse rettidighetUtenVarsel oversikt ingenBeloep',
     ['frosset/brevtekst.ts'],
   ],
-  // LV-U18 setning 4 og LV-U20: rettidigheten etter § 33.6.2 i fristen.
-  ['Egenrettidighet', 'brevtekst', 'varselet paaberopelsen', ['frosset/brevtekst.ts']],
   // LV-U34 og OV-U73: temaene og beløpene per lag i byggherrens svar.
   ['Tema', 'brevtekst', 'punkt overskrift foerst', ['frosset/brevtekst.ts']],
   ['Lagbeloep', 'brevtekst', 'post plass beloep', ['spor/vederlag/tekst.ts']],
   // OV-U73: tabellen får lagene i sporet, uten lagene fra forholdet.
   ['Lagbeloep', 'brevtekst', 'plass', ['frosset/brevtekst.ts']],
-  ['spor/vederlag/tekst.ts:oversikt', 'brevtekst', 'post navn krevd', ['spor/vederlag/tekst.ts']],
+  ['PostenIOversikten', 'brevtekst', 'post navn krevd', ['spor/vederlag/tekst.ts']],
   ['Kravsporsbrevtekst', 'brevtekst', 'enigI ingenKrav kravetOm trukket', ['frosset/brevtekst.ts']],
   [
     'spor/vederlag/tekst.ts',
@@ -2336,7 +2334,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/brevdeler.ts',
     'brevtekst',
     'PARTENS',
-    ['frosset/brevtekst.ts', 'spor/frist/tekst.ts', 'kommandoer/nyttelast.ts:retting'],
+    ['frosset/brevtekst.ts', 'kommandoer/nyttelast.ts:retting'],
   ],
   // Byggeklossene i brevteksten som teksten i sporene også bruker (#1783).
   [
@@ -2509,7 +2507,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/brevdeler.ts:Element',
     'brevtekst',
-    'art dokument krav opplysning svar utsagn',
+    'art dokument krav opplysning standpunkt svar utsagn',
     ['frosset/brevtekst.ts', 'frosset/brevdeler.ts'],
   ],
   // Forholdene med navnet og hjemmelen (svaret på Q3 i #1488, LV-U43).

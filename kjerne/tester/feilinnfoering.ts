@@ -2870,12 +2870,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'protesten mot påberopelsen etter § 33.6.2 omtaler den som for sen varsling (LV-U20)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [
-      [
-        'egen.paaberopelsen(e.svar, j)',
-        '`påberopelsen av for sen varsling i svaret i ${j.brevet(e.svar.dokument)}`',
-      ],
-    ],
+    endringer: [['`at ${VARSELET_I_SVARET[p.hjemmel]} kom for sent`', "'for sen varsling'"]],
     mal: ['LV-U20: protesten mot påberopelsen etter § 33.6.2'],
   },
   {
@@ -4102,6 +4097,27 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'et dokument fra kravskjemaet med et vedlegg som alt ligger ved et varsel i saken, avvises',
     ],
+  },
+  {
+    id: 'F632',
+    feilklasse:
+      'en rad i fristen som avslår prinsipalt, men godkjenner dager, er forstått (#1905 punkt 1)',
+    fil: `${K}/spor/frist/format.ts`,
+    endringer: [["if (r.resultat === 'avslaatt' && r.godkjent_dager !== 0)", 'if (false)']],
+    mal: ['en rad som avslår fristen prinsipalt, men godkjenner dager, er ikke forstått'],
+  },
+  {
+    id: 'F633',
+    feilklasse:
+      'en rad i fristen som avslår subsidiært, men godkjenner dager, er forstått (#1905 punkt 1)',
+    fil: `${K}/spor/frist/format.ts`,
+    endringer: [
+      [
+        "if (r.subsidiaert_resultat === 'avslaatt' && r.subsidiaert_godkjent_dager !== 0)",
+        'if (false)',
+      ],
+    ],
+    mal: ['en rad som avslår fristen subsidiært, men godkjenner dager, er ikke forstått'],
   },
   {
     id: 'F620',

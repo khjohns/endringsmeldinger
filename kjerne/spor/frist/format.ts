@@ -302,6 +302,12 @@ function kontrollerUtregningenIFristen(
       if (l.dager !== dager)
         throw feil(`rad ${i + 1} har ikke dagene standpunktet i lag ${n + 1} gir fristen`);
     });
+    // Arbeidsvalget 15.11 i #1905 punkt 1: «avslått» gir 0 dager. 0 dager er «godkjent» når
+    // kravet er 0 dager (`resultatAvDager`), og det krever kravet, som leseren ikke har.
+    if (r.resultat === 'avslaatt' && r.godkjent_dager !== 0)
+      throw feil(`rad ${i + 1} avslår fristen prinsipalt, men godkjenner dager`);
+    if (r.subsidiaert_resultat === 'avslaatt' && r.subsidiaert_godkjent_dager !== 0)
+      throw feil(`rad ${i + 1} avslår fristen subsidiært, men godkjenner dager`);
     if (r.lag[0]!.dager !== r.godkjent_dager)
       throw feil(
         `rad ${i + 1} har ikke dagene byggherren godkjenner prinsipalt i det første laget`

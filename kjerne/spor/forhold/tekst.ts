@@ -112,11 +112,8 @@ const FORHOLDENE = new Map<string, Forholdet>(
 export const forholdet = (kode: unknown): Forholdet | null =>
   (typeof kode === 'string' && FORHOLDENE.get(kode)) || null;
 
-/** «påberopelse av <forholdet>», i tittelen (GR-U31) og i teksten (`paaberopelsenAvForholdet`). */
-const paaberopelseAvNavnet = (navn: string) => `påberopelse av ${navn.toLowerCase()}`;
-
 /** Tittelen på totalentreprenørens brev om forholdet (GR-U31). */
-export const paaberopelsenAv = (navn: string) => stor(paaberopelseAvNavnet(navn));
+export const paaberopelsenAv = (navn: string) => `Påberopelse av ${navn.toLowerCase()}`;
 
 /** Forholdet brevet påberoper (GR-U31): et krav i forholdssporet i et brev uten svar. */
 export function paaberoptForhold(d: Pick<Dokument, 'krav' | 'svar'>) {
@@ -235,7 +232,7 @@ function risikohjemmel(krav: Krav): string {
 export function paaberopelsenAvForholdet(paaberopelse: Krav): string {
   const f = forholdet(innholdIForholdet(paaberopelse).underkategori);
   if (!f) throw new KanIkkeUttrykkes('forholdet i påberopelsen har ikke noe navn');
-  return paaberopelseAvNavnet(f.navn);
+  return paaberopelsenAv(f.navn).toLowerCase();
 }
 
 export const BREVTEKSTEN_I_FORHOLDET = {

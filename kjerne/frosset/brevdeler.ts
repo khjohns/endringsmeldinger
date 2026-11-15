@@ -324,10 +324,11 @@ export interface Sporsbrevtekst {
    */
   erInnsigelse(p: Standpunkt): boolean;
   /**
-   * Rettidigheten etter en bestemmelse bare sporet har, når standpunktet ikke gjelder et varsel:
-   * det brevet det står i, leses av (`varselet`), og påberopelsen slik en protest omtaler den.
+   * Rettidigheten etter en bestemmelse i sporet som ikke gjelder et varsel: elementet brevet
+   * standpunktets `gjelder` står i. En protest omtaler påberopelsen da med det som kom for sent,
+   * ikke som for sen varsling.
    */
-  rettidighetEtter?: Partial<Record<Hjemmel, Egenrettidighet>>;
+  rettidighetUtenVarsel?: Partial<Record<Hjemmel, (gjelder: string, j: Journalen) => string>>;
   /**
    * Oversiktstabellen i svaret (OV-U73), eller `null` når svaret ikke har en. `beloepene` og
    * `lagene` er lagene i sporet; `forskyvning` er lagene fra forholdet foran (OV-U32).
@@ -335,14 +336,6 @@ export interface Sporsbrevtekst {
   oversikt?(krav: Krav, beloepene: Lagbeloep[], lagene: number, forskyvning: number): string | null;
   /** Følgen av påberopelsen etter § 34.1.2 når svaret ikke har tabell (LV-U33, LV-U38). */
   ingenBeloep?(krav: Krav): string;
-}
-
-/** Rettidigheten etter en bestemmelse bare ett spor har (`Sporsbrevtekst.rettidighetEtter`). */
-export interface Egenrettidighet {
-  /** Elementet brevet standpunktet `gjelder`, står i. */
-  varselet(gjelder: string, j: Journalen): string;
-  /** Påberopelsen i `svar`, slik en protest mot den omtaler den (LV-U4 punkt 7 og 8). */
-  paaberopelsen(svar: Svar, j: Journalen): string;
 }
 
 /** Et tema i byggherrens svar: punktet og overskriften (LV-U34). */
