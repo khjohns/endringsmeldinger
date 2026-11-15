@@ -104,14 +104,21 @@
   );
 
   const begrunnelseId = (punkt: string) => `${uid}-begrunnelse-${punkt}`;
-  const kreves = (punkt: string) => begrunnelseKreves?.punktene.includes(punkt) ?? false;
+  // Punktene i skjemaet der begrunnelsen som kreves, kan stå. Holder ett av flere, sier
+  // seksjonen det én gang, og ingen av feltene er påkrevd alene (design-review i #2031).
+  const kreverPunktene = $derived(
+    begrunnelseKreves?.punktene.filter((p) => punktene.some((x) => x.punkt === p)) ?? []
+  );
+  const kreves = (punkt: string) => kreverPunktene.length === 1 && kreverPunktene[0] === punkt;
+  const kanStaa = (punkt: string) => kreverPunktene.length > 1 && kreverPunktene.includes(punkt);
   // Begrunnelsen som kreves, er besvart når ett av punktene den kan stå i, har tekst.
   const alleMangler = $derived.by((): Mangel[] => {
     const k = begrunnelseKreves;
     if (!k || k.punktene.some((p) => tekster.begrunnelser[p]?.trim())) return mangler;
-    const foerste = punktene.find((p) => k.punktene.includes(p.punkt));
+    // Feilen står ved det første punktet i kravet, ikke det første i skjemaet.
+    const foerste = kreverPunktene[0];
     if (!foerste) return mangler;
-    return [...mangler, { felt: begrunnelseId(foerste.punkt), post: null, tekst: k.mangler }];
+    return [...mangler, { felt: begrunnelseId(foerste), post: null, tekst: k.mangler }];
   });
 
   // Beskjedene vises først når BH har prøvd å se brevet (MM-U32), og forsvinner når feltet er besvart.
@@ -262,6 +269,9 @@
           <p class="dempet" id={`${uid}-begrunnelse-hjelp`}>
             {SKJEMA.begrunnelseHjelp(!begrunnelseKreves)}
           </p>
+          {#if kreverPunktene.length > 1}
+            <p class="dempet" id={`${uid}-begrunnelse-kreves`}>{begrunnelseKreves!.grunn}</p>
+          {/if}
           {#each punktene as p (p.punkt)}
             {@const id = begrunnelseId(p.punkt)}
             {@const bFeil = feil(id)}
@@ -279,6 +289,7 @@
                 aria-describedby={[
                   `${uid}-begrunnelse-hjelp`,
                   kreves(p.punkt) ? `${id}-kreves` : '',
+                  kanStaa(p.punkt) ? `${uid}-begrunnelse-kreves` : '',
                   bFeil ? `${id}-feil` : '',
                 ]
                   .filter(Boolean)

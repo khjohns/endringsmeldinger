@@ -155,6 +155,34 @@ const VARDEN = [
     ),
   },
   {
+    navn: 'Varden: svaret på påberopelsen med endringsordren (BF-08)',
+    vei: iVarden(
+      'bh-har-mottatt-paaberopelsen',
+      async (page) => {
+        await page.getByRole('button', { name: /^Irregulær endring/ }).first().click();
+        await page.getByRole('button', { name: 'Svar på påberopelsen', exact: true }).click();
+        await page.getByRole('radio', { name: 'Nei', exact: true }).check();
+        await page.getByRole('radio', { name: 'Enig, endringsordre' }).check();
+      },
+      'BF-08'
+    ),
+  },
+  {
+    navn: 'Varden: svaret på påberopelsen med det som mangler (BF-08)',
+    vei: iVarden(
+      'bh-har-mottatt-paaberopelsen',
+      async (page) => {
+        await page.getByRole('button', { name: /^Irregulær endring/ }).first().click();
+        await page.getByRole('button', { name: 'Svar på påberopelsen', exact: true }).click();
+        await page.getByRole('radio', { name: 'Ja, varselet kom for sent' }).check();
+        await page.getByRole('radio', { name: 'Avslår kravet på endringsordre' }).check();
+        await page.getByRole('button', { name: 'Se brevet før sending' }).first().click();
+        await page.getByRole('group', { name: 'Dette mangler før brevet kan lages:' }).waitFor();
+      },
+      'BF-08'
+    ),
+  },
+  {
     navn: 'Varden: akseptbrevet før sending',
     vei: iVarden('te-har-mottatt-svaret', (page) =>
       page.getByRole('button', { name: /^Godta svaret/ }).click()

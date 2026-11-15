@@ -119,8 +119,19 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     expect(
       screen.getByRole('link', { name: 'Skriv en begrunnelse for svaret på forholdet.' })
     ).toBeInTheDocument();
+    // Ett av de to feltene holder, så ingen av dem er påkrevd alene, og begge viser til samme
+    // forklaring (design-review i #2031).
     const felt = screen.getByLabelText(/Varselet etter punkt 32\.2$/, { selector: 'textarea' });
-    expect(felt).toHaveAttribute('aria-required', 'true');
+    const forholdet = screen.getByLabelText(/Forholdet$/, { selector: 'textarea' });
+    for (const f of [felt, forholdet]) {
+      expect(f).not.toHaveAttribute('aria-required');
+      const beskrevet = f.getAttribute('aria-describedby')!.split(' ');
+      expect(beskrevet.map((id) => document.getElementById(id)?.textContent)).toContain(
+        'Kreves fordi du gjør gjeldende at varselet kom for sent. Skriv den under punktet om varselet eller forholdet.'
+      );
+    }
+    // Feilen står ved punktet om forholdet, det første i kravet (D-7).
+    expect(forholdet).toHaveAttribute('aria-invalid', 'true');
     await fireEvent.input(felt, { target: { value: 'Pålegget kom 1. oktober.' } });
     await seBrevet();
     expect(sendt).toHaveLength(1);

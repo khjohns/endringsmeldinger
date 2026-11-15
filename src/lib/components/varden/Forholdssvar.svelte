@@ -211,7 +211,7 @@
 >
   {#snippet spoersmaal(feil)}
     <div class="utenfor" role="note">
-      <Info size={18} aria-hidden="true" />
+      <Info size={16} aria-hidden="true" />
       <p>{FORHOLDSSVAR.utenforLoesningen}</p>
     </div>
 
@@ -265,24 +265,22 @@
 <style>
   .utenfor {
     display: flex;
-    gap: var(--spacing-3);
+    gap: var(--spacing-2);
     margin: var(--spacing-5) var(--spacing-6) 0;
-    padding: var(--spacing-3) var(--spacing-4);
-    background: var(--surface-inset);
-    border-radius: var(--r-innfelt);
-    color: var(--ink-2);
+    color: var(--ink-3);
+    font-size: 14px;
   }
   .utenfor :global(svg) {
     flex: none;
-    margin-top: 3px;
+    margin-top: 2px;
   }
+  /* Sitatmønsteret i tråden (`.sitat` i Brevtraad.svelte), i byggherrens brevskrift. */
   .endringsordre {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-2);
-    padding: var(--spacing-3) var(--spacing-4);
-    border-left: 3px solid var(--ink);
-    background: var(--surface-inset);
+    gap: var(--spacing-1);
+    padding-left: var(--spacing-3);
+    border-left: 2px solid var(--rule-strong-color);
   }
   .merke {
     font-size: 12px;
@@ -294,6 +292,8 @@
   blockquote {
     white-space: pre-line;
     font-family: var(--font-brev-bh);
+    font-size: 11pt;
+    line-height: 1.6;
     color: var(--ink);
   }
   .virkning {
@@ -302,5 +302,6 @@
   .dempet {
     color: var(--ink-3);
     font-size: 14px;
+    text-wrap: pretty;
   }
 </style>

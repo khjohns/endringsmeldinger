@@ -143,9 +143,9 @@ export const FORHOLDSSVAR = {
   enigEndringsordre313: 'Enig i at forholdet er en endringsordre',
   avslaarForholdet: 'Avslår forholdet',
   ikkeFrafallForSent:
-    'Du kan ikke frafalle pålegget og samtidig gjøre gjeldende at varselet kom for sent (punkt 32.3 første ledd c).',
+    'Du kan ikke frafalle pålegget og samtidig gjøre gjeldende at varselet kom for sent (punkt 32.3 første ledd\u00a0c).',
   ikkeFrafallIkkeEget:
-    'Frafall gjelder bare et pålegg fra byggherren selv, ikke fra offentlig myndighet (punkt 32.3 første ledd c).',
+    'Frafall gjelder bare et pålegg fra byggherren selv, ikke fra offentlig myndighet (punkt 32.3 første ledd\u00a0c).',
   endringsordreMerke: 'Svaret er en endringsordre',
   brevetSier: 'Brevet sier:',
   setningenStaar: 'Setningen står i brevet også når begrunnelsen har vilkår eller forbehold.',
