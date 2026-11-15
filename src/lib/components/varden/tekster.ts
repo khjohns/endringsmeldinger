@@ -196,40 +196,52 @@ export function leselinjene(linjer: Standpunktet[], post: Kravpost): string[] {
 /**
  * Standpunktet som utsagn fra byggherren, med «du» når byggherren leser det selv og
  * «byggherren» ellers. `krevd` er det totalentreprenøren krevde for posten. `post` er betegnelsen på kravposten
- * standpunktet gjelder, når kravet har flere (KA-U57).
+ * standpunktet gjelder, når kravet har flere (KA-U57). `etterLeddsetning` gir verbet før
+ * subjektet, for en setning som begynner med en leddsetning: «…, legger byggherren til grunn …».
  */
-export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post?: string): string {
+export function standpunkttekst(
+  s: Standpunkt,
+  du: boolean,
+  krevd?: number,
+  post?: string,
+  etterLeddsetning = false
+): string {
   const forPosten = post ? ` for ${post}` : '';
   const hvemLiten = du ? 'du' : PARTEN.BH;
   const hvem = stor(hvemLiten);
+  const sier = (verb: string, resten: string) =>
+    etterLeddsetning ? `${verb} ${hvemLiten} ${resten}` : `${hvem} ${verb} ${resten}`;
   switch (s.art) {
     case 'rettidighet':
       // VS-U63.
       if (s.hjemmel === '34.4')
-        return `${hvem} gjør gjeldende at varselet etter punkt 34.4${forPosten} ikke ble gitt eller kom for sent`;
+        return sier(
+          'gjør',
+          `gjeldende at varselet etter punkt 34.4${forPosten} ikke ble gitt eller kom for sent`
+        );
       if (s.hjemmel === '33.6.2')
         return s.iTide
-          ? `${hvem} godkjenner at svaret på forespørselen etter punkt 33.6.2 kom i tide`
-          : `${hvem} gjør gjeldende at svaret på forespørselen etter punkt 33.6.2 kom for sent`;
+          ? sier('godkjenner', `at svaret på forespørselen etter punkt 33.6.2 kom i tide`)
+          : sier('gjør', `gjeldende at svaret på forespørselen etter punkt 33.6.2 kom for sent`);
       return s.iTide
-        ? `${hvem} godkjenner at varselet etter punkt ${s.hjemmel}${forPosten} kom i tide`
-        : `${hvem} gjør gjeldende at varselet etter punkt ${s.hjemmel}${forPosten} kom for sent` +
+        ? sier('godkjenner', `at varselet etter punkt ${s.hjemmel}${forPosten} kom i tide`)
+        : sier('gjør', `gjeldende at varselet etter punkt ${s.hjemmel}${forPosten} kom for sent`) +
             (s.begrenset !== undefined
               ? `, og godkjenner ${kroner(s.begrenset)} etter begrensningen`
               : '');
     case 'oppgjoersform':
       return (
         (s.aksepterer
-          ? `${hvem} godkjenner oppgjørsformen totalentreprenøren krever${forPosten}`
-          : `${hvem} godkjenner ikke oppgjørsformen totalentreprenøren krever${forPosten}` +
+          ? sier('godkjenner', `oppgjørsformen totalentreprenøren krever${forPosten}`)
+          : sier('godkjenner', `ikke oppgjørsformen totalentreprenøren krever${forPosten}`) +
             (s.oensket
               ? `, og mener vederlaget skal justeres etter ${metodenavn(s.oensket)}`
               : '')) + (s.kreverTilbud ? `, og krever et spesifisert tilbud (punkt 34.2.1)` : '')
       );
     case 'justering':
       return s.godtar
-        ? `${hvem} godkjenner justeringen av enhetsprisene${forPosten} (punkt 34.3.2)`
-        : `${hvem} bestrider justeringen av enhetsprisene${forPosten} (punkt 34.3.2)`;
+        ? sier('godkjenner', `justeringen av enhetsprisene${forPosten} (punkt 34.3.2)`)
+        : sier('bestrider', `justeringen av enhetsprisene${forPosten} (punkt 34.3.2)`);
     case 'beloep': {
       const hva = s.saerskilt ? 'Særskilt vederlagsjustering' : `Vederlagsjustering${forPosten}`;
       const av = krevd !== undefined ? ` av ${kroner(krevd)}` : '';
@@ -237,16 +249,19 @@ export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post
       return `${hva}: ${hvemLiten} godkjenner ${kroner(s.godkjent!)}${av}`;
     }
     case 'forhold':
-      return `${hvem} svarer på forholdet: ${s.resultat}`;
+      return sier('svarer', `på forholdet: ${s.resultat}`);
     // KA-U81: standpunktet om hindringen nevner begge vilkårene.
     case 'hindring':
       return s.oppfylt
-        ? `${hvem} legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet`
-        : `${hvem} legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet`;
+        ? sier('legger', `til grunn at fremdriften er hindret, og at hindringen skyldes forholdet`)
+        : sier(
+            'legger',
+            `ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet`
+          );
     case 'spesifisering':
       return s.iTide
-        ? `${hvem} godkjenner at kravet ble spesifisert i tide (punkt 33.6.1)`
-        : `${hvem} gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1)`;
+        ? sier('godkjenner', `at kravet ble spesifisert i tide (punkt 33.6.1)`)
+        : sier('gjør', `gjeldende at kravet ble spesifisert for sent (punkt 33.6.1)`);
     case 'dager': {
       const hva = `Fristforlengelse${forPosten}`;
       if (s.resultat === 'avslaatt') return `${hva}: ${hvemLiten} avslår dagene`;
@@ -372,7 +387,7 @@ export const SKJEMA = {
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
   manglerForm: 'Velg om du godkjenner fast sum.',
-  manglerFormRegel: (m: Regel) => `Velg om du godkjenner ${m}.`,
+  manglerFormRegel: (m: Regel) => `Velg om du godkjenner ${metodenavn(m)}.`,
   manglerVarselJustering: 'Velg om varselet om justering av enhetsprisene kom i tide.',
   manglerJustering: 'Velg om du godkjenner justeringen av enhetsprisene.',
   manglerBeloep: 'Velg hvor mye av beløpet du godkjenner.',
@@ -1678,8 +1693,7 @@ export const FRISTEN = {
   /** Et standpunkt uten eget lag, med vilkåret foran (U-3, OV-U42). */
   utenLag: (s: Standpunkt, vilkaar: Innsigelsen[]) =>
     vilkaar.length
-      ? // Leddsetningen først, så verbet før «byggherren»: «…, legger byggherren til grunn …».
-        `${VEDERLAGET.vilkaar(vilkaar.map(FRISTEN.innsigelsen), false)}, ${standpunkttekst(s, false).replace(/^Byggherren (\S+)/, '$1 byggherren')}.`
+      ? `${VEDERLAGET.vilkaar(vilkaar.map(FRISTEN.innsigelsen), false)}, ${standpunkttekst(s, false, undefined, undefined, true)}.`
       : `${standpunkttekst(s, false)}.`,
   /**
    * Avslaget av dagene for én frist, med laget først og begrunnelsen slik den står i brevet (U-13,

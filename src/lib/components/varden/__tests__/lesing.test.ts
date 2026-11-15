@@ -17,7 +17,15 @@ import {
   standpunktene,
   tilknyttetKrav,
 } from '$lib/components/varden/lesing';
-import { leselinjene, STILLING } from '$lib/components/varden/tekster';
+import {
+  FRISTEN,
+  leselinjene,
+  metodenavn,
+  SKJEMA,
+  standpunkttekst,
+  STILLING,
+} from '$lib/components/varden/tekster';
+import type { Standpunkt } from '$kjerne/typer';
 import { kravposterI } from '$kjerne/spor/vederlag/format';
 
 async function utledning(steg: Handling[]) {
@@ -426,5 +434,37 @@ describe('sporene et brev hører til, fra kjernen (#1663)', () => {
     const brev = brevene(u);
     for (const id of korrigeringene)
       expect(brev.find((b) => b.id === id)!.spor, id).toEqual(['forhold']);
+  });
+});
+
+describe('Brevene lest én gang per utledning (#2000)', () => {
+  it('samme utledning gir samme liste, og lista er frosset, så ingen kaller endrer den for de andre', async () => {
+    const u = await utledning([PAABEROPELSE]);
+    const brev = brevene(u);
+    expect(brevene(u)).toBe(brev);
+    expect(Object.isFrozen(brev)).toBe(true);
+  });
+});
+
+describe('Standpunktet etter en leddsetning (#2000)', () => {
+  it('verbet står foran «byggherren», også når standpunktet er nektende (FRISTEN.utenLag, OV-U42)', () => {
+    const hindring: Standpunkt = { id: 'h', art: 'hindring', oppfylt: false };
+    expect(FRISTEN.utenLag(hindring, [{ art: 'varsel', hjemmel: '33.4' }])).toBe(
+      'Hvis innsigelsen om varselet ikke fører frem, legger byggherren ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet.'
+    );
+    expect(standpunkttekst(hindring, false)).toBe(
+      'Byggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet'
+    );
+  });
+});
+
+describe('Meldingen om oppgjørsformen etter en regel (#1848)', () => {
+  it('nevner oppgjørsformen med navnet og punktet, som valgene i skjemaet, ikke koden', () => {
+    expect(SKJEMA.manglerFormRegel('regningsarbeid')).toBe(
+      `Velg om du godkjenner ${metodenavn('regningsarbeid')}.`
+    );
+    expect(SKJEMA.manglerFormRegel('regningsarbeid')).toBe(
+      'Velg om du godkjenner regningsarbeid (punkt 34.4).'
+    );
   });
 });

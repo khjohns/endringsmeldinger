@@ -77,8 +77,22 @@ function artAv(d: Dokument): Brevet['art'] {
   return (u?.art as Brevet['art']) ?? 'annet';
 }
 
-/** Brevene i saken i rekkefølgen i journalen. */
+const brevenePerUtledning = new WeakMap<Utledning, Brevet[]>();
+
+/**
+ * Brevene i saken i rekkefølgen i journalen, lest én gang per utledning og delt av alle
+ * kallerne (#2000).
+ */
 export function brevene(u: Utledning): Brevet[] {
+  const lest = brevenePerUtledning.get(u);
+  if (lest) return lest;
+  // Frosset, så en kaller som endrer lista, feiler i stedet for å endre den for de andre.
+  const brev = Object.freeze(lesBrevene(u)) as Brevet[];
+  brevenePerUtledning.set(u, brev);
+  return brev;
+}
+
+function lesBrevene(u: Utledning): Brevet[] {
   const spor = elementenesSpor(u);
   const sendt = new Map(u.registrerteBrev.map((r) => [r.dokument, r.sendt]));
   const beskrivelse = new Map(u.registrerteBrev.map((r) => [r.dokument, r.beskrivelse]));
