@@ -511,7 +511,6 @@ export const MOTTATT = {
   sendt: (d: string) =>
     `Sendt herfra ${dato(d)} kl. ${klokke(d)}. Dette er brevet slik det ble sendt, og det kan ikke endres.`,
   sendtMerke: (d: string) => `Sendt ${dato(d)}`,
-  ingenBrev: 'Ingen brev ennå.',
   dittBrev: 'Brevet ditt er sendt.',
   forkastet: 'Utkastet er forkastet.',
   sakenEndret:
@@ -1679,10 +1678,13 @@ export const FRISTEN = {
       ? // Leddsetningen først, så verbet før «byggherren»: «…, legger byggherren til grunn …».
         `${VEDERLAGET.vilkaar(vilkaar.map(VEDERLAGET.innsigelsen), false)}, ${standpunkttekst(s, false).replace(/^Byggherren (\S+)/, '$1 byggherren')}.`
       : `${standpunkttekst(s, false)}.`,
-  /** Avslaget av dagene for én frist, med laget først og begrunnelsen i brevets ord (U-13). */
+  /**
+   * Avslaget av dagene for én frist, med laget først og begrunnelsen slik den står i brevet (U-13,
+   * MM-U50).
+   */
   avslag: (etikett: string | null, begrunnelse: string | null) =>
     `${etikett ? `${stor(etikett)} avslår byggherren` : 'Byggherren avslår'} dagene for fristen` +
-    (begrunnelse ? `: ${liten(begrunnelse)}` : '.'),
+    (begrunnelse ? `: ${begrunnelse}` : '.'),
   /** Linja under «Revider krav» (U-6, svar 4 A). */
   endreEllerTaUt: 'I det nye kravet kan du endre dagene eller ta ut en frist.',
   /** Handlingen under forespørselen etter punkt 33.6.2 (U-6), og linja under den (BF-20). */

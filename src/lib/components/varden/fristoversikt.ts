@@ -132,7 +132,8 @@ export function kravetOgSvaretIFristen(
     );
     if (!d) return null;
     const v = virkning.get(d.id)?.virkning;
-    const lag = typeof v === 'number' ? lagene[v + grunnlag - 1] : lagene.at(-1);
+    // Et avslag uten eget lag gjelder i alle lagene, og står uten etikett.
+    const lag = typeof v === 'number' ? lagene[v + grunnlag - 1] : undefined;
     return { etikett: lag?.etikett ?? null, begrunnelse: begrunnelse(frist) };
   };
   // Et standpunkt uten eget lag gjelder hvis ingen av innsigelsene i lagene for hele kravet fører frem.
@@ -217,12 +218,14 @@ export function kravdagene(
 }
 
 /**
- * Byggherren har prinsipalt avslått dager for en frist i svaret på kravet som gjelder: det første
- * laget gir færre dager enn kravet (FO-U1, U-6 og D-12 i BF-45).
+ * Byggherren har prinsipalt avslått dager for en frist i svaret på kravet som gjelder, også gjennom
+ * forholdet: svaret er subsidiært til et avslag av forholdet, eller det første laget i fristen gir
+ * færre dager enn kravet (FO-U1, U-6 og D-12 i BF-45).
  */
 export function prinsipaltAvslaatteDager(u: Utledning): boolean {
-  const { gjeldendeKrav: krav, gjeldendeSvar: svar } = u.spor.frist;
+  const { gjeldendeKrav: krav, gjeldendeSvar: svar, subsidiaer } = u.spor.frist;
   if (!krav || svar?.gjelder !== krav.id) return false;
+  if (subsidiaer.length) return true;
   const krevd = new Map(innholdIFristen(krav).frister.map((f) => [f.id, f.dager]));
   return utregningIFristen(svar.utregning).frister.some(
     (r) => r.godkjent_dager < (krevd.get(r.gjelder) ?? 0)

@@ -48,7 +48,7 @@
   {#if g?.art === 'kjent' && g.forlengelser.length}
     <p class="gjeldende">
       {FRISTEN.forlenget(g.dato, g.iKontrakten)}
-      {#each g.forlengelser as f, i (f.sakId)}{#if i}{i === g.forlengelser.length - 1
+      {#each g.forlengelser as f, i (i)}{#if i}{i === g.forlengelser.length - 1
             ? ' og '
             : ', '}{/if}{FRISTEN.forlengelsen(f.dager)}
         <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
@@ -91,7 +91,7 @@
       </section>
     {/if}
 
-    <section class="del" aria-labelledby={`${uid}-per`}>
+    <section class="del" aria-labelledby={svart ? `${uid}-per` : undefined}>
       {#if svart}<h3 id={`${uid}-per`}>{FRISTEN.perFrist}</h3>{/if}
       {#if k.perFrist.length > 1 || (k.perFrist.length === 1 && k.perFrist[0]!.etikett)}
         <ul class="vilkaar">
@@ -207,6 +207,7 @@
   .gjeldende,
   .avslag,
   .ikke-svart {
+    white-space: pre-line;
     margin-top: 6px;
     font-size: 14px;
     color: var(--ink-2);

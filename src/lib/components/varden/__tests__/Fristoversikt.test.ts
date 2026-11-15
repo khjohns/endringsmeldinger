@@ -207,7 +207,7 @@ describe('Siden for fristforlengelsen', () => {
     expect(mekanisk.getByText('Gjeldende frist 1. juni 2027, som i kontrakten.')).toBeTruthy();
     expect(
       mekanisk.getByText(
-        'Videre subsidiært avslår byggherren dagene for fristen: fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet.'
+        'Videre subsidiært avslår byggherren dagene for fristen: Fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet.'
       )
     ).toBeTruthy();
     const utomhus = within(per.getByRole('region', { name: /^Frist 8\s+Overtakelse av/ }));
@@ -256,6 +256,36 @@ describe('Handlingene på siden for fristforlengelsen (U-6, D-12)', () => {
   it('forseringen leser at byggherren prinsipalt har avslått dager (FO-U1)', async () => {
     expect(prinsipaltAvslaatteDager(await utledning(BF45.steg))).toBe(true);
     expect(prinsipaltAvslaatteDager(await utledning(BF45.steg.slice(0, 3)))).toBe(false);
+  });
+
+  it('forseringen står også når byggherren prinsipalt avslår gjennom forholdet og godkjenner alle dagene i fristen (FO-U1)', async () => {
+    const forholdssvar: Handling = {
+      handling: 'brev',
+      navn: 'D-g',
+      svar: [{ spor: 'forhold', navn: 'S-g1', resultat: 'avslaatt' }],
+    };
+    const alleDagene: Handling = {
+      handling: 'brev',
+      navn: 'D-f',
+      svar: [
+        {
+          spor: 'frist',
+          navn: 'S-f1',
+          varsel_i_tide: true,
+          hindring: true,
+          spesifisering_i_tide: true,
+          frister: [{ dager: 25 }, { dager: 20 }, { dager: 20 }],
+        },
+      ],
+    };
+    expect(prinsipaltAvslaatteDager(await utledning([...BF45.steg.slice(0, 3), alleDagene]))).toBe(
+      false
+    );
+    expect(
+      prinsipaltAvslaatteDager(
+        await utledning([...BF45.steg.slice(0, 3), forholdssvar, alleDagene])
+      )
+    ).toBe(true);
   });
 });
 

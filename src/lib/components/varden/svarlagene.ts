@@ -10,7 +10,7 @@ import { etikett, plassene } from '$kjerne/frosset/byggeklosser';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Standpunkt, Standpunktsart, Svar } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
-import { brevMedUtsagn, type Brevet, type Brevref } from './lesing';
+import type { Brevet, Brevref } from './lesing';
 
 /** En innsigelse et senere lag bygger på. */
 export type Innsigelsen =
@@ -66,7 +66,11 @@ export function lageneISvaret(
   // Påberopelsen gjelder et krav eller et varsel i sporet; brevet er det kravet eller varselet står i.
   const paaberopt = (gjelder: string) => {
     const k = u.spor[svar.spor].krav.find((x) => x.id === gjelder);
-    return k ? brev(k.dokument) : brevMedUtsagn(u, gjelder);
+    if (k) return brev(k.dokument);
+    const h = u.journal.find(
+      (x) => x.art === 'dokument' && x.dokument.utsagn.some((y) => y.id === gjelder)
+    );
+    return h?.art === 'dokument' ? brev(h.dokument.id) : null;
   };
   const lagene: Svarlaget[] = Array.from({ length: antall }, (_, i) => {
     const lag = i + 1;

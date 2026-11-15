@@ -132,22 +132,22 @@ interface Fristlinje {
   forlengelser: { sak_id: string; sakskode: Sakskode | null; dager: number }[];
 }
 
+/** Svaret fra fristtabellen (`fristtabellsvar` i `server/kontraktsfrister.ts`). */
+interface Fristtabellsvar {
+  frister: Fristlinje[];
+  saker_ikke_forstaatt: { sak_id: string }[];
+}
+
 /**
  * Fristtabellen for prosjektet, som kravet om fristforlengelse viser til (KA-U79, GFK-U25), med
  * forlengelsene i sakene og sakene kjernen ikke forstår (KA-U77, MM-U2). Den hentes ved hver lasting,
  * så forhåndsvisningen bruker tabellen serveren lager teksten med. Feiler hentingen, er den `null`,
  * og saken lastes likevel.
  */
-const kontraktsfristerI = (
-  prosjektId: string
-): Promise<{ frister: Fristlinje[]; saker_ikke_forstaatt: { sak_id: string }[] } | null> =>
-  apiFetch<{ frister: Fristlinje[]; saker_ikke_forstaatt: { sak_id: string }[] }>(
-    `/api/projects/${encodeURIComponent(prosjektId)}/kontraktsfrister`,
-    { headers: prosjekthode(prosjektId) }
-  ).then(
-    (svar) => svar,
-    () => null
-  );
+const kontraktsfristerI = (prosjektId: string): Promise<Fristtabellsvar | null> =>
+  apiFetch<Fristtabellsvar>(`/api/projects/${encodeURIComponent(prosjektId)}/kontraktsfrister`, {
+    headers: prosjekthode(prosjektId),
+  }).catch(() => null);
 
 /** Som `hentSaksmerking`, for en ny sak: det neste nummeret for koden (LV-U46). Bare TE. */
 export const hentSaksmerkingForNySak = (prosjektId: string) =>

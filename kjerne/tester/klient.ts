@@ -170,8 +170,8 @@ function vurderinger(spor: Spor, h: Record<string, unknown>, krav: Krav | null):
     frist_varsel_ok: h.varsel_i_tide,
     spesifisert_krav_ok: h.spesifisering_i_tide,
     vilkar_oppfylt: h.hindring,
-    // KA-U74: én vurdering per frist i kravet. Bevis-sakene har én frist; `frister` i steget gir
-    // dagene og dagene byggherren måtte forstå for hver frist i kravets rekkefølge.
+    // KA-U74: én vurdering per frist i kravet. `frister` i steget gir dagene og dagene byggherren
+    // måtte forstå for hver frist i kravets rekkefølge; ellers gjelder `dager` alle fristene.
     frister: (krav ? innholdIFristen(krav).frister : [{ dager: undefined }]).map((f, i) => {
       const egen = Array.isArray(h.frister)
         ? (h.frister as Record<string, unknown>[])[i]
