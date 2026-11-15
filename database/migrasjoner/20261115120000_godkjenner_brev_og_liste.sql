@@ -119,27 +119,76 @@ BEGIN
   SET NOCOUNT ON;
   IF @aktor IS NULL
     THROW 51403, N'Ingen aktør', 1;
-  WITH aapen AS (
-    SELECT p.pakke_id, p.prosjekt_id, p.sak_id, p.opprettet,
+  WITH egne AS (
+    SELECT s.pakke_id, s.steg,
            (SELECT MIN(u.steg) FROM koe.godkjenningssteg u
-             WHERE u.pakke_id = p.pakke_id
+             WHERE u.pakke_id = s.pakke_id
                AND NOT EXISTS (SELECT 1 FROM koe.godkjenningshandling h
                                 WHERE h.pakke_id = u.pakke_id AND h.steg = u.steg
                                   AND h.handling = N'godkjent')) AS ventende_steg
-      FROM koe.godkjenningspakke p
-     WHERE NOT EXISTS (SELECT 1 FROM koe.godkjenningshandling h
-                        WHERE h.pakke_id = p.pakke_id AND h.handling <> N'godkjent')
+      FROM koe.godkjenningssteg s
+     WHERE s.godkjenner_id = @aktor
+       AND NOT EXISTS (SELECT 1 FROM koe.godkjenningshandling h
+                        WHERE h.pakke_id = s.pakke_id AND h.handling <> N'godkjent')
   )
-  SELECT LOWER(CONVERT(nvarchar(36), a.pakke_id)) AS pakke_id, a.prosjekt_id, pr.name AS prosjektnavn,
-         a.sak_id, a.opprettet, s.steg,
-         CAST(IIF(s.steg = a.ventende_steg, 1, 0) AS bit) AS venter_paa_deg
-    FROM aapen a
-    JOIN koe.godkjenningssteg s ON s.pakke_id = a.pakke_id AND s.godkjenner_id = @aktor
-    JOIN koe.projects pr ON pr.id = a.prosjekt_id AND pr.is_active = 1
-   WHERE a.ventende_steg IS NOT NULL
-   ORDER BY a.opprettet, a.pakke_id;
+  SELECT LOWER(CONVERT(nvarchar(36), p.pakke_id)) AS pakke_id, p.prosjekt_id, pr.name AS prosjektnavn,
+         p.sak_id, p.opprettet, e.steg,
+         CAST(IIF(e.steg = e.ventende_steg, 1, 0) AS bit) AS venter_paa_deg
+    FROM egne e
+    JOIN koe.godkjenningspakke p ON p.pakke_id = e.pakke_id
+    JOIN koe.projects pr ON pr.id = p.prosjekt_id AND pr.is_active = 1
+   WHERE e.ventende_steg IS NOT NULL
+   ORDER BY p.opprettet, p.pakke_id;
+END
+GO
+
+-- Om aktøren i konteksten står i et steg i pakken i prosjektet i konteksten, også når pakken
+-- er lukket og skjult for godkjenneren. Inngangen viser da en pakke som er lukket mens
+-- godkjenneren hadde den, som lukket og ikke som manglende tilgang (kravet 20.10 i #831,
+-- punkt 2). Gir bare 1 eller ingen rad.
+CREATE PROCEDURE koe_api.godkjenner_i_pakken
+  @pakke_id uniqueidentifier
+WITH EXECUTE AS N'koe_godkjenneroppslag'
+AS
+BEGIN
+  SET NOCOUNT ON;
+  IF @@TRANCOUNT = 0 OR TRY_CAST(SESSION_CONTEXT(N'koe_tx') AS bigint) IS DISTINCT FROM CURRENT_TRANSACTION_ID()
+    THROW 51000, N'Oppslaget kjøres bare i en transaksjon med konteksten satt', 1;
+  DECLARE @prosjekt nvarchar(4000) = TRY_CAST(SESSION_CONTEXT(N'koe_prosjekt') AS nvarchar(4000)),
+          @aktor uniqueidentifier = TRY_CAST(SESSION_CONTEXT(N'koe_aktor') AS uniqueidentifier);
+  IF @prosjekt IS NULL OR @aktor IS NULL
+    THROW 51403, N'Ingen tilgang', 1;
+  SELECT TOP (1) 1 AS i_kjeden
+    FROM koe.godkjenningssteg s
+   WHERE s.pakke_id = @pakke_id
+     AND s.godkjenner_id = @aktor
+     AND s.prosjekt_id = @prosjekt
+     AND DATALENGTH(s.prosjekt_id) = DATALENGTH(@prosjekt);
+END
+GO
+
+-- Prosjektets team for totalentreprenøren for et aktivt medlem, også med leserollen.
+-- `koe_api.kontraktsteam` gir ingen rader med leserollen, men godkjennerinngangen må avvise
+-- et medlem i et TE-team uansett rolle (kravet 20.10 i #831, punkt 1).
+CREATE PROCEDURE koe_api.te_team
+  @aktor uniqueidentifier,
+  @prosjekt nvarchar(4000)
+AS
+BEGIN
+  SET NOCOUNT ON;
+  IF @prosjekt IS NULL OR LEN(@prosjekt) = 0 OR DATALENGTH(@prosjekt) > 200
+     OR DATALENGTH(@prosjekt) <> DATALENGTH(RTRIM(@prosjekt))
+    THROW 52043, N'Prosjekt-ID-en er tom, for lang eller har mellomrom til slutt', 1;
+  SELECT t.team_id AS team
+    FROM koe.catenda_contract_teams t
+    JOIN koe.app_project_memberships m ON m.project_id = t.internal_project_id
+   WHERE t.internal_project_id = @prosjekt
+     AND t.contract_role = N'TE'
+     AND m.user_id = @aktor AND m.active = 1;
 END
 GO
 
 GRANT EXECUTE ON koe_api.ventende_pakker TO koe_runtime;
+GRANT EXECUTE ON koe_api.godkjenner_i_pakken TO koe_runtime;
+GRANT EXECUTE ON koe_api.te_team TO koe_runtime;
 GO

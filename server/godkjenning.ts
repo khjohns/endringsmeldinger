@@ -273,6 +273,17 @@ export function ventendeGodkjenner(p: LagretPakke): string | null {
 export const erGodkjent = (p: LagretPakke): boolean =>
   p.handlinger.every((h) => h.handling === 'godkjent') && ventendeGodkjenner(p) === null;
 
+/**
+ * Om aktøren i konteksten står i et steg i pakken, også når pakken er lukket og skjult for
+ * godkjenneren (`koe_api.godkjenner_i_pakken`).
+ */
+export async function godkjennerIPakken(foresp: Foresp, pakkeId: string): Promise<boolean> {
+  const r = await foresp()
+    .input('pakke_id', sql.UniqueIdentifier, pakkeId)
+    .execute('koe_api.godkjenner_i_pakken');
+  return r.recordset.length > 0;
+}
+
 /** Saken pakken gjelder, når aktøren i konteksten når pakken, ellers `null`. */
 export async function pakkensSak(foresp: Foresp, pakkeId: string): Promise<string | null> {
   const r = await foresp().input('pakke_id', sql.UniqueIdentifier, pakkeId).query<{

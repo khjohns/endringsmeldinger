@@ -17,6 +17,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { catendaId } from '../autorisasjon.ts';
 import { transaksjon, type Kontekst } from '../datalag.ts';
 import { lagPakke } from '../godkjenning.ts';
+import { GODKJENNERRUTER } from '../godkjenner.ts';
 import type { Brevverdi } from '../fullmakt.ts';
 import { opprettSesjon } from '../sesjon.ts';
 import { iTransaksjon, settInn } from './sqlserver_migrert.ts';
@@ -27,6 +28,7 @@ import {
   opprettKjernesak,
   rydd,
   sendKommando,
+  somJobbkjoerer,
   startServer,
   TESTBASE_URL,
   type KjorendeServer,
@@ -262,7 +264,7 @@ describe.skipIf(!TESTBASE_URL)('inngangene for godkjenneren mot testbasen', () =
     expect(igjen.kropp.error).toBe('PAKKE_LUKKET');
   });
 
-  it('GFK-U9: etter en retur ser den som returnerte, sin handling, og den neste i kjeden ser ingenting', async () => {
+  it('GFK-U9: etter en retur ser den som returnerte, sin handling, og den neste i kjeden ser pakken som lukket', async () => {
     const pakke = await nyPakke(TO);
     const retur = await handle(leder, pakke, {
       handling: 'returnert',
@@ -273,7 +275,14 @@ describe.skipIf(!TESTBASE_URL)('inngangene for godkjenneren mot testbasen', () =
       status: 'lukket',
       egne_handlinger: [{ handling: 'returnert', steg: 1, begrunnelse: 'Se på beløpet' }],
     });
-    expect((await les(direktoer, pakke)).status).toBe(404);
+    // Kravet 20.10 punkt 2: den neste i kjeden ser pakken som lukket, ikke som manglende tilgang.
+    expect((await les(direktoer, pakke)).kropp).toMatchObject({
+      status: 'lukket',
+      egne_handlinger: [],
+    });
+    expect((await handle(direktoer, pakke, { handling: 'godkjent' })).kropp.error).toBe(
+      'PAKKE_LUKKET'
+    );
   });
 
   it('GFK-U10 og svaret 20.10 (punkt 6): uten rolle avvises godkjenningen uten driftsopplysninger, men returen går', async () => {
@@ -302,6 +311,11 @@ describe.skipIf(!TESTBASE_URL)('inngangene for godkjenneren mot testbasen', () =
       expect(svar.kropp.message).toMatch(/team for totalentreprenøren/);
       const post = await handle(o.te, pakke, { handling: 'godkjent' });
       expect(post.status).toBe(403);
+      const liste = (url: string) =>
+        kall(url, '/api/godkjenning/pakker', { bruker: o.te, prosjektId: null }).then((s) =>
+          (s.kropp.pakker as { pakke_id: string }[]).map((p) => p.pakke_id)
+        );
+      expect(await liste(server.url)).not.toContain(pakke);
 
       // Kontrollsaken: samme bruker og pakke, men Catenda har ikke brukeren i TE-teamet.
       const utenTeam = await startServer(o, {
@@ -314,6 +328,7 @@ describe.skipIf(!TESTBASE_URL)('inngangene for godkjenneren mot testbasen', () =
         });
         expect(kontroll.status).toBe(200);
         expect(kontroll.kropp.status).toBe('aapen');
+        expect(await liste(utenTeam.url)).toContain(pakke);
       } finally {
         await utenTeam.stopp();
       }
@@ -395,8 +410,20 @@ describe.skipIf(!TESTBASE_URL)('inngangene for godkjenneren mot testbasen', () =
     const sakId = await sakenTil(pakke);
     const { bundet, utkast, eventId } = await medBrevOgVedlegg(sakId);
 
+    // Kvitteringen for leveringen, lagt inn som kjøreveien (`koe_jobbkjoerer`) med en rett bare testen gir.
+    await o.datalag.base.pool
+      .request()
+      .query('GRANT INSERT ON koe.leveringskvittering TO koe_jobbkjoerer');
+    await somJobbkjoerer(
+      o,
+      `INSERT koe.leveringskvittering (leveringsoppdrag_id, operasjon, prosjekt_id, catenda_id, forsoek_id)
+       SELECT id, N'dokumentreferanse', prosjekt_id, N'ref', NEWID() FROM koe.leveringsoppdrag
+        WHERE sak_id = @sak_id`,
+      { sak_id: sakId }
+    );
     const saken = await les(leder, `${pakke}/saken`);
     expect(saken.status).toBe(200);
+    expect((saken.kropp.leveringsoppdrag as { levert: string | null }[])[0].levert).not.toBeNull();
     expect((saken.kropp.journal as unknown[]).length).toBeGreaterThan(0);
     expect((saken.kropp.leveringsoppdrag as { event_id: string }[]).map((x) => x.event_id)).toEqual(
       [eventId]
@@ -453,5 +480,84 @@ describe.skipIf(!TESTBASE_URL)('inngangene for godkjenneren mot testbasen', () =
     expect((await liste(direktoer)).find((p) => p.pakke_id === aapen)?.venter_paa_deg).toBe(false);
     expect(await liste(utenforKjeden)).toEqual([]);
     expect(await liste(o.bh)).toEqual([]);
+  });
+
+  it('kravet 20.10 i #831 punkt 1: et medlem med leserolle i et team for totalentreprenøren avvises også', async () => {
+    const leser = randomUUID();
+    const subjekt = randomUUID();
+    await eier(async (r) => {
+      await settInn(r, 'app_users', { id: leser, email: `${leser}@test.example`, name: 'Leser' });
+      await settInn(r, 'app_project_memberships', {
+        project_id: o.prosjekt.id,
+        user_id: leser,
+        catenda_subject: catendaId(subjekt),
+        user_email: `${leser}@test.example`,
+        display_name: 'Leser',
+        role: 'member',
+        viewer_override: true,
+        active: true,
+      });
+    });
+    const ny = await opprettSesjon(o.datalag.kjoeretid.pool, leser);
+    const bruker = { id: leser, subjekt, token: ny.token, csrf: ny.csrfToken };
+    o.teammedlemmer[o.prosjekt.teTeam].push(subjekt);
+    await registrerHierarki({ id: leser, oid: randomUUID() });
+    try {
+      const pakke = await nyPakke(EN);
+      const svar = await les(bruker, pakke);
+      expect(svar.status).toBe(403);
+      expect(svar.kropp.message).toMatch(/team for totalentreprenøren/);
+    } finally {
+      o.teammedlemmer[o.prosjekt.teTeam].pop();
+      await registrerHierarki();
+    }
+  });
+
+  describe.each(GODKJENNERRUTER.map((r) => [`${r.metode} ${r.eksempel('<pakke>')}`, r] as const))(
+    '%s',
+    (_n, r) => {
+      const sti = () => r.eksempel(randomUUID());
+      const kropp = r.metode === 'GET' ? undefined : { handling: 'godkjent' };
+      it('uten sesjon gir 401, og uten X-Project-ID 403', async () => {
+        const uten = await kall(server.url, sti(), {
+          bruker: null,
+          prosjektId: o.prosjekt.id,
+          kropp,
+        });
+        expect(uten.status).toBe(401);
+        const utenProsjekt = await kall(server.url, sti(), {
+          bruker: leder,
+          prosjektId: null,
+          kropp,
+        });
+        expect(utenProsjekt.status).toBe(403);
+      });
+      it('et medlem i et team for totalentreprenøren får 403', async () => {
+        const svar = await kall(server.url, sti(), {
+          bruker: o.te,
+          prosjektId: o.prosjekt.id,
+          kropp,
+        });
+        expect(svar.status).toBe(403);
+        expect(svar.kropp.message).toMatch(/team for totalentreprenøren/);
+      });
+    }
+  );
+
+  it.each(
+    GODKJENNERRUTER.filter((r) => r.metode !== 'GET').map(
+      (r) => [`${r.metode} ${r.eksempel('<pakke>')}`, r] as const
+    )
+  )('%s: uten eller med feil CSRF-token gir 403', async (_n, r) => {
+    for (const csrf of [null, 'feil']) {
+      const svar = await kall(server.url, r.eksempel(randomUUID()), {
+        bruker: leder,
+        prosjektId: o.prosjekt.id,
+        kropp: { handling: 'godkjent' },
+        csrf,
+      });
+      expect(svar.status).toBe(403);
+      expect(svar.kropp.error).toBe('CSRF validation failed');
+    }
   });
 });

@@ -597,21 +597,38 @@ async function kontraktsside(
   return [[...roller][0], lag.size === 1 ? [...lag][0] : null];
 }
 
-/** Aktøren er medlem og med i et av prosjektets team for totalentreprenøren i Catenda. */
-async function iTeamForTE(
+/** Prosjektets team for totalentreprenøren for et aktivt medlem, også med leserollen. */
+async function teTeamene(db: Pool, aktor: string, prosjektId: string): Promise<Set<string>> {
+  const svar = await utenKontekst(db)
+    .input('aktor', sql.UniqueIdentifier, aktor)
+    .input('prosjekt', sql.NVarChar(4000), prosjektId)
+    .execute<{ team: string }>('koe_api.te_team');
+  return new Set(svar.recordset.map((r) => catendaId(r.team)).filter((t) => t !== null));
+}
+
+/**
+ * Hvorfor aktøren ikke kan godkjenne i prosjektet, eller `null` når hen kan: prosjektet er
+ * ukjent, eller aktøren er medlem og med i et av prosjektets team for totalentreprenøren i
+ * Catenda, også med leserollen (kravet 20.10 i #831, punkt 1). Medlemslisten gjøres fersk
+ * først. Et oppslag som feiler, kaster.
+ */
+export async function hindringForGodkjenner(
   db: Pool,
   catenda: Catenda,
-  catendaProsjekt: string,
   aktor: string,
   prosjektId: string
-): Promise<boolean> {
-  const [medlemskap, team] = await Promise.all([
+): Promise<'ukjent_prosjekt' | 'te_team' | null> {
+  const oppsett = await prosjektoppsett(db, prosjektId);
+  if (!oppsett) return 'ukjent_prosjekt';
+  await oppdaterMedlemslisten(db, catenda, prosjektId, oppsett.catendaProsjekt);
+  const [medlemskap, te] = await Promise.all([
     prosjektmedlemskap(db, aktor, prosjektId),
-    kontraktsteamene(db, aktor, prosjektId),
+    teTeamene(db, aktor, prosjektId),
   ]);
   const subjekt = medlemskap ? catendaId(medlemskap.subjekt) : null;
-  if (!subjekt || !team.TE.size) return false;
-  return (await teamMedSubjektet(catenda, catendaProsjekt, subjekt, { TE: team.TE })).length > 0;
+  if (!subjekt || !te.size) return null;
+  const treff = await teamMedSubjektet(catenda, oppsett.catendaProsjekt, subjekt, { TE: te });
+  return treff.length ? 'te_team' : null;
 }
 
 /** Meldingen når godkjenneren er med i et team for totalentreprenøren i prosjektet. */
@@ -622,9 +639,8 @@ export const GODKJENNER_PAA_TE =
  * Tilgangen til en godkjennerinngang (GFK-U9, del 4 av #831): sesjonen og et aktivt prosjekt i
  * `X-Project-ID`, uten krav om medlemskap. Om aktøren står i kjeden til pakken, avgjør
  * predikatet `koe_sikkerhet.godkjenner` i basen. Konteksten har ingen side, og predikatet
- * slipper da gjennom; derfor avvises her en aktør som er med i et team for
- * totalentreprenøren (kravet 20.10 i #831, punkt 1). Medlemslisten må være fersk for det.
- * Et oppslag som feiler, gir 503.
+ * slipper da gjennom; derfor avvises her en aktør i et team for totalentreprenøren
+ * (`hindringForGodkjenner`). Et oppslag som feiler, gir 503.
  */
 export async function krevGodkjennertilgang(
   db: Pool,
@@ -633,15 +649,13 @@ export async function krevGodkjennertilgang(
   bruker: Bruker
 ): Promise<{ prosjektId: string }> {
   const prosjektId = prosjektFraHodet(foresporsel);
-  let paaTE: boolean;
+  let hindring;
   try {
-    const oppsett = await prosjektoppsett(db, prosjektId);
-    if (!oppsett) throw ingenTilgang();
-    await oppdaterMedlemslisten(db, catenda, prosjektId, oppsett.catendaProsjekt);
-    paaTE = await iTeamForTE(db, catenda, oppsett.catendaProsjekt, bruker.id, prosjektId);
+    hindring = await hindringForGodkjenner(db, catenda, bruker.id, prosjektId);
   } catch (feil) {
     utilgjengelig('Tilgangen for godkjenneren kunne ikke avgjøres', feil);
   }
-  if (paaTE) throw new Nektet(403, 'FORBIDDEN', GODKJENNER_PAA_TE);
+  if (hindring === 'ukjent_prosjekt') throw ingenTilgang();
+  if (hindring === 'te_team') throw new Nektet(403, 'FORBIDDEN', GODKJENNER_PAA_TE);
   return { prosjektId };
 }

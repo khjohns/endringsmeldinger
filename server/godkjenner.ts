@@ -7,9 +7,10 @@
  * Publiseringen ved siste godkjenning hører til S-1b (#818).
  */
 
-import type { Bruker } from './autorisasjon.ts';
+import { hindringForGodkjenner, lesekontekst, type Bruker } from './autorisasjon.ts';
 import { transaksjon, Tilbakerulling, UUID, type Foresp, type Kontekst } from './datalag.ts';
 import {
+  godkjennerIPakken,
   lesEgneHandlinger,
   lesPakke,
   PakkeAvsluttet,
@@ -22,7 +23,7 @@ import {
   type LagretHandling,
 } from './godkjenning.ts';
 import { brevSomPdf } from './brev.ts';
-import { fast, feilsvar, ugyldig, ukjenteFelt } from './inngang.ts';
+import { fast, feilsvar, loggFeil, ugyldig, ukjenteFelt } from './inngang.ts';
 import { sakssvar } from './saker.ts';
 import { vedleggISaken, vedleggsfil } from './vedlegg.ts';
 import type {
@@ -34,10 +35,8 @@ import type {
   Svar,
 } from './rutetyper.ts';
 
-const kontekst = (bruker: Bruker, prosjektId: string): Kontekst => ({
-  aktor: bruker.id,
-  prosjekt: prosjektId,
-});
+const kontekst = (bruker: Bruker, prosjektId: string): Kontekst =>
+  lesekontekst(bruker, prosjektId, null);
 
 /** Samme svar når pakken ikke finnes, er i et annet prosjekt eller ikke venter på aktøren. */
 const ingenPakke = () =>
@@ -54,8 +53,8 @@ const handlingssvar = (h: LagretHandling) => ({
 });
 
 /**
- * Pakken mens den er åpen, eller godkjennerens egne handlinger når den er lukket (GFK-U9);
- * `null` når aktøren verken når pakken eller har handlet i den.
+ * Pakken mens den er åpen, eller godkjennerens egne handlinger når den er lukket og aktøren
+ * står i kjeden (GFK-U9, kravet 20.10 i #831, punkt 2); `null` når aktøren ikke står i kjeden.
  */
 async function forGodkjenneren<T>(
   foresp: Foresp,
@@ -65,7 +64,7 @@ async function forGodkjenneren<T>(
   const pakke = await les(foresp, pakkeId);
   if (pakke) return { pakke };
   const egne = await lesEgneHandlinger(foresp, pakkeId);
-  return egne.length ? { egne } : null;
+  return egne.length || (await godkjennerIPakken(foresp, pakkeId)) ? { egne } : null;
 }
 
 async function visPakken(
@@ -223,7 +222,20 @@ async function visVentendePakker(
   { sesjon }: Innlogget,
   avh: Required<Avhengigheter>
 ): Promise<Svar> {
-  const pakker = await lesVentendePakker(avh.datalag, sesjon.bruker.id);
+  const alle = await lesVentendePakker(avh.datalag, sesjon.bruker.id);
+  // Som i godkjennerinngangen: ingen pakker i et prosjekt der aktøren er i et TE-team.
+  let hindret: Set<string>;
+  try {
+    const prosjekter = [...new Set(alle.map((p) => p.prosjektId))];
+    const hindringer = await Promise.all(
+      prosjekter.map((id) => hindringForGodkjenner(avh.datalag, avh.catenda, sesjon.bruker.id, id))
+    );
+    hindret = new Set(prosjekter.filter((_, i) => hindringer[i] !== null));
+  } catch (feil) {
+    loggFeil('Tilgangen til listen over pakkene kunne ikke avgjøres', feil);
+    return feilsvar(503, 'ACCESS_UNAVAILABLE', 'Tilgang kunne ikke bekreftes. Prøv igjen senere.');
+  }
+  const pakker = alle.filter((p) => !hindret.has(p.prosjektId));
   return [
     200,
     {

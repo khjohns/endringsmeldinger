@@ -584,6 +584,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.entra_identitet',
         'GRANT EXECUTE koe_api.flytt_vedlegg_til_sak',
         'GRANT EXECUTE koe_api.forny_lease',
+        'GRANT EXECUTE koe_api.godkjenner_i_pakken',
         'GRANT EXECUTE koe_api.godkjenningskjede',
         'GRANT EXECUTE koe_api.hent_jobb',
         'GRANT EXECUTE koe_api.koblede_prosjekter',
@@ -632,6 +633,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
         'GRANT EXECUTE koe_api.stillingstitler',
         'GRANT EXECUTE koe_api.synkroniser_hr',
         'GRANT EXECUTE koe_api.synkroniser_medlemskap',
+        'GRANT EXECUTE koe_api.te_team',
         'GRANT EXECUTE koe_api.tittel_avvist_for_topic',
         'GRANT EXECUTE koe_api.topicens_prosjekt',
         'GRANT EXECUTE koe_api.vedlegg_i_levering',
@@ -691,7 +693,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
       ]);
     });
 
-    it('godkjenneroppslaget har ingen rettigheter, bare eierskapskjeden i prosedyren som kjører som det (G2 i #831)', async () => {
+    it('godkjenneroppslaget har ingen rettigheter, bare eierskapskjeden i prosedyrene som kjører som det (G2 i #831)', async () => {
       const svar = await base.pool.request().query<{ rett: string; innlogging: number }>(
         `SELECT CONCAT(p.state_desc, N' ', p.permission_name, N' ', p.class_desc) AS rett,
                 (SELECT COUNT(*) FROM sys.database_principals d
@@ -705,7 +707,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangen i SQL Server', () => {
            FROM sys.sql_modules m
           WHERE m.execute_as_principal_id = DATABASE_PRINCIPAL_ID(N'koe_godkjenneroppslag')`
       );
-      expect(somDen.recordset.map((r) => r.prosedyre)).toEqual(['koe_api.ventende_pakker']);
+      expect(somDen.recordset.map((r) => r.prosedyre).sort()).toEqual([
+        'koe_api.godkjenner_i_pakken',
+        'koe_api.ventende_pakker',
+      ]);
     });
 
     it('grenseoppslaget har ingen rettigheter, bare eierskapskjeden i de to prosedyrene som kjører som det (#1106)', async () => {

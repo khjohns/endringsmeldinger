@@ -126,11 +126,6 @@ export function lagServer(avh: Avhengigheter) {
   };
 
   /**
-   * Innloggingen, prosjekttilgangen og kontraktsrollen fra registeret, og kroppen,
-   * i én rekkefølge for hver inngang med prosjekt (#825). Uten sak i stien prøves
-   * bare sakene kroppen viser til.
-   */
-  /**
    * Innloggingen, så kroppen og så `tilgang`, i én rekkefølge for hver inngang med sesjon og
    * prosjekt (#825). Innloggingen kommer først, så en uinnlogget forespørsel ikke får kroppen
    * lest og tolket. En kropp som ikke kan leses, avvises etter tilgangskontrollen, som i Flask.
