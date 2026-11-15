@@ -197,3 +197,94 @@ describe('en aksept som legges til, godtas når svaret var byggherrens gjeldende
       ]
     ));
 });
+
+/** Kjører forløpet og prøver handlingen `h` som en registrering sendt `sendt`. */
+async function provRegistrering(
+  steg: Handling[],
+  h: Handling,
+  sendt: string,
+  felt: Record<string, unknown> = { korrespondansetype: 'brev', dokumentasjon: [VEDLEGG] }
+) {
+  const forloep: Forloep = {
+    id: 'registrering',
+    rader: [],
+    start: 'krav_irreg',
+    steg,
+    kontroller: [],
+  };
+  const k = await kjoer(forloep, minnebane(), { valg: { klokke: dagklokke() } });
+  return k.prov(h, (kommando) => {
+    // Et registrert svar har ingen tekst fra løsningen (OV-U80).
+    for (const s of (kommando.svar as Record<string, unknown>[] | undefined) ?? [])
+      if (typeof s === 'object') {
+        delete s.utdypning;
+        delete s.utdypninger;
+      }
+    Object.assign(kommando, { sendt, ...felt });
+  });
+}
+
+const VEDLEGG = '00000000-0000-4000-8000-000000002011';
+
+describe('kommandoene for svar og aksept sendt utenfor løsningen (OV-U80, OV-U98)', () => {
+  const aksept: Handling = { handling: 'aksept', spor: 'forhold', svar: 'S-g1' };
+
+  it('en aksept sendt etter svaret godtas og lagres med datoen, typen og vedlegget, uten brevtekst', async () => {
+    const utfall = await provRegistrering([avslag('S-g1')], aksept, '2026-09-24');
+    expect(utfall.godtatt).toBe(true);
+    if (!utfall.godtatt) return;
+    const data = utfall.hendelser[0].data as Record<string, unknown>;
+    expect(data.opplysninger).toEqual([
+      { id: expect.any(String), hva: 'sendt', dato: '2026-09-24' },
+    ]);
+    expect(data.korrespondansetype).toBe('brev');
+    expect(data.dokumentasjon).toEqual([expect.objectContaining({ vedlegg_id: VEDLEGG })]);
+    expect(data.brevtekst).toBeUndefined();
+  });
+
+  it('kontrollsak: en aksept oppgitt sendt før svaret avvises', async () => {
+    const utfall = await provRegistrering([avslag('S-g1')], aksept, '2026-09-23');
+    expect(utfall).toMatchObject({
+      godtatt: false,
+      avvisning: { regel: 'IKKE_GJELDENDE_PAA_SENDEDATOEN' },
+    });
+  });
+
+  it('en aksept av et svar som senere er revidert, godtas når den ble sendt før revisjonen', async () => {
+    const revisjon: Handling = {
+      handling: 'revisjon',
+      spor: 'forhold',
+      resultat: 'avslaatt',
+      varslet_i_tide: false,
+      navn: 'S-g2',
+    };
+    const foer = await provRegistrering([avslag('S-g1'), revisjon], aksept, '2026-09-24');
+    expect(foer.godtatt).toBe(true);
+    const etter = await provRegistrering([avslag('S-g1'), revisjon], aksept, '2026-09-26');
+    expect(etter).toMatchObject({
+      godtatt: false,
+      avvisning: { regel: 'IKKE_GJELDENDE_PAA_SENDEDATOEN' },
+    });
+  });
+
+  it('et svar sendt etter grunnlagskravet godtas, og et svar oppgitt sendt før det avvises', async () => {
+    const svar = avslag('S-r');
+    const godtatt = await provRegistrering([], svar, '2026-09-22');
+    expect(godtatt.godtatt ? null : godtatt.avvisning).toBeNull();
+    expect(await provRegistrering([], svar, '2026-09-20')).toMatchObject({
+      godtatt: false,
+      avvisning: { regel: 'IKKE_GJELDENDE_PAA_SENDEDATOEN' },
+    });
+  });
+
+  it('en registrering uten typen eller vedlegget avvises som feil form', async () => {
+    const utenType = await provRegistrering([avslag('S-g1')], aksept, '2026-09-24', {
+      dokumentasjon: [VEDLEGG],
+    });
+    expect(utenType).toMatchObject({ godtatt: false, avvisning: { regel: 'UGYLDIG_FORM' } });
+    const utenVedlegg = await provRegistrering([avslag('S-g1')], aksept, '2026-09-24', {
+      korrespondansetype: 'e_post',
+    });
+    expect(utenVedlegg).toMatchObject({ godtatt: false, avvisning: { regel: 'UGYLDIG_FORM' } });
+  });
+});

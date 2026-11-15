@@ -1202,6 +1202,20 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Kommando', 'kommando', 'beskrivelse', ['kommandoer/skriving.ts:dokument']],
   // LV-U42: typen registrert korrespondanse lagres slik avsenderen oppga den.
   ['Kommando', 'kommando', 'korrespondansetype', ['kommandoer/skriving.ts:dokument']],
+  // OV-U80, OV-U98: et svar eller en aksept lagt til med datoen det ble sendt.
+  [
+    'Registrering',
+    'kommando',
+    'sendt korrespondansetype dokumentasjon',
+    ['kommandoer/kommando.ts', 'kommandoer/nyttelast.ts', 'kommandoer/skriving.ts:registrering'],
+  ],
+  ['kommandoer/kommando.ts', 'predikat', 'erRegistrering', ['kommandoer/skriving.ts:skriv']],
+  // OV-U80: et registrert svar har ingen tekst fra løsningen.
+  ['Svarutkast', 'kommando', 'utdypning utdypninger', ['kommandoer/kommando.ts:formfeil']],
+  // OV-U98: en registrering godtas bare når utledningen gir den virkning.
+  ['Utledning', 'relasjon', 'utenVirkning', ['kommandoer/skriving.ts:skriv']],
+  ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:registreringenStrider.dag']],
+  ['Utledning.utenVirkning', 'relasjon', 'hendelse grunn', ['kommandoer/skriving.ts:skriv']],
   // OV-U17, OV-U18: registreringen en retting viser til, kontrollert mot utledningen.
   [
     'Kommando',
@@ -1427,7 +1441,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'spor/forhold/utledning.ts',
     'predikat',
-    'erRegistrertEndringsordre kontrollerEndringsordrene kontrollerKorrigeringene opplysningerOmDatoen forholdssvaretsVirkning',
+    'kontrollerEndringsordrene kontrollerKorrigeringene opplysningerOmDatoen forholdssvaretsVirkning',
     ['utledning/utled.ts'],
   ],
   [
@@ -2144,6 +2158,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/brevdeler.ts',
       'utledning/utled.ts:datoenDetBleSendt',
       'utledning/utled.ts:utledSporene.sendt',
+      'utledning/utled.ts:registreringenStrider.dag',
     ],
   ],
 

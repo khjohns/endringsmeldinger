@@ -242,6 +242,13 @@ export type OppgittDato = {
 function oppgittDatoI(k: Kommando): OppgittDato | null {
   if (k.type === 'varsel')
     return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'Totalentreprenøren' };
+  // OV-U98: svaret eller aksepten som legges til, er ikke sendt etter dagen det legges til.
+  if ((k.type === 'brev' || k.type === 'revisjon' || k.type === 'aksept') && k.sendt !== undefined)
+    return {
+      dato: k.sendt,
+      gjelder: 'brevet ble sendt',
+      av: k.type === 'aksept' ? 'Totalentreprenøren' : 'Byggherren',
+    };
   if (k.type === 'begrunnelse')
     return k.sendt === undefined
       ? null
@@ -436,8 +443,13 @@ export function nyttelastkontroll(
       return kontrollerSvar(k.svar, u, regler, svarstandpunkter, utdypningKreves);
     }
     case 'aksept': {
-      // KA-U1, KT-U1: aksepten gjelder sporets gjeldende svar.
-      if (k.svar !== u.spor[k.spor].gjeldendeSvar?.id)
+      // KA-U1, KT-U1: aksepten gjelder sporets gjeldende svar. En aksept som legges til, gjelder
+      // svaret som var gjeldende da den ble sendt, og det prøver utledningen (OV-U98).
+      if (
+        k.sendt !== undefined
+          ? !u.spor[k.spor].svar.some((x) => x.id === k.svar)
+          : k.svar !== u.spor[k.spor].gjeldendeSvar?.id
+      )
         return avvis(
           'IKKE_GJELDENDE_SVAR',
           u.spor[k.spor].svar.some((x) => x.id === k.svar)

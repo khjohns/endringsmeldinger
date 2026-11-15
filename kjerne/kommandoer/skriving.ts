@@ -10,7 +10,14 @@ import { SKRIVING_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { avvisning } from './avvisning.ts';
 import { akseptfristeneIBrevet } from './nyttelast.ts';
-import { formfeil, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
+import {
+  erRegistrering,
+  formfeil,
+  vedleggI,
+  type Kommando,
+  type Registrering,
+  type Svarutkast,
+} from './kommando.ts';
 import { korrigertDato, SKRIVING_I_FORHOLDET } from '../spor/forhold/kommando.ts';
 import { SKRIVING_I_FRISTEN } from '../spor/frist/kommando.ts';
 import type { Registrertfrist } from '../spor/frist/format.ts';
@@ -315,6 +322,23 @@ const SKRIVING: Record<Spor, Sporsskriving> = {
 };
 
 /** Innholdet i dokumentet kommandoen gir. */
+/** Meldingen når en registrering ikke får virkning med datoen avsenderen oppgir (OV-U98). */
+const UTEN_VIRKNING_MELDING = (grunn: string) =>
+  `Brevet kan ikke legges til med datoen det ble sendt. Det er ${grunn.replace(/ \([^)]*\)/g, '')}.`;
+
+/**
+ * OV-U80, OV-U98: et svar eller en aksept lagt til med datoen avsenderen oppgir, typen og
+ * brevet som vedlegg. Tomt for et brev fra løsningen.
+ */
+function registrering(k: Registrering, nyId: () => string, bundne: Vedlegg[]): Data {
+  if (k.sendt === undefined) return {};
+  return {
+    opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
+    korrespondansetype: k.korrespondansetype,
+    dokumentasjon: bundne,
+  };
+}
+
 function dokument(
   k: Kommando,
   u: Utledning,
@@ -368,15 +392,18 @@ function dokument(
           u,
           kjerne
         ),
+        ...registrering(k, nyId, bundne),
       };
     case 'revisjon':
       return {
         svar: frosneSvar([svar(k.svar, u, nyId, utdypninger, bygde, k.erstatter)], u, kjerne),
+        ...registrering(k, nyId, bundne),
       };
     case 'aksept':
       // KA-U10, MM-U50: aksepten viser til svaret og lagrer regelversjonen TE fikk se.
       return {
         utsagn: [{ id: nyId(), art: 'aksept', gjelder: k.svar, regelversjon: k.regelversjon }],
+        ...registrering(k, nyId, bundne),
       };
     case 'trekk':
       return { utsagn: [{ id: nyId(), art: 'trekk', gjelder: u.spor[k.spor].gjeldendeKrav!.id }] };
@@ -601,7 +628,8 @@ function skriv(
     kjerne.regler,
     svarstandpunkter,
     brevetsDato,
-    sendes
+    // OV-U80: utdypningen og begrunnelsen kreves ikke i en registrering (KA-U24).
+    sendes && !erRegistrering(k)
   );
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
   const sperre =
@@ -722,6 +750,15 @@ function skriv(
     throw new Skrivefeil(
       `Kjernen forstår ikke dokumentet den selv skriver: ${hindrer.map((b) => b.grunn).join('; ')}`
     );
+  // OV-U98: en registrering godtas bare når den får virkning med datoen avsenderen oppgir.
+  // Regelen står i utledningen (`registreringenStrider`), så kommandoen og journalen er enige.
+  const uten = etter.utenVirkning.find((x) => x.hendelse === eventId);
+  if (erRegistrering(k) && uten)
+    return {
+      godtatt: false,
+      feil: 'REGELBRUDD',
+      avvisning: avvis('IKKE_GJELDENDE_PAA_SENDEDATOEN', UTEN_VIRKNING_MELDING(uten.grunn)),
+    };
   return { godtatt: true, hendelser: [rad] };
 }
 
