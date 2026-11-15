@@ -97,6 +97,20 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     });
   });
 
+  it('endres svaret om varselet etter «Enig», tas valget bort, så svaret ikke blir en endringsordre byggherren ikke har valgt (U-4, D-3, D-4)', async () => {
+    const sendt = await svarskjemaet(medGrunnlag);
+    await radio('Ja, varselet kom for sent');
+    await radio('Enig i at pålegget innebærer en endring');
+    await radio('Nei');
+    expect(screen.getByRole('radio', { name: 'Enig, endringsordre' })).not.toBeChecked();
+    expect(screen.queryByText('Svaret er en endringsordre')).not.toBeInTheDocument();
+    await seBrevet();
+    expect(sendt).toHaveLength(0);
+    expect(
+      screen.getByRole('link', { name: 'Velg hva du svarer på påberopelsen.' })
+    ).toBeInTheDocument();
+  });
+
   it('når varselet påberopes for sent, er frafall ikke et valg, og skjemaet sier hvorfor (D-6, U-4)', async () => {
     await svarskjemaet(medGrunnlag);
     await radio('Frafaller pålegget');

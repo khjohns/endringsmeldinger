@@ -885,7 +885,7 @@ describe('brevhodet og en avvist sending (A2b i #1497)', () => {
 
 describe('svaret på påberopelsen av forholdet (BF-08, #2009)', () => {
   it('BH åpner svaret fra «Svar på påberopelsen», utkastet står når BH bytter spor, og svaret sendes som svar på gjeldende versjon (G-3 i BF-08, BF-01 S-8)', async () => {
-    const demosak = lagDemosak(finnForloep('BF-05')!, 'paaberopelsen-er-sendt', 'BH');
+    const demosak = lagDemosak(finnForloep('BF-08')!, 'bh-har-mottatt-paaberopelsen', 'BH');
     const kjernesak = lagKjernesak({
       sakId: demosak.sakId,
       prosjektId: 'demo',

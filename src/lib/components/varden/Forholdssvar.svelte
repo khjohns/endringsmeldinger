@@ -100,6 +100,10 @@
   // D-6: frafallet tas bort når BH gjør gjeldende at varselet kom for sent, og teksten ved valgene
   // sier hvorfor.
   function velgForSent(x: boolean | null) {
+    // U-4: «Enig» betyr endringsordre bare uten innsigelsen om varselet, så valget tas bort når
+    // svaret om varselet endres, og byggherren velger på nytt (code-review i #2031).
+    if (x !== valg.forSent && valg.resultat === 'godkjent' && f.varslingsplikt)
+      valg.resultat = null;
     valg.forSent = x;
     if (valg.resultat === 'paalegg_frafalt' && !kanFrafalle(f, valg)) valg.resultat = null;
   }

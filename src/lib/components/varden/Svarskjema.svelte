@@ -114,7 +114,7 @@
   // Begrunnelsen som kreves, er besvart når ett av punktene den kan stå i, har tekst.
   const alleMangler = $derived.by((): Mangel[] => {
     const k = begrunnelseKreves;
-    if (!k || k.punktene.some((p) => tekster.begrunnelser[p]?.trim())) return mangler;
+    if (!k || kreverPunktene.some((p) => tekster.begrunnelser[p]?.trim())) return mangler;
     // Feilen står ved det første punktet i kravet, ikke det første i skjemaet.
     const foerste = kreverPunktene[0];
     if (!foerste) return mangler;
