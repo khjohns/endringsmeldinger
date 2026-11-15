@@ -39,6 +39,7 @@
   const k = $derived(kravetOgSvaret(u, alle));
   const beloepene = $derived(kravbeloepene(u));
   const varslene = $derived(varsleneIKravene(u, alle));
+  const fulgtOpp = $derived(oppfoelgingene(u, alle));
   const akseptfrist = $derived(akseptfristen(u, 'vederlag'));
   // Datoen TE oppgir for når TE ble klar over forholdet, under brevet med varselet etter punkt
   // 34.1.2, med avstanden i kalenderdager (U-8, G-6).
@@ -52,7 +53,7 @@
 {#snippet oeverst(b: Brevet)}
   {@const n = beloepene.get(b.id)}
   {@const levert = levering.get(b.id)}
-  {#if n !== undefined}<p class="beloep">
+  {#if n !== undefined}<p class="beloep" class:dempet={fulgtOpp.has(b.id)}>
       {VEDERLAGET.kravbeloep(n, varslene.get(b.id))}
     </p>{/if}
   {#if levert !== undefined && (levert === null || akseptfrist?.brev === b.id)}
@@ -68,7 +69,7 @@
   <Brevtraad
     brev={brevITraaden(alle, 'vederlag')}
     spor="vederlag"
-    fulgtOpp={oppfoelgingene(u, alle)}
+    {fulgtOpp}
     dokumentasjon={u.ikkeVurderteBrev}
     venterPaaSvar={betegnelser.vederlag === 'venter_paa_svar'}
     {oeverst}
@@ -94,5 +95,10 @@
     font-weight: 500;
     color: var(--ink);
     font-variant-numeric: tabular-nums;
+  }
+  /* Et eldre krav, fulgt opp av et nytt, står dempet (U-5). */
+  .beloep.dempet {
+    font-weight: 400;
+    color: var(--ink-2);
   }
 </style>

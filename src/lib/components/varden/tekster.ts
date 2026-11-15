@@ -830,10 +830,10 @@ export const TRAADEN = {
    * leveringen kom en annen dag.
    */
   levering: (sendt: string, levert: string | null) =>
-    `Sendt kl. ${klokke(sendt)}. ` +
+    `Sendt kl.\u00a0${klokke(sendt)}. ` +
     (levert === null
       ? 'Ikke levert til Catenda ennå.'
-      : `Levert til Catenda ${dato(levert) === dato(sendt) ? '' : `${dato(levert)} `}kl. ${klokke(levert)}.`),
+      : `Levert til Catenda ${dato(levert) === dato(sendt) ? '' : `${dato(levert)} `}kl.\u00a0${klokke(levert)}.`),
   /** Datoen TE oppgir, og avstanden til varselet, uten vurdering av fristen (U-8, MM-U50). */
   klarOver: (d: string, brev: Brevref, dager: number) =>
     `Totalentreprenøren ble klar over forholdet ${dato(d)}, ifølge ${brevref(brev)}.` +
@@ -1590,7 +1590,7 @@ export const VEDERLAGET = {
   /** Beløpet i et krav ved brevet i tråden, med hjemlene kravet også varsler etter (U-12). */
   kravbeloep: (beloep: number, varsler: readonly string[] = []) =>
     varsler.length
-      ? `${kroner(beloep)}, med varsel etter punkt ${liste([...varsler])}.`
+      ? `${kroner(beloep)}, med varsel etter punkt\u00a0${liste([...varsler])}.`
       : `${kroner(beloep)}.`,
   /** Innsigelsen et senere lag gjelder hvis ikke fører frem (U-2), med brevets ord. */
   innsigelsen: (i: Innsigelsen) =>

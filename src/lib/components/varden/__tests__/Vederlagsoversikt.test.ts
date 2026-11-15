@@ -151,10 +151,15 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
     // hjemmelen ved beløpet (U-12). Brev 2 er det første kravet og varsler etter punkt 34.1.2, og
     // brev 3 har den særskilte posten og varsler etter punkt 34.1.3 (OV-U5).
     expect(krav.map((r) => r.querySelector('.beloep')?.textContent?.trim())).toEqual([
-      '190 000 kr, med varsel etter punkt 34.1.3.',
-      '125 000 kr, med varsel etter punkt 34.1.2.',
+      '190 000 kr, med varsel etter punkt 34.1.3.',
+      '125 000 kr, med varsel etter punkt 34.1.2.',
     ]);
     expect(krav[1]!.textContent).toContain('fulgt opp i brev 3');
+    // Beløpet i det eldre kravet står dempet, som tittelen (U-5).
+    expect(krav.map((r) => r.querySelector('.beloep')?.classList.contains('dempet'))).toEqual([
+      false,
+      true,
+    ]);
   });
 
   it('et krav uten punktet for varselet i brevet står uten hjemmelen (U-12, VS-U3)', async () => {
@@ -190,10 +195,10 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
     const [vedSvaret, ikkeLevert] = linjer;
     expect(vedSvaret!.closest('li')?.textContent).toContain('Akseptfrist');
     expect(vedSvaret!.textContent).toMatch(
-      /^Sendt kl\. \d{2}\.\d{2}\. Levert til Catenda \d{1,2}\. \p{L}+ \d{4} kl\. \d{2}\.\d{2}\.$/u
+      /^Sendt kl\.\s\d{2}\.\d{2}\. Levert til Catenda \d{1,2}\. \p{L}+ \d{4} kl\.\s\d{2}\.\d{2}\.$/u
     );
     expect(ikkeLevert!.textContent).toMatch(
-      /^Sendt kl\. \d{2}\.\d{2}\. Ikke levert til Catenda ennå\.$/
+      /^Sendt kl\.\s\d{2}\.\d{2}\. Ikke levert til Catenda ennå\.$/
     );
   });
 
