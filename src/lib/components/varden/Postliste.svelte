@@ -165,7 +165,8 @@
   .kolonner,
   .postlinje {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1.2fr) auto;
+    /* Handlingen har fast bredde, så kolonnene står likt i overskriften og hver rad. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1.2fr) 5rem;
     column-gap: var(--spacing-4);
     align-items: baseline;
   }
@@ -178,6 +179,9 @@
   /* Overskriften har ingen celle over handlingen. */
   .kolonner span:last-child {
     grid-column: 3 / -1;
+  }
+  .postlinje :global(button) {
+    justify-self: end;
   }
   .postlinje {
     row-gap: var(--spacing-2);
