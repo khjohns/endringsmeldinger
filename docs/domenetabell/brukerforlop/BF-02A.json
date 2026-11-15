@@ -41,6 +41,11 @@
       "dato": "2026-11-06",
       "forhold": "oppdragsgiver 06.11, i #1646",
       "hva": "Forståelsen sier ikke lenger at partene ser hvilken opplysning svaret gjaldt. Løsningen tolker ikke svaret."
+    },
+    {
+      "dato": "2026-11-15",
+      "forhold": "VS-U26, VS-U43 punkt 1, arbeidsvalget i #1955",
+      "hva": "D-4 sier at korrigeringen også avvises ved force majeure, der totalentreprenøren ikke oppgir noen dato. Koden avviste den alt."
     }
   ],
   "bestilling": "BF-02A.md",

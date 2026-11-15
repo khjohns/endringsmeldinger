@@ -34,7 +34,7 @@ import { Uforstaatt } from '../format/skjema.ts';
 import { kroner } from '../frosset/tekst.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
-import { HOVEDKATEGORIER, KATEGORIER } from '../format/koder.ts';
+import { HOVEDKATEGORIER, KATEGORIER, type Hovedkategori } from '../format/koder.ts';
 import { erRegistrert, kalenderdag, lesJournal, standpunkterISvaret } from '../format/leser.ts';
 import {
   forhaandsvis,
@@ -1125,6 +1125,20 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
       s.avvist('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20')),
       'kontrollsak'
     ).toBeNull();
+  });
+
+  it('datoen varslingsplikten løper fra, finnes i endring utenom endringsordre, svikt og andre forhold, men ikke ved force majeure (VS-U26, VS-U43 punkt 1)', () => {
+    const forventet: Record<Hovedkategori, string | null> = {
+      endring: 'paalegg_mottatt',
+      svikt: 'klar_over_forholdet',
+      andre_forhold: 'klar_over_forholdet',
+      force_majeure: null,
+    };
+    for (const hoved of HOVEDKATEGORIER)
+      for (const under of KATEGORIER[hoved].length ? KATEGORIER[hoved] : [null])
+        expect(oppgittDato(hoved, under), `${hoved} ${under}`).toBe(
+          under === 'endringsordre' ? null : forventet[hoved]
+        );
   });
 
   it('korrigeringen avvises i underkategorien endringsordre, der TE ikke oppgir noen slik dato (punkt 10)', () => {
