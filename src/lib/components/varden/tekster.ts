@@ -1461,16 +1461,19 @@ export const FRISTKRAV = {
   fjernFrist: (navn: string) => `Fjern ${navn}`,
   leggTil: 'Legg til frist',
   // Tabellen med fristene, én åpen rad om gangen (prototypen `#nytt-krav`).
-  kolonner: ['Nr.', 'Frist', 'I kontrakten', 'Dager'],
+  kolonner: ['Nr.', 'Frist', 'Gjeldende', 'Dager', 'Ny dato'],
   dagmulkt: DAGMULKT,
   dagmulktMerke: stor(DAGMULKT),
   endre: 'Endre',
   endreFrist: (navn: string) => `Endre ${navn}`,
   ferdig: 'Ferdig',
   dagerMangler: 'Ikke oppgitt',
-  /** Datoen i fristtabellen. Gjeldende frist med forlengelsene i andre saker venter på G-2 (U-2). */
-  iKontrakten: (d: string, dagmulkt: boolean) =>
-    `Datoen i kontrakten: ${dato(d)}.${dagmulkt ? ' Fristen er dagmulktbelagt.' : ''}`,
+  /** Etter forlengelsene i andre saker ved gjeldende frist (U-2, D-9, prototypen). */
+  iTillegg:
+    'Den nye datoen forutsetter at dagene du krever, kommer i tillegg til forlengelsen som er avtalt.',
+  /** Ny dato ved dagene, regnet fra gjeldende frist (U-1, D-9). */
+  nyDato: (d: string, dagmulkt: boolean) =>
+    `Ny dato: ${dato(d)}.${dagmulkt ? ' Fristen er dagmulktbelagt.' : ''}`,
   fristvalg: (navn: string, d: string, dagmulkt: boolean) =>
     `${navn} · ${dato(d)}${dagmulkt ? ` · ${DAGMULKT}` : ''}`,
   trukketMerk: (navn: string) =>
@@ -1481,8 +1484,8 @@ export const FRISTKRAV = {
   // U-4: snarveien for de senere fristene i kontrakten.
   snarvei: (d: string, senere: string[], kilde: string) =>
     `Krev også ${d} for ${liste(senere)}, som for ${kilde}`,
-  // U-5: fristene i tidslinja.
-  krevd: (d: string) => `krevd forlenget ${d}`,
+  // U-5: fristene i tidslinja, med datoen den nye datoen er regnet fra.
+  krevd: (d: string, fra: string | null) => `krevd forlenget ${d}${fra ? ` fra ${dato(fra)}` : ''}`,
   trekkHjelp:
     'En frist du tar ut, trekkes uttrykkelig. Brevet sier det, og fristen kan tas med igjen i en senere versjon.',
   // 3. Begrunnelsen.
