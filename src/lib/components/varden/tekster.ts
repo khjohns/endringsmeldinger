@@ -16,7 +16,15 @@ import type { Betegnelse } from '$kjerne/utledning/visning';
 import type { Kravpost, Oppgjoersform, Part, Spor, Standpunkt } from '$kjerne/typer';
 import { OPPGJOERSHJEMMEL } from '$kjerne/spor/vederlag/format';
 import type { Regel } from './kommandoer';
-import type { Brevet, Brevref, Forholdsordene, OppgittDato, Standpunktet } from './lesing';
+import {
+  forholdstilfellet,
+  type Brevet,
+  type Brevref,
+  type Forholdsordene,
+  type Forholdstilfelle,
+  type OppgittDato,
+  type Standpunktet,
+} from './lesing';
 import type { Innsigelsen, Svarlaget } from './svarlagene';
 
 export const SPORNAVN: Record<Spor, string> = {
@@ -282,6 +290,21 @@ export function standpunkttekst(
       return `${hvem} tar stilling til ${(s satisfies never as Standpunkt).art}`;
   }
 }
+
+/**
+ * Byggherrens standpunkt til forholdet i hvert tilfelle, med ordene brevet har (GR-U32, LV-U41,
+ * `STANDPUNKTENE_I_FORHOLDET` i kjernen), uten subjektet.
+ */
+const I_FORHOLDET: Record<Forholdstilfelle, string> = {
+  frafall: 'frafaller pålegget (punkt 32.3 første ledd c)',
+  endringsordre: 'er enig, og svaret er en endringsordre (punkt 32.3 første ledd a)',
+  enig_i_endring: 'er enig i at pålegget innebærer en endring',
+  har_risikoen: 'har risikoen for forholdet',
+  enig_31_3: 'er enig i at forholdet er en endringsordre (punkt 31.3)',
+  avslag_endringsordre: 'avslår kravet på endringsordre (punkt 32.3 første ledd b)',
+  har_ikke_risikoen: 'har ikke risikoen for forholdet',
+  avslag: 'avslår forholdet',
+};
 
 export const SKJEMA = {
   overskrift: 'Svar på kravet',
@@ -736,20 +759,13 @@ export const FORHOLDET = {
   oppdater: 'Oppdater påberopelse',
   /**
    * Hvor saken står, under tittelen på oversikten (oppdragsgiver 06.11, PR 1650), med kontraktens
-   * ord etter forholdet (GR-U32, LV-U41), som `standpunkt`.
+   * ord etter forholdet, som `standpunkt`.
    */
   utfall: (resultat: Forholdsresultat, d: string, f: Forholdsordene): string => {
-    const n = dato(d);
-    if (resultat === 'paalegg_frafalt') return `Byggherren frafalt pålegget ${n}.`;
-    if (resultat === 'avslaatt') {
-      if (f.varslingsplikt) return `Byggherren avslo kravet på endringsordre ${n}.`;
-      if (f.risiko) return `Byggherren svarte ${n} at byggherren ikke har risikoen for forholdet.`;
-      return `Byggherren avslo forholdet ${n}.`;
-    }
-    if (f.endringsordre) return `Byggherren ga endringsordre ${n}.`;
-    if (f.varslingsplikt) return `Byggherren var enig ${n} i at pålegget innebærer en endring.`;
-    if (f.risiko) return `Byggherren svarte ${n} at byggherren har risikoen for forholdet.`;
-    return `Byggherren var enig ${n} i at forholdet er en endringsordre.`;
+    const t = forholdstilfellet(resultat, f);
+    return t === 'endringsordre'
+      ? `Byggherren svarte ${dato(d)} med en endringsordre (punkt 32.3 første ledd a).`
+      : `Byggherren svarte ${dato(d)} og ${I_FORHOLDET[t]}.`;
   },
   venter: (d: string) => `Sendt til byggherren ${dato(d)}. Svar ikke registrert.`,
   /** BF-10 U-2: en annen hjemmel eller endringsordre går i en ny sak (GR-U22, OV-U57). */
@@ -789,7 +805,7 @@ export const FORHOLDET = {
   lagene: 'Standpunktene i svaret',
   /**
    * Byggherrens standpunkt i svaret på forholdet, som setning (språkfila: partene fullt ut), med
-   * kontraktens ord etter forholdet slik brevet har dem (GR-U32, LV-U41).
+   * kontraktens ord etter forholdet.
    */
   standpunkt: (s: Standpunkt, brev: Brevref | null, f: Forholdsordene): string => {
     const i = brev ? ` i ${brevref(brev)}` : '';
@@ -797,21 +813,7 @@ export const FORHOLDET = {
       return s.iTide
         ? `Byggherren godkjenner at varselet etter punkt ${s.hjemmel}${i} kom i tide.`
         : `Byggherren gjør gjeldende at varselet etter punkt ${s.hjemmel}${i} kom for sent.`;
-    if (s.art === 'forhold') {
-      if (s.resultat === 'paalegg_frafalt')
-        return 'Byggherren frafaller pålegget (punkt 32.3 første ledd c).';
-      if (s.resultat === 'avslaatt') {
-        if (f.varslingsplikt)
-          return 'Byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).';
-        if (f.risiko) return 'Byggherren har ikke risikoen for forholdet.';
-        return 'Byggherren avslår forholdet.';
-      }
-      if (f.endringsordre)
-        return 'Byggherren er enig, og svaret er en endringsordre (punkt 32.3 første ledd a).';
-      if (f.varslingsplikt) return 'Byggherren er enig i at pålegget innebærer en endring.';
-      if (f.risiko) return 'Byggherren har risikoen for forholdet.';
-      return 'Byggherren er enig i at forholdet er en endringsordre (punkt 31.3).';
-    }
+    if (s.art === 'forhold') return `Byggherren ${I_FORHOLDET[forholdstilfellet(s.resultat, f)]}.`;
     return `${standpunkttekst(s, false)}.`;
   },
   /** Antallet poster uten fast beløp ved summen (KA-U61, KA-U72; oppdragsgiver 12.11 i #1752). */

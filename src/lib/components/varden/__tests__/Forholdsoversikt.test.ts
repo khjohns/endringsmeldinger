@@ -101,7 +101,7 @@ describe('Siden for forholdet', () => {
     expect(tittel.previousElementSibling).toBeNull();
     expect(screen.queryByText('Endringer, jf. punkt 31 og 32')).toBeNull();
     expect(tittel.nextElementSibling?.textContent).toMatch(
-      /^Byggherren avslo kravet på endringsordre \d+\. \w+ 2026\.$/
+      /^Byggherren svarte \d+\. \w+ 2026 og avslår kravet på endringsordre \(punkt 32\.3 første ledd b\)\.$/
     );
   });
 

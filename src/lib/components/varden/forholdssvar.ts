@@ -13,6 +13,7 @@ import { harRisikoen } from '$kjerne/spor/forhold/tekst';
 import type { Krav } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { definert, svarbrevet } from './kommandoer';
+import { forholdstilfellet } from './lesing';
 
 /** Det BH har valgt i skjemaet. `null` er ikke besvart; ingenting er forhåndsvalgt. */
 export interface Forholdssvarvalg {
@@ -113,12 +114,21 @@ export function valgteksten(r: Forholdsresultat, f: Forholdet, forSent: boolean 
 
 /** Linjen i hovedlinjene for standpunktet til forholdet, i du-form (U-7). */
 export function forholdslinjen(r: Forholdsresultat, f: Forholdet, endringsordre: boolean): string {
-  if (r === 'paalegg_frafalt') return FORHOLDSSVAR.linjeFrafall;
-  if (f.risiko) return r === 'godkjent' ? FORHOLDSSVAR.harRisikoen : FORHOLDSSVAR.harIkkeRisikoen;
-  if (r === 'avslaatt')
-    return f.varslingsplikt ? FORHOLDSSVAR.linjeAvslag : FORHOLDSSVAR.linjeAvslaarForholdet;
-  if (endringsordre) return FORHOLDSSVAR.linjeEndringsordre;
-  return f.varslingsplikt ? FORHOLDSSVAR.linjeEnigIEndring : FORHOLDSSVAR.linjeEnig313;
+  const t = forholdstilfellet(r, {
+    endringsordre,
+    varslingsplikt: f.varslingsplikt,
+    risiko: f.risiko,
+  });
+  return {
+    frafall: FORHOLDSSVAR.linjeFrafall,
+    endringsordre: FORHOLDSSVAR.linjeEndringsordre,
+    enig_i_endring: FORHOLDSSVAR.linjeEnigIEndring,
+    har_risikoen: FORHOLDSSVAR.harRisikoen,
+    enig_31_3: FORHOLDSSVAR.linjeEnig313,
+    avslag_endringsordre: FORHOLDSSVAR.linjeAvslag,
+    har_ikke_risikoen: FORHOLDSSVAR.harIkkeRisikoen,
+    avslag: FORHOLDSSVAR.linjeAvslaarForholdet,
+  }[t];
 }
 
 export const FORHOLDSSVAR = {

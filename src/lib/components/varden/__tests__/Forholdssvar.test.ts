@@ -69,13 +69,15 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     expect(screen.getAllByRole('radio').filter((r) => (r as HTMLInputElement).checked)).toEqual([]);
   });
 
-  it('det tomme skjemaet har kjernens tittel for svaret, og ingen seksjon for begrunnelsen før brevet har punkter (#2035)', async () => {
+  it('det tomme skjemaet har kjernens tittel for svaret og forbeholdet, men ingen felt for begrunnelsen før brevet har punkter (#2035)', async () => {
     await svarskjemaet(medGrunnlag);
     // Tittelen er kjernens brevtittel for svaret (`SVARTITTEL` i `kjerne/frosset/brevtittel.ts`).
     expect(
       screen.getByRole('heading', { level: 2, name: 'Utkast · ikke sendt Svar på forholdet' })
     ).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Begrunnelse' })).not.toBeInTheDocument();
+    // Forbeholdet står også før brevet kan lages, så teksten ikke blir borte.
+    expect(screen.getByLabelText('Forbehold for hele svaret (valgfritt)')).toBeInTheDocument();
     await radio('Nei');
     await radio('Enig, endringsordre');
     expect(screen.getByRole('heading', { name: 'Begrunnelse' })).toBeInTheDocument();

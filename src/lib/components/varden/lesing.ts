@@ -14,6 +14,7 @@ import { betegnelsen, innholdIFristen } from '$kjerne/spor/frist/format';
 import { fasteBeloepIKravet, kravposterI, utenFastBeloep } from '$kjerne/spor/vederlag/format';
 import { tilTall } from '$kjerne/regler/beloep';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
+import type { Forholdsresultat } from '$kjerne/regler/typer';
 import type { TilbudtHandling } from '$kjerne/kommandoer/handlinger';
 import type {
   Avsnitt,
@@ -457,11 +458,32 @@ export interface Forholdsordene {
 
 export function forholdsordene(svar: Svar, u: Utledning): Forholdsordene {
   const krav = u.spor.forhold.krav.find((k) => k.id === svar.gjelder);
+  if (!krav) throw new Error(`Påberopelsen ${svar.gjelder} som svaret gjelder, er ikke i saken`);
   return {
     endringsordre: blirEndringsordre(svar.beslutningsgrunnlag),
     varslingsplikt: svar.beslutningsgrunnlag.varslingsplikt === true,
-    risiko: krav ? harRisikoen(krav) : false,
+    risiko: harRisikoen(krav),
   };
+}
+
+/** Tilfellet i brevteksten for standpunktet til forholdet, i samme rekkefølge som kjernen. */
+export type Forholdstilfelle =
+  | 'frafall'
+  | 'endringsordre'
+  | 'enig_i_endring'
+  | 'har_risikoen'
+  | 'enig_31_3'
+  | 'avslag_endringsordre'
+  | 'har_ikke_risikoen'
+  | 'avslag';
+
+export function forholdstilfellet(r: Forholdsresultat, f: Forholdsordene): Forholdstilfelle {
+  if (r === 'paalegg_frafalt') return 'frafall';
+  if (r === 'avslaatt')
+    return f.varslingsplikt ? 'avslag_endringsordre' : f.risiko ? 'har_ikke_risikoen' : 'avslag';
+  if (f.endringsordre) return 'endringsordre';
+  if (f.varslingsplikt) return 'enig_i_endring';
+  return f.risiko ? 'har_risikoen' : 'enig_31_3';
 }
 
 /** Innholdet i brevene om forholdet, etter brevets ID. Brev uten krav eller svar har ingen. */

@@ -265,9 +265,13 @@
 
         {@render spoersmaal(feil)}
 
-        <!-- Begrunnelsene står under punktene i brevet, så seksjonen vises når brevet har punkter. -->
-        {#if punktene.length}
-          <section class="begrunnelser" aria-labelledby={`${uid}-sp-begrunnelse`}>
+        <!-- Begrunnelsene står under punktene i brevet, så de vises når brevet har punkter.
+             Forbeholdet står alltid, så teksten ikke blir borte når brevet ikke kan lages. -->
+        <section
+          class="begrunnelser"
+          aria-labelledby={punktene.length ? `${uid}-sp-begrunnelse` : undefined}
+        >
+          {#if punktene.length}
             <h3 id={`${uid}-sp-begrunnelse`}>{SKJEMA.begrunnelse}</h3>
             <p class="dempet" id={`${uid}-begrunnelse-hjelp`}>{SKJEMA.begrunnelseHjelp}</p>
             {#if kreverPunktene.length > 1}
@@ -301,18 +305,18 @@
                 {#if bFeil}<p class="feilmelding" id={`${id}-feil`}>{bFeil}</p>{/if}
               </div>
             {/each}
-            <div class="begrunnelse forbehold">
-              <label for={`${uid}-forbehold`}>{SKJEMA.forbehold}</label>
-              <span class="dempet" id={`${uid}-forbehold-hjelp`}>{SKJEMA.forbeholdHjelp}</span>
-              <textarea
-                id={`${uid}-forbehold`}
-                rows="3"
-                bind:value={tekster.forbehold}
-                aria-describedby={`${uid}-forbehold-hjelp`}
-              ></textarea>
-            </div>
-          </section>
-        {/if}
+          {/if}
+          <div class="begrunnelse forbehold">
+            <label for={`${uid}-forbehold`}>{SKJEMA.forbehold}</label>
+            <span class="dempet" id={`${uid}-forbehold-hjelp`}>{SKJEMA.forbeholdHjelp}</span>
+            <textarea
+              id={`${uid}-forbehold`}
+              rows="3"
+              bind:value={tekster.forbehold}
+              aria-describedby={`${uid}-forbehold-hjelp`}
+            ></textarea>
+          </div>
+        </section>
       {/if}
 
       <div class="skjemafot">
@@ -389,7 +393,7 @@
     color: var(--ink-2);
   }
   /* Forbeholdet gjelder hele svaret og står sist i brevet, skilt fra punktene. */
-  .begrunnelse.forbehold {
+  .begrunnelse.forbehold:not(:first-child) {
     margin-top: var(--spacing-3);
     padding-top: var(--spacing-4);
     border-top: var(--rule);
