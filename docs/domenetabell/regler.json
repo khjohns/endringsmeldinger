@@ -1450,6 +1450,34 @@
       "dato": "2026-11-15",
       "ref": "../plans/vedtak.md#ov-u98",
       "radetikett": "OV-U98: Et brev sendt utenfor løsningen får virkning i løsningen bare når avsenderen legger det til som et varsel, et krav, et svar"
+    },
+    {
+      "id": "OV-U102",
+      "type": "vedtak",
+      "dato": "2026-11-15",
+      "ref": "../plans/vedtak.md#ov-u102",
+      "radetikett": "OV-U102: Et krav sendt før totalentreprenørens siste krav i sporet blir ikke gjeldende, men datoen det ble sendt, gjelder som"
+    },
+    {
+      "id": "OV-U103",
+      "type": "vedtak",
+      "dato": "2026-11-15",
+      "ref": "../plans/vedtak.md#ov-u103",
+      "radetikett": "OV-U103: Et svar sendt før byggherrens gjeldende svar på samme kravversjon blir ikke gjeldende og erstatter ikke det nyere"
+    },
+    {
+      "id": "OV-U104",
+      "type": "vedtak",
+      "dato": "2026-11-15",
+      "ref": "../plans/vedtak.md#ov-u104",
+      "radetikett": "OV-U104: I OV-U98 regnes «før» og «da det ble sendt» i hele kalenderdager. Et brev sendt samme dag som et annet er ikke sendt før"
+    },
+    {
+      "id": "OV-U105",
+      "type": "vedtak",
+      "dato": "2026-11-15",
+      "ref": "../plans/vedtak.md#ov-u105",
+      "radetikett": "OV-U105: Et svar byggherren har sendt utenfor løsningen og lagt til som svar med svarskjemaet etter OV-U80, har samme virkning"
     }
   ],
   "rader": [
