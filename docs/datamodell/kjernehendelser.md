@@ -26,8 +26,8 @@ Hver rad har kolonnen `format`. `data` har ingen `null`, ingen tom liste og inge
 | Spor | Innhold | Felt | Grunnlag |
 | --- | --- | --- | --- |
 | `forhold` | Byggherrens svar på en kravversjon av grunnlaget. `gjelder` er kravversjonen, `erstatter` svaret en revisjon erstatter. Grunnlaget har ingen utregning. | `id`, `spor`, `gjelder`, `erstatter`, `standpunkter`, `beslutningsgrunnlag` | KA-U1, MM-U9, designnotatet 4.2 og 4.3 |
-| `vederlag` | Byggherrens svar på en kravversjon av vederlaget, med serverens utregning. `grunnlagskrav` er grunnlagsversjonen svaret ble regnet mot. Om svaret er subsidiært til grunnlaget, leses av den og lagres ikke (#342). | `id`, `spor`, `gjelder`, `erstatter`, `paaberopelse`, `standpunkter`, `utregning`, `beslutningsgrunnlag` | B-13, MM-U9, HF-U1, GR-U1, GR-U4 |
-| `frist` | Byggherrens svar på en kravversjon av fristen, med serverens utregning. `grunnlagskrav` er grunnlagsversjonen svaret ble regnet mot (#342). | `id`, `spor`, `gjelder`, `erstatter`, `paaberopelse`, `standpunkter`, `utregning`, `beslutningsgrunnlag` | B-13, MM-U9, HF-U1, GR-U1, GR-U4 |
+| `vederlag` | Byggherrens svar på en kravversjon av vederlaget, med serverens utregning. `grunnlagskrav` er grunnlagsversjonen svaret ble regnet mot. Om svaret er subsidiært til grunnlaget, leses av den og lagres ikke (#342). `akseptfrist` er akseptfristen byggherren satte, en kalenderdag uten virkning i løsningen (HF-U23). | `id`, `spor`, `gjelder`, `erstatter`, `paaberopelse`, `akseptfrist`, `standpunkter`, `utregning`, `beslutningsgrunnlag` | B-13, MM-U9, HF-U1, GR-U1, GR-U4, HF-U23 |
+| `frist` | Byggherrens svar på en kravversjon av fristen, med serverens utregning. `grunnlagskrav` er grunnlagsversjonen svaret ble regnet mot (#342). `akseptfrist` er akseptfristen byggherren satte, en kalenderdag uten virkning i løsningen (HF-U23). | `id`, `spor`, `gjelder`, `erstatter`, `paaberopelse`, `akseptfrist`, `standpunkter`, `utregning`, `beslutningsgrunnlag` | B-13, MM-U9, HF-U1, GR-U1, GR-U4, HF-U23 |
 
 ## Standpunkter i et svar
 

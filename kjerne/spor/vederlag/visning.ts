@@ -6,7 +6,8 @@
 import { hjemmelenGjelder } from '../../frosset/byggeklosser.ts';
 import { postlisten, type Paaberopt, type Vederlagspost } from './frysing.ts';
 import { vurdertVedRegistreringen, type Utledning } from '../../utledning/utled.ts';
-import type { Sporsvisning } from '../../utledning/visning.ts';
+import type { Sporssenkning, Sporsvisning } from '../../utledning/visning.ts';
+import { beloepeneILagene, kravposterI } from './format.ts';
 import type { Part, Svar } from '../../typer.ts';
 import { lagFraForholdet } from '../forhold/frysing.ts';
 
@@ -54,6 +55,40 @@ export function vederlagssvaret(u: Utledning, svar: Svar): Vederlagssvaret {
   };
 }
 
+/**
+ * Laget der svaret godtar justeringen etter § 34.3.2 for hver kravpost, fra 1. En justering ingen
+ * innsigelse rammer, står i det første (OV-U32).
+ */
+function justeringenGodtattI(svar: Svar): Map<string, number> {
+  const virkning = new Map(
+    svar.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning])
+  );
+  return new Map(
+    svar.standpunkter.flatMap((s) => {
+      const v = virkning.get(s.id);
+      if (s.art !== 'justering' || !s.godtar || v === undefined || v === 'uten_virkning') return [];
+      return [[s.gjelder, v === 'upaavirket' ? 1 : v] as const];
+    })
+  );
+}
+
+/** HF-U29 punkt 8 i vederlaget, med HF-U31, HF-U32 og HF-U33. */
+const SENKNING_I_VEDERLAGET: Sporssenkning = {
+  godkjentILagene: (svar) => beloepeneILagene(svar.utregning),
+  // HF-U32, HF-U33: justeringen er ikke lenger godtatt, eller godtatt bare i et senere lag.
+  justeringIkkeGodtatt: (ny, tidligere) => {
+    const naa = justeringenGodtattI(ny);
+    return [...justeringenGodtattI(tidligere)].flatMap(([gjelder, lag]) =>
+      (naa.get(gjelder) ?? Infinity) > lag ? [gjelder] : []
+    );
+  },
+  // Punkt 34.3.3 annet ledd gjelder en kravpost med enhetspriser.
+  bestemmelse: (gjelder, krav) =>
+    kravposterI(krav).some((p) => gjelder.includes(p.id) && p.oppgjoersform === 'enhetspriser')
+      ? '34.3.3'
+      : null,
+};
+
 export const VISNING_I_VEDERLAGET = {
   // OV-U15: der TE krever endring, kreves det ikke varsel etter § 34.1.2 (§ 34.1.1).
   varseletikett: (u, regler) =>
@@ -64,4 +99,5 @@ export const VISNING_I_VEDERLAGET = {
   paaleggFrafalt: () => false,
   passivitetsetikett: () => null,
   kravetErEtterspurt: () => false,
+  senkning: SENKNING_I_VEDERLAGET,
 } satisfies Sporsvisning;

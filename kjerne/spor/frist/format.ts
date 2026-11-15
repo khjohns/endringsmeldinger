@@ -182,6 +182,14 @@ export const betegnelsen = (f: { nummer?: string | null; navn: string }): string
 export const utregningIFristen = (utregning: Record<string, unknown>): Fristutregning =>
   utregning as unknown as Fristutregning;
 
+/** Dagene byggherren godkjente for hver frist i svaret, ett tall per lag fra det første. */
+export const dageneILagene = (utregning: Record<string, unknown>): Map<string, number[]> =>
+  new Map(utregningIFristen(utregning).frister.map((f) => [f.gjelder, f.lag.map((l) => l.dager)]));
+
+/** Svaret godkjenner dager for en frist i et av lagene (HF-U23 punkt 1). */
+export const godkjennerDagerIEtLag = (utregning: Record<string, unknown>): boolean =>
+  [...dageneILagene(utregning).values()].some((lagene) => lagene.some((d) => d > 0));
+
 type Data = Record<string, unknown>;
 
 /** Raden for fristen `gjelder` i utregningen. */
