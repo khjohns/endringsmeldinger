@@ -42,7 +42,7 @@
         rader: rader.map((celler, r) => ({
           celler,
           post: postIRaden(k.poster, celler[0]),
-          sum: r === rader.length - 1 && celler[0] === 'Sum',
+          sum: r === rader.length - 1,
         })),
       };
     }

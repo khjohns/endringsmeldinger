@@ -586,7 +586,9 @@ export const HANDLINGENE = {
     // Et trukket forhold trekker kravene som bygger på det (GR-U5, GR-U25), og et trukket krav
     // kan ikke tas opp igjen (GR-U5).
     trekkForholdet: 'Trekker også kravene om vederlag og frist. Kan ikke tas opp igjen.',
-    trekkKravet:
+    trekkKravet: 'Kravet kan ikke tas opp igjen.',
+    /** Etter byggherrens svar gir trekket også avkall på det byggherren har godkjent (prototypen v3). */
+    trekkKravetEtterSvar:
       'Du gir avkall på hele kravet, også det byggherren har godkjent. Kravet kan ikke tas opp igjen.',
     /** Byggherrens nye svar (U-16 i BF-44). */
     nyttSvar: (svar: Brevref) =>
@@ -1513,7 +1515,7 @@ export const FRISTKRAV = {
     `Etter at den nye versjonen er sendt, kan svaret i ${brevref(svar)} ikke godtas, og byggherren er ikke lenger bundet av det.`,
 };
 
-/** Hva hver oppgjørsform heter i en tabellcelle, med hjemmelen etter OV-U75. */
+/** Hva hver oppgjørsform heter i en tabellcelle, med «pkt.» der hjemmelen står (OV-U75). */
 const OPPGJOERSFORMEN: Record<Oppgjoersform, string> = {
   tilbud: 'Tilbud om fast sum (pkt. 34.2.1)',
   enhetspriser: 'Enhetspriser (pkt. 34.3)',
@@ -1600,5 +1602,10 @@ export const VEDERLAGET = {
   akseptfrist: 'Akseptfrist:',
   /** Datoen TE oppgir, og avstanden til varselet, uten vurdering av fristen (U-8, MM-U12). */
   klarOver: (d: string, brev: Brevref, dager: number) =>
-    `Totalentreprenøren ble klar over forholdet ${dato(d)}, ifølge ${brevref(brev)}. Varselet i dette brevet kom ${dager} kalenderdager etter.`,
+    `Totalentreprenøren ble klar over forholdet ${dato(d)}, ifølge ${brevref(brev)}.` +
+    (dager < 0
+      ? ''
+      : dager === 0
+        ? ' Varselet i dette brevet kom samme dag.'
+        : ` Varselet i dette brevet kom ${dager} ${dager === 1 ? 'kalenderdag' : 'kalenderdager'} etter.`),
 };

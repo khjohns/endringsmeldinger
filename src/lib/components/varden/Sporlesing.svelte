@@ -194,7 +194,8 @@
     if (n === `godta:${spor}` && svarbrevet) return HANDLINGENE.virkning.godta(svarbrevet);
     if (n === 'trekke:forhold') return HANDLINGENE.virkning.trekkForholdet;
     if (n.startsWith('revidere:') && svarbrevet) return HANDLINGENE.virkning.nyttSvar(svarbrevet);
-    if (n.startsWith('trekke:')) return HANDLINGENE.virkning.trekkKravet;
+    if (n.startsWith('trekke:'))
+      return svaret ? HANDLINGENE.virkning.trekkKravetEtterSvar : HANDLINGENE.virkning.trekkKravet;
     if (n.startsWith('krav:')) {
       const krav = sporbrev.find((b) => b.id === u.spor[spor].gjeldendeKrav?.dokument) ?? null;
       if (kanGodta)

@@ -11,7 +11,7 @@ import { etikett, plassene } from '$kjerne/frosset/byggeklosser';
 import { cellene, OVERSIKTEN } from '$kjerne/frosset/tekst';
 import { beloep, tilTall, type Oere } from '$kjerne/regler/beloep';
 import {
-  utregningIVederlaget,
+  beloepeneILagene,
   krevdIKravposten,
   krevdProduktivitet,
   krevdSamlet,
@@ -118,22 +118,17 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
   const grunnbrev = g ? brev(g.dokument) : null;
   const plass = plassene(svar, svar.beslutningsgrunnlag.virkninger, grunner.length);
   // Laget i sporet er laget i brevet uten grunnene fra forholdet foran (OV-U73, HF-U34).
-  const poster = utregningIVederlaget(svar.utregning).poster;
-  const sporlag = Math.max(0, ...poster.flatMap((p) => p.lag.map((l) => l.lag)));
-  // I et lag står postens siste beløp i laget eller før, og 0 kr før det første, som i tabellen
-  // i brevet (OV-U73, LV-U33). Summen regnes i hele øre (B-13, OV-U59).
+  const iLagene = [...beloepeneILagene(svar.utregning).values()];
+  const sporlag = Math.max(0, ...iLagene.map((l) => l.length));
+  // I et lag står postens siste beløp i laget eller før, også over et lag uten beløp (KA-U72), og
+  // 0 kr før det første, som i tabellen i brevet (OV-U73, LV-U33). Summen regnes i hele øre.
   const iLaget = (lag: number) =>
     somTall(
-      poster.reduce(
-        (sum, p) =>
-          sum +
-          (beloep(p.lag.findLast((l) => l.lag <= lag && l.beloep !== undefined)?.beloep ?? 0) ??
-            0n),
+      iLagene.reduce(
+        (sum, l) => sum + (beloep(l.slice(0, lag).findLast((x) => x !== null) ?? 0) ?? 0n),
         0n
       )
     );
-  // Etikettene er de brevet gir lagene (OV-U32, `plassene`).
-  const ordnet = plass.grunn(0).etikett !== null;
   const antall = Math.max(
     grunner.length + sporlag,
     ...svar.standpunkter.map((x) => plass.standpunkt(x.id).lag ?? 0)
@@ -147,7 +142,7 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
     const iSporet = lag - grunner.length;
     return {
       lag,
-      etikett: ordnet ? etikett(lag) : null,
+      etikett: antall > 1 ? etikett(lag) : null,
       beloep: iSporet < 1 ? null : iLaget(iSporet),
       vilkaar: [],
       grunner: iSporet < 1 && grunnbrev ? [{ grunn: grunner[i]!, brev: grunnbrev }] : [],
