@@ -540,21 +540,10 @@ describe('linja i sakslisten (#1022)', () => {
     });
   });
 
-  it('en sak med et registrert brev har brev utenfor appen, som tillegget i OV-U10', () => {
+  // Et krav lagt til med kravskjemaet har virkning og er ikke et slikt brev (OV-U80, OV-U98).
+  it('en sak med et brev lagt til som dokumentasjon har brev utenfor appen, som tillegget i OV-U10', () => {
     expect(linje(fullGodkjenning).brev_utenfor_appen).toBe(false);
-    const l = linje((sak) =>
-      sak.registrer({
-        krav: [
-          {
-            id: randomUUID(),
-            spor: 'forhold',
-            hovedkategori: 'endring',
-            underkategori: 'irregulaer_endring',
-          },
-        ],
-        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
-      })
-    );
+    const l = linje((sak) => sak.registrer(brevSomDokumentasjon('2026-09-30')));
     expect(l.forstaatt).toBe(true);
     expect(l.brev_utenfor_appen).toBe(true);
   });

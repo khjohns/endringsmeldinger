@@ -125,6 +125,18 @@ export function datoFor(
   return dato.find((o) => o.gjelder === varsel.id) ?? dato.find((o) => o.gjelder === undefined);
 }
 
+/**
+ * OV-U98: dagen elementet i dokumentet `d` ble sendt: datoen avsenderen oppgir, ellers dagen
+ * dokumentet ble registrert. `null` når den oppgitte datoen ikke kan leses.
+ */
+export function dagenSendt(
+  element: { id: string; dokument: string },
+  d: Pick<Dokument, 'opplysninger' | 'registrert'>
+): string | null {
+  const sendt = datoFor(element, 'sendt', d.opplysninger);
+  return sendt ? kalenderdag(sendt.dato) : registrertDato(d);
+}
+
 /** MM-U7: en dato bestrides som sendt eller mottatt, opplysningen om § 31.3 som det den er. */
 export const sammeSlag = (opplysning: string, bestridelse: string): boolean =>
   opplysning === 'sendt' || opplysning === 'mottatt'

@@ -9,7 +9,13 @@ import { erKalenderdato, feilI, objekt, tekst } from '../../format/skjema.ts';
 import { kalenderdag } from '../../format/leser.ts';
 import { norskDato } from '../../frosset/brevdeler.ts';
 import { gjelderVarslingsplikten } from '../../frosset/byggeklosser.ts';
-import { datoenDetBleSendt, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
+import {
+  datoenDetBleSendt,
+  kravSomVarsler,
+  varseletFoerSvaret,
+  varseletForNyttSvar,
+  type Utledning,
+} from '../../utledning/utled.ts';
 import { avvis, type Avvisning, type Krav, type OppgittDatofelt } from '../../typer.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
 import type { Innhold, Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
@@ -169,13 +175,17 @@ export function kontrollerKorrigering(
  * påberopelsen. Forutsetningene har alt krevd at påberopelsen er sendt.
  */
 export function varseletEtter322(sendt: string, u: Utledning, regler: Regelsett): Avvisning | null {
-  const [foerste] = u.spor.forhold.krav;
   if (!gjelderVarslingsplikten(u.spor.forhold.gjeldendeKrav, regler))
     return avvis(
       'VARSLINGSPLIKT_GJELDER_IKKE',
       'Varslingsplikten etter punkt 32.2 gjelder ikke forholdet som er påberopt, så det er ikke noe varsel etter punkt 32.2 å registrere.'
     );
-  const paaberopelsen = foerste ? datoenDetBleSendt(u, foerste) : null;
+  // OV-U102: et krav utenfor rekken kan gi datoen påberopelsen først ble sendt.
+  const dagen = (k: Pick<Krav, 'id' | 'dokument'>) => datoenDetBleSendt(u, k);
+  const krav = kravSomVarsler('32.2', u.spor.forhold, () => true);
+  const id = varseletFoerSvaret('32.2', [], krav, () => true, dagen);
+  const foerst = krav.find((k) => k.id === id);
+  const paaberopelsen = foerst ? dagen(foerst) : null;
   const dag = kalenderdag(sendt);
   if (paaberopelsen === null || dag === null)
     return avvis(

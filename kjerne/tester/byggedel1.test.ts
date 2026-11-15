@@ -366,7 +366,7 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
     },
   ];
 
-  it('et registrert svar regnet mot den er dokumentasjon, og saken er forstått (OV-U4)', async () => {
+  it('et svar lagt til og regnet mot den gjelder som et svar fra løsningen, og saken er forstått (OV-U80, OV-U98)', async () => {
     const bane = minnebane();
     const k = await bygg(bane, [
       ...foer,
@@ -385,8 +385,8 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
     ]);
     const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
     expect(u.forstaatt).toBe(true);
-    expect(u.spor.forhold.gjeldendeKrav?.id).toBe(k.navn.id('K-g1'));
-    expect(u.spor.vederlag.gjeldendeSvar).toBeNull();
+    expect(u.spor.forhold.gjeldendeKrav?.id).toBe(k.navn.id('K-g2'));
+    expect(u.spor.vederlag.gjeldendeSvar?.id).toBe(k.navn.id('S-v1'));
     expect(u.utenVirkning).toEqual([]);
   });
 
@@ -448,11 +448,13 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
     expect(forstaatt(await lest.journal())).toBe(true);
   });
 
-  // En registrert passivitet er dokumentasjon uten virkning (OV-U4), så passiviteten er sendt herfra.
+  // En registrert passivitet er dokumentasjon (OV-U98), så passiviteten er sendt herfra. Kravet er
+  // sendt før grunnlagskravet og står utenfor rekken (OV-U102).
   it('en påberopt passivitet sendt herfra mot den er forstått', async () => {
     const bane = minnebane();
     await bygg(bane, [
-      ...foer,
+      ...foer.slice(0, 2),
+      { ...(foer[2] as { handling: string }), sendt: '2026-09-19' },
       { handling: 'rad', art: 'passivitet', gjelder: 'K-g2', part: 'TE', navn: 'D5' },
     ]);
     expect(forstaatt(await bane.journal())).toBe(true);

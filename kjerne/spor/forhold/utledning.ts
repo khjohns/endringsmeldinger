@@ -147,17 +147,9 @@ const frafaller = (s: Svar): boolean =>
   prinsipalt(s.beslutningsgrunnlag.virkninger)?.art === 'forhold' &&
   standpunktet(s, 'forhold')?.resultat === 'paalegg_frafalt';
 
-/**
- * OV-U4, OV-U6: et registrert svar er dokumentasjon, og et registrert svar med virkning er
- * byggherrens endringsordre, ikke et frafall fra appen (GR-U23).
- */
-const sendtFraAppen = (u: Pick<Utledning, 'elementer'>, s: Svar): boolean =>
-  !u.elementer[s.dokument]?.registrertBrev;
-
 /** Virkningen av svaret på forholdet: om forholdet er avklart, avvist eller frafalt, og om svaret er en endringsordre. */
 export function forholdssvaretsVirkning(
   spor: Record<Spor, Sporutledning>,
-  elementer: Record<string, Element>,
   svar: Record<string, Svarberegning>,
   dokumenter: Map<string, Dokument>
 ): Pick<Utledning, 'forholdAvklart' | 'forholdAvvist' | 'endringsordre' | 'frafalt'> {
@@ -165,17 +157,16 @@ export function forholdssvaretsVirkning(
   const eg = spor.forhold.enighet;
   const gBrev = gSvar ? svar[gSvar.id] : null;
   // GR-U23: venter en ny påberopelsesversjon på svar etter et frafall, er forholdet avklart
-  // ved frafallet til byggherren svarer. Det siste svaret sendt fra appen leses, så et
-  // frafall byggherren senere har revidert til avslag, avklarer ikke (MM-U34 punkt 7). Et
-  // svar byggherren har registrert, også en endringsordre etter OV-U6, tar ikke bort
-  // frafallet (GR-U20, OV-U4, OV-U6, #1388).
-  const sisteFraAppen = spor.forhold.svar.filter((s) => sendtFraAppen({ elementer }, s)).at(-1);
+  // ved frafallet til byggherren svarer. Det siste svaret leses, så et frafall byggherren
+  // senere har revidert til avslag, avklarer ikke (MM-U34 punkt 7). Et registrert svar har
+  // samme virkning som et svar sendt fra løsningen (OV-U80, OV-U98).
+  const sisteSvar = spor.forhold.svar.at(-1);
   const venterEtterFrafall =
     !spor.forhold.trukket &&
     gSvar === null &&
     spor.forhold.gjeldendeKrav !== null &&
-    sisteFraAppen !== undefined &&
-    frafaller(sisteFraAppen);
+    sisteSvar !== undefined &&
+    frafaller(sisteSvar);
   return {
     // Utledet av standpunktene i brevet om forholdet, som også er innholdet i en
     // enighet om det (KA-U10, MM-U11, MM-U50).

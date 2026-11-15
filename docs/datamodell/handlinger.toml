@@ -200,9 +200,9 @@ naar = "Nå. Omveien, å sende på nytt fra løsningen, gir ny dato."
 tilstander = "Som handlingen registreringen er en form av."
 status = "naa"
 noekler = ["varsle:vederlag", "varsle:frist", "varsle:32.2", "varsle:34.1.3", "varsle:34.3.3", "varsle:34.4"]
-kommandoer = ["varsel"]
+kommandoer = ["varsel", "krav", "brev", "revisjon", "aksept"]
 skjema = ["varsle:frist"]
-mangler = "Kommandoene i kjernen for registrert krav, svar, endringsordre, aksept og forespørsel, og skjemaene i Varden. Varselet etter 32.2 godtas, men tilbys ikke (K3)."
+mangler = "Kommandoen i kjernen for registrert forespørsel, og skjemaene i Varden. Et registrert svar på en eldre kravversjon avvises fortsatt av kommandoen (#2011). Varselet etter 32.2 godtas, men tilbys ikke (K3)."
 
 [[handling]]
 id = "U7"

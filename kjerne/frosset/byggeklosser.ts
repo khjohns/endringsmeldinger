@@ -8,7 +8,6 @@ import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
   utenGren,
-  type Dokument,
   type Enighetsgrunnlag,
   type Hjemmel,
   type Krav,
@@ -20,7 +19,6 @@ import {
   type Virkning,
 } from '../typer.ts';
 import type { Foresporselsrelasjon } from '../spor/frist/frysing.ts';
-import { erRegistrert } from '../format/leser.ts';
 import { kategori } from '../spor/forhold/format.ts';
 
 /** Det i et svar virkningene regnes av: sporet, standpunktene og serverens utregning. */
@@ -229,10 +227,3 @@ export function virkningerIForholdetOgFristen(
   }
   return ut;
 }
-
-/**
- * OV-U4: kravene i et registrert brev er dokumentasjon og får ingen virkning. Utledningen
- * og `innsigelsenPaaberoper` leser regelen herfra (#787).
- */
-export const kravetErDokumentasjon = (d: Pick<Dokument, 'opplysninger'>): boolean =>
-  erRegistrert(d.opplysninger);
