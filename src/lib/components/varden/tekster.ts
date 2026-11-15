@@ -330,8 +330,31 @@ function iSvaretPaaForholdet(
 const utsagnet = ([verb, resten]: Utsagnet) => `${verb} ${resten}`;
 
 /** Utsagnet i en rad med laget først, som «subsidiært er byggherren enig …», uten punktum. */
-const iLaget = (lag: string | null, u: Utsagnet) =>
+const medLaget = (lag: string | null, u: Utsagnet) =>
   lag ? `${lag} ${u[0]} byggherren ${u[1]}` : `byggherren ${utsagnet(u)}`;
+
+/**
+ * Radene i svaret på forholdet som statuslinjen og roten i «Tilknyttede krav» sier: med en
+ * innsigelse om varselet alle lagene slik brevet ga dem (oppdragsgiver 15.11 i #2038: «B»), ellers
+ * bare standpunktet til forholdet.
+ */
+function radeneSomSies(rader: Innlegget['standpunkter']): Innlegget['standpunkter'] {
+  const begge = rader.some(
+    (r) => r.lag || (r.standpunkt.art === 'rettidighet' && !r.standpunkt.iTide)
+  );
+  return begge ? rader : rader.filter((r) => r.standpunkt.art === 'forhold');
+}
+
+/**
+ * Hver rad som en setning uten punktum. Den første står uten «prinsipalt», fordi resten sier
+ * laget sitt.
+ */
+const setningene = (rader: Innlegget['standpunkter']): string[] =>
+  radeneSomSies(rader).map((r, i) => {
+    const u = iSvaretPaaForholdet(r.standpunkt, null, r.ordene);
+    if (!u) return standpunkttekst(r.standpunkt, false);
+    return medLaget(i === 0 && r.lag === 'prinsipalt' ? null : r.lag, u);
+  });
 
 export const SKJEMA = {
   overskrift: 'Svar på kravet',
@@ -764,12 +787,11 @@ export const FORHOLDET = {
   /** En frist byggherrens svar ikke har dager for (KA-U74). */
   ikkeISvaret: 'Ikke i svaret',
   /** Forholdet med standpunktet i svaret, med ordene i statuslinjen og tråden (#2040). */
-  forholdsrot: (
-    navn: string,
-    svar: { rad: Innlegget['standpunkter'][number]; brev: Brevref } | null
-  ) => {
-    const u = svar && iSvaretPaaForholdet(svar.rad.standpunkt, null, svar.rad.ordene);
-    return svar && u ? `${navn} · ${brevrefStor(svar.brev)}: ${iLaget(svar.rad.lag, u)}` : navn;
+  forholdsrot: (navn: string, svar: { rader: Innlegget['standpunkter']; brev: Brevref } | null) => {
+    const s = svar ? setningene(svar.rader) : [];
+    return svar && s.length
+      ? `${navn} · ${brevrefStor(svar.brev)}: ${s.map((x, i) => (i ? stor(x) : x)).join('. ')}`
+      : navn;
   },
   /** Hvorfor svaret er subsidiært til forholdet (vedtaket 05.10), som vilkår. */
   gjelderHvis: (grunner: Subsidiaergrunn[]) =>
@@ -790,12 +812,7 @@ export const FORHOLDET = {
    * ord etter forholdet, som `standpunkt`.
    */
   utfall: (rader: Innlegget['standpunkter'], d: string): string => {
-    // Med en innsigelse om varselet står lagene slik brevet ga dem (oppdragsgiver 15.11 i #2038:
-    // «B»). Ellers bare standpunktet til forholdet.
-    const begge = rader.some(
-      (r) => r.lag || (r.standpunkt.art === 'rettidighet' && !r.standpunkt.iTide)
-    );
-    const med = begge ? rader : rader.filter((r) => r.standpunkt.art === 'forhold');
+    const med = radeneSomSies(rader);
     const svarte = `Byggherren svarte ${dato(d)}`;
     // Den første linja står etter «svarte» når den ikke er subsidiær; ellers står hver linje for seg.
     const foerste = med[0];
@@ -810,7 +827,7 @@ export const FORHOLDET = {
           : `${svarte} og ${utsagnet(u)}.`;
       }
       if (!u) return `${standpunkttekst(r.standpunkt, false)}.`;
-      return `${stor(iLaget(r.lag, u))}.`;
+      return `${stor(medLaget(r.lag, u))}.`;
     });
     return iStarten ? setninger.join(' ') : [`${svarte}.`, ...setninger].join(' ');
   },

@@ -54,12 +54,8 @@
   const forholdssvaret = $derived.by(() => {
     const s = u.spor.forhold.gjeldendeSvar;
     const b = s && brevet(u, s.dokument);
-    const rad =
-      s &&
-      innleggene(u)
-        .get(s.dokument)
-        ?.standpunkter.find((x) => x.standpunkt.art === 'forhold');
-    return rad && b ? { rad, brev: b } : null;
+    const rader = s && innleggene(u).get(s.dokument)?.standpunkter;
+    return rader && b ? { rader, brev: b } : null;
   });
   const rot = $derived(
     FORHOLDET.forholdsrot(forholdetISaken(u)?.navn ?? FORHOLDET.utenNavn, forholdssvaret)

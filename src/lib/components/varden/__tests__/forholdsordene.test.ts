@@ -105,10 +105,10 @@ describe('ordene for standpunktet til forholdet (GR-U32, LV-U41)', () => {
     expect(FORHOLDET.utfall(linjer, '2026-11-15T10:00:00Z')).toBe(
       'Byggherren svarte 15. november 2026 og gjør gjeldende at varselet etter punkt 32.2 kom for sent. Subsidiært er byggherren enig i at pålegget innebærer en endring.'
     );
-    // Roten i «Tilknyttede krav» har de samme ordene, med laget (#2040).
+    // Roten i «Tilknyttede krav» har de samme ordene og begge lagene (#2040).
     expect(
       FORHOLDET.forholdsrot('Irregulær endring', {
-        rad: linjer[1],
+        rader: linjer,
         brev: {
           id: 'b3',
           nummer: 3,
@@ -118,7 +118,7 @@ describe('ordene for standpunktet til forholdet (GR-U32, LV-U41)', () => {
         },
       })
     ).toBe(
-      'Irregulær endring · Brev 3: subsidiært er byggherren enig i at pålegget innebærer en endring'
+      'Irregulær endring · Brev 3: byggherren gjør gjeldende at varselet etter punkt 32.2 kom for sent. Subsidiært er byggherren enig i at pålegget innebærer en endring'
     );
     // Står den subsidiære linja først, står den ikke som et standpunkt uten forbehold.
     expect(FORHOLDET.utfall([linjer[1], linjer[0]], '2026-11-15T10:00:00Z')).toBe(
