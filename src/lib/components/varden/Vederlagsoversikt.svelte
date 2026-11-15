@@ -5,39 +5,32 @@
   samme som på siden for forholdet (#1898).
 -->
 <script lang="ts">
-  import type { Snippet } from 'svelte';
-  import type { Utledning } from '$kjerne/utledning/utled';
   import Brevtraad from './Brevtraad.svelte';
   import KravetOgSvaret from './KravetOgSvaret.svelte';
-  import { brevITraaden, brevene, klarOverForholdet, oppfoelgingene, type Brevet } from './lesing';
+  import {
+    brevITraaden,
+    brevene,
+    klarOverForholdet,
+    oppfoelgingene,
+    type Brevet,
+    type Sideprops,
+  } from './lesing';
   import { VEDERLAGET, dato, kalenderdager } from './tekster';
   import { varseletFoerKravet } from '$lib/kjernesak/vederlagskrav';
-  import { akseptfristen, kravbeloepene, kravetOgSvaret } from './vederlagsoversikt';
+  import { kravbeloepene, kravetOgSvaret } from './vederlagsoversikt';
+  import { akseptfristen } from './svarlagene';
 
   let {
     u,
-    venterPaaSvar,
+    betegnelser,
     vist = null,
     smal = false,
     onles,
-    onforholdet,
+    onspor,
     handlingVed = null,
     handling,
     brevet,
-  }: {
-    u: Utledning;
-    /** Sporets betegnelse er «Svar ikke registrert» (MM-U30). */
-    venterPaaSvar: boolean;
-    /** Brevet som vises ved siden av tråden, eller i raden når `smal`. */
-    vist?: string | null;
-    smal?: boolean;
-    onles: (id: string) => void;
-    onforholdet?: () => void;
-    /** Brevet handlingen svarer på (U-16). */
-    handlingVed?: string | null;
-    handling?: Snippet;
-    brevet?: Snippet<[Brevet]>;
-  } = $props();
+  }: Sideprops = $props();
   const uid = $props.id();
 
   const alle = $derived(brevene(u));
@@ -80,7 +73,7 @@
     spor="vederlag"
     fulgtOpp={oppfoelgingene(u, alle)}
     dokumentasjon={u.ikkeVurderteBrev}
-    {venterPaaSvar}
+    venterPaaSvar={betegnelser.vederlag === 'venter_paa_svar'}
     oeverst={beloepet}
     nederst={fristen}
     {vist}
@@ -92,7 +85,7 @@
   />
 </section>
 
-{#if k}<KravetOgSvaret {k} {u} {alle} {onforholdet} />{/if}
+{#if k}<KravetOgSvaret {k} {u} {alle} onforholdet={onspor && (() => onspor('forhold'))} />{/if}
 
 <style>
   .kort {

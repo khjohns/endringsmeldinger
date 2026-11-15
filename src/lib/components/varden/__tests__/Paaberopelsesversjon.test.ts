@@ -44,17 +44,12 @@ async function vis(
   });
   await kjernesak.last();
   render(Vardensak, { kjernesak, spor, nySakLenke });
-  // På sidene for forholdet og vederlaget står handlingen ved brevet og resten under «Andre
-  // handlinger» (U-16 i BF-44, #1898, #1906), så forventningene gjelder hele arbeidet.
-  if (spor !== 'frist') {
-    await screen.findByRole('list', {
-      name: spor === 'forhold' ? 'Brevene i saken, nyeste først' : 'Brevene, nyeste først',
-    });
-    return within(screen.getByRole('main'));
-  }
-  return within(
-    (await screen.findByRole('heading', { name: 'Det du kan gjøre nå' })).closest('section')!
-  );
+  // På sidene for sporene står handlingen ved brevet og resten under «Andre handlinger» (U-16 i
+  // BF-44, U-6 i BF-45, #1898, #1906, #1927), så forventningene gjelder hele arbeidet.
+  await screen.findByRole('list', {
+    name: spor === 'forhold' ? 'Brevene i saken, nyeste først' : 'Brevene, nyeste først',
+  });
+  return within(screen.getByRole('main'));
 }
 
 const tilForholdet = async () =>

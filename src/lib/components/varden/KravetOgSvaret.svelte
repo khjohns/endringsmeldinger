@@ -9,6 +9,7 @@
   import { kroner } from '$kjerne/frosset/tekst';
   import { stor } from '$kjerne/frosset/brevdeler';
   import Knapp from './Knapp.svelte';
+  import Maalrad from './Maalrad.svelte';
   import Melding from './Melding.svelte';
   import { VEDERLAGET } from './tekster';
   import { postIRaden, trinnene, type KravetOgSvaret } from './vederlagsoversikt';
@@ -82,13 +83,13 @@
     {#if k.krevd !== null}
       <div class="maalestokk" style:--steg={trinn.length > 1 ? andel(trinn[1]) : '100%'}>
         <div>
-          <div class="lagrad">
-            <span class="navn">{VEDERLAGET.krever}</span><b class="belop">{kroner(k.krevd)}</b>
-          </div>
-          <div class="maal aapen" aria-hidden="true"></div>
-          <div class="trinn" aria-hidden="true">
-            {#each trinn as t (t)}<span>{t.toLocaleString('nb-NO')}</span>{/each}
-          </div>
+          <Maalrad
+            navn={VEDERLAGET.krever}
+            verdi={kroner(k.krevd)}
+            andel={andel(k.krevd)}
+            aapen
+            {trinn}
+          />
         </div>
         {#if k.lagene.length}
           <p class="lagtittel" id={`${uid}-lag`}>{VEDERLAGET.godkjenner}</p>
@@ -96,13 +97,12 @@
             {#each k.lagene as l (l.lag)}
               {@const tekst = VEDERLAGET.laget(l)}
               <li>
-                <div class="lagrad">
-                  <span class="navn">{l.etikett ? stor(l.etikett) : VEDERLAGET.godkjenner}</span>
-                  {#if l.beloep !== null}<b class="belop">{kroner(l.beloep)}</b>{/if}
-                </div>
-                {#if l.beloep !== null}
-                  <div class="maal" aria-hidden="true"><i style:width={andel(l.beloep)}></i></div>
-                {/if}
+                <Maalrad
+                  navn={l.etikett ? stor(l.etikett) : VEDERLAGET.godkjenner}
+                  verdi={l.beloep === null ? null : kroner(l.beloep)}
+                  andel={l.beloep === null ? null : andel(l.beloep)}
+                  sterk={false}
+                />
                 {#if tekst}<p>{tekst}</p>{/if}
               </li>
             {/each}
@@ -239,56 +239,6 @@
     gap: var(--spacing-4);
     margin-top: var(--spacing-1);
   }
-  .lagrad {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 var(--spacing-4);
-    align-items: baseline;
-    justify-content: space-between;
-  }
-  .lagrad .navn {
-    font-size: 14px;
-    font-weight: 600;
-  }
-  .lagrad .belop {
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-  }
-  .maal {
-    position: relative;
-    height: 8px;
-    margin-top: 6px;
-    border: 1px solid var(--rule-strong-color);
-    background: var(--surface)
-      linear-gradient(to right, var(--rule-strong-color) 1px, transparent 1px) 0 0 / var(--steg)
-      100%;
-  }
-  .maal i {
-    position: absolute;
-    inset: -1px auto -1px -1px;
-    min-width: 2px;
-    background: var(--ink);
-  }
-  .maal.aapen {
-    border-color: var(--ink);
-    background-image: linear-gradient(to right, var(--ink) 1px, transparent 1px);
-  }
-  .trinn {
-    display: flex;
-    margin-top: var(--spacing-1);
-    font-size: 12px;
-    color: var(--ink-3);
-    white-space: nowrap;
-  }
-  .trinn span {
-    flex: 0 0 var(--steg);
-  }
-  .trinn span:last-child {
-    flex: 1 1 0;
-  }
   .lagtittel {
     padding-top: var(--spacing-3);
     border-top: var(--rule-subtle);
@@ -298,9 +248,6 @@
   .lagene {
     display: grid;
     gap: var(--spacing-4);
-  }
-  .lagene .navn {
-    font-weight: 500;
   }
   .lagene p,
   .gap,

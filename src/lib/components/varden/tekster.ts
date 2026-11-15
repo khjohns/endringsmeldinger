@@ -16,7 +16,7 @@ import type { Kravpost, Oppgjoersform, Part, Spor, Standpunkt } from '$kjerne/ty
 import { OPPGJOERSHJEMMEL } from '$kjerne/spor/vederlag/format';
 import type { Regel } from './kommandoer';
 import type { Brevet, Brevref, OppgittDato, Standpunktet } from './lesing';
-import type { Innsigelsen, Laget } from './vederlagsoversikt';
+import type { Innsigelsen, Svarlaget } from './svarlagene';
 
 export const SPORNAVN: Record<Spor, string> = {
   forhold: 'Forholdet',
@@ -530,6 +530,8 @@ export const BREVTYPER: { type: string; tekst: string }[] = [
   { type: 'sende_varsel', tekst: 'Send varsel' },
   { type: 'varsle', tekst: 'Registrer et varsel som er sendt på annen måte' },
   { type: 'svare_paa_foresporsel', tekst: 'Svar på forespørselen om dagene' },
+  // Forsering etter punkt 33.8 er ikke en handling i kjernen (U-6 i BF-45, OV-U2, svar 3 A).
+  { type: 'forsering', tekst: 'Anse avslaget som pålegg om forsering' },
   { type: 'trekke', tekst: 'Trekk kravet' },
   // Står ved datoen, ikke i «Andre handlinger» (skissen i BF-02A, #1615).
   { type: 'korrigere', tekst: 'Korriger datoen' },
@@ -641,6 +643,8 @@ export const TIDSLINJE = {
       return spor.includes('forhold') ? 'Trekk av påberopelsen' : `Trekk av ${om(SAKSDELEN)}`;
     if (b.art === 'aksept' && spor.length) return `Godtar svaret på ${om(SAKSDELEN)}`;
     if (b.art === 'innsigelse') return 'Innsigelse';
+    // Brevet med varselet har ingen frossen tittel (BF-45 U-8).
+    if (b.art === 'varsel' && spor.length) return `Varsel om ${om(KRAVET)}`;
     return brevtittel(b);
   },
   sendt: (part: Part, b: Brevref) => `${brevrefStor(b)} sendt av ${part}`,
@@ -1539,7 +1543,9 @@ export const VEDERLAGET = {
   innsigelsen: (i: Innsigelsen) =>
     i.art === 'grunn'
       ? SKJEMA.grunnen(i.grunn, i.brev)
-      : `innsigelsen om varselet etter punkt ${i.hjemmel}`,
+      : i.art === 'varsel'
+        ? `innsigelsen om varselet etter punkt ${i.hjemmel}`
+        : `innsigelsen om ${i.art === 'spesifisering' ? 'spesifiseringen' : 'hindringen'}`,
   /** Vilkåret ved beløpet i et lag: «Hvis innsigelsen … ikke fører frem» (U-2, LV-U4 punkt 4). */
   vilkaar: (innsigelser: string[], heller: boolean) =>
     heller
@@ -1554,7 +1560,7 @@ export const VEDERLAGET = {
           : '')
       : standpunkttekst(s, false),
   /** Vilkåret og det laget bygger på, i én setning ved beløpet (U-2). */
-  laget: (l: Laget): string => {
+  laget: (l: Svarlaget): string => {
     const grunnlag = [
       ...l.grunner.map((g) => grunntekst(g.grunn, false, g.brev)),
       ...l.standpunkter.map((s) => VEDERLAGET.standpunkt(s.standpunkt, s.brev)),
@@ -1608,4 +1614,84 @@ export const VEDERLAGET = {
       : dager === 0
         ? ' Varselet i dette brevet kom samme dag.'
         : ` Varselet i dette brevet kom ${dager} ${dager === 1 ? 'kalenderdag' : 'kalenderdager'} etter.`),
+};
+
+/** Datoen uten året når året er det samme som i `ved`: «16. august» ved siden av «26. august 2027». */
+const datoUtenAar = (d: string, ved: string) =>
+  d.slice(0, 4) === ved.slice(0, 4) ? dato(d).replace(/ \d{4}$/, '') : dato(d);
+
+/** Siden for fristforlengelsen (BF-45, prototypen `fristoversikt.html` v2, oppsett B). */
+export const FRISTEN = {
+  tittel: 'Fristforlengelse',
+  hjemmel: 'pkt. 33',
+  kortet: 'Kravet og svaret',
+  /** Kortet før kravet, når totalentreprenøren har varslet uten dager (U-9). */
+  utenKrav: 'Kravet om fristforlengelse',
+  ikkeAngitt: (varsel: Brevref) =>
+    `Dagene er ikke angitt. Totalentreprenøren varslet i ${brevref(varsel)}.`,
+  forAlle: 'For alle fristene',
+  perFrist: 'Per frist',
+  krevd: 'Krevd',
+  /** Laget når svaret har ett (U-4). */
+  godkjent: 'Byggherren godkjenner',
+  ikkeSvart: 'Byggherren har ikke svart på dette kravet.',
+  /** Fristen med nummeret i Del II punkt E.1, som overskrift for blokken (U-4). */
+  frist: (nummer: string | null) => (nummer ? `Frist ${nummer}` : 'Frist'),
+  /** Dagene og den nye fristen ved dagene (U-5): «20 dager · ny frist 15. september 2027». */
+  nyFrist: (d: string) => `ny frist ${dato(d)}`,
+  /** Dagene i kravet ved brevet i tråden, i rekkefølgen i brevet (U-12). */
+  kravdagene: (frister: { nummer: string | null; navn: string; dager: number }[]) =>
+    frister.map((f) => `${f.nummer ? `Frist ${f.nummer}` : f.navn}: ${dager(f.dager)}.`).join(' '),
+  /** Varselet etter punkt 33.4 uten dager ved brevet i tråden (U-8). */
+  varselUtenDager: 'Varsel etter punkt 33.4, uten dager.',
+  kalenderdager: 'Dagene er kalenderdager. Ny frist er regnet fra gjeldende frist.',
+  /** Gjeldende frist uten forlengelser i andre saker (U-5). */
+  somIKontrakten: (d: string) => `Gjeldende frist ${dato(d)}, som i kontrakten.`,
+  /** Gjeldende frist med forlengelsene i andre saker, før lenkene til sakene (U-5). */
+  forlenget: (d: string, iKontrakten: string) =>
+    `Gjeldende frist ${dato(d)}: ${datoUtenAar(iKontrakten, d)} i kontrakten, forlenget`,
+  forlengelsen: (n: number) => `${dager(n)} i sak`,
+  ukjent: (iKontrakten: string) =>
+    `Fristen er ${dato(iKontrakten)} i kontrakten. Gjeldende frist kan ikke regnes nå, fordi en annen sak i prosjektet ikke kan leses.`,
+  ikkeRegistrert:
+    'Fristen er ikke registrert i fristtabellen for prosjektet, så gjeldende frist er ikke kjent.',
+  /** Vilkåret for et lag under «Per frist»: «hvis innsigelsen om varselet ikke fører frem» (U-4). */
+  vilkaar: (innsigelser: Innsigelsen[], heller: boolean) =>
+    liten(VEDERLAGET.vilkaar(innsigelser.map(VEDERLAGET.innsigelsen), heller)),
+  /** Det laget bygger på, i brevets ord, og de dagene byggherren godkjenner i det siste laget. */
+  grunnlaget: (standpunkter: Standpunkt[], sist: boolean) =>
+    standpunkter.length
+      ? `${standpunkter
+          .map((s, i) =>
+            s.art === 'spesifisering' && !s.iTide
+              ? `${i ? 'byggherren' : 'Byggherren'} gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1), og godkjenner dagene byggherren måtte forstå`
+              : i
+                ? liten(standpunkttekst(s, false))
+                : standpunkttekst(s, false)
+          )
+          .join(', og ')}.`
+      : sist
+        ? 'dagene byggherren godkjenner.'
+        : '',
+  /** Et standpunkt uten eget lag, med vilkåret foran (U-3, OV-U42). */
+  utenLag: (s: Standpunkt, vilkaar: Innsigelsen[]) =>
+    vilkaar.length
+      ? // Leddsetningen først, så verbet før «byggherren»: «…, legger byggherren til grunn …».
+        `${VEDERLAGET.vilkaar(vilkaar.map(VEDERLAGET.innsigelsen), false)}, ${standpunkttekst(s, false).replace(/^Byggherren (\S+)/, '$1 byggherren')}.`
+      : `${standpunkttekst(s, false)}.`,
+  /** Avslaget av dagene for én frist, med laget først og begrunnelsen i brevets ord (U-13). */
+  avslag: (etikett: string | null, begrunnelse: string | null) =>
+    `${etikett ? `${stor(etikett)} avslår byggherren` : 'Byggherren avslår'} dagene for fristen` +
+    (begrunnelse ? `: ${liten(begrunnelse)}` : '.'),
+  /** Linja under «Revider krav» (U-6, svar 4 A). */
+  endreEllerTaUt: 'I det nye kravet kan du endre dagene eller ta ut en frist.',
+  /** Handlingen under forespørselen etter punkt 33.6.2 (U-6), og linja under den (BF-20). */
+  svarPaaForesporsel: 'Svar på forespørselen',
+  virkningForesporsel:
+    'Nytt brev med dagene for hver frist og begrunnelsen. Kan du ikke beregne dagene ennå, begrunner du det (punkt 33.6.2 annet ledd).',
+  /** Linja under raden for forsering etter punkt 33.8 (U-6, svar 3 A, OV-U2). */
+  forseringLinje: 'Forsering er ikke bygget i Varden og sendes som egen sak.',
+  /** Veiledningen under forespørselen etter punkt 33.6.2 (U-9, V-1 A). */
+  foresporsel: (d: string, dagerSiden: number) =>
+    `Byggherren ba om dagene ${dato(d)}, ${dagerSiden <= 0 ? 'i dag' : `for ${dagerSiden} ${dagerSiden === 1 ? 'dag' : 'dager'} siden`}. Svarer totalentreprenøren ikke uten ugrunnet opphold, tapes kravet på fristforlengelse (punkt 33.6.2 tredje ledd).`,
 };

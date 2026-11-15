@@ -30,11 +30,25 @@ import type { Saksmerking } from './brevtekst';
 
 /**
  * Koden og kontraktsforkortelsen i demoen, de samme som startjournalene er skrevet med i
- * `kjerne/tester/kjoerer.ts`, så teksten i demoen er den forløpet har.
+ * `kjerne/tester/kjoerer.ts`, så teksten i demoen er den forløpet har. Datoene for fristene i
+ * `FRISTTABELLEN` der, og en forlengelse i en annen sak, er eksempeldata for gjeldende frist på
+ * siden for fristforlengelsen (BF-45 U-5).
  */
 export const DEMOMERKING: Saksmerking = {
   sakskode: { kode: 'koe', loepenummer: 17 },
   kontraktsforkortelse: 'K201',
+  fristdatoer: [
+    {
+      fristId: 1,
+      dato: '2027-08-16',
+      dagmulktbelagt: true,
+      forlengelser: [
+        { sakId: 'demo-annen-sak', sakskode: { kode: 'koe', loepenummer: 9 }, dager: 10 },
+      ],
+    },
+    { fristId: 2, dato: '2027-06-01', dagmulktbelagt: false, forlengelser: [] },
+  ],
+  sakerIkkeForstaatt: [],
 };
 
 /** Startjournalen for et forløp, som `node kjerne/tester/brukerforloep.ts --skriv` lager den. */

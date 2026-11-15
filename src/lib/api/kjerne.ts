@@ -4,9 +4,8 @@
  */
 
 import { ApiError, apiFetch } from '$lib/api/client';
-import type { Fristdato, Saksmerking } from '$lib/kjernesak/brevtekst';
-import type { Registrertfrist } from '$kjerne/spor/frist/format';
-import type { Journalrad, Korrespondansetype, Part, Vedlegg } from '$kjerne/typer';
+import type { Saksmerking } from '$lib/kjernesak/brevtekst';
+import type { Journalrad, Korrespondansetype, Part, Sakskode, Vedlegg } from '$kjerne/typer';
 import type { Visning } from '$kjerne/utledning/visning';
 
 /** Navnet er slått opp ved visning; uten treff er det `aktor_id` (#820). */
@@ -91,54 +90,62 @@ const somMerking = ({ kode, loepenummer, kontraktsforkortelse }: Sakskodesvar): 
  * brevteksten trenger (LV-U46, LV-U53). Inngangen krever kontraktsside.
  */
 export async function hentSaksmerking(sakId: string, prosjektId: string): Promise<Saksmerking> {
-  const [kode, frister] = await Promise.all([
+  const [kode, tabell] = await Promise.all([
     apiFetch<Sakskodesvar>(`${sti(sakId)}/sakskode`, { headers: prosjekthode(prosjektId) }),
     kontraktsfristerI(prosjektId),
   ]);
   return {
     ...somMerking(kode),
-    ...(frister
+    ...(tabell
       ? {
-          kontraktsfrister: frister.map(({ fristId, nummer, navn }) => ({ fristId, nummer, navn })),
-          fristdatoer: frister.map(({ fristId, dato, dagmulktbelagt }) => ({
-            fristId,
+          kontraktsfrister: tabell.frister.map(({ frist_id, nummer, navn }) => ({
+            fristId: frist_id,
+            nummer,
+            navn,
+          })),
+          fristdatoer: tabell.frister.map(({ frist_id, dato, dagmulktbelagt, forlengelser }) => ({
+            fristId: frist_id,
             dato,
             dagmulktbelagt,
+            forlengelser: forlengelser.map(({ sak_id, sakskode, dager }) => ({
+              sakId: sak_id,
+              sakskode,
+              dager,
+            })),
           })),
+          sakerIkkeForstaatt: tabell.saker_ikke_forstaatt.map((s) => s.sak_id),
         }
       : {}),
   };
 }
 
-/** En frist i fristtabellen slik serveren gir den (`Fristlinje` i `server/kontraktsfrister.ts`). */
+/**
+ * En frist i fristtabellen slik serveren gir den, med dagene partene er enige om i sakene i
+ * prosjektet (`Fristlinje` i `server/kontraktsfrister.ts`, KA-U77).
+ */
 interface Fristlinje {
   frist_id: number;
   nummer: string | null;
   navn: string;
   dato: string;
   dagmulktbelagt: boolean;
+  forlengelser: { sak_id: string; sakskode: Sakskode | null; dager: number }[];
 }
 
 /**
- * Fristtabellen for prosjektet, som kravet om fristforlengelse viser til (KA-U79, GFK-U25), i
- * formen kjernen lager teksten med. Den hentes ved hver lasting, så forhåndsvisningen bruker
- * tabellen serveren lager teksten med. Feiler hentingen, er den `null`, og saken lastes likevel.
+ * Fristtabellen for prosjektet, som kravet om fristforlengelse viser til (KA-U79, GFK-U25), med
+ * forlengelsene i sakene og sakene kjernen ikke forstår (KA-U77, MM-U2). Den hentes ved hver lasting,
+ * så forhåndsvisningen bruker tabellen serveren lager teksten med. Feiler hentingen, er den `null`,
+ * og saken lastes likevel.
  */
 const kontraktsfristerI = (
   prosjektId: string
-): Promise<(Registrertfrist & Omit<Fristdato, 'fristId'>)[] | null> =>
-  apiFetch<{ frister: Fristlinje[] }>(
+): Promise<{ frister: Fristlinje[]; saker_ikke_forstaatt: { sak_id: string }[] } | null> =>
+  apiFetch<{ frister: Fristlinje[]; saker_ikke_forstaatt: { sak_id: string }[] }>(
     `/api/projects/${encodeURIComponent(prosjektId)}/kontraktsfrister`,
     { headers: prosjekthode(prosjektId) }
   ).then(
-    ({ frister }) =>
-      frister.map(({ frist_id, nummer, navn, dato, dagmulktbelagt }) => ({
-        fristId: frist_id,
-        nummer,
-        navn,
-        dato,
-        dagmulktbelagt,
-      })),
+    (svar) => svar,
     () => null
   );
 
