@@ -1677,7 +1677,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 100,
+                  "regelversjon": 101,
                   "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært godkjent.",
                   "sammenfall": false,
                   "varslingsplikt": true,
@@ -1739,7 +1739,7 @@
                 "id": "2075cad4-0000-4000-8000-000000000018",
                 "art": "aksept",
                 "gjelder": "2075cad4-0000-4000-8000-000000000014",
-                "regelversjon": 100
+                "regelversjon": 101
               }
             ],
             "brevtekst": [
