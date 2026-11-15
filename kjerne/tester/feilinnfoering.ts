@@ -4120,6 +4120,13 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en rad som avslår fristen subsidiært, men godkjenner dager, er ikke forstått'],
   },
   {
+    id: 'F631',
+    feilklasse: 'upåvirkede dager i fristen er forstått (#1905 punkt 2)',
+    fil: `${K}/spor/frist/format.ts`,
+    endringer: [["if (virkning.get(d.id) === 'upaavirket')", 'if (false)']],
+    mal: ['upåvirkede dager i fristen er ikke forstått'],
+  },
+  {
     id: 'F620',
     feilklasse:
       'en ny versjon av vederlagskravet viser ikke til kravet den erstatter (KA-U52 punkt 4)',
