@@ -586,7 +586,8 @@ export const HANDLINGENE = {
     // Et trukket forhold trekker kravene som bygger på det (GR-U5, GR-U25), og et trukket krav
     // kan ikke tas opp igjen (GR-U5).
     trekkForholdet: 'Trekker også kravene om vederlag og frist. Kan ikke tas opp igjen.',
-    trekkKravet: 'Kravet kan ikke tas opp igjen.',
+    trekkKravet:
+      'Du gir avkall på hele kravet, også det byggherren har godkjent. Kravet kan ikke tas opp igjen.',
     /** Byggherrens nye svar (U-16 i BF-44). */
     nyttSvar: (svar: Brevref) =>
       `Nytt brev med svaret. Svaret i ${brevref(svar)} står som det ble sendt.`,
@@ -1514,7 +1515,7 @@ export const FRISTKRAV = {
 
 /** Hva hver oppgjørsform heter i en tabellcelle, med hjemmelen etter OV-U75. */
 const OPPGJOERSFORMEN: Record<Oppgjoersform, string> = {
-  tilbud: 'Fast sum (pkt. 34.2.1)',
+  tilbud: 'Tilbud om fast sum (pkt. 34.2.1)',
   enhetspriser: 'Enhetspriser (pkt. 34.3)',
   regningsarbeid: 'Regningsarbeid (pkt. 34.4)',
 };
@@ -1574,7 +1575,7 @@ export const VEDERLAGET = {
   post: 'Post',
   krevd: 'Krevd',
   oppgjoersform: (f: Oppgjoersform | null) =>
-    f === null ? 'Nedsatt produktivitet (pkt. 34.1.3)' : OPPGJOERSFORMEN[f],
+    f === null ? 'Nedsatt produktivitet · tilbud om fast sum' : OPPGJOERSFORMEN[f],
   /** Forbeholdet etter GR-U34, som svaret ble sendt med, og stillingen i forholdet nå (U-3, D-3). */
   forbehold: (svar: Brevref, forholdssvar: Brevref | null) =>
     `Svaret i ${brevref(svar)} gis under forutsetning av at forholdet gir grunnlag for kravet. ` +
@@ -1597,4 +1598,7 @@ export const VEDERLAGET = {
   },
   /** Akseptfristen over handlingene ved byggherrens svar (U-11, U-16, HF-U23 punkt 4). */
   akseptfrist: 'Akseptfrist:',
+  /** Datoen TE oppgir, og avstanden til varselet, uten vurdering av fristen (U-8, MM-U12). */
+  klarOver: (d: string, brev: Brevref, dager: number) =>
+    `Totalentreprenøren ble klar over forholdet ${dato(d)}, ifølge ${brevref(brev)}. Varselet i dette brevet kom ${dager} kalenderdager etter.`,
 };

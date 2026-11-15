@@ -125,25 +125,41 @@
     {#if tabellen}
       <!-- Tabellen kan rulles på smal skjerm, så rammen kan få fokus med tastaturet (WCAG 2.1.1). -->
       <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-      <div class="tabell" role="region" aria-labelledby={`${uid}-perpost`} tabindex="0">
-        <table>
+      <div
+        class="tabell"
+        role="region"
+        aria-labelledby={`${uid}-perpost`}
+        tabindex="0"
+        style:--kolonner={tabellen.kolonner.length - 1}
+      >
+        <!-- Rollene står i markeringen, så tabellen beholder dem når radene blir rutenett på smal
+             skjerm (WCAG 1.3.1). -->
+        <!-- svelte-ignore a11y_no_redundant_roles -->
+        <table role="table">
           <caption id={`${uid}-perpost`}>{VEDERLAGET.perPost}</caption>
-          <thead>
-            <tr
-              >{#each tabellen.kolonner as c, m (m)}<th scope="col" class:krevdkol={m === 1}>{c}</th
+          <!-- svelte-ignore a11y_no_redundant_roles -->
+          <thead role="rowgroup">
+            <!-- svelte-ignore a11y_no_redundant_roles -->
+            <tr role="row"
+              >{#each tabellen.kolonner as c, m (m)}<th
+                  scope="col"
+                  role="columnheader"
+                  class:krevdkol={m === 1}>{c}</th
                 >{/each}</tr
             >
           </thead>
-          <tbody>
+          <!-- svelte-ignore a11y_no_redundant_roles -->
+          <tbody role="rowgroup">
             {#each tabellen.rader as { celler, post, sum }, r (r)}
-              <tr class:sum>
-                <th scope="row"
+              <!-- svelte-ignore a11y_no_redundant_roles -->
+              <tr role="row" class:sum>
+                <th scope="row" role="rowheader"
                   >{celler[0]}{#if post}<span class="hj"
                       >{VEDERLAGET.oppgjoersform(post.oppgjoersform)}</span
                     >{/if}</th
                 >
                 {#each celler.slice(1) as c, m (m)}
-                  <td class:krevdkol={m === 0}>{utenKr(c)}</td>
+                  <td role="cell" class:krevdkol={m === 0}>{utenKr(c)}</td>
                 {/each}
               </tr>
             {/each}
@@ -386,7 +402,7 @@
   @media (max-width: 720px) {
     .tabell tr {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(var(--kolonner), minmax(0, 1fr));
       column-gap: var(--spacing-2);
     }
     .tabell thead,
@@ -397,15 +413,20 @@
     .tabell td {
       padding: 0 0 10px;
       border-bottom: 0;
-      text-align: left;
     }
     .tabell thead th {
       font-size: 12px;
       padding-bottom: 6px;
       white-space: normal;
     }
+    /* «Post» står for skjermleseren; posten står over beløpene sine. */
     .tabell thead th:first-child {
-      display: none;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
     }
     .tabell tbody th {
       grid-column: 1 / -1;

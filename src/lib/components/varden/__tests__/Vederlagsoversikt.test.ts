@@ -144,6 +144,15 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
     expect(krav[1]!.textContent).toContain('fulgt opp i brev 3');
   });
 
+  it('datoen TE oppgir og avstanden i kalenderdager står under brevet med varselet etter punkt 34.1.2 (U-8, G-6)', async () => {
+    await vis(BF44.steg);
+    const linja = screen.getByText(/^Totalentreprenøren ble klar over forholdet/);
+    expect(linja.textContent).toBe(
+      'Totalentreprenøren ble klar over forholdet 15. september 2026, ifølge brev 1. Varselet i dette brevet kom 16 kalenderdager etter.'
+    );
+    expect(linja.closest('li')?.textContent).toContain('brev 2');
+  });
+
   it('akseptfristen står ved byggherrens svar (U-11, HF-U23 punkt 4)', async () => {
     await vis(BF44.steg);
     const frist = screen.getByText(/^Akseptfrist:/);

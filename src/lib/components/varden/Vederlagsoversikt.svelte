@@ -9,8 +9,9 @@
   import type { Utledning } from '$kjerne/utledning/utled';
   import Brevtraad from './Brevtraad.svelte';
   import KravetOgSvaret from './KravetOgSvaret.svelte';
-  import { brevITraaden, brevene, oppfoelgingene, type Brevet } from './lesing';
-  import { VEDERLAGET, dato } from './tekster';
+  import { brevITraaden, brevene, klarOverForholdet, oppfoelgingene, type Brevet } from './lesing';
+  import { VEDERLAGET, dato, kalenderdager } from './tekster';
+  import { varseletFoerKravet } from '$lib/kjernesak/vederlagskrav';
   import { akseptfristen, kravbeloepene, kravetOgSvaret } from './vederlagsoversikt';
 
   let {
@@ -43,6 +44,10 @@
   const k = $derived(kravetOgSvaret(u, alle));
   const beloepene = $derived(kravbeloepene(u));
   const akseptfrist = $derived(akseptfristen(u, 'vederlag'));
+  // Datoen TE oppgir for når TE ble klar over forholdet, under brevet med varselet etter punkt
+  // 34.1.2, med avstanden i kalenderdager (U-8, G-6).
+  const varselbrevet = $derived(varseletFoerKravet(u, '34.1.2'));
+  const klar = $derived(klarOverForholdet(u));
 </script>
 
 <!-- Beløpet i kravet ved brevet med kravet (U-12). -->
@@ -51,8 +56,14 @@
   {#if n !== undefined}<p class="beloep">{VEDERLAGET.kravbeloep(n)}</p>{/if}
 {/snippet}
 
-<!-- Akseptfristen over handlingene ved byggherrens svar (U-11, U-16, HF-U23 punkt 4). -->
+<!-- Datoen under brevet med varselet, og akseptfristen over handlingene ved byggherrens svar
+     (U-8, U-11, U-16, HF-U23 punkt 4). -->
 {#snippet fristen(b: Brevet)}
+  {#if klar && varselbrevet === b.id}
+    <p class="datolinje">
+      {VEDERLAGET.klarOver(klar.dato, klar.brev, kalenderdager(klar.dato, b.sendt ?? b.registrert))}
+    </p>
+  {/if}
   {#if akseptfrist?.brev === b.id}
     <p class="akseptfrist">{VEDERLAGET.akseptfrist} <b>{dato(akseptfrist.dato)}</b>.</p>
   {/if}
@@ -106,6 +117,10 @@
     font-weight: 500;
     color: var(--ink);
     font-variant-numeric: tabular-nums;
+  }
+  .datolinje {
+    font-size: 14px;
+    color: var(--ink-2);
   }
   .akseptfrist {
     padding-top: var(--spacing-2);
