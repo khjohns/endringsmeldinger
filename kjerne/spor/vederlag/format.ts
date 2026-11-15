@@ -21,6 +21,7 @@ import {
   KORRESPONDANSETYPER,
   type Krav,
   type Kravpost,
+  type Oppgjoersform,
   type Standpunkt,
   type Standpunktsart,
   type Standpunktsvirkning,
@@ -258,6 +259,15 @@ export const harProduktivitetspost = (krav: Krav): boolean =>
 /** Kravpostene i en lagret kravversjon (OV-U95 punkt 19). */
 export const kravposterI = (krav: Pick<Krav, 'innhold'>): readonly Kravpost[] =>
   innholdIVederlaget(krav).kravposter;
+
+/** Kravposten krever justerte enhetspriser (§ 34.3.2, KA-U68). */
+export const justerteEnhetspriser = (post: Kravpost): boolean =>
+  post.oppgjoersform === 'enhetspriser' && post.justert === true;
+
+/** Den andre beregningsregelen, som byggherren kan mene (OV-U95 punkt 1 og 5). */
+export const denAndreRegelen = (
+  r: Exclude<Oppgjoersform, 'tilbud'>
+): Exclude<Oppgjoersform, 'tilbud'> => (r === 'enhetspriser' ? 'regningsarbeid' : 'enhetspriser');
 
 /** OV-U95 punkt 19: kravet har kravposter i vederlagsjusteringen, i tillegg til eller uten postene utenfor. */
 export const harHovedbeloep = (krav: Krav): boolean => kravposterI(krav).length > 0;

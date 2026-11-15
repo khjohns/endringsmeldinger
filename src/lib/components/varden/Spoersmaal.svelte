@@ -31,7 +31,7 @@
 <section class="spoersmaal" aria-labelledby={id}>
   <div class="sp-hode">
     <h3 {id}>
-      {tittel}{#if tillegg}{' · '}<span class="num">{tillegg}</span>{/if}
+      {#if tillegg}{`${tittel} · `}<span class="num">{tillegg}</span>{:else}{tittel}{/if}
     </h3>
     {#if info}<Infotips navn={info.navn} tekst={info.tekst} />{/if}
     {#if hjemmel}

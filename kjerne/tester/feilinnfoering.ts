@@ -4143,7 +4143,12 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F641',
     feilklasse: 'en ubesvart oppgjørsform står som besvart i lagene i svarutkastet (OV-U33, #1925)',
     fil: `${K}/spor/vederlag/kommando.ts`,
-    endringer: [['besvart: !ubesvart(svar.aksepterer),', 'besvart: true,']],
+    endringer: [
+      [
+        "if (s.art === 'oppgjoersform') return typeof svar?.aksepterer === 'boolean';",
+        "if (s.art === 'oppgjoersform') return true;",
+      ],
+    ],
     mal: ['i en kravpost etter justerte enhetspriser står oppgjørsformen'],
   },
   {

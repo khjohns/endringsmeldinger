@@ -16,7 +16,7 @@ import { KRAVINNHOLD } from '$kjerne/format/format';
 import { oppgittDato } from '$kjerne/spor/forhold/format';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { lesKroner } from '$lib/utils/belop';
-import { kravposterI } from '$kjerne/spor/vederlag/format';
+import { justerteEnhetspriser, kravposterI } from '$kjerne/spor/vederlag/format';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
@@ -87,14 +87,6 @@ export const regelen = (post: Kravpost): Regel | null =>
 /** Kravposten følger en beregningsregel, enhetspriser eller regningsarbeid, og har ikke et krevd beløp (KA-U66). */
 export const etterRegel = (post: Kravpost): boolean => regelen(post) !== null;
 
-/** Den andre beregningsregelen, som byggherren kan mene (OV-U95 punkt 1 og 5). */
-export const denAndreRegelen = (r: Regel): Regel =>
-  r === 'enhetspriser' ? 'regningsarbeid' : 'enhetspriser';
-
-/** Kravposten krever justerte enhetspriser (§ 34.3.2, KA-U68). */
-export const justerte = (post: Kravpost): boolean =>
-  post.oppgjoersform === 'enhetspriser' && post.justert === true;
-
 /**
  * Skjemaet spør om beløpet bare for en kravpost med fast sum, og bare når BH ikke mener en annen
  * oppgjørsform (KA-U66, KA-U72). Valget for beløpet står likevel, så det er der igjen om BH
@@ -120,7 +112,7 @@ export const spoerOmTilbud = (p: Postvalg, post: Kravpost): boolean =>
  * (KA-U64, VS-U63).
  */
 export const spoerOmVarselet = (p: Postvalg, post: Kravpost): boolean =>
-  justerte(post) || (post.oppgjoersform === 'regningsarbeid' && p.form === 'godtar');
+  justerteEnhetspriser(post) || (post.oppgjoersform === 'regningsarbeid' && p.form === 'godtar');
 
 /** Om BH har tatt stilling til oppgjørsformen: godtar, mener en annen eller krever tilbud. */
 export const formBesvart = (p: Postvalg, post: Kravpost): boolean =>
@@ -168,7 +160,7 @@ function kravpostsvaret(post: Kravpost, p: Postvalg) {
       varslet === null || (post.oppgjoersform === 'regningsarbeid' && varslet)
         ? undefined
         : varslet,
-    godtar_justering: justerte(post) ? (p.godtarJustering ?? undefined) : undefined,
+    godtar_justering: justerteEnhetspriser(post) ? (p.godtarJustering ?? undefined) : undefined,
   });
 }
 

@@ -42,7 +42,7 @@
     alternativer = false,
     virkninger,
     mangler,
-    poster,
+    postliste,
     stopp = null,
     onbrevkontroll,
     onforkast,
@@ -63,7 +63,7 @@
     alternativer?: boolean;
     virkninger: string[];
     mangler: Mangel[];
-    poster?: () => Postvelger | null;
+    postliste?: Postvelger | null;
     /** Det som hindrer at svaret kan gis nå; skjemaet viser da bare meldingen. */
     stopp?: string | null;
     onbrevkontroll: (k: TilBrevkontrollen) => void;
@@ -101,7 +101,7 @@
     if (mangler.length) {
       forsoekt = true;
       const foerste = mangler.find((m) => m.post !== null);
-      if (foerste) poster?.()?.velg(foerste.post!);
+      if (foerste) postliste?.velg(foerste.post!);
       await tick();
       oppsummering?.focus();
       return;
@@ -127,15 +127,16 @@
   const vindu = medietreff('(max-width: 1180px)');
   const smal = $derived(vindu.treff);
   let leser = $state(false);
+  const vedSiden = $derived(leser && !smal);
   $effect(() => {
-    onvedsiden?.(leser && !smal);
+    onvedsiden?.(vedSiden);
     return () => onvedsiden?.(false);
   });
   let panel = $state<HTMLElement | null>(null);
   const linja = fastLinje(
     uid,
     () => panel,
-    () => stopp !== null || (leser && !smal)
+    () => stopp !== null || vedSiden
   );
 </script>
 
@@ -167,7 +168,7 @@
   {/if}
 {/snippet}
 
-<Arbeidsflate leser={leser && !smal}>
+<Arbeidsflate leser={vedSiden}>
   {#snippet hoved()}
     <Utkastkort
       id={`${uid}-tittel`}
@@ -218,10 +219,9 @@
                   <a
                     href={`#${m.felt}`}
                     onclick={(e) => {
-                      const liste = poster?.();
-                      if (m.post === null || !liste || liste.erAapen(m.post)) return;
+                      if (m.post === null || !postliste || postliste.erAapen(m.post)) return;
                       e.preventDefault();
-                      liste.aapne(m.post, m.felt);
+                      postliste.aapne(m.post, m.felt);
                     }}>{m.tekst}</a
                   >
                 </li>
@@ -266,7 +266,7 @@
   {/snippet}
 
   {#snippet hoeyre()}
-    {#if leser && !smal}
+    {#if vedSiden}
       <section class="leseramme" id={`${uid}-kravbrev`} aria-labelledby={`${uid}-lesetittel`}>
         <h2 class="lesetittel" id={`${uid}-lesetittel`}>
           {brevhode(kravbrevet)}

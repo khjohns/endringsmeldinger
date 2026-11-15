@@ -6,7 +6,7 @@
 import { erKravpostpunkt, FORBEHOLDET, INNLEDNINGEN, OVERSIKTEN } from '$kjerne/frosset/tekst';
 import type { Avsnitt } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
-import { brevene, type Brevet } from './lesing';
+import { brevet, type Brevet } from './lesing';
 
 /** Et svar som mangler i skjemaet: feltet, posten feltet står i, og teksten i oppsummeringen. */
 export interface Mangel {
@@ -16,6 +16,16 @@ export interface Mangel {
   post: string | null;
   tekst: string;
 }
+
+/**
+ * Feltene som mangler et svar, med starten `prefiks` på ID-en. `tekst` er `null` for et felt som
+ * er besvart.
+ */
+export const manglene = (
+  prefiks: string,
+  felt: readonly { felt: string; post: string | null; tekst: string | null }[]
+): Mangel[] =>
+  felt.flatMap((m) => (m.tekst ? [{ ...m, felt: `${prefiks}-${m.felt}`, tekst: m.tekst }] : []));
 
 /** Lista over postene, så oppsummeringen kan åpne posten et felt står i (`Postliste`). */
 export interface Postvelger {
@@ -52,7 +62,7 @@ export function begrunnelsespunktene(avsnitt: readonly Avsnitt[]): Begrunnelsesp
 
 /** Brevet med gjeldende krav i sporet, som svaret gjelder. */
 export const kravbrevetI = (u: Utledning, spor: 'vederlag' | 'frist'): Brevet =>
-  brevene(u).find((b) => b.id === u.spor[spor].gjeldendeKrav!.dokument)!;
+  brevet(u, u.spor[spor].gjeldendeKrav!.dokument)!;
 
 /**
  * Datoen kravet ble sendt: for registrert korrespondanse datoen TE oppgir, ikke når brevet ble

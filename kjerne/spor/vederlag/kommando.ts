@@ -14,7 +14,14 @@ import {
   type Kravpostvurdering,
 } from './frysing.ts';
 import { hjemmelenGjelder, laget, type Svarvurdering } from '../../frosset/byggeklosser.ts';
-import { kravposterI, krevdRigg, OPPGJOERSHJEMMEL, vederlagsinnhold } from './format.ts';
+import {
+  denAndreRegelen,
+  justerteEnhetspriser,
+  kravposterI,
+  krevdRigg,
+  OPPGJOERSHJEMMEL,
+  vederlagsinnhold,
+} from './format.ts';
 import { erObjekt, feilI, objekt } from '../../format/skjema.ts';
 import { brukteBetegnelser, nesteBetegnelse } from '../poster/utledning.ts';
 import {
@@ -542,71 +549,66 @@ export function lagIVederlaget(
     ...v,
     kravposter: svarene.map(({ post, svar }) => fyll({ ...svar, gjelder: post.id }, post)),
   });
-  const ubesvart = (x: unknown) => typeof x !== 'boolean';
   const regelGodtatt = (svar: Kravpostvurdering, post: Kravpost) =>
-    post.oppgjoersform !== 'tilbud' && ubesvart(svar.aksepterer)
+    post.oppgjoersform !== 'tilbud' && typeof svar.aksepterer !== 'boolean'
       ? { ...svar, aksepterer: true }
       : svar;
-  const forBeloepet = utfylt(regelGodtatt);
-  const forFormen = utfylt((_, post) =>
-    post.oppgjoersform === 'tilbud'
-      ? { gjelder: post.id, aksepterer: true }
-      : {
-          gjelder: post.id,
-          aksepterer: false,
-          oensket_oppgjoersform:
-            post.oppgjoersform === 'enhetspriser' ? 'regningsarbeid' : 'enhetspriser',
-        }
-  );
-  const forVarselet = utfylt((svar, post) => {
-    const fylt = regelGodtatt(svar, post);
-    return post.oppgjoersform === 'enhetspriser' && post.justert === true
-      ? {
-          ...fylt,
-          varslet_i_tide: fylt.varslet_i_tide ?? false,
-          godtar_justering: fylt.godtar_justering ?? false,
-        }
-      : fylt;
-  });
-  const svaret = (gjelder: string | undefined) =>
-    svarene.find(({ post }) => post.id === gjelder)?.svar ?? {};
-  // Standpunktene for en kravpost foran beløpet står i laget utfyllingen for dem gir.
-  const iKravposten = (s: Standpunkt) =>
-    s.art === 'oppgjoersform' ||
-    s.art === 'justering' ||
-    (s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel));
-  const formene = lagIUtfyllingen(forFormen, utkast, u, regler).filter(
-    ({ s }) => s.art === 'oppgjoersform'
-  );
-  const varslene = lagIUtfyllingen(forVarselet, utkast, u, regler).filter(
-    ({ s }) => s.art !== 'oppgjoersform' && iKravposten(s)
-  );
+  const lagI = (fylt: Svarvurdering) => lagIUtfyllingen(fylt, v, utkast, u, regler);
+  const beloepet = lagI(utfylt(regelGodtatt));
+  const formene = lagI(
+    utfylt((_, post) =>
+      post.oppgjoersform === 'tilbud'
+        ? { gjelder: post.id, aksepterer: true }
+        : {
+            gjelder: post.id,
+            aksepterer: false,
+            oensket_oppgjoersform: denAndreRegelen(post.oppgjoersform),
+          }
+    )
+  ).filter(({ s }) => s.art === 'oppgjoersform');
+  // Uten justerte enhetspriser fyller utfyllingen for varselet ingenting ut ut over beløpets.
+  const justeres = svarene.some(({ post }) => justerteEnhetspriser(post));
+  const varslene = (
+    justeres
+      ? lagI(
+          utfylt((svar, post) => {
+            const fylt = regelGodtatt(svar, post);
+            return justerteEnhetspriser(post)
+              ? {
+                  ...fylt,
+                  varslet_i_tide: fylt.varslet_i_tide ?? false,
+                  godtar_justering: fylt.godtar_justering ?? false,
+                }
+              : fylt;
+          })
+        )
+      : beloepet
+  ).filter(({ s }) => s.art !== 'oppgjoersform' && iKravposten(s));
   const iPosten = (liste: typeof formene, gjelder: string) =>
-    liste.filter(({ s }) => 'gjelder' in s && s.gjelder === gjelder);
+    liste.filter(({ s }) => 'gjelder' in s && s.gjelder === gjelder).map(({ lag }) => lag);
   return {
-    standpunkter: lagIUtfyllingen(forBeloepet, utkast, u, regler).flatMap(({ s, lag }) => {
+    standpunkter: beloepet.flatMap(({ s, lag }) => {
       if (iKravposten(s)) return [];
       if (s.art !== 'beloep' || s.saerskilt || s.gjelder === undefined) return [lag];
       // Brevets rekkefølge: oppgjørsformen, varselet og justeringen foran beløpet i kravposten.
-      const svar = svaret(s.gjelder);
-      return [
-        ...iPosten(formene, s.gjelder).map((x) => ({
-          ...x.lag,
-          besvart: !ubesvart(svar.aksepterer),
-        })),
-        ...iPosten(varslene, s.gjelder).map((x) => ({
-          ...x.lag,
-          besvart: !ubesvart(x.s.art === 'justering' ? svar.godtar_justering : svar.varslet_i_tide),
-        })),
-        lag,
-      ];
+      return [...iPosten(formene, s.gjelder), ...iPosten(varslene, s.gjelder), lag];
     }),
   };
 }
 
-/** Lagene i svarutkastet med vurderingene `v` (`lagIVederlaget`). */
+/** Standpunktene for en kravpost foran beløpet, som står i laget utfyllingen for dem gir. */
+const iKravposten = (s: Standpunkt) =>
+  s.art === 'oppgjoersform' ||
+  s.art === 'justering' ||
+  (s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel));
+
+/**
+ * Lagene i svarutkastet med de utfylte vurderingene `v` (`lagIVederlaget`). Om et standpunkt er
+ * besvart, leses av vurderingene i utkastet, `utkastet`.
+ */
 function lagIUtfyllingen(
   v: Svarvurdering,
+  utkastet: Svarvurdering,
   utkast: Svarutkast,
   u: Utledning,
   regler: Regelsett
@@ -669,7 +671,7 @@ function lagIUtfyllingen(
       s.gjelder !== undefined
         ? { gjelder: s.gjelder }
         : {}),
-      besvart: s.art !== 'beloep' || utenFastBeloepIKravposten(u, s.gjelder) || besvart(v, u, s),
+      besvart: besvart(utkastet, u, s),
       virkning: virkning[i]!,
       etikett: etikett[i]!,
       forutsetninger: rammer,
@@ -695,16 +697,21 @@ function innenforKravposten(standpunkter: Standpunkt[], i: number): Forutsetning
   });
 }
 
-const besvart = (
-  v: Svarvurdering,
-  u: Utledning,
-  s: { saerskilt?: 'produktivitet' | 'rigg_og_drift'; gjelder?: string }
-) =>
-  typeof (s.saerskilt
-    ? v.produktivitet_vurdering
-    : kravpostvurderinger(v, u.spor.vederlag.gjeldendeKrav!).find(
-        ({ post }) => post.id === s.gjelder
-      )?.svar.vurdering) === 'string';
+/** Om spørsmålet standpunktet svarer på, er besvart i vurderingene `v` (#1925). */
+function besvart(v: Svarvurdering, u: Utledning, s: Standpunkt): boolean {
+  if (s.art === 'beloep' && s.saerskilt) return typeof v.produktivitet_vurdering === 'string';
+  const gjelder = 'gjelder' in s ? s.gjelder : undefined;
+  if (s.art === 'beloep' && utenFastBeloepIKravposten(u, gjelder)) return true;
+  const svar = kravpostvurderinger(v, u.spor.vederlag.gjeldendeKrav!).find(
+    ({ post }) => post.id === gjelder
+  )?.svar;
+  if (s.art === 'beloep') return typeof svar?.vurdering === 'string';
+  if (s.art === 'oppgjoersform') return typeof svar?.aksepterer === 'boolean';
+  if (s.art === 'justering') return typeof svar?.godtar_justering === 'boolean';
+  if (s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel))
+    return typeof svar?.varslet_i_tide === 'boolean';
+  return true;
+}
 
 /** En kravpost etter en beregningsregel har ikke et beløp å besvare (OV-U95 punkt 5). */
 const utenFastBeloepIKravposten = (u: Utledning, gjelder: string | undefined): boolean =>

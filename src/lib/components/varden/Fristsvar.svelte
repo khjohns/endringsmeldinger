@@ -36,7 +36,7 @@
     velgDagene,
   } from './fristsvar';
   import { brevet, standpunktene } from './lesing';
-  import { kravbrevetI, SVARSKJEMA, type Mangel } from './svarskjema';
+  import { manglene, SVARSKJEMA } from './svarskjema';
   import { BREVKONTROLL, FRISTSVAR, SKJEMA, grunntekst, standpunkttekst } from './tekster';
 
   let {
@@ -68,7 +68,6 @@
     )
   );
   const flere = $derived(frister.length > 1);
-  const kravbrevet = $derived(kravbrevetI(u, 'frist'));
   // VS-U17, VS-U29: svaret tar stilling til forespørselen når kjernen leser en.
   const foresporselen = $derived(foresporselenISvaret(u) !== null);
   const hindringPunkt = $derived(hindringenEtter(u.spor.forhold.gjeldendeKrav));
@@ -209,19 +208,28 @@
     return godtar !== undefined && d > godtar ? FRISTSVAR.maatteForstaaForMange : null;
   };
   const mangler = $derived(
-    [
+    manglene(uid, [
       // Spørsmålene som gjelder hele kravet.
-      { felt: 'varsel', post: null, tekst: valg.varselITide === null && FRISTSVAR.manglerVarsel },
+      {
+        felt: 'varsel',
+        post: null,
+        tekst: valg.varselITide === null ? FRISTSVAR.manglerVarsel : null,
+      },
       {
         felt: 'foresporsel',
         post: null,
-        tekst: foresporselen && valg.foresporselITide === null && FRISTSVAR.manglerForesporsel,
+        tekst:
+          foresporselen && valg.foresporselITide === null ? FRISTSVAR.manglerForesporsel : null,
       },
-      { felt: 'hindret', post: null, tekst: valg.hindret === null && FRISTSVAR.manglerHindring },
+      {
+        felt: 'hindret',
+        post: null,
+        tekst: valg.hindret === null ? FRISTSVAR.manglerHindring : null,
+      },
       {
         felt: 'spesifisert',
         post: null,
-        tekst: valg.spesifisertITide === null && FRISTSVAR.manglerSpesifisering,
+        tekst: valg.spesifisertITide === null ? FRISTSVAR.manglerSpesifisering : null,
       },
       ...frister.flatMap((f) => {
         const i = (tekst: string | null) =>
@@ -236,9 +244,7 @@
           { felt: `deldager-${f.id}`, post: f.id, tekst: i(deldagerFeil(f)) },
         ];
       }),
-    ].flatMap((m): Mangel[] =>
-      m.tekst ? [{ ...m, felt: `${uid}-${m.felt}`, tekst: m.tekst }] : []
-    )
+    ])
   );
 
   const virkninger = $derived([
@@ -276,7 +282,7 @@
   {linjer}
   {virkninger}
   {mangler}
-  poster={() => postliste}
+  {postliste}
   {onbrevkontroll}
   {onforkast}
   {onvedsiden}
@@ -376,7 +382,7 @@
       info={{ navn: SKJEMA.datoInfoNavn, tekst: SKJEMA.datoInfo }}
     >
       <Gjelderhvis id={`${uid}-varsel-forutsetninger`} liste={grunnene} punkt={forutsetning} />
-      <Varseldatoer {u} {kravbrevet} sendt={FRISTSVAR.kravSendt} />
+      <Varseldatoer {u} spor="frist" sendt={FRISTSVAR.kravSendt} />
       <Valg
         navn={`${uid}-varsel`}
         spoersmaal={FRISTSVAR.varselSpoersmaal}

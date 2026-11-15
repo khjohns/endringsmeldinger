@@ -5,7 +5,12 @@
   lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
-  import { harProduktivitetspost, kravposterI } from '$kjerne/spor/vederlag/format';
+  import {
+    denAndreRegelen,
+    harProduktivitetspost,
+    justerteEnhetspriser,
+    kravposterI,
+  } from '$kjerne/spor/vederlag/format';
   import { kroner } from '$kjerne/frosset/tekst';
   import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
@@ -23,10 +28,8 @@
   import Varseldatoer from './Varseldatoer.svelte';
   import {
     beloepsvalget,
-    denAndreRegelen,
     etterRegel,
     formBesvart,
-    justerte,
     postvalget,
     regelen,
     spoerOmBeloepet,
@@ -41,7 +44,7 @@
     type Svarvalg,
   } from './kommandoer';
   import { brevet, standpunktene } from './lesing';
-  import { kravbrevetI, SVARSKJEMA, type Mangel } from './svarskjema';
+  import { manglene, SVARSKJEMA } from './svarskjema';
   import {
     BREVKONTROLL,
     HOVEDLINJER,
@@ -80,7 +83,6 @@
   const krevdTotalt = $derived(
     poster.reduce((sum, p) => sum + Math.round(krevdI(p) * 100), 0) / 100
   );
-  const kravbrevet = $derived(kravbrevetI(u, 'vederlag'));
   const harPost = $derived(harProduktivitetspost(krav));
   // Kjernen sier hva svaret ennå ikke kan gjelde: rigg og drift.
   const hinder = $derived(harPost ? null : hindrerSvarPaaKravet(krav));
@@ -127,8 +129,7 @@
   const grunnene = $derived(
     poster[0] ? iLaget(poster[0], 'beloep').filter((f) => 'grunn' in f) : []
   );
-  const formforutsetninger = (p: Kravpost): IPosten[] => iPosten(iLaget(p, 'oppgjoersform'), p);
-  const regelforutsetninger = (p: Kravpost, art: 'rettidighet' | 'justering'): IPosten[] =>
+  const forutsetningene = (p: Kravpost, art: 'oppgjoersform' | 'rettidighet' | 'justering') =>
     iPosten(iLaget(p, art), p);
   const grunnlagsbrev = $derived.by(() => {
     const g = u.spor.forhold.gjeldendeSvar;
@@ -138,33 +139,33 @@
     const s = etter?.spor.vederlag.gjeldendeSvar;
     return s && !u.spor.vederlag.svar.some((x) => x.id === s.id) ? s : null;
   });
+  // Standpunktene i svaret slik kjernen forhåndsviser det, med laget brevet gir dem.
+  const nyeStandpunkter = $derived(nyttSvar ? standpunktene(nyttSvar, etter!) : []);
   const postenFor = (s: Standpunkt) =>
     'gjelder' in s && s.gjelder !== undefined ? poster.find((p) => p.id === s.gjelder) : undefined;
   const linjer = $derived(
-    nyttSvar
-      ? standpunktene(nyttSvar, etter!).map((l) => {
-          const post = 'standpunkt' in l ? postenFor(l.standpunkt) : undefined;
-          return {
-            tekst:
-              'grunn' in l
-                ? grunntekst(l.grunn, true, l.brev)
-                : standpunkttekst(
-                    l.standpunkt,
-                    true,
-                    l.standpunkt.art === 'beloep' && !l.standpunkt.saerskilt && post
-                      ? krevdI(post)
-                      : undefined,
-                    post && flere ? post.betegnelse : undefined
-                  ),
-            lag: l.lag,
-          };
-        })
-      : []
+    nyeStandpunkter.map((l) => {
+      const post = 'standpunkt' in l ? postenFor(l.standpunkt) : undefined;
+      return {
+        tekst:
+          'grunn' in l
+            ? grunntekst(l.grunn, true, l.brev)
+            : standpunkttekst(
+                l.standpunkt,
+                true,
+                l.standpunkt.art === 'beloep' && !l.standpunkt.saerskilt && post
+                  ? krevdI(post)
+                  : undefined,
+                post && flere ? post.betegnelse : undefined
+              ),
+        lag: l.lag,
+      };
+    })
   );
   // Leselinjen for en lukket kravpost: standpunktene slik kjernen skriver dem, eller valgene
   // til svaret er fullstendig.
   const leselinje = (p: Kravpost): string[] => {
-    const fra = nyttSvar ? leselinjene(standpunktene(nyttSvar, etter!), p) : [];
+    const fra = leselinjene(nyeStandpunkter, p);
     if (fra.length) return fra;
     const v = postvalget(valg, p.betegnelse);
     const beloep = beloepsvalget(v, p);
@@ -192,11 +193,9 @@
   // Beløp i mer enn ett lag er alternativer, ikke tillegg (Varden, skjerm B).
   const alternativer = $derived(
     new Set(
-      nyttSvar
-        ? standpunktene(nyttSvar, etter!)
-            .filter((s) => s.lag && 'standpunkt' in s && s.standpunkt.art === 'beloep')
-            .map((s) => s.lag)
-        : []
+      nyeStandpunkter
+        .filter((s) => s.lag && 'standpunkt' in s && s.standpunkt.art === 'beloep')
+        .map((s) => s.lag)
     ).size > 1
   );
   // Det som mangler, med skjemaets ord. Kjernen avviser det samme med feltkoder.
@@ -210,7 +209,7 @@
   };
   const hovedvarselet = $derived(spoerOmHovedvarselet(u, kjernesak.regler));
   const mangler = $derived(
-    [
+    manglene(uid, [
       {
         felt: 'itide',
         post: null,
@@ -235,7 +234,7 @@
             felt: `varsel-${p.betegnelse}`,
             post: p.id,
             tekst: i(
-              justerte(p) && v.form === 'godtar' && v.varsletITide === null
+              justerteEnhetspriser(p) && v.form === 'godtar' && v.varsletITide === null
                 ? SKJEMA.manglerVarselJustering
                 : null
             ),
@@ -244,7 +243,7 @@
             felt: `justering-${p.betegnelse}`,
             post: p.id,
             tekst: i(
-              justerte(p) && v.form === 'godtar' && v.godtarJustering === null
+              justerteEnhetspriser(p) && v.form === 'godtar' && v.godtarJustering === null
                 ? SKJEMA.manglerJustering
                 : null
             ),
@@ -259,9 +258,7 @@
           { felt: `delbeloep-${p.betegnelse}`, post: p.id, tekst: i(delbeloepFeil(p)) },
         ];
       }),
-    ].flatMap((m): Mangel[] =>
-      m.tekst ? [{ ...m, felt: `${uid}-${m.felt}`, tekst: m.tekst }] : []
-    )
+    ])
   );
 
   const virkninger = $derived([
@@ -302,7 +299,7 @@
   {alternativer}
   {virkninger}
   {mangler}
-  poster={() => postliste}
+  {postliste}
   stopp={stoppet ? (hinder ? SKJEMA.ikkeStoettetHinder(hinder) : SKJEMA.ikkeStoettet) : null}
   {onbrevkontroll}
   {onforkast}
@@ -312,7 +309,7 @@
     {#snippet postvalgene(p: Kravpost)}
       {@const v = valg.poster[p.betegnelse]}
       {#if v}
-        {@const forms = formforutsetninger(p)}
+        {@const forms = forutsetningene(p, 'oppgjoersform')}
         <Gjelderhvis
           id={`${uid}-form-${p.betegnelse}-forutsetninger`}
           liste={forms}
@@ -428,8 +425,8 @@
             >
           </div>
         {:else}
-          {@const varselet = regelforutsetninger(p, 'rettidighet')}
-          {@const justeringen = regelforutsetninger(p, 'justering')}
+          {@const varselet = forutsetningene(p, 'rettidighet')}
+          {@const justeringen = forutsetningene(p, 'justering')}
           <div class="betinget">
             <Gjelderhvis
               id={`${uid}-varsel-${p.betegnelse}-forutsetninger`}
@@ -494,7 +491,7 @@
           liste={iPosten(grunnene)}
           punkt={forutsetning}
         />
-        <Varseldatoer {u} {kravbrevet} sendt={SKJEMA.kravSendt} />
+        <Varseldatoer {u} spor="vederlag" sendt={SKJEMA.kravSendt} />
         <Valg
           navn={`${uid}-itide`}
           spoersmaal={SKJEMA.varselSpoersmaal}

@@ -5,20 +5,21 @@
 <script lang="ts">
   import type { Utledning } from '$kjerne/utledning/utled';
   import { klarOverForholdet, type Brevet } from './lesing';
-  import { kravetSendt } from './svarskjema';
+  import { kravbrevetI, kravetSendt } from './svarskjema';
   import { SKJEMA, kalenderdager } from './tekster';
 
   let {
     u,
-    kravbrevet,
+    spor,
     sendt,
   }: {
     u: Utledning;
-    kravbrevet: Brevet;
+    spor: 'vederlag' | 'frist';
     /** Linjen om når kravet ble sendt, med sporets ord. */
     sendt: (dato: string, brev: Brevet) => string;
   } = $props();
 
+  const kravbrevet = $derived(kravbrevetI(u, spor));
   const klarOver = $derived(klarOverForholdet(u));
   const kravSendt = $derived(kravetSendt(kravbrevet));
 </script>
