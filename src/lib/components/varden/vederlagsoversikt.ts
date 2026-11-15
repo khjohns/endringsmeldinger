@@ -12,6 +12,7 @@ import { beloepeneILagene, krevdSamlet } from '$kjerne/spor/vederlag/format';
 import { posteneIOversikten } from '$kjerne/spor/vederlag/tekst';
 import type { Krav, Kravpost, Oppgjoersform } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
+import { varseletFoerKravet } from '$lib/kjernesak/vederlagskrav';
 import { underOverskriften, type Brevet } from './lesing';
 import { lageneISvaret, medForbehold, type Svarlaget } from './svarlagene';
 
@@ -118,4 +119,22 @@ export function kravbeloepene(u: Utledning): Map<string, number> {
       return sum > 0n ? [[k.dokument, tilTall(sum)] as const] : [];
     })
   );
+}
+
+/**
+ * Hjemlene et krav i vederlaget også er varselet etter, etter brevet med kravet (U-12): kravet er
+ * brevet kjernen leser som varselet etter hjemmelen (`varseletFoerKravet`, OV-U5), og brevet har
+ * punktet for varselet, som det får der varslingsplikten gjelder (VS-U3, OV-U15). Et brev uten
+ * punktet sier ikke at det varsler, og står uten hjemmelen.
+ */
+export function varsleneIKravene(u: Utledning, alle: Brevet[]): Map<string, string[]> {
+  const ut = new Map<string, string[]>();
+  for (const hjemmel of ['34.1.2', '34.1.3'] as const) {
+    const id = varseletFoerKravet(u, hjemmel);
+    const brev = alle.find((b) => b.id === id);
+    if (!brev || !u.spor.vederlag.krav.some((k) => k.dokument === brev.id)) continue;
+    if (!brev.avsnitt?.some((a) => a.punkt === hjemmel)) continue;
+    ut.set(brev.id, [...(ut.get(brev.id) ?? []), hjemmel]);
+  }
+  return ut;
 }

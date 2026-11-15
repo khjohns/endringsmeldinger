@@ -28,7 +28,7 @@
     type Sortering,
     type Utvalg,
   } from './saksliste';
-  import { dato, SAKEN, SAKSLISTE } from './tekster';
+  import { dato, SAKEN, SAKSLISTE, utenKr } from './tekster';
 
   let {
     saker,
@@ -196,9 +196,7 @@
             </div>
             <div class="halv">
               <span class="hl">{SAKSLISTE.krevdUtenforEo}</span>
-              <span class="hv"
-                >{kroner(tall.vederlag.sum).replace(/\s?kr$/, '')} <small>kr</small></span
-              >
+              <span class="hv">{utenKr(kroner(tall.vederlag.sum))} <small>kr</small></span>
               <span class="hm"
                 >{[
                   SAKSLISTE.krav(tall.vederlag.krav),

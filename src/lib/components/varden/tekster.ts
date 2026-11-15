@@ -86,6 +86,12 @@ const KLOKKE = new Intl.DateTimeFormat('nb-NO', {
   timeZone: 'Europe/Oslo',
 });
 
+/**
+ * Beløpet uten enheten, for en tabell eller en celle der enheten står ved siden av (#1997):
+ * `kroner` skriver enheten etter et hardt mellomrom.
+ */
+export const utenKr = (beloep: string) => beloep.replace(/\u00a0kr$/, '');
+
 /** «15. september 2026» for en dato («2026-09-15») eller et tidspunkt. */
 export const dato = (d: string) =>
   DATO.format(new Date(/^\d{4}-\d{2}-\d{2}$/.test(d) ? `${d}T12:00:00Z` : d));
@@ -818,6 +824,16 @@ export const TRAADEN = {
   vises: 'Vises til høyre',
   /** Akseptfristen over handlingene ved byggherrens svar (U-11, U-16, HF-U23 punkt 4). */
   akseptfrist: 'Akseptfrist:',
+  /**
+   * Når brevet ble sendt og levert til Catenda, under hodet på brevet (G-5 og U-11 i BF-44,
+   * HF-U23 punkt 4). Datoen står i raden, så linja har klokkeslettet, og datoen bare når
+   * leveringen kom en annen dag.
+   */
+  levering: (sendt: string, levert: string | null) =>
+    `Sendt kl.\u00a0${klokke(sendt)}. ` +
+    (levert === null
+      ? 'Ikke levert til Catenda ennå.'
+      : `Levert til Catenda ${dato(levert) === dato(sendt) ? '' : `${dato(levert)} `}kl.\u00a0${klokke(levert)}.`),
   /** Datoen TE oppgir, og avstanden til varselet, uten vurdering av fristen (U-8, MM-U50). */
   klarOver: (d: string, brev: Brevref, dager: number) =>
     `Totalentreprenøren ble klar over forholdet ${dato(d)}, ifølge ${brevref(brev)}.` +
@@ -1571,8 +1587,11 @@ export const VEDERLAGET = {
   krever: 'Totalentreprenøren krever',
   godkjenner: 'Byggherren godkjenner',
   ikkeSvart: 'Byggherren har ikke svart på dette kravet.',
-  /** Beløpet i et krav ved brevet i tråden (U-12). */
-  kravbeloep: (beloep: number) => `${kroner(beloep)}.`,
+  /** Beløpet i et krav ved brevet i tråden, med hjemlene kravet også varsler etter (U-12). */
+  kravbeloep: (beloep: number, varsler: readonly string[] = []) =>
+    varsler.length
+      ? `${kroner(beloep)}, med varsel etter ${varsler.length > 1 ? 'punktene' : 'punkt'}\u00a0${liste([...varsler])}.`
+      : `${kroner(beloep)}.`,
   /** Innsigelsen et senere lag gjelder hvis ikke fører frem (U-2), med brevets ord. */
   innsigelsen: (i: Innsigelsen) =>
     i.art === 'grunn'

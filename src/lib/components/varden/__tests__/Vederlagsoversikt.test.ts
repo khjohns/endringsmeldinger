@@ -17,10 +17,10 @@ import Vardensak from '$lib/components/varden/Vardensak.svelte';
 import Vederlagsoversikt from '$lib/components/varden/Vederlagsoversikt.svelte';
 import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import { kravetOgSvaret } from '$lib/components/varden/vederlagsoversikt';
+import { kravetOgSvaret, varsleneIKravene } from '$lib/components/varden/vederlagsoversikt';
 import { trinnene } from '$lib/components/varden/Maalrad.svelte';
 import { akseptfristen } from '$lib/components/varden/svarlagene';
-import { brevene } from '$lib/components/varden/lesing';
+import { brevene, leveringene } from '$lib/components/varden/lesing';
 import { VEDERLAGET } from '$lib/components/varden/tekster';
 import type { Utledning } from '$kjerne/utledning/utled';
 
@@ -147,11 +147,74 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
       'listitem'
     );
     const krav = rader.filter((r) => r.textContent?.includes('Krav om vederlagsjustering'));
-    expect(krav.map((r) => r.querySelector('.beloep')?.textContent)).toEqual([
-      '190 000 kr.',
-      '125 000 kr.',
+    // Leselinja i prototypen `vederlagsoversikt.html` v3: kravet som også er varselet, sier
+    // hjemmelen ved beløpet (U-12). Brev 2 er det første kravet og varsler etter punkt 34.1.2, og
+    // brev 3 har den særskilte posten og varsler etter punkt 34.1.3 (OV-U5).
+    expect(krav.map((r) => r.querySelector('.beloep')?.textContent?.trim())).toEqual([
+      '190 000 kr, med varsel etter punkt 34.1.3.',
+      '125 000 kr, med varsel etter punkt 34.1.2.',
     ]);
     expect(krav[1]!.textContent).toContain('fulgt opp i brev 3');
+    // Beløpet i det eldre kravet står dempet, som tittelen (U-5).
+    expect(krav.map((r) => r.querySelector('.beloep')?.classList.contains('dempet'))).toEqual([
+      false,
+      true,
+    ]);
+  });
+
+  it('et krav uten punktet for varselet i brevet står uten hjemmelen (U-12, VS-U3)', async () => {
+    const u = await utledning(BF44.steg);
+    const alle = brevene(u);
+    expect([...varsleneIKravene(u, alle).values()]).toEqual([['34.1.2'], ['34.1.3']]);
+    // Kontrollsaken: samme sak, men brevet med det første kravet har ikke punktet etter 34.1.2.
+    const uten = alle.map((b) => ({
+      ...b,
+      avsnitt: b.avsnitt?.filter((a) => a.punkt !== '34.1.2') ?? null,
+    }));
+    expect([...varsleneIKravene(u, uten).values()]).toEqual([['34.1.3']]);
+  });
+
+  it('et krav som er varselet etter begge hjemlene, sier «punktene» (U-12)', () => {
+    expect(VEDERLAGET.kravbeloep(190000, ['34.1.2', '34.1.3'])).toBe(
+      '190\u00a0000\u00a0kr, med varsel etter punktene\u00a034.1.2 og 34.1.3.'
+    );
+  });
+
+  it('leveringen til Catenda står ved svaret med akseptfristen, og ved et brev som ikke er levert ennå (G-5, U-11, HF-U23 punkt 4)', async () => {
+    const u = await utledning(BF44.steg);
+    const alle = brevene(u);
+    const svaret = alle.find((b) => b.art === 'svar' && b.spor.includes('vederlag'))!;
+    const [eldst, nyest] = alle.filter((b) => b.art === 'krav' && b.spor.includes('vederlag'));
+    const enDagSenere = new Date(Date.parse(svaret.registrert) + 86_400_000).toISOString();
+    render(Vederlagsoversikt, {
+      u,
+      betegnelser: { forhold: null, vederlag: null, frist: null },
+      onles: () => {},
+      levering: new Map([
+        [svaret.id, enDagSenere],
+        [nyest!.id, null],
+        [eldst!.id, eldst!.registrert],
+      ]),
+    });
+    const linjer = [...document.querySelectorAll('.levering')];
+    expect(linjer).toHaveLength(2);
+    const [vedSvaret, ikkeLevert] = linjer;
+    expect(vedSvaret!.closest('li')?.textContent).toContain('Akseptfrist');
+    expect(vedSvaret!.textContent).toMatch(
+      /^Sendt kl\.\u00a0\d{2}\.\d{2}\. Levert til Catenda \d{1,2}\. \p{L}+ \d{4} kl\.\u00a0\d{2}\.\d{2}\.$/u
+    );
+    expect(ikkeLevert!.textContent).toMatch(
+      /^Sendt kl\.\u00a0\d{2}\.\d{2}\. Ikke levert til Catenda ennå\.$/
+    );
+  });
+
+  it('et registrert brev uten dokument og et brev uten oppdrag står ikke i leveringene (#2026)', () => {
+    expect([
+      ...leveringene([
+        { event_id: 'a', filnavn: 'K201-KOE-001-01.pdf', levert: null },
+        { event_id: 'b', filnavn: null, levert: null },
+      ]),
+    ]).toEqual([['a', null]]);
   });
 
   it('datoen TE oppgir og avstanden i kalenderdager står under brevet med varselet etter punkt 34.1.2 (U-8, G-6)', async () => {
