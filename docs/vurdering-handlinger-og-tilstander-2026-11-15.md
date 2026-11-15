@@ -163,6 +163,63 @@ rekkefølgen i #1065.
 
 Ikke besvart.
 
+## Drøftingen 15.11
+
+Spørsmål 1–3 over er satt på vent. Oppdragsgiver 15.11, ordrett: «La oss drøfte momenter eller
+kriterier for å vurdere tilstander/handlinger først. Både rettslig, kompleksitet i kode,
+brukerbehov osv». Kriteriene ble drøftet med en sparringsøkt. Det som står her, er arbeidsgrunnlag,
+ikke vedtak.
+
+**Metoden.** Hver handling får ja, nei eller «delvis» og én linje begrunnelse per port, i fast
+rekkefølge. En helhetsvurdering skrives bare der en port står på «delvis».
+
+| Port | Spørsmål |
+| --- | --- |
+| 0 Tilstandene i grunnsettet | Sier tilstanden hvem som har sagt hva, og hvem som står for tur, uten å konkludere det kontrakten overlater til partene? Sporet viser et innlegg etter siste strukturerte handling uten å tolke det |
+| 1 Finnes? | Leser en regel, en sperre eller en frist i kjernen utsagnet, eller motsier oversikten det? For andre handlinger enn utsagn til motparten: organisatorisk behov og tilgang |
+| 2 Form | Strukturert eller innlegg; egen handling eller en form av en som finnes; hva brevet må si uttrykkelig for at handlingen ikke sendes ved en feil |
+| 3 Når | Avhenger virkningen av når utsagnet ble gitt? Omveien, hyppigheten (antakelse), veid mot samspillet i koden |
+| 4 Tilstander | Hvilke tilstander handlingen åpner og lukker; hver tilstand har en vei ut |
+| Kostnad | Ny regel i kjernen, nytt skjema i Varden, eller ingen av delene |
+
+**Prøvd på fem tilfeller.** Trekk: beholde, én handling i to former (eget trekk og i en ny
+kravversjon). Nytt svar (HF-U29): beholde, en form av svar. Innsigelsen etter punkt 5: innlegg,
+ingen regel leser den. Bekreftelsen (OV-U46): senere, med registrert svar som omvei. «Ingen krav»:
+port 1 ja (KA-U17), port 3 senere (OV-U7). Port 0: «venter på svar» og «varslet» holder; «svaret er
+ikke godtatt» og «krav sendt» feiler.
+
+**Oppdragsgivers svar 15.11, ordrett:**
+1. Om å bytte «svaret er ikke godtatt» med «byggherren har svart» og fjerne «krav sendt»: «enig».
+   Design (MM-U30).
+2. «innsigelse: jeg er ikkenoverbevist om at det skal være en egen handling i frontend. Tenker
+   partene kan fint sende dette uoppfordret i fritekstinnlegg også». Føres i #1657.
+3. «Dette henger vel generelt sammen med all form for registrering. TE kan registrere flere
+   varsler, blant annet. Når er det grunn til å behandle registrering ulikt?»
+
+**Arbeidssvaret på 3**, prøvd av sparringsøkta mot OV-U79, OV-U80, OV-U84, OV-U85, OV-U11, OV-U46
+og OV-U6:
+- En registrering får virkning bare for utsagn der en frist avhenger av når brevet ble sendt:
+  varsel, krav og svar (valgene i OV-U80). Aksept, trekk og annet står som dokumentasjon, og
+  parten gjentar utsagnet fra løsningen uten tap.
+- Datoen brukes bare til å regne frister. Rekkefølgen i journalen styrer sperrene og hva som er
+  gjeldende (OV-U84).
+- Ulik behandling ellers: bare avsenderen gir brevet virkning (OV-U84); en tidligere varseldato er
+  en retting som motparten må godta (OV-U84, OV-U11); innhold standpunktene ikke kan uttrykke,
+  forblir dokumentasjon (KA-U16, KA-U49); varsel godtas utenfor rekkefølgen, krav og svar bare der
+  samme handling fra løsningen ville vært godtatt (OV-U80); et registrert svar går gjennom
+  fullmakten; i en sak løsningen ikke forstår, godtas bare dokumentasjon; endringsordren som svar
+  har egne vilkår (OV-U6).
+- Bekreftelsen (OV-U46) er ikke en form av registreringen: den er et nytt brev fra løsningen, og
+  fristene regnes fra det. Om OV-U46 skal stå ved siden av OV-U80, er et vedtaksspørsmål.
+- Registreringen kan repareres ved sin utforming: korrespondansen legges til nå, og avsenderen
+  velger senere med den opprinnelige datoen (OV-U84). Valget kan bygges senere, hvis ikke MM-U55
+  krever det før første ekte sak.
+- Ikke kontrollert: hvordan forespørselen etter 33.6.2 registreres (VS-U47 nevner en registrert
+  forespørsel, OV-U80 har den ikke blant valgene).
+
+**Det som gjenstår:** skjemaet fylles ut for alle handlingene, også grunnsettet, og spørsmål 1–3
+skrives om etter metoden.
+
 ## Kodefunn
 
 Samles i én kommentar i #1987 når spørsmålene er besvart (vedtaksskillen, samlevedtakene).
