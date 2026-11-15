@@ -12,7 +12,7 @@ import { ELDRE_SVAR } from './forutsetninger.ts';
 import { norskDato, PARTEN, PARTENS } from '../frosset/brevdeler.ts';
 import { datoFor, kalenderdag } from '../format/leser.ts';
 import { erKalenderdato } from '../format/skjema.ts';
-import type { Kommando, Svarutkast } from './kommando.ts';
+import { erRegistrering, type Kommando, type Svarutkast } from './kommando.ts';
 import {
   korrigertDato,
   kontrollerKorrigering,
@@ -243,7 +243,7 @@ function oppgittDatoI(k: Kommando): OppgittDato | null {
   if (k.type === 'varsel')
     return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'Totalentreprenøren' };
   // OV-U98: svaret eller aksepten som legges til, er ikke sendt etter dagen det legges til.
-  if ((k.type === 'brev' || k.type === 'revisjon' || k.type === 'aksept') && k.sendt !== undefined)
+  if (erRegistrering(k))
     return {
       dato: k.sendt,
       gjelder: 'brevet ble sendt',
@@ -445,14 +445,11 @@ export function nyttelastkontroll(
     case 'aksept': {
       // KA-U1, KT-U1: aksepten gjelder sporets gjeldende svar. En aksept som legges til, gjelder
       // svaret som var gjeldende da den ble sendt, og det prøver utledningen (OV-U98).
-      if (
-        k.sendt !== undefined
-          ? !u.spor[k.spor].svar.some((x) => x.id === k.svar)
-          : k.svar !== u.spor[k.spor].gjeldendeSvar?.id
-      )
+      const svaretFinnes = u.spor[k.spor].svar.some((x) => x.id === k.svar);
+      if (k.sendt !== undefined ? !svaretFinnes : k.svar !== u.spor[k.spor].gjeldendeSvar?.id)
         return avvis(
           'IKKE_GJELDENDE_SVAR',
-          u.spor[k.spor].svar.some((x) => x.id === k.svar)
+          svaretFinnes
             ? ELDRE_SVAR
             : 'Aksepten gjelder ikke et svar byggherren har sendt på kravet.'
         );

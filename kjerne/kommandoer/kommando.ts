@@ -92,7 +92,9 @@ export interface Registrering {
 }
 
 /** Svaret eller aksepten er lagt til med datoen det ble sendt (OV-U98). */
-export const erRegistrering = (k: Kommando): boolean =>
+export const erRegistrering = (
+  k: Kommando
+): k is Extract<Kommando, { type: 'brev' | 'revisjon' | 'aksept' }> & { sendt: string } =>
   (k.type === 'brev' || k.type === 'revisjon' || k.type === 'aksept') && k.sendt !== undefined;
 
 export type Kommando = (

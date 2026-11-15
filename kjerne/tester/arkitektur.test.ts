@@ -1209,7 +1209,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'sendt korrespondansetype dokumentasjon',
     ['kommandoer/kommando.ts', 'kommandoer/nyttelast.ts', 'kommandoer/skriving.ts:registrering'],
   ],
-  ['kommandoer/kommando.ts', 'predikat', 'erRegistrering', ['kommandoer/skriving.ts:skriv']],
+  [
+    'kommandoer/kommando.ts',
+    'predikat',
+    'erRegistrering',
+    ['kommandoer/skriving.ts:skriv', 'kommandoer/nyttelast.ts:oppgittDatoI'],
+  ],
   // OV-U80: et registrert svar har ingen tekst fra løsningen.
   ['Svarutkast', 'kommando', 'utdypning utdypninger', ['kommandoer/kommando.ts:formfeil']],
   // OV-U98: en registrering godtas bare når utledningen gir den virkning.

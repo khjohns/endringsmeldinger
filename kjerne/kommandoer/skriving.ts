@@ -321,7 +321,6 @@ const SKRIVING: Record<Spor, Sporsskriving> = {
   frist: SKRIVING_I_FRISTEN,
 };
 
-/** Innholdet i dokumentet kommandoen gir. */
 /** Meldingen når en registrering ikke får virkning med datoen avsenderen oppgir (OV-U98). */
 const UTEN_VIRKNING_MELDING = (grunn: string) =>
   `Brevet kan ikke legges til med datoen det ble sendt. Det er ${grunn.replace(/ \([^)]*\)/g, '')}.`;
@@ -339,6 +338,7 @@ function registrering(k: Registrering, nyId: () => string, bundne: Vedlegg[]): D
   };
 }
 
+/** Innholdet i dokumentet kommandoen gir. */
 function dokument(
   k: Kommando,
   u: Utledning,
