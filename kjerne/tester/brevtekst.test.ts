@@ -10530,6 +10530,26 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       expect((krav.data.dokumentasjon ?? []) as Data[]).toHaveLength(2);
     });
 
+    it('et dokument fra kravskjemaet med et vedlegg som alt ligger ved et varsel i saken, avvises, så varselet fortsatt gjelder den andre kravposten (VS-U55, VS-U51, #1993)', () => {
+      const s = paaberopt();
+      const varselet = { ...registrertVarsel('34.4'), dokumentasjon: [randomUUID(), randomUUID()] };
+      s.send('TE', varselet);
+      const delt = { ...dokument(), dokumentasjon: [varselet.dokumentasjon[0]!.toUpperCase()] };
+      const foer = s.journal.length;
+      expect(s.avvisning('TE', vederlagskrav([{ ...regning, varsel: delt }, regning]))).toEqual({
+        regel: 'KRAVPOSTVARSELET',
+        melding:
+          'Et vedlegg i varselet for kravpost nr. 1 ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.',
+      });
+      expect(s.journal.length, 'ingen rad skrives').toBe(foer);
+      // Kontrollsak: med et eget dokument gjelder varselet i saken den andre posten (D-16, VS-U55).
+      const tekst = laast(
+        s.send('TE', vederlagskrav([{ ...regning, varsel: dokument() }, regning]))
+      ).join(' ');
+      expect(tekst).not.toContain(varselRegning);
+      expect(tekst).toContain('ble gitt i totalentreprenørens e-post');
+    });
+
     it('samme dokument for to kravposter er ett registrert brev med ett varsel per bestemmelse, og hver post viser til sitt (VS-U52, VS-U53)', () => {
       const s = paaberopt();
       const varsel = dokument();

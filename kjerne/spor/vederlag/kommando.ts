@@ -303,6 +303,20 @@ function medDokumentvarslene(
       dokumentene.set(id, like);
     }
   }
+  // VS-U55 (#1993): ellers holder `foranKravet` varselet i saken utenfor for de andre kravpostene.
+  const { lest, u } = skriving.saken(journal);
+  const i = poster.findIndex(
+    (p) => erDokumentvarsel(p.varsel) && liggerVedEtVarsel(p.varsel.dokumentasjon, lest, u)
+  );
+  if (i >= 0)
+    return {
+      godtatt: false,
+      feil: 'REGELBRUDD',
+      avvisning: avvis(
+        'KRAVPOSTVARSELET',
+        `Et vedlegg i varselet for kravpost nr. ${i + 1} ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.`
+      ),
+    };
   const kjede = (kx: Kontekst, jx: Journalrad[]) => medVarslene(k, [], kx, jx, skriving);
   if (skriving.sendes) {
     const proeve = skriving.hele(kjede(kontekst, journal), kontekst, journal);
@@ -420,21 +434,29 @@ function vedleggetErEtVarsel(
   lest: readonly Domenehendelse[],
   u: Utledning
 ): Avvisning | null {
-  const ved = new Set((k.dokumentasjon ?? []).map((id) => id.toLowerCase()));
-  if (!ved.size) return null;
-  const varslene = new Set(u.spor.vederlag.kravpostvarsler.map((v) => v.dokument));
-  const dokumentet = lest.find(
-    (h) =>
-      h.art === 'dokument' &&
-      varslene.has(h.id) &&
-      h.dokument.dokumentasjon.some((v) => ved.has(v.vedlegg_id.toLowerCase()))
-  );
-  return dokumentet
+  return liggerVedEtVarsel(k.dokumentasjon ?? [], lest, u)
     ? avvis(
         'KRAVPOSTVARSELET',
         'Et vedlegg ved kravet ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.'
       )
     : null;
+}
+
+/** Om et av vedleggene `ider` alt ligger ved et varsel for en kravpost i saken (VS-U55). */
+function liggerVedEtVarsel(
+  ider: readonly string[],
+  lest: readonly Domenehendelse[],
+  u: Utledning
+): boolean {
+  const ved = new Set(ider.map((id) => id.toLowerCase()));
+  if (!ved.size) return false;
+  const varslene = new Set(u.spor.vederlag.kravpostvarsler.map((v) => v.dokument));
+  return lest.some(
+    (h) =>
+      h.art === 'dokument' &&
+      varslene.has(h.id) &&
+      h.dokument.dokumentasjon.some((v) => ved.has(v.vedlegg_id.toLowerCase()))
+  );
 }
 
 export const SKRIVING_I_VEDERLAGET = {

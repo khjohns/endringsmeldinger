@@ -297,6 +297,14 @@ export interface Skrivesteg {
     ogsaaEtter?: readonly Kravpostvarselhjemmel[]
   ): Utfall;
   hele(utfall: Utfall, kontekst: Kontekst, journal: Journalrad[]): Utfall;
+  /** Journalen lest og utledet, som `skriv` leser den. */
+  saken(journal: Journalrad[]): LestSak;
+}
+
+/** Journalen lest og utledet (`Skrivesteg.saken`). */
+export interface LestSak {
+  lest: readonly Domenehendelse[];
+  u: Utledning;
 }
 
 /** Skrivingen i hvert spor. */
@@ -542,6 +550,10 @@ function handlingen(
     skriv: (kx, kont, jx, vedKravet, ogsaaEtter) =>
       skriv(kx, kont, jx, kjerne, vedlegg, sendes, vedKravet, ogsaaEtter),
     hele,
+    saken: (jx) => {
+      const lest = lesJournal(jx, kjerne.leserformat);
+      return { lest, u: utled(lest, kjerne.regler) };
+    },
   };
   return (
     (k.type === 'krav'
