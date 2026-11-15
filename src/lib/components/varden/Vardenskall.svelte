@@ -13,7 +13,7 @@
   import '$lib/components/kontraktsbord/theme.css';
   import type { Snippet } from 'svelte';
   import osloLogo from '../../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
-  import { kontraktFraProsjektet, type Kontrakt } from './kontrakt';
+  import { kontraktFraProsjektet, kontraktsrader, type Kontrakt } from './kontrakt';
   import { medietreff } from './medie.svelte';
   import { SAKEN, initialer } from './tekster';
 
@@ -58,15 +58,14 @@
   } = $props();
 
   // Et navn som mangler, står ikke der (#1398).
-  const kontraktsrader = $derived.by(() => {
-    const k = kontrakt ?? kontraktFraProsjektet();
-    return [
-      [SAKEN.prosjekt, k.prosjekt],
-      [SAKEN.kontraktsform, k.kontraktsform],
-      [SAKEN.byggherre, k.byggherre],
-      [SAKEN.entreprenoer, k.entreprenoer],
-    ].filter((r): r is [string, string] => !!r[1]);
-  });
+  const raden = $derived(
+    kontraktsrader(kontrakt ?? kontraktFraProsjektet(), [
+      'prosjekt',
+      'kontraktsform',
+      'byggherre',
+      'entreprenoer',
+    ])
+  );
   // Panelet felles inn fra 1181 px opp til 1900 px på en side med `bred` (U-16 i BF-44). Sporene og
   // sakens tittel står da i topplinja, og bare da, så sporene står ett sted om gangen.
   const mellombred = medietreff('(min-width: 1181px) and (max-width: 1899px)', () => bred);
@@ -85,11 +84,11 @@
       {@render panel?.()}
       <div class="bunn">
         <!-- Prosjektet og partene hører til kontrakten, ikke saken (oppdragsgiver 30.10). -->
-        {#if visKontrakten && kontraktsrader.length}
+        {#if visKontrakten && raden.length}
           <section class="kontrakten" aria-labelledby="kontrakt-etikett">
             <h2 class="etikett" id="kontrakt-etikett">{SAKEN.kontrakten}</h2>
             <dl class="meta">
-              {#each kontraktsrader as [etikett, verdi] (etikett)}
+              {#each raden as [etikett, verdi] (etikett)}
                 <div>
                   <dt>{etikett}</dt>
                   <dd>{verdi}</dd>
@@ -149,7 +148,7 @@
   .varden {
     display: grid;
     grid-template-columns: 300px minmax(0, 1fr);
-    min-height: 100vh;
+    min-height: 100dvh;
     background: var(--canvas);
     color: var(--ink);
     font-family: var(--font-sans);
@@ -167,7 +166,7 @@
     display: flex;
     flex-direction: column;
     gap: 28px;
-    height: 100vh;
+    height: 100dvh;
     overflow-y: auto;
     padding: var(--spacing-5) var(--spacing-5) var(--spacing-6);
   }
@@ -269,6 +268,20 @@
   .panel :global(.valg:focus-visible) {
     outline: 2px solid var(--sidebar-focus);
     outline-offset: -2px;
+  }
+  /* Den tette varianten for sporene i saken, uten store bokstaver og med valgene i full bredde
+     (oppdragsgiver 13.11, panel B i BF-44). */
+  .panel :global(.tett .etikett) {
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .panel :global(.tett .valgene) {
+    margin: 0 calc(-1 * var(--spacing-5));
+  }
+  .panel :global(.tett .valg) {
+    min-height: 0;
+    padding: 10px var(--spacing-5) 10px 17px;
+    border-radius: 0;
   }
   .prototype {
     align-self: flex-start;

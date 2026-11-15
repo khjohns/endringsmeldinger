@@ -30,7 +30,12 @@
   import Korrigering from './Korrigering.svelte';
   import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
   import { tomtSvar, type Korrigeringsvalg } from './kommandoer';
-  import { kontraktFraProsjektet, settOrganisasjoner, type Kontrakt } from './kontrakt';
+  import {
+    kontraktFraProsjektet,
+    kontraktsrader,
+    settOrganisasjoner,
+    type Kontrakt,
+  } from './kontrakt';
   import {
     betegnelsene,
     brevForLinja,
@@ -186,12 +191,7 @@
     };
     return { forhold: linje('forhold'), vederlag: linje('vederlag'), frist: linje('frist') };
   });
-  const parter = $derived(
-    [
-      [SAKEN.entreprenoer, kontrakten.entreprenoer],
-      [SAKEN.byggherre, kontrakten.byggherre],
-    ].filter((r): r is [string, string] => !!r[1])
-  );
+  const parter = $derived(kontraktsrader(kontrakten, ['entreprenoer', 'byggherre']));
   const partensLenke = $derived(kjernesak.part === 'TE' ? (nySakLenke ?? null) : null);
 
   // Svarutkastet i sporet er sendt eller forkastet.
@@ -449,7 +449,7 @@
       </header>
 
       <!-- Forholdet og kravene som bygger på det, i hver sin gruppe (oppdragsgiver 06.11, #1631). -->
-      <nav class="sporene" aria-label={SAKEN.sporene}>
+      <nav class="sporene tett" aria-label={SAKEN.sporene}>
         {#each SPORGRUPPENE as gruppe (gruppe.id)}
           <div class="gruppe">
             <p class="etikett" id={`spor-${gruppe.id}`}>{gruppe.etikett}</p>
@@ -729,18 +729,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-5);
-  }
-  .sporene .etikett {
-    text-transform: none;
-    letter-spacing: 0;
-  }
-  .sporene .valgene {
-    margin: 0 calc(-1 * var(--spacing-5));
-  }
-  .sporene .valg {
-    min-height: 0;
-    padding: 10px var(--spacing-5) 10px 17px;
-    border-radius: 0;
   }
   .navn {
     display: flex;

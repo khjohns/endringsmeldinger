@@ -793,8 +793,9 @@ export const TRAADEN = {
   fulgtOpp: (b: Brevref) => ` · fulgt opp i ${brevref(b)}`,
   /** Avsenderen for skjermleseren, som ser ringen uten tekst (oppdragsgiver 13.11). */
   fra: (part: Part) => ` fra ${PARTEN[part]}`,
-  les: 'Les brevet',
-  lukk: 'Lukk brevet',
+  // Samme tekst som ved brevet i skjemaene, med én kilde (#1909).
+  les: SKJEMA.lesBrevetHer,
+  lukk: SKJEMA.lukkBrevet,
   vises: 'Vises til høyre',
   knappenavn: (tekst: string, b: Pick<Brevet, 'nummer'>, hva: string) =>
     `${tekst}: ${b.nummer === null ? hva : `brev ${b.nummer}, ${hva}`}`,

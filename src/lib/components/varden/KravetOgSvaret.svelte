@@ -196,7 +196,7 @@
       <div class="forbehold">
         <Melding art="info" levende={false}>
           {VEDERLAGET.forbehold(k.svarbrev, forholdssvar)}
-          {#if onforholdet}<Knapp variant="lenke" onclick={onforholdet}
+          {#if onforholdet}<Knapp variant="lenke" kompakt onclick={onforholdet}
               >{VEDERLAGET.tilForholdet}</Knapp
             >{/if}
         </Melding>
@@ -392,10 +392,6 @@
   }
   .forbehold {
     margin-top: var(--spacing-5);
-  }
-  .forbehold :global(.knapp) {
-    min-height: 24px;
-    padding: 0;
   }
   /* Smal skjerm: posten står over beløpene sine, så alle lagene er synlige uten vannrett rulling. */
   @media (max-width: 720px) {

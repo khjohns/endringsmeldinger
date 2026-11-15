@@ -127,6 +127,7 @@
             {:else}
               <Knapp
                 variant="lenke"
+                kompakt
                 aria-label={TRAADEN.knappenavn(valgt ? TRAADEN.lukk : TRAADEN.les, b, hva)}
                 aria-expanded={smal ? valgt : undefined}
                 data-les={b.id}
@@ -337,18 +338,6 @@
     font-size: 12px;
     color: var(--ink-3);
     white-space: nowrap;
-  }
-  /* Lenken står på linja med 24 px høyde, og treffflaten går utover den (WCAG 2.5.8). */
-  .meta :global(.knapp) {
-    position: relative;
-    min-height: 24px;
-    padding: 0;
-    font-size: 14px;
-  }
-  .meta :global(.knapp)::after {
-    content: '';
-    position: absolute;
-    inset: -10px -4px;
   }
   /* Lenkeknappen står i flukt med teksten over; luften til siden er treffflate. */
   .datolinje :global(.knapp) {

@@ -9,6 +9,7 @@
 
   let {
     variant = 'sekundaer',
+    kompakt = false,
     opptatt = false,
     onclick,
     href,
@@ -17,6 +18,8 @@
   }: {
     /** `fare` bare for å bekrefte en handling som ikke kan gjøres om (system.md). */
     variant?: 'primaer' | 'sekundaer' | 'lenke' | 'fare';
+    /** En lenkeknapp på en linje med 24 px høyde, med treffflaten utover linja (WCAG 2.5.8). */
+    kompakt?: boolean;
     opptatt?: boolean;
     /** Kalleren gir lenken løst. */
     href?: string;
@@ -28,11 +31,12 @@
 
 {#if href}
   <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
-  <a class="knapp knapp-{variant}" {href} {...rest}>{@render children()}</a>
+  <a class="knapp knapp-{variant}" class:kompakt {href} {...rest}>{@render children()}</a>
 {:else}
   <button
     type="button"
     class="knapp knapp-{variant}"
+    class:kompakt
     aria-disabled={opptatt ? 'true' : undefined}
     aria-busy={opptatt ? 'true' : undefined}
     onclick={() => {
@@ -97,6 +101,17 @@
     color: var(--brand);
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+  .knapp-lenke.kompakt {
+    position: relative;
+    min-height: 24px;
+    padding: 0;
+    font-size: 14px;
+  }
+  .knapp-lenke.kompakt::after {
+    content: '';
+    position: absolute;
+    inset: -10px -4px;
   }
   .knapp-lenke:hover {
     background: none;
