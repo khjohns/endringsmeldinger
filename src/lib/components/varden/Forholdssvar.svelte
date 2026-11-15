@@ -1,0 +1,330 @@
+<!--
+  BH svarer på påberopelsen av forholdet (BF-08, #2009, prototypen `forholdssvar.html#svar`), i
+  skallet for svarskjemaene: skjemaet vurderer, panelet viser hovedlinjene slik kjernen
+  forhåndsviser svaret, og brevet viser alt. Ingenting er forhåndsvalgt. Punktet om varselet står
+  bare der punkt 32.2 gjelder (U-2). Kommandoen bygges i `forholdssvar.ts`, og kjernen lager brevet
+  og avviser det den ikke godtar.
+-->
+<script lang="ts">
+  import { Info } from 'lucide-svelte';
+  import {
+    DATOEN_GJELDER,
+    innholdIForholdet,
+    kategori,
+    oppgittDato,
+  } from '$kjerne/spor/forhold/format';
+  import { blirEndringsordre } from '$kjerne/spor/forhold/frysing';
+  import { forholdet as forholdIKatalogen } from '$kjerne/spor/forhold/tekst';
+  import type { Forholdsresultat } from '$kjerne/regler/typer';
+  import type { Utledning } from '$kjerne/utledning/utled';
+  import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import Gjelderhvis from './Gjelderhvis.svelte';
+  import Spoersmaal from './Spoersmaal.svelte';
+  import Svarskjema from './Svarskjema.svelte';
+  import Valg from './Valg.svelte';
+  import {
+    begrunnelsenKreves,
+    FORHOLDSSVAR,
+    forholdet,
+    forholdslinjen,
+    forholdssvaret,
+    kanFrafalle,
+    tomtForholdssvar,
+    valgteksten,
+    type Forholdssvarvalg,
+  } from './forholdssvar';
+  import { standpunktene } from './lesing';
+  import { kravbrevetI, kravetSendt, manglene } from './svarskjema';
+  import { brevref, dato, kalenderdager } from './tekster';
+
+  let {
+    kjernesak,
+    u,
+    valg = $bindable(tomtForholdssvar()),
+    onbrevkontroll,
+    onforkast,
+    onvedsiden,
+  }: {
+    kjernesak: Kjernesakkontekst;
+    u: Utledning;
+    /** Valgene står når BH går til brevkontrollen og tilbake. */
+    valg?: Forholdssvarvalg;
+    onbrevkontroll: (k: TilBrevkontrollen) => void;
+    /** BH har bekreftet at utkastet skal forkastes. */
+    onforkast: () => void;
+    /** Brevet leses i en ramme ved siden av skjemaet, eller ikke lenger. */
+    onvedsiden?: (vedSiden: boolean) => void;
+  } = $props();
+  const uid = $props.id();
+
+  const krav = $derived(u.spor.forhold.gjeldendeKrav!);
+  const f = $derived(forholdet(krav, kjernesak.regler));
+  const frafallMulig = $derived(kanFrafalle(f, valg));
+
+  // U-3: datoen TE oppgir, sendingen av påberopelsen og dagene mellom. Partene avgjør om varselet
+  // kom i tide.
+  const kravbrevet = $derived(kravbrevetI(u, 'forhold'));
+  const datoene = $derived.by(() => {
+    const { hovedkategori, underkategori } = kategori(krav);
+    const felt = oppgittDato(hovedkategori, underkategori);
+    const oppgitt = felt ? innholdIForholdet(krav).datoer[felt] : null;
+    const sendt = kravetSendt(kravbrevet);
+    return {
+      oppgitt: felt && oppgitt ? { gjelder: DATOEN_GJELDER[felt], dato: oppgitt } : null,
+      sendt,
+      dager: oppgitt && sendt ? kalenderdager(oppgitt, sendt) : null,
+    };
+  });
+  const hjemmelen = $derived(
+    f.risiko
+      ? (forholdIKatalogen(kategori(krav).underkategori)?.hjemmel ?? undefined)
+      : f.varslingsplikt
+        ? '32.3'
+        : '31.3'
+  );
+
+  // D-6: frafallet tas bort når BH gjør gjeldende at varselet kom for sent, og teksten ved valgene
+  // sier hvorfor.
+  function velgForSent(x: boolean | null) {
+    valg.forSent = x;
+    if (valg.resultat === 'paalegg_frafalt' && !kanFrafalle(f, valg)) valg.resultat = null;
+  }
+  const valgene = $derived(
+    f.resultater
+      .filter((r) => r !== 'paalegg_frafalt' || frafallMulig)
+      .map((r) => ({ verdi: r, tekst: valgteksten(r, f, valg.forSent) }))
+  );
+  const frafallMangler = $derived(
+    !f.varslingsplikt
+      ? null
+      : !f.byggherrensPaalegg
+        ? FORHOLDSSVAR.ikkeFrafallIkkeEget
+        : frafallMulig
+          ? null
+          : FORHOLDSSVAR.ikkeFrafallForSent
+  );
+
+  // Svaret uten begrunnelsene og forbeholdet, så det ikke regnes på nytt for hvert tegn i et
+  // tekstfelt (#1925).
+  const utkast = $derived(
+    forholdssvaret(
+      { forSent: valg.forSent, resultat: valg.resultat, begrunnelser: {}, forbehold: '' },
+      u,
+      kjernesak.regler
+    )!
+  );
+  const etter = $derived(kjernesak.forhaandsvist(utkast));
+  const nyttSvar = $derived.by(() => {
+    const s = etter?.spor.forhold.gjeldendeSvar;
+    return s && !u.spor.forhold.svar.some((x) => x.id === s.id) ? s : null;
+  });
+  const endringsordre = $derived(
+    nyttSvar ? blirEndringsordre(nyttSvar.beslutningsgrunnlag) : false
+  );
+  // U-5: setningen om endringsordren står i skjemaet slik kjernen skriver den i brevet.
+  const forholdspunktet = $derived.by(() => {
+    if (!endringsordre) return null;
+    const b = kjernesak.brev(utkast);
+    return b && 'avsnitt' in b
+      ? (b.avsnitt?.find((a) => a.punkt === 'forhold')?.laast ?? null)
+      : null;
+  });
+
+  const linjer = $derived(
+    nyttSvar
+      ? standpunktene(nyttSvar, etter!).flatMap((l) => {
+          if (!('standpunkt' in l)) return [];
+          const s = l.standpunkt;
+          if (s.art === 'rettidighet')
+            return [
+              {
+                tekst: s.iTide
+                  ? FORHOLDSSVAR.linjeVarselIkkeForSent
+                  : FORHOLDSSVAR.linjeVarselForSent,
+                lag: l.lag,
+              },
+            ];
+          if (s.art === 'forhold')
+            return [
+              {
+                tekst: forholdslinjen(s.resultat as Forholdsresultat, f, endringsordre),
+                lag: l.lag,
+              },
+            ];
+          return [];
+        })
+      : []
+  );
+  // U-7 og D-5: hva svaret gjør, lest av kjernens utledning av utkastet.
+  const virkning = $derived(
+    !nyttSvar
+      ? null
+      : endringsordre
+        ? FORHOLDSSVAR.virkningEndringsordre
+        : etter?.frafalt
+          ? FORHOLDSSVAR.virkningFrafall
+          : etter?.forholdAvklart
+            ? FORHOLDSSVAR.virkningEnighet
+            : FORHOLDSSVAR.virkningSubsidiaert
+  );
+
+  const kreves = $derived.by(() => {
+    const k = begrunnelsenKreves(f, valg);
+    return k && { ...k, mangler: FORHOLDSSVAR.manglerBegrunnelse };
+  });
+  const mangler = $derived(
+    manglene(uid, [
+      {
+        felt: 'varsel',
+        post: null,
+        tekst: f.varslingsplikt && valg.forSent === null ? FORHOLDSSVAR.manglerVarsel : null,
+      },
+      {
+        felt: 'forhold',
+        post: null,
+        tekst: valg.resultat === null ? FORHOLDSSVAR.manglerForhold : null,
+      },
+    ])
+  );
+</script>
+
+{#snippet innsigelsen(_: string)}
+  <a href={`#${uid}-varsel`}>{FORHOLDSSVAR.innsigelsenVarsel}</a>
+{/snippet}
+
+<Svarskjema
+  {kjernesak}
+  {u}
+  spor="forhold"
+  {utkast}
+  medTekstene={(punktene) => forholdssvaret(valg, u, kjernesak.regler, punktene)!}
+  bind:tekster={valg}
+  {linjer}
+  virkninger={virkning ? [virkning] : []}
+  {mangler}
+  begrunnelseKreves={kreves}
+  {onbrevkontroll}
+  {onforkast}
+  {onvedsiden}
+>
+  {#snippet spoersmaal(feil)}
+    <div class="utenfor" role="note">
+      <Info size={18} aria-hidden="true" />
+      <p>{FORHOLDSSVAR.utenforLoesningen}</p>
+    </div>
+
+    {#if f.varslingsplikt}
+      <Spoersmaal id={`${uid}-sp-varsel`} tittel={FORHOLDSSVAR.varselTittel} hjemmel="32.2">
+        <div class="datoer">
+          {#if datoene.oppgitt}
+            <p>
+              {FORHOLDSSVAR.datoOppgitt(
+                datoene.oppgitt.gjelder,
+                dato(datoene.oppgitt.dato),
+                brevref(kravbrevet)
+              )}
+            </p>
+          {/if}
+          {#if datoene.sendt}<p>{FORHOLDSSVAR.paaberopelsenSendt(dato(datoene.sendt))}</p>{/if}
+          {#if datoene.dager !== null}<p>
+              <strong>{FORHOLDSSVAR.avstand(datoene.dager)}</strong>
+            </p>{/if}
+        </div>
+        <Valg
+          navn={`${uid}-varsel`}
+          spoersmaal={FORHOLDSSVAR.varselSpoersmaal}
+          valg={[
+            { verdi: false, tekst: FORHOLDSSVAR.varselNei },
+            { verdi: true, tekst: FORHOLDSSVAR.varselJa },
+          ]}
+          bind:verdi={() => valg.forSent, velgForSent}
+          feil={feil(`${uid}-varsel`)}
+        />
+      </Spoersmaal>
+    {/if}
+
+    <Spoersmaal id={`${uid}-sp-forhold`} tittel={FORHOLDSSVAR.forholdTittel} hjemmel={hjemmelen}>
+      <Gjelderhvis
+        id={`${uid}-forhold-forutsetninger`}
+        liste={f.varslingsplikt && valg.forSent === true ? ['32.2'] : []}
+        punkt={innsigelsen}
+      />
+      <Valg
+        navn={`${uid}-forhold`}
+        spoersmaal={FORHOLDSSVAR.forholdSpoersmaal}
+        valg={valgene}
+        bind:verdi={valg.resultat}
+        beskrevetAv={f.varslingsplikt && valg.forSent === true
+          ? `${uid}-forhold-forutsetninger`
+          : undefined}
+        feil={feil(`${uid}-forhold`)}
+        stablet
+      />
+      {#if frafallMangler}<p class="dempet">{frafallMangler}</p>{/if}
+      {#if forholdspunktet}
+        <div class="endringsordre">
+          <span class="merke">{FORHOLDSSVAR.endringsordreMerke}</span>
+          <p>{FORHOLDSSVAR.brevetSier}</p>
+          <blockquote>{forholdspunktet}</blockquote>
+          <p class="dempet">{FORHOLDSSVAR.setningenStaar}</p>
+        </div>
+      {/if}
+      {#if virkning}<p class="virkning">{virkning}</p>{/if}
+    </Spoersmaal>
+  {/snippet}
+</Svarskjema>
+
+<style>
+  .utenfor {
+    display: flex;
+    gap: var(--spacing-3);
+    margin: var(--spacing-5) var(--spacing-6) 0;
+    padding: var(--spacing-3) var(--spacing-4);
+    background: var(--surface-inset);
+    border-radius: var(--r-innfelt);
+    color: var(--ink-2);
+  }
+  .utenfor :global(svg) {
+    flex: none;
+    margin-top: 3px;
+  }
+  .datoer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    padding: var(--spacing-3) var(--spacing-4);
+    background: var(--surface-inset);
+    border-radius: var(--r-innfelt);
+    color: var(--ink-2);
+  }
+  .endringsordre {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    padding: var(--spacing-3) var(--spacing-4);
+    border-left: 3px solid var(--ink);
+    background: var(--surface-inset);
+  }
+  .merke {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  blockquote {
+    font-family: var(--font-brev-bh);
+    color: var(--ink);
+  }
+  .virkning {
+    padding: var(--spacing-3) var(--spacing-4);
+    background: var(--surface-inset);
+    border-radius: var(--r-innfelt);
+    color: var(--ink-2);
+  }
+  .dempet {
+    color: var(--ink-3);
+    font-size: 14px;
+  }
+</style>

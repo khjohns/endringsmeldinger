@@ -1,5 +1,6 @@
 <!--
-  Skallet for byggherrens svar på et krav om vederlag eller frist (#1925): skjemaet vurderer,
+  Skallet for byggherrens svar på påberopelsen av forholdet og på et krav om vederlag eller frist
+  (#1925, #2009): skjemaet vurderer,
   panelet viser hovedlinjene slik kjernen forhåndsviser svaret, og brevet viser alt (prinsipp 3).
   Spørsmålene er sporets egne; skallet har brevet svaret gjelder, oppsummeringen av det som mangler,
   begrunnelsene, forbeholdet, «Forkast utkast» og brevkontrollen.
@@ -12,6 +13,7 @@
 <script lang="ts">
   import { FileText, Info } from 'lucide-svelte';
   import { tick, type Snippet } from 'svelte';
+  import type { Spor } from '$kjerne/typer';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
@@ -50,6 +52,7 @@
     mangler,
     postliste,
     stopp = null,
+    begrunnelseKreves = null,
     onbrevkontroll,
     onforkast,
     onvedsiden,
@@ -57,7 +60,7 @@
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
-    spor: 'vederlag' | 'frist';
+    spor: Spor;
     /** Svaret uten begrunnelsene og forbeholdet, så det ikke regnes på nytt for hvert tegn. */
     utkast: Record<string, unknown>;
     /** Svaret med tekstene for punktene brevet har, når BH vil se brevet. */
@@ -72,6 +75,11 @@
     postliste?: Postvelger | null;
     /** Det som hindrer at svaret kan gis nå; skjemaet viser da bare meldingen. */
     stopp?: string | null;
+    /**
+     * Punktene der minst én må ha en begrunnelse før brevet vises, og hvorfor, eller `null` når
+     * begrunnelsen er valgfri (D-7 i BF-08).
+     */
+    begrunnelseKreves?: { punktene: readonly string[]; grunn: string; mangler: string } | null;
     onbrevkontroll: (k: TilBrevkontrollen) => void;
     /** BH har bekreftet at utkastet skal forkastes. */
     onforkast: () => void;
@@ -95,18 +103,28 @@
     utkastbrev && 'avsnitt' in utkastbrev ? begrunnelsespunktene(utkastbrev.avsnitt ?? []) : []
   );
 
+  const begrunnelseId = (punkt: string) => `${uid}-begrunnelse-${punkt}`;
+  const kreves = (punkt: string) => begrunnelseKreves?.punktene.includes(punkt) ?? false;
+  // Begrunnelsen som kreves, er besvart når ett av punktene den kan stå i, har tekst.
+  const alleMangler = $derived.by((): Mangel[] => {
+    const k = begrunnelseKreves;
+    const foerste = k && punktene.find((p) => k.punktene.includes(p.punkt));
+    if (!k || !foerste || k.punktene.some((p) => tekster.begrunnelser[p]?.trim())) return mangler;
+    return [...mangler, { felt: begrunnelseId(foerste.punkt), post: null, tekst: k.mangler }];
+  });
+
   // Beskjedene vises først når BH har prøvd å se brevet (MM-U32), og forsvinner når feltet er besvart.
   let forsoekt = $state(false);
   const feil = (id: string): string | null =>
-    forsoekt ? (mangler.find((m) => m.felt === id)?.tekst ?? null) : null;
+    forsoekt ? (alleMangler.find((m) => m.felt === id)?.tekst ?? null) : null;
   let oppsummering = $state<HTMLElement | null>(null);
   let sendehindring = $state<string | null>(null);
 
   async function seBrevet() {
     sendehindring = null;
-    if (mangler.length) {
+    if (alleMangler.length) {
       forsoekt = true;
-      const foerste = mangler.find((m) => m.post !== null);
+      const foerste = alleMangler.find((m) => m.post !== null);
       if (foerste) postliste?.velg(foerste.post!);
       await tick();
       oppsummering?.focus();
@@ -210,7 +228,7 @@
           <p>{stopp}</p>
         </div>
       {:else}
-        {#if forsoekt && mangler.length}
+        {#if forsoekt && alleMangler.length}
           <div
             class="mangler"
             role="group"
@@ -220,7 +238,7 @@
           >
             <p id={`${uid}-mangler`}>{SKJEMA.mangler}</p>
             <ul>
-              {#each mangler as m (m.felt)}
+              {#each alleMangler as m (m.felt)}
                 <li>
                   <a
                     href={`#${m.felt}`}
@@ -242,14 +260,28 @@
           <h3 id={`${uid}-sp-begrunnelse`}>{SKJEMA.begrunnelse}</h3>
           <p class="dempet" id={`${uid}-begrunnelse-hjelp`}>{SKJEMA.begrunnelseHjelp}</p>
           {#each punktene as p (p.punkt)}
+            {@const id = begrunnelseId(p.punkt)}
+            {@const bFeil = feil(id)}
             <div class="begrunnelse">
-              <label for={`${uid}-begrunnelse-${p.punkt}`}>{p.navn}</label>
+              <label for={id}>{p.navn}</label>
+              {#if kreves(p.punkt)}
+                <span class="dempet" id={`${id}-kreves`}>{begrunnelseKreves!.grunn}</span>
+              {/if}
               <textarea
-                id={`${uid}-begrunnelse-${p.punkt}`}
+                {id}
                 rows="2"
                 bind:value={tekster.begrunnelser[p.punkt]}
-                aria-describedby={`${uid}-begrunnelse-hjelp`}
+                aria-required={kreves(p.punkt) ? 'true' : undefined}
+                aria-invalid={bFeil ? 'true' : undefined}
+                aria-describedby={[
+                  `${uid}-begrunnelse-hjelp`,
+                  kreves(p.punkt) ? `${id}-kreves` : '',
+                  bFeil ? `${id}-feil` : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
               ></textarea>
+              {#if bFeil}<p class="feilmelding" id={`${id}-feil`}>{bFeil}</p>{/if}
             </div>
           {/each}
           <div class="begrunnelse forbehold">
@@ -356,6 +388,11 @@
     font: inherit;
     background: var(--surface);
     resize: vertical;
+  }
+  .feilmelding {
+    color: var(--danger);
+    font-size: 14px;
+    font-weight: 500;
   }
   textarea:focus-visible {
     outline: 2px solid var(--control-focus);

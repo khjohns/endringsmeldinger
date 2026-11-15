@@ -1,10 +1,10 @@
 /**
- * Det svarskjemaene for vederlaget og fristen deler (#1925): punktene som får en begrunnelse,
+ * Det svarskjemaene for forholdet, vederlaget og fristen deler (#1925, #2009): punktene som får en begrunnelse,
  * det som mangler, brevet svaret gjelder, og tekstene i skallet. Spørsmålene er sporets egne.
  */
 
 import { erKravpostpunkt, FORBEHOLDET, INNLEDNINGEN, OVERSIKTEN } from '$kjerne/frosset/tekst';
-import type { Avsnitt } from '$kjerne/typer';
+import type { Avsnitt, Spor } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { brevet, type Brevet } from './lesing';
 
@@ -61,7 +61,7 @@ export function begrunnelsespunktene(avsnitt: readonly Avsnitt[]): Begrunnelsesp
 }
 
 /** Brevet med gjeldende krav i sporet, som svaret gjelder. */
-export const kravbrevetI = (u: Utledning, spor: 'vederlag' | 'frist'): Brevet =>
+export const kravbrevetI = (u: Utledning, spor: Spor): Brevet =>
   brevet(u, u.spor[spor].gjeldendeKrav!.dokument)!;
 
 /**
