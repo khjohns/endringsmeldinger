@@ -408,7 +408,20 @@ export interface Sideprops {
   handling?: Snippet;
   /** Brevet slik det ble sendt, i raden. */
   brevet?: Snippet<[Brevet]>;
+  /** Leveringen av brevene sendt herfra til Catenda (`leveringene`). */
+  levering?: ReadonlyMap<string, string | null>;
 }
+
+/**
+ * Når hvert brev sendt herfra ble levert til Catenda, etter brevets ID, og `null` før leveringen
+ * er kvittert (G-5 i BF-44). Kvitteringen kommer etter at vedleggene er levert
+ * (`server/jobber.ts`). Et brev uten leveringsoppdrag, som i demoruta, står ikke i lista, og
+ * heller ikke et registrert brev, som ikke har noe dokument og ikke får `levert` (#2026).
+ */
+export const leveringene = (
+  oppdrag: readonly { event_id: string; filnavn: string | null; levert: string | null }[]
+): ReadonlyMap<string, string | null> =>
+  new Map(oppdrag.flatMap((o) => (o.filnavn === null ? [] : [[o.event_id, o.levert] as const])));
 
 /**
  * Innholdet i et brev i tråden om forholdet, som i prototypen `grunnlagsoversikt.html`: TEs

@@ -32,6 +32,7 @@
     handlingerISporet,
     hovedkategorien,
     kravposterUtenFastBeloep,
+    leveringene,
     type Brevet,
     type Sideprops,
   } from './lesing';
@@ -89,6 +90,7 @@
   const svarbrevet = $derived(svaret ? sporbrev.find((b) => b.id === svaret.dokument) : undefined);
   const Side = $derived(SIDENE[spor]);
   const fristtabell = $derived(fristtabellen(kjernesak, sakslenke));
+  const levering = $derived(leveringene(kjernesak.sak?.leveringsoppdrag ?? []));
   // Under 1181 px står brevet i raden i tråden, og ellers i høyre kolonne (U-16 i BF-44).
   const smalt = medietreff('(max-width: 1180px)');
   const smal = $derived(smalt.treff);
@@ -398,6 +400,7 @@
       {handlingVed}
       handling={vedBrevet}
       brevet={lestBrevet}
+      {levering}
     />
     {#if handlingVed === null && (primaer || hindring)}
       <!-- Uten et brev å stå ved står handlingen over de andre, så den aldri faller bort. -->

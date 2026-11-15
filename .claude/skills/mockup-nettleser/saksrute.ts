@@ -1,7 +1,7 @@
 /**
  * Den ekte saksruta i Chromium, mot TS-serveren og testbasen i SQL Server (#1145).
  *
- *   node .claude/skills/mockup-nettleser/saksrute.ts [--utdata <mappe>] [--forlop <ID> [--til <kontrollpunkt>]] [--feil] [--behold]
+ *   node .claude/skills/mockup-nettleser/saksrute.ts [--utdata <mappe>] [--forlop <ID> [--til <kontrollpunkt>]] [--spor <spor>] [--feil] [--behold]
  *
  * Trenger `KOE_SQLSERVER_TILKOBLING` (sa), som oppstartshooken setter. Skriptet
  *
@@ -45,7 +45,9 @@ import type { Journalrad, Part, Sakskode } from '../../../kjerne/typer.ts';
 import type { Bane } from '../../../kjerne/tester/bane.ts';
 import { finn, kontrollpunkt, somForloep } from '../../../kjerne/tester/brukerforloep.ts';
 import { kjoer } from '../../../kjerne/tester/kjoerer.ts';
+import { vedleggI, type Kommando } from '../../../kjerne/kommandoer/kommando.ts';
 import { veggklokke } from '../../../kjerne/tester/testmiljoe.ts';
+import { erHverdag, erLoerdag } from '../../../kjerne/regler/hverdager.ts';
 
 const { values } = parseArgs({
   options: {
@@ -54,9 +56,29 @@ const { values } = parseArgs({
     forlop: { type: 'string' },
     til: { type: 'string' },
     feil: { type: 'boolean', default: false },
+    spor: { type: 'string' },
   },
 });
 const UT = values.utdata!;
+
+/**
+ * Akseptfristen i et forløp er en fast dato, og saksruta sender svaret med dagens klokke. Kjernen
+ * avviser en frist før datoen for svaret eller på en lørdag, søndag eller helligdag (HF-U23 punkt
+ * 2). Fristen i stegene og i kontrollene blir derfor den første hverdagen fra og med 14 dager etter
+ * i dag, i Oslo (#1998). Forløpsfila og kjøringen i minnet beholder den faste datoen.
+ */
+function medAkseptfristFraIdag<T>(forloep: T): T {
+  const dag = new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' })}T12:00:00Z`);
+  dag.setUTCDate(dag.getUTCDate() + 14);
+  const iso = () => dag.toISOString().slice(0, 10);
+  while (!erHverdag(iso()) || erLoerdag(iso())) dag.setUTCDate(dag.getUTCDate() + 1);
+  const frist = iso();
+  return JSON.parse(JSON.stringify(forloep), (noekkel, verdi) =>
+    (noekkel === 'akseptfrist' || noekkel.endsWith('.akseptfrist')) && typeof verdi === 'string'
+      ? frist
+      : verdi
+  ) as T;
+}
 
 /**
  * Brukerforløpet saken følger etter opprettelsen (#1330), til kontrollpunktet i `--til`
@@ -64,7 +86,7 @@ const UT = values.utdata!;
  */
 let FORLOEP: ReturnType<typeof finn> | null = null;
 try {
-  FORLOEP = values.forlop ? finn(values.forlop) : null;
+  FORLOEP = values.forlop ? medAkseptfristFraIdag(finn(values.forlop)) : null;
   if (FORLOEP && !FORLOEP.visninger.includes('saksruta'))
     throw new Error(`${FORLOEP.id} kjøres ikke i saksruta (\`visninger\` i forløpsfila)`);
   if (values.til && !FORLOEP) throw new Error('--til trenger --forlop');
@@ -475,6 +497,42 @@ try {
       { prosjekt: katalog.prosjekt, metode, sti, kropp }
     );
 
+  /**
+   * Laster opp et vedlegg til mellomlageret i saken, som skjemaet gjør (`lastOppKjernevedlegg`),
+   * og gir ID-en serveren ga det.
+   */
+  const lastOppVedlegg = (side: Awaited<ReturnType<typeof loggInn>>, sak: string, filnavn: string) =>
+    side.evaluate(
+      async ({ prosjekt, sak, filnavn }: { prosjekt: string; sak: string; filnavn: string }) => {
+        const svar = await fetch(`/api/kjerne/saker/${sak}/vedlegg`, {
+          method: 'POST',
+          headers: {
+            'X-Project-ID': prosjekt,
+            'Content-Type': 'application/octet-stream',
+            'X-Filnavn': encodeURIComponent(filnavn),
+            'X-CSRF-Token': (await (await fetch('/api/csrf-token')).json()).csrfToken,
+          },
+          body: new TextEncoder().encode('%PDF-1.4\n%%EOF\n'),
+        });
+        const kropp = await svar.json();
+        if (svar.status !== 201) throw new Error(`Vedlegget ble ikke lastet opp: ${svar.status} ${JSON.stringify(kropp)}`);
+        return kropp.vedlegg.vedlegg_id as string;
+      },
+      { prosjekt: katalog.prosjekt, sak, filnavn }
+    );
+
+  /**
+   * Kommandoen med vedleggene lastet opp først. Kjøreren lager ID-ene til vedleggene selv, som
+   * et registrert brev alltid har (OV-U4), og serveren krever at de finnes i saken. De byttes
+   * med ID-ene serveren ga.
+   */
+  async function medVedleggene(side: Awaited<ReturnType<typeof loggInn>>, sak: string, kommando: Kommando) {
+    let tekst = JSON.stringify(kommando);
+    for (const [n, id] of vedleggI(kommando).entries())
+      tekst = tekst.replaceAll(JSON.stringify(id), JSON.stringify(await lastOppVedlegg(side, sak, `Vedlegg ${n + 1}.pdf`)));
+    return JSON.parse(tekst) as Kommando;
+  }
+
   /** Journalen fra `GET` som TE, slik kjernen leser den (`somJournal` i visningen). */
   async function lesJournal(sak: string): Promise<Journalrad[]> {
     const lest = await kjerneKall<Saken>(te, 'GET', `/api/kjerne/saker/${sak}`);
@@ -507,7 +565,7 @@ try {
       const sendt = await kjerneKall(side, 'POST', `/api/kjerne/saker/${sak}/kommandoer`, {
         expected_version: forventet,
         kommando_id: randomUUID(),
-        kommando,
+        kommando: await medVedleggene(side, sak, kommando),
       });
       const hva = `${kommando.type}${'spor' in kommando && kommando.spor ? ` ${kommando.spor}` : ''}`;
       const { event_id, versjon, error, message } = sendt.kropp as Record<string, unknown>;
@@ -655,7 +713,8 @@ try {
       for (let forsoek = 0; ; forsoek++) {
         const lest = await kjerneKall<Saken>(te, 'GET', `/api/kjerne/saker/${sak}`);
         if (lest.status !== 200) throw new Error(`GET under leveringen ga ${lest.status}`);
-        const oppdrag = lest.kropp.leveringsoppdrag;
+        // Et registrert brev har ikke noe dokument, og `levert` settes ikke for det i `GET` (#2026).
+        const oppdrag = lest.kropp.leveringsoppdrag.filter((o) => o.filnavn !== null);
         if (oppdrag.length && oppdrag.every((o) => o.levert)) {
           console.log(`Levert til falsk Catenda: ${oppdrag.length} brev`);
           break;
@@ -669,7 +728,8 @@ try {
   }
 
   if (!sak) throw new Error('Ingen sak å vise');
-  const saksrute = `/${katalog.prosjekt}/${sak}`;
+  // Med `--spor` åpner skjermbildene siden for sporet (`?spor=` i saksruta).
+  const saksrute = `/${katalog.prosjekt}/${sak}${values.spor ? `?spor=${encodeURIComponent(values.spor)}` : ''}`;
   const klippet: string[] = [];
   for (const [navn, side] of [
     ['te', te],

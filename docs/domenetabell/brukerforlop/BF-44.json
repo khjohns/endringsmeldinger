@@ -247,6 +247,7 @@
   "bevis_saker": [],
   "visninger": [
     "demoruta",
+    "saksruta",
     "varden"
   ],
   "endringer": [
@@ -314,6 +315,11 @@
       "dato": "2026-11-15",
       "forhold": "#1906",
       "hva": "Forløpet er kjørbart: startjournalen har saken med tre lag i byggherrens svar, to poster i kravet, akseptfristen og forbeholdet om at forholdet ikke er besvart (G-14). Vedtakene som sto i `kilder`, står nå i kontrollene og forståelsen, med OV-U3 og LV-U4 i tillegg, og KA-U52, som opphevet KA-U7. Forløpet kjøres ikke i saksruta: akseptfristen i svaret er en fast dato, og saksruta sender med dagens klokke, så kjernen avviser en frist før datoen for svaret (HF-U23 punkt 2)."
+    },
+    {
+      "dato": "2026-11-15",
+      "forhold": "#1998",
+      "hva": "Forløpet kjøres i saksruta. Skriptet setter akseptfristen til den første hverdagen fra og med 14 dager etter dagens dato, fordi saksruta sender svaret med dagens klokke (HF-U23 punkt 2), og laster opp vedlegget til det registrerte brevet før det sendes. Forløpsfila og kjøringen i minnet beholder den faste datoen."
     }
   ],
   "prototype": {

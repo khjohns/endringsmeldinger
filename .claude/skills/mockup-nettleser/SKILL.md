@@ -12,7 +12,7 @@ for en diff i saksvisningen, etter leveranseskillen, «Review og funn». Den kj�
 
 ```bash
 node .claude/skills/mockup-nettleser/saksrute.ts [--utdata /tmp/saksrute-skjermbilder] \
-  [--forlop <ID> [--til <kontrollpunkt>]] [--feil] [--behold]
+  [--forlop <ID> [--til <kontrollpunkt>]] [--spor <spor>] [--feil] [--behold]
 ```
 
 Skriptet trenger `KOE_SQLSERVER_TILKOBLING`, som oppstartshooken setter, og port 5173
@@ -59,7 +59,8 @@ ikke er det forventede:
    kontrollerer at TE kommer til saken med kvitteringen, og at påberopelsen i journalen har
    feltene TE fylte ut. Til slutt avbryter TE et nytt skjema og kommer til sakslisten
    (`ny-sak-avbrutt.png`).
-7. Tar skjermbildene `saksrute-te.png` og `saksrute-bh.png` av saksruta ved 1440 × 900,
+7. Tar skjermbildene `saksrute-te.png` og `saksrute-bh.png` av saksruta ved 1440 × 900, med
+   `--spor` av siden for sporet (`?spor=vederlag`),
    `saksrute-te-390.png` og `saksrute-bh-390.png` ved 390 × 844 og `saksliste-te.png` av
    sakslisten. Klipper en beholder i saksruta eller sakslisten innhold brukeren ikke kan rulle
    til (`overflow-y` `hidden` eller `clip`, over 100 px høy), stopper skriptet med exit 1 og

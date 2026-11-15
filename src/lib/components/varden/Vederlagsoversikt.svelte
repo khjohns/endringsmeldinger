@@ -17,9 +17,9 @@
     type Brevet,
     type Sideprops,
   } from './lesing';
-  import { VEDERLAGET } from './tekster';
+  import { TRAADEN, VEDERLAGET } from './tekster';
   import { varseletFoerKravet } from '$lib/kjernesak/vederlagskrav';
-  import { kravbeloepene, kravetOgSvaret } from './vederlagsoversikt';
+  import { kravbeloepene, kravetOgSvaret, varsleneIKravene } from './vederlagsoversikt';
   import { akseptfristen } from './svarlagene';
 
   let {
@@ -32,11 +32,13 @@
     handlingVed = null,
     handling,
     brevet,
+    levering = new Map(),
   }: Sideprops = $props();
 
   const alle = $derived(brevene(u));
   const k = $derived(kravetOgSvaret(u, alle));
   const beloepene = $derived(kravbeloepene(u));
+  const varslene = $derived(varsleneIKravene(u, alle));
   const akseptfrist = $derived(akseptfristen(u, 'vederlag'));
   // Datoen TE oppgir for når TE ble klar over forholdet, under brevet med varselet etter punkt
   // 34.1.2, med avstanden i kalenderdager (U-8, G-6).
@@ -44,10 +46,18 @@
   const klar = $derived(klarOverForholdet(u));
 </script>
 
-<!-- Beløpet i kravet ved brevet med kravet (U-12). -->
-{#snippet beloepet(b: Brevet)}
+<!-- Beløpet i kravet ved brevet med kravet, med hjemlene kravet også varsler etter (U-12), og
+     leveringen til Catenda ved svaret med akseptfristen og ved et brev som ikke er levert ennå
+     (G-5 og U-11, HF-U23 punkt 4). -->
+{#snippet oeverst(b: Brevet)}
   {@const n = beloepene.get(b.id)}
-  {#if n !== undefined}<p class="beloep">{VEDERLAGET.kravbeloep(n)}</p>{/if}
+  {@const levert = levering.get(b.id)}
+  {#if n !== undefined}<p class="beloep">
+      {VEDERLAGET.kravbeloep(n, varslene.get(b.id))}
+    </p>{/if}
+  {#if levert !== undefined && (levert === null || akseptfrist?.brev === b.id)}
+    <p class="levering">{TRAADEN.levering(b.registrert, levert)}</p>
+  {/if}
 {/snippet}
 
 {#snippet fristen(b: Brevet)}
@@ -61,7 +71,7 @@
     fulgtOpp={oppfoelgingene(u, alle)}
     dokumentasjon={u.ikkeVurderteBrev}
     venterPaaSvar={betegnelser.vederlag === 'venter_paa_svar'}
-    oeverst={beloepet}
+    {oeverst}
     nederst={fristen}
     {vist}
     {smal}
@@ -75,6 +85,10 @@
 {#if k}<KravetOgSvaret {k} {u} {alle} onforholdet={onspor && (() => onspor('forhold'))} />{/if}
 
 <style>
+  .levering {
+    font-size: 14px;
+    color: var(--ink-2);
+  }
   .beloep {
     font-size: 16px;
     font-weight: 500;

@@ -11,7 +11,7 @@
   import Forbeholdet from './Forbeholdet.svelte';
   import Kravkort from './Kravkort.svelte';
   import Maalrad, { maalestokken } from './Maalrad.svelte';
-  import { VEDERLAGET } from './tekster';
+  import { utenKr, VEDERLAGET } from './tekster';
   import { postIRaden, type KravetOgSvaret } from './vederlagsoversikt';
   import type { Utledning } from '$kjerne/utledning/utled';
 
@@ -29,8 +29,6 @@
     onforholdet?: () => void;
   } = $props();
   const uid = $props.id();
-  // Tallene i tabellen står uten enheten, som i prototypen; beløpene er kroner eks. mva. (U-2).
-  const utenKr = (celle: string) => celle.replace(/\u00a0kr$/, '');
 
   const regning = $derived(k.poster.filter((p) => p.oppgjoersform === 'regningsarbeid'));
   const fast = $derived(k.poster.filter((p) => p.oppgjoersform !== 'regningsarbeid'));
