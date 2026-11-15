@@ -5490,6 +5490,19 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['  return i !== null && j !== null && i !== j;', '  return false;']],
     mal: ['en merking med en annen sak enn brevtittelen er ikke forstått'],
   },
+  {
+    id: 'F634',
+    feilklasse:
+      'force majeure får en dato varslingsplikten løper fra (VS-U26, VS-U43 punkt 1, #1955)',
+    fil: `${K}/spor/forhold/format.ts`,
+    endringer: [
+      [
+        "  andre_forhold: 'klar_over_forholdet',\n} as const",
+        "  andre_forhold: 'klar_over_forholdet',\n  force_majeure: 'klar_over_forholdet',\n} as const",
+      ],
+    ],
+    mal: ['men ikke ved force majeure'],
+  },
 ];
 
 interface Testresultat {

@@ -107,7 +107,7 @@ export const FORUTSETNINGER_I_FRISTEN = {
       if (u.spor.frist.foresporsler.some((f) => f.svar !== null && !f.medKrav))
         return avvis(
           'FORESPORSEL_BEGRUNNET',
-          'Totalentreprenøren har svart på en forespørsel med en begrunnelse etter punkt 33.6.2 annet ledd bokstav b, så en ny forespørsel kan ikke sendes herfra.'
+          'Totalentreprenøren har svart på en forespørsel med en begrunnelse etter punkt 33.6.2 annet ledd b, så en ny forespørsel kan ikke sendes herfra.'
         );
       // VS-U31: høyst én forespørsel fra appen i saken. En registrert forespørsel gjør saken
       // uforstått (format/leser.ts); et brev registrert som dokumentasjon teller ikke (OV-U4).

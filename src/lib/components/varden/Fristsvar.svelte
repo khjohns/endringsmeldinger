@@ -9,6 +9,7 @@
 <script lang="ts">
   import { BookOpen, FileText } from 'lucide-svelte';
   import { tick } from 'svelte';
+  import { stor } from '$kjerne/frosset/brevdeler';
   import { dager, FORBEHOLDET } from '$kjerne/frosset/tekst';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '$kjerne/spor/frist/format';
   import { foresporselenISvaret } from '$lib/kjernesak/fristsvar';
@@ -201,7 +202,6 @@
       };
     })
   );
-  const stor = (t: string) => `${t[0]!.toUpperCase()}${t.slice(1)}`;
   // Leselinjen for en lukket frist: dagene slik kjernen leser dem, eller valget til svaret er
   // fullstendig.
   const leselinje = (f: Fristpost): string[] => {

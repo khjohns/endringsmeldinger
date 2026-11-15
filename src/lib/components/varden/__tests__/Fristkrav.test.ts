@@ -417,7 +417,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       utdypning: 'Omfanget av omprosjekteringen er ikke kjent.',
     });
     expect(sendt[0]!.virkninger).toEqual([
-      'Svaret er en begrunnelse etter punkt 33.6.2 annet ledd bokstav b. For kravet du sender senere, gjelder punkt 33.6.1 (punkt 33.6.2 femte ledd).',
+      'Svaret er en begrunnelse etter punkt 33.6.2 annet ledd b. For kravet du sender senere, gjelder punkt 33.6.1 (punkt 33.6.2 femte ledd).',
     ]);
   });
 });
