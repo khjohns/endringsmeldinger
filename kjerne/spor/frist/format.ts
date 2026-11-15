@@ -289,7 +289,7 @@ function kontrollerUtregningenIFristen(
     ut.find((s) => s.art !== 'dager' && virkning.get(s.id) === lag);
   const rader = utregningIFristen(utregning).frister;
   kontrollerRadene(rader, dagene, virkninger, 'dagene', feil, (r, d, i) => {
-    // Arbeidsvalget 15.11 i #1905 punkt 2.
+    // OV-U100.
     if (virkning.get(d.id) === 'upaavirket')
       throw feil(`rad ${i + 1} har dagene upåvirket, men hver påberopelse i fristen rammer dem`);
     r.lag.forEach((l, n) => {

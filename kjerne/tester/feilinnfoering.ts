@@ -4121,7 +4121,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F631',
-    feilklasse: 'upåvirkede dager i fristen er forstått (#1905 punkt 2)',
+    feilklasse: 'upåvirkede dager i fristen er forstått (OV-U100)',
     fil: `${K}/spor/frist/format.ts`,
     endringer: [["if (virkning.get(d.id) === 'upaavirket')", 'if (false)']],
     mal: ['upåvirkede dager i fristen er ikke forstått'],

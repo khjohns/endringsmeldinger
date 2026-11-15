@@ -2597,9 +2597,9 @@ describe('upåvirket hos leserne (OV-U33)', () => {
     ]);
   });
 
-  // Forventningen var at dagene ved siden av en påberopelse i første lag leses (OV-U33). Etter
-  // arbeidsvalget 15.11 i #1905 punkt 2 rammer hver påberopelse i fristen dagene.
-  it('upåvirkede dager i fristen er ikke forstått, også ved siden av en påberopelse i første lag (#1905)', async () => {
+  // Forventningen var at dagene ved siden av en påberopelse i første lag leses (OV-U33).
+  // OV-U100 snevrer inn OV-U33: hver påberopelse i fristen rammer dagene.
+  it('upåvirkede dager i fristen er ikke forstått, også ved siden av en påberopelse i første lag (OV-U100)', async () => {
     const { k, rader } = await forloep();
     expect(uforstaatt(rader), 'kontrollsak').toEqual([]);
     expect(uforstaatt(upaavirket(rader, k, 'S-f1', 'dager', 'rettidighet'))).toEqual([
