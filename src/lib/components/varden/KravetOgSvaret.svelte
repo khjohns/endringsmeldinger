@@ -7,6 +7,7 @@
 <script lang="ts">
   import { brevMedUtsagn, type Brevet } from './lesing';
   import { kroner } from '$kjerne/frosset/tekst';
+  import { stor } from '$kjerne/frosset/brevdeler';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import { VEDERLAGET } from './tekster';
@@ -41,7 +42,7 @@
         rader: rader.map((celler, r) => ({
           celler,
           post: postIRaden(k.poster, celler[0]),
-          sum: r === rader.length - 1,
+          sum: r === rader.length - 1 && celler[0] === 'Sum',
         })),
       };
     }
@@ -96,11 +97,7 @@
               {@const tekst = VEDERLAGET.laget(l)}
               <li>
                 <div class="lagrad">
-                  <span class="navn"
-                    >{l.etikett
-                      ? l.etikett[0].toUpperCase() + l.etikett.slice(1)
-                      : VEDERLAGET.godkjenner}</span
-                  >
+                  <span class="navn">{l.etikett ? stor(l.etikett) : VEDERLAGET.godkjenner}</span>
                   {#if l.beloep !== null}<b class="belop">{kroner(l.beloep)}</b>{/if}
                 </div>
                 {#if l.beloep !== null}

@@ -11,7 +11,7 @@ import { etikett, plassene } from '$kjerne/frosset/byggeklosser';
 import { cellene, OVERSIKTEN } from '$kjerne/frosset/tekst';
 import { beloep, tilTall, type Oere } from '$kjerne/regler/beloep';
 import {
-  beloepeneILagene,
+  utregningIVederlaget,
   krevdIKravposten,
   krevdProduktivitet,
   krevdSamlet,
@@ -118,8 +118,22 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
   const grunnbrev = g ? brev(g.dokument) : null;
   const plass = plassene(svar, svar.beslutningsgrunnlag.virkninger, grunner.length);
   // Laget i sporet er laget i brevet uten grunnene fra forholdet foran (OV-U73, HF-U34).
-  const iLagene = [...beloepeneILagene(svar.utregning).values()];
-  const sporlag = Math.max(0, ...iLagene.map((l) => l.length));
+  const poster = utregningIVederlaget(svar.utregning).poster;
+  const sporlag = Math.max(0, ...poster.flatMap((p) => p.lag.map((l) => l.lag)));
+  // I et lag står postens siste beløp i laget eller før, og 0 kr før det første, som i tabellen
+  // i brevet (OV-U73, LV-U33). Summen regnes i hele øre (B-13, OV-U59).
+  const iLaget = (lag: number) =>
+    somTall(
+      poster.reduce(
+        (sum, p) =>
+          sum +
+          (beloep(p.lag.findLast((l) => l.lag <= lag && l.beloep !== undefined)?.beloep ?? 0) ??
+            0n),
+        0n
+      )
+    );
+  // Etikettene er de brevet gir lagene (OV-U32, `plassene`).
+  const ordnet = plass.grunn(0).etikett !== null;
   const antall = Math.max(
     grunner.length + sporlag,
     ...svar.standpunkter.map((x) => plass.standpunkt(x.id).lag ?? 0)
@@ -133,17 +147,8 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
     const iSporet = lag - grunner.length;
     return {
       lag,
-      etikett: antall > 1 ? etikett(lag) : null,
-      // Summen i laget regnes i hele øre (B-13, OV-U59); en post med færre lag har sitt siste beløp.
-      beloep:
-        iSporet < 1
-          ? null
-          : somTall(
-              iLagene.reduce(
-                (sum, l) => sum + (beloep(l[Math.min(iSporet, l.length) - 1] ?? 0) ?? 0n),
-                0n
-              )
-            ),
+      etikett: ordnet ? etikett(lag) : null,
+      beloep: iSporet < 1 ? null : iLaget(iSporet),
       vilkaar: [],
       grunner: iSporet < 1 && grunnbrev ? [{ grunn: grunner[i]!, brev: grunnbrev }] : [],
       standpunkter: svar.standpunkter
@@ -203,9 +208,10 @@ export function kravbeloepene(u: Utledning): Map<string, number> {
 
 /**
  * Akseptfristen i byggherrens gjeldende svar i sporet, med brevet, så lenge svaret ikke er godtatt
- * (U-11 i BF-44, HF-U23 punkt 4), og ellers `null`.
+ * og kravet ikke er trukket (U-11 i BF-44, HF-U23 punkt 4), og ellers `null`.
  */
 export function akseptfristen(u: Utledning, spor: 'vederlag' | 'frist') {
   const s = u.spor[spor].gjeldendeSvar;
-  return s?.akseptfrist && !u.spor[spor].enighet ? { brev: s.dokument, dato: s.akseptfrist } : null;
+  const { enighet, trukket } = u.spor[spor];
+  return s?.akseptfrist && !enighet && !trukket ? { brev: s.dokument, dato: s.akseptfrist } : null;
 }

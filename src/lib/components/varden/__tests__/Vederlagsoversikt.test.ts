@@ -17,7 +17,7 @@ import Vardensak from '$lib/components/varden/Vardensak.svelte';
 import Vederlagsoversikt from '$lib/components/varden/Vederlagsoversikt.svelte';
 import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import { kravetOgSvaret, trinnene } from '$lib/components/varden/vederlagsoversikt';
+import { akseptfristen, kravetOgSvaret, trinnene } from '$lib/components/varden/vederlagsoversikt';
 import { brevene } from '$lib/components/varden/lesing';
 import { VEDERLAGET } from '$lib/components/varden/tekster';
 import type { Utledning } from '$kjerne/utledning/utled';
@@ -115,6 +115,14 @@ describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
     expect(k.svarbrev).toBeNull();
     expect(k.lagene).toEqual([]);
     expect(k.krevd).toBe(190000);
+  });
+
+  it('akseptfristen står ikke lenger når kravet er trukket (U-11, KA-U51)', async () => {
+    const u = await utledning([...BF44.steg.slice(0, 4), { handling: 'trekk', spor: 'vederlag' }]);
+    expect(akseptfristen(u, 'vederlag')).toBeNull();
+    expect(akseptfristen(await utledning(BF44.steg.slice(0, 4)), 'vederlag')?.dato).toBe(
+      '2026-10-15'
+    );
   });
 
   it('målestokken har runde trinn: 0, 50 000, 100 000 og 150 000 for 190 000 kr (U-2)', () => {
