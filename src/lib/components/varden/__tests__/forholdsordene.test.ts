@@ -6,6 +6,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { Forholdsresultat } from '$kjerne/regler/typer';
+import type { Standpunkt } from '$kjerne/typer';
 import type { Forholdsordene } from '$lib/components/varden/lesing';
 import { FORHOLDET } from '$lib/components/varden/tekster';
 
@@ -78,6 +79,29 @@ const tilfellene: [string, Forholdsresultat, Forholdsordene, string, RegExp][] =
 describe('ordene for standpunktet til forholdet (GR-U32, LV-U41)', () => {
   it.each(tilfellene)('%s', (_, resultat, f, setning, utfall) => {
     expect(FORHOLDET.standpunkt({ id: 's', art: 'forhold', resultat }, null, f)).toBe(setning);
-    expect(FORHOLDET.utfall(resultat, '2026-11-03T10:00:00Z', f)).toMatch(utfall);
+    expect(
+      FORHOLDET.utfall(
+        [{ standpunkt: { id: 's', art: 'forhold', resultat }, lag: null }],
+        '2026-11-03T10:00:00Z',
+        f
+      )
+    ).toMatch(utfall);
+  });
+
+  it('med en innsigelse om varselet sier statuslinjen begge lagene, med ordene i tråden (oppdragsgiver 15.11 i #2038: «B»)', () => {
+    const f = ord({ varslingsplikt: true });
+    const linjer = [
+      {
+        standpunkt: { id: 'v', art: 'rettidighet', hjemmel: '32.2', iTide: false } as Standpunkt,
+        lag: 'prinsipalt',
+      },
+      {
+        standpunkt: { id: 's', art: 'forhold', resultat: 'godkjent' } as Standpunkt,
+        lag: 'subsidiært',
+      },
+    ];
+    expect(FORHOLDET.utfall(linjer, '2026-11-15T10:00:00Z', f)).toBe(
+      'Byggherren svarte 15. november 2026 og gjør gjeldende at varselet etter punkt 32.2 kom for sent. Subsidiært er byggherren enig i at pålegget innebærer en endring.'
+    );
   });
 });

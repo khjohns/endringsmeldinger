@@ -11,7 +11,6 @@
 import { liste, opplistet, PARTEN, PARTENS, stor } from '$kjerne/frosset/brevdeler';
 import { dager, kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
-import type { Forholdsresultat } from '$kjerne/regler/typer';
 import type { Betegnelse } from '$kjerne/utledning/visning';
 import type { Kravpost, Oppgjoersform, Part, Spor, Standpunkt } from '$kjerne/typer';
 import { OPPGJOERSHJEMMEL } from '$kjerne/spor/vederlag/format';
@@ -304,6 +303,30 @@ const I_FORHOLDET: Record<Forholdstilfelle, string> = {
   avslag_endringsordre: 'avslår kravet på endringsordre (punkt 32.3 første ledd b)',
   har_ikke_risikoen: 'har ikke risikoen for forholdet',
   avslag: 'avslår forholdet',
+};
+
+/**
+ * Byggherrens standpunkt i svaret på forholdet, uten subjektet: varselet eller forholdet. Tråden
+ * og statuslinjen bruker begge denne, så de sier det samme.
+ */
+function iSvaretPaaForholdet(
+  s: Standpunkt,
+  brev: Brevref | null,
+  f: Forholdsordene
+): string | null {
+  const i = brev ? ` i ${brevref(brev)}` : '';
+  if (s.art === 'rettidighet')
+    return s.iTide
+      ? `godkjenner at varselet etter punkt ${s.hjemmel}${i} kom i tide`
+      : `gjør gjeldende at varselet etter punkt ${s.hjemmel}${i} kom for sent`;
+  if (s.art === 'forhold') return I_FORHOLDET[forholdstilfellet(s.resultat, f)];
+  return null;
+}
+
+/** Standpunktet etter et ledd foran, som «Subsidiært er byggherren enig …» (verbet først). */
+const etterLeddet = (ledd: string, utsagn: string) => {
+  const [verb, ...resten] = utsagn.split(' ');
+  return `${stor(ledd)} ${verb} byggherren ${resten.join(' ')}.`;
 };
 
 export const SKJEMA = {
@@ -761,11 +784,30 @@ export const FORHOLDET = {
    * Hvor saken står, under tittelen på oversikten (oppdragsgiver 06.11, PR 1650), med kontraktens
    * ord etter forholdet, som `standpunkt`.
    */
-  utfall: (resultat: Forholdsresultat, d: string, f: Forholdsordene): string => {
-    const t = forholdstilfellet(resultat, f);
-    return t === 'endringsordre'
-      ? `Byggherren svarte ${dato(d)} med en endringsordre (punkt 32.3 første ledd a).`
-      : `Byggherren svarte ${dato(d)} og ${I_FORHOLDET[t]}.`;
+  utfall: (
+    linjer: readonly { standpunkt: Standpunkt; lag: string | null }[],
+    d: string,
+    f: Forholdsordene
+  ): string => {
+    // Med en innsigelse om varselet står lagene slik brevet ga dem (oppdragsgiver 15.11 i #2038:
+    // «B»). Ellers bare standpunktet til forholdet.
+    const med = linjer.some((l) => l.lag)
+      ? linjer
+      : linjer.filter((l) => l.standpunkt.art === 'forhold');
+    const [foerste, ...resten] = med.flatMap((l) => {
+      const utsagn = iSvaretPaaForholdet(l.standpunkt, null, f);
+      return utsagn ? [{ utsagn, lag: l.lag, standpunkt: l.standpunkt }] : [];
+    });
+    if (!foerste) return `Byggherren svarte ${dato(d)}.`;
+    const s = foerste.standpunkt;
+    const start =
+      !resten.length && s.art === 'forhold' && forholdstilfellet(s.resultat, f) === 'endringsordre'
+        ? `Byggherren svarte ${dato(d)} med en endringsordre (punkt 32.3 første ledd a).`
+        : `Byggherren svarte ${dato(d)} og ${foerste.utsagn}.`;
+    return [
+      start,
+      ...resten.map((r) => (r.lag ? etterLeddet(r.lag, r.utsagn) : `Byggherren ${r.utsagn}.`)),
+    ].join(' ');
   },
   venter: (d: string) => `Sendt til byggherren ${dato(d)}. Svar ikke registrert.`,
   /** BF-10 U-2: en annen hjemmel eller endringsordre går i en ny sak (GR-U22, OV-U57). */
@@ -808,13 +850,8 @@ export const FORHOLDET = {
    * kontraktens ord etter forholdet.
    */
   standpunkt: (s: Standpunkt, brev: Brevref | null, f: Forholdsordene): string => {
-    const i = brev ? ` i ${brevref(brev)}` : '';
-    if (s.art === 'rettidighet')
-      return s.iTide
-        ? `Byggherren godkjenner at varselet etter punkt ${s.hjemmel}${i} kom i tide.`
-        : `Byggherren gjør gjeldende at varselet etter punkt ${s.hjemmel}${i} kom for sent.`;
-    if (s.art === 'forhold') return `Byggherren ${I_FORHOLDET[forholdstilfellet(s.resultat, f)]}.`;
-    return `${standpunkttekst(s, false)}.`;
+    const utsagn = iSvaretPaaForholdet(s, brev, f);
+    return utsagn ? `Byggherren ${utsagn}.` : `${standpunkttekst(s, false)}.`;
   },
   /** Antallet poster uten fast beløp ved summen (KA-U61, KA-U72; oppdragsgiver 12.11 i #1752). */
   utenFastBeloep: (n: number) => `${n} ${n === 1 ? 'post' : 'poster'} uten fast beløp`,

@@ -193,6 +193,11 @@ describe('Siden for forholdet', () => {
     ]);
     expect(screen.getByText('«Ingen endring.»')).toBeTruthy();
     expect(screen.getByText('Begrunnelsen')).toBeTruthy();
+    // Statuslinjen sier begge lagene med ordene i tråden (oppdragsgiver 15.11 i #2038: «B»).
+    const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
+    expect(tittel.nextElementSibling?.textContent).toMatch(
+      /^Byggherren svarte \d+\. \w+ 2026 og gjør gjeldende at varselet etter punkt 32\.2 kom for sent\. Subsidiært avslår byggherren kravet på endringsordre \(punkt 32\.3 første ledd b\)\.$/
+    );
   });
 
   it('svaret i ett lag står uten etiketter for lagene, med brevets ord for avslaget ved irregulær endring (OV-U32, GR-U32)', async () => {

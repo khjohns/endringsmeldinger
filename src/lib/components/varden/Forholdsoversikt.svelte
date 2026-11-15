@@ -12,6 +12,7 @@
     brevene,
     forholdetISaken,
     forholdsordene,
+    standpunktene,
     innleggene,
     oppfoelgingene,
     type Sideprops,
@@ -52,7 +53,11 @@
     const svar = u.spor.forhold.gjeldendeSvar;
     const s = svar?.standpunkter.find((x) => x.art === 'forhold');
     if (svar?.dokument === siste.id && s?.art === 'forhold')
-      return FORHOLDET.utfall(s.resultat, siste.registrert, forholdsordene(svar, u));
+      return FORHOLDET.utfall(
+        standpunktene(svar, u).flatMap((l) => ('standpunkt' in l ? [l] : [])),
+        siste.registrert,
+        forholdsordene(svar, u)
+      );
     if (u.spor.forhold.gjeldendeKrav?.dokument === siste.id)
       return FORHOLDET.venter(siste.registrert);
     return null;
