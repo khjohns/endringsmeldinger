@@ -30903,7 +30903,7 @@ Spørsmål 1, ordrett slik det står i [kommentaren i #1290](https://github.com/
 '''
 valgt = "B"
 svar = '''
-Oppdragsgiver 15.11, ordrett: «Ja skriv om - da slutter jeg meg til B». Svaret gjelder B slik den ble beskrevet i samtalen. B ble skrevet om etter svaret, prøvd mot vedtakene og rettet, uten at innholdet ble endret ([kommentaren](https://github.com/khjohns/endringsmeldinger/issues/1290#issuecomment-6900830393)). Svaret er B.'''
+Oppdragsgiver 15.11, ordrett: «Ja skriv om - da slutter jeg meg til B». Svaret gjelder B slik den ble beskrevet i samtalen. Vedtaksteksten er skrevet etter svaret og rettet etter prøvingen mot vedtakene ([kommentaren](https://github.com/khjohns/endringsmeldinger/issues/1290#issuecomment-6900830393)). Svaret er B.'''
 forhold = [
   { art = "utvider", vedtak = "ov-u95" },
   { art = "utvider", vedtak = "ka-u64" },
@@ -30991,7 +30991,7 @@ forkastet = true
 [[gruppe.vedtak]]
 klasse = "vedtak"
 designdel = '''
-Setningene om hva kravskjemaet sier når overslaget i en ny kravversjon er høyere enn i den forrige.'''
+Setningene om hva kravskjemaet sier når overslaget endres i en ny kravversjon.'''
 id = "OV-U108"
 dato = 2026-11-15
 hvem = "oppdragsgiver"
@@ -31027,12 +31027,12 @@ forhold = [
   { art = "presiserer", vedtak = "ov-u95" },
 ]
 folge = '''
-Forholdet slik det sto i alternativet A: «presiserer samlevedtaket for vederlagsmetoden punkt 9 og 14 for første versjon; følger OV-U97 og OV-U99. Handlingsregisteret får en rad for varselet etter punkt 30.2 som sendes som innlegg.» Bygges i #1292.'''
+Forholdet slik det sto i alternativet A: «presiserer samlevedtaket for vederlagsmetoden punkt 9 og 14 for første versjon; følger OV-U97 og OV-U99.» Bygges i #1292.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
 tekst = '''
-I første versjon oppgis kostnadsoverslaget i kravposten. Et nytt overslag uten ny kravversjon, og varselet etter punkt 30.2 annet ledd, sendes som innlegg eller legges til som korrespondanse, også etter at behandlingen er ferdig. Løsningen leser dem ikke. Er overslaget i en ny kravversjon høyere enn i den forrige, sier kravskjemaet at overslaget ikke er et varsel etter punkt 30.2 annet ledd, og at varselet sendes som innlegg. Er overslaget det eneste som er endret, sier kravskjemaet også at byggherren da svarer på nytt på kravet, og at overslaget kan gis i et innlegg.'''
+I første versjon oppgis kostnadsoverslaget i kravposten. Et nytt overslag uten ny kravversjon, og varselet etter punkt 30.2 annet ledd, sendes som innlegg eller legges til som korrespondanse, også etter at behandlingen er ferdig. Løsningen leser dem ikke. Er overslaget i en ny kravversjon høyere enn i den forrige, sier kravskjemaet at overslaget ikke er et varsel etter punkt 30.2 annet ledd, og at varselet sendes som innlegg. Er overslaget det eneste som er endret, sier kravskjemaet også at byggherren da svarer på nytt på kravet, og at overslaget kan gis i et innlegg. Handlingsregisteret får en rad for varselet etter punkt 30.2 som sendes som innlegg.'''
 anbefalt = true
 
 [[gruppe.vedtak.alternativ]]

@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `d2869902962fe7b3685cba02ce3e0be61786b23c7e4a4137653a5644eeace309`
+Kontrollsum (SHA-256 over utdraget visningen leser): `749df325bd0784bdcc018afb7855138bcbae68695efc8183f87fb9cbcd898347`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -4250,13 +4250,13 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 ### <a id="ov-u108"></a>OV-U108
 
-> OV-U108: I første versjon oppgis kostnadsoverslaget i kravposten. Et nytt overslag uten ny kravversjon, og varselet etter punkt 30.2 annet ledd, sendes som innlegg eller legges til som korrespondanse, også etter at behandlingen er ferdig. Løsningen leser dem ikke. Er overslaget i en ny kravversjon høyere enn i den forrige, sier kravskjemaet at overslaget ikke er et varsel etter punkt 30.2 annet ledd, og at varselet sendes som innlegg. Er overslaget det eneste som er endret, sier kravskjemaet også at byggherren da svarer på nytt på kravet, og at overslaget kan gis i et innlegg.
+> OV-U108: I første versjon oppgis kostnadsoverslaget i kravposten. Et nytt overslag uten ny kravversjon, og varselet etter punkt 30.2 annet ledd, sendes som innlegg eller legges til som korrespondanse, også etter at behandlingen er ferdig. Løsningen leser dem ikke. Er overslaget i en ny kravversjon høyere enn i den forrige, sier kravskjemaet at overslaget ikke er et varsel etter punkt 30.2 annet ledd, og at varselet sendes som innlegg. Er overslaget det eneste som er endret, sier kravskjemaet også at byggherren da svarer på nytt på kravet, og at overslaget kan gis i et innlegg. Handlingsregisteret får en rad for varselet etter punkt 30.2 som sendes som innlegg.
 
 **Forkastet:** «Totalentreprenøren kan oppgi et nytt kostnadsoverslag for en kravpost med regningsarbeid uten ny kravversjon. Han kan sende varsel etter punkt 30.2 annet ledd fra løsningen som et eget utsagn med serverens dato, med eller uten nytt overslag i samme brev, flere ganger, også mens et tilbud er ubesvart. Varselet viser til kravposten det gjelder. Byggherren svarer ikke på overslaget eller varselet i løsningen. Løsningen avgjør ikke om varselet kom i tide eller hvilken virkning et manglende varsel har.»
 
 **Vedtatt:** 15.11, oppdragsgiver (#1290, #1292)
 
-**Følge:** Presiserer [OV-U95](#ov-u95). Forholdet slik det sto i alternativet A: «presiserer samlevedtaket for vederlagsmetoden punkt 9 og 14 for første versjon; følger OV-U97 og OV-U99. Handlingsregisteret får en rad for varselet etter punkt 30.2 som sendes som innlegg.» Bygges i #1292.
+**Følge:** Presiserer [OV-U95](#ov-u95). Forholdet slik det sto i alternativet A: «presiserer samlevedtaket for vederlagsmetoden punkt 9 og 14 for første versjon; følger OV-U97 og OV-U99.» Bygges i #1292.
 
 **Regelrader:** —
 
