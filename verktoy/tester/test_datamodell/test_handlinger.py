@@ -39,13 +39,17 @@ def test_registeret_er_gyldig(register):
         (lambda r: r["handling"][0].update(status="senere"), "ukjent status senere"),
         (lambda r: r["handling"][0].update(status="naa"), "passer ikke til serien"),
         (lambda r: r["handling"][0].update(id="X1"), "id er ikke på formen"),
+        (lambda r: r["handling"][0].update(id=""), "id er ikke på formen"),
+        (lambda r: r["handling"][0].update(skjema=["svare:frist"]), "er ikke en av nøklene i raden"),
         (lambda r: r["handling"][0].update(noekler=["Krav forhold"]), "er ikke på formen type"),
         (lambda r: r["handling"][0].update(kilde=[]), "kilde er tom"),
         (lambda r: r["handling"].append(copy.deepcopy(r["handling"][0])), "står i både G1 og G1"),
         (lambda r: r["handling"][1]["noekler"].append("krav:forhold"), "krav:forhold: står i både"),
-        (lambda r: r["handling"][1]["skjema"].append("krav:forhold"), "krav:forhold: står i både"),
+        (lambda r: r["handling"][1]["noekler"].append("korrigere:krav-1"), "mens korrigere:* står i U7"),
         (lambda r: r["betegnelse"][0].update(status="foreldet"), "ukjent status foreldet"),
         (lambda r: r["betegnelse"].append(copy.deepcopy(r["betegnelse"][0])), "står to ganger"),
+        (lambda r: r["betegnelse"][0].update(kilde="OV-U97"), "kilde er ikke en liste"),
+        (lambda r: r["avvik"].append(copy.deepcopy(r["avvik"][0])), "står i et annet avvik"),
         (lambda r: r["avvik"][0].update(handling="G1"), "nøklene står ikke i handlingen G1"),
         (lambda r: r.update(tilstand=[]), "ukjent seksjon"),
     ],
@@ -92,19 +96,30 @@ def test_skjemaene_i_varden_leses_av_nokkelen_i_tabellen(tmp_path):
     sti.write_text(
         "  const skjemaene: Record<string, () => void> = {\n"
         "    'svare:vederlag': () => {\n"
-        "      arbeid = { art: 'svar' };\n"
+        "      arbeid = { art: '}' };\n"
         "    },\n"
         "    // 'krav:frist': i en kommentar\n"
-        "    'innlegg:forhold': () => (arbeid = { art: 'innlegg' }),\n"
+        '    "innlegg:forhold": () => (arbeid = vilkaar ? \'a\' : `{${x}`),\n'
+        "    registrere_brev: () => aapne(),\n"
         "  };\n"
         "  const andre = { 'godta:frist': 1 };\n",
         encoding="utf-8",
     )
-    assert hr.skjemaene_i_varden(sti) == {"svare:vederlag", "innlegg:forhold"}
+    assert hr.skjemaene_i_varden(sti) == {"svare:vederlag", "innlegg:forhold", "registrere_brev"}
+
+
+def test_skjemaene_i_varden_feiler_naar_tabellen_mangler_eller_ikke_lukkes(tmp_path):
+    sti = tmp_path / "Vardensak.svelte"
+    sti.write_text("  const skjemaer = {};\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="ingen `const skjemaene`"):
+        hr.skjemaene_i_varden(sti)
+    sti.write_text("  const skjemaene = {\n    'svare:frist': () => {\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="lukkes ikke"):
+        hr.skjemaene_i_varden(sti)
 
 
 def test_hver_handling_i_skjemaet_i_vurderingsfila_har_en_rad(register):
-    """G1–G5 og U1–U9 i «Skjemaet» i vurderingsfila, og handlingene OV-U99 nevner."""
+    """G1–G5 og U1–U9 i tabellene «Skjemaet» i vurderingsfila."""
     ider = {h["id"] for h in register["handling"]}
     assert {f"G{n}" for n in range(1, 6)} | {f"U{n}" for n in range(1, 10)} <= ider
 

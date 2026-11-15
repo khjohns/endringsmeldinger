@@ -37,8 +37,6 @@ STATUS_FOR_SERIE = {
     "I": ("innlegg",),
     "O": ("opphevet",),
 }
-STATUSENE = ("grunnsett", "naa", "venter", "innlegg", "opphevet")
-IKKE_TILBUDT = ("venter", "innlegg", "opphevet")
 STATUSTEKST = {
     "grunnsett": "Grunnsettet",
     "naa": "Utover grunnsettet, nå",
@@ -46,6 +44,8 @@ STATUSTEKST = {
     "innlegg": "Sendes som innlegg",
     "opphevet": "Opphevet",
 }
+STATUSENE = tuple(STATUSTEKST)
+IKKE_TILBUDT = ("venter", "innlegg", "opphevet")
 ID = re.compile(r"[GUVIO][1-9][0-9]?")
 NOEKKEL = re.compile(r"[a-z_]+(:([a-z]+|[0-9.]+|\*))?")
 
@@ -75,15 +75,20 @@ def _handlingsfeil(h: dict) -> list[str]:
         verdi = h.get(f, [])
         if not isinstance(verdi, list) or len(set(verdi)) != len(verdi):
             feil.append(f"{navn}: {f} er ikke en liste uten gjentakelser")
-    if not h.get("kilde"):
+    if "kilde" in h and not h["kilde"]:
         feil.append(f"{navn}: kilde er tom")
+    feil += [
+        f"{navn}: skjema {s} er ikke en av nøklene i raden"
+        for s in h.get("skjema", [])
+        if s not in h.get("noekler", [])
+    ]
     if h.get("part") not in PARTER:
         feil.append(f"{navn}: ukjent part {h.get('part')}")
     feil += [f"{navn}: ukjent spor {s}" for s in h.get("spor", []) if s not in SPOR]
     status = h.get("status")
     if status not in STATUSENE:
         feil.append(f"{navn}: ukjent status {status}")
-    elif status not in STATUS_FOR_SERIE.get(str(h.get("id", " "))[0], ()):
+    elif status not in STATUS_FOR_SERIE.get(str(h.get("id", ""))[:1], ()):
         feil.append(f"{navn}: status {status} passer ikke til serien")
     feil += [
         f"{navn}: noekkel {n} er ikke på formen type, type:spor, type:hjemmel eller type:*"
@@ -110,6 +115,15 @@ def valider(register: dict) -> list[str]:
                 if verdi in sett:
                     feil.append(f"{felt} {verdi}: står i både {sett[verdi]} og {h.get('id')}")
                 sett.setdefault(verdi, h.get("id"))
+    eiere = {n: h.get("id") for h in handlinger for n in h.get("noekler", [])}
+    for n, eier in eiere.items():
+        type_, _, gjelder = n.partition(":")
+        if gjelder == "*":
+            feil += [
+                f"noekler {annen}: står i {eiere[annen]}, mens {n} står i {eier}"
+                for annen in eiere
+                if annen != n and annen.partition(":")[0] == type_ and eiere[annen] != eier
+            ]
     sett = set()
     for b in register.get("betegnelse", []):
         navn = f"betegnelse {b.get('noekkel')}"
@@ -121,9 +135,12 @@ def valider(register: dict) -> list[str]:
             feil.append(f"{navn}: ukjent nivaa {b.get('nivaa')}")
         if b.get("status") not in BETEGNELSESSTATUS:
             feil.append(f"{navn}: ukjent status {b.get('status')}")
-        if not str(b.get("betydning", "")).strip() or not b.get("kilde"):
-            feil.append(f"{navn}: betydning eller kilde er tom")
+        if not str(b.get("betydning", "")).strip():
+            feil.append(f"{navn}: betydning er tom")
+        if not isinstance(b.get("kilde"), list) or not b.get("kilde"):
+            feil.append(f"{navn}: kilde er ikke en liste med minst én kilde")
     radene = {h.get("id"): h for h in handlinger}
+    i_avvik: set[str] = set()
     for a in register.get("avvik", []):
         navn = f"avvik {a.get('handling')}"
         feil += _form(navn, a, AVVIKSFELT)
@@ -134,23 +151,48 @@ def valider(register: dict) -> list[str]:
             feil.append(f"{navn}: nøklene står ikke i handlingen {a.get('handling')}")
         elif rad.get("status") not in IKKE_TILBUDT:
             feil.append(f"{navn}: handlingen {a.get('handling')} har status {rad.get('status')}, ikke et avvik")
+        feil += [f"{navn}: {n} står i et annet avvik" for n in a.get("noekler", []) if n in i_avvik]
+        i_avvik |= set(a.get("noekler", []))
         if not isinstance(a.get("issue"), int):
             feil.append(f"{navn}: issue er ikke et nummer")
     return feil
 
 
+# En streng, en malstreng eller en kommentar, så klammene i dem ikke telles.
+_HOPP = re.compile(r"'(?:\\.|[^'\\])*'|\"(?:\\.|[^\"\\])*\"|`(?:\\.|[^`\\])*`|//[^\n]*|/\*.*?\*/", re.DOTALL)
+_NOEKKEL_I_TABELLEN = re.compile(r"\s*:")
+_NAVN = re.compile(r"[A-Za-z_$][\w$]*")
+
+
 def skjemaene_i_varden(sti: pathlib.Path = VARDENSAK) -> set[str]:
-    """Nøklene i `const skjemaene` i Vardensak.svelte, lest som tekst."""
+    """Nøklene øverst i objektet `const skjemaene` i Vardensak.svelte, lest som tekst.
+
+    En nøkkel er en streng eller et navn som står etter `{` eller `,` og foran `:`.
+    Feiler når objektet ikke finnes eller ikke lukkes, så vakttesten ikke blir grønn av
+    en lesing som ikke fant noe."""
     tekst = sti.read_text(encoding="utf-8")
     start = re.search(r"const skjemaene\b[^\n]*?=\s*\{", tekst)
     if not start:
         raise ValueError(f"{sti} har ingen `const skjemaene`")
-    dybde, slutt = 1, start.end()
+    noekler, dybde, i, forrige = set(), 1, start.end(), "{"
     while dybde:
-        dybde += {"{": 1, "}": -1}.get(tekst[slutt], 0)
-        slutt += 1
-    blokk = tekst[start.end() : slutt - 1]
-    return set(re.findall(r"^ {4}'([a-z_]+:[a-z0-9.]+)':", blokk, re.MULTILINE))
+        if i >= len(tekst):
+            raise ValueError(f"`const skjemaene` i {sti} lukkes ikke")
+        if tekst[i].isspace():
+            i += 1
+            continue
+        ord_ = _HOPP.match(tekst, i) or _NAVN.match(tekst, i)
+        if ord_ and ord_.group().startswith(("//", "/*")):
+            i = ord_.end()
+            continue
+        if ord_:
+            if dybde == 1 and forrige in "{," and _NOEKKEL_I_TABELLEN.match(tekst, ord_.end()):
+                noekler.add(ord_.group().strip("'\"`"))
+            i, forrige = ord_.end(), ord_.group()[-1]
+            continue
+        dybde += {"{": 1, "}": -1}.get(tekst[i], 0)
+        i, forrige = i + 1, tekst[i]
+    return noekler
 
 
 def _tekst(verdi: str) -> str:
