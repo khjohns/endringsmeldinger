@@ -101,8 +101,8 @@ tilstander = "Åpner «byggherren har svart» og «pålegg frafalt», og lukker 
 status = "grunnsett"
 noekler = ["svare:forhold", "svare:vederlag", "svare:frist", "revidere:forhold", "revidere:vederlag", "revidere:frist"]
 kommandoer = ["brev", "revisjon"]
-skjema = ["svare:vederlag", "svare:frist"]
-mangler = "Skjemaet i Varden for svaret på påberopelsen og for nytt svar."
+skjema = ["svare:forhold", "svare:vederlag", "svare:frist"]
+mangler = "Skjemaet i Varden for nytt svar."
 
 [[handling]]
 id = "G5"

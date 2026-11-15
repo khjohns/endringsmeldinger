@@ -2,10 +2,10 @@
   "id": "BF-08",
   "tittel": "Byggherren svarer på påberopelsen av forholdet, og totalentreprenøren tar stilling til svaret",
   "brukerhistorie": "BH svarer på gjeldende versjon av TEs påberopelse av forholdet med kontraktens valg for forholdet, gjør eventuelt gjeldende at varselet etter punkt 32.2 kom for sent, og ser før sending om svaret er en endringsordre, om partene blir enige om forholdet og hva det gjør med svarene på vederlag og frist. Har BH svart utenfor løsningen, legger BH svaret til som korrespondanse med kategorien svar, eller viser til det i svaret på vederlag eller frist, eller svarer på forholdet i samme brev. BH kan sende et nytt svar. TE ser hva svaret betyr og hva TE kan gjøre, og godtar avslaget med beskjed om at saken avsluttes.",
-  "status": "planlagt",
+  "status": "kjørbar",
   "utgangspunkt": {
     "start": null,
-    "beskrivelse": "TE har påberopt forholdet i brev 1 i sak E-014 i prosjektet med kontraktsforkortelsen K201, og krevd vederlagsjustering i brev 2 og fristforlengelse i brev 3. BH har ikke svart. Forholdet er irregulær endring (punkt 32.1), der punkt 32.2 gjelder, eller uforutsette forhold ved grunnen (punkt 23.1)."
+    "beskrivelse": "En ny sak. TE påberoper irregulær endring (punkt 32.1), der punkt 32.2 gjelder, i brev 1 og krever vederlagsjustering i brev 2. BH har ikke svart. BH gjør gjeldende at varselet kom for sent og er subsidiært enig i at pålegget innebærer en endring (F-2), og TE godtar avslaget (F-9). F-1 og F-3 til F-5 prøves i komponenttesten for skjemaet, og F-7 og F-8 venter på henvisningen (#1306) og nytt svar."
   },
   "bestilling": "BF-08.md",
   "prototype": {
@@ -194,63 +194,256 @@
       }
     ]
   },
-  "kilder": [
-    "GR-U1",
-    "GR-U7",
-    "GR-U9",
-    "GR-U10",
-    "GR-U12",
-    "GR-U13",
-    "GR-U14",
-    "GR-U15",
-    "GR-U18",
-    "GR-U22",
-    "GR-U23",
-    "GR-U27",
-    "GR-U28",
-    "GR-U31",
-    "GR-U32",
-    "GR-U34",
-    "GR-U35",
-    "OV-U101",
-    "GR-U36",
-    "HF-U1",
-    "HF-U29",
-    "EO-U39",
-    "KA-U43",
-    "KA-U46",
-    "KA-U49",
-    "KA-U51",
-    "LV-U4",
-    "LV-U8",
-    "LV-U34",
-    "LV-U35",
-    "LV-U39",
-    "LV-U40",
-    "LV-U41",
-    "LV-U53",
-    "LV-U73",
-    "MM-U9",
-    "MM-U34",
-    "OV-U6",
-    "OV-U46",
-    "OV-U69",
-    "OV-U72",
-    "OV-U80",
-    "OV-U98",
-    "VS-U46",
-    "GFK-U2",
-    "HF-U27"
+  "steg": [
+    {
+      "handling": "krav",
+      "spor": "forhold",
+      "hovedkategori": "endring",
+      "underkategori": "irregulaer_endring",
+      "navn": "K-p1",
+      "utdypning": "Byggherren påla i byggemøtet 15. september 2026 at fasaden skal ha teglforblending i stedet for platekledning, som beskrevet i kontrakten."
+    },
+    {
+      "handling": "krav",
+      "spor": "vederlag",
+      "belop": 100000,
+      "navn": "K-v1"
+    },
+    {
+      "handling": "brev",
+      "navn": "D3",
+      "svar": [
+        {
+          "spor": "forhold",
+          "navn": "S-p1",
+          "varslet_i_tide": false,
+          "resultat": "godkjent",
+          "utdypning": "Varselet kom lenge etter pålegget i byggemøtet. Subsidiært er byggherren enig i at pålegget innebærer en endring."
+        }
+      ]
+    },
+    {
+      "handling": "aksept",
+      "spor": "forhold",
+      "navn": "D4"
+    }
+  ],
+  "kontrollpunkter": [
+    {
+      "id": "start",
+      "etter": 0,
+      "beskrivelse": "Saken er opprettet. Ingen krav er sendt.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "KA-01"
+          ],
+          "forventet": {
+            "gjeldende_krav.forhold": null
+          }
+        }
+      ],
+      "forstaaelse": []
+    },
+    {
+      "id": "bh-har-mottatt-paaberopelsen",
+      "etter": 2,
+      "beskrivelse": "BH har mottatt påberopelsen av irregulær endring og vederlagskravet, og har ikke svart.",
+      "kontrollsett": [
+        {
+          "sett": "bh_har_mottatt_krav",
+          "med": {
+            "spor": "forhold",
+            "krav": "K-p1"
+          }
+        }
+      ],
+      "kontroller": [],
+      "forstaaelse": [
+        {
+          "tekst": "BH ser påberopelsen svaret gjelder, og svaret gjelder gjeldende versjon. Brevet innledes med påberopelsen og merkingen, med ett punkt per tema i samme rekkefølge som i skjemaet (U-1, U-2, D-1).",
+          "kilde": [
+            "HF-U1",
+            "GR-U1",
+            "LV-U41",
+            "LV-U53",
+            "LV-U34"
+          ]
+        },
+        {
+          "tekst": "BH ser datoen totalentreprenøren oppgir for pålegget, datoen påberopelsen ble sendt og dagene mellom, og avgjør selv om varselet kom i tide (U-3).",
+          "kilde": [
+            "GR-U31",
+            "GR-U32"
+          ]
+        },
+        {
+          "tekst": "BH ser valgene for forholdet med kontraktens ord, og brevet har de samme ordene, med «punkt» og partene skrevet fullt ut. Et varsel BH ikke påberoper er for sent, er et uttrykkelig standpunkt (U-4, D-2).",
+          "kilde": [
+            "GR-U32",
+            "LV-U41",
+            "LV-U4",
+            "LV-U8",
+            "LV-U39",
+            "LV-U35",
+            "MM-U9"
+          ]
+        },
+        {
+          "tekst": "Gir valgene en endringsordre, ser BH setningen fra brevet med sitatet av totalentreprenørens beskrivelse før sending, og at svaret går gjennom fullmakten (U-5, D-3, D-14).",
+          "kilde": [
+            "GR-U13",
+            "GR-U14",
+            "GFK-U2"
+          ]
+        },
+        {
+          "tekst": "BH ser at frafall er et valg bare der pålegget er byggherrens eget, og ikke sammen med at varselet kom for sent. Frafallet avklarer forholdet, totalentreprenøren kan ikke godta det, og endringsordren for utført arbeid utstedes i en EO-sak (D-6).",
+          "kilde": [
+            "GR-U18",
+            "GR-U9",
+            "GR-U23",
+            "GR-U28"
+          ]
+        },
+        {
+          "tekst": "BH ser at begrunnelsen kreves for punktet om forholdet når BH avslår eller gjør gjeldende at varselet kom for sent, og ellers er valgfri (U-6, D-7).",
+          "kilde": [
+            "KA-U43"
+          ]
+        },
+        {
+          "tekst": "BH ser hva svaret gjør før sending, og at teksten under «Forbehold» gjelder hele svaret og ikke tolkes. Skjemaet har ikke noe eget spørsmål om vilkår (U-7, D-8).",
+          "kilde": [
+            "OV-U69",
+            "OV-U72"
+          ]
+        },
+        {
+          "tekst": "BH ser at et svar gitt utenfor løsningen legges til i saken som korrespondanse med kategorien svar, og gjelder fra datoen BH oppgir at det ble sendt. Bekreftelsen er opphevet, og byggherrens egen endringsordre sendt utenfor løsningen er ikke med (U-14, avgrensningen).",
+          "kilde": [
+            "OV-U101",
+            "OV-U98",
+            "OV-U46",
+            "GR-U35",
+            "OV-U6"
+          ]
+        },
+        {
+          "tekst": "Har BH vist til et svar utenfor løsningen og gir i stedet et nytt svar på forholdet, sier skjemaet at BH kan være bundet av det tidligere svaret, og brevet sier hva BH tidligere viste til (D-15, G-5). Henvisningen bygges i #1306.",
+          "kilde": [
+            "GR-U34",
+            "GR-U36",
+            "OV-U46"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "te-har-mottatt-svaret",
+      "etter": 3,
+      "beskrivelse": "BH har gjort gjeldende at varselet etter punkt 32.2 kom for sent, og er subsidiært enig i at pålegget innebærer en endring.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "GR-U7",
+            "GR-U12"
+          ],
+          "forventet": {
+            "gjeldende_svar.forhold": "S-p1",
+            "enighet.forhold": null,
+            "forhold_avklart": false,
+            "endringsordre": "nei",
+            "handlinger.TE": {
+              "inneholder": [
+                "godta:forhold"
+              ]
+            }
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser at svaret ikke er en endringsordre, fordi byggherren gjør gjeldende at varselet kom for sent, og at svarene på vederlag og frist gjelder subsidiært (D-4, D-5).",
+          "kilde": [
+            "GR-U12",
+            "GR-U7",
+            "GR-U10",
+            "HF-U27"
+          ]
+        },
+        {
+          "tekst": "TE ser at «Godta svaret» registrerer at partene er enige i byggherrens standpunkt, også at varselet kom for sent, og at saken avsluttes med kravene om vederlag og frist (T-5).",
+          "kilde": [
+            "GR-U27",
+            "KA-U49"
+          ]
+        },
+        {
+          "tekst": "TE ser at en ny versjon av påberopelsen har samme hjemmel, og at trekket av påberopelsen også trekker kravene om vederlag og frist (T-6).",
+          "kilde": [
+            "GR-U22",
+            "GR-U1",
+            "KA-U51"
+          ]
+        },
+        {
+          "tekst": "BH ser at BH kan sende et nytt svar, og at det forrige svaret står som det ble sendt, også en endringsordre i det (D-12, T-2, T-4). Nytt svar bygges i et eget issue.",
+          "kilde": [
+            "HF-U29",
+            "LV-U73",
+            "EO-U39",
+            "MM-U34"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "te-har-godtatt-avslaget",
+      "etter": 4,
+      "beskrivelse": "TE har godtatt avslaget, også at varselet kom for sent.",
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "GR-U27"
+          ],
+          "forventet": {
+            "enighet.forhold": "finnes",
+            "forhold_avvist": true,
+            "handlinger.TE": {
+              "mangler": [
+                "godta:forhold"
+              ]
+            }
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser at saken avsluttes, og at aksepten gjelder hele svaret slik det står i brevet, også begrunnelsen og forbeholdet (U-12, D-13).",
+          "kilde": [
+            "GR-U27",
+            "KA-U49"
+          ]
+        }
+      ]
+    }
   ],
   "venter_paa": [
-    "#2009",
     "#1306",
     "#1433",
     "#1380",
     "#1449"
   ],
   "bevis_saker": [],
-  "visninger": [],
+  "visninger": [
+    "demoruta",
+    "saksruta",
+    "varden"
+  ],
   "endringer": [
     {
       "dato": "2026-11-12",
@@ -281,6 +474,11 @@
       "dato": "2026-11-15",
       "forhold": "#1834",
       "hva": "Bekreftelsen er tatt ut etter OV-U101: klikkstien for steg 4, GR-U35 og kildene bare bekreftelsen brukte. Prototypen versjon 7 viser veien til korrespondansen med kategorien svar (U-14)."
+    },
+    {
+      "dato": "2026-11-15",
+      "forhold": "#2009",
+      "hva": "Forløpet er kjørbart for F-2 og F-9: byggherren gjør gjeldende at varselet kom for sent og er subsidiært enig, og totalentreprenøren godtar avslaget. Utgangspunktet har ikke kravet om fristforlengelse. Vedtakene som sto i `kilder`, står i kontrollene, forståelsen og bestillingen."
     }
   ]
 }

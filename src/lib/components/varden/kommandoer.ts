@@ -186,7 +186,7 @@ function vurderingene(v: Svarvalg, krav: Krav, hovedvarselet: boolean): Svarvurd
  * brevet, og forbeholdet er utdypningen for hele svaret.
  */
 export function svarbrevet(
-  spor: 'vederlag' | 'frist',
+  spor: Spor,
   krav: Krav,
   vurderinger: Svarvurdering,
   kontekst: Omit<Parameters<typeof regnUtSvar>[2], 'krav'>,
