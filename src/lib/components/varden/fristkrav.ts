@@ -50,7 +50,7 @@ export interface Fristkravvalg {
   frister: Fristpostvalg[];
   /** Begrunnelsen, som kjernen krever (`BEGRUNNELSE_MANGLER`). */
   begrunnelse: string;
-  /** Begrunnelsen etter punkt 33.6.2 annet ledd bokstav b. */
+  /** Begrunnelsen etter punkt 33.6.2 annet ledd b. */
   grunnB: string;
 }
 
@@ -105,7 +105,7 @@ const fristen = (p: Fristpostvalg): Record<string, unknown> =>
 
 /**
  * Kommandoen TE sender: varselet etter punkt 33.4 fra løsningen eller registrert (VS-U15,
- * VS-U16), begrunnelsen etter punkt 33.6.2 annet ledd bokstav b (VS-U17), eller kravet. Kravet er
+ * VS-U16), begrunnelsen etter punkt 33.6.2 annet ledd b (VS-U17), eller kravet. Kravet er
  * varselet når saken ikke har et (`varselVedKravet` i kjernen), og et krav mens forespørselen er
  * ubesvart, svarer på den (`kommandoer/skriving.ts`). Kjernen avviser det den ikke godtar.
  */

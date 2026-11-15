@@ -10,6 +10,7 @@
 <script lang="ts">
   import { File } from 'lucide-svelte';
   import type { Snippet } from 'svelte';
+  import { stor } from '$kjerne/frosset/brevdeler';
   import type { Spor } from '$kjerne/typer';
   import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
@@ -148,7 +149,7 @@
               <ul class="lagene" aria-label={FORHOLDET.lagene}>
                 {#each i.standpunkter as l (l.standpunkt.id)}
                   <li>
-                    {#if l.lag}<b>{l.lag[0].toUpperCase() + l.lag.slice(1)}</b>{/if}
+                    {#if l.lag}<b>{stor(l.lag)}</b>{/if}
                     <span>{FORHOLDET.standpunkt(l.standpunkt, l.brev)}</span>
                   </li>
                 {/each}

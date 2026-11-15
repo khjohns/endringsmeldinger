@@ -12,7 +12,7 @@
   import { organisasjonene } from './kontrakt';
   import { underOverskriften } from './lesing';
   import { MOTTATT } from './tekster';
-  import { PARTEN } from '$kjerne/frosset/brevdeler';
+  import { PARTEN, stor } from '$kjerne/frosset/brevdeler';
 
   let {
     avsender,
@@ -58,7 +58,6 @@
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
   const hentOrganisasjoner = organisasjonene();
   const organisasjoner = $derived(hentOrganisasjoner());
-  const stor = (s: string) => s[0].toUpperCase() + s.slice(1);
 </script>
 
 <article class="brev" class:innfelt class:dempet class:bh={avsender === 'BH'} aria-label={tittel}>

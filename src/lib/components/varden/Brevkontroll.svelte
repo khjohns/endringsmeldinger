@@ -55,7 +55,7 @@
   import Melding from './Melding.svelte';
   import { organisasjonene } from './kontrakt';
   import { BREVKONTROLL } from './tekster';
-  import { PARTEN } from '$kjerne/frosset/brevdeler';
+  import { PARTEN, stor } from '$kjerne/frosset/brevdeler';
 
   let {
     kjernesak,
@@ -133,7 +133,6 @@
   let harSendt = $state(false);
   // Fokus til panelet når brevkontrollen åpnes, så tastatur og skjermleser starter der.
   onMount(() => tittelen?.focus());
-  const stor = (s: string) => s[0].toUpperCase() + s.slice(1);
 
   // Feilen fra et tidligere forsøk står ikke over brevet når avsenderen kommer tilbake (#1393).
   function tilbake() {

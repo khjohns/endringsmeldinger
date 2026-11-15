@@ -8,7 +8,7 @@
  * brevnummer). Den finner ikke på virkningen.
  */
 
-import { liste, opplistet, PARTEN } from '$kjerne/frosset/brevdeler';
+import { liste, opplistet, PARTEN, PARTENS, stor } from '$kjerne/frosset/brevdeler';
 import { dager, kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Betegnelse } from '$kjerne/utledning/visning';
@@ -60,7 +60,7 @@ export const brevrefFra = (b: Brevref, part: Part) =>
   b.nummer === null && b.omtale ? b.omtale : `${brevref(b)} fra ${part}`;
 
 /** Henvisningen som begynner en linje: «Brev 3», eller «Brevet registrert …» uten nummer. */
-export const brevrefStor = (b: Brevref) => brevref(b)[0].toUpperCase() + brevref(b).slice(1);
+export const brevrefStor = (b: Brevref) => stor(brevref(b));
 
 /**
  * Overskriften for brevet: «K201-KOE-017-03 · tittelen» med merkingen (LV-U53), og bare
@@ -189,9 +189,7 @@ export function leselinjene(linjer: Standpunktet[], post: Kravpost): string[] {
       s.art === 'beloep' && !s.saerskilt ? (post.beloep ?? 0) : undefined
     );
     if (!t) return [];
-    return [
-      l.lag ? `${l.lag[0].toUpperCase()}${l.lag.slice(1)}: ${t[0].toLowerCase()}${t.slice(1)}` : t,
-    ];
+    return [l.lag ? `${stor(l.lag)}: ${t[0].toLowerCase()}${t.slice(1)}` : t];
   });
 }
 
@@ -203,7 +201,7 @@ export function leselinjene(linjer: Standpunktet[], post: Kravpost): string[] {
 export function standpunkttekst(s: Standpunkt, du: boolean, krevd?: number, post?: string): string {
   const forPosten = post ? ` for ${post}` : '';
   const hvemLiten = du ? 'du' : PARTEN.BH;
-  const hvem = `${hvemLiten[0]!.toUpperCase()}${hvemLiten.slice(1)}`;
+  const hvem = stor(hvemLiten);
   switch (s.art) {
     case 'rettidighet':
       // VS-U63.
@@ -665,8 +663,6 @@ export const BETEGNELSE: Record<Betegnelse, string> = {
   varslet: 'Varslet',
 };
 
-const stor = (t: string) => t[0].toUpperCase() + t.slice(1);
-
 /** Siden for forholdet (#1449, prototypen `grunnlagsoversikt.html`, OV-U76–OV-U78). */
 /** Korrigeringen i en lukket sak (D-6 og U-6 i BF-02A; oppdragsgiver 06.11, #1646). */
 const KORRIGERT_I_LUKKET =
@@ -892,9 +888,9 @@ export const NYVERSJON = {
   brevrad: (b: Brevref & { avsender: Part }) =>
     `${brevrefStor(b)} · ${
       b.art === 'svar'
-        ? `${stor(PARTEN[b.avsender])}s svar`
+        ? `${stor(PARTENS[b.avsender])} svar`
         : b.art === 'krav'
-          ? `${stor(PARTEN[b.avsender])}s påberopelse`
+          ? `${stor(PARTENS[b.avsender])} påberopelse`
           : stor(brevref(b))
     }`,
   utenTekst: 'Teksten i dette brevet står ikke her. Åpne det fra oversikten.',
@@ -1431,10 +1427,10 @@ export const FRISTKRAV = {
   /** Linja i panelet og «Dette sender du» for varselet alene og svaret etter bokstav b. */
   dette: {
     varsel: 'Varselet etter punkt 33.4, uten dager',
-    svar: 'Begrunnelse etter punkt 33.6.2 annet ledd bokstav b',
+    svar: 'Begrunnelse etter punkt 33.6.2 annet ledd b',
   },
   virkningB:
-    'Svaret er en begrunnelse etter punkt 33.6.2 annet ledd bokstav b. For kravet du sender senere, gjelder punkt 33.6.1 (punkt 33.6.2 femte ledd).',
+    'Svaret er en begrunnelse etter punkt 33.6.2 annet ledd b. For kravet du sender senere, gjelder punkt 33.6.1 (punkt 33.6.2 femte ledd).',
   virkningVarsel: (n: number | null) =>
     n === null
       ? 'Varselet etter punkt 33.4 sendes i dag. Varsles det for sent, tapes kravet.'

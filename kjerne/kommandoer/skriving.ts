@@ -742,11 +742,14 @@ function tekstavvik(vist: string[] | undefined, laget: Avsnitt[] | null): Avvisn
   if (laget === null)
     return vist === undefined
       ? null
-      : avvis('ANNEN_BREVTEKST', 'Et registrert brev har ingen tekst fra appen (MM-U50).');
+      : avvis(
+          'ANNEN_BREVTEKST',
+          'Dette brevet får ingen tekst herfra, så kommandoen kan ikke ha en.'
+        );
   if (vist === undefined)
     return avvis(
       'BREVTEKST_MANGLER',
-      'Kommandoen må ha den låste teksten avsenderen har sett og godkjent (LV-U2).'
+      'Kommandoen må ha den låste teksten avsenderen har sett og godkjent.'
     );
   const laast = laget.map((a) => a.laast);
   return laast.length === vist.length && laast.every((t, i) => t === vist[i])

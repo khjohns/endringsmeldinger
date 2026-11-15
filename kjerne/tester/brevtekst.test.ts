@@ -34,7 +34,7 @@ import { Uforstaatt } from '../format/skjema.ts';
 import { kroner } from '../frosset/tekst.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
-import { HOVEDKATEGORIER, KATEGORIER } from '../format/koder.ts';
+import { HOVEDKATEGORIER, KATEGORIER, type Hovedkategori } from '../format/koder.ts';
 import { erRegistrert, kalenderdag, lesJournal, standpunkterISvaret } from '../format/leser.ts';
 import {
   forhaandsvis,
@@ -1107,11 +1107,14 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
     ).toBeNull();
   });
 
-  it('korrigeringen avvises når henvisningen er ugyldig, fra byggherren og før grunnlaget er sendt', () => {
+  it('korrigeringen avvises når henvisningen er ugyldig, fra byggherren og før påberopelsen er sendt', () => {
     const s = sak();
-    expect(s.avvist('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20', randomUUID()))).toBe(
-      'PAABEROPELSE_IKKE_SENDT'
-    );
+    expect(
+      s.avvisning('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20', randomUUID()))
+    ).toEqual({
+      regel: 'PAABEROPELSE_IKKE_SENDT',
+      melding: 'Påberopelsen må være sendt før datoen kan korrigeres.',
+    });
     s.send('TE', PAABEROPELSE);
     expect(s.avvist('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20', randomUUID()))).toBe(
       'UGYLDIG_KORRIGERING'
@@ -1121,6 +1124,20 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
       s.avvist('TE', korrigering(s, 'paalegg_mottatt', '2026-09-20')),
       'kontrollsak'
     ).toBeNull();
+  });
+
+  it('datoen varslingsplikten løper fra, finnes i endring utenom endringsordre, svikt og andre forhold, men ikke ved force majeure (VS-U26, VS-U43 punkt 1)', () => {
+    const forventet: Record<Hovedkategori, string | null> = {
+      endring: 'paalegg_mottatt',
+      svikt: 'klar_over_forholdet',
+      andre_forhold: 'klar_over_forholdet',
+      force_majeure: null,
+    };
+    for (const hoved of HOVEDKATEGORIER)
+      for (const under of KATEGORIER[hoved].length ? KATEGORIER[hoved] : [null])
+        expect(oppgittDato(hoved, under), `${hoved} ${under}`).toBe(
+          under === 'endringsordre' ? null : forventet[hoved]
+        );
   });
 
   it('korrigeringen avvises i underkategorien endringsordre, der TE ikke oppgir noen slik dato (punkt 10)', () => {
@@ -1446,10 +1463,10 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(
       s.avvisning('BH', brevet({ vurdering: 'godkjent', godkjent_beloep: 125000 }))?.melding
     ).toBe(
-      'Vurderingene kan ikke regnes ut: P1.vurdering: byggherren aksepterer ikke tilbudet, men tar stilling til beløpet (KA-U72); P1.godkjent_beloep: byggherren aksepterer ikke tilbudet, men tar stilling til beløpet (KA-U72).'
+      'Vurderingene kan ikke regnes ut: P1.vurdering: byggherren aksepterer ikke tilbudet, men tar stilling til beløpet; P1.godkjent_beloep: byggherren aksepterer ikke tilbudet, men tar stilling til beløpet.'
     );
     expect(s.avvisning('BH', brevet({ vurdering: 'avslaatt' }))?.melding).toBe(
-      'Vurderingene kan ikke regnes ut: P1.vurdering: byggherren aksepterer ikke tilbudet, men tar stilling til beløpet (KA-U72).'
+      'Vurderingene kan ikke regnes ut: P1.vurdering: byggherren aksepterer ikke tilbudet, men tar stilling til beløpet.'
     );
   });
 
@@ -3786,6 +3803,29 @@ describe('vedleggene ved påberopelsen (VS-U38)', () => {
   });
 });
 
+describe('meldingene før påberopelsen er sendt (språkfila, #1955)', () => {
+  it('«ingen krav» og varselet avvises med en melding som sier «påberopelsen», ikke «grunnlaget»', () => {
+    const uten = sak();
+    expect(uten.avvisning('TE', { type: 'ingen_krav', spor: 'frist' })).toEqual({
+      regel: 'PAABEROPELSE_IKKE_SENDT',
+      melding: 'Påberopelsen må være sendt før du kan si «ingen krav».',
+    });
+    expect(
+      uten.avvisning('TE', {
+        type: 'varsel',
+        korrespondansetype: 'brev',
+        spor: 'frist',
+        hjemmel: '33.4',
+        sendt: '2026-09-28',
+        dokumentasjon: [randomUUID()],
+      })
+    ).toEqual({
+      regel: 'PAABEROPELSE_IKKE_SENDT',
+      melding: 'Påberopelsen må være sendt før du kan varsle.',
+    });
+  });
+});
+
 describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U29, LV-U18)', () => {
   const foresporsel = { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' };
   const begrunnelseB = 'Omfanget av omprosjekteringen er ikke kjent ennå.';
@@ -4248,7 +4288,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(medB.avvisning('BH', foresporsel)).toEqual({
       regel: 'FORESPORSEL_BEGRUNNET',
       melding:
-        'Totalentreprenøren har svart på en forespørsel med en begrunnelse etter punkt 33.6.2 annet ledd bokstav b, så en ny forespørsel kan ikke sendes herfra.',
+        'Totalentreprenøren har svart på en forespørsel med en begrunnelse etter punkt 33.6.2 annet ledd b, så en ny forespørsel kan ikke sendes herfra.',
     });
     const medKrav = sak();
     medKrav.send('TE', PAABEROPELSE);
@@ -8276,7 +8316,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
     expect(s.avvisning('BH', delvis(100000.405))).toEqual({
       regel: 'UGYLDIG_VURDERING',
       melding:
-        'Vurderingene kan ikke regnes ut: P1.godkjent_beloep: 100000.405 har brøkdeler av øre (OV-U58).',
+        'Vurderingene kan ikke regnes ut: P1.godkjent_beloep: 100000.405 har brøkdeler av øre.',
     });
     // Rundet til hele øre ville beløpet vært det krevde, og svaret godkjent fullt uten begrunnelse.
     expect(s.avvist('BH', delvis(149999.995))).toBe('UGYLDIG_VURDERING');
@@ -8302,7 +8342,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
         }
       );
     expect(s.avvisning('BH', begrenset(10000.001))?.melding).toBe(
-      'Vurderingene kan ikke regnes ut: produktivitet_begrenset_beloep: 10000.001 har brøkdeler av øre (OV-U58).'
+      'Vurderingene kan ikke regnes ut: produktivitet_begrenset_beloep: 10000.001 har brøkdeler av øre.'
     );
     expect(s.avvist('BH', begrenset(10000.01)), 'kontrollsak').toBeNull();
   });
@@ -9814,7 +9854,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
       return null;
     };
     const grunn =
-      'kravposten følger en beregningsregel, og svaret godkjenner ikke noe beløp for den (OV-U95 punkt 5)';
+      'kravposten følger en beregningsregel, og svaret godkjenner ikke noe beløp for den';
     expect(
       feilen(() =>
         regnUtSvar(

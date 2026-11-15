@@ -112,7 +112,7 @@
       : (kjernesak.tilbudte.find((h) => h.type === 'svare_paa_foresporsel')?.gjelder ?? null)
   );
   const foresporselsbrev = $derived(foresporsel ? brevMedUtsagn(u, foresporsel) : null);
-  /** Varselet alene, svaret etter punkt 33.6.2 annet ledd bokstav b, eller kravet med dagene. */
+  /** Varselet alene, svaret etter punkt 33.6.2 annet ledd b, eller kravet med dagene. */
   const modus = $derived(
     v.hva === 'varsel' ? 'varsel' : foresporselsbrev && v.bokstav === 'b' ? 'svar' : 'krav'
   );
