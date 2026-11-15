@@ -9,6 +9,7 @@
   import { kroner } from '$kjerne/frosset/tekst';
   import { stor } from '$kjerne/frosset/brevdeler';
   import Forbeholdet from './Forbeholdet.svelte';
+  import Kravkort from './Kravkort.svelte';
   import Maalrad, { maalestokken } from './Maalrad.svelte';
   import { VEDERLAGET } from './tekster';
   import { postIRaden, type KravetOgSvaret } from './vederlagsoversikt';
@@ -68,157 +69,126 @@
       ?.standpunkt;
 </script>
 
-<section class="kort" aria-labelledby={`${uid}-tittel`}>
-  <div class="hode">
-    <h2 id={`${uid}-tittel`}>{VEDERLAGET.kortet}</h2>
-    <span class="kilde">{VEDERLAGET.kilde(k.kravbrev, k.svarbrev)}</span>
-  </div>
-  <div class="kropp">
-    {#if k.krevd !== null}
-      <div class="maalestokk" style:--steg={steg}>
-        <div>
-          <Maalrad
-            navn={VEDERLAGET.krever}
-            verdi={kroner(k.krevd)}
-            andel={andel(k.krevd)}
-            aapen
-            {trinn}
-          />
-        </div>
-        {#if k.lagene.length}
-          <p class="lagtittel" id={`${uid}-lag`}>{VEDERLAGET.godkjenner}</p>
-          <ul class="lagene" aria-labelledby={`${uid}-lag`}>
-            {#each k.lagene as l (l.lag)}
-              {@const tekst = VEDERLAGET.laget(l)}
-              <li>
-                <Maalrad
-                  navn={l.etikett ? stor(l.etikett) : VEDERLAGET.godkjenner}
-                  verdi={l.beloep === null ? null : kroner(l.beloep)}
-                  andel={l.beloep === null ? null : andel(l.beloep)}
-                  sterk={false}
-                />
-                {#if tekst}<p>{tekst}</p>{/if}
-              </li>
-            {/each}
-          </ul>
-        {:else}
-          <p class="ikke-svart">{VEDERLAGET.ikkeSvart}</p>
-        {/if}
+<Kravkort tittel={VEDERLAGET.kortet} kilde={VEDERLAGET.kilde(k.kravbrev, k.svarbrev)}>
+  {#if k.krevd !== null}
+    <div class="maalestokk" style:--steg={steg}>
+      <div>
+        <Maalrad
+          navn={VEDERLAGET.krever}
+          verdi={kroner(k.krevd)}
+          andel={andel(k.krevd)}
+          aapen
+          {trinn}
+        />
       </div>
-      {#if k.lagene.length && avstand > 0}
-        <p class="gap">
-          {VEDERLAGET.skiller(avstand, k.lagene.length > 1)}
-          {VEDERLAGET.eksMva}
-        </p>
+      {#if k.lagene.length}
+        <p class="lagtittel" id={`${uid}-lag`}>{VEDERLAGET.godkjenner}</p>
+        <ul class="lagene" aria-labelledby={`${uid}-lag`}>
+          {#each k.lagene as l (l.lag)}
+            {@const tekst = VEDERLAGET.laget(l)}
+            <li>
+              <Maalrad
+                navn={l.etikett ? stor(l.etikett) : VEDERLAGET.godkjenner}
+                verdi={l.beloep === null ? null : kroner(l.beloep)}
+                andel={l.beloep === null ? null : andel(l.beloep)}
+                sterk={false}
+              />
+              {#if tekst}<p>{tekst}</p>{/if}
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <p class="ikke-svart">{VEDERLAGET.ikkeSvart}</p>
       {/if}
+    </div>
+    {#if k.lagene.length && avstand > 0}
+      <p class="gap">
+        {VEDERLAGET.skiller(avstand, k.lagene.length > 1)}
+        {VEDERLAGET.eksMva}
+      </p>
     {/if}
+  {/if}
 
-    {#if tabellen}
-      <!-- Tabellen kan rulles på smal skjerm, så rammen kan få fokus med tastaturet (WCAG 2.1.1). -->
-      <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-      <div
-        class="tabell"
-        role="region"
-        aria-labelledby={`${uid}-perpost`}
-        tabindex="0"
-        style:--kolonner={tabellen.kolonner.length - 1}
-      >
-        <!-- Rollene står i markeringen, så tabellen beholder dem når radene blir rutenett på smal
+  {#if tabellen}
+    <!-- Tabellen kan rulles på smal skjerm, så rammen kan få fokus med tastaturet (WCAG 2.1.1). -->
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <div
+      class="tabell"
+      role="region"
+      aria-labelledby={`${uid}-perpost`}
+      tabindex="0"
+      style:--kolonner={tabellen.kolonner.length - 1}
+    >
+      <!-- Rollene står i markeringen, så tabellen beholder dem når radene blir rutenett på smal
              skjerm (WCAG 1.3.1). -->
+      <!-- svelte-ignore a11y_no_redundant_roles -->
+      <table role="table">
+        <caption id={`${uid}-perpost`}>{VEDERLAGET.perPost}</caption>
         <!-- svelte-ignore a11y_no_redundant_roles -->
-        <table role="table">
-          <caption id={`${uid}-perpost`}>{VEDERLAGET.perPost}</caption>
+        <thead role="rowgroup">
           <!-- svelte-ignore a11y_no_redundant_roles -->
-          <thead role="rowgroup">
+          <tr role="row"
+            >{#each tabellen.kolonner as c, m (m)}<th
+                scope="col"
+                role="columnheader"
+                class:krevdkol={m === 1}>{c}</th
+              >{/each}</tr
+          >
+        </thead>
+        <!-- svelte-ignore a11y_no_redundant_roles -->
+        <tbody role="rowgroup">
+          {#each tabellen.rader as { celler, post, sum }, r (r)}
             <!-- svelte-ignore a11y_no_redundant_roles -->
-            <tr role="row"
-              >{#each tabellen.kolonner as c, m (m)}<th
-                  scope="col"
-                  role="columnheader"
-                  class:krevdkol={m === 1}>{c}</th
-                >{/each}</tr
-            >
-          </thead>
-          <!-- svelte-ignore a11y_no_redundant_roles -->
-          <tbody role="rowgroup">
-            {#each tabellen.rader as { celler, post, sum }, r (r)}
-              <!-- svelte-ignore a11y_no_redundant_roles -->
-              <tr role="row" class:sum>
-                <th scope="row" role="rowheader"
-                  >{celler[0]}{#if post}<span class="hj"
-                      >{VEDERLAGET.oppgjoersform(post.oppgjoersform)}</span
-                    >{/if}</th
-                >
-                {#each celler.slice(1) as c, m (m)}
-                  <td role="cell" class:krevdkol={m === 0}>{utenKr(c)}</td>
-                {/each}
-              </tr>
-            {/each}
-          </tbody>
-        </table>
+            <tr role="row" class:sum>
+              <th scope="row" role="rowheader"
+                >{celler[0]}{#if post}<span class="hj"
+                    >{VEDERLAGET.oppgjoersform(post.oppgjoersform)}</span
+                  >{/if}</th
+              >
+              {#each celler.slice(1) as c, m (m)}
+                <td role="cell" class:krevdkol={m === 0}>{utenKr(c)}</td>
+              {/each}
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
+  {/if}
+
+  {#each regning as p (p.navn)}
+    {@const s = p.kravpost ? formen(p.kravpost.id) : undefined}
+    {@const varsel = p.kravpost?.varsel ? brevMedUtsagn(u, p.kravpost.varsel) : null}
+    <dl class="fakta">
+      <div>
+        <dt>{VEDERLAGET.regning.oppgjoersform}</dt>
+        <dd>
+          <b>{VEDERLAGET.regning.regningsarbeid}</b>
+          {#if s?.art === 'oppgjoersform' && k.svarbrev}{s.aksepterer
+              ? VEDERLAGET.regning.godkjent(k.svarbrev)
+              : VEDERLAGET.regning.ikkeGodkjent(k.svarbrev)}{/if}
+        </dd>
       </div>
-    {/if}
-
-    {#each regning as p (p.navn)}
-      {@const s = p.kravpost ? formen(p.kravpost.id) : undefined}
-      {@const varsel = p.kravpost?.varsel ? brevMedUtsagn(u, p.kravpost.varsel) : null}
-      <dl class="fakta">
+      {#if varsel}
         <div>
-          <dt>{VEDERLAGET.regning.oppgjoersform}</dt>
-          <dd>
-            <b>{VEDERLAGET.regning.regningsarbeid}</b>
-            {#if s?.art === 'oppgjoersform' && k.svarbrev}{s.aksepterer
-                ? VEDERLAGET.regning.godkjent(k.svarbrev)
-                : VEDERLAGET.regning.ikkeGodkjent(k.svarbrev)}{/if}
-          </dd>
+          <dt>{VEDERLAGET.regning.varsel}</dt>
+          <dd>{VEDERLAGET.regning.varselet(varsel)}</dd>
         </div>
-        {#if varsel}
-          <div>
-            <dt>{VEDERLAGET.regning.varsel}</dt>
-            <dd>{VEDERLAGET.regning.varselet(varsel)}</dd>
-          </div>
-        {/if}
-        {#if p.kravpost?.kostnadsoverslag !== undefined}
-          <div>
-            <dt>{VEDERLAGET.regning.overslag}</dt>
-            <dd>{VEDERLAGET.regning.overslaget(p.kravpost.kostnadsoverslag, k.kravbrev)}</dd>
-          </div>
-        {/if}
-      </dl>
-    {/each}
+      {/if}
+      {#if p.kravpost?.kostnadsoverslag !== undefined}
+        <div>
+          <dt>{VEDERLAGET.regning.overslag}</dt>
+          <dd>{VEDERLAGET.regning.overslaget(p.kravpost.kostnadsoverslag, k.kravbrev)}</dd>
+        </div>
+      {/if}
+    </dl>
+  {/each}
 
-    {#if k.forbehold && k.svarbrev}
-      <Forbeholdet svarbrev={k.svarbrev} {u} {alle} {onforholdet} />
-    {/if}
-  </div>
-</section>
+  {#if k.forbehold && k.svarbrev}
+    <Forbeholdet svarbrev={k.svarbrev} {u} {alle} {onforholdet} />
+  {/if}
+</Kravkort>
 
 <style>
-  .kort {
-    min-width: 0;
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: var(--r-kort);
-  }
-  .hode {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-1) var(--spacing-4);
-    align-items: baseline;
-    justify-content: space-between;
-    padding: 18px var(--spacing-5) 0;
-  }
-  h2 {
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .kilde {
-    font-size: 12px;
-    color: var(--ink-3);
-  }
-  .kropp {
-    padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
-  }
   /* Kravet er åpent og det godkjente fylt, som ringene i tråden (U-2). */
   .maalestokk {
     --steg: 25%;

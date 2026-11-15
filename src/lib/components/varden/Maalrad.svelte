@@ -16,18 +16,23 @@
 
   /**
    * Skalaen for målestokken: trinnene, lengden for en verdi og avstanden mellom strekene. Med
-   * `tilTrinn` slutter skalaen på neste runde trinn, så det største kravet ikke fyller målet
-   * (prototypen `fristoversikt.html`).
+   * `tilTrinn` slutter skalaen på neste runde trinn, så det største kravet ikke fyller målet, og
+   * trinnet ved enden står (prototypen `fristoversikt.html`).
    */
   export function maalestokken(stoerst: number, tilTrinn = false) {
     const steget = trinnene(stoerst)[1] ?? stoerst;
     const skala = tilTrinn && steget > 0 ? (Math.floor(stoerst / steget) + 1) * steget : stoerst;
-    // Trinnet ved enden av skalaen står ikke, så tallet ikke går ut over målestokken.
     const trinn = tilTrinn
-      ? Array.from({ length: Math.round(skala / steget) }, (_, i) => i * steget)
+      ? Array.from({ length: Math.round(skala / steget) + 1 }, (_, i) => i * steget)
       : trinnene(stoerst);
     const andel = (n: number) => (skala > 0 ? `${(n / skala) * 100}%` : '0');
-    return { trinn, andel, steg: trinn.length > 1 ? andel(trinn[1]!) : '100%' };
+    return {
+      trinn,
+      andel,
+      steg: trinn.length > 1 ? andel(trinn[1]!) : '100%',
+      /** Trinnet ved enden står ved kanten av målet. */
+      ende: tilTrinn,
+    };
   }
 </script>
 
@@ -39,6 +44,7 @@
     andel = null,
     aapen = false,
     trinn = [],
+    ende = false,
     kompakt = false,
     sterk = true,
   }: {
@@ -51,6 +57,8 @@
     /** Kravet er åpent, og et lag i svaret fylt. */
     aapen?: boolean;
     trinn?: number[];
+    /** Det siste trinnet står ved kanten av målet (`maalestokken`). */
+    ende?: boolean;
     /** Verdien i vanlig størrelse, som dagene for en frist. */
     kompakt?: boolean;
     /** Navnet i halvfet, som kravet. */
@@ -72,7 +80,7 @@
   </div>
 {/if}
 {#if trinn.length}
-  <div class="trinn" aria-hidden="true">
+  <div class="trinn" class:ende aria-hidden="true">
     {#each trinn as t (t)}<span>{t.toLocaleString('nb-NO')}</span>{/each}
   </div>
 {/if}
@@ -140,6 +148,11 @@
   }
   .trinn span:last-child {
     flex: 1 1 0;
+  }
+  /* Tallet ved enden slutter ved kanten av målet. */
+  .trinn.ende span:last-child {
+    flex: 0 0 0;
+    direction: rtl;
   }
   /* Smal skjerm: laget står over dagene (U-5 i BF-45). */
   @media (max-width: 560px) {

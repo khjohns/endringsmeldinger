@@ -131,11 +131,11 @@ describe('Kravet og svaret i fristen, lest av kjernen (BF-45)', () => {
 });
 
 describe('Målestokken for dagene (U-2)', () => {
-  it('skalaen slutter på neste runde trinn, så det største kravet ikke fyller målet, og trinnet ved enden står ikke', () => {
+  it('skalaen slutter på neste runde trinn, så det største kravet ikke fyller målet, og trinnet ved enden står, som i prototypen', () => {
     const m = maalestokken(25, true);
-    expect(m.trinn).toEqual([0, 10, 20]);
+    expect(m.trinn).toEqual([0, 10, 20, 30]);
     expect(m.andel(25)).toBe(`${(25 / 30) * 100}%`);
-    expect(maalestokken(20, true).trinn).toEqual([0, 5, 10, 15, 20]);
+    expect(maalestokken(20, true).trinn).toEqual([0, 5, 10, 15, 20, 25]);
   });
 });
 
@@ -192,7 +192,7 @@ describe('Siden for fristforlengelsen', () => {
     ).toBeTruthy();
     expect(
       alle.getByText(
-        'Hvis innsigelsen om varselet etter punkt 33.4 ikke fører frem, legger byggherren til grunn at fremdriften er hindret, og at hindringen skyldes forholdet.'
+        'Hvis innsigelsen om varselet ikke fører frem, legger byggherren til grunn at fremdriften er hindret, og at hindringen skyldes forholdet.'
       )
     ).toBeTruthy();
     const per = within(kort.getByRole('region', { name: FRISTEN.perFrist }));
@@ -202,7 +202,7 @@ describe('Siden for fristforlengelsen', () => {
         .slice(0, 2)
         .map((l) => l.textContent?.replace(/\s+/g, ' ').trim())
     ).toEqual([
-      'Subsidiært, hvis innsigelsen om varselet etter punkt 33.4 ikke fører frem: Byggherren gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1), og godkjenner dagene byggherren måtte forstå.',
+      'Subsidiært, hvis innsigelsen om varselet ikke fører frem: Byggherren gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1), og godkjenner dagene byggherren måtte forstå.',
       'Videre subsidiært, hvis heller ikke innsigelsen om spesifiseringen fører frem: dagene byggherren godkjenner.',
     ]);
     const overtakelse = within(per.getByRole('region', { name: /^Frist 2\s+Overtakelse$/ }));
@@ -256,6 +256,7 @@ describe('Handlingene på siden for fristforlengelsen (U-6, D-12)', () => {
       rader.findIndex((t) => t.includes('Trekk kravet')) - 1
     );
     expect(andre.getByText(FRISTEN.forseringLinje)).toBeTruthy();
+    expect(andre.getByText(FRISTEN.trekkEtterSvar)).toBeTruthy();
   });
 
   it('byggherren har ikke forseringen (FO-U1)', async () => {

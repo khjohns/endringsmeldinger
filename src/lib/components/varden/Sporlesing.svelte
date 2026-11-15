@@ -210,7 +210,13 @@
     if (n === 'trekke:forhold') return HANDLINGENE.virkning.trekkForholdet;
     if (n.startsWith('revidere:') && svarbrevet) return HANDLINGENE.virkning.nyttSvar(svarbrevet);
     if (n.startsWith('trekke:'))
-      return svaret ? HANDLINGENE.virkning.trekkKravetEtterSvar : HANDLINGENE.virkning.trekkKravet;
+      return spor === 'frist'
+        ? svaret
+          ? FRISTEN.trekkEtterSvar
+          : FRISTEN.trekk
+        : svaret
+          ? HANDLINGENE.virkning.trekkKravetEtterSvar
+          : HANDLINGENE.virkning.trekkKravet;
     if (n === FORSERING) return FRISTEN.forseringLinje;
     if (handlingen(n)?.type === 'svare_paa_foresporsel') return FRISTEN.virkningForesporsel;
     if (n.startsWith('krav:')) {

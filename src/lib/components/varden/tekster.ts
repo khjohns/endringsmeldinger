@@ -1653,9 +1653,17 @@ export const FRISTEN = {
   ukjent: (iKontrakten: string) =>
     `Fristen er ${dato(iKontrakten)} i kontrakten. Gjeldende frist kan ikke regnes nå, fordi en annen sak i prosjektet ikke kan leses.`,
   ikkeRegistrert: 'Gjeldende frist er ikke kjent, fordi fristen ikke er registrert for prosjektet.',
+  /**
+   * Innsigelsen et senere lag gjelder hvis ikke fører frem, med ordene i prototypen: «innsigelsen
+   * om varselet» (U-3, U-4).
+   */
+  innsigelsen: (i: Innsigelsen) =>
+    i.art === 'varsel'
+      ? `innsigelsen om ${i.hjemmel === '33.6.2' ? 'svaret på forespørselen' : 'varselet'}`
+      : VEDERLAGET.innsigelsen(i),
   /** Vilkåret for et lag under «Per frist»: «hvis innsigelsen om varselet ikke fører frem» (U-4). */
   vilkaar: (innsigelser: Innsigelsen[], heller: boolean) =>
-    liten(VEDERLAGET.vilkaar(innsigelser.map(VEDERLAGET.innsigelsen), heller)),
+    liten(VEDERLAGET.vilkaar(innsigelser.map(FRISTEN.innsigelsen), heller)),
   /** Det laget bygger på, i brevets ord, og de dagene byggherren godkjenner i det siste laget. */
   grunnlaget: (standpunkter: Standpunkt[], sist: boolean) =>
     standpunkter.length
@@ -1675,7 +1683,7 @@ export const FRISTEN = {
   utenLag: (s: Standpunkt, vilkaar: Innsigelsen[]) =>
     vilkaar.length
       ? // Leddsetningen først, så verbet før «byggherren»: «…, legger byggherren til grunn …».
-        `${VEDERLAGET.vilkaar(vilkaar.map(VEDERLAGET.innsigelsen), false)}, ${standpunkttekst(s, false).replace(/^Byggherren (\S+)/, '$1 byggherren')}.`
+        `${VEDERLAGET.vilkaar(vilkaar.map(FRISTEN.innsigelsen), false)}, ${standpunkttekst(s, false).replace(/^Byggherren (\S+)/, '$1 byggherren')}.`
       : `${standpunkttekst(s, false)}.`,
   /**
    * Avslaget av dagene for én frist, med laget først og begrunnelsen slik den står i brevet (U-13,
@@ -1690,6 +1698,10 @@ export const FRISTEN = {
   svarPaaForesporsel: 'Svar på forespørselen',
   virkningForesporsel:
     'Nytt brev med dagene for hver frist og begrunnelsen. Kan du ikke beregne dagene ennå, begrunner du det (punkt 33.6.2 annet ledd).',
+  /** Linja ved «Trekk kravet», før og etter byggherrens svar (U-6, prototypen). */
+  trekk: 'Du gir avkall på kravet om fristforlengelse.',
+  trekkEtterSvar:
+    'Du gir avkall på hele kravet om fristforlengelse, også det byggherren har godkjent.',
   /** Linja under raden for forsering etter punkt 33.8 (U-6, svar 3 A, OV-U2). */
   forseringLinje: 'Forsering er ikke bygget i Varden og sendes som egen sak.',
   /** Veiledningen under forespørselen etter punkt 33.6.2 (U-9, V-1 A). */

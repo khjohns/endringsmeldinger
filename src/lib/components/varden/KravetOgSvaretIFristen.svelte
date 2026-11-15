@@ -10,6 +10,7 @@
   import { stor } from '$kjerne/frosset/brevdeler';
   import type { Utledning } from '$kjerne/utledning/utled';
   import Forbeholdet from './Forbeholdet.svelte';
+  import Kravkort from './Kravkort.svelte';
   import Maalrad, { maalestokken } from './Maalrad.svelte';
   import type { Brevet, Fristtabellen } from './lesing';
   import { FRISTEN, VEDERLAGET } from './tekster';
@@ -40,7 +41,7 @@
 
   const svart = $derived(k.svarbrev !== null);
   const stoerst = $derived(stoerstAntall(k));
-  const { trinn, andel, steg } = $derived(maalestokken(stoerst, true));
+  const { trinn, andel, steg, ende } = $derived(maalestokken(stoerst, true));
   const sistePerFrist = $derived(k.perFrist.at(-1)?.lag);
 </script>
 
@@ -65,129 +66,99 @@
   {/if}
 {/snippet}
 
-<section class="kort" aria-labelledby={`${uid}-tittel`}>
-  <div class="hode">
-    <h2 id={`${uid}-tittel`}>{FRISTEN.kortet}</h2>
-    <span class="kilde">{VEDERLAGET.kilde(k.kravbrev, k.svarbrev)}</span>
-  </div>
-  <div class="kropp" style:--steg={steg}>
-    {#if k.felles.length || k.utenLag.length}
-      <section class="del" aria-labelledby={`${uid}-alle`}>
-        <h3 id={`${uid}-alle`}>{FRISTEN.forAlle}</h3>
-        {#each k.felles as l (l.lag)}
-          {@const tekst = VEDERLAGET.laget(l)}
-          <div class="lag">
-            <Maalrad
-              navn={l.etikett ? stor(l.etikett) : FRISTEN.godkjent}
-              verdi={l.dager === null ? null : dager(l.dager)}
-              kompakt
-            />
-            {#if tekst}<p>{tekst}</p>{/if}
-          </div>
-        {/each}
-        {#each k.utenLag as s (s.standpunkt.id)}
-          <p class="uten-lag">{FRISTEN.utenLag(s.standpunkt, s.vilkaar)}</p>
-        {/each}
-      </section>
-    {/if}
+<Kravkort tittel={FRISTEN.kortet} kilde={VEDERLAGET.kilde(k.kravbrev, k.svarbrev)} {steg}>
+  {#if k.felles.length || k.utenLag.length}
+    <section class="del" aria-labelledby={`${uid}-alle`}>
+      <h3 id={`${uid}-alle`}>{FRISTEN.forAlle}</h3>
+      {#each k.felles as l (l.lag)}
+        {@const tekst = VEDERLAGET.laget(l)}
+        <div class="lag">
+          <Maalrad
+            navn={l.etikett ? stor(l.etikett) : FRISTEN.godkjent}
+            verdi={l.dager === null ? null : dager(l.dager)}
+            kompakt
+          />
+          {#if tekst}<p>{tekst}</p>{/if}
+        </div>
+      {/each}
+      {#each k.utenLag as s (s.standpunkt.id)}
+        <p class="uten-lag">{FRISTEN.utenLag(s.standpunkt, s.vilkaar)}</p>
+      {/each}
+    </section>
+  {/if}
 
-    <section class="del" aria-labelledby={svart ? `${uid}-per` : undefined}>
-      {#if svart}<h3 id={`${uid}-per`}>{FRISTEN.perFrist}</h3>{/if}
-      {#if k.perFrist.length > 1 || (k.perFrist.length === 1 && k.perFrist[0]!.etikett)}
-        <ul class="vilkaar">
-          {#each k.perFrist as l (l.lag)}
-            {@const grunnlag = FRISTEN.grunnlaget(
-              l.standpunkter.map((s) => s.standpunkt),
-              l.lag === sistePerFrist
-            )}
+  <section class="del" aria-labelledby={svart ? `${uid}-per` : undefined}>
+    {#if svart}<h3 id={`${uid}-per`}>{FRISTEN.perFrist}</h3>{/if}
+    {#if k.perFrist.length > 1 || (k.perFrist.length === 1 && k.perFrist[0]!.etikett)}
+      <ul class="vilkaar">
+        {#each k.perFrist as l (l.lag)}
+          {@const grunnlag = FRISTEN.grunnlaget(
+            l.standpunkter.map((s) => s.standpunkt),
+            l.lag === sistePerFrist
+          )}
+          <li>
+            <b>{stor(l.etikett ?? '')}</b>{#if l.vilkaar.length}, {FRISTEN.vilkaar(
+                l.vilkaar,
+                l.lag > 2
+              )}{/if}{#if grunnlag}: {grunnlag}{/if}
+          </li>
+        {/each}
+      </ul>
+    {/if}
+    <p class="dempet">{FRISTEN.kalenderdager}</p>
+
+    {#each k.frister as f (f.id)}
+      {@const g = gjeldendeFrist(f.fristId, fristtabell)}
+      {@const nyKrav = nyFrist(g, f.krevd)}
+      <section class="frist" aria-labelledby={`${uid}-${f.id}`}>
+        <h4 id={`${uid}-${f.id}`}>
+          {#if f.nummer}<span class="nr">{FRISTEN.frist(f.nummer)}</span>{/if}
+          {f.navn}
+        </h4>
+        {@render gjeldende(g, f.fristId)}
+        <ul class="rader" aria-label={f.navn}>
+          <li>
+            <Maalrad
+              navn={FRISTEN.krevd}
+              verdi={dager(f.krevd)}
+              etter={nyKrav ? FRISTEN.nyFrist(nyKrav) : null}
+              andel={andel(f.krevd)}
+              aapen
+              kompakt
+              trinn={f.lagene.length ? [] : trinn}
+              {ende}
+            />
+          </li>
+          {#each f.lagene as l, i (l.lag)}
+            {@const ny = nyFrist(g, l.dager)}
             <li>
-              <b>{stor(l.etikett ?? '')}</b>{#if l.vilkaar.length}, {FRISTEN.vilkaar(
-                  l.vilkaar,
-                  l.lag > 2
-                )}{/if}{#if grunnlag}: {grunnlag}{/if}
+              <Maalrad
+                navn={l.etikett ? stor(l.etikett) : FRISTEN.godkjent}
+                verdi={dager(l.dager)}
+                etter={ny ? FRISTEN.nyFrist(ny) : null}
+                andel={andel(l.dager)}
+                kompakt
+                sterk={false}
+                trinn={i === f.lagene.length - 1 ? trinn : []}
+                {ende}
+              />
             </li>
           {/each}
         </ul>
-      {/if}
-      <p class="dempet">{FRISTEN.kalenderdager}</p>
+        {#if f.avslag}
+          <p class="avslag">{FRISTEN.avslag(f.avslag.etikett, f.avslag.begrunnelse)}</p>
+        {/if}
+      </section>
+    {/each}
+    {#if !svart}<p class="ikke-svart">{FRISTEN.ikkeSvart}</p>{/if}
+  </section>
 
-      {#each k.frister as f (f.id)}
-        {@const g = gjeldendeFrist(f.fristId, fristtabell)}
-        {@const nyKrav = nyFrist(g, f.krevd)}
-        <section class="frist" aria-labelledby={`${uid}-${f.id}`}>
-          <h4 id={`${uid}-${f.id}`}>
-            {#if f.nummer}<span class="nr">{FRISTEN.frist(f.nummer)}</span>{/if}
-            {f.navn}
-          </h4>
-          {@render gjeldende(g, f.fristId)}
-          <ul class="rader" aria-label={f.navn}>
-            <li>
-              <Maalrad
-                navn={FRISTEN.krevd}
-                verdi={dager(f.krevd)}
-                etter={nyKrav ? FRISTEN.nyFrist(nyKrav) : null}
-                andel={andel(f.krevd)}
-                aapen
-                kompakt
-                trinn={f.lagene.length ? [] : trinn}
-              />
-            </li>
-            {#each f.lagene as l, i (l.lag)}
-              {@const ny = nyFrist(g, l.dager)}
-              <li>
-                <Maalrad
-                  navn={l.etikett ? stor(l.etikett) : FRISTEN.godkjent}
-                  verdi={dager(l.dager)}
-                  etter={ny ? FRISTEN.nyFrist(ny) : null}
-                  andel={andel(l.dager)}
-                  kompakt
-                  sterk={false}
-                  trinn={i === f.lagene.length - 1 ? trinn : []}
-                />
-              </li>
-            {/each}
-          </ul>
-          {#if f.avslag}
-            <p class="avslag">{FRISTEN.avslag(f.avslag.etikett, f.avslag.begrunnelse)}</p>
-          {/if}
-        </section>
-      {/each}
-      {#if !svart}<p class="ikke-svart">{FRISTEN.ikkeSvart}</p>{/if}
-    </section>
-
-    {#if k.forbehold && k.svarbrev}
-      <Forbeholdet svarbrev={k.svarbrev} {u} {alle} {onforholdet} />
-    {/if}
-  </div>
-</section>
+  {#if k.forbehold && k.svarbrev}
+    <Forbeholdet svarbrev={k.svarbrev} {u} {alle} {onforholdet} />
+  {/if}
+</Kravkort>
 
 <style>
-  .kort {
-    min-width: 0;
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: var(--r-kort);
-  }
-  .hode {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-1) var(--spacing-4);
-    align-items: baseline;
-    justify-content: space-between;
-    padding: 18px var(--spacing-5) 0;
-  }
-  h2 {
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .kilde {
-    font-size: 12px;
-    color: var(--ink-3);
-  }
-  .kropp {
-    --steg: 25%;
-    padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
-  }
   .del + .del {
     margin-top: var(--spacing-5);
     padding-top: var(--spacing-5);

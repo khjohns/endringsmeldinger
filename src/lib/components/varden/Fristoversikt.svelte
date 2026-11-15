@@ -8,6 +8,7 @@
 <script lang="ts">
   import Brevtraad from './Brevtraad.svelte';
   import Datolinjer from './Datolinjer.svelte';
+  import Kravkort from './Kravkort.svelte';
   import Sporside from './Sporside.svelte';
   import KravetOgSvaretIFristen from './KravetOgSvaretIFristen.svelte';
   import Melding from './Melding.svelte';
@@ -36,7 +37,6 @@
     handling,
     brevet,
   }: Sideprops = $props();
-  const uid = $props.id();
 
   const alle = $derived(brevene(u));
   const k = $derived(kravetOgSvaretIFristen(u, alle));
@@ -100,10 +100,9 @@
     onforholdet={onspor && (() => onspor('forhold'))}
   />
 {:else if varselbrev}
-  <section class="kravet" aria-labelledby={`${uid}-kravet`}>
-    <h2 id={`${uid}-kravet`}>{FRISTEN.utenKrav}</h2>
-    <p>{FRISTEN.ikkeAngitt(varselbrev)}</p>
-  </section>
+  <Kravkort tittel={FRISTEN.utenKrav}>
+    <p class="ikke-angitt">{FRISTEN.ikkeAngitt(varselbrev)}</p>
+  </Kravkort>
 {/if}
 
 <style>
@@ -113,19 +112,7 @@
     color: var(--ink);
     font-variant-numeric: tabular-nums;
   }
-  .kravet {
-    min-width: 0;
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: var(--r-kort);
-    padding: 18px var(--spacing-5) var(--spacing-5);
-  }
-  .kravet h2 {
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .kravet p {
-    margin-top: var(--spacing-3);
+  .ikke-angitt {
     font-size: 14px;
     color: var(--ink-2);
   }
