@@ -2600,7 +2600,7 @@
         "KA-36"
       ],
       "start": "godkjent_forhold",
-      "forslag": "OV-U4: et registrert brev som trekker tilbake godkjenningen partene er enige om ved sammenfall, er dokumentasjon, og enigheten står",
+      "forslag": "OV-U98 (#2011; før OV-U4): et registrert brev som trekker tilbake godkjenningen partene er enige om ved sammenfall, oppgitt sendt før grunnlagskravet, får ingen virkning, og enigheten står",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2612,7 +2612,7 @@
           "gjelder": "K-g1",
           "erstatter": "S-g1",
           "resultat": "avslaatt",
-          "sendt": "2026-10-01"
+          "sendt": "2026-09-19"
         }
       ],
       "kontroller": [
@@ -2620,7 +2620,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U98",
             "GR-U10"
           ],
           "forventet": {
@@ -3165,7 +3165,7 @@
         "GR-30"
       ],
       "start": "krav_irreg",
-      "forslag": "#342: subsidiariteten følger grunnlagsversjonen svaret ble regnet mot. Et registrert svar på den versjonen, lagret etter en ny grunnlagsversjon, er dokumentasjon og endrer ikke årsakene (OV-U4)",
+      "forslag": "#342: subsidiariteten følger grunnlagsversjonen svaret ble regnet mot. Et registrert svar på den versjonen, lagret etter en ny grunnlagsversjon og oppgitt sendt før grunnlagskravet, får ingen virkning og endrer ikke årsakene (OV-U98, #2011; før OV-U4)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3202,7 +3202,7 @@
           "erstatter": "S-g1",
           "resultat": "avslaatt",
           "varslet_i_tide": false,
-          "sendt": "2026-09-20"
+          "sendt": "2026-09-19"
         },
         {
           "handling": "brev",
@@ -3248,7 +3248,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U98",
             "GR-U4",
             "HF-U1"
           ],
@@ -5080,7 +5080,7 @@
         "KA-37"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4: TEs registrerte aksept av et frafall er dokumentasjon og gir ingen enighet",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011), GR-U9 og MM-U43 punkt 9: TEs registrerte aksept av et frafall får ingen virkning og gir ingen enighet",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -5109,12 +5109,14 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
             "GR-U9"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "D5#aksept"
+            ],
             "frafalt": true,
             "enighet.forhold": null
           }
@@ -5480,7 +5482,7 @@
         "KA-37"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4 og GR-U8: TEs registrerte aksept av et svar partene alt er enige om ved sammenfall, er dokumentasjon, og enigheten ved sammenfall står",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011), GR-U8 og MM-U43 punkt 9: TEs registrerte aksept av et svar partene alt er enige om ved sammenfall, får ingen virkning, og enigheten ved sammenfall står",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -5509,12 +5511,14 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
             "GR-U8"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "D5#aksept"
+            ],
             "enighet.vederlag.kilde": "sammenfall"
           }
         }
@@ -5526,7 +5530,7 @@
         "KA-37"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4 og KA-U7: TEs registrerte aksept nummer to av samme svar er dokumentasjon, og enigheten fra den første står",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011), KA-U7 og MM-U43 punkt 9: TEs registrerte aksept nummer to av samme svar får ingen virkning, og enigheten fra den første står",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -5560,13 +5564,15 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
             "KA-U7",
             "MM-U34"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "D6#aksept"
+            ],
             "enighet.vederlag.holder": "D5"
           }
         }
@@ -11358,7 +11364,7 @@
         "GR-32"
       ],
       "start": "krav_irreg",
-      "forslag": "GR-U22 og MM-U34 punkt 6 og 7: etter et frafall fra appen kan byggherren svare på en ny grunnlagsversjon med samme underkategori med avslag og med påberopelse etter § 32.2, og svaret godtas. Et registrert avslag av den nye versjonen får ingen virkning (OV-U4)",
+      "forslag": "GR-U22 og MM-U34 punkt 6 og 7: etter et frafall fra appen kan byggherren svare på en ny grunnlagsversjon med samme underkategori med avslag og med påberopelse etter § 32.2, og svaret godtas. Et registrert avslag av den nye versjonen har samme virkning (OV-U80 og OV-U98, som endrer OV-U4, #2011)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -11483,13 +11489,14 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
+            "OV-U98",
             "GR-U20"
           ],
           "forventet": {
             "forstaatt": true,
             "uten_virkning": [],
-            "gjeldende_svar.forhold": null
+            "gjeldende_svar.forhold": "S-g2"
           }
         }
       ]
