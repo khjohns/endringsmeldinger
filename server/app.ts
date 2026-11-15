@@ -7,7 +7,8 @@
  * innlogging (med CSRF), prosjekttilgang og kontraktsrolle fra registeret før
  * behandleren kalles, så en behandler ikke kan glemme dem. En inngang uten
  * prosjekt eller uten sesjon står i registeret med en skriftlig begrunnelse,
- * og det gjør også en inngang til prosjektet selv, uten sak. Hvert område har sin modul med ruter, som `innlogging.ts`. Testen i
+ * og det gjør også en inngang til prosjektet selv, uten sak, og godkjennerens inngang uten
+ * medlemskap. Hvert område har sin modul med ruter, som `innlogging.ts`. Testen i
  * `tester/register.test.ts` prøver hver inngang i registeret over HTTP.
  *
  * Leveringen stopper ved det frosne oppdraget og kaller ikke Catenda (#371). En ny
@@ -17,8 +18,9 @@
 import { randomUUID } from 'node:crypto';
 import { STATUS_CODES, type IncomingMessage, type ServerResponse } from 'node:http';
 import { KJERNE } from '../kjerne/versjon.ts';
-import { ulagringsbarTekst } from '../kjerne/format/skjema.ts';
+import { erObjekt, ulagringsbarTekst } from '../kjerne/format/skjema.ts';
 import {
+  krevGodkjennertilgang,
   krevInnlogging,
   krevKontraktsrolle,
   krevLesing,
@@ -26,6 +28,7 @@ import {
   krevSesjon,
   Nektet,
   UTEN_STI,
+  type Bruker,
   type FraSti,
 } from './autorisasjon.ts';
 import { INNLOGGINGSRUTER } from './innlogging.ts';
@@ -35,10 +38,12 @@ import { SAKSLISTERUTER } from './saksliste.ts';
 import { KONTRAKTSFRISTRUTER } from './kontraktsfrister.ts';
 import { lesFil, VEDLEGG_FOER_SAKEN, VEDLEGGSRUTER } from './vedlegg.ts';
 import { BREVRUTER } from './brev.ts';
+import { GODKJENNERRUTER, VENTENDE_PAKKER } from './godkjenner.ts';
 import { WEBHOOKRUTER } from './webhook.ts';
 import { KJERNERUTER, OPPRETTELSE, SAKSKODE_FOR_NY_SAK } from './saker.ts';
 import {
   erAapen,
+  erGodkjenner,
   erOpprettelse,
   erUtenProsjekt,
   erUtenSak,
@@ -46,6 +51,7 @@ import {
   uventet,
   type Avhengigheter,
   type Felles,
+  type Godkjennerrute,
   type Opprettelsesrute,
   type Prosjektrute,
   type Rute,
@@ -72,6 +78,19 @@ async function lesKropp(
   const galt = kroppsfeil(verdi);
   // Kroppen gis ikke til tilgangskontrollen; den avvises etter kontrollen, som ugyldig JSON.
   return galt ? { feil: new Nektet(400, 'UGYLDIG_FORESPOERSEL', galt) } : { verdi };
+}
+
+/**
+ * En gruppe i stien, dekodet, eller `null` når gruppen mangler. En gruppe som ikke kan dekodes,
+ * gir 404 med `melding` før tilgangskontrollen.
+ */
+function dekod(gruppe: string | undefined, melding: string): string | null {
+  if (gruppe === undefined) return null;
+  try {
+    return decodeURIComponent(gruppe);
+  } catch {
+    throw new Nektet(404, 'NOT_FOUND', melding);
+  }
 }
 
 /** Dypere enn dette har ingen kommando. */
@@ -102,6 +121,8 @@ export const RUTER: readonly Rute[] = [
   ...PROSJEKTRUTER,
   ...SAKSLISTERUTER,
   ...KONTRAKTSFRISTRUTER,
+  ...GODKJENNERRUTER,
+  VENTENDE_PAKKER,
   ...WEBHOOKRUTER,
 ];
 
@@ -118,9 +139,26 @@ export function lagServer(avh: Avhengigheter) {
   };
 
   /**
-   * Innloggingen, prosjekttilgangen og kontraktsrollen fra registeret, og kroppen,
-   * i én rekkefølge for hver inngang med prosjekt (#825). Uten sak i stien prøves
-   * bare sakene kroppen viser til.
+   * Innloggingen, så kroppen og så `tilgang`, i én rekkefølge for hver inngang med sesjon og
+   * prosjekt (#825). Innloggingen kommer først, så en uinnlogget forespørsel ikke får kroppen
+   * lest og tolket. En kropp som ikke kan leses, avvises etter tilgangskontrollen, som i Flask.
+   */
+  async function innloggetMedKropp<T>(
+    metode: Felles['metode'],
+    foresporsel: IncomingMessage,
+    fil: boolean,
+    tilgang: (bruker: Bruker, nyttelast: unknown) => Promise<T>
+  ) {
+    const bruker = await krevInnlogging(full.datalag, foresporsel);
+    const innhold = metode === 'GET' || fil ? { verdi: {} } : await lesKropp(foresporsel);
+    const avgjort = await tilgang(bruker, 'feil' in innhold ? {} : innhold.verdi);
+    if ('feil' in innhold) throw innhold.feil;
+    return { bruker, avgjort, kropp: innhold.verdi };
+  }
+
+  /**
+   * Prosjekttilgangen og kontraktsrollen fra registeret. Uten sak i stien prøves bare sakene
+   * kroppen viser til.
    */
   async function tilgangOgKropp(
     tilgang: Tilgang | Prosjektrute['tilgang'],
@@ -129,30 +167,31 @@ export function lagServer(avh: Avhengigheter) {
     fraSti: FraSti,
     fil = false
   ) {
-    // Innloggingen først, så en uinnlogget forespørsel ikke får kroppen lest og tolket.
-    // En kropp som ikke kan leses, avvises etter tilgangskontrollen, som i Flask.
-    const bruker = await krevInnlogging(full.datalag, foresporsel);
-    const innhold = metode === 'GET' || fil ? { verdi: {} } : await lesKropp(foresporsel);
     const krav = 'kontraktsrolle' in tilgang ? tilgang.kontraktsrolle : undefined;
-    const { side, ...prosjekt } = await krevProsjekttilgang(
-      full.datalag,
-      full.catenda,
+    const { bruker, avgjort, kropp } = await innloggetMedKropp(
+      metode,
       foresporsel,
-      bruker,
-      tilgang.prosjektrolle,
-      'feil' in innhold ? {} : innhold.verdi,
-      fraSti,
-      async (t) =>
-        krav === 'kreves'
-          ? krevKontraktsrolle(full.datalag, full.catenda, t)
-          : krav === 'lesing'
-            ? krevLesing(full.datalag, full.catenda, t)
-            : null
+      fil,
+      (bruker, nyttelast) =>
+        krevProsjekttilgang(
+          full.datalag,
+          full.catenda,
+          foresporsel,
+          bruker,
+          tilgang.prosjektrolle,
+          nyttelast,
+          fraSti,
+          async (t) =>
+            krav === 'kreves'
+              ? krevKontraktsrolle(full.datalag, full.catenda, t)
+              : krav === 'lesing'
+                ? krevLesing(full.datalag, full.catenda, t)
+                : null
+        )
     );
-    if ('feil' in innhold) throw innhold.feil;
+    const { side, ...prosjekt } = avgjort;
     // `krevProsjekttilgang` har avvist en kropp som ikke er et objekt (403).
-    const kropp = innhold.verdi as Record<string, unknown>;
-    return { bruker, prosjekt, side, kropp };
+    return { bruker, prosjekt, side, kropp: kropp as Record<string, unknown> };
   }
 
   async function saksrute(
@@ -160,18 +199,8 @@ export function lagServer(avh: Avhengigheter) {
     treff: RegExpMatchArray,
     foresporsel: IncomingMessage
   ): Promise<Svar> {
-    let sakId: string;
-    let ressurs: string | null;
-    try {
-      sakId = decodeURIComponent(treff[1]);
-    } catch {
-      return feilsvar(404, 'NOT_FOUND', 'Ukjent sak.');
-    }
-    try {
-      ressurs = treff[2] === undefined ? null : decodeURIComponent(treff[2]);
-    } catch {
-      return feilsvar(404, 'NOT_FOUND', 'Ukjent ressurs i saken.');
-    }
+    const sakId = dekod(treff[1], 'Ukjent sak.')!;
+    const ressurs = dekod(treff[2], 'Ukjent ressurs i saken.');
     const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, { sakId }, r.fil);
     const fil = r.fil ? await lesFil(foresporsel, f.side) : null;
     return r.behandle({ ...f, sakId, ressurs, fil }, full);
@@ -182,12 +211,7 @@ export function lagServer(avh: Avhengigheter) {
     treff: RegExpMatchArray,
     foresporsel: IncomingMessage
   ): Promise<Svar> {
-    let ressurs: string | null;
-    try {
-      ressurs = treff[1] === undefined ? null : decodeURIComponent(treff[1]);
-    } catch {
-      return feilsvar(404, 'NOT_FOUND', 'Ukjent ressurs.');
-    }
+    const ressurs = dekod(treff[1], 'Ukjent ressurs.');
     const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, UTEN_STI, r.fil);
     if (r.bareTE !== undefined && f.side?.rolle !== 'TE')
       return feilsvar(403, 'FORBIDDEN', r.bareTE);
@@ -200,18 +224,8 @@ export function lagServer(avh: Avhengigheter) {
     treff: RegExpMatchArray,
     foresporsel: IncomingMessage
   ): Promise<Svar> {
-    let prosjektId: string;
-    let ressurs: string | null;
-    try {
-      prosjektId = decodeURIComponent(treff[1]);
-    } catch {
-      return feilsvar(404, 'NOT_FOUND', 'Ukjent prosjekt.');
-    }
-    try {
-      ressurs = treff[2] === undefined ? null : decodeURIComponent(treff[2]);
-    } catch {
-      return feilsvar(404, 'NOT_FOUND', 'Ukjent ressurs i prosjektet.');
-    }
+    const prosjektId = dekod(treff[1], 'Ukjent prosjekt.')!;
+    const ressurs = dekod(treff[2], 'Ukjent ressurs i prosjektet.');
     const { bruker, prosjekt, side, kropp } = await tilgangOgKropp(
       r.tilgang,
       r.metode,
@@ -219,6 +233,24 @@ export function lagServer(avh: Avhengigheter) {
       { prosjektId }
     );
     return r.behandle({ bruker, prosjekt, side, ressurs, kropp }, full);
+  }
+
+  async function godkjennerrute(
+    r: Godkjennerrute,
+    treff: RegExpMatchArray,
+    foresporsel: IncomingMessage
+  ): Promise<Svar> {
+    const pakkeId = dekod(treff[1], 'Ukjent pakke.')!;
+    const ressurs = dekod(treff[2], 'Ukjent ressurs i pakken.');
+    const { bruker, avgjort, kropp } = await innloggetMedKropp(
+      r.metode,
+      foresporsel,
+      false,
+      (bruker) => krevGodkjennertilgang(full.datalag, full.catenda, foresporsel, bruker)
+    );
+    if (!erObjekt(kropp))
+      return feilsvar(400, 'UGYLDIG_FORESPOERSEL', 'Kroppen må være et objekt.');
+    return r.behandle({ bruker, prosjektId: avgjort.prosjektId, pakkeId, ressurs, kropp }, full);
   }
 
   async function kjoer(
@@ -230,6 +262,7 @@ export function lagServer(avh: Avhengigheter) {
     if (erUtenProsjekt(r)) return r.behandle(await krevSesjon(full.datalag, foresporsel), full);
     if (erUtenSak(r)) return prosjektrute(r, treff, foresporsel);
     if (erOpprettelse(r)) return opprettelsesrute(r, treff, foresporsel);
+    if (erGodkjenner(r)) return godkjennerrute(r, treff, foresporsel);
     return saksrute(r, treff, foresporsel);
   }
 

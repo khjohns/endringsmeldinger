@@ -328,6 +328,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
         const kall = (prosjektId: string) => {
           const f = kjoeretid.pool.request().input('prosjekt', sql.NVarChar(4000), prosjektId);
           if (medAktor) f.input('aktor', sql.UniqueIdentifier, m.bruker.id);
+          if (prosedyre === 'koe_api.kontraktsteam') f.input('med_leserolle', sql.Bit, false);
           return f.execute(prosedyre);
         };
         expect((await kall(p.id)).recordset.length, prosedyre).toBeGreaterThan(0);
@@ -656,6 +657,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
           .request()
           .input('aktor', sql.UniqueIdentifier, m.bruker.id)
           .input('prosjekt', sql.NVarChar(4000), p.id)
+          .input('med_leserolle', sql.Bit, false)
           .execute('koe_api.kontraktsteam');
         rader[navn] = svar.recordset.length;
       }

@@ -531,20 +531,20 @@ Godkjennerne i en pakke i kjedens rekkefølge, avledet av hierarkiet i `koe.hr_k
 
 ### `koe.godkjenningshandling`
 
-Hver godkjenning, retur og trekking av en pakke, i rekkefølge. En godkjenning fryser rollen (`fullmakt_tittel`) og grensen godkjenneren hadde i `koe.rolle` da den ble gitt, så den står om rollen endres senere (B-04 punkt 2). Endres ikke.
+Hver godkjenning, retur og trekking av en pakke, i rekkefølge. En godkjenning fryser rollen (`fullmakt_tittel`) og grensen godkjenneren hadde i `koe.rolle` da den ble gitt, så den står om rollen endres senere (B-04 punkt 2). En godkjenning eller retur fra godkjenneren i kjeden har pakkens team i `aktor_team_id` og alltid `BH` i `aktor_rolle`, også når godkjenneren ikke er med i teamet eller prosjektet (GFK-U9). Feltene sier hvilket team pakken hører til, ikke godkjennerens eget team. Endres ikke.
 
 | Felt | Innhold |
 | --- | --- |
 | Type | transaksjon |
 | Status | i bruk |
-| Hvor fra appen lagres og redigeres | `koe_api.registrer_godkjenningshandling`, kalt fra `server/godkjenning.ts`. |
+| Hvor fra appen lagres og redigeres | `koe_api.registrer_godkjenningshandling`, kalt fra `server/godkjenning.ts`. Godkjenneren når den gjennom `POST /api/godkjenning/pakker/{pakke}/handlinger` i `server/godkjenner.ts`. |
 | Data fra Catenda | Nei. Dataflyt: ingen kall til Catenda skriver eller leser tabellen. |
 | Relasjoner | Nøkler: primærnøkkel (pakke_id, loepenr); unik indeks (pakke_id) WHERE ([handling]<>N'godkjent'); unik indeks (pakke_id, steg) WHERE ([handling]=N'godkjent'). Viser til: (pakke_id, prosjekt_id, aktor_team_id) → koe.godkjenningspakke.(pakke_id, prosjekt_id, aktor_team_id) (fremmednøkkel, ON DELETE NO ACTION); (pakke_id, steg) → koe.godkjenningssteg.(pakke_id, steg) (fremmednøkkel, ON DELETE NO ACTION); aktor_id → koe.app_users.id (fremmednøkkel, ON DELETE NO ACTION). Vises til fra: koe.toemmingsvern.(godkjenningshandling_pakke_id, godkjenningshandling_loepenr) (fremmednøkkel, ON DELETE NO ACTION). |
 | Kan bygges opp igjen | nei. |
 | Personopplysninger | Den som handlet (`aktor_id`) og begrunnelsen for en retur. |
 | Skrives av | database/migrasjoner/20261020190000_godkjenner_tilgang.sql (`koe_api.registrer_godkjenningshandling`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`) |
 | Funn | — |
-| Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. |
+| Belegg | L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. K 15.11: `server/tester/godkjenner.test.ts` over HTTP. |
 
 ### `koe.leveringskvittering`
 
