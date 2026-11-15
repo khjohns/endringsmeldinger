@@ -4194,7 +4194,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const u = medF.u();
     expect(u.forstaatt).toBe(false);
     expect(u.begrensninger.map((b) => b.grunn)).toContain(
-      'saken har alt en forespørsel etter § 33.6.2 fra appen (VS-U31)'
+      'saken har alt en forespørsel etter punkt 33.6.2 sendt herfra'
     );
   });
 
@@ -4230,7 +4230,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     s.rad('TE', krav());
     expect(s.u().forstaatt).toBe(false);
     expect(s.u().begrensninger.map((b) => b.grunn)).toContain(
-      'fristkravet viser ikke til forespørselen etter § 33.6.2 det svarer på'
+      'fristkravet viser ikke til forespørselen etter punkt 33.6.2 det svarer på'
     );
   });
 
@@ -4248,12 +4248,12 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const { s: annet } = medForesporsel();
     annet.rad('TE', krav(annet.krav('forhold')));
     expect(annet.u().begrensninger.map((b) => b.grunn)).toContain(
-      'fristkravet viser ikke til en forespørsel etter § 33.6.2 før kravet'
+      'fristkravet viser ikke til en forespørsel etter punkt 33.6.2 før kravet'
     );
     const { s: besvart, f } = medBegrunnelse();
     besvart.rad('TE', krav(f));
     expect(besvart.u().begrensninger.map((b) => b.grunn)).toContain(
-      'fristkravet viser til en forespørsel etter § 33.6.2 som alt er besvart'
+      'fristkravet viser til en forespørsel etter punkt 33.6.2 som alt er besvart'
     );
   });
 
@@ -5484,7 +5484,7 @@ describe('svaret på kravpostene i kommandoen (KA-U57 (c) og (d), OV-U23, MM-U2)
     [
       'en kravpost kravet ikke har',
       { kravposter: [{ gjelder: 'P2', vurdering: 'godkjent', aksepterer: true }] },
-      'kravposter: kravet har ikke kravposten «P2» (OV-U23)',
+      'kravposter: kravet har ikke kravposten «P2»',
     ],
     [
       'samme kravpost to ganger',
@@ -8357,7 +8357,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
     expect(s.avvisning('TE', krav(tilbud(100000.405)))).toEqual({
       regel: 'UGYLDIG_FORM',
       melding:
-        '$.innhold.kravposter[0].beloep: 100000.405 har brøkdeler av øre; beløpet oppgis i kroner med høyst to desimaler (OV-U58)',
+        '$.innhold.kravposter[0].beloep: 100000.405 har brøkdeler av øre; beløpet oppgis i kroner med høyst to desimaler',
     });
     expect(s.avvist('TE', krav({ saerskilt: { produktivitet: { beloep: 40000.001 } } }))).toBe(
       'UGYLDIG_FORM'

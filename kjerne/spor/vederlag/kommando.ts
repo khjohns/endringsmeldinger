@@ -163,7 +163,7 @@ function oerefeil(innhold: Innhold): string[] {
     } catch (e) {
       if (!(e instanceof BroekdelAvOere)) throw e;
       return [
-        `${sti}: ${verdi} har brøkdeler av øre; beløpet oppgis i kroner med høyst to desimaler (OV-U58)`,
+        `${sti}: ${verdi} har brøkdeler av øre; beløpet oppgis i kroner med høyst to desimaler`,
       ];
     }
   });
