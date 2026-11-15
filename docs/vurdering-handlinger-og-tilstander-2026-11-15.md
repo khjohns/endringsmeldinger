@@ -409,8 +409,8 @@ Forutsetter A1 og B1. Svar «ja», eller rett enkeltpunkter. Belegget står i «
 6. Tilstandene følger porten i A1. Betegnelsen for at kravene er avgjort etter OV-U3, sier hva som
    har skjedd, ikke at kravene er avgjort. Predikatet i OV-U3 står.»
 
-Forhold: utsetter for rekkefølgen OV-U46 (med GR-U35–GR-U37) og OV-U84 (med EO-U39 punkt 49);
-vedtakene står. «Ingen krav» følger OV-U7. Punkt 2, andre setning, gjelder til OV-U84 er bygget, og
+Forhold: endrer OV-U1 for rekkefølgen: OV-U46 (med GR-U35–GR-U37) og OV-U84 (med EO-U39 punkt 49)
+venter, og vedtakene står. «Ingen krav» følger OV-U7. Punkt 2, andre setning, gjelder til OV-U84 er bygget, og
 tar ikke opp igjen alternativet OV-U84 forkastet som varig regel; OV-U13 gjelder i mellomtiden.
 Punkt 4 er det VS-U46 alt sier. Punkt 6 endrer, som design: OV-U10 (teksten «Alle krav sendt i
 appen er avgjort»), MM-U30 i `system.md` (med oppdragsgivers svar 1: «Svaret er ikke godtatt»
@@ -488,6 +488,15 @@ og VS-U12, og snevrer inn MM-U47 der den viser til dem.
 
 Oppdragsgiver 15.11, ordrett: «Ja jeg tenker det. Men bedre å vedtaksføre ifb 1657 - da vurderer vi
 beste løsning samlet sett»
+
+Kartleggingsøktas svar til oppdragsgiver 15.11 (avklaringen i det første svaret): innlegget er én
+handling, fritt innlegg i fritekst, og C punkt 3 og 4 lister bare hva som sendes som innlegg. For
+innsigelsen og passiviteten sier VS-U46 og VS-U12 at reglene står og bygges senere; skal de være
+innlegg varig, endrer det vedtakene. Oppfølgingsspørsmål: gjelder C punkt 4 varig?
+
+Fordi det første svaret har «men», ba kartleggingsøkta om en bekreftelse av A1, B1, C og E1.
+Oppdragsgiver 15.11, ordrett: «Jeg bekrefter som anbefalt for på alle. Men gjaldt post C - som du
+avklarte i etterkant»
 
 Svarene er dermed A1, B1, C slik forslaget står (punkt 4: innlegg i første versjon, reglene står),
 D1 og E1. Om innsigelsen og passiviteten skal være innlegg også etter første versjon, og om

@@ -30041,11 +30041,11 @@ valgt = "A1"
 svar = '''
 Oppdragsgiver 15.11, ordrett: «Som anbefalt, men en avklaring: for innlegg trenger vi vel kun fritekstinnlegg? Innsigelse etter pkt 5 vurderes som nevnt som et forbehold i kravskjema. Passitivitet, protest, bestridelse er ikke noe eget, utover hva som allerede gis i kravskjema. Riktig forstått?»
 
-Kartleggingsøktas svar til oppdragsgiver: innlegget er én handling, fritt innlegg i fritekst, og C punkt 3 og 4 lister bare hva som sendes som innlegg. For innsigelsen og passiviteten sier VS-U46 og VS-U12 at reglene står og bygges senere; skal de være innlegg varig, endrer det vedtakene. Oppfølgingsspørsmål: gjelder C punkt 4 varig?
+Kartleggingsøktas avklaring og oppfølgingsspørsmålet står i vurderingsfila under «Svarene etter drøftingen».
 
 Oppdragsgiver 15.11, ordrett: «Ja jeg tenker det. Men bedre å vedtaksføre ifb 1657 - da vurderer vi beste løsning samlet sett»
 
-Etter spørsmål om bekreftelse, fordi svaret har «men», oppdragsgiver 15.11, ordrett: «Jeg bekrefter som anbefalt for på alle. Men gjaldt post C - som du avklarte i etterkant»
+Etter kartleggingsøktas spørsmål om bekreftelse av A1, B1, C og E1, oppdragsgiver 15.11, ordrett: «Jeg bekrefter som anbefalt for på alle. Men gjaldt post C - som du avklarte i etterkant»
 
 Svaret er A1, det anbefalte alternativet.'''
 forhold = [
@@ -30054,7 +30054,7 @@ forhold = [
   { art = "utvider", vedtak = "mm-u22" },
 ]
 folge = '''
-Utvider MM-U48 til alle handlinger utover grunnsettet. Utvider MM-U22 (designdelen): betegnelsen sier også hvem som står for tur. Metoden (port 0–4) og skjemaet per handling står i vurderingsfila. Registeret over handlingene og tilstandene, og regelen i skillene og CLAUDE.md, bygges i #2003.'''
+Utvider MM-U48 til alle handlinger utover grunnsettet. Utvider MM-U22 (designdelen): betegnelsen sier også hvem som står for tur. Metoden (port 0–4) og skjemaet per handling står i vurderingsfila. Registeret over handlingene og tilstandene, og regelen i skillene og CLAUDE.md: #2003.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A1"
@@ -30137,11 +30137,11 @@ valgt = "B1"
 svar = '''
 Oppdragsgiver 15.11, ordrett: «Som anbefalt, men en avklaring: for innlegg trenger vi vel kun fritekstinnlegg? Innsigelse etter pkt 5 vurderes som nevnt som et forbehold i kravskjema. Passitivitet, protest, bestridelse er ikke noe eget, utover hva som allerede gis i kravskjema. Riktig forstått?»
 
-Kartleggingsøktas svar til oppdragsgiver: innlegget er én handling, fritt innlegg i fritekst, og C punkt 3 og 4 lister bare hva som sendes som innlegg. For innsigelsen og passiviteten sier VS-U46 og VS-U12 at reglene står og bygges senere; skal de være innlegg varig, endrer det vedtakene. Oppfølgingsspørsmål: gjelder C punkt 4 varig?
+Kartleggingsøktas avklaring og oppfølgingsspørsmålet står i vurderingsfila under «Svarene etter drøftingen».
 
 Oppdragsgiver 15.11, ordrett: «Ja jeg tenker det. Men bedre å vedtaksføre ifb 1657 - da vurderer vi beste løsning samlet sett»
 
-Etter spørsmål om bekreftelse, fordi svaret har «men», oppdragsgiver 15.11, ordrett: «Jeg bekrefter som anbefalt for på alle. Men gjaldt post C - som du avklarte i etterkant»
+Etter kartleggingsøktas spørsmål om bekreftelse av A1, B1, C og E1, oppdragsgiver 15.11, ordrett: «Jeg bekrefter som anbefalt for på alle. Men gjaldt post C - som du avklarte i etterkant»
 
 Svaret er B1, det anbefalte alternativet.'''
 forhold = [
@@ -30234,11 +30234,11 @@ valgt = "C"
 svar = '''
 Oppdragsgiver 15.11, ordrett: «Som anbefalt, men en avklaring: for innlegg trenger vi vel kun fritekstinnlegg? Innsigelse etter pkt 5 vurderes som nevnt som et forbehold i kravskjema. Passitivitet, protest, bestridelse er ikke noe eget, utover hva som allerede gis i kravskjema. Riktig forstått?»
 
-Kartleggingsøktas svar til oppdragsgiver: innlegget er én handling, fritt innlegg i fritekst, og C punkt 3 og 4 lister bare hva som sendes som innlegg. For innsigelsen og passiviteten sier VS-U46 og VS-U12 at reglene står og bygges senere; skal de være innlegg varig, endrer det vedtakene. Oppfølgingsspørsmål: gjelder C punkt 4 varig?
+Kartleggingsøktas avklaring og oppfølgingsspørsmålet står i vurderingsfila under «Svarene etter drøftingen».
 
 Oppdragsgiver 15.11, ordrett: «Ja jeg tenker det. Men bedre å vedtaksføre ifb 1657 - da vurderer vi beste løsning samlet sett»
 
-Etter spørsmål om bekreftelse, fordi svaret har «men», oppdragsgiver 15.11, ordrett: «Jeg bekrefter som anbefalt for på alle. Men gjaldt post C - som du avklarte i etterkant»
+Etter kartleggingsøktas spørsmål om bekreftelse av A1, B1, C og E1, oppdragsgiver 15.11, ordrett: «Jeg bekrefter som anbefalt for på alle. Men gjaldt post C - som du avklarte i etterkant»
 
 Svaret er C, det anbefalte forslaget, med punkt 4 slik det står: innlegg i første versjon, og reglene i VS-U46 og VS-U12 står. Om innsigelsen og passiviteten skal være innlegg varig, og om innsigelsen skal bli et forbehold i skjemaet for krav og svar, avgjøres i #1657.'''
 forhold = [
@@ -30248,7 +30248,7 @@ forhold = [
   { art = "endrer", vedtak = "mm-u24" },
 ]
 folge = '''
-Endrer OV-U1 for rekkefølgen: OV-U46 (med GR-U35–GR-U37), OV-U84 (med EO-U39 punkt 49) og «ingen krav» (OV-U7) venter, og vedtakene om dem står. Punkt 2, andre setning, gjelder til OV-U84 er bygget, og tar ikke opp igjen alternativet OV-U84 forkastet som varig regel; OV-U13 gjelder i mellomtiden. Punkt 4 er det VS-U46 alt sier (#1657). Punkt 6 endrer, som design, OV-U10, MM-U30 og MM-U24 i `.interface-design/system.md`. Byggherrens svar i punkt 1 forutsetter at godkjenningen er bygget (GFK-U2, GFK-U14, OV-U80; spørsmål E i vurderingsfila, besvart E1, gjeldende vedtak står).'''
+Endrer OV-U1 for rekkefølgen (Forhold under spørsmål C): OV-U46 (med GR-U35–GR-U37), OV-U84 (med EO-U39 punkt 49) og «ingen krav» (OV-U7) venter, og vedtakene om dem står. Punkt 2, andre setning, gjelder til OV-U84 er bygget, og tar ikke opp igjen alternativet OV-U84 forkastet som varig regel; OV-U13 gjelder i mellomtiden. Punkt 4 er det VS-U46 alt sier (#1657). Punkt 6 endrer, som design, OV-U10, MM-U30 og MM-U24 i `.interface-design/system.md`. Byggherrens svar i punkt 1 forutsetter at godkjenningen er bygget (GFK-U2, GFK-U14, OV-U80; spørsmål E i vurderingsfila, besvart E1, gjeldende vedtak står).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "C"

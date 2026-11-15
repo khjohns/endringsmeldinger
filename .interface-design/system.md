@@ -256,9 +256,8 @@ punktet. Det juridiske står i vedtakene, ikke her.
   pålegget» (bare grunnlaget); «Enige»; «Byggherren har svart»; «Varslet».
   Ingen betegnelse når ingenting er sendt. Byggherrens resultat, enighetens virkning,
   innsigelser, protester og passivitet står i linja under. Ligger det et innlegg etter siste
-  brev i sporet, står det i linja under, uten tolkning. «Svaret er ikke godtatt» er byttet med
-  «Byggherren har svart», og «Krav sendt» og «Ingen krav» er tatt ut, etter
-  [OV-U99](../docs/plans/vedtak.md#ov-u99) punkt 6. Presiserer [MM-U22](#mm-u22) og
+  brev i sporet, står det i linja under, uten tolkning ([OV-U99](../docs/plans/vedtak.md#ov-u99)
+  punkt 6). Presiserer [MM-U22](#mm-u22) og
   [MM-U24](#mm-u24) (snevret inn av [MM-U31](#mm-u31) og [MM-U37](../docs/plans/vedtak.md#mm-u37); presisert av
   [OV-U43](../docs/plans/vedtak.md#ov-u43)).
 - <a id="mm-u31"></a>**MM-U31** Betegnelsen gjelder til forespørselen er besvart, og bare så lenge saken ikke er lukket. Etter et godtatt
@@ -268,9 +267,7 @@ punktet. Det juridiske står i vedtakene, ikke her.
 - <a id="mm-u24"></a>**MM-U24** Ved kravet står det som foreligger: et krav uten registrert svar
   fra byggherren, et svar TE ikke har godtatt (med akseptfristen), eller en aksept etter fristen
   uten registrert svar fra byggherren. Betegnelsene sier hvem som har sagt hva, og hvem som står
-  for tur, men ikke at en part har plikt til å handle ([OV-U97](../docs/plans/vedtak.md#ov-u97) og
-  [OV-U99](../docs/plans/vedtak.md#ov-u99), som endrer føringen 31.10 under «Handlingene i Varden»,
-  PR #1552). Fristveiledningen står ved kravet, regnet fra sendingen. Visningen
+  for tur ([OV-U97](../docs/plans/vedtak.md#ov-u97), [OV-U99](../docs/plans/vedtak.md#ov-u99)). Fristveiledningen står ved kravet, regnet fra sendingen. Visningen
   sier ikke at en part har plikt, at en frist er oversittet, eller at TE ikke har flere krav
   (presiserer [VS-U2](../docs/plans/vedtak.md#vs-u2), [VS-U10](../docs/plans/vedtak.md#vs-u10), [HF-U5](../docs/plans/vedtak.md#hf-u5), [LV-U7](../docs/plans/vedtak.md#lv-u7) og [OV-U4](../docs/plans/vedtak.md#ov-u4); bindende i
   [LV-U9](../docs/plans/vedtak.md#lv-u9) og [HF-U11](../docs/plans/vedtak.md#hf-u11); endret av [MM-U34](../docs/plans/vedtak.md#mm-u34)).

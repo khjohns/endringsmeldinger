@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `85533749037c9109296c0b69c6ae8146cd82a9203e56b8f01ff76419bd73f787`
+Kontrollsum (SHA-256 over utdraget visningen leser): `a27b5d5e59fbb2848c4fc7790437d32dbec190c8323586640a793335c2de0df4`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -4079,7 +4079,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 15.11, oppdragsgiver (#1987)
 
-**Følge:** Presiserer [OV-U1](../../plans/vedtak.md#ov-u1). Utvider [MM-U48](#mm-u48). Utvider [MM-U22](../../plans/vedtak.md#mm-u22). Utvider MM-U48 til alle handlinger utover grunnsettet. Utvider MM-U22 (designdelen): betegnelsen sier også hvem som står for tur. Metoden (port 0–4) og skjemaet per handling står i vurderingsfila. Registeret over handlingene og tilstandene, og regelen i skillene og CLAUDE.md, bygges i #2003.
+**Følge:** Presiserer [OV-U1](../../plans/vedtak.md#ov-u1). Utvider [MM-U48](#mm-u48). Utvider [MM-U22](../../plans/vedtak.md#mm-u22). Utvider MM-U48 til alle handlinger utover grunnsettet. Utvider MM-U22 (designdelen): betegnelsen sier også hvem som står for tur. Metoden (port 0–4) og skjemaet per handling står i vurderingsfila. Registeret over handlingene og tilstandene, og regelen i skillene og CLAUDE.md: #2003.
 
 **Regelrader:** —
 
@@ -4105,7 +4105,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 15.11, oppdragsgiver (#1987)
 
-**Følge:** Endrer [OV-U1](../../plans/vedtak.md#ov-u1). Endrer [OV-U10](../../plans/vedtak.md#ov-u10). Endrer [MM-U30](#mm-u30). Endrer [MM-U24](#mm-u24). Endrer OV-U1 for rekkefølgen: OV-U46 (med GR-U35–GR-U37), OV-U84 (med EO-U39 punkt 49) og «ingen krav» (OV-U7) venter, og vedtakene om dem står. Punkt 2, andre setning, gjelder til OV-U84 er bygget, og tar ikke opp igjen alternativet OV-U84 forkastet som varig regel; OV-U13 gjelder i mellomtiden. Punkt 4 er det VS-U46 alt sier (#1657). Punkt 6 endrer, som design, OV-U10, MM-U30 og MM-U24 i `.interface-design/system.md`. Byggherrens svar i punkt 1 forutsetter at godkjenningen er bygget (GFK-U2, GFK-U14, OV-U80; spørsmål E i vurderingsfila, besvart E1, gjeldende vedtak står).
+**Følge:** Endrer [OV-U1](../../plans/vedtak.md#ov-u1). Endrer [OV-U10](../../plans/vedtak.md#ov-u10). Endrer [MM-U30](#mm-u30). Endrer [MM-U24](#mm-u24). Endrer OV-U1 for rekkefølgen (Forhold under spørsmål C): OV-U46 (med GR-U35–GR-U37), OV-U84 (med EO-U39 punkt 49) og «ingen krav» (OV-U7) venter, og vedtakene om dem står. Punkt 2, andre setning, gjelder til OV-U84 er bygget, og tar ikke opp igjen alternativet OV-U84 forkastet som varig regel; OV-U13 gjelder i mellomtiden. Punkt 4 er det VS-U46 alt sier (#1657). Punkt 6 endrer, som design, OV-U10, MM-U30 og MM-U24 i `.interface-design/system.md`. Byggherrens svar i punkt 1 forutsetter at godkjenningen er bygget (GFK-U2, GFK-U14, OV-U80; spørsmål E i vurderingsfila, besvart E1, gjeldende vedtak står).
 
 **Regelrader:** —
 
