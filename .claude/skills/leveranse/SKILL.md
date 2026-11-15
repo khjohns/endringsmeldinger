@@ -52,6 +52,10 @@ To krav har hver sin utløser. Filområdet er et eksempel, ikke utløseren.
   det ikke noe forløp for flyten, skriver du hva brukeren skal kunne gjøre, med
   vedtaket eller issuet som grunn. Reglene hentes fra kjernen og prøves mot
   vedtakene og bevis-sakene, ikke mot den gamle koden.
+- Bygger oppgaven en ny handling eller betegnelse, finnes raden i
+  [handlingsregisteret](../../../docs/datamodell/handlinger.toml) før koden endres, og en
+  handling utover grunnsettet har vedtaket [OV-U97](../../../docs/plans/vedtak.md#ov-u97)
+  krever. Mangler raden eller vedtaket, stanser byggingen av den delen.
 - Endrer oppgaven visningen, følg [interface-design-skillen](../interface-design/SKILL.md) og
   [systemfila](../../../.interface-design/system.md). Ryddingen og reviewet av visningen
   står i «Review og funn» under.

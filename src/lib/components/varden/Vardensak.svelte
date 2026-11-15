@@ -8,6 +8,7 @@
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Spor } from '$kjerne/typer';
   import { tick, untrack, type Snippet } from 'svelte';
+  import { medietreff } from './medie.svelte';
   import { sakensKode } from '$kjerne/frosset/tekst';
   import Brevkontroll, { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
@@ -135,6 +136,20 @@
   ];
   // Etter opprettelsen står saken i forholdet, med påberopelsen (BF-05 steg 6).
   let valgt = $state<Spor>(untrack(() => spor ?? (kvittering ? 'forhold' : 'vederlag')));
+  // På smal skjerm står sporene som faner som rulles sidelengs; den valgte rulles fram (#2021).
+  let sporene = $state<HTMLElement | null>(null);
+  const faner = medietreff('(max-width: 860px)');
+  $effect(() => {
+    if (!faner.treff || !sporene) return;
+    void valgt;
+    const fane = sporene.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!fane) return;
+    // Bare sidelengs i fanene, så siden ikke hopper (code-review i #2021).
+    const f = fane.getBoundingClientRect();
+    const n = sporene.getBoundingClientRect();
+    if (f.left < n.left) sporene.scrollLeft += f.left - n.left;
+    else if (f.right > n.right) sporene.scrollLeft += f.right - n.right;
+  });
   let arbeid = $state<Arbeid>({ art: 'les' });
   let svarvalg = $state(tomtSvar());
   // Kravet om vederlagsjustering står når TE går til brevkontrollen og tilbake (BF-14).
@@ -452,7 +467,7 @@
       </header>
 
       <!-- Forholdet og kravene som bygger på det, i hver sin gruppe (oppdragsgiver 06.11, #1631). -->
-      <nav class="sporene tett" aria-label={SAKEN.sporene}>
+      <nav class="sporene tett" aria-label={SAKEN.sporene} bind:this={sporene}>
         {#each SPORGRUPPENE as gruppe (gruppe.id)}
           <div class="gruppe">
             <p class="etikett" id={`spor-${gruppe.id}`}>{gruppe.etikett}</p>
@@ -842,29 +857,11 @@
       margin: 0 calc(-1 * var(--spacing-4));
       overflow-x: auto;
     }
-    .sporene .etikett,
     .st2 {
       display: none;
     }
     .sporene .gruppe {
       flex: none;
-    }
-    .sporene .valgene {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: nowrap;
-      margin: 0;
-    }
-    .sporene .valg {
-      flex: none;
-      width: auto;
-      max-width: 15rem;
-      padding: var(--spacing-2) var(--spacing-4);
-      border-left: 0;
-      border-bottom: 3px solid transparent;
-    }
-    .sporene .valg[aria-current='page'] {
-      border-bottom-color: var(--sidebar-text);
     }
     .navn {
       font-size: 14px;
