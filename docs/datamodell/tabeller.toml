@@ -635,14 +635,17 @@ status = "i bruk"
 beskrivelse = """
 Hver godkjenning, retur og trekking av en pakke, i rekkefølge. En godkjenning
 fryser rollen (`fullmakt_tittel`) og grensen godkjenneren hadde i `koe.rolle` da den
-ble gitt, så den står om rollen endres senere (B-04 punkt 2). Endres ikke."""
-lagres_fra = "`koe_api.registrer_godkjenningshandling`, kalt fra `server/godkjenning.ts`."
+ble gitt, så den står om rollen endres senere (B-04 punkt 2). En godkjenning eller retur
+fra godkjenneren i kjeden har pakkens team i `aktor_team_id` og alltid `BH` i
+`aktor_rolle`, også når godkjenneren ikke er med i teamet eller prosjektet (GFK-U9).
+Feltene sier hvilket team pakken hører til, ikke godkjennerens eget team. Endres ikke."""
+lagres_fra = "`koe_api.registrer_godkjenningshandling`, kalt fra `server/godkjenning.ts`. Godkjenneren når den gjennom `POST /api/godkjenning/pakker/{pakke}/handlinger` i `server/godkjenner.ts`."
 fra_catenda = "Nei."
 kan_gjenoppbygges = "nei."
 personopplysninger = "Den som handlet (`aktor_id`) og begrunnelsen for en retur."
 skrivere = ["database/migrasjoner/20261020190000_godkjenner_tilgang.sql (`koe_api.registrer_godkjenningshandling`, innført i `20261019110000_godkjenning.sql`, kalt fra `server/godkjenning.ts`)"]
 funn = []
-belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`."
+belegg = "L 18.10: migrasjonen. K 18.10: `server/tester/godkjenning.test.ts`. K 15.11: `server/tester/godkjenner.test.ts` over HTTP."
 
 [[tabell]]
 navn = "koe.leveringskvittering"

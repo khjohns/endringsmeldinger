@@ -7,7 +7,8 @@
  * innlogging (med CSRF), prosjekttilgang og kontraktsrolle fra registeret før
  * behandleren kalles, så en behandler ikke kan glemme dem. En inngang uten
  * prosjekt eller uten sesjon står i registeret med en skriftlig begrunnelse,
- * og det gjør også en inngang til prosjektet selv, uten sak. Hvert område har sin modul med ruter, som `innlogging.ts`. Testen i
+ * og det gjør også en inngang til prosjektet selv, uten sak, og godkjennerens inngang uten
+ * medlemskap. Hvert område har sin modul med ruter, som `innlogging.ts`. Testen i
  * `tester/register.test.ts` prøver hver inngang i registeret over HTTP.
  *
  * Leveringen stopper ved det frosne oppdraget og kaller ikke Catenda (#371). En ny
@@ -19,6 +20,7 @@ import { STATUS_CODES, type IncomingMessage, type ServerResponse } from 'node:ht
 import { KJERNE } from '../kjerne/versjon.ts';
 import { ulagringsbarTekst } from '../kjerne/format/skjema.ts';
 import {
+  krevGodkjennertilgang,
   krevInnlogging,
   krevKontraktsrolle,
   krevLesing,
@@ -35,10 +37,12 @@ import { SAKSLISTERUTER } from './saksliste.ts';
 import { KONTRAKTSFRISTRUTER } from './kontraktsfrister.ts';
 import { lesFil, VEDLEGG_FOER_SAKEN, VEDLEGGSRUTER } from './vedlegg.ts';
 import { BREVRUTER } from './brev.ts';
+import { GODKJENNERRUTER } from './godkjenner.ts';
 import { WEBHOOKRUTER } from './webhook.ts';
 import { KJERNERUTER, OPPRETTELSE, SAKSKODE_FOR_NY_SAK } from './saker.ts';
 import {
   erAapen,
+  erGodkjenner,
   erOpprettelse,
   erUtenProsjekt,
   erUtenSak,
@@ -46,6 +50,7 @@ import {
   uventet,
   type Avhengigheter,
   type Felles,
+  type Godkjennerrute,
   type Opprettelsesrute,
   type Prosjektrute,
   type Rute,
@@ -102,6 +107,7 @@ export const RUTER: readonly Rute[] = [
   ...PROSJEKTRUTER,
   ...SAKSLISTERUTER,
   ...KONTRAKTSFRISTRUTER,
+  ...GODKJENNERRUTER,
   ...WEBHOOKRUTER,
 ];
 
@@ -221,6 +227,35 @@ export function lagServer(avh: Avhengigheter) {
     return r.behandle({ bruker, prosjekt, side, ressurs, kropp }, full);
   }
 
+  async function godkjennerrute(
+    r: Godkjennerrute,
+    treff: RegExpMatchArray,
+    foresporsel: IncomingMessage
+  ): Promise<Svar> {
+    let pakkeId: string;
+    try {
+      pakkeId = decodeURIComponent(treff[1]);
+    } catch {
+      return feilsvar(404, 'NOT_FOUND', 'Ukjent pakke.');
+    }
+    const bruker = await krevInnlogging(full.datalag, foresporsel);
+    const innhold = r.metode === 'GET' ? { verdi: {} } : await lesKropp(foresporsel);
+    const { prosjektId } = await krevGodkjennertilgang(
+      full.datalag,
+      full.catenda,
+      foresporsel,
+      bruker
+    );
+    if ('feil' in innhold) throw innhold.feil;
+    const kropp = innhold.verdi;
+    if (typeof kropp !== 'object' || kropp === null || Array.isArray(kropp))
+      return feilsvar(400, 'UGYLDIG_FORESPOERSEL', 'Kroppen må være et objekt.');
+    return r.behandle(
+      { bruker, prosjektId, pakkeId, kropp: kropp as Record<string, unknown> },
+      full
+    );
+  }
+
   async function kjoer(
     r: Rute,
     treff: RegExpMatchArray,
@@ -230,6 +265,7 @@ export function lagServer(avh: Avhengigheter) {
     if (erUtenProsjekt(r)) return r.behandle(await krevSesjon(full.datalag, foresporsel), full);
     if (erUtenSak(r)) return prosjektrute(r, treff, foresporsel);
     if (erOpprettelse(r)) return opprettelsesrute(r, treff, foresporsel);
+    if (erGodkjenner(r)) return godkjennerrute(r, treff, foresporsel);
     return saksrute(r, treff, foresporsel);
   }
 

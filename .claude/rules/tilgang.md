@@ -32,6 +32,13 @@ prosjekt gir `FORBIDDEN` uten at Catenda spørres om teamet (#1106).
   slipper bare godkjenneren i en åpen pakke i saken gjennom (GFK-U9). Hver lesing
   får siden i konteksten med `lesekontekst` i `server/autorisasjon.ts`. Skrivingen og
   vedleggene krever siden uten leserollen (`koe_sikkerhet.kontraktsmedlem`).
+- **Godkjenneren** (GFK-U9, del 4 av #831) når pakken gjennom `GODKJENNERRUTER` i
+  `server/godkjenner.ts`, som står i registeret med `utenMedlemskap` og begrunnelsen.
+  `krevGodkjennertilgang` i `server/autorisasjon.ts` krever sesjonen og et aktivt prosjekt
+  i `X-Project-ID`, men ikke medlemskap, og avviser en aktør i et team for
+  totalentreprenøren. Konteksten har aktøren og prosjektet, uten side og team, så bare
+  predikatet `koe_sikkerhet.godkjenner` slipper aktøren til pakken. Stien har pakken,
+  aldri en sak godkjenneren oppgir selv.
 - **Serverstemplede felt.** En kommando har ingen aktør, ID eller tidspunkt.
   Kroppen avvises med ukjente felt, og kjernens skjema avviser ukjente felt i
   kommandoen. Aktøren er `app_users.id` fra sesjonen.

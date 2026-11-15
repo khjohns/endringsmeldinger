@@ -524,6 +524,40 @@ function somKontraktstilgang([rolle, teamId]: [
   return rolle === 'TE' || rolle === 'BH' ? { rolle, teamId } : null;
 }
 
+/** Prosjektets kontraktsteam per side, for et aktivt medlem uten leserolle (`koe_api.kontraktsteam`). */
+async function kontraktsteamene(
+  db: Pool,
+  aktor: string,
+  prosjektId: string
+): Promise<Record<Rolle, Set<string>>> {
+  const svar = await utenKontekst(db)
+    .input('aktor', sql.UniqueIdentifier, aktor)
+    .input('prosjekt', sql.NVarChar(4000), prosjektId)
+    .execute<{ team: string; side: Rolle }>('koe_api.kontraktsteam');
+  const team: Record<Rolle, Set<string>> = { TE: new Set(), BH: new Set() };
+  for (const rad of svar.recordset) {
+    const id = catendaId(rad.team);
+    if (id && rad.side in team) team[rad.side].add(id);
+  }
+  return team;
+}
+
+/** Teamene subjektet er med i i Catenda, slått opp samtidig (#716 punkt 5). */
+async function teamMedSubjektet(
+  catenda: Pick<Catenda, 'teammedlemmer'>,
+  catendaProsjekt: string,
+  subjekt: string,
+  teamene: [Rolle, string][]
+): Promise<[Rolle, string][]> {
+  const treff = await Promise.all(
+    teamene.map(async ([rolle, teamId]): Promise<[Rolle, string] | null> => {
+      const medlemmer = await catenda.teammedlemmer(catendaProsjekt, teamId);
+      return [...medlemmer].map(catendaId).includes(subjekt) ? [rolle, teamId] : null;
+    })
+  );
+  return treff.filter((t) => t !== null);
+}
+
 /**
  * Siden og teamet. Teamet er ett av prosjektets kontraktsteam på den siden
  * aktøren er på, og `null` når aktøren er med i flere av dem, så det kan
@@ -537,27 +571,65 @@ async function kontraktsside(
   if (medlemskap.leserolle) return [null, null];
   const subjekt = catendaId(medlemskap.subjekt);
   if (!subjekt) return [null, null];
-  const svar = await utenKontekst(db)
-    .input('aktor', sql.UniqueIdentifier, aktor)
-    .input('prosjekt', sql.NVarChar(4000), prosjektId)
-    .execute<{ team: string; side: Rolle }>('koe_api.kontraktsteam');
-  const team: Record<Rolle, Set<string>> = { TE: new Set(), BH: new Set() };
-  for (const rad of svar.recordset) {
-    const id = catendaId(rad.team);
-    if (id && rad.side in team) team[rad.side].add(id);
-  }
+  const team = await kontraktsteamene(db, aktor, prosjektId);
   if (!team.TE.size || !team.BH.size || [...team.TE].some((t) => team.BH.has(t)))
     return [null, null];
-  // Teamene slås opp samtidig (#716 punkt 5).
-  const oppslag = (['TE', 'BH'] as const).flatMap((rolle) =>
-    [...team[rolle]].map(async (teamId): Promise<[Rolle, string] | null> => {
-      const medlemmer = await catenda.teammedlemmer(oppsett.catendaProsjekt, teamId);
-      return [...medlemmer].map(catendaId).includes(subjekt) ? [rolle, teamId] : null;
-    })
-  );
-  const treff = (await Promise.all(oppslag)).filter((t) => t !== null);
+  const treff = await teamMedSubjektet(catenda, oppsett.catendaProsjekt, subjekt, [
+    ...[...team.TE].map((t): [Rolle, string] => ['TE', t]),
+    ...[...team.BH].map((t): [Rolle, string] => ['BH', t]),
+  ]);
   const roller = new Set(treff.map(([r]) => r));
   if (roller.size !== 1) return [null, null];
   const lag = new Set(treff.map(([, t]) => t));
   return [[...roller][0], lag.size === 1 ? [...lag][0] : null];
+}
+
+/** Meldingen når godkjenneren er med i et team for totalentreprenøren i prosjektet. */
+export const GODKJENNER_PAA_TE =
+  'Du er med i et team for totalentreprenøren i dette prosjektet, og kan ikke godkjenne for byggherren.';
+
+/**
+ * Tilgangen til en godkjennerinngang (GFK-U9, del 4 av #831): sesjonen og et aktivt prosjekt i
+ * `X-Project-ID`, uten krav om medlemskap. Om aktøren står i kjeden til pakken, avgjør
+ * predikatet `koe_sikkerhet.godkjenner` i basen. Konteksten har ingen side, og predikatet
+ * slipper da gjennom; derfor avvises her en aktør som er med i et team for
+ * totalentreprenøren (kravet 20.10 i #831, punkt 1). Medlemslisten må være fersk for det.
+ * Et oppslag som feiler, gir 503.
+ */
+export async function krevGodkjennertilgang(
+  db: Pool,
+  catenda: Catenda,
+  foresporsel: IncomingMessage,
+  bruker: Bruker
+): Promise<{ prosjektId: string }> {
+  const nekt = () => new Nektet(403, 'FORBIDDEN', 'Du har ikke tilgang.');
+  const hode = foresporsel.headers['x-project-id'];
+  const prosjektId = typeof hode === 'string' && hode ? hode : null;
+  if (!prosjektId || !gyldigProsjektId(prosjektId)) throw nekt();
+  let paaTE: boolean;
+  try {
+    const oppsett = await prosjektoppsett(db, prosjektId);
+    if (!oppsett) throw nekt();
+    await oppdaterMedlemslisten(db, catenda, prosjektId, oppsett.catendaProsjekt);
+    const medlemskap = await prosjektmedlemskap(db, bruker.id, prosjektId);
+    const subjekt = medlemskap ? catendaId(medlemskap.subjekt) : null;
+    const te = subjekt ? [...(await kontraktsteamene(db, bruker.id, prosjektId)).TE] : [];
+    paaTE =
+      subjekt !== null &&
+      te.length > 0 &&
+      (
+        await teamMedSubjektet(
+          catenda,
+          oppsett.catendaProsjekt,
+          subjekt,
+          te.map((t): [Rolle, string] => ['TE', t])
+        )
+      ).length > 0;
+  } catch (feil) {
+    if (feil instanceof Nektet) throw feil;
+    loggFeil('Tilgangen for godkjenneren kunne ikke avgjøres', feil);
+    throw new Nektet(503, 'ACCESS_UNAVAILABLE', 'Tilgang kunne ikke bekreftes. Prøv igjen senere.');
+  }
+  if (paaTE) throw new Nektet(403, 'FORBIDDEN', GODKJENNER_PAA_TE);
+  return { prosjektId };
 }

@@ -171,6 +171,31 @@ export interface LagretPakke {
   handlinger: LagretHandling[];
 }
 
+const HANDLINGSFELT = `handling, steg, LOWER(CONVERT(nvarchar(36), aktor_id)) AS aktor_id,
+  fullmakt_tittel, fullmakt_grense, begrunnelse, tidspunkt`;
+
+interface Handlingsrad {
+  handling: Godkjenningshandling;
+  steg: number | null;
+  aktor_id: string;
+  fullmakt_tittel: string | null;
+  fullmakt_grense: unknown;
+  begrunnelse: string | null;
+  tidspunkt: Date;
+}
+
+const somHandling = (h: Handlingsrad): LagretHandling => ({
+  handling: h.handling,
+  steg: h.steg,
+  aktorId: h.aktor_id,
+  fullmakt:
+    h.fullmakt_tittel === null
+      ? null
+      : { tittel: h.fullmakt_tittel, grense: tall(h.fullmakt_grense) },
+  begrunnelse: h.begrunnelse,
+  tidspunkt: h.tidspunkt,
+});
+
 /**
  * Pakken, eller `null` når den ikke finnes eller er skjult for aktøren: teamet som laget
  * den ser den, og godkjenneren i kjeden mens den er åpen (GFK-U9).
@@ -185,9 +210,7 @@ export async function lesPakke(foresp: Foresp, pakkeId: string): Promise<LagretP
          FROM koe.godkjenningspakke WHERE pakke_id = @pakke_id;
        SELECT LOWER(CONVERT(nvarchar(36), godkjenner_id)) AS godkjenner_id
          FROM koe.godkjenningssteg WHERE pakke_id = @pakke_id ORDER BY steg;
-       SELECT handling, steg, LOWER(CONVERT(nvarchar(36), aktor_id)) AS aktor_id, fullmakt_tittel,
-              fullmakt_grense, begrunnelse, tidspunkt
-         FROM koe.godkjenningshandling WHERE pakke_id = @pakke_id ORDER BY loepenr;`
+       SELECT ${HANDLINGSFELT} FROM koe.godkjenningshandling WHERE pakke_id = @pakke_id ORDER BY loepenr;`
     );
   const [pakker, steg, handlinger] = r.recordsets as unknown as [
     {
@@ -200,15 +223,7 @@ export async function lesPakke(foresp: Foresp, pakkeId: string): Promise<LagretP
       opprettet: Date;
     }[],
     { godkjenner_id: string }[],
-    {
-      handling: Godkjenningshandling;
-      steg: number | null;
-      aktor_id: string;
-      fullmakt_tittel: string | null;
-      fullmakt_grense: unknown;
-      begrunnelse: string | null;
-      tidspunkt: Date;
-    }[],
+    Handlingsrad[],
   ];
   const p = pakker[0];
   if (!p) return null;
@@ -221,18 +236,27 @@ export async function lesPakke(foresp: Foresp, pakkeId: string): Promise<LagretP
     fullmaktsgrunnlag: JSON.parse(p.fullmaktsgrunnlag),
     opprettet: p.opprettet,
     godkjennere: steg.map((s) => s.godkjenner_id),
-    handlinger: handlinger.map((h) => ({
-      handling: h.handling,
-      steg: h.steg,
-      aktorId: h.aktor_id,
-      fullmakt:
-        h.fullmakt_tittel === null
-          ? null
-          : { tittel: h.fullmakt_tittel, grense: tall(h.fullmakt_grense) },
-      begrunnelse: h.begrunnelse,
-      tidspunkt: h.tidspunkt,
-    })),
+    handlinger: handlinger.map(somHandling),
   };
+}
+
+/**
+ * Aktørens egne handlinger i pakken. Godkjenneren ser dem også etter at pakken er lukket,
+ * når pakken selv er skjult (GFK-U9).
+ */
+export async function lesEgneHandlinger(
+  foresp: Foresp,
+  pakkeId: string
+): Promise<LagretHandling[]> {
+  const r = await foresp()
+    .input('pakke_id', sql.UniqueIdentifier, pakkeId)
+    .query<Handlingsrad>(
+      `SELECT ${HANDLINGSFELT} FROM koe.godkjenningshandling
+        WHERE pakke_id = @pakke_id
+          AND aktor_id = TRY_CAST(SESSION_CONTEXT(N'koe_aktor') AS uniqueidentifier)
+        ORDER BY loepenr;`
+    );
+  return r.recordset.map(somHandling);
 }
 
 /** Godkjent i hvert steg i kjeden, og verken returnert eller trukket. Stegene telles fra 1. */

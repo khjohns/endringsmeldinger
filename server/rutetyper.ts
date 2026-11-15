@@ -154,6 +154,27 @@ export interface Opprettelsesrute extends Felles {
   behandle: Behandler<Opprettelsesforespoersel>;
 }
 
+/** Forespørselen til en godkjennerinngang: aktøren, prosjektet og pakken i stien. */
+export interface Godkjennerforespoersel {
+  bruker: Bruker;
+  prosjektId: string;
+  pakkeId: string;
+  /** `{}` for `GET`. */
+  kropp: Record<string, unknown>;
+}
+
+/**
+ * En inngang for godkjenneren i kjeden til en pakke (GFK-U9, del 4 av #831): sesjon og
+ * prosjektet i `X-Project-ID`, men uten krav om medlemskap eller kontraktsrolle, fordi
+ * godkjenneren typisk står utenfor Catenda og teamene (GFK-U8). Første gruppe i stien er
+ * pakken. Begrunnelsen står i registeret.
+ */
+export interface Godkjennerrute extends Felles {
+  metode: 'GET' | 'POST';
+  tilgang: { utenMedlemskap: string };
+  behandle: Behandler<Godkjennerforespoersel>;
+}
+
 /** En inngang med sesjon, men uten prosjekt. Begrunnelsen står i registeret. */
 export interface Sesjonsrute extends Felles {
   tilgang: { utenProsjekt: string };
@@ -171,14 +192,21 @@ export interface AapenRute extends Felles {
   ) => Promise<Svar>;
 }
 
-export type Rute = Saksrute | Opprettelsesrute | Prosjektrute | Sesjonsrute | AapenRute;
+export type Rute =
+  | Saksrute
+  | Opprettelsesrute
+  | Prosjektrute
+  | Godkjennerrute
+  | Sesjonsrute
+  | AapenRute;
 
 export const erAapen = (r: Rute): r is AapenRute => 'utenSesjon' in r.tilgang;
 export const erUtenProsjekt = (r: Rute): r is Sesjonsrute => 'utenProsjekt' in r.tilgang;
 export const erUtenSak = (r: Rute): r is Prosjektrute => 'utenSak' in r.tilgang;
 export const erOpprettelse = (r: Rute): r is Opprettelsesrute => 'nySak' in r.tilgang;
+export const erGodkjenner = (r: Rute): r is Godkjennerrute => 'utenMedlemskap' in r.tilgang;
 export const erSaksrute = (r: Rute): r is Saksrute =>
-  !erAapen(r) && !erUtenProsjekt(r) && !erUtenSak(r) && !erOpprettelse(r);
+  !erAapen(r) && !erUtenProsjekt(r) && !erUtenSak(r) && !erOpprettelse(r) && !erGodkjenner(r);
 
 /** Et nytt svar hver gang, så ingen kode kan endre kroppen i et senere svar (#763 punkt 7). */
 export const uventet = () => feilsvar(500, 'INTERNAL_ERROR', 'Uventet feil.');
