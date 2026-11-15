@@ -663,7 +663,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Hvem som sa hvert element, og hva det er (§ 5, VS-U12, KA-U20, MM-U43).
   ['Utledning', 'relasjon', 'elementer'],
   ['Utledning.elementer', 'relasjon', '*'],
-  ['utledning/utled.ts:Element', 'relasjon', 'hendelse part art innsigelse registrertBrev'],
+  ['utledning/utled.ts:Element', 'relasjon', 'hendelse part art innsigelse'],
   // VS-U1, MP-U6: hva en innsigelse og en protest kan gjelde, delt av utledningen og kommandoene.
   ['utledning/utled.ts', 'relasjon', 'kanFaaInnsigelse KAN_FAA_INNSIGELSE'],
   ['utledning/utled.ts:kanFaaProtest(elementer)', 'relasjon', '*'],

@@ -158,8 +158,6 @@ export interface Element {
    * sier at varselet kom for sent (VS-U9).
    */
   innsigelse?: boolean;
-  /** Et registrert dokument med et krav eller svar. */
-  registrertBrev?: boolean;
 }
 
 /** Det en innsigelse kan gjelde (VS-U1). */
@@ -336,8 +334,8 @@ function tom(
 
 /**
  * OV-U44: kilden til det en journalpost sier. Et brev sendt herfra er `sendt_herfra`. Et
- * registrert brev er `partens_opplysning` når det har elementer og alle har virkning etter
- * OV-U5 og OV-U6, ellers `dokumentasjon` (OV-U4, HF-U13). Mens saken ikke er forstått, er
+ * registrert brev er `partens_opplysning` når det har elementer og ingen av dem er
+ * dokumentasjon etter `dokumentasjonIBrevet`, ellers `dokumentasjon`. Mens saken ikke er forstått, er
  * hvert registrert brev dokumentasjon (MM-U2, OV-U21). En rettet registrering beholder
  * kilden (arbeidsvalget 30.10 i #1045, svar 2A). Rettingen som sier at et brev ikke hører
  * til saken, gjelder dokumentasjonen og er dokumentasjon selv (OV-U18).
@@ -768,8 +766,6 @@ function utledSporene(
     const dokumentasjon = dokumentasjonIBrevet(d);
     const harVirkning = (id: string) => !uten.has(id) && !dokumentasjon.has(id);
     registrer(h.id, h, d.avsender, 'dokument');
-    if (erRegistrert(d.opplysninger) && (d.krav.length || d.svar.length))
-      elementer[h.id].registrertBrev = true;
     for (const k of d.krav) {
       plasser(k.id, h);
       registrer(k.id, h, d.avsender, 'krav');
@@ -889,7 +885,7 @@ function utledSporene(
         })),
     })),
     spor,
-    ...forholdssvaretsVirkning(spor, elementer, svar, dokumenter),
+    ...forholdssvaretsVirkning(spor, svar, dokumenter),
   };
 }
 

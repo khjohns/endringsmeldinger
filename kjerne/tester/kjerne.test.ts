@@ -689,16 +689,19 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     expect(forstaatt(await bane.journal())).toBe(true);
   });
 
-  it('OV-U19: en endringsordre registrert med virkning teller ikke som brev utenfor appen (OV-U6, HF-U13)', async () => {
-    const bane = minnebane();
-    await bygg(bane, ['krav_irreg', registrert({ sendt: '2026-09-30', endringsordre: true })]);
-    const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
-    expect(harIkkeVurdertBrev(u)).toBe(false);
-    const kontroll = minnebane();
-    await bygg(kontroll, ['krav_irreg', registrert({ sendt: '2026-09-30' })]);
-    const k = utled(lesJournal(await kontroll.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
-    expect(harIkkeVurdertBrev(k), 'kontrollsak: et svar som er dokumentasjon (OV-U4)').toBe(true);
-  });
+  it.each<[string, Data]>([
+    ['byggherrens endringsordre (OV-U6)', { endringsordre: true }],
+    ['et annet svar (OV-U80, OV-U98)', {}],
+  ])(
+    'OV-U19: %s registrert med virkning teller ikke som brev utenfor appen (HF-U13)',
+    async (_n, endring) => {
+      const bane = minnebane();
+      await bygg(bane, ['krav_irreg', registrert({ sendt: '2026-09-30', ...endring })]);
+      const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
+      expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+      expect(harIkkeVurdertBrev(u)).toBe(false);
+    }
+  );
 
   it('OV-U19, OV-U4: en registrert begrunnelse (KA-U35 (opphevet av KA-U46)) er dokumentasjon og teller som brev utenfor appen', async () => {
     const eo = registrert({ sendt: '2026-09-30', endringsordre: true });
@@ -1805,7 +1808,7 @@ describe('kjøreren: svaret den leser for `svar.*` og `standpunkt.*`, og parten 
     await expect(k.send({ ...svaret, ...part })).rejects.toThrow(Forutsetning);
   });
 
-  it('et svar i et registrert brev leses i journalen (OV-U4)', async () => {
+  it('et svar i et registrert brev uten virkning leses i journalen (OV-U98)', async () => {
     const k = await bygg(minnebane(), [
       'krav_irreg',
       {
@@ -1816,7 +1819,9 @@ describe('kjøreren: svaret den leser for `svar.*` og `standpunkt.*`, og parten 
         dokument: 'D4',
         gjelder: 'K-g1',
         resultat: 'godkjent',
-        sendt: '2026-09-30',
+        // Sendt dagen før K-g1 (20.09 i minnebanen), så kravversjonen var ikke gjeldende på
+        // sendedatoen.
+        sendt: '2026-09-19',
       },
     ]);
     const u = await k.utledning();

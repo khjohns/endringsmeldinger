@@ -13,7 +13,7 @@
  * § 33.4 mot varselet (#309, KK-07), F208–F209 innsigelsen brevet viser til og gir opp
  * (#407, #309, #500), F215–F216 frafall der pålegget er byggherrens eget (GR-U18, #511),
  * F222 og F224 innsigelsen etter VS-U24 (#498, #517), F223 et registrert brev (HF-U4, OV-U4), og
- * F246–F247 registrerte brev som dokumentasjon (OV-U4, OV-U6, #574), og F248–F255
+ * F246 registrerte brev som dokumentasjon (OV-U4, #574), og F248–F255
  * opprettelsen og datoen etter VS-U26 (#664), og F296–F300 varselet med vedlegg i
  * fristkravet (OV-U5, #828) og datoen for varselet (#968), og F301–F303
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
@@ -403,8 +403,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '    ...forholdssvaretsVirkning(spor, elementer, svar, dokumenter),',
-        "    ...forholdssvaretsVirkning(spor, elementer, svar, dokumenter),\n    endringsordre: spor.forhold.svar.some((svaret) => svaret.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.forhold.gjeldendeKrav?.innhold.hovedkategori), String(spor.forhold.gjeldendeKrav?.innhold.underkategori)) && !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)) ? 'ja' : 'nei',",
+        '    ...forholdssvaretsVirkning(spor, svar, dokumenter),',
+        "    ...forholdssvaretsVirkning(spor, svar, dokumenter),\n    endringsordre: spor.forhold.svar.some((svaret) => svaret.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.forhold.gjeldendeKrav?.innhold.hovedkategori), String(spor.forhold.gjeldendeKrav?.innhold.underkategori)) && !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)) ? 'ja' : 'nei',",
       ],
     ],
     mal: ['F-MM-G15'],
@@ -1910,19 +1910,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['F-MM-G44', 'F-MM-G45-kontroll', 'F-MM-G46'],
   },
   {
-    id: 'F247',
-    feilklasse:
-      'byggherrens registrerte endringsordre er dokumentasjon uten virkning (OV-U6, #574)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '    ...d.svar.filter((s) => !erRegistrertEndringsordre(s, d)).map((s) => s.id),',
-        '    ...d.svar.map((s) => s.id),',
-      ],
-    ],
-    mal: ['F-MM-G45', 'F-MM-G18', 'F-MM-G43'],
-  },
-  {
     id: 'F248',
     feilklasse: 'en påberopelse fra appen uten datoen godtas (VS-U26, #664)',
     fil: `${K}/spor/forhold/kommando.ts`,
@@ -2713,30 +2700,35 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'OV-U44: hver journalpost har én kilde',
       'OV-U19: et varsel registrert med virkning teller ikke',
-      'OV-U19: en endringsordre registrert med virkning teller ikke',
+      'OV-U19: byggherrens endringsordre (OV-U6) registrert med virkning teller ikke',
     ],
   },
   {
     id: 'F367',
-    feilklasse: 'et svar registrert som dokumentasjon er ikke dokumentasjon (OV-U4, OV-U19)',
+    feilklasse: 'et svar registrert med virkning er dokumentasjon (OV-U19, OV-U80, OV-U98)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '...d.svar.filter((s) => !erRegistrertEndringsordre(s, d))',
-        '...d.svar.filter(() => false)',
+        '    ...krav,\n    ...d.utsagn',
+        '    ...krav,\n    ...d.svar.map((s) => s.id),\n    ...d.utsagn',
       ],
     ],
-    mal: ['OV-U19: en endringsordre registrert med virkning teller ikke'],
+    mal: [
+      'OV-U19: et annet svar (OV-U80, OV-U98) registrert med virkning teller ikke',
+      'F-MM-G45',
+      'F-MM-G18',
+      'F-MM-G43',
+    ],
   },
   {
     id: 'F368',
     feilklasse:
-      'et registrert utsagn som ikke er et varsel, er ikke dokumentasjon (OV-U19, OV-U4, KA-U35 (opphevet av KA-U46), punkt 4 i #1167)',
+      'et registrert utsagn som verken er et varsel eller en aksept, er ikke dokumentasjon (OV-U19, OV-U4, OV-U98, punkt 4 i #1167)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "...d.utsagn.filter((x) => x.art !== 'varsel')",
-        "...d.utsagn.filter((x) => x.art === 'aksept' || x.art === 'trekk')",
+        '...d.utsagn.filter((x) => !REGISTRERT_MED_VIRKNING.has(x.art))',
+        "...d.utsagn.filter((x) => x.art === 'trekk')",
       ],
     ],
     mal: ['OV-U19, OV-U4: en registrert begrunnelse', 'punkt 4 i #1167: alt i et registrert brev'],
@@ -3590,12 +3582,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F436',
     feilklasse:
-      'et registrert svar etter frafallet tar bort at forholdet er avklart ved frafallet mens en ny versjon venter (GR-U20, GR-U23, OV-U4, #1388)',
+      'et registrert svar etter frafallet regnes ikke som det siste svaret mens en ny versjon venter (GR-U23, OV-U80, OV-U98)',
     fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
-        'spor.forhold.svar.filter((s) => sendtFraAppen({ elementer }, s)).at(-1);',
-        'spor.forhold.svar.at(-1);',
+        'const sisteSvar = spor.forhold.svar.at(-1);',
+        'const sisteSvar = spor.forhold.svar\n    .filter((s) => !erRegistrert(dokumenter.get(s.dokument)!.opplysninger))\n    .at(-1);',
       ],
     ],
     mal: ['en registrert endringsordre som godkjenner versjon 2 og en ny versjon 3'],
