@@ -30000,6 +30000,268 @@ Forholdene står etter OV-U92 (c) til neste samlevedtak som rører kjeden.'''
 forkastet = true
 
 [[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = '''
+Siste setning: «En tilstand i oversikten sier hvem som har sagt hva, og hvem som står for tur, og konkluderer ikke det kontrakten overlater til partene.»'''
+id = "OV-U97"
+dato = 2026-11-15
+hvem = "oppdragsgiver"
+kilde = ["#1987"]
+sporsmal = '''
+Spørsmål A, ordrett slik det ble stilt 15.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/683b213/docs/vurdering-handlinger-og-tilstander-2026-11-15.md#spørsmålene-etter-drøftingen):
+
+> ### Spørsmål A: regelen for handlinger og tilstander
+>
+> Belegg: OV-U1 lister handlingene i første versjon uten en regel for hva som kan legges til. MM-U48
+> krever et nytt vedtak før protest eller bestridelse blir en egen handling. Porten i «Drøftingen
+> 15.11» er prøvd på fem tilfeller. Klasse: beslutning med designdel (siste setning).
+>
+> - **A1 (anbefalt):** «Løsningen har et grunnsett av handlinger i hvert av sporene grunnlag,
+>   vederlag og frist: totalentreprenøren sender påberopelse, varsel eller krav, byggherren svarer,
+>   og begge parter kan sende innlegg i fritekst. En handling utover grunnsettet finnes bare når en
+>   regel, en sperre eller en frist i løsningen leser utsagnet, når handlingen avgjør hvem som kan
+>   sende på vegne av en part, eller når et vedtak begrunner et organisatorisk behov for den. Det
+>   andre en part vil meddele, sendes som innlegg. En handling bygges før første ekte sak når
+>   virkningen avhenger av når utsagnet ble gitt og omveien taper det, når løsningen ikke har noen
+>   annen vei til virkningen, eller når et vedtak krever det før første ekte sak; ellers kan den
+>   vente. En ny handling utover grunnsettet krever et vedtak som viser til
+>   bestemmelsen eller vedtaket, og som sier hva handlingen koster i løsningen og for brukerne. En
+>   tilstand i oversikten sier hvem som har sagt hva, og hvem som står for tur, og konkluderer ikke
+>   det kontrakten overlater til partene.» Forhold: presiserer OV-U1; utvider MM-U48 til alle
+>   handlinger utover grunnsettet; utvider MM-U22 (designdelen: betegnelsen sier også hvem som står
+>   for tur).
+> - **A2:** «Handlingene er de OV-U1 og vedtakene etter den lister. Det gis ingen egen regel for nye
+>   handlinger eller tilstander.» Forhold: ingen.
+>
+> Anbefaling: A1. Prøven kan slås opp i kjernen, og den skilte de fem testtilfellene uten skjønn
+> utenom bekreftelsen. Styrer: hvilke handlinger kjernen og Varden har, rekkefølgen, og prøven for
+> hver ny handling og betegnelse.
+'''
+valgt = "A1"
+svar = '''
+Oppdragsgiver 15.11, ordrett: «Som anbefalt, men en avklaring: for innlegg trenger vi vel kun fritekstinnlegg? Innsigelse etter pkt 5 vurderes som nevnt som et forbehold i kravskjema. Passitivitet, protest, bestridelse er ikke noe eget, utover hva som allerede gis i kravskjema. Riktig forstått?»
+
+Kartleggingsøktas avklaring og oppfølgingsspørsmålet står i vurderingsfila under «Svarene etter drøftingen».
+
+Oppdragsgiver 15.11, ordrett: «Ja jeg tenker det. Men bedre å vedtaksføre ifb 1657 - da vurderer vi beste løsning samlet sett»
+
+Etter kartleggingsøktas spørsmål om bekreftelse av A1, B1, C og E1, oppdragsgiver 15.11, ordrett: «Jeg bekrefter som anbefalt for på alle. Men gjaldt post C - som du avklarte i etterkant»
+
+Svaret er A1, det anbefalte alternativet.'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u1" },
+  { art = "utvider", vedtak = "mm-u48" },
+  { art = "utvider", vedtak = "mm-u22" },
+]
+folge = '''
+Utvider MM-U48 til alle handlinger utover grunnsettet. Utvider MM-U22 (designdelen): betegnelsen sier også hvem som står for tur. Metoden (port 0–4) og skjemaet per handling står i vurderingsfila. Bygges i #2003.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A1"
+tekst = '''
+Løsningen har et grunnsett av handlinger i hvert av sporene grunnlag, vederlag og frist: totalentreprenøren sender påberopelse, varsel eller krav, byggherren svarer, og begge parter kan sende innlegg i fritekst. En handling utover grunnsettet finnes bare når en regel, en sperre eller en frist i løsningen leser utsagnet, når handlingen avgjør hvem som kan sende på vegne av en part, eller når et vedtak begrunner et organisatorisk behov for den. Det andre en part vil meddele, sendes som innlegg. En handling bygges før første ekte sak når virkningen avhenger av når utsagnet ble gitt og omveien taper det, når løsningen ikke har noen annen vei til virkningen, eller når et vedtak krever det før første ekte sak; ellers kan den vente. En ny handling utover grunnsettet krever et vedtak som viser til bestemmelsen eller vedtaket, og som sier hva handlingen koster i løsningen og for brukerne. En tilstand i oversikten sier hvem som har sagt hva, og hvem som står for tur, og konkluderer ikke det kontrakten overlater til partene.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "A2"
+tekst = '''
+Handlingene er de OV-U1 og vedtakene etter den lister. Det gis ingen egen regel for nye handlinger eller tilstander.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U98"
+dato = 2026-11-15
+hvem = "oppdragsgiver"
+kilde = ["#1987"]
+sporsmal = '''
+Spørsmål B, ordrett slik det ble stilt 15.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/683b213/docs/vurdering-handlinger-og-tilstander-2026-11-15.md#spørsmålene-etter-drøftingen):
+
+> ### Spørsmål B: når en registrering får virkning
+>
+> Belegg: oppdragsgiver 15.11, ordrett: «Når er det grunn til å behandle registrering ulikt?» OV-U80
+> gir et brev sendt utenfor løsningen virkning som varsel, krav eller svar. VS-U19 sier at en
+> forespørsel etter punkt 33.6.2 sendt utenfor alltid registreres. OV-U84 lar avsenderen velge
+> senere, med datoen brevet ble sendt. Klasse: vedtak.
+>
+> - **B1 (anbefalt, etter prøven av arbeidsflyten):** «Et brev sendt utenfor løsningen får virkning
+>   i løsningen bare når avsenderen legger det til som et varsel, et krav, et svar (også byggherrens
+>   endringsordre som svar), en forespørsel etter punkt 33.6.2 eller totalentreprenørens aksept av
+>   byggherrens svar, fordi virkningen avhenger av når brevet ble sendt. Annet står som
+>   dokumentasjon, og parten sender utsagnet fra løsningen. Datoen avsenderen oppgir at brevet ble
+>   sendt, er datoen for utsagnet i løsningen. Ellers avgjør rekkefølgen utsagnene ble lagt til i
+>   løsningen, sperrene og hva som er gjeldende, med unntakene i OV-U80, OV-U84 og VS-U19. Et krav
+>   som er sendt før totalentreprenørens siste krav i sporet, blir ikke gjeldende, men datoen det ble
+>   sendt, gjelder som totalentreprenørens opplysning. Et svar som legges til, gjelder kravversjonen
+>   det svarer på, og godtas når den var gjeldende da svaret ble sendt. En aksept som legges til,
+>   gjelder svaret den godtar, og godtas når det var byggherrens gjeldende svar da aksepten ble
+>   sendt. Et svar byggherren har sendt etter aksepten, står med virkningen det hadde. Hvilket krav
+>   eller svar som er gjeldende, avgjøres når det legges til, og en senere retting av datoen endrer
+>   det ikke.» Forhold: endrer OV-U80 (setningen om aksept, og at et tidligere krav ikke blir
+>   gjeldende selv om valget ellers ville vært godtatt) og utvider den med forespørselen og
+>   aksepten; snevrer inn OV-U84 (et senere valg av et tidligere krav blir ikke gjeldende);
+>   presiserer KA-U1 og GR-U7 (gjeldende svar på sendedatoen), HF-U23 punkt 8 og MM-U55 punkt 8 og
+>   18 (en retting av datoen endrer ikke hva som er gjeldende); følger KA-U52 punkt 5, EO-U39 punkt
+>   43, OV-U5, OV-U85, VS-U19 (VS-U47 punkt 5) og HF-U29 punkt 3.
+> - **B2 (det første forslaget):** «Et brev sendt utenfor løsningen får virkning i løsningen bare
+>   når det er et varsel, et krav, et svar eller en forespørsel etter punkt 33.6.2, fordi fristene
+>   regnes fra når brevet ble sendt. Annet legges til som dokumentasjon, og parten sender utsagnet
+>   fra løsningen. Datoen brevet ble sendt, brukes til å regne fristene. Rekkefølgen utsagnene ble
+>   lagt til i løsningen, avgjør sperrene og hva som er gjeldende, med unntakene i OV-U80 og
+>   OV-U84.» Forhold: presiserer OV-U80 og OV-U84; utvider OV-U80 med forespørselen.
+> - **B3:** «OV-U80, OV-U84 og VS-U19 står uten en felles regel.» Forhold: ingen.
+>
+> Prøven av arbeidsflyten (15.11, fem forløp) fant to hull i B2, og prøvingen av B1 mot vedtakene
+> rettet teksten én gang (endringsordren er alt et valg i svaret etter OV-U80 og OV-U6):
+> - Aksept på e-post dag 1, nytt svar fra løsningen dag 5, registrert dag 6: etter B2 kan aksepten
+>   bare stå som dokumentasjon, og totalentreprenøren mister enigheten i oversikten. Hadde aksepten
+>   gått gjennom løsningen, ville enigheten stått ved siden av det nye svaret (HF-U29 punkt 3).
+> - Krav v1 registrert etter v2 fra løsningen blir gjeldende etter rekkefølgen, uten at noen mente
+>   det. B1 holder v1 utenfor, men bevarer datoen det ble sendt.
+>
+> Trekket trenger ikke virkning ved registrering: ingen frist eller sperre avhenger av datoen.
+>
+> Når avsenderen ikke registrerer (byggherren svarer på e-post og lar det ligge), er anbefalingen:
+> mottakeren legger brevet til, avsenderen får melding, og mottakeren kan sende et innlegg.
+> Oversikten får en merknad om at et brev fra motparten er lagt til etter kravet og ennå ikke er
+> valgt av avsenderen, uten å tolke det (design). En registrering mottakeren gjør med virkning som
+> avsenderen bekrefter, krever et eget vedtak og anbefales ikke nå.
+>
+> Anbefaling: B1. Den svarer på spørsmålet ditt med én grunn, at virkningen avhenger av når brevet
+> ble sendt, og den tetter hullene. Kostnaden er at aksepten registrert med virkning må
+> prøves mot svaret som var gjeldende da den ble sendt, og at byggherren kan se en enighet ved siden
+> av et nytt svar byggherren trodde virket. Styrer: hva registreringen tilbyr, og at registrering av
+> varsel, krav, svar og aksept er former av samme handling.
+'''
+valgt = "B1"
+svar = '''
+Oppdragsgiver 15.11, ordrett: «Som anbefalt, men en avklaring: for innlegg trenger vi vel kun fritekstinnlegg? Innsigelse etter pkt 5 vurderes som nevnt som et forbehold i kravskjema. Passitivitet, protest, bestridelse er ikke noe eget, utover hva som allerede gis i kravskjema. Riktig forstått?»
+
+Kartleggingsøktas avklaring og oppfølgingsspørsmålet står i vurderingsfila under «Svarene etter drøftingen».
+
+Oppdragsgiver 15.11, ordrett: «Ja jeg tenker det. Men bedre å vedtaksføre ifb 1657 - da vurderer vi beste løsning samlet sett»
+
+Etter kartleggingsøktas spørsmål om bekreftelse av A1, B1, C og E1, oppdragsgiver 15.11, ordrett: «Jeg bekrefter som anbefalt for på alle. Men gjaldt post C - som du avklarte i etterkant»
+
+Svaret er B1, det anbefalte alternativet.'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u80" },
+  { art = "snevrer inn", vedtak = "ov-u84" },
+  { art = "presiserer", vedtak = "ka-u1" },
+  { art = "presiserer", vedtak = "gr-u7" },
+  { art = "presiserer", vedtak = "hf-u23" },
+  { art = "presiserer", vedtak = "mm-u55" },
+]
+folge = '''
+Endrer OV-U80: setningen om aksept, og at et tidligere krav ikke blir gjeldende selv om valget ellers ville vært godtatt; utvider den med forespørselen og aksepten. Snevrer inn OV-U84: et senere valg av et tidligere krav blir ikke gjeldende. Presiserer KA-U1 og GR-U7 (gjeldende svar på sendedatoen), HF-U23 punkt 8 og MM-U55 punkt 8 og 18 (en retting av datoen endrer ikke hva som er gjeldende). I tråd med KA-U52 punkt 5, EO-U39 punkt 43, OV-U5, OV-U85, VS-U19 (VS-U47 punkt 5) og HF-U29 punkt 3.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "B1"
+tekst = '''
+Et brev sendt utenfor løsningen får virkning i løsningen bare når avsenderen legger det til som et varsel, et krav, et svar (også byggherrens endringsordre som svar), en forespørsel etter punkt 33.6.2 eller totalentreprenørens aksept av byggherrens svar, fordi virkningen avhenger av når brevet ble sendt. Annet står som dokumentasjon, og parten sender utsagnet fra løsningen. Datoen avsenderen oppgir at brevet ble sendt, er datoen for utsagnet i løsningen. Ellers avgjør rekkefølgen utsagnene ble lagt til i løsningen, sperrene og hva som er gjeldende, med unntakene i OV-U80, OV-U84 og VS-U19. Et krav som er sendt før totalentreprenørens siste krav i sporet, blir ikke gjeldende, men datoen det ble sendt, gjelder som totalentreprenørens opplysning. Et svar som legges til, gjelder kravversjonen det svarer på, og godtas når den var gjeldende da svaret ble sendt. En aksept som legges til, gjelder svaret den godtar, og godtas når det var byggherrens gjeldende svar da aksepten ble sendt. Et svar byggherren har sendt etter aksepten, står med virkningen det hadde. Hvilket krav eller svar som er gjeldende, avgjøres når det legges til, og en senere retting av datoen endrer det ikke.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B2"
+tekst = '''
+Et brev sendt utenfor løsningen får virkning i løsningen bare når det er et varsel, et krav, et svar eller en forespørsel etter punkt 33.6.2, fordi fristene regnes fra når brevet ble sendt. Annet legges til som dokumentasjon, og parten sender utsagnet fra løsningen. Datoen brevet ble sendt, brukes til å regne fristene. Rekkefølgen utsagnene ble lagt til i løsningen, avgjør sperrene og hva som er gjeldende, med unntakene i OV-U80 og OV-U84.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B3"
+tekst = '''
+OV-U80, OV-U84 og VS-U19 står uten en felles regel.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "beslutning"
+designdel = '''
+Punkt 6: betegnelsene i oversikten.'''
+id = "OV-U99"
+dato = 2026-11-15
+hvem = "oppdragsgiver"
+kilde = ["#1987"]
+sporsmal = '''
+Spørsmål C, ordrett slik det ble stilt 15.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/683b213/docs/vurdering-handlinger-og-tilstander-2026-11-15.md#spørsmålene-etter-drøftingen):
+
+> ### Spørsmål C: samlet forslag etter skjemaet
+>
+> Forutsetter A1 og B1. Svar «ja», eller rett enkeltpunkter. Belegget står i «Skjemaet».
+>
+> «Handlingene i første versjon er disse:
+> 1. Beholdes nå: påberopelsen, varselet, kravet med ny versjon, svaret med nytt svar, innlegget,
+>    aksepten, trekket av påberopelsen eller hele kravet (trekk av en kravpost er en form av ny
+>    kravversjon), forespørselen etter punkt
+>    33.6.2 og svaret på den, registreringen som dokumentasjon, registreringen med virkning ved
+>    innleggingen for varsel, krav, svar, endringsordre og aksept etter B1 (OV-U80) og registreringen av forespørselen (OV-U16, VS-U47
+>    punkt 5), byggherrens endringsordre registrert som svar i KOE-saken (EO-U39 punkt 43–46), og
+>    rettingen av datoene beslutningsdelen i MM-U55
+>    nevner, med den manuelle korrigeringsprosessen for andre rettinger.
+> 2. Venter: bekreftelsen etter OV-U46, det senere valget for korrespondanse som alt er lagt til som
+>    dokumentasjon (OV-U84), «ingen krav» (OV-U7) og interne notater. Til valget etter OV-U84 er
+>    bygget, legger avsenderen korrespondansen til på nytt med valget og med henvisning til den
+>    første registreringen (OV-U17). Interne notater får en
+>    handling først ved et nytt vedtak.
+> 3. Protest, bestridelse og byggherrens senere begrunnelse sendes som innlegg til et nytt vedtak
+>    sier noe annet (MM-U48, KA-U46).
+> 4. Den egne innsigelsen etter punkt 5 og påberopt passivitet sendes som innlegg i første versjon.
+>    Reglene for dem står (VS-U46, VS-U12).
+> 5. Forsering, endringsordre som egen sak og justering av enhetspriser etter punkt 34.3.3 venter,
+>    som før (OV-U1).
+> 6. Tilstandene følger porten i A1. Betegnelsen for at kravene er avgjort etter OV-U3, sier hva som
+>    har skjedd, ikke at kravene er avgjort. Predikatet i OV-U3 står.»
+>
+> Forhold: utsetter for rekkefølgen OV-U46 (med GR-U35–GR-U37) og OV-U84 (med EO-U39 punkt 49);
+> vedtakene står. «Ingen krav» følger OV-U7. Punkt 2, andre setning, gjelder til OV-U84 er bygget, og
+> tar ikke opp igjen alternativet OV-U84 forkastet som varig regel; OV-U13 gjelder i mellomtiden.
+> Punkt 4 er det VS-U46 alt sier. Punkt 6 endrer, som design: OV-U10 (teksten «Alle krav sendt i
+> appen er avgjort»), MM-U30 i `system.md` (med oppdragsgivers svar 1: «Svaret er ikke godtatt»
+> byttes, «Krav sendt» fjernes, «Ingen krav» følger OV-U7, og merknaden for innlegg er ny) og MM-U24
+> («Betegnelsene sier ikke hvem som skal handle»), fordi porten i A1 lar betegnelsen si hvem som står
+> for tur. Byggherrens svar i punkt 1 forutsetter svaret på spørsmål E. Anbefaling: ja. Styrer: hva kjernen beholder, hva Varden bygger, og
+> betegnelsene.
+>
+> Tapet ved punkt 4: sender byggherren innsigelsen i et innlegg, må byggherren påberope den i svaret
+> selv. Ellers leser kjernen svaret uten påberopelse, og for punkt 32.2 blir en godkjenning da en
+> endringsordre (VS-U46 punkt 11, GR-U13). Med den egne innsigelsen bygget ville et senere svar gjenta
+> den (punkt 9 og 17). VS-U46 punkt 6 bevarer den første påberopelsen og tidspunktet, så en tidlig
+> innsigelse i et innlegg vises ikke som den første. Totalentreprenørens innsigelse når ikke kjernen i
+> første versjon. Om innsigelsen skal være innlegg også etter første versjon, stilles i #1657; da
+> faller del D i VS-U46 (punkt 15–18 og delene i beslutningsdelen og designdelen om den), og delene i
+> MM-U47 som viser dit.
+'''
+valgt = "C"
+svar = '''
+Oppdragsgiver 15.11, ordrett: «Som anbefalt, men en avklaring: for innlegg trenger vi vel kun fritekstinnlegg? Innsigelse etter pkt 5 vurderes som nevnt som et forbehold i kravskjema. Passitivitet, protest, bestridelse er ikke noe eget, utover hva som allerede gis i kravskjema. Riktig forstått?»
+
+Kartleggingsøktas avklaring og oppfølgingsspørsmålet står i vurderingsfila under «Svarene etter drøftingen».
+
+Oppdragsgiver 15.11, ordrett: «Ja jeg tenker det. Men bedre å vedtaksføre ifb 1657 - da vurderer vi beste løsning samlet sett»
+
+Etter kartleggingsøktas spørsmål om bekreftelse av A1, B1, C og E1, oppdragsgiver 15.11, ordrett: «Jeg bekrefter som anbefalt for på alle. Men gjaldt post C - som du avklarte i etterkant»
+
+Svaret er C, det anbefalte forslaget, med punkt 4 slik det står: innlegg i første versjon, og reglene i VS-U46 og VS-U12 står. Om innsigelsen og passiviteten skal være innlegg varig, og om innsigelsen skal bli et forbehold i skjemaet for krav og svar, avgjøres i #1657.'''
+forhold = [
+  { art = "endrer", vedtak = "ov-u10" },
+  { art = "endrer", vedtak = "mm-u30" },
+  { art = "endrer", vedtak = "mm-u24" },
+]
+folge = '''
+Utsetter for rekkefølgen OV-U46 (med GR-U35–GR-U37) og OV-U84 (med EO-U39 punkt 49); vedtakene står. «Ingen krav» følger OV-U7. Punkt 2, andre setning, gjelder til OV-U84 er bygget, og tar ikke opp igjen alternativet OV-U84 forkastet som varig regel; OV-U13 gjelder i mellomtiden. Punkt 6 endrer, som design, OV-U10, MM-U30 og MM-U24 i `.interface-design/system.md`. Byggherrens svar i punkt 1 forutsetter svaret på spørsmål E. Om innsigelsen og passiviteten skal være innlegg varig, avgjøres i #1657 (oppdragsgiver 15.11: «bedre å vedtaksføre ifb 1657»).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Handlingene i første versjon er disse:
+1. Beholdes nå: påberopelsen, varselet, kravet med ny versjon, svaret med nytt svar, innlegget, aksepten, trekket av påberopelsen eller hele kravet (trekk av en kravpost er en form av ny kravversjon), forespørselen etter punkt 33.6.2 og svaret på den, registreringen som dokumentasjon, registreringen med virkning ved innleggingen for varsel, krav, svar, endringsordre og aksept etter B1 (OV-U80) og registreringen av forespørselen (OV-U16, VS-U47 punkt 5), byggherrens endringsordre registrert som svar i KOE-saken (EO-U39 punkt 43–46), og rettingen av datoene beslutningsdelen i MM-U55 nevner, med den manuelle korrigeringsprosessen for andre rettinger.
+2. Venter: bekreftelsen etter OV-U46, det senere valget for korrespondanse som alt er lagt til som dokumentasjon (OV-U84), «ingen krav» (OV-U7) og interne notater. Til valget etter OV-U84 er bygget, legger avsenderen korrespondansen til på nytt med valget og med henvisning til den første registreringen (OV-U17). Interne notater får en handling først ved et nytt vedtak.
+3. Protest, bestridelse og byggherrens senere begrunnelse sendes som innlegg til et nytt vedtak sier noe annet (MM-U48, KA-U46).
+4. Den egne innsigelsen etter punkt 5 og påberopt passivitet sendes som innlegg i første versjon. Reglene for dem står (VS-U46, VS-U12).
+5. Forsering, endringsordre som egen sak og justering av enhetspriser etter punkt 34.3.3 venter, som før (OV-U1).
+6. Tilstandene følger porten i A1. Betegnelsen for at kravene er avgjort etter OV-U3, sier hva som har skjedd, ikke at kravene er avgjort. Predikatet i OV-U3 står.'''
+anbefalt = true
+
+[[gruppe.vedtak]]
 klasse = "vedtak"
 id = "OV-U100"
 dato = 2026-11-15
@@ -30037,6 +30299,77 @@ anbefalt = true
 navn = "B"
 tekst = '''
 Dagene i en frist kan være upåvirket, slik OV-U33 tillater. Leseren godtar det som i dag. Forhold: i tråd med OV-U33.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U101"
+dato = 2026-11-15
+hvem = "oppdragsgiver"
+kilde = ["#1987"]
+sporsmal = '''
+Spørsmål F, ordrett slik det ble stilt 15.11 i [vurderingsfila](https://github.com/khjohns/endringsmeldinger/blob/a83ed8f/docs/vurdering-handlinger-og-tilstander-2026-11-15.md#spørsmål-f-bekreftelsen-utgår):
+
+> ### Spørsmål F: bekreftelsen utgår
+>
+> Stilt 15.11 etter oppdragsgivers svar «Enig om at bekreftelse da utgår og om forslaget til MM-U24».
+> Prøvd mot vedtakene av en subagent før det ble stilt. Klasse: vedtak.
+>
+> - **F1 (anbefalt):** «Byggherren bekrefter ikke i et brev fra løsningen et svar på forholdet
+>   byggherren har gitt utenfor løsningen. Har byggherren svart i et brev eller et annet dokument,
+>   legger byggherren det til som korrespondanse og velger at det er et svar (OV-U80). Svaret får da
+>   virkning i løsningen med datoen byggherren oppgir at det ble sendt. Det gjelder kravversjonen det
+>   svarer på, og godtas når den versjonen var gjeldende da svaret ble sendt (OV-U98). Løsningen lager
+>   ingen brevtekst, og svaret går gjennom godkjenningen etter fullmakten. Et forbehold i svaret
+>   tolkes ikke (samlevedtaket for vilkår og forbehold, punkt 4 og 10). Byggherrens endringsordre
+>   registreres som svar på vilkårene i OV-U6. Kan svaret ikke legges til som svar, eller vil
+>   byggherren gi en endringsordre nå, sender byggherren et nytt svar fra løsningen. Det får virkning
+>   når det sendes. Henvisningen til et svar utenfor løsningen (GR-U34 punkt 6–7) og det nye svaret
+>   etter en henvisning (OV-U46, GR-U36) står.» Forhold: opphever GR-U35 og GR-U37; endrer OV-U46
+>   (setningene om bekreftelsen utgår, setningene om det nye svaret etter en henvisning står); endrer
+>   KA-U49 (punkt 11 utgår); endrer OV-U99 (punkt 2: bekreftelsen strykes fra det som venter);
+>   bygger på OV-U80 og OV-U98. GR-U34 punkt 6–7, GR-U36, LV-U53, OV-U84 og OV-U69 står.
+> - **F2:** «Bekreftelsen etter OV-U46, med GR-U35–GR-U37, står og venter i første versjon (OV-U99
+>   punkt 2). Til den er bygget, legger byggherren et svar gitt utenfor løsningen til som
+>   korrespondanse og velger at det er et svar (OV-U80, OV-U98), eller sender et nytt svar fra
+>   løsningen.» Forhold: OV-U99 står.
+>
+> Følgene av F1, fra prøvingen: akseptfristen og bindingen regnes fra datoen svaret ble sendt, ikke
+> fra en bekreftelse, så fristen kan være ute når svaret registreres (HF-U24 dekker en aksept etter
+> fristen); veien der byggherren utsteder en endringsordre i bekreftelsen faller bort, og byggherren
+> sender i stedet et nytt svar (GR-U14); et registrert svar har ingen brevkontroll, fordi det ikke
+> har brevtekst (OV-U80). Berørt: BF-08 og #1834 (bekreftelsen i steg 4 og prototypen
+> `forholdssvar.html`), raden for GR-U35 i `dekning.md`, og #1306, som snevres inn til
+> henvisningen. Bekreftelsen er ikke bygget i koden.
+>
+> Anbefaling: F1. Styrer: at bestillingen i #1834 bygger svaret på påberopelsen og registreringen,
+> ikke bekreftelsen.
+'''
+valgt = "F1"
+svar = '''
+Oppdragsgiver 15.11, ordrett: «F1 er OK.» Svaret er F1, det anbefalte alternativet. Før spørsmålet ble stilt, sa oppdragsgiver 15.11, ordrett: «Enig om at bekreftelse da utgår og om forslaget til MM-U24».'''
+forhold = [
+  { art = "opphever", vedtak = "gr-u35" },
+  { art = "opphever", vedtak = "gr-u37" },
+  { art = "endrer", vedtak = "ov-u46" },
+  { art = "endrer", vedtak = "ka-u49" },
+  { art = "endrer", vedtak = "ov-u99" },
+  { art = "bygger på", vedtak = "ov-u80" },
+  { art = "bygger på", vedtak = "ov-u98" },
+]
+folge = '''
+Forholdet slik det sto i alternativet F1: «opphever GR-U35 og GR-U37; endrer OV-U46 (setningene om bekreftelsen utgår, setningene om det nye svaret etter en henvisning står); endrer KA-U49 (punkt 11 utgår); endrer OV-U99 (punkt 2: bekreftelsen strykes fra det som venter); bygger på OV-U80 og OV-U98. GR-U34 punkt 6–7, GR-U36, LV-U53, OV-U84 og OV-U69 står.» Bygges i #1834.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "F1"
+tekst = '''
+Byggherren bekrefter ikke i et brev fra løsningen et svar på forholdet byggherren har gitt utenfor løsningen. Har byggherren svart i et brev eller et annet dokument, legger byggherren det til som korrespondanse og velger at det er et svar (OV-U80). Svaret får da virkning i løsningen med datoen byggherren oppgir at det ble sendt. Det gjelder kravversjonen det svarer på, og godtas når den versjonen var gjeldende da svaret ble sendt (OV-U98). Løsningen lager ingen brevtekst, og svaret går gjennom godkjenningen etter fullmakten. Et forbehold i svaret tolkes ikke (samlevedtaket for vilkår og forbehold, punkt 4 og 10). Byggherrens endringsordre registreres som svar på vilkårene i OV-U6. Kan svaret ikke legges til som svar, eller vil byggherren gi en endringsordre nå, sender byggherren et nytt svar fra løsningen. Det får virkning når det sendes. Henvisningen til et svar utenfor løsningen (GR-U34 punkt 6–7) og det nye svaret etter en henvisning (OV-U46, GR-U36) står.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "F2"
+tekst = '''
+Bekreftelsen etter OV-U46, med GR-U35–GR-U37, står og venter i første versjon (OV-U99 punkt 2). Til den er bygget, legger byggherren et svar gitt utenfor løsningen til som korrespondanse og velger at det er et svar (OV-U80, OV-U98), eller sender et nytt svar fra løsningen.'''
 forkastet = true
 
 [[gruppe]]
