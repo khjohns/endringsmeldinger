@@ -41,7 +41,10 @@ prosjekt gir `FORBIDDEN` uten at Catenda spørres om teamet (#1106).
   aldri en sak godkjenneren oppgir selv. Saken, de sendte brevene og vedleggene leses
   gjennom pakken, under `godkjenner_i_sak` (G1 i #831). Listen over pakkene som venter,
   er `GET /api/godkjenning/pakker` uten prosjekt; `koe_api.ventende_pakker` kjører som
-  `koe_godkjenneroppslag` og filtrerer selv på aktøren fra sesjonen (G2).
+  `koe_godkjenneroppslag` og filtrerer selv på aktøren fra sesjonen (G2), og serveren tar
+  bort pakkene i et prosjekt der aktøren er i et TE-team. `koe_api.godkjenner_i_pakken`
+  kjører som samme bruker, så en pakke som er lukket, vises som lukket for kjeden. TE-teamene
+  leses med `koe_api.te_team`, også med leserollen.
 - **Serverstemplede felt.** En kommando har ingen aktør, ID eller tidspunkt.
   Kroppen avvises med ukjente felt, og kjernens skjema avviser ukjente felt i
   kommandoen. Aktøren er `app_users.id` fra sesjonen.

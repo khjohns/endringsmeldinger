@@ -7,7 +7,7 @@
  * Publiseringen ved siste godkjenning hører til S-1b (#818).
  */
 
-import { hindringForGodkjenner, lesekontekst, type Bruker } from './autorisasjon.ts';
+import { hindringForGodkjenner, lesekontekst, utilgjengelig, type Bruker } from './autorisasjon.ts';
 import { transaksjon, Tilbakerulling, UUID, type Foresp, type Kontekst } from './datalag.ts';
 import {
   godkjennerIPakken,
@@ -23,7 +23,7 @@ import {
   type LagretHandling,
 } from './godkjenning.ts';
 import { brevSomPdf } from './brev.ts';
-import { fast, feilsvar, loggFeil, ugyldig, ukjenteFelt } from './inngang.ts';
+import { fast, feilsvar, ugyldig, ukjenteFelt } from './inngang.ts';
 import { sakssvar } from './saker.ts';
 import { vedleggISaken, vedleggsfil } from './vedlegg.ts';
 import type {
@@ -232,8 +232,7 @@ async function visVentendePakker(
     );
     hindret = new Set(prosjekter.filter((_, i) => hindringer[i] !== null));
   } catch (feil) {
-    loggFeil('Tilgangen til listen over pakkene kunne ikke avgjøres', feil);
-    return feilsvar(503, 'ACCESS_UNAVAILABLE', 'Tilgang kunne ikke bekreftes. Prøv igjen senere.');
+    utilgjengelig('Tilgangen til listen over pakkene kunne ikke avgjøres', feil);
   }
   const pakker = alle.filter((p) => !hindret.has(p.prosjektId));
   return [
@@ -258,7 +257,7 @@ export const VENTENDE_PAKKER: Sesjonsrute = {
   ...fast('/api/godkjenning/pakker'),
   tilgang: {
     utenProsjekt:
-      'Listen over de åpne pakkene der aktøren står i kjeden, på tvers av prosjektene (G2 i #831): godkjenneren er typisk ikke medlem av prosjektene (GFK-U8). `koe_api.ventende_pakker` filtrerer på aktøren fra sesjonen og på at pakken er åpen, og raden har bare saken, prosjektet og pakken.',
+      'Listen over de åpne pakkene der aktøren står i kjeden, på tvers av prosjektene (G2 i #831): godkjenneren er typisk ikke medlem av prosjektene (GFK-U8). `koe_api.ventende_pakker` filtrerer på aktøren fra sesjonen og på at pakken er åpen, og raden har bare saken, prosjektet og pakken. Pakkene i et prosjekt der aktøren er med i et team for totalentreprenøren, tas bort, som i godkjennerinngangen.',
   },
   behandle: visVentendePakker,
 };

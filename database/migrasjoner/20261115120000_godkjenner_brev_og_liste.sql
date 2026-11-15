@@ -9,9 +9,12 @@
 -- G2: listen over pakkene der aktøren står i kjeden, på tvers av prosjektene. Den leses av
 -- `koe_api.ventende_pakker`, som kjører som brukeren `koe_godkjenneroppslag` uten
 -- innlogging. Predikatene på pakken, stegene og handlingene slipper den brukeren gjennom,
--- og prosedyren filtrerer selv på aktøren den får og på at pakken er åpen. Ingen annen vei
--- kan bli den brukeren uten IMPERSONATE, som for `koe_grenseoppslag`
--- (`20261022190000_grenseoppslag.sql`), og kjøretiden har bare EXECUTE på prosedyren.
+-- og prosedyren filtrerer selv på aktøren den får og på at pakken er åpen.
+-- `koe_api.godkjenner_i_pakken` kjører som samme bruker og sier bare om aktøren og
+-- prosjektet i konteksten står i et steg i pakken. Ingen annen vei kan bli den brukeren uten
+-- IMPERSONATE, som for `koe_grenseoppslag` (`20261022190000_grenseoppslag.sql`), og
+-- kjøretiden har bare EXECUTE på de to prosedyrene. `koe_api.te_team` gir TE-teamene også
+-- for et medlem med leserollen.
 
 CREATE USER koe_godkjenneroppslag WITHOUT LOGIN;
 GO

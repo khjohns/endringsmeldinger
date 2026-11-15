@@ -356,7 +356,7 @@ function prosjektFraHodet(foresporsel: IncomingMessage): string {
  * En `Nektet` går videre. Ellers logges årsaken, og svaret sier bare at tilgangen ikke kunne
  * bekreftes, som ruteren i `app.ts` (#867 punkt 1).
  */
-function utilgjengelig(hva: string, feil: unknown): never {
+export function utilgjengelig(hva: string, feil: unknown): never {
   if (feil instanceof Nektet) throw feil;
   loggFeil(hva, feil);
   throw new Nektet(503, 'ACCESS_UNAVAILABLE', 'Tilgang kunne ikke bekreftes. Prøv igjen senere.');

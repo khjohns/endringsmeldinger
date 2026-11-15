@@ -411,16 +411,19 @@ describe.skipIf(!TESTBASE_URL)('inngangene for godkjenneren mot testbasen', () =
     const { bundet, utkast, eventId } = await medBrevOgVedlegg(sakId);
 
     // Kvitteringen for leveringen, lagt inn som kjøreveien (`koe_jobbkjoerer`) med en rett bare testen gir.
-    await o.datalag.base.pool
-      .request()
-      .query('GRANT INSERT ON koe.leveringskvittering TO koe_jobbkjoerer');
-    await somJobbkjoerer(
-      o,
-      `INSERT koe.leveringskvittering (leveringsoppdrag_id, operasjon, prosjekt_id, catenda_id, forsoek_id)
-       SELECT id, N'dokumentreferanse', prosjekt_id, N'ref', NEWID() FROM koe.leveringsoppdrag
-        WHERE sak_id = @sak_id`,
-      { sak_id: sakId }
-    );
+    const rett = (setning: string) => o.datalag.base.pool.request().query(setning);
+    await rett('GRANT INSERT ON koe.leveringskvittering TO koe_jobbkjoerer');
+    try {
+      await somJobbkjoerer(
+        o,
+        `INSERT koe.leveringskvittering (leveringsoppdrag_id, operasjon, prosjekt_id, catenda_id, forsoek_id)
+         SELECT id, N'dokumentreferanse', prosjekt_id, N'ref', NEWID() FROM koe.leveringsoppdrag
+          WHERE sak_id = @sak_id`,
+        { sak_id: sakId }
+      );
+    } finally {
+      await rett('REVOKE INSERT ON koe.leveringskvittering TO koe_jobbkjoerer');
+    }
     const saken = await les(leder, `${pakke}/saken`);
     expect(saken.status).toBe(200);
     expect((saken.kropp.leveringsoppdrag as { levert: string | null }[])[0].levert).not.toBeNull();
