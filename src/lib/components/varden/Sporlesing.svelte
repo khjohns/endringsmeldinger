@@ -87,6 +87,12 @@
   const kanGodta = $derived(svaret !== null && noekler.includes(`godta:${spor}`));
   const svarbrevet = $derived(svaret ? sporbrev.find((b) => b.id === svaret.dokument) : undefined);
   const Side = $derived(SIDENE[spor]);
+  const fristtabell = $derived({
+    datoer: kjernesak.fristdatoer,
+    sakId: kjernesak.sakId,
+    ikkeForstaatt: kjernesak.sakerIkkeForstaatt,
+    sakslenke,
+  });
   // Under 1181 px står brevet i raden i tråden, og ellers i høyre kolonne (U-16 i BF-44).
   const smalt = medietreff('(max-width: 1180px)');
   const smal = $derived(smalt.treff);
@@ -345,12 +351,7 @@
     <Side
       {u}
       betegnelser={betegnelsene(kjernesak.saksbilde)}
-      fristtabell={{
-        datoer: kjernesak.fristdatoer,
-        sakId: kjernesak.sakId,
-        ikkeForstaatt: kjernesak.sakerIkkeForstaatt,
-        sakslenke,
-      }}
+      {fristtabell}
       vist={visesId}
       {smal}
       onles={lesBrevet}

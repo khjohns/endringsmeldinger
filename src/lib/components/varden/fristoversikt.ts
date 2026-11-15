@@ -196,7 +196,7 @@ export function gjeldendeFrist(
 export const nyFrist = (gjeldende: GjeldendeFrist, dager: number): string | null =>
   gjeldende?.art === 'kjent' && dager > 0 ? forlengetFrist(gjeldende.dato, dager) : null;
 
-/** De runde trinnene på målestokken for dagene, felles for alle fristene (U-2). */
+/** Det største antallet dager i kravet og lagene, som skalaen er felles for (U-2). */
 export const stoerstAntall = (k: KravetOgSvaretIFristen): number =>
   Math.max(0, ...k.frister.flatMap((f) => [f.krevd, ...f.lagene.map((l) => l.dager)]));
 

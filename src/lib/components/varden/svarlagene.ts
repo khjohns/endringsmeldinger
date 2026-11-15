@@ -84,13 +84,7 @@ export function lageneISvaret(
         })),
     };
   });
-  for (const l of lagene.slice(1)) {
-    const foran = lagene[l.lag - 2]!;
-    l.vilkaar = [
-      ...foran.grunner.map((x): Innsigelsen => ({ art: 'grunn', ...x })),
-      ...foran.standpunkter.flatMap(({ standpunkt }) => innsigelsen(standpunkt)),
-    ];
-  }
+  for (const l of lagene.slice(1)) l.vilkaar = innsigelseneI(lagene[l.lag - 2]!);
   return lagene;
 }
 
@@ -102,14 +96,15 @@ export const utenLag = (svar: Svar, utenom: Standpunktsart): Standpunkt[] => {
   );
 };
 
+/** Innsigelsene i laget: grunnene fra forholdet og standpunktene som rammer kravet. */
+const innsigelseneI = (l: Svarlaget): Innsigelsen[] => [
+  ...l.grunner.map((x): Innsigelsen => ({ art: 'grunn', ...x })),
+  ...l.standpunkter.flatMap(({ standpunkt }) => innsigelsen(standpunkt)),
+];
+
 /** Innsigelsene i lagene foran laget `lag`, som et standpunkt uten eget lag bygger på (OV-U42). */
 export const innsigelseneFoer = (lagene: Svarlaget[], lag: number): Innsigelsen[] =>
-  lagene
-    .slice(0, lag - 1)
-    .flatMap((l) => [
-      ...l.grunner.map((x): Innsigelsen => ({ art: 'grunn', ...x })),
-      ...l.standpunkter.flatMap(({ standpunkt }) => innsigelsen(standpunkt)),
-    ]);
+  lagene.slice(0, lag - 1).flatMap(innsigelseneI);
 
 /**
  * Svaret ble gitt mens forholdet ikke var besvart, og brevet har punktet med forbeholdet (GR-U34):

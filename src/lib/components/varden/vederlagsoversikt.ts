@@ -126,16 +126,6 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
 export const postIRaden = (poster: Posten[], navn: string): Posten | undefined =>
   poster.find((p) => p.navn === navn);
 
-/** De runde trinnene på målestokken for beløpet `stoerst`: fire trinn eller færre. */
-export function trinnene(stoerst: number): number[] {
-  if (stoerst <= 0) return [0];
-  const raa = stoerst / 4;
-  const grunn = 10 ** Math.floor(Math.log10(raa));
-  const steg = [1, 2, 2.5, 5, 10].map((f) => f * grunn).find((x) => x >= raa)!;
-  // Trinnet ved enden av skalaen står ikke, så tallet ikke går ut over målestokken.
-  return Array.from({ length: Math.ceil(stoerst / steg) }, (_, i) => i * steg);
-}
-
 /** Summen av de faste beløpene i hvert krav i vederlaget, etter brevet med kravet (U-12). */
 export function kravbeloepene(u: Utledning): Map<string, number> {
   return new Map(

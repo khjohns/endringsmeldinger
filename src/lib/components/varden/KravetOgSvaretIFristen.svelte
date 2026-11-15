@@ -9,16 +9,15 @@
   import { dager, sakensKode } from '$kjerne/frosset/tekst';
   import { stor } from '$kjerne/frosset/brevdeler';
   import type { Utledning } from '$kjerne/utledning/utled';
-  import Knapp from './Knapp.svelte';
-  import Maalrad from './Maalrad.svelte';
-  import Melding from './Melding.svelte';
+  import Forbeholdet from './Forbeholdet.svelte';
+  import Maalrad, { maalestokken } from './Maalrad.svelte';
   import type { Brevet, Fristtabellen } from './lesing';
   import { FRISTEN, VEDERLAGET } from './tekster';
-  import { trinnene } from './vederlagsoversikt';
   import {
     gjeldendeFrist,
     nyFrist,
     stoerstAntall,
+    type GjeldendeFrist,
     type KravetOgSvaretIFristen,
   } from './fristoversikt';
 
@@ -41,16 +40,11 @@
 
   const svart = $derived(k.svarbrev !== null);
   const stoerst = $derived(stoerstAntall(k));
-  const trinn = $derived(trinnene(stoerst));
-  const andel = (n: number) => (stoerst > 0 ? `${(n / stoerst) * 100}%` : '0');
-  const forholdssvar = $derived(
-    alle.find((b) => b.id === u.spor.forhold.gjeldendeSvar?.dokument) ?? null
-  );
+  const { trinn, andel, steg } = $derived(maalestokken(stoerst));
   const sistePerFrist = $derived(k.perFrist.at(-1)?.lag);
 </script>
 
-{#snippet gjeldende(fristId: number | null)}
-  {@const g = gjeldendeFrist(fristId, fristtabell)}
+{#snippet gjeldende(g: GjeldendeFrist, fristId: number | null)}
   {#if g?.art === 'kjent' && g.forlengelser.length}
     <p class="gjeldende">
       {FRISTEN.forlenget(g.dato, g.iKontrakten)}
@@ -76,7 +70,7 @@
     <h2 id={`${uid}-tittel`}>{FRISTEN.kortet}</h2>
     <span class="kilde">{VEDERLAGET.kilde(k.kravbrev, k.svarbrev)}</span>
   </div>
-  <div class="kropp" style:--steg={trinn.length > 1 ? andel(trinn[1]) : '100%'}>
+  <div class="kropp" style:--steg={steg}>
     {#if k.felles.length || k.utenLag.length}
       <section class="del" aria-labelledby={`${uid}-alle`}>
         <h3 id={`${uid}-alle`}>{FRISTEN.forAlle}</h3>
@@ -125,7 +119,7 @@
             {#if f.nummer}<span class="nr">{FRISTEN.frist(f.nummer)}</span>{/if}
             {f.navn}
           </h4>
-          {@render gjeldende(f.fristId)}
+          {@render gjeldende(g, f.fristId)}
           <ul class="rader" aria-label={f.navn}>
             <li>
               <Maalrad
@@ -162,14 +156,7 @@
     </section>
 
     {#if k.forbehold && k.svarbrev}
-      <div class="forbehold">
-        <Melding art="info" levende={false}>
-          {VEDERLAGET.forbehold(k.svarbrev, forholdssvar)}
-          {#if onforholdet}<Knapp variant="lenke" kompakt onclick={onforholdet}
-              >{VEDERLAGET.tilForholdet}</Knapp
-            >{/if}
-        </Melding>
-      </div>
+      <Forbeholdet svarbrev={k.svarbrev} {u} {alle} {onforholdet} />
     {/if}
   </div>
 </section>
@@ -266,8 +253,5 @@
     display: grid;
     gap: var(--spacing-3);
     margin-top: var(--spacing-3);
-  }
-  .forbehold {
-    margin-top: var(--spacing-5);
   }
 </style>

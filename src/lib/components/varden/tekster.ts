@@ -804,6 +804,16 @@ export const TRAADEN = {
   les: SKJEMA.lesBrevetHer,
   lukk: SKJEMA.lukkBrevet,
   vises: 'Vises til høyre',
+  /** Akseptfristen over handlingene ved byggherrens svar (U-11, U-16, HF-U23 punkt 4). */
+  akseptfrist: 'Akseptfrist:',
+  /** Datoen TE oppgir, og avstanden til varselet, uten vurdering av fristen (U-8, MM-U50). */
+  klarOver: (d: string, brev: Brevref, dager: number) =>
+    `Totalentreprenøren ble klar over forholdet ${dato(d)}, ifølge ${brevref(brev)}.` +
+    (dager < 0
+      ? ''
+      : dager === 0
+        ? ' Varselet i dette brevet kom samme dag.'
+        : ` Varselet i dette brevet kom ${dager} ${dager === 1 ? 'kalenderdag' : 'kalenderdager'} etter.`),
   knappenavn: (tekst: string, b: Pick<Brevet, 'nummer'>, hva: string) =>
     `${tekst}: ${b.nummer === null ? hva : `brev ${b.nummer}, ${hva}`}`,
   dokumentasjon: 'Dokumentasjon',
@@ -1604,16 +1614,6 @@ export const VEDERLAGET = {
     overslaget: (beloep: number, krav: Brevref) =>
       `${kroner(beloep)} ifølge totalentreprenøren i ${brevref(krav)}, ${dato(krav.registrert)}`,
   },
-  /** Akseptfristen over handlingene ved byggherrens svar (U-11, U-16, HF-U23 punkt 4). */
-  akseptfrist: 'Akseptfrist:',
-  /** Datoen TE oppgir, og avstanden til varselet, uten vurdering av fristen (U-8, MM-U50). */
-  klarOver: (d: string, brev: Brevref, dager: number) =>
-    `Totalentreprenøren ble klar over forholdet ${dato(d)}, ifølge ${brevref(brev)}.` +
-    (dager < 0
-      ? ''
-      : dager === 0
-        ? ' Varselet i dette brevet kom samme dag.'
-        : ` Varselet i dette brevet kom ${dager} ${dager === 1 ? 'kalenderdag' : 'kalenderdager'} etter.`),
 };
 
 /** Datoen uten året når året er det samme som i `ved`: «16. august» ved siden av «26. august 2027». */

@@ -7,6 +7,8 @@
 -->
 <script lang="ts">
   import Brevtraad from './Brevtraad.svelte';
+  import Datolinjer from './Datolinjer.svelte';
+  import Sporside from './Sporside.svelte';
   import KravetOgSvaretIFristen from './KravetOgSvaretIFristen.svelte';
   import Melding from './Melding.svelte';
   import {
@@ -18,7 +20,7 @@
     type Brevet,
     type Sideprops,
   } from './lesing';
-  import { FRISTEN, VEDERLAGET, dagensDato, dato, kalenderdager } from './tekster';
+  import { FRISTEN, dagensDato, kalenderdager } from './tekster';
   import { kravdagene, kravetOgSvaretIFristen } from './fristoversikt';
   import { akseptfristen } from './svarlagene';
 
@@ -63,27 +65,15 @@
 <!-- Datoen under brevet med varselet, veiledningen under forespørselen og akseptfristen over
      handlingene ved byggherrens svar (U-8, U-9, U-11, HF-U23 punkt 4). -->
 {#snippet nederst(b: Brevet)}
-  {#if klar && varsel?.dokument === b.id}
-    <p class="datolinje">
-      {VEDERLAGET.klarOver(klar.dato, klar.brev, kalenderdager(klar.dato, b.sendt ?? b.registrert))}
-    </p>
-  {/if}
   {#if foresporsel?.id === b.id}
     <Melding art="info" levende={false}>
       {FRISTEN.foresporsel(b.registrert, kalenderdager(b.registrert, dagensDato()))}
     </Melding>
   {/if}
-  {#if akseptfrist?.brev === b.id}
-    <p class="akseptfrist">{VEDERLAGET.akseptfrist} <b>{dato(akseptfrist.dato)}</b>.</p>
-  {/if}
+  <Datolinjer {b} {klar} varselbrev={varsel?.dokument ?? null} {akseptfrist} />
 {/snippet}
 
-<section class="kort" aria-labelledby={`${uid}-tittel`}>
-  <header class="sporhode">
-    <h2 id={`${uid}-tittel`}>
-      {FRISTEN.tittel} <span class="hjemmel">{FRISTEN.hjemmel}</span>
-    </h2>
-  </header>
+<Sporside tittel={FRISTEN.tittel} hjemmel={FRISTEN.hjemmel}>
   <Brevtraad
     brev={brevITraaden(alle, 'frist')}
     spor="frist"
@@ -99,7 +89,7 @@
     {handling}
     {brevet}
   />
-</section>
+</Sporside>
 
 {#if k}
   <KravetOgSvaretIFristen
@@ -110,57 +100,24 @@
     onforholdet={onspor && (() => onspor('forhold'))}
   />
 {:else if varselbrev}
-  <section class="kort kravet" aria-labelledby={`${uid}-kravet`}>
+  <section class="kravet" aria-labelledby={`${uid}-kravet`}>
     <h2 id={`${uid}-kravet`}>{FRISTEN.utenKrav}</h2>
     <p>{FRISTEN.ikkeAngitt(varselbrev)}</p>
   </section>
 {/if}
 
 <style>
-  .kort {
-    min-width: 0;
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: var(--r-kort);
-  }
-  .sporhode {
-    padding: var(--spacing-5) var(--spacing-5) 18px;
-    border-bottom: var(--rule-subtle);
-  }
-  .sporhode h2 {
-    font-size: 24px;
-    font-weight: 600;
-    line-height: 1.25;
-    letter-spacing: var(--sperring-24);
-    color: var(--ink);
-  }
-  .hjemmel {
-    margin-left: var(--spacing-1);
-    font-size: 14px;
-    font-weight: 400;
-    letter-spacing: 0;
-    color: var(--ink-3);
-  }
   .dagene {
     font-size: 16px;
     font-weight: 500;
     color: var(--ink);
     font-variant-numeric: tabular-nums;
   }
-  .datolinje {
-    font-size: 14px;
-    color: var(--ink-2);
-  }
-  .akseptfrist {
-    padding-top: var(--spacing-2);
-    font-size: 14px;
-    color: var(--ink-2);
-  }
-  .akseptfrist b {
-    font-weight: 600;
-    color: var(--ink);
-  }
   .kravet {
+    min-width: 0;
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: var(--r-kort);
     padding: 18px var(--spacing-5) var(--spacing-5);
   }
   .kravet h2 {

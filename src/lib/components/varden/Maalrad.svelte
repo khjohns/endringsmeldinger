@@ -3,6 +3,25 @@
   målet under, åpent for kravet og fylt for et lag i svaret. Trinnene står under raden som har dem.
   Avstanden mellom strekene i målet arves fra `--steg` hos kalleren.
 -->
+<script lang="ts" module>
+  /** De runde trinnene på målestokken for verdien `stoerst`: fire trinn eller færre (U-2). */
+  export function trinnene(stoerst: number): number[] {
+    if (stoerst <= 0) return [0];
+    const raa = stoerst / 4;
+    const grunn = 10 ** Math.floor(Math.log10(raa));
+    const steg = [1, 2, 2.5, 5, 10].map((f) => f * grunn).find((x) => x >= raa)!;
+    // Trinnet ved enden av skalaen står ikke, så tallet ikke går ut over målestokken.
+    return Array.from({ length: Math.ceil(stoerst / steg) }, (_, i) => i * steg);
+  }
+
+  /** Skalaen for målestokken: trinnene, lengden for en verdi og avstanden mellom strekene. */
+  export function maalestokken(stoerst: number) {
+    const trinn = trinnene(stoerst);
+    const andel = (n: number) => (stoerst > 0 ? `${(n / stoerst) * 100}%` : '0');
+    return { trinn, andel, steg: trinn.length > 1 ? andel(trinn[1]!) : '100%' };
+  }
+</script>
+
 <script lang="ts">
   let {
     navn,

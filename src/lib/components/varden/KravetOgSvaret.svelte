@@ -8,11 +8,10 @@
   import { brevMedUtsagn, type Brevet } from './lesing';
   import { kroner } from '$kjerne/frosset/tekst';
   import { stor } from '$kjerne/frosset/brevdeler';
-  import Knapp from './Knapp.svelte';
-  import Maalrad from './Maalrad.svelte';
-  import Melding from './Melding.svelte';
+  import Forbeholdet from './Forbeholdet.svelte';
+  import Maalrad, { maalestokken } from './Maalrad.svelte';
   import { VEDERLAGET } from './tekster';
-  import { postIRaden, trinnene, type KravetOgSvaret } from './vederlagsoversikt';
+  import { postIRaden, type KravetOgSvaret } from './vederlagsoversikt';
   import type { Utledning } from '$kjerne/utledning/utled';
 
   let {
@@ -58,14 +57,9 @@
     };
   });
   const stoerst = $derived(Math.max(k.krevd ?? 0, ...k.lagene.map((l) => l.beloep ?? 0)));
-  const trinn = $derived(trinnene(stoerst));
-  const andel = (n: number) => (stoerst > 0 ? `${(n / stoerst) * 100}%` : '0');
+  const { trinn, andel, steg } = $derived(maalestokken(stoerst));
   const sist = $derived(k.lagene.findLast((l) => l.beloep !== null));
   const avstand = $derived(k.krevd !== null && sist?.beloep != null ? k.krevd - sist.beloep : 0);
-  // Byggherrens svar på forholdet etter svaret på vederlaget, som forbeholdet skiller fra (D-3).
-  const forholdssvar = $derived(
-    alle.find((b) => b.id === u.spor.forhold.gjeldendeSvar?.dokument) ?? null
-  );
   // Byggherrens standpunkt til oppgjørsformen for en kravpost med regningsarbeid (U-13).
   const formen = (kravpost: string) =>
     k.lagene
@@ -81,7 +75,7 @@
   </div>
   <div class="kropp">
     {#if k.krevd !== null}
-      <div class="maalestokk" style:--steg={trinn.length > 1 ? andel(trinn[1]) : '100%'}>
+      <div class="maalestokk" style:--steg={steg}>
         <div>
           <Maalrad
             navn={VEDERLAGET.krever}
@@ -194,14 +188,7 @@
     {/each}
 
     {#if k.forbehold && k.svarbrev}
-      <div class="forbehold">
-        <Melding art="info" levende={false}>
-          {VEDERLAGET.forbehold(k.svarbrev, forholdssvar)}
-          {#if onforholdet}<Knapp variant="lenke" kompakt onclick={onforholdet}
-              >{VEDERLAGET.tilForholdet}</Knapp
-            >{/if}
-        </Melding>
-      </div>
+      <Forbeholdet svarbrev={k.svarbrev} {u} {alle} {onforholdet} />
     {/if}
   </div>
 </section>
@@ -338,9 +325,6 @@
   }
   .fakta b {
     font-weight: 600;
-  }
-  .forbehold {
-    margin-top: var(--spacing-5);
   }
   /* Smal skjerm: posten står over beløpene sine, så alle lagene er synlige uten vannrett rulling. */
   @media (max-width: 720px) {
