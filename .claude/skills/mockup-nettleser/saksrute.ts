@@ -715,7 +715,8 @@ try {
         if (lest.status !== 200) throw new Error(`GET under leveringen ga ${lest.status}`);
         // Et registrert brev har ikke noe dokument, og `levert` settes ikke for det i `GET` (#2026).
         const oppdrag = lest.kropp.leveringsoppdrag.filter((o) => o.filnavn !== null);
-        if (oppdrag.length && oppdrag.every((o) => o.levert)) {
+        // Oppdraget skrives i samme transaksjon som brevet, så en tom liste har ingenting å vente på.
+        if (oppdrag.every((o) => o.levert)) {
           console.log(`Levert til falsk Catenda: ${oppdrag.length} brev`);
           break;
         }

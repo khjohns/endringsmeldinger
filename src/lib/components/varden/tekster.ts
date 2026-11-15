@@ -1590,7 +1590,7 @@ export const VEDERLAGET = {
   /** Beløpet i et krav ved brevet i tråden, med hjemlene kravet også varsler etter (U-12). */
   kravbeloep: (beloep: number, varsler: readonly string[] = []) =>
     varsler.length
-      ? `${kroner(beloep)}, med varsel etter punkt\u00a0${liste([...varsler])}.`
+      ? `${kroner(beloep)}, med varsel etter ${varsler.length > 1 ? 'punktene' : 'punkt'}\u00a0${liste([...varsler])}.`
       : `${kroner(beloep)}.`,
   /** Innsigelsen et senere lag gjelder hvis ikke fører frem (U-2), med brevets ord. */
   innsigelsen: (i: Innsigelsen) =>

@@ -174,6 +174,12 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
     expect([...varsleneIKravene(u, uten).values()]).toEqual([['34.1.3']]);
   });
 
+  it('et krav som er varselet etter begge hjemlene, sier «punktene» (U-12)', () => {
+    expect(VEDERLAGET.kravbeloep(190000, ['34.1.2', '34.1.3'])).toBe(
+      '190\u00a0000\u00a0kr, med varsel etter punktene\u00a034.1.2 og 34.1.3.'
+    );
+  });
+
   it('leveringen til Catenda står ved svaret med akseptfristen, og ved et brev som ikke er levert ennå (G-5, U-11, HF-U23 punkt 4)', async () => {
     const u = await utledning(BF44.steg);
     const alle = brevene(u);
