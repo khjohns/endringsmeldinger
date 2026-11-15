@@ -8,6 +8,7 @@
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { Spor } from '$kjerne/typer';
   import { tick, untrack, type Snippet } from 'svelte';
+  import { medietreff } from './medie.svelte';
   import { sakensKode } from '$kjerne/frosset/tekst';
   import Brevkontroll, { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
@@ -135,6 +136,16 @@
   ];
   // Etter opprettelsen står saken i forholdet, med påberopelsen (BF-05 steg 6).
   let valgt = $state<Spor>(untrack(() => spor ?? (kvittering ? 'forhold' : 'vederlag')));
+  // På smal skjerm står sporene som faner som rulles sidelengs; den valgte rulles fram (#2021).
+  let sporene = $state<HTMLElement | null>(null);
+  const faner = medietreff('(max-width: 860px)');
+  $effect(() => {
+    if (!faner.treff || !sporene) return;
+    void valgt;
+    sporene
+      .querySelector<HTMLElement>('[aria-current="page"]')
+      ?.scrollIntoView?.({ inline: 'nearest', block: 'nearest' });
+  });
   let arbeid = $state<Arbeid>({ art: 'les' });
   let svarvalg = $state(tomtSvar());
   // Kravet om vederlagsjustering står når TE går til brevkontrollen og tilbake (BF-14).
@@ -452,7 +463,7 @@
       </header>
 
       <!-- Forholdet og kravene som bygger på det, i hver sin gruppe (oppdragsgiver 06.11, #1631). -->
-      <nav class="sporene tett" aria-label={SAKEN.sporene}>
+      <nav class="sporene tett" aria-label={SAKEN.sporene} bind:this={sporene}>
         {#each SPORGRUPPENE as gruppe (gruppe.id)}
           <div class="gruppe">
             <p class="etikett" id={`spor-${gruppe.id}`}>{gruppe.etikett}</p>
