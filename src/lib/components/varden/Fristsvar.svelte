@@ -9,7 +9,7 @@
 <script lang="ts">
   import { BookOpen, FileText } from 'lucide-svelte';
   import { tick } from 'svelte';
-  import { dager } from '$kjerne/frosset/tekst';
+  import { dager, FORBEHOLDET } from '$kjerne/frosset/tekst';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '$kjerne/spor/frist/format';
   import { foresporselenISvaret } from '$lib/kjernesak/fristsvar';
   import type { Forutsetning } from '$kjerne/spor/frist/kommando';
@@ -125,7 +125,7 @@
   }
 
   // Innledningen har ingen begrunnelse, og forbeholdet har sitt eget felt.
-  const UTEN_BEGRUNNELSE = ['innledning', 'forbehold'];
+  const UTEN_BEGRUNNELSE = ['innledning', FORBEHOLDET];
   // LV-U71: ett felt for begrunnelsen per punkt i brevet, i brevets rekkefølge, lest av brevet
   // kjernen lager uten begrunnelsene. Valgene uten tekstene, så lista ikke lages på nytt for hvert
   // tegn i et tekstfelt.
@@ -156,33 +156,9 @@
     )!
   );
   const etter = $derived(kjernesak.forhaandsvist(kommando));
-  // Hvert spørsmål står i laget sitt uansett svaret (OV-U33), så kjernen spørres med de ubesvarte
-  // spørsmålene besvart uten innsigelse: da har hvert av dem et standpunkt, og ingen nye lag. Dagene
-  // påvirker ikke lagene, men kjernen kontrollerer formen på standpunktene i utkastet, og der må
-  // dagene byggherren måtte forstå være tall.
-  const lagene = $derived.by(() => {
-    const s = kommando.svar[0];
-    const v = s.vurderinger;
-    const frister = (v.frister as Record<string, unknown>[]).map((f) =>
-      v.spesifisert_krav_ok === false
-        ? { ...f, dager_maatte_forstaa: f.dager_maatte_forstaa ?? 0 }
-        : f
-    );
-    return kjernesak.lagForUtkastet(
-      {
-        ...s,
-        vurderinger: {
-          ...v,
-          frist_varsel_ok: v.frist_varsel_ok ?? true,
-          ...(foresporselen ? { foresporsel_svar_ok: v.foresporsel_svar_ok ?? true } : {}),
-          vilkar_oppfylt: v.vilkar_oppfylt ?? true,
-          spesifisert_krav_ok: v.spesifisert_krav_ok ?? true,
-          frister,
-        },
-      },
-      'frist'
-    );
-  });
+  // Hvert spørsmål står i laget sitt uansett svaret (OV-U33). Kjernen gir et ubesvart spørsmål
+  // et standpunkt med `besvart: false` og tar utkastet uten dagene byggherren måtte forstå (#1925).
+  const lagene = $derived(kjernesak.lagForUtkastet(kommando.svar[0], 'frist'));
   type Lagene = NonNullable<typeof lagene>['standpunkter'][number];
   const forutsetninger = (passer: (x: Lagene) => boolean): Forutsetning[] =>
     lagene?.standpunkter.find(passer)?.forutsetninger ?? [];

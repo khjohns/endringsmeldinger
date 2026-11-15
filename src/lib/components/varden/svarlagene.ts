@@ -7,6 +7,7 @@
 
 import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
 import { etikett, plassene } from '$kjerne/frosset/byggeklosser';
+import { FORBEHOLDET } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Standpunkt, Standpunktsart, Svar } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
@@ -117,7 +118,7 @@ export const innsigelseneFoer = (lagene: Svarlaget[], lag: number): Innsigelsen[
 export const medForbehold = (u: Utledning, svar: Svar, svarbrev: Brevet): boolean =>
   u.svar[svar.id]?.forholdssvaret === null &&
   svar.paaberopelse !== null &&
-  !!svarbrev.avsnitt?.some((a) => a.punkt === 'forbehold');
+  !!svarbrev.avsnitt?.some((a) => a.punkt === FORBEHOLDET);
 
 /**
  * Akseptfristen i byggherrens gjeldende svar i sporet, med brevet, så lenge svaret kan godtas: det
