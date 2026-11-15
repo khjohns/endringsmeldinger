@@ -2282,7 +2282,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     expect(vist(journal).vurderingsgrunnlag.partens_opplysning, 'MM-U2, OV-U21').toEqual([]);
   });
 
-  it('punkt 4 i #1167: alt i et registrert brev utenom varsel og endringsordre er dokumentasjon, uten virkning (OV-U4, HF-U13)', async () => {
+  it('punkt 4 i #1167: alt i et registrert brev utenom det OV-U98 gir virkning, er dokumentasjon, uten virkning (OV-U4, HF-U13)', async () => {
     const bane = minnebane();
     await bygg(bane, [
       { handling: 'krav', spor: 'forhold', underkategori: 'endringsordre' },
