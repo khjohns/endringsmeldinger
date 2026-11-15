@@ -628,7 +628,7 @@ function skriv(
     kjerne.regler,
     svarstandpunkter,
     brevetsDato,
-    // OV-U80: utdypningen og begrunnelsen kreves ikke i en registrering (KA-U24).
+    // OV-U80: utdypningen og begrunnelsen kreves ikke i en registrering.
     sendes && !erRegistrering(k)
   );
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };

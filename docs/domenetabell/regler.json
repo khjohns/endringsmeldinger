@@ -1436,6 +1436,20 @@
       "dato": "2026-11-14",
       "ref": "../plans/vedtak.md#hf-u33",
       "radetikett": "HF-U33: Som A, og i tillegg når byggherren i et nytt svar ikke lenger godtar justeringen av enhetsprisene etter punkt 34"
+    },
+    {
+      "id": "OV-U80",
+      "type": "vedtak",
+      "dato": "2026-11-01",
+      "ref": "../plans/vedtak.md#ov-u80",
+      "radetikett": "OV-U80: Den som legger til korrespondanse, svarer på spørsmålet ‹Hva er det etter kontrakten?›"
+    },
+    {
+      "id": "OV-U98",
+      "type": "vedtak",
+      "dato": "2026-11-15",
+      "ref": "../plans/vedtak.md#ov-u98",
+      "radetikett": "OV-U98: Et brev sendt utenfor løsningen får virkning i løsningen bare når avsenderen legger det til som et varsel, et krav, et svar"
     }
   ],
   "rader": [
@@ -1933,9 +1947,9 @@
     {
       "id": "KA-30",
       "tilfelle": "Byggherrens svar på grunnlaget er sendt utenfor appen før en regelendring og registrert i appen etter den.",
-      "forventet": "Svaret er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4): appen fryser ingen vurdering av det, det er ikke gjeldende svar, og visningen merker det ikke, heller ikke etter en regelendring. Byggherren kan svare fra appen, og et svar sendt fra appen merkes ikke. Bare byggherrens registrerte endringsordre etter [OV-U6](../plans/vedtak.md#ov-u6) fryses etter reglene ved registreringen (MM-U17).",
-      "bh_standpunkt": "Brevet slik det ble sendt, uten virkning i appen.",
-      "rettslig_virkning": "Appen vurderer ikke innholdet. Skal svaret få virkning, sendes det fra appen (OV-U4).",
+      "forventet": "Når kravversjonen var gjeldende da svaret ble sendt, har svaret samme virkning som et svar fra appen ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98)): det er gjeldende svar, appen fryser sin vurdering av det etter reglene ved registreringen (MM-U17), og visningen merker det som appens vurdering ved registreringen, ikke som et brev reglene er endret etter. Er svaret oppgitt sendt før kravversjonen, får det ingen virkning: appen fryser ingen vurdering av det, det er ikke gjeldende svar, visningen merker det ikke, og byggherren kan svare fra appen. Et svar sendt fra appen merkes ikke.",
+      "bh_standpunkt": "Brevet slik det ble sendt, vurdert av appen ved registreringen.",
+      "rettslig_virkning": "Appens vurdering gjelder reglene ved registreringen, ikke da brevet ble sendt (MM-U17). Brevets innhold står som det ble sendt.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
@@ -1944,8 +1958,9 @@
         "MM-U9",
         "MM-U12",
         "GR-U12",
-        "OV-U4",
-        "OV-U6"
+        "OV-U6",
+        "OV-U80",
+        "OV-U98"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
@@ -2527,7 +2542,7 @@
     {
       "id": "GR-28",
       "tilfelle": "TE trekker grunnlaget etter at byggherren har godkjent det uten å påberope preklusjon.",
-      "forventet": "I en underkategori under ENDRING som § 32.2 gjelder for, avvises trekket, og journalen er uendret: godkjenningen er en endringsordre. For underkategorien EO og for kategorier utenfor ENDRING godtas trekket. Før byggherren har svart, og etter avslag eller frafall, kan TE trekke grunnlaget, men ikke når byggherren tidligere har godkjent det i et svar som er en endringsordre, også etter en ny grunnlagsversjon ([EO-U12](../plans/vedtak.md#eo-u12)). Om godkjenningen er en endringsordre, avgjøres av brevet: hvorvidt § 32.2 gjaldt da det ble skrevet, ikke regelsettet senere (MM-U9), og også når brevet ikke sier noe om varslingen (GR-U12). Registrert korrespondanse er dokumentasjon ([OV-U4](../plans/vedtak.md#ov-u4)). Byggherrens registrerte endringsordre etter [OV-U6](../plans/vedtak.md#ov-u6) er svaret, men opplysningen gir ingen egen virkning og sperrer ikke trekket (GR-29).",
+      "forventet": "I en underkategori under ENDRING som § 32.2 gjelder for, avvises trekket, og journalen er uendret: godkjenningen er en endringsordre. For underkategorien EO og for kategorier utenfor ENDRING godtas trekket. Før byggherren har svart, og etter avslag eller frafall, kan TE trekke grunnlaget, men ikke når byggherren tidligere har godkjent det i et svar som er en endringsordre, også etter en ny grunnlagsversjon ([EO-U12](../plans/vedtak.md#eo-u12)). Om godkjenningen er en endringsordre, avgjøres av brevet: hvorvidt § 32.2 gjaldt da det ble skrevet, ikke regelsettet senere (MM-U9), og også når brevet ikke sier noe om varslingen (GR-U12). En godkjenning i registrert korrespondanse har samme virkning som et svar fra appen ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98)), men er ikke en endringsordre i saken og sperrer ikke trekket. Det gjelder også byggherrens registrerte endringsordre etter [OV-U6](../plans/vedtak.md#ov-u6): opplysningen gir ingen egen virkning (GR-29).",
       "bh_standpunkt": "Godkjent grunnlag.",
       "rettslig_virkning": "Etter § 32.3 a er godkjenningen en endringsordre, som binder TE (§ 31.3 annet ledd).",
       "rettidighet": "—",
@@ -2543,7 +2558,8 @@
         "GR-U13",
         "KA-U14",
         "OV-U6",
-        "OV-U4"
+        "OV-U80",
+        "OV-U98"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -2558,7 +2574,7 @@
     {
       "id": "GR-29",
       "tilfelle": "Byggherren har godkjent grunnlaget uten å påberope preklusjon i en underkategori § 32.2 gjelder for, i korrespondanse som er registrert i appen. Den som registrerte, har oppgitt at brevet var en endringsordre etter § 31.3, at det ikke var det, eller ingenting.",
-      "forventet": "Med opplysningen om at brevet er en endringsordre etter § 31.3, er godkjenningen byggherrens svar etter [OV-U6](../plans/vedtak.md#ov-u6): partene er enige ved sammenfall, og grunnlaget er avklart. Opplysningen vises, men gir ingen egen virkning i appen. Uten opplysningen er brevet dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4): det gir ikke gjeldende svar, enighet eller et uavklart utfall. I alle tilfellene kan TE trekke grunnlaget som avkall etter KA-U6 og GR-U5: en endringsordre byggherren har registrert, sperrer ikke trekket, og et registrert brev gir ingen sperre. Opplysningen gis bare ved byggherrens endringsordre som svar etter OV-U6 ([OV-U13](../plans/vedtak.md#ov-u13)). En opplysning om at § 31.3 ikke er oppfylt, en opplysning ved et annet registrert brev og en senere avklaring gir en sak som ikke er forstått.",
+      "forventet": "Med opplysningen om at brevet er en endringsordre etter § 31.3, er godkjenningen byggherrens svar etter [OV-U6](../plans/vedtak.md#ov-u6): partene er enige ved sammenfall, og grunnlaget er avklart. Opplysningen vises, men gir ingen egen virkning i appen. Uten opplysningen har godkjenningen samme virkning som et svar fra appen ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98)): den er gjeldende svar, gir enighet ved sammenfall og avklart grunnlag, men ingen endringsordre (OV-U6), og byggherren reviderer den fra appen. I alle tilfellene kan TE trekke grunnlaget som avkall etter KA-U6 og GR-U5: en endringsordre byggherren har registrert, sperrer ikke trekket, og et registrert brev gir ingen sperre. Opplysningen gis bare ved byggherrens endringsordre som svar etter OV-U6 ([OV-U13](../plans/vedtak.md#ov-u13)). En opplysning om at § 31.3 ikke er oppfylt, en opplysning ved et annet registrert brev og en senere avklaring gir en sak som ikke er forstått.",
       "bh_standpunkt": "Godkjent grunnlag.",
       "rettslig_virkning": "§ 32.3 a gir en endringsordre bare når § 31.3 også er oppfylt. Opplysningen er registratorens, ikke en rettslig avgjørelse. Et trekk opphever ikke et pålegg eller en utførelsesplikt.",
       "rettidighet": "—",
@@ -2576,7 +2592,9 @@
         "MM-U50",
         "OV-U6",
         "OV-U4",
-        "OV-U13"
+        "OV-U13",
+        "OV-U80",
+        "OV-U98"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -2875,9 +2893,9 @@
     {
       "id": "GR-31",
       "tilfelle": "Byggherren har frafalt pålegget (§ 32.3 c) i et svar sendt fra appen, og reviderer svaret.",
-      "forventet": "Revisjonen godtas, også til avslag og til påberopelse etter § 32.2 (MM-U34 punkt 6 og 7). Løsningen viser frafallet sammen med det nye svaret, uten å trekke konklusjonen. Står en revisjon til avslag eller til påberopelse etter § 32.2 i et registrert brev, får den ingen virkning, og frafallet står (OV-U4). Står den i en rad som ikke er registrert og ikke er sendt fra appen, er saken forstått, og revisjonen er det gjeldende svaret på grunnlaget.",
+      "forventet": "Revisjonen godtas, også til avslag og til påberopelse etter § 32.2 (MM-U34 punkt 6 og 7). Løsningen viser frafallet sammen med det nye svaret, uten å trekke konklusjonen. Står en revisjon til avslag eller til påberopelse etter § 32.2 i et registrert brev, har den samme virkning som revisjonen fra appen og erstatter frafallet (OV-U80, OV-U98). Står den i en rad som ikke er registrert og ikke er sendt fra appen, er saken forstått, og revisjonen er det gjeldende svaret på grunnlaget.",
       "bh_standpunkt": "Frafalt, med grunnlaget varslet i tide.",
-      "rettslig_virkning": "Løsningen avgjør ikke om byggherren fortsatt er bundet av løftet om endringsordre for utført arbeid (MM-U12). Et registrert frafall er dokumentasjon uten virkning (OV-U4).",
+      "rettslig_virkning": "Løsningen avgjør ikke om byggherren fortsatt er bundet av løftet om endringsordre for utført arbeid (MM-U12). Et registrert frafall har samme virkning som et frafall fra appen (OV-U80, OV-U98).",
       "rettidighet": "Frafallet sa at varselet etter § 32.2 kom i tide. En senere påberopelse av at det kom for sent godtas og vises sammen med det tidligere standpunktet (MM-U34 punkt 6).",
       "tidsakse": "registrering",
       "kilder": [
@@ -2890,7 +2908,8 @@
         "MM-U18",
         "MM-U43",
         "MM-U19",
-        "OV-U4"
+        "OV-U80",
+        "OV-U98"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -2901,7 +2920,7 @@
     {
       "id": "GR-32",
       "tilfelle": "Byggherren har frafalt pålegget i et svar sendt fra appen, og TE sender en ny grunnlagsversjon.",
-      "forventet": "Byggherren kan svare på den nye versjonen med frafall, endringsordre, avslag eller påberopelse etter § 32.2, og svaret godtas (MM-U34 punkt 6 og 7). Løsningen viser frafallet sammen med det nye svaret, uten å trekke konklusjonen. Står et avslag eller en påberopelse etter § 32.2 av den nye versjonen i et registrert brev, får det ingen virkning (OV-U4). En ny versjon med en annen underkategori avvises (GR-U22).",
+      "forventet": "Byggherren kan svare på den nye versjonen med frafall, endringsordre, avslag eller påberopelse etter § 32.2, og svaret godtas (MM-U34 punkt 6 og 7). Løsningen viser frafallet sammen med det nye svaret, uten å trekke konklusjonen. Står et avslag eller en påberopelse etter § 32.2 av den nye versjonen i et registrert brev, har det samme virkning (OV-U80, OV-U98). En ny versjon med en annen underkategori avvises (GR-U22).",
       "bh_standpunkt": "Frafalt på den forrige versjonen. Ikke vurdert for den nye versjonen.",
       "rettslig_virkning": "Løsningen avgjør ikke om frafallet fortsatt binder byggherren etter den nye versjonen (MM-U12).",
       "rettidighet": "Byggherrens «i tide» etter § 32.2 i frafallet vises sammen med en senere påberopelse, uten at løsningen trekker konklusjonen (MM-U34 punkt 6).",
@@ -2916,7 +2935,8 @@
         "MM-U50",
         "MM-U19",
         "MM-U43",
-        "OV-U4"
+        "OV-U80",
+        "OV-U98"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -2927,7 +2947,7 @@
     {
       "id": "GR-33",
       "tilfelle": "Byggherren har frafalt pålegget i et svar sendt fra appen, TE sender en ny grunnlagsversjon, og den venter på byggherrens svar. Et annet sendt krav står åpent, for eksempel fristkravet.",
-      "forventet": "Grunnlaget er avklart ved frafallet, og en enighet i vederlag eller frist forblir virksom. Saken kan inngå i en endringsordre. Byggherren kan svare på den nye versjonen, også når de åpne kravene har fått en virksom enighet og kravene er avgjort (MM-U34 punkt 7 og 12). Ved et registrert frafall venter den nye versjonen på svar uten avklart grunnlag.",
+      "forventet": "Grunnlaget er avklart ved frafallet, og en enighet i vederlag eller frist forblir virksom. Saken kan inngå i en endringsordre. Byggherren kan svare på den nye versjonen, også når de åpne kravene har fått en virksom enighet og kravene er avgjort (MM-U34 punkt 7 og 12). Et registrert frafall har samme virkning som et frafall fra appen (OV-U80, OV-U98). Er det oppgitt sendt før grunnlagskravet, får det ingen virkning: den nye versjonen venter på svar uten avklart grunnlag, og enigheten i vederlaget er betinget.",
       "bh_standpunkt": "Frafalt på den forrige versjonen. Ikke vurdert for den nye versjonen.",
       "rettslig_virkning": "Grunnlaget er avklart ved frafallet til byggherren svarer på den nye versjonen. Løsningen avgjør ikke om frafallet binder byggherren (MM-U12).",
       "rettidighet": "Byggherrens «i tide» etter § 32.2 står mot den nye versjonen (HF-U8).",
@@ -2942,8 +2962,9 @@
         "GR-U17",
         "MM-U12",
         "MM-U50",
-        "OV-U4",
-        "GR-U1"
+        "GR-U1",
+        "OV-U80",
+        "OV-U98"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -3170,10 +3191,10 @@
     },
     {
       "id": "KA-36",
-      "tilfelle": "Byggherren registrerer et brev sendt utenfor appen der godkjenningen av grunnlaget, som partene er enige om ved sammenfall, trekkes tilbake.",
-      "forventet": "Saken er forstått. Brevet er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4): revisjonen har ingen virkning, enigheten står, og ingenting sperres.",
+      "tilfelle": "Byggherren registrerer et brev sendt utenfor appen der godkjenningen av grunnlaget, som partene er enige om ved sammenfall, trekkes tilbake. Brevet er oppgitt sendt før grunnlagskravet.",
+      "forventet": "Saken er forstått. Revisjonen svarer på en kravversjon som ikke var gjeldende da den ble sendt, så den får ingen virkning ([OV-U98](../plans/vedtak.md#ov-u98)): enigheten står, og ingenting sperres. Var kravversjonen gjeldende da revisjonen ble sendt, har den samme virkning som en revisjon fra appen ([OV-U80](../plans/vedtak.md#ov-u80), MM-U34 punkt 11).",
       "bh_standpunkt": "Brevet slik det ble sendt.",
-      "rettslig_virkning": "Brevet endrer ikke den registrerte enigheten. Appen avgjør ikke tvisten.",
+      "rettslig_virkning": "Et brev uten virkning endrer ikke den registrerte enigheten. Appen avgjør ikke tvisten.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
@@ -3184,7 +3205,8 @@
         "MM-U34",
         "MM-U12",
         "MM-U50",
-        "OV-U4"
+        "OV-U80",
+        "OV-U98"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -3194,9 +3216,9 @@
     {
       "id": "KA-37",
       "tilfelle": "TE registrerer sitt eget brev med en ny kravversjon i et spor med enighet, i et trukket spor eller i et spor med «ingen krav», eller med en aksept av et frafall, en aksept av et svar partene alt er enige om, eller et trekk etter at kravene er avgjort.",
-      "forventet": "Saken er forstått. Elementet er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4) og har ingen virkning; enigheten, gjeldende kravversjon, trekket og «ingen krav» står, og ingenting sperres.",
+      "forventet": "Saken er forstått. Kravversjonen og trekket er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4): et krav i et registrert brev er det til det bygges i #2011, og et trekk sendes fra appen. Aksepten av et frafall eller av et svar partene alt er enige om, strider mot journalen og står uten virkning ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98), MM-U43 punkt 9). Enigheten, gjeldende kravversjon, trekket og «ingen krav» står, og ingenting sperres.",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "Som KA-36, for et registrert brev fra TE.",
+      "rettslig_virkning": "Et registrert brev endrer ikke enigheten, trekket eller «ingen krav». Appen avgjør ikke tvisten.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
@@ -3209,7 +3231,9 @@
         "KA-U11",
         "GR-U9",
         "GR-U8",
-        "OV-U4"
+        "OV-U4",
+        "OV-U80",
+        "OV-U98"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -3219,7 +3243,7 @@
     {
       "id": "KA-38",
       "tilfelle": "Byggherren har gjort innsigelse mot fristkravet og registrerer senere et svar uten standpunkt om rettidighet.",
-      "forventet": "Saken er forstått, og svaret leses ikke med innsigelsen: et registrert brev får ingen virkning ut over det det sier (OV-U4), og en innsigelse mot et krav er ingen påberopelse etter § 33.4 (VS-U24). Det gjelder også det første fristkravet når TE ikke har sendt et eget varsel. En innsigelse mot varselet er en påberopelse etter § 33.4, og et senere svar fra appen gjentar den eller gir den opp. Har byggherren sagt i et svar fra appen at varselet kom i tide, avvises en ny innsigelse mot varselet (HF-U4), mens en innsigelse mot fristkravet registreres uten virkning.",
+      "forventet": "Saken er forstått. Svaret har virkning når fristkravet var gjeldende da det ble sendt ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98)), og ellers ingen. Det leses ikke med innsigelsen: et registrert svar får ingen virkning ut over det det sier, og en innsigelse mot et krav er ingen påberopelse etter § 33.4 (VS-U24). Det gjelder også det første fristkravet når TE ikke har sendt et eget varsel. En innsigelse mot varselet er en påberopelse etter § 33.4, og et senere svar fra appen gjentar den eller gir den opp. Har byggherren sagt i et svar fra appen at varselet kom i tide, avvises en ny innsigelse mot varselet (HF-U4), mens en innsigelse mot fristkravet registreres uten virkning.",
       "bh_standpunkt": "Svaret og innsigelsen, hver for seg.",
       "rettslig_virkning": "Innsigelsen mot kravet er registrert uten virkning. Påberopelsen etter § 33.4 står i svaret.",
       "rettidighet": "—",
@@ -3227,10 +3251,11 @@
       "kilder": [
         "MM-U18",
         "MM-U43",
-        "OV-U4",
         "VS-U24",
         "VS-U11",
-        "HF-U4"
+        "HF-U4",
+        "OV-U80",
+        "OV-U98"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -3267,7 +3292,7 @@
     {
       "id": "KA-40",
       "tilfelle": "En part registrerer et brev sendt utenfor appen med TEs aksept, etter trekket, av et svar i sporet, eller et svar fra byggherren med sammenfall på et krav etter at TE har trukket det. Trekket kan gjelde sporet eller grunnlaget.",
-      "forventet": "Saken er forstått. Aksepten og svaret er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4) og har ingen virkning: sporet har ingen enighet, og en godkjenning av et trukket grunnlag er ikke en endringsordre i saken. Det gjelder også en revisjon av et svar partene er enige om, og et svar som viser til en registrert kravversjon.",
+      "forventet": "Saken er forstått. Aksepten og svaret strider mot journalen og står uten virkning ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98), MM-U43 punkt 9): sporet har ingen enighet, og en godkjenning av et trukket grunnlag er ikke en endringsordre i saken. Det gjelder også en revisjon av et svar partene er enige om, og et svar som viser til en registrert kravversjon, som er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4).",
       "bh_standpunkt": "Brevet slik det ble sendt.",
       "rettslig_virkning": "Et trekk er bare TEs avkall på eget krav. Appen sier ikke at brevet ikke er en endringsordre, bare at godkjenningen er uten virkning i saken.",
       "rettidighet": "—",
@@ -3279,7 +3304,9 @@
         "KA-U14",
         "GR-U9",
         "GR-U10",
-        "OV-U4"
+        "OV-U4",
+        "OV-U80",
+        "OV-U98"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -3289,9 +3316,9 @@
     {
       "id": "KA-41",
       "tilfelle": "Byggherren registrerer et brev sendt utenfor appen med et svar uten sammenfall på et krav etter at TE har trukket det, for eksempel et avslag, eller et frafall av pålegget etter at grunnlaget er trukket.",
-      "forventet": "Saken er forstått. Svaret er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4): det blir ikke gjeldende svar, et frafall gjør ikke pålegget frafalt, sporet er fortsatt trukket, og svaret skaper ingen enighet.",
+      "forventet": "Saken er forstått. Svaret strider mot journalen og står uten virkning ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98), MM-U43 punkt 9): det blir ikke gjeldende svar, et frafall gjør ikke pålegget frafalt, sporet er fortsatt trukket, og svaret skaper ingen enighet.",
       "bh_standpunkt": "Brevet slik det ble sendt.",
-      "rettslig_virkning": "Et trekk er bare TEs avkall på eget krav. Appen vurderer ikke innholdet i brevet (OV-U4).",
+      "rettslig_virkning": "Et trekk er bare TEs avkall på eget krav. Appen avgjør ikke tvisten.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
@@ -3300,7 +3327,8 @@
         "MM-U20",
         "KA-U14",
         "GR-U9",
-        "OV-U4"
+        "OV-U80",
+        "OV-U98"
       ],
       "tolkningsstatus": "arbeidshypotese",
       "funksjoner": [
@@ -3335,7 +3363,7 @@
     {
       "id": "VS-02",
       "tilfelle": "Byggherren har gjort innsigelse mot TEs varsel etter § 32.2 og registrerer senere en godkjenning av grunnlaget som ikke sier noe om rettidigheten.",
-      "forventet": "Svaret leses ikke med innsigelsen: et registrert brev får ingen virkning ut over det det sier (OV-U4, VS-U24), og saken er forstått. Innsigelsen er en påberopelse etter § 32.2, og et senere svar fra appen gjentar den eller gir den opp, også på en annen grunnlagsversjon, fordi varselet etter § 32.2 er det samme (arbeidsvalget 15.10 i #500). Har byggherren sagt «i tide» etter § 32.2 i et svar fra appen, avvises en ny innsigelse mot grunnlagskravet, også mot en tidligere versjon (HF-U4, HF-U8). En innsigelse mot en versjon der § 32.2 ikke gjelder kategorien, er uten virkning: svaret gjentar den ikke og gir den ikke opp, og den avvises ikke (GR-U11). Et registrert brev gjentar den ikke og gir den ikke opp (OV-U4, HF-U4).",
+      "forventet": "Svaret har samme virkning som et svar fra appen (OV-U80, OV-U98), men leses ikke med innsigelsen: et registrert svar får ingen virkning ut over det det sier (VS-U24), og saken er forstått. Innsigelsen er en påberopelse etter § 32.2, og et senere svar fra appen gjentar den eller gir den opp, også på en annen grunnlagsversjon, fordi varselet etter § 32.2 er det samme (arbeidsvalget 15.10 i #500). Har byggherren sagt «i tide» etter § 32.2 i et svar fra appen, avvises en ny innsigelse mot grunnlagskravet, også mot en tidligere versjon (HF-U4, HF-U8). En innsigelse mot en versjon der § 32.2 ikke gjelder kategorien, er uten virkning: svaret gjentar den ikke og gir den ikke opp, og den avvises ikke (GR-U11). Et registrert brev gjentar den ikke og gir den ikke opp (OV-U4, HF-U4).",
       "bh_standpunkt": "Godkjenningen, slik den står.",
       "rettslig_virkning": "Appen utleder ikke av et registrert brev at innsigelsen er gjentatt eller oppgitt (OV-U4).",
       "rettidighet": "—",
@@ -3348,7 +3376,9 @@
         "HF-U8",
         "GR-U12",
         "GR-U11",
-        "AV-500"
+        "AV-500",
+        "OV-U80",
+        "OV-U98"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -3642,7 +3672,7 @@
     {
       "id": "KA-48",
       "tilfelle": "Byggherren har i et svar sendt fra appen sagt at varselet kom i tide etter § 32.2, § 33.4 eller § 34.1.2, eller at fristkravet ble spesifisert i tide etter § 33.6.1. Senere sender byggherren et svar eller en revisjon som påberoper at det samme kom for sent etter samme bestemmelse.",
-      "forventet": "Svaret eller revisjonen godtas (MM-U34 punkt 6). Løsningen viser det tidligere standpunktet sammen med påberopelsen, uten å trekke konklusjonen. Det gjelder også et svar regnet mot en ny grunnlagsversjon og et svar etter et registrert «i tide» (OV-U4). Et standpunkt etter § 33.4 sier ingenting om § 33.6.1, og omvendt.",
+      "forventet": "Svaret eller revisjonen godtas (MM-U34 punkt 6). Løsningen viser det tidligere standpunktet sammen med påberopelsen, uten å trekke konklusjonen. Det gjelder også et svar regnet mot en ny grunnlagsversjon og et svar etter et registrert «i tide» (OV-U80, OV-U98). Et standpunkt etter § 33.4 sier ingenting om § 33.6.1, og omvendt.",
       "bh_standpunkt": "«I tide» i et sendt svar, deretter «for sent» etter samme bestemmelse.",
       "rettslig_virkning": "Løsningen avgjør ikke om byggherren er bundet av sitt «i tide» (MM-U12).",
       "rettidighet": "Byggherrens tidligere «i tide» etter samme bestemmelse vises sammen med påberopelsen.",
@@ -3655,14 +3685,15 @@
         "AV-498",
         "MM-U12",
         "MM-U50",
-        "OV-U4"
+        "OV-U80",
+        "OV-U98"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-49",
       "tilfelle": "Byggherren reviderer et svar sendt fra appen som TE ikke har godtatt, og revisjonen senker noe byggherren har innrømmet i svaret: godkjent grunnlag, godkjent beløp eller godkjente dager, prinsipalt eller subsidiært, at fremdriften er hindret etter § 33.1, dagene byggherren måtte forstå etter § 33.6.1 når begge svar sier «for sent».",
-      "forventet": "Revisjonen godtas, også når den senker et standpunkt (MM-U34 punkt 4). Tidligere brev bevares uendret. Senker revisjonen dager eller beløp byggherren har godkjent, viser løsningen det tidligere svaret og, for frist og enhetspriser, § 33.7 annet ledd eller § 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen ([HF-U29](../plans/vedtak.md#hf-u29) punkt 8). Bare et nytt svar på samme kravversjon sammenliknes ([HF-U30](../plans/vedtak.md#hf-u30)), hver kravpost og frist for seg mot svaret det erstatter ([HF-U31](../plans/vedtak.md#hf-u31)), prinsipalt og subsidiært hver for seg ([HF-U32](../plans/vedtak.md#hf-u32)), og for en kravpost med enhetspriser vises bestemmelsen også når byggherren ikke lenger godtar justeringen etter § 34.3.2 ([HF-U33](../plans/vedtak.md#hf-u33)). Et nytt svar på en ny kravversjon er ikke en revisjon. Et registrert svar er dokumentasjon (OV-U4).",
+      "forventet": "Revisjonen godtas, også når den senker et standpunkt (MM-U34 punkt 4). Tidligere brev bevares uendret. Senker revisjonen dager eller beløp byggherren har godkjent, viser løsningen det tidligere svaret og, for frist og enhetspriser, § 33.7 annet ledd eller § 34.3.3 annet ledd med frist og bestemmelse, uten å trekke konklusjonen ([HF-U29](../plans/vedtak.md#hf-u29) punkt 8). Bare et nytt svar på samme kravversjon sammenliknes ([HF-U30](../plans/vedtak.md#hf-u30)), hver kravpost og frist for seg mot svaret det erstatter ([HF-U31](../plans/vedtak.md#hf-u31)), prinsipalt og subsidiært hver for seg ([HF-U32](../plans/vedtak.md#hf-u32)), og for en kravpost med enhetspriser vises bestemmelsen også når byggherren ikke lenger godtar justeringen etter § 34.3.2 ([HF-U33](../plans/vedtak.md#hf-u33)). Et nytt svar på en ny kravversjon er ikke en revisjon. Et registrert svar har samme virkning som et svar fra appen, og byggherren kan revidere det (OV-U80, OV-U98).",
       "bh_standpunkt": "Det byggherren har innrømmet i et sendt svar, deretter en revisjon som senker det.",
       "rettslig_virkning": "Løsningen avgjør ikke om endringen er rettslig virksom (MM-U12).",
       "rettidighet": "—",
@@ -3674,21 +3705,22 @@
         "HF-U8",
         "MM-U12",
         "MM-U50",
-        "OV-U4",
         "HF-U29",
         "HF-U30",
         "HF-U31",
         "HF-U32",
-        "HF-U33"
+        "HF-U33",
+        "OV-U80",
+        "OV-U98"
       ],
       "tolkningsstatus": "avklart_tolkning"
     },
     {
       "id": "KA-50",
       "tilfelle": "En part registrerer et brev sendt utenfor appen med et krav, et svar, en aksept eller et trekk.",
-      "forventet": "Saken er forstått. Brevet er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4): kravet, svaret, aksepten eller trekket blir ikke gjeldende krav eller svar, og gir ingen enighet, avklaring av grunnlaget, frafall, subsidiaritet eller sperre. Byggherren kan svare fra appen, og hjemmelen i kravet TE har sendt fra appen, står (GR-U22). Det samme svaret sendt fra appen har virkning. Unntakene er varselet (OV-U5) og byggherrens endringsordre (OV-U6, GR-29).",
-      "bh_standpunkt": "Brevet slik det ble sendt, uten virkning i appen.",
-      "rettslig_virkning": "Appen vurderer ikke innholdet. Skal et krav eller svar få virkning, sendes det fra appen (OV-U4).",
+      "forventet": "Saken er forstått. Et svar, også byggherrens endringsordre som svar ([OV-U6](../plans/vedtak.md#ov-u6)), og TEs aksept har samme virkning som fra appen, med datoen avsenderen oppgir ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98)). Svaret godtas når kravversjonen det svarer på, var gjeldende på sendedatoen, og aksepten når svaret den godtar, var byggherrens gjeldende svar da. Ellers avviser kommandoen registreringen, og i journalen står elementet uten virkning. Etter et registrert svar reviderer byggherren det fra appen. En registrert godkjenning er ikke en endringsordre i saken og sperrer ikke trekket (GR-29). Kravet er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4) til det bygges i #2011: det blir ikke gjeldende krav, og hjemmelen i kravet TE har sendt fra appen, står (GR-U22). Trekket er dokumentasjon. Varselet har virkning etter OV-U5.",
+      "bh_standpunkt": "Svaret slik avsenderen har lagt det til, med datoen det ble sendt.",
+      "rettslig_virkning": "Appen kontrollerer ikke at dokumentet er det parten oppgir. Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse (OV-U80). Skal et krav eller trekk få virkning, sendes det fra appen.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
@@ -3696,11 +3728,14 @@
         "OV-U5",
         "OV-U6",
         "GR-U22",
-        "GR-U10"
+        "GR-U10",
+        "OV-U80",
+        "OV-U98"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
-        "kjerne/utledning/utled.ts#dokumentasjonIBrevet"
+        "kjerne/utledning/utled.ts#dokumentasjonIBrevet",
+        "kjerne/utledning/utled.ts#registreringenStrider"
       ]
     },
     {
@@ -3904,6 +3939,7 @@
     "VARSLINGSPLIKT_GJELDER_IKKE": "Kontrollen av påberopt passivitet etter GR-U11 og VS-U12 i `nyttelast.ts`. Kommandoen avvises før kontrollen etter OV-U7, og VS-04 er utsatt, så ingen bevis-sak når den før utsagnet bygges.",
     "DATO_KAN_IKKE_LESES": "Kontrollen av varselet etter § 32.2 i `nyttelast.ts` (VS-U38): et vern når en av datoene ikke kan leses. Skjemaet avviser en dato som ikke kan leses før kontrollen, så ingen rad og ingen bevis-sak når den.",
     "VARSEL_ETTER_PAABEROPELSEN": "Kontrollen av varselet etter § 32.2 sendt utenfor løsningen i `nyttelast.ts` (VS-U38): datoen kan ikke være senere enn påberopelsen. Ingen rad sier avvisningen ennå (#807); den prøves i `kjerne/tester/brevtekst.test.ts`.",
-    "VARSEL_FOER_GRUNNLAGSDATOEN": "Kontrollen av varselet om forholdet mot datoen i grunnlagskravet i `nyttelast.ts` (VS-U58, VS-U59, #1730): et registrert varsel, varselet i et fristkrav og en korrigering av datoen. Ingen rad sier avvisningen ennå; den prøves i `kjerne/tester/brevtekst.test.ts`."
+    "VARSEL_FOER_GRUNNLAGSDATOEN": "Kontrollen av varselet om forholdet mot datoen i grunnlagskravet i `nyttelast.ts` (VS-U58, VS-U59, #1730): et registrert varsel, varselet i et fristkrav og en korrigering av datoen. Ingen rad sier avvisningen ennå; den prøves i `kjerne/tester/brevtekst.test.ts`.",
+    "IKKE_GJELDENDE_PAA_SENDEDATOEN": "Kontrollen av kommandoen: en registrering av et svar eller en aksept som ikke får virkning med datoen avsenderen oppgir, avvises (OV-U98). KA-50 sier avvisningen, men ingen bevis-sak for målmodellen prøver kommandoen med en oppgitt dato; den prøves i `kjerne/tester/registrering.test.ts`."
   }
 }

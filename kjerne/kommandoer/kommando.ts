@@ -100,7 +100,7 @@ export const erRegistrering = (
 /**
  * Formen for et brev sendt utenfor løsningen og lagt til med datoen (`sendt`): typen og brevet
  * som vedlegg, og ingen tekst fra løsningen (`tekstfeil`). Uten `sendt` har kommandoen verken
- * typen eller vedlegg (OV-U80, KA-U34, KA-U35).
+ * typen eller vedlegg (OV-U80).
  */
 function registreringensForm(
   kommando: Record<string, unknown>,
