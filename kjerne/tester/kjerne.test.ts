@@ -744,11 +744,11 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
     expect(visning(u, GJELDENDE_REGLER).merknader).toContain('brev_utenfor_appen');
   });
 
-  // OV-U98: kravet er sendt før totalentreprenørens siste krav og blir ikke gjeldende, så
-  // referansekontrollen i utledningen finner ikke kravet endringsordren viser til.
-  it('en endringsordre lagt til som svar på et krav sendt før det siste, er ikke forstått (OV-U12, OV-U98)', async () => {
+  // OV-U102: kravet er sendt før totalentreprenørens siste krav og blir ikke gjeldende, så det
+  // var ikke gjeldende da endringsordren ble sendt (OV-U98), og OV-U12 avviser registreringen.
+  it('en endringsordre lagt til som svar på et krav sendt før det siste, får ingen virkning (OV-U12, OV-U98, OV-U102)', async () => {
     const bane = minnebane();
-    await bygg(bane, [
+    const k = await bygg(bane, [
       'krav_irreg',
       {
         handling: 'rad',
@@ -765,9 +765,11 @@ describe('opplysningen om § 31.3 i registrert korrespondanse', () => {
         gjelder: 'K-g2',
       },
     ]);
-    const journal = await bane.journal();
-    expect(forstaatt(journal.slice(0, -1)), 'kontrollsak: det registrerte kravet').toBe(true);
-    expect(forstaatt(journal)).toBe(false);
+    const u = utled(lesJournal(await bane.journal(), KJERNE.leserformat), GJELDENDE_REGLER);
+    expect(u.forstaatt).toBe(true);
+    expect(u.spor.forhold.kravUtenforRekken.map((x) => x.id)).toEqual([k.navn.id('K-g2')]);
+    expect(u.spor.forhold.gjeldendeKrav?.id).toBe(k.navn.id('K-g1'));
+    expect(u.utenVirkning.map((x) => x.element)).toEqual([k.navn.id('S-g1')]);
   });
 
   it('korrespondanse som bare er mottatt, er også registrert, og godkjenningen i den er dokumentasjon uten virkning (OV-U4)', async () => {

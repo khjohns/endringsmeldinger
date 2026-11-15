@@ -1717,8 +1717,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'if (p.gjelder !== tidligste && p.gjelder !== egetFoerst)',
-        'if (p.gjelder !== tidligste && p.gjelder !== egetFoerst && p.gjelder !== s.gjelder)',
+        'if (p.gjelder !== tidligste && p.gjelder !== eget)',
+        'if (p.gjelder !== tidligste && p.gjelder !== eget && p.gjelder !== s.gjelder)',
       ],
     ],
     mal: ['en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått'],
@@ -2752,6 +2752,79 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
+    id: 'F643',
+    feilklasse:
+      'et krav sendt før totalentreprenørens siste krav leses ikke inn utenfor rekken (OV-U102)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '      if (utenforRekken.has(k.id)) spor[k.spor].kravUtenforRekken.push(k);\n      else ',
+        '      ',
+      ],
+    ],
+    mal: [
+      'kravet blir ikke gjeldende, og saken er forstått',
+      'et svar sendt etterpå påberoper det eldre kravet',
+    ],
+  },
+  {
+    id: 'F644',
+    feilklasse: 'et krav sendt før totalentreprenørens siste krav får ingen virkning (OV-U102)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['      else if (!strider.has(x.element)) utenforRekken.add(x.element);\n', '']],
+    mal: [
+      'kravet blir ikke gjeldende, og saken er forstått',
+      'et krav sendt før det siste godtas, utenfor rekken',
+    ],
+  },
+  {
+    id: 'F645',
+    feilklasse:
+      'den første kravversjonen er varselet også når et krav utenfor rekken ble sendt før (OV-U102)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['  const kravet = foerstSendt(krav, sendt);', '  const [kravet] = krav;']],
+    mal: [
+      'det eldre kravet gjelder når det ble sendt før det egne varselet',
+      'et svar sendt etterpå påberoper det eldre kravet',
+    ],
+  },
+  {
+    id: 'F646',
+    feilklasse:
+      'et krav utenfor rekken lagt til etter svaret endrer varselet påberopelsen i svaret gjelder (OV-U102, MM-U50)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    ...s.kravUtenforRekken.filter((k) => varsler(k) && foer(k.id)),',
+        '    ...s.kravUtenforRekken.filter(varsler),',
+      ],
+    ],
+    mal: [
+      'en påberopelse i et svar lagt til før det eldre kravet, står med varselet den viste til',
+    ],
+  },
+  {
+    id: 'F647',
+    feilklasse: 'et svar på et krav utenfor rekken prøves ikke mot sendedatoen (OV-U98, OV-U102)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['    const krav = [...kjede, ...kravUtenforRekken].find(', '    const krav = kjede.find('],
+    ],
+    mal: ['en endringsordre lagt til som svar på et krav sendt før det siste, får ingen virkning'],
+  },
+  {
+    id: 'F648',
+    feilklasse: 'et krav lagt til godtas med tekst fra løsningen (OV-U80)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [
+      [
+        "  if (type === 'krav' && !feil.length && ('sendt' in kommando",
+        "  if (false && ('sendt' in kommando",
+      ],
+    ],
+    mal: ['et krav lagt til med en utdypning, eller med typen uten datoen, avvises som feil form'],
+  },
+  {
     id: 'F369',
     feilklasse:
       'et varsel eller en endringsordre teller ikke mens saken ikke er forstått (OV-U21, MM-U2)',
@@ -3075,7 +3148,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'det første kjente varselet etter § 34.1.3 er det første vederlagskravet, også uten posten (OV-U24)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [["hjemmel === '34.1.3' ? krav.filter(harProduktivitetspost) : krav", 'krav']],
+    endringer: [["hjemmel !== '34.1.3' || harProduktivitetspost(k)", 'true']],
     mal: [
       'uten registrert varsel er det første kjente varselet den første kravversjonen med posten',
     ],
@@ -4213,8 +4286,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '  return [s.varsler[hjemmel], kravet].filter((v) => v !== undefined);',
-        '  return [s.varsler[hjemmel] ?? kravet].filter((v) => v !== undefined);',
+        '  return [s.varsler[hjemmel], ...krav].filter((v) => v !== undefined);',
+        '  return [s.varsler[hjemmel] ?? krav[0]].filter((v) => v !== undefined);',
       ],
     ],
     mal: ['et eget varsel registrert etter det første fristkravet, skjuler ikke kravet'],
@@ -4263,9 +4336,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'leseren godtar bare det egne varselet i påberopelsen, ikke det første kravet som ble sendt før det (VS-U70)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      ['if (p.gjelder !== tidligste && p.gjelder !== egetFoerst)', 'if (p.gjelder !== egetFoerst)'],
-    ],
+    endringer: [['if (p.gjelder !== tidligste && p.gjelder !== eget)', 'if (p.gjelder !== eget)']],
     mal: ['byggherrens påberopelse etter § 34.1.2 gjelder det første kravet'],
   },
   {
@@ -4723,7 +4794,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en korrigering til en dato etter kravet som er det første varselet, godtas (VS-U60)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['    ? kravSomVarsler(hjemmel, s.krav)[0]\n', '    ? undefined\n']],
+    endringer: [['    ? kravSomVarsler(hjemmel, s, () => true)\n', '    ? []\n']],
     mal: [
       'uten eget varsel avvises en korrigering til en dato etter påberopelsen',
       'uten eget varsel avvises en korrigering til en dato etter det første fristkravet',
@@ -4737,8 +4808,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '  const kravet = hjemmelenGjelder(hjemmel, u.spor.forhold.gjeldendeKrav, regler)\n',
-        '  const kravet = true\n',
+        '  const krav = hjemmelenGjelder(hjemmel, u.spor.forhold.gjeldendeKrav, regler)\n',
+        '  const krav = true\n',
       ],
     ],
     mal: ['i svikt er påberopelsen ikke et varsel etter § 32.2'],

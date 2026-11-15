@@ -123,6 +123,12 @@ export interface Enighet {
 
 export interface Sporutledning {
   krav: Krav[];
+  /**
+   * OV-U102: kravene sendt før totalentreprenørens siste krav i sporet, i rekkefølgen de ble lagt
+   * til. De blir ikke gjeldende, men datoen regnes med for hvilket varsel som kom først
+   * (`kravSomVarsler`).
+   */
+  kravUtenforRekken: Krav[];
   gjeldendeKrav: Krav | null;
   svar: Svar[];
   gjeldendeSvar: Svar | null;
@@ -285,6 +291,7 @@ export interface Utledning {
 
 const tomtSpor = (): Sporutledning => ({
   krav: [],
+  kravUtenforRekken: [],
   gjeldendeKrav: null,
   svar: [],
   gjeldendeSvar: null,
@@ -426,6 +433,8 @@ const kanStride = (d: Dokument): boolean =>
 interface Strid {
   element: string;
   grunn: string;
+  /** OV-U102: kravet står utenfor rekken av kravversjoner, og datoen har virkning. */
+  utenforRekken?: true;
 }
 
 /**
@@ -531,11 +540,13 @@ function registreringenStrider(d: Dokument, u: Utledning): Strid[] {
     if (siste && foerDagen(dag(k.id), datoenDetBleSendt(u, siste)))
       strider.push({
         element: k.id,
-        grunn: 'et krav sendt før totalentreprenørens siste krav i sporet (OV-U98)',
+        grunn: 'et krav sendt før totalentreprenørens siste krav i sporet (OV-U98, OV-U102)',
+        utenforRekken: true,
       });
   }
   for (const s of d.svar) {
-    const krav = u.spor[s.spor].krav.find((k) => k.id === s.gjelder);
+    const { krav: kjede, kravUtenforRekken } = u.spor[s.spor];
+    const krav = [...kjede, ...kravUtenforRekken].find((k) => k.id === s.gjelder);
     const sendt = dag(s.id);
     if (krav && (sendt === null || !kravversjonenGjaldt(u, krav, sendt)))
       strider.push({
@@ -623,6 +634,7 @@ function utsagnetStrider(
  */
 export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   const uten = new Map<string, { hendelse: string; grunn: string }>();
+  const utenforRekken = new Set<string>();
   const konflikter: Utledning['begrensninger'] = [];
   const dokumenter: Dokument[] = [];
   for (const [i, h] of journal.entries()) {
@@ -632,19 +644,21 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     if (!kan) continue;
     // Kontrollen trenger saken slik den var før dokumentet, så prefikset utledes for
     // hvert dokument som kan endre utfallet. Kostnaden er målt i #400.
-    const foer = utledSporene(journal.slice(0, i), regler, uten);
+    const foer = utledSporene(journal.slice(0, i), regler, uten, utenforRekken);
     if (!foer.forstaatt) break;
     const registrert = erRegistrert(h.dokument.opplysninger);
     const dokumentasjon = dokumentasjonIBrevet(h.dokument);
     const stridene = strid(h.dokument, foer, uten);
+    const strider = new Set(stridene.filter((x) => !x.utenforRekken).map((x) => x.element));
     for (const x of stridene) {
       if (!registrert) konflikter.push({ hendelse: h.id, grunn: x.grunn });
-      else if (!dokumentasjon.has(x.element))
-        uten.set(x.element, { hendelse: h.id, grunn: x.grunn });
+      else if (dokumentasjon.has(x.element)) continue;
+      else if (!strider.has(x.element)) utenforRekken.add(x.element);
+      else uten.set(x.element, { hendelse: h.id, grunn: x.grunn });
     }
     if (konflikter.length) break;
   }
-  const u = utledSporene(journal, regler, uten);
+  const u = utledSporene(journal, regler, uten, utenforRekken);
   const ut = konflikter.length ? tom(journal, regler, [...u.begrensninger, ...konflikter]) : u;
   ut.ikkeVurderteBrev = ikkeVurderte(journal, ut.registrerteBrev, ut.forstaatt);
   return ut;
@@ -714,12 +728,14 @@ export function utledJournal(journal: Journalrad[], kjerne: Kjerne): Utledning {
 
 /**
  * Utledningen med elementene i `uten` og dokumentasjonen i registrerte brev uten virkning:
- * de plasseres, men leses ikke inn i sporene.
+ * de plasseres, men leses ikke inn i sporene. Kravene i `utenforRekken` leses inn utenfor
+ * rekken av kravversjoner (OV-U102).
  */
 function utledSporene(
   journal: Domenehendelse[],
   regler: Regelsett,
-  uten: Map<string, { hendelse: string; grunn: string }>
+  uten: Map<string, { hendelse: string; grunn: string }>,
+  utenforRekken: ReadonlySet<string>
 ): Utledning {
   const begrensninger: Utledning['begrensninger'] = [];
   const spor = tommeSpor();
@@ -777,7 +793,8 @@ function utledSporene(
       plasser(k.id, h);
       registrer(k.id, h, d.avsender, 'krav');
       kravMedUten.set(k.id, k);
-      if (harVirkning(k.id)) spor[k.spor].krav.push(k);
+      if (utenforRekken.has(k.id)) spor[k.spor].kravUtenforRekken.push(k);
+      else if (harVirkning(k.id)) spor[k.spor].krav.push(k);
     }
     for (const s of d.svar) {
       plasser(s.id, h);
@@ -979,11 +996,11 @@ function kontrollerStandpunktet(
   if (erVarselhjemmel(p.hjemmel) && !erKravpostvarselhjemmel(p.hjemmel)) {
     const n = VARSELSPOR[p.hjemmel];
     const varslene = varsler.filter((v) => v.hjemmel === p.hjemmel);
-    const krav = kravSomVarsler(p.hjemmel, spor[n].krav);
     const foer = (v: string) => bakover(s.id, v);
+    const krav = kravSomVarsler(p.hjemmel, spor[n], foer);
     const tidligste = varseletFoerSvaret(p.hjemmel, varslene, krav, foer, sendt);
-    const egetFoerst = varseletFoerSvaret(p.hjemmel, varslene, krav, foer, () => null);
-    if (p.gjelder !== tidligste && p.gjelder !== egetFoerst)
+    const eget = varslene.find((v) => foer(v.id))?.id;
+    if (p.gjelder !== tidligste && p.gjelder !== eget)
       ugyldig(
         s.id,
         `påberopelsen etter § ${p.hjemmel} viser til ${p.gjelder}, men varselet før svaret er ${tidligste ?? 'ikke i saken'}`
@@ -1457,13 +1474,37 @@ export function standpunktetErSubsidiaert(
 }
 
 /**
- * OV-U5, OV-U24: kravversjonene som kan være det første varselet appen kjenner etter
- * hjemmelen. Etter § 34.1.3 er det bare versjonene som krever posten etter annet ledd.
+ * OV-U5, OV-U24, OV-U102: kravene som kan være det første varselet løsningen kjenner etter
+ * hjemmelen: den første kravversjonen som varsler, og hvert krav utenfor rekken som står før
+ * svaret (`foer`). Etter § 34.1.3 varsler bare et krav som krever posten etter annet ledd.
  */
-export const kravSomVarsler = (
+export function kravSomVarsler(
   hjemmel: Enkeltvarselhjemmel,
-  krav: readonly Krav[]
-): readonly Krav[] => (hjemmel === '34.1.3' ? krav.filter(harProduktivitetspost) : krav);
+  s: Pick<Sporutledning, 'krav' | 'kravUtenforRekken'>,
+  foer: (krav: string) => boolean
+): readonly Krav[] {
+  const varsler = (k: Krav) => hjemmel !== '34.1.3' || harProduktivitetspost(k);
+  const [foerste] = s.krav.filter(varsler);
+  return [
+    ...(foerste ? [foerste] : []),
+    ...s.kravUtenforRekken.filter((k) => varsler(k) && foer(k.id)),
+  ];
+}
+
+/**
+ * OV-U102: kravet som ble sendt først. Med samme dato, eller uten dato, gjelder det første i
+ * lista, den første kravversjonen.
+ */
+function foerstSendt<K>(krav: readonly K[], sendt: (k: K) => string | null): K | undefined {
+  let foerst: K | undefined;
+  for (const k of krav) {
+    const dato = sendt(k);
+    const tidligste = foerst === undefined ? null : sendt(foerst);
+    if (foerst === undefined || (dato !== null && (tidligste === null || dato < tidligste)))
+      foerst = k;
+  }
+  return foerst;
+}
 
 /**
  * VS-U20, OV-U5, HF-U1, VS-U43 punkt 6: varselet en påberopelse etter § 32.2, § 33.4, § 34.1.2
@@ -1484,7 +1525,7 @@ export function varseletFoerSvaret(
   sendt: (v: Pick<Krav, 'id' | 'dokument'>) => string | null
 ): string | undefined {
   const eget = varsler.find((v) => foerSvaret(v.id));
-  const [kravet] = krav;
+  const kravet = foerstSendt(krav, sendt);
   if (!eget || !kravet || hjemmel === '32.2') return eget?.id ?? kravet?.id;
   const [varselet, kravetSendt] = [sendt(eget), sendt(kravet)];
   if (kravetSendt === null) return eget.id;
@@ -1516,7 +1557,7 @@ export function varseletFoerBrevet(
 ): string | undefined {
   const s = u.spor[VARSELSPOR[hjemmel]];
   const registrert = s.varsler[hjemmel];
-  const krav = kravSomVarsler(hjemmel, s.krav);
+  const krav = kravSomVarsler(hjemmel, s, () => true);
   return varseletFoerSvaret(
     hjemmel,
     registrert ? [registrert] : [],

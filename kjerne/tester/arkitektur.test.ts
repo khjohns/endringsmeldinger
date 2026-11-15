@@ -671,11 +671,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/frist/utledning.ts:kontrollerSvaretPaaForesporselen(elementer)', 'relasjon', '*'],
   ['utledning/utled.ts:paaberopelser(elementer)', 'relasjon', '*'],
   // MM-U43 punkt 6: stridene ett dokument har med journalen før det.
-  ['Strid', 'predikat', 'element grunn', ['utledning/utled.ts:utled']],
+  ['Strid', 'predikat', 'element grunn utenforRekken', ['utledning/utled.ts:utled']],
   [
     'Sporutledning',
     'predikat',
-    'krav svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsler',
+    'krav kravUtenforRekken svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsler',
   ],
   // § 33.6.2 (VS-U17, VS-U19, VS-U27): hver forespørsel og kravet eller begrunnelsen som
   // svarte, utledet av rekkefølgen i journalen, og hvordan fristkravene står til den.

@@ -188,8 +188,8 @@ function varseletFoerGrunnlagsdatoen(
 }
 
 /**
- * VS-U60 og VS-U66: det egne varselet etter hjemmelen og kravet som er det første varselet
- * løsningen kjenner (VS-U43 punkt 6–9). Ulikt `varseletForNyttSvar` gir den begge, og kalleren
+ * VS-U60 og VS-U66: det egne varselet etter hjemmelen og kravene som kan være det første varselet
+ * løsningen kjenner (VS-U43 punkt 6–9, OV-U102). Ulikt `varseletForNyttSvar` gir den begge, og kalleren
  * bruker det tidligste.
  */
 function varslerOmForholdet(
@@ -198,10 +198,10 @@ function varslerOmForholdet(
   regler: Regelsett
 ): Pick<Krav, 'id' | 'dokument'>[] {
   const s = u.spor[VARSELSPOR[hjemmel]];
-  const kravet = hjemmelenGjelder(hjemmel, u.spor.forhold.gjeldendeKrav, regler)
-    ? kravSomVarsler(hjemmel, s.krav)[0]
-    : undefined;
-  return [s.varsler[hjemmel], kravet].filter((v) => v !== undefined);
+  const krav = hjemmelenGjelder(hjemmel, u.spor.forhold.gjeldendeKrav, regler)
+    ? kravSomVarsler(hjemmel, s, () => true)
+    : [];
+  return [s.varsler[hjemmel], ...krav].filter((v) => v !== undefined);
 }
 
 /** VS-U59, VS-U60 og VS-U66: det tidligste varselet om forholdet etter hver hjemmel. */
@@ -242,12 +242,12 @@ export type OppgittDato = {
 function oppgittDatoI(k: Kommando): OppgittDato | null {
   if (k.type === 'varsel')
     return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'Totalentreprenøren' };
-  // OV-U98: svaret eller aksepten som legges til, er ikke sendt etter dagen det legges til.
+  // OV-U98: kravet, svaret eller aksepten som legges til, er ikke sendt etter dagen det legges til.
   if (erRegistrering(k))
     return {
       dato: k.sendt,
       gjelder: 'brevet ble sendt',
-      av: k.type === 'aksept' ? 'Totalentreprenøren' : 'Byggherren',
+      av: k.type === 'aksept' || k.type === 'krav' ? 'Totalentreprenøren' : 'Byggherren',
     };
   if (k.type === 'begrunnelse')
     return k.sendt === undefined

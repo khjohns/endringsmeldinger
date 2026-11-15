@@ -3216,7 +3216,7 @@
     {
       "id": "KA-37",
       "tilfelle": "TE registrerer sitt eget brev med en ny kravversjon i et spor med enighet, i et trukket spor eller i et spor med «ingen krav», eller med en aksept av et frafall, en aksept av et svar partene alt er enige om, eller et trekk etter at kravene er avgjort.",
-      "forventet": "Saken er forstått. Kravversjonen og trekket er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4): et krav i et registrert brev er det til det bygges i #2011, og et trekk sendes fra appen. Aksepten av et frafall eller av et svar partene alt er enige om, strider mot journalen og står uten virkning ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98), MM-U43 punkt 9). Enigheten, gjeldende kravversjon, trekket og «ingen krav» står, og ingenting sperres.",
+      "forventet": "Saken er forstått. En kravversjon i et spor med enighet har samme virkning som en ny versjon fra appen og blir gjeldende krav ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98)). En kravversjon i et trukket spor eller etter «ingen krav», og aksepten av et frafall eller av et svar partene alt er enige om, strider mot journalen og står uten virkning (MM-U43 punkt 9). Trekket er dokumentasjon etter [OV-U98](../plans/vedtak.md#ov-u98) og sendes fra appen. Trekket og «ingen krav» står, og ingenting sperres.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Et registrert brev endrer ikke enigheten, trekket eller «ingen krav». Appen avgjør ikke tvisten.",
       "rettidighet": "—",
@@ -3231,7 +3231,6 @@
         "KA-U11",
         "GR-U9",
         "GR-U8",
-        "OV-U4",
         "OV-U80",
         "OV-U98"
       ],
@@ -3292,7 +3291,7 @@
     {
       "id": "KA-40",
       "tilfelle": "En part registrerer et brev sendt utenfor appen med TEs aksept, etter trekket, av et svar i sporet, eller et svar fra byggherren med sammenfall på et krav etter at TE har trukket det. Trekket kan gjelde sporet eller grunnlaget.",
-      "forventet": "Saken er forstått. Aksepten og svaret strider mot journalen og står uten virkning ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98), MM-U43 punkt 9): sporet har ingen enighet, og en godkjenning av et trukket grunnlag er ikke en endringsordre i saken. Det gjelder også en revisjon av et svar partene er enige om, og et svar som viser til en registrert kravversjon, som er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4).",
+      "forventet": "Saken er forstått. Aksepten og svaret strider mot journalen og står uten virkning ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98), MM-U43 punkt 9): sporet har ingen enighet, og en godkjenning av et trukket grunnlag er ikke en endringsordre i saken. Det gjelder også en revisjon av et svar partene er enige om, og et svar som viser til en registrert kravversjon uten virkning.",
       "bh_standpunkt": "Brevet slik det ble sendt.",
       "rettslig_virkning": "Et trekk er bare TEs avkall på eget krav. Appen sier ikke at brevet ikke er en endringsordre, bare at godkjenningen er uten virkning i saken.",
       "rettidighet": "—",
@@ -3304,7 +3303,6 @@
         "KA-U14",
         "GR-U9",
         "GR-U10",
-        "OV-U4",
         "OV-U80",
         "OV-U98"
       ],
@@ -3718,24 +3716,25 @@
     {
       "id": "KA-50",
       "tilfelle": "En part registrerer et brev sendt utenfor appen med et krav, et svar, en aksept eller et trekk.",
-      "forventet": "Saken er forstått. Et svar, også byggherrens endringsordre som svar ([OV-U6](../plans/vedtak.md#ov-u6)), og TEs aksept har samme virkning som fra appen, med datoen avsenderen oppgir ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98)). Svaret godtas når kravversjonen det svarer på, var gjeldende på sendedatoen, og aksepten når svaret den godtar, var byggherrens gjeldende svar da. Ellers avviser kommandoen registreringen, og i journalen står elementet uten virkning. Etter et registrert svar reviderer byggherren det fra appen. En registrert godkjenning er ikke en endringsordre i saken og sperrer ikke trekket (GR-29). Kravet er dokumentasjon etter [OV-U4](../plans/vedtak.md#ov-u4) til det bygges i #2011: det blir ikke gjeldende krav, og hjemmelen i kravet TE har sendt fra appen, står (GR-U22). Trekket er dokumentasjon. Varselet har virkning etter OV-U5.",
+      "forventet": "Saken er forstått. Et svar, også byggherrens endringsordre som svar ([OV-U6](../plans/vedtak.md#ov-u6)), og TEs aksept har samme virkning som fra appen, med datoen avsenderen oppgir ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98)). Svaret godtas når kravversjonen det svarer på, var gjeldende på sendedatoen, og aksepten når svaret den godtar, var byggherrens gjeldende svar da. Ellers avviser kommandoen registreringen, og i journalen står elementet uten virkning. Etter et registrert svar reviderer byggherren det fra appen. En registrert godkjenning er ikke en endringsordre i saken og sperrer ikke trekket (GR-29). Et krav har samme virkning som fra appen. Et krav sendt før totalentreprenørens siste krav i sporet blir ikke gjeldende, og hjemmelen i kravet TE har sendt fra appen, står (GR-U22), men datoen regnes med når appen avgjør hvilket varsel som kom først ([OV-U102](../plans/vedtak.md#ov-u102)). Trekket er dokumentasjon. Varselet har virkning etter OV-U5.",
       "bh_standpunkt": "Svaret slik avsenderen har lagt det til, med datoen det ble sendt.",
-      "rettslig_virkning": "Appen kontrollerer ikke at dokumentet er det parten oppgir. Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse (OV-U80). Skal et krav eller trekk få virkning, sendes det fra appen.",
+      "rettslig_virkning": "Appen kontrollerer ikke at dokumentet er det parten oppgir. Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse (OV-U80). Skal et trekk få virkning, sendes det fra appen.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
-        "OV-U4",
         "OV-U5",
         "OV-U6",
         "GR-U22",
         "GR-U10",
         "OV-U80",
-        "OV-U98"
+        "OV-U98",
+        "OV-U102"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#dokumentasjonIBrevet",
-        "kjerne/utledning/utled.ts#registreringenStrider"
+        "kjerne/utledning/utled.ts#registreringenStrider",
+        "kjerne/utledning/utled.ts#kravSomVarsler"
       ]
     },
     {

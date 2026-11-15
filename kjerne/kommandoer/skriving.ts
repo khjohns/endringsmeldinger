@@ -326,8 +326,8 @@ const UTEN_VIRKNING_MELDING = (grunn: string) =>
   `Brevet kan ikke legges til med virkning. Det er ${grunn.replace(/ \(.*\)$/, '')}.`;
 
 /**
- * OV-U80, OV-U98: et svar eller en aksept lagt til med datoen avsenderen oppgir, typen og
- * brevet som vedlegg. Tomt for et brev fra løsningen.
+ * OV-U80, OV-U98: et krav, et svar eller en aksept lagt til med datoen avsenderen oppgir, typen
+ * og brevet som vedlegg. Tomt for et brev fra løsningen.
  */
 function registrering(k: Registrering, nyId: () => string, bundne: Vedlegg[]): Data {
   if (k.sendt === undefined) return {};
@@ -383,7 +383,7 @@ function dokument(
       }
       // OV-U5: brevet med varselet ligger ved kravet.
       if (bundne.length) data.dokumentasjon = bundne;
-      return data;
+      return { ...data, ...registrering(k, nyId, bundne) };
     }
     case 'brev':
       return {

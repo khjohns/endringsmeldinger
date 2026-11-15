@@ -1,8 +1,8 @@
 /**
- * OV-U98 (#2011): et svar og en aksept sendt utenfor løsningen og lagt til med datoen de ble
- * sendt. Svaret godtas når kravversjonen det gjelder, var gjeldende på sendedatoen, og aksepten
- * når svaret den godtar, var byggherrens gjeldende svar da. Hver kontroll har en kontrollsak som
- * bare skiller seg i datoen.
+ * OV-U98 (#2011): et krav, et svar og en aksept sendt utenfor løsningen og lagt til med datoen
+ * de ble sendt. Svaret godtas når kravversjonen det gjelder, var gjeldende på sendedatoen, og
+ * aksepten når svaret den godtar, var byggherrens gjeldende svar da. Et krav sendt før det siste
+ * står utenfor rekken (OV-U102). Hver kontroll har en kontrollsak som bare skiller seg i datoen.
  *
  * Klokka går én dag per handling, så prefikset `krav_irreg` sender grunnlagskravet 21.09,
  * vederlagskravet 22.09 og fristkravet 23.09, og steg n i forløpet skrives 23.09 + n dager.
@@ -13,6 +13,7 @@ import { minnebane } from './bane.ts';
 import { kjoer, type Forloep, type Kontroll } from './kjoerer.ts';
 import type { Handling } from './klient.ts';
 import type { Klokke } from './testmiljoe.ts';
+import { varseletFoerSvaret } from '../utledning/utled.ts';
 
 /** Én dag per hendelse, fra 21.09 kl. 10 norsk tid. */
 function dagklokke(): Klokke {
@@ -198,7 +199,10 @@ describe('en aksept som legges til, godtas når svaret var byggherrens gjeldende
     ));
 });
 
-/** Kjører forløpet og prøver handlingen `h` som en registrering sendt `sendt`. */
+/**
+ * Kjører forløpet og prøver handlingen `h` som en registrering sendt `sendt`. Et felt i `felt`
+ * med verdien `undefined` tas bort.
+ */
 async function provRegistrering(
   steg: Handling[],
   h: Handling,
@@ -221,6 +225,8 @@ async function provRegistrering(
         delete s.utdypninger;
       }
     Object.assign(kommando, { sendt, ...felt });
+    for (const [felt, verdi] of Object.entries(kommando))
+      if (verdi === undefined) delete kommando[felt];
   });
 }
 
@@ -324,4 +330,184 @@ describe('kommandoene for svar og aksept sendt utenfor løsningen (OV-U80, OV-U9
     });
     expect(utenVedlegg).toMatchObject({ godtatt: false, avvisning: { regel: 'UGYLDIG_FORM' } });
   });
+});
+
+/** Totalentreprenørens grunnlagskrav, lagt til med datoen det ble sendt. */
+const registrertGrunnlagskrav = (navn: string, sendt: string): Handling => ({
+  handling: 'rad',
+  krav: true,
+  part: 'TE',
+  spor: 'forhold',
+  underkategori: 'irregulaer_endring',
+  navn,
+  sendt,
+});
+
+/** Byggherrens avslag fra løsningen, som påberoper at varselet etter § 32.2 kom for sent. */
+const forSent = (navn: string): Handling => ({
+  handling: 'brev',
+  svar: [{ spor: 'forhold', resultat: 'avslaatt', varslet_i_tide: false, navn }],
+});
+
+const KILDE_ELDRE = ['OV-U98', 'OV-U102'];
+
+describe('et krav sendt før totalentreprenørens siste krav står utenfor rekken, og datoen regnes med (OV-U102)', () => {
+  it('kravet blir ikke gjeldende, og saken er forstått', () =>
+    prov(
+      'eldre-krav-utenfor-rekken',
+      [registrertGrunnlagskrav('K-g0', '2026-09-19')],
+      [
+        {
+          etter: 1,
+          rolle: 'mal',
+          kilde: KILDE_ELDRE,
+          forventet: {
+            forstaatt: true,
+            uten_virkning: [],
+            'gjeldende_krav.forhold': 'K-g1',
+            'krav_utenfor_rekken.forhold': ['K-g0'],
+          },
+        },
+      ]
+    ));
+
+  it('kontrollsak: et krav sendt etter det siste blir gjeldende krav', () =>
+    prov(
+      'nytt-krav-i-rekken',
+      [registrertGrunnlagskrav('K-g0', '2026-09-24')],
+      [
+        {
+          etter: 1,
+          rolle: 'kontroll',
+          kilde: ['OV-U80', 'OV-U98'],
+          forventet: {
+            forstaatt: true,
+            'gjeldende_krav.forhold': 'K-g0',
+            'krav_utenfor_rekken.forhold': [],
+          },
+        },
+      ]
+    ));
+
+  it('et krav sendt samme dag som det siste blir gjeldende etter rekkefølgen (OV-U104)', () =>
+    prov(
+      'krav-samme-dag',
+      [registrertGrunnlagskrav('K-g0', '2026-09-21')],
+      [
+        {
+          etter: 1,
+          rolle: 'mal',
+          kilde: ['OV-U104'],
+          forventet: {
+            forstaatt: true,
+            'gjeldende_krav.forhold': 'K-g0',
+            'krav_utenfor_rekken.forhold': [],
+          },
+        },
+      ]
+    ));
+
+  it('et svar sendt etterpå påberoper det eldre kravet som varselet etter § 32.2', () =>
+    prov(
+      'eldre-krav-er-varselet',
+      [registrertGrunnlagskrav('K-g0', '2026-09-19'), forSent('S-g1')],
+      [
+        {
+          etter: 2,
+          rolle: 'mal',
+          kilde: KILDE_ELDRE,
+          forventet: { forstaatt: true, 'standpunkt.S-g1.rettidighet.gjelder': 'K-g0' },
+        },
+      ]
+    ));
+
+  it('kontrollsak: uten det eldre kravet påberoper svaret den første kravversjonen', () =>
+    prov(
+      'foerste-kravversjon-er-varselet',
+      [forSent('S-g1')],
+      [
+        {
+          etter: 1,
+          rolle: 'kontroll',
+          kilde: ['VS-U43'],
+          forventet: { forstaatt: true, 'standpunkt.S-g1.rettidighet.gjelder': 'K-g1' },
+        },
+      ]
+    ));
+
+  it('en påberopelse i et svar lagt til før det eldre kravet, står med varselet den viste til', () =>
+    prov(
+      'paaberopelse-foer-eldre-krav',
+      [forSent('S-g1'), registrertGrunnlagskrav('K-g0', '2026-09-19')],
+      [
+        {
+          etter: 2,
+          rolle: 'mal',
+          kilde: ['OV-U102', 'MM-U50'],
+          forventet: {
+            forstaatt: true,
+            'gjeldende_svar.forhold': 'S-g1',
+            'standpunkt.S-g1.rettidighet.gjelder': 'K-g1',
+          },
+        },
+      ]
+    ));
+});
+
+describe('kommandoen for et krav sendt utenfor løsningen (OV-U80, OV-U98, OV-U102)', () => {
+  const vederlagskrav: Handling = { handling: 'krav', spor: 'vederlag', belop: 90000 };
+  const provKravet = (sendt: string) => provRegistrering([], vederlagskrav, sendt);
+
+  it('et krav sendt etter det siste godtas og lagres med datoen, typen og vedlegget, uten brevtekst', async () => {
+    const utfall = await provKravet('2026-09-23');
+    expect(utfall.godtatt ? null : utfall.avvisning).toBeNull();
+    if (!utfall.godtatt) return;
+    const data = utfall.hendelser[0].data as Record<string, unknown>;
+    expect(data.opplysninger).toEqual([
+      { id: expect.any(String), hva: 'sendt', dato: '2026-09-23' },
+    ]);
+    expect(data.korrespondansetype).toBe('brev');
+    expect(data.brevtekst).toBeUndefined();
+  });
+
+  it('et krav sendt før det siste godtas, utenfor rekken (OV-U102)', async () => {
+    const utfall = await provKravet('2026-09-21');
+    expect(utfall.godtatt ? null : utfall.avvisning).toBeNull();
+  });
+
+  it('et krav lagt til med en utdypning, eller med typen uten datoen, avvises som feil form', async () => {
+    const medUtdypning = await provRegistrering([], vederlagskrav, '2026-09-23', {
+      korrespondansetype: 'brev',
+      dokumentasjon: [VEDLEGG],
+      utdypning: 'Tekst fra løsningen.',
+    });
+    expect(medUtdypning).toMatchObject({ godtatt: false, avvisning: { regel: 'UGYLDIG_FORM' } });
+    const utenDato = await provRegistrering([], vederlagskrav, '2026-09-23', {
+      korrespondansetype: 'brev',
+      sendt: undefined,
+    });
+    expect(utenDato).toMatchObject({ godtatt: false, avvisning: { regel: 'UGYLDIG_FORM' } });
+  });
+});
+
+describe('varselet en påberopelse etter § 33.4 gjelder, med et krav utenfor rekken (VS-U70, OV-U102)', () => {
+  const eget = { id: 'V', dokument: 'D-v' };
+  const krav = [
+    { id: 'K1', dokument: 'D-1' },
+    { id: 'K0', dokument: 'D-0' },
+  ];
+  const varselet = (datoer: Record<string, string>) =>
+    varseletFoerSvaret(
+      '33.4',
+      [eget],
+      krav,
+      () => true,
+      (x) => datoer[x.id] ?? null
+    );
+
+  it('det eldre kravet gjelder når det ble sendt før det egne varselet', () =>
+    expect(varselet({ V: '2026-09-18', K1: '2026-09-20', K0: '2026-09-17' })).toBe('K0'));
+
+  it('kontrollsak: med samme dato som det egne varselet gjelder det egne varselet', () =>
+    expect(varselet({ V: '2026-09-18', K1: '2026-09-20', K0: '2026-09-18' })).toBe('V'));
 });
