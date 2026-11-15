@@ -78,4 +78,5 @@ export const SVARSKJEMA = {
   fristKolonne: 'Frist',
   kravetKolonne: 'Kravet',
   svaretKolonne: 'Svaret, slik det står i brevet',
+  kompaktLinje: 'Hovedlinjene og brevkontrollen',
 } as const;

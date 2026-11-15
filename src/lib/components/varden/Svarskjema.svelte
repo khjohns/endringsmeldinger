@@ -28,7 +28,13 @@
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import { brevene, datoerISporet } from './lesing';
-  import { begrunnelsespunktene, kravbrevetI, type Mangel, type Postvelger } from './svarskjema';
+  import {
+    begrunnelsespunktene,
+    kravbrevetI,
+    SVARSKJEMA,
+    type Mangel,
+    type Postvelger,
+  } from './svarskjema';
   import { FRISTSVAR, HOVEDLINJER, SKJEMA, brevhode, brevtittel, dato } from './tekster';
 
   let {
@@ -289,7 +295,7 @@
 </Arbeidsflate>
 
 {#if linja.visKompakt}
-  <div class="kompakt" role="region" aria-label="Hovedlinjene og brevkontrollen">
+  <div class="kompakt" role="region" aria-label={SVARSKJEMA.kompaktLinje}>
     <Knapp variant="primaer" onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp>
     <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}
       >{HOVEDLINJER.seHovedlinjene}</Knapp

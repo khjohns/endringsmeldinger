@@ -524,16 +524,17 @@ export type Forutsetning =
 export type LagIVederlaget = Utkastlag<Forutsetning, { saerskilt?: 'produktivitet' }>;
 
 /**
- * Lagene i et svarutkast på vederlag, også før alle spørsmålene er besvart (OV-U33, #1925). Et
- * ubesvart spørsmål fylles ut slik at standpunktet står i laget sitt, og står med `besvart:
- * false`:
- * - beløpet, og varselet etter § 34.1.2 og § 34.1.3: en ubesvart beregningsregel regnes som
- *   godtatt, og et ubesvart varsel som at innsigelsen ikke er gjort gjeldende (S1-A);
- * - oppgjørsformen: laget står uansett svaret (OV-U33, LV-U31), så hver beregningsregel regnes
- *   som ikke godtatt, med den andre regelen, siden en godtatt regel ikke åpner noe lag (VS-U4),
- *   og fast sum som godtatt;
- * - varselet etter § 34.3.3 og justeringen: som beløpet, med en ubesvart innsigelse gjort
- *   gjeldende, fordi de står i laget sitt etter svaret på oppgjørsformen (VS-U4, VS-U56).
+ * Lagene i et svarutkast på vederlag, også før alle spørsmålene er besvart (OV-U33, #1925). Hvert
+ * standpunkt står i laget én av tre utfyllinger av de ubesvarte spørsmålene gir det:
+ * - beløpet og varselet etter § 34.1.2 og § 34.1.3: en ubesvart beregningsregel regnes som
+ *   godtatt (#1756 punkt 1), og et ubesvart varsel gir ikke noe standpunkt (S1-A);
+ * - oppgjørsformen: hver beregningsregel som ikke godtatt, med den andre regelen, og fast sum som
+ *   godtatt, uansett svaret (OV-U33, LV-U31, VS-U4);
+ * - varselet etter § 34.3.3 og justeringen: som beløpet, og en ubesvart innsigelse mot dem som
+ *   gjort gjeldende (VS-U4, VS-U56).
+ * For oppgjørsformen, varselet og justeringen er `virkning` og `etikett` derfor laget i
+ * utfyllingen, ikke i svaret slik det er besvart. `besvart` er `false` for et ubesvart spørsmål om
+ * beløpet, oppgjørsformen, varselet etter § 34.3.3 eller § 34.4 og justeringen.
  * Lagene fra forholdet leses av gjeldende svar på forholdet, som frysingen gjør når brevet ikke
  * selv har et svar på forholdet. Beløpene påvirker ikke lagene og tas ut før standpunktene
  * bygges. Kaster `UgyldigVurdering` for svar på kravpostene som `kravpostvurderinger` avviser.
@@ -553,7 +554,8 @@ export function lagIVederlaget(
     post.oppgjoersform !== 'tilbud' && typeof svar.aksepterer !== 'boolean'
       ? { ...svar, aksepterer: true }
       : svar;
-  const lagI = (fylt: Svarvurdering) => lagIUtfyllingen(fylt, v, utkast, u, regler);
+  const svaret = new Map(svarene.map(({ post, svar }) => [post.id, svar]));
+  const lagI = (fylt: Svarvurdering) => lagIUtfyllingen(fylt, svaret, utkast, u, regler);
   const beloepet = lagI(utfylt(regelGodtatt));
   const formene = lagI(
     utfylt((_, post) =>
@@ -566,7 +568,7 @@ export function lagIVederlaget(
           }
     )
   ).filter(({ s }) => s.art === 'oppgjoersform');
-  // Uten justerte enhetspriser fyller utfyllingen for varselet ingenting ut ut over beløpets.
+  // Uten justerte enhetspriser er utfyllingen for varselet den samme som for beløpet.
   const justeres = svarene.some(({ post }) => justerteEnhetspriser(post));
   const varslene = (
     justeres
@@ -604,11 +606,11 @@ const iKravposten = (s: Standpunkt) =>
 
 /**
  * Lagene i svarutkastet med de utfylte vurderingene `v` (`lagIVederlaget`). Om et standpunkt er
- * besvart, leses av vurderingene i utkastet, `utkastet`.
+ * besvart, leses av svaret på hver kravpost i utkastet, `svaret`.
  */
 function lagIUtfyllingen(
   v: Svarvurdering,
-  utkastet: Svarvurdering,
+  svaret: ReadonlyMap<string, Kravpostvurdering>,
   utkast: Svarutkast,
   u: Utledning,
   regler: Regelsett
@@ -671,7 +673,7 @@ function lagIUtfyllingen(
       s.gjelder !== undefined
         ? { gjelder: s.gjelder }
         : {}),
-      besvart: besvart(utkastet, u, s),
+      besvart: besvart(utkast.vurderinger, svaret, u, s),
       virkning: virkning[i]!,
       etikett: etikett[i]!,
       forutsetninger: rammer,
@@ -698,13 +700,16 @@ function innenforKravposten(standpunkter: Standpunkt[], i: number): Forutsetning
 }
 
 /** Om spørsmålet standpunktet svarer på, er besvart i vurderingene `v` (#1925). */
-function besvart(v: Svarvurdering, u: Utledning, s: Standpunkt): boolean {
+function besvart(
+  v: Svarvurdering,
+  svaret: ReadonlyMap<string, Kravpostvurdering>,
+  u: Utledning,
+  s: Standpunkt
+): boolean {
   if (s.art === 'beloep' && s.saerskilt) return typeof v.produktivitet_vurdering === 'string';
   const gjelder = 'gjelder' in s ? s.gjelder : undefined;
   if (s.art === 'beloep' && utenFastBeloepIKravposten(u, gjelder)) return true;
-  const svar = kravpostvurderinger(v, u.spor.vederlag.gjeldendeKrav!).find(
-    ({ post }) => post.id === gjelder
-  )?.svar;
+  const svar = gjelder === undefined ? undefined : svaret.get(gjelder);
   if (s.art === 'beloep') return typeof svar?.vurdering === 'string';
   if (s.art === 'oppgjoersform') return typeof svar?.aksepterer === 'boolean';
   if (s.art === 'justering') return typeof svar?.godtar_justering === 'boolean';
