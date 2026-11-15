@@ -17,7 +17,7 @@ Formatet og arbeidsregelen står i [README](README.md).
 | [BF-05](BF-05.json) TE oppretter saken og påberoper forholdet | TE har fått et pålegg som TE mener er en irregulær endring. TE velger «Nytt krav om endringsordre», velger forholdet, skriver tittelen på saken og beskrivelsen av pålegget, oppgir datoen pålegget ble mottatt og kontrollerer brevet før det sendes, så kravet ikke tapes for sent varsel etter punkt 32.2. Før sending ser TE at forholdet står fast. Etter sendingen står saken med påberopelsen sendt og venter på BHs svar. | kjørbar | kjernen i minnet, testbasen, demoruta, saksruta, varden | — | — | [BF-05.md](BF-05.md) |
 | [BF-06](BF-06.json) BH gjør opp én eller flere KOE-saker med en endringsordre, og TE tar stilling til den | BH godkjenner grunnlaget i en KOE-sak, og svaret er en endringsordre etter kontrakten. BH velger om endringsordren i EO-saken sendes samtidig, eller senere sammen med andre KOE-saker. I endringsordren gir BH vederlag og frist per sak, eller samlet for saker som henger sammen. Før sending ser BH hvilke saker endringsordren lukker, hvilke spor som ikke har registrert enighet, og hvilken verdi godkjenningen regnes av. TE ser hvert utsagn og sakene det gjelder, godtar eller bestrider det, og fører det som ikke er avklart, videre i en ny KOE. | planlagt | — | #1525, #1519 | — | [BF-06.md](BF-06.md) |
 | [BF-07](BF-07.json) Brevhodet viser under Deres ref. hvilke av motpartens brev brevet tar stilling til | Samme sak som BF-01. Hver part leser et brev fra motparten og ser under Deres ref. hvilke av sine egne brev det svarer på, godtar, bestrider eller ellers gjelder, med merkingen fra hvert av dem. Før sending ser avsenderen i brevkontrollen den samme Deres ref. som fryses med brevet. Et brev som ikke tar stilling til noe brev fra motparten, har ingen koder under Deres ref. | planlagt | — | #1497 | — | [BF-07.md](BF-07.md) |
-| [BF-08](BF-08.json) Byggherren svarer på påberopelsen av forholdet, og totalentreprenøren tar stilling til svaret | BH svarer på gjeldende versjon av TEs påberopelse av forholdet med kontraktens valg for forholdet, gjør eventuelt gjeldende at varselet etter punkt 32.2 kom for sent, og ser før sending om svaret er en endringsordre, om partene blir enige om forholdet og hva det gjør med svarene på vederlag og frist. Har BH svart utenfor løsningen, bekrefter BH det svaret, eller viser til det i svaret på vederlag eller frist, eller svarer på forholdet i samme brev. BH kan sende et nytt svar. TE ser hva svaret betyr og hva TE kan gjøre, og godtar avslaget med beskjed om at saken avsluttes. | planlagt | — | #1306, #1433, #1380, #1449 | — | [BF-08.md](BF-08.md) |
+| [BF-08](BF-08.json) Byggherren svarer på påberopelsen av forholdet, og totalentreprenøren tar stilling til svaret | BH svarer på gjeldende versjon av TEs påberopelse av forholdet med kontraktens valg for forholdet, gjør eventuelt gjeldende at varselet etter punkt 32.2 kom for sent, og ser før sending om svaret er en endringsordre, om partene blir enige om forholdet og hva det gjør med svarene på vederlag og frist. Har BH svart utenfor løsningen, legger BH svaret til som korrespondanse med kategorien svar, eller viser til det i svaret på vederlag eller frist, eller svarer på forholdet i samme brev. BH kan sende et nytt svar. TE ser hva svaret betyr og hva TE kan gjøre, og godtar avslaget med beskjed om at saken avsluttes. | planlagt | — | #2009, #1306, #1433, #1380, #1449 | — | [BF-08.md](BF-08.md) |
 | [BF-10](BF-10.json) TE oppdaterer påberopelsen med en ny versjon | TE vil utdype beskrivelsen av forholdet og si sitt standpunkt til byggherrens svar. TE sender en ny versjon av påberopelsen. Forholdet, hjemmelen og datoen står fast, med veien til korrigeringen av datoen og til en ny sak. Brevet sier hvilket brev den nye versjonen erstatter og, når byggherren har svart, at TEs standpunkt til svaret fremgår av begrunnelsen. Sporet venter på nytt svar, og svaret på den tidligere versjonen kan ikke godtas i løsningen. | planlagt | — | #1615, #1379 | — | [BF-10.md](BF-10.md) |
 | [BF-14](BF-14.json) TE krever vederlag med kravposter, oppgjørsform og PNS per post, og BH svarer per post | TE deler vederlagsjusteringen i kravposter med hver sin oppgjørsform og eventuelt PNS, og ser før sending hvilke poster som er tilbud etter punkt 34.2.1. I en ny versjon står alle postene som ikke er trukket, og en post TE tar ut, trekkes uttrykkelig. BH svarer per kravpost, med varselinnsigelsene, oppgjørsformen og beløpet i den rekkefølgen, og ser trappen per post og lagene samlet før svaret sendes. | planlagt | — | #1663, #1299, #1294, #1292, #1434, #1290, #1755, #1758, #1724 | — | [BF-14.md](BF-14.md) |
 | [BF-20](BF-20.json) TE krever fristforlengelse per frist, og BH svarer per frist | TE varsler etter punkt 33.4 med kravet eller for seg, angir dagene for hver frist i kontrakten forholdet rammer, ser gjeldende og ny frist og rekkefølgen fristene får, og begrunner kravet. Når byggherren har bedt om dagene etter punkt 33.6.2, svarer TE med dagene eller med en begrunnelse for hvorfor de ennå ikke kan beregnes. I en ny versjon står alle fristene, og en frist TE tar ut, trekkes uttrykkelig. BH svarer på varselet, spesifiseringen og hindringen for hele kravet og på dagene per frist, og ser lagene samlet før svaret sendes. | planlagt | — | #1427 | — | [BF-20.md](BF-20.md) |
@@ -203,7 +203,7 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U39](../../plans/vedtak.md#lv-u39) | — | — | BF-01V, BF-08 |
 | [LV-U40](../../plans/vedtak.md#lv-u40) | — | — | BF-08 |
 | [LV-U41](../../plans/vedtak.md#lv-u41) | — | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-04 forholdet-er-avslaatt, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret, BF-05 start | BF-01V, BF-08, BF-10 |
-| [LV-U42](../../plans/vedtak.md#lv-u42) | — | — | BF-07, BF-08, BF-14 |
+| [LV-U42](../../plans/vedtak.md#lv-u42) | — | — | BF-07, BF-14 |
 | [LV-U43](../../plans/vedtak.md#lv-u43) | — | BF-05 start | — |
 | [LV-U44](../../plans/vedtak.md#lv-u44) | — | — | BF-06, BF-07 |
 | [LV-U45](../../plans/vedtak.md#lv-u45) | — | — | BF-07, BF-14 |
@@ -256,7 +256,6 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U6](../../plans/vedtak.md#ov-u6) | — | — | BF-06, BF-08 |
 | [OV-U7](../../plans/vedtak.md#ov-u7) | — | — | BF-03 |
 | [OV-U11](../../plans/vedtak.md#ov-u11) | — | BF-05 start | — |
-| [OV-U12](../../plans/vedtak.md#ov-u12) | — | — | BF-08 |
 | [OV-U15](../../plans/vedtak.md#ov-u15) | — | — | BF-14 |
 | [OV-U18](../../plans/vedtak.md#ov-u18) | — | — | BF-01V |
 | [OV-U20](../../plans/vedtak.md#ov-u20) | — | — | BF-01V |
@@ -285,7 +284,7 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U76](../../plans/vedtak.md#ov-u76) | — | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-04 forholdet-er-avslaatt, BF-04 bh-har-mottatt-vederlagskravet, BF-04 te-har-mottatt-svaret, BF-05 start | BF-01V |
 | [OV-U77](../../plans/vedtak.md#ov-u77) | — | BF-05 start | — |
 | [OV-U78](../../plans/vedtak.md#ov-u78) | — | BF-05 start | BF-01V |
-| [OV-U79](../../plans/vedtak.md#ov-u79) | — | BF-05 start | BF-01V, BF-02B, BF-03, BF-08, BF-14 |
+| [OV-U79](../../plans/vedtak.md#ov-u79) | — | BF-05 start | BF-01V, BF-02B, BF-03, BF-14 |
 | [OV-U80](../../plans/vedtak.md#ov-u80) | — | BF-05 start | BF-02B, BF-03, BF-06, BF-07, BF-08, BF-14, BF-37 |
 | [OV-U81](../../plans/vedtak.md#ov-u81) | — | BF-44 bh-har-registrert-eposten | BF-01V, BF-03 |
 | [OV-U82](../../plans/vedtak.md#ov-u82) | — | BF-05 start | — |
@@ -296,6 +295,7 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U90](../../plans/vedtak.md#ov-u90) | — | — | BF-37 |
 | [OV-U94](../../plans/vedtak.md#ov-u94) | — | — | BF-14 |
 | [OV-U95](../../plans/vedtak.md#ov-u95) | — | — | BF-14 |
+| [OV-U98](../../plans/vedtak.md#ov-u98) | — | — | BF-08 |
 | [OV-U101](../../plans/vedtak.md#ov-u101) | — | — | BF-08 |
 | [VS-U1](../../plans/vedtak.md#vs-u1) | — | — | BF-14 |
 | [VS-U2](../../plans/vedtak.md#vs-u2) | — | — | BF-14, BF-20 |
