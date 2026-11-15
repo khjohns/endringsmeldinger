@@ -429,6 +429,10 @@ async function lesKontraktsside(
   return somKontraktstilgang(funnet);
 }
 
+/** Meldingen i 403-svaret når medlemmet ikke har én entydig side i kontrakten. */
+export const UTEN_KONTRAKTSSIDE =
+  'Du må være med i et team på totalentreprenørens eller byggherrens side, og ikke på begge.';
+
 /** `require_contract_role()` med `contract_membership`. Uten entydig side: 403. */
 export async function krevKontraktsrolle(
   db: Pool,
@@ -437,7 +441,7 @@ export async function krevKontraktsrolle(
 ): Promise<Kontraktstilgang> {
   const side = await lesKontraktsside(db, catenda, tilgang);
   if (!side) {
-    throw new Nektet(403, 'CONTRACT_ROLE_REQUIRED', 'Du har ikke nødvendig TE/BH-teamtilknytning.');
+    throw new Nektet(403, 'CONTRACT_ROLE_REQUIRED', UTEN_KONTRAKTSSIDE);
   }
   return side;
 }

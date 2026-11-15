@@ -8,6 +8,7 @@ import type { IncomingMessage } from 'node:http';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import {
   Nektet,
+  UTEN_KONTRAKTSSIDE,
   type Bruker,
   type Catenda,
   type Kontraktstilgang,
@@ -185,7 +186,6 @@ export const finnesIkke = () => feilsvar(404, 'SAK_FINNES_IKKE', 'Saken finnes i
 
 /** Siden `kontraktsrolle: 'kreves'` i registeret har krevd; uten den er svaret 403 (#743). */
 export function medSide(side: Kontraktstilgang | null): Kontraktstilgang {
-  if (!side)
-    throw new Nektet(403, 'CONTRACT_ROLE_REQUIRED', 'Du har ikke nødvendig TE/BH-teamtilknytning.');
+  if (!side) throw new Nektet(403, 'CONTRACT_ROLE_REQUIRED', UTEN_KONTRAKTSSIDE);
   return side;
 }

@@ -23,7 +23,7 @@ import type {
   Saksrute,
   Svar,
 } from './rutetyper.ts';
-import { Nektet, type Kontraktstilgang } from './autorisasjon.ts';
+import { Nektet, UTEN_KONTRAKTSSIDE, type Kontraktstilgang } from './autorisasjon.ts';
 import { lagret, lesInntil } from './inngang.ts';
 import {
   BLOKKERT,
@@ -151,8 +151,7 @@ const UTEN_TEAM = feilsvar(403, 'MANGLER_TEAM', UTEN_TEAM_MELDING);
 
 /** Konteksten for radsikkerheten. Uten team ses bare bundne vedlegg. */
 function kontekst({ bruker, prosjekt, side }: Forespoersel): Kontekst {
-  if (!side)
-    throw new Nektet(403, 'CONTRACT_ROLE_REQUIRED', 'Du har ikke nødvendig TE/BH-teamtilknytning.');
+  if (!side) throw new Nektet(403, 'CONTRACT_ROLE_REQUIRED', UTEN_KONTRAKTSSIDE);
   return {
     aktor: bruker.id,
     prosjekt: prosjekt.prosjektId,

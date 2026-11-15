@@ -26,6 +26,7 @@ import {
   krevProsjekttilgang,
   type FraSti,
   UTEN_STI,
+  UTEN_KONTRAKTSSIDE,
   Nektet,
   type Bruker,
   type Kontraktstilgang,
@@ -624,7 +625,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       const team = { [p.te[0]]: [m.subjekt], [p.bh[0]]: [m.subjekt] };
       await expect(kontrakt(p, m, team)).rejects.toMatchObject({
         status: 403,
-        kropp: { error: 'CONTRACT_ROLE_REQUIRED' },
+        kropp: { error: 'CONTRACT_ROLE_REQUIRED', message: UTEN_KONTRAKTSSIDE },
       });
     });
 
