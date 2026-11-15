@@ -290,6 +290,13 @@ const gjeldendeKrav = (
   return krav!;
 };
 
+/** Dagen etter siste rad i journalen: dagen neste rad skrives, i `sak` én dag per rad. */
+const dagenEtterSisteRad = (s: { journal: Journalrad[] }) => {
+  const d = new Date(s.journal.at(-1)!.tidsstempel);
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+};
+
 const tekst = (rad: Journalrad): Avsnitt[] => {
   expect(rad.data.brevtekst, 'brevet fra appen har brevtekst (LV-U2)').toBeDefined();
   return rad.data.brevtekst as Avsnitt[];
@@ -2020,7 +2027,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     );
   });
 
-  it('et registrert krav er dokumentasjon, så byggherren kan ikke godkjenne det fra appen (OV-U4)', () => {
+  it('et krav lagt til med kravskjemaet blir gjeldende krav, og byggherren svarer på det fra løsningen (OV-U80, OV-U98)', () => {
     const s = sak();
     const id = randomUUID();
     s.rad('TE', {
@@ -2032,12 +2039,15 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     });
     const u = s.u();
     expect(u.forstaatt).toBe(true);
-    expect(u.spor.forhold.gjeldendeKrav, 'kravet er ikke gjeldende krav (OV-U4)').toBeNull();
+    expect(u.spor.forhold.gjeldendeKrav?.id, 'kravet er gjeldende krav (OV-U80)').toBe(id);
     const godkjent = {
       type: 'brev',
       svar: [svar('forhold', id, { resultat: 'godkjent', grunnlag_varslet_i_tide: true })],
     };
-    expect(s.avvist('BH', godkjent), 'kravet i brevet er ikke et krav (OV-U4)').toBe('INGEN_KRAV');
+    expect(
+      s.avvist('BH', godkjent),
+      'samme virkning som et krav fra løsningen (OV-U80)'
+    ).toBeNull();
   });
 
   it('et krav fra appen uten beskrivelse gir ingen godkjenning som endringsordre (GR-U14)', () => {
@@ -2562,10 +2572,10 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       ],
     });
 
-    it('brevteksten gjentar den ikke i svaret, men innsigelsen mot kravet fra appen', () => {
+    it('brevteksten gjentar den i svaret, som innsigelsen mot kravet fra løsningen (OV-U80)', () => {
       const { s, registrert } = medRegistrertKrav();
       s.send('BH', { type: 'innsigelse', gjelder: registrert });
-      expect(laast(s.send('BH', avslag(s))).join('\n\n')).not.toContain('jf. innsigelsen');
+      expect(laast(s.send('BH', avslag(s)))[1]).toContain('jf. innsigelsen');
       // Kontrollsak: samme forløp med innsigelsen mot påberopelsen fra appen.
       const k = medRegistrertKrav().s;
       k.send('BH', { type: 'innsigelse', gjelder: k.krav('forhold') });
@@ -2797,31 +2807,8 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       expect(laast(rad)[1]).toContain('jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026');
     });
 
-    it('et «i tide» i et registrert brev gir ikke opp innsigelsen, så et «for sent» fra appen på en ny versjon gjentar den (HF-U4, OV-U4)', () => {
-      const s = medInnsigelse();
-      s.rad('BH', {
-        svar: [
-          {
-            id: randomUUID(),
-            spor: 'forhold',
-            gjelder: s.krav('forhold'),
-            standpunkter: [
-              {
-                id: randomUUID(),
-                art: 'rettidighet',
-                gjelder: s.krav('forhold'),
-                hjemmel: '32.2',
-                i_tide: true,
-              },
-              { id: randomUUID(), art: 'forhold', resultat: 'avslaatt' },
-            ],
-          },
-        ],
-        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-06' }],
-        korrespondansetype: 'brev',
-      });
-      s.send('TE', PAABEROPELSE);
-      const forSent = {
+    it('et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt, men ikke et sendt før den (OV-U105, OV-U104)', () => {
+      const forSent = (s: ReturnType<typeof sak>) => ({
         type: 'brev',
         svar: [
           svar('forhold', s.krav('forhold'), {
@@ -2829,12 +2816,48 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
             grunnlag_varslet_i_tide: false,
           }),
         ],
+      });
+      /** `utenVirkning`: svaret gjelder kravversjonen den nye påberopelsen har erstattet (OV-U98). */
+      const etterITide = (sendt: string, utenVirkning = false) => {
+        const s = medInnsigelse();
+        const gjelder = s.krav('forhold');
+        if (utenVirkning) s.send('TE', PAABEROPELSE);
+        s.rad('BH', {
+          svar: [
+            {
+              id: randomUUID(),
+              spor: 'forhold',
+              gjelder,
+              standpunkter: [
+                {
+                  id: randomUUID(),
+                  art: 'rettidighet',
+                  gjelder,
+                  hjemmel: '32.2',
+                  i_tide: true,
+                },
+                { id: randomUUID(), art: 'forhold', resultat: 'avslaatt' },
+              ],
+            },
+          ],
+          opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: sendt }],
+          korrespondansetype: 'brev',
+        });
+        if (utenVirkning) expect(s.u().utenVirkning, 'forutsetning').toHaveLength(1);
+        else s.send('TE', PAABEROPELSE);
+        // Byggherren kan påberope det samme på nytt (VS-U46 punkt 13).
+        expect(s.avvist('BH', forSent(s))).toBeNull();
+        return laast(s.send('BH', forSent(s)))[1];
       };
-      // Det registrerte «i tide» binder ikke byggherren (HF-U4, OV-U4).
-      expect(s.avvist('BH', forSent)).toBeNull();
-      expect(laast(s.send('BH', forSent))[1]).toContain(
-        'jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026'
+      const innsigelsen = 'jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026';
+      expect(etterITide('2026-10-06')).not.toContain(innsigelsen);
+      expect(etterITide('2026-10-04'), 'kontrollsak: svaret er sendt før innsigelsen').toContain(
+        innsigelsen
       );
+      expect(
+        etterITide('2026-12-01', true),
+        'et svar uten virkning gir den ikke opp (MM-U43 punkt 9)'
+      ).toContain(innsigelsen);
     });
 
     /** GR-U11: § 32.2 gjelder ikke kategorien. */
@@ -2943,38 +2966,36 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
           : {}),
       });
 
-    it('etter et «i tide» på en tidligere versjon godtas en innsigelse mot en versjon i en annen underkategori der § 32.2 gjelder, når et svar utenfor kommandoene har besvart den (MM-U34 punkt 6, HF-U8)', () => {
-      const s = skifteEtter(true);
-      besvar(s, false);
-      const u = s.u();
-      expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
-      const nytt = u.spor.forhold.svar.find((x) => x.gjelder === s.krav('forhold'));
-      expect(
-        nytt?.beslutningsgrunnlag.varslingsplikt,
-        'forutsetning: svaret på den nye versjonen frøs at § 32.2 gjelder (GR-U12)'
-      ).toBe(true);
-      expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('forhold') })).toBeNull();
-    });
-
     it.each([
-      ['ubesvart', false],
-      ['besvart bare i et registrert brev', true],
+      ['utenfor kommandoene', false],
+      ['i et registrert brev (OV-U80, OV-U98)', true],
     ])(
-      'etter et «i tide» på en tidligere versjon godtas en innsigelse mot en versjon i en annen underkategori som er %s (restavviket i #798)',
+      'etter et «i tide» på en tidligere versjon godtas en innsigelse mot en versjon i en annen underkategori der § 32.2 gjelder, når et svar %s har besvart den (MM-U34 punkt 6, HF-U8)',
       (_, registrert) => {
-        // Karakteriserer dagens atferd, ikke en vedtatt forventning: ingen svar med virkning
-        // har frosset varslingsplikten i den nye underkategorien, så innsigelsen leses ikke
-        // som en påberopelse etter § 32.2. Et registrert svar er dokumentasjon (OV-U4).
-        // Avviket gjelder bare et kategoriskifte fra før GR-U22.
         const s = skifteEtter(true);
-        if (registrert) besvar(s, true);
+        besvar(s, registrert);
+        const u = s.u();
+        expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+        const nytt = u.spor.forhold.svar.find((x) => x.gjelder === s.krav('forhold'));
         expect(
-          s.u().spor.forhold.svar.some((x) => x.gjelder === s.krav('forhold')),
-          'forutsetning: ingen svar med virkning på den nye versjonen'
-        ).toBe(false);
+          nytt?.beslutningsgrunnlag.varslingsplikt,
+          'forutsetning: svaret på den nye versjonen frøs at § 32.2 gjelder (GR-U12)'
+        ).toBe(true);
         expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('forhold') })).toBeNull();
       }
     );
+
+    it('etter et «i tide» på en tidligere versjon godtas en innsigelse mot en ubesvart versjon i en annen underkategori (restavviket i #798)', () => {
+      // Karakteriserer dagens atferd, ikke en vedtatt forventning: ingen svar med virkning
+      // har frosset varslingsplikten i den nye underkategorien, så innsigelsen leses ikke
+      // som en påberopelse etter § 32.2. Avviket gjelder bare et kategoriskifte fra før GR-U22.
+      const s = skifteEtter(true);
+      expect(
+        s.u().spor.forhold.svar.some((x) => x.gjelder === s.krav('forhold')),
+        'forutsetning: ingen svar med virkning på den nye versjonen'
+      ).toBe(false);
+      expect(s.avvist('BH', { type: 'innsigelse', gjelder: s.krav('forhold') })).toBeNull();
+    });
 
     it('hjemmelen for innsigelsen leses av svaret som sa «i tide», ikke av et nyere regelsett (MM-U43 punkt 8, GR-U12, #776)', () => {
       const s = sak();
@@ -3434,19 +3455,14 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     expect(u.spor.frist.trukket).toBe(true);
   });
 
-  it('med et registrert brev sier visningen også at saken har brev sendt utenfor appen (OV-U10)', () => {
+  it('med et brev lagt til som dokumentasjon sier visningen også at saken har brev sendt utenfor appen (OV-U10)', () => {
     const s = utenFrist();
-    s.rad('TE', {
-      krav: [
-        {
-          id: randomUUID(),
-          spor: 'forhold',
-          hovedkategori: 'endring',
-          underkategori: 'irregulaer_endring',
-        },
-      ],
-      opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
+    s.send('TE', {
+      type: 'registrert_brev',
+      sendt: '2026-09-30',
       korrespondansetype: 'brev',
+      beskrivelse: 'Referat fra byggemøte',
+      dokumentasjon: [randomUUID()],
     });
     const u = s.u();
     expect(u.forstaatt, 'forutsetning: saken er forstått').toBe(true);
@@ -3860,7 +3876,52 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(s.avvist('BH', foresporsel)).toBe('FRISTKRAV_SENDT');
   });
 
-  it('VS-U33: et fristkrav i et registrert brev stopper ikke forespørselen fra appen', () => {
+  const fristkravLagtTil = {
+    krav: [
+      { id: 'K-lagt-til', spor: 'frist', frister: [{ id: 'f1', navn: 'Sluttfristen', dager: 20 }] },
+    ],
+    opplysninger: [{ id: 'O-sendt', hva: 'sendt', dato: '2026-10-01' }],
+    korrespondansetype: 'brev',
+  };
+
+  it('VS-U47 spørsmål 2: en forespørsel etter et fristkrav lagt til med kravskjemaet gjør saken uforstått', () => {
+    const utsagnet = (() => {
+      const k = sak();
+      k.send('TE', PAABEROPELSE);
+      return (k.send('BH', foresporsel).data.utsagn as Data[])[0];
+    })();
+    const forstaatt = (medKravet: boolean) => {
+      const s = sak();
+      s.send('TE', PAABEROPELSE);
+      if (medKravet) s.rad('TE', structuredClone(fristkravLagtTil));
+      s.rad('BH', { utsagn: [{ ...utsagnet, id: randomUUID() }] });
+      return s.u().forstaatt;
+    };
+    expect(forstaatt(false), 'kontrollsak: forespørselen uten kravet').toBe(true);
+    expect(forstaatt(true)).toBe(false);
+  });
+
+  it('et fristkrav lagt til, sendt før en ubesvart forespørsel, avvises til det kan legges til uten å svare på den (HF-U1, oppdragsgiver 15.11 i #2011)', () => {
+    const lagtTil = (sendt: (foresporselen: string) => string) => {
+      const s = sak();
+      s.send('TE', PAABEROPELSE);
+      const dag = s.send('BH', foresporsel).tidsstempel.slice(0, 10);
+      const krav = utenFelt(utenFelt(FRISTKRAV, 'varsel'), 'utdypning');
+      return s.avvist('TE', {
+        ...krav,
+        sendt: sendt(dag),
+        korrespondansetype: 'brev',
+        dokumentasjon: [randomUUID()],
+      });
+    };
+    expect(lagtTil(() => '2026-09-01')).toBe('FRISTKRAV_FOER_FORESPOERSELEN');
+    expect(
+      lagtTil((dag) => dag),
+      'kontrollsak: sendt samme dag som forespørselen'
+    ).toBeNull();
+  });
+
+  it('VS-U47 spørsmål 2: et fristkrav lagt til med kravskjemaet stopper forespørselen fra løsningen', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     s.rad('TE', {
@@ -3874,9 +3935,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-01' }],
       korrespondansetype: 'brev',
     });
-    expect(s.avvist('BH', foresporsel)).toBeNull();
-    // Kjernen forstår journalen med forespørselen etter det registrerte kravet (send kaster ellers).
-    s.send('BH', foresporsel);
+    expect(s.avvist('BH', foresporsel)).toBe('FRISTKRAV_SENDT');
   });
 
   it('VS-U33: et fristkrav fremmet i appen stopper forespørselen (kontrollsak)', () => {
@@ -4353,6 +4412,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,
       kravpostvarsler: {},
+      utenVirkning: [],
       varsletFoer: {},
       paaberopelse: null,
     };
@@ -4453,6 +4513,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       subsidiaer: { vederlag: [], frist: [] },
       avklartVedFrafall: false,
       kravpostvarsler: {},
+      utenVirkning: [],
       varsletFoer: {},
       paaberopelse: null,
     };
@@ -5183,6 +5244,7 @@ describe('vedleggene står i teksten (A4)', () => {
     subsidiaer: { vederlag: [], frist: [] },
     avklartVedFrafall: false,
     kravpostvarsler: {},
+    utenVirkning: [],
     varsletFoer: {},
     paaberopelse: null,
   };
@@ -5733,14 +5795,15 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
     expect(rettidighet()).toMatchObject({ hjemmel: '34.1.2', iTide: false });
   });
 
-  it('et registrert svar med «i tide» er dokumentasjon, og byggherren kan svare «for sent» fra appen (OV-U4)', () => {
+  it('et registrert svar med «i tide», sendt før fristkravet, får ingen virkning, og byggherren kan svare «for sent» fra appen (OV-U98)', () => {
     const s = sakMedKrav();
     const u = s.u();
     const fristId = (u.spor.frist.gjeldendeKrav!.innhold.frister as Data[])[0].id;
+    const svarId = randomUUID();
     s.rad('BH', {
       svar: [
         {
-          id: randomUUID(),
+          id: svarId,
           spor: 'frist',
           gjelder: s.krav('frist'),
           paaberopelse: u.spor.forhold.gjeldendeKrav!.id,
@@ -5766,15 +5829,14 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
           },
         },
       ],
+      // Fristkravet er sendt 04.10, så det var ikke gjeldende på sendedatoen.
       opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
       korrespondansetype: 'brev',
     });
     const etter = s.u();
     expect(etter.forstaatt, JSON.stringify(etter.begrensninger)).toBe(true);
-    expect(
-      etter.spor.frist.gjeldendeSvar,
-      'det registrerte svaret er dokumentasjon (OV-U4)'
-    ).toBeNull();
+    expect(etter.utenVirkning.map((x) => x.element)).toContain(svarId);
+    expect(etter.spor.frist.gjeldendeSvar).toBeNull();
     expect(s.avvist('BH', nyttSvar(s, 'frist', forSent334))).toBeNull();
   });
 
@@ -5915,7 +5977,11 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
   };
   const versjon = (s: Sak, innhold: Data) =>
     s.send('TE', { ...PAABEROPELSE, innhold: { ...PAABEROPELSE.innhold, ...innhold } });
-  /** Et registrert brev fra byggherren med et svar på gjeldende påberopelsesversjon. */
+  /**
+   * Et brev fra byggherren med et svar på gjeldende påberopelsesversjon. Et registrert brev
+   * oppgis sendt dagen det registreres, etter dagen for siste rad, så det som var gjeldende
+   * på sendedatoen, ikke avhenger av samme dag (OV-U98).
+   */
   const registrertSvar = (s: Sak, resultat: string, sendt: boolean, iTide = true) => {
     const u = s.u();
     const id = randomUUID();
@@ -5927,10 +5993,11 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
           gjelder: u.spor.forhold.gjeldendeKrav!.id,
           ...(u.spor.forhold.gjeldendeSvar ? { erstatter: u.spor.forhold.gjeldendeSvar.id } : {}),
           standpunkter: [
+            // VS-U43 punkt 6: rettidigheten gjelder det første grunnlagskravet.
             {
               id: randomUUID(),
               art: 'rettidighet',
-              gjelder: u.spor.forhold.gjeldendeKrav!.id,
+              gjelder: u.spor.forhold.krav[0]!.id,
               hjemmel: '32.2',
               i_tide: iTide,
             },
@@ -5940,7 +6007,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       ],
       ...(sendt
         ? {
-            opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-05' }],
+            opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: dagenEtterSisteRad(s) }],
             korrespondansetype: 'brev',
           }
         : {}),
@@ -5987,11 +6054,11 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       expect(s.avvist('BH', nyttSvar(s, paaberopelse))).toBeNull();
     });
 
-    it('et registrert frafall binder ikke (OV-U4)', () => {
+    it('et registrert frafall er gjeldende svar som et frafall fra appen, og etter en ny versjon godtas et avslag (OV-U80, OV-U98)', () => {
       const s = sakMedKrav();
-      registrertSvar(s, 'paalegg_frafalt', true);
-      expect(s.u().frafalt, 'det registrerte frafallet er dokumentasjon').toBe(false);
-      expect(s.u().spor.forhold.gjeldendeSvar).toBeNull();
+      const id = registrertSvar(s, 'paalegg_frafalt', true);
+      expect(s.u().frafalt).toBe(true);
+      expect(s.u().spor.forhold.gjeldendeSvar?.id).toBe(id);
       versjon(s, {});
       expect(s.avvist('BH', nyttSvar(s, avslag))).toBeNull();
     });
@@ -6046,19 +6113,16 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       expect(enighetensVirkning(u, 'vederlag')).toBe('virksom');
     });
 
-    it('kontrollsak: et registrert frafall avklarer ikke forholdet, så enigheten i vederlaget er betinget før og etter versjon 2 (OV-U4, GR-U1)', () => {
+    it('et registrert frafall avklarer forholdet som et frafall fra appen, så enigheten i vederlaget forblir virksom etter versjon 2 (OV-U80, OV-U98, GR-U23)', () => {
       const s = sakMedKrav();
       registrertSvar(s, 'paalegg_frafalt', true);
-      s.send('BH', {
-        type: 'brev',
-        svar: [svar('vederlag', s.krav('vederlag'), vederlagFullt[0], vederlagFullt[1])],
-      });
-      expect(enighetensVirkning(s.u(), 'vederlag')).toBe('betinget');
+      medEnighetIVederlaget(s);
       versjon(s, {});
       const u = s.u();
-      expect(u.forholdAvklart).toBe(false);
-      expect(u.frafalt).toBe(false);
-      expect(enighetensVirkning(u, 'vederlag')).toBe('betinget');
+      expect(u.spor.forhold.gjeldendeSvar, 'forutsetning: versjon 2 er ikke besvart').toBeNull();
+      expect(u.forholdAvklart).toBe(true);
+      expect(u.frafalt).toBe(true);
+      expect(enighetensVirkning(u, 'vederlag')).toBe('virksom');
     });
 
     it('etter frafall, revisjon til avslag og en ny påberopelsesversjon er forholdet ikke avklart ved frafallet, fordi det siste svaret er avslaget (MM-U34 punkt 7, GR-U23)', () => {
@@ -6076,7 +6140,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       expect(k.u().frafalt, 'kontrollsak').toBe(true);
     });
 
-    it('etter frafall fra appen, en registrert endringsordre som godkjenner versjon 2 og en ny versjon 3 er forholdet avklart ved frafallet, fordi frafallet ikke faller bort ved en ny versjon og et registrert svar ikke tar det bort (GR-U20, GR-U23, OV-U4, OV-U6, #1388)', () => {
+    it('etter frafall fra appen, en registrert endringsordre som godkjenner versjon 2 og en ny versjon 3 er forholdet ikke avklart ved frafallet, fordi det siste svaret er endringsordren, som for et svar fra appen (GR-U23, OV-U6, OV-U80, OV-U98)', () => {
       const s = medFrafall();
       versjon(s, {});
       const v2 = s.u().spor.forhold.gjeldendeKrav!.id;
@@ -6121,8 +6185,15 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       expect(u.spor.forhold.krav.length, 'forutsetning: tre versjoner').toBe(3);
       expect(u.spor.forhold.gjeldendeSvar, 'forutsetning: versjon 3 venter på svar').toBeNull();
       expect(venterPaaSvar(u, 'forhold')).toBe(true);
-      expect(u.forholdAvklart).toBe(true);
-      expect(u.frafalt).toBe(true);
+      expect(u.forholdAvklart).toBe(false);
+      expect(u.frafalt).toBe(false);
+      // Kontrollsak: endringsordren sendt fra appen gir det samme.
+      const k = medFrafall();
+      versjon(k, {});
+      k.send('BH', nyttSvar(k, endringsordre));
+      versjon(k, {});
+      expect(k.u().forholdAvklart, 'kontrollsak').toBe(false);
+      expect(k.u().frafalt, 'kontrollsak').toBe(false);
     });
 
     it('blir fristkravet avgjort mens versjon 2 venter, er kravene avgjort, og svaret på versjon 2 og trekket av forholdet godtas (MM-U34 punkt 12, OV-U3, KA-U11)', () => {
@@ -6146,39 +6217,18 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
     });
   });
 
-  describe('et avslag etter frafallet som ikke kommer gjennom kommandoene (MM-U43 punkt 9, OV-U4)', () => {
-    it('et registrert avslag av en ny påberopelsesversjon får ingen virkning, og saken er forstått', () => {
-      const s = medFrafall();
-      versjon(s, {});
-      const id = registrertSvar(s, 'avslaatt', true);
-      const u = s.u();
-      expect(u.forstaatt).toBe(true);
-      expect(
-        u.spor.forhold.svar.map((x) => x.id),
-        'svaret er dokumentasjon (OV-U4)'
-      ).not.toContain(id);
-      expect(u.spor.forhold.gjeldendeSvar).toBeNull();
-    });
+  describe('et svar etter frafallet utenfor kommandoene, registrert eller ikke (MM-U43 punkt 6, OV-U80, OV-U98)', () => {
+    const brevet = [
+      ['et registrert brev', true],
+      ['et brev som ikke er registrert og ikke er sendt fra appen', false],
+    ] as [string, boolean][];
 
-    it('en registrert revisjon fra frafall til avslag får ingen virkning, og frafallet står', () => {
-      const s = medFrafall();
-      const id = registrertSvar(s, 'avslaatt', true);
-      const u = s.u();
-      expect(
-        u.spor.forhold.svar.map((x) => x.id),
-        'svaret er dokumentasjon (OV-U4)'
-      ).not.toContain(id);
-      expect(u.frafalt).toBe(true);
-    });
-
-    it.each([
-      ['et avslag', 'avslaatt', true],
-      ['en påberopelse etter § 32.2', 'godkjent', false],
-    ] as [string, string, boolean][])(
-      '%s i et brev som ikke er registrert og ikke er sendt fra appen, er forstått og avløser frafallet (MM-U34 punkt 6 og 7, GR-U17, MM-U43 punkt 6)',
-      (_n, resultat, iTide) => {
+    it.each(brevet)(
+      'et avslag av en ny påberopelsesversjon i %s er gjeldende svar og avløser frafallet',
+      (_n, sendt) => {
         const s = medFrafall();
-        const id = registrertSvar(s, resultat, false, iTide);
+        versjon(s, {});
+        const id = registrertSvar(s, 'avslaatt', sendt);
         const u = s.u();
         expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
         expect(u.spor.forhold.gjeldendeSvar?.id).toBe(id);
@@ -6186,34 +6236,40 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       }
     );
 
-    it.each([
-      ['en registrert revisjon fra frafall', false],
-      ['et registrert svar på en ny grunnlagsversjon', true],
-    ] as [string, boolean][])(
-      '%s til påberopelse etter § 32.2 får ingen virkning, og frafallet står (GR-U17, GR-U20)',
-      (_n, nyVersjon) => {
+    it.each(
+      brevet.flatMap(([brev, sendt]) => [
+        [`et avslag i ${brev}`, 'avslaatt', true, sendt],
+        [`en påberopelse etter § 32.2 i ${brev}`, 'godkjent', false, sendt],
+      ]) as [string, string, boolean, boolean][]
+    )(
+      'en revisjon av frafallet til %s er forstått og avløser frafallet (MM-U34 punkt 6 og 7, GR-U17)',
+      (_n, resultat, iTide, sendt) => {
         const s = medFrafall();
-        if (nyVersjon) versjon(s, {});
-        const id = registrertSvar(s, 'godkjent', true, false);
+        const id = registrertSvar(s, resultat, sendt, iTide);
         const u = s.u();
-        expect(u.forstaatt).toBe(true);
-        expect(
-          u.spor.forhold.svar.map((x) => x.id),
-          'svaret er dokumentasjon (OV-U4)'
-        ).not.toContain(id);
-        expect(u.spor.forhold.gjeldendeSvar?.id).not.toBe(id);
-        if (!nyVersjon) expect(u.frafalt).toBe(true);
+        expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+        expect(u.spor.forhold.gjeldendeSvar?.id).toBe(id);
+        expect(u.frafalt).toBe(false);
       }
     );
 
-    it('et registrert avslag etter et registrert frafall er også dokumentasjon, og forholdet venter på svar (OV-U4)', () => {
+    it('et registrert svar på en ny grunnlagsversjon med påberopelse etter § 32.2 er gjeldende svar (MM-U34 punkt 6 og 7, GR-U20)', () => {
+      const s = medFrafall();
+      versjon(s, {});
+      const id = registrertSvar(s, 'godkjent', true, false);
+      const u = s.u();
+      expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
+      expect(u.spor.forhold.gjeldendeSvar?.id).toBe(id);
+    });
+
+    it('et registrert avslag etter et registrert frafall avløser frafallet (OV-U80, OV-U98)', () => {
       const s = sakMedKrav();
       registrertSvar(s, 'paalegg_frafalt', true);
-      registrertSvar(s, 'avslaatt', true);
+      const id = registrertSvar(s, 'avslaatt', true);
       const u = s.u();
-      expect(u.forstaatt).toBe(true);
+      expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
       expect(u.frafalt).toBe(false);
-      expect(u.spor.forhold.gjeldendeSvar).toBeNull();
+      expect(u.spor.forhold.gjeldendeSvar?.id).toBe(id);
     });
   });
 
@@ -6553,13 +6609,14 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
       ).toBeNull();
     });
 
-    it('et registrert brev er dokumentasjon, og byggherren kan avslå fra appen (OV-U4)', () => {
+    it('et registrert svar er gjeldende, og byggherren kan revidere det til avslag fra appen (OV-U80, OV-U98, HF-U5)', () => {
       const s = sakMedKrav();
       const u = s.u();
+      const id = randomUUID();
       s.rad('BH', {
         svar: [
           {
-            id: randomUUID(),
+            id,
             spor: 'forhold',
             gjelder: u.spor.forhold.gjeldendeKrav!.id,
             standpunkter: [
@@ -6574,15 +6631,15 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
             ],
           },
         ],
-        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-05' }],
+        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: dagenEtterSisteRad(s) }],
         korrespondansetype: 'brev',
       });
+      expect(s.u().spor.forhold.gjeldendeSvar?.id).toBe(id);
+      expect(s.avvist('BH', nyttSvar(s, 'forhold', { ...forSent, resultat: 'avslaatt' }))).toBe(
+        'ALLEREDE_SVART'
+      );
       expect(
-        s.u().spor.forhold.gjeldendeSvar,
-        'det registrerte svaret er dokumentasjon (OV-U4)'
-      ).toBeNull();
-      expect(
-        s.avvist('BH', nyttSvar(s, 'forhold', { ...forSent, resultat: 'avslaatt' }))
+        s.avvist('BH', revisjon(s, 'forhold', { ...forSent, resultat: 'avslaatt' }))
       ).toBeNull();
     });
   });
@@ -11588,6 +11645,35 @@ describe('akseptfristen (HF-U23)', () => {
       'aksept_etter_akseptfristen'
     );
   });
+
+  it.each([
+    ['innen fristen', '2026-10-06', false],
+    ['etter fristen (kontrollsak)', '2026-10-07', true],
+  ] as [string, string, boolean][])(
+    'en aksept sendt %s utenfor løsningen og lagt til senere, merkes etter dagen den ble sendt (punkt 7, OV-U98)',
+    (_n, sendt, etter) => {
+      const s = sakMedKrav();
+      s.send('BH', brev(medFrist(delvis(s), '2026-10-06')));
+      const svaret = s.u().spor.vederlag.gjeldendeSvar!.id;
+      // Svaret er sendt 05.10, og aksepten legges til 06.10; dagen etter er 07.10.
+      s.send('BH', {
+        type: 'brev',
+        svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
+      });
+      s.rad('TE', {
+        utsagn: [
+          { id: randomUUID(), art: 'aksept', gjelder: svaret, regelversjon: KJERNE.regler.versjon },
+        ],
+        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: sendt }],
+        korrespondansetype: 'brev',
+      });
+      const u = s.u();
+      expect(u.spor.vederlag.enighet, 'forutsetning: aksepten har virkning').not.toBeNull();
+      expect(
+        visning(u, KJERNE.regler).spor.vederlag.etiketter.includes('aksept_etter_akseptfristen')
+      ).toBe(etter);
+    }
+  );
 
   it('dagen aksepten sendes, regnes i norsk tid (punkt 2)', () => {
     expect(etterAkseptfristen('2026-10-05', '2026-10-06')).toBe(true);

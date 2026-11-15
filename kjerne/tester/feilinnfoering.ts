@@ -13,7 +13,7 @@
  * § 33.4 mot varselet (#309, KK-07), F208–F209 innsigelsen brevet viser til og gir opp
  * (#407, #309, #500), F215–F216 frafall der pålegget er byggherrens eget (GR-U18, #511),
  * F222 og F224 innsigelsen etter VS-U24 (#498, #517), F223 et registrert brev (HF-U4, OV-U4), og
- * F246–F247 registrerte brev som dokumentasjon (OV-U4, OV-U6, #574), og F248–F255
+ * F246 registrerte brev som dokumentasjon (OV-U4, #574), og F248–F255
  * opprettelsen og datoen etter VS-U26 (#664), og F296–F300 varselet med vedlegg i
  * fristkravet (OV-U5, #828) og datoen for varselet (#968), og F301–F303
  * protesten, påberopt passivitet og den senere begrunnelsen, som avvises etter
@@ -403,8 +403,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '    ...forholdssvaretsVirkning(spor, elementer, svar, dokumenter),',
-        "    ...forholdssvaretsVirkning(spor, elementer, svar, dokumenter),\n    endringsordre: spor.forhold.svar.some((svaret) => svaret.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.forhold.gjeldendeKrav?.innhold.hovedkategori), String(spor.forhold.gjeldendeKrav?.innhold.underkategori)) && !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)) ? 'ja' : 'nei',",
+        '    ...forholdssvaretsVirkning(spor, svar, dokumenter),',
+        "    ...forholdssvaretsVirkning(spor, svar, dokumenter),\n    endringsordre: spor.forhold.svar.some((svaret) => svaret.beslutningsgrunnlag.sammenfall && regler.gjelderVarslingsplikten(String(spor.forhold.gjeldendeKrav?.innhold.hovedkategori), String(spor.forhold.gjeldendeKrav?.innhold.underkategori)) && !erRegistrert(dokumenter.get(svaret.dokument)!.opplysninger)) ? 'ja' : 'nei',",
       ],
     ],
     mal: ['F-MM-G15'],
@@ -593,6 +593,11 @@ const MUTASJONER: Mutasjon[] = [
       [
         '  if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)',
         '  if (false)',
+      ],
+      // GR-U8 også for et svar som ikke lenger er gjeldende (OV-U98).
+      [
+        '?.beslutningsgrunnlag.sammenfall)\n    return',
+        '?.beslutningsgrunnlag.sammenfall && false)\n    return',
       ],
     ],
     mal: ['en aksept av et svar med sammenfall er ikke forstått'],
@@ -840,6 +845,12 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [['      if (!registrert) konflikter.push(', '      if (true) konflikter.push(']],
     mal: ['F-MM-U326l'],
+    // Et svar lagt til, sendt før kravet, strider (OV-U98); med mutasjonen blir saken uforstått, og
+    // det neste steget avvises.
+    forutsetninger: [
+      { test: 'F-MM-R1-kontroll', melding: 'avvist: SAK_IKKE_FORSTAATT' },
+      { test: 'F-MM-G42x', melding: 'avvist: SAK_IKKE_FORSTAATT' },
+    ],
   },
   {
     id: 'F78',
@@ -908,7 +919,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F84',
     feilklasse:
-      'en påberopt passivitet mot en påberopelsesversjon uten virkning stopper saken (MM-U43 punkt 6, VS-U12)',
+      'en påberopt passivitet mot en påberopelsesversjon utenfor rekken stopper saken (MM-U43 punkt 6, VS-U12, OV-U102)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -948,8 +959,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        '    if (krav)\n',
-        "    if (krav && krav.spor !== 'forhold') return '33.4';\n    if (krav)\n",
+        '    if (krav) return',
+        "    if (krav && krav.spor !== 'forhold') return '33.4';\n    if (krav) return",
       ],
     ],
     mal: [
@@ -964,7 +975,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'påberopelsen etter § 33.4 viser til kravversjonen svaret gjelder, ikke det første fristkravet (VS-U20, OV-U5, KK-07)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['    krav,\n    () => true,', '    krav.slice(-1),\n    () => true,']],
+    endringer: [
+      [
+        '  const [foerste] = s.krav.filter(varsler);',
+        '  const [foerste] = s.krav.filter(varsler).slice(-1);',
+      ],
+    ],
     mal: [
       'uten registrert varsel gjelder den det første fristkravet',
       'brevet sier at varselet er det første fristkravet',
@@ -974,7 +990,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F100',
     feilklasse: 'en innsigelse mot TEs varsel etter § 32.2 leses ikke som en påberopelse (VS-U24)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [["        ? '32.2'", '        ? null']],
+    endringer: [["varslingsplikt(krav) ? '32.2'", 'varslingsplikt(krav) ? null']],
     mal: [
       'svaret gjentar innsigelsen og viser til den',
       'gir byggherren innsigelsen opp, sier brevet det uttrykkelig',
@@ -1071,7 +1087,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'const innsigelsene = aapneInnsigelser(s, nytt.avsender, j, regler);',
+        'const innsigelsene = aapneInnsigelser(s, nytt.avsender, t, regler);',
         'const innsigelsene: Innsigelse[] = [];',
       ],
     ],
@@ -1717,8 +1733,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'if (p.gjelder !== tidligste && p.gjelder !== egetFoerst)',
-        'if (p.gjelder !== tidligste && p.gjelder !== egetFoerst && p.gjelder !== s.gjelder)',
+        'if (p.gjelder !== tidligste && p.gjelder !== eget)',
+        'if (p.gjelder !== tidligste && p.gjelder !== eget && p.gjelder !== s.gjelder)',
       ],
     ],
     mal: ['en påberopelse som viser til kravversjonen svaret gjelder, gjør saken ikke forstått'],
@@ -1806,17 +1822,94 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F223',
-    feilklasse: 'et «i tide» i et registrert brev gir opp innsigelsen i brevteksten (HF-U4, OV-U4)',
+    feilklasse: 'et «i tide» i et svar lagt til gir ikke opp innsigelsen i brevteksten (OV-U105)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '    if (!erRegistrert(d.opplysninger)) svarFraParten.push(...d.svar);',
-        '    svarFraParten.push(...d.svar);',
+        'if (!saken.utenVirkning.includes(s.id)) svarFraParten',
+        'if (!saken.utenVirkning.includes(s.id) && !erRegistrert(d.opplysninger)) svarFraParten',
+      ],
+    ],
+    mal: ['et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt'],
+  },
+  {
+    id: 'F649',
+    feilklasse: 'et «i tide» i et svar sendt før innsigelsen gir den opp (OV-U105, OV-U104)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['x.dag === null || i.dag === null || x.dag >= i.dag', 'true']],
+    mal: ['et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt'],
+  },
+  {
+    id: 'F650',
+    feilklasse:
+      'et svar datert før byggherrens gjeldende svar på kravversjonen erstatter det (OV-U103)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        'foerDagen(sendt, datoenDetBleSendt(u, gjeldende), () => medSvaret(gjeldende.id))',
+        'foerDagen(sendt, datoenDetBleSendt(u, gjeldende), () => medSvaret(gjeldende.id)) && false',
       ],
     ],
     mal: [
-      'et «i tide» i et registrert brev gir ikke opp innsigelsen, så et «for sent» fra appen på en ny versjon gjentar den',
+      'en revisjon datert før svaret den erstatter, får ingen virkning',
+      'kommandoen avviser en revisjon datert før svaret den erstatter',
     ],
+  },
+  {
+    id: 'F651',
+    feilklasse:
+      'visningen sier ikke at et brev lagt til er sammenliknet med et brev sendt samme dag (OV-U104)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [["  if (u.sendtSammeDag.length) ut.push('sendt_samme_dag');\n", '']],
+    mal: [
+      'kontrollsak: en revisjon sendt samme dag som svaret erstatter det',
+      'et krav sendt samme dag som det siste blir gjeldende',
+    ],
+  },
+  {
+    id: 'F652',
+    feilklasse: 'utledningen fører ikke en sammenlikning av to brev sendt samme dag (OV-U104)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['  if (a !== null && a === b) samme?.();\n', '']],
+    mal: [
+      'kontrollsak: en revisjon sendt samme dag som svaret erstatter det',
+      'et krav sendt samme dag som det siste blir gjeldende',
+    ],
+  },
+  {
+    id: 'F653',
+    feilklasse: 'et svar uten virkning gir opp innsigelsen i brevteksten (MM-U43 punkt 9, OV-U105)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['if (!saken.utenVirkning.includes(s.id)) ', '']],
+    mal: ['et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt'],
+  },
+  {
+    id: 'F656',
+    feilklasse:
+      'et varsel etter § 32.2 sendt etter et krav utenfor rekken godtas (VS-U38, OV-U102)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [
+      [
+        "kravSomVarsler('32.2', u.spor.forhold, () => true)",
+        "kravSomVarsler('32.2', { krav: u.spor.forhold.krav, kravUtenforRekken: [] }, () => true)",
+      ],
+    ],
+    mal: ['et varsel sendt etter et eldre krav avvises'],
+  },
+  {
+    id: 'F657',
+    feilklasse: 'et krav utenfor rekken lagres som erstatning for det siste (OV-U102)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['sendtFoerSisteKrav(u, k.spor, sendt) ? null : ', '']],
+    mal: ['et krav sendt før det siste godtas, utenfor rekken, og erstatter ikke det siste'],
+  },
+  {
+    id: 'F658',
+    feilklasse:
+      'et fristkrav lagt til, sendt før en ubesvart forespørsel, godtas og knyttes til den (HF-U1, oppdragsgiver 15.11 i #2011)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['(f) => f.svar === null && sendt <', '(f) => false && sendt <']],
+    mal: ['et fristkrav lagt til, sendt før en ubesvart forespørsel, avvises'],
   },
   {
     id: 'F224',
@@ -1824,10 +1917,7 @@ const MUTASJONER: Mutasjon[] = [
       'en innsigelse mot en påberopelsesversjon der § 32.2 ikke gjelder, leses som en påberopelse etter § 32.2 (VS-U24, GR-U11)',
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
-      [
-        "krav.spor === 'forhold' && !kravetErDokumentasjon(d) && varslingsplikt(krav)",
-        "krav.spor === 'forhold' && !kravetErDokumentasjon(d) && true",
-      ],
+      ["krav.spor === 'forhold' && varslingsplikt(krav)", "krav.spor === 'forhold' && true"],
     ],
     mal: [
       'en innsigelse mot en versjon der § 32.2 ikke gjelder, gjentas ikke og gis ikke opp i svaret på en senere versjon',
@@ -1902,25 +1992,10 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F246',
     feilklasse:
-      'et krav, svar, en aksept eller et trekk i et registrert brev får virkning igjen (OV-U4, #574)',
+      'et trekk eller et annet utsagn i et registrert brev enn et varsel eller en aksept får virkning (OV-U98, #574)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      ['  if (!erRegistrert(d.opplysninger)) return new Set(krav);', '  return new Set();'],
-    ],
-    mal: ['F-MM-G44', 'F-MM-G45-kontroll', 'F-MM-G46'],
-  },
-  {
-    id: 'F247',
-    feilklasse:
-      'byggherrens registrerte endringsordre er dokumentasjon uten virkning (OV-U6, #574)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        '    ...d.svar.filter((s) => !erRegistrertEndringsordre(s, d)).map((s) => s.id),',
-        '    ...d.svar.map((s) => s.id),',
-      ],
-    ],
-    mal: ['F-MM-G45', 'F-MM-G18', 'F-MM-G43'],
+    endringer: [['  if (!erRegistrert(d.opplysninger)) return new Set();', '  return new Set();']],
+    mal: ['OV-U19, OV-U4: en registrert begrunnelse', 'punkt 4 i #1167: alt i et registrert brev'],
   },
   {
     id: 'F248',
@@ -1950,14 +2025,19 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F250',
     feilklasse: 'en dato etter brevets dato godtas (arbeidsvalg 1 i #664)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['dag <= brevetsDato) return null;', 'dag <= brevetsDato || true) return null;']],
+    endringer: [['    if (dag !== null && dag > brevetsDato)\n', '    if (false)\n']],
     mal: ['en dato etter brevets dato avvises'],
   },
   {
     id: 'F251',
     feilklasse: 'en dato samme dag som brevet avvises (arbeidsvalg 1 i #664)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['dag <= brevetsDato) return null;', 'dag < brevetsDato) return null;']],
+    endringer: [
+      [
+        '    if (dag !== null && dag > brevetsDato)\n',
+        '    if (dag !== null && dag >= brevetsDato)\n',
+      ],
+    ],
     mal: ['samme dag godtas', 'brevets dato er datoen i norsk tid'],
   },
   {
@@ -2067,10 +2147,15 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F270',
     feilklasse:
-      'en innsigelse mot en påberopelse i et registrert brev regnes som påberopelse etter § 32.2 (arbeidsvalg 1 i #770, #536)',
+      'en innsigelse mot en påberopelse lagt til med kravskjemaet regnes ikke som påberopelse etter § 32.2 (OV-U80)',
     fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [['&& !kravetErDokumentasjon(d) &&', '&& true &&']],
-    mal: ['brevteksten gjentar den ikke i svaret'],
+    endringer: [
+      [
+        "krav.spor === 'forhold' && varslingsplikt(krav)",
+        "krav.spor === 'forhold' && d.opplysninger.length === 0 && varslingsplikt(krav)",
+      ],
+    ],
+    mal: ['brevteksten gjentar den i svaret, som innsigelsen mot kravet fra løsningen'],
   },
   {
     id: 'F271',
@@ -2312,7 +2397,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        "  if (k.type === 'varsel')\n    return { dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'Totalentreprenøren' };\n",
+        "  if (k.type === 'varsel')\n    return [{ dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'Totalentreprenøren' }];\n",
         '',
       ],
     ],
@@ -2397,7 +2482,7 @@ const MUTASJONER: Mutasjon[] = [
         "kode === 'alle_krav_avgjort' && false",
       ],
     ],
-    mal: ['med et registrert brev sier visningen også'],
+    mal: ['med et brev lagt til som dokumentasjon sier visningen også'],
   },
   {
     id: 'F311',
@@ -2610,28 +2695,31 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F324',
-    feilklasse: 'et fristkrav i et registrert brev sperrer forespørselen (VS-U33)',
+    feilklasse:
+      'et fristkrav lagt til med kravskjemaet sperrer ikke forespørselen (VS-U47 spørsmål 2)',
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        '    if (d.krav.some((k) => erFristkravIAppen(d, k))) return true;',
-        "    if (d.krav.some((k) => k.spor === 'frist')) return true;",
+        "if (d.krav.some((k) => k.spor === 'frist')) return true;",
+        "if (d.krav.some((k) => k.spor === 'frist' && d.opplysninger.length === 0)) return true;",
       ],
     ],
-    mal: ['VS-U33: et fristkrav i et registrert brev stopper ikke forespørselen'],
+    mal: ['VS-U47 spørsmål 2: et fristkrav lagt til med kravskjemaet stopper forespørselen'],
   },
   {
     id: 'F357',
     feilklasse:
-      'et fristkrav i et registrert brev gjør forespørselen ugyldig i utledningen (VS-U33)',
+      'et fristkrav lagt til med kravskjemaet gjør ikke en senere forespørsel ugyldig i utledningen (VS-U47 spørsmål 2)',
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        '      for (const k of d.krav) if (erFristkravIAppen(d, k)) fristkravIAppen.push(k);',
-        "      for (const k of d.krav) if (k.spor === 'frist') fristkravIAppen.push(k);",
+        "if (k.spor === 'frist') fristkrav.push(k);",
+        "if (k.spor === 'frist' && d.opplysninger.length === 0) fristkrav.push(k);",
       ],
     ],
-    mal: ['VS-U33: et fristkrav i et registrert brev stopper ikke forespørselen'],
+    mal: [
+      'VS-U47 spørsmål 2: en forespørsel etter et fristkrav lagt til med kravskjemaet gjør saken uforstått',
+    ],
   },
   {
     id: 'F358',
@@ -2713,33 +2801,126 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'OV-U44: hver journalpost har én kilde',
       'OV-U19: et varsel registrert med virkning teller ikke',
-      'OV-U19: en endringsordre registrert med virkning teller ikke',
+      'OV-U19: byggherrens endringsordre (OV-U6) registrert med virkning teller ikke',
     ],
   },
   {
     id: 'F367',
-    feilklasse: 'et svar registrert som dokumentasjon er ikke dokumentasjon (OV-U4, OV-U19)',
+    feilklasse: 'et svar registrert med virkning er dokumentasjon (OV-U19, OV-U80, OV-U98)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '...d.svar.filter((s) => !erRegistrertEndringsordre(s, d))',
-        '...d.svar.filter(() => false)',
+        '  return new Set([...d.utsagn',
+        '  return new Set([...d.svar.map((s) => s.id), ...d.utsagn',
       ],
     ],
-    mal: ['OV-U19: en endringsordre registrert med virkning teller ikke'],
+    mal: [
+      'OV-U19: et annet svar (OV-U80, OV-U98) registrert med virkning teller ikke',
+      'F-MM-G45',
+      'F-MM-G18',
+      'F-MM-G43',
+    ],
   },
   {
     id: 'F368',
     feilklasse:
-      'et registrert utsagn som ikke er et varsel, er ikke dokumentasjon (OV-U19, OV-U4, KA-U35 (opphevet av KA-U46), punkt 4 i #1167)',
+      'et registrert utsagn som verken er et varsel eller en aksept, er ikke dokumentasjon (OV-U19, OV-U4, OV-U98, punkt 4 i #1167)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "...d.utsagn.filter((x) => x.art !== 'varsel')",
-        "...d.utsagn.filter((x) => x.art === 'aksept' || x.art === 'trekk')",
+        '...d.utsagn.filter((x) => !REGISTRERT_MED_VIRKNING.has(x.art))',
+        "...d.utsagn.filter((x) => x.art === 'trekk')",
       ],
     ],
     mal: ['OV-U19, OV-U4: en registrert begrunnelse', 'punkt 4 i #1167: alt i et registrert brev'],
+  },
+  {
+    id: 'F642',
+    feilklasse: 'et krav lagt til med kravskjemaet er dokumentasjon (OV-U80, OV-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '  return new Set([...d.utsagn',
+        '  return new Set([...d.krav.map((k) => k.id), ...d.utsagn',
+      ],
+    ],
+    mal: [
+      'et krav lagt til med kravskjemaet blir gjeldende krav, og byggherren svarer på det fra løsningen',
+      'F-MM-U326f',
+    ],
+  },
+  {
+    id: 'F643',
+    feilklasse:
+      'et krav sendt før totalentreprenørens siste krav leses ikke inn utenfor rekken (OV-U102)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '(utenforRekken.has(k.id) ? spor[k.spor].kravUtenforRekken : spor[k.spor].krav)',
+        'spor[k.spor].krav',
+      ],
+    ],
+    mal: [
+      'kravet blir ikke gjeldende, og saken er forstått',
+      'et svar sendt etterpå påberoper det eldre kravet',
+    ],
+  },
+  {
+    id: 'F644',
+    feilklasse: 'et krav sendt før totalentreprenørens siste krav får ingen virkning (OV-U102)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['      else if (x.utenforRekken) utenforRekken.add(x.element);\n', '']],
+    mal: [
+      'kravet blir ikke gjeldende, og saken er forstått',
+      'et krav sendt før det siste godtas, utenfor rekken',
+    ],
+  },
+  {
+    id: 'F645',
+    feilklasse:
+      'den første kravversjonen er varselet også når et krav utenfor rekken ble sendt før (OV-U102)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['  const kravet = foerstSendt(krav, sendt);', '  const [kravet] = krav;']],
+    mal: [
+      'det eldre kravet gjelder når det ble sendt før det egne varselet',
+      'et svar sendt etterpå påberoper det eldre kravet',
+    ],
+  },
+  {
+    id: 'F646',
+    feilklasse:
+      'et krav utenfor rekken lagt til etter svaret endrer varselet påberopelsen i svaret gjelder (OV-U102, MM-U50)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        '    ...s.kravUtenforRekken.filter((k) => varsler(k) && foer(k.id)),',
+        '    ...s.kravUtenforRekken.filter(varsler),',
+      ],
+    ],
+    mal: [
+      'en påberopelse i et svar lagt til før det eldre kravet, står med varselet den viste til',
+    ],
+  },
+  {
+    id: 'F647',
+    feilklasse: 'et svar på et krav utenfor rekken prøves ikke mot sendedatoen (OV-U98, OV-U102)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      ['    const krav = [...kjede, ...kravUtenforRekken].find(', '    const krav = kjede.find('],
+    ],
+    mal: ['en endringsordre lagt til som svar på et krav sendt før det siste, får ingen virkning'],
+  },
+  {
+    id: 'F648',
+    feilklasse: 'et krav lagt til godtas med tekst fra løsningen (OV-U80)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [
+      [
+        "  if (type === 'krav' && !feil.length && ('sendt' in kommando",
+        "  if (false && ('sendt' in kommando",
+      ],
+    ],
+    mal: ['et krav lagt til med en utdypning, eller med typen uten datoen, avvises som feil form'],
   },
   {
     id: 'F369',
@@ -3065,7 +3246,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'det første kjente varselet etter § 34.1.3 er det første vederlagskravet, også uten posten (OV-U24)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [["hjemmel === '34.1.3' ? krav.filter(harProduktivitetspost) : krav", 'krav']],
+    endringer: [["hjemmel !== '34.1.3' || harProduktivitetspost(k)", 'true']],
     mal: [
       'uten registrert varsel er det første kjente varselet den første kravversjonen med posten',
     ],
@@ -3590,12 +3771,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F436',
     feilklasse:
-      'et registrert svar etter frafallet tar bort at forholdet er avklart ved frafallet mens en ny versjon venter (GR-U20, GR-U23, OV-U4, #1388)',
+      'et registrert svar etter frafallet regnes ikke som det siste svaret mens en ny versjon venter (GR-U23, OV-U80, OV-U98)',
     fil: `${K}/spor/forhold/utledning.ts`,
     endringer: [
       [
-        'spor.forhold.svar.filter((s) => sendtFraAppen({ elementer }, s)).at(-1);',
-        'spor.forhold.svar.at(-1);',
+        'const sisteSvar = spor.forhold.svar.at(-1);',
+        'const sisteSvar = spor.forhold.svar\n    .filter((s) => !erRegistrert(dokumenter.get(s.dokument)!.opplysninger))\n    .at(-1);',
       ],
     ],
     mal: ['en registrert endringsordre som godkjenner versjon 2 og en ny versjon 3'],
@@ -4203,8 +4384,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '  return [s.varsler[hjemmel], kravet].filter((v) => v !== undefined);',
-        '  return [s.varsler[hjemmel] ?? kravet].filter((v) => v !== undefined);',
+        '  return [s.varsler[hjemmel], ...krav].filter((v) => v !== undefined);',
+        '  return [s.varsler[hjemmel] ?? krav[0]].filter((v) => v !== undefined);',
       ],
     ],
     mal: ['et eget varsel registrert etter det første fristkravet, skjuler ikke kravet'],
@@ -4254,7 +4435,10 @@ const MUTASJONER: Mutasjon[] = [
       'leseren godtar bare det egne varselet i påberopelsen, ikke det første kravet som ble sendt før det (VS-U70)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ['if (p.gjelder !== tidligste && p.gjelder !== egetFoerst)', 'if (p.gjelder !== egetFoerst)'],
+      [
+        'if (p.gjelder !== tidligste && p.gjelder !== eget)',
+        'if (p.gjelder !== (eget ?? tidligste))',
+      ],
     ],
     mal: ['byggherrens påberopelse etter § 34.1.2 gjelder det første kravet'],
   },
@@ -4713,7 +4897,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en korrigering til en dato etter kravet som er det første varselet, godtas (VS-U60)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['    ? kravSomVarsler(hjemmel, s.krav)[0]\n', '    ? undefined\n']],
+    endringer: [['    ? kravSomVarsler(hjemmel, s, () => true)\n', '    ? []\n']],
     mal: [
       'uten eget varsel avvises en korrigering til en dato etter påberopelsen',
       'uten eget varsel avvises en korrigering til en dato etter det første fristkravet',
@@ -4727,8 +4911,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
-        '  const kravet = hjemmelenGjelder(hjemmel, u.spor.forhold.gjeldendeKrav, regler)\n',
-        '  const kravet = true\n',
+        '  const krav = hjemmelenGjelder(hjemmel, u.spor.forhold.gjeldendeKrav, regler)\n',
+        '  const krav = true\n',
       ],
     ],
     mal: ['i svikt er påberopelsen ikke et varsel etter § 32.2'],
@@ -5527,6 +5711,40 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['men ikke ved force majeure'],
+  },
+  {
+    id: 'F635',
+    feilklasse:
+      'akseptfristen i et registrert svar prøves mot dagen det legges til, ikke dagen det ble sendt (HF-U23 punkt 1, OV-U98)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['erRegistrering(k) ? k.sendt : brevetsDato', 'brevetsDato']],
+    mal: ['akseptfristen i et registrert svar regnes fra dagen svaret ble sendt'],
+  },
+  {
+    id: 'F636',
+    feilklasse:
+      'en registrert aksept merkes etter akseptfristen etter dagen den ble lagt til, ikke dagen den ble sendt (HF-U23 punkt 7, OV-U98)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        'datoenDetBleSendt(u, { id: enighet.holder, dokument: aksept.id })',
+        'dokumenterI(u.journal).find((d) => d.id === aksept.id)!.registrert.slice(0, 10)',
+      ],
+    ],
+    mal: ['utenfor løsningen og lagt til senere, merkes etter dagen den ble sendt'],
+  },
+  {
+    id: 'F637',
+    feilklasse:
+      'en registrert aksept av et svar som alt er godtatt, prøves ikke etter GR-U8 når svaret ikke lenger er gjeldende (MM-U43 punkt 9, OV-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "d.utsagn.some((a) => a.art === 'aksept' && a.gjelder === gjelder && !utenVirkning(a.id))",
+        'false',
+      ],
+    ],
+    mal: ['alt har godtatt, avvises også når svaret senere er revidert'],
   },
 ];
 

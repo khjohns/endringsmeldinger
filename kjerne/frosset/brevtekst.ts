@@ -16,7 +16,7 @@
 
 import { HJEMMEL } from '../format/format.ts';
 import { sakensKode } from './tekst.ts';
-import { erRegistrert, registrertDato } from '../format/leser.ts';
+import { dagenSendt, erRegistrert, registrertDato } from '../format/leser.ts';
 import { etterAkseptfristen } from '../regler/akseptfrist.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { innsigelsenErOppgitt, innsigelsenPaaberoper } from './standpunkt.ts';
@@ -212,24 +212,27 @@ interface Innsigelse {
  * VS-U9, VS-U11, VS-U24: byggherrens egne innsigelser som er en påberopelse etter
  * bestemmelsen svaret tar stilling til, og som byggherren ikke senere har gitt opp
  * uttrykkelig, i rekkefølgen de kom, med brevet de står i. Svaret gjentar dem eller
- * gir dem opp.
+ * gir dem opp. Et svar lagt til med svarskjemaet gir den opp som et svar fra løsningen, fra
+ * dagen det ble sendt (OV-U105), så et svar sendt før innsigelsen gir den ikke opp (OV-U104).
+ * Et svar uten virkning gir den ikke opp (MM-U43 punkt 9).
  */
 function aapneInnsigelser(
   svar: Svar,
   avsender: Part,
-  j: Journalen,
+  { j, saken }: Pick<Tekst, 'j' | 'saken'>,
   regler: Regelsett
 ): Innsigelse[] {
-  const svarFraParten: Svar[] = [];
-  const innsigelser: (Innsigelse & { fra: number })[] = [];
+  const svarFraParten: { svar: Svar; dag: string | null }[] = [];
+  const innsigelser: (Innsigelse & { fra: number; dag: string | null })[] = [];
   for (const d of j.dokumenter) {
     if (d.avsender !== avsender || d.svar.includes(svar)) continue;
-    // HF-U4, OV-U4: et registrert brev gir ikke opp innsigelsen.
-    if (!erRegistrert(d.opplysninger)) svarFraParten.push(...d.svar);
+    const dag = dagenSendt({ id: d.id, dokument: d.id }, d);
+    for (const s of d.svar)
+      if (!saken.utenVirkning.includes(s.id)) svarFraParten.push({ svar: s, dag });
     for (const u of d.utsagn)
       // VS-U29: standpunktet om at begrunnelsen ikke er et svar, er ingen påberopelse.
       if (u.art === 'innsigelse' && u.grunn === undefined)
-        innsigelser.push({ gjelder: u.gjelder, dokument: d.id, fra: svarFraParten.length });
+        innsigelser.push({ gjelder: u.gjelder, dokument: d.id, fra: svarFraParten.length, dag });
   }
   return innsigelser.flatMap((i) => {
     const hjemmel = innsigelsenPaaberoper(i.gjelder, j.dokumenter, (k) =>
@@ -239,7 +242,11 @@ function aapneInnsigelser(
     const gjelder =
       hjemmel === HJEMMEL[svar.spor] ||
       (hjemmel !== null && brevtekstI(svar.spor).ogsaaInnsigelserEtter.includes(hjemmel));
-    return gjelder && !innsigelsenErOppgitt(svar.spor, svarFraParten.slice(i.fra), hjemmel)
+    const etter = svarFraParten
+      .slice(i.fra)
+      .filter((x) => x.dag === null || i.dag === null || x.dag >= i.dag)
+      .map((x) => x.svar);
+    return gjelder && !innsigelsenErOppgitt(svar.spor, etter, hjemmel)
       ? [{ gjelder: i.gjelder, dokument: i.dokument, hjemmel }]
       : [];
   });
@@ -321,7 +328,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
   const { j, nytt } = t;
   const krav = j.krav(s.gjelder);
   const virkning = new Map(s.beslutningsgrunnlag.virkninger.map((v) => [v.standpunkt, v.virkning]));
-  const innsigelsene = aapneInnsigelser(s, nytt.avsender, j, regler);
+  const innsigelsene = aapneInnsigelser(s, nytt.avsender, t, regler);
   const sporet = brevtekstI(s.spor);
   const fra = forholdetsLag(s, t, nr);
   const ledd: Svarledd[] = [...fra.ledd];

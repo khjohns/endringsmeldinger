@@ -2233,7 +2233,7 @@
         "KA-50"
       ],
       "start": "krav_eo",
-      "forslag": "#574 og OV-U4: byggherrens registrerte godkjenning av grunnlaget i underkategorien endringsordre, der § 32.2 ikke gjelder, så OV-U6 ikke gjelder, er dokumentasjon: ingen gjeldende svar, ingen enighet, grunnlaget er ikke avklart, og byggherren kan svare fra appen. Kontrollsaken er F-MM-G44-kontroll",
+      "forslag": "#574, og OV-U80 og OV-U98, som endrer OV-U4 (#2011): byggherrens registrerte godkjenning av grunnlaget i underkategorien endringsordre, der § 32.2 ikke gjelder, så OV-U6 ikke gjelder, har samme virkning som et svar fra løsningen: gjeldende svar, enighet ved sammenfall og avklart grunnlag, men ingen endringsordre. Byggherren reviderer svaret i stedet for å svare på nytt. Kontrollsaken er F-MM-G44-kontroll",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2252,18 +2252,19 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "OV-U4"
+            "OV-U80",
+            "OV-U98"
           ],
           "forventet": {
             "forstaatt": true,
             "registrert.S-g1": true,
-            "gjeldende_svar.forhold": null,
-            "enighet.forhold": null,
-            "forhold_avklart": false,
+            "gjeldende_svar.forhold": "S-g1",
+            "enighet.forhold": "finnes",
+            "forhold_avklart": true,
             "endringsordre": "nei",
             "handlinger.BH": {
               "inneholder": [
-                "svare:forhold"
+                "revidere:forhold"
               ]
             }
           }
@@ -2272,10 +2273,12 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "OV-U4"
+            "OV-U80",
+            "OV-U98"
           ],
           "forventet": {
-            "avvist": false
+            "avvist": true,
+            "regel": "ALLEREDE_SVART"
           },
           "prov": {
             "handling": "brev",
@@ -2425,7 +2428,7 @@
         "GR-29"
       ],
       "start": "krav_irreg",
-      "forslag": "Kontrollsak til F-MM-G45: samme registrerte godkjenning uten opplysningen om at brevet er en endringsordre, er dokumentasjon etter OV-U4 og gir ingen virkning",
+      "forslag": "Kontrollsak til F-MM-G45: samme registrerte godkjenning uten opplysningen om at brevet er en endringsordre, har virkning som et svar fra løsningen (OV-U80 og OV-U98, som endrer OV-U4, #2011): gjeldende svar, enighet ved sammenfall og avklart grunnlag, men ingen endringsordre (OV-U6)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2445,18 +2448,19 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
+            "OV-U98",
             "OV-U6"
           ],
           "forventet": {
             "forstaatt": true,
             "registrert.S-g1": true,
-            "gjeldende_svar.forhold": null,
-            "enighet.forhold": null,
-            "forhold_avklart": false,
+            "gjeldende_svar.forhold": "S-g1",
+            "enighet.forhold": "finnes",
+            "forhold_avklart": true,
             "endringsordre": "nei",
             "visning.etiketter.forhold": {
-              "mangler": [
+              "inneholder": [
                 "appens_vurdering_ved_registreringen"
               ]
             }
@@ -2470,7 +2474,7 @@
         "KA-30"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U6 og MM-U17: byggherrens endringsordre, sendt utenfor appen før regelendringen og registrert etter den, fryses med appens vurdering etter reglene ved registreringen (n+1), og visningen merker den som appens vurdering ved registreringen",
+      "forslag": "OV-U6 og MM-U17: byggherrens endringsordre, sendt utenfor appen samme dag som kravet, før regelendringen og registrert etter den, fryses med appens vurdering etter reglene ved registreringen (n+1), og visningen merker den som appens vurdering ved registreringen",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2486,7 +2490,7 @@
           "gjelder": "K-g1",
           "resultat": "godkjent",
           "varslet_i_tide": true,
-          "sendt": "2026-09-01",
+          "sendt": "2026-09-20",
           "endringsordre": true
         }
       ],
@@ -2521,7 +2525,7 @@
         "KA-50"
       ],
       "start": null,
-      "forslag": "#595 punkt 1, OV-U4 og GR-U22: TE sender grunnlaget fra appen med pålegg (IRREG) og registrerer så et brev med en ny kravversjon med valg av løsning. Den registrerte kravversjonen er dokumentasjon og ikke gjeldende krav, så en ny versjon fra appen med samme underkategori som den sendte godtas, og en med den registrerte underkategorien avvises",
+      "forslag": "#595 punkt 1, OV-U98 (#2011) og GR-U22: TE sender grunnlaget fra løsningen med pålegg (IRREG) og legger så til et brev med en ny kravversjon med valg av løsning, sendt dagen før. Den lagt til kravversjonen er sendt før totalentreprenørens siste krav i sporet og blir ikke gjeldende, så en ny versjon fra appen med samme underkategori som den sendte godtas, og en med den registrerte underkategorien avvises",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2537,7 +2541,7 @@
           "underkategori": "valg_av_loesning",
           "part": "TE",
           "navn": "K-g2",
-          "sendt": "2026-09-25"
+          "sendt": "2026-09-19"
         }
       ],
       "kontroller": [
@@ -2545,7 +2549,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4"
+            "OV-U98"
           ],
           "forventet": {
             "forstaatt": true,
@@ -2557,7 +2561,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U98",
             "GR-U22",
             "GR-U1"
           ],
@@ -2575,7 +2579,7 @@
           "rolle": "mal",
           "kilde": [
             "GR-U22",
-            "OV-U4"
+            "OV-U98"
           ],
           "forventet": {
             "avvist": true,
@@ -2596,7 +2600,7 @@
         "KA-36"
       ],
       "start": "godkjent_forhold",
-      "forslag": "OV-U4: et registrert brev som trekker tilbake godkjenningen partene er enige om ved sammenfall, er dokumentasjon, og enigheten står",
+      "forslag": "OV-U98 (#2011; før OV-U4): et registrert brev som trekker tilbake godkjenningen partene er enige om ved sammenfall, oppgitt sendt før grunnlagskravet, får ingen virkning, og enigheten står",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2608,7 +2612,7 @@
           "gjelder": "K-g1",
           "erstatter": "S-g1",
           "resultat": "avslaatt",
-          "sendt": "2026-10-01"
+          "sendt": "2026-09-19"
         }
       ],
       "kontroller": [
@@ -2616,7 +2620,7 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U98",
             "GR-U10"
           ],
           "forventet": {
@@ -2783,7 +2787,7 @@
         "GR-29"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4 og OV-U6: registrert korrespondanse der byggherren godkjenner grunnlaget, uten opplysningen om § 31.3, er dokumentasjon. Den gir ikke gjeldende svar, enighet eller et uavklart utfall, byggherren kan svare fra appen, og TE kan trekke grunnlaget",
+      "forslag": "OV-U80 og OV-U98, som endrer OV-U4 (#2011), og OV-U6: registrert korrespondanse der byggherren godkjenner grunnlaget, uten opplysningen om § 31.3, har virkning som et svar fra løsningen: gjeldende svar, enighet ved sammenfall og avklart grunnlag, men ingen endringsordre. Byggherren reviderer svaret, og TE kan trekke grunnlaget",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -2817,14 +2821,15 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
+            "OV-U98",
             "OV-U6"
           ],
           "forventet": {
             "forstaatt": true,
-            "gjeldende_svar.forhold": null,
-            "enighet.forhold": null,
-            "forhold_avklart": false,
+            "gjeldende_svar.forhold": "S-g1",
+            "enighet.forhold": "finnes",
+            "forhold_avklart": true,
             "opplysning.D4#endringsordre": null,
             "endringsordre": "nei",
             "visning.etiketter.forhold": {
@@ -2834,7 +2839,7 @@
             },
             "handlinger.BH": {
               "inneholder": [
-                "svare:forhold"
+                "revidere:forhold"
               ]
             }
           }
@@ -2843,7 +2848,8 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
+            "OV-U98",
             "OV-U6"
           ],
           "prov": {
@@ -3159,7 +3165,7 @@
         "GR-30"
       ],
       "start": "krav_irreg",
-      "forslag": "#342: subsidiariteten følger grunnlagsversjonen svaret ble regnet mot. Et registrert svar på den versjonen, lagret etter en ny grunnlagsversjon, er dokumentasjon og endrer ikke årsakene (OV-U4)",
+      "forslag": "#342: subsidiariteten følger grunnlagsversjonen svaret ble regnet mot. Et registrert svar på den versjonen, lagret etter en ny grunnlagsversjon og oppgitt sendt før grunnlagskravet, får ingen virkning og endrer ikke årsakene (OV-U98, #2011; før OV-U4)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -3196,7 +3202,7 @@
           "erstatter": "S-g1",
           "resultat": "avslaatt",
           "varslet_i_tide": false,
-          "sendt": "2026-09-20"
+          "sendt": "2026-09-19"
         },
         {
           "handling": "brev",
@@ -3242,7 +3248,7 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U98",
             "GR-U4",
             "HF-U1"
           ],
@@ -4043,7 +4049,7 @@
         "KA-37"
       ],
       "start": "godkjent_forhold",
-      "forslag": "OV-U4: TEs registrerte kravversjon i et spor med enighet er dokumentasjon, og enigheten står",
+      "forslag": "OV-U80 og OV-U98, som endrer OV-U4 (#2011): TEs kravversjon lagt til i et spor med enighet har samme virkning som en ny versjon fra løsningen: den blir gjeldende krav, og enigheten om den forrige versjonen gjelder ikke den nye",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4061,13 +4067,13 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
-            "MM-U43"
+            "OV-U80",
+            "OV-U98"
           ],
           "forventet": {
             "forstaatt": true,
-            "gjeldende_krav.forhold": "K-g1",
-            "enighet.forhold.kilde": "sammenfall",
+            "gjeldende_krav.forhold": "K-g2",
+            "enighet.forhold": null,
             "uten_virkning": []
           }
         }
@@ -4079,7 +4085,7 @@
         "KA-38"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U43 punkt 9, OV-U4 og VS-U24: et registrert fristsvar uten standpunkt om rettidighet etter innsigelsen mot fristkravet er forstått og er dokumentasjon",
+      "forslag": "MM-U43 punkt 9, OV-U4 og VS-U24: et registrert fristsvar uten standpunkt om rettidighet etter innsigelsen mot fristkravet er forstått. Svaret er oppgitt sendt før fristkravet og får ingen virkning (OV-U98, #2011; før var det dokumentasjon etter OV-U4)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4098,7 +4104,7 @@
           "varsel_i_tide": true,
           "spesifisering_i_tide": true,
           "hindring": true,
-          "sendt": "2026-09-30"
+          "sendt": "2026-09-19"
         }
       ],
       "kontroller": [
@@ -4107,7 +4113,7 @@
           "rolle": "mal",
           "kilde": [
             "MM-U43",
-            "OV-U4",
+            "OV-U98",
             "VS-U24"
           ],
           "forventet": {
@@ -4710,7 +4716,7 @@
         "KA-37"
       ],
       "start": "godkjent_forhold",
-      "forslag": "OV-U4 og KA-U12: TEs registrerte kravversjon etter «ingen krav» er dokumentasjon og blir ikke gjeldende krav",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011), KA-U12 og MM-U43 punkt 9: TEs kravversjon lagt til etter «ingen krav» strider mot det og får ingen virkning, som en versjon fra løsningen",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4733,12 +4739,15 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
-            "KA-U12"
+            "OV-U80",
+            "KA-U12",
+            "MM-U43"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "K-v1"
+            ],
             "gjeldende_krav.vederlag": null,
             "visning.etiketter.vederlag": {
               "inneholder": [
@@ -4793,7 +4802,7 @@
         "KA-37"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4: TEs registrerte kravversjon etter trekk er dokumentasjon, og trekket står",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011), GR-U5 og MM-U43 punkt 9: TEs kravversjon lagt til etter trekk strider mot trekket og får ingen virkning, og trekket står",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -4816,12 +4825,15 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
-            "KA-U12"
+            "OV-U80",
+            "GR-U5",
+            "MM-U43"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "K-v2"
+            ],
             "gjeldende_krav.vederlag": "K-v1",
             "trukket.vederlag": true
           }
@@ -5074,7 +5086,7 @@
         "KA-37"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4: TEs registrerte aksept av et frafall er dokumentasjon og gir ingen enighet",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011), GR-U9 og MM-U43 punkt 9: TEs registrerte aksept av et frafall får ingen virkning og gir ingen enighet",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -5103,12 +5115,14 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
             "GR-U9"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "D5#aksept"
+            ],
             "frafalt": true,
             "enighet.forhold": null
           }
@@ -5426,7 +5440,7 @@
         "VS-03"
       ],
       "start": "krav_irreg",
-      "forslag": "VS-U24 og OV-U4 (#517): et registrert svar på vederlaget etter byggherrens innsigelse mot vederlagskravet er forstått og er dokumentasjon; byggherren kan svare fra appen",
+      "forslag": "VS-U24 og OV-U4 (#517): et registrert svar på vederlaget etter byggherrens innsigelse mot vederlagskravet er forstått. Svaret er oppgitt sendt før vederlagskravet og får ingen virkning (OV-U98, #2011; før var det dokumentasjon etter OV-U4), og byggherren kan svare fra appen",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -5444,7 +5458,7 @@
           "gjelder": "K-v1",
           "vurdering": "godkjent",
           "godkjent_belop": 100000,
-          "sendt": "2026-10-01"
+          "sendt": "2026-09-19"
         }
       ],
       "kontroller": [
@@ -5453,7 +5467,7 @@
           "rolle": "mal",
           "kilde": [
             "VS-U24",
-            "OV-U4"
+            "OV-U98"
           ],
           "forventet": {
             "forstaatt": true,
@@ -5474,7 +5488,7 @@
         "KA-37"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4 og GR-U8: TEs registrerte aksept av et svar partene alt er enige om ved sammenfall, er dokumentasjon, og enigheten ved sammenfall står",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011), GR-U8 og MM-U43 punkt 9: TEs registrerte aksept av et svar partene alt er enige om ved sammenfall, får ingen virkning, og enigheten ved sammenfall står",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -5503,12 +5517,14 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
             "GR-U8"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "D5#aksept"
+            ],
             "enighet.vederlag.kilde": "sammenfall"
           }
         }
@@ -5520,7 +5536,7 @@
         "KA-37"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4 og KA-U7: TEs registrerte aksept nummer to av samme svar er dokumentasjon, og enigheten fra den første står",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011), KA-U7 og MM-U43 punkt 9: TEs registrerte aksept nummer to av samme svar får ingen virkning, og enigheten fra den første står",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -5554,13 +5570,15 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
             "KA-U7",
             "MM-U34"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "D6#aksept"
+            ],
             "enighet.vederlag.holder": "D5"
           }
         }
@@ -6514,7 +6532,7 @@
         "KA-40"
       ],
       "start": "forlop_a_brev",
-      "forslag": "OV-U4: TEs registrerte aksept, etter trekket, av et svar i sporet er dokumentasjon og gir ingen enighet",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011) og MM-U43 punkt 9: TEs registrerte aksept, etter trekket, av et svar i sporet får ingen virkning og gir ingen enighet",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6536,11 +6554,13 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4"
+            "OV-U80"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "D6#aksept"
+            ],
             "enighet.vederlag": null,
             "trukket.vederlag": true
           }
@@ -6553,7 +6573,7 @@
         "KA-40"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4: byggherrens registrerte svar med sammenfall på et trukket krav er dokumentasjon og gir ingen enighet",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011) og MM-U43 punkt 9: byggherrens registrerte svar med sammenfall på et trukket krav får ingen virkning og gir ingen enighet",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6577,12 +6597,14 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
             "GR-U10"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "S-v1"
+            ],
             "gjeldende_svar.vederlag": null,
             "enighet.vederlag": null
           }
@@ -6595,7 +6617,7 @@
         "KA-41"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4: byggherrens registrerte avslag av et trukket krav er dokumentasjon og blir ikke gjeldende svar",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011) og MM-U43 punkt 9: byggherrens registrerte avslag av et trukket krav får ingen virkning og blir ikke gjeldende svar",
       "forventningsgrunnlag": "arbeidshypotese",
       "steg": [
         {
@@ -6619,10 +6641,12 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4"
+            "OV-U80"
           ],
           "forventet": {
-            "uten_virkning": [],
+            "uten_virkning": [
+              "S-v1"
+            ],
             "forstaatt": true,
             "gjeldende_svar.vederlag": null,
             "enighet.vederlag": null,
@@ -6685,7 +6709,7 @@
         "KA-41"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4: byggherrens registrerte frafall av pålegget etter at TE har trukket grunnlaget, er dokumentasjon: det er ikke gjeldende svar, og pålegget er ikke frafalt",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011) og MM-U43 punkt 9: byggherrens registrerte frafall av pålegget etter at TE har trukket grunnlaget, får ingen virkning: det er ikke gjeldende svar, og pålegget er ikke frafalt",
       "forventningsgrunnlag": "arbeidshypotese",
       "steg": [
         {
@@ -6710,12 +6734,14 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
             "GR-U9"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "S-g1"
+            ],
             "gjeldende_svar.forhold": null,
             "frafalt": false,
             "trukket.forhold": true
@@ -6729,7 +6755,7 @@
         "KA-40"
       ],
       "start": "forlop_a_brev",
-      "forslag": "OV-U4, GR-U10 og KA-U7: byggherrens registrerte revisjon av et svar partene er enige om, etter at TE har trukket kravet, er dokumentasjon, og enigheten står",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011) og MM-U43 punkt 9, GR-U10 og KA-U7: byggherrens registrerte revisjon av et svar partene er enige om, etter at TE har trukket kravet, får ingen virkning, og enigheten står",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6760,13 +6786,15 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
             "GR-U10",
             "KA-U7",
             "MM-U34"
           ],
           "forventet": {
-            "uten_virkning": [],
+            "uten_virkning": [
+              "S-v2"
+            ],
             "forstaatt": true,
             "gjeldende_svar.vederlag": "S-v1",
             "enighet.vederlag": "finnes"
@@ -6780,7 +6808,7 @@
         "KA-40"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4 og MM-U43 punkt 9: TEs registrerte kravversjon i et trukket spor og byggherrens registrerte svar på den er dokumentasjon, og saken er forstått",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011), GR-U5 og MM-U43 punkt 9: TEs kravversjon lagt til i et trukket spor og byggherrens svar lagt til på den får ingen virkning, og saken er forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6813,23 +6841,29 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4"
+            "OV-U80",
+            "GR-U5"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": []
+            "uten_virkning": [
+              "K-v2"
+            ]
           }
         },
         {
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
             "MM-U43"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "K-v2",
+              "S-v1"
+            ],
             "gjeldende_svar.vederlag": null
           }
         }
@@ -11097,7 +11131,7 @@
     },
     {
       "id": "F-MM-OV-U4-registrert-svar",
-      "forslag": "#521",
+      "forslag": "#521. Etter OV-U80 og OV-U98, som endrer OV-U4 (#2011), har det registrerte svaret virkning, og byggherren reviderer det fra løsningen",
       "rader": [
         "KA-48"
       ],
@@ -11120,7 +11154,8 @@
           "etter": 1,
           "rolle": "forutsetning",
           "kilde": [
-            "OV-U4"
+            "OV-U80",
+            "OV-U98"
           ],
           "forventet": {
             "forstaatt": true,
@@ -11132,18 +11167,14 @@
           "etter": 1,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
             "HF-U4"
           ],
           "prov": {
-            "handling": "brev",
-            "svar": [
-              {
-                "spor": "forhold",
-                "resultat": "avslaatt",
-                "varslet_i_tide": false
-              }
-            ]
+            "handling": "revisjon",
+            "spor": "forhold",
+            "resultat": "avslaatt",
+            "varslet_i_tide": false
           },
           "forventet": {
             "avvist": false
@@ -11158,7 +11189,7 @@
         "GR-31"
       ],
       "start": "krav_irreg",
-      "forslag": "MM-U34 punkt 6 og 7: et frafall sendt fra appen kan revideres til avslag og til påberopelse etter § 32.2, og revisjonen godtas. Et registrert avslag etter frafallet får ingen virkning, og frafallet står (OV-U4)",
+      "forslag": "MM-U34 punkt 6 og 7: et frafall sendt fra appen kan revideres til avslag og til påberopelse etter § 32.2, og revisjonen godtas. Et registrert avslag etter frafallet har samme virkning som revisjonen fra appen og erstatter frafallet (OV-U80 og OV-U98, som endrer OV-U4, #2011)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -11263,14 +11294,15 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
+            "OV-U98",
             "GR-U17"
           ],
           "forventet": {
             "forstaatt": true,
             "uten_virkning": [],
-            "frafalt": true,
-            "gjeldende_svar.forhold": "S-g1"
+            "frafalt": false,
+            "gjeldende_svar.forhold": "S-g2"
           }
         }
       ]
@@ -11354,7 +11386,7 @@
         "GR-32"
       ],
       "start": "krav_irreg",
-      "forslag": "GR-U22 og MM-U34 punkt 6 og 7: etter et frafall fra appen kan byggherren svare på en ny grunnlagsversjon med samme underkategori med avslag og med påberopelse etter § 32.2, og svaret godtas. Et registrert avslag av den nye versjonen får ingen virkning (OV-U4)",
+      "forslag": "GR-U22 og MM-U34 punkt 6 og 7: etter et frafall fra appen kan byggherren svare på en ny grunnlagsversjon med samme underkategori med avslag og med påberopelse etter § 32.2, og svaret godtas. Et registrert avslag av den nye versjonen har samme virkning (OV-U80 og OV-U98, som endrer OV-U4, #2011)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -11479,13 +11511,14 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
+            "OV-U98",
             "GR-U20"
           ],
           "forventet": {
             "forstaatt": true,
             "uten_virkning": [],
-            "gjeldende_svar.forhold": null
+            "gjeldende_svar.forhold": "S-g2"
           }
         }
       ]
@@ -11543,7 +11576,7 @@
         "GR-31"
       ],
       "start": "krav_irreg",
-      "forslag": "GR-U17 og arbeidsvalget 16.10 i #510: en registrert revisjon fra frafall til påberopelse etter § 32.2 får ingen virkning, og frafallet står, som for avslaget i F-MM-G37 (OV-U4)",
+      "forslag": "GR-U17 og arbeidsvalget 16.10 i #510: en registrert revisjon fra frafall til påberopelse etter § 32.2 har samme virkning som revisjonen fra appen og erstatter frafallet, som for avslaget i F-MM-G37 (OV-U80 og OV-U98, som endrer OV-U4, #2011)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -11580,14 +11613,15 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
+            "OV-U98",
             "GR-U17"
           ],
           "forventet": {
             "forstaatt": true,
             "uten_virkning": [],
-            "frafalt": true,
-            "gjeldende_svar.forhold": "S-g1"
+            "frafalt": false,
+            "gjeldende_svar.forhold": "S-g2"
           }
         }
       ]
@@ -11774,14 +11808,14 @@
         "GR-33"
       ],
       "start": "krav_irreg",
-      "forslag": "Kontrollsak til F-MM-G42: et registrert frafall er dokumentasjon (OV-U4), så grunnlaget er ikke avklart, enigheten i vederlaget er betinget, og den nye grunnlagsversjonen venter på svar som etter GR-U1",
+      "forslag": "Kontrollsak til F-MM-G42: et registrert frafall oppgitt sendt før grunnlagskravet får ingen virkning (OV-U98, #2011; før var det dokumentasjon etter OV-U4), så grunnlaget er ikke avklart, enigheten i vederlaget er betinget, og den nye grunnlagsversjonen venter på svar som etter GR-U1",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
           "handling": "rad",
           "part": "BH",
           "dokument": "D4",
-          "sendt": "2026-09-30",
+          "sendt": "2026-09-19",
           "svar": [
             {
               "spor": "forhold",
@@ -11817,7 +11851,7 @@
           "rolle": "mal",
           "kilde": [
             "GR-U7",
-            "OV-U4"
+            "OV-U98"
           ],
           "forventet": {
             "gjeldende_svar.forhold": null,
@@ -11831,7 +11865,7 @@
           "rolle": "mal",
           "kilde": [
             "GR-U1",
-            "OV-U4"
+            "OV-U98"
           ],
           "forventet": {
             "gjeldende_svar.forhold": null,

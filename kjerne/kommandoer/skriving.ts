@@ -10,7 +10,14 @@ import { SKRIVING_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { avvisning } from './avvisning.ts';
 import { akseptfristeneIBrevet } from './nyttelast.ts';
-import { formfeil, vedleggI, type Kommando, type Svarutkast } from './kommando.ts';
+import {
+  erRegistrering,
+  formfeil,
+  vedleggI,
+  type Kommando,
+  type Registrering,
+  type Svarutkast,
+} from './kommando.ts';
 import { korrigertDato, SKRIVING_I_FORHOLDET } from '../spor/forhold/kommando.ts';
 import { SKRIVING_I_FRISTEN } from '../spor/frist/kommando.ts';
 import type { Registrertfrist } from '../spor/frist/format.ts';
@@ -27,6 +34,7 @@ import { brevmerking, lagBrevtittel, medSakskode } from '../frosset/brevtittel.t
 import {
   brevtekstI,
   erRegistrert,
+  kalenderdag,
   lesJournal,
   registrertDato,
   standpunkterISvaret,
@@ -39,6 +47,7 @@ import {
 } from '../format/skjema.ts';
 import {
   paaberopelseFor,
+  sendtFoerSisteKrav,
   utled,
   utledJournal,
   varseletFoerBrevet,
@@ -314,6 +323,23 @@ const SKRIVING: Record<Spor, Sporsskriving> = {
   frist: SKRIVING_I_FRISTEN,
 };
 
+/** Meldingen når en registrering ikke får virkning med datoen avsenderen oppgir (OV-U98). */
+const UTEN_VIRKNING_MELDING = (grunn: string) =>
+  `Brevet kan ikke legges til med virkning: ${grunn.replace(/ \(.*\)$/, '')}.`;
+
+/**
+ * OV-U80, OV-U98: et krav, et svar eller en aksept lagt til med datoen avsenderen oppgir, typen
+ * og brevet som vedlegg. Tomt for et brev fra løsningen.
+ */
+function registrering(k: Registrering, nyId: () => string, bundne: Vedlegg[]): Data {
+  if (k.sendt === undefined) return {};
+  return {
+    opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
+    korrespondansetype: k.korrespondansetype,
+    dokumentasjon: bundne,
+  };
+}
+
 /** Innholdet i dokumentet kommandoen gir. */
 function dokument(
   k: Kommando,
@@ -328,7 +354,9 @@ function dokument(
   const nyId = kontekst.nyId;
   switch (k.type) {
     case 'krav': {
-      const forrige = u.spor[k.spor].gjeldendeKrav;
+      // OV-U102: et krav lagt til, sendt før det siste, står utenfor rekken og erstatter ikke det.
+      const sendt = erRegistrering(k) ? kalenderdag(k.sendt) : null;
+      const forrige = sendtFoerSisteKrav(u, k.spor, sendt) ? null : u.spor[k.spor].gjeldendeKrav;
       const id = nyId();
       if (k.utdypning !== undefined || k.utdypninger || k.forbehold !== undefined)
         utdypninger.set(id, {
@@ -359,7 +387,7 @@ function dokument(
       }
       // OV-U5: brevet med varselet ligger ved kravet.
       if (bundne.length) data.dokumentasjon = bundne;
-      return data;
+      return { ...data, ...registrering(k, nyId, bundne) };
     }
     case 'brev':
       return {
@@ -368,15 +396,18 @@ function dokument(
           u,
           kjerne
         ),
+        ...registrering(k, nyId, bundne),
       };
     case 'revisjon':
       return {
         svar: frosneSvar([svar(k.svar, u, nyId, utdypninger, bygde, k.erstatter)], u, kjerne),
+        ...registrering(k, nyId, bundne),
       };
     case 'aksept':
       // KA-U10, MM-U50: aksepten viser til svaret og lagrer regelversjonen TE fikk se.
       return {
         utsagn: [{ id: nyId(), art: 'aksept', gjelder: k.svar, regelversjon: k.regelversjon }],
+        ...registrering(k, nyId, bundne),
       };
     case 'trekk':
       return { utsagn: [{ id: nyId(), art: 'trekk', gjelder: u.spor[k.spor].gjeldendeKrav!.id }] };
@@ -601,7 +632,8 @@ function skriv(
     kjerne.regler,
     svarstandpunkter,
     brevetsDato,
-    sendes
+    // OV-U80: utdypningen og begrunnelsen kreves ikke i en registrering.
+    sendes && !erRegistrering(k)
   );
   if (brudd) return { godtatt: false, feil: 'REGELBRUDD', avvisning: brudd };
   const sperre =
@@ -635,8 +667,11 @@ function skriv(
     throw feil;
   }
   // HF-U23 punkt 1 og 2: akseptfristen kontrolleres mot svaret slik brevet fryser det, fordi
-  // sammenfallet (GR-U7) bare finnes i det frosne svaret.
-  const frist = Array.isArray(data.svar) ? akseptfristeneIBrevet(data.svar, brevetsDato) : null;
+  // sammenfallet (GR-U7) bare finnes i det frosne svaret. Et registrert svar er gitt dagen det
+  // ble sendt (OV-U98).
+  const frist = Array.isArray(data.svar)
+    ? akseptfristeneIBrevet(data.svar, erRegistrering(k) ? k.sendt : brevetsDato)
+    : null;
   if (frist) return { godtatt: false, feil: 'REGELBRUDD', avvisning: frist };
   const rad: Journalrad = {
     event_id: eventId,
@@ -722,6 +757,15 @@ function skriv(
     throw new Skrivefeil(
       `Kjernen forstår ikke dokumentet den selv skriver: ${hindrer.map((b) => b.grunn).join('; ')}`
     );
+  // OV-U98: en registrering godtas bare når den får virkning med datoen avsenderen oppgir.
+  // Regelen står i utledningen (`registreringenStrider`), så kommandoen og journalen er enige.
+  const uten = etter.utenVirkning.find((x) => x.hendelse === eventId);
+  if (erRegistrering(k) && uten)
+    return {
+      godtatt: false,
+      feil: 'REGELBRUDD',
+      avvisning: avvis('IKKE_GJELDENDE_PAA_SENDEDATOEN', UTEN_VIRKNING_MELDING(uten.grunn)),
+    };
   return { godtatt: true, hendelser: [rad] };
 }
 
@@ -791,6 +835,7 @@ function brevtekstFor(
         sakskode,
         tittel: sak.tittel,
         svarPaaPaaberopelsen: u.spor.forhold.gjeldendeSvar?.id ?? null,
+        utenVirkning: u.utenVirkning.map((x) => x.element),
         datoopplysninger: u.datoopplysninger,
         subsidiaer: { vederlag: u.spor.vederlag.subsidiaer, frist: u.spor.frist.subsidiaer },
         avklartVedFrafall: u.frafalt,

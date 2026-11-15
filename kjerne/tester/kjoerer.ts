@@ -330,6 +330,9 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       return u.forstaatt;
     case 'gjeldende_krav':
       return u.spor[hale[0] as 'forhold'].gjeldendeKrav?.id ?? null;
+    // OV-U102: kravene sendt før totalentreprenørens siste krav i sporet.
+    case 'krav_utenfor_rekken':
+      return u.spor[hale[0] as 'forhold'].kravUtenforRekken.map((k) => k.id);
     case 'gjeldende_svar':
       return u.spor[hale[0] as 'forhold'].gjeldendeSvar?.id ?? null;
     case 'svar':

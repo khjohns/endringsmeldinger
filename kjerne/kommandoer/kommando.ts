@@ -81,8 +81,50 @@ type Hjemmelsvarsel<H extends Varselhjemmel> = {
  */
 export type RegistrertVarsel = Hjemmelsvarsel<Varselhjemmel>;
 
+/**
+ * OV-U80, OV-U98: kravet, svaret eller aksepten er sendt utenfor løsningen og legges til med
+ * datoen avsenderen oppgir, typen (LV-U42) og brevet som vedlegg. Uten `sendt` sendes det fra
+ * løsningen.
+ */
+export interface Registrering {
+  sendt?: string;
+  korrespondansetype?: Korrespondansetype;
+  dokumentasjon?: string[];
+}
+
+/** Kravet, svaret eller aksepten er lagt til med datoen det ble sendt (OV-U98). */
+export const erRegistrering = (
+  k: Kommando
+): k is Extract<Kommando, { type: 'krav' | 'brev' | 'revisjon' | 'aksept' }> & {
+  sendt: string;
+} =>
+  (k.type === 'krav' || k.type === 'brev' || k.type === 'revisjon' || k.type === 'aksept') &&
+  k.sendt !== undefined;
+
+/**
+ * Formen for et brev sendt utenfor løsningen og lagt til med datoen (`sendt`): typen og brevet
+ * som vedlegg, og ingen tekst fra løsningen (`tekstfeil`). Uten `sendt` har kommandoen verken
+ * typen eller vedlegg (OV-U80).
+ */
+function registreringensForm(
+  kommando: Record<string, unknown>,
+  tekstfeil: () => string[]
+): string[] {
+  if (!('sendt' in kommando))
+    return 'korrespondansetype' in kommando || 'dokumentasjon' in kommando
+      ? ['$.sendt: bare et brev lagt til med datoen det ble sendt, har typen og vedlegg']
+      : [];
+  return [
+    ...tekstfeil(),
+    ...('korrespondansetype' in kommando ? [] : ['$.korrespondansetype: typen mangler']),
+    ...((kommando as Registrering).dokumentasjon?.length
+      ? []
+      : ['$.dokumentasjon: brevet som ble sendt, må ligge ved']),
+  ];
+}
+
 export type Kommando = (
-  | {
+  | ({
       type: 'krav';
       spor: Spor;
       innhold: Record<string, unknown>;
@@ -109,15 +151,15 @@ export type Kommando = (
       utdypninger?: Record<string, string>;
       /** Forbeholdet i kravet om fristforlengelse eller vederlagsjustering (KA-U82, LV-U74). */
       forbehold?: string;
-    }
-  | { type: 'brev'; svar: Svarutkast[] }
-  | { type: 'revisjon'; erstatter: string; svar: Svarutkast }
-  | {
+    } & Registrering)
+  | ({ type: 'brev'; svar: Svarutkast[] } & Registrering)
+  | ({ type: 'revisjon'; erstatter: string; svar: Svarutkast } & Registrering)
+  | ({
       type: 'aksept';
       spor: Spor;
       svar: string;
       regelversjon: number;
-    }
+    } & Registrering)
   | { type: 'trekk'; spor: Spor }
   /**
    * Registrerer et varsel etter § 32.2, § 33.4, § 34.1.2, § 34.1.3, § 34.3.3 eller § 34.4
@@ -229,6 +271,13 @@ const VARSELET = {
   hjemmel: { enum: Object.keys(VARSELSPOR).filter((h) => h !== '32.2') },
 };
 
+/** OV-U80, OV-U98: feltene i et krav, et svar eller en aksept lagt til med datoen det ble sendt. */
+const REGISTRERING = {
+  sendt: DATO,
+  korrespondansetype: KORRESPONDANSETYPE,
+  dokumentasjon: liste(ID),
+};
+
 const henvisning = (type: string) =>
   objekt({ type: { const: type }, gjelder: ID, ...BREVTEKST }, ['type', 'gjelder']);
 
@@ -239,23 +288,33 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       spor: SPOR,
       innhold: { type: 'object' },
       varsel: objekt({ sendt: DATO, dokumentasjon: liste(ID) }, ['sendt']),
-      dokumentasjon: liste(ID),
       utdypning: TEKST,
       utdypninger: UTDYPNINGER,
       forbehold: TEKST,
       ...BREVTEKST,
+      ...REGISTRERING,
     },
     ['type', 'spor', 'innhold']
   ),
   brev: objekt(
-    { type: { const: 'brev' }, svar: { type: 'array', items: SVARUTKAST }, ...BREVTEKST },
+    {
+      type: { const: 'brev' },
+      svar: { type: 'array', items: SVARUTKAST },
+      ...BREVTEKST,
+      ...REGISTRERING,
+    },
     ['type', 'svar']
   ),
-  revisjon: objekt({ type: { const: 'revisjon' }, erstatter: ID, svar: SVARUTKAST, ...BREVTEKST }, [
-    'type',
-    'erstatter',
-    'svar',
-  ]),
+  revisjon: objekt(
+    {
+      type: { const: 'revisjon' },
+      erstatter: ID,
+      svar: SVARUTKAST,
+      ...BREVTEKST,
+      ...REGISTRERING,
+    },
+    ['type', 'erstatter', 'svar']
+  ),
   aksept: objekt(
     {
       type: { const: 'aksept' },
@@ -263,6 +322,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       svar: ID,
       regelversjon: { type: 'integer' },
       ...BREVTEKST,
+      ...REGISTRERING,
     },
     ['type', 'spor', 'svar', 'regelversjon']
   ),
@@ -381,7 +441,7 @@ const brevfelt = (k: Kommando): { sti: string; sendt?: unknown; dokumentasjon?: 
   const dokumentasjon = [...(k.dokumentasjon ?? []), ...(k.varsel?.dokumentasjon ?? [])];
   return {
     sti: k.varsel ? '$.varsel.' : '$.',
-    ...(k.varsel ? { sendt: k.varsel.sendt } : {}),
+    ...(k.varsel ? { sendt: k.varsel.sendt } : 'sendt' in k ? { sendt: k.sendt } : {}),
     ...(dokumentasjon.length ? { dokumentasjon } : {}),
   };
 };
@@ -474,20 +534,35 @@ export function formfeil(kommando: unknown): string[] {
     if (k.spor && new Set(k.spor).size !== k.spor.length)
       feil.push('$.spor: samme spor står to ganger');
   }
-  if (type === 'begrunnelse' && !feil.length) {
-    const k = kommando as { utdypning?: unknown; dokumentasjon?: unknown[] };
-    if ('sendt' in kommando) {
-      // KA-U35: den registrerte begrunnelsen har ingen tekst i appen, og brevet ligger ved.
-      if ('utdypning' in k) feil.push('$.utdypning: en registrert begrunnelse har ingen tekst');
-      if (!('korrespondansetype' in kommando))
-        feil.push('$.korrespondansetype: typen mangler for den registrerte begrunnelsen');
-      if (!k.dokumentasjon?.length)
-        feil.push('$.dokumentasjon: brevet med begrunnelsen må ligge ved');
-    } else if ('korrespondansetype' in kommando)
-      feil.push('$.korrespondansetype: bare en registrert begrunnelse har typen');
-    else if ('dokumentasjon' in k)
-      // KA-U34: brevet fra appen har bare setningen og teksten.
-      feil.push('$.dokumentasjon: bare en registrert begrunnelse har vedlegg');
+  if (type === 'begrunnelse' && !feil.length)
+    // KA-U35: den registrerte begrunnelsen har ingen tekst i appen. KA-U34: brevet fra appen har
+    // bare setningen og teksten.
+    feil.push(
+      ...registreringensForm(kommando, () =>
+        'utdypning' in kommando ? ['$.utdypning: en registrert begrunnelse har ingen tekst'] : []
+      )
+    );
+  // OV-U80: et krav fra løsningen kan ha vedlegg (VS-U38), men bare et krav lagt til har typen.
+  if (type === 'krav' && !feil.length && ('sendt' in kommando || 'korrespondansetype' in kommando))
+    feil.push(
+      ...registreringensForm(kommando, () =>
+        ['brevtekst', 'utdypning', 'utdypninger', 'forbehold', 'varsel']
+          .filter((felt) => felt in kommando)
+          .map((felt) => `$.${felt}: et krav lagt til har ikke feltet`)
+      )
+    );
+  if ((type === 'brev' || type === 'revisjon' || type === 'aksept') && !feil.length) {
+    const svar = (kommando as { svar?: unknown }).svar;
+    const utkast = (type === 'brev' ? svar : type === 'revisjon' ? [svar] : []) as Svarutkast[];
+    // OV-U80: registreringen har ingen tekst fra løsningen.
+    feil.push(
+      ...registreringensForm(kommando, () => [
+        ...('brevtekst' in kommando ? ['$.brevtekst: en registrering har ingen brevtekst'] : []),
+        ...(utkast.some((s) => s.utdypning !== undefined || s.utdypninger !== undefined)
+          ? ['$.svar: et registrert svar har ingen utdypning']
+          : []),
+      ])
+    );
   }
   if (type === 'korrigering' && !feil.length) {
     const { felt, dato } = korrigertDato(

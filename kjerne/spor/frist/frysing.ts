@@ -10,7 +10,6 @@ import { UgyldigVurdering } from '../../regler/feil.ts';
 import { kontrollerSpesifiseringen } from '../../regler/svarkontroll.ts';
 import {
   avvisUkjenteFelt,
-  kravetErDokumentasjon,
   laget,
   prinsipalt,
   standpunktet,
@@ -190,13 +189,6 @@ export const SAMMENLIKNES_I_FRISTEN = [
   'frister.godkjent_dager',
 ];
 
-/**
- * VS-U33, OV-U4. Utledningen og `svarPaaForesporsler` leser det herfra, og kommandoene gjennom
- * utledningen.
- */
-export const erFristkravIAppen = (d: Pick<Dokument, 'opplysninger'>, k: Pick<Krav, 'spor'>) =>
-  k.spor === 'frist' && !kravetErDokumentasjon(d);
-
 export interface ForesporselOgSvar {
   foresporsel: string;
   /** Elementet som svarte: et fristkrav (`medKrav`) eller TEs begrunnelse etter annet ledd b. */
@@ -207,8 +199,8 @@ export interface ForesporselOgSvar {
 /**
  * § 33.6.2 (VS-U17, VS-U19, VS-U27): svaret på hver forespørsel. TEs begrunnelse etter annet
  * ledd b og fristkravet svarer på forespørselen de uttrykkelig viser til i `gjelder`, aldri
- * etter rekkefølgen i journalen (HF-U1, LV-U18 punkt 3). Et krav i et registrert brev er
- * dokumentasjon og svarer ikke (OV-U4). Gir forespørselen og elementet som svarte, eller `null`.
+ * etter rekkefølgen i journalen (HF-U1, LV-U18 punkt 3), også et krav lagt til med kravskjemaet
+ * (VS-U47 spørsmål 2). Gir forespørselen og elementet som svarte, eller `null`.
  */
 export function svarPaaForesporsler(
   dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>
@@ -225,7 +217,7 @@ export function svarPaaForesporsler(
       }
     }
     for (const krav of d.krav) {
-      const f = erFristkravIAppen(d, krav) ? ubesvart(krav.gjelder) : undefined;
+      const f = krav.spor === 'frist' ? ubesvart(krav.gjelder) : undefined;
       if (f) Object.assign(f, { svar: krav.id, medKrav: true });
     }
   }
