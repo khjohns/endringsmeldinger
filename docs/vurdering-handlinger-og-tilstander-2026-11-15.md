@@ -232,20 +232,20 @@ men mangler i kjernen eller Varden. Hyppighet er ikke brukt som grunn, fordi den
 | G1 | Påberopelse av forholdet, med ny sak | Ja. Varslingsfristen etter 32.2 og byggherrens svar etter 32.3 leser den (GR-U40) | Strukturert, egen | Nå | Åpner «venter på svar» | Ingen | Beholde |
 | G2 | Varsel fra løsningen (33.4, 34.1.2, 34.1.3) | Ja. Om kravet er varslet i tide, leses av varselet (VS-U15, OV-U89) | Strukturert, egen. Kan sendes før kravet | Nå. Virkningen avhenger av datoen | Åpner «varslet» | Skjema i Varden for vederlag | Beholde. Hull i Varden for vederlag |
 | G3 | Krav om vederlagsjustering eller fristforlengelse, også ny versjon | Ja | Strukturert. Ny versjon er en form av kravet (GR-U40, KA-U52) | Nå | Åpner «venter på svar» | Ingen | Beholde |
-| G4 | Svar i hvert spor, også frafall, nytt svar og bekreftelse | Ja. Enigheten og akseptfristen leser svaret (KA-U1, HF-U23) | Strukturert. Nytt svar (HF-U29) og bekreftelse (OV-U46) er former av svaret. Brevet viser at et svar som står, erstattes | Svar og nytt svar nå. Bekreftelsen senere: registrert svar med opprinnelig dato er omveien (OV-U80, OV-U84) | Åpner «byggherren har svart» og «pålegg frafalt», lukker «venter på svar» | Skjema i Varden for svaret på påberopelsen og for nytt svar | Beholde svar og nytt svar. Bekreftelsen venter. Hull i Varden |
+| G4 | Svar i hvert spor, også frafall, nytt svar og bekreftelse | Ja. Enigheten leser svaret (KA-U1) | Strukturert. Nytt svar (HF-U29) og bekreftelse (OV-U46) er former av svaret. Brevet viser at et svar som står, erstattes | Svar og nytt svar nå. Bekreftelsen senere: registrert svar med opprinnelig dato er omveien (OV-U80), se U6 | Åpner «byggherren har svart» og «pålegg frafalt», lukker «venter på svar» | Skjema i Varden for svaret på påberopelsen og for nytt svar | Beholde svar og nytt svar. Bekreftelsen venter. Hull i Varden |
 | G5 | Innlegg i fritekst | Nei. Ingen regel leser det (MM-U47 punkt 4) | Innlegg. Tar innsigelsen etter punkt 5, protest, bestridelse, passivitet, senere begrunnelse og utdyping | Nå | Merket for innlegg etter siste brev (port 0) | Ny kommando uten regel i kjernen; skjema i Varden | Beholde. Hull i kjernen og Varden |
 
 ### Utover grunnsettet
 
 | # | Handling | 1 Finnes? | 2 Form | 3 Når | 4 Tilstander | Kostnad | Utfall |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| U1 | Aksept av svaret | Ja. «Enige» og sperren etter enighet leser den (KA-U1) | Strukturert, egen. Brevet sier hvilket svar som godtas | Nå. Uten den finnes ingen vei til enighet; et innlegg leses ikke som aksept | Åpner «enige», lukker «byggherren har svart» | Ingen | Beholde |
-| U2 | Trekk | Ja. Avkall som lukker sporet (KA-U51) | Strukturert. Én handling i to former: eget trekk, og trekk i en ny kravversjon (KA-U56). Brevet sier hva som trekkes, og at det er et avkall | Nå. Ingen omvei for trekk av hele kravet | Åpner «trukket», som er sluttilstand | Skjema i Varden for eget trekk | Beholde. Hull i Varden |
+| U1 | Aksept av svaret | Ja. «Enige» og sperren etter enighet leser den (KA-U1) | Strukturert, egen. Brevet sier hvilket svar som godtas | Nå. Uten den er enighet ved sammenfall (GR-U10) den eneste veien; et innlegg leses ikke som aksept | Åpner «enige», lukker «byggherren har svart» | Ingen | Beholde |
+| U2 | Trekk | Ja. Avkall som lukker sporet (KA-U51) | Strukturert. Én handling i to former: eget trekk, og trekk av en kravpost i en ny kravversjon (OV-U95 punkt G). Brevet sier hva som trekkes, og at det er et avkall | Nå. Ingen omvei for trekk av hele kravet | Åpner «trukket», som er sluttilstand | Skjema i Varden for eget trekk | Beholde. Hull i Varden |
 | U3 | Forespørsel etter 33.6.2, og svaret på den | Ja. Fristen leser den (VS-U47) | Strukturert, egen | Nå. Fristen løper fra forespørselen | Åpner «spesifisert krav etterspurt»; svaret lukker den | Skjema i Varden for forespørselen | Beholde. Hull i Varden |
 | U4 | «Ingen krav» | Ja. Avkall (KA-U17) | Strukturert | Senere. Tidspunktet betyr ingenting, og OV-U7 utsetter den | «Ingen krav» går ut | Kjernen slutter å tilby den (K1) | Utsette |
 | U5 | Registrering som dokumentasjon (OV-U79) | Ikke et utsagn med virkning. Behovet: korrespondansen hører til saken, og den er veien til å reparere senere (OV-U84) | Strukturert | Nå | Ingen | Skjema i Varden; kjernen har `registrert_brev` | Beholde. Hull i Varden |
 | U6 | Registrering med virkning: varsel, krav, svar, forespørsel, endringsordre som svar | Ja for varsel, krav, svar og forespørsel: fristene regnes fra sendedatoen (OV-U80, VS-U19) | Former av varsel, krav og svar, valgt av avsenderen (OV-U84) | Varsel nå: MM-U55 krever retting av varseldatoen før første ekte sak. Endringsordren som svar nå (OV-U2, OV-U6). Krav, svar og forespørsel senere, reparerbart etter OV-U84 | Som handlingen registreringen er en form av | Valget etter OV-U84 for krav, svar og forespørsel | Varsel og endringsordre som svar beholdes. Resten venter (spørsmål B og C) |
-| U7 | Retting av datoer i et sendt brev | Ja (MM-U55) | Strukturert | Nå for datoene i beslutningsdelen i MM-U55 | Ingen ny | Rettingen av varseldatoen og kravdatoen er ikke kontrollert | Beholde |
+| U7 | Retting av datoer i et sendt brev | Ja (MM-U55) | Strukturert | Nå for datoene i beslutningsdelen i MM-U55 | Ingen ny | Bare korrigeringen av datoen i påberopelsen (punkt 10) er bygget. Rettingen av varseldatoen (punkt 8) og kravdatoen (punkt 18): ny kommando i kjernen og skjema i Varden. Den manuelle korrigeringsprosessen for andre rettinger skal være avklart | Beholde. Hull i kjernen og Varden |
 | U8 | Godkjenning med fullmakt | Ikke et utsagn til motparten. Byggherrens organisering av fullmakten, og tilgang (K4) | – | Senere (GFK-U5) | Ingen | Rute i serveren og skjema; datalaget finnes | Beholde vedtakene. Bygges etter GFK-U5 |
 | U9 | Interne notater | Ikke et utsagn til motparten. Samordning i teamet (antakelse); K4 er høy | – | Senere. De er ikke i journalen (MS-05), så utsettelsen kan repareres fullt ut | Ingen | Tabellen `koe.notat` finnes | Utsette |
 
@@ -258,13 +258,13 @@ men mangler i kjernen eller Varden. Hyppighet er ikke brukt som grunn, fordi den
 | Spesifisert krav etterspurt | BH har spurt etter 33.6.2; TE står for tur | Holder |
 | Svaret er ikke godtatt | Leses av at TE ikke har sagt noe, og antyder et standpunkt TE ikke har tatt | Byttes med «byggherren har svart» (oppdragsgiver 15.11, design) |
 | Pålegg frafalt | BH har frafalt pålegget (32.3 c) | Holder |
-| Enige | TE har godtatt BHs svar | Holder |
-| Krav sendt | Vises bare når TE har godtatt avslaget på forholdet (`FORELIGGER.krav_sendt`); saken har alt «avslaget på forholdet godtatt» | Fjernes (oppdragsgiver 15.11, design) |
+| Enige | TE har godtatt BHs svar, eller kravet og svaret sammenfaller (GR-U10) | Holder |
+| Krav sendt | Vises bare når TE har godtatt et svar på påberopelsen som ikke avklarer forholdet, og kravet står uten enighet (`FORELIGGER.krav_sendt`); saken har alt «avslaget på forholdet godtatt» | Fjernes (oppdragsgiver 15.11, design) |
 | Ingen krav | Fra U4 | Går ut med U4 (T1) |
 | Trukket | TE har trukket; sluttilstand | Holder |
 | Saken: ikke forstått | Løsningen forstår ikke saken (MM-U2, MM-U43) | Holder |
 | Saken: avslaget på forholdet godtatt; påberopelsen trukket | TE har godtatt eller trukket | Holder |
-| Saken: kravene avgjort | Alle krav er enige eller trukket. «Avgjort» ligger nær en konklusjon (T3) | Design: bør si hva som har skjedd, ikke at saken er avgjort (spørsmål C punkt 5) |
+| Saken: kravene avgjort | Predikatet i OV-U3 (`kraveneErAvgjort`); teksten «Alle krav sendt i appen er avgjort» står i OV-U10 (design). «Avgjort» ligger nær en konklusjon (T3) | Design: bør si hva som har skjedd (spørsmål C punkt 5) |
 | Ny: innlegg etter siste brev | En part har sendt innlegg etter siste strukturerte handling | Ny merknad, uten tolkning (port 0) |
 
 Etikettene `innsigelse_fra_TE`, `innsigelse_fra_BH` og `passivitet_paaberopt` går ut med
@@ -285,14 +285,17 @@ krever et nytt vedtak før protest eller bestridelse blir en egen handling. Port
 - **A1 (anbefalt):** «Løsningen har et grunnsett av handlinger i hvert av sporene grunnlag,
   vederlag og frist: totalentreprenøren sender påberopelse, varsel eller krav, byggherren svarer,
   og begge parter kan sende innlegg i fritekst. En handling utover grunnsettet finnes bare når en
-  regel, en sperre eller en frist i løsningen leser utsagnet, eller når handlingen avgjør hvem
-  som kan sende på vegne av en part. Det andre en part vil meddele, sendes som innlegg. En handling
-  bygges før første ekte sak når virkningen avhenger av når utsagnet ble gitt og omveien taper
-  det; ellers kan den vente. En ny handling utover grunnsettet krever et vedtak som viser til
+  regel, en sperre eller en frist i løsningen leser utsagnet, når handlingen avgjør hvem som kan
+  sende på vegne av en part, eller når et vedtak begrunner et organisatorisk behov for den. Det
+  andre en part vil meddele, sendes som innlegg. En handling bygges før første ekte sak når
+  virkningen avhenger av når utsagnet ble gitt og omveien taper det, når løsningen ikke har noen
+  annen vei til virkningen, eller når et vedtak krever det før første ekte sak; ellers kan den
+  vente. En ny handling utover grunnsettet krever et vedtak som viser til
   bestemmelsen eller vedtaket, og som sier hva handlingen koster i løsningen og for brukerne. En
   tilstand i oversikten sier hvem som har sagt hva, og hvem som står for tur, og konkluderer ikke
   det kontrakten overlater til partene.» Forhold: presiserer OV-U1; utvider MM-U48 til alle
-  handlinger utover grunnsettet.
+  handlinger utover grunnsettet; utvider MM-U22 (designdelen: betegnelsen sier også hvem som står
+  for tur).
 - **A2:** «Handlingene er de OV-U1 og vedtakene etter den lister. Det gis ingen egen regel for nye
   handlinger eller tilstander.» Forhold: ingen.
 
@@ -310,12 +313,15 @@ senere, med datoen brevet ble sendt. Klasse: vedtak.
 - **B1 (anbefalt):** «Et brev sendt utenfor løsningen får virkning i løsningen bare når det er et
   varsel, et krav, et svar eller en forespørsel etter punkt 33.6.2, fordi fristene regnes fra når
   brevet ble sendt. Annet legges til som dokumentasjon, og parten sender utsagnet fra løsningen.
-  Datoen brevet ble sendt, brukes til å regne fristene. Rekkefølgen i saken avgjør sperrene og hva
-  som er gjeldende.» Forhold: presiserer OV-U80 og OV-U84; i tråd med VS-U19.
+  Datoen brevet ble sendt, brukes til å regne fristene. Rekkefølgen utsagnene ble lagt til i
+  løsningen, avgjør sperrene og hva som er gjeldende, med unntakene i OV-U80 og OV-U84.» Forhold:
+  presiserer OV-U80 og OV-U84 (samlet i MM-U55 der det gjelder); utvider OV-U80 med forespørselen,
+  etter VS-U19 og VS-U47.
 - **B2:** «OV-U80, OV-U84 og VS-U19 står uten en felles regel.» Forhold: ingen.
 
 Anbefaling: B1. Den svarer på spørsmålet ditt med én grunn: typen brev betyr noe bare når en frist
-regnes fra sendedatoen. Aksept og trekk kan sendes på nytt fra løsningen uten tap. Styrer: hva
+regnes fra sendedatoen. Aksept og trekk kan sendes på nytt fra løsningen uten tap av virkning i løsningen. Ingen gjeldende
+post gir en aksept eller et trekk utenfor løsningen virkning. Styrer: hva
 registreringen tilbyr, og at registrering av varsel blir en form av samme handling.
 
 ### Spørsmål C: samlet forslag etter skjemaet
@@ -333,8 +339,8 @@ Forutsetter A1 og B1. Svar «ja», eller rett enkeltpunkter. Belegget står i «
 3. Sendes som innlegg: innsigelsen etter punkt 5, protest, bestridelse, påberopt passivitet og
    byggherrens senere begrunnelse (VS-U46, MM-U48, KA-U46).
 4. Forsering og endringsordre som egen sak venter, som før (OV-U1, OV-U2, EO-U39).
-5. Tilstandene følger porten i A1. Betegnelsen for at alle krav er enige eller trukket, sier hva
-   som har skjedd, ikke at saken er avgjort.»
+5. Tilstandene følger porten i A1. Betegnelsen for at kravene er avgjort etter OV-U3, sier hva som
+   har skjedd, ikke at kravene er avgjort. Predikatet i OV-U3 står.»
 
 Forhold: presiserer OV-U1. Punkt 2 utsetter bekreftelsen etter OV-U46 og valget etter OV-U84 for
 krav, svar og forespørsel til etter første ekte sak; vedtakene står. Punkt 3 er i tråd med VS-U46
@@ -343,12 +349,14 @@ hva Varden bygger, og betegnelsene.
 
 ### Spørsmål D: rekkefølgen (prioritering, ikke juridisk)
 
-Hullene i det som beholdes nå: innlegget (kjernen og Varden), byggherrens svar på påberopelsen,
+Hullene i det som beholdes nå: innlegget (kjernen og Varden); byggherrens svar på påberopelsen,
 varselet i vederlag, eget trekk, nytt svar, forespørselen og registreringen som dokumentasjon
-(Varden).
+(Varden); rettingen av varseldatoen og kravdatoen etter MM-U55 (kjernen og Varden), og den
+manuelle korrigeringsprosessen for andre rettinger.
 
 - **D1 (anbefalt):** Grunnsettet først: innlegget og svaret på påberopelsen, så varselet i
-  vederlag. Deretter eget trekk, nytt svar, forespørselen og registreringen. Orkestratoren
+  vederlag. Deretter eget trekk, nytt svar, forespørselen, registreringen og rettingene etter
+  MM-U55. Orkestratoren
   oppretter issuene og fører rekkefølgen i #1065.
 - **D2:** Rekkefølgen i #1065 står uendret.
 
