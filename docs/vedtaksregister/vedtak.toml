@@ -30251,7 +30251,7 @@ forhold = [
   { art = "presiserer", vedtak = "mm-u55" },
 ]
 folge = '''
-Endrer OV-U80: setningen om aksept, og at et tidligere krav ikke blir gjeldende selv om valget ellers ville vært godtatt; utvider den med forespørselen og aksepten. Snevrer inn OV-U84: et senere valg av et tidligere krav blir ikke gjeldende. Presiserer KA-U1 og GR-U7 (gjeldende svar på sendedatoen), HF-U23 punkt 8 og MM-U55 punkt 8 og 18 (en retting av datoen endrer ikke hva som er gjeldende). I tråd med KA-U52 punkt 5, EO-U39 punkt 43, OV-U5, OV-U85, VS-U19 (VS-U47 punkt 5) og HF-U29 punkt 3.'''
+Endrer OV-U80: setningen om aksept, og at et tidligere krav ikke blir gjeldende selv om valget ellers ville vært godtatt; utvider den med forespørselen og aksepten. Snevrer inn OV-U84: et senere valg av et tidligere krav blir ikke gjeldende. Presiserer KA-U1 og GR-U7 (gjeldende svar på sendedatoen), HF-U23 punkt 8 og MM-U55 punkt 8 og 18 (en retting av datoen endrer ikke hva som er gjeldende). I tråd med KA-U52 punkt 5, EO-U39 punkt 43, OV-U5, OV-U85, VS-U19 (VS-U47 punkt 5) og HF-U29 punkt 3. Beslutningsdelen i VS-U47 gjelder for forespørselen etter punkt 33.6.2 i første versjon (oppdragsgiver 15.11).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "B1"
@@ -30851,6 +30851,237 @@ anbefalt = true
 navn = "B"
 tekst = '''
 Påberopelsen står til byggherren gir den opp eller sier at varselet kom i tide i et svar sendt fra løsningen. Et svar lagt til fra et brev sendt utenfor løsningen gir ikke noe standpunkt om påberopelsen, heller ikke når byggherren i skjemaet har sagt at varselet kom i tide (VS-U46 punkt 12).'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U106"
+dato = 2026-11-15
+hvem = "oppdragsgiver"
+kilde = ["#1290", "#1294"]
+sporsmal = '''
+Spørsmål 1, ordrett slik det står i [kommentaren i #1290](https://github.com/khjohns/endringsmeldinger/issues/1290#issuecomment-6900830393), skrevet om og rettet 15.11:
+
+> ### 1. Oppgjørsformen for den særskilte vederlagsjusteringen (#1294, S-1 i BF-14)
+>
+> Spørsmål 2 i første versjon er tatt inn i B.
+>
+> **Bakgrunn og belegg.**
+> - Vederlaget justeres etter punkt 34.3 og 34.4, med mindre byggherren har akseptert et tilbud (punkt 34.2.2 første ledd). For kravet om nedsatt produktivitet og forstyrrelser brukes reglene i punkt 34.3 og 34.4 i den grad de passer. Mener totalentreprenøren at deler av reglene om regningsarbeid ikke kan brukes, sender totalentreprenøren et begrunnet varsel om det. Totalentreprenøren holder byggherren løpende orientert om kostnadsutviklingen (punkt 34.2.2 annet ledd).
+> - Reglene passer ulikt for utgifter som alt er påløpt. Dette er vår lesning:
+>   - *Kontraktens enhetspriser* (punkt 34.3.1): ekstra mengder eller timer kan prises i ettertid, uten varsel på forhånd.
+>   - *Justerte enhetspriser* (punkt 34.3.2 annet ledd): forrykkes forutsetningene for enhetsprisene, også på grunn av tidspunktet for arbeidet, kan prisene justeres for fordyrelsene. Det krever varsel etter punkt 34.3.3. Kommer varselet for sent, får totalentreprenøren bare den justeringen byggherren måtte forstå.
+>   - *Regningsarbeid* passer dårligst. Varselet etter punkt 34.4 skal gis før arbeidet settes i gang, og oppgavene sendes løpende (punkt 30.3.1).
+> - Det særskilte varselet skal gis når totalentreprenøren blir eller burde ha blitt klar over at utgifter ville påløpe. Kommer det for sent, taper totalentreprenøren retten til å påberope seg påløpte utgifter (punkt 34.1.3 tredje ledd, slik kontraktsgrunnlaget Del II pkt. B.2.16 endrer det, OV-U89 punkt 1). Varselet etter punkt 34.1.2 gjelder forholdet, og kommer det for sent, tapes hele vederlagskravet, også posten (OV-U89 punkt 11).
+> - *Grensen mot de andre kravpostene.* Nedsatt produktivitet i selve endringsarbeidet kan også kreves som justerte enhetspriser i en kravpost, og da gjelder varselet etter punkt 34.3.3, ikke det særskilte varselet. Punkt 34.1.3 annet ledd gjelder forstyrrelser på annet arbeid, men ordlyden avgjør ikke sikkert om nedsatt produktivitet også bare gjelder annet arbeid. Totalentreprenøren plasserer kravet, og byggherren kan bestride plasseringen i begrunnelsen. Løsningen avgjør det ikke (OV-U89 punkt 14, MM-U50).
+> - Kravpostene etter en beregningsregel har allerede reglene posten trenger:
+>   - ikke noe krevd beløp, bare anslag eller overslag som opplysning (KA-U66);
+>   - byggherrens standpunkt til oppgjørsformen og kravet om spesifisert tilbud (KA-U54, KA-U69, KA-U72);
+>   - varslene etter punkt 34.3.3 og 34.4, med innsigelsene i laget for oppgjørsformen (VS-U48, VS-U69, KA-U64);
+>   - enighet om oppgjørsformen som ferdig-regel og sammenfall (OV-U95 punkt 13, HF-U28).
+> - For et sent varsel etter punkt 34.3.3 oppgir byggherren prinsipalt at totalentreprenøren bare har krav på den justeringen byggherren måtte forstå, og subsidiært standpunktet uten begrensningen. Løsningen regner ikke ut hva byggherren måtte forstå (VS-U4, D-14 i BF-14). Det er en begrensning uten beløp.
+> - I dag er posten bare et beløp med fast sum, og vedtakene for den forutsetter et beløp (OV-U89 punkt 7 og 8, OV-U95 punkt 13, HF-U28). Byggherren kan ikke ta stilling til oppgjørsformen for den (K-2).
+>
+> **Alternativ B (valgt), rettet etter prøvingen:** «Den særskilte vederlagsjusteringen er én kravpost med oppgjørsform som de andre kravpostene: fast sum etter punkt 34.2.1, kontraktens enhetspriser, også justerte enhetspriser, eller regningsarbeid. Reglene for kravpostene gjelder posten: beløpet ved fast sum og anslaget eller kostnadsoverslaget som opplysning ellers, byggherrens standpunkt til oppgjørsformen og kravet om spesifisert tilbud, varslene etter punkt 34.3.3 og 34.4 og innsigelsene mot dem, når et tilbud erstattes, og når behandlingen er ferdig. Uten fast sum sier kravbrevet oppgjørsformen for posten i stedet for beløpet. Kravbrevet bruker teksten med «i tillegg» i samlevedtaket for vederlagsmetoden punkt 3 når vederlagsjusteringen har minst én kravpost i tillegg til den særskilte vederlagsjusteringen. Det særskilte varselet etter punkt 34.1.3 tredje ledd gjelder bare denne posten. Påberoper byggherren at det særskilte varselet kom for sent, og godkjenner byggherren fast sum for posten i laget for oppgjørsformen, gjelder OV-U89 punkt 8. Ellers er det prinsipale standpunktet at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter (punkt 34.1.3 tredje ledd), og subsidiært står standpunktet til oppgjørsformen uten begrensningen etter punkt 34.1.3. Kravet er ikke prinsipalt avslått. Løsningen regner ikke ut hva begrensningen gir, og avgjør ikke hvilke utgifter som er påløpt eller rammet. [Det begrunnede varselet etter punkt 34.2.2 annet ledd og den løpende orienteringen om kostnadsutviklingen sendes som innlegg eller legges til som korrespondanse.] Forhold: utvider samlevedtaket for vederlagsmetoden punkt 2, 5, 15, 19, 20 og 23, KA-U64, KA-U69, KA-U72, VS-U48, VS-U56, VS-U69 og OV-U73 til posten; endrer samlevedtaket for vederlagsmetoden punkt 3 (brevteksten uten beløp) og presiserer siste setning der; endrer punkt 13, HF-U28 og OV-U89 punkt 7; presiserer OV-U89 punkt 8 og 12, KA-U65 og samlevedtaket for vederlagsmetoden punkt 4; bygger på VS-U4, delen om punkt 34.3.3 første ledd, som VS-U47 lar stå; i tråd med samlevedtaket for vederlagsmetoden punkt 8 og MM-U50; OV-U89 punkt 9, 11, 14 og 17 står.»
+>
+> Ordet «én» i første setning avhenger av oppfølgingsspørsmål 1a, og setningen i hakeparentes av oppfølgingsspørsmål 1b.
+>
+> **Alternativ A (forkastet):** «Den særskilte vederlagsjusteringen har alltid et beløp: totalentreprenørens beregning av utgiftene. Totalentreprenøren velger uttrykkelig om beløpet er et tilbud etter punkt 34.2.1, eller totalentreprenørens beregning etter punkt 34.2.2 annet ledd, som ikke er et tilbud, og oppgir om beregningen bygger på kontraktens enhetspriser, justerte enhetspriser eller reglene om regningsarbeid. Byggherren tar stilling til beløpet som i OV-U89 punkt 7, 8 og 12, og har ikke et standpunkt til oppgjørsformen for posten. Er beløpet en beregning, kan byggherren kreve et spesifisert tilbud for posten. Godkjenner byggherren beløpet, registrerer løsningen enighet om beløpet for posten. Løsningen knytter ikke varselet etter punkt 34.3.3 eller 34.4 til posten. Forhold: presiserer samlevedtaket for vederlagsmetoden punkt 2, 3, 4, 6 og 19, KA-U65, KA-U66 og KA-U72; utvider KA-U69 til posten; OV-U89 punkt 7, 8, 11 og 12, punkt 13 og HF-U28 står.»
+>
+> **Alternativ C (forkastet):** «Den særskilte vederlagsjusteringen kreves i løsningen bare som tilbud etter punkt 34.2.1. Vil totalentreprenøren kreve den etter reglene i punkt 34.3 og 34.4, sier skjemaet at kravet sendes utenfor løsningen og kan legges til som korrespondanse. Forhold: snevrer inn samlevedtaket for vederlagsmetoden punkt 3, 4 og 19.»
+>
+> **Begrunnelsen for B.**
+> - B bruker reglene som alt finnes for kravpostene. Det eneste nye er det særskilte varselet etter punkt 34.1.3, og begrensningen følger mønsteret som alt gjelder for et sent varsel etter punkt 34.3.3 (VS-U4).
+> - A gir posten en egen kategori, et krevd beløp som er en beregning, som ingen kravpost etter en beregningsregel har (KA-U66). Under A har byggherren heller ikke et standpunkt til oppgjørsformen, og varslene etter punkt 34.3.3 og 34.4 havner i begrunnelsen.
+> - C tvinger totalentreprenøren til å gi et tilbud, som er unntaket i kontrakten, eller til å sende kravet utenfor løsningen.
+>
+> **Kostnaden ved B.**
+> - Godkjenner byggherren ikke fast sum for posten, kan byggherren ikke oppgi et beløp etter begrensningen etter punkt 34.1.3. Det gjelder også når totalentreprenøren har tilbudt fast sum og byggherren ikke aksepterer tilbudet (KA-U72). Begrensningen står da uten beløp, slik begrensningen etter punkt 34.3.3 gjør, og tabellen i svaret har ikke noe fast sum for posten i det laget.
+> - Påberopes både varselet etter punkt 34.1.2 og det særskilte varselet, står begrensningen for posten uten beløp i mellomlaget etter OV-U89 punkt 12, når byggherren ikke godkjenner fast sum.
+>
+> **Hva valget styrer:** formatet for posten før første ekte hendelse (B-17), byggherrens svar per kravpost, brevteksten i punkt 3 og 4, og at et særtilfelle for posten fjernes fra ferdig-regelen og sammenfallet.
+'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 15.11, ordrett: «Ja skriv om - da slutter jeg meg til B». Svaret gjelder B slik den ble beskrevet i samtalen. Vedtaksteksten er skrevet etter svaret og rettet etter prøvingen mot vedtakene ([kommentaren](https://github.com/khjohns/endringsmeldinger/issues/1290#issuecomment-6900830393)). Svaret er B.'''
+forhold = [
+  { art = "utvider", vedtak = "ov-u95" },
+  { art = "utvider", vedtak = "ka-u64" },
+  { art = "utvider", vedtak = "ka-u69" },
+  { art = "utvider", vedtak = "ka-u72" },
+  { art = "utvider", vedtak = "vs-u48" },
+  { art = "utvider", vedtak = "vs-u56" },
+  { art = "utvider", vedtak = "vs-u69" },
+  { art = "utvider", vedtak = "ov-u73" },
+  { art = "endrer", vedtak = "ov-u95" },
+  { art = "endrer", vedtak = "hf-u28" },
+  { art = "endrer", vedtak = "ov-u89" },
+  { art = "presiserer", vedtak = "ov-u89" },
+  { art = "presiserer", vedtak = "ka-u65" },
+  { art = "presiserer", vedtak = "ov-u95" },
+  { art = "bygger på", vedtak = "vs-u4" },
+]
+folge = '''
+Forholdet slik det sto i alternativet B: «utvider samlevedtaket for vederlagsmetoden punkt 2, 5, 15, 19, 20 og 23, KA-U64, KA-U69, KA-U72, VS-U48, VS-U56, VS-U69 og OV-U73 til posten; endrer samlevedtaket for vederlagsmetoden punkt 3 (brevteksten uten beløp) og presiserer siste setning der; endrer punkt 13, HF-U28 og OV-U89 punkt 7; presiserer OV-U89 punkt 8 og 12, KA-U65 og samlevedtaket for vederlagsmetoden punkt 4; bygger på VS-U4, delen om punkt 34.3.3 første ledd, som VS-U47 lar stå; i tråd med samlevedtaket for vederlagsmetoden punkt 8 og MM-U50; OV-U89 punkt 9, 11, 14 og 17 står.» Setningen «Det begrunnede varselet etter punkt 34.2.2 annet ledd og den løpende orienteringen om kostnadsutviklingen sendes som innlegg eller legges til som korrespondanse.» er tatt ut av vedtaksteksten etter svaret 1b A, og står som arbeidsvalg i #1290. Bygges i #1294.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Den særskilte vederlagsjusteringen har alltid et beløp: totalentreprenørens beregning av utgiftene. Totalentreprenøren velger uttrykkelig om beløpet er et tilbud etter punkt 34.2.1, eller totalentreprenørens beregning etter punkt 34.2.2 annet ledd, som ikke er et tilbud, og oppgir om beregningen bygger på kontraktens enhetspriser, justerte enhetspriser eller reglene om regningsarbeid. Byggherren tar stilling til beløpet som i OV-U89 punkt 7, 8 og 12, og har ikke et standpunkt til oppgjørsformen for posten. Er beløpet en beregning, kan byggherren kreve et spesifisert tilbud for posten. Godkjenner byggherren beløpet, registrerer løsningen enighet om beløpet for posten. Løsningen knytter ikke varselet etter punkt 34.3.3 eller 34.4 til posten.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Den særskilte vederlagsjusteringen er én kravpost med oppgjørsform som de andre kravpostene: fast sum etter punkt 34.2.1, kontraktens enhetspriser, også justerte enhetspriser, eller regningsarbeid. Reglene for kravpostene gjelder posten: beløpet ved fast sum og anslaget eller kostnadsoverslaget som opplysning ellers, byggherrens standpunkt til oppgjørsformen og kravet om spesifisert tilbud, varslene etter punkt 34.3.3 og 34.4 og innsigelsene mot dem, når et tilbud erstattes, og når behandlingen er ferdig. Uten fast sum sier kravbrevet oppgjørsformen for posten i stedet for beløpet. Kravbrevet bruker teksten med «i tillegg» i samlevedtaket for vederlagsmetoden punkt 3 når vederlagsjusteringen har minst én kravpost i tillegg til den særskilte vederlagsjusteringen. Det særskilte varselet etter punkt 34.1.3 tredje ledd gjelder bare denne posten. Påberoper byggherren at det særskilte varselet kom for sent, og godkjenner byggherren fast sum for posten i laget for oppgjørsformen, gjelder OV-U89 punkt 8. Ellers er det prinsipale standpunktet at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter (punkt 34.1.3 tredje ledd), og subsidiært står standpunktet til oppgjørsformen uten begrensningen etter punkt 34.1.3. Kravet er ikke prinsipalt avslått. Løsningen regner ikke ut hva begrensningen gir, og avgjør ikke hvilke utgifter som er påløpt eller rammet.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Den særskilte vederlagsjusteringen kreves i løsningen bare som tilbud etter punkt 34.2.1. Vil totalentreprenøren kreve den etter reglene i punkt 34.3 og 34.4, sier skjemaet at kravet sendes utenfor løsningen og kan legges til som korrespondanse.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U107"
+dato = 2026-11-15
+hvem = "oppdragsgiver"
+kilde = ["#1290", "#1294"]
+sporsmal = '''
+Oppfølgingsspørsmål 1a, ordrett slik det ble stilt 15.11 i [kommentaren i #1290](https://github.com/khjohns/endringsmeldinger/issues/1290#issuecomment-6900830393):
+
+> #### Oppfølgingsspørsmål til spørsmål 1
+>
+> Spørsmålene kommer fra prøvingen av B mot vedtakene (orkestratoren 15.11).
+>
+> **1a. Én kravpost eller flere for den særskilte vederlagsjusteringen.**
+>
+> *Bakgrunn.* B sier at posten er en kravpost med oppgjørsform. Vederlagsjusteringen kan deles i flere kravposter (KA-U53, OV-U95 punkt 19), men B sier ikke om det også gjelder den særskilte vederlagsjusteringen. Påberopelsen etter punkt 34.1.3 er ett standpunkt og gjelder bare kravet etter annet ledd (OV-U89 punkt 9). Etter punkt 34.2.2 annet ledd brukes reglene i punkt 34.3 og 34.4 i den grad de passer, så ulike deler av kravet kan passe for ulike regler.
+>
+> *Alternativ A (anbefalt):* «Den særskilte vederlagsjusteringen er én kravpost med én oppgjørsform. Forhold: presiserer svaret på spørsmål 1 og KA-U53; OV-U89 punkt 9 står.»
+>
+> *Alternativ B:* «Totalentreprenøren kan dele den særskilte vederlagsjusteringen i flere kravposter, hver med sin oppgjørsform. Det særskilte varselet og påberopelsen etter punkt 34.1.3 er fortsatt ett standpunkt og gjelder alle postene. Forhold: utvider KA-U53 og samlevedtaket for vederlagsmetoden punkt 19 til den særskilte vederlagsjusteringen; OV-U89 punkt 9 står.»
+>
+> *Anbefaling: A.* Påberopelsen er ett standpunkt, og én post holder laget for begrensningen enkelt. Kostnaden er at totalentreprenøren må velge én oppgjørsform for hele kravet, også når deler av det ville passet bedre etter en annen regel. Det må da begrunnes i kravet.
+>
+> *Hva valget styrer:* formatet for posten, tabellen i svaret og laget for begrensningen etter punkt 34.1.3.
+'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 15.11, ordrett: «a og b: enig som anbefalt.». Svaret er A, det anbefalte alternativet.'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u106" },
+  { art = "presiserer", vedtak = "ka-u53" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «presiserer svaret på spørsmål 1 og KA-U53; OV-U89 punkt 9 står.» Svaret på spørsmål 1 er OV-U106. Bygges i #1294.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Den særskilte vederlagsjusteringen er én kravpost med én oppgjørsform.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Totalentreprenøren kan dele den særskilte vederlagsjusteringen i flere kravposter, hver med sin oppgjørsform. Det særskilte varselet og påberopelsen etter punkt 34.1.3 er fortsatt ett standpunkt og gjelder alle postene.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+designdel = '''
+Setningene om hva kravskjemaet sier når overslaget endres i en ny kravversjon.'''
+id = "OV-U108"
+dato = 2026-11-15
+hvem = "oppdragsgiver"
+kilde = ["#1290", "#1292"]
+sporsmal = '''
+Spørsmål 3, ordrett slik det ble stilt 15.11 i [kommentaren i #1290](https://github.com/khjohns/endringsmeldinger/issues/1290#issuecomment-6900830393):
+
+> ### 3. Formen i første versjon for et nytt kostnadsoverslag og varselet etter punkt 30.2 annet ledd (#1292 punkt 9 og 10)
+>
+> **Bakgrunn og belegg.**
+> - Totalentreprenøren skal varsle uten ugrunnet opphold når det er grunn til å anta at kostnadsoverslaget vil bli overskredet (punkt 30.2 annet ledd). Punktet sier ikke selv at kravet tapes ved for sent varsel.
+> - Etter OV-U95 punkt 9 kan totalentreprenøren oppgi overslag og sende varsel etter punkt 30.2 i løsningen, og et nytt overslag erstatter ikke kravet eller byggherrens svar. Etter punkt 14 godtas overslag og varsler også etter at behandlingen er ferdig.
+> - I dag kan overslaget bare oppgis i kravposten (KA-U66). Et nytt overslag krever da en ny kravversjon, og da venter sporet på nytt svar (OV-U95 punkt 16). Varselet fra løsningen har ikke punkt 30.2 (K-3).
+> - Varselet er i grunnsettet ([OV-U97](https://github.com/khjohns/endringsmeldinger/blob/main/docs/plans/vedtak.md#ov-u97)). Grunnen til at varselet fra løsningen finnes, er at fristene leses av det. Ingen regel leser varselet etter punkt 30.2 eller overslaget (OV-U95 punkt 9 og 17).
+> - OV-U97 sier at en handling bygges før første ekte sak bare når virkningen avhenger av når utsagnet ble gitt, og omveien taper det. Et innlegg har sendetid. Et brev sendt utenfor kan legges til som korrespondanse med datoen.
+>
+> **Alternativ A (anbefalt):** «I første versjon oppgis kostnadsoverslaget i kravposten. Et nytt overslag uten ny kravversjon, og varselet etter punkt 30.2 annet ledd, sendes som innlegg eller legges til som korrespondanse, også etter at behandlingen er ferdig. Løsningen leser dem ikke. Er overslaget i en ny kravversjon høyere enn i den forrige, sier kravskjemaet at overslaget ikke er et varsel etter punkt 30.2 annet ledd, og at varselet sendes som innlegg. Er overslaget det eneste som er endret, sier kravskjemaet også at byggherren da svarer på nytt på kravet, og at overslaget kan gis i et innlegg. Forhold: presiserer samlevedtaket for vederlagsmetoden punkt 9 og 14 for første versjon; følger OV-U97 og OV-U99. Handlingsregisteret får en rad for varselet etter punkt 30.2 som sendes som innlegg.»
+>
+> **Alternativ B:** «Totalentreprenøren kan oppgi et nytt kostnadsoverslag for en kravpost med regningsarbeid uten ny kravversjon. Han kan sende varsel etter punkt 30.2 annet ledd fra løsningen som et eget utsagn med serverens dato, med eller uten nytt overslag i samme brev, flere ganger, også mens et tilbud er ubesvart. Varselet viser til kravposten det gjelder. Byggherren svarer ikke på overslaget eller varselet i løsningen. Løsningen avgjør ikke om varselet kom i tide eller hvilken virkning et manglende varsel har. Forhold: utvider varselet fra løsningen med punkt 30.2 annet ledd, og overslaget blir et nytt utsagn; presiserer samlevedtaket for vederlagsmetoden punkt 9 og 14.»
+>
+> **Anbefaling: A.** Ingen regel leser overslaget eller varselet, og omveien taper ikke datoen. Etter OV-U97 kan de da vente. B gir skjema, brev og visning før første ekte sak, uten at løsningen gjør noe med utsagnet. Under B må det også avgjøres om porten i OV-U97 for en handling utover grunnsettet gjelder et varsel som ingen regel leser.
+>
+> **Kostnaden ved A.**
+> - Varselet står som fritekst. Oversikten viser ikke at overskridelse er varslet, og byggherren må lese innlegget.
+> - Sender totalentreprenøren en ny kravversjon bare for å gi et nytt overslag, må byggherren svare på nytt på kravet. Setningene i kravskjemaet skal hindre at det skjer ved et uhell, og at et høyere overslag tas for varsel.
+>
+> **Hva valget styrer:** raden i handlingsregisteret og om kjernen får et utsagn for overslaget og varselet før første ekte sak.
+'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 15.11, ordrett: «Enig i A for spørsmål 3». Svaret er A, det anbefalte alternativet.'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u95" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «presiserer samlevedtaket for vederlagsmetoden punkt 9 og 14 for første versjon; følger OV-U97 og OV-U99.» Bygges i #1292.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+I første versjon oppgis kostnadsoverslaget i kravposten. Et nytt overslag uten ny kravversjon, og varselet etter punkt 30.2 annet ledd, sendes som innlegg eller legges til som korrespondanse, også etter at behandlingen er ferdig. Løsningen leser dem ikke. Er overslaget i en ny kravversjon høyere enn i den forrige, sier kravskjemaet at overslaget ikke er et varsel etter punkt 30.2 annet ledd, og at varselet sendes som innlegg. Er overslaget det eneste som er endret, sier kravskjemaet også at byggherren da svarer på nytt på kravet, og at overslaget kan gis i et innlegg. Handlingsregisteret får en rad for varselet etter punkt 30.2 som sendes som innlegg.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Totalentreprenøren kan oppgi et nytt kostnadsoverslag for en kravpost med regningsarbeid uten ny kravversjon. Han kan sende varsel etter punkt 30.2 annet ledd fra løsningen som et eget utsagn med serverens dato, med eller uten nytt overslag i samme brev, flere ganger, også mens et tilbud er ubesvart. Varselet viser til kravposten det gjelder. Byggherren svarer ikke på overslaget eller varselet i løsningen. Løsningen avgjør ikke om varselet kom i tide eller hvilken virkning et manglende varsel har.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U109"
+dato = 2026-11-15
+hvem = "oppdragsgiver"
+kilde = ["#2011"]
+sporsmal = '''
+Spørsmål 4 ble stilt i samtalen 15.11 uten en kommentar med alternativene før. Det står ordrett i [kommentaren i #2011](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-6901285227):
+
+> # Spørsmål 4: et fristkrav sendt før forespørselen etter punkt 33.6.2 (fra PR #2020), stilt 15.11
+>
+> Avgrensning, følger av vedtak (arbeidsvalg): et fristkrav sendt før forespørselen er ikke svar på den. HF-U1 (rekkefølgen i journalen avgjør aldri hva et utsagn gjelder), LV-U18 (3) (svaret står i teksten i kravet), MM-U50 og LV-U3 (det som ikke står i teksten, er ikke meddelt), OV-U98 (svar prøves mot datoen det ble sendt).
+>
+> Spørsmålet: hva skjer med forespørselen når totalentreprenøren hadde sendt et krav om dager før den?
+>
+> - 4 A (anbefalt): «Et fristkrav sendt før byggherrens forespørsel etter punkt 33.6.2 er ikke svar på den. Datoen kravet ble sendt, gjelder som datoen totalentreprenøren fremmet krav om dager (VS-U19). Er forespørselen sendt etter den datoen, viser løsningen at totalentreprenøren hadde sendt et krav om dager før forespørselen. Løsningen viser da ikke forespørselen som ubesvart eller virkningen etter punkt 33.6.2 tredje ledd, og utleder ikke virkningen av en påberopelse av at totalentreprenøren svarte for sent. Om forespørselen likevel forpliktet totalentreprenøren til å svare, avgjør løsningen ikke (MM-U50 punkt 8). Byggherren tar stilling til om kravet kom i tide etter punkt 33.6.1 i svaret på det (VS-U47 punkt 1). En påberopelse i et svar sendt fra eller lagt til i løsningen før kravet ble lagt til, står med virkningen den hadde (MM-U50 punkt 1). Et krav sendt samme dag som forespørselen er ikke sendt før den (OV-U104), og løsningen viser at rekkefølgen er ukjent.» Forhold: presiserer HF-U1, LV-U18 (3) og OV-U98; utvider OV-U102 til forespørselen; snevrer inn VS-U47 punkt 4 for en forespørsel sendt etter et krav om dager.
+> - 4 B: «Et fristkrav sendt før byggherrens forespørsel etter punkt 33.6.2 er ikke svar på den. Forespørselen står ubesvart med virkningene etter punkt 33.6.2, og totalentreprenøren svarer med en ny kravversjon fra løsningen.» Forhold: presiserer HF-U1 og LV-U18 (3).
+'''
+valgt = "4 A"
+svar = '''
+Oppdragsgiver 15.11, ordrett: «Forespørsel: A». Svaret er 4 A, det anbefalte alternativet.'''
+forhold = [
+  { art = "presiserer", vedtak = "hf-u1" },
+  { art = "presiserer", vedtak = "lv-u18" },
+  { art = "presiserer", vedtak = "ov-u98" },
+  { art = "utvider", vedtak = "ov-u102" },
+  { art = "snevrer inn", vedtak = "vs-u47" },
+]
+folge = '''
+Forholdet slik det sto i alternativet 4 A: «presiserer HF-U1, LV-U18 (3) og OV-U98; utvider OV-U102 til forespørselen; snevrer inn VS-U47 punkt 4 for en forespørsel sendt etter et krav om dager.» Bygges i #2011, med [sjekklisten](https://github.com/khjohns/endringsmeldinger/issues/2011#issuecomment-6901647408).'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "4 A"
+tekst = '''
+Et fristkrav sendt før byggherrens forespørsel etter punkt 33.6.2 er ikke svar på den. Datoen kravet ble sendt, gjelder som datoen totalentreprenøren fremmet krav om dager (VS-U19). Er forespørselen sendt etter den datoen, viser løsningen at totalentreprenøren hadde sendt et krav om dager før forespørselen. Løsningen viser da ikke forespørselen som ubesvart eller virkningen etter punkt 33.6.2 tredje ledd, og utleder ikke virkningen av en påberopelse av at totalentreprenøren svarte for sent. Om forespørselen likevel forpliktet totalentreprenøren til å svare, avgjør løsningen ikke (MM-U50 punkt 8). Byggherren tar stilling til om kravet kom i tide etter punkt 33.6.1 i svaret på det (VS-U47 punkt 1). En påberopelse i et svar sendt fra eller lagt til i løsningen før kravet ble lagt til, står med virkningen den hadde (MM-U50 punkt 1). Et krav sendt samme dag som forespørselen er ikke sendt før den (OV-U104), og løsningen viser at rekkefølgen er ukjent.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "4 B"
+tekst = '''
+Et fristkrav sendt før byggherrens forespørsel etter punkt 33.6.2 er ikke svar på den. Forespørselen står ubesvart med virkningene etter punkt 33.6.2, og totalentreprenøren svarer med en ny kravversjon fra løsningen.'''
 forkastet = true
 
 [[gruppe]]
