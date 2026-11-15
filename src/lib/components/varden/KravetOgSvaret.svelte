@@ -84,7 +84,7 @@
           <div class="lagrad">
             <span class="navn">{VEDERLAGET.krever}</span><b class="belop">{kroner(k.krevd)}</b>
           </div>
-          <div class="maal aapen" aria-hidden="true"><i style:width={andel(k.krevd)}></i></div>
+          <div class="maal aapen" aria-hidden="true"></div>
           <div class="trinn" aria-hidden="true">
             {#each trinn as t (t)}<span>{t.toLocaleString('nb-NO')}</span>{/each}
           </div>
@@ -263,9 +263,6 @@
     border-color: var(--ink);
     background-image: linear-gradient(to right, var(--ink) 1px, transparent 1px);
   }
-  .maal.aapen i {
-    display: none;
-  }
   .trinn {
     display: flex;
     margin-top: var(--spacing-1);
@@ -305,6 +302,10 @@
   .tabell {
     margin-top: var(--spacing-6);
     overflow-x: auto;
+  }
+  .tabell:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
   }
   table {
     width: 100%;
