@@ -49,9 +49,14 @@ dokumentasjon har beskrivelsen med egne ord (`beskrivelse`), sporene det hører
 til (`spor`, uten dem saken), datoen det ble sendt og brevet som vedlegg, og
 ikke noe annet. En retting av en slik registrering fra samme side viser til den
 (`retter`): enten en fullstendig ny registrering, eller, når brevet ikke hører
-til saken, bare henvisningen og `ikke_i_saken`. Registreringen som rettes, står."""
+til saken, bare henvisningen og `ikke_i_saken`. Registreringen som rettes, står.
+Et svar eller en aksept i registrert korrespondanse har samme virkning som fra
+appen, med datoen avsenderen oppgir (`opplysninger` med `hva` = `sendt`). Det
+som ikke kunne gis på den datoen, et svar på en kravversjon som da ikke var
+gjeldende eller en aksept av et svar som da ikke var byggherrens gjeldende svar,
+står uten virkning. Et registrert krav er foreløpig dokumentasjon (#2011)."""
 felt = ["krav", "svar", "utsagn", "opplysninger", "dokumentasjon", "brevtekst", "brevtittel", "brevnummer", "merking", "deres_ref", "korrespondansetype", "beskrivelse", "spor", "retter", "ikke_i_saken"]
-grunnlag = "MM-U10, LV-U2, OV-U4, OV-U16, OV-U17, OV-U18, designnotatet 4.1. Navnene `retter` og `ikke_i_saken` er arbeidsvalget 22.10 i #1045. `brevtittel` er MM-U3 og svaret 03.11 i #1488. `brevnummer` er arbeidsvalget N3 A i #1497. `korrespondansetype` er D1 A i #1497. `merking` er avgjørelsen fra oppdragsgiver 04.11 i #1570. `deres_ref` er arbeidsvalget A-3 A i #1497"
+grunnlag = "MM-U10, LV-U2, OV-U4, OV-U16, OV-U17, OV-U18, OV-U80, OV-U98, MM-U43 punkt 9, designnotatet 4.1. Navnene `retter` og `ikke_i_saken` er arbeidsvalget 22.10 i #1045. `brevtittel` er MM-U3 og svaret 03.11 i #1488. `brevnummer` er arbeidsvalget N3 A i #1497. `korrespondansetype` er D1 A i #1497. `merking` er avgjørelsen fra oppdragsgiver 04.11 i #1570. `deres_ref` er arbeidsvalget A-3 A i #1497"
 
 # ---------------------------------------------------------------------------
 # Elementene i dokumentet. Hvert har en `id` (UUID) satt av serveren.
@@ -348,10 +353,10 @@ byggherrens innsigelser rammer (`upaavirket`), standpunktene uten virkning
 (`uten_virkning`), brevlinjen, om svaret godkjenner hele kravet (`sammenfall`)
 og, i grunnlaget, om § 32.2 gjaldt etter reglene og underkategorien da
 (`varslingsplikt`). Hvert standpunkt står i `virkninger`, `upaavirket` eller
-`uten_virkning`. Et registrert brev er dokumentasjon, og appen fryser ingen
-vurdering av det (OV-U4). Utfallet og vilkåret utledes og lagres ikke."""
+`uten_virkning`. Et registrert svar har appens vurdering ved registreringen
+(OV-U6, OV-U80). Utfallet og vilkåret utledes og lagres ikke."""
 felt = ["regelversjon", "virkninger", "upaavirket", "uten_virkning", "linje", "sammenfall", "varslingsplikt"]
-grunnlag = "MM-U9, MM-U11, GR-U12, KA-U10, OV-U4, OV-U32"
+grunnlag = "MM-U9, MM-U11, GR-U12, KA-U10, OV-U6, OV-U80, OV-U32"
 
 [[del]]
 navn = "brevtekst"
@@ -419,7 +424,8 @@ Registratorens vurdering, ikke en rettslig avgjørelse. Uten `gjelder` står den
 brevet selv. En senere avklaring er et nytt dokument med bare opplysningen, der
 `gjelder` er det registrerte brevet, som ikke skrives om. Det står høyst én slik
 opplysning per brev. Med opplysningen i brevet selv er byggherrens registrerte
-godkjenning svaret på grunnlaget (OV-U6); ellers er brevet dokumentasjon uten
-virkning (OV-U4). Opplysningen sperrer ikke trekket av grunnlaget."""
+godkjenning byggherrens endringsordre som svar på grunnlaget (OV-U6), uten egen
+virkning etter § 31.3; uten opplysningen er det et registrert svar som andre
+(OV-U80, OV-U98). Opplysningen sperrer ikke trekket av grunnlaget."""
 felt = ["id", "hva", "oppfylt", "gjelder"]
-grunnlag = "§ 31.3, § 32.3 a, GR-U13, KA-U14, MM-U12, OV-U4, OV-U6"
+grunnlag = "§ 31.3, § 32.3 a, GR-U13, KA-U14, MM-U12, OV-U6, OV-U80, OV-U98"
