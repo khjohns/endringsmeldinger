@@ -484,7 +484,14 @@ passiviteten være innlegg også etter første versjon? Da lyder punkt 4: «Den 
 punkt 5 og påberopt passivitet sendes som innlegg i fritekst. Løsningen har ingen egen handling for
 dem. Om innsigelsen skal bli et strukturert forbehold i skjemaet for krav og svar, avgjøres ved et
 nytt vedtak (#1657).» Forhold: endrer VS-U46 (del D og beslutningsdelen om den egne innsigelsen)
-og VS-U12, og snevrer inn MM-U47 der den viser til dem. Svaret er ikke kommet.
+og VS-U12, og snevrer inn MM-U47 der den viser til dem.
+
+Oppdragsgiver 15.11, ordrett: «Ja jeg tenker det. Men bedre å vedtaksføre ifb 1657 - da vurderer vi
+beste løsning samlet sett»
+
+Svarene er dermed A1, B1, C slik forslaget står (punkt 4: innlegg i første versjon, reglene står),
+D1 og E1. Om innsigelsen og passiviteten skal være innlegg også etter første versjon, og om
+innsigelsen skal bli et forbehold i skjemaet for krav og svar, avgjøres i #1657.
 
 ## Kodefunn
 
