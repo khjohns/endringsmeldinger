@@ -45,7 +45,13 @@ import {
 import { varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
 import type { Innhold, Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
-import type { Kontekst, Skrivesteg, Sporsskriving, Utfall } from '../../kommandoer/skriving.ts';
+import type {
+  Kontekst,
+  LestSak,
+  Skrivesteg,
+  Sporsskriving,
+  Utfall,
+} from '../../kommandoer/skriving.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
 import { lageneIUtkastet } from '../../kommandoer/utkastlag.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
@@ -365,6 +371,15 @@ function medVarslene(
         melding: `Varselet for kravpost nr. ${i + 1}: ${varselet.avvisning.melding}`,
       },
     };
+  // VS-U55 (#1993): ellers holder `foranKravet` varselet i saken utenfor for de andre kravpostene.
+  // `journal` har ikke dokumentet (VS-U51, VS-U53).
+  const iVarslene = vedleggIVarslene(skriving.saken(journal));
+  if (dokumentnoekkel(dokumentet).some((id) => iVarslene.has(id)))
+    return {
+      godtatt: false,
+      feil: 'REGELBRUDD',
+      avvisning: vedleggVedEtVarsel(`i varselet for kravpost nr. ${i + 1}`),
+    };
   const [rad] = varselet.hendelser;
   const utsagn = new Map(
     (rad!.data.utsagn as { id: string; hjemmel: string }[]).map((x) => [x.hjemmel, x.id])
@@ -420,21 +435,28 @@ function vedleggetErEtVarsel(
   lest: readonly Domenehendelse[],
   u: Utledning
 ): Avvisning | null {
-  const ved = new Set((k.dokumentasjon ?? []).map((id) => id.toLowerCase()));
-  if (!ved.size) return null;
-  const varslene = new Set(u.spor.vederlag.kravpostvarsler.map((v) => v.dokument));
-  const dokumentet = lest.find(
-    (h) =>
-      h.art === 'dokument' &&
-      varslene.has(h.id) &&
-      h.dokument.dokumentasjon.some((v) => ved.has(v.vedlegg_id.toLowerCase()))
-  );
-  return dokumentet
-    ? avvis(
-        'KRAVPOSTVARSELET',
-        'Et vedlegg ved kravet ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.'
-      )
+  const iVarslene = vedleggIVarslene({ lest, u });
+  return (k.dokumentasjon ?? []).some((id) => iVarslene.has(id.toLowerCase()))
+    ? vedleggVedEtVarsel('ved kravet')
     : null;
+}
+
+const vedleggVedEtVarsel = (hvor: string) =>
+  avvis(
+    'KRAVPOSTVARSELET',
+    `Et vedlegg ${hvor} ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.`
+  );
+
+/** Vedleggene ved varslene for en kravpost i saken, med små bokstaver (VS-U55). */
+function vedleggIVarslene({ lest, u }: LestSak): Set<string> {
+  const varslene = new Set(u.spor.vederlag.kravpostvarsler.map((v) => v.dokument));
+  return new Set(
+    lest.flatMap((h) =>
+      h.art === 'dokument' && varslene.has(h.id)
+        ? h.dokument.dokumentasjon.map((v) => v.vedlegg_id.toLowerCase())
+        : []
+    )
+  );
 }
 
 export const SKRIVING_I_VEDERLAGET = {
