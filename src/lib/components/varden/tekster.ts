@@ -329,6 +329,10 @@ function iSvaretPaaForholdet(
 
 const utsagnet = ([verb, resten]: Utsagnet) => `${verb} ${resten}`;
 
+/** Utsagnet i en rad med laget først, som «subsidiært er byggherren enig …», uten punktum. */
+const iLaget = (lag: string | null, u: Utsagnet) =>
+  lag ? `${lag} ${u[0]} byggherren ${u[1]}` : `byggherren ${utsagnet(u)}`;
+
 export const SKJEMA = {
   overskrift: 'Svar på kravet',
   // KA-U19: skjemaet sier at virkningen regnes ut fra valgene; OV-U81: i et infotips.
@@ -759,13 +763,14 @@ export const FORHOLDET = {
   ikkeSvart: 'Svar ikke registrert',
   /** En frist byggherrens svar ikke har dager for (KA-U74). */
   ikkeISvaret: 'Ikke i svaret',
-  forholdsrot: (navn: string, svar: { resultat: string; brev: Brevref } | null) =>
-    svar ? `${navn} · ${svar.resultat} i ${brevref(svar.brev)}` : navn,
-  resultat: {
-    godkjent: 'godkjent',
-    avslaatt: 'avslått',
-    paalegg_frafalt: 'pålegget frafalt',
-  } as Record<string, string>,
+  /** Forholdet med standpunktet i svaret, med ordene i statuslinjen og tråden (#2040). */
+  forholdsrot: (
+    navn: string,
+    svar: { rad: Innlegget['standpunkter'][number]; brev: Brevref } | null
+  ) => {
+    const u = svar && iSvaretPaaForholdet(svar.rad.standpunkt, null, svar.rad.ordene);
+    return svar && u ? `${navn} · ${brevrefStor(svar.brev)}: ${iLaget(svar.rad.lag, u)}` : navn;
+  },
   /** Hvorfor svaret er subsidiært til forholdet (vedtaket 05.10), som vilkår. */
   gjelderHvis: (grunner: Subsidiaergrunn[]) =>
     `Gjelder hvis ${[
@@ -805,7 +810,7 @@ export const FORHOLDET = {
           : `${svarte} og ${utsagnet(u)}.`;
       }
       if (!u) return `${standpunkttekst(r.standpunkt, false)}.`;
-      return r.lag ? `${stor(r.lag)} ${u[0]} byggherren ${u[1]}.` : `Byggherren ${utsagnet(u)}.`;
+      return `${stor(iLaget(r.lag, u))}.`;
     });
     return iStarten ? setninger.join(' ') : [`${svarte}.`, ...setninger].join(' ');
   },

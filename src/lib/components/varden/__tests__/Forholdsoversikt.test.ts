@@ -263,10 +263,12 @@ describe('Siden for forholdet', () => {
     expect(valgt).toEqual(['vederlag']);
   });
 
-  it('når forholdet er avslått, står forholdet med svaret øverst, og et ubesvart krav sier at et svar blir subsidiært så lenge byggherren står fast på svaret (vedtaket 05.10)', async () => {
+  it('når forholdet er avslått, står forholdet med svaret øverst med ordene i statuslinjen, og et ubesvart krav sier at et svar blir subsidiært så lenge byggherren står fast på svaret (vedtaket 05.10, GR-U32, #2040)', async () => {
     await vis([PAABEROPELSE, VEDERLAG, AVSLAG]);
     const kortet = screen.getByRole('region', { name: 'Tilknyttede krav' });
-    expect(kortet.querySelector('.rot')?.textContent).toBe('Irregulær endring · avslått i brev 3');
+    expect(kortet.querySelector('.rot')?.textContent).toBe(
+      'Irregulær endring · Brev 3: byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b)'
+    );
     expect(kortet.textContent).toContain(
       'Et svar blir subsidiært så lenge byggherren står fast på brev 3.'
     );

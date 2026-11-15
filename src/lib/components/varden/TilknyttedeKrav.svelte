@@ -11,7 +11,14 @@
   import { dager, kroner } from '$kjerne/frosset/tekst';
   import { ChevronRight } from 'lucide-svelte';
   import Knapp from './Knapp.svelte';
-  import { brevForLinja, brevet, forholdetISaken, tilknyttetKrav, type Brevet } from './lesing';
+  import {
+    brevForLinja,
+    brevet,
+    forholdetISaken,
+    innleggene,
+    tilknyttetKrav,
+    type Brevet,
+  } from './lesing';
   import { BETEGNELSE, FORHOLDET, SPORNAVN, brevref, brevrefFra } from './tekster';
 
   let {
@@ -46,11 +53,13 @@
   );
   const forholdssvaret = $derived.by(() => {
     const s = u.spor.forhold.gjeldendeSvar;
-    const r = s?.standpunkter.find((x) => x.art === 'forhold');
     const b = s && brevet(u, s.dokument);
-    return r && r.art === 'forhold' && b
-      ? { resultat: FORHOLDET.resultat[r.resultat], brev: b }
-      : null;
+    const rad =
+      s &&
+      innleggene(u)
+        .get(s.dokument)
+        ?.standpunkter.find((x) => x.standpunkt.art === 'forhold');
+    return rad && b ? { rad, brev: b } : null;
   });
   const rot = $derived(
     FORHOLDET.forholdsrot(forholdetISaken(u)?.navn ?? FORHOLDET.utenNavn, forholdssvaret)
