@@ -44,7 +44,7 @@ prosjekt gir `FORBIDDEN` uten at Catenda spørres om teamet (#1106).
   `koe_godkjenneroppslag` og filtrerer selv på aktøren fra sesjonen (G2), og serveren tar
   bort pakkene i et prosjekt der aktøren er i et TE-team. `koe_api.godkjenner_i_pakken`
   kjører som samme bruker, så en pakke som er lukket, vises som lukket for kjeden. TE-teamene
-  leses med `koe_api.te_team`, også med leserollen.
+  leses med `koe_api.kontraktsteam` og `@med_leserolle`, også med leserollen.
 - **Serverstemplede felt.** En kommando har ingen aktør, ID eller tidspunkt.
   Kroppen avvises med ukjente felt, og kjernens skjema avviser ukjente felt i
   kommandoen. Aktøren er `app_users.id` fra sesjonen.

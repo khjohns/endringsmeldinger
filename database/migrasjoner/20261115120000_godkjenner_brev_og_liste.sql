@@ -13,8 +13,8 @@
 -- `koe_api.godkjenner_i_pakken` kjører som samme bruker og sier bare om aktøren og
 -- prosjektet i konteksten står i et steg i pakken. Ingen annen vei kan bli den brukeren uten
 -- IMPERSONATE, som for `koe_grenseoppslag` (`20261022190000_grenseoppslag.sql`), og
--- kjøretiden har bare EXECUTE på de to prosedyrene. `koe_api.te_team` gir TE-teamene også
--- for et medlem med leserollen.
+-- kjøretiden har bare EXECUTE på de to prosedyrene. `koe_api.kontraktsteam` får
+-- `@med_leserolle`, så godkjennerinngangen får TE-teamene også for et medlem med leserollen.
 
 CREATE USER koe_godkjenneroppslag WITHOUT LOGIN;
 GO
@@ -170,28 +170,30 @@ BEGIN
 END
 GO
 
--- Prosjektets team for totalentreprenøren for et aktivt medlem, også med leserollen.
--- `koe_api.kontraktsteam` gir ingen rader med leserollen, men godkjennerinngangen må avvise
--- et medlem i et TE-team uansett rolle (kravet 20.10 i #831, punkt 1).
-CREATE PROCEDURE koe_api.te_team
+-- Som i `20261016220000_tilgangsoppslag.sql`, men med `@med_leserolle`. Uten den gir et medlem
+-- med leserollen ingen rader, som før. Godkjennerinngangen ber om teamene også med leserollen,
+-- fordi den må avvise et medlem i et TE-team uansett rolle (kravet 20.10 i #831, punkt 1).
+CREATE OR ALTER PROCEDURE koe_api.kontraktsteam
   @aktor uniqueidentifier,
-  @prosjekt nvarchar(4000)
+  @prosjekt nvarchar(4000),
+  @med_leserolle bit
 AS
 BEGIN
   SET NOCOUNT ON;
   IF @prosjekt IS NULL OR LEN(@prosjekt) = 0 OR DATALENGTH(@prosjekt) > 200
      OR DATALENGTH(@prosjekt) <> DATALENGTH(RTRIM(@prosjekt))
     THROW 52043, N'Prosjekt-ID-en er tom, for lang eller har mellomrom til slutt', 1;
-  SELECT t.team_id AS team
+  IF @med_leserolle IS NULL
+    THROW 51422, N'Det må sies om leserollen er med', 1;
+  SELECT t.team_id AS team, t.contract_role AS side
     FROM koe.catenda_contract_teams t
     JOIN koe.app_project_memberships m ON m.project_id = t.internal_project_id
    WHERE t.internal_project_id = @prosjekt
-     AND t.contract_role = N'TE'
-     AND m.user_id = @aktor AND m.active = 1;
+     AND m.user_id = @aktor AND m.active = 1
+     AND (m.viewer_override = 0 OR @med_leserolle = 1);
 END
 GO
 
 GRANT EXECUTE ON koe_api.ventende_pakker TO koe_runtime;
 GRANT EXECUTE ON koe_api.godkjenner_i_pakken TO koe_runtime;
-GRANT EXECUTE ON koe_api.te_team TO koe_runtime;
 GO

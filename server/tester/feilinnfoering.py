@@ -502,8 +502,8 @@ FEILINNFOERINGER = [
      "den neste i kjeden ser pakken som lukket"),
     ("S130", "et medlem med leserolle i et TE-team slippes gjennom som godkjenner (kravet 20.10 i #831, punkt 1)",
      "database/migrasjoner/20261115120000_godkjenner_brev_og_liste.sql",
-     "     AND m.user_id = @aktor AND m.active = 1;",
-     "     AND m.user_id = @aktor AND m.active = 1 AND m.viewer_override = 0;",
+     "     AND (m.viewer_override = 0 OR @med_leserolle = 1);",
+     "     AND m.viewer_override = 0;",
      "leserolle i et team for totalentreprenøren"),
 ]
 

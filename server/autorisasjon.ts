@@ -538,15 +538,20 @@ function somKontraktstilgang([rolle, teamId]: [
   return rolle === 'TE' || rolle === 'BH' ? { rolle, teamId } : null;
 }
 
-/** Prosjektets kontraktsteam per side, med `koe_api.kontraktsteam`. Tomt uten aktivt medlemskap og med leserolle. */
+/**
+ * Prosjektets kontraktsteam per side, med `koe_api.kontraktsteam`. Tomt uten aktivt medlemskap,
+ * og med leserollen når `medLeserolle` er `false`.
+ */
 async function kontraktsteamene(
   db: Pool,
   aktor: string,
-  prosjektId: string
+  prosjektId: string,
+  medLeserolle: boolean
 ): Promise<Record<Rolle, Set<string>>> {
   const svar = await utenKontekst(db)
     .input('aktor', sql.UniqueIdentifier, aktor)
     .input('prosjekt', sql.NVarChar(4000), prosjektId)
+    .input('med_leserolle', sql.Bit, medLeserolle)
     .execute<{ team: string; side: Rolle }>('koe_api.kontraktsteam');
   const team: Record<Rolle, Set<string>> = { TE: new Set(), BH: new Set() };
   for (const rad of svar.recordset) {
@@ -587,7 +592,7 @@ async function kontraktsside(
   if (medlemskap.leserolle) return [null, null];
   const subjekt = catendaId(medlemskap.subjekt);
   if (!subjekt) return [null, null];
-  const team = await kontraktsteamene(db, aktor, prosjektId);
+  const team = await kontraktsteamene(db, aktor, prosjektId, false);
   if (!team.TE.size || !team.BH.size || [...team.TE].some((t) => team.BH.has(t)))
     return [null, null];
   const treff = await teamMedSubjektet(catenda, oppsett.catendaProsjekt, subjekt, team);
@@ -595,15 +600,6 @@ async function kontraktsside(
   if (roller.size !== 1) return [null, null];
   const lag = new Set(treff.map(([, t]) => t));
   return [[...roller][0], lag.size === 1 ? [...lag][0] : null];
-}
-
-/** Prosjektets team for totalentreprenøren for et aktivt medlem, også med leserollen. */
-async function teTeamene(db: Pool, aktor: string, prosjektId: string): Promise<Set<string>> {
-  const svar = await utenKontekst(db)
-    .input('aktor', sql.UniqueIdentifier, aktor)
-    .input('prosjekt', sql.NVarChar(4000), prosjektId)
-    .execute<{ team: string }>('koe_api.te_team');
-  return new Set(svar.recordset.map((r) => catendaId(r.team)).filter((t) => t !== null));
 }
 
 /**
@@ -621,9 +617,9 @@ export async function hindringForGodkjenner(
   const oppsett = await prosjektoppsett(db, prosjektId);
   if (!oppsett) return 'ukjent_prosjekt';
   await oppdaterMedlemslisten(db, catenda, prosjektId, oppsett.catendaProsjekt);
-  const [medlemskap, te] = await Promise.all([
+  const [medlemskap, { TE: te }] = await Promise.all([
     prosjektmedlemskap(db, aktor, prosjektId),
-    teTeamene(db, aktor, prosjektId),
+    kontraktsteamene(db, aktor, prosjektId, true),
   ]);
   const subjekt = medlemskap ? catendaId(medlemskap.subjekt) : null;
   if (!subjekt || !te.size) return null;

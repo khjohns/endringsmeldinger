@@ -80,6 +80,19 @@ async function lesKropp(
   return galt ? { feil: new Nektet(400, 'UGYLDIG_FORESPOERSEL', galt) } : { verdi };
 }
 
+/**
+ * En gruppe i stien, dekodet, eller `null` når gruppen mangler. En gruppe som ikke kan dekodes,
+ * gir 404 med `melding` før tilgangskontrollen.
+ */
+function dekod(gruppe: string | undefined, melding: string): string | null {
+  if (gruppe === undefined) return null;
+  try {
+    return decodeURIComponent(gruppe);
+  } catch {
+    throw new Nektet(404, 'NOT_FOUND', melding);
+  }
+}
+
 /** Dypere enn dette har ingen kommando. */
 const STORSTE_DYBDE = 32;
 
@@ -186,18 +199,8 @@ export function lagServer(avh: Avhengigheter) {
     treff: RegExpMatchArray,
     foresporsel: IncomingMessage
   ): Promise<Svar> {
-    let sakId: string;
-    let ressurs: string | null;
-    try {
-      sakId = decodeURIComponent(treff[1]);
-    } catch {
-      return feilsvar(404, 'NOT_FOUND', 'Ukjent sak.');
-    }
-    try {
-      ressurs = treff[2] === undefined ? null : decodeURIComponent(treff[2]);
-    } catch {
-      return feilsvar(404, 'NOT_FOUND', 'Ukjent ressurs i saken.');
-    }
+    const sakId = dekod(treff[1], 'Ukjent sak.')!;
+    const ressurs = dekod(treff[2], 'Ukjent ressurs i saken.');
     const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, { sakId }, r.fil);
     const fil = r.fil ? await lesFil(foresporsel, f.side) : null;
     return r.behandle({ ...f, sakId, ressurs, fil }, full);
@@ -208,12 +211,7 @@ export function lagServer(avh: Avhengigheter) {
     treff: RegExpMatchArray,
     foresporsel: IncomingMessage
   ): Promise<Svar> {
-    let ressurs: string | null;
-    try {
-      ressurs = treff[1] === undefined ? null : decodeURIComponent(treff[1]);
-    } catch {
-      return feilsvar(404, 'NOT_FOUND', 'Ukjent ressurs.');
-    }
+    const ressurs = dekod(treff[1], 'Ukjent ressurs.');
     const f = await tilgangOgKropp(r.tilgang, r.metode, foresporsel, UTEN_STI, r.fil);
     if (r.bareTE !== undefined && f.side?.rolle !== 'TE')
       return feilsvar(403, 'FORBIDDEN', r.bareTE);
@@ -226,18 +224,8 @@ export function lagServer(avh: Avhengigheter) {
     treff: RegExpMatchArray,
     foresporsel: IncomingMessage
   ): Promise<Svar> {
-    let prosjektId: string;
-    let ressurs: string | null;
-    try {
-      prosjektId = decodeURIComponent(treff[1]);
-    } catch {
-      return feilsvar(404, 'NOT_FOUND', 'Ukjent prosjekt.');
-    }
-    try {
-      ressurs = treff[2] === undefined ? null : decodeURIComponent(treff[2]);
-    } catch {
-      return feilsvar(404, 'NOT_FOUND', 'Ukjent ressurs i prosjektet.');
-    }
+    const prosjektId = dekod(treff[1], 'Ukjent prosjekt.')!;
+    const ressurs = dekod(treff[2], 'Ukjent ressurs i prosjektet.');
     const { bruker, prosjekt, side, kropp } = await tilgangOgKropp(
       r.tilgang,
       r.metode,
@@ -252,14 +240,8 @@ export function lagServer(avh: Avhengigheter) {
     treff: RegExpMatchArray,
     foresporsel: IncomingMessage
   ): Promise<Svar> {
-    let pakkeId: string;
-    let ressurs: string | null;
-    try {
-      pakkeId = decodeURIComponent(treff[1]);
-      ressurs = treff[2] === undefined ? null : decodeURIComponent(treff[2]);
-    } catch {
-      return feilsvar(404, 'NOT_FOUND', 'Ukjent pakke eller ressurs.');
-    }
+    const pakkeId = dekod(treff[1], 'Ukjent pakke.')!;
+    const ressurs = dekod(treff[2], 'Ukjent ressurs i pakken.');
     const { bruker, avgjort, kropp } = await innloggetMedKropp(
       r.metode,
       foresporsel,
