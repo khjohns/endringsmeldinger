@@ -17,7 +17,9 @@ import {
   UGYLDIG,
   UNIK_INDEKS,
   UNIK_NOEKKEL,
+  utenKontekst,
   type Foresp,
+  type Pool,
 } from './datalag.ts';
 import type { Brevverdi } from './fullmakt.ts';
 
@@ -171,6 +173,31 @@ export interface LagretPakke {
   handlinger: LagretHandling[];
 }
 
+const HANDLINGSFELT = `handling, steg, LOWER(CONVERT(nvarchar(36), aktor_id)) AS aktor_id,
+  fullmakt_tittel, fullmakt_grense, begrunnelse, tidspunkt`;
+
+interface Handlingsrad {
+  handling: Godkjenningshandling;
+  steg: number | null;
+  aktor_id: string;
+  fullmakt_tittel: string | null;
+  fullmakt_grense: unknown;
+  begrunnelse: string | null;
+  tidspunkt: Date;
+}
+
+const somHandling = (h: Handlingsrad): LagretHandling => ({
+  handling: h.handling,
+  steg: h.steg,
+  aktorId: h.aktor_id,
+  fullmakt:
+    h.fullmakt_tittel === null
+      ? null
+      : { tittel: h.fullmakt_tittel, grense: tall(h.fullmakt_grense) },
+  begrunnelse: h.begrunnelse,
+  tidspunkt: h.tidspunkt,
+});
+
 /**
  * Pakken, eller `null` når den ikke finnes eller er skjult for aktøren: teamet som laget
  * den ser den, og godkjenneren i kjeden mens den er åpen (GFK-U9).
@@ -185,9 +212,7 @@ export async function lesPakke(foresp: Foresp, pakkeId: string): Promise<LagretP
          FROM koe.godkjenningspakke WHERE pakke_id = @pakke_id;
        SELECT LOWER(CONVERT(nvarchar(36), godkjenner_id)) AS godkjenner_id
          FROM koe.godkjenningssteg WHERE pakke_id = @pakke_id ORDER BY steg;
-       SELECT handling, steg, LOWER(CONVERT(nvarchar(36), aktor_id)) AS aktor_id, fullmakt_tittel,
-              fullmakt_grense, begrunnelse, tidspunkt
-         FROM koe.godkjenningshandling WHERE pakke_id = @pakke_id ORDER BY loepenr;`
+       SELECT ${HANDLINGSFELT} FROM koe.godkjenningshandling WHERE pakke_id = @pakke_id ORDER BY loepenr;`
     );
   const [pakker, steg, handlinger] = r.recordsets as unknown as [
     {
@@ -200,15 +225,7 @@ export async function lesPakke(foresp: Foresp, pakkeId: string): Promise<LagretP
       opprettet: Date;
     }[],
     { godkjenner_id: string }[],
-    {
-      handling: Godkjenningshandling;
-      steg: number | null;
-      aktor_id: string;
-      fullmakt_tittel: string | null;
-      fullmakt_grense: unknown;
-      begrunnelse: string | null;
-      tidspunkt: Date;
-    }[],
+    Handlingsrad[],
   ];
   const p = pakker[0];
   if (!p) return null;
@@ -221,23 +238,92 @@ export async function lesPakke(foresp: Foresp, pakkeId: string): Promise<LagretP
     fullmaktsgrunnlag: JSON.parse(p.fullmaktsgrunnlag),
     opprettet: p.opprettet,
     godkjennere: steg.map((s) => s.godkjenner_id),
-    handlinger: handlinger.map((h) => ({
-      handling: h.handling,
-      steg: h.steg,
-      aktorId: h.aktor_id,
-      fullmakt:
-        h.fullmakt_tittel === null
-          ? null
-          : { tittel: h.fullmakt_tittel, grense: tall(h.fullmakt_grense) },
-      begrunnelse: h.begrunnelse,
-      tidspunkt: h.tidspunkt,
-    })),
+    handlinger: handlinger.map(somHandling),
   };
 }
 
-/** Godkjent i hvert steg i kjeden, og verken returnert eller trukket. Stegene telles fra 1. */
-export function erGodkjent(p: LagretPakke): boolean {
-  if (p.handlinger.some((h) => h.handling !== 'godkjent')) return false;
-  const godkjent = new Set(p.handlinger.map((h) => h.steg));
-  return p.godkjennere.every((_, i) => godkjent.has(i + 1));
+/**
+ * Aktørens egne handlinger i pakken. Godkjenneren ser dem også etter at pakken er lukket,
+ * når pakken selv er skjult (GFK-U9).
+ */
+export async function lesEgneHandlinger(
+  foresp: Foresp,
+  pakkeId: string
+): Promise<LagretHandling[]> {
+  const r = await foresp()
+    .input('pakke_id', sql.UniqueIdentifier, pakkeId)
+    .query<Handlingsrad>(
+      `SELECT ${HANDLINGSFELT} FROM koe.godkjenningshandling
+        WHERE pakke_id = @pakke_id
+          AND aktor_id = TRY_CAST(SESSION_CONTEXT(N'koe_aktor') AS uniqueidentifier)
+        ORDER BY loepenr;`
+    );
+  return r.recordset.map(somHandling);
+}
+
+/** Godkjenneren i det første steget uten godkjenning, eller `null`. Stegene telles fra 1. */
+export function ventendeGodkjenner(p: LagretPakke): string | null {
+  const godkjent = new Set(
+    p.handlinger.filter((h) => h.handling === 'godkjent').map((h) => h.steg)
+  );
+  return p.godkjennere.find((_, i) => !godkjent.has(i + 1)) ?? null;
+}
+
+/** Godkjent i hvert steg i kjeden, og verken returnert eller trukket. */
+export const erGodkjent = (p: LagretPakke): boolean =>
+  p.handlinger.every((h) => h.handling === 'godkjent') && ventendeGodkjenner(p) === null;
+
+/**
+ * Om aktøren i konteksten står i et steg i pakken, også når pakken er lukket og skjult for
+ * godkjenneren (`koe_api.godkjenner_i_pakken`).
+ */
+export async function godkjennerIPakken(foresp: Foresp, pakkeId: string): Promise<boolean> {
+  const r = await foresp()
+    .input('pakke_id', sql.UniqueIdentifier, pakkeId)
+    .execute('koe_api.godkjenner_i_pakken');
+  return r.recordset.length > 0;
+}
+
+/** Saken pakken gjelder, når aktøren i konteksten når pakken, ellers `null`. */
+export async function pakkensSak(foresp: Foresp, pakkeId: string): Promise<string | null> {
+  const r = await foresp().input('pakke_id', sql.UniqueIdentifier, pakkeId).query<{
+    sak_id: string;
+  }>('SELECT sak_id FROM koe.godkjenningspakke WHERE pakke_id = @pakke_id;');
+  return r.recordset[0]?.sak_id ?? null;
+}
+
+export interface VentendePakke {
+  pakkeId: string;
+  prosjektId: string;
+  prosjektnavn: string;
+  sakId: string;
+  opprettet: Date;
+  /** Aktørens steg i kjeden, telt fra 1. */
+  steg: number;
+  venterPaaDeg: boolean;
+}
+
+/**
+ * De åpne pakkene der aktøren står i kjeden, på tvers av prosjektene (G2 i #831), fra
+ * `koe_api.ventende_pakker`. Aktøren kommer fra sesjonen.
+ */
+export async function lesVentendePakker(pool: Pool, aktor: string): Promise<VentendePakke[]> {
+  const r = await utenKontekst(pool).input('aktor', sql.UniqueIdentifier, aktor).execute<{
+    pakke_id: string;
+    prosjekt_id: string;
+    prosjektnavn: string;
+    sak_id: string;
+    opprettet: Date;
+    steg: number;
+    venter_paa_deg: boolean;
+  }>('koe_api.ventende_pakker');
+  return r.recordset.map((p) => ({
+    pakkeId: p.pakke_id,
+    prosjektId: p.prosjekt_id,
+    prosjektnavn: p.prosjektnavn,
+    sakId: p.sak_id,
+    opprettet: p.opprettet,
+    steg: p.steg,
+    venterPaaDeg: p.venter_paa_deg,
+  }));
 }

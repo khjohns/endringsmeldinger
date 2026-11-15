@@ -35,6 +35,7 @@ import {
   transaksjon,
   UUID,
   type Kontekst,
+  type Pool,
 } from './datalag.ts';
 import { tegnSomIkkeKanVises, ulagringsbarTekst } from '../kjerne/format/skjema.ts';
 
@@ -227,10 +228,14 @@ async function lastOpp(f: Forespoersel, avh: Required<Avhengigheter>): Promise<S
   }
 }
 
-async function listVedlegg(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {
-  const rader = await transaksjon(avh.datalag, kontekst(f), async (foresp) => {
+const listVedlegg = (f: Forespoersel, avh: Required<Avhengigheter>) =>
+  vedleggISaken(avh.datalag, kontekst(f), f.sakId);
+
+/** Vedleggene i saken som aktøren i konteksten når. */
+export async function vedleggISaken(datalag: Pool, k: Kontekst, sakId: string): Promise<Svar> {
+  const rader = await transaksjon(datalag, k, async (foresp) => {
     const svar = await foresp()
-      .input('sak', sql.NVarChar(36), f.sakId)
+      .input('sak', sql.NVarChar(36), sakId)
       .query<Vedleggsrad>(
         `SELECT ${KOLONNER} FROM koe.vedlegg WHERE sak_id = @sak ORDER BY lastet_opp, vedlegg_id`
       );
@@ -262,12 +267,21 @@ const vedleggId = (f: { ressurs: string | null }): string | null => {
   return id && UUID.test(id) ? id : null;
 };
 
-async function lastNed(f: Forespoersel, avh: Required<Avhengigheter>): Promise<Svar> {
-  const id = vedleggId(f);
+const lastNed = (f: Forespoersel, avh: Required<Avhengigheter>) =>
+  vedleggsfil(avh.datalag, kontekst(f), f.sakId, f.ressurs);
+
+/** Filen til vedlegget `ressurs` i saken, når aktøren i konteksten når det. */
+export async function vedleggsfil(
+  datalag: Pool,
+  k: Kontekst,
+  sakId: string,
+  ressurs: string | null
+): Promise<Svar> {
+  const id = vedleggId({ ressurs });
   if (!id) return finnesIkke();
-  const rad = await transaksjon(avh.datalag, kontekst(f), async (foresp) => {
+  const rad = await transaksjon(datalag, k, async (foresp) => {
     const svar = await foresp()
-      .input('sak', sql.NVarChar(36), f.sakId)
+      .input('sak', sql.NVarChar(36), sakId)
       .input('id', sql.UniqueIdentifier, id)
       .query<{
         filnavn: string;

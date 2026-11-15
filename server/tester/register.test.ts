@@ -31,6 +31,7 @@ import { ServerResponse } from 'node:http';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   erAapen,
+  erGodkjenner,
   erOpprettelse,
   erSaksrute,
   erUtenProsjekt,
@@ -59,7 +60,8 @@ import {
   type Testbruker,
 } from './testbase.ts';
 
-const navn = (r: Rute) => `${r.metode} ${r.eksempel(erUtenSak(r) ? '<prosjekt>' : '<sak>')}`;
+const navn = (r: Rute) =>
+  `${r.metode} ${r.eksempel(erUtenSak(r) ? '<prosjekt>' : erGodkjenner(r) ? '<pakke>' : '<sak>')}`;
 const kropp = (r: Rute) => (r.metode === 'GET' ? undefined : {});
 
 const UTEN_SESJON = [
@@ -74,6 +76,7 @@ const UTEN_PROSJEKT = [
   'POST /api/auth/logout',
   'GET /api/csrf-token',
   'GET /api/projects',
+  'GET /api/godkjenning/pakker',
 ];
 const UTEN_SAK = [
   'GET /api/projects/<prosjekt>',
@@ -83,6 +86,15 @@ const UTEN_SAK = [
   'GET /api/projects/<prosjekt>/saker',
   'GET /api/projects/<prosjekt>/kontraktsfrister',
 ];
+// Godkjennerinngangene prøves over HTTP i `godkjenner.test.ts`.
+const UTEN_MEDLEMSKAP = [
+  'GET /api/godkjenning/pakker/<pakke>',
+  'POST /api/godkjenning/pakker/<pakke>/handlinger',
+  'GET /api/godkjenning/pakker/<pakke>/saken',
+  'GET /api/godkjenning/pakker/<pakke>/brev/00000000-0000-4000-8000-000000000000',
+  'GET /api/godkjenning/pakker/<pakke>/vedlegg',
+  'GET /api/godkjenning/pakker/<pakke>/vedlegg/00000000-0000-4000-8000-000000000000',
+];
 const NY_SAK = [
   'POST /api/kjerne/saker',
   'GET /api/kjerne/sakskode',
@@ -91,11 +103,12 @@ const NY_SAK = [
 ];
 
 describe('registeret over inngangene', () => {
-  it('inngangene uten sesjon, uten prosjekt og uten sak er de i de lukkede listene', () => {
+  it('inngangene uten sesjon, uten prosjekt, uten sak og uten medlemskap er de i de lukkede listene', () => {
     expect(RUTER.filter(erAapen).map(navn)).toEqual(UTEN_SESJON);
     expect(RUTER.filter(erUtenProsjekt).map(navn)).toEqual(UTEN_PROSJEKT);
     expect(RUTER.filter(erUtenSak).map(navn)).toEqual(UTEN_SAK);
     expect(RUTER.filter(erOpprettelse).map(navn)).toEqual(NY_SAK);
+    expect(RUTER.filter(erGodkjenner).map(navn)).toEqual(UTEN_MEDLEMSKAP);
   });
 
   it.each(RUTER.filter((r) => !erSaksrute(r)).map((r) => [navn(r), r] as const))(
@@ -109,7 +122,9 @@ describe('registeret over inngangene', () => {
             ? r.tilgang.utenSak
             : erOpprettelse(r)
               ? r.tilgang.nySak
-              : '';
+              : erGodkjenner(r)
+                ? r.tilgang.utenMedlemskap
+                : '';
       expect(begrunnelse.trim().length).toBeGreaterThan(20);
       expect(r.eksempel('x')).toMatch(r.sti);
     }
