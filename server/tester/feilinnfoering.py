@@ -505,6 +505,15 @@ FEILINNFOERINGER = [
      "     AND (m.viewer_override = 0 OR @med_leserolle = 1);",
      "     AND m.viewer_override = 0;",
      "leserolle i et team for totalentreprenøren"),
+    ("S131", "listen over pakkene har pakkene i et prosjekt der aktøren er i et TE-team (kravet 20.10 i #831, punkt 1)",
+     "server/godkjenner.ts",
+     "alle.filter((p) => !hindret.has(p.prosjektId))", "alle",
+     "listen over pakkene har ingen pakke i et prosjekt der aktøren er i et team"),
+    ("S132", "vedlegget hentes uten å kontrollere saken i stien (G1 i #831)",
+     "server/vedlegg.ts",
+     "'SELECT filnavn, innhold FROM koe.vedlegg WHERE vedlegg_id = @id AND sak_id = @sak'",
+     "'SELECT filnavn, innhold FROM koe.vedlegg WHERE vedlegg_id = @id OR sak_id = @sak'",
+     "hentes ikke gjennom stien til pakken"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

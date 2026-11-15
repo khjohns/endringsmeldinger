@@ -311,12 +311,6 @@ describe.skipIf(!TESTBASE_URL)('inngangene for godkjenneren mot testbasen', () =
       expect(svar.kropp.message).toMatch(/team for totalentreprenøren/);
       const post = await handle(o.te, pakke, { handling: 'godkjent' });
       expect(post.status).toBe(403);
-      const liste = (url: string) =>
-        kall(url, '/api/godkjenning/pakker', { bruker: o.te, prosjektId: null }).then((s) =>
-          (s.kropp.pakker as { pakke_id: string }[]).map((p) => p.pakke_id)
-        );
-      expect(await liste(server.url)).not.toContain(pakke);
-
       // Kontrollsaken: samme bruker og pakke, men Catenda har ikke brukeren i TE-teamet.
       const utenTeam = await startServer(o, {
         catenda: catendaFra({ ...o.teammedlemmer, [o.prosjekt.teTeam]: [] }),
@@ -328,11 +322,30 @@ describe.skipIf(!TESTBASE_URL)('inngangene for godkjenneren mot testbasen', () =
         });
         expect(kontroll.status).toBe(200);
         expect(kontroll.kropp.status).toBe('aapen');
-        expect(await liste(utenTeam.url)).toContain(pakke);
       } finally {
         await utenTeam.stopp();
       }
     } finally {
+      await registrerHierarki();
+    }
+  });
+
+  it('kravet 20.10 i #831 punkt 1: listen over pakkene har ingen pakke i et prosjekt der aktøren er i et team for totalentreprenøren', async () => {
+    await registrerHierarki({ id: o.te.id, oid: oid.te });
+    const utenTeam = await startServer(o, {
+      catenda: catendaFra({ ...o.teammedlemmer, [o.prosjekt.teTeam]: [] }),
+    });
+    try {
+      const pakke = await nyPakke(EN);
+      const liste = (url: string) =>
+        kall(url, '/api/godkjenning/pakker', { bruker: o.te, prosjektId: null }).then((s) =>
+          (s.kropp.pakker as { pakke_id: string }[]).map((p) => p.pakke_id)
+        );
+      expect(await liste(server.url)).not.toContain(pakke);
+      // Kontrollsaken: samme bruker og pakke, men Catenda har ikke brukeren i TE-teamet.
+      expect(await liste(utenTeam.url)).toContain(pakke);
+    } finally {
+      await utenTeam.stopp();
       await registrerHierarki();
     }
   });
@@ -451,6 +464,20 @@ describe.skipIf(!TESTBASE_URL)('inngangene for godkjenneren mot testbasen', () =
     });
     expect(brev.status).toBe(200);
     expect(brev.headers.get('content-type')).toBe('application/pdf');
+  });
+
+  it('G1: et brev eller vedlegg i en annen sak hentes ikke gjennom stien til pakken, også når godkjenneren står i kjeden der', async () => {
+    const [pakkeA, pakkeB] = [await nyPakke(TO), await nyPakke(TO)];
+    const { bundet, eventId } = await medBrevOgVedlegg(await sakenTil(pakkeB));
+    const hent = (pakke: string, ressurs: string) =>
+      fetch(`${server.url}${sti(pakke)}/${ressurs}`, {
+        headers: { Cookie: `__Host-koe_session=${leder.token}`, 'X-Project-ID': o.prosjekt.id },
+      }).then((r) => r.status);
+    expect(await hent(pakkeA, `vedlegg/${bundet}`)).toBe(404);
+    expect(await hent(pakkeA, `brev/${eventId}`)).toBe(404);
+    // Kontrollsaken: gjennom pakken for saken der de ligger.
+    expect(await hent(pakkeB, `vedlegg/${bundet}`)).toBe(200);
+    expect(await hent(pakkeB, `brev/${eventId}`)).toBe(200);
   });
 
   it('G1: utenfor kjeden, og etter at pakken er lukket, når godkjenneren ikke saken', async () => {
