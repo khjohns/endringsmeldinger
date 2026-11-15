@@ -333,11 +333,7 @@ const utsagnet = ([verb, resten]: Utsagnet) => `${verb} ${resten}`;
 const medLaget = (lag: string | null, u: Utsagnet) =>
   lag ? `${lag} ${u[0]} byggherren ${u[1]}` : `byggherren ${utsagnet(u)}`;
 
-/**
- * Radene i svaret på forholdet som statuslinjen og roten i «Tilknyttede krav» sier: med en
- * innsigelse om varselet alle lagene slik brevet ga dem (oppdragsgiver 15.11 i #2038: «B»), ellers
- * bare standpunktet til forholdet.
- */
+/** Radene i svaret som statuslinjen og roten i «Tilknyttede krav» sier (oppdragsgiver 15.11 i #2038: «B»). */
 function radeneSomSies(rader: Innlegget['standpunkter']): Innlegget['standpunkter'] {
   const begge = rader.some(
     (r) => r.lag || (r.standpunkt.art === 'rettidighet' && !r.standpunkt.iTide)
@@ -786,7 +782,7 @@ export const FORHOLDET = {
   ikkeSvart: 'Svar ikke registrert',
   /** En frist byggherrens svar ikke har dager for (KA-U74). */
   ikkeISvaret: 'Ikke i svaret',
-  /** Forholdet med standpunktet i svaret, med ordene i statuslinjen og tråden (#2040). */
+  /** Forholdet med standpunktene i svaret, med setningene i statuslinjen (#2040). */
   forholdsrot: (navn: string, svar: { rader: Innlegget['standpunkter']; brev: Brevref } | null) => {
     const s = svar ? setningene(svar.rader) : [];
     return svar && s.length
