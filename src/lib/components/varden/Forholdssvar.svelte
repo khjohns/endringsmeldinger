@@ -19,6 +19,7 @@
   import type { Utledning } from '$kjerne/utledning/utled';
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import Datoer from './Datoer.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
@@ -70,11 +71,23 @@
     const felt = oppgittDato(hovedkategori, underkategori);
     const oppgitt = felt ? innholdIForholdet(krav).datoer[felt] : null;
     const sendt = kravetSendt(kravbrevet);
-    return {
-      oppgitt: felt && oppgitt ? { gjelder: DATOEN_GJELDER[felt], dato: oppgitt } : null,
-      sendt,
-      dager: oppgitt && sendt ? kalenderdager(oppgitt, sendt) : null,
-    };
+    return [
+      ...(felt && oppgitt
+        ? [
+            {
+              tekst: FORHOLDSSVAR.datoOppgitt(
+                DATOEN_GJELDER[felt],
+                dato(oppgitt),
+                brevref(kravbrevet)
+              ),
+            },
+          ]
+        : []),
+      ...(sendt ? [{ tekst: FORHOLDSSVAR.paaberopelsenSendt(dato(sendt)) }] : []),
+      ...(oppgitt && sendt
+        ? [{ tekst: FORHOLDSSVAR.avstand(kalenderdager(oppgitt, sendt)), art: 'avstand' as const }]
+        : []),
+    ];
   });
   const hjemmelen = $derived(
     f.risiko
@@ -177,7 +190,7 @@
   );
 </script>
 
-{#snippet innsigelsen(_: string)}
+{#snippet innsigelsen()}
   <a href={`#${uid}-varsel`}>{FORHOLDSSVAR.innsigelsenVarsel}</a>
 {/snippet}
 
@@ -204,21 +217,7 @@
 
     {#if f.varslingsplikt}
       <Spoersmaal id={`${uid}-sp-varsel`} tittel={FORHOLDSSVAR.varselTittel} hjemmel="32.2">
-        <div class="datoer">
-          {#if datoene.oppgitt}
-            <p>
-              {FORHOLDSSVAR.datoOppgitt(
-                datoene.oppgitt.gjelder,
-                dato(datoene.oppgitt.dato),
-                brevref(kravbrevet)
-              )}
-            </p>
-          {/if}
-          {#if datoene.sendt}<p>{FORHOLDSSVAR.paaberopelsenSendt(dato(datoene.sendt))}</p>{/if}
-          {#if datoene.dager !== null}<p>
-              <strong>{FORHOLDSSVAR.avstand(datoene.dager)}</strong>
-            </p>{/if}
-        </div>
+        <Datoer linjer={datoene} />
         <Valg
           navn={`${uid}-varsel`}
           spoersmaal={FORHOLDSSVAR.varselSpoersmaal}
@@ -277,15 +276,6 @@
     flex: none;
     margin-top: 3px;
   }
-  .datoer {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-1);
-    padding: var(--spacing-3) var(--spacing-4);
-    background: var(--surface-inset);
-    border-radius: var(--r-innfelt);
-    color: var(--ink-2);
-  }
   .endringsordre {
     display: flex;
     flex-direction: column;
@@ -307,9 +297,6 @@
     color: var(--ink);
   }
   .virkning {
-    padding: var(--spacing-3) var(--spacing-4);
-    background: var(--surface-inset);
-    border-radius: var(--r-innfelt);
     color: var(--ink-2);
   }
   .dempet {
