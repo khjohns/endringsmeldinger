@@ -30020,7 +30020,7 @@ Kontrollen fant én innvending. KA-U80 sier: «Mener byggherren at fremdriften i
 *Valget styrer* om kjernen avviser saker med «upåvirket» for dagene i fristen. Ingen brev som er sendt i dag, har det, men noen tester har det. Med A føres svaret som vedtak, fordi det snevrer inn OV-U33.'''
 valgt = "A"
 svar = '''
-Oppdragsgiver 15.11, ordrett: «Spørsmål: A,A». Det første svaret gjelder dette spørsmålet. Det andre gjelder formen for en bokstav i et ledd (#1977 punkt 3), som er design og ikke føres her.'''
+Oppdragsgiver 15.11, ordrett: «Spørsmål: A,A». Det første svaret gjelder dette spørsmålet.'''
 forhold = [
   { art = "snevrer inn", vedtak = "ov-u33" },
 ]
