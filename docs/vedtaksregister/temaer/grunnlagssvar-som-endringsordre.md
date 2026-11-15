@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `a27b5d5e59fbb2848c4fc7790437d32dbec190c8323586640a793335c2de0df4`
+Kontrollsum (SHA-256 over utdraget visningen leser): `c6e34377591e255dc41633ff9c58c374e94cc0b183ff63ac4a0690c522831a63`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -301,7 +301,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 | [OV-U86](#ov-u86) | Endrer [OV-U10](../../plans/vedtak.md#ov-u10); Endrer [OV-U19](#ov-u19); Endrer [OV-U70](#ov-u70); Opphever [OV-U71](#ov-u71) | — |
 | [OV-U97](#ov-u97) | Presiserer [OV-U1](../../plans/vedtak.md#ov-u1); Utvider [MM-U48](#mm-u48); Utvider [MM-U22](../../plans/vedtak.md#mm-u22) | — |
 | [OV-U98](#ov-u98) | Endrer [OV-U80](#ov-u80); Snevrer inn [OV-U84](#ov-u84); Presiserer [KA-U1](../../plans/vedtak.md#ka-u1); Presiserer [GR-U7](../../plans/vedtak.md#gr-u7); Presiserer [HF-U23](#hf-u23); Presiserer [MM-U55](#mm-u55) | — |
-| [OV-U99](#ov-u99) | Endrer [OV-U1](../../plans/vedtak.md#ov-u1); Endrer [OV-U10](../../plans/vedtak.md#ov-u10); Endrer [MM-U30](#mm-u30); Endrer [MM-U24](#mm-u24) | — |
+| [OV-U99](#ov-u99) | Endrer [OV-U10](../../plans/vedtak.md#ov-u10); Endrer [MM-U30](#mm-u30); Endrer [MM-U24](#mm-u24) | — |
 
 ## Vedtakene
 
@@ -4079,7 +4079,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 15.11, oppdragsgiver (#1987)
 
-**Følge:** Presiserer [OV-U1](../../plans/vedtak.md#ov-u1). Utvider [MM-U48](#mm-u48). Utvider [MM-U22](../../plans/vedtak.md#mm-u22). Utvider MM-U48 til alle handlinger utover grunnsettet. Utvider MM-U22 (designdelen): betegnelsen sier også hvem som står for tur. Metoden (port 0–4) og skjemaet per handling står i vurderingsfila. Registeret over handlingene og tilstandene, og regelen i skillene og CLAUDE.md: #2003.
+**Følge:** Presiserer [OV-U1](../../plans/vedtak.md#ov-u1). Utvider [MM-U48](#mm-u48). Utvider [MM-U22](../../plans/vedtak.md#mm-u22). Utvider MM-U48 til alle handlinger utover grunnsettet. Utvider MM-U22 (designdelen): betegnelsen sier også hvem som står for tur. Metoden (port 0–4) og skjemaet per handling står i vurderingsfila. Bygges i #2003.
 
 **Regelrader:** —
 
@@ -4093,7 +4093,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 15.11, oppdragsgiver (#1987)
 
-**Følge:** Endrer [OV-U80](#ov-u80). Snevrer inn [OV-U84](#ov-u84). Presiserer [KA-U1](../../plans/vedtak.md#ka-u1). Presiserer [GR-U7](../../plans/vedtak.md#gr-u7). Presiserer [HF-U23](#hf-u23). Presiserer [MM-U55](#mm-u55). Endrer OV-U80: setningen om aksept, og at et tidligere krav ikke blir gjeldende selv om valget ellers ville vært godtatt; utvider den med forespørselen og aksepten. Snevrer inn OV-U84: et senere valg av et tidligere krav blir ikke gjeldende. Presiserer KA-U1 og GR-U7 (gjeldende svar på sendedatoen), HF-U23 punkt 8 og MM-U55 punkt 8 og 18 (en retting av datoen endrer ikke hva som er gjeldende). I tråd med KA-U52 punkt 5, EO-U39 punkt 43, OV-U5, OV-U85, VS-U19 (VS-U47 punkt 5) og HF-U29 punkt 3. Prøvd med fem forløp og mot vedtakene før spørsmålet ble stilt (vurderingsfila).
+**Følge:** Endrer [OV-U80](#ov-u80). Snevrer inn [OV-U84](#ov-u84). Presiserer [KA-U1](../../plans/vedtak.md#ka-u1). Presiserer [GR-U7](../../plans/vedtak.md#gr-u7). Presiserer [HF-U23](#hf-u23). Presiserer [MM-U55](#mm-u55). Endrer OV-U80: setningen om aksept, og at et tidligere krav ikke blir gjeldende selv om valget ellers ville vært godtatt; utvider den med forespørselen og aksepten. Snevrer inn OV-U84: et senere valg av et tidligere krav blir ikke gjeldende. Presiserer KA-U1 og GR-U7 (gjeldende svar på sendedatoen), HF-U23 punkt 8 og MM-U55 punkt 8 og 18 (en retting av datoen endrer ikke hva som er gjeldende). I tråd med KA-U52 punkt 5, EO-U39 punkt 43, OV-U5, OV-U85, VS-U19 (VS-U47 punkt 5) og HF-U29 punkt 3.
 
 **Regelrader:** —
 
@@ -4105,7 +4105,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 15.11, oppdragsgiver (#1987)
 
-**Følge:** Endrer [OV-U1](../../plans/vedtak.md#ov-u1). Endrer [OV-U10](../../plans/vedtak.md#ov-u10). Endrer [MM-U30](#mm-u30). Endrer [MM-U24](#mm-u24). Endrer OV-U1 for rekkefølgen (Forhold under spørsmål C): OV-U46 (med GR-U35–GR-U37), OV-U84 (med EO-U39 punkt 49) og «ingen krav» (OV-U7) venter, og vedtakene om dem står. Punkt 2, andre setning, gjelder til OV-U84 er bygget, og tar ikke opp igjen alternativet OV-U84 forkastet som varig regel; OV-U13 gjelder i mellomtiden. Punkt 4 er det VS-U46 alt sier (#1657). Punkt 6 endrer, som design, OV-U10, MM-U30 og MM-U24 i `.interface-design/system.md`. Byggherrens svar i punkt 1 forutsetter at godkjenningen er bygget (GFK-U2, GFK-U14, OV-U80; spørsmål E i vurderingsfila, besvart E1, gjeldende vedtak står).
+**Følge:** Endrer [OV-U10](../../plans/vedtak.md#ov-u10). Endrer [MM-U30](#mm-u30). Endrer [MM-U24](#mm-u24). Utsetter for rekkefølgen OV-U46 (med GR-U35–GR-U37) og OV-U84 (med EO-U39 punkt 49); vedtakene står. «Ingen krav» følger OV-U7. Punkt 2, andre setning, gjelder til OV-U84 er bygget, og tar ikke opp igjen alternativet OV-U84 forkastet som varig regel; OV-U13 gjelder i mellomtiden. Punkt 6 endrer, som design, OV-U10, MM-U30 og MM-U24 i `.interface-design/system.md`. Byggherrens svar i punkt 1 forutsetter svaret på spørsmål E. Om innsigelsen og passiviteten skal være innlegg varig, avgjøres i #1657 (oppdragsgiver 15.11: «bedre å vedtaksføre ifb 1657»).
 
 **Regelrader:** —
 

@@ -409,8 +409,8 @@ Forutsetter A1 og B1. Svar «ja», eller rett enkeltpunkter. Belegget står i «
 6. Tilstandene følger porten i A1. Betegnelsen for at kravene er avgjort etter OV-U3, sier hva som
    har skjedd, ikke at kravene er avgjort. Predikatet i OV-U3 står.»
 
-Forhold: endrer OV-U1 for rekkefølgen: OV-U46 (med GR-U35–GR-U37) og OV-U84 (med EO-U39 punkt 49)
-venter, og vedtakene står. «Ingen krav» følger OV-U7. Punkt 2, andre setning, gjelder til OV-U84 er bygget, og
+Forhold: utsetter for rekkefølgen OV-U46 (med GR-U35–GR-U37) og OV-U84 (med EO-U39 punkt 49);
+vedtakene står. «Ingen krav» følger OV-U7. Punkt 2, andre setning, gjelder til OV-U84 er bygget, og
 tar ikke opp igjen alternativet OV-U84 forkastet som varig regel; OV-U13 gjelder i mellomtiden.
 Punkt 4 er det VS-U46 alt sier. Punkt 6 endrer, som design: OV-U10 (teksten «Alle krav sendt i
 appen er avgjort»), MM-U30 i `system.md` (med oppdragsgivers svar 1: «Svaret er ikke godtatt»

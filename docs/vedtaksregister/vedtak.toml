@@ -30054,7 +30054,7 @@ forhold = [
   { art = "utvider", vedtak = "mm-u22" },
 ]
 folge = '''
-Utvider MM-U48 til alle handlinger utover grunnsettet. Utvider MM-U22 (designdelen): betegnelsen sier også hvem som står for tur. Metoden (port 0–4) og skjemaet per handling står i vurderingsfila. Registeret over handlingene og tilstandene, og regelen i skillene og CLAUDE.md: #2003.'''
+Utvider MM-U48 til alle handlinger utover grunnsettet. Utvider MM-U22 (designdelen): betegnelsen sier også hvem som står for tur. Metoden (port 0–4) og skjemaet per handling står i vurderingsfila. Bygges i #2003.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A1"
@@ -30153,7 +30153,7 @@ forhold = [
   { art = "presiserer", vedtak = "mm-u55" },
 ]
 folge = '''
-Endrer OV-U80: setningen om aksept, og at et tidligere krav ikke blir gjeldende selv om valget ellers ville vært godtatt; utvider den med forespørselen og aksepten. Snevrer inn OV-U84: et senere valg av et tidligere krav blir ikke gjeldende. Presiserer KA-U1 og GR-U7 (gjeldende svar på sendedatoen), HF-U23 punkt 8 og MM-U55 punkt 8 og 18 (en retting av datoen endrer ikke hva som er gjeldende). I tråd med KA-U52 punkt 5, EO-U39 punkt 43, OV-U5, OV-U85, VS-U19 (VS-U47 punkt 5) og HF-U29 punkt 3. Prøvd med fem forløp og mot vedtakene før spørsmålet ble stilt (vurderingsfila).'''
+Endrer OV-U80: setningen om aksept, og at et tidligere krav ikke blir gjeldende selv om valget ellers ville vært godtatt; utvider den med forespørselen og aksepten. Snevrer inn OV-U84: et senere valg av et tidligere krav blir ikke gjeldende. Presiserer KA-U1 og GR-U7 (gjeldende svar på sendedatoen), HF-U23 punkt 8 og MM-U55 punkt 8 og 18 (en retting av datoen endrer ikke hva som er gjeldende). I tråd med KA-U52 punkt 5, EO-U39 punkt 43, OV-U5, OV-U85, VS-U19 (VS-U47 punkt 5) og HF-U29 punkt 3.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "B1"
@@ -30242,13 +30242,12 @@ Etter kartleggingsøktas spørsmål om bekreftelse av A1, B1, C og E1, oppdragsg
 
 Svaret er C, det anbefalte forslaget, med punkt 4 slik det står: innlegg i første versjon, og reglene i VS-U46 og VS-U12 står. Om innsigelsen og passiviteten skal være innlegg varig, og om innsigelsen skal bli et forbehold i skjemaet for krav og svar, avgjøres i #1657.'''
 forhold = [
-  { art = "endrer", vedtak = "ov-u1" },
   { art = "endrer", vedtak = "ov-u10" },
   { art = "endrer", vedtak = "mm-u30" },
   { art = "endrer", vedtak = "mm-u24" },
 ]
 folge = '''
-Endrer OV-U1 for rekkefølgen (Forhold under spørsmål C): OV-U46 (med GR-U35–GR-U37), OV-U84 (med EO-U39 punkt 49) og «ingen krav» (OV-U7) venter, og vedtakene om dem står. Punkt 2, andre setning, gjelder til OV-U84 er bygget, og tar ikke opp igjen alternativet OV-U84 forkastet som varig regel; OV-U13 gjelder i mellomtiden. Punkt 4 er det VS-U46 alt sier (#1657). Punkt 6 endrer, som design, OV-U10, MM-U30 og MM-U24 i `.interface-design/system.md`. Byggherrens svar i punkt 1 forutsetter at godkjenningen er bygget (GFK-U2, GFK-U14, OV-U80; spørsmål E i vurderingsfila, besvart E1, gjeldende vedtak står).'''
+Utsetter for rekkefølgen OV-U46 (med GR-U35–GR-U37) og OV-U84 (med EO-U39 punkt 49); vedtakene står. «Ingen krav» følger OV-U7. Punkt 2, andre setning, gjelder til OV-U84 er bygget, og tar ikke opp igjen alternativet OV-U84 forkastet som varig regel; OV-U13 gjelder i mellomtiden. Punkt 6 endrer, som design, OV-U10, MM-U30 og MM-U24 i `.interface-design/system.md`. Byggherrens svar i punkt 1 forutsetter svaret på spørsmål E. Om innsigelsen og passiviteten skal være innlegg varig, avgjøres i #1657 (oppdragsgiver 15.11: «bedre å vedtaksføre ifb 1657»).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "C"
