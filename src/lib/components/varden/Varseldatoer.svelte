@@ -6,6 +6,7 @@
   import type { Utledning } from '$kjerne/utledning/utled';
   import { klarOverForholdet, type Brevet } from './lesing';
   import { kravbrevetI, kravetSendt } from './svarskjema';
+  import Datoer from './Datoer.svelte';
   import { SKJEMA, kalenderdager } from './tekster';
 
   let {
@@ -22,25 +23,19 @@
   const kravbrevet = $derived(kravbrevetI(u, spor));
   const klarOver = $derived(klarOverForholdet(u));
   const kravSendt = $derived(kravetSendt(kravbrevet));
+  const linjer = $derived([
+    ...(klarOver ? [{ tekst: SKJEMA.klarOver(klarOver.dato, klarOver.brev) }] : []),
+    { tekst: sendt(kravSendt ?? kravbrevet.registrert, kravbrevet) },
+    ...(klarOver && kravSendt
+      ? [
+          {
+            tekst: SKJEMA.avstand(kalenderdager(klarOver.dato, kravSendt)),
+            art: 'avstand' as const,
+          },
+        ]
+      : []),
+    { tekst: SKJEMA.datoGrense, art: 'dempet' as const },
+  ]);
 </script>
 
-<div class="datoer">
-  {#if klarOver}<p>{SKJEMA.klarOver(klarOver.dato, klarOver.brev)}</p>{/if}
-  <p>{sendt(kravSendt ?? kravbrevet.registrert, kravbrevet)}</p>
-  {#if klarOver && kravSendt}
-    <p><strong>{SKJEMA.avstand(kalenderdager(klarOver.dato, kravSendt))}</strong></p>
-  {/if}
-  <p class="dempet">{SKJEMA.datoGrense}</p>
-</div>
-
-<style>
-  .datoer {
-    padding: var(--spacing-3) var(--spacing-4);
-    background: var(--surface-inset);
-    border-radius: var(--r-innfelt);
-    font-size: 14px;
-  }
-  .dempet {
-    color: var(--ink-3);
-  }
-</style>
+<Datoer {linjer} />

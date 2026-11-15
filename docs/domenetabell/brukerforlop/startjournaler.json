@@ -1480,6 +1480,285 @@
       ]
     },
     {
+      "id": "BF-08",
+      "tittel": "Byggherren svarer på påberopelsen av forholdet, og totalentreprenøren tar stilling til svaret",
+      "brukerhistorie": "BH svarer på gjeldende versjon av TEs påberopelse av forholdet med kontraktens valg for forholdet, gjør eventuelt gjeldende at varselet etter punkt 32.2 kom for sent, og ser før sending om svaret er en endringsordre, om partene blir enige om forholdet og hva det gjør med svarene på vederlag og frist. Har BH svart utenfor løsningen, legger BH svaret til som korrespondanse med kategorien svar, eller viser til det i svaret på vederlag eller frist, eller svarer på forholdet i samme brev. BH kan sende et nytt svar. TE ser hva svaret betyr og hva TE kan gjøre, og godtar avslaget med beskjed om at saken avsluttes.",
+      "aktoerer": {
+        "TE": {
+          "aktor_id": "te",
+          "aktor_team_id": "team-te"
+        },
+        "BH": {
+          "aktor_id": "bh",
+          "aktor_team_id": "team-bh"
+        }
+      },
+      "idhode": "7ebb2e50",
+      "kontrollpunkter": [
+        {
+          "id": "start",
+          "beskrivelse": "Saken er opprettet. Ingen krav er sendt.",
+          "versjon": 1,
+          "forstaaelse": [],
+          "neste": {
+            "part": "TE",
+            "handling": "krav"
+          }
+        },
+        {
+          "id": "bh-har-mottatt-paaberopelsen",
+          "beskrivelse": "BH har mottatt påberopelsen av irregulær endring og vederlagskravet, og har ikke svart.",
+          "versjon": 3,
+          "forstaaelse": [
+            "BH ser påberopelsen svaret gjelder, og svaret gjelder gjeldende versjon. Brevet innledes med påberopelsen og merkingen, med ett punkt per tema i samme rekkefølge som i skjemaet (U-1, U-2, D-1).",
+            "BH ser datoen totalentreprenøren oppgir for pålegget, datoen påberopelsen ble sendt og dagene mellom, og avgjør selv om varselet kom i tide (U-3).",
+            "BH ser valgene for forholdet med kontraktens ord, og brevet har de samme ordene, med «punkt» og partene skrevet fullt ut. Et varsel BH ikke påberoper er for sent, er et uttrykkelig standpunkt (U-4, D-2).",
+            "Gir valgene en endringsordre, ser BH setningen fra brevet med sitatet av totalentreprenørens beskrivelse før sending, og at svaret går gjennom fullmakten (U-5, D-3, D-14).",
+            "BH ser at frafall er et valg bare der pålegget er byggherrens eget, og ikke sammen med at varselet kom for sent. Frafallet avklarer forholdet, totalentreprenøren kan ikke godta det, og endringsordren for utført arbeid utstedes i en EO-sak (D-6).",
+            "BH ser at begrunnelsen kreves for punktet om forholdet når BH avslår eller gjør gjeldende at varselet kom for sent, og ellers er valgfri (U-6, D-7).",
+            "BH ser hva svaret gjør før sending, og at teksten under «Forbehold» gjelder hele svaret og ikke tolkes. Skjemaet har ikke noe eget spørsmål om vilkår (U-7, D-8).",
+            "BH ser at et svar gitt utenfor løsningen legges til i saken som korrespondanse med kategorien svar, og gjelder fra datoen BH oppgir at det ble sendt. Bekreftelsen er opphevet, og byggherrens egen endringsordre sendt utenfor løsningen er ikke med (U-14, avgrensningen).",
+            "Har BH vist til et svar utenfor løsningen og gir i stedet et nytt svar på forholdet, sier skjemaet at BH kan være bundet av det tidligere svaret, og brevet sier hva BH tidligere viste til (D-15, G-5). Henvisningen bygges i #1306."
+          ],
+          "neste": {
+            "part": "BH",
+            "handling": "brev"
+          }
+        },
+        {
+          "id": "te-har-mottatt-svaret",
+          "beskrivelse": "BH har gjort gjeldende at varselet etter punkt 32.2 kom for sent, og er subsidiært enig i at pålegget innebærer en endring.",
+          "versjon": 4,
+          "forstaaelse": [
+            "TE ser at svaret ikke er en endringsordre, fordi byggherren gjør gjeldende at varselet kom for sent, og at svarene på vederlag og frist gjelder subsidiært (D-4, D-5).",
+            "TE ser at «Godta svaret» registrerer at partene er enige i byggherrens standpunkt, også at varselet kom for sent, og at saken avsluttes med kravene om vederlag og frist (T-5).",
+            "TE ser at en ny versjon av påberopelsen har samme hjemmel, og at trekket av påberopelsen også trekker kravene om vederlag og frist (T-6).",
+            "BH ser at BH kan sende et nytt svar, og at det forrige svaret står som det ble sendt, også en endringsordre i det (D-12, T-2, T-4). Nytt svar bygges i et eget issue."
+          ],
+          "neste": {
+            "part": "TE",
+            "handling": "aksept"
+          }
+        },
+        {
+          "id": "te-har-godtatt-avslaget",
+          "beskrivelse": "TE har godtatt avslaget, også at varselet kom for sent.",
+          "versjon": 5,
+          "forstaaelse": [
+            "TE ser at saken avsluttes, og at aksepten gjelder hele svaret slik det står i brevet, også begrunnelsen og forbeholdet (U-12, D-13)."
+          ],
+          "neste": null
+        }
+      ],
+      "journal": [
+        {
+          "event_id": "2075cad4-0000-4000-8000-000000000002",
+          "sak_id": "2075cad4-0000-4000-8000-000000000001",
+          "event_type": "sak_opprettet",
+          "versjon": 1,
+          "tidsstempel": "2026-10-01T08:00:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": null,
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "sakstittel": "Byggherren svarer på påberopelsen av forholdet, og totalentreprenøren tar stilling til svaret",
+            "sakstype": "standard"
+          }
+        },
+        {
+          "event_id": "2075cad4-0000-4000-8000-000000000005",
+          "sak_id": "2075cad4-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 2,
+          "tidsstempel": "2026-10-01T08:01:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "2075cad4-0000-4000-8000-000000000006",
+                "spor": "forhold",
+                "hovedkategori": "endring",
+                "underkategori": "irregulaer_endring",
+                "paalegg_mottatt": "2026-09-15"
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "2075cad4-0000-4000-8000-000000000006",
+                "laast": "Totalentreprenøren krever endringsordre for «Byggherren svarer på påberopelsen av forholdet, og totalentreprenøren tar stilling til svaret» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
+                "utdypning": "Byggherren påla i byggemøtet 15. september 2026 at fasaden skal ha teglforblending i stedet for platekledning, som beskrevet i kontrakten."
+              }
+            ],
+            "brevtittel": "Påberopelse av irregulær endring i sak KOE-17",
+            "brevnummer": 1,
+            "merking": "K201-KOE-017-01"
+          }
+        },
+        {
+          "event_id": "2075cad4-0000-4000-8000-00000000000a",
+          "sak_id": "2075cad4-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 3,
+          "tidsstempel": "2026-10-01T08:02:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "krav": [
+              {
+                "id": "2075cad4-0000-4000-8000-00000000000b",
+                "spor": "vederlag",
+                "kravposter": [
+                  {
+                    "id": "2075cad4-0000-4000-8000-00000000000c",
+                    "betegnelse": "P1",
+                    "beskrivelse": "Kravposten i bevis-saken",
+                    "oppgjoersform": "tilbud",
+                    "beloep": 100000
+                  }
+                ]
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "2075cad4-0000-4000-8000-00000000000b",
+                "punkt": "P1",
+                "overskrift": "1. Vederlagsjustering",
+                "laast": "1. Vederlagsjustering\n\nP1 Kravposten i bevis-saken. Totalentreprenøren krever 100 000 kr eks. mva."
+              },
+              {
+                "gjelder": "2075cad4-0000-4000-8000-00000000000b",
+                "punkt": "tilbud",
+                "laast": "Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1."
+              }
+            ],
+            "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
+            "brevnummer": 2,
+            "merking": "K201-KOE-017-02"
+          }
+        },
+        {
+          "event_id": "2075cad4-0000-4000-8000-000000000013",
+          "sak_id": "2075cad4-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 4,
+          "tidsstempel": "2026-10-01T08:03:00.000Z",
+          "aktor_id": "bh",
+          "aktor_rolle": "BH",
+          "aktor_team_id": "team-bh",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "svar": [
+              {
+                "id": "2075cad4-0000-4000-8000-000000000014",
+                "spor": "forhold",
+                "gjelder": "2075cad4-0000-4000-8000-000000000006",
+                "standpunkter": [
+                  {
+                    "id": "2075cad4-0000-4000-8000-000000000011",
+                    "art": "rettidighet",
+                    "gjelder": "2075cad4-0000-4000-8000-000000000006",
+                    "hjemmel": "32.2",
+                    "i_tide": false
+                  },
+                  {
+                    "id": "2075cad4-0000-4000-8000-000000000012",
+                    "art": "forhold",
+                    "resultat": "godkjent"
+                  }
+                ],
+                "beslutningsgrunnlag": {
+                  "regelversjon": 100,
+                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært godkjent.",
+                  "sammenfall": false,
+                  "varslingsplikt": true,
+                  "virkninger": [
+                    {
+                      "standpunkt": "2075cad4-0000-4000-8000-000000000011",
+                      "lag": 1
+                    },
+                    {
+                      "standpunkt": "2075cad4-0000-4000-8000-000000000012",
+                      "lag": 2
+                    }
+                  ]
+                }
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "2075cad4-0000-4000-8000-000000000014",
+                "punkt": "innledning",
+                "laast": "Byggherren svarer på totalentreprenørens påberopelse av irregulær endring i brev K201-KOE-017-01 av 1. oktober 2026."
+              },
+              {
+                "gjelder": "2075cad4-0000-4000-8000-000000000014",
+                "punkt": "32.2",
+                "overskrift": "1. Varselet etter punkt 32.2",
+                "laast": "1. Varselet etter punkt 32.2\n\nPrinsipalt\n\nByggherren gjør gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 1. oktober 2026 kom for sent."
+              },
+              {
+                "gjelder": "2075cad4-0000-4000-8000-000000000014",
+                "punkt": "forhold",
+                "overskrift": "2. Forholdet",
+                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
+                "utdypning": "Varselet kom lenge etter pålegget i byggemøtet. Subsidiært er byggherren enig i at pålegget innebærer en endring."
+              }
+            ],
+            "brevtittel": "Svar på forholdet i sak KOE-17",
+            "brevnummer": 3,
+            "merking": "K201-KOE-017-03",
+            "deres_ref": [
+              "K201-KOE-017-01"
+            ]
+          }
+        },
+        {
+          "event_id": "2075cad4-0000-4000-8000-000000000017",
+          "sak_id": "2075cad4-0000-4000-8000-000000000001",
+          "event_type": "dokument_registrert",
+          "versjon": 5,
+          "tidsstempel": "2026-10-01T08:04:00.000Z",
+          "aktor_id": "te",
+          "aktor_rolle": "TE",
+          "aktor_team_id": "team-te",
+          "refererer_til_event_id": null,
+          "format": 1,
+          "data": {
+            "utsagn": [
+              {
+                "id": "2075cad4-0000-4000-8000-000000000018",
+                "art": "aksept",
+                "gjelder": "2075cad4-0000-4000-8000-000000000014",
+                "regelversjon": 100
+              }
+            ],
+            "brevtekst": [
+              {
+                "gjelder": "2075cad4-0000-4000-8000-000000000018",
+                "laast": "Totalentreprenøren godtar byggherrens svar på grunnlaget i brev K201-KOE-017-03 av 1. oktober 2026."
+              }
+            ],
+            "brevtittel": "Aksept av svaret i sak KOE-17",
+            "brevnummer": 4,
+            "merking": "K201-KOE-017-04",
+            "deres_ref": [
+              "K201-KOE-017-03"
+            ]
+          }
+        }
+      ]
+    },
+    {
       "id": "BF-44",
       "tittel": "Partene ser stillingen i vederlaget",
       "brukerhistorie": "TE og BH åpner siden for vederlagsjusteringen og ser kravet som gjelder, byggherrens svar med lagene og summen i hvert lag, forbeholdet om at forholdet ikke er besvart, brevene med vedlegg og datoene. TE ser hva det betyr å godta svaret før TE godtar det, og begge ser hva de kan gjøre nå og et påbegynt utkast.",
