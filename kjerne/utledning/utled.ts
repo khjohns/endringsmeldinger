@@ -24,7 +24,7 @@ import {
   erRegistrert,
   kalenderdag,
   lesJournal,
-  registrertDato,
+  dagenSendt,
   sammeSlag,
 } from '../format/leser.ts';
 import { harProduktivitetspost } from '../spor/vederlag/format.ts';
@@ -679,11 +679,10 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     const stridene = strid(h.dokument, foer, uten, (element, med) =>
       sendtSammeDag.push({ element, med })
     );
-    const strider = new Set(stridene.filter((x) => !x.utenforRekken).map((x) => x.element));
     for (const x of stridene) {
       if (!registrert) konflikter.push({ hendelse: h.id, grunn: x.grunn });
       else if (dokumentasjon.has(x.element)) continue;
-      else if (!strider.has(x.element)) utenforRekken.add(x.element);
+      else if (x.utenforRekken) utenforRekken.add(x.element);
       else uten.set(x.element, { hendelse: h.id, grunn: x.grunn });
     }
     if (konflikter.length) break;
@@ -824,8 +823,9 @@ function utledSporene(
       plasser(k.id, h);
       registrer(k.id, h, d.avsender, 'krav');
       kravMedUten.set(k.id, k);
-      if (utenforRekken.has(k.id)) spor[k.spor].kravUtenforRekken.push(k);
-      else if (harVirkning(k.id)) spor[k.spor].krav.push(k);
+      // En annen strid enn OV-U102 gir kravet ingen virkning (`uten`).
+      if (harVirkning(k.id))
+        (utenforRekken.has(k.id) ? spor[k.spor].kravUtenforRekken : spor[k.spor].krav).push(k);
     }
     for (const s of d.svar) {
       plasser(s.id, h);
@@ -1417,9 +1417,7 @@ export function datoenDetBleSendt(
   utsagn: Pick<Krav, 'id' | 'dokument'>
 ): string | null {
   for (const d of dokumenterI(u.journal)) {
-    if (d.id !== utsagn.dokument) continue;
-    const sendt = datoFor(utsagn, 'sendt', d.opplysninger);
-    return sendt ? kalenderdag(sendt.dato) : registrertDato(d);
+    if (d.id === utsagn.dokument) return dagenSendt(utsagn, d);
   }
   throw new Error(`${utsagn.id} står ikke i et dokument i journalen.`);
 }

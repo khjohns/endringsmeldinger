@@ -2795,8 +2795,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '      if (utenforRekken.has(k.id)) spor[k.spor].kravUtenforRekken.push(k);\n      else ',
-        '      ',
+        '(utenforRekken.has(k.id) ? spor[k.spor].kravUtenforRekken : spor[k.spor].krav)',
+        'spor[k.spor].krav',
       ],
     ],
     mal: [
@@ -2808,7 +2808,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F644',
     feilklasse: 'et krav sendt før totalentreprenørens siste krav får ingen virkning (OV-U102)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['      else if (!strider.has(x.element)) utenforRekken.add(x.element);\n', '']],
+    endringer: [['      else if (x.utenforRekken) utenforRekken.add(x.element);\n', '']],
     mal: [
       'kravet blir ikke gjeldende, og saken er forstått',
       'et krav sendt før det siste godtas, utenfor rekken',

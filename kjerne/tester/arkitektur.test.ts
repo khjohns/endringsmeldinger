@@ -1877,12 +1877,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // Brevets dato er serverens tidspunkt i norsk tid (VS-U8).
   ['format/leser.ts', 'kontekst', 'registrertDato', ['kommandoer/skriving.ts:skriv']],
-  // VS-U38: dagen påberopelsen fra appen ble sendt.
-  ['format/leser.ts', 'kontekst', 'registrertDato', ['utledning/utled.ts:datoenDetBleSendt']],
+  // VS-U38, OV-U98: dagen påberopelsen fra appen eller et brev lagt til ble sendt. OV-U105,
+  // OV-U104: et svar gir opp innsigelsen fra dagen det ble sendt.
+  [
+    'format/leser.ts',
+    'kontekst',
+    'dagenSendt',
+    ['utledning/utled.ts:datoenDetBleSendt', 'frosset/brevtekst.ts:aapneInnsigelser'],
+  ],
   // HF-U23: akseptfristen i svaret, som brevet ved aksepten sammenlikner med dagen den sendes.
   ['format/leser.ts', 'kontekst', 'registrertDato', ['frosset/brevtekst.ts:utsagnstekst']],
-  // OV-U105, OV-U104: et svar gir opp innsigelsen fra dagen det ble sendt.
-  ['format/leser.ts', 'kontekst', 'registrertDato', ['frosset/brevtekst.ts:dagenSendt']],
   [
     'Svar',
     'utsagn',
@@ -2162,10 +2166,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/nyttelast.ts',
       'spor/forhold/kommando.ts:varseletEtter322',
       'frosset/brevdeler.ts',
-      'utledning/utled.ts:datoenDetBleSendt',
       'utledning/utled.ts:utledSporene.sendt',
       'utledning/utled.ts:registreringenStrider.dag',
-      'frosset/brevtekst.ts:dagenSendt',
     ],
   ],
 

@@ -16,7 +16,7 @@
 
 import { HJEMMEL } from '../format/format.ts';
 import { sakensKode } from './tekst.ts';
-import { datoFor, erRegistrert, kalenderdag, registrertDato } from '../format/leser.ts';
+import { dagenSendt, erRegistrert, registrertDato } from '../format/leser.ts';
 import { etterAkseptfristen } from '../regler/akseptfrist.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { innsigelsenErOppgitt, innsigelsenPaaberoper } from './standpunkt.ts';
@@ -208,12 +208,6 @@ interface Innsigelse {
   hjemmel?: Hjemmel | null;
 }
 
-/** OV-U98: dagen brevet ble sendt: datoen avsenderen oppgir, ellers dagen det ble registrert. */
-function dagenSendt(d: Dokument): string | null {
-  const oppgitt = datoFor({ id: d.id, dokument: d.id }, 'sendt', d.opplysninger);
-  return oppgitt ? kalenderdag(oppgitt.dato) : registrertDato(d);
-}
-
 /**
  * VS-U9, VS-U11, VS-U24: byggherrens egne innsigelser som er en påberopelse etter
  * bestemmelsen svaret tar stilling til, og som byggherren ikke senere har gitt opp
@@ -231,7 +225,7 @@ function aapneInnsigelser(
   const innsigelser: (Innsigelse & { fra: number; dag: string | null })[] = [];
   for (const d of j.dokumenter) {
     if (d.avsender !== avsender || d.svar.includes(svar)) continue;
-    const dag = dagenSendt(d);
+    const dag = dagenSendt({ id: d.id, dokument: d.id }, d);
     svarFraParten.push(...d.svar.map((s) => ({ svar: s, dag })));
     for (const u of d.utsagn)
       // VS-U29: standpunktet om at begrunnelsen ikke er et svar, er ingen påberopelse.
