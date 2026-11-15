@@ -322,7 +322,7 @@ export interface Sporsbrevtekst {
    * Et standpunkt i en art bare sporet har, er en innsigelse et senere lag bygger på (LV-U34,
    * OV-U32). Rettidigheten er felles (`erInnsigelse` i `brevtekst.ts`).
    */
-  erInnsigelse(p: Standpunkt): boolean;
+  erInnsigelse(p: Exclude<Standpunkt, { art: 'rettidighet' }>): boolean;
   /**
    * Rettidigheten etter en bestemmelse i sporet som ikke gjelder et varsel: elementet brevet
    * standpunktets `gjelder` står i. En protest omtaler påberopelsen da med det som kom for sent,

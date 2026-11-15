@@ -6919,8 +6919,7 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
       ]);
     });
 
-    // Arbeidsvalget 15.11 i #1905 punkt 1: «avslått» gir 0 dager. Den omvendte retningen krever
-    // kravet (`resultatAvDager` gir «godkjent» for et krav på 0 dager).
+    // Kilde: arbeidsvalget 15.11 i #1905 punkt 1.
     it.each([
       [
         'prinsipalt',
