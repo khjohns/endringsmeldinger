@@ -156,8 +156,7 @@
     )!
   );
   const etter = $derived(kjernesak.forhaandsvist(kommando));
-  // Hvert spørsmål står i laget sitt uansett svaret (OV-U33). Kjernen gir et ubesvart spørsmål
-  // et standpunkt med `besvart: false` og tar utkastet uten dagene byggherren måtte forstå (#1925).
+  // OV-U33: lagene står også før spørsmålene er besvart (`lagIFristen`).
   const lagene = $derived(kjernesak.lagForUtkastet(kommando.svar[0], 'frist'));
   type Lagene = NonNullable<typeof lagene>['standpunkter'][number];
   const forutsetninger = (passer: (x: Lagene) => boolean): Forutsetning[] =>

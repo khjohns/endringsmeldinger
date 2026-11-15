@@ -23,7 +23,7 @@ export interface Laget extends Svarlaget {
 
 /** En post i kravet som gjelder, med oppgjørsformen og det krevde beløpet (U-4). */
 export interface Posten {
-  /** «Vederlagsjustering», betegnelsen når kravet har flere, eller «Særskilt vederlagsjustering». */
+  /** Navnet raden har i oversiktstabellen (`posteneIOversikten`). */
   navn: string;
   oppgjoersform: Oppgjoersform | null;
   krevd: number | null;
