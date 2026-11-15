@@ -372,16 +372,13 @@ function medVarslene(
       },
     };
   // VS-U55 (#1993): ellers holder `foranKravet` varselet i saken utenfor for de andre kravpostene.
-  // `journal` har ikke dokumentet, og et vedlegg hører til ett dokument i kravskjemaet.
+  // `journal` har ikke dokumentet (VS-U51, VS-U53).
   const iVarslene = vedleggIVarslene(skriving.saken(journal));
   if (dokumentnoekkel(dokumentet).some((id) => iVarslene.has(id)))
     return {
       godtatt: false,
       feil: 'REGELBRUDD',
-      avvisning: avvis(
-        'KRAVPOSTVARSELET',
-        `Et vedlegg i varselet for kravpost nr. ${i + 1} ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.`
-      ),
+      avvisning: vedleggVedEtVarsel(`i varselet for kravpost nr. ${i + 1}`),
     };
   const [rad] = varselet.hendelser;
   const utsagn = new Map(
@@ -440,12 +437,15 @@ function vedleggetErEtVarsel(
 ): Avvisning | null {
   const iVarslene = vedleggIVarslene({ lest, u });
   return (k.dokumentasjon ?? []).some((id) => iVarslene.has(id.toLowerCase()))
-    ? avvis(
-        'KRAVPOSTVARSELET',
-        'Et vedlegg ved kravet ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.'
-      )
+    ? vedleggVedEtVarsel('ved kravet')
     : null;
 }
+
+const vedleggVedEtVarsel = (hvor: string) =>
+  avvis(
+    'KRAVPOSTVARSELET',
+    `Et vedlegg ${hvor} ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.`
+  );
 
 /** Vedleggene ved varslene for en kravpost i saken, med små bokstaver (VS-U55). */
 function vedleggIVarslene({ lest, u }: LestSak): Set<string> {

@@ -10543,6 +10543,14 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       });
       expect(s.journal.length, 'ingen rad skrives').toBe(foer);
       expect(
+        s.avvisning(
+          'TE',
+          vederlagskrav([{ ...regning, varsel: dokument() }, regning, { ...regning, varsel: delt }])
+        )?.melding,
+        'det andre dokumentet i kravskjemaet'
+      ).toContain('i varselet for kravpost nr. 3 ligger alt ved');
+      expect(s.journal.length, 'heller ikke varselet for kravpost nr. 1 skrives').toBe(foer);
+      expect(
         s.avvist('BH', vederlagskrav([{ ...regning, varsel: delt }, regning])),
         'byggherren får grunnen til at kravet ikke kan sendes, før vedleggene i varslene'
       ).toBe('FEIL_PART');

@@ -4080,8 +4080,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        '  return (k.dokumentasjon ?? []).some((id) => iVarslene.has(id.toLowerCase()))\n    ? avvis(',
-        '  return false\n    ? avvis(',
+        '  return (k.dokumentasjon ?? []).some((id) => iVarslene.has(id.toLowerCase()))\n    ? vedleggVedEtVarsel(',
+        '  return false\n    ? vedleggVedEtVarsel(',
       ],
     ],
     mal: ['et vedlegg ved kravet som alt ligger ved et varsel for en kravpost i saken, avvises'],
