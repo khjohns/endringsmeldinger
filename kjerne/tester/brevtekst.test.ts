@@ -4194,7 +4194,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const u = medF.u();
     expect(u.forstaatt).toBe(false);
     expect(u.begrensninger.map((b) => b.grunn)).toContain(
-      'saken har alt en forespørsel etter § 33.6.2 fra appen (VS-U31)'
+      'saken har alt en forespørsel etter punkt 33.6.2 sendt herfra'
     );
   });
 
@@ -4230,7 +4230,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     s.rad('TE', krav());
     expect(s.u().forstaatt).toBe(false);
     expect(s.u().begrensninger.map((b) => b.grunn)).toContain(
-      'fristkravet viser ikke til forespørselen etter § 33.6.2 det svarer på'
+      'fristkravet viser ikke til forespørselen etter punkt 33.6.2 det svarer på'
     );
   });
 
@@ -4248,12 +4248,12 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const { s: annet } = medForesporsel();
     annet.rad('TE', krav(annet.krav('forhold')));
     expect(annet.u().begrensninger.map((b) => b.grunn)).toContain(
-      'fristkravet viser ikke til en forespørsel etter § 33.6.2 før kravet'
+      'fristkravet viser ikke til en forespørsel etter punkt 33.6.2 før kravet'
     );
     const { s: besvart, f } = medBegrunnelse();
     besvart.rad('TE', krav(f));
     expect(besvart.u().begrensninger.map((b) => b.grunn)).toContain(
-      'fristkravet viser til en forespørsel etter § 33.6.2 som alt er besvart'
+      'fristkravet viser til en forespørsel etter punkt 33.6.2 som alt er besvart'
     );
   });
 
@@ -5484,7 +5484,7 @@ describe('svaret på kravpostene i kommandoen (KA-U57 (c) og (d), OV-U23, MM-U2)
     [
       'en kravpost kravet ikke har',
       { kravposter: [{ gjelder: 'P2', vurdering: 'godkjent', aksepterer: true }] },
-      'kravposter: kravet har ikke kravposten «P2» (OV-U23)',
+      'kravposter: kravet har ikke kravposten «P2»',
     ],
     [
       'samme kravpost to ganger',
@@ -8357,7 +8357,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
     expect(s.avvisning('TE', krav(tilbud(100000.405)))).toEqual({
       regel: 'UGYLDIG_FORM',
       melding:
-        '$.innhold.kravposter[0].beloep: 100000.405 har brøkdeler av øre; beløpet oppgis i kroner med høyst to desimaler (OV-U58)',
+        '$.innhold.kravposter[0].beloep: 100000.405 har brøkdeler av øre; beløpet oppgis i kroner med høyst to desimaler',
     });
     expect(s.avvist('TE', krav({ saerskilt: { produktivitet: { beloep: 40000.001 } } }))).toBe(
       'UGYLDIG_FORM'
@@ -8986,9 +8986,16 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
     );
   });
 
-  it('kontrollsak: med godkjent forhold og ingenting besvart står beløpet uten lag og uten forutsetninger', () => {
+  it('kontrollsak: med godkjent forhold og ingenting besvart står oppgjørsformen og beløpet uten lag og uten forutsetninger (#1925)', () => {
     const s = saken({ resultat: 'godkjent' });
     expect(lagene(s, {})).toEqual([
+      {
+        standpunkt: 'oppgjoersform',
+        besvart: false,
+        virkning: 1,
+        etikett: null,
+        forutsetninger: [],
+      },
       { standpunkt: 'beloep', besvart: false, virkning: 1, etikett: null, forutsetninger: [] },
     ]);
   });
@@ -9024,6 +9031,13 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
         forutsetninger: [{ grunn: 'avslaatt' }],
       },
       {
+        standpunkt: 'oppgjoersform',
+        besvart: false,
+        virkning: 3,
+        etikett: 'videre subsidiært',
+        forutsetninger: [{ grunn: 'avslaatt' }, { innsigelse: '34.1.2' }],
+      },
+      {
         standpunkt: 'beloep',
         besvart: false,
         virkning: 3,
@@ -9033,7 +9047,7 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
     ]);
   });
 
-  it('varselet etter § 34.1.2 i tide er uten virkning og ingen forutsetning for beløpet', () => {
+  it('varselet etter § 34.1.2 i tide er uten virkning og ingen forutsetning for beløpet, og oppgjørsformen står ubesvart (#1925)', () => {
     const s = saken({ resultat: 'godkjent' });
     expect(lagene(s, medP1({ hovedkrav_varslet_i_tide: true }, { vurdering: 'godkjent' }))).toEqual(
       [
@@ -9044,14 +9058,90 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
           etikett: null,
           forutsetninger: [],
         },
+        {
+          standpunkt: 'oppgjoersform',
+          besvart: false,
+          virkning: 1,
+          etikett: null,
+          forutsetninger: [],
+        },
         { standpunkt: 'beloep', besvart: true, virkning: 1, etikett: null, forutsetninger: [] },
       ]
     );
   });
 
+  // #1925: utfyllingen skjemaet gjorde selv, står i kjernen, og testen fastholder lagene slik
+  // skjemaet viste dem. Laget for oppgjørsformen står uansett svaret (OV-U33, LV-U31). Varselet
+  // etter § 34.3.3 og justeringen står med regelen regnet som godtatt, og justeringen i laget
+  // etter innsigelsen mot varselet (VS-U56).
+  it('i en kravpost etter justerte enhetspriser står oppgjørsformen, varselet etter § 34.3.3 og justeringen ubesvart, i lagene skjemaet viste, før de er besvart (OV-U33, VS-U56, #1925)', () => {
+    const s = saken(
+      { resultat: 'godkjent' },
+      {
+        vederlag: {
+          kravposter: [{ beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true }],
+        },
+      }
+    );
+    expect(lagene(s, { kravposter: [{ gjelder: 'P1' }] })).toEqual([
+      {
+        standpunkt: 'oppgjoersform',
+        besvart: false,
+        virkning: 1,
+        etikett: null,
+        forutsetninger: [],
+      },
+      {
+        standpunkt: 'rettidighet 34.3.3',
+        besvart: false,
+        virkning: 1,
+        etikett: 'prinsipalt',
+        forutsetninger: [],
+      },
+      {
+        standpunkt: 'justering',
+        besvart: false,
+        virkning: 2,
+        etikett: 'subsidiært',
+        forutsetninger: [{ innsigelse: '34.3.3' }],
+      },
+      { standpunkt: 'beloep', besvart: true, virkning: 1, etikett: null, forutsetninger: [] },
+    ]);
+  });
+
+  it('kontrollsak: med oppgjørsformen godtatt og varselet og justeringen besvart står de besvart (#1925)', () => {
+    const s = saken(
+      { resultat: 'godkjent' },
+      {
+        vederlag: {
+          kravposter: [{ beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true }],
+        },
+      }
+    );
+    expect(
+      lagene(s, {
+        kravposter: [
+          { gjelder: 'P1', aksepterer: true, varslet_i_tide: true, godtar_justering: true },
+        ],
+      }).map((l) => [l.standpunkt, l.besvart])
+    ).toEqual([
+      ['oppgjoersform', true],
+      ['rettidighet 34.3.3', true],
+      ['justering', true],
+      ['beloep', true],
+    ]);
+  });
+
   it('preklusjon etter § 32.2 og avslag står foran sporet i brevets rekkefølge (OV-U32)', () => {
     const s = saken({ resultat: 'avslaatt', grunnlag_varslet_i_tide: false }, { svikt: false });
     expect(lagene(s, {})).toEqual([
+      {
+        standpunkt: 'oppgjoersform',
+        besvart: false,
+        virkning: 3,
+        etikett: 'videre subsidiært',
+        forutsetninger: [{ grunn: 'prekludert' }, { grunn: 'avslaatt' }],
+      },
       {
         standpunkt: 'beloep',
         besvart: false,
@@ -9075,12 +9165,20 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
         x.forutsetninger,
       ])
     ).toEqual([
+      ['oppgjoersform', 2, [{ grunn: 'avslaatt' }]],
       ['beloep', 2, [{ grunn: 'avslaatt' }]],
       ['rettidighet 34.1.3', 2, [{ grunn: 'avslaatt' }]],
       ['beloep produktivitet', 3, [{ grunn: 'avslaatt' }, { innsigelse: '34.1.3' }]],
     ]);
     const s = saken({ resultat: 'godkjent', grunnlag_varslet_i_tide: true }, krav);
     expect(lagene(s, { produktivitet_varslet_i_tide: false })).toEqual([
+      {
+        standpunkt: 'oppgjoersform',
+        besvart: false,
+        virkning: 'upaavirket',
+        etikett: null,
+        forutsetninger: [],
+      },
       {
         standpunkt: 'beloep',
         besvart: false,
@@ -9115,6 +9213,7 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
     const l = lagene(s, { hovedkrav_varslet_i_tide: false, produktivitet_varslet_i_tide: false });
     expect(l.map((x) => [x.standpunkt, x.virkning, x.forutsetninger])).toEqual([
       ['rettidighet 34.1.2', 1, []],
+      ['oppgjoersform', 2, [{ innsigelse: '34.1.2' }]],
       ['beloep', 2, [{ innsigelse: '34.1.2' }]],
       ['rettidighet 34.1.3', 2, [{ innsigelse: '34.1.2' }]],
       ['beloep produktivitet', 3, [{ innsigelse: '34.1.2' }, { innsigelse: '34.1.3' }]],

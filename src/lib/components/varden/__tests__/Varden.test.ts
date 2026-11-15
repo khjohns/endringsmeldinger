@@ -75,6 +75,7 @@ beforeEach(() => vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Ing
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 describe('Varden med brukerforløpet BF-01', () => {
@@ -352,21 +353,34 @@ describe('Varden med brukerforløpet BF-01', () => {
     ]);
   });
 
-  it('«Forkast utkast» spør først, «Behold utkastet» lar valgene stå, og «Forkast» tømmer dem uten å sende (BF-01 S-8, #1391)', async () => {
+  it('«Forkast utkast» spør først i en dialog, «Behold utkastet» lar valgene stå, og «Forkast utkast» tømmer dem uten å sende (BF-01 S-8, #1391, #1925)', async () => {
+    // jsdom har ikke den modale dialogen.
+    vi.spyOn(HTMLDialogElement.prototype, 'showModal').mockImplementation(function (
+      this: HTMLDialogElement
+    ) {
+      this.setAttribute('open', '');
+    });
+    vi.spyOn(HTMLDialogElement.prototype, 'close').mockImplementation(function (
+      this: HTMLDialogElement
+    ) {
+      this.removeAttribute('open');
+      this.dispatchEvent(new Event('close'));
+    });
     const demosak = aapne('bh-har-mottatt-vederlagskravet');
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+    const forkast = screen.getByRole('button', { name: 'Forkast utkast' });
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Forkast utkast' }));
-    const spoersmaal = screen.getByRole('group', {
-      name: 'Forkaste utkastet? Valgene og begrunnelsen slettes.',
-    });
-    await fireEvent.click(within(spoersmaal).getByRole('button', { name: 'Behold utkastet' }));
+    await fireEvent.click(forkast);
+    const dialogen = within(screen.getByRole('dialog', { name: 'Forkaste utkastet?' }));
+    await fireEvent.click(dialogen.getByRole('button', { name: 'Behold utkastet' }));
     expect(screen.getByRole('radio', { name: 'Varslet for sent' })).toBeChecked();
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Forkast utkast' }));
+    expect(document.activeElement).toBe(forkast);
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Forkast utkast' }));
-    await fireEvent.click(screen.getByRole('button', { name: 'Forkast' }));
+    await fireEvent.click(forkast);
+    await fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Forkast utkast' })
+    );
     expect(screen.queryByRole('form')).toBeNull();
     const melding = screen.getByText('Utkastet er forkastet.');
     // Kvitteringen står i den levende regionen som finnes før meldingen kommer.

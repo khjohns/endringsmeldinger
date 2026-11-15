@@ -59,7 +59,10 @@ export const KONTROLLER_I_FRISTEN = {
   },
 } satisfies Sporskontroller;
 
-/** VS-U19, VS-U33: forespørselen sendes før TE har krevd dager i appen. */
+/**
+ * VS-U19, VS-U33: forespørselen sendes før TE har krevd dager i appen, ikke etter TEs begrunnelse
+ * (VS-U30), og høyst én gang fra appen (VS-U31).
+ */
 function kontrollerForesporslene(
   foresporsler: readonly Utsagn<'foresporsel'>[],
   fristkravIAppen: readonly Krav[],
@@ -69,11 +72,11 @@ function kontrollerForesporslene(
 ): void {
   for (const f of foresporsler)
     if (fristkravIAppen.some((k) => bakover(f.id, k.id)))
-      ugyldig(f.id, 'forespørselen etter § 33.6.2 står etter et fristkrav (VS-U19)');
+      ugyldig(f.id, 'forespørselen etter punkt 33.6.2 står etter et fristkrav');
     else if (henvisninger.some((x) => x.art === 'foresporselssvar' && bakover(f.id, x.id)))
-      ugyldig(f.id, 'forespørselen etter § 33.6.2 står etter TEs begrunnelse (VS-U30)');
+      ugyldig(f.id, 'forespørselen etter punkt 33.6.2 står etter totalentreprenørens begrunnelse');
     else if (f !== foresporsler[0])
-      ugyldig(f.id, 'saken har alt en forespørsel etter § 33.6.2 fra appen (VS-U31)');
+      ugyldig(f.id, 'saken har alt en forespørsel etter punkt 33.6.2 sendt herfra');
 }
 
 /**
@@ -92,11 +95,11 @@ function kontrollerSvaretPaaForesporselen(
   for (const k of kravMedUten.values()) {
     if (k.gjelder === undefined) continue;
     if (elementer[k.gjelder]?.art !== 'foresporsel' || !bakover(k.id, k.gjelder))
-      ugyldig(k.id, 'fristkravet viser ikke til en forespørsel etter § 33.6.2 før kravet');
+      ugyldig(k.id, 'fristkravet viser ikke til en forespørsel etter punkt 33.6.2 før kravet');
     else if (!fristkravIAppen.includes(k))
-      ugyldig(k.id, 'et registrert krav svarer ikke på forespørselen etter § 33.6.2 (OV-U4)');
+      ugyldig(k.id, 'et registrert krav svarer ikke på forespørselen etter punkt 33.6.2');
     else if (!besvart.some((f) => f.foresporsel === k.gjelder && f.svar === k.id))
-      ugyldig(k.id, 'fristkravet viser til en forespørsel etter § 33.6.2 som alt er besvart');
+      ugyldig(k.id, 'fristkravet viser til en forespørsel etter punkt 33.6.2 som alt er besvart');
   }
   for (const k of fristkravIAppen)
     if (
@@ -105,7 +108,7 @@ function kontrollerSvaretPaaForesporselen(
         (f) => bakover(k.id, f.foresporsel) && (f.svar === null || !bakover(k.id, f.svar))
       )
     )
-      ugyldig(k.id, 'fristkravet viser ikke til forespørselen etter § 33.6.2 det svarer på');
+      ugyldig(k.id, 'fristkravet viser ikke til forespørselen etter punkt 33.6.2 det svarer på');
 }
 
 /**
@@ -285,9 +288,10 @@ export function fristeneStrider(
     const rad = id ?? sto;
     const kjent = rad === undefined ? undefined : sist.get(rad);
     if (kjent?.frist_id !== undefined && p.frist_id !== kjent.frist_id)
-      return `bytter den registrerte fristen ${betegnelsen(kjent)} med en annen frist (KA-U79)`;
+      return `bytter den registrerte fristen ${betegnelsen(kjent)} med en annen frist`;
+    // KA-U76: en frist som har stått i sporet, beholder raden sin.
     if (id !== undefined && sto !== undefined && sto !== id)
-      return `gir fristen ${omtalen(p)} en ny rad, men den har stått i sporet før (KA-U76)`;
+      return `gir fristen ${omtalen(p)} en ny rad, men den har stått i sporet før`;
     if (rad === undefined) continue;
     if (med.has(rad)) return `har fristen ${omtalen(p)} to ganger`;
     med.add(rad);

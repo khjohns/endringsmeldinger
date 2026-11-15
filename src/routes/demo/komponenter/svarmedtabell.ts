@@ -3,6 +3,7 @@
  * tilfellet i `kjerne/tester/brevtekst.test.ts` («det særskilte kravet etter § 34.1.3 annet
  * ledd»), som i prototypen `godkjenning-vederlagssvar.html`. Begrunnelsene er eksempler.
  */
+import { FORBEHOLDET, INNLEDNINGEN } from '$kjerne/frosset/tekst';
 import type { Avsnitt } from '$kjerne/typer';
 
 const kr = (n: string) => `${n.replace(/ /g, '\u00a0')}\u00a0kr`;
@@ -11,7 +12,7 @@ const sub = 'Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem';
 export const SVAR_MED_TABELL: Avsnitt[] = [
   {
     gjelder: 's',
-    punkt: 'innledning',
+    punkt: INNLEDNINGEN,
     laast:
       'Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-05 av 20. oktober 2026. Beløpene i brevet er eks. mva.',
   },
@@ -66,7 +67,7 @@ export const SVAR_MED_TABELL: Avsnitt[] = [
   },
   {
     gjelder: 's',
-    punkt: 'forbehold',
+    punkt: FORBEHOLDET,
     overskrift: '7. Forbehold',
     laast:
       '7. Forbehold\n\nByggherren har ennå ikke svart på totalentreprenørens påberopelse av uforutsette forhold ved grunnen i brev K201-KOE-017-01 av 2. oktober 2026. Standpunktene ovenfor gjelder under forutsetning av at forholdet gir grunnlag for kravet.',

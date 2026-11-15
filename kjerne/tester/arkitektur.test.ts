@@ -883,6 +883,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/kommando.ts',
     ],
   ],
+  // KA-U68, OV-U95 punkt 1 og 5: justerte enhetspriser og den andre beregningsregelen, for
+  // utfyllingen av lagene i et svarutkast (#1925).
+  ['Kravpost', 'utsagn', 'justert', ['spor/vederlag/format.ts:justerteEnhetspriser']],
+  [
+    'spor/vederlag/format.ts',
+    'predikat',
+    'justerteEnhetspriser denAndreRegelen',
+    ['spor/vederlag/kommando.ts'],
+  ],
   // KA-U64: varselet en kravpost trenger, for standpunktet til varselet i svaret.
   ['spor/vederlag/utledning.ts', 'predikat', 'varselhjemmel', ['spor/vederlag/kommando.ts']],
   // KA-U57 (d), KA-U54: hjemmelen i standpunktet til oppgjørsformen etter TEs oppgjørsform.
@@ -927,7 +936,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'gjelder vurdering godkjent_beloep aksepterer oensket_oppgjoersform krever_tilbud varslet_i_tide godtar_justering',
   ],
-  ['spor/vederlag/kommando.ts:besvart', 'utsagn', 'saerskilt gjelder'],
+  // #1925: standpunktet og laget utfyllingen gir det, i lagene i et svarutkast på vederlaget.
+  ['spor/vederlag/kommando.ts:lagIUtfyllingen', 'relasjon', 's lag'],
   // OV-U32, OV-U33: plassen hvert standpunkt har i det frosne brevet, som postlisten og
   // visningen leser.
   [
@@ -2247,6 +2257,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
   ['frosset/tekst.ts', 'brevtekst', 'OVERSIKTEN FORBEHOLDET', ['frosset/brevtekst.ts']],
+  [
+    'frosset/tekst.ts',
+    'brevtekst',
+    'INNLEDNINGEN',
+    ['frosset/brevtekst.ts', 'spor/frist/tekst.ts', 'spor/vederlag/tekst.ts'],
+  ],
   ['frosset/tekst.ts', 'brevtekst', 'dager', ['spor/frist/tekst.ts']],
   ['frosset/tekst.ts', 'brevtekst', 'kroner', ['frosset/brevdeler.ts', 'frosset/brevtekst.ts']],
   // Oppslaget i sporet for en rolle, og virkningen av et standpunkt (#1783).

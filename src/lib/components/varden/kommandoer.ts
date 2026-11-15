@@ -16,7 +16,7 @@ import { KRAVINNHOLD } from '$kjerne/format/format';
 import { oppgittDato } from '$kjerne/spor/forhold/format';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { lesKroner } from '$lib/utils/belop';
-import { kravposterI } from '$kjerne/spor/vederlag/format';
+import { justerteEnhetspriser, kravposterI } from '$kjerne/spor/vederlag/format';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
@@ -87,14 +87,6 @@ export const regelen = (post: Kravpost): Regel | null =>
 /** Kravposten følger en beregningsregel, enhetspriser eller regningsarbeid, og har ikke et krevd beløp (KA-U66). */
 export const etterRegel = (post: Kravpost): boolean => regelen(post) !== null;
 
-/** Den andre beregningsregelen, som byggherren kan mene (OV-U95 punkt 1 og 5). */
-export const denAndreRegelen = (r: Regel): Regel =>
-  r === 'enhetspriser' ? 'regningsarbeid' : 'enhetspriser';
-
-/** Kravposten krever justerte enhetspriser (§ 34.3.2, KA-U68). */
-export const justerte = (post: Kravpost): boolean =>
-  post.oppgjoersform === 'enhetspriser' && post.justert === true;
-
 /**
  * Skjemaet spør om beløpet bare for en kravpost med fast sum, og bare når BH ikke mener en annen
  * oppgjørsform (KA-U66, KA-U72). Valget for beløpet står likevel, så det er der igjen om BH
@@ -120,7 +112,7 @@ export const spoerOmTilbud = (p: Postvalg, post: Kravpost): boolean =>
  * (KA-U64, VS-U63).
  */
 export const spoerOmVarselet = (p: Postvalg, post: Kravpost): boolean =>
-  justerte(post) || (post.oppgjoersform === 'regningsarbeid' && p.form === 'godtar');
+  justerteEnhetspriser(post) || (post.oppgjoersform === 'regningsarbeid' && p.form === 'godtar');
 
 /** Om BH har tatt stilling til oppgjørsformen: godtar, mener en annen eller krever tilbud. */
 export const formBesvart = (p: Postvalg, post: Kravpost): boolean =>
@@ -168,7 +160,7 @@ function kravpostsvaret(post: Kravpost, p: Postvalg) {
       varslet === null || (post.oppgjoersform === 'regningsarbeid' && varslet)
         ? undefined
         : varslet,
-    godtar_justering: justerte(post) ? (p.godtarJustering ?? undefined) : undefined,
+    godtar_justering: justerteEnhetspriser(post) ? (p.godtarJustering ?? undefined) : undefined,
   });
 }
 
@@ -313,27 +305,4 @@ export function nyVersjonAvPaaberopelsen(u: Utledning, tekst: string) {
     innhold,
     ...(utdypning ? { utdypning } : {}),
   };
-}
-
-/**
- * Utkastet kjernen regner lagene for beløpet av (#1400, S1-A og S2-A). En kravpost med fast sum
- * uten valgt oppgjørsform står uten den, siden kjernen ikke forstår en avslått metode uten ønsket
- * metode. En kravpost etter en beregningsregel uten svar på oppgjørsformen står med regelen
- * godtatt, fordi beløpet for den bare har et lag når standpunktet til regelen er der (#1756,
- * punkt 1). De andre kravpostene beholder sitt eget svar på oppgjørsformen (KA-U57).
- */
-export function utkastForBeloepet(utkast: Svarutkast, v: Svarvalg, krav: Krav): Svarutkast {
-  const ubesvarte = new Map(
-    kravposterI(krav)
-      .filter((p) => !formBesvart(postvalget(v, p.betegnelse), p))
-      .map((p) => [p.id as unknown, p])
-  );
-  const vurderte = (utkast.vurderinger.kravposter ?? []) as Record<string, unknown>[];
-  const kravposter = vurderte.map((p) => {
-    const post = ubesvarte.get(p.gjelder);
-    if (!post) return p;
-    if (etterRegel(post)) return { ...p, aksepterer: true };
-    return { gjelder: p.gjelder, vurdering: p.vurdering, godkjent_beloep: p.godkjent_beloep };
-  });
-  return { ...utkast, vurderinger: { ...utkast.vurderinger, kravposter } };
 }
