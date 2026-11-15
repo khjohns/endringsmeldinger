@@ -3906,7 +3906,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       const s = sak();
       s.send('TE', PAABEROPELSE);
       const dag = s.send('BH', foresporsel).tidsstempel.slice(0, 10);
-      const { varsel: _varsel, utdypning: _utdypning, ...krav } = FRISTKRAV;
+      const krav = utenFelt(utenFelt(FRISTKRAV, 'varsel'), 'utdypning');
       return s.avvist('TE', {
         ...krav,
         sendt: sendt(dag),
