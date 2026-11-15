@@ -33,6 +33,8 @@
     handlingVed = null,
     handling,
     brevet,
+    oeverst,
+    nederst,
   }: {
     /** Brevene i tråden i rekkefølgen i journalen (`brevITraaden`). Tråden viser dem nyest først. */
     brev: Brevet[];
@@ -61,6 +63,10 @@
     handling?: Snippet;
     /** Brevet slik det ble sendt, i raden. */
     brevet?: Snippet<[Brevet]>;
+    /** Det siden viser først under hodet på brevet, som beløpet i et krav (U-12 i BF-44). */
+    oeverst?: Snippet<[Brevet]>;
+    /** Det siden viser sist under brevet, over handlingen, som akseptfristen (U-11 i BF-44). */
+    nederst?: Snippet<[Brevet]>;
   } = $props();
   const uid = $props.id();
 
@@ -119,6 +125,7 @@
             {:else}
               <Knapp
                 variant="lenke"
+                kompakt
                 aria-label={TRAADEN.knappenavn(valgt ? TRAADEN.lukk : TRAADEN.les, b, hva)}
                 aria-expanded={smal ? valgt : undefined}
                 data-les={b.id}
@@ -128,8 +135,9 @@
           {/if}
         </span>
       </div>
-      {#if registrert || i || b.vedlegg.length}
+      {#if registrert || i || b.vedlegg.length || oeverst || nederst}
         <div class="innhold">
+          {@render oeverst?.(b)}
           {#if registrert}
             <p class="datolinje">{TRAADEN.registrert(b.avsender, b.sendt, b.registrert)}</p>
           {/if}
@@ -202,6 +210,7 @@
               {/each}
             </ul>
           {/if}
+          {@render nederst?.(b)}
         </div>
       {/if}
       {#if valgt && smal && brevet}<div class="brevplass">{@render brevet(b)}</div>{/if}
@@ -323,18 +332,6 @@
     font-size: 12px;
     color: var(--ink-3);
     white-space: nowrap;
-  }
-  /* Lenken står på linja med 24 px høyde, og treffflaten går utover den (WCAG 2.5.8). */
-  .meta :global(.knapp) {
-    position: relative;
-    min-height: 24px;
-    padding: 0;
-    font-size: 14px;
-  }
-  .meta :global(.knapp)::after {
-    content: '';
-    position: absolute;
-    inset: -10px -4px;
   }
   /* Lenkeknappen står i flukt med teksten over; luften til siden er treffflate. */
   .datolinje :global(.knapp) {

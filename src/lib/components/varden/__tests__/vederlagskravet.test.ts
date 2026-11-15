@@ -109,3 +109,18 @@ describe('vederlagskravet', () => {
     expect((k.innhold.kravposter as unknown[]).length).toBe(1);
   });
 });
+
+describe('trekket av den særskilte vederlagsjusteringen (KA-U83)', () => {
+  it('kravet trekker posten når TE har trukket den, og ellers ikke (kontrollsak)', () => {
+    const v = { ...valg(), trekkerSaerskilt: true };
+    expect(vederlagskravet(v, [null, null]).innhold).toMatchObject({
+      trekker_saerskilt: ['produktivitet'],
+    });
+    expect(vederlagskravet(valg(), [null, null]).innhold).not.toHaveProperty('trekker_saerskilt');
+  });
+
+  it('tar TE med posten igjen, trekkes den ikke', () => {
+    const v = { ...valg(), trekkerSaerskilt: true, saerskilt: { beloep: '40 000' } };
+    expect(vederlagskravet(v, [null, null]).innhold).not.toHaveProperty('trekker_saerskilt');
+  });
+});

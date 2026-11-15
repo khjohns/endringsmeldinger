@@ -16,6 +16,7 @@ import type { Kravpost, Oppgjoersform, Part, Spor, Standpunkt } from '$kjerne/ty
 import { OPPGJOERSHJEMMEL } from '$kjerne/spor/vederlag/format';
 import type { Regel } from './kommandoer';
 import type { Brevet, Brevref, OppgittDato, Standpunktet } from './lesing';
+import type { Innsigelsen, Laget } from './vederlagsoversikt';
 
 export const SPORNAVN: Record<Spor, string> = {
   forhold: 'Forholdet',
@@ -523,7 +524,7 @@ export const MOTTATT = {
  */
 export const BREVTYPER: { type: string; tekst: string }[] = [
   { type: 'svare', tekst: 'Svar på kravet' },
-  { type: 'revidere', tekst: 'Send revidert svar' },
+  { type: 'revidere', tekst: 'Send nytt svar' },
   { type: 'godta', tekst: 'Godta svaret' },
   { type: 'krav', tekst: 'Send ny versjon av kravet' },
   { type: 'sende_varsel', tekst: 'Send varsel' },
@@ -565,6 +566,9 @@ export const HANDLINGENE = {
             ? 'Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for.'
             : 'Utdyp beskrivelsen og begrunnelsen. Byggherren svarer på nytt.',
     reviderKrav: 'Juster kravet eller begrunnelsen. Byggherren svarer på nytt.',
+    /** Et nytt krav i vederlaget avslår tilbudet i svaret (OV-U54, D-6 i BF-44). */
+    avslaarTilbudet: (krav: Brevref) =>
+      `Et nytt krav følger opp kravet i ${brevref(krav)} og avslår tilbudet i svaret. Svaret kan da ikke godtas.`,
     /**
      * En ny kravversjon er den byggherren svarer på, og sporet venter på nytt svar. Teksten sier
      * hvilket brev det nye følger opp, ikke hva brevene sier i forhold til hverandre, og «brev»,
@@ -583,6 +587,9 @@ export const HANDLINGENE = {
     // kan ikke tas opp igjen (GR-U5).
     trekkForholdet: 'Trekker også kravene om vederlag og frist. Kan ikke tas opp igjen.',
     trekkKravet: 'Kravet kan ikke tas opp igjen.',
+    /** Etter byggherrens svar gir trekket også avkall på det byggherren har godkjent (prototypen v3). */
+    trekkKravetEtterSvar:
+      'Du gir avkall på hele kravet, også det byggherren har godkjent. Kravet kan ikke tas opp igjen.',
     /** Byggherrens nye svar (U-16 i BF-44). */
     nyttSvar: (svar: Brevref) =>
       `Nytt brev med svaret. Svaret i ${brevref(svar)} står som det ble sendt.`,
@@ -789,8 +796,9 @@ export const TRAADEN = {
   fulgtOpp: (b: Brevref) => ` · fulgt opp i ${brevref(b)}`,
   /** Avsenderen for skjermleseren, som ser ringen uten tekst (oppdragsgiver 13.11). */
   fra: (part: Part) => ` fra ${PARTEN[part]}`,
-  les: 'Les brevet',
-  lukk: 'Lukk brevet',
+  // Samme tekst som ved brevet i skjemaene, med én kilde (#1909).
+  les: SKJEMA.lesBrevetHer,
+  lukk: SKJEMA.lukkBrevet,
   vises: 'Vises til høyre',
   knappenavn: (tekst: string, b: Pick<Brevet, 'nummer'>, hva: string) =>
     `${tekst}: ${b.nummer === null ? hva : `brev ${b.nummer}, ${hva}`}`,
@@ -939,6 +947,8 @@ export const SAKEN = {
   dokumentasjonIkkeSendt: 'Saken har dokumentasjon som er registrert, men ikke sendt herfra.',
   /** Lenkene som gjelder hele prosjektet, i topplinja (oppdragsgiver 13.11, #1899). */
   nyttKrav: 'Nytt krav om endringsordre',
+  iCatenda: 'Åpne saken i Catenda',
+  akseptfrist: (frist: string) => `Akseptfrist ${dato(frist)}`,
   ikkeTilgjengelig: 'Dette er ikke bygget i denne prøven av Varden ennå.',
 };
 
@@ -1224,6 +1234,9 @@ export const KRAVSKJEMA = {
   saerskiltHjelp: 'Fast sum, eks. mva.',
   leggTilSaerskilt: 'Legg til særskilt vederlagsjustering',
   fjernSaerskilt: 'Fjern den særskilte vederlagsjusteringen',
+  trekkSaerskilt: 'Trekk den særskilte vederlagsjusteringen',
+  saerskiltEneste:
+    'Den særskilte vederlagsjusteringen er den eneste posten i kravet. Vil du ikke lenger kreve den, trekker du kravet på siden for vederlaget.',
   // 3. Varslene (prototype v4).
   varslene: 'Varslene',
   varsleneIntro:
@@ -1500,4 +1513,99 @@ export const FRISTKRAV = {
     'Kravet er også varselet etter punkt 33.4. Varsles det for sent, tapes kravet på fristforlengelse.',
   virkningNyVersjon: (svar: Brevref) =>
     `Etter at den nye versjonen er sendt, kan svaret i ${brevref(svar)} ikke godtas, og byggherren er ikke lenger bundet av det.`,
+};
+
+/** Hva hver oppgjørsform heter i en tabellcelle, med «pkt.» der hjemmelen står (OV-U75). */
+const OPPGJOERSFORMEN: Record<Oppgjoersform, string> = {
+  tilbud: 'Tilbud om fast sum (pkt. 34.2.1)',
+  enhetspriser: 'Enhetspriser (pkt. 34.3)',
+  regningsarbeid: 'Regningsarbeid (pkt. 34.4)',
+};
+
+/** Siden for vederlaget (BF-44, prototypen `vederlagsoversikt.html` v3, oppsett B). */
+export const VEDERLAGET = {
+  tittel: 'Vederlagsjustering',
+  hjemmel: 'pkt. 34',
+  kortet: 'Kravet og svaret',
+  /** Brevene kortet leser kravet og svaret av (U-2). */
+  kilde: (krav: Brevref, svar: Brevref | null) =>
+    svar ? `Kravet i ${brevref(krav)} og svaret i ${brevref(svar)}` : `Kravet i ${brevref(krav)}`,
+  krever: 'Totalentreprenøren krever',
+  godkjenner: 'Byggherren godkjenner',
+  ikkeSvart: 'Byggherren har ikke svart på dette kravet.',
+  /** Beløpet i et krav ved brevet i tråden (U-12). */
+  kravbeloep: (beloep: number) => `${kroner(beloep)}.`,
+  /** Innsigelsen et senere lag gjelder hvis ikke fører frem (U-2), med brevets ord. */
+  innsigelsen: (i: Innsigelsen) =>
+    i.art === 'grunn'
+      ? SKJEMA.grunnen(i.grunn, i.brev)
+      : `innsigelsen om varselet etter punkt ${i.hjemmel}`,
+  /** Vilkåret ved beløpet i et lag: «Hvis innsigelsen … ikke fører frem» (U-2, LV-U4 punkt 4). */
+  vilkaar: (innsigelser: string[], heller: boolean) =>
+    heller
+      ? `Hvis heller ikke ${liste(innsigelser)} fører frem`
+      : `Hvis ${liste(innsigelser)} ikke fører frem`,
+  /** Et standpunkt et lag bygger på, med brevet med varselet en påberopelse gjelder. */
+  standpunkt: (s: Standpunkt, varselbrev: Brevref | null) =>
+    s.art === 'rettidighet' && !s.iTide && varselbrev && s.hjemmel !== '34.4'
+      ? `Byggherren gjør gjeldende at varselet etter punkt ${s.hjemmel} i ${brevref(varselbrev)} kom for sent` +
+        (s.begrenset !== undefined
+          ? `, og godkjenner ${kroner(s.begrenset)} etter begrensningen`
+          : '')
+      : standpunkttekst(s, false),
+  /** Vilkåret og det laget bygger på, i én setning ved beløpet (U-2). */
+  laget: (l: Laget): string => {
+    const grunnlag = [
+      ...l.grunner.map((g) => grunntekst(g.grunn, false, g.brev)),
+      ...l.standpunkter.map((s) => VEDERLAGET.standpunkt(s.standpunkt, s.brev)),
+    ]
+      .map((t, i) => (i ? liten(t) : t))
+      .join(', og ');
+    const vilkaar = l.vilkaar.length
+      ? VEDERLAGET.vilkaar(l.vilkaar.map(VEDERLAGET.innsigelsen), l.lag > 2)
+      : null;
+    if (vilkaar && grunnlag) return `${vilkaar}: ${grunnlag}.`;
+    return vilkaar || grunnlag ? `${vilkaar ?? grunnlag}.` : '';
+  },
+  /** Hva som skiller svaret fra kravet om ingen av innsigelsene fører frem (U-2). */
+  skiller: (beloep: number, flereLag: boolean) =>
+    flereLag
+      ? `Om ingen av byggherrens innsigelser fører frem, skiller ${kroner(beloep)} svaret fra kravet.`
+      : `${stor(kroner(beloep))} skiller svaret fra kravet.`,
+  eksMva: 'Beløpene er eks. mva.',
+  perPost: 'Per post',
+  post: 'Post',
+  krevd: 'Krevd',
+  oppgjoersform: (f: Oppgjoersform | null) =>
+    f === null ? 'Nedsatt produktivitet · tilbud om fast sum' : OPPGJOERSFORMEN[f],
+  /** Forbeholdet etter GR-U34, som svaret ble sendt med, og stillingen i forholdet nå (U-3, D-3). */
+  forbehold: (svar: Brevref, forholdssvar: Brevref | null) =>
+    `Svaret i ${brevref(svar)} gis under forutsetning av at forholdet gir grunnlag for kravet. ` +
+    (forholdssvar
+      ? `Byggherren har senere svart på forholdet i ${brevref(forholdssvar)}.`
+      : 'Svar på forholdet er ikke registrert.'),
+  tilForholdet: 'Gå til forholdet',
+  /** Regningsarbeid som liste, uten tabell (U-13). */
+  regning: {
+    oppgjoersform: 'Oppgjørsform',
+    regningsarbeid: 'Regningsarbeid etter punkt 34.4.',
+    godkjent: (svar: Brevref) => `Byggherren godkjenner regningsarbeid i ${brevref(svar)}.`,
+    ikkeGodkjent: (svar: Brevref) =>
+      `Byggherren godkjenner ikke regningsarbeid i ${brevref(svar)}.`,
+    varsel: 'Varsel før arbeidet',
+    varselet: (b: Brevref) => `${brevrefStor(b)}, ${dato(b.registrert)} (pkt. 34.4 første ledd)`,
+    overslag: 'Kostnadsoverslag',
+    overslaget: (beloep: number, krav: Brevref) =>
+      `${kroner(beloep)} ifølge totalentreprenøren i ${brevref(krav)}, ${dato(krav.registrert)}`,
+  },
+  /** Akseptfristen over handlingene ved byggherrens svar (U-11, U-16, HF-U23 punkt 4). */
+  akseptfrist: 'Akseptfrist:',
+  /** Datoen TE oppgir, og avstanden til varselet, uten vurdering av fristen (U-8, MM-U50). */
+  klarOver: (d: string, brev: Brevref, dager: number) =>
+    `Totalentreprenøren ble klar over forholdet ${dato(d)}, ifølge ${brevref(brev)}.` +
+    (dager < 0
+      ? ''
+      : dager === 0
+        ? ' Varselet i dette brevet kom samme dag.'
+        : ` Varselet i dette brevet kom ${dager} ${dager === 1 ? 'kalenderdag' : 'kalenderdager'} etter.`),
 };

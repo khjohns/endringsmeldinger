@@ -54,6 +54,7 @@ async function svarskjemaet() {
       visning: null as never,
       journal: journal.map(linje),
       leveringsoppdrag: [],
+      catenda_lenke: null,
       merking: MERKING,
     }),
   });

@@ -51,6 +51,7 @@ async function kravskjemaet(journal: Journalrad[], fristdatoer: typeof FRISTDATO
       visning: null as never,
       journal: journal.map(linje),
       leveringsoppdrag: [],
+      catenda_lenke: null,
       merking: { ...MERKING, kontraktsfrister: FRISTTABELLEN, fristdatoer },
     }),
     send: async (_sak, versjon, _id, kommando) => {

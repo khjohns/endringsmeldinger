@@ -28,6 +28,7 @@
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Filvalg from './Filvalg.svelte';
+  import { medietreff } from './medie.svelte';
   import Knapp from './Knapp.svelte';
   import Kravpunkter from './Kravpunkter.svelte';
   import Melding from './Melding.svelte';
@@ -205,6 +206,20 @@
     v.saerskilt = { beloep: '' };
     await aapneSaerskilt();
   }
+  // KA-U83: posten fra forrige versjon trekkes, og trekket kan angres med beløpet den hadde.
+  async function trekkSaerskilt() {
+    v.saerskilt = null;
+    v.trekkerSaerskilt = true;
+    saerskiltAapen = false;
+    await tick();
+    document.getElementById(id('angre-saerskilt'))?.focus();
+  }
+  async function angreSaerskilt() {
+    v.trekkerSaerskilt = false;
+    v.saerskilt = startvalg(u).saerskilt;
+    await tick();
+    document.getElementById(id('endre-saerskilt'))?.focus();
+  }
   async function fjernSaerskilt() {
     v.saerskilt = null;
     saerskiltAapen = false;
@@ -331,7 +346,10 @@
     ...(v.saerskilt ? [KRAVSKJEMA.denSaerskilte] : []),
   ]);
   const regel = $derived(med.filter((p) => p.form && p.form !== 'tilbud').map(navnet));
-  const trekkes = $derived(v.poster.filter((p) => p.trukket).map(navnet));
+  const trekkes = $derived([
+    ...v.poster.filter((p) => p.trukket).map(navnet),
+    ...(v.trekkerSaerskilt && !v.saerskilt ? [KRAVSKJEMA.denSaerskilte] : []),
+  ]);
   const hvaKravetEr = $derived([
     ...(tilbud.length ? [KRAVSKJEMA.tilbudet(tilbud)] : []),
     ...(regel.length ? [KRAVSKJEMA.regelen(regel)] : []),
@@ -512,15 +530,8 @@
   }
 
   // Brevet leses ved siden av skjemaet, og på smal skjerm i skjemaet (`Vederlagssvar`).
-  let smal = $state(false);
-  $effect(() => {
-    if (typeof window.matchMedia !== 'function') return;
-    const mq = window.matchMedia('(max-width: 1180px)');
-    const sett = () => (smal = mq.matches);
-    sett();
-    mq.addEventListener('change', sett);
-    return () => mq.removeEventListener('change', sett);
-  });
+  const smalt = medietreff('(max-width: 1180px)');
+  const smal = $derived(smalt.treff);
   let leser = $state(false);
   $effect(() => {
     onvedsiden?.(leser && !smal);
@@ -988,12 +999,28 @@
           {#if feil('saerskilt') && !saerskiltAapen}
             <p class="feilmelding">{feil('saerskilt')}</p>
           {/if}
-          <!-- Under posten, som i prototype v4. En post fra forrige krav kan ikke tas ut uten et trekk kjernen ennå ikke har (#1823 punkt 6). -->
+          <!-- Under posten, som i prototype v4. En post fra forrige krav trekkes (KA-U83). Er den
+               den eneste posten, avviser kjernen trekket, og kravet trekkes i stedet. -->
           {#if !forrige || krevdProduktivitet(forrige) === null}
             <div class="saerskilt-fjern">
               <Knapp variant="lenke" onclick={fjernSaerskilt}>{KRAVSKJEMA.fjernSaerskilt}</Knapp>
             </div>
+          {:else if med.length}
+            <div class="saerskilt-fjern">
+              <Knapp variant="lenke" onclick={trekkSaerskilt}>{KRAVSKJEMA.trekkSaerskilt}</Knapp>
+            </div>
+          {:else}
+            <p class="intro">{KRAVSKJEMA.saerskiltEneste}</p>
           {/if}
+        </section>
+      {:else if v.trekkerSaerskilt}
+        <section class="seksjon kompakt">
+          <p>{KRAVSKJEMA.trekket(KRAVSKJEMA.denSaerskilte)}</p>
+          <div>
+            <Knapp variant="lenke" id={id('angre-saerskilt')} onclick={angreSaerskilt}
+              >{KRAVSKJEMA.angreTrekk(KRAVSKJEMA.denSaerskilte)}</Knapp
+            >
+          </div>
         </section>
       {:else}
         <section class="seksjon kompakt">
@@ -1516,7 +1543,7 @@
     top: var(--spacing-4);
     display: flex;
     flex-direction: column;
-    max-height: calc(100dvh - var(--mockup-topbar-height) - var(--spacing-10));
+    max-height: calc(100dvh - 2 * var(--spacing-4));
     background: var(--surface);
     border: var(--rule);
     border-radius: var(--r-kort);

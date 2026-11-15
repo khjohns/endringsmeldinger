@@ -2,43 +2,253 @@
   "id": "BF-44",
   "tittel": "Partene ser stillingen i vederlaget",
   "brukerhistorie": "TE og BH åpner siden for vederlagsjusteringen og ser kravet som gjelder, byggherrens svar med lagene og summen i hvert lag, forbeholdet om at forholdet ikke er besvart, brevene med vedlegg og datoene. TE ser hva det betyr å godta svaret før TE godtar det, og begge ser hva de kan gjøre nå og et påbegynt utkast.",
-  "status": "planlagt",
+  "status": "kjørbar",
   "utgangspunkt": {
     "start": null,
     "beskrivelse": "TE har påberopt forholdet i brev 2 uten svar, krevd vederlag i brev 3 og på nytt i brev 5 med særskilt vederlagsjustering, og byggherren har svart i brev 6 med tre lag og akseptfrist."
   },
-  "bestilling": "BF-44.md",
-  "kilder": [
-    "MM-U50",
-    "OV-U31",
-    "OV-U73",
-    "OV-U32",
-    "LV-U37",
-    "LV-U33",
-    "GR-U34",
-    "KA-U1",
-    "GR-U7",
-    "GR-U8",
-    "HF-U23",
-    "OV-U54",
-    "KA-U51",
-    "MM-U48",
-    "OV-U44",
-    "OV-U81",
-    "LV-U14",
-    "EO-U13",
-    "KA-U62",
-    "MM-U40",
-    "OV-U87",
-    "OV-U75"
+  "steg": [
+    {
+      "handling": "krav",
+      "spor": "forhold",
+      "hovedkategori": "svikt",
+      "underkategori": "prosjektering",
+      "navn": "K-g1",
+      "utdypning": "Peletegningene viser en pelelengde som ikke lar seg gjennomføre i grunnforholdene på tomta."
+    },
+    {
+      "handling": "krav",
+      "spor": "vederlag",
+      "belop": 125000,
+      "navn": "K-v1"
+    },
+    {
+      "handling": "krav",
+      "spor": "vederlag",
+      "kravposter": [
+        {
+          "post": "P1",
+          "belop": 150000
+        }
+      ],
+      "produktivitet": 40000,
+      "navn": "K-v2"
+    },
+    {
+      "handling": "brev",
+      "navn": "D4",
+      "svar": [
+        {
+          "spor": "vederlag",
+          "navn": "S-v1",
+          "varslet_i_tide": false,
+          "kravposter": [
+            {
+              "post": "P1",
+              "vurdering": "delvis",
+              "godkjent_belop": 100000
+            }
+          ],
+          "produktivitet": {
+            "vurdering": "delvis",
+            "godkjent_belop": 30000,
+            "varslet_i_tide": false,
+            "begrenset_belop": 10000
+          },
+          "akseptfrist": "2026-10-15",
+          "utdypning": "Varselet etter punkt 34.1.2 kom for sent. Subsidiært kom også varselet etter punkt 34.1.3 for sent for den særskilte vederlagsjusteringen. Kalkylen for pelingen er gjennomgått, og 100 000 kr er dokumentert."
+        }
+      ]
+    },
+    {
+      "handling": "registrert_brev",
+      "part": "BH",
+      "sporene": [
+        "vederlag"
+      ],
+      "sendt": "2026-09-30",
+      "korrespondansetype": "e_post",
+      "beskrivelse": "Avklaring om mengdene i akse C–F",
+      "navn": "R1"
+    }
   ],
+  "kontrollpunkter": [
+    {
+      "id": "bh-har-mottatt-kravet",
+      "etter": 3,
+      "beskrivelse": "TE har påberopt forholdet uten svar, krevd 125 000 kr og så 190 000 kr med en særskilt vederlagsjustering på 40 000 kr. Byggherren har ikke svart på kravet.",
+      "kontrollsett": [
+        {
+          "sett": "bh_har_mottatt_krav",
+          "med": {
+            "spor": "vederlag",
+            "krav": "K-v2"
+          }
+        }
+      ],
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "GR-U7"
+          ],
+          "forventet": {
+            "gjeldende_svar.forhold": null
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "BH ser kravet som gjelder én gang, med én rad per post: vederlagsjusteringen og den særskilte vederlagsjusteringen, med oppgjørsformen og det krevde beløpet.",
+          "kilde": [
+            "OV-U87",
+            "OV-U75"
+          ]
+        },
+        {
+          "tekst": "BH ser i tråden at kravet i det første brevet er fulgt opp i det nye brevet, med beløpet i hvert krav ved brevet.",
+          "kilde": [
+            "MM-U40",
+            "LV-U4"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "te-har-mottatt-svaret",
+      "etter": 4,
+      "beskrivelse": "Byggherren har svart med tre lag: prinsipalt 0 kr etter punkt 34.1.2, subsidiært 110 000 kr etter begrensningen etter punkt 34.1.3 og videre subsidiært 130 000 kr, med akseptfrist og forbeholdet om at forholdet ikke er besvart.",
+      "kontrollsett": [
+        {
+          "sett": "te_har_mottatt_svar",
+          "med": {
+            "spor": "vederlag",
+            "svar": "S-v1",
+            "standpunkt": "Byggherrens standpunkt: prinsipalt varselet etter punkt 34.1.2 kom for sent, subsidiært godkjent med 100 000 kr for justeringen ellers, begrenset etter punkt 34.1.3 til 10 000 kr, videre subsidiært godkjent med 30 000 kr for særskilt justering (punkt 34.1.3 annet ledd)."
+          }
+        }
+      ],
+      "kontroller": [
+        {
+          "rolle": "mal",
+          "kilde": [
+            "OV-U27",
+            "OV-U32",
+            "LV-U33"
+          ],
+          "forventet": {
+            "standpunkt.S-v1.rettidighet.hjemmel": "34.1.2",
+            "standpunkt.S-v1.rettidighet.iTide": false,
+            "virkning.S-v1.rettidighet": 1
+          }
+        },
+        {
+          "rolle": "mal",
+          "kilde": [
+            "HF-U23"
+          ],
+          "forventet": {
+            "svar.S-v1.akseptfrist": "2026-10-15"
+          }
+        },
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "GR-U34",
+            "GR-U7"
+          ],
+          "forventet": {
+            "gjeldende_svar.forhold": null,
+            "enighet.forhold": null
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "TE ser at byggherren prinsipalt godkjenner 0 kr fordi varselet etter punkt 34.1.2 kom for sent, og at 110 000 kr og 130 000 kr bare gjelder hvis innsigelsene ikke fører frem. Tallene er de samme som i brevet.",
+          "kilde": [
+            "MM-U50",
+            "OV-U32",
+            "LV-U37",
+            "LV-U33",
+            "OV-U31",
+            "OV-U73"
+          ]
+        },
+        {
+          "tekst": "TE ser forbeholdet om at forholdet ikke er besvart én gang, med lenke til forholdet, og skiller det brevet sa fra om forholdet senere er besvart.",
+          "kilde": [
+            "GR-U34"
+          ]
+        },
+        {
+          "tekst": "TE ser akseptfristen ved byggherrens svar, og at løsningen ikke knytter noen virkning til den.",
+          "kilde": [
+            "HF-U23"
+          ]
+        },
+        {
+          "tekst": "TE ser at «Revider krav» avslår tilbudet i svaret, og at «Godta svaret» viser brevet og virkningen før det sendes. Aksepten gjelder hele svaret, også at varselet kom for sent, og binder begge parter.",
+          "kilde": [
+            "OV-U54",
+            "KA-U1",
+            "GR-U7",
+            "GR-U8",
+            "KA-U52",
+            "KA-U51",
+            "MM-U48"
+          ]
+        },
+        {
+          "tekst": "Siden sier ikke hvem som skal handle, og vederlaget er ikke avgjort før TE har godtatt et svar eller trukket kravet.",
+          "kilde": [
+            "MM-U40",
+            "OV-U3"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bh-har-registrert-eposten",
+      "etter": 5,
+      "beskrivelse": "Byggherren har registrert en e-post med dokumentasjon om mengdene i vederlaget.",
+      "kontroller": [
+        {
+          "rolle": "forutsetning",
+          "kilde": [
+            "OV-U44"
+          ],
+          "forventet": {
+            "gjeldende_svar.vederlag": "S-v1",
+            "enighet.vederlag": null
+          }
+        }
+      ],
+      "forstaaelse": [
+        {
+          "tekst": "Partene ser e-posten i tråden med kortere rad, typen, avsenderen, datoen og vedlegget, og at den ikke endrer standpunktene i svaret.",
+          "kilde": [
+            "OV-U44",
+            "OV-U81",
+            "LV-U14",
+            "EO-U13",
+            "KA-U62"
+          ]
+        }
+      ]
+    }
+  ],
+  "bestilling": "BF-44.md",
   "venter_paa": [
     "#502",
     "#1627",
     "#1434"
   ],
   "bevis_saker": [],
-  "visninger": [],
+  "visninger": [
+    "demoruta",
+    "varden"
+  ],
   "endringer": [
     {
       "dato": "2026-11-13",
@@ -99,6 +309,11 @@
       "dato": "2026-11-14",
       "forhold": "#1913",
       "hva": "D-4 viser til GR-U7 og ikke lenger til GR-U6, som GR-U7 erstattet 08.10."
+    },
+    {
+      "dato": "2026-11-15",
+      "forhold": "#1906",
+      "hva": "Forløpet er kjørbart: startjournalen har saken med tre lag i byggherrens svar, to poster i kravet, akseptfristen og forbeholdet om at forholdet ikke er besvart (G-14). Vedtakene som sto i `kilder`, står nå i kontrollene og forståelsen, med OV-U3 og LV-U4 i tillegg, og KA-U52, som opphevet KA-U7. Forløpet kjøres ikke i saksruta: akseptfristen i svaret er en fast dato, og saksruta sender med dagens klokke, så kjernen avviser en frist før datoen for svaret (HF-U23 punkt 2)."
     }
   ],
   "prototype": {

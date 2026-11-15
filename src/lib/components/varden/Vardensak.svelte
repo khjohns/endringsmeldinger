@@ -14,6 +14,7 @@
   import Melding from './Melding.svelte';
   import Sporlesing from './Sporlesing.svelte';
   import Vardenskall, { type Smule } from './Vardenskall.svelte';
+  import { akseptfristen } from './vederlagsoversikt';
   import Vederlagssvar from './Vederlagssvar.svelte';
   import Fristsvar from './Fristsvar.svelte';
   import { tomtFristsvar } from './fristsvar';
@@ -30,7 +31,12 @@
   import Korrigering from './Korrigering.svelte';
   import Paaberopelsesversjon from './Paaberopelsesversjon.svelte';
   import { tomtSvar, type Korrigeringsvalg } from './kommandoer';
-  import { kontraktFraProsjektet, settOrganisasjoner, type Kontrakt } from './kontrakt';
+  import {
+    kontraktFraProsjektet,
+    kontraktsrader,
+    settOrganisasjoner,
+    type Kontrakt,
+  } from './kontrakt';
   import {
     betegnelsene,
     brevForLinja,
@@ -48,6 +54,7 @@
     MOTTATT,
     NYVERSJON,
     NYSAK,
+    FORHOLDET,
     SAKEN,
     SPORNAVN,
     STILLING,
@@ -175,19 +182,16 @@
     const linje = (s: Spor) => {
       const b = u ? brevForLinja(brev, s, u.spor[s].trukket) : undefined;
       const kode = betegnelser[s];
+      // Akseptfristen i et svar som ikke er godtatt, står i stedet for siste brev (U-11 i BF-44).
+      const frist = u && s !== 'forhold' ? akseptfristen(u, s)?.dato : null;
       return {
         betegnelse: kode ? BETEGNELSE[kode] : null,
-        siste: b ? SAKEN.siste(b, b.avsender) : null,
+        siste: frist ? SAKEN.akseptfrist(frist) : b ? SAKEN.siste(b, b.avsender) : null,
       };
     };
     return { forhold: linje('forhold'), vederlag: linje('vederlag'), frist: linje('frist') };
   });
-  const parter = $derived(
-    [
-      [SAKEN.entreprenoer, kontrakten.entreprenoer],
-      [SAKEN.byggherre, kontrakten.byggherre],
-    ].filter((r): r is [string, string] => !!r[1])
-  );
+  const parter = $derived(kontraktsrader(kontrakten, ['entreprenoer', 'byggherre']));
   const partensLenke = $derived(kjernesak.part === 'TE' ? (nySakLenke ?? null) : null);
 
   // Svarutkastet i sporet er sendt eller forkastet.
@@ -394,13 +398,20 @@
   visKontrakten={!!nySak}
   innfelt={vedSiden}
   bred
-  toArk={!nySak && valgt === 'forhold' && arbeid.art === 'les'}
+  toArk={!nySak && (valgt === 'forhold' || valgt === 'vederlag') && arbeid.art === 'les'}
   sakstittel={nySak ? null : (kjernesak.saksbilde?.tittel ?? null)}
 >
   {#snippet topplinje()}
     {#if partensLenke && !nySak}
       <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
       <a class="topplenke" href={partensLenke}>{SAKEN.nyttKrav}</a>
+    {/if}
+    {#if kjernesak.sak?.catenda_lenke && !nySak}
+      <!-- Saken i Catenda, uten kommentarene fra Catenda til #1627 er avgjort (U-15 i BF-44). -->
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- lenken går ut av appen -->
+      <a class="topplenke" href={kjernesak.sak.catenda_lenke} target="_blank" rel="noopener"
+        >{SAKEN.iCatenda}<span class="visually-hidden">{FORHOLDET.nyFane}</span></a
+      >
     {/if}
   {/snippet}
   {#snippet sporrad()}
@@ -438,7 +449,7 @@
       </header>
 
       <!-- Forholdet og kravene som bygger på det, i hver sin gruppe (oppdragsgiver 06.11, #1631). -->
-      <nav class="sporene" aria-label={SAKEN.sporene}>
+      <nav class="sporene tett" aria-label={SAKEN.sporene}>
         {#each SPORGRUPPENE as gruppe (gruppe.id)}
           <div class="gruppe">
             <p class="etikett" id={`spor-${gruppe.id}`}>{gruppe.etikett}</p>
@@ -718,18 +729,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-5);
-  }
-  .sporene .etikett {
-    text-transform: none;
-    letter-spacing: 0;
-  }
-  .sporene .valgene {
-    margin: 0 calc(-1 * var(--spacing-5));
-  }
-  .sporene .valg {
-    min-height: 0;
-    padding: 10px var(--spacing-5) 10px 17px;
-    border-radius: 0;
   }
   .navn {
     display: flex;

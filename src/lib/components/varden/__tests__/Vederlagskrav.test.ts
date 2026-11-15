@@ -332,3 +332,38 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     expect(within(brevet).getAllByText(/Forbeholdet om grunnforholdene\./)).toHaveLength(1);
   });
 });
+
+describe('trekket av den særskilte vederlagsjusteringen (KA-U83, kravet i #1663)', () => {
+  async function reviderKravetIBf44() {
+    let demosak: Demosak | null = null;
+    render(Demoforloep, {
+      forloep: finnForloep('BF-44')!,
+      punkt: 'te-har-mottatt-svaret',
+      onpunkt: () => {},
+      onstart: (d: Demosak) => (demosak = d),
+    });
+    const panel = within(screen.getByRole('complementary', { name: 'Demo av brukerforløpet' }));
+    await fireEvent.click(panel.getByRole('radio', { name: 'TE' }));
+    await fireEvent.click(await screen.findByRole('button', { name: /^Vederlagsjustering/ }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Revider krav' }));
+    await screen.findByRole('heading', { name: 'Særskilt vederlagsjustering', level: 3 });
+    return () => demosak!;
+  }
+
+  it('posten fra forrige krav trekkes i kravet, og trekket kan angres før sending (KA-U83)', async () => {
+    const demosak = await reviderKravetIBf44();
+    await fireEvent.click(knapp('Trekk den særskilte vederlagsjusteringen'));
+    expect(
+      screen.getByText(/^Kravet i den særskilte vederlagsjusteringen trekkes i dette brevet\./)
+    ).toBeTruthy();
+    await fireEvent.click(knapp('Angre trekket av den særskilte vederlagsjusteringen'));
+    expect(
+      screen.getByRole('heading', { name: 'Særskilt vederlagsjustering', level: 3 })
+    ).toBeTruthy();
+    await fireEvent.click(knapp('Trekk den særskilte vederlagsjusteringen'));
+    await sendBrevet();
+    const innhold = sistSendt(demosak().journal());
+    expect(innhold.trekker_saerskilt).toEqual(['produktivitet']);
+    expect(innhold.saerskilt).toBeUndefined();
+  });
+});

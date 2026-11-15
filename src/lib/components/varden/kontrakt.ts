@@ -1,6 +1,7 @@
 import { getContext, setContext } from 'svelte';
 import type { Part } from '$kjerne/typer';
 import { projectStore } from '$lib/stores/project.svelte';
+import { SAKEN } from './tekster';
 
 /** Organisasjonene på hver side av kontrakten, slik prosjektet eller demoruta oppgir dem (#1398). */
 export type Organisasjoner = Partial<Record<Part, string>>;
@@ -37,3 +38,14 @@ export function kontraktFraProsjektet(): Kontrakt {
     entreprenoer: c?.totalentreprenor_navn,
   };
 }
+
+const ETIKETTEN: Record<keyof Kontrakt, string> = {
+  prosjekt: SAKEN.prosjekt,
+  kontraktsform: SAKEN.kontraktsform,
+  byggherre: SAKEN.byggherre,
+  entreprenoer: SAKEN.entreprenoer,
+};
+
+/** Radene med etiketten og navnet for feltene i rekkefølgen, uten de som er tomme (#1398, #1909). */
+export const kontraktsrader = (k: Kontrakt, felt: (keyof Kontrakt)[]): [string, string][] =>
+  felt.flatMap((f) => (k[f] ? [[ETIKETTEN[f], k[f]] as [string, string]] : []));

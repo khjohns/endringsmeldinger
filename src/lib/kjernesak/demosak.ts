@@ -118,6 +118,7 @@ export function lagDemosak(forloep: Startjournal, punktId: string, part: Part) {
       visning: {} as Awaited<ReturnType<typeof hentKjernesakMedMerking>>['visning'],
       journal: rader.map(linje),
       leveringsoppdrag: [],
+      catenda_lenke: null,
       merking: DEMOMERKING,
     };
   };
