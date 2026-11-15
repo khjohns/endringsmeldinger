@@ -7,6 +7,7 @@
  * gjeldende frist og dagene (G-4). Modulen avgjør ingenting selv.
  */
 
+import { sakensKode } from '$kjerne/frosset/tekst';
 import { forlengetFrist } from '$kjerne/regler/hverdager';
 import { utregningIFristen, innholdIFristen } from '$kjerne/spor/frist/format';
 import type { Standpunkt } from '$kjerne/typer';
@@ -160,6 +161,10 @@ export function kravetOgSvaretIFristen(
 
 /** En forlengelse av fristen i en annen sak i samme kontrakt. */
 export type Forlengelsen = NonNullable<Fristdato['forlengelser']>[number];
+
+/** Saken en forlengelse står i, med koden, eller ID-en før saken har fått en kode. */
+export const sakensNavn = (f: Forlengelsen): string =>
+  f.sakskode ? sakensKode(f.sakskode) : f.sakId;
 
 /** Gjeldende frist for en frist i fristtabellen (D-9, KA-U77). */
 export type GjeldendeFrist =
