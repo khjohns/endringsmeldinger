@@ -137,15 +137,81 @@
       ? `revidere:${spor}`
       : null
   );
-  const handlingVed = $derived(
-    primaer === `svare:${spor}`
-      ? (u.spor[spor].gjeldendeKrav?.dokument ?? null)
-      : foresporsel && primaer === foresporsel.noekkel
-        ? (brevMedUtsagn(u, foresporsel.gjelder!)?.id ?? null)
-        : primaer || kanGodta || revidere
-          ? (svarbrevet?.id ?? null)
-          : null
-  );
+  /** Teksten, linja under og brevet handlingen står ved, for én type handling. */
+  interface Omtale {
+    /** Teksten på knappen eller raden; uten den gjelder teksten i `BREVTYPER`. */
+    tekst?: () => string | null;
+    /** Hva handlingen gjør med saken. */
+    linje?: () => string | null;
+    /** Brevet handlingen står ved når den er primærhandlingen. */
+    ved?: () => string | null;
+  }
+  const kravbrevet = () => u.spor[spor].gjeldendeKrav?.dokument ?? null;
+  const vedSvaret = () => svarbrevet?.id ?? null;
+  // Handlingene etter type (`TilbudtHandling.type`), og forseringen, som ikke er en handling i
+  // kjernen (#2000). Et varsel med hjemmel har teksten fra `varselet`.
+  const OMTALE: Record<string, Omtale> = {
+    godta: {
+      tekst: () => HANDLINGENE.godta(avslag),
+      linje: () => (svarbrevet ? HANDLINGENE.virkning.godta(svarbrevet) : null),
+      ved: vedSvaret,
+    },
+    svare: {
+      tekst: () =>
+        spor !== 'forhold'
+          ? null
+          : u.spor.forhold.krav.length > 1
+            ? FORHOLDET.svarNyVersjon
+            : FORHOLDET.svar,
+      ved: kravbrevet,
+    },
+    krav: {
+      tekst: () =>
+        spor === 'forhold' ? FORHOLDET.oppdater : kanGodta ? HANDLINGENE.revidertKrav : null,
+      linje: () => {
+        const krav = sporbrev.find((b) => b.id === kravbrevet()) ?? null;
+        if (!kanGodta) return HANDLINGENE.virkning.nyVersjon(spor, krav, svarbrevet ?? null);
+        if (spor === 'forhold')
+          return HANDLINGENE.virkning.oppdaterPaaberopelse(hovedkategorien(u));
+        if (!krav) return HANDLINGENE.virkning.reviderKrav;
+        return (
+          HANDLINGENE.virkning.avslaarTilbudet(krav) +
+          (spor === 'frist' ? ` ${FRISTEN.endreEllerTaUt}` : '')
+        );
+      },
+      ved: vedSvaret,
+    },
+    revidere: {
+      linje: () => (svarbrevet ? HANDLINGENE.virkning.nyttSvar(svarbrevet) : null),
+      ved: vedSvaret,
+    },
+    trekke: {
+      tekst: () => (spor === 'forhold' ? FORHOLDET.trekk : null),
+      linje: () =>
+        spor === 'forhold'
+          ? HANDLINGENE.virkning.trekkForholdet
+          : spor === 'frist'
+            ? svaret
+              ? FRISTEN.trekkEtterSvar
+              : FRISTEN.trekk
+            : svaret
+              ? HANDLINGENE.virkning.trekkKravetEtterSvar
+              : HANDLINGENE.virkning.trekkKravet,
+    },
+    svare_paa_foresporsel: {
+      tekst: () => FRISTEN.svarPaaForesporsel,
+      linje: () => FRISTEN.virkningForesporsel,
+      ved: () => (foresporsel ? (brevMedUtsagn(u, foresporsel.gjelder!)?.id ?? null) : null),
+    },
+    forsering: { linje: () => FRISTEN.forseringLinje },
+  };
+  const omtalen = (n: string): Omtale | undefined =>
+    OMTALE[n === FORSERING ? 'forsering' : (handlingen(n)?.type ?? '')];
+
+  const handlingVed = $derived.by(() => {
+    const n = primaer ?? (kanGodta ? `godta:${spor}` : revidere);
+    return n ? (omtalen(n)?.ved?.() ?? null) : null;
+  });
   const godtaVedBrevet = $derived(kanGodta && handlingVed !== null);
   // Forsering står for totalentreprenøren når byggherren prinsipalt har avslått dager (U-6 i
   // BF-45, FO-U1, svar 3 A). «Andre handlinger» setter den foran «Trekk kravet» (`BREVTYPER`).
@@ -190,48 +256,15 @@
     ),
   ]);
 
-  /** Teksten for et varsel med hjemmelen, og for handlingene i forholdet og etter svaret. */
+  /** Teksten for et varsel med hjemmelen, og ellers teksten i `OMTALE`. */
   function innsigelsestekst(n: string): string | null {
     const h = handlingen(n);
     if (h?.hjemmel) return varselet(h.type, h.hjemmel);
-    if (n === 'trekke:forhold') return FORHOLDET.trekk;
-    if (n === `godta:${spor}`) return HANDLINGENE.godta(avslag);
-    if (n === 'svare:forhold')
-      return u.spor.forhold.krav.length > 1 ? FORHOLDET.svarNyVersjon : FORHOLDET.svar;
-    if (n === 'krav:forhold') return FORHOLDET.oppdater;
-    if (h?.type === 'krav' && kanGodta) return HANDLINGENE.revidertKrav;
-    if (h?.type === 'svare_paa_foresporsel') return FRISTEN.svarPaaForesporsel;
-    return null;
+    return omtalen(n)?.tekst?.() ?? null;
   }
 
   /** Linja under handlingen: hva den gjør med saken. */
-  function virkningen(n: string): string | null {
-    if (n === `godta:${spor}` && svarbrevet) return HANDLINGENE.virkning.godta(svarbrevet);
-    if (n === 'trekke:forhold') return HANDLINGENE.virkning.trekkForholdet;
-    if (n.startsWith('revidere:') && svarbrevet) return HANDLINGENE.virkning.nyttSvar(svarbrevet);
-    if (n.startsWith('trekke:'))
-      return spor === 'frist'
-        ? svaret
-          ? FRISTEN.trekkEtterSvar
-          : FRISTEN.trekk
-        : svaret
-          ? HANDLINGENE.virkning.trekkKravetEtterSvar
-          : HANDLINGENE.virkning.trekkKravet;
-    if (n === FORSERING) return FRISTEN.forseringLinje;
-    if (handlingen(n)?.type === 'svare_paa_foresporsel') return FRISTEN.virkningForesporsel;
-    if (n.startsWith('krav:')) {
-      const krav = sporbrev.find((b) => b.id === u.spor[spor].gjeldendeKrav?.dokument) ?? null;
-      if (kanGodta)
-        return spor === 'forhold'
-          ? HANDLINGENE.virkning.oppdaterPaaberopelse(hovedkategorien(u))
-          : krav
-            ? HANDLINGENE.virkning.avslaarTilbudet(krav) +
-              (spor === 'frist' ? ` ${FRISTEN.endreEllerTaUt}` : '')
-            : HANDLINGENE.virkning.reviderKrav;
-      return HANDLINGENE.virkning.nyVersjon(spor, krav, svarbrevet ?? null);
-    }
-    return null;
-  }
+  const virkningen = (n: string): string | null => omtalen(n)?.linje?.() ?? null;
 
   /** Det aksepten omfatter, og beløpet og vilkåret kjernen regner ut, av svaret slik det ble sendt. */
   function akseptensVirkning(): string[] {
@@ -329,8 +362,10 @@
     {#if primaer}{@render primaerknapp(primaer, linje ? `${uid}-vedbrevet` : undefined)}{/if}
     {#if revidere}
       {@const r = revidere}
+      <!-- Kantstilt med linja under og i samme størrelse, som i prototypene (#2000). -->
       <Knapp
         variant="lenke"
+        kompakt
         onclick={() => (bygget.includes(r) ? velg(r) : (primaerIkkeBygget = true))}
         aria-describedby={linje ? `${uid}-vedbrevet` : undefined}
         >{innsigelsestekst(r) ?? BREVTYPER.find((b) => b.type === 'revidere')!.tekst}</Knapp

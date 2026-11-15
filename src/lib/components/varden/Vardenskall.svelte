@@ -412,6 +412,27 @@
       grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
       gap: var(--spacing-2);
     }
+    /* Den tette varianten står som faner over arbeidet (panel B i prototypen). */
+    .panel :global(.tett .etikett) {
+      display: none;
+    }
+    .panel :global(.tett .valgene) {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      margin: 0;
+    }
+    .panel :global(.tett .valg) {
+      flex: none;
+      width: auto;
+      max-width: 15rem;
+      padding: var(--spacing-2) var(--spacing-4);
+      border-left: 0;
+      border-bottom: 3px solid transparent;
+    }
+    .panel :global(.tett .valg[aria-current='page']) {
+      border-bottom-color: var(--sidebar-text);
+    }
     .topplinje {
       flex-wrap: wrap;
       padding: var(--spacing-2) var(--spacing-4);
