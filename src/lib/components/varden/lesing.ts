@@ -533,3 +533,15 @@ export function tilknyttetKrav(u: Utledning, spor: 'vederlag' | 'frist'): Tilkny
     grunner: s.subsidiaer,
   };
 }
+
+/**
+ * Avsnittene i et punkt i brevet, uten overskriften, som står først i den låste delen. Står den
+ * ikke først, står hele den låste delen, så ingen tekst faller bort (#1824).
+ */
+export const underOverskriften = (a: Pick<Avsnitt, 'laast' | 'overskrift'>): string[] =>
+  (a.overskrift && a.laast.startsWith(a.overskrift)
+    ? a.laast.slice(a.overskrift.length).trimStart()
+    : a.laast
+  )
+    .split('\n\n')
+    .filter((del) => del !== '');

@@ -20,7 +20,7 @@ import {
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Krav, Kravpost, Oppgjoersform, Standpunkt } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
-import type { Brevet } from './lesing';
+import { underOverskriften, type Brevet } from './lesing';
 
 /** Et lag i byggherrens svar, med beløpet og det laget bygger på (U-2). */
 export interface Laget {
@@ -167,22 +167,14 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
   return {
     ...ut,
     lagene,
-    tabell: oversikten ? cellene(utenOverskrift(oversikten)) : null,
+    // Brevet viser hvert avsnitt i punktet som en tabell; punktet har én (`Brev.svelte`).
+    tabell: oversikten ? cellene(underOverskriften(oversikten)[0] ?? '') : null,
     // GR-U34: brevet hadde ikke noe svar på forholdet foran seg og har punktet med forbeholdet.
     forbehold:
       beregning?.forholdssvaret === null &&
       svar.paaberopelse !== null &&
       !!svarbrev.avsnitt?.some((a) => a.punkt === 'forbehold'),
   };
-}
-
-/** Tabellen i punktet, uten overskriften som står først i den låste delen (`Brev.svelte`). */
-function utenOverskrift(a: { laast: string; overskrift?: string }): string {
-  const tekst =
-    a.overskrift && a.laast.startsWith(a.overskrift)
-      ? a.laast.slice(a.overskrift.length).trimStart()
-      : a.laast;
-  return tekst.split('\n\n').find((del) => del.includes('\t')) ?? tekst;
 }
 
 /** Posten en rad i oversiktstabellen gjelder, etter navnet tabellen gir den. */
