@@ -1881,6 +1881,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['format/leser.ts', 'kontekst', 'registrertDato', ['utledning/utled.ts:datoenDetBleSendt']],
   // HF-U23: akseptfristen i svaret, som brevet ved aksepten sammenlikner med dagen den sendes.
   ['format/leser.ts', 'kontekst', 'registrertDato', ['frosset/brevtekst.ts:utsagnstekst']],
+  // OV-U105, OV-U104: et svar gir opp innsigelsen fra dagen det ble sendt.
+  ['format/leser.ts', 'kontekst', 'registrertDato', ['frosset/brevtekst.ts:dagenSendt']],
   [
     'Svar',
     'utsagn',
@@ -2163,6 +2165,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'utledning/utled.ts:datoenDetBleSendt',
       'utledning/utled.ts:utledSporene.sendt',
       'utledning/utled.ts:registreringenStrider.dag',
+      'frosset/brevtekst.ts:dagenSendt',
     ],
   ],
 
@@ -2557,7 +2560,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Forholdet', 'brevtekst', 'navn hjemmel', ['spor/forhold/tekst.ts']],
   ['Forholdet', 'brevtekst', 'navn', ['frosset/brevtittel.ts']],
   ['spor/forhold/tekst.ts.LEDD_I_33_1', 'brevtekst', '*', ['spor/forhold/tekst.ts']],
-  ['frosset/brevtekst.ts:aapneInnsigelser', 'relasjon', 'fra', ['frosset/brevtekst.ts']],
+  ['frosset/brevtekst.ts:aapneInnsigelser', 'relasjon', 'fra dag svar', ['frosset/brevtekst.ts']],
   ['Innsigelse', 'relasjon', 'dokument gjelder hjemmel', ['frosset/brevtekst.ts']],
   // Teksten sier det brevet sier: § 32.2 for kravet, endringsordren etter GR-U12 og
   // innsigelsen svaret gjentar eller gir opp (VS-U9, VS-U11).

@@ -3361,14 +3361,13 @@
     {
       "id": "VS-02",
       "tilfelle": "Byggherren har gjort innsigelse mot TEs varsel etter § 32.2 og registrerer senere en godkjenning av grunnlaget som ikke sier noe om rettidigheten.",
-      "forventet": "Svaret har samme virkning som et svar fra appen (OV-U80, OV-U98), men leses ikke med innsigelsen: et registrert svar får ingen virkning ut over det det sier (VS-U24), og saken er forstått. Innsigelsen er en påberopelse etter § 32.2, og et senere svar fra appen gjentar den eller gir den opp, også på en annen grunnlagsversjon, fordi varselet etter § 32.2 er det samme (arbeidsvalget 15.10 i #500). Har byggherren sagt «i tide» etter § 32.2 i et svar fra appen, avvises en ny innsigelse mot grunnlagskravet, også mot en tidligere versjon (HF-U4, HF-U8). En innsigelse mot en versjon der § 32.2 ikke gjelder kategorien, er uten virkning: svaret gjentar den ikke og gir den ikke opp, og den avvises ikke (GR-U11). Et registrert brev gjentar den ikke og gir den ikke opp (OV-U4, HF-U4).",
+      "forventet": "Svaret har samme virkning som et svar fra appen (OV-U80, OV-U98), men leses ikke med innsigelsen: et registrert svar får ingen virkning ut over det det sier (VS-U24), og saken er forstått. Innsigelsen er en påberopelse etter § 32.2, og et senere svar fra appen gjentar den eller gir den opp, også på en annen grunnlagsversjon, fordi varselet etter § 32.2 er det samme (arbeidsvalget 15.10 i #500). Har byggherren sagt «i tide» etter § 32.2 i et svar fra appen, avvises en ny innsigelse mot grunnlagskravet, også mot en tidligere versjon (HF-U4, HF-U8). En innsigelse mot en versjon der § 32.2 ikke gjelder kategorien, er uten virkning: svaret gjentar den ikke og gir den ikke opp, og den avvises ikke (GR-U11). Et svar lagt til med svarskjemaet gir den opp som et svar fra appen, fra dagen det ble sendt ([OV-U105](../plans/vedtak.md#ov-u105)); et svar sendt før innsigelsen gir den ikke opp.",
       "bh_standpunkt": "Godkjenningen, slik den står.",
-      "rettslig_virkning": "Appen utleder ikke av et registrert brev at innsigelsen er gjentatt eller oppgitt (OV-U4).",
+      "rettslig_virkning": "Et brev som står som dokumentasjon, gir ikke noe standpunkt om innsigelsen (OV-U105).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "VS-U24",
-        "OV-U4",
         "VS-U11",
         "HF-U4",
         "HF-U8",
@@ -3376,13 +3375,15 @@
         "GR-U11",
         "AV-500",
         "OV-U80",
-        "OV-U98"
+        "OV-U98",
+        "OV-U105"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/frosset/standpunkt.ts#innsigelsenPaaberoper",
         "kjerne/frosset/standpunkt.ts#innsigelsenErOppgitt",
-        "kjerne/kommandoer/nyttelast.ts#nyttelastkontroll"
+        "kjerne/kommandoer/nyttelast.ts#nyttelastkontroll",
+        "kjerne/frosset/brevtekst.ts#aapneInnsigelser"
       ]
     },
     {
@@ -3716,7 +3717,7 @@
     {
       "id": "KA-50",
       "tilfelle": "En part registrerer et brev sendt utenfor appen med et krav, et svar, en aksept eller et trekk.",
-      "forventet": "Saken er forstått. Et svar, også byggherrens endringsordre som svar ([OV-U6](../plans/vedtak.md#ov-u6)), og TEs aksept har samme virkning som fra appen, med datoen avsenderen oppgir ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98)). Svaret godtas når kravversjonen det svarer på, var gjeldende på sendedatoen, og aksepten når svaret den godtar, var byggherrens gjeldende svar da. Ellers avviser kommandoen registreringen, og i journalen står elementet uten virkning. Etter et registrert svar reviderer byggherren det fra appen. En registrert godkjenning er ikke en endringsordre i saken og sperrer ikke trekket (GR-29). Et krav har samme virkning som fra appen. Et krav sendt før totalentreprenørens siste krav i sporet blir ikke gjeldende, og hjemmelen i kravet TE har sendt fra appen, står (GR-U22), men datoen regnes med når appen avgjør hvilket varsel som kom først ([OV-U102](../plans/vedtak.md#ov-u102)). Trekket er dokumentasjon. Varselet har virkning etter OV-U5.",
+      "forventet": "Saken er forstått. Et svar, også byggherrens endringsordre som svar ([OV-U6](../plans/vedtak.md#ov-u6)), og TEs aksept har samme virkning som fra appen, med datoen avsenderen oppgir ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98)). Svaret godtas når kravversjonen det svarer på, var gjeldende på sendedatoen, og aksepten når svaret den godtar, var byggherrens gjeldende svar da. Et svar sendt før byggherrens gjeldende svar på samme kravversjon blir ikke gjeldende ([OV-U103](../plans/vedtak.md#ov-u103)). Ellers avviser kommandoen registreringen, og i journalen står elementet uten virkning. Et brev sendt samme dag som et annet er ikke sendt før det, og visningen merker at rekkefølgen innen dagen er ukjent ([OV-U104](../plans/vedtak.md#ov-u104)). Etter et registrert svar reviderer byggherren det fra appen. En registrert godkjenning er ikke en endringsordre i saken og sperrer ikke trekket (GR-29). Et krav har samme virkning som fra appen. Et krav sendt før totalentreprenørens siste krav i sporet blir ikke gjeldende, og hjemmelen i kravet TE har sendt fra appen, står (GR-U22), men datoen regnes med når appen avgjør hvilket varsel som kom først ([OV-U102](../plans/vedtak.md#ov-u102)). Trekket er dokumentasjon. Varselet har virkning etter OV-U5.",
       "bh_standpunkt": "Svaret slik avsenderen har lagt det til, med datoen det ble sendt.",
       "rettslig_virkning": "Appen kontrollerer ikke at dokumentet er det parten oppgir. Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse (OV-U80). Skal et trekk få virkning, sendes det fra appen.",
       "rettidighet": "—",
@@ -3728,13 +3729,16 @@
         "GR-U10",
         "OV-U80",
         "OV-U98",
-        "OV-U102"
+        "OV-U102",
+        "OV-U103",
+        "OV-U104"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
         "kjerne/utledning/utled.ts#dokumentasjonIBrevet",
         "kjerne/utledning/utled.ts#registreringenStrider",
-        "kjerne/utledning/utled.ts#kravSomVarsler"
+        "kjerne/utledning/utled.ts#kravSomVarsler",
+        "kjerne/utledning/visning.ts#merknader"
       ]
     },
     {

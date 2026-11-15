@@ -219,7 +219,7 @@ async function provRegistrering(
   const k = await kjoer(forloep, minnebane(), { valg: { klokke: dagklokke() } });
   return k.prov(h, (kommando) => {
     // Et registrert svar har ingen tekst fra løsningen (OV-U80).
-    for (const s of (kommando.svar as Record<string, unknown>[] | undefined) ?? [])
+    for (const s of [kommando.svar ?? []].flat() as Record<string, unknown>[])
       if (typeof s === 'object') {
         delete s.utdypning;
         delete s.utdypninger;
@@ -402,6 +402,7 @@ describe('et krav sendt før totalentreprenørens siste krav står utenfor rekke
             forstaatt: true,
             'gjeldende_krav.forhold': 'K-g0',
             'krav_utenfor_rekken.forhold': [],
+            'visning.merknader': { inneholder: ['sendt_samme_dag'] },
           },
         },
       ]
@@ -510,4 +511,68 @@ describe('varselet en påberopelse etter § 33.4 gjelder, med et krav utenfor re
 
   it('kontrollsak: med samme dato som det egne varselet gjelder det egne varselet', () =>
     expect(varselet({ V: '2026-09-18', K1: '2026-09-20', K0: '2026-09-18' })).toBe('V'));
+});
+
+describe('et svar sendt før byggherrens gjeldende svar på kravversjonen blir ikke gjeldende (OV-U103)', () => {
+  const revisjonLagtTil = (sendt: string): Handling => ({
+    ...registrertSvar('K-g1', sendt),
+    erstatter: 'S-g1',
+  });
+
+  it('en revisjon datert før svaret den erstatter, får ingen virkning, og svaret står', () =>
+    prov(
+      'revisjon-foer-gjeldende-svar',
+      [avslag('S-g1'), revisjonLagtTil('2026-09-23')],
+      [
+        {
+          etter: 2,
+          rolle: 'mal',
+          kilde: ['OV-U103', 'OV-U104'],
+          forventet: {
+            forstaatt: true,
+            uten_virkning: ['S-r'],
+            'gjeldende_svar.forhold': 'S-g1',
+            'visning.merknader': { mangler: ['sendt_samme_dag'] },
+          },
+        },
+      ]
+    ));
+
+  it('kontrollsak: en revisjon sendt samme dag som svaret erstatter det (OV-U104)', () =>
+    prov(
+      'revisjon-samme-dag',
+      [avslag('S-g1'), revisjonLagtTil('2026-09-24')],
+      [
+        {
+          etter: 2,
+          rolle: 'kontroll',
+          kilde: ['OV-U103', 'OV-U104'],
+          forventet: {
+            forstaatt: true,
+            uten_virkning: [],
+            'gjeldende_svar.forhold': 'S-r',
+            'visning.merknader': { inneholder: ['sendt_samme_dag'] },
+          },
+        },
+      ]
+    ));
+
+  it('kommandoen avviser en revisjon datert før svaret den erstatter', async () => {
+    const revisjon: Handling = {
+      handling: 'revisjon',
+      spor: 'forhold',
+      resultat: 'avslaatt',
+      varslet_i_tide: false,
+      navn: 'S-g2',
+    };
+    expect(await provRegistrering([avslag('S-g1')], revisjon, '2026-09-23')).toMatchObject({
+      godtatt: false,
+      avvisning: { regel: 'IKKE_GJELDENDE_PAA_SENDEDATOEN' },
+    });
+    const kontroll = await provRegistrering([avslag('S-g1')], revisjon, '2026-09-25');
+    expect(
+      kontroll.godtatt ? null : kontroll.avvisning,
+      'kontrollsak: sendt etter svaret'
+    ).toBeNull();
+  });
 });

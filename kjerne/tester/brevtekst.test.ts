@@ -2807,31 +2807,8 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       expect(laast(rad)[1]).toContain('jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026');
     });
 
-    it('et «i tide» i et registrert brev gir ikke opp innsigelsen, så et «for sent» fra appen på en ny versjon gjentar den (HF-U4, OV-U4)', () => {
-      const s = medInnsigelse();
-      s.rad('BH', {
-        svar: [
-          {
-            id: randomUUID(),
-            spor: 'forhold',
-            gjelder: s.krav('forhold'),
-            standpunkter: [
-              {
-                id: randomUUID(),
-                art: 'rettidighet',
-                gjelder: s.krav('forhold'),
-                hjemmel: '32.2',
-                i_tide: true,
-              },
-              { id: randomUUID(), art: 'forhold', resultat: 'avslaatt' },
-            ],
-          },
-        ],
-        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-06' }],
-        korrespondansetype: 'brev',
-      });
-      s.send('TE', PAABEROPELSE);
-      const forSent = {
+    it('et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt, men ikke et sendt før den (OV-U105, OV-U104)', () => {
+      const forSent = (s: ReturnType<typeof sak>) => ({
         type: 'brev',
         svar: [
           svar('forhold', s.krav('forhold'), {
@@ -2839,11 +2816,39 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
             grunnlag_varslet_i_tide: false,
           }),
         ],
+      });
+      const etterITide = (sendt: string) => {
+        const s = medInnsigelse();
+        s.rad('BH', {
+          svar: [
+            {
+              id: randomUUID(),
+              spor: 'forhold',
+              gjelder: s.krav('forhold'),
+              standpunkter: [
+                {
+                  id: randomUUID(),
+                  art: 'rettidighet',
+                  gjelder: s.krav('forhold'),
+                  hjemmel: '32.2',
+                  i_tide: true,
+                },
+                { id: randomUUID(), art: 'forhold', resultat: 'avslaatt' },
+              ],
+            },
+          ],
+          opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: sendt }],
+          korrespondansetype: 'brev',
+        });
+        s.send('TE', PAABEROPELSE);
+        // Byggherren kan påberope det samme på nytt (VS-U46 punkt 13).
+        expect(s.avvist('BH', forSent(s))).toBeNull();
+        return laast(s.send('BH', forSent(s)))[1];
       };
-      // Det registrerte «i tide» binder ikke byggherren (HF-U4, OV-U4).
-      expect(s.avvist('BH', forSent)).toBeNull();
-      expect(laast(s.send('BH', forSent))[1]).toContain(
-        'jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026'
+      const innsigelsen = 'jf. innsigelsen i brev K201-KOE-017-04 av 5. oktober 2026';
+      expect(etterITide('2026-10-06')).not.toContain(innsigelsen);
+      expect(etterITide('2026-10-04'), 'kontrollsak: svaret er sendt før innsigelsen').toContain(
+        innsigelsen
       );
     });
 

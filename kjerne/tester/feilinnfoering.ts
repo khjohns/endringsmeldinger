@@ -1806,16 +1806,53 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F223',
-    feilklasse: 'et «i tide» i et registrert brev gir opp innsigelsen i brevteksten (HF-U4, OV-U4)',
+    feilklasse: 'et «i tide» i et svar lagt til gir ikke opp innsigelsen i brevteksten (OV-U105)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '    if (!erRegistrert(d.opplysninger)) svarFraParten.push(...d.svar);',
-        '    svarFraParten.push(...d.svar);',
+        '    svarFraParten.push(...d.svar.map(',
+        '    if (!erRegistrert(d.opplysninger)) svarFraParten.push(...d.svar.map(',
       ],
     ],
+    mal: ['et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt'],
+  },
+  {
+    id: 'F649',
+    feilklasse: 'et «i tide» i et svar sendt før innsigelsen gir den opp (OV-U105, OV-U104)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['x.dag === null || i.dag === null || x.dag >= i.dag', 'true']],
+    mal: ['et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt'],
+  },
+  {
+    id: 'F650',
+    feilklasse:
+      'et svar datert før byggherrens gjeldende svar på kravversjonen erstatter det (OV-U103)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['gjeldende &&\n', 'false &&\n']],
     mal: [
-      'et «i tide» i et registrert brev gir ikke opp innsigelsen, så et «for sent» fra appen på en ny versjon gjentar den',
+      'en revisjon datert før svaret den erstatter, får ingen virkning',
+      'kommandoen avviser en revisjon datert før svaret den erstatter',
+    ],
+  },
+  {
+    id: 'F651',
+    feilklasse:
+      'visningen sier ikke at et brev lagt til er sammenliknet med et brev sendt samme dag (OV-U104)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [["  if (u.sendtSammeDag.length) ut.push('sendt_samme_dag');\n", '']],
+    mal: [
+      'kontrollsak: en revisjon sendt samme dag som svaret erstatter det',
+      'et krav sendt samme dag som det siste blir gjeldende',
+    ],
+  },
+  {
+    id: 'F652',
+    feilklasse: 'utledningen fører ikke en sammenlikning av to brev sendt samme dag (OV-U104)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['  if (a !== null && a === b) samme?.();\n', '']],
+    mal: [
+      'kontrollsak: en revisjon sendt samme dag som svaret erstatter det',
+      'et krav sendt samme dag som det siste blir gjeldende',
     ],
   },
   {

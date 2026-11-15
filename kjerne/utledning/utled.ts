@@ -287,6 +287,11 @@ export interface Utledning {
   registrerteBrev: RegistrertBrev[];
   /** OV-U19, OV-U21: de registrerte brevene appen ikke vurderer innholdet i. Leses av visningen. */
   ikkeVurderteBrev: string[];
+  /**
+   * OV-U104: et element i et brev lagt til med datoen det ble sendt, som utledningen sammenliknet
+   * med et element sendt samme dag (`med`). Rekkefølgen innen dagen er ukjent.
+   */
+  sendtSammeDag: { element: string; med: string }[];
 }
 
 const tomtSpor = (): Sporutledning => ({
@@ -336,6 +341,7 @@ function tom(
     endringsordre: 'nei',
     registrerteBrev: registreringer(journal).brev,
     ikkeVurderteBrev: [],
+    sendtSammeDag: [],
   };
 }
 
@@ -464,10 +470,10 @@ function dokumentasjonIBrevet(d: Dokument): Set<string> {
  * Kontrollen gjelder bare disse vedtakene, ikke vilkårene for å sende, så en strengere
  * forutsetning senere gjør ikke et eldre brev uforstått.
  */
-function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
-  // Et krav havner aldri i `uten`: kravene i et registrert brev er dokumentasjon (OV-U4),
-  // og en strid utenfor et registrert brev stopper utledningen. Bare svar og utsagn
-  // kontrolleres derfor mot `uten` (#669).
+function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>, samme: SammeDag): Strid[] {
+  // En strid utenfor et registrert brev stopper utledningen, og et krav viser ikke til et
+  // annet element enn kravversjonen det erstatter. Bare svar og utsagn kontrolleres derfor
+  // mot `uten` (#669).
   const utenVirkning = (id: string | null) => id !== null && uten.has(id);
   const med = (element: string, grunn: string | null): Strid[] =>
     grunn ? [{ element, grunn }] : [];
@@ -475,7 +481,7 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>): Strid[] {
     ...d.krav.flatMap((k) => med(k.id, kravetStrider(k, u))),
     ...d.svar.flatMap((s) => med(s.id, svaretStrider(s, u, utenVirkning))),
     ...d.utsagn.flatMap((x) => med(x.id, utsagnetStrider(x, u, utenVirkning))),
-    ...(erRegistrert(d.opplysninger) ? registreringenStrider(d, u) : []),
+    ...(erRegistrert(d.opplysninger) ? registreringenStrider(d, u, samme) : []),
   ];
 }
 
@@ -489,14 +495,24 @@ const lukket = (u: Utledning): string | null =>
  * OV-U98: dagen `a` er før dagen `b`. Datoene er kalenderdager, og et brev fra løsningen har
  * dagen det ble registrert, så samme dag er ikke før. En dag som ikke kan leses, er ikke før.
  */
-const foerDagen = (a: string | null, b: string | null): boolean =>
-  a !== null && b !== null && a < b;
+function foerDagen(a: string | null, b: string | null, samme?: () => void): boolean {
+  if (a !== null && a === b) samme?.();
+  return a !== null && b !== null && a < b;
+}
+
+/** OV-U104: elementet ble sammenliknet med `med`, sendt samme dag. */
+type SammeDag = (element: string, med: string) => void;
 
 /**
  * OV-U98: kravversjonen `k` var gjeldende på dagen `dag`: den var sendt, og versjonen som
  * erstattet den, var ikke sendt før den dagen. Leses av journalen før dokumentet som legges til.
  */
-function kravversjonenGjaldt(u: Utledning, k: Krav, dag: string): boolean {
+function kravversjonenGjaldt(
+  u: Utledning,
+  k: Krav,
+  dag: string,
+  samme: (med: string) => void
+): boolean {
   const kjede = u.spor[k.spor].krav;
   const i = kjede.findIndex((x) => x.id === k.id);
   if (i < 0) return false;
@@ -504,8 +520,8 @@ function kravversjonenGjaldt(u: Utledning, k: Krav, dag: string): boolean {
   const neste = kjede[i + 1];
   return (
     sendt !== null &&
-    !foerDagen(dag, sendt) &&
-    (neste === undefined || !foerDagen(datoenDetBleSendt(u, neste), dag))
+    !foerDagen(dag, sendt, () => samme(k.id)) &&
+    (neste === undefined || !foerDagen(datoenDetBleSendt(u, neste), dag, () => samme(neste.id)))
   );
 }
 
@@ -513,14 +529,15 @@ function kravversjonenGjaldt(u: Utledning, k: Krav, dag: string): boolean {
  * OV-U98: svaret `s` var byggherrens gjeldende svar på dagen `dag`: det var sendt, det gjaldt en
  * kravversjon som var gjeldende den dagen, og revisjonen som erstattet det, var ikke sendt før.
  */
-function svaretGjaldt(u: Utledning, s: Svar, dag: string): boolean {
+function svaretGjaldt(u: Utledning, s: Svar, dag: string, samme: (med: string) => void): boolean {
   const krav = u.spor[s.spor].krav.find((k) => k.id === s.gjelder);
   const revisjon = u.spor[s.spor].svar.find((r) => r.erstatter === s.id);
   return (
     krav !== undefined &&
-    kravversjonenGjaldt(u, krav, dag) &&
-    !foerDagen(dag, datoenDetBleSendt(u, s)) &&
-    (revisjon === undefined || !foerDagen(datoenDetBleSendt(u, revisjon), dag))
+    kravversjonenGjaldt(u, krav, dag, samme) &&
+    !foerDagen(dag, datoenDetBleSendt(u, s), () => samme(s.id)) &&
+    (revisjon === undefined ||
+      !foerDagen(datoenDetBleSendt(u, revisjon), dag, () => samme(revisjon.id)))
   );
 }
 
@@ -529,7 +546,7 @@ function svaretGjaldt(u: Utledning, s: Svar, dag: string): boolean {
  * på dagen avsenderen oppgir at brevet ble sendt. Hva som var gjeldende, avgjøres da, så en
  * senere retting av datoen endrer det ikke.
  */
-function registreringenStrider(d: Dokument, u: Utledning): Strid[] {
+function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Strid[] {
   const dag = (id: string) => {
     const oppgitt = datoFor({ id, dokument: d.id }, 'sendt', d.opplysninger);
     return oppgitt ? kalenderdag(oppgitt.dato) : null;
@@ -537,7 +554,7 @@ function registreringenStrider(d: Dokument, u: Utledning): Strid[] {
   const strider: Strid[] = [];
   for (const k of d.krav) {
     const siste = u.spor[k.spor].gjeldendeKrav;
-    if (siste && foerDagen(dag(k.id), datoenDetBleSendt(u, siste)))
+    if (siste && foerDagen(dag(k.id), datoenDetBleSendt(u, siste), () => samme(k.id, siste.id)))
       strider.push({
         element: k.id,
         grunn: 'et krav sendt før totalentreprenørens siste krav i sporet (OV-U98, OV-U102)',
@@ -548,17 +565,27 @@ function registreringenStrider(d: Dokument, u: Utledning): Strid[] {
     const { krav: kjede, kravUtenforRekken } = u.spor[s.spor];
     const krav = [...kjede, ...kravUtenforRekken].find((k) => k.id === s.gjelder);
     const sendt = dag(s.id);
-    if (krav && (sendt === null || !kravversjonenGjaldt(u, krav, sendt)))
+    const [gjeldende] = ikkeErstattet(u.spor[s.spor].svar, s.gjelder);
+    const medSvaret = (med: string) => samme(s.id, med);
+    if (krav && (sendt === null || !kravversjonenGjaldt(u, krav, sendt, medSvaret)))
       strider.push({
         element: s.id,
         grunn: 'et svar på en kravversjon som ikke var gjeldende da svaret ble sendt (OV-U98)',
+      });
+    else if (
+      gjeldende &&
+      foerDagen(sendt, datoenDetBleSendt(u, gjeldende), () => medSvaret(gjeldende.id))
+    )
+      strider.push({
+        element: s.id,
+        grunn: 'et svar sendt før byggherrens gjeldende svar på kravversjonen (OV-U103)',
       });
   }
   for (const x of d.utsagn) {
     if (x.art !== 'aksept') continue;
     const svar = SPOR.flatMap((n) => u.spor[n].svar).find((s) => s.id === x.gjelder);
     const sendt = dag(x.id);
-    if (svar && (sendt === null || !svaretGjaldt(u, svar, sendt)))
+    if (svar && (sendt === null || !svaretGjaldt(u, svar, sendt, (med) => samme(x.id, med))))
       strider.push({
         element: x.id,
         grunn:
@@ -635,6 +662,7 @@ function utsagnetStrider(
 export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   const uten = new Map<string, { hendelse: string; grunn: string }>();
   const utenforRekken = new Set<string>();
+  const sendtSammeDag: Utledning['sendtSammeDag'] = [];
   const konflikter: Utledning['begrensninger'] = [];
   const dokumenter: Dokument[] = [];
   for (const [i, h] of journal.entries()) {
@@ -648,7 +676,9 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     if (!foer.forstaatt) break;
     const registrert = erRegistrert(h.dokument.opplysninger);
     const dokumentasjon = dokumentasjonIBrevet(h.dokument);
-    const stridene = strid(h.dokument, foer, uten);
+    const stridene = strid(h.dokument, foer, uten, (element, med) =>
+      sendtSammeDag.push({ element, med })
+    );
     const strider = new Set(stridene.filter((x) => !x.utenforRekken).map((x) => x.element));
     for (const x of stridene) {
       if (!registrert) konflikter.push({ hendelse: h.id, grunn: x.grunn });
@@ -661,6 +691,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   const u = utledSporene(journal, regler, uten, utenforRekken);
   const ut = konflikter.length ? tom(journal, regler, [...u.begrensninger, ...konflikter]) : u;
   ut.ikkeVurderteBrev = ikkeVurderte(journal, ut.registrerteBrev, ut.forstaatt);
+  if (ut.forstaatt) ut.sendtSammeDag = sendtSammeDag;
   return ut;
 }
 
