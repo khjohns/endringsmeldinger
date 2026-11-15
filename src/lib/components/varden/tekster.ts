@@ -1230,6 +1230,9 @@ export const KRAVSKJEMA = {
   saerskiltHjelp: 'Fast sum, eks. mva.',
   leggTilSaerskilt: 'Legg til særskilt vederlagsjustering',
   fjernSaerskilt: 'Fjern den særskilte vederlagsjusteringen',
+  trekkSaerskilt: 'Trekk den særskilte vederlagsjusteringen',
+  saerskiltEneste:
+    'Den særskilte vederlagsjusteringen er den eneste posten i kravet. Vil du ikke lenger kreve den, trekker du kravet på siden for vederlaget.',
   // 3. Varslene (prototype v4).
   varslene: 'Varslene',
   varsleneIntro:

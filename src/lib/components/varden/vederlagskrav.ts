@@ -53,6 +53,8 @@ export interface Kravvalg {
   poster: Kravpostvalg[];
   /** Kravet etter § 34.1.3 annet ledd, med beløpet som tekst, eller `null` uten posten. */
   saerskilt: { beloep: string } | null;
+  /** TE trekker den særskilte vederlagsjusteringen fra forrige versjon (KA-U83). */
+  trekkerSaerskilt?: boolean;
   /** Forbeholdet i kravet (LV-U74). */
   forbehold: string;
   /** Teller for nøklene til nye poster. */
@@ -196,6 +198,7 @@ export function vederlagskravet(v: Kravvalg, varslene: readonly (Varselet | null
       kravposter: kravposter.length ? kravposter : undefined,
       saerskilt: v.saerskilt ? { produktivitet: { beloep: saerskilt } } : undefined,
       trekker: trekker.length ? trekker : undefined,
+      trekker_saerskilt: v.trekkerSaerskilt && !v.saerskilt ? ['produktivitet'] : undefined,
     }),
     ...(forbehold ? { forbehold } : {}),
   };
