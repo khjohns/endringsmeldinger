@@ -14,7 +14,7 @@
   import Melding from './Melding.svelte';
   import Sporlesing from './Sporlesing.svelte';
   import Vardenskall, { type Smule } from './Vardenskall.svelte';
-  import { akseptfristen } from './vederlagsoversikt';
+  import { akseptfristen } from './svarlagene';
   import Vederlagssvar from './Vederlagssvar.svelte';
   import Fristsvar from './Fristsvar.svelte';
   import { tomtFristsvar } from './fristsvar';
@@ -70,6 +70,7 @@
     nySak,
     spor,
     nySakLenke,
+    sakslenke,
   }: {
     kjernesak: Kjernesakkontekst;
     /** Sporet saken åpner i. Uten det står saken i vederlaget, eller i forholdet etter opprettelsen. */
@@ -86,6 +87,8 @@
     nySak?: Snippet;
     /** Lenken til skjemaet for ny sak, for en annen hjemmel eller endringsordre (BF-10 U-2). */
     nySakLenke?: string;
+    /** Lenken til en annen sak i prosjektet, som en forlengelse av en frist står i (BF-45 U-5). */
+    sakslenke?: (sakId: string) => string;
     /** Prosjektet og partene i demoruta. Ellers leses de av prosjektet (#1398). */
     kontrakt?: Kontrakt;
   } = $props();
@@ -398,7 +401,7 @@
   visKontrakten={!!nySak}
   innfelt={vedSiden}
   bred
-  toArk={!nySak && (valgt === 'forhold' || valgt === 'vederlag') && arbeid.art === 'les'}
+  toArk={!nySak && arbeid.art === 'les'}
   sakstittel={nySak ? null : (kjernesak.saksbilde?.tittel ?? null)}
 >
   {#snippet topplinje()}
@@ -645,6 +648,7 @@
               ? nySakLenke
               : undefined}
             onspor={velgSpor}
+            {sakslenke}
             onkorriger={(gjelder) => {
               melding = null;
               arbeid = { art: 'korrigering', gjelder };

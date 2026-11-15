@@ -6,8 +6,6 @@
  * Modulen avgjør ingenting selv.
  */
 
-import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
-import { etikett, plassene } from '$kjerne/frosset/byggeklosser';
 import { cellene, OVERSIKTEN } from '$kjerne/frosset/tekst';
 import { beloep, tilTall, type Oere } from '$kjerne/regler/beloep';
 import {
@@ -17,30 +15,16 @@ import {
   krevdSamlet,
   kravposterI,
 } from '$kjerne/spor/vederlag/format';
-import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
-import type { Krav, Kravpost, Oppgjoersform, Standpunkt } from '$kjerne/typer';
+import type { Krav, Kravpost, Oppgjoersform } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { underOverskriften, type Brevet } from './lesing';
+import { lageneISvaret, medForbehold, type Svarlaget } from './svarlagene';
 
-/** Et lag i byggherrens svar, med beløpet og det laget bygger på (U-2). */
-export interface Laget {
-  lag: number;
-  /** «prinsipalt», «subsidiært» eller «videre subsidiært», og `null` når svaret har ett lag. */
-  etikett: string | null;
+/** Et lag i byggherrens svar, med beløpet byggherren godkjenner (U-2). */
+export interface Laget extends Svarlaget {
   /** Summen byggherren godkjenner i laget, og `null` i et lag med en grunn fra forholdet. */
   beloep: number | null;
-  /** Innsigelsene i laget foran, som laget gjelder hvis ikke fører frem (OV-U32). */
-  vilkaar: Innsigelsen[];
-  /** Grunnene fra svaret på forholdet i laget (OV-U33), med brevet de står i. */
-  grunner: { grunn: Subsidiaergrunn; brev: Brevet }[];
-  /** Standpunktene i laget utenom beløpene, med brevet med varselet en påberopelse gjelder. */
-  standpunkter: { standpunkt: Standpunkt; brev: Brevet | null }[];
 }
-
-/** En innsigelse et senere lag bygger på: en grunn fra forholdet eller en påberopt hjemmel. */
-export type Innsigelsen =
-  | { art: 'grunn'; grunn: Subsidiaergrunn; brev: Brevet }
-  | { art: 'varsel'; hjemmel: string };
 
 /** En post i kravet som gjelder, med oppgjørsformen og det krevde beløpet (U-4). */
 export interface Posten {
@@ -112,11 +96,6 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
   };
   if (!svar || !svarbrev) return ut;
 
-  const beregning = u.svar[svar.id];
-  const g = beregning?.forholdssvaret ? u.svar[beregning.forholdssvaret].svar : null;
-  const grunner = g ? grunnerFraForholdet(g, g.beslutningsgrunnlag.virkninger) : [];
-  const grunnbrev = g ? brev(g.dokument) : null;
-  const plass = plassene(svar, svar.beslutningsgrunnlag.virkninger, grunner.length);
   // Laget i sporet er laget i brevet uten grunnene fra forholdet foran (OV-U73, HF-U34).
   const iLagene = [...beloepeneILagene(svar.utregning).values()];
   const sporlag = Math.max(0, ...iLagene.map((l) => l.length));
@@ -129,67 +108,23 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
         0n
       )
     );
-  const antall = Math.max(
-    grunner.length + sporlag,
-    ...svar.standpunkter.map((x) => plass.standpunkt(x.id).lag ?? 0)
-  );
-  const kravbrevet = (gjelder: string | undefined) => {
-    const k = s.krav.find((x) => x.id === gjelder);
-    return k ? brev(k.dokument) : null;
-  };
-  const lagene: Laget[] = Array.from({ length: antall }, (_, i) => {
-    const lag = i + 1;
-    const iSporet = lag - grunner.length;
-    return {
-      lag,
-      etikett: antall > 1 ? etikett(lag) : null,
-      beloep: iSporet < 1 ? null : iLaget(iSporet),
-      vilkaar: [],
-      grunner: iSporet < 1 && grunnbrev ? [{ grunn: grunner[i]!, brev: grunnbrev }] : [],
-      standpunkter: svar.standpunkter
-        .filter((x) => x.art !== 'beloep' && plass.standpunkt(x.id).lag === lag)
-        .map((x) => ({
-          standpunkt: x,
-          brev: x.art === 'rettidighet' && 'gjelder' in x ? kravbrevet(x.gjelder) : null,
-        })),
-    };
-  });
-  for (const l of lagene.slice(1)) {
-    const foran = lagene[l.lag - 2]!;
-    l.vilkaar = [
-      ...foran.grunner.map((x): Innsigelsen => ({ art: 'grunn', ...x })),
-      ...foran.standpunkter.flatMap(({ standpunkt: x }): Innsigelsen[] =>
-        x.art === 'rettidighet' && !x.iTide ? [{ art: 'varsel', hjemmel: x.hjemmel }] : []
-      ),
-    ];
-  }
+  const lagene: Laget[] = lageneISvaret(u, svar, alle, sporlag, 'beloep').map((l) => ({
+    ...l,
+    beloep: l.iSporet < 1 ? null : iLaget(l.iSporet),
+  }));
   const oversikten = svarbrev.avsnitt?.find((a) => a.punkt === OVERSIKTEN);
   return {
     ...ut,
     lagene,
     // Brevet viser hvert avsnitt i punktet som en tabell; punktet har én (`Brev.svelte`).
     tabell: oversikten ? cellene(underOverskriften(oversikten)[0] ?? '') : null,
-    // GR-U34: brevet hadde ikke noe svar på forholdet foran seg og har punktet med forbeholdet.
-    forbehold:
-      beregning?.forholdssvaret === null &&
-      svar.paaberopelse !== null &&
-      !!svarbrev.avsnitt?.some((a) => a.punkt === 'forbehold'),
+    forbehold: medForbehold(u, svar, svarbrev),
   };
 }
 
 /** Posten en rad i oversiktstabellen gjelder, etter navnet tabellen gir den. */
 export const postIRaden = (poster: Posten[], navn: string): Posten | undefined =>
   poster.find((p) => p.navn === navn);
-
-/** De runde trinnene på målestokken for beløpet `stoerst`: fire trinn eller færre. */
-export function trinnene(stoerst: number): number[] {
-  if (stoerst <= 0) return [0];
-  const raa = stoerst / 4;
-  const grunn = 10 ** Math.floor(Math.log10(raa));
-  const steg = [1, 2, 2.5, 5, 10].map((f) => f * grunn).find((x) => x >= raa)!;
-  // Trinnet ved enden av skalaen står ikke, så tallet ikke går ut over målestokken.
-  return Array.from({ length: Math.ceil(stoerst / steg) }, (_, i) => i * steg);
-}
 
 /** Summen av de faste beløpene i hvert krav i vederlaget, etter brevet med kravet (U-12). */
 export function kravbeloepene(u: Utledning): Map<string, number> {
@@ -199,14 +134,4 @@ export function kravbeloepene(u: Utledning): Map<string, number> {
       return sum > 0n ? [[k.dokument, tilTall(sum)] as const] : [];
     })
   );
-}
-
-/**
- * Akseptfristen i byggherrens gjeldende svar i sporet, med brevet, så lenge svaret ikke er godtatt
- * og kravet ikke er trukket (U-11 i BF-44, HF-U23 punkt 4), og ellers `null`.
- */
-export function akseptfristen(u: Utledning, spor: 'vederlag' | 'frist') {
-  const s = u.spor[spor].gjeldendeSvar;
-  const { enighet, trukket } = u.spor[spor];
-  return s?.akseptfrist && !enighet && !trukket ? { brev: s.dokument, dato: s.akseptfrist } : null;
 }

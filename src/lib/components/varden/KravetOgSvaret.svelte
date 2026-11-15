@@ -8,10 +8,11 @@
   import { brevMedUtsagn, type Brevet } from './lesing';
   import { kroner } from '$kjerne/frosset/tekst';
   import { stor } from '$kjerne/frosset/brevdeler';
-  import Knapp from './Knapp.svelte';
-  import Melding from './Melding.svelte';
+  import Forbeholdet from './Forbeholdet.svelte';
+  import Kravkort from './Kravkort.svelte';
+  import Maalrad, { maalestokken } from './Maalrad.svelte';
   import { VEDERLAGET } from './tekster';
-  import { postIRaden, trinnene, type KravetOgSvaret } from './vederlagsoversikt';
+  import { postIRaden, type KravetOgSvaret } from './vederlagsoversikt';
   import type { Utledning } from '$kjerne/utledning/utled';
 
   let {
@@ -57,14 +58,9 @@
     };
   });
   const stoerst = $derived(Math.max(k.krevd ?? 0, ...k.lagene.map((l) => l.beloep ?? 0)));
-  const trinn = $derived(trinnene(stoerst));
-  const andel = (n: number) => (stoerst > 0 ? `${(n / stoerst) * 100}%` : '0');
+  const { trinn, andel, steg } = $derived(maalestokken(stoerst));
   const sist = $derived(k.lagene.findLast((l) => l.beloep !== null));
   const avstand = $derived(k.krevd !== null && sist?.beloep != null ? k.krevd - sist.beloep : 0);
-  // Byggherrens svar på forholdet etter svaret på vederlaget, som forbeholdet skiller fra (D-3).
-  const forholdssvar = $derived(
-    alle.find((b) => b.id === u.spor.forhold.gjeldendeSvar?.dokument) ?? null
-  );
   // Byggherrens standpunkt til oppgjørsformen for en kravpost med regningsarbeid (U-13).
   const formen = (kravpost: string) =>
     k.lagene
@@ -73,221 +69,132 @@
       ?.standpunkt;
 </script>
 
-<section class="kort" aria-labelledby={`${uid}-tittel`}>
-  <div class="hode">
-    <h2 id={`${uid}-tittel`}>{VEDERLAGET.kortet}</h2>
-    <span class="kilde">{VEDERLAGET.kilde(k.kravbrev, k.svarbrev)}</span>
-  </div>
-  <div class="kropp">
-    {#if k.krevd !== null}
-      <div class="maalestokk" style:--steg={trinn.length > 1 ? andel(trinn[1]) : '100%'}>
-        <div>
-          <div class="lagrad">
-            <span class="navn">{VEDERLAGET.krever}</span><b class="belop">{kroner(k.krevd)}</b>
-          </div>
-          <div class="maal aapen" aria-hidden="true"></div>
-          <div class="trinn" aria-hidden="true">
-            {#each trinn as t (t)}<span>{t.toLocaleString('nb-NO')}</span>{/each}
-          </div>
-        </div>
-        {#if k.lagene.length}
-          <p class="lagtittel" id={`${uid}-lag`}>{VEDERLAGET.godkjenner}</p>
-          <ul class="lagene" aria-labelledby={`${uid}-lag`}>
-            {#each k.lagene as l (l.lag)}
-              {@const tekst = VEDERLAGET.laget(l)}
-              <li>
-                <div class="lagrad">
-                  <span class="navn">{l.etikett ? stor(l.etikett) : VEDERLAGET.godkjenner}</span>
-                  {#if l.beloep !== null}<b class="belop">{kroner(l.beloep)}</b>{/if}
-                </div>
-                {#if l.beloep !== null}
-                  <div class="maal" aria-hidden="true"><i style:width={andel(l.beloep)}></i></div>
-                {/if}
-                {#if tekst}<p>{tekst}</p>{/if}
-              </li>
-            {/each}
-          </ul>
-        {:else}
-          <p class="ikke-svart">{VEDERLAGET.ikkeSvart}</p>
-        {/if}
+<Kravkort tittel={VEDERLAGET.kortet} kilde={VEDERLAGET.kilde(k.kravbrev, k.svarbrev)}>
+  {#if k.krevd !== null}
+    <div class="maalestokk" style:--steg={steg}>
+      <div>
+        <Maalrad
+          navn={VEDERLAGET.krever}
+          verdi={kroner(k.krevd)}
+          andel={andel(k.krevd)}
+          aapen
+          {trinn}
+        />
       </div>
-      {#if k.lagene.length && avstand > 0}
-        <p class="gap">
-          {VEDERLAGET.skiller(avstand, k.lagene.length > 1)}
-          {VEDERLAGET.eksMva}
-        </p>
+      {#if k.lagene.length}
+        <p class="lagtittel" id={`${uid}-lag`}>{VEDERLAGET.godkjenner}</p>
+        <ul class="lagene" aria-labelledby={`${uid}-lag`}>
+          {#each k.lagene as l (l.lag)}
+            {@const tekst = VEDERLAGET.laget(l)}
+            <li>
+              <Maalrad
+                navn={l.etikett ? stor(l.etikett) : VEDERLAGET.godkjenner}
+                verdi={l.beloep === null ? null : kroner(l.beloep)}
+                andel={l.beloep === null ? null : andel(l.beloep)}
+                sterk={false}
+              />
+              {#if tekst}<p>{tekst}</p>{/if}
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <p class="ikke-svart">{VEDERLAGET.ikkeSvart}</p>
       {/if}
+    </div>
+    {#if k.lagene.length && avstand > 0}
+      <p class="gap">
+        {VEDERLAGET.skiller(avstand, k.lagene.length > 1)}
+        {VEDERLAGET.eksMva}
+      </p>
     {/if}
+  {/if}
 
-    {#if tabellen}
-      <!-- Tabellen kan rulles på smal skjerm, så rammen kan få fokus med tastaturet (WCAG 2.1.1). -->
-      <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-      <div
-        class="tabell"
-        role="region"
-        aria-labelledby={`${uid}-perpost`}
-        tabindex="0"
-        style:--kolonner={tabellen.kolonner.length - 1}
-      >
-        <!-- Rollene står i markeringen, så tabellen beholder dem når radene blir rutenett på smal
+  {#if tabellen}
+    <!-- Tabellen kan rulles på smal skjerm, så rammen kan få fokus med tastaturet (WCAG 2.1.1). -->
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <div
+      class="tabell"
+      role="region"
+      aria-labelledby={`${uid}-perpost`}
+      tabindex="0"
+      style:--kolonner={tabellen.kolonner.length - 1}
+    >
+      <!-- Rollene står i markeringen, så tabellen beholder dem når radene blir rutenett på smal
              skjerm (WCAG 1.3.1). -->
+      <!-- svelte-ignore a11y_no_redundant_roles -->
+      <table role="table">
+        <caption id={`${uid}-perpost`}>{VEDERLAGET.perPost}</caption>
         <!-- svelte-ignore a11y_no_redundant_roles -->
-        <table role="table">
-          <caption id={`${uid}-perpost`}>{VEDERLAGET.perPost}</caption>
+        <thead role="rowgroup">
           <!-- svelte-ignore a11y_no_redundant_roles -->
-          <thead role="rowgroup">
+          <tr role="row"
+            >{#each tabellen.kolonner as c, m (m)}<th
+                scope="col"
+                role="columnheader"
+                class:krevdkol={m === 1}>{c}</th
+              >{/each}</tr
+          >
+        </thead>
+        <!-- svelte-ignore a11y_no_redundant_roles -->
+        <tbody role="rowgroup">
+          {#each tabellen.rader as { celler, post, sum }, r (r)}
             <!-- svelte-ignore a11y_no_redundant_roles -->
-            <tr role="row"
-              >{#each tabellen.kolonner as c, m (m)}<th
-                  scope="col"
-                  role="columnheader"
-                  class:krevdkol={m === 1}>{c}</th
-                >{/each}</tr
-            >
-          </thead>
-          <!-- svelte-ignore a11y_no_redundant_roles -->
-          <tbody role="rowgroup">
-            {#each tabellen.rader as { celler, post, sum }, r (r)}
-              <!-- svelte-ignore a11y_no_redundant_roles -->
-              <tr role="row" class:sum>
-                <th scope="row" role="rowheader"
-                  >{celler[0]}{#if post}<span class="hj"
-                      >{VEDERLAGET.oppgjoersform(post.oppgjoersform)}</span
-                    >{/if}</th
-                >
-                {#each celler.slice(1) as c, m (m)}
-                  <td role="cell" class:krevdkol={m === 0}>{utenKr(c)}</td>
-                {/each}
-              </tr>
-            {/each}
-          </tbody>
-        </table>
-      </div>
-    {/if}
+            <tr role="row" class:sum>
+              <th scope="row" role="rowheader"
+                >{celler[0]}{#if post}<span class="hj"
+                    >{VEDERLAGET.oppgjoersform(post.oppgjoersform)}</span
+                  >{/if}</th
+              >
+              {#each celler.slice(1) as c, m (m)}
+                <td role="cell" class:krevdkol={m === 0}>{utenKr(c)}</td>
+              {/each}
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
+  {/if}
 
-    {#each regning as p (p.navn)}
-      {@const s = p.kravpost ? formen(p.kravpost.id) : undefined}
-      {@const varsel = p.kravpost?.varsel ? brevMedUtsagn(u, p.kravpost.varsel) : null}
-      <dl class="fakta">
+  {#each regning as p (p.navn)}
+    {@const s = p.kravpost ? formen(p.kravpost.id) : undefined}
+    {@const varsel = p.kravpost?.varsel ? brevMedUtsagn(u, p.kravpost.varsel) : null}
+    <dl class="fakta">
+      <div>
+        <dt>{VEDERLAGET.regning.oppgjoersform}</dt>
+        <dd>
+          <b>{VEDERLAGET.regning.regningsarbeid}</b>
+          {#if s?.art === 'oppgjoersform' && k.svarbrev}{s.aksepterer
+              ? VEDERLAGET.regning.godkjent(k.svarbrev)
+              : VEDERLAGET.regning.ikkeGodkjent(k.svarbrev)}{/if}
+        </dd>
+      </div>
+      {#if varsel}
         <div>
-          <dt>{VEDERLAGET.regning.oppgjoersform}</dt>
-          <dd>
-            <b>{VEDERLAGET.regning.regningsarbeid}</b>
-            {#if s?.art === 'oppgjoersform' && k.svarbrev}{s.aksepterer
-                ? VEDERLAGET.regning.godkjent(k.svarbrev)
-                : VEDERLAGET.regning.ikkeGodkjent(k.svarbrev)}{/if}
-          </dd>
+          <dt>{VEDERLAGET.regning.varsel}</dt>
+          <dd>{VEDERLAGET.regning.varselet(varsel)}</dd>
         </div>
-        {#if varsel}
-          <div>
-            <dt>{VEDERLAGET.regning.varsel}</dt>
-            <dd>{VEDERLAGET.regning.varselet(varsel)}</dd>
-          </div>
-        {/if}
-        {#if p.kravpost?.kostnadsoverslag !== undefined}
-          <div>
-            <dt>{VEDERLAGET.regning.overslag}</dt>
-            <dd>{VEDERLAGET.regning.overslaget(p.kravpost.kostnadsoverslag, k.kravbrev)}</dd>
-          </div>
-        {/if}
-      </dl>
-    {/each}
+      {/if}
+      {#if p.kravpost?.kostnadsoverslag !== undefined}
+        <div>
+          <dt>{VEDERLAGET.regning.overslag}</dt>
+          <dd>{VEDERLAGET.regning.overslaget(p.kravpost.kostnadsoverslag, k.kravbrev)}</dd>
+        </div>
+      {/if}
+    </dl>
+  {/each}
 
-    {#if k.forbehold && k.svarbrev}
-      <div class="forbehold">
-        <Melding art="info" levende={false}>
-          {VEDERLAGET.forbehold(k.svarbrev, forholdssvar)}
-          {#if onforholdet}<Knapp variant="lenke" kompakt onclick={onforholdet}
-              >{VEDERLAGET.tilForholdet}</Knapp
-            >{/if}
-        </Melding>
-      </div>
-    {/if}
-  </div>
-</section>
+  {#if k.forbehold && k.svarbrev}
+    <Forbeholdet svarbrev={k.svarbrev} {u} {alle} {onforholdet} />
+  {/if}
+</Kravkort>
 
 <style>
-  .kort {
-    min-width: 0;
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: var(--r-kort);
-  }
-  .hode {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-1) var(--spacing-4);
-    align-items: baseline;
-    justify-content: space-between;
-    padding: 18px var(--spacing-5) 0;
-  }
-  h2 {
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .kilde {
-    font-size: 12px;
-    color: var(--ink-3);
-  }
-  .kropp {
-    padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
-  }
   /* Kravet er åpent og det godkjente fylt, som ringene i tråden (U-2). */
   .maalestokk {
     --steg: 25%;
     display: grid;
     gap: var(--spacing-4);
     margin-top: var(--spacing-1);
-  }
-  .lagrad {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 var(--spacing-4);
-    align-items: baseline;
-    justify-content: space-between;
-  }
-  .lagrad .navn {
-    font-size: 14px;
-    font-weight: 600;
-  }
-  .lagrad .belop {
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-  }
-  .maal {
-    position: relative;
-    height: 8px;
-    margin-top: 6px;
-    border: 1px solid var(--rule-strong-color);
-    background: var(--surface)
-      linear-gradient(to right, var(--rule-strong-color) 1px, transparent 1px) 0 0 / var(--steg)
-      100%;
-  }
-  .maal i {
-    position: absolute;
-    inset: -1px auto -1px -1px;
-    min-width: 2px;
-    background: var(--ink);
-  }
-  .maal.aapen {
-    border-color: var(--ink);
-    background-image: linear-gradient(to right, var(--ink) 1px, transparent 1px);
-  }
-  .trinn {
-    display: flex;
-    margin-top: var(--spacing-1);
-    font-size: 12px;
-    color: var(--ink-3);
-    white-space: nowrap;
-  }
-  .trinn span {
-    flex: 0 0 var(--steg);
-  }
-  .trinn span:last-child {
-    flex: 1 1 0;
   }
   .lagtittel {
     padding-top: var(--spacing-3);
@@ -298,9 +205,6 @@
   .lagene {
     display: grid;
     gap: var(--spacing-4);
-  }
-  .lagene .navn {
-    font-weight: 500;
   }
   .lagene p,
   .gap,
@@ -391,9 +295,6 @@
   }
   .fakta b {
     font-weight: 600;
-  }
-  .forbehold {
-    margin-top: var(--spacing-5);
   }
   /* Smal skjerm: posten står over beløpene sine, så alle lagene er synlige uten vannrett rulling. */
   @media (max-width: 720px) {

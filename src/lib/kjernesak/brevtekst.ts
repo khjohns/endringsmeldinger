@@ -10,7 +10,7 @@ import { opprettelse as opprett } from '$kjerne/kommandoer/opprettelse';
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Kjerne } from '$kjerne/versjon';
 import { brevtekstI } from '$kjerne/format/leser';
-import type { Avsnitt, Avvisning, Journalrad, Part } from '$kjerne/typer';
+import type { Avsnitt, Avvisning, Journalrad, Part, Sakskode } from '$kjerne/typer';
 
 /**
  * Brevet kjernen lager for kommandoen mot journalen slik den er lastet (B-15):
@@ -43,13 +43,23 @@ export type Brev =
  * frist, som for en ny sak.
  */
 export type Saksmerking = Pick<Kontekst, 'sakskode' | 'kontraktsforkortelse'> &
-  Partial<Pick<Kontekst, 'kontraktsfrister'>> & { fristdatoer?: readonly Fristdato[] };
+  Partial<Pick<Kontekst, 'kontraktsfrister'>> & {
+    fristdatoer?: readonly Fristdato[];
+    /** Sakene i prosjektet kjernen ikke forstår, som kan ha forlenget en frist (MM-U2, KA-U77). */
+    sakerIkkeForstaatt?: readonly string[];
+  };
 
 /**
  * Datoen og dagmulkten for en frist i fristtabellen, som skjemaet viser ved fristen (BF-20 U-4 og
  * U-5). Kjernen lager ikke teksten med dem.
  */
-export type Fristdato = { fristId: number; dato: string; dagmulktbelagt: boolean };
+export type Fristdato = {
+  fristId: number;
+  dato: string;
+  dagmulktbelagt: boolean;
+  /** Dagene partene er enige om i sakene i prosjektet, også denne saken (KA-U77). */
+  forlengelser?: readonly { sakId: string; sakskode: Sakskode | null; dager: number }[];
+};
 
 const stemplet = (sakId: string, part: Part, merking: Saksmerking): Kontekst => ({
   // Aktøren, tidspunktet og ID-ene settes av serveren og endrer ikke den låste teksten.
