@@ -295,6 +295,21 @@ function ingenBeloep(krav: Krav): string {
 }
 
 /**
+ * Navnet oversiktstabellen gir posten (OV-U73): betegnelsen når kravet har flere kravposter, og
+ * ellers «Vederlagsjustering». `null` er den særskilte justeringen etter § 34.1.3 annet ledd.
+ * Visningen finner posten i raden på navnet.
+ */
+export const navnetIOversikten = (
+  krav: Krav,
+  kravpost: Pick<Kravpost, 'betegnelse'> | null
+): string =>
+  kravpost === null
+    ? 'Særskilt vederlagsjustering'
+    : kravposterI(krav).length > 1
+      ? kravpost.betegnelse
+      : 'Vederlagsjustering';
+
+/**
  * OV-U73 og KA-U57 (e): tabellen med én rad per post med fast beløp, det krevde beløpet og det
  * byggherren godkjenner i hvert lag, og en sumrad, når svaret har minst to slike poster og minst
  * to lag. I et lag før postens første beløp er beløpet 0 kr (LV-U33), og ellers det siste
@@ -308,19 +323,21 @@ function oversikt(
   forskyvning: number
 ): string | null {
   const poster = [
-    ...kravposterI(krav).map((p) => ({ post: p.betegnelse, krevd: krevdIKravposten(krav, p) })),
-    { post: 'produktivitet', krevd: krevdProduktivitet(krav) },
+    ...kravposterI(krav).map((p) => ({
+      post: p.betegnelse,
+      navn: navnetIOversikten(krav, p),
+      krevd: krevdIKravposten(krav, p),
+    })),
+    {
+      post: 'produktivitet',
+      navn: navnetIOversikten(krav, null),
+      krevd: krevdProduktivitet(krav),
+    },
   ].filter(
-    (p): p is { post: string; krevd: Oere } =>
+    (p): p is { post: string; navn: string; krevd: Oere } =>
       p.krevd !== null && beloepene.some((b) => b.post === p.post)
   );
   if (poster.length < 2 || lagene < 2) return null;
-  const navn = (post: string) =>
-    post === 'produktivitet'
-      ? 'Særskilt vederlagsjustering'
-      : kravposterI(krav).length > 1
-        ? post
-        : 'Vederlagsjustering';
   const iLaget = (post: string, lag: number) =>
     beloepene
       .filter((b) => b.post === post && (b.plass ?? 0) <= lag)
@@ -328,7 +345,7 @@ function oversikt(
       .at(-1)?.beloep ?? 0;
   const kolonner = Array.from({ length: lagene }, (_, i) => i + 1);
   const rader = poster.map((p) => [
-    navn(p.post),
+    p.navn,
     kroner(tilTall(p.krevd)),
     ...kolonner.map((lag) => kroner(iLaget(p.post, lag))),
   ]);
@@ -367,6 +384,8 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
     `Byggherren svarer på totalentreprenørens krav om ${KRAVET_OM} i ${j.brevet(krav.dokument)}. Beløpene i brevet er eks. mva.`,
   temaer,
   punktet,
+  erInnsigelse: (p) =>
+    (p.art === 'oppgjoersform' && !p.aksepterer) || (p.art === 'justering' && !p.godtar),
   oversikt,
   ingenBeloep,
   enigI: 'beløpet',

@@ -319,12 +319,30 @@ export interface Sporsbrevtekst {
    */
   punktet(p: Standpunkt, krav: Krav): string | undefined;
   /**
+   * Et standpunkt i en art bare sporet har, er en innsigelse et senere lag bygger på (LV-U34,
+   * OV-U32). Rettidigheten er felles (`erInnsigelse` i `brevtekst.ts`).
+   */
+  erInnsigelse(p: Standpunkt): boolean;
+  /**
+   * Rettidigheten etter en bestemmelse bare sporet har, når standpunktet ikke gjelder et varsel:
+   * det brevet det står i, leses av (`varselet`), og påberopelsen slik en protest omtaler den.
+   */
+  rettidighetEtter?: Partial<Record<Hjemmel, Egenrettidighet>>;
+  /**
    * Oversiktstabellen i svaret (OV-U73), eller `null` når svaret ikke har en. `beloepene` og
    * `lagene` er lagene i sporet; `forskyvning` er lagene fra forholdet foran (OV-U32).
    */
   oversikt?(krav: Krav, beloepene: Lagbeloep[], lagene: number, forskyvning: number): string | null;
   /** Følgen av påberopelsen etter § 34.1.2 når svaret ikke har tabell (LV-U33, LV-U38). */
   ingenBeloep?(krav: Krav): string;
+}
+
+/** Rettidigheten etter en bestemmelse bare ett spor har (`Sporsbrevtekst.rettidighetEtter`). */
+export interface Egenrettidighet {
+  /** Elementet brevet standpunktet `gjelder`, står i. */
+  varselet(gjelder: string, j: Journalen): string;
+  /** Påberopelsen i `svar`, slik en protest mot den omtaler den (LV-U4 punkt 7 og 8). */
+  paaberopelsen(svar: Svar, j: Journalen): string;
 }
 
 /** Et tema i byggherrens svar: punktet og overskriften (LV-U34). */

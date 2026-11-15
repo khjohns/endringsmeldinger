@@ -2870,7 +2870,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'protesten mot påberopelsen etter § 33.6.2 omtaler den som for sen varsling (LV-U20)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['erPaaberopelseEtter3362(id, e.svar)', 'false']],
+    endringer: [
+      [
+        'egen.paaberopelsen(e.svar, j)',
+        '`påberopelsen av for sen varsling i svaret i ${j.brevet(e.svar.dokument)}`',
+      ],
+    ],
     mal: ['LV-U20: protesten mot påberopelsen etter § 33.6.2'],
   },
   {

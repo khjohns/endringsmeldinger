@@ -9,8 +9,10 @@ import {
   KanIkkeUttrykkes,
   kravetErstatter,
   opplistet,
+  PARTENS,
   tidligere,
   type Brevpunkt,
+  type Egenrettidighet,
   type Kravsporsbrevtekst,
   type Standpunktstekster,
   type Tema,
@@ -21,6 +23,7 @@ import type { Sporslinje } from '../../frosset/linje.ts';
 import { dager } from '../../frosset/tekst.ts';
 import { Uforstaatt } from '../../format/skjema.ts';
 import { betegnelsen, hindringenEtter, innholdIFristen, type FristIKravet } from './format.ts';
+import { svarPaaForesporsler } from './frysing.ts';
 import { fristnoekkel } from './utledning.ts';
 import type { Krav } from '../../typer.ts';
 
@@ -155,6 +158,20 @@ function dagerForFristen(resultat: string, frist: FristIKravet, vurdert: number)
 /** Kravet i sporet med kontraktens ord (`kravetOm`). */
 const KRAVET_OM = 'fristforlengelse';
 
+/**
+ * Rettidigheten etter § 33.6.2 gjelder TEs svar på forespørselen. Brevet er det forespørselen
+ * står i (LV-U18 setning 4), og påberopelsen gjelder svaret, ikke et varsel (LV-U20).
+ */
+const RETTIDIGHETEN_ETTER_33_6_2: Egenrettidighet = {
+  varselet: (gjelder, j) => {
+    const f = svarPaaForesporsler(j.dokumenter).find((x) => x.svar === gjelder);
+    if (!f) throw new KanIkkeUttrykkes(`${gjelder} er ikke et svar på en forespørsel`);
+    return f.foresporsel;
+  },
+  paaberopelsen: (svar, j) =>
+    `påberopelsen av at ${PARTENS.TE} svar på forespørselen etter NS 8407 punkt 33.6.2 kom for sent i svaret i ${j.brevet(svar.dokument)}`,
+};
+
 export const BREVTEKSTEN_I_FRISTEN = {
   navn: 'fristen',
   svaretGjelder: `kravet om ${KRAVET_OM}`,
@@ -178,6 +195,10 @@ export const BREVTEKSTEN_I_FRISTEN = {
         return undefined;
     }
   },
+  // KA-U78: hindringen og spesifiseringen står i et eget lag når byggherren påberoper dem.
+  erInnsigelse: (p) =>
+    (p.art === 'hindring' && !p.oppfylt) || (p.art === 'spesifisering' && !p.iTide),
+  rettidighetEtter: { '33.6.2': RETTIDIGHETEN_ETTER_33_6_2 },
   enigI: 'antallet dager',
   trukket: fristeneMedDager,
   ingenKrav: (sak) =>

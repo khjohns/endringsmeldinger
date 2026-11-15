@@ -112,8 +112,11 @@ const FORHOLDENE = new Map<string, Forholdet>(
 export const forholdet = (kode: unknown): Forholdet | null =>
   (typeof kode === 'string' && FORHOLDENE.get(kode)) || null;
 
+/** «påberopelse av <forholdet>», i tittelen (GR-U31) og i teksten (`paaberopelsenAvForholdet`). */
+const paaberopelseAvNavnet = (navn: string) => `påberopelse av ${navn.toLowerCase()}`;
+
 /** Tittelen på totalentreprenørens brev om forholdet (GR-U31). */
-export const paaberopelsenAv = (navn: string) => `Påberopelse av ${navn.toLowerCase()}`;
+export const paaberopelsenAv = (navn: string) => stor(paaberopelseAvNavnet(navn));
 
 /** Forholdet brevet påberoper (GR-U31): et krav i forholdssporet i et brev uten svar. */
 export function paaberoptForhold(d: Pick<Dokument, 'krav' | 'svar'>) {
@@ -232,7 +235,7 @@ function risikohjemmel(krav: Krav): string {
 export function paaberopelsenAvForholdet(paaberopelse: Krav): string {
   const f = forholdet(innholdIForholdet(paaberopelse).underkategori);
   if (!f) throw new KanIkkeUttrykkes('forholdet i påberopelsen har ikke noe navn');
-  return `påberopelse av ${f.navn.toLowerCase()}`;
+  return paaberopelseAvNavnet(f.navn);
 }
 
 export const BREVTEKSTEN_I_FORHOLDET = {
@@ -243,6 +246,7 @@ export const BREVTEKSTEN_I_FORHOLDET = {
   innledning: (krav, { j }) =>
     `Byggherren svarer på totalentreprenørens ${paaberopelsenAvForholdet(krav)} i ${j.brevet(krav.dokument)}.`,
   punktet: (p) => (p.art === 'forhold' ? 'forhold' : undefined),
+  erInnsigelse: (p) => p.art === 'forhold' && p.resultat === 'avslaatt',
   // LV-U34: punktene i byggherrens svar, som i skjemaet (prototypen `forholdssvar.html`).
   temaer: () => [
     { punkt: '32.2', overskrift: 'Varselet etter punkt 32.2' },

@@ -55,6 +55,9 @@ export const erLagslinje = (avsnitt: string): boolean =>
 /** Punktet med oversiktstabellen i svaret (OV-U73). Cellene står adskilt med tabulator. */
 export const OVERSIKTEN = 'oversikt';
 
+/** Punktet med forbeholdet i svaret etter GR-U34, sist i svaret. */
+export const FORBEHOLDET = 'forbehold';
+
 /** Radene og cellene i oversiktstabellen; den første raden er kolonnene, den siste summen. */
 export const cellene = (tabell: string): string[][] =>
   tabell.split('\n').map((rad) => rad.split('\t'));

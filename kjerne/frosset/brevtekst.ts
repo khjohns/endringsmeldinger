@@ -51,8 +51,7 @@ import {
 } from '../spor/forhold/tekst.ts';
 import { BREVTEKSTEN_I_VEDERLAGET, STANDPUNKTENE_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
 import { BREVTEKSTEN_I_FRISTEN, STANDPUNKTENE_I_FRISTEN } from '../spor/frist/tekst.ts';
-import { svarPaaForesporsler } from '../spor/frist/frysing.ts';
-import { kroner, OVERSIKTEN } from './tekst.ts';
+import { FORBEHOLDET, kroner, OVERSIKTEN } from './tekst.ts';
 import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
   Avsnitt,
@@ -134,18 +133,18 @@ export function lagBrevtekst(
       perPunkt[egen.punkt] = utdypning;
     }
     if (forbehold) {
-      if (perPunkt[FORBEHOLDET.punkt])
+      if (perPunkt[FORBEHOLDET])
         throw new UtdypningUtenPunkt(
           'Forbeholdet og utdypningen for punktet «Forbehold» er to tekster for samme punkt.'
         );
-      perPunkt[FORBEHOLDET.punkt] = forbehold;
+      perPunkt[FORBEHOLDET] = forbehold;
     }
     // HF-U23 punkt 5: linjen med akseptfristen har ingen utdypning, og står sist.
     if (perPunkt[AKSEPTFRISTEN] && brevpunkter.some((p) => p.punkt === AKSEPTFRISTEN))
       throw new UtdypningUtenPunkt('Linjen med akseptfristen har ingen utdypning.');
     const punktene = [
       ...brevpunkter.filter((p) => p.punkt !== AKSEPTFRISTEN),
-      ...[egen, forbehold ? FORBEHOLDET : undefined]
+      ...[egen, forbehold ? FORBEHOLDSPUNKTET : undefined]
         .filter(
           (e): e is { punkt: string; overskrift: string } =>
             e !== undefined && !!perPunkt[e.punkt] && !brevpunkter.some((p) => p.punkt === e.punkt)
@@ -184,7 +183,11 @@ export function lagBrevtekst(
   const svarene = [...nytt.svar].sort((a, b) => SPORENE.indexOf(a.spor) - SPORENE.indexOf(b.spor));
   const ns = { nevnt: false };
   for (const s of svarene)
-    leggPunkter(s.id, svarpunkter(s, t, regler, { foer: nummer, nummerert, ns }), FORBEHOLDET);
+    leggPunkter(
+      s.id,
+      svarpunkter(s, t, regler, { foer: nummer, nummerert, ns }),
+      FORBEHOLDSPUNKTET
+    );
   for (const u of nytt.utsagn) legg(u.id, utsagnstekst(u, t));
   for (const o of nytt.opplysninger) {
     // Datoen for et varsel står i avsnittet for varselet.
@@ -286,7 +289,7 @@ function forholdetErUbesvart(s: Svar, { saken, nytt }: Pick<Tekst, 'saken' | 'ny
 const SPORENE: readonly Spor[] = ['forhold', 'vederlag', 'frist'];
 
 /** Punktet for utdypningen for hele svaret, under den faste teksten etter GR-U34 (KA-U49 punkt 1). */
-const FORBEHOLDET = { punkt: 'forbehold', overskrift: 'Forbehold' } as const;
+const FORBEHOLDSPUNKTET = { punkt: FORBEHOLDET, overskrift: 'Forbehold' } as const;
 /** Punktet med akseptfristen sist i svaret (HF-U23 punkt 2, arbeidsvalget 14.11 i #502). */
 const AKSEPTFRISTEN = 'akseptfrist';
 
@@ -333,10 +336,10 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
     ledd.push({
       punkt,
       plass,
-      innsigelse: erInnsigelse(p),
+      innsigelse: erInnsigelse(p, sporet),
       tekst: stor(
         p.art === 'rettidighet'
-          ? rettidighetstekst(p, krav, j, innsigelsene)
+          ? rettidighetstekst(p, krav, j, innsigelsene, sporet)
           : standpunkttekst(p, s, krav, j)
       ),
     });
@@ -389,7 +392,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
   });
   if (tabell) punkter.push({ punkt: OVERSIKTEN, overskrift: 'Oversikt' });
   const forbehold = forbeholdetForForholdet(s, t);
-  if (forbehold.length) punkter.push({ ...FORBEHOLDET });
+  if (forbehold.length) punkter.push({ ...FORBEHOLDSPUNKTET });
 
   const nummerert = new Map<string, number>();
   let n = nr.foer;
@@ -426,7 +429,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
   for (const p of punkter) {
     const avsnitt: string[] = p.foerst ? [p.foerst] : [];
     if (p.punkt === OVERSIKTEN) avsnitt.push(tabell!);
-    else if (p.punkt === FORBEHOLDET.punkt) avsnitt.push(forbehold.join(' '));
+    else if (p.punkt === FORBEHOLDET) avsnitt.push(forbehold.join(' '));
     else {
       // OV-U32: et upåvirket standpunkt står uten etikett, så det står foran lagene i punktet.
       const iPunktet = ledd
@@ -490,25 +493,8 @@ function punktetFor(p: Standpunkt, sporet: Sporsbrevtekst, krav: Krav): string {
 }
 
 /** Et standpunkt som er en innsigelse et senere lag bygger på (LV-U34, OV-U32). */
-function erInnsigelse(p: Standpunkt): boolean {
-  switch (p.art) {
-    case 'rettidighet':
-      return !p.iTide;
-    case 'forhold':
-      return p.resultat === 'avslaatt';
-    case 'oppgjoersform':
-      return !p.aksepterer;
-    case 'justering':
-      return !p.godtar;
-    // KA-U78: hindringen og spesifiseringen står i et eget lag når byggherren påberoper dem.
-    case 'hindring':
-      return !p.oppfylt;
-    case 'spesifisering':
-      return !p.iTide;
-    default:
-      return false;
-  }
-}
+const erInnsigelse = (p: Standpunkt, sporet: Sporsbrevtekst): boolean =>
+  p.art === 'rettidighet' ? !p.iTide : sporet.erInnsigelse(p);
 
 /**
  * OV-U32 og LV-U34: et avslått eller prekludert forhold står først, og lagene i sporet flyttes
@@ -591,7 +577,8 @@ function rettidighetstekst(
   p: Extract<Standpunkt, { art: 'rettidighet' }>,
   krav: Krav,
   j: Journalen,
-  innsigelsene: Innsigelse[]
+  innsigelsene: Innsigelse[],
+  sporet: Sporsbrevtekst
 ): string {
   const aapne = innsigelsene.filter((i) => i.hjemmel === p.hjemmel);
   const brevene = liste([...new Set(aapne.map((i) => j.brevet(i.dokument)))]);
@@ -604,8 +591,8 @@ function rettidighetstekst(
       ? `byggherren gjør gjeldende at ${om} kom for sent, og at totalentreprenøren bare har krav på den justeringen av enhetsprisene byggherren måtte forstå at forholdet ville føre til.`
       : `byggherren gjør gjeldende at ${om} ikke ble gitt eller kom for sent.`;
   }
-  // LV-U18 setning 4: for § 33.6.2 brevet forespørselen står i.
-  const gjelder = p.hjemmel === '33.6.2' ? foresporselenTil(p.gjelder, j) : p.gjelder;
+  const egen = sporet.rettidighetEtter?.[p.hjemmel];
+  const gjelder = egen ? egen.varselet(p.gjelder, j) : p.gjelder;
   const omVarselet = `${VARSELET_I_SVARET[p.hjemmel]} i ${j.brevet(j.dokumentetTil(gjelder))}`;
   if (!p.iTide && p.hjemmel === '34.1.3')
     return `byggherren gjør gjeldende at ${omVarselet} kom for sent${jf}, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet.`;
@@ -627,16 +614,6 @@ function standpunkttekst(p: Standpunkt, s: Svar, krav: Krav, j: Journalen): stri
   return standpunktetISporet(p.art, p, krav, s, j);
 }
 
-/** Forespørselen et standpunkt etter § 33.6.2 gjelder svaret på: kravet eller begrunnelsen. */
-function foresporselenTil(gjelder: string, j: Journalen): string {
-  const f = svarPaaForesporsler(j.dokumenter).find((x) => x.svar === gjelder);
-  if (!f) throw new KanIkkeUttrykkes(`${gjelder} er ikke et svar på en forespørsel`);
-  return f.foresporsel;
-}
-
-const erPaaberopelseEtter3362 = (id: string, svar: Svar) =>
-  svar.standpunkter.some((p) => p.id === id && p.art === 'rettidighet' && p.hjemmel === '33.6.2');
-
 /** Det en innsigelse eller en protest viser til, med brevet det står i (LV-U4 punkt 7 og 8). */
 function beskriv(id: string, j: Journalen): string {
   const e = j.element(id);
@@ -647,11 +624,16 @@ function beskriv(id: string, j: Journalen): string {
     }
     case 'svar':
       return `byggherrens svar i ${j.brevet(e.svar.dokument)}`;
-    case 'standpunkt':
-      // LV-U20: påberopelsen etter § 33.6.2 gjelder TEs svar på forespørselen, ikke et varsel.
-      return erPaaberopelseEtter3362(id, e.svar)
-        ? `påberopelsen av at ${PARTENS.TE} svar på forespørselen etter NS 8407 punkt 33.6.2 kom for sent i svaret i ${j.brevet(e.svar.dokument)}`
+    case 'standpunkt': {
+      const p = e.svar.standpunkter.find((x) => x.id === id);
+      const egen =
+        p?.art === 'rettidighet'
+          ? brevtekstI(e.svar.spor).rettidighetEtter?.[p.hjemmel]
+          : undefined;
+      return egen
+        ? egen.paaberopelsen(e.svar, j)
         : `påberopelsen av for sen varsling i svaret i ${j.brevet(e.svar.dokument)}`;
+    }
     case 'utsagn':
       if (e.utsagn.art === 'varsel')
         return `${PARTENS.TE} varsel ${VARSEL_OM[uttrykkbar(e.utsagn.hjemmel)]} i ${j.brevet(e.dokument)}`;
