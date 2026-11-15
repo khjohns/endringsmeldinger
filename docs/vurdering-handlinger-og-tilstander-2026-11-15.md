@@ -474,7 +474,17 @@ før første ekte sak, og rekkefølgen i #1065.
 
 ### Svarene etter drøftingen
 
-Ikke besvart.
+Oppdragsgiver 15.11, ordrett: «Som anbefalt, men en avklaring: for innlegg trenger vi vel kun
+fritekstinnlegg? Innsigelse etter pkt 5 vurderes som nevnt som et forbehold i kravskjema.
+Passitivitet, protest, bestridelse er ikke noe eget, utover hva som allerede gis i kravskjema.
+Riktig forstått?»
+
+Lest som A1, B1, C, D1 og E1. Oppfølgingsspørsmål om C punkt 4, stilt 15.11: skal innsigelsen og
+passiviteten være innlegg også etter første versjon? Da lyder punkt 4: «Den egne innsigelsen etter
+punkt 5 og påberopt passivitet sendes som innlegg i fritekst. Løsningen har ingen egen handling for
+dem. Om innsigelsen skal bli et strukturert forbehold i skjemaet for krav og svar, avgjøres ved et
+nytt vedtak (#1657).» Forhold: endrer VS-U46 (del D og beslutningsdelen om den egne innsigelsen)
+og VS-U12, og snevrer inn MM-U47 der den viser til dem. Svaret er ikke kommet.
 
 ## Kodefunn
 
