@@ -5,21 +5,24 @@
   som liste. Tallene og standpunktene er de byggherren sendte i brevet (MM-U50).
 -->
 <script lang="ts">
-  import { brevet, brevMedUtsagn } from './lesing';
+  import { brevMedUtsagn, type Brevet } from './lesing';
   import { kroner } from '$kjerne/frosset/tekst';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import { VEDERLAGET } from './tekster';
-  import { postIRaden, trinnene, type KravetOgSvaret, type Laget } from './vederlagsoversikt';
+  import { postIRaden, trinnene, type KravetOgSvaret } from './vederlagsoversikt';
   import type { Utledning } from '$kjerne/utledning/utled';
 
   let {
     k,
     u,
+    alle,
     onforholdet,
   }: {
     k: KravetOgSvaret;
     u: Utledning;
+    /** Brevene i saken (`brevene(u)`). */
+    alle: Brevet[];
     /** Brukeren går til siden for forholdet fra forbeholdet (U-3). */
     onforholdet?: () => void;
   } = $props();
@@ -29,36 +32,44 @@
 
   const regning = $derived(k.poster.filter((p) => p.oppgjoersform === 'regningsarbeid'));
   const fast = $derived(k.poster.filter((p) => p.oppgjoersform !== 'regningsarbeid'));
+  // Tabellen slik brevet har den (U-14, OV-U73), og uten tabell i brevet postene i kravet (U-4).
+  const tabellen = $derived.by(() => {
+    if (k.tabell) {
+      const [kolonner, ...rader] = k.tabell;
+      return {
+        kolonner,
+        rader: rader.map((celler, r) => ({
+          celler,
+          post: postIRaden(k.poster, celler[0]),
+          sum: r === rader.length - 1,
+        })),
+      };
+    }
+    if (!fast.length) return null;
+    return {
+      kolonner: [VEDERLAGET.post, VEDERLAGET.krevd],
+      rader: fast.map((p) => ({
+        celler: [p.navn, p.krevd === null ? '' : kroner(p.krevd)],
+        post: p,
+        sum: false,
+      })),
+    };
+  });
   const stoerst = $derived(Math.max(k.krevd ?? 0, ...k.lagene.map((l) => l.beloep ?? 0)));
   const trinn = $derived(trinnene(stoerst));
   const andel = (n: number) => (stoerst > 0 ? `${(n / stoerst) * 100}%` : '0');
   const sist = $derived(k.lagene.findLast((l) => l.beloep !== null));
   const avstand = $derived(k.krevd !== null && sist?.beloep != null ? k.krevd - sist.beloep : 0);
   // Byggherrens svar på forholdet etter svaret på vederlaget, som forbeholdet skiller fra (D-3).
-  const forholdssvar = $derived.by(() => {
-    const g = u.spor.forhold.gjeldendeSvar;
-    return g ? brevet(u, g.dokument) : null;
-  });
+  const forholdssvar = $derived(
+    alle.find((b) => b.id === u.spor.forhold.gjeldendeSvar?.dokument) ?? null
+  );
   // Byggherrens standpunkt til oppgjørsformen for en kravpost med regningsarbeid (U-13).
   const formen = (kravpost: string) =>
     k.lagene
       .flatMap((l) => l.standpunkter)
       .find((s) => s.standpunkt.art === 'oppgjoersform' && s.standpunkt.gjelder === kravpost)
       ?.standpunkt;
-
-  function tekstI(l: Laget): string {
-    const grunnlag = [
-      ...l.grunner.map((g) => VEDERLAGET.innsigelsen({ art: 'grunn', ...g })),
-      ...l.standpunkter.map((s) => VEDERLAGET.standpunkt(s.standpunkt, s.brev)),
-    ];
-    const vilkaar = l.vilkaar.length
-      ? VEDERLAGET.vilkaar(l.vilkaar.map(VEDERLAGET.innsigelsen), l.lag > 2)
-      : null;
-    const setning = grunnlag.map((t, i) => (i ? t[0].toLowerCase() + t.slice(1) : t)).join(', og ');
-    if (vilkaar && setning) return `${vilkaar}: ${setning}.`;
-    if (vilkaar) return `${vilkaar}.`;
-    return setning ? `${setning}.` : '';
-  }
 </script>
 
 <section class="kort" aria-labelledby={`${uid}-tittel`}>
@@ -82,7 +93,7 @@
           <p class="lagtittel" id={`${uid}-lag`}>{VEDERLAGET.godkjenner}</p>
           <ul class="lagene" aria-labelledby={`${uid}-lag`}>
             {#each k.lagene as l (l.lag)}
-              {@const tekst = tekstI(l)}
+              {@const tekst = VEDERLAGET.laget(l)}
               <li>
                 <div class="lagrad">
                   <span class="navn"
@@ -111,52 +122,29 @@
       {/if}
     {/if}
 
-    {#if k.tabell}
-      {@const [kolonner, ...rader] = k.tabell}
-      <!-- Tabellen slik brevet har den (U-14, OV-U73), med oppgjørsformen under posten (U-4). -->
+    {#if tabellen}
+      <!-- Tabellen kan rulles på smal skjerm, så rammen kan få fokus med tastaturet (WCAG 2.1.1). -->
       <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
       <div class="tabell" role="region" aria-labelledby={`${uid}-perpost`} tabindex="0">
         <table>
           <caption id={`${uid}-perpost`}>{VEDERLAGET.perPost}</caption>
           <thead>
             <tr
-              >{#each kolonner as c, m (m)}<th scope="col" class:krevdkol={m === 1}>{c}</th
+              >{#each tabellen.kolonner as c, m (m)}<th scope="col" class:krevdkol={m === 1}>{c}</th
                 >{/each}</tr
             >
           </thead>
           <tbody>
-            {#each rader as rad, r (r)}
-              {@const p = postIRaden(k.poster, rad[0])}
-              <tr class:sum={r === rader.length - 1}>
-                {#each rad as c, m (m)}
-                  {#if m === 0}
-                    <th scope="row"
-                      >{c}{#if p}<span class="hj">{VEDERLAGET.oppgjoersform(p.oppgjoersform)}</span
-                        >{/if}</th
-                    >
-                  {:else}<td class:krevdkol={m === 1}>{utenKr(c)}</td>{/if}
-                {/each}
-              </tr>
-            {/each}
-          </tbody>
-        </table>
-      </div>
-    {:else if fast.length}
-      <!-- Uten tabell i brevet står postene i kravet, én rad per post (U-4). -->
-      <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-      <div class="tabell" role="region" aria-labelledby={`${uid}-perpost`} tabindex="0">
-        <table>
-          <caption id={`${uid}-perpost`}>{VEDERLAGET.perPost}</caption>
-          <thead>
-            <tr><th scope="col">{VEDERLAGET.post}</th><th scope="col">{VEDERLAGET.krevd}</th></tr>
-          </thead>
-          <tbody>
-            {#each fast as p (p.navn)}
-              <tr>
+            {#each tabellen.rader as { celler, post, sum }, r (r)}
+              <tr class:sum>
                 <th scope="row"
-                  >{p.navn}<span class="hj">{VEDERLAGET.oppgjoersform(p.oppgjoersform)}</span></th
+                  >{celler[0]}{#if post}<span class="hj"
+                      >{VEDERLAGET.oppgjoersform(post.oppgjoersform)}</span
+                    >{/if}</th
                 >
-                <td>{p.krevd === null ? '' : utenKr(kroner(p.krevd))}</td>
+                {#each celler.slice(1) as c, m (m)}
+                  <td class:krevdkol={m === 0}>{utenKr(c)}</td>
+                {/each}
               </tr>
             {/each}
           </tbody>

@@ -10,8 +10,8 @@
   import Brevtraad from './Brevtraad.svelte';
   import KravetOgSvaret from './KravetOgSvaret.svelte';
   import { brevITraaden, brevene, oppfoelgingene, type Brevet } from './lesing';
-  import { VEDERLAGET } from './tekster';
-  import { kravbeloepene, kravetOgSvaret } from './vederlagsoversikt';
+  import { VEDERLAGET, dato } from './tekster';
+  import { akseptfristen, kravbeloepene, kravetOgSvaret } from './vederlagsoversikt';
 
   let {
     u,
@@ -40,15 +40,23 @@
   const uid = $props.id();
 
   const alle = $derived(brevene(u));
-  const k = $derived(kravetOgSvaret(u));
-  // Akseptfristen står ved byggherrens svar så lenge det ikke er godtatt (U-11, HF-U23 punkt 4).
-  const akseptfrist = $derived.by(() => {
-    const s = u.spor.vederlag.gjeldendeSvar;
-    return s?.akseptfrist && !u.spor.vederlag.enighet
-      ? { brev: s.dokument, dato: s.akseptfrist }
-      : null;
-  });
+  const k = $derived(kravetOgSvaret(u, alle));
+  const beloepene = $derived(kravbeloepene(u));
+  const akseptfrist = $derived(akseptfristen(u, 'vederlag'));
 </script>
+
+<!-- Beløpet i kravet ved brevet med kravet (U-12). -->
+{#snippet beloepet(b: Brevet)}
+  {@const n = beloepene.get(b.id)}
+  {#if n !== undefined}<p class="beloep">{VEDERLAGET.kravbeloep(n)}</p>{/if}
+{/snippet}
+
+<!-- Akseptfristen over handlingene ved byggherrens svar (U-11, U-16, HF-U23 punkt 4). -->
+{#snippet fristen(b: Brevet)}
+  {#if akseptfrist?.brev === b.id}
+    <p class="akseptfrist">{VEDERLAGET.akseptfrist} <b>{dato(akseptfrist.dato)}</b>.</p>
+  {/if}
+{/snippet}
 
 <section class="kort" aria-labelledby={`${uid}-tittel`}>
   <header class="sporhode">
@@ -62,8 +70,8 @@
     fulgtOpp={oppfoelgingene(u, alle)}
     dokumentasjon={u.ikkeVurderteBrev}
     {venterPaaSvar}
-    beloep={kravbeloepene(u)}
-    {akseptfrist}
+    oeverst={beloepet}
+    nederst={fristen}
     {vist}
     {smal}
     {onles}
@@ -73,7 +81,7 @@
   />
 </section>
 
-{#if k}<KravetOgSvaret {k} {u} {onforholdet} />{/if}
+{#if k}<KravetOgSvaret {k} {u} {alle} {onforholdet} />{/if}
 
 <style>
   .kort {
@@ -91,6 +99,21 @@
     font-weight: 600;
     line-height: 1.25;
     letter-spacing: var(--sperring-24);
+    color: var(--ink);
+  }
+  .beloep {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .akseptfrist {
+    padding-top: var(--spacing-2);
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .akseptfrist b {
+    font-weight: 600;
     color: var(--ink);
   }
   .hjemmel {

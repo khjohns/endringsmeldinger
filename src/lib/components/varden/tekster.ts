@@ -16,7 +16,7 @@ import type { Kravpost, Oppgjoersform, Part, Spor, Standpunkt } from '$kjerne/ty
 import { OPPGJOERSHJEMMEL } from '$kjerne/spor/vederlag/format';
 import type { Regel } from './kommandoer';
 import type { Brevet, Brevref, OppgittDato, Standpunktet } from './lesing';
-import type { Innsigelsen } from './vederlagsoversikt';
+import type { Innsigelsen, Laget } from './vederlagsoversikt';
 
 export const SPORNAVN: Record<Spor, string> = {
   forhold: 'Forholdet',
@@ -1550,6 +1550,20 @@ export const VEDERLAGET = {
           ? `, og godkjenner ${kroner(s.begrenset)} etter begrensningen`
           : '')
       : standpunkttekst(s, false),
+  /** Vilkåret og det laget bygger på, i én setning ved beløpet (U-2). */
+  laget: (l: Laget): string => {
+    const grunnlag = [
+      ...l.grunner.map((g) => VEDERLAGET.innsigelsen({ art: 'grunn', ...g })),
+      ...l.standpunkter.map((s) => VEDERLAGET.standpunkt(s.standpunkt, s.brev)),
+    ]
+      .map((t, i) => (i ? liten(t) : t))
+      .join(', og ');
+    const vilkaar = l.vilkaar.length
+      ? VEDERLAGET.vilkaar(l.vilkaar.map(VEDERLAGET.innsigelsen), l.lag > 2)
+      : null;
+    if (vilkaar && grunnlag) return `${vilkaar}: ${grunnlag}.`;
+    return vilkaar || grunnlag ? `${vilkaar ?? grunnlag}.` : '';
+  },
   /** Hva som skiller svaret fra kravet om ingen av innsigelsene fører frem (U-2). */
   skiller: (beloep: number, flereLag: boolean) =>
     flereLag

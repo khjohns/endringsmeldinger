@@ -14,6 +14,7 @@
   import Melding from './Melding.svelte';
   import Sporlesing from './Sporlesing.svelte';
   import Vardenskall, { type Smule } from './Vardenskall.svelte';
+  import { akseptfristen } from './vederlagsoversikt';
   import Vederlagssvar from './Vederlagssvar.svelte';
   import Fristsvar from './Fristsvar.svelte';
   import { tomtFristsvar } from './fristsvar';
@@ -182,8 +183,7 @@
       const b = u ? brevForLinja(brev, s, u.spor[s].trukket) : undefined;
       const kode = betegnelser[s];
       // Akseptfristen i et svar som ikke er godtatt, står i stedet for siste brev (U-11 i BF-44).
-      const svar = u?.spor[s].gjeldendeSvar;
-      const frist = svar?.akseptfrist && !u?.spor[s].enighet ? svar.akseptfrist : null;
+      const frist = u && s !== 'forhold' ? akseptfristen(u, s)?.dato : null;
       return {
         betegnelse: kode ? BETEGNELSE[kode] : null,
         siste: frist ? SAKEN.akseptfrist(frist) : b ? SAKEN.siste(b, b.avsender) : null,

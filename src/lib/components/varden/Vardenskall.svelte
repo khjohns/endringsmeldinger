@@ -58,7 +58,7 @@
   } = $props();
 
   // Et navn som mangler, står ikke der (#1398).
-  const raden = $derived(
+  const rader = $derived(
     kontraktsrader(kontrakt ?? kontraktFraProsjektet(), [
       'prosjekt',
       'kontraktsform',
@@ -84,11 +84,11 @@
       {@render panel?.()}
       <div class="bunn">
         <!-- Prosjektet og partene hører til kontrakten, ikke saken (oppdragsgiver 30.10). -->
-        {#if visKontrakten && raden.length}
+        {#if visKontrakten && rader.length}
           <section class="kontrakten" aria-labelledby="kontrakt-etikett">
             <h2 class="etikett" id="kontrakt-etikett">{SAKEN.kontrakten}</h2>
             <dl class="meta">
-              {#each raden as [etikett, verdi] (etikett)}
+              {#each rader as [etikett, verdi] (etikett)}
                 <div>
                   <dt>{etikett}</dt>
                   <dd>{verdi}</dd>

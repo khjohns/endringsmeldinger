@@ -18,6 +18,10 @@ import Vederlagsoversikt from '$lib/components/varden/Vederlagsoversikt.svelte';
 import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 import { kravetOgSvaret, trinnene } from '$lib/components/varden/vederlagsoversikt';
+import { brevene } from '$lib/components/varden/lesing';
+import type { Utledning } from '$kjerne/utledning/utled';
+
+const kravetOgSvaretI = (u: Utledning) => kravetOgSvaret(u, brevene(u));
 
 afterEach(cleanup);
 
@@ -54,7 +58,7 @@ async function vis(steg: Handling[]) {
 
 describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
   it('svaret med tre lag: 0 kr prinsipalt, 110 000 kr subsidiært og 130 000 kr videre subsidiært, som i brevet (D-1, D-2, OV-U31, OV-U73)', async () => {
-    const k = kravetOgSvaret(await utledning(BF44.steg))!;
+    const k = kravetOgSvaretI(await utledning(BF44.steg))!;
     expect(k.krevd).toBe(190000);
     expect(k.lagene.map((l) => [l.etikett, l.beloep])).toEqual([
       ['prinsipalt', 0],
@@ -67,7 +71,7 @@ describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
   });
 
   it('hvert lag etter det første gjelder hvis innsigelsene i laget foran ikke fører frem (U-2, OV-U32)', async () => {
-    const k = kravetOgSvaret(await utledning(BF44.steg))!;
+    const k = kravetOgSvaretI(await utledning(BF44.steg))!;
     expect(k.lagene.map((l) => l.vilkaar)).toEqual([
       [],
       [{ art: 'varsel', hjemmel: '34.1.2' }],
@@ -76,7 +80,7 @@ describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
   });
 
   it('postene i kravet heter som i tabellen i brevet, med oppgjørsformen (U-4)', async () => {
-    const k = kravetOgSvaret(await utledning(BF44.steg))!;
+    const k = kravetOgSvaretI(await utledning(BF44.steg))!;
     expect(k.poster.map((p) => [p.navn, p.oppgjoersform, p.krevd])).toEqual([
       ['Vederlagsjustering', 'tilbud', 150000],
       ['Særskilt vederlagsjustering', null, 40000],
@@ -85,14 +89,14 @@ describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
   });
 
   it('et svar gitt etter svaret på forholdet har ikke forbeholdet (GR-U34, D-3)', async () => {
-    const k = kravetOgSvaret(
+    const k = kravetOgSvaretI(
       await utledning([PAABEROPELSE, FORHOLDSSVAR, ...BF44.steg.slice(1, 4)])
     )!;
     expect(k.forbehold).toBe(false);
   });
 
   it('avslaget av forholdet er det første laget, uten beløp, og beløpene står subsidiært (HF-U34, OV-U33)', async () => {
-    const k = kravetOgSvaret(
+    const k = kravetOgSvaretI(
       await utledning([PAABEROPELSE, FORHOLDSSVAR, ...BF44.steg.slice(1, 4)])
     )!;
     expect(k.lagene.map((l) => [l.etikett, l.beloep])).toEqual([
@@ -105,7 +109,7 @@ describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
   });
 
   it('før byggherren har svart, står kravet uten lag (U-4)', async () => {
-    const k = kravetOgSvaret(await utledning(BF44.steg.slice(0, 3)))!;
+    const k = kravetOgSvaretI(await utledning(BF44.steg.slice(0, 3)))!;
     expect(k.svarbrev).toBeNull();
     expect(k.lagene).toEqual([]);
     expect(k.krevd).toBe(190000);

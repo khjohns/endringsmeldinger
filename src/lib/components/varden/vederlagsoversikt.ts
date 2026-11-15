@@ -9,7 +9,7 @@
 import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
 import { etikett, plassene } from '$kjerne/frosset/byggeklosser';
 import { cellene, OVERSIKTEN } from '$kjerne/frosset/tekst';
-import { tilTall, type Oere } from '$kjerne/regler/beloep';
+import { beloep, tilTall, type Oere } from '$kjerne/regler/beloep';
 import {
   beloepeneILagene,
   krevdIKravposten,
@@ -20,7 +20,7 @@ import {
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Krav, Kravpost, Oppgjoersform, Standpunkt } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
-import { brevene, type Brevet } from './lesing';
+import type { Brevet } from './lesing';
 
 /** Et lag i byggherrens svar, med beløpet og det laget bygger på (U-2). */
 export interface Laget {
@@ -87,12 +87,14 @@ function postene(krav: Krav): Posten[] {
   ];
 }
 
-/** Kravet som gjelder i vederlaget og byggherrens svar på det, eller `null` uten krav. */
-export function kravetOgSvaret(u: Utledning): KravetOgSvaret | null {
+/**
+ * Kravet som gjelder i vederlaget og byggherrens svar på det, eller `null` uten krav. `alle` er
+ * brevene i saken (`brevene(u)`).
+ */
+export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | null {
   const s = u.spor.vederlag;
   const krav = s.gjeldendeKrav;
   if (!krav) return null;
-  const alle = brevene(u);
   const brev = (id: string) => alle.find((b) => b.id === id) ?? null;
   const kravbrev = brev(krav.dokument);
   if (!kravbrev) return null;
@@ -132,13 +134,16 @@ export function kravetOgSvaret(u: Utledning): KravetOgSvaret | null {
     return {
       lag,
       etikett: antall > 1 ? etikett(lag) : null,
+      // Summen i laget regnes i hele øre (B-13, OV-U59); en post med færre lag har sitt siste beløp.
       beloep:
         iSporet < 1
           ? null
-          : iLagene.reduce(
-              (sum, l) => sum + Math.round((l[Math.min(iSporet, l.length) - 1] ?? 0) * 100),
-              0
-            ) / 100,
+          : somTall(
+              iLagene.reduce(
+                (sum, l) => sum + (beloep(l[Math.min(iSporet, l.length) - 1] ?? 0) ?? 0n),
+                0n
+              )
+            ),
       vilkaar: [],
       grunner: iSporet < 1 && grunnbrev ? [{ grunn: grunner[i]!, brev: grunnbrev }] : [],
       standpunkter: svar.standpunkter
@@ -201,4 +206,13 @@ export function kravbeloepene(u: Utledning): Map<string, number> {
       return sum > 0n ? [[k.dokument, tilTall(sum)] as const] : [];
     })
   );
+}
+
+/**
+ * Akseptfristen i byggherrens gjeldende svar i sporet, med brevet, så lenge svaret ikke er godtatt
+ * (U-11 i BF-44, HF-U23 punkt 4), og ellers `null`.
+ */
+export function akseptfristen(u: Utledning, spor: 'vederlag' | 'frist') {
+  const s = u.spor[spor].gjeldendeSvar;
+  return s?.akseptfrist && !u.spor[spor].enighet ? { brev: s.dokument, dato: s.akseptfrist } : null;
 }
