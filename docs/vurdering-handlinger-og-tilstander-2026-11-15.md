@@ -235,6 +235,9 @@ gjennom portene»):
    vurderes p legge inn som et strukturert forbehold i kravskjema der det svares på krav eller
    svar» Ideen om et strukturert forbehold berører KA-U16, KA-U49 og VS-U46 og stilles for seg i
    #1657, ikke i denne runden.
+6. Om «ingen krav» (kontrollspørsmålet på siden): «Ingen krav fungerer fint. Det er ikke noe krav
+   etter kontrakten å meddele ingen krav. Det er en mulighet kun som er beleilig for at partene kan
+   kvittere ut usikkerhet rundt krav.» Støtter at U4 venter.
 
 Skjemaet er fylt ut i «Skjemaet», og spørsmålene etter drøftingen står i «Spørsmålene etter drøftingen».
 
