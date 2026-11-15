@@ -15,15 +15,15 @@
 
 import { createHash } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
-import type {
-  Avhengigheter,
-  Forespoersel,
-  Opprettelsesforespoersel,
-  Opprettelsesrute,
-  Saksrute,
-  Svar,
+import {
+  medSide,
+  type Avhengigheter,
+  type Forespoersel,
+  type Opprettelsesforespoersel,
+  type Opprettelsesrute,
+  type Saksrute,
+  type Svar,
 } from './rutetyper.ts';
-import { medSide } from './rutetyper.ts';
 import { Nektet, type Kontraktstilgang } from './autorisasjon.ts';
 import { lagret, lesInntil } from './inngang.ts';
 import {
@@ -147,7 +147,8 @@ const feilsvar = (status: number, error: string, message: string): Svar => [
   { success: false, error, message },
 ];
 const finnesIkke = () => feilsvar(404, 'VEDLEGG_FINNES_IKKE', 'Vedlegget finnes ikke i saken.');
-const UTEN_TEAM_MELDING = 'Du må være med i ett team i prosjektet for å bruke vedlegg.';
+const UTEN_TEAM_MELDING =
+  'Du må være med i nøyaktig ett team på din side i prosjektet for å bruke vedlegg.';
 const UTEN_TEAM = feilsvar(403, 'MANGLER_TEAM', UTEN_TEAM_MELDING);
 
 /** Konteksten for radsikkerheten. Uten team ses bare bundne vedlegg. */

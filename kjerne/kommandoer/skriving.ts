@@ -744,7 +744,7 @@ function tekstavvik(vist: string[] | undefined, laget: Avsnitt[] | null): Avvisn
       ? null
       : avvis(
           'ANNEN_BREVTEKST',
-          'Et registrert brev er sendt på annen måte og har ingen tekst herfra.'
+          'Dette brevet får ingen tekst herfra, så kommandoen kan ikke ha en.'
         );
   if (vist === undefined)
     return avvis(

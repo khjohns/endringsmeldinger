@@ -429,10 +429,7 @@ async function lesKontraktsside(
   return somKontraktstilgang(funnet);
 }
 
-/**
- * Meldingen i 403-svaret uten entydig side: medlemmet er ikke i et team på én side, har
- * leserollen, eller prosjektet mangler et team for en av sidene.
- */
+/** Meldingen i 403-svaret når `kontraktsside` ikke gir én entydig side. */
 export const UTEN_KONTRAKTSSIDE =
   'Du kan ikke handle for totalentreprenøren eller byggherren i dette prosjektet.';
 
