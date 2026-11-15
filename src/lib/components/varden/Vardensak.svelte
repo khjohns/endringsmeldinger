@@ -841,29 +841,11 @@
       margin: 0 calc(-1 * var(--spacing-4));
       overflow-x: auto;
     }
-    .sporene .etikett,
     .st2 {
       display: none;
     }
     .sporene .gruppe {
       flex: none;
-    }
-    .sporene .valgene {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: nowrap;
-      margin: 0;
-    }
-    .sporene .valg {
-      flex: none;
-      width: auto;
-      max-width: 15rem;
-      padding: var(--spacing-2) var(--spacing-4);
-      border-left: 0;
-      border-bottom: 3px solid transparent;
-    }
-    .sporene .valg[aria-current='page'] {
-      border-bottom-color: var(--sidebar-text);
     }
     .navn {
       font-size: 14px;
