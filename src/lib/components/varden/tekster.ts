@@ -11,11 +11,12 @@
 import { liste, opplistet, PARTEN, PARTENS, stor } from '$kjerne/frosset/brevdeler';
 import { dager, kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
+import type { Forholdsresultat } from '$kjerne/regler/typer';
 import type { Betegnelse } from '$kjerne/utledning/visning';
 import type { Kravpost, Oppgjoersform, Part, Spor, Standpunkt } from '$kjerne/typer';
 import { OPPGJOERSHJEMMEL } from '$kjerne/spor/vederlag/format';
 import type { Regel } from './kommandoer';
-import type { Brevet, Brevref, OppgittDato, Standpunktet } from './lesing';
+import type { Brevet, Brevref, Forholdsordene, OppgittDato, Standpunktet } from './lesing';
 import type { Innsigelsen, Svarlaget } from './svarlagene';
 
 export const SPORNAVN: Record<Spor, string> = {
@@ -388,11 +389,10 @@ export const SKJEMA = {
   belopEtikett: 'Beløpet du godkjenner',
   belopHjelp: (krevd: number) => `Mer enn 0 kr og mindre enn ${kroner(krevd)}.`,
   begrunnelse: 'Begrunnelse',
-  // Når en begrunnelse kreves, sier feltet det, og hjelpen sier ikke «Valgfritt» (D-7 i BF-08).
-  begrunnelseHjelp: (valgfri: boolean) =>
-    `${valgfri ? 'Valgfritt. ' : ''}Begrunnelsen står i brevet under punktet den gjelder, og kan vise til et annet punkt.`,
-  forbehold: 'Forbehold for hele svaret',
-  forbeholdHjelp: 'Valgfritt. Står sist i brevet. Det erstatter ikke begrunnelsen i et punkt.',
+  begrunnelseHjelp:
+    'Begrunnelsen står i brevet under punktet den gjelder, og kan vise til et annet punkt.',
+  forbehold: 'Forbehold for hele svaret (valgfritt)',
+  forbeholdHjelp: 'Står sist i brevet. Det erstatter ikke begrunnelsen i et punkt.',
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
   manglerForm: `Velg om du godkjenner ${metodenavn('tilbud')}.`,
@@ -734,9 +734,23 @@ export const FORHOLDET = {
    * og 07.11, PR 1650).
    */
   oppdater: 'Oppdater påberopelse',
-  /** Hvor saken står, under tittelen på oversikten (oppdragsgiver 06.11, PR 1650). */
-  utfall: (resultat: string, d: string) =>
-    `Byggherren ${{ godkjent: 'godtok forholdet', avslaatt: 'avslo forholdet', paalegg_frafalt: 'frafalt pålegget' }[resultat] ?? 'svarte'} ${dato(d)}.`,
+  /**
+   * Hvor saken står, under tittelen på oversikten (oppdragsgiver 06.11, PR 1650), med kontraktens
+   * ord etter forholdet (GR-U32, LV-U41), som `standpunkt`.
+   */
+  utfall: (resultat: Forholdsresultat, d: string, f: Forholdsordene): string => {
+    const n = dato(d);
+    if (resultat === 'paalegg_frafalt') return `Byggherren frafalt pålegget ${n}.`;
+    if (resultat === 'avslaatt') {
+      if (f.varslingsplikt) return `Byggherren avslo kravet på endringsordre ${n}.`;
+      if (f.risiko) return `Byggherren svarte ${n} at byggherren ikke har risikoen for forholdet.`;
+      return `Byggherren avslo forholdet ${n}.`;
+    }
+    if (f.endringsordre) return `Byggherren ga endringsordre ${n}.`;
+    if (f.varslingsplikt) return `Byggherren var enig ${n} i at pålegget innebærer en endring.`;
+    if (f.risiko) return `Byggherren svarte ${n} at byggherren har risikoen for forholdet.`;
+    return `Byggherren var enig ${n} i at forholdet er en endringsordre.`;
+  },
   venter: (d: string) => `Sendt til byggherren ${dato(d)}. Svar ikke registrert.`,
   /** BF-10 U-2: en annen hjemmel eller endringsordre går i en ny sak (GR-U22, OV-U57). */
   annen: 'Annen hjemmel eller endringsordre?',
@@ -773,19 +787,31 @@ export const FORHOLDET = {
         ? `Svaret i ${brevref(svar)} står som det ble sendt. Byggherren kan ta stilling til den nye datoen i et senere svar.`
         : null,
   lagene: 'Standpunktene i svaret',
-  /** Byggherrens standpunkt i svaret på forholdet, som setning (språkfila: partene fullt ut). */
-  standpunkt: (s: Standpunkt, brev: Brevref | null): string => {
+  /**
+   * Byggherrens standpunkt i svaret på forholdet, som setning (språkfila: partene fullt ut), med
+   * kontraktens ord etter forholdet slik brevet har dem (GR-U32, LV-U41).
+   */
+  standpunkt: (s: Standpunkt, brev: Brevref | null, f: Forholdsordene): string => {
     const i = brev ? ` i ${brevref(brev)}` : '';
     if (s.art === 'rettidighet')
       return s.iTide
         ? `Byggherren godkjenner at varselet etter punkt ${s.hjemmel}${i} kom i tide.`
         : `Byggherren gjør gjeldende at varselet etter punkt ${s.hjemmel}${i} kom for sent.`;
-    if (s.art === 'forhold')
-      return {
-        godkjent: 'Byggherren godkjenner forholdet.',
-        avslaatt: 'Byggherren avslår forholdet.',
-        paalegg_frafalt: 'Byggherren frafaller pålegget (punkt 32.3 første ledd c).',
-      }[s.resultat];
+    if (s.art === 'forhold') {
+      if (s.resultat === 'paalegg_frafalt')
+        return 'Byggherren frafaller pålegget (punkt 32.3 første ledd c).';
+      if (s.resultat === 'avslaatt') {
+        if (f.varslingsplikt)
+          return 'Byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).';
+        if (f.risiko) return 'Byggherren har ikke risikoen for forholdet.';
+        return 'Byggherren avslår forholdet.';
+      }
+      if (f.endringsordre)
+        return 'Byggherren er enig, og svaret er en endringsordre (punkt 32.3 første ledd a).';
+      if (f.varslingsplikt) return 'Byggherren er enig i at pålegget innebærer en endring.';
+      if (f.risiko) return 'Byggherren har risikoen for forholdet.';
+      return 'Byggherren er enig i at forholdet er en endringsordre (punkt 31.3).';
+    }
     return `${standpunkttekst(s, false)}.`;
   },
   /** Antallet poster uten fast beløp ved summen (KA-U61, KA-U72; oppdragsgiver 12.11 i #1752). */

@@ -15,6 +15,7 @@
   import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
+  import Sitat from './Sitat.svelte';
   import type { Brevet, Brevref, Innlegget } from './lesing';
   import { FORHOLDET, TRAADEN, dato, kortDatoMedAar } from './tekster';
 
@@ -150,25 +151,26 @@
                 {#each i.standpunkter as l (l.standpunkt.id)}
                   <li>
                     {#if l.lag}<b>{stor(l.lag)}</b>{/if}
-                    <span>{FORHOLDET.standpunkt(l.standpunkt, l.brev)}</span>
+                    <span>{FORHOLDET.standpunkt(l.standpunkt, l.brev, l.ordene)}</span>
                   </li>
                 {/each}
               </ul>
             {:else}
               {#each i.standpunkter as l (l.standpunkt.id)}
-                <p class="standpunkt">{FORHOLDET.standpunkt(l.standpunkt, l.brev)}</p>
+                <p class="standpunkt">{FORHOLDET.standpunkt(l.standpunkt, l.brev, l.ordene)}</p>
               {/each}
             {/if}
             {#if i.utdypning || i.oppgitt}
-              <div class="sitat">
+              <Sitat
+                etikett={i.utdypning
+                  ? b.art === 'svar'
+                    ? FORHOLDET.begrunnelsen
+                    : i.opplysning?.korrigering
+                      ? FORHOLDET.forklaringen
+                      : FORHOLDET.beskrivelse(i.gjelderPaalegg)
+                  : null}
+              >
                 {#if i.utdypning}
-                  <p class="sitat-hvem">
-                    {b.art === 'svar'
-                      ? FORHOLDET.begrunnelsen
-                      : i.opplysning?.korrigering
-                        ? FORHOLDET.forklaringen
-                        : FORHOLDET.beskrivelse(i.gjelderPaalegg)}
-                  </p>
                   <!-- Teksten kan være flere sider, så tråden viser de første tre linjene; hele står i brevet
                      (oppdragsgiver 06.11, #1646). -->
                   <p class="utdrag" class:bh={b.avsender === 'BH'}>«{i.utdypning}»</p>
@@ -191,7 +193,7 @@
                     {/if}
                   </div>
                 {/if}
-              </div>
+              </Sitat>
             {/if}
             {#if i.opplysning && !i.opplysning.korrigering && lukket && onkorriger && korrigerbare.includes(i.opplysning.id)}
               <!-- Under brevet, ikke i det parten skrev (oppdragsgiver 06.11, #1646). -->
@@ -399,21 +401,6 @@
   }
   .lagene span {
     color: var(--ink-2);
-  }
-  .sitat {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-1);
-    padding-left: var(--spacing-3);
-    border-left: 2px solid var(--rule-strong-color);
-    font-size: 14px;
-  }
-  .sitat-hvem {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--ink-3);
   }
   /* Partens ord står i avsenderens brevskrift (system.md, «Typografi»; oppdragsgiver 07.11, #1659). */
   .utdrag {

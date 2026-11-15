@@ -95,13 +95,13 @@ async function vis(steg: Handling[], ekstra: Record<string, unknown> = {}) {
 const traad = () => within(screen.getByRole('list', { name: 'Brevene i saken, nyeste først' }));
 
 describe('Siden for forholdet', () => {
-  it('tittelen er forholdet selv, uten gruppen over, og under den står hvor saken står (OV-U78, BF-05 U-10)', async () => {
+  it('tittelen er forholdet selv, uten gruppen over, og under den står hvor saken står med kontraktens ord for irregulær endring (OV-U78, BF-05 U-10, GR-U32)', async () => {
     await vis([PAABEROPELSE, AVSLAG]);
     const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
     expect(tittel.previousElementSibling).toBeNull();
     expect(screen.queryByText('Endringer, jf. punkt 31 og 32')).toBeNull();
     expect(tittel.nextElementSibling?.textContent).toMatch(
-      /^Byggherren avslo forholdet \d+\. \w+ 2026\.$/
+      /^Byggherren avslo kravet på endringsordre \d+\. \w+ 2026\.$/
     );
   });
 
@@ -189,16 +189,19 @@ describe('Siden for forholdet', () => {
         .map((li) => li.textContent?.replace(/\s+/g, ' ').trim())
     ).toEqual([
       'Prinsipalt Byggherren gjør gjeldende at varselet etter punkt 32.2 i brev 1 kom for sent.',
-      'Subsidiært Byggherren avslår forholdet.',
+      'Subsidiært Byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).',
     ]);
     expect(screen.getByText('«Ingen endring.»')).toBeTruthy();
     expect(screen.getByText('Begrunnelsen')).toBeTruthy();
   });
 
-  it('svaret i ett lag står uten etiketter for lagene (OV-U32)', async () => {
+  it('svaret i ett lag står uten etiketter for lagene, med brevets ord for avslaget ved irregulær endring (OV-U32, GR-U32)', async () => {
     await vis([PAABEROPELSE, AVSLAG]);
     expect(screen.queryByRole('list', { name: 'Standpunktene i svaret' })).toBeNull();
-    expect(screen.getByText('Byggherren avslår forholdet.')).toBeTruthy();
+    expect(
+      screen.getByText('Byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).')
+    ).toBeTruthy();
+    expect(screen.queryByText('Byggherren avslår forholdet.')).toBeNull();
   });
 
   it('«Les brevet» gir brevet å lese, og navnet på knappen sier hvilket brev (#1898, U-16 i BF-44)', async () => {
