@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `749df325bd0784bdcc018afb7855138bcbae68695efc8183f87fb9cbcd898347`
+Kontrollsum (SHA-256 over utdraget visningen leser): `0e558932658a618a2e84b20d3e18dc072e48e7c1ac4f174d005ec5799a8771a9`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -4118,7 +4118,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 15.11, oppdragsgiver (#1987)
 
-**Følge:** Endrer [OV-U80](#ov-u80). Snevrer inn [OV-U84](#ov-u84). Presiserer [KA-U1](../../plans/vedtak.md#ka-u1). Presiserer [GR-U7](../../plans/vedtak.md#gr-u7). Presiserer [HF-U23](#hf-u23). Presiserer [MM-U55](#mm-u55). Lagt til grunn 15.11 av [OV-U101](#ov-u101). Presisert 15.11 av [OV-U102](#ov-u102). Presisert 15.11 av [OV-U103](#ov-u103). Presisert 15.11 av [OV-U104](#ov-u104). Presisert 15.11 av [OV-U109](#ov-u109). Endrer OV-U80: setningen om aksept, og at et tidligere krav ikke blir gjeldende selv om valget ellers ville vært godtatt; utvider den med forespørselen og aksepten. Snevrer inn OV-U84: et senere valg av et tidligere krav blir ikke gjeldende. Presiserer KA-U1 og GR-U7 (gjeldende svar på sendedatoen), HF-U23 punkt 8 og MM-U55 punkt 8 og 18 (en retting av datoen endrer ikke hva som er gjeldende). I tråd med KA-U52 punkt 5, EO-U39 punkt 43, OV-U5, OV-U85, VS-U19 (VS-U47 punkt 5) og HF-U29 punkt 3.
+**Følge:** Endrer [OV-U80](#ov-u80). Snevrer inn [OV-U84](#ov-u84). Presiserer [KA-U1](../../plans/vedtak.md#ka-u1). Presiserer [GR-U7](../../plans/vedtak.md#gr-u7). Presiserer [HF-U23](#hf-u23). Presiserer [MM-U55](#mm-u55). Lagt til grunn 15.11 av [OV-U101](#ov-u101). Presisert 15.11 av [OV-U102](#ov-u102). Presisert 15.11 av [OV-U103](#ov-u103). Presisert 15.11 av [OV-U104](#ov-u104). Presisert 15.11 av [OV-U109](#ov-u109). Endrer OV-U80: setningen om aksept, og at et tidligere krav ikke blir gjeldende selv om valget ellers ville vært godtatt; utvider den med forespørselen og aksepten. Snevrer inn OV-U84: et senere valg av et tidligere krav blir ikke gjeldende. Presiserer KA-U1 og GR-U7 (gjeldende svar på sendedatoen), HF-U23 punkt 8 og MM-U55 punkt 8 og 18 (en retting av datoen endrer ikke hva som er gjeldende). I tråd med KA-U52 punkt 5, EO-U39 punkt 43, OV-U5, OV-U85, VS-U19 (VS-U47 punkt 5) og HF-U29 punkt 3. Beslutningsdelen i VS-U47 gjelder for forespørselen etter punkt 33.6.2 i første versjon, slik OV-U99 punkt 1 sier (oppdragsgiver 15.11, ja til forslaget i PR #2041).
 
 **Regelrader:** —
 
