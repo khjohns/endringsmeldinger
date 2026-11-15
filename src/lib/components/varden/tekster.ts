@@ -1600,7 +1600,7 @@ export const VEDERLAGET = {
   },
   /** Akseptfristen over handlingene ved byggherrens svar (U-11, U-16, HF-U23 punkt 4). */
   akseptfrist: 'Akseptfrist:',
-  /** Datoen TE oppgir, og avstanden til varselet, uten vurdering av fristen (U-8, MM-U12). */
+  /** Datoen TE oppgir, og avstanden til varselet, uten vurdering av fristen (U-8, MM-U50). */
   klarOver: (d: string, brev: Brevref, dager: number) =>
     `Totalentreprenøren ble klar over forholdet ${dato(d)}, ifølge ${brevref(brev)}.` +
     (dager < 0

@@ -194,7 +194,7 @@
             "KA-U1",
             "GR-U7",
             "GR-U8",
-            "KA-U7",
+            "KA-U52",
             "KA-U51",
             "MM-U48"
           ]
@@ -313,7 +313,7 @@
     {
       "dato": "2026-11-15",
       "forhold": "#1906",
-      "hva": "Forløpet er kjørbart: startjournalen har saken med tre lag i byggherrens svar, to poster i kravet, akseptfristen og forbeholdet om at forholdet ikke er besvart (G-14). Vedtakene som sto i `kilder`, står nå i kontrollene og forståelsen, med KA-U7, OV-U3 og LV-U4 i tillegg. Forløpet kjøres ikke i saksruta: akseptfristen i svaret er en fast dato, og saksruta sender med dagens klokke, så kjernen avviser en frist før datoen for svaret (HF-U23 punkt 2)."
+      "hva": "Forløpet er kjørbart: startjournalen har saken med tre lag i byggherrens svar, to poster i kravet, akseptfristen og forbeholdet om at forholdet ikke er besvart (G-14). Vedtakene som sto i `kilder`, står nå i kontrollene og forståelsen, med OV-U3 og LV-U4 i tillegg, og KA-U52, som opphevet KA-U7. Forløpet kjøres ikke i saksruta: akseptfristen i svaret er en fast dato, og saksruta sender med dagens klokke, så kjernen avviser en frist før datoen for svaret (HF-U23 punkt 2)."
     }
   ],
   "prototype": {

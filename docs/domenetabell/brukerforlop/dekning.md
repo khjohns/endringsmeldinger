@@ -127,7 +127,6 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U1](../../plans/vedtak.md#ka-u1) | BF-01 te-har-godtatt-svaret | BF-01 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret | BF-01V, BF-03, BF-06, BF-20, BF-45 |
 | [KA-U2](../../plans/vedtak.md#ka-u2) | BF-01 bh-har-mottatt-vederlagskravet, BF-04 bh-har-mottatt-vederlagskravet, BF-44 bh-har-mottatt-kravet | — | — |
 | [KA-U4](../../plans/vedtak.md#ka-u4) | BF-01 te-har-mottatt-svaret, BF-04 te-har-mottatt-svaret | — | BF-20 |
-| [KA-U7](../../plans/vedtak.md#ka-u7) | — | BF-44 te-har-mottatt-svaret | — |
 | [KA-U8](../../plans/vedtak.md#ka-u8) | — | — | BF-20 |
 | [KA-U10](../../plans/vedtak.md#ka-u10) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret | BF-01 te-har-godtatt-svaret | BF-01V, BF-03, BF-07 |
 | [KA-U13](../../plans/vedtak.md#ka-u13) | — | — | BF-06 |
@@ -145,7 +144,7 @@ på kilden, men har ingen kontroller ennå.
 | [KA-U47](../../plans/vedtak.md#ka-u47) | — | — | BF-01V |
 | [KA-U49](../../plans/vedtak.md#ka-u49) | — | — | BF-08 |
 | [KA-U51](../../plans/vedtak.md#ka-u51) | — | BF-44 te-har-mottatt-svaret | BF-08, BF-10, BF-14 |
-| [KA-U52](../../plans/vedtak.md#ka-u52) | — | BF-02C te-vil-sende-ny-versjon | BF-10, BF-14 |
+| [KA-U52](../../plans/vedtak.md#ka-u52) | — | BF-02C te-vil-sende-ny-versjon, BF-44 te-har-mottatt-svaret | BF-10, BF-14 |
 | [KA-U53](../../plans/vedtak.md#ka-u53) | — | — | BF-14 |
 | [KA-U54](../../plans/vedtak.md#ka-u54) | — | — | BF-14 |
 | [KA-U55](../../plans/vedtak.md#ka-u55) | — | — | BF-14 |
