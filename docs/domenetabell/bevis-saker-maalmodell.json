@@ -6526,7 +6526,7 @@
         "KA-40"
       ],
       "start": "forlop_a_brev",
-      "forslag": "OV-U4: TEs registrerte aksept, etter trekket, av et svar i sporet er dokumentasjon og gir ingen enighet",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011) og MM-U43 punkt 9: TEs registrerte aksept, etter trekket, av et svar i sporet får ingen virkning og gir ingen enighet",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6548,11 +6548,13 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4"
+            "OV-U80"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "D6#aksept"
+            ],
             "enighet.vederlag": null,
             "trukket.vederlag": true
           }
@@ -6565,7 +6567,7 @@
         "KA-40"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4: byggherrens registrerte svar med sammenfall på et trukket krav er dokumentasjon og gir ingen enighet",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011) og MM-U43 punkt 9: byggherrens registrerte svar med sammenfall på et trukket krav får ingen virkning og gir ingen enighet",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6589,12 +6591,14 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
             "GR-U10"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "S-v1"
+            ],
             "gjeldende_svar.vederlag": null,
             "enighet.vederlag": null
           }
@@ -6607,7 +6611,7 @@
         "KA-41"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4: byggherrens registrerte avslag av et trukket krav er dokumentasjon og blir ikke gjeldende svar",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011) og MM-U43 punkt 9: byggherrens registrerte avslag av et trukket krav får ingen virkning og blir ikke gjeldende svar",
       "forventningsgrunnlag": "arbeidshypotese",
       "steg": [
         {
@@ -6631,10 +6635,12 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4"
+            "OV-U80"
           ],
           "forventet": {
-            "uten_virkning": [],
+            "uten_virkning": [
+              "S-v1"
+            ],
             "forstaatt": true,
             "gjeldende_svar.vederlag": null,
             "enighet.vederlag": null,
@@ -6697,7 +6703,7 @@
         "KA-41"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4: byggherrens registrerte frafall av pålegget etter at TE har trukket grunnlaget, er dokumentasjon: det er ikke gjeldende svar, og pålegget er ikke frafalt",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011) og MM-U43 punkt 9: byggherrens registrerte frafall av pålegget etter at TE har trukket grunnlaget, får ingen virkning: det er ikke gjeldende svar, og pålegget er ikke frafalt",
       "forventningsgrunnlag": "arbeidshypotese",
       "steg": [
         {
@@ -6722,12 +6728,14 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
             "GR-U9"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "S-g1"
+            ],
             "gjeldende_svar.forhold": null,
             "frafalt": false,
             "trukket.forhold": true
@@ -6741,7 +6749,7 @@
         "KA-40"
       ],
       "start": "forlop_a_brev",
-      "forslag": "OV-U4, GR-U10 og KA-U7: byggherrens registrerte revisjon av et svar partene er enige om, etter at TE har trukket kravet, er dokumentasjon, og enigheten står",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011) og MM-U43 punkt 9, GR-U10 og KA-U7: byggherrens registrerte revisjon av et svar partene er enige om, etter at TE har trukket kravet, får ingen virkning, og enigheten står",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6772,13 +6780,15 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
             "GR-U10",
             "KA-U7",
             "MM-U34"
           ],
           "forventet": {
-            "uten_virkning": [],
+            "uten_virkning": [
+              "S-v2"
+            ],
             "forstaatt": true,
             "gjeldende_svar.vederlag": "S-v1",
             "enighet.vederlag": "finnes"
@@ -6792,7 +6802,7 @@
         "KA-40"
       ],
       "start": "krav_irreg",
-      "forslag": "OV-U4 og MM-U43 punkt 9: TEs registrerte kravversjon i et trukket spor og byggherrens registrerte svar på den er dokumentasjon, og saken er forstått",
+      "forslag": "OV-U80 (som endrer OV-U4, #2011) og MM-U43 punkt 9: TEs registrerte kravversjon i et trukket spor og byggherrens registrerte svar på den får ingen virkning, og saken er forstått",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6825,7 +6835,7 @@
           "etter": 2,
           "rolle": "mal",
           "kilde": [
-            "OV-U4"
+            "OV-U80"
           ],
           "forventet": {
             "forstaatt": true,
@@ -6836,12 +6846,14 @@
           "etter": 3,
           "rolle": "mal",
           "kilde": [
-            "OV-U4",
+            "OV-U80",
             "MM-U43"
           ],
           "forventet": {
             "forstaatt": true,
-            "uten_virkning": [],
+            "uten_virkning": [
+              "S-v1"
+            ],
             "gjeldende_svar.vederlag": null
           }
         }
