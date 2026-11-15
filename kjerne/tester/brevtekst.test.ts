@@ -1464,10 +1464,10 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     expect(
       s.avvisning('BH', brevet({ vurdering: 'godkjent', godkjent_beloep: 125000 }))?.melding
     ).toBe(
-      'Vurderingene kan ikke regnes ut: P1.vurdering: byggherren aksepterer ikke tilbudet, men tar stilling til beløpet (KA-U72); P1.godkjent_beloep: byggherren aksepterer ikke tilbudet, men tar stilling til beløpet (KA-U72).'
+      'Vurderingene kan ikke regnes ut: P1.vurdering: byggherren aksepterer ikke tilbudet, men tar stilling til beløpet; P1.godkjent_beloep: byggherren aksepterer ikke tilbudet, men tar stilling til beløpet.'
     );
     expect(s.avvisning('BH', brevet({ vurdering: 'avslaatt' }))?.melding).toBe(
-      'Vurderingene kan ikke regnes ut: P1.vurdering: byggherren aksepterer ikke tilbudet, men tar stilling til beløpet (KA-U72).'
+      'Vurderingene kan ikke regnes ut: P1.vurdering: byggherren aksepterer ikke tilbudet, men tar stilling til beløpet.'
     );
   });
 
@@ -8308,7 +8308,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
     expect(s.avvisning('BH', delvis(100000.405))).toEqual({
       regel: 'UGYLDIG_VURDERING',
       melding:
-        'Vurderingene kan ikke regnes ut: P1.godkjent_beloep: 100000.405 har brøkdeler av øre (OV-U58).',
+        'Vurderingene kan ikke regnes ut: P1.godkjent_beloep: 100000.405 har brøkdeler av øre.',
     });
     // Rundet til hele øre ville beløpet vært det krevde, og svaret godkjent fullt uten begrunnelse.
     expect(s.avvist('BH', delvis(149999.995))).toBe('UGYLDIG_VURDERING');
@@ -8334,7 +8334,7 @@ describe('beløpsvurderingen må stemme med beløpet, i hele øre (#1301, OV-U58
         }
       );
     expect(s.avvisning('BH', begrenset(10000.001))?.melding).toBe(
-      'Vurderingene kan ikke regnes ut: produktivitet_begrenset_beloep: 10000.001 har brøkdeler av øre (OV-U58).'
+      'Vurderingene kan ikke regnes ut: produktivitet_begrenset_beloep: 10000.001 har brøkdeler av øre.'
     );
     expect(s.avvist('BH', begrenset(10000.01)), 'kontrollsak').toBeNull();
   });
@@ -9846,7 +9846,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
       return null;
     };
     const grunn =
-      'kravposten følger en beregningsregel, og svaret godkjenner ikke noe beløp for den (OV-U95 punkt 5)';
+      'kravposten følger en beregningsregel, og svaret godkjenner ikke noe beløp for den';
     expect(
       feilen(() =>
         regnUtSvar(

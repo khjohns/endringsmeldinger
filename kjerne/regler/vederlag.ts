@@ -270,9 +270,7 @@ function kontroller(svar: Vederlagssvar, regler: Varslingsplikt): void {
     } catch (e) {
       if (!(e instanceof UgyldigBeloep)) throw e;
       feil[felt] =
-        e instanceof BroekdelAvOere
-          ? `${String(verdi)} har brøkdeler av øre (OV-U58)`
-          : 'er ikke et tall';
+        e instanceof BroekdelAvOere ? `${String(verdi)} har brøkdeler av øre` : 'er ikke et tall';
       return null;
     }
   };
@@ -281,16 +279,15 @@ function kontroller(svar: Vederlagssvar, regler: Varslingsplikt): void {
     const felt = `${navn}.godkjent_beloep`;
     if (regelen(p)) {
       const grunn =
-        'kravposten følger en beregningsregel, og svaret godkjenner ikke noe beløp for den (OV-U95 punkt 5)';
+        'kravposten følger en beregningsregel, og svaret godkjenner ikke noe beløp for den';
       if (vurd !== null && vurd !== undefined) feil[`${navn}.vurdering`] = grunn;
       if (godkjent !== null && godkjent !== undefined) feil[felt] = grunn;
       return;
     }
     if (ikkeAkseptert(p)) {
       const ikkeAkseptertMen = 'byggherren aksepterer ikke tilbudet, men tar stilling til beløpet';
-      if (vurd !== null && vurd !== undefined)
-        feil[`${navn}.vurdering`] = `${ikkeAkseptertMen} (KA-U72)`;
-      if (godkjent !== null && godkjent !== undefined) feil[felt] = `${ikkeAkseptertMen} (KA-U72)`;
+      if (vurd !== null && vurd !== undefined) feil[`${navn}.vurdering`] = ikkeAkseptertMen;
+      if (godkjent !== null && godkjent !== undefined) feil[felt] = ikkeAkseptertMen;
       return;
     }
     if (vurd === null || vurd === undefined) {
@@ -460,7 +457,7 @@ export function kontrollerOppgjoersformen(
   // KA-U71: kravet om tilbud og en godtatt beregningsregel utelukker hverandre.
   else if (kreverTilbud && p.aksepterer !== false)
     feil[`${navn}.krever_tilbud`] =
-      'kan ikke stå når byggherren godtar beregningsregelen for kravposten (KA-U71)';
+      'kan ikke stå når byggherren godtar beregningsregelen for kravposten';
   const justert = post.oppgjoersform === 'enhetspriser' && post.justert === true;
   // KA-U64: varselet etter § 34.3.3 gjelder justerte enhetspriser, og § 34.4 regningsarbeid.
   const trengerVarsel = post.oppgjoersform === 'regningsarbeid' || justert;

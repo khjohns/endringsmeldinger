@@ -1,8 +1,6 @@
 /** Byggherrens svar på forholdet, NS 8407 § 32.2 og § 32.3. Port av `regler/forhold.py`. */
 
 import type { Forholdsresultat, Hovedkategori, Underkategori } from './typer.ts';
-import type { Regelsett } from './regelsett.ts';
-import { UgyldigVurdering } from './feil.ts';
 
 export function foersteUnderkategori(
   underkategori: string | string[] | null | undefined
@@ -55,28 +53,6 @@ export function gyldigeResultater(
   return erByggherrensPaalegg(hovedkategori, underkategori)
     ? [...resultater, 'paalegg_frafalt']
     : resultater;
-}
-
-/** Svaret mot svarvalgene og varslingsplikten i regelsettet, som kjernen leser dem (#514). */
-export function kontrollerSvarPaaPaaberopelsen(
-  regler: Regelsett,
-  hovedkategori: string | null,
-  underkategori: string | null,
-  resultat: Forholdsresultat | null,
-  varsletITide: boolean | null
-): void {
-  const feil: Record<string, string> = {};
-  if (resultat === null) {
-    feil.resultat = 'mangler';
-  } else if (!regler.gyldigeForholdsresultater(hovedkategori, underkategori).includes(resultat)) {
-    feil.resultat = `«${resultat}» kan ikke velges i denne kategorien (punkt 32.3 første ledd c)`;
-  }
-  if (regler.gjelderVarslingsplikten(hovedkategori, underkategori)) {
-    if (varsletITide === null) feil.grunnlag_varslet_i_tide = 'mangler (punkt 32.2)';
-  } else if (varsletITide !== null) {
-    feil.grunnlag_varslet_i_tide = 'gjelder bare punkt 32.2';
-  }
-  if (Object.keys(feil).length) throw new UgyldigVurdering(feil);
 }
 
 export type Subsidiaergrunn = 'avslaatt' | 'prekludert';
