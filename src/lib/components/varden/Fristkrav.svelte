@@ -17,6 +17,7 @@
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import { fastLinje } from './fastlinje.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
+  import Feltetikett from './Feltetikett.svelte';
   import Filvalg from './Filvalg.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
   import Gjeldendefrist from './Gjeldendefrist.svelte';
@@ -414,7 +415,7 @@
       />
     {/if}
     <div class="tallfelt">
-      <label for={id('utenfor-dato')}>{FRISTKRAV.varseldato}</label>
+      <Feltetikett for={id('utenfor-dato')}>{FRISTKRAV.varseldato}</Feltetikett>
       <span class="dempet" id={id('utenfor-dato-hjelp')}>{FRISTKRAV.varseldatoHjelp}</span>
       <input
         id={id('utenfor-dato')}
@@ -454,7 +455,7 @@
   {@const fid = id(`${navn}-${p.noekkel}`)}
   {@const f = feil(`${navn}-${p.noekkel}`)}
   <div class="tallfelt">
-    <label for={fid}>{etikett}</label>
+    <Feltetikett for={fid}>{etikett}</Feltetikett>
     {#if hjelp}<span class="dempet" id={`${fid}-hjelp`}>{hjelp}</span>{/if}
     <span
       class="inndata"
@@ -485,7 +486,7 @@
     {#if nyDato !== undefined}<p class="dempet" id={`${fid}-ny`} aria-live="polite">
         {nyDato ?? ''}
       </p>{/if}
-    {#if etter}<p class="dempet liten" id={`${fid}-etter`}>{etter}</p>{/if}
+    {#if etter}<p class="dempet" id={`${fid}-etter`}>{etter}</p>{/if}
   </div>
 {/snippet}
 
@@ -1039,10 +1040,6 @@
     flex-direction: column;
     gap: var(--spacing-2);
   }
-  label {
-    font-weight: 600;
-    color: var(--ink);
-  }
   textarea:focus-visible,
   .datofelt:focus-visible,
   .inndata:focus-within {
@@ -1167,9 +1164,6 @@
   .dempet {
     color: var(--ink-3);
     font-size: 14px;
-  }
-  .liten {
-    font-size: 12px;
   }
   .hensyn {
     padding-left: var(--spacing-5);

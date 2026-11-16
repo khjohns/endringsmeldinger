@@ -27,6 +27,7 @@
   } from '$lib/kjernesak/vederlagskrav';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
+  import Feltetikett from './Feltetikett.svelte';
   import Filvalg from './Filvalg.svelte';
   import { medietreff } from './medie.svelte';
   import Knapp from './Knapp.svelte';
@@ -580,7 +581,7 @@
 )}
   {@const f = feil(felt)}
   <div class="felt">
-    <label for={id(felt)}>{etikett}</label>
+    <Feltetikett for={id(felt)}>{etikett}</Feltetikett>
     <span class="hjelp" id={id(`${felt}-hjelp`)}>{hjelp}</span>
     <span class="inndata" class:ugyldig={f}>
       <input
@@ -604,7 +605,7 @@
   <div class="aapen">
     <h4>{navnet(p)} · {p.beskrivelse || KRAVSKJEMA.nyPost}</h4>
     <div class="felt">
-      <label for={id(`beskrivelse-${n}`)}>{KRAVSKJEMA.beskrivelse}</label>
+      <Feltetikett for={id(`beskrivelse-${n}`)}>{KRAVSKJEMA.beskrivelse}</Feltetikett>
       <span class="hjelp" id={id(`beskrivelse-${n}-hjelp`)}>{KRAVSKJEMA.beskrivelseHjelp}</span>
       <input
         id={id(`beskrivelse-${n}`)}
@@ -672,7 +673,7 @@
       </p>
     {/if}
     <div class="felt">
-      <label for={id(`pns-${n}`)}>{KRAVSKJEMA.pns}</label>
+      <Feltetikett for={id(`pns-${n}`)}>{KRAVSKJEMA.pns}</Feltetikett>
       <span class="hjelp" id={id(`pns-${n}-hjelp`)}>{KRAVSKJEMA.pnsHjelp}</span>
       <input
         id={id(`pns-${n}`)}
@@ -805,7 +806,7 @@
           feil={feil(`type-${n}`)}
         />
         <div class="felt">
-          <label for={id(`dato-${n}`)}>{KRAVSKJEMA.dokumentdato}</label>
+          <Feltetikett for={id(`dato-${n}`)}>{KRAVSKJEMA.dokumentdato}</Feltetikett>
           <span class="hjelp" id={id(`dato-${n}-hjelp`)}>{KRAVSKJEMA.dokumentdatoHjelp}</span>
           <input
             id={id(`dato-${n}`)}
@@ -1125,7 +1126,7 @@
           <h3 id={id('forbehold-tittel')}>{KRAVSKJEMA.forbeholdPunkt}</h3>
         </div>
         <div class="felt">
-          <label for={id('forbehold-felt')}>{KRAVSKJEMA.forbehold}</label>
+          <Feltetikett for={id('forbehold-felt')}>{KRAVSKJEMA.forbehold}</Feltetikett>
           <span class="hjelp" id={id('forbehold-hjelp')}>{KRAVSKJEMA.forbeholdHjelp}</span>
           <textarea
             id={id('forbehold-felt')}
@@ -1358,10 +1359,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-1);
-  }
-  label {
-    font-weight: 600;
-    color: var(--ink);
   }
   .hjelp,
   .dempet {
