@@ -46,8 +46,8 @@
 </script>
 
 <fieldset class="valg" id={navn} tabindex="-1" aria-describedby={beskrivelse}>
-  <legend class:valgfri
-    >{spoersmaal}{#if valgfri}<Valgfri />{/if}</legend
+  <legend
+    >{#if valgfri}<Valgfri>{spoersmaal}</Valgfri>{:else}{spoersmaal}{/if}</legend
   >
   <div class="kort" class:stablet class:lett>
     {#each valg as v (String(v.verdi))}
@@ -84,17 +84,11 @@
     outline: none;
   }
   legend {
+    width: 100%;
     padding: 0;
     margin-bottom: var(--spacing-3);
     font-weight: 600;
     color: var(--ink);
-  }
-  legend.valgfri {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0 var(--spacing-3);
-    width: 100%;
   }
   .kort {
     display: flex;

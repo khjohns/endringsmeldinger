@@ -194,9 +194,9 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   ved siden av hverandre, står under hverandre i kort med lik bredde, så de leses som
   en liste (#1492).
 - **Et valgfritt felt har «Valgfri» til høyre på linja med labelen**, som dempet tekst i 14 px
-  (`varden/Feltetikett.svelte`, oppdragsgiver 16.11). Ordet står ikke i labelen, og skjermleseren
-  leser «<label>, Valgfri». Obligatoriske felt har `aria-required="true"` uten synlig merke.
-  Appen bruker bare denne ene merkingen.
+  (`varden/Valgfri.svelte`, som `Feltetikett` og `Valg` bruker, oppdragsgiver 16.11). Ordet
+  står ikke i labelen, og skjermleseren leser «<label>, Valgfri». Obligatoriske felt har
+  `aria-required="true"` uten synlig merke. Appen bruker bare denne ene merkingen.
 - **Én leselinje til du åpner** (#1663). En liste med redigerbare
   elementer, som kravpostene, svarene per post og de besvarte punktene i et skjema, vises som
   leselinjer med faste kolonner, og én leselinje viser det brevet kommer til å si om elementet.
