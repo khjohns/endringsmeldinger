@@ -982,6 +982,40 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
     expect(tekst(uten)[0].utdypning).toBeUndefined();
   });
 
+  it('meldingene ved et annet forhold, en annen dato og en korrigering av et annet felt bruker kontraktens ord for forholdet, ikke «grunnlaget» (GR-U31, OV-U82, #2042)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const meldinger = [
+      s.avvisning('TE', {
+        ...PAABEROPELSE,
+        innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER },
+      }),
+      s.avvisning('TE', {
+        ...PAABEROPELSE,
+        innhold: { ...PAABEROPELSE.innhold, paalegg_mottatt: '2026-09-20' },
+      }),
+      s.avvisning('TE', korrigering(s, 'klar_over_forholdet', '2026-09-20')),
+    ];
+    expect(meldinger).toEqual([
+      {
+        regel: 'ANNEN_HJEMMEL',
+        melding:
+          'Påberopelsen er sendt, så en oppdatert påberopelse kan ikke endre forholdet eller gruppen det hører til. Et annet forhold påberopes i en ny sak.',
+      },
+      {
+        regel: 'DATOEN_KAN_IKKE_ENDRES',
+        melding:
+          'En oppdatert påberopelse kan ikke endre datoen pålegget ble mottatt. Totalentreprenørens siste opplysning er 25. september 2026. Datoen korrigeres i et eget brev.',
+      },
+      {
+        regel: 'UGYLDIG_KORRIGERING',
+        melding:
+          'For forholdet som er påberopt, oppgir totalentreprenøren datoen pålegget ble mottatt, ikke datoen totalentreprenøren ble klar over forholdet.',
+      },
+    ]);
+    for (const m of meldinger) expect(m!.melding).not.toMatch(/grunnlag/i);
+  });
+
   it('i svikt og andre forhold gjelder korrigeringen datoen TE ble klar over forholdet', () => {
     const s = sak();
     s.send('TE', {
