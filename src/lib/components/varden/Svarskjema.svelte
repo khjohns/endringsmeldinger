@@ -38,7 +38,7 @@
     type Mangel,
     type Postvelger,
   } from './svarskjema';
-  import { FRISTSVAR, HOVEDLINJER, SKJEMA, brevhode, brevtittel, dato } from './tekster';
+  import { HOVEDLINJER, SKJEMA, brevhode, brevtittel, dato } from './tekster';
 
   let {
     kjernesak,
@@ -320,7 +320,7 @@
       {/if}
 
       <div class="skjemafot">
-        <Forkastutkast tekst={FRISTSVAR.forkastTekst} {onforkast} />
+        <Forkastutkast tekst={SVARSKJEMA.forkastTekst} {onforkast} />
       </div>
     </Utkastkort>
   {/snippet}

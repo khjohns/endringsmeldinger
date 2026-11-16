@@ -55,6 +55,7 @@
     SKJEMA,
     dagensDato,
     dato,
+    hjemmelsmerke,
     kalenderdager,
   } from './tekster';
 
@@ -404,7 +405,7 @@
     {#if registrering}
       <Valg
         navn={id('utenfor-type')}
-        spoersmaal={KRAVSKJEMA.dokumenttype}
+        spoersmaal={KRAVSKJEMA.varselGitt}
         valg={KRAVSKJEMA.dokumenttyper}
         stablet
         lett
@@ -682,7 +683,9 @@
         <section class="spoersmaal" aria-labelledby={id('sp-varsel')}>
           <div class="sp-hode">
             <h3 id={id('sp-varsel')}>{FRISTKRAV.varselTittel}</h3>
-            <span class="hjemmel"><BookOpen size={14} aria-hidden="true" />punkt 33.4</span>
+            <span class="hjemmel"
+              ><BookOpen size={14} aria-hidden="true" />{hjemmelsmerke('33.4')}</span
+            >
           </div>
           <p class="dempet">{varsel ? FRISTKRAV.varselAleneHjelp : FRISTKRAV.varselHjelp}</p>
           {#if klarOver}
@@ -746,7 +749,7 @@
           <div class="sp-hode">
             <h3 id={id('sp-grunn-b')}>{FRISTKRAV.grunnBTittel}</h3>
             <span class="hjemmel"
-              ><BookOpen size={14} aria-hidden="true" />punkt 33.6.2 annet ledd b</span
+              ><BookOpen size={14} aria-hidden="true" />{hjemmelsmerke('33.6.2 annet ledd b')}</span
             >
           </div>
           <p class="dempet" id={id('grunn-b-hjelp')}>{FRISTKRAV.grunnBHjelp}</p>
@@ -771,7 +774,10 @@
           <div class="sp-hode">
             <h3 id={id('sp-frister')}>{FRISTKRAV.fristerTittel}</h3>
             <span class="hjemmel"
-              ><BookOpen size={14} aria-hidden="true" />punkt {hindringPunkt} og 33.6.1</span
+              ><BookOpen size={14} aria-hidden="true" />{hjemmelsmerke(
+                hindringPunkt,
+                '33.6.1'
+              )}</span
             >
           </div>
           <p class="dempet">{FRISTKRAV.fristerHjelp}</p>
@@ -804,7 +810,7 @@
           <div class="sp-hode">
             <h3 id={id('sp-begrunnelse')}>{FRISTKRAV.begrunnelseTittel}</h3>
             <span class="hjemmel"
-              ><BookOpen size={14} aria-hidden="true" />punkt 33.5 og 33.6.1</span
+              ><BookOpen size={14} aria-hidden="true" />{hjemmelsmerke('33.5', '33.6.1')}</span
             >
           </div>
           <div class="dempet" id={id('begrunnelse-hjelp')}>

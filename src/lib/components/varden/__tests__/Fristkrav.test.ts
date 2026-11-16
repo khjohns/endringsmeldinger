@@ -282,6 +282,13 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     ]);
   });
 
+  it('merket ved spørsmålet om varselet sier «pkt. 33.4», fordi henvisningen står alene (OV-U75)', async () => {
+    await kravskjemaet(medGrunnlag);
+    const varselet = screen.getByRole('heading', { name: 'Varselet om fristforlengelse' });
+    expect(varselet.parentElement).toHaveTextContent(/pkt\. 33\.4$/);
+    expect(varselet.parentElement).not.toHaveTextContent('punkt 33.4');
+  });
+
   it('TE kan bare varsle etter punkt 33.4, uten dager, og «Når du sender» sier virkningen (U-13, VS-U15)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
     await fireEvent.click(
@@ -311,7 +318,8 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     );
     expect(mangler.getByText('Oppgi datoen for varselet.')).toBeInTheDocument();
     expect(mangler.getByText('Legg ved brevet du varslet i.')).toBeInTheDocument();
-    await fireEvent.click(screen.getByRole('radio', { name: 'Brev' }));
+    const gitt = within(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' }));
+    await fireEvent.click(gitt.getByRole('radio', { name: 'Brev' }));
     await skriv(screen.getByLabelText('Datoen for varselet'), '2026-10-05');
     await leggVed();
     await registrer();

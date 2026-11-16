@@ -5,7 +5,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import Infotips from './Infotips.svelte';
-  import { SVARSKJEMA } from './svarskjema';
+  import { hjemmelsmerke } from './tekster';
 
   let {
     id,
@@ -31,7 +31,7 @@
   <div class="sp-hode">
     <h3 {id}>
       {#if tillegg}{`${tittel} · `}<span class="num">{tillegg}</span>{:else}{tittel}{/if}
-      {#if hjemmel}<span class="hjemmel">{SVARSKJEMA.hjemmel(hjemmel)}</span>{/if}
+      {#if hjemmel}<span class="hjemmel">{hjemmelsmerke(hjemmel)}</span>{/if}
     </h3>
     {#if info}<Infotips navn={info.navn} tekst={info.tekst} />{/if}
   </div>
