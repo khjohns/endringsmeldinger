@@ -16,6 +16,7 @@ import {
 } from '$lib/components/varden/ventende';
 import {
   FORHOLDENE,
+  STOERSTE_VEDLEGG,
   type SendNySak,
   type Utfylling,
   type VedleggForNySak,
@@ -477,6 +478,12 @@ describe('skjemaet for ny sak (BF-05)', () => {
     await velgFiler(stor);
     expect(vedleggForNySak.lastOpp).not.toHaveBeenCalled();
     expect(screen.getByText('modell.ifc er større enn 15 MB. Velg en mindre fil.')).toBeTruthy();
+  });
+
+  it('#2088: grensen i skjemaet og tekstene er grensen serveren håndhever', async () => {
+    const { STOERSTE_VEDLEGG: iServeren } = await import('../../../../../server/vedlegg');
+    expect(STOERSTE_VEDLEGG).toBe(iServeren);
+    expect(NYSAK.vedleggHjelp).toContain(`opptil ${iServeren / (1024 * 1024)} MB.`);
   });
 
   it('#1037: en opplasting som feiler, står ved feltet med serverens melding', async () => {

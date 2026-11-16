@@ -30,6 +30,10 @@ import {
 } from '$kjerne/spor/forhold/tekst';
 import type { Brevet, Brevref, Innlegget, OppgittDato, Standpunktet } from './lesing';
 import type { Innsigelsen, Svarlaget } from './svarlagene';
+import { STOERSTE_VEDLEGG } from './nysak';
+
+/** Grensen for et vedlegg, som serveren håndhever (`STOERSTE_VEDLEGG`). */
+const GRENSEN_FOR_VEDLEGG = `${STOERSTE_VEDLEGG / (1024 * 1024)} MB`;
 
 export const SPORNAVN: Record<Spor, string> = {
   forhold: 'Forholdet',
@@ -1164,8 +1168,8 @@ export const KORRESPONDANSEN = {
   dokumentet: (hva: Korrespondansehva) => KORRESPONDANSEORD[hva].dokumentet,
   dokumentetHjelp: (hva: Korrespondansehva) =>
     hva === 'korrespondanse'
-      ? 'Legges til i saken. Opptil 15 MB.'
-      : 'Legges til i saken og ved brevet. Opptil 15 MB.',
+      ? `Legges til i saken. Opptil ${GRENSEN_FOR_VEDLEGG}.`
+      : `Legges til i saken og ved brevet. Opptil ${GRENSEN_FOR_VEDLEGG}.`,
   dokumentetIkkeEnnaa: 'Dokumentet kan ikke legges ved ennå.',
   beskrivelse: (hva: Korrespondansehva) => `Kort beskrivelse av ${KORRESPONDANSEORD[hva].bestemt}`,
   beskrivelseHjelp: 'Kort, med egne ord.',
@@ -1273,13 +1277,13 @@ export const NYSAK = {
   /** GR-U40 punkt 7: endringsordren står fast, som forholdet. */
   endringsordreHjelp: 'Står fast når brevet er sendt.',
   vedlegg: 'Vedlegg',
-  vedleggHjelp:
-    'For eksempel pålegget selv, en tegning eller et referat. Hver fil kan være opptil 15 MB.',
+  vedleggHjelp: `For eksempel pålegget selv, en tegning eller et referat. Hver fil kan være opptil ${GRENSEN_FOR_VEDLEGG}.`,
   velgFiler: 'Velg filer',
   lasterOpp: (filnavn: string) => `Laster opp ${filnavn} …`,
   fjernVedlegg: 'Fjern',
   fjernVedleggNavn: (filnavn: string) => `Fjern ${filnavn}`,
-  forStorFil: (filnavn: string) => `${filnavn} er større enn 15 MB. Velg en mindre fil.`,
+  forStorFil: (filnavn: string) =>
+    `${filnavn} er større enn ${GRENSEN_FOR_VEDLEGG}. Velg en mindre fil.`,
   vedleggFeilet: (filnavn: string, melding: string) => `${filnavn} ble ikke lastet opp. ${melding}`,
   ventPaaOpplastingen: 'Vent til vedleggene er lastet opp.',
   // Spørsmålet sier «pålegget» eller «forholdet», som ledetekstene (F-5).
