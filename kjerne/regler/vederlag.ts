@@ -6,7 +6,7 @@
 import { beloep, BroekdelAvOere, heleOere, NULL_OERE, UgyldigBeloep, type Oere } from './beloep.ts';
 import { BELOEPSVURDERINGER, type Beloepsvurdering, type Vederlagsresultat } from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';
-import { METODER } from '../spor/vederlag/format.ts';
+import { denAndreRegelen, justerteEnhetspriser, METODER } from '../spor/vederlag/format.ts';
 import type { Oppgjoersform } from '../typer.ts';
 import type { Regelsett } from './regelsett.ts';
 
@@ -434,7 +434,7 @@ export function kontrollerOppgjoersformen(
 ): void {
   const feil: Record<string, string> = {};
   const felt = `${navn}.oensket_oppgjoersform`;
-  const regel = post.oppgjoersform !== 'tilbud';
+  const regel = post.oppgjoersform === 'tilbud' ? null : post.oppgjoersform;
   const kreverTilbud = p.krever_tilbud === true;
   const hva = regel ? 'beregningsregelen ikke godtas' : 'tilbudet ikke aksepteres (punkt 34.2.2)';
   // Arbeidsvalget i #479: uten aksept oppgir byggherren oppgjørsformen, ellers ikke. Svar 3 A
@@ -446,7 +446,11 @@ export function kontrollerOppgjoersformen(
   else if (p.aksepterer !== false && p.oensket_oppgjoersform != null)
     feil[felt] = `gjelder bare når ${hva}`;
   // OV-U95 punkt 1 og 5: byggherren mener ikke den beregningsregelen TE krever.
-  else if (regel && p.oensket_oppgjoersform === post.oppgjoersform)
+  else if (
+    regel &&
+    p.oensket_oppgjoersform != null &&
+    p.oensket_oppgjoersform !== denAndreRegelen(regel)
+  )
     feil[felt] = 'er oppgjørsformen totalentreprenøren krever';
   if (p.krever_tilbud != null && typeof p.krever_tilbud !== 'boolean')
     feil[`${navn}.krever_tilbud`] = 'er verken true eller false';
@@ -458,7 +462,7 @@ export function kontrollerOppgjoersformen(
   else if (kreverTilbud && p.aksepterer !== false)
     feil[`${navn}.krever_tilbud`] =
       'kan ikke stå når byggherren godtar beregningsregelen for kravposten';
-  const justert = post.oppgjoersform === 'enhetspriser' && post.justert === true;
+  const justert = justerteEnhetspriser(post);
   // KA-U64: varselet etter § 34.3.3 gjelder justerte enhetspriser, og § 34.4 regningsarbeid.
   const trengerVarsel = post.oppgjoersform === 'regningsarbeid' || justert;
   if (p.varslet_i_tide != null && typeof p.varslet_i_tide !== 'boolean')
