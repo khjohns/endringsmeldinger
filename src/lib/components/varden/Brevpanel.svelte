@@ -61,7 +61,7 @@
   .brevpanel {
     position: sticky;
     top: var(--spacing-6);
-    max-height: calc(100vh - 2 * var(--spacing-6));
+    max-height: calc(100dvh - 2 * var(--spacing-6));
     overflow: auto;
     background: var(--surface);
     border: var(--rule);
