@@ -820,7 +820,7 @@ describe('en aksept som legges til, prøves mot svaret den gjelder, ikke mot det
     navn: 'S-g2',
   };
 
-  it('en aksept av et avslag på grunnlaget, lagt til etter byggherrens nye svar, lukker ikke saken (GR-U27, OV-U98)', () =>
+  it('en aksept av et avslag på grunnlaget, lagt til etter byggherrens nye svar, lukker ikke saken (OV-U112, GR-U27)', () =>
     prov(
       'aksept-av-erstattet-avslag-lukker-ikke',
       [
@@ -832,7 +832,7 @@ describe('en aksept som legges til, prøves mot svaret den gjelder, ikke mot det
         {
           etter: 3,
           rolle: 'mal',
-          kilde: ['GR-U27', 'OV-U98', 'OV-U110'],
+          kilde: ['OV-U112', 'GR-U27', 'OV-U98'],
           forventet: {
             forstaatt: true,
             uten_virkning: [],

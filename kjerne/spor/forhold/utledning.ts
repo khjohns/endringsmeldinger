@@ -174,7 +174,8 @@ export function forholdssvaretsVirkning(
       venterEtterFrafall ||
       (!spor.forhold.trukket && gBrev !== null && forholdetErAvklart(gBrev.svar, gBrev.virkninger)),
     // SK-01, #213, MM-U13: TE har godtatt svaret på påberopelsen, og det avklarer ikke forholdet
-    // etter GR-U7. Et godtatt avslag og en godtatt preklusjon har samme virkning.
+    // etter GR-U7. Et godtatt avslag og en godtatt preklusjon har samme virkning. En enighet om et
+    // svar byggherren senere har erstattet, lukker ikke saken (OV-U112).
     forholdAvvist:
       eg?.grunnlag.kilde === 'aksept' &&
       gBrev !== null &&

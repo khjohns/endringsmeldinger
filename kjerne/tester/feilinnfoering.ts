@@ -6023,7 +6023,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F685',
     feilklasse:
-      'en aksept lagt til av et avslag på grunnlaget som byggherren senere har erstattet, lukker saken (GR-U27, alternativet B)',
+      'en aksept lagt til av et avslag på grunnlaget som byggherren senere har erstattet, lukker saken (OV-U112, GR-U27)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
