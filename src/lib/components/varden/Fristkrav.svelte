@@ -144,8 +144,8 @@
     if (v.hva === 'krav' && v.utenfor && erTomt(v.utenfor)) v.utenfor = null;
   }
 
-  // Radene som ennå ikke har en frist eller et navn, nummereres bare seg imellom (U-1).
-  const utenNavn = $derived(v.frister.filter((p) => p.frist === null && !p.navn.trim()));
+  // Radene uten en registrert frist og uten et navn nummereres bare seg imellom (U-1).
+  const utenNavn = $derived(v.frister.filter((p) => typeof p.frist !== 'number' && !p.navn.trim()));
   /** Navnet fristen står med i skjemaet og panelet, som i brevet (`betegnelsen` i kjernen). */
   function navnet(p: Fristpostvalg): string {
     const d = delene(p);
