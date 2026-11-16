@@ -1968,9 +1968,11 @@
         "KA-U8",
         "MM-U2",
         "KA-U2",
-        "KA-U15"
+        "KA-U15",
+        "OV-U7"
       ],
-      "tolkningsstatus": "avklart_tolkning"
+      "tolkningsstatus": "avklart_tolkning",
+      "utsatt": "OV-U7"
     },
     {
       "id": "KA-30",
@@ -3111,17 +3113,11 @@
         "KA-U12",
         "KA-U15",
         "KA-U17",
-        "KA-U22"
+        "KA-U22",
+        "OV-U7"
       ],
       "tolkningsstatus": "avklart_tolkning",
-      "funksjoner": [
-        "kjerne/kommandoer/forutsetninger.ts#forutsetninger"
-      ],
-      "regelkoder": [
-        "INGEN_KRAV_I_SPORET",
-        "KRAV_I_SPORET",
-        "PAABEROPELSE_IKKE_SENDT"
-      ]
+      "utsatt": "OV-U7"
     },
     {
       "id": "KA-32",
@@ -3195,7 +3191,7 @@
     },
     {
       "id": "KA-35",
-      "tilfelle": "En hendelse som ikke er registrert korrespondanse, strider mot en enighet eller mot at saken er lukket: en ny kravversjon i et trukket spor eller i et spor med «ingen krav», en aksept av et frafall, noe som endrer utfallet etter at kravene er avgjort eller avslaget av grunnlaget er godtatt, eller et sammenfall som ikke stemmer med standpunktene i brevet.",
+      "tilfelle": "En hendelse som ikke er registrert korrespondanse, strider mot en enighet eller mot at saken er lukket: en ny kravversjon i et trukket spor, en aksept av et frafall, noe som endrer utfallet etter at kravene er avgjort eller avslaget av grunnlaget er godtatt, eller et sammenfall som ikke stemmer med standpunktene i brevet.",
       "forventet": "Saken er ikke forstått, og hendelsen vises som ikke tolket. Kontrollsaken uten enigheten eller lukkingen er forstått.",
       "bh_standpunkt": "—",
       "rettslig_virkning": "Kontrollen gjelder at dataene henger sammen, ikke en rettslig avgjørelse om gyldighet.",
@@ -3208,7 +3204,6 @@
         "GR-U10",
         "GR-U9",
         "KA-U11",
-        "KA-U12",
         "V-SK01",
         "MM-U34"
       ],
@@ -3243,10 +3238,10 @@
     },
     {
       "id": "KA-37",
-      "tilfelle": "TE registrerer sitt eget brev med en ny kravversjon i et spor med enighet, i et trukket spor eller i et spor med «ingen krav», eller med en aksept av et frafall, en aksept av et svar partene alt er enige om, eller et trekk etter at kravene er avgjort.",
-      "forventet": "Saken er forstått. En kravversjon i et spor med enighet har samme virkning som en ny versjon fra appen og blir gjeldende krav ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98)). En kravversjon i et trukket spor eller etter «ingen krav», og aksepten av et frafall eller av et svar partene alt er enige om, strider mot journalen og står uten virkning (MM-U43 punkt 9). Trekket er dokumentasjon etter [OV-U98](../plans/vedtak.md#ov-u98) og sendes fra appen. Trekket og «ingen krav» står, og ingenting sperres.",
+      "tilfelle": "TE registrerer sitt eget brev med en ny kravversjon i et spor med enighet, i et trukket spor, eller med en aksept av et frafall, en aksept av et svar partene alt er enige om, eller et trekk etter at kravene er avgjort.",
+      "forventet": "Saken er forstått. En kravversjon i et spor med enighet har samme virkning som en ny versjon fra appen og blir gjeldende krav ([OV-U80](../plans/vedtak.md#ov-u80), [OV-U98](../plans/vedtak.md#ov-u98)). En kravversjon i et trukket spor, og aksepten av et frafall eller av et svar partene alt er enige om, strider mot journalen og står uten virkning (MM-U43 punkt 9). Trekket er dokumentasjon etter [OV-U98](../plans/vedtak.md#ov-u98) og sendes fra appen. Trekket står, og ingenting sperres.",
       "bh_standpunkt": "—",
-      "rettslig_virkning": "Et registrert brev endrer ikke enigheten, trekket eller «ingen krav». Appen avgjør ikke tvisten.",
+      "rettslig_virkning": "Et registrert brev endrer ikke enigheten eller trekket. Appen avgjør ikke tvisten.",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
@@ -3255,7 +3250,6 @@
         "MM-U18",
         "KA-U7",
         "MM-U34",
-        "KA-U12",
         "KA-U11",
         "GR-U9",
         "GR-U8",
@@ -3482,7 +3476,7 @@
     {
       "id": "VS-06",
       "tilfelle": "TE sender et eget varsel etter § 33.4 fra appen, uten dager, før fristkravet.",
-      "forventet": "Varselet er et eget brev med serverens dato og teksten i VS-U15, og det er sporets registrerte varsel: svaret på et senere fristkrav vurderer rettidigheten av det, og byggherren kan gjøre innsigelse mot det. Et nytt varsel, sendt eller registrert, og et fristkrav som oppgir en dato for varselet, avvises (VARSEL_REGISTRERT). Varselet avvises før grunnlaget er sendt og etter «ingen krav» i fristsporet, som registreringen. Når et fristkrav er sendt, avvises et varsel fra appen (FRISTKRAV_SENDT), mens et varsel sendt tidligere utenfor appen kan registreres med sin dato (VS-U16).",
+      "forventet": "Varselet er et eget brev med serverens dato og teksten i VS-U15, og det er sporets registrerte varsel: svaret på et senere fristkrav vurderer rettidigheten av det, og byggherren kan gjøre innsigelse mot det. Et nytt varsel, sendt eller registrert, og et fristkrav som oppgir en dato for varselet, avvises (VARSEL_REGISTRERT). Varselet avvises før grunnlaget er sendt, som registreringen. Når et fristkrav er sendt, avvises et varsel fra appen (FRISTKRAV_SENDT), mens et varsel sendt tidligere utenfor appen kan registreres med sin dato (VS-U16).",
       "bh_standpunkt": "Byggherrens vurdering av varselet: for sent.",
       "rettslig_virkning": "Appen avgjør ikke om varselet kom i tide.",
       "rettidighet": "Byggherrens vurdering av varselet etter § 33.4.",
@@ -3493,7 +3487,6 @@
         "V-SK12",
         "VS-U1",
         "VS-U9",
-        "KA-U15",
         "MM-U8",
         "MM-U50",
         "VS-U16"
@@ -3506,7 +3499,6 @@
       "regelkoder": [
         "VARSEL_REGISTRERT",
         "PAABEROPELSE_IKKE_SENDT",
-        "INGEN_KRAV_I_SPORET",
         "FRISTKRAV_SENDT"
       ]
     },

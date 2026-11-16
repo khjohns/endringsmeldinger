@@ -35,7 +35,6 @@ import {
   vederlagsinnhold,
 } from '../spor/vederlag/format.ts';
 import {
-  KRAVSPOR,
   SPOR,
   type Hjemmel,
   type Opplysningsslag,
@@ -212,11 +211,6 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
     },
     ['id', 'art', 'gjelder', 'hva']
   ),
-  ingen_krav: objekt({ ...artfelt('ingen_krav'), spor: { enum: [...KRAVSPOR] } }, [
-    'id',
-    'art',
-    'spor',
-  ]),
   innsigelse: objekt({ ...artfelt('innsigelse'), gjelder: ID, grunn: { const: 'ikke_svar' } }, [
     'id',
     'art',

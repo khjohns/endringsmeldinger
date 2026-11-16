@@ -254,7 +254,7 @@ status = "venter"
 noekler = ["ingen_krav:vederlag", "ingen_krav:frist"]
 kommandoer = ["ingen_krav"]
 skjema = []
-mangler = "Kjernen slutter å tilby den (K1, #2016)."
+mangler = "Ingen. Kjernen tilbyr den ikke, kommandoen avvises, og en journal med utsagnet er ikke forstått (#2016)."
 
 [[handling]]
 id = "U9"
@@ -512,11 +512,11 @@ kilde = ["KA-U1", "GR-U10", "OV-U97"]
 status = "holder"
 
 [[betegnelse]]
-noekkel = "svar_ikke_godtatt"
+noekkel = "byggherren_har_svart"
 nivaa = "spor"
-betydning = "BH har svart. Erstattes av «byggherren har svart», fordi den antyder et standpunkt TE ikke har tatt."
-kilde = ["OV-U99"]
-status = "endres"
+betydning = "BH har et gjeldende svar i sporet, også i en lukket sak. Erstatter «svaret er ikke godtatt», som antydet et standpunkt TE ikke har tatt (#2017)."
+kilde = ["OV-U99", "MM-U31"]
+status = "holder"
 
 [[betegnelse]]
 noekkel = "krav_sendt"
@@ -528,7 +528,7 @@ status = "utgaar"
 [[betegnelse]]
 noekkel = "ingen_krav"
 nivaa = "spor"
-betydning = "TE har sagt «ingen krav». Går ut med U4."
+betydning = "TE har sagt «ingen krav». Gikk ut med U4 (#2016)."
 kilde = ["OV-U7", "OV-U99"]
 status = "utgaar"
 
@@ -570,19 +570,13 @@ status = "holder"
 [[betegnelse]]
 noekkel = "kravene_avgjort"
 nivaa = "sak"
-betydning = "Predikatet i OV-U3. Betegnelsen skal si hva som har skjedd, ikke at kravene er avgjort."
+betydning = "Predikatet i OV-U3. Teksten sier hva som har skjedd, ikke at kravene er avgjort (#2017)."
 kilde = ["OV-U3", "OV-U99"]
-status = "endres"
+status = "holder"
 
 # ---------------------------------------------------------------------------
 # Den lukkede listen. Kjernen tilbyr disse, mot statusen i raden.
 # ---------------------------------------------------------------------------
-
-[[avvik]]
-noekler = ["ingen_krav:vederlag", "ingen_krav:frist"]
-handling = "U4"
-funn = "K1"
-issue = 2016
 
 [[avvik]]
 noekler = ["innsigelse:*"]

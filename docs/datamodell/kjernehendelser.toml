@@ -256,13 +256,6 @@ felt = ["id", "art", "gjelder", "hva"]
 grunnlag = "MM-U1, MM-U7"
 
 [[utsagn]]
-art = "ingen_krav"
-avsender = "TE"
-beskrivelse = "TE krever ikke noe i et spor som ikke er sendt. Har `spor` og ikke `gjelder`."
-felt = ["id", "art", "spor"]
-grunnlag = "KA-U12"
-
-[[utsagn]]
 art = "innsigelse"
 avsender = "TE eller BH"
 beskrivelse = """

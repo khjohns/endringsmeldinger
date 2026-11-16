@@ -199,8 +199,6 @@ export type Utsagn =
    * eller mottatt, eller at det var en endringsordre.
    */
   | { id: string; art: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
-  /** KA-U12: TE krever ikke noe i sporet. */
-  | { id: string; art: 'ingen_krav'; spor: Kravspor }
   /**
    * § 5 tredje ledd (VS-U1, VS-U9, VS-U14): parten gjør gjeldende at motpartens
    * varsel, krav eller svar kom for sent. `gjelder` er det.

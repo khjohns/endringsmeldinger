@@ -16,13 +16,7 @@ import { formfeil, vedleggI, type Kommando } from '../kommandoer/kommando.ts';
 import { lesJournal, standpunkterISvaret } from '../format/leser.ts';
 import { BESLUTNINGSGRUNNLAG } from '../format/format.ts';
 import { feilI, Uforstaatt } from '../format/skjema.ts';
-import {
-  kraveneErAvgjort,
-  standpunktetErSubsidiaert,
-  utled,
-  type Utledning,
-} from '../utledning/utled.ts';
-import { kanInngaaIEo } from '../spor/forhold/utledning.ts';
+import { standpunktetErSubsidiaert, utled, type Utledning } from '../utledning/utled.ts';
 import { GJELDENDE_REGLER, type Regelsett } from '../regler/regelsett.ts';
 import {
   beregnVederlag,
@@ -473,7 +467,7 @@ describe('lesereglene for referansene (4.2)', () => {
  * Samspillsreviewet av #273: en rad fra en annen skriver kan ikke gjøre om det
  * kommandoene sperrer. Hver avvisning har kontrollsaken uten raden.
  */
-describe('rader fra en annen skriver som strider mot en enighet eller «ingen krav»', () => {
+describe('rader fra en annen skriver som strider mot en enighet, og «ingen krav»', () => {
   const godkjentForhold = [
     'krav_irreg',
     {
@@ -520,70 +514,13 @@ describe('rader fra en annen skriver som strider mot en enighet eller «ingen kr
     expect(forstaatt([...journal, en, fraTE([en], [aksept(k, 'S-g1')])])).toBe(false);
   });
 
-  it('«ingen krav» i begge spor avgjør kravene, og saken kan inngå i en endringsordre (KA-U12, MM-U34 punkt 20)', async () => {
+  it('«ingen krav» i en rad gjør saken ikke forstått, fordi det ikke er med i første versjon (OV-U7, OV-U99 punkt 2, MM-U2); kontrollsak: raden uten det', async () => {
     const bane = minnebane();
     await bygg(bane, ['godkjent_forhold']);
     const journal = await bane.journal();
-    const u = utled(
-      lesJournal(
-        [...journal, fraTE(journal, [ingenKrav('vederlag'), ingenKrav('frist')])],
-        KJERNE.leserformat
-      ),
-      GJELDENDE_REGLER
-    );
-    expect(u.forstaatt).toBe(true);
-    expect(kraveneErAvgjort(u)).toBe(true);
-    expect(kanInngaaIEo(u)).toBe(true);
-  });
-
-  it('«ingen krav» to ganger i samme spor er ikke forstått (4.2); kontrollsak: én gang', async () => {
-    const bane = minnebane();
-    await bygg(bane, ['godkjent_forhold']);
-    const journal = await bane.journal();
-    const en = fraTE(journal, [ingenKrav('vederlag')]);
-    expect(forstaatt([...journal, en])).toBe(true);
-    expect(forstaatt([...journal, en, fraTE([en], [ingenKrav('vederlag')])])).toBe(false);
-  });
-
-  it('«ingen krav» før forholdet er sendt, er ikke forstått (KA-U15); kontrollsak: etter', async () => {
-    const tom = await minnebane().journal();
-    expect(forstaatt([...tom, fraTE(tom, [ingenKrav('vederlag')])])).toBe(false);
-    const bane = minnebane();
-    await bygg(bane, [{ handling: 'krav', spor: 'forhold', underkategori: 'endringsordre' }]);
-    const sendt = await bane.journal();
-    expect(forstaatt([...sendt, fraTE(sendt, [ingenKrav('vederlag')])])).toBe(true);
-  });
-
-  it('«ingen krav» etter et varsel etter § 33.4 er forstått (KA-U2, KA-U15)', async () => {
-    const bane = minnebane();
-    await bygg(bane, [
-      { handling: 'krav', spor: 'forhold', underkategori: 'endringsordre' },
-      { handling: 'varsel', spor: 'frist', sendt: '2026-09-02' },
-    ]);
-    const journal = await bane.journal();
-    expect(forstaatt([...journal, fraTE(journal, [ingenKrav('frist')])])).toBe(true);
-  });
-
-  it('en kravversjon etter «ingen krav» i samme spor er ikke forstått (KA-U12, 4.2)', async () => {
-    const bane = minnebane();
-    await bygg(bane, ['godkjent_forhold']);
-    const journal = await bane.journal();
-    const en = fraTE(journal, [ingenKrav('vederlag')]);
-    const krav = (spor: string, innhold: Data): Journalrad => ({
-      ...fraTE([en], []),
-      data: { krav: [{ id: randomUUID(), spor, ...innhold }] },
-    });
-    expect(
-      forstaatt([
-        ...journal,
-        en,
-        krav('frist', { frister: [{ id: 'f1', navn: 'Sluttfristen', dager: 20 }] }),
-      ])
-    ).toBe(true);
-    const p1 = { id: 'p1', betegnelse: 'P1', beskrivelse: 'P1', oppgjoersform: 'tilbud' };
-    expect(
-      forstaatt([...journal, en, krav('vederlag', { kravposter: [{ ...p1, beloep: 1 }] })])
-    ).toBe(false);
+    const varsel = { id: randomUUID(), art: 'varsel', hjemmel: '33.4' };
+    expect(forstaatt([...journal, fraTE(journal, [varsel])]), 'kontrollsak').toBe(true);
+    expect(forstaatt([...journal, fraTE(journal, [varsel, ingenKrav('vederlag')])])).toBe(false);
   });
 });
 
@@ -2294,15 +2231,15 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     const varselet = journal.at(-1)!;
     const u = utledet(journal);
     expect(u.ikkeVurderteBrev, 'kontrollsak: bare varselet').toEqual([]);
-    // Ingen kommando skriver det ennå (#587): raden lages for hånd.
+    // KA-37: et trekk i et registrert brev er dokumentasjon etter OV-U98. Raden lages for hånd.
     (varselet.data.utsagn as Data[]).push({
       id: randomUUID(),
-      art: 'ingen_krav',
-      spor: 'vederlag',
+      art: 'trekk',
+      gjelder: u.spor.forhold.gjeldendeKrav!.id,
     });
     expect(grunner(journal), 'forutsetning: leseren forstår raden').toEqual([]);
     const etter = utledet(journal);
-    expect(etter.spor.vederlag.ingenKrav).toBe(false);
+    expect(etter.spor.forhold.trukket).toBe(false);
     expect(etter.ikkeVurderteBrev).toEqual([varselet.event_id]);
     expect(Object.keys(etter.spor.frist.varsler), 'varselet har fortsatt virkning (OV-U5)').toEqual(
       ['33.4']
@@ -2310,21 +2247,35 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     expect(visning(etter, GJELDENDE_REGLER).journal.at(-1)!.kilde).toBe('dokumentasjon');
   });
 
+  /** OV-U99 punkt 6, svar S1 15.11 i #2017. */
+  const avgjortTekst =
+    'Partene er enige om hvert krav som er sendt i løsningen, eller kravet er trukket';
+
   it('OV-U19: når kravene er avgjort, står setningen i statusen og ikke som merknad (OV-U10)', async () => {
     const bane = minnebane();
     await bygg(bane, [
       'godkjent_forhold',
-      { handling: 'ingen_krav', spor: 'vederlag' },
-      { handling: 'ingen_krav', spor: 'frist' },
+      { handling: 'krav', spor: 'frist', dager: 20, navn: 'K-f1' },
+      {
+        handling: 'brev',
+        navn: 'D5',
+        svar: [
+          {
+            spor: 'frist',
+            navn: 'S-f1',
+            varsel_i_tide: true,
+            spesifisering_i_tide: true,
+            hindring: true,
+          },
+        ],
+      },
     ]);
     const journal = await bane.journal();
-    expect(vist(journal).status?.tekst, 'kontrollsak: uten registrert brev').toBe(
-      'Alle krav sendt i appen er avgjort'
-    );
+    expect(vist(journal).status?.tekst, 'kontrollsak: uten registrert brev').toBe(avgjortTekst);
     godtatt(journal, registrering(), 'TE');
     const v = vist(journal);
     expect(v.status?.tekst).toBe(
-      'Alle krav sendt i appen er avgjort. Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.'
+      `${avgjortTekst}. Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.`
     );
     expect(v.merknader).not.toContain('brev_utenfor_appen');
   });

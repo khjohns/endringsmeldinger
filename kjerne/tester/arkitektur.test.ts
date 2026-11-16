@@ -616,7 +616,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'forlengetFrist',
     ['spor/frist/utledning.ts:fristenEtterForlengelsene'],
   ],
-  ['Utsagn', 'relasjon', 'id art gjelder spor'],
+  ['Utsagn', 'relasjon', 'id art gjelder'],
   ['Utsagn', 'utsagn', 'hva'],
   // OV-U5: bestemmelsen TEs varsel er gitt etter, § 33.4 eller § 34.1.2.
   ['Utsagn', 'utsagn', 'hjemmel'],
@@ -681,7 +681,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporutledning',
     'predikat',
-    'krav kravUtenforRekken svar svarUtenforRekken gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsler',
+    'krav kravUtenforRekken svar svarUtenforRekken gjeldendeKrav gjeldendeSvar enighet trukket varsler',
   ],
   // § 33.6.2 (VS-U17, VS-U19, VS-U27): hver forespørsel og kravet eller begrunnelsen som
   // svarte, utledet av rekkefølgen i journalen, og hvordan fristkravene står til den.
@@ -2418,7 +2418,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // OV-U73: tabellen får lagene i sporet, uten lagene fra forholdet.
   ['Lagbeloep', 'brevtekst', 'plass', ['frosset/brevtekst.ts']],
   ['PostenIOversikten', 'brevtekst', 'post navn krevd', ['spor/vederlag/tekst.ts']],
-  ['Kravsporsbrevtekst', 'brevtekst', 'enigI ingenKrav kravetOm trukket', ['frosset/brevtekst.ts']],
+  ['Kravsporsbrevtekst', 'brevtekst', 'enigI kravetOm trukket', ['frosset/brevtekst.ts']],
   [
     'spor/vederlag/tekst.ts',
     'brevtekst',

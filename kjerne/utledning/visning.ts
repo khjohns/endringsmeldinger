@@ -24,7 +24,6 @@ import {
   kilden,
   kraveneErAvgjort,
   sporetErLukket,
-  svarIkkeGodtatt,
   venterPaaSvar,
   vurdertVedRegistreringen,
   type Enighet,
@@ -44,7 +43,9 @@ const STATUSTEKST: Record<Statuskode, string> = {
   kan_ikke_utledes: 'Kan ikke utledes',
   avsluttet_avslaatt: 'Avsluttet: avslått',
   avsluttet_trukket: 'Avsluttet: trukket',
-  alle_krav_avgjort: 'Alle krav sendt i appen er avgjort',
+  // OV-U99 punkt 6: sier hva som har skjedd, med predikatet i OV-U3 (svar S1 15.11 i #2017).
+  alle_krav_avgjort:
+    'Partene er enige om hvert krav som er sendt i løsningen, eller kravet er trukket',
 };
 
 export interface Visning {
@@ -154,9 +155,7 @@ export const BETEGNELSER = [
   'venter_paa_svar',
   'paalegg_frafalt',
   'enige',
-  'svar_ikke_godtatt',
-  'krav_sendt',
-  'ingen_krav',
+  'byggherren_har_svart',
   'varslet',
 ] as const;
 
@@ -167,10 +166,10 @@ export const harVarsel = (u: Utledning, spor: Spor): boolean =>
   Object.keys(u.spor[spor].varsler).length > 0 || u.spor[spor].kravpostvarsler.length > 0;
 
 const sendt = (u: Utledning, spor: Spor): boolean =>
-  u.spor[spor].krav.length > 0 || u.spor[spor].ingenKrav || harVarsel(u, spor);
+  u.spor[spor].krav.length > 0 || harVarsel(u, spor);
 
 const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
-  // Et trukket forhold gir «Trukket» bare der krav, varsel eller «ingen krav» er sendt (GR-U25).
+  // Et trukket forhold gir «Trukket» bare der krav eller varsel er sendt (GR-U25).
   trukket: (u, spor) => u.spor[spor].trukket && sendt(u, spor),
   // Mens forholdet ikke er trukket og saken og sporet ikke er lukket (MM-U31).
   spesifisert_krav_etterspurt: (u, spor) =>
@@ -178,15 +177,9 @@ const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
   venter_paa_svar: venterPaaSvar,
   paalegg_frafalt: (u, spor) => visningI(spor).paaleggFrafalt(u),
   enige: (u, spor) => u.spor[spor].enighet !== null,
-  svar_ikke_godtatt: svarIkkeGodtatt,
-  // MM-U30: TE har godtatt avslaget på grunnlaget (GR-U27), og sporet har verken enighet eller
-  // trekk.
-  krav_sendt: (u, spor) =>
-    sporetErLukket(u) &&
-    u.spor[spor].gjeldendeKrav !== null &&
-    u.spor[spor].enighet === null &&
-    !u.spor[spor].trukket,
-  ingen_krav: (u, spor) => u.spor[spor].ingenKrav,
+  // MM-U30, OV-U99 punkt 6: byggherren har et gjeldende svar, også i en lukket sak (MM-U31; svar
+  // S2 15.11 i #2017).
+  byggherren_har_svart: (u, spor) => u.spor[spor].gjeldendeSvar !== null,
   varslet: harVarsel,
 };
 
@@ -211,12 +204,15 @@ export function betegnelse(u: Utledning, spor: Spor): Betegnelse | null {
   return BETEGNELSER.find((b) => FORELIGGER[b](u, spor)) ?? null;
 }
 
-/** Betegnelsen saken har i de fire tilfellene i MM-U22; ellers har den ingen. */
-export type Saksbetegnelse =
-  | 'ikke_forstaatt'
-  | 'avslaget_paa_forholdet_godtatt'
-  | 'paaberopelsen_trukket'
-  | 'kravene_avgjort';
+/** Betegnelsene saken har i de fire tilfellene i MM-U22; ellers har den ingen. */
+export const SAKSBETEGNELSER = [
+  'ikke_forstaatt',
+  'avslaget_paa_forholdet_godtatt',
+  'paaberopelsen_trukket',
+  'kravene_avgjort',
+] as const;
+
+export type Saksbetegnelse = (typeof SAKSBETEGNELSER)[number];
 
 /** Betegnelsen i MM-U22, som sakslisten og statusen i visningen leser (#1050). */
 export function saksbetegnelse(u: Utledning): Saksbetegnelse | null {
@@ -319,17 +315,14 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
       ut.push(`innsigelse_fra_${i.part}`);
   const passivitet = visningI(spor).passivitetsetikett(u);
   if (passivitet) ut.push(passivitet);
-  if (s.ingenKrav) ut.push('ingen_krav');
-  else {
-    const varsel = visningI(spor).varseletikett(u, regler);
-    if (varsel) ut.push(varsel);
-  }
+  const varsel = visningI(spor).varseletikett(u, regler);
+  if (varsel) ut.push(varsel);
   return ut;
 }
 
 /** Det som er sporets eget i visningen. */
 export interface Sporsvisning {
-  /** Etiketten for varselet i sporet når sporet ikke har «ingen krav», eller `null`. */
+  /** Etiketten for varselet i sporet, eller `null`. */
   varseletikett(u: Utledning, regler: Regelsett): string | null;
   /** Byggherren har frafalt pålegget i sporet (betegnelsen `paalegg_frafalt`). */
   paaleggFrafalt(u: Utledning): boolean;

@@ -148,8 +148,6 @@ export interface Sporutledning {
   enigheterOmEldreSvar: Enighet[];
   /** TE har trukket kravet, eller forholdet som bærer det (GR-U5, SD-02). */
   trukket: boolean;
-  /** TE har sagt at det ikke kreves noe i sporet (KA-U12). */
-  ingenKrav: boolean;
   /**
    * De registrerte varslene i sporet, ett per hjemmel (SK-12): § 32.2 i forholdet (VS-U34),
    * § 33.4 i fristen, § 34.1.2 og § 34.1.3 i vederlaget (OV-U5, OV-U25).
@@ -316,7 +314,6 @@ const tomtSpor = (): Sporutledning => ({
   enighet: null,
   enigheterOmEldreSvar: [],
   trukket: false,
-  ingenKrav: false,
   varsler: {},
   kravpostvarsler: [],
   foresporsler: [],
@@ -441,7 +438,7 @@ function ikkeErstattet(svar: Svar[], kravId: string): Svar[] {
 }
 
 /** Elementene i et dokument som kan endre utfallet (KA-U11). Andre utsagn har ingen virkning på det. */
-const ENDRER_UTFALLET = new Set<string>(['aksept', 'trekk', 'ingen_krav', 'varsel']);
+const ENDRER_UTFALLET = new Set<string>(['aksept', 'trekk', 'varsel']);
 
 /**
  * Dokumentet kan stride mot journalen før det: det har et krav, et svar eller et utsagn
@@ -479,8 +476,8 @@ function dokumentasjonIBrevet(d: Dokument): Set<string> {
 
 /**
  * MM-U43 punkt 6: elementene i dokumentet som ikke kan forstås i samsvar med journalen før
- * det og vedtakene om enighet og lukking: en ny kravversjon i et trukket spor eller et spor
- * med «ingen krav» (GR-U5, KA-U12), et svar eller en aksept i et trukket spor,
+ * det og vedtakene om enighet og lukking: en ny kravversjon i et trukket spor (GR-U5), et
+ * svar eller en aksept i et trukket spor,
  * en aksept av et frafall (GR-U9) eller av et svar med registrert enighet
  * (GR-U8), noe som endrer utfallet etter at TE har godtatt et svar som avslår forholdet
  * eller påberoper preklusjon (GR-U27), og det som viser til et element uten virkning.
@@ -740,7 +737,6 @@ function kravetStrider(k: Krav, u: Utledning): string | null {
   const l = lukket(u);
   if (l) return `en kravversjon etter at ${l}`;
   if (u.spor[k.spor].trukket) return 'en kravversjon etter at kravet er trukket (GR-U5)';
-  if (u.spor[k.spor].ingenKrav) return 'en kravversjon i et spor med «ingen krav» (KA-U12)';
   const poster = kontrollerI(k.spor).kravet(k, u.spor[k.spor].krav);
   return poster ? `en kravversjon som ${poster}` : null;
 }
@@ -914,7 +910,6 @@ function utledSporene(
   const aksepter: Utsagn<'aksept'>[] = [];
   const trekk: Utsagn<'trekk'>[] = [];
   const bestridelser: Utsagn<'bestridelse'>[] = [];
-  const ingenKrav: Utsagn<'ingen_krav'>[] = [];
   const varsler: LestVarsel[] = [];
   const henvisninger: Henvisning[] = [];
   const foresporsler: Utsagn<'foresporsel'>[] = [];
@@ -939,8 +934,6 @@ function utledSporene(
         return trekk.push(u);
       case 'bestridelse':
         return bestridelser.push(u);
-      case 'ingen_krav':
-        return ingenKrav.push(u);
       case 'varsel':
         return varsler.push(u);
       case 'foresporsel':
@@ -1047,14 +1040,13 @@ function utledSporene(
   };
   for (const n of SPOR) kontrollerI(n).saken(saken, bakover, ugyldig);
   kontrollerBestridelsene(bestridelser, alleOpplysninger, avsenderAv, bakover, ugyldig);
-  kontrollerIngenKrav(ingenKrav, spor, bakover, ugyldig);
   kontrollerVarslene(varsler, ugyldig);
   kontrollerKorrigeringene(korrigeringer, kravMedUten, elementer, bakover, ugyldig);
 
   begrensninger.push(...registreringer(journal).feil);
   if (begrensninger.length) return tom(journal, regler, begrensninger);
 
-  fyllSporene(spor, varsler, besvart, trekk, ingenKrav, alleKrav);
+  fyllSporene(spor, varsler, besvart, trekk, alleKrav);
   const datoopplysninger = opplysningerOmDatoen(journal, spor.forhold.krav, korrigeringer);
   const svar = svarberegninger(alleSvar, spor);
   settDatoopplysningene(svar, datoopplysninger, (id) => plass.get(id)!.versjon);
@@ -1336,28 +1328,6 @@ function kontrollerBestridelsene(
   }
 }
 
-/**
- * KA-U12: «ingen krav» står i et spor uten kravversjon, og bare én gang.
- * KA-U15: forholdet må være sendt, som for et krav.
- */
-function kontrollerIngenKrav(
-  ingenKrav: readonly Utsagn<'ingen_krav'>[],
-  spor: Record<Spor, Sporutledning>,
-  bakover: Bakover,
-  ugyldig: Ugyldig
-): void {
-  for (const i of ingenKrav)
-    if (
-      spor[i.spor].krav.length ||
-      ingenKrav.filter((x) => x.spor === i.spor).length > 1 ||
-      !spor.forhold.krav.some((k) => bakover(i.id, k.id))
-    )
-      ugyldig(
-        i.id,
-        '«ingen krav» står i et spor med en kravversjon eller et annet «ingen krav», eller før grunnlaget er sendt'
-      );
-}
-
 /** SK-12: høyst ett varsel per hjemmel, utenom § 34.3.3 og § 34.4 (VS-U48, VS-U52). */
 function kontrollerVarslene(varsler: readonly LestVarsel[], ugyldig: Ugyldig): void {
   for (const hjemmel of Object.keys(VARSELSPOR) as Varselhjemmel[]) {
@@ -1367,13 +1337,12 @@ function kontrollerVarslene(varsler: readonly LestVarsel[], ugyldig: Ugyldig): v
   }
 }
 
-/** Varslene, forespørslene, gjeldende krav og svar, og om sporet er trukket eller uten krav. */
+/** Varslene, forespørslene, gjeldende krav og svar, og om sporet er trukket. */
 function fyllSporene(
   spor: Record<Spor, Sporutledning>,
   varsler: readonly LestVarsel[],
   besvart: ForesporselOgSvar[],
   trekk: readonly Utsagn<'trekk'>[],
-  ingenKrav: readonly Utsagn<'ingen_krav'>[],
   alleKrav: Map<string, Krav>
 ): void {
   for (const v of varsler)
@@ -1387,7 +1356,6 @@ function fyllSporene(
       ? (ikkeErstattet(sp.svar, sp.gjeldendeKrav.id)[0] ?? null)
       : null;
     sp.trukket = trekk.some((t) => alleKrav.get(t.gjelder)?.spor === n);
-    sp.ingenKrav = ingenKrav.some((i) => i.spor === n);
   }
   for (const n of KRAVSPOR) spor[n].trukket ||= spor.forhold.trukket;
 }
@@ -1559,8 +1527,7 @@ export function enighetensVirkning(
  * OV-U3: kravene er avgjort når forholdet er avklart etter GR-U7, TE har sendt minst
  * ett vederlags- eller fristkrav, og hvert vederlags- og fristkrav TE har sendt, er
  * trukket eller har en virksom enighet. Et spor uten krav hindrer ikke; et varsel er
- * ikke et krav (KA-U2). «Ingen krav» i begge sporene (KA-U12) avgjør kravene til det
- * tas ut (#493). Predikatet leses av utsagnene og relasjonene, ikke av en status:
+ * ikke et krav (KA-U2). Predikatet leses av utsagnene og relasjonene, ikke av en status:
  * `enighetensVirkning` er selv et predikat av enigheten, forholdet og trekkene. Det er
  * en opplysning i visningen, og ingen regel sperrer etter det (MM-U34 punkt 12).
  */
@@ -1568,7 +1535,7 @@ export function kraveneErAvgjort(u: Utledning): boolean {
   const sendt = (n: Kravspor) => u.spor[n].krav.length > 0;
   return (
     u.forholdAvklart &&
-    (KRAVSPOR.some(sendt) || KRAVSPOR.every((n) => u.spor[n].ingenKrav)) &&
+    KRAVSPOR.some(sendt) &&
     KRAVSPOR.every((n) => !sendt(n) || u.spor[n].trukket || enighetensVirkning(u, n) === 'virksom')
   );
 }

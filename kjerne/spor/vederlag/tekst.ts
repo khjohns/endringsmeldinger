@@ -403,8 +403,6 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
   ingenBeloep,
   enigI: 'beløpet',
   trukket: kravetsBeloep,
-  ingenKrav: (sak) =>
-    `Totalentreprenøren krever ikke justering av vederlaget som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag. Avkallet omfatter ikke vederlag for forsering etter NS 8407 punkt 33.8.`,
 } satisfies Kravsporsbrevtekst;
 
 /**

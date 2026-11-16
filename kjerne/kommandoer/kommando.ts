@@ -191,7 +191,7 @@ export type Kommando = (
   /** VS-U15, OV-U5: TE sender et eget varsel fra appen, uten dager eller beløp. */
   | ({ type: 'send_varsel' } & Varselet)
   | { type: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
-  /** KA-U12, KA-U15, KA-U17: TE krever ikke noe i et spor som ikke er sendt. Ingen fritekst (KA-U22). */
+  /** KA-U12: TE krever ikke noe i et spor som ikke er sendt. Avvises etter OV-U7 og OV-U99 punkt 2. */
   | { type: 'ingen_krav'; spor: Kravspor }
   /**
    * § 5 tredje ledd (VS-U1, VS-U9, VS-U14): mot motpartens varsel, krav eller svar. Mot TEs
@@ -415,6 +415,9 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
     ]
   ),
 };
+
+/** Kommandotypene kjernen tar imot, med et skjema for hver. */
+export const KOMMANDOTYPER = Object.keys(SKJEMA) as Kommando['type'][];
 
 export type Innhold = Record<string, unknown>;
 
