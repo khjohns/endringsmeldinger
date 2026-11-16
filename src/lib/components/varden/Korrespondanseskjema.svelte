@@ -31,7 +31,7 @@
   import { brevet, svareneISporet } from './lesing';
   import type { Mangel } from './mangler';
   import { vedleggsgrense, vedleggskart } from './nysak';
-  import { FORHOLDET, LEGG_TIL, SKJEMA, SPORNAVN, type Korrespondansekategori } from './tekster';
+  import { FORHOLDET, LEGG_TIL, SPORNAVN, type Korrespondansekategori } from './tekster';
 
   let {
     kjernesak,
@@ -141,7 +141,7 @@
       </header>
 
       {#if forsoekt && mangler.length}
-        <Manglene tittel={SKJEMA.mangler} {mangler} ongaa={gaaTil} bind:element={oppsummering} />
+        <Manglene tittel={LEGG_TIL.mangler} {mangler} ongaa={gaaTil} bind:element={oppsummering} />
       {/if}
 
       <div class="innhold">

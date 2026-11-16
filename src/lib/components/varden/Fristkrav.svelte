@@ -634,7 +634,12 @@
         <Lagttillinje part={kjernesak.part} valg={lagtTil} {onendre} />
       {/if}
       {#if forsoekt && mangler.length}
-        <Manglene tittel={SKJEMA.mangler} {mangler} ongaa={gaaTil} bind:element={oppsummering} />
+        <Manglene
+          tittel={lagtTil ? LEGG_TIL.mangler : SKJEMA.mangler}
+          {mangler}
+          ongaa={gaaTil}
+          bind:element={oppsummering}
+        />
       {/if}
 
       {#if kanVarsle}

@@ -1229,6 +1229,7 @@ export const LEGG_TIL = {
   utkast: 'Utkast · ikke lagt til',
   ikkeLagtTil: 'Ikke lagt til.',
   ikkeLagtTilFeil: 'Korrespondansen ble ikke lagt til.',
+  mangler: 'Dette mangler før det kan legges til:',
   leggTilKravet: 'Legg til kravet',
   leggTilSvaret: 'Legg til svaret',
   /** OV-U102. */

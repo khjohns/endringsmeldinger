@@ -287,7 +287,7 @@
       {:else}
         {#if forsoekt && alleMangler.length}
           <Manglene
-            tittel={SKJEMA.mangler}
+            tittel={lagtTil ? LEGG_TIL.mangler : SKJEMA.mangler}
             mangler={alleMangler}
             ongaa={gaaTil}
             bind:element={oppsummering}

@@ -907,7 +907,7 @@
 
       {#if forsoekt && mangler.length}
         <Manglene
-          tittel={KRAVSKJEMA.mangler}
+          tittel={lagtTil ? LEGG_TIL.mangler : KRAVSKJEMA.mangler}
           {mangler}
           ongaa={gaaTil}
           bind:element={oppsummering}
