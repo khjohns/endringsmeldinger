@@ -137,7 +137,10 @@ describe('registeret over inngangene', () => {
       if (k === 'lesing') return;
       const ikke = (k as { ikke?: unknown } | undefined)?.ikke;
       expect(typeof ikke, 'kontraktsrolle mangler').toBe('string');
-      expect(String(ikke).trim().length).toBeGreaterThan(20);
+      expect(
+        String(ikke).trim().length,
+        'begrunnelsen for kontraktsrolle er for kort'
+      ).toBeGreaterThan(20);
     }
   );
 

@@ -316,7 +316,7 @@ export const PROSJEKTRUTER: readonly Rute[] = [
       utenSak:
         'Leserollen til et medlem i prosjektet; medlemskapet hører til prosjektet, ikke til en sak.',
       kontraktsrolle: {
-        ikke: 'Leserollen er administrasjon av prosjektet og krever prosjektrollen admin. Den leser og skriver ingen saksdata, men gir medlemmet lesetilgang til sakene i prosjektet (DL-U15).',
+        ikke: 'Leserollen er administrasjon av prosjektet og krever prosjektrollen admin. Den leser og skriver ingen saksdata, men endrer medlemmets tilgang til sakene: leserollen gir lesetilgang og hindrer skriving, og uten den følger tilgangen kontraktsteamet (DL-U15).',
       },
     },
     behandle: begrensMedlem,

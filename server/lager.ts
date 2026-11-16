@@ -196,7 +196,7 @@ async function aktornavn(foresp: Foresp, sakId: string): Promise<Map<string, str
  * Kalles etter at saken er funnet; en sak uten aktiv kobling har ikke noe mål, og
  * da skrives ikke brevet.
  */
-export async function lesLeveringsmaal(foresp: Foresp, sakId: string): Promise<Leveringsmaal> {
+export async function lesLeveringsmaal(foresp: Foresp, sakId: string): Promise<SakensMaal> {
   const maal = await lesMaal(foresp, sakId);
   if (!maal) throw new IngenLeveringsmaal(`Saken ${sakId} har ingen aktiv kobling til Catenda.`);
   return maal;
