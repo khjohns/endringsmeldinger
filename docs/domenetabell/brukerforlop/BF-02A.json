@@ -46,6 +46,11 @@
       "dato": "2026-11-15",
       "forhold": "VS-U26, VS-U43 punkt 1, arbeidsvalget i #1955",
       "hva": "D-4 sier at korrigeringen også avvises ved force majeure, der totalentreprenøren ikke oppgir noen dato. Koden avviste den alt."
+    },
+    {
+      "dato": "2026-11-16",
+      "forhold": "designdelen i MM-U55, oppdragsgiver 16.11 i #2093",
+      "hva": "Forståelsen sier at partene ved svaret ser TEs siste opplysning da svaret ble sendt, når TE har korrigert datoen senere. Linja sier tidspunktet, ikke hva svaret mente."
     }
   ],
   "bestilling": "BF-02A.md",
@@ -182,7 +187,7 @@
       ],
       "forstaaelse": [
         {
-          "tekst": "Begge ser 20.09.2026 som TEs siste opplysning og 15.09.2026 som den tidligere.",
+          "tekst": "Begge ser 20.09.2026 som TEs siste opplysning og 15.09.2026 som den tidligere. Ved svaret står at TEs siste opplysning da svaret ble sendt, var 15.09.2026.",
           "kilde": [
             "MM-U52",
             "MM-U55"

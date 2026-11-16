@@ -855,6 +855,13 @@ export const FORHOLDET = {
   korrigerer: (forrige: { dato: string; brev: Brevref }) =>
     `Korrigerer ${dato(forrige.dato)}, oppgitt i ${brevref(forrige.brev)}.`,
   korrigertI: (b: Brevref) => `Korrigert i ${brevref(b)}.`,
+  /** Ved et svar når TE har korrigert datoen etter svaret (designdelen i MM-U55, U-5 i BF-02A). */
+  sisteOpplysningVedSvaret: (o: {
+    hva: 'paalegg_mottatt' | 'klar_over_forholdet';
+    dato: string;
+    brev: Brevref;
+  }) =>
+    `Da svaret ble sendt, var totalentreprenørens siste opplysning at ${o.hva === 'paalegg_mottatt' ? 'pålegget ble mottatt' : 'totalentreprenøren ble klar over forholdet'} ${dato(o.dato)}, oppgitt i ${brevref(o.brev)}.`,
   korrigerILukket: KORRIGERT_I_LUKKET,
   omKorrigeringen: 'Om korrigeringen',
   avgjoerIkke:

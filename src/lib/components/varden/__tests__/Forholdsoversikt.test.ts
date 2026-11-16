@@ -537,6 +537,7 @@ describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
             siste: true,
             korrigertI: null,
           },
+          sisteOpplysningVedSvaret: null,
           standpunkter: [],
         },
       ],

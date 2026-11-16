@@ -525,6 +525,11 @@ export interface Innlegget {
   oppgitt: { hva: 'paalegg_mottatt' | 'klar_over_forholdet'; dato: string } | null;
   /** TEs opplysning om datoen i brevet, i påberopelsen eller en korrigering (G-7 i BF-02A). */
   opplysning: Datoopplysningen | null;
+  /**
+   * I et svar: TEs siste opplysning om datoen da svaret ble sendt, når TE har korrigert den
+   * senere (designdelen i MM-U55, U-5 i BF-02A).
+   */
+  sisteOpplysningVedSvaret: Datoopplysningen | null;
   /** Standpunktene med laget, og brevet med varselet en påberopelse av sen varsling gjelder. */
   standpunkter: {
     standpunkt: Standpunkt;
@@ -571,6 +576,7 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
       oppgitt:
         oppgitt(o) ?? (felt !== null && gjentatt !== null ? { hva: felt, dato: gjentatt } : null),
       opplysning: o,
+      sisteOpplysningVedSvaret: null,
       standpunkter: [],
     });
   }
@@ -580,15 +586,19 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
       utdypning: utdypning(o.brev.id, o.id),
       oppgitt: oppgitt(o),
       opplysning: o,
+      sisteOpplysningVedSvaret: null,
       standpunkter: [],
     });
   for (const s of u.spor.forhold.svar) {
     const ordene = forholdsordeneISvaret(s, u);
+    const daSvaretBleSendt = opplysningene.find((o) => o.id === u.svar[s.id]?.datoopplysning);
     ut.set(s.dokument, {
       gjelderPaalegg: false,
       utdypning: utdypning(s.dokument, s.id),
       oppgitt: null,
       opplysning: null,
+      sisteOpplysningVedSvaret:
+        daSvaretBleSendt && !daSvaretBleSendt.siste ? daSvaretBleSendt : null,
       // Svaret på forholdet har ingen grunner fra et annet svar foran seg (OV-U33).
       standpunkter: standpunktene(s, u).flatMap((l) => {
         if (!('standpunkt' in l)) return [];
