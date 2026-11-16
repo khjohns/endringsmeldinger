@@ -3983,6 +3983,14 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['et fristkrav med et brev som alt står i saken med varselet etter punkt 32.2'],
   },
   {
+    id: 'F706',
+    feilklasse:
+      'fristkravet legger ved brevet med varselet etter punkt 33.4 som alt står i saken, på nytt (#2082, VS-U55)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['  saksperre: (k, lest, u) => varseldokumentetISaken(k, { lest, u }),\n', '']],
+    mal: ['et fristkrav med brevet der varselet etter punkt 33.4 alt er registrert'],
+  },
+  {
     id: 'F705',
     feilklasse:
       'et brev som har ett av vedleggene til et registrert brev, regnes som det registrerte brevet (#2082)',
@@ -6067,7 +6075,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'varselet i fristkravet skrives ikke som et eget registrert brev før kravet (VS-U34, C1 i #2056)',
     fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [["  if (u.spor.frist.varsler['33.4']) return null;", '  return null;']],
+    endringer: [
+      [
+        "  if (!k.varsel || skriving.saken(journal).u.spor.frist.varsler['33.4']) return null;",
+        '  if (k.varsel || !k.varsel) return null;',
+      ],
+    ],
     mal: ['fristkravet har datoen for varselet og brevet med det (OV-U5)'],
   },
   {

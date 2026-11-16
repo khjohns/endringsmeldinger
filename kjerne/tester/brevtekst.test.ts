@@ -3993,6 +3993,26 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     ).toBeNull();
   });
 
+  it('et brev byggherren har sendt, eller et brev som ikke hører til saken, med de samme vedleggene hindrer ikke fristkravet (#2082, OV-U18)', () => {
+    const registrert = {
+      type: 'registrert_brev',
+      sendt: '2026-09-28',
+      ...SOM_BREV,
+      beskrivelse: 'Brevet med varselet',
+      dokumentasjon: [VARSELBREVET],
+    };
+    const fraByggherren = sak();
+    fraByggherren.send('TE', PAABEROPELSE);
+    fraByggherren.send('BH', registrert);
+    expect(fraByggherren.avvist('TE', FRISTKRAV)).toBeNull();
+    const ikkeISaken = sak();
+    ikkeISaken.send('TE', PAABEROPELSE);
+    const rad = ikkeISaken.send('TE', registrert);
+    expect(ikkeISaken.avvist('TE', FRISTKRAV), 'kontrollsak').toBe('VARSEL_REGISTRERT');
+    ikkeISaken.send('TE', { type: 'ikke_i_saken', retter: rad.event_id });
+    expect(ikkeISaken.avvist('TE', FRISTKRAV)).toBeNull();
+  });
+
   it('et fristkrav med brevet der varselet etter punkt 33.4 alt er registrert, avvises, og kravet uten brevet godtas (#2082, VS-U55)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
@@ -4012,7 +4032,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     ).toEqual({
       regel: 'VARSEL_REGISTRERT',
       melding:
-        'Brevet med varselet står alt i saken som totalentreprenørens brev av 28. september 2026, med varselet etter punkt 33.4, og kravet viser til det. Fjern brevet fra kravet.',
+        'Brevet med varselet står alt i saken som totalentreprenørens brev av 28. september 2026, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet.',
     });
     expect(s.avvist('TE', utenBrevet), 'kontrollsak').toBeNull();
   });

@@ -1493,7 +1493,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // VS-U34, C1 i #2056: fristkravet skriver varselet først når saken ikke har det.
   ['LestSak', 'kommando', 'u', ['spor/frist/kommando.ts:medVarselet']],
   // #2082, OV-U80, OV-U84: brevet med varselet i fristkravet prøves mot korrespondansen i saken.
-  ['LestSak', 'kommando', 'lest', ['spor/frist/kommando.ts:medVarselet']],
+  ['LestSak', 'kommando', 'lest u', ['spor/frist/kommando.ts:varseldokumentetISaken']],
   ['Dokument', 'relasjon', 'retter', ['spor/frist/kommando.ts:varseldokumentetISaken']],
   ['Dokument', 'utsagn', 'dokumentasjon', ['spor/frist/kommando.ts:varseldokumentetISaken']],
   ['Vedlegg', 'relasjon', 'vedlegg_id', ['spor/frist/kommando.ts:varseldokumentetISaken']],
