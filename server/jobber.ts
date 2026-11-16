@@ -191,7 +191,7 @@ function forbigaaendeISql(feil: unknown): boolean {
 /**
  * Meldingene fra catenda.ts, levering.ts og kjøreren har ingen svarkropp eller token. De
  * kan ha en ID fra Catenda, som GUID-en til en referanse med bare trygge tegn i
- * `VarigCatendaavvik` (#895); andre feil lagres ikke. Bare Catenda og basen kan svikte
+ * `VarigCatendaavvik` (#895); andre feil lagres ikke. Bare Catenda, basen og fornyelsen av leasen (`UfornyetLease`) kan svikte
  * forbigående (#795 punkt 1). Et tapt svar fra Catenda parkeres som usikkert, utenom i et
  * forsøk som `avstemmes`: der finner neste forsøk det som ble laget, og jobben prøves igjen
  * (#876 punkt 4). En annen feil går ikke over av seg selv og parkeres (#783 punkt 2): som
@@ -336,8 +336,9 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
     const { utfall, melding } = utfallAv(feil, flagg.endringBedt, avstemmes);
     if (feil instanceof CatendaOppsettfeil)
       logg.error(`Jobben ${jobb.jobb_id} venter på at driften retter oppsettet mot Catenda:`, feil);
-    // For `feilet` kommer loggen etter registreringen, som avgjør om jobben prøves igjen.
-    else if (utfall !== 'feilet')
+    // Om en jobb som feilet, prøves igjen, avgjør registreringen; loggen etter den sier det.
+    else if (utfall === 'feilet') logg.warn(`Jobben ${jobb.jobb_id} feilet:`, feil);
+    else
       logg.error(
         `Jobben ${jobb.jobb_id} er parkert som ${utfall} (${melding}). Driften starter den på nytt.`
       );
@@ -350,21 +351,28 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
     try {
       registrert = await registrer();
     } catch (feilIBasen) {
+      if (feilnummer(feilIBasen) === LEASEN_GJELDER_IKKE) {
+        logg.error(`Jobben ${jobb.jobb_id} mistet leasen før feilen ble registrert:`, feilIBasen);
+        return true;
+      }
       // Går leasen ut uten registrering, parkerer `hent_jobb` jobben som usikker (#877 p15).
       if (!forbigaaendeISql(feilIBasen)) throw feilIBasen;
       logg.warn(`Jobben ${jobb.jobb_id} fikk ikke registrert feilen og prøver igjen:`, feilIBasen);
       await pause(PAUSE_FOER_NY_REGISTRERING_MS);
-      registrert = await registrer();
+      try {
+        registrert = await registrer();
+      } catch (igjen) {
+        if (feilnummer(igjen) !== LEASEN_GJELDER_IKKE) throw igjen;
+        logg.error(`Jobben ${jobb.jobb_id} mistet leasen før feilen ble registrert:`, igjen);
+        return true;
+      }
     }
     // Basen parkerer en levering etter et fast antall forsøk (svar A 11.11 i #1791).
-    if (utfall === 'feilet') {
-      if (registrert.recordset[0]?.tilstand === 'parkert')
-        logg.error(
-          `Jobben ${jobb.jobb_id} har brukt opp forsøkene og er parkert (${melding}). Driften starter den på nytt.`
-        );
-      else if (!(feil instanceof CatendaOppsettfeil))
-        logg.warn(`Jobben ${jobb.jobb_id} feilet og prøves igjen:`, feil);
-    }
+    if (utfall === 'feilet' && registrert.recordset[0]?.tilstand === 'parkert')
+      logg.error(
+        `Jobben ${jobb.jobb_id} har brukt opp forsøkene og er parkert (${melding}). Driften starter den på nytt.`
+      );
+    else if (utfall === 'feilet') logg.info(`Jobben ${jobb.jobb_id} prøves igjen.`);
   }
   return true;
 }

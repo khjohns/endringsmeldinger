@@ -1285,6 +1285,24 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
     });
   });
 
+  // Kilde: kontrollen av rettingene i #926: uten lease kan ikke forsøket registreres, og
+  // `hent_jobb` avgjør jobben når leasen er ute, som når fornyelsen gir 54001.
+  it('en tapt lease (54001) når feilen registreres, gir ingen feil ut av kjøreren', async () => {
+    const base = falskBase(
+      'levering',
+      { prosedyre: 'koe_api.registrer_jobbfeil', feil: { number: 54001 } },
+      {
+        dokumenter: {
+          opprettDokumentreferanse: async () => {
+            throw new CatendaUtilgjengelig('Catenda svarte med feil');
+          },
+        },
+      }
+    );
+    expect(await base.kjoer()).toBe(true);
+    expect(base.registrert).toHaveLength(1);
+  });
+
   // Kilde: #876 punkt 4. Neste forsøk finner referansen til det første vedlegget og
   // dokumentet til det andre igjen, så et tapt svar på vedlegg 2 av 2 parkeres ikke.
   it('et tapt svar på referansen til det andre vedlegget gir et nytt forsøk, ikke parkering', async () => {
@@ -1442,7 +1460,7 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
     }
   });
   // Kilde: #926 (gjennomgangen 16.11). Feiler fornyelsen forbigående så lenge at under 20 s
-  // av leasen kan være igjen, regnet fra da den ble hentet, kan en annen kjører ha hentet
+  // av leasen kan være igjen, regnet fra den siste vellykkede fornyelsen eller hentingen, kan en annen kjører ha hentet
   // jobben, og forsøket gjør ingen endring i Catenda. Leasen kan fortsatt gjelde, så
   // forsøket registreres som feilet. Én fornyelse som feiler, holder.
   it.each<[string, number, string[], string[]]>([
