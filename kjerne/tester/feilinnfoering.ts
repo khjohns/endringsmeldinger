@@ -544,13 +544,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['F-MM-G21'],
   },
   {
-    id: 'F46',
-    feilklasse: 'datoen for et varsel i kravet leses som at kravet er sendt utenfor appen (HF-U1)',
-    fil: `${K}/kommandoer/skriving.ts`,
-    endringer: [['dato: k.varsel.sendt, gjelder: varsel }];', 'dato: k.varsel.sendt }];']],
-    mal: ['F-MM-D-kravvarsel'],
-  },
-  {
     id: 'F47',
     feilklasse:
       'en sak som ikke er forstått, avviser ikke bestridelsen med SAK_IKKE_FORSTAATT (MM-U2, MM-U14)',
@@ -3032,22 +3025,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/visning.ts`,
     endringer: [['if (!j.kilde || j.rettet || d?.ikkeISaken)', 'if (!j.kilde || j.rettet)']],
     mal: ['OV-U44, OV-U18: rettingen som sier at brevet ikke hører til saken'],
-  },
-  {
-    id: 'F428',
-    feilklasse:
-      'vurderingsgrunnlaget viser ikke partens dato for varselet i et krav sendt herfra (HF-U1, svar 3A)',
-    fil: `${K}/utledning/visning.ts`,
-    endringer: [["      j.kilde === 'sendt_herfra' &&", '      false &&']],
-    mal: ['OV-U44, HF-U1: et fristkrav sendt herfra'],
-  },
-  {
-    id: 'F430',
-    feilklasse:
-      'vurderingsgrunnlaget viser partens dato for varselet mens saken ikke er forstått (MM-U2, OV-U21)',
-    fil: `${K}/utledning/visning.ts`,
-    endringer: [['      u.forstaatt &&', '      true &&']],
-    mal: ['OV-U44, HF-U1: et fristkrav sendt herfra'],
   },
   {
     id: 'F429',
@@ -5969,6 +5946,41 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['også med et varsel i sporet'],
+  },
+  {
+    id: 'F690',
+    feilklasse:
+      'varselet i fristkravet skrives ikke som et eget registrert brev før kravet (VS-U34, C1 i #2056)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        "  if (!k.varsel || skriving.saken(journal).u.spor.frist.varsler['33.4']) return null;",
+        '  if (k.varsel || !k.varsel) return null;',
+      ],
+    ],
+    mal: ['fristkravet har datoen for varselet og brevet med det (OV-U5)'],
+  },
+  {
+    id: 'F691',
+    feilklasse: 'annen korrespondanse enn et brev godtas med sendemåten (OV-U79)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [
+      ["  'sendemaate' in k && k.korrespondansetype !== 'brev'", "  'sendemaate' in k && false"],
+    ],
+    mal: ['OV-U79: møtereferat og notat er typer'],
+  },
+  {
+    id: 'F692',
+    feilklasse:
+      'leseren forstår sendemåten på annen korrespondanse enn et registrert brev (OV-U79, MM-U2)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [
+      [
+        "  if (data.sendemaate !== undefined && data.korrespondansetype !== 'brev')",
+        '  if (data.sendemaate !== undefined && false)',
+      ],
+    ],
+    mal: ['sendemåten lagres med et registrert brev'],
   },
 ];
 interface Testresultat {
