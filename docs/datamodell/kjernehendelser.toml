@@ -365,9 +365,11 @@ vedleggene, som gjelder dokumentet, med den låste delen appen lager av valgene
 (`laast`) og partens utdypning (`utdypning`) hver for seg. Har elementet punkter, står
 det ett avsnitt per punkt etter hverandre, med punktet i elementet (`punkt`) og
 overskriften med nummeret (`overskrift`), som også står først i `laast` (B-1 B i #1824).
-Det som ikke står i teksten, regnes ikke som meddelt. Appens vurdering står
+Punktet med oversiktstabellen i et svar på vederlaget har nøkkelen til posten for hver
+rad (`poster`), i samme rekkefølge som radene mellom kolonnene og summen (OV-U73,
+svaret 16.11 i #1997). Det som ikke står i teksten, regnes ikke som meddelt. Appens vurdering står
 ikke i teksten, og ingen regel leser den. Et registrert brev har ingen (MM-U17)."""
-felt = ["gjelder", "punkt", "overskrift", "laast", "utdypning"]
+felt = ["gjelder", "punkt", "overskrift", "laast", "utdypning", "poster"]
 grunnlag = "LV-U2, LV-U3, LV-U4, B-13 om begrunnelsestekst, KA-U22, KA-U25"
 
 [[del]]

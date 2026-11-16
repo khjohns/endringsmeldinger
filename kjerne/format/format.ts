@@ -291,6 +291,7 @@ export const BREVTEKST: Skjema = liste(
       overskrift: TEKST,
       laast: TEKST,
       utdypning: TEKST,
+      poster: liste(ID),
     },
     ['gjelder', 'laast']
   )

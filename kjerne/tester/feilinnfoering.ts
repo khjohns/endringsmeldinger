@@ -3939,6 +3939,19 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en rad uten kommando fryses på samme måte'],
   },
   {
+    id: 'F701',
+    feilklasse:
+      'nøkkelen til posten står i en annen rekkefølge enn radene i oversiktstabellen (svaret 16.11 i #1997, MM-U50)',
+    fil: `${K}/spor/vederlag/tekst.ts`,
+    endringer: [
+      [
+        'return { tabell, poster: poster.map((p) => p.post) };',
+        'return { tabell, poster: poster.map((p) => p.post).reverse() };',
+      ],
+    ],
+    mal: ['bare § 34.1.3 påberopt: justeringen ellers er upåvirket'],
+  },
+  {
     id: 'F444',
     feilklasse: 'leseren godtar registrert korrespondanse uten typen (LV-U42, MM-U2)',
     fil: `${K}/format/leser.ts`,

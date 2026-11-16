@@ -19,6 +19,7 @@ import {
   verdi,
   type Brevpunkt,
   type Lagbeloep,
+  type Oversikten,
   stor,
   type Tema,
   type Kravsporsbrevtekst,
@@ -304,7 +305,6 @@ export interface PostenIOversikten {
   kravpost: Kravpost | null;
   /**
    * Betegnelsen når kravet har flere kravposter, og ellers «Vederlagsjustering» (OV-U73).
-   * Visningen finner posten i raden på navnet.
    */
   navn: string;
   krevd: Oere | null;
@@ -339,14 +339,15 @@ export function posteneIOversikten(krav: Krav): PostenIOversikten[] {
  * byggherren godkjenner i hvert lag, og en sumrad, når svaret har minst to slike poster og minst
  * to lag. I et lag før postens første beløp er beløpet 0 kr (LV-U33), og ellers det siste
  * beløpet for posten i laget eller før (arbeidsvalg 2 i #1433). Cellene står som tekst, adskilt
- * med tabulator, så tabellen fryses med brevteksten.
+ * med tabulator, så tabellen fryses med brevteksten, med nøkkelen til posten i hver rad (svaret
+ * 16.11 i #1997).
  */
 function oversikt(
   krav: Krav,
   beloepene: Lagbeloep[],
   lagene: number,
   forskyvning: number
-): string | null {
+): Oversikten | null {
   const poster = posteneIOversikten(krav).filter(
     (p): p is PostenIOversikten & { krevd: Oere } =>
       p.krevd !== null && beloepene.some((b) => b.post === p.post)
@@ -372,13 +373,14 @@ function oversikt(
       kroner(tilTall(poster.reduce((s, p) => s + iOere(iLaget(p.post, lag)), 0n)))
     ),
   ];
-  return [
+  const tabell = [
     ['Post', 'Krevd', ...kolonner.map((lag) => stor(etikett(lag + forskyvning)))],
     ...rader,
     sum,
   ]
     .map((rad) => rad.join('\t'))
     .join('\n');
+  return { tabell, poster: poster.map((p) => p.post) };
 }
 
 /** Kravet i sporet med kontraktens ord (`kravetOm`). */
