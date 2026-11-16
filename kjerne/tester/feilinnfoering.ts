@@ -6020,6 +6020,21 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['      ...s.svarUtenforRekken,\n', '']],
     mal: ['et element som viser til svaret utenfor rekken, får sporet'],
   },
+  {
+    id: 'F685',
+    feilklasse:
+      'en aksept lagt til av et avslag på grunnlaget som byggherren senere har erstattet, lukker saken (GR-U27, alternativet B)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "  if (u.forholdAvvist) return avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT);",
+        "  if (u.forholdAvvist || u.spor.forhold.enigheterOmEldreSvar.some((e) => e.grunnlag.kilde === 'aksept')) return avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT);",
+      ],
+    ],
+    mal: [
+      'en aksept av et avslag på grunnlaget, lagt til etter byggherrens nye svar, lukker ikke saken',
+    ],
+  },
 ];
 
 interface Testresultat {

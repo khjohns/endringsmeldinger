@@ -812,6 +812,53 @@ describe('en aksept som legges til, prøves mot svaret den gjelder, ikke mot det
     navn: 'S-g2',
   };
 
+  const godkjenningSomRevisjon: Handling = {
+    handling: 'revisjon',
+    spor: 'forhold',
+    resultat: 'godkjent',
+    varslet_i_tide: true,
+    navn: 'S-g2',
+  };
+
+  it('en aksept av et avslag på grunnlaget, lagt til etter byggherrens nye svar, lukker ikke saken (GR-U27, OV-U98)', () =>
+    prov(
+      'aksept-av-erstattet-avslag-lukker-ikke',
+      [
+        forholdssvar('S-g1', 'avslaatt'),
+        godkjenningSomRevisjon,
+        registrertAksept('S-g1', '2026-09-24'),
+      ],
+      [
+        {
+          etter: 3,
+          rolle: 'mal',
+          kilde: ['GR-U27', 'OV-U98', 'OV-U110'],
+          forventet: {
+            forstaatt: true,
+            uten_virkning: [],
+            'enigheter_om_eldre_svar.forhold': ['S-g1'],
+            forhold_avvist: false,
+            forhold_avklart: true,
+            'handlinger.TE': { inneholder: ['krav:frist'] },
+          },
+        },
+      ]
+    ));
+
+  it('kontrollsak: en aksept av det gjeldende avslaget lukker saken (GR-U27)', () =>
+    prov(
+      'aksept-av-gjeldende-avslag-lukker',
+      [forholdssvar('S-g1', 'avslaatt'), registrertAksept('S-g1', '2026-09-24')],
+      [
+        {
+          etter: 2,
+          rolle: 'kontroll',
+          kilde: ['GR-U27'],
+          forventet: { forstaatt: true, forhold_avvist: true },
+        },
+      ]
+    ));
+
   it('en aksept av et frafall i et svar som senere er revidert, får ingen virkning (GR-U9, #2022 punkt 3)', () =>
     prov(
       'aksept-av-erstattet-frafall',
