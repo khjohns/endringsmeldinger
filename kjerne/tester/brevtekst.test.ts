@@ -353,7 +353,7 @@ const FRISTKRAV = {
   type: 'krav',
   spor: 'frist',
   innhold: { frister: [{ navn: 'Sluttfristen', dager: 20 }] },
-  varsel: { sendt: '2026-09-28', dokumentasjon: [VARSELBREVET] },
+  varsel: { sendt: '2026-09-28', korrespondansetype: 'brev', dokumentasjon: [VARSELBREVET] },
   utdypning: 'Pelingen tar fire uker lenger.',
 };
 /** KA-U74, KA-U79: den faste innledningen i fristkravet. */
@@ -367,11 +367,24 @@ const VARSLER_NAA =
   '1. Varselet om fristforlengelse\n\nTotalentreprenøren varsler krav om fristforlengelse etter NS 8407 punkt 33.4.';
 /** VS-U55: varselet etter § 33.4 ble gitt i et tidligere brev. */
 const varseletGitt = (brev: string) =>
-  `1. Varselet om fristforlengelse\n\nVarsel om fristforlengelse etter NS 8407 punkt 33.4 ble gitt i brev ${brev}.`;
+  `1. Varselet om fristforlengelse\n\nVarsel om fristforlengelse etter NS 8407 punkt 33.4 ble gitt i ${brev}.`;
 /** Kravet som varsler, med fristene og begrunnelsen i punkt 2 og 3. */
 const SLUTTFRISTEN_20 = [VARSLER_NAA, fristforlengelse(2), '3. Begrunnelse'];
 
 /** Saken med forhold (brev 2), vederlag (brev 3, 125 000 kr) og frist (brev 4, 20 dager). */
+/** VS-U34, C1 i #2056: raden kravskjemaet skriver foran fristkravet, med varselet etter § 33.4. */
+function varselradenIFristkravet(s: { journal: Journalrad[] }): Journalrad {
+  const rad = s.journal.find((r) =>
+    ((r.data.utsagn ?? []) as Data[]).some((u) => u.art === 'varsel' && u.hjemmel === '33.4')
+  );
+  expect(rad, 'varselet fra kravskjemaet står i saken som eget brev (VS-U34)').toBeDefined();
+  return rad!;
+}
+const varseletIFristkravet = (s: { journal: Journalrad[] }): Data =>
+  (varselradenIFristkravet(s).data.utsagn as Data[]).find((u) => u.art === 'varsel')!;
+const sendtForVarseletIFristkravet = (s: { journal: Journalrad[] }): string =>
+  (varselradenIFristkravet(s).data.opplysninger as Data[])[0].id as string;
+
 function sakMedKrav() {
   const s = sak();
   s.send('TE', PAABEROPELSE);
@@ -403,7 +416,7 @@ const INNLEDNING_FRIST =
   'Byggherren svarer på totalentreprenørens krav om fristforlengelse i brev K201-KOE-017-03 av 4. oktober 2026.';
 /** LV-U72: punktet om varselet etter § 33.4 når byggherren sier «i tide», nummer `n`. */
 const VARSELET_33_4_I_TIDE = (n: number) =>
-  `${n}. Varselet om fristforlengelse (punkt 33.4)\n\nByggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent.`;
+  `${n}. Varselet om fristforlengelse (punkt 33.4)\n\nByggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i totalentreprenørens brev av 28. september 2026 kom for sent.`;
 /** KA-U81: punktet om hindringen når byggherren legger den til grunn, nummer `n`. */
 const HINDRET = (n: number) =>
   `${n}. Hindringen\n\nByggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet (punkt 33.1).`;
@@ -576,7 +589,7 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
 
   it('vederlaget er et tilbud uten merverdiavgift, og fristkravet har datoen for varselet og brevet med det (OV-U5)', () => {
     const s = sakMedKrav();
-    const [, , v, f] = s.journal;
+    const [, , v, varselet, f] = s.journal;
     // Punktene i prototype v4 i BF-14 (#1824), ett avsnitt per kravpost, og brevet sier hvilke
     // poster som er tilbud (KA-U61, BF-14 U-6). Partene skrives fullt ut (LV-U35).
     // Ett avsnitt per punkt (LV-U70). Forholdet er en endring, så varselet etter
@@ -594,25 +607,38 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
         laast: 'Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1.',
       },
     ]);
+    // VS-U34, C1 i #2056: varselet fra kravskjemaet står i saken som et eget brev, og kravet viser
+    // til det med parten, typen og datoen (LV-U42) og legger det ved, som i vederlaget (VS-U53).
+    // Budskapet er LV-U4 punkt 3 (TE opplyser når varselet ble sendt); ordlyden «ble gitt i …,
+    // som er vedlagt» er teksten for et varsel gitt før (`gitt` i brevdelene), og står som åpent
+    // spørsmål i PR #2074.
+    expect(varselet.data).toMatchObject({
+      korrespondansetype: 'brev',
+      utsagn: [expect.objectContaining({ art: 'varsel', hjemmel: '33.4' })],
+      opplysninger: [expect.objectContaining({ hva: 'sendt', dato: '2026-09-28' })],
+      dokumentasjon: [expect.objectContaining({ vedlegg_id: VARSELBREVET })],
+    });
     expect(tekst(f)).toEqual([
-      // Varselet sendt utenfor løsningen står i opplysningen, ikke i et eget punkt.
+      {
+        gjelder: s.krav('frist'),
+        punkt: '33.4',
+        overskrift: '1. Varselet om fristforlengelse',
+        laast:
+          '1. Varselet om fristforlengelse\n\nTotalentreprenøren opplyser at varsel om fristforlengelse etter NS 8407 punkt 33.4 ble gitt i totalentreprenørens brev av 28. september 2026, som er vedlagt.',
+      },
       {
         gjelder: s.krav('frist'),
         punkt: 'frister',
-        overskrift: '1. Fristforlengelse',
-        laast: fristforlengelse(1),
+        overskrift: '2. Fristforlengelse',
+        laast: fristforlengelse(2),
       },
       {
         gjelder: s.krav('frist'),
         punkt: 'begrunnelse',
-        overskrift: '2. Begrunnelse',
-        laast: '2. Begrunnelse',
+        overskrift: '3. Begrunnelse',
+        laast: '3. Begrunnelse',
         utdypning: FRISTKRAV.utdypning,
       },
-      expect.objectContaining({
-        laast:
-          'Totalentreprenøren opplyser at varsel om fristforlengelse etter NS 8407 punkt 33.4 ble sendt 28. september 2026.',
-      }),
       { gjelder: f.event_id, laast: `Brevet har vedlegg: «${VARSELBREVET}.pdf».` },
     ]);
     expect(f.data.dokumentasjon).toEqual([expect.objectContaining({ vedlegg_id: VARSELBREVET })]);
@@ -639,15 +665,15 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
         {
           gjelder: s.krav('frist'),
           punkt: 'begrunnelse',
-          overskrift: '2. Begrunnelse',
-          laast: '2. Begrunnelse',
+          overskrift: '3. Begrunnelse',
+          laast: '3. Begrunnelse',
           utdypning: FRISTKRAV.utdypning,
         },
         {
           gjelder: s.krav('frist'),
           punkt: 'forbehold',
-          overskrift: '3. Forbehold',
-          laast: '3. Forbehold',
+          overskrift: '4. Forbehold',
+          laast: '4. Forbehold',
           utdypning: forbeholdet,
         },
       ]);
@@ -742,7 +768,8 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
     });
     expect(laast(rad)).toEqual([
       'Kravet erstatter totalentreprenørens krav i brev K201-KOE-017-03 av 4. oktober 2026.',
-      varseletGitt('K201-KOE-017-03 av 4. oktober 2026'),
+      // VS-U34, LV-U42: varselet fra det første kravskjemaet er totalentreprenørens eget brev.
+      varseletGitt('totalentreprenørens brev av 28. september 2026'),
       fristforlengelse(2, 30),
       '3. Begrunnelse',
     ]);
@@ -826,7 +853,11 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
       regel: 'DATO_ETTER_BREVET',
       melding,
     });
-    expect(s.avvisning('TE', krav('2026-10-04'))).toEqual({ regel: 'DATO_ETTER_BREVET', melding });
+    // VS-U34, C1 i #2056: varselet i fristkravet skrives som et eget registrert varsel først.
+    expect(s.avvisning('TE', krav('2026-10-04'))).toEqual({
+      regel: 'DATO_ETTER_BREVET',
+      melding: `Varselet etter punkt 33.4: ${melding}`,
+    });
     expect(s.avvist('TE', varsel('2026-10-03')), 'kontrollsak').toBeNull();
     expect(s.avvist('TE', krav('2026-10-03')), 'kontrollsak').toBeNull();
   });
@@ -1786,7 +1817,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
     // i tide) står uten lagslinje (spørsmål 8 i spørsmålsfila for #1663, 09.11).
     expect(laast(rad)).toEqual([
       INNLEDNING_FRIST,
-      '1. Varselet om fristforlengelse (punkt 33.4)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent.',
+      '1. Varselet om fristforlengelse (punkt 33.4)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i totalentreprenørens brev av 28. september 2026 kom for sent.',
       '2. Hindringen\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet (punkt 33.1).',
       '3. Spesifiseringen av kravet (punkt 33.6.1)\n\nByggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (punkt 33.6.1).',
       '4. Dagene for frist Sluttfristen\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 2 ovenfor fører frem\n\nFor frist Sluttfristen godkjenner byggherren 10 dager av de krevde 20 dager.',
@@ -1842,7 +1873,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
       '1. Varselet etter punkt 32.2\n\nPrinsipalt\n\nByggherren gjør gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 2. oktober 2026 kom for sent.',
       '2. Forholdet\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.',
       INNLEDNING_FRIST,
-      '3. Varselet om fristforlengelse (punkt 33.4)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at varselet om fristforlengelse etter punkt 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent.',
+      '3. Varselet om fristforlengelse (punkt 33.4)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at varselet om fristforlengelse etter punkt 33.4 i totalentreprenørens brev av 28. september 2026 kom for sent.',
       '4. Hindringen\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nByggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet (punkt 33.1).',
       '5. Spesifiseringen av kravet (punkt 33.6.1)\n\nByggherren gjør ikke gjeldende at kravet om fristforlengelse ble spesifisert for sent (punkt 33.6.1).',
       '6. Dagene for frist Sluttfristen\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 4 ovenfor fører frem\n\nFor frist Sluttfristen godkjenner byggherren 10 dager av de krevde 20 dager.',
@@ -2173,7 +2204,7 @@ describe('svaret på vederlag og frist når forholdet er avslått eller preklude
     expect(laast(rad)).toEqual([
       INNLEDNING_FRIST,
       '1. Forholdet\n\nPrinsipalt\n\nByggherren har i brev K201-KOE-017-04 av 5. oktober 2026 gjort gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 kom for sent.',
-      '2. Varselet om fristforlengelse (punkt 33.4)\n\nByggherren gjør ikke gjeldende at varselet om fristforlengelse etter punkt 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent.',
+      '2. Varselet om fristforlengelse (punkt 33.4)\n\nByggherren gjør ikke gjeldende at varselet om fristforlengelse etter punkt 33.4 i totalentreprenørens brev av 28. september 2026 kom for sent.',
       HINDRET(3),
       `4. Spesifiseringen av kravet (punkt 33.6.1)\n\n${SPESIFISERING_JA}`,
       '5. Dagene for frist Sluttfristen\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nFor frist Sluttfristen godkjenner byggherren 20 dager.',
@@ -2739,14 +2770,14 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
 
   it('gir byggherren opp innsigelsen mot fristvarselet, nevner brevet varselet etter § 33.4 (LV-U5)', () => {
     const s = sakMedKrav();
-    const varselet = (s.journal.at(-1)!.data.utsagn as Data[]).find((u) => u.art === 'varsel')!;
+    const varselet = varseletIFristkravet(s);
     s.send('BH', { type: 'innsigelse', gjelder: varselet.id });
     const rad = s.send('BH', {
       type: 'brev',
       svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
     });
     expect(laast(rad).join('\n\n')).toContain(
-      'Byggherren gir opp innsigelsen etter NS 8407 punkt 5 i brev K201-KOE-017-04 av 5. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent.'
+      'Byggherren gir opp innsigelsen etter NS 8407 punkt 5 i brev K201-KOE-017-04 av 5. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i totalentreprenørens brev av 28. september 2026 kom for sent.'
     );
   });
 
@@ -2780,7 +2811,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
     });
     expect(laast(rad).join('\n\n')).toContain(
-      'Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent.'
+      'Byggherren gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i totalentreprenørens brev av 28. september 2026 kom for sent.'
     );
     expect(laast(rad).join('\n\n')).not.toContain(girOpp);
   });
@@ -2823,14 +2854,14 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       ],
     });
     expect(laast(rad).join('\n\n')).toContain(
-      'Byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent.'
+      'Byggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i totalentreprenørens brev av 28. september 2026 kom for sent.'
     );
     expect(laast(rad).join('\n\n')).not.toContain('jf. innsigelsen');
   });
 
   it('med innsigelser mot både fristkravet og varselet gir et «i tide» opp bare den mot varselet (VS-U11, VS-U24)', () => {
     const s = sakMedKrav();
-    const varselet = (s.journal.at(-1)!.data.utsagn as Data[]).find((u) => u.art === 'varsel')!;
+    const varselet = varseletIFristkravet(s);
     s.send('BH', { type: 'innsigelse', gjelder: s.krav('frist') });
     s.send('BH', { type: 'innsigelse', gjelder: varselet.id });
     const rad = s.send('BH', {
@@ -2838,13 +2869,13 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       svar: [svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1])],
     });
     expect(laast(rad).join('\n\n')).toContain(
-      'Byggherren gir opp innsigelsen etter NS 8407 punkt 5 i brev K201-KOE-017-05 av 6. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i brev K201-KOE-017-03 av 4. oktober 2026 kom for sent.'
+      'Byggherren gir opp innsigelsen etter NS 8407 punkt 5 i brev K201-KOE-017-05 av 6. oktober 2026 og gjør ikke gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i totalentreprenørens brev av 28. september 2026 kom for sent.'
     );
   });
 
   it('et «i tide» i forholdet gir ikke opp innsigelsen mot fristvarselet (VS-U9, VS-U11)', () => {
     const s = sakMedKrav();
-    const varselet = (s.journal.at(-1)!.data.utsagn as Data[]).find((u) => u.art === 'varsel')!;
+    const varselet = varseletIFristkravet(s);
     s.send('BH', { type: 'innsigelse', gjelder: varselet.id });
     s.send('BH', {
       type: 'brev',
@@ -3361,7 +3392,7 @@ describe('bestridelse (LV-U4 punkt 10–12), og merking og avklaring (KA-U45)', 
 
   it('bestridelsen av datoen for et varsel etter § 33.4 avvises i første versjon (OV-U7)', () => {
     const s = sakMedKrav();
-    const varsel = (s.journal.at(-1)!.data.opplysninger as Data[])[0].id as string;
+    const varsel = sendtForVarseletIFristkravet(s);
     expect(s.avvist('BH', { type: 'bestridelse', gjelder: varsel, hva: 'sendt' })).toBe(
       'IKKE_I_FOERSTE_VERSJON'
     );
@@ -3848,9 +3879,28 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
       sendt: FRISTKRAV.varsel.sendt,
       dokumentasjon: [VARSELBREVET],
     });
+    // Typen, sendemåten og beskrivelsen står i brevet som alt er registrert (VS-U34).
+    expect(
+      s.avvisning('TE', {
+        ...utenBrevet,
+        varsel: { ...utenBrevet.varsel, korrespondansetype: 'e_post', beskrivelse: 'Varselet' },
+      })
+    ).toEqual({
+      regel: 'VARSEL_REGISTRERT',
+      melding:
+        'Varselet etter punkt 33.4 står alt i saken, så kravet kan bare oppgi datoen for det. Fjern typen og beskrivelsen.',
+    });
     const rad = s.send('TE', utenBrevet);
     expect(rad.data.dokumentasjon).toBeUndefined();
     expect(rad.data.utsagn).toBeUndefined();
+  });
+
+  it('et varsel uten typen meldes på feltet i varselet i fristkravet (LV-U42, VS-U34)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    expect(
+      s.avvisning('TE', { ...FRISTKRAV, varsel: utenFelt(FRISTKRAV.varsel, 'korrespondansetype') })
+    ).toEqual({ regel: 'UGYLDIG_FORM', melding: '$.varsel.korrespondansetype: mangler' });
   });
 
   it('samme vedlegg to ganger i varselet avvises i formen', () => {
@@ -4550,7 +4600,12 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       regel: 'PAABEROPELSE_IKKE_SENDT',
       melding: 'Påberopelsen må være sendt før du kan sende forespørselen.',
     });
+    // VS-U34, C1 i #2056: varselet fra kravskjemaet skrives først, så avvisningen er varselets.
     expect(uten.avvisning('TE', FRISTKRAV)).toEqual({
+      regel: 'PAABEROPELSE_IKKE_SENDT',
+      melding: 'Varselet etter punkt 33.4: Påberopelsen må være sendt før du kan varsle.',
+    });
+    expect(uten.avvisning('TE', utenFelt(FRISTKRAV, 'varsel'))).toEqual({
       regel: 'PAABEROPELSE_IKKE_SENDT',
       melding: 'Påberopelsen må være sendt før du kan sende krav.',
     });
@@ -4605,6 +4660,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       merking: null,
       deresRef: [],
       korrespondansetype: null,
+      sendemaate: null,
       beskrivelse: null,
       spor: [],
       retter: null,
@@ -4706,6 +4762,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
       merking: null,
       deresRef: [],
       korrespondansetype: null,
+      sendemaate: null,
       beskrivelse: null,
       spor: [],
       retter: null,
@@ -4748,7 +4805,7 @@ describe('varselet etter § 33.4 sendt fra appen (VS-U15)', () => {
     const { s, id } = medVarsel();
     const krav = s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
     expect(laast(krav)).toEqual([
-      varseletGitt('K201-KOE-017-02 av 3. oktober 2026'),
+      varseletGitt('brev K201-KOE-017-02 av 3. oktober 2026'),
       fristforlengelse(2),
       '3. Begrunnelse',
     ]);
@@ -5437,6 +5494,7 @@ describe('vedleggene står i teksten (A4)', () => {
     merking: null,
     deresRef: [],
     korrespondansetype: null,
+    sendemaate: null,
     beskrivelse: null,
     spor: [],
     retter: null,
@@ -5474,8 +5532,8 @@ describe('leseren kontrollerer brevteksten (HF-U1, MM-U17 (opphevet av MM-U50))'
   const medTekst = (endre: (data: Data, rad: Journalrad) => void) => {
     const s = sakMedKrav();
     const rad = structuredClone(s.journal.at(-1)!);
-    // Fristkravet uten brevet med varselet (OV-U5), så avsnittene er de to punktene i kravet og
-    // varselet.
+    // Fristkravet uten brevet med varselet (OV-U5), så avsnittene er de tre punktene i kravet:
+    // varselet, som er et eget brev (VS-U34), fristene og begrunnelsen.
     delete rad.data.dokumentasjon;
     rad.data.brevtekst = tekst(rad).filter((a) => a.gjelder !== rad.event_id);
     endre(rad.data, rad);
@@ -5518,8 +5576,9 @@ describe('leseren kontrollerer brevteksten (HF-U1, MM-U17 (opphevet av MM-U50))'
   it('to avsnitt for samme element gjør raden ikke forstått', () => {
     const h = medTekst((d) => {
       const t = d.brevtekst as Avsnitt[];
-      expect(t, 'forutsetning: fristkravet har to punkter og varselet ett avsnitt').toHaveLength(3);
-      t[2].gjelder = t[0].gjelder;
+      expect(t, 'forutsetning: fristkravet har tre punkter').toHaveLength(3);
+      // Et avsnitt uten punkt rett etter et avsnitt for samme element (LV-U70).
+      delete t[2].punkt;
     });
     expect(h.art).toBe('ukjent');
   });
@@ -6004,6 +6063,7 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
   it('et registrert svar med «i tide», sendt før fristkravet, får ingen virkning, og byggherren kan svare «for sent» fra appen (OV-U98)', () => {
     const s = sakMedKrav();
     const u = s.u();
+    expect(u.spor.frist.varsler['33.4'], 'forutsetning: varselet fra kravskjemaet').toBeDefined();
     const fristId = (u.spor.frist.gjeldendeKrav!.innhold.frister as Data[])[0].id;
     const svarId = randomUUID();
     s.rad('BH', {
@@ -7491,7 +7551,7 @@ describe('tegn PDF-en av brevet ikke kan vise, avvises når brevet skrives (#801
       ]);
     const kontroll = forhaandsvis(FRISTKRAV, kontekst, s.journal, KJERNE, lager('varsel.pdf'));
     expect(kontroll.godtatt, 'kontrollsak').toBe(true);
-    const vist = kontroll.godtatt ? laastTekst(kontroll.hendelser[0])! : [];
+    const vist = kontroll.godtatt ? laastTekst(kontroll.hendelser.at(-1)!)! : [];
     const melding =
       'Filnavnet til vedlegget «varsel 😀.pdf» har tegnet «😀» (U+1F600), som PDF-en av brevet ikke kan vise.';
     for (const kommando of [FRISTKRAV, { ...FRISTKRAV, brevtekst: vist }]) {
@@ -9831,6 +9891,26 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
       s.avvisning('BH', { type: 'innsigelse', gjelder: (epost.data.utsagn as Data[])[0].id })
     ).toBeNull();
     expect(innsigelse(epost)).toContain('i totalentreprenørens e-post av 2. oktober 2026');
+    // Arbeidsvalget 1 A 16.11 i #807 (LV-U42): møtereferatet med typen, og et notat eller annet
+    // dokument som «dokument».
+    for (const [korrespondansetype, omtalt] of [
+      ['moetereferat', 'møtereferat'],
+      ['notat', 'dokument'],
+    ]) {
+      const t = sak();
+      t.send('TE', PAABEROPELSE);
+      const rad = t.send('TE', {
+        type: 'varsel',
+        spor: 'frist',
+        hjemmel: '33.4',
+        sendt: '2026-10-02',
+        korrespondansetype,
+        dokumentasjon: [randomUUID()],
+      });
+      expect(
+        t.vis('BH', { type: 'innsigelse', gjelder: (rad.data.utsagn as Data[])[0].id })?.join('\n')
+      ).toContain(`i totalentreprenørens ${omtalt} av 2. oktober 2026`);
+    }
   });
 
   it('registrert korrespondanse uten typen, og typen i et brev fra løsningen, er ikke forstått (LV-U42)', () => {
@@ -9874,6 +9954,78 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
         dokumentasjon: [randomUUID()],
       })?.melding
     ).toContain('$.korrespondansetype');
+  });
+
+  it('beskrivelsen lagres med registrert korrespondanse med virkning, og står den i et brev fra løsningen, er raden ikke forstått (OV-U79, arbeidsvalget 2 A 16.11 i #807)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const rad = s.send('TE', {
+      type: 'varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: '2026-10-02',
+      korrespondansetype: 'e_post',
+      beskrivelse: 'Varsel om fristforlengelse for pelingen',
+      dokumentasjon: [randomUUID()],
+    });
+    expect(rad.data.beskrivelse).toBe('Varsel om fristforlengelse for pelingen');
+    expect(s.u().forstaatt, 'varselet med beskrivelsen er forstått').toBe(true);
+    expect(s.u().spor.frist.varsler['33.4'], 'varselet har virkning').toBeTruthy();
+    expect(s.u().registrerteBrev, 'og er ikke dokumentasjon').toEqual([]);
+    expect(
+      s.avvisning('TE', {
+        type: 'varsel',
+        spor: 'vederlag',
+        hjemmel: '34.1.2',
+        sendt: '2026-10-02',
+        korrespondansetype: 'brev',
+        beskrivelse: '  ',
+        dokumentasjon: [randomUUID()],
+      })?.melding
+    ).toBe('$.beskrivelse: brevet har ingen beskrivelse');
+    const fraLoesningen = s.journal[1]!;
+    const lestMed = (data: Data) =>
+      lesJournal(
+        [
+          ...s.journal.filter((j) => j.event_id !== fraLoesningen.event_id),
+          { ...fraLoesningen, data: { ...fraLoesningen.data, ...data } },
+        ],
+        KJERNE.leserformat
+      ).at(-1)!.art;
+    expect(lestMed({}), 'kontrollsak').toBe('dokument');
+    expect(lestMed({ beskrivelse: 'Påberopelsen' })).toBe('ukjent');
+  });
+
+  it('sendemåten lagres med et registrert brev, og står den ved annen korrespondanse eller et brev fra løsningen, er raden ikke forstått (OV-U79)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const rad = s.send('TE', {
+      type: 'varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: '2026-10-02',
+      korrespondansetype: 'brev',
+      sendemaate: 'prosjekthotell',
+      dokumentasjon: [randomUUID()],
+    });
+    expect(rad.data.sendemaate).toBe('prosjekthotell');
+    const lestMed = (r: Journalrad, data: Data) =>
+      lesJournal(
+        [
+          ...s.journal.filter((j) => j.event_id !== r.event_id),
+          { ...r, data: { ...r.data, ...data } },
+        ],
+        KJERNE.leserformat
+      ).at(-1)!;
+    const lest = lestMed(rad, {});
+    expect(lest.art === 'dokument' && lest.dokument.sendemaate, 'kontrollsak').toBe(
+      'prosjekthotell'
+    );
+    expect(lestMed(rad, { korrespondansetype: 'e_post' }).art).toBe('ukjent');
+    expect(lestMed(rad, { korrespondansetype: 'moetereferat' }).art).toBe('ukjent');
+    const fraLoesningen = s.journal[1]!;
+    expect(lestMed(fraLoesningen, {}).art, 'kontrollsak').toBe('dokument');
+    expect(lestMed(fraLoesningen, { sendemaate: 'post' }).art).toBe('ukjent');
   });
 });
 

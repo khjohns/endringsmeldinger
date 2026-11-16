@@ -42,6 +42,7 @@ import {
   type Standpunktsart,
   type Utsagnsart,
   KORRESPONDANSETYPER,
+  SENDEMAATER,
 } from '../typer.ts';
 
 /** Formatversjonen kjernen skriver. Står i kolonnen `format`. */
@@ -306,8 +307,9 @@ export const VEDLEGG: Skjema = objekt(
 
 /**
  * `data` i `dokument_registrert`. Elementene kontrolleres hver for seg etter `spor` eller `art`.
- * `beskrivelse` og `spor` hører til et brev registrert som dokumentasjon (OV-U4, OV-U16), som
- * ikke har noe annet enn dem, datoen det ble sendt og brevet som vedlegg (`leser.ts`).
+ * `spor` hører til et brev registrert som dokumentasjon (OV-U4, OV-U16), som har beskrivelsen
+ * og ikke noe annet enn dem, datoen det ble sendt og brevet som vedlegg (`leser.ts`). Annen
+ * registrert korrespondanse kan også ha beskrivelsen (OV-U79).
  * `retter` er registreringen en retting viser til (OV-U17, OV-U18), og `ikke_i_saken` sier at
  * brevet ikke hører til saken (OV-U18); navnene er arbeidsvalget 22.10 i #1045.
  */
@@ -324,6 +326,7 @@ export const DOKUMENT: Skjema = objekt(
     merking: TEKST,
     deres_ref: liste(TEKST),
     korrespondansetype: { enum: [...KORRESPONDANSETYPER] },
+    sendemaate: { enum: [...SENDEMAATER] },
     beskrivelse: TEKST,
     spor: liste({ enum: [...SPOR] }),
     retter: ID,

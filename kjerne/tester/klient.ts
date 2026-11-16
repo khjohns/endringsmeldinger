@@ -377,7 +377,9 @@ const varselIKravet = (
   sendt: string,
   u: Utledning
 ): Extract<Kommando, { type: 'krav' }>['varsel'] =>
-  u.spor.frist.varsler['33.4'] ? { sendt } : { sendt, dokumentasjon: [VARSELBREVET] };
+  u.spor.frist.varsler['33.4']
+    ? { sendt }
+    : { sendt, korrespondansetype: 'brev', dokumentasjon: [VARSELBREVET] };
 
 /** Vedlegget med varselet i et fristkrav; `mellomlager` gir det som alle andre. */
 const VARSELBREVET = '00000000-0000-4000-8000-0000000033a4';

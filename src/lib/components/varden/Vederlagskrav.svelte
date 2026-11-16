@@ -10,7 +10,6 @@
   som mangler, står ved feltet og øverst (MM-U32).
 -->
 <script lang="ts">
-  import { FileText } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
   import { kroner } from '$kjerne/frosset/tekst';
   import { krevdProduktivitet, kravposterI } from '$kjerne/spor/vederlag/format';
@@ -27,6 +26,8 @@
   } from '$lib/kjernesak/vederlagskrav';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
+  import Brevlinje from './Brevlinje.svelte';
+  import Leseramme from './Leseramme.svelte';
   import Feltetikett from './Feltetikett.svelte';
   import Filvalg from './Filvalg.svelte';
   import { medietreff } from './medie.svelte';
@@ -862,31 +863,23 @@
       mottaker={KRAVSKJEMA.til}
     >
       {#if lesbart}
-        <div class="grunnlag">
-          <FileText size={16} aria-hidden="true" />
-          <span>
-            {#if kravbrevet}
-              {KRAVSKJEMA.folgerOpp(kravbrevet, svarbrevet)}
-            {:else if forholdet && paaberopelsen}
-              {KRAVSKJEMA.forholdet(forholdet.navn, paaberopelsen)}
-            {/if}
-          </span>
-          <Knapp
-            variant="lenke"
-            onclick={() => (leser = !leser)}
-            aria-expanded={leser}
-            aria-controls={id('lesebrev')}
-          >
-            {leser
-              ? KRAVSKJEMA.lukkBrevet
-              : smal
-                ? KRAVSKJEMA.lesBrevetHer(lesbart)
-                : KRAVSKJEMA.lesBrevet(lesbart)}
-          </Knapp>
-        </div>
-        {#if leser && smal}
-          <div class="innebrev" id={id('lesebrev')}>{@render lest(lesbart, 'kant')}</div>
-        {/if}
+        <Brevlinje
+          id={id('lesebrev')}
+          bind:leser
+          {smal}
+          lenke={{
+            les: KRAVSKJEMA.lesBrevet(lesbart),
+            lesHer: KRAVSKJEMA.lesBrevetHer(lesbart),
+            lukk: KRAVSKJEMA.lukkBrevet,
+          }}
+        >
+          {#if kravbrevet}
+            {KRAVSKJEMA.folgerOpp(kravbrevet, svarbrevet)}
+          {:else if forholdet && paaberopelsen}
+            {KRAVSKJEMA.forholdet(forholdet.navn, paaberopelsen)}
+          {/if}
+          {#snippet brev()}{@render lest(lesbart, 'kant')}{/snippet}
+        </Brevlinje>
       {/if}
 
       {#if forsoekt && mangler.length}
@@ -898,11 +891,15 @@
         />
       {/if}
 
-      <section class="seksjon" id={id('postene')} aria-labelledby={id('postene-tittel')}>
+      <section
+        class="seksjon"
+        id={id('postene')}
+        aria-labelledby={`${id('postene-tittel')} ${id('postene-hjemmel')}`}
+      >
         <div class="seksjonshode">
           <span class="nummer" aria-hidden="true">1</span>
           <h3 id={id('postene-tittel')}>{KRAVSKJEMA.postene}</h3>
-          <Hjemmel numre={KRAVSKJEMA.posteneHjemmel} />
+          <Hjemmel id={id('postene-hjemmel')} numre={KRAVSKJEMA.posteneHjemmel} />
         </div>
         <p class="intro">{KRAVSKJEMA.posteneIntro}</p>
         {#if v.poster.length}
@@ -946,12 +943,12 @@
         <section
           class="seksjon"
           id={id('saerskilt-seksjon')}
-          aria-labelledby={id('saerskilt-tittel')}
+          aria-labelledby={`${id('saerskilt-tittel')} ${id('saerskilt-hjemmel')}`}
         >
           <div class="seksjonshode">
             <span class="nummer" aria-hidden="true">2</span>
             <h3 id={id('saerskilt-tittel')}>{KRAVSKJEMA.saerskilt}</h3>
-            <Hjemmel numre={KRAVSKJEMA.saerskiltHjemmel} />
+            <Hjemmel id={id('saerskilt-hjemmel')} numre={KRAVSKJEMA.saerskiltHjemmel} />
           </div>
           <p class="intro">{KRAVSKJEMA.saerskiltIntro}</p>
           {#if saerskiltAapen}
@@ -995,11 +992,15 @@
                den eneste posten, avviser kjernen trekket, og kravet trekkes i stedet. -->
           {#if !forrige || krevdProduktivitet(forrige) === null}
             <div class="saerskilt-fjern">
-              <Knapp variant="lenke" onclick={fjernSaerskilt}>{KRAVSKJEMA.fjernSaerskilt}</Knapp>
+              <Knapp variant="lenke" iFlukt onclick={fjernSaerskilt}
+                >{KRAVSKJEMA.fjernSaerskilt}</Knapp
+              >
             </div>
           {:else if med.length}
             <div class="saerskilt-fjern">
-              <Knapp variant="lenke" onclick={trekkSaerskilt}>{KRAVSKJEMA.trekkSaerskilt}</Knapp>
+              <Knapp variant="lenke" iFlukt onclick={trekkSaerskilt}
+                >{KRAVSKJEMA.trekkSaerskilt}</Knapp
+              >
             </div>
           {:else}
             <p class="intro">{KRAVSKJEMA.saerskiltEneste}</p>
@@ -1150,17 +1151,9 @@
 
   {#snippet hoeyre()}
     {#if leser && !smal && lesbart}
-      <section class="leseramme" id={id('lesebrev')} aria-labelledby={id('lesetittel')}>
-        <h2 class="lesetittel" id={id('lesetittel')}>
-          {brevhode(lesbart)}
-          <span class="dempet">· {lesbart.avsender} · {dato(lesbart.registrert)}</span>
-        </h2>
-        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-        <div class="brevrulle" tabindex="0" role="region" aria-labelledby={id('lesetittel')}>
-          {@render lest(lesbart, 'innfelt')}
-        </div>
-        <div class="lesebunn">{@render sendeknapp()}</div>
-      </section>
+      <Leseramme id={id('lesebrev')} brev={lesbart} bunn={sendeknapp}>
+        {@render lest(lesbart, 'innfelt')}
+      </Leseramme>
     {:else}
       <div class="feste" class:fast={faarPlass} bind:this={panel}>
         <Kravpunkter
@@ -1180,23 +1173,6 @@
 </Arbeidsflate>
 
 <style>
-  .grunnlag {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--spacing-3);
-    padding: var(--spacing-3) var(--spacing-6);
-    background: var(--surface-inset);
-    border-top: var(--rule);
-    border-bottom: var(--rule);
-    font-size: 14px;
-  }
-  .grunnlag > span {
-    margin-right: auto;
-  }
-  .innebrev {
-    padding: var(--spacing-4) var(--spacing-4) 0;
-  }
   .seksjon {
     display: flex;
     flex-direction: column;
@@ -1320,12 +1296,6 @@
   .saerskilt-linje {
     border-top: var(--rule);
     border-bottom: var(--rule);
-  }
-  /* Venstrestilt med teksten over, også når lenken brytes på smal skjerm (prototype v4). */
-  .saerskilt-fjern > :global(.knapp) {
-    justify-content: flex-start;
-    padding-inline: 0;
-    text-align: left;
   }
   .post.er-aapen,
   .saerskilt-aapen {
@@ -1470,42 +1440,6 @@
     position: sticky;
     top: var(--spacing-4);
     z-index: 1;
-  }
-  .leseramme {
-    position: sticky;
-    top: var(--spacing-4);
-    display: flex;
-    flex-direction: column;
-    max-height: calc(100dvh - 2 * var(--spacing-4));
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: var(--r-kort);
-    overflow: hidden;
-  }
-  .lesetittel {
-    padding: var(--spacing-3) var(--spacing-5);
-    border-bottom: var(--rule);
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .lesetittel .dempet {
-    font-weight: 400;
-  }
-  .brevrulle {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-  }
-  .brevrulle:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: -2px;
-  }
-  .lesebunn {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
-    padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
-    border-top: var(--rule);
   }
   .smal-etikett {
     display: none;

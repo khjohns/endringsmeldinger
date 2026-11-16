@@ -73,7 +73,7 @@ function skrevet(kommando: unknown, journal: Journalrad[], part: 'TE' | 'BH' = '
 function bildeAv(journal: Journalrad[]) {
   const u = utledJournal(journal, KJERNE);
   const vist = visning(u, KJERNE.regler);
-  return { bilde: lagSaksbilde(journal, vist), u, vist };
+  return { bilde: lagSaksbilde(u.journal, vist), u, vist };
 }
 
 describe('saksbildet for en TS-sak', () => {
@@ -83,6 +83,14 @@ describe('saksbildet for en TS-sak', () => {
 
   it('har tittelen fra opprettelsen av saken', () => {
     expect(bildeAv(journal).bilde.tittel).toBe('Ny peling');
+  });
+
+  // Kilde: MM-U2 og #896-1 (gjennomgangen i #877 16.11). En opprettelse kjernen ikke forstår,
+  // gjør saken ikke forstått, og tittelen i den leses ikke. Kontrollsaken er formatet 1 over.
+  it('har ingen tittel når kjernen ikke forstår opprettelsen, og saken er ikke forstått', () => {
+    const { bilde, u } = bildeAv([{ ...opprettet, format: 99 }]);
+    expect(u.forstaatt).toBe(false);
+    expect(bilde.tittel).toBeNull();
   });
 
   it('tar betegnelsen per spor fra visningen', () => {

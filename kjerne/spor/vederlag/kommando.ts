@@ -278,7 +278,13 @@ function medKravposter(
 }
 
 /** Skrivingen i vederlaget (`skriv`). */
-type Dokumentvarsel = { sendt: string; korrespondansetype: string; dokumentasjon: string[] };
+type Dokumentvarsel = {
+  sendt: string;
+  korrespondansetype: string;
+  sendemaate?: string;
+  beskrivelse?: string;
+  dokumentasjon: string[];
+};
 const erDokumentvarsel = (v: unknown): v is Dokumentvarsel => typeof v === 'object' && v !== null;
 
 /**
@@ -300,8 +306,14 @@ function medDokumentvarslene(
   const dokumentene = new Map<string, string>();
   for (const p of poster) {
     if (!erDokumentvarsel(p.varsel)) continue;
-    const { sendt, korrespondansetype } = p.varsel;
-    const like = JSON.stringify([dokumentnoekkel(p.varsel), sendt, korrespondansetype]);
+    const { sendt, korrespondansetype, sendemaate, beskrivelse } = p.varsel;
+    const like = JSON.stringify([
+      dokumentnoekkel(p.varsel),
+      sendt,
+      korrespondansetype,
+      sendemaate,
+      beskrivelse,
+    ]);
     for (const id of dokumentnoekkel(p.varsel)) {
       if ((dokumentene.get(id) ?? like) !== like)
         return {
@@ -310,7 +322,7 @@ function medDokumentvarslene(
           avvisning: {
             regel: 'UGYLDIG_FORM',
             melding:
-              'Kravpostene oppgir samme dokument som varsel med ulik dato, type eller andre vedlegg. Et dokument oppgis likt for hver kravpost det gjelder.',
+              'Kravpostene oppgir samme dokument som varsel med ulik dato, type, sendemåte, beskrivelse eller andre vedlegg. Et dokument oppgis likt for hver kravpost det gjelder.',
           },
         };
       dokumentene.set(id, like);

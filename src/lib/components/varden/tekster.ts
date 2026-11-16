@@ -12,7 +12,14 @@ import { liste, opplistet, PARTEN, PARTENS, stor } from '$kjerne/frosset/brevdel
 import { dager, kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Betegnelse } from '$kjerne/utledning/visning';
-import type { Kravpost, Oppgjoersform, Part, Spor, Standpunkt } from '$kjerne/typer';
+import type {
+  Korrespondansetype,
+  Kravpost,
+  Oppgjoersform,
+  Part,
+  Spor,
+  Standpunkt,
+} from '$kjerne/typer';
 import { OPPGJOERSHJEMMEL } from '$kjerne/spor/vederlag/format';
 import type { Regel } from './kommandoer';
 import {
@@ -27,6 +34,13 @@ import {
 } from './lesing';
 import type { Innsigelsen, Svarlaget } from './svarlagene';
 
+/** Dokumentet med bestemt form, etter typen korrespondanse (LV-U42, arbeidsvalget 1 A 16.11 i #807). */
+const DOKUMENTET: Record<Korrespondansetype, string> = {
+  brev: 'brevet',
+  e_post: 'e-posten',
+  moetereferat: 'møtereferatet',
+  notat: 'dokumentet',
+};
 export const SPORNAVN: Record<Spor, string> = {
   forhold: 'Forholdet',
   vederlag: 'Vederlagsjustering',
@@ -392,12 +406,11 @@ export const SKJEMA = {
       : `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
   avstand: (dager: number) =>
     `${dager} kalenderdager fra datoen totalentreprenøren oppgir til kravet ble sendt.`,
+  // Svaret på oppgjørsformen, for fast sum og for en beregningsregel (#1756, prototype v3 `#svar`).
   formSpoersmaal: 'Oppgjørsformen (punkt 34.2.2)',
-  godkjennerForm: `Godkjenner ${metodenavn('tilbud')}`,
-  menerForm: (m: Regel) => `Mener ${metodenavn(m)}`,
-  // Kravposten etter en beregningsregel (#1756, prototype v3 `#svar`).
   formSpoersmaalRegel: 'Oppgjørsformen',
-  godkjennerRegel: (m: Regel) => `Godkjenner ${metodenavn(m)}`,
+  godkjenner: (m: Oppgjoersform) => `Godkjenner ${metodenavn(m)}`,
+  menerForm: (m: Regel) => `Mener ${metodenavn(m)}`,
   godkjennerIkkeRegel: (m: Regel) => `Godkjenner ikke ${metodenavn(m)}`,
   kreverTilbudKort: 'krever spesifisert tilbud',
   tilbudSpoersmaal: 'Spesifisert tilbud (punkt 34.2.1)',
@@ -471,8 +484,7 @@ export const SKJEMA = {
   forbeholdHjelp: 'Står sist i brevet. Det erstatter ikke begrunnelsen i et punkt.',
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
-  manglerForm: `Velg om du godkjenner ${metodenavn('tilbud')}.`,
-  manglerFormRegel: (m: Regel) => `Velg om du godkjenner ${metodenavn(m)}.`,
+  manglerForm: (m: Oppgjoersform) => `Velg om du godkjenner ${metodenavn(m)}.`,
   manglerVarselJustering: 'Velg om varselet om justering av enhetsprisene kom i tide.',
   manglerJustering: 'Velg om du godkjenner justeringen av enhetsprisene.',
   manglerBeloep: 'Velg hvor mye av beløpet du godkjenner.',
@@ -1380,8 +1392,9 @@ export const KRAVSKJEMA = {
   gjelderPost: (post: string) => `Gjelder ${post}`,
   ingenPostViserTil: 'Ingen kravpost viser til det',
   gisIBrevet: 'Gis i dette brevet.',
-  gittIDokumentet: (type: 'brev' | 'e_post' | null, d: string) =>
-    `Gitt i ${type === 'e_post' ? 'e-posten' : 'brevet'} av ${dato(d)}, som legges ved kravet.`,
+  // Typen som i omtalen etter LV-U42 (arbeidsvalget 1 A 16.11 i #807).
+  gittIDokumentet: (type: Korrespondansetype | null, d: string) =>
+    `Gitt i ${DOKUMENTET[type ?? 'brev']} av ${dato(d)}, som legges ved kravet.`,
   sammeDokument: (d: string) =>
     d ? `Dokumentet av ${dato(d)} legges ved én gang.` : 'Dokumentet legges ved én gang.',
   denSaerskilte: 'den særskilte vederlagsjusteringen',

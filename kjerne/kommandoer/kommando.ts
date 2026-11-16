@@ -33,7 +33,9 @@ import {
   type Kravvarselhjemmel,
   type Varselhjemmel,
   KORRESPONDANSETYPER,
+  SENDEMAATER,
   type Korrespondansetype,
+  type Sendemaate,
 } from '../typer.ts';
 import { KRAVFORM_I_FORHOLDET, korrigertDato } from '../spor/forhold/kommando.ts';
 import { KRAVFORM_I_FRISTEN } from '../spor/frist/kommando.ts';
@@ -89,6 +91,9 @@ export type RegistrertVarsel = Hjemmelsvarsel<Varselhjemmel>;
 export interface Registrering {
   sendt?: string;
   korrespondansetype?: Korrespondansetype;
+  sendemaate?: Sendemaate;
+  /** OV-U79: den korte beskrivelsen med egne ord. Valgfri til skjemaet i Varden har den (#807). */
+  beskrivelse?: string;
   dokumentasjon?: string[];
 }
 
@@ -101,6 +106,14 @@ export const erRegistrering = (
   (k.type === 'krav' || k.type === 'brev' || k.type === 'revisjon' || k.type === 'aksept') &&
   k.sendt !== undefined;
 
+/** Feltene bare et brev lagt til med datoen har (OV-U79, OV-U80), med ordet meldingen bruker. */
+export const BARE_LAGT_TIL = {
+  korrespondansetype: 'typen',
+  sendemaate: 'sendemåten',
+  beskrivelse: 'beskrivelsen',
+  dokumentasjon: 'vedlegg',
+} as const;
+
 /**
  * Formen for et brev sendt utenfor løsningen og lagt til med datoen (`sendt`): typen og brevet
  * som vedlegg, og ingen tekst fra løsningen (`tekstfeil`). Uten `sendt` har kommandoen verken
@@ -108,12 +121,18 @@ export const erRegistrering = (
  */
 function registreringensForm(
   kommando: Record<string, unknown>,
-  tekstfeil: () => string[]
+  tekstfeil: () => string[],
+  /** Et krav fra løsningen kan ha vedlegg (VS-U38). */
+  vedleggFraLoesningen = false
 ): string[] {
   if (!('sendt' in kommando))
-    return 'korrespondansetype' in kommando || 'dokumentasjon' in kommando
-      ? ['$.sendt: bare et brev lagt til med datoen det ble sendt, har typen og vedlegg']
-      : [];
+    return Object.entries(BARE_LAGT_TIL)
+      .filter(([felt]) => felt in kommando)
+      .filter(([felt]) => !(vedleggFraLoesningen && felt === 'dokumentasjon'))
+      .map(
+        ([felt, hva]) =>
+          `$.${felt}: bare et brev lagt til med datoen det ble sendt (\`sendt\`), har ${hva}`
+      );
   return [
     ...tekstfeil(),
     ...('korrespondansetype' in kommando ? [] : ['$.korrespondansetype: typen mangler']),
@@ -129,10 +148,17 @@ export type Kommando = (
       spor: Spor;
       innhold: Record<string, unknown>;
       /**
-       * Varselet etter § 33.4 TE sendte utenfor appen, med datoen og brevet som vedlegg
-       * (OV-U5). Vedlegget kreves når kravet registrerer varselet (`nyttelast.ts`).
+       * Varselet etter § 33.4 TE sendte utenfor appen, med datoen, typen og brevet som vedlegg
+       * (OV-U5, VS-U34). Har saken ikke varselet, skrives det som et eget registrert varsel
+       * før kravet (`medVarselet` i fristen); ellers kreves samme dato (`nyttelast.ts`).
        */
-      varsel?: { sendt: string; dokumentasjon?: string[] };
+      varsel?: {
+        sendt: string;
+        korrespondansetype?: Korrespondansetype;
+        sendemaate?: Sendemaate;
+        beskrivelse?: string;
+        dokumentasjon?: string[];
+      };
       /**
        * Vedleggene til påberopelsen, som ID-er i mellomlageret (LV-U14). Dokumentet med
        * varselet etter punkt 32.2 TE alt har sendt, legges ved påberopelsen (VS-U38).
@@ -170,6 +196,8 @@ export type Kommando = (
       type: 'varsel';
       sendt: string;
       korrespondansetype: Korrespondansetype;
+      sendemaate?: Sendemaate;
+      beskrivelse?: string;
       dokumentasjon: string[];
     } & RegistrertVarsel)
   /**
@@ -182,6 +210,7 @@ export type Kommando = (
       spor?: Spor[];
       sendt: string;
       korrespondansetype: Korrespondansetype;
+      sendemaate?: Sendemaate;
       beskrivelse: string;
       dokumentasjon: string[];
       retter?: string;
@@ -221,6 +250,8 @@ export type Kommando = (
       utdypning?: string;
       sendt?: string;
       korrespondansetype?: Korrespondansetype;
+      sendemaate?: Sendemaate;
+      beskrivelse?: string;
       dokumentasjon?: string[];
     }
   /**
@@ -242,6 +273,8 @@ export type Kommando = (
 const SPOR = { enum: [...SPORENE] };
 /** LV-U42, D1 A i #1497: påkrevd i hver registrering av korrespondanse sendt utenfor løsningen. */
 const KORRESPONDANSETYPE = { enum: [...KORRESPONDANSETYPER] };
+/** OV-U79: sendemåten for et brev sendt utenfor løsningen (`sendemaatefeil`). */
+const SENDEMAATE = { enum: [...SENDEMAATER] };
 /** LV-U71: partens utdypning per punkt, med punktet som nøkkel. */
 const UTDYPNINGER = { type: 'object', additionalProperties: TEKST };
 const SVARUTKAST = objekt(
@@ -272,6 +305,8 @@ const VARSELET = {
 const REGISTRERING = {
   sendt: DATO,
   korrespondansetype: KORRESPONDANSETYPE,
+  sendemaate: SENDEMAATE,
+  beskrivelse: TEKST,
   dokumentasjon: liste(ID),
 };
 
@@ -284,7 +319,16 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       type: { const: 'krav' },
       spor: SPOR,
       innhold: { type: 'object' },
-      varsel: objekt({ sendt: DATO, dokumentasjon: liste(ID) }, ['sendt']),
+      varsel: objekt(
+        {
+          sendt: DATO,
+          korrespondansetype: KORRESPONDANSETYPE,
+          sendemaate: SENDEMAATE,
+          beskrivelse: TEKST,
+          dokumentasjon: liste(ID),
+        },
+        ['sendt']
+      ),
       utdypning: TEKST,
       utdypninger: UTDYPNINGER,
       forbehold: TEKST,
@@ -330,6 +374,8 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       ...REGISTRERT_VARSEL,
       sendt: DATO,
       korrespondansetype: KORRESPONDANSETYPE,
+      sendemaate: SENDEMAATE,
+      beskrivelse: TEKST,
       dokumentasjon: liste(ID),
     },
     ['type', 'spor', 'hjemmel', 'sendt', 'korrespondansetype', 'dokumentasjon']
@@ -340,6 +386,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       spor: liste(SPOR),
       sendt: DATO,
       korrespondansetype: KORRESPONDANSETYPE,
+      sendemaate: SENDEMAATE,
       beskrivelse: TEKST,
       dokumentasjon: liste(ID),
       retter: ID,
@@ -394,6 +441,8 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       utdypning: TEKST,
       sendt: DATO,
       korrespondansetype: KORRESPONDANSETYPE,
+      sendemaate: SENDEMAATE,
+      beskrivelse: TEKST,
       dokumentasjon: liste(ID),
       ...BREVTEKST,
     },
@@ -473,6 +522,12 @@ const KRAVFORM: Record<Spor, Kravform> = {
 /** Vedlegget som ID, som skiller ett vedlegg fra et annet: en UUID er den samme med store og små bokstaver. */
 const vedleggsnoekkel = (id: string): string => id.toLowerCase();
 
+/** OV-U79: bare et brev sendt utenfor løsningen har sendemåten. */
+const sendemaatefeil = (sti: string, k: Record<string, unknown>): string[] =>
+  'sendemaate' in k && k.korrespondansetype !== 'brev'
+    ? [`${sti}sendemaate: bare et brev har sendemåten`]
+    : [];
+
 /** Feilene i formen, tomme når kommandoen kan vurderes. */
 export function formfeil(kommando: unknown): string[] {
   if (!erObjekt(kommando)) return ['Kommandoen må være et objekt.'];
@@ -523,9 +578,15 @@ export function formfeil(kommando: unknown): string[] {
   const vedlegg = feil.length ? [] : dokumentasjon;
   if (new Set(vedlegg.map(vedleggsnoekkel)).size !== vedlegg.length)
     feil.push(`${sti}dokumentasjon: samme vedlegg står to ganger`);
+  // OV-U16, OV-U79: en beskrivelse med bare mellomrom er ingen beskrivelse.
+  for (const [sti, k] of [
+    ['$.', kommando],
+    ['$.varsel.', kommando.varsel],
+  ] as const)
+    if (!feil.length && erObjekt(k) && typeof k.beskrivelse === 'string' && !k.beskrivelse.trim())
+      feil.push(`${sti}beskrivelse: brevet har ingen beskrivelse`);
   if (type === 'registrert_brev' && !feil.length) {
-    const k = kommando as { spor?: Spor[]; beskrivelse: string };
-    if (!k.beskrivelse.trim()) feil.push('$.beskrivelse: brevet har ingen beskrivelse');
+    const k = kommando as { spor?: Spor[] };
     if (k.spor && new Set(k.spor).size !== k.spor.length)
       feil.push('$.spor: samme spor står to ganger');
   }
@@ -538,12 +599,19 @@ export function formfeil(kommando: unknown): string[] {
       )
     );
   // OV-U80: et krav fra løsningen kan ha vedlegg (VS-U38), men bare et krav lagt til har typen.
-  if (type === 'krav' && !feil.length && ('sendt' in kommando || 'korrespondansetype' in kommando))
+  if (
+    type === 'krav' &&
+    !feil.length &&
+    ['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse'].some((felt) => felt in kommando)
+  )
     feil.push(
-      ...registreringensForm(kommando, () =>
-        ['brevtekst', 'utdypning', 'utdypninger', 'forbehold', 'varsel']
-          .filter((felt) => felt in kommando)
-          .map((felt) => `$.${felt}: et krav lagt til har ikke feltet`)
+      ...registreringensForm(
+        kommando,
+        () =>
+          ['brevtekst', 'utdypning', 'utdypninger', 'forbehold', 'varsel']
+            .filter((felt) => felt in kommando)
+            .map((felt) => `$.${felt}: et krav lagt til har ikke feltet`),
+        true
       )
     );
   if ((type === 'brev' || type === 'revisjon' || type === 'aksept') && !feil.length) {
@@ -559,6 +627,9 @@ export function formfeil(kommando: unknown): string[] {
       ])
     );
   }
+  if (!feil.length) feil.push(...sendemaatefeil('$.', kommando));
+  if (type === 'krav' && !feil.length && erObjekt(kommando.varsel))
+    feil.push(...sendemaatefeil('$.varsel.', kommando.varsel));
   if (type === 'korrigering' && !feil.length) {
     const { felt, dato } = korrigertDato(
       kommando as unknown as Extract<Kommando, { type: 'korrigering' }>

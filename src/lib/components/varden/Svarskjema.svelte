@@ -11,7 +11,7 @@
   ufullstendig svar). Brevet leses ved siden av skjemaet, og på smal skjerm i skjemaet.
 -->
 <script lang="ts">
-  import { FileText, Info } from 'lucide-svelte';
+  import { Info } from 'lucide-svelte';
   import { tick, type Snippet } from 'svelte';
   import { SVARTITTEL } from '$kjerne/frosset/brevtittel';
   import type { Spor } from '$kjerne/typer';
@@ -23,17 +23,18 @@
   import { medietreff } from './medie.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
+  import Brevlinje from './Brevlinje.svelte';
   import Feltetikett from './Feltetikett.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Infotips from './Infotips.svelte';
+  import Leseramme from './Leseramme.svelte';
   import Knapp from './Knapp.svelte';
   import Manglene from './Manglene.svelte';
-  import type { Mangel } from './mangler';
+  import { feltfeil, type Mangel } from './mangler';
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
-  import Valgfri from './Valgfri.svelte';
   import { brevene, datoerISporet } from './lesing';
   import { begrunnelsespunktene, kravbrevetI, SVARSKJEMA, type Postvelger } from './svarskjema';
   import { HOVEDLINJER, SKJEMA, brevhode, brevtittel, dato } from './tekster';
@@ -123,7 +124,7 @@
   // Beskjedene vises først når BH har prøvd å se brevet (MM-U32), og forsvinner når feltet er besvart.
   let forsoekt = $state(false);
   const feil = (id: string): string | null =>
-    forsoekt ? (alleMangler.find((m) => m.felt === id)?.tekst ?? null) : null;
+    forsoekt ? feltfeil(alleMangler.find((m) => m.felt === id)) : null;
   let oppsummering = $state<HTMLElement | null>(null);
   let sendehindring = $state<string | null>(null);
 
@@ -220,21 +221,15 @@
       mottaker={SKJEMA.tilTE}
     >
       {#snippet infotips()}<Infotips navn={SKJEMA.omSvaret} tekst={VIRKNING.alltid} />{/snippet}
-      <div class="svarerpaa">
-        <FileText size={16} aria-hidden="true" />
-        <span>{SKJEMA.svarerPaa(kravbrevet)}</span>
-        <Knapp
-          variant="lenke"
-          onclick={() => (leser = !leser)}
-          aria-expanded={leser}
-          aria-controls={`${uid}-kravbrev`}
-        >
-          {leser ? SKJEMA.lukkBrevet : smal ? SKJEMA.lesBrevetHer : SKJEMA.lesBrevet}
-        </Knapp>
-      </div>
-      {#if leser && smal}
-        <div class="innebrev" id={`${uid}-kravbrev`}>{@render kravbrev('kant')}</div>
-      {/if}
+      <Brevlinje
+        id={`${uid}-kravbrev`}
+        bind:leser
+        {smal}
+        lenke={{ les: SKJEMA.lesBrevet, lesHer: SKJEMA.lesBrevetHer, lukk: SKJEMA.lukkBrevet }}
+      >
+        {SKJEMA.svarerPaa(kravbrevet)}
+        {#snippet brev()}{@render kravbrev('kant')}{/snippet}
+      </Brevlinje>
 
       {#if stopp !== null}
         <div class="ikke-stoettet" role="note">
@@ -269,8 +264,8 @@
               {@const id = begrunnelseId(p.punkt)}
               {@const bFeil = feil(id)}
               <div class="begrunnelse">
-                <label for={id}
-                  >{p.navn}{#if !kreves(p.punkt) && !kanStaa(p.punkt)}<Valgfri />{/if}</label
+                <Feltetikett for={id} underordnet valgfri={!kreves(p.punkt) && !kanStaa(p.punkt)}
+                  >{p.navn}</Feltetikett
                 >
                 {#if kreves(p.punkt)}
                   <span class="dempet" id={`${id}-kreves`}>{begrunnelseKreves!.grunn}</span>
@@ -315,18 +310,13 @@
 
   {#snippet hoeyre()}
     {#if vedSiden}
-      <section class="leseramme" id={`${uid}-kravbrev`} aria-labelledby={`${uid}-lesetittel`}>
-        <h2 class="lesetittel" id={`${uid}-lesetittel`}>
-          {brevhode(kravbrevet)}
-          <span class="dempet">· {kravbrevet.avsender} · {dato(kravbrevet.registrert)}</span>
-        </h2>
-        <!-- Rammen ruller for seg selv, så den må kunne nås med tastaturet. -->
-        <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-        <div class="brevrulle" tabindex="0" role="region" aria-labelledby={`${uid}-lesetittel`}>
-          {@render kravbrev('innfelt')}
-        </div>
-        {#if stopp === null}<div class="lesebunn">{@render sendeknapp()}</div>{/if}
-      </section>
+      <Leseramme
+        id={`${uid}-kravbrev`}
+        brev={kravbrevet}
+        bunn={stopp === null ? sendeknapp : undefined}
+      >
+        {@render kravbrev('innfelt')}
+      </Leseramme>
     {:else}
       <div class="feste" class:fast={linja.faarPlass} bind:this={panel}>
         <Hovedlinjer {linjer} {alternativer} handling={stopp === null ? sendeknapp : undefined} />
@@ -346,19 +336,6 @@
 {/if}
 
 <style>
-  .svarerpaa {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--spacing-3);
-    padding: var(--spacing-3) var(--spacing-6);
-    background: var(--surface-inset);
-    border-top: var(--rule);
-    border-bottom: var(--rule);
-  }
-  .svarerpaa > span {
-    margin-right: auto;
-  }
   .begrunnelser {
     padding: var(--spacing-5) var(--spacing-6);
     display: flex;
@@ -374,15 +351,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-2);
-  }
-  /* Feltnavnet er punktet i brevet, under overskriften «Begrunnelse» (design-review #1858). */
-  .begrunnelse label {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0 var(--spacing-3);
-    font-size: 15px;
-    color: var(--ink-2);
   }
   /* Forbeholdet gjelder hele svaret og står sist i brevet, skilt fra punktene. */
   .begrunnelse.forbehold:not(:first-child) {
@@ -425,9 +393,6 @@
     padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
     border-top: var(--rule);
   }
-  .innebrev {
-    padding: var(--spacing-4) var(--spacing-4) 0;
-  }
   .dempet {
     color: var(--ink-3);
     font-size: 14px;
@@ -443,45 +408,6 @@
     position: sticky;
     top: var(--spacing-4);
     z-index: 1;
-  }
-  /* Lesing ved siden av: rammen følger brevet og er høyst like høy som vinduet, med luften over
-     og under. Et lengre brev ruller i den, og «Se brevet før sending» står fast i bunnen
-     (oppdragsgiver 29.10, #1391, #1983). */
-  .leseramme {
-    position: sticky;
-    top: var(--spacing-4);
-    display: flex;
-    flex-direction: column;
-    max-height: calc(100dvh - 2 * var(--spacing-4));
-    background: var(--surface);
-    border: var(--rule);
-    border-radius: var(--r-kort);
-    overflow: hidden;
-  }
-  .lesetittel {
-    padding: var(--spacing-3) var(--spacing-5);
-    border-bottom: var(--rule);
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .lesetittel .dempet {
-    font-weight: 400;
-  }
-  .brevrulle {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-  }
-  .brevrulle:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: -2px;
-  }
-  .lesebunn {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
-    padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
-    border-top: var(--rule);
   }
   .kompakt {
     position: fixed;
