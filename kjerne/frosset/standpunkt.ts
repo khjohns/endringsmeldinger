@@ -22,6 +22,7 @@ import type {
   Dokument,
   Enighetsgrunnlag,
   Hjemmel,
+  LestUtsagn,
   Kravpostvarselhjemmel,
   Krav,
   Spor,
@@ -46,6 +47,10 @@ export function virkninger(
 ): Standpunktsvirkning[] {
   return frysingI(svar.spor).virkninger(svar, paaberopelse, regler, forskyvning);
 }
+
+/** VS-U29, OV-U104: en innsigelse som påberoper at noe kom for sent. */
+export const erPaaberopelse = (x: LestUtsagn): x is Extract<LestUtsagn, { art: 'innsigelse' }> =>
+  x.art === 'innsigelse' && x.grunn === undefined;
 
 /**
  * VS-U24: en egen innsigelse er en påberopelse etter én bestemmelse bare når det den

@@ -452,6 +452,12 @@ export function nyttelastkontroll(
       // KA-U1, KT-U1: aksepten gjelder sporets gjeldende svar. En aksept som legges til, gjelder
       // svaret som var gjeldende da den ble sendt, og det prøver utledningen (OV-U98).
       const svaretFinnes = u.spor[k.spor].svar.some((x) => x.id === k.svar);
+      // OV-U103: aksepten av et svar utenfor rekken bygges i #2022 punkt 4.
+      if (u.spor[k.spor].svarUtenforRekken.some((x) => x.id === k.svar))
+        return avvis(
+          'IKKE_GJELDENDE_SVAR',
+          'Aksepten gjelder et svar byggherren sendte før det gjeldende svaret. Det kan ikke godtas ennå.'
+        );
       if (k.sendt !== undefined ? !svaretFinnes : k.svar !== u.spor[k.spor].gjeldendeSvar?.id)
         return avvis(
           'IKKE_GJELDENDE_SVAR',

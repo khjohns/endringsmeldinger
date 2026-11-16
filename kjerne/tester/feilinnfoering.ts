@@ -147,8 +147,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "import { enighetsgrunnlag, sammenfallStemmer } from '../frosset/standpunkt.ts';",
-        "import { enighetsgrunnlag, sammenfallStemmer, virkninger as regn } from '../frosset/standpunkt.ts';",
+        "import { enighetsgrunnlag, erPaaberopelse, sammenfallStemmer } from '../frosset/standpunkt.ts';",
+        "import {\n  enighetsgrunnlag,\n  erPaaberopelse,\n  sammenfallStemmer,\n  virkninger as regn,\n} from '../frosset/standpunkt.ts';",
       ],
       [
         '  const svar = svarberegninger(alleSvar, spor);',
@@ -910,8 +910,8 @@ const MUTASJONER: Mutasjon[] = [
         "      if (kraveneErAvgjort(u)) return avvis('KRAVENE_AVGJORT', 'Kravene er avgjort.');\n",
       ],
       [
-        "import { kanFaaInnsigelse, type Utledning } from '../utledning/utled.ts';",
-        "import { kanFaaInnsigelse, kraveneErAvgjort, type Utledning } from '../utledning/utled.ts';",
+        "import { kanFaaInnsigelse, sendtFoerGjeldendeSvar, type Utledning } from '../utledning/utled.ts';",
+        "import {\n  kanFaaInnsigelse,\n  kraveneErAvgjort,\n  sendtFoerGjeldendeSvar,\n  type Utledning,\n} from '../utledning/utled.ts';",
       ],
     ],
     mal: ['godtas byggherrens innsigelse mot et varsel og mot kravet enigheten omfatter'],
@@ -1442,8 +1442,8 @@ const MUTASJONER: Mutasjon[] = [
         "  for (const k of u.spor.forhold.krav) ut.push({ type: 'passivitet', gjelder: k.id });\n  return ut;\n",
       ],
       [
-        '.filter((h) => forutsetninger(h, part, u) === null)',
-        ".filter((h) => ['protest', 'passivitet', 'begrunne'].includes(h.type) || forutsetninger(h, part, u) === null)",
+        '.filter((h) => forutsetninger(h, part, u, null) === null)',
+        ".filter((h) => ['protest', 'passivitet', 'begrunne'].includes(h.type) || forutsetninger(h, part, u, null) === null)",
       ],
     ],
     mal: [
@@ -1846,13 +1846,13 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'foerDagen(sendt, datoenDetBleSendt(u, gjeldende), () => medSvaret(gjeldende.id))',
-        'foerDagen(sendt, datoenDetBleSendt(u, gjeldende), () => medSvaret(gjeldende.id)) && false',
+        'foerDagen(dag, datoenDetBleSendt(u, gjeldende), () => samme(gjeldende.id))',
+        'foerDagen(dag, datoenDetBleSendt(u, gjeldende), () => samme(gjeldende.id)) && false',
       ],
     ],
     mal: [
-      'en revisjon datert før svaret den erstatter, får ingen virkning',
-      'kommandoen avviser en revisjon datert før svaret den erstatter',
+      'et første svar sendt før det gjeldende står utenfor rekken, og det gjeldende svaret står',
+      'kommandoen godtar et svar sendt før det gjeldende med revisjonsskjemaet, uten erstatter',
     ],
   },
   {
@@ -1906,10 +1906,171 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F658',
     feilklasse:
-      'et fristkrav lagt til, sendt før en ubesvart forespørsel, godtas og knyttes til den (HF-U1, oppdragsgiver 15.11 i #2011)',
-    fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [['(f) => f.svar === null && sendt <', '(f) => false && sendt <']],
-    mal: ['et fristkrav lagt til, sendt før en ubesvart forespørsel, avvises'],
+      'et fristkrav lagt til, sendt før forespørselen etter § 33.6.2, svarer på den (OV-U109, HF-U1)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [['return f.sendt === null || sendt >= f.sendt ? f : undefined;', 'return f;']],
+    mal: [
+      'OV-U109: et fristkrav lagt til, sendt før forespørselen, godtas uten å svare på den, og forespørselen er ikke ubesvart',
+    ],
+  },
+  {
+    id: 'F659',
+    feilklasse:
+      'forespørselen etter § 33.6.2 står ubesvart etter et fristkrav sendt før den (OV-U109, VS-U2)',
+    fil: `${K}/spor/frist/frysing.ts`,
+    endringer: [['          x.kravFoer = krav.id;', '          void krav;']],
+    mal: [
+      'OV-U109: et fristkrav lagt til, sendt før forespørselen, godtas uten å svare på den, og forespørselen er ikke ubesvart',
+      'OV-U109, MM-U50 punkt 1: et krav sendt før forespørselen, lagt til etter svaret på kravet som besvarte den, gir ingen virkning etter § 33.6.2 i et svar skrevet etterpå',
+    ],
+  },
+  {
+    id: 'F660',
+    feilklasse:
+      'et svar skrevet etter et krav sendt før forespørselen, får virkningen etter § 33.6.2 (OV-U109)',
+    fil: `${K}/spor/frist/frysing.ts`,
+    endringer: [['svar.filter((s) => s.kravFoer === null)', 'svar.filter(() => true)']],
+    mal: [
+      'OV-U109, MM-U50 punkt 1: et krav sendt før forespørselen, lagt til etter svaret på kravet som besvarte den, gir ingen virkning etter § 33.6.2 i et svar skrevet etterpå',
+    ],
+  },
+  {
+    id: 'F661',
+    feilklasse:
+      'et fristkrav fra løsningen etter et krav sendt før forespørselen, gjør saken ikke forstått (OV-U109)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      [
+        '(f.kravFoer === null || (f.kravFoer !== k.id && !bakover(k.id, f.kravFoer)))',
+        '(f.kravFoer === null || f.kravFoer !== k.id)',
+      ],
+    ],
+    mal: [
+      'OV-U109: et fristkrav lagt til, sendt før forespørselen, godtas uten å svare på den, og forespørselen er ikke ubesvart',
+    ],
+  },
+  {
+    id: 'F662',
+    feilklasse:
+      'et svar lagt til, sendt før byggherrens gjeldende svar, får ingen virkning i stedet for å stå utenfor rekken (OV-U103)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "grunn: 'et svar sendt før byggherrens gjeldende svar på kravversjonen (OV-U103)',\n        utenforRekken: true,",
+        "grunn: 'et svar sendt før byggherrens gjeldende svar på kravversjonen (OV-U103)',",
+      ],
+    ],
+    mal: [
+      'et første svar sendt før det gjeldende står utenfor rekken, og det gjeldende svaret står',
+      'kommandoen godtar et svar sendt før det gjeldende med svarskjemaet, og lagrer det uten erstatter',
+    ],
+  },
+  {
+    id: 'F663',
+    feilklasse:
+      'et svar lagt til med svarskjemaet, sendt før byggherrens gjeldende svar, avvises som alt svart (OV-U103)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        'if (s.gjeldendeSvar && !sendtFoerGjeldendeSvar(u, h.spor, s.gjeldendeSvar.gjelder, sendt))',
+        'if (s.gjeldendeSvar)',
+      ],
+    ],
+    mal: [
+      'kommandoen godtar et svar sendt før det gjeldende med svarskjemaet, og lagrer det uten erstatter',
+    ],
+  },
+  {
+    id: 'F664',
+    feilklasse:
+      'et svar lagt til med revisjonsskjemaet, sendt før byggherrens gjeldende svar, erstatter det (OV-U103)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [['foer ? undefined : k.erstatter', 'k.erstatter']],
+    mal: [
+      'kommandoen godtar et svar sendt før det gjeldende med revisjonsskjemaet, uten erstatter',
+    ],
+  },
+  {
+    id: 'F665',
+    feilklasse:
+      'en aksept av et svar utenfor rekken får virkning før #2022 punkt 4 er bygget (OV-U103)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        'if (SPOR.some((n) => u.spor[n].svarUtenforRekken.some((s) => s.id === x.gjelder)))',
+        'if (false)',
+      ],
+    ],
+    mal: ['en aksept av svaret utenfor rekken får ingen virkning til #2022 punkt 4 er bygget'],
+  },
+  {
+    id: 'F666',
+    feilklasse:
+      'et krav utenfor rekken sendt samme dag som det egne varselet, merkes ikke (OV-U104, OV-U102)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        'foerDagen(dag(k.id), datoenDetBleSendt(u, v), () => samme(k.id, v.id));',
+        'foerDagen(dag(k.id), datoenDetBleSendt(u, v));',
+      ],
+    ],
+    mal: [
+      'OV-U104, OV-U102: et krav utenfor rekken sendt samme dag som det egne varselet etter § 33.4, står i sendtSammeDag med det',
+    ],
+  },
+  {
+    id: 'F667',
+    feilklasse:
+      'et fristkrav sendt samme dag som forespørselen etter § 33.6.2, merkes ikke (OV-U104, OV-U109)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['samme(k.id, f.foresporsel)', 'void f']],
+    mal: [
+      'kontrollsak OV-U109, OV-U104: et fristkrav sendt samme dag som forespørselen svarer på den, og rekkefølgen er ukjent',
+    ],
+  },
+  {
+    id: 'F668',
+    feilklasse:
+      'et svar lagt til samme dag som partens innsigelse i sporet, merkes ikke (OV-U104, OV-U105)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['foerDagen(sendt, x.dag, () => medSvaret(x.id));', 'void x;']],
+    mal: [
+      'et svar lagt til, sendt samme dag som byggherrens innsigelse i sporet, står i sendtSammeDag med den',
+    ],
+  },
+  {
+    id: 'F669',
+    feilklasse: 'en innsigelse i et brev lagt til gjentas i svaret fra løsningen (#2037, OV-U98)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['    if (erRegistrert(d.opplysninger)) continue;\n', '']],
+    mal: [
+      'en innsigelse i et brev lagt til er dokumentasjon og gjentas ikke i svaret fra løsningen',
+    ],
+  },
+  {
+    id: 'F670',
+    feilklasse:
+      'et vederlagssvar lagt til leser et senere svar på forholdet når svaret i brevet står utenfor rekken (OV-U32, OV-U103)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['const iBrevet = [...forhold, ...utenforRekken];', 'const iBrevet = forhold;']],
+    mal: [
+      'OV-U32, OV-U103: et vederlagssvar lagt til leser svaret på forholdet i samme brev, også når det står utenfor rekken',
+    ],
+  },
+  {
+    id: 'F671',
+    feilklasse:
+      'et svar lagt til merkes mot en innsigelse brevteksten ikke sammenlikner det med (OV-U104)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "    sporet.set(k.id, 'forhold');\n",
+        "    sporet.set(k.id, 'forhold');\n  for (const k of u.spor.vederlag.krav) sporet.set(k.id, 'vederlag');\n",
+      ],
+    ],
+    mal: [
+      'OV-U104: et vederlagssvar lagt til samme dag som en innsigelse mot vederlagskravet merkes ikke',
+    ],
   },
   {
     id: 'F224',
@@ -2549,7 +2710,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F341',
     feilklasse: 'en ubesvart forespørsel etter § 33.6.2 gir ikke betegnelsen (MM-U30, #1043)',
     fil: `${K}/spor/frist/visning.ts`,
-    endringer: [['u.spor.frist.foresporsler.some((f) => f.svar === null)', 'false']],
+    endringer: [['u.spor.frist.foresporsler.some(erUbesvart)', 'false']],
     mal: ['en ubesvart forespørsel etter § 33.6.2 går foran varselet'],
   },
   {
@@ -2680,7 +2841,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        "x.art === 'innsigelse' && x.gjelder === f.gjelder && x.grunn === undefined",
+        'erPaaberopelse(x) && x.gjelder === f.gjelder',
         "x.art === 'innsigelse' && x.gjelder === f.gjelder",
       ],
     ],
@@ -4112,7 +4273,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F468',
     feilklasse: 'svaret på forholdet i samme brev står ikke foran sporet (OV-U32, OV-U33, #1449)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['      forhold.find((g) => g.dokument === s.dokument) ??\n', '']],
+    endringer: [['      iBrevet.find((g) => g.dokument === s.dokument) ??\n', '']],
     mal: ['forholdet avslått i samme brev: svaret i brevet står foran, og posten subsidiært'],
   },
   {
