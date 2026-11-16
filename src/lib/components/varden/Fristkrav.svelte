@@ -1040,8 +1040,8 @@
     gap: var(--spacing-2);
   }
   label {
-    font-size: 14px;
-    color: var(--ink-2);
+    font-weight: 600;
+    color: var(--ink);
   }
   textarea:focus-visible,
   .datofelt:focus-visible,

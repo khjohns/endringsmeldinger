@@ -77,7 +77,7 @@ feltkanten fra #1258.
   `--surface-warm` for hover og tabellhoder, og `--surface-inset` for felt og innfelte
   områder. Valgt har `--surface-selected`.
 - **Fire nivåer blekk.** `--ink` for verdier og overskrifter, `--ink-2` for etiketter
-  og støttetekst, `--ink-3` for metadata og `--ink-4` for dempet tekst. Alle fire nivåene
+  ved verdier og støttetekst, `--ink-3` for metadata og `--ink-4` for dempet tekst. Alle fire nivåene
   holder 4,5:1 på flatene, så tekst dempes med et nivå og aldri med `opacity`.
   [`fargetokens.test.ts`](../src/lib/fargetokens.test.ts) feiler under kravet for
   flatene den lister i `FLATER`, ikke for andre flater eller lokale overstyringer.
@@ -175,7 +175,10 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
 - **Knappeteksten sier hva som skjer**, med et verb i imperativ og helst høyst tre
   ord: «Send svar», ikke «OK». «Avbryt» betyr at ingenting lagres eller endres.
 - **Feltene står under hverandre**, med label over feltet og hjelpeteksten under
-  labelen. Labelen har ikke kolon, og plassholdertekst bærer aldri mening. Ved to
+  labelen. Labelen har ikke kolon, og plassholdertekst bærer aldri mening. Labelen har
+  vekt 600 i `--ink` og brødtekstens størrelse, som spørsmålet over en gruppe valg, og
+  hjelpeteksten 14 px i `--ink-3`. Det gjelder i alle skjemaene, også kravskjemaene
+  (oppdragsgiver 16.11, #1925). Ved to
   til seks alternativer vises alle, ikke en nedtrekksliste. En nedtrekksliste passer
   først når alternativene er for mange til å vises. En lang liste med grupper, som de
   17 forholdene, får en egen velger med søk og grupper (#1492).
