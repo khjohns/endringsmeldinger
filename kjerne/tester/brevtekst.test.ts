@@ -10362,6 +10362,34 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     expect(tekst).not.toContain('avkall');
   });
 
+  it('uten flere kravposter navngir feltet for begrunnelsen ikke kravposten, og innledningen, oversikten og forbeholdet har ikke noe felt (LV-U71, KA-U53)', () => {
+    expect(
+      punkteneMedBegrunnelse([
+        { gjelder: 'S', punkt: 'innledning', laast: 'Byggherren svarer.' },
+        {
+          gjelder: 'S',
+          punkt: 'oversikt',
+          overskrift: '1. Oversikt',
+          laast: '1. Oversikt\n\nP1\t10',
+        },
+        {
+          gjelder: 'S',
+          punkt: 'P1',
+          overskrift: '2. Vederlagsjustering',
+          laast: '2. Vederlagsjustering\n\nByggherren godkjenner P1 med 10 kr.\n\nP1 nevnt senere.',
+        },
+        {
+          gjelder: 'S',
+          punkt: 'forbehold',
+          overskrift: '3. Forbehold',
+          laast: '3. Forbehold\n\nTekst.',
+        },
+      ])
+    ).toEqual([
+      { punkt: 'P1', overskrift: '2. Vederlagsjustering', foerstIPunktet: '2. Vederlagsjustering' },
+    ]);
+  });
+
   it('svaret på to kravposter med fast sum navngir kravposten i brevet og linjen, og utfallet sier hvilken kravpost som ikke har fast beløp (KA-U57 (c) og (d), KA-U72, OV-U73, svar 6 A)', () => {
     const s = sakMedKrav();
     s.send(
@@ -10404,13 +10432,13 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
       {
         punkt: 'metode',
         overskrift: '1. Beregningsmetode (punkt 34.2)',
-        foerst: '1. Beregningsmetode (punkt 34.2)',
+        foerstIPunktet: '1. Beregningsmetode (punkt 34.2)',
       },
       {
         punkt: 'P1',
         overskrift: '2. Vederlagsjustering (punkt 34.1.1)',
         kravpost: 'P1 Ny fundamentering.',
-        foerst: '2. Vederlagsjustering (punkt 34.1.1)',
+        foerstIPunktet: '2. Vederlagsjustering (punkt 34.1.1)',
       },
     ]);
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;

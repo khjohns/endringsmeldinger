@@ -91,21 +91,21 @@ export const postradene = (tabell: string[][]): string[][] => tabell.slice(1, -1
 export const erKravpostpunkt = (punkt: string | undefined): boolean =>
   punkt !== undefined && /^P[1-9]\d*$/.test(punkt);
 
-// Innledningen og tabellen har ingen begrunnelse, og forbeholdet har sitt eget felt.
+// Innledningen og oversikten har ingen begrunnelse, og forbeholdet har sitt eget felt i svaret.
 const UTEN_BEGRUNNELSE = new Set([INNLEDNINGEN, OVERSIKTEN, FORBEHOLDET]);
 
 /** Et punkt i brevet som tar en begrunnelse (`punkteneMedBegrunnelse`). */
 export interface PunktMedBegrunnelse {
   punkt: string;
   overskrift?: string;
-  /** Linjen som navngir kravposten i et punkt for en kravpost, når svaret har flere (KA-U53). */
+  /** Avsnittet som navngir kravposten, først i et punkt for en kravpost (KA-U53). */
   kravpost?: string;
-  /** Det første avsnittet i punktet. */
-  foerst: string;
+  /** Overskriften, eller det første avsnittet i et punkt uten overskrift. */
+  foerstIPunktet: string;
 }
 
 /**
- * LV-U71: punktene i brevet som tar en begrunnelse, i brevets rekkefølge. Kravposten er linjen
+ * LV-U71: punktene i brevet som tar en begrunnelse, i brevets rekkefølge. Kravposten er avsnittet
  * brevteksten for vederlaget setter først i punktet når svaret har flere kravposter
  * (`foerst` i `spor/vederlag/tekst.ts`).
  */
@@ -113,15 +113,17 @@ export function punkteneMedBegrunnelse(avsnitt: readonly Avsnitt[]): PunktMedBeg
   return avsnitt.flatMap((a) => {
     if (a.punkt === undefined || UTEN_BEGRUNNELSE.has(a.punkt)) return [];
     const linjene = a.laast.split('\n\n');
-    const kravpost = erKravpostpunkt(a.punkt)
-      ? linjene.find((l) => l.startsWith(`${a.punkt} `))
-      : undefined;
+    const foersteAvsnitt = a.overskrift === undefined ? linjene[0] : linjene[1];
+    const kravpost =
+      erKravpostpunkt(a.punkt) && foersteAvsnitt?.startsWith(`${a.punkt} `)
+        ? foersteAvsnitt
+        : undefined;
     return [
       {
         punkt: a.punkt,
         ...(a.overskrift === undefined ? {} : { overskrift: a.overskrift }),
         ...(kravpost === undefined ? {} : { kravpost }),
-        foerst: linjene[0]!,
+        foerstIPunktet: linjene[0]!,
       },
     ];
   });
