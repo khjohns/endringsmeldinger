@@ -163,19 +163,23 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
       screen.getByRole('radio', { name: 'I et dokument sendt utenfor løsningen' })
     );
 
-    // D-19: kravet sendes ikke uten typen, datoen og dokumentet.
+    // D-19, OV-U79: kravet sendes ikke uten typen, datoen, dokumentet og beskrivelsen.
     await fireEvent.click(knapp('Se brevet før sending'));
     const mangler = within(
       screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' })
     );
     expect(
-      mangler.getByRole('link', { name: 'P2: Oppgi datoen dokumentet ble sendt.' })
+      mangler.getByRole('link', { name: 'P2: Oppgi datoen varselet ble sendt.' })
     ).toBeTruthy();
-    expect(mangler.getByRole('link', { name: 'P2: Legg ved dokumentet.' })).toBeTruthy();
+    expect(
+      mangler.getByRole('link', { name: 'P2: Legg ved dokumentet du varslet i.' })
+    ).toBeTruthy();
+    expect(mangler.getByRole('link', { name: 'P2: Beskriv varselet.' })).toBeTruthy();
 
     const gitt = within(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' }));
     await fireEvent.click(gitt.getByRole('radio', { name: 'E-post' }));
     await skriv('Datoen det ble sendt', '2026-09-28');
+    await skriv('Kort beskrivelse av varselet', 'Varsel om justerte enhetspriser.');
     const fil = new File(['%PDF-1.4'], 'varsel.pdf', { type: 'application/pdf' });
     await fireEvent.change(document.querySelector('input[type=file]')!, {
       target: { files: [fil] },

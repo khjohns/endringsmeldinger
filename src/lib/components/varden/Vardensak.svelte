@@ -23,7 +23,8 @@
   import { tomtForholdssvar } from './forholdssvar';
   import Vederlagskrav from './Vederlagskrav.svelte';
   import Fristkrav from './Fristkrav.svelte';
-  import { startvalg as fristkravstart, tomtUtenforvalg, type Fristkravvalg } from './fristkrav';
+  import { startvalg as fristkravstart, type Fristkravvalg } from './fristkrav';
+  import { tomKorrespondanse } from './korrespondansen';
   /** Handlingene i fristen som åpner skjemaet for kravet (BF-20). */
   // Handlingstypene i fristen som holder kravskjemaet åpent, med varselet alene eller kravet valgt.
   const FRISTSKJEMAET: Record<Fristkravvalg['hva'], ReadonlySet<string>> = {
@@ -365,7 +366,11 @@
         ...v,
         hva,
         // «Send varsel» sender fra løsningen, og registrerer ikke et varsel som er påbegynt.
-        utenfor: registrer ? (v.utenfor ?? tomtUtenforvalg()) : hva === 'varsel' ? null : v.utenfor,
+        utenfor: registrer
+          ? (v.utenfor ?? tomKorrespondanse())
+          : hva === 'varsel'
+            ? null
+            : v.utenfor,
       };
     }
     arbeid = { art: 'fristkrav' };

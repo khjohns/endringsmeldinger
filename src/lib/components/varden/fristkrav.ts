@@ -7,11 +7,11 @@
  */
 
 import { innholdIFristen } from '$kjerne/spor/frist/format';
-import type { Korrespondansetype } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { heleDager } from './fristsvar';
 import { definert } from './kommandoer';
-import { vedleggskart, type Kjernevedlegg } from './nysak';
+import { korrespondansemangler, registreringen, type Korrespondansevalg } from './korrespondansen';
+import { vedleggskart } from './nysak';
 import { FRISTKRAV } from './tekster';
 import type { Mangel } from './mangler';
 
@@ -31,21 +31,11 @@ export interface Fristpostvalg {
   trukket: boolean;
 }
 
-/**
- * Varselet etter punkt 33.4 sendt utenfor løsningen (OV-U5, VS-U16): datoen og brevet. `type`
- * kreves bare når varselet registreres for seg (LV-U42); i kravet står datoen og brevet.
- */
-export interface Utenforvalg {
-  dato: string;
-  type: Korrespondansetype | null;
-  vedlegg: Kjernevedlegg[];
-}
-
 export interface Fristkravvalg {
   /** Kravet med dagene, eller bare varselet etter punkt 33.4 (U-13). */
   hva: 'krav' | 'varsel';
   /** Varselet gitt før, utenfor løsningen (U-6), eller `null` når brevet er varselet. */
-  utenfor: Utenforvalg | null;
+  utenfor: Korrespondansevalg | null;
   /** Svaret på forespørselen etter punkt 33.6.2: dagene (a) eller begrunnelsen (b) (U-11). */
   bokstav: 'a' | 'b';
   frister: Fristpostvalg[];
@@ -54,9 +44,6 @@ export interface Fristkravvalg {
   /** Begrunnelsen etter punkt 33.6.2 annet ledd b. */
   grunnB: string;
 }
-
-export const tomtUtenforvalg = (): Utenforvalg => ({ dato: '', type: null, vedlegg: [] });
-export const erTomt = (u: Utenforvalg) => !u.dato && u.type === null && u.vedlegg.length === 0;
 
 let teller = 0;
 const nyNoekkel = () => `f${++teller}`;
@@ -114,18 +101,9 @@ export function fristkravet(
   v: Fristkravvalg,
   foresporsel: string | null = null
 ): Record<string, unknown> {
-  const dokumentasjon = (x: Utenforvalg) => x.vedlegg.map((f) => f.vedlegg_id);
   if (v.hva === 'varsel')
     return v.utenfor
-      ? definert({
-          type: 'varsel',
-          spor: 'frist',
-          hjemmel: '33.4',
-          sendt: v.utenfor.dato,
-          // Kjernen avviser en registrering uten typen; skjemaet sier fra ved feltet først.
-          korrespondansetype: v.utenfor.type ?? undefined,
-          dokumentasjon: dokumentasjon(v.utenfor),
-        })
+      ? { type: 'varsel', spor: 'frist', hjemmel: '33.4', ...registreringen(v.utenfor) }
       : { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' };
   if (foresporsel && v.bokstav === 'b')
     return { type: 'foresporselssvar', gjelder: foresporsel, utdypning: v.grunnB };
@@ -138,13 +116,7 @@ export function fristkravet(
       trekker: trekker.length ? trekker : undefined,
     }),
     // VS-U34, C1 i #2056: kjernen skriver varselet som et eget brev med typen før kravet.
-    varsel: v.utenfor
-      ? definert({
-          sendt: v.utenfor.dato,
-          korrespondansetype: v.utenfor.type ?? undefined,
-          dokumentasjon: dokumentasjon(v.utenfor),
-        })
-      : undefined,
+    varsel: v.utenfor ? registreringen(v.utenfor) : undefined,
     utdypning: v.begrunnelse,
   });
 }
@@ -168,9 +140,8 @@ export function manglerIFristkravet(
       post: post ?? null,
     });
   if (v.utenfor) {
-    if (!v.utenfor.dato) legg('utenfor-dato', FRISTKRAV.manglerVarseldato);
-    if (!v.utenfor.type) legg('utenfor-type', FRISTKRAV.manglerType);
-    if (!v.utenfor.vedlegg.length) legg('utenfor-brev', FRISTKRAV.manglerVarselbrev);
+    for (const [felt, tekst] of Object.entries(korrespondansemangler(v.utenfor)))
+      legg(`utenfor-${felt}`, tekst);
   }
   if (v.hva === 'varsel') return ut;
   if (foresporsel && v.bokstav === 'b') {

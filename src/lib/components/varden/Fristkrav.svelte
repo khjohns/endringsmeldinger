@@ -16,8 +16,6 @@
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import { fastLinje } from './fastlinje.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
-  import Feltetikett from './Feltetikett.svelte';
-  import Filvalg from './Filvalg.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
   import Gjeldendefrist from './Gjeldendefrist.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
@@ -30,13 +28,13 @@
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
+  import Korrespondansen from './Korrespondansen.svelte';
+  import { erTomKorrespondanse, tomKorrespondanse } from './korrespondansen';
   import {
     fristkravet,
     manglerIFristkravet,
     nyFristpost,
     startvalg,
-    tomtUtenforvalg,
-    erTomt,
     vedleggIFristkravet,
     type Fristkravvalg,
     type Fristpostvalg,
@@ -51,15 +49,7 @@
     fristtabellen,
     klarOverForholdet,
   } from './lesing';
-  import {
-    FRISTKRAV,
-    HOVEDLINJER,
-    KRAVSKJEMA,
-    SKJEMA,
-    dagensDato,
-    dato,
-    kalenderdager,
-  } from './tekster';
+  import { FRISTKRAV, HOVEDLINJER, SKJEMA, dagensDato, dato, kalenderdager } from './tekster';
 
   let {
     kjernesak,
@@ -139,9 +129,9 @@
   /** Et varsel registreres når TE bare varsler og ikke kan sende det fra løsningen. */
   function velgHva(hva: Fristkravvalg['hva'] | null) {
     v.hva = hva ?? 'krav';
-    if (v.hva === 'varsel' && !kanSende) v.utenfor ??= tomtUtenforvalg();
+    if (v.hva === 'varsel' && !kanSende) v.utenfor ??= tomKorrespondanse();
     // En registrering TE ikke har fylt ut, blir ikke et varsel gitt før i kravet.
-    if (v.hva === 'krav' && v.utenfor && erTomt(v.utenfor)) v.utenfor = null;
+    if (v.hva === 'krav' && v.utenfor && erTomKorrespondanse(v.utenfor)) v.utenfor = null;
   }
 
   // Radene uten et navn nummereres bare seg imellom (U-1).
@@ -401,42 +391,12 @@
 {/snippet}
 
 {#snippet varselUtenfor()}
-  {@const fDato = feil('utenfor-dato')}
   <div class="innrykk">
-    <Valg
-      navn={id('utenfor-type')}
-      spoersmaal={KRAVSKJEMA.varselGitt}
-      valg={KRAVSKJEMA.dokumenttyper}
-      stablet
-      lett
-      bind:verdi={v.utenfor!.type}
-      feil={feil('utenfor-type')}
-    />
-    <div class="tallfelt">
-      <Feltetikett for={id('utenfor-dato')}>{FRISTKRAV.varseldato}</Feltetikett>
-      <span class="dempet" id={id('utenfor-dato-hjelp')}>{FRISTKRAV.varseldatoHjelp}</span>
-      <input
-        id={id('utenfor-dato')}
-        type="date"
-        class="datofelt"
-        class:ugyldig={fDato}
-        max={iDag}
-        bind:value={v.utenfor!.dato}
-        aria-required="true"
-        aria-invalid={fDato ? 'true' : undefined}
-        aria-describedby={fDato
-          ? `${id('utenfor-dato-hjelp')} ${id('utenfor-dato-feil')}`
-          : id('utenfor-dato-hjelp')}
-      />
-      {#if fDato}<p class="feilmelding" id={id('utenfor-dato-feil')}>{fDato}</p>{/if}
-    </div>
-    <Filvalg
-      id={id('utenfor-brev')}
-      etikett={FRISTKRAV.varselbrevet}
-      hjelp={FRISTKRAV.varselbrevetHjelp}
+    <Korrespondansen
+      id={(felt) => id(`utenfor-${felt}`)}
+      bind:valg={v.utenfor!}
+      feil={(felt) => feil(`utenfor-${felt}`)}
       {grense}
-      bind:vedlegg={v.utenfor!.vedlegg}
-      feil={feil('utenfor-brev')}
     />
   </div>
 {/snippet}
@@ -673,7 +633,7 @@
                 ]}
                 bind:verdi={
                   () => (v.utenfor ? 'registrer' : 'send'),
-                  (x) => (v.utenfor = x === 'registrer' ? (v.utenfor ?? tomtUtenforvalg()) : null)
+                  (x) => (v.utenfor = x === 'registrer' ? (v.utenfor ?? tomKorrespondanse()) : null)
                 }
                 lett
                 stablet
@@ -699,7 +659,7 @@
           {:else}
             <p class="status">{FRISTKRAV.kravetErVarselet}</p>
             <div>
-              <Knapp variant="lenke" onclick={() => (v.utenfor = tomtUtenforvalg())}
+              <Knapp variant="lenke" onclick={() => (v.utenfor = tomKorrespondanse())}
                 >{FRISTKRAV.gittFoer}</Knapp
               >
             </div>
@@ -972,13 +932,7 @@
     color: var(--ink-2);
     font-size: 12px;
   }
-  .tallfelt {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
-  }
-  textarea:focus-visible,
-  .datofelt:focus-visible {
+  textarea:focus-visible {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
   }
@@ -989,16 +943,6 @@
     font: inherit;
     background: var(--surface);
     resize: vertical;
-  }
-  .datofelt {
-    width: 12em;
-    min-height: 44px;
-    padding: 0 var(--spacing-3);
-    border: var(--control-border);
-    border-radius: var(--r-felt);
-    font: 16px var(--font-sans);
-    color: var(--ink);
-    background: var(--surface);
   }
   .innrykk {
     display: flex;
@@ -1025,7 +969,6 @@
     margin-left: var(--spacing-2);
     font-weight: 400;
   }
-  .datofelt.ugyldig,
   textarea.ugyldig {
     border-color: var(--danger);
     box-shadow: inset 0 0 0 1px var(--danger);
