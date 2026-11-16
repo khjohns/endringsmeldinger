@@ -688,7 +688,10 @@ function registreringenStrider(
     const sendt = dag(s.id);
     const medSvaret = (med: string) => samme(s.id, med);
     // OV-U32, OV-U104: dagen sammenliknes med svarene på forholdet lagene regnes fra (#2057).
-    const paaberopelsen = s.spor === 'forhold' ? null : kravversjonenPaaDagen(u, 'forhold', sendt);
+    // Med svaret på forholdet i samme brev regnes lagene fra det, uten å sammenlikne dagene (OV-U32).
+    const iBrevet = d.svar.some((x) => x.spor === 'forhold');
+    const paaberopelsen =
+      s.spor === 'forhold' || iBrevet ? null : kravversjonenPaaDagen(u, 'forhold', sendt);
     if (paaberopelsen)
       forholdssvaretPaaDagen(
         u.spor.forhold.svar,
@@ -1467,10 +1470,14 @@ function settDatoopplysningene(
 /** Dagen et svar ble sendt (OV-U98), og om det står i et brev lagt til. */
 function dagene(journal: Domenehendelse[]) {
   const dokumentene = new Map([...dokumenterI(journal)].map((d) => [d.id, d]));
+  const dokumentet = (x: Svar) => {
+    const d = dokumentene.get(x.dokument);
+    if (!d) throw new Error(`${x.id} står ikke i et dokument i journalen.`);
+    return d;
+  };
   return {
-    dagen: (x: Svar) =>
-      dagenSendt({ id: x.id, dokument: x.dokument }, dokumentene.get(x.dokument)!),
-    lagtTil: (x: Svar) => erRegistrert(dokumentene.get(x.dokument)!.opplysninger),
+    dagen: (x: Svar) => dagenSendt({ id: x.id, dokument: x.dokument }, dokumentet(x)),
+    lagtTil: (x: Svar) => erRegistrert(dokumentet(x).opplysninger),
   };
 }
 
