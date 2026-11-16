@@ -251,38 +251,35 @@ function dokumentet(u: Utledning, id: string): Dokument | undefined {
  * den registrerte enigheten, og løsningen avgjør ikke virkningen (punkt 5 og 8). En aksept
  * lagt til i løsningen er gitt dagen den ble sendt (OV-U98).
  */
-function akseptertEtterFristen(u: Utledning, spor: Spor, enighet: Enighet | null): boolean {
+function akseptertEtterFristen(u: Utledning, enighet: Enighet | null): boolean {
   if (enighet?.grunnlag.kilde !== 'aksept') return false;
-  const { svar, svarUtenforRekken } = u.spor[spor];
-  const frist =
-    [...svar, ...svarUtenforRekken].find((x) => x.id === enighet.grunnlag.svar)?.akseptfrist ??
-    null;
+  const frist = u.svar[enighet.grunnlag.svar]?.svar.akseptfrist ?? null;
   const aksept = dokumentet(u, enighet.holder);
   const sendt = aksept ? datoenDetBleSendt(u, { id: enighet.holder, dokument: aksept.id }) : null;
   return sendt !== null && etterAkseptfristen(frist, sendt);
 }
 
 /** Standpunktene i svaret uten ID-ene, så to svar kan sammenliknes. */
-const innholdet = (s: Svar): string[] =>
-  s.standpunkter.map((p) => JSON.stringify({ ...p, id: null })).sort();
+const innholdet = (s: Svar): string =>
+  JSON.stringify(s.standpunkter.map((p) => JSON.stringify({ ...p, id: null })).sort());
 
 /**
  * OV-U110, HF-U29 punkt 8: enighetene om svar som ikke er det gjeldende, og om det gjeldende svaret
  * på samme kravversjon har de samme standpunktene som svaret enigheten gjelder.
  */
 function enigheterOmEldreSvar(u: Utledning, spor: Spor): EnighetOmEldreSvar[] {
-  const { svar, svarUtenforRekken, gjeldendeSvar: g } = u.spor[spor];
+  const g = u.spor[spor].gjeldendeSvar;
   return u.spor[spor].enigheterOmEldreSvar.map((e) => {
-    const eldre = [...svar, ...svarUtenforRekken].find((x) => x.id === e.grunnlag.svar)!;
+    const eldre = u.svar[e.grunnlag.svar].svar;
     const sammenliknes = g !== null && g.gjelder === eldre.gjelder;
     return {
       svar: e.grunnlag.svar,
       holder: e.holder,
       kilde: e.grunnlag.kilde,
-      akseptertEtterFristen: akseptertEtterFristen(u, spor, e),
+      akseptertEtterFristen: akseptertEtterFristen(u, e),
       gjeldendeSvar: !sammenliknes
         ? null
-        : JSON.stringify(innholdet(eldre)) === JSON.stringify(innholdet(g))
+        : innholdet(eldre) === innholdet(g)
           ? 'stemmer'
           : 'avviker',
     };
@@ -302,7 +299,7 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
     if (virkning === 'uten_virkning') ut.push('enighet_uten_virkning');
     if (s.gjeldendeKrav && s.subsidiaer.length) ut.push('subsidiaert');
   }
-  if (akseptertEtterFristen(u, spor, s.enighet)) ut.push('aksept_etter_akseptfristen');
+  if (akseptertEtterFristen(u, s.enighet)) ut.push('aksept_etter_akseptfristen');
   if (regelenErEndret(u, spor, regler))
     ut.push(s.enighet ? 'regel_endret_etter_enighet' : 'regel_endret_etter_brevet');
   if (s.gjeldendeSvar && vurdertVedRegistreringen(u, s.gjeldendeSvar.id))

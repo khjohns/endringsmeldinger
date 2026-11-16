@@ -57,6 +57,8 @@ import { DATOEN_GJELDER, oppgittDato, kategori } from '../spor/forhold/format.ts
 export type Svarstandpunkter = (
   s: Svarutkast,
   utregning: Record<string, unknown>,
+  /** Kravversjonen svaret gjelder. */
+  krav: Krav,
   /** Påberopelsen svaret er regnet mot (#342), `null` i forholdet. */
   paaberopelse: Krav | null
 ) => Standpunkt[];
@@ -89,8 +91,7 @@ const nyttelastI = (spor: Spor): Sporsnyttelast => iSporet(NYTTELAST, spor);
  * MM-U34 punkt 4, 6 og 7: også en revisjon som senker det byggherren har godkjent, en
  * påberopelse etter et «i tide» og et avslag etter et frafall godtas. Løsningen avgjør
  * ikke om endringen er rettslig virksom (MM-U12 (opphevet av MM-U50)).
- */
-/**
+ *
  * `sendt` er dagen et svar lagt til ble sendt, og `null` for et svar fra løsningen. Et svar lagt
  * til kan gjelde en eldre kravversjon, og om den var gjeldende da svaret ble sendt, avgjør
  * `registreringenStrider`. Svaret regnes mot kravversjonen og påberopelsen slik de var den dagen
@@ -149,7 +150,7 @@ function kontrollerSvar(
   }
   // #520: et felt som ikke gjelder kategorien, avvises av utregningen før dette. Skrivingen
   // registrerer standpunktene og utregningen for brevet her (#814).
-  svarstandpunkter(s, server, paaberopelse);
+  svarstandpunkter(s, server, krav, paaberopelse);
   const avvik = avvikIResultatet(s.spor, s.resultat, server);
   if (avvik.length)
     return avvis(
@@ -410,12 +411,10 @@ function retting(retter: string, part: Part, u: Utledning): Avvisning | null {
   return null;
 }
 
-/** OV-U98: dagen et brev lagt til ble sendt, og `null` for et brev fra løsningen. */
-const sendtDag = (k: Kommando): string | null => (erRegistrering(k) ? kalenderdag(k.sendt) : null);
-
 /**
  * `utdypningKreves` er usann i forhåndsvisningen: utdypningen endrer ikke den låste
- * teksten, så klienten kan vise teksten før begrunnelsen er skrevet (A1).
+ * teksten, så klienten kan vise teksten før begrunnelsen er skrevet (A1). `sendt` er dagen et
+ * brev lagt til ble sendt, og `null` for et brev fra løsningen (OV-U98).
  */
 export function nyttelastkontroll(
   k: Kommando,
@@ -423,6 +422,7 @@ export function nyttelastkontroll(
   u: Utledning,
   regler: Regelsett,
   svarstandpunkter: Svarstandpunkter,
+  sendt: string | null,
   utdypningKreves = true
 ): Avvisning | null {
   switch (k.type) {
@@ -473,7 +473,7 @@ export function nyttelastkontroll(
     }
     case 'brev':
       for (const s of k.svar) {
-        const a = kontrollerSvar(s, u, regler, svarstandpunkter, utdypningKreves, sendtDag(k));
+        const a = kontrollerSvar(s, u, regler, svarstandpunkter, utdypningKreves, sendt);
         if (a) return a;
       }
       return null;
@@ -481,15 +481,13 @@ export function nyttelastkontroll(
       const forrige = u.spor[k.svar.spor].gjeldendeSvar;
       if (k.erstatter !== forrige?.id)
         return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');
-      return kontrollerSvar(k.svar, u, regler, svarstandpunkter, utdypningKreves, sendtDag(k));
+      return kontrollerSvar(k.svar, u, regler, svarstandpunkter, utdypningKreves, sendt);
     }
     case 'aksept': {
       // KA-U1, KT-U1: aksepten gjelder sporets gjeldende svar. En aksept som legges til, gjelder
       // svaret som var gjeldende da den ble sendt, og det prøver utledningen (OV-U98).
       // OV-U103: også et svar sendt før byggherrens gjeldende svar.
-      const svaretFinnes = [...u.spor[k.spor].svar, ...u.spor[k.spor].svarUtenforRekken].some(
-        (x) => x.id === k.svar
-      );
+      const svaretFinnes = u.svar[k.svar]?.svar.spor === k.spor;
       if (k.sendt !== undefined ? !svaretFinnes : k.svar !== u.spor[k.spor].gjeldendeSvar?.id)
         return avvis(
           'IKKE_GJELDENDE_SVAR',

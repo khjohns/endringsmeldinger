@@ -665,9 +665,7 @@ function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Stri
   }
   for (const x of d.utsagn) {
     if (x.art !== 'aksept') continue;
-    const svar = SPOR.flatMap((n) => [...u.spor[n].svar, ...u.spor[n].svarUtenforRekken]).find(
-      (s) => s.id === x.gjelder
-    );
+    const svar = u.svar[x.gjelder]?.svar;
     const sendt = dag(x.id);
     if (svar && (sendt === null || !svaretGjaldt(u, svar, sendt, (med) => samme(x.id, med))))
       strider.push({
@@ -767,12 +765,7 @@ function utsagnetStrider(
   if (!ENDRER_UTFALLET.has(x.art)) return null;
   const gjelder = 'gjelder' in x ? x.gjelder : null;
   /** Svaret en aksept gjelder, også et svar utenfor rekken (OV-U103). */
-  const svaret =
-    x.art === 'aksept'
-      ? SPOR.flatMap((n) => [...u.spor[n].svar, ...u.spor[n].svarUtenforRekken]).find(
-          (s) => s.id === x.gjelder
-        )
-      : undefined;
+  const svaret = x.art === 'aksept' ? u.svar[x.gjelder]?.svar : undefined;
   const sporet = svaret?.spor;
   const l = lukket(u);
   if (l) return `${x.art} etter at ${l}`;
@@ -1478,8 +1471,9 @@ function settEnighetene(
   hendelsen: (id: string) => string,
   versjonen: (id: string) => number
 ): void {
+  const aksepten = new Map(aksepter.map((a) => [a.gjelder, a]));
   const enighetOm = (s: Svar): Enighet | null => {
-    const aksept = aksepter.find((a) => a.gjelder === s.id);
+    const aksept = aksepten.get(s.id);
     if (aksept) return { grunnlag: enighetsgrunnlag(s, 'aksept'), holder: hendelsen(aksept.id) };
     if (s.beslutningsgrunnlag.sammenfall)
       return { grunnlag: enighetsgrunnlag(s, 'sammenfall'), holder: s.id };

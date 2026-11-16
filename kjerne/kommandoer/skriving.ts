@@ -623,9 +623,12 @@ function skriv(
   const tidspunkt = kontekst.tidspunkt();
   const bygde: Bygde = new Map();
   // Nyttelastkontrollen leser standpunktene slik brevet lagrer dem (#776).
-  const svarstandpunkter = (s: Svarutkast, utregning: Data, paaberopelse: Krav | null) => {
-    // Nyttelastkontrollen har funnet kravversjonen svaret gjelder (`kontrollerSvar`).
-    const krav = u.spor[s.spor].krav.find((x) => x.id === s.gjelder)!;
+  const svarstandpunkter = (
+    s: Svarutkast,
+    utregning: Data,
+    krav: Krav,
+    paaberopelse: Krav | null
+  ) => {
     const lagret = standpunkter(s, krav, u, kontekst.nyId);
     bygde.set(s, { standpunkter: lagret, utregning, paaberopelse });
     try {

@@ -459,6 +459,14 @@ const FORLENGELSENE = 'spor/frist/utledning.ts:forlengelseneISaken';
  * til noen klasse, er det en oppsummering, og regelen skal lese det feltet
  * oppsummerer i stedet.
  */
+/** Stedene som slår opp et svar etter ID-en i `Utledning.svar`. */
+const SVARET_MED_ID = [
+  'utledning/utled.ts:vurdertVedRegistreringen',
+  'utledning/utled.ts:registreringenStrider',
+  'utledning/utled.ts:utsagnetStrider',
+  'kommandoer/nyttelast.ts:nyttelastkontroll',
+];
+
 const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][] = [
   // Dokumentene og utsagnene i dem (typer.ts).
   ['Dokument', 'relasjon', 'avsender'],
@@ -761,8 +769,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],
   ['spor/forhold/utledning.ts:forholdssvaretsVirkning(svar)', 'relasjon', '*'],
   // MM-U17, MM-U50: om svaret er registrert korrespondanse, for visningen.
-  ['Utledning', 'relasjon', 'svar', ['utledning/utled.ts:vurdertVedRegistreringen']],
-  ['Utledning.svar', 'relasjon', '*', ['utledning/utled.ts:vurdertVedRegistreringen']],
+  // Svaret med ID-en, også et svar utenfor rekken (OV-U103): det en aksept gjelder.
+  ['Utledning', 'relasjon', 'svar', SVARET_MED_ID],
+  ['Utledning.svar', 'relasjon', '*', SVARET_MED_ID],
   ['Svarberegning', 'relasjon', 'svar'],
   ['Svarberegning', 'frosset', 'virkninger'],
   ['Enighet', 'predikat', 'grunnlag'],
@@ -1244,7 +1253,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/skriving.ts:skriv',
       'kommandoer/skriving.ts:dokument',
       'kommandoer/nyttelast.ts:oppgittDatoI',
-      'kommandoer/nyttelast.ts:sendtDag',
       'kommandoer/avvisning.ts:avvisning',
     ],
   ],
