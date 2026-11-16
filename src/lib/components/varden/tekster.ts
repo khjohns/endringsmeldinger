@@ -416,6 +416,8 @@ export const SKJEMA = {
   godkjennerJustering: 'Godkjenner justeringen',
   bestriderJustering: 'Bestrider justeringen',
   valgfritt: (spoersmaal: string) => `${spoersmaal} (valgfritt)`,
+  /** Til høyre på linja med labelen over et valgfritt felt (`Feltetikett`). */
+  valgfri: 'Valgfri',
   // Beløpet står etter tittelen i komponenten, med mono (#1467).
   beloepTittel: 'Vederlagsjustering',
   beloepSpoersmaal: 'Hvor mye av beløpet godkjenner du?',
@@ -466,7 +468,7 @@ export const SKJEMA = {
   begrunnelse: 'Begrunnelse',
   begrunnelseHjelp:
     'Begrunnelsen står i brevet under punktet den gjelder, og kan vise til et annet punkt.',
-  forbehold: 'Forbehold for hele svaret (valgfritt)',
+  forbehold: 'Forbehold for hele svaret',
   forbeholdHjelp: 'Står sist i brevet. Det erstatter ikke begrunnelsen i et punkt.',
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
@@ -965,7 +967,7 @@ export const KORRIGERING = {
   lukket: 'Saken står lukket. Korrigeringen endrer ikke utfallet.',
   nyDato: (hva: keyof typeof DATOEN) => `Ny dato for når ${DATOEN[hva]}`,
   datoHjelp: 'Datoen kan ikke være etter dagens dato.',
-  forklaring: 'Forklaring (valgfri)',
+  forklaring: 'Forklaring',
   forklaringHjelp: 'Forklaringen står i brevet under den nye datoen.',
   skrivDatoen: (hva: keyof typeof DATOEN) => `Skriv datoen ${DATOEN[hva]}.`,
   uendret: (o: { hva: keyof typeof DATOEN; dato: string; brev: Brevref }) =>
@@ -1103,7 +1105,7 @@ export const NYSAK = {
   endringsordre: 'Endringsordrens nummer eller dato',
   /** GR-U40 punkt 7: endringsordren står fast, som forholdet. */
   endringsordreHjelp: 'Står fast når brevet er sendt.',
-  vedlegg: 'Vedlegg (valgfritt)',
+  vedlegg: 'Vedlegg',
   vedleggHjelp:
     'For eksempel pålegget selv, en tegning eller et referat. Hver fil kan være opptil 15 MB.',
   velgFiler: 'Velg filer',
@@ -1323,12 +1325,12 @@ export const KRAVSKJEMA = {
     { verdi: false, tekst: 'Kontraktens enhetspriser' },
     { verdi: true, tekst: 'Justerte enhetspriser (punkt 34.3.2)' },
   ],
-  anslag: 'Anslag (valgfritt)',
+  anslag: 'Anslag',
   anslagHjelp: 'En opplysning, ikke et tilbud.',
-  overslag: 'Kostnadsoverslag (valgfritt)',
+  overslag: 'Kostnadsoverslag',
   overslagHjelp:
     'En opplysning, ikke et tilbud (punkt 30.2). Ser det ut til å bli overskredet, skal du varsle byggherren.',
-  pns: 'PNS (valgfritt)',
+  pns: 'PNS',
   pnsHjelp: 'Binder ikke. Byggherren kan sette en annen i endringsordren.',
   varsellinje: (hjemmel: string, tekst: string) => `Varsel etter ${punkt(hjemmel)}: ${tekst}`,
   tilVarslene: 'Se under Varslene',
@@ -1417,7 +1419,7 @@ export const KRAVSKJEMA = {
   dokumentet: 'Dokumentet',
   dokumentetHjelp: 'Legges til i saken som et eget brev og ved kravet. Opptil 15 MB.',
   // 4. Forbeholdet, i kravets eget felt (LV-U74).
-  forbehold: 'Forbehold (valgfritt)',
+  forbehold: 'Forbehold',
   forbeholdHjelp: 'Står i brevet under kravet.',
   // Det som mangler, med feltet (MM-U32, språkfila: «<Verb> <feltet>.»).
   mangler: 'Dette mangler før brevet kan lages:',
@@ -1569,7 +1571,7 @@ export const FRISTKRAV = {
   ikkeRegistrertKort: 'Ikke registrert',
   /** Cellen for ny dato når gjeldende frist ikke kan regnes (MM-U2). */
   kanIkkeRegnes: 'Kan ikke regnes nå',
-  nummerEtikett: 'Nummer i kontrakten (valgfritt)',
+  nummerEtikett: 'Nummer i kontrakten',
   navnEtikett: 'Navnet i kontrakten',
   dagerEtikett: 'Dagene du krever',
   kalenderdager: 'Kalenderdager.',

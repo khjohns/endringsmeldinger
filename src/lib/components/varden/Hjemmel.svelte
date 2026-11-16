@@ -1,6 +1,6 @@
 <!--
-  Bestemmelsen i NS 8407 etter overskriften i et skjema, som dempet tekst og ikke som et merke
-  (OV-U75, system.md, «Høyst tre nivåer av flater», #1925).
+  Bestemmelsen i NS 8407 til høyre på linja med overskriften i et skjema, som dempet tekst og ikke
+  som et merke (OV-U75, system.md, «Høyst tre nivåer av flater», #1925).
 -->
 <script lang="ts">
   import { hjemmelsmerke } from './tekster';
@@ -12,6 +12,7 @@
 
 <style>
   span {
+    margin-left: auto;
     font-size: 14px;
     font-weight: 400;
     color: var(--ink-3);

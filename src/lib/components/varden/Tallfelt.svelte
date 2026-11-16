@@ -19,6 +19,7 @@
     foran = [],
     etter = [],
     paakrevd = false,
+    valgfri = false,
     children,
   }: {
     id: string;
@@ -35,6 +36,8 @@
     /** ID-ene til tekst som beskriver feltet, etter hjelpeteksten og før feilen. */
     etter?: readonly string[];
     paakrevd?: boolean;
+    /** Feltet kan stå tomt, og labelen har «Valgfri» til høyre. */
+    valgfri?: boolean;
     /** Tekst under feltet og feilmeldingen. */
     children?: Snippet;
   } = $props();
@@ -47,7 +50,7 @@
 </script>
 
 <div class="tallfelt">
-  <Feltetikett for={id}>{etikett}</Feltetikett>
+  <Feltetikett for={id} {valgfri}>{etikett}</Feltetikett>
   {#if hjelp}<span class="dempet" id={`${id}-hjelp`}>{hjelp}</span>{/if}
   <span
     class="inndata"

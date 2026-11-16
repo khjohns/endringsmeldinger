@@ -191,7 +191,7 @@
         </div>
 
         <div class="felt">
-          <Feltetikett for={id('forklaring')}>{KORRIGERING.forklaring}</Feltetikett>
+          <Feltetikett for={id('forklaring')} valgfri>{KORRIGERING.forklaring}</Feltetikett>
           <p class="hjelp" id={id('forklaring-hjelp')}>{KORRIGERING.forklaringHjelp}</p>
           <textarea
             id={id('forklaring')}

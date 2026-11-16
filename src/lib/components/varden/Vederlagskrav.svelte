@@ -584,7 +584,7 @@
 )}
   {@const f = feil(felt)}
   <div class="felt">
-    <Feltetikett for={id(felt)}>{etikett}</Feltetikett>
+    <Feltetikett for={id(felt)} valgfri={!paakrevd}>{etikett}</Feltetikett>
     <span class="hjelp" id={id(`${felt}-hjelp`)}>{hjelp}</span>
     <span class="inndata" class:ugyldig={f}>
       <input
@@ -676,7 +676,7 @@
       </p>
     {/if}
     <div class="felt">
-      <Feltetikett for={id(`pns-${n}`)}>{KRAVSKJEMA.pns}</Feltetikett>
+      <Feltetikett for={id(`pns-${n}`)} valgfri>{KRAVSKJEMA.pns}</Feltetikett>
       <span class="hjelp" id={id(`pns-${n}-hjelp`)}>{KRAVSKJEMA.pnsHjelp}</span>
       <input
         id={id(`pns-${n}`)}
@@ -1121,7 +1121,7 @@
           <h3 id={id('forbehold-tittel')}>{KRAVSKJEMA.forbeholdPunkt}</h3>
         </div>
         <div class="felt">
-          <Feltetikett for={id('forbehold-felt')}>{KRAVSKJEMA.forbehold}</Feltetikett>
+          <Feltetikett for={id('forbehold-felt')} valgfri>{KRAVSKJEMA.forbehold}</Feltetikett>
           <span class="hjelp" id={id('forbehold-hjelp')}>{KRAVSKJEMA.forbeholdHjelp}</span>
           <textarea
             id={id('forbehold-felt')}

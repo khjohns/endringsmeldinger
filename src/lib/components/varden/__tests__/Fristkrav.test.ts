@@ -284,9 +284,9 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
 
   it('merket ved spørsmålet om varselet sier «pkt. 33.4», fordi henvisningen står alene (OV-U75)', async () => {
     await kravskjemaet(medGrunnlag);
-    const varselet = screen.getByRole('heading', { name: /^Varselet om fristforlengelse/ });
-    expect(varselet).toHaveTextContent(/pkt\. 33\.4$/);
-    expect(varselet).not.toHaveTextContent('punkt 33.4');
+    const varselet = screen.getByRole('heading', { name: 'Varselet om fristforlengelse' });
+    expect(varselet.parentElement).toHaveTextContent(/pkt\. 33\.4$/);
+    expect(varselet.parentElement).not.toHaveTextContent('punkt 33.4');
   });
 
   it('TE kan bare varsle etter punkt 33.4, uten dager, og «Når du sender» sier virkningen (U-13, VS-U15)', async () => {

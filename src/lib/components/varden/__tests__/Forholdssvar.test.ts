@@ -77,13 +77,15 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     ).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Begrunnelse' })).not.toBeInTheDocument();
     // Forbeholdet står også før brevet kan lages, så teksten ikke blir borte.
-    expect(screen.getByLabelText('Forbehold for hele svaret (valgfritt)')).toBeInTheDocument();
+    expect(screen.getByLabelText('Forbehold for hele svaret, Valgfri')).toBeInTheDocument();
     await radio('Nei');
     await radio('Enig, endringsordre');
     expect(screen.getByRole('heading', { name: 'Begrunnelse' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Forbehold for hele svaret (valgfritt)')).toBeInTheDocument();
-    // Hjemmelen står i overskriften som tekst, ikke som merke («Høyst tre nivåer» i `system.md`).
-    expect(screen.getByRole('heading', { name: /^Forholdet pkt\. 32\.3$/ })).toBeInTheDocument();
+    expect(screen.getByLabelText('Forbehold for hele svaret, Valgfri')).toBeInTheDocument();
+    // Hjemmelen står til høyre på linja med overskriften, som tekst og ikke som merke («Høyst tre
+    // nivåer» i `system.md`, oppdragsgiver 16.11).
+    const forholdet = screen.getByRole('heading', { name: 'Forholdet' });
+    expect(forholdet.parentElement).toHaveTextContent(/pkt\. 32\.3$/);
   });
 
   it('brevet vises ikke før varselet og forholdet er besvart, og oppsummeringen sier hva som mangler (MM-U32)', async () => {

@@ -18,9 +18,12 @@
     vedlegg = $bindable([]),
     laster = $bindable(false),
     feil = null,
+    valgfri = false,
   }: {
     id: string;
     etikett: string;
+    /** Vedlegget kan stå tomt, og labelen har «Valgfri» til høyre. */
+    valgfri?: boolean;
     hjelp: string;
     grense: VedleggForNySak;
     vedlegg?: Kjernevedlegg[];
@@ -74,7 +77,7 @@
 </script>
 
 <div class="felt">
-  <Feltetikett for={id} id={`${id}-etikett`}>{etikett}</Feltetikett>
+  <Feltetikett for={id} id={`${id}-etikett`} {valgfri}>{etikett}</Feltetikett>
   <p class="hjelp" id={`${id}-hjelp`}>{hjelp}</p>
   <!-- Nettleserens tekst («Ingen fil valgt») sier ikke hva som er lastet opp, så knappen er
        bildet under den gjennomsiktige velgeren, og lista under viser filene. -->

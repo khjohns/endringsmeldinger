@@ -15,10 +15,7 @@
     info,
     children,
   }: {
-    /**
-     * ID-en til overskriften, som navngir spørsmålet. Tittelen alene, uten hjemmelen, har
-     * `<id>-tittel`, for et felt som navngis av den.
-     */
+    /** ID-en til overskriften, som navngir spørsmålet. */
     id: string;
     tittel: string;
     /** Et tall etter tittelen, som det samlede beløpet. */
@@ -33,12 +30,10 @@
 <section class="spoersmaal" aria-labelledby={id}>
   <div class="sp-hode">
     <h3 {id}>
-      <span id={`${id}-tittel`}
-        >{#if tillegg}{`${tittel} · `}<span class="num">{tillegg}</span>{:else}{tittel}{/if}</span
-      >
-      {#if hjemmel}<Hjemmel numre={hjemmel} />{/if}
+      {#if tillegg}{`${tittel} · `}<span class="num">{tillegg}</span>{:else}{tittel}{/if}
     </h3>
     {#if info}<Infotips navn={info.navn} tekst={info.tekst} />{/if}
+    {#if hjemmel}<Hjemmel numre={hjemmel} />{/if}
   </div>
   {@render children()}
 </section>

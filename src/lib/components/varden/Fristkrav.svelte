@@ -466,6 +466,7 @@
     feil={f}
     etter={[gjeldende ?? '', nyDato ? `${fid}-ny` : '', etter ? `${fid}-etter` : '']}
     paakrevd={navn !== 'nummer'}
+    valgfri={navn === 'nummer'}
   >
     <!-- Den levende regionen står fra start, så den nye datoen leses opp når den kommer (#1636). -->
     {#if nyDato !== undefined}<p class="dempet" id={`${fid}-ny`} aria-live="polite">
@@ -721,7 +722,7 @@
           <textarea
             id={id('grunn-b')}
             rows="6"
-            aria-labelledby={id('sp-grunn-b-tittel')}
+            aria-labelledby={id('sp-grunn-b')}
             bind:value={v.grunnB}
             class:ugyldig={fB}
             aria-describedby={fB
@@ -781,7 +782,7 @@
           <textarea
             id={id('begrunnelse')}
             rows="6"
-            aria-labelledby={id('sp-begrunnelse-tittel')}
+            aria-labelledby={id('sp-begrunnelse')}
             bind:value={v.begrunnelse}
             class:ugyldig={begrunnelseFeil}
             aria-describedby={begrunnelseFeil

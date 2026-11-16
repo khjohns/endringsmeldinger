@@ -76,12 +76,12 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     await skriv('Beskrivelse av posten', 'Omlegging av rør');
     await fireEvent.click(screen.getByRole('radio', { name: /^Fast sum/ }));
     await skriv('Beløpet du krever', '210 000');
-    await skriv('PNS (valgfritt)', '31');
+    await skriv('PNS, Valgfri', '31');
     await fireEvent.click(knapp('Ferdig'));
     await fireEvent.click(knapp('Legg til kravpost'));
     await skriv('Beskrivelse av posten', 'Ekstra graving');
     await fireEvent.click(screen.getByRole('radio', { name: /^Regningsarbeid/ }));
-    await skriv('Kostnadsoverslag (valgfritt)', '150000');
+    await skriv('Kostnadsoverslag, Valgfri', '150000');
     await fireEvent.click(knapp('Ferdig'));
 
     // U-5: panelet skiller de faste beløpene fra overslaget, og sier hva som er tilbud.
@@ -320,7 +320,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     await fireEvent.click(screen.getByRole('radio', { name: /^Fast sum/ }));
     await skriv('Beløpet du krever', '210 000');
     await fireEvent.click(knapp('Ferdig'));
-    await skriv('Forbehold (valgfritt)', 'Forbeholdet om grunnforholdene.');
+    await skriv('Forbehold, Valgfri', 'Forbeholdet om grunnforholdene.');
     await fireEvent.click(knapp('Se brevet før sending'));
     const brevet = await screen.findByRole('article', { name: /Krav om vederlagsjustering/ });
     const overskrifter = within(brevet)

@@ -502,6 +502,7 @@
           <Filvalg
             id={id('vedlegg')}
             etikett={NYSAK.vedlegg}
+            valgfri
             hjelp={NYSAK.vedleggHjelp}
             grense={vedleggForNySak}
             bind:vedlegg

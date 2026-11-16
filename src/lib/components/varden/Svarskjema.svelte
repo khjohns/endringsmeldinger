@@ -294,7 +294,7 @@
             {/each}
           {/if}
           <div class="begrunnelse forbehold">
-            <Feltetikett for={`${uid}-forbehold`}>{SKJEMA.forbehold}</Feltetikett>
+            <Feltetikett for={`${uid}-forbehold`} valgfri>{SKJEMA.forbehold}</Feltetikett>
             <span class="dempet" id={`${uid}-forbehold-hjelp`}>{SKJEMA.forbeholdHjelp}</span>
             <textarea
               id={`${uid}-forbehold`}
