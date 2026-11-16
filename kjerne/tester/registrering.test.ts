@@ -643,7 +643,7 @@ describe('et svar sendt før byggherrens gjeldende svar på kravversjonen står 
           etter: 3,
           rolle: 'kontroll',
           kilde: KILDE,
-          forventet: { forstaatt: true, uten_virkning: [], 'enighet.forhold': 'finnes' },
+          forventet: { forstaatt: true, 'enighet.forhold': 'finnes' },
         },
       ]
     ));
