@@ -20,16 +20,9 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
 import { catendaId } from '../autorisasjon.ts';
 import { feilnummer } from '../datalag.ts';
-import { kommandosum, opprettSak, SkrivingAvvist } from '../kommandoer.ts';
+import { kommandosum, kontraktsteamSomJson, opprettSak, SkrivingAvvist } from '../kommandoer.ts';
 import { iTransaksjon, type Foresp, type Kontekst } from './sqlserver_migrert.ts';
-import {
-  kontraktsteamI,
-  kontraktsteamSomJson,
-  lagOppsett,
-  rydd,
-  TESTBASE_URL,
-  type Oppsett,
-} from './testbase.ts';
+import { kontraktsteamI, lagOppsett, rydd, TESTBASE_URL, type Oppsett } from './testbase.ts';
 
 describe.skipIf(!TESTBASE_URL)('en ny sak og registreringen av prosjektet samtidig', () => {
   let o: Oppsett;
@@ -69,7 +62,7 @@ describe.skipIf(!TESTBASE_URL)('en ny sak og registreringen av prosjektet samtid
       .input('data', JSON.stringify(data))
       .input('kommando_id', randomUUID())
       .input('kommando_sha256', kommandosum(data))
-      .input('kontraktsteam', kontraktsteamSomJson(o.prosjekt))
+      .input('kontraktsteam', kontraktsteamSomJson(kontraktsteamI(o.prosjekt)))
       .batch(
         `DECLARE @sak_id nvarchar(36), @event_id nvarchar(36), @tidsstempel datetime2(3);
          EXEC koe_api.opprett_sak @format = @format, @data = @data, @kommando_id = @kommando_id,
@@ -213,6 +206,19 @@ describe.skipIf(!TESTBASE_URL)('en ny sak og registreringen av prosjektet samtid
       expect(await harSaker()).toBe(false);
     }
   );
+
+  it('et kontraktsteam siden ble avgjort av, som ikke lenger er kontraktsteam, stopper saken (#877 p30)', async () => {
+    const lest = kontraktsteamI(o.prosjekt);
+    const feil = await opprett(false, {
+      ...lest,
+      BH: new Set([...lest.BH, catendaId(randomUUID())!]),
+    }).catch((f: unknown) => f);
+    expect(feil).toBeInstanceOf(SkrivingAvvist);
+    expect(((feil as Error).cause as Error).message).toBe(
+      'Kontraktsteamene er endret etter at siden ble avgjort'
+    );
+    expect(await harSaker()).toBe(false);
+  });
 
   it('de samme kontraktsteamene registrert på nytt mens saken skrives, stopper ikke saken (#877 p30)', async () => {
     const feil = await mensAapen(null, sammeTeam, () => opprett(false));

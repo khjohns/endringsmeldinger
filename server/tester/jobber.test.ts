@@ -18,11 +18,12 @@ import {
 import { transaksjon } from '../datalag.ts';
 import { kjoerEnJobb, LEASETID_S, startJobbkjoerer } from '../jobber.ts';
 import { lesSakensMaal } from '../lager.ts';
+import { kontraktsteamSomJson } from '../kommandoer.ts';
 import { opprettKjoeretid, sql } from './sqlserver.ts';
 import { avvisning } from './sqlserver_migrert.ts';
 import {
   kall,
-  kontraktsteamSomJson,
+  kontraktsteamI,
   lagOppsett,
   opprettKjernesak,
   rydd,
@@ -252,7 +253,11 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
             .input('catenda_board_id', sql.NVarChar(100), null)
             .input('catenda_topic_id', sql.NVarChar(100), null)
             .input('catenda_topic_nummer', sql.Int, null)
-            .input('kontraktsteam', sql.NVarChar(sql.MAX), kontraktsteamSomJson(o.prosjekt))
+            .input(
+              'kontraktsteam',
+              sql.NVarChar(sql.MAX),
+              kontraktsteamSomJson(kontraktsteamI(o.prosjekt))
+            )
             .output('sak_id', sql.NVarChar(36))
             .output('event_id', sql.NVarChar(36))
             .output('tidsstempel', sql.DateTime2(3))
@@ -282,7 +287,11 @@ describe.skipIf(!TESTBASE_URL)('jobbkjøreren og topicen i Catenda (#741)', () =
         .input('catenda_board_id', sql.NVarChar(100), null)
         .input('catenda_topic_id', sql.NVarChar(100), null)
         .input('catenda_topic_nummer', sql.Int, null)
-        .input('kontraktsteam', sql.NVarChar(sql.MAX), kontraktsteamSomJson(o.prosjekt))
+        .input(
+          'kontraktsteam',
+          sql.NVarChar(sql.MAX),
+          kontraktsteamSomJson(kontraktsteamI(o.prosjekt))
+        )
         .output('sak_id', sql.NVarChar(36))
         .output('event_id', sql.NVarChar(36))
         .output('tidsstempel', sql.DateTime2(3))

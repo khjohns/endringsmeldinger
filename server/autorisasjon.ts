@@ -553,7 +553,7 @@ function somKontraktstilgang([rolle, teamId, kontraktsteam]: [
  * Prosjektets kontraktsteam per side, med `koe_api.kontraktsteam`. Tomt uten aktivt medlemskap,
  * og med leserollen når `medLeserolle` er `false`.
  */
-export async function kontraktsteamene(
+async function kontraktsteamene(
   db: Pool,
   aktor: string,
   prosjektId: string,

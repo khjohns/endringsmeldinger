@@ -50,13 +50,6 @@ export const kontraktsteamI = (p: Testprosjekt): Kontraktsteam => ({
   BH: new Set([catendaId(p.bhTeam)!]),
 });
 
-/** `kontraktsteamI` i formen `koe_api.opprett_sak` leser. */
-export const kontraktsteamSomJson = (p: Testprosjekt): string =>
-  JSON.stringify([
-    { team_id: catendaId(p.teTeam), contract_role: 'TE' },
-    { team_id: catendaId(p.bhTeam), contract_role: 'BH' },
-  ]);
-
 export interface Oppsett {
   /** Den migrerte basen og kjøretidens pool mot den. */
   datalag: Datalag;

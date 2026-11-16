@@ -239,8 +239,8 @@ function kvittertRad(journal: Journalrad[], eventId: string): Journalrad {
  */
 export type Opprettelseskontekst = Kontekst & { kontraktsteam: Kontraktsteam };
 
-/** Kontraktsteamene i formen `koe_api.opprett_sak` leser. */
-function somKontraktsteam(kontraktsteam: Kontraktsteam): string {
+/** Kontraktsteamene som JSON-listen `koe_api.opprett_sak` leser. */
+export function kontraktsteamSomJson(kontraktsteam: Kontraktsteam): string {
   return JSON.stringify(
     (['TE', 'BH'] as const).flatMap((side) =>
       [...kontraktsteam[side]].map((team_id) => ({ team_id, contract_role: side }))
@@ -314,7 +314,7 @@ export async function opprettSak<A>(
         .input('catenda_board_id', sql.NVarChar(100), topic?.board ?? null)
         .input('catenda_topic_id', sql.NVarChar(100), topic?.topic ?? null)
         .input('catenda_topic_nummer', sql.Int, topic?.nummer ?? null)
-        .input('kontraktsteam', sql.NVarChar(sql.MAX), somKontraktsteam(kontekst.kontraktsteam))
+        .input('kontraktsteam', sql.NVarChar(sql.MAX), kontraktsteamSomJson(kontekst.kontraktsteam))
         .output('sak_id', sql.NVarChar(36))
         .output('event_id', sql.NVarChar(36))
         .output('tidsstempel', sql.DateTime2(3))
@@ -677,7 +677,11 @@ export async function opprettSakMedPaaberopelse<A>(
           .input('catenda_board_id', sql.NVarChar(100), null)
           .input('catenda_topic_id', sql.NVarChar(100), null)
           .input('catenda_topic_nummer', sql.Int, null)
-          .input('kontraktsteam', sql.NVarChar(sql.MAX), somKontraktsteam(kontekst.kontraktsteam))
+          .input(
+            'kontraktsteam',
+            sql.NVarChar(sql.MAX),
+            kontraktsteamSomJson(kontekst.kontraktsteam)
+          )
           .output('sak_id', sql.NVarChar(36), sakId)
           .output('event_id', sql.NVarChar(36), opprettet.event_id)
           .output('tidsstempel', sql.DateTime2(3))

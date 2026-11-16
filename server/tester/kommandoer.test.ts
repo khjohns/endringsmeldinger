@@ -318,6 +318,39 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       expect(svar).toEqual({ nummer: UGYLDIG, melding: 'Sakstypen står flere ganger i data' });
     });
 
+    // Kilde: svar A 16.11 i #877 (p30): uten kontraktsteamene serveren avgjorde siden av,
+    // avvises saken.
+    it.each([
+      ['mangler', null],
+      ['er et objekt', '{}'],
+    ])(
+      'avviser en sak der kontraktsteamene serveren leste, %s (51422) (#877 p30)',
+      async (_, kontraktsteam) => {
+        const svar = await avvisningMedMelding(
+          transaksjon(kjoeretid.pool, te, (f) =>
+            f()
+              .input('format', sql.Int, 1)
+              .input('data', sql.NVarChar(sql.MAX), JSON.stringify(SAK_OPPRETTET))
+              .input('kommando_id', sql.NVarChar(4000), randomUUID())
+              .input('kommando_sha256', sql.NVarChar(4000), heks() + heks())
+              .input('catenda_board_id', sql.NVarChar(100), null)
+              .input('catenda_topic_id', sql.NVarChar(100), null)
+              .input('catenda_topic_nummer', sql.Int, null)
+              .input('kontraktsteam', sql.NVarChar(sql.MAX), kontraktsteam)
+              .output('sak_id', sql.NVarChar(36))
+              .output('event_id', sql.NVarChar(36))
+              .output('tidsstempel', sql.DateTime2(3))
+              .execute('koe_api.opprett_sak')
+          )
+        );
+        expect(svar).toEqual({
+          nummer: UGYLDIG,
+          melding:
+            'Kontraktsteamene serveren avgjorde siden av, mangler eller er ikke en JSON-liste',
+        });
+      }
+    );
+
     it('avviser topicens nummer uten topicen (51422)', async () => {
       const svar = await avvisningMedMelding(
         transaksjon(kjoeretid.pool, te, (f) =>
