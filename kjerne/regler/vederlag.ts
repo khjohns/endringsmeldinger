@@ -434,7 +434,7 @@ export function kontrollerOppgjoersformen(
 ): void {
   const feil: Record<string, string> = {};
   const felt = `${navn}.oensket_oppgjoersform`;
-  const regel = post.oppgjoersform !== 'tilbud';
+  const regel = post.oppgjoersform === 'tilbud' ? null : post.oppgjoersform;
   const kreverTilbud = p.krever_tilbud === true;
   const hva = regel ? 'beregningsregelen ikke godtas' : 'tilbudet ikke aksepteres (punkt 34.2.2)';
   // Arbeidsvalget i #479: uten aksept oppgir byggherren oppgjørsformen, ellers ikke. Svar 3 A
@@ -447,9 +447,9 @@ export function kontrollerOppgjoersformen(
     feil[felt] = `gjelder bare når ${hva}`;
   // OV-U95 punkt 1 og 5: byggherren mener ikke den beregningsregelen TE krever.
   else if (
+    regel &&
     p.oensket_oppgjoersform != null &&
-    post.oppgjoersform !== 'tilbud' &&
-    p.oensket_oppgjoersform !== denAndreRegelen(post.oppgjoersform)
+    p.oensket_oppgjoersform !== denAndreRegelen(regel)
   )
     feil[felt] = 'er oppgjørsformen totalentreprenøren krever';
   if (p.krever_tilbud != null && typeof p.krever_tilbud !== 'boolean')

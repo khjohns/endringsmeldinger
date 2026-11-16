@@ -3966,7 +3966,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/regler/vederlag.ts`,
     endringer: [
       [
-        'p.oensket_oppgjoersform !== denAndreRegelen(post.oppgjoersform)',
+        'p.oensket_oppgjoersform !== denAndreRegelen(regel)',
         'p.oensket_oppgjoersform === undefined',
       ],
     ],

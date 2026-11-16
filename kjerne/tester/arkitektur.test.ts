@@ -533,7 +533,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Kravpost',
     'utsagn',
-    'oppgjoersform justert',
+    'oppgjoersform',
     ['spor/vederlag/frysing.ts', 'spor/vederlag/kommando.ts', 'spor/vederlag/utledning.ts'],
   ],
   [
@@ -929,10 +929,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/format.ts',
     'predikat',
     'justerteEnhetspriser denAndreRegelen',
-    ['spor/vederlag/kommando.ts', 'regler/vederlag.ts:kontrollerOppgjoersformen'],
+    [
+      'spor/vederlag/kommando.ts',
+      'regler/vederlag.ts:kontrollerOppgjoersformen',
+      'spor/vederlag/utledning.ts',
+    ],
   ],
-  // KA-U64, KA-U68: varselet og justeringen gjelder justerte enhetspriser (#2025 punkt 2).
-  ['spor/vederlag/format.ts', 'predikat', 'justerteEnhetspriser', ['spor/vederlag/utledning.ts']],
   // #2025 punkt 6: vurderingen av beløpet for hver særskilt post i utkastet.
   ['VURDERINGEN_AV_SAERSKILT', 'kommando', 'produktivitet', ['spor/vederlag/kommando.ts:besvart']],
   // KA-U64: varselet en kravpost trenger, for standpunktet til varselet i svaret.

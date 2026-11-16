@@ -11903,7 +11903,9 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
       const rad = s.send('TE', vederlagskrav(tilbud(125000, trekk)));
       const kravet = (rad.data.krav as Data[])[0]!;
       expect(kravet.trekker_saerskilt).toEqual(['produktivitet']);
-      expect(JSON.stringify(s.u().begrensninger), 'kontrollsak').not.toContain('KA-U83');
+      expect(JSON.stringify(s.u().begrensninger), 'kontrollsak').not.toContain(
+        'mangler den særskilte vederlagsjusteringen uten at den er trukket'
+      );
       delete kravet.trekker_saerskilt;
       expect(JSON.stringify(s.u().begrensninger)).toContain(
         'mangler den særskilte vederlagsjusteringen uten at den er trukket'
