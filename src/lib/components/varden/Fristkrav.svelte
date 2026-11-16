@@ -8,7 +8,6 @@
   Kommandoen bygges i `fristkrav.ts`, og kjernen lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
-  import { BookOpen } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
   import { dager } from '$kjerne/frosset/tekst';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '$kjerne/spor/frist/format';
@@ -24,6 +23,7 @@
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Knapp from './Knapp.svelte';
   import Manglene from './Manglene.svelte';
+  import Spoersmaal from './Spoersmaal.svelte';
   import type { Mangel } from './mangler';
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
@@ -57,7 +57,6 @@
     SKJEMA,
     dagensDato,
     dato,
-    hjemmelsmerke,
     kalenderdager,
   } from './tekster';
 
@@ -669,13 +668,7 @@
       {/if}
 
       {#if !bokstavB || varselbrev}
-        <section class="spoersmaal" aria-labelledby={id('sp-varsel')}>
-          <div class="sp-hode">
-            <h3 id={id('sp-varsel')}>{FRISTKRAV.varselTittel}</h3>
-            <span class="hjemmel"
-              ><BookOpen size={14} aria-hidden="true" />{hjemmelsmerke('33.4')}</span
-            >
-          </div>
+        <Spoersmaal id={id('sp-varsel')} tittel={FRISTKRAV.varselTittel} hjemmel={['33.4']}>
           <p class="dempet">{varsel ? FRISTKRAV.varselAleneHjelp : FRISTKRAV.varselHjelp}</p>
           {#if klarOver}
             <dl class="klar-over">
@@ -729,23 +722,21 @@
             </div>
           {/if}
           {#if dagerEtterKlarOver}<p class="dempet">{dagerEtterKlarOver}</p>{/if}
-        </section>
+        </Spoersmaal>
       {/if}
 
       {#if bokstavB}
         {@const fB = feil('grunn-b')}
-        <section class="spoersmaal" aria-labelledby={id('sp-grunn-b')}>
-          <div class="sp-hode">
-            <h3 id={id('sp-grunn-b')}>{FRISTKRAV.grunnBTittel}</h3>
-            <span class="hjemmel"
-              ><BookOpen size={14} aria-hidden="true" />{hjemmelsmerke('33.6.2 annet ledd b')}</span
-            >
-          </div>
+        <Spoersmaal
+          id={id('sp-grunn-b')}
+          tittel={FRISTKRAV.grunnBTittel}
+          hjemmel={['33.6.2 annet ledd b']}
+        >
           <p class="dempet" id={id('grunn-b-hjelp')}>{FRISTKRAV.grunnBHjelp}</p>
           <textarea
             id={id('grunn-b')}
             rows="6"
-            aria-labelledby={id('sp-grunn-b')}
+            aria-labelledby={id('sp-grunn-b-tittel')}
             bind:value={v.grunnB}
             class:ugyldig={fB}
             aria-describedby={fB
@@ -755,20 +746,15 @@
             aria-required="true"
           ></textarea>
           {#if fB}<p class="feilmelding" id={id('grunn-b-feil')}>{fB}</p>{/if}
-        </section>
+        </Spoersmaal>
       {/if}
 
       {#if !varsel && !bokstavB}
-        <section class="spoersmaal" aria-labelledby={id('sp-frister')}>
-          <div class="sp-hode">
-            <h3 id={id('sp-frister')}>{FRISTKRAV.fristerTittel}</h3>
-            <span class="hjemmel"
-              ><BookOpen size={14} aria-hidden="true" />{hjemmelsmerke(
-                hindringPunkt,
-                '33.6.1'
-              )}</span
-            >
-          </div>
+        <Spoersmaal
+          id={id('sp-frister')}
+          tittel={FRISTKRAV.fristerTittel}
+          hjemmel={[hindringPunkt, '33.6.1']}
+        >
           <p class="dempet">{FRISTKRAV.fristerHjelp}</p>
           {#if kjernesak.kontraktsfrister === null}
             <Melding art="feil" levende={false}>{FRISTKRAV.ingenFristtabell}</Melding>
@@ -793,15 +779,13 @@
               >{FRISTKRAV.leggTil}</Knapp
             >
           </div>
-        </section>
+        </Spoersmaal>
 
-        <section class="spoersmaal" aria-labelledby={id('sp-begrunnelse')}>
-          <div class="sp-hode">
-            <h3 id={id('sp-begrunnelse')}>{FRISTKRAV.begrunnelseTittel}</h3>
-            <span class="hjemmel"
-              ><BookOpen size={14} aria-hidden="true" />{hjemmelsmerke('33.5', '33.6.1')}</span
-            >
-          </div>
+        <Spoersmaal
+          id={id('sp-begrunnelse')}
+          tittel={FRISTKRAV.begrunnelseTittel}
+          hjemmel={['33.5', '33.6.1']}
+        >
           <div class="dempet" id={id('begrunnelse-hjelp')}>
             <p>{FRISTKRAV.begrunnelseHjelp}</p>
             <ul class="hensyn">
@@ -812,7 +796,7 @@
           <textarea
             id={id('begrunnelse')}
             rows="6"
-            aria-labelledby={id('sp-begrunnelse')}
+            aria-labelledby={id('sp-begrunnelse-tittel')}
             bind:value={v.begrunnelse}
             class:ugyldig={begrunnelseFeil}
             aria-describedby={begrunnelseFeil
@@ -824,7 +808,7 @@
           {#if begrunnelseFeil}<p class="feilmelding" id={id('begrunnelse-feil')}>
               {begrunnelseFeil}
             </p>{/if}
-        </section>
+        </Spoersmaal>
       {/if}
 
       <div class="skjemafot">
@@ -861,34 +845,16 @@
     flex-direction: column;
     gap: var(--spacing-3);
   }
-  .sp-hode,
   .frist-hode {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: var(--spacing-3);
   }
-  h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--ink);
-  }
   h4 {
     font-size: 16px;
     font-weight: 600;
     color: var(--ink);
-  }
-  .hjemmel {
-    margin-left: auto;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-1);
-    padding: 0 var(--spacing-2);
-    border: var(--rule-strong);
-    border-radius: var(--r-merke);
-    color: var(--ink-2);
-    font-size: 12px;
-    white-space: nowrap;
   }
   .status {
     padding: var(--spacing-3) var(--spacing-4);

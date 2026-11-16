@@ -32,6 +32,7 @@
   import { medietreff } from './medie.svelte';
   import Knapp from './Knapp.svelte';
   import Kravpunkter from './Kravpunkter.svelte';
+  import Hjemmel from './Hjemmel.svelte';
   import Manglene from './Manglene.svelte';
   import type { Mangel } from './mangler';
   import Melding from './Melding.svelte';
@@ -905,7 +906,7 @@
         <div class="seksjonshode">
           <span class="nummer" aria-hidden="true">1</span>
           <h3 id={id('postene-tittel')}>{KRAVSKJEMA.postene}</h3>
-          <span class="hjemmel">{KRAVSKJEMA.posteneHjemmel}</span>
+          <Hjemmel numre={KRAVSKJEMA.posteneHjemmel} />
         </div>
         <p class="intro">{KRAVSKJEMA.posteneIntro}</p>
         {#if v.poster.length}
@@ -954,7 +955,7 @@
           <div class="seksjonshode">
             <span class="nummer" aria-hidden="true">2</span>
             <h3 id={id('saerskilt-tittel')}>{KRAVSKJEMA.saerskilt}</h3>
-            <span class="hjemmel">{KRAVSKJEMA.saerskiltHjemmel}</span>
+            <Hjemmel numre={KRAVSKJEMA.saerskiltHjemmel} />
           </div>
           <p class="intro">{KRAVSKJEMA.saerskiltIntro}</p>
           {#if saerskiltAapen}
@@ -1232,10 +1233,6 @@
     font-size: 16px;
     font-weight: 600;
     color: var(--ink);
-  }
-  .hjemmel {
-    color: var(--ink-3);
-    font-size: 12px;
   }
   .intro {
     color: var(--ink-2);

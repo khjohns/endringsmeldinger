@@ -485,7 +485,7 @@
       <Spoersmaal
         id={`${uid}-sp-varsel`}
         tittel={SKJEMA.varselTittel}
-        hjemmel="34.1.2"
+        hjemmel={['34.1.2']}
         info={{ navn: SKJEMA.datoInfoNavn, tekst: SKJEMA.datoInfo }}
       >
         <Gjelderhvis
@@ -512,7 +512,7 @@
       id={`${uid}-sp-beloep`}
       tittel={SKJEMA.beloepTittel}
       tillegg={kroner(krevdTotalt)}
-      hjemmel="34.1 og 34.2"
+      hjemmel={['34.1', '34.2']}
     >
       {#if flere}
         <p class="dempet">{SKJEMA.ettSvarPerPost}</p>

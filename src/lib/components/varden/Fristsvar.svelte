@@ -379,7 +379,7 @@
     <Spoersmaal
       id={`${uid}-sp-varsel`}
       tittel={FRISTSVAR.varselTittel}
-      hjemmel="33.4"
+      hjemmel={['33.4']}
       info={{ navn: SKJEMA.datoInfoNavn, tekst: SKJEMA.datoInfo }}
     >
       <Gjelderhvis id={`${uid}-varsel-forutsetninger`} liste={grunnene} punkt={forutsetning} />
@@ -401,7 +401,7 @@
       <Spoersmaal
         id={`${uid}-sp-foresporsel`}
         tittel={FRISTSVAR.foresporselTittel}
-        hjemmel="33.6.2"
+        hjemmel={['33.6.2']}
       >
         <Gjelderhvis
           id={`${uid}-foresporsel-forutsetninger`}
@@ -422,7 +422,11 @@
       </Spoersmaal>
     {/if}
 
-    <Spoersmaal id={`${uid}-sp-hindring`} tittel={FRISTSVAR.hindringTittel} hjemmel={hindringPunkt}>
+    <Spoersmaal
+      id={`${uid}-sp-hindring`}
+      tittel={FRISTSVAR.hindringTittel}
+      hjemmel={[hindringPunkt]}
+    >
       <Gjelderhvis
         id={`${uid}-hindret-forutsetninger`}
         liste={hindringslagene}
@@ -448,7 +452,7 @@
     <Spoersmaal
       id={`${uid}-sp-spesifisering`}
       tittel={FRISTSVAR.spesifiseringTittel}
-      hjemmel="33.6.1"
+      hjemmel={['33.6.1']}
     >
       <Gjelderhvis
         id={`${uid}-spesifisert-forutsetninger`}
@@ -469,7 +473,7 @@
       />
     </Spoersmaal>
 
-    <Spoersmaal id={`${uid}-sp-dager`} tittel={FRISTSVAR.dagerTittel} hjemmel="33.5 og 33.7">
+    <Spoersmaal id={`${uid}-sp-dager`} tittel={FRISTSVAR.dagerTittel} hjemmel={['33.5', '33.7']}>
       {#if forHeleKravet.length}
         <p class="helekravet">{FRISTSVAR.forHeleKravet(forHeleKravet)}</p>
       {/if}

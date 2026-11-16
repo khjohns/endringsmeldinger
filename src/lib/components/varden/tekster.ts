@@ -1285,7 +1285,7 @@ export const KRAVSKJEMA = {
   lukkBrevet: 'Lukk brevet',
   // 1. Vederlagsjusteringen.
   postene: 'Vederlagsjustering',
-  posteneHjemmel: hjemmelsmerke('34.1.1', '34.1.2'),
+  posteneHjemmel: ['34.1.1', '34.1.2'],
   posteneIntro:
     'Del kravet i kravposter. Betegnelsen (P1, P2 …) følger posten i nye brev og i endringsordren. Beløpene er eks. mva.',
   kolonner: ['Post', 'Oppgjørsform', 'PNS', 'Beløp'],
@@ -1355,7 +1355,7 @@ export const KRAVSKJEMA = {
   // 2. Den særskilte vederlagsjusteringen (OV-U89, OV-U95 punkt 3).
   saerskilt: 'Særskilt vederlagsjustering',
   saerskiltKort: 'Særskilt',
-  saerskiltHjemmel: hjemmelsmerke('34.1.3 annet ledd'),
+  saerskiltHjemmel: ['34.1.3 annet ledd'],
   saerskiltIntro:
     'Økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid.',
   saerskiltBeloep: 'Beløpet du krever',

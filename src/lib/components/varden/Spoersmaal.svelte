@@ -5,7 +5,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import Infotips from './Infotips.svelte';
-  import { hjemmelsmerke } from './tekster';
+  import Hjemmel from './Hjemmel.svelte';
 
   let {
     id,
@@ -15,13 +15,16 @@
     info,
     children,
   }: {
-    /** ID-en til overskriften, som navngir spørsmålet. */
+    /**
+     * ID-en til overskriften, som navngir spørsmålet. Tittelen alene, uten hjemmelen, har
+     * `<id>-tittel`, for et felt som navngis av den.
+     */
     id: string;
     tittel: string;
     /** Et tall etter tittelen, som det samlede beløpet. */
     tillegg?: string;
-    /** Punktet i NS 8407, uten «pkt.». */
-    hjemmel?: string;
+    /** Punktene i NS 8407, uten «pkt.». */
+    hjemmel?: readonly string[];
     info?: { navn: string; tekst: string };
     children: Snippet;
   } = $props();
@@ -30,8 +33,10 @@
 <section class="spoersmaal" aria-labelledby={id}>
   <div class="sp-hode">
     <h3 {id}>
-      {#if tillegg}{`${tittel} · `}<span class="num">{tillegg}</span>{:else}{tittel}{/if}
-      {#if hjemmel}<span class="hjemmel">{hjemmelsmerke(hjemmel)}</span>{/if}
+      <span id={`${id}-tittel`}
+        >{#if tillegg}{`${tittel} · `}<span class="num">{tillegg}</span>{:else}{tittel}{/if}</span
+      >
+      {#if hjemmel}<Hjemmel numre={hjemmel} />{/if}
     </h3>
     {#if info}<Infotips navn={info.navn} tekst={info.tekst} />{/if}
   </div>
@@ -59,13 +64,6 @@
   .num {
     font-weight: 500;
     font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-  .hjemmel {
-    margin-left: var(--spacing-1);
-    font-size: 14px;
-    font-weight: 400;
-    color: var(--ink-3);
     white-space: nowrap;
   }
 </style>

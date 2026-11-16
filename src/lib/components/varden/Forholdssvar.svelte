@@ -235,7 +235,11 @@
       </Spoersmaal>
     {/if}
 
-    <Spoersmaal id={`${uid}-sp-forhold`} tittel={FORHOLDSSVAR.forholdTittel} hjemmel={hjemmelen}>
+    <Spoersmaal
+      id={`${uid}-sp-forhold`}
+      tittel={FORHOLDSSVAR.forholdTittel}
+      hjemmel={hjemmelen ? [hjemmelen] : undefined}
+    >
       <Gjelderhvis
         id={`${uid}-forhold-forutsetninger`}
         liste={f.varslingsplikt && valg.forSent === true ? ['32.2'] : []}
