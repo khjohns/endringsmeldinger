@@ -1,7 +1,9 @@
 /**
  * Grensene rundt TS-serveren (B-18, B-17):
  * - Serveren importerer kjernen fra `kjerne/`, ikke kjernens tester og ikke
- *   språkprøven (`sprakprove/` er prøvekode, CLAUDE.md) eller frontenden.
+ *   språkprøven (`sprakprove/` er prøvekode, CLAUDE.md) eller frontenden. Unntaket er
+ *   kontrollen av kroppen i `src/lib/kontroll/`, som demoruta deler (#1526 punkt 3, #2092).
+ *   `src/lib/kjernegrense.test.ts` holder den til kjernen.
  * - Ut over det bruker serveren bare Node. Testene kan i tillegg bruke Vitest.
  * - Ingen fil i `kjerne/`, `server/` eller `sprakprove/`, også `.js`, `.mjs` og
  *   `.cjs`, importerer `pg`, `pg-pool`, `pg-native` eller `postgres`, eller leser
@@ -58,6 +60,8 @@ import { describe, expect, it } from 'vitest';
 const SERVER = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ROT = resolve(SERVER, '..');
 const KJERNE = join(ROT, 'kjerne');
+/** Kontrollen av kroppen, som serveren og demoruta deler (#2092). */
+const KONTROLL = join(ROT, 'src', 'lib', 'kontroll');
 const TESTER = join(SERVER, 'tester');
 const PAKKER = new Set<string>();
 const TESTPAKKER = new Set(['vitest', 'typescript']);
@@ -98,6 +102,7 @@ export function forbudteImporter(fil: string, kilde: string): string[] {
     const sti = resolve(dirname(fil), i);
     if (sti.startsWith(SERVER + sep)) return [];
     if (sti.startsWith(KJERNE + sep) && !sti.startsWith(join(KJERNE, 'tester') + sep)) return [];
+    if (sti.startsWith(KONTROLL + sep)) return [];
     return [i];
   });
 }
@@ -490,6 +495,8 @@ describe('grensene rundt TS-serveren', () => {
     ["import { leggTil } from '../sprakprove/server/lager.ts';", 'app.ts'],
     ["import type { Hendelse } from '../sprakprove/kjerne/typer';", 'lager.ts'],
     ["export * from '../src/lib/api/client.ts';", 'levering.ts'],
+    ["import { x } from '../src/lib/kontroll/../api/client.ts';", 'saker.ts'],
+    ["import { x } from '../src/lib/kontrollen/nysak.ts';", 'saker.ts'],
     ["import { kjoer } from '../kjerne/tester/kjoerer.ts';", 'app.ts'],
     ["const z = await import('zod');", 'app.ts'],
     ["const { x } = require('../../sprakprove/tester/testbase.ts');", 'tester/testbase.ts'],
