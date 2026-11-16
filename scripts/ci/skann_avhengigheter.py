@@ -1,7 +1,7 @@
 """Skanner kjøretidsavhengighetene i TS etter kjente sårbarheter (#269 punkt 3).
 
 Leser utdataene fra `npm audit --omit=dev --json` på stdin. Feiler for en
-sårbarhet med alvorlighet høy eller kritisk når det finnes en rettet versjon,
+sårbarhet med alvorlighet høy eller kritisk når minst én linje har en rettet versjon,
 med mindre advisoryen står i unntakslisten. Om det finnes en rettet versjon,
 leses av advisoryens sårbare område (`range`), ikke av `fixAvailable`, som bare sier
 om `npm audit fix` når en retting gjennom dagens tre (#851). Et unntak som ikke treffer en
@@ -50,14 +50,16 @@ def _uten_øvre_grense(alternativ: str) -> bool:
 
 
 def har_rettet_versjon(område: str | None) -> bool:
-    """Om advisoryen kan ha en rettet versjon: hvert alternativ i det sårbare området har
-    en øvre grense. `*` og `>=1.0.0` har ingen. `<=1.2.3` regnes som rettet, fordi npm
+    """Om advisoryen kan ha en rettet versjon: minst ett alternativ i det sårbare området
+    har en øvre grense (svar A 11.11 på spørsmål 9 i #1791, #925). `*` og `>=1.0.0` har
+    ingen. I `<1.0.5 || >=2.0.0` er 1.x rettet og 2.x ikke; står pakken på linjen uten
+    retting, føres advisoryen i unntakslisten. `<=1.2.3` regnes som rettet, fordi npm
     skriver et område med rettet versjon slik (`>=7.1.0 <=7.3.1` for vite, rettet i
     7.3.2); en advisory uten rettet versjon i den formen føres i unntakslisten. Mangler
     området, regnes versjonen som rettet, så funnet blokkerer."""
     if not område:
         return True
-    return not any(_uten_øvre_grense(del_) for del_ in område.split("||"))
+    return not all(_uten_øvre_grense(del_) for del_ in område.split("||"))
 
 
 def funn(rapport: dict) -> list[tuple[str, str, str, str]]:

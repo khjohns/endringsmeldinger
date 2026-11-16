@@ -83,6 +83,16 @@ def test_hoey_eller_kritisk_med_rettet_versjon_blokkerer(tmp_path, alvorlighet, 
     assert "pakke-a GHSA-aaaa-bbbb-cccc" in resultat.stdout
 
 
+@pytest.mark.parametrize("område", ["<1.0.5 || >=2.0.0", ">=2.0.0 || <1.0.5", "* || <1.0.5"])
+def test_en_linje_med_rettet_versjon_blokkerer_hele_advisoryen(tmp_path, område):
+    """Svar A 11.11 på spørsmål 9 i #1791: minst én linje med rettet versjon blokkerer, og
+    linjen uten retting føres i unntakslisten (#925)."""
+    resultat = _kjoer(tmp_path, _rapport("critical", område))
+    assert resultat.returncode == 1, resultat.stdout + resultat.stderr
+    resultat = _kjoer(tmp_path, _rapport("critical", område), UNNTAK)
+    assert resultat.returncode == 0, resultat.stdout + resultat.stderr
+
+
 @pytest.mark.parametrize("fiks", [False, {"name": "forelder", "version": "3.0.0", "isSemVerMajor": True}])
 def test_rettet_versjon_blokkerer_ogsaa_naar_npm_audit_fix_ikke_naar_den(tmp_path, fiks):
     """#851: `fixAvailable: false` sier bare at `npm audit fix` ikke når rettingen."""
@@ -95,7 +105,7 @@ def test_rettet_versjon_blokkerer_ogsaa_naar_npm_audit_fix_ikke_naar_den(tmp_pat
     ("low", "<1.2.3"),
     ("high", "*"),
     ("high", ">=0.0.0"),
-    ("critical", "<1.0.5 || >=2.0.0"),
+    ("critical", "* || >=2.0.0"),
     ("high", ">= 1.0.0"),
     ("high", ">1.0.0"),
     ("high", "x.x.x"),
