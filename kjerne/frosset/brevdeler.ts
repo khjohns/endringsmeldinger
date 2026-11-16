@@ -102,13 +102,13 @@ type Element =
   | { art: 'opplysning'; opplysning: Opplysning }
   | { art: 'dokument'; dokument: Dokument };
 
-/** Parten skrevet fullt ut, midt i en setning i brevet eller en melding (LV-U35). */
+/** Parten skrevet fullt ut, midt i en setning i brevet eller en melding (`docs/sprak.md`). */
 export const PARTEN: Record<Part, string> = { TE: 'totalentreprenøren', BH: 'byggherren' };
 
-/** Parten med eieform, skrevet fullt ut i brevet (LV-U35, LV-U42). */
+/** Parten med eieform, skrevet fullt ut i brevet (`docs/sprak.md`, LV-U45). */
 export const PARTENS: Record<Part, string> = { TE: 'totalentreprenørens', BH: 'byggherrens' };
 
-/** Typen registrert korrespondanse slik brevet nevner den (LV-U42). */
+/** Typen registrert korrespondanse slik brevet nevner den (LV-U45). */
 const KORRESPONDANSEN: Record<Korrespondansetype, string> = {
   brev: 'brev',
   e_post: 'e-post',
@@ -119,9 +119,9 @@ const KORRESPONDANSEN: Record<Korrespondansetype, string> = {
 
 /**
  * Et tidligere brev med merkingen som er frosset på det, og datoen det ble sendt: «brev
- * K201-KOE-017-03 av 2. oktober 2026» (LV-U53, oppdragsgiver 04.11 i #1570). Registrert
+ * K201-KOE-017-03 av 2. oktober 2026» (LV-U44, oppdragsgiver 04.11 i #1570). Registrert
  * korrespondanse har ingen frosset merking ennå (LV-U45) og omtales med parten, typen og
- * datoen: «totalentreprenørens e-post av 2. oktober 2026» (LV-U42). `null` for et brev uten
+ * datoen: «totalentreprenørens e-post av 2. oktober 2026» (LV-U45). `null` for et brev uten
  * noen av dem. Varden omtaler brevet med den samme teksten.
  */
 export function omtalen(d: Dokument): string | null {

@@ -581,7 +581,7 @@ const VARSELET_I_SVARET: Record<Hjemmel, string> = {
 
 /**
  * Standpunktet om rettidighet i svaret (LV-U4 punkt 5, OV-U28,
- * KA-U64), med partene skrevet fullt ut (LV-U35) og «punkt» (LV-U39). Beløpet etter
+ * KA-U64), med partene skrevet fullt ut (`docs/sprak.md`) og «punkt» (LV-U39). Beløpet etter
  * begrensningen etter § 34.1.3 står under punktet for posten (LV-U34).
  */
 function rettidighetstekst(
@@ -743,7 +743,7 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
     }
     case 'korrigering': {
       // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55), med partene skrevet fullt
-      // ut (LV-U35) og henvisningen etter LV-U53.
+      // ut (`docs/sprak.md`) og henvisningen etter LV-U44.
       const e = j.element(u.gjelder);
       const [dokument, tidligere] =
         e.art === 'krav'

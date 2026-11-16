@@ -93,7 +93,7 @@ export interface Kontekst {
   sakskode: Sakskode;
   /**
    * Kontraktsforkortelsen i prosjektinnstillingene, `null` når prosjektet ikke har den. Et brev
-   * viser til et tidligere brev med merkingen, og merkingen begynner med den (LV-U53, LV-U44).
+   * viser til et tidligere brev med merkingen, og merkingen begynner med den (LV-U44).
    */
   kontraktsforkortelse: string | null;
   /**
@@ -756,7 +756,7 @@ function skriv(
     // LV-U44, LV-U45: nummeret etter det høyeste i saken, også det avsenderen har oppgitt.
     const brevnummer = nesteBrevnummer(lest);
     data.brevnummer = brevnummer;
-    // LV-U53, LV-U24: merkingen fryses i brevet, så en senere henvisning viser til den som
+    // LV-U44: merkingen fryses i brevet, så en senere henvisning viser til den som
     // står på det, også om kontraktsforkortelsen endres (oppdragsgiver 04.11 i #1570). Uten
     // forkortelsen merkes brevet ikke, og leveringen avviser sendingen (S2 A i #1497).
     if (kontekst.kontraktsforkortelse) {

@@ -126,7 +126,7 @@ const LEDD_I_33_1: Record<string, string> = { svikt: 'b', andre_forhold: 'c' };
 
 /**
  * Påberopelsen av forholdet: LV-U41 og LV-U43 for det første brevet, LV-U56 for en ny versjon,
- * med partene skrevet fullt ut (LV-U35) og henvisningen med «punkt» (LV-U39). Sakstittelen er
+ * med partene skrevet fullt ut (`docs/sprak.md`) og henvisningen med «punkt» (LV-U39). Sakstittelen er
  * navnet på forholdet og står én gang. Datoen står som i LV-U57 og LV-U56.
  */
 function forholdstekst(k: Krav, { saken, j }: Tekst, regler: Regelsett): string[] {

@@ -522,11 +522,11 @@ function lesDokument(h: Journalrad): Dokument {
       !dokument.utsagn.some((u) => u.art === 'varsel' && u.id === o.gjelder)
     )
       throw new Uforstaatt('opplysningen gjelder ikke et varsel i dokumentet');
-  // LV-U42, D1 A i #1497: registrert korrespondanse har typen, et brev fra løsningen ingen.
+  // LV-U45, D1 A i #1497: registrert korrespondanse har typen, et brev fra løsningen ingen.
   if (erRegistrert(dokument.opplysninger) !== (data.korrespondansetype !== undefined))
     throw new Uforstaatt(
       erRegistrert(dokument.opplysninger)
-        ? 'registrert korrespondanse har ingen korrespondansetype (LV-U42)'
+        ? 'registrert korrespondanse har ingen korrespondansetype (LV-U45)'
         : 'korrespondansetypen står i et dokument som ikke er registrert korrespondanse'
     );
   if (data.sendemaate !== undefined && data.korrespondansetype !== 'brev')
