@@ -138,7 +138,9 @@
 </div>
 
 <style>
+  /* Samme størrelse på spørsmålene, labelene og opplysningen uansett skjemaet rundt (system.md). */
   .korrespondansen {
+    font-size: 16px;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-4);
