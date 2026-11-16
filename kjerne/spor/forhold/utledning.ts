@@ -143,7 +143,7 @@ export function sisteDatoopplysning(u: Utledning, felt: OppgittDatofelt): Datoop
  * etter § 32.2 som har virkning (#235), så et svar fra appen som frafaller, har alltid
  * frafallet prinsipalt (#562).
  */
-const frafaller = (s: Svar): boolean =>
+export const frafaller = (s: Svar): boolean =>
   prinsipalt(s.beslutningsgrunnlag.virkninger)?.art === 'forhold' &&
   standpunktet(s, 'forhold')?.resultat === 'paalegg_frafalt';
 

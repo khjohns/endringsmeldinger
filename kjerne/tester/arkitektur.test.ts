@@ -1002,6 +1002,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // #814: standpunktene og utregningen nyttelastkontrollen leste, er de brevet lagrer.
   ['Bygde', 'regelsett', 'standpunkter utregning', ['kommandoer/skriving.ts:svar']],
+  // #342, #2011: påberopelsen nyttelastkontrollen regnet svaret mot, er den brevet lagrer.
+  ['Bygde', 'relasjon', 'paaberopelse', ['kommandoer/skriving.ts:svar']],
   ['spor/forhold/format.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   // OV-U23, OV-U95 punkt 19: kravet har kravposter i vederlagsjusteringen.
   ['spor/vederlag/format.ts', 'regelsett', 'kravposterI', ['spor/vederlag/frysing.ts']],
@@ -1242,6 +1244,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/skriving.ts:skriv',
       'kommandoer/skriving.ts:dokument',
       'kommandoer/nyttelast.ts:oppgittDatoI',
+      'kommandoer/nyttelast.ts:sendtDag',
       'kommandoer/avvisning.ts:avvisning',
     ],
   ],
@@ -1254,7 +1257,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utledning/utled.ts',
     'relasjon',
     'sendtFoerGjeldendeSvar',
-    ['kommandoer/skriving.ts:dokument', 'kommandoer/forutsetninger.ts:forutsetninger'],
+    [
+      'kommandoer/skriving.ts:dokument',
+      'kommandoer/forutsetninger.ts:forutsetninger',
+      'kommandoer/nyttelast.ts:kontrollerSvar',
+    ],
+  ],
+  // OV-U98, #2011: et svar lagt til regnes mot påberopelsen slik den var da det ble sendt.
+  [
+    'utledning/utled.ts',
+    'relasjon',
+    'kravversjonenPaaDagen',
+    ['kommandoer/nyttelast.ts:kontrollerSvar'],
   ],
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/avvisning.ts:avvisning']],
   ['Registrering', 'kommando', 'sendt', ['kommandoer/avvisning.ts:avvisning']],
@@ -1505,6 +1519,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kontrollerEndringsordrene kontrollerKorrigeringene opplysningerOmDatoen forholdssvaretsVirkning',
     ['utledning/utled.ts'],
   ],
+  // GR-U9: en aksept av et frafall, også i et svar som ikke er gjeldende (#2022 punkt 3).
+  ['spor/forhold/utledning.ts', 'predikat', 'frafaller', ['utledning/utled.ts:utsagnetStrider']],
   [
     'spor/forhold/format.ts',
     'utsagn',

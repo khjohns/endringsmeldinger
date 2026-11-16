@@ -315,7 +315,7 @@ const MUTASJONER: Mutasjon[] = [
       'enighet ved sammenfall leses ikke fra brevet (GR-U7, GR-U10, KA-U10 (opphevet av MM-U50))',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ['else if (g.beslutningsgrunnlag.sammenfall)', 'else if (g.standpunkter.length < 0)'],
+      ['    if (s.beslutningsgrunnlag.sammenfall)', '    if (s.standpunkter.length < 0)'],
     ],
     mal: ['F-MM-A', 'F-MM-G10', 'F-MM-K1'],
   },
@@ -824,8 +824,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "  if (x.art === 'aksept' && x.gjelder === u.spor.forhold.gjeldendeSvar?.id && u.frafalt)",
-        "  if (x.art === 'aksept' && x.gjelder === u.spor.forhold.gjeldendeSvar?.id && !u)",
+        "  if (svaret?.spor === 'forhold' && frafaller(svaret)) return",
+        "  if (svaret?.spor === 'forhold' && !svaret) return",
       ],
     ],
     mal: ['F-MM-U326b'],
@@ -1302,8 +1302,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '      ? SPOR.find((n) => u.spor[n].svar.some((s) => s.id === x.gjelder))',
-        "      ? SPOR.find((n) => n === 'forhold')",
+        '  const sporet = svaret?.spor;',
+        "  const sporet = svaret ? ('forhold' as const) : undefined;",
       ],
     ],
     mal: ['F-MM-U20b'],
@@ -1989,19 +1989,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'kommandoen godtar et svar sendt før det gjeldende med revisjonsskjemaet, uten erstatter',
     ],
-  },
-  {
-    id: 'F665',
-    feilklasse:
-      'en aksept av et svar utenfor rekken får virkning før #2022 punkt 4 er bygget (OV-U103)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        'if (SPOR.some((n) => u.spor[n].svarUtenforRekken.some((s) => s.id === x.gjelder)))',
-        'if (false)',
-      ],
-    ],
-    mal: ['en aksept av svaret utenfor rekken får ingen virkning til #2022 punkt 4 er bygget'],
   },
   {
     id: 'F666',
@@ -5906,6 +5893,104 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['alt har godtatt, avvises også når svaret senere er revidert'],
+  },
+  {
+    id: 'F672',
+    feilklasse:
+      'enigheten om et svar som ikke er det gjeldende, bevares ikke (OV-U110, OV-U103, KA-U52 punkt 5)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['.flatMap((s) => enighetOm(s) ?? []);', '.flatMap(() => []);']],
+    mal: [
+      'enigheten om det forrige står ved det',
+      'gir enighet om det eldre svaret (OV-U103)',
+      'enigheten bevares etter en ny kravversjon',
+    ],
+  },
+  {
+    id: 'F673',
+    feilklasse:
+      'utledningen av sporet bygger på enigheten om det eldre svaret etter byggherrens nye svar (OV-U110, alternativet B)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        'spor[n].enighet = g ? enighetOm(g) : null;',
+        'spor[n].enighet = (g ? enighetOm(g) : null) ?? spor[n].svar.map(enighetOm).findLast((e) => e !== null) ?? null;',
+      ],
+    ],
+    mal: ['etter byggherrens nye svar bygger sporet på det nye svaret'],
+  },
+  {
+    id: 'F674',
+    feilklasse:
+      'en aksept av et svar utenfor rekken prøves ikke mot det nyere svaret (OV-U103, OV-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['const senere = svarUtenforRekken.includes(s)', 'const senere = false']],
+    mal: ['kontrollsak: en aksept av svaret utenfor rekken, sendt etter det gjeldende svaret'],
+  },
+  {
+    id: 'F675',
+    feilklasse:
+      'en aksept av et frafall i et svar som ikke lenger er gjeldende, får virkning (GR-U9, #2022 punkt 3)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "if (svaret?.spor === 'forhold' && frafaller(svaret))",
+        "if (svaret?.spor === 'forhold' && frafaller(svaret) && svaret === u.spor.forhold.gjeldendeSvar)",
+      ],
+    ],
+    mal: [
+      'en aksept av et frafall i et svar som senere er revidert, får ingen virkning',
+      'kommandoen avviser en aksept av et frafall i et svar som senere er revidert',
+    ],
+  },
+  {
+    id: 'F676',
+    feilklasse:
+      'en aksept som legges til, prøves mot det gjeldende svaret i forutsetningene (OV-U98, OV-U103)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [['      if (sendt !== null) return null;\n', '']],
+    mal: [
+      'godtas selv om sporet har enighet om revisjonen',
+      'kommandoen godtar en aksept av svaret utenfor rekken',
+    ],
+  },
+  {
+    id: 'F677',
+    feilklasse: 'et svar som legges til, må gjelde den gjeldende kravversjonen (OV-U98, #2011)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['sendt === null ? sporet.gjeldendeKrav :', 'true ? sporet.gjeldendeKrav :']],
+    mal: ['kommandoen godtar et svar på den forrige versjonen, sendt før den ble erstattet'],
+  },
+  {
+    id: 'F678',
+    feilklasse:
+      'et svar som legges til, regnes mot den gjeldende påberopelsen, ikke den på sendedatoen (#342, #2011)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [["kravversjonenPaaDagen(u, 'forhold', sendt)", 'u.spor.forhold.gjeldendeKrav']],
+    mal: ['regnes mot påberopelsen slik den var da svaret ble sendt'],
+  },
+  {
+    id: 'F679',
+    feilklasse: 'et svar på en eldre kravversjon som alt har et svar, prøves ikke etter OV-U103',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['!sendtFoerGjeldendeSvar(u, s.spor, krav.id, sendt)', 'false']],
+    mal: ['som alt har et svar, godtas bare når det ble sendt før det svaret'],
+  },
+  {
+    id: 'F680',
+    feilklasse:
+      'visningen sier at det nye svaret avviker fra enigheten når det stemmer (HF-U29 punkt 8, OV-U110)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [["? 'stemmer'", "? 'avviker'"]],
+    mal: ['vises som at det stemmer med enigheten'],
+  },
+  {
+    id: 'F681',
+    feilklasse:
+      'visningen sammenlikner enigheten med et svar på en annen kravversjon (HF-U29 punkt 8, OV-U110)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['g !== null && g.gjelder === eldre.gjelder', 'g !== null']],
+    mal: ['enigheten bevares etter en ny kravversjon'],
   },
 ];
 

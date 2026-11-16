@@ -373,6 +373,9 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       if (felt === 'virkning') return enighetensVirkning(u, hale[0] as 'forhold');
       return e[felt as 'holder'];
     }
+    // OV-U110: svarene med en registrert enighet som ikke er det gjeldende svaret.
+    case 'enigheter_om_eldre_svar':
+      return u.spor[hale[0] as 'forhold'].enigheterOmEldreSvar.map((e) => e.grunnlag.svar);
     case 'subsidiaer_aarsaker':
       return u.spor[hale[0] as 'vederlag'].subsidiaer;
     case 'uten_virkning':
@@ -449,6 +452,12 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
         const senkning = v.spor[hale[1] as 'forhold'].senkning;
         return hale[2] ? (senkning?.[hale[2] as 'bestemmelse'] ?? null) : senkning;
       }
+      // OV-U110, HF-U29 punkt 8: hver enighet om et eldre svar, med svaret og om det gjeldende
+      // svaret stemmer med den.
+      if (hale[0] === 'eldre_enigheter')
+        return v.spor[hale[1] as 'forhold'].enigheterOmEldreSvar.map(
+          (e) => `${e.svar}:${e.gjeldendeSvar ?? 'ikke_sammenliknet'}`
+        );
       // OV-U62: begge partenes registrerte brev ved kravet i sporet.
       if (hale[0] === 'registrerte_brev')
         return v.spor[hale[1] as 'forhold'].registrerteBrev.map((b) => b.dokument);

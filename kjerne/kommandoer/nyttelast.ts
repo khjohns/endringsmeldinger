@@ -22,7 +22,13 @@ import {
 import type { Regelsett } from '../regler/regelsett.ts';
 import { gjelderVarslingsplikten, hjemmelenGjelder, iSporet } from '../frosset/byggeklosser.ts';
 import { avvikIResultatet, regnUtSvar, utenforOmfanget } from '../frosset/utregning.ts';
-import { datoenDetBleSendt, kravSomVarsler, type Utledning } from '../utledning/utled.ts';
+import {
+  datoenDetBleSendt,
+  kravSomVarsler,
+  kravversjonenPaaDagen,
+  sendtFoerGjeldendeSvar,
+  type Utledning,
+} from '../utledning/utled.ts';
 import { foresporselForFristsvar } from '../spor/frist/utledning.ts';
 import { NYTTELAST_I_FRISTEN } from '../spor/frist/kommando.ts';
 import { godkjennerDagerIEtLag } from '../spor/frist/format.ts';
@@ -48,7 +54,12 @@ import { DATOEN_GJELDER, oppgittDato, kategori } from '../spor/forhold/format.ts
  * Standpunktene i et svarutkast med serverens utregning, lest slik brevet lagrer dem.
  * Skrivingen bygger dem én gang per svar, og brevet lagrer de samme (#804).
  */
-export type Svarstandpunkter = (s: Svarutkast, utregning: Record<string, unknown>) => Standpunkt[];
+export type Svarstandpunkter = (
+  s: Svarutkast,
+  utregning: Record<string, unknown>,
+  /** Påberopelsen svaret er regnet mot (#342), `null` i forholdet. */
+  paaberopelse: Krav | null
+) => Standpunkt[];
 
 /** Det som er sporets eget i nyttelastkontrollen (#1783). */
 export interface Sporsnyttelast {
@@ -79,16 +90,37 @@ const nyttelastI = (spor: Spor): Sporsnyttelast => iSporet(NYTTELAST, spor);
  * påberopelse etter et «i tide» og et avslag etter et frafall godtas. Løsningen avgjør
  * ikke om endringen er rettslig virksom (MM-U12 (opphevet av MM-U50)).
  */
+/**
+ * `sendt` er dagen et svar lagt til ble sendt, og `null` for et svar fra løsningen. Et svar lagt
+ * til kan gjelde en eldre kravversjon, og om den var gjeldende da svaret ble sendt, avgjør
+ * `registreringenStrider`. Svaret regnes mot kravversjonen og påberopelsen slik de var den dagen
+ * (OV-U98, #2011).
+ */
 function kontrollerSvar(
   s: Svarutkast,
   u: Utledning,
   regler: Regelsett,
   svarstandpunkter: Svarstandpunkter,
-  utdypningKreves: boolean
+  utdypningKreves: boolean,
+  sendt: string | null
 ): Avvisning | null {
-  const krav = u.spor[s.spor].gjeldendeKrav!;
-  if (s.gjelder !== krav.id)
+  const sporet = u.spor[s.spor];
+  const krav = sendt === null ? sporet.gjeldendeKrav : sporet.krav.find((k) => k.id === s.gjelder);
+  if (!krav || s.gjelder !== krav.id)
     return avvis('FEIL_KRAVREFERANSE', 'Svaret må gjelde den gjeldende versjonen av kravet.');
+  // OV-U103 for en eldre kravversjon. Forutsetningene prøver bare den gjeldende.
+  if (
+    krav !== sporet.gjeldendeKrav &&
+    sporet.svar.some((x) => x.gjelder === krav.id) &&
+    !sendtFoerGjeldendeSvar(u, s.spor, krav.id, sendt)
+  )
+    return avvis(
+      'ALLEREDE_SVART',
+      'Kravversjonen har alt et svar som ble sendt samme dag eller tidligere.'
+    );
+  const paaberopelse = s.spor === 'forhold' ? null : kravversjonenPaaDagen(u, 'forhold', sendt);
+  if (s.spor !== 'forhold' && !paaberopelse)
+    return avvis('PAABEROPELSE_IKKE_SENDT', 'Påberopelsen var ikke sendt da svaret ble sendt.');
   if (s.regelversjon !== regler.versjon)
     return avvis(
       'ANNEN_REGELVERSJON',
@@ -104,7 +136,7 @@ function kontrollerSvar(
       s.vurderinger,
       {
         krav,
-        paaberopelse: u.spor.forhold.gjeldendeKrav,
+        paaberopelse,
         foresporsel: foresporselForFristsvar(u),
       },
       regler
@@ -117,7 +149,7 @@ function kontrollerSvar(
   }
   // #520: et felt som ikke gjelder kategorien, avvises av utregningen før dette. Skrivingen
   // registrerer standpunktene og utregningen for brevet her (#814).
-  svarstandpunkter(s, server);
+  svarstandpunkter(s, server, paaberopelse);
   const avvik = avvikIResultatet(s.spor, s.resultat, server);
   if (avvik.length)
     return avvis(
@@ -378,6 +410,9 @@ function retting(retter: string, part: Part, u: Utledning): Avvisning | null {
   return null;
 }
 
+/** OV-U98: dagen et brev lagt til ble sendt, og `null` for et brev fra løsningen. */
+const sendtDag = (k: Kommando): string | null => (erRegistrering(k) ? kalenderdag(k.sendt) : null);
+
 /**
  * `utdypningKreves` er usann i forhåndsvisningen: utdypningen endrer ikke den låste
  * teksten, så klienten kan vise teksten før begrunnelsen er skrevet (A1).
@@ -438,7 +473,7 @@ export function nyttelastkontroll(
     }
     case 'brev':
       for (const s of k.svar) {
-        const a = kontrollerSvar(s, u, regler, svarstandpunkter, utdypningKreves);
+        const a = kontrollerSvar(s, u, regler, svarstandpunkter, utdypningKreves, sendtDag(k));
         if (a) return a;
       }
       return null;
@@ -446,18 +481,15 @@ export function nyttelastkontroll(
       const forrige = u.spor[k.svar.spor].gjeldendeSvar;
       if (k.erstatter !== forrige?.id)
         return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');
-      return kontrollerSvar(k.svar, u, regler, svarstandpunkter, utdypningKreves);
+      return kontrollerSvar(k.svar, u, regler, svarstandpunkter, utdypningKreves, sendtDag(k));
     }
     case 'aksept': {
       // KA-U1, KT-U1: aksepten gjelder sporets gjeldende svar. En aksept som legges til, gjelder
       // svaret som var gjeldende da den ble sendt, og det prøver utledningen (OV-U98).
-      const svaretFinnes = u.spor[k.spor].svar.some((x) => x.id === k.svar);
-      // OV-U103: aksepten av et svar utenfor rekken bygges i #2022 punkt 4.
-      if (u.spor[k.spor].svarUtenforRekken.some((x) => x.id === k.svar))
-        return avvis(
-          'IKKE_GJELDENDE_SVAR',
-          'Aksepten gjelder et svar byggherren sendte før det gjeldende svaret. Det kan ikke godtas ennå.'
-        );
+      // OV-U103: også et svar sendt før byggherrens gjeldende svar.
+      const svaretFinnes = [...u.spor[k.spor].svar, ...u.spor[k.spor].svarUtenforRekken].some(
+        (x) => x.id === k.svar
+      );
       if (k.sendt !== undefined ? !svaretFinnes : k.svar !== u.spor[k.spor].gjeldendeSvar?.id)
         return avvis(
           'IKKE_GJELDENDE_SVAR',

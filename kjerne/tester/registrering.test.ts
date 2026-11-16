@@ -14,6 +14,7 @@ import { kjoer, type Forloep, type Kontroll } from './kjoerer.ts';
 import type { Handling } from './klient.ts';
 import type { Klokke } from './testmiljoe.ts';
 import { varseletFoerSvaret } from '../utledning/utled.ts';
+import type { Utfall } from '../kommandoer/skriving.ts';
 
 /** Én dag per hendelse, fra 21.09 kl. 10 norsk tid. */
 function dagklokke(): Klokke {
@@ -217,17 +218,21 @@ async function provRegistrering(
     kontroller: [],
   };
   const k = await kjoer(forloep, minnebane(), { valg: { klokke: dagklokke() } });
-  return k.prov(h, (kommando) => {
-    // Et registrert svar har ingen tekst fra løsningen (OV-U80).
-    for (const s of [kommando.svar ?? []].flat() as Record<string, unknown>[])
-      if (typeof s === 'object') {
-        delete s.utdypning;
-        delete s.utdypninger;
-      }
-    Object.assign(kommando, { sendt, ...felt });
-    for (const [felt, verdi] of Object.entries(kommando))
-      if (verdi === undefined) delete kommando[felt];
-  });
+  // ID-ene i hendelsene skrives med navnene i forløpet.
+  const navngitt = (utfall: Utfall) => k.navn.navngi(utfall) as Utfall;
+  return navngitt(
+    await k.prov(h, (kommando) => {
+      // Et registrert svar har ingen tekst fra løsningen (OV-U80).
+      for (const s of [kommando.svar ?? []].flat() as Record<string, unknown>[])
+        if (typeof s === 'object') {
+          delete s.utdypning;
+          delete s.utdypninger;
+        }
+      Object.assign(kommando, { sendt, ...felt });
+      for (const [felt, verdi] of Object.entries(kommando))
+        if (verdi === undefined) delete kommando[felt];
+    })
+  );
 }
 
 const VEDLEGG = '00000000-0000-4000-8000-000000002011';
@@ -620,7 +625,7 @@ describe('et svar sendt før byggherrens gjeldende svar på kravversjonen står 
     expect(revidert.erstatter, 'kontrollsak: sendt etter svaret').toEqual(expect.any(String));
   });
 
-  it('en aksept av svaret utenfor rekken får ingen virkning til #2022 punkt 4 er bygget', () =>
+  it('en aksept av svaret utenfor rekken, sendt før det gjeldende svaret, gir enighet om det eldre svaret (OV-U103)', () =>
     prov(
       'aksept-av-svar-utenfor-rekken',
       [avslag('S-g1'), foerste('2026-09-23'), registrertAksept('S-r', '2026-09-23')],
@@ -628,8 +633,32 @@ describe('et svar sendt før byggherrens gjeldende svar på kravversjonen står 
         {
           etter: 3,
           rolle: 'mal',
-          kilde: ['OV-U103'],
-          forventet: { forstaatt: true, uten_virkning: ['A-r#aksept'], 'enighet.forhold': null },
+          kilde: ['OV-U103', 'OV-U110'],
+          forventet: {
+            forstaatt: true,
+            uten_virkning: [],
+            'enighet.forhold': null,
+            'enigheter_om_eldre_svar.forhold': ['S-r'],
+            'gjeldende_svar.forhold': 'S-g1',
+          },
+        },
+      ]
+    ));
+
+  it('kontrollsak: en aksept av svaret utenfor rekken, sendt etter det gjeldende svaret, får ingen virkning', () =>
+    prov(
+      'aksept-av-svar-utenfor-rekken-etter',
+      [avslag('S-g1'), foerste('2026-09-23'), registrertAksept('S-r', '2026-09-25')],
+      [
+        {
+          etter: 3,
+          rolle: 'kontroll',
+          kilde: ['OV-U98', 'OV-U103'],
+          forventet: {
+            forstaatt: true,
+            uten_virkning: ['A-r#aksept'],
+            'enigheter_om_eldre_svar.forhold': [],
+          },
         },
       ]
     ));
@@ -643,10 +672,201 @@ describe('et svar sendt før byggherrens gjeldende svar på kravversjonen står 
           etter: 3,
           rolle: 'mal',
           kilde: ['OV-U98', 'OV-U103'],
-          forventet: { forstaatt: true, 'enighet.forhold': 'finnes' },
+          forventet: {
+            forstaatt: true,
+            'enighet.forhold': 'finnes',
+            'enigheter_om_eldre_svar.forhold': [],
+          },
         },
       ]
     ));
+
+  it('kommandoen godtar en aksept av svaret utenfor rekken, sendt før det gjeldende svaret (OV-U103)', async () => {
+    const aksept: Handling = { handling: 'aksept', spor: 'forhold', svar: 'S-r' };
+    const steg = [avslag('S-g1'), foerste('2026-09-23')];
+    const foer = await provRegistrering(steg, aksept, '2026-09-23');
+    expect(foer.godtatt ? null : foer.avvisning).toBeNull();
+    expect(
+      await provRegistrering(steg, aksept, '2026-09-25'),
+      'kontrollsak: sendt etter det gjeldende svaret'
+    ).toMatchObject({ godtatt: false, avvisning: { regel: 'IKKE_GJELDENDE_PAA_SENDEDATOEN' } });
+  });
+});
+
+describe('en aksept som legges til, prøves mot svaret den gjelder, ikke mot det gjeldende svaret (OV-U98, #2022)', () => {
+  const delvis = (navn: string, beloep: number): Handling => ({
+    handling: 'brev',
+    svar: [{ spor: 'vederlag', vurdering: 'delvis', godkjent_belop: beloep, navn }],
+  });
+  /** Revisjonen godkjenner hele kravet (K-v1, 100 000), så partene er enige ved sammenfall. */
+  const godkjentRevisjon: Handling = {
+    handling: 'revisjon',
+    spor: 'vederlag',
+    vurdering: 'godkjent',
+    godkjent_belop: 100000,
+    navn: 'S-v2',
+  };
+  const aksept: Handling = { handling: 'aksept', spor: 'vederlag', svar: 'S-v' };
+
+  it('en aksept av det eldre svaret, sendt før revisjonen, godtas selv om sporet har enighet om revisjonen', async () => {
+    // Svaret 24.09, revisjonen 25.09.
+    const steg = [delvis('S-v', 60000), godkjentRevisjon];
+    const foer = await provRegistrering(steg, aksept, '2026-09-24');
+    expect(foer.godtatt ? null : foer.avvisning).toBeNull();
+    expect(
+      await provRegistrering(steg, aksept, '2026-09-26'),
+      'kontrollsak: sendt etter revisjonen'
+    ).toMatchObject({ godtatt: false, avvisning: { regel: 'IKKE_GJELDENDE_PAA_SENDEDATOEN' } });
+  });
+
+  it('kontrollsak: en aksept fra løsningen gjelder det gjeldende svaret, og avvises når partene alt er enige (GR-U8)', async () => {
+    const s = await kjoer(
+      {
+        id: 'aksept-fra-loesningen',
+        rader: [],
+        start: 'krav_irreg',
+        steg: [delvis('S-v', 60000), godkjentRevisjon],
+        kontroller: [],
+      },
+      minnebane(),
+      { valg: { klokke: dagklokke() } }
+    );
+    expect(await s.prov({ handling: 'aksept', spor: 'vederlag', svar: 'S-v2' })).toMatchObject({
+      godtatt: false,
+      avvisning: { regel: 'ENIGHET_I_SPORET' },
+    });
+  });
+
+  /** Byggherrens svar på grunnlagskravet, med `resultat`. */
+  const forholdssvar = (navn: string, resultat: string): Handling => ({
+    handling: 'brev',
+    svar: [{ spor: 'forhold', resultat, varslet_i_tide: true, navn }],
+  });
+  const avslagSomRevisjon: Handling = {
+    handling: 'revisjon',
+    spor: 'forhold',
+    resultat: 'avslaatt',
+    varslet_i_tide: true,
+    navn: 'S-g2',
+  };
+
+  it('en aksept av et frafall i et svar som senere er revidert, får ingen virkning (GR-U9, #2022 punkt 3)', () =>
+    prov(
+      'aksept-av-erstattet-frafall',
+      [
+        forholdssvar('S-g1', 'paalegg_frafalt'),
+        avslagSomRevisjon,
+        registrertAksept('S-g1', '2026-09-24'),
+      ],
+      [
+        {
+          etter: 3,
+          rolle: 'mal',
+          kilde: ['GR-U9', 'OV-U98'],
+          forventet: {
+            forstaatt: true,
+            uten_virkning: ['A-r#aksept'],
+            'enigheter_om_eldre_svar.forhold': [],
+          },
+        },
+      ]
+    ));
+
+  it('kontrollsak: en aksept av et avslag i et svar som senere er revidert, gir enighet om det', () =>
+    prov(
+      'aksept-av-erstattet-avslag',
+      [forholdssvar('S-g1', 'avslaatt'), avslagSomRevisjon, registrertAksept('S-g1', '2026-09-24')],
+      [
+        {
+          etter: 3,
+          rolle: 'kontroll',
+          kilde: ['OV-U98', 'OV-U110'],
+          forventet: {
+            forstaatt: true,
+            uten_virkning: [],
+            'enigheter_om_eldre_svar.forhold': ['S-g1'],
+          },
+        },
+      ]
+    ));
+
+  it('kommandoen avviser en aksept av et frafall i et svar som senere er revidert (GR-U9)', async () => {
+    const steg = [forholdssvar('S-g1', 'paalegg_frafalt'), avslagSomRevisjon];
+    const frafallet: Handling = { handling: 'aksept', spor: 'forhold', svar: 'S-g1' };
+    const utfall = await provRegistrering(steg, frafallet, '2026-09-24');
+    expect(utfall).toMatchObject({ godtatt: false });
+    expect(utfall.godtatt ? null : utfall.avvisning.melding).toContain('frafall');
+  });
+});
+
+describe('et svar som legges til, kan gjelde en eldre kravversjon som var gjeldende da det ble sendt (OV-U98, #2011)', () => {
+  /** Den nye versjonen av grunnlagskravet sendes fra løsningen 24.09. */
+  const nyVersjon: Handling = {
+    handling: 'krav',
+    spor: 'forhold',
+    underkategori: 'irregulaer_endring',
+    navn: 'K-g2',
+  };
+  const svarPaaFoerste: Handling = {
+    handling: 'brev',
+    svar: [
+      { spor: 'forhold', resultat: 'avslaatt', varslet_i_tide: true, gjelder: 'K-g1', navn: 'S-r' },
+    ],
+  };
+
+  it('kommandoen godtar et svar på den forrige versjonen, sendt før den ble erstattet', async () => {
+    const utfall = await provRegistrering([nyVersjon], svarPaaFoerste, '2026-09-23');
+    expect(utfall.godtatt ? null : utfall.avvisning).toBeNull();
+    expect(
+      await provRegistrering([nyVersjon], svarPaaFoerste, '2026-09-25'),
+      'kontrollsak: sendt etter den nye versjonen'
+    ).toMatchObject({ godtatt: false, avvisning: { regel: 'IKKE_GJELDENDE_PAA_SENDEDATOEN' } });
+  });
+
+  it('et svar på den forrige versjonen, som alt har et svar, godtas bare når det ble sendt før det svaret (OV-U103)', async () => {
+    // Svaret på den første versjonen 24.09, den nye versjonen 25.09.
+    const steg = [avslag('S-g1'), nyVersjon];
+    const foer = await provRegistrering(steg, svarPaaFoerste, '2026-09-23');
+    expect(foer.godtatt ? null : foer.avvisning).toBeNull();
+    expect(
+      await provRegistrering(steg, svarPaaFoerste, '2026-09-24'),
+      'kontrollsak: sendt samme dag som svaret'
+    ).toMatchObject({ godtatt: false, avvisning: { regel: 'ALLEREDE_SVART' } });
+  });
+
+  it('kontrollsak: et svar fra løsningen må gjelde den gjeldende versjonen', async () => {
+    const s = await kjoer(
+      {
+        id: 'svar-paa-forrige-versjon',
+        rader: [],
+        start: 'krav_irreg',
+        steg: [nyVersjon],
+        kontroller: [],
+      },
+      minnebane(),
+      { valg: { klokke: dagklokke() } }
+    );
+    expect(await s.prov(svarPaaFoerste)).toMatchObject({
+      godtatt: false,
+      avvisning: { regel: 'FEIL_KRAVREFERANSE' },
+    });
+  });
+
+  it('svaret på vederlagskravet regnes mot påberopelsen slik den var da svaret ble sendt (#342)', async () => {
+    const svaret: Handling = {
+      handling: 'brev',
+      svar: [{ spor: 'vederlag', vurdering: 'delvis', godkjent_belop: 60000, navn: 'S-v' }],
+    };
+    const paaberopelsen = async (sendt: string) => {
+      const utfall = await provRegistrering([nyVersjon], svaret, sendt);
+      if (!utfall.godtatt) throw new Error(utfall.avvisning.melding);
+      const data = utfall.hendelser[0].data as { svar: { paaberopelse: string }[] };
+      return data.svar[0].paaberopelse;
+    };
+    const [foer, etter] = [await paaberopelsen('2026-09-23'), await paaberopelsen('2026-09-25')];
+    expect(foer, 'sendt før den nye versjonen av grunnlagskravet').toBe('K-g1');
+    expect(etter, 'kontrollsak: sendt etter den nye versjonen').toBe('K-g2');
+  });
 });
 
 describe('varselet etter § 32.2 og et krav utenfor rekken (VS-U38, OV-U102)', () => {
@@ -693,4 +913,106 @@ describe('innholdet i et krav utenfor rekken (OV-U102)', () => {
       avvisning: { regel: 'KRAVPOSTENE' },
     });
   });
+});
+
+describe('enigheten om svaret byggherren har erstattet, bevares og vises ved det svaret (OV-U110)', () => {
+  const svaret: Handling = {
+    handling: 'brev',
+    svar: [{ spor: 'vederlag', vurdering: 'delvis', godkjent_belop: 60000, navn: 'S-v' }],
+  };
+  const godta = (svar: string): Handling => ({ handling: 'aksept', spor: 'vederlag', svar });
+  const revisjon = (beloep: number): Handling => ({
+    handling: 'revisjon',
+    spor: 'vederlag',
+    vurdering: 'delvis',
+    godkjent_belop: beloep,
+    navn: 'S-v2',
+  });
+
+  it('etter byggherrens nye svar bygger sporet på det nye svaret, og enigheten om det forrige står ved det', () =>
+    prov(
+      'enighet-etter-nytt-svar',
+      [svaret, godta('S-v'), revisjon(50000), godta('S-v2')],
+      [
+        {
+          etter: 3,
+          rolle: 'mal',
+          kilde: ['OV-U110', 'HF-U29'],
+          forventet: {
+            forstaatt: true,
+            'enighet.vederlag': null,
+            'enigheter_om_eldre_svar.vederlag': ['S-v'],
+            'visning.eldre_enigheter.vederlag': ['S-v:avviker'],
+            'handlinger.TE': { inneholder: ['godta:vederlag'] },
+          },
+        },
+        {
+          etter: 4,
+          rolle: 'mal',
+          kilde: ['OV-U110'],
+          forventet: {
+            'enighet.vederlag': 'finnes',
+            'enighet.vederlag.svar': 'S-v2',
+            'enigheter_om_eldre_svar.vederlag': ['S-v'],
+          },
+        },
+      ]
+    ));
+
+  it('kontrollsak: uten aksepten har sporet ingen enighet om det forrige svaret', () =>
+    prov(
+      'nytt-svar-uten-enighet',
+      [svaret, revisjon(50000)],
+      [
+        {
+          etter: 2,
+          rolle: 'kontroll',
+          kilde: ['OV-U110'],
+          forventet: {
+            forstaatt: true,
+            'enighet.vederlag': null,
+            'enigheter_om_eldre_svar.vederlag': [],
+            'visning.eldre_enigheter.vederlag': [],
+          },
+        },
+      ]
+    ));
+
+  it('et nytt svar med de samme standpunktene vises som at det stemmer med enigheten (HF-U29 punkt 8)', () =>
+    prov(
+      'nytt-svar-som-stemmer',
+      [svaret, godta('S-v'), revisjon(60000)],
+      [
+        {
+          etter: 3,
+          rolle: 'mal',
+          kilde: ['OV-U110'],
+          forventet: {
+            'enighet.vederlag': null,
+            'visning.eldre_enigheter.vederlag': ['S-v:stemmer'],
+            'handlinger.TE': { inneholder: ['godta:vederlag'] },
+          },
+        },
+      ]
+    ));
+
+  it('enigheten bevares etter en ny kravversjon fra totalentreprenøren (KA-U52 punkt 5)', () =>
+    prov(
+      'enighet-etter-ny-kravversjon',
+      [svaret, godta('S-v'), { handling: 'krav', spor: 'vederlag', belop: 120000, navn: 'K-v2' }],
+      [
+        {
+          etter: 3,
+          rolle: 'mal',
+          kilde: ['OV-U110', 'KA-U52'],
+          forventet: {
+            forstaatt: true,
+            'gjeldende_krav.vederlag': 'K-v2',
+            'enighet.vederlag': null,
+            'enigheter_om_eldre_svar.vederlag': ['S-v'],
+            'visning.eldre_enigheter.vederlag': ['S-v:ikke_sammenliknet'],
+          },
+        },
+      ]
+    ));
 });
