@@ -86,8 +86,9 @@ verktøysvar tidlig i økta leses på nytt i hvert kall etter det
   et nytt push avbryter kjøringen som pågår. Rører PR-en kjernen, setter økta etiketten
   ved første push, så feilinnføringene (om lag 10 minutter i CI) går mens økta kjører
   reviewet og retter. Kjøringen på siste commit er beviset. Starter et push ikke en ny
-  kjøring (#2067), setter økta etiketten på nytt etter pushen og kontrollerer `head_sha`
-  på kjøringen; en kjøring på en eldre commit er ikke beviset. Hva økta kjører lokalt av
+  kjøring (#2067), tar økta etiketten av og setter den på igjen etter pushen, og
+  kontrollerer `head_sha` på kjøringen; en kjøring på en eldre commit er ikke beviset.
+  Hva økta kjører lokalt av
   feilinnføringene, står i [miljø-skillen](../miljo/SKILL.md#feilinnføringer).
 - **Arbeid mens CI går.** Mens CI eller feilinnføringene går, arbeider økta videre med
   reviewet, rettingene eller det neste relaterte issuet i oppdraget.
