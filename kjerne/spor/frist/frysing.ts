@@ -21,6 +21,7 @@ import {
 } from '../../frosset/byggeklosser.ts';
 import { innholdIFristen, utregningIFristen } from './format.ts';
 import { dagenSendt } from '../../format/leser.ts';
+import { ukjenteFelt } from '../../format/skjema.ts';
 import type { Dokument, Krav, Standpunkt, Standpunktsvirkning, Utfall } from '../../typer.ts';
 
 /** Det svaret gir i dager for hver frist i laget (KA-U74). */
@@ -83,6 +84,8 @@ export interface Dagvurdering {
  * gjelder én kravversjon, så rekkefølgen binder vurderingen til fristen. Kaster
  * `UgyldigVurdering` når antallet ikke stemmer, eller en vurdering har ukjente felt.
  */
+const DAGVURDERINGEN: ReadonlySet<string> = new Set(['dager', 'dager_maatte_forstaa']);
+
 export function fristvurderinger(v: Svarvurdering, krav: Krav): Dagvurdering[] {
   const frister = innholdIFristen(krav).frister;
   const liste = v.frister;
@@ -92,7 +95,7 @@ export function fristvurderinger(v: Svarvurdering, krav: Krav): Dagvurdering[] {
   return liste.map((x: unknown, i) => {
     if (typeof x !== 'object' || x === null) throw feil(`vurdering ${i + 1} er ikke et objekt`);
     const r = x as Record<string, unknown>;
-    const ukjent = Object.keys(r).filter((k) => !['dager', 'dager_maatte_forstaa'].includes(k));
+    const ukjent = ukjenteFelt(r, DAGVURDERINGEN);
     if (ukjent.length) throw feil(`vurdering ${i + 1} har feltene ${ukjent.join(', ')}`);
     return {
       gjelder: frister[i]!.id,

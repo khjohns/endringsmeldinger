@@ -1608,7 +1608,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Hjemmelen for hindringen, i brevet og skjemaene (KA-U81, #1925).
   ['spor/frist/format.ts', 'brevtekst', 'hindringenEtter', ['spor/frist/tekst.ts']],
   ['VARSELSPOR', 'relasjon', '32.2 33.4 34.1.2 34.1.3 34.3.3 34.4'],
-  ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
+  ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato ukjenteFelt'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
   [
     'format/skjema.ts',

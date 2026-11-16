@@ -4,6 +4,7 @@
  * sporene bruker dem (#1783).
  */
 
+import { ukjenteFelt } from '../format/skjema.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
@@ -127,7 +128,7 @@ export function avvisUkjenteFelt(
   lest: ReadonlySet<string>,
   svaretPaa: string
 ): void {
-  const ukjente = Object.keys(v).filter((felt) => !lest.has(felt));
+  const ukjente = ukjenteFelt(v, lest);
   if (ukjente.length)
     throw new UgyldigVurdering(
       Object.fromEntries(
