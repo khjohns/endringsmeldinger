@@ -171,7 +171,7 @@ export function lagBrevtekst(
         gjelder,
         punkt,
         ...(overskrift ? { overskrift } : {}),
-        laast: medHardeMellomrom([...(overskrift ? [overskrift] : []), ...a].join('\n\n')),
+        laast: [...(overskrift ? [overskrift] : []), ...a.map(medHardeMellomrom)].join('\n\n'),
         ...(tekst ? { utdypning: tekst } : {}),
         ...(poster ? { poster } : {}),
       });

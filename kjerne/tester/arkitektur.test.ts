@@ -2466,7 +2466,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/tekst.ts',
     'brevtekst',
     'medHardeMellomrom',
-    ['frosset/brevtekst.ts', 'frosset/linje.ts'],
+    ['frosset/brevtekst.ts', 'frosset/linje.ts', 'frosset/brevtittel.ts'],
   ],
   [
     'frosset/tekst.ts',

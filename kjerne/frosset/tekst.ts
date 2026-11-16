@@ -21,12 +21,9 @@ export const KORRESPONDANSETYPEN: Record<
   notat: { ubestemt: 'dokument', bestemt: 'dokumentet' },
 };
 
-/**
- * Hardt mellomrom etter «punkt», «pkt.» og «kl.» foran et tall, så henvisningen og klokkeslettet
- * ikke brytes over to linjer, i brevet og i visningen (svaret 16.11 i #2049, `docs/sprak.md`).
- */
+/** Hardt mellomrom etter «punkt», «pkt.» og «kl.» foran et tall (svaret 16.11 i #2049). */
 export const medHardeMellomrom = (tekst: string): string =>
-  tekst.replace(/(?<!\p{L})([Pp]unkt|pkt\.|kl\.) (?=\d)/gu, '$1\u00a0');
+  tekst.replace(/(?<!\p{L})([Pp]unkt|[Pp]kt\.|[Kk]l\.) (?=\d)/gu, '$1\u00a0');
 
 /** Kroner med mellomrom mellom tusener og øre bare når de finnes: «150 000 kr». */
 export function kroner(n: number): string {

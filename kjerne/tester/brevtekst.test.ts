@@ -12270,8 +12270,10 @@ describe('hardt mellomrom etter «punkt», «pkt.» og «kl.» (svaret 16.11 i #
   it('står foran et tall, og ikke foran et ord eller i et lengre ord', () => {
     expect(
       medHardeMellomrom(
-        'Punkt 5 og punkt 33.4, pkt. 34.1.2 og kl. 14.00, men punktene 33.4 og punkt b.'
+        'Punkt 5 og punkt 33.4, Pkt. 34.1.2 og kl. 14.00, Kl. 9.00, men punktene 33.4 og punkt b.'
       )
-    ).toBe('Punkt 5 og punkt 33.4, pkt. 34.1.2 og kl. 14.00, men punktene 33.4 og punkt b.');
+    ).toBe(
+      'Punkt\u00a05 og punkt\u00a033.4, Pkt.\u00a034.1.2 og kl.\u00a014.00, Kl.\u00a09.00, men punktene 33.4 og punkt b.'
+    );
   });
 });
