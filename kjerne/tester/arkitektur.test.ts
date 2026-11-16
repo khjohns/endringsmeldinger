@@ -705,8 +705,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'journal',
     [
       'utledning/utled.ts:datoenDetBleSendt',
-      // OV-U104.
-      'utledning/utled.ts:rekkefoelgenI',
       // GR-U8, OV-U98: aksepten av et svar som ikke lenger er gjeldende, er alt godtatt.
       'utledning/utled.ts:utsagnetStrider',
       'spor/frist/utledning.ts:foresporselForFristsvar',
@@ -2327,7 +2325,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['format/leser.ts', 'relasjon', 'foerDagen'],
   // OV-U32, OV-U98, #2057: dagen et svar ble sendt, og om brevet er lagt til, for svaret på
   // forholdet svaret regnes med.
-  ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:dagene', 'utledning/utled.ts:rekkefoelgenI']],
+  ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:dagene']],
   ['format/leser.ts', 'kontekst', 'dagenSendt', ['utledning/utled.ts:dagene']],
   [
     'utledning/utled.ts:dagene',

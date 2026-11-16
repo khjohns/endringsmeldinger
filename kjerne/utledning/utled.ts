@@ -565,8 +565,8 @@ export function kravversjonenPaaDagen(u: Utledning, spor: Spor, dag: string | nu
 /**
  * OV-U32, OV-U98, OV-U103: svaret på forholdet et svar på vederlag eller frist sendt på dagen `dag`
  * regnes med: byggherrens svar på påberopelsen som var gjeldende den dagen (`svaretStod`), også
- * et svar utenfor rekken. Var flere gjeldende den dagen (OV-U104), regnes det sist sendte med, og
- * av to sendt samme dag det siste i `rekkefoelge`. Uten dag, for et svar fra løsningen, det siste i rekken. Frysingen og visningen leser
+ * et svar utenfor rekken. Var flere gjeldende den dagen (OV-U104), regnes det sist sendte med.
+ * Uten dag, for et svar fra løsningen, det siste i rekken. Frysingen og visningen leser
  * det herfra (#2057, arbeidsvalget 16.11 i #2090).
  */
 export function forholdssvaretPaaDagen(
@@ -575,19 +575,19 @@ export function forholdssvaretPaaDagen(
   paaberopelse: string,
   dag: string | null,
   sendt: (s: Svar) => string | null,
-  rekkefoelge: (s: Svar) => number,
   samme: (forholdssvaret: string) => void = () => {}
 ): Svar | null {
   if (dag === null) return ikkeErstattet([...rekken], paaberopelse)[0] ?? null;
   const sto = [...rekken, ...utenforRekken].filter(
     (g) => g.gjelder === paaberopelse && svaretStod(g, rekken, utenforRekken, dag, sendt, samme)
   );
+  // Svar som sto samme dag, er i samme kjede, og rekken har dem i rekkefølgen de ble sendt.
   const dagen = new Map(sto.map((g) => [g, sendt(g) ?? '']));
-  const senere = (a: Svar, b: Svar) => {
-    const [x, y] = [dagen.get(a)!, dagen.get(b)!];
-    return x === y ? rekkefoelge(a) - rekkefoelge(b) : x < y ? -1 : 1;
-  };
-  return sto.sort(senere).at(-1) ?? null;
+  return (
+    sto
+      .sort((a, b) => (dagen.get(a)! < dagen.get(b)! ? -1 : dagen.get(a)! > dagen.get(b)! ? 1 : 0))
+      .at(-1) ?? null
+  );
 }
 
 /**
@@ -603,16 +603,9 @@ export function svaretPaaForholdetPaaDagen(u: Utledning, dag: string | null): Sv
         u.spor.forhold.svarUtenforRekken,
         krav.id,
         dag,
-        (g) => datoenDetBleSendt(u, g),
-        rekkefoelgenI(u)
+        (g) => datoenDetBleSendt(u, g)
       )
     : null;
-}
-
-/** Plassen til dokumentet svaret står i, i journalen. */
-function rekkefoelgenI(u: Pick<Utledning, 'journal'>): (s: Svar) => number {
-  const plass = new Map([...dokumenterI(u.journal)].map((d, i) => [d.id, i]));
-  return (s) => plass.get(s.dokument) ?? -1;
 }
 
 /**
@@ -717,7 +710,6 @@ function registreringenStrider(
         foerDagen(dag(v.id), datoenDetBleSendt(u, k), () => samme(v.id, k.id));
   }
   const innsigelser = d.svar.length ? partensPaaberopelser(u, d.avsender, utenVirkning) : [];
-  const rekkefoelge = rekkefoelgenI(u);
   for (const s of d.svar) {
     const { krav: kjede, kravUtenforRekken } = u.spor[s.spor];
     const krav = [...kjede, ...kravUtenforRekken].find((k) => k.id === s.gjelder);
@@ -735,7 +727,6 @@ function registreringenStrider(
         paaberopelsen.id,
         sendt,
         (g) => datoenDetBleSendt(u, g),
-        rekkefoelge,
         medSvaret
       );
     // OV-U105: svaret sammenliknes med partens påberopelser det gjentar eller gir opp, som i
@@ -1152,8 +1143,7 @@ function utledSporene(
     spor.forhold.svar,
     spor.forhold.svarUtenforRekken,
     (id) => plass.get(id)!.versjon,
-    dagene(journal),
-    rekkefoelgenI({ journal })
+    dagene(journal)
   );
   settEnighetene(
     spor,
@@ -1529,8 +1519,7 @@ function settForholdssvarene(
   forhold: Svar[],
   utenforRekken: Svar[],
   versjonen: (id: string) => number,
-  { dagen, lagtTil }: ReturnType<typeof dagene>,
-  rekkefoelge: (s: Svar) => number
+  { dagen, lagtTil }: ReturnType<typeof dagene>
 ): void {
   // OV-U32: svaret på forholdet i samme brev, også et svar utenfor rekken (OV-U103).
   const iBrevet = [...forhold, ...utenforRekken];
@@ -1546,8 +1535,7 @@ function settForholdssvarene(
             utenforRekken.filter((g) => versjonen(g.id) < versjonen(s.id)),
             s.paaberopelse,
             lagtTil(s) ? dagen(s) : null,
-            dagen,
-            rekkefoelge
+            dagen
           ));
     b.forholdssvaret = kilde?.id ?? null;
   }

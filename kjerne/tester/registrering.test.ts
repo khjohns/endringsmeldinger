@@ -1132,6 +1132,9 @@ describe('et svar lagt til fryses med svaret på forholdet utenfor rekken som va
     return {
       linje: data.svar[0].beslutningsgrunnlag.linje,
       forholdssvaret: k.navn.navngi(u.svar[data.svar[0].id]!.forholdssvaret),
+      samme: u.sendtSammeDag
+        .filter((x) => x.element === data.svar[0].id)
+        .map((x) => k.navn.navngi(x.med)),
     };
   };
   const godkjent: Handling = {
@@ -1147,6 +1150,7 @@ describe('et svar lagt til fryses med svaret på forholdet utenfor rekken som va
         /^Byggherrens standpunkt: subsidiært godkjent med 60\s000\skr\.$/
       ),
       forholdssvaret: 'S-r',
+      samme: [],
     });
   });
 
@@ -1161,6 +1165,7 @@ describe('et svar lagt til fryses med svaret på forholdet utenfor rekken som va
         /^Byggherrens standpunkt: subsidiært godkjent med 60\s000\skr\.$/
       ),
       forholdssvaret: 'S-r',
+      samme: [],
     });
   });
 
@@ -1170,6 +1175,19 @@ describe('et svar lagt til fryses med svaret på forholdet utenfor rekken som va
     ).toEqual({
       linje: expect.stringMatching(/^Byggherrens standpunkt: godkjent med 60\s000\skr\.$/),
       forholdssvaret: 'S-1',
+      samme: ['S-1'],
+    });
+  });
+
+  it('vederlagssvaret sendt samme dag som svaret utenfor rekken fryses med det og merkes (OV-U104)', async () => {
+    expect(
+      await vederlagssvaret([godkjent, registrertSvar('K-g1', '2026-09-23')], '2026-09-23')
+    ).toEqual({
+      linje: expect.stringMatching(
+        /^Byggherrens standpunkt: subsidiært godkjent med 60\s000\skr\.$/
+      ),
+      forholdssvaret: 'S-r',
+      samme: ['S-r'],
     });
   });
 
@@ -1179,6 +1197,7 @@ describe('et svar lagt til fryses med svaret på forholdet utenfor rekken som va
     ).toEqual({
       linje: expect.stringMatching(/^Byggherrens standpunkt: godkjent med 60\s000\skr\.$/),
       forholdssvaret: 'S-1',
+      samme: [],
     });
   });
 });
