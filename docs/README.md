@@ -45,6 +45,7 @@ utgangspunkt, og må leses mot gjeldende vedtak og referanser.
 | [Språkfila](sprak.md) · [designsystemet](../.interface-design/system.md) | Ord, brevtekst, tokens og mønstre i Varden |
 | [Beslutningslogg](adr/README.md) | Juridiske drøftelser: [varsling og kontraktsforhold](adr/001-varsling-og-kontraktsforhold.md) og [særskilt krav og varsel etter § 34.1.2](adr/002-saerskilt-krav-og-varsel-etter-34-1-2.md). Vedtakene står i vedtaksfila |
 | [Catendas API-spesifikasjoner](tredjepart-api/) | Uendrede kopier av tredjepartens OpenAPI-spesifikasjoner |
+| [Overordnet og detaljert design](vedlegg/design-losningsradet-2026-11-16/README.md) | Foreløpige utkast i Oslobyggs maler for Løsningsrådet, med skissene og skriptene som lager dem |
 | [CLAUDE.md](../CLAUDE.md) · [reglene](../.claude/rules/) | Stabile arbeidsregler; egne regler for [database](../.claude/rules/database.md), [tester](../.claude/rules/tester.md), [tilgang](../.claude/rules/tilgang.md), [kjerne](../.claude/rules/kjerne.md) og [dokumentasjon](../.claude/rules/dokumentasjon.md) |
 
 Markdown og Excel i datamodellen er genererte visninger. Rett kilderegistrene og
