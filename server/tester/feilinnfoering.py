@@ -522,6 +522,15 @@ FEILINNFOERINGER = [
      "server/nysak.ts",
      "    if (ukjenteIVarsel) return", "    if (false) return",
      "avviser et ukjent felt i varselet med 400"),
+    ("S135", "leveringsoppdraget fryser målet med topicens nummer, så formen og summen endres uten nytt format (#1991)",
+     "server/levering.ts",
+     "    maal: { catenda_project_id, library_id, folder_id, board_id, topic_id } satisfies Leveringsmaal,",
+     "    maal,",
+     "uten topicens nummer"),
+    ("S136", "et topicnummer over int i SQL Server godtas (#1991)",
+     "server/catenda.ts",
+     " && (nummer as number) <= 2147483647", "",
+     "et nummer over det største i int"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
