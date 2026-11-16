@@ -118,7 +118,7 @@
             "brevtekst": [
               {
                 "gjelder": "1975bfcf-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
+                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH påberoper at vederlagsvarselet kom for sent, og TE godtar svaret» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
                 "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
               }
             ],
@@ -152,7 +152,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 108,
+                  "regelversjon": 110,
                   "linje": "Byggherrens standpunkt: godkjent.",
                   "sammenfall": true,
                   "varslingsplikt": false,
@@ -175,7 +175,7 @@
                 "gjelder": "1975bfcf-0000-4000-8000-00000000000c",
                 "punkt": "forhold",
                 "overskrift": "1. Forholdet",
-                "laast": "1. Forholdet\n\nByggherren har risikoen for forholdet (NS 8407 punkt 22).",
+                "laast": "1. Forholdet\n\nByggherren har risikoen for forholdet (NS 8407 punkt 22).",
                 "utdypning": "Byggherren erkjenner at tegningene kom for sent."
               }
             ],
@@ -219,7 +219,7 @@
                 "gjelder": "1975bfcf-0000-4000-8000-000000000011",
                 "punkt": "34.1.2",
                 "overskrift": "1. Varselet om vederlagsjustering",
-                "laast": "1. Varselet om vederlagsjustering\n\nTotalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2."
+                "laast": "1. Varselet om vederlagsjustering\n\nTotalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2."
               },
               {
                 "gjelder": "1975bfcf-0000-4000-8000-000000000011",
@@ -230,7 +230,7 @@
               {
                 "gjelder": "1975bfcf-0000-4000-8000-000000000011",
                 "punkt": "tilbud",
-                "laast": "Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1."
+                "laast": "Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1."
               }
             ],
             "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
@@ -300,8 +300,8 @@
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 108,
-                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 34.1.2 kom for sent, subsidiært godkjent med 60 000 kr.",
+                  "regelversjon": 110,
+                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 34.1.2 kom for sent, subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
                     {
@@ -329,20 +329,20 @@
               {
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001c",
                 "punkt": "34.1.2",
-                "overskrift": "1. Varselet om vederlagsjustering (punkt 34.1.2)",
-                "laast": "1. Varselet om vederlagsjustering (punkt 34.1.2)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 punkt 34.1.2 i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent. Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen."
+                "overskrift": "1. Varselet om vederlagsjustering (punkt 34.1.2)",
+                "laast": "1. Varselet om vederlagsjustering (punkt 34.1.2)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 punkt 34.1.2 i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent. Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen."
               },
               {
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001c",
                 "punkt": "metode",
-                "overskrift": "2. Beregningsmetode (punkt 34.2)",
-                "laast": "2. Beregningsmetode (punkt 34.2)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret."
+                "overskrift": "2. Beregningsmetode (punkt 34.2)",
+                "laast": "2. Beregningsmetode (punkt 34.2)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret."
               },
               {
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001c",
                 "punkt": "P1",
-                "overskrift": "3. Vederlagsjustering (punkt 34.1.2)",
-                "laast": "3. Vederlagsjustering (punkt 34.1.2)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godkjenner 60 000 kr av de krevde 100 000 kr."
+                "overskrift": "3. Vederlagsjustering (punkt 34.1.2)",
+                "laast": "3. Vederlagsjustering (punkt 34.1.2)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godkjenner 60 000 kr av de krevde 100 000 kr."
               },
               {
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001c",
@@ -377,7 +377,7 @@
                 "id": "1975bfcf-0000-4000-8000-000000000020",
                 "art": "aksept",
                 "gjelder": "1975bfcf-0000-4000-8000-00000000001c",
-                "regelversjon": 108
+                "regelversjon": 110
               }
             ],
             "brevtekst": [
@@ -480,7 +480,7 @@
             "brevtekst": [
               {
                 "gjelder": "ca5f0a19-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren krever endringsordre for «TE korrigerer datoen pålegget ble mottatt» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
+                "laast": "Totalentreprenøren krever endringsordre for «TE korrigerer datoen pålegget ble mottatt» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
                 "utdypning": "Byggherren ga pålegg om å flytte ventilasjonssjakten i plan 3."
               }
             ],
@@ -521,8 +521,8 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 108,
-                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært godkjent.",
+                  "regelversjon": 110,
+                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært godkjent.",
                   "sammenfall": false,
                   "varslingsplikt": true,
                   "virkninger": [
@@ -547,14 +547,14 @@
               {
                 "gjelder": "ca5f0a19-0000-4000-8000-00000000000e",
                 "punkt": "32.2",
-                "overskrift": "1. Varselet etter punkt 32.2",
-                "laast": "1. Varselet etter punkt 32.2\n\nPrinsipalt\n\nByggherren gjør gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 1. oktober 2026 kom for sent."
+                "overskrift": "1. Varselet etter punkt 32.2",
+                "laast": "1. Varselet etter punkt 32.2\n\nPrinsipalt\n\nByggherren gjør gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 1. oktober 2026 kom for sent."
               },
               {
                 "gjelder": "ca5f0a19-0000-4000-8000-00000000000e",
                 "punkt": "forhold",
                 "overskrift": "2. Forholdet",
-                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
+                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
                 "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært godtas at forholdet er en endring."
               }
             ],
@@ -680,7 +680,7 @@
             "brevtekst": [
               {
                 "gjelder": "c85f06f3-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren krever endringsordre for «TE vil rette datoen i en ny versjon av påberopelsen og blir vist til korrigeringen» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
+                "laast": "Totalentreprenøren krever endringsordre for «TE vil rette datoen i en ny versjon av påberopelsen og blir vist til korrigeringen» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
                 "utdypning": "Byggherren ga pålegg om å flytte ventilasjonssjakten i plan 3."
               }
             ],
@@ -721,8 +721,8 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 108,
-                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært godkjent.",
+                  "regelversjon": 110,
+                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært godkjent.",
                   "sammenfall": false,
                   "varslingsplikt": true,
                   "virkninger": [
@@ -747,14 +747,14 @@
               {
                 "gjelder": "c85f06f3-0000-4000-8000-00000000000e",
                 "punkt": "32.2",
-                "overskrift": "1. Varselet etter punkt 32.2",
-                "laast": "1. Varselet etter punkt 32.2\n\nPrinsipalt\n\nByggherren gjør gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 1. oktober 2026 kom for sent."
+                "overskrift": "1. Varselet etter punkt 32.2",
+                "laast": "1. Varselet etter punkt 32.2\n\nPrinsipalt\n\nByggherren gjør gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 1. oktober 2026 kom for sent."
               },
               {
                 "gjelder": "c85f06f3-0000-4000-8000-00000000000e",
                 "punkt": "forhold",
                 "overskrift": "2. Forholdet",
-                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
+                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
                 "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært godtas at forholdet er en endring."
               }
             ],
@@ -878,7 +878,7 @@
             "brevtekst": [
               {
                 "gjelder": "cd5f0ed2-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren krever endringsordre for «TE korrigerer datoen pålegget ble mottatt i en lukket sak» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
+                "laast": "Totalentreprenøren krever endringsordre for «TE korrigerer datoen pålegget ble mottatt i en lukket sak» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
                 "utdypning": "Byggherren ga pålegg om å flytte ventilasjonssjakten i plan 3."
               }
             ],
@@ -919,8 +919,8 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 108,
-                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært godkjent.",
+                  "regelversjon": 110,
+                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært godkjent.",
                   "sammenfall": false,
                   "varslingsplikt": true,
                   "virkninger": [
@@ -945,14 +945,14 @@
               {
                 "gjelder": "cd5f0ed2-0000-4000-8000-00000000000e",
                 "punkt": "32.2",
-                "overskrift": "1. Varselet etter punkt 32.2",
-                "laast": "1. Varselet etter punkt 32.2\n\nPrinsipalt\n\nByggherren gjør gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 1. oktober 2026 kom for sent."
+                "overskrift": "1. Varselet etter punkt 32.2",
+                "laast": "1. Varselet etter punkt 32.2\n\nPrinsipalt\n\nByggherren gjør gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 1. oktober 2026 kom for sent."
               },
               {
                 "gjelder": "cd5f0ed2-0000-4000-8000-00000000000e",
                 "punkt": "forhold",
                 "overskrift": "2. Forholdet",
-                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
+                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
                 "utdypning": "Varselet etter punkt 32.2 kom for sent. Subsidiært godtas at forholdet er en endring."
               }
             ],
@@ -981,7 +981,7 @@
                 "id": "cd5f0ed2-0000-4000-8000-000000000012",
                 "art": "aksept",
                 "gjelder": "cd5f0ed2-0000-4000-8000-00000000000e",
-                "regelversjon": 108
+                "regelversjon": 110
               }
             ],
             "brevtekst": [
@@ -1134,7 +1134,7 @@
             "brevtekst": [
               {
                 "gjelder": "1475b7f0-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH avslår forholdet og påberoper at vederlagsvarselet kom for sent» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
+                "laast": "Totalentreprenøren påberoper manglende medvirkning eller leveranser fra byggherren (NS 8407 punkt 22, jf. punkt 33.1 b og 34.1.2) for «BH avslår forholdet og påberoper at vederlagsvarselet kom for sent» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
                 "utdypning": "Byggherren leverte tegningene for fundamentene tre uker etter avtalt tid."
               }
             ],
@@ -1168,7 +1168,7 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 108,
+                  "regelversjon": 110,
                   "linje": "Byggherrens standpunkt: avslått.",
                   "sammenfall": false,
                   "varslingsplikt": false,
@@ -1191,7 +1191,7 @@
                 "gjelder": "1475b7f0-0000-4000-8000-00000000000c",
                 "punkt": "forhold",
                 "overskrift": "1. Forholdet",
-                "laast": "1. Forholdet\n\nByggherren har ikke risikoen for forholdet (NS 8407 punkt 22).",
+                "laast": "1. Forholdet\n\nByggherren har ikke risikoen for forholdet (NS 8407 punkt 22).",
                 "utdypning": "Tegningene ble levert til avtalt tid etter den reviderte fremdriftsplanen."
               }
             ],
@@ -1235,7 +1235,7 @@
                 "gjelder": "1475b7f0-0000-4000-8000-000000000011",
                 "punkt": "34.1.2",
                 "overskrift": "1. Varselet om vederlagsjustering",
-                "laast": "1. Varselet om vederlagsjustering\n\nTotalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2."
+                "laast": "1. Varselet om vederlagsjustering\n\nTotalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2."
               },
               {
                 "gjelder": "1475b7f0-0000-4000-8000-000000000011",
@@ -1246,7 +1246,7 @@
               {
                 "gjelder": "1475b7f0-0000-4000-8000-000000000011",
                 "punkt": "tilbud",
-                "laast": "Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1."
+                "laast": "Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1."
               }
             ],
             "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
@@ -1316,8 +1316,8 @@
                   "subsidiaert_godkjent_beloep": 60000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 108,
-                  "linje": "Byggherrens standpunkt: subsidiært varselet etter punkt 34.1.2 kom for sent, videre subsidiært godkjent med 60 000 kr.",
+                  "regelversjon": 110,
+                  "linje": "Byggherrens standpunkt: subsidiært varselet etter punkt 34.1.2 kom for sent, videre subsidiært godkjent med 60 000 kr.",
                   "sammenfall": false,
                   "virkninger": [
                     {
@@ -1351,20 +1351,20 @@
               {
                 "gjelder": "1475b7f0-0000-4000-8000-00000000001c",
                 "punkt": "34.1.2",
-                "overskrift": "2. Varselet om vederlagsjustering (punkt 34.1.2)",
-                "laast": "2. Varselet om vederlagsjustering (punkt 34.1.2)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 punkt 34.1.2 i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent. Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen."
+                "overskrift": "2. Varselet om vederlagsjustering (punkt 34.1.2)",
+                "laast": "2. Varselet om vederlagsjustering (punkt 34.1.2)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 punkt 34.1.2 i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent. Byggherren godkjenner etter dette ikke noe beløp for vederlagsjusteringen."
               },
               {
                 "gjelder": "1475b7f0-0000-4000-8000-00000000001c",
                 "punkt": "metode",
-                "overskrift": "3. Beregningsmetode (punkt 34.2)",
-                "laast": "3. Beregningsmetode (punkt 34.2)\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 2 ovenfor fører frem\n\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret."
+                "overskrift": "3. Beregningsmetode (punkt 34.2)",
+                "laast": "3. Beregningsmetode (punkt 34.2)\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 2 ovenfor fører frem\n\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret."
               },
               {
                 "gjelder": "1475b7f0-0000-4000-8000-00000000001c",
                 "punkt": "P1",
-                "overskrift": "4. Vederlagsjustering (punkt 34.1.2)",
-                "laast": "4. Vederlagsjustering (punkt 34.1.2)\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 2 ovenfor fører frem\n\nByggherren godkjenner 60 000 kr av de krevde 100 000 kr."
+                "overskrift": "4. Vederlagsjustering (punkt 34.1.2)",
+                "laast": "4. Vederlagsjustering (punkt 34.1.2)\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 2 ovenfor fører frem\n\nByggherren godkjenner 60 000 kr av de krevde 100 000 kr."
               },
               {
                 "gjelder": "1475b7f0-0000-4000-8000-00000000001c",
@@ -1468,7 +1468,7 @@
             "brevtekst": [
               {
                 "gjelder": "1575b983-0000-4000-8000-000000000008",
-                "laast": "Totalentreprenøren krever endringsordre for «TE oppretter saken og påberoper forholdet» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
+                "laast": "Totalentreprenøren krever endringsordre for «TE oppretter saken og påberoper forholdet» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
                 "utdypning": "Byggherren påla i byggemøtet 15. september 2026 at fasaden skal ha teglforblending i stedet for platekledning, som beskrevet i kontrakten."
               }
             ],
@@ -1591,7 +1591,7 @@
             "brevtekst": [
               {
                 "gjelder": "2075cad4-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren krever endringsordre for «Byggherren svarer på påberopelsen av forholdet, og totalentreprenøren tar stilling til svaret» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
+                "laast": "Totalentreprenøren krever endringsordre for «Byggherren svarer på påberopelsen av forholdet, og totalentreprenøren tar stilling til svaret» i sak KOE-17 som irregulær endring (NS 8407 punkt 32.1). Totalentreprenøren varsler etter NS 8407 punkt 32.2 at totalentreprenøren påberoper seg at pålegget innebærer en endring. Pålegget ble mottatt 15. september 2026.",
                 "utdypning": "Byggherren påla i byggemøtet 15. september 2026 at fasaden skal ha teglforblending i stedet for platekledning, som beskrevet i kontrakten."
               }
             ],
@@ -1637,7 +1637,7 @@
               {
                 "gjelder": "2075cad4-0000-4000-8000-00000000000b",
                 "punkt": "tilbud",
-                "laast": "Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1."
+                "laast": "Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1."
               }
             ],
             "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
@@ -1677,8 +1677,8 @@
                   }
                 ],
                 "beslutningsgrunnlag": {
-                  "regelversjon": 108,
-                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært godkjent.",
+                  "regelversjon": 110,
+                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 32.2 kom for sent, subsidiært godkjent.",
                   "sammenfall": false,
                   "varslingsplikt": true,
                   "virkninger": [
@@ -1703,14 +1703,14 @@
               {
                 "gjelder": "2075cad4-0000-4000-8000-000000000014",
                 "punkt": "32.2",
-                "overskrift": "1. Varselet etter punkt 32.2",
-                "laast": "1. Varselet etter punkt 32.2\n\nPrinsipalt\n\nByggherren gjør gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 1. oktober 2026 kom for sent."
+                "overskrift": "1. Varselet etter punkt 32.2",
+                "laast": "1. Varselet etter punkt 32.2\n\nPrinsipalt\n\nByggherren gjør gjeldende at totalentreprenørens varsel etter NS 8407 punkt 32.2 i brev K201-KOE-017-01 av 1. oktober 2026 kom for sent."
               },
               {
                 "gjelder": "2075cad4-0000-4000-8000-000000000014",
                 "punkt": "forhold",
                 "overskrift": "2. Forholdet",
-                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
+                "laast": "2. Forholdet\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren er enig i at pålegget innebærer en endring.",
                 "utdypning": "Varselet kom lenge etter pålegget i byggemøtet. Subsidiært er byggherren enig i at pålegget innebærer en endring."
               }
             ],
@@ -1739,7 +1739,7 @@
                 "id": "2075cad4-0000-4000-8000-000000000018",
                 "art": "aksept",
                 "gjelder": "2075cad4-0000-4000-8000-000000000014",
-                "regelversjon": 108
+                "regelversjon": 110
               }
             ],
             "brevtekst": [
@@ -1854,7 +1854,7 @@
             "brevtekst": [
               {
                 "gjelder": "a46c0d44-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren påberoper svikt i byggherrens prosjektering (NS 8407 punkt 24.1, jf. punkt 33.1 b og 34.1.2) for «Partene ser stillingen i vederlaget» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
+                "laast": "Totalentreprenøren påberoper svikt i byggherrens prosjektering (NS 8407 punkt 24.1, jf. punkt 33.1 b og 34.1.2) for «Partene ser stillingen i vederlaget» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
                 "utdypning": "Peletegningene viser en pelelengde som ikke lar seg gjennomføre i grunnforholdene på tomta."
               }
             ],
@@ -1895,7 +1895,7 @@
                 "gjelder": "a46c0d44-0000-4000-8000-00000000000b",
                 "punkt": "34.1.2",
                 "overskrift": "1. Varselet om vederlagsjustering",
-                "laast": "1. Varselet om vederlagsjustering\n\nTotalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2."
+                "laast": "1. Varselet om vederlagsjustering\n\nTotalentreprenøren varsler krav om justering av vederlaget etter NS 8407 punkt 34.1.2."
               },
               {
                 "gjelder": "a46c0d44-0000-4000-8000-00000000000b",
@@ -1906,7 +1906,7 @@
               {
                 "gjelder": "a46c0d44-0000-4000-8000-00000000000b",
                 "punkt": "tilbud",
-                "laast": "Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1."
+                "laast": "Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1."
               }
             ],
             "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
@@ -1957,13 +1957,13 @@
                 "gjelder": "a46c0d44-0000-4000-8000-000000000010",
                 "punkt": "34.1.2",
                 "overskrift": "1. Varselet om vederlagsjustering",
-                "laast": "1. Varselet om vederlagsjustering\n\nVarsel om vederlagsjustering etter NS 8407 punkt 34.1.2 ble gitt i brev K201-KOE-017-02 av 1. oktober 2026."
+                "laast": "1. Varselet om vederlagsjustering\n\nVarsel om vederlagsjustering etter NS 8407 punkt 34.1.2 ble gitt i brev K201-KOE-017-02 av 1. oktober 2026."
               },
               {
                 "gjelder": "a46c0d44-0000-4000-8000-000000000010",
                 "punkt": "34.1.3",
                 "overskrift": "2. Varselet om særskilt vederlagsjustering",
-                "laast": "2. Varselet om særskilt vederlagsjustering\n\nTotalentreprenøren varsler særskilt etter NS 8407 punkt 34.1.3 tredje ledd."
+                "laast": "2. Varselet om særskilt vederlagsjustering\n\nTotalentreprenøren varsler særskilt etter NS 8407 punkt 34.1.3 tredje ledd."
               },
               {
                 "gjelder": "a46c0d44-0000-4000-8000-000000000010",
@@ -1975,12 +1975,12 @@
                 "gjelder": "a46c0d44-0000-4000-8000-000000000010",
                 "punkt": "produktivitet",
                 "overskrift": "4. Særskilt vederlagsjustering",
-                "laast": "4. Særskilt vederlagsjustering\n\nTotalentreprenøren krever i tillegg særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd for økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid med 40 000 kr eks. mva."
+                "laast": "4. Særskilt vederlagsjustering\n\nTotalentreprenøren krever i tillegg særskilt justering av vederlaget etter NS 8407 punkt 34.1.3 annet ledd for økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid med 40 000 kr eks. mva."
               },
               {
                 "gjelder": "a46c0d44-0000-4000-8000-000000000010",
                 "punkt": "tilbud",
-                "laast": "Kravet for P1 og den særskilte vederlagsjusteringen er et tilbud etter NS 8407 punkt 34.2.1."
+                "laast": "Kravet for P1 og den særskilte vederlagsjusteringen er et tilbud etter NS 8407 punkt 34.2.1."
               }
             ],
             "brevtittel": "Krav om vederlagsjustering i sak KOE-17",
@@ -2086,8 +2086,8 @@
                   "subsidiaert_godkjent_beloep": 130000
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 108,
-                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 34.1.2 kom for sent, subsidiært godkjent med 100 000 kr for justeringen ellers, begrenset etter punkt 34.1.3 til 10 000 kr, videre subsidiært godkjent med 30 000 kr for særskilt justering (punkt 34.1.3 annet ledd).",
+                  "regelversjon": 110,
+                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 34.1.2 kom for sent, subsidiært godkjent med 100 000 kr for justeringen ellers, begrenset etter punkt 34.1.3 til 10 000 kr, videre subsidiært godkjent med 30 000 kr for særskilt justering (punkt 34.1.3 annet ledd).",
                   "sammenfall": false,
                   "virkninger": [
                     {
@@ -2123,32 +2123,32 @@
               {
                 "gjelder": "a46c0d44-0000-4000-8000-00000000001e",
                 "punkt": "34.1.2",
-                "overskrift": "1. Varselet om vederlagsjustering (punkt 34.1.2)",
-                "laast": "1. Varselet om vederlagsjustering (punkt 34.1.2)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 punkt 34.1.2 i brev K201-KOE-017-02 av 1. oktober 2026 kom for sent."
+                "overskrift": "1. Varselet om vederlagsjustering (punkt 34.1.2)",
+                "laast": "1. Varselet om vederlagsjustering (punkt 34.1.2)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 punkt 34.1.2 i brev K201-KOE-017-02 av 1. oktober 2026 kom for sent."
               },
               {
                 "gjelder": "a46c0d44-0000-4000-8000-00000000001e",
                 "punkt": "34.1.3",
-                "overskrift": "2. Varselet om særskilt vederlagsjustering (punkt 34.1.3)",
-                "laast": "2. Varselet om særskilt vederlagsjustering (punkt 34.1.3)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter punkt 34.1.3 tredje ledd i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet."
+                "overskrift": "2. Varselet om særskilt vederlagsjustering (punkt 34.1.3)",
+                "laast": "2. Varselet om særskilt vederlagsjustering (punkt 34.1.3)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at varselet om særskilt justering for nedsatt produktivitet eller forstyrrelser etter punkt 34.1.3 tredje ledd i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent, og at totalentreprenøren har tapt retten til å påberope seg påløpte utgifter som grunnlag for kravet."
               },
               {
                 "gjelder": "a46c0d44-0000-4000-8000-00000000001e",
                 "punkt": "metode",
-                "overskrift": "3. Beregningsmetode (punkt 34.2)",
-                "laast": "3. Beregningsmetode (punkt 34.2)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret."
+                "overskrift": "3. Beregningsmetode (punkt 34.2)",
+                "laast": "3. Beregningsmetode (punkt 34.2)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret."
               },
               {
                 "gjelder": "a46c0d44-0000-4000-8000-00000000001e",
                 "punkt": "P1",
-                "overskrift": "4. Vederlagsjustering (punkt 34.1.2)",
-                "laast": "4. Vederlagsjustering (punkt 34.1.2)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godkjenner 100 000 kr av de krevde 150 000 kr."
+                "overskrift": "4. Vederlagsjustering (punkt 34.1.2)",
+                "laast": "4. Vederlagsjustering (punkt 34.1.2)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godkjenner 100 000 kr av de krevde 150 000 kr."
               },
               {
                 "gjelder": "a46c0d44-0000-4000-8000-00000000001e",
                 "punkt": "produktivitet",
-                "overskrift": "5. Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)",
-                "laast": "5. Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godkjenner 10 000 kr etter begrensningen i punkt 2 ovenfor.\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 2 ovenfor fører frem\n\nByggherren godkjenner 30 000 kr av de krevde 40 000 kr."
+                "overskrift": "5. Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)",
+                "laast": "5. Særskilt vederlagsjustering (punkt 34.1.3 annet ledd)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren godkjenner 10 000 kr etter begrensningen i punkt 2 ovenfor.\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 2 ovenfor fører frem\n\nByggherren godkjenner 30 000 kr av de krevde 40 000 kr."
               },
               {
                 "gjelder": "a46c0d44-0000-4000-8000-00000000001e",
@@ -2317,7 +2317,7 @@
             "brevtekst": [
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000006",
-                "laast": "Totalentreprenøren påberoper svikt i byggherrens prosjektering (NS 8407 punkt 24.1, jf. punkt 33.1 b og 34.1.2) for «Partene ser stillingen i fristforlengelsen» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
+                "laast": "Totalentreprenøren påberoper svikt i byggherrens prosjektering (NS 8407 punkt 24.1, jf. punkt 33.1 b og 34.1.2) for «Partene ser stillingen i fristforlengelsen» i sak KOE-17. Totalentreprenøren ble klar over forholdet 15. september 2026.",
                 "utdypning": "Peletegningene viser en pelelengde som ikke lar seg gjennomføre i grunnforholdene på tomta."
               }
             ],
@@ -2348,7 +2348,7 @@
             "brevtekst": [
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-00000000000a",
-                "laast": "Totalentreprenøren varsler etter NS 8407 punkt 33.4 at totalentreprenøren vil kreve fristforlengelse som følge av forholdet i sak KOE-17 («Partene ser stillingen i fristforlengelsen»)."
+                "laast": "Totalentreprenøren varsler etter NS 8407 punkt 33.4 at totalentreprenøren vil kreve fristforlengelse som følge av forholdet i sak KOE-17 («Partene ser stillingen i fristforlengelsen»)."
               }
             ],
             "brevnummer": 2,
@@ -2400,13 +2400,13 @@
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000011",
                 "punkt": "33.4",
                 "overskrift": "1. Varselet om fristforlengelse",
-                "laast": "1. Varselet om fristforlengelse\n\nVarsel om fristforlengelse etter NS 8407 punkt 33.4 ble gitt i brev K201-KOE-017-02 av 1. oktober 2026."
+                "laast": "1. Varselet om fristforlengelse\n\nVarsel om fristforlengelse etter NS 8407 punkt 33.4 ble gitt i brev K201-KOE-017-02 av 1. oktober 2026."
               },
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000011",
                 "punkt": "frister",
                 "overskrift": "2. Fristforlengelse",
-                "laast": "2. Fristforlengelse\n\nTotalentreprenøren krever fristforlengelse for fristene i kontrakten under, med antall dager etter NS 8407 punkt 33.6.1. Dagene gjelder hver frist for seg.\n\nFrist 3 Mekanisk ferdigstillelse: 25 dager.\n\nFrist 2 Overtakelse: 20 dager.\n\nFrist 8 Overtakelse av utomhusarbeider: 20 dager."
+                "laast": "2. Fristforlengelse\n\nTotalentreprenøren krever fristforlengelse for fristene i kontrakten under, med antall dager etter NS 8407 punkt 33.6.1. Dagene gjelder hver frist for seg.\n\nFrist 3 Mekanisk ferdigstillelse: 25 dager.\n\nFrist 2 Overtakelse: 20 dager.\n\nFrist 8 Overtakelse av utomhusarbeider: 20 dager."
               },
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000011",
@@ -2558,8 +2558,8 @@
                   ]
                 },
                 "beslutningsgrunnlag": {
-                  "regelversjon": 108,
-                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 33.4 kom for sent, subsidiært godkjent med 8 dager for frist 2 Overtakelse og 8 dager for frist 8 Overtakelse av utomhusarbeider (punkt 33.6.1), videre subsidiært avslått for frist 3 Mekanisk ferdigstillelse, godkjent med 14 dager for frist 2 Overtakelse, godkjent med 14 dager for frist 8 Overtakelse av utomhusarbeider.",
+                  "regelversjon": 110,
+                  "linje": "Byggherrens standpunkt: prinsipalt varselet etter punkt 33.4 kom for sent, subsidiært godkjent med 8 dager for frist 2 Overtakelse og 8 dager for frist 8 Overtakelse av utomhusarbeider (punkt 33.6.1), videre subsidiært avslått for frist 3 Mekanisk ferdigstillelse, godkjent med 14 dager for frist 2 Overtakelse, godkjent med 14 dager for frist 8 Overtakelse av utomhusarbeider.",
                   "sammenfall": false,
                   "virkninger": [
                     {
@@ -2598,40 +2598,40 @@
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000024",
                 "punkt": "33.4",
-                "overskrift": "1. Varselet om fristforlengelse (punkt 33.4)",
-                "laast": "1. Varselet om fristforlengelse (punkt 33.4)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i brev K201-KOE-017-02 av 1. oktober 2026 kom for sent."
+                "overskrift": "1. Varselet om fristforlengelse (punkt 33.4)",
+                "laast": "1. Varselet om fristforlengelse (punkt 33.4)\n\nPrinsipalt\n\nByggherren gjør gjeldende at varselet om fristforlengelse etter NS 8407 punkt 33.4 i brev K201-KOE-017-02 av 1. oktober 2026 kom for sent."
               },
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000024",
                 "punkt": "hindring",
                 "overskrift": "2. Hindringen",
-                "laast": "2. Hindringen\n\nByggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet (punkt 33.1).",
+                "laast": "2. Hindringen\n\nByggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet (punkt 33.1).",
                 "utdypning": "Fremdriftsplanen viser at pelingen ligger på kritisk linje for overtakelsen."
               },
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000024",
                 "punkt": "spesifisering",
-                "overskrift": "3. Spesifiseringen av kravet (punkt 33.6.1)",
-                "laast": "3. Spesifiseringen av kravet (punkt 33.6.1)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at totalentreprenøren bare har krav på den fristforlengelsen byggherren måtte forstå at totalentreprenøren hadde krav på: 0 dager for frist 3 Mekanisk ferdigstillelse, 8 dager for frist 2 Overtakelse og 8 dager for frist 8 Overtakelse av utomhusarbeider (punkt 33.6.1)."
+                "overskrift": "3. Spesifiseringen av kravet (punkt 33.6.1)",
+                "laast": "3. Spesifiseringen av kravet (punkt 33.6.1)\n\nSubsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem\n\nByggherren gjør gjeldende at kravet om fristforlengelse ble spesifisert for sent, og at totalentreprenøren bare har krav på den fristforlengelsen byggherren måtte forstå at totalentreprenøren hadde krav på: 0 dager for frist 3 Mekanisk ferdigstillelse, 8 dager for frist 2 Overtakelse og 8 dager for frist 8 Overtakelse av utomhusarbeider (punkt 33.6.1)."
               },
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000024",
                 "punkt": "a56c0ed7-0000-4000-8000-000000000012",
                 "overskrift": "4. Dagene for frist 3 Mekanisk ferdigstillelse",
-                "laast": "4. Dagene for frist 3 Mekanisk ferdigstillelse\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nFor frist 3 Mekanisk ferdigstillelse avslår byggherren kravet.",
+                "laast": "4. Dagene for frist 3 Mekanisk ferdigstillelse\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nFor frist 3 Mekanisk ferdigstillelse avslår byggherren kravet.",
                 "utdypning": "Fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet."
               },
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000024",
                 "punkt": "a56c0ed7-0000-4000-8000-000000000013",
                 "overskrift": "5. Dagene for frist 2 Overtakelse",
-                "laast": "5. Dagene for frist 2 Overtakelse\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nFor frist 2 Overtakelse godkjenner byggherren 14 dager av de krevde 20 dager."
+                "laast": "5. Dagene for frist 2 Overtakelse\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nFor frist 2 Overtakelse godkjenner byggherren 14 dager av de krevde 20 dager."
               },
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000024",
                 "punkt": "a56c0ed7-0000-4000-8000-000000000014",
                 "overskrift": "6. Dagene for frist 8 Overtakelse av utomhusarbeider",
-                "laast": "6. Dagene for frist 8 Overtakelse av utomhusarbeider\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nFor frist 8 Overtakelse av utomhusarbeider godkjenner byggherren 14 dager av de krevde 20 dager."
+                "laast": "6. Dagene for frist 8 Overtakelse av utomhusarbeider\n\nVidere subsidiært, hvis heller ikke innsigelsen i punkt 3 ovenfor fører frem\n\nFor frist 8 Overtakelse av utomhusarbeider godkjenner byggherren 14 dager av de krevde 20 dager."
               },
               {
                 "gjelder": "a56c0ed7-0000-4000-8000-000000000024",
