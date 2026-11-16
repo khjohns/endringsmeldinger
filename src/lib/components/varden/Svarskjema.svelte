@@ -37,7 +37,12 @@
   import Utkastkort from './Utkastkort.svelte';
   import { brevene, datoerISporet } from './lesing';
   import { begrunnelsespunktene, kravbrevetI, SVARSKJEMA, type Postvelger } from './svarskjema';
-  import { HOVEDLINJER, SKJEMA, brevhode, brevtittel, dato } from './tekster';
+  import { HOVEDLINJER, LEGG_TIL, SKJEMA, brevhode, brevtittel, dato } from './tekster';
+  import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
+  import Lagttillinje from './Lagttillinje.svelte';
+  import Lagttilmerknader from './Lagttilmerknader.svelte';
+  import { vedleggskart } from './nysak';
+  import type { Brevet } from './lesing';
 
   let {
     kjernesak,
@@ -57,6 +62,10 @@
     onforkast,
     onvedsiden,
     spoersmaal,
+    lagtTil = null,
+    svarerPaa = null,
+    onendre = () => {},
+    onlagttil = () => {},
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -87,11 +96,23 @@
     onvedsiden?: (vedSiden: boolean) => void;
     /** Spørsmålene, med beskjeden for feltet med ID-en når BH har prøvd å se brevet. */
     spoersmaal: Snippet<[feil: (id: string) => string | null]>;
+    /**
+     * Korrespondansen svaret legges til fra (OV-U80, OV-U98), eller `null` for et svar sendt fra
+     * løsningen. Svaret har da ingen begrunnelse og ikke noe forbehold (KA-U24), og løsningen lager
+     * ingen brevtekst.
+     */
+    lagtTil?: Korrespondansevalg | null;
+    /** Brevet med kravversjonen svaret gjelder, når det ikke er gjeldende versjon (OV-U98). */
+    svarerPaa?: Brevet | null;
+    /** Tilbake til korrespondansen. */
+    onendre?: () => void;
+    /** Svaret er lagt til. */
+    onlagttil?: () => void;
   } = $props();
   const uid = $props.id();
 
   const alleBrev = $derived(brevene(u));
-  const kravbrevet = $derived(kravbrevetI(u, spor));
+  const kravbrevet = $derived(svarerPaa ?? kravbrevetI(u, spor));
   const sporbrev = $derived(alleBrev.filter((b) => b.spor.includes(spor)));
   const datoer = $derived(datoerISporet(u, spor));
 
@@ -113,7 +134,7 @@
   const kanStaa = (punkt: string) => kreverPunktene.length > 1 && kreverPunktene.includes(punkt);
   // Begrunnelsen som kreves, er besvart når ett av punktene den kan stå i, har tekst.
   const alleMangler = $derived.by((): Mangel[] => {
-    const k = begrunnelseKreves;
+    const k = lagtTil ? null : begrunnelseKreves;
     if (!k || kreverPunktene.some((p) => tekster.begrunnelser[p]?.trim())) return mangler;
     // Feilen står ved det første punktet i kravet, ikke det første i skjemaet.
     const foerste = kreverPunktene[0];
@@ -145,6 +166,15 @@
       oppsummering?.focus();
       return;
     }
+    if (kommandoLagtTil) {
+      if (await kjernesak.send(kommandoLagtTil, undefined, vedleggLagtTil)) onlagttil();
+      else {
+        sendehindring = kjernesak.feil ?? HOVEDLINJER.kanIkkeLages;
+        await tick();
+        document.getElementById(`${uid}-hindring`)?.focus();
+      }
+      return;
+    }
     const kommando = medTekstene(punktene.map((p) => p.punkt));
     const b = kjernesak.brev(kommando, undefined, true);
     const brevet = kontrollbrev(b);
@@ -160,6 +190,11 @@
     }
     onbrevkontroll({ kommando, ...brevet, detteSender: linjer, virkninger });
   }
+
+  const kommandoLagtTil = $derived(
+    lagtTil ? kommandoenLagtTil(medTekstene([]) as { type: 'brev' }, lagtTil) : null
+  );
+  const vedleggLagtTil = $derived(vedleggskart(lagtTil?.vedlegg ?? []));
 
   // Brevet leses i en ramme ved siden av skjemaet, og på smal skjerm i skjemaet, der høyre
   // kolonne står under arbeidet (oppdragsgiver 29.10, #1391).
@@ -197,7 +232,9 @@
     <Knapp
       variant="primaer"
       onclick={seBrevet}
-      aria-describedby={sendehindring ? `${uid}-hindring` : undefined}>{HOVEDLINJER.seBrevet}</Knapp
+      opptatt={!!lagtTil && kjernesak.sender}
+      aria-describedby={sendehindring ? `${uid}-hindring` : undefined}
+      >{lagtTil ? LEGG_TIL.leggTilSvaret : HOVEDLINJER.seBrevet}</Knapp
     >
   </div>
   {#if sendehindring}
@@ -211,7 +248,7 @@
   {#snippet hoved()}
     <Utkastkort
       id={`${uid}-tittel`}
-      tittel={brevMedTekst
+      tittel={brevMedTekst && !lagtTil
         ? brevhode({
             merking: brevMedTekst.merking,
             art: 'svar',
@@ -219,8 +256,12 @@
           })
         : SVARTITTEL[spor]}
       mottaker={SKJEMA.tilTE}
+      merke={lagtTil ? LEGG_TIL.utkast : undefined}
     >
       {#snippet infotips()}<Infotips navn={SKJEMA.omSvaret} tekst={VIRKNING.alltid} />{/snippet}
+      {#if lagtTil && kjernesak.part}
+        <Lagttillinje part={kjernesak.part} valg={lagtTil} {onendre} />
+      {/if}
       <Brevlinje
         id={`${uid}-kravbrev`}
         bind:leser
@@ -248,58 +289,70 @@
 
         {@render spoersmaal(feil)}
 
-        <!-- Begrunnelsene står under punktene i brevet, så de vises når brevet har punkter.
-             Forbeholdet står alltid, så teksten ikke blir borte når brevet ikke kan lages. -->
-        <section
-          class="begrunnelser"
-          aria-labelledby={punktene.length ? `${uid}-sp-begrunnelse` : undefined}
-        >
-          {#if punktene.length}
-            <h3 id={`${uid}-sp-begrunnelse`}>{SKJEMA.begrunnelse}</h3>
-            <p class="dempet" id={`${uid}-begrunnelse-hjelp`}>{SKJEMA.begrunnelseHjelp}</p>
-            {#if kreverPunktene.length > 1}
-              <p class="dempet" id={`${uid}-begrunnelse-kreves`}>{begrunnelseKreves!.grunn}</p>
-            {/if}
-            {#each punktene as p (p.punkt)}
-              {@const id = begrunnelseId(p.punkt)}
-              {@const bFeil = feil(id)}
-              <div class="begrunnelse">
-                <Feltetikett for={id} underordnet valgfri={!kreves(p.punkt) && !kanStaa(p.punkt)}
-                  >{p.navn}</Feltetikett
-                >
-                {#if kreves(p.punkt)}
-                  <span class="dempet" id={`${id}-kreves`}>{begrunnelseKreves!.grunn}</span>
-                {/if}
-                <textarea
-                  {id}
-                  rows="2"
-                  bind:value={tekster.begrunnelser[p.punkt]}
-                  aria-required={kreves(p.punkt) ? 'true' : undefined}
-                  aria-invalid={bFeil ? 'true' : undefined}
-                  aria-describedby={[
-                    `${uid}-begrunnelse-hjelp`,
-                    kreves(p.punkt) ? `${id}-kreves` : '',
-                    kanStaa(p.punkt) ? `${uid}-begrunnelse-kreves` : '',
-                    bFeil ? `${id}-feil` : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                ></textarea>
-                {#if bFeil}<p class="feilmelding" id={`${id}-feil`}>{bFeil}</p>{/if}
-              </div>
-            {/each}
-          {/if}
-          <div class="begrunnelse forbehold">
-            <Feltetikett for={`${uid}-forbehold`} valgfri>{SKJEMA.forbehold}</Feltetikett>
-            <span class="dempet" id={`${uid}-forbehold-hjelp`}>{SKJEMA.forbeholdHjelp}</span>
-            <textarea
-              id={`${uid}-forbehold`}
-              rows="3"
-              bind:value={tekster.forbehold}
-              aria-describedby={`${uid}-forbehold-hjelp`}
-            ></textarea>
+        {#if kommandoLagtTil}
+          <div class="merknader">
+            <Lagttilmerknader
+              {kjernesak}
+              {u}
+              {spor}
+              kommando={kommandoLagtTil}
+              vedlegg={vedleggLagtTil}
+            />
           </div>
-        </section>
+        {:else}
+          <!-- Begrunnelsene står under punktene i brevet, så de vises når brevet har punkter.
+             Forbeholdet står alltid, så teksten ikke blir borte når brevet ikke kan lages. -->
+          <section
+            class="begrunnelser"
+            aria-labelledby={punktene.length ? `${uid}-sp-begrunnelse` : undefined}
+          >
+            {#if punktene.length}
+              <h3 id={`${uid}-sp-begrunnelse`}>{SKJEMA.begrunnelse}</h3>
+              <p class="dempet" id={`${uid}-begrunnelse-hjelp`}>{SKJEMA.begrunnelseHjelp}</p>
+              {#if kreverPunktene.length > 1}
+                <p class="dempet" id={`${uid}-begrunnelse-kreves`}>{begrunnelseKreves!.grunn}</p>
+              {/if}
+              {#each punktene as p (p.punkt)}
+                {@const id = begrunnelseId(p.punkt)}
+                {@const bFeil = feil(id)}
+                <div class="begrunnelse">
+                  <Feltetikett for={id} underordnet valgfri={!kreves(p.punkt) && !kanStaa(p.punkt)}
+                    >{p.navn}</Feltetikett
+                  >
+                  {#if kreves(p.punkt)}
+                    <span class="dempet" id={`${id}-kreves`}>{begrunnelseKreves!.grunn}</span>
+                  {/if}
+                  <textarea
+                    {id}
+                    rows="2"
+                    bind:value={tekster.begrunnelser[p.punkt]}
+                    aria-required={kreves(p.punkt) ? 'true' : undefined}
+                    aria-invalid={bFeil ? 'true' : undefined}
+                    aria-describedby={[
+                      `${uid}-begrunnelse-hjelp`,
+                      kreves(p.punkt) ? `${id}-kreves` : '',
+                      kanStaa(p.punkt) ? `${uid}-begrunnelse-kreves` : '',
+                      bFeil ? `${id}-feil` : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                  ></textarea>
+                  {#if bFeil}<p class="feilmelding" id={`${id}-feil`}>{bFeil}</p>{/if}
+                </div>
+              {/each}
+            {/if}
+            <div class="begrunnelse forbehold">
+              <Feltetikett for={`${uid}-forbehold`} valgfri>{SKJEMA.forbehold}</Feltetikett>
+              <span class="dempet" id={`${uid}-forbehold-hjelp`}>{SKJEMA.forbeholdHjelp}</span>
+              <textarea
+                id={`${uid}-forbehold`}
+                rows="3"
+                bind:value={tekster.forbehold}
+                aria-describedby={`${uid}-forbehold-hjelp`}
+              ></textarea>
+            </div>
+          </section>
+        {/if}
       {/if}
 
       <div class="skjemafot">
@@ -328,7 +381,9 @@
 
 {#if linja.visKompakt}
   <div class="kompakt" role="region" aria-label={SVARSKJEMA.kompaktLinje}>
-    <Knapp variant="primaer" onclick={seBrevet}>{HOVEDLINJER.seBrevet}</Knapp>
+    <Knapp variant="primaer" onclick={seBrevet}
+      >{lagtTil ? LEGG_TIL.leggTilSvaret : HOVEDLINJER.seBrevet}</Knapp
+    >
     <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}
       >{HOVEDLINJER.seHovedlinjene}</Knapp
     >
@@ -336,6 +391,15 @@
 {/if}
 
 <style>
+  .merknader {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4) var(--spacing-6) 0;
+  }
+  .merknader:empty {
+    display: none;
+  }
   .begrunnelser {
     padding: var(--spacing-5) var(--spacing-6);
     display: flex;

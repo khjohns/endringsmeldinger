@@ -4,9 +4,15 @@
  * (OV-U79, VS-U34, A1 i #2056). Varselet i skjemaet for ny sak, fristkravet og vederlagskravet, og
  * kravet, svaret og aksepten som legges til (OV-U98), bruker det.
  */
-import type { Korrespondansetype, Sendemaate } from '$kjerne/typer';
+import type { Korrespondansetype, Part, Sendemaate, Spor } from '$kjerne/typer';
+import type { Utledning } from '$kjerne/utledning/utled';
 import type { Kjernevedlegg } from './nysak';
-import { KORRESPONDANSEN, type Korrespondansehva } from './tekster';
+import {
+  KORRESPONDANSEN,
+  LEGG_TIL,
+  type Korrespondansehva,
+  type Korrespondansekategori,
+} from './tekster';
 
 export interface Korrespondansevalg {
   type: Korrespondansetype | null;
@@ -86,4 +92,72 @@ export function lagtTil<K extends { type: 'krav' | 'brev' | 'revisjon' | 'aksept
   else if (kommando.type === 'revisjon' && ut.svar)
     ut.svar = utenTekst(ut.svar as Record<string, unknown>);
   return { ...ut, ...registreringen(v) } as K & ReturnType<typeof registreringen>;
+}
+
+/** Det parten har fylt ut i skjemaet for korrespondanse lagt til (OV-U79, OV-U80). */
+export interface Lagttilvalg {
+  korrespondanse: Korrespondansevalg;
+  kategori: Korrespondansekategori | null;
+  /** Sporene dokumentasjonen gjelder; tom gjelder saken (OV-U79). */
+  spor: Spor[];
+  /** Svaret aksepten gjelder. */
+  svar: string | null;
+}
+
+export const tomtLagtTil = (spor: Spor): Lagttilvalg => ({
+  korrespondanse: tomKorrespondanse(),
+  kategori: null,
+  spor: [spor],
+  svar: null,
+});
+
+/**
+ * Kategoriene parten kan velge i sporet (OV-U80, arbeidsvalget 16.11 i #807). Bare det parten selv
+ * har sendt legges til, så valgene følger parten. Varselet åpner skjemaet for fristen når kjernen
+ * tilbyr det, og kravet når kjernen tilbyr et krav i sporet. Svaret på forholdet og aksepten står
+ * når sporet har noe å svare på eller godta. Kjernen avgjør resten når kommandoen sendes. I en sak
+ * kjernen ikke forstår, er bare dokumentasjonen med (MM-U2).
+ */
+export function kategoriene(
+  part: Part | null,
+  spor: Spor,
+  u: Utledning,
+  handlinger: readonly string[]
+): Korrespondansekategori[] {
+  if (!u.forstaatt || part === null) return ['dokumentasjon'];
+  const s = u.spor[spor];
+  return [
+    'dokumentasjon',
+    ...(part === 'TE' && spor === 'frist' && handlinger.includes('varsle:frist')
+      ? (['varsel'] as const)
+      : []),
+    ...(part === 'TE' && spor !== 'forhold' && handlinger.includes(`krav:${spor}`)
+      ? (['krav'] as const)
+      : []),
+    ...(part === 'BH' && spor === 'forhold' && s.krav.length > 0 ? (['svar'] as const) : []),
+    ...(part === 'TE' && s.svar.length + s.svarUtenforRekken.length > 0
+      ? (['aksept'] as const)
+      : []),
+  ];
+}
+
+/** Det som mangler i skjemaet, felt for felt, med meldingen ved feltet. */
+export function lagttilmangler(
+  v: Lagttilvalg
+): Partial<Record<Korrespondansefelt | 'kategori' | 'svar', string>> {
+  return {
+    ...korrespondansemangler(v.korrespondanse, { hva: 'korrespondanse' }),
+    ...(v.kategori === null ? { kategori: LEGG_TIL.kategorienMangler } : {}),
+    ...(v.kategori === 'aksept' && v.svar === null ? { svar: LEGG_TIL.svaretMangler } : {}),
+  };
+}
+
+/** Dokumentasjonen etter OV-U4 og OV-U79: ved sporene, eller saken uten spor. */
+export function dokumentasjonen(v: Lagttilvalg) {
+  const r = registreringen(v.korrespondanse);
+  return {
+    type: 'registrert_brev' as const,
+    ...(v.spor.length ? { spor: [...v.spor] } : {}),
+    ...r,
+  };
 }

@@ -217,6 +217,32 @@ export function brevMedUtsagn(u: Utledning, id: string) {
   return h?.art === 'dokument' ? brevet(u, h.dokument.id) : null;
 }
 
+/** Brevet med kravet, svaret eller utsagnet `id`. */
+export function brevMedElement(u: Utledning, id: string) {
+  const h = u.journal.find(
+    (x) =>
+      x.art === 'dokument' &&
+      [...x.dokument.krav, ...x.dokument.svar, ...x.dokument.utsagn].some((y) => y.id === id)
+  );
+  return h?.art === 'dokument' ? brevet(u, h.dokument.id) : null;
+}
+
+/**
+ * OV-U104: brevene i saken et brev lagt til er sendt samme dag som, slik kjernen sammenlikner dem
+ * i utledningen `etter` med brevet, og ikke i `foer`. Løsningen kjenner ikke rekkefølgen.
+ */
+export function sendtSammeDagSom(foer: Utledning, etter: Utledning): Brevet[] {
+  const kjent = new Set(foer.sendtSammeDag.map((x) => `${x.element} ${x.med}`));
+  const ut = new Map<string, Brevet>();
+  for (const x of etter.sendtSammeDag) {
+    if (kjent.has(`${x.element} ${x.med}`)) continue;
+    // Elementet i det nye brevet er det som ikke fantes før; det andre er brevet i saken.
+    const iSaken = brevMedElement(foer, x.med) ?? brevMedElement(foer, x.element);
+    if (iSaken) ut.set(iSaken.id, iSaken);
+  }
+  return [...ut.values()];
+}
+
 /** En dato en part har oppgitt i et brev, med brevet den står i. */
 export interface OppgittDato {
   dato: string;

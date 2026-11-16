@@ -42,7 +42,10 @@
   import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
   import { beloepet } from './kommandoer';
-  import { vedleggsgrense } from './nysak';
+  import { vedleggsgrense, vedleggskart } from './nysak';
+  import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
+  import Lagttillinje from './Lagttillinje.svelte';
+  import Lagttilmerknader from './Lagttilmerknader.svelte';
   import {
     brevene,
     datoerISporet,
@@ -51,7 +54,15 @@
     type Brevet,
     type Brevref,
   } from './lesing';
-  import { brevhode, brevtittel, dagensDato, dato, kalenderdager, KRAVSKJEMA } from './tekster';
+  import {
+    brevhode,
+    brevtittel,
+    dagensDato,
+    dato,
+    kalenderdager,
+    KRAVSKJEMA,
+    LEGG_TIL,
+  } from './tekster';
   import {
     PNS_GRENSE,
     fordelingenPaaPns,
@@ -77,6 +88,9 @@
     onbrevkontroll,
     onforkast,
     onvedsiden,
+    lagtTil = null,
+    onendre = () => {},
+    onlagttil = () => {},
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -85,6 +99,15 @@
     onbrevkontroll: (k: TilBrevkontrollen & { vedlegg: ReturnType<typeof vedleggIKravet> }) => void;
     onforkast: () => void;
     onvedsiden?: (vedSiden: boolean) => void;
+    /**
+     * Korrespondansen kravet legges til fra (OV-U80, OV-U98), eller `null` for et krav sendt fra
+     * løsningen. Kravet har da ikke noe forbehold (KA-U24).
+     */
+    lagtTil?: Korrespondansevalg | null;
+    /** Tilbake til korrespondansen. */
+    onendre?: () => void;
+    /** Kravet er lagt til. */
+    onlagttil?: () => void;
   } = $props();
   const uid = $props.id();
   const id = (felt: string) => `${uid}-${felt}`;
@@ -124,6 +147,8 @@
   const varselFor = (p: Kravpostvalg): Varselet | null => varselPerPost.get(p.noekkel) ?? null;
   const kommando = $derived(vederlagskravet(v, varslene));
   const vedlegg = $derived(vedleggIKravet(v, varslene));
+  const kommandoLagtTil = $derived(lagtTil ? kommandoenLagtTil(kommando, lagtTil) : null);
+  const vedleggLagtTil = $derived(new Map([...vedlegg, ...vedleggskart(lagtTil?.vedlegg ?? [])]));
 
   // Betegnelsen kjernen gir en ny post (KA-U53), lest av et utkast med de samme postene. Den
   // følger bare postenes id, rekkefølgen og trekket, så utkastet lages ikke ved hvert tastetrykk.
@@ -410,12 +435,17 @@
       tittel: KRAVSKJEMA.varslene,
       status: KRAVSKJEMA.antallVarsler(antallVarsler, iBrevet),
     },
-    {
-      id: id('forbehold'),
-      nummer: v.saerskilt ? '4' : '3',
-      tittel: KRAVSKJEMA.forbeholdPunkt,
-      status: v.forbehold.trim() ? KRAVSKJEMA.skrevet : KRAVSKJEMA.ikkeSkrevet,
-    },
+    // KA-U24: et krav lagt til har ikke noe forbehold.
+    ...(lagtTil
+      ? []
+      : [
+          {
+            id: id('forbehold'),
+            nummer: v.saerskilt ? '4' : '3',
+            tittel: KRAVSKJEMA.forbeholdPunkt,
+            status: v.forbehold.trim() ? KRAVSKJEMA.skrevet : KRAVSKJEMA.ikkeSkrevet,
+          },
+        ]),
   ]);
 
   // Punktet i panelet for avsnittet du står i (U-15 i BF-14, `aria-current`): det siste avsnittet
@@ -503,6 +533,15 @@
       forsoekt = true;
       await tick();
       oppsummering?.focus();
+      return;
+    }
+    if (kommandoLagtTil) {
+      if (await kjernesak.send(kommandoLagtTil, undefined, vedleggLagtTil)) onlagttil();
+      else {
+        sendehindring = kjernesak.feil ?? KRAVSKJEMA.kanIkkeLages;
+        await tick();
+        document.getElementById(id('hindring'))?.focus();
+      }
       return;
     }
     const b = kjernesak.brev(kommando, vedlegg, true);
@@ -817,7 +856,9 @@
   <Knapp
     variant="primaer"
     onclick={seBrevet}
-    aria-describedby={sendehindring ? id('hindring') : undefined}>{KRAVSKJEMA.seBrevet}</Knapp
+    opptatt={!!lagtTil && kjernesak.sender}
+    aria-describedby={sendehindring ? id('hindring') : undefined}
+    >{lagtTil ? LEGG_TIL.leggTilKravet : KRAVSKJEMA.seBrevet}</Knapp
   >
   {#if sendehindring}
     <Melding art="feil" levende={false} id={id('hindring')} tabindex="-1">{sendehindring}</Melding>
@@ -828,11 +869,15 @@
   {#snippet hoved()}
     <Utkastkort
       id={id('tittel')}
-      tittel={utkastbrev
+      tittel={utkastbrev && !lagtTil
         ? brevhode({ merking: utkastbrev.merking, art: 'krav', brevtittel: utkastbrev.brevtittel })
         : KRAVSKJEMA.tittel}
       mottaker={KRAVSKJEMA.til}
+      merke={lagtTil ? LEGG_TIL.utkast : undefined}
     >
+      {#if lagtTil && kjernesak.part}
+        <Lagttillinje part={kjernesak.part} valg={lagtTil} {onendre} />
+      {/if}
       {#if lesbart}
         <Brevlinje
           id={id('lesebrev')}
@@ -1083,22 +1128,32 @@
         </ul>
       </section>
 
-      <section class="seksjon" id={id('forbehold')} aria-labelledby={id('forbehold-tittel')}>
-        <div class="seksjonshode">
-          <span class="nummer" aria-hidden="true">{v.saerskilt ? 4 : 3}</span>
-          <h3 id={id('forbehold-tittel')}>{KRAVSKJEMA.forbeholdPunkt}</h3>
+      {#if kommandoLagtTil}
+        <div class="merknader">
+          <Lagttilmerknader
+            {kjernesak}
+            {u}
+            spor="vederlag"
+            kommando={kommandoLagtTil}
+            vedlegg={vedleggLagtTil}
+          />
         </div>
-        <div class="felt">
-          <Feltetikett for={id('forbehold-felt')} valgfri>{KRAVSKJEMA.forbehold}</Feltetikett>
-          <span class="hjelp" id={id('forbehold-hjelp')}>{KRAVSKJEMA.forbeholdHjelp}</span>
-          <textarea
-            id={id('forbehold-felt')}
-            rows="4"
-            bind:value={v.forbehold}
-            aria-describedby={id('forbehold-hjelp')}
-          ></textarea>
-        </div>
-      </section>
+      {:else}<section class="seksjon" id={id('forbehold')} aria-labelledby={id('forbehold-tittel')}>
+          <div class="seksjonshode">
+            <span class="nummer" aria-hidden="true">{v.saerskilt ? 4 : 3}</span>
+            <h3 id={id('forbehold-tittel')}>{KRAVSKJEMA.forbeholdPunkt}</h3>
+          </div>
+          <div class="felt">
+            <Feltetikett for={id('forbehold-felt')} valgfri>{KRAVSKJEMA.forbehold}</Feltetikett>
+            <span class="hjelp" id={id('forbehold-hjelp')}>{KRAVSKJEMA.forbeholdHjelp}</span>
+            <textarea
+              id={id('forbehold-felt')}
+              rows="4"
+              bind:value={v.forbehold}
+              aria-describedby={id('forbehold-hjelp')}
+            ></textarea>
+          </div>
+        </section>{/if}
 
       <div class="skjemafot">
         {#if bekreftForkast}
@@ -1388,6 +1443,15 @@
   }
   .skjemafot {
     padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
+  }
+  .merknader {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4) var(--spacing-6) 0;
+  }
+  .merknader:empty {
+    display: none;
   }
   .bekreft {
     display: flex;

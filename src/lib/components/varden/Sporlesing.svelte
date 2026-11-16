@@ -36,7 +36,15 @@
     type Brevet,
     type Sideprops,
   } from './lesing';
-  import { BREVTYPER, FRISTEN, HANDLINGENE, FORHOLDET, STILLING, varselet } from './tekster';
+  import {
+    BREVTYPER,
+    FRISTEN,
+    HANDLINGENE,
+    FORHOLDET,
+    LEGG_TIL,
+    STILLING,
+    varselet,
+  } from './tekster';
 
   /** Siden for hvert spor, med samme props (#1997). */
   const SIDENE: Record<Spor, Component<Sideprops>> = {
@@ -412,6 +420,17 @@
       <section class="kort andre" aria-label={HANDLINGENE.andre}>
         {#if andre.length}{@render meny(andre, HANDLINGENE.andre)}{/if}
         {@render nySaklenke()}
+      </section>
+    {/if}
+    <!-- OV-U79: korrespondanse sendt utenfor løsningen, når kjernen tar imot den (U5 og U6). -->
+    {#if kjernesak.handlinger.includes('registrere_brev') && skjemaene.includes('registrere_brev')}
+      <section class="kort andre" aria-labelledby={`${uid}-legg-til`}>
+        <div>
+          <Knapp variant="lenke" id={`${uid}-legg-til`} onclick={() => onvelg('registrere_brev')}
+            >{LEGG_TIL.tittel}</Knapp
+          >
+        </div>
+        <p class="dempet">{LEGG_TIL.inngangHjelp}</p>
       </section>
     {/if}
   {/snippet}

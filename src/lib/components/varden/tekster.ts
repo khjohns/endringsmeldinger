@@ -1083,8 +1083,11 @@ export const SAKEN = {
   ikkeTilgjengelig: 'Dette er ikke bygget i denne prøven av Varden ennå.',
 };
 
-/** Det korrespondansen er etter kontrakten (OV-U80), som bestemmer ordene i komponenten. */
-export type Korrespondansehva = 'varsel' | 'krav' | 'svar' | 'aksept';
+/**
+ * Det korrespondansen er etter kontrakten (OV-U80), som bestemmer ordene i komponenten.
+ * `korrespondanse` er ordene før parten har svart.
+ */
+export type Korrespondansehva = 'korrespondanse' | 'varsel' | 'krav' | 'svar' | 'aksept';
 
 const KORRESPONDANSEORD: Record<
   Korrespondansehva,
@@ -1096,6 +1099,13 @@ const KORRESPONDANSEORD: Record<
     dokumentMangler: string;
   }
 > = {
+  korrespondanse: {
+    bestemt: 'korrespondansen',
+    typen: 'Hva legger du til?',
+    typenMangler: 'Velg hva du legger til.',
+    dokumentet: 'Dokumentet',
+    dokumentMangler: 'Legg ved dokumentet.',
+  },
   varsel: {
     bestemt: 'varselet',
     typen: 'Hvordan ble varselet gitt?',
@@ -1164,6 +1174,75 @@ export const KORRESPONDANSEN = {
     beskrivelse: `Beskriv ${KORRESPONDANSEORD[hva].bestemt}.`,
   }),
 };
+
+/** Kategorien i «Hva er det etter kontrakten?» (OV-U80). */
+export type Korrespondansekategori = 'dokumentasjon' | 'varsel' | 'krav' | 'svar' | 'aksept';
+
+/**
+ * Skjemaet for korrespondanse sendt utenfor løsningen og lagt til i saken (OV-U79, OV-U80, OV-U98,
+ * prototypen `grunnlagsoversikt.html#reg-skjema`, arbeidsvalget 16.11 i #807).
+ */
+export const LEGG_TIL = {
+  tittel: 'Legg til korrespondanse',
+  inngangHjelp: 'Brev, e-post, møtereferat eller notat du har sendt utenfor løsningen.',
+  // Arbeidsvalget 16.11, punkt 2: bare det parten selv har sendt (avsenderen er #2069).
+  egen: 'Du legger til det du selv har sendt.',
+  gjelder: 'Gjelder',
+  gjelderHjelp: 'Velger du ingen, gjelder det saken.',
+  kategorien: 'Hva er det etter kontrakten?',
+  kategorier: {
+    dokumentasjon: 'Dokumentasjon, for eksempel en avklaring',
+    varsel: 'Et varsel',
+    krav: 'Et krav',
+    svar: 'Et svar',
+    aksept: 'En aksept av byggherrens svar',
+  } satisfies Record<Korrespondansekategori, string>,
+  kategorienMangler: 'Velg hva det er etter kontrakten.',
+  // OV-U80: løsningen utleder ikke noe av dokumentasjonen.
+  dokumentasjon: 'Dokumentasjon står ved sporene eller saken. Løsningen utleder ikke noe av den.',
+  // OV-U80: skjemaet åpnes i samme forløp og viser til korrespondansen; KA-U24.
+  neste: {
+    varsel: 'Når du går videre, åpnes skjemaet for varselet med det du har fylt ut her.',
+    krav: 'Når du går videre, åpnes kravskjemaet. Det viser til korrespondansen, og du fyller det ut slik kravet står i dokumentet, uten begrunnelsen.',
+    svar: 'Når du går videre, åpnes svarskjemaet. Det viser til korrespondansen, og du fyller det ut slik svaret står i dokumentet, uten begrunnelsen.',
+  },
+  svaret: 'Hvilket svar godtok du?',
+  svaretHjelp: 'Byggherrens svar i saken. Aksepten gjelder fra datoen du oppgir.',
+  svaretMangler: 'Velg svaret aksepten gjelder.',
+  svaretValg: (b: Brevref) => stor(brevref(b)),
+  leggTil: 'Legg til',
+  gaaVidere: 'Gå videre',
+  avbryt: 'Avbryt',
+  lagtTil: {
+    dokumentasjon: 'Korrespondansen er lagt til.',
+    krav: 'Kravet er lagt til.',
+    svar: 'Svaret er lagt til.',
+    aksept: 'Aksepten er lagt til.',
+  },
+  /** Linja øverst i krav- og svarskjemaet (OV-U80). */
+  fra: (omtale: string) => `Legges til fra ${omtale}.`,
+  // OV-U80: løsningen lager ingen brevtekst, og der skjemaet og dokumentet spriker, er
+  // dokumentet partens meddelelse.
+  fraHjelp:
+    'Løsningen lager ingen brevtekst. Der skjemaet og dokumentet spriker, er det dokumentet som er sendt.',
+  endre: 'Endre korrespondansen',
+  utkast: 'Utkast · ikke lagt til',
+  leggTilKravet: 'Legg til kravet',
+  leggTilSvaret: 'Legg til svaret',
+  /** OV-U102. */
+  kravUtenforRekken:
+    'Kravet er sendt før totalentreprenørens siste krav i sporet. Det blir ikke gjeldende, men datoen det ble sendt, gjelder som datoen kravet i sporet først ble sendt.',
+  /** OV-U103. */
+  svarUtenforRekken:
+    'Svaret er sendt før byggherrens gjeldende svar på kravet. Det blir ikke gjeldende og erstatter ikke det nyere svaret.',
+  /** OV-U104 og MM-U50 punkt 8. */
+  sammeDag: (b: Brevref) =>
+    `Sendt samme dag som ${brevref(b)}. Løsningen kjenner ikke rekkefølgen og har ikke avgjort hvilket brev som kom først, eller hvem som er bundet.`,
+};
+
+/** Korrespondansen slik et brev omtaler den (LV-U42): parten, typen og datoen. */
+export const omtalenAvKorrespondansen = (part: Part, type: Korrespondansetype, d: string) =>
+  `${PARTENS[part]} ${KORRESPONDANSETYPEN[type].ubestemt} av ${dato(d)}`;
 
 /** Skjemaet for ny sak (BF-05, skissen versjon 3 med funnene F-1–F-8). */
 export const NYSAK = {
