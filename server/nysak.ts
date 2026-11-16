@@ -1,8 +1,11 @@
 /**
  * Kroppen som oppretter en sak med den første påberopelsen (KT-U11, #1487), prøvd før
- * kjernen ser den. Modulen er ren og importerer ingenting, så demoruta prøver kroppen
- * med samme funksjon som serveren (#1526 punkt 3, `src/lib/kjernesak/demosak.ts`).
+ * kjernen ser den. Modulen importerer bare fra kjernen og `kroppsfelt.ts`, så demoruta prøver
+ * kroppen med samme funksjon som serveren (#1526 punkt 3, `src/lib/kjernesak/demosak.ts`).
  */
+
+import { erObjekt } from '../kjerne/format/skjema.ts';
+import { ukjenteFeltmelding } from './kroppsfelt.ts';
 
 const NY_SAK = new Set([
   'kommando_id',
@@ -22,9 +25,6 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const tekstliste = (v: unknown): v is string[] =>
   Array.isArray(v) && v.every((x) => typeof x === 'string');
 
-const erObjekt = (v: unknown): v is Record<string, unknown> =>
-  typeof v === 'object' && v !== null && !Array.isArray(v);
-
 /** Vedleggene påberopelsen viser til, uten dubletter og med små bokstaver. */
 export const vedleggIder = (paaberopelse: Record<string, unknown>): string[] =>
   tekstliste(paaberopelse.dokumentasjon)
@@ -33,8 +33,8 @@ export const vedleggIder = (paaberopelse: Record<string, unknown>): string[] =>
 
 /** Meldingen for det første som gjør kroppen ugyldig, eller `null` når kjernen kan prøve den. */
 export function feilINySak(kropp: Record<string, unknown>): string | null {
-  const ukjente = Object.keys(kropp).filter((k) => !NY_SAK.has(k));
-  if (ukjente.length) return `Ukjente felt: ${ukjente.join(', ')}.`;
+  const ukjente = ukjenteFeltmelding(kropp, NY_SAK);
+  if (ukjente) return ukjente;
   if (typeof kropp.kommando_id !== 'string' || !UUID.test(kropp.kommando_id))
     return 'kommando_id mangler eller er ikke en UUID med små bokstaver.';
   const { ny_sak_id: sakId, tittel, paaberopelse, varsel } = kropp;
@@ -52,8 +52,8 @@ export function feilINySak(kropp: Record<string, unknown>): string | null {
   if (varsel !== undefined) {
     if (!erObjekt(varsel))
       return 'varsel må være et objekt med sendt, korrespondansetype og dokumentasjon.';
-    const ukjenteIVarsel = Object.keys(varsel).filter((k) => !VARSEL_I_NY_SAK.has(k));
-    if (ukjenteIVarsel.length) return `Ukjente felt i varsel: ${ukjenteIVarsel.join(', ')}.`;
+    const ukjenteIVarsel = ukjenteFeltmelding(varsel, VARSEL_I_NY_SAK, 'varsel');
+    if (ukjenteIVarsel) return ukjenteIVarsel;
     if (!tekstliste(varsel.dokumentasjon) || !varsel.dokumentasjon.length)
       return 'varsel.dokumentasjon mangler eller er ikke en liste med vedlegg.';
     const ider = vedleggIder(paaberopelse);
