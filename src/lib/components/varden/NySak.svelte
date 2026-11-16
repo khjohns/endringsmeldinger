@@ -13,6 +13,7 @@
   import type { Avsnitt } from '$kjerne/typer';
   import type { Saksmerking } from '$lib/kjernesak/brevtekst';
   import { tekstenKanVaereUtdatert } from '$lib/kjernesak/kontekst.svelte';
+  import Feltetikett from './Feltetikett.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brevkontroll, { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
@@ -433,7 +434,7 @@
           </fieldset>
 
           <div class="felt">
-            <label for={id('tittel')}>{NYSAK.sakstittel}</label>
+            <Feltetikett for={id('tittel')}>{NYSAK.sakstittel}</Feltetikett>
             <p class="hjelp" id={id('tittel-hjelp')}>{NYSAK.sakstittelHjelp}</p>
             <input
               id={id('tittel')}
@@ -447,7 +448,7 @@
           </div>
 
           <div class="felt">
-            <label for={id('beskrivelse')}>{felt.beskrivelse}</label>
+            <Feltetikett for={id('beskrivelse')}>{felt.beskrivelse}</Feltetikett>
             <p class="hjelp" id={id('beskrivelse-hjelp')}>{NYSAK.beskrivelseHjelp}</p>
             <textarea
               id={id('beskrivelse')}
@@ -465,7 +466,7 @@
 
           {#if felt.datotekst}
             <div class="felt">
-              <label for={id('dato')}>{felt.datotekst}</label>
+              <Feltetikett for={id('dato')}>{felt.datotekst}</Feltetikett>
               <input
                 id={id('dato')}
                 type="date"
@@ -482,7 +483,7 @@
 
           {#if felt.endringsordre}
             <div class="felt">
-              <label for={id('endringsordre')}>{NYSAK.endringsordre}</label>
+              <Feltetikett for={id('endringsordre')}>{NYSAK.endringsordre}</Feltetikett>
               <p class="hjelp" id={id('endringsordre-hjelp')}>{NYSAK.endringsordreHjelp}</p>
               <input
                 id={id('endringsordre')}
@@ -564,7 +565,7 @@
                   />
                 {/if}
                 <div class="felt">
-                  <label for={id('varseldato')}>{NYSAK.varseldato}</label>
+                  <Feltetikett for={id('varseldato')}>{NYSAK.varseldato}</Feltetikett>
                   <p class="hjelp" id={id('varseldato-hjelp')}>{NYSAK.varseldatoHjelp}</p>
                   <input
                     id={id('varseldato')}
@@ -585,7 +586,7 @@
                   <p class="hjelp">{NYSAK.varseldokumentIkkeLaget}</p>
                 </div>
                 <div class="felt">
-                  <label for={id('varselbeskrivelse')}>{NYSAK.varselbeskrivelse}</label>
+                  <Feltetikett for={id('varselbeskrivelse')}>{NYSAK.varselbeskrivelse}</Feltetikett>
                   <p class="hjelp" id={id('varselbeskrivelse-hjelp')}>
                     {NYSAK.varselbeskrivelseHjelp}
                   </p>
@@ -667,7 +668,6 @@
     margin: 0;
   }
   legend,
-  label,
   .etikett {
     font-weight: 600;
     color: var(--ink);
