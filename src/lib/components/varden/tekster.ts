@@ -119,6 +119,8 @@ export const kl = (d: string) => `kl.\u00a0${klokke(d)}`;
 /** «punkt 34.1.2» eller «punktene 34.1.2 og 34.1.3», med hardt mellomrom etter ordet. */
 export const punkt = (...numre: string[]) =>
   `${numre.length > 1 ? 'punktene' : 'punkt'}\u00a0${liste(numre)}`;
+/** «pkt. 33.4» eller «pkt. 33.5 og 33.6.1», for henvisningen som står alene i et merke (OV-U75). */
+export const hjemmelsmerke = (...numre: string[]) => `pkt. ${liste(numre)}`;
 
 /** Dagens dato i Oslo, ÅÅÅÅ-MM-DD, for `max` i et datofelt og dagene til i dag. */
 export const dagensDato = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
@@ -423,7 +425,6 @@ export const SKJEMA = {
   // Med en kravpost etter en beregningsregel (U-9 i BF-14).
   godkjennAlleFormerRegel: 'Godkjenn oppgjørsformen totalentreprenøren krever for alle kravpostene',
   godkjennAlleFaste: 'Godkjenn alle kravpostene med fast sum som krevd',
-  svaretKolonne: 'Svaret',
   teKrever: (beloep: number, pns?: string) =>
     `Totalentreprenøren krever fast sum, ${kroner(beloep)}${pns ? ` · PNS ${pns}` : ''}`,
   /** Kravposten etter en beregningsregel, med anslaget eller overslaget TE oppgir (KA-U66). */
@@ -478,7 +479,6 @@ export const SKJEMA = {
   /** Med flere kravposter sier meldingen hvilken den gjelder. */
   iPosten: (post: string | null, tekst: string) => (post ? `${post}: ${tekst}` : tekst),
   forkast: 'Forkast utkast',
-  forkastSpoersmaal: 'Forkaste utkastet? Valgene og begrunnelsen slettes.',
   forkastJa: 'Forkast',
   behold: 'Behold utkastet',
   ikkeStoettet:
@@ -557,8 +557,6 @@ export const FRISTSVAR = {
   manglerMaatteForstaa:
     'Skriv dagene du måtte forstå at totalentreprenøren hadde krav på, som et helt antall.',
   maatteForstaaForMange: 'Dagene du måtte forstå kan ikke være flere enn dagene du godkjenner.',
-  forkastTekst:
-    'Valgene og begrunnelsene du har skrevet i utkastet, slettes. Det kan ikke gjøres om.',
   leselinjeDager: (n: number, krevd: number) =>
     n === krevd
       ? `${dager(n)}, godkjent som krevd`
@@ -1287,7 +1285,7 @@ export const KRAVSKJEMA = {
   lukkBrevet: 'Lukk brevet',
   // 1. Vederlagsjusteringen.
   postene: 'Vederlagsjustering',
-  posteneHjemmel: 'punkt 34.1.1 og 34.1.2',
+  posteneHjemmel: hjemmelsmerke('34.1.1', '34.1.2'),
   posteneIntro:
     'Del kravet i kravposter. Betegnelsen (P1, P2 …) følger posten i nye brev og i endringsordren. Beløpene er eks. mva.',
   kolonner: ['Post', 'Oppgjørsform', 'PNS', 'Beløp'],
@@ -1357,7 +1355,7 @@ export const KRAVSKJEMA = {
   // 2. Den særskilte vederlagsjusteringen (OV-U89, OV-U95 punkt 3).
   saerskilt: 'Særskilt vederlagsjustering',
   saerskiltKort: 'Særskilt',
-  saerskiltHjemmel: 'punkt 34.1.3 annet ledd',
+  saerskiltHjemmel: hjemmelsmerke('34.1.3 annet ledd'),
   saerskiltIntro:
     'Økte utgifter på grunn av nedsatt produktivitet eller forstyrrelser på annet arbeid.',
   saerskiltBeloep: 'Beløpet du krever',
@@ -1409,6 +1407,8 @@ export const KRAVSKJEMA = {
   ingenVarslerISaken: (hjemmel: string) =>
     `Saken har ikke noe varsel etter ${punkt(hjemmel)}. Legg til dokumentet i stedet.`,
   dokumenttype: 'Hva legger du til?',
+  /** Ved registreringen av et varsel gitt utenfor løsningen, med de samme valgene. */
+  varselGitt: 'Hvordan ble varselet gitt?',
   dokumenttyper: [
     { verdi: 'brev' as const, tekst: 'Brev' },
     { verdi: 'e_post' as const, tekst: 'E-post' },

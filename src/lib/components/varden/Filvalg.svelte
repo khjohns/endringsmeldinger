@@ -136,6 +136,7 @@
   .hjelp {
     margin: 0;
     color: var(--ink-3);
+    font-size: 14px;
   }
   .velger {
     position: relative;

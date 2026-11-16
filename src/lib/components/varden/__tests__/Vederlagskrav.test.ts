@@ -173,7 +173,8 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     ).toBeTruthy();
     expect(mangler.getByRole('link', { name: 'P2: Legg ved dokumentet.' })).toBeTruthy();
 
-    await fireEvent.click(screen.getByRole('radio', { name: 'E-post' }));
+    const gitt = within(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' }));
+    await fireEvent.click(gitt.getByRole('radio', { name: 'E-post' }));
     await skriv('Datoen det ble sendt', '2026-09-28');
     const fil = new File(['%PDF-1.4'], 'varsel.pdf', { type: 'application/pdf' });
     await fireEvent.change(document.querySelector('input[type=file]')!, {

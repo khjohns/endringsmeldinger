@@ -797,7 +797,7 @@
       <div class="innrykk">
         <Valg
           navn={id(`type-${n}`)}
-          spoersmaal={KRAVSKJEMA.dokumenttype}
+          spoersmaal={KRAVSKJEMA.varselGitt}
           valg={KRAVSKJEMA.dokumenttyper}
           stablet
           lett
