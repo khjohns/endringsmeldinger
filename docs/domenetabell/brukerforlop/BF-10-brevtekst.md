@@ -196,7 +196,7 @@ Byggherren har svart at forholdet ikke er en endring. Deres ref.: K201-KOE-017-0
 > *Byggherren viser til beskrivelsen i kapittel 5.3. Den gjelder føringen i 2. etasje, ikke i
 > kjelleren der pålegget ble gitt. Vi fastholder at pålegget går ut over det kontrakten krever.*
 
-Vedtakene til nå (LV-U52) ville lagt til: ‹Totalentreprenørens standpunkt til byggherrens svar i
+Vedtakene til nå (LV-U52, senere opphevet av LV-U75) ville lagt til: ‹Totalentreprenørens standpunkt til byggherrens svar i
 brev K201-KOE-017-02 av 8. oktober 2026 fremgår av begrunnelsen.›
 
 **A**

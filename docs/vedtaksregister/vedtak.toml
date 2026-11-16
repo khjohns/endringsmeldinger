@@ -24049,10 +24049,10 @@ svar = '''
 Oppdragsgiver 14.11, ordrett ([#502, 6883744258](https://github.com/khjohns/endringsmeldinger/issues/502#issuecomment-6883744258)): «Som anbefalt på alle spørsmålene». Det betyr 1 A, 2 A, 3 A, 4 B, 5 A og 6 A.'''
 forhold = [
   { art = "endrer", vedtak = "ka-u52" },
-  { art = "endrer", vedtak = "lv-u52" },
+  { art = "opphever", vedtak = "lv-u52" },
 ]
 folge = '''
-Forholdet står i alternativ A: endrer KA-U52 punkt 4, annen setning (med MM-U34 punkt 1), og opphever det som står igjen av LV-U52 etter LV-U53 og LV-U56. MM-U34 er samlet i KA-U52. Forholdet til LV-U52 er ført som «endrer», fordi LV-U53 og LV-U56 endrer LV-U52 og forløpene viser til den. Forholdet til LV-U52 rettes til «opphever» i #1988. Bygges i #1379 og #1823.'''
+Forholdet står i alternativ A: endrer KA-U52 punkt 4, annen setning (med MM-U34 punkt 1), og opphever det som står igjen av LV-U52 etter LV-U53 og LV-U56. MM-U34 er samlet i KA-U52. Forholdet til LV-U52 ble først ført som «endrer», fordi forløpene viste til LV-U52, og er rettet til «opphever» i #1988. Bygges i #1379 og #1823.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"

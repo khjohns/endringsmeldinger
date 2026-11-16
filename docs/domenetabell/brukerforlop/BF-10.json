@@ -17,7 +17,6 @@
     "HF-U21",
     "LV-U41",
     "LV-U50",
-    "LV-U52",
     "LV-U53",
     "LV-U54",
     "VS-U26",
@@ -49,6 +48,11 @@
       "dato": "2026-11-15",
       "forhold": "MM-U56",
       "hva": "D-4: begge parter kan sende innlegg i forholdet. Vil TE endre eller utdype påberopelsen, sender TE en ny versjon."
+    },
+    {
+      "dato": "2026-11-16",
+      "forhold": "#1988, LV-U75",
+      "hva": "LV-U52 er tatt ut av kildene, fordi LV-U75 opphever den. LV-U56 tok setningen om standpunktet bort for påberopelsen."
     }
   ],
   "bestilling": "BF-10.md"
