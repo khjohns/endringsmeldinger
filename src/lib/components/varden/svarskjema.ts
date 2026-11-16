@@ -40,7 +40,7 @@ export interface Begrunnelsespunkt {
 export const begrunnelsespunktene = (avsnitt: readonly Avsnitt[]): Begrunnelsespunkt[] =>
   punkteneMedBegrunnelse(avsnitt).map((p) => ({
     punkt: p.punkt,
-    navn: [p.overskrift, p.kravpost].filter((x) => !!x).join(': ') || p.foerst,
+    navn: [p.overskrift, p.kravpost].filter((x): x is string => !!x).join(': ') || p.foerstIPunktet,
   }));
 
 /** Brevet med gjeldende krav i sporet, som svaret gjelder. */
