@@ -93,7 +93,7 @@
     sakslenke?: (sakId: string) => string;
     /**
      * Korrespondansen kravet legges til fra (OV-U80, OV-U98), eller `null` for et krav sendt fra
-     * løsningen. Kravet har da ingen begrunnelse og ikke noe varsel (KA-U24).
+     * løsningen. Kravet har da ingen begrunnelse og ikke noe varsel (OV-U80).
      */
     lagtTil?: Korrespondansevalg | null;
     /** Tilbake til korrespondansen. */
@@ -185,7 +185,7 @@
 
   /** Valgene slik kommandoen leser dem: et varsel utenfor bare der skjemaet viser det. */
   const gjeldende = $derived({ ...v, utenfor });
-  // KA-U24: et krav lagt til har ingen begrunnelse.
+  // OV-U80: et krav lagt til har ingen begrunnelse.
   const mangler = $derived(
     manglerIFristkravet(gjeldende, uid, navnet, foresporsel).filter(
       (m) => !lagtTil || m.felt !== id('begrunnelse')

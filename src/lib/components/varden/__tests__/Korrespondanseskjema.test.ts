@@ -271,7 +271,7 @@ describe('svaret på forholdet lagt til (OV-U80, OV-U98, OV-U101)', () => {
     return { tilServeren, lagtTil: () => lagtTil };
   }
 
-  it('skjemaet viser til korrespondansen, har ingen begrunnelse eller forbehold, og sender svaret med datoen uten brevtekst (KA-U24)', async () => {
+  it('skjemaet viser til korrespondansen, har ingen begrunnelse eller forbehold, og sender svaret med datoen uten brevtekst (OV-U80)', async () => {
     const { tilServeren, lagtTil } = await svaret('2026-10-16');
     expect(screen.getByText(/^Legges til fra byggherrens brev av 16\. okt/)).toBeInTheDocument();
     expect(screen.queryByLabelText(/Forbehold/)).not.toBeInTheDocument();
@@ -297,7 +297,7 @@ describe('svaret på forholdet lagt til (OV-U80, OV-U98, OV-U101)', () => {
   });
 });
 
-describe('kravet lagt til (OV-U80, OV-U98, KA-U24)', () => {
+describe('kravet lagt til (OV-U80, OV-U98)', () => {
   const korrespondansen: Korrespondansevalg = {
     type: 'e_post',
     sendemaate: null,

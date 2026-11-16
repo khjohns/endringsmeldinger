@@ -1202,7 +1202,7 @@ export const LEGG_TIL = {
   } satisfies Record<Korrespondansekategori, string>,
   kategorienMangler: 'Velg hva det er etter kontrakten.',
   // OV-U80: løsningen utleder ikke noe av dokumentasjonen.
-  // OV-U80: skjemaet åpnes i samme forløp og viser til korrespondansen; KA-U24.
+  // OV-U80: skjemaet åpnes i samme forløp og viser til korrespondansen.
   neste: {
     varsel: 'Når du går videre, åpnes skjemaet for varselet med det du har fylt ut her.',
     krav: 'Når du går videre, åpnes kravskjemaet. Det viser til korrespondansen, og du fyller det ut slik kravet står i dokumentet, uten begrunnelsen.',

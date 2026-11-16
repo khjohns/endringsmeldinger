@@ -72,7 +72,7 @@ export function registreringen(v: Korrespondansevalg) {
   };
 }
 
-/** Feltene med tekst fra løsningen, som kravet og svaret lagt til ikke har (OV-U80, KA-U24). */
+/** Feltene med tekst fra løsningen, som kravet og svaret lagt til ikke har (OV-U80). */
 const KRAVTEKSTENE = ['utdypning', 'utdypninger', 'forbehold', 'varsel'];
 const SVARTEKSTENE = ['utdypning', 'utdypninger'];
 const uten = (o: object, felt: readonly string[]) =>
@@ -81,7 +81,7 @@ const uten = (o: object, felt: readonly string[]) =>
 /**
  * Kommandoen fra krav-, svar- eller akseptskjemaet, lagt til med korrespondansen (OV-U80, OV-U98):
  * med datoen, typen, dokumentet og beskrivelsen, og uten teksten løsningen ellers skriver i brevet
- * (utdypningen, begrunnelsen og forbeholdet, KA-U24). Kjernen avviser det som mangler.
+ * (utdypningen, begrunnelsen og forbeholdet, OV-U80). Kjernen avviser det som mangler.
  */
 export function lagtTil<K extends { type: 'krav' | 'brev' | 'aksept'; svar?: unknown }>(
   kommando: K,

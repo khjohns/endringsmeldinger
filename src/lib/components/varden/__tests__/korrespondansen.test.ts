@@ -70,7 +70,7 @@ describe('kravet, svaret og aksepten lagt til med korrespondansen (OV-U80, OV-U9
     dokumentasjon: ['v-1'],
   };
 
-  it('kravet mister utdypningen, forbeholdet og varselet, som løsningen skriver i brevet (KA-U24), og kjernen godtar formen', () => {
+  it('kravet mister utdypningen, forbeholdet og varselet, som løsningen skriver i brevet (OV-U80), og kjernen godtar formen', () => {
     const krav = {
       type: 'krav' as const,
       spor: 'frist',

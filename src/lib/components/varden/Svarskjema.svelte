@@ -102,7 +102,7 @@
     spoersmaal: Snippet<[feil: (id: string) => string | null]>;
     /**
      * Korrespondansen svaret legges til fra (OV-U80, OV-U98), eller `null` for et svar sendt fra
-     * løsningen. Svaret har da ingen begrunnelse og ikke noe forbehold (KA-U24), og løsningen lager
+     * løsningen. Svaret har da ingen begrunnelse og ikke noe forbehold (OV-U80), og løsningen lager
      * ingen brevtekst.
      */
     lagtTil?: Korrespondansevalg | null;

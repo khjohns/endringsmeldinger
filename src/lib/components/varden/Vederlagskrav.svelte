@@ -105,7 +105,7 @@
     onvedsiden?: (vedSiden: boolean) => void;
     /**
      * Korrespondansen kravet legges til fra (OV-U80, OV-U98), eller `null` for et krav sendt fra
-     * løsningen. Kravet har da ikke noe forbehold (KA-U24).
+     * løsningen. Kravet har da ikke noe forbehold (OV-U80).
      */
     lagtTil?: Korrespondansevalg | null;
     /** Tilbake til korrespondansen. */
@@ -442,7 +442,7 @@
       tittel: KRAVSKJEMA.varslene,
       status: KRAVSKJEMA.antallVarsler(antallVarsler, iBrevet, !!lagtTil),
     },
-    // KA-U24: et krav lagt til har ikke noe forbehold.
+    // OV-U80: et krav lagt til har ikke noe forbehold.
     ...(lagtTil
       ? []
       : [
