@@ -262,7 +262,8 @@ post er endret.
   egen subagent. Den fant tre feil, og alle er rettet: gjengivelsen av GR-U35, kontrollen av en
   ny ordlyd i A og setningen om et sendt brev i A og B.
 - Ikke vurdert: de fire samlevedtakene under «Ikke vurdert», og ordlyd uten tegnene utvalget
-  leter etter.
+  leter etter. Begge er vurdert 16.11, se «Omklassifiseringen 16.11» og «Resten av
+  utvalget 16.11».
 - LV-U55, LV-U57, EO-U15 og OV-U86 er alt design, men mangler `flyttet_til`. Det rettes i
   omklassifiseringen.
 
@@ -337,3 +338,45 @@ eller av et senere vedtak. Bare OV-U73 sto igjen.
 
 **Svaret.** Oppdragsgiver 16.11, ordrett: «2A», altså A, det anbefalte alternativet (formidlet av
 orkestratoren). OV-U73 er ført som vedtak med designdel og beslutningsdel etter A.
+
+## Resten av utvalget 16.11
+
+Del av #1534, steg 4. Kontrollert commit: `7d07f39` på `main`.
+
+**Utvalget.** Et skript tok de gjeldende postene som utvalget 14.11 ikke vurderte, og plukket ut
+dem der vedtaksteksten (det valgte alternativet i en ny post) har sitert tekst i «» (78 poster),
+eller ordene «merket», «setningen», «ordlyden», «tittel», «kolonne», «feltet» eller «meldingen»
+uten «» (21 poster). Postene med klassen design er ikke tatt med. I tillegg ble punktene i de
+gjeldende samlevedtakene med sitert tekst som kan være brev- eller visningstekst, gått gjennom
+(17 bestilte punkter og ett funnet underveis, avsnittet «Designdel» i VS-U43). Tre subagenter
+vurderte hver sin del etter testen i vedtaksskillen og svaret 1 A.
+
+**Tellingen.** Ni poster får en ny klasse eller nye deler. De andre 106 radene er uendret: de fleste
+har bare begreper i «» («ingen krav», «låst»), sitater fra NS 8407 eller sitater av andre vedtak,
+og i resten er ordlyden alt designdel, eller posten er samlet og ordlyden står i samlevedtaket.
+
+| Post | Klasse før | Klasse etter | Designdel og beslutningsdel |
+| --- | --- | --- | --- |
+| KA-U22 | vedtak med designdel | vedtak med designdel og beslutningsdel | Ordlyden i de tre brevtekstene blir designdel. Avkallet og hva det omfatter, og at et trekk av grunnlaget ikke opphever et pålegg eller en endringsordre, står som vedtak (KA-U51 punkt 1 sier at avkallet rekker så langt brevet sier). At trekket ikke har fritekst i første versjon, og at et avgrenset avkall sendes utenfor appen, er beslutningsdel |
+| GR-U14 | vedtak | vedtak med designdel | Ordlyden i de to brevsetningene. Endringsordren etter punkt 32.3 første ledd a, kravet om utførelse og sitatet står som vedtak |
+| VS-U41 | vedtak | design, bindende i LV-U10 og VS-U43 | Henvisningsformen er ordlyd. At brevet viser til varselet med brevet det står i, når byggherren tar stilling til om varselet kom i tide, står i LV-U10 og VS-U43 punkt 10 |
+| VS-U43 | vedtak med designdel | vedtak med designdel | Designdelen får de fire brevtekstene i avsnittet «Designdel» og plasseringen av kunnskapsdatoen. At datoene er totalentreprenørens opplysning, og at påberopelsen nevner brevet og datoen, står som vedtak, så LV-U57 beholder hjemmet sitt |
+| LV-U18 | vedtak | vedtak med designdel | Ordlyden i brevtekstene (1)–(4). Det hver tekst meddeler, står som vedtak |
+| OV-U28 | vedtak | vedtak med designdel | Ordlyden i brevsetningene og lagslinjene. Laget for hvert beløp og det begrensningen meddeler, står som vedtak |
+| OV-U32 | vedtak | vedtak med designdel | Lagslinjene og at et lag står under én lagslinje. At brevet meddeler laget for hvert standpunkt, og at et upåvirket standpunkt er ubetinget, står som vedtak |
+| LV-U27 | vedtak | vedtak med designdel og beslutningsdel | Feltnavnene i brevhodet, sakens kode i tittelen og telefonen er designdel. At arkivets saksnummer og feltet for unntatt offentlighet venter på #1060, er beslutningsdel. Kodene som identifiserer brevet, står som vedtak, som G4 og G5 |
+| OV-U95 pkt. 3 og 24 | vedtak med designdel og beslutningsdel | samme, designdelen utvidet | Ordlyden i de to brevtekstene i punkt 3, også «i tillegg», og frasen i punkt 24. At kravet er et krav etter punkt 34.1.3 annet ledd, når det kommer i tillegg til de andre kravpostene (svar 2 A, E16), og at standpunktet er subsidiært og valgfritt, står som vedtak |
+
+**Kontrollen.** En egen subagent kontrollerte de ti radene og en stikkprøve på ti uendrede rader
+uavhengig (vedtaksskillen, «Hvem som retter klassen»). Den rettet VS-U41 fra vedtak med designdel
+til design og la beslutningsdelen til i LV-U27, og presiserte i de andre hva som ikke er designdel,
+som for LV-U4, LV-U56 og GR-U32 over. For OV-U95 punkt 3 rettet den forslaget om å gjøre valget av
+«i tillegg» til designdel: vilkåret for hva brevet meddeler, står som vedtak. Stikkprøven holdt.
+VS-U26 og OV-U41 er uendret fordi ordlyden deres står i VS-U43, som nå tar den. Grensetilfellene
+(KA-U22, VS-U41, LV-U27, OV-U95 pkt. 3 og VS-U43) ble avgjort av testen, svaret 1 A eller et senere
+vedtak, og ingen gikk til oppdragsgiver.
+
+**Grenser.** Utvalget finner ikke ordlyd uten sitattegn og uten ordene over, for eksempel en
+etikett nevnt uten anførselstegn. Postene med klassen design er ikke gått gjennom. LV-U35, LV-U42,
+LV-U53 og `flyttet_til` for LV-U55, LV-U57, EO-U15 og OV-U86 er ikke med (se over).
+
