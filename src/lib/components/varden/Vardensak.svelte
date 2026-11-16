@@ -169,18 +169,23 @@
   // Kravet om fristforlengelse står på samme måte (G-3 i BF-20).
   let fristkravvalg = $state<Fristkravvalg | null>(null);
   // Korrespondansen lagt til står når parten går videre til krav- eller svarskjemaet og tilbake
-  // (OV-U80). Skjemaet for kravet er åpnet fra den når `arbeid` sier det. Svaret er et utkast som
-  // står når BH bytter spor (BF-01 S-8), så `svarutkast` sier at utkastet er et svar lagt til.
-  let lagtTil = $state<{ spor: Spor; valg: Lagttilvalg; svarutkast?: true } | null>(null);
+  // (OV-U80). Skjemaet for kravet er åpnet fra den når `arbeid` sier det.
+  let lagtTil = $state<{ spor: Spor; valg: Lagttilvalg } | null>(null);
+  // Svaret på forholdet er et utkast som står når BH bytter spor (BF-01 S-8). Er det et svar lagt
+  // til, står korrespondansen det legges til fra, her, til utkastet er lagt til eller forkastet.
+  let svaretFra = $state<Korrespondansevalg | null>(null);
   /** Korrespondansen kravet eller svaret i sporet legges til fra, eller `null`. */
   const lagtTilI = (s: Spor, kategori: 'krav' | 'svar') =>
-    (kategori === 'svar'
-      ? lagtTil?.svarutkast
-      : 'fraKorrespondansen' in arbeid && arbeid.fraKorrespondansen) &&
-    lagtTil?.spor === s &&
-    lagtTil.valg.kategori === kategori
-      ? lagtTil.valg.korrespondanse
-      : null;
+    kategori === 'svar'
+      ? s === 'forhold'
+        ? svaretFra
+        : null
+      : 'fraKorrespondansen' in arbeid &&
+          arbeid.fraKorrespondansen &&
+          lagtTil?.spor === s &&
+          lagtTil.valg.kategori === 'krav'
+        ? lagtTil.valg.korrespondanse
+        : null;
   // Datoen og forklaringen står når TE går til brevkontrollen og tilbake (U-3 i BF-02A).
   let korrigeringsvalg = $state<Korrigeringsvalg>({ dato: '', forklaring: '' });
   // Teksten i den nye versjonen står mens TE korrigerer datoen (U-2 i BF-10).
@@ -248,7 +253,11 @@
     else if (s === 'frist') fristsvarvalg = tomtFristsvar();
     else forholdssvarvalg = tomtForholdssvar();
     utkastAapent[s] = false;
-    if (lagtTil?.spor === s) delete lagtTil.svarutkast;
+    // Et forkastet svar lagt til tar korrespondansen med seg.
+    if (s === 'forhold') {
+      svaretFra = null;
+      if (lagtTil?.spor === 'forhold' && lagtTil.valg.kategori === 'svar') lagtTil = null;
+    }
   }
 
   // Brevkontrollen for BHs svar i sporet, som svarer på gjeldende krav.
@@ -361,7 +370,7 @@
   const skjemaene: Record<string, () => void> = {
     'svare:forhold': () => {
       // Svaret sendes fra løsningen, også et utkast som var et svar lagt til.
-      if (lagtTil) delete lagtTil.svarutkast;
+      svaretFra = null;
       utkastAapent.forhold = true;
       arbeid = { art: 'svar' };
     },
@@ -396,7 +405,7 @@
     }
     if (kategori === 'svar') {
       utkastAapent.forhold = true;
-      lagtTil.svarutkast = true;
+      svaretFra = { ...lagtTil.valg.korrespondanse };
       arbeid = { art: 'svar' };
     } else if (valgt === 'frist') {
       // `utenfor` i utkastet står; skjemaet ser bort fra det når kravet legges til.
@@ -406,6 +415,12 @@
   }
   /** Tilbake til korrespondansen fra krav- eller svarskjemaet. */
   function tilKorrespondansen() {
+    // Korrespondansen for svarutkastet står selv om skjemaet er brukt i et annet spor siden.
+    if (svaretFra && valgt === 'forhold' && lagtTil?.spor !== 'forhold')
+      lagtTil = {
+        spor: 'forhold',
+        valg: { ...tomtLagtTil('forhold'), korrespondanse: { ...svaretFra }, kategori: 'svar' },
+      };
     arbeid = { art: 'korrespondanse' };
   }
   async function lagtTilKvittering(tekst: string, krav: Kravspor | null = null) {

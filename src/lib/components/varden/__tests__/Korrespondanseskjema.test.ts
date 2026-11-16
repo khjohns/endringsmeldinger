@@ -27,7 +27,7 @@ import Vederlagskrav from '$lib/components/varden/Vederlagskrav.svelte';
 import Lagttilmerknader from '$lib/components/varden/Lagttilmerknader.svelte';
 import type { Korrespondansevalg } from '$lib/components/varden/korrespondansen';
 import { kravposterI } from '$kjerne/spor/vederlag/format';
-import { LEGG_TIL, SAKEN } from '$lib/components/varden/tekster';
+import { HOVEDLINJER, LEGG_TIL, SAKEN } from '$lib/components/varden/tekster';
 import { brevene, sendtSammeDag, sendtSammeDagSom } from '$lib/components/varden/lesing';
 import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import Vardensak from '$lib/components/varden/Vardensak.svelte';
@@ -466,6 +466,22 @@ describe('svaret lagt til i saken (code-review i #807)', () => {
     expect(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret }).length).toBeGreaterThan(
       0
     );
-    expect(screen.queryByRole('button', { name: 'Se brevet før sending' })).toBeNull();
+    expect(screen.queryByRole('button', { name: HOVEDLINJER.seBrevet })).toBeNull();
+    // Korrespondanse i et annet spor, avbrutt, endrer ikke utkastet.
+    await fireEvent.click(screen.getAllByRole('button', { name: /^Vederlagsjustering/ })[0]!);
+    await fireEvent.click(await screen.findByRole('button', { name: LEGG_TIL.tittel }));
+    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.avbryt }));
+    await fireEvent.click(
+      within(screen.getAllByRole('list', { name: SAKEN.kontraktsforhold })[0]!).getByRole('button')
+    );
+    expect(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret }).length).toBeGreaterThan(
+      0
+    );
+    // «Endre korrespondansen» og så «Avbryt» lar utkastet stå som svar lagt til.
+    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.endre }));
+    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.avbryt }));
+    expect(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret }).length).toBeGreaterThan(
+      0
+    );
   });
 });
