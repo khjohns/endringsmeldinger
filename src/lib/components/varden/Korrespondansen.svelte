@@ -42,13 +42,16 @@
 </script>
 
 <div class="korrespondansen">
-  {#if kapittelB}<p class="kapittel-b">{KORRESPONDANSEN.kapittelB}</p>{/if}
+  {#if kapittelB}<p class="kapittel-b" id={`${id('type')}-kapittel-b`}>
+      {KORRESPONDANSEN.kapittelB}
+    </p>{/if}
   <Valg
     navn={id('type')}
     spoersmaal={KORRESPONDANSEN.typen}
     valg={KORRESPONDANSEN.typer}
     stablet
     lett
+    beskrevetAv={kapittelB ? `${id('type')}-kapittel-b` : undefined}
     bind:verdi={
       () => valg.type,
       (v) => {

@@ -81,6 +81,8 @@
   let lasterOpp = $state(false);
   let alleredeVarslet = $state<boolean | null>(false);
   let varsel = $state(tomKorrespondanse());
+  // Dokumentet med varselet kan ikke legges ved før påberopelsen sier det (#1488).
+  const varseldokumentet: VedleggForNySak | null = null;
   let feil = $state<Record<string, string>>({});
   let avbryter = $state(false);
   let oppsummering = $state<HTMLElement | null>(null);
@@ -201,7 +203,9 @@
     if (felt.endringsordre && !endringsordre.trim()) ny.endringsordre = NYSAK.oppgiEndringsordren;
     if (lasterOpp) ny.vedlegg = NYSAK.ventPaaOpplastingen;
     if (varselet) {
-      const mangler = Object.entries(korrespondansemangler(varsel, { dokument: false }));
+      const mangler = Object.entries(
+        korrespondansemangler(varsel, { dokument: varseldokumentet !== null })
+      );
       for (const [f, tekst] of mangler) ny[`varsel-${f}`] = tekst;
       if (!mangler.length) ny.varselLagres = NYSAK.varseletKanIkkeLagres;
     }
@@ -536,7 +540,7 @@
                   id={(f) => id(`varsel-${f}`)}
                   bind:valg={varsel}
                   feil={(f) => feil[`varsel-${f}`] ?? null}
-                  grense={null}
+                  grense={varseldokumentet}
                   endret={(f) => {
                     delete feil[`varsel-${f}`];
                     delete feil.varselLagres;

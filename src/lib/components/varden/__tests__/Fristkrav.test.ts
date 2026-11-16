@@ -323,6 +323,10 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     expect(
       screen.getByText(/^Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes/)
     ).toBeInTheDocument();
+    // Skjermleseren leser opplysningen når spørsmålet om typen får fokus (uu-sjekk).
+    expect(
+      screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' })
+    ).toHaveAccessibleDescription(/^Etter kapittel B i kontraktsgrunnlaget/);
     const gitt = within(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' }));
     // Etiketten for vedlegget gjelder alle typene (#2056, oppdragsgiver 16.11).
     expect(screen.getByText('Dokumentet du varslet i')).toBeInTheDocument();
