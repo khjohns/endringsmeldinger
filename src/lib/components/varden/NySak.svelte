@@ -754,7 +754,6 @@
     display: flex;
     gap: var(--spacing-3);
     align-items: center;
-    font-weight: 400;
     min-height: 44px;
     padding: var(--spacing-1) var(--spacing-2);
     border-radius: var(--r-felt);
