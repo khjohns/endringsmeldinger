@@ -1144,8 +1144,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/forhold/tekst.ts`,
     endringer: [
       [
-        "      if (varslingsplikt)\n        return 'byggherren avslår kravet på endringsordre",
-        "      if (false)\n        return 'byggherren avslår kravet på endringsordre",
+        "    return f.varslingsplikt ? 'avslag_endringsordre'",
+        "    return false ? 'avslag_endringsordre'",
       ],
     ],
     mal: ['avslaget der § 32.2 gjelder'],
@@ -3872,6 +3872,17 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['registrert korrespondanse omtales med parten, typen og datoen'],
   },
   {
+    id: 'F695',
+    feilklasse:
+      'et svar lagt til fryses med lagene i byggherrens nyeste svar på forholdet, ikke svaret som gjaldt da det ble sendt (OV-U98, #2057)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['  if (dag === null) return s.gjeldendeSvar;', '  return s.gjeldendeSvar;']],
+    mal: [
+      'et svar sendt før avslaget på forholdet er ikke subsidiært',
+      'en rad uten kommando fryses på samme måte',
+    ],
+  },
+  {
     id: 'F444',
     feilklasse: 'leseren godtar registrert korrespondanse uten typen (LV-U42, MM-U2)',
     fil: `${K}/format/leser.ts`,
@@ -5161,8 +5172,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
-        'const paaberoper = v.grunnlag_varslet_i_tide === false;',
-        'const paaberoper = false as boolean;',
+        "  if (v.grunnlag_varslet_i_tide === false) return ['forhold', '32.2'];",
+        "  if (false) return ['forhold', '32.2'];",
       ],
     ],
     mal: ['påberopt preklusjon etter § 32.2 (KA-U21, KA-U47)'],
@@ -5173,8 +5184,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
-        "const avslaar = v.resultat === 'avslaatt' && gjelderVarslingsplikten(krav, regler);",
-        "const avslaar = v.resultat === 'avslaatt';",
+        "  if (v.resultat === 'avslaatt' && varslingsplikt) return ['forhold'];",
+        "  if (v.resultat === 'avslaatt') return ['forhold'];",
       ],
     ],
     mal: ['der § 32.2 ikke gjelder, godtas uten begrunnelse også ved avslag'],
@@ -5186,8 +5197,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
-        "const punktene = paaberoper ? ['forhold', '32.2'] : ['forhold'];",
-        "const punktene = ['forhold', '32.2'];",
+        "  if (v.resultat === 'avslaatt' && varslingsplikt) return ['forhold'];",
+        "  if (v.resultat === 'avslaatt' && varslingsplikt) return ['forhold', '32.2'];",
       ],
     ],
     mal: ['ikke i punktet om et varsel i tide'],
@@ -5199,8 +5210,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
-        'if (punktene.some((p) => s.utdypninger?.[p]?.trim())) return null;',
-        'if (punktene.some((p) => s.utdypninger?.[p]?.trim()) || s.utdypning) return null;',
+        'if (!punktene || punktene.some((p) => s.utdypninger?.[p]?.trim())) return null;',
+        'if (!punktene || punktene.some((p) => s.utdypninger?.[p]?.trim()) || s.utdypning) return null;',
       ],
     ],
     mal: ['men ikke under «Forbehold»'],

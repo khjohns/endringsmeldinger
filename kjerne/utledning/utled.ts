@@ -564,6 +564,20 @@ export function kravversjonenPaaDagen(u: Utledning, spor: Spor, dag: string | nu
 }
 
 /**
+ * OV-U98: byggherrens svar i sporet som var gjeldende på dagen `dag`, etter `svaretGjaldt`, og det
+ * siste av dem når flere var det samme dag. Uten dag, for et brev fra løsningen, er det det
+ * gjeldende svaret. Et svar lagt til fryses med lagene i svaret på forholdet slik det var da (#2057).
+ */
+export function svaretPaaDagen(u: Utledning, spor: Spor, dag: string | null): Svar | null {
+  const s = u.spor[spor];
+  if (dag === null) return s.gjeldendeSvar;
+  return (
+    [...s.svar, ...s.svarUtenforRekken].filter((x) => svaretGjaldt(u, x, dag, () => {})).at(-1) ??
+    null
+  );
+}
+
+/**
  * OV-U98: kravversjonen `k` var gjeldende på dagen `dag`: den var sendt, og versjonen som
  * erstattet den, var ikke sendt før den dagen. Leses av journalen før dokumentet som legges til.
  */

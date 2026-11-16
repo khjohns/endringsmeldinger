@@ -996,6 +996,87 @@ describe('et svar som legges til, kan gjelde en eldre kravversjon som var gjelde
   });
 });
 
+describe('et svar som legges til, fryses med lagene i svaret på forholdet slik det var da det ble sendt (OV-U98, #2057)', () => {
+  const svaret: Handling = {
+    handling: 'brev',
+    svar: [{ spor: 'vederlag', vurdering: 'delvis', godkjent_belop: 60000, navn: 'S-v' }],
+  };
+  const forholdet = (resultat: string, navn: string): Handling => ({
+    handling: 'brev',
+    svar: [{ spor: 'forhold', resultat, varslet_i_tide: true, navn }],
+  });
+
+  const linjen = async (sendt: string) => {
+    const utfall = await provRegistrering(
+      [
+        forholdet('godkjent', 'S-1'),
+        {
+          handling: 'revisjon',
+          spor: 'forhold',
+          resultat: 'avslaatt',
+          varslet_i_tide: true,
+          navn: 'S-2',
+        },
+      ],
+      svaret,
+      sendt
+    );
+    if (!utfall.godtatt) throw new Error(utfall.avvisning.melding);
+    const data = utfall.hendelser[0].data as { svar: { beslutningsgrunnlag: { linje: string } }[] };
+    return data.svar[0].beslutningsgrunnlag.linje;
+  };
+
+  it('et svar sendt før avslaget på forholdet er ikke subsidiært, og et svar sendt etter er det (OV-U32, OV-U33)', async () => {
+    expect(await linjen('2026-09-24'), 'sendt etter godkjenningen og før avslaget').toMatch(
+      /^Byggherrens standpunkt: godkjent med 60\s000\skr\.$/
+    );
+    expect(await linjen('2026-09-26'), 'kontrollsak: sendt etter avslaget').toMatch(
+      /^Byggherrens standpunkt: subsidiært godkjent med 60\s000\skr\.$/
+    );
+  });
+
+  it('en rad uten kommando fryses på samme måte (`frysBrev`)', async () => {
+    const raden = async (sendt: string) => {
+      const forloep: Forloep = {
+        id: 'registrert-rad',
+        rader: [],
+        start: 'krav_irreg',
+        steg: [
+          forholdet('godkjent', 'S-1'),
+          {
+            handling: 'revisjon',
+            spor: 'forhold',
+            resultat: 'avslaatt',
+            varslet_i_tide: true,
+            navn: 'S-2',
+          },
+          {
+            handling: 'rad',
+            part: 'BH',
+            spor: 'vederlag',
+            vurdering: 'delvis',
+            godkjent_belop: 60000,
+            navn: 'S-v',
+            sendt,
+          },
+        ],
+        kontroller: [],
+      };
+      const k = await kjoer(forloep, minnebane(), { valg: { klokke: dagklokke() } });
+      const data = (await k.bane.journal()).at(-1)!.data as {
+        svar: { beslutningsgrunnlag: { linje: string } }[];
+      };
+      return data.svar[0].beslutningsgrunnlag.linje;
+    };
+    expect(await raden('2026-09-24'), 'sendt etter godkjenningen og før avslaget').toMatch(
+      /^Byggherrens standpunkt: godkjent med 60\s000\skr\.$/
+    );
+    expect(await raden('2026-09-26'), 'kontrollsak: sendt etter avslaget').toMatch(
+      /^Byggherrens standpunkt: subsidiært godkjent med 60\s000\skr\.$/
+    );
+  });
+});
+
 describe('varselet etter § 32.2 og et krav utenfor rekken (VS-U38, OV-U102)', () => {
   const varselet: Handling = { handling: 'varsel', spor: 'frist', sendt: '2026-09-20' };
   const felt = {
