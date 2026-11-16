@@ -17,8 +17,8 @@
     valg = $bindable(),
     feil = () => null,
     grense,
-    laster = $bindable(false),
     endret = () => {},
+    kapittelB = false,
   }: {
     /** ID-en til feltet for hver del. */
     id: (felt: Korrespondansefelt) => string;
@@ -27,20 +27,24 @@
     feil?: (felt: Korrespondansefelt) => string | null;
     /** Opplastingen av dokumentet, eller `null` når dokumentet ikke kan legges ved ennå (#1488). */
     grense: VedleggForNySak | null;
-    laster?: boolean;
     /** Kalles når et felt endres, så skjemaet kan fjerne feilen ved det. */
     endret?: (felt: Korrespondansefelt) => void;
+    /**
+     * Opplysningen fra kapittel B over typen, for totalentreprenørens varsler og krav etter
+     * kapittel 33 og 34 (VS-U72). Skjemaet for ny sak har den ved spørsmålet om punkt 32.2 (VS-U39).
+     */
+    kapittelB?: boolean;
   } = $props();
 
-  const fid = (felt: Korrespondansefelt) => id(felt);
   const iDag = dagensDato();
   const beskrevet = (felt: Korrespondansefelt) =>
-    `${fid(felt)}-hjelp${feil(felt) ? ` ${fid(felt)}-feil` : ''}`;
+    `${id(felt)}-hjelp${feil(felt) ? ` ${id(felt)}-feil` : ''}`;
 </script>
 
 <div class="korrespondansen">
+  {#if kapittelB}<p class="kapittel-b">{KORRESPONDANSEN.kapittelB}</p>{/if}
   <Valg
-    navn={fid('type')}
+    navn={id('type')}
     spoersmaal={KORRESPONDANSEN.typen}
     valg={KORRESPONDANSEN.typer}
     stablet
@@ -56,7 +60,7 @@
   />
   {#if valg.type === 'brev'}
     <Valg
-      navn={fid('sendemaate')}
+      navn={id('sendemaate')}
       spoersmaal={KORRESPONDANSEN.sendemaaten}
       valg={KORRESPONDANSEN.sendemaater}
       stablet
@@ -73,10 +77,10 @@
   {/if}
 
   <div class="felt">
-    <Feltetikett for={fid('dato')}>{KORRESPONDANSEN.dato}</Feltetikett>
-    <p class="hjelp" id={`${fid('dato')}-hjelp`}>{KORRESPONDANSEN.datoHjelp}</p>
+    <Feltetikett for={id('dato')}>{KORRESPONDANSEN.dato}</Feltetikett>
+    <p class="hjelp" id={`${id('dato')}-hjelp`}>{KORRESPONDANSEN.datoHjelp}</p>
     <input
-      id={fid('dato')}
+      id={id('dato')}
       type="date"
       class:ugyldig={feil('dato')}
       max={iDag}
@@ -86,12 +90,12 @@
       aria-describedby={beskrevet('dato')}
       oninput={() => endret('dato')}
     />
-    {#if feil('dato')}<p class="feil" id={`${fid('dato')}-feil`}>{feil('dato')}</p>{/if}
+    {#if feil('dato')}<p class="feil" id={`${id('dato')}-feil`}>{feil('dato')}</p>{/if}
   </div>
 
   {#if grense}
     <Filvalg
-      id={fid('dokument')}
+      id={id('dokument')}
       etikett={KORRESPONDANSEN.dokumentet}
       hjelp={KORRESPONDANSEN.dokumentetHjelp}
       {grense}
@@ -102,7 +106,6 @@
           endret('dokument');
         }
       }
-      bind:laster
       feil={feil('dokument')}
     />
   {:else}
@@ -113,10 +116,10 @@
   {/if}
 
   <div class="felt">
-    <Feltetikett for={fid('beskrivelse')}>{KORRESPONDANSEN.beskrivelse}</Feltetikett>
-    <p class="hjelp" id={`${fid('beskrivelse')}-hjelp`}>{KORRESPONDANSEN.beskrivelseHjelp}</p>
+    <Feltetikett for={id('beskrivelse')}>{KORRESPONDANSEN.beskrivelse}</Feltetikett>
+    <p class="hjelp" id={`${id('beskrivelse')}-hjelp`}>{KORRESPONDANSEN.beskrivelseHjelp}</p>
     <textarea
-      id={fid('beskrivelse')}
+      id={id('beskrivelse')}
       rows="3"
       class:ugyldig={feil('beskrivelse')}
       bind:value={valg.beskrivelse}
@@ -125,7 +128,7 @@
       aria-describedby={beskrevet('beskrivelse')}
       oninput={() => endret('beskrivelse')}
     ></textarea>
-    {#if feil('beskrivelse')}<p class="feil" id={`${fid('beskrivelse')}-feil`}>
+    {#if feil('beskrivelse')}<p class="feil" id={`${id('beskrivelse')}-feil`}>
         {feil('beskrivelse')}
       </p>{/if}
   </div>
@@ -136,6 +139,10 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-4);
+  }
+  .kapittel-b {
+    margin: 0;
+    color: var(--ink-2);
   }
   .felt {
     display: flex;

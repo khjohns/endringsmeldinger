@@ -397,6 +397,7 @@
       bind:valg={v.utenfor!}
       feil={(felt) => feil(`utenfor-${felt}`)}
       {grense}
+      kapittelB
     />
   </div>
 {/snippet}

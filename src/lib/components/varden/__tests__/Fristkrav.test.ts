@@ -319,6 +319,10 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     expect(mangler.getByText('Oppgi datoen varselet ble sendt.')).toBeInTheDocument();
     expect(mangler.getByText('Legg ved dokumentet du varslet i.')).toBeInTheDocument();
     expect(mangler.getByText('Beskriv varselet.')).toBeInTheDocument();
+    // VS-U72: opplysningen fra kapittel B står ved registreringen, som ved punkt 32.2 (VS-U39).
+    expect(
+      screen.getByText(/^Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes/)
+    ).toBeInTheDocument();
     const gitt = within(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' }));
     // Etiketten for vedlegget gjelder alle typene (#2056, oppdragsgiver 16.11).
     expect(screen.getByText('Dokumentet du varslet i')).toBeInTheDocument();

@@ -1094,7 +1094,6 @@ export const SAKEN = {
   ikkeTilgjengelig: 'Dette er ikke bygget i denne prøven av Varden ennå.',
 };
 
-/** Skjemaet for ny sak (BF-05, skissen versjon 3 med funnene F-1–F-8). */
 /**
  * Varselet sendt utenfor løsningen, i den felles komponenten for skjemaet for ny sak, fristkravet
  * og vederlagskravet (OV-U79, VS-U34, A1 i #2056). Ordene følger fristkravet (#2063).
@@ -1107,6 +1106,9 @@ export const KORRESPONDANSEN = {
     { verdi: 'moetereferat', tekst: 'Møtereferat' },
     { verdi: 'notat', tekst: 'Notat eller annet dokument' },
   ] satisfies { verdi: Korrespondansetype; tekst: string }[],
+  // VS-U39 ved varselet etter punkt 32.2, og VS-U72 ved varsler og krav etter kapittel 33 og 34.
+  kapittelB:
+    'Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes på byggherrens skjema, som brev, som PDF i e-post eller i prosjekthotellet når prosjektet bruker det. En e-post alene eller et møtereferat er ikke nok.',
   sendemaaten: 'Hvordan ble brevet sendt?',
   sendemaater: [
     { verdi: 'post', tekst: 'Per post' },
@@ -1131,6 +1133,7 @@ export const KORRESPONDANSEN = {
   },
 };
 
+/** Skjemaet for ny sak (BF-05, skissen versjon 3 med funnene F-1–F-8). */
 export const NYSAK = {
   over: 'Ny sak',
   tittel: 'Nytt krav om endringsordre',
@@ -1166,9 +1169,6 @@ export const NYSAK = {
   // Spørsmålet sier «pålegget» eller «forholdet», som ledetekstene (F-5).
   alleredeVarslet: (paalegg: boolean) =>
     `Har du allerede varslet byggherren etter punkt 32.2, på annen måte, at ${paalegg ? 'pålegget' : 'forholdet'} er en endring?`,
-  // Opplysningen fra kapittel B står ved spørsmålet uansett svar (VS-U39, F-8).
-  kapittelB:
-    'Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes på byggherrens skjema, som brev, som PDF i e-post eller i prosjekthotellet når prosjektet bruker det. En e-post alene eller et møtereferat er ikke nok.',
   // Varselet som alt er sendt (VS-U38), med feltene i `KORRESPONDANSEN`.
   varselMerknad:
     'Varselet legges til i saken sammen med påberopelsen, og dokumentet legges ved brevet.',

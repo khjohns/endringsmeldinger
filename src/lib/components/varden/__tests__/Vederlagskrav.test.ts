@@ -176,6 +176,10 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     ).toBeTruthy();
     expect(mangler.getByRole('link', { name: 'P2: Beskriv varselet.' })).toBeTruthy();
 
+    // VS-U72: opplysningen fra kapittel B står ved dokumentet, uansett type.
+    expect(
+      screen.getByText(/^Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes/)
+    ).toBeTruthy();
     const gitt = within(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' }));
     await fireEvent.click(gitt.getByRole('radio', { name: 'E-post' }));
     await skriv('Datoen det ble sendt', '2026-09-28');

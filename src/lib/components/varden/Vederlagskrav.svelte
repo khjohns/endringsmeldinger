@@ -800,6 +800,7 @@
           bind:valg={p.varsel}
           feil={(felt) => feil(`varsel-${felt}-${n}`)}
           {grense}
+          kapittelB
         />
       </div>
     {/if}

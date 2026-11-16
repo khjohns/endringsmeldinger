@@ -139,10 +139,9 @@ export function manglerIFristkravet(
       ...(ved ? { ved } : {}),
       post: post ?? null,
     });
-  if (v.utenfor) {
+  if (v.utenfor)
     for (const [felt, tekst] of Object.entries(korrespondansemangler(v.utenfor)))
       legg(`utenfor-${felt}`, tekst);
-  }
   if (v.hva === 'varsel') return ut;
   if (foresporsel && v.bokstav === 'b') {
     if (!v.grunnB.trim()) legg('grunn-b', FRISTKRAV.manglerGrunnB);

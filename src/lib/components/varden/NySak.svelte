@@ -528,7 +528,7 @@
                 bind:verdi={alleredeVarslet}
                 beskrevetAv={id('kapittel-b')}
               />
-              <p class="kapittel-b" id={id('kapittel-b')}>{NYSAK.kapittelB}</p>
+              <p class="kapittel-b" id={id('kapittel-b')}>{KORRESPONDANSEN.kapittelB}</p>
             </div>
             {#if varselet}
               <div class="varselet">
