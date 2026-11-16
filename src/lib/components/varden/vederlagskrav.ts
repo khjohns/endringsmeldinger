@@ -6,12 +6,18 @@
  */
 
 import { innholdIVederlaget, kravposterI } from '$kjerne/spor/vederlag/format';
-import type { Korrespondansetype, Kravpost, Oppgjoersform } from '$kjerne/typer';
+import type { Kravpost, Oppgjoersform } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import type { Varselet } from '$lib/kjernesak/vederlagskrav';
 import { lesKroner, visKroner } from '$lib/utils/belop';
-import { vedleggskart, type Kjernevedlegg } from './nysak';
+import { vedleggskart } from './nysak';
 import { beloepet, definert } from './kommandoer';
+import {
+  korrespondansemangler,
+  registreringen,
+  tomKorrespondanse,
+  type Korrespondansevalg,
+} from './korrespondansen';
 import { KRAVSKJEMA } from './tekster';
 import type { Mangel } from './mangler';
 
@@ -21,12 +27,9 @@ import type { Mangel } from './mangler';
  * dokument sendt utenfor løsningen som legges til i saken (VS-U51, VS-U53), og `samme` det samme
  * dokumentet som for kravposten `som` (VS-U52, oppdragsgiver 11.11).
  */
-export interface Varselvalg {
+export interface Varselvalg extends Korrespondansevalg {
   art: 'kravet' | 'saken' | 'dokument' | 'samme';
   varsel: string | null;
-  type: Korrespondansetype | null;
-  dato: string;
-  vedlegg: Kjernevedlegg[];
   som: string | null;
 }
 
@@ -63,11 +66,9 @@ export interface Kravvalg {
 }
 
 export const tomtVarselvalg = (): Varselvalg => ({
+  ...tomKorrespondanse(),
   art: 'kravet',
   varsel: null,
-  type: null,
-  dato: '',
-  vedlegg: [],
   som: null,
 });
 
@@ -142,16 +143,6 @@ export function trukneKravposter(u: Utledning): Kravpost[] {
   return [...sist.values()].filter((p) => !gjeldende.has(p.id));
 }
 
-/** Dokumentet med varselet for posten, slik kommandoen bærer det (VS-U51, VS-U53). */
-function dokumentvarsel(v: Varselvalg) {
-  return {
-    sendt: v.dato,
-    // Kjernen avviser et dokument uten typen; skjemaet sier fra ved feltet først.
-    korrespondansetype: v.type ?? undefined,
-    dokumentasjon: v.vedlegg.map((x) => x.vedlegg_id),
-  };
-}
-
 /** Varselvalget som gjelder posten: valget selv, eller valget i posten med samme dokument. */
 export function gjeldendeVarselvalg(v: Kravvalg, p: Kravpostvalg): Varselvalg {
   if (p.varsel.art !== 'samme') return p.varsel;
@@ -176,7 +167,7 @@ export function vederlagskravet(v: Kravvalg, varslene: readonly (Varselet | null
         ? undefined
         : valg.art === 'saken'
           ? (valg.varsel ?? undefined)
-          : dokumentvarsel(valg);
+          : registreringen(valg);
     return definert({
       id: p.id ?? undefined,
       beskrivelse: p.beskrivelse.trim(),
@@ -273,11 +264,10 @@ export function manglerIKravet(
         kilde >= 0 && varslene[kilde]?.art === 'kravet' && valg.art === 'dokument';
       legg('varsel', kontrollert ? null : KRAVSKJEMA.manglerSamme);
     }
-    if (p.varsel.art === 'dokument') {
-      legg('type', valg.type === null ? KRAVSKJEMA.manglerType : null);
-      legg('dato', valg.dato ? null : KRAVSKJEMA.manglerDato);
-      legg('dokument', valg.vedlegg.length ? null : KRAVSKJEMA.manglerDokument);
-    }
+    // VS-U51, VS-U53: dokumentet med varselet for posten.
+    if (p.varsel.art === 'dokument')
+      for (const [felt, t] of Object.entries(korrespondansemangler(valg)))
+        legg(`varsel-${felt}`, t);
   });
   if (v.saerskilt) {
     const f = beloepsfeil(v.saerskilt.beloep, true, KRAVSKJEMA.manglerBeloep);

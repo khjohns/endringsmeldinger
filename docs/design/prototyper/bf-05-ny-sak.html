@@ -312,7 +312,7 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
 
             <div class="innrykk" id="annen-maate" data-spor="D-8 · G-2" tabindex="-1">
               <fieldset id="felt-type">
-                <legend>Hva legger du til?</legend>
+                <legend>Hvordan ble varselet gitt?</legend>
                 <label class="valg"><input type="radio" name="type" id="type-foerste" value="brev"> Brev</label>
                 <label class="valg"><input type="radio" name="type" value="e-post"> E-post</label>
                 <label class="valg"><input type="radio" name="type" value="møtereferat"> Møtereferat</label>
@@ -320,19 +320,19 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
               </fieldset>
               <fieldset id="felt-kanal" hidden>
                 <legend>Hvordan ble brevet sendt?</legend>
-                <label class="valg"><input type="radio" name="kanal" id="kanal-foerste" value="post"> Brev per post</label>
-                <label class="valg"><input type="radio" name="kanal" value="pdf"> PDF i e-post</label>
+                <label class="valg"><input type="radio" name="kanal" id="kanal-foerste" value="post"> Per post</label>
+                <label class="valg"><input type="radio" name="kanal" value="pdf"> Som PDF i e-post</label>
                 <label class="valg"><input type="radio" name="kanal" value="hotell"> I prosjekthotellet</label>
                 <label class="valg"><input type="radio" name="kanal" value="annen"> På annen måte</label>
               </fieldset>
               <div class="felt" id="felt-varseldato">
                 <label for="varseldato">Datoen det ble sendt</label>
-                <span class="hjelp" id="varseldato-hjelp">Datoen avsenderen oppgir, som dd.mm.åååå. Datoen settes én gang. Retter du den senere til en senere dato, gjelder den straks. En tidligere dato gjelder først når BH godtar rettingen.</span>
+                <span class="hjelp" id="varseldato-hjelp">Datoen avsenderen oppgir. Den settes én gang.</span>
                 <input type="text" id="varseldato" inputmode="numeric" autocomplete="off" aria-describedby="varseldato-hjelp" aria-required="true">
               </div>
               <div class="felt" id="felt-varselfil">
-                <label for="varselfil">Dokumentet</label>
-                <span class="hjelp" id="varselfil-hjelp">Last opp det som ble sendt, som PDF. En e-post lagres som PDF.</span>
+                <label for="varselfil">Dokumentet du varslet i</label>
+                <span class="hjelp" id="varselfil-hjelp">Legges til i saken og ved brevet. Opptil 15 MB.</span>
                 <input type="file" id="varselfil" accept="application/pdf" aria-describedby="varselfil-hjelp" aria-required="true">
               </div>
               <div class="felt" id="felt-varselbeskrivelse">
@@ -426,11 +426,11 @@ body.spor [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px
     { felt: 'felt-tittel', fokus: 'tittel', feil: () => ($('tittel').value.trim() ? null : 'Skriv tittelen på saken.') },
     { felt: 'felt-beskrivelse', fokus: 'beskrivelse', feil: () => ($('beskrivelse').value.trim() ? null : 'Beskriv pålegget før du går videre.') },
     { felt: 'felt-mottatt', fokus: 'mottatt', feil: () => dato('mottatt', 'datoen pålegget ble mottatt') },
-    { felt: 'felt-type', fokus: 'type-foerste', annen: true, feil: () => (valgt('type') ? null : 'Velg hva varselet ble sendt i.') },
+    { felt: 'felt-type', fokus: 'type-foerste', annen: true, feil: () => (valgt('type') ? null : 'Velg hvordan varselet ble gitt.') },
     { felt: 'felt-kanal', fokus: 'kanal-foerste', annen: true, feil: () => (valgt('type')?.value !== 'brev' || valgt('kanal') ? null : 'Velg hvordan brevet ble sendt.') },
     { felt: 'felt-varseldato', fokus: 'varseldato', annen: true, feil: () => dato('varseldato', 'datoen varselet ble sendt') },
-    { felt: 'felt-varselfil', fokus: 'varselfil', annen: true, feil: () => (harPdf() ? null : 'Last opp varselet som PDF.') },
-    { felt: 'felt-varselbeskrivelse', fokus: 'varselbeskrivelse', annen: true, feil: () => ($('varselbeskrivelse').value.trim() ? null : 'Beskriv varselet kort.') },
+    { felt: 'felt-varselfil', fokus: 'varselfil', annen: true, feil: () => (harPdf() ? null : 'Legg ved dokumentet du varslet i.') },
+    { felt: 'felt-varselbeskrivelse', fokus: 'varselbeskrivelse', annen: true, feil: () => ($('varselbeskrivelse').value.trim() ? null : 'Beskriv varselet.') },
   ];
   for (const k of KRAV) {
     const p = document.createElement('p');

@@ -92,7 +92,7 @@ export interface Registrering {
   sendt?: string;
   korrespondansetype?: Korrespondansetype;
   sendemaate?: Sendemaate;
-  /** OV-U79: den korte beskrivelsen med egne ord. Valgfri til skjemaet i Varden har den (#807). */
+  /** OV-U79: den korte beskrivelsen med egne ord, påkrevd med `sendt` (`sendemaatefeil`). */
   beskrivelse?: string;
   dokumentasjon?: string[];
 }
@@ -528,6 +528,22 @@ const sendemaatefeil = (sti: string, k: Record<string, unknown>): string[] =>
     ? [`${sti}sendemaate: bare et brev har sendemåten`]
     : [];
 
+/**
+ * OV-U79: avsenderen oppgir sendemåten for et brev lagt til, og beskrivelsen for all
+ * korrespondanse lagt til (arbeidsvalget 2 A i #807). Varselet i fristkravet prøves når det
+ * skrives som et eget brev (`medVarselet` i fristen).
+ */
+const korrespondansefeil = (k: Record<string, unknown>): string[] => {
+  const feil = sendemaatefeil('$.', k);
+  if (feil.length || !('sendt' in k)) return feil;
+  return [
+    ...(k.korrespondansetype === 'brev' && !('sendemaate' in k)
+      ? ['$.sendemaate: sendemåten for brevet mangler']
+      : []),
+    ...('beskrivelse' in k ? [] : ['$.beskrivelse: beskrivelsen mangler']),
+  ];
+};
+
 /** Feilene i formen, tomme når kommandoen kan vurderes. */
 export function formfeil(kommando: unknown): string[] {
   if (!erObjekt(kommando)) return ['Kommandoen må være et objekt.'];
@@ -627,7 +643,7 @@ export function formfeil(kommando: unknown): string[] {
       ])
     );
   }
-  if (!feil.length) feil.push(...sendemaatefeil('$.', kommando));
+  if (!feil.length) feil.push(...korrespondansefeil(kommando));
   if (type === 'krav' && !feil.length && erObjekt(kommando.varsel))
     feil.push(...sendemaatefeil('$.varsel.', kommando.varsel));
   if (type === 'korrigering' && !feil.length) {

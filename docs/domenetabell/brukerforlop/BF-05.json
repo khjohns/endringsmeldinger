@@ -210,7 +210,7 @@
             "staar": "Varselet legges til i saken sammen med påberopelsen, og dokumentet legges ved brevet."
           },
           {
-            "staar": "En tidligere dato gjelder først når BH godtar rettingen."
+            "staar": "Datoen avsenderen oppgir. Den settes én gang."
           },
           {
             "velg": "Irregulær endring"
@@ -232,16 +232,16 @@
             "tilstand": "ny-feil"
           },
           {
-            "staar": "Velg hva varselet ble sendt i."
+            "staar": "Velg hvordan varselet ble gitt."
           },
           {
             "staar": "Oppgi datoen varselet ble sendt."
           },
           {
-            "staar": "Last opp varselet som PDF."
+            "staar": "Legg ved dokumentet du varslet i."
           },
           {
-            "staar": "Beskriv varselet kort."
+            "staar": "Beskriv varselet."
           },
           {
             "velg": "E-post"
@@ -390,6 +390,11 @@
       "dato": "2026-11-06",
       "forhold": "#1615, LV-U56, LV-U57",
       "hva": "Setningen om datoen i brevet følger LV-U57: «Pålegget ble mottatt <dato>.»"
+    },
+    {
+      "dato": "2026-11-16",
+      "forhold": "#807, #2056",
+      "hva": "Feltene og feilmeldingene for et varsel sendt på annen måte har ordene i Varden (OV-U79, A1 i #2056): «Hvordan ble varselet gitt?», «Datoen det ble sendt», «Dokumentet du varslet i» og «Kort beskrivelse av varselet». Sendemåten for et brev er med i D-8."
     }
   ],
   "steg": [

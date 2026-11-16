@@ -157,7 +157,7 @@ describe('formen på kravet', () => {
       beskrivelse: 'Varsel om fristforlengelse',
       dokumentasjon: ['vedlegg-1'],
     };
-    for (const korrespondansetype of ['brev', 'e_post', 'moetereferat', 'notat'])
+    for (const korrespondansetype of ['e_post', 'moetereferat', 'notat'])
       expect(formfeil({ ...varsel, korrespondansetype }), korrespondansetype).toEqual([]);
     expect(formfeil({ ...varsel, korrespondansetype: 'sms' })).not.toEqual([]);
     for (const sendemaate of ['post', 'pdf_e_post', 'prosjekthotell', 'annen_maate'])
@@ -185,6 +185,39 @@ describe('formen på kravet', () => {
     expect(formfeil({ type: 'begrunnelse', gjelder: 'svar-1', sendemaate: 'post' })).toEqual([
       '$.sendemaate: bare et brev lagt til med datoen det ble sendt (`sendt`), har sendemåten',
     ]);
+  });
+
+  it('OV-U79: korrespondanse lagt til må ha beskrivelsen, og et brev sendemåten (arbeidsvalget 2 A i #807)', () => {
+    const varsel = {
+      type: 'varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: '2026-09-02',
+      dokumentasjon: ['vedlegg-1'],
+    };
+    expect(formfeil({ ...varsel, korrespondansetype: 'brev' })).toEqual([
+      '$.sendemaate: sendemåten for brevet mangler',
+      '$.beskrivelse: beskrivelsen mangler',
+    ]);
+    expect(formfeil({ ...varsel, korrespondansetype: 'e_post' })).toEqual([
+      '$.beskrivelse: beskrivelsen mangler',
+    ]);
+    expect(formfeil({ ...varsel, ...SOM_BREV }), 'kontrollsak').toEqual([]);
+    const aksepten = {
+      type: 'aksept',
+      spor: 'forhold',
+      svar: 'svar-1',
+      regelversjon: 1,
+      sendt: '2026-09-02',
+      korrespondansetype: 'notat',
+      dokumentasjon: ['vedlegg-1'],
+    };
+    expect(formfeil(aksepten), 'en aksept lagt til').toEqual([
+      '$.beskrivelse: beskrivelsen mangler',
+    ]);
+    expect(formfeil({ ...aksepten, beskrivelse: 'Notat fra befaringen' })).toEqual([]);
+    const fraLoesningen = { type: 'aksept', spor: 'forhold', svar: 'svar-1', regelversjon: 1 };
+    expect(formfeil(fraLoesningen), 'kontrollsak: en aksept fra løsningen').toEqual([]);
   });
 
   it('et krav fra løsningen med vedlegg og typen, uten datoen, avvises bare for typen (VS-U38, OV-U80)', () => {

@@ -23,7 +23,8 @@
   import { tomtForholdssvar } from './forholdssvar';
   import Vederlagskrav from './Vederlagskrav.svelte';
   import Fristkrav from './Fristkrav.svelte';
-  import { startvalg as fristkravstart, tomtUtenforvalg, type Fristkravvalg } from './fristkrav';
+  import { startvalg as fristkravstart, type Fristkravvalg } from './fristkrav';
+  import { tomKorrespondanse } from './korrespondansen';
   /** Handlingene i fristen som åpner skjemaet for kravet (BF-20). */
   // Handlingstypene i fristen som holder kravskjemaet åpent, med varselet alene eller kravet valgt.
   const FRISTSKJEMAET: Record<Fristkravvalg['hva'], ReadonlySet<string>> = {
@@ -59,6 +60,7 @@
     NYSAK,
     FORHOLDET,
     SAKEN,
+    SAKSLISTE,
     SPORNAVN,
     STILLING,
   } from './tekster';
@@ -365,7 +367,11 @@
         ...v,
         hva,
         // «Send varsel» sender fra løsningen, og registrerer ikke et varsel som er påbegynt.
-        utenfor: registrer ? (v.utenfor ?? tomtUtenforvalg()) : hva === 'varsel' ? null : v.utenfor,
+        utenfor: registrer
+          ? (v.utenfor ?? tomKorrespondanse())
+          : hva === 'varsel'
+            ? null
+            : v.utenfor,
       };
     }
     arbeid = { art: 'fristkrav' };
@@ -464,7 +470,7 @@
     {#if !nySak && u && kjernesak.saksbilde}
       <header class="omslag">
         {#if sakskode}<p class="kode">{sakskode}</p>{/if}
-        <h1>{kjernesak.saksbilde.tittel}</h1>
+        <h1>{kjernesak.saksbilde.tittel ?? SAKSLISTE.utenTittel}</h1>
         {#if parter.length}
           <dl class="parter">
             {#each parter as [etikett, navn] (etikett)}
@@ -547,6 +553,10 @@
             >{melding.tekst}</Melding
           >{/if}
       </div>
+      <!-- MM-U2: en hendelse kjernen ikke forstår, gjør saken ikke forstått (#2079). -->
+      {#if !u.forstaatt}<div class="melding">
+          <Melding art="info" levende={false}>{SAKEN.ikkeForstaatt}</Melding>
+        </div>{/if}
       {#if arbeid.art === 'kontroll'}
         {@const k = arbeid}
         <Brevkontroll
