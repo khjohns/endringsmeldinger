@@ -732,7 +732,7 @@ describe('et svar i rekken erstattes også av et svar utenfor rekken sendt etter
     prov('aksept-etter-svar-utenfor-rekken', steg('2026-09-26'), [
       {
         etter: 4,
-        rolle: 'kontroll',
+        rolle: 'mal',
         kilde: ['OV-U103'],
         forventet: { forstaatt: true, 'svar_utenfor_rekken.forhold': ['S-r'] },
       },
@@ -744,11 +744,11 @@ describe('et svar i rekken erstattes også av et svar utenfor rekken sendt etter
       },
     ]));
 
-  it('kontrollsak: en aksept av det første svaret, sendt samme dag som svaret utenfor rekken, har virkning', () =>
+  it('en aksept av det første svaret, sendt samme dag som svaret utenfor rekken, har virkning (OV-U104)', () =>
     prov('aksept-samme-dag-som-svar-utenfor-rekken', steg('2026-09-25'), [
       {
         etter: 5,
-        rolle: 'kontroll',
+        rolle: 'mal',
         kilde: ['OV-U98', 'OV-U104'],
         forventet: { forstaatt: true, uten_virkning: [] },
       },
@@ -1092,7 +1092,7 @@ describe('enigheten om svaret byggherren har erstattet, bevares og vises ved det
       [
         {
           etter: 4,
-          rolle: 'kontroll',
+          rolle: 'mal',
           kilde: ['OV-U3'],
           forventet: { forstaatt: true, kravene_avgjort: true },
         },
@@ -1128,7 +1128,7 @@ describe('enigheten om svaret byggherren har erstattet, bevares og vises ved det
       [
         {
           etter: 1,
-          rolle: 'kontroll',
+          rolle: 'mal',
           kilde: ['GR-U7'],
           forventet: { 'enighet.vederlag.kilde': 'sammenfall' },
         },
