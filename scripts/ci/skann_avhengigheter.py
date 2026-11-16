@@ -49,17 +49,56 @@ def _uten_øvre_grense(alternativ: str) -> bool:
     return bool(ledd) and all(_NEDRE_GRENSE.fullmatch(grense) or _JOKER.fullmatch(grense) for grense in ledd)
 
 
+_VERSJON = re.compile(r"v?(\d+)(?:\.(\d+))?(?:\.(\d+))?")
+
+
+def _versjon(tekst: str) -> tuple[int, int, int] | None:
+    treff = _VERSJON.match(tekst)
+    return tuple(int(d or 0) for d in treff.groups()) if treff else None
+
+
+def _nedre_grense(alternativ: str) -> tuple[int, int, int]:
+    """Den laveste versjonen et alternativ uten øvre grense dekker; 0.0.0 for en joker."""
+    grenser = [
+        _versjon(ledd.lstrip(">="))
+        for ledd in re.sub(r"([<>]=?)\s+", r"\1", alternativ).split()
+        if ledd.startswith(">")
+    ]
+    return max((g for g in grenser if g), default=(0, 0, 0))
+
+
+def _øvre_grense(alternativ: str) -> tuple[int, int, int] | None:
+    """Den øvre grensen i `<X` eller `<=X`, eller None når den ikke kan leses."""
+    grenser = [
+        _versjon(ledd.lstrip("<="))
+        for ledd in re.sub(r"([<>]=?)\s+", r"\1", alternativ).split()
+        if ledd.startswith("<")
+    ]
+    return min((g for g in grenser if g), default=None)
+
+
 def har_rettet_versjon(område: str | None) -> bool:
-    """Om advisoryen kan ha en rettet versjon: minst ett alternativ i det sårbare området
-    har en øvre grense (svar A 11.11 på spørsmål 9 i #1791, #925). `*` og `>=1.0.0` har
-    ingen. I `<1.0.5 || >=2.0.0` er 1.x rettet og 2.x ikke; står pakken på linjen uten
-    retting, føres advisoryen i unntakslisten. `<=1.2.3` regnes som rettet, fordi npm
-    skriver et område med rettet versjon slik (`>=7.1.0 <=7.3.1` for vite, rettet i
-    7.3.2); en advisory uten rettet versjon i den formen føres i unntakslisten. Mangler
-    området, regnes versjonen som rettet, så funnet blokkerer."""
+    """Om advisoryen kan ha en rettet versjon på minst én linje (svar A 11.11 på spørsmål 9
+    i #1791, #925): et alternativ med øvre grense som ikke dekkes av et alternativ uten.
+    `*` og `>=1.0.0` har ingen øvre grense, og `* || <1.0.5` har derfor ingen rettet
+    versjon. `<=1.2.3` regnes som rettet, fordi npm skriver et område med rettet versjon
+    slik (`>=7.1.0 <=7.3.1` for vite, rettet i 7.3.2); en advisory uten rettet versjon i den
+    formen føres i unntakslisten. Mangler området, eller kan en øvre grense ikke leses,
+    regnes versjonen som rettet, så funnet blokkerer."""
     if not område:
         return True
-    return not all(_uten_øvre_grense(del_) for del_ in område.split("||"))
+    alternativer = [a for a in område.split("||") if a.strip()] or [område]
+    uten = [_nedre_grense(a) for a in alternativer if _uten_øvre_grense(a)]
+    if not uten:
+        return True
+    laveste = min(uten)
+    for alternativ in alternativer:
+        if _uten_øvre_grense(alternativ):
+            continue
+        øvre = _øvre_grense(alternativ)
+        if øvre is None or øvre < laveste:
+            return True
+    return False
 
 
 def funn(rapport: dict) -> list[tuple[str, str, str, str]]:
