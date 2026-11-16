@@ -3872,6 +3872,28 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['registrert korrespondanse omtales med parten, typen og datoen'],
   },
   {
+    id: 'F697',
+    feilklasse:
+      'korrespondanse lagt til godtas uten beskrivelsen (OV-U79, arbeidsvalget 2 A i #807)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [
+      ["    ...('beskrivelse' in k ? [] : ['$.beskrivelse: beskrivelsen mangler']),\n", ''],
+    ],
+    mal: ['OV-U79: korrespondanse lagt til må ha beskrivelsen, og et brev sendemåten'],
+  },
+  {
+    id: 'F698',
+    feilklasse: 'et brev lagt til godtas uten sendemåten (OV-U79, arbeidsvalget 2 A i #807)',
+    fil: `${K}/kommandoer/kommando.ts`,
+    endringer: [
+      [
+        "    ...(k.korrespondansetype === 'brev' && !('sendemaate' in k)",
+        "    ...(false && !('sendemaate' in k)",
+      ],
+    ],
+    mal: ['OV-U79: korrespondanse lagt til må ha beskrivelsen, og et brev sendemåten'],
+  },
+  {
     id: 'F444',
     feilklasse: 'leseren godtar registrert korrespondanse uten typen (LV-U42, MM-U2)',
     fil: `${K}/format/leser.ts`,
