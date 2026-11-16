@@ -80,6 +80,13 @@ export const FORBEHOLDET = 'forbehold';
 export const cellene = (tabell: string): string[][] =>
   tabell.split('\n').map((rad) => rad.split('\t'));
 
+/** Oversiktstabellen i avsnittet for punktet `OVERSIKTEN`, under overskriften (`cellene`). */
+export const tabellenIAvsnittet = (a: { laast: string; overskrift?: string }): string[][] =>
+  cellene(a.laast.slice(a.overskrift?.length ?? 0).trimStart());
+
+/** Radene for postene i tabellen, i rekkefølgen i `Avsnitt.poster` (svaret 16.11 i #1997). */
+export const postradene = (tabell: string[][]): string[][] => tabell.slice(1, -1);
+
 /** Et punkt for en kravpost har kravpostens faste betegnelse som navn (KA-U53). */
 export const erKravpostpunkt = (punkt: string | undefined): boolean =>
   punkt !== undefined && /^P[1-9]\d*$/.test(punkt);

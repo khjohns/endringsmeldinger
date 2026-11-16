@@ -395,6 +395,8 @@ export interface Avsnitt {
   overskrift?: string;
   laast: string;
   utdypning?: string;
+  /** Nøkkelen til posten for hver rad i oversiktstabellen (OV-U73, svaret 16.11 i #1997). */
+  poster?: string[];
 }
 
 /**

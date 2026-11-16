@@ -31,6 +31,7 @@ import {
   avvikITittelen,
   ulikSakIMerkingenOgTittelen,
 } from '../frosset/brevtittel.ts';
+import { OVERSIKTEN, postradene, tabellenIAvsnittet } from '../frosset/tekst.ts';
 import {
   erKalenderdato,
   erObjekt,
@@ -605,6 +606,17 @@ function lesDokument(h: Journalrad): Dokument {
           (a.laast !== a.overskrift && !a.laast.startsWith(`${a.overskrift}\n\n`)))
       )
         throw new Uforstaatt('overskriften i et avsnitt i brevteksten står ikke først i punktet');
+      // Svaret 16.11 i #1997 (`Avsnitt.poster`).
+      const radene =
+        a.punkt === OVERSIKTEN && dokument.svar.some((s) => s.id === a.gjelder)
+          ? postradene(tabellenIAvsnittet(a))
+          : null;
+      if (
+        (radene === null) !== (a.poster === undefined) ||
+        (a.poster &&
+          (a.poster.length !== radene!.length || new Set(a.poster).size !== a.poster.length))
+      )
+        throw new Uforstaatt('nøklene til postene i brevteksten svarer ikke til radene i tabellen');
       sett.add(a.gjelder);
       forrige = a;
     }

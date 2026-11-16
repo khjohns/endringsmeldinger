@@ -2354,8 +2354,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Avsnitt', 'brevtekst', 'laast utdypning', ['frosset/brevtekst.ts', 'frosset/brevdeler.ts']],
   // LV-U70: leseren prøver at hvert element har ett avsnitt, eller ett per punkt, og at
   // overskriften står først i den låste delen. Teksten lager punktene.
-  ['Avsnitt', 'brevtekst', 'laast punkt overskrift', ['format/leser.ts']],
-  ['Brevpunkt', 'brevtekst', 'punkt overskrift avsnitt', ['frosset/brevtekst.ts']],
+  ['Avsnitt', 'brevtekst', 'laast punkt overskrift poster', ['format/leser.ts']],
+  ['Brevpunkt', 'brevtekst', 'punkt overskrift avsnitt poster', ['frosset/brevtekst.ts']],
   // LV-U71: utdypningen per punkt kopieres til teksten under punktet.
   ['Utdypning', 'brevtekst', 'utdypning utdypninger forbehold', ['frosset/brevtekst.ts']],
   [
@@ -2452,7 +2452,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:skriv'],
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
-  ['frosset/tekst.ts', 'brevtekst', 'OVERSIKTEN FORBEHOLDET', ['frosset/brevtekst.ts']],
+  ['frosset/tekst.ts', 'brevtekst', 'FORBEHOLDET', ['frosset/brevtekst.ts']],
+  // Svaret 16.11 i #1997: leseren kontrollerer nøklene i punktet med tabellen.
+  ['frosset/tekst.ts', 'brevtekst', 'OVERSIKTEN', ['frosset/brevtekst.ts', 'format/leser.ts']],
+  ['frosset/tekst.ts', 'brevtekst', 'postradene tabellenIAvsnittet', ['format/leser.ts']],
+  ['frosset/tekst.ts:tabellenIAvsnittet', 'brevtekst', 'laast overskrift', ['frosset/tekst.ts']],
   [
     'frosset/tekst.ts',
     'brevtekst',
@@ -2503,6 +2507,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // OV-U73: tabellen får lagene i sporet, uten lagene fra forholdet.
   ['Lagbeloep', 'brevtekst', 'plass', ['frosset/brevtekst.ts']],
   ['PostenIOversikten', 'brevtekst', 'post navn krevd', ['spor/vederlag/tekst.ts']],
+  // Svaret 16.11 i #1997: tabellen fryses med nøkkelen til posten i hver rad.
+  ['Oversikten', 'brevtekst', 'tabell poster', ['frosset/brevtekst.ts']],
   ['Kravsporsbrevtekst', 'brevtekst', 'enigI kravetOm trukket', ['frosset/brevtekst.ts']],
   [
     'spor/vederlag/tekst.ts',

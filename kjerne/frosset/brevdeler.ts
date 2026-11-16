@@ -233,6 +233,8 @@ export interface Brevpunkt {
   punkt?: string;
   overskrift: string | null;
   avsnitt: string[];
+  /** Nøkkelen til posten i hver rad i oversiktstabellen (`Avsnitt.poster`). */
+  poster?: string[];
 }
 
 /**
@@ -327,7 +329,12 @@ export interface Sporsbrevtekst {
    * Oversiktstabellen i svaret (OV-U73), eller `null` når svaret ikke har en. `beloepene` og
    * `lagene` er lagene i sporet; `forskyvning` er lagene fra forholdet foran (OV-U32).
    */
-  oversikt?(krav: Krav, beloepene: Lagbeloep[], lagene: number, forskyvning: number): string | null;
+  oversikt?(
+    krav: Krav,
+    beloepene: Lagbeloep[],
+    lagene: number,
+    forskyvning: number
+  ): Oversikten | null;
   /** Følgen av påberopelsen etter § 34.1.2 når svaret ikke har tabell (LV-U33, LV-U38). */
   ingenBeloep?(krav: Krav): string;
 }
@@ -338,6 +345,12 @@ export interface Tema {
   overskrift: string | null;
   /** Linjen som sier hva punktet gjelder, først i punktet, som kravposten i kravet. */
   foerst?: string;
+}
+
+/** Oversiktstabellen i svaret (OV-U73) med nøklene til postene (`Avsnitt.poster`). */
+export interface Oversikten {
+  tabell: string;
+  poster: string[];
 }
 
 /** Et beløp byggherren godkjenner for en post i et lag, til oversiktstabellen (OV-U73). */
