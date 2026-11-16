@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { KORRESPONDANSETYPER, SENDEMAATER } from '$kjerne/typer';
-import { korrespondansemangler, registreringen, tomKorrespondanse } from '../korrespondansen';
+import { formfeil } from '$kjerne/kommandoer/kommando';
+import {
+  korrespondansemangler,
+  lagtTil,
+  registreringen,
+  tomKorrespondanse,
+} from '../korrespondansen';
 import { KORRESPONDANSEN } from '../tekster';
 
 const fylt = () => ({
@@ -52,5 +58,56 @@ describe('varselet sendt utenfor løsningen, i den felles komponenten (OV-U79)',
       dokument: KORRESPONDANSEN.mangler('varsel').dokument,
     });
     expect(korrespondansemangler(v, { dokument: false })).toEqual({});
+  });
+});
+
+describe('kravet, svaret og aksepten lagt til med korrespondansen (OV-U80, OV-U98)', () => {
+  const registrert = {
+    sendt: '2026-10-05',
+    korrespondansetype: 'brev',
+    sendemaate: 'post',
+    beskrivelse: 'Varsel om forsinket tegning.',
+    dokumentasjon: ['v-1'],
+  };
+
+  it('kravet mister utdypningen, forbeholdet og varselet, som løsningen skriver i brevet (KA-U24), og kjernen godtar formen', () => {
+    const krav = {
+      type: 'krav' as const,
+      spor: 'frist',
+      innhold: { frister: [{ frist_id: 1, dager: 25 }] },
+      utdypning: 'Begrunnelsen.',
+      utdypninger: { a: 'b' },
+      forbehold: 'Forbeholdet.',
+      varsel: { sendt: '2026-10-01' },
+    };
+    const ut = lagtTil(krav, fylt());
+    expect(ut).toEqual({ type: 'krav', spor: 'frist', innhold: krav.innhold, ...registrert });
+    expect(formfeil(ut)).toEqual([]);
+    // Kontrollsak: med utdypningen avviser kjernen kravet.
+    expect(formfeil({ ...ut, utdypning: 'x' })).not.toEqual([]);
+  });
+
+  it('svaret i et brev og i en revisjon mister begrunnelsen og forbeholdet, og resten står', () => {
+    const svar = {
+      spor: 'frist',
+      gjelder: 'k-1',
+      utdypning: 'f',
+      utdypninger: { p: 'b' },
+      resultat: {},
+    };
+    expect(lagtTil({ type: 'brev', svar: [svar] }, fylt()).svar).toEqual([
+      { spor: 'frist', gjelder: 'k-1', resultat: {} },
+    ]);
+    expect(lagtTil({ type: 'revisjon', erstatter: 's-1', svar }, fylt()).svar).toEqual({
+      spor: 'frist',
+      gjelder: 'k-1',
+      resultat: {},
+    });
+  });
+
+  it('aksepten får datoen og dokumentet og ellers det samme', () => {
+    expect(
+      lagtTil({ type: 'aksept', spor: 'frist', svar: 's-1', regelversjon: 3 }, fylt())
+    ).toEqual({ type: 'aksept', spor: 'frist', svar: 's-1', regelversjon: 3, ...registrert });
   });
 });

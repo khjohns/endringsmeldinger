@@ -63,3 +63,27 @@ export function registreringen(v: Korrespondansevalg) {
     dokumentasjon: v.vedlegg.map((x) => x.vedlegg_id),
   };
 }
+
+/** Feltene med tekst fra løsningen, som et krav lagt til ikke har (OV-U80, KA-U24). */
+const KRAVTEKSTENE = ['utdypning', 'utdypninger', 'forbehold', 'varsel'] as const;
+
+/**
+ * Kommandoen fra krav-, svar- eller akseptskjemaet, lagt til med korrespondansen (OV-U80, OV-U98):
+ * med datoen, typen, dokumentet og beskrivelsen, og uten teksten løsningen ellers skriver i brevet
+ * (utdypningen, begrunnelsen og forbeholdet, KA-U24). Kjernen avviser det som mangler.
+ */
+export function lagtTil<K extends { type: 'krav' | 'brev' | 'revisjon' | 'aksept' }>(
+  kommando: K,
+  v: Korrespondansevalg
+): K & ReturnType<typeof registreringen> {
+  const ut: Record<string, unknown> = { ...kommando };
+  if (kommando.type === 'krav') for (const felt of KRAVTEKSTENE) delete ut[felt];
+  const utenTekst = (s: Record<string, unknown>) =>
+    Object.fromEntries(
+      Object.entries(s).filter(([felt]) => felt !== 'utdypning' && felt !== 'utdypninger')
+    );
+  if (Array.isArray(ut.svar)) ut.svar = ut.svar.map(utenTekst);
+  else if (kommando.type === 'revisjon' && ut.svar)
+    ut.svar = utenTekst(ut.svar as Record<string, unknown>);
+  return { ...ut, ...registreringen(v) } as K & ReturnType<typeof registreringen>;
+}
