@@ -388,7 +388,7 @@ async function opprettMedPaaberopelse(
       varsel,
     }),
   };
-  const kontekst = skrivekontekst(bruker, prosjekt, side);
+  const kontekst = { ...skrivekontekst(bruker, prosjekt, side), kontraktsteam: side.kontraktsteam };
   let utfall;
   try {
     utfall = await opprettSakMedPaaberopelse(
@@ -510,11 +510,16 @@ async function opprettNySak(
   try {
     const kommando = { id, sha256: kommandosum({ rute: 'opprettelse', kommando: kropp.kommando }) };
     // Kjernen vurderer etter at kvitteringen er lest, så et gjentak får saken (#792 punkt 2).
-    utfall = await opprettSak(avh.datalag, skrivekontekst(bruker, prosjekt, side), kommando, () => {
-      const vurdert = opprettelse(kropp.kommando, side.rolle);
-      if (!vurdert.godtatt) return { skriv: false as const, avvisning: vurdert };
-      return { format: vurdert.format, data: vurdert.data };
-    });
+    utfall = await opprettSak(
+      avh.datalag,
+      { ...skrivekontekst(bruker, prosjekt, side), kontraktsteam: side.kontraktsteam },
+      kommando,
+      () => {
+        const vurdert = opprettelse(kropp.kommando, side.rolle);
+        if (!vurdert.godtatt) return { skriv: false as const, avvisning: vurdert };
+        return { format: vurdert.format, data: vurdert.data };
+      }
+    );
   } catch (feil) {
     if (feil instanceof IngenTopicBoard)
       return feilsvar(

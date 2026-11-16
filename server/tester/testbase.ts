@@ -11,7 +11,7 @@ import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { lagServer } from '../app.ts';
 import type { Avhengigheter } from '../rutetyper.ts';
-import { catendaId, sha256, type Catenda } from '../autorisasjon.ts';
+import { catendaId, sha256, type Catenda, type Kontraktsteam } from '../autorisasjon.ts';
 import { forkast, reservasjon, sql, type Utlaan } from '../datalag.ts';
 import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
 import {
@@ -42,6 +42,26 @@ export interface Testprosjekt {
   catendaProsjekt: string;
   teTeam: string;
   bhTeam: string;
+}
+
+/** Kontraktsteamene i prosjektet, slik `kontraktsside` leser dem (#877 p30). */
+export const kontraktsteamI = (p: Testprosjekt): Kontraktsteam => ({
+  TE: new Set([catendaId(p.teTeam)!]),
+  BH: new Set([catendaId(p.bhTeam)!]),
+});
+
+/**
+ * Kontraktsteamene i prosjektet slik de står i basen nå, som `kontraktsside` ville lest
+ * dem; en test kan ha byttet dem etter `lagOppsett` (#877 p30).
+ */
+export async function lesKontraktsteam(o: Oppsett, p: Testprosjekt): Promise<Kontraktsteam> {
+  const svar = await o.datalag.base.pool.request().input('prosjekt', p.id).query<{
+    team_id: string;
+    contract_role: 'TE' | 'BH';
+  }>('SELECT team_id, contract_role FROM koe.catenda_contract_teams WHERE internal_project_id = @prosjekt');
+  const team = { TE: new Set<string>(), BH: new Set<string>() };
+  for (const r of svar.recordset) team[r.contract_role].add(r.team_id);
+  return team;
 }
 
 export interface Oppsett {
@@ -323,7 +343,7 @@ export async function opprettKjernesak(
     return (
       await opprettSak(
         o.datalag.kjoeretid.pool,
-        kontekst,
+        { ...kontekst, kontraktsteam: await lesKontraktsteam(o, prosjekt) },
         { id: randomUUID(), sha256: kommandosum(d) },
         { format: f, data: d }
       )
