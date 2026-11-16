@@ -506,7 +506,7 @@ a.liten-knapp{color:inherit}
           <span class="segment" role="group" aria-label="Tilstand">
             <button type="button" data-anker="varsler" aria-pressed="true">Varslene</button>
             <button type="button" data-anker="brev" aria-pressed="false">Brevet</button>
-            <button type="button" data-anker="registrer" aria-pressed="false">Registrer et brev</button>
+            <button type="button" data-anker="registrer" aria-pressed="false">Registrer et varsel</button>
             <button type="button" data-anker="kravpost" aria-pressed="false">Senere krav</button>
             <button type="button" data-anker="svar" aria-pressed="false">Byggherrens svar</button>
           </span>
@@ -536,7 +536,7 @@ a.liten-knapp{color:inherit}
             <div class="punkt-hode"><span class="nr" aria-hidden="true"></span><h2 id="pv2">Hvordan varsler du?</h2></div>
             <fieldset class="oppgj"><legend class="spm">Velg én</legend><div class="valg kompakt">
               <label><input type="radio" name="maate" value="her" checked> Send brevet fra løsningen nå</label>
-              <label><input type="radio" name="maate" value="utenfor"> Registrer et brev sendt utenfor løsningen</label></div></fieldset>
+              <label><input type="radio" name="maate" value="utenfor"> Registrer et varsel sendt utenfor løsningen</label></div></fieldset>
             <div id="registrer" class="vskjema" hidden>
               <div data-korr style="display:contents">
                 <p class="hjelp">Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes på byggherrens skjema, som brev, som PDF i e-post eller i prosjekthotellet når prosjektet bruker det. En e-post alene eller et møtereferat er ikke nok.</p><fieldset class="oppgj"><legend class="spm">Hvordan ble varselet gitt?</legend><div class="valg kompakt"><label><input type="radio" name="utype" value="brev" checked> Brev</label><label><input type="radio" name="utype" value="e_post"> E-post</label><label><input type="radio" name="utype" value="moetereferat"> Møtereferat</label><label><input type="radio" name="utype" value="notat"> Notat eller annet dokument</label></div></fieldset>
@@ -680,7 +680,7 @@ function oppsummer() {
   p.setAttribute('href', utenfor ? '#registrer' : '#brev');
   document.getElementById('registrer').hidden = !utenfor;
   document.getElementById('radhjelp').textContent = utenfor ? 'Ett varsel per rad, slik dokumentet varslet dem.' : 'Ett varsel per rad. Hvert varsel står som et eget avsnitt i brevet.';
-  document.getElementById('tittel').textContent = utenfor ? 'Registrer et brev sendt utenfor løsningen · Varsel' : 'Brev 4 · Varsel';
+  document.getElementById('tittel').textContent = utenfor ? 'Registrer et varsel sendt utenfor løsningen · Varsel' : 'Brev 4 · Varsel';
 
   document.getElementById('brevark').innerHTML = `
     <p class="dempet">Brev 4 · til byggherren · E-017 · prototypetekst</p>
