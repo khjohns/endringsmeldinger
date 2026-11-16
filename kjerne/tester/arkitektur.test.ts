@@ -518,7 +518,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/format.ts', 'spor/vederlag/tekst.ts'],
   ],
   // VS-U49, D-16, VS-U55: om kravet er varselet for posten, eller et varsel før kravet gjelder den.
-  ['Kravpost', 'utsagn', 'oppgjoersform justert', ['spor/vederlag/utledning.ts:varselhjemmel']],
+  ['Kravpost', 'utsagn', 'oppgjoersform', ['spor/vederlag/utledning.ts:varselhjemmel']],
   // VS-U50, VS-U54: varselet kravposten viser til, en relasjon til et varsel i saken.
   [
     'Kravpost',
@@ -533,7 +533,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Kravpost',
     'utsagn',
-    'oppgjoersform justert',
+    'oppgjoersform',
     ['spor/vederlag/frysing.ts', 'spor/vederlag/kommando.ts', 'spor/vederlag/utledning.ts'],
   ],
   [
@@ -923,14 +923,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   // KA-U68, OV-U95 punkt 1 og 5: justerte enhetspriser og den andre beregningsregelen, for
-  // utfyllingen av lagene i et svarutkast (#1925).
+  // utfyllingen av lagene i et svarutkast (#1925) og kontrollen av oppgjørsformen (#2025 punkt 2).
   ['Kravpost', 'utsagn', 'justert', ['spor/vederlag/format.ts:justerteEnhetspriser']],
   [
     'spor/vederlag/format.ts',
     'predikat',
     'justerteEnhetspriser denAndreRegelen',
-    ['spor/vederlag/kommando.ts'],
+    ['spor/vederlag/kommando.ts', 'regler/vederlag.ts:kontrollerOppgjoersformen'],
   ],
+  // KA-U64, KA-U68: varselet og justeringen gjelder justerte enhetspriser (#2025 punkt 2).
+  ['spor/vederlag/format.ts', 'predikat', 'justerteEnhetspriser', ['spor/vederlag/utledning.ts']],
+  // #2025 punkt 6: vurderingen av beløpet for hver særskilt post i utkastet.
+  ['VURDERINGEN_AV_SAERSKILT', 'kommando', 'produktivitet', ['spor/vederlag/kommando.ts:besvart']],
   // KA-U64: varselet en kravpost trenger, for standpunktet til varselet i svaret.
   ['spor/vederlag/utledning.ts', 'predikat', 'varselhjemmel', ['spor/vederlag/kommando.ts']],
   // KA-U57 (d), KA-U54: hjemmelen i standpunktet til oppgjørsformen etter TEs oppgjørsform.
@@ -1063,7 +1067,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'aksepterer oensket_oppgjoersform krever_tilbud varslet_i_tide godtar_justering',
   ],
-  ['regler/vederlag.ts:kontrollerOppgjoersformen', 'utsagn', 'oppgjoersform justert'],
+  ['regler/vederlag.ts:kontrollerOppgjoersformen', 'utsagn', 'oppgjoersform'],
   [
     'regler/svarkontroll.ts:kontrollerSpesifiseringen',
     'utsagn',

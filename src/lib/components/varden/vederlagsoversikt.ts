@@ -6,7 +6,7 @@
  * Modulen avgjør ingenting selv.
  */
 
-import { OVERSIKTEN, postradene, tabellenIAvsnittet } from '$kjerne/frosset/tekst';
+import { OVERSIKTEN, tabellenIAvsnittet } from '$kjerne/frosset/tekst';
 import { beloep, tilTall, type Oere } from '$kjerne/regler/beloep';
 import { beloepeneILagene, krevdSamlet } from '$kjerne/spor/vederlag/format';
 import { posteneIOversikten } from '$kjerne/spor/vederlag/tekst';
@@ -28,8 +28,6 @@ export interface Posten {
   post: string;
   /** Navnet kjernen gir raden for posten (`posteneIOversikten`). */
   navn: string;
-  /** Navnet raden for posten har i tabellen i svarbrevet (svaret 16.11 i #1997), eller `null`. */
-  rad: string | null;
   oppgjoersform: Oppgjoersform | null;
   krevd: number | null;
   kravpost: Kravpost | null;
@@ -45,6 +43,8 @@ export interface KravetOgSvaret {
   lagene: Laget[];
   /** Oversiktstabellen slik brevet har den, med kolonnene først og summen sist (U-14). */
   tabell: string[][] | null;
+  /** Nøkkelen til posten for hver rad i tabellen etter kolonnene (`Avsnitt.poster`). */
+  postradene: string[];
   /** Svaret ble gitt mens forholdet ikke var besvart, så forbeholdet gjelder (GR-U34, D-3). */
   forbehold: boolean;
 }
@@ -56,7 +56,6 @@ const postene = (krav: Krav): Posten[] =>
   posteneIOversikten(krav).map((p) => ({
     post: p.post,
     navn: p.navn,
-    rad: null,
     oppgjoersform: p.kravpost?.oppgjoersform ?? null,
     krevd: somTall(p.krevd),
     kravpost: p.kravpost,
@@ -83,6 +82,7 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
     poster: postene(krav),
     lagene: [],
     tabell: null,
+    postradene: [],
     forbehold: false,
   };
   if (!svar || !svarbrev) return ut;
@@ -105,21 +105,22 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
   }));
   const oversikten = svarbrev.avsnitt?.find((a) => a.punkt === OVERSIKTEN);
   const tabell = oversikten ? tabellenIAvsnittet(oversikten) : null;
-  // MM-U50: raden for en post finnes på nøkkelen; leseren har kontrollert én per rad.
-  const radene = tabell ? postradene(tabell) : [];
-  const raden = new Map((oversikten?.poster ?? []).map((post, i) => [post, radene[i]![0]!]));
   return {
     ...ut,
-    poster: ut.poster.map((p) => ({ ...p, rad: raden.get(p.post) ?? null })),
+    // MM-U50: leseren har kontrollert at nøklene svarer til radene.
+    postradene: oversikten?.poster ?? [],
     lagene,
     tabell,
     forbehold: medForbehold(u, svar, svarbrev),
   };
 }
 
-/** Posten en rad i oversiktstabellen i svarbrevet gjelder, etter navnet raden har der. */
-export const postIRaden = (poster: Posten[], navn: string): Posten | undefined =>
-  poster.find((p) => p.rad === navn);
+/**
+ * Posten rad `r` i oversiktstabellen i svarbrevet gjelder, etter nøkkelen i brevet (svaret 16.11
+ * i #1997). `r` teller radene etter kolonnene, så summen gir ingen post.
+ */
+export const postIRaden = (k: KravetOgSvaret, r: number): Posten | undefined =>
+  k.poster.find((p) => p.post === k.postradene[r]);
 
 /** Summen av de faste beløpene i hvert krav i vederlaget, etter brevet med kravet (U-12). */
 export function kravbeloepene(u: Utledning): Map<string, number> {

@@ -40,7 +40,7 @@
         kolonner,
         rader: rader.map((celler, r) => ({
           celler,
-          post: postIRaden(k.poster, celler[0]),
+          post: postIRaden(k, r),
           sum: r === rader.length - 1,
         })),
       };

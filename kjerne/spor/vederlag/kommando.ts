@@ -566,8 +566,7 @@ export function lagIVederlaget(
     post.oppgjoersform !== 'tilbud' && typeof svar.aksepterer !== 'boolean'
       ? { ...svar, aksepterer: true }
       : svar;
-  const svaret = new Map(svarene.map(({ post, svar }) => [post.id, svar]));
-  const lagI = (fylt: Svarvurdering) => lagIUtfyllingen(fylt, svaret, utkast, u, regler);
+  const lagI = (fylt: Svarvurdering) => lagIUtfyllingen(fylt, utkast, u, regler);
   const beloepet = lagI(utfylt(regelGodtatt));
   const formene = lagI(
     utfylt((_, post) =>
@@ -618,11 +617,10 @@ const iKravposten = (s: Standpunkt) =>
 
 /**
  * Lagene i svarutkastet med de utfylte vurderingene `v` (`lagIVederlaget`). Om et standpunkt er
- * besvart, leses av svaret på hver kravpost i utkastet, `svaret`.
+ * besvart, leses av utkastet.
  */
 function lagIUtfyllingen(
   v: Svarvurdering,
-  svaret: ReadonlyMap<string, Kravpostvurdering>,
   utkast: Svarutkast,
   u: Utledning,
   regler: Regelsett
@@ -657,6 +655,11 @@ function lagIUtfyllingen(
     utregning: {},
   };
   const { grunner, virket, virkning, lag, etikett } = lageneIUtkastet(svar, utkast, u, regler);
+  const svaretPaaKravpostene = new Map(
+    kravpostvurderinger(utkast.vurderinger, u.spor.vederlag.gjeldendeKrav!).map(
+      ({ post, svar }) => [post.id, svar]
+    )
+  );
   // Innsigelsene i sporet som er gjort gjeldende og har virkning (OV-U27, OV-U22).
   const paaberopt = (h: Hjemmel) =>
     svar.standpunkter.some(
@@ -685,7 +688,7 @@ function lagIUtfyllingen(
       s.gjelder !== undefined
         ? { gjelder: s.gjelder }
         : {}),
-      besvart: besvart(utkast.vurderinger, svaret, u, s),
+      besvart: besvart(svaretPaaKravpostene, utkast.vurderinger, u, s),
       virkning: virkning[i]!,
       etikett: etikett[i]!,
       forutsetninger: rammer,
@@ -711,14 +714,26 @@ function innenforKravposten(standpunkter: Standpunkt[], i: number): Forutsetning
   });
 }
 
-/** Om spørsmålet standpunktet svarer på, er besvart i vurderingene `v` (#1925). */
+/** Vurderingen av beløpet for hver særskilt post i utkastet. */
+const VURDERINGEN_AV_SAERSKILT = {
+  produktivitet: 'produktivitet_vurdering',
+} as const satisfies Record<
+  NonNullable<Extract<Standpunkt, { art: 'beloep' }>['saerskilt']>,
+  keyof Svarvurdering
+>;
+
+/**
+ * Om spørsmålet standpunktet svarer på, er besvart i vurderingene `v` i utkastet, med svaret på
+ * hver kravpost i `svaret` (#1925).
+ */
 function besvart(
-  v: Svarvurdering,
   svaret: ReadonlyMap<string, Kravpostvurdering>,
+  v: Svarvurdering,
   u: Utledning,
   s: Standpunkt
 ): boolean {
-  if (s.art === 'beloep' && s.saerskilt) return typeof v.produktivitet_vurdering === 'string';
+  if (s.art === 'beloep' && s.saerskilt)
+    return typeof v[VURDERINGEN_AV_SAERSKILT[s.saerskilt]] === 'string';
   const gjelder = 'gjelder' in s ? s.gjelder : undefined;
   if (s.art === 'beloep' && utenFastBeloepIKravposten(u, gjelder)) return true;
   const svar = gjelder === undefined ? undefined : svaret.get(gjelder);

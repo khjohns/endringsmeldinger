@@ -116,9 +116,11 @@ describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
           }) ?? null,
       });
     const k = kravetOgSvaret(u, brevene(u).map(omdoept(false)))!;
-    expect(k.tabell?.slice(1, -1).map((r) => postIRaden(k.poster, r[0]!)?.post)).toEqual([
+    expect(k.tabell?.slice(1).map((_, r) => postIRaden(k, r)?.post)).toEqual([
       'P1',
       'produktivitet',
+      // Summen gjelder ingen post.
+      undefined,
     ]);
     // Navnet kjernen gir raden i dag, står ved siden av.
     expect(k.poster.map((p) => p.navn)).toEqual([
@@ -127,7 +129,7 @@ describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
     ]);
     // Kontrollsaken: uten nøkkelen i brevet gjelder ingen rad en post.
     const uten = kravetOgSvaret(u, brevene(u).map(omdoept(true)))!;
-    expect(postIRaden(uten.poster, 'Justering av vederlaget')).toBeUndefined();
+    expect(postIRaden(uten, 0)).toBeUndefined();
   });
 
   it('et svar gitt etter svaret på forholdet har ikke forbeholdet (GR-U34, D-3)', async () => {
