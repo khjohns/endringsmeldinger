@@ -3,15 +3,3 @@
 # Hver post gjelder én advisory i én pakke, med datoen unntaket ble ført, issuet
 # som skal fjerne det, og hvorfor det ikke er rettet nå. Skanningen feiler når en
 # advisory ikke lenger treffer, så posten må fjernes (#1170).
-#
-# Postene fra 18.10 er sårbarhetene som fantes da skanningen ble innført. De har
-# rettede versjoner, men oppgraderingen av frontendavhengighetene hører til #268
-# og ble ikke gjort her.
-
-[[unntak]]
-advisory = "GHSA-38f7-945m-qr2g"
-pakke = "effect"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: Effect `AsyncLocalStorage` context lost/contaminated inside Effect fibers under concurrent load with RPC"
-
