@@ -194,7 +194,7 @@ B-12 og Azure SQL-kostnader ikke blandes med språkresultatet.
 
 ## AV-06: Kit-server er et eget valg med koordinert migrering
 
-**Fil og symbol:** [svelte.config.js](../../svelte.config.js),
+**Fil og symbol:** `svelte.config.js`,
 [rotlayout](../../src/routes/+layout.ts), [Dockerfile](../../Dockerfile) og
 [vite.config.ts](../../vite.config.ts).
 Ren TS kan deles med nettleseren uten SvelteKit-serverhandlinger. Form actions,

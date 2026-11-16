@@ -14,8 +14,6 @@
   const brukertest = $derived(page.url.searchParams.has('brukertest'));
   function gaaTil(id: string, punkt: string) {
     const href = `${resolve('/demo/[forlop]', { forlop: id })}?punkt=${encodeURIComponent(punkt)}`;
-    // href er ruta fra resolve() med kontrollpunktet i query.
-    // eslint-disable-next-line svelte/no-navigation-without-resolve
     void goto(href);
   }
 

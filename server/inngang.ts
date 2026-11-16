@@ -8,7 +8,7 @@
 import type { IncomingMessage, OutgoingHttpHeaders } from 'node:http';
 import type { Svar } from './rutetyper.ts';
 import { feilnummer } from './datalag.ts';
-import { ukjenteFeltmelding } from './kroppsfelt.ts';
+import { ukjenteFeltmelding } from '../src/lib/kontroll/kroppsfelt.ts';
 
 /** Feilsvaret i samme form fra hver inngang, også de åpne (#942). */
 export const feilsvar = (status: number, error: string, message: string): Svar => [
