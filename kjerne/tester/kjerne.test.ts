@@ -36,6 +36,7 @@ import { bygg } from './baner.ts';
 import { avvikFraFormatet } from './formatprove.ts';
 import { mellomlager, type Handling } from './klient.ts';
 import { Forutsetning, les, type Kjoering } from './kjoerer.ts';
+import { SOM_BREV } from './brevet.ts';
 
 type Data = Record<string, unknown>;
 
@@ -123,7 +124,7 @@ describe('formen på kravet', () => {
       spor: 'frist',
       hjemmel: '33.4',
       sendt: '2026-09-02',
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
     };
     expect(formfeil({ ...varsel, dokumentasjon: ['vedlegg-1'] }), 'kontrollsak').toEqual([]);
     expect(formfeil(varsel)).toEqual(['$.dokumentasjon: mangler']);
@@ -153,6 +154,7 @@ describe('formen på kravet', () => {
       spor: 'frist',
       hjemmel: '33.4',
       sendt: '2026-09-02',
+      beskrivelse: 'Varsel om fristforlengelse',
       dokumentasjon: ['vedlegg-1'],
     };
     for (const korrespondansetype of ['brev', 'e_post', 'moetereferat', 'notat'])
@@ -160,10 +162,10 @@ describe('formen på kravet', () => {
     expect(formfeil({ ...varsel, korrespondansetype: 'sms' })).not.toEqual([]);
     for (const sendemaate of ['post', 'pdf_e_post', 'prosjekthotell', 'annen_maate'])
       expect(
-        formfeil({ ...varsel, korrespondansetype: 'brev', sendemaate }),
+        formfeil({ ...varsel, ...SOM_BREV, sendemaate }),
         `kontrollsak: ${sendemaate}`
       ).toEqual([]);
-    expect(formfeil({ ...varsel, korrespondansetype: 'brev', sendemaate: 'fax' })).not.toEqual([]);
+    expect(formfeil({ ...varsel, ...SOM_BREV, sendemaate: 'fax' })).not.toEqual([]);
     expect(formfeil({ ...varsel, korrespondansetype: 'e_post', sendemaate: 'post' })).toEqual([
       '$.sendemaate: bare et brev har sendemåten',
     ]);
@@ -812,7 +814,7 @@ describe('datoene for et registrert krav og varselet i det', () => {
           { id: randomUUID(), hva: 'sendt', dato: '2026-09-10' },
           { id: randomUUID(), hva: 'sendt', dato, gjelder: varsel },
         ],
-        korrespondansetype: 'brev',
+        ...SOM_BREV,
       },
     };
     await bane.skriv([rad], siste.versjon);
@@ -1826,7 +1828,7 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
   const brevet = '00000000-0000-4000-8000-000000001045';
   const registrering = (ekstra: Data = {}): Data => ({
     type: 'registrert_brev',
-    korrespondansetype: 'brev',
+    ...SOM_BREV,
     spor: ['frist'],
     sendt: '2026-10-20',
     beskrivelse: 'Forespørsel etter § 33.6.2',
@@ -1884,10 +1886,10 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
       const rad = godtatt(journal, registrering(), part);
       expect(rad.aktor_rolle).toBe(part);
       expect(rad.data).toEqual({
+        ...SOM_BREV,
         beskrivelse: 'Forespørsel etter § 33.6.2',
         spor: ['frist'],
         opplysninger: [{ id: expect.any(String), hva: 'sendt', dato: '2026-10-20' }],
-        korrespondansetype: 'brev',
         dokumentasjon: [
           { vedlegg_id: brevet, filnavn: `${brevet}.pdf`, innhold_sha256: '0'.repeat(64) },
         ],
@@ -1989,7 +1991,7 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     JSON.parse(
       JSON.stringify({
         type: 'registrert_brev',
-        korrespondansetype: 'brev',
+        ...SOM_BREV,
         spor: ['forhold'],
         sendt: '2026-10-20',
         beskrivelse: 'Svar på varselet',
