@@ -32,6 +32,12 @@ import type { Part } from '$kjerne/typer';
 /** Sporet kjernen gir hvert element i saken, for brevene i Varden (#1663). */
 export { elementenesSpor } from '$kjerne/kommandoer/handlinger';
 
+/**
+ * Kravversjonen som var gjeldende på dagen et svar lagt til ble sendt, som svaret gjelder (OV-U98),
+ * for svarskjemaet i Varden.
+ */
+export { kravversjonenPaaDagen } from '$kjerne/utledning/utled';
+
 /** Det som hindrer byggherrens svar på kravet i dag (KA-U59), for vederlagssvaret i Varden. */
 export { hindrerSvarPaaKravet } from '$kjerne/spor/vederlag/kommando';
 

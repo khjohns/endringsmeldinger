@@ -14,6 +14,7 @@
     innleggene,
     oppfoelgingene,
     type Sideprops,
+    sendtSammeDag,
   } from './lesing';
   import { FORHOLDET } from './tekster';
 
@@ -72,6 +73,7 @@
     {innlegg}
     {fulgtOpp}
     dokumentasjon={u.ikkeVurderteBrev}
+    sammeDag={sendtSammeDag(u)}
     venterPaaSvar={merke === 'venter_paa_svar'}
     {vist}
     {smal}

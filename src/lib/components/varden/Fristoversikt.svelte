@@ -21,6 +21,7 @@
     oppfoelgingene,
     type Brevet,
     type Sideprops,
+    sendtSammeDag,
   } from './lesing';
   import { FRISTEN, dagensDato, kalenderdager } from './tekster';
   import { kravdagene, kravetOgSvaretIFristen } from './fristoversikt';
@@ -82,6 +83,7 @@
     fulgtOpp={oppfoelgingene(u, alle)}
     {eldreKrav}
     dokumentasjon={u.ikkeVurderteBrev}
+    sammeDag={sendtSammeDag(u)}
     venterPaaSvar={betegnelser.frist === 'venter_paa_svar'}
     {oeverst}
     {nederst}

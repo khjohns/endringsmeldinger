@@ -1,14 +1,15 @@
 <!--
-  Varselet sendt utenfor løsningen, felles for skjemaet for ny sak, fristkravet og
-  vederlagskravet: typen, sendemåten for et brev, datoen det ble sendt, dokumentet og den korte
-  beskrivelsen (OV-U79, VS-U34, VS-U38, A1 i #2056). Skjemaet gir ID-en til hvert felt, så
+  Korrespondansen sendt utenfor løsningen: varselet i skjemaet for ny sak, fristkravet og
+  vederlagskravet, og kravet, svaret eller aksepten som legges til (OV-U98). Typen, sendemåten for
+  et brev, datoen det ble sendt, dokumentet og den korte beskrivelsen (OV-U79, VS-U34, VS-U38, A1 i
+  #2056). Skjemaet gir ID-en til hvert felt, så
   oppsummeringen av feilene kan flytte fokus dit.
 -->
 <script lang="ts">
   import Feltetikett from './Feltetikett.svelte';
   import Filvalg from './Filvalg.svelte';
   import Valg from './Valg.svelte';
-  import { dagensDato, KORRESPONDANSEN } from './tekster';
+  import { dagensDato, KORRESPONDANSEN, type Korrespondansehva } from './tekster';
   import type { Korrespondansefelt, Korrespondansevalg } from './korrespondansen';
   import type { VedleggForNySak } from './nysak';
 
@@ -19,6 +20,7 @@
     grense,
     endret = () => {},
     kapittelB = false,
+    hva = 'varsel',
   }: {
     /** ID-en til feltet for hver del. */
     id: (felt: Korrespondansefelt) => string;
@@ -34,6 +36,8 @@
      * kapittel 33 og 34 (VS-U72). Skjemaet for ny sak har den ved spørsmålet om punkt 32.2 (VS-U39).
      */
     kapittelB?: boolean;
+    /** Det korrespondansen er etter kontrakten, som bestemmer ordene (OV-U80). */
+    hva?: Korrespondansehva;
   } = $props();
 
   const iDag = dagensDato();
@@ -47,7 +51,7 @@
     </p>{/if}
   <Valg
     navn={id('type')}
-    spoersmaal={KORRESPONDANSEN.typen}
+    spoersmaal={KORRESPONDANSEN.typen(hva)}
     valg={KORRESPONDANSEN.typer}
     stablet
     lett
@@ -99,8 +103,8 @@
   {#if grense}
     <Filvalg
       id={id('dokument')}
-      etikett={KORRESPONDANSEN.dokumentet}
-      hjelp={KORRESPONDANSEN.dokumentetHjelp}
+      etikett={KORRESPONDANSEN.dokumentet(hva)}
+      hjelp={KORRESPONDANSEN.dokumentetHjelp(hva)}
       {grense}
       bind:vedlegg={
         () => valg.vedlegg,
@@ -113,13 +117,13 @@
     />
   {:else}
     <div class="felt">
-      <span class="etikett">{KORRESPONDANSEN.dokumentet}</span>
+      <span class="etikett">{KORRESPONDANSEN.dokumentet(hva)}</span>
       <p class="hjelp">{KORRESPONDANSEN.dokumentetIkkeEnnaa}</p>
     </div>
   {/if}
 
   <div class="felt">
-    <Feltetikett for={id('beskrivelse')}>{KORRESPONDANSEN.beskrivelse}</Feltetikett>
+    <Feltetikett for={id('beskrivelse')}>{KORRESPONDANSEN.beskrivelse(hva)}</Feltetikett>
     <p class="hjelp" id={`${id('beskrivelse')}-hjelp`}>{KORRESPONDANSEN.beskrivelseHjelp}</p>
     <textarea
       id={id('beskrivelse')}
