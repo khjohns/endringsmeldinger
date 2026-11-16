@@ -25,7 +25,7 @@
             "trykk": "Varselet er gitt før, utenfor løsningen"
           },
           {
-            "staar": "Brevet sier når, og brevet du varslet i, legges ved."
+            "staar": "Brevet sier når, og brevet eller e-posten du varslet i, legges ved."
           },
           {
             "trykk": "Dette kravet er varselet likevel"
@@ -109,7 +109,7 @@
             "tilstand": "varsel"
           },
           {
-            "velg": "Registrer et brev sendt utenfor løsningen"
+            "velg": "Registrer et varsel sendt utenfor løsningen"
           },
           {
             "staar": "Registrer varselet"
@@ -311,6 +311,11 @@
       "dato": "2026-11-14",
       "forhold": "#1745",
       "hva": "U-15 nevner også en sak der dagene bare er godkjent subsidiært (svar 1 A i sporsmal-2.md). Kildene har GFK-U27, GFK-U28 og EO-U41."
+    },
+    {
+      "dato": "2026-11-16",
+      "forhold": "#2056",
+      "hva": "Valget heter «Registrer et varsel sendt utenfor løsningen», og etiketten for vedlegget følger svaret på «Hvordan ble varselet gitt?»: brevet, e-posten, eller brevet eller e-posten før TE har svart."
     }
   ]
 }

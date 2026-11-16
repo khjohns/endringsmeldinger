@@ -434,7 +434,7 @@
     </div>
     <Filvalg
       id={id('utenfor-brev')}
-      etikett={FRISTKRAV.varselbrevet}
+      etikett={FRISTKRAV.varselbrevet(v.utenfor!.type)}
       hjelp={FRISTKRAV.varselbrevetHjelp}
       {grense}
       bind:vedlegg={v.utenfor!.vedlegg}

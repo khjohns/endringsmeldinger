@@ -308,7 +308,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       screen.getByRole('radio', { name: 'Bare varsle etter punkt 33.4, uten dager' })
     );
     await fireEvent.click(
-      screen.getByRole('radio', { name: 'Registrer et brev sendt utenfor løsningen' })
+      screen.getByRole('radio', { name: 'Registrer et varsel sendt utenfor løsningen' })
     );
     const registrer = () =>
       fireEvent.click(screen.getByRole('button', { name: 'Registrer varselet' }));
@@ -317,9 +317,13 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' })
     );
     expect(mangler.getByText('Oppgi datoen for varselet.')).toBeInTheDocument();
-    expect(mangler.getByText('Legg ved brevet du varslet i.')).toBeInTheDocument();
+    expect(mangler.getByText('Legg ved brevet eller e-posten du varslet i.')).toBeInTheDocument();
     const gitt = within(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' }));
+    // Etiketten for vedlegget følger typen (#2056).
+    await fireEvent.click(gitt.getByRole('radio', { name: 'E-post' }));
+    expect(screen.getByText('E-posten du varslet i')).toBeInTheDocument();
     await fireEvent.click(gitt.getByRole('radio', { name: 'Brev' }));
+    expect(screen.getByText('Brevet du varslet i')).toBeInTheDocument();
     await skriv(screen.getByLabelText('Datoen for varselet'), '2026-10-05');
     await leggVed();
     await registrer();
@@ -343,7 +347,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       screen.getByRole('radio', { name: 'Bare varsle etter punkt 33.4, uten dager' })
     );
     await fireEvent.click(
-      screen.getByRole('radio', { name: 'Registrer et brev sendt utenfor løsningen' })
+      screen.getByRole('radio', { name: 'Registrer et varsel sendt utenfor løsningen' })
     );
     await fireEvent.click(screen.getByRole('radio', { name: 'Send kravet med dagene' }));
     expect(screen.queryByLabelText('Datoen for varselet')).not.toBeInTheDocument();
