@@ -2,6 +2,7 @@
 paths:
   - "server/**"
   - "sprakprove/kjernelagring/**"
+  - "src/lib/kontroll/**"
 ---
 
 # Tilgang: mekanismene bak sikkerhetsinvariantene

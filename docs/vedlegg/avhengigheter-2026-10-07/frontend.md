@@ -232,7 +232,7 @@ reaktivitetsbibliotek løser ikke den dupliseringen.
 
 ### Statisk deployment er kontrollert
 
-[svelte.config.js](../../../svelte.config.js) bruker adapter-static med
+`svelte.config.js` bruker adapter-static med
 `fallback: 'index.html'`; [rotlayouten](../../../src/routes/+layout.ts)
 setter `ssr=false`, `prerender=false`. [Dockerfile](../../../Dockerfile)
 bygger med Node 22 og kopierer bare `build` til nginx. [nginx.conf](../../../nginx.conf)
@@ -312,7 +312,7 @@ belegg for at appen ikke kan bygges. En byggport er særlig nyttig ved
 Vite-/Kit-/adapteroppgradering.
 
 Vitest 4 fjerner `environmentMatchGlobs`; dagens
-[vite.config.ts](../../../vite.config.ts) bruker det for komponentenes jsdom.
+`svelte.config.js` bruker det for komponentenes jsdom.
 [Migreringen](https://v4.vitest.dev/guide/migration) angir `projects` som
 erstatter. Vitest 5 krever Node >=22.12 og Vite >=6.4, og endrer default
 `clearMocks` til true, ifølge [5-guiden](https://vitest.dev/guide/migration/).
