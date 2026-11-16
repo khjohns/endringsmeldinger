@@ -17,10 +17,14 @@ import Vardensak from '$lib/components/varden/Vardensak.svelte';
 import Vederlagsoversikt from '$lib/components/varden/Vederlagsoversikt.svelte';
 import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import { kravetOgSvaret, varsleneIKravene } from '$lib/components/varden/vederlagsoversikt';
+import {
+  kravetOgSvaret,
+  postIRaden,
+  varsleneIKravene,
+} from '$lib/components/varden/vederlagsoversikt';
 import { trinnene } from '$lib/components/varden/Maalrad.svelte';
 import { akseptfristen } from '$lib/components/varden/svarlagene';
-import { brevene, leveringene } from '$lib/components/varden/lesing';
+import { brevene, leveringene, type Brevet } from '$lib/components/varden/lesing';
 import { VEDERLAGET } from '$lib/components/varden/tekster';
 import type { Utledning } from '$kjerne/utledning/utled';
 
@@ -89,6 +93,41 @@ describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
       ['Særskilt vederlagsjustering', null, 40000],
     ]);
     expect(k.tabell?.slice(1, -1).map((r) => r[0])).toEqual(k.poster.map((p) => p.navn));
+  });
+
+  // Svaret 16.11 i #1997 og MM-U50: raden i et sendt brev gjelder posten med nøkkelen i `poster`,
+  // også når navnet i brevet ikke er navnet kjernen gir raden i dag.
+  it('raden i tabellen finner posten på nøkkelen i brevet, også med et annet navn enn i dag (MM-U50)', async () => {
+    const u = await utledning(BF44.steg);
+    const omdoept =
+      (fjernNoekkelen: boolean) =>
+      (b: Brevet): Brevet => ({
+        ...b,
+        avsnitt:
+          b.avsnitt?.map((a) => {
+            if (a.punkt !== 'oversikt') return a;
+            const { poster, ...uten } = a;
+            return {
+              ...(fjernNoekkelen ? uten : { ...uten, poster }),
+              laast: a.laast
+                .replace('\nVederlagsjustering\t', '\nJustering av vederlaget\t')
+                .replace('\nSærskilt vederlagsjustering\t', '\nProduktivitet\t'),
+            };
+          }) ?? null,
+      });
+    const k = kravetOgSvaret(u, brevene(u).map(omdoept(false)))!;
+    expect(k.tabell?.slice(1, -1).map((r) => postIRaden(k.poster, r[0]!)?.post)).toEqual([
+      'P1',
+      'produktivitet',
+    ]);
+    // Navnet kjernen gir raden i dag, står ved siden av.
+    expect(k.poster.map((p) => p.navn)).toEqual([
+      'Vederlagsjustering',
+      'Særskilt vederlagsjustering',
+    ]);
+    // Kontrollsaken: uten nøkkelen i brevet gjelder ingen rad en post.
+    const uten = kravetOgSvaret(u, brevene(u).map(omdoept(true)))!;
+    expect(postIRaden(uten.poster, 'Justering av vederlaget')).toBeUndefined();
   });
 
   it('et svar gitt etter svaret på forholdet har ikke forbeholdet (GR-U34, D-3)', async () => {

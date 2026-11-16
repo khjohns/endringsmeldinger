@@ -146,7 +146,7 @@ export function lagBrevtekst(
     // HF-U23 punkt 5: linjen med akseptfristen har ingen utdypning, og står sist.
     if (perPunkt[AKSEPTFRISTEN] && brevpunkter.some((p) => p.punkt === AKSEPTFRISTEN))
       throw new UtdypningUtenPunkt('Linjen med akseptfristen har ingen utdypning.');
-    const punktene = [
+    const punktene: Brevpunkt[] = [
       ...brevpunkter.filter((p) => p.punkt !== AKSEPTFRISTEN),
       ...[egen, forbehold ? FORBEHOLDSPUNKTET : undefined]
         .filter(
@@ -156,7 +156,7 @@ export function lagBrevtekst(
         .map((e) => ({ punkt: e.punkt, overskrift: e.overskrift, avsnitt: [] as string[] })),
       ...brevpunkter.filter((p) => p.punkt === AKSEPTFRISTEN),
     ];
-    for (const { punkt, overskrift: o, avsnitt: a } of punktene) {
+    for (const { punkt, overskrift: o, avsnitt: a, poster } of punktene) {
       if (punkt === undefined)
         throw new KanIkkeUttrykkes(`et punkt i brevteksten for ${gjelder} har ikke noe navn`);
       const overskrift = o === null ? undefined : `${++nummer}. ${o}`;
@@ -169,6 +169,7 @@ export function lagBrevtekst(
         ...(overskrift ? { overskrift } : {}),
         laast: [...(overskrift ? [overskrift] : []), ...a].join('\n\n'),
         ...(tekst ? { utdypning: tekst } : {}),
+        ...(poster ? { poster } : {}),
       });
     }
     const ukjent = Object.keys(perPunkt);
@@ -365,7 +366,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
   const lagene = Math.max(0, ...ledd.map((l) => l.plass ?? 0));
   // OV-U73: tabellen har lagene i sporet, så første og siste kolonne er beløpene i utregningen.
   const iSporet = (plass: number | null) => (plass === null ? null : plass - fra.forskyvning);
-  const tabell =
+  const oversikten =
     sporet.oversikt?.(
       krav,
       beloepene.map((b) => ({ ...b, plass: iSporet(b.plass) })),
@@ -373,7 +374,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
       fra.forskyvning
     ) ?? null;
   // LV-U33, LV-U38: uten tabell sier punktet om varselet følgen for postene.
-  if (!tabell) {
+  if (!oversikten) {
     const varselet = ledd.find((l) => l.punkt === '34.1.2' && l.innsigelse);
     if (varselet && sporet.ingenBeloep)
       varselet.tekst = `${varselet.tekst as string} ${sporet.ingenBeloep(krav)}`;
@@ -396,7 +397,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
     if (i > 0 && p.overskrift !== null && p.overskrift === overskriftene[i - 1])
       p.overskrift = null;
   });
-  if (tabell) punkter.push({ punkt: OVERSIKTEN, overskrift: 'Oversikt' });
+  if (oversikten) punkter.push({ punkt: OVERSIKTEN, overskrift: 'Oversikt' });
   const forbehold = forbeholdetForForholdet(s, t);
   if (forbehold.length) punkter.push({ ...FORBEHOLDSPUNKTET });
 
@@ -434,7 +435,7 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
   ];
   for (const p of punkter) {
     const avsnitt: string[] = p.foerst ? [p.foerst] : [];
-    if (p.punkt === OVERSIKTEN) avsnitt.push(tabell!);
+    if (p.punkt === OVERSIKTEN) avsnitt.push(oversikten!.tabell);
     else if (p.punkt === FORBEHOLDET) avsnitt.push(forbehold.join(' '));
     else {
       // OV-U32: et upåvirket standpunkt står uten etikett, så det står foran lagene i punktet.
@@ -455,7 +456,12 @@ function svarpunkter(s: Svar, t: Tekst, regler: Regelsett, nr: Nummerering): Bre
         forrige = l.plass;
       }
     }
-    brevpunkter.push({ punkt: p.punkt, overskrift: p.overskrift, avsnitt });
+    brevpunkter.push({
+      punkt: p.punkt,
+      overskrift: p.overskrift,
+      avsnitt,
+      ...(p.punkt === OVERSIKTEN ? { poster: oversikten!.poster } : {}),
+    });
   }
   // HF-U23 punkt 2, LV-U2, LV-U3: brevet meddeler akseptfristen med datoen, sist i svaret og uten
   // å si hva den betyr (punkt 5). Ordlyden og plassen er arbeidsvalget 14.11 i #502.
