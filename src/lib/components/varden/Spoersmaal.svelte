@@ -52,7 +52,6 @@
     gap: var(--spacing-3);
   }
   h3 {
-    min-width: 0;
     font-size: 16px;
     font-weight: 600;
     color: var(--ink);

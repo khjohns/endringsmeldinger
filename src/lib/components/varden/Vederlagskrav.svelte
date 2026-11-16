@@ -1212,9 +1212,6 @@
     align-items: baseline;
     gap: var(--spacing-3);
   }
-  .seksjonshode h3 {
-    min-width: 0;
-  }
   .nummer {
     display: inline-grid;
     place-items: center;
@@ -1347,7 +1344,7 @@
   .felt {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-1);
+    gap: var(--spacing-2);
   }
   .hjelp,
   .dempet {

@@ -17,6 +17,6 @@
     font-size: 14px;
     font-weight: 400;
     color: var(--ink-3);
-    white-space: nowrap;
+    text-align: right;
   }
 </style>
