@@ -27,6 +27,7 @@ import {
   LaasIkkeGitt,
   opprettSak,
   type Kommando,
+  type Opprettelseskontekst,
   SakFinnesIkke,
   SkrivingAvvist,
   skrivHendelse,
@@ -66,7 +67,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
   /** Kjøretiden med én forbindelse, så to transaksjoner etter hverandre har samme økt. */
   let enForbindelse: { pool: Pool; slett(): Promise<void> };
   const b = { te: '', bh: '', leser: '', p2: '' };
-  let te: Kontekst;
+  let te: Opprettelseskontekst;
 
   beforeAll(async () => {
     base = await opprettMigrertTestbase('kommandoer');
@@ -86,7 +87,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
       VALUES (N'${P1}', NEWID(), NEWID(), NEWID(), 1), (N'${P2}', NEWID(), NEWID(), NEWID(), 1);`);
     kjoeretid = await opprettKjoeretid(base);
     enForbindelse = await opprettKjoeretid(base, { maks: 1 });
-    te = { aktor: b.te, prosjekt: P1, side: 'TE', team: TE1 };
+    te = { aktor: b.te, prosjekt: P1, side: 'TE', team: TE1, kontraktsteamLest: new Date() };
   }, 240_000);
   afterAll(async () => {
     try {
@@ -101,7 +102,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
   }, 60_000);
 
   const nySak = (k: Kontekst = te) =>
-    opprettSak(kjoeretid.pool, k, ny(), { format: 1, data: SAK_OPPRETTET });
+    opprettSak(kjoeretid.pool, { kontraktsteamLest: new Date(), ...k }, ny(), {
+      format: 1,
+      data: SAK_OPPRETTET,
+    });
 
   /** Basens klokke, lest av eieren. */
   async function klokka(): Promise<number> {
@@ -299,6 +303,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
             .input('catenda_board_id', sql.NVarChar(100), null)
             .input('catenda_topic_id', sql.NVarChar(100), null)
             .input('catenda_topic_nummer', sql.Int, null)
+            .input('kontraktsteam_lest', sql.DateTime2(3), new Date())
             .output('sak_id', sql.NVarChar(36))
             .output('event_id', sql.NVarChar(36))
             .output('tidsstempel', sql.DateTime2(3))
@@ -319,6 +324,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('kommandoene i SQL Server', () => {
             .input('catenda_board_id', sql.NVarChar(100), null)
             .input('catenda_topic_id', sql.NVarChar(100), null)
             .input('catenda_topic_nummer', sql.Int, 726)
+            .input('kontraktsteam_lest', sql.DateTime2(3), new Date())
             .output('sak_id', sql.NVarChar(36))
             .output('event_id', sql.NVarChar(36))
             .output('tidsstempel', sql.DateTime2(3))

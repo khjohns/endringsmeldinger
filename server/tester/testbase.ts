@@ -323,7 +323,7 @@ export async function opprettKjernesak(
     return (
       await opprettSak(
         o.datalag.kjoeretid.pool,
-        kontekst,
+        { ...kontekst, kontraktsteamLest: new Date() },
         { id: randomUUID(), sha256: kommandosum(d) },
         { format: f, data: d }
       )

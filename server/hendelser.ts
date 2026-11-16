@@ -358,7 +358,13 @@ export async function behandle(
   try {
     const utfall = await opprettSak(
       avh.datalag,
-      { aktor, prosjekt: prosjektId, side: 'TE', ...(side.teamId ? { team: side.teamId } : {}) },
+      {
+        aktor,
+        prosjekt: prosjektId,
+        side: 'TE',
+        ...(side.teamId ? { team: side.teamId } : {}),
+        kontraktsteamLest: side.kontraktsteamLest,
+      },
       kommando,
       () => {
         const vurdert = opprettelse(opprett, side.rolle);

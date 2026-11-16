@@ -236,6 +236,12 @@ function kvittertRad(journal: Journalrad[], eventId: string): Journalrad {
  * Topicen en sak opprettes fra (KT-U6), med ID-ene i formen 8-4-4-4-12. Saken kobles til
  * den i transaksjonen, og ingen ny topic lages.
  */
+/**
+ * Konteksten for en ny sak: som for skrivingen, og med basens klokke før serveren leste
+ * kontraktsteamene og avgjorde siden (`Kontraktstilgang`, #877 p30).
+ */
+export type Opprettelseskontekst = Kontekst & { kontraktsteamLest: Date };
+
 export interface Opprettelsesvalg {
   topic?: { board: string; topic: string; nummer: number | null };
 }
@@ -258,21 +264,21 @@ export interface Opprettelsesvalg {
  */
 export function opprettSak(
   pool: Pool,
-  kontekst: Kontekst,
+  kontekst: Opprettelseskontekst,
   kommando: Kommando,
   innhold: Innhold,
   valg?: Opprettelsesvalg
 ): Promise<Journalrad>;
 export function opprettSak<A>(
   pool: Pool,
-  kontekst: Kontekst,
+  kontekst: Opprettelseskontekst,
   kommando: Kommando,
   innhold: () => Innhold | Avvist<A>,
   valg?: Opprettelsesvalg
 ): Promise<Journalrad | Avvist<A>>;
 export async function opprettSak<A>(
   pool: Pool,
-  kontekst: Kontekst,
+  kontekst: Opprettelseskontekst,
   kommando: Kommando,
   innhold: Innhold | (() => Innhold | Avvist<A>),
   { topic }: Opprettelsesvalg = {}
@@ -298,6 +304,7 @@ export async function opprettSak<A>(
         .input('catenda_board_id', sql.NVarChar(100), topic?.board ?? null)
         .input('catenda_topic_id', sql.NVarChar(100), topic?.topic ?? null)
         .input('catenda_topic_nummer', sql.Int, topic?.nummer ?? null)
+        .input('kontraktsteam_lest', sql.DateTime2(3), kontekst.kontraktsteamLest)
         .output('sak_id', sql.NVarChar(36))
         .output('event_id', sql.NVarChar(36))
         .output('tidsstempel', sql.DateTime2(3))
