@@ -162,7 +162,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   const vist = $derived(utledning ? visning(utledning, kjerne.regler) : null);
   const tilbudt = $derived(utledning && part ? tilbudte(utledning, part) : []);
   const noeklene = $derived(tilbudt.map((h) => h.noekkel));
-  const bilde = $derived(sak && vist ? lagSaksbilde(journal, vist) : null);
+  const bilde = $derived(sak && vist ? lagSaksbilde(journal, vist, kjerne.leserformat) : null);
 
   let lastinger = 0;
   let gjeldende: Promise<boolean> = Promise.resolve(false);
