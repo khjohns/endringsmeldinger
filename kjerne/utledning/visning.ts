@@ -459,7 +459,8 @@ function kilder(u: Utledning, ikkeTolket: Set<string>) {
  * Merknadene for saken. OV-U19: så lenge et registrert brev appen ikke vurderer, står og ikke
  * er rettet bort, har saken merknaden etter OV-U10; når kravene er avgjort, står setningen i
  * statusen i stedet. OV-U104: et brev lagt til er sammenliknet med et brev sendt samme dag.
- * OV-U109: totalentreprenøren hadde sendt et krav om dager før forespørselen etter § 33.6.2.
+ * OV-U109, OV-U111: totalentreprenøren hadde sendt et krav om dager før forespørselen etter
+ * § 33.6.2.
  */
 function merknader(u: Utledning, kode: Statuskode | null): string[] {
   // MM-U2: mens saken stopper, må et varsel med frist sendes utenfor appen og registreres senere.

@@ -1927,11 +1927,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F660',
     feilklasse:
-      'et svar skrevet etter et krav sendt før forespørselen, får virkningen etter § 33.6.2 (OV-U109)',
+      'et svar skrevet etter et krav sendt før forespørselen, får virkningen etter § 33.6.2 (OV-U109, OV-U111)',
     fil: `${K}/spor/frist/frysing.ts`,
     endringer: [['svar.filter((s) => s.kravFoer === null)', 'svar.filter(() => true)']],
     mal: [
       'OV-U109, MM-U50 punkt 1: et krav sendt før forespørselen, lagt til etter svaret på kravet som besvarte den, gir ingen virkning etter § 33.6.2 i et svar skrevet etterpå',
+      'OV-U111: etter et krav sendt før forespørselen sperrer løsningen ikke påberopelsen etter punkt 33.6.1',
     ],
   },
   {
