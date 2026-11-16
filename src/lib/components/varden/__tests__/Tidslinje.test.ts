@@ -131,7 +131,7 @@ describe('Tidslinje', () => {
     ]);
     expect(container.textContent).not.toMatch(/K201-KOE|Lang tittel/);
     expect(container.querySelectorAll('.kilde')[2].textContent).toBe(
-      'Brev 3 sendt av BH kl. 10.00'
+      'Brev 3 sendt av BH kl.\u00a010.00'
     );
   });
 });

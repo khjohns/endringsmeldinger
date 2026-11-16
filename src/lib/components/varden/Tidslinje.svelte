@@ -8,7 +8,7 @@
 <script lang="ts">
   import { ChevronRight } from 'lucide-svelte';
   import type { Brevet, OppgittDato } from './lesing';
-  import { OPPGITT, TIDSLINJE, dato, klokke } from './tekster';
+  import { OPPGITT, TIDSLINJE, dato, kl } from './tekster';
 
   let {
     brev,
@@ -66,7 +66,7 @@
           kilde:
             b.art === 'registrert'
               ? TIDSLINJE.registrert(b.avsender, b.registrert)
-              : `${TIDSLINJE.sendt(b.avsender, b)} kl. ${klokke(b.registrert)}`,
+              : `${TIDSLINJE.sendt(b.avsender, b)} ${kl(b.registrert)}`,
         })
       ),
     ].sort((a, b) => a.naar.localeCompare(b.naar))

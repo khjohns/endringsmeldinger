@@ -153,21 +153,37 @@ export const brevITraaden = (brev: Brevet[], spor: Spor): Brevet[] =>
  * Brevet med neste versjon av kravet i samme spor, etter ID-en til brevet med den tidligere
  * versjonen. Tråden viser et eldre krav dempet med «fulgt opp i brev 5» (U-5 i BF-44).
  */
+/**
+ * Hvert krav i sporet som et senere krav i et annet brev følger opp, med brevet som følger opp
+ * (U-5 i BF-44).
+ */
+function oppfoelgingeneISporet(u: Utledning, spor: Spor, brev: Map<string, Brevet>) {
+  const krav = u.spor[spor].krav;
+  return krav.slice(0, -1).flatMap((k, i) => {
+    const neste = brev.get(krav[i + 1].dokument);
+    return neste && k.dokument !== neste.id ? [{ dokument: k.dokument, neste }] : [];
+  });
+}
+
 export function oppfoelgingene(u: Utledning, alle: Brevet[]): Map<string, Brevref> {
   const brev = new Map(alle.map((b) => [b.id, b]));
   const SPORENE = ['forhold', 'vederlag', 'frist'] as const;
   // Et brev med et krav som gjelder i et annet spor, er ikke fulgt opp som helhet.
   const gjelder = new Set(SPORENE.flatMap((s) => u.spor[s].gjeldendeKrav?.dokument ?? []));
   const ut = new Map<string, Brevref>();
-  for (const s of SPORENE) {
-    const krav = u.spor[s].krav;
-    for (let i = 0; i + 1 < krav.length; i++) {
-      const neste = brev.get(krav[i + 1].dokument);
-      if (neste && krav[i].dokument !== neste.id && !gjelder.has(krav[i].dokument))
-        ut.set(krav[i].dokument, ref(neste));
-    }
-  }
+  for (const s of SPORENE)
+    for (const { dokument, neste } of oppfoelgingeneISporet(u, s, brev))
+      if (!gjelder.has(dokument)) ut.set(dokument, ref(neste));
   return ut;
+}
+
+/**
+ * Brevene med et krav et senere krav i sporet følger opp, også når brevet har et krav som
+ * gjelder i et annet spor og derfor ikke er fulgt opp som helhet (`oppfoelgingene`, U-5 i BF-44).
+ */
+export function eldreKravISporet(u: Utledning, spor: Spor, alle: Brevet[]): Set<string> {
+  const brev = new Map(alle.map((b) => [b.id, b]));
+  return new Set(oppfoelgingeneISporet(u, spor, brev).map((o) => o.dokument));
 }
 
 /** Det en tekst trenger for å vise til et brev, med eller uten nummer. */
@@ -203,7 +219,7 @@ export interface OppgittDato {
 
 /**
  * Datoene partene har oppgitt: når TE mottok pålegget eller ble klar over forholdet
- * (påberopelsen og korrigeringene, `datoopplysninger` i utledningen, MM-U52 punkt 10) og når et
+ * (påberopelsen og korrigeringene, `datoopplysninger` i utledningen, MM-U55 punkt 10) og når et
  * dokument ble sendt eller mottatt (opplysningene). Løsningen vurderer dem ikke (MM-U12, MM-U50).
  */
 export function oppgitteDatoer(u: Utledning): OppgittDato[] {
@@ -231,12 +247,12 @@ export const datoerISporet = (u: Utledning, spor: Spor) =>
     (d) => d.spor.includes(spor) || (spor === 'vederlag' && d.spor.includes('forhold'))
   );
 
-/** TEs siste opplysning om når TE ble klar over forholdet (MM-U52 punkt 10). */
+/** TEs siste opplysning om når TE ble klar over forholdet (MM-U55 punkt 10). */
 export function klarOverForholdet(u: Utledning): OppgittDato | null {
   return oppgitteDatoer(u).findLast((d) => d.hva === 'klar_over_forholdet') ?? null;
 }
 
-/** TEs opplysning om datoen etter VS-U26, i påberopelsen eller en korrigering (MM-U52 punkt 10). */
+/** TEs opplysning om datoen etter VS-U26, i påberopelsen eller en korrigering (MM-U55 punkt 10). */
 export interface Datoopplysningen {
   /** Påberopelsen eller korrigeringen med opplysningen, som handlingen `korrigere:<id>` viser til. */
   id: string;
@@ -507,7 +523,7 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
     const kode = innhold.underkategori;
     const o = iBrevet(k.dokument);
     // En ny versjon som gjengir TEs siste opplysning, er ingen ny opplysning i utledningen, men
-    // brevet sier datoen (MM-U52 punkt 10, #1647).
+    // brevet sier datoen (MM-U55 punkt 10, #1647).
     const felt = oppgittDato(innhold.hovedkategori, innhold.underkategori);
     const gjentatt = felt === null ? null : innhold.datoer[felt];
     ut.set(k.dokument, {
