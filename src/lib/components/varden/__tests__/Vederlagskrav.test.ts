@@ -284,7 +284,11 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     await fireEvent.click(knapp('Ferdig'));
 
     await fireEvent.click(knapp('Legg til særskilt vederlagsjustering'));
-    const seksjonen = within(screen.getByRole('region', { name: 'Særskilt vederlagsjustering' }));
+    const seksjonen = within(
+      screen.getByRole('region', {
+        name: /^Særskilt vederlagsjustering pkt\.\s34\.1\.3\sannet\sledd$/,
+      })
+    );
     expect(document.activeElement).toBe(seksjonen.getByLabelText('Beløpet du krever'));
     await fireEvent.click(seksjonen.getByRole('button', { name: 'Ferdig' }));
     expect(seksjonen.queryByLabelText('Beløpet du krever')).toBeNull();

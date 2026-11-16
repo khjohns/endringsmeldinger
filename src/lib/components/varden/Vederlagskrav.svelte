@@ -898,11 +898,15 @@
         />
       {/if}
 
-      <section class="seksjon" id={id('postene')} aria-labelledby={id('postene-tittel')}>
+      <section
+        class="seksjon"
+        id={id('postene')}
+        aria-labelledby={`${id('postene-tittel')} ${id('postene-hjemmel')}`}
+      >
         <div class="seksjonshode">
           <span class="nummer" aria-hidden="true">1</span>
           <h3 id={id('postene-tittel')}>{KRAVSKJEMA.postene}</h3>
-          <Hjemmel numre={KRAVSKJEMA.posteneHjemmel} />
+          <Hjemmel id={id('postene-hjemmel')} numre={KRAVSKJEMA.posteneHjemmel} />
         </div>
         <p class="intro">{KRAVSKJEMA.posteneIntro}</p>
         {#if v.poster.length}
@@ -946,12 +950,12 @@
         <section
           class="seksjon"
           id={id('saerskilt-seksjon')}
-          aria-labelledby={id('saerskilt-tittel')}
+          aria-labelledby={`${id('saerskilt-tittel')} ${id('saerskilt-hjemmel')}`}
         >
           <div class="seksjonshode">
             <span class="nummer" aria-hidden="true">2</span>
             <h3 id={id('saerskilt-tittel')}>{KRAVSKJEMA.saerskilt}</h3>
-            <Hjemmel numre={KRAVSKJEMA.saerskiltHjemmel} />
+            <Hjemmel id={id('saerskilt-hjemmel')} numre={KRAVSKJEMA.saerskiltHjemmel} />
           </div>
           <p class="intro">{KRAVSKJEMA.saerskiltIntro}</p>
           {#if saerskiltAapen}
