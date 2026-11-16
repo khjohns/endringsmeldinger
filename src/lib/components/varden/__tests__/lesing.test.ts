@@ -457,10 +457,11 @@ describe('Standpunktet etter en leddsetning (#2000)', () => {
   });
 });
 
-describe('Meldingen om oppgjørsformen etter en regel (#1848)', () => {
-  it('nevner oppgjørsformen med navnet og punktet i NS 8407, ikke koden (punkt 34.4, #1848)', () => {
+describe('Meldingen om oppgjørsformen (#1848)', () => {
+  it('nevner oppgjørsformen med navnet og punktet i NS 8407, ikke koden (punkt 34.2.1 og 34.4, #1848)', () => {
     expect(SKJEMA.manglerForm('regningsarbeid')).toBe(
       'Velg om du godkjenner regningsarbeid (punkt 34.4).'
     );
+    expect(SKJEMA.manglerForm('tilbud')).toBe('Velg om du godkjenner fast sum (punkt 34.2.1).');
   });
 });

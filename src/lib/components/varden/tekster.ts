@@ -392,11 +392,11 @@ export const SKJEMA = {
       : `Kravet om vederlagsjustering ble sendt ${dato(d)} (${brevref(b)}).`,
   avstand: (dager: number) =>
     `${dager} kalenderdager fra datoen totalentreprenøren oppgir til kravet ble sendt.`,
+  // Svaret på oppgjørsformen, for fast sum og for en beregningsregel (#1756, prototype v3 `#svar`).
   formSpoersmaal: 'Oppgjørsformen (punkt 34.2.2)',
+  formSpoersmaalRegel: 'Oppgjørsformen',
   godkjenner: (m: Oppgjoersform) => `Godkjenner ${metodenavn(m)}`,
   menerForm: (m: Regel) => `Mener ${metodenavn(m)}`,
-  // Kravposten etter en beregningsregel (#1756, prototype v3 `#svar`).
-  formSpoersmaalRegel: 'Oppgjørsformen',
   godkjennerIkkeRegel: (m: Regel) => `Godkjenner ikke ${metodenavn(m)}`,
   kreverTilbudKort: 'krever spesifisert tilbud',
   tilbudSpoersmaal: 'Spesifisert tilbud (punkt 34.2.1)',

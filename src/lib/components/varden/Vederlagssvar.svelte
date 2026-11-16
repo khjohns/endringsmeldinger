@@ -217,7 +217,6 @@
       },
       ...poster.flatMap((p) => {
         const v = postvalget(valg, p.betegnelse);
-        const regel = regelen(p);
         const i = (tekst: string | null) =>
           tekst ? SKJEMA.iPosten(navnet(p) ?? null, tekst) : null;
         return [
@@ -329,7 +328,7 @@
         spoersmaal={SKJEMA.formSpoersmaal}
         beskrevetAv={forutsatt ? `${uid}-form-${p.betegnelse}-forutsetninger` : undefined}
         valg={[
-          { verdi: 'godtar', tekst: SKJEMA.godkjenner('tilbud') },
+          { verdi: 'godtar', tekst: SKJEMA.godkjenner(p.oppgjoersform) },
           { verdi: 'enhetspriser', tekst: SKJEMA.menerForm('enhetspriser') },
           { verdi: 'regningsarbeid', tekst: SKJEMA.menerForm('regningsarbeid') },
         ]}
