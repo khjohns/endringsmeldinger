@@ -1,7 +1,7 @@
 """Skanner kjøretidsavhengighetene i TS etter kjente sårbarheter (#269 punkt 3).
 
 Leser utdataene fra `npm audit --omit=dev --json` på stdin. Feiler for en
-sårbarhet med alvorlighet høy eller kritisk når det finnes en rettet versjon,
+sårbarhet med alvorlighet høy eller kritisk når minst én linje har en rettet versjon,
 med mindre advisoryen står i unntakslisten. Om det finnes en rettet versjon,
 leses av advisoryens sårbare område (`range`), ikke av `fixAvailable`, som bare sier
 om `npm audit fix` når en retting gjennom dagens tre (#851). Et unntak som ikke treffer en
@@ -38,26 +38,60 @@ def les_unntak(sti: pathlib.Path) -> dict[tuple[str, str], dict]:
     return unntak
 
 
-_NEDRE_GRENSE = re.compile(r">=?v?\d[\w.+-]*")
 _JOKER = re.compile(r"[*xX](?:\.[*xX])*")
+_GRENSE = re.compile(r"(>=|>|<=|<)v?(\d+)\.(\d+)\.(\d+)")
+
+Versjon = tuple[int, int, int]
+# (nedre, nedre er med, øvre eller None uten øvre grense, øvre er med)
+Intervall = tuple[Versjon, bool, Versjon | None, bool]
 
 
-def _uten_øvre_grense(alternativ: str) -> bool:
-    """Bare jokere (`*`, `x.x`) og nedre grenser (`>=1.0.0`). Alt annet, også et tomt eller
-    uleselig alternativ, regnes som å ha en øvre grense, så funnet blokkerer."""
+def _intervall(alternativ: str) -> Intervall | None:
+    """Alternativet som intervall, når det bare har jokere og grenser med hele versjoner
+    (`>=1.0.0 <1.2.3`). Ellers None, også for et tomt alternativ."""
     ledd = re.sub(r"([<>]=?)\s+", r"\1", alternativ).split()
-    return bool(ledd) and all(_NEDRE_GRENSE.fullmatch(grense) or _JOKER.fullmatch(grense) for grense in ledd)
+    if not ledd:
+        return None
+    nedre, med_nedre, øvre, med_øvre = (0, 0, 0), True, None, False
+    for grense in ledd:
+        if _JOKER.fullmatch(grense):
+            continue
+        treff = _GRENSE.fullmatch(grense)
+        if not treff:
+            return None
+        tegn, versjon = treff[1], (int(treff[2]), int(treff[3]), int(treff[4]))
+        med = tegn.endswith("=")
+        if tegn.startswith(">") and (versjon, not med) > (nedre, not med_nedre):
+            nedre, med_nedre = versjon, med
+        elif tegn.startswith("<") and (øvre is None or (versjon, med) < (øvre, med_øvre)):
+            øvre, med_øvre = versjon, med
+    return nedre, med_nedre, øvre, med_øvre
 
 
 def har_rettet_versjon(område: str | None) -> bool:
-    """Om advisoryen kan ha en rettet versjon: hvert alternativ i det sårbare området har
-    en øvre grense. `*` og `>=1.0.0` har ingen. `<=1.2.3` regnes som rettet, fordi npm
-    skriver et område med rettet versjon slik (`>=7.1.0 <=7.3.1` for vite, rettet i
-    7.3.2); en advisory uten rettet versjon i den formen føres i unntakslisten. Mangler
-    området, regnes versjonen som rettet, så funnet blokkerer."""
+    """Om advisoryen har en rettet versjon på minst én linje (svar A 11.11 på spørsmål 9 i
+    #1791, #925): en versjon over en sårbar versjon som ingen av alternativene i det
+    sårbare området dekker. `*` og `>=1.0.0` har ingen øvre grense, og `* || <1.0.5` har
+    derfor ingen rettet versjon. `<=1.2.3` regnes som rettet, fordi npm skriver et område
+    med rettet versjon slik (`>=7.1.0 <=7.3.1` for vite, rettet i 7.3.2); en advisory uten
+    rettet versjon i den formen føres i unntakslisten. Mangler området, eller har et
+    alternativ en annen form enn jokere og grenser med hele versjoner, også et tomt
+    alternativ, regnes versjonen som rettet, så funnet blokkerer."""
     if not område:
         return True
-    return not any(_uten_øvre_grense(del_) for del_ in område.split("||"))
+    intervaller = [_intervall(a) for a in område.split("||")]
+    if any(i is None for i in intervaller):
+        return True
+    intervaller.sort(key=lambda i: (i[0], not i[1]))
+    _, _, dekket, med = intervaller[0]
+    for nedre, med_nedre, øvre, med_øvre in intervaller[1:]:
+        if dekket is None:
+            return False
+        if nedre > dekket or (nedre == dekket and not (med or med_nedre)):
+            return True
+        if øvre is None or (øvre, med_øvre) > (dekket, med):
+            dekket, med = øvre, med_øvre
+    return dekket is not None
 
 
 def funn(rapport: dict) -> list[tuple[str, str, str, str]]:
