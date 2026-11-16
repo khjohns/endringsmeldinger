@@ -21,7 +21,7 @@ import { bygg } from '../../../kjerne/tester/baner.ts';
 import { Versjonskonflikt } from '../../../kjerne/tester/bane.ts';
 import { kjoer, likeVerdier, MAALMODELL } from '../../../kjerne/tester/kjoerer.ts';
 import type { Journalrad } from '../../../kjerne/typer.ts';
-import { sjekksum } from '../../../server/levering.ts';
+import { sjekksum } from '../../../server/sjekksum.ts';
 import { AKTIV, feilnummer, sql, tell, transaksjon } from '../lib/forbindelse.ts';
 import {
   DOKUMENTTABELL,
