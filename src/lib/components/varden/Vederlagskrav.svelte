@@ -155,7 +155,7 @@
 
   const utkastbrev = $derived.by(() => {
     const b = kjernesak.brev(kommando, vedlegg);
-    return b && 'tekst' in b ? b : null;
+    return b && 'avsnitt' in b ? b : null;
   });
 
   // Én kravpost er åpen om gangen; en ny, tom post står åpen.

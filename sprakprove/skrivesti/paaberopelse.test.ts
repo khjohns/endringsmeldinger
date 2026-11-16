@@ -19,7 +19,7 @@ import {
   type Oppsett,
 } from '../../server/tester/testbase.ts';
 import { kommandoene, type Utfylling } from '$lib/components/varden/nysak';
-import { brevFor, type Saksmerking } from '../../src/lib/kjernesak/brevtekst.ts';
+import { brevFor, laastTekstI, type Saksmerking } from '../../src/lib/kjernesak/brevtekst.ts';
 import type { Kjernesak } from '../../src/lib/api/kjerne.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
 import type { Journalrad } from '../../kjerne/typer.ts';
@@ -94,7 +94,7 @@ describe.skipIf(!TESTBASE_URL)('påberopelsen fra skjemaet i Varden mot TS-serve
       refererer_til_event_id: null,
     }));
     const brev = brevFor(kommando, sakId, 'TE', await merking(sakId), journal, KJERNE);
-    const tekst = 'tekst' in brev ? brev.tekst : null;
+    const tekst = 'avsnitt' in brev ? laastTekstI(brev) : null;
     const svar = await kall(server.url, `/api/kjerne/saker/${sakId}/kommandoer`, {
       bruker: o.te,
       prosjektId: o.prosjekt.id,
