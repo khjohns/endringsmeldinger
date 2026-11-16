@@ -1164,6 +1164,15 @@ describe('et svar lagt til fryses med svaret på forholdet utenfor rekken som va
     });
   });
 
+  it('vederlagssvaret sendt samme dag som svaret i rekken fryses med det sist sendte (OV-U104)', async () => {
+    expect(
+      await vederlagssvaret([godkjent, registrertSvar('K-g1', '2026-09-22')], '2026-09-24')
+    ).toEqual({
+      linje: expect.stringMatching(/^Byggherrens standpunkt: godkjent med 60\s000\skr\.$/),
+      forholdssvaret: 'S-1',
+    });
+  });
+
   it('kontrollsak: vederlagssvaret sendt etter svaret i rekken fryses med det', async () => {
     expect(
       await vederlagssvaret([godkjent, registrertSvar('K-g1', '2026-09-22')], '2026-09-25')

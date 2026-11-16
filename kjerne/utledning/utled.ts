@@ -565,8 +565,8 @@ export function kravversjonenPaaDagen(u: Utledning, spor: Spor, dag: string | nu
 /**
  * OV-U32, OV-U98, OV-U103: svaret på forholdet et svar på vederlag eller frist sendt på dagen `dag`
  * regnes med: byggherrens svar på påberopelsen som var gjeldende den dagen (`svaretStod`), også
- * et svar utenfor rekken. Var to gjeldende samme dag, regnes det siste i journalen med
- * (OV-U104). Uten dag, for et svar fra løsningen, det siste i rekken. Frysingen og visningen leser
+ * et svar utenfor rekken. Var flere gjeldende den dagen (OV-U104), regnes det sist sendte med, og
+ * av to sendt samme dag det siste i `rekkefoelge`. Uten dag, for et svar fra løsningen, det siste i rekken. Frysingen og visningen leser
  * det herfra (#2057, arbeidsvalget 16.11 i #2090).
  */
 export function forholdssvaretPaaDagen(
@@ -579,20 +579,15 @@ export function forholdssvaretPaaDagen(
   samme: (forholdssvaret: string) => void = () => {}
 ): Svar | null {
   if (dag === null) return ikkeErstattet([...rekken], paaberopelse)[0] ?? null;
-  return (
-    [...rekken, ...utenforRekken]
-      .filter(
-        (g) => g.gjelder === paaberopelse && svaretStod(g, rekken, utenforRekken, dag, sendt, samme)
-      )
-      .sort((a, b) =>
-        foerDagen(sendt(a), sendt(b))
-          ? -1
-          : foerDagen(sendt(b), sendt(a))
-            ? 1
-            : rekkefoelge(a) - rekkefoelge(b)
-      )
-      .at(-1) ?? null
+  const sto = [...rekken, ...utenforRekken].filter(
+    (g) => g.gjelder === paaberopelse && svaretStod(g, rekken, utenforRekken, dag, sendt, samme)
   );
+  const dagen = new Map(sto.map((g) => [g, sendt(g) ?? '']));
+  const senere = (a: Svar, b: Svar) => {
+    const [x, y] = [dagen.get(a)!, dagen.get(b)!];
+    return x === y ? rekkefoelge(a) - rekkefoelge(b) : x < y ? -1 : 1;
+  };
+  return sto.sort(senere).at(-1) ?? null;
 }
 
 /**
@@ -670,7 +665,8 @@ function svaretStod(
   samme: (med: string) => void
 ): boolean {
   const utenfor = utenforRekken.includes(s);
-  const sendtEtter = (r: Svar) => r.gjelder === s.gjelder && foerDagen(sendt(s), sendt(r));
+  const sendtS = sendt(s);
+  const sendtEtter = (r: Svar) => r.gjelder === s.gjelder && foerDagen(sendtS, sendt(r));
   const senere = [
     ...rekken.filter((r) => r.erstatter === s.id || (utenfor && sendtEtter(r))),
     ...utenforRekken.filter(sendtEtter),
@@ -721,6 +717,7 @@ function registreringenStrider(
         foerDagen(dag(v.id), datoenDetBleSendt(u, k), () => samme(v.id, k.id));
   }
   const innsigelser = d.svar.length ? partensPaaberopelser(u, d.avsender, utenVirkning) : [];
+  const rekkefoelge = rekkefoelgenI(u);
   for (const s of d.svar) {
     const { krav: kjede, kravUtenforRekken } = u.spor[s.spor];
     const krav = [...kjede, ...kravUtenforRekken].find((k) => k.id === s.gjelder);
@@ -738,7 +735,7 @@ function registreringenStrider(
         paaberopelsen.id,
         sendt,
         (g) => datoenDetBleSendt(u, g),
-        rekkefoelgenI(u),
+        rekkefoelge,
         medSvaret
       );
     // OV-U105: svaret sammenliknes med partens påberopelser det gjentar eller gir opp, som i
