@@ -173,7 +173,7 @@
   );
 </script>
 
-{#snippet kravbrev(innfelt: boolean)}
+{#snippet kravbrev(ramme: 'kant' | 'innfelt')}
   <Brev
     avsender={kravbrevet.avsender}
     sak={kjernesak.saksbilde?.tittel ?? ''}
@@ -182,7 +182,7 @@
     dato={dato(kravbrevet.registrert)}
     tittel={brevtittel(kravbrevet)}
     avsnitt={kravbrevet.avsnitt ?? []}
-    {innfelt}
+    {ramme}
   />
 {/snippet}
 
@@ -228,7 +228,7 @@
         </Knapp>
       </div>
       {#if leser && smal}
-        <div class="innebrev" id={`${uid}-kravbrev`}>{@render kravbrev(false)}</div>
+        <div class="innebrev" id={`${uid}-kravbrev`}>{@render kravbrev('kant')}</div>
       {/if}
 
       {#if stopp !== null}
@@ -335,7 +335,7 @@
         <!-- Rammen ruller for seg selv, så den må kunne nås med tastaturet. -->
         <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
         <div class="brevrulle" tabindex="0" role="region" aria-labelledby={`${uid}-lesetittel`}>
-          {@render kravbrev(true)}
+          {@render kravbrev('innfelt')}
         </div>
         {#if stopp === null}<div class="lesebunn">{@render sendeknapp()}</div>{/if}
       </section>

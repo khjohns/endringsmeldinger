@@ -22,6 +22,7 @@
   import Tidslinje from './Tidslinje.svelte';
   import Utkastrad from './Utkastrad.svelte';
   import { nyVersjonAvPaaberopelsen } from './kommandoer';
+  import { medietreff } from './medie.svelte';
   import { brevene, datoerISporet, innleggene, type Brevet } from './lesing';
   import { FORHOLDET, NYVERSJON, brevtittel, dato } from './tekster';
 
@@ -99,15 +100,8 @@
 
   // Brevene står ved siden av utkastet, og på smal skjerm under det, der høyre kolonne står
   // under arbeidet (mønsteret i vederlagssvaret, oppdragsgiver 29.10, #1391).
-  let smal = $state(false);
-  $effect(() => {
-    if (typeof window.matchMedia !== 'function') return;
-    const mq = window.matchMedia('(max-width: 1180px)');
-    const sett = () => (smal = mq.matches);
-    sett();
-    mq.addEventListener('change', sett);
-    return () => mq.removeEventListener('change', sett);
-  });
+  const smalt = medietreff('(max-width: 1180px)');
+  const smal = $derived(smalt.treff);
   $effect(() => {
     onvedsiden?.(!smal);
     return () => onvedsiden?.(false);
@@ -227,7 +221,7 @@
                 dato={dato(valgt.registrert)}
                 tittel={brevtittel(valgt)}
                 avsnitt={valgt.avsnitt}
-                innfelt
+                ramme="innfelt"
                 dempet
               />
             {:else}
