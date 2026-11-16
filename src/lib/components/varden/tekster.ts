@@ -1085,6 +1085,8 @@ export const SAKEN = {
       : `Siste: ${brevref(b)} fra ${PARTEN[part]}`,
   /** OV-U86. */
   dokumentasjonIkkeSendt: 'Saken har dokumentasjon som er registrert, men ikke sendt herfra.',
+  ikkeForstaatt:
+    'Saken har en hendelse løsningen ikke kan lese. Kravene, svarene og fristene i saken vises derfor ikke.',
   /** Lenkene som gjelder hele prosjektet, i topplinja (oppdragsgiver 13.11, #1899). */
   nyttKrav: 'Nytt krav om endringsordre',
   iCatenda: 'Åpne saken i Catenda',

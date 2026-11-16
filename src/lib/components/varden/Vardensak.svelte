@@ -60,6 +60,7 @@
     NYSAK,
     FORHOLDET,
     SAKEN,
+    SAKSLISTE,
     SPORNAVN,
     STILLING,
   } from './tekster';
@@ -469,7 +470,7 @@
     {#if !nySak && u && kjernesak.saksbilde}
       <header class="omslag">
         {#if sakskode}<p class="kode">{sakskode}</p>{/if}
-        <h1>{kjernesak.saksbilde.tittel}</h1>
+        <h1>{kjernesak.saksbilde.tittel ?? SAKSLISTE.utenTittel}</h1>
         {#if parter.length}
           <dl class="parter">
             {#each parter as [etikett, navn] (etikett)}
@@ -552,6 +553,10 @@
             >{melding.tekst}</Melding
           >{/if}
       </div>
+      <!-- MM-U2: en hendelse kjernen ikke forstår, gjør saken ikke forstått (#2079). -->
+      {#if !u.forstaatt}<div class="melding">
+          <Melding art="info" levende={false}>{SAKEN.ikkeForstaatt}</Melding>
+        </div>{/if}
       {#if arbeid.art === 'kontroll'}
         {@const k = arbeid}
         <Brevkontroll
