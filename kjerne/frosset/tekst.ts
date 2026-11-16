@@ -4,7 +4,22 @@
  */
 
 import { beloep } from '../regler/beloep.ts';
-import type { Hjemmel, Sakskode } from '../typer.ts';
+import type { Hjemmel, Korrespondansetype, Sakskode } from '../typer.ts';
+
+/**
+ * Typen korrespondanse i ubestemt og bestemt form (OV-U79), slik brevet omtaler den (LV-U45) og
+ * skjemaet og visningen nevner den. Ordene står her så de ikke glir fra hverandre (#807).
+ */
+export const KORRESPONDANSETYPEN: Record<
+  Korrespondansetype,
+  { ubestemt: string; bestemt: string }
+> = {
+  brev: { ubestemt: 'brev', bestemt: 'brevet' },
+  e_post: { ubestemt: 'e-post', bestemt: 'e-posten' },
+  moetereferat: { ubestemt: 'møtereferat', bestemt: 'møtereferatet' },
+  // Arbeidsvalget 1 A 16.11 i #807: «dokument» gjelder både et notat og et annet dokument.
+  notat: { ubestemt: 'dokument', bestemt: 'dokumentet' },
+};
 
 /** Kroner med mellomrom mellom tusener og øre bare når de finnes: «150 000 kr». */
 export function kroner(n: number): string {

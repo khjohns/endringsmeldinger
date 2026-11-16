@@ -49,7 +49,9 @@ const varsel = (dokumentasjon: string[]) => ({
   spor: 'frist',
   hjemmel: '33.4',
   sendt: '2026-10-01',
-  korrespondansetype: 'brev',
+  korrespondansetype: 'brev' as const,
+  sendemaate: 'post' as const,
+  beskrivelse: 'Brevet ble sendt utenfor løsningen.',
   dokumentasjon,
 });
 

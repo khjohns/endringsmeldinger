@@ -118,7 +118,15 @@ class Sak {
       format: 1,
       // Registrert korrespondanse har typen (LV-U42, D1 A i #1497).
       // En retting som sier at et brev ikke hører til saken, er ikke korrespondanse.
-      data: 'ikke_i_saken' in data ? data : { korrespondansetype: 'brev', ...data },
+      data:
+        'ikke_i_saken' in data
+          ? data
+          : {
+              korrespondansetype: 'brev' as const,
+              sendemaate: 'post' as const,
+              beskrivelse: 'Brevet ble sendt utenfor løsningen.',
+              ...data,
+            },
     };
     frysBrev(rad, this.journal, KJERNE);
     this.journal.push(rad);

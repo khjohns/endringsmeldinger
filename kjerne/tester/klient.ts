@@ -19,6 +19,7 @@ import type { Utledning } from '../utledning/utled.ts';
 import type { Korrespondansetype, Krav, Part, Spor } from '../typer.ts';
 import { tilfeldigeIder, type NyId } from './testmiljoe.ts';
 import { oppgittDato } from '../spor/forhold/format.ts';
+import { SOM_BREV } from './brevet.ts';
 
 export type Handling = Record<string, unknown> & { handling: string };
 
@@ -340,7 +341,7 @@ function kravposterIKravet(h: Handling, u?: Utledning, nyId?: () => string, navn
           : typeof p.varsel === 'object' && p.varsel !== null
             ? {
                 varsel: {
-                  korrespondansetype: 'brev',
+                  ...SOM_BREV,
                   dokumentasjon: [navn?.nyId() ?? 'vedlegg'],
                   ...(p.varsel as Record<string, unknown>),
                 },
@@ -377,14 +378,25 @@ const varselIKravet = (
   sendt: string,
   u: Utledning
 ): Extract<Kommando, { type: 'krav' }>['varsel'] =>
-  u.spor.frist.varsler['33.4']
-    ? { sendt }
-    : { sendt, korrespondansetype: 'brev', dokumentasjon: [VARSELBREVET] };
+  u.spor.frist.varsler['33.4'] ? { sendt } : { sendt, ...SOM_BREV, dokumentasjon: [VARSELBREVET] };
 
 /** Vedlegget med varselet i et fristkrav; `mellomlager` gir det som alle andre. */
 const VARSELBREVET = '00000000-0000-4000-8000-0000000033a4';
 
 /** Kommandoen klienten sender for handlingen, regnet av klientens utledning `u`. */
+/**
+ * Typen, sendemåten og beskrivelsen i korrespondanse lagt til (OV-U79). Forløpene nevner dem
+ * sjelden; uten typen registreres korrespondansen som brev (LV-U42).
+ */
+function lagtTil(h: Handling) {
+  const type = (h.korrespondansetype as Korrespondansetype | undefined) ?? 'brev';
+  return {
+    korrespondansetype: type,
+    ...(type === 'brev' ? { sendemaate: SOM_BREV.sendemaate } : {}),
+    beskrivelse: typeof h.beskrivelse === 'string' ? h.beskrivelse : SOM_BREV.beskrivelse,
+  };
+}
+
 export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: Navn): Kommando {
   const spor = h.spor as Spor;
   switch (h.handling) {
@@ -441,8 +453,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         type: 'varsel',
         ...varselet,
         sendt: h.sendt as string,
-        // LV-U42: forløpene nevner sjelden typen; uten den registreres korrespondansen som brev.
-        korrespondansetype: (h.korrespondansetype as Korrespondansetype | undefined) ?? 'brev',
+        ...lagtTil(h),
         // OV-U4: det registrerte varselet har brevet som vedlegg, også når forløpet ikke nevner det.
         dokumentasjon: Array.isArray(h.dokumentasjon)
           ? (h.dokumentasjon as string[])
@@ -473,9 +484,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
       return {
         type: 'begrunnelse',
         gjelder: navn.id(h.gjelder as string),
-        ...(typeof h.sendt === 'string'
-          ? { sendt: h.sendt, korrespondansetype: 'brev' as const }
-          : utdypning(h)),
+        ...(typeof h.sendt === 'string' ? { sendt: h.sendt, ...SOM_BREV } : utdypning(h)),
         ...(typeof h.sendt === 'string' && typeof h.utdypning === 'string'
           ? { utdypning: h.utdypning }
           : {}),
@@ -487,9 +496,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         type: 'registrert_brev',
         ...(Array.isArray(h.sporene) ? { spor: h.sporene as Spor[] } : {}),
         sendt: h.sendt as string,
-        // LV-U42: forløpene nevner sjelden typen; uten den registreres korrespondansen som brev.
-        korrespondansetype: (h.korrespondansetype as Korrespondansetype | undefined) ?? 'brev',
-        beskrivelse: h.beskrivelse as string,
+        ...lagtTil(h),
         dokumentasjon: [navn.nyId()],
         ...(typeof h.retter === 'string' ? { retter: navn.id(h.retter) } : {}),
       };
