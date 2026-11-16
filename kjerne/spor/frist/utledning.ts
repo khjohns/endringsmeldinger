@@ -116,16 +116,15 @@ function kontrollerSvaretPaaForesporselen(
 /**
  * HF-U1, LV-U18 punkt 3, OV-U109: forespørselen et nytt fristkrav svarer på: den ubesvarte, med
  * mindre kravet er lagt til og sendt dagen før forespørselen eller tidligere. Et krav sendt samme
- * dag er ikke sendt før den, og `samme` kalles da med forespørselen (OV-U104, #2050).
+ * dag er ikke sendt før den (OV-U104).
  */
 export function foresporselenKravetSvarerPaa(
   u: Utledning,
-  sendt: string | null,
-  samme: (foresporsel: string) => void = () => {}
+  sendt: string | null
 ): ForesporselOgSvar | undefined {
   const f = u.spor.frist.foresporsler.find(erUbesvart);
   if (!f || sendt === null) return f;
-  return foerDagen(sendt, f.sendt, () => samme(f.foresporsel)) ? undefined : f;
+  return foerDagen(sendt, f.sendt) ? undefined : f;
 }
 
 /**

@@ -50,7 +50,7 @@ import {
   paaberopelseFor,
   sendtFoerGjeldendeSvar,
   sendtFoerSisteKrav,
-  svaretPaaDagen,
+  svaretPaaForholdetPaaDagen,
   utled,
   utledJournal,
   varseletFoerBrevet,
@@ -248,7 +248,7 @@ function frysSvarene(
 function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne, sendt: string | null): Data[] {
   frysSvarene(
     svarene,
-    svaretPaaDagen(u, 'forhold', sendt),
+    svaretPaaForholdetPaaDagen(u, sendt),
     (s) =>
       paaberopelseFor(
         {
@@ -909,12 +909,15 @@ export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): v
   for (const h of lesJournal(foer, kjerne.leserformat))
     if (h.art === 'dokument') kravene.push(...h.dokument.krav);
   const paaberopelse = kravene.filter((k) => k.spor === 'forhold');
-  const sendt = ((rad.data.opplysninger ?? []) as Data[]).find((o) => o.hva === 'sendt');
+  // OV-U98: dagen brevet ble sendt, ikke datoen for ett element i det (`datoFor`).
+  const sendt = ((rad.data.opplysninger ?? []) as Data[]).find(
+    (o) => o.hva === 'sendt' && o.gjelder === undefined
+  );
   const dag = typeof sendt?.dato === 'string' ? kalenderdag(sendt.dato) : null;
   // Kategorien i påberopelsen: § 32.2 i forholdet (GR-U12), § 34.1.2 i vederlaget (HF-U1, #342).
   frysSvarene(
     (rad.data.svar ?? []) as Data[],
-    svaretPaaDagen(utledJournal(foer, kjerne), 'forhold', dag),
+    svaretPaaForholdetPaaDagen(utledJournal(foer, kjerne), dag),
     (s) => paaberopelse.find((k) => k.id === (s.spor === 'forhold' ? s.gjelder : s.paaberopelse)),
     (s) => kravene.find((k) => k.id === s.gjelder),
     kjerne

@@ -1056,6 +1056,7 @@ describe('et svar som legges til, fryses med lagene i svaret på forholdet slik 
             spor: 'vederlag',
             vurdering: 'delvis',
             godkjent_belop: 60000,
+            gjelder: 'K-v1',
             navn: 'S-v',
             sendt,
           },
@@ -1064,16 +1065,26 @@ describe('et svar som legges til, fryses med lagene i svaret på forholdet slik 
       };
       const k = await kjoer(forloep, minnebane(), { valg: { klokke: dagklokke() } });
       const data = (await k.bane.journal()).at(-1)!.data as {
-        svar: { beslutningsgrunnlag: { linje: string } }[];
+        svar: { id: string; beslutningsgrunnlag: { linje: string } }[];
       };
-      return data.svar[0].beslutningsgrunnlag.linje;
+      // Visningen leser lagene fra samme svar på forholdet som frysingen (`forholdssvaret`).
+      const u = await k.utledning();
+      const forholdssvaret = u.svar[data.svar[0].id]!.forholdssvaret;
+      return {
+        linje: data.svar[0].beslutningsgrunnlag.linje,
+        forholdssvaret: k.navn.navngi(forholdssvaret),
+      };
     };
-    expect(await raden('2026-09-24'), 'sendt etter godkjenningen og før avslaget').toMatch(
-      /^Byggherrens standpunkt: godkjent med 60\s000\skr\.$/
-    );
-    expect(await raden('2026-09-26'), 'kontrollsak: sendt etter avslaget').toMatch(
-      /^Byggherrens standpunkt: subsidiært godkjent med 60\s000\skr\.$/
-    );
+    expect(await raden('2026-09-24'), 'sendt etter godkjenningen og før avslaget').toEqual({
+      linje: expect.stringMatching(/^Byggherrens standpunkt: godkjent med 60\s000\skr\.$/),
+      forholdssvaret: 'S-1',
+    });
+    expect(await raden('2026-09-26'), 'kontrollsak: sendt etter avslaget').toEqual({
+      linje: expect.stringMatching(
+        /^Byggherrens standpunkt: subsidiært godkjent med 60\s000\skr\.$/
+      ),
+      forholdssvaret: 'S-2',
+    });
   });
 });
 

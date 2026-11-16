@@ -1841,12 +1841,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et fristkrav lagt til, sendt før forespørselen etter § 33.6.2, svarer på den (OV-U109, HF-U1)',
     fil: `${K}/spor/frist/utledning.ts`,
-    endringer: [
-      [
-        'return foerDagen(sendt, f.sendt, () => samme(f.foresporsel)) ? undefined : f;',
-        'return f;',
-      ],
-    ],
+    endringer: [['return foerDagen(sendt, f.sendt) ? undefined : f;', 'return f;']],
     mal: [
       'OV-U109: et fristkrav lagt til, sendt før forespørselen, godtas uten å svare på den, og forespørselen er ikke ubesvart',
     ],
@@ -1948,10 +1943,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F667',
     feilklasse:
       'et fristkrav sendt samme dag som forespørselen etter § 33.6.2, merkes ikke (OV-U104, OV-U109)',
-    fil: `${K}/spor/frist/utledning.ts`,
-    endringer: [
-      ['foerDagen(sendt, f.sendt, () => samme(f.foresporsel))', 'foerDagen(sendt, f.sendt)'],
-    ],
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['samme(k.id, f.foresporsel)', 'void f']],
     mal: [
       'kontrollsak OV-U109, OV-U104: et fristkrav sendt samme dag som forespørselen svarer på den, og rekkefølgen er ukjent',
     ],
@@ -3883,7 +3876,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et svar lagt til fryses med lagene i byggherrens nyeste svar på forholdet, ikke svaret som gjaldt da det ble sendt (OV-U98, #2057)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['  if (dag === null) return s.gjeldendeSvar;', '  return s.gjeldendeSvar;']],
+    endringer: [
+      [
+        '  if (dag === null) return u.spor.forhold.gjeldendeSvar;',
+        '  return u.spor.forhold.gjeldendeSvar;',
+      ],
+    ],
     mal: [
       'et svar sendt før avslaget på forholdet er ikke subsidiært',
       'en rad uten kommando fryses på samme måte',
@@ -3901,6 +3899,14 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['i et forhold der § 32.2 ikke gjelder, sammenliknes svaret ikke med innsigelsen'],
+  },
+  {
+    id: 'F699',
+    feilklasse:
+      'visningen leser lagene i et svar lagt til fra det nyeste svaret på forholdet, ikke det frysingen brukte (OV-U32, OV-U98, #2057)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['            lagtTil(s) ? dagen(s) : null,', '            null,']],
+    mal: ['en rad uten kommando fryses på samme måte'],
   },
   {
     id: 'F444',

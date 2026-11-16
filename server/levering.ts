@@ -17,7 +17,7 @@
  *
  * Hvert brev med tekst fra løsningen merkes med kontraktsforkortelsen, sakens kode og
  * brevets nummer i saken, `K201-KOE-005-03` (LV-U44, LV-U48). Kjernen fryser den i brevet
- * (`merking`, LV-U53), og oppdraget leser den der. Merkingen er Vår ref. i
+ * (`merking`, LV-U44), og oppdraget leser den der. Merkingen er Vår ref. i
  * hodet (LV-U27) og navnet på dokumentet. Uten
  * kontraktsforkortelsen lages ingen merking, og sendingen avvises
  * (`KontraktsforkortelseMangler`, arbeidsvalget S2 A i #1497).
@@ -59,7 +59,7 @@ export const OPPDRAGSFORMAT = 10;
 export class KontraktsforkortelseMangler extends Error {}
 
 /**
- * Merkingen kjernen frøs i brevet, `K201-KOE-005-03` (LV-U53, LV-U44, LV-U48, oppdragsgiver
+ * Merkingen kjernen frøs i brevet, `K201-KOE-005-03` (LV-U44, LV-U48, oppdragsgiver
  * 04.11 i #1570). Kjernen merker ikke brevet når prosjektet mangler kontraktsforkortelsen.
  *
  * @throws KontraktsforkortelseMangler

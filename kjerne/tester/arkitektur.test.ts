@@ -1323,11 +1323,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'utledning/utled.ts',
     'relasjon',
-    'svaretPaaDagen',
+    'svaretPaaForholdetPaaDagen',
     ['kommandoer/skriving.ts:frosneSvar', 'kommandoer/skriving.ts:frysBrev'],
   ],
   ['Journalrad.data', 'rad', 'opplysninger', ['kommandoer/skriving.ts:frysBrev']],
-  ['kommandoer/skriving.ts:frysBrev(o)', 'rad', 'hva', ['kommandoer/skriving.ts:frysBrev']],
+  ['kommandoer/skriving.ts:frysBrev(o)', 'rad', 'hva gjelder', ['kommandoer/skriving.ts:frysBrev']],
   ['kommandoer/skriving.ts:frysBrev(sendt)', 'rad', 'dato', ['kommandoer/skriving.ts:frysBrev']],
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/skriving.ts:frysBrev']],
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/avvisning.ts:avvisning']],
@@ -2317,6 +2317,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['format/leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],
   // OV-U98, OV-U104: dagene sammenliknes som kalenderdager, og samme dag meldes der de sammenliknes.
   ['format/leser.ts', 'relasjon', 'foerDagen'],
+  // OV-U32, OV-U98, #2057: dagen et svar ble sendt, og om brevet er lagt til, for svaret på
+  // forholdet svaret regnes med.
+  ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:dagene']],
+  ['format/leser.ts', 'kontekst', 'dagenSendt', ['utledning/utled.ts:dagene']],
+  [
+    'utledning/utled.ts:dagene',
+    'relasjon',
+    'dagen lagtTil',
+    ['utledning/utled.ts:settForholdssvarene'],
+  ],
   // #474: datoene i KA-U36 (opphevet av KA-U46) og VS-U26 sammenliknes som kalenderdager.
   [
     'format/leser.ts',

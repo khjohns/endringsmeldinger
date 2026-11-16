@@ -539,7 +539,7 @@ async function opprettNySak(
 
 /**
  * Koden og løpenummeret brevkontrollen viser (LV-U46), i formen kjernen tar, og
- * kontraktsforkortelsen henvisningene i brevteksten bruker (LV-U53).
+ * kontraktsforkortelsen henvisningene i brevteksten bruker (LV-U44).
  */
 const sakskodesvar = ({
   kode,

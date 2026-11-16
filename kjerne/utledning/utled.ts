@@ -30,7 +30,7 @@ import {
 } from '../format/leser.ts';
 import { harProduktivitetspost } from '../spor/vederlag/format.ts';
 import { KONTROLLER_I_VEDERLAGET } from '../spor/vederlag/utledning.ts';
-import { foresporselenKravetSvarerPaa, KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
+import { KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import {
@@ -563,17 +563,30 @@ export function kravversjonenPaaDagen(u: Utledning, spor: Spor, dag: string | nu
 }
 
 /**
- * OV-U98: byggherrens svar i sporet som var gjeldende på dagen `dag`, etter `svaretGjaldt`, og det
- * siste av dem når flere var det samme dag. Uten dag, for et brev fra løsningen, er det det
- * gjeldende svaret. Et svar lagt til fryses med lagene i svaret på forholdet slik det var da (#2057).
+ * OV-U32, OV-U98: svaret på forholdet et svar på vederlag eller frist sendt på dagen `dag` regnes
+ * med: byggherrens siste svar på påberopelsen som var sendt den dagen. Uten dag, for et svar fra
+ * løsningen, det siste. Frysingen og visningen leser det herfra (#2057).
  */
-export function svaretPaaDagen(u: Utledning, spor: Spor, dag: string | null): Svar | null {
-  const s = u.spor[spor];
-  if (dag === null) return s.gjeldendeSvar;
-  return (
-    [...s.svar, ...s.svarUtenforRekken].filter((x) => svaretGjaldt(u, x, dag, () => {})).at(-1) ??
-    null
-  );
+export function forholdssvaretPaaDagen(
+  forhold: Svar[],
+  paaberopelse: string,
+  dag: string | null,
+  sendt: (s: Svar) => string | null
+): Svar | null {
+  const foer = dag === null ? forhold : forhold.filter((g) => !foerDagen(dag, sendt(g)));
+  return ikkeErstattet(foer, paaberopelse)[0] ?? null;
+}
+
+/**
+ * Svaret på forholdet et svar sendt på dagen `dag` fryses med (`forholdssvaretPaaDagen`), mot
+ * påberopelsen som var gjeldende den dagen. Uten dag er det det gjeldende svaret.
+ */
+export function svaretPaaForholdetPaaDagen(u: Utledning, dag: string | null): Svar | null {
+  if (dag === null) return u.spor.forhold.gjeldendeSvar;
+  const krav = kravversjonenPaaDagen(u, 'forhold', dag);
+  return krav
+    ? forholdssvaretPaaDagen(u.spor.forhold.svar, krav.id, dag, (g) => datoenDetBleSendt(u, g))
+    : null;
 }
 
 /**
@@ -650,8 +663,11 @@ function registreringenStrider(
       for (const v of egneVarsler(u, k))
         foerDagen(dag(k.id), datoenDetBleSendt(u, v), () => samme(k.id, v.id));
     }
-    // OV-U109: datoen sammenliknes med forespørselen etter § 33.6.2.
-    if (k.spor === 'frist') foresporselenKravetSvarerPaa(u, dag(k.id), (f) => samme(k.id, f));
+    // OV-U109: datoen sammenliknes med forespørselen etter § 33.6.2 (`svarPaaForesporsler` og
+    // `foresporselenKravetSvarerPaa`).
+    if (k.spor === 'frist')
+      for (const f of u.spor.frist.foresporsler)
+        if (f.kravFoer === null) foerDagen(dag(k.id), f.sendt, () => samme(k.id, f.foresporsel));
   }
   for (const v of d.utsagn) {
     if (v.art !== 'varsel') continue;
@@ -734,13 +750,16 @@ function partensPaaberopelser(
   for (const d of dokumenter) {
     if (d.avsender !== part) continue;
     for (const x of paaberopelserIDokumentet(d, utenVirkning)) {
-      const [med, uten] = [true, false].map((v) =>
-        innsigelsenPaaberoper(x.gjelder, dokumenter, () => v)
-      );
+      // Varslingsplikten avgjør bare for en påberopelse mot påberopelsen av forholdet (GR-U11).
+      let medPlikt: ReturnType<typeof innsigelsenPaaberoper> | undefined;
+      const utenPlikt = innsigelsenPaaberoper(x.gjelder, dokumenter, () => false);
       ut.push({
         id: x.id,
         dag: dagenSendt({ id: x.id, dokument: d.id }, d),
-        hjemmel: (varslingsplikt) => (varslingsplikt ? med : uten),
+        hjemmel: (varslingsplikt) =>
+          varslingsplikt
+            ? (medPlikt ??= innsigelsenPaaberoper(x.gjelder, dokumenter, () => true))
+            : utenPlikt,
       });
     }
   }
@@ -1075,7 +1094,8 @@ function utledSporene(
     svar,
     spor.forhold.svar,
     spor.forhold.svarUtenforRekken,
-    (id) => plass.get(id)!.versjon
+    (id) => plass.get(id)!.versjon,
+    dagene(journal)
   );
   settEnighetene(
     spor,
@@ -1428,12 +1448,26 @@ function settDatoopplysningene(
         datoopplysninger.filter((o) => versjonen(o.id) < versjonen(b.svar.id)).at(-1)?.id ?? null;
 }
 
-/** `Svarberegning.forholdssvaret` for hvert svar på vederlag og frist. */
+/** Dagen et svar ble sendt (OV-U98), og om det står i et brev lagt til. */
+function dagene(journal: Domenehendelse[]) {
+  const dokumentene = new Map([...dokumenterI(journal)].map((d) => [d.id, d]));
+  return {
+    dagen: (x: Svar) =>
+      dagenSendt({ id: x.id, dokument: x.dokument }, dokumentene.get(x.dokument)!),
+    lagtTil: (x: Svar) => erRegistrert(dokumentene.get(x.dokument)!.opplysninger),
+  };
+}
+
+/**
+ * `Svarberegning.forholdssvaret` for hvert svar på vederlag og frist: svaret på forholdet i samme
+ * brev, ellers `forholdssvaretPaaDagen`, som frysingen leser (#2057).
+ */
 function settForholdssvarene(
   svar: Record<string, Svarberegning>,
   forhold: Svar[],
   utenforRekken: Svar[],
-  versjonen: (id: string) => number
+  versjonen: (id: string) => number,
+  { dagen, lagtTil }: ReturnType<typeof dagene>
 ): void {
   // OV-U32: svaret på forholdet i samme brev, også et svar utenfor rekken (OV-U103).
   const iBrevet = [...forhold, ...utenforRekken];
@@ -1444,10 +1478,12 @@ function settForholdssvarene(
       iBrevet.find((g) => g.dokument === s.dokument) ??
       (s.paaberopelse === null
         ? undefined
-        : ikkeErstattet(
+        : forholdssvaretPaaDagen(
             forhold.filter((g) => versjonen(g.id) < versjonen(s.id)),
-            s.paaberopelse
-          )[0]);
+            s.paaberopelse,
+            lagtTil(s) ? dagen(s) : null,
+            dagen
+          ));
     b.forholdssvaret = kilde?.id ?? null;
   }
 }
