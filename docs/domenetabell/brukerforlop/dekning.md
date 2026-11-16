@@ -212,6 +212,7 @@ på kilden, men har ingen kontroller ennå.
 | [LV-U49](../../plans/vedtak.md#lv-u49) | BF-01 forholdet-er-godkjent, BF-01 bh-har-mottatt-vederlagskravet, BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret | — | BF-07 |
 | [LV-U50](../../plans/vedtak.md#lv-u50) | — | — | BF-07, BF-10 |
 | [LV-U51](../../plans/vedtak.md#lv-u51) | — | — | BF-07 |
+| [LV-U52](../../plans/vedtak.md#lv-u52) | — | — | BF-03, BF-07 |
 | [LV-U53](../../plans/vedtak.md#lv-u53) | — | BF-02A te-har-mottatt-svaret, BF-02C ny-versjon-etter-korrigeringen, BF-08 bh-har-mottatt-paaberopelsen | BF-02B, BF-03, BF-07, BF-10 |
 | [LV-U54](../../plans/vedtak.md#lv-u54) | — | — | BF-10 |
 | [LV-U56](../../plans/vedtak.md#lv-u56) | — | BF-02A korrigeringen-er-sendt, BF-02C ny-versjon-etter-korrigeringen | BF-10 |
