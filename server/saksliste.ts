@@ -396,10 +396,12 @@ function sisteBrev(u: Utledning): Sakslinje['siste_brev'] {
  */
 export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
   const u = utledJournal(sak.journal, kjerne);
+  // MM-U2, #2079: tittelen er opprettelsen slik kjernen har lest den, som i saksbildet.
+  const opprettet = u.journal.find((h) => h.art === 'sak');
   const felles = {
     sak_id: sak.sakId,
     sakstype: sak.sakstype,
-    sakstittel: tekst(sak.journal[0]!.data.sakstittel),
+    sakstittel: opprettet?.art === 'sak' ? opprettet.tittel : null,
     opprettet: sak.opprettet,
     kode: sak.sakskode?.kode ?? null,
     loepenummer: sak.sakskode?.loepenummer ?? null,
