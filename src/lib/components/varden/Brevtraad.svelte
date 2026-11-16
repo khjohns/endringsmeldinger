@@ -152,7 +152,7 @@
       {#if registrert || i || b.vedlegg.length || oeverst || nederst}
         <div class="innhold">
           {#if oeverst}
-            <div class="oeverst" class:eldre={eldreKrav.has(b.id)}>{@render oeverst(b)}</div>
+            <div class="oeverst" class:eldre-krav={eldreKrav.has(b.id)}>{@render oeverst(b)}</div>
           {/if}
           {#if registrert}
             <p class="datolinje">{TRAADEN.registrert(b.avsender, b.sendt, b.registrert)}</p>
@@ -377,7 +377,7 @@
     color: var(--ink);
     font-variant-numeric: tabular-nums;
   }
-  .oeverst.eldre :global(.kravtall) {
+  .oeverst.eldre-krav :global(.kravtall) {
     font-weight: 400;
     color: var(--ink-2);
   }

@@ -196,7 +196,7 @@ describe('Siden for fristforlengelsen', () => {
       'listitem'
     );
     const krav = rader.filter((r) => r.textContent?.includes('Krav om fristforlengelse'));
-    expect(krav.map((r) => r.querySelector('.oeverst')?.classList.contains('eldre'))).toEqual([
+    expect(krav.map((r) => r.querySelector('.oeverst')?.classList.contains('eldre-krav'))).toEqual([
       false,
       true,
     ]);

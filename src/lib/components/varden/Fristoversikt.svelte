@@ -42,6 +42,7 @@
   const alle = $derived(brevene(u));
   const k = $derived(kravetOgSvaretIFristen(u, alle));
   const dagene = $derived(kravdagene(u));
+  const eldreKrav = $derived(eldreKravISporet(u, 'frist'));
   const akseptfrist = $derived(akseptfristen(u, 'frist'));
   const varsel = $derived(u.spor.frist.varsler['33.4'] ?? null);
   const klar = $derived(klarOverForholdet(u));
@@ -79,7 +80,7 @@
     brev={brevITraaden(alle, 'frist')}
     spor="frist"
     fulgtOpp={oppfoelgingene(u, alle)}
-    eldreKrav={eldreKravISporet(u, 'frist')}
+    {eldreKrav}
     dokumentasjon={u.ikkeVurderteBrev}
     venterPaaSvar={betegnelser.frist === 'venter_paa_svar'}
     {oeverst}

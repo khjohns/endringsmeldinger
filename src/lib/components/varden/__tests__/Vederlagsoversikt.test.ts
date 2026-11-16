@@ -150,13 +150,13 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
     // Leselinja i prototypen `vederlagsoversikt.html` v3: kravet som også er varselet, sier
     // hjemmelen ved beløpet (U-12). Brev 2 er det første kravet og varsler etter punkt 34.1.2, og
     // brev 3 har den særskilte posten og varsler etter punkt 34.1.3 (OV-U5).
-    expect(krav.map((r) => r.querySelector('.beloep')?.textContent?.trim())).toEqual([
+    expect(krav.map((r) => r.querySelector('.kravtall')?.textContent?.trim())).toEqual([
       '190 000 kr, med varsel etter punkt 34.1.3.',
       '125 000 kr, med varsel etter punkt 34.1.2.',
     ]);
     expect(krav[1]!.textContent).toContain('fulgt opp i brev 3');
     // Beløpet i det eldre kravet står dempet, som tittelen (U-5).
-    expect(krav.map((r) => r.querySelector('.oeverst')?.classList.contains('eldre'))).toEqual([
+    expect(krav.map((r) => r.querySelector('.oeverst')?.classList.contains('eldre-krav'))).toEqual([
       false,
       true,
     ]);
