@@ -13,6 +13,7 @@ import { lesKroner, visKroner } from '$lib/utils/belop';
 import { vedleggskart, type Kjernevedlegg } from './nysak';
 import { beloepet, definert } from './kommandoer';
 import { KRAVSKJEMA } from './tekster';
+import type { Mangel } from './mangler';
 
 /**
  * Det TE oppgir om varselet for en kravpost som kravet ellers er varselet for (VS-U50, D-19):
@@ -214,16 +215,6 @@ export function vedleggIKravet(v: Kravvalg, varslene: readonly (Varselet | null)
       return valg.art === 'dokument' ? valg.vedlegg : [];
     })
   );
-}
-
-/** Det som mangler, med feltet det står ved og posten feltet hører til. */
-export interface Mangel {
-  felt: string;
-  post: string | null;
-  /** Teksten øverst i skjemaet, med posten. */
-  tekst: string;
-  /** Teksten ved feltet, som står i posten. */
-  ved: string;
 }
 
 /** Feilen i et beløpsfelt, eller `null`. `paakrevd` sier om feltet må fylles ut. */

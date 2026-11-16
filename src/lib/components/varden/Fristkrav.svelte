@@ -23,6 +23,8 @@
   import Gjeldendefrist from './Gjeldendefrist.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Knapp from './Knapp.svelte';
+  import Manglene from './Manglene.svelte';
+  import type { Mangel } from './mangler';
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
@@ -37,7 +39,6 @@
     vedleggIFristkravet,
     type Fristkravvalg,
     type Fristpostvalg,
-    type Mangel,
   } from './fristkrav';
   import { gjeldendeFrist, nyFrist, sakensNavn, type GjeldendeFrist } from './fristoversikt';
   import { heleDager } from './fristsvar';
@@ -629,20 +630,7 @@
       mottaker={SKJEMA.tilBH}
     >
       {#if forsoekt && mangler.length}
-        <div
-          class="mangler"
-          role="group"
-          tabindex="-1"
-          bind:this={oppsummering}
-          aria-labelledby={id('mangler')}
-        >
-          <p id={id('mangler')}>{SKJEMA.mangler}</p>
-          <ul>
-            {#each mangler as m (m.felt)}
-              <li><a href={`#${m.felt}`} onclick={(e) => gaaTil(m, e)}>{m.tekst}</a></li>
-            {/each}
-          </ul>
-        </div>
+        <Manglene tittel={SKJEMA.mangler} {mangler} ongaa={gaaTil} bind:element={oppsummering} />
       {/if}
 
       {#if kanVarsle}
@@ -1135,28 +1123,6 @@
     color: var(--danger);
     font-size: 14px;
     font-weight: 500;
-  }
-  .mangler {
-    margin: var(--spacing-5) var(--spacing-6) 0;
-    padding: var(--spacing-4);
-    border-left: 3px solid var(--danger);
-    background: var(--danger-bg);
-  }
-  .mangler:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
-  .mangler p {
-    font-weight: 600;
-  }
-  .mangler ul {
-    margin-top: var(--spacing-2);
-    padding-left: var(--spacing-5);
-    list-style: disc;
-  }
-  .mangler a {
-    color: var(--ink);
-    text-underline-offset: 3px;
   }
   .skjemafot {
     padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);

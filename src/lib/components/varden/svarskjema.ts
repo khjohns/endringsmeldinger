@@ -7,15 +7,7 @@ import { erKravpostpunkt, FORBEHOLDET, INNLEDNINGEN, OVERSIKTEN } from '$kjerne/
 import type { Avsnitt, Spor } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { brevet, type Brevet } from './lesing';
-
-/** Et svar som mangler i skjemaet: feltet, posten feltet står i, og teksten i oppsummeringen. */
-export interface Mangel {
-  /** ID-en til feltet, med starten skjemaet gir ID-ene sine. */
-  felt: string;
-  /** Posten feltet står i (`id` i `Postliste`), eller `null` for et spørsmål om hele kravet. */
-  post: string | null;
-  tekst: string;
-}
+import type { Mangel } from './mangler';
 
 /**
  * Feltene som mangler et svar, med starten `prefiks` på ID-en. `tekst` er `null` for et felt som
