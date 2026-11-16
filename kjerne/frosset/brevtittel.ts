@@ -95,7 +95,7 @@ export const SVARTITTEL: Record<Spor, string> = {
 export const UTSAGNSTITTEL = {
   aksept: 'Aksept av svaret',
   trekk: 'Trekk av kravet',
-  innsigelse: 'Innsigelse etter punkt 5',
+  innsigelse: 'Innsigelse etter punkt\u00a05',
   // LV-U55: brevet med korrigeringen etter punkt 10 i samlevedtaket for retting av sendt brev (MM-U55).
   korrigering: 'Korrigering av datoen',
 } as const;

@@ -2461,6 +2461,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/tekst.ts', 'brevtekst', 'OVERSIKTEN', ['frosset/brevtekst.ts', 'format/leser.ts']],
   ['frosset/tekst.ts', 'brevtekst', 'postradene tabellenIAvsnittet', ['format/leser.ts']],
   ['frosset/tekst.ts:tabellenIAvsnittet', 'brevtekst', 'laast overskrift', ['frosset/tekst.ts']],
+  // Svaret 16.11 i #2049: hardt mellomrom etter «punkt», «pkt.» og «kl.» i brevet.
+  [
+    'frosset/tekst.ts',
+    'brevtekst',
+    'medHardeMellomrom',
+    ['frosset/brevtekst.ts', 'frosset/linje.ts'],
+  ],
   [
     'frosset/tekst.ts',
     'brevtekst',

@@ -204,10 +204,10 @@ describe('svaret på kravet med posten etter § 34.1.3 gjennom klienten (BF-44, 
       [3, 30000, [2, 10000]],
     ]);
     expect(svar.beslutningsgrunnlag.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt varselet etter punkt 34.1.2 kom for sent, ' +
-        `subsidiært godkjent med ${kroner(100000)} for justeringen ellers, begrenset etter punkt ` +
+      'Byggherrens standpunkt: prinsipalt varselet etter punkt\u00a034.1.2 kom for sent, ' +
+        `subsidiært godkjent med ${kroner(100000)} for justeringen ellers, begrenset etter punkt\u00a0` +
         `34.1.3 til ${kroner(10000)}, videre subsidiært godkjent med ${kroner(30000)} for ` +
-        'særskilt justering (punkt 34.1.3 annet ledd).'
+        'særskilt justering (punkt\u00a034.1.3 annet ledd).'
     );
   });
 

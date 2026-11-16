@@ -388,7 +388,7 @@ describe('lesereglene for referansene (4.2)', () => {
     const k = await bygg(bane, varselOgInnsigelse as Parameters<typeof bygg>[1]);
     const rader = structuredClone(await bane.journal());
     const tittel = radMed(rader, k, 'D5').data.brevtittel;
-    expect(tittel, 'forutsetning').toBe('Innsigelse etter punkt 5 i sak KOE-17');
+    expect(tittel, 'forutsetning').toBe('Innsigelse etter punkt\u00a05 i sak KOE-17');
     tilBestridelse(rader, k);
     radMed(rader, k, 'D5').data.brevtittel = tittel;
     expect(utled(lesJournal(rader, KJERNE.leserformat), GJELDENDE_REGLER).forstaatt).toBe(false);
@@ -989,7 +989,7 @@ describe('fristsvaret uten fremdriftshindring (§ 33.1; B-13, vedtaket 05.10, #2
       ['dager', 2],
     ]);
     expect(s.svar.beslutningsgrunnlag?.linje).toBe(
-      'Byggherrens standpunkt: prinsipalt avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (punkt 33.1), subsidiært godkjent med 20 dager for frist Sluttfristen.'
+      'Byggherrens standpunkt: prinsipalt avslått: fremdriften er ikke hindret, eller hindringen skyldes ikke forholdet (punkt\u00a033.1), subsidiært godkjent med 20 dager for frist Sluttfristen.'
     );
     expect((await k.send({ handling: 'aksept', spor: 'frist' }))?.godtatt).toBe(true);
     expect((await k.utledning()).spor.frist.enighet?.grunnlag.utfall.frister?.[0]?.dager).toBe(0);
@@ -1601,7 +1601,7 @@ describe('påberopelsen etter § 33.4 gjelder varselet (VS-U20, OV-U5, KK-07)', 
     if (foerste === radMed(rader, k, 'K-f2').data.brevnummer)
       throw new Error('Forutsetning: kravversjonene står i hvert sitt brev');
     expect(avsnitt.laast).toContain(
-      `punkt 33.4 i brev K201-KOE-017-${String(foerste).padStart(2, '0')} av`
+      `punkt\u00a033.4 i brev K201-KOE-017-${String(foerste).padStart(2, '0')} av`
     );
   });
 
@@ -2487,7 +2487,7 @@ describe('forskyvningen fra forholdet i linjen (OV-U32, OV-U33, #1199)', () => {
     expect(linje('S-v1')).toBe(`Byggherrens standpunkt: subsidiært godkjent med ${kr(60000)}.`);
     // OV-U33, LV-U31: metoden står i laget til beløpet og får etiketten. LV-U34, LV-U40:
     // lagslinjen viser til punktet om forholdet i samme brev.
-    const lagslinje = 'Subsidiært, hvis innsigelsen i punkt 2 ovenfor ikke fører frem';
+    const lagslinje = 'Subsidiært, hvis innsigelsen i punkt\u00a02 ovenfor ikke fører frem';
     expect(brevtekst).toContain(
       `${lagslinje}\\n\\nByggherren godkjenner oppgjør som fast sum med beløpet og forbeholdene som fremgår av svaret.`
     );
@@ -2509,7 +2509,7 @@ describe('forskyvningen fra forholdet i linjen (OV-U32, OV-U33, #1199)', () => {
   it('lagene i fristsporet flyttes ned hver for seg', async () => {
     const { linje } = await linjene({ resultat: 'avslaatt' }, { varsel_i_tide: false });
     expect(linje('S-f1')).toMatch(
-      /^Byggherrens standpunkt: subsidiært varselet etter punkt 33\.4 kom for sent, videre subsidiært /
+      /^Byggherrens standpunkt: subsidiært varselet etter punkt\u00a033\.4 kom for sent, videre subsidiært /
     );
   });
 

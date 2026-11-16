@@ -148,7 +148,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     await seBrevet();
     // LV-U34: «NS 8407» står bare første gang i brevet.
     expect(sendt[0]!.avsnitt.map((a) => a.laast).join(' ')).toContain(
-      'Byggherren gjør gjeldende at varselet om regningsarbeid etter punkt 34.4 for P1 ikke ble gitt eller kom for sent.'
+      'Byggherren gjør gjeldende at varselet om regningsarbeid etter punkt\u00a034.4 for P1 ikke ble gitt eller kom for sent.'
     );
   });
 
