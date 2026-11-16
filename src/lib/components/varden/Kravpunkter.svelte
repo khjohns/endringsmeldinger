@@ -19,6 +19,7 @@
     hvaKravetEr,
     handling,
     aktiv = null,
+    status = KRAVSKJEMA.ikkeSendt,
   }: {
     punkter: {
       id: string;
@@ -43,6 +44,8 @@
     handling: Snippet;
     /** Punktet for avsnittet som er i syne. */
     aktiv?: string | null;
+    /** Teksten ved merket under knappen; et krav lagt til blir ikke sendt (OV-U80). */
+    status?: string;
   } = $props();
   const uid = $props.id();
 </script>
@@ -113,7 +116,7 @@
     {@render handling()}
     <p class="status-utkast">
       <span class="merke">{KRAVSKJEMA.utkast}</span>
-      <span class="dempet">{KRAVSKJEMA.ikkeSendt}</span>
+      <span class="dempet">{status}</span>
     </p>
   </div>
 </section>

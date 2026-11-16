@@ -1209,7 +1209,7 @@ export const LEGG_TIL = {
   svaret: 'Hvilket svar godtok du?',
   svaretHjelp: 'Byggherrens svar i saken. Aksepten gjelder fra datoen du oppgir.',
   svaretMangler: 'Velg svaret aksepten gjelder.',
-  svaretValg: (b: Brevref) => stor(brevref(b)),
+  svaretValg: (b: Brevet) => `${stor(brevref(b))} av ${dato(b.sendt ?? b.registrert)}`,
   leggTil: 'Legg til',
   gaaVidere: 'Gå videre',
   avbryt: 'Avbryt',
@@ -1227,6 +1227,7 @@ export const LEGG_TIL = {
     'Løsningen lager ingen brevtekst. Der skjemaet og dokumentet spriker, er det dokumentet som er sendt.',
   endre: 'Endre korrespondansen',
   utkast: 'Utkast · ikke lagt til',
+  ikkeLagtTil: 'Ikke lagt til.',
   leggTilKravet: 'Legg til kravet',
   leggTilSvaret: 'Legg til svaret',
   /** OV-U102. */

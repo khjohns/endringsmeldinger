@@ -214,6 +214,11 @@
 </Arbeidsflate>
 
 <style>
+  .kort {
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: var(--r-kort);
+  }
   header {
     padding: var(--spacing-5) var(--spacing-6) 0;
   }

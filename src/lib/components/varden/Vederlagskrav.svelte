@@ -1191,6 +1191,7 @@
           {pnsOver}
           {hvaKravetEr}
           handling={sendeknapp}
+          status={lagtTil ? LEGG_TIL.ikkeLagtTil : undefined}
         />
       </div>
       <Tidslinje brev={sporbrev} datoer={datoerISporet(u, 'vederlag')} {utfylt} />
