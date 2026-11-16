@@ -471,6 +471,36 @@ describe('sakskonteksten for en TS-sak', () => {
     );
   });
 
+  // Kilde: #877 p15 (gjennomgangen 16.11). Serveren har sagt at saken er endret, så saken som
+  // vises, er utdatert også etter Avbryt, og en ny lasting som feiler, sier det samme.
+  it('en 409 der lastingen feiler, sier etter Avbryt at saken kan være endret, til saken er lastet', async () => {
+    const send = vi.fn().mockRejectedValueOnce(new ApiError(409, 'Saken er endret.'));
+    const hent = vi
+      .fn()
+      .mockResolvedValueOnce(svar([opprettet]))
+      .mockRejectedValueOnce(new ApiError(500, 'Serveren svarte ikke.'))
+      .mockRejectedValueOnce(new ApiError(503, 'Tjenesten er utilgjengelig.'))
+      .mockResolvedValueOnce(svar([opprettet]));
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', part: 'TE', hent, send });
+    await sak.last();
+
+    expect(await sak.send(grunnlagskrav)).toBe(false);
+    expect(sak.feil).toBe('Brevet ble ikke sendt. Saken er endret. Serveren svarte ikke.');
+    sak.fjernFeil();
+    expect(sak.utdatert).toBe(true);
+    expect(sak.feil).toBe(
+      'Saken kan være endret siden den ble lastet, og den kunne ikke lastes på nytt. Serveren svarte ikke.'
+    );
+
+    expect(await sak.last()).toBe(false);
+    expect(sak.feil).toBe(
+      'Saken kan være endret siden den ble lastet, og den kunne ikke lastes på nytt. Tjenesten er utilgjengelig.'
+    );
+    expect(await sak.last()).toBe(true);
+    expect(sak.utdatert).toBe(false);
+    expect(sak.feil).toBeNull();
+  });
+
   // Kilde: #695 p3. En avvisning fra kjernen sendes ikke; serveren ville avvist den.
   it('sender ikke en kommando kjernen avviser, og sier hvorfor', async () => {
     const send = vi.fn();
