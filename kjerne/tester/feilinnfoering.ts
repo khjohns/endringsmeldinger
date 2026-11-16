@@ -6009,6 +6009,13 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [[' || k.svar.gjelder !== forrige.gjelder', '']],
     mal: ['en revisjon lagt til avvises når den gjelder en annen kravversjon'],
   },
+  {
+    id: 'F684',
+    feilklasse: 'et svar utenfor rekken får ikke sporet sitt i visningen (OV-U103)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [['      ...s.svarUtenforRekken,\n', '']],
+    mal: ['svaret utenfor rekken har sporet sitt'],
+  },
 ];
 
 interface Testresultat {

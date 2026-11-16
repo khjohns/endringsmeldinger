@@ -14,6 +14,7 @@ import { kjoer, type Forloep, type Kontroll } from './kjoerer.ts';
 import type { Handling } from './klient.ts';
 import type { Klokke } from './testmiljoe.ts';
 import { varseletFoerSvaret } from '../utledning/utled.ts';
+import { elementenesSpor } from '../kommandoer/handlinger.ts';
 import type { Utfall } from '../kommandoer/skriving.ts';
 
 /** Én dag per hendelse, fra 21.09 kl. 10 norsk tid. */
@@ -680,6 +681,23 @@ describe('et svar sendt før byggherrens gjeldende svar på kravversjonen står 
         },
       ]
     ));
+
+  it('svaret utenfor rekken har sporet sitt, så brevet med det vises i sporet (OV-U103)', async () => {
+    const k = await kjoer(
+      {
+        id: 'sporet-til-svaret-utenfor-rekken',
+        rader: [],
+        start: 'krav_irreg',
+        steg: [avslag('S-g1'), foerste('2026-09-23')],
+        kontroller: [],
+      },
+      minnebane(),
+      { valg: { klokke: dagklokke() } }
+    );
+    const sporet = elementenesSpor(await k.utledning());
+    expect(sporet.get(k.navn.id('S-g1')), 'kontrollsak: det gjeldende svaret').toBe('forhold');
+    expect(sporet.get(k.navn.id('S-r'))).toBe('forhold');
+  });
 
   it('kommandoen godtar en aksept av svaret utenfor rekken, sendt før det gjeldende svaret (OV-U103)', async () => {
     const aksept: Handling = { handling: 'aksept', spor: 'forhold', svar: 'S-r' };
