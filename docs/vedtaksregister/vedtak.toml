@@ -31262,8 +31262,6 @@ Spørsmålet kom fra byggingen av OV-U109 i PR #2047. Det ble kontrollert uavhen
 >
 > **Anbefaling: A.** Kravet sa da det ble sendt, at det svarer på forespørselen (LV-U18 (3)), og byggherren behandlet det slik. Under B kan totalentreprenøren tape skjermingen etter fjerde ledd ved å legge til et sant eldre krav, uten å bli advart, og uten vei tilbake. Under A har byggherren ingen vei i løsningen til å påberope punkt 33.6.1 mot kravet som svarte. Byggherren kan gjøre det utenfor løsningen, og løsningen avgjør ikke om påberopelsen fører fram.
 >
-> **Konsekvens for koden (ikke en del av spørsmålet).** #2047 bygger B: `foresporselsrelasjon` i `kjerne/spor/frist/frysing.ts` ser bort fra en forespørsel med `kravFoer`, så `foresporselForFristsvar` gir `null`, og `kjerne/regler/frist.ts:114` avviser ikke påberopelsen etter punkt 33.6.1. Under A beholder `foresporselsrelasjon` forholdet når forespørselen var besvart da det eldre kravet ble lagt til, og bare virkningen etter tredje ledd faller bort. Det bygges i PR-en for #2022.
->
 > ## Drøftingen 16.11
 >
 > Oppdragsgiver 16.11, ordrett: «La oss drøftr A og B om 33.6.1. Les gjerne kontrakten i khjohns/kontrakt. 33.6.1 gjelder vel bare hvis kravet ikke er spesifisert. Hvis forespørsel er sendt dag x+1 og TE fremla krav dag x, men svarte også på forespørsel dag x+1 eller senere, da er vel forespørselen uten virkning? Tilfellet den behandler: krav ikke fremsatt - eksisterer ikke. UI trenger ikke å blokkere handlinger den eller andre veien, men bør vel informere om de faktiske realitetene»
