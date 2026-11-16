@@ -16,62 +16,65 @@ const ord = (o: Partial<Forholdsordene>): Forholdsordene => ({
   ...o,
 });
 
+/** Starten på statuslinjen for et svar sendt 3. november 2026 (`FORHOLDET.utfall`). */
+const SVARTE = 'Byggherren svarte 3. november 2026';
+
 const tilfellene: [string, Forholdsresultat, Forholdsordene, string, string][] = [
   [
     'endringsordre etter punkt 32.3 a',
     'godkjent',
     ord({ endringsordre: true, varslingsplikt: true }),
     'Byggherren er enig, og svaret er en endringsordre (punkt 32.3 første ledd a).',
-    'Byggherren svarte 3. november 2026 med en endringsordre (punkt 32.3 første ledd a).',
+    `${SVARTE} med en endringsordre (punkt 32.3 første ledd a).`,
   ],
   [
     'enighet om endring når varselet kom for sent',
     'godkjent',
     ord({ varslingsplikt: true }),
     'Byggherren er enig i at pålegget innebærer en endring.',
-    'Byggherren svarte 3. november 2026 og er enig i at pålegget innebærer en endring.',
+    `${SVARTE} og er enig i at pålegget innebærer en endring.`,
   ],
   [
     'avslag ved irregulær endring',
     'avslaatt',
     ord({ varslingsplikt: true }),
     'Byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).',
-    'Byggherren svarte 3. november 2026 og avslår kravet på endringsordre (punkt 32.3 første ledd b).',
+    `${SVARTE} og avslår kravet på endringsordre (punkt 32.3 første ledd b).`,
   ],
   [
     'svikt, godkjent',
     'godkjent',
     ord({ risiko: true }),
     'Byggherren har risikoen for forholdet.',
-    'Byggherren svarte 3. november 2026 og har risikoen for forholdet.',
+    `${SVARTE} og har risikoen for forholdet.`,
   ],
   [
     'svikt, avslått',
     'avslaatt',
     ord({ risiko: true }),
     'Byggherren har ikke risikoen for forholdet.',
-    'Byggherren svarte 3. november 2026 og har ikke risikoen for forholdet.',
+    `${SVARTE} og har ikke risikoen for forholdet.`,
   ],
   [
     'endringsordre etter punkt 31.3, godkjent',
     'godkjent',
     ord({}),
     'Byggherren er enig i at forholdet er en endringsordre (punkt 31.3).',
-    'Byggherren svarte 3. november 2026 og er enig i at forholdet er en endringsordre (punkt 31.3).',
+    `${SVARTE} og er enig i at forholdet er en endringsordre (punkt 31.3).`,
   ],
   [
     'endringsordre etter punkt 31.3, avslått',
     'avslaatt',
     ord({}),
     'Byggherren avslår forholdet.',
-    'Byggherren svarte 3. november 2026 og avslår forholdet.',
+    `${SVARTE} og avslår forholdet.`,
   ],
   [
     'frafall av pålegget',
     'paalegg_frafalt',
     ord({ varslingsplikt: true }),
     'Byggherren frafaller pålegget (punkt 32.3 første ledd c).',
-    'Byggherren svarte 3. november 2026 og frafaller pålegget (punkt 32.3 første ledd c).',
+    `${SVARTE} og frafaller pålegget (punkt 32.3 første ledd c).`,
   ],
 ];
 

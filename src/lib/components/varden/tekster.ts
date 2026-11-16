@@ -645,8 +645,9 @@ export const HANDLINGENE = {
     godta: (svar: Brevref) =>
       `Du godtar hele svaret i ${brevref(svar)}. Du ser brevet før det sendes.`,
     /**
-     * Etter svaret: hjemmelen, kategorien og datoen står (GR-U40 punkt 7 og MM-U55
-     * punkt 10), så den nye versjonen utdyper begrunnelsen (oppdragsgiver 06.11, #1631). Hva TE gjør gjeldende, følger hovedkategorien i § 33.1 og § 33.3.
+     * Etter svaret: hjemmelen, kategorien og datoen står (GR-U40 punkt 7 og MM-U55 punkt 10),
+     * så den nye versjonen utdyper begrunnelsen (oppdragsgiver 06.11, #1631). Hva TE gjør
+     * gjeldende, følger hovedkategorien i § 33.1 og § 33.3.
      */
     oppdaterPaaberopelse: (hovedkategori: string | null) =>
       hovedkategori === 'endring'
