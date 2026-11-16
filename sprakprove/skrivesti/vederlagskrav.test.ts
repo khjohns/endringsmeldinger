@@ -20,7 +20,7 @@ import {
   type Oppsett,
 } from '../../server/tester/testbase.ts';
 import { kommandoene } from '$lib/components/varden/nysak';
-import { brevFor, type Saksmerking } from '../../src/lib/kjernesak/brevtekst.ts';
+import { brevFor, laastTekstI, type Saksmerking } from '../../src/lib/kjernesak/brevtekst.ts';
 import { somJournal } from '../../src/lib/kjernesak/journal.ts';
 import type { Kjernesak } from '../../src/lib/api/kjerne.ts';
 import { KJERNE } from '../../kjerne/versjon.ts';
@@ -95,7 +95,7 @@ describe.skipIf(!TESTBASE_URL)('vederlagskravet med kravposter mot TS-serveren',
       somJournal(sakId, sak.journal),
       KJERNE
     );
-    const tekst = 'tekst' in brev ? brev.tekst : null;
+    const tekst = 'avsnitt' in brev ? laastTekstI(brev) : null;
     const svar = await kall(server.url, `/api/kjerne/saker/${sakId}/kommandoer`, {
       bruker: o.te,
       prosjektId: o.prosjekt.id,

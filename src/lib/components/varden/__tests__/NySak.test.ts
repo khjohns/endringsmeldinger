@@ -21,7 +21,7 @@ import {
   type VedleggForNySak,
 } from '$lib/components/varden/nysak';
 import type { Kjernevedlegg } from '$lib/api/kjerne';
-import { kravMotNySak, type Saksmerking } from '$lib/kjernesak/brevtekst';
+import { kravMotNySak, laastTekstI, type Saksmerking } from '$lib/kjernesak/brevtekst';
 import { ApiError } from '$lib/api/client';
 import { KJERNE } from '$kjerne/versjon';
 import { brevtittel, NYSAK } from '$lib/components/varden/tekster';
@@ -604,7 +604,7 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
     new Map(),
     sakId
   );
-  const tekst = 'tekst' in brev ? brev.tekst! : [];
+  const tekst = 'avsnitt' in brev ? laastTekstI(brev)! : [];
 
   it('starter uten sak, og en avvist påberopelse etterlater ingen sak', async () => {
     const demosak = lagDemosak(forloep, 'start', 'TE');
@@ -675,7 +675,7 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
       new Map([[vedlegg.vedlegg_id, bundet]]),
       sakId
     );
-    const brevtekst = 'tekst' in brevet ? brevet.tekst! : [];
+    const brevtekst = 'avsnitt' in brevet ? laastTekstI(brevet)! : [];
     expect(brevtekst.join('\n')).toContain('tegning.pdf');
     await demosak.opprett({ sakId, opprettelse, paaberopelse: medVedlegg, tekst: brevtekst });
     expect(JSON.stringify(demosak.journal().at(-1)!.data)).toContain(vedlegg.vedlegg_id);
@@ -708,7 +708,7 @@ describe('programfeil i brevkontrollen for ny sak (#898)', () => {
       vedlegg: [],
     };
     expect(brevet(utfylling, 'ny-sak', DEMOMERKING, kjerne)).toEqual({ programfeil: PROGRAMFEIL });
-    expect(brevet(utfylling, 'ny-sak', DEMOMERKING, KJERNE)).toHaveProperty('tekst');
+    expect(brevet(utfylling, 'ny-sak', DEMOMERKING, KJERNE)).toHaveProperty('avsnitt');
     feil.mockRestore();
   });
 });

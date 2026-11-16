@@ -10,11 +10,14 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import { KJERNE } from '$kjerne/versjon';
-  import type { Avsnitt } from '$kjerne/typer';
   import type { Saksmerking } from '$lib/kjernesak/brevtekst';
   import { tekstenKanVaereUtdatert } from '$lib/kjernesak/kontekst.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
-  import Brevkontroll, { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
+  import Brevkontroll, {
+    detSomKontrolleres,
+    kontrollbrev,
+    type TilBrevkontrollen,
+  } from './Brevkontroll.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Knapp from './Knapp.svelte';
@@ -225,9 +228,6 @@
     oppsummering?.focus();
   }
 
-  const sammeTekst = (a: Avsnitt[], b: Avsnitt[]) =>
-    a.length === b.length && a.every((t, i) => t.laast === b[i].laast);
-
   /** Brevet med nummeret saken vil få nå (LV-U46), eller `null` når nummeret ikke kan hentes. */
   async function brevetMedNummer() {
     try {
@@ -264,10 +264,12 @@
         if (tekstenKanVaereUtdatert(e)) {
           // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt (LV-U46).
           const lest = kontrollbrev(await brevetMedNummer());
-          // Samme tekst betyr at teksten var annerledes av en annen grunn; da står serverens melding.
-          if (lest && kontroll && !sammeTekst(lest.avsnitt, kontroll.avsnitt)) {
+          // Et annet brev kontrolleres på nytt. Bare en ny Vår ref. betyr at en annen sak tok
+          // nummeret; ellers står serverens melding.
+          if (lest && kontroll && detSomKontrolleres(lest) !== detSomKontrolleres(kontroll)) {
+            const nyttNummer = lest.merking !== kontroll.merking;
             kontroll = { ...kontroll, ...lest };
-            sendefeil = NYSAK.nyttNummer;
+            if (nyttNummer) sendefeil = NYSAK.nyttNummer;
           }
         }
         return false;
