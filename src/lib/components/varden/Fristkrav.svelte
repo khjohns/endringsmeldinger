@@ -400,20 +400,18 @@
   {/if}
 {/snippet}
 
-{#snippet varselUtenfor(registrering: boolean)}
+{#snippet varselUtenfor()}
   {@const fDato = feil('utenfor-dato')}
   <div class="innrykk">
-    {#if registrering}
-      <Valg
-        navn={id('utenfor-type')}
-        spoersmaal={KRAVSKJEMA.varselGitt}
-        valg={KRAVSKJEMA.dokumenttyper}
-        stablet
-        lett
-        bind:verdi={v.utenfor!.type}
-        feil={feil('utenfor-type')}
-      />
-    {/if}
+    <Valg
+      navn={id('utenfor-type')}
+      spoersmaal={KRAVSKJEMA.varselGitt}
+      valg={KRAVSKJEMA.dokumenttyper}
+      stablet
+      lett
+      bind:verdi={v.utenfor!.type}
+      feil={feil('utenfor-type')}
+    />
     <div class="tallfelt">
       <Feltetikett for={id('utenfor-dato')}>{FRISTKRAV.varseldato}</Feltetikett>
       <span class="dempet" id={id('utenfor-dato-hjelp')}>{FRISTKRAV.varseldatoHjelp}</span>
@@ -681,7 +679,7 @@
                 stablet
               />
             {/if}
-            {#if utenfor}{@render varselUtenfor(true)}{/if}
+            {#if utenfor}{@render varselUtenfor()}{/if}
           {:else if varselbrev}
             <p class="status">
               {FRISTKRAV.varseletSendt(
@@ -694,7 +692,7 @@
           {:else if utenfor}
             <p class="status">{FRISTKRAV.gittFoer}.</p>
             <p class="dempet">{FRISTKRAV.gittFoerHjelp}</p>
-            {@render varselUtenfor(false)}
+            {@render varselUtenfor()}
             <div>
               <Knapp variant="lenke" onclick={() => (v.utenfor = null)}>{FRISTKRAV.likevel}</Knapp>
             </div>
