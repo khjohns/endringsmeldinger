@@ -370,7 +370,7 @@ rad (`poster`), i samme rekkefølge som radene mellom kolonnene og summen (OV-U7
 svaret 16.11 i #1997). Det som ikke står i teksten, regnes ikke som meddelt. Appens vurdering står
 ikke i teksten, og ingen regel leser den. Et registrert brev har ingen (MM-U17)."""
 felt = ["gjelder", "punkt", "overskrift", "laast", "utdypning", "poster"]
-grunnlag = "LV-U2, LV-U3, LV-U4, B-13 om begrunnelsestekst, KA-U22, KA-U25"
+grunnlag = "LV-U2, LV-U3, LV-U4, B-13 om begrunnelsestekst, KA-U22, KA-U25, OV-U73, MM-U50"
 
 [[del]]
 navn = "dokumentasjon"

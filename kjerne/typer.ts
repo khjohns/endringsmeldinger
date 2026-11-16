@@ -395,11 +395,7 @@ export interface Avsnitt {
   overskrift?: string;
   laast: string;
   utdypning?: string;
-  /**
-   * Nøkkelen til posten for hver rad i oversiktstabellen (OV-U73), i samme rekkefølge, uten
-   * kolonnene og summen. Bare i punktet med tabellen, så et eldre brev leses likt (MM-U50,
-   * svaret 16.11 i #1997).
-   */
+  /** Nøkkelen til posten for hver rad i oversiktstabellen (OV-U73, svaret 16.11 i #1997). */
   poster?: string[];
 }
 

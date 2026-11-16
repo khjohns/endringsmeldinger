@@ -31,6 +31,7 @@ import {
   avvikITittelen,
   ulikSakIMerkingenOgTittelen,
 } from '../frosset/brevtittel.ts';
+import { OVERSIKTEN } from '../frosset/tekst.ts';
 import {
   erKalenderdato,
   erObjekt,
@@ -605,6 +606,21 @@ function lesDokument(h: Journalrad): Dokument {
           (a.laast !== a.overskrift && !a.laast.startsWith(`${a.overskrift}\n\n`)))
       )
         throw new Uforstaatt('overskriften i et avsnitt i brevteksten står ikke først i punktet');
+      // Svaret 16.11 i #1997: tabellen i et svar har én nøkkel per rad mellom kolonnene og
+      // summen, hver post én gang, og ingen andre avsnitt har nøkler.
+      const tabellen =
+        a.punkt === OVERSIKTEN && dokument.svar.some((s) => s.id === a.gjelder)
+          ? a.laast
+              .slice(a.overskrift?.length ?? 0)
+              .trimStart()
+              .split('\n')
+          : null;
+      if (
+        (tabellen === null) !== (a.poster === undefined) ||
+        (a.poster &&
+          (a.poster.length !== tabellen!.length - 2 || new Set(a.poster).size !== a.poster.length))
+      )
+        throw new Uforstaatt('nøklene til postene i brevteksten svarer ikke til radene i tabellen');
       sett.add(a.gjelder);
       forrige = a;
     }

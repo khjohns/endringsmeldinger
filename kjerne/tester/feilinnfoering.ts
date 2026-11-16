@@ -3952,6 +3952,14 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['bare § 34.1.3 påberopt: justeringen ellers er upåvirket'],
   },
   {
+    id: 'F702',
+    feilklasse:
+      'leseren godtar nøkler til postene som ikke svarer til radene i tabellen (MM-U2, svaret 16.11 i #1997)',
+    fil: `${K}/format/leser.ts`,
+    endringer: [['a.poster.length !== tabellen!.length - 2 ||', 'false ||']],
+    mal: ['nøkler til postene som ikke svarer til radene i tabellen'],
+  },
+  {
     id: 'F444',
     feilklasse: 'leseren godtar registrert korrespondanse uten typen (LV-U42, MM-U2)',
     fil: `${K}/format/leser.ts`,

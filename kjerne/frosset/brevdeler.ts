@@ -347,10 +347,7 @@ export interface Tema {
   foerst?: string;
 }
 
-/**
- * Oversiktstabellen i svaret (OV-U73): cellene som tekst, adskilt med tabulator, og nøkkelen til
- * posten for hver rad mellom kolonnene og summen (`Avsnitt.poster`).
- */
+/** Oversiktstabellen i svaret (OV-U73) med nøklene til postene (`Avsnitt.poster`). */
 export interface Oversikten {
   tabell: string;
   poster: string[];
