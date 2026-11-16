@@ -1,7 +1,7 @@
 {
   "id": "BF-37",
   "tittel": "TE sender flere varsler i ett brev, med arbeidet hvert varsel gjelder",
-  "brukerhistorie": "TE velger «Bare varsle, uten krav» og varsler flere forhold i samme brev: regningsarbeid for to arbeider og justering av en enhetspris, hvert med varselet og arbeidet. Varselet om fristforlengelse sendes fra skjemaet for fristen. TE ser brevet med ett avsnitt per varsel, eller registrerer et brev sendt utenfor løsningen med én dato for alle varslene. I det senere kravet sier TE hvilket varsel kravposten gjelder. BH svarer på hvert varsel for seg.",
+  "brukerhistorie": "TE velger «Bare varsle, uten krav» og varsler flere forhold i samme brev: regningsarbeid for to arbeider og justering av en enhetspris, hvert med varselet og arbeidet. Varselet om fristforlengelse sendes fra skjemaet for fristen. TE ser brevet med ett avsnitt per varsel, eller registrerer et varsel sendt utenfor løsningen med én dato for alle varslene. I det senere kravet sier TE hvilket varsel kravposten gjelder. BH svarer på hvert varsel for seg.",
   "status": "planlagt",
   "utgangspunkt": {
     "start": null,
@@ -153,6 +153,11 @@
       "dato": "2026-11-16",
       "forhold": "#807, #2056",
       "hva": "F-5 og «TE registrerer i stedet» lister feltene for et brev sendt utenfor løsningen med ordene i Varden (OV-U79, A1 i #2056): «Hvordan ble varselet gitt?», «Hvordan ble brevet sendt?» (bare for Brev), «Datoen det ble sendt», «Dokumentet du varslet i» og «Kort beskrivelse av varselet»."
+    },
+    {
+      "dato": "2026-11-16",
+      "forhold": "#2056",
+      "hva": "Registreringen heter «Registrer et varsel sendt utenfor løsningen», etter `FRISTKRAV` i `tekster.ts`, og feltene etter `Korrespondansen.svelte` (A1 i #2056): i F-5, «TE registrerer i stedet», M-3, D-4 og tabellen over steg 4. Stegnumrene, ID-ene og vedtakene er uendret."
     }
   ]
 }
