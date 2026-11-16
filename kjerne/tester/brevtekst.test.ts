@@ -7966,10 +7966,40 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
       ),
       forbeholdet(6),
     ]);
+    // Svaret 16.11 i #1997: avsnittet med tabellen har nøkkelen til posten i hver rad, i samme
+    // rekkefølge, og bare det avsnittet har den.
+    const avsnittene = rad.data.brevtekst as Avsnitt[];
+    expect(avsnittene.filter((a) => a.poster).map((a) => [a.punkt, a.poster])).toEqual([
+      ['oversikt', ['P1', 'produktivitet']],
+    ]);
     // AK 4 i #1199: en upåvirket post er ingen grunn og får ingen etikett i linjen.
     expect(s.u().spor.vederlag.gjeldendeSvar!.beslutningsgrunnlag.linje).toBe(
       `Byggherrens standpunkt: godkjent med ${kroner(100000)} for justeringen ellers, prinsipalt begrenset etter punkt 34.1.3 til ${kroner(10000)}, subsidiært godkjent med ${kroner(30000)} for særskilt justering (punkt 34.1.3 annet ledd).`
     );
+  });
+
+  it('nøkler til postene som ikke svarer til radene i tabellen, eller står i et annet avsnitt, gjør saken ikke forstått (MM-U2, svaret 16.11 i #1997)', () => {
+    const s = sakMedPost();
+    const rad = brevet(
+      s,
+      { ...postene, ...begrenset },
+      { resultat: 'delvis_godkjent', godkjent_beloep: 110000 }
+    );
+    const original = (rad.data.brevtekst as Avsnitt[]).map((a) => ({ ...a }));
+    const proev = (endre: (a: Avsnitt[]) => void) => {
+      rad.data.brevtekst = original.map((a) => ({ ...a }));
+      endre(rad.data.brevtekst as Avsnitt[]);
+      return s.u().forstaatt;
+    };
+    const punktet = (a: Avsnitt[], punkt: string) => a.find((x) => x.punkt === punkt)!;
+    expect(
+      proev(() => {}),
+      'kontrollsak'
+    ).toBe(true);
+    expect(proev((a) => (punktet(a, 'oversikt').poster = ['P1']))).toBe(false);
+    expect(proev((a) => (punktet(a, 'oversikt').poster = ['P1', 'P1']))).toBe(false);
+    expect(proev((a) => delete punktet(a, 'oversikt').poster)).toBe(false);
+    expect(proev((a) => (punktet(a, 'forbehold').poster = ['P1']))).toBe(false);
   });
 
   it('en aksept av svaret gir prinsipalt beløp etter begrensningen, ikke 0 (VS-U5, valg e)', () => {
