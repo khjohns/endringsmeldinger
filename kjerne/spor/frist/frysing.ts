@@ -59,6 +59,8 @@ export const FRYSING_I_FRISTEN = {
   vilkaar: 'forhold_avklart',
   // VS-U20, arbeidsvalget 15.10 i #309. Gjelder rettidigheten etter § 33.4 og § 33.6.2.
   hvertITideGirOppInnsigelsen: true,
+  // VS-U29: også påberopelsen etter § 33.6.2 mot begrunnelsen.
+  ogsaaInnsigelserEtter: ['33.6.2'],
 } satisfies Svarsfrysing;
 
 // ---------- Utregningen av svaret (B-13) ----------

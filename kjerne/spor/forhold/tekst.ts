@@ -238,7 +238,6 @@ export function paaberopelsenAvForholdet(paaberopelse: Krav): string {
 export const BREVTEKSTEN_I_FORHOLDET = {
   svaretGjelder: 'grunnlaget',
   krav: (k, t, regler) => [utenOverskrift(forholdstekst(k, t, regler))],
-  ogsaaInnsigelserEtter: [],
   innledning: (krav, { j }) =>
     `Byggherren svarer på totalentreprenørens ${paaberopelsenAvForholdet(krav)} i ${j.brevet(krav.dokument)}.`,
   punktet: (p) => (p.art === 'forhold' ? 'forhold' : undefined),

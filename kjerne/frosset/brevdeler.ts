@@ -305,8 +305,6 @@ export interface Sporsbrevtekst {
   svaretGjelder: string;
   /** Kravet (LV-U4 punkt 2–3) i punkter. */
   krav(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[];
-  /** Påberopelsene utenom hjemmelen for sporet som svaret gjentar eller gir opp (VS-U29). */
-  ogsaaInnsigelserEtter: readonly Hjemmel[];
   /**
    * Punktet partens utdypning for hele kravet står i, når den er et eget punkt sist i kravet
    * (LV-U71).

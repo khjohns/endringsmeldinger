@@ -147,8 +147,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "import { enighetsgrunnlag, erPaaberopelse, sammenfallStemmer } from '../frosset/standpunkt.ts';",
-        "import {\n  enighetsgrunnlag,\n  erPaaberopelse,\n  sammenfallStemmer,\n  virkninger as regn,\n} from '../frosset/standpunkt.ts';",
+        '  enighetsgrunnlag,\n  innsigelsenPaaberoper,\n',
+        '  enighetsgrunnlag,\n  virkninger as regn,\n  innsigelsenPaaberoper,\n',
       ],
       [
         '  const svar = svarberegninger(alleSvar, spor);',
@@ -1695,8 +1695,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        '    const gjelder =\n      hjemmel === HJEMMEL[svar.spor]',
-        "    const gjelder =\n      ((svar.spor !== 'forhold' || i.gjelder === svar.gjelder) && hjemmel === HJEMMEL[svar.spor])",
+        '    return svaretGjelderPaaberopelsen(svar.spor, hjemmel) &&',
+        "    return (svar.spor !== 'forhold' || i.gjelder === svar.gjelder) &&\n      svaretGjelderPaaberopelsen(svar.spor, hjemmel) &&",
       ],
     ],
     mal: [
@@ -1759,8 +1759,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
-        'if (!saken.utenVirkning.includes(s.id)) svarFraParten',
-        'if (!saken.utenVirkning.includes(s.id) && !erRegistrert(d.opplysninger)) svarFraParten',
+        'if (!utenVirkning(s.id)) svarFraParten',
+        'if (!utenVirkning(s.id) && !erRegistrert(d.opplysninger)) svarFraParten',
       ],
     ],
     mal: ['et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt'],
@@ -1768,8 +1768,13 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F649',
     feilklasse: 'et «i tide» i et svar sendt før innsigelsen gir den opp (OV-U105, OV-U104)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['x.dag === null || i.dag === null || x.dag >= i.dag', 'true']],
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [
+      [
+        'return svaret === null || paaberopelsen === null || svaret >= paaberopelsen;',
+        'return true;',
+      ],
+    ],
     mal: ['et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt'],
   },
   {
@@ -1813,7 +1818,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F653',
     feilklasse: 'et svar uten virkning gir opp innsigelsen i brevteksten (MM-U43 punkt 9, OV-U105)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['if (!saken.utenVirkning.includes(s.id)) ', '']],
+    endringer: [['if (!utenVirkning(s.id)) svarFraParten', 'svarFraParten']],
     mal: ['et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt'],
   },
   {
@@ -1929,12 +1934,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et krav utenfor rekken sendt samme dag som det egne varselet, merkes ikke (OV-U104, OV-U102)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        'foerDagen(dag(k.id), datoenDetBleSendt(u, v), () => samme(k.id, v.id));',
-        'foerDagen(dag(k.id), datoenDetBleSendt(u, v));',
-      ],
-    ],
+    endringer: [['  if (kravetSendt === varselet) samme(kravet.id, eget.id);\n', '']],
     mal: [
       'OV-U104, OV-U102: et krav utenfor rekken sendt samme dag som det egne varselet etter § 33.4, står i sendtSammeDag med det',
     ],
@@ -1943,8 +1943,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F667',
     feilklasse:
       'et fristkrav sendt samme dag som forespørselen etter § 33.6.2, merkes ikke (OV-U104, OV-U109)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['samme(k.id, f.foresporsel)', 'void f']],
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [['  if (sendt === f.sendt) samme(f.foresporsel);\n', '']],
     mal: [
       'kontrollsak OV-U109, OV-U104: et fristkrav sendt samme dag som forespørselen svarer på den, og rekkefølgen er ukjent',
     ],
@@ -1954,7 +1954,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et svar lagt til samme dag som partens innsigelse i sporet, merkes ikke (OV-U104, OV-U105)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['foerDagen(sendt, x.dag, () => medSvaret(x.id));', 'void x;']],
+    endringer: [
+      [
+        'sendtEtterPaaberopelsen(sendt, x.dag, () => medSvaret(x.id));',
+        'sendtEtterPaaberopelsen(sendt, x.dag);',
+      ],
+    ],
     mal: [
       'et svar lagt til, sendt samme dag som byggherrens innsigelse i sporet, står i sendtSammeDag med den',
     ],
@@ -1962,8 +1967,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F669',
     feilklasse: 'en innsigelse i et brev lagt til gjentas i svaret fra løsningen (#2037, OV-U98)',
-    fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['    if (erRegistrert(d.opplysninger)) continue;\n', '']],
+    fil: `${K}/frosset/standpunkt.ts`,
+    endringer: [['  if (erRegistrert(d.opplysninger)) return [];\n', '']],
     mal: [
       'en innsigelse i et brev lagt til er dokumentasjon og gjentas ikke i svaret fra løsningen',
     ],
@@ -1985,8 +1990,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "    sporet.set(k.id, 'forhold');\n",
-        "    sporet.set(k.id, 'forhold');\n  for (const k of u.spor.vederlag.krav) sporet.set(k.id, 'vederlag');\n",
+        '        svaretGjelderPaaberopelsen(\n',
+        '        true ||\n        svaretGjelderPaaberopelsen(\n',
       ],
     ],
     mal: [
@@ -3499,7 +3504,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F398',
     feilklasse: 'svaret gjentar ikke byggherrens innsigelse mot det særskilte varselet (VS-U24)',
-    fil: `${K}/spor/vederlag/tekst.ts`,
+    fil: `${K}/spor/vederlag/frysing.ts`,
     endringer: [["ogsaaInnsigelserEtter: ['34.1.3'],", 'ogsaaInnsigelserEtter: [],']],
     mal: ['svaret gjentar byggherrens egen innsigelse mot det særskilte varselet'],
   },
@@ -3881,6 +3886,19 @@ const MUTASJONER: Mutasjon[] = [
       'et svar sendt før avslaget på forholdet er ikke subsidiært',
       'en rad uten kommando fryses på samme måte',
     ],
+  },
+  {
+    id: 'F696',
+    feilklasse:
+      'et svar lagt til merkes mot en innsigelse mot påberopelsen også der § 32.2 ikke gjelder kategorien, som brevteksten ikke sammenlikner det med (VS-U24, #2050)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        'const varslingsplikt = () => s.beslutningsgrunnlag.varslingsplikt === true;',
+        'const varslingsplikt = () => true;',
+      ],
+    ],
+    mal: ['i et forhold der § 32.2 ikke gjelder, sammenliknes svaret ikke med innsigelsen'],
   },
   {
     id: 'F444',

@@ -29,10 +29,17 @@ import {
 } from '../format/leser.ts';
 import { harProduktivitetspost } from '../spor/vederlag/format.ts';
 import { KONTROLLER_I_VEDERLAGET } from '../spor/vederlag/utledning.ts';
-import { KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
+import { foresporselenKravetSvarerPaa, KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
-import { enighetsgrunnlag, erPaaberopelse, sammenfallStemmer } from '../frosset/standpunkt.ts';
+import {
+  enighetsgrunnlag,
+  innsigelsenPaaberoper,
+  paaberopelserIDokumentet,
+  sammenfallStemmer,
+  sendtEtterPaaberopelsen,
+  svaretGjelderPaaberopelsen,
+} from '../frosset/standpunkt.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { svarPaaForesporsler, type ForesporselOgSvar } from '../spor/frist/frysing.ts';
 import {
@@ -497,7 +504,7 @@ function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>, samme: Sam
     ...d.krav.flatMap((k) => med(k.id, kravetStrider(k, u))),
     ...d.svar.flatMap((s) => med(s.id, svaretStrider(s, u, utenVirkning))),
     ...d.utsagn.flatMap((x) => med(x.id, utsagnetStrider(x, u, utenVirkning))),
-    ...(erRegistrert(d.opplysninger) ? registreringenStrider(d, u, samme) : []),
+    ...(erRegistrert(d.opplysninger) ? registreringenStrider(d, u, samme, utenVirkning) : []),
   ];
 }
 
@@ -629,7 +636,12 @@ function svaretGjaldt(u: Utledning, s: Svar, dag: string, samme: (med: string) =
  * på dagen avsenderen oppgir at brevet ble sendt. Hva som var gjeldende, avgjøres da, så en
  * senere retting av datoen endrer det ikke.
  */
-function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Strid[] {
+function registreringenStrider(
+  d: Dokument,
+  u: Utledning,
+  samme: SammeDag,
+  utenVirkning: (id: string) => boolean
+): Strid[] {
   const dag = (id: string) => {
     const oppgitt = datoFor({ id, dokument: d.id }, 'sendt', d.opplysninger);
     return oppgitt ? kalenderdag(oppgitt.dato) : null;
@@ -642,30 +654,53 @@ function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Stri
         grunn: 'et krav sendt før totalentreprenørens siste krav i sporet (OV-U98, OV-U102)',
         utenforRekken: true,
       });
-      // OV-U102: datoen sammenliknes med det egne varselet (`varseletFoerSvaret`).
-      for (const v of egneVarsler(u, k))
-        foerDagen(dag(k.id), datoenDetBleSendt(u, v), () => samme(k.id, v.id));
+      // OV-U102: datoen sammenliknes med det egne varselet.
+      for (const v of egneVarsler(u, k)) mellomKravOgVarsel(k, v, k.id);
     }
-    // OV-U109: datoen sammenliknes med forespørselen etter § 33.6.2 (`svarPaaForesporsler`).
-    if (k.spor === 'frist')
-      for (const f of u.spor.frist.foresporsler)
-        if (f.kravFoer === null) foerDagen(dag(k.id), f.sendt, () => samme(k.id, f.foresporsel));
+    // OV-U109: datoen sammenliknes med forespørselen etter § 33.6.2.
+    if (k.spor === 'frist') foresporselenKravetSvarerPaa(u, dag(k.id), (f) => samme(k.id, f));
   }
   for (const v of d.utsagn) {
     if (v.art !== 'varsel') continue;
-    for (const k of u.spor[VARSELSPOR[v.hjemmel]].kravUtenforRekken)
-      if (sammenliknesMedVarselet(v.hjemmel, k))
-        foerDagen(dag(v.id), datoenDetBleSendt(u, k), () => samme(v.id, k.id));
+    for (const k of u.spor[VARSELSPOR[v.hjemmel]].kravUtenforRekken) mellomKravOgVarsel(k, v, v.id);
   }
-  const innsigelser = d.svar.length ? partensPaaberopelser(u, d.avsender) : [];
+  /**
+   * OV-U102: kravet utenfor rekken og varselet sammenliknes som `varseletFoerSvaret` gjør det.
+   * `iBrevet` er det av dem som står i brevet som legges til.
+   */
+  function mellomKravOgVarsel(
+    k: Krav,
+    v: Pick<LestVarsel, 'id' | 'dokument' | 'hjemmel'>,
+    iBrevet: string
+  ): void {
+    if (erKravpostvarselhjemmel(v.hjemmel)) return;
+    varseletFoerSvaret(
+      v.hjemmel,
+      [v],
+      kravSomVarsler(v.hjemmel, { krav: [], kravUtenforRekken: [k] }, () => true),
+      () => true,
+      (x) => (x.id === iBrevet ? dag(x.id) : datoenDetBleSendt(u, x)),
+      (krav, varsel) => (krav === iBrevet ? samme(krav, varsel) : samme(varsel, krav))
+    );
+  }
+  const innsigelser = d.svar.length ? partensPaaberopelser(u, d.avsender, utenVirkning) : [];
   for (const s of d.svar) {
     const { krav: kjede, kravUtenforRekken } = u.spor[s.spor];
     const krav = [...kjede, ...kravUtenforRekken].find((k) => k.id === s.gjelder);
     const sendt = dag(s.id);
     const medSvaret = (med: string) => samme(s.id, med);
-    // OV-U105: svaret sammenliknes med partens innsigelser i sporet (`aapneInnsigelser`).
+    // OV-U105: svaret sammenliknes med partens påberopelser det gjentar eller gir opp, som i
+    // `aapneInnsigelser`. Utledningen leser om § 32.2 gjelder kategorien, av det frosne svaret
+    // (MM-U43 punkt 8).
+    const varslingsplikt = () => s.beslutningsgrunnlag.varslingsplikt === true;
     for (const x of innsigelser)
-      if (x.spor === s.spor) foerDagen(sendt, x.dag, () => medSvaret(x.id));
+      if (
+        svaretGjelderPaaberopelsen(
+          s.spor,
+          innsigelsenPaaberoper(x.gjelder, dokumenterI(u.journal), varslingsplikt)
+        )
+      )
+        sendtEtterPaaberopelsen(sendt, x.dag, () => medSvaret(x.id));
     if (krav && (sendt === null || !kravversjonenGjaldt(u, krav, sendt, medSvaret)))
       strider.push({
         element: s.id,
@@ -714,36 +749,19 @@ const varslerEtter = (hjemmel: Varselhjemmel, k: Krav): boolean =>
   hjemmel !== '34.1.3' || harProduktivitetspost(k);
 
 /**
- * Partens påberopelser med virkning (`erPaaberopelse`), med sporet til det de gjelder og dagen de
- * ble sendt: det `aapneInnsigelser` sammenlikner et svar med.
+ * Partens påberopelser et senere svar kan gjenta eller gi opp (`paaberopelserIDokumentet`), med
+ * dagen de ble sendt.
  */
 function partensPaaberopelser(
   u: Utledning,
-  part: Part
-): { id: string; spor: Spor | undefined; dag: string | null }[] {
-  // Det en påberopelse kan gjelde (`innsigelsenPaaberoper`): varselet etter hjemmelen i sporet,
-  // påberopelsen etter § 32.2 (GR-U11) og svaret på forespørselen etter § 33.6.2 (VS-U29). Om
-  // § 32.2 gjelder kategorien, avgjør regelsettet når svaret skrives, så påberopelsen i
-  // forholdet sammenliknes alltid (MM-U43 punkt 8).
-  const sporet = new Map<string, Spor>();
-  for (const k of [...u.spor.forhold.krav, ...u.spor.forhold.kravUtenforRekken])
-    sporet.set(k.id, 'forhold');
-  for (const n of SPOR) {
-    const s = u.spor[n];
-    for (const v of Object.values(s.varsler)) if (v) sporet.set(v.id, n);
-    for (const f of s.foresporsler) if (f.svar) sporet.set(f.svar, n);
-  }
-  const medVirkning = new Set(u.innsigelser.map((x) => x.id));
-  const ut: { id: string; spor: Spor | undefined; dag: string | null }[] = [];
+  part: Part,
+  utenVirkning: (id: string) => boolean
+): { id: string; gjelder: string; dag: string | null }[] {
+  const ut: { id: string; gjelder: string; dag: string | null }[] = [];
   for (const d of dokumenterI(u.journal)) {
     if (d.avsender !== part) continue;
-    for (const x of d.utsagn)
-      if (erPaaberopelse(x) && medVirkning.has(x.id))
-        ut.push({
-          id: x.id,
-          spor: sporet.get(x.gjelder),
-          dag: dagenSendt({ id: x.id, dokument: d.id }, d),
-        });
+    for (const x of paaberopelserIDokumentet(d, utenVirkning))
+      ut.push({ id: x.id, gjelder: x.gjelder, dag: dagenSendt({ id: x.id, dokument: d.id }, d) });
   }
   return ut;
 }
@@ -1693,20 +1711,24 @@ function foerstSendt<K>(krav: readonly K[], sendt: (k: K) => string | null): K |
  * en dato for kravet, det egne varselet. Vilkåret i E3 om en tidligere dato for § 32.2 er ikke
  * bygget (#1600).
  * `foerSvaret` sier om et varsel står før svaret, og `sendt` datoen et varsel eller krav ble
- * sendt. Skriveren og valideringen leser det herfra (#496).
+ * sendt. `samme` kalles når kravet og varselet ble sendt samme dag (OV-U104). Skriveren,
+ * valideringen og merkingen av samme dag leser det herfra (#496, #2050).
  */
 export function varseletFoerSvaret(
   hjemmel: Enkeltvarselhjemmel,
   varsler: readonly Pick<LestVarsel, 'id' | 'dokument'>[],
   krav: readonly Pick<Krav, 'id' | 'dokument'>[],
   foerSvaret: (varsel: string) => boolean,
-  sendt: (v: Pick<Krav, 'id' | 'dokument'>) => string | null
+  sendt: (v: Pick<Krav, 'id' | 'dokument'>) => string | null,
+  samme: (krav: string, varsel: string) => void = () => {}
 ): string | undefined {
   const eget = varsler.find((v) => foerSvaret(v.id));
   const kravet = foerstSendt(krav, sendt);
   if (!eget || !kravet || !datoenSammenliknes(hjemmel)) return eget?.id ?? kravet?.id;
   const [varselet, kravetSendt] = [sendt(eget), sendt(kravet)];
   if (kravetSendt === null) return eget.id;
+  // OV-U104: sendt samme dag gjelder det egne varselet.
+  if (kravetSendt === varselet) samme(kravet.id, eget.id);
   return varselet === null || kravetSendt < varselet ? kravet.id : eget.id;
 }
 

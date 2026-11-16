@@ -2694,6 +2694,32 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
         'kontrollsak: sendt dagen før'
       ).toEqual([]);
     });
+
+    it('i et forhold der § 32.2 ikke gjelder, sammenliknes svaret ikke med innsigelsen mot påberopelsen, som brevteksten heller ikke gjentar (VS-U24, MM-U43 punkt 8, #2050)', () => {
+      const merket = (innhold: Data, vurderinger: Data) => {
+        const s = sak();
+        s.send('TE', { ...PAABEROPELSE, innhold });
+        const rad = s.send('BH', { type: 'innsigelse', gjelder: s.krav('forhold') });
+        const innsigelse = (rad.data.utsagn as Data[])[0].id;
+        const svaret = svar('forhold', s.krav('forhold'), vurderinger) as Data;
+        delete svaret.utdypning;
+        delete svaret.utdypninger;
+        s.send('BH', {
+          type: 'brev',
+          svar: [svaret],
+          sendt: rad.tidsstempel.slice(0, 10),
+          korrespondansetype: 'brev',
+          dokumentasjon: [randomUUID()],
+        });
+        return s.u().sendtSammeDag.filter((x) => x.med === innsigelse);
+      };
+      const svikt = { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER };
+      expect(merket(svikt, { resultat: 'avslaatt' })).toEqual([]);
+      expect(
+        merket(PAABEROPELSE.innhold, { resultat: 'avslaatt', grunnlag_varslet_i_tide: false }),
+        'kontrollsak: § 32.2 gjelder'
+      ).toHaveLength(1);
+    });
   });
 
   /** Svarene som et brev lagt til, sendt `sendt`, uten tekst fra løsningen (OV-U80). */

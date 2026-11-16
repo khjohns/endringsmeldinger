@@ -14,12 +14,17 @@
  * utdypningen (KA-U16, KA-U19).
  */
 
-import { HJEMMEL } from '../format/format.ts';
 import { sakensKode } from './tekst.ts';
 import { dagenSendt, erRegistrert, registrertDato } from '../format/leser.ts';
 import { etterAkseptfristen } from '../regler/akseptfrist.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { erPaaberopelse, innsigelsenErOppgitt, innsigelsenPaaberoper } from './standpunkt.ts';
+import {
+  innsigelsenErOppgitt,
+  innsigelsenPaaberoper,
+  paaberopelserIDokumentet,
+  sendtEtterPaaberopelsen,
+  svaretGjelderPaaberopelsen,
+} from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
 import {
   erDato,
@@ -224,35 +229,24 @@ function aapneInnsigelser(
 ): Innsigelse[] {
   const svarFraParten: { svar: Svar; dag: string | null }[] = [];
   const innsigelser: (Innsigelse & { fra: number; dag: string | null })[] = [];
+  const utenVirkning = (id: string) => saken.utenVirkning.includes(id);
   for (const d of j.dokumenter) {
     if (d.avsender !== avsender || d.svar.includes(svar)) continue;
     const dag = dagenSendt({ id: d.id, dokument: d.id }, d);
-    for (const s of d.svar)
-      if (!saken.utenVirkning.includes(s.id)) svarFraParten.push({ svar: s, dag });
-    // OV-U98: en innsigelse i et brev lagt til er dokumentasjon. MM-U43 punkt 9: en innsigelse
-    // uten virkning, eller mot et element uten virkning, gjentas ikke.
-    if (erRegistrert(d.opplysninger)) continue;
-    for (const u of d.utsagn)
-      if (
-        erPaaberopelse(u) &&
-        !saken.utenVirkning.includes(u.id) &&
-        !saken.utenVirkning.includes(u.gjelder)
-      )
-        innsigelser.push({ gjelder: u.gjelder, dokument: d.id, fra: svarFraParten.length, dag });
+    for (const s of d.svar) if (!utenVirkning(s.id)) svarFraParten.push({ svar: s, dag });
+    for (const u of paaberopelserIDokumentet(d, utenVirkning))
+      innsigelser.push({ gjelder: u.gjelder, dokument: d.id, fra: svarFraParten.length, dag });
   }
   return innsigelser.flatMap((i) => {
     const hjemmel = innsigelsenPaaberoper(i.gjelder, j.dokumenter, (k) =>
       gjelderVarslingsplikten(k, regler)
     );
-    // VS-U29: også påberopelsene sporet nevner i `ogsaaInnsigelserEtter`.
-    const gjelder =
-      hjemmel === HJEMMEL[svar.spor] ||
-      (hjemmel !== null && brevtekstI(svar.spor).ogsaaInnsigelserEtter.includes(hjemmel));
     const etter = svarFraParten
       .slice(i.fra)
-      .filter((x) => x.dag === null || i.dag === null || x.dag >= i.dag)
+      .filter((x) => sendtEtterPaaberopelsen(x.dag, i.dag))
       .map((x) => x.svar);
-    return gjelder && !innsigelsenErOppgitt(svar.spor, etter, hjemmel)
+    return svaretGjelderPaaberopelsen(svar.spor, hjemmel) &&
+      !innsigelsenErOppgitt(svar.spor, etter, hjemmel)
       ? [{ gjelder: i.gjelder, dokument: i.dokument, hjemmel }]
       : [];
   });

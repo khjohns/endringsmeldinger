@@ -18,6 +18,7 @@ import { FRYSING_I_FORHOLDET } from '../spor/forhold/frysing.ts';
 import { FRYSING_I_VEDERLAGET } from '../spor/vederlag/frysing.ts';
 import { FRYSING_I_FRISTEN } from '../spor/frist/frysing.ts';
 import { HJEMMEL } from '../format/format.ts';
+import { erRegistrert } from '../format/leser.ts';
 import type {
   Dokument,
   Enighetsgrunnlag,
@@ -83,6 +84,50 @@ export function innsigelsenPaaberoper(
     if (krav) return krav.spor === 'forhold' && varslingsplikt(krav) ? '32.2' : null;
   }
   return null;
+}
+
+/**
+ * VS-U24, VS-U29: et svar i sporet gjentar eller gir opp en påberopelse etter `hjemmel`: hjemmelen
+ * for sporet, og påberopelsene sporet også nevner (`ogsaaInnsigelserEtter`). Brevteksten og
+ * utledningen leser det herfra (#2050).
+ */
+export const svaretGjelderPaaberopelsen = (
+  spor: Spor,
+  hjemmel: Hjemmel | Kravpostvarselhjemmel | null
+): hjemmel is Hjemmel =>
+  hjemmel !== null &&
+  (hjemmel === HJEMMEL[spor] ||
+    frysingI(spor).ogsaaInnsigelserEtter.some((h: Hjemmel) => h === hjemmel));
+
+/**
+ * Partens påberopelser i dokumentet som et senere svar fra parten gjentar eller gir opp. En
+ * påberopelse i et brev lagt til er dokumentasjon (OV-U98). En påberopelse uten virkning, eller
+ * mot et element uten virkning, gjentas ikke (MM-U43 punkt 9). Brevteksten og utledningen leser
+ * dem herfra (#2050).
+ */
+export function paaberopelserIDokumentet(
+  d: Pick<Dokument, 'utsagn' | 'opplysninger'>,
+  utenVirkning: (id: string) => boolean
+): Extract<Utsagn, { art: 'innsigelse' }>[] {
+  if (erRegistrert(d.opplysninger)) return [];
+  return d.utsagn.filter(
+    (x): x is Extract<Utsagn, { art: 'innsigelse' }> =>
+      erPaaberopelse(x) && !utenVirkning(x.id) && !utenVirkning(x.gjelder)
+  );
+}
+
+/**
+ * OV-U104, OV-U105: et svar sendt på dagen `svaret` kan gi opp en påberopelse sendt på dagen
+ * `paaberopelsen`, fordi det ikke er sendt før den. En dag som ikke kan leses, hindrer ikke.
+ * `samme` kalles når de er sendt samme dag.
+ */
+export function sendtEtterPaaberopelsen(
+  svaret: string | null,
+  paaberopelsen: string | null,
+  samme?: () => void
+): boolean {
+  if (svaret !== null && svaret === paaberopelsen) samme?.();
+  return svaret === null || paaberopelsen === null || svaret >= paaberopelsen;
 }
 
 /**
