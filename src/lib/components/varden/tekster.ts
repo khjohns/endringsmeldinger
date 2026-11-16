@@ -1406,8 +1406,7 @@ export const KRAVSKJEMA = {
   varseletI: (b: Brevref) => (b.nummer === null && b.omtale ? b.omtale : brevrefStor(b)),
   ingenVarslerISaken: (hjemmel: string) =>
     `Saken har ikke noe varsel etter ${punkt(hjemmel)}. Legg til dokumentet i stedet.`,
-  dokumenttype: 'Hva legger du til?',
-  /** Ved registreringen av et varsel gitt utenfor løsningen, med de samme valgene. */
+  /** Spørsmålet om formen, for et varsel gitt utenfor løsningen: registrert alene, eller ved en kravpost. */
   varselGitt: 'Hvordan ble varselet gitt?',
   dokumenttyper: [
     { verdi: 'brev' as const, tekst: 'Brev' },
@@ -1667,7 +1666,7 @@ const OPPGJOERSFORMEN: Record<Oppgjoersform, string> = {
 /** Siden for vederlaget (BF-44, prototypen `vederlagsoversikt.html` v3, oppsett B). */
 export const VEDERLAGET = {
   tittel: 'Vederlagsjustering',
-  hjemmel: 'pkt. 34',
+  hjemmel: hjemmelsmerke('34'),
   kortet: 'Kravet og svaret',
   /** Brevene kortet leser kravet og svaret av (U-2). */
   kilde: (krav: Brevref, svar: Brevref | null) =>
@@ -1754,7 +1753,7 @@ const datoUtenAar = (d: string, ved: string) =>
 /** Siden for fristforlengelsen (BF-45, prototypen `fristoversikt.html` v2, oppsett B). */
 export const FRISTEN = {
   tittel: 'Fristforlengelse',
-  hjemmel: 'pkt. 33',
+  hjemmel: hjemmelsmerke('33'),
   kortet: 'Kravet og svaret',
   /** Kortet før kravet, når totalentreprenøren har varslet uten dager (U-9). */
   utenKrav: 'Kravet om fristforlengelse',
