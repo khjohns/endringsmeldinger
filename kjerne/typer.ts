@@ -18,9 +18,15 @@ export interface Sakskode {
   kode: 'koe' | 'eo';
   loepenummer: number;
 }
-/** Typen registrert korrespondanse (D1 A i #1497). */
-export const KORRESPONDANSETYPER = ['brev', 'e_post'] as const;
+/**
+ * Typen korrespondanse sendt utenfor løsningen (OV-U79, D1 A i #1497). Navnene er fra kapittel D
+ * i kontraktsgrunnlaget. `notat` er «notat eller annet dokument».
+ */
+export const KORRESPONDANSETYPER = ['brev', 'e_post', 'moetereferat', 'notat'] as const;
 export type Korrespondansetype = (typeof KORRESPONDANSETYPER)[number];
+/** Hvordan et brev sendt utenfor løsningen ble sendt (OV-U79). Bare typen brev har den. */
+export const SENDEMAATER = ['post', 'pdf_e_post', 'prosjekthotell', 'annen_maate'] as const;
+export type Sendemaate = (typeof SENDEMAATER)[number];
 export const SPOR: readonly Spor[] = ['forhold', 'vederlag', 'frist'];
 export const KRAVSPOR = ['vederlag', 'frist'] as const;
 export type Kravspor = (typeof KRAVSPOR)[number];
@@ -434,10 +440,12 @@ export interface Dokument {
    */
   deresRef: string[];
   /**
-   * Om registrert korrespondanse var et brev eller en e-post (LV-U42, N4 og D1 A i #1497). Brevene
-   * fra løsningen omtaler den med typen. `null` i et brev fra løsningen.
+   * Typen registrert korrespondanse (OV-U79, LV-U42, N4 og D1 A i #1497). Brevene fra løsningen
+   * omtaler den med typen. `null` i et brev fra løsningen.
    */
   korrespondansetype: Korrespondansetype | null;
+  /** Sendemåten for et brev sendt utenfor løsningen (OV-U79). `null` for andre typer og når den mangler. */
+  sendemaate: Sendemaate | null;
   /**
    * OV-U16: beskrivelsen av et brev registrert som dokumentasjon (OV-U4), med ordene til den
    * som registrerte. Appen tolker den ikke. `null` i et annet dokument.

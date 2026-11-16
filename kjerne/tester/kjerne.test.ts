@@ -146,6 +146,45 @@ describe('formen på kravet', () => {
     ).toEqual([]);
   });
 
+  // OV-U79: typene etter kapittel D i kontraktsgrunnlaget, og sendemåten bare for et brev.
+  it('OV-U79: møtereferat og notat er typer, og bare et brev har sendemåten, også i varselet i fristkravet', () => {
+    const varsel = {
+      type: 'varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: '2026-09-02',
+      dokumentasjon: ['vedlegg-1'],
+    };
+    for (const korrespondansetype of ['brev', 'e_post', 'moetereferat', 'notat'])
+      expect(formfeil({ ...varsel, korrespondansetype }), korrespondansetype).toEqual([]);
+    expect(formfeil({ ...varsel, korrespondansetype: 'sms' })).not.toEqual([]);
+    for (const sendemaate of ['post', 'pdf_e_post', 'prosjekthotell', 'annen_maate'])
+      expect(
+        formfeil({ ...varsel, korrespondansetype: 'brev', sendemaate }),
+        `kontrollsak: ${sendemaate}`
+      ).toEqual([]);
+    expect(formfeil({ ...varsel, korrespondansetype: 'brev', sendemaate: 'fax' })).not.toEqual([]);
+    expect(formfeil({ ...varsel, korrespondansetype: 'e_post', sendemaate: 'post' })).toEqual([
+      '$.sendemaate: bare et brev har sendemåten',
+    ]);
+    const fristkrav = {
+      type: 'krav',
+      spor: 'frist',
+      innhold: { frister: [{ navn: 'Sluttfristen', dager: 20 }] },
+    };
+    const iKravet = (korrespondansetype: string) => ({
+      ...fristkrav,
+      varsel: { sendt: '2026-09-02', korrespondansetype, sendemaate: 'post' },
+    });
+    expect(formfeil(iKravet('brev')), 'kontrollsak').toEqual([]);
+    expect(formfeil(iKravet('moetereferat'))).toEqual([
+      '$.varsel.sendemaate: bare et brev har sendemåten',
+    ]);
+    expect(formfeil({ type: 'begrunnelse', gjelder: 'svar-1', sendemaate: 'post' })).toEqual([
+      '$.sendt: bare et brev lagt til med datoen det ble sendt, har typen og vedlegg',
+    ]);
+  });
+
   it('en ugyldig dato for varselet i fristkravet meldes på feltet i varselet', () => {
     const fristkrav = {
       type: 'krav',
@@ -2196,23 +2235,24 @@ describe('rettingen og visningen av et registrert brev (OV-U17, OV-U18, #1045)',
     expect(v.vurderingsgrunnlag.dokumentasjon).toEqual([]);
   });
 
-  it('OV-U44, HF-U1: et fristkrav sendt herfra med datoen for varselet står under både sendt herfra og partenes opplysninger i vurderingsgrunnlaget (svar 3A 30.10 i #1045)', async () => {
+  it('OV-U44, VS-U34: varselet lagt til i fristkravet står under partenes opplysninger som et eget brev, og kravet under sendt herfra (C1 i #2056)', async () => {
     const bane = minnebane();
     await bygg(bane, [
       { handling: 'krav', spor: 'forhold', underkategori: 'endringsordre' },
       { handling: 'krav', spor: 'frist', dager: 10, varsel_sendt: '2026-09-02' },
     ]);
     const journal = await bane.journal();
-    const [sak, forhold, frist] = journal.map((r) => r.event_id);
+    const [sak, forhold, varsel, frist] = journal.map((r) => r.event_id);
     const v = vist(journal);
     expect(
       utledet(journal).spor.frist.varsler['33.4'],
       'forutsetning: varselet har virkning'
     ).toBeTruthy();
     expect(v.journal.find((j) => j.hendelse === frist)?.kilde).toBe('sendt_herfra');
+    expect(v.journal.find((j) => j.hendelse === varsel)?.kilde).toBe('partens_opplysning');
     expect(v.vurderingsgrunnlag).toEqual({
       sendt_herfra: [sak, forhold, frist],
-      partens_opplysning: [frist],
+      partens_opplysning: [varsel],
       dokumentasjon: [],
     });
     const ukjent = { ...structuredClone(journal.at(-1)!), event_id: randomUUID(), format: null };

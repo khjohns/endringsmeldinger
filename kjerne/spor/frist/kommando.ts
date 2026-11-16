@@ -10,12 +10,18 @@ import { feilI, objekt } from '../../format/skjema.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
 import { varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
-import { avvis, varseletSendt, type Avvisning, type Standpunkt } from '../../typer.ts';
+import {
+  avvis,
+  varseletSendt,
+  type Avvisning,
+  type Journalrad,
+  type Standpunkt,
+} from '../../typer.ts';
 import type { Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
-import type { Kontekst, Sporsskriving } from '../../kommandoer/skriving.ts';
+import type { Kontekst, Skrivesteg, Sporsskriving, Utfall } from '../../kommandoer/skriving.ts';
 import {
   foresporselForFristsvar,
   fristeneISporet,
@@ -341,8 +347,70 @@ function fristIkkeRegistrert(
   return null;
 }
 
+/**
+ * Fristkravet med varselet etter § 33.4 TE legger til i kravskjemaet, som to rader: varselet som
+ * registrert korrespondanse med kategorien varsel, og så kravet, som legger dokumentet ved
+ * (VS-U34, VS-U53, C1 i #2056). Er varselet alt registrert, er kravet én rad, og datoen
+ * kontrolleres mot det registrerte (`NYTTELAST`). Hele handlingen prøves før den første raden gis.
+ */
+function medVarselet(
+  k: Extract<Kommando, { type: 'krav' }>,
+  kontekst: Kontekst,
+  journal: Journalrad[],
+  skriving: Skrivesteg
+): Utfall | null {
+  if (!k.varsel || skriving.saken(journal).u.spor.frist.varsler['33.4']) return null;
+  const { varsel, ...kravet } = k;
+  const kjede = (kx: Kontekst, jx: Journalrad[]): Utfall => {
+    const varselet = varseletIKravet(varsel, skriving, kx, jx);
+    if (!varselet.godtatt) return varselet;
+    return {
+      godtatt: true,
+      hendelser: varselet.hendelser,
+      neste: (ky, jy) => skriving.skriv(kravet, ky, jy, varsel.dokumentasjon ?? []),
+    };
+  };
+  if (skriving.sendes) {
+    const proeve = skriving.hele(kjede(kontekst, journal), kontekst, journal);
+    if (!proeve.godtatt) return proeve;
+  }
+  return kjede(kontekst, journal);
+}
+
+/** Raden med varselet fra kravskjemaet som registrert varsel etter § 33.4 (`medVarselet`). */
+function varseletIKravet(
+  varsel: NonNullable<Extract<Kommando, { type: 'krav' }>['varsel']>,
+  skriving: Skrivesteg,
+  kontekst: Kontekst,
+  journal: Journalrad[]
+): Utfall {
+  // OV-U5: brevet med varselet ligger ved.
+  if (!varsel.dokumentasjon?.length)
+    return {
+      godtatt: false,
+      feil: 'REGELBRUDD',
+      avvisning: avvis(
+        'VEDLEGG_MANGLER',
+        'Kravet oppgir datoen varselet etter punkt 33.4 ble sendt, men brevet med varselet ligger ikke ved.'
+      ),
+    };
+  const kommando = { type: 'varsel', spor: 'frist', hjemmel: '33.4', ...varsel };
+  const utfall =
+    skriving.formen(kommando) ?? skriving.skriv(kommando as Kommando, kontekst, journal);
+  return utfall.godtatt
+    ? utfall
+    : {
+        ...utfall,
+        avvisning: {
+          ...utfall.avvisning,
+          melding: `Varselet etter punkt 33.4: ${utfall.avvisning.melding}`,
+        },
+      };
+}
+
 /** Skrivingen i fristen (`SKRIVING`). */
 export const SKRIVING_I_FRISTEN = {
   kravinnhold: fristeneSomLagres,
   kontekstsperre: fristIkkeRegistrert,
+  handlingen: medVarselet,
 } satisfies Sporsskriving;

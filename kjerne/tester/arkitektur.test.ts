@@ -1203,7 +1203,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/vederlag/kommando.ts:medVarslene(p)', 'kommando', 'varsel'],
   ['Dokumentvarsel', 'kommando', 'dokumentasjon sendt korrespondansetype'],
   ['kommandoer/skriving.ts:Utfall', 'kommando', 'godtatt hendelser neste avvisning'],
-  ['Avvisning', 'kommando', 'melding', ['spor/vederlag/kommando.ts:medVarslene']],
+  [
+    'Avvisning',
+    'kommando',
+    'melding',
+    ['spor/vederlag/kommando.ts:medVarslene', 'spor/frist/kommando.ts'],
+  ],
   ['Journalrad.data', 'rad', 'utsagn', ['spor/vederlag/kommando.ts:medVarslene']],
   ['spor/vederlag/kommando.ts:medVarslene', 'rad', 'id'],
   ['spor/vederlag/kommando.ts:medVarslene', 'utsagn', 'hjemmel'],
@@ -1226,6 +1231,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kommando',
     'type spor innhold svar dokumentasjon hjemmel beskrivelse',
   ],
+  // OV-U79: bare et brev har sendemåten, også i varselet i fristkravet.
+  ['kommandoer/kommando.ts:formfeil(kommando)', 'kommando', 'varsel'],
+  ['kommandoer/kommando.ts:sendemaatefeil(k)', 'kommando', 'korrespondansetype'],
+  // OV-U79: sendemåten lagres slik avsenderen oppga den, og ingen regel leser den.
+  ['Kommando', 'kommando', 'sendemaate', ['kommandoer/skriving.ts:dokument']],
   // OV-U16: beskrivelsen lagres slik avsenderen skrev den, og ingen regel leser den.
   ['Kommando', 'kommando', 'beskrivelse', ['kommandoer/skriving.ts:dokument']],
   // LV-U42: typen registrert korrespondanse lagres slik avsenderen oppga den.
@@ -1234,7 +1244,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Registrering',
     'kommando',
-    'sendt korrespondansetype dokumentasjon',
+    'sendt korrespondansetype sendemaate dokumentasjon',
     [
       'kommandoer/kommando.ts',
       'kommandoer/nyttelast.ts',
@@ -1422,9 +1432,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts'],
   ],
   // VS-U51, VS-U53: skrivingen gir sporet stegene for en handling med flere rader.
-  ['Skrivesteg', 'kommando', 'sendes formen skriv hele saken', ['spor/vederlag/kommando.ts']],
+  [
+    'Skrivesteg',
+    'kommando',
+    'sendes formen skriv hele saken',
+    ['spor/vederlag/kommando.ts', 'spor/frist/kommando.ts'],
+  ],
   // VS-U55 (#1993): dokumentet fra kravskjemaet prøves mot varslene i saken før det skrives.
   ['LestSak', 'kommando', 'lest u', ['spor/vederlag/kommando.ts:vedleggIVarslene']],
+  // VS-U34, C1 i #2056: fristkravet skriver varselet først når saken ikke har det.
+  ['LestSak', 'kommando', 'u', ['spor/frist/kommando.ts:medVarselet']],
   ['spor/vederlag/kommando.ts', 'kommando', 'SKRIVING_I_VEDERLAGET', ['kommandoer/skriving.ts']],
   ['spor/forhold/kommando.ts', 'kommando', 'SKRIVING_I_FORHOLDET', ['kommandoer/skriving.ts']],
   // Lagene i et svarutkast i sporet (#1778).
@@ -1640,6 +1657,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'typer.ts',
     'skjema',
     'KORRESPONDANSETYPER',
+    ['format/format.ts', 'kommandoer/kommando.ts', 'spor/vederlag/format.ts'],
+  ],
+  // OV-U79: sendemåten for et brev, i skjemaene.
+  [
+    'typer.ts',
+    'skjema',
+    'SENDEMAATER',
     ['format/format.ts', 'kommandoer/kommando.ts', 'spor/vederlag/format.ts'],
   ],
   ['Kjerne', 'kontekst', 'regler format leserformat'],
@@ -2266,7 +2290,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'format/leser.ts:lesDokument',
     'rad',
-    'brevtekst brevtittel brevnummer merking deres_ref korrespondansetype',
+    'brevtekst brevtittel brevnummer merking deres_ref korrespondansetype sendemaate',
     ['format/leser.ts'],
   ],
   ['Avsnitt', 'brevtekst', 'gjelder', ['format/leser.ts', 'frosset/brevdeler.ts']],

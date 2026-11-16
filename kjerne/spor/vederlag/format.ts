@@ -19,6 +19,7 @@ import {
 } from '../../format/skjema.ts';
 import {
   KORRESPONDANSETYPER,
+  SENDEMAATER,
   type Krav,
   type Kravpost,
   type Oppgjoersform,
@@ -68,6 +69,7 @@ const KRAVPOSTVARSEL_I_KOMMANDOEN: Skjema = objekt(
   {
     sendt: DATO,
     korrespondansetype: { enum: [...KORRESPONDANSETYPER] },
+    sendemaate: { enum: [...SENDEMAATER] },
     dokumentasjon: liste(ID),
   },
   ['sendt', 'korrespondansetype', 'dokumentasjon']

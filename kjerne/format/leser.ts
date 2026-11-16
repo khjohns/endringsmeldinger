@@ -59,6 +59,7 @@ import type {
   Vedlegg,
   Virkning,
   Korrespondansetype,
+  Sendemaate,
 } from '../typer.ts';
 
 /**
@@ -372,6 +373,7 @@ function lesDokument(h: Journalrad): Dokument {
     merking?: string;
     deres_ref?: string[];
     korrespondansetype?: Korrespondansetype;
+    sendemaate?: Sendemaate;
     beskrivelse?: string;
     spor?: Spor[];
     retter?: string;
@@ -468,6 +470,7 @@ function lesDokument(h: Journalrad): Dokument {
     merking: data.merking ?? null,
     deresRef: data.deres_ref ?? [],
     korrespondansetype: data.korrespondansetype ?? null,
+    sendemaate: data.sendemaate ?? null,
     beskrivelse: data.beskrivelse ?? null,
     spor: data.spor ?? [],
     retter: data.retter ?? null,
@@ -521,6 +524,8 @@ function lesDokument(h: Journalrad): Dokument {
         ? 'registrert korrespondanse har ingen korrespondansetype (LV-U42)'
         : 'korrespondansetypen står i et dokument som ikke er registrert korrespondanse'
     );
+  if (data.sendemaate !== undefined && data.korrespondansetype !== 'brev')
+    throw new Uforstaatt('sendemåten står i et dokument som ikke er et registrert brev (OV-U79)');
   if (data.brevtittel !== undefined && !data.brevtekst)
     throw new Uforstaatt('brevtittelen står bare i et brev med tekst fra appen (MM-U50)');
   if (data.brevtittel !== undefined) {
@@ -617,6 +622,7 @@ function ikkeISaken(h: Journalrad, data: Record<string, unknown>): Dokument {
     merking: null,
     deresRef: [],
     korrespondansetype: null,
+    sendemaate: null,
     beskrivelse: null,
     spor: [],
     retter: data.retter,
