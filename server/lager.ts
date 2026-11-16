@@ -199,8 +199,7 @@ async function aktornavn(foresp: Foresp, sakId: string): Promise<Map<string, str
 export async function lesLeveringsmaal(foresp: Foresp, sakId: string): Promise<Leveringsmaal> {
   const maal = await lesMaal(foresp, sakId);
   if (!maal) throw new IngenLeveringsmaal(`Saken ${sakId} har ingen aktiv kobling til Catenda.`);
-  const { catenda_project_id, library_id, folder_id, board_id, topic_id } = maal;
-  return { catenda_project_id, library_id, folder_id, board_id, topic_id };
+  return maal;
 }
 
 /**

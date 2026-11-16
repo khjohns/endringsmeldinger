@@ -22,7 +22,7 @@ import {
 } from '../catenda.ts';
 import type { Pool } from '../datalag.ts';
 import { kjoerEnJobb, LEASETID_S } from '../jobber.ts';
-import { lesSaken } from '../lager.ts';
+import { lesSaken, lesSakensMaal } from '../lager.ts';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
 import { brevprofil, lesBrevPdf } from '../brevpdf.ts';
@@ -269,6 +269,34 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
         catenda_project_id: o.prosjekt.catendaProsjekt,
       }),
     ]);
+  });
+
+  it('L1: oppdraget fryser målet uten topicens nummer, også når topicen har nummer (#1991)', async () => {
+    const sakId = await opprettKjernesak(o);
+    const topic = `topic-${randomUUID()}`;
+    const medNummer = await kjoerEnJobb({
+      datalag: o.datalag.kjoeretid.pool,
+      catenda: { opprettTopic: async () => ({ guid: topic, nummer: 726 }) },
+      dokumenter: catenda,
+      saksadresse: () => 'x',
+      logg,
+    });
+    expect(medNummer).toBe(true);
+    const leser = { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const };
+    expect(await lesSakensMaal(o.datalag.kjoeretid.pool, leser, sakId)).toMatchObject({
+      topic_id: topic,
+      topic_nummer: 726,
+    });
+    await sendBrev(sakId);
+    const { oppdrag } = await lesSaken(o.datalag.kjoeretid.pool, leser, sakId);
+    expect(oppdrag).toHaveLength(1);
+    expect(oppdrag[0].innhold.maal).toEqual({
+      catenda_project_id: o.prosjekt.catendaProsjekt,
+      library_id: expect.any(String),
+      folder_id: expect.toBeOneOf([null, expect.any(String)]),
+      board_id: expect.any(String),
+      topic_id: topic,
+    });
   });
 
   it('L1: leveringen hentes ikke før saken har topic (LV-U9), og den teller ikke som forsøk', async () => {

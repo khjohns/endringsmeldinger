@@ -276,7 +276,7 @@ export const PROSJEKTRUTER: readonly Rute[] = [
       utenSak:
         'Prosjektet selv, som frontenden henter før en side i prosjektet vises; det finnes ingen sak.',
       kontraktsrolle: {
-        ikke: 'Navnet og innstillingene for prosjektet er ikke saksdata, og hvert medlem trenger dem før kontraktssiden er kjent.',
+        ikke: 'Navnet og innstillingene for prosjektet og partsnavnene i kontrakten (`koe.kontraktsparter`) er ikke saksdata, og hvert medlem trenger dem før kontraktssiden er kjent.',
       },
     },
     behandle: visProsjektet,
@@ -316,7 +316,7 @@ export const PROSJEKTRUTER: readonly Rute[] = [
       utenSak:
         'Leserollen til et medlem i prosjektet; medlemskapet hører til prosjektet, ikke til en sak.',
       kontraktsrolle: {
-        ikke: 'Leserollen er administrasjon av prosjektet og krever prosjektrollen admin; den leser og skriver ingen saksdata.',
+        ikke: 'Leserollen er administrasjon av prosjektet og krever prosjektrollen admin. Den leser og skriver ingen saksdata, men gir medlemmet lesetilgang til sakene i prosjektet (DL-U15).',
       },
     },
     behandle: begrensMedlem,

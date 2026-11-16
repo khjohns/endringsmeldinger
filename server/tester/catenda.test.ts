@@ -544,11 +544,21 @@ describe('topicen for en sak fra appen (#741)', () => {
     ['uten nummer', {}],
     ['med et nummer som ikke er et positivt heltall', { bimsync_issue_number: 0 }],
     ['med nummeret som tekst', { bimsync_issue_number: '24' }],
+    // Kolonnen for nummeret er `int` i SQL Server (#1991).
+    ['med et nummer over det største i int', { bimsync_issue_number: 2147483648 }],
   ])('gir GUID-en og ikke noe nummer for et svar %s', async (_, ekstra) => {
     svar = () => ({ status: 201, json: { guid: 'topic-1', ...ekstra } });
     expect(await new CatendaOAuth(oppsett()).opprettTopic(BOARD, topic, 'i')).toEqual({
       guid: 'topic-1',
       nummer: null,
+    });
+  });
+
+  it('kontrollsak: det største nummeret i int beholdes (#1991)', async () => {
+    svar = () => ({ status: 201, json: { guid: 'topic-1', bimsync_issue_number: 2147483647 } });
+    expect(await new CatendaOAuth(oppsett()).opprettTopic(BOARD, topic, 'i')).toEqual({
+      guid: 'topic-1',
+      nummer: 2147483647,
     });
   });
 
