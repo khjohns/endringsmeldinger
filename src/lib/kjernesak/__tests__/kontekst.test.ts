@@ -508,7 +508,6 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(brevaarsak(null)).toBeNull();
     expect(
       brevaarsak({
-        tekst: ['brevet'],
         avsnitt: [{ gjelder: 'k', laast: 'brevet' }],
         brevnummer: 1,
         brevtittel: 'Brevet',
@@ -518,7 +517,6 @@ describe('sakskonteksten for en TS-sak', () => {
     ).toBeNull();
     expect(
       brevaarsak({
-        tekst: null,
         avsnitt: null,
         brevnummer: null,
         brevtittel: null,

@@ -97,7 +97,7 @@
   // Nummeret og tittelen står i raden kjernen ville skrevet (LV-U44, LV-U27), og punktene i
   // brevet kjernen lager uten tekstene.
   const utkastbrev = $derived(kjernesak.brev(utkast));
-  const brevMedTekst = $derived(utkastbrev && 'tekst' in utkastbrev ? utkastbrev : null);
+  const brevMedTekst = $derived(utkastbrev && 'avsnitt' in utkastbrev ? utkastbrev : null);
   const punktene = $derived(
     utkastbrev && 'avsnitt' in utkastbrev ? begrunnelsespunktene(utkastbrev.avsnitt ?? []) : []
   );

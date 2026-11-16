@@ -1,6 +1,5 @@
 import {
   forhaandsvis,
-  laastTekst,
   vurder,
   utledJournal,
   type Kontekst,
@@ -14,7 +13,7 @@ import type { Avsnitt, Avvisning, Journalrad, Part, Sakskode } from '$kjerne/typ
 
 /**
  * Brevet kjernen lager for kommandoen mot journalen slik den er lastet (B-15):
- * den låste teksten, eller avvisningen. `tekst` er `null` når kommandoen ikke lager
+ * avsnittene, eller avvisningen. `avsnitt` er `null` når kommandoen ikke lager
  * en tekst, som et registrert brev; da trenger kjernen vedleggene kommandoen viser
  * til (`vedlegg`). Avsenderen ser teksten, og kommandoen bærer den;
  * serveren avviser en annen (LV-U2). `brevnummer` og `brevtittel` er det kjernen fryser i
@@ -25,7 +24,6 @@ import type { Avsnitt, Avvisning, Journalrad, Part, Sakskode } from '$kjerne/typ
  */
 export type Brev =
   | {
-      tekst: string[] | null;
       /** Avsnittene slik kjernen fryser dem, med punktene og utdypningene (#1824). */
       avsnitt: Avsnitt[] | null;
       brevnummer: number | null;
@@ -35,6 +33,10 @@ export type Brev =
       deresRef: string[];
     }
   | { avvisning: Avvisning };
+
+/** Den låste teksten kommandoen bærer, og som serveren sammenligner med sin egen (LV-U2). */
+export const laastTekstI = (brev: { avsnitt: Avsnitt[] | null }): string[] | null =>
+  brev.avsnitt?.map((a) => a.laast) ?? null;
 
 /**
  * Sakens kode og kontraktsforkortelsen, lest fra serveren før forhåndsvisningen. Teksten
@@ -89,9 +91,7 @@ export function brevFor(
   if (!vist.godtatt) return { avvisning: vist.avvisning };
   // Brevet er den siste raden; et dokument fra kravskjemaet står som varsel foran (VS-U53).
   const rad = vist.hendelser.at(-1)!;
-  const tekst = laastTekst(rad);
   const brev = {
-    tekst,
     avsnitt: brevtekstI(rad),
     brevnummer: typeof rad.data.brevnummer === 'number' ? rad.data.brevnummer : null,
     brevtittel: typeof rad.data.brevtittel === 'string' ? rad.data.brevtittel : null,
@@ -99,6 +99,7 @@ export function brevFor(
     deresRef: Array.isArray(rad.data.deres_ref) ? (rad.data.deres_ref as string[]) : [],
   };
   if (!sendes) return brev;
+  const tekst = laastTekstI(brev);
   const medTekst = tekst ? { ...kommando, brevtekst: tekst } : kommando;
   const vurdert = vurder(medTekst, kontekst, journal, kjerne, vedlegg ?? new Map());
   return vurdert.godtatt ? brev : { avvisning: vurdert.avvisning };
