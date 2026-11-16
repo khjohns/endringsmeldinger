@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `3f990614356dfa1317e278a576ada19b06aabbbb6ca79b956c177f16f3685d64`
+Kontrollsum (SHA-256 over utdraget visningen leser): `6b81a31c10709ee5ff0ea60d9cd3569089d2b30d2f705440c51e129303d87239`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -3211,7 +3211,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 **Vedtatt:** 14.11, oppdragsgiver (#1823, #502)
 
-**Følge:** Endrer [KA-U52](#ka-u52). Opphever [LV-U52](#lv-u52). Forholdet står i alternativ A: endrer KA-U52 punkt 4, annen setning (med MM-U34 punkt 1), og opphever det som står igjen av LV-U52 etter LV-U53 og LV-U56. MM-U34 er samlet i KA-U52. Forholdet til LV-U52 ble først ført som «endrer», fordi forløpene viste til LV-U52, og er rettet til «opphever» i #1988. Bygges i #1379 og #1823.
+**Følge:** Endrer [KA-U52](#ka-u52). Opphever [LV-U52](#lv-u52). Forholdet står i alternativ A: endrer KA-U52 punkt 4, annen setning (med MM-U34 punkt 1), og opphever det som står igjen av LV-U52 etter LV-U53 og LV-U56. MM-U34 er samlet i KA-U52. Forholdet til LV-U52 ble først ført som «endrer» og er rettet til «opphever» i #1988. Bygges i #1379 og #1823.
 
 **Regelrader:** —
 

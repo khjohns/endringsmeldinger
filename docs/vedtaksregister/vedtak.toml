@@ -24052,7 +24052,7 @@ forhold = [
   { art = "opphever", vedtak = "lv-u52" },
 ]
 folge = '''
-Forholdet står i alternativ A: endrer KA-U52 punkt 4, annen setning (med MM-U34 punkt 1), og opphever det som står igjen av LV-U52 etter LV-U53 og LV-U56. MM-U34 er samlet i KA-U52. Forholdet til LV-U52 ble først ført som «endrer», fordi forløpene viste til LV-U52, og er rettet til «opphever» i #1988. Bygges i #1379 og #1823.'''
+Forholdet står i alternativ A: endrer KA-U52 punkt 4, annen setning (med MM-U34 punkt 1), og opphever det som står igjen av LV-U52 etter LV-U53 og LV-U56. MM-U34 er samlet i KA-U52. Forholdet til LV-U52 ble først ført som «endrer» og er rettet til «opphever» i #1988. Bygges i #1379 og #1823.'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "A"
