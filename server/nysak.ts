@@ -1,10 +1,11 @@
 /**
  * Kroppen som oppretter en sak med den første påberopelsen (KT-U11, #1487), prøvd før
- * kjernen ser den. Modulen importerer bare fra kjernen, så demoruta prøver kroppen med samme
- * funksjon som serveren (#1526 punkt 3, `src/lib/kjernesak/demosak.ts`).
+ * kjernen ser den. Modulen importerer bare fra kjernen og `kroppsfelt.ts`, så demoruta prøver
+ * kroppen med samme funksjon som serveren (#1526 punkt 3, `src/lib/kjernesak/demosak.ts`).
  */
 
 import { erObjekt } from '../kjerne/format/skjema.ts';
+import { ukjenteFeltmelding } from './kroppsfelt.ts';
 
 const NY_SAK = new Set([
   'kommando_id',
@@ -23,19 +24,6 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 const tekstliste = (v: unknown): v is string[] =>
   Array.isArray(v) && v.every((x) => typeof x === 'string');
-
-/**
- * `Ukjente felt: …`, med `i` for et objekt inne i kroppen, eller `null` når alle er tillatt.
- * `ukjenteFelt` i `inngang.ts` bruker den, så meldingen har én kilde (#2036).
- */
-export function ukjenteFeltmelding(
-  objekt: Record<string, unknown>,
-  tillatte: ReadonlySet<string>,
-  i?: string
-): string | null {
-  const ukjente = Object.keys(objekt).filter((k) => !tillatte.has(k));
-  return ukjente.length ? `Ukjente felt${i ? ` i ${i}` : ''}: ${ukjente.join(', ')}.` : null;
-}
 
 /** Vedleggene påberopelsen viser til, uten dubletter og med små bokstaver. */
 export const vedleggIder = (paaberopelse: Record<string, unknown>): string[] =>

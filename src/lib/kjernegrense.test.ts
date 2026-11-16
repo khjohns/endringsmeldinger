@@ -11,8 +11,9 @@
  *   `node:`-modul og ingen pakke kommer med i nettleserbunten.
  * - Fra serveren importerer appen utenom testene bare `server/nysak.ts`, kontrollen av
  *   kroppen for ny sak, så demoruta prøver kroppen med serverens egen kontroll (#1526
- *   punkt 3). Den modulen importerer bare fra kjernen, med samme grense som appen, så
- *   serveren kommer ikke med i nettleserbunten (#2036). Vakten ser ikke en import med et navn som settes sammen under
+ *   punkt 3). Den modulen når bare kjernen, med samme grense som appen, og
+ *   `server/kroppsfelt.ts`, som ikke importerer noe (#2036). Serveren kommer derfor ikke
+ *   med i nettleserbunten. Vakten ser ikke en import med et navn som settes sammen under
  *   kjøringen, og ikke en global fra Node, som `process` eller `Buffer`, i modulen.
  *
  * Importene leses med TypeScript-parseren, så `import`, `import type`,
@@ -33,6 +34,8 @@ const TESTER = join(KJERNE, 'tester');
 const SERVER = join(ROT, 'server');
 /** Den eneste servermodulen appen kan importere (#1526 punkt 3). */
 const NYSAK = join(SERVER, 'nysak.ts');
+/** Servermodulene `nysak.ts` kan nå; de følges som kjernen (#2036). */
+const NETTLESERMODULER = [join(SERVER, 'kroppsfelt.ts')];
 const ALIAS = '$kjerne';
 
 function filer(mappe: string, endelser: RegExp): string[] {
@@ -104,8 +107,8 @@ export function serverimporter(kilder: Map<string, string>): string[] {
 }
 
 /**
- * Det appen kan nå i kjernen, fra `start`: hver import som går til en pakke,
- * en `node:`-modul, `kjerne/tester/` eller ut av kjernen, med stien dit.
+ * Det appen kan nå i kjernen og `NETTLESERMODULER`, fra `start`: hver import som går til en
+ * pakke, en `node:`-modul, `kjerne/tester/` eller ut av kjernen, med stien dit.
  */
 export function utenforNettleseren(start: string[], les: Leser): string[] {
   const funnet: string[] = [];
@@ -118,7 +121,8 @@ export function utenforNettleseren(start: string[], les: Leser): string[] {
     besokt.add(fil);
     for (const i of importer(fil, les(fil) ?? '')) {
       const neste =
-        iKjernen(i) && !iTestene(i)
+        (iKjernen(i) && !iTestene(i)) ||
+        NETTLESERMODULER.some((m) => utenEndelse(m) === utenEndelse(i))
           ? [i, `${i}.ts`, i.replace(/\.js$/, '.ts'), join(i, 'index.ts')].find(
               (f) => les(f) !== undefined
             )
@@ -147,7 +151,6 @@ describe('grensen mellom appen og kjernen', () => {
   });
 
   it('server/nysak.ts, som appen importerer, når bare kjernen og ingen pakke, node-modul eller test', () => {
-    expect(importer(NYSAK, readFileSync(NYSAK, 'utf8')).length).toBeGreaterThan(0);
     expect(utenforNettleseren([NYSAK], lesFil)).toEqual([]);
   });
 

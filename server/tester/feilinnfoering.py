@@ -514,6 +514,14 @@ FEILINNFOERINGER = [
      "'SELECT filnavn, innhold FROM koe.vedlegg WHERE vedlegg_id = @id AND sak_id = @sak'",
      "'SELECT filnavn, innhold FROM koe.vedlegg WHERE vedlegg_id = @id OR sak_id = @sak'",
      "hentes ikke gjennom stien til pakken"),
+    ("S133", "meldingen om ukjente felt sier aldri fra, så hver inngang som bruker den, godtar dem (#2036)",
+     "server/kroppsfelt.ts",
+     "  if (!ukjente.length) return null;", "  return null;",
+     "avviser et ukjent felt med 400"),
+    ("S134", "ukjente felt i varselet i en ny sak godtas (#2036)",
+     "server/nysak.ts",
+     "    if (ukjenteIVarsel) return", "    if (false) return",
+     "avviser et ukjent felt i varselet med 400"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.
