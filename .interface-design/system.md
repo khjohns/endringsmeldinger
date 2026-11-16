@@ -136,8 +136,8 @@ Skriftene ble valgt 07.11 (oppdragsgiver), etter en sammenligning av fire brevsk
   inne i et kort 6 px (`--r-innfelt`). Tokenene står i `theme.css`.
 - **Høyst tre nivåer av flater** (#1663): seksjonen har nummer og
   overskrift uten ramme, elementet er en rad med hårlinje, og feltet har bare sin egen kant.
-  Ingen kort i kort. Hjemmelen står som dempet tekst til høyre på linja med overskriften, ikke
-  som et merke (`varden/Hjemmel.svelte`, oppdragsgiver 16.11).
+  Ingen kort i kort. Hjemmelen står som dempet tekst til høyre på linja med overskriften i et
+  skjema, ikke som et merke (`varden/Hjemmel.svelte`, oppdragsgiver 16.11).
   Blekket går til innholdet, ikke til beholderne.
 
 ## Farge som betyr noe

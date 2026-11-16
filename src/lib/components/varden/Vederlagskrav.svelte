@@ -1209,9 +1209,11 @@
   }
   .seksjonshode {
     display: flex;
-    flex-wrap: wrap;
     align-items: baseline;
-    gap: var(--spacing-1) var(--spacing-3);
+    gap: var(--spacing-3);
+  }
+  .seksjonshode h3 {
+    min-width: 0;
   }
   .nummer {
     display: inline-grid;
