@@ -426,7 +426,15 @@ export async function krevProsjekttilgang(
 export interface Kontraktstilgang {
   rolle: Rolle;
   teamId: string | null;
+  /**
+   * Prosjektets kontraktsteam per side, slik siden ble avgjort av. `koe_api.opprett_sak`
+   * avviser saken når kontraktsteamene i basen er andre (DL-U4, #877 p30).
+   */
+  kontraktsteam: Kontraktsteam;
 }
+
+/** Prosjektets kontraktsteam per side, i `catendaId`-formen. */
+export type Kontraktsteam = Record<Rolle, ReadonlySet<string>>;
 
 /** Siden og teamet, eller `null` uten entydig side. Oppslaget som feiler, gir 503. */
 async function lesKontraktsside(
@@ -434,7 +442,7 @@ async function lesKontraktsside(
   catenda: Catenda,
   tilgang: Prosjekttilgang
 ): Promise<Kontraktstilgang | null> {
-  let funnet: [Rolle | null, string | null];
+  let funnet: [Rolle | null, string | null, Kontraktsteam | null];
   try {
     funnet = await kontraktsside(db, catenda, tilgang);
   } catch {
@@ -531,11 +539,14 @@ async function prosjektmedlemskap(
   return svar.recordset[0];
 }
 
-function somKontraktstilgang([rolle, teamId]: [
+function somKontraktstilgang([rolle, teamId, kontraktsteam]: [
   Rolle | null,
   string | null,
+  Kontraktsteam | null,
 ]): Kontraktstilgang | null {
-  return rolle === 'TE' || rolle === 'BH' ? { rolle, teamId } : null;
+  return (rolle === 'TE' || rolle === 'BH') && kontraktsteam
+    ? { rolle, teamId, kontraktsteam }
+    : null;
 }
 
 /**
@@ -588,18 +599,18 @@ async function kontraktsside(
   db: Pool,
   catenda: Pick<Catenda, 'teammedlemmer'>,
   { prosjektId, aktor, oppsett, medlemskap }: Prosjekttilgang
-): Promise<[Rolle | null, string | null]> {
-  if (medlemskap.leserolle) return [null, null];
+): Promise<[Rolle | null, string | null, Kontraktsteam | null]> {
+  if (medlemskap.leserolle) return [null, null, null];
   const subjekt = catendaId(medlemskap.subjekt);
-  if (!subjekt) return [null, null];
+  if (!subjekt) return [null, null, null];
   const team = await kontraktsteamene(db, aktor, prosjektId, false);
   if (!team.TE.size || !team.BH.size || [...team.TE].some((t) => team.BH.has(t)))
-    return [null, null];
+    return [null, null, null];
   const treff = await teamMedSubjektet(catenda, oppsett.catendaProsjekt, subjekt, team);
   const roller = new Set(treff.map(([r]) => r));
-  if (roller.size !== 1) return [null, null];
+  if (roller.size !== 1) return [null, null, null];
   const lag = new Set(treff.map(([, t]) => t));
-  return [[...roller][0], lag.size === 1 ? [...lag][0] : null];
+  return [[...roller][0], lag.size === 1 ? [...lag][0] : null, team];
 }
 
 /**

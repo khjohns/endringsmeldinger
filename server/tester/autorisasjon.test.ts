@@ -598,15 +598,27 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       const te = await medlem(p);
       const bh = await medlem(p);
       const team = { [p.te[1]]: [te.subjekt], [p.bh[0]]: [bh.subjekt], [hex()]: [te.subjekt] };
-      expect(await kontrakt(p, te, team)).toEqual({ rolle: 'TE', teamId: p.te[1] });
-      expect(await kontrakt(p, bh, team)).toEqual({ rolle: 'BH', teamId: p.bh[0] });
+      expect(await kontrakt(p, te, team)).toEqual({
+        rolle: 'TE',
+        teamId: p.te[1],
+        kontraktsteam: { TE: new Set(p.te), BH: new Set(p.bh) },
+      });
+      expect(await kontrakt(p, bh, team)).toEqual({
+        rolle: 'BH',
+        teamId: p.bh[0],
+        kontraktsteam: { TE: new Set(p.te), BH: new Set(p.bh) },
+      });
     });
 
     it('med i to kontraktsteam på samme side gir siden og teamet null', async () => {
       const p = await prosjekt();
       const m = await medlem(p);
       const team = { [p.te[0]]: [m.subjekt], [p.te[1]]: [m.subjekt] };
-      expect(await kontrakt(p, m, team)).toEqual({ rolle: 'TE', teamId: null });
+      expect(await kontrakt(p, m, team)).toEqual({
+        rolle: 'TE',
+        teamId: null,
+        kontraktsteam: { TE: new Set(p.te), BH: new Set(p.bh) },
+      });
     });
 
     it('subjektet fra Catenda sammenliknes i catendaId-formen', async () => {
@@ -617,6 +629,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       expect(await kontrakt(p, m, { [p.bh[1]]: [uuid.toUpperCase()] })).toEqual({
         rolle: 'BH',
         teamId: p.bh[1],
+        kontraktsteam: { TE: new Set(p.te), BH: new Set(p.bh) },
       });
     });
 
