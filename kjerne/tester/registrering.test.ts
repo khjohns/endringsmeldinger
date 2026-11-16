@@ -634,15 +634,15 @@ describe('et svar sendt før byggherrens gjeldende svar på kravversjonen står 
       ]
     ));
 
-  it('kontrollsak: en aksept av det gjeldende svaret gir enighet', () =>
+  it('en aksept av det gjeldende svaret gir enighet, også når et eldre svar står utenfor rekken', () =>
     prov(
       'aksept-av-gjeldende-svar',
       [avslag('S-g1'), foerste('2026-09-23'), registrertAksept('S-g1', '2026-09-25')],
       [
         {
           etter: 3,
-          rolle: 'kontroll',
-          kilde: KILDE,
+          rolle: 'mal',
+          kilde: ['OV-U98', 'OV-U103'],
           forventet: { forstaatt: true, 'enighet.forhold': 'finnes' },
         },
       ]
