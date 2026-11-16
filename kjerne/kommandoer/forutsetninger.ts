@@ -9,7 +9,7 @@
  * avvisningen er de samme per konstruksjon (INV-MM-1).
  */
 
-import { kanFaaInnsigelse, type Utledning } from '../utledning/utled.ts';
+import { kanFaaInnsigelse, sendtFoerGjeldendeSvar, type Utledning } from '../utledning/utled.ts';
 import type { ForesporselOgSvar } from '../spor/frist/frysing.ts';
 import { FORUTSETNINGER_I_FRISTEN } from '../spor/frist/kommando.ts';
 import { avvis, erKravpostvarselhjemmel, SPOR } from '../typer.ts';
@@ -211,7 +211,16 @@ const KRAVET_ER_SENDT: Record<Kravspor, (sendt: string) => Avvisning> = {
   frist: (sendt) => avvis('FRISTKRAV_SENDT', `Fristkravet ${sendt}`),
 };
 
-export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): Avvisning | null {
+/**
+ * `sendt` er dagen et brev lagt til ble sendt (OV-U98), og `null` for et brev fra løsningen og for
+ * handlingene løsningen tilbyr.
+ */
+export function forutsetninger(
+  h: Handlingsnoekkel,
+  part: Part,
+  u: Utledning,
+  sendt: string | null
+): Avvisning | null {
   // OV-U4: hver side registrerer sine egne brev som dokumentasjon, uten virkning, også når
   // saken ikke er forstått, etter godtatt avslag og etter trekk.
   if (h.type === 'registrere_brev') return null;
@@ -307,7 +316,8 @@ export function forutsetninger(h: Handlingsnoekkel, part: Part, u: Utledning): A
       if (!s.gjeldendeKrav)
         return avvis('INGEN_KRAV', `Totalentreprenøren har ikke sendt ${kravet(h.spor)}.`);
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-      if (s.gjeldendeSvar)
+      // OV-U103: et svar lagt til, sendt før det gjeldende svaret, står utenfor rekken.
+      if (s.gjeldendeSvar && !sendtFoerGjeldendeSvar(u, h.spor, s.gjeldendeSvar.gjelder, sendt))
         return avvis('ALLEREDE_SVART', 'Du har allerede svart på denne versjonen. Revider svaret.');
       return forutsetningerI(h.spor).svaret(u, 'Svaret');
     case 'revidere':

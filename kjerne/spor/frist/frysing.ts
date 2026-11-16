@@ -20,6 +20,7 @@ import {
   type Svarvurdering,
 } from '../../frosset/byggeklosser.ts';
 import { innholdIFristen, utregningIFristen } from './format.ts';
+import { dagenSendt } from '../../format/leser.ts';
 import type { Dokument, Krav, Standpunkt, Standpunktsvirkning, Utfall } from '../../typer.ts';
 
 /** Det svaret gir i dager for hver frist i laget (KA-U74). */
@@ -194,31 +195,56 @@ export interface ForesporselOgSvar {
   /** Elementet som svarte: et fristkrav (`medKrav`) eller TEs begrunnelse etter annet ledd b. */
   svar: string | null;
   medKrav: boolean;
+  /**
+   * OV-U109: fristkravet totalentreprenøren hadde sendt før forespørselen, lagt til etter den.
+   * Det er ikke svar på forespørselen, men forespørselen er da ikke ubesvart.
+   */
+  kravFoer: string | null;
+  /** Dagen forespørselen ble sendt (OV-U98), eller `null` når den ikke kan leses. */
+  sendt: string | null;
 }
+
+/** OV-U109: forespørselen venter på svar fra totalentreprenøren. */
+export const erUbesvart = (f: ForesporselOgSvar): boolean => f.svar === null && f.kravFoer === null;
 
 /**
  * § 33.6.2 (VS-U17, VS-U19, VS-U27): svaret på hver forespørsel. TEs begrunnelse etter annet
  * ledd b og fristkravet svarer på forespørselen de uttrykkelig viser til i `gjelder`, aldri
  * etter rekkefølgen i journalen (HF-U1, LV-U18 punkt 3), også et krav lagt til med kravskjemaet
- * (VS-U47 spørsmål 2). Gir forespørselen og elementet som svarte, eller `null`.
+ * (VS-U47 spørsmål 2). Gir forespørselen og elementet som svarte, eller `null`. Et fristkrav
+ * uten `gjelder`, sendt dagen før forespørselen eller tidligere, står i `kravFoer` (OV-U109,
+ * OV-U104).
  */
 export function svarPaaForesporsler(
-  dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>
+  dokumenter: Iterable<Pick<Dokument, 'id' | 'registrert' | 'krav' | 'utsagn' | 'opplysninger'>>
 ): ForesporselOgSvar[] {
   const ut: ForesporselOgSvar[] = [];
   const ubesvart = (gjelder: string | undefined) =>
     ut.find((x) => x.foresporsel === gjelder && x.svar === null);
   for (const d of dokumenter) {
     for (const u of d.utsagn) {
-      if (u.art === 'foresporsel') ut.push({ foresporsel: u.id, svar: null, medKrav: false });
+      if (u.art === 'foresporsel')
+        ut.push({
+          foresporsel: u.id,
+          svar: null,
+          medKrav: false,
+          kravFoer: null,
+          sendt: dagenSendt({ id: u.id, dokument: d.id }, d),
+        });
       if (u.art === 'foresporselssvar') {
         const f = ubesvart(u.gjelder);
         if (f) f.svar = u.id;
       }
     }
     for (const krav of d.krav) {
-      const f = krav.spor === 'frist' ? ubesvart(krav.gjelder) : undefined;
+      if (krav.spor !== 'frist') continue;
+      const f = ubesvart(krav.gjelder);
       if (f) Object.assign(f, { svar: krav.id, medKrav: true });
+      if (krav.gjelder !== undefined) continue;
+      const dag = dagenSendt({ id: krav.id, dokument: d.id }, d);
+      for (const x of ut)
+        if (x.kravFoer === null && dag !== null && x.sendt !== null && dag < x.sendt)
+          x.kravFoer = krav.id;
     }
   }
   return ut;
@@ -238,8 +264,10 @@ export function foresporselsrelasjon(
 ): Foresporselsrelasjon | null {
   // Forespørselen kan bare sendes før det første fristkravet (VS-U19), så det er kravet som
   // svarer. Senere kravversjoner står i samme forhold til forespørselen (VS-U20).
-  const krav = svar.find((s) => s.medKrav)?.svar;
+  // OV-U109: etter et krav sendt før forespørselen utledes ingen virkning etter § 33.6.2.
+  const uten = svar.filter((s) => s.kravFoer === null);
+  const krav = uten.find((s) => s.medKrav)?.svar;
   if (krav) return { art: 'svar', gjelder: krav };
-  const begrunnelse = svar.filter((s) => s.svar !== null).at(-1)?.svar;
+  const begrunnelse = uten.filter((s) => s.svar !== null).at(-1)?.svar;
   return begrunnelse ? { art: 'begrunnelse', gjelder: begrunnelse } : null;
 }

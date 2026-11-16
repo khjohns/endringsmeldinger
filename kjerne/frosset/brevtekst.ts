@@ -19,7 +19,7 @@ import { sakensKode } from './tekst.ts';
 import { dagenSendt, erRegistrert, registrertDato } from '../format/leser.ts';
 import { etterAkseptfristen } from '../regler/akseptfrist.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { innsigelsenErOppgitt, innsigelsenPaaberoper } from './standpunkt.ts';
+import { erPaaberopelse, innsigelsenErOppgitt, innsigelsenPaaberoper } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
 import {
   erDato,
@@ -229,9 +229,15 @@ function aapneInnsigelser(
     const dag = dagenSendt({ id: d.id, dokument: d.id }, d);
     for (const s of d.svar)
       if (!saken.utenVirkning.includes(s.id)) svarFraParten.push({ svar: s, dag });
+    // OV-U98: en innsigelse i et brev lagt til er dokumentasjon. MM-U43 punkt 9: en innsigelse
+    // uten virkning, eller mot et element uten virkning, gjentas ikke.
+    if (erRegistrert(d.opplysninger)) continue;
     for (const u of d.utsagn)
-      // VS-U29: standpunktet om at begrunnelsen ikke er et svar, er ingen påberopelse.
-      if (u.art === 'innsigelse' && u.grunn === undefined)
+      if (
+        erPaaberopelse(u) &&
+        !saken.utenVirkning.includes(u.id) &&
+        !saken.utenVirkning.includes(u.gjelder)
+      )
         innsigelser.push({ gjelder: u.gjelder, dokument: d.id, fra: svarFraParten.length, dag });
   }
   return innsigelser.flatMap((i) => {

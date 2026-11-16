@@ -20,6 +20,7 @@ import {
 } from './kommando.ts';
 import { korrigertDato, SKRIVING_I_FORHOLDET } from '../spor/forhold/kommando.ts';
 import { SKRIVING_I_FRISTEN } from '../spor/frist/kommando.ts';
+import { foresporselenKravetSvarerPaa } from '../spor/frist/utledning.ts';
 import type { Registrertfrist } from '../spor/frist/format.ts';
 import { frys } from '../frosset/frysing.ts';
 import { standpunkter } from './standpunkter.ts';
@@ -47,6 +48,7 @@ import {
 } from '../format/skjema.ts';
 import {
   paaberopelseFor,
+  sendtFoerGjeldendeSvar,
   sendtFoerSisteKrav,
   utled,
   utledJournal,
@@ -365,8 +367,8 @@ function dokument(
           forbehold: k.forbehold,
         });
       // HF-U1, LV-U18 punkt 3: et krav om dager mens forespørselen etter § 33.6.2 er ubesvart,
-      // er svaret på den og viser til den (avgrensningen i #1567).
-      const foresporsel = u.spor[k.spor].foresporsler.find((f) => f.svar === null);
+      // er svaret på den og viser til den (avgrensningen i #1567), med unntaket i OV-U109.
+      const foresporsel = k.spor === 'frist' ? foresporselenKravetSvarerPaa(u, sendt) : undefined;
       const data: Data = {
         krav: [
           {
@@ -398,11 +400,20 @@ function dokument(
         ),
         ...registrering(k, nyId, bundne),
       };
-    case 'revisjon':
+    case 'revisjon': {
+      // OV-U103: et svar lagt til, sendt før det gjeldende, står utenfor rekken og erstatter ikke det.
+      const foer =
+        erRegistrering(k) &&
+        sendtFoerGjeldendeSvar(u, k.svar.spor, k.svar.gjelder, kalenderdag(k.sendt));
       return {
-        svar: frosneSvar([svar(k.svar, u, nyId, utdypninger, bygde, k.erstatter)], u, kjerne),
+        svar: frosneSvar(
+          [svar(k.svar, u, nyId, utdypninger, bygde, foer ? undefined : k.erstatter)],
+          u,
+          kjerne
+        ),
         ...registrering(k, nyId, bundne),
       };
+    }
     case 'aksept':
       // KA-U10, MM-U50: aksepten viser til svaret og lagrer regelversjonen TE fikk se.
       return {

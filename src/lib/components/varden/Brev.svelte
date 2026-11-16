@@ -44,8 +44,12 @@
     /** Tidspunktet brevet ble sendt. Bare et sendt brev har stempelet. */
     sendt?: string;
     fot?: Snippet;
-    /** Brevet står i en ramme som har kanten, som ved lesing ved siden av. */
-    innfelt?: boolean;
+    /**
+     * Brevet står i en ramme som har kanten, som ved lesing ved siden av. `rullende` er en ramme
+     * som ruller, med bakgrunnen `--surface`; fotlinja står fast nederst mens brevet ruller over
+     * den (U-16 i BF-44). `rad` står i brevtråden uten egen bakgrunn.
+     */
+    innfelt?: boolean | 'rullende' | 'rad';
     /**
      * Partene og referansene øverst. Uten dem står bare tittelen og teksten, der raden over
      * brevet allerede sier hvem som sendte det og når (lesepanelet i BF-10).
@@ -60,7 +64,15 @@
   const organisasjoner = $derived(hentOrganisasjoner());
 </script>
 
-<article class="brev" class:innfelt class:dempet class:bh={avsender === 'BH'} aria-label={tittel}>
+<article
+  class="brev"
+  class:innfelt={innfelt !== false}
+  class:rullende={innfelt === 'rullende'}
+  class:rad={innfelt === 'rad'}
+  class:dempet
+  class:bh={avsender === 'BH'}
+  aria-label={tittel}
+>
   {#if hode}<header class="hode">
       <div class="topp">
         <p class="avsender">
@@ -164,9 +176,13 @@
     font-size: 11pt;
   }
   .brev.innfelt {
-    padding: var(--spacing-6);
+    --innfelt-luft: var(--spacing-6);
+    padding: var(--innfelt-luft);
     border: 0;
     border-radius: 0;
+  }
+  .brev.rad {
+    background: transparent;
   }
   .hode {
     display: flex;
@@ -340,6 +356,13 @@
     color: var(--ink-3);
     font-family: var(--font-sans);
     font-size: 14px;
+  }
+  .rullende .fot {
+    position: sticky;
+    bottom: 0;
+    margin: var(--spacing-8) calc(-1 * var(--innfelt-luft)) calc(-1 * var(--innfelt-luft));
+    padding: var(--spacing-3) var(--innfelt-luft) var(--spacing-4);
+    background: var(--surface);
   }
   @media (max-width: 860px) {
     .brev {

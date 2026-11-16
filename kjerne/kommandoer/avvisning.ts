@@ -10,7 +10,8 @@
  */
 
 import { forutsetninger, type Handlingsnoekkel } from './forutsetninger.ts';
-import type { Kommando } from './kommando.ts';
+import { erRegistrering, type Kommando } from './kommando.ts';
+import { kalenderdag } from '../format/leser.ts';
 import { nyttelastkontroll, oppgittDatoEtterBrevet, type Svarstandpunkter } from './nyttelast.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Utledning } from '../utledning/utled.ts';
@@ -73,8 +74,9 @@ export function avvisning(
   brevetsDato: string,
   utdypningKreves = true
 ): Avvisning | null {
+  const sendt = erRegistrering(k) ? kalenderdag(k.sendt) : null;
   for (const h of handlingsnoekler(k)) {
-    const brudd = forutsetninger(h, part, u);
+    const brudd = forutsetninger(h, part, u, sendt);
     if (brudd) return brudd;
   }
   return (

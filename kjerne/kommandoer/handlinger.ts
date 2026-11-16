@@ -102,7 +102,7 @@ function handling(h: Handlingsnoekkel, sporTil: Map<string, Spor>): TilbudtHandl
 export function tilbudte(u: Utledning, part: Part): TilbudtHandling[] {
   const sporTil = elementenesSpor(u);
   return kandidater(u)
-    .filter((h) => forutsetninger(h, part, u) === null)
+    .filter((h) => forutsetninger(h, part, u, null) === null)
     .map((h) => handling(h, sporTil));
 }
 

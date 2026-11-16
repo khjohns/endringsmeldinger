@@ -5,11 +5,11 @@
  */
 
 import { HJEMMEL } from '../../format/format.ts';
-import { kalenderdag, standpunkterISvaret } from '../../format/leser.ts';
+import { standpunkterISvaret } from '../../format/leser.ts';
 import { feilI, objekt } from '../../format/skjema.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
-import { datoenDetBleSendt, varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
+import { varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
 import { avvis, varseletSendt, type Avvisning, type Standpunkt } from '../../typer.ts';
 import type { Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
@@ -45,31 +45,12 @@ const utdypningIFristen = (): Avvisning | null =>
 
 /** KA-U76, KA-U79: fristene i kravet mot de tidligere kravversjonene. */
 function fristsperre(k: Extract<Kommando, { type: 'krav' }>, u: Utledning): Avvisning | null {
-  // Et fristkrav sendt før forespørselen etter § 33.6.2 er ikke svar på den (HF-U1, LV-U18 punkt 3;
-  // oppdragsgiver 15.11 i #2011). Til det er bygget, legges kravet til som dokumentasjon.
-  const sendt = k.sendt === undefined ? null : kalenderdag(k.sendt);
-  if (
-    sendt !== null &&
-    u.spor.frist.foresporsler.some(
-      (f) => f.svar === null && sendt < (dagenForespoerselenBleSendt(u, f.foresporsel) ?? '')
-    )
-  )
-    return avvis(
-      'FRISTKRAV_FOER_FORESPOERSELEN',
-      'Fristkravet er sendt før forespørselen etter punkt 33.6.2, som ikke er besvart. Legg det til som dokumentasjon.'
-    );
   const strid = fristeneStrider(
     k.innhold as Parameters<typeof fristeneStrider>[0],
     u.spor.frist.krav,
     false
   );
   return strid ? avvis('FRISTENE', `Kravversjonen ${strid}.`) : null;
-}
-
-/** Dagen forespørselen etter § 33.6.2 ble sendt (OV-U98). */
-function dagenForespoerselenBleSendt(u: Utledning, id: string): string | null {
-  const h = u.journal.find((x) => x.id === u.elementer[id]?.hendelse);
-  return h?.art === 'dokument' ? datoenDetBleSendt(u, { id, dokument: h.dokument.id }) : null;
 }
 
 /** Nyttelastkontrollen i fristen (`NYTTELAST`). */
@@ -141,6 +122,12 @@ export const FORUTSETNINGER_I_FRISTEN = {
       // KA-U1: én begrunnelse, og ikke etter at et krav har svart.
       if (f.svar !== null)
         return avvis('FORESPORSEL_BESVART', 'Forespørselen er allerede besvart.');
+      // OV-U109: kravet totalentreprenøren sendte før forespørselen, er ikke svar på den.
+      if (f.kravFoer !== null)
+        return avvis(
+          'KRAV_FOER_FORESPORSELEN',
+          'Totalentreprenøren hadde sendt et krav om dager før forespørselen.'
+        );
       return fristenErLukket(u, avslaget);
     },
   },

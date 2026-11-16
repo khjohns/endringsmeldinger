@@ -5,6 +5,7 @@
  */
 
 import { dokumenterI } from '../../format/leser.ts';
+import { erPaaberopelse } from '../../frosset/standpunkt.ts';
 import { forlengetFrist } from '../../regler/hverdager.ts';
 import type {
   Bakover,
@@ -17,6 +18,7 @@ import type {
 } from '../../utledning/utled.ts';
 import type { Krav } from '../../typer.ts';
 import {
+  erUbesvart,
   foresporselsrelasjon,
   type ForesporselOgSvar,
   type Foresporselsrelasjon,
@@ -101,10 +103,28 @@ function kontrollerSvaretPaaForesporselen(
     if (
       k.gjelder === undefined &&
       besvart.some(
-        (f) => bakover(k.id, f.foresporsel) && (f.svar === null || !bakover(k.id, f.svar))
+        (f) =>
+          bakover(k.id, f.foresporsel) &&
+          (f.svar === null || !bakover(k.id, f.svar)) &&
+          // OV-U109: kravet sendt før forespørselen, og kravene etter det, svarer ikke på den.
+          (f.kravFoer === null || (f.kravFoer !== k.id && !bakover(k.id, f.kravFoer)))
       )
     )
       ugyldig(k.id, 'fristkravet viser ikke til forespørselen etter punkt 33.6.2 det svarer på');
+}
+
+/**
+ * HF-U1, LV-U18 punkt 3, OV-U109: forespørselen et nytt fristkrav svarer på: den ubesvarte, med
+ * mindre kravet er lagt til og sendt dagen før forespørselen eller tidligere. Et krav sendt samme
+ * dag er ikke sendt før den (OV-U104).
+ */
+export function foresporselenKravetSvarerPaa(
+  u: Utledning,
+  sendt: string | null
+): ForesporselOgSvar | undefined {
+  const f = u.spor.frist.foresporsler.find(erUbesvart);
+  if (!f || sendt === null) return f;
+  return f.sendt === null || sendt >= f.sendt ? f : undefined;
 }
 
 /**
@@ -117,12 +137,7 @@ export function foresporselForFristsvar(u: Utledning): Foresporselsrelasjon | nu
   const f = foresporselsrelasjon(u.spor.frist.foresporsler);
   if (f?.art !== 'begrunnelse') return f;
   for (const d of dokumenterI(u.journal))
-    if (
-      d.avsender === 'BH' &&
-      d.utsagn.some(
-        (x) => x.art === 'innsigelse' && x.gjelder === f.gjelder && x.grunn === undefined
-      )
-    )
+    if (d.avsender === 'BH' && d.utsagn.some((x) => erPaaberopelse(x) && x.gjelder === f.gjelder))
       return f;
   return null;
 }

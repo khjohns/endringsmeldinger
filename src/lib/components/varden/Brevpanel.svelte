@@ -50,7 +50,7 @@
       tittel={brevtittel(brev)}
       avsnitt={brev.avsnitt}
       sendt={brev.registrert}
-      innfelt
+      innfelt={iRaden ? 'rad' : 'rullende'}
     >
       {#snippet fot()}{MOTTATT.sendt(brev.registrert)}{/snippet}
     </Brev>
@@ -89,14 +89,6 @@
     text-transform: uppercase;
     color: var(--ink-3);
   }
-  /* Linja «Sendt herfra …» står fast nederst i rammen, og brevet ruller over den (U-16). */
-  .brevpanel :global(.fot) {
-    position: sticky;
-    bottom: 0;
-    margin: var(--spacing-8) calc(-1 * var(--spacing-6)) calc(-1 * var(--spacing-6));
-    padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
-    background: var(--surface);
-  }
   /* I raden står brevet innfelt i tråden, uten egen ramme, og ruller med siden. */
   .brevpanel.iRaden {
     position: static;
@@ -105,14 +97,5 @@
     background: var(--surface-inset);
     border: 0;
     border-radius: var(--r-innfelt);
-  }
-  .brevpanel.iRaden :global(.brev) {
-    background: transparent;
-  }
-  .brevpanel.iRaden :global(.fot) {
-    position: static;
-    margin: var(--spacing-8) 0 0;
-    padding: var(--spacing-4) 0 0;
-    background: transparent;
   }
 </style>
