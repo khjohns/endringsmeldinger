@@ -114,6 +114,11 @@ const KORT_AAR = new Intl.DateTimeFormat('nb-NO', {
 /** «1. okt. 2026», for datoen i en smal rad. */
 export const kortDatoMedAar = (d: string) => KORT_AAR.format(new Date(d));
 export const klokke = (d: string) => KLOKKE.format(new Date(d)).replace(':', '.');
+/** «kl. 10.15», med hardt mellomrom så klokkeslettet ikke brytes fra «kl.». */
+export const kl = (d: string) => `kl.\u00a0${klokke(d)}`;
+/** «punkt 34.1.2» eller «punktene 34.1.2 og 34.1.3», med hardt mellomrom etter ordet. */
+export const punkt = (...numre: string[]) =>
+  `${numre.length > 1 ? 'punktene' : 'punkt'}\u00a0${liste(numre)}`;
 
 /** Dagens dato i Oslo, ÅÅÅÅ-MM-DD, for `max` i et datofelt og dagene til i dag. */
 export const dagensDato = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });
@@ -241,8 +246,8 @@ export function standpunkttekst(
           ? sier('godkjenner', `at svaret på forespørselen etter punkt 33.6.2 kom i tide`)
           : sier('gjør', `gjeldende at svaret på forespørselen etter punkt 33.6.2 kom for sent`);
       return s.iTide
-        ? sier('godkjenner', `at varselet etter punkt ${s.hjemmel}${forPosten} kom i tide`)
-        : sier('gjør', `gjeldende at varselet etter punkt ${s.hjemmel}${forPosten} kom for sent`) +
+        ? sier('godkjenner', `at varselet etter ${punkt(s.hjemmel)}${forPosten} kom i tide`)
+        : sier('gjør', `gjeldende at varselet etter ${punkt(s.hjemmel)}${forPosten} kom for sent`) +
             (s.begrenset !== undefined
               ? `, og godkjenner ${kroner(s.begrenset)} etter begrensningen`
               : '');
@@ -321,8 +326,8 @@ function iSvaretPaaForholdet(
   const i = brev ? ` i ${brevref(brev)}` : '';
   if (s.art === 'rettidighet')
     return s.iTide
-      ? ['godkjenner', `at varselet etter punkt ${s.hjemmel}${i} kom i tide`]
-      : ['gjør', `gjeldende at varselet etter punkt ${s.hjemmel}${i} kom for sent`];
+      ? ['godkjenner', `at varselet etter ${punkt(s.hjemmel)}${i} kom i tide`]
+      : ['gjør', `gjeldende at varselet etter ${punkt(s.hjemmel)}${i} kom for sent`];
   if (s.art === 'forhold') return I_FORHOLDET[forholdstilfellet(s.resultat, f)];
   return null;
 }
@@ -597,10 +602,9 @@ export const BREVKONTROLL = {
 };
 
 export const MOTTATT = {
-  fra: (n: number, part: Part, d: string) =>
-    `Brev ${n} · ${part} · mottatt ${dato(d)} kl. ${klokke(d)}`,
+  fra: (n: number, part: Part, d: string) => `Brev ${n} · ${part} · mottatt ${dato(d)} ${kl(d)}`,
   sendt: (d: string) =>
-    `Sendt herfra ${dato(d)} kl. ${klokke(d)}. Dette er brevet slik det ble sendt, og det kan ikke endres.`,
+    `Sendt herfra ${dato(d)} ${kl(d)}. Dette er brevet slik det ble sendt, og det kan ikke endres.`,
   sendtMerke: (d: string) => `Sendt ${dato(d)}`,
   dittBrev: 'Brevet ditt er sendt.',
   forkastet: 'Utkastet er forkastet.',
@@ -630,7 +634,7 @@ export const ukjentHandling = (noekkel: string) => `Handlingen ${noekkel}`;
 
 /** Varselet med hjemmelen kjernen gir handlingen (OV-U5, #1703). */
 export const varselet = (type: string, hjemmel: string) =>
-  `${type === 'sende_varsel' ? 'Send varsel' : 'Registrer et varsel som er sendt på annen måte'} etter punkt ${hjemmel}`;
+  `${type === 'sende_varsel' ? 'Send varsel' : 'Registrer et varsel som er sendt på annen måte'} etter ${punkt(hjemmel)}`;
 
 /** Kortet «Det du kan gjøre nå», som i prototypen `grunnlagsoversikt.html`. */
 export const HANDLINGENE = {
@@ -693,7 +697,7 @@ export const STILLING = {
   godta: 'Aksepten kan ikke lages nå.',
   // Etter § 34.3.3 står justeringen subsidiært, ikke beløpet (VS-U4, KA-U64).
   omfatter: (hjemmel: string) =>
-    `Aksepten omfatter også at byggherren gjør gjeldende at varselet etter punkt ${hjemmel} kom for sent, ikke bare ${hjemmel === '34.3.3' ? 'det subsidiære standpunktet til justeringen' : 'det subsidiære beløpet'}.`,
+    `Aksepten omfatter også at byggherren gjør gjeldende at varselet etter ${punkt(hjemmel)} kom for sent, ikke bare ${hjemmel === '34.3.3' ? 'det subsidiære standpunktet til justeringen' : 'det subsidiære beløpet'}.`,
   beloep: (beloep: number, b: Brevref) =>
     `Godtar du, er beløpet dere er enige om for vederlagsjusteringen ${kroner(beloep)}, etter ${brevref(b)} slik det ble sendt.`,
   /**
@@ -914,10 +918,10 @@ export const TRAADEN = {
    * leveringen kom en annen dag.
    */
   levering: (sendt: string, levert: string | null) =>
-    `Sendt kl.\u00a0${klokke(sendt)}. ` +
+    `Sendt ${kl(sendt)}. ` +
     (levert === null
       ? 'Ikke levert til Catenda ennå.'
-      : `Levert til Catenda ${dato(levert) === dato(sendt) ? '' : `${dato(levert)} `}kl.\u00a0${klokke(levert)}.`),
+      : `Levert til Catenda ${dato(levert) === dato(sendt) ? '' : `${dato(levert)} `}${kl(levert)}.`),
   /** Datoen TE oppgir, og avstanden til varselet, uten vurdering av fristen (U-8, MM-U50). */
   klarOver: (d: string, brev: Brevref, dager: number) =>
     `Totalentreprenøren ble klar over forholdet ${dato(d)}, ifølge ${brevref(brev)}.` +
@@ -1056,7 +1060,7 @@ export const SAKEN = {
   lastefeil: 'Saken kunne ikke lastes',
   lastefeilBeklager: 'Beklager, saken ble ikke hentet. Prøv igjen om litt.',
   lastefeilDetaljer: (aarsak: string) => `Teknisk melding: ${aarsak}`,
-  sistForsoekt: (d: string) => `Sist forsøkt kl. ${klokke(d)}.`,
+  sistForsoekt: (d: string) => `Sist forsøkt ${kl(d)}.`,
   proevIgjen: 'Prøv igjen',
   proever: 'Prøver igjen …',
   finnesIkke: 'Saken finnes ikke',
@@ -1185,8 +1189,8 @@ export const NYSAK = {
   oppgiDatoen: 'Oppgi datoen.',
   oppgiEndringsordren: 'Oppgi endringsordren.',
   handling: 'Send påberopelsen til byggherren',
-  detteSender: (forhold: string, punkt: string) =>
-    `Påberopelsen av ${forhold.toLowerCase()} etter punkt ${punkt}, som første brev i en ny sak`,
+  detteSender: (forhold: string, hjemmel: string) =>
+    `Påberopelsen av ${forhold.toLowerCase()} etter ${punkt(hjemmel)}, som første brev i en ny sak`,
   virkning: 'Saken opprettes når brevet sendes, og forholdet står fast etter sendingen.',
   sendTekst: 'Send til byggherren',
   tilbakeTil: 'skjemaet',
@@ -1328,7 +1332,7 @@ export const KRAVSKJEMA = {
     'En opplysning, ikke et tilbud (punkt 30.2). Ser det ut til å bli overskredet, skal du varsle byggherren.',
   pns: 'PNS (valgfritt)',
   pnsHjelp: 'Binder ikke. Byggherren kan sette en annen i endringsordren.',
-  varsellinje: (hjemmel: string, tekst: string) => `Varsel etter punkt ${hjemmel}: ${tekst}`,
+  varsellinje: (hjemmel: string, tekst: string) => `Varsel etter ${punkt(hjemmel)}: ${tekst}`,
   tilVarslene: 'Se under Varslene',
   ferdig: 'Ferdig',
   endre: 'Endre',
@@ -1389,7 +1393,7 @@ export const KRAVSKJEMA = {
   dagerEtterKlarOver: (dager: number, d: string) =>
     `${dager} kalenderdager etter at du ble klar over forholdet ${dato(d)}`,
   utenKravpost: (hjemmel: string) =>
-    `Saken har et varsel etter punkt ${hjemmel} som ingen kravpost viser til.`,
+    `Saken har et varsel etter ${punkt(hjemmel)} som ingen kravpost viser til.`,
   seVarselet: (post: string) => `Se på varselet for ${post}`,
   endreVarselet: (post: string) => `Endre varselet for ${post}`,
   gittFoer: (post: string) => `Varselet for ${post} er gitt før`,
@@ -1403,7 +1407,7 @@ export const KRAVSKJEMA = {
   hvilketVarsel: 'Varselet i saken',
   varseletI: (b: Brevref) => (b.nummer === null && b.omtale ? b.omtale : brevrefStor(b)),
   ingenVarslerISaken: (hjemmel: string) =>
-    `Saken har ikke noe varsel etter punkt ${hjemmel}. Legg til dokumentet i stedet.`,
+    `Saken har ikke noe varsel etter ${punkt(hjemmel)}. Legg til dokumentet i stedet.`,
   dokumenttype: 'Hva legger du til?',
   dokumenttyper: [
     { verdi: 'brev' as const, tekst: 'Brev' },
@@ -1674,14 +1678,14 @@ export const VEDERLAGET = {
   /** Beløpet i et krav ved brevet i tråden, med hjemlene kravet også varsler etter (U-12). */
   kravbeloep: (beloep: number, varsler: readonly string[] = []) =>
     varsler.length
-      ? `${kroner(beloep)}, med varsel etter ${varsler.length > 1 ? 'punktene' : 'punkt'}\u00a0${liste([...varsler])}.`
+      ? `${kroner(beloep)}, med varsel etter ${punkt(...varsler)}.`
       : `${kroner(beloep)}.`,
   /** Innsigelsen et senere lag gjelder hvis ikke fører frem (U-2), med brevets ord. */
   innsigelsen: (i: Innsigelsen) =>
     i.art === 'grunn'
       ? SKJEMA.grunnen(i.grunn, i.brev)
       : i.art === 'varsel'
-        ? `innsigelsen om varselet etter punkt ${i.hjemmel}`
+        ? `innsigelsen om varselet etter ${punkt(i.hjemmel)}`
         : `innsigelsen om ${i.art === 'spesifisering' ? 'spesifiseringen' : 'hindringen'}`,
   /** Vilkåret ved beløpet i et lag: «Hvis innsigelsen … ikke fører frem» (U-2, LV-U4 punkt 4). */
   vilkaar: (innsigelser: string[], heller: boolean) =>
@@ -1691,7 +1695,7 @@ export const VEDERLAGET = {
   /** Et standpunkt et lag bygger på, med brevet med varselet en påberopelse gjelder. */
   standpunkt: (s: Standpunkt, varselbrev: Brevref | null) =>
     s.art === 'rettidighet' && !s.iTide && varselbrev && s.hjemmel !== '34.4'
-      ? `Byggherren gjør gjeldende at varselet etter punkt ${s.hjemmel} i ${brevref(varselbrev)} kom for sent` +
+      ? `Byggherren gjør gjeldende at varselet etter ${punkt(s.hjemmel)} i ${brevref(varselbrev)} kom for sent` +
         (s.begrenset !== undefined
           ? `, og godkjenner ${kroner(s.begrenset)} etter begrensningen`
           : '')
