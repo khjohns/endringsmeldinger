@@ -10,11 +10,19 @@
     for: felt,
     id,
     valgfri = false,
+    underordnet = false,
     children,
-  }: { for: string; id?: string; valgfri?: boolean; children: Snippet } = $props();
+  }: {
+    for: string;
+    id?: string;
+    valgfri?: boolean;
+    /** Et punkt under en felles overskrift, nedtonet (system.md, «Feltene står under hverandre»). */
+    underordnet?: boolean;
+    children: Snippet;
+  } = $props();
 </script>
 
-<label for={felt} {id} class:valgfri
+<label for={felt} {id} class:valgfri class:underordnet
   >{@render children()}{#if valgfri}<Valgfri />{/if}</label
 >
 
@@ -23,6 +31,10 @@
     font-size: 16px;
     font-weight: 600;
     color: var(--ink);
+  }
+  label.underordnet {
+    font-weight: 400;
+    color: var(--ink-2);
   }
   label.valgfri {
     display: flex;
