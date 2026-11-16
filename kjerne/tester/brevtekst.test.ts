@@ -2710,6 +2710,8 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
           svar: [svaret],
           sendt: rad.tidsstempel.slice(0, 10),
           korrespondansetype: 'brev',
+          sendemaate: 'post',
+          beskrivelse: 'Svaret sendt per post.',
           dokumentasjon: [randomUUID()],
         });
         return s.u().sendtSammeDag.filter((x) => x.med === innsigelse);
