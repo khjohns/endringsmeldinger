@@ -117,7 +117,6 @@ export const PART: Record<string, Part> = {
   aksept: 'TE',
   trekk: 'TE',
   varsel: 'TE',
-  ingen_krav: 'TE',
   passivitet: 'TE',
   korrigering: 'TE',
   brev: 'BH',
@@ -463,15 +462,10 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         hva: h.hva as 'sendt' | 'mottatt',
       };
     }
-    case 'ingen_krav':
-      return { type: 'ingen_krav', spor: h.spor as 'vederlag' };
     case 'innsigelse':
     case 'protest':
     case 'passivitet':
-    case 'avklaring':
       return { type: h.handling, gjelder: navn.id(h.gjelder as string) };
-    case 'merking':
-      return { type: 'merking', gjelder: navn.id(h.gjelder as string), spor: h.sporene as Spor[] };
     case 'begrunnelse':
       // KA-U35: med `sendt` er begrunnelsen registrert. Feltene går videre, så kjernen avviser formen.
       return {
@@ -661,7 +655,7 @@ export function radFor(
     data = { svar: (Array.isArray(h.svar) ? (h.svar as Handling[]) : [h]).map(byggSvar) };
   }
   // Registrert korrespondanse: sendt utenfor appen, om § 31.3 er oppfylt, og en
-  // merking etter KA-U20 med sporene den gjelder.
+  // merking med sporene den gjelder, som leseren ikke forstår (KA-U45).
   if (typeof h.sendt === 'string')
     data.opplysninger = [
       { id: navn.nyId(), hva: 'sendt', dato: h.sendt },

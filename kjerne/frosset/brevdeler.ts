@@ -295,8 +295,6 @@ export function kravpostenI(krav: Krav, gjelder: string): Kravpost {
 
 /** Brevteksten i ett spor, som `frosset/brevtekst.ts` slår opp gjennom `BREVTEKST` (#1783). */
 export interface Sporsbrevtekst {
-  /** Sporet i opplysningen og avklaringen om et brev med innhold appen ikke uttrykker. */
-  navn: string;
   /** Det et svar eller en aksept gjelder, med kontraktens ord (LV-U4 punkt 4 og 6). */
   svaretGjelder: string;
   /** Kravet (LV-U4 punkt 2–3) i punkter. */
@@ -362,8 +360,6 @@ export interface Kravsporsbrevtekst extends Sporsbrevtekst {
   enigI: string;
   /** Det som identifiserer kravet i trekket (KA-U22). */
   trukket(krav: Krav): string;
-  /** At TE ikke krever noe i sporet (KA-U22, KA-U25). */
-  ingenKrav(sak: string): string;
 }
 
 /** Standpunktet i hver art. */

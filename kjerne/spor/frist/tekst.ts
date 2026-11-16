@@ -168,7 +168,6 @@ function foresporselenTil(gjelder: string, j: Journalen): string {
 }
 
 export const BREVTEKSTEN_I_FRISTEN = {
-  navn: 'fristen',
   svaretGjelder: `kravet om ${KRAVET_OM}`,
   krav: fristkravtekst,
   // VS-U29: også påberopelsen etter § 33.6.2 mot begrunnelsen.
@@ -196,8 +195,6 @@ export const BREVTEKSTEN_I_FRISTEN = {
   rettidighetUtenVarsel: { '33.6.2': foresporselenTil },
   enigI: 'antallet dager',
   trukket: fristeneMedDager,
-  ingenKrav: (sak) =>
-    `Totalentreprenøren krever ikke fristforlengelse som følge av forholdet i ${sak}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag.`,
 } satisfies Kravsporsbrevtekst;
 
 /** Standpunktene bare fristen har, som en setning med liten forbokstav (LV-U4 punkt 5). */

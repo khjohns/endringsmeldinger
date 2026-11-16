@@ -191,7 +191,7 @@ export type Kommando = (
   /** VS-U15, OV-U5: TE sender et eget varsel fra appen, uten dager eller beløp. */
   | ({ type: 'send_varsel' } & Varselet)
   | { type: 'bestridelse'; gjelder: string; hva: Opplysningsslag }
-  /** KA-U12, KA-U15, KA-U17: TE krever ikke noe i et spor som ikke er sendt. Ingen fritekst (KA-U22). */
+  /** KA-U12: TE krever ikke noe i et spor som ikke er sendt. Avvises etter OV-U7 og OV-U99 punkt 2. */
   | { type: 'ingen_krav'; spor: Kravspor }
   /**
    * § 5 tredje ledd (VS-U1, VS-U9, VS-U14): mot motpartens varsel, krav eller svar. Mot TEs
@@ -210,9 +210,6 @@ export type Kommando = (
   | { type: 'protest'; gjelder: string }
   /** VS-U12: TE påberoper byggherrens passivitet etter § 32.3 annet ledd. */
   | { type: 'passivitet'; gjelder: string }
-  /** KA-U20: merkingen av et registrert brev og avklaringen av den. Avvises etter OV-U7. */
-  | { type: 'merking'; gjelder: string; spor: Spor[] }
-  | { type: 'avklaring'; gjelder: string }
   /**
    * Byggherrens senere begrunnelse av et svar. Fra appen er teksten utdypningen
    * (KA-U34). Registrert har den datoen brevet ble sendt og brevet som vedlegg, uten
@@ -390,11 +387,6 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
   ),
   protest: henvisning('protest'),
   passivitet: henvisning('passivitet'),
-  merking: objekt(
-    { type: { const: 'merking' }, gjelder: ID, spor: liste({ enum: [...SPORENE] }), ...BREVTEKST },
-    ['type', 'gjelder', 'spor']
-  ),
-  avklaring: henvisning('avklaring'),
   begrunnelse: objekt(
     {
       type: { const: 'begrunnelse' },
@@ -423,6 +415,9 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
     ]
   ),
 };
+
+/** Kommandotypene kjernen tar imot, med et skjema for hver. */
+export const KOMMANDOTYPER = Object.keys(SKJEMA) as Kommando['type'][];
 
 export type Innhold = Record<string, unknown>;
 

@@ -187,9 +187,7 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
       'venter_paa_svar',
       'paalegg_frafalt',
       'enige',
-      'svar_ikke_godtatt',
-      'krav_sendt',
-      'ingen_krav',
+      'byggherren_har_svart',
       'varslet',
     ]);
   });
@@ -203,12 +201,8 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
     });
   });
 
-  it('et registrert varsel uten krav gir «Varslet», og «Ingen krav» står for seg', () => {
+  it('et registrert varsel uten krav gir «Varslet»', () => {
     expect(betegnelser(paaberopelse, varselIFristen).frist).toBe('varslet');
-    expect(
-      betegnelser(paaberopelse, (s) => s.send('TE', { type: 'ingen_krav', spor: 'vederlag' }))
-        .vederlag
-    ).toBe('ingen_krav');
   });
 
   it('en ubesvart forespørsel etter § 33.6.2 går foran varselet, og fristkravet som svarer, venter på svar', () => {
@@ -226,10 +220,10 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
     expect(b.vederlag).not.toBe('spesifisert_krav_etterspurt');
   });
 
-  it('et svar TE ikke har godtatt, gir «Svaret er ikke godtatt»; et svar som godkjenner kravet fullt ut, gir «Enige» ved sammenfall', () => {
+  it('et svar TE ikke har godtatt, gir «Byggherren har svart»; et svar som godkjenner kravet fullt ut, gir «Enige» ved sammenfall (OV-U99 punkt 6)', () => {
     expect(betegnelser(forloepA)).toEqual({
-      forhold: 'svar_ikke_godtatt',
-      vederlag: 'svar_ikke_godtatt',
+      forhold: 'byggherren_har_svart',
+      vederlag: 'byggherren_har_svart',
       frist: 'enige',
     });
   });
@@ -238,15 +232,32 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
     expect(betegnelser(forloepA, aksept('vederlag')).vederlag).toBe('enige');
   });
 
-  it('når TE godtar avslaget på forholdet, er forholdet «Enige», et spor uten enighet «Krav sendt» og et spor med enighet fortsatt «Enige»', () => {
+  it('når TE godtar avslaget på forholdet, er forholdet «Enige», et besvart spor uten enighet fortsatt «Byggherren har svart» og et spor med enighet fortsatt «Enige» (OV-U99 punkt 6, MM-U31, svar S2 15.11 i #2017)', () => {
     expect(betegnelser(forloepA, aksept('forhold'))).toEqual({
       forhold: 'enige',
-      vederlag: 'krav_sendt',
+      vederlag: 'byggherren_har_svart',
       frist: 'enige',
     });
   });
 
-  it('en enighet i sporet går foran «Krav sendt» når avslaget på forholdet godtas etterpå', () => {
+  it('et krav uten svar har ingen betegnelse når avslaget på forholdet er godtatt, også med et varsel i sporet (MM-U30, MM-U31, oppdragsgiver 16.11 i #2017)', () => {
+    const avslag: Steg = (sak) =>
+      sak.send('BH', {
+        type: 'brev',
+        svar: [sak.svar('forhold', { resultat: 'avslaatt', grunnlag_varslet_i_tide: true })],
+      });
+    expect(betegnelser(krav, avslag).vederlag, 'kontroll').toBe('venter_paa_svar');
+    expect(betegnelser(krav, avslag, aksept('forhold'))).toEqual({
+      forhold: 'enige',
+      vederlag: null,
+      frist: null,
+    });
+    expect(
+      betegnelser(paaberopelse, varselIFristen, fristkrav, avslag, aksept('forhold')).frist
+    ).toBeNull();
+  });
+
+  it('en enighet i sporet går foran «Byggherren har svart» når avslaget på forholdet godtas etterpå', () => {
     expect(betegnelser(forloepA, aksept('vederlag'), aksept('forhold')).vederlag).toBe('enige');
   });
 
@@ -275,18 +286,15 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
     });
   });
 
-  it('et trukket forhold gir «Trukket» også i et spor med bare varsel eller «ingen krav» (GR-U25)', () => {
-    expect(
-      betegnelser(
-        paaberopelse,
-        varselIFristen,
-        (s) => s.send('TE', { type: 'ingen_krav', spor: 'vederlag' }),
-        trekk('forhold')
-      )
-    ).toEqual({ forhold: 'trukket', vederlag: 'trukket', frist: 'trukket' });
+  it('et trukket forhold gir «Trukket» også i et spor med bare varsel (GR-U25)', () => {
+    expect(betegnelser(paaberopelse, varselIFristen, trekk('forhold'))).toEqual({
+      forhold: 'trukket',
+      vederlag: null,
+      frist: 'trukket',
+    });
   });
 
-  it('et trukket krav i en sak der avslaget på forholdet er godtatt, er «Trukket», ikke «Krav sendt» (MM-U30, #1140)', () => {
+  it('et trukket krav i en sak der avslaget på forholdet er godtatt, er «Trukket», ikke «Byggherren har svart» (MM-U30, #1140)', () => {
     expect(betegnelser(forloepA, trekk('vederlag'), aksept('forhold')).vederlag).toBe('trukket');
   });
 

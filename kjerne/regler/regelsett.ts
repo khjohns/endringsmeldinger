@@ -12,7 +12,7 @@ import { gjelderVarslingspliktenForVederlag } from './vederlag.ts';
  * beslutningsgrunnlaget fryser (B-13, `.claude/rules/kjerne.md`); regelversjonsvakten i CI
  * krever det.
  */
-export const REGELVERSJON = 102;
+export const REGELVERSJON = 103;
 
 export interface Regelsett {
   versjon: number;

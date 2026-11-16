@@ -236,7 +236,6 @@ export function paaberopelsenAvForholdet(paaberopelse: Krav): string {
 }
 
 export const BREVTEKSTEN_I_FORHOLDET = {
-  navn: 'grunnlaget',
   svaretGjelder: 'grunnlaget',
   krav: (k, t, regler) => [utenOverskrift(forholdstekst(k, t, regler))],
   ogsaaInnsigelserEtter: [],

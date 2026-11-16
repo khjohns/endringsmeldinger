@@ -287,7 +287,7 @@ export async function lesFristgrunnlaget(
 }
 
 function kravverdi(sp: Sporutledning, verdi: (krav: Krav) => number): number | null {
-  if (sp.trukket || sp.ingenKrav) return 0;
+  if (sp.trukket) return 0;
   if (!sp.gjeldendeKrav) return null;
   return verdi(sp.gjeldendeKrav);
 }

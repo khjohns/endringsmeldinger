@@ -3077,89 +3077,6 @@
       ]
     },
     {
-      "id": "F-MM-IK1",
-      "rader": ["KA-29"],
-      "start": "godkjent_forhold",
-      "forslag": "KA-U12: «ingen krav» lukker vederlaget, og saken kan inngå i en endringsordre (MM-U34 punkt 20)",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        { "handling": "rad", "art": "ingen_krav", "spor": "vederlag", "part": "TE", "navn": "D3" },
-        { "handling": "krav", "spor": "frist", "dager": 20, "navn": "K-f1" },
-        {
-          "handling": "brev",
-          "navn": "D5",
-          "svar": [{ "spor": "frist", "navn": "S-f1", "varsel_i_tide": true, "spesifisering_i_tide": true, "hindring": true }]
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 0,
-          "rolle": "kontroll",
-          "kilde": ["KA-U12"],
-          "prov": { "handling": "krav", "spor": "vederlag", "belop": 100000 },
-          "forventet": { "avvist": false }
-        },
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": ["KA-U12", "KA-U11"],
-          "forventet": {
-            "forstaatt": true,
-            "kravene_avgjort": false,
-            "handlinger.TE": { "inneholder": ["krav:frist"], "mangler": ["krav:vederlag"] }
-          }
-        },
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": ["KA-U12"],
-          "prov": { "handling": "krav", "spor": "vederlag", "belop": 100000 },
-          "forventet": { "avvist": true, "regel": "INGEN_KRAV_I_SPORET" }
-        },
-        {
-          "etter": 3,
-          "rolle": "mal",
-          "kilde": ["KA-U12", "KA-U11", "MM-U34"],
-          "forventet": {
-            "kravene_avgjort": true,
-            "kan_inngaa_i_eo": true,
-            "visning.status": "alle_krav_avgjort",
-            "visning.etiketter.vederlag": { "inneholder": ["ingen_krav"] }
-          }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-IK2",
-      "rader": ["KA-29"],
-      "start": "krav_irreg",
-      "forslag": "KA-U12 og 4.2 i designnotatet for #273: «ingen krav» i et spor som har en kravversjon",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [{ "handling": "rad", "art": "ingen_krav", "spor": "vederlag", "part": "TE", "navn": "D4" }],
-      "kontroller": [
-        {
-          "etter": 0,
-          "rolle": "kontroll",
-          "kilde": ["MM-U2"],
-          "prov": { "handling": "trekk", "spor": "vederlag" },
-          "forventet": { "avvist": false }
-        },
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": ["KA-U12", "MM-U2", "OV-U4"],
-          "forventet": { "forstaatt": false, "visning.journal.D4": "ikke_tolket", "handlinger.TE": ["registrere_brev"] }
-        },
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": ["MM-U2"],
-          "prov": { "handling": "trekk", "spor": "vederlag" },
-          "forventet": { "avvist": true, "regel": "SAK_IKKE_FORSTAATT" }
-        }
-      ]
-    },
-    {
       "id": "F-MM-S342",
       "rader": [
         "GR-30"
@@ -3268,172 +3185,6 @@
           ],
           "forventet": {
             "subsidiaer_aarsaker.vederlag": []
-          }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-IK3",
-      "rader": [
-        "KA-31"
-      ],
-      "start": "godkjent_forhold",
-      "forslag": "KA-U12: «ingen krav» fra appen lukker sporet, og avvises i et spor med krav eller når det alt er sagt",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "ingen_krav",
-          "spor": "vederlag",
-          "navn": "D3"
-        },
-        {
-          "handling": "krav",
-          "spor": "frist",
-          "dager": 20,
-          "navn": "K-f1"
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 0,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U12"
-          ],
-          "forventet": {
-            "handlinger.TE": {
-              "inneholder": [
-                "ingen_krav:vederlag",
-                "ingen_krav:frist"
-              ]
-            }
-          }
-        },
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U12"
-          ],
-          "forventet": {
-            "forstaatt": true,
-            "visning.etiketter.vederlag": {
-              "inneholder": [
-                "ingen_krav"
-              ]
-            },
-            "handlinger.TE": {
-              "mangler": [
-                "krav:vederlag",
-                "ingen_krav:vederlag"
-              ]
-            }
-          }
-        },
-        {
-          "etter": 1,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U12"
-          ],
-          "forventet": {
-            "avvist": true,
-            "regel": "INGEN_KRAV_I_SPORET"
-          },
-          "prov": {
-            "handling": "ingen_krav",
-            "spor": "vederlag"
-          }
-        },
-        {
-          "etter": 2,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U12",
-            "KA-U6"
-          ],
-          "forventet": {
-            "avvist": true,
-            "regel": "KRAV_I_SPORET"
-          },
-          "prov": {
-            "handling": "ingen_krav",
-            "spor": "frist"
-          }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-IK4",
-      "rader": [
-        "KA-31"
-      ],
-      "start": null,
-      "forslag": "KA-U15: «ingen krav» før grunnlaget er sendt avvises, og godtas etter et varsel etter § 33.4",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "krav",
-          "spor": "forhold",
-          "underkategori": "endringsordre",
-          "navn": "K-g1"
-        },
-        {
-          "handling": "varsel",
-          "spor": "frist",
-          "sendt": "2026-09-02",
-          "navn": "D2"
-        },
-        {
-          "handling": "ingen_krav",
-          "spor": "frist",
-          "navn": "D3"
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 0,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U15"
-          ],
-          "forventet": {
-            "avvist": true,
-            "regel": "PAABEROPELSE_IKKE_SENDT"
-          },
-          "prov": {
-            "handling": "ingen_krav",
-            "spor": "vederlag"
-          }
-        },
-        {
-          "etter": 1,
-          "rolle": "kontroll",
-          "kilde": [
-            "KA-U15"
-          ],
-          "forventet": {
-            "avvist": false
-          },
-          "prov": {
-            "handling": "ingen_krav",
-            "spor": "vederlag"
-          }
-        },
-        {
-          "etter": 3,
-          "rolle": "mal",
-          "kilde": [
-            "KA-U15",
-            "KA-U12"
-          ],
-          "forventet": {
-            "forstaatt": true,
-            "visning.etiketter.frist": {
-              "inneholder": [
-                "ingen_krav"
-              ]
-            }
           }
         }
       ]
@@ -3691,18 +3442,27 @@
         "VS-05"
       ],
       "start": "godkjent_forhold",
-      "forslag": "MM-U34 punkt 13: når kravene er avgjort og grunnlaget er godkjent ved sammenfall, godtas en innsigelse mot grunnlagskravet og mot svaret, også om den registrerte enigheten omfatter dem",
+      "forslag": "MM-U34 punkt 13: når kravene er avgjort og grunnlaget er godkjent ved sammenfall, godtas en innsigelse mot grunnlagskravet og mot svaret, også om den registrerte enigheten omfatter dem. Kravene er avgjort ved enighet om fristkravet (OV-U3)",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
-          "handling": "ingen_krav",
-          "spor": "vederlag",
-          "navn": "D3"
+          "handling": "krav",
+          "spor": "frist",
+          "dager": 20,
+          "navn": "K-f1"
         },
         {
-          "handling": "ingen_krav",
-          "spor": "frist",
-          "navn": "D4"
+          "handling": "brev",
+          "navn": "D4",
+          "svar": [
+            {
+              "spor": "frist",
+              "navn": "S-f1",
+              "varsel_i_tide": true,
+              "spesifisering_i_tide": true,
+              "hindring": true
+            }
+          ]
         },
         {
           "handling": "innsigelse",
@@ -3979,11 +3739,6 @@
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
-          "handling": "ingen_krav",
-          "spor": "vederlag",
-          "navn": "D3"
-        },
-        {
           "handling": "krav",
           "spor": "frist",
           "dager": 20,
@@ -4018,7 +3773,7 @@
       ],
       "kontroller": [
         {
-          "etter": 3,
+          "etter": 2,
           "rolle": "mal",
           "kilde": [
             "KA-U11"
@@ -4028,7 +3783,7 @@
           }
         },
         {
-          "etter": 4,
+          "etter": 3,
           "rolle": "mal",
           "kilde": [
             "MM-U34",
@@ -4711,92 +4466,6 @@
       ]
     },
     {
-      "id": "F-MM-IK5",
-      "rader": [
-        "KA-37"
-      ],
-      "start": "godkjent_forhold",
-      "forslag": "OV-U80 (som endrer OV-U4, #2011), KA-U12 og MM-U43 punkt 9: TEs kravversjon lagt til etter «ingen krav» strider mot det og får ingen virkning, som en versjon fra løsningen",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "ingen_krav",
-          "spor": "vederlag",
-          "navn": "D3"
-        },
-        {
-          "handling": "rad",
-          "krav": true,
-          "spor": "vederlag",
-          "belop": 90000,
-          "part": "TE",
-          "navn": "K-v1",
-          "sendt": "2026-10-01"
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 2,
-          "rolle": "mal",
-          "kilde": [
-            "OV-U80",
-            "KA-U12",
-            "MM-U43"
-          ],
-          "forventet": {
-            "forstaatt": true,
-            "uten_virkning": [
-              "K-v1"
-            ],
-            "gjeldende_krav.vederlag": null,
-            "visning.etiketter.vederlag": {
-              "inneholder": [
-                "ingen_krav"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "id": "F-MM-IK5b",
-      "rader": [
-        "KA-35"
-      ],
-      "start": "godkjent_forhold",
-      "forslag": "MM-U43 punkt 6 og KA-U12: en kravversjon etter «ingen krav» som ikke er registrert korrespondanse, gjør saken ikke forstått",
-      "forventningsgrunnlag": "avklart_tolkning",
-      "steg": [
-        {
-          "handling": "ingen_krav",
-          "spor": "vederlag",
-          "navn": "D3"
-        },
-        {
-          "handling": "rad",
-          "krav": true,
-          "spor": "vederlag",
-          "belop": 90000,
-          "part": "TE",
-          "navn": "K-v1"
-        }
-      ],
-      "kontroller": [
-        {
-          "etter": 2,
-          "rolle": "mal",
-          "kilde": [
-            "MM-U43",
-            "KA-U12"
-          ],
-          "forventet": {
-            "forstaatt": false,
-            "visning.journal.K-v1": "ikke_tolket"
-          }
-        }
-      ]
-    },
-    {
       "id": "F-MM-IK6",
       "rader": [
         "KA-37"
@@ -5139,11 +4808,6 @@
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
-          "handling": "ingen_krav",
-          "spor": "vederlag",
-          "navn": "D3"
-        },
-        {
           "handling": "krav",
           "spor": "frist",
           "dager": 20,
@@ -5173,7 +4837,7 @@
       ],
       "kontroller": [
         {
-          "etter": 3,
+          "etter": 2,
           "rolle": "mal",
           "kilde": [
             "KA-U11"
@@ -5183,7 +4847,7 @@
           }
         },
         {
-          "etter": 4,
+          "etter": 3,
           "rolle": "mal",
           "kilde": [
             "OV-U4",
@@ -5694,8 +5358,7 @@
             },
             "handlinger.TE": {
               "inneholder": [
-                "krav:frist",
-                "ingen_krav:frist"
+                "krav:frist"
               ],
               "mangler": [
                 "varsle:frist",
@@ -6040,7 +5703,7 @@
         "VS-06"
       ],
       "start": null,
-      "forslag": "VS-U15: varselet fra appen har de samme forutsetningene som registreringen: grunnlaget er sendt, og sporet er ikke trukket eller lukket med «ingen krav»",
+      "forslag": "VS-U15: varselet fra appen har den samme forutsetningen som registreringen: grunnlaget er sendt",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [
         {
@@ -6053,16 +5716,6 @@
           "spor": "forhold",
           "underkategori": "samordning",
           "navn": "K-g1"
-        },
-        {
-          "handling": "ingen_krav",
-          "spor": "frist",
-          "navn": "D3"
-        },
-        {
-          "handling": "varsel",
-          "spor": "frist",
-          "navn": "D4"
         }
       ],
       "kontroller": [
@@ -6091,20 +5744,6 @@
           },
           "forventet": {
             "avvist": false
-          }
-        },
-        {
-          "etter": 4,
-          "rolle": "mal",
-          "kilde": [
-            "VS-U15",
-            "KA-U12"
-          ],
-          "forventet": {
-            "avvist": true,
-            "regel": "INGEN_KRAV_I_SPORET",
-            "nye_hendelser": 0,
-            "varsel.frist": null
           }
         }
       ]

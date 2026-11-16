@@ -687,7 +687,7 @@ function varselhjemmel(id: string, j: Journalen): Varselhjemmel {
   throw new KanIkkeUttrykkes(`${id} er ikke et varsel`);
 }
 
-/** LV-U4 punkt 3 og 6–13, og VS-U15, KA-U22, KA-U25 og KA-U34 (opphevet av KA-U46) ordrett. */
+/** LV-U4 punkt 3 og 6–13, og VS-U15, KA-U22 og KA-U34 (opphevet av KA-U46) ordrett. */
 function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
   const part = PART[nytt.avsender];
   switch (u.art) {
@@ -724,9 +724,6 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       const verdi = sporet.trukket(krav);
       return `Totalentreprenøren trekker kravet om ${sporet.kravetOm} i ${sak}, fremsatt i ${j.brevet(krav.dokument)} (${verdi}). Trekket er avkall på dette kravet, også det byggherren har godkjent.`;
     }
-    case 'ingen_krav':
-      // KA-U22 og KA-U25, ordrett med saken satt inn.
-      return brevtekstI(u.spor).ingenKrav(sak);
     case 'innsigelse':
       // VS-U29: standpunktet om at begrunnelsen ikke er et svar etter § 33.6.2 annet ledd, uten
       // henvisningen til § 5 (arbeidsvalget 21.10 i #1095).
@@ -749,12 +746,6 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       const e = j.element(u.gjelder);
       if (e.art !== 'opplysning') throw new KanIkkeUttrykkes(`${u.gjelder} er ikke en opplysning`);
       return `${part} bestrider opplysningen i ${j.brevet(e.opplysning.dokument)} om at ${opplysningen(e.opplysning, j)}.`;
-    }
-    case 'avklaring': {
-      const e = j.element(u.gjelder);
-      if (e.art !== 'opplysning' || e.opplysning.hva !== 'kan_ikke_uttrykkes')
-        throw new KanIkkeUttrykkes(`${u.gjelder} er ikke en merking`);
-      return `${part} bekrefter at standpunktene i ${j.brevet(e.opplysning.brev)} om ${liste(e.opplysning.spor.map((s) => brevtekstI(s).navn))} gjelder uten forbehold fra og med dette brevet.`;
     }
     case 'korrigering': {
       // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55), med partene skrevet fullt
@@ -786,8 +777,6 @@ function opplysningen(o: Opplysning, j: Journalen): string {
       return `${o.gjelder ? `varselet etter NS 8407 punkt ${varselhjemmel(o.gjelder, j)} i brevet` : 'brevet'} ble ${o.hva} ${norskDato(o.dato)}`;
     case 'endringsordre':
       return `${o.brev === o.dokument ? 'brevet' : j.brevet(o.brev)} ${o.oppfylt ? 'var' : 'ikke var'} en endringsordre etter NS 8407 punkt 31.3`;
-    case 'kan_ikke_uttrykkes':
-      return `${o.brev === o.dokument ? 'brevet' : j.brevet(o.brev)} har et forbehold eller annet innhold som ikke er uttrykt i appen`;
   }
 }
 
@@ -795,11 +784,7 @@ function opplysningen(o: Opplysning, j: Journalen): string {
 function opplysningstekst(o: Opplysning, avsender: Part, j: Journalen): string {
   if (erDato(o) || o.brev === o.dokument)
     throw new KanIkkeUttrykkes(`opplysningen ${o.hva} i et brev fra appen har ingen brevtekst`);
-  const sporene =
-    o.hva === 'kan_ikke_uttrykkes'
-      ? `, og som gjelder ${liste(o.spor.map((s) => brevtekstI(s).navn))}`
-      : '';
-  return `${PART[avsender]} opplyser at ${opplysningen(o, j)}${sporene}.`;
+  return `${PART[avsender]} opplyser at ${opplysningen(o, j)}.`;
 }
 
 // ---------- Brevhodet (LV-U23, LV-U27) ----------

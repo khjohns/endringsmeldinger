@@ -753,9 +753,7 @@ export const BETEGNELSE: Record<Betegnelse, string> = {
   venter_paa_svar: 'Svar ikke registrert',
   paalegg_frafalt: 'Byggherren har frafalt pålegget',
   enige: 'Enige',
-  svar_ikke_godtatt: 'Svaret er ikke godtatt',
-  krav_sendt: 'Krav sendt',
-  ingen_krav: 'Ingen krav',
+  byggherren_har_svart: 'Byggherren har svart',
   varslet: 'Varslet',
 };
 
