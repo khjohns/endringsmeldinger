@@ -25,7 +25,6 @@
     sendt,
     fot,
     innfelt = false,
-    ramme,
     hode = true,
     dempet = false,
   }: {
@@ -45,13 +44,12 @@
     /** Tidspunktet brevet ble sendt. Bare et sendt brev har stempelet. */
     sendt?: string;
     fot?: Snippet;
-    /** Brevet står i en ramme som har kanten, som ved lesing ved siden av. */
-    innfelt?: boolean;
     /**
-     * Brevet står innfelt i en ramme som ruller, med fotlinja fast nederst mens brevet ruller over
-     * den (`rullende`, U-16 i BF-44), eller innfelt i brevtråden uten egen bakgrunn (`rad`).
+     * Brevet står i en ramme som har kanten, som ved lesing ved siden av. `rullende` er en ramme
+     * som ruller, med bakgrunnen `--surface`; fotlinja står fast nederst mens brevet ruller over
+     * den (U-16 i BF-44). `rad` står i brevtråden uten egen bakgrunn.
      */
-    ramme?: 'rullende' | 'rad';
+    innfelt?: boolean | 'rullende' | 'rad';
     /**
      * Partene og referansene øverst. Uten dem står bare tittelen og teksten, der raden over
      * brevet allerede sier hvem som sendte det og når (lesepanelet i BF-10).
@@ -68,9 +66,9 @@
 
 <article
   class="brev"
-  class:innfelt={innfelt || ramme !== undefined}
-  class:rullende={ramme === 'rullende'}
-  class:rad={ramme === 'rad'}
+  class:innfelt={innfelt !== false}
+  class:rullende={innfelt === 'rullende'}
+  class:rad={innfelt === 'rad'}
   class:dempet
   class:bh={avsender === 'BH'}
   aria-label={tittel}
@@ -178,7 +176,8 @@
     font-size: 11pt;
   }
   .brev.innfelt {
-    padding: var(--spacing-6);
+    --innfelt-luft: var(--spacing-6);
+    padding: var(--innfelt-luft);
     border: 0;
     border-radius: 0;
   }
@@ -361,8 +360,8 @@
   .rullende .fot {
     position: sticky;
     bottom: 0;
-    margin: var(--spacing-8) calc(-1 * var(--spacing-6)) calc(-1 * var(--spacing-6));
-    padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
+    margin: var(--spacing-8) calc(-1 * var(--innfelt-luft)) calc(-1 * var(--innfelt-luft));
+    padding: var(--spacing-3) var(--innfelt-luft) var(--spacing-4);
     background: var(--surface);
   }
   @media (max-width: 860px) {
