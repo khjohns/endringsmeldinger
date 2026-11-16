@@ -16,6 +16,7 @@
     brevITraaden,
     brevMedUtsagn,
     brevene,
+    eldreKravISporet,
     klarOverForholdet,
     oppfoelgingene,
     type Brevet,
@@ -56,9 +57,9 @@
 {#snippet oeverst(b: Brevet)}
   {@const frister = dagene.get(b.id)}
   {#if frister}
-    <p class="dagene">{FRISTEN.kravdagene(frister)}</p>
+    <p class="kravtall">{FRISTEN.kravdagene(frister)}</p>
   {:else if varsel?.dokument === b.id && b.art !== 'registrert'}
-    <p class="dagene">{FRISTEN.varselUtenDager}</p>
+    <p class="kravtall">{FRISTEN.varselUtenDager}</p>
   {/if}
 {/snippet}
 
@@ -78,6 +79,7 @@
     brev={brevITraaden(alle, 'frist')}
     spor="frist"
     fulgtOpp={oppfoelgingene(u, alle)}
+    eldreKrav={eldreKravISporet(u, 'frist')}
     dokumentasjon={u.ikkeVurderteBrev}
     venterPaaSvar={betegnelser.frist === 'venter_paa_svar'}
     {oeverst}
@@ -106,12 +108,6 @@
 {/if}
 
 <style>
-  .dagene {
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--ink);
-    font-variant-numeric: tabular-nums;
-  }
   .ikke-angitt {
     font-size: 14px;
     color: var(--ink-2);

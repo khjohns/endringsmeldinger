@@ -170,6 +170,10 @@ export function oppfoelgingene(u: Utledning, alle: Brevet[]): Map<string, Brevre
   return ut;
 }
 
+/** Brevene med et krav et senere krav i sporet følger opp (U-5 i BF-44). */
+export const eldreKravISporet = (u: Utledning, spor: Spor): Set<string> =>
+  new Set(u.spor[spor].krav.slice(0, -1).map((k) => k.dokument));
+
 /** Det en tekst trenger for å vise til et brev, med eller uten nummer. */
 export type Brevref = Pick<Brevet, 'id' | 'nummer' | 'registrert' | 'omtale' | 'art'>;
 
