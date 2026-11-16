@@ -12,6 +12,7 @@
   import type { Utledning } from '$kjerne/utledning/utled';
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
+  import Feltetikett from './Feltetikett.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
@@ -175,7 +176,7 @@
         </div>
 
         <div class="felt">
-          <label for={id('dato')}>{KORRIGERING.nyDato(opplysningen.hva)}</label>
+          <Feltetikett for={id('dato')}>{KORRIGERING.nyDato(opplysningen.hva)}</Feltetikett>
           <p class="hjelp" id={id('dato-hjelp')}>{KORRIGERING.datoHjelp}</p>
           {#if visDatofeil}<p class="feil" id={id('dato-feil')}>{visDatofeil}</p>{/if}
           <input
@@ -190,7 +191,7 @@
         </div>
 
         <div class="felt">
-          <label for={id('forklaring')}>{KORRIGERING.forklaring}</label>
+          <Feltetikett for={id('forklaring')}>{KORRIGERING.forklaring}</Feltetikett>
           <p class="hjelp" id={id('forklaring-hjelp')}>{KORRIGERING.forklaringHjelp}</p>
           <textarea
             id={id('forklaring')}
@@ -279,10 +280,6 @@
   .felt {
     display: grid;
     gap: var(--spacing-2);
-  }
-  label {
-    font-weight: 600;
-    color: var(--ink);
   }
   .hjelp {
     margin: 0;

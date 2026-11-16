@@ -16,6 +16,7 @@
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import Feltetikett from './Feltetikett.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
   import Knapp from './Knapp.svelte';
   import Postliste from './Postliste.svelte';
@@ -304,7 +305,7 @@
               punkt={forutsetning}
             />
             <div class="tallfelt">
-              <label for={id}>{FRISTSVAR.maatteForstaaEtikett}</label>
+              <Feltetikett for={id}>{FRISTSVAR.maatteForstaaEtikett}</Feltetikett>
               <span id={`${id}-hjelp`} class="dempet">{FRISTSVAR.maatteForstaaHjelp(f.dager)}</span>
               <span class="inndata" class:ugyldig={mFeil}>
                 <input
@@ -356,7 +357,7 @@
         {@const id = `${uid}-deldager-${f.id}`}
         {@const dFeil = feil(id)}
         <div class="tallfelt">
-          <label for={id}>{FRISTSVAR.deldagerEtikett}</label>
+          <Feltetikett for={id}>{FRISTSVAR.deldagerEtikett}</Feltetikett>
           <span id={`${id}-hjelp`} class="dempet">{FRISTSVAR.deldagerHjelp}</span>
           <span class="inndata" class:ugyldig={dFeil}>
             <input

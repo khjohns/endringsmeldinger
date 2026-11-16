@@ -1514,17 +1514,17 @@ export const FRISTKRAV = {
   hvordanVarsler: 'Hvordan varsler du?',
   varselmaate: {
     send: 'Send varselet fra løsningen nå',
-    registrer: 'Registrer et brev sendt utenfor løsningen',
+    registrer: 'Registrer et varsel sendt utenfor løsningen',
   },
   registrer: 'Registrer varselet',
   registrert: 'Varselet er registrert.',
   // U-6: varselet gitt før, utenfor løsningen (OV-U5, VS-U16).
   gittFoer: 'Varselet er gitt før, utenfor løsningen',
-  gittFoerHjelp: 'Brevet sier når, og brevet du varslet i, legges ved.',
+  gittFoerHjelp: 'Brevet sier når varselet ble gitt, og dokumentet du varslet i, legges ved.',
   likevel: 'Dette kravet er varselet likevel',
   varseldato: 'Datoen for varselet',
   varseldatoHjelp: 'Datoen settes én gang.',
-  varselbrevet: 'Brevet du varslet i',
+  varselbrevet: 'Dokumentet du varslet i',
   varselbrevetHjelp: 'Legges ved. Opptil 15 MB.',
   // Datoen TE ble klar over forholdet, fra påberopelsen eller korrigeringen (`klarOverForholdet`).
   klarOver: 'Når ble du klar over forholdet?',
@@ -1644,7 +1644,7 @@ export const FRISTKRAV = {
   manglerBegrunnelse: 'Skriv begrunnelsen for kravet.',
   manglerVarseldato: 'Oppgi datoen for varselet.',
   manglerType: 'Velg om varselet ble gitt i et brev eller en e-post.',
-  manglerVarselbrev: 'Legg ved brevet du varslet i.',
+  manglerVarselbrev: 'Legg ved dokumentet du varslet i.',
   manglerGrunnB: 'Skriv hvorfor du ennå ikke kan beregne dagene.',
   ingenFristerMangler: 'Kravet må gjelde minst én frist.',
   forkastTekst:

@@ -23,6 +23,7 @@
   import { medietreff } from './medie.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
+  import Feltetikett from './Feltetikett.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Infotips from './Infotips.svelte';
@@ -307,7 +308,7 @@
             {/each}
           {/if}
           <div class="begrunnelse forbehold">
-            <label for={`${uid}-forbehold`}>{SKJEMA.forbehold}</label>
+            <Feltetikett for={`${uid}-forbehold`}>{SKJEMA.forbehold}</Feltetikett>
             <span class="dempet" id={`${uid}-forbehold-hjelp`}>{SKJEMA.forbeholdHjelp}</span>
             <textarea
               id={`${uid}-forbehold`}
@@ -397,11 +398,6 @@
     margin-top: var(--spacing-3);
     padding-top: var(--spacing-4);
     border-top: var(--rule);
-  }
-  .begrunnelse.forbehold label {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--ink);
   }
   textarea {
     padding: var(--spacing-3);
