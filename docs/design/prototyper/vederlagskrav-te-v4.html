@@ -545,7 +545,13 @@ a.liten-knapp{color:inherit}
               <label><input type="checkbox" name="vhva" value="34.3.3"> Justering av enhetsprisene (punkt 34.3.3)</label></div></fieldset>
             <div class="beloepfelt"><label for="vtekst">Arbeidet varselet gjelder</label><span class="hjelp">For regningsarbeid og justerte enhetspriser. Varselet gjelder kravpostene med den beregningsregelen i neste krav.</span><input id="vtekst" class="tekstfelt" value="Ekstra graving i grøften ved kum 4"></div>
             <fieldset class="oppgj"><legend class="spm">Hvordan varsler du?</legend><div class="valg kompakt"><label><input type="radio" name="vhvor" value="her" checked> Send varselet fra løsningen nå</label><label><input type="radio" name="vhvor" value="utenfor"> Registrer et brev sendt utenfor løsningen</label></div></fieldset>
-            <div class="beloepfelt kun-utenfor" hidden><label for="vdato">Datoen for varselet</label><span class="datofelt"><input id="vdato" placeholder="dd.mm.åååå"></span><span class="hjelp">Legg ved brevet. Datoen settes én gang.</span><button class="liten-knapp" type="button" style="align-self:flex-start">Legg ved brevet</button></div>
+            <div class="kun-utenfor" data-korr hidden style="display:flex;flex-direction:column;gap:16px">
+              <fieldset class="oppgj"><legend class="spm">Hvordan ble varselet gitt?</legend><div class="valg lett liste"><label><input type="radio" name="vtype" value="brev"> Brev</label><label><input type="radio" name="vtype" value="e_post"> E-post</label><label><input type="radio" name="vtype" value="moetereferat"> Møtereferat</label><label><input type="radio" name="vtype" value="notat"> Notat eller annet dokument</label></div></fieldset>
+              <fieldset class="oppgj" hidden data-sendemaate><legend class="spm">Hvordan ble brevet sendt?</legend><div class="valg lett liste"><label><input type="radio" name="vsend" value="post"> Per post</label><label><input type="radio" name="vsend" value="pdf_e_post"> Som PDF i e-post</label><label><input type="radio" name="vsend" value="prosjekthotell"> I prosjekthotellet</label><label><input type="radio" name="vsend" value="annen_maate"> På annen måte</label></div></fieldset>
+              <div class="beloepfelt"><label for="vdato">Datoen det ble sendt</label><span class="hjelp">Datoen avsenderen oppgir. Den settes én gang.</span><span class="datofelt"><input id="vdato" placeholder="dd.mm.åååå"></span></div>
+              <div class="beloepfelt"><span class="spm" id="vdok">Dokumentet du varslet i</span><span class="hjelp">Legges til i saken og ved brevet. Opptil 15 MB.</span><button class="liten-knapp" type="button" aria-describedby="vdok" style="align-self:flex-start">Velg fil</button></div>
+              <div class="beloepfelt"><label for="vbesk">Kort beskrivelse av varselet</label><span class="hjelp">Kort, med egne ord.</span><textarea id="vbesk" class="tekstfelt" rows="3" aria-required="true"></textarea></div>
+            </div>
             <button class="knapp" type="button" style="align-self:flex-start">Send varselet</button>
           </section>
           <div class="svarpaa">
@@ -755,14 +761,14 @@ function varselblokk(p) {
   const regel = h === '34.4' ? 'Byggherren skal varsles før regningsarbeidet settes i gang.' : 'Varsles det ikke uten ugrunnet opphold, har du bare krav på den justeringen byggherren måtte forstå.';
   if (hadde(p)) return `<p class="oppgitt" data-spor="U-12 · D-19"><b>${navn}.</b> Gitt med kravet i brev 5.</p>`;
   const liste = saksvarsler().filter(v => v.hjemmel === h);
-  const TYPER = ['Brev', 'E-post', 'Møtereferat', 'Notat og annet dokument'];
+  const TYPER = ['Brev', 'E-post', 'Møtereferat', 'Notat eller annet dokument'];
   const SENDT = ['Per post', 'Som PDF i e-post', 'I prosjekthotellet', 'På annen måte'];
   const utenfor = `<div class="forgreining" data-spor="U-12 · D-19 · S-12">
-      <fieldset class="oppgj"><legend class="spm">Hva slags dokument?</legend><div class="valg lett">${TYPER.map(x => radio('ut-' + id, x, p.uType, x)).join('')}</div></fieldset>
+      <fieldset class="oppgj"><legend class="spm">Hvordan ble varselet gitt?</legend><div class="valg lett">${TYPER.map(x => radio('ut-' + id, x, p.uType, x)).join('')}</div></fieldset>
       ${p.uType === 'Brev' ? `<fieldset class="oppgj"><legend class="spm">Hvordan ble brevet sendt?</legend><div class="valg lett liste">${SENDT.map(x => radio('us-' + id, x, p.uSendt, x)).join('')}</div></fieldset>` : ''}
-      <div class="beloepfelt"><label for="ud-${id}">Datoen det ble sendt</label><span class="datofelt"><input id="ud-${id}" data-felt="uDato" aria-required="true" value="${esc(p.uDato)}"></span></div>
-      <div class="beloepfelt"><label for="ub-${id}">Kort beskrivelse</label><input id="ub-${id}" class="tekstfelt" data-felt="uBeskr" aria-required="true" value="${esc(p.uBeskr)}"></div>
-      <div class="beloepfelt"><span class="spm" id="uf-${id}">Dokumentet</span><span class="hjelp">PDF. Det står i saken som et eget brev med kategorien varsel når kravet sendes, og legges ved kravet.</span><button class="liten-knapp" type="button" aria-describedby="uf-${id}" style="align-self:flex-start">Legg ved dokumentet</button></div>
+      <div class="beloepfelt"><label for="ud-${id}">Datoen det ble sendt</label><span class="hjelp">Datoen avsenderen oppgir. Den settes én gang.</span><span class="datofelt"><input id="ud-${id}" data-felt="uDato" aria-required="true" value="${esc(p.uDato)}"></span></div>
+      <div class="beloepfelt"><span class="spm" id="uf-${id}">Dokumentet du varslet i</span><span class="hjelp">Legges til i saken og ved brevet. Opptil 15 MB.</span><button class="liten-knapp" type="button" aria-describedby="uf-${id}" style="align-self:flex-start">Velg fil</button></div>
+      <div class="beloepfelt"><label for="ub-${id}">Kort beskrivelse av varselet</label><span class="hjelp">Kort, med egne ord.</span><textarea id="ub-${id}" class="tekstfelt" rows="3" data-felt="uBeskr" aria-required="true">${esc(p.uBeskr)}</textarea></div>
     </div>`;
   const hvor = liste.length
     ? `<fieldset class="oppgj"><legend class="spm">Hvor ble varselet for ${id} gitt?</legend><div class="valg lett liste">
@@ -810,8 +816,14 @@ function tegnTeVarsler() {
     `<div class="felt"><label for="klar">Når ble du klar over forholdet?</label><span class="hjelp">Oppgitt i varselet, brev 2</span><span class="datofelt"><input id="klar" value="12.09.2026" readonly></span></div>
     ${varselMaate === 'her' ? `<div class="varsel"><p class="oppgitt">Dette kravet er varselet.</p><button class="lenke liten" type="button" data-varsel="annen">Varselet er gitt før, utenfor løsningen</button></div>`
       : `<div class="varsel"><p class="oppgitt"><b>Varselet er gitt før, utenfor løsningen.</b> Brevet sier når, og brevet du varslet i, legges ved.</p>
-        <div class="beloepfelt"><label for="v1dato">Datoen for varselet</label><span class="datofelt"><input id="v1dato" value="${esc(v1dato)}" aria-required="true"></span></div>
-        <button class="liten-knapp" type="button">Legg ved brevet</button><button class="lenke liten" type="button" data-varsel="her">Dette kravet er varselet likevel</button></div>`}`));
+        <div data-korr style="display:flex;flex-direction:column;gap:16px;align-self:stretch">
+          <fieldset class="oppgj"><legend class="spm">Hvordan ble varselet gitt?</legend><div class="valg lett liste"><label><input type="radio" name="v1type" value="brev"> Brev</label><label><input type="radio" name="v1type" value="e_post"> E-post</label><label><input type="radio" name="v1type" value="moetereferat"> Møtereferat</label><label><input type="radio" name="v1type" value="notat"> Notat eller annet dokument</label></div></fieldset>
+          <fieldset class="oppgj" hidden data-sendemaate><legend class="spm">Hvordan ble brevet sendt?</legend><div class="valg lett liste"><label><input type="radio" name="v1send" value="post"> Per post</label><label><input type="radio" name="v1send" value="pdf_e_post"> Som PDF i e-post</label><label><input type="radio" name="v1send" value="prosjekthotell"> I prosjekthotellet</label><label><input type="radio" name="v1send" value="annen_maate"> På annen måte</label></div></fieldset>
+          <div class="beloepfelt"><label for="v1dato">Datoen det ble sendt</label><span class="hjelp">Datoen avsenderen oppgir. Den settes én gang.</span><span class="datofelt"><input id="v1dato" value="${esc(v1dato)}" aria-required="true"></span></div>
+          <div class="beloepfelt"><span class="spm" id="v1dok">Dokumentet du varslet i</span><span class="hjelp">Legges til i saken og ved brevet. Opptil 15 MB.</span><button class="liten-knapp" type="button" aria-describedby="v1dok" style="align-self:flex-start">Velg fil</button></div>
+          <div class="beloepfelt"><label for="v1besk">Kort beskrivelse av varselet</label><span class="hjelp">Kort, med egne ord.</span><textarea id="v1besk" class="tekstfelt" rows="3" aria-required="true"></textarea></div>
+        </div>
+        <button class="lenke liten" type="button" data-varsel="her">Dette kravet er varselet likevel</button></div>`}`));
   else r.push(teRad({ id: 'v1', punkt: '34.1.2', navn: 'Varsel om vederlagsjustering', gjelder: 'Gjelder hele kravet', endre: !ny,
     svar: ny ? 'Gitt med kravet i brev 5.' : varselMaate === 'annen' ? `Gitt ${esc(v1dato)}, i et brev som legges ved.` : 'Dette kravet er varselet.',
     under: ny ? '' : varselMaate === 'annen' ? '6 kalenderdager etter at du ble klar over forholdet' : '24 kalenderdager etter at du ble klar over forholdet 12. september 2026' }));
@@ -969,7 +981,7 @@ function varselsetning(p) {
   const k = kildeTil(p);
   if (k) return ` <span class="ny" data-spor="U-14">Varsel ${VARSEL_OM[h]} ble gitt i ${k.brevet}.</span>`;
   const dato = (() => { const m = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(p.uDato.trim()); return m ? `${Number(m[1])}. ${['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember'][m[2] - 1]} ${m[3]}` : esc(p.uDato); })();
-  const type = { 'Brev': 'brev', 'E-post': 'e-post', 'Møtereferat': 'møtereferat', 'Notat og annet dokument': 'dokument' }[p.uType] ?? 'brev';
+  const type = { 'Brev': 'brev', 'E-post': 'e-post', 'Møtereferat': 'møtereferat', 'Notat eller annet dokument': 'dokument' }[p.uType] ?? 'brev';
   return ` <span class="ny" data-spor="U-14 · S-12">Totalentreprenøren opplyser at varsel ${VARSEL_OM[h]} ble gitt i totalentreprenørens ${type} av ${dato || '‹dato›'}, som er vedlagt.</span>`;
 }
 
@@ -1343,6 +1355,8 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-anke
   const al = e.target.closest('[data-alene]'); if (al) { Object.assign(alene, { hjemmel: al.dataset.alene, tide: '', just: '', sendt: false }); aapenVarsel = 'alene'; document.querySelectorAll('[data-alene]').forEach(x => x.setAttribute('aria-pressed', String(x === al))); tegnSvar(); } });
 document.getElementById('skjema').addEventListener('change', e => {
   if (e.target.name === 'vhvor') document.querySelector('.kun-utenfor').hidden = e.target.value !== 'utenfor';
+  const korr = e.target.closest('[data-korr]');
+  if (korr && e.target.type === 'radio' && e.target.name.endsWith('type')) korr.querySelector('[data-sendemaate]').hidden = e.target.value !== 'brev';
 });
 addEventListener('hashchange', lesAnker);
 lesAnker();

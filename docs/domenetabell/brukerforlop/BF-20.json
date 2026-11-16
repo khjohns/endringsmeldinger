@@ -249,7 +249,8 @@
     "GR-U39",
     "GFK-U27",
     "GFK-U28",
-    "EO-U41"
+    "EO-U41",
+    "OV-U79"
   ],
   "venter_paa": [
     "#1427"
@@ -314,8 +315,8 @@
     },
     {
       "dato": "2026-11-16",
-      "forhold": "#2056",
-      "hva": "Valget heter «Registrer et varsel sendt utenfor løsningen», og etiketten for vedlegget er «Dokumentet du varslet i» for alle typene."
+      "forhold": "#807, #2056",
+      "hva": "Valget heter «Registrer et varsel sendt utenfor løsningen», og etiketten for vedlegget er «Dokumentet du varslet i» for alle typene. F-3 og U-6 lister feltene for et varsel sendt utenfor løsningen med ordene i Varden: «Hvordan ble varselet gitt?», «Hvordan ble brevet sendt?» (bare for Brev), «Datoen det ble sendt», «Dokumentet du varslet i» og «Kort beskrivelse av varselet» (OV-U79)."
     }
   ]
 }
