@@ -549,7 +549,6 @@ describe('linja i sakslisten (#1022)', () => {
     });
   });
 
-  // Et krav lagt til med kravskjemaet har virkning og er ikke et slikt brev (OV-U80, OV-U98).
   it('en opprettelse kjernen ikke forstår, gir ingen tittel i sakslisten, som i saken (MM-U2, #2079)', () => {
     const sak = new Sak();
     expect(sak.linje().sakstittel, 'kontrollsak').toBe('Skiva');
@@ -559,6 +558,7 @@ describe('linja i sakslisten (#1022)', () => {
     expect(l.sakstittel).toBeNull();
   });
 
+  // Et krav lagt til med kravskjemaet har virkning og er ikke et slikt brev (OV-U80, OV-U98).
   it('en sak med et brev lagt til som dokumentasjon har brev utenfor appen, som tillegget i OV-U10', () => {
     expect(linje(fullGodkjenning).brev_utenfor_appen).toBe(false);
     const l = linje((sak) => sak.registrer(brevSomDokumentasjon('2026-09-30')));

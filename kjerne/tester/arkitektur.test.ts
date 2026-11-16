@@ -474,6 +474,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // OV-U16: sporene et brev registrert som dokumentasjon hører til. Ingen regel leser dem (OV-U4).
   ['Dokument', 'relasjon', 'spor', ['format/leser.ts:dokumentasjonsbrev']],
   ['Domenehendelse', 'relasjon', 'art id versjon dokument grunn'],
+  // MM-U2, #2079: tittelen fra opprettelsen, til sakslisten og saksbildet.
+  ['Domenehendelse', 'utsagn', 'tittel', ['format/leser.ts:sakstittelen']],
   ['Krav', 'relasjon', 'id spor erstatter gjelder'],
   ['Krav', 'utsagn', 'innhold'],
   // #1707, #1711: kravinnholdet leses gjennom den typede tilgangen i formatfila for sporet (#1783).

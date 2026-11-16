@@ -8,7 +8,7 @@
 
 import type { Fristresultat, Forholdsresultat, Vederlagsresultat } from '../kjerne/regler/typer.ts';
 import type { Dokument, Journalrad, Part, Spor } from '../kjerne/typer.ts';
-import { kalenderdag, registrertDato } from '../kjerne/format/leser.ts';
+import { kalenderdag, registrertDato, sakstittelen } from '../kjerne/format/leser.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
 import { betegnelsen, innholdIFristen, type FristIKravet } from '../kjerne/spor/frist/format.ts';
@@ -396,12 +396,10 @@ function sisteBrev(u: Utledning): Sakslinje['siste_brev'] {
  */
 export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
   const u = utledJournal(sak.journal, kjerne);
-  // MM-U2, #2079: tittelen er opprettelsen slik kjernen har lest den, som i saksbildet.
-  const opprettet = u.journal.find((h) => h.art === 'sak');
   const felles = {
     sak_id: sak.sakId,
     sakstype: sak.sakstype,
-    sakstittel: opprettet?.art === 'sak' ? opprettet.tittel : null,
+    sakstittel: sakstittelen(u.journal),
     opprettet: sak.opprettet,
     kode: sak.sakskode?.kode ?? null,
     loepenummer: sak.sakskode?.loepenummer ?? null,
