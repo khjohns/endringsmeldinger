@@ -89,6 +89,8 @@ const KOE_17 = { kode: 'koe', loepenummer: 17 } as const;
 const I_SAKEN = `i sak KOE-17 («${TITTEL}»)`;
 /** Navnet på forholdet i påberopelsen, som er sakstittelen (LV-U43). */
 const NAVNET = `«${TITTEL}» i sak KOE-17`;
+/** Statusen når kravene er avgjort etter OV-U3, med teksten i OV-U99 punkt 6 (svar S1 15.11 i #2017). */
+const AVGJORT = 'Partene er enige om hvert krav som er sendt i løsningen, eller kravet er trukket';
 const KR = (n: string) => `${n.replace(' ', '\u00a0')}\u00a0kr eks. mva.`;
 /** Beløpet i byggherrens svar, der merverdiavgiften står i innledningen (LV-U34). */
 const kr = (n: string) => `${n.replace(' ', '\u00a0')}\u00a0kr`;
@@ -466,24 +468,6 @@ describe('de faste tekstene står ordrett (KA-U22, KA-U25, LV-U4 punkt 13)', () 
     const rad = s.send('TE', { type: 'trekk', spor: 'frist' });
     expect(laast(rad)).toEqual([
       `Totalentreprenøren trekker kravet om fristforlengelse ${I_SAKEN}, fremsatt i brev K201-KOE-017-03 av 4. oktober 2026 (20 dager for frist Sluttfristen). Trekket er avkall på dette kravet, også det byggherren har godkjent.`,
-    ]);
-  });
-
-  it('«ingen krav» i vederlaget sier også at forseringsvederlaget ikke omfattes (KA-U25, LV-U35, LV-U39)', () => {
-    const s = sak();
-    s.send('TE', PAABEROPELSE);
-    const rad = s.send('TE', { type: 'ingen_krav', spor: 'vederlag' });
-    expect(laast(rad)).toEqual([
-      `Totalentreprenøren krever ikke justering av vederlaget som følge av forholdet ${I_SAKEN}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag. Avkallet omfatter ikke vederlag for forsering etter NS 8407 punkt 33.8.`,
-    ]);
-  });
-
-  it('«ingen krav» i fristen har ikke setningen om forsering', () => {
-    const s = sak();
-    s.send('TE', PAABEROPELSE);
-    const rad = s.send('TE', { type: 'ingen_krav', spor: 'frist' });
-    expect(laast(rad)).toEqual([
-      `Totalentreprenøren krever ikke fristforlengelse som følge av forholdet ${I_SAKEN}, og gir avkall på slikt krav, også for følger som ikke er kjent i dag.`,
     ]);
   });
 });
@@ -3258,6 +3242,26 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     expect(s.journal).toHaveLength(foer);
   });
 
+  it('«ingen krav» avvises fra totalentreprenøren med IKKE_I_FOERSTE_VERSJON og fra byggherren med FEIL_PART, tilbys ingen av partene, og ingen hendelse skrives (OV-U7, OV-U99 punkt 2)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const foer = s.journal.length;
+    for (const spor of ['vederlag', 'frist'] as const) {
+      expect(s.avvisning('TE', { type: 'ingen_krav', spor })).toEqual({
+        regel: 'IKKE_I_FOERSTE_VERSJON',
+        melding:
+          '«Ingen krav» er ikke med i første versjon. Brevet kan registreres som dokumentasjon.',
+      });
+      expect(s.avvist('BH', { type: 'ingen_krav', spor })).toBe('FEIL_PART');
+    }
+    expect(s.journal).toHaveLength(foer);
+    for (const part of ['TE', 'BH'] as const) {
+      const tilbudt = handlinger(s.u(), part);
+      expect(tilbudt, `kontrollsak: ${part} tilbys noe`).not.toEqual([]);
+      expect(tilbudt.filter((h) => h.startsWith('ingen_krav:'))).toEqual([]);
+    }
+  });
+
   it('protest, påberopt passivitet og senere begrunnelse tilbys ingen av partene, også med en innsigelse, et dokument, en påberopelse og et svar (OV-U7)', () => {
     const { s, brevet, svarId } = medSvarPaaInnsigelsen();
     const u = s.u();
@@ -3308,7 +3312,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
   });
 });
 
-describe('bestridelse, merking og avklaring (LV-U4 punkt 10–12)', () => {
+describe('bestridelse (LV-U4 punkt 10–12), og merking og avklaring (KA-U45)', () => {
   /** Et registrert svar fra byggherren på forholdet, sendt 3.10 (brev 3). */
   const medRegistrertSvar = (opplysninger: Data[] = []) => {
     const s = sak();
@@ -3363,14 +3367,18 @@ describe('bestridelse, merking og avklaring (LV-U4 punkt 10–12)', () => {
     );
   });
 
-  it('merkingen av et registrert brev og avklaringen avvises i første versjon (OV-U7)', () => {
+  it('merkingen av et registrert brev og avklaringen er ukjente kommandoer, og ingen hendelse skrives (KA-U45)', () => {
     const { s, rad } = medRegistrertSvar();
-    expect(
-      s.avvist('BH', { type: 'merking', gjelder: rad.event_id, spor: ['forhold', 'frist'] })
-    ).toBe('IKKE_I_FOERSTE_VERSJON');
-    expect(s.avvist('BH', { type: 'avklaring', gjelder: rad.event_id })).toBe(
-      'IKKE_I_FOERSTE_VERSJON'
-    );
+    const foer = s.journal.length;
+    for (const k of [
+      { type: 'merking', gjelder: rad.event_id, spor: ['forhold', 'frist'] },
+      { type: 'avklaring', gjelder: rad.event_id },
+    ])
+      expect(s.avvisning('BH', k)).toEqual({
+        regel: 'UGYLDIG_FORM',
+        melding: `Ukjent kommando: ${k.type}`,
+      });
+    expect(s.journal).toHaveLength(foer);
   });
 });
 
@@ -3472,7 +3480,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     expect(kraveneErAvgjort(u)).toBe(true);
     expect(visning(u, GJELDENDE_REGLER).status).toEqual({
       kode: 'alle_krav_avgjort',
-      tekst: 'Alle krav sendt i appen er avgjort',
+      tekst: AVGJORT,
     });
     expect(
       kanInngaaIEo(u),
@@ -3615,16 +3623,8 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     expect(u.forstaatt, 'forutsetning: saken er forstått').toBe(true);
     expect(visning(u, GJELDENDE_REGLER).status).toEqual({
       kode: 'alle_krav_avgjort',
-      tekst:
-        'Alle krav sendt i appen er avgjort. Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.',
+      tekst: `${AVGJORT}. Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.`,
     });
-  });
-
-  it('når TE ikke krever fristforlengelse, er kravene avgjort, og trekket av vederlagskravet godtas (MM-U34 punkt 12, KA-U12)', () => {
-    const s = utenFrist();
-    s.send('TE', { type: 'ingen_krav', spor: 'frist' });
-    expect(kraveneErAvgjort(s.u())).toBe(true);
-    expect(s.avvist('TE', { type: 'trekk', spor: 'vederlag' })).toBeNull();
   });
 
   /** Kravene avgjort: forholdet og vederlaget godkjent, fristkravet trukket (KA-U11). */
@@ -3967,12 +3967,8 @@ describe('vedleggene ved påberopelsen (VS-U38)', () => {
 });
 
 describe('meldingene før påberopelsen er sendt (språkfila, #1955)', () => {
-  it('«ingen krav» og varselet avvises med en melding som sier «påberopelsen», ikke «grunnlaget»', () => {
+  it('varselet avvises med en melding som sier «påberopelsen», ikke «grunnlaget»', () => {
     const uten = sak();
-    expect(uten.avvisning('TE', { type: 'ingen_krav', spor: 'frist' })).toEqual({
-      regel: 'PAABEROPELSE_IKKE_SENDT',
-      melding: 'Påberopelsen må være sendt før du kan si «ingen krav».',
-    });
     expect(
       uten.avvisning('TE', {
         type: 'varsel',
@@ -4581,21 +4577,6 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       regel: 'FRISTKRAV_SENDT',
       melding:
         'Totalentreprenøren har krevd dager her, så forespørselen etter punkt 33.6.2 kan ikke sendes.',
-    });
-    expect(medKrav.avvisning('TE', { type: 'ingen_krav', spor: 'frist' })).toEqual({
-      regel: 'KRAV_I_SPORET',
-      melding: 'Totalentreprenøren har sendt kravet om fristforlengelse. Trekk kravet i stedet.',
-    });
-    const ingen = sak();
-    ingen.send('TE', PAABEROPELSE);
-    ingen.send('TE', { type: 'ingen_krav', spor: 'frist' });
-    expect(ingen.avvisning('BH', foresporsel)).toEqual({
-      regel: 'INGEN_KRAV_I_SPORET',
-      melding: 'Totalentreprenøren har sagt at det ikke kreves fristforlengelse.',
-    });
-    expect(ingen.avvisning('TE', FRISTKRAV)).toEqual({
-      regel: 'INGEN_KRAV_I_SPORET',
-      melding: 'Totalentreprenøren har sagt at det ikke kreves fristforlengelse.',
     });
   });
 
@@ -5449,7 +5430,7 @@ describe('vedleggene står i teksten (A4)', () => {
     })),
     krav: [],
     svar: [],
-    utsagn: [{ id: 'u', art: 'ingen_krav', spor: 'frist' }],
+    utsagn: [{ id: 'u', art: 'foresporsel', hjemmel: '33.6.2' }],
     brevtekst: null,
     brevtittel: null,
     brevnummer: null,

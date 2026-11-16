@@ -21,7 +21,7 @@ import type {
   Dokument,
   Domenehendelse,
   Krav,
-  LestOpplysning,
+  Opplysning,
   OppgittDatofelt,
   Spor,
   Svar,
@@ -58,7 +58,7 @@ export const erRegistrertEndringsordre = (s: Svar, d: Dokument): boolean =>
  * leseren.
  */
 export function kontrollerEndringsordrene(
-  opplysninger: readonly LestOpplysning[],
+  opplysninger: readonly Opplysning[],
   dokumenter: Map<string, Dokument>,
   ugyldig: Ugyldig
 ): void {

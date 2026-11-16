@@ -75,7 +75,7 @@ export type Krevd = {
 /**
  * Det TE har krevd i sporet: beløpet eller dagene, «Ingen poster med fast beløp», «Varslet» eller
  * «Ikke krevd» (MM-U37). Summen står med antallet kravposter uten fast beløp, i samme form som
- * «Tilknyttede krav» (arbeidsvalget 12.11 i #1779). «Varslet» leses av `har_varsel` og `ingen_krav` fra serveren, ikke av
+ * «Tilknyttede krav» (arbeidsvalget 12.11 i #1779). «Varslet» leses av `har_varsel` fra serveren, ikke av
  * betegnelsen, som er en annen når byggherren har bedt om spesifisert krav eller sporet er
  * trukket (MM-U30). En sak kjernen ikke forstår, har ingen celle, så tallene ikke leses som
  * riktige (MM-U2).
@@ -117,7 +117,7 @@ export function krevd(
       ? { tekst: dager(frister[0]!.dager), tall: true, dempet, utenFast: null, merknad }
       : { tekst: SAKSLISTE.frister(frister.length), tall: false, dempet, utenFast: null, merknad };
   }
-  if (varslet(l))
+  if (l.har_varsel)
     return {
       tekst: SAKSLISTE.varslet,
       tall: false,
@@ -127,10 +127,6 @@ export function krevd(
     };
   return { tekst: SAKSLISTE.ikkeKrevd, tall: false, dempet: false, utenFast: null, merknad: null };
 }
-
-/** TE har varslet i sporet og ikke sagt «ingen krav» (KA-U12), som serveren gir det. */
-const varslet = (s: Sakslinje['vederlag'] | Sakslinje['frist']): boolean =>
-  s.har_varsel && !s.ingen_krav;
 
 /**
  * Et varsel uten krav telles for seg når sporet ikke er trukket, saken ikke inngår i en
@@ -143,7 +139,11 @@ function varselITallene(
 ): boolean {
   const s = linje[spor];
   return (
-    !s.krav && varslet(s) && s.betegnelse !== 'trukket' && !iEndringsordre && !avsluttetAvTe(linje)
+    !s.krav &&
+    s.har_varsel &&
+    s.betegnelse !== 'trukket' &&
+    !iEndringsordre &&
+    !avsluttetAvTe(linje)
   );
 }
 

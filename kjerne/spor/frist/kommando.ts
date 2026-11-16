@@ -65,15 +65,10 @@ export const NYTTELAST_I_FRISTEN = {
       : null,
 } satisfies Sporsnyttelast;
 
-/** Et utsagn i fristen som ikke er et krav, når sporet er lukket (GR-U27, GR-U5, KA-U12). */
+/** Et utsagn i fristen som ikke er et krav, når sporet er lukket (GR-U27, GR-U5). */
 function fristenErLukket(u: Utledning, avslaget: Avvisning | null): Avvisning | null {
   if (avslaget) return avslaget;
   if (u.spor.frist.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-  if (u.spor.frist.ingenKrav)
-    return avvis(
-      'INGEN_KRAV_I_SPORET',
-      'Totalentreprenøren har sagt at det ikke kreves fristforlengelse.'
-    );
   return null;
 }
 
@@ -92,11 +87,6 @@ export const FORUTSETNINGER_I_FRISTEN = {
           'Påberopelsen må være sendt før du kan sende forespørselen.'
         );
       if (u.spor.frist.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-      if (u.spor.frist.ingenKrav)
-        return avvis(
-          'INGEN_KRAV_I_SPORET',
-          'Totalentreprenøren har sagt at det ikke kreves fristforlengelse.'
-        );
       // VS-U19, VS-U47 spørsmål 2: fra appen så lenge TE ikke har krevd dager.
       if (fristkravErFremmet(u))
         return avvis(

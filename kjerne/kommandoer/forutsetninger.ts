@@ -49,8 +49,6 @@ export type Handlingsnoekkel =
         | 'innsigelse'
         | 'protest'
         | 'passivitet'
-        | 'merke'
-        | 'avklare'
         | 'begrunne'
         | 'korrigere'
         | 'svare_paa_foresporsel';
@@ -88,11 +86,12 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   bestride: null,
   innsigelse: null,
   protest: null,
-  merke: null,
-  avklare: null,
   begrunne: 'BH',
   korrigere: 'TE',
 };
+
+/** Typene i handlingsnøklene, med parten som eier hver av dem i `PART`. */
+export const HANDLINGSTYPER = Object.keys(PART) as Handlingsnoekkel['type'][];
 
 /**
  * Utsagnene uten virkning på utfallet som viser til et annet element. Innsigelsen
@@ -138,17 +137,15 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
     case 'korrigere':
       return korrigering(h.gjelder, u);
     case 'bestride':
-    case 'merke':
-    case 'avklare':
     case 'protest':
     case 'passivitet':
     case 'begrunne':
-      // OV-U7: bestridelsen (MM-U7, MM-U14), merkingen etter KA-U20 og avklaringen av
-      // den, protesten mot en innsigelse (VS-U1, VS-U9), påberopt passivitet (VS-U12)
-      // og den senere begrunnelsen (KA-U34 (opphevet av KA-U46)) bygges ikke i første versjon.
+      // OV-U7, OV-U99 punkt 3–4: bestridelsen (MM-U7, MM-U14), protesten mot en innsigelse
+      // (VS-U1, VS-U9), påberopt passivitet (VS-U12) og den senere begrunnelsen (KA-U46)
+      // sendes som innlegg.
       return avvis(
         'IKKE_I_FOERSTE_VERSJON',
-        'Bestridelse, merking, avklaring, protest, påberopt passivitet og senere begrunnelse er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
+        'Bestridelse, protest, påberopt passivitet og senere begrunnelse er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
       );
   }
 }
@@ -200,11 +197,6 @@ const forutsetningerI = (spor: Spor): Sporsforutsetninger => iSporet(FORUTSETNIN
 /** Kravet i sporet (`Sporsforutsetninger.kravet`). */
 const kravet = (spor: Spor): string => forutsetningerI(spor).kravet;
 
-const KRAVET_OM: Record<Kravspor, string> = {
-  vederlag: 'vederlagsjustering',
-  frist: 'fristforlengelse',
-};
-
 /** Avvisningen av et varsel fra appen etter kravet i sporet (VS-U16, OV-U5). */
 const KRAVET_ER_SENDT: Record<Kravspor, (sendt: string) => Avvisning> = {
   vederlag: (sendt) => avvis('VEDERLAGSKRAV_SENDT', `Vederlagskravet ${sendt}`),
@@ -231,6 +223,12 @@ export function forutsetninger(
   if (eier !== null && eier !== part)
     return avvis('FEIL_PART', `Bare ${PARTEN[eier]} kan gjøre dette.`);
   if ('gjelder' in h) return henvisning(h, part, u);
+  // OV-U7, OV-U99 punkt 2: «ingen krav» venter.
+  if (h.type === 'ingen_krav')
+    return avvis(
+      'IKKE_I_FOERSTE_VERSJON',
+      '«Ingen krav» er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
+    );
   // GR-U27: TEs aksept av et svar som avslår forholdet eller påberoper preklusjon, lukker saken. MM-U34 punkt 12: at
   // kravene er avgjort, sperrer ikke.
   if (u.forholdAvvist) return avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT);
@@ -241,12 +239,6 @@ export function forutsetninger(
     case 'krav':
       // Vedtaket om trukket krav 05.10, GR-U5.
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket og kan ikke tas opp igjen.');
-      // KA-U12: «ingen krav» lukker sporet på samme måte som et trekk.
-      if (h.spor !== 'forhold' && s.ingenKrav)
-        return avvis(
-          'INGEN_KRAV_I_SPORET',
-          `Totalentreprenøren har sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`
-        );
       // MM-U34 punkt 9: også i et spor med registrert enighet, fram til endringsordren.
       if (h.spor !== 'forhold' && !paaberopelseSendt)
         return avvis(
@@ -258,38 +250,13 @@ export function forutsetninger(
       if (!s.gjeldendeKrav)
         return avvis('INGEN_KRAV', `Totalentreprenøren har ikke sendt ${kravet(h.spor)}.`);
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');
-      // KA-U22: et avtalt fradrag (KA-U9) avvises av formatet, og sperren bygges med det. En
-      // merking av et registrert brev gir ingen sperre (OV-U4, OV-U7).
+      // KA-U22: et avtalt fradrag (KA-U9) avvises av formatet, og sperren bygges med det.
       return forutsetningerI(h.spor).trekket(u);
-    case 'ingen_krav':
-      // KA-U12, KA-U15: et spor som ikke er sendt, etter at forholdet er sendt.
-      if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-      if (s.ingenKrav)
-        return avvis(
-          'INGEN_KRAV_I_SPORET',
-          `Totalentreprenøren har allerede sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`
-        );
-      if (s.krav.length)
-        return avvis(
-          'KRAV_I_SPORET',
-          `Totalentreprenøren har sendt ${kravet(h.spor)}. Trekk kravet i stedet.`
-        );
-      if (!paaberopelseSendt)
-        return avvis(
-          'PAABEROPELSE_IKKE_SENDT',
-          'Påberopelsen må være sendt før du kan si «ingen krav».'
-        );
-      return null;
     case 'varsle':
     case 'sende_varsel': {
       if (!paaberopelseSendt)
         return avvis('PAABEROPELSE_IKKE_SENDT', 'Påberopelsen må være sendt før du kan varsle.');
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
-      if (h.spor !== 'forhold' && s.ingenKrav)
-        return avvis(
-          'INGEN_KRAV_I_SPORET',
-          `Totalentreprenøren har sagt at det ikke kreves ${KRAVET_OM[h.spor]}.`
-        );
       const hjemmel = 'hjemmel' in h ? h.hjemmel : VARSEL_I_SPORET[h.spor];
       // VS-U48, VS-U52: saken kan ha flere varsler etter § 34.3.3 og § 34.4, før og etter kravet.
       if (erKravpostvarselhjemmel(hjemmel)) return null;

@@ -445,8 +445,8 @@ describe('linja i sakslisten (#1022)', () => {
     expect(l.saksbetegnelse).toBe('avslaget_paa_forholdet_godtatt');
     for (const spor of ['vederlag', 'frist'] as const) {
       expect(l[spor].venter_paa_svar, spor).toBe(false);
-      // MM-U30: «Krav sendt» når TE har godtatt avslaget på forholdet uten enighet eller trekk.
-      expect(l[spor].betegnelse, spor).toBe('krav_sendt');
+      // OV-U99 punkt 6, MM-U31: et krav uten svar har ingen betegnelse når saken har sin.
+      expect(l[spor].betegnelse, spor).toBeNull();
     }
   });
 
@@ -676,7 +676,7 @@ describe('linja i sakslisten (#1022)', () => {
     expect(l.frist.har_varsel, 'kontrollsak: sporet uten varsel').toBe(false);
   });
 
-  it('har_varsel og ingen_krav følger utsagnene når betegnelsen er en annen: etter en forespørsel etter punkt 33.6.2 og når sporet er trukket (MM-U37, MM-U30, KA-U12)', () => {
+  it('har_varsel følger utsagnene når betegnelsen er en annen: etter en forespørsel etter punkt 33.6.2 og når sporet er trukket (MM-U37, MM-U30)', () => {
     const varsel: Steg = (sak) => {
       sak.send('TE', PAABEROPELSE);
       sak.send('TE', { type: 'send_varsel', spor: 'frist', hjemmel: '33.4' });
@@ -698,26 +698,6 @@ describe('linja i sakslisten (#1022)', () => {
     const trukket = linje(varsel, trekk('forhold'));
     expect(trukket.saksbetegnelse).toBe('paaberopelsen_trukket');
     expect(trukket.frist).toMatchObject({ betegnelse: 'trukket', har_varsel: true });
-
-    // KA-U12: «ingen krav» etter varselet står i eget flagg, også når en åpen forespørsel
-    // etter punkt 33.6.2 gir betegnelsen (MM-U30).
-    const ingenKrav = linje(varsel, (sak) => sak.send('TE', { type: 'ingen_krav', spor: 'frist' }));
-    expect(ingenKrav.frist).toMatchObject({
-      betegnelse: 'ingen_krav',
-      har_varsel: true,
-      ingen_krav: true,
-    });
-    const ingenKravEtterForespoersel = linje(
-      varsel,
-      (sak) => sak.send('BH', { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' }),
-      (sak) => sak.send('TE', { type: 'ingen_krav', spor: 'frist' })
-    );
-    expect(ingenKravEtterForespoersel.frist).toMatchObject({
-      betegnelse: 'spesifisert_krav_etterspurt',
-      har_varsel: true,
-      ingen_krav: true,
-    });
-    expect(etterspurt.frist.ingen_krav, 'kontrollsak: uten «ingen krav»').toBe(false);
 
     const utenVarsel = linje(krav);
     expect(utenVarsel.frist.har_varsel, 'kontrollsak: krav uten varsel').toBe(false);

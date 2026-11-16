@@ -147,8 +147,6 @@ interface Staaende {
    * en annen når et varsel foreligger (MM-U30). Lista viser «Varslet» av flagget (MM-U37).
    */
   har_varsel: boolean;
-  /** TE har sagt at det ikke kreves noe i sporet (KA-U12), uavhengig av betegnelsen. */
-  ingen_krav: boolean;
 }
 
 /**
@@ -313,7 +311,6 @@ function vederlag(u: Utledning): Vederlagslinje {
     ...foreligger(u, 'vederlag'),
     kravet_staar: kravetStaar(u, 'vederlag'),
     har_varsel: harVarsel(u, 'vederlag'),
-    ingen_krav: s.ingenKrav,
     krav: s.gjeldendeKrav ? beloepene(fasteBeloepIKravet(s.gjeldendeKrav)) : null,
     svar: vederlagssvaret(u),
     enighet:
@@ -339,7 +336,6 @@ function frist(u: Utledning): Fristlinje {
     ...foreligger(u, 'frist'),
     kravet_staar: kravetStaar(u, 'frist'),
     har_varsel: harVarsel(u, 'frist'),
-    ingen_krav: s.ingenKrav,
     krav: krav
       ? {
           frister: innholdIFristen(krav).frister.map((f) => ({
@@ -423,7 +419,6 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
         ...INGENTING,
         kravet_staar: false,
         har_varsel: false,
-        ingen_krav: false,
         krav: null,
         svar: null,
         enighet: null,
@@ -432,7 +427,6 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
         ...INGENTING,
         kravet_staar: false,
         har_varsel: false,
-        ingen_krav: false,
         krav: null,
         svar: null,
         enighet: null,

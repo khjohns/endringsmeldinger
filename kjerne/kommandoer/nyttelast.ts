@@ -532,8 +532,6 @@ export function nyttelastkontroll(
     case 'ingen_krav':
     case 'protest':
     case 'bestridelse':
-    case 'merking':
-    case 'avklaring':
       return null;
     case 'innsigelse': {
       // VS-U29: at noe ikke er et svar etter § 33.6.2 annet ledd, gjelder bare TEs begrunnelse.

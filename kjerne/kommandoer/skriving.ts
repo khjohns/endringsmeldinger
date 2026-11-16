@@ -458,8 +458,6 @@ function dokument(
     case 'send_varsel':
       // VS-U15, VS-U8: brevet er varselet, og datoen er serverens.
       return { utsagn: [{ id: nyId(), art: 'varsel', hjemmel: k.hjemmel }] };
-    case 'ingen_krav':
-      return { utsagn: [{ id: nyId(), art: 'ingen_krav', spor: k.spor }] };
     case 'innsigelse':
       return {
         utsagn: [
@@ -501,8 +499,7 @@ function dokument(
       return { utsagn: [{ id, art: 'korrigering', gjelder: k.gjelder, [felt]: dato }] };
     }
     case 'bestridelse':
-    case 'merking':
-    case 'avklaring':
+    case 'ingen_krav':
       // OV-U7: forutsetningene avviser kommandoen før dokumentet lages.
       throw new Error(`kommandoen ${k.type} skrives ikke i første versjon (OV-U7)`);
   }

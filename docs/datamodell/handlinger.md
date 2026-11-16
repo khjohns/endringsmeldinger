@@ -24,7 +24,7 @@ Kolonnene for kjernen er handlingsnøklene (`noekkel` i [`forutsetninger.ts`](..
 | U2 | Trekk av påberopelsen eller hele kravet | TE | forhold, vederlag, frist | KA-U51, OV-U95, OV-U99 | Ja. Avkall som lukker sporet. | Strukturert, egen. Trekk av en kravpost er en form av G3. Brevet sier hva som trekkes, og at det er et avkall. | Nå. Ingen omvei. | Åpner «trukket», som er sluttilstand. | `trekke:forhold`, `trekke:vederlag`, `trekke:frist` | `trekk` | – | Skjemaet i Varden for trekket av hele kravet. |
 | U3 | Forespørsel etter punkt 33.6.2, og svaret på den | TE og BH | frist | punkt 33.6.2, VS-U47, OV-U99 | Ja. Fristen leser den. | Strukturert, egen. Byggherren spør, og totalentreprenøren svarer. | Nå. Fristen løper fra forespørselen. | Åpner «spesifisert krav etterspurt», og svaret lukker den. | `sende_foresporsel:frist`, `svare_paa_foresporsel:*` | `foresporsel`, `foresporselssvar` | – | Skjemaet i Varden for forespørselen. |
 | U5 | Registrering som dokumentasjon | TE og BH | saken | OV-U79, OV-U98, OV-U99 | Ikke et utsagn med virkning. Korrespondansen hører til saken. | Strukturert, med retting av registreringen. | Nå. | Ingen. | `registrere_brev` | `registrert_brev`, `ikke_i_saken` | – | Skjemaet i Varden. |
-| U6 | Registrering med virkning ved innleggingen | TE og BH | forhold, vederlag, frist | OV-U80, OV-U98, OV-U99, VS-U19, VS-U34, EO-U39, OV-U16 | Ja. Fristene regnes fra datoen brevet ble sendt. | Former av varsel, krav, svar, endringsordre som svar, aksept og forespørsel. | Nå. Omveien, å sende på nytt fra løsningen, gir ny dato. | Som handlingen registreringen er en form av. | `varsle:vederlag`, `varsle:frist`, `varsle:32.2`, `varsle:34.1.3`, `varsle:34.3.3`, `varsle:34.4` | `varsel`, `krav`, `brev`, `revisjon`, `aksept` | `varsle:frist` | Kommandoen i kjernen for registrert forespørsel, og skjemaene i Varden. Et registrert svar på en eldre kravversjon avvises fortsatt av kommandoen (#2011). Varselet etter 32.2 godtas, men tilbys ikke (K3). |
+| U6 | Registrering med virkning ved innleggingen | TE og BH | forhold, vederlag, frist | OV-U80, OV-U98, OV-U99, VS-U19, VS-U34, EO-U39, OV-U16, OV-U113 | Ja. Fristene regnes fra datoen brevet ble sendt. | Former av varsel, krav, svar, endringsordre som svar og aksept. En forespørsel etter punkt 33.6.2 sendt utenfor løsningen er dokumentasjon i første versjon (OV-U113, #1119). | Nå. Omveien, å sende på nytt fra løsningen, gir ny dato. | Som handlingen registreringen er en form av. | `varsle:vederlag`, `varsle:frist`, `varsle:32.2`, `varsle:34.1.3`, `varsle:34.3.3`, `varsle:34.4` | `varsel`, `krav`, `brev`, `revisjon`, `aksept` | `varsle:frist` | Skjemaene i Varden. Et registrert svar på en eldre kravversjon avvises fortsatt av kommandoen (#2011). Varselet etter 32.2 godtas, men tilbys ikke (K3). |
 | U7 | Retting av datoene i et sendt brev | TE | forhold, vederlag, frist | MM-U55, OV-U98, OV-U99 | Ja. | Strukturert. Den manuelle korrigeringsprosessen tar andre rettinger. | Nå for datoene i beslutningsdelen i MM-U55. | Ingen ny. | `korrigere:*` | `korrigering` | – | Rettingen av varseldatoen (punkt 8) og kravdatoen (punkt 18): kommandoen i kjernen og skjemaet i Varden. Korrigeringen av datoen i påberopelsen (punkt 10) er bygget. |
 | U8 | Godkjenning med fullmakt | BH | saken | GFK-U2, GFK-U5, GFK-U14, OV-U80 | Ikke et utsagn til motparten. Byggherrens organisering av fullmakten. | Ingen. | Før første ekte sak etter gjeldende vedtak. | Ingen. | – | – | – | Ruten i serveren og skjemaet. Datalaget finnes (K5). |
 
@@ -32,7 +32,7 @@ Kolonnene for kjernen er handlingsnøklene (`noekkel` i [`forutsetninger.ts`](..
 
 | ID | Handling | Part | Spor | Kilde | 1 Finnes? | 2 Form | 3 Når | 4 Tilstander | Nøkler | Kommandoer | Skjema | Mangler |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| U4 | «Ingen krav» | TE | vederlag, frist | KA-U17, OV-U7, OV-U99 | Ja. Avkall. | Strukturert. | Senere. Tidspunktet betyr ingenting. | «Ingen krav» går ut. | `ingen_krav:vederlag`, `ingen_krav:frist` | `ingen_krav` | – | Kjernen slutter å tilby den (K1, #2016). |
+| U4 | «Ingen krav» | TE | vederlag, frist | KA-U17, OV-U7, OV-U99 | Ja. Avkall. | Strukturert. | Senere. Tidspunktet betyr ingenting. | «Ingen krav» går ut. | `ingen_krav:vederlag`, `ingen_krav:frist` | `ingen_krav` | – | Ingen. Kjernen tilbyr den ikke, kommandoen avvises, og en journal med utsagnet er ikke forstått (#2016). |
 | U9 | Interne notater | TE og BH | saken | OV-U99 | Ikke et utsagn til motparten. | Ingen. Notatet står i `koe.notat`, ikke i journalen. | Senere, og først ved et nytt vedtak. | Ingen. | – | – | – | Ingen. Tabellen finnes. |
 | V1 | Det senere valget for korrespondanse som er lagt til som dokumentasjon | TE og BH | forhold, vederlag, frist | OV-U84, OV-U17, OV-U99 | Ja. Valget gir korrespondansen virkning. | En form av U6. | Senere. Til den er bygget, legger avsenderen korrespondansen til på nytt med valget. | Som U6. | – | – | – | Ingen nå. |
 | V2 | Forsering | TE | frist | punkt 33.8, OV-U1, OV-U99 | Ja. | Egen sak. | Senere. | Ingen nå. | – | – | – | Ingen nå. |
@@ -53,8 +53,8 @@ Kolonnene for kjernen er handlingsnøklene (`noekkel` i [`forutsetninger.ts`](..
 
 | ID | Handling | Part | Spor | Kilde | 1 Finnes? | 2 Form | 3 Når | 4 Tilstander | Nøkler | Kommandoer | Skjema | Mangler |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| O1 | Merking av et registrert brev | TE og BH | forhold, vederlag, frist | KA-U45 | Nei. Sperrene er opphevet. | Ingen. Motpartens syn sendes som innlegg. | Aldri. | Ingen. | `merke:*` | `merking` | – | Kommandoen avvises, og fjernes fra kjernen i #2019. |
-| O2 | Avklaring av en merking | TE og BH | forhold, vederlag, frist | KA-U45 | Nei. Sperrene er opphevet. | Ingen. | Aldri. | Ingen. | `avklare:*` | `avklaring` | – | Kommandoen avvises, og fjernes fra kjernen i #2019. |
+| O1 | Merking av et registrert brev | TE og BH | forhold, vederlag, frist | KA-U45 | Nei. Sperrene er opphevet. | Ingen. Motpartens syn sendes som innlegg. | Aldri. | Ingen. | – | – | – | Ingen. Kommandoen er fjernet (#2019). |
+| O2 | Avklaring av en merking | TE og BH | forhold, vederlag, frist | KA-U45 | Nei. Sperrene er opphevet. | Ingen. | Aldri. | Ingen. | – | – | – | Ingen. Kommandoen er fjernet (#2019). |
 | O3 | Byggherrens bekreftelse av et svar gitt utenfor løsningen | BH | forhold, vederlag, frist | OV-U101, GR-U35, GR-U37, OV-U46 | Nei. Et svar lagt til med virkning dekker behovet. | Ingen. Svaret legges til etter U6. | Aldri. | Ingen. | – | – | – | Ingen. |
 
 ## Tilstandene (port 0)
@@ -68,15 +68,15 @@ Sporets betegnelse (`BETEGNELSER`) og sakens (`Saksbetegnelse`) i [`visning.ts`]
 | `venter_paa_svar` | spor | TE har krevd. BH står for tur. | OV-U97 | holder |
 | `paalegg_frafalt` | spor | BH har frafalt pålegget etter punkt 32.3 c. | punkt 32.3, OV-U97 | holder |
 | `enige` | spor | TE har godtatt BHs svar, eller kravet og svaret sammenfaller. | KA-U1, GR-U10, OV-U97 | holder |
-| `svar_ikke_godtatt` | spor | BH har svart. Erstattes av «byggherren har svart», fordi den antyder et standpunkt TE ikke har tatt. | OV-U99 | endres |
+| `byggherren_har_svart` | spor | BH har et gjeldende svar i sporet, også i en lukket sak. Erstatter «svaret er ikke godtatt», som antydet et standpunkt TE ikke har tatt (#2017). | OV-U99, MM-U31 | holder |
 | `krav_sendt` | spor | TE har godtatt et svar på påberopelsen som ikke avklarer forholdet, og kravet står uten enighet. Saken har alt sin betegnelse. | OV-U99 | utgaar |
-| `ingen_krav` | spor | TE har sagt «ingen krav». Går ut med U4. | OV-U7, OV-U99 | utgaar |
+| `ingen_krav` | spor | TE har sagt «ingen krav». Gikk ut med U4 (#2016). | OV-U7, OV-U99 | utgaar |
 | `varslet` | spor | TE har varslet. TE står for tur med kravet. | OV-U97 | holder |
 | `innlegg_etter_siste_brev` | spor | En part har sendt innlegg etter siste strukturerte handling. Merknad uten tolkning. | OV-U97, OV-U99 | ny |
 | `ikke_forstaatt` | sak | Løsningen forstår ikke saken. | MM-U2, MM-U43 | holder |
 | `avslaget_paa_forholdet_godtatt` | sak | TE har godtatt avslaget på forholdet. | MM-U22, OV-U97 | holder |
 | `paaberopelsen_trukket` | sak | TE har trukket påberopelsen. | MM-U22, OV-U97 | holder |
-| `kravene_avgjort` | sak | Predikatet i OV-U3. Betegnelsen skal si hva som har skjedd, ikke at kravene er avgjort. | OV-U3, OV-U99 | endres |
+| `kravene_avgjort` | sak | Predikatet i OV-U3. Teksten sier hva som har skjedd, ikke at kravene er avgjort (#2017). | OV-U3, OV-U99 | holder |
 
 ## Avvikene
 
@@ -84,5 +84,4 @@ Den lukkede listen: kjernen tilbyr handlingen mot statusen i raden. Avviket fjer
 
 | Nøkler | Handling | Funn | Issue |
 | --- | --- | --- | --- |
-| `ingen_krav:vederlag`, `ingen_krav:frist` | U4 | K1 | [#2016](https://github.com/khjohns/endringsmeldinger/issues/2016) |
 | `innsigelse:*` | I1 | K4 | [#1657](https://github.com/khjohns/endringsmeldinger/issues/1657) |

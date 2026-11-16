@@ -267,8 +267,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "  if (u.spor[k.spor].ingenKrav) return 'en kravversjon i et spor med «ingen krav» (KA-U12)';\n",
-        "  if (u.spor[k.spor].ingenKrav) return 'en kravversjon i et spor med «ingen krav» (KA-U12)';\n  if (u.spor[k.spor].enighet) return 'en ny kravversjon i et spor med enighet';\n",
+        "  if (u.spor[k.spor].trukket) return 'en kravversjon etter at kravet er trukket (GR-U5)';\n",
+        "  if (u.spor[k.spor].trukket) return 'en kravversjon etter at kravet er trukket (GR-U5)';\n  if (u.spor[k.spor].enighet) return 'en ny kravversjon i et spor med enighet';\n",
       ],
     ],
     mal: ['TE kan sende en ny kravversjon i et spor med enighet ved aksept eller sammenfall'],
@@ -500,20 +500,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['F-MM-E1', 'F-MM-K1'],
   },
   {
-    id: 'F35',
-    feilklasse: '«ingen krav» i begge sporene avgjør ikke kravene (KA-U12, #493)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [[' || KRAVSPOR.every((n) => u.spor[n].ingenKrav)', '']],
-    mal: ['«ingen krav» i begge spor avgjør kravene'],
-  },
-  {
-    id: 'F36',
-    feilklasse: '«ingen krav» i et spor med en kravversjon stopper ikke saken (KA-U12, 4.2)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['      spor[i.spor].krav.length ||\n', '']],
-    mal: ['F-MM-IK2'],
-  },
-  {
     id: 'F37',
     feilklasse: 'leseren godtar et ukjent felt i `data` (4.4, MM-U2)',
     fil: `${K}/format/skjema.ts`,
@@ -543,13 +529,6 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['en rad uten format'],
-  },
-  {
-    id: 'F41',
-    feilklasse: '«ingen krav» før forholdet er sendt, leses (KA-U15)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [[' ||\n      !spor.forhold.krav.some((k) => bakover(i.id, k.id))\n', '\n']],
-    mal: ['«ingen krav» før forholdet er sendt'],
   },
   {
     id: 'F43',
@@ -865,25 +844,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['F-MM-V1', 'en innsigelse fra TE mot eget krav'],
   },
   {
-    id: 'F80',
-    feilklasse: '«ingen krav» godtas i et spor med krav (KA-U12)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [['      if (s.krav.length)', '      if (s.krav.length && !s)']],
-    mal: ['F-MM-IK3'],
-  },
-  {
-    id: 'F81',
-    feilklasse: 'TE kan si «ingen krav» før forholdet er sendt (KA-U15)',
-    fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [
-      [
-        "      if (!paaberopelseSendt)\n        return avvis(\n          'PAABEROPELSE_IKKE_SENDT',\n          'Påberopelsen må være sendt før du kan si «ingen krav».'",
-        "      if (!paaberopelseSendt && !s)\n        return avvis(\n          'PAABEROPELSE_IKKE_SENDT',\n          'Påberopelsen må være sendt før du kan si «ingen krav».'",
-      ],
-    ],
-    mal: ['F-MM-IK4'],
-  },
-  {
     id: 'F82',
     feilklasse:
       'en innsigelse mot det en registrert enighet omfatter, avvises, som før MM-U34 punkt 13',
@@ -943,14 +903,6 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [['  if (u.spor[k.spor].trukket)', '  if (u.spor[k.spor].trukket && !k)']],
     mal: ['F-MM-IK6b'],
-  },
-  {
-    id: 'F93',
-    feilklasse:
-      'en kravversjon etter «ingen krav» stopper saken også når den er registrert (MM-U19 (opphevet av MM-U43), KA-U12)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [['  if (u.spor[k.spor].ingenKrav)', '  if (u.spor[k.spor].ingenKrav && !k)']],
-    mal: ['F-MM-IK5b'],
   },
   {
     id: 'F98',
@@ -1019,13 +971,6 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['trekk av forholdet'],
-  },
-  {
-    id: 'F106',
-    feilklasse: '«ingen krav» i vederlaget sier ikke at forseringsvederlaget er unntatt (KA-U25)',
-    fil: `${K}/spor/vederlag/tekst.ts`,
-    endringer: [[' Avkallet omfatter ikke vederlag for forsering etter NS 8407 punkt 33.8.`', '`']],
-    mal: ['«ingen krav» i vederlaget'],
   },
   {
     id: 'F107',
@@ -1470,12 +1415,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en lest senere begrunnelse kan endre utfallet (KA-U34 (opphevet av KA-U46), OV-U7)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        "['aksept', 'trekk', 'ingen_krav', 'varsel']",
-        "['aksept', 'trekk', 'ingen_krav', 'varsel', 'begrunnelse']",
-      ],
-    ],
+    endringer: [["['aksept', 'trekk', 'varsel']", "['aksept', 'trekk', 'varsel', 'begrunnelse']"]],
     mal: ['en lest senere begrunnelse etter at saken er lukket etter GR-U27'],
   },
   {
@@ -2578,7 +2518,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F301',
     feilklasse: 'protesten godtas i første versjon (OV-U7)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [["    case 'avklare':\n    case 'protest':\n", "    case 'avklare':\n"]],
+    endringer: [["    case 'bestride':\n    case 'protest':\n", "    case 'bestride':\n"]],
     mal: ['protest, påberopt passivitet og senere begrunnelse avvises fra begge parter'],
   },
   {
@@ -2599,12 +2539,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F304',
     feilklasse: 'en lest påberopt passivitet kan endre utfallet (VS-U12, OV-U7)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        "['aksept', 'trekk', 'ingen_krav', 'varsel']",
-        "['aksept', 'trekk', 'ingen_krav', 'varsel', 'passivitet']",
-      ],
-    ],
+    endringer: [["['aksept', 'trekk', 'varsel']", "['aksept', 'trekk', 'varsel', 'passivitet']"]],
     mal: ['en lest påberopt passivitet etter at saken er lukket etter GR-U27'],
   },
   {
@@ -2618,7 +2553,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F307',
     feilklasse: 'kravene er avgjort uten et sendt vederlags- eller fristkrav (OV-U3, #493)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['(KRAVSPOR.some(sendt) || ', '(true || ']],
+    endringer: [['    KRAVSPOR.some(sendt) &&', '    true &&']],
     mal: ['uten et sendt vederlags- eller fristkrav er kravene ikke avgjort'],
   },
   {
@@ -2648,10 +2583,7 @@ const MUTASJONER: Mutasjon[] = [
         'u.spor.forhold.gjeldendeKrav !== null && KRAVSPOR.some((n) => u.spor[n].enighet !== null) && !u.forholdAvvist',
       ],
     ],
-    mal: [
-      'også uten registrert enighet i noe spor, men ikke før forholdet er sendt',
-      '«ingen krav» i begge spor avgjør kravene, og saken kan inngå i en endringsordre',
-    ],
+    mal: ['også uten registrert enighet i noe spor, men ikke før forholdet er sendt'],
   },
   {
     id: 'F311b',
@@ -2679,20 +2611,6 @@ const MUTASJONER: Mutasjon[] = [
       'SK-01: når TE godtar avslaget av forholdet, venter ubesvarte krav',
       'SK-01: når TE godtar avslaget av forholdet i forløp A',
     ],
-  },
-  {
-    id: 'F340',
-    feilklasse:
-      '«Krav sendt» går foran «Enige» i rekkefølgen og krever ikke at sporet er uten enighet (MM-U30, #1043, #1140)',
-    fil: `${K}/utledning/visning.ts`,
-    endringer: [
-      [
-        "  'enige',\n  'svar_ikke_godtatt',\n  'krav_sendt',\n",
-        "  'krav_sendt',\n  'enige',\n  'svar_ikke_godtatt',\n",
-      ],
-      ['    u.spor[spor].enighet === null &&\n', ''],
-    ],
-    mal: ['en enighet i sporet går foran «Krav sendt»'],
   },
   {
     id: 'F341',
@@ -2978,7 +2896,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         '...d.utsagn.filter((x) => !REGISTRERT_MED_VIRKNING.has(x.art))',
-        "...d.utsagn.filter((x) => x.art === 'trekk')",
+        '...d.utsagn.filter(() => false)',
       ],
     ],
     mal: ['OV-U19, OV-U4: en registrert begrunnelse', 'punkt 4 i #1167: alt i et registrert brev'],
@@ -5351,24 +5269,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['står med ordene det hadde: byggherren har ikke risikoen'],
   },
   {
-    id: 'F570',
-    feilklasse:
-      '«Krav sendt» går foran «Trukket» og krever ikke at sporet er uten trekk (MM-U30, #1140)',
-    fil: `${K}/utledning/visning.ts`,
-    endringer: [
-      [
-        "  'trukket',\n  'spesifisert_krav_etterspurt',\n",
-        "  'krav_sendt',\n  'trukket',\n  'spesifisert_krav_etterspurt',\n",
-      ],
-      [
-        "  'svar_ikke_godtatt',\n  'krav_sendt',\n  'ingen_krav',\n",
-        "  'svar_ikke_godtatt',\n  'ingen_krav',\n",
-      ],
-      ['    !u.spor[spor].trukket,\n', '    true,\n'],
-    ],
-    mal: ['er «Trukket», ikke «Krav sendt»'],
-  },
-  {
     id: 'F571',
     feilklasse: 'kravet står i en sak der påberopelsen er trukket (#1779, GR-U5)',
     fil: `${K}/utledning/visning.ts`,
@@ -6035,8 +5935,42 @@ const MUTASJONER: Mutasjon[] = [
       'en aksept av et avslag på grunnlaget, lagt til etter byggherrens nye svar, lukker ikke saken',
     ],
   },
+  {
+    id: 'F686',
+    feilklasse:
+      '«Byggherren har svart» krever at totalentreprenøren kan godta svaret, og gjelder ikke i en lukket sak (OV-U99 punkt 6, MM-U31, #2017)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        '  byggherren_har_svart: (u, spor) => u.spor[spor].gjeldendeSvar !== null,',
+        '  byggherren_har_svart: (u, spor) => u.spor[spor].gjeldendeSvar !== null && !u.forholdAvvist,',
+      ],
+    ],
+    mal: ['et besvart spor uten enighet fortsatt «Byggherren har svart»'],
+  },
+  {
+    id: 'F687',
+    feilklasse: '«Byggherren har svart» går foran «Enige» i rekkefølgen (MM-U30, #2017)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      ["  'enige',\n  'byggherren_har_svart',\n", "  'byggherren_har_svart',\n  'enige',\n"],
+    ],
+    mal: ['en enighet i sporet går foran «Byggherren har svart»'],
+  },
+  {
+    id: 'F688',
+    feilklasse:
+      '«Varslet» står også når totalentreprenøren har krevd i sporet (MM-U30, oppdragsgiver 16.11 i #2017)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        '  varslet: (u, spor) => harVarsel(u, spor) && u.spor[spor].krav.length === 0,',
+        '  varslet: harVarsel,',
+      ],
+    ],
+    mal: ['også med et varsel i sporet'],
+  },
 ];
-
 interface Testresultat {
   fullName: string;
   status: string;

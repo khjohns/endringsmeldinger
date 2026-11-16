@@ -26,9 +26,7 @@ export type Betegnelse =
   | 'venter_paa_svar'
   | 'paalegg_frafalt'
   | 'enige'
-  | 'svar_ikke_godtatt'
-  | 'krav_sendt'
-  | 'ingen_krav'
+  | 'byggherren_har_svart'
   | 'varslet';
 
 interface Foreligger {
@@ -45,7 +43,6 @@ export interface Vederlagslinje extends Foreligger {
   /** Kravet står slik nøkkeltallene teller det; serveren avgjør det (#1068). */
   kravet_staar: boolean;
   har_varsel: boolean;
-  ingen_krav: boolean;
   /**
    * `beloep` er summen av de faste beløpene, eller `null` når ingen post har et fast beløp, og
    * `antall_uten_fast_beloep` er kravpostene summen ikke regner med (#1779).
@@ -76,7 +73,6 @@ export interface Fristdager {
 export interface Fristlinje extends Foreligger {
   kravet_staar: boolean;
   har_varsel: boolean;
-  ingen_krav: boolean;
   /** Dagene står per frist og legges ikke sammen (KA-U74). */
   krav: { frister: Fristdager[] } | null;
   /**

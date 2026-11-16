@@ -35,7 +35,6 @@ import {
   vederlagsinnhold,
 } from '../spor/vederlag/format.ts';
 import {
-  KRAVSPOR,
   SPOR,
   type Hjemmel,
   type Opplysningsslag,
@@ -212,11 +211,6 @@ export const UTSAGN: Record<Utsagnsart, Skjema> = {
     },
     ['id', 'art', 'gjelder', 'hva']
   ),
-  ingen_krav: objekt({ ...artfelt('ingen_krav'), spor: { enum: [...KRAVSPOR] } }, [
-    'id',
-    'art',
-    'spor',
-  ]),
   innsigelse: objekt({ ...artfelt('innsigelse'), gjelder: ID, grunn: { const: 'ikke_svar' } }, [
     'id',
     'art',
@@ -263,8 +257,8 @@ export const UTSAGNSARTER = Object.keys(UTSAGN) as Utsagnsart[];
  * forholdet: den som registrerer, oppgir om brevet var en endringsordre etter
  * § 31.3 (GR-U13), i brevet selv. En senere avklaring med `gjelder` (MM-U12 (opphevet av MM-U50)) er ikke
  * med i første versjon: skjemaet godtar feltet, men leseren avviser den (OV-U13).
- * Merkingen etter KA-U20 og avklaringen av den er ikke med i første versjon, så en
- * rad med dem er ikke forstått (OV-U7, HF-U1, B-10).
+ * Merkingen av et registrert brev og avklaringen av den er opphevet (KA-U45), så en rad med
+ * dem er ikke forstått (MM-U2, HF-U1, B-10).
  */
 export const OPPLYSNING: Record<(typeof OPPLYSNINGSSLAG)[number], Skjema> = {
   sendt: objekt({ id: ID, hva: { const: 'sendt' }, dato: DATO, gjelder: ID }, [
