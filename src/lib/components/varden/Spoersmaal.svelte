@@ -5,7 +5,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import Infotips from './Infotips.svelte';
-  import { hjemmelsmerke } from './tekster';
+  import Hjemmel from './Hjemmel.svelte';
 
   let {
     id,
@@ -20,20 +20,20 @@
     tittel: string;
     /** Et tall etter tittelen, som det samlede beløpet. */
     tillegg?: string;
-    /** Punktet i NS 8407, uten «pkt.». */
-    hjemmel?: string;
+    /** Punktene i NS 8407, uten «pkt.». */
+    hjemmel?: readonly string[];
     info?: { navn: string; tekst: string };
     children: Snippet;
   } = $props();
 </script>
 
-<section class="spoersmaal" aria-labelledby={id}>
+<section class="spoersmaal" aria-labelledby={hjemmel ? `${id} ${id}-hjemmel` : id}>
   <div class="sp-hode">
     <h3 {id}>
       {#if tillegg}{`${tittel} · `}<span class="num">{tillegg}</span>{:else}{tittel}{/if}
-      {#if hjemmel}<span class="hjemmel">{hjemmelsmerke(hjemmel)}</span>{/if}
     </h3>
     {#if info}<Infotips navn={info.navn} tekst={info.tekst} />{/if}
+    {#if hjemmel}<Hjemmel id={`${id}-hjemmel`} numre={hjemmel} />{/if}
   </div>
   {@render children()}
 </section>
@@ -59,13 +59,6 @@
   .num {
     font-weight: 500;
     font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-  .hjemmel {
-    margin-left: var(--spacing-1);
-    font-size: 14px;
-    font-weight: 400;
-    color: var(--ink-3);
     white-space: nowrap;
   }
 </style>

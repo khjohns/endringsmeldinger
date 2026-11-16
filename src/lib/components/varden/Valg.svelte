@@ -4,6 +4,8 @@
   parten går videre, står feilmeldingen under valgene (MM-U32).
 -->
 <script lang="ts" generics="T extends string | boolean">
+  import Valgfri from './Valgfri.svelte';
+
   let {
     navn,
     spoersmaal,
@@ -13,6 +15,7 @@
     beskrevetAv,
     stablet = false,
     lett = false,
+    valgfri = false,
   }: {
     navn: string;
     spoersmaal: string;
@@ -33,6 +36,8 @@
      * (`system.md`, «To vekter på et valg»).
      */
     lett?: boolean;
+    /** Spørsmålet kan stå ubesvart, og «Valgfri» står til høyre på linja. */
+    valgfri?: boolean;
   } = $props();
   const uid = $props.id();
   const beskrivelse = $derived(
@@ -41,7 +46,9 @@
 </script>
 
 <fieldset class="valg" id={navn} tabindex="-1" aria-describedby={beskrivelse}>
-  <legend>{spoersmaal}</legend>
+  <legend class:valgfri
+    >{spoersmaal}{#if valgfri}<Valgfri />{/if}</legend
+  >
   <div class="kort" class:stablet class:lett>
     {#each valg as v (String(v.verdi))}
       <label class="valgkort" class:valgt={verdi === v.verdi} class:forklart={!!v.forklaring}>
@@ -81,6 +88,13 @@
     margin-bottom: var(--spacing-3);
     font-weight: 600;
     color: var(--ink);
+  }
+  legend.valgfri {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--spacing-3);
+    width: 100%;
   }
   .kort {
     display: flex;

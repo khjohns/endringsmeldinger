@@ -13,6 +13,7 @@ import { heleDager } from './fristsvar';
 import { definert } from './kommandoer';
 import { vedleggskart, type Kjernevedlegg } from './nysak';
 import { FRISTKRAV } from './tekster';
+import type { Mangel } from './mangler';
 
 /** Én frist i kravet, som TE har fylt den ut. */
 export interface Fristpostvalg {
@@ -146,15 +147,6 @@ export function fristkravet(
 /** Vedleggene kommandoen viser til, så kjernen kan lage brevet før sendingen (OV-U5). */
 export const vedleggIFristkravet = (v: Fristkravvalg) => vedleggskart(v.utenfor?.vedlegg ?? []);
 
-/** Det som mangler: teksten i oppsummeringen, og ved feltet uten navnet på raden (`ved`). */
-export interface Mangel {
-  felt: string;
-  tekst: string;
-  ved?: string;
-  /** Raden feltet står i, som åpnes når TE går til feltet. */
-  post?: string;
-}
-
 /** Det som mangler, med feltet det gjelder (`<prefiks>-<felt>`). Kjernen avviser det samme. */
 export function manglerIFristkravet(
   v: Fristkravvalg,
@@ -168,7 +160,7 @@ export function manglerIFristkravet(
       felt: `${prefiks}-${felt}`,
       tekst,
       ...(ved ? { ved } : {}),
-      ...(post ? { post } : {}),
+      post: post ?? null,
     });
   if (v.utenfor) {
     if (!v.utenfor.dato) legg('utenfor-dato', FRISTKRAV.manglerVarseldato);

@@ -28,17 +28,14 @@
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
+  import Manglene from './Manglene.svelte';
+  import type { Mangel } from './mangler';
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
+  import Valgfri from './Valgfri.svelte';
   import { brevene, datoerISporet } from './lesing';
-  import {
-    begrunnelsespunktene,
-    kravbrevetI,
-    SVARSKJEMA,
-    type Mangel,
-    type Postvelger,
-  } from './svarskjema';
+  import { begrunnelsespunktene, kravbrevetI, SVARSKJEMA, type Postvelger } from './svarskjema';
   import { HOVEDLINJER, SKJEMA, brevhode, brevtittel, dato } from './tekster';
 
   let {
@@ -129,6 +126,13 @@
     forsoekt ? (alleMangler.find((m) => m.felt === id)?.tekst ?? null) : null;
   let oppsummering = $state<HTMLElement | null>(null);
   let sendehindring = $state<string | null>(null);
+
+  /** Lenken i oppsummeringen åpner posten feltet står i (`Postliste`). */
+  function gaaTil(m: Mangel, e: MouseEvent) {
+    if (m.post === null || !postliste || postliste.erAapen(m.post)) return;
+    e.preventDefault();
+    postliste.aapne(m.post, m.felt);
+  }
 
   async function seBrevet() {
     sendehindring = null;
@@ -239,29 +243,12 @@
         </div>
       {:else}
         {#if forsoekt && alleMangler.length}
-          <div
-            class="mangler"
-            role="group"
-            tabindex="-1"
-            bind:this={oppsummering}
-            aria-labelledby={`${uid}-mangler`}
-          >
-            <p id={`${uid}-mangler`}>{SKJEMA.mangler}</p>
-            <ul>
-              {#each alleMangler as m (m.felt)}
-                <li>
-                  <a
-                    href={`#${m.felt}`}
-                    onclick={(e) => {
-                      if (m.post === null || !postliste || postliste.erAapen(m.post)) return;
-                      e.preventDefault();
-                      postliste.aapne(m.post, m.felt);
-                    }}>{m.tekst}</a
-                  >
-                </li>
-              {/each}
-            </ul>
-          </div>
+          <Manglene
+            tittel={SKJEMA.mangler}
+            mangler={alleMangler}
+            ongaa={gaaTil}
+            bind:element={oppsummering}
+          />
         {/if}
 
         {@render spoersmaal(feil)}
@@ -283,7 +270,7 @@
               {@const bFeil = feil(id)}
               <div class="begrunnelse">
                 <label for={id}
-                  >{kreves(p.punkt) || kanStaa(p.punkt) ? p.navn : SKJEMA.valgfritt(p.navn)}</label
+                  >{p.navn}{#if !kreves(p.punkt) && !kanStaa(p.punkt)}<Valgfri />{/if}</label
                 >
                 {#if kreves(p.punkt)}
                   <span class="dempet" id={`${id}-kreves`}>{begrunnelseKreves!.grunn}</span>
@@ -308,7 +295,7 @@
             {/each}
           {/if}
           <div class="begrunnelse forbehold">
-            <Feltetikett for={`${uid}-forbehold`}>{SKJEMA.forbehold}</Feltetikett>
+            <Feltetikett for={`${uid}-forbehold`} valgfri>{SKJEMA.forbehold}</Feltetikett>
             <span class="dempet" id={`${uid}-forbehold-hjelp`}>{SKJEMA.forbeholdHjelp}</span>
             <textarea
               id={`${uid}-forbehold`}
@@ -390,6 +377,10 @@
   }
   /* Feltnavnet er punktet i brevet, under overskriften «Begrunnelse» (design-review #1858). */
   .begrunnelse label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--spacing-3);
     font-size: 15px;
     color: var(--ink-2);
   }
@@ -429,31 +420,6 @@
   .ikke-stoettet :global(svg) {
     flex: none;
     margin-top: 3px;
-  }
-  .mangler {
-    margin: var(--spacing-5) var(--spacing-6) 0;
-    padding: var(--spacing-4);
-    border-left: 3px solid var(--danger);
-    background: var(--danger-bg);
-  }
-  .mangler:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
-  .mangler p {
-    font-weight: 600;
-  }
-  .mangler ul {
-    margin-top: var(--spacing-2);
-    padding-left: var(--spacing-5);
-    list-style: disc;
-  }
-  .mangler a {
-    color: var(--ink);
-    text-underline-offset: 3px;
-  }
-  .mangler a:hover {
-    text-decoration-thickness: 2px;
   }
   .skjemafot {
     padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);

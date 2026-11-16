@@ -519,6 +519,9 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     it('en frist som ikke er registrert, har ingen ny dato, og skjemaet sier hvorfor (KA-U79)', async () => {
       await kravskjemaet(medGrunnlag, FORLENGET);
       await fireEvent.click(screen.getByRole('radio', { name: 'En frist som ikke er registrert' }));
+      // Før fristen har et navn, heter den «Ny frist», også når den ikke er registrert (U-1).
+      expect(screen.queryByText(/Ny frist 0/)).toBeNull();
+      expect(screen.getByRole('heading', { name: 'Ny frist' })).toBeInTheDocument();
       const hvorfor = screen.getByText(
         'Gjeldende frist er ikke kjent, fordi fristen ikke er registrert for prosjektet.'
       );

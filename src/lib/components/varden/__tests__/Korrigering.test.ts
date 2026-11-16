@@ -69,7 +69,7 @@ async function teKorrigerer(dato: string, forklaring?: string): Promise<string[]
   );
   await skrivDatoen(dato);
   if (forklaring)
-    await fireEvent.input(screen.getByRole('textbox', { name: 'Forklaring (valgfri)' }), {
+    await fireEvent.input(screen.getByRole('textbox', { name: 'Forklaring, Valgfri' }), {
       target: { value: forklaring },
     });
   await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
@@ -202,7 +202,7 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     await teKorrigerer('2026-09-20', FORKLARING);
     await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til utkastet' }));
     expect(screen.getByLabelText('Ny dato for når pålegget ble mottatt')).toHaveValue('2026-09-20');
-    expect(screen.getByRole('textbox', { name: 'Forklaring (valgfri)' })).toHaveValue(FORKLARING);
+    expect(screen.getByRole('textbox', { name: 'Forklaring, Valgfri' })).toHaveValue(FORKLARING);
     await fireEvent.click(screen.getByRole('button', { name: 'Forkast utkast' }));
     await fireEvent.click(screen.getByRole('button', { name: 'Forkast' }));
     await vi.waitFor(() => expect(kvitteringen()).toMatch(/Utkastet er forkastet/));

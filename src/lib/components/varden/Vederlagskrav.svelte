@@ -32,7 +32,11 @@
   import { medietreff } from './medie.svelte';
   import Knapp from './Knapp.svelte';
   import Kravpunkter from './Kravpunkter.svelte';
+  import Hjemmel from './Hjemmel.svelte';
+  import Manglene from './Manglene.svelte';
+  import { feltfeil, type Mangel } from './mangler';
   import Melding from './Melding.svelte';
+  import Tallfelt from './Tallfelt.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
@@ -233,11 +237,11 @@
   const mangler = $derived(manglerIKravet(v, varslene, uid, navnet));
   let forsoekt = $state(false);
   const feil = (felt: string): string | null =>
-    forsoekt ? (mangler.find((m) => m.felt === id(felt))?.ved ?? null) : null;
+    forsoekt ? feltfeil(mangler.find((m) => m.felt === id(felt))) : null;
   let oppsummering = $state<HTMLElement | null>(null);
   let sendehindring = $state<string | null>(null);
 
-  async function gaaTil(m: { felt: string; post: string | null }, e: Event) {
+  async function gaaTil(m: Mangel, e: Event) {
     if (m.felt === id('saerskilt')) {
       e.preventDefault();
       await aapneSaerskilt();
@@ -580,22 +584,17 @@
   paakrevd: boolean
 )}
   {@const f = feil(felt)}
-  <div class="felt">
-    <Feltetikett for={id(felt)}>{etikett}</Feltetikett>
-    <span class="hjelp" id={id(`${felt}-hjelp`)}>{hjelp}</span>
-    <span class="inndata" class:ugyldig={f}>
-      <input
-        id={id(felt)}
-        inputmode="decimal"
-        bind:value={eier[noekkel]}
-        aria-required={paakrevd ? 'true' : undefined}
-        aria-describedby={f ? `${id(`${felt}-hjelp`)} ${id(`${felt}-feil`)}` : id(`${felt}-hjelp`)}
-        aria-invalid={f ? 'true' : undefined}
-      />
-      <span class="kr" aria-hidden="true">kr</span>
-    </span>
-    {#if f}<p class="feilmelding" id={id(`${felt}-feil`)}>{f}</p>{/if}
-  </div>
+  <Tallfelt
+    id={id(felt)}
+    {etikett}
+    {hjelp}
+    enhet="kr"
+    inputmode="decimal"
+    bind:verdi={() => eier[noekkel] ?? '', (t) => (eier[noekkel] = t)}
+    feil={f}
+    {paakrevd}
+    valgfri={!paakrevd}
+  />
 {/snippet}
 
 {#snippet aapenPost(p: Kravpostvalg)}
@@ -673,7 +672,7 @@
       </p>
     {/if}
     <div class="felt">
-      <Feltetikett for={id(`pns-${n}`)}>{KRAVSKJEMA.pns}</Feltetikett>
+      <Feltetikett for={id(`pns-${n}`)} valgfri>{KRAVSKJEMA.pns}</Feltetikett>
       <span class="hjelp" id={id(`pns-${n}-hjelp`)}>{KRAVSKJEMA.pnsHjelp}</span>
       <input
         id={id(`pns-${n}`)}
@@ -891,27 +890,19 @@
       {/if}
 
       {#if forsoekt && mangler.length}
-        <div
-          class="mangler"
-          role="group"
-          tabindex="-1"
-          bind:this={oppsummering}
-          aria-labelledby={id('mangler')}
-        >
-          <p id={id('mangler')}>{KRAVSKJEMA.mangler}</p>
-          <ul>
-            {#each mangler as m (m.felt)}
-              <li><a href={`#${m.felt}`} onclick={(e) => gaaTil(m, e)}>{m.tekst}</a></li>
-            {/each}
-          </ul>
-        </div>
+        <Manglene
+          tittel={KRAVSKJEMA.mangler}
+          {mangler}
+          ongaa={gaaTil}
+          bind:element={oppsummering}
+        />
       {/if}
 
       <section class="seksjon" id={id('postene')} aria-labelledby={id('postene-tittel')}>
         <div class="seksjonshode">
           <span class="nummer" aria-hidden="true">1</span>
           <h3 id={id('postene-tittel')}>{KRAVSKJEMA.postene}</h3>
-          <span class="hjemmel">{KRAVSKJEMA.posteneHjemmel}</span>
+          <Hjemmel numre={KRAVSKJEMA.posteneHjemmel} />
         </div>
         <p class="intro">{KRAVSKJEMA.posteneIntro}</p>
         {#if v.poster.length}
@@ -960,7 +951,7 @@
           <div class="seksjonshode">
             <span class="nummer" aria-hidden="true">2</span>
             <h3 id={id('saerskilt-tittel')}>{KRAVSKJEMA.saerskilt}</h3>
-            <span class="hjemmel">{KRAVSKJEMA.saerskiltHjemmel}</span>
+            <Hjemmel numre={KRAVSKJEMA.saerskiltHjemmel} />
           </div>
           <p class="intro">{KRAVSKJEMA.saerskiltIntro}</p>
           {#if saerskiltAapen}
@@ -1126,7 +1117,7 @@
           <h3 id={id('forbehold-tittel')}>{KRAVSKJEMA.forbeholdPunkt}</h3>
         </div>
         <div class="felt">
-          <Feltetikett for={id('forbehold-felt')}>{KRAVSKJEMA.forbehold}</Feltetikett>
+          <Feltetikett for={id('forbehold-felt')} valgfri>{KRAVSKJEMA.forbehold}</Feltetikett>
           <span class="hjelp" id={id('forbehold-hjelp')}>{KRAVSKJEMA.forbeholdHjelp}</span>
           <textarea
             id={id('forbehold-felt')}
@@ -1218,9 +1209,8 @@
   }
   .seksjonshode {
     display: flex;
-    flex-wrap: wrap;
     align-items: baseline;
-    gap: var(--spacing-1) var(--spacing-3);
+    gap: var(--spacing-3);
   }
   .nummer {
     display: inline-grid;
@@ -1238,10 +1228,6 @@
     font-size: 16px;
     font-weight: 600;
     color: var(--ink);
-  }
-  .hjemmel {
-    color: var(--ink-3);
-    font-size: 12px;
   }
   .intro {
     color: var(--ink-2);
@@ -1358,7 +1344,7 @@
   .felt {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-1);
+    gap: var(--spacing-2);
   }
   .hjelp,
   .dempet {
@@ -1390,34 +1376,6 @@
     padding: var(--spacing-3);
     resize: vertical;
   }
-  .inndata {
-    display: inline-flex;
-    align-items: stretch;
-    width: 220px;
-    border: var(--control-border);
-    border-radius: var(--r-felt);
-  }
-  .inndata input {
-    flex: 1;
-    min-width: 0;
-    min-height: 44px;
-    padding: 0 var(--spacing-3);
-    border: 0;
-    text-align: right;
-    font: 16px var(--font-sans);
-    font-variant-numeric: tabular-nums;
-    color: var(--ink);
-    background: var(--surface);
-    outline: none;
-  }
-  .kr {
-    display: flex;
-    align-items: center;
-    padding: 0 var(--spacing-3);
-    border-left: var(--rule);
-    color: var(--ink-3);
-  }
-  .inndata:focus-within,
   .tekstfelt:focus-visible,
   .kort-felt:focus-visible,
   .datofelt:focus-visible,
@@ -1491,28 +1449,6 @@
     gap: var(--spacing-4);
     padding-left: var(--spacing-4);
     border-left: 2px solid var(--rule-strong-color);
-  }
-  .mangler {
-    margin: var(--spacing-5) var(--spacing-6) 0;
-    padding: var(--spacing-4);
-    border-left: 3px solid var(--danger);
-    background: var(--danger-bg);
-  }
-  .mangler:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
-  .mangler p {
-    font-weight: 600;
-  }
-  .mangler ul {
-    margin-top: var(--spacing-2);
-    padding-left: var(--spacing-5);
-    list-style: disc;
-  }
-  .mangler a {
-    color: var(--ink);
-    text-underline-offset: 3px;
   }
   .skjemafot {
     padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);

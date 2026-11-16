@@ -176,8 +176,8 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     await svarskjemaet();
     await aapne('P2');
     await fireEvent.click(radio('Mener regningsarbeid (punkt 34.4)'));
-    const varselet = 'Varselet om justering av enhetsprisene (punkt 34.3.3) (valgfritt)';
-    const justeringen = 'Justeringen av enhetsprisene (punkt 34.3.2) (valgfritt)';
+    const varselet = 'Varselet om justering av enhetsprisene (punkt 34.3.3), Valgfri';
+    const justeringen = 'Justeringen av enhetsprisene (punkt 34.3.2), Valgfri';
     expect(forutsetningene(varselet)).toBe(
       'Gjelder hvis standpunktet ditt til oppgjørsformen ikke fører frem'
     );

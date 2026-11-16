@@ -69,7 +69,7 @@ function aapne(
 }
 
 const velgFiler = (...filer: File[]) =>
-  fireEvent.change(screen.getByLabelText('Vedlegg (valgfritt)'), { target: { files: filer } });
+  fireEvent.change(screen.getByLabelText('Vedlegg, Valgfri'), { target: { files: filer } });
 
 async function sendBrevet() {
   await seBrevet();
@@ -226,7 +226,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
     aapne();
     expect(screen.getByLabelText('Beskrivelse av pålegget')).toBeTruthy();
     expect(screen.getByLabelText('Dato du mottok pålegget')).toBeTruthy();
-    expect(screen.getByText('Vedlegg (valgfritt)')).toBeTruthy();
+    expect(screen.getByLabelText('Vedlegg, Valgfri', { selector: 'input' })).toBeTruthy();
     expect(screen.queryByText(/allerede varslet byggherren etter punkt 32.2/)).toBeNull();
   });
 
@@ -467,7 +467,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
   it('#1037: velgerens navn har knappeteksten «Velg filer» (WCAG 2.5.3)', () => {
     aapne();
     expect(screen.getByLabelText(/Vedlegg/).getAttribute('type')).toBe('file');
-    expect(screen.getByLabelText('Vedlegg (valgfritt) Velg filer')).toBeTruthy();
+    expect(screen.getByLabelText('Vedlegg, Valgfri Velg filer')).toBeTruthy();
   });
 
   it('#1037: en fil over 15 MB lastes ikke opp, og feilen står ved feltet', async () => {

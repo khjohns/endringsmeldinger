@@ -8,7 +8,6 @@
   Kommandoen bygges i `fristkrav.ts`, og kjernen lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
-  import { BookOpen } from 'lucide-svelte';
   import { tick, untrack } from 'svelte';
   import { dager } from '$kjerne/frosset/tekst';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '$kjerne/spor/frist/format';
@@ -23,7 +22,11 @@
   import Gjeldendefrist from './Gjeldendefrist.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Knapp from './Knapp.svelte';
+  import Manglene from './Manglene.svelte';
+  import Spoersmaal from './Spoersmaal.svelte';
+  import { feltfeil, type Mangel } from './mangler';
   import Melding from './Melding.svelte';
+  import Tallfelt from './Tallfelt.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
@@ -37,7 +40,6 @@
     vedleggIFristkravet,
     type Fristkravvalg,
     type Fristpostvalg,
-    type Mangel,
   } from './fristkrav';
   import { gjeldendeFrist, nyFrist, sakensNavn, type GjeldendeFrist } from './fristoversikt';
   import { heleDager } from './fristsvar';
@@ -56,7 +58,6 @@
     SKJEMA,
     dagensDato,
     dato,
-    hjemmelsmerke,
     kalenderdager,
   } from './tekster';
 
@@ -143,8 +144,8 @@
     if (v.hva === 'krav' && v.utenfor && erTomt(v.utenfor)) v.utenfor = null;
   }
 
-  // Radene som ennå ikke har en frist eller et navn, nummereres bare seg imellom (U-1).
-  const utenNavn = $derived(v.frister.filter((p) => p.frist === null && !p.navn.trim()));
+  // Radene uten et navn nummereres bare seg imellom (U-1).
+  const utenNavn = $derived(v.frister.filter((p) => !delene(p).navn));
   /** Navnet fristen står med i skjemaet og panelet, som i brevet (`betegnelsen` i kjernen). */
   function navnet(p: Fristpostvalg): string {
     const d = delene(p);
@@ -165,7 +166,6 @@
   let forsoekt = $state(false);
   const feil = (felt: string): string | null =>
     forsoekt ? feltfeil(mangler.find((m) => m.felt === id(felt))) : null;
-  const feltfeil = (m: Mangel | undefined) => (m ? (m.ved ?? m.tekst) : null);
   const begrunnelseFeil = $derived(feil('begrunnelse'));
   let oppsummering = $state<HTMLElement | null>(null);
   let sendehindring = $state<string | null>(null);
@@ -454,40 +454,25 @@
 )}
   {@const fid = id(`${navn}-${p.noekkel}`)}
   {@const f = feil(`${navn}-${p.noekkel}`)}
-  <div class="tallfelt">
-    <Feltetikett for={fid}>{etikett}</Feltetikett>
-    {#if hjelp}<span class="dempet" id={`${fid}-hjelp`}>{hjelp}</span>{/if}
-    <span
-      class="inndata"
-      class:ugyldig={f}
-      class:tekst={navn === 'navn'}
-      class:kort={navn === 'nummer'}
-    >
-      <input
-        id={fid}
-        inputmode={navn === 'dager' ? 'numeric' : undefined}
-        bind:value={p[navn]}
-        aria-describedby={[
-          hjelp ? `${fid}-hjelp` : '',
-          gjeldende ?? '',
-          nyDato ? `${fid}-ny` : '',
-          etter ? `${fid}-etter` : '',
-          f ? `${fid}-feil` : '',
-        ]
-          .filter(Boolean)
-          .join(' ') || undefined}
-        aria-invalid={f ? 'true' : undefined}
-        aria-required={navn === 'nummer' ? undefined : 'true'}
-      />
-      {#if navn === 'dager'}<span class="enhet" aria-hidden="true">dager</span>{/if}
-    </span>
-    {#if f}<p class="feilmelding" id={`${fid}-feil`}>{f}</p>{/if}
+  <Tallfelt
+    id={fid}
+    {etikett}
+    {hjelp}
+    enhet={navn === 'dager' ? 'dager' : undefined}
+    bredde={navn === 'navn' ? 'tekst' : navn === 'nummer' ? 'kort' : 'tall'}
+    inputmode={navn === 'dager' ? 'numeric' : undefined}
+    bind:verdi={p[navn]}
+    feil={f}
+    etter={[gjeldende ?? '', nyDato ? `${fid}-ny` : '', etter ? `${fid}-etter` : '']}
+    paakrevd={navn !== 'nummer'}
+    valgfri={navn === 'nummer'}
+  >
     <!-- Den levende regionen står fra start, så den nye datoen leses opp når den kommer (#1636). -->
     {#if nyDato !== undefined}<p class="dempet" id={`${fid}-ny`} aria-live="polite">
         {nyDato ?? ''}
       </p>{/if}
     {#if etter}<p class="dempet" id={`${fid}-etter`}>{etter}</p>{/if}
-  </div>
+  </Tallfelt>
 {/snippet}
 
 {#snippet fristrad(p: Fristpostvalg)}
@@ -629,20 +614,7 @@
       mottaker={SKJEMA.tilBH}
     >
       {#if forsoekt && mangler.length}
-        <div
-          class="mangler"
-          role="group"
-          tabindex="-1"
-          bind:this={oppsummering}
-          aria-labelledby={id('mangler')}
-        >
-          <p id={id('mangler')}>{SKJEMA.mangler}</p>
-          <ul>
-            {#each mangler as m (m.felt)}
-              <li><a href={`#${m.felt}`} onclick={(e) => gaaTil(m, e)}>{m.tekst}</a></li>
-            {/each}
-          </ul>
-        </div>
+        <Manglene tittel={SKJEMA.mangler} {mangler} ongaa={gaaTil} bind:element={oppsummering} />
       {/if}
 
       {#if kanVarsle}
@@ -681,13 +653,7 @@
       {/if}
 
       {#if !bokstavB || varselbrev}
-        <section class="spoersmaal" aria-labelledby={id('sp-varsel')}>
-          <div class="sp-hode">
-            <h3 id={id('sp-varsel')}>{FRISTKRAV.varselTittel}</h3>
-            <span class="hjemmel"
-              ><BookOpen size={14} aria-hidden="true" />{hjemmelsmerke('33.4')}</span
-            >
-          </div>
+        <Spoersmaal id={id('sp-varsel')} tittel={FRISTKRAV.varselTittel} hjemmel={['33.4']}>
           <p class="dempet">{varsel ? FRISTKRAV.varselAleneHjelp : FRISTKRAV.varselHjelp}</p>
           {#if klarOver}
             <dl class="klar-over">
@@ -741,18 +707,16 @@
             </div>
           {/if}
           {#if dagerEtterKlarOver}<p class="dempet">{dagerEtterKlarOver}</p>{/if}
-        </section>
+        </Spoersmaal>
       {/if}
 
       {#if bokstavB}
         {@const fB = feil('grunn-b')}
-        <section class="spoersmaal" aria-labelledby={id('sp-grunn-b')}>
-          <div class="sp-hode">
-            <h3 id={id('sp-grunn-b')}>{FRISTKRAV.grunnBTittel}</h3>
-            <span class="hjemmel"
-              ><BookOpen size={14} aria-hidden="true" />{hjemmelsmerke('33.6.2 annet ledd b')}</span
-            >
-          </div>
+        <Spoersmaal
+          id={id('sp-grunn-b')}
+          tittel={FRISTKRAV.grunnBTittel}
+          hjemmel={['33.6.2 annet ledd b']}
+        >
           <p class="dempet" id={id('grunn-b-hjelp')}>{FRISTKRAV.grunnBHjelp}</p>
           <textarea
             id={id('grunn-b')}
@@ -767,20 +731,15 @@
             aria-required="true"
           ></textarea>
           {#if fB}<p class="feilmelding" id={id('grunn-b-feil')}>{fB}</p>{/if}
-        </section>
+        </Spoersmaal>
       {/if}
 
       {#if !varsel && !bokstavB}
-        <section class="spoersmaal" aria-labelledby={id('sp-frister')}>
-          <div class="sp-hode">
-            <h3 id={id('sp-frister')}>{FRISTKRAV.fristerTittel}</h3>
-            <span class="hjemmel"
-              ><BookOpen size={14} aria-hidden="true" />{hjemmelsmerke(
-                hindringPunkt,
-                '33.6.1'
-              )}</span
-            >
-          </div>
+        <Spoersmaal
+          id={id('sp-frister')}
+          tittel={FRISTKRAV.fristerTittel}
+          hjemmel={[hindringPunkt, '33.6.1']}
+        >
           <p class="dempet">{FRISTKRAV.fristerHjelp}</p>
           {#if kjernesak.kontraktsfrister === null}
             <Melding art="feil" levende={false}>{FRISTKRAV.ingenFristtabell}</Melding>
@@ -805,15 +764,13 @@
               >{FRISTKRAV.leggTil}</Knapp
             >
           </div>
-        </section>
+        </Spoersmaal>
 
-        <section class="spoersmaal" aria-labelledby={id('sp-begrunnelse')}>
-          <div class="sp-hode">
-            <h3 id={id('sp-begrunnelse')}>{FRISTKRAV.begrunnelseTittel}</h3>
-            <span class="hjemmel"
-              ><BookOpen size={14} aria-hidden="true" />{hjemmelsmerke('33.5', '33.6.1')}</span
-            >
-          </div>
+        <Spoersmaal
+          id={id('sp-begrunnelse')}
+          tittel={FRISTKRAV.begrunnelseTittel}
+          hjemmel={['33.5', '33.6.1']}
+        >
           <div class="dempet" id={id('begrunnelse-hjelp')}>
             <p>{FRISTKRAV.begrunnelseHjelp}</p>
             <ul class="hensyn">
@@ -836,7 +793,7 @@
           {#if begrunnelseFeil}<p class="feilmelding" id={id('begrunnelse-feil')}>
               {begrunnelseFeil}
             </p>{/if}
-        </section>
+        </Spoersmaal>
       {/if}
 
       <div class="skjemafot">
@@ -873,34 +830,16 @@
     flex-direction: column;
     gap: var(--spacing-3);
   }
-  .sp-hode,
   .frist-hode {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: var(--spacing-3);
   }
-  h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--ink);
-  }
   h4 {
     font-size: 16px;
     font-weight: 600;
     color: var(--ink);
-  }
-  .hjemmel {
-    margin-left: auto;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-1);
-    padding: 0 var(--spacing-2);
-    border: var(--rule-strong);
-    border-radius: var(--r-merke);
-    color: var(--ink-2);
-    font-size: 12px;
-    white-space: nowrap;
   }
   .status {
     padding: var(--spacing-3) var(--spacing-4);
@@ -1041,46 +980,9 @@
     gap: var(--spacing-2);
   }
   textarea:focus-visible,
-  .datofelt:focus-visible,
-  .inndata:focus-within {
+  .datofelt:focus-visible {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
-  }
-  .inndata {
-    display: inline-flex;
-    align-items: stretch;
-    width: 220px;
-    max-width: 100%;
-    border: var(--control-border);
-    border-radius: var(--r-felt);
-  }
-  .inndata.tekst {
-    width: 100%;
-  }
-  .inndata.kort {
-    width: 140px;
-  }
-  .inndata input {
-    flex: 1;
-    min-width: 0;
-    min-height: 44px;
-    padding: 0 var(--spacing-3);
-    border: 0;
-    font: 16px var(--font-sans);
-    color: var(--ink);
-    background: var(--surface);
-    outline: none;
-  }
-  .inndata:not(.tekst, .kort) input {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
-  .enhet {
-    display: flex;
-    align-items: center;
-    padding: 0 var(--spacing-3);
-    border-left: var(--rule);
-    color: var(--ink-3);
   }
   textarea {
     padding: var(--spacing-3);
@@ -1125,7 +1027,6 @@
     margin-left: var(--spacing-2);
     font-weight: 400;
   }
-  .inndata.ugyldig,
   .datofelt.ugyldig,
   textarea.ugyldig {
     border-color: var(--danger);
@@ -1135,28 +1036,6 @@
     color: var(--danger);
     font-size: 14px;
     font-weight: 500;
-  }
-  .mangler {
-    margin: var(--spacing-5) var(--spacing-6) 0;
-    padding: var(--spacing-4);
-    border-left: 3px solid var(--danger);
-    background: var(--danger-bg);
-  }
-  .mangler:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
-  .mangler p {
-    font-weight: 600;
-  }
-  .mangler ul {
-    margin-top: var(--spacing-2);
-    padding-left: var(--spacing-5);
-    list-style: disc;
-  }
-  .mangler a {
-    color: var(--ink);
-    text-underline-offset: 3px;
   }
   .skjemafot {
     padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
