@@ -372,6 +372,19 @@ const varseletGitt = (brev: string) =>
 const SLUTTFRISTEN_20 = [VARSLER_NAA, fristforlengelse(2), '3. Begrunnelse'];
 
 /** Saken med forhold (brev 2), vederlag (brev 3, 125 000 kr) og frist (brev 4, 20 dager). */
+/** VS-U34, C1 i #2056: raden kravskjemaet skriver foran fristkravet, med varselet etter § 33.4. */
+function varselradenIFristkravet(s: { journal: Journalrad[] }): Journalrad {
+  const rad = s.journal.find((r) =>
+    ((r.data.utsagn ?? []) as Data[]).some((u) => u.art === 'varsel' && u.hjemmel === '33.4')
+  );
+  expect(rad, 'varselet fra kravskjemaet står i saken som eget brev (VS-U34)').toBeDefined();
+  return rad!;
+}
+const varseletIFristkravet = (s: { journal: Journalrad[] }): Data =>
+  (varselradenIFristkravet(s).data.utsagn as Data[]).find((u) => u.art === 'varsel')!;
+const sendtForVarseletIFristkravet = (s: { journal: Journalrad[] }): string =>
+  (varselradenIFristkravet(s).data.opplysninger as Data[])[0].id as string;
+
 function sakMedKrav() {
   const s = sak();
   s.send('TE', PAABEROPELSE);
@@ -2757,7 +2770,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
 
   it('gir byggherren opp innsigelsen mot fristvarselet, nevner brevet varselet etter § 33.4 (LV-U5)', () => {
     const s = sakMedKrav();
-    const varselet = (s.journal.at(-2)!.data.utsagn as Data[]).find((u) => u.art === 'varsel')!;
+    const varselet = varseletIFristkravet(s);
     s.send('BH', { type: 'innsigelse', gjelder: varselet.id });
     const rad = s.send('BH', {
       type: 'brev',
@@ -2848,7 +2861,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
 
   it('med innsigelser mot både fristkravet og varselet gir et «i tide» opp bare den mot varselet (VS-U11, VS-U24)', () => {
     const s = sakMedKrav();
-    const varselet = (s.journal.at(-2)!.data.utsagn as Data[]).find((u) => u.art === 'varsel')!;
+    const varselet = varseletIFristkravet(s);
     s.send('BH', { type: 'innsigelse', gjelder: s.krav('frist') });
     s.send('BH', { type: 'innsigelse', gjelder: varselet.id });
     const rad = s.send('BH', {
@@ -2862,7 +2875,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
 
   it('et «i tide» i forholdet gir ikke opp innsigelsen mot fristvarselet (VS-U9, VS-U11)', () => {
     const s = sakMedKrav();
-    const varselet = (s.journal.at(-2)!.data.utsagn as Data[]).find((u) => u.art === 'varsel')!;
+    const varselet = varseletIFristkravet(s);
     s.send('BH', { type: 'innsigelse', gjelder: varselet.id });
     s.send('BH', {
       type: 'brev',
@@ -3379,7 +3392,7 @@ describe('bestridelse (LV-U4 punkt 10–12), og merking og avklaring (KA-U45)', 
 
   it('bestridelsen av datoen for et varsel etter § 33.4 avvises i første versjon (OV-U7)', () => {
     const s = sakMedKrav();
-    const varsel = (s.journal.at(-2)!.data.opplysninger as Data[])[0].id as string;
+    const varsel = sendtForVarseletIFristkravet(s);
     expect(s.avvist('BH', { type: 'bestridelse', gjelder: varsel, hva: 'sendt' })).toBe(
       'IKKE_I_FOERSTE_VERSJON'
     );
@@ -6050,6 +6063,7 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
   it('et registrert svar med «i tide», sendt før fristkravet, får ingen virkning, og byggherren kan svare «for sent» fra appen (OV-U98)', () => {
     const s = sakMedKrav();
     const u = s.u();
+    expect(u.spor.frist.varsler['33.4'], 'forutsetning: varselet fra kravskjemaet').toBeDefined();
     const fristId = (u.spor.frist.gjeldendeKrav!.innhold.frister as Data[])[0].id;
     const svarId = randomUUID();
     s.rad('BH', {

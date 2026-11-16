@@ -10,13 +10,7 @@ import { feilI, objekt } from '../../format/skjema.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
 import { varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
-import {
-  avvis,
-  varseletSendt,
-  type Avvisning,
-  type Journalrad,
-  type Standpunkt,
-} from '../../typer.ts';
+import { avvis, type Avvisning, type Journalrad, type Standpunkt } from '../../typer.ts';
 import type { Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
@@ -65,10 +59,9 @@ export const NYTTELAST_I_FRISTEN = {
   kravsperre: fristsperre,
   innsigelse: () => null,
   utdypning: utdypningIFristen,
-  oppgittDatoIKravet: (k) =>
-    k.varsel
-      ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'Totalentreprenøren' }
-      : null,
+  // VS-U34: varselet i kravet skrives som et eget brev, og datoen kontrolleres der (`oppgittDatoI`).
+  // Står varselet alt i saken, kreves samme dato som det har.
+  oppgittDatoIKravet: () => null,
 } satisfies Sporsnyttelast;
 
 /** Et utsagn i fristen som ikke er et krav, når sporet er lukket (GR-U27, GR-U5). */

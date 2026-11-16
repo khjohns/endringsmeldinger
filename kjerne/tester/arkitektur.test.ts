@@ -1388,7 +1388,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Avvisningen med regelkoden og meldingen, felles for forutsetningene, nyttelasten og skrivingen.
   ['typer.ts', 'predikat', 'avvis'],
   // Det en oppgitt dato for et varsel gjelder, i avvisningene (#1783).
-  ['typer.ts', 'predikat', 'varseletSendt', ['kommandoer/nyttelast.ts', 'spor/frist/kommando.ts']],
+  ['typer.ts', 'predikat', 'varseletSendt', ['kommandoer/nyttelast.ts']],
   // OV-U32: laget en fryst virkning står i, og laget i et svarutkast (#1400).
   [
     'frosset/byggeklosser.ts',

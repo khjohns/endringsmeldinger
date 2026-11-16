@@ -993,7 +993,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F109',
-    feilklasse: 'varselet i et fristkrav får ikke et avsnitt i brevteksten (LV-U3)',
+    feilklasse: 'varselet sendt fra løsningen får ikke et avsnitt i brevteksten (LV-U3, VS-U15)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
@@ -1001,7 +1001,7 @@ const MUTASJONER: Mutasjon[] = [
         "  for (const u of nytt.utsagn.filter((x) => x.art !== 'varsel')) legg(",
       ],
     ],
-    mal: ['fristkravet har datoen for varselet'],
+    mal: ['brevet er varselet, uten dager og uten en oppgitt dato'],
   },
   {
     id: 'F110',
@@ -2481,18 +2481,6 @@ const MUTASJONER: Mutasjon[] = [
       [
         "  if (k.type === 'varsel')\n    return [{ dato: k.sendt, gjelder: varseletSendt(k.hjemmel), av: 'Totalentreprenøren' }];\n",
         '',
-      ],
-    ],
-    mal: ['en dato for varselet etter § 33.4 etter brevets dato avvises'],
-  },
-  {
-    id: 'F299',
-    feilklasse: 'datoen for varselet i fristkravet kontrolleres ikke mot brevets dato (#968)',
-    fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [
-      [
-        "    k.varsel\n      ? { dato: k.varsel.sendt, gjelder: varseletSendt('33.4'), av: 'Totalentreprenøren' }\n      : null,",
-        '    null,',
       ],
     ],
     mal: ['en dato for varselet etter § 33.4 etter brevets dato avvises'],
@@ -4884,7 +4872,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et fristkrav med varselet etter § 33.4 sendt før datoen i grunnlagskravet godtas (VS-U58)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['      if (foer) return foer;', '']],
+    endringer: [
+      [
+        '        (erVarselOmForholdet(k.hjemmel) ? varseletFoerGrunnlagsdatoen(k.hjemmel, k.sendt, u) : null)',
+        '        null',
+      ],
+    ],
     mal: ['et fristkrav med varselet etter § 33.4 sendt før datoen i grunnlagskravet'],
   },
   {

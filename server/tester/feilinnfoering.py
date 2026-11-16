@@ -299,7 +299,7 @@ FEILINNFOERINGER = [
      "  bareTE: 'Du er på byggherrens side. En ny sak opprettes av totalentreprenøren.',\n", "",
      "BH får ikke nummeret for en ny sak"),
     ("S78", "varselet i en ny sak kan ikke ha korrespondansetypen (LV-U42, D1 A i #1497)", "server/nysak.ts",
-     "new Set(['sendt', 'korrespondansetype', 'dokumentasjon'])", "new Set(['sendt', 'dokumentasjon'])",
+     "  'korrespondansetype',\n  'sendemaate',", "  'sendemaate',",
      "binder det til påberopelsen og skriver varselet som versjon 3"),
     ("S79", "brevskriften setter et tegn med delt glyf, så myk bindestrek leses som bindestrek (#1658)",
      "server/brevpdf.ts",
