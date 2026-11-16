@@ -31241,6 +31241,61 @@ tekst = "Det nyere svaret står med virkningen det hadde."
 kilde = "hovedplanen"
 tekst = "En registrert enighet bevares og vises."
 
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U111"
+dato = 2026-11-16
+hvem = "oppdragsgiver"
+kilde = ["#2047", "#2011"]
+sporsmal = '''
+Spørsmålet kom fra byggingen av OV-U109 i PR #2047. Det ble kontrollert uavhengig, rettet av økta som stilte det, og stilt i samtalen 16.11. Oppdragsgiver drøftet A og B, og orkestratoren foreslo C. Spørsmålet, drøftingen og svaret står ordrett i [kommentaren i #2047](https://github.com/khjohns/endringsmeldinger/pull/2047#issuecomment-6910222766):
+
+> **Bakgrunn.** Byggherren kan etter punkt 33.6.2 første ledd be totalentreprenøren angi og begrunne antallet dager bare «så lenge» totalentreprenøren ikke har fremmet krav. Fjerde ledd (byggherren kan ikke påberope at kravet kom for sent etter punkt 33.6.1) forutsetter et svar etter annet ledd, og dermed en forespørsel etter første ledd. Har totalentreprenøren sendt et krav om dager før forespørselen, er det derfor uklart om forespørselen var en forespørsel etter første ledd. OV-U109 lot det stå åpent: «Om forespørselen likevel forpliktet totalentreprenøren til å svare, avgjør løsningen ikke (MM-U50 punkt 8).»
+>
+> **Tilfellet.** Byggherren har sendt forespørselen fra løsningen. Totalentreprenøren har svart med et fristkrav fra løsningen, som sier at det svarer på forespørselen. Senere legger totalentreprenøren til et eldre fristkrav, sendt dagen før forespørselen eller tidligere. Er det eldre kravet sendt samme dag som forespørselen, er det ikke sendt før den (OV-U104), og spørsmålet oppstår ikke.
+>
+> **Hva valget styrer.** Om byggherrens svar på kravet som svarte, kan påberope at kravet kom for sent etter punkt 33.6.1, og om svarskjemaet spør etter det.
+>
+> - **A (anbefalt):** «Har totalentreprenøren svart på byggherrens forespørsel etter punkt 33.6.2, sendt fra løsningen, med et krav som sier at det svarer på den, gjelder fjerde ledd fortsatt for det kravet når totalentreprenøren senere legger til et krav sendt før forespørselen. Løsningen utleder ikke virkningen etter tredje ledd eller av en påberopelse av at totalentreprenøren svarte for sent (OV-U109).» Byggherren kan da ikke gjøre gjeldende i løsningen at fjerde ledd ikke gjelder; påberopelsen etter punkt 33.6.1 avvises. A avgjør dermed det OV-U109 lot stå åpent, i totalentreprenørens favør, og står i et spenningsforhold til MM-U50 punkt 8. Forhold: presiserer OV-U109; i tråd med LV-U18 (3), MM-U50 punkt 7 og VS-U47 punkt 6.
+> - **B:** «Legger totalentreprenøren til et krav sendt før byggherrens forespørsel etter punkt 33.6.2, utleder løsningen ingen virkning etter punkt 33.6.2 for svar som sendes fra eller legges til i løsningen etterpå, heller ikke etter fjerde og femte ledd. Byggherren tar stilling etter punkt 33.6.1 (VS-U47 punkt 1).» B lar det OV-U109 lot stå åpent, stå åpent. I motsetning til OV-U102 og OV-U109 bevarer B ikke virkningen av totalentreprenørens svar på forespørselen sendt før det eldre kravet ble lagt til (MM-U50 punkt 1): kravet som svarte, mister skjermingen etter fjerde ledd, og en begrunnelse etter annet ledd bokstav b mister virkningen etter femte ledd. Svar fra byggherren sendt fra eller lagt til i løsningen før det eldre kravet ble lagt til, står med virkningen de hadde. Løsningen advarer ikke når kravet legges til. Et trekk av det eldre kravet gir ikke fjerde ledd tilbake, og en retting av datoen gjør det trolig heller ikke (OV-U98; ikke prøvd). Et eldre krav lagt til med feil dato kan da bli en blindvei. Forhold: presiserer OV-U109; snevrer inn VS-U47 punkt 6; i tråd med MM-U50 punkt 8.
+>
+> **Anbefaling: A.** Kravet sa da det ble sendt, at det svarer på forespørselen (LV-U18 (3)), og byggherren behandlet det slik. Under B kan totalentreprenøren tape skjermingen etter fjerde ledd ved å legge til et sant eldre krav, uten å bli advart, og uten vei tilbake. Under A har byggherren ingen vei i løsningen til å påberope punkt 33.6.1 mot kravet som svarte. Byggherren kan gjøre det utenfor løsningen, og løsningen avgjør ikke om påberopelsen fører fram.
+>
+> ## Drøftingen 16.11
+>
+> Oppdragsgiver 16.11, ordrett: «La oss drøftr A og B om 33.6.1. Les gjerne kontrakten i khjohns/kontrakt. 33.6.1 gjelder vel bare hvis kravet ikke er spesifisert. Hvis forespørsel er sendt dag x+1 og TE fremla krav dag x, men svarte også på forespørsel dag x+1 eller senere, da er vel forespørselen uten virkning? Tilfellet den behandler: krav ikke fremsatt - eksisterer ikke. UI trenger ikke å blokkere handlinger den eller andre veien, men bør vel informere om de faktiske realitetene»
+>
+> Orkestratoren foreslo etter lesingen av punkt 33.6.1 og 33.6.2 et nytt alternativ:
+>
+> - **C:** «Har totalentreprenøren sendt et krav om dager før byggherrens forespørsel etter punkt 33.6.2, viser løsningen at forespørselen ble sendt etter at totalentreprenøren hadde fremmet krav, og at første ledd da bare gjelder hvis det kravet ikke var et krav etter punkt 33.6.1. Løsningen utleder ingen virkning etter punkt 33.6.2 tredje, fjerde eller femte ledd, verken for det eldre kravet eller for et senere krav som svarer på forespørselen. Om et krav kom i tide, vurderes etter punkt 33.6.1. Løsningen sperrer ikke byggherrens påberopelse etter punkt 33.6.1, og avgjør ikke om det eldre kravet var et krav etter punkt 33.6.1 (MM-U50 punkt 8). Et svar sendt fra eller lagt til i løsningen før det eldre kravet ble lagt til, står med virkningen det hadde (MM-U50 punkt 1).» Forhold: presiserer OV-U109; snevrer inn VS-U47 punkt 6 for dette tilfellet.
+'''
+valgt = "C"
+svar = '''
+Oppdragsgiver 16.11, ordrett: «Ja til C».'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u109" },
+  { art = "snevrer inn", vedtak = "vs-u47" },
+]
+folge = '''
+Forholdet slik det sto i alternativet C: «presiserer OV-U109; snevrer inn VS-U47 punkt 6 for dette tilfellet.» Bygges i #2022.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Har totalentreprenøren svart på byggherrens forespørsel etter punkt 33.6.2, sendt fra løsningen, med et krav som sier at det svarer på den, gjelder fjerde ledd fortsatt for det kravet når totalentreprenøren senere legger til et krav sendt før forespørselen. Løsningen utleder ikke virkningen etter tredje ledd eller av en påberopelse av at totalentreprenøren svarte for sent (OV-U109). Byggherren kan da ikke gjøre gjeldende i løsningen at fjerde ledd ikke gjelder; påberopelsen etter punkt 33.6.1 avvises. A avgjør dermed det OV-U109 lot stå åpent, i totalentreprenørens favør, og står i et spenningsforhold til MM-U50 punkt 8. Forhold: presiserer OV-U109; i tråd med LV-U18 (3), MM-U50 punkt 7 og VS-U47 punkt 6.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Legger totalentreprenøren til et krav sendt før byggherrens forespørsel etter punkt 33.6.2, utleder løsningen ingen virkning etter punkt 33.6.2 for svar som sendes fra eller legges til i løsningen etterpå, heller ikke etter fjerde og femte ledd. Byggherren tar stilling etter punkt 33.6.1 (VS-U47 punkt 1). B lar det OV-U109 lot stå åpent, stå åpent. I motsetning til OV-U102 og OV-U109 bevarer B ikke virkningen av totalentreprenørens svar på forespørselen sendt før det eldre kravet ble lagt til (MM-U50 punkt 1): kravet som svarte, mister skjermingen etter fjerde ledd, og en begrunnelse etter annet ledd bokstav b mister virkningen etter femte ledd. Svar fra byggherren sendt fra eller lagt til i løsningen før det eldre kravet ble lagt til, står med virkningen de hadde. Løsningen advarer ikke når kravet legges til. Et trekk av det eldre kravet gir ikke fjerde ledd tilbake, og en retting av datoen gjør det trolig heller ikke (OV-U98; ikke prøvd). Et eldre krav lagt til med feil dato kan da bli en blindvei. Forhold: presiserer OV-U109; snevrer inn VS-U47 punkt 6; i tråd med MM-U50 punkt 8.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Har totalentreprenøren sendt et krav om dager før byggherrens forespørsel etter punkt 33.6.2, viser løsningen at forespørselen ble sendt etter at totalentreprenøren hadde fremmet krav, og at første ledd da bare gjelder hvis det kravet ikke var et krav etter punkt 33.6.1. Løsningen utleder ingen virkning etter punkt 33.6.2 tredje, fjerde eller femte ledd, verken for det eldre kravet eller for et senere krav som svarer på forespørselen. Om et krav kom i tide, vurderes etter punkt 33.6.1. Løsningen sperrer ikke byggherrens påberopelse etter punkt 33.6.1, og avgjør ikke om det eldre kravet var et krav etter punkt 33.6.1 (MM-U50 punkt 8). Et svar sendt fra eller lagt til i løsningen før det eldre kravet ble lagt til, står med virkningen det hadde (MM-U50 punkt 1). Forhold: presiserer OV-U109; snevrer inn VS-U47 punkt 6 for dette tilfellet.'''
+
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
 etter = '''
