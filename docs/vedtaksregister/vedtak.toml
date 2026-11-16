@@ -31372,6 +31372,99 @@ Totalentreprenørens aksept av byggherrens avslag på grunnlaget, lagt til med d
 kilde = "hovedplanen"
 tekst = "Et svar byggherren har sendt etter aksepten, står med virkningen det hadde."
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U113"
+dato = 2026-11-16
+hvem = "oppdragsgiver"
+kilde = ["#1119", "#1065"]
+sporsmal = '''
+Spørsmålet ble stilt før byggingen av #1119. Det ble kartlagt av en subagent, kontrollert uavhengig og rettet etter funnene. Spørsmålet står ordrett i [kommentaren i #1119](https://github.com/khjohns/endringsmeldinger/issues/1119#issuecomment-6913913458) og svaret i [kommentaren med svaret](https://github.com/khjohns/endringsmeldinger/issues/1119#issuecomment-6913958566). Avsnitt 0 og spørsmål 1, ordrett:
+
+> ## 0. Motstriden som avgjør resten
+>
+> Vedtakene peker i to retninger. Lesningen med best belegg er at forespørselen er dokumentasjon i første versjon.
+>
+> - **Virkning.** OV-U98 regner forespørselen etter punkt 33.6.2 blant utsagnene som får virkning når avsenderen legger den til («… en forespørsel etter punkt 33.6.2 eller totalentreprenørens aksept av byggherrens svar, fordi virkningen avhenger av når brevet ble sendt»). Kommentarene i #1119 15.11 kl. 10:37 og 12:35 bygger på det.
+> - **Dokumentasjon.** Beslutningsdelen i VS-U47, punktet fra VS-U23 s1–s3, lyder: «I første versjon er en forespørsel sendt utenfor løsningen dokumentasjon, og påberopelsen av at TE svarte for sent på den, sendes utenfor løsningen og registreres.»
+> - **OV-U99 punkt 1 peker mot dokumentasjon.** Forespørselen står ikke i lista «registreringen med virkning ved innleggingen for varsel, krav, svar, endringsordre og aksept etter B1 (OV-U80)». Punktet nevner den for seg: «registreringen av forespørselen (OV-U16, VS-U47 punkt 5)». OV-U16 er registreringen som dokumentasjon med beskrivelse.
+> - **Oppdragsgiver har svart på motstriden.** Prøvingen av spørsmål 4 i #2011 (kommentaren 6901285227, ca. kl. 21:00 15.11) fant motstriden. Ca. kl. 21:39 svarte oppdragsgiver «Ja» på spørsmålet om å føre i Følge for OV-U98 at VS-U47 gjelder for forespørselen i første versjon (overleveringen i #1065, kommentaren 6902411684). Merknaden kom i commit 5c25955 (21:46): «Beslutningsdelen i VS-U47 gjelder for forespørselen etter punkt 33.6.2 i første versjon (oppdragsgiver 15.11).» Det første utkastet lød «… i første versjon, slik OV-U99 punkt 1 sier», og ble strammet inn i 9e03eef (21:48).
+>
+> Lesningen med best belegg er at hele beslutningsdelen gjelder i første versjon, også punktet om at forespørselen er dokumentasjon. Da bygges ingenting i #1119 i første versjon, og kravene i kommentarene 15.11 i #1119 faller. Svar 1 A omgjør ja-et fra 15.11. Spørsmål 1 sier det åpent.
+>
+> ### Spørsmål 1: kan byggherren legge til en forespørsel etter punkt 33.6.2 sendt i brev, med virkning, i første versjon?
+>
+> Bakgrunn:
+>
+> - Byggherren kan sende forespørselen etter punkt 33.6.2 fra løsningen så lenge totalentreprenøren ikke har krevd dager (VS-U47 punkt 3). Spørsmålet gjelder en forespørsel byggherren har sendt i et brev. Kan brevet legges til som forespørsel med datoen det ble sendt, eller bare som dokumentasjon?
+> - OV-U98 regner forespørselen blant utsagnene som kan legges til med virkning.
+> - Beslutningsdelen i samlevedtaket for spesifisering (VS-U47) har fire punkter:
+>   1. høyst én forespørsel fra løsningen, ingen etter totalentreprenørens begrunnelse etter bokstav b, og en senere forespørsel registreres som dokumentasjon;
+>   2. i første versjon er en forespørsel sendt utenfor løsningen dokumentasjon, og påberopelsen av at totalentreprenøren svarte for sent på den, sendes utenfor løsningen;
+>   3. totalentreprenøren kan begrunne fra løsningen bare på en forespørsel sendt derfra;
+>   4. brevtekstene.
+> - OV-U99 punkt 1 nevner registreringen av forespørselen for seg, med registreringen som dokumentasjon (OV-U16), og ikke blant registreringene med virkning.
+> - 15.11, etter at motstriden var påpekt, svarte oppdragsgiver «Ja» på å føre at beslutningsdelen gjelder for forespørselen i første versjon. Den lesningen av svaret med best belegg er at hele beslutningsdelen gjelder, også punkt 2. **Alternativ A omgjør det svaret.**
+> - I løsningen tar byggherren i dag stilling til om svaret på en forespørsel fra løsningen kom i tide, i svaret på totalentreprenørens krav. Det er hvordan løsningen er bygget, ikke et vedtak.
+>
+> Klasse: vedtak.
+>
+> - **1 A:** «Byggherren kan legge til sin egen forespørsel etter punkt 33.6.2, sendt utenfor løsningen, som en forespørsel med virkning (OV-U98). Datoen byggherren oppgir at brevet ble sendt, er datoen for forespørselen i løsningen. Forespørselen har samme virkning som en forespørsel sendt fra løsningen, men løsningen avgjør ikke om formkravene var oppfylt eller om svaret kom i tide (VS-U47 punkt 5). Virkningen etter punkt 33.6.2 tredje ledd utledes bare når byggherren uttrykkelig påberoper at totalentreprenøren svarte for sent (VS-U47 punkt 4). Mener byggherren at brevet ikke oppfylte formkravene, legger byggherren det til som dokumentasjon. I beslutningsdelen i VS-U47 faller punktet om at en forespørsel sendt utenfor løsningen er dokumentasjon i første versjon, og at påberopelsen av at totalentreprenøren svarte for sent på den, sendes utenfor løsningen. To spørsmål avgjøres i egne vedtak: totalentreprenørens begrunnelse etter bokstav b på en forespørsel som er lagt til, og en forespørsel som legges til etter begrunnelsen eller etter en annen forespørsel. Til de vedtakene er fattet, kan en forespørsel ikke legges til med virkning. Resten av beslutningsdelen står: høyst én forespørsel fra løsningen, ingen fra løsningen etter begrunnelsen, og brevtekstene.»
+>   - Forhold:
+>     - endrer VS-U47 (beslutningsdelen, punkt 2, og punkt 5: forespørselen legges til som forespørsel og ikke med beskrivelse etter OV-U16);
+>     - endrer OV-U99 punkt 1 (forespørselen flyttes til registreringen med virkning);
+>     - i tråd med OV-U98;
+>     - omgjør oppdragsgivers «Ja» 15.11, og merknaden i Følge for OV-U98 rettes når vedtaket føres.
+>   - Hva det koster totalentreprenøren:
+>     - Uten vedtaket om begrunnelsen blir en begrunnelse sendt i brev før byggherren legger til forespørselen, dokumentasjon. Det neste kravet med dager blir da svaret på forespørselen, og totalentreprenøren kan miste virkningen etter femte ledd, at punkt 33.6.1 gjelder for kravet. Derfor kan forespørselen ikke legges til med virkning før vedtakene er fattet.
+>     - Virkningen følger byggherrens ensidige valg om å legge brevet til som forespørsel, også når brevet er en uformell e-post. Totalentreprenøren kan bare bestride det i et innlegg, og løsningen leser ikke innlegget (OV-U99 punkt 3).
+>   - Hva det koster byggherren: Oppgir byggherren feil dato, kan byggherren ikke rette den i løsningen. Rettingen av datoene i et sendt brev gjelder bare de datoene beslutningsdelen i MM-U55 nevner. Bare den manuelle korrigeringen gjenstår.
+> - **1 B:** «I første versjon er en forespørsel etter punkt 33.6.2 sendt utenfor løsningen dokumentasjon. Den legges til med datoen og beskrivelsen den som legger den til, oppgir (OV-U16, VS-U47 punkt 5). Påberopelsen av at totalentreprenøren svarte for sent på den, sendes utenfor løsningen og legges til som dokumentasjon. Det OV-U98 sier om forespørselen, tas i bruk først når et nytt vedtak sier det.»
+>   - Forhold: snevrer inn OV-U98 for forespørselen i første versjon; i tråd med beslutningsdelen i VS-U47, OV-U99 punkt 1 og merknaden 15.11 i Følge for OV-U98.
+>   - Hva det koster: Ingen part havner i en blindvei. Byggherren mister datoen for en forespørsel sendt i brev, eller sender forespørselen på nytt fra løsningen, med ny dato, så lenge totalentreprenøren ikke har krevd dager (VS-U47 punkt 3). Byggherren kan fortsatt påberope sen spesifisering etter punkt 33.6.1 i svaret på kravet (VS-U47 punkt 1).
+>
+> Anbefaling: 1 B.
+>
+> - Det er svaret oppdragsgiver ga 15.11, etter at motstriden var påpekt, og det OV-U99 punkt 1 sier.
+> - Det har ingen blindvei.
+> - 1 A legger tre kostnader på partene, mest på totalentreprenøren, og forutsetter to vedtak til.
+> - Kostnaden ved 1 B er datoen for en forespørsel sendt i brev. Byggherren unngår den ved å sende forespørselen fra løsningen.
+> - Det er en antakelse at forespørsler i brev er sjeldne når forespørselen kan sendes fra løsningen. Ingen prøve har funnet det.
+>
+> Valget styrer:
+>
+> - Ved 1 B bygges ikke #1119 i første versjon. Raden U6 i handlingsregisteret tar forespørselen ut av formene for registrering med virkning, og spørsmål 2–5 faller bort.
+> - Ved 1 A bygges #1119 etter svarene på spørsmål 2–5. Byggherren legger da forespørselen til med type og dato, ikke med beskrivelse.
+'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 16.11, ordrett: «1 B». Svaret er B, det anbefalte alternativet.'''
+forhold = [
+  { art = "snevrer inn", vedtak = "ov-u98" },
+]
+folge = '''
+Forholdet slik det sto i alternativet 1 B: «snevrer inn OV-U98 for forespørselen i første versjon; i tråd med beslutningsdelen i VS-U47, OV-U99 punkt 1 og merknaden 15.11 i Følge for OV-U98.»'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Byggherren kan legge til sin egen forespørsel etter punkt 33.6.2, sendt utenfor løsningen, som en forespørsel med virkning (OV-U98). Datoen byggherren oppgir at brevet ble sendt, er datoen for forespørselen i løsningen. Forespørselen har samme virkning som en forespørsel sendt fra løsningen, men løsningen avgjør ikke om formkravene var oppfylt eller om svaret kom i tide (VS-U47 punkt 5). Virkningen etter punkt 33.6.2 tredje ledd utledes bare når byggherren uttrykkelig påberoper at totalentreprenøren svarte for sent (VS-U47 punkt 4). Mener byggherren at brevet ikke oppfylte formkravene, legger byggherren det til som dokumentasjon. I beslutningsdelen i VS-U47 faller punktet om at en forespørsel sendt utenfor løsningen er dokumentasjon i første versjon, og at påberopelsen av at totalentreprenøren svarte for sent på den, sendes utenfor løsningen. To spørsmål avgjøres i egne vedtak: totalentreprenørens begrunnelse etter bokstav b på en forespørsel som er lagt til, og en forespørsel som legges til etter begrunnelsen eller etter en annen forespørsel. Til de vedtakene er fattet, kan en forespørsel ikke legges til med virkning. Resten av beslutningsdelen står: høyst én forespørsel fra løsningen, ingen fra løsningen etter begrunnelsen, og brevtekstene.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+I første versjon er en forespørsel etter punkt 33.6.2 sendt utenfor løsningen dokumentasjon. Den legges til med datoen og beskrivelsen den som legger den til, oppgir (OV-U16, VS-U47 punkt 5). Påberopelsen av at totalentreprenøren svarte for sent på den, sendes utenfor løsningen og legges til som dokumentasjon. Det OV-U98 sier om forespørselen, tas i bruk først når et nytt vedtak sier det.'''
+anbefalt = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "I første versjon er en forespørsel sendt utenfor løsningen dokumentasjon, og påberopelsen av at TE svarte for sent på den, sendes utenfor løsningen og registreres."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Beslutningsdelen i VS-U47 gjelder for forespørselen etter punkt 33.6.2 i første versjon (oppdragsgiver 15.11)."
+
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
 etter = '''
