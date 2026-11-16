@@ -31,7 +31,7 @@ import { harProduktivitetspost, kravposterI } from '../spor/vederlag/format.ts';
 import { innholdIFristen } from '../spor/frist/format.ts';
 import { LINJEN_I_FRISTEN } from '../spor/frist/tekst.ts';
 import { Uforstaatt } from '../format/skjema.ts';
-import { kroner } from '../frosset/tekst.ts';
+import { kroner, punkteneMedBegrunnelse } from '../frosset/tekst.ts';
 import { handlinger } from '../kommandoer/handlinger.ts';
 import { lagForUtkastet } from '../kommandoer/lag.ts';
 import { HOVEDKATEGORIER, KATEGORIER, type Hovedkategori } from '../format/koder.ts';
@@ -10397,6 +10397,21 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
       '1. Beregningsmetode (punkt 34.2)\n\nByggherren godkjenner oppgjør som fast sum for P1 med beløpet og forbeholdene som fremgår av svaret.\n\nByggherren aksepterer ikke totalentreprenørens tilbud for P2 (NS 8407 punkt 34.2.2 første ledd), og mener vederlaget for kravposten skal justeres som regningsarbeid (punkt 34.4).',
       `2. Vederlagsjustering (punkt 34.1.1)\n\nP1 Ny fundamentering.\n\nByggherren godkjenner ${kr('100 000')} av de krevde ${kr('125 000')}.`,
       `3. Forbehold\n\n${FORBEHOLDET}`,
+    ]);
+    // LV-U71, KA-U53: feltet for begrunnelsen i punktet om beløpet sier hvilken kravpost det
+    // gjelder; innledningen og forbeholdet har ikke noe felt.
+    expect(punkteneMedBegrunnelse(tekst(rad))).toEqual([
+      {
+        punkt: 'metode',
+        overskrift: '1. Beregningsmetode (punkt 34.2)',
+        foerst: '1. Beregningsmetode (punkt 34.2)',
+      },
+      {
+        punkt: 'P1',
+        overskrift: '2. Vederlagsjustering (punkt 34.1.1)',
+        kravpost: 'P1 Ny fundamentering.',
+        foerst: '2. Vederlagsjustering (punkt 34.1.1)',
+      },
     ]);
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
     expect(b.linje).toBe(
