@@ -764,6 +764,10 @@
           {u}
           lagtTil={lagtTilI('forhold', 'svar')}
           onendre={tilKorrespondansen}
+          onleggtil={() => {
+            skjemaene.registrere_brev();
+            lagtTil!.valg.kategori = 'svar';
+          }}
           onlagttil={() => {
             tomtUtkast('forhold');
             void lagtTilKvittering(LEGG_TIL.lagtTil.svar);

@@ -452,9 +452,13 @@ describe('svaret lagt til i saken (code-review i #807)', () => {
     });
     await kjernesak.last();
     render(Vardensak, { kjernesak, spor: 'forhold' });
+    // U-14 i BF-08: svarskjemaet viser veien til korrespondansen, med kategorien svar valgt.
+    await fireEvent.click(
+      await screen.findByRole('button', { name: /^Svar på påberopelsen|^Svar/ })
+    );
     await fireEvent.click(await screen.findByRole('button', { name: LEGG_TIL.tittel }));
+    expect(screen.getByRole('radio', { name: LEGG_TIL.kategorier.svar })).toBeChecked();
     await fyllUt(new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Oslo' }).format(new Date()));
-    await radio(LEGG_TIL.kategorier.svar);
     await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.gaaVidere }));
     expect(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret }).length).toBeGreaterThan(
       0

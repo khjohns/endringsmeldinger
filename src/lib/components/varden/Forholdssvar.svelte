@@ -22,6 +22,7 @@
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Datoer from './Datoer.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
+  import Knapp from './Knapp.svelte';
   import Sitat from './Sitat.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
@@ -40,7 +41,7 @@
   import { brevene, standpunktene, underOverskriften } from './lesing';
   import { vedleggskart } from './nysak';
   import { kravbrevetI, kravetSendt, manglene } from './svarskjema';
-  import { brevref, dato, kalenderdager } from './tekster';
+  import { brevref, dato, kalenderdager, LEGG_TIL } from './tekster';
 
   let {
     kjernesak,
@@ -52,6 +53,7 @@
     lagtTil = null,
     onendre,
     onlagttil,
+    onleggtil,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -66,6 +68,8 @@
     lagtTil?: Korrespondansevalg | null;
     onendre?: () => void;
     onlagttil?: () => void;
+    /** U-14: veien til skjemaet for korrespondanse lagt til, med kategorien svar. */
+    onleggtil?: () => void;
   } = $props();
   const uid = $props.id();
 
@@ -249,7 +253,12 @@
     {#if !lagtTil}
       <div class="utenfor" role="note">
         <Info size={16} aria-hidden="true" />
-        <p>{FORHOLDSSVAR.utenforLoesningen}</p>
+        <div>
+          <p>{FORHOLDSSVAR.utenforLoesningen}</p>
+          {#if onleggtil}
+            <Knapp variant="lenke" kompakt onclick={onleggtil}>{LEGG_TIL.tittel}</Knapp>
+          {/if}
+        </div>
       </div>
     {/if}
 
