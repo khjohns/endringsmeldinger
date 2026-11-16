@@ -238,7 +238,7 @@ describe('Siden for forholdet', () => {
       // Løsningen trekker ikke konklusjonen: stillingen er det siste svaret, uten det tidligere.
       const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
       expect(tittel.nextElementSibling?.textContent).toMatch(
-        /^Byggherren svarte \d+\. \w+ 2026 og gjør gjeldende at varselet etter punkt 32\.2 kom for sent\. Subsidiært avslår byggherren kravet på endringsordre \(punkt 32\.3 første ledd b\)\.$/
+        /^Byggherren svarte \d+\. \w+ 2026 og gjør gjeldende at varselet etter punkt\u00a032\.2 kom for sent\. Subsidiært avslår byggherren kravet på endringsordre \(punkt 32\.3 første ledd b\)\.$/
       );
       expect(document.body.textContent).not.toMatch(/bundet|kan ikke påberope|i strid med/i);
     }
