@@ -804,6 +804,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/tekst.ts:vederlagstekst',
       // LV-U34: hjemmelen i overskriften for vederlagsjusteringen i svaret.
       'spor/vederlag/tekst.ts:temaer',
+      // OV-U104: påberopelsen etter § 32.2 et svar lagt til sammenliknes med, som i brevteksten.
+      'utledning/utled.ts:partensPaaberopelser',
     ],
   ],
   // § 32.3 første ledd a for et brev sendt i appen, lest av beslutningsgrunnlaget (GR-U12, #351).

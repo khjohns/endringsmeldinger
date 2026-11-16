@@ -2647,6 +2647,67 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     });
   });
 
+  /** Svarene som et brev lagt til, sendt `sendt`, uten tekst fra løsningen (OV-U80). */
+  const lagtTilSomBrev = (svarene: Data[], sendt: string) => ({
+    type: 'brev',
+    svar: svarene.map((x) => utenFelt(utenFelt(x, 'utdypning'), 'utdypninger')),
+    sendt,
+    korrespondansetype: 'brev',
+    dokumentasjon: [randomUUID()],
+  });
+
+  it('OV-U32, OV-U103: et vederlagssvar lagt til leser svaret på forholdet i samme brev, også når det står utenfor rekken', () => {
+    const lest = (senere: boolean) => {
+      const s = sakMedKrav();
+      if (senere)
+        s.send('BH', {
+          type: 'brev',
+          svar: [
+            svar('forhold', s.krav('forhold'), {
+              resultat: 'avslaatt',
+              grunnlag_varslet_i_tide: true,
+            }),
+          ],
+        });
+      const rad = s.send('BH', lagTilSomBrev(s, '2026-10-04'));
+      const [forhold, vederlag] = (rad.data.svar as Data[]).map((x) => x.id as string);
+      const u = s.u();
+      return { u, forhold, vederlag };
+    };
+    const lagTilSomBrev = (s: ReturnType<typeof sak>, sendt: string) =>
+      lagtTilSomBrev(
+        [
+          svar('forhold', s.krav('forhold'), {
+            resultat: 'avslaatt',
+            grunnlag_varslet_i_tide: true,
+          }),
+          svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1]),
+        ],
+        sendt
+      );
+    const utenfor = lest(true);
+    expect(utenfor.u.spor.forhold.svarUtenforRekken.map((x) => x.id)).toEqual([utenfor.forhold]);
+    expect(utenfor.u.svar[utenfor.vederlag].forholdssvaret).toBe(utenfor.forhold);
+    const kontroll = lest(false);
+    expect(
+      kontroll.u.svar[kontroll.vederlag].forholdssvaret,
+      'kontrollsak: uten det senere svaret'
+    ).toBe(kontroll.forhold);
+  });
+
+  it('OV-U104: et vederlagssvar lagt til samme dag som en innsigelse mot vederlagskravet merkes ikke, fordi brevteksten ikke sammenlikner dem', () => {
+    const s = sakMedKrav();
+    const rad = s.send('BH', { type: 'innsigelse', gjelder: s.krav('vederlag') });
+    s.send(
+      'BH',
+      lagtTilSomBrev(
+        [svar('vederlag', s.krav('vederlag'), VEDERLAG_DELVIS[0], VEDERLAG_DELVIS[1])],
+        rad.tidsstempel.slice(0, 10)
+      )
+    );
+    expect(s.u().sendtSammeDag).toEqual([]);
+  });
+
   it('OV-U104, OV-U102: et krav utenfor rekken sendt samme dag som det egne varselet etter § 33.4, står i sendtSammeDag med det', () => {
     const merket = (kravet: string) => {
       const s = sak();

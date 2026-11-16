@@ -2048,6 +2048,31 @@ const MUTASJONER: Mutasjon[] = [
     ],
   },
   {
+    id: 'F670',
+    feilklasse:
+      'et vederlagssvar lagt til leser et senere svar på forholdet når svaret i brevet står utenfor rekken (OV-U32, OV-U103)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['[...forhold, ...utenforRekken].find(', 'forhold.find(']],
+    mal: [
+      'OV-U32, OV-U103: et vederlagssvar lagt til leser svaret på forholdet i samme brev, også når det står utenfor rekken',
+    ],
+  },
+  {
+    id: 'F671',
+    feilklasse:
+      'et svar lagt til merkes mot en innsigelse brevteksten ikke sammenlikner det med (OV-U104)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "if (gjelderVarslingsplikten(k, regler)) sporet.set(k.id, 'forhold');",
+        "if (gjelderVarslingsplikten(k, regler)) sporet.set(k.id, 'forhold');\n  for (const k of u.spor.vederlag.krav) sporet.set(k.id, 'vederlag');",
+      ],
+    ],
+    mal: [
+      'OV-U104: et vederlagssvar lagt til samme dag som en innsigelse mot vederlagskravet merkes ikke',
+    ],
+  },
+  {
     id: 'F224',
     feilklasse:
       'en innsigelse mot en påberopelsesversjon der § 32.2 ikke gjelder, leses som en påberopelse etter § 32.2 (VS-U24, GR-U11)',
@@ -4248,7 +4273,9 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F468',
     feilklasse: 'svaret på forholdet i samme brev står ikke foran sporet (OV-U32, OV-U33, #1449)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['      forhold.find((g) => g.dokument === s.dokument) ??\n', '']],
+    endringer: [
+      ['      [...forhold, ...utenforRekken].find((g) => g.dokument === s.dokument) ??\n', ''],
+    ],
     mal: ['forholdet avslått i samme brev: svaret i brevet står foran, og posten subsidiært'],
   },
   {
