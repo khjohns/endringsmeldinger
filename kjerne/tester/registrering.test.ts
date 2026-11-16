@@ -16,6 +16,7 @@ import type { Klokke } from './testmiljoe.ts';
 import { varseletFoerSvaret } from '../utledning/utled.ts';
 import { elementenesSpor } from '../kommandoer/handlinger.ts';
 import type { Utfall } from '../kommandoer/skriving.ts';
+import { SOM_BREV } from './brevet.ts';
 
 /** Én dag per hendelse, fra 21.09 kl. 10 norsk tid. */
 function dagklokke(): Klokke {
@@ -209,7 +210,7 @@ async function provRegistrering(
   steg: Handling[],
   h: Handling,
   sendt: string,
-  felt: Record<string, unknown> = { korrespondansetype: 'brev', dokumentasjon: [VEDLEGG] }
+  felt: Record<string, unknown> = { ...SOM_BREV, dokumentasjon: [VEDLEGG] }
 ) {
   const forloep: Forloep = {
     id: 'registrering',
@@ -493,13 +494,13 @@ describe('kommandoen for et krav sendt utenfor løsningen (OV-U80, OV-U98, OV-U1
 
   it('et krav lagt til med en utdypning, eller med typen uten datoen, avvises som feil form', async () => {
     const medUtdypning = await provRegistrering([], vederlagskrav, '2026-09-23', {
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       dokumentasjon: [VEDLEGG],
       utdypning: 'Tekst fra løsningen.',
     });
     expect(medUtdypning).toMatchObject({ godtatt: false, avvisning: { regel: 'UGYLDIG_FORM' } });
     const utenDato = await provRegistrering([], vederlagskrav, '2026-09-23', {
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       sendt: undefined,
     });
     expect(utenDato).toMatchObject({ godtatt: false, avvisning: { regel: 'UGYLDIG_FORM' } });
@@ -1001,7 +1002,7 @@ describe('varselet etter § 32.2 og et krav utenfor rekken (VS-U38, OV-U102)', (
   const felt = {
     spor: 'forhold',
     hjemmel: '32.2',
-    korrespondansetype: 'brev',
+    ...SOM_BREV,
     dokumentasjon: [VEDLEGG],
   };
 

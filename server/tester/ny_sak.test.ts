@@ -347,6 +347,7 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
         sendt: string;
         korrespondansetype: 'brev' | 'e_post';
         sendemaate?: 'post';
+        beskrivelse?: string;
         dokumentasjon: string[];
       },
       sakId = randomUUID()
@@ -368,8 +369,9 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
       const v = opplastet.vedlegg!;
       const k = medVedlegg([v], {
         sendt: iDag(),
-        korrespondansetype: 'brev',
-        sendemaate: 'post',
+        korrespondansetype: 'brev' as const,
+        sendemaate: 'post' as const,
+        beskrivelse: 'Brevet ble sendt utenfor løsningen.',
         dokumentasjon: [v.vedlegg_id],
       });
       const svar = await send(k);
@@ -422,7 +424,9 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
       const imorgen = new Date(Date.now() + 2 * 86_400_000).toISOString().slice(0, 10);
       const k = medVedlegg([v], {
         sendt: imorgen,
-        korrespondansetype: 'brev',
+        korrespondansetype: 'brev' as const,
+        sendemaate: 'post' as const,
+        beskrivelse: 'Brevet ble sendt utenfor løsningen.',
         dokumentasjon: [v.vedlegg_id],
       });
       const foer = await antall();
@@ -468,7 +472,9 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
       const annet = (await lastOpp(o.te, 'annet.pdf')).vedlegg!;
       const k = medVedlegg([v], {
         sendt: iDag(),
-        korrespondansetype: 'brev',
+        korrespondansetype: 'brev' as const,
+        sendemaate: 'post' as const,
+        beskrivelse: 'Brevet ble sendt utenfor løsningen.',
         dokumentasjon: [annet.vedlegg_id],
       });
       const foer = await antall();

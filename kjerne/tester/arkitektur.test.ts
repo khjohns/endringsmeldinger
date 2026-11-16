@@ -2416,6 +2416,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['frosset/tekst.ts', 'brevtekst', 'dager', ['spor/frist/tekst.ts']],
   ['frosset/tekst.ts', 'brevtekst', 'kroner', ['frosset/brevdeler.ts', 'frosset/brevtekst.ts']],
+  // OV-U79, LV-U45: typen korrespondanse i omtalen i brevet, med ordene skjemaet og visningen
+  // deler (#807).
+  ['frosset/tekst.ts', 'brevtekst', 'KORRESPONDANSETYPEN', ['frosset/brevdeler.ts']],
+  ['KORRESPONDANSETYPEN', 'brevtekst', 'ubestemt', ['frosset/brevdeler.ts']],
   // Oppslaget i sporet for en rolle, og virkningen av et standpunkt (#1783).
   [
     'frosset/byggeklosser.ts',

@@ -20,6 +20,7 @@ import { KJERNE } from '../versjon.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 import type { Kjoering } from './kjoerer.ts';
+import { SOM_BREV } from './brevet.ts';
 
 type Data = Record<string, unknown>;
 
@@ -410,7 +411,7 @@ describe('registrerte brev som viser til en registrert kravversjon', () => {
       type: 'begrunnelse',
       gjelder: k.navn.id('S-v1'),
       sendt: '2026-10-01',
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       dokumentasjon: [randomUUID()],
     };
     const u = vurder(

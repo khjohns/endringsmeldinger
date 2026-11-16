@@ -30,6 +30,7 @@ import { bygg } from './baner.ts';
 import { Kjoering } from './kjoerer.ts';
 import { NESTE_REGLER } from './klient.ts';
 import { innholdIForholdet, oppgittDato } from '../spor/forhold/format.ts';
+import { SOM_BREV } from './brevet.ts';
 
 const PAR = HOVEDKATEGORIER.flatMap((h) => KATEGORIER[h].map((u) => [h, u] as const));
 
@@ -412,7 +413,7 @@ describe('datoen varslingsplikten løper fra, i påberopelsen (VS-U26)', () => {
       data: {
         krav: [{ id: 'k', spor: 'forhold', ...innhold }],
         opplysninger: [{ id: 'o', hva: 'sendt', dato: '2026-10-01' }],
-        korrespondansetype: 'brev',
+        ...SOM_BREV,
       },
     });
     const art = (innhold: Record<string, unknown>) =>

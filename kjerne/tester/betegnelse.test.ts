@@ -24,6 +24,7 @@ import { fasteBeloepIKravet, fasteBeloepISvaret } from '../spor/vederlag/format.
 import { SPOR, type Journalrad, type Part, type Spor } from '../typer.ts';
 import { KJERNE } from '../versjon.ts';
 import { medKravpostIder, medP1IkkeAkseptert, mellomlager, P1 } from './klient.ts';
+import { SOM_BREV } from './brevet.ts';
 
 class Sak {
   private klokke = Date.UTC(2026, 9, 1, 8, 0, 0);
@@ -128,7 +129,7 @@ const krav: Steg = (sak) => [paaberopelse, vederlagskrav, fristkrav].forEach((s)
 const varselIFristen: Steg = (sak) =>
   sak.send('TE', {
     type: 'varsel',
-    korrespondansetype: 'brev',
+    ...SOM_BREV,
     spor: 'frist',
     hjemmel: '33.4',
     sendt: '2026-10-01',
