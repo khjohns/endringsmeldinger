@@ -373,14 +373,41 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     expect(sendt).toHaveLength(0);
     await skriv(screen.getByLabelText('Datoen for varselet'), '2026-10-05');
     await leggVed();
+    const gitt = within(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' }));
+    await fireEvent.click(gitt.getByRole('radio', { name: 'Brev' }));
     await seBrevet();
     expect(sendt).toHaveLength(1);
     expect(sendt[0]!.kommando).toMatchObject({
       type: 'krav',
-      varsel: { sendt: '2026-10-05', dokumentasjon: ['v-1'] },
+      varsel: { sendt: '2026-10-05', korrespondansetype: 'brev', dokumentasjon: ['v-1'] },
     });
     // Brevet sier når varselet ble gitt (OV-U5).
     expect(JSON.stringify(sendt[0]!.avsnitt)).toMatch(/5\. oktober 2026/);
+  });
+
+  it('VS-U34, LV-U42: et varsel gitt før i kravet krever typen, og kravet sender den (C1 i #2056)', async () => {
+    const sendt = await kravskjemaet(medGrunnlag);
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Varselet er gitt før, utenfor løsningen' })
+    );
+    await fireEvent.click(screen.getByRole('radio', { name: 'Overtakelse' }));
+    await skriv(screen.getByLabelText('Dagene du krever'), '20');
+    await skriv(screen.getByRole('textbox', { name: 'Begrunnelse' }), 'Begrunnelse.');
+    await skriv(screen.getByLabelText('Datoen for varselet'), '2026-10-05');
+    await leggVed();
+    await seBrevet();
+    expect(sendt, 'uten typen sendes ingenting').toHaveLength(0);
+    const mangler = within(
+      screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' })
+    );
+    expect(
+      mangler.getByText('Velg om varselet ble gitt i et brev eller en e-post.')
+    ).toBeInTheDocument();
+    const gitt = within(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' }));
+    await fireEvent.click(gitt.getByRole('radio', { name: 'E-post' }));
+    await seBrevet();
+    expect(sendt).toHaveLength(1);
+    expect(sendt[0]!.kommando).toMatchObject({ varsel: { korrespondansetype: 'e_post' } });
   });
 
   it('et varsel gitt før sier kalenderdagene fra datoen TE ble klar over forholdet først når datoen for varselet er oppgitt (U-6)', async () => {

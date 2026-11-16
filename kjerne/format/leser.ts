@@ -59,6 +59,7 @@ import type {
   Vedlegg,
   Virkning,
   Korrespondansetype,
+  Sendemaate,
 } from '../typer.ts';
 
 /**
@@ -372,6 +373,7 @@ function lesDokument(h: Journalrad): Dokument {
     merking?: string;
     deres_ref?: string[];
     korrespondansetype?: Korrespondansetype;
+    sendemaate?: Sendemaate;
     beskrivelse?: string;
     spor?: Spor[];
     retter?: string;
@@ -397,7 +399,7 @@ function lesDokument(h: Journalrad): Dokument {
   if (!data.krav && !data.svar && !data.utsagn && data.beskrivelse === undefined)
     throw new Uforstaatt('dokumentet har verken krav, svar, utsagn eller beskrivelse');
   // OV-U17: en retting i saken er en fullstendig ny registrering av brevet som dokumentasjon.
-  if (data.retter !== undefined && data.beskrivelse === undefined)
+  if (data.retter !== undefined && (data.krav || data.svar || data.utsagn))
     throw new Uforstaatt('en retting er ikke et brev registrert som dokumentasjon (OV-U17)');
   const id = h.event_id;
   const avsender: Part = h.aktor_rolle;
@@ -468,6 +470,7 @@ function lesDokument(h: Journalrad): Dokument {
     merking: data.merking ?? null,
     deresRef: data.deres_ref ?? [],
     korrespondansetype: data.korrespondansetype ?? null,
+    sendemaate: data.sendemaate ?? null,
     beskrivelse: data.beskrivelse ?? null,
     spor: data.spor ?? [],
     retter: data.retter ?? null,
@@ -504,8 +507,13 @@ function lesDokument(h: Journalrad): Dokument {
   // BF-02A: en korrigering sendt utenfor løsningen står som dokumentasjon (OV-U4).
   if (erRegistrert(dokument.opplysninger) && dokument.utsagn.some((u) => u.art === 'korrigering'))
     throw new Uforstaatt('et registrert brev har en korrigering av datoen');
-  if (data.beskrivelse !== undefined) dokumentasjonsbrev(dokument);
-  else if (data.spor) throw new Uforstaatt('dokumentet har spor uten beskrivelse (OV-U16)');
+  // OV-U4, OV-U16: et dokument uten krav, svar eller utsagn er et brev registrert som
+  // dokumentasjon. OV-U79: annen registrert korrespondanse kan ha beskrivelsen, men ikke sporene.
+  if (!data.krav && !data.svar && !data.utsagn) dokumentasjonsbrev(dokument);
+  else if (data.spor)
+    throw new Uforstaatt('dokumentet har spor, men er ikke dokumentasjon (OV-U16)');
+  else if (data.beskrivelse !== undefined && !erRegistrert(dokument.opplysninger))
+    throw new Uforstaatt('beskrivelsen står bare i registrert korrespondanse (OV-U79)');
   // HF-U1: en datoopplysning med `gjelder` gjelder et varsel i samme dokument.
   for (const o of dokument.opplysninger)
     if (
@@ -521,6 +529,8 @@ function lesDokument(h: Journalrad): Dokument {
         ? 'registrert korrespondanse har ingen korrespondansetype (LV-U42)'
         : 'korrespondansetypen står i et dokument som ikke er registrert korrespondanse'
     );
+  if (data.sendemaate !== undefined && data.korrespondansetype !== 'brev')
+    throw new Uforstaatt('sendemåten står i et dokument som ikke er et registrert brev (OV-U79)');
   if (data.brevtittel !== undefined && !data.brevtekst)
     throw new Uforstaatt('brevtittelen står bare i et brev med tekst fra appen (MM-U50)');
   if (data.brevtittel !== undefined) {
@@ -617,6 +627,7 @@ function ikkeISaken(h: Journalrad, data: Record<string, unknown>): Dokument {
     merking: null,
     deresRef: [],
     korrespondansetype: null,
+    sendemaate: null,
     beskrivelse: null,
     spor: [],
     retter: data.retter,
@@ -629,8 +640,6 @@ function ikkeISaken(h: Journalrad, data: Record<string, unknown>): Dokument {
  * til, datoen avsenderen sendte det og brevet som vedlegg, og ingenting appen kan utlede noe av.
  */
 function dokumentasjonsbrev(d: Dokument): void {
-  if (d.krav.length || d.svar.length || d.utsagn.length)
-    throw new Uforstaatt('et brev registrert som dokumentasjon har krav, svar eller utsagn');
   const [o, ...flere] = d.opplysninger;
   if (o?.hva !== 'sendt' || o.gjelder !== undefined || flere.length)
     throw new Uforstaatt(

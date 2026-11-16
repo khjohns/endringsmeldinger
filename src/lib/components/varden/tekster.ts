@@ -12,7 +12,14 @@ import { liste, opplistet, PARTEN, PARTENS, stor } from '$kjerne/frosset/brevdel
 import { dager, kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Betegnelse } from '$kjerne/utledning/visning';
-import type { Kravpost, Oppgjoersform, Part, Spor, Standpunkt } from '$kjerne/typer';
+import type {
+  Korrespondansetype,
+  Kravpost,
+  Oppgjoersform,
+  Part,
+  Spor,
+  Standpunkt,
+} from '$kjerne/typer';
 import { OPPGJOERSHJEMMEL } from '$kjerne/spor/vederlag/format';
 import type { Regel } from './kommandoer';
 import {
@@ -27,6 +34,13 @@ import {
 } from './lesing';
 import type { Innsigelsen, Svarlaget } from './svarlagene';
 
+/** Dokumentet med bestemt form, etter typen korrespondanse (LV-U42, arbeidsvalget 1 A 16.11 i #807). */
+const DOKUMENTET: Record<Korrespondansetype, string> = {
+  brev: 'brevet',
+  e_post: 'e-posten',
+  moetereferat: 'møtereferatet',
+  notat: 'dokumentet',
+};
 export const SPORNAVN: Record<Spor, string> = {
   forhold: 'Forholdet',
   vederlag: 'Vederlagsjustering',
@@ -1378,8 +1392,9 @@ export const KRAVSKJEMA = {
   gjelderPost: (post: string) => `Gjelder ${post}`,
   ingenPostViserTil: 'Ingen kravpost viser til det',
   gisIBrevet: 'Gis i dette brevet.',
-  gittIDokumentet: (type: 'brev' | 'e_post' | null, d: string) =>
-    `Gitt i ${type === 'e_post' ? 'e-posten' : 'brevet'} av ${dato(d)}, som legges ved kravet.`,
+  // Typen som i omtalen etter LV-U42 (arbeidsvalget 1 A 16.11 i #807).
+  gittIDokumentet: (type: Korrespondansetype | null, d: string) =>
+    `Gitt i ${DOKUMENTET[type ?? 'brev']} av ${dato(d)}, som legges ved kravet.`,
   sammeDokument: (d: string) =>
     d ? `Dokumentet av ${dato(d)} legges ved én gang.` : 'Dokumentet legges ved én gang.',
   denSaerskilte: 'den særskilte vederlagsjusteringen',

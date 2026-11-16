@@ -345,6 +345,8 @@ function registrering(k: Registrering, nyId: () => string, bundne: Vedlegg[]): D
   return {
     opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
     korrespondansetype: k.korrespondansetype,
+    ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
+    ...(k.beskrivelse === undefined ? {} : { beskrivelse: k.beskrivelse }),
     dokumentasjon: bundne,
   };
 }
@@ -387,13 +389,6 @@ function dokument(
           },
         ],
       };
-      // MM-U1: et varsel i kravet registreres første gang det kommer.
-      // HF-U1: datoen gjelder varselet, ikke kravet, som er sendt i appen.
-      if (k.varsel && !u.spor.frist.varsler['33.4']) {
-        const varsel = nyId();
-        data.utsagn = [{ id: varsel, art: 'varsel', hjemmel: '33.4' }];
-        data.opplysninger = [{ id: nyId(), hva: 'sendt', dato: k.varsel.sendt, gjelder: varsel }];
-      }
       // OV-U5: brevet med varselet ligger ved kravet.
       if (bundne.length) data.dokumentasjon = bundne;
       return { ...data, ...registrering(k, nyId, bundne) };
@@ -439,6 +434,8 @@ function dokument(
         })),
         opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
         korrespondansetype: k.korrespondansetype,
+        ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
+        ...(k.beskrivelse === undefined ? {} : { beskrivelse: k.beskrivelse }),
         dokumentasjon: bundne,
       };
     case 'registrert_brev':
@@ -448,6 +445,7 @@ function dokument(
         ...(k.spor ? { spor: k.spor } : {}),
         opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
         korrespondansetype: k.korrespondansetype,
+        ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
         dokumentasjon: bundne,
         // OV-U17: rettingen er en fullstendig ny registrering med henvisning til den feil.
         ...(k.retter ? { retter: k.retter } : {}),
@@ -485,6 +483,8 @@ function dokument(
           utsagn,
           opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
           korrespondansetype: k.korrespondansetype,
+          ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
+          ...(k.beskrivelse === undefined ? {} : { beskrivelse: k.beskrivelse }),
           ...(k.dokumentasjon ? { dokumentasjon: bundne } : {}),
         };
       if (k.utdypning !== undefined) utdypninger.set(id, { utdypning: k.utdypning });

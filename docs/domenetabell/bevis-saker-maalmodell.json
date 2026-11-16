@@ -2956,17 +2956,18 @@
       "id": "F-MM-D-kravvarsel",
       "rader": ["KA-19"],
       "start": "godkjent_forhold",
-      "forslag": "HF-U1 og MM-U1: et varsel i et krav sendt i appen. Datoen gjelder varselet, ikke kravet, og kravet er ikke registrert korrespondanse",
+      "forslag": "VS-U34 og MM-U1: varselet TE legger til i et fristkrav sendt i appen, står som et eget registrert brev før kravet (C1 i #2056). Datoen gjelder varselet, ikke kravet, og kravet er ikke registrert korrespondanse",
       "forventningsgrunnlag": "avklart_tolkning",
       "steg": [{ "handling": "krav", "spor": "frist", "dager": 20, "varsel_sendt": "2026-09-02", "navn": "K-f1" }],
       "kontroller": [
         {
           "etter": 1,
           "rolle": "mal",
-          "kilde": ["HF-U1", "MM-U1"],
+          "kilde": ["VS-U34", "MM-U1"],
           "forventet": {
-            "opplysning.K-f1#sendt.dato": "2026-09-02",
-            "opplysning.K-f1#sendt.gjelder": "K-f1#varsel",
+            "opplysning.K-f1#varselbrevet#sendt.dato": "2026-09-02",
+            "varsel.frist": "K-f1#varselbrevet",
+            "registrert.K-f1#varselbrevet": true,
             "registrert.K-f1": false
           }
         }

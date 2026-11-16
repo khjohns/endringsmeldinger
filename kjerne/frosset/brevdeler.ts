@@ -109,7 +109,13 @@ export const PARTEN: Record<Part, string> = { TE: 'totalentreprenøren', BH: 'by
 export const PARTENS: Record<Part, string> = { TE: 'totalentreprenørens', BH: 'byggherrens' };
 
 /** Typen registrert korrespondanse slik brevet nevner den (LV-U42). */
-const KORRESPONDANSEN: Record<Korrespondansetype, string> = { brev: 'brev', e_post: 'e-post' };
+const KORRESPONDANSEN: Record<Korrespondansetype, string> = {
+  brev: 'brev',
+  e_post: 'e-post',
+  moetereferat: 'møtereferat',
+  // Arbeidsvalget 1 A 16.11 i #807: «dokument» gjelder både et notat og et annet dokument.
+  notat: 'dokument',
+};
 
 /**
  * Et tidligere brev med merkingen som er frosset på det, og datoen det ble sendt: «brev

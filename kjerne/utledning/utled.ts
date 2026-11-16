@@ -416,7 +416,9 @@ function registreringer(journal: Domenehendelse[]): {
       rettet.rettetAv = d.id;
     }
     const sendt = d.opplysninger[0];
-    if (d.beskrivelse !== null && sendt?.hva === 'sendt')
+    // OV-U4, OV-U16: dokumentasjon har bare beskrivelsen, datoen og vedlegget (`leser.ts`).
+    const dokumentasjon = !d.krav.length && !d.svar.length && !d.utsagn.length;
+    if (dokumentasjon && d.beskrivelse !== null && sendt?.hva === 'sendt')
       brev.push({
         dokument: d.id,
         avsender: d.avsender,

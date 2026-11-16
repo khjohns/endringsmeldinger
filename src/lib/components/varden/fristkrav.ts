@@ -137,8 +137,13 @@ export function fristkravet(
       frister: fristene(v).map(fristen),
       trekker: trekker.length ? trekker : undefined,
     }),
+    // VS-U34, C1 i #2056: kjernen skriver varselet som et eget brev med typen før kravet.
     varsel: v.utenfor
-      ? { sendt: v.utenfor.dato, dokumentasjon: dokumentasjon(v.utenfor) }
+      ? definert({
+          sendt: v.utenfor.dato,
+          korrespondansetype: v.utenfor.type ?? undefined,
+          dokumentasjon: dokumentasjon(v.utenfor),
+        })
       : undefined,
     utdypning: v.begrunnelse,
   });
@@ -164,7 +169,7 @@ export function manglerIFristkravet(
     });
   if (v.utenfor) {
     if (!v.utenfor.dato) legg('utenfor-dato', FRISTKRAV.manglerVarseldato);
-    if (v.hva === 'varsel' && !v.utenfor.type) legg('utenfor-type', FRISTKRAV.manglerType);
+    if (!v.utenfor.type) legg('utenfor-type', FRISTKRAV.manglerType);
     if (!v.utenfor.vedlegg.length) legg('utenfor-brev', FRISTKRAV.manglerVarselbrev);
   }
   if (v.hva === 'varsel') return ut;

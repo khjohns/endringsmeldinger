@@ -343,7 +343,12 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
     /** Kroppen med påberopelsen, vedleggene og eventuelt varselet, med brevteksten for dem. */
     function medVedlegg(
       vedlegg: Vedlegg[],
-      varsel?: { sendt: string; korrespondansetype: 'brev' | 'e_post'; dokumentasjon: string[] },
+      varsel?: {
+        sendt: string;
+        korrespondansetype: 'brev' | 'e_post';
+        sendemaate?: 'post';
+        dokumentasjon: string[];
+      },
       sakId = randomUUID()
     ) {
       const krav = { ...KRAV, dokumentasjon: vedlegg.map((v) => v.vedlegg_id) };
@@ -364,6 +369,7 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
       const k = medVedlegg([v], {
         sendt: iDag(),
         korrespondansetype: 'brev',
+        sendemaate: 'post',
         dokumentasjon: [v.vedlegg_id],
       });
       const svar = await send(k);
@@ -377,6 +383,8 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
       ]);
       const varselet = JSON.parse(hendelser[2].data);
       expect(varselet.dokumentasjon).toEqual([v]);
+      // OV-U79: sendemåten for brevet lagres med varselet.
+      expect(varselet.sendemaate).toBe('post');
       expect(hendelser[2].data).toContain(`"${iDag()}"`);
       // Svaret har sakens versjon etter varselet, og påberopelsen i kvitteringen (#1507).
       expect(svar.kropp).toMatchObject({
