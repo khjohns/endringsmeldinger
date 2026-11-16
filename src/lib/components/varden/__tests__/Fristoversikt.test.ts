@@ -180,6 +180,28 @@ describe('Siden for fristforlengelsen', () => {
     );
   });
 
+  it('dagene i et krav et senere krav i fristen følger opp, står dempet, som på siden for vederlaget (U-5 i BF-44, #2032)', async () => {
+    const nyttKrav = {
+      handling: 'krav',
+      spor: 'frist',
+      frister: [
+        { frist_id: 2, dager: 30 },
+        { frist_id: 1, dager: 20 },
+        { nummer: '8', navn: 'Overtakelse av utomhusarbeider', dager: 20 },
+      ],
+      navn: 'K-f2',
+    } as Handling;
+    await vis([...BF45.steg.slice(0, 3), nyttKrav]);
+    const rader = within(screen.getByRole('list', { name: 'Brevene, nyeste først' })).getAllByRole(
+      'listitem'
+    );
+    const krav = rader.filter((r) => r.textContent?.includes('Krav om fristforlengelse'));
+    expect(krav.map((r) => r.querySelector('.oeverst')?.classList.contains('eldre-krav'))).toEqual([
+      false,
+      true,
+    ]);
+  });
+
   it('et registrert brev står med datoen det kom i saken, og sendedatoen i linja under (svar 1 A i #1999, OV-U85)', async () => {
     await vis(BF45.steg);
     const rad = screen.getByText('Revidert fremdriftsplan, revisjon 4').closest('li')!;

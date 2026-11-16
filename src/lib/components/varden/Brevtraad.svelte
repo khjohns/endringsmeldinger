@@ -24,6 +24,7 @@
     spor,
     innlegg = new Map(),
     fulgtOpp = new Map(),
+    eldreKrav = new Set(),
     dokumentasjon,
     venterPaaSvar,
     korrigerbare = [],
@@ -46,11 +47,17 @@
     innlegg?: Map<string, Innlegget>;
     /** Brevet som følger opp et eldre krav, etter brevet med det eldre (`oppfoelgingene`). */
     fulgtOpp?: Map<string, Brevref>;
+    /**
+     * Brevene med et krav et senere krav i sporet følger opp (`eldreKravISporet`). Tallet i
+     * kravet øverst står dempet, også når tittelen ikke er det fordi brevet har et krav som
+     * gjelder i et annet spor (U-5 i BF-44).
+     */
+    eldreKrav?: ReadonlySet<string>;
     /** De registrerte brevene kjernen ikke vurderer innholdet i (OV-U19). */
     dokumentasjon: string[];
     /** Sporets betegnelse er «Svar ikke registrert» (MM-U30). */
     venterPaaSvar: boolean;
-    /** Opplysningene om datoen kjernen tilbyr å korrigere (`korrigere:<id>`, MM-U52 punkt 10). */
+    /** Opplysningene om datoen kjernen tilbyr å korrigere (`korrigere:<id>`, MM-U55 punkt 10). */
     korrigerbare?: string[];
     /** Saken er lukket etter GR-U27, så korrigeringen endrer ikke utfallet (MM-U51). */
     lukket?: boolean;
@@ -65,7 +72,10 @@
     handling?: Snippet;
     /** Brevet slik det ble sendt, i raden. */
     brevet?: Snippet<[Brevet]>;
-    /** Det siden viser først under hodet på brevet, som beløpet i et krav (U-12 i BF-44). */
+    /**
+     * Det siden viser først under hodet på brevet, som beløpet i et krav (U-12 i BF-44). Tallet i
+     * kravet har klassen `kravtall`.
+     */
     oeverst?: Snippet<[Brevet]>;
     /** Det siden viser sist under brevet, over handlingen, som akseptfristen (U-11 i BF-44). */
     nederst?: Snippet<[Brevet]>;
@@ -141,7 +151,9 @@
       </div>
       {#if registrert || i || b.vedlegg.length || oeverst || nederst}
         <div class="innhold">
-          {@render oeverst?.(b)}
+          {#if oeverst}
+            <div class="oeverst" class:eldre-krav={eldreKrav.has(b.id)}>{@render oeverst(b)}</div>
+          {/if}
           {#if registrert}
             <p class="datolinje">{TRAADEN.registrert(b.avsender, b.sendt, b.registrert)}</p>
           {/if}
@@ -354,6 +366,20 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-2);
+  }
+  .oeverst {
+    display: contents;
+  }
+  /* Beløpet eller dagene i kravet (U-12 i BF-44), dempet i et eldre krav som tittelen (U-5). */
+  .oeverst :global(.kravtall) {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .oeverst.eldre-krav :global(.kravtall) {
+    font-weight: 400;
+    color: var(--ink-2);
   }
   .kompakt {
     padding-top: var(--spacing-2);

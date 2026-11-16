@@ -150,13 +150,13 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
     // Leselinja i prototypen `vederlagsoversikt.html` v3: kravet som også er varselet, sier
     // hjemmelen ved beløpet (U-12). Brev 2 er det første kravet og varsler etter punkt 34.1.2, og
     // brev 3 har den særskilte posten og varsler etter punkt 34.1.3 (OV-U5).
-    expect(krav.map((r) => r.querySelector('.beloep')?.textContent?.trim())).toEqual([
+    expect(krav.map((r) => r.querySelector('.kravtall')?.textContent?.trim())).toEqual([
       '190 000 kr, med varsel etter punkt 34.1.3.',
       '125 000 kr, med varsel etter punkt 34.1.2.',
     ]);
     expect(krav[1]!.textContent).toContain('fulgt opp i brev 3');
     // Beløpet i det eldre kravet står dempet, som tittelen (U-5).
-    expect(krav.map((r) => r.querySelector('.beloep')?.classList.contains('dempet'))).toEqual([
+    expect(krav.map((r) => r.querySelector('.oeverst')?.classList.contains('eldre-krav'))).toEqual([
       false,
       true,
     ]);
@@ -243,9 +243,9 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
         .getAllByRole('listitem')
         .map((l) => l.querySelector('p')?.textContent)
     ).toEqual([
-      'Byggherren gjør gjeldende at varselet etter punkt 34.1.2 i brev 2 kom for sent.',
-      'Hvis innsigelsen om varselet etter punkt 34.1.2 ikke fører frem: Byggherren godkjenner oppgjørsformen totalentreprenøren krever, og byggherren gjør gjeldende at varselet etter punkt 34.1.3 i brev 3 kom for sent, og godkjenner 10 000 kr etter begrensningen.',
-      'Hvis heller ikke innsigelsen om varselet etter punkt 34.1.3 fører frem.',
+      'Byggherren gjør gjeldende at varselet etter punkt\u00a034.1.2 i brev 2 kom for sent.',
+      'Hvis innsigelsen om varselet etter punkt\u00a034.1.2 ikke fører frem: Byggherren godkjenner oppgjørsformen totalentreprenøren krever, og byggherren gjør gjeldende at varselet etter punkt\u00a034.1.3 i brev 3 kom for sent, og godkjenner 10 000 kr etter begrensningen.',
+      'Hvis heller ikke innsigelsen om varselet etter punkt\u00a034.1.3 fører frem.',
     ]);
     const tabell = kort.getByRole('table', { name: 'Per post' });
     expect(within(tabell).getAllByRole('row').at(-1)?.textContent).toBe(
