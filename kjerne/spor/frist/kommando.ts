@@ -395,8 +395,17 @@ function varseletIKravet(
       ),
     };
   const kommando = { type: 'varsel', spor: 'frist', hjemmel: '33.4', ...varsel };
-  const utfall =
-    skriving.formen(kommando) ?? skriving.skriv(kommando as Kommando, kontekst, journal);
+  const form = skriving.formen(kommando);
+  // Formfeilene får stien i fristkravet, som formfeilene i varselet ellers har.
+  if (form && !form.godtatt)
+    return {
+      ...form,
+      avvisning: {
+        ...form.avvisning,
+        melding: form.avvisning.melding.replaceAll('$.', '$.varsel.'),
+      },
+    };
+  const utfall = skriving.skriv(kommando as Kommando, kontekst, journal);
   return utfall.godtatt
     ? utfall
     : {

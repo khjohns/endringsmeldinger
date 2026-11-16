@@ -2462,8 +2462,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F296',
     feilklasse: 'fristkravet registrerer varselet uten brevet med det (OV-U5, #828)',
-    fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [['        return k.varsel.dokumentasjon\n', '        return true\n']],
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['  if (!varsel.dokumentasjon?.length)', '  if (false)']],
     mal: ['et fristkrav som registrerer varselet uten brevet med det, avvises'],
   },
   {
@@ -2976,8 +2976,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/kommando.ts`,
     endringer: [
       [
-        "  if (type === 'krav' && !feil.length && ('sendt' in kommando",
-        "  if (false && ('sendt' in kommando",
+        "    ['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse'].some((felt) => felt in kommando)",
+        '    false',
       ],
     ],
     mal: ['et krav lagt til med en utdypning, eller med typen uten datoen, avvises som feil form'],
@@ -3259,14 +3259,9 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F354',
     feilklasse:
-      'leseren godtar et brev registrert som dokumentasjon med utsagn (OV-U4, OV-U16, #1045)',
+      'leseren godtar sporene i registrert korrespondanse med utsagn, som ikke er dokumentasjon (OV-U4, OV-U16, OV-U79, #1045)',
     fil: `${K}/format/leser.ts`,
-    endringer: [
-      [
-        '  if (d.krav.length || d.svar.length || d.utsagn.length)',
-        '  if (d.krav.length || d.svar.length)',
-      ],
-    ],
+    endringer: [['  else if (data.spor)', '  else if (false)']],
     mal: ['leseren forstår ikke et brev registrert som dokumentasjon med et utsagn'],
   },
   {
@@ -3877,7 +3872,15 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F443',
     feilklasse: 'registrert korrespondanse omtales med feil type (LV-U42)',
     fil: `${K}/frosset/brevdeler.ts`,
-    endringer: [["{ brev: 'brev', e_post: 'e-post' }", "{ brev: 'brev', e_post: 'brev' }"]],
+    endringer: [["  e_post: 'e-post',", "  e_post: 'brev',"]],
+    mal: ['registrert korrespondanse omtales med parten, typen og datoen'],
+  },
+  {
+    id: 'F694',
+    feilklasse:
+      'et notat eller annet dokument omtales som et notat, også når det er et annet dokument (LV-U42, arbeidsvalget 1 A 16.11 i #807)',
+    fil: `${K}/frosset/brevdeler.ts`,
+    endringer: [["  notat: 'dokument',", "  notat: 'notat',"]],
     mal: ['registrert korrespondanse omtales med parten, typen og datoen'],
   },
   {
@@ -5981,6 +5984,14 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['sendemåten lagres med et registrert brev'],
+  },
+  {
+    id: 'F693',
+    feilklasse:
+      'et fristkrav godtas med typen, sendemåten eller beskrivelsen av et varsel som alt er registrert, og opplysningene forsvinner (VS-U34)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['      if (oppgitt.length)', '      if (oppgitt.length && false)']],
+    mal: ['er varselet registrert med brevet, kreves bare samme dato i kravet'],
   },
 ];
 interface Testresultat {

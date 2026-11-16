@@ -181,7 +181,7 @@ describe('formen på kravet', () => {
       '$.varsel.sendemaate: bare et brev har sendemåten',
     ]);
     expect(formfeil({ type: 'begrunnelse', gjelder: 'svar-1', sendemaate: 'post' })).toEqual([
-      '$.sendt: bare et brev lagt til med datoen det ble sendt, har typen og vedlegg',
+      '$.sendemaate: bare et brev lagt til med datoen det ble sendt (`sendt`), har sendemåten',
     ]);
   });
 

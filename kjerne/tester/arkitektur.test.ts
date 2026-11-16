@@ -1155,6 +1155,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // OV-U5: varselet i fristkravet har datoen og brevet som vedlegg.
   ['Kommando.varsel', 'kommando', 'sendt dokumentasjon'],
+  // VS-U34: er varselet registrert, står typen, sendemåten og beskrivelsen i brevet med det.
+  [
+    'Kommando.varsel',
+    'kommando',
+    'korrespondansetype sendemaate beskrivelse',
+    ['kommandoer/nyttelast.ts:nyttelastkontroll'],
+  ],
+  ['BESKREVET', 'kommando', 'korrespondansetype sendemaate beskrivelse'],
   // GR-U22: hjemmelen i en ny påberopelsesversjon sammenliknes med gjeldende versjon.
   [
     'Kommando.innhold',

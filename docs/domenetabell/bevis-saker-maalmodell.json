@@ -2965,7 +2965,7 @@
           "rolle": "mal",
           "kilde": ["VS-U34", "MM-U1"],
           "forventet": {
-            "opplysning.K-f1#sendt.dato": "2026-09-02",
+            "opplysning.K-f1#varselbrevet#sendt.dato": "2026-09-02",
             "varsel.frist": "K-f1#varselbrevet",
             "registrert.K-f1#varselbrevet": true,
             "registrert.K-f1": false

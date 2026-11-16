@@ -106,6 +106,14 @@ export const erRegistrering = (
   (k.type === 'krav' || k.type === 'brev' || k.type === 'revisjon' || k.type === 'aksept') &&
   k.sendt !== undefined;
 
+/** Feltene bare et brev lagt til med datoen har (OV-U79, OV-U80), med ordet meldingen bruker. */
+const BARE_LAGT_TIL = {
+  korrespondansetype: 'typen',
+  sendemaate: 'sendemåten',
+  beskrivelse: 'beskrivelsen',
+  dokumentasjon: 'vedlegg',
+} as const;
+
 /**
  * Formen for et brev sendt utenfor løsningen og lagt til med datoen (`sendt`): typen og brevet
  * som vedlegg, og ingen tekst fra løsningen (`tekstfeil`). Uten `sendt` har kommandoen verken
@@ -116,12 +124,12 @@ function registreringensForm(
   tekstfeil: () => string[]
 ): string[] {
   if (!('sendt' in kommando))
-    return 'korrespondansetype' in kommando ||
-      'sendemaate' in kommando ||
-      'beskrivelse' in kommando ||
-      'dokumentasjon' in kommando
-      ? ['$.sendt: bare et brev lagt til med datoen det ble sendt, har typen og vedlegg']
-      : [];
+    return Object.entries(BARE_LAGT_TIL)
+      .filter(([felt]) => felt in kommando)
+      .map(
+        ([felt, hva]) =>
+          `$.${felt}: bare et brev lagt til med datoen det ble sendt (\`sendt\`), har ${hva}`
+      );
   return [
     ...tekstfeil(),
     ...('korrespondansetype' in kommando ? [] : ['$.korrespondansetype: typen mangler']),

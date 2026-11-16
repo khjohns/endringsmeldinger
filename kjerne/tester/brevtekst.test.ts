@@ -3863,9 +3863,28 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
       sendt: FRISTKRAV.varsel.sendt,
       dokumentasjon: [VARSELBREVET],
     });
+    // Typen, sendemåten og beskrivelsen står i brevet som alt er registrert (VS-U34).
+    expect(
+      s.avvisning('TE', {
+        ...utenBrevet,
+        varsel: { ...utenBrevet.varsel, korrespondansetype: 'e_post', beskrivelse: 'Varselet' },
+      })
+    ).toEqual({
+      regel: 'VARSEL_REGISTRERT',
+      melding:
+        'Varselet etter punkt 33.4 står alt i saken, så kravet kan bare oppgi datoen for det, ikke typen eller beskrivelsen.',
+    });
     const rad = s.send('TE', utenBrevet);
     expect(rad.data.dokumentasjon).toBeUndefined();
     expect(rad.data.utsagn).toBeUndefined();
+  });
+
+  it('et varsel uten typen meldes på feltet i varselet i fristkravet (LV-U42, VS-U34)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    expect(
+      s.avvisning('TE', { ...FRISTKRAV, varsel: utenFelt(FRISTKRAV.varsel, 'korrespondansetype') })
+    ).toEqual({ regel: 'UGYLDIG_FORM', melding: '$.varsel.korrespondansetype: mangler' });
   });
 
   it('samme vedlegg to ganger i varselet avvises i formen', () => {

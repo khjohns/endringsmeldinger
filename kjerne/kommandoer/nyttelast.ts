@@ -260,6 +260,13 @@ function korrigeringEtterVarslene(
   return null;
 }
 
+/** Feltene i varselet i fristkravet som hører til brevet med varselet (`nyttelastkontroll`). */
+const BESKREVET = {
+  korrespondansetype: 'typen',
+  sendemaate: 'sendemåten',
+  beskrivelse: 'beskrivelsen',
+} as const;
+
 export type OppgittDato = {
   dato: unknown;
   gjelder: string;
@@ -436,15 +443,21 @@ export function nyttelastkontroll(
       const foer = varseletFoerGrunnlagsdatoen('33.4', k.varsel.sendt, u);
       if (foer) return foer;
       const varsel = u.spor.frist.varsler['33.4'];
-      // OV-U5: kravet registrerer varselet, og brevet med det ligger ved. Er varselet
-      // registrert, kreves bare samme dato (SK-12; arbeidsvalget i #909).
-      if (!varsel)
-        return k.varsel.dokumentasjon
-          ? null
-          : avvis(
-              'VEDLEGG_MANGLER',
-              'Kravet oppgir datoen varselet etter punkt 33.4 ble sendt, men brevet med varselet ligger ikke ved.'
-            );
+      // VS-U34: uten varselet i saken skrives det som et eget brev før kravet (`medVarselet` i
+      // fristen). Er varselet registrert, kreves bare samme dato (SK-12; arbeidsvalget i #909),
+      // og typen, sendemåten og beskrivelsen står i det registrerte brevet.
+      if (!varsel) return null;
+      const oppgitt = (['korrespondansetype', 'sendemaate', 'beskrivelse'] as const).filter(
+        (felt) => k.varsel![felt] !== undefined
+      );
+      if (oppgitt.length)
+        return avvis(
+          'VARSEL_REGISTRERT',
+          `Varselet etter punkt 33.4 står alt i saken, så kravet kan bare oppgi datoen for det, ikke ${oppgitt
+            .map((f) => BESKREVET[f])
+            .join(', ')
+            .replace(/, ([^,]*)$/, ' eller $1')}.`
+        );
       const sendt = datoFor(
         varsel,
         'sendt',
