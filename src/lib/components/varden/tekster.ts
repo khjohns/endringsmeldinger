@@ -1520,7 +1520,7 @@ export const FRISTKRAV = {
   registrert: 'Varselet er registrert.',
   // U-6: varselet gitt før, utenfor løsningen (OV-U5, VS-U16).
   gittFoer: 'Varselet er gitt før, utenfor løsningen',
-  gittFoerHjelp: 'Brevet sier når, og dokumentet du varslet i, legges ved.',
+  gittFoerHjelp: 'Brevet sier når varselet ble gitt, og dokumentet du varslet i, legges ved.',
   likevel: 'Dette kravet er varselet likevel',
   varseldato: 'Datoen for varselet',
   varseldatoHjelp: 'Datoen settes én gang.',

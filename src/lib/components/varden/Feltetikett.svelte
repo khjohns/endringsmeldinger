@@ -1,7 +1,4 @@
-<!--
-  Labelen over et felt i skjemaene: vekt 600 i `--ink` og brødtekstens størrelse, som spørsmålet
-  over en gruppe valg (system.md, «Feltene står under hverandre», #2059).
--->
+<!-- Labelen over et felt i skjemaene (system.md, «Feltene står under hverandre», #2059). -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
 

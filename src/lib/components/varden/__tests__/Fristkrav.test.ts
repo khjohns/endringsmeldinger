@@ -321,7 +321,10 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     const gitt = within(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' }));
     // Etiketten for vedlegget gjelder alle typene (#2056, oppdragsgiver 16.11).
     expect(screen.getByText('Dokumentet du varslet i')).toBeInTheDocument();
+    await fireEvent.click(gitt.getByRole('radio', { name: 'E-post' }));
+    expect(screen.getByText('Dokumentet du varslet i')).toBeInTheDocument();
     await fireEvent.click(gitt.getByRole('radio', { name: 'Brev' }));
+    expect(screen.getByText('Dokumentet du varslet i')).toBeInTheDocument();
     await skriv(screen.getByLabelText('Datoen for varselet'), '2026-10-05');
     await leggVed();
     await registrer();
