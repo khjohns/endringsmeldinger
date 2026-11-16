@@ -5,11 +5,15 @@
 
 import { gjelderVarslingsplikten } from '$kjerne/frosset/byggeklosser';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
-import { erByggherrensPaalegg, gyldigeResultater } from '$kjerne/regler/forhold';
+import {
+  BEGRUNNELSESPUNKTENE,
+  begrunnelseskravet,
+  erByggherrensPaalegg,
+  gyldigeResultater,
+} from '$kjerne/regler/forhold';
 import type { Regelsett } from '$kjerne/regler/regelsett';
 import type { Forholdsresultat } from '$kjerne/regler/typer';
 import { kategori } from '$kjerne/spor/forhold/format';
-import { begrunnelsespunktene } from '$kjerne/spor/forhold/kommando';
 import { forholdstilfellet, harRisikoen } from '$kjerne/spor/forhold/tekst';
 import type { Krav } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
@@ -60,18 +64,18 @@ export const kanFrafalle = (f: Forholdet, v: Pick<Forholdssvarvalg, 'forSent'>):
   f.resultater.includes('paalegg_frafalt') && !(f.varslingsplikt && v.forSent === true);
 
 /**
- * D-7: punktene der én av dem må ha en begrunnelse (`begrunnelsespunktene` i kjernen), og
+ * D-7: punktene der én av dem må ha en begrunnelse (`begrunnelseskravet` i kjernen), og
  * hvorfor, eller `null` når begrunnelsen er valgfri.
  */
 export function begrunnelsenKreves(
   f: Forholdet,
   v: Pick<Forholdssvarvalg, 'forSent' | 'resultat'>
-): { punktene: string[]; grunn: string; mangler: string } | null {
-  const punktene = begrunnelsespunktene(vurderingene(v, f.varslingsplikt), f.varslingsplikt);
-  if (!punktene) return null;
+): { punktene: readonly string[]; grunn: string; mangler: string } | null {
+  const krav = begrunnelseskravet(vurderingene(v, f.varslingsplikt), f.varslingsplikt);
+  if (!krav) return null;
   return {
-    punktene: [...punktene],
-    grunn: punktene.includes('32.2') ? FORHOLDSSVAR.krevesForSent : FORHOLDSSVAR.krevesAvslag,
+    punktene: BEGRUNNELSESPUNKTENE[krav],
+    grunn: krav === 'for_sent' ? FORHOLDSSVAR.krevesForSent : FORHOLDSSVAR.krevesAvslag,
     mangler: FORHOLDSSVAR.manglerBegrunnelse,
   };
 }

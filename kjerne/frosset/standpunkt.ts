@@ -117,20 +117,6 @@ export function paaberopelserIDokumentet(
 }
 
 /**
- * OV-U104, OV-U105: et svar sendt på dagen `svaret` kan gi opp en påberopelse sendt på dagen
- * `paaberopelsen`, fordi det ikke er sendt før den. En dag som ikke kan leses, hindrer ikke.
- * `samme` kalles når de er sendt samme dag.
- */
-export function sendtEtterPaaberopelsen(
-  svaret: string | null,
-  paaberopelsen: string | null,
-  samme?: () => void
-): boolean {
-  if (svaret !== null && svaret === paaberopelsen) samme?.();
-  return svaret === null || paaberopelsen === null || svaret >= paaberopelsen;
-}
-
-/**
  * VS-U9, VS-U11, HF-U4: parten har gitt opp sin påberopelse i en egen innsigelse når et
  * senere svar fra parten i sporet sier at varselet kom i tide. I fristen gir hvert «i tide»
  * etter § 33.4 den opp, fordi parten er bundet av det (VS-U20, arbeidsvalget 15.10 i #309).

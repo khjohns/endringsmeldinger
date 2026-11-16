@@ -4,7 +4,7 @@
  * `KONTROLLER`, #1783).
  */
 
-import { dokumenterI } from '../../format/leser.ts';
+import { dokumenterI, foerDagen } from '../../format/leser.ts';
 import { erPaaberopelse } from '../../frosset/standpunkt.ts';
 import { forlengetFrist } from '../../regler/hverdager.ts';
 import type {
@@ -125,8 +125,7 @@ export function foresporselenKravetSvarerPaa(
 ): ForesporselOgSvar | undefined {
   const f = u.spor.frist.foresporsler.find(erUbesvart);
   if (!f || sendt === null) return f;
-  if (sendt === f.sendt) samme(f.foresporsel);
-  return f.sendt === null || sendt >= f.sendt ? f : undefined;
+  return foerDagen(sendt, f.sendt, () => samme(f.foresporsel)) ? undefined : f;
 }
 
 /**

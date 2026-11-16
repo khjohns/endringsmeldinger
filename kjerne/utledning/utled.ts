@@ -22,6 +22,7 @@ import {
   datoFor,
   dokumenterI,
   erRegistrert,
+  foerDagen,
   kalenderdag,
   lesJournal,
   dagenSendt,
@@ -37,7 +38,6 @@ import {
   innsigelsenPaaberoper,
   paaberopelserIDokumentet,
   sammenfallStemmer,
-  sendtEtterPaaberopelsen,
   svaretGjelderPaaberopelsen,
 } from '../frosset/standpunkt.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
@@ -63,6 +63,7 @@ import {
   type Standpunkt,
   type Standpunktsvirkning,
   type Svar,
+  type Hjemmel,
   type Kravpostvarselhjemmel,
   type Varselhjemmel,
   type Vedlegg,
@@ -514,15 +515,6 @@ const lukket = (u: Utledning): string | null =>
     ? 'totalentreprenøren har godtatt svaret på påberopelsen, som avslår forholdet eller påberoper preklusjon (GR-U27)'
     : null;
 
-/**
- * OV-U98: dagen `a` er før dagen `b`. Datoene er kalenderdager, og et brev fra løsningen har
- * dagen det ble registrert, så samme dag er ikke før. En dag som ikke kan leses, er ikke før.
- */
-function foerDagen(a: string | null, b: string | null, samme?: () => void): boolean {
-  if (a !== null && a === b) samme?.();
-  return a !== null && b !== null && a < b;
-}
-
 /** OV-U104: elementet ble sammenliknet med `med`, sendt samme dag. */
 type SammeDag = (element: string, med: string) => void;
 
@@ -654,34 +646,18 @@ function registreringenStrider(
         grunn: 'et krav sendt før totalentreprenørens siste krav i sporet (OV-U98, OV-U102)',
         utenforRekken: true,
       });
-      // OV-U102: datoen sammenliknes med det egne varselet.
-      for (const v of egneVarsler(u, k)) mellomKravOgVarsel(k, v, k.id);
+      // OV-U102: datoen sammenliknes med det egne varselet (`varseletFoerSvaret`).
+      for (const v of egneVarsler(u, k))
+        foerDagen(dag(k.id), datoenDetBleSendt(u, v), () => samme(k.id, v.id));
     }
     // OV-U109: datoen sammenliknes med forespørselen etter § 33.6.2.
     if (k.spor === 'frist') foresporselenKravetSvarerPaa(u, dag(k.id), (f) => samme(k.id, f));
   }
   for (const v of d.utsagn) {
     if (v.art !== 'varsel') continue;
-    for (const k of u.spor[VARSELSPOR[v.hjemmel]].kravUtenforRekken) mellomKravOgVarsel(k, v, v.id);
-  }
-  /**
-   * OV-U102: kravet utenfor rekken og varselet sammenliknes som `varseletFoerSvaret` gjør det.
-   * `iBrevet` er det av dem som står i brevet som legges til.
-   */
-  function mellomKravOgVarsel(
-    k: Krav,
-    v: Pick<LestVarsel, 'id' | 'dokument' | 'hjemmel'>,
-    iBrevet: string
-  ): void {
-    if (erKravpostvarselhjemmel(v.hjemmel)) return;
-    varseletFoerSvaret(
-      v.hjemmel,
-      [v],
-      kravSomVarsler(v.hjemmel, { krav: [], kravUtenforRekken: [k] }, () => true),
-      () => true,
-      (x) => (x.id === iBrevet ? dag(x.id) : datoenDetBleSendt(u, x)),
-      (krav, varsel) => (krav === iBrevet ? samme(krav, varsel) : samme(varsel, krav))
-    );
+    for (const k of u.spor[VARSELSPOR[v.hjemmel]].kravUtenforRekken)
+      if (sammenliknesMedVarselet(v.hjemmel, k))
+        foerDagen(dag(v.id), datoenDetBleSendt(u, k), () => samme(v.id, k.id));
   }
   const innsigelser = d.svar.length ? partensPaaberopelser(u, d.avsender, utenVirkning) : [];
   for (const s of d.svar) {
@@ -692,15 +668,10 @@ function registreringenStrider(
     // OV-U105: svaret sammenliknes med partens påberopelser det gjentar eller gir opp, som i
     // `aapneInnsigelser`. Utledningen leser om § 32.2 gjelder kategorien, av det frosne svaret
     // (MM-U43 punkt 8).
-    const varslingsplikt = () => s.beslutningsgrunnlag.varslingsplikt === true;
+    const varslingsplikt = s.beslutningsgrunnlag.varslingsplikt === true;
     for (const x of innsigelser)
-      if (
-        svaretGjelderPaaberopelsen(
-          s.spor,
-          innsigelsenPaaberoper(x.gjelder, dokumenterI(u.journal), varslingsplikt)
-        )
-      )
-        sendtEtterPaaberopelsen(sendt, x.dag, () => medSvaret(x.id));
+      if (svaretGjelderPaaberopelsen(s.spor, x.hjemmel(varslingsplikt)))
+        foerDagen(sendt, x.dag, () => medSvaret(x.id));
     if (krav && (sendt === null || !kravversjonenGjaldt(u, krav, sendt, medSvaret)))
       strider.push({
         element: s.id,
@@ -750,20 +721,36 @@ const varslerEtter = (hjemmel: Varselhjemmel, k: Krav): boolean =>
 
 /**
  * Partens påberopelser et senere svar kan gjenta eller gi opp (`paaberopelserIDokumentet`), med
- * dagen de ble sendt.
+ * dagen de ble sendt og hjemmelen de påberoper (`innsigelsenPaaberoper`), etter om § 32.2 gjelder
+ * kategorien.
  */
 function partensPaaberopelser(
   u: Utledning,
   part: Part,
   utenVirkning: (id: string) => boolean
-): { id: string; gjelder: string; dag: string | null }[] {
-  const ut: { id: string; gjelder: string; dag: string | null }[] = [];
-  for (const d of dokumenterI(u.journal)) {
+): Partspaaberopelse[] {
+  const dokumenter = [...dokumenterI(u.journal)];
+  const ut: Partspaaberopelse[] = [];
+  for (const d of dokumenter) {
     if (d.avsender !== part) continue;
-    for (const x of paaberopelserIDokumentet(d, utenVirkning))
-      ut.push({ id: x.id, gjelder: x.gjelder, dag: dagenSendt({ id: x.id, dokument: d.id }, d) });
+    for (const x of paaberopelserIDokumentet(d, utenVirkning)) {
+      const [med, uten] = [true, false].map((v) =>
+        innsigelsenPaaberoper(x.gjelder, dokumenter, () => v)
+      );
+      ut.push({
+        id: x.id,
+        dag: dagenSendt({ id: x.id, dokument: d.id }, d),
+        hjemmel: (varslingsplikt) => (varslingsplikt ? med : uten),
+      });
+    }
   }
   return ut;
+}
+
+interface Partspaaberopelse {
+  id: string;
+  dag: string | null;
+  hjemmel: (varslingsplikt: boolean) => Hjemmel | Kravpostvarselhjemmel | null;
 }
 
 /** Hvorfor kravversjonen strider mot journalen før den, eller `null`. */
@@ -1711,24 +1698,20 @@ function foerstSendt<K>(krav: readonly K[], sendt: (k: K) => string | null): K |
  * en dato for kravet, det egne varselet. Vilkåret i E3 om en tidligere dato for § 32.2 er ikke
  * bygget (#1600).
  * `foerSvaret` sier om et varsel står før svaret, og `sendt` datoen et varsel eller krav ble
- * sendt. `samme` kalles når kravet og varselet ble sendt samme dag (OV-U104). Skriveren,
- * valideringen og merkingen av samme dag leser det herfra (#496, #2050).
+ * sendt. Skriveren og valideringen leser det herfra (#496).
  */
 export function varseletFoerSvaret(
   hjemmel: Enkeltvarselhjemmel,
   varsler: readonly Pick<LestVarsel, 'id' | 'dokument'>[],
   krav: readonly Pick<Krav, 'id' | 'dokument'>[],
   foerSvaret: (varsel: string) => boolean,
-  sendt: (v: Pick<Krav, 'id' | 'dokument'>) => string | null,
-  samme: (krav: string, varsel: string) => void = () => {}
+  sendt: (v: Pick<Krav, 'id' | 'dokument'>) => string | null
 ): string | undefined {
   const eget = varsler.find((v) => foerSvaret(v.id));
   const kravet = foerstSendt(krav, sendt);
   if (!eget || !kravet || !datoenSammenliknes(hjemmel)) return eget?.id ?? kravet?.id;
   const [varselet, kravetSendt] = [sendt(eget), sendt(kravet)];
   if (kravetSendt === null) return eget.id;
-  // OV-U104: sendt samme dag gjelder det egne varselet.
-  if (kravetSendt === varselet) samme(kravet.id, eget.id);
   return varselet === null || kravetSendt < varselet ? kravet.id : eget.id;
 }
 

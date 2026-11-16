@@ -81,13 +81,13 @@ export interface Dagvurdering {
   dager_maatte_forstaa?: unknown;
 }
 
+const DAGVURDERINGEN: ReadonlySet<string> = new Set(['dager', 'dager_maatte_forstaa']);
+
 /**
  * Vurderingene for fristene i kravet, én per frist og i kravets rekkefølge (KA-U74). Svaret
  * gjelder én kravversjon, så rekkefølgen binder vurderingen til fristen. Kaster
  * `UgyldigVurdering` når antallet ikke stemmer, eller en vurdering har ukjente felt.
  */
-const DAGVURDERINGEN: ReadonlySet<string> = new Set(['dager', 'dager_maatte_forstaa']);
-
 export function fristvurderinger(v: Svarvurdering, krav: Krav): Dagvurdering[] {
   const frister = innholdIFristen(krav).frister;
   const liste = v.frister;

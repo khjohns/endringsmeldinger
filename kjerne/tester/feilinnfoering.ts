@@ -1768,13 +1768,8 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F649',
     feilklasse: 'et «i tide» i et svar sendt før innsigelsen gir den opp (OV-U105, OV-U104)',
-    fil: `${K}/frosset/standpunkt.ts`,
-    endringer: [
-      [
-        'return svaret === null || paaberopelsen === null || svaret >= paaberopelsen;',
-        'return true;',
-      ],
-    ],
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [['.filter((x) => !foerDagen(x.dag, i.dag))', '']],
     mal: ['et «i tide» i et svar lagt til gir opp innsigelsen fra dagen det ble sendt'],
   },
   {
@@ -1807,7 +1802,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F652',
     feilklasse: 'utledningen fører ikke en sammenlikning av to brev sendt samme dag (OV-U104)',
-    fil: `${K}/utledning/utled.ts`,
+    fil: `${K}/format/leser.ts`,
     endringer: [['  if (a !== null && a === b) samme?.();\n', '']],
     mal: [
       'kontrollsak: en revisjon sendt samme dag som svaret erstatter det',
@@ -1846,7 +1841,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et fristkrav lagt til, sendt før forespørselen etter § 33.6.2, svarer på den (OV-U109, HF-U1)',
     fil: `${K}/spor/frist/utledning.ts`,
-    endringer: [['return f.sendt === null || sendt >= f.sendt ? f : undefined;', 'return f;']],
+    endringer: [
+      [
+        'return foerDagen(sendt, f.sendt, () => samme(f.foresporsel)) ? undefined : f;',
+        'return f;',
+      ],
+    ],
     mal: [
       'OV-U109: et fristkrav lagt til, sendt før forespørselen, godtas uten å svare på den, og forespørselen er ikke ubesvart',
     ],
@@ -1934,7 +1934,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et krav utenfor rekken sendt samme dag som det egne varselet, merkes ikke (OV-U104, OV-U102)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['  if (kravetSendt === varselet) samme(kravet.id, eget.id);\n', '']],
+    endringer: [
+      [
+        'foerDagen(dag(k.id), datoenDetBleSendt(u, v), () => samme(k.id, v.id));',
+        'foerDagen(dag(k.id), datoenDetBleSendt(u, v));',
+      ],
+    ],
     mal: [
       'OV-U104, OV-U102: et krav utenfor rekken sendt samme dag som det egne varselet etter § 33.4, står i sendtSammeDag med det',
     ],
@@ -1944,7 +1949,9 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et fristkrav sendt samme dag som forespørselen etter § 33.6.2, merkes ikke (OV-U104, OV-U109)',
     fil: `${K}/spor/frist/utledning.ts`,
-    endringer: [['  if (sendt === f.sendt) samme(f.foresporsel);\n', '']],
+    endringer: [
+      ['foerDagen(sendt, f.sendt, () => samme(f.foresporsel))', 'foerDagen(sendt, f.sendt)'],
+    ],
     mal: [
       'kontrollsak OV-U109, OV-U104: et fristkrav sendt samme dag som forespørselen svarer på den, og rekkefølgen er ukjent',
     ],
@@ -1954,12 +1961,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et svar lagt til samme dag som partens innsigelse i sporet, merkes ikke (OV-U104, OV-U105)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        'sendtEtterPaaberopelsen(sendt, x.dag, () => medSvaret(x.id));',
-        'sendtEtterPaaberopelsen(sendt, x.dag);',
-      ],
-    ],
+    endringer: [['foerDagen(sendt, x.dag, () => medSvaret(x.id));', 'foerDagen(sendt, x.dag);']],
     mal: [
       'et svar lagt til, sendt samme dag som byggherrens innsigelse i sporet, står i sendtSammeDag med den',
     ],
@@ -1990,8 +1992,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '        svaretGjelderPaaberopelsen(\n',
-        '        true ||\n        svaretGjelderPaaberopelsen(\n',
+        'if (svaretGjelderPaaberopelsen(s.spor, x.hjemmel(varslingsplikt)))',
+        'if (true || svaretGjelderPaaberopelsen(s.spor, x.hjemmel(varslingsplikt)))',
       ],
     ],
     mal: [
@@ -3894,8 +3896,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        'const varslingsplikt = () => s.beslutningsgrunnlag.varslingsplikt === true;',
-        'const varslingsplikt = () => true;',
+        'const varslingsplikt = s.beslutningsgrunnlag.varslingsplikt === true;',
+        'const varslingsplikt = true;',
       ],
     ],
     mal: ['i et forhold der § 32.2 ikke gjelder, sammenliknes svaret ikke med innsigelsen'],
@@ -5187,11 +5189,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F561',
     feilklasse:
       'en påberopelse av at varselet etter § 32.2 kom for sent, krever ingen begrunnelse (KA-U46 punkt 2–3)',
-    fil: `${K}/spor/forhold/kommando.ts`,
+    fil: `${K}/regler/forhold.ts`,
     endringer: [
       [
-        "  if (v.grunnlag_varslet_i_tide === false) return ['forhold', '32.2'];",
-        "  if (false) return ['forhold', '32.2'];",
+        "  if (v.grunnlag_varslet_i_tide === false) return 'for_sent';",
+        "  if (false) return 'for_sent';",
       ],
     ],
     mal: ['påberopt preklusjon etter § 32.2 (KA-U21, KA-U47)'],
@@ -5199,11 +5201,11 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F562',
     feilklasse: 'begrunnelsen kreves for avslag også der § 32.2 ikke gjelder (KA-U46 punkt 1)',
-    fil: `${K}/spor/forhold/kommando.ts`,
+    fil: `${K}/regler/forhold.ts`,
     endringer: [
       [
-        "  if (v.resultat === 'avslaatt' && varslingsplikt) return ['forhold'];",
-        "  if (v.resultat === 'avslaatt') return ['forhold'];",
+        "  if (v.resultat === 'avslaatt' && varslingsplikt) return 'avslag';",
+        "  if (v.resultat === 'avslaatt') return 'avslag';",
       ],
     ],
     mal: ['der § 32.2 ikke gjelder, godtas uten begrunnelse også ved avslag'],
@@ -5212,13 +5214,8 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F563',
     feilklasse:
       'begrunnelsen i punktet om et varsel i tide oppfyller kravet ved avslag (KA-U46 punkt 3)',
-    fil: `${K}/spor/forhold/kommando.ts`,
-    endringer: [
-      [
-        "  if (v.resultat === 'avslaatt' && varslingsplikt) return ['forhold'];",
-        "  if (v.resultat === 'avslaatt' && varslingsplikt) return ['forhold', '32.2'];",
-      ],
-    ],
+    fil: `${K}/regler/forhold.ts`,
+    endringer: [["  avslag: ['forhold'],", "  avslag: ['forhold', '32.2'],"]],
     mal: ['ikke i punktet om et varsel i tide'],
   },
   {
@@ -5228,8 +5225,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
-        'if (!punktene || punktene.some((p) => s.utdypninger?.[p]?.trim())) return null;',
-        'if (!punktene || punktene.some((p) => s.utdypninger?.[p]?.trim()) || s.utdypning) return null;',
+        'BEGRUNNELSESPUNKTENE[grunn].some((p) => s.utdypninger?.[p]?.trim())',
+        'BEGRUNNELSESPUNKTENE[grunn].some((p) => s.utdypninger?.[p]?.trim()) || !!s.utdypning',
       ],
     ],
     mal: ['men ikke under «Forbehold»'],

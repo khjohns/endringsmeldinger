@@ -15,14 +15,13 @@
  */
 
 import { sakensKode } from './tekst.ts';
-import { dagenSendt, erRegistrert, registrertDato } from '../format/leser.ts';
+import { dagenSendt, erRegistrert, foerDagen, registrertDato } from '../format/leser.ts';
 import { etterAkseptfristen } from '../regler/akseptfrist.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
   innsigelsenErOppgitt,
   innsigelsenPaaberoper,
   paaberopelserIDokumentet,
-  sendtEtterPaaberopelsen,
   svaretGjelderPaaberopelsen,
 } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
@@ -243,7 +242,7 @@ function aapneInnsigelser(
     );
     const etter = svarFraParten
       .slice(i.fra)
-      .filter((x) => sendtEtterPaaberopelsen(x.dag, i.dag))
+      .filter((x) => !foerDagen(x.dag, i.dag))
       .map((x) => x.svar);
     return svaretGjelderPaaberopelsen(svar.spor, hjemmel) &&
       !innsigelsenErOppgitt(svar.spor, etter, hjemmel)

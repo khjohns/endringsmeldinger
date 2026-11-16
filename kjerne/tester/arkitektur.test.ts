@@ -698,7 +698,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/frist/frysing.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon erUbesvart'],
   ['spor/frist/utledning.ts', 'relasjon', 'foresporselForFristsvar foresporselenKravetSvarerPaa'],
   // OV-U104, OV-U105: påberopelsene et svar lagt til sammenliknes med.
-  ['utledning/utled.ts:partensPaaberopelser', 'relasjon', 'id gjelder dag'],
+  ['Partspaaberopelse', 'relasjon', 'id dag hjemmel', ['utledning/utled.ts:registreringenStrider']],
   [
     'Utledning',
     'utsagn',
@@ -710,7 +710,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/frist/utledning.ts:foresporselForFristsvar',
       'spor/frist/utledning.ts:fristkravErFremmet',
       'utledning/utled.ts:partensPaaberopelser',
-      'utledning/utled.ts:registreringenStrider',
     ],
   ],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
@@ -855,7 +854,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts',
     'relasjon',
     'innsigelsenPaaberoper',
-    ['frosset/brevtekst.ts', 'utledning/utled.ts:registreringenStrider'],
+    ['frosset/brevtekst.ts', 'utledning/utled.ts:partensPaaberopelser'],
   ],
   // VS-U29, OV-U104: en innsigelse som påberoper at noe kom for sent.
   [
@@ -869,7 +868,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'frosset/standpunkt.ts',
     'relasjon',
-    'paaberopelserIDokumentet sendtEtterPaaberopelsen svaretGjelderPaaberopelsen',
+    'paaberopelserIDokumentet svaretGjelderPaaberopelsen',
     [
       'frosset/brevtekst.ts',
       'utledning/utled.ts:registreringenStrider',
@@ -1050,6 +1049,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/frysing.ts'],
   ],
   ['regler/svarkontroll.ts:kontrollerForholdet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
+  // D-7, #2035: når svaret på forholdet må ha en begrunnelse, og punktene den kan stå i.
+  ['regler/forhold.ts:begrunnelseskravet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
+  [
+    'regler/forhold.ts',
+    'regelsett',
+    'begrunnelseskravet BEGRUNNELSESPUNKTENE',
+    ['spor/forhold/kommando.ts'],
+  ],
   ['regler/vederlag.ts:kontrollerVarseletForVederlag', 'utsagn', 'hovedkrav_varslet_i_tide'],
   [
     'regler/vederlag.ts:kontrollerOppgjoersformen',
@@ -2308,6 +2315,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
   // av samme slag (MM-U1, MM-U7).
   ['format/leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],
+  // OV-U98, OV-U104: dagene sammenliknes som kalenderdager, og samme dag meldes der de sammenliknes.
+  ['format/leser.ts', 'relasjon', 'foerDagen'],
   // #474: datoene i KA-U36 (opphevet av KA-U46) og VS-U26 sammenliknes som kalenderdager.
   [
     'format/leser.ts',

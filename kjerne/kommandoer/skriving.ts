@@ -367,10 +367,11 @@ function dokument(
   ogsaaEtter: readonly Kravpostvarselhjemmel[] = []
 ): Data {
   const nyId = kontekst.nyId;
+  // OV-U98: dagen et brev lagt til ble sendt, og `null` for et brev fra løsningen.
+  const sendt = erRegistrering(k) ? kalenderdag(k.sendt) : null;
   switch (k.type) {
     case 'krav': {
       // OV-U102: et krav lagt til, sendt før det siste, står utenfor rekken og erstatter ikke det.
-      const sendt = erRegistrering(k) ? kalenderdag(k.sendt) : null;
       const forrige = sendtFoerSisteKrav(u, k.spor, sendt) ? null : u.spor[k.spor].gjeldendeKrav;
       const id = nyId();
       if (k.utdypning !== undefined || k.utdypninger || k.forbehold !== undefined)
@@ -403,13 +404,12 @@ function dokument(
           k.svar.map((s) => svar(s, nyId, utdypninger, bygde)),
           u,
           kjerne,
-          erRegistrering(k) ? kalenderdag(k.sendt) : null
+          sendt
         ),
         ...registrering(k, nyId, bundne),
       };
     case 'revisjon': {
       // OV-U103: et svar lagt til, sendt før det gjeldende, står utenfor rekken og erstatter ikke det.
-      const sendt = erRegistrering(k) ? kalenderdag(k.sendt) : null;
       const foer = sendt !== null && sendtFoerGjeldendeSvar(u, k.svar.spor, k.svar.gjelder, sendt);
       return {
         svar: frosneSvar(
