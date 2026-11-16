@@ -5,15 +5,19 @@
 
 import { gjelderVarslingsplikten } from '$kjerne/frosset/byggeklosser';
 import type { Svarutkast } from '$kjerne/kommandoer/kommando';
-import { erByggherrensPaalegg, gyldigeResultater } from '$kjerne/regler/forhold';
+import {
+  BEGRUNNELSESPUNKTENE,
+  begrunnelseskravet,
+  erByggherrensPaalegg,
+  gyldigeResultater,
+} from '$kjerne/regler/forhold';
 import type { Regelsett } from '$kjerne/regler/regelsett';
 import type { Forholdsresultat } from '$kjerne/regler/typer';
 import { kategori } from '$kjerne/spor/forhold/format';
-import { harRisikoen } from '$kjerne/spor/forhold/tekst';
+import { forholdstilfellet, harRisikoen } from '$kjerne/spor/forhold/tekst';
 import type { Krav } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { definert, svarbrevet } from './kommandoer';
-import { forholdstilfellet } from './lesing';
 
 /** Det BH har valgt i skjemaet. `null` er ikke besvart; ingenting er forhåndsvalgt. */
 export interface Forholdssvarvalg {
@@ -60,20 +64,28 @@ export const kanFrafalle = (f: Forholdet, v: Pick<Forholdssvarvalg, 'forSent'>):
   f.resultater.includes('paalegg_frafalt') && !(f.varslingsplikt && v.forSent === true);
 
 /**
- * D-7 (`begrunnelseIForholdet` i kjernen): punktene der én av dem må ha en begrunnelse, og
+ * D-7: punktene der én av dem må ha en begrunnelse (`begrunnelseskravet` i kjernen), og
  * hvorfor, eller `null` når begrunnelsen er valgfri.
  */
 export function begrunnelsenKreves(
   f: Forholdet,
   v: Pick<Forholdssvarvalg, 'forSent' | 'resultat'>
-): { punktene: string[]; grunn: string; mangler: string } | null {
-  const mangler = FORHOLDSSVAR.manglerBegrunnelse;
-  if (f.varslingsplikt && v.forSent === true)
-    return { punktene: ['forhold', '32.2'], grunn: FORHOLDSSVAR.krevesForSent, mangler };
-  if (f.varslingsplikt && v.resultat === 'avslaatt')
-    return { punktene: ['forhold'], grunn: FORHOLDSSVAR.krevesAvslag, mangler };
-  return null;
+): { punktene: readonly string[]; grunn: string; mangler: string } | null {
+  const krav = begrunnelseskravet(vurderingene(v, f.varslingsplikt), f.varslingsplikt);
+  if (!krav) return null;
+  return {
+    punktene: BEGRUNNELSESPUNKTENE[krav],
+    grunn: krav === 'for_sent' ? FORHOLDSSVAR.krevesForSent : FORHOLDSSVAR.krevesAvslag,
+    mangler: FORHOLDSSVAR.manglerBegrunnelse,
+  };
 }
+
+/** Vurderingene i svaret slik kjernen leser dem. Varselet er med bare der punkt 32.2 gjelder. */
+const vurderingene = (v: Pick<Forholdssvarvalg, 'forSent' | 'resultat'>, varslingsplikt: boolean) =>
+  definert({
+    grunnlag_varslet_i_tide: varslingsplikt && v.forSent !== null ? !v.forSent : undefined,
+    resultat: v.resultat ?? undefined,
+  });
 
 /**
  * BHs svar på gjeldende versjon av påberopelsen (D-1), eller `null` når saken ikke har en.
@@ -87,14 +99,10 @@ export function forholdssvaret(
 ): { type: 'brev'; svar: Svarutkast[] } | null {
   const krav = u.spor.forhold.gjeldendeKrav;
   if (!krav) return null;
-  const varslingsplikt = gjelderVarslingsplikten(krav, regler);
   return svarbrevet(
     'forhold',
     krav,
-    definert({
-      grunnlag_varslet_i_tide: varslingsplikt && v.forSent !== null ? !v.forSent : undefined,
-      resultat: v.resultat ?? undefined,
-    }),
+    vurderingene(v, gjelderVarslingsplikten(krav, regler)),
     { paaberopelse: krav },
     v,
     regler,

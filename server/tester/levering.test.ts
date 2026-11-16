@@ -7,7 +7,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import {
   CatendaAvvisning,
   CatendaUtilgjengelig,
@@ -21,7 +21,7 @@ import {
   type Topicoppretter,
 } from '../catenda.ts';
 import type { Pool } from '../datalag.ts';
-import { kjoerEnJobb, LEASETID_S } from '../jobber.ts';
+import { kjoerEnJobb, LEASETID_S, PAUSE_FOER_NY_REGISTRERING_MS } from '../jobber.ts';
 import { lesSaken, lesSakensMaal } from '../lager.ts';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
@@ -399,6 +399,39 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
       expect((await leveringen(sakId))[0].tilstand).toBe('utfoert');
     }
   );
+
+  // Kilde: svar A 11.11 på spørsmål 7 i #1791 (#926): leveringen parkeres etter et fast
+  // antall forsøk, for eksempel 24, og driften starter den på nytt.
+  it('L3: leveringen venter etter forsøk 23 som feiler forbigående, parkeres etter forsøk 24, og kan startes på nytt', async () => {
+    const sakId = await sakMedBrev();
+    const nyeForsoek = forsoeksloggen(sakId);
+    const feillogg = vi.spyOn(logg, 'error');
+    onTestFinished(() => feillogg.mockRestore());
+    catenda.foer.finnDokument = () => {
+      throw new CatendaUtilgjengelig('Catenda svarte med feil');
+    };
+    await somKjoerer(
+      `UPDATE koe.jobb SET antall_forsoek = 22 WHERE sak_id = @sak AND jobbtype = N'levering'`,
+      { sak: sakId }
+    );
+    expect(await kjoer()).toBe(true);
+    expect((await leveringen(sakId))[0].tilstand).toBe('venter');
+    expect(await nyeForsoek()).toEqual([['feilet', 'Catenda svarte med feil']]);
+
+    await provIgjenNaa(sakId);
+    expect(await kjoer()).toBe(true);
+    expect((await leveringen(sakId))[0].tilstand).toBe('parkert');
+    expect(await nyeForsoek()).toEqual([['feilet', 'Catenda svarte med feil']]);
+    expect((feillogg.mock.calls as unknown[][]).map((k) => String(k[0]))).toContainEqual(
+      expect.stringMatching(/har brukt opp forsøkene og er parkert \(Catenda svarte med feil\)/)
+    );
+
+    catenda.foer = {};
+    await startPaaNytt(sakId);
+    expect((await leveringen(sakId))[0].tilstand).toBe('venter');
+    expect(await kjoer()).toBe(true);
+    expect((await leveringen(sakId))[0].tilstand).toBe('utfoert');
+  });
 
   it('L4: en sikker feil ved referansen prøves igjen, og neste forsøk laster ikke opp dokumentet på nytt', async () => {
     const sakId = await sakMedBrev();
@@ -1214,7 +1247,8 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
   });
 
   // Arbeidsvalg i #877 p15 (alternativ B), ikke vedtatt av oppdragsgiver: registreringen
-  // prøves én gang til, så leasen ikke går ut og parkerer en levering som kunne vært avstemt.
+  // prøves én gang til etter en pause, så leasen ikke går ut og parkerer en levering som
+  // kunne vært avstemt (pausen: gjennomgangen 16.11 i #926).
   it.each<[string, string, number]>([
     ['én vranglås', 'registreres ved andre forsøk', 1],
     ['to vranglåser', 'kastes etter andre forsøk, og leasen går ut', 2],
@@ -1230,15 +1264,43 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
         },
       }
     );
-    const kjoering = base.kjoer();
-    if (ganger === 1) await kjoering;
-    else await expect(kjoering).rejects.toMatchObject({ number: 1205 });
+    vi.useFakeTimers({ toFake: ['setTimeout'] });
+    try {
+      const kjoering = base.kjoer();
+      const utfall =
+        ganger === 1 ? kjoering : expect(kjoering).rejects.toMatchObject({ number: 1205 });
+      // Det andre forsøket venter på pausen (#926).
+      await vi.advanceTimersByTimeAsync(PAUSE_FOER_NY_REGISTRERING_MS - 1);
+      expect(base.registrert).toHaveLength(1);
+      await vi.advanceTimersByTimeAsync(1);
+      await utfall;
+    } finally {
+      vi.useRealTimers();
+    }
     expect(base.registrert).toHaveLength(2);
     expect(base.registrert[0]).toEqual({
       lease: 'l',
       utfall: 'feilet',
       melding: 'Catenda svarte med feil',
     });
+  });
+
+  // Kilde: kontrollen av rettingene i #926: uten lease kan ikke forsøket registreres, og
+  // `hent_jobb` avgjør jobben når leasen er ute, som når fornyelsen gir 54001.
+  it('en tapt lease (54001) når feilen registreres, gir ingen feil ut av kjøreren', async () => {
+    const base = falskBase(
+      'levering',
+      { prosedyre: 'koe_api.registrer_jobbfeil', feil: { number: 54001 } },
+      {
+        dokumenter: {
+          opprettDokumentreferanse: async () => {
+            throw new CatendaUtilgjengelig('Catenda svarte med feil');
+          },
+        },
+      }
+    );
+    expect(await base.kjoer()).toBe(true);
+    expect(base.registrert).toHaveLength(1);
   });
 
   // Kilde: #876 punkt 4. Neste forsøk finner referansen til det første vedlegget og
@@ -1397,6 +1459,78 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
       vi.useRealTimers();
     }
   });
+  // Kilde: #926 (gjennomgangen 16.11). Feiler fornyelsen forbigående så lenge at under 20 s
+  // av leasen kan være igjen, regnet fra den siste vellykkede fornyelsen eller hentingen, kan en annen kjører ha hentet
+  // jobben, og forsøket gjør ingen endring i Catenda. Leasen kan fortsatt gjelde, så
+  // forsøket registreres som feilet. Én fornyelse som feiler, holder.
+  it.each<[string, number, string[], string[]]>([
+    [
+      'fornyelser som feiler forbigående i 99,999 s, stopper ikke referansen',
+      LEASETID_S * 1000 - 20_000 - 1,
+      [
+        'hent_jobb',
+        'vedlegg_i_levering',
+        'forny_lease',
+        'forny_lease',
+        'kvitter_vedlegg',
+        'kvitter_levering',
+      ],
+      ['dokument-v1'],
+    ],
+    [
+      'fornyelser som feiler forbigående i 100,001 s, stopper leveringen før referansen opprettes og registrerer forsøket som feilet',
+      LEASETID_S * 1000 - 20_000 + 1,
+      ['hent_jobb', 'vedlegg_i_levering', 'forny_lease', 'forny_lease', 'registrer_jobbfeil'],
+      [],
+    ],
+  ])('%s', async (_n, ms, kallene, endret) => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'performance'] });
+    try {
+      let slipp!: () => void;
+      let venter!: () => void;
+      const steget = new Promise<void>((ok) => (venter = ok));
+      const opprettet: string[] = [];
+      const base = falskBase(
+        'levering',
+        { prosedyre: 'koe_api.forny_lease', feil: { number: 1205 } },
+        {
+          vedlegg: [vedlegg('v1')],
+          dokumenter: {
+            dokumentreferanser: () => {
+              venter();
+              return new Promise((ok) => (slipp = () => ok([])));
+            },
+            opprettDokumentreferanse: async (_b, _t, dokumentId) => {
+              opprettet.push(dokumentId);
+              return 'referanse';
+            },
+          },
+        }
+      );
+      const kjoering = base.kjoer();
+      await steget;
+      vi.advanceTimersByTime(ms);
+      await new Promise((ok) => setImmediate(ok));
+      slipp();
+      expect(await kjoering).toBe(true);
+      expect(prosedyrene(base)).toEqual(kallene);
+      expect(opprettet).toEqual(endret);
+      expect(base.registrert).toEqual(
+        endret.length
+          ? []
+          : [
+              {
+                lease: 'l',
+                utfall: 'feilet',
+                melding: 'Leasen er ikke fornyet, og kan være ute før endringen',
+              },
+            ]
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   // Kilde: #926. Basen avviser lesingen med leasen (54001) når leasen er tapt etter
   // kontrollen, og da stopper forsøket uten registrering, som ved en tapt lease i fornyelsen.
   it('en tapt lease når innholdet til vedlegget leses (54001), stopper leveringen før opplastingen', async () => {

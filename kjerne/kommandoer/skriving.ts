@@ -50,6 +50,7 @@ import {
   paaberopelseFor,
   sendtFoerGjeldendeSvar,
   sendtFoerSisteKrav,
+  svaretPaaForholdetPaaDagen,
   utled,
   utledJournal,
   varseletFoerBrevet,
@@ -92,7 +93,7 @@ export interface Kontekst {
   sakskode: Sakskode;
   /**
    * Kontraktsforkortelsen i prosjektinnstillingene, `null` når prosjektet ikke har den. Et brev
-   * viser til et tidligere brev med merkingen, og merkingen begynner med den (LV-U53, LV-U44).
+   * viser til et tidligere brev med merkingen, og merkingen begynner med den (LV-U44).
    */
   kontraktsforkortelse: string | null;
   /**
@@ -240,11 +241,14 @@ function frysSvarene(
       );
 }
 
-/** Svarene i et brev eller en revisjon, med brevet frosset i hvert. */
-function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne): Data[] {
+/**
+ * Svarene i et brev eller en revisjon, med brevet frosset i hvert. `sendt` er dagen et brev lagt
+ * til ble sendt, og `null` for et brev fra løsningen.
+ */
+function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne, sendt: string | null): Data[] {
   frysSvarene(
     svarene,
-    u.spor.forhold.gjeldendeSvar,
+    svaretPaaForholdetPaaDagen(u, sendt),
     (s) =>
       paaberopelseFor(
         {
@@ -363,10 +367,11 @@ function dokument(
   ogsaaEtter: readonly Kravpostvarselhjemmel[] = []
 ): Data {
   const nyId = kontekst.nyId;
+  // OV-U98: dagen et brev lagt til ble sendt, og `null` for et brev fra løsningen.
+  const sendt = erRegistrering(k) ? kalenderdag(k.sendt) : null;
   switch (k.type) {
     case 'krav': {
       // OV-U102: et krav lagt til, sendt før det siste, står utenfor rekken og erstatter ikke det.
-      const sendt = erRegistrering(k) ? kalenderdag(k.sendt) : null;
       const forrige = sendtFoerSisteKrav(u, k.spor, sendt) ? null : u.spor[k.spor].gjeldendeKrav;
       const id = nyId();
       if (k.utdypning !== undefined || k.utdypninger || k.forbehold !== undefined)
@@ -398,20 +403,20 @@ function dokument(
         svar: frosneSvar(
           k.svar.map((s) => svar(s, nyId, utdypninger, bygde)),
           u,
-          kjerne
+          kjerne,
+          sendt
         ),
         ...registrering(k, nyId, bundne),
       };
     case 'revisjon': {
       // OV-U103: et svar lagt til, sendt før det gjeldende, står utenfor rekken og erstatter ikke det.
-      const foer =
-        erRegistrering(k) &&
-        sendtFoerGjeldendeSvar(u, k.svar.spor, k.svar.gjelder, kalenderdag(k.sendt));
+      const foer = sendt !== null && sendtFoerGjeldendeSvar(u, k.svar.spor, k.svar.gjelder, sendt);
       return {
         svar: frosneSvar(
           [svar(k.svar, nyId, utdypninger, bygde, foer ? undefined : k.erstatter)],
           u,
-          kjerne
+          kjerne,
+          sendt
         ),
         ...registrering(k, nyId, bundne),
       };
@@ -751,7 +756,7 @@ function skriv(
     // LV-U44, LV-U45: nummeret etter det høyeste i saken, også det avsenderen har oppgitt.
     const brevnummer = nesteBrevnummer(lest);
     data.brevnummer = brevnummer;
-    // LV-U53, LV-U24: merkingen fryses i brevet, så en senere henvisning viser til den som
+    // LV-U44: merkingen fryses i brevet, så en senere henvisning viser til den som
     // står på det, også om kontraktsforkortelsen endres (oppdragsgiver 04.11 i #1570). Uten
     // forkortelsen merkes brevet ikke, og leveringen avviser sendingen (S2 A i #1497).
     if (kontekst.kontraktsforkortelse) {
@@ -904,10 +909,15 @@ export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): v
   for (const h of lesJournal(foer, kjerne.leserformat))
     if (h.art === 'dokument') kravene.push(...h.dokument.krav);
   const paaberopelse = kravene.filter((k) => k.spor === 'forhold');
+  // OV-U98: dagen brevet ble sendt, ikke datoen for ett element i det (`datoFor`).
+  const sendt = ((rad.data.opplysninger ?? []) as Data[]).find(
+    (o) => o.hva === 'sendt' && o.gjelder === undefined
+  );
+  const dag = typeof sendt?.dato === 'string' ? kalenderdag(sendt.dato) : null;
   // Kategorien i påberopelsen: § 32.2 i forholdet (GR-U12), § 34.1.2 i vederlaget (HF-U1, #342).
   frysSvarene(
     (rad.data.svar ?? []) as Data[],
-    utledJournal(foer, kjerne).spor.forhold.gjeldendeSvar,
+    svaretPaaForholdetPaaDagen(utledJournal(foer, kjerne), dag),
     (s) => paaberopelse.find((k) => k.id === (s.spor === 'forhold' ? s.gjelder : s.paaberopelse)),
     (s) => kravene.find((k) => k.id === s.gjelder),
     kjerne

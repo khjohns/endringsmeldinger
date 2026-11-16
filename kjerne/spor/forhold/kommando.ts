@@ -9,6 +9,7 @@ import { erKalenderdato, feilI, objekt, tekst } from '../../format/skjema.ts';
 import { kalenderdag } from '../../format/leser.ts';
 import { norskDato } from '../../frosset/brevdeler.ts';
 import { gjelderVarslingsplikten } from '../../frosset/byggeklosser.ts';
+import { BEGRUNNELSESPUNKTENE, begrunnelseskravet } from '../../regler/forhold.ts';
 import {
   datoenDetBleSendt,
   kravSomVarsler,
@@ -70,15 +71,11 @@ export const KRAVFORM_I_FORHOLDET = {
  * 6544660600). Utdypningen for hele svaret står under «Forbehold» og holder ikke.
  */
 function begrunnelseIForholdet(s: Svarutkast, krav: Krav, regler: Regelsett): Avvisning | null {
-  const v = s.vurderinger;
-  const paaberoper = v.grunnlag_varslet_i_tide === false;
-  const avslaar = v.resultat === 'avslaatt' && gjelderVarslingsplikten(krav, regler);
-  if (!paaberoper && !avslaar) return null;
-  const punktene = paaberoper ? ['forhold', '32.2'] : ['forhold'];
-  if (punktene.some((p) => s.utdypninger?.[p]?.trim())) return null;
+  const grunn = begrunnelseskravet(s.vurderinger, gjelderVarslingsplikten(krav, regler));
+  if (!grunn || BEGRUNNELSESPUNKTENE[grunn].some((p) => s.utdypninger?.[p]?.trim())) return null;
   return avvis(
     'BEGRUNNELSE_MANGLER',
-    paaberoper
+    grunn === 'for_sent'
       ? 'Du gjør gjeldende at varselet etter punkt 32.2 kom for sent, så punktet om forholdet eller punktet om varselet må ha en begrunnelse.'
       : 'Du avslår kravet på endringsordre, så punktet om forholdet må ha en begrunnelse.'
   );

@@ -25,14 +25,10 @@ import { OPPGJOERSHJEMMEL } from '$kjerne/spor/vederlag/format';
 import type { Regel } from './kommandoer';
 import {
   forholdstilfellet,
-  type Brevet,
-  type Brevref,
   type Forholdsordene,
-  type Innlegget,
   type Forholdstilfelle,
-  type OppgittDato,
-  type Standpunktet,
-} from './lesing';
+} from '$kjerne/spor/forhold/tekst';
+import type { Brevet, Brevref, Innlegget, OppgittDato, Standpunktet } from './lesing';
 import type { Innsigelsen, Svarlaget } from './svarlagene';
 
 export const SPORNAVN: Record<Spor, string> = {

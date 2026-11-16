@@ -16,7 +16,7 @@ const NY_SAK = new Set([
   'varsel',
 ]);
 
-/** Kjernen prøver verdiene, også at korrespondansetypen er oppgitt (LV-U42, D1 A i #1497). */
+/** Kjernen prøver verdiene, også at korrespondansetypen er oppgitt (LV-U45, D1 A i #1497). */
 const VARSEL_I_NY_SAK = new Set([
   'sendt',
   'korrespondansetype',

@@ -45,7 +45,7 @@ export type OppgittDato = (typeof OPPGITT_DATO)[keyof typeof OPPGITT_DATO];
 
 /**
  * Det datoen gjelder, med partene skrevet fullt ut, i meldingene, skjemaet og brevet (VS-U26,
- * LV-U35, LV-U56, #698, #1952): «datoen pålegget ble mottatt».
+ * `docs/sprak.md`, LV-U56, #698, #1952): «datoen pålegget ble mottatt».
  */
 export const DATOEN_GJELDER: Record<OppgittDato, string> = {
   paalegg_mottatt: 'pålegget ble mottatt',

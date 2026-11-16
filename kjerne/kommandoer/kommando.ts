@@ -85,7 +85,7 @@ export type RegistrertVarsel = Hjemmelsvarsel<Varselhjemmel>;
 
 /**
  * OV-U80, OV-U98: kravet, svaret eller aksepten er sendt utenfor løsningen og legges til med
- * datoen avsenderen oppgir, typen (LV-U42) og brevet som vedlegg. Uten `sendt` sendes det fra
+ * datoen avsenderen oppgir, typen (LV-U45) og brevet som vedlegg. Uten `sendt` sendes det fra
  * løsningen.
  */
 export interface Registrering {
@@ -271,7 +271,7 @@ export type Kommando = (
   Brevtekst;
 
 const SPOR = { enum: [...SPORENE] };
-/** LV-U42, D1 A i #1497: påkrevd i hver registrering av korrespondanse sendt utenfor løsningen. */
+/** LV-U45, D1 A i #1497: påkrevd i hver registrering av korrespondanse sendt utenfor løsningen. */
 const KORRESPONDANSETYPE = { enum: [...KORRESPONDANSETYPER] };
 /** OV-U79: sendemåten for et brev sendt utenfor løsningen (`sendemaatefeil`). */
 const SENDEMAATE = { enum: [...SENDEMAATER] };

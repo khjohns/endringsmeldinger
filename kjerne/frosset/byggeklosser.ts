@@ -4,6 +4,7 @@
  * sporene bruker dem (#1783).
  */
 
+import { ukjenteFelt } from '../format/skjema.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import {
@@ -127,7 +128,7 @@ export function avvisUkjenteFelt(
   lest: ReadonlySet<string>,
   svaretPaa: string
 ): void {
-  const ukjente = Object.keys(v).filter((felt) => !lest.has(felt));
+  const ukjente = ukjenteFelt(v, lest);
   if (ukjente.length)
     throw new UgyldigVurdering(
       Object.fromEntries(
@@ -156,6 +157,8 @@ export interface Svarsfrysing {
    * rettidigheten etter hjemmelen, ikke bare partens siste.
    */
   hvertITideGirOppInnsigelsen: boolean;
+  /** Påberopelsene utenom hjemmelen for sporet som svaret gjentar eller gir opp (VS-U29). */
+  ogsaaInnsigelserEtter: readonly Hjemmel[];
 }
 
 /** Det serverens utregning av svaret regnes av (`regnUtSvar` i `frosset/utregning.ts`). */

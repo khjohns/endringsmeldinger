@@ -6,7 +6,8 @@
  */
 import { describe, expect, it } from 'vitest';
 import type { Forholdsresultat } from '$kjerne/regler/typer';
-import type { Forholdsordene, Innlegget } from '$lib/components/varden/lesing';
+import type { Forholdsordene } from '$kjerne/spor/forhold/tekst';
+import type { Innlegget } from '$lib/components/varden/lesing';
 import { FORHOLDET } from '$lib/components/varden/tekster';
 
 const ord = (o: Partial<Forholdsordene>): Forholdsordene => ({

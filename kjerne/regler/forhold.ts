@@ -96,3 +96,26 @@ export function standpunkt(
   if (forhold.resultat === 'avslaatt') aarsaker.push('avslaatt');
   return { subsidiaert: aarsaker.length > 0, hovedgrunn: aarsaker[0] ?? null, aarsaker };
 }
+
+/** Hvorfor svaret på forholdet må ha en begrunnelse (D-7). */
+export type Begrunnelseskrav = 'for_sent' | 'avslag';
+
+/**
+ * D-7: svaret på forholdet må ha en begrunnelse når byggherren påberoper at varselet etter § 32.2
+ * kom for sent, og ved avslag der § 32.2 gjelder kategorien. `null` når den er valgfri.
+ * Kommandoen og svarskjemaet i Varden leser det herfra (#2035).
+ */
+export function begrunnelseskravet(
+  v: { grunnlag_varslet_i_tide?: unknown; resultat?: unknown },
+  varslingsplikt: boolean
+): Begrunnelseskrav | null {
+  if (v.grunnlag_varslet_i_tide === false) return 'for_sent';
+  if (v.resultat === 'avslaatt' && varslingsplikt) return 'avslag';
+  return null;
+}
+
+/** D-7: punktene der minst ett må ha begrunnelsen. */
+export const BEGRUNNELSESPUNKTENE: Record<Begrunnelseskrav, readonly string[]> = {
+  for_sent: ['forhold', '32.2'],
+  avslag: ['forhold'],
+};

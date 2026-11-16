@@ -7,14 +7,18 @@
 
 import { omtalen } from '$kjerne/frosset/brevdeler';
 import { innholdIForholdet, oppgittDato } from '$kjerne/spor/forhold/format';
-import { FORHOLDSGRUPPER, forholdet, harRisikoen } from '$kjerne/spor/forhold/tekst';
-import { blirEndringsordre, grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
+import {
+  FORHOLDSGRUPPER,
+  forholdet,
+  forholdsordene,
+  type Forholdsordene,
+} from '$kjerne/spor/forhold/tekst';
+import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
 import { plassene } from '$kjerne/frosset/byggeklosser';
 import { betegnelsen, innholdIFristen } from '$kjerne/spor/frist/format';
 import { fasteBeloepIKravet, kravposterI, utenFastBeloep } from '$kjerne/spor/vederlag/format';
 import { tilTall } from '$kjerne/regler/beloep';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
-import type { Forholdsresultat } from '$kjerne/regler/typer';
 import type { TilbudtHandling } from '$kjerne/kommandoer/handlinger';
 import type {
   Avsnitt,
@@ -466,45 +470,11 @@ export interface Innlegget {
   }[];
 }
 
-/**
- * Det som avgjør kontraktens ord for byggherrens standpunkt til forholdet (GR-U32, LV-U41), lest
- * som brevteksten leser det (`STANDPUNKTENE_I_FORHOLDET` i kjernen): beslutningsgrunnlaget i svaret
- * og påberopelsen svaret gjelder.
- */
-export interface Forholdsordene {
-  endringsordre: boolean;
-  varslingsplikt: boolean;
-  risiko: boolean;
-}
-
-export function forholdsordene(svar: Svar, u: Utledning): Forholdsordene {
+/** Det som avgjør kontraktens ord for byggherrens standpunkt til forholdet i svaret. */
+function forholdsordeneISvaret(svar: Svar, u: Utledning): Forholdsordene {
   const krav = u.spor.forhold.krav.find((k) => k.id === svar.gjelder);
   if (!krav) throw new Error(`Påberopelsen ${svar.gjelder} som svaret gjelder, er ikke i saken`);
-  return {
-    endringsordre: blirEndringsordre(svar.beslutningsgrunnlag),
-    varslingsplikt: svar.beslutningsgrunnlag.varslingsplikt === true,
-    risiko: harRisikoen(krav),
-  };
-}
-
-/** Tilfellet i brevteksten for standpunktet til forholdet, i samme rekkefølge som kjernen. */
-export type Forholdstilfelle =
-  | 'frafall'
-  | 'endringsordre'
-  | 'enig_i_endring'
-  | 'har_risikoen'
-  | 'enig_31_3'
-  | 'avslag_endringsordre'
-  | 'har_ikke_risikoen'
-  | 'avslag';
-
-export function forholdstilfellet(r: Forholdsresultat, f: Forholdsordene): Forholdstilfelle {
-  if (r === 'paalegg_frafalt') return 'frafall';
-  if (r === 'avslaatt')
-    return f.varslingsplikt ? 'avslag_endringsordre' : f.risiko ? 'har_ikke_risikoen' : 'avslag';
-  if (f.endringsordre) return 'endringsordre';
-  if (f.varslingsplikt) return 'enig_i_endring';
-  return f.risiko ? 'har_risikoen' : 'enig_31_3';
+  return forholdsordene(svar.beslutningsgrunnlag, krav);
 }
 
 /** Innholdet i brevene om forholdet, etter brevets ID. Brev uten krav eller svar har ingen. */
@@ -549,7 +519,7 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
       standpunkter: [],
     });
   for (const s of u.spor.forhold.svar) {
-    const ordene = forholdsordene(s, u);
+    const ordene = forholdsordeneISvaret(s, u);
     ut.set(s.dokument, {
       gjelderPaalegg: false,
       utdypning: utdypning(s.dokument, s.id),

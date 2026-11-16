@@ -21,6 +21,7 @@ import {
 } from '../../frosset/byggeklosser.ts';
 import { innholdIFristen, utregningIFristen } from './format.ts';
 import { dagenSendt } from '../../format/leser.ts';
+import { ukjenteFelt } from '../../format/skjema.ts';
 import type { Dokument, Krav, Standpunkt, Standpunktsvirkning, Utfall } from '../../typer.ts';
 
 /** Det svaret gir i dager for hver frist i laget (KA-U74). */
@@ -58,6 +59,8 @@ export const FRYSING_I_FRISTEN = {
   vilkaar: 'forhold_avklart',
   // VS-U20, arbeidsvalget 15.10 i #309. Gjelder rettidigheten etter § 33.4 og § 33.6.2.
   hvertITideGirOppInnsigelsen: true,
+  // VS-U29: også påberopelsen etter § 33.6.2 mot begrunnelsen.
+  ogsaaInnsigelserEtter: ['33.6.2'],
 } satisfies Svarsfrysing;
 
 // ---------- Utregningen av svaret (B-13) ----------
@@ -78,6 +81,8 @@ export interface Dagvurdering {
   dager_maatte_forstaa?: unknown;
 }
 
+const DAGVURDERINGEN: ReadonlySet<string> = new Set(['dager', 'dager_maatte_forstaa']);
+
 /**
  * Vurderingene for fristene i kravet, én per frist og i kravets rekkefølge (KA-U74). Svaret
  * gjelder én kravversjon, så rekkefølgen binder vurderingen til fristen. Kaster
@@ -92,7 +97,7 @@ export function fristvurderinger(v: Svarvurdering, krav: Krav): Dagvurdering[] {
   return liste.map((x: unknown, i) => {
     if (typeof x !== 'object' || x === null) throw feil(`vurdering ${i + 1} er ikke et objekt`);
     const r = x as Record<string, unknown>;
-    const ukjent = Object.keys(r).filter((k) => !['dager', 'dager_maatte_forstaa'].includes(k));
+    const ukjent = ukjenteFelt(r, DAGVURDERINGEN);
     if (ukjent.length) throw feil(`vurdering ${i + 1} har feltene ${ukjent.join(', ')}`);
     return {
       gjelder: frister[i]!.id,

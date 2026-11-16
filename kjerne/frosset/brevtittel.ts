@@ -17,7 +17,7 @@ const SAKSKODENE = Object.keys({ koe: true, eo: true } satisfies Record<Sakskode
 /**
  * Merkingen på et brev fra løsningen, `K201-KOE-005-03`: kontraktsforkortelsen, sakens kode,
  * minst tre sifre i løpenummeret og minst to i brevnummeret (LV-U44, LV-U48). Den står i
- * hodet og i dokumentnavnet, og et senere brev viser til brevet med den (LV-U53).
+ * hodet og i dokumentnavnet, og et senere brev viser til brevet med den (LV-U44).
  */
 export const brevmerking = (
   kontraktsforkortelse: string,
@@ -33,7 +33,7 @@ export const brevmerking = (
 
 /**
  * Hvorfor leseren ikke forstår merkingen i et brev, eller `null`. Merkingen fryses bare i et
- * brev fra løsningen, med nummeret, og slutter med det (LV-U53, LV-U48, MM-U2).
+ * brev fra løsningen, med nummeret, og slutter med det (LV-U44, LV-U48, MM-U2).
  */
 export function avvikIMerkingen(
   merking: string,
@@ -41,7 +41,7 @@ export function avvikIMerkingen(
   registrert: boolean
 ): string | null {
   if (registrert || brevnummer === undefined)
-    return 'merkingen står bare i et brev fra løsningen, med nummeret (LV-U53)';
+    return 'merkingen står bare i et brev fra løsningen, med nummeret (LV-U44)';
   if (!merking.endsWith(`-${utfylt(brevnummer, 2)}`))
     return 'merkingen slutter ikke med brevnummeret (LV-U48)';
   if (!MERKINGEN.test(merking.slice(0, merking.lastIndexOf('-'))))
