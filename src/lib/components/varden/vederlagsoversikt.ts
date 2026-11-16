@@ -6,14 +6,14 @@
  * Modulen avgjør ingenting selv.
  */
 
-import { cellene, OVERSIKTEN } from '$kjerne/frosset/tekst';
+import { OVERSIKTEN, postradene, tabellenIAvsnittet } from '$kjerne/frosset/tekst';
 import { beloep, tilTall, type Oere } from '$kjerne/regler/beloep';
 import { beloepeneILagene, krevdSamlet } from '$kjerne/spor/vederlag/format';
 import { posteneIOversikten } from '$kjerne/spor/vederlag/tekst';
 import type { Krav, Kravpost, Oppgjoersform } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { varseletFoerKravet } from '$lib/kjernesak/vederlagskrav';
-import { underOverskriften, type Brevet } from './lesing';
+import type { Brevet } from './lesing';
 import { lageneISvaret, medForbehold, type Svarlaget } from './svarlagene';
 
 /** Et lag i byggherrens svar, med beløpet byggherren godkjenner (U-2). */
@@ -104,10 +104,10 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
     beloep: l.iSporet < 1 ? null : iLaget(l.iSporet),
   }));
   const oversikten = svarbrev.avsnitt?.find((a) => a.punkt === OVERSIKTEN);
-  // Brevet viser hvert avsnitt i punktet som en tabell; punktet har én (`Brev.svelte`).
-  const tabell = oversikten ? cellene(underOverskriften(oversikten)[0] ?? '') : null;
+  const tabell = oversikten ? tabellenIAvsnittet(oversikten) : null;
   // MM-U50: raden for en post finnes på nøkkelen; leseren har kontrollert én per rad.
-  const raden = new Map((oversikten?.poster ?? []).map((post, i) => [post, tabell![i + 1]![0]!]));
+  const radene = tabell ? postradene(tabell) : [];
+  const raden = new Map((oversikten?.poster ?? []).map((post, i) => [post, radene[i]![0]!]));
   return {
     ...ut,
     poster: ut.poster.map((p) => ({ ...p, rad: raden.get(p.post) ?? null })),

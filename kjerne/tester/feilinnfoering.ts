@@ -3956,7 +3956,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'leseren godtar nøkler til postene som ikke svarer til radene i tabellen (MM-U2, svaret 16.11 i #1997)',
     fil: `${K}/format/leser.ts`,
-    endringer: [['a.poster.length !== tabellen!.length - 2 ||', 'false ||']],
+    endringer: [['a.poster.length !== radene!.length ||', 'false ||']],
     mal: ['nøkler til postene som ikke svarer til radene i tabellen'],
   },
   {

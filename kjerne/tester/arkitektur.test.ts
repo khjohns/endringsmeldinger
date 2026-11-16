@@ -2452,9 +2452,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:skriv'],
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
-  ['frosset/tekst.ts', 'brevtekst', 'OVERSIKTEN FORBEHOLDET', ['frosset/brevtekst.ts']],
+  ['frosset/tekst.ts', 'brevtekst', 'FORBEHOLDET', ['frosset/brevtekst.ts']],
   // Svaret 16.11 i #1997: leseren kontrollerer nøklene i punktet med tabellen.
-  ['frosset/tekst.ts', 'brevtekst', 'OVERSIKTEN', ['format/leser.ts']],
+  ['frosset/tekst.ts', 'brevtekst', 'OVERSIKTEN', ['frosset/brevtekst.ts', 'format/leser.ts']],
+  ['frosset/tekst.ts', 'brevtekst', 'postradene tabellenIAvsnittet', ['format/leser.ts']],
+  ['frosset/tekst.ts:tabellenIAvsnittet', 'brevtekst', 'laast overskrift', ['frosset/tekst.ts']],
   [
     'frosset/tekst.ts',
     'brevtekst',
