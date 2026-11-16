@@ -302,11 +302,11 @@ describe('skjemaet for ny sak (BF-05)', () => {
     const { send } = aapne();
     await fyllIrregulaerEndring();
     await fireEvent.click(screen.getByRole('radio', { name: 'Ja' }));
-    expect(screen.getByRole('group', { name: 'Hva legger du til?' })).toBeTruthy();
+    expect(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' })).toBeTruthy();
     expect(screen.queryByRole('group', { name: 'Hvordan ble brevet sendt?' })).toBeNull();
     await seBrevet();
     for (const tekst of [
-      'Velg hva du legger til.',
+      'Velg hvordan varselet ble gitt.',
       'Oppgi datoen varselet ble sendt.',
       'Beskriv varselet.',
     ])
@@ -315,7 +315,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
     for (const navn of ['Per post', 'Som PDF i e-post', 'I prosjekthotellet', 'På annen måte'])
       expect(screen.getByRole('radio', { name: navn })).toBeTruthy();
     await seBrevet();
-    expect(screen.getAllByText('Velg sendemåten.').length).toBe(2);
+    expect(screen.getAllByText('Velg hvordan brevet ble sendt.').length).toBe(2);
     expect(send).not.toHaveBeenCalled();
   });
 
@@ -327,7 +327,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(screen.getAllByText('Beskriv varselet.').length).toBe(2);
     await fireEvent.click(screen.getByRole('radio', { name: 'Nei' }));
     expect(screen.queryByText('Beskriv varselet.')).toBeNull();
-    expect(screen.queryByText('Velg hva du legger til.')).toBeNull();
+    expect(screen.queryByText('Velg hvordan varselet ble gitt.')).toBeNull();
     expect(
       screen.queryByRole('group', { name: 'Det mangler noe før du kan se brevet' })
     ).toBeNull();
