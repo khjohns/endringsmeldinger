@@ -24,7 +24,7 @@
     avsnitt,
     sendt,
     fot,
-    innfelt = false,
+    ramme = 'kant',
     hode = true,
     dempet = false,
   }: {
@@ -45,11 +45,12 @@
     sendt?: string;
     fot?: Snippet;
     /**
-     * Brevet står i en ramme som har kanten, som ved lesing ved siden av. `rullende` er en ramme
-     * som ruller, med bakgrunnen `--surface`; fotlinja står fast nederst mens brevet ruller over
-     * den (U-16 i BF-44). `rad` står i brevtråden uten egen bakgrunn.
+     * Rammen brevet står i. `kant` har egen kant og bakgrunn. `innfelt` står i en ramme som har
+     * kanten, som ved lesing ved siden av. `rullende` er innfelt i en ramme som ruller, med
+     * fotlinja fast nederst mens brevet ruller over den (U-16 i BF-44). `rad` er innfelt i
+     * brevtråden, uten egen bakgrunn.
      */
-    innfelt?: boolean | 'rullende' | 'rad';
+    ramme?: 'kant' | 'innfelt' | 'rullende' | 'rad';
     /**
      * Partene og referansene øverst. Uten dem står bare tittelen og teksten, der raden over
      * brevet allerede sier hvem som sendte det og når (lesepanelet i BF-10).
@@ -66,9 +67,9 @@
 
 <article
   class="brev"
-  class:innfelt={innfelt !== false}
-  class:rullende={innfelt === 'rullende'}
-  class:rad={innfelt === 'rad'}
+  class:innfelt={ramme !== 'kant'}
+  class:rullende={ramme === 'rullende'}
+  class:rad={ramme === 'rad'}
   class:dempet
   class:bh={avsender === 'BH'}
   aria-label={tittel}

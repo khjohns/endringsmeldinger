@@ -566,7 +566,7 @@
     dato={dato(b.registrert)}
     tittel={brevtittel(b)}
     avsnitt={b.avsnitt ?? []}
-    {innfelt}
+    ramme={innfelt ? 'innfelt' : 'kant'}
   />
 {/snippet}
 

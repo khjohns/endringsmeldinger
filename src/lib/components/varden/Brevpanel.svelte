@@ -50,7 +50,7 @@
       tittel={brevtittel(brev)}
       avsnitt={brev.avsnitt}
       sendt={brev.registrert}
-      innfelt={iRaden ? 'rad' : 'rullende'}
+      ramme={iRaden ? 'rad' : 'rullende'}
     >
       {#snippet fot()}{MOTTATT.sendt(brev.registrert)}{/snippet}
     </Brev>

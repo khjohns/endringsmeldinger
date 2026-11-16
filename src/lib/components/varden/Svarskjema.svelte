@@ -182,7 +182,7 @@
     dato={dato(kravbrevet.registrert)}
     tittel={brevtittel(kravbrevet)}
     avsnitt={kravbrevet.avsnitt ?? []}
-    {innfelt}
+    ramme={innfelt ? 'innfelt' : 'kant'}
   />
 {/snippet}
 
