@@ -10,6 +10,7 @@
 import {
   harProduktivitetspost,
   innholdIVederlaget,
+  justerteEnhetspriser,
   kravposterI,
   OPPGJOERSHJEMMEL,
 } from './format.ts';
@@ -66,12 +67,11 @@ export function saerskiltStrider(
   if (trekket) return trekket;
   if (trekk.length && saerskilt.produktivitet) return `både tar med og trekker ${posten}`;
   if (trekk.length && !kravposterI(ny).length && !Object.keys(saerskilt).length)
-    return `har ingen poster igjen når ${posten} er trukket (KA-U83)`;
+    return `har ingen poster igjen når ${posten} er trukket`;
   return utelattUtenTrekk(
     iForrige,
     () => trekk.length > 0 || saerskilt.produktivitet !== undefined,
-    () => posten,
-    'KA-U83'
+    () => posten
   );
 }
 
@@ -79,11 +79,7 @@ export function saerskiltStrider(
 export const varselhjemmel = (
   p: Pick<Kravpost, 'oppgjoersform' | 'justert'>
 ): Kravpostvarselhjemmel | null =>
-  p.oppgjoersform === 'regningsarbeid'
-    ? '34.4'
-    : p.oppgjoersform === 'enhetspriser' && p.justert === true
-      ? '34.3.3'
-      : null;
+  p.oppgjoersform === 'regningsarbeid' ? '34.4' : justerteEnhetspriser(p) ? '34.3.3' : null;
 
 /** Om en tidligere versjon i sporet har kravposten med samme varselhjemmel (VS-U49). */
 const hattFoer = (
@@ -219,7 +215,7 @@ function kravpoststandpunktetStrider(
   }
   if (p.art === 'justering') {
     const post = poster.get(p.gjelder);
-    return post?.oppgjoersform === 'enhetspriser' && post.justert === true
+    return post && justerteEnhetspriser(post)
       ? null
       : 'justeringen gjelder ikke en kravpost med justerte enhetspriser';
   }
