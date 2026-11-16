@@ -66,7 +66,16 @@ export function elementenesSpor(u: Utledning): Map<string, Spor> {
   const sporet = new Map<string, Spor>();
   for (const spor of SPOR) {
     const s = u.spor[spor];
-    for (const e of [...s.krav, ...s.svar, ...Object.values(s.varsler), ...s.kravpostvarsler])
+    // OV-U102, OV-U103: også et krav eller svar utenfor rekken, så et brev som viser til det,
+    // som en aksept, får sporet.
+    for (const e of [
+      ...s.krav,
+      ...s.kravUtenforRekken,
+      ...s.svar,
+      ...s.svarUtenforRekken,
+      ...Object.values(s.varsler),
+      ...s.kravpostvarsler,
+    ])
       if (e) sporet.set(e.id, spor);
     for (const f of s.foresporsler) {
       sporet.set(f.foresporsel, spor);

@@ -4128,6 +4128,24 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(u.svar[svar.id as string].svar.standpunkter.map((p) => p.art)).toContain('rettidighet');
   });
 
+  it('OV-U111: etter et krav sendt før forespørselen sperrer løsningen ikke påberopelsen etter punkt 33.6.1 mot kravet som svarte på den', () => {
+    const paaberopt = { ...FRIST_FULLT[0], spesifisert_krav_ok: false, dager_maatte_forstaa: 20 };
+    const brev = (s: ReturnType<typeof sak>, vurderinger: Data) => ({
+      type: 'brev',
+      svar: [
+        svar('frist', s.krav('frist'), vurderinger, { resultat: 'godkjent', godkjent_dager: 20 }),
+      ],
+    });
+    const { s } = medForesporsel();
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    expect(
+      s.avvist('BH', brev(s, { ...paaberopt, foresporsel_svar_ok: true })),
+      'kontrollsak: fjerde ledd før det eldre kravet er lagt til'
+    ).toBe('UGYLDIG_VURDERING');
+    s.send('TE', fristkravMedDato('2026-09-01'));
+    expect(s.avvist('BH', brev(s, paaberopt))).toBeNull();
+  });
+
   it('VS-U47 spørsmål 2: et fristkrav lagt til med kravskjemaet stopper forespørselen fra løsningen', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);

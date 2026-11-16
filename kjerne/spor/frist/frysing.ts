@@ -264,7 +264,8 @@ export function foresporselsrelasjon(
 ): Foresporselsrelasjon | null {
   // Forespørselen kan bare sendes før det første fristkravet (VS-U19), så det er kravet som
   // svarer. Senere kravversjoner står i samme forhold til forespørselen (VS-U20).
-  // OV-U109: etter et krav sendt før forespørselen utledes ingen virkning etter § 33.6.2.
+  // OV-U109, OV-U111: etter et krav sendt før forespørselen utledes ingen virkning etter § 33.6.2
+  // tredje, fjerde eller femte ledd, heller ikke for kravet som svarte.
   const uten = svar.filter((s) => s.kravFoer === null);
   const krav = uten.find((s) => s.medKrav)?.svar;
   if (krav) return { art: 'svar', gjelder: krav };

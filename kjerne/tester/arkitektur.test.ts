@@ -445,6 +445,14 @@ type Klasse =
 /** GFK-U26: lesingen av forlengelsene i en sak. */
 const FORLENGELSENE = 'spor/frist/utledning.ts:forlengelseneISaken';
 
+/** Stedene som slår opp et svar etter ID-en i `Utledning.svar`. */
+const SVARET_MED_ID = [
+  'utledning/utled.ts:vurdertVedRegistreringen',
+  'utledning/utled.ts:registreringenStrider',
+  'utledning/utled.ts:utsagnetStrider',
+  'kommandoer/nyttelast.ts:nyttelastkontroll',
+];
+
 /**
  * Det reglene får lese: `[eier, klasse, felt, steder]`, med feltene skilt med
  * mellomrom. Eieren er typen, konstanten eller modulen feltet er deklarert i,
@@ -761,8 +769,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['utledning/utled.ts:settSubsidiaer(svar)', 'relasjon', '*'],
   ['spor/forhold/utledning.ts:forholdssvaretsVirkning(svar)', 'relasjon', '*'],
   // MM-U17, MM-U50: om svaret er registrert korrespondanse, for visningen.
-  ['Utledning', 'relasjon', 'svar', ['utledning/utled.ts:vurdertVedRegistreringen']],
-  ['Utledning.svar', 'relasjon', '*', ['utledning/utled.ts:vurdertVedRegistreringen']],
+  // Svaret med ID-en, også et svar utenfor rekken (OV-U103): det en aksept gjelder.
+  ['Utledning', 'relasjon', 'svar', SVARET_MED_ID],
+  ['Utledning.svar', 'relasjon', '*', SVARET_MED_ID],
   ['Svarberegning', 'relasjon', 'svar'],
   ['Svarberegning', 'frosset', 'virkninger'],
   ['Enighet', 'predikat', 'grunnlag'],
@@ -1002,6 +1011,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // #814: standpunktene og utregningen nyttelastkontrollen leste, er de brevet lagrer.
   ['Bygde', 'regelsett', 'standpunkter utregning', ['kommandoer/skriving.ts:svar']],
+  // #342, #2011: påberopelsen nyttelastkontrollen regnet svaret mot, er den brevet lagrer.
+  ['Bygde', 'relasjon', 'paaberopelse', ['kommandoer/skriving.ts:svar']],
   ['spor/forhold/format.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
   // OV-U23, OV-U95 punkt 19: kravet har kravposter i vederlagsjusteringen.
   ['spor/vederlag/format.ts', 'regelsett', 'kravposterI', ['spor/vederlag/frysing.ts']],
@@ -1254,7 +1265,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utledning/utled.ts',
     'relasjon',
     'sendtFoerGjeldendeSvar',
-    ['kommandoer/skriving.ts:dokument', 'kommandoer/forutsetninger.ts:forutsetninger'],
+    [
+      'kommandoer/skriving.ts:dokument',
+      'kommandoer/forutsetninger.ts:forutsetninger',
+      'kommandoer/nyttelast.ts:kontrollerSvar',
+    ],
+  ],
+  // OV-U98, #2011: et svar lagt til regnes mot påberopelsen slik den var da det ble sendt.
+  [
+    'utledning/utled.ts',
+    'relasjon',
+    'kravversjonenPaaDagen',
+    ['kommandoer/nyttelast.ts:kontrollerSvar'],
   ],
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/avvisning.ts:avvisning']],
   ['Registrering', 'kommando', 'sendt', ['kommandoer/avvisning.ts:avvisning']],
@@ -1505,6 +1527,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kontrollerEndringsordrene kontrollerKorrigeringene opplysningerOmDatoen forholdssvaretsVirkning',
     ['utledning/utled.ts'],
   ],
+  // GR-U9: en aksept av et frafall, også i et svar som ikke er gjeldende (#2022 punkt 3).
+  ['spor/forhold/utledning.ts', 'predikat', 'frafaller', ['utledning/utled.ts:utsagnetStrider']],
   [
     'spor/forhold/format.ts',
     'utsagn',
@@ -2183,7 +2207,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts'],
   ],
   ['kommandoer/skriving.ts:frysSvarene(s)', 'rad', 'spor', ['kommandoer/skriving.ts']],
-  ['kommandoer/skriving.ts:frosneSvar(s)', 'rad', 'spor gjelder', ['kommandoer/skriving.ts']],
+  // #342, #2011: også påberopelsen svaret er regnet mot, som svaret lagrer.
+  [
+    'kommandoer/skriving.ts:frosneSvar(s)',
+    'rad',
+    'spor gjelder paaberopelse',
+    ['kommandoer/skriving.ts'],
+  ],
   ['kommandoer/skriving.ts:lagret(?)', 'frosset', 'resten', ['kommandoer/skriving.ts']],
   // Dokumentene i journalen (#787), som var i utled.ts (#1783).
   ['format/leser.ts', 'rad', 'dokumenterI', ['utledning/utled.ts', 'spor/frist/utledning.ts']],

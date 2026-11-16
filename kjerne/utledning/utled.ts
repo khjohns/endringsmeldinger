@@ -64,6 +64,7 @@ import type { Kjerne } from '../versjon.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
 import {
   forholdssvaretsVirkning,
+  frafaller,
   KONTROLLER_I_FORHOLDET,
   kontrollerEndringsordrene,
   kontrollerKorrigeringene,
@@ -139,6 +140,12 @@ export interface Sporutledning {
   gjeldendeSvar: Svar | null;
   /** Enigheten om gjeldende svar (2.5). Om den har virkning, avgjør `enighetHarVirkning`. */
   enighet: Enighet | null;
+  /**
+   * OV-U110, KA-U52 punkt 5, OV-U103: enighetene om byggherrens svar som ikke er det gjeldende, i
+   * rekkefølgen svarene ble lagt til. Bare visningen leser dem; utledningen av sporet bygger på
+   * `enighet`.
+   */
+  enigheterOmEldreSvar: Enighet[];
   /** TE har trukket kravet, eller forholdet som bærer det (GR-U5, SD-02). */
   trukket: boolean;
   /** TE har sagt at det ikke kreves noe i sporet (KA-U12). */
@@ -307,6 +314,7 @@ const tomtSpor = (): Sporutledning => ({
   svar: [],
   gjeldendeSvar: null,
   enighet: null,
+  enigheterOmEldreSvar: [],
   trukket: false,
   ingenKrav: false,
   varsler: {},
@@ -547,6 +555,16 @@ export function sendtFoerGjeldendeSvar(
 }
 
 /**
+ * OV-U98: kravversjonen i rekken som var gjeldende på dagen `dag`, etter `kravversjonenGjaldt`, og
+ * den siste av dem når to var det samme dag (OV-U104). Uten dag, for et brev fra løsningen, er det
+ * den gjeldende kravversjonen. Et svar lagt til regnes mot påberopelsen slik den var da (#2011).
+ */
+export function kravversjonenPaaDagen(u: Utledning, spor: Spor, dag: string | null): Krav | null {
+  if (dag === null) return u.spor[spor].gjeldendeKrav;
+  return u.spor[spor].krav.filter((k) => kravversjonenGjaldt(u, k, dag, () => {})).at(-1) ?? null;
+}
+
+/**
  * OV-U98: kravversjonen `k` var gjeldende på dagen `dag`: den var sendt, og versjonen som
  * erstattet den, var ikke sendt før den dagen. Leses av journalen før dokumentet som legges til.
  */
@@ -570,17 +588,26 @@ function kravversjonenGjaldt(
 
 /**
  * OV-U98: svaret `s` var byggherrens gjeldende svar på dagen `dag`: det var sendt, det gjaldt en
- * kravversjon som var gjeldende den dagen, og revisjonen som erstattet det, var ikke sendt før.
+ * kravversjon som var gjeldende den dagen, og et svar som erstattet det, var ikke sendt før. Det
+ * er revisjonen og hvert svar utenfor rekken på kravversjonen sendt etter det, og for et svar
+ * utenfor rekken også svarene i rekken sendt etter det (OV-U103).
  */
 function svaretGjaldt(u: Utledning, s: Svar, dag: string, samme: (med: string) => void): boolean {
-  const krav = u.spor[s.spor].krav.find((k) => k.id === s.gjelder);
-  const revisjon = u.spor[s.spor].svar.find((r) => r.erstatter === s.id);
+  const { krav: kjede, svar: rekken, svarUtenforRekken } = u.spor[s.spor];
+  const krav = kjede.find((k) => k.id === s.gjelder);
+  const sendt = datoenDetBleSendt(u, s);
+  const utenfor = svarUtenforRekken.includes(s);
+  const sendtEtter = (r: Svar) =>
+    r.gjelder === s.gjelder && foerDagen(sendt, datoenDetBleSendt(u, r));
+  const senere = [
+    ...rekken.filter((r) => r.erstatter === s.id || (utenfor && sendtEtter(r))),
+    ...svarUtenforRekken.filter(sendtEtter),
+  ];
   return (
     krav !== undefined &&
     kravversjonenGjaldt(u, krav, dag, samme) &&
-    !foerDagen(dag, datoenDetBleSendt(u, s), () => samme(s.id)) &&
-    (revisjon === undefined ||
-      !foerDagen(datoenDetBleSendt(u, revisjon), dag, () => samme(revisjon.id)))
+    !foerDagen(dag, sendt, () => samme(s.id)) &&
+    senere.every((r) => !foerDagen(datoenDetBleSendt(u, r), dag, () => samme(r.id)))
   );
 }
 
@@ -640,16 +667,9 @@ function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Stri
   }
   for (const x of d.utsagn) {
     if (x.art !== 'aksept') continue;
-    const svar = SPOR.flatMap((n) => u.spor[n].svar).find((s) => s.id === x.gjelder);
+    const svar = u.svar[x.gjelder]?.svar;
     const sendt = dag(x.id);
-    // OV-U103: aksepten av et svar utenfor rekken er ikke bygget (#2022 punkt 4).
-    if (SPOR.some((n) => u.spor[n].svarUtenforRekken.some((s) => s.id === x.gjelder)))
-      strider.push({
-        element: x.id,
-        grunn:
-          'en aksept av et svar sendt før byggherrens gjeldende svar, som løsningen ennå ikke kan legge til (OV-U103)',
-      });
-    else if (svar && (sendt === null || !svaretGjaldt(u, svar, sendt, (med) => samme(x.id, med))))
+    if (svar && (sendt === null || !svaretGjaldt(u, svar, sendt, (med) => samme(x.id, med))))
       strider.push({
         element: x.id,
         grunn:
@@ -746,23 +766,21 @@ function utsagnetStrider(
 ): string | null {
   if (!ENDRER_UTFALLET.has(x.art)) return null;
   const gjelder = 'gjelder' in x ? x.gjelder : null;
-  /** Sporet med svaret en aksept gjelder. */
-  const sporet =
-    x.art === 'aksept'
-      ? SPOR.find((n) => u.spor[n].svar.some((s) => s.id === x.gjelder))
-      : undefined;
+  /** Svaret en aksept gjelder, også et svar utenfor rekken (OV-U103). */
+  const svaret = x.art === 'aksept' ? u.svar[x.gjelder]?.svar : undefined;
+  const sporet = svaret?.spor;
   const l = lukket(u);
   if (l) return `${x.art} etter at ${l}`;
   if (utenVirkning(gjelder)) return `${x.art} viser til et element uten virkning`;
   if (sporet && u.spor[sporet].trukket)
     return 'en aksept av et svar i et spor etter at kravet er trukket (MM-U43, GR-U5)';
-  if (x.art === 'aksept' && x.gjelder === u.spor.forhold.gjeldendeSvar?.id && u.frafalt)
-    return 'en aksept av et frafall (GR-U9)';
+  // GR-U9 også for et frafall i et svar som ikke lenger er gjeldende (#2022 punkt 3).
+  if (svaret?.spor === 'forhold' && frafaller(svaret)) return 'en aksept av et frafall (GR-U9)';
   if (sporet && u.spor[sporet].enighet && u.spor[sporet].gjeldendeSvar?.id === gjelder)
     return 'en aksept av et svar med registrert enighet (GR-U8)';
   // GR-U8 for et svar som ikke lenger er gjeldende: en aksept lagt til med datoen den ble sendt,
   // kan gjelde et eldre svar (OV-U98), og leseren godtar ingen av disse (`kontrollerAksepter`).
-  if (sporet && u.spor[sporet].svar.find((s) => s.id === gjelder)?.beslutningsgrunnlag.sammenfall)
+  if (svaret?.beslutningsgrunnlag.sammenfall)
     return 'en aksept av et svar partene er enige om ved sammenfall (GR-U8)';
   if (
     sporet &&
@@ -1046,7 +1064,12 @@ function utledSporene(
     spor.forhold.svarUtenforRekken,
     (id) => plass.get(id)!.versjon
   );
-  settEnighetene(spor, aksepter, (id) => plass.get(id)!.hendelse);
+  settEnighetene(
+    spor,
+    aksepter,
+    (id) => plass.get(id)!.hendelse,
+    (id) => plass.get(id)!.versjon
+  );
   settSubsidiaer(spor, svar);
   return {
     ...tom(journal, regler, begrensninger),
@@ -1440,20 +1463,31 @@ function settForholdssvarene(
   }
 }
 
-/** Enigheten i hvert spor: en aksept av gjeldende svar, eller sammenfall i svaret. */
+/**
+ * Enigheten i hvert spor: en aksept av svaret, eller sammenfall i svaret. Enigheten om det gjeldende
+ * svaret er `enighet`, og enighetene om de andre svarene `enigheterOmEldreSvar` (OV-U110).
+ */
 function settEnighetene(
   spor: Record<Spor, Sporutledning>,
   aksepter: readonly Utsagn<'aksept'>[],
-  hendelsen: (id: string) => string
+  hendelsen: (id: string) => string,
+  versjonen: (id: string) => number
 ): void {
+  const aksepten = new Map(aksepter.map((a) => [a.gjelder, a]));
+  const enighetOm = (s: Svar): Enighet | null => {
+    const aksept = aksepten.get(s.id);
+    if (aksept) return { grunnlag: enighetsgrunnlag(s, 'aksept'), holder: hendelsen(aksept.id) };
+    if (s.beslutningsgrunnlag.sammenfall)
+      return { grunnlag: enighetsgrunnlag(s, 'sammenfall'), holder: s.id };
+    return null;
+  };
   for (const n of SPOR) {
     const g = spor[n].gjeldendeSvar;
-    if (!g) continue;
-    const aksept = aksepter.find((a) => a.gjelder === g.id);
-    if (aksept)
-      spor[n].enighet = { grunnlag: enighetsgrunnlag(g, 'aksept'), holder: hendelsen(aksept.id) };
-    else if (g.beslutningsgrunnlag.sammenfall)
-      spor[n].enighet = { grunnlag: enighetsgrunnlag(g, 'sammenfall'), holder: g.id };
+    spor[n].enighet = g ? enighetOm(g) : null;
+    spor[n].enigheterOmEldreSvar = [...spor[n].svar, ...spor[n].svarUtenforRekken]
+      .filter((s) => s !== g)
+      .sort((a, b) => versjonen(a.id) - versjonen(b.id))
+      .flatMap((s) => enighetOm(s) ?? []);
   }
 }
 

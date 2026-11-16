@@ -315,7 +315,7 @@ const MUTASJONER: Mutasjon[] = [
       'enighet ved sammenfall leses ikke fra brevet (GR-U7, GR-U10, KA-U10 (opphevet av MM-U50))',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
-      ['else if (g.beslutningsgrunnlag.sammenfall)', 'else if (g.standpunkter.length < 0)'],
+      ['    if (s.beslutningsgrunnlag.sammenfall)', '    if (s.standpunkter.length < 0)'],
     ],
     mal: ['F-MM-A', 'F-MM-G10', 'F-MM-K1'],
   },
@@ -824,8 +824,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "  if (x.art === 'aksept' && x.gjelder === u.spor.forhold.gjeldendeSvar?.id && u.frafalt)",
-        "  if (x.art === 'aksept' && x.gjelder === u.spor.forhold.gjeldendeSvar?.id && !u)",
+        "  if (svaret?.spor === 'forhold' && frafaller(svaret)) return",
+        "  if (svaret?.spor === 'forhold' && !svaret) return",
       ],
     ],
     mal: ['F-MM-U326b'],
@@ -1302,8 +1302,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        '      ? SPOR.find((n) => u.spor[n].svar.some((s) => s.id === x.gjelder))',
-        "      ? SPOR.find((n) => n === 'forhold')",
+        '  const sporet = svaret?.spor;',
+        "  const sporet = svaret ? ('forhold' as const) : undefined;",
       ],
     ],
     mal: ['F-MM-U20b'],
@@ -1927,11 +1927,12 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F660',
     feilklasse:
-      'et svar skrevet etter et krav sendt før forespørselen, får virkningen etter § 33.6.2 (OV-U109)',
+      'et svar skrevet etter et krav sendt før forespørselen, får virkningen etter § 33.6.2 (OV-U109, OV-U111)',
     fil: `${K}/spor/frist/frysing.ts`,
     endringer: [['svar.filter((s) => s.kravFoer === null)', 'svar.filter(() => true)']],
     mal: [
       'OV-U109, MM-U50 punkt 1: et krav sendt før forespørselen, lagt til etter svaret på kravet som besvarte den, gir ingen virkning etter § 33.6.2 i et svar skrevet etterpå',
+      'OV-U111: etter et krav sendt før forespørselen sperrer løsningen ikke påberopelsen etter punkt 33.6.1',
     ],
   },
   {
@@ -1989,19 +1990,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: [
       'kommandoen godtar et svar sendt før det gjeldende med revisjonsskjemaet, uten erstatter',
     ],
-  },
-  {
-    id: 'F665',
-    feilklasse:
-      'en aksept av et svar utenfor rekken får virkning før #2022 punkt 4 er bygget (OV-U103)',
-    fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      [
-        'if (SPOR.some((n) => u.spor[n].svarUtenforRekken.some((s) => s.id === x.gjelder)))',
-        'if (false)',
-      ],
-    ],
-    mal: ['en aksept av svaret utenfor rekken får ingen virkning til #2022 punkt 4 er bygget'],
   },
   {
     id: 'F666',
@@ -5906,6 +5894,146 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['alt har godtatt, avvises også når svaret senere er revidert'],
+  },
+  {
+    id: 'F672',
+    feilklasse:
+      'enigheten om et svar som ikke er det gjeldende, bevares ikke (OV-U110, OV-U103, KA-U52 punkt 5)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['.flatMap((s) => enighetOm(s) ?? []);', '.flatMap(() => []);']],
+    mal: [
+      'enigheten om det forrige står ved det',
+      'gir enighet om det eldre svaret (OV-U103)',
+      'enigheten bevares etter en ny kravversjon',
+      'enigheten ved sammenfall i svaret byggherren har erstattet',
+    ],
+  },
+  {
+    id: 'F673',
+    feilklasse:
+      'utledningen av sporet bygger på enigheten om det eldre svaret etter byggherrens nye svar (OV-U110, alternativet B)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        'spor[n].enighet = g ? enighetOm(g) : null;',
+        'spor[n].enighet = (g ? enighetOm(g) : null) ?? spor[n].svar.map(enighetOm).findLast((e) => e !== null) ?? null;',
+      ],
+    ],
+    mal: [
+      'etter byggherrens nye svar bygger sporet på det nye svaret',
+      'kravene er ikke lenger avgjort etter byggherrens nye svar',
+    ],
+  },
+  {
+    id: 'F674',
+    feilklasse:
+      'en aksept av et svar utenfor rekken prøves ikke mot det nyere svaret (OV-U103, OV-U98)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['const utenfor = svarUtenforRekken.includes(s);', 'const utenfor = false;']],
+    mal: [
+      'en aksept av svaret utenfor rekken, sendt etter det gjeldende svaret, får ingen virkning',
+      'kommandoen godtar en aksept av svaret utenfor rekken',
+    ],
+  },
+  {
+    id: 'F675',
+    feilklasse:
+      'en aksept av et frafall i et svar som ikke lenger er gjeldende, får virkning (GR-U9, #2022 punkt 3)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [
+      [
+        "if (svaret?.spor === 'forhold' && frafaller(svaret))",
+        "if (svaret?.spor === 'forhold' && frafaller(svaret) && svaret === u.spor.forhold.gjeldendeSvar)",
+      ],
+    ],
+    mal: [
+      'en aksept av et frafall i et svar som senere er revidert, får ingen virkning',
+      'kommandoen avviser en aksept av et frafall i et svar som senere er revidert',
+    ],
+  },
+  {
+    id: 'F676',
+    feilklasse:
+      'en aksept som legges til, prøves mot det gjeldende svaret i forutsetningene (OV-U98, OV-U103)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [['      if (sendt !== null) return null;\n', '']],
+    mal: ['godtas selv om sporet har enighet om revisjonen'],
+  },
+  {
+    id: 'F677',
+    feilklasse: 'et svar som legges til, må gjelde den gjeldende kravversjonen (OV-U98, #2011)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['sendt === null ? sporet.gjeldendeKrav :', 'true ? sporet.gjeldendeKrav :']],
+    mal: ['kommandoen godtar et svar på den forrige versjonen, sendt før den ble erstattet'],
+  },
+  {
+    id: 'F678',
+    feilklasse:
+      'et svar som legges til, regnes mot den gjeldende påberopelsen, ikke den på sendedatoen (#342, #2011)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [["kravversjonenPaaDagen(u, 'forhold', sendt)", 'u.spor.forhold.gjeldendeKrav']],
+    mal: ['regnes mot påberopelsen slik den var da svaret ble sendt'],
+  },
+  {
+    id: 'F679',
+    feilklasse: 'et svar på en eldre kravversjon som alt har et svar, prøves ikke etter OV-U103',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['!sendtFoerGjeldendeSvar(u, s.spor, krav.id, sendt)', 'false']],
+    mal: ['som alt har et svar, godtas bare når det ble sendt før det svaret'],
+  },
+  {
+    id: 'F680',
+    feilklasse:
+      'visningen sier at det nye svaret avviker fra enigheten når det stemmer (HF-U29 punkt 8, OV-U110)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [["? 'stemmer'", "? 'avviker'"]],
+    mal: ['vises som at det stemmer med enigheten'],
+  },
+  {
+    id: 'F681',
+    feilklasse:
+      'visningen sammenlikner enigheten med et svar på en annen kravversjon (HF-U29 punkt 8, OV-U110)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['g !== null && g.gjelder === eldre.gjelder', 'g !== null']],
+    mal: ['enigheten bevares etter en ny kravversjon'],
+  },
+  {
+    id: 'F682',
+    feilklasse:
+      'et svar i rekken regnes som gjeldende etter et svar utenfor rekken sendt etter det (OV-U98, OV-U103)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    ...svarUtenforRekken.filter(sendtEtter),\n', '']],
+    mal: ['en aksept av det første svaret, sendt etter svaret utenfor rekken, får ingen virkning'],
+  },
+  {
+    id: 'F683',
+    feilklasse:
+      'en revisjon lagt til kan gjelde en annen kravversjon enn svaret den erstatter (OV-U98, #2011)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [['if (k.svar.gjelder !== forrige.gjelder)', 'if (false)']],
+    mal: ['en revisjon lagt til avvises når den gjelder en annen kravversjon'],
+  },
+  {
+    id: 'F684',
+    feilklasse: 'et svar utenfor rekken får ikke sporet sitt i visningen (OV-U103)',
+    fil: `${K}/kommandoer/handlinger.ts`,
+    endringer: [['      ...s.svarUtenforRekken,\n', '']],
+    mal: ['et element som viser til svaret utenfor rekken, får sporet'],
+  },
+  {
+    id: 'F685',
+    feilklasse:
+      'en aksept lagt til av et avslag på grunnlaget som byggherren senere har erstattet, lukker saken (OV-U112, GR-U27)',
+    fil: `${K}/kommandoer/forutsetninger.ts`,
+    endringer: [
+      [
+        "  if (u.forholdAvvist) return avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT);",
+        "  if (u.forholdAvvist || u.spor.forhold.enigheterOmEldreSvar.some((e) => e.grunnlag.kilde === 'aksept')) return avvis('FORHOLD_AVVIST', AVSLAGET_GODTATT);",
+      ],
+    ],
+    mal: [
+      'en aksept av et avslag på grunnlaget, lagt til etter byggherrens nye svar, lukker ikke saken',
+    ],
   },
 ];
 

@@ -180,11 +180,10 @@ type Utdypninger = Map<string, Utdypning>;
  * Standpunktene og serverens utregning nyttelastkontrollen leste i hvert svarutkast, i
  * formen brevet lagrer dem (#804, #814). Brevet lagrer det kontrollen leste.
  */
-type Bygde = Map<Svarutkast, { standpunkter: Data[]; utregning: Data }>;
+type Bygde = Map<Svarutkast, { standpunkter: Data[]; utregning: Data; paaberopelse: Krav | null }>;
 
 function svar(
   s: Svarutkast,
-  u: Utledning,
   nyId: () => string,
   utdypninger: Utdypninger,
   bygde: Bygde,
@@ -202,7 +201,7 @@ function svar(
     gjelder: s.gjelder,
     ...(erstatter ? { erstatter } : {}),
     // #342: påberopelsesversjonen svaret regnes mot, som `regnUtSvar` i nyttelastkontrollen.
-    ...(s.spor === 'forhold' ? {} : { paaberopelse: u.spor.forhold.gjeldendeKrav!.id }),
+    ...(bygd.paaberopelse ? { paaberopelse: bygd.paaberopelse.id } : {}),
     ...(s.akseptfrist !== undefined ? { akseptfrist: s.akseptfrist } : {}),
     standpunkter: bygd.standpunkter,
   };
@@ -246,7 +245,15 @@ function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne): Data[] {
   frysSvarene(
     svarene,
     u.spor.forhold.gjeldendeSvar,
-    (s) => paaberopelseFor({ spor: s.spor as Spor, gjelder: s.gjelder as string }, u),
+    (s) =>
+      paaberopelseFor(
+        {
+          spor: s.spor as Spor,
+          gjelder: s.gjelder as string,
+          paaberopelse: s.paaberopelse as string | undefined,
+        },
+        u
+      ),
     (s) => u.spor[s.spor as Spor].krav.find((k) => k.id === s.gjelder),
     kjerne
   );
@@ -394,7 +401,7 @@ function dokument(
     case 'brev':
       return {
         svar: frosneSvar(
-          k.svar.map((s) => svar(s, u, nyId, utdypninger, bygde)),
+          k.svar.map((s) => svar(s, nyId, utdypninger, bygde)),
           u,
           kjerne
         ),
@@ -407,7 +414,7 @@ function dokument(
         sendtFoerGjeldendeSvar(u, k.svar.spor, k.svar.gjelder, kalenderdag(k.sendt));
       return {
         svar: frosneSvar(
-          [svar(k.svar, u, nyId, utdypninger, bygde, foer ? undefined : k.erstatter)],
+          [svar(k.svar, nyId, utdypninger, bygde, foer ? undefined : k.erstatter)],
           u,
           kjerne
         ),
@@ -624,9 +631,14 @@ function skriv(
   const tidspunkt = kontekst.tidspunkt();
   const bygde: Bygde = new Map();
   // Nyttelastkontrollen leser standpunktene slik brevet lagrer dem (#776).
-  const svarstandpunkter = (s: Svarutkast, utregning: Data) => {
-    const lagret = standpunkter(s, u.spor[s.spor].gjeldendeKrav!, u, kontekst.nyId);
-    bygde.set(s, { standpunkter: lagret, utregning });
+  const svarstandpunkter = (
+    s: Svarutkast,
+    utregning: Data,
+    krav: Krav,
+    paaberopelse: Krav | null
+  ) => {
+    const lagret = standpunkter(s, krav, u, kontekst.nyId);
+    bygde.set(s, { standpunkter: lagret, utregning, paaberopelse });
     try {
       return standpunkterISvaret(s.spor, { standpunkter: lagret, utregning });
     } catch (feil) {

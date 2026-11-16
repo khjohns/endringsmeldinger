@@ -27,6 +27,7 @@ import {
   svarIkkeGodtatt,
   venterPaaSvar,
   vurdertVedRegistreringen,
+  type Enighet,
   type Kilde,
   type RegistrertBrev,
   type Utledning,
@@ -58,6 +59,8 @@ export interface Visning {
       registrerteBrev: BrevVedKravet[];
       /** HF-U29 punkt 8: det gjeldende svaret senker det byggherren har godkjent, eller `null`. */
       senkning: Senkning | null;
+      /** OV-U110: enighetene om svar som ikke er det gjeldende, vist ved hvert av dem. */
+      enigheterOmEldreSvar: EnighetOmEldreSvar[];
     }
   >;
   /** OV-U4, OV-U16: brevene registrert som dokumentasjon, også når saken ikke er forstått. */
@@ -116,6 +119,25 @@ export interface Senkning {
   justeringIkkeGodtatt: string[];
   /** Punkt 33.7 annet ledd for fristen, punkt 34.3.3 annet ledd for en post med enhetspriser. */
   bestemmelse: '33.7' | '34.3.3' | null;
+}
+
+/**
+ * OV-U110: en registrert enighet om et svar som ikke er byggherrens gjeldende svar. Løsningen
+ * avgjør ikke om den står (MM-U50 punkt 8).
+ */
+export interface EnighetOmEldreSvar {
+  svar: string;
+  /** Aksepten, eller svaret ved sammenfall. */
+  holder: string;
+  kilde: 'aksept' | 'sammenfall';
+  /** HF-U23 punkt 7: totalentreprenøren godtok svaret etter akseptfristen. */
+  akseptertEtterFristen: boolean;
+  /**
+   * HF-U29 punkt 8: om byggherrens gjeldende svar stemmer med enigheten (`stemmer`) eller avviker
+   * fra den (`avviker`). `null` når det gjeldende svaret gjelder en annen kravversjon, eller sporet
+   * venter på svar.
+   */
+  gjeldendeSvar: 'stemmer' | 'avviker' | null;
 }
 
 /** OV-U62: et registrert brev ved kravet, med avsenderen og avsenderens beskrivelse. */
@@ -229,13 +251,39 @@ function dokumentet(u: Utledning, id: string): Dokument | undefined {
  * den registrerte enigheten, og løsningen avgjør ikke virkningen (punkt 5 og 8). En aksept
  * lagt til i løsningen er gitt dagen den ble sendt (OV-U98).
  */
-function akseptertEtterFristen(u: Utledning, spor: Spor): boolean {
-  const enighet = u.spor[spor].enighet;
+function akseptertEtterFristen(u: Utledning, enighet: Enighet | null): boolean {
   if (enighet?.grunnlag.kilde !== 'aksept') return false;
-  const frist = u.spor[spor].svar.find((x) => x.id === enighet.grunnlag.svar)?.akseptfrist ?? null;
+  const frist = u.svar[enighet.grunnlag.svar]?.svar.akseptfrist ?? null;
   const aksept = dokumentet(u, enighet.holder);
   const sendt = aksept ? datoenDetBleSendt(u, { id: enighet.holder, dokument: aksept.id }) : null;
   return sendt !== null && etterAkseptfristen(frist, sendt);
+}
+
+/** Standpunktene i svaret uten ID-ene, så to svar kan sammenliknes. */
+const innholdet = (s: Svar): string =>
+  JSON.stringify(s.standpunkter.map((p) => JSON.stringify({ ...p, id: null })).sort());
+
+/**
+ * OV-U110, HF-U29 punkt 8: enighetene om svar som ikke er det gjeldende, og om det gjeldende svaret
+ * på samme kravversjon har de samme standpunktene som svaret enigheten gjelder.
+ */
+function enigheterOmEldreSvar(u: Utledning, spor: Spor): EnighetOmEldreSvar[] {
+  const g = u.spor[spor].gjeldendeSvar;
+  return u.spor[spor].enigheterOmEldreSvar.map((e) => {
+    const eldre = u.svar[e.grunnlag.svar].svar;
+    const sammenliknes = g !== null && g.gjelder === eldre.gjelder;
+    return {
+      svar: e.grunnlag.svar,
+      holder: e.holder,
+      kilde: e.grunnlag.kilde,
+      akseptertEtterFristen: akseptertEtterFristen(u, e),
+      gjeldendeSvar: !sammenliknes
+        ? null
+        : innholdet(eldre) === innholdet(g)
+          ? 'stemmer'
+          : 'avviker',
+    };
+  });
 }
 
 function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
@@ -251,7 +299,7 @@ function etiketter(u: Utledning, spor: Spor, regler: Regelsett): string[] {
     if (virkning === 'uten_virkning') ut.push('enighet_uten_virkning');
     if (s.gjeldendeKrav && s.subsidiaer.length) ut.push('subsidiaert');
   }
-  if (akseptertEtterFristen(u, spor)) ut.push('aksept_etter_akseptfristen');
+  if (akseptertEtterFristen(u, s.enighet)) ut.push('aksept_etter_akseptfristen');
   if (regelenErEndret(u, spor, regler))
     ut.push(s.enighet ? 'regel_endret_etter_enighet' : 'regel_endret_etter_brevet');
   if (s.gjeldendeSvar && vurdertVedRegistreringen(u, s.gjeldendeSvar.id))
@@ -408,7 +456,8 @@ function kilder(u: Utledning, ikkeTolket: Set<string>) {
  * Merknadene for saken. OV-U19: så lenge et registrert brev appen ikke vurderer, står og ikke
  * er rettet bort, har saken merknaden etter OV-U10; når kravene er avgjort, står setningen i
  * statusen i stedet. OV-U104: et brev lagt til er sammenliknet med et brev sendt samme dag.
- * OV-U109: totalentreprenøren hadde sendt et krav om dager før forespørselen etter § 33.6.2.
+ * OV-U109, OV-U111: totalentreprenøren hadde sendt et krav om dager før forespørselen etter
+ * § 33.6.2.
  */
 function merknader(u: Utledning, kode: Statuskode | null): string[] {
   // MM-U2: mens saken stopper, må et varsel med frist sendes utenfor appen og registreres senere.
@@ -491,6 +540,7 @@ export function visning(u: Utledning, regler: Regelsett): Visning {
           betegnelse: betegnelse(u, s),
           registrerteBrev: u.forstaatt ? brevVedKravet(u, s) : [],
           senkning: u.forstaatt ? senkningen(u, s) : null,
+          enigheterOmEldreSvar: u.forstaatt ? enigheterOmEldreSvar(u, s) : [],
         },
       ])
     ) as Visning['spor'],
