@@ -7515,7 +7515,7 @@ describe('tegn PDF-en av brevet ikke kan vise, avvises når brevet skrives (#801
       ]);
     const kontroll = forhaandsvis(FRISTKRAV, kontekst, s.journal, KJERNE, lager('varsel.pdf'));
     expect(kontroll.godtatt, 'kontrollsak').toBe(true);
-    const vist = kontroll.godtatt ? laastTekst(kontroll.hendelser[0])! : [];
+    const vist = kontroll.godtatt ? laastTekst(kontroll.hendelser.at(-1)!)! : [];
     const melding =
       'Filnavnet til vedlegget «varsel 😀.pdf» har tegnet «😀» (U+1F600), som PDF-en av brevet ikke kan vise.';
     for (const kommando of [FRISTKRAV, { ...FRISTKRAV, brevtekst: vist }]) {
