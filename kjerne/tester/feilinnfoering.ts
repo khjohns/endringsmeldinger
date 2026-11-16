@@ -2578,7 +2578,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F301',
     feilklasse: 'protesten godtas i første versjon (OV-U7)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
-    endringer: [["    case 'avklare':\n    case 'protest':\n", "    case 'avklare':\n"]],
+    endringer: [["    case 'bestride':\n    case 'protest':\n", "    case 'bestride':\n"]],
     mal: ['protest, påberopt passivitet og senere begrunnelse avvises fra begge parter'],
   },
   {

@@ -96,18 +96,6 @@ export type Opplysning =
       oppgittAv: Part;
       /** Brevet opplysningen gjelder: dokumentet selv, eller et registrert brev før det (MM-U12, MM-U50). */
       brev: string;
-    }
-  /**
-   * KA-U16, KA-U20: merkingen av et registrert brev. Er ikke med i første versjon
-   * (OV-U7): formatet tar ikke imot den, og typen står for brevteksten i `frosset/`.
-   */
-  | {
-      id: string;
-      dokument: string;
-      hva: 'kan_ikke_uttrykkes';
-      spor: Spor[];
-      oppgittAv: Part;
-      brev: string;
     };
 
 /**
@@ -239,8 +227,6 @@ export type Utsagn =
   | { id: string; art: 'protest'; gjelder: string }
   /** VS-U12: TE påberoper byggherrens passivitet etter § 32.3 annet ledd. `gjelder` er TEs varsel etter § 32.2. */
   | { id: string; art: 'passivitet'; gjelder: string }
-  /** KA-U20: avklaringen av en merking. Som merkingen ikke i formatet (OV-U7). */
-  | { id: string; art: 'avklaring'; gjelder: string }
   /**
    * KA-U34: byggherrens senere begrunnelse av et svar. `gjelder` er svaret, og
    * teksten står i brevteksten. Endrer ingen standpunkter.
@@ -260,11 +246,8 @@ export type Utsagn =
  */
 export type OppgittDatofelt = 'paalegg_mottatt' | 'klar_over_forholdet';
 
-/** OV-U7: det formatet tar imot, uten merkingen og avklaringen av den. */
-export type LestOpplysning = Exclude<Opplysning, { hva: 'kan_ikke_uttrykkes' }>;
-export type LestUtsagn = Exclude<Utsagn, { art: 'avklaring' }>;
-export type Opplysningsslag = LestOpplysning['hva'];
-export type Utsagnsart = LestUtsagn['art'];
+export type Opplysningsslag = Opplysning['hva'];
+export type Utsagnsart = Utsagn['art'];
 
 /**
  * Oppgjørsformen for en kravpost (OV-U95 punkt 19–20). `tilbud` er fast sum etter § 34.2.1;
@@ -425,11 +408,11 @@ export interface Dokument {
   avsender: Part;
   /** Satt av serveren. Det eneste tidspunktet systemet selv vet (2.4). */
   registrert: string;
-  opplysninger: LestOpplysning[];
+  opplysninger: Opplysning[];
   dokumentasjon: Vedlegg[];
   krav: Krav[];
   svar: Svar[];
-  utsagn: LestUtsagn[];
+  utsagn: Utsagn[];
   /** Teksten i et brev appen sendte, frosset da det ble skrevet. Et registrert brev har ingen (MM-U17, MM-U50). */
   brevtekst: Avsnitt[] | null;
   /** Tittelen på et brev løsningen sendte, frosset med teksten (LV-U2, LV-U25, MM-U9, MM-U50, #1536). `null` ellers. */

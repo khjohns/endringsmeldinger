@@ -750,12 +750,6 @@ function utsagnstekst(u: Utsagn, { j, saken, nytt, sak }: Tekst): string {
       if (e.art !== 'opplysning') throw new KanIkkeUttrykkes(`${u.gjelder} er ikke en opplysning`);
       return `${part} bestrider opplysningen i ${j.brevet(e.opplysning.dokument)} om at ${opplysningen(e.opplysning, j)}.`;
     }
-    case 'avklaring': {
-      const e = j.element(u.gjelder);
-      if (e.art !== 'opplysning' || e.opplysning.hva !== 'kan_ikke_uttrykkes')
-        throw new KanIkkeUttrykkes(`${u.gjelder} er ikke en merking`);
-      return `${part} bekrefter at standpunktene i ${j.brevet(e.opplysning.brev)} om ${liste(e.opplysning.spor.map((s) => brevtekstI(s).navn))} gjelder uten forbehold fra og med dette brevet.`;
-    }
     case 'korrigering': {
       // Punkt 10 i samlevedtaket for retting av sendt brev (MM-U55), med partene skrevet fullt
       // ut (LV-U35) og henvisningen etter LV-U53.
@@ -786,8 +780,6 @@ function opplysningen(o: Opplysning, j: Journalen): string {
       return `${o.gjelder ? `varselet etter NS 8407 punkt ${varselhjemmel(o.gjelder, j)} i brevet` : 'brevet'} ble ${o.hva} ${norskDato(o.dato)}`;
     case 'endringsordre':
       return `${o.brev === o.dokument ? 'brevet' : j.brevet(o.brev)} ${o.oppfylt ? 'var' : 'ikke var'} en endringsordre etter NS 8407 punkt 31.3`;
-    case 'kan_ikke_uttrykkes':
-      return `${o.brev === o.dokument ? 'brevet' : j.brevet(o.brev)} har et forbehold eller annet innhold som ikke er uttrykt i appen`;
   }
 }
 
@@ -795,11 +787,7 @@ function opplysningen(o: Opplysning, j: Journalen): string {
 function opplysningstekst(o: Opplysning, avsender: Part, j: Journalen): string {
   if (erDato(o) || o.brev === o.dokument)
     throw new KanIkkeUttrykkes(`opplysningen ${o.hva} i et brev fra appen har ingen brevtekst`);
-  const sporene =
-    o.hva === 'kan_ikke_uttrykkes'
-      ? `, og som gjelder ${liste(o.spor.map((s) => brevtekstI(s).navn))}`
-      : '';
-  return `${PART[avsender]} opplyser at ${opplysningen(o, j)}${sporene}.`;
+  return `${PART[avsender]} opplyser at ${opplysningen(o, j)}.`;
 }
 
 // ---------- Brevhodet (LV-U23, LV-U27) ----------

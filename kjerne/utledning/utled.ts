@@ -47,8 +47,8 @@ import {
   type Journalrad,
   type Krav,
   type Kravspor,
-  type LestOpplysning,
-  type LestUtsagn,
+  type Opplysning,
+  type Utsagn as Utsagnet,
   type OppgittDatofelt,
   type Opplysningsslag,
   type Part,
@@ -71,7 +71,7 @@ import {
   opplysningerOmDatoen,
 } from '../spor/forhold/utledning.ts';
 
-export type LestVarsel = Extract<LestUtsagn, { art: 'varsel' }>;
+export type LestVarsel = Extract<Utsagnet, { art: 'varsel' }>;
 /** Hjemlene saken har høyst ett varsel etter (SK-12). */
 export type Enkeltvarselhjemmel = Exclude<Varselhjemmel, Kravpostvarselhjemmel>;
 
@@ -170,7 +170,7 @@ export interface Sporutledning {
 export interface Element {
   hendelse: string;
   part: Part;
-  art: 'dokument' | 'krav' | 'svar' | 'standpunkt' | 'opplysning' | LestUtsagn['art'];
+  art: 'dokument' | 'krav' | 'svar' | 'standpunkt' | 'opplysning' | Utsagnet['art'];
   /**
    * En innsigelse etter § 5: utsagnet, eller et standpunkt om rettidighet der parten
    * sier at varselet kom for sent (VS-U9).
@@ -243,7 +243,7 @@ export interface Utledning {
   svar: Record<string, Svarberegning>;
   /** Opplysningene, med bestridelsene. */
   opplysninger: {
-    opplysning: LestOpplysning;
+    opplysning: Opplysning;
     bestridelser: Bestridelse[];
   }[];
   /** Hvert element i saken, også de uten virkning. */
@@ -760,7 +760,7 @@ function svaretStrider(
 
 /** Hvorfor utsagnet strider mot journalen før det, eller `null`. */
 function utsagnetStrider(
-  x: LestUtsagn,
+  x: Utsagnet,
   u: Utledning,
   utenVirkning: (id: string | null) => boolean
 ): string | null {
@@ -833,7 +833,7 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
   return ut;
 }
 
-export type Utsagn<A extends LestUtsagn['art']> = Extract<LestUtsagn, { art: A }>;
+export type Utsagn<A extends Utsagnet['art']> = Extract<Utsagnet, { art: A }>;
 export type Henvisning = Utsagn<
   'innsigelse' | 'protest' | 'passivitet' | 'begrunnelse' | 'foresporselssvar'
 >;
@@ -919,7 +919,7 @@ function utledSporene(
   const henvisninger: Henvisning[] = [];
   const foresporsler: Utsagn<'foresporsel'>[] = [];
   const korrigeringer: Utsagn<'korrigering'>[] = [];
-  const opplysninger: LestOpplysning[] = [];
+  const opplysninger: Opplysning[] = [];
   /** Hvert krav i saken, også de uten virkning (MM-U43 punkt 9). */
   const kravMedUten = new Map<string, Krav>();
   const dobbelt = new Set<string>();
@@ -931,7 +931,7 @@ function utledSporene(
     (elementer[id] = { hendelse: h.id, part, art });
 
   /** Legger utsagnet med virkning i lista for arten. */
-  const sorter = (u: LestUtsagn) => {
+  const sorter = (u: Utsagnet) => {
     switch (u.art) {
       case 'aksept':
         return aksepter.push(u);
@@ -1315,7 +1315,7 @@ function kanGjelde(
 
 function kontrollerBestridelsene(
   bestridelser: readonly Utsagn<'bestridelse'>[],
-  alleOpplysninger: Map<string, LestOpplysning>,
+  alleOpplysninger: Map<string, Opplysning>,
   avsenderAv: (id: string) => Part | undefined,
   bakover: Bakover,
   ugyldig: Ugyldig

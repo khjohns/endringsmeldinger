@@ -515,7 +515,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `FRIST_IKKE_REGISTRERT` | KA-57 | — |
 | `IKKE_GJELDENDE_PAA_SENDEDATOEN` | — | Kontrollen av kommandoen: en registrering av et svar eller en aksept som ikke får virkning med datoen avsenderen oppgir, avvises (OV-U98). KA-50 sier avvisningen, men ingen bevis-sak for målmodellen prøver kommandoen med en oppgitt dato; den prøves i `kjerne/tester/registrering.test.ts`. |
 | `IKKE_GJELDENDE_SVAR` | GR-01, GR-02, GR-03, GR-04, GR-05, GR-06 | — |
-| `IKKE_I_FOERSTE_VERSJON` | — | Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og merking og avklaring av registrerte brev, protest, påberopt passivitet og senere begrunnelse (arbeidsvalget 16.10 på #587). Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen. F-MM-V1 prøver at protesten avvises. |
+| `IKKE_I_FOERSTE_VERSJON` | — | Avvisningen av kommandoene for utsagnene OV-U7 utsetter: bestridelse (#770), og protest, påberopt passivitet og senere begrunnelse (arbeidsvalget 16.10 på #587). Kommandoene for merking og avklaring av registrerte brev er fjernet etter KA-U45 (#2019), og avvises som ukjente. Bevis-sakene for dem er satt til side til utsagnene bygges, og ingen rad sier avvisningen. F-MM-V1 prøver at protesten avvises. |
 | `INGEN_DATO_I_KATEGORIEN` | GR-36 | — |
 | `INGEN_FORESPORSEL` | — | Kontrollen av kommandoen: TEs begrunnelse etter § 33.6.2 annet ledd b gjelder en forespørsel fra appen (VS-U27). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `INGEN_KRAV` | — | Kontrollen av kommandoen: et svar eller et trekk i et spor uten krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |

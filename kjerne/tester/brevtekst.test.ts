@@ -3308,7 +3308,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
   });
 });
 
-describe('bestridelse, merking og avklaring (LV-U4 punkt 10–12)', () => {
+describe('bestridelse (LV-U4 punkt 10–12), og merking og avklaring (KA-U45)', () => {
   /** Et registrert svar fra byggherren på forholdet, sendt 3.10 (brev 3). */
   const medRegistrertSvar = (opplysninger: Data[] = []) => {
     const s = sak();
@@ -3363,14 +3363,18 @@ describe('bestridelse, merking og avklaring (LV-U4 punkt 10–12)', () => {
     );
   });
 
-  it('merkingen av et registrert brev og avklaringen avvises i første versjon (OV-U7)', () => {
+  it('merkingen av et registrert brev og avklaringen er ukjente kommandoer, og ingen hendelse skrives (KA-U45)', () => {
     const { s, rad } = medRegistrertSvar();
-    expect(
-      s.avvist('BH', { type: 'merking', gjelder: rad.event_id, spor: ['forhold', 'frist'] })
-    ).toBe('IKKE_I_FOERSTE_VERSJON');
-    expect(s.avvist('BH', { type: 'avklaring', gjelder: rad.event_id })).toBe(
-      'IKKE_I_FOERSTE_VERSJON'
-    );
+    const foer = s.journal.length;
+    for (const k of [
+      { type: 'merking', gjelder: rad.event_id, spor: ['forhold', 'frist'] },
+      { type: 'avklaring', gjelder: rad.event_id },
+    ])
+      expect(s.avvisning('BH', k)).toEqual({
+        regel: 'UGYLDIG_FORM',
+        melding: `Ukjent kommando: ${k.type}`,
+      });
+    expect(s.journal).toHaveLength(foer);
   });
 });
 

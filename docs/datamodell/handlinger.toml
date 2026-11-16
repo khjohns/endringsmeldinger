@@ -435,10 +435,10 @@ form = "Ingen. Motpartens syn sendes som innlegg."
 naar = "Aldri."
 tilstander = "Ingen."
 status = "opphevet"
-noekler = ["merke:*"]
-kommandoer = ["merking"]
+noekler = []
+kommandoer = []
 skjema = []
-mangler = "Kommandoen avvises, og fjernes fra kjernen i #2019."
+mangler = "Ingen. Kommandoen er fjernet (#2019)."
 
 [[handling]]
 id = "O2"
@@ -451,10 +451,10 @@ form = "Ingen."
 naar = "Aldri."
 tilstander = "Ingen."
 status = "opphevet"
-noekler = ["avklare:*"]
-kommandoer = ["avklaring"]
+noekler = []
+kommandoer = []
 skjema = []
-mangler = "Kommandoen avvises, og fjernes fra kjernen i #2019."
+mangler = "Ingen. Kommandoen er fjernet (#2019)."
 
 [[handling]]
 id = "O3"

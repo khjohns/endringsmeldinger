@@ -22,7 +22,7 @@ import type {
   Dokument,
   Enighetsgrunnlag,
   Hjemmel,
-  LestUtsagn,
+  Utsagn,
   Kravpostvarselhjemmel,
   Krav,
   Spor,
@@ -49,7 +49,7 @@ export function virkninger(
 }
 
 /** VS-U29, OV-U104: en innsigelse som påberoper at noe kom for sent. */
-export const erPaaberopelse = (x: LestUtsagn): x is Extract<LestUtsagn, { art: 'innsigelse' }> =>
+export const erPaaberopelse = (x: Utsagn): x is Extract<Utsagn, { art: 'innsigelse' }> =>
   x.art === 'innsigelse' && x.grunn === undefined;
 
 /**

@@ -31,8 +31,8 @@ export interface TilbudtHandling {
 
 /**
  * Handlingene som kan gjelde saken: hver handling i hvert spor og en innsigelse per
- * varsel, krav og svar. Bestridelse, merking, avklaring, protest, påberopt passivitet
- * og senere begrunnelse tilbys ikke (OV-U7).
+ * varsel, krav og svar. Bestridelse, protest, påberopt passivitet og senere begrunnelse
+ * tilbys ikke (OV-U7).
  */
 export function kandidater(u: Utledning): Handlingsnoekkel[] {
   const ut: Handlingsnoekkel[] = [];

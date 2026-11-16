@@ -53,8 +53,8 @@ Kolonnene for kjernen er handlingsnøklene (`noekkel` i [`forutsetninger.ts`](..
 
 | ID | Handling | Part | Spor | Kilde | 1 Finnes? | 2 Form | 3 Når | 4 Tilstander | Nøkler | Kommandoer | Skjema | Mangler |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| O1 | Merking av et registrert brev | TE og BH | forhold, vederlag, frist | KA-U45 | Nei. Sperrene er opphevet. | Ingen. Motpartens syn sendes som innlegg. | Aldri. | Ingen. | `merke:*` | `merking` | – | Kommandoen avvises, og fjernes fra kjernen i #2019. |
-| O2 | Avklaring av en merking | TE og BH | forhold, vederlag, frist | KA-U45 | Nei. Sperrene er opphevet. | Ingen. | Aldri. | Ingen. | `avklare:*` | `avklaring` | – | Kommandoen avvises, og fjernes fra kjernen i #2019. |
+| O1 | Merking av et registrert brev | TE og BH | forhold, vederlag, frist | KA-U45 | Nei. Sperrene er opphevet. | Ingen. Motpartens syn sendes som innlegg. | Aldri. | Ingen. | – | – | – | Ingen. Kommandoen er fjernet (#2019). |
+| O2 | Avklaring av en merking | TE og BH | forhold, vederlag, frist | KA-U45 | Nei. Sperrene er opphevet. | Ingen. | Aldri. | Ingen. | – | – | – | Ingen. Kommandoen er fjernet (#2019). |
 | O3 | Byggherrens bekreftelse av et svar gitt utenfor løsningen | BH | forhold, vederlag, frist | OV-U101, GR-U35, GR-U37, OV-U46 | Nei. Et svar lagt til med virkning dekker behovet. | Ingen. Svaret legges til etter U6. | Aldri. | Ingen. | – | – | – | Ingen. |
 
 ## Tilstandene (port 0)

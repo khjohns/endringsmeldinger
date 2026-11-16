@@ -247,7 +247,7 @@ describe('formen på merkingen og utsagnene som viser til et annet element', () 
     ['en protest fra TE mot BHs dokument med en påberopelse', 'TE', 'protest', 'D4', false],
     ['en passivitet mot påberopelsen', 'TE', 'passivitet', 'K-g1', true],
     ['en passivitet mot vederlagskravet', 'TE', 'passivitet', 'K-v1', false],
-    ['en avklaring som ikke gjelder en merking', 'BH', 'avklaring', 'K-g1', false],
+    ['en avklaring, som ikke er et utsagn (KA-U45)', 'BH', 'avklaring', 'K-g1', false],
   ])('%s', async (_navn, part, art, gjelder, ventet) => {
     const { k, journal } = await forhold();
     const r = rad(journal, part, {

@@ -501,8 +501,6 @@ function dokument(
       return { utsagn: [{ id, art: 'korrigering', gjelder: k.gjelder, [felt]: dato }] };
     }
     case 'bestridelse':
-    case 'merking':
-    case 'avklaring':
       // OV-U7: forutsetningene avviser kommandoen før dokumentet lages.
       throw new Error(`kommandoen ${k.type} skrives ikke i første versjon (OV-U7)`);
   }

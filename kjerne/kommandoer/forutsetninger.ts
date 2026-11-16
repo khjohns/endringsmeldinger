@@ -49,8 +49,6 @@ export type Handlingsnoekkel =
         | 'innsigelse'
         | 'protest'
         | 'passivitet'
-        | 'merke'
-        | 'avklare'
         | 'begrunne'
         | 'korrigere'
         | 'svare_paa_foresporsel';
@@ -88,8 +86,6 @@ const PART: Record<Handlingsnoekkel['type'], Part | null> = {
   bestride: null,
   innsigelse: null,
   protest: null,
-  merke: null,
-  avklare: null,
   begrunne: 'BH',
   korrigere: 'TE',
 };
@@ -138,17 +134,15 @@ function henvisning(h: Extract<Handlingsnoekkel, { gjelder: string }>, part: Par
     case 'korrigere':
       return korrigering(h.gjelder, u);
     case 'bestride':
-    case 'merke':
-    case 'avklare':
     case 'protest':
     case 'passivitet':
     case 'begrunne':
-      // OV-U7: bestridelsen (MM-U7, MM-U14), merkingen etter KA-U20 og avklaringen av
-      // den, protesten mot en innsigelse (VS-U1, VS-U9), påberopt passivitet (VS-U12)
-      // og den senere begrunnelsen (KA-U34 (opphevet av KA-U46)) bygges ikke i første versjon.
+      // OV-U7, OV-U99 punkt 3–4: bestridelsen (MM-U7, MM-U14), protesten mot en innsigelse
+      // (VS-U1, VS-U9), påberopt passivitet (VS-U12) og den senere begrunnelsen (KA-U46)
+      // sendes som innlegg.
       return avvis(
         'IKKE_I_FOERSTE_VERSJON',
-        'Bestridelse, merking, avklaring, protest, påberopt passivitet og senere begrunnelse er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
+        'Bestridelse, protest, påberopt passivitet og senere begrunnelse er ikke med i første versjon. Brevet kan registreres som dokumentasjon.'
       );
   }
 }
@@ -258,8 +252,7 @@ export function forutsetninger(
       if (!s.gjeldendeKrav)
         return avvis('INGEN_KRAV', `Totalentreprenøren har ikke sendt ${kravet(h.spor)}.`);
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er allerede trukket.');
-      // KA-U22: et avtalt fradrag (KA-U9) avvises av formatet, og sperren bygges med det. En
-      // merking av et registrert brev gir ingen sperre (OV-U4, OV-U7).
+      // KA-U22: et avtalt fradrag (KA-U9) avvises av formatet, og sperren bygges med det.
       return forutsetningerI(h.spor).trekket(u);
     case 'ingen_krav':
       // KA-U12, KA-U15: et spor som ikke er sendt, etter at forholdet er sendt.

@@ -168,7 +168,6 @@ function foresporselenTil(gjelder: string, j: Journalen): string {
 }
 
 export const BREVTEKSTEN_I_FRISTEN = {
-  navn: 'fristen',
   svaretGjelder: `kravet om ${KRAVET_OM}`,
   krav: fristkravtekst,
   // VS-U29: også påberopelsen etter § 33.6.2 mot begrunnelsen.

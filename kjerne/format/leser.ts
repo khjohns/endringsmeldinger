@@ -46,8 +46,7 @@ import type {
   Domenehendelse,
   Hjemmel,
   Journalrad,
-  LestOpplysning,
-  LestUtsagn,
+  Utsagn,
   Opplysning,
   Part,
   Spor,
@@ -410,7 +409,7 @@ function lesDokument(h: Journalrad): Dokument {
   if (data.krav) kreverPart('TE', 'et krav');
   if (data.svar) kreverPart('BH', 'et svar');
   const hva = new Set<string>();
-  const opplysninger = (data.opplysninger ?? []).map((v, i): LestOpplysning => {
+  const opplysninger = (data.opplysninger ?? []).map((v, i): Opplysning => {
     const o = element(v, OPPLYSNING, 'hva', `$.opplysninger[${i}]`);
     // Én opplysning av hvert slag om dokumentet, og én om hvert varsel i det (HF-U1).
     const noekkel = `${String(o.hva)}:${omBrevet(o.hva as string) ? '' : String(o.gjelder ?? '')}`;
@@ -474,7 +473,7 @@ function lesDokument(h: Journalrad): Dokument {
     spor: data.spor ?? [],
     retter: data.retter ?? null,
     ikkeISaken: false,
-    utsagn: (data.utsagn ?? []).map((v, i): LestUtsagn => {
+    utsagn: (data.utsagn ?? []).map((v, i): Utsagn => {
       const e = element(v, UTSAGN, 'art', `$.utsagn[${i}]`);
       const art = e.art as Utsagnsart;
       kreverPart(PART_FOR_UTSAGN[art], `et utsagn med art ${art}`);
@@ -491,7 +490,7 @@ function lesDokument(h: Journalrad): Dokument {
           dato: e[felt] as string,
         };
       }
-      return e as unknown as LestUtsagn;
+      return e as unknown as Utsagn;
     }),
   };
   // VS-U23, VS-U27: en forespørsel eller begrunnelse etter § 33.6.2 utenfor appen er

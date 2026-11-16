@@ -210,9 +210,6 @@ export type Kommando = (
   | { type: 'protest'; gjelder: string }
   /** VS-U12: TE påberoper byggherrens passivitet etter § 32.3 annet ledd. */
   | { type: 'passivitet'; gjelder: string }
-  /** KA-U20: merkingen av et registrert brev og avklaringen av den. Avvises etter OV-U7. */
-  | { type: 'merking'; gjelder: string; spor: Spor[] }
-  | { type: 'avklaring'; gjelder: string }
   /**
    * Byggherrens senere begrunnelse av et svar. Fra appen er teksten utdypningen
    * (KA-U34). Registrert har den datoen brevet ble sendt og brevet som vedlegg, uten
@@ -390,11 +387,6 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
   ),
   protest: henvisning('protest'),
   passivitet: henvisning('passivitet'),
-  merking: objekt(
-    { type: { const: 'merking' }, gjelder: ID, spor: liste({ enum: [...SPORENE] }), ...BREVTEKST },
-    ['type', 'gjelder', 'spor']
-  ),
-  avklaring: henvisning('avklaring'),
   begrunnelse: objekt(
     {
       type: { const: 'begrunnelse' },

@@ -386,7 +386,6 @@ const KRAVET_OM = 'justering av vederlaget';
 
 /** Brevteksten i vederlagssporet. */
 export const BREVTEKSTEN_I_VEDERLAGET = {
-  navn: 'vederlaget',
   svaretGjelder: `kravet om ${KRAVET_OM}`,
   krav: vederlagstekst,
   // VS-U29: også påberopelsen etter § 34.1.3 mot det særskilte varselet (VS-U24, OV-U22).
