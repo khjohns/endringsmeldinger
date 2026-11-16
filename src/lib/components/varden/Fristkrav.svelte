@@ -1033,7 +1033,6 @@
     flex-direction: column;
     gap: var(--spacing-2);
   }
-  /* Etikettene følger vederlagskravet (oppdragsgiver 16.11 i #1925). */
   label {
     font-weight: 600;
     color: var(--ink);
