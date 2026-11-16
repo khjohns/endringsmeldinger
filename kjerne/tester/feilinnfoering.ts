@@ -3935,7 +3935,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et svar lagt til samme dag som svaret på forholdet lagene regnes fra, merkes ikke (OV-U104, OV-U32, #2057)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['!foerDagen(dag, sendt(g), () => samme(g.id))', '!foerDagen(dag, sendt(g))']],
+    endringer: [['!foerDagen(dag, sendt(s), () => samme(s.id))', '!foerDagen(dag, sendt(s))']],
     mal: ['en rad uten kommando fryses på samme måte'],
   },
   {
@@ -5898,7 +5898,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en aksept av et svar utenfor rekken prøves ikke mot det nyere svaret (OV-U103, OV-U98)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['const utenfor = svarUtenforRekken.includes(s);', 'const utenfor = false;']],
+    endringer: [['const utenfor = utenforRekken.includes(s);', 'const utenfor = false;']],
     mal: [
       'en aksept av svaret utenfor rekken, sendt etter det gjeldende svaret, får ingen virkning',
       'kommandoen godtar en aksept av svaret utenfor rekken',
@@ -5971,7 +5971,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et svar i rekken regnes som gjeldende etter et svar utenfor rekken sendt etter det (OV-U98, OV-U103)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['    ...svarUtenforRekken.filter(sendtEtter),\n', '']],
+    endringer: [['    ...utenforRekken.filter(sendtEtter),\n', '']],
     mal: ['en aksept av det første svaret, sendt etter svaret utenfor rekken, får ingen virkning'],
   },
   {
@@ -6081,6 +6081,17 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [['      if (oppgitt.length)', '      if (oppgitt.length && false)']],
     mal: ['er varselet registrert med brevet, kreves bare samme dato i kravet'],
+  },
+  {
+    id: 'F710',
+    feilklasse:
+      'et svar lagt til fryses bare med svarene på forholdet i rekken, ikke med svaret utenfor rekken som var gjeldende da det ble sendt (OV-U103, #2090)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['[...rekken, ...utenforRekken]', '[...rekken]']],
+    mal: [
+      'et avslag utenfor rekken og en godkjenning i rekken',
+      'en godkjenning utenfor rekken med preklusjon påberopt prinsipalt',
+    ],
   },
 ];
 interface Testresultat {
