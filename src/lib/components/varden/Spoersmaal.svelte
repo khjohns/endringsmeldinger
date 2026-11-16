@@ -48,7 +48,7 @@
   }
   .sp-hode {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: var(--spacing-3);
   }
   h3 {
