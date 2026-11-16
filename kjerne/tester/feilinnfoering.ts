@@ -3973,6 +3973,29 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['byggherren som mener den andre beregningsregelen, må oppgi den'],
   },
   {
+    id: 'F704',
+    feilklasse:
+      'fristkravet registrerer et brev med varselet som alt står i saken, på nytt (#2082, OV-U80, OV-U84)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      ["if (registrert) return { godtatt: false, feil: 'REGELBRUDD', avvisning: registrert };", ''],
+    ],
+    mal: ['et fristkrav med et brev som alt står i saken med varselet etter punkt 32.2'],
+  },
+  {
+    id: 'F705',
+    feilklasse:
+      'et brev som har ett av vedleggene til et registrert brev, regnes som det registrerte brevet (#2082)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        'noekkel(h.dokument.dokumentasjon.map((v) => v.vedlegg_id)) === varselet',
+        'h.dokument.dokumentasjon.some((v) => varselet.includes(v.vedlegg_id))',
+      ],
+    ],
+    mal: ['et nytt brev med ett av vedleggene godtas'],
+  },
+  {
     id: 'F444',
     feilklasse: 'leseren godtar registrert korrespondanse uten typen (LV-U42, MM-U2)',
     fil: `${K}/format/leser.ts`,
@@ -6044,12 +6067,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'varselet i fristkravet skrives ikke som et eget registrert brev før kravet (VS-U34, C1 i #2056)',
     fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [
-      [
-        "  if (!k.varsel || skriving.saken(journal).u.spor.frist.varsler['33.4']) return null;",
-        '  if (k.varsel || !k.varsel) return null;',
-      ],
-    ],
+    endringer: [["  if (u.spor.frist.varsler['33.4']) return null;", '  return null;']],
     mal: ['fristkravet har datoen for varselet og brevet med det (OV-U5)'],
   },
   {
