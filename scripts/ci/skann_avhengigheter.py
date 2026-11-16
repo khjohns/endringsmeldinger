@@ -38,67 +38,60 @@ def les_unntak(sti: pathlib.Path) -> dict[tuple[str, str], dict]:
     return unntak
 
 
-_NEDRE_GRENSE = re.compile(r">=?v?\d[\w.+-]*")
 _JOKER = re.compile(r"[*xX](?:\.[*xX])*")
+_GRENSE = re.compile(r"(>=|>|<=|<)v?(\d+)\.(\d+)\.(\d+)")
+
+Versjon = tuple[int, int, int]
+# (nedre, nedre er med, øvre eller None uten øvre grense, øvre er med)
+Intervall = tuple[Versjon, bool, Versjon | None, bool]
 
 
-def _uten_øvre_grense(alternativ: str) -> bool:
-    """Bare jokere (`*`, `x.x`) og nedre grenser (`>=1.0.0`). Alt annet, også et tomt eller
-    uleselig alternativ, regnes som å ha en øvre grense, så funnet blokkerer."""
+def _intervall(alternativ: str) -> Intervall | None:
+    """Alternativet som intervall, når det bare har jokere og grenser med hele versjoner
+    (`>=1.0.0 <1.2.3`). Ellers None, også for et tomt alternativ."""
     ledd = re.sub(r"([<>]=?)\s+", r"\1", alternativ).split()
-    return bool(ledd) and all(_NEDRE_GRENSE.fullmatch(grense) or _JOKER.fullmatch(grense) for grense in ledd)
-
-
-_VERSJON = re.compile(r"v?(\d+)(?:\.(\d+))?(?:\.(\d+))?")
-
-
-def _versjon(tekst: str) -> tuple[int, int, int] | None:
-    treff = _VERSJON.match(tekst)
-    return tuple(int(d or 0) for d in treff.groups()) if treff else None
-
-
-def _nedre_grense(alternativ: str) -> tuple[int, int, int]:
-    """Den laveste versjonen et alternativ uten øvre grense dekker; 0.0.0 for en joker."""
-    grenser = [
-        _versjon(ledd.lstrip(">="))
-        for ledd in re.sub(r"([<>]=?)\s+", r"\1", alternativ).split()
-        if ledd.startswith(">")
-    ]
-    return max((g for g in grenser if g), default=(0, 0, 0))
-
-
-def _øvre_grense(alternativ: str) -> tuple[int, int, int] | None:
-    """Den øvre grensen i `<X` eller `<=X`, eller None når den ikke kan leses."""
-    grenser = [
-        _versjon(ledd.lstrip("<="))
-        for ledd in re.sub(r"([<>]=?)\s+", r"\1", alternativ).split()
-        if ledd.startswith("<")
-    ]
-    return min((g for g in grenser if g), default=None)
+    if not ledd:
+        return None
+    nedre, med_nedre, øvre, med_øvre = (0, 0, 0), True, None, False
+    for grense in ledd:
+        if _JOKER.fullmatch(grense):
+            continue
+        treff = _GRENSE.fullmatch(grense)
+        if not treff:
+            return None
+        tegn, versjon = treff[1], (int(treff[2]), int(treff[3]), int(treff[4]))
+        med = tegn.endswith("=")
+        if tegn.startswith(">") and (versjon, not med) > (nedre, not med_nedre):
+            nedre, med_nedre = versjon, med
+        elif tegn.startswith("<") and (øvre is None or (versjon, med) < (øvre, med_øvre)):
+            øvre, med_øvre = versjon, med
+    return nedre, med_nedre, øvre, med_øvre
 
 
 def har_rettet_versjon(område: str | None) -> bool:
-    """Om advisoryen kan ha en rettet versjon på minst én linje (svar A 11.11 på spørsmål 9
-    i #1791, #925): et alternativ med øvre grense som ikke dekkes av et alternativ uten.
-    `*` og `>=1.0.0` har ingen øvre grense, og `* || <1.0.5` har derfor ingen rettet
-    versjon. `<=1.2.3` regnes som rettet, fordi npm skriver et område med rettet versjon
-    slik (`>=7.1.0 <=7.3.1` for vite, rettet i 7.3.2); en advisory uten rettet versjon i den
-    formen føres i unntakslisten. Mangler området, eller kan en øvre grense ikke leses,
-    regnes versjonen som rettet, så funnet blokkerer."""
+    """Om advisoryen har en rettet versjon på minst én linje (svar A 11.11 på spørsmål 9 i
+    #1791, #925): en versjon over en sårbar versjon som ingen av alternativene i det
+    sårbare området dekker. `*` og `>=1.0.0` har ingen øvre grense, og `* || <1.0.5` har
+    derfor ingen rettet versjon. `<=1.2.3` regnes som rettet, fordi npm skriver et område
+    med rettet versjon slik (`>=7.1.0 <=7.3.1` for vite, rettet i 7.3.2); en advisory uten
+    rettet versjon i den formen føres i unntakslisten. Mangler området, eller har et
+    alternativ en annen form enn jokere og grenser med hele versjoner, også et tomt
+    alternativ, regnes versjonen som rettet, så funnet blokkerer."""
     if not område:
         return True
-    alternativer = [a for a in område.split("||") if a.strip()] or [område]
-    uten = [_nedre_grense(a) for a in alternativer if _uten_øvre_grense(a)]
-    if not uten:
+    intervaller = [_intervall(a) for a in område.split("||")]
+    if any(i is None for i in intervaller):
         return True
-    laveste = min(uten)
-    for alternativ in alternativer:
-        if _uten_øvre_grense(alternativ):
-            continue
-        øvre = _øvre_grense(alternativ)
-        if øvre is None or øvre < laveste:
+    intervaller.sort(key=lambda i: (i[0], not i[1]))
+    _, _, dekket, med = intervaller[0]
+    for nedre, med_nedre, øvre, med_øvre in intervaller[1:]:
+        if dekket is None:
+            return False
+        if nedre > dekket or (nedre == dekket and not (med or med_nedre)):
             return True
-    return False
+        if øvre is None or (øvre, med_øvre) > (dekket, med):
+            dekket, med = øvre, med_øvre
+    return dekket is not None
 
 
 def funn(rapport: dict) -> list[tuple[str, str, str, str]]:

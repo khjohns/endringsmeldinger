@@ -1,7 +1,8 @@
 """Skanningen av kjøretidsavhengighetene i TS som CI kjører (#269 punkt 3).
 
 Kravet er avgjort 17.10 i #269: høy eller kritisk sårbarhet med rettet versjon
-blokkerer, med unntak fra en datert liste. En linje med rettet versjon er nok (#925). En rettet versjon leses av advisoryens
+blokkerer, med unntak fra en datert liste. En linje med rettet versjon er nok
+(#925). En rettet versjon leses av advisoryens
 sårbare område, ikke av `fixAvailable` (#851). Rapporten er en forkortet form av
 utdataene fra `npm audit --json`.
 """
@@ -83,7 +84,15 @@ def test_hoey_eller_kritisk_med_rettet_versjon_blokkerer(tmp_path, alvorlighet, 
     assert "pakke-a GHSA-aaaa-bbbb-cccc" in resultat.stdout
 
 
-@pytest.mark.parametrize("område", ["<1.0.5 || >=2.0.0", ">=2.0.0 || <1.0.5", "<1.0.5 || >= 2.0.0 <2.0.3"])
+@pytest.mark.parametrize("område", [
+    "<1.0.5 || >=2.0.0",
+    ">=2.0.0 || <1.0.5",
+    "<1.0.5 || >= 2.0.0 <2.0.3",
+    "<1.0.5 || >1.0.5",
+    "<1.0.5 || >1",
+    "<2.0.0-rc.1 || >=2.0.0",
+    "* ||",
+])
 def test_en_linje_med_rettet_versjon_blokkerer_hele_advisoryen(tmp_path, område):
     """Svar A 11.11 på spørsmål 9 i #1791 (#925)."""
     resultat = _kjoer(tmp_path, _rapport("critical", område))
@@ -108,7 +117,7 @@ def test_rettet_versjon_blokkerer_ogsaa_naar_npm_audit_fix_ikke_naar_den(tmp_pat
     ("critical", "* || <1.0.5"),
     ("critical", ">=1.0.0 || <1.0.5"),
     ("critical", "<1.0.5 || >=1.0.5"),
-    ("high", "* ||"),
+    ("critical", "<1.0.5 || >=1.0.5 <2.0.0 || >=2.0.0"),
     ("high", ">= 1.0.0"),
     ("high", ">1.0.0"),
     ("high", "x.x.x"),
