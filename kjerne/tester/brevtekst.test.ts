@@ -10160,7 +10160,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     const s = sakMedKrav();
     expect(s.avvisning('TE', krav([regning]))).toEqual({
       regel: 'KRAVPOSTENE',
-      melding: 'Kravversjonen mangler P1 uten at den er trukket (KA-U56).',
+      melding: 'Kravversjonen mangler P1 uten at den er trukket.',
     });
     expect(s.avvist('TE', krav([regning], { trekker: [p1I(s)] })), 'kontrollsak').toBeNull();
   });
@@ -11838,8 +11838,7 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
       const s = medPosten();
       expect(s.avvisning('TE', vederlagskrav(tilbud(125000)))).toEqual({
         regel: 'KRAVPOSTENE',
-        melding:
-          'Kravversjonen mangler den særskilte vederlagsjusteringen uten at den er trukket (KA-U83).',
+        melding: 'Kravversjonen mangler den særskilte vederlagsjusteringen uten at den er trukket.',
       });
       expect(s.avvist('TE', vederlagskrav(tilbud(125000, saerskilt))), 'tatt med').toBeNull();
       expect(s.avvist('TE', vederlagskrav(tilbud(125000, trekk))), 'trukket').toBeNull();
@@ -11879,7 +11878,7 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
       expect(s.avvisning('TE', vederlagskrav(trekk))).toEqual({
         regel: 'KRAVPOSTENE',
         melding:
-          'Kravversjonen har ingen poster igjen når den særskilte vederlagsjusteringen er trukket (KA-U83).',
+          'Kravversjonen har ingen poster igjen når den særskilte vederlagsjusteringen er trukket.',
       });
       expect(s.avvist('TE', vederlagskrav(tilbud(125000, trekk))), 'kontrollsak').toBeNull();
       expect(s.avvist('TE', vederlagskrav({ trekker_saerskilt: [] })), 'tomt trekk').toBe(
@@ -11890,7 +11889,7 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
     it('et trekk uten andre poster får meldingen om det som hindrer: posten som mangler, eller posten som ikke er med i forrige versjon', () => {
       const s = medPosten();
       expect(s.avvisning('TE', vederlagskrav(trekk))?.melding).toBe(
-        'Kravversjonen mangler P1 uten at den er trukket (KA-U56).'
+        'Kravversjonen mangler P1 uten at den er trukket.'
       );
       const f = sak();
       f.send('TE', PAABEROPELSE);
@@ -11904,10 +11903,12 @@ describe('punktene i totalentreprenørens vederlagskrav (#1824, prototype v4 i B
       const rad = s.send('TE', vederlagskrav(tilbud(125000, trekk)));
       const kravet = (rad.data.krav as Data[])[0]!;
       expect(kravet.trekker_saerskilt).toEqual(['produktivitet']);
-      expect(JSON.stringify(s.u().begrensninger), 'kontrollsak').not.toContain('KA-U83');
+      expect(JSON.stringify(s.u().begrensninger), 'kontrollsak').not.toContain(
+        'mangler den særskilte vederlagsjusteringen uten at den er trukket'
+      );
       delete kravet.trekker_saerskilt;
       expect(JSON.stringify(s.u().begrensninger)).toContain(
-        'mangler den særskilte vederlagsjusteringen uten at den er trukket (KA-U83)'
+        'mangler den særskilte vederlagsjusteringen uten at den er trukket'
       );
     });
   });
