@@ -1237,8 +1237,8 @@ export const LEGG_TIL = {
   svarUtenforRekken:
     'Svaret er sendt før byggherrens gjeldende svar på kravet. Det blir ikke gjeldende og erstatter ikke det nyere svaret.',
   /** OV-U104 og MM-U50 punkt 8. */
-  sammeDag: (b: Brevref) =>
-    `Sendt samme dag som ${brevref(b)}. Løsningen kjenner ikke rekkefølgen og har ikke avgjort hvilket brev som kom først, eller hvem som er bundet.`,
+  sammeDag: (brev: readonly Brevref[]) =>
+    `Sendt samme dag som ${liste([...new Set(brev.map(brevref))])}. Løsningen kjenner ikke rekkefølgen og har ikke avgjort hvilket brev som kom først, eller hvem som er bundet.`,
 };
 
 /** Korrespondansen slik et brev omtaler den (LV-U42): parten, typen og datoen. */

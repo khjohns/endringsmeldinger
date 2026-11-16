@@ -180,7 +180,7 @@ describe('korrespondanse lagt til i saken (OV-U79, OV-U80)', () => {
     const svaret = screen.getAllByRole('radio').at(-1)!;
     await fireEvent.click(svaret);
     // Kjernen sammenlikner aksepten med svaret og kravet det svarte på, begge sendt 16. oktober.
-    expect(screen.getAllByText(/^Sendt samme dag som brev/)).toHaveLength(2);
+    expect(screen.getByText(/^Sendt samme dag som brev 2 og brev 3\./)).toBeInTheDocument();
     await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.leggTil }));
     expect(tilServeren).toHaveLength(1);
     expect(tilServeren[0]).toMatchObject({ type: 'aksept', spor: 'vederlag', ...KORRESPONDANSEN });

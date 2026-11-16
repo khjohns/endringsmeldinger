@@ -40,6 +40,6 @@
 
 {#if kravUtenfor}<Melding art="info" levende={false}>{LEGG_TIL.kravUtenforRekken}</Melding>{/if}
 {#if svarUtenfor}<Melding art="info" levende={false}>{LEGG_TIL.svarUtenforRekken}</Melding>{/if}
-{#each sammeDag as b (b.id)}
-  <Melding art="info" levende={false}>{LEGG_TIL.sammeDag(b)}</Melding>
-{/each}
+{#if sammeDag.length}
+  <Melding art="info" levende={false}>{LEGG_TIL.sammeDag(sammeDag)}</Melding>
+{/if}

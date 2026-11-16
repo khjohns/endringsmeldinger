@@ -161,9 +161,9 @@
           {#if registrert}
             <p class="datolinje">{TRAADEN.registrert(b.avsender, b.sendt, b.registrert)}</p>
           {/if}
-          {#each samme as x (x.id)}
-            <Melding art="info" levende={false}>{LEGG_TIL.sammeDag(x)}</Melding>
-          {/each}
+          {#if samme.length}
+            <Melding art="info" levende={false}>{LEGG_TIL.sammeDag(samme)}</Melding>
+          {/if}
           {#if i}
             {#if i.standpunkter.some((l) => l.lag)}
               <ul class="lagene" aria-label={FORHOLDET.lagene}>
