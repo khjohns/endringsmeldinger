@@ -284,12 +284,12 @@ Klassene er ført i registeret i PR-en for omklassifiseringen, med disse avviken
 - **De fire samlevedtakene:** GR-U34 pkt. 3 og 6, KA-U49 pkt. 8, MM-U47 pkt. 2 og KA-U52 pkt. 4
   får ordlyden i designdelen. I KA-U52 pkt. 4 står budskapet om at kravet erstatter den
   tidligere kravversjonen, fordi LV-U75 viser til den setningen.
-- **Ikke ført:** OV-U73 venter på spørsmålet under. `flyttet_til` for LV-U55, LV-U57, EO-U15 og
+- **Ført etter svaret:** OV-U73 (se spørsmålet under). `flyttet_til` for LV-U55, LV-U57, EO-U15 og
   OV-U86 føres når teksten flyttes til forløpet. De nye designpostene har språkfila som hjem, som
   ikke er et mål for `flyttet_til`.
 
 Grensetilfellene G1–G10 og grensetilfellene i de andre postene er avgjort av svaret 1 A, av testen
-eller av et senere vedtak. Bare OV-U73 står igjen.
+eller av et senere vedtak. Bare OV-U73 sto igjen.
 
 ### Spørsmålet om OV-U73
 
@@ -325,3 +325,6 @@ eller av et senere vedtak. Bare OV-U73 står igjen.
 >
 > **Valget styrer** klassen og delene for OV-U73, og om sumraden og hva den omfatter kan endres av
 > brukerprøven alene.
+
+**Svaret.** Oppdragsgiver 16.11, ordrett: «2A», altså A, det anbefalte alternativet (formidlet av
+orkestratoren). OV-U73 er ført som vedtak med designdel og beslutningsdel etter A.

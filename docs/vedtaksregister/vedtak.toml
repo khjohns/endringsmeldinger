@@ -29076,6 +29076,8 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "radene, kolonnene og plasseringen etter punktene og før «Forbehold», og hvordan en post uten fast beløp vises"
+beslutningsdel = "at tabellen fryses med brevteksten"
 id = "OV-U73"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
