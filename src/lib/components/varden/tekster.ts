@@ -28,9 +28,16 @@ import {
   type Forholdsordene,
   type Forholdstilfelle,
 } from '$kjerne/spor/forhold/tekst';
-import type { Brevet, Brevref, Innlegget, OppgittDato, Standpunktet } from './lesing';
+import type {
+  Brevet,
+  Brevref,
+  Datoopplysningen,
+  Innlegget,
+  OppgittDato,
+  Standpunktet,
+} from './lesing';
 import type { Innsigelsen, Svarlaget } from './svarlagene';
-import { STOERSTE_VEDLEGG } from './nysak';
+import { STOERSTE_VEDLEGG } from './vedlegg';
 
 /** Grensen for et vedlegg, som serveren håndhever (`STOERSTE_VEDLEGG`). */
 const GRENSEN_FOR_VEDLEGG = `${STOERSTE_VEDLEGG / (1024 * 1024)} MB`;
@@ -842,6 +849,10 @@ export const FORHOLDET = {
   /** BHs primærhandling i forholdet (oppdragsgiver 06.11, #1649). */
   svar: 'Svar på påberopelsen',
   svarNyVersjon: 'Svar på det nye brevet',
+  // #2104: utkastet til svaret står til byggherren forkaster det (oppdragsgiver 16.11).
+  svaretUtenPaaberopelse: (lagtTil: boolean) =>
+    `Totalentreprenøren har trukket påberopelsen, så svaret kan ikke ${lagtTil ? 'legges til' : 'sendes'}. Utkastet står til du forkaster det.`,
+  forkastSvaret: 'Det du har fylt ut i svaret, slettes. Det kan ikke gjøres om.',
   handlinger: 'Det du kan gjøre nå',
   beskrivelse: (paalegg: boolean) => `Beskrivelse av ${paalegg ? 'pålegget' : 'forholdet'}`,
   begrunnelsen: 'Begrunnelsen',
@@ -856,11 +867,7 @@ export const FORHOLDET = {
     `Korrigerer ${dato(forrige.dato)}, oppgitt i ${brevref(forrige.brev)}.`,
   korrigertI: (b: Brevref) => `Korrigert i ${brevref(b)}.`,
   /** Ved et svar når TE har korrigert datoen etter svaret (designdelen i MM-U55, U-5 i BF-02A). */
-  sisteOpplysningVedSvaret: (o: {
-    hva: 'paalegg_mottatt' | 'klar_over_forholdet';
-    dato: string;
-    brev: Brevref;
-  }) =>
+  sisteOpplysningVedSvaret: (o: Pick<Datoopplysningen, 'hva' | 'dato' | 'brev'>) =>
     `Da svaret ble sendt, var totalentreprenørens siste opplysning at ${o.hva === 'paalegg_mottatt' ? 'pålegget ble mottatt' : 'totalentreprenøren ble klar over forholdet'} ${dato(o.dato)}, oppgitt i ${brevref(o.brev)}.`,
   korrigerILukket: KORRIGERT_I_LUKKET,
   omKorrigeringen: 'Om korrigeringen',
@@ -1198,10 +1205,6 @@ export type Korrespondansekategori = 'dokumentasjon' | 'varsel' | 'krav' | 'svar
  */
 export const LEGG_TIL = {
   tittel: 'Legg til korrespondanse',
-  // #2104: utkastet til et svar lagt til står til byggherren forkaster det (oppdragsgiver 16.11).
-  svaretUtenPaaberopelse:
-    'Totalentreprenøren har trukket påberopelsen, så svaret kan ikke legges til. Utkastet står til du forkaster det.',
-  forkastSvaret: 'Det du har fylt ut i svaret, slettes. Det kan ikke gjøres om.',
   inngangHjelp: 'Brev, e-post, møtereferat eller notat du har sendt utenfor løsningen.',
   // Arbeidsvalget 16.11, punkt 2: bare det parten selv har sendt (avsenderen er #2069).
   egen: 'Du legger til det du selv har sendt.',

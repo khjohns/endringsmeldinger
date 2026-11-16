@@ -16,7 +16,6 @@ import {
 } from '$lib/components/varden/ventende';
 import {
   FORHOLDENE,
-  STOERSTE_VEDLEGG,
   type SendNySak,
   type Utfylling,
   type VedleggForNySak,
@@ -26,6 +25,7 @@ import { kravMotNySak, laastTekstI, type Saksmerking } from '$lib/kjernesak/brev
 import { ApiError } from '$lib/api/client';
 import { KJERNE } from '$kjerne/versjon';
 import { brevtittel, NYSAK } from '$lib/components/varden/tekster';
+import { STOERSTE_VEDLEGG } from '$lib/components/varden/vedlegg';
 
 afterEach(cleanup);
 

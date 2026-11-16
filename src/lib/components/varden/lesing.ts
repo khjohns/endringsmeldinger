@@ -561,6 +561,9 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
   const iBrevet = (dokument: string) =>
     opplysningene.findLast((o) => o.brev.id === dokument) ?? null;
   const oppgitt = (o: Datoopplysningen | null) => (o ? { hva: o.hva, dato: o.dato } : null);
+  /** TE har korrigert datoen i feltet etter opplysningen, ikke bare gjentatt den (U-5 i BF-02A). */
+  const korrigertSenere = (o: Datoopplysningen) =>
+    opplysningene.slice(opplysningene.indexOf(o) + 1).some((x) => x.hva === o.hva && x.korrigering);
   const ut = new Map<string, Innlegget>();
   for (const k of u.spor.forhold.krav) {
     const innhold = innholdIForholdet(k);
@@ -598,7 +601,7 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
       oppgitt: null,
       opplysning: null,
       sisteOpplysningVedSvaret:
-        daSvaretBleSendt && !daSvaretBleSendt.siste ? daSvaretBleSendt : null,
+        daSvaretBleSendt && korrigertSenere(daSvaretBleSendt) ? daSvaretBleSendt : null,
       // Svaret på forholdet har ingen grunner fra et annet svar foran seg (OV-U33).
       standpunkter: standpunktene(s, u).flatMap((l) => {
         if (!('standpunkt' in l)) return [];

@@ -175,13 +175,7 @@
   // Svaret på forholdet er et utkast som står når BH bytter spor (BF-01 S-8). Er det et svar lagt
   // til, står korrespondansen det legges til fra, her, til utkastet er lagt til eller forkastet.
   let svaretFra = $state<Korrespondansevalg | null>(null);
-  // Meldingen erstatter skjemaet brukeren sto i. Fokus flyttes dit bare når det forsvant med
-  // skjemaet, ikke når brukeren kommer til sporet med fokus et annet sted (#2104).
   let utenPaaberopelse = $state<HTMLElement | null>(null);
-  $effect(() => {
-    if (utenPaaberopelse && (!document.activeElement || document.activeElement === document.body))
-      utenPaaberopelse.focus();
-  });
   /** Korrespondansen kravet eller svaret i sporet legges til fra, eller `null`. */
   const lagtTilI = (s: Spor, kategori: 'krav' | 'svar') =>
     kategori === 'svar'
@@ -219,6 +213,26 @@
   let sistForsoekt = $state<string | null>(null);
 
   const u = $derived(kjernesak.utledning);
+  const uid = $props.id();
+  /** Svarskjemaet for forholdet står, og påberopelsen er ikke trukket. */
+  const svarskjemaVises = $derived(
+    arbeid.art === 'svar' &&
+      valgt === 'forhold' &&
+      !!u &&
+      !u.spor.forhold.trukket &&
+      (kjernesak.handlinger.includes('svare:forhold') ||
+        (!!lagtTilI('forhold', 'svar') && !!u.spor.forhold.gjeldendeKrav))
+  );
+  // Meldingen om den trukne påberopelsen erstatter skjemaet brukeren sto i, og fokus flyttes dit
+  // bare da, ikke når brukeren kommer til sporet fra et annet sted (#2104).
+  let fraSkjemaet = false;
+  $effect(() => {
+    if (utenPaaberopelse) {
+      if (fraSkjemaet) utenPaaberopelse.focus();
+      fraSkjemaet = false;
+    } else if (svarskjemaVises) fraSkjemaet = true;
+    else if (arbeid.art !== 'svar' || valgt !== 'forhold') fraSkjemaet = false;
+  });
   const brev = $derived(u ? brevene(u) : []);
   // Forholdet heter det TE påberoper i sporlista, som i sporhodet (OV-U78).
   const forholdsnavn = $derived((u && forholdetISaken(u)?.navn) ?? SPORNAVN.forhold);
@@ -766,19 +780,19 @@
             meldingen?.focus();
           }}
         />
-      {:else if arbeid.art === 'svar' && valgt === 'forhold' && lagtTilI('forhold', 'svar') && u.spor.forhold.trukket}
+      {:else if arbeid.art === 'svar' && valgt === 'forhold' && u.spor.forhold.trukket && (lagtTilI('forhold', 'svar') || harUtkast('forhold'))}
         <!-- Kjernen avviser et svar på en trukket påberopelse (`KRAV_TRUKKET`), så utkastet står
           bare med valget om å forkaste det (#2104). -->
         <div
           class="uten-paaberopelse"
           tabindex="-1"
-          aria-labelledby="uten-paaberopelse"
+          aria-labelledby={`${uid}-uten-paaberopelse`}
           bind:this={utenPaaberopelse}
         >
-          <Melding art="info" levende={false} id="uten-paaberopelse"
-            >{LEGG_TIL.svaretUtenPaaberopelse}</Melding
+          <Melding art="info" levende={false} id={`${uid}-uten-paaberopelse`}
+            >{FORHOLDET.svaretUtenPaaberopelse(!!lagtTilI('forhold', 'svar'))}</Melding
           >
-          <Forkastutkast tekst={LEGG_TIL.forkastSvaret} onforkast={forkast} />
+          <Forkastutkast tekst={FORHOLDET.forkastSvaret} onforkast={forkast} />
         </div>
       {:else if arbeid.art === 'svar' && valgt === 'forhold' && (kjernesak.handlinger.includes('svare:forhold') || (lagtTilI('forhold', 'svar') && u.spor.forhold.gjeldendeKrav))}
         <Forholdssvar
