@@ -50,7 +50,7 @@
     dokumentasjon: string[];
     /** Sporets betegnelse er «Svar ikke registrert» (MM-U30). */
     venterPaaSvar: boolean;
-    /** Opplysningene om datoen kjernen tilbyr å korrigere (`korrigere:<id>`, MM-U52 punkt 10). */
+    /** Opplysningene om datoen kjernen tilbyr å korrigere (`korrigere:<id>`, MM-U55 punkt 10). */
     korrigerbare?: string[];
     /** Saken er lukket etter GR-U27, så korrigeringen endrer ikke utfallet (MM-U51). */
     lukket?: boolean;

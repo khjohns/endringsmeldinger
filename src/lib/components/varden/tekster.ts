@@ -645,9 +645,8 @@ export const HANDLINGENE = {
     godta: (svar: Brevref) =>
       `Du godtar hele svaret i ${brevref(svar)}. Du ser brevet før det sendes.`,
     /**
-     * Etter svaret: hjemmelen, kategorien og datoen står (punkt 10 og 14 i samlevedtaket for
-     * retting av sendt brev, MM-U52), så den nye versjonen utdyper begrunnelsen (oppdragsgiver
-     * 06.11, #1631). Hva TE gjør gjeldende, følger hovedkategorien i § 33.1 og § 33.3.
+     * Etter svaret: hjemmelen, kategorien og datoen står (GR-U40 punkt 7 og MM-U55
+     * punkt 10), så den nye versjonen utdyper begrunnelsen (oppdragsgiver 06.11, #1631). Hva TE gjør gjeldende, følger hovedkategorien i § 33.1 og § 33.3.
      */
     oppdaterPaaberopelse: (hovedkategori: string | null) =>
       hovedkategori === 'endring'
@@ -841,7 +840,7 @@ export const FORHOLDET = {
   forklaringen: 'Forklaringen',
   oppgitt: (hva: 'paalegg_mottatt' | 'klar_over_forholdet', d: string, part: Part) =>
     `${hva === 'paalegg_mottatt' ? 'Pålegget mottatt' : 'Klar over forholdet'} ${dato(d)}, ifølge ${PARTEN[part]}.`,
-  // Korrigeringen av datoen (BF-02A, MM-U52 punkt 10 og designdelen).
+  // Korrigeringen av datoen (BF-02A, MM-U55 punkt 10 og designdelen).
   korriger: 'Korriger datoen',
   korrigerNavn: (hva: 'paalegg_mottatt' | 'klar_over_forholdet') =>
     `Korriger datoen ${hva === 'paalegg_mottatt' ? 'pålegget ble mottatt' : 'du ble klar over forholdet'}`,
@@ -953,7 +952,7 @@ export const KORRIGERING = {
     `${dato(o.dato)}, datoen du oppga for når ${DATOEN[o.hva]}`,
   oppgittI: 'Oppgitt i',
   brevet: (b: Brevref) => `${brevrefStor(b)} av ${dato(b.registrert)}`,
-  /** U-2: et eget brev, og påberopelsen og svaret står som de ble sendt (MM-U52 punkt 10–11). */
+  /** U-2: et eget brev, og påberopelsen og svaret står som de ble sendt (MM-U55 punkt 10–11). */
   egetBrev: (paaberopelse: Brevref, svar: Brevref | null) =>
     `Korrigeringen sendes som et eget brev til byggherren. ${
       svar
@@ -1099,7 +1098,7 @@ export const NYSAK = {
   sakstittelHjelp: 'Står i sakslisten og i brevet.',
   beskrivelseHjelp: 'Hva som skjedde, når og hvordan, og hvorfor du mener det er en endring.',
   endringsordre: 'Endringsordrens nummer eller dato',
-  /** MM-U52 punkt 14: endringsordren står fast, som forholdet. */
+  /** GR-U40 punkt 7: endringsordren står fast, som forholdet. */
   endringsordreHjelp: 'Står fast når brevet er sendt.',
   vedlegg: 'Vedlegg (valgfritt)',
   vedleggHjelp:
