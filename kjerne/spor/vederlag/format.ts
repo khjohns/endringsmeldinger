@@ -264,7 +264,7 @@ export const kravposterI = (krav: Pick<Krav, 'innhold'>): readonly Kravpost[] =>
   innholdIVederlaget(krav).kravposter;
 
 /** Kravposten krever justerte enhetspriser (§ 34.3.2, KA-U68). */
-export const justerteEnhetspriser = (post: Kravpost): boolean =>
+export const justerteEnhetspriser = (post: Pick<Kravpost, 'oppgjoersform' | 'justert'>): boolean =>
   post.oppgjoersform === 'enhetspriser' && post.justert === true;
 
 /** Den andre beregningsregelen, som byggherren kan mene (OV-U95 punkt 1 og 5). */
