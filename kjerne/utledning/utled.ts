@@ -571,9 +571,15 @@ export function forholdssvaretPaaDagen(
   forhold: Svar[],
   paaberopelse: string,
   dag: string | null,
-  sendt: (s: Svar) => string | null
+  sendt: (s: Svar) => string | null,
+  samme: (forholdssvaret: string) => void = () => {}
 ): Svar | null {
-  const foer = dag === null ? forhold : forhold.filter((g) => !foerDagen(dag, sendt(g)));
+  const foer =
+    dag === null
+      ? forhold
+      : forhold.filter(
+          (g) => g.gjelder !== paaberopelse || !foerDagen(dag, sendt(g), () => samme(g.id))
+        );
   return ikkeErstattet(foer, paaberopelse)[0] ?? null;
 }
 
@@ -681,6 +687,16 @@ function registreringenStrider(
     const krav = [...kjede, ...kravUtenforRekken].find((k) => k.id === s.gjelder);
     const sendt = dag(s.id);
     const medSvaret = (med: string) => samme(s.id, med);
+    // OV-U32, OV-U104: dagen sammenliknes med svarene på forholdet lagene regnes fra (#2057).
+    const paaberopelsen = s.spor === 'forhold' ? null : kravversjonenPaaDagen(u, 'forhold', sendt);
+    if (paaberopelsen)
+      forholdssvaretPaaDagen(
+        u.spor.forhold.svar,
+        paaberopelsen.id,
+        sendt,
+        (g) => datoenDetBleSendt(u, g),
+        medSvaret
+      );
     // OV-U105: svaret sammenliknes med partens påberopelser det gjentar eller gir opp, som i
     // `aapneInnsigelser`. Utledningen leser om § 32.2 gjelder kategorien, av det frosne svaret
     // (MM-U43 punkt 8).

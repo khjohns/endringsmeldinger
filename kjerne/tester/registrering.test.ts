@@ -1070,20 +1070,31 @@ describe('et svar som legges til, fryses med lagene i svaret på forholdet slik 
       // Visningen leser lagene fra samme svar på forholdet som frysingen (`forholdssvaret`).
       const u = await k.utledning();
       const forholdssvaret = u.svar[data.svar[0].id]!.forholdssvaret;
+      const samme = u.sendtSammeDag
+        .filter((x) => x.element === data.svar[0].id)
+        .map((x) => k.navn.navngi(x.med));
       return {
         linje: data.svar[0].beslutningsgrunnlag.linje,
         forholdssvaret: k.navn.navngi(forholdssvaret),
+        samme,
       };
     };
-    expect(await raden('2026-09-24'), 'sendt etter godkjenningen og før avslaget').toEqual({
+    expect(await raden('2026-09-24'), 'sendt samme dag som godkjenningen og før avslaget').toEqual({
       linje: expect.stringMatching(/^Byggherrens standpunkt: godkjent med 60\s000\skr\.$/),
       forholdssvaret: 'S-1',
+      samme: ['S-1'],
     });
     expect(await raden('2026-09-26'), 'kontrollsak: sendt etter avslaget').toEqual({
       linje: expect.stringMatching(
         /^Byggherrens standpunkt: subsidiært godkjent med 60\s000\skr\.$/
       ),
       forholdssvaret: 'S-2',
+      samme: [],
+    });
+    // OV-U104: sendt samme dag som avslaget regnes avslaget med, og merkes.
+    expect(await raden('2026-09-25'), 'samme dag som avslaget').toMatchObject({
+      forholdssvaret: 'S-2',
+      samme: ['S-2'],
     });
   });
 });

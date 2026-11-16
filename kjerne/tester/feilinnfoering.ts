@@ -3909,6 +3909,14 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['en rad uten kommando fryses på samme måte'],
   },
   {
+    id: 'F700',
+    feilklasse:
+      'et svar lagt til samme dag som svaret på forholdet lagene regnes fra, merkes ikke (OV-U104, OV-U32, #2057)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['!foerDagen(dag, sendt(g), () => samme(g.id))', '!foerDagen(dag, sendt(g))']],
+    mal: ['en rad uten kommando fryses på samme måte'],
+  },
+  {
     id: 'F444',
     feilklasse: 'leseren godtar registrert korrespondanse uten typen (LV-U42, MM-U2)',
     fil: `${K}/format/leser.ts`,
