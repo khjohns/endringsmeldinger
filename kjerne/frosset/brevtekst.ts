@@ -19,7 +19,7 @@ import { sakensKode } from './tekst.ts';
 import { dagenSendt, erRegistrert, registrertDato } from '../format/leser.ts';
 import { etterAkseptfristen } from '../regler/akseptfrist.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
-import { innsigelsenErOppgitt, innsigelsenPaaberoper } from './standpunkt.ts';
+import { erPaaberopelse, innsigelsenErOppgitt, innsigelsenPaaberoper } from './standpunkt.ts';
 import { etikett, iSporet, laget, gjelderVarslingsplikten } from './byggeklosser.ts';
 import {
   erDato,
@@ -233,10 +233,8 @@ function aapneInnsigelser(
     // uten virkning, eller mot et element uten virkning, gjentas ikke.
     if (erRegistrert(d.opplysninger)) continue;
     for (const u of d.utsagn)
-      // VS-U29: standpunktet om at begrunnelsen ikke er et svar, er ingen påberopelse.
       if (
-        u.art === 'innsigelse' &&
-        u.grunn === undefined &&
+        erPaaberopelse(u) &&
         !saken.utenVirkning.includes(u.id) &&
         !saken.utenVirkning.includes(u.gjelder)
       )

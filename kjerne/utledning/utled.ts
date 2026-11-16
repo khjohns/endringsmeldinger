@@ -29,10 +29,10 @@ import {
 } from '../format/leser.ts';
 import { harProduktivitetspost } from '../spor/vederlag/format.ts';
 import { KONTROLLER_I_VEDERLAGET } from '../spor/vederlag/utledning.ts';
-import { dagenForesporselenBleSendt, KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
+import { KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
-import { enighetsgrunnlag, sammenfallStemmer } from '../frosset/standpunkt.ts';
+import { enighetsgrunnlag, erPaaberopelse, sammenfallStemmer } from '../frosset/standpunkt.ts';
 import { iSporet } from '../frosset/byggeklosser.ts';
 import { svarPaaForesporsler, type ForesporselOgSvar } from '../spor/frist/frysing.ts';
 import {
@@ -609,10 +609,7 @@ function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Stri
     // OV-U109: datoen sammenliknes med forespørselen etter § 33.6.2 (`svarPaaForesporsler`).
     if (k.spor === 'frist')
       for (const f of u.spor.frist.foresporsler)
-        if (f.kravFoer === null)
-          foerDagen(dag(k.id), dagenForesporselenBleSendt(u, f.foresporsel), () =>
-            samme(k.id, f.foresporsel)
-          );
+        if (f.kravFoer === null) foerDagen(dag(k.id), f.sendt, () => samme(k.id, f.foresporsel));
   }
   for (const v of d.utsagn) {
     if (v.art !== 'varsel') continue;
@@ -620,14 +617,15 @@ function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Stri
       if (sammenliknesMedVarselet(v.hjemmel, k))
         foerDagen(dag(v.id), datoenDetBleSendt(u, k), () => samme(v.id, k.id));
   }
+  const innsigelser = d.svar.length ? partensInnsigelser(u, d.avsender) : [];
   for (const s of d.svar) {
     const { krav: kjede, kravUtenforRekken } = u.spor[s.spor];
     const krav = [...kjede, ...kravUtenforRekken].find((k) => k.id === s.gjelder);
     const sendt = dag(s.id);
     const medSvaret = (med: string) => samme(s.id, med);
     // OV-U105: svaret sammenliknes med partens innsigelser i sporet (`aapneInnsigelser`).
-    for (const x of innsigelserISporet(u, d.avsender, s.spor))
-      foerDagen(sendt, x.dag, () => medSvaret(x.id));
+    for (const x of innsigelser)
+      if (x.spor === s.spor) foerDagen(sendt, x.dag, () => medSvaret(x.id));
     if (krav && (sendt === null || !kravversjonenGjaldt(u, krav, sendt, medSvaret)))
       strider.push({
         element: s.id,
@@ -673,42 +671,43 @@ function egneVarsler(u: Utledning, k: Krav): LestVarsel[] {
 }
 
 const sammenliknesMedVarselet = (hjemmel: Varselhjemmel, k: Krav): boolean =>
-  hjemmel !== '32.2' && !erKravpostvarselhjemmel(hjemmel) && varslerEtter(hjemmel, k);
+  datoenSammenliknes(hjemmel) && !erKravpostvarselhjemmel(hjemmel) && varslerEtter(hjemmel, k);
+
+/** Etter § 32.2 gjelder det registrerte varselet til #1600 er bygget, uten å sammenlikne datoene. */
+const datoenSammenliknes = (hjemmel: Varselhjemmel): boolean => hjemmel !== '32.2';
 
 /** Etter § 34.1.3 varsler bare et krav som krever posten etter annet ledd (OV-U24). */
 const varslerEtter = (hjemmel: Varselhjemmel, k: Krav): boolean =>
   hjemmel !== '34.1.3' || harProduktivitetspost(k);
 
 /**
- * Partens innsigelser med virkning, som gjelder et varsel, et krav eller en begrunnelse i sporet,
- * med dagen de ble sendt. VS-U29: standpunktet om at begrunnelsen ikke er et svar, er ingen
- * påberopelse.
+ * Partens påberopelser med virkning (`erPaaberopelse`), med sporet til det de gjelder og dagen de
+ * ble sendt: det `aapneInnsigelser` sammenlikner et svar med.
  */
-function innsigelserISporet(
+function partensInnsigelser(
   u: Utledning,
-  part: Part,
-  spor: Spor
-): { id: string; dag: string | null }[] {
-  const s = u.spor[spor];
-  const iSporet = new Set(
-    [...s.krav, ...s.kravUtenforRekken, ...Object.values(s.varsler), ...s.kravpostvarsler].flatMap(
-      (e) => (e ? [e.id] : [])
-    )
-  );
-  for (const f of s.foresporsler) if (f.svar) iSporet.add(f.svar);
+  part: Part
+): { id: string; spor: Spor | undefined; dag: string | null }[] {
+  const sporet = new Map<string, Spor>();
+  for (const n of SPOR) {
+    const s = u.spor[n];
+    for (const e of [...s.krav, ...s.kravUtenforRekken, ...s.kravpostvarsler]) sporet.set(e.id, n);
+    for (const v of Object.values(s.varsler)) if (v) sporet.set(v.id, n);
+    for (const f of s.foresporsler) if (f.svar) sporet.set(f.svar, n);
+  }
   const medVirkning = new Set(u.innsigelser.map((x) => x.id));
-  return [...dokumenterI(u.journal)].flatMap((d) =>
-    d.avsender !== part
-      ? []
-      : d.utsagn.flatMap((x) =>
-          x.art === 'innsigelse' &&
-          x.grunn === undefined &&
-          medVirkning.has(x.id) &&
-          iSporet.has(x.gjelder)
-            ? [{ id: x.id, dag: dagenSendt({ id: x.id, dokument: d.id }, d) }]
-            : []
-        )
-  );
+  const ut: { id: string; spor: Spor | undefined; dag: string | null }[] = [];
+  for (const d of dokumenterI(u.journal)) {
+    if (d.avsender !== part) continue;
+    for (const x of d.utsagn)
+      if (erPaaberopelse(x) && medVirkning.has(x.id))
+        ut.push({
+          id: x.id,
+          spor: sporet.get(x.gjelder),
+          dag: dagenSendt({ id: x.id, dokument: d.id }, d),
+        });
+  }
+  return ut;
 }
 
 /** Hvorfor kravversjonen strider mot journalen før den, eller `null`. */
@@ -1675,7 +1674,7 @@ export function varseletFoerSvaret(
 ): string | undefined {
   const eget = varsler.find((v) => foerSvaret(v.id));
   const kravet = foerstSendt(krav, sendt);
-  if (!eget || !kravet || hjemmel === '32.2') return eget?.id ?? kravet?.id;
+  if (!eget || !kravet || !datoenSammenliknes(hjemmel)) return eget?.id ?? kravet?.id;
   const [varselet, kravetSendt] = [sendt(eget), sendt(kravet)];
   if (kravetSendt === null) return eget.id;
   return varselet === null || kravetSendt < varselet ? kravet.id : eget.id;

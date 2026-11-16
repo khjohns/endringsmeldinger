@@ -200,6 +200,8 @@ export interface ForesporselOgSvar {
    * Det er ikke svar på forespørselen, men forespørselen er da ikke ubesvart.
    */
   kravFoer: string | null;
+  /** Dagen forespørselen ble sendt (OV-U98), eller `null` når den ikke kan leses. */
+  sendt: string | null;
 }
 
 /** OV-U109: forespørselen venter på svar fra totalentreprenøren. */
@@ -217,16 +219,18 @@ export function svarPaaForesporsler(
   dokumenter: Iterable<Pick<Dokument, 'id' | 'registrert' | 'krav' | 'utsagn' | 'opplysninger'>>
 ): ForesporselOgSvar[] {
   const ut: ForesporselOgSvar[] = [];
-  /** Dagen hver forespørsel ble sendt (OV-U98). */
-  const sendt = new Map<string, string | null>();
   const ubesvart = (gjelder: string | undefined) =>
     ut.find((x) => x.foresporsel === gjelder && x.svar === null);
   for (const d of dokumenter) {
     for (const u of d.utsagn) {
-      if (u.art === 'foresporsel') {
-        ut.push({ foresporsel: u.id, svar: null, medKrav: false, kravFoer: null });
-        sendt.set(u.id, dagenSendt({ id: u.id, dokument: d.id }, d));
-      }
+      if (u.art === 'foresporsel')
+        ut.push({
+          foresporsel: u.id,
+          svar: null,
+          medKrav: false,
+          kravFoer: null,
+          sendt: dagenSendt({ id: u.id, dokument: d.id }, d),
+        });
       if (u.art === 'foresporselssvar') {
         const f = ubesvart(u.gjelder);
         if (f) f.svar = u.id;
@@ -238,11 +242,9 @@ export function svarPaaForesporsler(
       if (f) Object.assign(f, { svar: krav.id, medKrav: true });
       if (krav.gjelder !== undefined) continue;
       const dag = dagenSendt({ id: krav.id, dokument: d.id }, d);
-      for (const x of ut) {
-        const foresporselen = sendt.get(x.foresporsel);
-        if (x.kravFoer === null && dag !== null && foresporselen && dag < foresporselen)
+      for (const x of ut)
+        if (x.kravFoer === null && dag !== null && x.sendt !== null && dag < x.sendt)
           x.kravFoer = krav.id;
-      }
     }
   }
   return ut;

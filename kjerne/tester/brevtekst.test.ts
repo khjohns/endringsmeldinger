@@ -4008,7 +4008,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const u = s.u();
     expect(u.forstaatt).toBe(true);
     expect(u.spor.frist.foresporsler).toEqual([
-      { foresporsel: f, svar: null, medKrav: false, kravFoer: krav.id },
+      { foresporsel: f, svar: null, medKrav: false, kravFoer: krav.id, sendt: expect.any(String) },
     ]);
     expect(visning(u, GJELDENDE_REGLER).merknader).toContain('krav_foer_foresporselen');
     expect(visning(u, GJELDENDE_REGLER).spor.frist.betegnelse).not.toBe(
@@ -4050,7 +4050,13 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(u.forstaatt).toBe(true);
     expect(u.spor.frist.kravUtenforRekken.map((k) => k.id)).toEqual([eldre.id]);
     expect(u.spor.frist.foresporsler).toEqual([
-      { foresporsel: f, svar: besvarte.id, medKrav: true, kravFoer: eldre.id },
+      {
+        foresporsel: f,
+        svar: besvarte.id,
+        medKrav: true,
+        kravFoer: eldre.id,
+        sendt: expect.any(String),
+      },
     ]);
     expect(foresporselForFristsvar(u)).toBeNull();
     // Svaret sendt før kravet ble lagt til, står med påberopelsen.
@@ -4402,7 +4408,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const krav = (s.send('TE', utenFelt(FRISTKRAV, 'varsel')).data.krav as Data[])[0];
     expect(krav.gjelder).toBe(f);
     expect(s.u().spor.frist.foresporsler).toEqual([
-      { foresporsel: f, svar: krav.id, medKrav: true, kravFoer: null },
+      { foresporsel: f, svar: krav.id, medKrav: true, kravFoer: null, sendt: expect.any(String) },
     ]);
     expect(s.journal.at(-1)!.data.deres_ref).toEqual(['K201-KOE-017-02']);
     // VS-U17: etter begrunnelsen er kravet ikke svaret på forespørselen.

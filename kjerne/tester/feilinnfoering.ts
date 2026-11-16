@@ -147,8 +147,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "import { enighetsgrunnlag, sammenfallStemmer } from '../frosset/standpunkt.ts';",
-        "import { enighetsgrunnlag, sammenfallStemmer, virkninger as regn } from '../frosset/standpunkt.ts';",
+        "import { enighetsgrunnlag, erPaaberopelse, sammenfallStemmer } from '../frosset/standpunkt.ts';",
+        "import {\n  enighetsgrunnlag,\n  erPaaberopelse,\n  sammenfallStemmer,\n  virkninger as regn,\n} from '../frosset/standpunkt.ts';",
       ],
       [
         '  const svar = svarberegninger(alleSvar, spor);',
@@ -1908,7 +1908,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et fristkrav lagt til, sendt før forespørselen etter § 33.6.2, svarer på den (OV-U109, HF-U1)',
     fil: `${K}/spor/frist/utledning.ts`,
-    endringer: [['return dag === null || sendt >= dag ? f : undefined;', 'return f;']],
+    endringer: [['return f.sendt === null || sendt >= f.sendt ? f : undefined;', 'return f;']],
     mal: [
       'OV-U109: et fristkrav lagt til, sendt før forespørselen, godtas uten å svare på den, og forespørselen er ikke ubesvart',
     ],

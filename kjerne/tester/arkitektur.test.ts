@@ -684,17 +684,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Sporutledning', 'relasjon', 'kravpostvarsler'],
   // OV-U109: kravet sendt før forespørselen, utledet av datoene.
   ['ForesporselOgSvar', 'relasjon', 'foresporsel svar medKrav kravFoer'],
+  // OV-U98: dagen forespørselen ble sendt.
+  ['ForesporselOgSvar', 'utsagn', 'sendt'],
   ['Foresporselsrelasjon', 'relasjon', 'art gjelder'],
   ['spor/frist/frysing.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon erUbesvart'],
-  [
-    'spor/frist/utledning.ts',
-    'relasjon',
-    'foresporselForFristsvar dagenForesporselenBleSendt foresporselenKravetSvarerPaa',
-  ],
+  ['spor/frist/utledning.ts', 'relasjon', 'foresporselForFristsvar foresporselenKravetSvarerPaa'],
   // OV-U104, OV-U105: innsigelsene et svar lagt til sammenliknes med.
-  ['utledning/utled.ts:innsigelserISporet', 'relasjon', 'id dag'],
-  ['Utledning', 'relasjon', 'innsigelser', ['utledning/utled.ts:innsigelserISporet']],
-  ['Paaberopelse', 'relasjon', 'id', ['utledning/utled.ts:innsigelserISporet']],
+  ['utledning/utled.ts:partensInnsigelser', 'relasjon', 'id spor dag'],
+  ['Utledning', 'relasjon', 'innsigelser', ['utledning/utled.ts:partensInnsigelser']],
+  ['Paaberopelse', 'relasjon', 'id', ['utledning/utled.ts:partensInnsigelser']],
   [
     'Utledning',
     'utsagn',
@@ -705,8 +703,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'utledning/utled.ts:utsagnetStrider',
       'spor/frist/utledning.ts:foresporselForFristsvar',
       'spor/frist/utledning.ts:fristkravErFremmet',
-      'spor/frist/utledning.ts:dagenForesporselenBleSendt',
-      'utledning/utled.ts:innsigelserISporet',
+      'utledning/utled.ts:partensInnsigelser',
     ],
   ],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
@@ -847,6 +844,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // VS-U24: en egen innsigelse er en påberopelse etter § 33.4 eller § 32.2 bare mot varselet.
   ['frosset/standpunkt.ts', 'relasjon', 'innsigelsenPaaberoper', ['frosset/brevtekst.ts']],
+  // VS-U29, OV-U104: en innsigelse som påberoper at noe kom for sent.
+  [
+    'frosset/standpunkt.ts',
+    'relasjon',
+    'erPaaberopelse',
+    ['frosset/brevtekst.ts', 'utledning/utled.ts:partensInnsigelser'],
+  ],
   // MM-U43 punkt 8: sammenfallet stemmer med standpunktene i samme frosne brev.
   [
     'frosset/standpunkt.ts',
@@ -1255,11 +1259,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Dokument',
     'relasjon',
     'id',
-    [
-      'spor/frist/utledning.ts:dagenForesporselenBleSendt',
-      'spor/frist/frysing.ts:svarPaaForesporsler',
-      'utledning/utled.ts:innsigelserISporet',
-    ],
+    ['spor/frist/frysing.ts:svarPaaForesporsler', 'utledning/utled.ts:partensInnsigelser'],
   ],
   // MM-U43 punkt 9: et svar uten virkning gir ikke opp innsigelsen (OV-U105).
   ['Utledning', 'relasjon', 'utenVirkning', ['kommandoer/skriving.ts:brevtekstFor']],
@@ -1941,8 +1941,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/brevtekst.ts:aapneInnsigelser',
       // OV-U109, OV-U104: dagen forespørselen og fristkravet ble sendt.
       'spor/frist/frysing.ts:svarPaaForesporsler',
-      'spor/frist/utledning.ts:dagenForesporselenBleSendt',
-      'utledning/utled.ts:innsigelserISporet',
+      'utledning/utled.ts:partensInnsigelser',
     ],
   ],
   // HF-U23: akseptfristen i svaret, som brevet ved aksepten sammenlikner med dagen den sendes.

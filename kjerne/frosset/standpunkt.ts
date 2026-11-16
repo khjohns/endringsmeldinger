@@ -22,6 +22,7 @@ import type {
   Dokument,
   Enighetsgrunnlag,
   Hjemmel,
+  LestUtsagn,
   Kravpostvarselhjemmel,
   Krav,
   Spor,
@@ -60,6 +61,14 @@ export function virkninger(
  * sier om § 32.2 gjelder kategorien: brevteksten spør regelsettet når brevet skrives,
  * utledningen leser det som er frosset (MM-U43 punkt 8, #776).
  */
+/**
+ * En innsigelse som påberoper at noe kom for sent. VS-U29: standpunktet om at begrunnelsen ikke
+ * er et svar (`grunn`), er ingen påberopelse. Brevteksten gjentar den, og utledningen
+ * sammenlikner et svar lagt til med den (OV-U104).
+ */
+export const erPaaberopelse = (x: LestUtsagn): x is Extract<LestUtsagn, { art: 'innsigelse' }> =>
+  x.art === 'innsigelse' && x.grunn === undefined;
+
 export function innsigelsenPaaberoper(
   gjelder: string,
   dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>,
