@@ -26,6 +26,7 @@
   import Spoersmaal from './Spoersmaal.svelte';
   import type { Mangel } from './mangler';
   import Melding from './Melding.svelte';
+  import Tallfelt from './Tallfelt.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
@@ -454,40 +455,24 @@
 )}
   {@const fid = id(`${navn}-${p.noekkel}`)}
   {@const f = feil(`${navn}-${p.noekkel}`)}
-  <div class="tallfelt">
-    <Feltetikett for={fid}>{etikett}</Feltetikett>
-    {#if hjelp}<span class="dempet" id={`${fid}-hjelp`}>{hjelp}</span>{/if}
-    <span
-      class="inndata"
-      class:ugyldig={f}
-      class:tekst={navn === 'navn'}
-      class:kort={navn === 'nummer'}
-    >
-      <input
-        id={fid}
-        inputmode={navn === 'dager' ? 'numeric' : undefined}
-        bind:value={p[navn]}
-        aria-describedby={[
-          hjelp ? `${fid}-hjelp` : '',
-          gjeldende ?? '',
-          nyDato ? `${fid}-ny` : '',
-          etter ? `${fid}-etter` : '',
-          f ? `${fid}-feil` : '',
-        ]
-          .filter(Boolean)
-          .join(' ') || undefined}
-        aria-invalid={f ? 'true' : undefined}
-        aria-required={navn === 'nummer' ? undefined : 'true'}
-      />
-      {#if navn === 'dager'}<span class="enhet" aria-hidden="true">dager</span>{/if}
-    </span>
-    {#if f}<p class="feilmelding" id={`${fid}-feil`}>{f}</p>{/if}
+  <Tallfelt
+    id={fid}
+    {etikett}
+    {hjelp}
+    enhet={navn === 'dager' ? 'dager' : undefined}
+    bredde={navn === 'navn' ? 'tekst' : navn === 'nummer' ? 'kort' : 'tall'}
+    inputmode={navn === 'dager' ? 'numeric' : undefined}
+    bind:verdi={p[navn]}
+    feil={f}
+    etter={[gjeldende ?? '', nyDato ? `${fid}-ny` : '', etter ? `${fid}-etter` : '']}
+    paakrevd={navn !== 'nummer'}
+  >
     <!-- Den levende regionen står fra start, så den nye datoen leses opp når den kommer (#1636). -->
     {#if nyDato !== undefined}<p class="dempet" id={`${fid}-ny`} aria-live="polite">
         {nyDato ?? ''}
       </p>{/if}
     {#if etter}<p class="dempet" id={`${fid}-etter`}>{etter}</p>{/if}
-  </div>
+  </Tallfelt>
 {/snippet}
 
 {#snippet fristrad(p: Fristpostvalg)}
@@ -995,46 +980,9 @@
     gap: var(--spacing-2);
   }
   textarea:focus-visible,
-  .datofelt:focus-visible,
-  .inndata:focus-within {
+  .datofelt:focus-visible {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
-  }
-  .inndata {
-    display: inline-flex;
-    align-items: stretch;
-    width: 220px;
-    max-width: 100%;
-    border: var(--control-border);
-    border-radius: var(--r-felt);
-  }
-  .inndata.tekst {
-    width: 100%;
-  }
-  .inndata.kort {
-    width: 140px;
-  }
-  .inndata input {
-    flex: 1;
-    min-width: 0;
-    min-height: 44px;
-    padding: 0 var(--spacing-3);
-    border: 0;
-    font: 16px var(--font-sans);
-    color: var(--ink);
-    background: var(--surface);
-    outline: none;
-  }
-  .inndata:not(.tekst, .kort) input {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
-  .enhet {
-    display: flex;
-    align-items: center;
-    padding: 0 var(--spacing-3);
-    border-left: var(--rule);
-    color: var(--ink-3);
   }
   textarea {
     padding: var(--spacing-3);
@@ -1079,7 +1027,6 @@
     margin-left: var(--spacing-2);
     font-weight: 400;
   }
-  .inndata.ugyldig,
   .datofelt.ugyldig,
   textarea.ugyldig {
     border-color: var(--danger);

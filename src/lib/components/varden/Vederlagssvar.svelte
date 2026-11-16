@@ -19,12 +19,12 @@
   import type { Utledning } from '$kjerne/utledning/utled';
   import type { Kravpost, Standpunkt } from '$kjerne/typer';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
-  import Feltetikett from './Feltetikett.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
   import Knapp from './Knapp.svelte';
   import Postliste from './Postliste.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
+  import Tallfelt from './Tallfelt.svelte';
   import Valg from './Valg.svelte';
   import Varseldatoer from './Varseldatoer.svelte';
   import {
@@ -362,21 +362,15 @@
       {/if}
       {#if beloepsvalget(v, p) === 'deler'}
         {@const id = `${uid}-delbeloep-${p.betegnelse}`}
-        <div class="beloepfelt">
-          <Feltetikett for={id}>{SKJEMA.belopEtikett}</Feltetikett>
-          <span id={`${id}-hjelp`} class="dempet">{SKJEMA.belopHjelp(krevdI(p))}</span>
-          <span class="inndata" class:ugyldig={beloepFeil}>
-            <input
-              {id}
-              inputmode="decimal"
-              bind:value={v.delbeloep}
-              aria-describedby={beloepFeil ? `${id}-hjelp ${id}-feil` : `${id}-hjelp`}
-              aria-invalid={beloepFeil ? 'true' : undefined}
-            />
-            <span class="kr" aria-hidden="true">kr</span>
-          </span>
-          {#if beloepFeil}<p class="feilmelding" id={`${id}-feil`}>{beloepFeil}</p>{/if}
-        </div>
+        <Tallfelt
+          {id}
+          etikett={SKJEMA.belopEtikett}
+          hjelp={SKJEMA.belopHjelp(krevdI(p))}
+          enhet="kr"
+          inputmode="decimal"
+          bind:verdi={v.delbeloep}
+          feil={beloepFeil}
+        />
       {/if}
     {/snippet}
 
@@ -545,51 +539,6 @@
 </Svarskjema>
 
 <style>
-  .beloepfelt {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
-  }
-  .inndata {
-    display: inline-flex;
-    align-items: stretch;
-    width: 220px;
-    border: var(--control-border);
-    border-radius: var(--r-felt);
-  }
-  .inndata:focus-within {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
-  .inndata input {
-    flex: 1;
-    min-width: 0;
-    min-height: 44px;
-    padding: 0 var(--spacing-3);
-    border: 0;
-    text-align: right;
-    font: 16px var(--font-sans);
-    font-variant-numeric: tabular-nums;
-    color: var(--ink);
-    background: var(--surface);
-    outline: none;
-  }
-  .kr {
-    display: flex;
-    align-items: center;
-    padding: 0 var(--spacing-3);
-    border-left: var(--rule);
-    color: var(--ink-3);
-  }
-  .feilmelding {
-    color: var(--danger);
-    font-size: 14px;
-    font-weight: 500;
-  }
-  .inndata.ugyldig {
-    border-color: var(--danger);
-    box-shadow: inset 0 0 0 1px var(--danger);
-  }
   .dempet {
     color: var(--ink-3);
     font-size: 14px;

@@ -16,12 +16,12 @@
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
-  import Feltetikett from './Feltetikett.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
   import Knapp from './Knapp.svelte';
   import Postliste from './Postliste.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
+  import Tallfelt from './Tallfelt.svelte';
   import Valg from './Valg.svelte';
   import Varseldatoer from './Varseldatoer.svelte';
   import {
@@ -304,27 +304,16 @@
               liste={spesifiseringslagene}
               punkt={forutsetning}
             />
-            <div class="tallfelt">
-              <Feltetikett for={id}>{FRISTSVAR.maatteForstaaEtikett}</Feltetikett>
-              <span id={`${id}-hjelp`} class="dempet">{FRISTSVAR.maatteForstaaHjelp(f.dager)}</span>
-              <span class="inndata" class:ugyldig={mFeil}>
-                <input
-                  {id}
-                  inputmode="numeric"
-                  bind:value={v.maatteForstaa}
-                  aria-describedby={[
-                    spesifiseringslagene.length ? `${id}-forutsetninger` : '',
-                    `${id}-hjelp`,
-                    mFeil ? `${id}-feil` : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                  aria-invalid={mFeil ? 'true' : undefined}
-                />
-                <span class="enhet" aria-hidden="true">dager</span>
-              </span>
-              {#if mFeil}<p class="feilmelding" id={`${id}-feil`}>{mFeil}</p>{/if}
-            </div>
+            <Tallfelt
+              {id}
+              etikett={FRISTSVAR.maatteForstaaEtikett}
+              hjelp={FRISTSVAR.maatteForstaaHjelp(f.dager)}
+              enhet="dager"
+              inputmode="numeric"
+              bind:verdi={v.maatteForstaa}
+              feil={mFeil}
+              foran={spesifiseringslagene.length ? [`${id}-forutsetninger`] : []}
+            />
           </div>
         {/if}
         {@const dagforutsetninger = forDagene(f.id)}
@@ -356,23 +345,17 @@
              valget. -->
         {@const id = `${uid}-deldager-${f.id}`}
         {@const dFeil = feil(id)}
-        <div class="tallfelt">
-          <Feltetikett for={id}>{FRISTSVAR.deldagerEtikett}</Feltetikett>
-          <span id={`${id}-hjelp`} class="dempet">{FRISTSVAR.deldagerHjelp}</span>
-          <span class="inndata" class:ugyldig={dFeil}>
-            <input
-              {id}
-              inputmode="numeric"
-              bind:value={
-                () => godkjenteDagerIFeltet(v, f.dager), (t) => skrivGodkjenteDager(v, t, f.dager)
-              }
-              aria-describedby={dFeil ? `${id}-hjelp ${id}-feil` : `${id}-hjelp`}
-              aria-invalid={dFeil ? 'true' : undefined}
-            />
-            <span class="enhet" aria-hidden="true">dager</span>
-          </span>
-          {#if dFeil}<p class="feilmelding" id={`${id}-feil`}>{dFeil}</p>{/if}
-        </div>
+        <Tallfelt
+          {id}
+          etikett={FRISTSVAR.deldagerEtikett}
+          hjelp={FRISTSVAR.deldagerHjelp}
+          enhet="dager"
+          inputmode="numeric"
+          bind:verdi={
+            () => godkjenteDagerIFeltet(v, f.dager), (t) => skrivGodkjenteDager(v, t, f.dager)
+          }
+          feil={dFeil}
+        />
       {/if}
     {/snippet}
 
@@ -502,51 +485,6 @@
 </Svarskjema>
 
 <style>
-  .tallfelt {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
-  }
-  .inndata {
-    display: inline-flex;
-    align-items: stretch;
-    width: 220px;
-    border: var(--control-border);
-    border-radius: var(--r-felt);
-  }
-  .inndata:focus-within {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
-  .inndata input {
-    flex: 1;
-    min-width: 0;
-    min-height: 44px;
-    padding: 0 var(--spacing-3);
-    border: 0;
-    text-align: right;
-    font: 16px var(--font-sans);
-    font-variant-numeric: tabular-nums;
-    color: var(--ink);
-    background: var(--surface);
-    outline: none;
-  }
-  .enhet {
-    display: flex;
-    align-items: center;
-    padding: 0 var(--spacing-3);
-    border-left: var(--rule);
-    color: var(--ink-3);
-  }
-  .feilmelding {
-    color: var(--danger);
-    font-size: 14px;
-    font-weight: 500;
-  }
-  .inndata.ugyldig {
-    border-color: var(--danger);
-    box-shadow: inset 0 0 0 1px var(--danger);
-  }
   .dempet {
     color: var(--ink-3);
     font-size: 14px;
