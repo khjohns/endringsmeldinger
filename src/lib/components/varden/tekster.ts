@@ -393,11 +393,10 @@ export const SKJEMA = {
   avstand: (dager: number) =>
     `${dager} kalenderdager fra datoen totalentreprenøren oppgir til kravet ble sendt.`,
   formSpoersmaal: 'Oppgjørsformen (punkt 34.2.2)',
-  godkjennerForm: `Godkjenner ${metodenavn('tilbud')}`,
+  godkjenner: (m: Oppgjoersform) => `Godkjenner ${metodenavn(m)}`,
   menerForm: (m: Regel) => `Mener ${metodenavn(m)}`,
   // Kravposten etter en beregningsregel (#1756, prototype v3 `#svar`).
   formSpoersmaalRegel: 'Oppgjørsformen',
-  godkjennerRegel: (m: Regel) => `Godkjenner ${metodenavn(m)}`,
   godkjennerIkkeRegel: (m: Regel) => `Godkjenner ikke ${metodenavn(m)}`,
   kreverTilbudKort: 'krever spesifisert tilbud',
   tilbudSpoersmaal: 'Spesifisert tilbud (punkt 34.2.1)',
@@ -471,8 +470,7 @@ export const SKJEMA = {
   forbeholdHjelp: 'Står sist i brevet. Det erstatter ikke begrunnelsen i et punkt.',
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
-  manglerForm: `Velg om du godkjenner ${metodenavn('tilbud')}.`,
-  manglerFormRegel: (m: Regel) => `Velg om du godkjenner ${metodenavn(m)}.`,
+  manglerForm: (m: Oppgjoersform) => `Velg om du godkjenner ${metodenavn(m)}.`,
   manglerVarselJustering: 'Velg om varselet om justering av enhetsprisene kom i tide.',
   manglerJustering: 'Velg om du godkjenner justeringen av enhetsprisene.',
   manglerBeloep: 'Velg hvor mye av beløpet du godkjenner.',
