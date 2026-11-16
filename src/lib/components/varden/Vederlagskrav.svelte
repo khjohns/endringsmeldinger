@@ -557,7 +557,7 @@
   });
 </script>
 
-{#snippet lest(b: Brevet, innfelt: boolean)}
+{#snippet lest(b: Brevet, ramme: 'kant' | 'innfelt')}
   <Brev
     avsender={b.avsender}
     sak={kjernesak.saksbilde?.tittel ?? ''}
@@ -566,7 +566,7 @@
     dato={dato(b.registrert)}
     tittel={brevtittel(b)}
     avsnitt={b.avsnitt ?? []}
-    ramme={innfelt ? 'innfelt' : 'kant'}
+    {ramme}
   />
 {/snippet}
 
@@ -885,7 +885,7 @@
           </Knapp>
         </div>
         {#if leser && smal}
-          <div class="innebrev" id={id('lesebrev')}>{@render lest(lesbart, false)}</div>
+          <div class="innebrev" id={id('lesebrev')}>{@render lest(lesbart, 'kant')}</div>
         {/if}
       {/if}
 
@@ -1165,7 +1165,7 @@
         </h2>
         <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
         <div class="brevrulle" tabindex="0" role="region" aria-labelledby={id('lesetittel')}>
-          {@render lest(lesbart, true)}
+          {@render lest(lesbart, 'innfelt')}
         </div>
         <div class="lesebunn">{@render sendeknapp()}</div>
       </section>
