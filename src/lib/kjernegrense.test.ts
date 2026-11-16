@@ -10,10 +10,10 @@
  *   utenfor `kjerne/tester/`, direkte eller gjennom en annen modul. Ingen
  *   `node:`-modul og ingen pakke kommer med i nettleserbunten.
  * - Ingen fil i `src/` utenom testene importerer fra serveren. Kontrollen av kroppen for
- *   ny sak, `src/lib/kontroll/nysak.ts`, deles med serveren, så demoruta prøver kroppen
- *   med serverens egen kontroll (#1526 punkt 3). Den ligger utenfor `server/`, som
- *   SvelteKit 3 holder ute av nettleserbunten (#2092). Den modulen når bare kjernen, med
- *   samme grense som appen, og `src/lib/kontroll/kroppsfelt.ts` (#2036). Vakten ser ikke
+ *   ny sak i `src/lib/kontroll/` deles med serveren, så demoruta prøver kroppen med
+ *   serverens egen kontroll (#1526 punkt 3). Den ligger utenfor `server/`, som SvelteKit 3
+ *   holder ute av nettleserbunten (#2092). Modulene der når bare kjernen og hverandre, med
+ *   samme grense som appen (#2036). Vakten ser ikke
  *   en import med et navn som settes sammen under kjøringen, og ikke en global fra Node,
  *   som `process` eller `Buffer`, i modulen.
  *
@@ -34,10 +34,13 @@ const KJERNE = join(ROT, 'kjerne');
 const TESTER = join(KJERNE, 'tester');
 const SERVER = join(ROT, 'server');
 const KONTROLL = join(SRC, 'lib', 'kontroll');
-/** Kontrollen av ny sak, som appen og serveren deler (#1526 punkt 3, #2092). */
-const NYSAK = join(KONTROLL, 'nysak.ts');
-/** Modulene `nysak.ts` kan nå utenfor kjernen; de følges som kjernen (#2036). */
-const NETTLESERMODULER = [join(KONTROLL, 'kroppsfelt.ts')];
+/**
+ * Kontrollen av kroppen, som appen og serveren deler (#1526 punkt 3, #2036, #2092). Hver
+ * modul der følges som kjernen.
+ */
+const NETTLESERMODULER = readdirSync(KONTROLL)
+  .filter((f) => f.endsWith('.ts'))
+  .map((f) => join(KONTROLL, f));
 const ALIAS = '$kjerne';
 
 function filer(mappe: string, endelser: RegExp): string[] {
@@ -152,8 +155,11 @@ describe('grensen mellom appen og kjernen', () => {
     expect(serverimporter(new Map(appfiler.map((f) => [f, readFileSync(f, 'utf8')])))).toEqual([]);
   });
 
-  it('src/lib/kontroll/nysak.ts, som serveren også importerer, når bare kjernen og kroppsfelt.ts, og ingen pakke, node-modul eller test', () => {
-    expect(utenforNettleseren([NYSAK], lesFil)).toEqual([]);
+  it('src/lib/kontroll/, som serveren også importerer, når bare kjernen, og ingen pakke, node-modul eller test', () => {
+    expect(NETTLESERMODULER.map(vis)).toEqual(
+      expect.arrayContaining(['src/lib/kontroll/nysak.ts', 'src/lib/kontroll/kroppsfelt.ts'])
+    );
+    expect(utenforNettleseren(NETTLESERMODULER, lesFil)).toEqual([]);
   });
 
   it('det appen kan importere fra kjernen, når ingen pakke, node-modul eller test', () => {

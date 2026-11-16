@@ -516,16 +516,17 @@ describe('grensene rundt TS-serveren', () => {
 });
 
 describe('PostgreSQL er ute av kjernen, serveren og språkprøven (#932)', () => {
-  const uten = ['kjerne', 'server', 'sprakprove'].flatMap((m) =>
+  const uten = ['kjerne', 'server', 'sprakprove', 'src/lib/kontroll'].flatMap((m) =>
     alleFiler(join(ROT, m), /\.[cm]?[jt]s$/)
   );
 
-  it('finner filene i de tre mappene', () => {
+  it('finner filene i mappene', () => {
     expect(uten.map((f) => relative(ROT, f))).toEqual(
       expect.arrayContaining([
         'kjerne/versjon.ts',
         'server/lager.ts',
         'sprakprove/kjernelagring/bane.ts',
+        'src/lib/kontroll/nysak.ts',
       ])
     );
   });
