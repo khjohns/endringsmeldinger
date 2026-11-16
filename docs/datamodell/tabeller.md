@@ -55,7 +55,7 @@ Hver tabell i appens databaser, og data som ligger utenfor dem. Feltene og typen
 
 ### `koe.app_users`
 
-Én rad per person. `id` er aktøren i journalen og notatet (CLAUDE.md). Navnet leses for visningen av saken gjennom `koe_api.aktornavn`, bare for aktørene i en sak leseren kan lese (F-1b, #104), fra `lesAktornavn` i `server/lager.ts`.
+Én rad per person. `id` er aktøren i journalen og notatet (CLAUDE.md). Navnet leses for visningen av saken gjennom `koe_api.aktornavn`, bare for aktørene i en sak leseren kan lese (F-1b, #104), fra `aktornavn` i `server/lager.ts`, i samme transaksjon som saken (#835 punkt 2).
 
 | Felt | Innhold |
 | --- | --- |
