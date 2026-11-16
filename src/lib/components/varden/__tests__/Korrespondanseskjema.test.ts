@@ -523,6 +523,8 @@ describe('svaret lagt til når påberopelsen er trukket (#2104)', () => {
       0
     );
 
+    // Skjemaet brukeren sto i, forsvinner med trekket, så fokuset er tapt.
+    (document.activeElement as HTMLElement | null)?.blur();
     // Totalentreprenøren trekker påberopelsen før svaret er lagt til.
     journal = skrevet(medGrunnlag, 'TE', { type: 'trekk', spor: 'forhold' });
     await kjernesak.last();
@@ -538,5 +540,45 @@ describe('svaret lagt til når påberopelsen er trukket (#2104)', () => {
     expect(await screen.findByText('Utkastet er forkastet.')).toBeTruthy();
     expect(screen.queryByText(LEGG_TIL.svaretUtenPaaberopelse)).toBeNull();
     expect(document.querySelector('.merke-utkast')).toBeNull();
+  });
+
+  it('kommer byggherren til sporet med fokus et annet sted, flyttes ikke fokus til meldingen (#2104, design-review)', async () => {
+    let journal = medGrunnlag;
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: 'BH',
+      hent: async () => ({
+        versjon: journal.at(-1)!.versjon,
+        part: 'BH',
+        visning: null as never,
+        journal: journal.map(linje),
+        leveringsoppdrag: [],
+        catenda_lenke: null,
+        merking: MERKING,
+      }),
+      send: async () => {
+        throw new Error('Ingenting sendes i denne testen');
+      },
+      lastOppVedlegg: async () => ({ ...BREVET, stoerrelse: 8 }),
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'forhold' });
+    await fireEvent.click(
+      await screen.findByRole('button', { name: /^Svar på påberopelsen|^Svar/ })
+    );
+    await fireEvent.click(await screen.findByRole('button', { name: LEGG_TIL.tittel }));
+    await fyllUt(new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Oslo' }).format(new Date()));
+    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.gaaVidere }));
+    const knapp = screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret })[0]!;
+    knapp.focus();
+    journal = skrevet(medGrunnlag, 'TE', { type: 'trekk', spor: 'forhold' });
+    const annet = document.createElement('button');
+    document.body.append(annet);
+    annet.focus();
+    await kjernesak.last();
+    await screen.findByText(LEGG_TIL.svaretUtenPaaberopelse);
+    expect(annet).toHaveFocus();
+    annet.remove();
   });
 });

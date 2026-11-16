@@ -175,9 +175,13 @@
   // Svaret på forholdet er et utkast som står når BH bytter spor (BF-01 S-8). Er det et svar lagt
   // til, står korrespondansen det legges til fra, her, til utkastet er lagt til eller forkastet.
   let svaretFra = $state<Korrespondansevalg | null>(null);
-  // Meldingen erstatter skjemaet brukeren sto i, så fokus flyttes dit (#2104).
+  // Meldingen erstatter skjemaet brukeren sto i. Fokus flyttes dit bare når det forsvant med
+  // skjemaet, ikke når brukeren kommer til sporet med fokus et annet sted (#2104).
   let utenPaaberopelse = $state<HTMLElement | null>(null);
-  $effect(() => utenPaaberopelse?.focus());
+  $effect(() => {
+    if (utenPaaberopelse && (!document.activeElement || document.activeElement === document.body))
+      utenPaaberopelse.focus();
+  });
   /** Korrespondansen kravet eller svaret i sporet legges til fra, eller `null`. */
   const lagtTilI = (s: Spor, kategori: 'krav' | 'svar') =>
     kategori === 'svar'
@@ -765,8 +769,15 @@
       {:else if arbeid.art === 'svar' && valgt === 'forhold' && lagtTilI('forhold', 'svar') && u.spor.forhold.trukket}
         <!-- Kjernen avviser et svar på en trukket påberopelse (`KRAV_TRUKKET`), så utkastet står
           bare med valget om å forkaste det (#2104). -->
-        <div class="uten-paaberopelse" tabindex="-1" bind:this={utenPaaberopelse}>
-          <Melding art="info" levende={false}>{LEGG_TIL.svaretUtenPaaberopelse}</Melding>
+        <div
+          class="uten-paaberopelse"
+          tabindex="-1"
+          aria-labelledby="uten-paaberopelse"
+          bind:this={utenPaaberopelse}
+        >
+          <Melding art="info" levende={false} id="uten-paaberopelse"
+            >{LEGG_TIL.svaretUtenPaaberopelse}</Melding
+          >
           <Forkastutkast tekst={LEGG_TIL.forkastSvaret} onforkast={forkast} />
         </div>
       {:else if arbeid.art === 'svar' && valgt === 'forhold' && (kjernesak.handlinger.includes('svare:forhold') || (lagtTilI('forhold', 'svar') && u.spor.forhold.gjeldendeKrav))}
