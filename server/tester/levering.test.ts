@@ -7,7 +7,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import {
   CatendaAvvisning,
   CatendaUtilgjengelig,
@@ -406,6 +406,7 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     const sakId = await sakMedBrev();
     const nyeForsoek = forsoeksloggen(sakId);
     const feillogg = vi.spyOn(logg, 'error');
+    onTestFinished(() => feillogg.mockRestore());
     catenda.foer.finnDokument = () => {
       throw new CatendaUtilgjengelig('Catenda svarte med feil');
     };
@@ -424,7 +425,6 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     expect((feillogg.mock.calls as unknown[][]).map((k) => String(k[0]))).toContainEqual(
       expect.stringMatching(/har brukt opp forsøkene og er parkert \(Catenda svarte med feil\)/)
     );
-    feillogg.mockRestore();
 
     catenda.foer = {};
     await startPaaNytt(sakId);
@@ -1443,7 +1443,8 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
   });
   // Kilde: #926 (gjennomgangen 16.11). Feiler fornyelsen forbigående så lenge at under 20 s
   // av leasen kan være igjen, regnet fra da den ble hentet, kan en annen kjører ha hentet
-  // jobben, og forsøket gjør ingen endring i Catenda. Én fornyelse som feiler, holder.
+  // jobben, og forsøket gjør ingen endring i Catenda. Leasen kan fortsatt gjelde, så
+  // forsøket registreres som feilet. Én fornyelse som feiler, holder.
   it.each<[string, number, string[], string[]]>([
     [
       'fornyelser som feiler forbigående i 99,999 s, stopper ikke referansen',
@@ -1459,13 +1460,13 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
       ['dokument-v1'],
     ],
     [
-      'fornyelser som feiler forbigående i 100,001 s, stopper leveringen før referansen opprettes',
+      'fornyelser som feiler forbigående i 100,001 s, stopper leveringen før referansen opprettes og registrerer forsøket som feilet',
       LEASETID_S * 1000 - 20_000 + 1,
-      ['hent_jobb', 'vedlegg_i_levering', 'forny_lease', 'forny_lease'],
+      ['hent_jobb', 'vedlegg_i_levering', 'forny_lease', 'forny_lease', 'registrer_jobbfeil'],
       [],
     ],
   ])('%s', async (_n, ms, kallene, endret) => {
-    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] });
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'performance'] });
     try {
       let slipp!: () => void;
       let venter!: () => void;
@@ -1496,7 +1497,17 @@ describe('kjøreren og kvitteringene for vedleggene (#876)', () => {
       expect(await kjoering).toBe(true);
       expect(prosedyrene(base)).toEqual(kallene);
       expect(opprettet).toEqual(endret);
-      expect(base.registrert).toEqual([]);
+      expect(base.registrert).toEqual(
+        endret.length
+          ? []
+          : [
+              {
+                lease: 'l',
+                utfall: 'feilet',
+                melding: 'Leasen er ikke fornyet, og kan være ute før endringen',
+              },
+            ]
+      );
     } finally {
       vi.useRealTimers();
     }

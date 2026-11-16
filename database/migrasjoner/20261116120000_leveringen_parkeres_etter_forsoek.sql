@@ -1,6 +1,6 @@
 -- Leveringen parkeres etter et fast antall forsøk (svar A 11.11 på spørsmål 7 i #1791, #926).
 -- Feiler forsøk nummer 24 i en levering forbigående, blir jobben parkert i stedet for å
--- vente på et nytt forsøk. Med pausen i `koe_api.avslutt_forsoek` er det om lag 18 timer
+-- vente på et nytt forsøk. Med pausene i `koe_api.avslutt_forsoek` er det om lag 17 timer
 -- etter det første forsøket. Driften starter jobben på nytt med
 -- `koe_api.start_jobb_paa_nytt`, som setter `antall_forsoek` til 0. Forsøket lagres med
 -- utfallet og meldingen fra kjøreren, som før. Jobben for topicen prøves som før.

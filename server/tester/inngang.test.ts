@@ -68,6 +68,21 @@ describe('loggen av en feil (#867 punkt 5)', () => {
     }
   );
 
+  it('en feil som pakker inn en annen, har koden eller feilnummeret fra den indre (#926)', () => {
+    const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+    loggFeil(
+      'Kallet feilet',
+      new Error('ytre', { cause: Object.assign(new Error('x'), { code: 'ESOCKET' }) })
+    );
+    loggFeil(
+      'Kallet feilet',
+      new Error('ytre', { cause: Object.assign(new Error('x'), { number: 1205 }) })
+    );
+    const [[foerste], [andre]] = logg.mock.calls as [string][];
+    expect(foerste).toMatch(/^Kallet feilet \(Error, kode ESOCKET\)\n/);
+    expect(andre).toMatch(/^Kallet feilet \(Error, feilnummer 1205\)\n/);
+  });
+
   it('en kode som ikke har formen til en kode, logges ikke, og feilnummeret går foran koden', () => {
     const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
     loggFeil('Kallet feilet', Object.assign(new Error('x'), { code: 'Kari Nordmann' }));

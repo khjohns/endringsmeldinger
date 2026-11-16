@@ -59,7 +59,7 @@ import { LaasFeilet, LaasIkkeGitt } from './kommandoer.ts';
 import { MedlemskapetLaast } from './medlemskap.ts';
 import { brevdokument, dokumentnavn, pdfsum, UgjengivbartBrev, vedleggsnavn } from './levering.ts';
 
-const vent = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
+const pause = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
 
 /**
  * Leveringen fornyer leasen hver tredjedel av leasetiden så lenge den pågår, fordi et oppslag
@@ -121,6 +121,12 @@ class AvvistKvittering extends Error {}
 /** Fornyelsen fant at leasen ikke gjelder lenger (54001), så forsøket skriver ikke mer (#926). */
 class TaptLease extends Error {}
 
+/**
+ * Fornyelsen har feilet forbigående så lenge at leasen kan være ute før neste endring i
+ * Catenda (#926). Leasen kan fortsatt gjelde, så forsøket registreres som feilet.
+ */
+class UfornyetLease extends Error {}
+
 const LEASEN_GJELDER_IKKE = 54001;
 /** Boardet med utfallet er verken prosjektets topicboard eller boardet i sakens topickobling (`registrer_behandling`, #972 punkt 8). */
 const ANNET_BOARD = 54003;
@@ -157,6 +163,7 @@ function forbigaaende(feil: unknown): boolean {
   const varig = feil instanceof CatendaAvvisning || feil instanceof VarigCatendaavvik;
   return (
     (feil instanceof CatendaUtilgjengelig && !varig) ||
+    feil instanceof UfornyetLease ||
     forbigaaendeISql(feil) ||
     ikkeCommittet(feil)
   );
@@ -200,6 +207,7 @@ function utfallAv(
 ): { utfall: Utfall; melding: string } {
   const kjent =
     feil instanceof CatendaUtilgjengelig ||
+    feil instanceof UfornyetLease ||
     feil instanceof UgjennomfoerbarJobb ||
     feil instanceof UgjengivbartBrev;
   const melding = kjent ? feil.message : 'Uventet feil i jobben';
@@ -216,7 +224,7 @@ function utfallAv(
 export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
   const logg = avh.logg ?? console;
   // Før kallet, så leasen regnes fra et tidspunkt basen ikke har gitt den før.
-  const hentet = Date.now();
+  const hentet = performance.now();
   const svar = await utenKontekst(avh.datalag)
     .input('leasetid_sekunder', sql.Int, LEASETID_S)
     .execute<Jobbrad>('koe_api.hent_jobb');
@@ -289,12 +297,12 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
         kvitter: kvittering(true),
         foerEndring() {
           if (leasenTapt) throw new TaptLease('Leasen gjelder ikke lenger');
-          if (Date.now() - fornyet > LEASETID_S * 1000 - RESTTID_FOER_ENDRING_MS)
-            throw new TaptLease('Leasen er ikke fornyet, og kan være ute før endringen');
+          if (performance.now() - fornyet > LEASETID_S * 1000 - RESTTID_FOER_ENDRING_MS)
+            throw new UfornyetLease('Leasen er ikke fornyet, og kan være ute før endringen');
         },
       };
       const fornyelse = setInterval(() => {
-        const sendt = Date.now();
+        const sendt = performance.now();
         lease()
           .input('leasetid_sekunder', sql.Int, LEASETID_S)
           .execute('koe_api.forny_lease')
@@ -328,8 +336,8 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
     const { utfall, melding } = utfallAv(feil, flagg.endringBedt, avstemmes);
     if (feil instanceof CatendaOppsettfeil)
       logg.error(`Jobben ${jobb.jobb_id} venter på at driften retter oppsettet mot Catenda:`, feil);
-    else if (utfall === 'feilet') logg.warn(`Jobben ${jobb.jobb_id} feilet og prøves igjen:`, feil);
-    else
+    // For `feilet` kommer loggen etter registreringen, som avgjør om jobben prøves igjen.
+    else if (utfall !== 'feilet')
       logg.error(
         `Jobben ${jobb.jobb_id} er parkert som ${utfall} (${melding}). Driften starter den på nytt.`
       );
@@ -345,14 +353,18 @@ export async function kjoerEnJobb(avh: Jobbavhengigheter): Promise<boolean> {
       // Går leasen ut uten registrering, parkerer `hent_jobb` jobben som usikker (#877 p15).
       if (!forbigaaendeISql(feilIBasen)) throw feilIBasen;
       logg.warn(`Jobben ${jobb.jobb_id} fikk ikke registrert feilen og prøver igjen:`, feilIBasen);
-      await vent(PAUSE_FOER_NY_REGISTRERING_MS);
+      await pause(PAUSE_FOER_NY_REGISTRERING_MS);
       registrert = await registrer();
     }
     // Basen parkerer en levering etter et fast antall forsøk (svar A 11.11 i #1791).
-    if (utfall === 'feilet' && registrert.recordset[0]?.tilstand === 'parkert')
-      logg.error(
-        `Jobben ${jobb.jobb_id} har brukt opp forsøkene og er parkert (${melding}). Driften starter den på nytt.`
-      );
+    if (utfall === 'feilet') {
+      if (registrert.recordset[0]?.tilstand === 'parkert')
+        logg.error(
+          `Jobben ${jobb.jobb_id} har brukt opp forsøkene og er parkert (${melding}). Driften starter den på nytt.`
+        );
+      else if (!(feil instanceof CatendaOppsettfeil))
+        logg.warn(`Jobben ${jobb.jobb_id} feilet og prøves igjen:`, feil);
+    }
   }
   return true;
 }

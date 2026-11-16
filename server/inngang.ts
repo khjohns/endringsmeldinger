@@ -99,8 +99,12 @@ const KODE = /^[A-Z][A-Z0-9_]{0,39}$/;
  */
 export function loggFeil(hvor: string, feil: unknown, nivaa: 'error' | 'warn' = 'error'): void {
   const klasse = (feil as Error)?.constructor?.name ?? typeof feil;
-  const nummer = feilnummer(feil);
-  const kode = (feil as { code?: unknown } | null)?.code;
+  // En feil som pakker inn en annen, som `TransaksjonAvbrutt` og en feil fra `fetch`,
+  // har nummeret eller koden i `cause`.
+  const indre = (feil as { cause?: unknown } | null)?.cause;
+  const nummer = feilnummer(feil) ?? feilnummer(indre);
+  const kode =
+    (feil as { code?: unknown } | null)?.code ?? (indre as { code?: unknown } | null)?.code;
   const merke =
     nummer !== undefined
       ? `, feilnummer ${nummer}`
