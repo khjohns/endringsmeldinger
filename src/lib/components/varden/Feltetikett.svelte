@@ -22,8 +22,8 @@
   } = $props();
 </script>
 
-<label for={felt} {id} class:valgfri class:underordnet
-  >{@render children()}{#if valgfri}<Valgfri />{/if}</label
+<label for={felt} {id} class:underordnet
+  >{#if valgfri}<Valgfri>{@render children()}</Valgfri>{:else}{@render children()}{/if}</label
 >
 
 <style>
@@ -35,11 +35,5 @@
   label.underordnet {
     font-weight: 400;
     color: var(--ink-2);
-  }
-  label.valgfri {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0 var(--spacing-3);
   }
 </style>
