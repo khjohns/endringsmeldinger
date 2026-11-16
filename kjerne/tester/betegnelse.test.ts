@@ -240,7 +240,7 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
     });
   });
 
-  it('et krav uten svar har ingen betegnelse når avslaget på forholdet er godtatt, fordi saken har sin (OV-U99 punkt 6, MM-U31)', () => {
+  it('et krav uten svar har ingen betegnelse når avslaget på forholdet er godtatt, også med et varsel i sporet (MM-U30, MM-U31, oppdragsgiver 16.11 i #2017)', () => {
     const avslag: Steg = (sak) =>
       sak.send('BH', {
         type: 'brev',
@@ -252,6 +252,9 @@ describe('betegnelsen per spor (MM-U30, #1043)', () => {
       vederlag: null,
       frist: null,
     });
+    expect(
+      betegnelser(paaberopelse, varselIFristen, fristkrav, avslag, aksept('forhold')).frist
+    ).toBeNull();
   });
 
   it('en enighet i sporet går foran «Byggherren har svart» når avslaget på forholdet godtas etterpå', () => {

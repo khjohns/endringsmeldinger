@@ -180,7 +180,8 @@ const FORELIGGER: Record<Betegnelse, (u: Utledning, spor: Spor) => boolean> = {
   // MM-U30, OV-U99 punkt 6: byggherren har et gjeldende svar, også i en lukket sak (MM-U31; svar
   // S2 15.11 i #2017).
   byggherren_har_svart: (u, spor) => u.spor[spor].gjeldendeSvar !== null,
-  varslet: harVarsel,
+  // MM-U30: totalentreprenøren har varslet og ikke krevd (svar S4 16.11 i #2017).
+  varslet: (u, spor) => harVarsel(u, spor) && u.spor[spor].krav.length === 0,
 };
 
 /**

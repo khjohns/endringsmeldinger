@@ -257,8 +257,10 @@ punktet. Det juridiske står i vedtakene, ikke her.
 - <a id="mm-u30"></a>**MM-U30** Hvert spor har høyst én betegnelse, i denne rekkefølgen:
   «Trukket»; «Byggherren har bedt om spesifisert krav (punkt 33.6.2)» (bare frist, til
   forespørselen er besvart); «Svar ikke registrert»; «Byggherren har frafalt
-  pålegget» (bare grunnlaget); «Enige»; «Byggherren har svart»; «Varslet».
-  Ingen betegnelse når ingenting er sendt. Byggherrens resultat, enighetens virkning,
+  pålegget» (bare grunnlaget); «Enige»; «Byggherren har svart»; «Varslet». «Byggherren har
+  svart» står når byggherren har et gjeldende svar, også i en lukket sak, og «Varslet» bare når
+  totalentreprenøren har varslet og ikke krevd (oppdragsgiver 16.11 i #2017). Ingen betegnelse
+  når ingenting er sendt, og heller ikke for et krav uten svar i en lukket sak. Byggherrens resultat, enighetens virkning,
   innsigelser, protester og passivitet står i linja under. Ligger det et innlegg etter siste
   brev i sporet, står det i linja under, uten tolkning ([OV-U99](../docs/plans/vedtak.md#ov-u99)
   punkt 6). Presiserer [MM-U22](#mm-u22) og

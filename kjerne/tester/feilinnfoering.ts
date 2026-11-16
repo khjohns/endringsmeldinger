@@ -5957,6 +5957,19 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['en enighet i sporet går foran «Byggherren har svart»'],
   },
+  {
+    id: 'F688',
+    feilklasse:
+      '«Varslet» står også når totalentreprenøren har krevd i sporet (MM-U30, oppdragsgiver 16.11 i #2017)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      [
+        '  varslet: (u, spor) => harVarsel(u, spor) && u.spor[spor].krav.length === 0,',
+        '  varslet: harVarsel,',
+      ],
+    ],
+    mal: ['også med et varsel i sporet'],
+  },
 ];
 interface Testresultat {
   fullName: string;
