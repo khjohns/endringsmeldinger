@@ -1083,12 +1083,55 @@ export const SAKEN = {
   ikkeTilgjengelig: 'Dette er ikke bygget i denne prøven av Varden ennå.',
 };
 
+/** Det korrespondansen er etter kontrakten (OV-U80), som bestemmer ordene i komponenten. */
+export type Korrespondansehva = 'varsel' | 'krav' | 'svar' | 'aksept';
+
+const KORRESPONDANSEORD: Record<
+  Korrespondansehva,
+  {
+    bestemt: string;
+    typen: string;
+    typenMangler: string;
+    dokumentet: string;
+    dokumentMangler: string;
+  }
+> = {
+  varsel: {
+    bestemt: 'varselet',
+    typen: 'Hvordan ble varselet gitt?',
+    typenMangler: 'Velg hvordan varselet ble gitt.',
+    dokumentet: 'Dokumentet du varslet i',
+    dokumentMangler: 'Legg ved dokumentet du varslet i.',
+  },
+  krav: {
+    bestemt: 'kravet',
+    typen: 'Hvordan ble kravet sendt?',
+    typenMangler: 'Velg hvordan kravet ble sendt.',
+    dokumentet: 'Dokumentet med kravet',
+    dokumentMangler: 'Legg ved dokumentet med kravet.',
+  },
+  svar: {
+    bestemt: 'svaret',
+    typen: 'Hvordan ble svaret sendt?',
+    typenMangler: 'Velg hvordan svaret ble sendt.',
+    dokumentet: 'Dokumentet med svaret',
+    dokumentMangler: 'Legg ved dokumentet med svaret.',
+  },
+  aksept: {
+    bestemt: 'aksepten',
+    typen: 'Hvordan ble aksepten sendt?',
+    typenMangler: 'Velg hvordan aksepten ble sendt.',
+    dokumentet: 'Dokumentet med aksepten',
+    dokumentMangler: 'Legg ved dokumentet med aksepten.',
+  },
+};
+
 /**
- * Varselet sendt utenfor løsningen, i den felles komponenten for skjemaet for ny sak, fristkravet
- * og vederlagskravet (OV-U79, VS-U34, A1 i #2056). Ordene følger fristkravet (#2063).
+ * Korrespondansen sendt utenfor løsningen, i den felles komponenten for varselet, kravet, svaret
+ * og aksepten (OV-U79, OV-U80, OV-U98, VS-U34, A1 i #2056). Ordene følger fristkravet (#2063).
  */
 export const KORRESPONDANSEN = {
-  typen: 'Hvordan ble varselet gitt?',
+  typen: (hva: Korrespondansehva) => KORRESPONDANSEORD[hva].typen,
   typer: [
     { verdi: 'brev', tekst: 'Brev' },
     { verdi: 'e_post', tekst: 'E-post' },
@@ -1108,18 +1151,18 @@ export const KORRESPONDANSEN = {
   dato: 'Datoen det ble sendt',
   // OV-U80: datoen for varselet settes én gang.
   datoHjelp: 'Datoen avsenderen oppgir. Den settes én gang.',
-  dokumentet: 'Dokumentet du varslet i',
+  dokumentet: (hva: Korrespondansehva) => KORRESPONDANSEORD[hva].dokumentet,
   dokumentetHjelp: 'Legges til i saken og ved brevet. Opptil 15 MB.',
   dokumentetIkkeEnnaa: 'Dokumentet kan ikke legges ved ennå.',
-  beskrivelse: 'Kort beskrivelse av varselet',
+  beskrivelse: (hva: Korrespondansehva) => `Kort beskrivelse av ${KORRESPONDANSEORD[hva].bestemt}`,
   beskrivelseHjelp: 'Kort, med egne ord.',
-  mangler: {
-    type: 'Velg hvordan varselet ble gitt.',
+  mangler: (hva: Korrespondansehva) => ({
+    type: KORRESPONDANSEORD[hva].typenMangler,
     sendemaate: 'Velg hvordan brevet ble sendt.',
-    dato: 'Oppgi datoen varselet ble sendt.',
-    dokument: 'Legg ved dokumentet du varslet i.',
-    beskrivelse: 'Beskriv varselet.',
-  },
+    dato: `Oppgi datoen ${KORRESPONDANSEORD[hva].bestemt} ble sendt.`,
+    dokument: KORRESPONDANSEORD[hva].dokumentMangler,
+    beskrivelse: `Beskriv ${KORRESPONDANSEORD[hva].bestemt}.`,
+  }),
 };
 
 /** Skjemaet for ny sak (BF-05, skissen versjon 3 med funnene F-1–F-8). */

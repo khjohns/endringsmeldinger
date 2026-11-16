@@ -38,8 +38,8 @@ describe('varselet sendt utenfor løsningen, i den felles komponenten (OV-U79)',
 
   it('sendemåten mangler bare for et brev, og beskrivelsen med bare mellomrom mangler', () => {
     expect(korrespondansemangler({ ...fylt(), sendemaate: null, beskrivelse: ' ' })).toEqual({
-      sendemaate: KORRESPONDANSEN.mangler.sendemaate,
-      beskrivelse: KORRESPONDANSEN.mangler.beskrivelse,
+      sendemaate: KORRESPONDANSEN.mangler('varsel').sendemaate,
+      beskrivelse: KORRESPONDANSEN.mangler('varsel').beskrivelse,
     });
     expect(korrespondansemangler({ ...fylt(), type: 'moetereferat', sendemaate: null })).toEqual(
       {}
@@ -48,7 +48,9 @@ describe('varselet sendt utenfor løsningen, i den felles komponenten (OV-U79)',
 
   it('dokumentet mangler ikke når det ikke kan legges ved ennå (skjemaet for ny sak, #1488)', () => {
     const v = { ...fylt(), vedlegg: [] };
-    expect(korrespondansemangler(v)).toEqual({ dokument: KORRESPONDANSEN.mangler.dokument });
+    expect(korrespondansemangler(v)).toEqual({
+      dokument: KORRESPONDANSEN.mangler('varsel').dokument,
+    });
     expect(korrespondansemangler(v, { dokument: false })).toEqual({});
   });
 });

@@ -1,11 +1,12 @@
 /**
- * Varselet sendt utenfor løsningen, slik den felles komponenten `Korrespondansen.svelte` samler
- * det: typen, sendemåten for et brev, datoen det ble sendt, dokumentet og beskrivelsen (OV-U79,
- * VS-U34, A1 i #2056). Skjemaet for ny sak, fristkravet og vederlagskravet bruker det.
+ * Korrespondansen sendt utenfor løsningen, slik den felles komponenten `Korrespondansen.svelte`
+ * samler den: typen, sendemåten for et brev, datoen det ble sendt, dokumentet og beskrivelsen
+ * (OV-U79, VS-U34, A1 i #2056). Varselet i skjemaet for ny sak, fristkravet og vederlagskravet, og
+ * kravet, svaret og aksepten som legges til (OV-U98), bruker det.
  */
 import type { Korrespondansetype, Sendemaate } from '$kjerne/typer';
 import type { Kjernevedlegg } from './nysak';
-import { KORRESPONDANSEN } from './tekster';
+import { KORRESPONDANSEN, type Korrespondansehva } from './tekster';
 
 export interface Korrespondansevalg {
   type: Korrespondansetype | null;
@@ -16,7 +17,7 @@ export interface Korrespondansevalg {
   beskrivelse: string;
 }
 
-export type Korrespondansefelt = keyof typeof KORRESPONDANSEN.mangler;
+export type Korrespondansefelt = keyof ReturnType<typeof KORRESPONDANSEN.mangler>;
 
 export const tomKorrespondanse = (): Korrespondansevalg => ({
   type: null,
@@ -35,9 +36,9 @@ export const erTomKorrespondanse = (v: Korrespondansevalg) =>
  */
 export function korrespondansemangler(
   v: Korrespondansevalg,
-  { dokument = true }: { dokument?: boolean } = {}
+  { dokument = true, hva = 'varsel' }: { dokument?: boolean; hva?: Korrespondansehva } = {}
 ): Partial<Record<Korrespondansefelt, string>> {
-  const m = KORRESPONDANSEN.mangler;
+  const m = KORRESPONDANSEN.mangler(hva);
   return {
     ...(v.type === null ? { type: m.type } : {}),
     ...(v.type === 'brev' && v.sendemaate === null ? { sendemaate: m.sendemaate } : {}),
