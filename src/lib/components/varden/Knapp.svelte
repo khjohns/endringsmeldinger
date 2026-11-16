@@ -10,6 +10,7 @@
   let {
     variant = 'sekundaer',
     kompakt = false,
+    iFlukt = false,
     opptatt = false,
     onclick,
     href,
@@ -20,6 +21,8 @@
     variant?: 'primaer' | 'sekundaer' | 'lenke' | 'fare';
     /** En lenkeknapp på en linje med 24 px høyde, med treffflaten utover linja (WCAG 2.5.8). */
     kompakt?: boolean;
+    /** En lenkeknapp uten luft på sidene, i flukt med teksten den står under. */
+    iFlukt?: boolean;
     opptatt?: boolean;
     /** Kalleren gir lenken løst. */
     href?: string;
@@ -31,12 +34,15 @@
 
 {#if href}
   <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
-  <a class="knapp knapp-{variant}" class:kompakt {href} {...rest}>{@render children()}</a>
+  <a class="knapp knapp-{variant}" class:kompakt class:i-flukt={iFlukt} {href} {...rest}
+    >{@render children()}</a
+  >
 {:else}
   <button
     type="button"
     class="knapp knapp-{variant}"
     class:kompakt
+    class:i-flukt={iFlukt}
     aria-disabled={opptatt ? 'true' : undefined}
     aria-busy={opptatt ? 'true' : undefined}
     onclick={() => {
@@ -101,6 +107,12 @@
     color: var(--brand);
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+  /* Venstrestilt med teksten over, også når lenken brytes på smal skjerm. */
+  .knapp-lenke.i-flukt {
+    justify-content: flex-start;
+    padding-inline: 0;
+    text-align: left;
   }
   .knapp-lenke.kompakt {
     position: relative;
