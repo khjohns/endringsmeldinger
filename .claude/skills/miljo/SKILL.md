@@ -237,12 +237,12 @@ Side for side i repo-listen, uten `search/issues`:
 Filtrert kjøring, som holder under arbeidet: `npx vitest run <filer>`. For en hel `npx vitest run` gjelder timeout-regelen i `CLAUDE.md`.
 
 Et arbeidstre under `.claude/worktrees/` har ingen `node_modules`, så vite og vitest
-der laster pakkene fra hovedcheckouten, og med dem `tsconfig.json` der. Den utvider
-`.svelte-kit/tsconfig.json` i hovedcheckouten, ikke i arbeidstreet. Mangler den fila,
-feiler `npx vitest run` og `npx vite build` i arbeidstreet med «Tsconfig not found»
-(#1114). Oppstartshooken kjører derfor `npx svelte-kit sync` i hovedcheckouten. Står
-feilen likevel, kjør `npx svelte-kit sync` i hovedcheckouten; i arbeidstreet hjelper
-den ikke, og arbeidstreet trenger ingen `.svelte-kit/` selv (kontrollert 22.10).
+der laster pakkene fra hovedcheckouten. `tsconfig.json` utvider `$app/tsconfig`, som
+SvelteKit 3 skriver i `node_modules/$app/` når vite eller vitest starter, også i
+arbeidstreet (kontrollert 16.11, #2092). Feilen «Tsconfig not found» fra kit 2 (#1114)
+skal derfor ikke komme igjen. Kjør `npx svelte-kit sync` i arbeidstreet før `tsc -p` eller
+`svelte-check` der. Ellers finner TypeScript `$app/tsconfig` i hovedcheckouten, og den
+peker `$lib` til `src/` i hovedcheckouten, ikke i arbeidstreet.
 
 ### Orkestreringen i skyøkta
 

@@ -66,6 +66,7 @@ jobs:
             kjerne
             sprakprove/kjernelagring
             server
+            src/lib/kontroll
             docs/domenetabell
             docs/datamodell/kjernehendelser.toml
             database/migrasjoner
@@ -76,7 +77,6 @@ jobs:
             package-lock.json
             vite.config.ts
             src/test-setup.ts
-            svelte.config.js
             tsconfig.json
         run: |
           if [ "$PLANLAGT" != true ]; then

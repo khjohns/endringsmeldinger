@@ -307,5 +307,6 @@ export function fristeneStrider(
     med.add(rad);
     if (trukket.has(rad)) return `både tar med og trekker fristen ${omtalen(p)}`;
   }
-  return utelattUtenTrekk(forrige, (id) => med.has(id) || trukket.has(id), betegnelsen, 'KA-U76');
+  // KA-U76.
+  return utelattUtenTrekk(forrige, (id) => med.has(id) || trukket.has(id), betegnelsen);
 }
