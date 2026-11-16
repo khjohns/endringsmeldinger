@@ -5925,7 +5925,10 @@ const MUTASJONER: Mutasjon[] = [
       'en aksept av et svar utenfor rekken prøves ikke mot det nyere svaret (OV-U103, OV-U98)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [['const senere = svarUtenforRekken.includes(s)', 'const senere = false']],
-    mal: ['kontrollsak: en aksept av svaret utenfor rekken, sendt etter det gjeldende svaret'],
+    mal: [
+      'en aksept av svaret utenfor rekken, sendt etter det gjeldende svaret, får ingen virkning',
+      'kommandoen godtar en aksept av svaret utenfor rekken',
+    ],
   },
   {
     id: 'F675',
@@ -5949,10 +5952,7 @@ const MUTASJONER: Mutasjon[] = [
       'en aksept som legges til, prøves mot det gjeldende svaret i forutsetningene (OV-U98, OV-U103)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [['      if (sendt !== null) return null;\n', '']],
-    mal: [
-      'godtas selv om sporet har enighet om revisjonen',
-      'kommandoen godtar en aksept av svaret utenfor rekken',
-    ],
+    mal: ['godtas selv om sporet har enighet om revisjonen'],
   },
   {
     id: 'F677',

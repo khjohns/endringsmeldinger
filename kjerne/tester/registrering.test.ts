@@ -645,14 +645,14 @@ describe('et svar sendt før byggherrens gjeldende svar på kravversjonen står 
       ]
     ));
 
-  it('kontrollsak: en aksept av svaret utenfor rekken, sendt etter det gjeldende svaret, får ingen virkning', () =>
+  it('en aksept av svaret utenfor rekken, sendt etter det gjeldende svaret, får ingen virkning (OV-U98)', () =>
     prov(
       'aksept-av-svar-utenfor-rekken-etter',
       [avslag('S-g1'), foerste('2026-09-23'), registrertAksept('S-r', '2026-09-25')],
       [
         {
           etter: 3,
-          rolle: 'kontroll',
+          rolle: 'mal',
           kilde: ['OV-U98', 'OV-U103'],
           forventet: {
             forstaatt: true,
@@ -772,7 +772,7 @@ describe('en aksept som legges til, prøves mot svaret den gjelder, ikke mot det
       ]
     ));
 
-  it('kontrollsak: en aksept av et avslag i et svar som senere er revidert, gir enighet om det', () =>
+  it('kontrollsak: en aksept av et avslag i et svar som senere er revidert, har virkning', () =>
     prov(
       'aksept-av-erstattet-avslag',
       [forholdssvar('S-g1', 'avslaatt'), avslagSomRevisjon, registrertAksept('S-g1', '2026-09-24')],
@@ -780,12 +780,8 @@ describe('en aksept som legges til, prøves mot svaret den gjelder, ikke mot det
         {
           etter: 3,
           rolle: 'kontroll',
-          kilde: ['OV-U98', 'OV-U110'],
-          forventet: {
-            forstaatt: true,
-            uten_virkning: [],
-            'enigheter_om_eldre_svar.forhold': ['S-g1'],
-          },
+          kilde: ['OV-U98'],
+          forventet: { forstaatt: true, uten_virkning: [] },
         },
       ]
     ));
@@ -999,7 +995,15 @@ describe('enigheten om svaret byggherren har erstattet, bevares og vises ved det
   it('enigheten bevares etter en ny kravversjon fra totalentreprenøren (KA-U52 punkt 5)', () =>
     prov(
       'enighet-etter-ny-kravversjon',
-      [svaret, godta('S-v'), { handling: 'krav', spor: 'vederlag', belop: 120000, navn: 'K-v2' }],
+      [
+        svaret,
+        godta('S-v'),
+        { handling: 'krav', spor: 'vederlag', belop: 120000, navn: 'K-v2' },
+        {
+          handling: 'brev',
+          svar: [{ spor: 'vederlag', vurdering: 'delvis', godkjent_belop: 60000, navn: 'S-v3' }],
+        },
+      ],
       [
         {
           etter: 3,
@@ -1009,6 +1013,16 @@ describe('enigheten om svaret byggherren har erstattet, bevares og vises ved det
             forstaatt: true,
             'gjeldende_krav.vederlag': 'K-v2',
             'enighet.vederlag': null,
+            'enigheter_om_eldre_svar.vederlag': ['S-v'],
+            'visning.eldre_enigheter.vederlag': ['S-v:ikke_sammenliknet'],
+          },
+        },
+        {
+          etter: 4,
+          rolle: 'mal',
+          kilde: ['OV-U110', 'HF-U29'],
+          forventet: {
+            'gjeldende_svar.vederlag': 'S-v3',
             'enigheter_om_eldre_svar.vederlag': ['S-v'],
             'visning.eldre_enigheter.vederlag': ['S-v:ikke_sammenliknet'],
           },
