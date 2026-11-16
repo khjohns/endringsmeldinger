@@ -1,5 +1,6 @@
 <!--
-  Valgkortene i Varden: ekte radioknapper i en `fieldset` med spørsmålet som `legend`.
+  Valgkortene i Varden: ekte radioknapper i en `fieldset` med spørsmålet som `legend`, eller én
+  avkrysning med samme form.
   Ingenting er forhåndsvalgt, og ingen valg har farge (prinsipp 6 og 7). Mangler svaret når
   parten går videre, står feilmeldingen under valgene (MM-U32).
 -->
@@ -16,6 +17,7 @@
     stablet = false,
     lett = false,
     valgfri = false,
+    avkrysning = false,
   }: {
     navn: string;
     spoersmaal: string;
@@ -38,6 +40,8 @@
     lett?: boolean;
     /** Spørsmålet kan stå ubesvart, og «Valgfri» står til høyre på linja. */
     valgfri?: boolean;
+    /** Ett valg som en avkrysning: avkrysset gir `verdi` valget, ellers `null`. */
+    avkrysning?: boolean;
   } = $props();
   const uid = $props.id();
   const beskrivelse = $derived(
@@ -53,11 +57,11 @@
     {#each valg as v (String(v.verdi))}
       <label class="valgkort" class:valgt={verdi === v.verdi} class:forklart={!!v.forklaring}>
         <input
-          type="radio"
+          type={avkrysning ? 'checkbox' : 'radio'}
           name={navn}
           value={String(v.verdi)}
           checked={verdi === v.verdi}
-          onchange={() => (verdi = v.verdi)}
+          onchange={(e) => (verdi = avkrysning && !e.currentTarget.checked ? null : v.verdi)}
         />
         {#if v.forklaring}
           <span class="tekster">

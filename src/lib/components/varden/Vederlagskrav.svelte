@@ -999,11 +999,15 @@
                den eneste posten, avviser kjernen trekket, og kravet trekkes i stedet. -->
           {#if !forrige || krevdProduktivitet(forrige) === null}
             <div class="saerskilt-fjern">
-              <Knapp variant="lenke" onclick={fjernSaerskilt}>{KRAVSKJEMA.fjernSaerskilt}</Knapp>
+              <Knapp variant="lenke" iFlukt onclick={fjernSaerskilt}
+                >{KRAVSKJEMA.fjernSaerskilt}</Knapp
+              >
             </div>
           {:else if med.length}
             <div class="saerskilt-fjern">
-              <Knapp variant="lenke" onclick={trekkSaerskilt}>{KRAVSKJEMA.trekkSaerskilt}</Knapp>
+              <Knapp variant="lenke" iFlukt onclick={trekkSaerskilt}
+                >{KRAVSKJEMA.trekkSaerskilt}</Knapp
+              >
             </div>
           {:else}
             <p class="intro">{KRAVSKJEMA.saerskiltEneste}</p>
@@ -1324,12 +1328,6 @@
   .saerskilt-linje {
     border-top: var(--rule);
     border-bottom: var(--rule);
-  }
-  /* Venstrestilt med teksten over, også når lenken brytes på smal skjerm (prototype v4). */
-  .saerskilt-fjern > :global(.knapp) {
-    justify-content: flex-start;
-    padding-inline: 0;
-    text-align: left;
   }
   .post.er-aapen,
   .saerskilt-aapen {

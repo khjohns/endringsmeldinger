@@ -393,17 +393,14 @@
         stablet
       />
       {#if spoerOmTilbud(v, p)}
-        <fieldset class="avkrysning">
-          <legend>{SKJEMA.tilbudSpoersmaal}</legend>
-          <label class="avkryss">
-            <input
-              type="checkbox"
-              id={`${uid}-tilbud-${p.betegnelse}`}
-              bind:checked={v.kreverTilbud}
-            />
-            {SKJEMA.kreverTilbud(navnet(p) ?? null)}
-          </label>
-        </fieldset>
+        <Valg
+          navn={`${uid}-tilbud-${p.betegnelse}`}
+          spoersmaal={SKJEMA.tilbudSpoersmaal}
+          valg={[{ verdi: true, tekst: SKJEMA.kreverTilbud(navnet(p) ?? null) }]}
+          bind:verdi={() => v.kreverTilbud || null, (x) => (v.kreverTilbud = x === true)}
+          avkrysning
+          lett
+        />
       {/if}
       {#if spoerOmVarselet(v, p)}
         {#if regel === 'regningsarbeid'}
@@ -414,6 +411,7 @@
             </p>
             <Knapp
               variant="lenke"
+              iFlukt
               onclick={() => (v.varsletITide = v.varsletITide === false ? null : false)}
               >{v.varsletITide === false
                 ? SKJEMA.ingenInnsigelseLikevel
@@ -541,57 +539,12 @@
     color: var(--ink-3);
     font-size: 14px;
   }
-  /* Kravet om tilbud er ett valg ved siden av oppgjørsformen (prototype v3, D-15). */
-  .avkrysning {
-    border: 0;
-    padding: 0;
-    margin: 0;
-    min-width: 0;
-  }
-  .avkrysning legend {
-    padding: 0;
-    margin-bottom: var(--spacing-3);
-    font-weight: 600;
-    color: var(--ink);
-  }
-  /* Lett vekt inne i et åpent element, som `Valg lett`: flaten for valgt når den er avkrysset
-     («To vekter på et valg» i system.md). */
-  .avkryss {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-3);
-    min-height: 48px;
-    padding: 0 var(--spacing-4);
-    border: 1px solid transparent;
-    border-radius: var(--r-felt);
-    color: var(--ink);
-    cursor: pointer;
-  }
-  .avkryss:has(input:checked) {
-    background: var(--surface-selected);
-  }
-  .avkryss:not(:has(input:checked)):hover {
-    background: var(--surface-inset);
-  }
-  .avkryss:has(input:focus-visible) {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
-  .avkryss input {
-    width: 20px;
-    height: 20px;
-    accent-color: var(--ink);
-  }
   /* Punkt 34.4: normalsvaret er en setning, unntaket en lenke (system.md). */
   .setning {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-1);
-  }
-  /* Lenken står på samme kant som setningen den hører til. */
-  .setning :global(.knapp-lenke) {
-    padding-inline: 0;
   }
   /* «Gjelder hvis» hører til spørsmålet under seg, ikke til det over (U-8). */
   .betinget {
