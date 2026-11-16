@@ -3859,16 +3859,16 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F443',
     feilklasse: 'registrert korrespondanse omtales med feil type (LV-U42)',
-    fil: `${K}/frosset/brevdeler.ts`,
-    endringer: [["  e_post: 'e-post',", "  e_post: 'brev',"]],
+    fil: `${K}/frosset/tekst.ts`,
+    endringer: [["e_post: { ubestemt: 'e-post',", "e_post: { ubestemt: 'brev',"]],
     mal: ['registrert korrespondanse omtales med parten, typen og datoen'],
   },
   {
     id: 'F694',
     feilklasse:
       'et notat eller annet dokument omtales som et notat, også når det er et annet dokument (LV-U42, arbeidsvalget 1 A 16.11 i #807)',
-    fil: `${K}/frosset/brevdeler.ts`,
-    endringer: [["  notat: 'dokument',", "  notat: 'notat',"]],
+    fil: `${K}/frosset/tekst.ts`,
+    endringer: [["notat: { ubestemt: 'dokument',", "notat: { ubestemt: 'notat',"]],
     mal: ['registrert korrespondanse omtales med parten, typen og datoen'],
   },
   {

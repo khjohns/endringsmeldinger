@@ -8,11 +8,10 @@ import { erRegistrert, kalenderdag } from '../format/leser.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
-import { kroner } from './tekst.ts';
+import { KORRESPONDANSETYPEN, kroner } from './tekst.ts';
 import type {
   Dokument,
   Domenehendelse,
-  Korrespondansetype,
   Krav,
   Kravpost,
   Kravpostvarselet,
@@ -108,15 +107,6 @@ export const PARTEN: Record<Part, string> = { TE: 'totalentreprenøren', BH: 'by
 /** Parten med eieform, skrevet fullt ut i brevet (`docs/sprak.md`, LV-U45). */
 export const PARTENS: Record<Part, string> = { TE: 'totalentreprenørens', BH: 'byggherrens' };
 
-/** Typen registrert korrespondanse slik brevet nevner den (LV-U45). */
-const KORRESPONDANSEN: Record<Korrespondansetype, string> = {
-  brev: 'brev',
-  e_post: 'e-post',
-  moetereferat: 'møtereferat',
-  // Arbeidsvalget 1 A 16.11 i #807: «dokument» gjelder både et notat og et annet dokument.
-  notat: 'dokument',
-};
-
 /**
  * Et tidligere brev med merkingen som er frosset på det, og datoen det ble sendt: «brev
  * K201-KOE-017-03 av 2. oktober 2026» (LV-U44, oppdragsgiver 04.11 i #1570). Registrert
@@ -132,7 +122,7 @@ export function omtalen(d: Dokument): string | null {
   if (sendt === undefined) return null;
   if (d.merking !== null) return `brev ${d.merking} av ${norskDato(sendt)}`;
   if (registrert && d.korrespondansetype !== null)
-    return `${PARTENS[d.avsender]} ${KORRESPONDANSEN[d.korrespondansetype]} av ${norskDato(sendt)}`;
+    return `${PARTENS[d.avsender]} ${KORRESPONDANSETYPEN[d.korrespondansetype].ubestemt} av ${norskDato(sendt)}`;
   return null;
 }
 

@@ -4238,6 +4238,49 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "hvor opplysningen står i skjemaene, og ordlyden i den. Leddet om at løsningen ikke avgjør om dokumentet oppfyller kravene, trenger ikke å stå i visningen; det gjelder generelt (svaret)"
+beslutningsdel = "at forseringen etter punkt 33.8 ikke er bygget, og at vedtaket gjelder den når den bygges"
+id = "VS-U72"
+dato = 2026-11-16
+hvem = "oppdragsgiver"
+kilde = ["#807"]
+sporsmal = '''
+Spørsmål 1 ordrett slik det ble stilt i tekst 16.11 av orkestratoren for #1065, fra Varden-økta for den felles registreringen i #807. Spørsmålet ble prøvd av to uavhengige subagenter mot kontraktsgrunnlaget og vedtakene, og teksten ble rettet etter funnene før det ble stilt.
+
+**Spørsmål 1. Skal opplysningen om kapittel B stå ved totalentreprenørens varsler og krav etter kapittel 33 og 34?**
+
+*Bakgrunn:* Når totalentreprenøren registrerer et varsel etter punkt 32.2 som er sendt utenfor løsningen, viser løsningen i dag at kapittel B krever byggherrens skjema. Den viser også at e-post alene eller et møtereferat ikke er nok (VS-U39). B.2.4 andre avsnitt nevner 33.4, 33.8 og 34.1.3 i samme setning som 32.2. Første avsnitt krever byggherrens skjema for alle varsler og krav. Registreringen bygges nå som én felles del for påberopelsen, fristkravet og vederlagskravet.
+
+- **A (anbefalt):** «Registrerer totalentreprenøren et varsel eller krav etter NS 8407 kapittel 33 eller 34 som totalentreprenøren har sendt utenfor løsningen, viser løsningen den samme opplysningen om kravene i kapittel B i kontraktsgrunnlaget som ved varselet etter punkt 32.2. Opplysningen står uansett hvilken type og sendemåte totalentreprenøren oppgir, og løsningen avgjør ikke om dokumentet oppfyller kravene (OV-U79). Forseringen etter punkt 33.8 er ikke bygget; vedtaket gjelder den når den bygges.» Forholdet: utvider VS-U39.
+- **B:** «Opplysningen om kravene i kapittel B står bare ved varselet etter punkt 32.2 (VS-U39).» Forholdet: ingen endring.
+
+*Valget styrer* om opplysningen også står ved totalentreprenørens varsler og krav etter kapittel 33 og 34. I dag er det 33.4, 33.6.1, 34.1.1–34.1.3, 34.2, 34.3.2, 34.3.3 og 34.4. Med B står den bare ved 32.2. Typene og sendemåtene som kan velges, endres ikke i noen av alternativene. At brukerne trenger opplysningen like mye i kravskjemaet, er en antakelse og ikke prøvd.
+
+'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 16.11, ordrett: «For spørsmål 1: A men "løsningen avgjør ikke om dokumentet oppfyller kravene" trenger ikke å fremgå i UI. Det gjelder generelt - ellers hadde den setningen måtte stå nesten overalt.»'''
+forhold = [
+  { art = "utvider", vedtak = "vs-u39" },
+  { art = "bygger på", vedtak = "ov-u79" },
+]
+folge = '''
+Bygges i #807.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Registrerer totalentreprenøren et varsel eller krav etter NS 8407 kapittel 33 eller 34 som totalentreprenøren har sendt utenfor løsningen, viser løsningen den samme opplysningen om kravene i kapittel B i kontraktsgrunnlaget som ved varselet etter punkt 32.2. Opplysningen står uansett hvilken type og sendemåte totalentreprenøren oppgir, og løsningen avgjør ikke om dokumentet oppfyller kravene (OV-U79). Forseringen etter punkt 33.8 er ikke bygget; vedtaket gjelder den når den bygges. Forhold: utvider VS-U39.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Opplysningen om kravene i kapittel B står bare ved varselet etter punkt 32.2 (VS-U39). Forhold: ingen endring.'''
+forkastet = true
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
 id = "KA-U83"
 dato = 2026-11-14
 hvem = "oppdragsgiver"

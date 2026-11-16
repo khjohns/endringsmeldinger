@@ -378,7 +378,9 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
       spor: 'frist',
       hjemmel: '33.4',
       sendt: '2026-10-01',
-      korrespondansetype: 'brev',
+      korrespondansetype: 'brev' as const,
+      sendemaate: 'post' as const,
+      beskrivelse: 'Brevet ble sendt utenfor løsningen.',
       dokumentasjon,
     });
     const journal = async (sakId: string) =>
@@ -484,7 +486,13 @@ describe.skipIf(!TESTBASE_URL)('vedleggene mot testbasen', () => {
             {
               beskrivelse: 'Pumping',
               oppgjoersform: 'regningsarbeid',
-              varsel: { sendt: '2026-09-25', korrespondansetype: 'brev', dokumentasjon: [id] },
+              varsel: {
+                sendt: '2026-09-25',
+                korrespondansetype: 'brev' as const,
+                sendemaate: 'post' as const,
+                beskrivelse: 'Brevet ble sendt utenfor løsningen.',
+                dokumentasjon: [id],
+              },
             },
           ],
         },

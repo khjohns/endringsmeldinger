@@ -79,6 +79,7 @@ import { KJERNE } from '../versjon.ts';
 import { utenAvsnitt } from './formatprove.ts';
 import { oppgittDato } from '../spor/forhold/format.ts';
 import { lagFraForholdet } from '../spor/forhold/frysing.ts';
+import { SOM_BREV } from './brevet.ts';
 
 type Data = Record<string, unknown>;
 
@@ -353,7 +354,7 @@ const FRISTKRAV = {
   type: 'krav',
   spor: 'frist',
   innhold: { frister: [{ navn: 'Sluttfristen', dager: 20 }] },
-  varsel: { sendt: '2026-09-28', korrespondansetype: 'brev', dokumentasjon: [VARSELBREVET] },
+  varsel: { sendt: '2026-09-28', ...SOM_BREV, dokumentasjon: [VARSELBREVET] },
   utdypning: 'Pelingen tar fire uker lenger.',
 };
 /** KA-U74, KA-U79: den faste innledningen i fristkravet. */
@@ -555,7 +556,7 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
             data: {
               krav: [{ id: randomUUID(), spor: 'forhold', hovedkategori: 'endring', ...innhold }],
               opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-01' }],
-              korrespondansetype: 'brev',
+              ...SOM_BREV,
             },
           },
         ],
@@ -613,7 +614,7 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
     // som er vedlagt» er teksten for et varsel gitt før (`gitt` i brevdelene), og står som åpent
     // spørsmål i PR #2074.
     expect(varselet.data).toMatchObject({
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       utsagn: [expect.objectContaining({ art: 'varsel', hjemmel: '33.4' })],
       opplysninger: [expect.objectContaining({ hva: 'sendt', dato: '2026-09-28' })],
       dokumentasjon: [expect.objectContaining({ vedlegg_id: VARSELBREVET })],
@@ -840,7 +841,7 @@ describe('datoen varslingsplikten løper fra (VS-U26)', () => {
     // Brevet er datert 3. oktober 2026.
     const varsel = (sendt: string) => ({
       type: 'varsel',
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       spor: 'frist',
       hjemmel: '33.4',
       sendt,
@@ -2085,7 +2086,7 @@ describe('svaret (LV-U4 punkt 4 og 5, GR-U14)', () => {
         { id, spor: 'forhold', hovedkategori: 'endring', underkategori: 'irregulaer_endring' },
       ],
       opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
     });
     const u = s.u();
     expect(u.forstaatt).toBe(true);
@@ -2597,7 +2598,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
           },
         ],
         opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
-        korrespondansetype: 'brev',
+        ...SOM_BREV,
       });
       expect(s.u().forstaatt).toBe(true);
       return { s, registrert };
@@ -2652,7 +2653,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     });
     const lagtTil = (dato: string) => ({
       opplysninger: [{ id: randomUUID(), hva: 'sendt', dato }],
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
     });
 
     it('en innsigelse i et brev lagt til er dokumentasjon og gjentas ikke i svaret fra løsningen', () => {
@@ -2681,7 +2682,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
           type: 'brev',
           svar: [svaret],
           sendt: dag(rad.tidsstempel.slice(0, 10)),
-          korrespondansetype: 'brev',
+          ...SOM_BREV,
           dokumentasjon: [randomUUID()],
         });
         return { u: s.u(), svar: (lagt.data.svar as Data[])[0].id, innsigelse };
@@ -2727,7 +2728,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     type: 'brev',
     svar: svarene.map((x) => utenFelt(utenFelt(x, 'utdypning'), 'utdypninger')),
     sendt,
-    korrespondansetype: 'brev',
+    ...SOM_BREV,
     dokumentasjon: [randomUUID()],
   });
 
@@ -2791,7 +2792,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       s.rad('TE', {
         utsagn: [{ id: varsel, art: 'varsel', hjemmel: '33.4' }],
         opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-20' }],
-        korrespondansetype: 'brev',
+        ...SOM_BREV,
       });
       // Samme frist som i kravet fra løsningen (KA-U79), så bare datoen skiller dem.
       const { frister } = (s.send('TE', utenFelt(FRISTKRAV, 'varsel')).data.krav as Data[])[0];
@@ -2799,7 +2800,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
       s.rad('TE', {
         krav: [{ id: krav, spor: 'frist', frister }],
         opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: kravet }],
-        korrespondansetype: 'brev',
+        ...SOM_BREV,
       });
       const u = s.u();
       expect(u.forstaatt).toBe(true);
@@ -3063,7 +3064,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
             },
           ],
           opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: sendt }],
-          korrespondansetype: 'brev',
+          ...SOM_BREV,
         });
         if (utenVirkning) expect(s.u().utenVirkning, 'forutsetning').toHaveLength(1);
         else s.send('TE', PAABEROPELSE);
@@ -3183,7 +3184,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
         ...(registrert
           ? {
               opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-06' }],
-              korrespondansetype: 'brev',
+              ...SOM_BREV,
             }
           : {}),
       });
@@ -3318,7 +3319,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
           type: 'begrunnelse',
           gjelder: svarId,
           sendt: '2026-10-07',
-          korrespondansetype: 'brev',
+          ...SOM_BREV,
           dokumentasjon: [randomUUID()],
         },
         'BH',
@@ -3427,7 +3428,7 @@ describe('bestridelse (LV-U4 punkt 10–12), og merking og avklaring (KA-U45)', 
         },
       ],
       opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-03' }, ...opplysninger],
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
     });
     const opplysning = (hva: string) =>
       (rad.data.opplysninger as Data[]).find((o) => o.hva === hva)!.id as string;
@@ -3559,7 +3560,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
   };
   const varseldato = () => ({
     type: 'varsel',
-    korrespondansetype: 'brev',
+    ...SOM_BREV,
     spor: 'frist',
     hjemmel: '33.4',
     sendt: '2026-09-28',
@@ -3616,7 +3617,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     expect(
       s.avvist('TE', {
         type: 'varsel',
-        korrespondansetype: 'brev',
+        ...SOM_BREV,
         spor: 'vederlag',
         hjemmel: '34.1.3',
         sendt: '2026-09-28',
@@ -3706,7 +3707,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     s.send('TE', {
       type: 'registrert_brev',
       sendt: '2026-09-30',
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       beskrivelse: 'Referat fra byggemøte',
       dokumentasjon: [randomUUID()],
     });
@@ -3896,7 +3897,7 @@ describe('teksten avsenderen godkjenner, er den som fryses (LV-U2, A1)', () => {
     s.send('TE', PAABEROPELSE);
     const varsel = {
       type: 'varsel',
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       spor: 'frist',
       hjemmel: '33.4',
       sendt: '2026-09-28',
@@ -3933,7 +3934,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     s.send('TE', PAABEROPELSE);
     s.send('TE', {
       type: 'varsel',
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       spor: 'frist',
       hjemmel: '33.4',
       sendt: FRISTKRAV.varsel.sendt,
@@ -3959,7 +3960,10 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     expect(
-      s.avvisning('TE', { ...FRISTKRAV, varsel: utenFelt(FRISTKRAV.varsel, 'korrespondansetype') })
+      s.avvisning('TE', {
+        ...FRISTKRAV,
+        varsel: utenFelt(utenFelt(FRISTKRAV.varsel, 'korrespondansetype'), 'sendemaate'),
+      })
     ).toEqual({ regel: 'UGYLDIG_FORM', melding: '$.varsel.korrespondansetype: mangler' });
   });
 
@@ -3981,7 +3985,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     const vedlegg = randomUUID();
     const kommando = {
       type: 'varsel',
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       spor: 'frist',
       hjemmel: '33.4',
       sendt: '2026-09-28',
@@ -4082,7 +4086,7 @@ describe('meldingene før påberopelsen er sendt (språkfila, #1955)', () => {
     expect(
       uten.avvisning('TE', {
         type: 'varsel',
-        korrespondansetype: 'brev',
+        ...SOM_BREV,
         spor: 'frist',
         hjemmel: '33.4',
         sendt: '2026-09-28',
@@ -4134,7 +4138,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       { id: 'K-lagt-til', spor: 'frist', frister: [{ id: 'f1', navn: 'Sluttfristen', dager: 20 }] },
     ],
     opplysninger: [{ id: 'O-sendt', hva: 'sendt', dato: '2026-10-01' }],
-    korrespondansetype: 'brev',
+    ...SOM_BREV,
   };
 
   it('VS-U47 spørsmål 2: en forespørsel etter et fristkrav lagt til med kravskjemaet gjør saken uforstått', () => {
@@ -4158,7 +4162,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
   const fristkravMedDato = (sendt: string) => ({
     ...utenFelt(utenFelt(FRISTKRAV, 'varsel'), 'utdypning'),
     sendt,
-    korrespondansetype: 'brev',
+    ...SOM_BREV,
     dokumentasjon: [randomUUID()],
   });
   const kravetLagtTil = (sendt: (foresporselen: string) => string) => {
@@ -4264,7 +4268,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
         },
       ],
       opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-01' }],
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
     });
     expect(s.avvist('BH', foresporsel)).toBe('FRISTKRAV_SENDT');
   });
@@ -4972,7 +4976,7 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
     const s = medPaaberopelse('svikt');
     const rad = s.send('TE', {
       type: 'varsel',
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       spor: 'vederlag',
       hjemmel: '34.1.2',
       sendt: '2026-09-28',
@@ -4995,7 +4999,7 @@ describe('varselet etter § 34.1.2 (OV-U5, #1096)', () => {
     expect(s.avvist('TE', sendVarsel)).toBe('VEDERLAGSKRAV_SENDT');
     const registrering = {
       type: 'varsel',
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       spor: 'vederlag',
       hjemmel: '34.1.2',
       sendt: '2026-09-28',
@@ -5078,7 +5082,7 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
   // Påberopelsen er brev K201-KOE-017-01 av 2. oktober 2026, og registreringen er brev K201-KOE-017-02 av 3. oktober.
   const registrering = (sendt = '2026-09-28') => ({
     type: 'varsel',
-    korrespondansetype: 'brev',
+    ...SOM_BREV,
     spor: 'forhold',
     hjemmel: '32.2',
     sendt,
@@ -5206,7 +5210,7 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
 describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', () => {
   const registrering = (spor: string, hjemmel: string, sendt: string) => ({
     type: 'varsel',
-    korrespondansetype: 'brev',
+    ...SOM_BREV,
     spor,
     hjemmel,
     sendt,
@@ -5521,7 +5525,7 @@ describe('varselet etter § 32.2 er det første grunnlagskravet (VS-U43 punkt 6 
     expect(rettidighet, 'forutsetning: svaret har et standpunkt om rettidigheten').toBeDefined();
     s.send('TE', {
       type: 'varsel',
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       spor: 'forhold',
       hjemmel: '32.2',
       sendt: '2026-09-28',
@@ -5697,7 +5701,7 @@ describe('formen på tall og datoer', () => {
     expect(
       s.avvist('TE', {
         type: 'varsel',
-        korrespondansetype: 'brev',
+        ...SOM_BREV,
         spor: 'frist',
         hjemmel: '33.4',
         sendt: '2026-02-30',
@@ -5989,7 +5993,7 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
     brev(s, 'frist', iTide);
     s.send('TE', {
       type: 'varsel',
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       spor: 'frist',
       hjemmel: '33.4',
       sendt: '2026-09-28',
@@ -6157,7 +6161,7 @@ describe('et «i tide» fra appen sperrer ikke en senere påberopelse (MM-U34 pu
       ],
       // Fristkravet er sendt 04.10, så det var ikke gjeldende på sendedatoen.
       opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
     });
     const etter = s.u();
     expect(etter.forstaatt, JSON.stringify(etter.begrensninger)).toBe(true);
@@ -6334,7 +6338,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       ...(sendt
         ? {
             opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: dagenEtterSisteRad(s) }],
-            korrespondansetype: 'brev',
+            ...SOM_BREV,
           }
         : {}),
     });
@@ -6494,7 +6498,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
           { id: randomUUID(), hva: 'sendt', dato: '2026-10-06' },
           { id: randomUUID(), hva: 'endringsordre', oppfylt: true },
         ],
-        korrespondansetype: 'brev',
+        ...SOM_BREV,
       });
       const etterEo = s.u();
       expect(etterEo.forstaatt, JSON.stringify(etterEo.begrensninger)).toBe(true);
@@ -6714,7 +6718,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
           { id: randomUUID(), hva: 'sendt', dato: '2026-10-06' },
           { id: randomUUID(), hva: 'endringsordre', oppfylt: true },
         ],
-        korrespondansetype: 'brev',
+        ...SOM_BREV,
       });
       const u = s.u();
       expect(u.forstaatt, JSON.stringify(u.begrensninger)).toBe(true);
@@ -6732,9 +6736,9 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
       expect(foer.merknader).not.toContain('brev_utenfor_appen');
       expect(harIkkeVurdertBrev(s.u()), 'statusteksten og sakslisten').toBe(false);
       s.rad('BH', {
+        ...SOM_BREV,
         beskrivelse: 'Brev om fremdriften',
         opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-10-06' }],
-        korrespondansetype: 'brev',
         dokumentasjon: [
           { vedlegg_id: randomUUID(), filnavn: 'brev.pdf', innhold_sha256: 'a'.repeat(64) },
         ],
@@ -6958,7 +6962,7 @@ describe('en revisjon kan senke det byggherren har godkjent (MM-U34 punkt 4, HF-
           },
         ],
         opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: dagenEtterSisteRad(s) }],
-        korrespondansetype: 'brev',
+        ...SOM_BREV,
       });
       expect(s.u().spor.forhold.gjeldendeSvar?.id).toBe(id);
       expect(s.avvist('BH', nyttSvar(s, 'forhold', { ...forSent, resultat: 'avslaatt' }))).toBe(
@@ -7584,7 +7588,7 @@ describe('tegn PDF-en av brevet ikke kan vise, avvises når brevet skrives (#801
         },
       ],
       opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-30' }],
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
     });
     const innsigelse = { type: 'innsigelse', gjelder: krav };
     expect(s.avvisning('BH', innsigelse)).toBeNull();
@@ -7655,7 +7659,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
   const sendVarsel = { type: 'send_varsel', spor: 'vederlag', hjemmel: '34.1.3' };
   const registrer = (hjemmel: '34.1.2' | '34.1.3') => ({
     type: 'varsel',
-    korrespondansetype: 'brev',
+    ...SOM_BREV,
     spor: 'vederlag',
     hjemmel,
     sendt: '2026-09-28',
@@ -8353,7 +8357,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, byggherrens side (OV
     const rettidighet = gjeldende.standpunkter.find((p) => p.art === 'rettidighet')!;
     s.send('TE', {
       type: 'varsel',
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       spor: 'vederlag',
       hjemmel: '34.1.3',
       sendt: '2026-09-28',
@@ -8777,7 +8781,7 @@ describe('innsigelsen mot det en registrert enighet omfatter, godtas (MM-U34 pun
     fristsvar(s);
     s.send('TE', {
       type: 'varsel',
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       spor: 'frist',
       hjemmel: '33.4',
       sendt: '2026-09-28',
@@ -8807,7 +8811,7 @@ describe('innsigelsen mot det en registrert enighet omfatter, godtas (MM-U34 pun
         { id: randomUUID(), hva: 'sendt', dato: '2026-10-06' },
         { id: randomUUID(), hva: 'endringsordre', oppfylt: true },
       ],
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
     });
     expect(s.u().spor.forhold.enighet, 'forutsetning: enighet ved sammenfall').not.toBeNull();
     expect(s.avvist('BH', { type: 'innsigelse', gjelder: krav })).toBeNull();
@@ -9936,6 +9940,7 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
         hjemmel: '33.4',
         sendt,
         korrespondansetype,
+        beskrivelse: 'Varsel om fristforlengelse',
         dokumentasjon: [randomUUID()],
       });
     const epost = varselet('e_post', '2026-10-02');
@@ -9965,6 +9970,7 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
         hjemmel: '33.4',
         sendt: '2026-10-02',
         korrespondansetype,
+        beskrivelse: 'Varsel om fristforlengelse',
         dokumentasjon: [randomUUID()],
       });
       expect(
@@ -9997,7 +10003,7 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
           underkategori: 'irregulaer_endring',
         },
       ],
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
     });
     expect(t.u().forstaatt).toBe(false);
   });
@@ -10038,7 +10044,7 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
         spor: 'vederlag',
         hjemmel: '34.1.2',
         sendt: '2026-10-02',
-        korrespondansetype: 'brev',
+        ...SOM_BREV,
         beskrivelse: '  ',
         dokumentasjon: [randomUUID()],
       })?.melding
@@ -10064,7 +10070,7 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
       spor: 'frist',
       hjemmel: '33.4',
       sendt: '2026-10-02',
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       sendemaate: 'prosjekthotell',
       dokumentasjon: [randomUUID()],
     });
@@ -10840,6 +10846,7 @@ describe('varselet etter punkt 34.3.3 og 34.4 som står alene (VS-U48, VS-U52, V
   const registrertVarsel = (hjemmel: string) => ({
     type: 'varsel',
     korrespondansetype: 'e_post',
+    beskrivelse: 'Varsel om vederlagsjustering',
     spor: 'vederlag',
     hjemmel,
     sendt: '2026-09-28',
@@ -10965,6 +10972,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
   const registrertVarsel = (hjemmel: string, sendt = '2026-09-28') => ({
     type: 'varsel',
     korrespondansetype: 'e_post',
+    beskrivelse: 'Varsel om vederlagsjustering',
     spor: 'vederlag',
     hjemmel,
     sendt,
@@ -11126,7 +11134,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
   describe('dokumentet TE legger til i kravskjemaet som varselet for posten (VS-U51, VS-U53)', () => {
     const dokument = () => ({
       sendt: '2026-09-25',
-      korrespondansetype: 'brev',
+      ...SOM_BREV,
       dokumentasjon: [randomUUID()],
     });
     const kontekst = (dato: string) => ({
@@ -11151,7 +11159,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       expect(varselrad!.data).toMatchObject({
         utsagn: [{ art: 'varsel', hjemmel: '34.4' }],
         opplysninger: [{ hva: 'sendt', dato: '2026-09-25' }],
-        korrespondansetype: 'brev',
+        ...SOM_BREV,
       });
       expect(varselrad!.data.brevtekst, 'registrert korrespondanse har ingen brevtekst').toBe(
         undefined
@@ -12083,7 +12091,7 @@ describe('akseptfristen (HF-U23)', () => {
           { id: randomUUID(), art: 'aksept', gjelder: svaret, regelversjon: KJERNE.regler.versjon },
         ],
         opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: sendt }],
-        korrespondansetype: 'brev',
+        ...SOM_BREV,
       });
       const u = s.u();
       expect(u.spor.vederlag.enighet, 'forutsetning: aksepten har virkning').not.toBeNull();
