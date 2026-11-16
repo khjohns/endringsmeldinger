@@ -682,7 +682,7 @@ describe('et svar sendt før byggherrens gjeldende svar på kravversjonen står 
       ]
     ));
 
-  it('svaret utenfor rekken har sporet sitt, så brevet med det vises i sporet (OV-U103)', async () => {
+  it('et element som viser til svaret utenfor rekken, får sporet til svaret, som en aksept (OV-U103)', async () => {
     const k = await kjoer(
       {
         id: 'sporet-til-svaret-utenfor-rekken',
@@ -903,7 +903,7 @@ describe('et svar som legges til, kan gjelde en eldre kravversjon som var gjelde
       ...(gjelder ? { gjelder } : {}),
       navn: 'S-g2',
     });
-    expect(await provRegistrering(steg, revisjon('K-g1'), '2026-09-23')).toMatchObject({
+    expect(await provRegistrering(steg, revisjon('K-g1'), '2026-09-26')).toMatchObject({
       godtatt: false,
       avvisning: { regel: 'FEIL_SVARREFERANSE' },
     });
@@ -1071,6 +1071,75 @@ describe('enigheten om svaret byggherren har erstattet, bevares og vises ved det
             'enighet.vederlag': null,
             'visning.eldre_enigheter.vederlag': ['S-v:stemmer'],
             'handlinger.TE': { inneholder: ['godta:vederlag'] },
+          },
+        },
+      ]
+    ));
+
+  it('kravene er ikke lenger avgjort etter byggherrens nye svar, selv om enigheten om det forrige står (OV-U110, OV-U3)', () =>
+    prov(
+      'kravene-avgjort-etter-nytt-svar',
+      [
+        {
+          handling: 'brev',
+          svar: [{ spor: 'forhold', resultat: 'godkjent', varslet_i_tide: true, navn: 'S-g' }],
+        },
+        { handling: 'trekk', spor: 'frist' },
+        svaret,
+        godta('S-v'),
+        revisjon(50000),
+      ],
+      [
+        {
+          etter: 4,
+          rolle: 'kontroll',
+          kilde: ['OV-U3'],
+          forventet: { forstaatt: true, kravene_avgjort: true },
+        },
+        {
+          etter: 5,
+          rolle: 'mal',
+          kilde: ['OV-U110', 'OV-U3'],
+          forventet: {
+            kravene_avgjort: false,
+            'enigheter_om_eldre_svar.vederlag': ['S-v'],
+          },
+        },
+      ]
+    ));
+
+  it('enigheten ved sammenfall i svaret byggherren har erstattet, står ved det svaret (OV-U110, GR-U7)', () =>
+    prov(
+      'sammenfall-i-eldre-svar',
+      [
+        {
+          handling: 'brev',
+          svar: [
+            {
+              spor: 'vederlag',
+              vurdering: 'godkjent',
+              godkjent_belop: 100000,
+              navn: 'S-v',
+            },
+          ],
+        },
+        revisjon(60000),
+      ],
+      [
+        {
+          etter: 1,
+          rolle: 'kontroll',
+          kilde: ['GR-U7'],
+          forventet: { 'enighet.vederlag.kilde': 'sammenfall' },
+        },
+        {
+          etter: 2,
+          rolle: 'mal',
+          kilde: ['OV-U110'],
+          forventet: {
+            'enighet.vederlag': null,
+            'enigheter_om_eldre_svar.vederlag': ['S-v'],
+            'visning.eldre_enigheter.vederlag': ['S-v:avviker'],
           },
         },
       ]

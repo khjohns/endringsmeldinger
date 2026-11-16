@@ -5905,6 +5905,7 @@ const MUTASJONER: Mutasjon[] = [
       'enigheten om det forrige står ved det',
       'gir enighet om det eldre svaret (OV-U103)',
       'enigheten bevares etter en ny kravversjon',
+      'enigheten ved sammenfall i svaret byggherren har erstattet',
     ],
   },
   {
@@ -5918,7 +5919,10 @@ const MUTASJONER: Mutasjon[] = [
         'spor[n].enighet = (g ? enighetOm(g) : null) ?? spor[n].svar.map(enighetOm).findLast((e) => e !== null) ?? null;',
       ],
     ],
-    mal: ['etter byggherrens nye svar bygger sporet på det nye svaret'],
+    mal: [
+      'etter byggherrens nye svar bygger sporet på det nye svaret',
+      'kravene er ikke lenger avgjort etter byggherrens nye svar',
+    ],
   },
   {
     id: 'F674',
@@ -6006,7 +6010,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en revisjon lagt til kan gjelde en annen kravversjon enn svaret den erstatter (OV-U98, #2011)',
     fil: `${K}/kommandoer/nyttelast.ts`,
-    endringer: [[' || k.svar.gjelder !== forrige.gjelder', '']],
+    endringer: [['if (k.svar.gjelder !== forrige.gjelder)', 'if (false)']],
     mal: ['en revisjon lagt til avvises når den gjelder en annen kravversjon'],
   },
   {
@@ -6014,7 +6018,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'et svar utenfor rekken får ikke sporet sitt i visningen (OV-U103)',
     fil: `${K}/kommandoer/handlinger.ts`,
     endringer: [['      ...s.svarUtenforRekken,\n', '']],
-    mal: ['svaret utenfor rekken har sporet sitt'],
+    mal: ['et element som viser til svaret utenfor rekken, får sporet'],
   },
 ];
 

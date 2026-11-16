@@ -479,8 +479,13 @@ export function nyttelastkontroll(
       return null;
     case 'revisjon': {
       const forrige = u.spor[k.svar.spor].gjeldendeSvar;
-      if (k.erstatter !== forrige?.id || k.svar.gjelder !== forrige.gjelder)
+      if (k.erstatter !== forrige?.id)
         return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');
+      if (k.svar.gjelder !== forrige.gjelder)
+        return avvis(
+          'FEIL_SVARREFERANSE',
+          'Revisjonen gjelder en annen versjon av kravet enn svaret den erstatter.'
+        );
       return kontrollerSvar(k.svar, u, regler, svarstandpunkter, utdypningKreves, sendt);
     }
     case 'aksept': {

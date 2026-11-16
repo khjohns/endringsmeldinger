@@ -556,8 +556,8 @@ export function sendtFoerGjeldendeSvar(
 
 /**
  * OV-U98: kravversjonen i rekken som var gjeldende på dagen `dag`, etter `kravversjonenGjaldt`, og
- * den siste av dem når to var det samme dag (OV-U104). Uten dag, for et brev fra løsningen, er det den gjeldende kravversjonen. Et svar
- * lagt til regnes mot påberopelsen slik den var da (#2011).
+ * den siste av dem når to var det samme dag (OV-U104). Uten dag, for et brev fra løsningen, er det
+ * den gjeldende kravversjonen. Et svar lagt til regnes mot påberopelsen slik den var da (#2011).
  */
 export function kravversjonenPaaDagen(u: Utledning, spor: Spor, dag: string | null): Krav | null {
   if (dag === null) return u.spor[spor].gjeldendeKrav;

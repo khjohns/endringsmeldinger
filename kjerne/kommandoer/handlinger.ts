@@ -66,7 +66,8 @@ export function elementenesSpor(u: Utledning): Map<string, Spor> {
   const sporet = new Map<string, Spor>();
   for (const spor of SPOR) {
     const s = u.spor[spor];
-    // OV-U102, OV-U103: også et krav eller svar utenfor rekken, så brevet med det får sporet.
+    // OV-U102, OV-U103: også et krav eller svar utenfor rekken, så et brev som viser til det,
+    // som en aksept, får sporet.
     for (const e of [
       ...s.krav,
       ...s.kravUtenforRekken,
