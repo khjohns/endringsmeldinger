@@ -5,6 +5,7 @@
  */
 
 import { dokumenterI } from '../../format/leser.ts';
+import { erPaaberopelse } from '../../frosset/standpunkt.ts';
 import { forlengetFrist } from '../../regler/hverdager.ts';
 import type {
   Bakover,
@@ -136,12 +137,7 @@ export function foresporselForFristsvar(u: Utledning): Foresporselsrelasjon | nu
   const f = foresporselsrelasjon(u.spor.frist.foresporsler);
   if (f?.art !== 'begrunnelse') return f;
   for (const d of dokumenterI(u.journal))
-    if (
-      d.avsender === 'BH' &&
-      d.utsagn.some(
-        (x) => x.art === 'innsigelse' && x.gjelder === f.gjelder && x.grunn === undefined
-      )
-    )
+    if (d.avsender === 'BH' && d.utsagn.some((x) => erPaaberopelse(x) && x.gjelder === f.gjelder))
       return f;
   return null;
 }

@@ -3996,19 +3996,19 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
   });
   const kravetLagtTil = (sendt: (foresporselen: string) => string) => {
     const { s, f, rad } = medForesporsel();
-    const krav = (
-      s.send('TE', fristkravMedDato(sendt(rad.tidsstempel.slice(0, 10)))).data.krav as Data[]
-    )[0];
-    return { s, f, krav };
+    const dag = rad.tidsstempel.slice(0, 10);
+    const krav = (s.send('TE', fristkravMedDato(sendt(dag))).data.krav as Data[])[0];
+    return { s, f, krav, dag };
   };
 
   it('OV-U109: et fristkrav lagt til, sendt før forespørselen, godtas uten å svare på den, og forespørselen er ikke ubesvart', () => {
-    const { s, f, krav } = kravetLagtTil(() => '2026-09-01');
+    const { s, f, krav, dag } = kravetLagtTil(() => '2026-09-01');
     expect(krav.gjelder, 'HF-U1').toBeUndefined();
     const u = s.u();
     expect(u.forstaatt).toBe(true);
+    // Forespørselen er sendt fra løsningen, så dagen er dagen den ble registrert (VS-U8).
     expect(u.spor.frist.foresporsler).toEqual([
-      { foresporsel: f, svar: null, medKrav: false, kravFoer: krav.id, sendt: expect.any(String) },
+      { foresporsel: f, svar: null, medKrav: false, kravFoer: krav.id, sendt: dag },
     ]);
     expect(visning(u, GJELDENDE_REGLER).merknader).toContain('krav_foer_foresporselen');
     expect(visning(u, GJELDENDE_REGLER).spor.frist.betegnelse).not.toBe(

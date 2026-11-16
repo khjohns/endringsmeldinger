@@ -617,7 +617,7 @@ function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Stri
       if (sammenliknesMedVarselet(v.hjemmel, k))
         foerDagen(dag(v.id), datoenDetBleSendt(u, k), () => samme(v.id, k.id));
   }
-  const innsigelser = d.svar.length ? partensInnsigelser(u, d.avsender) : [];
+  const innsigelser = d.svar.length ? partensPaaberopelser(u, d.avsender) : [];
   for (const s of d.svar) {
     const { krav: kjede, kravUtenforRekken } = u.spor[s.spor];
     const krav = [...kjede, ...kravUtenforRekken].find((k) => k.id === s.gjelder);
@@ -684,7 +684,7 @@ const varslerEtter = (hjemmel: Varselhjemmel, k: Krav): boolean =>
  * Partens påberopelser med virkning (`erPaaberopelse`), med sporet til det de gjelder og dagen de
  * ble sendt: det `aapneInnsigelser` sammenlikner et svar med.
  */
-function partensInnsigelser(
+function partensPaaberopelser(
   u: Utledning,
   part: Part
 ): { id: string; spor: Spor | undefined; dag: string | null }[] {

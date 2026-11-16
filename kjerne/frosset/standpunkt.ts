@@ -48,6 +48,10 @@ export function virkninger(
   return frysingI(svar.spor).virkninger(svar, paaberopelse, regler, forskyvning);
 }
 
+/** VS-U29, OV-U104: en innsigelse som påberoper at noe kom for sent. */
+export const erPaaberopelse = (x: LestUtsagn): x is Extract<LestUtsagn, { art: 'innsigelse' }> =>
+  x.art === 'innsigelse' && x.grunn === undefined;
+
 /**
  * VS-U24: en egen innsigelse er en påberopelse etter én bestemmelse bare når det den
  * gjelder, bare kan komme for sent etter den: varselet etter § 33.4 i fristen, varselet
@@ -61,14 +65,6 @@ export function virkninger(
  * sier om § 32.2 gjelder kategorien: brevteksten spør regelsettet når brevet skrives,
  * utledningen leser det som er frosset (MM-U43 punkt 8, #776).
  */
-/**
- * En innsigelse som påberoper at noe kom for sent. VS-U29: standpunktet om at begrunnelsen ikke
- * er et svar (`grunn`), er ingen påberopelse. Brevteksten gjentar den, og utledningen
- * sammenlikner et svar lagt til med den (OV-U104).
- */
-export const erPaaberopelse = (x: LestUtsagn): x is Extract<LestUtsagn, { art: 'innsigelse' }> =>
-  x.art === 'innsigelse' && x.grunn === undefined;
-
 export function innsigelsenPaaberoper(
   gjelder: string,
   dokumenter: Iterable<Pick<Dokument, 'krav' | 'utsagn' | 'opplysninger'>>,

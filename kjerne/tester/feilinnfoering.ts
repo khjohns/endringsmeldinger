@@ -2816,7 +2816,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/utledning.ts`,
     endringer: [
       [
-        "x.art === 'innsigelse' && x.gjelder === f.gjelder && x.grunn === undefined",
+        'erPaaberopelse(x) && x.gjelder === f.gjelder',
         "x.art === 'innsigelse' && x.gjelder === f.gjelder",
       ],
     ],

@@ -690,9 +690,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/frist/frysing.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon erUbesvart'],
   ['spor/frist/utledning.ts', 'relasjon', 'foresporselForFristsvar foresporselenKravetSvarerPaa'],
   // OV-U104, OV-U105: innsigelsene et svar lagt til sammenliknes med.
-  ['utledning/utled.ts:partensInnsigelser', 'relasjon', 'id spor dag'],
-  ['Utledning', 'relasjon', 'innsigelser', ['utledning/utled.ts:partensInnsigelser']],
-  ['Paaberopelse', 'relasjon', 'id', ['utledning/utled.ts:partensInnsigelser']],
+  ['utledning/utled.ts:partensPaaberopelser', 'relasjon', 'id spor dag'],
+  ['Utledning', 'relasjon', 'innsigelser', ['utledning/utled.ts:partensPaaberopelser']],
+  ['Paaberopelse', 'relasjon', 'id', ['utledning/utled.ts:partensPaaberopelser']],
   [
     'Utledning',
     'utsagn',
@@ -703,7 +703,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'utledning/utled.ts:utsagnetStrider',
       'spor/frist/utledning.ts:foresporselForFristsvar',
       'spor/frist/utledning.ts:fristkravErFremmet',
-      'utledning/utled.ts:partensInnsigelser',
+      'utledning/utled.ts:partensPaaberopelser',
     ],
   ],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
@@ -849,7 +849,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts',
     'relasjon',
     'erPaaberopelse',
-    ['frosset/brevtekst.ts', 'utledning/utled.ts:partensInnsigelser'],
+    [
+      'frosset/brevtekst.ts',
+      'utledning/utled.ts:partensPaaberopelser',
+      'spor/frist/utledning.ts:foresporselForFristsvar',
+    ],
   ],
   // MM-U43 punkt 8: sammenfallet stemmer med standpunktene i samme frosne brev.
   [
@@ -1259,7 +1263,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Dokument',
     'relasjon',
     'id',
-    ['spor/frist/frysing.ts:svarPaaForesporsler', 'utledning/utled.ts:partensInnsigelser'],
+    ['spor/frist/frysing.ts:svarPaaForesporsler', 'utledning/utled.ts:partensPaaberopelser'],
   ],
   // MM-U43 punkt 9: et svar uten virkning gir ikke opp innsigelsen (OV-U105).
   ['Utledning', 'relasjon', 'utenVirkning', ['kommandoer/skriving.ts:brevtekstFor']],
@@ -1941,7 +1945,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/brevtekst.ts:aapneInnsigelser',
       // OV-U109, OV-U104: dagen forespørselen og fristkravet ble sendt.
       'spor/frist/frysing.ts:svarPaaForesporsler',
-      'utledning/utled.ts:partensInnsigelser',
+      'utledning/utled.ts:partensPaaberopelser',
     ],
   ],
   // HF-U23: akseptfristen i svaret, som brevet ved aksepten sammenlikner med dagen den sendes.
