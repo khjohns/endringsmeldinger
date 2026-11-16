@@ -923,18 +923,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ],
   ],
   // KA-U68, OV-U95 punkt 1 og 5: justerte enhetspriser og den andre beregningsregelen, for
-  // utfyllingen av lagene i et svarutkast (#1925).
+  // utfyllingen av lagene i et svarutkast (#1925) og kontrollen av oppgjørsformen (#2025 punkt 2).
   ['Kravpost', 'utsagn', 'justert', ['spor/vederlag/format.ts:justerteEnhetspriser']],
   [
     'spor/vederlag/format.ts',
     'predikat',
     'justerteEnhetspriser denAndreRegelen',
-    [
-      'spor/vederlag/kommando.ts',
-      'regler/vederlag.ts:kontrollerOppgjoersformen',
-      'spor/vederlag/utledning.ts',
-    ],
+    ['spor/vederlag/kommando.ts', 'regler/vederlag.ts:kontrollerOppgjoersformen'],
   ],
+  // KA-U64, KA-U68: varselet og justeringen gjelder justerte enhetspriser (#2025 punkt 2).
+  ['spor/vederlag/format.ts', 'predikat', 'justerteEnhetspriser', ['spor/vederlag/utledning.ts']],
   // #2025 punkt 6: vurderingen av beløpet for hver særskilt post i utkastet.
   ['VURDERINGEN_AV_SAERSKILT', 'kommando', 'produktivitet', ['spor/vederlag/kommando.ts:besvart']],
   // KA-U64: varselet en kravpost trenger, for standpunktet til varselet i svaret.
