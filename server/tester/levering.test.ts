@@ -278,9 +278,14 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
     const leser = { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const };
     const sakensMaal = await lesSakensMaal(o.datalag.kjoeretid.pool, leser, sakId);
     expect(sakensMaal).toMatchObject({ topic_id: topic, topic_nummer: 726 });
-    const forventet = Object.fromEntries(
-      Object.entries(sakensMaal!).filter(([felt]) => felt !== 'topic_nummer')
-    );
+    // Prosjektet og topicen fra oppsettet; biblioteket og mappene fra koblingen i basen.
+    const forventet = {
+      catenda_project_id: o.prosjekt.catendaProsjekt,
+      library_id: sakensMaal!.library_id,
+      folder_id: sakensMaal!.folder_id,
+      board_id: sakensMaal!.board_id,
+      topic_id: topic,
+    };
     await sendBrev(sakId);
     const { oppdrag } = await lesSaken(o.datalag.kjoeretid.pool, leser, sakId);
     expect(oppdrag).toHaveLength(1);
