@@ -596,6 +596,9 @@ describe('kravene (LV-U4 punkt 1–3, GR-U16)', () => {
     ]);
     // VS-U34, C1 i #2056: varselet fra kravskjemaet står i saken som et eget brev, og kravet viser
     // til det med parten, typen og datoen (LV-U42) og legger det ved, som i vederlaget (VS-U53).
+    // Budskapet er LV-U4 punkt 3 (TE opplyser når varselet ble sendt); ordlyden «ble gitt i …,
+    // som er vedlagt» er teksten for et varsel gitt før (`gitt` i brevdelene), og står som åpent
+    // spørsmål i PR #2074.
     expect(varselet.data).toMatchObject({
       korrespondansetype: 'brev',
       utsagn: [expect.objectContaining({ art: 'varsel', hjemmel: '33.4' })],
