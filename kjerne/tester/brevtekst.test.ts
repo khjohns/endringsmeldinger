@@ -9880,7 +9880,6 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
         hjemmel: '33.4',
         sendt,
         korrespondansetype,
-        ...(korrespondansetype === 'brev' ? { sendemaate: 'post' } : {}),
         beskrivelse: 'Varsel om fristforlengelse',
         dokumentasjon: [randomUUID()],
       });

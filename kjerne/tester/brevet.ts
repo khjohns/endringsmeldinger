@@ -1,7 +1,4 @@
-/**
- * OV-U79: et brev lagt til har typen, sendemåten og beskrivelsen (arbeidsvalget 2 A i #807).
- * Testene som legger til et brev uten å prøve feltene, bruker dette.
- */
+/** Typen, sendemåten og beskrivelsen for et brev lagt til i testene som ikke prøver feltene (OV-U79). */
 export const SOM_BREV = {
   korrespondansetype: 'brev',
   sendemaate: 'post',

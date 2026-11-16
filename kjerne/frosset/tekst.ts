@@ -7,8 +7,8 @@ import { beloep } from '../regler/beloep.ts';
 import type { Hjemmel, Korrespondansetype, Sakskode } from '../typer.ts';
 
 /**
- * Typen korrespondanse i ubestemt og bestemt form (OV-U79), slik brevet omtaler den (LV-U45) og
- * skjemaet og visningen nevner den. Ordene står her så de ikke glir fra hverandre (#807).
+ * Typen korrespondanse i ubestemt og bestemt form (OV-U79): brevet omtaler den med den ubestemte
+ * (LV-U45), og Varden leser begge herfra (kravet 6917380675 i #807).
  */
 export const KORRESPONDANSETYPEN: Record<
   Korrespondansetype,

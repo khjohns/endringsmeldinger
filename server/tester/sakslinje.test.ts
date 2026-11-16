@@ -122,9 +122,10 @@ class Sak {
         'ikke_i_saken' in data
           ? data
           : {
-              korrespondansetype: 'brev' as const,
-              sendemaate: 'post' as const,
               beskrivelse: 'Brevet ble sendt utenfor løsningen.',
+              ...('korrespondansetype' in data
+                ? {}
+                : { korrespondansetype: 'brev' as const, sendemaate: 'post' as const }),
               ...data,
             },
     };

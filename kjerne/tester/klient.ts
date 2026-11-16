@@ -16,7 +16,7 @@ import { kravposterI } from '../spor/vederlag/format.ts';
 import { innholdIFristen } from '../spor/frist/format.ts';
 import { hindrerSvarPaaKravet } from '../spor/vederlag/kommando.ts';
 import type { Utledning } from '../utledning/utled.ts';
-import type { Korrespondansetype, Krav, Part, Spor } from '../typer.ts';
+import type { Korrespondansetype, Krav, Part, Sendemaate, Spor } from '../typer.ts';
 import { tilfeldigeIder, type NyId } from './testmiljoe.ts';
 import { oppgittDato } from '../spor/forhold/format.ts';
 import { SOM_BREV } from './brevet.ts';
@@ -341,7 +341,7 @@ function kravposterIKravet(h: Handling, u?: Utledning, nyId?: () => string, navn
           : typeof p.varsel === 'object' && p.varsel !== null
             ? {
                 varsel: {
-                  ...SOM_BREV,
+                  ...lagtTil(p.varsel as Handling),
                   dokumentasjon: [navn?.nyId() ?? 'vedlegg'],
                   ...(p.varsel as Record<string, unknown>),
                 },
@@ -383,20 +383,22 @@ const varselIKravet = (
 /** Vedlegget med varselet i et fristkrav; `mellomlager` gir det som alle andre. */
 const VARSELBREVET = '00000000-0000-4000-8000-0000000033a4';
 
-/** Kommandoen klienten sender for handlingen, regnet av klientens utledning `u`. */
 /**
- * Typen, sendemåten og beskrivelsen i korrespondanse lagt til (OV-U79). Forløpene nevner dem
- * sjelden; uten typen registreres korrespondansen som brev (LV-U42).
+ * Typen, sendemåten og beskrivelsen i korrespondanse lagt til (OV-U79), slik forløpet oppgir dem.
+ * Forløpene nevner dem sjelden; uten typen registreres korrespondansen som brev (LV-U42).
  */
 function lagtTil(h: Handling) {
   const type = (h.korrespondansetype as Korrespondansetype | undefined) ?? 'brev';
   return {
     korrespondansetype: type,
-    ...(type === 'brev' ? { sendemaate: SOM_BREV.sendemaate } : {}),
+    ...(type === 'brev'
+      ? { sendemaate: (h.sendemaate as Sendemaate | undefined) ?? SOM_BREV.sendemaate }
+      : {}),
     beskrivelse: typeof h.beskrivelse === 'string' ? h.beskrivelse : SOM_BREV.beskrivelse,
   };
 }
 
+/** Kommandoen klienten sender for handlingen, regnet av klientens utledning `u`. */
 export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: Navn): Kommando {
   const spor = h.spor as Spor;
   switch (h.handling) {
@@ -484,7 +486,7 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
       return {
         type: 'begrunnelse',
         gjelder: navn.id(h.gjelder as string),
-        ...(typeof h.sendt === 'string' ? { sendt: h.sendt, ...SOM_BREV } : utdypning(h)),
+        ...(typeof h.sendt === 'string' ? { sendt: h.sendt, ...lagtTil(h) } : utdypning(h)),
         ...(typeof h.sendt === 'string' && typeof h.utdypning === 'string'
           ? { utdypning: h.utdypning }
           : {}),
@@ -497,6 +499,8 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         ...(Array.isArray(h.sporene) ? { spor: h.sporene as Spor[] } : {}),
         sendt: h.sendt as string,
         ...lagtTil(h),
+        // OV-U16: forløpet oppgir beskrivelsen av et brev registrert som dokumentasjon.
+        beskrivelse: h.beskrivelse as string,
         dokumentasjon: [navn.nyId()],
         ...(typeof h.retter === 'string' ? { retter: navn.id(h.retter) } : {}),
       };
