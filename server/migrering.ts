@@ -319,7 +319,17 @@ interface Forbindelsestilstand {
   bruker: string;
   /** `DB_NAME()`: en sats med `USE` bytter den for resten av sesjonen. */
   base: string;
+  /** Valgene i `SESJONSVALG` som er på; en sats med `SET` endrer dem for resten av sesjonen. */
+  valg: number;
 }
+
+/**
+ * Valgene i `@@OPTIONS` som avgjør om runnerens COMMIT og tilbakerulling gjelder fila:
+ * med `IMPLICIT_TRANSACTIONS` åpner neste setning en transaksjon som COMMIT med
+ * historikkraden ikke avslutter, og uten `XACT_ABORT` kan en feil etterlate fila halvt
+ * gjort og committet.
+ */
+const SESJONSVALG = { IMPLICIT_TRANSACTIONS: 2, XACT_ABORT: 16384 };
 
 async function tilstand(egen: sql.ConnectionPool): Promise<Forbindelsestilstand> {
   const svar = await egen
@@ -333,13 +343,15 @@ async function tilstand(egen: sql.ConnectionPool): Promise<Forbindelsestilstand>
       merket: boolean;
       bruker: string;
       base: string;
+      valg: number;
     }>(
       // APPLOCK_MODE feiler for en bruker utenfor db_owner, så etter et
       // identitetsbytte leses den ikke, og avvisningen sier hvem satsen byttet til.
       `SELECT CONVERT(varchar(20), CURRENT_TRANSACTION_ID()) AS id, @@TRANCOUNT AS nivaa,
             CASE WHEN USER_NAME() = @eier THEN APPLOCK_MODE(N'db_owner', @ressurs, N'Session') END AS laas,
             CAST(CASE WHEN OBJECT_ID(N'tempdb..#koe_migrering') IS NULL THEN 0 ELSE 1 END AS bit) AS merket,
-            USER_NAME() AS bruker, DB_NAME() AS base`
+            USER_NAME() AS bruker, DB_NAME() AS base,
+            @@OPTIONS & ${SESJONSVALG.IMPLICIT_TRANSACTIONS | SESJONSVALG.XACT_ABORT} AS valg`
     );
   const t = svar.recordset?.[0];
   // Uten rad, for eksempel etter `SET NOEXEC ON` i en sats, er tilstanden ukjent.
@@ -410,12 +422,6 @@ async function anvendNeste(
   const runnerens = await tilstand(egen);
   if (runnerens.laas !== 'Exclusive')
     throw new MigreringAvvist('Forbindelsen har ikke lenger applåsen for migreringen.');
-  // Med `SET IMPLICIT_TRANSACTIONS ON` fra en tidligere fil er en transaksjon åpen
-  // før runnerens, og COMMIT med historikkraden committer ikke fila.
-  if (runnerens.nivaa !== 1)
-    throw new MigreringAvvist(
-      `Forbindelsen hadde en åpen transaksjon før runnerens (@@TRANCOUNT ${runnerens.nivaa}).`
-    );
   await egen.request().batch(HISTORIKK);
   const anvendt = (
     await egen
@@ -444,6 +450,14 @@ async function anvendNeste(
     if (!etter.merket)
       throw new MigreringAvvist(
         `${sted}: satsen slettet #koe_migrering, som runneren ser om fila committet med.` +
+          (await lagret(egen, runnerens))
+      );
+    const endret = Object.entries(SESJONSVALG)
+      .filter(([, bit]) => (etter.valg & bit) !== (runnerens.valg & bit))
+      .map(([navn]) => navn);
+    if (endret.length)
+      throw new MigreringAvvist(
+        `${sted}: satsen endret ${endret.join(' og ')}, som gjelder resten av sesjonen.` +
           (await lagret(egen, runnerens))
       );
     // Etter `USE` ville resten av fila og historikkraden kjørt i en annen base (#928 p1).

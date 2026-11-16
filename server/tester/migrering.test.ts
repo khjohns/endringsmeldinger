@@ -730,16 +730,21 @@ BEGIN TRANSACTION;`,
     expect(iMaster.recordset[0].n).toBe(0);
   });
 
-  it('avviser neste fil når en fil slår på IMPLICIT_TRANSACTIONS, så den ikke regnes som anvendt uten å være committet', async () => {
+  it.each([
+    ['slår på IMPLICIT_TRANSACTIONS', 'SET IMPLICIT_TRANSACTIONS ON;', 'IMPLICIT_TRANSACTIONS'],
+    ['slår av XACT_ABORT', 'SET XACT_ABORT OFF;', 'XACT_ABORT'],
+  ])('avviser en sats som %s, før historikkraden og før neste fil', async (_, setning, valg) => {
     const m = mappe({
-      [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);\nSET IMPLICIT_TRANSACTIONS ON;',
+      [A]: `CREATE TABLE dbo.prove_a (id int NOT NULL);\n${setning}`,
       [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
     });
     await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
-      /^Forbindelsen hadde en åpen transaksjon før runnerens \(@@TRANCOUNT 2\)\. Anvendt i denne kjøringen: 20260101000000\.$/
+      new RegExp(
+        `^20260101000000_a\\.sql, sats 1: satsen endret ${valg}, som gjelder resten av sesjonen\\. Ingenting fra fila er lagret\\. Anvendt i denne kjøringen: ingen\\.$`
+      )
     );
-    expect(await historikk()).toEqual(['20260101000000']);
-    expect(await tabeller()).toEqual(['prove_a']);
+    expect(await historikk()).toEqual([]);
+    expect(await tabeller()).toEqual([]);
   });
 
   /**

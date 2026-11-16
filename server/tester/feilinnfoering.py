@@ -564,9 +564,9 @@ FEILINNFOERINGER = [
      "server/oppstart.ts",
      "  if (svar.direkte && !alle)", "  if (false)",
      "direkte (#885 punkt 1)"),
-    ("S145", "runneren anvender en fil i en transaksjon som var åpen før runnerens (#928)",
+    ("S145", "runneren ser ikke at en sats endrer IMPLICIT_TRANSACTIONS eller XACT_ABORT (#928)",
      "server/migrering.ts",
-     "  if (runnerens.nivaa !== 1)", "  if (false)",
+     "    if (endret.length)", "    if (false)",
      "slår på IMPLICIT_TRANSACTIONS"),
 ]
 

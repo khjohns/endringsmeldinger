@@ -131,6 +131,15 @@ describe('rollebrudd', () => {
     }
   );
 
+  it('en rettighet gitt rett til brukeren meldes, men ikke ved siden av CONTROL (#885 punkt 1)', () => {
+    expect(rollebrudd({ ...kjoeretid, direkte: 'CONTROL (SCHEMA)' })).toEqual([
+      'den har fått CONTROL (SCHEMA) direkte',
+    ]);
+    expect(rollebrudd({ ...kjoeretid, kontroll: 1, direkte: 'CONTROL (SCHEMA)' })).toEqual([
+      'den har CONTROL på basen',
+    ]);
+  });
+
   it('en NULL for CONTROL skjuler ikke rettighetene som er lest (#885 punkt 2)', () => {
     expect(rollebrudd({ ...kjoeretid, kontroll: null, rettigheter: 'SELECT', utgir: 1 })).toEqual([
       'om den har CONTROL på basen, kunne ikke leses',
@@ -189,7 +198,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('hindringene mot en migrert base', () => 
     ['har CONTROL på basen', 'GRANT CONTROL TO', /den har CONTROL på basen\./],
     [
       'er medlem av en egen rolle (#885 punkt 1)',
-      'CREATE ROLE koe_egen_rolle; GRANT SELECT ON SCHEMA::koe TO koe_egen_rolle; ALTER ROLE koe_egen_rolle ADD MEMBER',
+      "IF DATABASE_PRINCIPAL_ID(N'koe_egen_rolle') IS NULL CREATE ROLE koe_egen_rolle; GRANT SELECT ON SCHEMA::koe TO koe_egen_rolle; ALTER ROLE koe_egen_rolle ADD MEMBER",
       /den er også medlem av koe_egen_rolle\./,
     ],
     [
@@ -208,8 +217,13 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('hindringene mot en migrert base', () => 
       /den har fått CONTROL \(SCHEMA\) direkte\./,
     ],
     [
+      'arver SELECT på et skjema fra public (#885 punkt 1)',
+      'GRANT SELECT ON SCHEMA::koe TO public; --',
+      /den har fått SELECT \(SCHEMA\) direkte\./,
+    ],
+    [
       'har fått IMPERSONATE på en annen bruker direkte (#885 punkt 1)',
-      'CREATE USER koe_annen_bruker WITHOUT LOGIN; GRANT IMPERSONATE ON USER::koe_annen_bruker TO',
+      "IF USER_ID(N'koe_annen_bruker') IS NULL CREATE USER koe_annen_bruker WITHOUT LOGIN; GRANT IMPERSONATE ON USER::koe_annen_bruker TO",
       /den har fått IMPERSONATE \(DATABASE_PRINCIPAL\) direkte\./,
     ],
   ])(
@@ -233,7 +247,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('hindringene mot en migrert base', () => 
              SELECT @s += N'ALTER ROLE koe_egen_rolle DROP MEMBER ' + QUOTENAME(USER_NAME(member_principal_id)) + N';'
                FROM sys.database_role_members WHERE role_principal_id = DATABASE_PRINCIPAL_ID(N'koe_egen_rolle');
              EXEC (@s);
-             DROP ROLE IF EXISTS koe_egen_rolle;`
+             DROP ROLE IF EXISTS koe_egen_rolle;
+             REVOKE SELECT ON SCHEMA::koe FROM public;`
         );
       }
     }

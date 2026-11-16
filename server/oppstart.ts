@@ -61,9 +61,10 @@ export interface Rollesvar {
   /** `IMPERSONATE` på `dbo`. */
   utgir: number | null;
   /**
-   * Rettighetene gitt rett til forbindelsens bruker eller en gruppe den er med i, på
-   * et objekt, et skjema eller en annen bruker. Rettighetene på hele basen og
-   * `IMPERSONATE` på `dbo` står i `rettigheter` og `utgir`.
+   * Rettighetene gitt rett til forbindelsens bruker, en gruppe den er med i eller
+   * `public`, på et objekt, et skjema eller en annen bruker, utenom systemobjektene
+   * `public` kan lese. Rettighetene på hele basen og `IMPERSONATE` på `dbo` står i
+   * `rettigheter` og `utgir`.
    */
   direkte: string | null;
   sysadmin: number | null;
@@ -88,13 +89,14 @@ async function rollesvar(pool: Pool): Promise<Rollesvar> {
                  FROM fn_my_permissions(NULL, N'DATABASE') AS p
                 WHERE p.permission_name NOT IN (${liste(BASERETTIGHETER)})) AS rettigheter,
               HAS_PERMS_BY_NAME(N'dbo', N'USER', N'IMPERSONATE') AS utgir,
-              (SELECT STRING_AGG(p.permission_name + N' (' + p.class_desc + N')', N', ')
-                      WITHIN GROUP (ORDER BY p.class_desc, p.permission_name)
-                 FROM sys.database_permissions AS p
-                 JOIN sys.user_token AS t ON t.principal_id = p.grantee_principal_id
-                WHERE t.type <> N'ROLE' AND p.state IN ('G', 'W')
-                  AND p.class <> 0
-                  AND NOT (p.class = 4 AND p.major_id = USER_ID(N'dbo') AND p.permission_name = N'IMPERSONATE')) AS direkte,
+              (SELECT STRING_AGG(r.rettighet, N', ') WITHIN GROUP (ORDER BY r.rettighet)
+                 FROM (SELECT DISTINCT CONVERT(nvarchar(max), p.permission_name + N' (' + p.class_desc + N')') AS rettighet
+                         FROM sys.database_permissions AS p
+                         JOIN sys.user_token AS t ON t.principal_id = p.grantee_principal_id
+                        WHERE (t.type <> N'ROLE' OR t.name = N'public') AND p.state IN ('G', 'W')
+                          AND p.class <> 0
+                          AND NOT (p.class = 1 AND p.major_id < 0)
+                          AND NOT (p.class = 4 AND p.major_id = USER_ID(N'dbo') AND p.permission_name = N'IMPERSONATE')) AS r) AS direkte,
               IS_SRVROLEMEMBER(N'sysadmin') AS sysadmin`
     )
   ).recordset[0];
