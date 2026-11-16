@@ -278,7 +278,8 @@ export class Kjoering {
   /**
    * Etikettene i bevis-saken: et krav og et svar navngis etter elementet, de andre
    * handlingene etter dokumentet. Opplysningene i dokumentet heter `<etikett>#sendt`
-   * og `<etikett>#mottatt`.
+   * og `<etikett>#mottatt`. Et varsel kravskjemaet skriver foran kravet (VS-U34, VS-U53), heter
+   * `<etikett>#varselbrevet`, og opplysningene og utsagnene i det navngis som kravets.
    */
   private navngi(h: Handling, utfall: Extract<Utfall, { godtatt: true }>): void {
     const rad = utfall.hendelser.at(-1)!;
@@ -295,10 +296,16 @@ export class Kjoering {
       this.navn.sett(h.navn, rad.event_id);
     }
     if (typeof h.navn === 'string') {
-      for (const o of (rad.data.opplysninger ?? []) as { id: string; hva: string }[])
-        this.navn.sett(`${h.navn}#${o.hva}`, o.id);
-      for (const x of (rad.data.utsagn ?? []) as { id: string; art: string }[])
-        this.navn.sett(`${h.navn}#${x.art}`, x.id);
+      const foran = utfall.hendelser.slice(0, -1);
+      foran.forEach((r, i) =>
+        this.navn.sett(`${h.navn}#varselbrevet${foran.length > 1 ? i + 1 : ''}`, r.event_id)
+      );
+      for (const r of utfall.hendelser) {
+        for (const o of (r.data.opplysninger ?? []) as { id: string; hva: string }[])
+          this.navn.sett(`${h.navn}#${o.hva}`, o.id);
+        for (const x of (r.data.utsagn ?? []) as { id: string; art: string }[])
+          this.navn.sett(`${h.navn}#${x.art}`, x.id);
+      }
     }
   }
 }

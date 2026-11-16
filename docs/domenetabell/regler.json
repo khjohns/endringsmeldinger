@@ -1375,6 +1375,13 @@
       "radetikett": "VS-U50: For hver kravpost som etter VS-U49 ville vært varsel, kan TE i kravskjemaet oppgi at varselet for posten etter punkt 34.3.3 eller 34.4 alt er gitt"
     },
     {
+      "id": "VS-U34",
+      "type": "vedtak",
+      "dato": "2026-11-01",
+      "ref": "../plans/vedtak.md#vs-u34",
+      "radetikett": "VS-U34: Totalentreprenøren oppgir datoen for et varsel sendt utenfor løsningen ved å legge varselet til som korrespondanse med kategorien varsel"
+    },
+    {
       "id": "VS-U51",
       "type": "vedtak",
       "dato": "2026-11-08",
