@@ -238,7 +238,8 @@
     "OV-U80",
     "OV-U81",
     "LV-U52",
-    "LV-U53"
+    "LV-U53",
+    "LV-U75"
   ],
   "venter_paa": ["#1381", "#1377", "#1379", "#807"],
   "bevis_saker": [],
@@ -268,6 +269,11 @@
       "dato": "2026-11-04",
       "forhold": "#1571, LV-U52, LV-U53",
       "hva": "D-3 og D-5 bruker merkingen på brevene (LV-U53), og setningen om TEs standpunkt i D-5 nevner brevet med svaret (LV-U52)."
+    },
+    {
+      "dato": "2026-11-16",
+      "forhold": "#1988, LV-U75",
+      "hva": "D-5 og G-2 følger LV-U75, som opphever LV-U52: brevet har ingen henvisningssetning, og TEs standpunkt er en valgfri tekst."
     }
   ]
 }
