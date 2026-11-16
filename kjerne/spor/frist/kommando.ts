@@ -402,7 +402,10 @@ function varseletIKravet(
       ...form,
       avvisning: {
         ...form.avvisning,
-        melding: form.avvisning.melding.replaceAll('$.', '$.varsel.'),
+        melding: form.avvisning.melding
+          .split('; ')
+          .map((feil) => feil.replace(/^\$\./, '$.varsel.'))
+          .join('; '),
       },
     };
   const utfall = skriving.skriv(kommando as Kommando, kontekst, journal);

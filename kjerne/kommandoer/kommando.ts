@@ -107,7 +107,7 @@ export const erRegistrering = (
   k.sendt !== undefined;
 
 /** Feltene bare et brev lagt til med datoen har (OV-U79, OV-U80), med ordet meldingen bruker. */
-const BARE_LAGT_TIL = {
+export const BARE_LAGT_TIL = {
   korrespondansetype: 'typen',
   sendemaate: 'sendemåten',
   beskrivelse: 'beskrivelsen',
@@ -121,11 +121,14 @@ const BARE_LAGT_TIL = {
  */
 function registreringensForm(
   kommando: Record<string, unknown>,
-  tekstfeil: () => string[]
+  tekstfeil: () => string[],
+  /** Et krav fra løsningen kan ha vedlegg (VS-U38). */
+  vedleggFraLoesningen = false
 ): string[] {
   if (!('sendt' in kommando))
     return Object.entries(BARE_LAGT_TIL)
       .filter(([felt]) => felt in kommando)
+      .filter(([felt]) => !(vedleggFraLoesningen && felt === 'dokumentasjon'))
       .map(
         ([felt, hva]) =>
           `$.${felt}: bare et brev lagt til med datoen det ble sendt (\`sendt\`), har ${hva}`
@@ -602,10 +605,13 @@ export function formfeil(kommando: unknown): string[] {
     ['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse'].some((felt) => felt in kommando)
   )
     feil.push(
-      ...registreringensForm(kommando, () =>
-        ['brevtekst', 'utdypning', 'utdypninger', 'forbehold', 'varsel']
-          .filter((felt) => felt in kommando)
-          .map((felt) => `$.${felt}: et krav lagt til har ikke feltet`)
+      ...registreringensForm(
+        kommando,
+        () =>
+          ['brevtekst', 'utdypning', 'utdypninger', 'forbehold', 'varsel']
+            .filter((felt) => felt in kommando)
+            .map((felt) => `$.${felt}: et krav lagt til har ikke feltet`),
+        true
       )
     );
   if ((type === 'brev' || type === 'revisjon' || type === 'aksept') && !feil.length) {

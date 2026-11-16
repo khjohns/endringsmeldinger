@@ -185,6 +185,20 @@ describe('formen på kravet', () => {
     ]);
   });
 
+  it('et krav fra løsningen med vedlegg og typen, uten datoen, avvises bare for typen (VS-U38, OV-U80)', () => {
+    expect(
+      formfeil({
+        type: 'krav',
+        spor: 'frist',
+        innhold: { frister: [{ navn: 'Sluttfristen', dager: 20 }] },
+        korrespondansetype: 'brev',
+        dokumentasjon: ['vedlegg-1'],
+      })
+    ).toEqual([
+      '$.korrespondansetype: bare et brev lagt til med datoen det ble sendt (`sendt`), har typen',
+    ]);
+  });
+
   it('en ugyldig dato for varselet i fristkravet meldes på feltet i varselet', () => {
     const fristkrav = {
       type: 'krav',

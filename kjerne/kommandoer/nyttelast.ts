@@ -9,10 +9,10 @@ import { NYTTELAST_I_VEDERLAGET } from '../spor/vederlag/kommando.ts';
 import { UgyldigBeloep } from '../regler/beloep.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { ELDRE_SVAR } from './forutsetninger.ts';
-import { norskDato, PARTEN, PARTENS } from '../frosset/brevdeler.ts';
+import { norskDato, opplistet, PARTEN, PARTENS } from '../frosset/brevdeler.ts';
 import { datoFor, kalenderdag } from '../format/leser.ts';
 import { erKalenderdato } from '../format/skjema.ts';
-import { erRegistrering, type Kommando, type Svarutkast } from './kommando.ts';
+import { BARE_LAGT_TIL, erRegistrering, type Kommando, type Svarutkast } from './kommando.ts';
 import {
   korrigertDato,
   kontrollerKorrigering,
@@ -260,13 +260,6 @@ function korrigeringEtterVarslene(
   return null;
 }
 
-/** Feltene i varselet i fristkravet som hører til brevet med varselet (`nyttelastkontroll`). */
-const BESKREVET = {
-  korrespondansetype: 'typen',
-  sendemaate: 'sendemåten',
-  beskrivelse: 'beskrivelsen',
-} as const;
-
 export type OppgittDato = {
   dato: unknown;
   gjelder: string;
@@ -453,10 +446,7 @@ export function nyttelastkontroll(
       if (oppgitt.length)
         return avvis(
           'VARSEL_REGISTRERT',
-          `Varselet etter punkt 33.4 står alt i saken, så kravet kan bare oppgi datoen for det, ikke ${oppgitt
-            .map((f) => BESKREVET[f])
-            .join(', ')
-            .replace(/, ([^,]*)$/, ' eller $1')}.`
+          `Varselet etter punkt 33.4 står alt i saken, så kravet kan bare oppgi datoen for det. Fjern ${opplistet(oppgitt.map((f) => BARE_LAGT_TIL[f]))}.`
         );
       const sendt = datoFor(
         varsel,

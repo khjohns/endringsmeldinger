@@ -3875,7 +3875,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     ).toEqual({
       regel: 'VARSEL_REGISTRERT',
       melding:
-        'Varselet etter punkt 33.4 står alt i saken, så kravet kan bare oppgi datoen for det, ikke typen eller beskrivelsen.',
+        'Varselet etter punkt 33.4 står alt i saken, så kravet kan bare oppgi datoen for det. Fjern typen og beskrivelsen.',
     });
     const rad = s.send('TE', utenBrevet);
     expect(rad.data.dokumentasjon).toBeUndefined();

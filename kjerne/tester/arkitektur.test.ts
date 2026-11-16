@@ -1162,7 +1162,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'korrespondansetype sendemaate beskrivelse',
     ['kommandoer/nyttelast.ts:nyttelastkontroll'],
   ],
-  ['BESKREVET', 'kommando', 'korrespondansetype sendemaate beskrivelse'],
+  ['BARE_LAGT_TIL', 'kommando', 'korrespondansetype sendemaate beskrivelse'],
+  [
+    'kommandoer/kommando.ts',
+    'kommando',
+    'BARE_LAGT_TIL',
+    ['kommandoer/nyttelast.ts:nyttelastkontroll'],
+  ],
   // GR-U22: hjemmelen i en ny påberopelsesversjon sammenliknes med gjeldende versjon.
   [
     'Kommando.innhold',
@@ -2595,6 +2601,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'PARTEN',
     ['kommandoer/forutsetninger.ts:forutsetninger', 'kommandoer/nyttelast.ts:retting'],
   ],
+  // Feltene i meldingen, listet som i brevet.
+  ['frosset/brevdeler.ts', 'brevtekst', 'opplistet', ['kommandoer/nyttelast.ts:nyttelastkontroll']],
   // Datoene i meldingen, skrevet som i brevet.
   [
     'frosset/brevdeler.ts',

@@ -279,8 +279,9 @@ export class Kjoering {
    * Etikettene i bevis-saken: et krav og et svar navngis etter elementet, de andre
    * handlingene etter dokumentet. Opplysningene i dokumentet heter `<etikett>#sendt`
    * og `<etikett>#mottatt`. Et varsel kravskjemaet skriver foran kravet (VS-U34, VS-U53), heter
-   * `<etikett>#varselbrevet` (nummerert når de er flere), og opplysningene i det heter
-   * `<etikett>#varselbrevet#sendt`.
+   * `<etikett>#varselbrevet`, eller `<etikett>#varselbrevet1`, `…2` når de er flere. Opplysningene
+   * og utsagnene i det heter `<brevets etikett>#sendt` og `<brevets etikett>#varsel`, og utsagn med
+   * samme art i ett brev nummereres (`#varsel1`, `#varsel2`).
    */
   private navngi(h: Handling, utfall: Extract<Utfall, { godtatt: true }>): void {
     const rad = utfall.hendelser.at(-1)!;
@@ -303,6 +304,12 @@ export class Kjoering {
         this.navn.sett(navn, r.event_id);
         for (const o of (r.data.opplysninger ?? []) as { id: string; hva: string }[])
           this.navn.sett(`${navn}#${o.hva}`, o.id);
+        const utsagn = (r.data.utsagn ?? []) as { id: string; art: string }[];
+        for (const x of utsagn) {
+          const like = utsagn.filter((y) => y.art === x.art);
+          const nr = like.length > 1 ? like.indexOf(x) + 1 : '';
+          this.navn.sett(`${navn}#${x.art}${nr}`, x.id);
+        }
       });
       for (const o of (rad.data.opplysninger ?? []) as { id: string; hva: string }[])
         this.navn.sett(`${h.navn}#${o.hva}`, o.id);
