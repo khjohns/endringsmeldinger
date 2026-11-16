@@ -1861,9 +1861,10 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
     let journal = await bane.journal();
     if (uforstaatt) journal = [...journal, utenFormat(journal)];
     expect(forstaatt(journal)).toBe(!uforstaatt);
-    const krav = { type: 'ingen_krav', spor: 'vederlag' };
-    const avvist = prov(journal, krav);
-    expect(avvist.godtatt, 'kontrollsak: ingen krav avvises').toBe(false);
+    const trekk = prov(journal, { type: 'trekk', spor: 'frist' });
+    expect(trekk.godtatt ? null : trekk.avvisning.regel, 'kontrollsak: trekket avvises').toBe(
+      uforstaatt ? 'SAK_IKKE_FORSTAATT' : 'KRAV_TRUKKET'
+    );
     const registrert = prov(journal, registrering());
     expect(registrert.godtatt ? null : registrert.avvisning.regel).toBeNull();
     if (!registrert.godtatt) return;

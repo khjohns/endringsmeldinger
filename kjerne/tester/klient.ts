@@ -117,7 +117,6 @@ export const PART: Record<string, Part> = {
   aksept: 'TE',
   trekk: 'TE',
   varsel: 'TE',
-  ingen_krav: 'TE',
   passivitet: 'TE',
   korrigering: 'TE',
   brev: 'BH',
@@ -463,8 +462,6 @@ export function kommandoFor(h: Handling, u: Utledning, regler: Regelsett, navn: 
         hva: h.hva as 'sendt' | 'mottatt',
       };
     }
-    case 'ingen_krav':
-      return { type: 'ingen_krav', spor: h.spor as 'vederlag' };
     case 'innsigelse':
     case 'protest':
     case 'passivitet':

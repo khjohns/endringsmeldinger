@@ -86,9 +86,9 @@ describe('handlingsregisteret og kjernen (#2003, OV-U97)', () => {
   });
 
   it('hver kommandotype har rad, og hver kommando i registeret finnes i kjernen', () => {
-    const iRegisteret = new Set(radene.flatMap((r) => liste(r, 'kommandoer')));
-    expect(KOMMANDOTYPER.filter((k) => !iRegisteret.has(k))).toEqual([]);
-    expect([...iRegisteret].filter((k) => !KOMMANDOTYPER.includes(k as never))).toEqual([]);
+    const kommandoene = new Set(radene.flatMap((r) => liste(r, 'kommandoer')));
+    expect(KOMMANDOTYPER.filter((k) => !kommandoene.has(k))).toEqual([]);
+    expect([...kommandoene].filter((k) => !KOMMANDOTYPER.includes(k as never))).toEqual([]);
   });
 
   it('kjernen tilbyr ingen handling med status venter, innlegg eller opphevet, utenom avvikene', () => {

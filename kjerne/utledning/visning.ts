@@ -198,7 +198,7 @@ export const avsluttetAvTe = (u: Utledning): boolean =>
 export const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
   u.forstaatt && u.spor[spor].gjeldendeKrav !== null && !u.spor[spor].trukket && !avsluttetAvTe(u);
 
-/** MM-U30: sporets betegnelse, eller `null` når ingenting er sendt i sporet. */
+/** MM-U30: sporets betegnelse, eller `null` når ingen av dem foreligger. */
 export function betegnelse(u: Utledning, spor: Spor): Betegnelse | null {
   if (!u.forstaatt) return null;
   return BETEGNELSER.find((b) => FORELIGGER[b](u, spor)) ?? null;

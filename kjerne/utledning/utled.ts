@@ -1598,7 +1598,7 @@ export function venterPaaSvar(u: Utledning, spor: Spor): boolean {
 }
 
 /**
- * MM-U24, MM-U30: byggherrens gjeldende svar i sporet står uten enighet, kravet er ikke trukket,
+ * MM-U24, MM-U29: byggherrens gjeldende svar i sporet står uten enighet, kravet er ikke trukket,
  * og sporet er ikke lukket, så TE kan fortsatt godta det, og svaret er et TE kan godta
  * (`Sporskontroller.svaretKanGodtas`).
  */

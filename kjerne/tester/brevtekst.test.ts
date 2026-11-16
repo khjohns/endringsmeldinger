@@ -89,6 +89,8 @@ const KOE_17 = { kode: 'koe', loepenummer: 17 } as const;
 const I_SAKEN = `i sak KOE-17 («${TITTEL}»)`;
 /** Navnet på forholdet i påberopelsen, som er sakstittelen (LV-U43). */
 const NAVNET = `«${TITTEL}» i sak KOE-17`;
+/** Statusen når kravene er avgjort etter OV-U3, med teksten i OV-U99 punkt 6 (svar S1 15.11 i #2017). */
+const AVGJORT = 'Partene er enige om hvert krav som er sendt i løsningen, eller kravet er trukket';
 const KR = (n: string) => `${n.replace(' ', '\u00a0')}\u00a0kr eks. mva.`;
 /** Beløpet i byggherrens svar, der merverdiavgiften står i innledningen (LV-U34). */
 const kr = (n: string) => `${n.replace(' ', '\u00a0')}\u00a0kr`;
@@ -3478,7 +3480,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     expect(kraveneErAvgjort(u)).toBe(true);
     expect(visning(u, GJELDENDE_REGLER).status).toEqual({
       kode: 'alle_krav_avgjort',
-      tekst: 'Partene er enige om hvert krav som er sendt i løsningen, eller kravet er trukket',
+      tekst: AVGJORT,
     });
     expect(
       kanInngaaIEo(u),
@@ -3621,7 +3623,7 @@ describe('når kravene er avgjort, er det en opplysning og ingen sperre (MM-U34 
     expect(u.forstaatt, 'forutsetning: saken er forstått').toBe(true);
     expect(visning(u, GJELDENDE_REGLER).status).toEqual({
       kode: 'alle_krav_avgjort',
-      tekst: `${'Partene er enige om hvert krav som er sendt i løsningen, eller kravet er trukket'}. Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.`,
+      tekst: `${AVGJORT}. Saken har brev sendt utenfor appen. Appen vurderer ikke innholdet.`,
     });
   });
 
