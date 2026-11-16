@@ -72,16 +72,18 @@
     })
   );
 
+  // Et svar som ikke lenger står i sporet, er ikke valgt.
+  const svaret = $derived(svarene.some((x) => x.verdi === valg.svar) ? valg.svar : null);
   const vedlegg = $derived(vedleggskart(valg.korrespondanse.vedlegg));
   const kommando = $derived(
     kategori === 'dokumentasjon'
       ? dokumentasjonen(valg)
-      : kategori === 'aksept' && valg.svar
-        ? lagtTil(aksepten(spor, valg.svar, kjernesak.regelversjon), valg.korrespondanse)
+      : kategori === 'aksept' && svaret
+        ? lagtTil(aksepten(spor, svaret, kjernesak.regelversjon), valg.korrespondanse)
         : null
   );
 
-  const feltene = $derived(lagttilmangler({ ...valg, kategori }));
+  const feltene = $derived(lagttilmangler({ ...valg, kategori, svar: svaret }));
   const mangler = $derived(
     Object.entries(feltene).map(
       ([felt, tekst]): Mangel => ({ felt: id(felt), post: null, tekst: tekst! })
@@ -178,7 +180,7 @@
             navn={id('svar')}
             spoersmaal={LEGG_TIL.svaret}
             valg={svarene}
-            bind:verdi={valg.svar}
+            bind:verdi={() => svaret, (x) => (valg.svar = x)}
             feil={feil('svar')}
             beskrevetAv={id('svar-hjelp')}
             stablet

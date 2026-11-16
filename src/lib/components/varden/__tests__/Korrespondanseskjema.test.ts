@@ -7,7 +7,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
 import type { Journalrad, Part, Spor } from '$kjerne/typer';
 import {
@@ -27,8 +27,10 @@ import Vederlagskrav from '$lib/components/varden/Vederlagskrav.svelte';
 import Lagttilmerknader from '$lib/components/varden/Lagttilmerknader.svelte';
 import type { Korrespondansevalg } from '$lib/components/varden/korrespondansen';
 import { kravposterI } from '$kjerne/spor/vederlag/format';
-import { LEGG_TIL } from '$lib/components/varden/tekster';
-import { brevene, sendtSammeDag } from '$lib/components/varden/lesing';
+import { LEGG_TIL, SAKEN } from '$lib/components/varden/tekster';
+import { brevene, sendtSammeDag, sendtSammeDagSom } from '$lib/components/varden/lesing';
+import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
+import Vardensak from '$lib/components/varden/Vardensak.svelte';
 
 /** Byggherren godkjenner 200 000 av 250 000 kr, så aksepten gir enighet (KA-U1). */
 const medDelvisSvar = (() => {
@@ -401,5 +403,69 @@ describe('brevene sendt samme dag i brevtråden (OV-U104)', () => {
 
   it('kontrollsak: et krav lagt til med en tidligere dato står ikke med noe', () => {
     expect(sendtSammeDag(utledJournal(medKravSammeDag('2026-10-10'), KJERNE)).size).toBe(0);
+  });
+});
+
+describe('svaret lagt til i saken (code-review i #807)', () => {
+  it('kjernen nevner paret i omvendt rekkefølge, og det er ikke et nytt brev sendt samme dag', () => {
+    const krav = utledJournal(medVederlag, KJERNE).spor.vederlag.gjeldendeKrav!;
+    const u = utledJournal(
+      skrevet(
+        medVederlag,
+        'TE',
+        {
+          type: 'krav',
+          spor: 'vederlag',
+          innhold: {
+            kravposter: [
+              {
+                id: kravposterI(krav)[0]!.id,
+                beskrivelse: 'K',
+                oppgjoersform: 'tilbud',
+                beloep: 1,
+              },
+            ],
+          },
+          ...KORRESPONDANSEN,
+        },
+        new Map([['v-1', BREVET]])
+      ),
+      KJERNE
+    );
+    expect(u.sendtSammeDag.length).toBeGreaterThan(0);
+    const omvendt = {
+      ...u,
+      sendtSammeDag: u.sendtSammeDag.map((x) => ({ element: x.med, med: x.element })),
+    };
+    expect(sendtSammeDagSom(u, omvendt)).toEqual([]);
+  });
+
+  it('utkastet til et svar lagt til står som svar lagt til når byggherren bytter spor og kommer tilbake (BF-01 S-8)', async () => {
+    const demosak = lagDemosak(finnForloep('BF-08')!, 'bh-har-mottatt-paaberopelsen', 'BH');
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'BH',
+      hent: demosak.hent,
+      send: demosak.send,
+      lastOppVedlegg: async () => ({ ...BREVET, stoerrelse: 8 }),
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'forhold' });
+    await fireEvent.click(await screen.findByRole('button', { name: LEGG_TIL.tittel }));
+    await fyllUt(new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Oslo' }).format(new Date()));
+    await radio(LEGG_TIL.kategorier.svar);
+    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.gaaVidere }));
+    expect(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret }).length).toBeGreaterThan(
+      0
+    );
+    await fireEvent.click(screen.getAllByRole('button', { name: /^Vederlagsjustering/ })[0]!);
+    await fireEvent.click(
+      within(screen.getAllByRole('list', { name: SAKEN.kontraktsforhold })[0]!).getByRole('button')
+    );
+    expect(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret }).length).toBeGreaterThan(
+      0
+    );
+    expect(screen.queryByRole('button', { name: 'Se brevet før sending' })).toBeNull();
   });
 });

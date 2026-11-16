@@ -146,7 +146,7 @@ export function kategoriene(
     ...(part === 'TE' && spor !== 'forhold' && handlinger.includes(`krav:${spor}`)
       ? (['krav'] as const)
       : []),
-    ...(part === 'BH' && spor === 'forhold' && s.krav.length > 0 ? (['svar'] as const) : []),
+    ...(part === 'BH' && spor === 'forhold' && s.gjeldendeKrav ? (['svar'] as const) : []),
     ...(part === 'TE' && svareneISporet(u, spor).length ? (['aksept'] as const) : []),
   ];
 }

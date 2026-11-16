@@ -134,7 +134,7 @@
   type Kravspor = Exclude<Spor, 'forhold'>;
   type Arbeid =
     | { art: 'les' }
-    | { art: 'svar'; fraKorrespondansen?: true }
+    | { art: 'svar' }
     | { art: 'korrigering'; gjelder: string }
     | { art: 'nyversjon' }
     | { art: 'vederlagskrav'; fraKorrespondansen?: true }
@@ -169,12 +169,14 @@
   // Kravet om fristforlengelse står på samme måte (G-3 i BF-20).
   let fristkravvalg = $state<Fristkravvalg | null>(null);
   // Korrespondansen lagt til står når parten går videre til krav- eller svarskjemaet og tilbake
-  // (OV-U80). Skjemaet for kravet eller svaret er åpnet fra den når `arbeid` sier det.
-  let lagtTil = $state<{ spor: Spor; valg: Lagttilvalg } | null>(null);
+  // (OV-U80). Skjemaet for kravet er åpnet fra den når `arbeid` sier det. Svaret er et utkast som
+  // står når BH bytter spor (BF-01 S-8), så `svarutkast` sier at utkastet er et svar lagt til.
+  let lagtTil = $state<{ spor: Spor; valg: Lagttilvalg; svarutkast?: true } | null>(null);
   /** Korrespondansen kravet eller svaret i sporet legges til fra, eller `null`. */
   const lagtTilI = (s: Spor, kategori: 'krav' | 'svar') =>
-    'fraKorrespondansen' in arbeid &&
-    arbeid.fraKorrespondansen &&
+    (kategori === 'svar'
+      ? lagtTil?.svarutkast
+      : 'fraKorrespondansen' in arbeid && arbeid.fraKorrespondansen) &&
     lagtTil?.spor === s &&
     lagtTil.valg.kategori === kategori
       ? lagtTil.valg.korrespondanse
@@ -246,6 +248,7 @@
     else if (s === 'frist') fristsvarvalg = tomtFristsvar();
     else forholdssvarvalg = tomtForholdssvar();
     utkastAapent[s] = false;
+    if (lagtTil?.spor === s) delete lagtTil.svarutkast;
   }
 
   // Brevkontrollen for BHs svar i sporet, som svarer på gjeldende krav.
@@ -357,6 +360,8 @@
    */
   const skjemaene: Record<string, () => void> = {
     'svare:forhold': () => {
+      // Svaret sendes fra løsningen, også et utkast som var et svar lagt til.
+      if (lagtTil) delete lagtTil.svarutkast;
       utkastAapent.forhold = true;
       arbeid = { art: 'svar' };
     },
@@ -391,9 +396,11 @@
     }
     if (kategori === 'svar') {
       utkastAapent.forhold = true;
-      arbeid = { art: 'svar', fraKorrespondansen: true };
+      lagtTil.svarutkast = true;
+      arbeid = { art: 'svar' };
     } else if (valgt === 'frist') {
-      fristkravvalg = { ...(fristkravvalg ?? fristkravstart(u)), hva: 'krav', utenfor: null };
+      // `utenfor` i utkastet står; skjemaet ser bort fra det når kravet legges til.
+      fristkravvalg = { ...(fristkravvalg ?? fristkravstart(u)), hva: 'krav' };
       arbeid = { art: 'fristkrav', fraKorrespondansen: true };
     } else arbeid = { art: 'vederlagskrav', fraKorrespondansen: true };
   }
@@ -401,8 +408,11 @@
   function tilKorrespondansen() {
     arbeid = { art: 'korrespondanse' };
   }
-  async function lagtTilKvittering(tekst: string) {
+  async function lagtTilKvittering(tekst: string, krav: Kravspor | null = null) {
     lagtTil = null;
+    // Kravet er lagt til, så utkastet er brukt, som etter sendingen (`sendt`).
+    if (krav === 'vederlag') kravvalg = null;
+    if (krav === 'frist') fristkravvalg = null;
     arbeid = { art: 'les' };
     melding = { tekst, art: 'sendt' };
     await tick();
@@ -708,7 +718,7 @@
           {u}
           lagtTil={lagtTilI('vederlag', 'krav')}
           onendre={tilKorrespondansen}
-          onlagttil={() => lagtTilKvittering(LEGG_TIL.lagtTil.krav)}
+          onlagttil={() => lagtTilKvittering(LEGG_TIL.lagtTil.krav, 'vederlag')}
           bind:valg={kravvalg}
           onforkast={() => forkastKravet('vederlag')}
           onvedsiden={(v) => (vedSiden = v)}
@@ -721,7 +731,7 @@
           {sakslenke}
           lagtTil={lagtTilI('frist', 'krav')}
           onendre={tilKorrespondansen}
-          onlagttil={() => lagtTilKvittering(LEGG_TIL.lagtTil.krav)}
+          onlagttil={() => lagtTilKvittering(LEGG_TIL.lagtTil.krav, 'frist')}
           bind:valg={fristkravvalg}
           onforkast={() => forkastKravet('frist')}
           onbrevkontroll={(k) => tilKravkontroll('frist', k)}
@@ -733,7 +743,7 @@
             meldingen?.focus();
           }}
         />
-      {:else if arbeid.art === 'svar' && valgt === 'forhold' && (kjernesak.handlinger.includes('svare:forhold') || lagtTilI('forhold', 'svar'))}
+      {:else if arbeid.art === 'svar' && valgt === 'forhold' && (kjernesak.handlinger.includes('svare:forhold') || (lagtTilI('forhold', 'svar') && u.spor.forhold.gjeldendeKrav))}
         <Forholdssvar
           {kjernesak}
           {u}

@@ -387,7 +387,7 @@
 
 {#if linja.visKompakt}
   <div class="kompakt" role="region" aria-label={SVARSKJEMA.kompaktLinje}>
-    <Knapp variant="primaer" onclick={seBrevet}
+    <Knapp variant="primaer" onclick={seBrevet} opptatt={!!lagtTil && kjernesak.sender}
       >{lagtTil ? LEGG_TIL.leggTilSvaret : HOVEDLINJER.seBrevet}</Knapp
     >
     <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}

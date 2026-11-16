@@ -242,10 +242,12 @@ export const svareneISporet = (u: Utledning, spor: Spor) => [
  * i utledningen `etter` med brevet, og ikke i `foer`. Løsningen kjenner ikke rekkefølgen.
  */
 export function sendtSammeDagSom(foer: Utledning, etter: Utledning): Brevet[] {
-  const kjent = new Set(foer.sendtSammeDag.map((x) => `${x.element} ${x.med}`));
+  // Paret er det samme uansett hvilket element kjernen nevner først.
+  const par = (x: { element: string; med: string }) => [x.element, x.med].sort().join(' ');
+  const kjent = new Set(foer.sendtSammeDag.map(par));
   const ut = new Map<string, Brevet>();
   for (const x of etter.sendtSammeDag) {
-    if (kjent.has(`${x.element} ${x.med}`)) continue;
+    if (kjent.has(par(x))) continue;
     // Elementet i det nye brevet er det som ikke fantes før; det andre er brevet i saken.
     const iSaken = brevMedElement(foer, x.med) ?? brevMedElement(foer, x.element);
     if (iSaken) ut.set(iSaken.id, iSaken);
