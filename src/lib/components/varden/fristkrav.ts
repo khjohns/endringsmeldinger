@@ -173,8 +173,7 @@ export function manglerIFristkravet(
   if (v.utenfor) {
     if (!v.utenfor.dato) legg('utenfor-dato', FRISTKRAV.manglerVarseldato);
     if (v.hva === 'varsel' && !v.utenfor.type) legg('utenfor-type', FRISTKRAV.manglerType);
-    if (!v.utenfor.vedlegg.length)
-      legg('utenfor-brev', FRISTKRAV.manglerVarselbrev(v.utenfor.type));
+    if (!v.utenfor.vedlegg.length) legg('utenfor-brev', FRISTKRAV.manglerVarselbrev);
   }
   if (v.hva === 'varsel') return ut;
   if (foresporsel && v.bokstav === 'b') {

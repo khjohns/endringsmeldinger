@@ -25,7 +25,7 @@
             "trykk": "Varselet er gitt før, utenfor løsningen"
           },
           {
-            "staar": "Brevet sier når, og brevet eller e-posten du varslet i, legges ved."
+            "staar": "Brevet sier når, og dokumentet du varslet i, legges ved."
           },
           {
             "trykk": "Dette kravet er varselet likevel"
@@ -315,7 +315,7 @@
     {
       "dato": "2026-11-16",
       "forhold": "#2056",
-      "hva": "Valget heter «Registrer et varsel sendt utenfor løsningen», og etiketten for vedlegget følger svaret på «Hvordan ble varselet gitt?»: brevet, e-posten, eller brevet eller e-posten før TE har svart."
+      "hva": "Valget heter «Registrer et varsel sendt utenfor løsningen», og etiketten for vedlegget er «Dokumentet du varslet i» for alle typene."
     }
   ]
 }
