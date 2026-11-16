@@ -921,6 +921,7 @@ avkall på vederlaget for en forsering, står i [KA-U25](#ka-u25). Veiledningen 
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "ordlyden i brevteksten «Avkallet omfatter ikke vederlag for forsering etter NS 8407 § 33.8.»"
 anker = "ka-u25"
 vedtak = '''
 KA-U25: brevet for «ingen krav» i vederlagssporet (KA-U22) sier også: «Avkallet omfatter
@@ -1222,7 +1223,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "avsnittet «Designdel» i samlevedtaket"
+designdel = "avsnittet «Designdel» i samlevedtaket, og ordlyden i ‹› i punkt 4 (annen setning endret av LV-U75)"
 beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
 id = "KA-U52"
 dato = 2026-11-05
@@ -6098,7 +6099,7 @@ forkastet = true
 [[gruppe.vedtak]]
 klasse = "vedtak"
 designdel = "de to første setningene i punkt 8, punkt 9 uten den siste setningen, og første setning i avsnittet «Designdel»"
-beslutningsdel = "«Et forløp for det nye svaret skrives når det bygges.»"
+beslutningsdel = "«Et forløp for det nye svaret skrives når det bygges.», og brevteksten i ‹› i punkt 2, som LV-U73 har endret"
 id = "HF-U29"
 dato = 2026-11-05
 hvem = "oppdragsgiver"
@@ -6154,7 +6155,7 @@ tekst = '''
 forkastet = true
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "avsnittet «Designdel» i samlevedtaket"
+designdel = "avsnittet «Designdel» i samlevedtaket, og ordlyden i «» i punkt 8"
 beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
 id = "KA-U49"
 dato = 2026-11-04
@@ -8165,7 +8166,7 @@ anbefalt = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "handlingsnavnet ‹Svar›"
+designdel = "handlingsnavnet ‹Svar›, brevnavnet ‹Påberopelse av <forholdet>› og ordlyden ‹påberopelsen av <forholdet>› i brevteksten"
 id = "GR-U31"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -8228,6 +8229,7 @@ tekst = "Løsningen legger ingen erklæring i munnen på en part, og den avgjør
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "ordlyden i de tre standpunkttekstene i ‹›, også ordene «er enig i». At svaret er byggherrens godkjenning, med kontraktens vurdering i hvert tilfelle, er ikke designdel"
 id = "GR-U32"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -8345,7 +8347,7 @@ tekst = "Når byggherren svarer på vederlag eller frist mens ansvarsgrunnlaget 
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "avsnittet «Designdel» i samlevedtaket"
+designdel = "avsnittet «Designdel» i samlevedtaket, ordlyden i ‹› i punkt 3 og 6, og at forbeholdet og henvisningen står i punktet «Forbehold» sist i brevet"
 id = "GR-U34"
 dato = 2026-11-05
 hvem = "oppdragsgiver"
@@ -8490,7 +8492,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "«skjemaet sier at byggherren kan være bundet av det tidligere svaret»"
+designdel = "ordlyden ‹Byggherren viste i brev <merking> av <dato> til byggherrens <dokumenttype> av <dato> for standpunktet til forholdet.›, og «skjemaet sier at byggherren kan være bundet av det tidligere svaret»"
 id = "GR-U36"
 dato = 2026-11-12
 hvem = "oppdragsgiver"
@@ -9788,6 +9790,7 @@ Endrer DRF-03 («En dato fra klienten avvises») for registrerte brev. Bestridel
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "ordlyden i brevteksten i «»"
 beslutningsdel = "når varselet etter punkt 34.1.2 bygges"
 anker = "vs-u15"
 vedtak = '''
@@ -11990,7 +11993,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "hjelpeteksten ved spørsmålet i skjemaet for ny sak, og hvor og når den står"
+designdel = "ordlyden i opplysningen ved spørsmålet i skjemaet for ny sak, og hvor og når den står"
 id = "VS-U39"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -15365,6 +15368,7 @@ tekst = "Hvert utsagn sier hva det er: byggherrens standpunkt, et tilbud eller e
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "ordlyden i den faste teksten i ‹›"
 id = "EO-U22"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -18507,6 +18511,7 @@ med virkning står i teksten. Ikke bygget'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "ordlyden i brevsetningene i «» i punkt 1–13 og lagslinjene «Prinsipalt:», «Subsidiært:» og «Videre subsidiært:». Handlingen og bestemmelsen hver setning meddeler, som frafallet av pålegget mot å utstede endringsordre etter punkt 32.3 c og tilbudet etter punkt 34.2.1, er ikke designdel"
 anker = "lv-u4"
 vedtak = '''
 LV-U4: brevtekstene appen lager av utsagnene, har denne ordlyden. Endret tekst gjelder
@@ -18610,6 +18615,7 @@ Brevteksten bygges i #369. Punkt 8–12 bygges ikke i første versjon (OV-U7).''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "de to brevsetningene i «», med klammen"
 anker = "lv-u5"
 vedtak = '''
 LV-U5: brevteksten for rettidighet, i tide ([LV-U4](#lv-u4) punkt 5), nevner varselet
@@ -18633,7 +18639,7 @@ fristforlengelse etter § 33.4] kom for sent.» Spørsmålet og svaret står på
 bygget. Bygges i #410'''
 
 [[gruppe.vedtak]]
-klasse = "vedtak"
+klasse = "design"
 id = "LV-U6"
 dato = 2026-10-12
 hvem = "oppdragsgiver"
@@ -18704,6 +18710,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "ordlyden i setningen «Byggherren gjør ikke gjeldende at varselet kom for sent» og «Teksten står»"
 id = "LV-U8"
 dato = 2026-10-15
 hvem = "oppdragsgiver"
@@ -20608,7 +20615,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "skjemateksten før sending"
+designdel = "skjemateksten før sending, og etiketten «Avsluttet med EO» i punkt 6"
 id = "MM-U33"
 dato = 2026-10-28
 hvem = "oppdragsgiver"
@@ -20663,7 +20670,7 @@ Det betyr ikke at enighet rettslig bare kan oppstå på denne måten. Etiketten 
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "påminnelsene i skjemaet (punkt 1, 16 og 26); «venter sporet på nytt svar» i ordlyden for HF-U8 i punkt 2; i punkt 17 «og den vises» og ordlyden for LV-U7 «Akseptfristen vises med datoen, og appen viser leveringskvitteringen ved siden av»"
+designdel = "påminnelsene i skjemaet (punkt 1, 16 og 26); i punkt 12 etiketten ‹Registrert enighet om alle fremsatte krav›; i punkt 16 ordlyden ‹Aksepten gjelder ikke byggherrens standpunkt til grunnlaget.›; «venter sporet på nytt svar» i ordlyden for HF-U8 i punkt 2; i punkt 17 «og den vises» og ordlyden for LV-U7 «Akseptfristen vises med datoen, og appen viser leveringskvitteringen ved siden av»"
 beslutningsdel = "den andre og tredje setningen i ordlyden for HF-U8 i punkt 2: «Byggherrens svar på den tidligere versjonen kan da ikke godtas i løsningen (KA-U1). Det er en begrensning i løsningen.»"
 id = "MM-U34"
 dato = 2026-10-28
@@ -20773,6 +20780,7 @@ tekst = '''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "setningen i ‹›, at tabellen viser 0 kr, og at punktet om varselet ikke sier beløpet i tillegg"
 id = "LV-U33"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -20876,7 +20884,8 @@ anbefalt = true
 
 
 [[gruppe.vedtak]]
-klasse = "vedtak"
+klasse = "design"
+bindende_i = ["gr-u14"]
 id = "LV-U36"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -20912,7 +20921,8 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
-klasse = "vedtak"
+klasse = "design"
+bindende_i = ["lv-u4", "lv-u34"]
 id = "LV-U37"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -20950,6 +20960,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "setningen i ‹›"
 id = "LV-U38"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -21095,7 +21106,7 @@ kilde = "hovedplanen"
 tekst = "En påberopelse av at TE har varslet eller krevd for sent etter en bestemmelse står i byggherrens svar, med ett standpunkt for hver bestemmelse, som § 32.2, § 33.4, § 33.6.1 og § 34.1.2 (VS-U3, VS-U22)."
 
 [[gruppe.vedtak]]
-klasse = "vedtak"
+klasse = "design"
 id = "LV-U39"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -21148,7 +21159,8 @@ kilde = "hovedplanen"
 tekst = "‹TE› i en vedtatt brevtekst leses som ‹totalentreprenøren›, og ‹TEs› som ‹totalentreprenørens›."
 
 [[gruppe.vedtak]]
-klasse = "vedtak"
+klasse = "design"
+bindende_i = ["lv-u34"]
 id = "LV-U40"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -21196,6 +21208,7 @@ tekst = "‹NS 8407› står bare første gang i brevet, og ‹eks. mva.› bare
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "brevsetningene i ‹› i de åtte strekpunktene, leseregelen for ‹grunnlaget› og ‹forholdet›, og endringen av regelen «Godkjenner og godtar» i språkfila"
 id = "LV-U41"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -21416,7 +21429,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "kontraktsforkortelsen i prosjektinnstillingene"
+designdel = "kontraktsforkortelsen i prosjektinnstillingene, og henvisningsformene ‹brev <n> i sak KOE-17 av <dato>› (endret av LV-U53) og ‹i sak KOE-17›"
 id = "LV-U44"
 dato = 2026-11-03
 hvem = "oppdragsgiver"
@@ -21447,7 +21460,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "Avsenderen oppgir merkingen når korrespondansen legges til eller senere etter OV-U84; korrespondanse motparten legger til, står uten nummer til avsenderen oppgir merkingen."
+designdel = "Avsenderen oppgir merkingen når korrespondansen legges til eller senere etter OV-U84; korrespondanse motparten legger til, står uten nummer til avsenderen oppgir merkingen. Henvisningsformen ‹brev <n> i sak KOE-17 av <dato>›."
 beslutningsdel = "Løsningen gir ikke korrespondansen noe nummer, kontrollerer ikke merkingen og endrer ikke dokumentet; løsningens neste brev får nummeret etter det høyeste i saken."
 id = "LV-U45"
 dato = 2026-11-04
@@ -22464,7 +22477,7 @@ tekst = "Innlegg og dokumentasjon kan fortsatt legges til."
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "avsnittet «Designdel» i samlevedtaket"
+designdel = "avsnittet «Designdel» i samlevedtaket, og ordlyden ‹<Part> viser til brev <merking> av <dato>:› i punkt 2"
 beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket"
 id = "MM-U47"
 dato = 2026-11-04
@@ -22916,7 +22929,8 @@ id = "LV-U54"
 dato = 2026-11-05
 hvem = "oppdragsgiver"
 kilde = ["#1308", "#1065"]
-klasse = "vedtak"
+klasse = "design"
+bindende_i = ["mm-u55", "lv-u56"]
 sporsmal = '''
 Spørsmål 2, ordrett slik det ble stilt 05.11 i orkestreringsrunde 21 (#1065) og lagret i #1308 ([kommentaren 6656631296](https://github.com/khjohns/endringsmeldinger/issues/1308#issuecomment-6656631296)), kontrollert av en subagent mot `main` på `0eec75c`. Alternativene står i posten.
 
@@ -23324,7 +23338,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "avsnittet «Designdel» i samlevedtaket"
+designdel = "avsnittet «Designdel» i samlevedtaket, og ordlyden i ‹› i punkt 50"
 beslutningsdel = "avsnittet «Beslutningsdel» i samlevedtaket, med sperrene i punkt 12, 14 og 37 som avsnittet viser til"
 id = "EO-U39"
 dato = 2026-11-05
@@ -23570,7 +23584,7 @@ dato = 2026-11-06
 hvem = "oppdragsgiver"
 kilde = ["#1615"]
 klasse = "vedtak"
-designdel = "at tittelen er den samme som i det første brevet, og at friteksten står under"
+designdel = "ordlyden i de fire setningene i ‹› for den låste delen og i tilleggssetningen ‹Totalentreprenøren oppga tidligere …›, at henvisningen står under Deres ref., at tittelen er den samme som i det første brevet, og at friteksten står under. At brevet ikke viser til tidligere brev ellers, ikke sier at noe erstattes og ikke gjentar varselet etter punkt 32.2, er ikke designdel"
 sporsmal = '''
 S-1, S-8 og S-8b, ordrett slik det ble stilt 06.11 i designsløyfa for BF-10 (#1615) og lagret i `docs/domenetabell/brukerforlop/BF-10-sporsmal.md`. Svaret på S-1 og S-8 står under hvert av dem, og S-8b ble stilt etter svaret på S-8.
 
@@ -26056,7 +26070,7 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "teksten «TE oppgir at varselet ble sendt», skjemaet for byggherrens svar og for TEs aksept"
+designdel = "tekstene «TE oppgir at varselet ble sendt» og «TE oppgir at kravet ble sendt», skjemaet for byggherrens svar og for TEs aksept"
 id = "OV-U5"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
@@ -29062,6 +29076,8 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
+designdel = "radene, kolonnene og plasseringen etter punktene og før «Forbehold», og hvordan en post uten fast beløp vises"
+beslutningsdel = "at tabellen fryses med brevteksten"
 id = "OV-U73"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -29106,8 +29122,8 @@ forkastet = true
 
 
 [[gruppe.vedtak]]
-klasse = "vedtak"
-designdel = "ordet i skjemaet"
+klasse = "design"
+bindende_i = ["ov-u89", "ov-u28"]
 id = "OV-U74"
 dato = 2026-10-31
 hvem = "oppdragsgiver"

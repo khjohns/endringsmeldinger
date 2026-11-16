@@ -265,3 +265,75 @@ post er endret.
   leter etter.
 - LV-U55, LV-U57, EO-U15 og OV-U86 er alt design, men mangler `flyttet_til`. Det rettes i
   omklassifiseringen.
+
+## Omklassifiseringen 16.11
+
+Klassene er kontrollert uavhengig 16.11 av tre subagenter. To kontrollerte forslaget over, og én
+vurderte de fire samlevedtakene under «Ikke vurdert». Utfallet av kontrollen står i #1534.
+Klassene er ført i registeret i PR-en for omklassifiseringen, med disse avvikene fra forslaget:
+
+- **Uendret fordi posten er opphevet etter 14.11:** GR-U35 (av OV-U101), MM-U52 (av MM-U55) og
+  LV-U52 (av LV-U75).
+- **Uendret fordi koden viser til posten som eneste grunnlag:** LV-U35, LV-U42 og LV-U53. De blir
+  design når henvisningene i `kjerne/` viser til vedtaket med den bindende setningen
+  (`vedtakshenvisninger.py`).
+- **Annet hjem:** LV-U54 er bindende i MM-U55 og LV-U56, ikke i MM-U52. Ordlyden i HF-U29
+  pkt. 2 er beslutningsdel, fordi LV-U73 har tatt den.
+- **Budskapet står utenfor designdelen:** I LV-U4, LV-U56 og GR-U32 sier designdelen uttrykkelig
+  hva som ikke er designdel. I LV-U4 er det handlingen og bestemmelsen hver brevsetning meddeler
+  (G7). I LV-U56 er det at brevet ikke viser til tidligere brev ellers, ikke sier at noe erstattes
+  og ikke gjentar varselet etter punkt 32.2 (G3). I GR-U32 er det at svaret er byggherrens
+  godkjenning med kontraktens vurdering. Ordene «er enig i» er designdel etter svaret 1 A: en ny
+  ordlyd må meddele den samme godkjenningen og prøves først mot budskapet. Det forkastede «godkjenner
+  forholdet» viser hva godkjenningen gjelder, ikke at ordene binder.
+- **Ett bindende vedtak til:** LV-U37 er bindende i LV-U4 og LV-U34. LV-U34 sier at
+  ‹eks. mva.› står i innledningen til svaret på kravet om justering av vederlaget.
+- **Designdelen snevres inn:** VS-U39 får bare ordlyden i opplysningen som designdel. At en e-post
+  alene eller et møtereferat ikke er nok etter kapittel B, er tolkning av kontraktsgrunnlaget.
+- **De fire samlevedtakene:** GR-U34 pkt. 3 og 6, KA-U49 pkt. 8, MM-U47 pkt. 2 og KA-U52 pkt. 4
+  får ordlyden i designdelen. I KA-U52 pkt. 4 står budskapet om at kravet erstatter den
+  tidligere kravversjonen, fordi LV-U75 viser til den setningen.
+- **Ført etter svaret:** OV-U73 (se spørsmålet under). `flyttet_til` for LV-U55, LV-U57, EO-U15 og
+  OV-U86 føres når teksten flyttes til forløpet. De nye designpostene har språkfila som hjem, som
+  ikke er et mål for `flyttet_til`.
+
+Grensetilfellene G1–G10 og grensetilfellene i de andre postene er avgjort av svaret 1 A, av testen
+eller av et senere vedtak. Bare OV-U73 sto igjen.
+
+### Spørsmålet om OV-U73
+
+> **2. Oversiktstabellen i byggherrens svar på et krav om vederlagsjustering (OV-U73).**
+> OV-U73 sier at svaret har en oversiktstabell når det har minst to poster med beløp og minst to
+> lag. Tabellen har én rad per post med det krevde beløpet og det byggherren godkjenner i hvert lag,
+> og en sumrad. Beløpene er de samme som i punktene, og tabellen står etter punktene og før
+> «Forbehold». Tabellen er en del av brevteksten og fryses med den. En post uten fast beløp regnes
+> ikke med, og hvordan den vises, avgjøres for seg. OV-U73 endrer OV-U28: summen i hvert lag står i
+> tabellen. Postene er kravpostene (KA-U53), også den særskilte vederlagsjusteringen (OV-U106).
+> At tabellen har én rad per kravpost og én kolonne per lag (KA-U57 (e)), er allerede designdel.
+> Spørsmålet er hva i OV-U73 som binder, og hva brukerprøven kan endre uten vedtak.
+>
+> - **A.** OV-U73 står som vedtak. Tabellen er en del av brevet byggherren sender (MM-U50), og
+>   beløpene i tabellen er de samme som i punktene. Når tabellen står (minst to poster med beløp og
+>   minst to lag), har den en sumrad for hvert lag, og en post uten fast beløp regnes ikke med i
+>   summen. Radene, kolonnene og plasseringen etter punktene og før «Forbehold» er designdel, og
+>   det samme er hvordan en post uten fast beløp vises. At tabellen fryses med brevteksten, er
+>   beslutningsdel. Forhold: ingen. Vedtaksteksten endres ikke.
+> - **B.** OV-U73 blir beslutning, bindende i KA-U57 (c) og MM-U50. Byggherrens standpunkt til hver
+>   post står i punktene, og et sendt brev står slik det ble sendt, med tabellen (MM-U50). At
+>   tabellen er en del av brevteksten og fryses med den, er beslutningen. Hva tabellen viser i nye
+>   brev, også sumraden og hvilke poster summen omfatter, er designdel og kan endres av
+>   brukerprøven uten vedtak. Forhold: forholdet «endrer OV-U28» faller bort, og summen i hvert lag
+>   blir designdel. OV-U28 står. Vedtaksteksten endres ikke.
+>
+> **Anbefaling: A.** Tabellen er en del av brevteksten (OV-U73), og det byggherren har meddelt
+> skriftlig, står slik det ble sendt (MM-U50). Summen er derfor ikke bare en oversikt i visningen,
+> som vedtaksskillen regner som beslutning eller design. Det er en antakelse, ikke prøvd, at
+> totalentreprenøren leser summen som det byggherren godkjenner samlet i hvert lag. Med den
+> lesingen er det noe brevet meddeler, hvilke poster summen omfatter. Med B kan brukerprøven endre
+> hva summen omfatter i nye brev, uten vedtak. Et sendt brev står (MM-U50).
+>
+> **Valget styrer** klassen og delene for OV-U73, og om sumraden og hva den omfatter kan endres av
+> brukerprøven alene.
+
+**Svaret.** Oppdragsgiver 16.11, ordrett: «2A», altså A, det anbefalte alternativet (formidlet av
+orkestratoren). OV-U73 er ført som vedtak med designdel og beslutningsdel etter A.
