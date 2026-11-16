@@ -173,13 +173,6 @@ export const KONTRAKTSREGLER: Record<string, Kontraktsregel> = {
       'Varsles kravet etter annet ledd for sent, taper totalentreprenøren retten til å påberope seg påløpte utgifter som grunnlag for kravet. Byggherren må påberope sen varsling skriftlig uten ugrunnet opphold (punkt 5). Kravet etter første ledd har ingen særskilt varslingsplikt etter punkt 34.1.3.',
   },
 
-  '34.2': {
-    regel:
-      'Vederlagsjusteringen skal fastsettes på grunnlag av kontraktens enhetspriser så langt disse passer. Der enhetspriser ikke passer, fastsettes vederlaget som regningsarbeid, eller ut fra annen avtalt metode.',
-    konsekvens:
-      'Totalentreprenøren skal varsle uten ugrunnet opphold dersom den vil kreve vederlagsjustering, med opplysninger om hva kravet bygger på og om mulig kravets størrelse.',
-  },
-
   '34.4': {
     regel:
       'Regningsarbeid avregnes etter nødvendige kostnader med et avtalt eller sedvanlig påslag for indirekte kostnader, risiko og fortjeneste. Totalentreprenøren skal føre løpende oversikt over timer og materialer.',
