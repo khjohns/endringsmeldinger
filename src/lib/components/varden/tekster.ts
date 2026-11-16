@@ -9,7 +9,7 @@
  */
 
 import { liste, opplistet, PARTEN, PARTENS, stor } from '$kjerne/frosset/brevdeler';
-import { dager, kroner } from '$kjerne/frosset/tekst';
+import { dager, KORRESPONDANSETYPEN, kroner } from '$kjerne/frosset/tekst';
 import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
 import type { Betegnelse } from '$kjerne/utledning/visning';
 import type {
@@ -17,6 +17,7 @@ import type {
   Kravpost,
   Oppgjoersform,
   Part,
+  Sendemaate,
   Spor,
   Standpunkt,
 } from '$kjerne/typer';
@@ -30,13 +31,6 @@ import {
 import type { Brevet, Brevref, Innlegget, OppgittDato, Standpunktet } from './lesing';
 import type { Innsigelsen, Svarlaget } from './svarlagene';
 
-/** Dokumentet med bestemt form, etter typen korrespondanse (LV-U42, arbeidsvalget 1 A 16.11 i #807). */
-const DOKUMENTET: Record<Korrespondansetype, string> = {
-  brev: 'brevet',
-  e_post: 'e-posten',
-  moetereferat: 'møtereferatet',
-  notat: 'dokumentet',
-};
 export const SPORNAVN: Record<Spor, string> = {
   forhold: 'Forholdet',
   vederlag: 'Vederlagsjustering',
@@ -1080,11 +1074,52 @@ export const SAKEN = {
       : `Siste: ${brevref(b)} fra ${PARTEN[part]}`,
   /** OV-U86. */
   dokumentasjonIkkeSendt: 'Saken har dokumentasjon som er registrert, men ikke sendt herfra.',
+  ikkeForstaatt:
+    'Saken har en hendelse løsningen ikke kan lese. Kravene, svarene og fristene i saken vises derfor ikke.',
   /** Lenkene som gjelder hele prosjektet, i topplinja (oppdragsgiver 13.11, #1899). */
   nyttKrav: 'Nytt krav om endringsordre',
   iCatenda: 'Åpne saken i Catenda',
   akseptfrist: (frist: string) => `Akseptfrist ${dato(frist)}`,
   ikkeTilgjengelig: 'Dette er ikke bygget i denne prøven av Varden ennå.',
+};
+
+/**
+ * Varselet sendt utenfor løsningen, i den felles komponenten for skjemaet for ny sak, fristkravet
+ * og vederlagskravet (OV-U79, VS-U34, A1 i #2056). Ordene følger fristkravet (#2063).
+ */
+export const KORRESPONDANSEN = {
+  typen: 'Hvordan ble varselet gitt?',
+  typer: [
+    { verdi: 'brev', tekst: 'Brev' },
+    { verdi: 'e_post', tekst: 'E-post' },
+    { verdi: 'moetereferat', tekst: 'Møtereferat' },
+    { verdi: 'notat', tekst: 'Notat eller annet dokument' },
+  ] satisfies { verdi: Korrespondansetype; tekst: string }[],
+  // VS-U39 ved varselet etter punkt 32.2, og VS-U72 ved varsler og krav etter kapittel 33 og 34.
+  kapittelB:
+    'Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes på byggherrens skjema, som brev, som PDF i e-post eller i prosjekthotellet når prosjektet bruker det. En e-post alene eller et møtereferat er ikke nok.',
+  sendemaaten: 'Hvordan ble brevet sendt?',
+  sendemaater: [
+    { verdi: 'post', tekst: 'Per post' },
+    { verdi: 'pdf_e_post', tekst: 'Som PDF i e-post' },
+    { verdi: 'prosjekthotell', tekst: 'I prosjekthotellet' },
+    { verdi: 'annen_maate', tekst: 'På annen måte' },
+  ] satisfies { verdi: Sendemaate; tekst: string }[],
+  dato: 'Datoen det ble sendt',
+  // OV-U80: datoen for varselet settes én gang.
+  datoHjelp: 'Datoen avsenderen oppgir. Den settes én gang.',
+  dokumentet: 'Dokumentet du varslet i',
+  dokumentetHjelp: 'Legges til i saken og ved brevet. Opptil 15 MB.',
+  dokumentetIkkeEnnaa: 'Dokumentet kan ikke legges ved ennå.',
+  beskrivelse: 'Kort beskrivelse av varselet',
+  beskrivelseHjelp: 'Kort, med egne ord.',
+  mangler: {
+    type: 'Velg hvordan varselet ble gitt.',
+    sendemaate: 'Velg hvordan brevet ble sendt.',
+    dato: 'Oppgi datoen varselet ble sendt.',
+    dokument: 'Legg ved dokumentet du varslet i.',
+    beskrivelse: 'Beskriv varselet.',
+  },
 };
 
 /** Skjemaet for ny sak (BF-05, skissen versjon 3 med funnene F-1–F-8). */
@@ -1123,42 +1158,14 @@ export const NYSAK = {
   // Spørsmålet sier «pålegget» eller «forholdet», som ledetekstene (F-5).
   alleredeVarslet: (paalegg: boolean) =>
     `Har du allerede varslet byggherren etter punkt 32.2, på annen måte, at ${paalegg ? 'pålegget' : 'forholdet'} er en endring?`,
-  // Opplysningen fra kapittel B står ved spørsmålet uansett svar (VS-U39, F-8).
-  kapittelB:
-    'Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes på byggherrens skjema, som brev, som PDF i e-post eller i prosjekthotellet når prosjektet bruker det. En e-post alene eller et møtereferat er ikke nok.',
-  // Varselet som alt er sendt, med det OV-U79 krever (D-8, VS-U38). Hjelpetekstene forklarer
-  // bare det det spørres om (F-3).
-  varseltype: 'Hva legger du til?',
-  varseltyper: [
-    { verdi: 'brev', tekst: 'Brev' },
-    { verdi: 'e_post', tekst: 'E-post' },
-    { verdi: 'moetereferat', tekst: 'Møtereferat' },
-    { verdi: 'notat', tekst: 'Notat eller annet dokument' },
-  ],
-  sendemaate: 'Hvordan ble brevet sendt?',
-  sendemaater: [
-    { verdi: 'post', tekst: 'Per post' },
-    { verdi: 'pdf_e_post', tekst: 'Som PDF i e-post' },
-    { verdi: 'prosjekthotell', tekst: 'I prosjekthotellet' },
-    { verdi: 'annen_maate', tekst: 'På annen måte' },
-  ],
-  varseldato: 'Datoen det ble sendt',
-  varseldatoHjelp: 'Datoen avsenderen oppgir.',
-  varseldokument: 'Dokumentet',
-  varseldokumentIkkeLaget: 'Dokumentet kan ikke legges ved ennå.',
-  varselbeskrivelse: 'Kort beskrivelse av varselet',
-  varselbeskrivelseHjelp: 'Kort, med egne ord.',
+  // Varselet som alt er sendt (VS-U38), med feltene i `KORRESPONDANSEN`.
   varselMerknad:
     'Varselet legges til i saken sammen med påberopelsen, og dokumentet legges ved brevet.',
-  velgVarseltypen: 'Velg hva du legger til.',
-  velgSendemaaten: 'Velg sendemåten.',
-  oppgiVarseldatoen: 'Oppgi datoen varselet ble sendt.',
-  beskrivVarselet: 'Beskriv varselet.',
-  // Lagringen venter på #807 og #1487, og setningen i brevet på #1488.
   /** LV-U46: en annen sak fikk nummeret før brevet ble sendt. */
   nyttNummer:
     'En annen sak fikk nummeret før brevet ble sendt. Se over brevet med det nye nummeret og send det på nytt.',
   ingenMerking: 'Sakens nummer kunne ikke hentes, så brevet kan ikke vises.',
+  // Varselet lagres når påberopelsen har setningen etter VS-U38 (#1488).
   varseletKanIkkeLagres:
     'Varselet kan ikke legges til i saken ennå. Velg nei for å sende påberopelsen uten det.',
   // Panelet til høyre, som i de andre skjemaene i Varden (F-1).
@@ -1390,7 +1397,7 @@ export const KRAVSKJEMA = {
   gisIBrevet: 'Gis i dette brevet.',
   // Typen som i omtalen etter LV-U42 (arbeidsvalget 1 A 16.11 i #807).
   gittIDokumentet: (type: Korrespondansetype | null, d: string) =>
-    `Gitt i ${DOKUMENTET[type ?? 'brev']} av ${dato(d)}, som legges ved kravet.`,
+    `Gitt i ${KORRESPONDANSETYPEN[type ?? 'brev'].bestemt} av ${dato(d)}, som legges ved kravet.`,
   sammeDokument: (d: string) =>
     d ? `Dokumentet av ${dato(d)} legges ved én gang.` : 'Dokumentet legges ved én gang.',
   denSaerskilte: 'den særskilte vederlagsjusteringen',
@@ -1414,16 +1421,6 @@ export const KRAVSKJEMA = {
   varseletI: (b: Brevref) => (b.nummer === null && b.omtale ? b.omtale : brevrefStor(b)),
   ingenVarslerISaken: (hjemmel: string) =>
     `Saken har ikke noe varsel etter ${punkt(hjemmel)}. Legg til dokumentet i stedet.`,
-  /** Spørsmålet om formen, for et varsel gitt utenfor løsningen: registrert alene, eller ved en kravpost. */
-  varselGitt: 'Hvordan ble varselet gitt?',
-  dokumenttyper: [
-    { verdi: 'brev' as const, tekst: 'Brev' },
-    { verdi: 'e_post' as const, tekst: 'E-post' },
-  ],
-  dokumentdato: 'Datoen det ble sendt',
-  dokumentdatoHjelp: 'Datoen avsenderen oppgir.',
-  dokumentet: 'Dokumentet',
-  dokumentetHjelp: 'Legges til i saken som et eget brev og ved kravet. Opptil 15 MB.',
   // 4. Forbeholdet, i kravets eget felt (LV-U74).
   forbehold: 'Forbehold',
   forbeholdHjelp: 'Står i brevet under kravet.',
@@ -1439,9 +1436,6 @@ export const KRAVSKJEMA = {
   merEnnNull: 'Beløpet må være mer enn 0 kr.',
   manglerVarselet: 'Velg varselet i saken.',
   manglerSamme: 'Legg til dokumentet i den andre posten, eller velg et annet svar.',
-  manglerType: 'Velg om dokumentet er et brev eller en e-post.',
-  manglerDato: 'Oppgi datoen dokumentet ble sendt.',
-  manglerDokument: 'Legg ved dokumentet.',
   // Panelet til høyre (U-15, U-16).
   punktene: 'Punktene',
   punkteneHjelp: 'Beløp eks. mva. Oppdateres mens du skriver.',
@@ -1530,10 +1524,6 @@ export const FRISTKRAV = {
   gittFoer: 'Varselet er gitt før, utenfor løsningen',
   gittFoerHjelp: 'Brevet sier når varselet ble gitt, og dokumentet du varslet i, legges ved.',
   likevel: 'Dette kravet er varselet likevel',
-  varseldato: 'Datoen for varselet',
-  varseldatoHjelp: 'Datoen settes én gang.',
-  varselbrevet: 'Dokumentet du varslet i',
-  varselbrevetHjelp: 'Legges ved. Opptil 15 MB.',
   // Datoen TE ble klar over forholdet, fra påberopelsen eller korrigeringen (`klarOverForholdet`).
   klarOver: 'Når ble du klar over forholdet?',
   oppgittI: (b: Brevref) => `Oppgitt i ${brevref(b)}.`,
@@ -1650,9 +1640,6 @@ export const FRISTKRAV = {
   manglerDager: 'Skriv dagene som et helt antall.',
   nullDager: 'Et krav på 0 dager er ikke et krav. Skriv dagene du krever.',
   manglerBegrunnelse: 'Skriv begrunnelsen for kravet.',
-  manglerVarseldato: 'Oppgi datoen for varselet.',
-  manglerType: 'Velg om varselet ble gitt i et brev eller en e-post.',
-  manglerVarselbrev: 'Legg ved dokumentet du varslet i.',
   manglerGrunnB: 'Skriv hvorfor du ennå ikke kan beregne dagene.',
   ingenFristerMangler: 'Kravet må gjelde minst én frist.',
   forkastTekst:

@@ -430,7 +430,13 @@ a.knapp,a.liten-knapp{text-decoration:none}
             <fieldset class="oppgj"><legend class="spm">Hva varsler du?</legend><div class="valg kompakt"><label><input type="radio" name="vhva" value="34.4" checked> Regningsarbeid, før arbeidet settes i gang (punkt 34.4)</label><label><input type="radio" name="vhva" value="34.3.3"> Justering av enhetsprisene (punkt 34.3.3)</label></div></fieldset>
             <div class="beloepfelt"><label for="vtekst">Arbeidet varselet gjelder</label><span class="hjelp">Varselet gjelder kravpostene med den beregningsregelen i neste krav.</span><input id="vtekst" class="tekstfelt" value="Ekstra graving i grøften ved kum 4"></div>
             <fieldset class="oppgj"><legend class="spm">Hvordan varsler du?</legend><div class="valg kompakt"><label><input type="radio" name="vhvor" value="her" checked> Send varselet fra løsningen nå</label><label><input type="radio" name="vhvor" value="utenfor"> Registrer et brev sendt utenfor løsningen</label></div></fieldset>
-            <div class="beloepfelt kun-utenfor" hidden><label for="vdato">Datoen for varselet</label><span class="datofelt"><input id="vdato" placeholder="dd.mm.åååå"></span><span class="hjelp">Legg ved brevet. Datoen settes én gang.</span><button class="liten-knapp" type="button" style="align-self:flex-start">Legg ved brevet</button></div>
+            <div class="kun-utenfor" data-korr hidden style="display:flex;flex-direction:column;gap:16px">
+              <p class="hjelp">Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes på byggherrens skjema, som brev, som PDF i e-post eller i prosjekthotellet når prosjektet bruker det. En e-post alene eller et møtereferat er ikke nok.</p><fieldset class="oppgj"><legend class="spm">Hvordan ble varselet gitt?</legend><div class="valg lett liste"><label><input type="radio" name="vtype" value="brev"> Brev</label><label><input type="radio" name="vtype" value="e_post"> E-post</label><label><input type="radio" name="vtype" value="moetereferat"> Møtereferat</label><label><input type="radio" name="vtype" value="notat"> Notat eller annet dokument</label></div></fieldset>
+              <fieldset class="oppgj" hidden data-sendemaate><legend class="spm">Hvordan ble brevet sendt?</legend><div class="valg lett liste"><label><input type="radio" name="vsend" value="post"> Per post</label><label><input type="radio" name="vsend" value="pdf_e_post"> Som PDF i e-post</label><label><input type="radio" name="vsend" value="prosjekthotell"> I prosjekthotellet</label><label><input type="radio" name="vsend" value="annen_maate"> På annen måte</label></div></fieldset>
+              <div class="beloepfelt"><label for="vdato">Datoen det ble sendt</label><span class="hjelp">Datoen avsenderen oppgir. Den settes én gang.</span><span class="datofelt"><input id="vdato" placeholder="dd.mm.åååå"></span></div>
+              <div class="beloepfelt"><span class="spm" id="vdok">Dokumentet du varslet i</span><span class="hjelp">Legges til i saken og ved brevet. Opptil 15 MB.</span><button class="liten-knapp" type="button" aria-describedby="vdok" style="align-self:flex-start">Velg fil</button></div>
+              <div class="beloepfelt"><label for="vbesk">Kort beskrivelse av varselet</label><span class="hjelp">Kort, med egne ord.</span><textarea id="vbesk" class="tekstfelt" rows="3" aria-required="true"></textarea></div>
+            </div>
             <button class="knapp" type="button" style="align-self:flex-start">Send varselet</button>
           </section>
           <div class="svarpaa">
@@ -651,14 +657,14 @@ function varselblokk(p, hjelp) {
   const navn = h === '34.4' ? 'Varsel før regningsarbeidet settes i gang (punkt 34.4)' : 'Varselet om justering av enhetsprisene (punkt 34.3.3)';
   if (hadde(p)) return `<p class="oppgitt" data-spor="U-12 · D-19"><b>${navn}:</b> gitt med kravet i brev 5.</p>`;
   const liste = saksvarsler().filter(v => v.hjemmel === h);
-  const TYPER = ['Brev', 'E-post', 'Møtereferat', 'Notat og annet dokument'];
+  const TYPER = ['Brev', 'E-post', 'Møtereferat', 'Notat eller annet dokument'];
   const SENDT = ['Per post', 'Som PDF i e-post', 'I prosjekthotellet', 'På annen måte'];
   const utenfor = `<div class="forgreining" data-spor="U-12 · D-19 · S-12">
-      <fieldset class="oppgj"><legend class="spm">Hva slags dokument?</legend><div class="valg kompakt">${TYPER.map(t => radio('ut-' + id, t, p.uType, t)).join('')}</div></fieldset>
+      <p class="hjelp">Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes på byggherrens skjema, som brev, som PDF i e-post eller i prosjekthotellet når prosjektet bruker det. En e-post alene eller et møtereferat er ikke nok.</p><fieldset class="oppgj"><legend class="spm">Hvordan ble varselet gitt?</legend><div class="valg kompakt">${TYPER.map(t => radio('ut-' + id, t, p.uType, t)).join('')}</div></fieldset>
       ${p.uType === 'Brev' ? `<fieldset class="oppgj"><legend class="spm">Hvordan ble brevet sendt?</legend><div class="valg liste">${SENDT.map(t => radio('us-' + id, t, p.uSendt, t)).join('')}</div></fieldset>` : ''}
-      <div class="beloepfelt"><label for="ud-${id}">Datoen det ble sendt</label><span class="datofelt"><input id="ud-${id}" data-felt="uDato" aria-required="true" value="${esc(p.uDato)}"></span></div>
-      <div class="beloepfelt"><label for="ub-${id}">Kort beskrivelse</label><input id="ub-${id}" class="tekstfelt" data-felt="uBeskr" aria-required="true" value="${esc(p.uBeskr)}"></div>
-      <div class="beloepfelt"><span class="spm" id="uf-${id}">Dokumentet</span><span class="hjelp">PDF. Det står i saken som et eget brev med kategorien varsel når kravet sendes, og legges ved kravet.</span><button class="liten-knapp" type="button" aria-describedby="uf-${id}" style="align-self:flex-start">Legg ved dokumentet</button></div>
+      <div class="beloepfelt"><label for="ud-${id}">Datoen det ble sendt</label><span class="hjelp">Datoen avsenderen oppgir. Den settes én gang.</span><span class="datofelt"><input id="ud-${id}" data-felt="uDato" aria-required="true" value="${esc(p.uDato)}"></span></div>
+      <div class="beloepfelt"><span class="spm" id="uf-${id}">Dokumentet du varslet i</span><span class="hjelp">Legges til i saken og ved brevet. Opptil 15 MB.</span><button class="liten-knapp" type="button" aria-describedby="uf-${id}" style="align-self:flex-start">Velg fil</button></div>
+      <div class="beloepfelt"><label for="ub-${id}">Kort beskrivelse av varselet</label><span class="hjelp">Kort, med egne ord.</span><textarea id="ub-${id}" class="tekstfelt" rows="3" data-felt="uBeskr" aria-required="true">${esc(p.uBeskr)}</textarea></div>
     </div>`;
   const hvor = liste.length
     ? `<fieldset class="oppgj"><legend class="spm">Hvor ble varselet for ${id} gitt?</legend><div class="valg liste">
@@ -798,7 +804,7 @@ function varselsetning(p) {
   const k = kildeTil(p);
   if (k) return ` <span class="ny" data-spor="U-14">Varsel ${VARSEL_OM[h]} ble gitt i ${k.brevet}.</span>`;
   const dato = (() => { const m = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(p.uDato.trim()); return m ? `${Number(m[1])}. ${['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember'][m[2] - 1]} ${m[3]}` : esc(p.uDato); })();
-  const type = { 'Brev': 'brev', 'E-post': 'e-post', 'Møtereferat': 'møtereferat', 'Notat og annet dokument': 'dokument' }[p.uType] ?? 'brev';
+  const type = { 'Brev': 'brev', 'E-post': 'e-post', 'Møtereferat': 'møtereferat', 'Notat eller annet dokument': 'dokument' }[p.uType] ?? 'brev';
   return ` <span class="ny" data-spor="U-14 · S-12">Totalentreprenøren opplyser at varsel ${VARSEL_OM[h]} ble gitt i totalentreprenørens ${type} av ${dato || '‹dato›'}, som er vedlagt.</span>`;
 }
 
@@ -1028,6 +1034,8 @@ function lesAnker() {
 document.addEventListener('click', e => { const b = e.target.closest('[data-anker]'); if (b) { location.hash = b.dataset.anker; } });
 document.getElementById('skjema').addEventListener('change', e => {
   if (e.target.name === 'vhvor') document.querySelector('.kun-utenfor').hidden = e.target.value !== 'utenfor';
+  const korr = e.target.closest('[data-korr]');
+  if (korr && e.target.type === 'radio' && e.target.name.endsWith('type')) korr.querySelector('[data-sendemaate]').hidden = e.target.value !== 'brev';
 });
 addEventListener('hashchange', lesAnker);
 lesAnker();

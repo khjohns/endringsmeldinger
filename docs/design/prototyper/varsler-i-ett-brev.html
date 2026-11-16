@@ -538,10 +538,13 @@ a.liten-knapp{color:inherit}
               <label><input type="radio" name="maate" value="her" checked> Send brevet fra løsningen nå</label>
               <label><input type="radio" name="maate" value="utenfor"> Registrer et brev sendt utenfor løsningen</label></div></fieldset>
             <div id="registrer" class="vskjema" hidden>
-              <fieldset class="oppgj"><legend class="spm">Hva slags dokument er det?</legend><div class="valg kompakt">
-                <label><input type="radio" name="utype" value="Brev" checked> Brev</label><label><input type="radio" name="utype" value="E-post"> E-post</label><label><input type="radio" name="utype" value="Møtereferat"> Møtereferat</label><label><input type="radio" name="utype" value="Notat"> Notat eller annet dokument</label></div></fieldset>
-              <div class="beloepfelt"><label for="udato">Datoen det ble sendt</label><span class="hjelp">Gjelder alle varslene i dokumentet. Datoen settes én gang.</span><span class="datofelt"><input id="udato" value="03.11.2026"></span></div>
-              <div class="beloepfelt"><span class="spm" id="udok">Dokumentet</span><span class="hjelp">PDF. Det står i saken som ett brev med kategorien varsel.</span><button class="liten-knapp" type="button" aria-describedby="udok" style="align-self:flex-start">Legg ved dokumentet</button></div>
+              <div data-korr style="display:contents">
+                <p class="hjelp">Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes på byggherrens skjema, som brev, som PDF i e-post eller i prosjekthotellet når prosjektet bruker det. En e-post alene eller et møtereferat er ikke nok.</p><fieldset class="oppgj"><legend class="spm">Hvordan ble varselet gitt?</legend><div class="valg kompakt"><label><input type="radio" name="utype" value="brev" checked> Brev</label><label><input type="radio" name="utype" value="e_post"> E-post</label><label><input type="radio" name="utype" value="moetereferat"> Møtereferat</label><label><input type="radio" name="utype" value="notat"> Notat eller annet dokument</label></div></fieldset>
+                <fieldset class="oppgj" data-sendemaate><legend class="spm">Hvordan ble brevet sendt?</legend><div class="valg kompakt"><label><input type="radio" name="usend" value="post"> Per post</label><label><input type="radio" name="usend" value="pdf_e_post"> Som PDF i e-post</label><label><input type="radio" name="usend" value="prosjekthotell"> I prosjekthotellet</label><label><input type="radio" name="usend" value="annen_maate"> På annen måte</label></div></fieldset>
+                <div class="beloepfelt"><label for="udato">Datoen det ble sendt</label><span class="hjelp">Gjelder alle varslene i dokumentet. Den settes én gang.</span><span class="datofelt"><input id="udato" value="03.11.2026"></span></div>
+                <div class="beloepfelt"><span class="spm" id="udok">Dokumentet du varslet i</span><span class="hjelp">Legges til i saken og ved brevet. Opptil 15 MB.</span><button class="liten-knapp" type="button" aria-describedby="udok" style="align-self:flex-start">Velg fil</button></div>
+                <div class="beloepfelt"><label for="ubesk">Kort beskrivelse av varselet</label><span class="hjelp">Kort, med egne ord.</span><textarea id="ubesk" class="tekstfelt" rows="3" aria-required="true"></textarea></div>
+              </div>
             </div>
           </section>
           <div class="skjemafot"><button class="lenke" type="button">Forkast utkast</button></div>
@@ -713,6 +716,8 @@ document.addEventListener('click', e => {
 document.addEventListener('change', e => {
   const n = e.target.name || '';
   if (n.startsWith('vh-')) { const r = rader[+n.slice(3)]; r.h = e.target.value; if (!B[r.h].arbeid) r.arbeid = ''; tegn(); }
+  const korr = e.target.closest('[data-korr]');
+  if (korr && e.target.type === 'radio' && n.endsWith('type')) korr.querySelector('[data-sendemaate]').hidden = e.target.value !== 'brev';
   if (n === 'maate') { skall.dataset.maate = e.target.value; tegn(); }
   if (n === 'kpv') tegn();
 });

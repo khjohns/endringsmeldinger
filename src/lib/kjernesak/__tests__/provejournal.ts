@@ -130,6 +130,9 @@ export const medFristvarsel = skrevet(
     hjemmel: '33.4',
     sendt: '2026-10-10',
     korrespondansetype: 'brev',
+    // OV-U79: sendemåten for et brev og beskrivelsen kreves (arbeidsvalget 2 A i #807).
+    sendemaate: 'post',
+    beskrivelse: 'Varselet sendt per post.',
     dokumentasjon: [VARSELBREVET],
   },
   new Map([
@@ -150,6 +153,9 @@ export const medVederlagsvarsel = skrevet(
     hjemmel: '34.1.2',
     sendt: '2026-10-10',
     korrespondansetype: 'brev',
+    // OV-U79: sendemåten for et brev og beskrivelsen kreves (arbeidsvalget 2 A i #807).
+    sendemaate: 'post',
+    beskrivelse: 'Varselet sendt per post.',
     dokumentasjon: [VARSELBREVET],
   },
   new Map([

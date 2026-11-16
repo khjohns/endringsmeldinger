@@ -163,19 +163,27 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
       screen.getByRole('radio', { name: 'I et dokument sendt utenfor løsningen' })
     );
 
-    // D-19: kravet sendes ikke uten typen, datoen og dokumentet.
+    // D-19, OV-U79: kravet sendes ikke uten typen, datoen, dokumentet og beskrivelsen.
     await fireEvent.click(knapp('Se brevet før sending'));
     const mangler = within(
       screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' })
     );
     expect(
-      mangler.getByRole('link', { name: 'P2: Oppgi datoen dokumentet ble sendt.' })
+      mangler.getByRole('link', { name: 'P2: Oppgi datoen varselet ble sendt.' })
     ).toBeTruthy();
-    expect(mangler.getByRole('link', { name: 'P2: Legg ved dokumentet.' })).toBeTruthy();
+    expect(
+      mangler.getByRole('link', { name: 'P2: Legg ved dokumentet du varslet i.' })
+    ).toBeTruthy();
+    expect(mangler.getByRole('link', { name: 'P2: Beskriv varselet.' })).toBeTruthy();
 
+    // VS-U72: opplysningen fra kapittel B står ved dokumentet, uansett type.
+    expect(
+      screen.getByText(/^Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes/)
+    ).toBeTruthy();
     const gitt = within(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' }));
     await fireEvent.click(gitt.getByRole('radio', { name: 'E-post' }));
     await skriv('Datoen det ble sendt', '2026-09-28');
+    await skriv('Kort beskrivelse av varselet', 'Varsel om justerte enhetspriser.');
     const fil = new File(['%PDF-1.4'], 'varsel.pdf', { type: 'application/pdf' });
     await fireEvent.change(document.querySelector('input[type=file]')!, {
       target: { files: [fil] },
@@ -193,6 +201,13 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     await screen.findByText('Brevet er sendt til byggherren.');
     const [, p2] = sistSendt(demosak().journal()).kravposter as { varsel?: string }[];
     expect(typeof p2.varsel).toBe('string');
+    // OV-U79: beskrivelsen av varselet som er lagt til, står i saken (krav fra #2074 i #807).
+    const varselet = await screen.findByRole('heading', {
+      level: 4,
+      name: /^Varsel om justerte enhetspriser\./,
+    });
+    // OV-U85: datoen TE oppga at varselet ble sendt, står ved det.
+    expect(varselet.closest('li')).toHaveTextContent(/28\. september 2026/);
   });
 
   it('panelet «Punktene» markerer punktet for avsnittet du står i, når dokumentet eller et indre element ruller og i bunnen, og hver kravpost er en lenke til kravposten (U-15 i BF-14, #1827)', async () => {

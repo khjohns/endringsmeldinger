@@ -29,11 +29,11 @@
   import Brevlinje from './Brevlinje.svelte';
   import Leseramme from './Leseramme.svelte';
   import Feltetikett from './Feltetikett.svelte';
-  import Filvalg from './Filvalg.svelte';
   import { medietreff } from './medie.svelte';
   import Knapp from './Knapp.svelte';
   import Kravpunkter from './Kravpunkter.svelte';
   import Hjemmel from './Hjemmel.svelte';
+  import Korrespondansen from './Korrespondansen.svelte';
   import Manglene from './Manglene.svelte';
   import { feltfeil, type Mangel } from './mangler';
   import Melding from './Melding.svelte';
@@ -794,42 +794,13 @@
         />
       </div>
     {:else if p.varsel.art === 'dokument'}
-      {@const fDato = feil(`dato-${n}`)}
       <div class="innrykk">
-        <Valg
-          navn={id(`type-${n}`)}
-          spoersmaal={KRAVSKJEMA.varselGitt}
-          valg={KRAVSKJEMA.dokumenttyper}
-          stablet
-          lett
-          bind:verdi={p.varsel.type}
-          feil={feil(`type-${n}`)}
-        />
-        <div class="felt">
-          <Feltetikett for={id(`dato-${n}`)}>{KRAVSKJEMA.dokumentdato}</Feltetikett>
-          <span class="hjelp" id={id(`dato-${n}-hjelp`)}>{KRAVSKJEMA.dokumentdatoHjelp}</span>
-          <input
-            id={id(`dato-${n}`)}
-            type="date"
-            class="datofelt"
-            class:ugyldig={fDato}
-            max={iDag}
-            bind:value={p.varsel.dato}
-            aria-required="true"
-            aria-invalid={fDato ? 'true' : undefined}
-            aria-describedby={fDato
-              ? `${id(`dato-${n}-hjelp`)} ${id(`dato-${n}-feil`)}`
-              : id(`dato-${n}-hjelp`)}
-          />
-          {#if fDato}<p class="feilmelding" id={id(`dato-${n}-feil`)}>{fDato}</p>{/if}
-        </div>
-        <Filvalg
-          id={id(`dokument-${n}`)}
-          etikett={KRAVSKJEMA.dokumentet}
-          hjelp={KRAVSKJEMA.dokumentetHjelp}
+        <Korrespondansen
+          id={(felt) => id(`varsel-${felt}-${n}`)}
+          bind:valg={p.varsel}
+          feil={(felt) => feil(`varsel-${felt}-${n}`)}
           {grense}
-          bind:vedlegg={p.varsel.vedlegg}
-          feil={feil(`dokument-${n}`)}
+          kapittelB
         />
       </div>
     {/if}
@@ -1323,7 +1294,6 @@
   }
   .tekstfelt,
   .kort-felt,
-  .datofelt,
   textarea {
     min-height: 44px;
     padding: 0 var(--spacing-3);
@@ -1339,16 +1309,12 @@
   .kort-felt {
     width: 8em;
   }
-  .datofelt {
-    width: 12em;
-  }
   textarea {
     padding: var(--spacing-3);
     resize: vertical;
   }
   .tekstfelt:focus-visible,
   .kort-felt:focus-visible,
-  .datofelt:focus-visible,
   textarea:focus-visible {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;

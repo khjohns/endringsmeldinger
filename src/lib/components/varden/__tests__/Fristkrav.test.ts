@@ -302,7 +302,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     expect(sendt[0]!.virkninger[0]).toMatch(/^Varselet etter punkt 33\.4 sendes i dag/);
   });
 
-  it('et varsel sendt utenfor løsningen registreres med typen, datoen og brevet, uten brevkontroll (U-13, VS-U16, LV-U42)', async () => {
+  it('et varsel sendt utenfor løsningen registreres med typen, sendemåten, datoen, dokumentet og beskrivelsen, uten brevkontroll (U-13, VS-U16, LV-U42, OV-U79)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
     await fireEvent.click(
       screen.getByRole('radio', { name: 'Bare varsle etter punkt 33.4, uten dager' })
@@ -316,8 +316,17 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     const mangler = within(
       screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' })
     );
-    expect(mangler.getByText('Oppgi datoen for varselet.')).toBeInTheDocument();
+    expect(mangler.getByText('Oppgi datoen varselet ble sendt.')).toBeInTheDocument();
     expect(mangler.getByText('Legg ved dokumentet du varslet i.')).toBeInTheDocument();
+    expect(mangler.getByText('Beskriv varselet.')).toBeInTheDocument();
+    // VS-U72: opplysningen fra kapittel B står ved registreringen, som ved punkt 32.2 (VS-U39).
+    expect(
+      screen.getByText(/^Etter kapittel B i kontraktsgrunnlaget skal varsel om endring sendes/)
+    ).toBeInTheDocument();
+    // Skjermleseren leser opplysningen når spørsmålet om typen får fokus (uu-sjekk).
+    expect(
+      screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' })
+    ).toHaveAccessibleDescription(/^Etter kapittel B i kontraktsgrunnlaget/);
     const gitt = within(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' }));
     // Etiketten for vedlegget gjelder alle typene (#2056, oppdragsgiver 16.11).
     expect(screen.getByText('Dokumentet du varslet i')).toBeInTheDocument();
@@ -325,8 +334,16 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     expect(screen.getByText('Dokumentet du varslet i')).toBeInTheDocument();
     await fireEvent.click(gitt.getByRole('radio', { name: 'Brev' }));
     expect(screen.getByText('Dokumentet du varslet i')).toBeInTheDocument();
-    await skriv(screen.getByLabelText('Datoen for varselet'), '2026-10-05');
+    // OV-U79: sendemåten oppgis for et brev.
+    await registrer();
+    expect(mangler.getByText('Velg hvordan brevet ble sendt.')).toBeInTheDocument();
+    await fireEvent.click(screen.getByRole('radio', { name: 'Per post' }));
+    await skriv(screen.getByLabelText('Datoen det ble sendt'), '2026-10-05');
     await leggVed();
+    await skriv(
+      screen.getByLabelText('Kort beskrivelse av varselet'),
+      'Varsel om forsinket tegning.'
+    );
     await registrer();
     expect(sendt).toHaveLength(0);
     expect(sendt.sendtTilServeren).toEqual([
@@ -336,6 +353,8 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
         hjemmel: '33.4',
         sendt: '2026-10-05',
         korrespondansetype: 'brev',
+        sendemaate: 'post',
+        beskrivelse: 'Varsel om forsinket tegning.',
         dokumentasjon: ['v-1'],
       },
     ]);
@@ -351,7 +370,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       screen.getByRole('radio', { name: 'Registrer et varsel sendt utenfor løsningen' })
     );
     await fireEvent.click(screen.getByRole('radio', { name: 'Send kravet med dagene' }));
-    expect(screen.queryByLabelText('Datoen for varselet')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Datoen det ble sendt')).not.toBeInTheDocument();
     await fireEvent.click(screen.getByRole('radio', { name: 'Overtakelse' }));
     await skriv(screen.getByLabelText('Dagene du krever'), '20');
     await skriv(screen.getByRole('textbox', { name: 'Begrunnelse' }), 'Begrunnelse.');
@@ -371,15 +390,26 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     await skriv(screen.getByRole('textbox', { name: 'Begrunnelse' }), 'Begrunnelse.');
     await seBrevet();
     expect(sendt).toHaveLength(0);
-    await skriv(screen.getByLabelText('Datoen for varselet'), '2026-10-05');
+    await skriv(screen.getByLabelText('Datoen det ble sendt'), '2026-10-05');
     await leggVed();
     const gitt = within(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' }));
     await fireEvent.click(gitt.getByRole('radio', { name: 'Brev' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Som PDF i e-post' }));
+    await skriv(
+      screen.getByLabelText('Kort beskrivelse av varselet'),
+      'Varsel om forsinket tegning.'
+    );
     await seBrevet();
     expect(sendt).toHaveLength(1);
     expect(sendt[0]!.kommando).toMatchObject({
       type: 'krav',
-      varsel: { sendt: '2026-10-05', korrespondansetype: 'brev', dokumentasjon: ['v-1'] },
+      varsel: {
+        sendt: '2026-10-05',
+        korrespondansetype: 'brev',
+        sendemaate: 'pdf_e_post',
+        beskrivelse: 'Varsel om forsinket tegning.',
+        dokumentasjon: ['v-1'],
+      },
     });
     // Brevet sier når varselet ble gitt (OV-U5).
     expect(JSON.stringify(sendt[0]!.avsnitt)).toMatch(/5\. oktober 2026/);
@@ -393,21 +423,24 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     await fireEvent.click(screen.getByRole('radio', { name: 'Overtakelse' }));
     await skriv(screen.getByLabelText('Dagene du krever'), '20');
     await skriv(screen.getByRole('textbox', { name: 'Begrunnelse' }), 'Begrunnelse.');
-    await skriv(screen.getByLabelText('Datoen for varselet'), '2026-10-05');
+    await skriv(screen.getByLabelText('Datoen det ble sendt'), '2026-10-05');
     await leggVed();
+    await skriv(screen.getByLabelText('Kort beskrivelse av varselet'), 'Varsel på e-post.');
     await seBrevet();
     expect(sendt, 'uten typen sendes ingenting').toHaveLength(0);
     const mangler = within(
       screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' })
     );
-    expect(
-      mangler.getByText('Velg om varselet ble gitt i et brev eller en e-post.')
-    ).toBeInTheDocument();
+    expect(mangler.getByText('Velg hvordan varselet ble gitt.')).toBeInTheDocument();
     const gitt = within(screen.getByRole('group', { name: 'Hvordan ble varselet gitt?' }));
     await fireEvent.click(gitt.getByRole('radio', { name: 'E-post' }));
     await seBrevet();
     expect(sendt).toHaveLength(1);
-    expect(sendt[0]!.kommando).toMatchObject({ varsel: { korrespondansetype: 'e_post' } });
+    expect(sendt[0]!.kommando).toMatchObject({
+      varsel: { korrespondansetype: 'e_post', beskrivelse: 'Varsel på e-post.' },
+    });
+    // OV-U79: bare et brev har sendemåten.
+    expect((sendt[0]!.kommando as { varsel: object }).varsel).not.toHaveProperty('sendemaate');
   });
 
   it('et varsel gitt før sier kalenderdagene fra datoen TE ble klar over forholdet først når datoen for varselet er oppgitt (U-6)', async () => {
@@ -427,7 +460,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       screen.getByRole('button', { name: 'Varselet er gitt før, utenfor løsningen' })
     );
     expect(screen.queryByText(/Sendes varselet i dag/)).not.toBeInTheDocument();
-    await skriv(screen.getByLabelText('Datoen for varselet'), '2026-10-05');
+    await skriv(screen.getByLabelText('Datoen det ble sendt'), '2026-10-05');
     expect(
       screen.getByText(/Varselet ble gitt 5\. oktober 2026, 4 kalenderdager etter/)
     ).toBeInTheDocument();

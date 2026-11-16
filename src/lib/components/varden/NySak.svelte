@@ -24,6 +24,7 @@
   import Knapp from './Knapp.svelte';
   import Valg from './Valg.svelte';
   import Filvalg from './Filvalg.svelte';
+  import Korrespondansen from './Korrespondansen.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import { ChevronDown } from 'lucide-svelte';
   import {
@@ -40,7 +41,8 @@
     type Utfylling,
     type VedleggForNySak,
   } from './nysak';
-  import { NYSAK, SKJEMA, dagensDato } from './tekster';
+  import { KORRESPONDANSEN, NYSAK, SKJEMA, dagensDato } from './tekster';
+  import { korrespondansemangler, tomKorrespondanse } from './korrespondansen';
 
   let {
     sakId,
@@ -78,10 +80,9 @@
   let vedlegg = $state<Kjernevedlegg[]>(start?.vedlegg ?? []);
   let lasterOpp = $state(false);
   let alleredeVarslet = $state<boolean | null>(false);
-  let varseltype = $state<string | null>(null);
-  let sendemaate = $state<string | null>(null);
-  let varseldato = $state('');
-  let varselbeskrivelse = $state('');
+  let varsel = $state(tomKorrespondanse());
+  // Dokumentet med varselet kan ikke legges ved før påberopelsen sier det (#1488).
+  const varseldokumentet: VedleggForNySak | null = null;
   let feil = $state<Record<string, string>>({});
   let avbryter = $state(false);
   let oppsummering = $state<HTMLElement | null>(null);
@@ -127,8 +128,8 @@
           kilde: NYSAK.oppgisIBrevet,
         },
       varselet &&
-        varseldato && {
-          naar: varseldato,
+        varsel.dato && {
+          naar: varsel.dato,
           hva: NYSAK.tidslinjeVarselet,
           kilde: NYSAK.sendtFoerSaken,
         },
@@ -144,7 +145,8 @@
       tittel.trim() && { lag: NYSAK.linjeTittel, tekst: tittel.trim() },
       varselet && {
         lag: NYSAK.linjeVarselet,
-        tekst: NYSAK.varseltyper.find((t) => t.verdi === varseltype)?.tekst ?? NYSAK.linjeVarselet,
+        tekst:
+          KORRESPONDANSEN.typer.find((t) => t.verdi === varsel.type)?.tekst ?? NYSAK.linjeVarselet,
       },
       // Dokumentet med varselet legges ved brevet (VS-U38).
       valgt && {
@@ -201,12 +203,11 @@
     if (felt.endringsordre && !endringsordre.trim()) ny.endringsordre = NYSAK.oppgiEndringsordren;
     if (lasterOpp) ny.vedlegg = NYSAK.ventPaaOpplastingen;
     if (varselet) {
-      if (!varseltype) ny.varseltype = NYSAK.velgVarseltypen;
-      if (varseltype === 'brev' && !sendemaate) ny.sendemaate = NYSAK.velgSendemaaten;
-      if (!varseldato) ny.varseldato = NYSAK.oppgiVarseldatoen;
-      if (!varselbeskrivelse.trim()) ny.varselbeskrivelse = NYSAK.beskrivVarselet;
-      if (!ny.varseltype && !ny.sendemaate && !ny.varseldato && !ny.varselbeskrivelse)
-        ny.varselLagres = NYSAK.varseletKanIkkeLagres;
+      const mangler = Object.entries(
+        korrespondansemangler(varsel, { dokument: varseldokumentet !== null })
+      );
+      for (const [f, tekst] of mangler) ny[`varsel-${f}`] = tekst;
+      if (!mangler.length) ny.varselLagres = NYSAK.varseletKanIkkeLagres;
     }
     if (forhold && !ny.tittel && !ny.dato && !ny.endringsordre && !ny.vedlegg) {
       // Kjernen prøver påberopelsen slik serveren gjør, med kravet til beskrivelsen (GR-U15).
@@ -287,7 +288,7 @@
   function vises(f: string) {
     if (f === 'dato') return !!felt.datotekst;
     if (f === 'endringsordre') return felt.endringsordre;
-    if (f === 'sendemaate') return varselet && varseltype === 'brev';
+    if (f === 'varsel-sendemaate') return varselet && varsel.type === 'brev';
     if (f.startsWith('varsel')) return varselet;
     return true;
   }
@@ -299,10 +300,10 @@
     'dato',
     'endringsordre',
     'vedlegg',
-    'varseltype',
-    'sendemaate',
-    'varseldato',
-    'varselbeskrivelse',
+    'varsel-type',
+    'varsel-sendemaate',
+    'varsel-dato',
+    'varsel-beskrivelse',
     'varselLagres',
     'kjernen',
   ];
@@ -531,80 +532,20 @@
                 bind:verdi={alleredeVarslet}
                 beskrevetAv={id('kapittel-b')}
               />
-              <p class="kapittel-b" id={id('kapittel-b')}>{NYSAK.kapittelB}</p>
+              <p class="kapittel-b" id={id('kapittel-b')}>{KORRESPONDANSEN.kapittelB}</p>
             </div>
             {#if varselet}
               <div class="varselet">
-                <Valg
-                  navn={id('varseltype')}
-                  spoersmaal={NYSAK.varseltype}
-                  valg={NYSAK.varseltyper}
-                  stablet
-                  bind:verdi={
-                    () => varseltype,
-                    (v) => {
-                      varseltype = v;
-                      delete feil.varseltype;
-                      delete feil.varselLagres;
-                    }
-                  }
-                  feil={feil.varseltype ?? null}
+                <Korrespondansen
+                  id={(f) => id(`varsel-${f}`)}
+                  bind:valg={varsel}
+                  feil={(f) => feil[`varsel-${f}`] ?? null}
+                  grense={varseldokumentet}
+                  endret={(f) => {
+                    delete feil[`varsel-${f}`];
+                    delete feil.varselLagres;
+                  }}
                 />
-                {#if varseltype === 'brev'}
-                  <Valg
-                    navn={id('sendemaate')}
-                    spoersmaal={NYSAK.sendemaate}
-                    valg={NYSAK.sendemaater}
-                    stablet
-                    bind:verdi={
-                      () => sendemaate,
-                      (v) => {
-                        sendemaate = v;
-                        delete feil.sendemaate;
-                      }
-                    }
-                    feil={feil.sendemaate ?? null}
-                  />
-                {/if}
-                <div class="felt">
-                  <Feltetikett for={id('varseldato')}>{NYSAK.varseldato}</Feltetikett>
-                  <p class="hjelp" id={id('varseldato-hjelp')}>{NYSAK.varseldatoHjelp}</p>
-                  <input
-                    id={id('varseldato')}
-                    type="date"
-                    max={iDag}
-                    bind:value={varseldato}
-                    aria-required="true"
-                    aria-invalid={!!feil.varseldato}
-                    aria-describedby={`${id('varseldato-hjelp')}${feil.varseldato ? ` ${id('varseldato-feil')}` : ''}`}
-                    oninput={() => delete feil.varseldato}
-                  />
-                  {#if feil.varseldato}<p class="feil" id={id('varseldato-feil')}>
-                      {feil.varseldato}
-                    </p>{/if}
-                </div>
-                <div class="felt">
-                  <span class="etikett">{NYSAK.varseldokument}</span>
-                  <p class="hjelp">{NYSAK.varseldokumentIkkeLaget}</p>
-                </div>
-                <div class="felt">
-                  <Feltetikett for={id('varselbeskrivelse')}>{NYSAK.varselbeskrivelse}</Feltetikett>
-                  <p class="hjelp" id={id('varselbeskrivelse-hjelp')}>
-                    {NYSAK.varselbeskrivelseHjelp}
-                  </p>
-                  <textarea
-                    id={id('varselbeskrivelse')}
-                    rows="3"
-                    bind:value={varselbeskrivelse}
-                    aria-required="true"
-                    aria-invalid={!!feil.varselbeskrivelse}
-                    aria-describedby={`${id('varselbeskrivelse-hjelp')}${feil.varselbeskrivelse ? ` ${id('varselbeskrivelse-feil')}` : ''}`}
-                    oninput={() => delete feil.varselbeskrivelse}
-                  ></textarea>
-                  {#if feil.varselbeskrivelse}<p class="feil" id={id('varselbeskrivelse-feil')}>
-                      {feil.varselbeskrivelse}
-                    </p>{/if}
-                </div>
                 <p class="merknad">{NYSAK.varselMerknad}</p>
                 {#if feil.varselLagres}<p class="feil" id={id('varselLagres')} tabindex="-1">
                     {feil.varselLagres}

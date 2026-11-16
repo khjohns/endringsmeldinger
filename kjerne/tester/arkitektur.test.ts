@@ -1267,6 +1267,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // OV-U16, OV-U79: en beskrivelse med bare mellomrom er ingen beskrivelse.
   ['kommandoer/kommando.ts:formfeil(k)', 'kommando', 'beskrivelse'],
   ['kommandoer/kommando.ts:sendemaatefeil(k)', 'kommando', 'korrespondansetype'],
+  // OV-U79, arbeidsvalget 2 A i #807: sendemåten for et brev lagt til.
+  ['kommandoer/kommando.ts:korrespondansefeil(k)', 'kommando', 'korrespondansetype'],
   // OV-U79: sendemåten lagres slik avsenderen oppga den, og ingen regel leser den.
   ['Kommando', 'kommando', 'sendemaate', ['kommandoer/skriving.ts:dokument']],
   // OV-U16: beskrivelsen lagres slik avsenderen skrev den, og ingen regel leser den.

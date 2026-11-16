@@ -617,6 +617,43 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(kortet.getByRole('button', { name: /^Godta svaret/ })).toBeTruthy();
   });
 
+  it('MM-U2: en opprettelse kjernen ikke forstår, gir overskriften «Uten tittel» og en melding om at saken ikke kan leses (#2079)', async () => {
+    const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
+    const hent: typeof demosak.hent = async (...a) => {
+      const svar = await demosak.hent(...a);
+      return {
+        ...svar,
+        journal: svar.journal.map((r, i) => (i === 0 ? { ...r, format: 999 } : r)),
+      };
+    };
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'BH',
+      hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'vederlag' });
+    expect(await screen.findByRole('heading', { level: 1, name: 'Uten tittel' })).toBeTruthy();
+    expect(screen.getByText(/^Saken har en hendelse løsningen ikke kan lese\./)).toBeTruthy();
+  });
+
+  it('kontrollsak for MM-U2: en sak kjernen forstår, har tittelen og ingen melding om at saken ikke kan leses (#2079)', async () => {
+    const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
+    const kjernesak = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'BH',
+      hent: demosak.hent,
+      send: demosak.send,
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'vederlag' });
+    expect(await screen.findByRole('heading', { level: 1 })).not.toHaveTextContent('Uten tittel');
+    expect(screen.queryByText(/^Saken har en hendelse løsningen ikke kan lese\./)).toBeNull();
+  });
+
   it('når lastingen feiler, viser Varden feilen og «Prøv igjen» i stedet for «Laster saken …» (#1373, funn 1)', async () => {
     const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
     const hent = vi

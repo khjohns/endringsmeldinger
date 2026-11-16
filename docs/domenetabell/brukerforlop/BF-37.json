@@ -53,7 +53,7 @@
         "start": "registrer",
         "handlinger": [
           {
-            "staar": "Gjelder alle varslene i dokumentet. Datoen settes én gang."
+            "staar": "Gjelder alle varslene i dokumentet. Den settes én gang."
           },
           {
             "staar": "Løsningen lager ingen brevtekst for et registrert dokument."
@@ -119,7 +119,8 @@
     "VS-U69",
     "VS-U46",
     "VS-U50",
-    "VS-U57"
+    "VS-U57",
+    "OV-U79"
   ],
   "venter_paa": [
     "#1837",
@@ -147,6 +148,11 @@
       "dato": "2026-11-13",
       "forhold": "#1837",
       "hva": "Prøven av v2: linjen om varselet om fristforlengelse er tatt ut av prototypen, og språket i høyre kolonne tas i byggingen (G-5)."
+    },
+    {
+      "dato": "2026-11-16",
+      "forhold": "#807, #2056",
+      "hva": "F-5 og «TE registrerer i stedet» lister feltene for et brev sendt utenfor løsningen med ordene i Varden (OV-U79, A1 i #2056): «Hvordan ble varselet gitt?», «Hvordan ble brevet sendt?» (bare for Brev), «Datoen det ble sendt», «Dokumentet du varslet i» og «Kort beskrivelse av varselet»."
     }
   ]
 }
