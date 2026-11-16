@@ -36,7 +36,6 @@
     kjernesak,
     u,
     spor,
-    // svelte-ignore state_referenced_locally
     valg = $bindable(tomtLagtTil(spor)),
     onneste,
     onlagttil,
