@@ -77,14 +77,15 @@ export function posteneStrider(
     betegnelser.add(betegnelse);
     if (kjent && kjent.betegnelse !== betegnelse)
       return `gir ${posten} ${kjent.betegnelse} betegnelsen ${betegnelse}`;
+    // KA-U53, KA-U75.
     if (!kjent && brukte.has(betegnelse))
-      return `gir en ny ${post} betegnelsen ${betegnelse}, som er brukt før i sporet (KA-U53, KA-U75)`;
+      return `gir en ny ${post} betegnelsen ${betegnelse}, som er brukt før i sporet`;
   }
+  // KA-U56.
   return utelattUtenTrekk(
     forrige,
     (id) => sett.has(id) || trukket.has(id),
-    (p) => p.betegnelse,
-    'KA-U56'
+    (p) => p.betegnelse
   );
 }
 
@@ -110,16 +111,15 @@ export function trekketStrider<P extends Pick<Post, 'id'>>(
 
 /**
  * Postene i forrige versjon som den nye kravversjonen verken tar med eller trekker, som
- * meldingen med vedtaket for sporet, eller `null` (KA-U56, KA-U76).
+ * meldingen, eller `null` (KA-U56, KA-U76).
  */
 export function utelattUtenTrekk<P extends Pick<Post, 'id'>>(
   forrige: ReadonlyMap<string, P>,
   beholdt: (id: string) => boolean,
-  betegnelse: (p: P) => string,
-  vedtak: string
+  betegnelse: (p: P) => string
 ): string | null {
   const mangler = [...forrige.values()].filter((p) => !beholdt(p.id));
   return mangler.length
-    ? `mangler ${mangler.map(betegnelse).join(', ')} uten at ${mangler.length > 1 ? 'de er trukket' : 'den er trukket'} (${vedtak})`
+    ? `mangler ${mangler.map(betegnelse).join(', ')} uten at ${mangler.length > 1 ? 'de er trukket' : 'den er trukket'}`
     : null;
 }

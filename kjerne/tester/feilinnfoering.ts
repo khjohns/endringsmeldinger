@@ -3960,6 +3960,19 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['nøkler til postene som ikke svarer til radene i tabellen'],
   },
   {
+    id: 'F703',
+    feilklasse:
+      'byggherren kan mene den beregningsregelen totalentreprenøren krever (OV-U95 punkt 1 og 5, #2025 punkt 2)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      [
+        'p.oensket_oppgjoersform !== denAndreRegelen(regel)',
+        'p.oensket_oppgjoersform === undefined',
+      ],
+    ],
+    mal: ['byggherren som mener den andre beregningsregelen, må oppgi den'],
+  },
+  {
     id: 'F444',
     feilklasse: 'leseren godtar registrert korrespondanse uten typen (LV-U42, MM-U2)',
     fil: `${K}/format/leser.ts`,
@@ -4651,7 +4664,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F483',
     feilklasse: 'et varsel etter punkt 34.4 gjelder kravpostene med justerte enhetspriser (D-16)',
     fil: `${K}/spor/vederlag/utledning.ts`,
-    endringer: [["    ? '34.4'\n", "    ? '34.3.3'\n"]],
+    endringer: [["=== 'regningsarbeid' ? '34.4' :", "=== 'regningsarbeid' ? '34.3.3' :"]],
     mal: ['et varsel registrert før det første kravet'],
   },
   {
