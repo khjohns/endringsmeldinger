@@ -17,10 +17,12 @@
   import { forholdet as forholdIKatalogen } from '$kjerne/spor/forhold/tekst';
   import type { Forholdsresultat } from '$kjerne/regler/typer';
   import type { Utledning } from '$kjerne/utledning/utled';
-  import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+  import { kravversjonenPaaDagen, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+  import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Datoer from './Datoer.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
+  import Knapp from './Knapp.svelte';
   import Sitat from './Sitat.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
@@ -36,9 +38,10 @@
     valgteksten,
     type Forholdssvarvalg,
   } from './forholdssvar';
-  import { standpunktene, underOverskriften } from './lesing';
+  import { brevene, standpunktene, underOverskriften } from './lesing';
+  import { vedleggskart } from './nysak';
   import { kravbrevetI, kravetSendt, manglene } from './svarskjema';
-  import { brevref, dato, kalenderdager } from './tekster';
+  import { brevref, dato, kalenderdager, LEGG_TIL } from './tekster';
 
   let {
     kjernesak,
@@ -47,6 +50,10 @@
     onbrevkontroll,
     onforkast,
     onvedsiden,
+    lagtTil = null,
+    onendre,
+    onlagttil,
+    onleggtil,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -57,16 +64,28 @@
     onforkast: () => void;
     /** Brevet leses i en ramme ved siden av skjemaet, eller ikke lenger. */
     onvedsiden?: (vedSiden: boolean) => void;
+    /** Korrespondansen svaret legges til fra (OV-U80, OV-U98), eller `null`. */
+    lagtTil?: Korrespondansevalg | null;
+    onendre?: () => void;
+    onlagttil?: () => void;
+    /** U-14: veien til skjemaet for korrespondanse lagt til, med kategorien svar. */
+    onleggtil?: () => void;
   } = $props();
   const uid = $props.id();
 
-  const krav = $derived(u.spor.forhold.gjeldendeKrav!);
+  // OV-U98: et svar lagt til gjelder versjonen av påberopelsen som var gjeldende da det ble sendt.
+  const krav = $derived(
+    (lagtTil?.dato ? kravversjonenPaaDagen(u, 'forhold', lagtTil.dato) : null) ??
+      u.spor.forhold.gjeldendeKrav!
+  );
   const f = $derived(forholdet(krav, kjernesak.regler));
   const frafallMulig = $derived(kanFrafalle(f, valg));
 
   // U-3: datoen TE oppgir, sendingen av påberopelsen og dagene mellom. Partene avgjør om varselet
   // kom i tide.
-  const kravbrevet = $derived(kravbrevetI(u, 'forhold'));
+  const kravbrevet = $derived(
+    brevene(u).find((b) => b.id === krav.dokument) ?? kravbrevetI(u, 'forhold')
+  );
   const datoene = $derived.by(() => {
     const { hovedkategori, underkategori } = kategori(krav);
     const felt = oppgittDato(hovedkategori, underkategori);
@@ -124,13 +143,26 @@
     forholdssvaret(
       { forSent: valg.forSent, resultat: valg.resultat, begrunnelser: {}, forbehold: '' },
       u,
-      kjernesak.regler
+      kjernesak.regler,
+      [],
+      krav
     )!
   );
-  const etter = $derived(kjernesak.forhaandsvist(utkast));
+  // Et svar lagt til forhåndsvises med datoen, så kjernen regner det mot saken slik den var da.
+  const etter = $derived(
+    kjernesak.forhaandsvist(
+      lagtTil ? kommandoenLagtTil(utkast, lagtTil) : utkast,
+      lagtTil ? vedleggskart(lagtTil.vedlegg) : undefined
+    )
+  );
   const nyttSvar = $derived.by(() => {
-    const s = etter?.spor.forhold.gjeldendeSvar;
-    return s && !u.spor.forhold.svar.some((x) => x.id === s.id) ? s : null;
+    const f = etter?.spor.forhold;
+    const kjent = new Set(
+      [...u.spor.forhold.svar, ...u.spor.forhold.svarUtenforRekken].map((x) => x.id)
+    );
+    return (
+      [...(f?.svar ?? []), ...(f?.svarUtenforRekken ?? [])].find((x) => !kjent.has(x.id)) ?? null
+    );
   });
   const endringsordre = $derived(
     nyttSvar ? blirEndringsordre(nyttSvar.beslutningsgrunnlag) : false
@@ -203,7 +235,11 @@
   {u}
   spor="forhold"
   {utkast}
-  medTekstene={(punktene) => forholdssvaret(valg, u, kjernesak.regler, punktene)!}
+  medTekstene={(punktene) => forholdssvaret(valg, u, kjernesak.regler, punktene, krav)!}
+  {lagtTil}
+  svarerPaa={lagtTil ? kravbrevet : null}
+  {onendre}
+  {onlagttil}
   bind:tekster={valg}
   {linjer}
   virkninger={virkning ? [virkning] : []}
@@ -214,10 +250,17 @@
   {onvedsiden}
 >
   {#snippet spoersmaal(feil)}
-    <div class="utenfor" role="note">
-      <Info size={16} aria-hidden="true" />
-      <p>{FORHOLDSSVAR.utenforLoesningen}</p>
-    </div>
+    {#if !lagtTil}
+      <div class="utenfor" role="note">
+        <Info size={16} aria-hidden="true" />
+        <div>
+          <p>{FORHOLDSSVAR.utenforLoesningen}</p>
+          {#if onleggtil}
+            <Knapp variant="lenke" kompakt onclick={onleggtil}>{LEGG_TIL.tittel}</Knapp>
+          {/if}
+        </div>
+      </div>
+    {/if}
 
     {#if f.varslingsplikt}
       <Spoersmaal id={`${uid}-sp-varsel`} tittel={FORHOLDSSVAR.varselTittel}>

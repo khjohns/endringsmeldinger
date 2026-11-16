@@ -209,12 +209,76 @@ const ref = ({ id, nummer, registrert, omtale, art }: Brevref): Brevref => ({
 /** Brevet med dokumentet `id`. */
 export const brevet = (u: Utledning, id: string) => brevene(u).find((b) => b.id === id) ?? null;
 
+const elementenePerUtledning = new WeakMap<Utledning, Map<string, Brevet>>();
+
+/** Brevet med kravet, svaret eller utsagnet `id`, slått opp én gang per utledning. */
+export function brevMedElement(u: Utledning, id: string): Brevet | null {
+  let kart = elementenePerUtledning.get(u);
+  if (!kart) {
+    kart = new Map();
+    for (const h of u.journal) {
+      if (h.art !== 'dokument') continue;
+      const b = brevet(u, h.dokument.id);
+      if (!b) continue;
+      for (const x of [...h.dokument.krav, ...h.dokument.svar, ...h.dokument.utsagn])
+        kart.set(x.id, b);
+    }
+    elementenePerUtledning.set(u, kart);
+  }
+  return kart.get(id) ?? null;
+}
+
 /** Brevet utsagnet `id` står i, som forespørselen etter § 33.6.2. */
-export function brevMedUtsagn(u: Utledning, id: string) {
-  const h = u.journal.find(
-    (x) => x.art === 'dokument' && x.dokument.utsagn.some((y) => y.id === id)
-  );
-  return h?.art === 'dokument' ? brevet(u, h.dokument.id) : null;
+export const brevMedUtsagn = brevMedElement;
+
+/** Byggherrens svar i sporet, også dem utenfor rekken (OV-U103). */
+export const svareneISporet = (u: Utledning, spor: Spor) => [
+  ...u.spor[spor].svar,
+  ...u.spor[spor].svarUtenforRekken,
+];
+
+/**
+ * OV-U104: brevene i saken et brev lagt til er sendt samme dag som, slik kjernen sammenlikner dem
+ * i utledningen `etter` med brevet, og ikke i `foer`. Løsningen kjenner ikke rekkefølgen.
+ */
+export function sendtSammeDagSom(foer: Utledning, etter: Utledning): Brevet[] {
+  // Paret er det samme uansett hvilket element kjernen nevner først.
+  const par = (x: { element: string; med: string }) => [x.element, x.med].sort().join(' ');
+  const kjent = new Set(foer.sendtSammeDag.map(par));
+  const ut = new Map<string, Brevet>();
+  for (const x of etter.sendtSammeDag) {
+    if (kjent.has(par(x))) continue;
+    // Elementet i det nye brevet er det som ikke fantes før; det andre er brevet i saken.
+    const iSaken = brevMedElement(foer, x.med) ?? brevMedElement(foer, x.element);
+    if (iSaken) ut.set(iSaken.id, iSaken);
+  }
+  return [...ut.values()];
+}
+
+/**
+ * OV-U104: brevene i saken kjernen har sammenliknet med et annet brev sendt samme dag, med de
+ * andre brevene for hvert. Løsningen kjenner ikke rekkefølgen.
+ */
+const sammeDagPerUtledning = new WeakMap<Utledning, Map<string, Brevet[]>>();
+
+export function sendtSammeDag(u: Utledning): Map<string, Brevet[]> {
+  const lest = sammeDagPerUtledning.get(u);
+  if (lest) return lest;
+  const ut = new Map<string, Brevet[]>();
+  sammeDagPerUtledning.set(u, ut);
+  const legg = (a: Brevet, b: Brevet) => {
+    const liste = ut.get(a.id) ?? [];
+    if (!liste.some((x) => x.id === b.id)) ut.set(a.id, [...liste, b]);
+  };
+  for (const x of u.sendtSammeDag) {
+    const a = brevMedElement(u, x.element);
+    const b = brevMedElement(u, x.med);
+    if (a && b && a.id !== b.id) {
+      legg(a, b);
+      legg(b, a);
+    }
+  }
+  return ut;
 }
 
 /** En dato en part har oppgitt i et brev, med brevet den står i. */

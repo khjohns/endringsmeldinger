@@ -17,6 +17,7 @@
     oppfoelgingene,
     type Brevet,
     type Sideprops,
+    sendtSammeDag,
   } from './lesing';
   import { TRAADEN, VEDERLAGET } from './tekster';
   import { varseletFoerKravet } from '$lib/kjernesak/vederlagskrav';
@@ -74,6 +75,7 @@
     {fulgtOpp}
     {eldreKrav}
     dokumentasjon={u.ikkeVurderteBrev}
+    sammeDag={sendtSammeDag(u)}
     venterPaaSvar={betegnelser.vederlag === 'venter_paa_svar'}
     {oeverst}
     nederst={fristen}

@@ -29,7 +29,15 @@
   import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
   import Korrespondansen from './Korrespondansen.svelte';
-  import { erTomKorrespondanse, tomKorrespondanse } from './korrespondansen';
+  import {
+    erTomKorrespondanse,
+    lagtTil as kommandoenLagtTil,
+    leggTilISaken,
+    tomKorrespondanse,
+    type Korrespondansevalg,
+  } from './korrespondansen';
+  import Lagttillinje from './Lagttillinje.svelte';
+  import Lagttilmerknader from './Lagttilmerknader.svelte';
   import {
     fristkravet,
     manglerIFristkravet,
@@ -41,7 +49,7 @@
   } from './fristkrav';
   import { gjeldendeFrist, nyFrist, sakensNavn, type GjeldendeFrist } from './fristoversikt';
   import { heleDager } from './fristsvar';
-  import { vedleggsgrense } from './nysak';
+  import { vedleggsgrense, vedleggskart } from './nysak';
   import {
     brevMedUtsagn,
     brevene,
@@ -49,7 +57,15 @@
     fristtabellen,
     klarOverForholdet,
   } from './lesing';
-  import { FRISTKRAV, HOVEDLINJER, SKJEMA, dagensDato, dato, kalenderdager } from './tekster';
+  import {
+    FRISTKRAV,
+    HOVEDLINJER,
+    LEGG_TIL,
+    SKJEMA,
+    dagensDato,
+    dato,
+    kalenderdager,
+  } from './tekster';
 
   let {
     kjernesak,
@@ -59,6 +75,9 @@
     onforkast,
     onregistrert,
     sakslenke,
+    lagtTil = null,
+    onendre = () => {},
+    onlagttil = () => {},
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -72,6 +91,15 @@
     onregistrert: () => void;
     /** Lenken til en annen sak i prosjektet, som en forlengelse av en frist står i (U-2). */
     sakslenke?: (sakId: string) => string;
+    /**
+     * Korrespondansen kravet legges til fra (OV-U80, OV-U98), eller `null` for et krav sendt fra
+     * løsningen. Kravet har da ingen begrunnelse og ikke noe varsel (OV-U80).
+     */
+    lagtTil?: Korrespondansevalg | null;
+    /** Tilbake til korrespondansen. */
+    onendre?: () => void;
+    /** Kravet er lagt til. */
+    onlagttil?: () => void;
   } = $props();
   const uid = $props.id();
   const id = (felt: string) => `${uid}-${felt}`;
@@ -107,11 +135,14 @@
   const kanSende = $derived(kjernesak.handlinger.includes('sende_varsel:frist'));
   const kanRegistrere = $derived(kjernesak.handlinger.includes('varsle:frist'));
   const kanVarsle = $derived(
-    !forrige && kjernesak.handlinger.includes('krav:frist') && (kanSende || kanRegistrere)
+    !lagtTil &&
+      !forrige &&
+      kjernesak.handlinger.includes('krav:frist') &&
+      (kanSende || kanRegistrere)
   );
   // U-11: forespørselen etter punkt 33.6.2 TE kan svare på, og brevet den står i.
   const foresporsel = $derived(
-    v.hva === 'varsel'
+    v.hva === 'varsel' || lagtTil
       ? null
       : (kjernesak.tilbudte.find((h) => h.type === 'svare_paa_foresporsel')?.gjelder ?? null)
   );
@@ -124,7 +155,9 @@
   const bokstavB = $derived(modus === 'svar');
   // Varselet alene registreres bare når kjernen tilbyr det (VS-U16). I kravet kan varselet gitt
   // før, utenfor løsningen, oppgis når saken ikke har et (U-6, OV-U5).
-  const utenfor = $derived((varsel ? kanRegistrere : !varselbrev && !bokstavB) ? v.utenfor : null);
+  const utenfor = $derived(
+    !lagtTil && (varsel ? kanRegistrere : !varselbrev && !bokstavB) ? v.utenfor : null
+  );
   const registreres = $derived(varsel && utenfor !== null);
   /** Et varsel registreres når TE bare varsler og ikke kan sende det fra løsningen. */
   function velgHva(hva: Fristkravvalg['hva'] | null) {
@@ -152,7 +185,16 @@
 
   /** Valgene slik kommandoen leser dem: et varsel utenfor bare der skjemaet viser det. */
   const gjeldende = $derived({ ...v, utenfor });
-  const mangler = $derived(manglerIFristkravet(gjeldende, uid, navnet, foresporsel));
+  // OV-U80: et krav lagt til har ingen begrunnelse.
+  const mangler = $derived(
+    manglerIFristkravet(gjeldende, uid, navnet, foresporsel).filter(
+      (m) => !lagtTil || m.felt !== id('begrunnelse')
+    )
+  );
+  const kommandoLagtTil = $derived(
+    lagtTil ? kommandoenLagtTil(fristkravet(gjeldende) as { type: 'krav' }, lagtTil) : null
+  );
+  const vedleggLagtTil = $derived(vedleggskart(lagtTil?.vedlegg ?? []));
   let forsoekt = $state(false);
   const feil = (felt: string): string | null =>
     forsoekt ? feltfeil(mangler.find((m) => m.felt === id(felt))) : null;
@@ -333,6 +375,17 @@
       oppsummering?.focus();
       return;
     }
+    if (kommandoLagtTil) {
+      const h = await leggTilISaken(
+        kjernesak,
+        kommandoLagtTil,
+        vedleggLagtTil,
+        HOVEDLINJER.kanIkkeLages
+      );
+      if (h === null) onlagttil();
+      else await hindret(h);
+      return;
+    }
     const kommando = fristkravet(gjeldende, foresporsel);
     const vedlegg = vedleggIFristkravet(gjeldende);
     if (registreres) {
@@ -379,10 +432,14 @@
   <div class="handling">
     <Knapp
       variant="primaer"
-      opptatt={registreres && kjernesak.sender}
+      opptatt={(registreres || !!lagtTil) && kjernesak.sender}
       onclick={seBrevet}
       aria-describedby={sendehindring ? id('hindring') : undefined}
-      >{registreres ? FRISTKRAV.registrer : HOVEDLINJER.seBrevet}</Knapp
+      >{lagtTil
+        ? LEGG_TIL.leggTilKravet
+        : registreres
+          ? FRISTKRAV.registrer
+          : HOVEDLINJER.seBrevet}</Knapp
     >
   </div>
   {#if sendehindring}
@@ -569,11 +626,20 @@
     <Utkastkort
       id={id('tittel')}
       tittel={FRISTKRAV.titler[foresporselsbrev && !varsel ? 'svar' : modus]}
-      undertittel={forrige ? FRISTKRAV.nyVersjon(forrige) : null}
+      undertittel={forrige && !lagtTil ? FRISTKRAV.nyVersjon(forrige) : null}
       mottaker={SKJEMA.tilBH}
+      merke={lagtTil ? LEGG_TIL.utkast : undefined}
     >
+      {#if lagtTil && kjernesak.part}
+        <Lagttillinje part={kjernesak.part} valg={lagtTil} {onendre} />
+      {/if}
       {#if forsoekt && mangler.length}
-        <Manglene tittel={SKJEMA.mangler} {mangler} ongaa={gaaTil} bind:element={oppsummering} />
+        <Manglene
+          tittel={lagtTil ? LEGG_TIL.mangler : SKJEMA.mangler}
+          {mangler}
+          ongaa={gaaTil}
+          bind:element={oppsummering}
+        />
       {/if}
 
       {#if kanVarsle}
@@ -611,7 +677,7 @@
         </section>
       {/if}
 
-      {#if !bokstavB || varselbrev}
+      {#if !lagtTil && (!bokstavB || varselbrev)}
         <Spoersmaal id={id('sp-varsel')} tittel={FRISTKRAV.varselTittel} hjemmel={['33.4']}>
           <p class="dempet">{varsel ? FRISTKRAV.varselAleneHjelp : FRISTKRAV.varselHjelp}</p>
           {#if klarOver}
@@ -725,34 +791,42 @@
           </div>
         </Spoersmaal>
 
-        <Spoersmaal
-          id={id('sp-begrunnelse')}
-          tittel={FRISTKRAV.begrunnelseTittel}
-          hjemmel={['33.5', '33.6.1']}
-        >
-          <div class="dempet" id={id('begrunnelse-hjelp')}>
-            <p>{FRISTKRAV.begrunnelseHjelp}</p>
-            <ul class="hensyn">
-              {#each FRISTKRAV.hensyn as h (h)}<li>{h}</li>{/each}
-            </ul>
-            <p>{FRISTKRAV.fremdriftsplan}</p>
-          </div>
-          <textarea
-            id={id('begrunnelse')}
-            rows="6"
-            aria-labelledby={id('sp-begrunnelse')}
-            bind:value={v.begrunnelse}
-            class:ugyldig={begrunnelseFeil}
-            aria-describedby={begrunnelseFeil
-              ? `${id('begrunnelse-hjelp')} ${id('begrunnelse-feil')}`
-              : id('begrunnelse-hjelp')}
-            aria-invalid={begrunnelseFeil ? 'true' : undefined}
-            aria-required="true"
-          ></textarea>
-          {#if begrunnelseFeil}<p class="feilmelding" id={id('begrunnelse-feil')}>
-              {begrunnelseFeil}
-            </p>{/if}
-        </Spoersmaal>
+        {#if kommandoLagtTil}
+          <Lagttilmerknader
+            {kjernesak}
+            {u}
+            spor="frist"
+            kommando={kommandoLagtTil}
+            vedlegg={vedleggLagtTil}
+          />
+        {:else}<Spoersmaal
+            id={id('sp-begrunnelse')}
+            tittel={FRISTKRAV.begrunnelseTittel}
+            hjemmel={['33.5', '33.6.1']}
+          >
+            <div class="dempet" id={id('begrunnelse-hjelp')}>
+              <p>{FRISTKRAV.begrunnelseHjelp}</p>
+              <ul class="hensyn">
+                {#each FRISTKRAV.hensyn as h (h)}<li>{h}</li>{/each}
+              </ul>
+              <p>{FRISTKRAV.fremdriftsplan}</p>
+            </div>
+            <textarea
+              id={id('begrunnelse')}
+              rows="6"
+              aria-labelledby={id('sp-begrunnelse')}
+              bind:value={v.begrunnelse}
+              class:ugyldig={begrunnelseFeil}
+              aria-describedby={begrunnelseFeil
+                ? `${id('begrunnelse-hjelp')} ${id('begrunnelse-feil')}`
+                : id('begrunnelse-hjelp')}
+              aria-invalid={begrunnelseFeil ? 'true' : undefined}
+              aria-required="true"
+            ></textarea>
+            {#if begrunnelseFeil}<p class="feilmelding" id={id('begrunnelse-feil')}>
+                {begrunnelseFeil}
+              </p>{/if}
+          </Spoersmaal>{/if}
       {/if}
 
       <div class="skjemafot">

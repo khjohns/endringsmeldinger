@@ -185,8 +185,8 @@ tilstander = "Ingen."
 status = "naa"
 noekler = ["registrere_brev"]
 kommandoer = ["registrert_brev", "ikke_i_saken"]
-skjema = []
-mangler = "Skjemaet i Varden."
+skjema = ["registrere_brev"]
+mangler = "Rettingen av registreringen (`retter`, `ikke_i_saken`) i Varden. Korrespondanse motparten har sendt (#2069)."
 
 [[handling]]
 id = "U6"
@@ -202,7 +202,7 @@ status = "naa"
 noekler = ["varsle:vederlag", "varsle:frist", "varsle:32.2", "varsle:34.1.3", "varsle:34.3.3", "varsle:34.4"]
 kommandoer = ["varsel", "krav", "brev", "revisjon", "aksept"]
 skjema = ["varsle:frist"]
-mangler = "Skjemaene i Varden. Et registrert svar på en eldre kravversjon avvises fortsatt av kommandoen (#2011). Varselet etter 32.2 godtas, men tilbys ikke (K3)."
+mangler = "Svaret på vederlag og frist og en ny versjon av påberopelsen lagt til, i Varden (#807). Krav, svar på forholdet og aksept legges til fra skjemaet for korrespondanse (`registrere_brev`). Varselet etter 32.2 godtas, men tilbys ikke (K3)."
 
 [[handling]]
 id = "U7"

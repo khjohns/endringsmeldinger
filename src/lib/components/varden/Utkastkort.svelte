@@ -14,6 +14,7 @@
     undertittel = null,
     mottaker,
     nivaa = 2,
+    merke = BREVKONTROLL.utkast,
     novalidate = false,
     onsubmit,
     infotips,
@@ -29,6 +30,8 @@
     mottaker: string;
     /** Overskriftsnivået: 1 når skjemaet er det eneste på siden. */
     nivaa?: 1 | 2;
+    /** Merket foran tittelen; et krav eller svar lagt til blir ikke sendt (OV-U80). */
+    merke?: string;
     novalidate?: boolean;
     onsubmit?: () => void;
     infotips?: Snippet;
@@ -48,7 +51,7 @@
   <header class="utkasthode">
     <div class="tittelrad">
       <svelte:element this={`h${nivaa}`} class="tittel" {id}>
-        <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
+        <span class="merke-utkast">{merke}</span>
         {#if tittel}<span>{tittel}</span>{/if}
       </svelte:element>
       {@render infotips?.()}
