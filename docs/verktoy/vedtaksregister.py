@@ -1074,7 +1074,14 @@ def bindende_i_opphevet(register: dict) -> list[str]:
 # økta som følger #1534). Dagens tilfeller rettes i samlevedtakene i steg 4, og
 # lista skal bare krympe.
 FORHOLD_TIL_OPPHEVET = ("presiserer", "utvider", "snevrer inn", "endrer", "bygger på")
-KJENTE_FORHOLD_TIL_OPPHEVET: frozenset = frozenset()
+# LV-U75 opphever det som står igjen av LV-U52 etter LV-U53 og LV-U56, og endringene i dem står
+# som kjent avvik (oppdragsgiver 16.11, #1988).
+KJENTE_FORHOLD_TIL_OPPHEVET: frozenset = frozenset(
+    {
+        ("lv-u53", "endrer", "lv-u52", "#1988"),
+        ("lv-u56", "endrer", "lv-u52", "#1988"),
+    }
+)
 _AVVIKSISSUE = re.compile(r"#\d+(?:, steg \d+)?")
 
 
