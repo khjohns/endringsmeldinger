@@ -4238,7 +4238,8 @@ forkastet = true
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "hvor opplysningen står i skjemaene, og ordlyden i den. Leddet om at løsningen ikke avgjør om dokumentet oppfyller kravene, er en regel og ikke tekst i visningen (svaret)"
+designdel = "hvor opplysningen står i skjemaene, og ordlyden i den. Leddet om at løsningen ikke avgjør om dokumentet oppfyller kravene, trenger ikke å stå i visningen; det gjelder generelt (svaret)"
+beslutningsdel = "at forseringen etter punkt 33.8 ikke er bygget, og at vedtaket gjelder den når den bygges"
 id = "VS-U72"
 dato = 2026-11-16
 hvem = "oppdragsgiver"
