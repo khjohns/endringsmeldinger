@@ -31296,6 +31296,74 @@ navn = "C"
 tekst = '''
 Har totalentreprenøren sendt et krav om dager før byggherrens forespørsel etter punkt 33.6.2, viser løsningen at forespørselen ble sendt etter at totalentreprenøren hadde fremmet krav, og at første ledd da bare gjelder hvis det kravet ikke var et krav etter punkt 33.6.1. Løsningen utleder ingen virkning etter punkt 33.6.2 tredje, fjerde eller femte ledd, verken for det eldre kravet eller for et senere krav som svarer på forespørselen. Om et krav kom i tide, vurderes etter punkt 33.6.1. Løsningen sperrer ikke byggherrens påberopelse etter punkt 33.6.1, og avgjør ikke om det eldre kravet var et krav etter punkt 33.6.1 (MM-U50 punkt 8). Et svar sendt fra eller lagt til i løsningen før det eldre kravet ble lagt til, står med virkningen det hadde (MM-U50 punkt 1). Forhold: presiserer OV-U109; snevrer inn VS-U47 punkt 6 for dette tilfellet.'''
 
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U112"
+dato = 2026-11-16
+hvem = "oppdragsgiver"
+kilde = ["#2022", "#2054"]
+sporsmal = '''
+Spørsmålet kom fra byggingen av #2022 i PR #2054. Det ble kontrollert uavhengig, rettet av økta som stilte det, og stilt i samtalen 16.11 som spørsmål 4. Spørsmålet står ordrett i [kommentaren i #2022](https://github.com/khjohns/endringsmeldinger/issues/2022#issuecomment-6911527535), drøftingen i [kommentaren om drøftingen](https://github.com/khjohns/endringsmeldinger/issues/2022#issuecomment-6911925109) og svaret i [kommentaren med svaret](https://github.com/khjohns/endringsmeldinger/issues/2022#issuecomment-6911857157):
+
+> **Spørsmål 1. Totalentreprenørens aksept av et avslag på grunnlaget, lagt til etter at byggherren har sendt et nytt svar på grunnlaget**
+>
+> **Bakgrunn.**
+> - GR-U27: «TEs uttrykkelige aksept av avslaget på grunnlaget eller trekk av grunnlaget lukker KOE-saken. Skjemaet viser dette før sending, og statusen viser hvorfor saken er avsluttet.» Vedtaket har ingen vilkår.
+> - OV-U98: en aksept som legges til, godtas når svaret den godtar, var byggherrens gjeldende svar da aksepten ble sendt. «Et svar byggherren har sendt etter aksepten, står med virkningen det hadde.» Ellers avgjør rekkefølgen i løsningen sperrene.
+> - OV-U110: etter byggherrens nye svar bygger løsningen på det nye svaret. Vedtaket nevner ikke lukkingen.
+>
+> **Tilfellet.** Byggherren avslår grunnlaget. Totalentreprenøren godtar avslaget i et brev sendt utenfor løsningen. Senere sender byggherren et nytt svar på grunnlaget, enten et nytt avslag eller en godkjenning. Etter det legger totalentreprenøren til akseptbrevet med datoen det ble sendt, før det nye svaret.
+>
+> **Hva valget styrer.** Om saken står som avsluttet, om totalentreprenøren kan sende krav om vederlag og fristforlengelse, og om saken kan tas inn i en endringsordre.
+>
+> **Rekkefølgen i løsningen i dag.** Legges aksepten til før byggherrens nye svar er lagt inn, lukkes saken, og løsningen avviser det nye svaret (GR-U27). Legges det nye svaret inn først, lukker aksepten ikke saken. Det siste er bygget i #2054 som A.
+>
+> - **A (bygget):** «Legges totalentreprenørens aksept av byggherrens avslag på grunnlaget til etter at byggherren har sendt et nytt svar på grunnlaget, lukker aksepten ikke saken. Aksepten gir enighet om avslaget, og enigheten vises ved avslaget. Byggherrens nye svar står med virkningen det hadde (OV-U98). Skjemaet for å legge til aksepten viser før den legges til, at saken ikke avsluttes, fordi byggherren har sendt et nytt svar på grunnlaget. Løsningen avgjør ikke om enigheten om avslaget står (MM-U50 punkt 8).»
+>   - Forhold: snevrer inn GR-U27; i tråd med OV-U98 og OV-U110.
+> - **B:** «Totalentreprenørens aksept av byggherrens avslag på grunnlaget, lagt til med datoen den ble sendt, lukker saken etter GR-U27 når avslaget var byggherrens gjeldende svar da aksepten ble sendt, også når byggherren senere har sendt et nytt svar på grunnlaget. Det nye svaret står som byggherrens brev, uten virkning på utfallet.»
+>   - Forhold: presiserer GR-U27; kan stride mot siste setning i OV-U98.
+>
+> **Utfallene.**
+> - **Det nye svaret er et avslag.** Under A står saken åpen med det nye avslaget, og totalentreprenøren kan godta det, og da lukkes saken. Under B er saken avsluttet.
+> - **Det nye svaret er en godkjenning.** Under A er grunnlaget avklart. Totalentreprenøren kan sende krav om vederlag og fristforlengelse, og saken kan tas inn i en endringsordre. Under B er saken avsluttet, og godkjenningen har ingen virkning.
+> - **Rekkefølgen.** Under A kan totalentreprenøren tape en godkjenning ved å legge til aksepten før byggherrens nye svar er lagt inn. Da lukkes saken, og det nye svaret avvises. Under B er utfallet det samme uansett rekkefølge.
+>
+> **Anbefaling: A.**
+> - Siste setning i OV-U98: «Et svar byggherren har sendt etter aksepten, står med virkningen det hadde.»
+> - B frister totalentreprenøren til ikke å legge til brevet sitt når byggherrens nye svar godkjenner grunnlaget. Da står ikke akseptbrevet i saken.
+> - Prisen ved A er rekkefølgen over. Skjemaet bør derfor vise, når aksepten legges til, at byggherren har svart på nytt, om det nye svaret er lagt inn.
+>
+> ## Drøftingen 16.11
+>
+> Spørsmålet ble stilt som spørsmål 4. Oppdragsgiver 16.11, ordrett: «4: hvordan kan tilfellet oppstå? Responderer ikke partene alltid på siste verdjon? Hvis TE legger til brevet etter BHs siste svar, så må det være en respons på BH siste svar? Appen åpner vel ikke i dag for å respondere på tidligere versjoner?»
+>
+> Orkestratoren svarte at tilfellet bare kan oppstå når et brev sendt utenfor løsningen legges til i ettertid, med brev som krysser hverandre (OV-U98, HF-U1, LV-U18 (3)), og at anbefalingen fortsatt er A.
+'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 16.11, ordrett: «4A». Svaret er A, det anbefalte alternativet.'''
+forhold = [
+  { art = "snevrer inn", vedtak = "gr-u27" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «snevrer inn GR-U27; i tråd med OV-U98 og OV-U110.» Bygges i #2022.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Legges totalentreprenørens aksept av byggherrens avslag på grunnlaget til etter at byggherren har sendt et nytt svar på grunnlaget, lukker aksepten ikke saken. Aksepten gir enighet om avslaget, og enigheten vises ved avslaget. Byggherrens nye svar står med virkningen det hadde (OV-U98). Skjemaet for å legge til aksepten viser før den legges til, at saken ikke avsluttes, fordi byggherren har sendt et nytt svar på grunnlaget. Løsningen avgjør ikke om enigheten om avslaget står (MM-U50 punkt 8). Forhold: snevrer inn GR-U27; i tråd med OV-U98 og OV-U110.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Totalentreprenørens aksept av byggherrens avslag på grunnlaget, lagt til med datoen den ble sendt, lukker saken etter GR-U27 når avslaget var byggherrens gjeldende svar da aksepten ble sendt, også når byggherren senere har sendt et nytt svar på grunnlaget. Det nye svaret står som byggherrens brev, uten virkning på utfallet. Forhold: presiserer GR-U27; kan stride mot siste setning i OV-U98.'''
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et svar byggherren har sendt etter aksepten, står med virkningen det hadde."
+
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
 etter = '''
