@@ -280,11 +280,15 @@ export function egenKonfig(pool: sql.ConnectionPool): sql.config {
 /** Identiteten runneren krever, så skjemaene filene lager, eies av databaseeieren. */
 const EIER = 'dbo';
 
-/** Avviser en annen identitet enn `EIER` før runneren tar applåsen. */
-async function kontrollerIdentitet(egen: sql.ConnectionPool): Promise<void> {
-  const { bruker } = await tilstand(egen);
+/**
+ * Avviser en annen identitet enn `EIER` før runneren tar applåsen, og gir basen
+ * forbindelsen står i.
+ */
+async function kontrollerIdentitet(egen: sql.ConnectionPool): Promise<string> {
+  const { bruker, base } = await tilstand(egen);
   if (bruker !== EIER)
     throw new MigreringAvvist(`Runneren kjøres som ${bruker}, ikke som databaseeieren ${EIER}.`);
+  return base;
 }
 
 /**
@@ -317,6 +321,8 @@ interface Forbindelsestilstand {
   merket: boolean;
   /** `USER_NAME()`: en sats med `EXECUTE AS` uten `REVERT` bytter den for resten av sesjonen. */
   bruker: string;
+  /** `DB_NAME()`: en sats med `USE` bytter den for resten av sesjonen. */
+  base: string;
 }
 
 async function tilstand(egen: sql.ConnectionPool): Promise<Forbindelsestilstand> {
@@ -330,13 +336,14 @@ async function tilstand(egen: sql.ConnectionPool): Promise<Forbindelsestilstand>
       laas: string | null;
       merket: boolean;
       bruker: string;
+      base: string;
     }>(
       // APPLOCK_MODE feiler for en bruker utenfor db_owner, så etter et
       // identitetsbytte leses den ikke, og avvisningen sier hvem satsen byttet til.
       `SELECT CONVERT(varchar(20), CURRENT_TRANSACTION_ID()) AS id, @@TRANCOUNT AS nivaa,
             CASE WHEN USER_NAME() = @eier THEN APPLOCK_MODE(N'db_owner', @ressurs, N'Session') END AS laas,
             CAST(CASE WHEN OBJECT_ID(N'tempdb..#koe_migrering') IS NULL THEN 0 ELSE 1 END AS bit) AS merket,
-            USER_NAME() AS bruker`
+            USER_NAME() AS bruker, DB_NAME() AS base`
     );
   const t = svar.recordset?.[0];
   // Uten rad, for eksempel etter `SET NOEXEC ON` i en sats, er tilstanden ukjent.
@@ -395,11 +402,13 @@ async function iFila<T>(
 /**
  * Anvender den første fila som ikke er anvendt, i én transaksjon med
  * historikkraden, og returnerer versjonen, eller `undefined` når alle er anvendt.
+ * Feiler satsen med historikkraden, gir `utfall` om fila er committet, eller
+ * `undefined` når det ikke kunne leses.
  */
 async function anvendNeste(
   egen: sql.ConnectionPool,
   filer: Migrasjon[],
-  kanVaereAnvendt: (versjon: string) => void
+  utfall: (versjon: string, committet: boolean | undefined) => void
 ): Promise<string | undefined> {
   await egen.request().batch('BEGIN TRANSACTION; CREATE TABLE #koe_migrering (i int);');
   const runnerens = await tilstand(egen);
@@ -442,18 +451,23 @@ async function anvendNeste(
         `${sted}: satsen byttet identiteten fra ${EIER} til ${etter.bruker}.` +
           (await lagret(egen, runnerens))
       );
+    // Etter `USE` ville resten av fila og historikkraden kjørt i en annen base (#928 p1).
+    if (etter.base !== runnerens.base)
+      throw new MigreringAvvist(
+        `${sted}: satsen byttet basen fra ${runnerens.base} til ${etter.base}.` +
+          (await lagret(egen, runnerens))
+      );
   }
   try {
-    await iFila(egen, runnerens, `${neste.filnavn}, historikkraden`, () =>
-      egen
-        .request()
-        .input('versjon', sql.Char(14), neste.versjon)
-        .input('filnavn', sql.NVarChar(260), neste.filnavn)
-        .input('sha256', sql.Char(64), neste.sha256)
-        .batch(
-          // Ikke alle feil avbryter satsen, heller ikke med XACT_ABORT, så uten
-          // CATCH kunne COMMIT kjøres etter en feil (#884).
-          `BEGIN TRY
+    await egen
+      .request()
+      .input('versjon', sql.Char(14), neste.versjon)
+      .input('filnavn', sql.NVarChar(260), neste.filnavn)
+      .input('sha256', sql.Char(64), neste.sha256)
+      .batch(
+        // Ikke alle feil avbryter satsen, heller ikke med XACT_ABORT, så uten
+        // CATCH kunne COMMIT kjøres etter en feil (#884).
+        `BEGIN TRY
              DROP TABLE #koe_migrering;
              INSERT koe_migrering.historikk (versjon, filnavn, sha256) VALUES (@versjon, @filnavn, @sha256);
              COMMIT;
@@ -462,23 +476,33 @@ async function anvendNeste(
              IF @@TRANCOUNT > 0 ROLLBACK;
              THROW;
            END CATCH;`
-        )
-    );
+      );
   } catch (feil) {
-    // Nådde COMMIT basen, men ikke svaret runneren, er fila anvendt. Kan raden
-    // ikke leses etterpå, er det uvisst.
-    const lagret = await egen
+    // Nådde COMMIT basen, men ikke svaret runneren, er fila anvendt. Er
+    // transaksjonen fortsatt åpen, er raden sesjonens egen og ikke committet, så
+    // den rulles tilbake før raden leses (#928 p2). Kan raden ikke leses, er det uvisst.
+    const committet = await egen
       .request()
       .input('versjon', sql.Char(14), neste.versjon)
-      .query<{ n: number }>(
-        'SELECT COUNT(*) AS n FROM koe_migrering.historikk WHERE versjon = @versjon'
+      // `batch`, ikke `query`: i `sp_executesql` gir ROLLBACK feilen 266.
+      .batch<{ n: number }>(
+        `IF @@TRANCOUNT > 0 ROLLBACK;
+         SELECT COUNT(*) AS n FROM koe_migrering.historikk WHERE versjon = @versjon;`
       )
       .then(
         (svar) => (svar.recordset[0]?.n ?? 0) > 0,
         () => undefined
       );
-    if (lagret !== false) kanVaereAnvendt(neste.versjon);
-    throw feil;
+    utfall(neste.versjon, committet);
+    const lagret =
+      committet === undefined
+        ? ''
+        : committet
+          ? ' Fila og historikkraden er committet.'
+          : ' Ingenting fra fila er lagret.';
+    throw new MigreringAvvist(`${neste.filnavn}, historikkraden: ${somSetning(feil)}${lagret}`, {
+      cause: feil,
+    });
   }
   return neste.versjon;
 }
@@ -508,33 +532,39 @@ export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Prom
   const kjoert: string[] = [];
   // Fila med historikkraden som feilet, men som kan være lagret likevel.
   let uvisst: string | undefined;
-  // Runneren rydder bare en forbindelse som har tatt applåsen og fortsatt er `EIER`.
+  // Runneren rydder bare en forbindelse som har tatt applåsen og fortsatt er `EIER`
+  // i samme base.
   let laast = false;
+  let egenBase = '';
   try {
     await egenPool.connect();
     forbindelse = await (egenPool as unknown as Utlaan).acquire(egenPool);
     const egen = reservasjon(egenPool, forbindelse);
     try {
       await egen.request().batch('SET XACT_ABORT ON;');
-      await kontrollerIdentitet(egen);
+      egenBase = await kontrollerIdentitet(egen);
       await laas(egen);
       laast = true;
       for (;;) {
-        const versjon = await anvendNeste(egen, filer, (v) => (uvisst = v));
+        const versjon = await anvendNeste(egen, filer, (v, committet) => {
+          if (committet) kjoert.push(v);
+          else if (committet === undefined) uvisst = v;
+        });
         if (versjon === undefined) return kjoert;
         kjoert.push(versjon);
       }
     } finally {
-      // Identiteten leses her, ikke av feilen: en sats kan bytte den og feile, eller
-      // feile en annen kontroll først. Uten `EIER` ruller serveren tilbake og
-      // slipper låsen når forbindelsen lukkes (#885 punkt 6).
+      // Identiteten og basen leses her, ikke av feilen: en sats kan bytte dem og
+      // feile, eller feile en annen kontroll først. Uten `EIER` i runnerens base
+      // ruller serveren tilbake og slipper låsen når forbindelsen lukkes (#885 punkt 6).
       if (laast)
         await egen
           .request()
           .input('ressurs', sql.NVarChar(255), APPLAAS)
           .input('eier', sql.NVarChar(128), EIER)
+          .input('base', sql.NVarChar(128), egenBase)
           .batch(
-            `IF USER_NAME() = @eier
+            `IF USER_NAME() = @eier AND DB_NAME() = @base
            BEGIN
              IF @@TRANCOUNT > 0 ROLLBACK;
              IF APPLOCK_MODE(N'db_owner', @ressurs, N'Session') = 'Exclusive'

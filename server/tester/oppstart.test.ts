@@ -1,7 +1,9 @@
 /**
  * Kontrollene før TS-serveren tar i bruk basen (`server/oppstart.ts`). Kildene er
  * #707 punkt 3 og #858 punkt 2 (forbindelsen skal være kjøretidens, uten en fast
- * rolle eller `CONTROL` i basen og ikke `sa`) og
+ * rolle eller `CONTROL` i basen og ikke `sa`), #885 punkt 1 og 2 (heller ikke en
+ * egen rolle, en rettighet på hele basen eller `IMPERSONATE` på `dbo`, og et vilkår
+ * som ikke kan leses, meldes som ulest) og
  * #726 punkt 5 (en fil som ikke er anvendt, meldes én gang) og DL-U16 (forrige
  * utgivelse starter mot en base med nyere migrasjoner som bare legger til). Databasedelen krever
  * `KOE_SQLSERVER_TILKOBLING`.
@@ -9,7 +11,7 @@
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { lesMigrasjoner, type Anvendt, type Migrasjon } from '../migrering.ts';
-import { hindringer, migrasjonsavvik } from '../oppstart.ts';
+import { hindringer, migrasjonsavvik, rollebrudd, type Rollesvar } from '../oppstart.ts';
 import { opprettMigrertTestbase } from './sqlserver_migrert.ts';
 import {
   opprettKjoeretid,
@@ -101,6 +103,34 @@ describe('migrasjonsavvik', () => {
   });
 });
 
+describe('rollebrudd', () => {
+  const kjoeretid: Rollesvar = {
+    kjoeretid: 1,
+    roller: null,
+    egne: null,
+    kontroll: 0,
+    rettigheter: null,
+    utgir: 0,
+    sysadmin: 0,
+  };
+
+  it('kjøretiden uten andre roller og rettigheter bryter ingen vilkår (kontroll)', () => {
+    expect(rollebrudd(kjoeretid)).toEqual([]);
+  });
+
+  it.each([
+    ['kjoeretid', 'medlemskapet i koe_runtime kunne ikke leses'],
+    ['kontroll', 'om den har CONTROL på basen, kunne ikke leses'],
+    ['utgir', 'om den kan utgi seg for dbo, kunne ikke leses'],
+    ['sysadmin', 'om den er sysadmin på serveren, kunne ikke leses'],
+  ] as const)(
+    'en NULL i %s meldes som et vilkår som ikke kunne leses, ikke som en rettighet (#885 punkt 2)',
+    (felt, melding) => {
+      expect(rollebrudd({ ...kjoeretid, [felt]: null })).toEqual([melding]);
+    }
+  );
+});
+
 describe.skipIf(!SQLSERVER_TILKOBLING)('hindringene mot en migrert base', () => {
   let base: Testbase;
   let kjoeretid: { pool: Pool; slett(): Promise<void> };
@@ -148,6 +178,21 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('hindringene mot en migrert base', () => 
       /den er medlem av db_ddladmin\./,
     ],
     ['har CONTROL på basen', 'GRANT CONTROL TO', /den har CONTROL på basen\./],
+    [
+      'er medlem av en egen rolle (#885 punkt 1)',
+      'CREATE ROLE koe_egen_rolle; GRANT SELECT ON SCHEMA::koe TO koe_egen_rolle; ALTER ROLE koe_egen_rolle ADD MEMBER',
+      /den er også medlem av koe_egen_rolle\./,
+    ],
+    [
+      'har SELECT på hele basen (#885 punkt 1)',
+      'GRANT SELECT TO',
+      /den har SELECT på hele basen\./,
+    ],
+    [
+      'har IMPERSONATE på dbo (#885 punkt 1)',
+      'GRANT IMPERSONATE ON USER::dbo TO',
+      /den har IMPERSONATE på dbo\./,
+    ],
   ])(
     'kjøretiden nektes når den også %s, og meldingen sier hvilket vilkår (#858 punkt 2)',
     async (_, tildeling, vilkaar) => {

@@ -14,6 +14,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, afterEach, beforeAll, describe, expect, it, onTestFinished, vi } from 'vitest';
+import sql from 'mssql';
 import { opprettPool } from '../datalag.ts';
 import {
   avvik,
@@ -701,6 +702,76 @@ BEGIN TRANSACTION;`,
     });
     await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
       /^20260101000000_a\.sql, historikkraden: stoppet\. Ingenting fra fila er lagret\. Anvendt i denne kjøringen: ingen\.$/
+    );
+    expect(await historikk()).toEqual([]);
+    expect(await tabeller()).toEqual([]);
+  });
+
+  it('avviser en fil som bytter base med USE, før resten av fila og historikkraden, og rydder ikke i den andre basen (#928 p1)', async () => {
+    const feillogg = vi.spyOn(console, 'error');
+    onTestFinished(() => feillogg.mockRestore());
+    const m = mappe({
+      [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);\nGO\nUSE master;\nGO\nCREATE TABLE dbo.prove_b (id int NOT NULL);',
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
+    });
+    const feil = await migrer(base.pool, lesMigrasjoner(m)).catch((f: unknown) => f);
+    expect(feil).toBeInstanceOf(MigreringAvvist);
+    expect((feil as Error).message).toBe(
+      `20260101000000_a.sql, sats 2: satsen byttet basen fra ${base.navn} til master. Ingenting fra fila er lagret. Anvendt i denne kjøringen: ingen.`
+    );
+    expect(feillogg.mock.calls.map((k) => String(k[0]))).not.toContainEqual(
+      expect.stringContaining('applåsen kunne ikke ryddes')
+    );
+    expect(await historikk()).toEqual([]);
+    expect(await tabeller()).toEqual([]);
+    const iMaster = await base.pool.request().query<{
+      n: number;
+    }>("SELECT COUNT(*) AS n FROM master.sys.tables WHERE name LIKE 'prove[_]%'");
+    expect(iMaster.recordset[0].n).toBe(0);
+  });
+
+  /**
+   * Lar satsen med historikkraden kjøre med `endre` på teksten og gjør så svaret
+   * om til en feil, som når svaret går tapt etter at satsen har kjørt.
+   */
+  function historikkradenFeiler(endre: (tekst: string) => string): void {
+    const opprinnelig = sql.Request.prototype.batch as (
+      this: sql.Request,
+      tekst: string
+    ) => Promise<unknown>;
+    const spion = vi.spyOn(sql.Request.prototype, 'batch').mockImplementation(function (
+      this: sql.Request,
+      tekst: string
+    ) {
+      if (!tekst.includes('INSERT koe_migrering.historikk')) return opprinnelig.call(this, tekst);
+      return opprinnelig.call(this, endre(tekst)).then(() => {
+        throw new Error('svaret gikk tapt');
+      });
+    } as typeof sql.Request.prototype.batch);
+    onTestFinished(() => spion.mockRestore());
+  }
+
+  it('en fil der COMMIT med historikkraden nådde basen, men ikke svaret, står som anvendt i denne kjøringen (#928 p2)', async () => {
+    historikkradenFeiler((tekst) => tekst);
+    const m = mappe({
+      [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);',
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
+    });
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
+      /^20260101000000_a\.sql, historikkraden: svaret gikk tapt\. Fila og historikkraden er committet\. Anvendt i denne kjøringen: 20260101000000\.$/
+    );
+    expect(await historikk()).toEqual(['20260101000000']);
+    expect(await tabeller()).toEqual(['prove_a']);
+  });
+
+  it('en historikkrad som ikke er committet når satsen feiler, rulles tilbake og gjør ikke fila mulig anvendt (#928 p2)', async () => {
+    historikkradenFeiler((tekst) => tekst.replace('COMMIT;', ''));
+    const m = mappe({
+      [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);',
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
+    });
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
+      /^20260101000000_a\.sql, historikkraden: svaret gikk tapt\. Ingenting fra fila er lagret\. Anvendt i denne kjøringen: ingen\.$/
     );
     expect(await historikk()).toEqual([]);
     expect(await tabeller()).toEqual([]);
