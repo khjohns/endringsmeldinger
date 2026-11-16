@@ -526,16 +526,20 @@ describe('varselet en påberopelse etter § 33.4 gjelder, med et krav utenfor re
     expect(varselet({ V: '2026-09-18', K1: '2026-09-20', K0: '2026-09-18' })).toBe('V'));
 });
 
-describe('et svar sendt før byggherrens gjeldende svar på kravversjonen blir ikke gjeldende (OV-U103)', () => {
-  const revisjonLagtTil = (sendt: string): Handling => ({
-    ...registrertSvar('K-g1', sendt),
-    erstatter: 'S-g1',
-  });
+describe('et svar sendt før byggherrens gjeldende svar på kravversjonen står utenfor rekken (OV-U103)', () => {
+  const foerste = (sendt: string): Handling => registrertSvar('K-g1', sendt);
+  const revisjon: Handling = {
+    handling: 'revisjon',
+    spor: 'forhold',
+    resultat: 'avslaatt',
+    varslet_i_tide: false,
+    navn: 'S-g2',
+  };
 
-  it('en revisjon datert før svaret den erstatter, får ingen virkning, og svaret står', () =>
+  it('et første svar sendt før det gjeldende står utenfor rekken, og det gjeldende svaret står', () =>
     prov(
-      'revisjon-foer-gjeldende-svar',
-      [avslag('S-g1'), revisjonLagtTil('2026-09-23')],
+      'svar-foer-gjeldende-svar',
+      [avslag('S-g1'), foerste('2026-09-23')],
       [
         {
           etter: 2,
@@ -543,7 +547,8 @@ describe('et svar sendt før byggherrens gjeldende svar på kravversjonen blir i
           kilde: ['OV-U103', 'OV-U104'],
           forventet: {
             forstaatt: true,
-            uten_virkning: ['S-r'],
+            uten_virkning: [],
+            'svar_utenfor_rekken.forhold': ['S-r'],
             'gjeldende_svar.forhold': 'S-g1',
             'visning.merknader': { mangler: ['sendt_samme_dag'] },
           },
@@ -551,16 +556,35 @@ describe('et svar sendt før byggherrens gjeldende svar på kravversjonen blir i
       ]
     ));
 
+  it('kontrollsak: et første svar sendt etter det gjeldende gjør svarene tvetydige, og saken stopper', () =>
+    prov(
+      'svar-etter-gjeldende-svar',
+      [avslag('S-g1'), foerste('2026-09-25')],
+      [
+        {
+          etter: 2,
+          rolle: 'kontroll',
+          kilde: ['OV-U103'],
+          forventet: { forstaatt: false },
+        },
+      ]
+    ));
+
   it('kontrollsak: en revisjon sendt samme dag som svaret erstatter det (OV-U104)', () =>
     prov(
       'revisjon-samme-dag',
-      [avslag('S-g1'), revisjonLagtTil('2026-09-24')],
+      [avslag('S-g1'), { ...foerste('2026-09-24'), erstatter: 'S-g1' }],
       [
         {
           etter: 2,
           rolle: 'kontroll',
           kilde: ['OV-U103', 'OV-U104'],
-          forventet: { forstaatt: true, uten_virkning: [], 'gjeldende_svar.forhold': 'S-r' },
+          forventet: {
+            forstaatt: true,
+            uten_virkning: [],
+            'svar_utenfor_rekken.forhold': [],
+            'gjeldende_svar.forhold': 'S-r',
+          },
         },
         {
           etter: 2,
@@ -571,24 +595,58 @@ describe('et svar sendt før byggherrens gjeldende svar på kravversjonen blir i
       ]
     ));
 
-  it('kommandoen avviser en revisjon datert før svaret den erstatter', async () => {
-    const revisjon: Handling = {
-      handling: 'revisjon',
-      spor: 'forhold',
-      resultat: 'avslaatt',
-      varslet_i_tide: false,
-      navn: 'S-g2',
-    };
-    expect(await provRegistrering([avslag('S-g1')], revisjon, '2026-09-23')).toMatchObject({
+  it('kommandoen godtar et svar sendt før det gjeldende med svarskjemaet, og lagrer det uten erstatter', async () => {
+    const utfall = await provRegistrering([avslag('S-g1')], avslag('S-r'), '2026-09-23');
+    expect(utfall.godtatt ? null : utfall.avvisning).toBeNull();
+    if (!utfall.godtatt) return;
+    const [svar] = (utfall.hendelser[0].data as { svar: Record<string, unknown>[] }).svar;
+    expect(svar.erstatter).toBeUndefined();
+    expect(await provRegistrering([avslag('S-g1')], avslag('S-r'), '2026-09-24')).toMatchObject({
       godtatt: false,
-      avvisning: { regel: 'IKKE_GJELDENDE_PAA_SENDEDATOEN' },
+      avvisning: { regel: 'ALLEREDE_SVART' },
     });
-    const kontroll = await provRegistrering([avslag('S-g1')], revisjon, '2026-09-25');
-    expect(
-      kontroll.godtatt ? null : kontroll.avvisning,
-      'kontrollsak: sendt etter svaret'
-    ).toBeNull();
   });
+
+  it('kommandoen godtar et svar sendt før det gjeldende med revisjonsskjemaet, uten erstatter', async () => {
+    const foer = await provRegistrering([avslag('S-g1')], revisjon, '2026-09-23');
+    expect(foer.godtatt ? null : foer.avvisning).toBeNull();
+    if (!foer.godtatt) return;
+    const [svar] = (foer.hendelser[0].data as { svar: Record<string, unknown>[] }).svar;
+    expect(svar.erstatter).toBeUndefined();
+    const etter = await provRegistrering([avslag('S-g1')], revisjon, '2026-09-25');
+    expect(etter.godtatt, 'kontrollsak: sendt etter svaret').toBe(true);
+    if (!etter.godtatt) return;
+    const [revidert] = (etter.hendelser[0].data as { svar: Record<string, unknown>[] }).svar;
+    expect(revidert.erstatter, 'kontrollsak: sendt etter svaret').toEqual(expect.any(String));
+  });
+
+  it('en aksept av svaret utenfor rekken får ingen virkning til #2022 punkt 4 er bygget', () =>
+    prov(
+      'aksept-av-svar-utenfor-rekken',
+      [avslag('S-g1'), foerste('2026-09-23'), registrertAksept('S-r', '2026-09-23')],
+      [
+        {
+          etter: 3,
+          rolle: 'mal',
+          kilde: ['OV-U103'],
+          forventet: { forstaatt: true, uten_virkning: ['A-r#aksept'], 'enighet.forhold': null },
+        },
+      ]
+    ));
+
+  it('kontrollsak: en aksept av det gjeldende svaret gir enighet', () =>
+    prov(
+      'aksept-av-gjeldende-svar',
+      [avslag('S-g1'), foerste('2026-09-23'), registrertAksept('S-g1', '2026-09-25')],
+      [
+        {
+          etter: 3,
+          rolle: 'kontroll',
+          kilde: KILDE,
+          forventet: { forstaatt: true, uten_virkning: [], 'enighet.forhold': 'finnes' },
+        },
+      ]
+    ));
 });
 
 describe('varselet etter § 32.2 og et krav utenfor rekken (VS-U38, OV-U102)', () => {

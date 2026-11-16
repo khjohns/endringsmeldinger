@@ -29,7 +29,7 @@ import {
 } from '../format/leser.ts';
 import { harProduktivitetspost } from '../spor/vederlag/format.ts';
 import { KONTROLLER_I_VEDERLAGET } from '../spor/vederlag/utledning.ts';
-import { KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
+import { dagenForesporselenBleSendt, KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import { enighetsgrunnlag, sammenfallStemmer } from '../frosset/standpunkt.ts';
@@ -131,6 +131,11 @@ export interface Sporutledning {
   kravUtenforRekken: Krav[];
   gjeldendeKrav: Krav | null;
   svar: Svar[];
+  /**
+   * OV-U103: byggherrens svar sendt før det gjeldende svaret på samme kravversjon, i rekkefølgen
+   * de ble lagt til. De blir ikke gjeldende og erstatter ikke det nyere svaret.
+   */
+  svarUtenforRekken: Svar[];
   gjeldendeSvar: Svar | null;
   /** Enigheten om gjeldende svar (2.5). Om den har virkning, avgjør `enighetHarVirkning`. */
   enighet: Enighet | null;
@@ -297,6 +302,7 @@ export interface Utledning {
 const tomtSpor = (): Sporutledning => ({
   krav: [],
   kravUtenforRekken: [],
+  svarUtenforRekken: [],
   gjeldendeKrav: null,
   svar: [],
   gjeldendeSvar: null,
@@ -439,7 +445,10 @@ const kanStride = (d: Dokument): boolean =>
 interface Strid {
   element: string;
   grunn: string;
-  /** OV-U102: kravet står utenfor rekken av kravversjoner, og datoen har virkning. */
+  /**
+   * OV-U102, OV-U103: kravet står utenfor rekken av kravversjoner, eller svaret utenfor rekken av
+   * svar, og datoen har virkning.
+   */
   utenforRekken?: true;
 }
 
@@ -519,6 +528,25 @@ export function sendtFoerSisteKrav(
 }
 
 /**
+ * OV-U103: et svar sendt på dagen `dag` er sendt før byggherrens gjeldende svar på kravversjonen
+ * `krav`. Kommandoen og `registreringenStrider` leser regelen herfra. `samme` får det gjeldende
+ * svaret når de er sendt samme dag (OV-U104).
+ */
+export function sendtFoerGjeldendeSvar(
+  u: Utledning,
+  spor: Spor,
+  krav: string,
+  dag: string | null,
+  samme: (gjeldende: string) => void = () => {}
+): boolean {
+  const [gjeldende] = ikkeErstattet(u.spor[spor].svar, krav);
+  return (
+    gjeldende !== undefined &&
+    foerDagen(dag, datoenDetBleSendt(u, gjeldende), () => samme(gjeldende.id))
+  );
+}
+
+/**
  * OV-U98: kravversjonen `k` var gjeldende på dagen `dag`: den var sendt, og versjonen som
  * erstattet den, var ikke sendt før den dagen. Leses av journalen før dokumentet som legges til.
  */
@@ -568,38 +596,62 @@ function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Stri
   };
   const strider: Strid[] = [];
   for (const k of d.krav) {
-    if (sendtFoerSisteKrav(u, k.spor, dag(k.id), (siste) => samme(k.id, siste)))
+    if (sendtFoerSisteKrav(u, k.spor, dag(k.id), (siste) => samme(k.id, siste))) {
       strider.push({
         element: k.id,
         grunn: 'et krav sendt før totalentreprenørens siste krav i sporet (OV-U98, OV-U102)',
         utenforRekken: true,
       });
+      // OV-U102: datoen sammenliknes med det egne varselet (`varseletFoerSvaret`).
+      for (const v of egneVarsler(u, k))
+        foerDagen(dag(k.id), datoenDetBleSendt(u, v), () => samme(k.id, v.id));
+    }
+    // OV-U109: datoen sammenliknes med forespørselen etter § 33.6.2 (`svarPaaForesporsler`).
+    if (k.spor === 'frist')
+      for (const f of u.spor.frist.foresporsler)
+        if (f.kravFoer === null)
+          foerDagen(dag(k.id), dagenForesporselenBleSendt(u, f.foresporsel), () =>
+            samme(k.id, f.foresporsel)
+          );
+  }
+  for (const v of d.utsagn) {
+    if (v.art !== 'varsel') continue;
+    for (const k of u.spor[VARSELSPOR[v.hjemmel]].kravUtenforRekken)
+      if (sammenliknesMedVarselet(v.hjemmel, k))
+        foerDagen(dag(v.id), datoenDetBleSendt(u, k), () => samme(v.id, k.id));
   }
   for (const s of d.svar) {
     const { krav: kjede, kravUtenforRekken } = u.spor[s.spor];
     const krav = [...kjede, ...kravUtenforRekken].find((k) => k.id === s.gjelder);
     const sendt = dag(s.id);
-    const [gjeldende] = ikkeErstattet(u.spor[s.spor].svar, s.gjelder);
     const medSvaret = (med: string) => samme(s.id, med);
+    // OV-U105: svaret sammenliknes med partens innsigelser i sporet (`aapneInnsigelser`).
+    for (const x of innsigelserISporet(u, d.avsender, s.spor))
+      foerDagen(sendt, x.dag, () => medSvaret(x.id));
     if (krav && (sendt === null || !kravversjonenGjaldt(u, krav, sendt, medSvaret)))
       strider.push({
         element: s.id,
         grunn: 'et svar på en kravversjon som ikke var gjeldende da svaret ble sendt (OV-U98)',
       });
-    else if (
-      gjeldende &&
-      foerDagen(sendt, datoenDetBleSendt(u, gjeldende), () => medSvaret(gjeldende.id))
-    )
+    else if (sendtFoerGjeldendeSvar(u, s.spor, s.gjelder, sendt, medSvaret))
       strider.push({
         element: s.id,
         grunn: 'et svar sendt før byggherrens gjeldende svar på kravversjonen (OV-U103)',
+        utenforRekken: true,
       });
   }
   for (const x of d.utsagn) {
     if (x.art !== 'aksept') continue;
     const svar = SPOR.flatMap((n) => u.spor[n].svar).find((s) => s.id === x.gjelder);
     const sendt = dag(x.id);
-    if (svar && (sendt === null || !svaretGjaldt(u, svar, sendt, (med) => samme(x.id, med))))
+    // OV-U103: aksepten av et svar utenfor rekken er ikke bygget (#2022 punkt 4).
+    if (SPOR.some((n) => u.spor[n].svarUtenforRekken.some((s) => s.id === x.gjelder)))
+      strider.push({
+        element: x.id,
+        grunn:
+          'en aksept av et svar sendt før byggherrens gjeldende svar, som løsningen ennå ikke kan legge til (OV-U103)',
+      });
+    else if (svar && (sendt === null || !svaretGjaldt(u, svar, sendt, (med) => samme(x.id, med))))
       strider.push({
         element: x.id,
         grunn:
@@ -607,6 +659,56 @@ function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Stri
       });
   }
   return strider;
+}
+
+/**
+ * OV-U102: de registrerte varslene i sporet som et krav utenfor rekken sammenliknes med i
+ * `varseletFoerSvaret`. Etter § 32.2 sammenliknes de ikke, og etter § 34.1.3 bare for et krav
+ * som varsler etter den (`kravSomVarsler`).
+ */
+function egneVarsler(u: Utledning, k: Krav): LestVarsel[] {
+  return Object.values(u.spor[k.spor].varsler).filter(
+    (v): v is LestVarsel => v !== undefined && sammenliknesMedVarselet(v.hjemmel, k)
+  );
+}
+
+const sammenliknesMedVarselet = (hjemmel: Varselhjemmel, k: Krav): boolean =>
+  hjemmel !== '32.2' && !erKravpostvarselhjemmel(hjemmel) && varslerEtter(hjemmel, k);
+
+/** Etter § 34.1.3 varsler bare et krav som krever posten etter annet ledd (OV-U24). */
+const varslerEtter = (hjemmel: Varselhjemmel, k: Krav): boolean =>
+  hjemmel !== '34.1.3' || harProduktivitetspost(k);
+
+/**
+ * Partens innsigelser med virkning, som gjelder et varsel, et krav eller en begrunnelse i sporet,
+ * med dagen de ble sendt. VS-U29: standpunktet om at begrunnelsen ikke er et svar, er ingen
+ * påberopelse.
+ */
+function innsigelserISporet(
+  u: Utledning,
+  part: Part,
+  spor: Spor
+): { id: string; dag: string | null }[] {
+  const s = u.spor[spor];
+  const iSporet = new Set(
+    [...s.krav, ...s.kravUtenforRekken, ...Object.values(s.varsler), ...s.kravpostvarsler].flatMap(
+      (e) => (e ? [e.id] : [])
+    )
+  );
+  for (const f of s.foresporsler) if (f.svar) iSporet.add(f.svar);
+  const medVirkning = new Set(u.innsigelser.map((x) => x.id));
+  return [...dokumenterI(u.journal)].flatMap((d) =>
+    d.avsender !== part
+      ? []
+      : d.utsagn.flatMap((x) =>
+          x.art === 'innsigelse' &&
+          x.grunn === undefined &&
+          medVirkning.has(x.id) &&
+          iSporet.has(x.gjelder)
+            ? [{ id: x.id, dag: dagenSendt({ id: x.id, dokument: d.id }, d) }]
+            : []
+        )
+  );
 }
 
 /** Hvorfor kravversjonen strider mot journalen før den, eller `null`. */
@@ -773,8 +875,8 @@ export function utledJournal(journal: Journalrad[], kjerne: Kjerne): Utledning {
 
 /**
  * Utledningen med elementene i `uten` og dokumentasjonen i registrerte brev uten virkning:
- * de plasseres, men leses ikke inn i sporene. Kravene i `utenforRekken` leses inn utenfor
- * rekken av kravversjoner (OV-U102).
+ * de plasseres, men leses ikke inn i sporene. Kravene og svarene i `utenforRekken` leses inn
+ * utenfor rekken av kravversjoner (OV-U102) og svar (OV-U103).
  */
 function utledSporene(
   journal: Domenehendelse[],
@@ -850,7 +952,8 @@ function utledSporene(
         registrer(p.id, h, d.avsender, 'standpunkt');
         if (p.art === 'rettidighet' && !p.iTide) elementer[p.id].innsigelse = true;
       }
-      if (harVirkning(s.id)) spor[s.spor].svar.push(s);
+      if (harVirkning(s.id))
+        (utenforRekken.has(s.id) ? spor[s.spor].svarUtenforRekken : spor[s.spor].svar).push(s);
     }
     for (const u of d.utsagn) {
       plasser(u.id, h);
@@ -877,7 +980,9 @@ function utledSporene(
   // Lesereglene i 4.2: hver referanse finnes i saken, har riktig art og spor, og
   // peker på en rad med lavere saksversjon. Ingen referanse løses etter plassen i
   // journalen.
-  const alleSvar = new Map(SPOR.flatMap((n) => spor[n].svar).map((s) => [s.id, s]));
+  const alleSvar = new Map(
+    SPOR.flatMap((n) => [...spor[n].svar, ...spor[n].svarUtenforRekken]).map((s) => [s.id, s])
+  );
   const alleKrav = new Map(SPOR.flatMap((n) => spor[n].krav).map((k) => [k.id, k]));
   const alleOpplysninger = new Map(opplysninger.map((o) => [o.id, o]));
   const ugyldig: Ugyldig = (id, grunn) =>
@@ -1527,7 +1632,7 @@ export function kravSomVarsler(
   s: Pick<Sporutledning, 'krav' | 'kravUtenforRekken'>,
   foer: (krav: string) => boolean
 ): readonly Krav[] {
-  const varsler = (k: Krav) => hjemmel !== '34.1.3' || harProduktivitetspost(k);
+  const varsler = (k: Krav) => varslerEtter(hjemmel, k);
   const [foerste] = s.krav.filter(varsler);
   return [
     ...(foerste ? [foerste] : []),

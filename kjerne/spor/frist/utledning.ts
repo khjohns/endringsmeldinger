@@ -4,7 +4,7 @@
  * `KONTROLLER`, #1783).
  */
 
-import { dokumenterI } from '../../format/leser.ts';
+import { dagenSendt, dokumenterI } from '../../format/leser.ts';
 import { forlengetFrist } from '../../regler/hverdager.ts';
 import type {
   Bakover,
@@ -17,6 +17,7 @@ import type {
 } from '../../utledning/utled.ts';
 import type { Krav } from '../../typer.ts';
 import {
+  erUbesvart,
   foresporselsrelasjon,
   type ForesporselOgSvar,
   type Foresporselsrelasjon,
@@ -101,10 +102,35 @@ function kontrollerSvaretPaaForesporselen(
     if (
       k.gjelder === undefined &&
       besvart.some(
-        (f) => bakover(k.id, f.foresporsel) && (f.svar === null || !bakover(k.id, f.svar))
+        (f) =>
+          bakover(k.id, f.foresporsel) &&
+          (f.svar === null || !bakover(k.id, f.svar)) &&
+          // OV-U109: kravet sendt før forespørselen, og kravene etter det, svarer ikke på den.
+          (f.kravFoer === null || (f.kravFoer !== k.id && !bakover(k.id, f.kravFoer)))
       )
     )
       ugyldig(k.id, 'fristkravet viser ikke til forespørselen etter punkt 33.6.2 det svarer på');
+}
+
+/** Dagen forespørselen etter § 33.6.2 ble sendt (OV-U98). */
+export function dagenForesporselenBleSendt(u: Utledning, id: string): string | null {
+  const h = u.journal.find((x) => x.id === u.elementer[id]?.hendelse);
+  return h?.art === 'dokument' ? dagenSendt({ id, dokument: h.dokument.id }, h.dokument) : null;
+}
+
+/**
+ * HF-U1, LV-U18 punkt 3, OV-U109: forespørselen et nytt fristkrav svarer på: den ubesvarte, med
+ * mindre kravet er lagt til og sendt dagen før forespørselen eller tidligere. Et krav sendt samme
+ * dag er ikke sendt før den (OV-U104).
+ */
+export function foresporselenKravetSvarerPaa(
+  u: Utledning,
+  sendt: string | null
+): ForesporselOgSvar | undefined {
+  const f = u.spor.frist.foresporsler.find(erUbesvart);
+  if (!f || sendt === null) return f;
+  const dag = dagenForesporselenBleSendt(u, f.foresporsel);
+  return dag === null || sendt >= dag ? f : undefined;
 }
 
 /**

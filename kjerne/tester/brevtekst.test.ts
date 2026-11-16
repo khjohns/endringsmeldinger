@@ -71,6 +71,7 @@ import {
   venterPaaSvar,
 } from '../utledning/utled.ts';
 import { kanInngaaIEo } from '../spor/forhold/utledning.ts';
+import { foresporselForFristsvar } from '../spor/frist/utledning.ts';
 import type { Utledning } from '../utledning/utled.ts';
 import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { vederlagssvaret } from '../spor/vederlag/visning.ts';
@@ -2590,6 +2591,91 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
     });
   });
 
+  describe('innsigelsen i et brev lagt til, og et svar lagt til samme dag (#2037, OV-U98, OV-U104)', () => {
+    const avslaget = (s: ReturnType<typeof sak>) => ({
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), {
+          resultat: 'avslaatt',
+          grunnlag_varslet_i_tide: false,
+        }),
+      ],
+    });
+    const lagtTil = (dato: string) => ({
+      opplysninger: [{ id: randomUUID(), hva: 'sendt', dato }],
+      korrespondansetype: 'brev',
+    });
+
+    it('en innsigelse i et brev lagt til er dokumentasjon og gjentas ikke i svaret fra løsningen', () => {
+      const s = sakMedKrav();
+      s.rad('BH', {
+        utsagn: [{ id: randomUUID(), art: 'innsigelse', gjelder: s.krav('forhold') }],
+        ...lagtTil('2026-09-30'),
+      });
+      expect(s.u().forstaatt).toBe(true);
+      expect(laast(s.send('BH', avslaget(s)))[1]).not.toContain('jf. innsigelsen');
+      // Kontrollsak: innsigelsen fra løsningen gjentas.
+      const k = sakMedKrav();
+      k.send('BH', { type: 'innsigelse', gjelder: k.krav('forhold') });
+      expect(laast(k.send('BH', avslaget(k)))[1]).toContain('jf. innsigelsen');
+    });
+
+    it('et svar lagt til, sendt samme dag som byggherrens innsigelse i sporet, står i sendtSammeDag med den', () => {
+      const merket = (dag: (innsigelsen: string) => string) => {
+        const s = sakMedKrav();
+        const rad = s.send('BH', { type: 'innsigelse', gjelder: s.krav('forhold') });
+        const innsigelse = (rad.data.utsagn as Data[])[0].id;
+        const svaret = avslaget(s).svar[0] as Data;
+        delete svaret.utdypning;
+        delete svaret.utdypninger;
+        const lagt = s.send('BH', {
+          type: 'brev',
+          svar: [svaret],
+          sendt: dag(rad.tidsstempel.slice(0, 10)),
+          korrespondansetype: 'brev',
+          dokumentasjon: [randomUUID()],
+        });
+        return { u: s.u(), svar: (lagt.data.svar as Data[])[0].id, innsigelse };
+      };
+      const samme = merket((dag) => dag);
+      expect(samme.u.sendtSammeDag).toContainEqual({ element: samme.svar, med: samme.innsigelse });
+      const foer = merket(() => '2026-10-03');
+      expect(
+        foer.u.sendtSammeDag.filter((x) => x.med === foer.innsigelse),
+        'kontrollsak: sendt dagen før'
+      ).toEqual([]);
+    });
+  });
+
+  it('OV-U104, OV-U102: et krav utenfor rekken sendt samme dag som det egne varselet etter § 33.4, står i sendtSammeDag med det', () => {
+    const merket = (kravet: string) => {
+      const s = sak();
+      s.send('TE', PAABEROPELSE);
+      const varsel = randomUUID();
+      s.rad('TE', {
+        utsagn: [{ id: varsel, art: 'varsel', hjemmel: '33.4' }],
+        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: '2026-09-20' }],
+        korrespondansetype: 'brev',
+      });
+      // Samme frist som i kravet fra løsningen (KA-U79), så bare datoen skiller dem.
+      const { frister } = (s.send('TE', utenFelt(FRISTKRAV, 'varsel')).data.krav as Data[])[0];
+      const krav = randomUUID();
+      s.rad('TE', {
+        krav: [{ id: krav, spor: 'frist', frister }],
+        opplysninger: [{ id: randomUUID(), hva: 'sendt', dato: kravet }],
+        korrespondansetype: 'brev',
+      });
+      const u = s.u();
+      expect(u.forstaatt).toBe(true);
+      expect(u.spor.frist.kravUtenforRekken.map((k) => k.id)).toEqual([krav]);
+      return { u, krav, varsel };
+    };
+    const samme = merket('2026-09-20');
+    expect(samme.u.sendtSammeDag).toContainEqual({ element: samme.krav, med: samme.varsel });
+    const foer = merket('2026-09-19');
+    expect(foer.u.sendtSammeDag, 'kontrollsak: sendt dagen før varselet').toEqual([]);
+  });
+
   it('gir byggherren innsigelsen opp, sier brevet det uttrykkelig (VS-U11)', () => {
     const s = medInnsigelse();
     const rad = s.send('BH', {
@@ -3901,24 +3987,78 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     expect(forstaatt(true)).toBe(false);
   });
 
-  it('et fristkrav lagt til, sendt før en ubesvart forespørsel, avvises til det kan legges til uten å svare på den (HF-U1, oppdragsgiver 15.11 i #2011)', () => {
-    const lagtTil = (sendt: (foresporselen: string) => string) => {
-      const s = sak();
-      s.send('TE', PAABEROPELSE);
-      const dag = s.send('BH', foresporsel).tidsstempel.slice(0, 10);
-      const krav = utenFelt(utenFelt(FRISTKRAV, 'varsel'), 'utdypning');
-      return s.avvist('TE', {
-        ...krav,
-        sendt: sendt(dag),
-        korrespondansetype: 'brev',
-        dokumentasjon: [randomUUID()],
-      });
-    };
-    expect(lagtTil(() => '2026-09-01')).toBe('FRISTKRAV_FOER_FORESPOERSELEN');
+  /** Fristkravet lagt til med datoen `sendt`, regnet fra dagen forespørselen ble sendt. */
+  const fristkravMedDato = (sendt: string) => ({
+    ...utenFelt(utenFelt(FRISTKRAV, 'varsel'), 'utdypning'),
+    sendt,
+    korrespondansetype: 'brev',
+    dokumentasjon: [randomUUID()],
+  });
+  const kravetLagtTil = (sendt: (foresporselen: string) => string) => {
+    const { s, f, rad } = medForesporsel();
+    const krav = (
+      s.send('TE', fristkravMedDato(sendt(rad.tidsstempel.slice(0, 10)))).data.krav as Data[]
+    )[0];
+    return { s, f, krav };
+  };
+
+  it('OV-U109: et fristkrav lagt til, sendt før forespørselen, godtas uten å svare på den, og forespørselen er ikke ubesvart', () => {
+    const { s, f, krav } = kravetLagtTil(() => '2026-09-01');
+    expect(krav.gjelder, 'HF-U1').toBeUndefined();
+    const u = s.u();
+    expect(u.forstaatt).toBe(true);
+    expect(u.spor.frist.foresporsler).toEqual([
+      { foresporsel: f, svar: null, medKrav: false, kravFoer: krav.id },
+    ]);
+    expect(visning(u, GJELDENDE_REGLER).merknader).toContain('krav_foer_foresporselen');
+    expect(visning(u, GJELDENDE_REGLER).spor.frist.betegnelse).not.toBe(
+      'spesifisert_krav_etterspurt'
+    );
+    expect(s.avvist('TE', { type: 'foresporselssvar', gjelder: f, utdypning: begrunnelseB })).toBe(
+      'KRAV_FOER_FORESPORSELEN'
+    );
+    expect(foresporselForFristsvar(u), 'ingen virkning etter § 33.6.2 i et nytt svar').toBeNull();
+    // Et nytt krav fra løsningen svarer heller ikke på forespørselen.
+    const nytt = (s.send('TE', utenFelt(FRISTKRAV, 'varsel')).data.krav as Data[])[0];
+    expect(nytt.gjelder).toBeUndefined();
+    expect(s.u().forstaatt).toBe(true);
+  });
+
+  it('kontrollsak OV-U109, OV-U104: et fristkrav sendt samme dag som forespørselen svarer på den, og rekkefølgen er ukjent', () => {
+    const { s, f, krav } = kravetLagtTil((dag) => dag);
+    expect(krav.gjelder).toBe(f);
+    const u = s.u();
+    expect(u.spor.frist.foresporsler[0].kravFoer).toBeNull();
+    expect(u.sendtSammeDag).toEqual([{ element: krav.id, med: f }]);
+    expect(visning(u, GJELDENDE_REGLER).merknader).toContain('sendt_samme_dag');
+  });
+
+  it('OV-U109, MM-U50 punkt 1: et krav sendt før forespørselen, lagt til etter svaret på kravet som besvarte den, gir ingen virkning etter § 33.6.2 i et svar skrevet etterpå', () => {
+    const { s, f } = medForesporsel();
+    const besvarte = (s.send('TE', utenFelt(FRISTKRAV, 'varsel')).data.krav as Data[])[0];
+    const svaret = fristsvar(
+      s,
+      { ...utenFelt(FRIST_FULLT[0], 'spesifisert_krav_ok'), foresporsel_svar_ok: false },
+      { resultat: 'avslaatt', godkjent_dager: 0 }
+    );
+    expect(foresporselForFristsvar(s.u()), 'kontrollsak: før kravet er lagt til').toEqual({
+      art: 'svar',
+      gjelder: besvarte.id,
+    });
+    const eldre = (s.send('TE', fristkravMedDato('2026-09-01')).data.krav as Data[])[0];
+    const u = s.u();
+    expect(u.forstaatt).toBe(true);
+    expect(u.spor.frist.kravUtenforRekken.map((k) => k.id)).toEqual([eldre.id]);
+    expect(u.spor.frist.foresporsler).toEqual([
+      { foresporsel: f, svar: besvarte.id, medKrav: true, kravFoer: eldre.id },
+    ]);
+    expect(foresporselForFristsvar(u)).toBeNull();
+    // Svaret sendt før kravet ble lagt til, står med påberopelsen.
+    const svar = (svaret.data.svar as Data[])[0];
     expect(
-      lagtTil((dag) => dag),
-      'kontrollsak: sendt samme dag som forespørselen'
-    ).toBeNull();
+      (svar.standpunkter as Data[]).some((p) => p.hjemmel === '33.6.2' && p.gjelder === besvarte.id)
+    ).toBe(true);
+    expect(u.svar[svar.id as string].svar.standpunkter.map((p) => p.art)).toContain('rettidighet');
   });
 
   it('VS-U47 spørsmål 2: et fristkrav lagt til med kravskjemaet stopper forespørselen fra løsningen', () => {
@@ -4262,7 +4402,7 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
     const krav = (s.send('TE', utenFelt(FRISTKRAV, 'varsel')).data.krav as Data[])[0];
     expect(krav.gjelder).toBe(f);
     expect(s.u().spor.frist.foresporsler).toEqual([
-      { foresporsel: f, svar: krav.id, medKrav: true },
+      { foresporsel: f, svar: krav.id, medKrav: true, kravFoer: null },
     ]);
     expect(s.journal.at(-1)!.data.deres_ref).toEqual(['K201-KOE-017-02']);
     // VS-U17: etter begrunnelsen er kravet ikke svaret på forespørselen.

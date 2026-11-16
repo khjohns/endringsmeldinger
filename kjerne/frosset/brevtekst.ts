@@ -229,9 +229,17 @@ function aapneInnsigelser(
     const dag = dagenSendt({ id: d.id, dokument: d.id }, d);
     for (const s of d.svar)
       if (!saken.utenVirkning.includes(s.id)) svarFraParten.push({ svar: s, dag });
+    // OV-U98: en innsigelse i et brev lagt til er dokumentasjon. MM-U43 punkt 9: en innsigelse
+    // uten virkning, eller mot et element uten virkning, gjentas ikke.
+    if (erRegistrert(d.opplysninger)) continue;
     for (const u of d.utsagn)
       // VS-U29: standpunktet om at begrunnelsen ikke er et svar, er ingen påberopelse.
-      if (u.art === 'innsigelse' && u.grunn === undefined)
+      if (
+        u.art === 'innsigelse' &&
+        u.grunn === undefined &&
+        !saken.utenVirkning.includes(u.id) &&
+        !saken.utenVirkning.includes(u.gjelder)
+      )
         innsigelser.push({ gjelder: u.gjelder, dokument: d.id, fra: svarFraParten.length, dag });
   }
   return innsigelser.flatMap((i) => {

@@ -335,6 +335,9 @@ export function les(sti: string, u: Utledning, k: Kjoering): unknown {
       return u.spor[hale[0] as 'forhold'].kravUtenforRekken.map((k) => k.id);
     case 'gjeldende_svar':
       return u.spor[hale[0] as 'forhold'].gjeldendeSvar?.id ?? null;
+    // OV-U103: byggherrens svar sendt før det gjeldende svaret på samme kravversjon.
+    case 'svar_utenfor_rekken':
+      return u.spor[hale[0] as 'forhold'].svarUtenforRekken.map((s) => s.id);
     case 'svar':
       return svaretSomSendt()[hale[1] as 'gjelder' | 'erstatter' | 'dokument' | 'akseptfrist'];
     case 'standpunkt': {

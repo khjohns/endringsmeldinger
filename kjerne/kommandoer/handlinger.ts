@@ -66,7 +66,14 @@ export function elementenesSpor(u: Utledning): Map<string, Spor> {
   const sporet = new Map<string, Spor>();
   for (const spor of SPOR) {
     const s = u.spor[spor];
-    for (const e of [...s.krav, ...s.svar, ...Object.values(s.varsler), ...s.kravpostvarsler])
+    for (const e of [
+      ...s.krav,
+      ...s.kravUtenforRekken,
+      ...s.svar,
+      ...s.svarUtenforRekken,
+      ...Object.values(s.varsler),
+      ...s.kravpostvarsler,
+    ])
       if (e) sporet.set(e.id, spor);
     for (const f of s.foresporsler) {
       sporet.set(f.foresporsel, spor);
@@ -102,7 +109,7 @@ function handling(h: Handlingsnoekkel, sporTil: Map<string, Spor>): TilbudtHandl
 export function tilbudte(u: Utledning, part: Part): TilbudtHandling[] {
   const sporTil = elementenesSpor(u);
   return kandidater(u)
-    .filter((h) => forutsetninger(h, part, u) === null)
+    .filter((h) => forutsetninger(h, part, u, null) === null)
     .map((h) => handling(h, sporTil));
 }
 

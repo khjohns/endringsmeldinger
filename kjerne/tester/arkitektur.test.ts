@@ -675,17 +675,26 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporutledning',
     'predikat',
-    'krav kravUtenforRekken svar gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsler',
+    'krav kravUtenforRekken svar svarUtenforRekken gjeldendeKrav gjeldendeSvar enighet trukket ingenKrav varsler',
   ],
   // § 33.6.2 (VS-U17, VS-U19, VS-U27): hver forespørsel og kravet eller begrunnelsen som
   // svarte, utledet av rekkefølgen i journalen, og hvordan fristkravene står til den.
   ['Sporutledning', 'relasjon', 'foresporsler'],
   // VS-U48, VS-U52: varslene etter § 34.3.3 og § 34.4, utledet av utsagnene i journalen.
   ['Sporutledning', 'relasjon', 'kravpostvarsler'],
-  ['ForesporselOgSvar', 'relasjon', 'foresporsel svar medKrav'],
+  // OV-U109: kravet sendt før forespørselen, utledet av datoene.
+  ['ForesporselOgSvar', 'relasjon', 'foresporsel svar medKrav kravFoer'],
   ['Foresporselsrelasjon', 'relasjon', 'art gjelder'],
-  ['spor/frist/frysing.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon'],
-  ['spor/frist/utledning.ts', 'relasjon', 'foresporselForFristsvar'],
+  ['spor/frist/frysing.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon erUbesvart'],
+  [
+    'spor/frist/utledning.ts',
+    'relasjon',
+    'foresporselForFristsvar dagenForesporselenBleSendt foresporselenKravetSvarerPaa',
+  ],
+  // OV-U104, OV-U105: innsigelsene et svar lagt til sammenliknes med.
+  ['utledning/utled.ts:innsigelserISporet', 'relasjon', 'id dag'],
+  ['Utledning', 'relasjon', 'innsigelser', ['utledning/utled.ts:innsigelserISporet']],
+  ['Paaberopelse', 'relasjon', 'id', ['utledning/utled.ts:innsigelserISporet']],
   [
     'Utledning',
     'utsagn',
@@ -696,6 +705,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'utledning/utled.ts:utsagnetStrider',
       'spor/frist/utledning.ts:foresporselForFristsvar',
       'spor/frist/utledning.ts:fristkravErFremmet',
+      'spor/frist/utledning.ts:dagenForesporselenBleSendt',
+      'utledning/utled.ts:innsigelserISporet',
     ],
   ],
   // VS-U19: om TE har krevd dager i saken, kontrollert likt i kommandoene og utledningen.
@@ -1223,23 +1234,33 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/skriving.ts:skriv',
       'kommandoer/skriving.ts:dokument',
       'kommandoer/nyttelast.ts:oppgittDatoI',
+      'kommandoer/avvisning.ts:avvisning',
     ],
   ],
   // OV-U102: et krav lagt til, sendt før det siste, står utenfor rekken.
   ['utledning/utled.ts', 'relasjon', 'sendtFoerSisteKrav', ['kommandoer/skriving.ts:dokument']],
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/skriving.ts:dokument']],
   ['Registrering', 'kommando', 'sendt', ['kommandoer/skriving.ts:dokument']],
-  // HF-U1 (oppdragsgiver 15.11 i #2011): et fristkrav sendt før en ubesvart forespørsel.
-  ['format/leser.ts', 'relasjon', 'kalenderdag', ['spor/frist/kommando.ts:fristsperre']],
-  ['Registrering', 'kommando', 'sendt', ['spor/frist/kommando.ts:fristsperre']],
+  // OV-U103: et svar lagt til, sendt før det gjeldende svaret, står utenfor rekken.
   [
     'utledning/utled.ts',
     'relasjon',
-    'datoenDetBleSendt',
-    ['spor/frist/kommando.ts:dagenForespoerselenBleSendt'],
+    'sendtFoerGjeldendeSvar',
+    ['kommandoer/skriving.ts:dokument', 'kommandoer/forutsetninger.ts:forutsetninger'],
   ],
-  ['Utledning', 'relasjon', 'journal', ['spor/frist/kommando.ts:dagenForespoerselenBleSendt']],
-  ['Dokument', 'relasjon', 'id', ['spor/frist/kommando.ts:dagenForespoerselenBleSendt']],
+  ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/avvisning.ts:avvisning']],
+  ['Registrering', 'kommando', 'sendt', ['kommandoer/avvisning.ts:avvisning']],
+  // OV-U109: dagen forespørselen og fristkravet ble sendt.
+  [
+    'Dokument',
+    'relasjon',
+    'id',
+    [
+      'spor/frist/utledning.ts:dagenForesporselenBleSendt',
+      'spor/frist/frysing.ts:svarPaaForesporsler',
+      'utledning/utled.ts:innsigelserISporet',
+    ],
+  ],
   // MM-U43 punkt 9: et svar uten virkning gir ikke opp innsigelsen (OV-U105).
   ['Utledning', 'relasjon', 'utenVirkning', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Utledning.utenVirkning', 'relasjon', 'element', ['kommandoer/skriving.ts:brevtekstFor']],
@@ -1915,7 +1936,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/leser.ts',
     'kontekst',
     'dagenSendt',
-    ['utledning/utled.ts:datoenDetBleSendt', 'frosset/brevtekst.ts:aapneInnsigelser'],
+    [
+      'utledning/utled.ts:datoenDetBleSendt',
+      'frosset/brevtekst.ts:aapneInnsigelser',
+      // OV-U109, OV-U104: dagen forespørselen og fristkravet ble sendt.
+      'spor/frist/frysing.ts:svarPaaForesporsler',
+      'spor/frist/utledning.ts:dagenForesporselenBleSendt',
+      'utledning/utled.ts:innsigelserISporet',
+    ],
   ],
   // HF-U23: akseptfristen i svaret, som brevet ved aksepten sammenlikner med dagen den sendes.
   ['format/leser.ts', 'kontekst', 'registrertDato', ['frosset/brevtekst.ts:utsagnstekst']],
