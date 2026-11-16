@@ -527,7 +527,9 @@ describe('svaret lagt til når påberopelsen er trukket (#2104)', () => {
     journal = skrevet(medGrunnlag, 'TE', { type: 'trekk', spor: 'forhold' });
     await kjernesak.last();
 
-    expect(await screen.findByText(LEGG_TIL.svaretUtenPaaberopelse)).toBeTruthy();
+    const meldingen = await screen.findByText(LEGG_TIL.svaretUtenPaaberopelse);
+    // Skjemaet brukeren sto i, er borte, så fokus står ved meldingen (WCAG 2.4.3).
+    expect(meldingen.closest('[tabindex="-1"]')).toHaveFocus();
     expect(screen.queryByRole('button', { name: LEGG_TIL.leggTilSvaret })).toBeNull();
     await fireEvent.click(screen.getByRole('button', { name: 'Forkast utkast' }));
     const dialog = screen.getByRole('dialog', { hidden: true });

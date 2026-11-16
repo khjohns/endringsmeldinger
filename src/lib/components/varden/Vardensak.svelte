@@ -175,6 +175,9 @@
   // Svaret på forholdet er et utkast som står når BH bytter spor (BF-01 S-8). Er det et svar lagt
   // til, står korrespondansen det legges til fra, her, til utkastet er lagt til eller forkastet.
   let svaretFra = $state<Korrespondansevalg | null>(null);
+  // Meldingen erstatter skjemaet brukeren sto i, så fokus flyttes dit (#2104).
+  let utenPaaberopelse = $state<HTMLElement | null>(null);
+  $effect(() => utenPaaberopelse?.focus());
   /** Korrespondansen kravet eller svaret i sporet legges til fra, eller `null`. */
   const lagtTilI = (s: Spor, kategori: 'krav' | 'svar') =>
     kategori === 'svar'
@@ -762,7 +765,7 @@
       {:else if arbeid.art === 'svar' && valgt === 'forhold' && lagtTilI('forhold', 'svar') && u.spor.forhold.trukket}
         <!-- Kjernen avviser et svar på en trukket påberopelse (`KRAV_TRUKKET`), så utkastet står
           bare med valget om å forkaste det (#2104). -->
-        <div class="uten-paaberopelse">
+        <div class="uten-paaberopelse" tabindex="-1" bind:this={utenPaaberopelse}>
           <Melding art="info" levende={false}>{LEGG_TIL.svaretUtenPaaberopelse}</Melding>
           <Forkastutkast tekst={LEGG_TIL.forkastSvaret} onforkast={forkast} />
         </div>
@@ -990,6 +993,9 @@
   }
   .melding.tom {
     display: none;
+  }
+  .uten-paaberopelse:focus {
+    outline: none;
   }
   .uten-paaberopelse {
     max-width: var(--varden-arbeid);
