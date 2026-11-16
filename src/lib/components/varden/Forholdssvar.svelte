@@ -18,6 +18,7 @@
   import type { Forholdsresultat } from '$kjerne/regler/typer';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { kravversjonenPaaDagen, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+  import { harTekst } from '$lib/kjernesak/brevtekst';
   import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Datoer from './Datoer.svelte';
@@ -171,7 +172,7 @@
   const forholdspunktet = $derived.by(() => {
     if (!endringsordre) return null;
     const b = kjernesak.brev(utkast);
-    const a = b && 'avsnitt' in b ? b.avsnitt?.find((x) => x.punkt === 'forhold') : undefined;
+    const a = harTekst(b) ? b.avsnitt.find((x) => x.punkt === 'forhold') : undefined;
     return a ? underOverskriften(a).join('\n\n') : null;
   });
 

@@ -34,6 +34,13 @@ export type Brev =
     }
   | { avvisning: Avvisning };
 
+/** Brevet med avsnittene kjernen lager, ikke en avvisning eller et brev uten tekst. */
+export type BrevMedTekst = Extract<Brev, { avsnitt: unknown }> & { avsnitt: Avsnitt[] };
+
+/** Om kjernen ga brevet en tekst: ikke en avvisning, en programfeil eller et registrert brev. */
+export const harTekst = (b: Brev | { programfeil: string } | null | undefined): b is BrevMedTekst =>
+  !!b && 'avsnitt' in b && b.avsnitt !== null;
+
 /** Den låste teksten kommandoen bærer, og som serveren sammenligner med sin egen (LV-U2). */
 export const laastTekstI = (brev: { avsnitt: Avsnitt[] | null }): string[] | null =>
   brev.avsnitt?.map((a) => a.laast) ?? null;
