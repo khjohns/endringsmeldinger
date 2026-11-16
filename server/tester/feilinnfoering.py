@@ -518,7 +518,7 @@ FEILINNFOERINGER = [
      "server/kroppsfelt.ts",
      "  if (!ukjente.length) return null;", "  return null;",
      "avviser et ukjent felt med 400"),
-    ("S134", "ukjente felt i varselet i en ny sak godtas (#2036)",
+    ("S134", "ukjente felt i varselet i en ny sak gir ikke meldingen om ukjente felt, bare den neste feilen (#2036)",
      "server/nysak.ts",
      "    if (ukjenteIVarsel) return", "    if (false) return",
      "avviser et ukjent felt i varselet med 400"),

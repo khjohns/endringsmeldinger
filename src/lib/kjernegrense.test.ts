@@ -150,7 +150,7 @@ describe('grensen mellom appen og kjernen', () => {
     expect(serverimporter(new Map(appfiler.map((f) => [f, readFileSync(f, 'utf8')])))).toEqual([]);
   });
 
-  it('server/nysak.ts, som appen importerer, når bare kjernen og ingen pakke, node-modul eller test', () => {
+  it('server/nysak.ts, som appen importerer, når bare kjernen og kroppsfelt.ts, og ingen pakke, node-modul eller test', () => {
     expect(utenforNettleseren([NYSAK], lesFil)).toEqual([]);
   });
 
