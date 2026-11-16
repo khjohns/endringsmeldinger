@@ -214,24 +214,13 @@
 
   const u = $derived(kjernesak.utledning);
   const uid = $props.id();
-  /** Svarskjemaet for forholdet står, og påberopelsen er ikke trukket. */
-  const svarskjemaVises = $derived(
-    arbeid.art === 'svar' &&
-      valgt === 'forhold' &&
-      !!u &&
-      !u.spor.forhold.trukket &&
-      (kjernesak.handlinger.includes('svare:forhold') ||
-        (!!lagtTilI('forhold', 'svar') && !!u.spor.forhold.gjeldendeKrav))
-  );
-  // Meldingen om den trukne påberopelsen erstatter skjemaet brukeren sto i, og fokus flyttes dit
-  // bare da, ikke når brukeren kommer til sporet fra et annet sted (#2104).
-  let fraSkjemaet = false;
+  // Fokus flyttes til meldingen om den trukne påberopelsen når fokuset forsvant med skjemaet, ikke
+  // når brukeren velger sporet eller står et annet sted (#2104).
+  let nyttSpor = false;
   $effect(() => {
-    if (utenPaaberopelse) {
-      if (fraSkjemaet) utenPaaberopelse.focus();
-      fraSkjemaet = false;
-    } else if (svarskjemaVises) fraSkjemaet = true;
-    else if (arbeid.art !== 'svar' || valgt !== 'forhold') fraSkjemaet = false;
+    if (!utenPaaberopelse) return;
+    const tapt = !document.activeElement || document.activeElement === document.body;
+    if (tapt && !nyttSpor) utenPaaberopelse.focus();
   });
   const brev = $derived(u ? brevene(u) : []);
   // Forholdet heter det TE påberoper i sporlista, som i sporhodet (OV-U78).
@@ -324,6 +313,8 @@
   }
 
   function velgSpor(s: Spor) {
+    nyttSpor = true;
+    void tick().then(() => (nyttSpor = false));
     valgt = s;
     arbeid = harUtkast(s) ? { art: 'svar' } : { art: 'les' };
     melding = null;

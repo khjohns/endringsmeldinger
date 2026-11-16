@@ -8,7 +8,7 @@
   import Feltetikett from './Feltetikett.svelte';
   import Knapp from './Knapp.svelte';
   import { NYSAK } from './tekster';
-  import { type Kjernevedlegg, type VedleggForNySak } from './nysak';
+  import type { Kjernevedlegg, VedleggForNySak } from './nysak';
   import { STOERSTE_VEDLEGG } from './vedlegg';
 
   let {

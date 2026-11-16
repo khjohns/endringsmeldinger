@@ -564,12 +564,25 @@ describe('utkastet til svaret når påberopelsen er trukket (#2104)', () => {
     const { trekk } = await saken();
     await screen.findByRole('button', { name: 'Forkast utkast' });
     await trekk();
-    expect(await screen.findByText(FORHOLDET.svaretUtenPaaberopelse(false))).toBeTruthy();
+    const meldingen = await screen.findByText(FORHOLDET.svaretUtenPaaberopelse(false));
+    expect(meldingen.closest('[tabindex="-1"]')).toHaveFocus();
     await fireEvent.click(screen.getByRole('button', { name: 'Forkast utkast' }));
     const dialog = screen.getByRole('dialog', { hidden: true });
     await fireEvent.click(within(dialog).getByRole('button', { name: 'Forkast utkast' }));
     expect(await screen.findByText('Utkastet er forkastet.')).toBeTruthy();
     expect(document.querySelector('.merke-utkast')).toBeNull();
+  });
+
+  it('står fokus et annet sted enn i skjemaet når påberopelsen trekkes, blir det stående (#2104, kontrollen av rettingene)', async () => {
+    const { trekk } = await saken();
+    await leggTil();
+    const annet = document.createElement('button');
+    document.body.append(annet);
+    annet.focus();
+    await trekk();
+    await screen.findByText(FORHOLDET.svaretUtenPaaberopelse(true));
+    expect(annet).toHaveFocus();
+    annet.remove();
   });
 
   it('kommer byggherren til forholdet fra et annet spor etter trekket, flyttes ikke fokus til meldingen (#2104, design-review)', async () => {

@@ -849,7 +849,7 @@ export const FORHOLDET = {
   /** BHs primærhandling i forholdet (oppdragsgiver 06.11, #1649). */
   svar: 'Svar på påberopelsen',
   svarNyVersjon: 'Svar på det nye brevet',
-  // #2104: utkastet til svaret står til byggherren forkaster det (oppdragsgiver 16.11).
+  // #2104.
   svaretUtenPaaberopelse: (lagtTil: boolean) =>
     `Totalentreprenøren har trukket påberopelsen, så svaret kan ikke ${lagtTil ? 'legges til' : 'sendes'}. Utkastet står til du forkaster det.`,
   forkastSvaret: 'Det du har fylt ut i svaret, slettes. Det kan ikke gjøres om.',
