@@ -28,6 +28,7 @@ import Lagttilmerknader from '$lib/components/varden/Lagttilmerknader.svelte';
 import type { Korrespondansevalg } from '$lib/components/varden/korrespondansen';
 import { kravposterI } from '$kjerne/spor/vederlag/format';
 import { LEGG_TIL } from '$lib/components/varden/tekster';
+import { brevene, sendtSammeDag } from '$lib/components/varden/lesing';
 
 /** Byggherren godkjenner 200 000 av 250 000 kr, så aksepten gir enighet (KA-U1). */
 const medDelvisSvar = (() => {
@@ -361,5 +362,44 @@ describe('kravet lagt til (OV-U80, OV-U98, KA-U24)', () => {
     expect(tilServeren).toHaveLength(1);
     expect(tilServeren[0]).toMatchObject({ type: 'krav', spor: 'vederlag', ...REGISTRERT });
     expect(tilServeren[0]).not.toHaveProperty('forbehold');
+  });
+});
+
+describe('brevene sendt samme dag i brevtråden (OV-U104)', () => {
+  const medKravSammeDag = (dato: string) => {
+    const krav = utledJournal(medVederlag, KJERNE).spor.vederlag.gjeldendeKrav!;
+    return skrevet(
+      medVederlag,
+      'TE',
+      {
+        type: 'krav',
+        spor: 'vederlag',
+        innhold: {
+          kravposter: [
+            {
+              id: kravposterI(krav)[0]!.id,
+              beskrivelse: 'Kravposten',
+              oppgjoersform: 'tilbud',
+              beloep: 100000,
+            },
+          ],
+        },
+        ...KORRESPONDANSEN,
+        sendt: dato,
+      },
+      new Map([['v-1', BREVET]])
+    );
+  };
+
+  it('kravet lagt til og kravet fra løsningen samme dag står med hverandre', () => {
+    const u = utledJournal(medKravSammeDag('2026-10-16'), KJERNE);
+    const [, kravet, lagtTil] = brevene(u);
+    const samme = sendtSammeDag(u);
+    expect(samme.get(lagtTil!.id)?.map((b) => b.id)).toEqual([kravet!.id]);
+    expect(samme.get(kravet!.id)?.map((b) => b.id)).toEqual([lagtTil!.id]);
+  });
+
+  it('kontrollsak: et krav lagt til med en tidligere dato står ikke med noe', () => {
+    expect(sendtSammeDag(utledJournal(medKravSammeDag('2026-10-10'), KJERNE)).size).toBe(0);
   });
 });

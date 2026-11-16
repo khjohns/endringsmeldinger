@@ -243,6 +243,27 @@ export function sendtSammeDagSom(foer: Utledning, etter: Utledning): Brevet[] {
   return [...ut.values()];
 }
 
+/**
+ * OV-U104: brevene i saken kjernen har sammenliknet med et annet brev sendt samme dag, med de
+ * andre brevene for hvert. Løsningen kjenner ikke rekkefølgen.
+ */
+export function sendtSammeDag(u: Utledning): Map<string, Brevet[]> {
+  const ut = new Map<string, Brevet[]>();
+  const legg = (a: Brevet, b: Brevet) => {
+    const liste = ut.get(a.id) ?? [];
+    if (!liste.some((x) => x.id === b.id)) ut.set(a.id, [...liste, b]);
+  };
+  for (const x of u.sendtSammeDag) {
+    const a = brevMedElement(u, x.element);
+    const b = brevMedElement(u, x.med);
+    if (a && b && a.id !== b.id) {
+      legg(a, b);
+      legg(b, a);
+    }
+  }
+  return ut;
+}
+
 /** En dato en part har oppgitt i et brev, med brevet den står i. */
 export interface OppgittDato {
   dato: string;

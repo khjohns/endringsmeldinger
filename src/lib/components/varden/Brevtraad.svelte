@@ -17,7 +17,7 @@
   import Melding from './Melding.svelte';
   import Sitat from './Sitat.svelte';
   import type { Brevet, Brevref, Innlegget } from './lesing';
-  import { FORHOLDET, TRAADEN, dato, kortDatoMedAar } from './tekster';
+  import { FORHOLDET, LEGG_TIL, TRAADEN, dato, kortDatoMedAar } from './tekster';
 
   let {
     brev,
@@ -26,6 +26,7 @@
     fulgtOpp = new Map(),
     eldreKrav = new Set(),
     dokumentasjon,
+    sammeDag = new Map(),
     venterPaaSvar,
     korrigerbare = [],
     lukket = false,
@@ -55,6 +56,8 @@
     eldreKrav?: ReadonlySet<string>;
     /** De registrerte brevene kjernen ikke vurderer innholdet i (OV-U19). */
     dokumentasjon: string[];
+    /** Brevene kjernen har sammenliknet med et brev sendt samme dag (`sendtSammeDag`, OV-U104). */
+    sammeDag?: ReadonlyMap<string, readonly Brevref[]>;
     /** Sporets betegnelse er «Svar ikke registrert» (MM-U30). */
     venterPaaSvar: boolean;
     /** Opplysningene om datoen kjernen tilbyr å korrigere (`korrigere:<id>`, MM-U55 punkt 10). */
@@ -99,6 +102,7 @@
     {@const registrert = b.art === 'registrert'}
     {@const i = innlegg.get(b.id)}
     {@const fulgt = fulgtOpp.get(b.id)}
+    {@const samme = sammeDag.get(b.id) ?? []}
     {@const hva = TRAADEN.hva(b)}
     {@const valgt = vist === b.id}
     {@const tilHoeyre = valgt && !smal}
@@ -149,7 +153,7 @@
           {/if}
         </span>
       </div>
-      {#if registrert || i || b.vedlegg.length || oeverst || nederst}
+      {#if registrert || i || b.vedlegg.length || oeverst || nederst || samme.length}
         <div class="innhold">
           {#if oeverst}
             <div class="oeverst" class:eldre-krav={eldreKrav.has(b.id)}>{@render oeverst(b)}</div>
@@ -157,6 +161,9 @@
           {#if registrert}
             <p class="datolinje">{TRAADEN.registrert(b.avsender, b.sendt, b.registrert)}</p>
           {/if}
+          {#each samme as x (x.id)}
+            <Melding art="info" levende={false}>{LEGG_TIL.sammeDag(x)}</Melding>
+          {/each}
           {#if i}
             {#if i.standpunkter.some((l) => l.lag)}
               <ul class="lagene" aria-label={FORHOLDET.lagene}>
