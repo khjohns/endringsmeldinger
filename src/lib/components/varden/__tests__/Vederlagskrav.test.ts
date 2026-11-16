@@ -197,6 +197,13 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     await screen.findByText('Brevet er sendt til byggherren.');
     const [, p2] = sistSendt(demosak().journal()).kravposter as { varsel?: string }[];
     expect(typeof p2.varsel).toBe('string');
+    // OV-U79: beskrivelsen av varselet som er lagt til, står i saken (krav fra #2074 i #807).
+    const varselet = await screen.findByRole('heading', {
+      level: 4,
+      name: /^Varsel om justerte enhetspriser\./,
+    });
+    // OV-U85: datoen TE oppga at varselet ble sendt, står ved det.
+    expect(varselet.closest('li')).toHaveTextContent(/28\. september 2026/);
   });
 
   it('panelet «Punktene» markerer punktet for avsnittet du står i, når dokumentet eller et indre element ruller og i bunnen, og hver kravpost er en lenke til kravposten (U-15 i BF-14, #1827)', async () => {

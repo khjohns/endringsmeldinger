@@ -64,10 +64,16 @@ export interface Brevet {
   brevtittel: string | null;
   /** Teksten slik den ble frosset da brevet ble skrevet; `null` for et registrert brev (MM-U17, MM-U50). */
   avsnitt: Avsnitt[] | null;
-  /** Beskrivelsen den som registrerte brevet, oppga (OV-U16), og `null` for et brev sendt herfra. */
+  /** Beskrivelsen den som la brevet til, oppga (OV-U16, OV-U79), og `null` for et brev sendt herfra. */
   beskrivelse: string | null;
   /** Filnavnene på vedleggene brevet binder, i brevets rekkefølge (LV-U14). */
   vedlegg: string[];
+}
+
+/** OV-U85: datoen parten oppga at dokumentet ble sendt, ikke datoen for et varsel i det (HF-U1). */
+function sendtDato(d: Dokument): string | null {
+  for (const o of d.opplysninger) if (o.hva === 'sendt' && o.gjelder === undefined) return o.dato;
+  return null;
 }
 
 function artAv(d: Dokument): Brevet['art'] {
@@ -105,8 +111,6 @@ export function brevene(u: Utledning): Brevet[] {
 
 function lesBrevene(u: Utledning): Brevet[] {
   const spor = elementenesSpor(u);
-  const sendt = new Map(u.registrerteBrev.map((r) => [r.dokument, r.sendt]));
-  const beskrivelse = new Map(u.registrerteBrev.map((r) => [r.dokument, r.beskrivelse]));
   return u.journal.flatMap((h) => {
     if (h.art !== 'dokument') return [];
     const d = h.dokument;
@@ -126,7 +130,7 @@ function lesBrevene(u: Utledning): Brevet[] {
         nummer: d.brevnummer,
         avsender: d.avsender,
         registrert: d.registrert,
-        sendt: sendt.get(d.id) ?? null,
+        sendt: sendtDato(d),
         spor: [...i],
         art: artAv(d),
         forhold: innholdIForholdet(d.krav.find((k) => k.spor === 'forhold')).underkategori,
@@ -135,7 +139,8 @@ function lesBrevene(u: Utledning): Brevet[] {
         omtale: omtalen(d),
         brevtittel: d.brevtittel,
         avsnitt: d.brevtekst,
-        beskrivelse: beskrivelse.get(d.id) ?? null,
+        // OV-U79: også et varsel, krav eller svar lagt til har beskrivelsen (krav fra #2074 i #807).
+        beskrivelse: d.beskrivelse,
         vedlegg: d.dokumentasjon.map((v) => v.filnavn),
       },
     ];
