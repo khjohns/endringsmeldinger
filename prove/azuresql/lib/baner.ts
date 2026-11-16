@@ -18,7 +18,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { sjekksum } from '../../../server/levering.ts';
+import { sjekksum } from '../../../server/sjekksum.ts';
 import { Versjonskonflikt, type Bane } from '../../../kjerne/tester/bane.ts';
 import type { Journalrad } from '../../../kjerne/typer.ts';
 import { feilnummer, sql, transaksjon, type Kroker } from './forbindelse.ts';
