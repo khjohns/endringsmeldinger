@@ -13,6 +13,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { finnForloep, lagDemosak, type Demosak } from '$lib/kjernesak/demosak';
 import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+import { laastTekstI } from '$lib/kjernesak/brevtekst';
 import { tomPost, vederlagssvaret, type Svarvalg } from '$lib/components/varden/kommandoer';
 import type { Journalrad } from '$kjerne/typer';
 import { finn, kjoerBrukerforloep, kontrollpunkt, somForloep } from '$kjerne/tester/brukerforloep';
@@ -54,9 +55,9 @@ async function bhSenderSvaret(demosak: Demosak) {
   await kjernesak.last();
   const kommando = vederlagssvaret(BH_SVARER, kjernesak.utledning!, kjernesak.regler)!;
   const brevet = kjernesak.brev(kommando, undefined, true);
-  if (!brevet || !('tekst' in brevet) || !brevet.tekst)
+  if (!brevet || !('avsnitt' in brevet) || !brevet.avsnitt)
     throw new Error('Kjernen ga ikke noe brev for svaret.');
-  const vist = brevet.tekst;
+  const vist = laastTekstI(brevet)!;
   expect(await kjernesak.send(kommando, vist)).toBe(true);
   return vist;
 }

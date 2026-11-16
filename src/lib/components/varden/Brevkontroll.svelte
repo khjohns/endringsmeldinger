@@ -22,6 +22,13 @@
   };
 
   /**
+   * Det avsenderen godkjenner i brevet, som én tekst: endres en av delene, kontrolleres brevet
+   * på nytt (LV-U2, LV-U46).
+   */
+  export const detSomKontrolleres = (b: Kontrollbrev): string =>
+    [b.merking, ...b.deresRef, b.tittel, ...b.avsnitt.map((a) => a.laast)].join('\n');
+
+  /**
    * Det et skjema sender til brevkontrollen: kommandoen, brevet kjernen lager av den og det
    * panelet sier om sendingen (#1856).
    */
@@ -122,7 +129,7 @@
   // på nytt (LV-U46, LV-U51).
   let kontrollertTekst: string | null = null;
   $effect.pre(() => {
-    const naa = [merking, ...deresRef, ...tekst].join('\n');
+    const naa = detSomKontrolleres({ avsnitt, merking, deresRef, tittel });
     if (kontrollertTekst !== null && naa !== kontrollertTekst) kontrollert = false;
     kontrollertTekst = naa;
   });

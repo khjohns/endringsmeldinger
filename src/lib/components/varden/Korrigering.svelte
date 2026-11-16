@@ -64,7 +64,7 @@
   const kommando = $derived(korrigeringen(valg, opplysningen));
   const utkastbrev = $derived.by(() => {
     const b = valg.dato ? kjernesak.brev(kommando) : null;
-    return b && 'tekst' in b ? b : null;
+    return b && 'avsnitt' in b ? b : null;
   });
 
   // Det som hindrer, med skjemaets ord, før brevkontrollen (U-3, MM-U32). Kjernen avviser det
