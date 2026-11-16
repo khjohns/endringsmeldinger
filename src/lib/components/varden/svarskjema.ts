@@ -3,7 +3,7 @@
  * det som mangler, brevet svaret gjelder, og tekstene i skallet. Spørsmålene er sporets egne.
  */
 
-import { erKravpostpunkt, FORBEHOLDET, INNLEDNINGEN, OVERSIKTEN } from '$kjerne/frosset/tekst';
+import { punkteneMedBegrunnelse } from '$kjerne/frosset/tekst';
 import type { Avsnitt, Spor } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
 import { brevet, type Brevet } from './lesing';
@@ -32,25 +32,16 @@ export interface Begrunnelsespunkt {
   navn: string;
 }
 
-// Innledningen og tabellen har ingen begrunnelse, og forbeholdet har sitt eget felt.
-const UTEN_BEGRUNNELSE = new Set([INNLEDNINGEN, OVERSIKTEN, FORBEHOLDET]);
-
 /**
  * LV-U71: ett felt for begrunnelsen per punkt i brevet, i brevets rekkefølge, lest av brevet
  * kjernen lager uten begrunnelsene, så et felt aldri gjelder et punkt brevet ikke har. KA-U53:
  * med flere kravposter sier feltet hvilken kravpost det gjelder.
  */
-export function begrunnelsespunktene(avsnitt: readonly Avsnitt[]): Begrunnelsespunkt[] {
-  return avsnitt.flatMap((a) => {
-    if (a.punkt === undefined || UTEN_BEGRUNNELSE.has(a.punkt)) return [];
-    const linjene = a.laast.split('\n\n');
-    const post = erKravpostpunkt(a.punkt)
-      ? linjene.find((l) => l.startsWith(`${a.punkt} `))
-      : undefined;
-    const navn = [a.overskrift, post].filter((x): x is string => !!x).join(': ');
-    return [{ punkt: a.punkt, navn: navn || linjene[0]! }];
-  });
-}
+export const begrunnelsespunktene = (avsnitt: readonly Avsnitt[]): Begrunnelsespunkt[] =>
+  punkteneMedBegrunnelse(avsnitt).map((p) => ({
+    punkt: p.punkt,
+    navn: [p.overskrift, p.kravpost].filter((x) => !!x).join(': ') || p.foerst,
+  }));
 
 /** Brevet med gjeldende krav i sporet, som svaret gjelder. */
 export const kravbrevetI = (u: Utledning, spor: Spor): Brevet =>
