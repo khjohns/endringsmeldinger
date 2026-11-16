@@ -109,14 +109,23 @@ describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
             const { poster, ...uten } = a;
             return {
               ...(fjernNoekkelen ? uten : { ...uten, poster }),
-              laast: a.laast.replace('\nVederlagsjustering\t', '\nJustering av vederlaget\t'),
+              laast: a.laast
+                .replace('\nVederlagsjustering\t', '\nJustering av vederlaget\t')
+                .replace('\nSærskilt vederlagsjustering\t', '\nProduktivitet\t'),
             };
           }) ?? null,
       });
     const k = kravetOgSvaret(u, brevene(u).map(omdoept(false)))!;
-    expect(k.tabell?.[1]?.[0]).toBe('Justering av vederlaget');
-    expect(postIRaden(k.poster, 'Justering av vederlaget')?.post).toBe('P1');
-    // Kontrollsaken: uten nøkkelen i brevet finnes ingen post med navnet.
+    expect(k.tabell?.slice(1, -1).map((r) => postIRaden(k.poster, r[0]!)?.post)).toEqual([
+      'P1',
+      'produktivitet',
+    ]);
+    // Navnet kjernen gir raden i dag, står ved siden av.
+    expect(k.poster.map((p) => p.navn)).toEqual([
+      'Vederlagsjustering',
+      'Særskilt vederlagsjustering',
+    ]);
+    // Kontrollsaken: uten nøkkelen i brevet gjelder ingen rad en post.
     const uten = kravetOgSvaret(u, brevene(u).map(omdoept(true)))!;
     expect(postIRaden(uten.poster, 'Justering av vederlaget')).toBeUndefined();
   });

@@ -26,11 +26,10 @@ export interface Laget extends Svarlaget {
 export interface Posten {
   /** Nøkkelen til posten: betegnelsen, eller `'produktivitet'` (`posteneIOversikten`). */
   post: string;
-  /**
-   * Navnet raden har i oversiktstabellen i svarbrevet, funnet på nøkkelen (svaret 16.11 i
-   * #1997), og ellers navnet kjernen gir raden (`posteneIOversikten`).
-   */
+  /** Navnet kjernen gir raden for posten (`posteneIOversikten`). */
   navn: string;
+  /** Navnet raden for posten har i tabellen i svarbrevet (svaret 16.11 i #1997), eller `null`. */
+  rad: string | null;
   oppgjoersform: Oppgjoersform | null;
   krevd: number | null;
   kravpost: Kravpost | null;
@@ -57,6 +56,7 @@ const postene = (krav: Krav): Posten[] =>
   posteneIOversikten(krav).map((p) => ({
     post: p.post,
     navn: p.navn,
+    rad: null,
     oppgjoersform: p.kravpost?.oppgjoersform ?? null,
     krevd: somTall(p.krevd),
     kravpost: p.kravpost,
@@ -106,29 +106,20 @@ export function kravetOgSvaret(u: Utledning, alle: Brevet[]): KravetOgSvaret | n
   const oversikten = svarbrev.avsnitt?.find((a) => a.punkt === OVERSIKTEN);
   // Brevet viser hvert avsnitt i punktet som en tabell; punktet har én (`Brev.svelte`).
   const tabell = oversikten ? cellene(underOverskriften(oversikten)[0] ?? '') : null;
-  // `poster` har nøkkelen for radene mellom kolonnene og summen, så et eldre brev leses likt
-  // også om regelen for navnet endres (MM-U50, svaret 16.11 i #1997).
-  const iTabellen = new Map(
-    (oversikten?.poster ?? []).flatMap((post, i) => {
-      const navn = tabell?.[i + 1]?.[0];
-      return navn === undefined ? [] : [[post, navn] as const];
-    })
-  );
+  // MM-U50: raden for en post finnes på nøkkelen; leseren har kontrollert én per rad.
+  const raden = new Map((oversikten?.poster ?? []).map((post, i) => [post, tabell![i + 1]![0]!]));
   return {
     ...ut,
-    poster: ut.poster.map((p) => ({ ...p, navn: iTabellen.get(p.post) ?? p.navn })),
+    poster: ut.poster.map((p) => ({ ...p, rad: raden.get(p.post) ?? null })),
     lagene,
     tabell,
     forbehold: medForbehold(u, svar, svarbrev),
   };
 }
 
-/**
- * Posten en rad i oversiktstabellen gjelder. Navnet på posten er navnet raden har i brevet,
- * funnet på nøkkelen i `poster` (`kravetOgSvaret`).
- */
+/** Posten en rad i oversiktstabellen i svarbrevet gjelder, etter navnet raden har der. */
 export const postIRaden = (poster: Posten[], navn: string): Posten | undefined =>
-  poster.find((p) => p.navn === navn);
+  poster.find((p) => p.rad === navn);
 
 /** Summen av de faste beløpene i hvert krav i vederlaget, etter brevet med kravet (U-12). */
 export function kravbeloepene(u: Utledning): Map<string, number> {
