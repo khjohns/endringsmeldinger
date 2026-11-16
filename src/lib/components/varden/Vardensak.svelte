@@ -12,6 +12,7 @@
   import { sakensKode } from '$kjerne/frosset/tekst';
   import Brevkontroll, { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
+  import Forkastutkast from './Forkastutkast.svelte';
   import Melding from './Melding.svelte';
   import Sporlesing from './Sporlesing.svelte';
   import Vardenskall, { type Smule } from './Vardenskall.svelte';
@@ -758,6 +759,13 @@
             meldingen?.focus();
           }}
         />
+      {:else if arbeid.art === 'svar' && valgt === 'forhold' && lagtTilI('forhold', 'svar') && u.spor.forhold.trukket}
+        <!-- Kjernen avviser et svar på en trukket påberopelse (`KRAV_TRUKKET`), så utkastet står
+          bare med valget om å forkaste det (#2104). -->
+        <div class="uten-paaberopelse">
+          <Melding art="info" levende={false}>{LEGG_TIL.svaretUtenPaaberopelse}</Melding>
+          <Forkastutkast tekst={LEGG_TIL.forkastSvaret} onforkast={forkast} />
+        </div>
       {:else if arbeid.art === 'svar' && valgt === 'forhold' && (kjernesak.handlinger.includes('svare:forhold') || (lagtTilI('forhold', 'svar') && u.spor.forhold.gjeldendeKrav))}
         <Forholdssvar
           {kjernesak}
@@ -982,6 +990,14 @@
   }
   .melding.tom {
     display: none;
+  }
+  .uten-paaberopelse {
+    max-width: var(--varden-arbeid);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-3);
   }
   .melding {
     max-width: var(--varden-arbeid);

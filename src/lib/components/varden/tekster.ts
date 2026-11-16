@@ -1198,6 +1198,10 @@ export type Korrespondansekategori = 'dokumentasjon' | 'varsel' | 'krav' | 'svar
  */
 export const LEGG_TIL = {
   tittel: 'Legg til korrespondanse',
+  // #2104: utkastet til et svar lagt til står til byggherren forkaster det (oppdragsgiver 16.11).
+  svaretUtenPaaberopelse:
+    'Totalentreprenøren har trukket påberopelsen, så svaret kan ikke legges til. Utkastet står til du forkaster det.',
+  forkastSvaret: 'Det du har fylt ut i svaret, slettes. Det kan ikke gjøres om.',
   inngangHjelp: 'Brev, e-post, møtereferat eller notat du har sendt utenfor løsningen.',
   // Arbeidsvalget 16.11, punkt 2: bare det parten selv har sendt (avsenderen er #2069).
   egen: 'Du legger til det du selv har sendt.',
