@@ -31100,6 +31100,147 @@ tekst = '''
 Et fristkrav sendt før byggherrens forespørsel etter punkt 33.6.2 er ikke svar på den. Forespørselen står ubesvart med virkningene etter punkt 33.6.2, og totalentreprenøren svarer med en ny kravversjon fra løsningen.'''
 forkastet = true
 
+
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "OV-U110"
+dato = 2026-11-16
+hvem = "oppdragsgiver"
+kilde = ["#2022"]
+sporsmal = '''
+Spørsmål 1 ble stilt i samtalen 16.11, etter en uavhengig kontroll. Det står ordrett i [kommentaren i #2022](https://github.com/khjohns/endringsmeldinger/issues/2022#issuecomment-6909194581):
+
+> ## Spørsmål 1. Hva løsningen leser som enigheten i sporet etter byggherrens nye svar
+>
+> **Bakgrunn.** Totalentreprenøren har godtatt byggherrens svar. Så sender byggherren et nytt svar.
+> Vedtakene sier tre ting om dette:
+>
+> - HF-U29 punkt 2: «Det nye svaret erstatter det tidligere som byggherrens siste svar i løsningen,
+>   uten totalentreprenørens aksept.»
+> - HF-U29 punkt 3: «En registrert enighet bevares og vises.»
+> - HF-U29 punkt 8: «Avviker det nye svaret fra en registrert enighet, viser visningen det, og
+>   løsningen avgjør ikke om enigheten står (MM-U50 punkt 8).»
+>
+> Vedtakene sier ikke hva løsningens egne konklusjoner om sporet skal bygge på etter det nye svaret:
+> om grunnlaget er avklart, om kravene er avgjort, hvilken betegnelse sporet har, og om akseptfristen
+> for det nye svaret står ved kravet (MM-U24). Etter OV-U3 er kravene avgjort når grunnlaget er
+> avklart etter GR-U7, totalentreprenøren har sendt minst ett vederlags- eller fristkrav, og hvert
+> slikt krav er trukket eller har en virksom enighet. Det vedtaket ikke sier, er om en enighet om et
+> svar byggherren senere har erstattet, regnes med.
+>
+> Ingen regel sperrer en handling etter OV-U3: sperren mot trekk, ny kravversjon og revisjon når
+> kravene er avgjort, er opphevet (MM-U34 punkt 12), og betegnelsen sier hva som har skjedd (OV-U99
+> punkt 6). Det som står på spill, er hva visningen sier, og hvilke konklusjoner løsningen selv
+> trekker. Handlingene er avgjort av vedtakene: totalentreprenøren kan godta byggherrens gjeldende
+> svar (GR-U7), og begge parter kan sende nytt, også i et spor med registrert enighet (MM-U34 punkt 9).
+>
+> **Eksempel.** Byggherren har godkjent grunnlaget. Det er i seg selv en enighet ved sammenfall
+> (GR-U10; MM-U50 punkt 16). Partene er også enige om vederlaget. Så sender byggherren et nytt svar
+> som avslår grunnlaget. Spørsmålet er om vederlagsenigheten da leses som betinget eller som virksom.
+> Godtar totalentreprenøren avslaget på grunnlaget, lukkes saken (GR-U27), og vederlagsenigheten får
+> ingen virkning. Slik er det allerede i dag for ethvert avslag på grunnlaget.
+>
+> - **A (anbefalt):** «Etter byggherrens nye svar bygger løsningens utledning av sporet på det nye
+>   svaret: om grunnlaget er avklart, om kravene er avgjort etter OV-U3, sporets betegnelse og om
+>   totalentreprenøren kan godta svaret. Utledningen avgjør ikke om enigheten om det eldre svaret
+>   står (MM-U50 punkt 8). Enigheten bevares og vises ved det eldre svaret med det det sa. Avviker det
+>   nye svaret fra enigheten, viser visningen det, også ved handlingen der totalentreprenøren godtar
+>   det nye svaret. Avviker det ikke, viser visningen at det nye svaret stemmer med den registrerte
+>   enigheten. Godtar totalentreprenøren det nye svaret, eller godkjenner det hele kravet, registrerer
+>   løsningen enighet om det nye svaret, og enigheten om det eldre svaret står fortsatt i visningen
+>   ved det svaret.»
+>   - Forhold: presiserer OV-U3 og MM-U30. I tråd med HF-U29 punkt 2, 3, 4 og 8, MM-U34 punkt 9 og
+>     12, KA-U52 punkt 3 og 5, OV-U98, OV-U103 og MM-U24.
+> - **B:** «Etter byggherrens nye svar bygger løsningens utledning av sporet på enigheten om det
+>   eldre svaret, til totalentreprenøren godtar det nye svaret eller sender en ny kravversjon. Sporet
+>   står som «Enige», og det nye svaret vises som et avvik fra enigheten.»
+>   - Forhold: presiserer OV-U3. For en aksept som legges til, strider B mot OV-U98 («Et svar
+>     byggherren har sendt etter aksepten, står med virkningen det hadde.») og OV-U103 («Det nyere
+>     svaret står med virkningen det hadde.»). Står det i vedtaksteksten, er det et forslag om å
+>     endre dem. For en aksept sendt fra løsningen er OV-U98 en analogi. Holdes de to vedtakene
+>     fast, gir B ulik utledning for en aksept sendt fra løsningen og en aksept som legges til.
+>
+> **Anbefaling: A.**
+>
+> - **Utledningen avgjør ikke om enigheten står.** Det nye svaret er byggherrens siste svar i
+>   løsningen (HF-U29 punkt 2). «Løsningens vurdering av utsagnene binder ingen av partene, og
+>   løsningen avgjør ikke om en part er bundet av et utsagn eller kan komme løs fra det (MM-U12).»
+>   (MM-U50 punkt 8)
+> - **Vedtakene har valgt det samme for frafallet.** HF-U29 punkt 4: «Løsningen viser frafallet
+>   sammen med det nye svaret, uten å trekke konklusjonen.» At løsningen da leser det nye svaret, er
+>   vår tolkning, med kilde i MM-U34 punkt 7, som opphevet sperrene mot avslag etter et frafall.
+> - **A gir samme utledning uansett rekkefølge.** Det spiller ingen rolle i hvilken rekkefølge
+>   svarene og aksepten ble lagt til (OV-U103). Under B skifter betegnelsen bakover i tid: en aksept
+>   som legges til senere, datert før det nye svaret, gjør et spor som sto som «Svaret er ikke
+>   godtatt», til «Enige».
+> - **Akseptfristen står bare under A.** Under B står ikke akseptfristen for det nye svaret ved
+>   kravet, fordi «Enige» kommer foran i rekkefølgen i MM-U30. Akseptfristen er bare en opplysning
+>   (MM-U34 punkt 17 har overskriften «Akseptfristen: fristen står som opplysning, virkningene
+>   oppheves.»), så det som går tapt, er en
+>   opplysning og ingen virkning.
+> - **Kostnad ved A:** sier det nye svaret det samme som enigheten, må totalentreprenøren godta det
+>   på nytt før sporet igjen står som «Enige». Det er tungvint, men ingen part taper en posisjon,
+>   fordi enigheten fortsatt vises.
+> - **Risiko ved A:** senker byggherren beløpet etter aksepten, tilbys totalentreprenøren å godta det
+>   lavere svaret. Derfor må visningen vise den eldre enigheten tydelig ved handlingen «Godta».
+>
+> **Styrer:** forventet resultat 2 i #2022, og punkt 1 og 4 i kommentar 6899629872 i #2022.
+>
+> **Konsekvens for koden (påstander som skal kontrolleres):**
+>
+> - **Under A** står enigheten i sporet (`spor.enighet`) og konklusjonene som i dag. Det kommer et nytt
+>   felt for en enighet om et svar som er erstattet. At bare visningen og avviket i endringsordren
+>   (EO-U19) leser det nye feltet, er en prognose. Disse leserne kan også måtte lese det:
+>   `src/lib/components/varden/Sporlesing.svelte:246` (forhåndsvisningen av aksepten),
+>   `src/lib/components/varden/Paaberopelsesversjon.svelte:57` og `kjerne/utledning/visning.ts`
+>   233–256 (`akseptertEtterFristen`, `regel_endret_etter_enighet`).
+> - **Under B** kan den eldre enigheten bygges inn i `spor.enighet`. Da følger betegnelsen,
+>   `svarIkkeGodtatt`, `kraveneErAvgjort`, fristdagene i `kjerne/spor/frist/utledning.ts` og
+>   sakslisten i `server/saksliste.ts` B av seg selv. Tre steder må da skrives om:
+>   - `kjerne/utledning/utled.ts` 655, som ellers vil avvise en aksept av det nye svaret med GR-U8;
+>   - `kjerne/kommandoer/forutsetninger.ts` 329 (`ENIGHET_I_SPORET`);
+>   - `kjerne/spor/forhold/utledning.ts` 157–180, der `forholdAvvist` blander enigheten med det
+>     gjeldende svaret.
+> - Kildene for de andre påstandene: `kjerne/utledning/utled.ts` (1327–1340 `settEnighetene`,
+>   1397–1422, 1487–1497) og `kjerne/utledning/visning.ts` (150–170).
+> - Lest, ikke kjørt: samme hull ser ut til å finnes etter en ny kravversjon fra totalentreprenøren.
+>   KA-U52 punkt 5 sier «En registrert enighet bevares.», men `settEnighetene` hopper over sporet når
+>   det ikke har et gjeldende svar.
+'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 16.11, ordrett: «1A». Svaret er A, det anbefalte alternativet.'''
+forhold = [
+  { art = "presiserer", vedtak = "ov-u3" },
+  { art = "presiserer", vedtak = "mm-u30" },
+]
+folge = '''
+Forholdet slik det sto i alternativet A: «presiserer OV-U3 og MM-U30. I tråd med HF-U29 punkt 2, 3, 4 og 8, MM-U34 punkt 9 og 12, KA-U52 punkt 3 og 5, OV-U98, OV-U103 og MM-U24.» Bygges i #2022.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Etter byggherrens nye svar bygger løsningens utledning av sporet på det nye svaret: om grunnlaget er avklart, om kravene er avgjort etter OV-U3, sporets betegnelse og om totalentreprenøren kan godta svaret. Utledningen avgjør ikke om enigheten om det eldre svaret står (MM-U50 punkt 8). Enigheten bevares og vises ved det eldre svaret med det det sa. Avviker det nye svaret fra enigheten, viser visningen det, også ved handlingen der totalentreprenøren godtar det nye svaret. Avviker det ikke, viser visningen at det nye svaret stemmer med den registrerte enigheten. Godtar totalentreprenøren det nye svaret, eller godkjenner det hele kravet, registrerer løsningen enighet om det nye svaret, og enigheten om det eldre svaret står fortsatt i visningen ved det svaret. Forhold: presiserer OV-U3 og MM-U30. I tråd med HF-U29 punkt 2, 3, 4 og 8, MM-U34 punkt 9 og 12, KA-U52 punkt 3 og 5, OV-U98, OV-U103 og MM-U24.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Etter byggherrens nye svar bygger løsningens utledning av sporet på enigheten om det eldre svaret, til totalentreprenøren godtar det nye svaret eller sender en ny kravversjon. Sporet står som «Enige», og det nye svaret vises som et avvik fra enigheten. Forhold: presiserer OV-U3. For en aksept som legges til, strider B mot OV-U98 («Et svar byggherren har sendt etter aksepten, står med virkningen det hadde.») og OV-U103 («Det nyere svaret står med virkningen det hadde.»). Står det i vedtaksteksten, er det et forslag om å endre dem. For en aksept sendt fra løsningen er OV-U98 en analogi. Holdes de to vedtakene fast, gir B ulik utledning for en aksept sendt fra løsningen og en aksept som legges til.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Et svar byggherren har sendt etter aksepten, står med virkningen det hadde."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "Det nyere svaret står med virkningen det hadde."
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "En registrert enighet bevares og vises."
+
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
 etter = '''

@@ -110,15 +110,6 @@ KJENTE_AVVIK = (
     ("server/tester/sakslinje.test.ts", "MM-U29", 2, "#1545"),
     ("kjerne/kommandoer/forutsetninger.ts", "OV-U8", 1, "#1576"),
     ("kjerne/tester/feilinnfoering.ts", "OV-U8", 1, "#1576"),
-    ("src/lib/components/varden/Brevtraad.svelte", "MM-U52", 1, "#1939"),
-    ("src/lib/components/varden/Korrigering.svelte", "MM-U52", 1, "#1939"),
-    ("src/lib/components/varden/__tests__/Forholdsoversikt.test.ts", "MM-U52", 1, "#1939"),
-    ("src/lib/components/varden/__tests__/Korrigering.test.ts", "MM-U52", 2, "#1939"),
-    ("src/lib/components/varden/__tests__/Paaberopelsesversjon.test.ts", "MM-U52", 1, "#1939"),
-    ("src/lib/components/varden/__tests__/lesing.test.ts", "MM-U52", 1, "#1939"),
-    ("src/lib/components/varden/kommandoer.ts", "MM-U52", 2, "#1939"),
-    ("src/lib/components/varden/lesing.ts", "MM-U52", 4, "#1939"),
-    ("src/lib/components/varden/tekster.ts", "MM-U52", 4, "#1939"),
 )
 # En post med klassen design som eneste grunnlag i kjernen eller i en bevis-sak, i samme form
 # som KJENTE_AVVIK. Henvisningene skrives om når designet flyttes i steg 4. Lista skal bare
