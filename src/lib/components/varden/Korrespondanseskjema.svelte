@@ -23,11 +23,12 @@
     kategoriene,
     lagtTil,
     lagttilmangler,
+    leggTilISaken,
     tomtLagtTil,
     type Lagttilvalg,
   } from './korrespondansen';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
-  import { brevene } from './lesing';
+  import { brevet, svareneISporet } from './lesing';
   import type { Mangel } from './mangler';
   import { vedleggsgrense, vedleggskart } from './nysak';
   import { FORHOLDET, LEGG_TIL, SKJEMA, SPORNAVN, type Korrespondansekategori } from './tekster';
@@ -59,29 +60,28 @@
   const grense = vedleggsgrense((fil) => kjernesak.lastOppVedlegg(fil));
   const kategorier = $derived(kategoriene(kjernesak.part, spor, u, kjernesak.handlinger));
   // Et valg som ikke lenger står, er ikke valgt.
-  $effect(() => {
-    if (valg.kategori !== null && !kategorier.includes(valg.kategori)) valg.kategori = null;
-  });
+  const kategori = $derived(
+    valg.kategori !== null && kategorier.includes(valg.kategori) ? valg.kategori : null
+  );
 
   // Byggherrens svar i sporet, med brevet hvert står i (arbeidsvalget 16.11, punkt 6).
-  const alleBrev = $derived(brevene(u));
   const svarene = $derived(
-    [...u.spor[spor].svar, ...u.spor[spor].svarUtenforRekken].flatMap((s) => {
-      const b = alleBrev.find((x) => x.id === s.dokument);
+    svareneISporet(u, spor).flatMap((s) => {
+      const b = brevet(u, s.dokument);
       return b ? [{ verdi: s.id, tekst: LEGG_TIL.svaretValg(b) }] : [];
     })
   );
 
   const vedlegg = $derived(vedleggskart(valg.korrespondanse.vedlegg));
   const kommando = $derived(
-    valg.kategori === 'dokumentasjon'
+    kategori === 'dokumentasjon'
       ? dokumentasjonen(valg)
-      : valg.kategori === 'aksept' && valg.svar
+      : kategori === 'aksept' && valg.svar
         ? lagtTil(aksepten(spor, valg.svar, kjernesak.regelversjon), valg.korrespondanse)
         : null
   );
 
-  const feltene = $derived(lagttilmangler(valg));
+  const feltene = $derived(lagttilmangler({ ...valg, kategori }));
   const mangler = $derived(
     Object.entries(feltene).map(
       ([felt, tekst]): Mangel => ({ felt: id(felt), post: null, tekst: tekst! })
@@ -104,15 +104,13 @@
       oppsummering?.focus();
       return;
     }
-    const k = valg.kategori;
+    const k = kategori;
     if (viderekategori(k)) return onneste(k);
     if (!kommando || (k !== 'dokumentasjon' && k !== 'aksept')) return;
-    if (await kjernesak.send(kommando, undefined, vedlegg)) onlagttil(k);
-    else {
-      hindring = kjernesak.feil ?? SKJEMA.mangler;
-      await tick();
-      document.getElementById(id('hindring'))?.focus();
-    }
+    hindring = await leggTilISaken(kjernesak, kommando, vedlegg, LEGG_TIL.ikkeLagtTilFeil);
+    if (hindring === null) return onlagttil(k);
+    await tick();
+    document.getElementById(id('hindring'))?.focus();
   }
 
   function gaaTil(m: Mangel, e: MouseEvent) {
@@ -146,9 +144,9 @@
 
       <div class="innhold">
         <Korrespondansen
-          id={(felt) => id(felt)}
+          {id}
           bind:valg={valg.korrespondanse}
-          feil={(felt) => feil(felt)}
+          {feil}
           {grense}
           hva="korrespondanse"
         />
@@ -157,13 +155,13 @@
           navn={id('kategori')}
           spoersmaal={LEGG_TIL.kategorien}
           valg={kategorier.map((k) => ({ verdi: k, tekst: LEGG_TIL.kategorier[k] }))}
-          bind:verdi={valg.kategori}
+          bind:verdi={() => kategori, (k) => (valg.kategori = k)}
           feil={feil('kategori')}
           stablet
           lett
         />
 
-        {#if valg.kategori === 'dokumentasjon'}
+        {#if kategori === 'dokumentasjon'}
           <fieldset class="gjelder">
             <legend>{LEGG_TIL.gjelder}</legend>
             <p class="dempet">{LEGG_TIL.gjelderHjelp}</p>
@@ -175,7 +173,7 @@
             {/each}
           </fieldset>
           <p class="dempet">{LEGG_TIL.dokumentasjon}</p>
-        {:else if valg.kategori === 'aksept'}
+        {:else if kategori === 'aksept'}
           <Valg
             navn={id('svar')}
             spoersmaal={LEGG_TIL.svaret}
@@ -187,11 +185,11 @@
             lett
           />
           <p class="dempet" id={id('svar-hjelp')}>{LEGG_TIL.svaretHjelp}</p>
-        {:else if viderekategori(valg.kategori)}
-          <p class="dempet">{LEGG_TIL.neste[valg.kategori]}</p>
+        {:else if viderekategori(kategori)}
+          <p class="dempet">{LEGG_TIL.neste[kategori]}</p>
         {/if}
 
-        {#if valg.kategori === 'aksept' && kommando}
+        {#if kategori === 'aksept' && kommando}
           <Lagttilmerknader {kjernesak} {u} {spor} {kommando} {vedlegg} />
         {/if}
 
@@ -201,7 +199,7 @@
             onclick={send}
             opptatt={kjernesak.sender}
             aria-describedby={hindring ? id('hindring') : undefined}
-            >{viderekategori(valg.kategori) ? LEGG_TIL.gaaVidere : LEGG_TIL.leggTil}</Knapp
+            >{viderekategori(kategori) ? LEGG_TIL.gaaVidere : LEGG_TIL.leggTil}</Knapp
           >
           <Knapp variant="lenke" onclick={onavbryt}>{LEGG_TIL.avbryt}</Knapp>
         </div>

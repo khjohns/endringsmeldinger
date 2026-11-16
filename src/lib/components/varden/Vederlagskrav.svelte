@@ -43,7 +43,11 @@
   import Valg from './Valg.svelte';
   import { beloepet } from './kommandoer';
   import { vedleggsgrense, vedleggskart } from './nysak';
-  import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
+  import {
+    lagtTil as kommandoenLagtTil,
+    leggTilISaken,
+    type Korrespondansevalg,
+  } from './korrespondansen';
   import Lagttillinje from './Lagttillinje.svelte';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
   import {
@@ -536,12 +540,15 @@
       return;
     }
     if (kommandoLagtTil) {
-      if (await kjernesak.send(kommandoLagtTil, undefined, vedleggLagtTil)) onlagttil();
-      else {
-        sendehindring = kjernesak.feil ?? KRAVSKJEMA.kanIkkeLages;
-        await tick();
-        document.getElementById(id('hindring'))?.focus();
-      }
+      sendehindring = await leggTilISaken(
+        kjernesak,
+        kommandoLagtTil,
+        vedleggLagtTil,
+        KRAVSKJEMA.kanIkkeLages
+      );
+      if (sendehindring === null) return onlagttil();
+      await tick();
+      document.getElementById(id('hindring'))?.focus();
       return;
     }
     const b = kjernesak.brev(kommando, vedlegg, true);
@@ -1129,15 +1136,14 @@
       </section>
 
       {#if kommandoLagtTil}
-        <div class="merknader">
-          <Lagttilmerknader
-            {kjernesak}
-            {u}
-            spor="vederlag"
-            kommando={kommandoLagtTil}
-            vedlegg={vedleggLagtTil}
-          />
-        </div>
+        <Lagttilmerknader
+          {kjernesak}
+          {u}
+          spor="vederlag"
+          kommando={kommandoLagtTil}
+          vedlegg={vedleggLagtTil}
+          innfelt
+        />
       {:else}<section class="seksjon" id={id('forbehold')} aria-labelledby={id('forbehold-tittel')}>
           <div class="seksjonshode">
             <span class="nummer" aria-hidden="true">{v.saerskilt ? 4 : 3}</span>
@@ -1444,15 +1450,6 @@
   }
   .skjemafot {
     padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
-  }
-  .merknader {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
-    padding: var(--spacing-4) var(--spacing-6) 0;
-  }
-  .merknader:empty {
-    display: none;
   }
   .bekreft {
     display: flex;

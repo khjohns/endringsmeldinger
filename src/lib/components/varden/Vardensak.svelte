@@ -24,7 +24,12 @@
   import Vederlagskrav from './Vederlagskrav.svelte';
   import Fristkrav from './Fristkrav.svelte';
   import { startvalg as fristkravstart, type Fristkravvalg } from './fristkrav';
-  import { tomKorrespondanse, tomtLagtTil, type Lagttilvalg } from './korrespondansen';
+  import {
+    tomKorrespondanse,
+    tomtLagtTil,
+    type Korrespondansevalg,
+    type Lagttilvalg,
+  } from './korrespondansen';
   import Korrespondanseskjema from './Korrespondanseskjema.svelte';
   /** Handlingene i fristen som åpner skjemaet for kravet (BF-20). */
   // Handlingstypene i fristen som holder kravskjemaet åpent, med varselet alene eller kravet valgt.
@@ -129,11 +134,11 @@
   type Kravspor = Exclude<Spor, 'forhold'>;
   type Arbeid =
     | { art: 'les' }
-    | { art: 'svar' }
+    | { art: 'svar'; fraKorrespondansen?: true }
     | { art: 'korrigering'; gjelder: string }
     | { art: 'nyversjon' }
-    | { art: 'vederlagskrav' }
-    | { art: 'fristkrav' }
+    | { art: 'vederlagskrav'; fraKorrespondansen?: true }
+    | { art: 'fristkrav'; fraKorrespondansen?: true }
     | { art: 'korrespondanse' }
     | ({ art: 'kontroll' } & Kontroll);
 
@@ -164,11 +169,14 @@
   // Kravet om fristforlengelse står på samme måte (G-3 i BF-20).
   let fristkravvalg = $state<Fristkravvalg | null>(null);
   // Korrespondansen lagt til står når parten går videre til krav- eller svarskjemaet og tilbake
-  // (OV-U80). `videre` er satt mens skjemaet for kravet eller svaret er åpent.
-  let lagtTil = $state<{ spor: Spor; valg: Lagttilvalg; videre: boolean } | null>(null);
+  // (OV-U80). Skjemaet for kravet eller svaret er åpnet fra den når `arbeid` sier det.
+  let lagtTil = $state<{ spor: Spor; valg: Lagttilvalg } | null>(null);
   /** Korrespondansen kravet eller svaret i sporet legges til fra, eller `null`. */
   const lagtTilI = (s: Spor, kategori: 'krav' | 'svar') =>
-    lagtTil?.videre && lagtTil.spor === s && lagtTil.valg.kategori === kategori
+    'fraKorrespondansen' in arbeid &&
+    arbeid.fraKorrespondansen &&
+    lagtTil?.spor === s &&
+    lagtTil.valg.kategori === kategori
       ? lagtTil.valg.korrespondanse
       : null;
   // Datoen og forklaringen står når TE går til brevkontrollen og tilbake (U-3 i BF-02A).
@@ -283,7 +291,6 @@
 
   function velgSpor(s: Spor) {
     valgt = s;
-    if (lagtTil) lagtTil.videre = false;
     arbeid = harUtkast(s) ? { art: 'svar' } : { art: 'les' };
     melding = null;
   }
@@ -369,9 +376,7 @@
     'varsle:frist': () => fristskjema('varsel', true),
     // OV-U79, OV-U80: korrespondanse parten har sendt utenfor løsningen (arbeidsvalget 16.11, #807).
     registrere_brev: () => {
-      if (lagtTil?.spor !== valgt)
-        lagtTil = { spor: valgt, valg: tomtLagtTil(valgt), videre: false };
-      lagtTil.videre = false;
+      if (lagtTil?.spor !== valgt) lagtTil = { spor: valgt, valg: tomtLagtTil(valgt) };
       arbeid = { art: 'korrespondanse' };
     },
   };
@@ -380,23 +385,20 @@
     if (!lagtTil || !u) return;
     if (kategori === 'varsel') {
       // Varselet har sitt eget skjema for registreringen, med det parten har fylt ut.
-      fristskjema('varsel', true);
-      fristkravvalg = { ...fristkravvalg!, utenfor: { ...lagtTil.valg.korrespondanse } };
+      fristskjema('varsel', true, { ...lagtTil.valg.korrespondanse });
       lagtTil = null;
       return;
     }
-    lagtTil.videre = true;
     if (kategori === 'svar') {
       utkastAapent.forhold = true;
-      arbeid = { art: 'svar' };
+      arbeid = { art: 'svar', fraKorrespondansen: true };
     } else if (valgt === 'frist') {
       fristkravvalg = { ...(fristkravvalg ?? fristkravstart(u)), hva: 'krav', utenfor: null };
-      arbeid = { art: 'fristkrav' };
-    } else arbeid = { art: 'vederlagskrav' };
+      arbeid = { art: 'fristkrav', fraKorrespondansen: true };
+    } else arbeid = { art: 'vederlagskrav', fraKorrespondansen: true };
   }
   /** Tilbake til korrespondansen fra krav- eller svarskjemaet. */
   function tilKorrespondansen() {
-    if (lagtTil) lagtTil.videre = false;
     arbeid = { art: 'korrespondanse' };
   }
   async function lagtTilKvittering(tekst: string) {
@@ -410,7 +412,11 @@
    * Skjemaet for kravet om fristforlengelse, med varselet alene eller kravet valgt. Uten
    * `sende_varsel:frist` registreres varselet (VS-U16).
    */
-  function fristskjema(hva: Fristkravvalg['hva'], registrer = false) {
+  function fristskjema(
+    hva: Fristkravvalg['hva'],
+    registrer = false,
+    utenfor: Korrespondansevalg | null = null
+  ) {
     if (u) {
       const v = fristkravvalg ?? fristkravstart(u);
       fristkravvalg = {
@@ -418,7 +424,7 @@
         hva,
         // «Send varsel» sender fra løsningen, og registrerer ikke et varsel som er påbegynt.
         utenfor: registrer
-          ? (v.utenfor ?? tomKorrespondanse())
+          ? (utenfor ?? v.utenfor ?? tomKorrespondanse())
           : hva === 'varsel'
             ? null
             : v.utenfor,
@@ -432,8 +438,6 @@
   );
   const skjemanoeklene = $derived([...Object.keys(skjemaene), ...foresporselssvar]);
   function aapne(n: string) {
-    // Et skjema åpnet herfra er ikke fra korrespondansen.
-    if (n !== 'registrere_brev') lagtTil = null;
     if (Object.hasOwn(skjemaene, n)) skjemaene[n]();
     else if (foresporselssvar.includes(n)) fristskjema('krav');
   }

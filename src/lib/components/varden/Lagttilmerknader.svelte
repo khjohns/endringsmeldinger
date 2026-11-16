@@ -5,6 +5,7 @@
   regel i visningen.
 -->
 <script lang="ts">
+  import { untrack } from 'svelte';
   import type { Spor } from '$kjerne/typer';
   import type { Utledning } from '$kjerne/utledning/utled';
   import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
@@ -19,6 +20,7 @@
     spor,
     kommando,
     vedlegg,
+    innfelt = false,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -26,9 +28,20 @@
     /** Kommandoen med datoen det ble sendt; uten datoen sier kjernen ingenting ennå. */
     kommando: Record<string, unknown> & { sendt?: string };
     vedlegg: ReturnType<typeof vedleggskart>;
+    /** Med marg som seksjonene i krav- og svarskjemaet. */
+    innfelt?: boolean;
   } = $props();
 
-  const etter = $derived(kommando.sendt ? kjernesak.forhaandsvist(kommando, vedlegg) : null);
+  // Beskrivelsen endrer ikke merknadene, så kjernen forhåndsviser ikke på nytt for hvert tegn i den.
+  const noekkel = $derived(
+    kommando.sendt ? JSON.stringify({ ...kommando, beskrivelse: undefined }) : null
+  );
+  const etter = $derived.by(() => {
+    if (!noekkel) return null;
+    void u;
+    void vedlegg;
+    return untrack(() => kjernesak.forhaandsvist(kommando, vedlegg));
+  });
   const kravUtenfor = $derived(
     !!etter && etter.spor[spor].kravUtenforRekken.length > u.spor[spor].kravUtenforRekken.length
   );
@@ -38,8 +51,24 @@
   const sammeDag = $derived(etter ? sendtSammeDagSom(u, etter) : []);
 </script>
 
-{#if kravUtenfor}<Melding art="info" levende={false}>{LEGG_TIL.kravUtenforRekken}</Melding>{/if}
-{#if svarUtenfor}<Melding art="info" levende={false}>{LEGG_TIL.svarUtenforRekken}</Melding>{/if}
-{#if sammeDag.length}
-  <Melding art="info" levende={false}>{LEGG_TIL.sammeDag(sammeDag)}</Melding>
+{#if kravUtenfor || svarUtenfor || sammeDag.length}
+  <div class="merknader" class:innfelt>
+    {#if kravUtenfor}<Melding art="info" levende={false}>{LEGG_TIL.kravUtenforRekken}</Melding>{/if}
+    {#if svarUtenfor}<Melding art="info" levende={false}>{LEGG_TIL.svarUtenforRekken}</Melding>{/if}
+    {#if sammeDag.length}
+      <Melding art="info" levende={false}>{LEGG_TIL.sammeDag(sammeDag)}</Melding>
+    {/if}
+  </div>
 {/if}
+
+<style>
+  .merknader {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+  }
+  /* I skjemaene med kanter på seksjonene står merknadene inne i kortet. */
+  .innfelt {
+    padding: var(--spacing-4) var(--spacing-6) 0;
+  }
+</style>

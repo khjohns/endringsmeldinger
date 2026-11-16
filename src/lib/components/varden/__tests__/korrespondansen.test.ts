@@ -87,7 +87,7 @@ describe('kravet, svaret og aksepten lagt til med korrespondansen (OV-U80, OV-U9
     expect(formfeil({ ...ut, utdypning: 'x' })).not.toEqual([]);
   });
 
-  it('svaret i et brev og i en revisjon mister begrunnelsen og forbeholdet, og resten står', () => {
+  it('svaret i et brev mister begrunnelsen og forbeholdet, og resten står', () => {
     const svar = {
       spor: 'frist',
       gjelder: 'k-1',
@@ -98,11 +98,6 @@ describe('kravet, svaret og aksepten lagt til med korrespondansen (OV-U80, OV-U9
     expect(lagtTil({ type: 'brev', svar: [svar] }, fylt()).svar).toEqual([
       { spor: 'frist', gjelder: 'k-1', resultat: {} },
     ]);
-    expect(lagtTil({ type: 'revisjon', erstatter: 's-1', svar }, fylt()).svar).toEqual({
-      spor: 'frist',
-      gjelder: 'k-1',
-      resultat: {},
-    });
   });
 
   it('aksepten får datoen og dokumentet og ellers det samme', () => {

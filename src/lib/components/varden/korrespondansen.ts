@@ -6,7 +6,9 @@
  */
 import type { Korrespondansetype, Part, Sendemaate, Spor } from '$kjerne/typer';
 import type { Utledning } from '$kjerne/utledning/utled';
-import type { Kjernevedlegg } from './nysak';
+import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+import type { Kjernevedlegg, vedleggskart } from './nysak';
+import { svareneISporet } from './lesing';
 import {
   KORRESPONDANSEN,
   LEGG_TIL,
@@ -70,28 +72,38 @@ export function registreringen(v: Korrespondansevalg) {
   };
 }
 
-/** Feltene med tekst fra løsningen, som et krav lagt til ikke har (OV-U80, KA-U24). */
-const KRAVTEKSTENE = ['utdypning', 'utdypninger', 'forbehold', 'varsel'] as const;
+/** Feltene med tekst fra løsningen, som kravet og svaret lagt til ikke har (OV-U80, KA-U24). */
+const KRAVTEKSTENE = ['utdypning', 'utdypninger', 'forbehold', 'varsel'];
+const SVARTEKSTENE = ['utdypning', 'utdypninger'];
+const uten = (o: object, felt: readonly string[]) =>
+  Object.fromEntries(Object.entries(o).filter(([f]) => !felt.includes(f)));
 
 /**
  * Kommandoen fra krav-, svar- eller akseptskjemaet, lagt til med korrespondansen (OV-U80, OV-U98):
  * med datoen, typen, dokumentet og beskrivelsen, og uten teksten løsningen ellers skriver i brevet
  * (utdypningen, begrunnelsen og forbeholdet, KA-U24). Kjernen avviser det som mangler.
  */
-export function lagtTil<K extends { type: 'krav' | 'brev' | 'revisjon' | 'aksept' }>(
+export function lagtTil<K extends { type: 'krav' | 'brev' | 'aksept'; svar?: unknown }>(
   kommando: K,
   v: Korrespondansevalg
 ): K & ReturnType<typeof registreringen> {
-  const ut: Record<string, unknown> = { ...kommando };
-  if (kommando.type === 'krav') for (const felt of KRAVTEKSTENE) delete ut[felt];
-  const utenTekst = (s: Record<string, unknown>) =>
-    Object.fromEntries(
-      Object.entries(s).filter(([felt]) => felt !== 'utdypning' && felt !== 'utdypninger')
-    );
-  if (Array.isArray(ut.svar)) ut.svar = ut.svar.map(utenTekst);
-  else if (kommando.type === 'revisjon' && ut.svar)
-    ut.svar = utenTekst(ut.svar as Record<string, unknown>);
+  const ut = kommando.type === 'krav' ? uten(kommando, KRAVTEKSTENE) : { ...kommando };
+  if (Array.isArray(kommando.svar))
+    ut.svar = kommando.svar.map((s: object) => uten(s, SVARTEKSTENE));
   return { ...ut, ...registreringen(v) } as K & ReturnType<typeof registreringen>;
+}
+
+/**
+ * Sender kravet, svaret eller aksepten lagt til, uten brevtekst. `null` når serveren lagret det,
+ * ellers det som hindret, fra kjernen eller serveren.
+ */
+export async function leggTilISaken(
+  kjernesak: Kjernesakkontekst,
+  kommando: Record<string, unknown>,
+  vedlegg: ReturnType<typeof vedleggskart>,
+  annet: string
+): Promise<string | null> {
+  return (await kjernesak.send(kommando, undefined, vedlegg)) ? null : (kjernesak.feil ?? annet);
 }
 
 /** Det parten har fylt ut i skjemaet for korrespondanse lagt til (OV-U79, OV-U80). */
@@ -135,9 +147,7 @@ export function kategoriene(
       ? (['krav'] as const)
       : []),
     ...(part === 'BH' && spor === 'forhold' && s.krav.length > 0 ? (['svar'] as const) : []),
-    ...(part === 'TE' && s.svar.length + s.svarUtenforRekken.length > 0
-      ? (['aksept'] as const)
-      : []),
+    ...(part === 'TE' && svareneISporet(u, spor).length ? (['aksept'] as const) : []),
   ];
 }
 

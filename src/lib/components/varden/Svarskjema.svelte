@@ -38,7 +38,11 @@
   import { brevene, datoerISporet } from './lesing';
   import { begrunnelsespunktene, kravbrevetI, SVARSKJEMA, type Postvelger } from './svarskjema';
   import { HOVEDLINJER, LEGG_TIL, SKJEMA, brevhode, brevtittel, dato } from './tekster';
-  import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
+  import {
+    lagtTil as kommandoenLagtTil,
+    leggTilISaken,
+    type Korrespondansevalg,
+  } from './korrespondansen';
   import Lagttillinje from './Lagttillinje.svelte';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
   import { vedleggskart } from './nysak';
@@ -167,12 +171,15 @@
       return;
     }
     if (kommandoLagtTil) {
-      if (await kjernesak.send(kommandoLagtTil, undefined, vedleggLagtTil)) onlagttil();
-      else {
-        sendehindring = kjernesak.feil ?? HOVEDLINJER.kanIkkeLages;
-        await tick();
-        document.getElementById(`${uid}-hindring`)?.focus();
-      }
+      sendehindring = await leggTilISaken(
+        kjernesak,
+        kommandoLagtTil,
+        vedleggLagtTil,
+        HOVEDLINJER.kanIkkeLages
+      );
+      if (sendehindring === null) return onlagttil();
+      await tick();
+      document.getElementById(`${uid}-hindring`)?.focus();
       return;
     }
     const kommando = medTekstene(punktene.map((p) => p.punkt));
@@ -290,15 +297,14 @@
         {@render spoersmaal(feil)}
 
         {#if kommandoLagtTil}
-          <div class="merknader">
-            <Lagttilmerknader
-              {kjernesak}
-              {u}
-              {spor}
-              kommando={kommandoLagtTil}
-              vedlegg={vedleggLagtTil}
-            />
-          </div>
+          <Lagttilmerknader
+            {kjernesak}
+            {u}
+            {spor}
+            kommando={kommandoLagtTil}
+            vedlegg={vedleggLagtTil}
+            innfelt
+          />
         {:else}
           <!-- Begrunnelsene står under punktene i brevet, så de vises når brevet har punkter.
              Forbeholdet står alltid, så teksten ikke blir borte når brevet ikke kan lages. -->
@@ -391,15 +397,6 @@
 {/if}
 
 <style>
-  .merknader {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
-    padding: var(--spacing-4) var(--spacing-6) 0;
-  }
-  .merknader:empty {
-    display: none;
-  }
   .begrunnelser {
     padding: var(--spacing-5) var(--spacing-6);
     display: flex;

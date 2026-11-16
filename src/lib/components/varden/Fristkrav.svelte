@@ -32,6 +32,7 @@
   import {
     erTomKorrespondanse,
     lagtTil as kommandoenLagtTil,
+    leggTilISaken,
     tomKorrespondanse,
     type Korrespondansevalg,
   } from './korrespondansen';
@@ -375,8 +376,14 @@
       return;
     }
     if (kommandoLagtTil) {
-      if (await kjernesak.send(kommandoLagtTil, undefined, vedleggLagtTil)) onlagttil();
-      else await hindret(kjernesak.feil ?? HOVEDLINJER.kanIkkeLages);
+      const h = await leggTilISaken(
+        kjernesak,
+        kommandoLagtTil,
+        vedleggLagtTil,
+        HOVEDLINJER.kanIkkeLages
+      );
+      if (h === null) onlagttil();
+      else await hindret(h);
       return;
     }
     const kommando = fristkravet(gjeldende, foresporsel);
