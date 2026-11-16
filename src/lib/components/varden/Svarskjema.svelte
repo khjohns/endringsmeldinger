@@ -29,7 +29,7 @@
   import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
   import Manglene from './Manglene.svelte';
-  import type { Mangel } from './mangler';
+  import { feltfeil, type Mangel } from './mangler';
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
@@ -122,7 +122,7 @@
   // Beskjedene vises først når BH har prøvd å se brevet (MM-U32), og forsvinner når feltet er besvart.
   let forsoekt = $state(false);
   const feil = (id: string): string | null =>
-    forsoekt ? (alleMangler.find((m) => m.felt === id)?.tekst ?? null) : null;
+    forsoekt ? feltfeil(alleMangler.find((m) => m.felt === id)) : null;
   let oppsummering = $state<HTMLElement | null>(null);
   let sendehindring = $state<string | null>(null);
 
