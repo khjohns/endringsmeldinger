@@ -50,6 +50,20 @@ export const kontraktsteamI = (p: Testprosjekt): Kontraktsteam => ({
   BH: new Set([catendaId(p.bhTeam)!]),
 });
 
+/**
+ * Kontraktsteamene i prosjektet slik de står i basen nå, som `kontraktsside` ville lest
+ * dem; en test kan ha byttet dem etter `lagOppsett` (#877 p30).
+ */
+export async function lesKontraktsteam(o: Oppsett, p: Testprosjekt): Promise<Kontraktsteam> {
+  const svar = await o.datalag.base.pool.request().input('prosjekt', p.id).query<{
+    team_id: string;
+    contract_role: 'TE' | 'BH';
+  }>('SELECT team_id, contract_role FROM koe.catenda_contract_teams WHERE internal_project_id = @prosjekt');
+  const team = { TE: new Set<string>(), BH: new Set<string>() };
+  for (const r of svar.recordset) team[r.contract_role].add(r.team_id);
+  return team;
+}
+
 export interface Oppsett {
   /** Den migrerte basen og kjøretidens pool mot den. */
   datalag: Datalag;
@@ -329,7 +343,7 @@ export async function opprettKjernesak(
     return (
       await opprettSak(
         o.datalag.kjoeretid.pool,
-        { ...kontekst, kontraktsteam: kontraktsteamI(prosjekt) },
+        { ...kontekst, kontraktsteam: await lesKontraktsteam(o, prosjekt) },
         { id: randomUUID(), sha256: kommandosum(d) },
         { format: f, data: d }
       )
