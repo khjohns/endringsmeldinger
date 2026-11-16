@@ -22,7 +22,8 @@
   } = $props();
 </script>
 
-<section class="leseramme" {id} aria-labelledby={`${id}-tittel`}>
+<!-- Regionen er rullefeltet, så rammen rundt er ikke en egen region med samme navn. -->
+<div class="leseramme" {id}>
   <h2 class="lesetittel" id={`${id}-tittel`}>
     {brevhode(brev)}
     <span class="dempet">· {brev.avsender} · {dato(brev.registrert)}</span>
@@ -33,7 +34,7 @@
     {@render children()}
   </div>
   {#if bunn}<div class="lesebunn">{@render bunn()}</div>{/if}
-</section>
+</div>
 
 <style>
   .leseramme {
