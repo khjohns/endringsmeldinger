@@ -8229,7 +8229,7 @@ tekst = "Løsningen legger ingen erklæring i munnen på en part, og den avgjør
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "ordlyden i de tre standpunkttekstene i ‹›, også ordene «er enig i»"
+designdel = "ordlyden i de tre standpunkttekstene i ‹›, også ordene «er enig i». At svaret er byggherrens godkjenning, med kontraktens vurdering i hvert tilfelle, er ikke designdel"
 id = "GR-U32"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -18511,7 +18511,7 @@ med virkning står i teksten. Ikke bygget'''
 
 [[gruppe.vedtak]]
 klasse = "vedtak"
-designdel = "brevsetningene i «» i punkt 1–13 og lagslinjene «Prinsipalt:», «Subsidiært:» og «Videre subsidiært:»"
+designdel = "ordlyden i brevsetningene i «» i punkt 1–13 og lagslinjene «Prinsipalt:», «Subsidiært:» og «Videre subsidiært:». Handlingen og bestemmelsen hver setning meddeler, som frafallet av pålegget mot å utstede endringsordre etter punkt 32.3 c og tilbudet etter punkt 34.2.1, er ikke designdel"
 anker = "lv-u4"
 vedtak = '''
 LV-U4: brevtekstene appen lager av utsagnene, har denne ordlyden. Endret tekst gjelder
@@ -23584,7 +23584,7 @@ dato = 2026-11-06
 hvem = "oppdragsgiver"
 kilde = ["#1615"]
 klasse = "vedtak"
-designdel = "de fire setningene i ‹› for den låste delen og tilleggssetningen ‹Totalentreprenøren oppga tidligere …›, at henvisningen står under Deres ref., at tittelen er den samme som i det første brevet, og at friteksten står under"
+designdel = "ordlyden i de fire setningene i ‹› for den låste delen og i tilleggssetningen ‹Totalentreprenøren oppga tidligere …›, at henvisningen står under Deres ref., at tittelen er den samme som i det første brevet, og at friteksten står under. At brevet ikke viser til tidligere brev ellers, ikke sier at noe erstattes og ikke gjentar varselet etter punkt 32.2, er ikke designdel"
 sporsmal = '''
 S-1, S-8 og S-8b, ordrett slik det ble stilt 06.11 i designsløyfa for BF-10 (#1615) og lagret i `docs/domenetabell/brukerforlop/BF-10-sporsmal.md`. Svaret på S-1 og S-8 står under hvert av dem, og S-8b ble stilt etter svaret på S-8.
 

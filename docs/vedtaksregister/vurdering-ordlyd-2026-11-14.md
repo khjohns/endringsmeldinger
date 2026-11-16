@@ -279,6 +279,15 @@ Klassene er ført i registeret i PR-en for omklassifiseringen, med disse avviken
   (`vedtakshenvisninger.py`).
 - **Annet hjem:** LV-U54 er bindende i MM-U55 og LV-U56, ikke i MM-U52. Ordlyden i HF-U29
   pkt. 2 er beslutningsdel, fordi LV-U73 har tatt den.
+- **Budskapet står utenfor designdelen:** I LV-U4, LV-U56 og GR-U32 sier designdelen uttrykkelig
+  hva som ikke er designdel. I LV-U4 er det handlingen og bestemmelsen hver brevsetning meddeler
+  (G7). I LV-U56 er det at brevet ikke viser til tidligere brev ellers, ikke sier at noe erstattes
+  og ikke gjentar varselet etter punkt 32.2 (G3). I GR-U32 er det at svaret er byggherrens
+  godkjenning med kontraktens vurdering. Ordene «er enig i» er designdel etter svaret 1 A: en ny
+  ordlyd må meddele den samme godkjenningen og prøves først mot budskapet. Det forkastede «godkjenner
+  forholdet» viser hva godkjenningen gjelder, ikke at ordene binder.
+- **Ett bindende vedtak til:** LV-U37 er bindende i LV-U4 og LV-U34. LV-U34 sier at
+  ‹eks. mva.› står i innledningen til svaret på kravet om justering av vederlaget.
 - **Designdelen snevres inn:** VS-U39 får bare ordlyden i opplysningen som designdel. At en e-post
   alene eller et møtereferat ikke er nok etter kapittel B, er tolkning av kontraktsgrunnlaget.
 - **De fire samlevedtakene:** GR-U34 pkt. 3 og 6, KA-U49 pkt. 8, MM-U47 pkt. 2 og KA-U52 pkt. 4
