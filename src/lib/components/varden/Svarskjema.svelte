@@ -268,7 +268,7 @@
               {@const id = begrunnelseId(p.punkt)}
               {@const bFeil = feil(id)}
               <div class="begrunnelse">
-                <Feltetikett for={id} valgfri={!kreves(p.punkt) && !kanStaa(p.punkt)}
+                <Feltetikett for={id} underordnet valgfri={!kreves(p.punkt) && !kanStaa(p.punkt)}
                   >{p.navn}</Feltetikett
                 >
                 {#if kreves(p.punkt)}

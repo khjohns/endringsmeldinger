@@ -179,7 +179,9 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   labelen. Labelen har ikke kolon, og plassholdertekst bærer aldri mening. Labelen har
   vekt 600 i `--ink` og brødtekstens størrelse, som spørsmålet over en gruppe valg, og
   hjelpeteksten 14 px i `--ink-3`. Det gjelder i alle skjemaene, også kravskjemaene
-  (oppdragsgiver 16.11, #1925). Ved to
+  (oppdragsgiver 16.11, #1925). Unntaket er punkter under en felles overskrift, som
+  begrunnelsen per punkt i svarskjemaet: labelen er nedtonet, vekt 400 i `--ink-2`
+  (`underordnet` i `varden/Feltetikett.svelte`, oppdragsgiver 16.11, #2059). Ved to
   til seks alternativer vises alle, ikke en nedtrekksliste. En nedtrekksliste passer
   først når alternativene er for mange til å vises. En lang liste med grupper, som de
   17 forholdene, får en egen velger med søk og grupper (#1492).
