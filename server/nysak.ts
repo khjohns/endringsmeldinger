@@ -17,7 +17,13 @@ const NY_SAK = new Set([
 ]);
 
 /** Kjernen prøver verdiene, også at korrespondansetypen er oppgitt (LV-U42, D1 A i #1497). */
-const VARSEL_I_NY_SAK = new Set(['sendt', 'korrespondansetype', 'sendemaate', 'dokumentasjon']);
+const VARSEL_I_NY_SAK = new Set([
+  'sendt',
+  'korrespondansetype',
+  'sendemaate',
+  'beskrivelse',
+  'dokumentasjon',
+]);
 
 /** En UUID med små bokstaver, som basen krever (51422). Samme mønster som `UUID` i `datalag.ts`. */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;

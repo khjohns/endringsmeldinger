@@ -9855,6 +9855,26 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
       s.avvisning('BH', { type: 'innsigelse', gjelder: (epost.data.utsagn as Data[])[0].id })
     ).toBeNull();
     expect(innsigelse(epost)).toContain('i totalentreprenørens e-post av 2. oktober 2026');
+    // Arbeidsvalget 1 A 16.11 i #807 (LV-U42): møtereferatet med typen, og et notat eller annet
+    // dokument som «dokument».
+    for (const [korrespondansetype, omtalt] of [
+      ['moetereferat', 'møtereferat'],
+      ['notat', 'dokument'],
+    ]) {
+      const t = sak();
+      t.send('TE', PAABEROPELSE);
+      const rad = t.send('TE', {
+        type: 'varsel',
+        spor: 'frist',
+        hjemmel: '33.4',
+        sendt: '2026-10-02',
+        korrespondansetype,
+        dokumentasjon: [randomUUID()],
+      });
+      expect(
+        t.vis('BH', { type: 'innsigelse', gjelder: (rad.data.utsagn as Data[])[0].id })?.join('\n')
+      ).toContain(`i totalentreprenørens ${omtalt} av 2. oktober 2026`);
+    }
   });
 
   it('registrert korrespondanse uten typen, og typen i et brev fra løsningen, er ikke forstått (LV-U42)', () => {
@@ -9898,6 +9918,46 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
         dokumentasjon: [randomUUID()],
       })?.melding
     ).toContain('$.korrespondansetype');
+  });
+
+  it('beskrivelsen lagres med registrert korrespondanse med virkning, og står den i et brev fra løsningen, er raden ikke forstått (OV-U79, arbeidsvalget 2 A 16.11 i #807)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const rad = s.send('TE', {
+      type: 'varsel',
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: '2026-10-02',
+      korrespondansetype: 'e_post',
+      beskrivelse: 'Varsel om fristforlengelse for pelingen',
+      dokumentasjon: [randomUUID()],
+    });
+    expect(rad.data.beskrivelse).toBe('Varsel om fristforlengelse for pelingen');
+    expect(s.u().forstaatt, 'varselet med beskrivelsen er forstått').toBe(true);
+    expect(s.u().spor.frist.varsler['33.4'], 'varselet har virkning').toBeTruthy();
+    expect(s.u().registrerteBrev, 'og er ikke dokumentasjon').toEqual([]);
+    expect(
+      s.avvisning('TE', {
+        type: 'varsel',
+        spor: 'vederlag',
+        hjemmel: '34.1.2',
+        sendt: '2026-10-02',
+        korrespondansetype: 'brev',
+        beskrivelse: '  ',
+        dokumentasjon: [randomUUID()],
+      })?.melding
+    ).toBe('$.beskrivelse: brevet har ingen beskrivelse');
+    const fraLoesningen = s.journal[1]!;
+    const lestMed = (data: Data) =>
+      lesJournal(
+        [
+          ...s.journal.filter((j) => j.event_id !== fraLoesningen.event_id),
+          { ...fraLoesningen, data: { ...fraLoesningen.data, ...data } },
+        ],
+        KJERNE.leserformat
+      ).at(-1)!.art;
+    expect(lestMed({}), 'kontrollsak').toBe('dokument');
+    expect(lestMed({ beskrivelse: 'Påberopelsen' })).toBe('ukjent');
   });
 
   it('sendemåten lagres med et registrert brev, og står den ved annen korrespondanse eller et brev fra løsningen, er raden ikke forstått (OV-U79)', () => {

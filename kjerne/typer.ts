@@ -447,8 +447,9 @@ export interface Dokument {
   /** Sendemåten for et brev sendt utenfor løsningen (OV-U79). `null` for andre typer og når den mangler. */
   sendemaate: Sendemaate | null;
   /**
-   * OV-U16: beskrivelsen av et brev registrert som dokumentasjon (OV-U4), med ordene til den
-   * som registrerte. Appen tolker den ikke. `null` i et annet dokument.
+   * OV-U16, OV-U79: beskrivelsen av registrert korrespondanse, med ordene til den som la den
+   * til. Påkrevd i et brev registrert som dokumentasjon (OV-U4). Appen tolker den ikke. `null` i
+   * et brev fra løsningen og når den mangler.
    */
   beskrivelse: string | null;
   /** OV-U16: sporene brevet med beskrivelsen hører til. Tom når det hører til saken. */

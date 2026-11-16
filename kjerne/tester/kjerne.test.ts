@@ -1927,9 +1927,9 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
 
   it.each<[string, (data: Data) => void, string]>([
     [
-      'med et utsagn',
+      'med et utsagn og sporene, som bare dokumentasjon har (OV-U16, OV-U79)',
       (d) => (d.utsagn = [{ id: randomUUID(), art: 'varsel', hjemmel: '34.1.2' }]),
-      'har krav, svar eller utsagn',
+      'har spor, men er ikke dokumentasjon',
     ],
     ['uten datoen det ble sendt', (d) => delete d.opplysninger, 'ikke bare datoen'],
     [
@@ -1940,12 +1940,12 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
     ['uten vedlegg', (d) => delete d.dokumentasjon, 'ligger ikke ved'],
     ['med samme spor to ganger', (d) => (d.spor = ['frist', 'frist']), 'samme spor'],
     [
-      'med spor uten beskrivelse, i et registrert varsel',
+      'med spor, i et registrert varsel uten beskrivelse',
       (d) => {
         delete d.beskrivelse;
         d.utsagn = [{ id: randomUUID(), art: 'varsel', hjemmel: '34.1.2' }];
       },
-      'spor uten beskrivelse',
+      'har spor, men er ikke dokumentasjon',
     ],
     [
       'med brevtekst (MM-U17, MM-U50)',

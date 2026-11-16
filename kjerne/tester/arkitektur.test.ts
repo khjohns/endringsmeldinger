@@ -1201,7 +1201,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/vederlag/kommando.ts:vedleggIKravpostene', 'kommando', 'varsel dokumentasjon'],
   ['spor/vederlag/kommando.ts:medDokumentvarslene(p)', 'kommando', 'varsel'],
   ['spor/vederlag/kommando.ts:medVarslene(p)', 'kommando', 'varsel'],
-  ['Dokumentvarsel', 'kommando', 'dokumentasjon sendt korrespondansetype'],
+  ['Dokumentvarsel', 'kommando', 'dokumentasjon sendt korrespondansetype sendemaate beskrivelse'],
   ['kommandoer/skriving.ts:Utfall', 'kommando', 'godtatt hendelser neste avvisning'],
   [
     'Avvisning',
@@ -1226,13 +1226,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'dokument',
     ['spor/vederlag/kommando.ts:foranKravet', 'spor/vederlag/kommando.ts:vedleggIVarslene'],
   ],
-  [
-    'kommandoer/kommando.ts:formfeil',
-    'kommando',
-    'type spor innhold svar dokumentasjon hjemmel beskrivelse',
-  ],
+  ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar dokumentasjon hjemmel'],
   // OV-U79: bare et brev har sendemåten, også i varselet i fristkravet.
   ['kommandoer/kommando.ts:formfeil(kommando)', 'kommando', 'varsel'],
+  // OV-U16, OV-U79: en beskrivelse med bare mellomrom er ingen beskrivelse.
+  ['kommandoer/kommando.ts:formfeil(k)', 'kommando', 'beskrivelse'],
   ['kommandoer/kommando.ts:sendemaatefeil(k)', 'kommando', 'korrespondansetype'],
   // OV-U79: sendemåten lagres slik avsenderen oppga den, og ingen regel leser den.
   ['Kommando', 'kommando', 'sendemaate', ['kommandoer/skriving.ts:dokument']],
@@ -1244,7 +1242,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Registrering',
     'kommando',
-    'sendt korrespondansetype sendemaate dokumentasjon',
+    'sendt korrespondansetype sendemaate beskrivelse dokumentasjon',
     [
       'kommandoer/kommando.ts',
       'kommandoer/nyttelast.ts',

@@ -346,6 +346,7 @@ function registrering(k: Registrering, nyId: () => string, bundne: Vedlegg[]): D
     opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
     korrespondansetype: k.korrespondansetype,
     ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
+    ...(k.beskrivelse === undefined ? {} : { beskrivelse: k.beskrivelse }),
     dokumentasjon: bundne,
   };
 }
@@ -434,6 +435,7 @@ function dokument(
         opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
         korrespondansetype: k.korrespondansetype,
         ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
+        ...(k.beskrivelse === undefined ? {} : { beskrivelse: k.beskrivelse }),
         dokumentasjon: bundne,
       };
     case 'registrert_brev':
@@ -482,6 +484,7 @@ function dokument(
           opplysninger: [{ id: nyId(), hva: 'sendt', dato: k.sendt }],
           korrespondansetype: k.korrespondansetype,
           ...(k.sendemaate ? { sendemaate: k.sendemaate } : {}),
+          ...(k.beskrivelse === undefined ? {} : { beskrivelse: k.beskrivelse }),
           ...(k.dokumentasjon ? { dokumentasjon: bundne } : {}),
         };
       if (k.utdypning !== undefined) utdypninger.set(id, { utdypning: k.utdypning });

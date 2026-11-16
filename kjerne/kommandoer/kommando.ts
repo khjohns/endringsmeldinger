@@ -92,6 +92,8 @@ export interface Registrering {
   sendt?: string;
   korrespondansetype?: Korrespondansetype;
   sendemaate?: Sendemaate;
+  /** OV-U79: den korte beskrivelsen med egne ord. Valgfri til skjemaet i Varden har den (#807). */
+  beskrivelse?: string;
   dokumentasjon?: string[];
 }
 
@@ -116,6 +118,7 @@ function registreringensForm(
   if (!('sendt' in kommando))
     return 'korrespondansetype' in kommando ||
       'sendemaate' in kommando ||
+      'beskrivelse' in kommando ||
       'dokumentasjon' in kommando
       ? ['$.sendt: bare et brev lagt til med datoen det ble sendt, har typen og vedlegg']
       : [];
@@ -142,6 +145,7 @@ export type Kommando = (
         sendt: string;
         korrespondansetype?: Korrespondansetype;
         sendemaate?: Sendemaate;
+        beskrivelse?: string;
         dokumentasjon?: string[];
       };
       /**
@@ -182,6 +186,7 @@ export type Kommando = (
       sendt: string;
       korrespondansetype: Korrespondansetype;
       sendemaate?: Sendemaate;
+      beskrivelse?: string;
       dokumentasjon: string[];
     } & RegistrertVarsel)
   /**
@@ -235,6 +240,7 @@ export type Kommando = (
       sendt?: string;
       korrespondansetype?: Korrespondansetype;
       sendemaate?: Sendemaate;
+      beskrivelse?: string;
       dokumentasjon?: string[];
     }
   /**
@@ -289,6 +295,7 @@ const REGISTRERING = {
   sendt: DATO,
   korrespondansetype: KORRESPONDANSETYPE,
   sendemaate: SENDEMAATE,
+  beskrivelse: TEKST,
   dokumentasjon: liste(ID),
 };
 
@@ -306,6 +313,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
           sendt: DATO,
           korrespondansetype: KORRESPONDANSETYPE,
           sendemaate: SENDEMAATE,
+          beskrivelse: TEKST,
           dokumentasjon: liste(ID),
         },
         ['sendt']
@@ -356,6 +364,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       sendt: DATO,
       korrespondansetype: KORRESPONDANSETYPE,
       sendemaate: SENDEMAATE,
+      beskrivelse: TEKST,
       dokumentasjon: liste(ID),
     },
     ['type', 'spor', 'hjemmel', 'sendt', 'korrespondansetype', 'dokumentasjon']
@@ -422,6 +431,7 @@ const SKJEMA: Record<Kommando['type'], Skjema> = {
       sendt: DATO,
       korrespondansetype: KORRESPONDANSETYPE,
       sendemaate: SENDEMAATE,
+      beskrivelse: TEKST,
       dokumentasjon: liste(ID),
       ...BREVTEKST,
     },
@@ -557,9 +567,15 @@ export function formfeil(kommando: unknown): string[] {
   const vedlegg = feil.length ? [] : dokumentasjon;
   if (new Set(vedlegg.map(vedleggsnoekkel)).size !== vedlegg.length)
     feil.push(`${sti}dokumentasjon: samme vedlegg står to ganger`);
+  // OV-U16, OV-U79: en beskrivelse med bare mellomrom er ingen beskrivelse.
+  for (const [sti, k] of [
+    ['$.', kommando],
+    ['$.varsel.', kommando.varsel],
+  ] as const)
+    if (!feil.length && erObjekt(k) && typeof k.beskrivelse === 'string' && !k.beskrivelse.trim())
+      feil.push(`${sti}beskrivelse: brevet har ingen beskrivelse`);
   if (type === 'registrert_brev' && !feil.length) {
-    const k = kommando as { spor?: Spor[]; beskrivelse: string };
-    if (!k.beskrivelse.trim()) feil.push('$.beskrivelse: brevet har ingen beskrivelse');
+    const k = kommando as { spor?: Spor[] };
     if (k.spor && new Set(k.spor).size !== k.spor.length)
       feil.push('$.spor: samme spor står to ganger');
   }
@@ -572,7 +588,11 @@ export function formfeil(kommando: unknown): string[] {
       )
     );
   // OV-U80: et krav fra løsningen kan ha vedlegg (VS-U38), men bare et krav lagt til har typen.
-  if (type === 'krav' && !feil.length && ('sendt' in kommando || 'korrespondansetype' in kommando))
+  if (
+    type === 'krav' &&
+    !feil.length &&
+    ['sendt', 'korrespondansetype', 'sendemaate', 'beskrivelse'].some((felt) => felt in kommando)
+  )
     feil.push(
       ...registreringensForm(kommando, () =>
         ['brevtekst', 'utdypning', 'utdypninger', 'forbehold', 'varsel']
