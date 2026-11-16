@@ -14,7 +14,6 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, afterEach, beforeAll, describe, expect, it, onTestFinished, vi } from 'vitest';
-import sql from 'mssql';
 import { opprettPool } from '../datalag.ts';
 import {
   avvik,
@@ -31,6 +30,7 @@ import { katalog, opprettMigrertTestbase } from './sqlserver_migrert.ts';
 import {
   opprettKjoeretid,
   opprettTestbase,
+  sql,
   SQLSERVER_TILKOBLING,
   type Testbase,
 } from './sqlserver.ts';
