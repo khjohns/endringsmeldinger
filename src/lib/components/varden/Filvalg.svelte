@@ -5,6 +5,7 @@
   (VS-U38, OV-U79). Grensen `lastOpp` gir vedlegget fra mellomlageret, så brevet binder det.
 -->
 <script lang="ts">
+  import Feltetikett from './Feltetikett.svelte';
   import Knapp from './Knapp.svelte';
   import { NYSAK } from './tekster';
   import { STOERSTE_VEDLEGG, type Kjernevedlegg, type VedleggForNySak } from './nysak';
@@ -73,7 +74,7 @@
 </script>
 
 <div class="felt">
-  <label for={id} id={`${id}-etikett`}>{etikett}</label>
+  <Feltetikett for={id} id={`${id}-etikett`}>{etikett}</Feltetikett>
   <p class="hjelp" id={`${id}-hjelp`}>{hjelp}</p>
   <!-- Nettleserens tekst («Ingen fil valgt») sier ikke hva som er lastet opp, så knappen er
        bildet under den gjennomsiktige velgeren, og lista under viser filene. -->
@@ -128,10 +129,6 @@
   .felt {
     display: grid;
     gap: var(--spacing-2);
-  }
-  label {
-    font-weight: 600;
-    color: var(--ink);
   }
   .hjelp {
     margin: 0;

@@ -16,6 +16,7 @@
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Brevutkast from './Brevutkast.svelte';
+  import Feltetikett from './Feltetikett.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
@@ -162,7 +163,7 @@
         <Forkastutkast tekst={NYVERSJON.forkastTekst} {onforkast} />
       {/snippet}
       <div class="felt">
-        <label for={id('tekst')}>{NYVERSJON.tekst}</label>
+        <Feltetikett for={id('tekst')}>{NYVERSJON.tekst}</Feltetikett>
         <textarea
           id={id('tekst')}
           rows="3"
@@ -245,11 +246,6 @@
     font-size: 14px;
     font-weight: 500;
     color: var(--danger);
-  }
-  label {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--ink);
   }
   textarea {
     font: inherit;

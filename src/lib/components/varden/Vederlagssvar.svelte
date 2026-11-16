@@ -19,6 +19,7 @@
   import type { Utledning } from '$kjerne/utledning/utled';
   import type { Kravpost, Standpunkt } from '$kjerne/typer';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import Feltetikett from './Feltetikett.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
   import Knapp from './Knapp.svelte';
   import Postliste from './Postliste.svelte';
@@ -362,7 +363,7 @@
       {#if beloepsvalget(v, p) === 'deler'}
         {@const id = `${uid}-delbeloep-${p.betegnelse}`}
         <div class="beloepfelt">
-          <label for={id}>{SKJEMA.belopEtikett}</label>
+          <Feltetikett for={id}>{SKJEMA.belopEtikett}</Feltetikett>
           <span id={`${id}-hjelp`} class="dempet">{SKJEMA.belopHjelp(krevdI(p))}</span>
           <span class="inndata" class:ugyldig={beloepFeil}>
             <input
