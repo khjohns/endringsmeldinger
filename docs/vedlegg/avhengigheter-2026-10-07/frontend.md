@@ -232,7 +232,7 @@ reaktivitetsbibliotek løser ikke den dupliseringen.
 
 ### Statisk deployment er kontrollert
 
-[svelte.config.js](../../../svelte.config.js) bruker adapter-static med
+[vite.config.ts](../../../vite.config.ts) bruker adapter-static med
 `fallback: 'index.html'`; [rotlayouten](../../../src/routes/+layout.ts)
 setter `ssr=false`, `prerender=false`. [Dockerfile](../../../Dockerfile)
 bygger med Node 22 og kopierer bare `build` til nginx. [nginx.conf](../../../nginx.conf)
