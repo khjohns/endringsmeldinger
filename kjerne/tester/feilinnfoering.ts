@@ -2052,7 +2052,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et vederlagssvar lagt til leser et senere svar på forholdet når svaret i brevet står utenfor rekken (OV-U32, OV-U103)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['[...forhold, ...utenforRekken].find(', 'forhold.find(']],
+    endringer: [['const iBrevet = [...forhold, ...utenforRekken];', 'const iBrevet = forhold;']],
     mal: [
       'OV-U32, OV-U103: et vederlagssvar lagt til leser svaret på forholdet i samme brev, også når det står utenfor rekken',
     ],
@@ -2064,8 +2064,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
-        "if (gjelderVarslingsplikten(k, regler)) sporet.set(k.id, 'forhold');",
-        "if (gjelderVarslingsplikten(k, regler)) sporet.set(k.id, 'forhold');\n  for (const k of u.spor.vederlag.krav) sporet.set(k.id, 'vederlag');",
+        "    sporet.set(k.id, 'forhold');\n",
+        "    sporet.set(k.id, 'forhold');\n  for (const k of u.spor.vederlag.krav) sporet.set(k.id, 'vederlag');\n",
       ],
     ],
     mal: [
@@ -4273,9 +4273,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F468',
     feilklasse: 'svaret på forholdet i samme brev står ikke foran sporet (OV-U32, OV-U33, #1449)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [
-      ['      [...forhold, ...utenforRekken].find((g) => g.dokument === s.dokument) ??\n', ''],
-    ],
+    endringer: [['      iBrevet.find((g) => g.dokument === s.dokument) ??\n', '']],
     mal: ['forholdet avslått i samme brev: svaret i brevet står foran, og posten subsidiært'],
   },
   {

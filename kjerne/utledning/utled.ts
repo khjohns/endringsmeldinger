@@ -33,7 +33,7 @@ import { KONTROLLER_I_FRISTEN } from '../spor/frist/utledning.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import { enighetsgrunnlag, erPaaberopelse, sammenfallStemmer } from '../frosset/standpunkt.ts';
-import { gjelderVarslingsplikten, iSporet } from '../frosset/byggeklosser.ts';
+import { iSporet } from '../frosset/byggeklosser.ts';
 import { svarPaaForesporsler, type ForesporselOgSvar } from '../spor/frist/frysing.ts';
 import {
   KRAVSPOR,
@@ -479,13 +479,7 @@ function dokumentasjonIBrevet(d: Dokument): Set<string> {
  * Kontrollen gjelder bare disse vedtakene, ikke vilkårene for å sende, så en strengere
  * forutsetning senere gjør ikke et eldre brev uforstått.
  */
-function strid(
-  d: Dokument,
-  u: Utledning,
-  uten: Map<string, unknown>,
-  samme: SammeDag,
-  regler: Regelsett
-): Strid[] {
+function strid(d: Dokument, u: Utledning, uten: Map<string, unknown>, samme: SammeDag): Strid[] {
   // En strid utenfor et registrert brev stopper utledningen, og et krav viser ikke til et
   // annet element enn kravversjonen det erstatter. Bare svar og utsagn kontrolleres derfor
   // mot `uten` (#669).
@@ -496,7 +490,7 @@ function strid(
     ...d.krav.flatMap((k) => med(k.id, kravetStrider(k, u))),
     ...d.svar.flatMap((s) => med(s.id, svaretStrider(s, u, utenVirkning))),
     ...d.utsagn.flatMap((x) => med(x.id, utsagnetStrider(x, u, utenVirkning))),
-    ...(erRegistrert(d.opplysninger) ? registreringenStrider(d, u, samme, regler) : []),
+    ...(erRegistrert(d.opplysninger) ? registreringenStrider(d, u, samme) : []),
   ];
 }
 
@@ -595,12 +589,7 @@ function svaretGjaldt(u: Utledning, s: Svar, dag: string, samme: (med: string) =
  * på dagen avsenderen oppgir at brevet ble sendt. Hva som var gjeldende, avgjøres da, så en
  * senere retting av datoen endrer det ikke.
  */
-function registreringenStrider(
-  d: Dokument,
-  u: Utledning,
-  samme: SammeDag,
-  regler: Regelsett
-): Strid[] {
+function registreringenStrider(d: Dokument, u: Utledning, samme: SammeDag): Strid[] {
   const dag = (id: string) => {
     const oppgitt = datoFor({ id, dokument: d.id }, 'sendt', d.opplysninger);
     return oppgitt ? kalenderdag(oppgitt.dato) : null;
@@ -628,7 +617,7 @@ function registreringenStrider(
       if (sammenliknesMedVarselet(v.hjemmel, k))
         foerDagen(dag(v.id), datoenDetBleSendt(u, k), () => samme(v.id, k.id));
   }
-  const innsigelser = d.svar.length ? partensPaaberopelser(u, d.avsender, regler) : [];
+  const innsigelser = d.svar.length ? partensPaaberopelser(u, d.avsender) : [];
   for (const s of d.svar) {
     const { krav: kjede, kravUtenforRekken } = u.spor[s.spor];
     const krav = [...kjede, ...kravUtenforRekken].find((k) => k.id === s.gjelder);
@@ -697,17 +686,17 @@ const varslerEtter = (hjemmel: Varselhjemmel, k: Krav): boolean =>
  */
 function partensPaaberopelser(
   u: Utledning,
-  part: Part,
-  regler: Regelsett
+  part: Part
 ): { id: string; spor: Spor | undefined; dag: string | null }[] {
-  // Det en påberopelse kan gjelde (`innsigelsenPaaberoper`): et varsel, påberopelsen der § 32.2
-  // gjelder kategorien (GR-U11), og svaret på forespørselen etter § 33.6.2 (VS-U29).
+  // Det en påberopelse kan gjelde (`innsigelsenPaaberoper`): varselet etter hjemmelen i sporet,
+  // påberopelsen etter § 32.2 (GR-U11) og svaret på forespørselen etter § 33.6.2 (VS-U29). Om
+  // § 32.2 gjelder kategorien, avgjør regelsettet når svaret skrives, så påberopelsen i
+  // forholdet sammenliknes alltid (MM-U43 punkt 8).
   const sporet = new Map<string, Spor>();
   for (const k of [...u.spor.forhold.krav, ...u.spor.forhold.kravUtenforRekken])
-    if (gjelderVarslingsplikten(k, regler)) sporet.set(k.id, 'forhold');
+    sporet.set(k.id, 'forhold');
   for (const n of SPOR) {
     const s = u.spor[n];
-    for (const e of s.kravpostvarsler) sporet.set(e.id, n);
     for (const v of Object.values(s.varsler)) if (v) sporet.set(v.id, n);
     for (const f of s.foresporsler) if (f.svar) sporet.set(f.svar, n);
   }
@@ -807,16 +796,10 @@ export function utled(journal: Domenehendelse[], regler: Regelsett): Utledning {
     if (!foer.forstaatt) break;
     const registrert = erRegistrert(h.dokument.opplysninger);
     const dokumentasjon = dokumentasjonIBrevet(h.dokument);
-    const stridene = strid(
-      h.dokument,
-      foer,
-      uten,
-      (element, med) => {
-        if (!sendtSammeDag.some((x) => x.element === element && x.med === med))
-          sendtSammeDag.push({ element, med });
-      },
-      regler
-    );
+    const stridene = strid(h.dokument, foer, uten, (element, med) => {
+      if (!sendtSammeDag.some((x) => x.element === element && x.med === med))
+        sendtSammeDag.push({ element, med });
+    });
     for (const x of stridene) {
       if (!registrert) konflikter.push({ hendelse: h.id, grunn: x.grunn });
       else if (dokumentasjon.has(x.element)) continue;
@@ -1440,12 +1423,13 @@ function settForholdssvarene(
   utenforRekken: Svar[],
   versjonen: (id: string) => number
 ): void {
+  // OV-U32: svaret på forholdet i samme brev, også et svar utenfor rekken (OV-U103).
+  const iBrevet = [...forhold, ...utenforRekken];
   for (const b of Object.values(svar)) {
     const s = b.svar;
     if (s.spor === 'forhold') continue;
-    // OV-U32: svaret på forholdet i samme brev, også et svar utenfor rekken (OV-U103).
     const kilde =
-      [...forhold, ...utenforRekken].find((g) => g.dokument === s.dokument) ??
+      iBrevet.find((g) => g.dokument === s.dokument) ??
       (s.paaberopelse === null
         ? undefined
         : ikkeErstattet(

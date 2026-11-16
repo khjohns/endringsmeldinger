@@ -456,7 +456,7 @@ export function nyttelastkontroll(
       if (u.spor[k.spor].svarUtenforRekken.some((x) => x.id === k.svar))
         return avvis(
           'IKKE_GJELDENDE_SVAR',
-          'Aksepten gjelder et svar byggherren sendte før det gjeldende svaret, og en slik aksept kan ikke legges til ennå.'
+          'Aksepten gjelder et svar byggherren sendte før det gjeldende svaret. Det kan ikke godtas ennå.'
         );
       if (k.sendt !== undefined ? !svaretFinnes : k.svar !== u.spor[k.spor].gjeldendeSvar?.id)
         return avvis(
