@@ -1033,9 +1033,10 @@
     flex-direction: column;
     gap: var(--spacing-2);
   }
+  /* Etikettene følger vederlagskravet (oppdragsgiver 16.11 i #1925). */
   label {
-    font-size: 14px;
-    color: var(--ink-2);
+    font-weight: 600;
+    color: var(--ink);
   }
   textarea:focus-visible,
   .datofelt:focus-visible,
