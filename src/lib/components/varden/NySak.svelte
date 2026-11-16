@@ -264,10 +264,12 @@
         if (tekstenKanVaereUtdatert(e)) {
           // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt (LV-U46).
           const lest = kontrollbrev(await brevetMedNummer());
-          // Samme brev betyr at teksten var annerledes av en annen grunn; da står serverens melding.
+          // Et annet brev kontrolleres på nytt. Bare en ny Vår ref. betyr at en annen sak tok
+          // nummeret; ellers står serverens melding.
           if (lest && kontroll && detSomKontrolleres(lest) !== detSomKontrolleres(kontroll)) {
+            const nyttNummer = lest.merking !== kontroll.merking;
             kontroll = { ...kontroll, ...lest };
-            sendefeil = NYSAK.nyttNummer;
+            if (nyttNummer) sendefeil = NYSAK.nyttNummer;
           }
         }
         return false;

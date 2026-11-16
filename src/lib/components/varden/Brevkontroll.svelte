@@ -6,7 +6,7 @@
 -->
 <script module lang="ts">
   import type { Avsnitt } from '$kjerne/typer';
-  import type { Brev as Kjernebrev } from '$lib/kjernesak/brevtekst';
+  import { laastTekstI, type Brev as Kjernebrev } from '$lib/kjernesak/brevtekst';
 
   /**
    * Brevet kjernen lager for kommandoen, slik brevkontrollen viser det: avsnittene med punktene
@@ -26,7 +26,7 @@
    * på nytt (LV-U2, LV-U46).
    */
   export const detSomKontrolleres = (b: Kontrollbrev): string =>
-    [b.merking, ...b.deresRef, b.tittel, ...b.avsnitt.map((a) => a.laast)].join('\n');
+    JSON.stringify([b.merking, b.deresRef, b.tittel, laastTekstI(b)]);
 
   /**
    * Det et skjema sender til brevkontrollen: kommandoen, brevet kjernen lager av den og det
@@ -123,7 +123,7 @@
   const hentOrganisasjoner = organisasjonene();
   const partnavn = (p: Part) => `${hentOrganisasjoner()[p] ?? stor(PARTEN[p])} (${p})`;
   // Teksten kommandoen bærer, og som serveren sammenligner med sin egen (LV-U2).
-  const tekst = $derived(avsnitt.map((a) => a.laast));
+  const tekst = $derived(laastTekstI({ avsnitt })!);
   let kontrollert = $state(false);
   // Et brev som er endret, for eksempel med et nytt nummer eller en ny Deres ref., kontrolleres
   // på nytt (LV-U46, LV-U51).
