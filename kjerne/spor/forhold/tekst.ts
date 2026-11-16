@@ -29,7 +29,7 @@ import type { Sporslinje } from '../../frosset/linje.ts';
 import { sakensKode } from '../../frosset/tekst.ts';
 import { DATOEN_GJELDER, innholdIForholdet, type OppgittDato } from './format.ts';
 import { blirEndringsordre } from './frysing.ts';
-import type { Dokument, Krav } from '../../typer.ts';
+import type { Beslutningsgrunnlag, Dokument, Krav } from '../../typer.ts';
 
 export interface Forholdet {
   kode: Underkategori;
@@ -251,30 +251,70 @@ export const BREVTEKSTEN_I_FORHOLDET = {
 } satisfies Sporsbrevtekst;
 
 /**
- * Teksten for standpunktet til forholdet (`I_SPORENE` i `frosset/brevtekst.ts`), med
- * kontraktens ord i hvert tilfelle (GR-U32, LV-U41). Godkjenningen der punkt 32.2 gjelder, er
- * en endringsordre, eller en enighet om at pålegget innebærer en endring når byggherren
- * påberoper at varselet kom for sent. Uten varslingsplikt er forholdet en endringsordre etter
- * punkt 31.3, eller svikt og andre forhold.
+ * Det som avgjør kontraktens ord for byggherrens standpunkt til forholdet (GR-U32, LV-U41):
+ * beslutningsgrunnlaget i svaret og påberopelsen svaret gjelder.
  */
+export interface Forholdsordene {
+  endringsordre: boolean;
+  varslingsplikt: boolean;
+  risiko: boolean;
+}
+
+export const forholdsordene = (
+  beslutningsgrunnlag: Beslutningsgrunnlag,
+  paaberopelse: Krav
+): Forholdsordene => ({
+  endringsordre: blirEndringsordre(beslutningsgrunnlag),
+  varslingsplikt: beslutningsgrunnlag.varslingsplikt === true,
+  risiko: harRisikoen(paaberopelse),
+});
+
+/** Tilfellet for standpunktet til forholdet, som brevteksten og visningen velger ordene etter (#2035). */
+export type Forholdstilfelle =
+  | 'frafall'
+  | 'endringsordre'
+  | 'enig_i_endring'
+  | 'har_risikoen'
+  | 'enig_31_3'
+  | 'avslag_endringsordre'
+  | 'har_ikke_risikoen'
+  | 'avslag';
+
+/**
+ * Godkjenningen der punkt 32.2 gjelder, er en endringsordre, eller en enighet om at pålegget
+ * innebærer en endring når byggherren påberoper at varselet kom for sent. Uten varslingsplikt
+ * er forholdet en endringsordre etter punkt 31.3, eller svikt og andre forhold.
+ */
+export function forholdstilfellet(r: Forholdsresultat, f: Forholdsordene): Forholdstilfelle {
+  if (r === 'paalegg_frafalt') return 'frafall';
+  if (r === 'avslaatt')
+    return f.varslingsplikt ? 'avslag_endringsordre' : f.risiko ? 'har_ikke_risikoen' : 'avslag';
+  if (f.endringsordre) return 'endringsordre';
+  if (f.varslingsplikt) return 'enig_i_endring';
+  return f.risiko ? 'har_risikoen' : 'enig_31_3';
+}
+
+/** Teksten for hvert tilfelle, med kontraktens ord (GR-U32, LV-U41). */
+const STANDPUNKTET_I_TILFELLET: Record<Forholdstilfelle, (krav: Krav, j: Journalen) => string> = {
+  frafall: () =>
+    'byggherren frafaller pålegget mot å utstede endringsordre for allerede utført arbeid (NS 8407 punkt 32.3 første ledd c).',
+  endringsordre: endringsordretekst,
+  enig_i_endring: () => 'byggherren er enig i at pålegget innebærer en endring.',
+  har_risikoen: (krav) => `byggherren har risikoen for forholdet (${risikohjemmel(krav)}).`,
+  enig_31_3: () => 'byggherren er enig i at forholdet er en endringsordre (NS 8407 punkt 31.3).',
+  avslag_endringsordre: () =>
+    'byggherren avslår kravet på endringsordre (NS 8407 punkt 32.3 første ledd b).',
+  har_ikke_risikoen: (krav) =>
+    `byggherren har ikke risikoen for forholdet (${risikohjemmel(krav)}).`,
+  avslag: () => 'byggherren avslår forholdet.',
+};
+
+/** Teksten for standpunktet til forholdet (`I_SPORENE` i `frosset/brevtekst.ts`). */
 export const STANDPUNKTENE_I_FORHOLDET = {
-  forhold: (p, krav, s, j) => {
-    const risiko = harRisikoen(krav);
-    const varslingsplikt = s.beslutningsgrunnlag.varslingsplikt === true;
-    if (p.resultat === 'godkjent') {
-      if (blirEndringsordre(s.beslutningsgrunnlag)) return endringsordretekst(krav, j);
-      if (varslingsplikt) return 'byggherren er enig i at pålegget innebærer en endring.';
-      if (risiko) return `byggherren har risikoen for forholdet (${risikohjemmel(krav)}).`;
-      return 'byggherren er enig i at forholdet er en endringsordre (NS 8407 punkt 31.3).';
-    }
-    if (p.resultat === 'avslaatt') {
-      if (varslingsplikt)
-        return 'byggherren avslår kravet på endringsordre (NS 8407 punkt 32.3 første ledd b).';
-      if (risiko) return `byggherren har ikke risikoen for forholdet (${risikohjemmel(krav)}).`;
-      return 'byggherren avslår forholdet.';
-    }
-    return 'byggherren frafaller pålegget mot å utstede endringsordre for allerede utført arbeid (NS 8407 punkt 32.3 første ledd c).';
-  },
+  forhold: (p, krav, s, j) =>
+    STANDPUNKTET_I_TILFELLET[
+      forholdstilfellet(p.resultat, forholdsordene(s.beslutningsgrunnlag, krav))
+    ](krav, j),
 } satisfies Standpunktstekster<'forhold'>;
 
 /** Svaret på forholdet med ordene i brevet (#628). */

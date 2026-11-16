@@ -637,6 +637,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Opplysning', 'relasjon', 'id hva gjelder dokument brev oppgittAv'],
   ['Opplysning', 'utsagn', 'dato oppfylt'],
   ['Beslutningsgrunnlag', 'frosset', 'regelversjon virkninger sammenfall varslingsplikt'],
+  // GR-U32, LV-U41: ordene for standpunktet til forholdet, lest av det frosne svaret og påberopelsen.
+  ['Forholdsordene', 'frosset', 'endringsordre varslingsplikt risiko', ['spor/forhold/tekst.ts']],
   ['Standpunktsvirkning', 'frosset', 'standpunkt art virkning'],
 
   // Utledningen (utled.ts).

@@ -8,7 +8,7 @@ import { KRAVINNHOLD } from '../../format/format.ts';
 import { erKalenderdato, feilI, objekt, tekst } from '../../format/skjema.ts';
 import { kalenderdag } from '../../format/leser.ts';
 import { norskDato } from '../../frosset/brevdeler.ts';
-import { gjelderVarslingsplikten } from '../../frosset/byggeklosser.ts';
+import { gjelderVarslingsplikten, type Svarvurdering } from '../../frosset/byggeklosser.ts';
 import {
   datoenDetBleSendt,
   kravSomVarsler,
@@ -64,21 +64,30 @@ export const KRAVFORM_I_FORHOLDET = {
 } satisfies Kravform;
 
 /**
+ * D-7: punktene i svaret på forholdet der minst ett må ha en begrunnelse, eller `null` når den
+ * er valgfri. Kommandoen og svarskjemaet i Varden leser dem herfra (#2035).
+ */
+export function begrunnelsespunktene(
+  v: Pick<Svarvurdering, 'grunnlag_varslet_i_tide' | 'resultat'>,
+  varslingsplikt: boolean
+): readonly string[] | null {
+  if (v.grunnlag_varslet_i_tide === false) return ['forhold', '32.2'];
+  if (v.resultat === 'avslaatt' && varslingsplikt) return ['forhold'];
+  return null;
+}
+
+/**
  * KA-U46 punkt 1–3 og KA-U47: avslår byggherren kravet på endringsordre (punkt 32.3 første
  * ledd b), eller påberoper byggherren at varselet etter punkt 32.2 kom for sent, må punktet
  * om forholdet ha en begrunnelse. Punktet om varselet holder også (arbeidsvalg 1 i #1433,
  * 6544660600). Utdypningen for hele svaret står under «Forbehold» og holder ikke.
  */
 function begrunnelseIForholdet(s: Svarutkast, krav: Krav, regler: Regelsett): Avvisning | null {
-  const v = s.vurderinger;
-  const paaberoper = v.grunnlag_varslet_i_tide === false;
-  const avslaar = v.resultat === 'avslaatt' && gjelderVarslingsplikten(krav, regler);
-  if (!paaberoper && !avslaar) return null;
-  const punktene = paaberoper ? ['forhold', '32.2'] : ['forhold'];
-  if (punktene.some((p) => s.utdypninger?.[p]?.trim())) return null;
+  const punktene = begrunnelsespunktene(s.vurderinger, gjelderVarslingsplikten(krav, regler));
+  if (!punktene || punktene.some((p) => s.utdypninger?.[p]?.trim())) return null;
   return avvis(
     'BEGRUNNELSE_MANGLER',
-    paaberoper
+    punktene.includes('32.2')
       ? 'Du gjør gjeldende at varselet etter punkt 32.2 kom for sent, så punktet om forholdet eller punktet om varselet må ha en begrunnelse.'
       : 'Du avslår kravet på endringsordre, så punktet om forholdet må ha en begrunnelse.'
   );
