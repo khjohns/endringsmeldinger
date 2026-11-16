@@ -265,3 +265,53 @@ post er endret.
   leter etter.
 - LV-U55, LV-U57, EO-U15 og OV-U86 er alt design, men mangler `flyttet_til`. Det rettes i
   omklassifiseringen.
+
+## Omklassifiseringen 16.11
+
+Klassene er kontrollert uavhengig 16.11 av tre subagenter. To kontrollerte forslaget over, og én
+vurderte de fire samlevedtakene under «Ikke vurdert». Utfallet av kontrollen står i #1534.
+Klassene er ført i registeret i PR-en for omklassifiseringen, med disse avvikene fra forslaget:
+
+- **Uendret fordi posten er opphevet etter 14.11:** GR-U35 (av OV-U101), MM-U52 (av MM-U55) og
+  LV-U52 (av LV-U75).
+- **Uendret fordi koden viser til posten som eneste grunnlag:** LV-U35, LV-U42 og LV-U53. De blir
+  design når henvisningene i `kjerne/` viser til vedtaket med den bindende setningen
+  (`vedtakshenvisninger.py`).
+- **Annet hjem:** LV-U54 er bindende i MM-U55 og LV-U56, ikke i MM-U52. Ordlyden i HF-U29
+  pkt. 2 er beslutningsdel, fordi LV-U73 har tatt den.
+- **Designdelen snevres inn:** VS-U39 får bare ordlyden i opplysningen som designdel. At en e-post
+  alene eller et møtereferat ikke er nok etter kapittel B, er tolkning av kontraktsgrunnlaget.
+- **De fire samlevedtakene:** GR-U34 pkt. 3 og 6, KA-U49 pkt. 8, MM-U47 pkt. 2 og KA-U52 pkt. 4
+  får ordlyden i designdelen. I KA-U52 pkt. 4 står budskapet om at kravet erstatter den
+  tidligere kravversjonen, fordi LV-U75 viser til den setningen.
+- **Ikke ført:** OV-U73 venter på spørsmålet under. `flyttet_til` for LV-U55, LV-U57, EO-U15 og
+  OV-U86 føres når teksten flyttes til forløpet. De nye designpostene har språkfila som hjem, som
+  ikke er et mål for `flyttet_til`.
+
+Grensetilfellene G1–G10 og grensetilfellene i de andre postene er avgjort av svaret 1 A, av testen
+eller av et senere vedtak. Bare OV-U73 står igjen.
+
+### Spørsmålet om OV-U73
+
+> **2. Oversiktstabellen i byggherrens svar på et krav om vederlagsjustering (OV-U73).**
+> OV-U73 sier at svaret har en oversiktstabell når det har minst to poster med beløp og minst to
+> lag, med én rad per post og en sumrad, at beløpene er de samme som i punktene, at tabellen står
+> etter punktene og før «Forbehold», at tabellen er en del av brevteksten og fryses med den, og at
+> en post uten fast beløp ikke regnes med. OV-U73 endrer OV-U28: summen i hvert lag står i
+> tabellen. Spørsmålet er hva i posten som binder, og hva brukerprøven kan endre uten vedtak.
+>
+> - **A.** OV-U73 står som vedtak. Tabellen er en del av brevet byggherren sender og fryses med det
+>   (MM-U50), beløpene i tabellen er de samme som i punktene, og en post uten fast beløp regnes
+>   ikke med i summen. Når tabellen står (minst to poster med beløp og minst to lag), radene,
+>   sumraden og plasseringen etter punktene og før «Forbehold» er designdel. Forhold: ingen.
+>   Vedtaksteksten endres ikke.
+> - **B.** OV-U73 blir design, bindende i OV-U28 og MM-U50. Det som binder, er standpunktene i
+>   punktene. Tabellen er en oversikt over dem, og at et sendt brev betyr det det sa, står i
+>   MM-U50. Forhold: ingen. Vedtaksteksten endres ikke.
+>
+> **Anbefaling: A.** Summen står i brevet byggherren sender, og den kan leses som det byggherren
+> godkjenner samlet i hvert lag. Hvilke poster som regnes med i den, er derfor noe brevet
+> meddeler, ikke bare en oversikt. Med B kan brukerprøven endre hva summen omfatter, uten vedtak.
+>
+> **Valget styrer** klassen og designdelen for OV-U73, og om tabellen kan endres av brukerprøven
+> alene.
