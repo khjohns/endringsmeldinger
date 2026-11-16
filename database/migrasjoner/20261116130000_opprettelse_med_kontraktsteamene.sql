@@ -1,17 +1,18 @@
--- `koe_api.opprett_sak` avviser saken når et kontraktsteam i prosjektet er lagt inn etter
--- at serveren leste kontraktsteamene og avgjorde siden (DL-U4, #877 p30, svar A 16.11 i
--- #877). Basen vet ikke hvilke Catenda-team aktøren er med i, så den kan ikke selv se at
--- siden er blitt flertydig. `koe_drift.sett_kontraktsteam` og `koe_drift.registrer_prosjekt`
--- lager radene på nytt ved en endring, så `created_at` er nyere enn lesingen. Låsen på
--- koblingen, som `opprett_sak` tar først, holder dem ute til saken er skrevet.
+-- `koe_api.opprett_sak` avviser saken når prosjektets kontraktsteam i basen er andre enn
+-- dem serveren avgjorde siden av (DL-U4, #877 p30, svar A 16.11 i #877). Basen vet ikke
+-- hvilke Catenda-team aktøren er med i, så den kan ikke selv se at siden er blitt
+-- flertydig. Serveren gir kontraktsteamene den leste med `koe_api.kontraktsteam`, som en
+-- JSON-liste med `team_id` og `contract_role`, og prosedyren sammenligner dem med radene
+-- etter låsen på koblingen. `koe_drift.sett_kontraktsteam` og `koe_drift.registrer_prosjekt`
+-- tar samme lås, så kontraktsteamene endres ikke før saken er skrevet. Uten listen avvises
+-- saken.
 --
--- `@kontraktsteam_lest` er basens klokke før lesingen, fra `server/autorisasjon.ts`.
--- Uten tidspunkt avvises saken. Resten av prosedyren er som i `20261114200000_topicnummer.sql`.
+-- Resten av prosedyren er som i `20261114200000_topicnummer.sql`.
 
 CREATE OR ALTER PROCEDURE koe_api.opprett_sak
   @format int, @data nvarchar(max), @kommando_id nvarchar(4000), @kommando_sha256 nvarchar(4000),
   @catenda_board_id nvarchar(100), @catenda_topic_id nvarchar(100), @catenda_topic_nummer int,
-  @kontraktsteam_lest datetime2(3),
+  @kontraktsteam nvarchar(max),
   @sak_id nvarchar(36) OUTPUT, @event_id nvarchar(36) OUTPUT, @tidsstempel datetime2(3) OUTPUT
 AS
 BEGIN
@@ -86,11 +87,18 @@ BEGIN
       THROW 51403, N'Aktøren er ikke lenger aktivt medlem av prosjektet', 1;
     THROW 51403, N'Teamet er ikke lenger kontraktsteam på siden i prosjektet', 1;
   END
-  -- Siden er avgjort av aktørens team i Catenda og kontraktsteamene serveren leste.
-  -- Et kontraktsteam som er lagt inn siden, kan ha gjort siden flertydig (DL-U4, #877 p30).
-  IF @kontraktsteam_lest IS NULL OR EXISTS (
-       SELECT 1 FROM koe.catenda_contract_teams
-        WHERE internal_project_id = @prosjekt AND created_at >= @kontraktsteam_lest)
+  -- Siden er avgjort av aktørens team i Catenda og kontraktsteamene serveren leste. Er
+  -- kontraktsteamene i basen andre nå, kan siden være flertydig (DL-U4, #877 p30).
+  IF @kontraktsteam IS NULL OR ISJSON(@kontraktsteam, ARRAY) = 0
+    THROW 51422, N'Kontraktsteamene serveren avgjorde siden av, mangler eller er ikke en JSON-liste', 1;
+  DECLARE @lest TABLE (team_id nvarchar(4000) NULL, contract_role nvarchar(4000) NULL);
+  INSERT @lest (team_id, contract_role)
+  SELECT team_id, contract_role
+    FROM OPENJSON(@kontraktsteam) WITH (team_id nvarchar(4000) '$.team_id', contract_role nvarchar(4000) '$.contract_role');
+  IF EXISTS (SELECT team_id, contract_role FROM koe.catenda_contract_teams WHERE internal_project_id = @prosjekt
+             EXCEPT SELECT team_id, contract_role FROM @lest)
+     OR EXISTS (SELECT team_id, contract_role FROM @lest
+                EXCEPT SELECT team_id, contract_role FROM koe.catenda_contract_teams WHERE internal_project_id = @prosjekt)
     THROW 51403, N'Kontraktsteamene er endret etter at siden ble avgjort', 1;
 
   IF @fra_klienten = 0

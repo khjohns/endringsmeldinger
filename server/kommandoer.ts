@@ -19,6 +19,7 @@
  * (arbeidsvalg 3 og 4 i #790). Et gjentak med kvittering binder ikke på nytt (KT-U5).
  */
 
+import type { Kontraktsteam } from './autorisasjon.ts';
 import type { Registrertfrist } from '../kjerne/spor/frist/format.ts';
 import { lesKontraktsfrister } from './kontraktsfrister.ts';
 import { createHash } from 'node:crypto';
@@ -233,15 +234,24 @@ function kvittertRad(journal: Journalrad[], eventId: string): Journalrad {
 }
 
 /**
+ * Konteksten for en ny sak: som for skrivingen, og med kontraktsteamene serveren avgjorde
+ * siden av (`Kontraktstilgang`, #877 p30).
+ */
+export type Opprettelseskontekst = Kontekst & { kontraktsteam: Kontraktsteam };
+
+/** Kontraktsteamene i formen `koe_api.opprett_sak` leser. */
+function somKontraktsteam(kontraktsteam: Kontraktsteam): string {
+  return JSON.stringify(
+    (['TE', 'BH'] as const).flatMap((side) =>
+      [...kontraktsteam[side]].map((team_id) => ({ team_id, contract_role: side }))
+    )
+  );
+}
+
+/**
  * Topicen en sak opprettes fra (KT-U6), med ID-ene i formen 8-4-4-4-12. Saken kobles til
  * den i transaksjonen, og ingen ny topic lages.
  */
-/**
- * Konteksten for en ny sak: som for skrivingen, og med basens klokke før serveren leste
- * kontraktsteamene og avgjorde siden (`Kontraktstilgang`, #877 p30).
- */
-export type Opprettelseskontekst = Kontekst & { kontraktsteamLest: Date };
-
 export interface Opprettelsesvalg {
   topic?: { board: string; topic: string; nummer: number | null };
 }
@@ -304,7 +314,7 @@ export async function opprettSak<A>(
         .input('catenda_board_id', sql.NVarChar(100), topic?.board ?? null)
         .input('catenda_topic_id', sql.NVarChar(100), topic?.topic ?? null)
         .input('catenda_topic_nummer', sql.Int, topic?.nummer ?? null)
-        .input('kontraktsteam_lest', sql.DateTime2(3), kontekst.kontraktsteamLest)
+        .input('kontraktsteam', sql.NVarChar(sql.MAX), somKontraktsteam(kontekst.kontraktsteam))
         .output('sak_id', sql.NVarChar(36))
         .output('event_id', sql.NVarChar(36))
         .output('tidsstempel', sql.DateTime2(3))
@@ -608,7 +618,7 @@ export type Opprettelsesutfall<A> =
  */
 export async function opprettSakMedPaaberopelse<A>(
   pool: Pool,
-  kontekst: Kontekst,
+  kontekst: Opprettelseskontekst,
   sakId: string,
   kommando: Kommando,
   vedleggider: readonly string[],
@@ -667,6 +677,7 @@ export async function opprettSakMedPaaberopelse<A>(
           .input('catenda_board_id', sql.NVarChar(100), null)
           .input('catenda_topic_id', sql.NVarChar(100), null)
           .input('catenda_topic_nummer', sql.Int, null)
+          .input('kontraktsteam', sql.NVarChar(sql.MAX), somKontraktsteam(kontekst.kontraktsteam))
           .output('sak_id', sql.NVarChar(36), sakId)
           .output('event_id', sql.NVarChar(36), opprettet.event_id)
           .output('tidsstempel', sql.DateTime2(3))

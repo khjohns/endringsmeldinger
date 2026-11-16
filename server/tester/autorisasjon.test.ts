@@ -32,7 +32,7 @@ import {
   type Kontraktstilgang,
   type Catenda,
 } from '../autorisasjon.ts';
-import { basensKlokke, type Medlem as Medlemsrad } from '../medlemskap.ts';
+import type { Medlem as Medlemsrad } from '../medlemskap.ts';
 import {
   catendaBruker,
   iTransaksjon,
@@ -598,23 +598,16 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       const te = await medlem(p);
       const bh = await medlem(p);
       const team = { [p.te[1]]: [te.subjekt], [p.bh[0]]: [bh.subjekt], [hex()]: [te.subjekt] };
-      const foer = await basensKlokke(kjoeretid.pool);
       expect(await kontrakt(p, te, team)).toEqual({
         rolle: 'TE',
         teamId: p.te[1],
-        kontraktsteamLest: expect.any(Date),
+        kontraktsteam: { TE: new Set(p.te), BH: new Set(p.bh) },
       });
       expect(await kontrakt(p, bh, team)).toEqual({
         rolle: 'BH',
         teamId: p.bh[0],
-        kontraktsteamLest: expect.any(Date),
+        kontraktsteam: { TE: new Set(p.te), BH: new Set(p.bh) },
       });
-      // Basens klokke lest før kontraktsteamene, for `opprett_sak` (#877 p30).
-      const { kontraktsteamLest } = (await kontrakt(p, te, team))!;
-      expect(kontraktsteamLest.getTime()).toBeGreaterThanOrEqual(foer.getTime());
-      expect(kontraktsteamLest.getTime()).toBeLessThanOrEqual(
-        (await basensKlokke(kjoeretid.pool)).getTime()
-      );
     });
 
     it('med i to kontraktsteam på samme side gir siden og teamet null', async () => {
@@ -624,7 +617,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       expect(await kontrakt(p, m, team)).toEqual({
         rolle: 'TE',
         teamId: null,
-        kontraktsteamLest: expect.any(Date),
+        kontraktsteam: { TE: new Set(p.te), BH: new Set(p.bh) },
       });
     });
 
@@ -636,7 +629,7 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
       expect(await kontrakt(p, m, { [p.bh[1]]: [uuid.toUpperCase()] })).toEqual({
         rolle: 'BH',
         teamId: p.bh[1],
-        kontraktsteamLest: expect.any(Date),
+        kontraktsteam: { TE: new Set(p.te), BH: new Set(p.bh) },
       });
     });
 

@@ -363,7 +363,7 @@ export async function behandle(
         prosjekt: prosjektId,
         side: 'TE',
         ...(side.teamId ? { team: side.teamId } : {}),
-        kontraktsteamLest: side.kontraktsteamLest,
+        kontraktsteam: side.kontraktsteam,
       },
       kommando,
       () => {

@@ -23,7 +23,6 @@ import type { Bruker } from './bruker.ts';
 import { sql, transaksjon, utenKontekst, type Kontekst, type Pool } from './datalag.ts';
 import { loggFeil } from './inngang.ts';
 import {
-  basensKlokke,
   oversett,
   prosjektkobling,
   synkroniserKobling,
@@ -428,11 +427,14 @@ export interface Kontraktstilgang {
   rolle: Rolle;
   teamId: string | null;
   /**
-   * Basens klokke før kontraktsteamene ble lest. `koe_api.opprett_sak` avviser saken
-   * når et kontraktsteam er lagt inn etter det (DL-U4, #877 p30).
+   * Prosjektets kontraktsteam per side, slik siden ble avgjort av. `koe_api.opprett_sak`
+   * avviser saken når kontraktsteamene i basen er andre (DL-U4, #877 p30).
    */
-  kontraktsteamLest: Date;
+  kontraktsteam: Kontraktsteam;
 }
+
+/** Prosjektets kontraktsteam per side, i `catendaId`-formen. */
+export type Kontraktsteam = Record<Rolle, ReadonlySet<string>>;
 
 /** Siden og teamet, eller `null` uten entydig side. Oppslaget som feiler, gir 503. */
 async function lesKontraktsside(
@@ -440,7 +442,7 @@ async function lesKontraktsside(
   catenda: Catenda,
   tilgang: Prosjekttilgang
 ): Promise<Kontraktstilgang | null> {
-  let funnet: [Rolle | null, string | null, Date | null];
+  let funnet: [Rolle | null, string | null, Kontraktsteam | null];
   try {
     funnet = await kontraktsside(db, catenda, tilgang);
   } catch {
@@ -537,13 +539,13 @@ async function prosjektmedlemskap(
   return svar.recordset[0];
 }
 
-function somKontraktstilgang([rolle, teamId, kontraktsteamLest]: [
+function somKontraktstilgang([rolle, teamId, kontraktsteam]: [
   Rolle | null,
   string | null,
-  Date | null,
+  Kontraktsteam | null,
 ]): Kontraktstilgang | null {
-  return (rolle === 'TE' || rolle === 'BH') && kontraktsteamLest
-    ? { rolle, teamId, kontraktsteamLest }
+  return (rolle === 'TE' || rolle === 'BH') && kontraktsteam
+    ? { rolle, teamId, kontraktsteam }
     : null;
 }
 
@@ -551,7 +553,7 @@ function somKontraktstilgang([rolle, teamId, kontraktsteamLest]: [
  * Prosjektets kontraktsteam per side, med `koe_api.kontraktsteam`. Tomt uten aktivt medlemskap,
  * og med leserollen når `medLeserolle` er `false`.
  */
-async function kontraktsteamene(
+export async function kontraktsteamene(
   db: Pool,
   aktor: string,
   prosjektId: string,
@@ -597,11 +599,10 @@ async function kontraktsside(
   db: Pool,
   catenda: Pick<Catenda, 'teammedlemmer'>,
   { prosjektId, aktor, oppsett, medlemskap }: Prosjekttilgang
-): Promise<[Rolle | null, string | null, Date | null]> {
+): Promise<[Rolle | null, string | null, Kontraktsteam | null]> {
   if (medlemskap.leserolle) return [null, null, null];
   const subjekt = catendaId(medlemskap.subjekt);
   if (!subjekt) return [null, null, null];
-  const lest = await basensKlokke(db);
   const team = await kontraktsteamene(db, aktor, prosjektId, false);
   if (!team.TE.size || !team.BH.size || [...team.TE].some((t) => team.BH.has(t)))
     return [null, null, null];
@@ -609,7 +610,7 @@ async function kontraktsside(
   const roller = new Set(treff.map(([r]) => r));
   if (roller.size !== 1) return [null, null, null];
   const lag = new Set(treff.map(([, t]) => t));
-  return [[...roller][0], lag.size === 1 ? [...lag][0] : null, lest];
+  return [[...roller][0], lag.size === 1 ? [...lag][0] : null, team];
 }
 
 /**

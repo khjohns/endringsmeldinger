@@ -9,8 +9,8 @@
  * - arbeidsvalget 19.10 i runde 9 (#764, valg A): en sak der medlemskapet er blitt
  *   inaktivt, eller teamet ikke lenger er kontraktsteam på siden, avvises med 51403
  *   i stedet for å skrives (DL-U4 sier hvilket team som kan føres);
- * - svar A 16.11 i #877 (p30): et kontraktsteam lagt inn etter at serveren leste
- *   kontraktsteamene, avviser saken med 51403, fordi siden kan være blitt flertydig.
+ * - svar A 16.11 i #877 (p30): er kontraktsteamene andre enn dem serveren avgjorde siden
+ *   av, avvises saken med 51403, fordi siden kan være blitt flertydig.
  *
  * Den ene skrivingen holdes åpen til den andre venter på den; da lagres den første,
  * og den andre fullføres eller avvises.
@@ -22,7 +22,14 @@ import { catendaId } from '../autorisasjon.ts';
 import { feilnummer } from '../datalag.ts';
 import { kommandosum, opprettSak, SkrivingAvvist } from '../kommandoer.ts';
 import { iTransaksjon, type Foresp, type Kontekst } from './sqlserver_migrert.ts';
-import { lagOppsett, rydd, TESTBASE_URL, type Oppsett } from './testbase.ts';
+import {
+  kontraktsteamI,
+  kontraktsteamSomJson,
+  lagOppsett,
+  rydd,
+  TESTBASE_URL,
+  type Oppsett,
+} from './testbase.ts';
 
 describe.skipIf(!TESTBASE_URL)('en ny sak og registreringen av prosjektet samtidig', () => {
   let o: Oppsett;
@@ -45,12 +52,12 @@ describe.skipIf(!TESTBASE_URL)('en ny sak og registreringen av prosjektet samtid
     return vurdert;
   };
   // Uten `entydigTeam` er aktøren med i flere team på siden, og konteksten har ikke noe team.
-  const opprett = (entydigTeam = true, kontraktsteamLest = new Date()) => {
+  const opprett = (entydigTeam = true, kontraktsteam = kontraktsteamI(o.prosjekt)) => {
     const { format, data } = sak();
     const team = entydigTeam ? catendaId(o.prosjekt.teTeam)! : undefined;
     return opprettSak(
       o.datalag.kjoeretid.pool,
-      { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE', team, kontraktsteamLest },
+      { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE', team, kontraktsteam },
       { id: randomUUID(), sha256: kommandosum(data) },
       { format, data }
     );
@@ -62,12 +69,12 @@ describe.skipIf(!TESTBASE_URL)('en ny sak og registreringen av prosjektet samtid
       .input('data', JSON.stringify(data))
       .input('kommando_id', randomUUID())
       .input('kommando_sha256', kommandosum(data))
-      .input('lest', new Date())
+      .input('kontraktsteam', kontraktsteamSomJson(o.prosjekt))
       .batch(
         `DECLARE @sak_id nvarchar(36), @event_id nvarchar(36), @tidsstempel datetime2(3);
          EXEC koe_api.opprett_sak @format = @format, @data = @data, @kommando_id = @kommando_id,
            @kommando_sha256 = @kommando_sha256, @catenda_board_id = NULL,
-           @catenda_topic_id = NULL, @catenda_topic_nummer = NULL, @kontraktsteam_lest = @lest,
+           @catenda_topic_id = NULL, @catenda_topic_nummer = NULL, @kontraktsteam = @kontraktsteam,
            @sak_id = @sak_id OUTPUT,
            @event_id = @event_id OUTPUT, @tidsstempel = @tidsstempel OUTPUT;`
       );
@@ -100,10 +107,19 @@ describe.skipIf(!TESTBASE_URL)('en ny sak og registreringen av prosjektet samtid
       .input('prosjekt', o.prosjekt.id)
       .input('team', team(o.prosjekt.teTeam, o.prosjekt.bhTeam))
       .execute('koe_drift.sett_kontraktsteam');
+  /** Et nytt kontraktsteam for byggherren ved siden av de to. */
+  const nyttBhTeam = (r: Foresp) =>
+    r()
+      .input('prosjekt', o.prosjekt.id)
+      .input(
+        'team',
+        JSON.stringify([
+          ...JSON.parse(team(o.prosjekt.teTeam, o.prosjekt.bhTeam)),
+          { team_id: catendaId(randomUUID()), contract_role: 'BH' },
+        ])
+      )
+      .execute('koe_drift.sett_kontraktsteam');
   const eier = () => o.datalag.base.pool.request();
-  const basensKlokke = async () =>
-    (await eier().query<{ naa: Date }>('SELECT CAST(SYSUTCDATETIME() AS datetime2(3)) AS naa'))
-      .recordset[0].naa;
 
   /**
    * Kjører `foerst` i en transaksjon som holdes åpen til `samtidig` venter på den, og
@@ -180,16 +196,15 @@ describe.skipIf(!TESTBASE_URL)('en ny sak og registreringen av prosjektet samtid
   });
 
   // Kilde: DL-U4 (siden er entydig) og svar A 16.11 i #877 (p30): basen vet ikke hvilke
-  // team aktøren er med i, så et kontraktsteam lagt inn etter at serveren leste dem,
-  // stopper saken, med og uten entydig team.
+  // team aktøren er med i, så et kontraktsteam serveren ikke avgjorde siden av, stopper
+  // saken, med og uten entydig team.
   it.each([
     ['uten entydig team', false],
     ['med entydig team', true],
   ])(
-    '%s avvises saken med 51403 når kontraktsteamene er lagt inn etter at siden ble avgjort (#877 p30)',
+    '%s avvises saken med 51403 når et kontraktsteam er lagt til etter at siden ble avgjort (#877 p30)',
     async (_, entydigTeam) => {
-      const lest = await basensKlokke();
-      const feil = await mensAapen(null, sammeTeam, () => opprett(entydigTeam, lest));
+      const feil = await mensAapen(null, nyttBhTeam, () => opprett(entydigTeam));
       expect(feil).toBeInstanceOf(SkrivingAvvist);
       expect(feilnummer((feil as Error).cause)).toBe(51403);
       expect(((feil as Error).cause as Error).message).toBe(
@@ -199,12 +214,9 @@ describe.skipIf(!TESTBASE_URL)('en ny sak og registreringen av prosjektet samtid
     }
   );
 
-  it('kontraktsteam lagt inn før siden ble avgjort, stopper ikke saken (#877 p30)', async () => {
-    await iTransaksjon(o.datalag.base.pool, null, sammeTeam);
-    // Klokka i SQL Server på Linux tikker i steg på om lag 33 ms (#856), og basen avviser
-    // også et kontraktsteam med samme tidspunkt som lesingen.
-    await new Promise((ok) => setTimeout(ok, 100));
-    await opprett(false, await basensKlokke());
+  it('de samme kontraktsteamene registrert på nytt mens saken skrives, stopper ikke saken (#877 p30)', async () => {
+    const feil = await mensAapen(null, sammeTeam, () => opprett(false));
+    expect(feil).toBeUndefined();
     expect(await harSaker()).toBe(true);
   });
 

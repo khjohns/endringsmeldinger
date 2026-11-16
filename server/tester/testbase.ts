@@ -11,7 +11,7 @@ import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { lagServer } from '../app.ts';
 import type { Avhengigheter } from '../rutetyper.ts';
-import { catendaId, sha256, type Catenda } from '../autorisasjon.ts';
+import { catendaId, sha256, type Catenda, type Kontraktsteam } from '../autorisasjon.ts';
 import { forkast, reservasjon, sql, type Utlaan } from '../datalag.ts';
 import { opprettelse } from '../../kjerne/kommandoer/opprettelse.ts';
 import {
@@ -43,6 +43,19 @@ export interface Testprosjekt {
   teTeam: string;
   bhTeam: string;
 }
+
+/** Kontraktsteamene i prosjektet, slik `kontraktsside` leser dem (#877 p30). */
+export const kontraktsteamI = (p: Testprosjekt): Kontraktsteam => ({
+  TE: new Set([catendaId(p.teTeam)!]),
+  BH: new Set([catendaId(p.bhTeam)!]),
+});
+
+/** `kontraktsteamI` i formen `koe_api.opprett_sak` leser. */
+export const kontraktsteamSomJson = (p: Testprosjekt): string =>
+  JSON.stringify([
+    { team_id: catendaId(p.teTeam), contract_role: 'TE' },
+    { team_id: catendaId(p.bhTeam), contract_role: 'BH' },
+  ]);
 
 export interface Oppsett {
   /** Den migrerte basen og kjøretidens pool mot den. */
@@ -323,7 +336,7 @@ export async function opprettKjernesak(
     return (
       await opprettSak(
         o.datalag.kjoeretid.pool,
-        { ...kontekst, kontraktsteamLest: new Date() },
+        { ...kontekst, kontraktsteam: kontraktsteamI(prosjekt) },
         { id: randomUUID(), sha256: kommandosum(d) },
         { format: f, data: d }
       )

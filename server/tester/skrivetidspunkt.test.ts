@@ -53,10 +53,15 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('skrivetidspunktet i SQL Server', () => {
   afterAll(() => slettAlle(kjoeretid, base), 60_000);
 
   const nySak = () =>
-    opprettSak(kjoeretid.pool, { ...te, kontraktsteamLest: new Date() }, ny(), {
-      format: 1,
-      data: { sakstittel: 'Skrivetidspunktet', sakstype: 'standard' },
-    });
+    opprettSak(
+      kjoeretid.pool,
+      { ...te, kontraktsteam: { TE: new Set([TE1]), BH: new Set<string>() } },
+      ny(),
+      {
+        format: 1,
+        data: { sakstittel: 'Skrivetidspunktet', sakstype: 'standard' },
+      }
+    );
 
   /** Antall brev i saken, lest av eieren i konteksten. */
   const antallBrev = (sakId: string) =>
