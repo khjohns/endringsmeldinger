@@ -17,6 +17,7 @@
   import Manglene from './Manglene.svelte';
   import Melding from './Melding.svelte';
   import Valg from './Valg.svelte';
+  import Valgfri from './Valgfri.svelte';
   import { aksepten } from './kommandoer';
   import {
     dokumentasjonen,
@@ -164,17 +165,16 @@
         />
 
         {#if kategori === 'dokumentasjon'}
-          <fieldset class="gjelder">
-            <legend>{LEGG_TIL.gjelder}</legend>
-            <p class="dempet">{LEGG_TIL.gjelderHjelp}</p>
+          <fieldset class="gjelder" aria-describedby={id('gjelder-hjelp')}>
+            <legend><Valgfri>{LEGG_TIL.gjelder}</Valgfri></legend>
+            <p class="dempet" id={id('gjelder-hjelp')}>{LEGG_TIL.gjelderHjelp}</p>
             {#each ['forhold', 'vederlag', 'frist'] as const as s (s)}
-              <label>
+              <label class:valgt={valg.spor.includes(s)}>
                 <input type="checkbox" value={s} bind:group={valg.spor} />
                 {SPORNAVN[s]}
               </label>
             {/each}
           </fieldset>
-          <p class="dempet">{LEGG_TIL.dokumentasjon}</p>
         {:else if kategori === 'aksept'}
           <Valg
             navn={id('svar')}
@@ -182,11 +182,10 @@
             valg={svarene}
             bind:verdi={() => svaret, (x) => (valg.svar = x)}
             feil={feil('svar')}
-            beskrevetAv={id('svar-hjelp')}
+            hjelp={LEGG_TIL.svaretHjelp}
             stablet
             lett
           />
-          <p class="dempet" id={id('svar-hjelp')}>{LEGG_TIL.svaretHjelp}</p>
         {:else if viderekategori(kategori)}
           <p class="dempet">{LEGG_TIL.neste[kategori]}</p>
         {/if}
@@ -248,10 +247,25 @@
     font-weight: 600;
     margin-bottom: var(--spacing-1);
   }
+  /* Samme høyde og flate som valgkortene i `Valg`, så målet er stort nok (WCAG 2.5.5). */
   .gjelder label {
     display: flex;
     align-items: center;
-    gap: var(--spacing-2);
+    gap: var(--spacing-3);
+    width: fit-content;
+    min-height: 48px;
+    padding: 0 var(--spacing-4);
+    border-radius: var(--r-felt);
+    cursor: pointer;
+  }
+  .gjelder label.valgt {
+    background: var(--surface-selected);
+    font-weight: 600;
+  }
+  .gjelder input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
   }
   .dempet {
     color: var(--ink-3);

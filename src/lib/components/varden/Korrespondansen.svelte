@@ -104,7 +104,7 @@
     <Filvalg
       id={id('dokument')}
       etikett={KORRESPONDANSEN.dokumentet(hva)}
-      hjelp={KORRESPONDANSEN.dokumentetHjelp}
+      hjelp={KORRESPONDANSEN.dokumentetHjelp(hva)}
       {grense}
       bind:vedlegg={
         () => valg.vedlegg,

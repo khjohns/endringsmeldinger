@@ -102,7 +102,8 @@
     {@const registrert = b.art === 'registrert'}
     {@const i = innlegg.get(b.id)}
     {@const fulgt = fulgtOpp.get(b.id)}
-    {@const samme = sammeDag.get(b.id) ?? []}
+    <!-- OV-U104: merknaden står ved korrespondansen som er lagt til, ikke ved brevet fra løsningen. -->
+    {@const samme = registrert ? (sammeDag.get(b.id) ?? []) : []}
     {@const hva = TRAADEN.hva(b)}
     {@const valgt = vist === b.id}
     {@const tilHoeyre = valgt && !smal}

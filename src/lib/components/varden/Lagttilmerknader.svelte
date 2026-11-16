@@ -51,15 +51,20 @@
   const sammeDag = $derived(etter ? sendtSammeDagSom(u, etter) : []);
 </script>
 
-{#if kravUtenfor || svarUtenfor || sammeDag.length}
-  <div class="merknader" class:innfelt>
-    {#if kravUtenfor}<Melding art="info" levende={false}>{LEGG_TIL.kravUtenforRekken}</Melding>{/if}
-    {#if svarUtenfor}<Melding art="info" levende={false}>{LEGG_TIL.svarUtenforRekken}</Melding>{/if}
-    {#if sammeDag.length}
-      <Melding art="info" levende={false}>{LEGG_TIL.sammeDag(sammeDag)}</Melding>
-    {/if}
-  </div>
-{/if}
+<!-- Merknadene kommer når datoen er oppgitt, så de leses opp (uu-sjekk, `role="status"`). -->
+<div
+  class="merknader"
+  class:innfelt
+  class:tom={!kravUtenfor && !svarUtenfor && !sammeDag.length}
+  role="status"
+>
+  {#if kravUtenfor}<Melding art="info" levende={false}>{LEGG_TIL.kravUtenforRekken(spor)}</Melding
+    >{/if}
+  {#if svarUtenfor}<Melding art="info" levende={false}>{LEGG_TIL.svarUtenforRekken}</Melding>{/if}
+  {#if sammeDag.length}
+    <Melding art="info" levende={false}>{LEGG_TIL.sammeDag(sammeDag)}</Melding>
+  {/if}
+</div>
 
 <style>
   .merknader {
@@ -70,5 +75,8 @@
   /* I skjemaene med kanter på seksjonene står merknadene inne i kortet. */
   .innfelt {
     padding: var(--spacing-4) var(--spacing-6) 0;
+  }
+  .tom {
+    display: none;
   }
 </style>

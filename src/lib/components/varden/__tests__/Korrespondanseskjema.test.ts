@@ -229,18 +229,18 @@ describe('merknadene før kravet legges til (OV-U102, OV-U104)', () => {
 
   it('et krav sendt før totalentreprenørens siste krav blir ikke gjeldende, og skjemaet sier det (OV-U102)', async () => {
     await merknadene('2026-10-10');
-    expect(screen.getByText(LEGG_TIL.kravUtenforRekken)).toBeInTheDocument();
+    expect(screen.getByText(LEGG_TIL.kravUtenforRekken('vederlag'))).toBeInTheDocument();
   });
 
   it('et krav sendt samme dag som det siste blir gjeldende, og skjemaet sier at rekkefølgen ikke er kjent (OV-U104)', async () => {
     await merknadene('2026-10-16');
-    expect(screen.queryByText(LEGG_TIL.kravUtenforRekken)).not.toBeInTheDocument();
+    expect(screen.queryByText(LEGG_TIL.kravUtenforRekken('vederlag'))).not.toBeInTheDocument();
     expect(screen.getByText(/^Sendt samme dag som brev/)).toBeInTheDocument();
   });
 
   it('kontrollsak: et krav sendt etter det siste har ingen merknad', async () => {
     await merknadene('2026-10-20');
-    expect(screen.queryByText(LEGG_TIL.kravUtenforRekken)).not.toBeInTheDocument();
+    expect(screen.queryByText(LEGG_TIL.kravUtenforRekken('vederlag'))).not.toBeInTheDocument();
     expect(screen.queryByText(/^Sendt samme dag som/)).not.toBeInTheDocument();
   });
 });

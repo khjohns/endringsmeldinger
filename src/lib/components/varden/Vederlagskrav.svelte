@@ -151,6 +151,9 @@
   const varselFor = (p: Kravpostvalg): Varselet | null => varselPerPost.get(p.noekkel) ?? null;
   const kommando = $derived(vederlagskravet(v, varslene));
   const vedlegg = $derived(vedleggIKravet(v, varslene));
+  const varselkolonner = $derived(
+    lagtTil ? KRAVSKJEMA.varselkolonnerLagtTil : KRAVSKJEMA.varselkolonner
+  );
   const kommandoLagtTil = $derived(lagtTil ? kommandoenLagtTil(kommando, lagtTil) : null);
   const vedleggLagtTil = $derived(new Map([...vedlegg, ...vedleggskart(lagtTil?.vedlegg ?? [])]));
 
@@ -437,7 +440,7 @@
       id: id('varslene'),
       nummer: v.saerskilt ? '3' : '2',
       tittel: KRAVSKJEMA.varslene,
-      status: KRAVSKJEMA.antallVarsler(antallVarsler, iBrevet),
+      status: KRAVSKJEMA.antallVarsler(antallVarsler, iBrevet, !!lagtTil),
     },
     // KA-U24: et krav lagt til har ikke noe forbehold.
     ...(lagtTil
@@ -1053,9 +1056,11 @@
           <span class="nummer" aria-hidden="true">{v.saerskilt ? 3 : 2}</span>
           <h3 id={id('varslene-tittel')}>{KRAVSKJEMA.varslene}</h3>
         </div>
-        <p class="intro">{KRAVSKJEMA.varsleneIntro}</p>
+        <p class="intro">
+          {lagtTil ? KRAVSKJEMA.varsleneIntroLagtTil : KRAVSKJEMA.varsleneIntro}
+        </p>
         <div class="kolonner varselkolonner" aria-hidden="true">
-          {#each KRAVSKJEMA.varselkolonner as k (k)}<span>{k}</span>{/each}
+          {#each varselkolonner as k (k)}<span>{k}</span>{/each}
           <span></span>
         </div>
         <ul class="varsler">
@@ -1066,7 +1071,7 @@
               <p class="dempet">{KRAVSKJEMA.gjelderHele}</p>
             </div>
             <div class="brevet">
-              <span class="visually-hidden">{KRAVSKJEMA.varselkolonner[2]}:</span>
+              <span class="visually-hidden">{varselkolonner[2]}:</span>
               <p>{varselI(vederlagsvarselet)}</p>
               {#if vederlagsvarselet === null && klarOver}
                 <p class="dempet">
@@ -1083,7 +1088,7 @@
                 <p class="dempet">{KRAVSKJEMA.gjelderSaerskilt}</p>
               </div>
               <div class="brevet">
-                <span class="visually-hidden">{KRAVSKJEMA.varselkolonner[2]}:</span>
+                <span class="visually-hidden">{varselkolonner[2]}:</span>
                 <p>{varselI(saerskiltvarselet)}</p>
               </div>
             </li>
@@ -1096,7 +1101,7 @@
                 <p class="dempet">{KRAVSKJEMA.gjelderPost(navnet(p))}</p>
               </div>
               <div class="brevet">
-                <span class="visually-hidden">{KRAVSKJEMA.varselkolonner[2]}:</span>
+                <span class="visually-hidden">{varselkolonner[2]}:</span>
                 <p>{postvarseltekst(p, vs)}</p>
                 {#if vs.art === 'kravet' && gjeldendeVarselvalg(v, p).art === 'kravet' && utenKravpost.some((x) => x.hjemmel === vs.hjemmel)}
                   <p class="dempet">{KRAVSKJEMA.utenKravpost(vs.hjemmel)}</p>

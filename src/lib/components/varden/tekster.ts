@@ -1162,7 +1162,10 @@ export const KORRESPONDANSEN = {
   // OV-U80: datoen for varselet settes én gang.
   datoHjelp: 'Datoen avsenderen oppgir. Den settes én gang.',
   dokumentet: (hva: Korrespondansehva) => KORRESPONDANSEORD[hva].dokumentet,
-  dokumentetHjelp: 'Legges til i saken og ved brevet. Opptil 15 MB.',
+  dokumentetHjelp: (hva: Korrespondansehva) =>
+    hva === 'korrespondanse'
+      ? 'Legges til i saken. Opptil 15 MB.'
+      : 'Legges til i saken og ved brevet. Opptil 15 MB.',
   dokumentetIkkeEnnaa: 'Dokumentet kan ikke legges ved ennå.',
   beskrivelse: (hva: Korrespondansehva) => `Kort beskrivelse av ${KORRESPONDANSEORD[hva].bestemt}`,
   beskrivelseHjelp: 'Kort, med egne ord.',
@@ -1188,7 +1191,7 @@ export const LEGG_TIL = {
   // Arbeidsvalget 16.11, punkt 2: bare det parten selv har sendt (avsenderen er #2069).
   egen: 'Du legger til det du selv har sendt.',
   gjelder: 'Gjelder',
-  gjelderHjelp: 'Velger du ingen, gjelder det saken.',
+  gjelderHjelp: 'Velger du ingen, står det ved saken.',
   kategorien: 'Hva er det etter kontrakten?',
   kategorier: {
     dokumentasjon: 'Dokumentasjon, for eksempel en avklaring',
@@ -1199,7 +1202,6 @@ export const LEGG_TIL = {
   } satisfies Record<Korrespondansekategori, string>,
   kategorienMangler: 'Velg hva det er etter kontrakten.',
   // OV-U80: løsningen utleder ikke noe av dokumentasjonen.
-  dokumentasjon: 'Dokumentasjon står ved sporene eller saken. Løsningen utleder ikke noe av den.',
   // OV-U80: skjemaet åpnes i samme forløp og viser til korrespondansen; KA-U24.
   neste: {
     varsel: 'Når du går videre, åpnes skjemaet for varselet med det du har fylt ut her.',
@@ -1233,8 +1235,8 @@ export const LEGG_TIL = {
   leggTilKravet: 'Legg til kravet',
   leggTilSvaret: 'Legg til svaret',
   /** OV-U102. */
-  kravUtenforRekken:
-    'Kravet er sendt før totalentreprenørens siste krav i sporet. Det blir ikke gjeldende, men datoen det ble sendt, gjelder som datoen kravet i sporet først ble sendt.',
+  kravUtenforRekken: (spor: Spor) =>
+    `Kravet er sendt før totalentreprenørens siste krav om ${SPORNAVN[spor].toLowerCase()}. Det blir ikke gjeldende, men datoen det ble sendt, gjelder som datoen kravet først ble sendt.`,
   /** OV-U103. */
   svarUtenforRekken:
     'Svaret er sendt før byggherrens gjeldende svar på kravet. Det blir ikke gjeldende og erstatter ikke det nyere svaret.',
@@ -1509,6 +1511,10 @@ export const KRAVSKJEMA = {
   varsleneIntro:
     'Varslene kravet trenger, ut fra postene over. Har du ikke varslet før, gis varselet i dette brevet.',
   varselkolonner: ['Punkt', 'Varselet', 'Slik står det i brevet'],
+  // OV-U80: et krav lagt til har ingen brevtekst, så varselet står i dokumentet.
+  varsleneIntroLagtTil:
+    'Varslene kravet trenger, ut fra postene over. Har du ikke varslet før, er varselet gitt i dokumentet du legger til.',
+  varselkolonnerLagtTil: ['Punkt', 'Varselet', 'Slik står det i dokumentet'],
   varselnavn: {
     '34.1.2': 'Varsel om vederlagsjustering',
     '34.1.3': 'Varsel om særskilt vederlagsjustering',
@@ -1565,8 +1571,8 @@ export const KRAVSKJEMA = {
   punktene: 'Punktene',
   punkteneHjelp: 'Beløp eks. mva. Oppdateres mens du skriver.',
   antallPoster: (n: number) => (n === 1 ? '1 kravpost' : `${n} kravposter`),
-  antallVarsler: (n: number, iBrevet: number) =>
-    `${n === 1 ? '1 varsel' : `${n} varsler`} · ${iBrevet} gis i dette brevet`,
+  antallVarsler: (n: number, iBrevet: number, lagtTil = false) =>
+    `${n === 1 ? '1 varsel' : `${n} varsler`} · ${iBrevet} ${lagtTil ? 'gitt i dokumentet' : 'gis i dette brevet'}`,
   skrevet: 'Skrevet',
   ikkeSkrevet: 'Ikke skrevet',
   forbeholdPunkt: 'Forbehold',

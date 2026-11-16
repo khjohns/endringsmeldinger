@@ -18,6 +18,7 @@
     lett = false,
     valgfri = false,
     avkrysning = false,
+    hjelp,
   }: {
     navn: string;
     spoersmaal: string;
@@ -42,10 +43,14 @@
     valgfri?: boolean;
     /** Ett valg som en avkrysning: avkrysset gir `verdi` valget, ellers `null`. */
     avkrysning?: boolean;
+    /** Hjelpeteksten under spørsmålet, som for et felt (`system.md`). */
+    hjelp?: string;
   } = $props();
   const uid = $props.id();
   const beskrivelse = $derived(
-    [beskrevetAv, feil ? `${uid}-feil` : undefined].filter(Boolean).join(' ') || undefined
+    [hjelp ? `${uid}-hjelp` : undefined, beskrevetAv, feil ? `${uid}-feil` : undefined]
+      .filter(Boolean)
+      .join(' ') || undefined
   );
 </script>
 
@@ -53,6 +58,7 @@
   <legend
     >{#if valgfri}<Valgfri>{spoersmaal}</Valgfri>{:else}{spoersmaal}{/if}</legend
   >
+  {#if hjelp}<p class="hjelp" id={`${uid}-hjelp`}>{hjelp}</p>{/if}
   <div class="kort" class:stablet class:lett>
     {#each valg as v (String(v.verdi))}
       <label class="valgkort" class:valgt={verdi === v.verdi} class:forklart={!!v.forklaring}>
@@ -86,6 +92,12 @@
   }
   .valg:focus {
     outline: none;
+  }
+  .hjelp {
+    margin: calc(-1 * var(--spacing-2)) 0 var(--spacing-3);
+    color: var(--ink-3);
+    font-size: 14px;
+    text-wrap: pretty;
   }
   legend {
     width: 100%;
