@@ -295,23 +295,33 @@ eller av et senere vedtak. Bare OV-U73 står igjen.
 
 > **2. Oversiktstabellen i byggherrens svar på et krav om vederlagsjustering (OV-U73).**
 > OV-U73 sier at svaret har en oversiktstabell når det har minst to poster med beløp og minst to
-> lag, med én rad per post og en sumrad, at beløpene er de samme som i punktene, at tabellen står
-> etter punktene og før «Forbehold», at tabellen er en del av brevteksten og fryses med den, og at
-> en post uten fast beløp ikke regnes med. OV-U73 endrer OV-U28: summen i hvert lag står i
-> tabellen. Spørsmålet er hva i posten som binder, og hva brukerprøven kan endre uten vedtak.
+> lag. Tabellen har én rad per post med det krevde beløpet og det byggherren godkjenner i hvert lag,
+> og en sumrad. Beløpene er de samme som i punktene, og tabellen står etter punktene og før
+> «Forbehold». Tabellen er en del av brevteksten og fryses med den. En post uten fast beløp regnes
+> ikke med, og hvordan den vises, avgjøres for seg. OV-U73 endrer OV-U28: summen i hvert lag står i
+> tabellen. Postene er kravpostene (KA-U53), også den særskilte vederlagsjusteringen (OV-U106).
+> At tabellen har én rad per kravpost og én kolonne per lag (KA-U57 (e)), er allerede designdel.
+> Spørsmålet er hva i OV-U73 som binder, og hva brukerprøven kan endre uten vedtak.
 >
-> - **A.** OV-U73 står som vedtak. Tabellen er en del av brevet byggherren sender og fryses med det
->   (MM-U50), beløpene i tabellen er de samme som i punktene, og en post uten fast beløp regnes
->   ikke med i summen. Når tabellen står (minst to poster med beløp og minst to lag), radene,
->   sumraden og plasseringen etter punktene og før «Forbehold» er designdel. Forhold: ingen.
->   Vedtaksteksten endres ikke.
-> - **B.** OV-U73 blir design, bindende i OV-U28 og MM-U50. Det som binder, er standpunktene i
->   punktene. Tabellen er en oversikt over dem, og at et sendt brev betyr det det sa, står i
->   MM-U50. Forhold: ingen. Vedtaksteksten endres ikke.
+> - **A.** OV-U73 står som vedtak. Tabellen er en del av brevet byggherren sender (MM-U50), og
+>   beløpene i tabellen er de samme som i punktene. Når tabellen står (minst to poster med beløp og
+>   minst to lag), har den en sumrad for hvert lag, og en post uten fast beløp regnes ikke med i
+>   summen. Radene, kolonnene og plasseringen etter punktene og før «Forbehold» er designdel, og
+>   det samme er hvordan en post uten fast beløp vises. At tabellen fryses med brevteksten, er
+>   beslutningsdel. Forhold: ingen. Vedtaksteksten endres ikke.
+> - **B.** OV-U73 blir beslutning, bindende i KA-U57 (c) og MM-U50. Byggherrens standpunkt til hver
+>   post står i punktene, og et sendt brev står slik det ble sendt, med tabellen (MM-U50). At
+>   tabellen er en del av brevteksten og fryses med den, er beslutningen. Hva tabellen viser i nye
+>   brev, også sumraden og hvilke poster summen omfatter, er designdel og kan endres av
+>   brukerprøven uten vedtak. Forhold: forholdet «endrer OV-U28» faller bort, og summen i hvert lag
+>   blir designdel. OV-U28 står. Vedtaksteksten endres ikke.
 >
-> **Anbefaling: A.** Summen står i brevet byggherren sender, og den kan leses som det byggherren
-> godkjenner samlet i hvert lag. Hvilke poster som regnes med i den, er derfor noe brevet
-> meddeler, ikke bare en oversikt. Med B kan brukerprøven endre hva summen omfatter, uten vedtak.
+> **Anbefaling: A.** Tabellen er en del av brevteksten (OV-U73), og det byggherren har meddelt
+> skriftlig, står slik det ble sendt (MM-U50). Summen er derfor ikke bare en oversikt i visningen,
+> som vedtaksskillen regner som beslutning eller design. Det er en antakelse, ikke prøvd, at
+> totalentreprenøren leser summen som det byggherren godkjenner samlet i hvert lag. Med den
+> lesingen er det noe brevet meddeler, hvilke poster summen omfatter. Med B kan brukerprøven endre
+> hva summen omfatter i nye brev, uten vedtak. Et sendt brev står (MM-U50).
 >
-> **Valget styrer** klassen og designdelen for OV-U73, og om tabellen kan endres av brukerprøven
-> alene.
+> **Valget styrer** klassen og delene for OV-U73, og om sumraden og hva den omfatter kan endres av
+> brukerprøven alene.
