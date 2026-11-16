@@ -107,7 +107,7 @@
             {kravet(p)}
           </p>
           <div class="lest">
-            <span class="visually-hidden">{SKJEMA.svaretKolonne}:</span>
+            <span class="visually-hidden">{SVARSKJEMA.svaret}:</span>
             {#if lest.length}
               <ul>
                 {#each lest as l, i (i)}<li>{l}</li>{/each}

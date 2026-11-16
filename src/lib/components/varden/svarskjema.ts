@@ -72,11 +72,13 @@ export const kravetSendt = (b: Brevet): string | null =>
   b.sendt ?? (b.art === 'registrert' ? null : b.registrert);
 
 export const SVARSKJEMA = {
-  /** OV-U75: henvisningen står alene i merket ved spørsmålet. */
-  hjemmel: (punkt: string) => `pkt. ${punkt}`,
   postKolonne: 'Post',
   fristKolonne: 'Frist',
   kravetKolonne: 'Kravet',
   svaretKolonne: 'Svaret, slik det står i brevet',
+  /** Den skjulte etiketten for svaret i hver rad, der overskriften står over kolonnen. */
+  svaret: 'Svaret',
+  forkastTekst:
+    'Valgene og begrunnelsene du har skrevet i utkastet, slettes. Det kan ikke gjøres om.',
   kompaktLinje: 'Hovedlinjene og brevkontrollen',
 } as const;
