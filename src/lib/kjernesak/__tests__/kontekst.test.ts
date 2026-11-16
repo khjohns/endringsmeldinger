@@ -473,7 +473,7 @@ describe('sakskonteksten for en TS-sak', () => {
 
   // Kilde: #877 p15 (gjennomgangen 16.11). Serveren har sagt at saken er endret, så saken som
   // vises, er utdatert også etter Avbryt, og en ny lasting som feiler, sier det samme.
-  it('en 409 der lastingen feiler, sier etter Avbryt at saken kan være endret, til saken er lastet', async () => {
+  it('en 409 der lastingen feiler, sier etter Avbryt at saken som vises, kan være utdatert, til den er lastet', async () => {
     const send = vi.fn().mockRejectedValueOnce(new ApiError(409, 'Saken er endret.'));
     const hent = vi
       .fn()
@@ -489,12 +489,12 @@ describe('sakskonteksten for en TS-sak', () => {
     sak.fjernFeil();
     expect(sak.utdatert).toBe(true);
     expect(sak.feil).toBe(
-      'Saken kan være endret siden den ble lastet, og den kunne ikke lastes på nytt. Serveren svarte ikke.'
+      'Saken som vises, kan være utdatert, og den kunne ikke lastes på nytt. Serveren svarte ikke.'
     );
 
     expect(await sak.last()).toBe(false);
     expect(sak.feil).toBe(
-      'Saken kan være endret siden den ble lastet, og den kunne ikke lastes på nytt. Tjenesten er utilgjengelig.'
+      'Saken som vises, kan være utdatert, og den kunne ikke lastes på nytt. Tjenesten er utilgjengelig.'
     );
     expect(await sak.last()).toBe(true);
     expect(sak.utdatert).toBe(false);

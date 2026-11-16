@@ -47,8 +47,7 @@ export interface Ventende {
 
 const USIKKERT = usikkertUtfall('brevet ble lagret', 'det lagres ikke to ganger');
 const IKKE_LASTET = 'Brevet er lagret, men saken kunne ikke lastes på nytt.';
-const ENDRET_IKKE_LASTET =
-  'Saken kan være endret siden den ble lastet, og den kunne ikke lastes på nytt.';
+const KAN_VAERE_UTDATERT = 'Saken som vises, kan være utdatert, og den kunne ikke lastes på nytt.';
 
 export interface Kjernesakvalg {
   sakId: string;
@@ -151,10 +150,10 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   let sender = $state(false);
   let finnes = $state<boolean | null>(null);
   let ventende = $state<Ventende | null>(valg.ventende ?? null);
-  // Årsaken til at saken som vises, er utdatert. Den står til saken er lastet på nytt.
-  // `utdatertFordi` er hvorfor: et lagret brev eller en sending serveren sa var mot en eldre sak.
-  let utdatertAarsak = $state<string | null>(null);
-  let utdatertFordi: string | null = null;
+  // Saken som vises, er utdatert til den er lastet på nytt: `fordi` er et lagret brev eller en
+  // sending serveren avviste mot saken slik den er lastet, og `aarsak` den siste lastefeilen.
+  let utdatert = $state<{ fordi: string; aarsak: string | null } | null>(null);
+  const utdatertAarsak = $derived(utdatert && melding(utdatert.fordi, utdatert.aarsak));
   const part = $derived(valg.part !== undefined ? valg.part : (sak?.part ?? null));
 
   const journal = $derived(sak ? somJournal(sakId, sak.journal) : []);
@@ -162,7 +161,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   const vist = $derived(utledning ? visning(utledning, kjerne.regler) : null);
   const tilbudt = $derived(utledning && part ? tilbudte(utledning, part) : []);
   const noeklene = $derived(tilbudt.map((h) => h.noekkel));
-  const bilde = $derived(sak && vist ? lagSaksbilde(journal, vist, kjerne.leserformat) : null);
+  const bilde = $derived(utledning && vist ? lagSaksbilde(utledning.journal, vist) : null);
 
   let lastinger = 0;
   let gjeldende: Promise<boolean> = Promise.resolve(false);
@@ -192,8 +191,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       if (nr !== lastinger) return gjeldende;
       sak = hentet;
       finnes = true;
-      utdatertAarsak = null;
-      utdatertFordi = null;
+      utdatert = null;
       // Et usikkert utfall står til «Prøv igjen» har fått svar (#816).
       feil = staaende();
       return true;
@@ -207,8 +205,8 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       }
       const aarsak = meldingFra(e, 'Saken kunne ikke hentes.');
       lastefeil = aarsak;
-      if (etterLagring) utdatertFordi = IKKE_LASTET;
-      if (utdatertFordi) utdatertAarsak = melding(utdatertFordi, aarsak);
+      if (etterLagring || utdatert)
+        utdatert = { fordi: etterLagring ? IKKE_LASTET : utdatert!.fordi, aarsak };
       feil = utdatertAarsak ?? aarsak;
       return false;
     }
@@ -322,9 +320,8 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       if (utfall.lagret) {
         ventende = null;
         // Et nyere kall som feilet, gir utfallet uten å vite om lagringen.
-        if (!(await last(true)) && !utdatertAarsak) {
-          utdatertFordi = IKKE_LASTET;
-          utdatertAarsak = melding(IKKE_LASTET, feil);
+        if (!(await last(true))) {
+          utdatert = { fordi: IKKE_LASTET, aarsak: lastefeil };
           feil = utdatertAarsak;
         }
         return true;
@@ -337,10 +334,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       // (LV-U46). Den lastes på nytt med nummeret, og meldingen skal stå etterpå.
       const lastet = maaLastesPaaNytt(e) ? await last() : true;
       // Saken som vises, er den serveren avviste sendingen mot (#877 p15).
-      if (!lastet && !utdatertFordi) {
-        utdatertFordi = ENDRET_IKKE_LASTET;
-        utdatertAarsak = melding(ENDRET_IKKE_LASTET, lastefeil);
-      }
+      if (!lastet && !utdatert) utdatert = { fordi: KAN_VAERE_UTDATERT, aarsak: lastefeil };
       // Lastefeilen alene: meldingen om et tidligere lagret brev står etter Avbryt.
       feil = melding(melding(hva, aarsak), lastet ? null : lastefeil);
       return false;
@@ -435,7 +429,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     },
     /**
      * Saken som vises, er utdatert: den kunne ikke lastes på nytt etter et lagret brev, eller
-     * etter en sending serveren avviste fordi saken er endret.
+     * etter en sending serveren avviste mot saken slik den er lastet.
      */
     get utdatert() {
       return utdatertAarsak !== null;
