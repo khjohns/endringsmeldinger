@@ -229,8 +229,8 @@ FEILINNFOERINGER = [
      "      rute: 'ny_sak',\n      ny_sak_id: sakId,\n", "      rute: 'ny_sak',\n",
      "samme kommando-ID med samme innhold gir samme svar uten ny sak"),
     ("S59", "ukjente felt i kroppen for den nye saken godtas (#1487)", "server/nysak.ts",
-     "!NY_SAK.has(k));\n  if (ukjente.length) return",
-     "!NY_SAK.has(k));\n  if (false) return",
+     "ukjenteFeltmelding(kropp, NY_SAK);\n  if (ukjente) return",
+     "ukjenteFeltmelding(kropp, NY_SAK);\n  if (false) return",
      "avviser et ukjent felt med 400"),
     ("S60", "en tittel med mellomrom i kanten blir to verdier, trimmet i saken og ikke i påberopelsen (LV-U43, #1487)", "server/nysak.ts",
      "  if (tittel !== tittel.trim())\n    return", "  if (false)\n    return",
@@ -514,6 +514,14 @@ FEILINNFOERINGER = [
      "'SELECT filnavn, innhold FROM koe.vedlegg WHERE vedlegg_id = @id AND sak_id = @sak'",
      "'SELECT filnavn, innhold FROM koe.vedlegg WHERE vedlegg_id = @id OR sak_id = @sak'",
      "hentes ikke gjennom stien til pakken"),
+    ("S133", "meldingen om ukjente felt sier aldri fra, så hver inngang som bruker den, godtar dem (#2036)",
+     "server/kroppsfelt.ts",
+     "  if (!ukjente.length) return null;", "  return null;",
+     "avviser et ukjent felt med 400"),
+    ("S134", "ukjente felt i varselet i en ny sak gir ikke meldingen om ukjente felt, bare den neste feilen (#2036)",
+     "server/nysak.ts",
+     "    if (ukjenteIVarsel) return", "    if (false) return",
+     "avviser et ukjent felt i varselet med 400"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

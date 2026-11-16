@@ -243,6 +243,11 @@ describe.skipIf(!TESTBASE_URL)('saken og den første påberopelsen i én handlin
 
   it.each([
     ['et ukjent felt', { aktor_id: 'x' }, 'Ukjente felt: aktor_id.'],
+    [
+      'et ukjent felt i varselet',
+      { varsel: { aktor_id: 'x' } },
+      'Ukjente felt i varsel: aktor_id.',
+    ],
     ['en saks-ID som ikke er en UUID', { ny_sak_id: 'SAK-1' }, 'ny_sak_id mangler'],
     [
       'en saks-ID med store bokstaver',
