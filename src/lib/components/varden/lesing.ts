@@ -153,28 +153,37 @@ export const brevITraaden = (brev: Brevet[], spor: Spor): Brevet[] =>
  * Brevet med neste versjon av kravet i samme spor, etter ID-en til brevet med den tidligere
  * versjonen. Tråden viser et eldre krav dempet med «fulgt opp i brev 5» (U-5 i BF-44).
  */
+/**
+ * Hvert krav i sporet som et senere krav i et annet brev følger opp, med brevet som følger opp
+ * (U-5 i BF-44).
+ */
+function oppfoelgingeneISporet(u: Utledning, spor: Spor, brev: Map<string, Brevet>) {
+  const krav = u.spor[spor].krav;
+  return krav.slice(0, -1).flatMap((k, i) => {
+    const neste = brev.get(krav[i + 1].dokument);
+    return neste && k.dokument !== neste.id ? [{ dokument: k.dokument, neste }] : [];
+  });
+}
+
 export function oppfoelgingene(u: Utledning, alle: Brevet[]): Map<string, Brevref> {
   const brev = new Map(alle.map((b) => [b.id, b]));
   const SPORENE = ['forhold', 'vederlag', 'frist'] as const;
   // Et brev med et krav som gjelder i et annet spor, er ikke fulgt opp som helhet.
   const gjelder = new Set(SPORENE.flatMap((s) => u.spor[s].gjeldendeKrav?.dokument ?? []));
   const ut = new Map<string, Brevref>();
-  for (const s of SPORENE) {
-    const krav = u.spor[s].krav;
-    for (let i = 0; i + 1 < krav.length; i++) {
-      const neste = brev.get(krav[i + 1].dokument);
-      if (neste && krav[i].dokument !== neste.id && !gjelder.has(krav[i].dokument))
-        ut.set(krav[i].dokument, ref(neste));
-    }
-  }
+  for (const s of SPORENE)
+    for (const { dokument, neste } of oppfoelgingeneISporet(u, s, brev))
+      if (!gjelder.has(dokument)) ut.set(dokument, ref(neste));
   return ut;
 }
 
-/** Brevene med et krav et senere krav i sporet følger opp (U-5 i BF-44). */
-export function eldreKravISporet(u: Utledning, spor: Spor): Set<string> {
-  const krav = u.spor[spor].krav;
-  const siste = krav.at(-1)?.dokument;
-  return new Set(krav.slice(0, -1).flatMap((k) => (k.dokument === siste ? [] : k.dokument)));
+/**
+ * Brevene med et krav et senere krav i sporet følger opp, også når brevet har et krav som
+ * gjelder i et annet spor og derfor ikke er fulgt opp som helhet (`oppfoelgingene`, U-5 i BF-44).
+ */
+export function eldreKravISporet(u: Utledning, spor: Spor, alle: Brevet[]): Set<string> {
+  const brev = new Map(alle.map((b) => [b.id, b]));
+  return new Set(oppfoelgingeneISporet(u, spor, brev).map((o) => o.dokument));
 }
 
 /** Det en tekst trenger for å vise til et brev, med eller uten nummer. */

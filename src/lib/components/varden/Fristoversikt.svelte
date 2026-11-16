@@ -42,7 +42,7 @@
   const alle = $derived(brevene(u));
   const k = $derived(kravetOgSvaretIFristen(u, alle));
   const dagene = $derived(kravdagene(u));
-  const eldreKrav = $derived(eldreKravISporet(u, 'frist'));
+  const eldreKrav = $derived(eldreKravISporet(u, 'frist', alle));
   const akseptfrist = $derived(akseptfristen(u, 'frist'));
   const varsel = $derived(u.spor.frist.varsler['33.4'] ?? null);
   const klar = $derived(klarOverForholdet(u));

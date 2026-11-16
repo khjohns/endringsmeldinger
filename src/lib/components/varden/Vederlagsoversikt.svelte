@@ -41,7 +41,7 @@
   const beloepene = $derived(kravbeloepene(u));
   const varslene = $derived(varsleneIKravene(u, alle));
   const fulgtOpp = $derived(oppfoelgingene(u, alle));
-  const eldreKrav = $derived(eldreKravISporet(u, 'vederlag'));
+  const eldreKrav = $derived(eldreKravISporet(u, 'vederlag', alle));
   const akseptfrist = $derived(akseptfristen(u, 'vederlag'));
   // Datoen TE oppgir for når TE ble klar over forholdet, under brevet med varselet etter punkt
   // 34.1.2, med avstanden i kalenderdager (U-8, G-6).
