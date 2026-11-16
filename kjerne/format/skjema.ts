@@ -172,6 +172,10 @@ export const tekst = (v: unknown): string | null => (typeof v === 'string' ? v :
 export const erObjekt = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
 
+/** Feltene i `objekt` som ikke er blant de tillatte, i rekkefølgen de står (#2036). */
+export const ukjenteFelt = (objekt: object, tillatte: ReadonlySet<string>): string[] =>
+  Object.keys(objekt).filter((felt) => !tillatte.has(felt));
+
 const TYPER: Record<string, (v: unknown) => boolean> = {
   string: (v) => typeof v === 'string',
   integer: (v) => typeof v === 'number' && Number.isInteger(v),

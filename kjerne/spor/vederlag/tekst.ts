@@ -146,7 +146,7 @@ function varselpunkt(hjemmel: '34.1.2' | '34.1.3', t: Tekst): Brevpunkt {
  * Vederlagskravet i punkter med overskrift (#1824, prototype v4 i BF-14): kravet det erstatter
  * (KA-U52 punkt 4), varslene, kravpostene med trekket (KA-U56), postene utenfor kravpostene
  * (OV-U95 punkt 3, OV-U89 punkt 17) med trekket av den særskilte (KA-U83), og hvilke poster som
- * er tilbud etter § 34.2.1 (KA-U61, KA-U65). Rigg og drift kalles ikke tilbud. Partene skrives fullt ut (LV-U35).
+ * er tilbud etter § 34.2.1 (KA-U61, KA-U65). Rigg og drift kalles ikke tilbud. Partene skrives fullt ut (`docs/sprak.md`).
  */
 function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
   const { j, saken } = t;
@@ -388,8 +388,6 @@ const KRAVET_OM = 'justering av vederlaget';
 export const BREVTEKSTEN_I_VEDERLAGET = {
   svaretGjelder: `kravet om ${KRAVET_OM}`,
   krav: vederlagstekst,
-  // VS-U29: også påberopelsen etter § 34.1.3 mot det særskilte varselet (VS-U24, OV-U22).
-  ogsaaInnsigelserEtter: ['34.1.3'],
   // LV-U74: utdypningen for hele kravet er begrunnelsen, foran «Forbehold».
   utdypningensPunkt: { punkt: 'begrunnelse', overskrift: 'Begrunnelse' },
   kravetOm: KRAVET_OM,
@@ -407,7 +405,7 @@ export const BREVTEKSTEN_I_VEDERLAGET = {
 
 /**
  * Standpunktene i artene bare vederlagssporet har (LV-U4 punkt 5, LV-U5), med partene skrevet
- * fullt ut (LV-U35) og «punkt» (LV-U39). Beløpene står uten «eks. mva.», som står i
+ * fullt ut (`docs/sprak.md`) og «punkt» (LV-U39). Beløpene står uten «eks. mva.», som står i
  * innledningen (LV-U34).
  */
 export const STANDPUNKTENE_I_VEDERLAGET = {

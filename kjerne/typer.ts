@@ -427,8 +427,8 @@ export interface Dokument {
    */
   brevnummer: number | null;
   /**
-   * Merkingen på et brev fra løsningen, `K201-KOE-017-03`, frosset da brevet ble skrevet (LV-U53,
-   * LV-U24, LV-U44, oppdragsgiver 04.11 i #1570). Henvisningene, brevhodet og dokumentnavnet leser
+   * Merkingen på et brev fra løsningen, `K201-KOE-017-03`, frosset da brevet ble skrevet
+   * (LV-U24, LV-U44, oppdragsgiver 04.11 i #1570). Henvisningene, brevhodet og dokumentnavnet leser
    * den. `null` for registrert korrespondanse og når prosjektet ikke hadde kontraktsforkortelsen.
    */
   merking: string | null;
@@ -440,7 +440,7 @@ export interface Dokument {
    */
   deresRef: string[];
   /**
-   * Typen registrert korrespondanse (OV-U79, LV-U42, N4 og D1 A i #1497). Brevene fra løsningen
+   * Typen registrert korrespondanse (OV-U79, LV-U45, N4 og D1 A i #1497). Brevene fra løsningen
    * omtaler den med typen. `null` i et brev fra løsningen.
    */
   korrespondansetype: Korrespondansetype | null;

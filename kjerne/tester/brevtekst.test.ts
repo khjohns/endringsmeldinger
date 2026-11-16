@@ -983,6 +983,40 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
     expect(tekst(uten)[0].utdypning).toBeUndefined();
   });
 
+  it('meldingene ved et annet forhold, en annen dato og en korrigering av et annet felt bruker kontraktens ord for forholdet, ikke «grunnlaget» (GR-U31, OV-U82, #2042)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    const meldinger = [
+      s.avvisning('TE', {
+        ...PAABEROPELSE,
+        innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER },
+      }),
+      s.avvisning('TE', {
+        ...PAABEROPELSE,
+        innhold: { ...PAABEROPELSE.innhold, paalegg_mottatt: '2026-09-20' },
+      }),
+      s.avvisning('TE', korrigering(s, 'klar_over_forholdet', '2026-09-20')),
+    ];
+    expect(meldinger).toEqual([
+      {
+        regel: 'ANNEN_HJEMMEL',
+        melding:
+          'Påberopelsen er sendt, så en oppdatert påberopelse kan ikke endre forholdet eller gruppen det hører til. Et annet forhold påberopes i en ny sak.',
+      },
+      {
+        regel: 'DATOEN_KAN_IKKE_ENDRES',
+        melding:
+          'En oppdatert påberopelse kan ikke endre datoen pålegget ble mottatt. Totalentreprenørens siste opplysning er 25. september 2026. Datoen korrigeres i et eget brev.',
+      },
+      {
+        regel: 'UGYLDIG_KORRIGERING',
+        melding:
+          'For forholdet som er påberopt, oppgir totalentreprenøren datoen pålegget ble mottatt, ikke datoen totalentreprenøren ble klar over forholdet.',
+      },
+    ]);
+    for (const m of meldinger) expect(m!.melding).not.toMatch(/grunnlag/i);
+  });
+
   it('i svikt og andre forhold gjelder korrigeringen datoen TE ble klar over forholdet', () => {
     const s = sak();
     s.send('TE', {
@@ -2660,6 +2694,32 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
         foer.u.sendtSammeDag.filter((x) => x.med === foer.innsigelse),
         'kontrollsak: sendt dagen før'
       ).toEqual([]);
+    });
+
+    it('i et forhold der § 32.2 ikke gjelder, sammenliknes svaret ikke med innsigelsen mot påberopelsen, som brevteksten heller ikke gjentar (VS-U24, MM-U43 punkt 8, #2050)', () => {
+      const merket = (innhold: Data, vurderinger: Data) => {
+        const s = sak();
+        s.send('TE', { ...PAABEROPELSE, innhold });
+        const rad = s.send('BH', { type: 'innsigelse', gjelder: s.krav('forhold') });
+        const innsigelse = (rad.data.utsagn as Data[])[0].id;
+        const svaret = svar('forhold', s.krav('forhold'), vurderinger) as Data;
+        delete svaret.utdypning;
+        delete svaret.utdypninger;
+        s.send('BH', {
+          type: 'brev',
+          svar: [svaret],
+          sendt: rad.tidsstempel.slice(0, 10),
+          korrespondansetype: 'brev',
+          dokumentasjon: [randomUUID()],
+        });
+        return s.u().sendtSammeDag.filter((x) => x.med === innsigelse);
+      };
+      const svikt = { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER };
+      expect(merket(svikt, { resultat: 'avslaatt' })).toEqual([]);
+      expect(
+        merket(PAABEROPELSE.innhold, { resultat: 'avslaatt', grunnlag_varslet_i_tide: false }),
+        'kontrollsak: § 32.2 gjelder'
+      ).toHaveLength(1);
     });
   });
 

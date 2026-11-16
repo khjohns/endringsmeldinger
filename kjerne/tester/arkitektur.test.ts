@@ -637,6 +637,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Opplysning', 'relasjon', 'id hva gjelder dokument brev oppgittAv'],
   ['Opplysning', 'utsagn', 'dato oppfylt'],
   ['Beslutningsgrunnlag', 'frosset', 'regelversjon virkninger sammenfall varslingsplikt'],
+  // GR-U32, LV-U41: ordene for standpunktet til forholdet, lest av det frosne svaret og påberopelsen.
+  ['Forholdsordene', 'frosset', 'endringsordre varslingsplikt risiko', ['spor/forhold/tekst.ts']],
   ['Standpunktsvirkning', 'frosset', 'standpunkt art virkning'],
 
   // Utledningen (utled.ts).
@@ -695,10 +697,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Foresporselsrelasjon', 'relasjon', 'art gjelder'],
   ['spor/frist/frysing.ts', 'relasjon', 'svarPaaForesporsler foresporselsrelasjon erUbesvart'],
   ['spor/frist/utledning.ts', 'relasjon', 'foresporselForFristsvar foresporselenKravetSvarerPaa'],
-  // OV-U104, OV-U105: innsigelsene et svar lagt til sammenliknes med.
-  ['utledning/utled.ts:partensPaaberopelser', 'relasjon', 'id spor dag'],
-  ['Utledning', 'relasjon', 'innsigelser', ['utledning/utled.ts:partensPaaberopelser']],
-  ['Paaberopelse', 'relasjon', 'id', ['utledning/utled.ts:partensPaaberopelser']],
+  // OV-U104, OV-U105: påberopelsene et svar lagt til sammenliknes med.
+  ['Partspaaberopelse', 'relasjon', 'id dag hjemmel', ['utledning/utled.ts:registreringenStrider']],
   [
     'Utledning',
     'utsagn',
@@ -850,16 +850,29 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/forhold/utledning.ts:forholdssvaretsVirkning'],
   ],
   // VS-U24: en egen innsigelse er en påberopelse etter § 33.4 eller § 32.2 bare mot varselet.
-  ['frosset/standpunkt.ts', 'relasjon', 'innsigelsenPaaberoper', ['frosset/brevtekst.ts']],
+  [
+    'frosset/standpunkt.ts',
+    'relasjon',
+    'innsigelsenPaaberoper',
+    ['frosset/brevtekst.ts', 'utledning/utled.ts:partensPaaberopelser'],
+  ],
   // VS-U29, OV-U104: en innsigelse som påberoper at noe kom for sent.
   [
     'frosset/standpunkt.ts',
     'relasjon',
     'erPaaberopelse',
+    ['spor/frist/utledning.ts:foresporselForFristsvar'],
+  ],
+  // VS-U24, VS-U29, OV-U104, OV-U105: påberopelsene et svar gjentar eller gir opp, og dagen det
+  // sammenliknes med dem, likt i brevteksten og utledningen (#2050).
+  [
+    'frosset/standpunkt.ts',
+    'relasjon',
+    'paaberopelserIDokumentet svaretGjelderPaaberopelsen',
     [
       'frosset/brevtekst.ts',
+      'utledning/utled.ts:registreringenStrider',
       'utledning/utled.ts:partensPaaberopelser',
-      'spor/frist/utledning.ts:foresporselForFristsvar',
     ],
   ],
   // MM-U43 punkt 8: sammenfallet stemmer med standpunktene i samme frosne brev.
@@ -1036,6 +1049,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/frysing.ts'],
   ],
   ['regler/svarkontroll.ts:kontrollerForholdet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
+  // D-7, #2035: når svaret på forholdet må ha en begrunnelse, og punktene den kan stå i.
+  ['regler/forhold.ts:begrunnelseskravet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
+  [
+    'regler/forhold.ts',
+    'regelsett',
+    'begrunnelseskravet BEGRUNNELSESPUNKTENE',
+    ['spor/forhold/kommando.ts'],
+  ],
   ['regler/vederlag.ts:kontrollerVarseletForVederlag', 'utsagn', 'hovedkrav_varslet_i_tide'],
   [
     'regler/vederlag.ts:kontrollerOppgjoersformen',
@@ -1298,6 +1319,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kravversjonenPaaDagen',
     ['kommandoer/nyttelast.ts:kontrollerSvar'],
   ],
+  // OV-U98, #2057: et svar lagt til fryses med lagene i svaret på forholdet som gjaldt da.
+  [
+    'utledning/utled.ts',
+    'relasjon',
+    'svaretPaaForholdetPaaDagen',
+    ['kommandoer/skriving.ts:frosneSvar', 'kommandoer/skriving.ts:frysBrev'],
+  ],
+  ['Journalrad.data', 'rad', 'opplysninger', ['kommandoer/skriving.ts:frysBrev']],
+  ['kommandoer/skriving.ts:frysBrev(o)', 'rad', 'hva gjelder', ['kommandoer/skriving.ts:frysBrev']],
+  ['kommandoer/skriving.ts:frysBrev(sendt)', 'rad', 'dato', ['kommandoer/skriving.ts:frysBrev']],
+  ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/skriving.ts:frysBrev']],
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/avvisning.ts:avvisning']],
   ['Registrering', 'kommando', 'sendt', ['kommandoer/avvisning.ts:avvisning']],
   // OV-U109: dagen forespørselen og fristkravet ble sendt.
@@ -1310,7 +1342,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // MM-U43 punkt 9: et svar uten virkning gir ikke opp innsigelsen (OV-U105).
   ['Utledning', 'relasjon', 'utenVirkning', ['kommandoer/skriving.ts:brevtekstFor']],
   ['Utledning.utenVirkning', 'relasjon', 'element', ['kommandoer/skriving.ts:brevtekstFor']],
-  ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:aapneInnsigelser']],
+  ['Saken', 'relasjon', 'utenVirkning', ['frosset/brevtekst.ts:aapneInnsigelser.utenVirkning']],
   // OV-U104: sammenlikningene samme dag.
   ['Utledning.sendtSammeDag', 'relasjon', 'element med'],
   // OV-U80: et registrert svar har ingen tekst fra løsningen.
@@ -1423,7 +1455,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Svarsfrysing',
     'frosset',
-    'virkninger utfall godkjennerHeleKravet vilkaar hvertITideGirOppInnsigelsen',
+    'virkninger utfall godkjennerHeleKravet vilkaar hvertITideGirOppInnsigelsen ogsaaInnsigelserEtter',
     ['frosset/standpunkt.ts'],
   ],
   ['spor/forhold/frysing.ts', 'frosset', 'FRYSING_I_FORHOLDET', ['frosset/standpunkt.ts']],
@@ -1608,7 +1640,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Hjemmelen for hindringen, i brevet og skjemaene (KA-U81, #1925).
   ['spor/frist/format.ts', 'brevtekst', 'hindringenEtter', ['spor/frist/tekst.ts']],
   ['VARSELSPOR', 'relasjon', '32.2 33.4 34.1.2 34.1.3 34.3.3 34.4'],
-  ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato'],
+  ['format/skjema.ts', 'skjema', 'erObjekt feilI tekst erKalenderdato ukjenteFelt'],
   // #373: det basen ikke kan lagre, avvises før kommandoen vurderes.
   [
     'format/skjema.ts',
@@ -1698,7 +1730,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/kommando.ts',
       'spor/forhold/frysing.ts',
       'frosset/standpunkt.ts',
-      'frosset/brevtekst.ts',
     ],
   ],
   ['format/format.ts', 'kontekst', 'FORMAT LESERFORMAT', ['versjon.ts']],
@@ -2284,6 +2315,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
   // av samme slag (MM-U1, MM-U7).
   ['format/leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],
+  // OV-U98, OV-U104: dagene sammenliknes som kalenderdager, og samme dag meldes der de sammenliknes.
+  ['format/leser.ts', 'relasjon', 'foerDagen'],
+  // OV-U32, OV-U98, #2057: dagen et svar ble sendt, og om brevet er lagt til, for svaret på
+  // forholdet svaret regnes med.
+  ['Dokument', 'relasjon', 'id', ['utledning/utled.ts:dagene']],
+  ['format/leser.ts', 'kontekst', 'dagenSendt', ['utledning/utled.ts:dagene']],
+  [
+    'utledning/utled.ts:dagene',
+    'relasjon',
+    'dagen lagtTil',
+    ['utledning/utled.ts:settForholdssvarene'],
+  ],
   // #474: datoene i KA-U36 (opphevet av KA-U46) og VS-U26 sammenliknes som kalenderdager.
   [
     'format/leser.ts',
@@ -2449,7 +2492,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'Sporsbrevtekst',
     'brevtekst',
-    'krav ogsaaInnsigelserEtter svaretGjelder utdypningensPunkt innledning temaer punktet erInnsigelse rettidighetUtenVarsel oversikt ingenBeloep',
+    'krav svaretGjelder utdypningensPunkt innledning temaer punktet erInnsigelse rettidighetUtenVarsel oversikt ingenBeloep',
     ['frosset/brevtekst.ts'],
   ],
   // LV-U34 og OV-U73: temaene og beløpene per lag i byggherrens svar.
