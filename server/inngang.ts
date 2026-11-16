@@ -87,18 +87,28 @@ const lagretUtenSvar = (): Svar => [
   },
 ];
 
+/** En kode fra Node, `tedious` eller `mssql`, som `ETIMEOUT` eller `UND_ERR_SOCKET`. */
+const KODE = /^[A-Z][A-Z0-9_]{0,39}$/;
+
 /**
  * Logger en feil serveren ikke kan svare på annet enn generelt: stedet,
- * feilklassen, feilnummeret fra basen og kallstakken, uten meldingen. Meldingen
- * kan bære et token, et navn eller et svar fra Catenda (CLAUDE.md, #867 punkt 5).
+ * feilklassen, feilnummeret fra basen, eller koden når feilen ikke har et nummer,
+ * og kallstakken, uten meldingen. Meldingen kan bære et token, et navn eller et
+ * svar fra Catenda (CLAUDE.md, #867 punkt 5). Koden skiller et tidsavbrudd fra en
+ * lukket forbindelse og en parameterfeil (#926).
  */
 export function loggFeil(hvor: string, feil: unknown, nivaa: 'error' | 'warn' = 'error'): void {
   const klasse = (feil as Error)?.constructor?.name ?? typeof feil;
   const nummer = feilnummer(feil);
+  const kode = (feil as { code?: unknown } | null)?.code;
+  const merke =
+    nummer !== undefined
+      ? `, feilnummer ${nummer}`
+      : typeof kode === 'string' && KODE.test(kode)
+        ? `, kode ${kode}`
+        : '';
   const rammer = rammene(feil);
-  console[nivaa](
-    `${hvor} (${klasse}${nummer === undefined ? '' : `, feilnummer ${nummer}`})${rammer ? `\n${rammer}` : ''}`
-  );
+  console[nivaa](`${hvor} (${klasse}${merke})${rammer ? `\n${rammer}` : ''}`);
 }
 
 /**

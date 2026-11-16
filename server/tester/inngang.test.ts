@@ -53,6 +53,30 @@ describe('loggen av en feil (#867 punkt 5)', () => {
     expect(linje).not.toContain('Kari');
   });
 
+  it.each([
+    ['ETIMEOUT', 'kode ETIMEOUT'],
+    ['ECLOSE', 'kode ECLOSE'],
+    ['EPARAM', 'kode EPARAM'],
+  ])(
+    'en feil uten feilnummer har koden %s, så loggen skiller tidsavbrudd, lukket forbindelse og parameterfeil (#926)',
+    (kode, merke) => {
+      const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+      loggFeil('Kallet feilet', Object.assign(new Error('token=hemmelig'), { code: kode }));
+      const [linje] = logg.mock.calls[0] as [string];
+      expect(linje).toMatch(new RegExp(`^Kallet feilet \\(Error, ${merke}\\)\\n`));
+      expect(linje).not.toContain('hemmelig');
+    }
+  );
+
+  it('en kode som ikke har formen til en kode, logges ikke, og feilnummeret går foran koden', () => {
+    const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
+    loggFeil('Kallet feilet', Object.assign(new Error('x'), { code: 'Kari Nordmann' }));
+    loggFeil('Kallet feilet', Object.assign(new Error('x'), { code: 'ETIMEOUT', number: 1205 }));
+    const [[foerste], [andre]] = logg.mock.calls as [string][];
+    expect(foerste).toMatch(/^Kallet feilet \(Error\)\n/);
+    expect(andre).toMatch(/^Kallet feilet \(Error, feilnummer 1205\)\n/);
+  });
+
   it('en meldingslinje som begynner med «at», kommer ikke med i stakken', () => {
     const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
     loggFeil(
@@ -82,7 +106,7 @@ describe('loggen av en feil (#867 punkt 5)', () => {
     expect(logg).toHaveBeenCalledWith('Endret (Error)');
   });
 
-  it('en feil fra Node med kode har rammene', () => {
+  it('en feil fra Node med kode har koden og rammene (#926)', () => {
     // Node skriver hodet som `navn [kode]: melding`; i vitest skrives stakken om uten koden.
     const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
     const feil = Object.assign(new RangeError('Received -1'), {
@@ -92,7 +116,7 @@ describe('loggen av en feil (#867 punkt 5)', () => {
     });
     loggFeil('Kode', feil);
     expect(logg).toHaveBeenCalledWith(
-      'Kode (RangeError)\n    at Function.alloc (node:buffer:395:3)'
+      'Kode (RangeError, kode ERR_OUT_OF_RANGE)\n    at Function.alloc (node:buffer:395:3)'
     );
   });
 
