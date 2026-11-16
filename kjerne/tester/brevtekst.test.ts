@@ -5430,7 +5430,7 @@ describe('vedleggene står i teksten (A4)', () => {
     })),
     krav: [],
     svar: [],
-    utsagn: [{ id: 'u', art: 'varsel', hjemmel: '33.4', dokument: 'brevet' }],
+    utsagn: [{ id: 'u', art: 'foresporsel', hjemmel: '33.6.2' }],
     brevtekst: null,
     brevtittel: null,
     brevnummer: null,

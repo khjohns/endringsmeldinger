@@ -2896,7 +2896,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [
       [
         '...d.utsagn.filter((x) => !REGISTRERT_MED_VIRKNING.has(x.art))',
-        "...d.utsagn.filter((x) => x.art === 'trekk')",
+        '...d.utsagn.filter(() => false)',
       ],
     ],
     mal: ['OV-U19, OV-U4: en registrert begrunnelse', 'punkt 4 i #1167: alt i et registrert brev'],
