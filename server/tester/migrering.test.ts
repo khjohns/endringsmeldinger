@@ -730,6 +730,18 @@ BEGIN TRANSACTION;`,
     expect(iMaster.recordset[0].n).toBe(0);
   });
 
+  it('avviser neste fil når en fil slår på IMPLICIT_TRANSACTIONS, så den ikke regnes som anvendt uten å være committet', async () => {
+    const m = mappe({
+      [A]: 'CREATE TABLE dbo.prove_a (id int NOT NULL);\nSET IMPLICIT_TRANSACTIONS ON;',
+      [B]: 'CREATE TABLE dbo.prove_b (id int NOT NULL);',
+    });
+    await expect(migrer(base.pool, lesMigrasjoner(m))).rejects.toThrow(
+      /^Forbindelsen hadde en åpen transaksjon før runnerens \(@@TRANCOUNT 2\)\. Anvendt i denne kjøringen: 20260101000000\.$/
+    );
+    expect(await historikk()).toEqual(['20260101000000']);
+    expect(await tabeller()).toEqual(['prove_a']);
+  });
+
   /**
    * Lar satsen med historikkraden kjøre med `endre` på teksten og gjør så svaret
    * om til en feil, som når svaret går tapt etter at satsen har kjørt.

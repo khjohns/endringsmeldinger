@@ -280,15 +280,11 @@ export function egenKonfig(pool: sql.ConnectionPool): sql.config {
 /** Identiteten runneren krever, så skjemaene filene lager, eies av databaseeieren. */
 const EIER = 'dbo';
 
-/**
- * Avviser en annen identitet enn `EIER` før runneren tar applåsen, og gir basen
- * forbindelsen står i.
- */
-async function kontrollerIdentitet(egen: sql.ConnectionPool): Promise<string> {
-  const { bruker, base } = await tilstand(egen);
+/** Avviser en annen identitet enn `EIER` før runneren tar applåsen. */
+async function kontrollerIdentitet(egen: sql.ConnectionPool): Promise<void> {
+  const { bruker } = await tilstand(egen);
   if (bruker !== EIER)
     throw new MigreringAvvist(`Runneren kjøres som ${bruker}, ikke som databaseeieren ${EIER}.`);
-  return base;
 }
 
 /**
@@ -414,6 +410,12 @@ async function anvendNeste(
   const runnerens = await tilstand(egen);
   if (runnerens.laas !== 'Exclusive')
     throw new MigreringAvvist('Forbindelsen har ikke lenger applåsen for migreringen.');
+  // Med `SET IMPLICIT_TRANSACTIONS ON` fra en tidligere fil er en transaksjon åpen
+  // før runnerens, og COMMIT med historikkraden committer ikke fila.
+  if (runnerens.nivaa !== 1)
+    throw new MigreringAvvist(
+      `Forbindelsen hadde en åpen transaksjon før runnerens (@@TRANCOUNT ${runnerens.nivaa}).`
+    );
   await egen.request().batch(HISTORIKK);
   const anvendt = (
     await egen
@@ -444,17 +446,17 @@ async function anvendNeste(
         `${sted}: satsen slettet #koe_migrering, som runneren ser om fila committet med.` +
           (await lagret(egen, runnerens))
       );
+    // Etter `USE` ville resten av fila og historikkraden kjørt i en annen base (#928 p1).
+    if (etter.base !== runnerens.base)
+      throw new MigreringAvvist(
+        `${sted}: satsen byttet basen fra ${runnerens.base} til ${etter.base}.` +
+          (await lagret(egen, runnerens))
+      );
     // Per sats, så verken resten av fila, historikkraden eller de neste filene
     // kjøres som en annen enn `EIER` (#866 punkt 2).
     if (etter.bruker !== EIER)
       throw new MigreringAvvist(
         `${sted}: satsen byttet identiteten fra ${EIER} til ${etter.bruker}.` +
-          (await lagret(egen, runnerens))
-      );
-    // Etter `USE` ville resten av fila og historikkraden kjørt i en annen base (#928 p1).
-    if (etter.base !== runnerens.base)
-      throw new MigreringAvvist(
-        `${sted}: satsen byttet basen fra ${runnerens.base} til ${etter.base}.` +
           (await lagret(egen, runnerens))
       );
   }
@@ -532,17 +534,15 @@ export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Prom
   const kjoert: string[] = [];
   // Fila med historikkraden som feilet, men som kan være lagret likevel.
   let uvisst: string | undefined;
-  // Runneren rydder bare en forbindelse som har tatt applåsen og fortsatt er `EIER`
-  // i samme base.
+  // Runneren rydder bare en forbindelse som har tatt applåsen og fortsatt er `EIER`.
   let laast = false;
-  let egenBase = '';
   try {
     await egenPool.connect();
     forbindelse = await (egenPool as unknown as Utlaan).acquire(egenPool);
     const egen = reservasjon(egenPool, forbindelse);
     try {
       await egen.request().batch('SET XACT_ABORT ON;');
-      egenBase = await kontrollerIdentitet(egen);
+      await kontrollerIdentitet(egen);
       await laas(egen);
       laast = true;
       for (;;) {
@@ -554,17 +554,16 @@ export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Prom
         kjoert.push(versjon);
       }
     } finally {
-      // Identiteten og basen leses her, ikke av feilen: en sats kan bytte dem og
-      // feile, eller feile en annen kontroll først. Uten `EIER` i runnerens base
-      // ruller serveren tilbake og slipper låsen når forbindelsen lukkes (#885 punkt 6).
+      // Identiteten leses her, ikke av feilen: en sats kan bytte den og feile, eller
+      // feile en annen kontroll først. Uten `EIER` ruller serveren tilbake og
+      // slipper låsen når forbindelsen lukkes (#885 punkt 6).
       if (laast)
         await egen
           .request()
           .input('ressurs', sql.NVarChar(255), APPLAAS)
           .input('eier', sql.NVarChar(128), EIER)
-          .input('base', sql.NVarChar(128), egenBase)
           .batch(
-            `IF USER_NAME() = @eier AND DB_NAME() = @base
+            `IF USER_NAME() = @eier
            BEGIN
              IF @@TRANCOUNT > 0 ROLLBACK;
              IF APPLOCK_MODE(N'db_owner', @ressurs, N'Session') = 'Exclusive'

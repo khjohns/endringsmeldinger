@@ -3,7 +3,8 @@
  * (`start.ts`):
  * - Forbindelsen skal være kjøretidens: medlem av `koe_runtime`, uten en fast
  *   eller egen rolle i basen ellers, uten `CONTROL` eller en annen rettighet på
- *   hele basen, uten `IMPERSONATE` på `dbo` og ikke `sysadmin` på serveren (#707
+ *   hele basen, uten `IMPERSONATE` på `dbo`, uten rettigheter gitt rett til
+ *   brukeren og ikke `sysadmin` på serveren (#707
  *   punkt 3, #858 punkt 2, #885 punkt 1). Med flere rettigheter gjelder ikke de
  *   kjøretiden er prøvd med (`tester/tilgang.test.ts`), og med `sa` uten database
  *   er basen `master`. Et vilkår som ikke kan leses, er et brudd (#885 punkt 2).
@@ -59,6 +60,12 @@ export interface Rollesvar {
   rettigheter: string | null;
   /** `IMPERSONATE` på `dbo`. */
   utgir: number | null;
+  /**
+   * Rettighetene gitt rett til forbindelsens bruker eller en gruppe den er med i, på
+   * et objekt, et skjema eller en annen bruker. Rettighetene på hele basen og
+   * `IMPERSONATE` på `dbo` står i `rettigheter` og `utgir`.
+   */
+  direkte: string | null;
   sysadmin: number | null;
 }
 
@@ -81,6 +88,13 @@ async function rollesvar(pool: Pool): Promise<Rollesvar> {
                  FROM fn_my_permissions(NULL, N'DATABASE') AS p
                 WHERE p.permission_name NOT IN (${liste(BASERETTIGHETER)})) AS rettigheter,
               HAS_PERMS_BY_NAME(N'dbo', N'USER', N'IMPERSONATE') AS utgir,
+              (SELECT STRING_AGG(p.permission_name + N' (' + p.class_desc + N')', N', ')
+                      WITHIN GROUP (ORDER BY p.class_desc, p.permission_name)
+                 FROM sys.database_permissions AS p
+                 JOIN sys.user_token AS t ON t.principal_id = p.grantee_principal_id
+                WHERE t.type <> N'ROLE' AND p.state IN ('G', 'W')
+                  AND p.class <> 0
+                  AND NOT (p.class = 4 AND p.major_id = USER_ID(N'dbo') AND p.permission_name = N'IMPERSONATE')) AS direkte,
               IS_SRVROLEMEMBER(N'sysadmin') AS sysadmin`
     )
   ).recordset[0];
@@ -89,17 +103,18 @@ async function rollesvar(pool: Pool): Promise<Rollesvar> {
 /** Vilkårene for kjøretiden som `svar` bryter, som ledd i én setning. */
 export function rollebrudd(svar: Rollesvar): string[] {
   const brudd: string[] = [];
-  if (svar.kjoeretid === null) brudd.push('medlemskapet i koe_runtime kunne ikke leses');
+  if (svar.kjoeretid === null) brudd.push('koe_runtime finnes ikke i basen eller kan ikke leses');
   else if (svar.kjoeretid !== 1) brudd.push('den er ikke medlem av koe_runtime');
   if (svar.roller) brudd.push(`den er medlem av ${svar.roller}`);
   if (svar.egne) brudd.push(`den er også medlem av ${svar.egne}`);
   if (svar.kontroll === null) brudd.push('om den har CONTROL på basen, kunne ikke leses');
   else if (svar.kontroll !== 0) brudd.push('den har CONTROL på basen');
-  // CONTROL, en fast rolle og sysadmin gir hver rettighet på basen; da gjentas de ikke.
-  const alle = svar.kontroll !== 0 || svar.roller || svar.sysadmin !== 0;
+  // CONTROL, en fast rolle og sysadmin gir rettigheter på hele basen; da gjentas de ikke.
+  const alle = svar.kontroll === 1 || svar.roller || svar.sysadmin === 1;
   if (svar.rettigheter && !alle) brudd.push(`den har ${svar.rettigheter} på hele basen`);
   if (svar.utgir === null) brudd.push('om den kan utgi seg for dbo, kunne ikke leses');
   else if (svar.utgir !== 0 && !alle) brudd.push('den har IMPERSONATE på dbo');
+  if (svar.direkte && !alle) brudd.push(`den har fått ${svar.direkte} direkte`);
   if (svar.sysadmin === null) brudd.push('om den er sysadmin på serveren, kunne ikke leses');
   else if (svar.sysadmin !== 0) brudd.push('den er sysadmin på serveren');
   return brudd;

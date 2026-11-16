@@ -541,7 +541,7 @@ FEILINNFOERINGER = [
      "som ikke er committet når satsen feiler"),
     ("S139", "en fil med bekreftet COMMIT står ikke som anvendt i denne kjøringen (#928 p2)",
      "server/migrering.ts",
-     "          if (committet) kjoert.push(v);", "",
+     "          if (committet) kjoert.push(v);", "          if (false) kjoert.push(v);",
      "står som anvendt i denne kjøringen"),
     ("S140", "oppstarten ser ikke en egen rolle for kjøretiden (#885 punkt 1)",
      "server/oppstart.ts",
@@ -560,6 +560,14 @@ FEILINNFOERINGER = [
      "  if (svar.kontroll === null) brudd.push('om den har CONTROL på basen, kunne ikke leses');\n  else if",
      "  if",
      "en NULL i kontroll"),
+    ("S144", "oppstarten ser ikke en rettighet gitt rett til brukeren (#885 punkt 1)",
+     "server/oppstart.ts",
+     "  if (svar.direkte && !alle)", "  if (false)",
+     "direkte (#885 punkt 1)"),
+    ("S145", "runneren anvender en fil i en transaksjon som var åpen før runnerens (#928)",
+     "server/migrering.ts",
+     "  if (runnerens.nivaa !== 1)", "  if (false)",
+     "slår på IMPLICIT_TRANSACTIONS"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

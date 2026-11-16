@@ -111,6 +111,7 @@ describe('rollebrudd', () => {
     kontroll: 0,
     rettigheter: null,
     utgir: 0,
+    direkte: null,
     sysadmin: 0,
   };
 
@@ -119,7 +120,7 @@ describe('rollebrudd', () => {
   });
 
   it.each([
-    ['kjoeretid', 'medlemskapet i koe_runtime kunne ikke leses'],
+    ['kjoeretid', 'koe_runtime finnes ikke i basen eller kan ikke leses'],
     ['kontroll', 'om den har CONTROL på basen, kunne ikke leses'],
     ['utgir', 'om den kan utgi seg for dbo, kunne ikke leses'],
     ['sysadmin', 'om den er sysadmin på serveren, kunne ikke leses'],
@@ -129,6 +130,14 @@ describe('rollebrudd', () => {
       expect(rollebrudd({ ...kjoeretid, [felt]: null })).toEqual([melding]);
     }
   );
+
+  it('en NULL for CONTROL skjuler ikke rettighetene som er lest (#885 punkt 2)', () => {
+    expect(rollebrudd({ ...kjoeretid, kontroll: null, rettigheter: 'SELECT', utgir: 1 })).toEqual([
+      'om den har CONTROL på basen, kunne ikke leses',
+      'den har SELECT på hele basen',
+      'den har IMPERSONATE på dbo',
+    ]);
+  });
 });
 
 describe.skipIf(!SQLSERVER_TILKOBLING)('hindringene mot en migrert base', () => {
@@ -193,6 +202,16 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('hindringene mot en migrert base', () => 
       'GRANT IMPERSONATE ON USER::dbo TO',
       /den har IMPERSONATE på dbo\./,
     ],
+    [
+      'har fått CONTROL på et skjema direkte (#885 punkt 1)',
+      'GRANT CONTROL ON SCHEMA::koe TO',
+      /den har fått CONTROL \(SCHEMA\) direkte\./,
+    ],
+    [
+      'har fått IMPERSONATE på en annen bruker direkte (#885 punkt 1)',
+      'CREATE USER koe_annen_bruker WITHOUT LOGIN; GRANT IMPERSONATE ON USER::koe_annen_bruker TO',
+      /den har fått IMPERSONATE \(DATABASE_PRINCIPAL\) direkte\./,
+    ],
   ])(
     'kjøretiden nektes når den også %s, og meldingen sier hvilket vilkår (#858 punkt 2)',
     async (_, tildeling, vilkaar) => {
@@ -209,6 +228,13 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('hindringene mot en migrert base', () => 
         expect(funn[0]).toMatch(vilkaar);
       } finally {
         await kjoeretid2.slett();
+        await base.pool.request().batch(
+          `DECLARE @s nvarchar(max) = N'';
+             SELECT @s += N'ALTER ROLE koe_egen_rolle DROP MEMBER ' + QUOTENAME(USER_NAME(member_principal_id)) + N';'
+               FROM sys.database_role_members WHERE role_principal_id = DATABASE_PRINCIPAL_ID(N'koe_egen_rolle');
+             EXEC (@s);
+             DROP ROLE IF EXISTS koe_egen_rolle;`
+        );
       }
     }
   );
