@@ -8,6 +8,7 @@
 import type { IncomingMessage, OutgoingHttpHeaders } from 'node:http';
 import type { Svar } from './rutetyper.ts';
 import { feilnummer } from './datalag.ts';
+import { ukjenteFeltmelding } from './nysak.ts';
 
 /** Feilsvaret i samme form fra hver inngang, også de åpne (#942). */
 export const feilsvar = (status: number, error: string, message: string): Svar => [
@@ -20,8 +21,8 @@ export function ukjenteFelt(
   kropp: Record<string, unknown>,
   tillatte: ReadonlySet<string>
 ): Svar | null {
-  const ukjente = Object.keys(kropp).filter((k) => !tillatte.has(k));
-  return ukjente.length ? ugyldig(`Ukjente felt: ${ukjente.join(', ')}.`) : null;
+  const melding = ukjenteFeltmelding(kropp, tillatte);
+  return melding ? ugyldig(melding) : null;
 }
 /** Koden og meldingen for en kropp over grensen. */
 export const FOR_STOR = ['PAYLOAD_TOO_LARGE', 'Forespørselen er for stor.'] as const;

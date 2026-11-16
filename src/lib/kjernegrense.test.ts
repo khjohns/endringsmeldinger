@@ -11,8 +11,8 @@
  *   `node:`-modul og ingen pakke kommer med i nettleserbunten.
  * - Fra serveren importerer appen utenom testene bare `server/nysak.ts`, kontrollen av
  *   kroppen for ny sak, så demoruta prøver kroppen med serverens egen kontroll (#1526
- *   punkt 3). Den modulen importerer ingenting, så serveren kommer ikke med i
- *   nettleserbunten. Vakten ser ikke en import med et navn som settes sammen under
+ *   punkt 3). Den modulen importerer bare fra kjernen, med samme grense som appen, så
+ *   serveren kommer ikke med i nettleserbunten (#2036). Vakten ser ikke en import med et navn som settes sammen under
  *   kjøringen, og ikke en global fra Node, som `process` eller `Buffer`, i modulen.
  *
  * Importene leses med TypeScript-parseren, så `import`, `import type`,
@@ -146,8 +146,9 @@ describe('grensen mellom appen og kjernen', () => {
     expect(serverimporter(new Map(appfiler.map((f) => [f, readFileSync(f, 'utf8')])))).toEqual([]);
   });
 
-  it('server/nysak.ts, som appen importerer, importerer ingenting', () => {
-    expect(importer(NYSAK, readFileSync(NYSAK, 'utf8'))).toEqual([]);
+  it('server/nysak.ts, som appen importerer, når bare kjernen og ingen pakke, node-modul eller test', () => {
+    expect(importer(NYSAK, readFileSync(NYSAK, 'utf8')).length).toBeGreaterThan(0);
+    expect(utenforNettleseren([NYSAK], lesFil)).toEqual([]);
   });
 
   it('det appen kan importere fra kjernen, når ingen pakke, node-modul eller test', () => {
@@ -199,6 +200,16 @@ describe('grensen mellom appen og kjernen', () => {
       'kjerne/modul.ts → kjerne/tester/klient.ts',
       'kjerne/modul.ts → kjerne/hjelper.ts → node:crypto',
       'kjerne/modul.ts → kjerne/hjelper.ts → pg',
+    ]);
+
+    const nysak = join(SERVER, 'nysak.ts');
+    const nysakkilder: Record<string, string> = {
+      [nysak]: `import { b } from '../kjerne/hjelper.ts';
+import { feilnummer } from './datalag.ts';`,
+      [hjelper]: `export const b = 1;`,
+    };
+    expect(utenforNettleseren([nysak], (f) => nysakkilder[f])).toEqual([
+      'server/nysak.ts → server/datalag.ts',
     ]);
   });
 });
