@@ -23,6 +23,7 @@
     kategoriene,
     lagtTil,
     lagttilmangler,
+    tomtLagtTil,
     type Lagttilvalg,
   } from './korrespondansen';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
@@ -35,7 +36,8 @@
     kjernesak,
     u,
     spor,
-    valg = $bindable(),
+    // svelte-ignore state_referenced_locally
+    valg = $bindable(tomtLagtTil(spor)),
     onneste,
     onlagttil,
     onavbryt,
@@ -45,7 +47,7 @@
     /** Sporet skjemaet er åpnet fra, som kravet, svaret og aksepten gjelder. */
     spor: Spor;
     /** Valgene står når parten går videre til krav- eller svarskjemaet og tilbake. */
-    valg: Lagttilvalg;
+    valg?: Lagttilvalg;
     /** Varselet, kravet eller svaret fylles ut i skjemaet for det (OV-U80). */
     onneste: (kategori: 'varsel' | 'krav' | 'svar') => void;
     /** Dokumentasjonen eller aksepten er lagt til. */
