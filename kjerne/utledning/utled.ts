@@ -1152,7 +1152,8 @@ function utledSporene(
     spor.forhold.svar,
     spor.forhold.svarUtenforRekken,
     (id) => plass.get(id)!.versjon,
-    dagene(journal)
+    dagene(journal),
+    rekkefoelgenI({ journal })
   );
   settEnighetene(
     spor,
@@ -1528,7 +1529,8 @@ function settForholdssvarene(
   forhold: Svar[],
   utenforRekken: Svar[],
   versjonen: (id: string) => number,
-  { dagen, lagtTil }: ReturnType<typeof dagene>
+  { dagen, lagtTil }: ReturnType<typeof dagene>,
+  rekkefoelge: (s: Svar) => number
 ): void {
   // OV-U32: svaret på forholdet i samme brev, også et svar utenfor rekken (OV-U103).
   const iBrevet = [...forhold, ...utenforRekken];
@@ -1545,7 +1547,7 @@ function settForholdssvarene(
             s.paaberopelse,
             lagtTil(s) ? dagen(s) : null,
             dagen,
-            (g) => versjonen(g.id)
+            rekkefoelge
           ));
     b.forholdssvaret = kilde?.id ?? null;
   }
