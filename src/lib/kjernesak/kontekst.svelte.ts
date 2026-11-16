@@ -6,7 +6,7 @@
 
 import { getContext, setContext } from 'svelte';
 import { ApiError } from '$lib/api/client';
-import { brevFor, utledetMed, type Brev, type Fristdato } from './brevtekst';
+import { brevFor, laastTekstI, utledetMed, type Brev, type Fristdato } from './brevtekst';
 import type { Registrertfrist } from '$kjerne/spor/frist/format';
 import { somJournal } from './journal';
 import { lagSaksbilde } from './saksbilde';
@@ -105,7 +105,7 @@ export function brevaarsak(
   brev: Brev | Programfeil | null,
   hva = 'Brevet kan ikke sendes ennå.'
 ): string | null {
-  if (!brev || 'tekst' in brev) return null;
+  if (!brev || 'avsnitt' in brev) return null;
   return 'programfeil' in brev ? brev.programfeil : melding(hva, brev.avvisning.melding);
 }
 
@@ -282,11 +282,11 @@ export function lagKjernesak(valg: Kjernesakvalg) {
         return false;
       }
       const vurdert = brev(kommando, vedlegg)!;
-      if (!('tekst' in vurdert)) {
+      if (!('avsnitt' in vurdert)) {
         feil = brevhindring(vurdert);
         return false;
       }
-      tekst = vurdert.tekst;
+      tekst = laastTekstI(vurdert);
     }
     // Kommandoen kan komme fra tilstanden i et skjema; det som sendes, er verdiene, ikke proxyene.
     const ren = $state.snapshot(kommando) as Record<string, unknown>;

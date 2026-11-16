@@ -179,9 +179,7 @@
           ? SKJEMA.godkjennerIkkeRegel(regel)
           : null
         : v.form === 'godtar'
-          ? regel
-            ? SKJEMA.godkjennerRegel(regel)
-            : SKJEMA.godkjennerForm
+          ? SKJEMA.godkjenner(p.oppgjoersform)
           : SKJEMA.menerForm(v.form);
     return [
       form && tilbud ? `${form}, ${SKJEMA.kreverTilbudKort}` : form,
@@ -219,16 +217,13 @@
       },
       ...poster.flatMap((p) => {
         const v = postvalget(valg, p.betegnelse);
-        const regel = regelen(p);
         const i = (tekst: string | null) =>
           tekst ? SKJEMA.iPosten(navnet(p) ?? null, tekst) : null;
         return [
           {
             felt: `form-${p.betegnelse}`,
             post: p.id,
-            tekst: i(
-              formBesvart(v, p) ? null : regel ? SKJEMA.manglerFormRegel(regel) : SKJEMA.manglerForm
-            ),
+            tekst: i(formBesvart(v, p) ? null : SKJEMA.manglerForm(p.oppgjoersform)),
           },
           // KA-U68: når BH godkjenner justerte enhetspriser, tar svaret stilling til varselet og
           // justeringen. Ellers står de subsidiært og er valgfrie (VS-U56).
@@ -333,7 +328,7 @@
         spoersmaal={SKJEMA.formSpoersmaal}
         beskrevetAv={forutsatt ? `${uid}-form-${p.betegnelse}-forutsetninger` : undefined}
         valg={[
-          { verdi: 'godtar', tekst: SKJEMA.godkjennerForm },
+          { verdi: 'godtar', tekst: SKJEMA.godkjenner(p.oppgjoersform) },
           { verdi: 'enhetspriser', tekst: SKJEMA.menerForm('enhetspriser') },
           { verdi: 'regningsarbeid', tekst: SKJEMA.menerForm('regningsarbeid') },
         ]}
@@ -384,7 +379,7 @@
         spoersmaal={SKJEMA.formSpoersmaalRegel}
         beskrevetAv={forutsatt ? `${uid}-form-${p.betegnelse}-forutsetninger` : undefined}
         valg={[
-          { verdi: 'godtar', tekst: SKJEMA.godkjennerRegel(regel) },
+          { verdi: 'godtar', tekst: SKJEMA.godkjenner(regel) },
           { verdi: annen, tekst: SKJEMA.menerForm(annen) },
         ]}
         bind:verdi={v.form}
