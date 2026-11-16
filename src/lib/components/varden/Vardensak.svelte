@@ -24,7 +24,13 @@
   import Vederlagskrav from './Vederlagskrav.svelte';
   import Fristkrav from './Fristkrav.svelte';
   import { startvalg as fristkravstart, type Fristkravvalg } from './fristkrav';
-  import { tomKorrespondanse } from './korrespondansen';
+  import {
+    tomKorrespondanse,
+    tomtLagtTil,
+    type Korrespondansevalg,
+    type Lagttilvalg,
+  } from './korrespondansen';
+  import Korrespondanseskjema from './Korrespondanseskjema.svelte';
   /** Handlingene i fristen som åpner skjemaet for kravet (BF-20). */
   // Handlingstypene i fristen som holder kravskjemaet åpent, med varselet alene eller kravet valgt.
   const FRISTSKJEMAET: Record<Fristkravvalg['hva'], ReadonlySet<string>> = {
@@ -53,6 +59,7 @@
     BETEGNELSE,
     BREVKONTROLL,
     FRISTKRAV,
+    LEGG_TIL,
     KORRIGERING,
     KRAVSKJEMA,
     MOTTATT,
@@ -130,8 +137,9 @@
     | { art: 'svar' }
     | { art: 'korrigering'; gjelder: string }
     | { art: 'nyversjon' }
-    | { art: 'vederlagskrav' }
-    | { art: 'fristkrav' }
+    | { art: 'vederlagskrav'; fraKorrespondansen?: true }
+    | { art: 'fristkrav'; fraKorrespondansen?: true }
+    | { art: 'korrespondanse' }
     | ({ art: 'kontroll' } & Kontroll);
 
   const SPORGRUPPENE: { id: string; etikett: string; spor: Spor[] }[] = [
@@ -160,6 +168,24 @@
   let kravvalg = $state<Kravvalg | null>(null);
   // Kravet om fristforlengelse står på samme måte (G-3 i BF-20).
   let fristkravvalg = $state<Fristkravvalg | null>(null);
+  // Korrespondansen lagt til står når parten går videre til krav- eller svarskjemaet og tilbake
+  // (OV-U80). Skjemaet for kravet er åpnet fra den når `arbeid` sier det.
+  let lagtTil = $state<{ spor: Spor; valg: Lagttilvalg } | null>(null);
+  // Svaret på forholdet er et utkast som står når BH bytter spor (BF-01 S-8). Er det et svar lagt
+  // til, står korrespondansen det legges til fra, her, til utkastet er lagt til eller forkastet.
+  let svaretFra = $state<Korrespondansevalg | null>(null);
+  /** Korrespondansen kravet eller svaret i sporet legges til fra, eller `null`. */
+  const lagtTilI = (s: Spor, kategori: 'krav' | 'svar') =>
+    kategori === 'svar'
+      ? s === 'forhold'
+        ? svaretFra
+        : null
+      : 'fraKorrespondansen' in arbeid &&
+          arbeid.fraKorrespondansen &&
+          lagtTil?.spor === s &&
+          lagtTil.valg.kategori === 'krav'
+        ? lagtTil.valg.korrespondanse
+        : null;
   // Datoen og forklaringen står når TE går til brevkontrollen og tilbake (U-3 i BF-02A).
   let korrigeringsvalg = $state<Korrigeringsvalg>({ dato: '', forklaring: '' });
   // Teksten i den nye versjonen står mens TE korrigerer datoen (U-2 i BF-10).
@@ -227,6 +253,11 @@
     else if (s === 'frist') fristsvarvalg = tomtFristsvar();
     else forholdssvarvalg = tomtForholdssvar();
     utkastAapent[s] = false;
+    // Et forkastet svar lagt til tar korrespondansen med seg.
+    if (s === 'forhold') {
+      svaretFra = null;
+      if (lagtTil?.spor === 'forhold' && lagtTil.valg.kategori === 'svar') lagtTil = null;
+    }
   }
 
   // Brevkontrollen for BHs svar i sporet, som svarer på gjeldende krav.
@@ -338,6 +369,8 @@
    */
   const skjemaene: Record<string, () => void> = {
     'svare:forhold': () => {
+      // Svaret sendes fra løsningen, også et utkast som var et svar lagt til.
+      svaretFra = null;
       utkastAapent.forhold = true;
       arbeid = { art: 'svar' };
     },
@@ -355,12 +388,60 @@
     // U-13: varselet etter punkt 33.4 alene, i skjemaet for kravet (BF-20 steg 4).
     'sende_varsel:frist': () => fristskjema('varsel'),
     'varsle:frist': () => fristskjema('varsel', true),
+    // OV-U79, OV-U80: korrespondanse parten har sendt utenfor løsningen (arbeidsvalget 16.11, #807).
+    registrere_brev: () => {
+      if (lagtTil?.spor !== valgt) lagtTil = { spor: valgt, valg: tomtLagtTil(valgt) };
+      arbeid = { art: 'korrespondanse' };
+    },
   };
+  /** Varselet, kravet eller svaret lagt til fylles ut i skjemaet for det (OV-U80). */
+  function videreFraKorrespondansen(kategori: 'varsel' | 'krav' | 'svar') {
+    if (!lagtTil || !u) return;
+    if (kategori === 'varsel') {
+      // Varselet har sitt eget skjema for registreringen, med det parten har fylt ut.
+      fristskjema('varsel', true, { ...lagtTil.valg.korrespondanse });
+      lagtTil = null;
+      return;
+    }
+    if (kategori === 'svar') {
+      utkastAapent.forhold = true;
+      svaretFra = { ...lagtTil.valg.korrespondanse };
+      arbeid = { art: 'svar' };
+    } else if (valgt === 'frist') {
+      // `utenfor` i utkastet står; skjemaet ser bort fra det når kravet legges til.
+      fristkravvalg = { ...(fristkravvalg ?? fristkravstart(u)), hva: 'krav' };
+      arbeid = { art: 'fristkrav', fraKorrespondansen: true };
+    } else arbeid = { art: 'vederlagskrav', fraKorrespondansen: true };
+  }
+  /** Tilbake til korrespondansen fra krav- eller svarskjemaet. */
+  function tilKorrespondansen() {
+    // Korrespondansen for svarutkastet står selv om skjemaet er brukt i et annet spor siden.
+    if (svaretFra && valgt === 'forhold' && lagtTil?.spor !== 'forhold')
+      lagtTil = {
+        spor: 'forhold',
+        valg: { ...tomtLagtTil('forhold'), korrespondanse: { ...svaretFra }, kategori: 'svar' },
+      };
+    arbeid = { art: 'korrespondanse' };
+  }
+  async function lagtTilKvittering(tekst: string, krav: Kravspor | null = null) {
+    lagtTil = null;
+    // Kravet er lagt til, så utkastet er brukt, som etter sendingen (`sendt`).
+    if (krav === 'vederlag') kravvalg = null;
+    if (krav === 'frist') fristkravvalg = null;
+    arbeid = { art: 'les' };
+    melding = { tekst, art: 'sendt' };
+    await tick();
+    meldingen?.focus();
+  }
   /**
    * Skjemaet for kravet om fristforlengelse, med varselet alene eller kravet valgt. Uten
    * `sende_varsel:frist` registreres varselet (VS-U16).
    */
-  function fristskjema(hva: Fristkravvalg['hva'], registrer = false) {
+  function fristskjema(
+    hva: Fristkravvalg['hva'],
+    registrer = false,
+    utenfor: Korrespondansevalg | null = null
+  ) {
     if (u) {
       const v = fristkravvalg ?? fristkravstart(u);
       fristkravvalg = {
@@ -368,7 +449,7 @@
         hva,
         // «Send varsel» sender fra løsningen, og registrerer ikke et varsel som er påbegynt.
         utenfor: registrer
-          ? (v.utenfor ?? tomKorrespondanse())
+          ? (utenfor ?? v.utenfor ?? tomKorrespondanse())
           : hva === 'varsel'
             ? null
             : v.utenfor,
@@ -633,10 +714,26 @@
             };
           }}
         />
+      {:else if arbeid.art === 'korrespondanse' && lagtTil && lagtTil.spor === valgt}
+        <Korrespondanseskjema
+          {kjernesak}
+          {u}
+          spor={valgt}
+          bind:valg={lagtTil.valg}
+          onneste={videreFraKorrespondansen}
+          onlagttil={(k) => lagtTilKvittering(LEGG_TIL.lagtTil[k])}
+          onavbryt={() => {
+            lagtTil = null;
+            arbeid = harUtkast(valgt) ? { art: 'svar' } : { art: 'les' };
+          }}
+        />
       {:else if arbeid.art === 'vederlagskrav' && valgt === 'vederlag' && kjernesak.handlinger.includes('krav:vederlag')}
         <Vederlagskrav
           {kjernesak}
           {u}
+          lagtTil={lagtTilI('vederlag', 'krav')}
+          onendre={tilKorrespondansen}
+          onlagttil={() => lagtTilKvittering(LEGG_TIL.lagtTil.krav, 'vederlag')}
           bind:valg={kravvalg}
           onforkast={() => forkastKravet('vederlag')}
           onvedsiden={(v) => (vedSiden = v)}
@@ -647,6 +744,9 @@
           {kjernesak}
           {u}
           {sakslenke}
+          lagtTil={lagtTilI('frist', 'krav')}
+          onendre={tilKorrespondansen}
+          onlagttil={() => lagtTilKvittering(LEGG_TIL.lagtTil.krav, 'frist')}
           bind:valg={fristkravvalg}
           onforkast={() => forkastKravet('frist')}
           onbrevkontroll={(k) => tilKravkontroll('frist', k)}
@@ -658,10 +758,20 @@
             meldingen?.focus();
           }}
         />
-      {:else if arbeid.art === 'svar' && valgt === 'forhold' && kjernesak.handlinger.includes('svare:forhold')}
+      {:else if arbeid.art === 'svar' && valgt === 'forhold' && (kjernesak.handlinger.includes('svare:forhold') || (lagtTilI('forhold', 'svar') && u.spor.forhold.gjeldendeKrav))}
         <Forholdssvar
           {kjernesak}
           {u}
+          lagtTil={lagtTilI('forhold', 'svar')}
+          onendre={tilKorrespondansen}
+          onleggtil={() => {
+            skjemaene.registrere_brev();
+            lagtTil!.valg.kategori = 'svar';
+          }}
+          onlagttil={() => {
+            tomtUtkast('forhold');
+            void lagtTilKvittering(LEGG_TIL.lagtTil.svar);
+          }}
           bind:valg={forholdssvarvalg}
           onforkast={forkast}
           onvedsiden={(v) => (vedSiden = v)}

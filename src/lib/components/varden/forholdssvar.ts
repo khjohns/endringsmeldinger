@@ -88,16 +88,17 @@ const vurderingene = (v: Pick<Forholdssvarvalg, 'forSent' | 'resultat'>, varslin
   });
 
 /**
- * BHs svar på gjeldende versjon av påberopelsen (D-1), eller `null` når saken ikke har en.
- * Punktet om varselet er med bare der punkt 32.2 gjelder.
+ * BHs svar på gjeldende versjon av påberopelsen (D-1), eller på `krav` når svaret legges til
+ * (OV-U98), eller `null` når saken ikke har en. Punktet om varselet er med bare der punkt 32.2
+ * gjelder.
  */
 export function forholdssvaret(
   v: Forholdssvarvalg,
   u: Utledning,
   regler: Regelsett,
-  punktene: readonly string[] = []
+  punktene: readonly string[] = [],
+  krav: Krav | null = u.spor.forhold.gjeldendeKrav
 ): { type: 'brev'; svar: Svarutkast[] } | null {
-  const krav = u.spor.forhold.gjeldendeKrav;
   if (!krav) return null;
   return svarbrevet(
     'forhold',

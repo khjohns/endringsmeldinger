@@ -36,7 +36,15 @@
     type Brevet,
     type Sideprops,
   } from './lesing';
-  import { BREVTYPER, FRISTEN, HANDLINGENE, FORHOLDET, STILLING, varselet } from './tekster';
+  import {
+    BREVTYPER,
+    FRISTEN,
+    HANDLINGENE,
+    FORHOLDET,
+    LEGG_TIL,
+    STILLING,
+    varselet,
+  } from './tekster';
 
   /** Siden for hvert spor, med samme props (#1997). */
   const SIDENE: Record<Spor, Component<Sideprops>> = {
@@ -414,6 +422,20 @@
         {@render nySaklenke()}
       </section>
     {/if}
+    <!-- OV-U79: korrespondanse sendt utenfor løsningen, når kjernen tar imot den (U5 og U6). -->
+    {#if kjernesak.handlinger.includes('registrere_brev') && skjemaene.includes('registrere_brev')}
+      <section class="kort andre legg-til" aria-labelledby={`${uid}-legg-til`}>
+        <div>
+          <Knapp
+            variant="lenke"
+            kompakt
+            id={`${uid}-legg-til`}
+            onclick={() => onvelg('registrere_brev')}>{LEGG_TIL.tittel}</Knapp
+          >
+        </div>
+        <p class="dempet">{LEGG_TIL.inngangHjelp}</p>
+      </section>
+    {/if}
   {/snippet}
   {#snippet hoeyre()}
     {#if visesBrev && !smal}
@@ -436,6 +458,9 @@
     flex-direction: column;
     gap: var(--spacing-2);
     padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
+  }
+  .legg-til {
+    gap: var(--spacing-1);
   }
   .andre .annen {
     padding: var(--spacing-2) 0 0;

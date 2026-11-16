@@ -1084,11 +1084,64 @@ export const SAKEN = {
 };
 
 /**
- * Varselet sendt utenfor løsningen, i den felles komponenten for skjemaet for ny sak, fristkravet
- * og vederlagskravet (OV-U79, VS-U34, A1 i #2056). Ordene følger fristkravet (#2063).
+ * Det korrespondansen er etter kontrakten (OV-U80), som bestemmer ordene i komponenten.
+ * `korrespondanse` er ordene før parten har svart.
+ */
+export type Korrespondansehva = 'korrespondanse' | 'varsel' | 'krav' | 'svar' | 'aksept';
+
+const KORRESPONDANSEORD: Record<
+  Korrespondansehva,
+  {
+    bestemt: string;
+    typen: string;
+    typenMangler: string;
+    dokumentet: string;
+    dokumentMangler: string;
+  }
+> = {
+  korrespondanse: {
+    bestemt: 'korrespondansen',
+    typen: 'Hva legger du til?',
+    typenMangler: 'Velg hva du legger til.',
+    dokumentet: 'Dokumentet',
+    dokumentMangler: 'Legg ved dokumentet.',
+  },
+  varsel: {
+    bestemt: 'varselet',
+    typen: 'Hvordan ble varselet gitt?',
+    typenMangler: 'Velg hvordan varselet ble gitt.',
+    dokumentet: 'Dokumentet du varslet i',
+    dokumentMangler: 'Legg ved dokumentet du varslet i.',
+  },
+  krav: {
+    bestemt: 'kravet',
+    typen: 'Hvordan ble kravet sendt?',
+    typenMangler: 'Velg hvordan kravet ble sendt.',
+    dokumentet: 'Dokumentet med kravet',
+    dokumentMangler: 'Legg ved dokumentet med kravet.',
+  },
+  svar: {
+    bestemt: 'svaret',
+    typen: 'Hvordan ble svaret sendt?',
+    typenMangler: 'Velg hvordan svaret ble sendt.',
+    dokumentet: 'Dokumentet med svaret',
+    dokumentMangler: 'Legg ved dokumentet med svaret.',
+  },
+  aksept: {
+    bestemt: 'aksepten',
+    typen: 'Hvordan ble aksepten sendt?',
+    typenMangler: 'Velg hvordan aksepten ble sendt.',
+    dokumentet: 'Dokumentet med aksepten',
+    dokumentMangler: 'Legg ved dokumentet med aksepten.',
+  },
+};
+
+/**
+ * Korrespondansen sendt utenfor løsningen, i den felles komponenten for varselet, kravet, svaret
+ * og aksepten (OV-U79, OV-U80, OV-U98, VS-U34, A1 i #2056). Ordene følger fristkravet (#2063).
  */
 export const KORRESPONDANSEN = {
-  typen: 'Hvordan ble varselet gitt?',
+  typen: (hva: Korrespondansehva) => KORRESPONDANSEORD[hva].typen,
   typer: [
     { verdi: 'brev', tekst: 'Brev' },
     { verdi: 'e_post', tekst: 'E-post' },
@@ -1108,19 +1161,93 @@ export const KORRESPONDANSEN = {
   dato: 'Datoen det ble sendt',
   // OV-U80: datoen for varselet settes én gang.
   datoHjelp: 'Datoen avsenderen oppgir. Den settes én gang.',
-  dokumentet: 'Dokumentet du varslet i',
-  dokumentetHjelp: 'Legges til i saken og ved brevet. Opptil 15 MB.',
+  dokumentet: (hva: Korrespondansehva) => KORRESPONDANSEORD[hva].dokumentet,
+  dokumentetHjelp: (hva: Korrespondansehva) =>
+    hva === 'korrespondanse'
+      ? 'Legges til i saken. Opptil 15 MB.'
+      : 'Legges til i saken og ved brevet. Opptil 15 MB.',
   dokumentetIkkeEnnaa: 'Dokumentet kan ikke legges ved ennå.',
-  beskrivelse: 'Kort beskrivelse av varselet',
+  beskrivelse: (hva: Korrespondansehva) => `Kort beskrivelse av ${KORRESPONDANSEORD[hva].bestemt}`,
   beskrivelseHjelp: 'Kort, med egne ord.',
-  mangler: {
-    type: 'Velg hvordan varselet ble gitt.',
+  mangler: (hva: Korrespondansehva) => ({
+    type: KORRESPONDANSEORD[hva].typenMangler,
     sendemaate: 'Velg hvordan brevet ble sendt.',
-    dato: 'Oppgi datoen varselet ble sendt.',
-    dokument: 'Legg ved dokumentet du varslet i.',
-    beskrivelse: 'Beskriv varselet.',
-  },
+    dato: `Oppgi datoen ${KORRESPONDANSEORD[hva].bestemt} ble sendt.`,
+    dokument: KORRESPONDANSEORD[hva].dokumentMangler,
+    beskrivelse: `Beskriv ${KORRESPONDANSEORD[hva].bestemt}.`,
+  }),
 };
+
+/** Kategorien i «Hva er det etter kontrakten?» (OV-U80). */
+export type Korrespondansekategori = 'dokumentasjon' | 'varsel' | 'krav' | 'svar' | 'aksept';
+
+/**
+ * Skjemaet for korrespondanse sendt utenfor løsningen og lagt til i saken (OV-U79, OV-U80, OV-U98,
+ * prototypen `grunnlagsoversikt.html#reg-skjema`, arbeidsvalget 16.11 i #807).
+ */
+export const LEGG_TIL = {
+  tittel: 'Legg til korrespondanse',
+  inngangHjelp: 'Brev, e-post, møtereferat eller notat du har sendt utenfor løsningen.',
+  // Arbeidsvalget 16.11, punkt 2: bare det parten selv har sendt (avsenderen er #2069).
+  egen: 'Du legger til det du selv har sendt.',
+  gjelder: 'Gjelder',
+  gjelderHjelp: 'Velger du ingen, står det ved saken.',
+  kategorien: 'Hva er det etter kontrakten?',
+  kategorier: {
+    dokumentasjon: 'Dokumentasjon, for eksempel en avklaring',
+    varsel: 'Et varsel',
+    krav: 'Et krav',
+    svar: 'Et svar',
+    aksept: 'En aksept av byggherrens svar',
+  } satisfies Record<Korrespondansekategori, string>,
+  kategorienMangler: 'Velg hva det er etter kontrakten.',
+  // OV-U80: løsningen utleder ikke noe av dokumentasjonen.
+  // OV-U80: skjemaet åpnes i samme forløp og viser til korrespondansen.
+  neste: {
+    varsel: 'Når du går videre, åpnes skjemaet for varselet med det du har fylt ut her.',
+    krav: 'Når du går videre, åpnes kravskjemaet. Det viser til korrespondansen, og du fyller det ut slik kravet står i dokumentet, uten begrunnelsen.',
+    svar: 'Når du går videre, åpnes svarskjemaet. Det viser til korrespondansen, og du fyller det ut slik svaret står i dokumentet, uten begrunnelsen.',
+  },
+  svaret: 'Hvilket svar godtok du?',
+  svaretHjelp: 'Byggherrens svar i saken. Aksepten gjelder fra datoen du oppgir.',
+  svaretMangler: 'Velg svaret aksepten gjelder.',
+  svaretValg: (b: Brevet) => `${brevrefStor(b)} av ${dato(b.sendt ?? b.registrert)}`,
+  leggTil: 'Legg til',
+  gaaVidere: 'Gå videre',
+  avbryt: 'Avbryt',
+  lagtTil: {
+    dokumentasjon: 'Korrespondansen er lagt til.',
+    krav: 'Kravet er lagt til.',
+    svar: 'Svaret er lagt til.',
+    aksept: 'Aksepten er lagt til.',
+  },
+  /** Linja øverst i krav- og svarskjemaet (OV-U80). */
+  fra: (omtale: string) => `Legges til fra ${omtale}.`,
+  // OV-U80: løsningen lager ingen brevtekst, og der skjemaet og dokumentet spriker, er
+  // dokumentet partens meddelelse.
+  fraHjelp:
+    'Løsningen lager ingen brevtekst. Der skjemaet og dokumentet spriker, er det dokumentet som er sendt.',
+  endre: 'Endre korrespondansen',
+  utkast: 'Utkast · ikke lagt til',
+  ikkeLagtTil: 'Ikke lagt til.',
+  ikkeLagtTilFeil: 'Korrespondansen ble ikke lagt til.',
+  mangler: 'Dette mangler før det kan legges til:',
+  leggTilKravet: 'Legg til kravet',
+  leggTilSvaret: 'Legg til svaret',
+  /** OV-U102. */
+  kravUtenforRekken: (spor: Spor) =>
+    `Kravet er sendt før totalentreprenørens siste krav om ${SPORNAVN[spor].toLowerCase()}. Det blir ikke gjeldende, men datoen det ble sendt, gjelder som datoen kravet først ble sendt.`,
+  /** OV-U103. */
+  svarUtenforRekken:
+    'Svaret er sendt før byggherrens gjeldende svar på kravet. Det blir ikke gjeldende og erstatter ikke det nyere svaret.',
+  /** OV-U104 og MM-U50 punkt 8. */
+  sammeDag: (brev: readonly Brevref[]) =>
+    `Sendt samme dag som ${liste([...new Set(brev.map(brevref))])}. Løsningen kjenner ikke rekkefølgen og har ikke avgjort hvilket brev som kom først, eller hvem som er bundet.`,
+};
+
+/** Korrespondansen slik et brev omtaler den (LV-U42): parten, typen og datoen. */
+export const omtalenAvKorrespondansen = (part: Part, type: Korrespondansetype, d: string) =>
+  `${PARTENS[part]} ${KORRESPONDANSETYPEN[type].ubestemt} av ${dato(d)}`;
 
 /** Skjemaet for ny sak (BF-05, skissen versjon 3 med funnene F-1–F-8). */
 export const NYSAK = {
@@ -1384,6 +1511,10 @@ export const KRAVSKJEMA = {
   varsleneIntro:
     'Varslene kravet trenger, ut fra postene over. Har du ikke varslet før, gis varselet i dette brevet.',
   varselkolonner: ['Punkt', 'Varselet', 'Slik står det i brevet'],
+  // OV-U80: et krav lagt til har ingen brevtekst, så varselet står i dokumentet.
+  varsleneIntroLagtTil:
+    'Varslene kravet trenger, ut fra postene over. Har du ikke varslet før, er varselet gitt i dokumentet du legger til.',
+  varselkolonnerLagtTil: ['Punkt', 'Varselet', 'Slik står det i dokumentet'],
   varselnavn: {
     '34.1.2': 'Varsel om vederlagsjustering',
     '34.1.3': 'Varsel om særskilt vederlagsjustering',
@@ -1440,8 +1571,8 @@ export const KRAVSKJEMA = {
   punktene: 'Punktene',
   punkteneHjelp: 'Beløp eks. mva. Oppdateres mens du skriver.',
   antallPoster: (n: number) => (n === 1 ? '1 kravpost' : `${n} kravposter`),
-  antallVarsler: (n: number, iBrevet: number) =>
-    `${n === 1 ? '1 varsel' : `${n} varsler`} · ${iBrevet} gis i dette brevet`,
+  antallVarsler: (n: number, iBrevet: number, lagtTil = false) =>
+    `${n === 1 ? '1 varsel' : `${n} varsler`} · ${iBrevet} ${lagtTil ? 'gitt i dokumentet' : 'gis i dette brevet'}`,
   skrevet: 'Skrevet',
   ikkeSkrevet: 'Ikke skrevet',
   forbeholdPunkt: 'Forbehold',
