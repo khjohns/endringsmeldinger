@@ -555,13 +555,13 @@ export function sendtFoerGjeldendeSvar(
 }
 
 /**
- * OV-U98: kravversjonen i rekken som var gjeldende på dagen `dag`: den siste som ikke var sendt
- * etter den dagen. Uten dag, for et brev fra løsningen, er det den gjeldende kravversjonen. Et svar
+ * OV-U98: kravversjonen i rekken som var gjeldende på dagen `dag`, etter `kravversjonenGjaldt`, og
+ * den siste av dem når to var det samme dag (OV-U104). Uten dag, for et brev fra løsningen, er det den gjeldende kravversjonen. Et svar
  * lagt til regnes mot påberopelsen slik den var da (#2011).
  */
 export function kravversjonenPaaDagen(u: Utledning, spor: Spor, dag: string | null): Krav | null {
   if (dag === null) return u.spor[spor].gjeldendeKrav;
-  return u.spor[spor].krav.filter((k) => !foerDagen(dag, datoenDetBleSendt(u, k))).at(-1) ?? null;
+  return u.spor[spor].krav.filter((k) => kravversjonenGjaldt(u, k, dag, () => {})).at(-1) ?? null;
 }
 
 /**
@@ -588,19 +588,21 @@ function kravversjonenGjaldt(
 
 /**
  * OV-U98: svaret `s` var byggherrens gjeldende svar på dagen `dag`: det var sendt, det gjaldt en
- * kravversjon som var gjeldende den dagen, og svaret som erstattet det, var ikke sendt før. For et
- * svar i rekken er det revisjonen. For et svar utenfor rekken er det hvert svar på kravversjonen
- * sendt etter det (OV-U103).
+ * kravversjon som var gjeldende den dagen, og et svar som erstattet det, var ikke sendt før. Det
+ * er revisjonen og hvert svar utenfor rekken på kravversjonen sendt etter det, og for et svar
+ * utenfor rekken også svarene i rekken sendt etter det (OV-U103).
  */
 function svaretGjaldt(u: Utledning, s: Svar, dag: string, samme: (med: string) => void): boolean {
   const { krav: kjede, svar: rekken, svarUtenforRekken } = u.spor[s.spor];
   const krav = kjede.find((k) => k.id === s.gjelder);
   const sendt = datoenDetBleSendt(u, s);
-  const senere = svarUtenforRekken.includes(s)
-    ? [...rekken, ...svarUtenforRekken].filter(
-        (r) => r.gjelder === s.gjelder && foerDagen(sendt, datoenDetBleSendt(u, r))
-      )
-    : rekken.filter((r) => r.erstatter === s.id);
+  const utenfor = svarUtenforRekken.includes(s);
+  const sendtEtter = (r: Svar) =>
+    r.gjelder === s.gjelder && foerDagen(sendt, datoenDetBleSendt(u, r));
+  const senere = [
+    ...rekken.filter((r) => r.erstatter === s.id || (utenfor && sendtEtter(r))),
+    ...svarUtenforRekken.filter(sendtEtter),
+  ];
   return (
     krav !== undefined &&
     kravversjonenGjaldt(u, krav, dag, samme) &&

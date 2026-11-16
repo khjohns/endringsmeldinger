@@ -5925,7 +5925,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'en aksept av et svar utenfor rekken prøves ikke mot det nyere svaret (OV-U103, OV-U98)',
     fil: `${K}/utledning/utled.ts`,
-    endringer: [['const senere = svarUtenforRekken.includes(s)', 'const senere = false']],
+    endringer: [['const utenfor = svarUtenforRekken.includes(s);', 'const utenfor = false;']],
     mal: [
       'en aksept av svaret utenfor rekken, sendt etter det gjeldende svaret, får ingen virkning',
       'kommandoen godtar en aksept av svaret utenfor rekken',
@@ -5992,6 +5992,22 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/utledning/visning.ts`,
     endringer: [['g !== null && g.gjelder === eldre.gjelder', 'g !== null']],
     mal: ['enigheten bevares etter en ny kravversjon'],
+  },
+  {
+    id: 'F682',
+    feilklasse:
+      'et svar i rekken regnes som gjeldende etter et svar utenfor rekken sendt etter det (OV-U98, OV-U103)',
+    fil: `${K}/utledning/utled.ts`,
+    endringer: [['    ...svarUtenforRekken.filter(sendtEtter),\n', '']],
+    mal: ['en aksept av det første svaret, sendt etter svaret utenfor rekken, får ingen virkning'],
+  },
+  {
+    id: 'F683',
+    feilklasse:
+      'en revisjon lagt til kan gjelde en annen kravversjon enn svaret den erstatter (OV-U98, #2011)',
+    fil: `${K}/kommandoer/nyttelast.ts`,
+    endringer: [[' || k.svar.gjelder !== forrige.gjelder', '']],
+    mal: ['en revisjon lagt til avvises når den gjelder en annen kravversjon'],
   },
 ];
 

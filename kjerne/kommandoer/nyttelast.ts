@@ -479,7 +479,7 @@ export function nyttelastkontroll(
       return null;
     case 'revisjon': {
       const forrige = u.spor[k.svar.spor].gjeldendeSvar;
-      if (k.erstatter !== forrige?.id)
+      if (k.erstatter !== forrige?.id || k.svar.gjelder !== forrige.gjelder)
         return avvis('FEIL_SVARREFERANSE', 'Svaret er endret eller gjelder et tidligere krav.');
       return kontrollerSvar(k.svar, u, regler, svarstandpunkter, utdypningKreves, sendt);
     }

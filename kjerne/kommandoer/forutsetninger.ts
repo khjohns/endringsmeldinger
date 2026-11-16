@@ -329,8 +329,8 @@ export function forutsetninger(
     case 'godta':
       if (s.trukket) return avvis('KRAV_TRUKKET', 'Kravet er trukket.');
       // OV-U98, OV-U103: en aksept lagt til gjelder svaret den godtar, og om det var byggherrens
-      // gjeldende svar da aksepten ble sendt, avgjør `registreringenStrider`. Der prøves også
-      // enigheten (GR-U8) og frafallet (GR-U9) i det svaret.
+      // gjeldende svar da aksepten ble sendt, avgjør `registreringenStrider`, og enigheten (GR-U8)
+      // og frafallet (GR-U9) i det svaret prøver `utsagnetStrider`.
       if (sendt !== null) return null;
       if (!s.gjeldendeSvar)
         return avvis(

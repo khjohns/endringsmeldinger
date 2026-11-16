@@ -693,6 +693,50 @@ describe('et svar sendt før byggherrens gjeldende svar på kravversjonen står 
   });
 });
 
+describe('et svar i rekken erstattes også av et svar utenfor rekken sendt etter det (OV-U98, OV-U103)', () => {
+  // Svaret 24.09, et vederlagskrav 25.09 bare for å gi en dag mellom, revisjonen 26.09, og et svar
+  // på samme kravversjon sendt 25.09, lagt til 27.09, som står utenfor rekken.
+  const steg = (aksept: string): Handling[] => [
+    avslag('S-g1'),
+    { handling: 'krav', spor: 'vederlag', belop: 120000, navn: 'K-v2' },
+    {
+      handling: 'revisjon',
+      spor: 'forhold',
+      resultat: 'avslaatt',
+      varslet_i_tide: false,
+      navn: 'S-g2',
+    },
+    registrertSvar('K-g1', '2026-09-25'),
+    registrertAksept('S-g1', aksept),
+  ];
+
+  it('en aksept av det første svaret, sendt etter svaret utenfor rekken, får ingen virkning', () =>
+    prov('aksept-etter-svar-utenfor-rekken', steg('2026-09-26'), [
+      {
+        etter: 4,
+        rolle: 'kontroll',
+        kilde: ['OV-U103'],
+        forventet: { forstaatt: true, 'svar_utenfor_rekken.forhold': ['S-r'] },
+      },
+      {
+        etter: 5,
+        rolle: 'mal',
+        kilde: ['OV-U98', 'OV-U103'],
+        forventet: { forstaatt: true, uten_virkning: ['A-r#aksept'] },
+      },
+    ]));
+
+  it('kontrollsak: en aksept av det første svaret, sendt samme dag som svaret utenfor rekken, har virkning', () =>
+    prov('aksept-samme-dag-som-svar-utenfor-rekken', steg('2026-09-25'), [
+      {
+        etter: 5,
+        rolle: 'kontroll',
+        kilde: ['OV-U98', 'OV-U104'],
+        forventet: { forstaatt: true, uten_virkning: [] },
+      },
+    ]));
+});
+
 describe('en aksept som legges til, prøves mot svaret den gjelder, ikke mot det gjeldende svaret (OV-U98, #2022)', () => {
   const delvis = (navn: string, beloep: number): Handling => ({
     handling: 'brev',
@@ -828,6 +872,28 @@ describe('et svar som legges til, kan gjelde en eldre kravversjon som var gjelde
       await provRegistrering(steg, svarPaaFoerste, '2026-09-24'),
       'kontrollsak: sendt samme dag som svaret'
     ).toMatchObject({ godtatt: false, avvisning: { regel: 'ALLEREDE_SVART' } });
+  });
+
+  it('en revisjon lagt til avvises når den gjelder en annen kravversjon enn svaret den erstatter', async () => {
+    // Den nye versjonen 24.09 og svaret på den 25.09; revisjonen oppgir den forrige versjonen.
+    const steg = [nyVersjon, avslag('S-g1')];
+    const revisjon = (gjelder?: string): Handling => ({
+      handling: 'revisjon',
+      spor: 'forhold',
+      resultat: 'avslaatt',
+      varslet_i_tide: false,
+      ...(gjelder ? { gjelder } : {}),
+      navn: 'S-g2',
+    });
+    expect(await provRegistrering(steg, revisjon('K-g1'), '2026-09-23')).toMatchObject({
+      godtatt: false,
+      avvisning: { regel: 'FEIL_SVARREFERANSE' },
+    });
+    const kontroll = await provRegistrering(steg, revisjon(), '2026-09-26');
+    expect(
+      kontroll.godtatt ? null : kontroll.avvisning,
+      'kontrollsak: den gjeldende versjonen'
+    ).toBeNull();
   });
 
   it('kontrollsak: et svar fra løsningen må gjelde den gjeldende versjonen', async () => {

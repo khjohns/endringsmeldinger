@@ -245,7 +245,15 @@ function frosneSvar(svarene: Data[], u: Utledning, kjerne: Kjerne): Data[] {
   frysSvarene(
     svarene,
     u.spor.forhold.gjeldendeSvar,
-    (s) => paaberopelseFor({ spor: s.spor as Spor, gjelder: s.gjelder as string }, u),
+    (s) =>
+      paaberopelseFor(
+        {
+          spor: s.spor as Spor,
+          gjelder: s.gjelder as string,
+          paaberopelse: s.paaberopelse as string | undefined,
+        },
+        u
+      ),
     (s) => u.spor[s.spor as Spor].krav.find((k) => k.id === s.gjelder),
     kjerne
   );

@@ -445,6 +445,14 @@ type Klasse =
 /** GFK-U26: lesingen av forlengelsene i en sak. */
 const FORLENGELSENE = 'spor/frist/utledning.ts:forlengelseneISaken';
 
+/** Stedene som slår opp et svar etter ID-en i `Utledning.svar`. */
+const SVARET_MED_ID = [
+  'utledning/utled.ts:vurdertVedRegistreringen',
+  'utledning/utled.ts:registreringenStrider',
+  'utledning/utled.ts:utsagnetStrider',
+  'kommandoer/nyttelast.ts:nyttelastkontroll',
+];
+
 /**
  * Det reglene får lese: `[eier, klasse, felt, steder]`, med feltene skilt med
  * mellomrom. Eieren er typen, konstanten eller modulen feltet er deklarert i,
@@ -459,14 +467,6 @@ const FORLENGELSENE = 'spor/frist/utledning.ts:forlengelseneISaken';
  * til noen klasse, er det en oppsummering, og regelen skal lese det feltet
  * oppsummerer i stedet.
  */
-/** Stedene som slår opp et svar etter ID-en i `Utledning.svar`. */
-const SVARET_MED_ID = [
-  'utledning/utled.ts:vurdertVedRegistreringen',
-  'utledning/utled.ts:registreringenStrider',
-  'utledning/utled.ts:utsagnetStrider',
-  'kommandoer/nyttelast.ts:nyttelastkontroll',
-];
-
 const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][] = [
   // Dokumentene og utsagnene i dem (typer.ts).
   ['Dokument', 'relasjon', 'avsender'],
@@ -2207,7 +2207,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts'],
   ],
   ['kommandoer/skriving.ts:frysSvarene(s)', 'rad', 'spor', ['kommandoer/skriving.ts']],
-  ['kommandoer/skriving.ts:frosneSvar(s)', 'rad', 'spor gjelder', ['kommandoer/skriving.ts']],
+  // #342, #2011: også påberopelsen svaret er regnet mot, som svaret lagrer.
+  [
+    'kommandoer/skriving.ts:frosneSvar(s)',
+    'rad',
+    'spor gjelder paaberopelse',
+    ['kommandoer/skriving.ts'],
+  ],
   ['kommandoer/skriving.ts:lagret(?)', 'frosset', 'resten', ['kommandoer/skriving.ts']],
   // Dokumentene i journalen (#787), som var i utled.ts (#1783).
   ['format/leser.ts', 'rad', 'dokumenterI', ['utledning/utled.ts', 'spor/frist/utledning.ts']],
