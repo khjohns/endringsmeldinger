@@ -7,9 +7,11 @@
 
   let { id, numre }: { id?: string; /** Punktene, uten «pkt.». */ numre: readonly string[] } =
     $props();
+  const fast = (n: string) => n.replaceAll(' ', '\u00a0');
 </script>
 
-<span {id}>{hjemmelsmerke(...numre)}</span>
+<!-- Linja brytes bare mellom punktene, aldri inne i ett. -->
+<span {id}>{hjemmelsmerke(...numre.map(fast)).replace('pkt. ', 'pkt.\u00a0')}</span>
 
 <style>
   span {
