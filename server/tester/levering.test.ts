@@ -22,7 +22,7 @@ import {
 } from '../catenda.ts';
 import type { Pool } from '../datalag.ts';
 import { kjoerEnJobb, LEASETID_S } from '../jobber.ts';
-import { lesSaken } from '../lager.ts';
+import { lesSaken, lesSakensMaal } from '../lager.ts';
 import { gjengirTro } from '../../kjerne/frosset/brevtekst.ts';
 import type { Avsnitt } from '../../kjerne/typer.ts';
 import { brevprofil, lesBrevPdf } from '../brevpdf.ts';
@@ -133,10 +133,10 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
 
   const somKjoerer = <T>(setning: string, parametre: Record<string, unknown> = {}) =>
     somJobbkjoerer<T>(o, setning, parametre);
-  const kjoer = () =>
+  const kjoer = (topic = { guid: `topic-${randomUUID()}`, nummer: null as number | null }) =>
     kjoerEnJobb({
       datalag: o.datalag.kjoeretid.pool,
-      catenda: { opprettTopic: async () => ({ guid: `topic-${randomUUID()}`, nummer: null }) },
+      catenda: { opprettTopic: async () => topic },
       dokumenter: catenda,
       saksadresse: () => 'x',
       logg,
@@ -269,6 +269,27 @@ describe.skipIf(!TESTBASE_URL)('leveringen av brevet til Catenda (#371)', () => 
         catenda_project_id: o.prosjekt.catendaProsjekt,
       }),
     ]);
+  });
+
+  it('L1: oppdraget fryser målet uten topicens nummer, også når topicen har nummer (#1991)', async () => {
+    const sakId = await opprettKjernesak(o);
+    const topic = `topic-${randomUUID()}`;
+    expect(await kjoer({ guid: topic, nummer: 726 })).toBe(true);
+    const leser = { aktor: o.te.id, prosjekt: o.prosjekt.id, side: 'TE' as const };
+    const sakensMaal = await lesSakensMaal(o.datalag.kjoeretid.pool, leser, sakId);
+    expect(sakensMaal).toMatchObject({ topic_id: topic, topic_nummer: 726 });
+    // Prosjektet og topicen fra oppsettet; biblioteket og mappene fra koblingen i basen.
+    const forventet = {
+      catenda_project_id: o.prosjekt.catendaProsjekt,
+      library_id: sakensMaal!.library_id,
+      folder_id: sakensMaal!.folder_id,
+      board_id: sakensMaal!.board_id,
+      topic_id: topic,
+    };
+    await sendBrev(sakId);
+    const { oppdrag } = await lesSaken(o.datalag.kjoeretid.pool, leser, sakId);
+    expect(oppdrag).toHaveLength(1);
+    expect(oppdrag[0].innhold.maal).toEqual(forventet);
   });
 
   it('L1: leveringen hentes ikke før saken har topic (LV-U9), og den teller ikke som forsøk', async () => {
@@ -1450,6 +1471,19 @@ describe('oppdraget, brevteksten og brevprofilen (#926, #1177)', () => {
   const maal = {} as Parameters<typeof lagOppdrag>[1];
   const lag = (data: Record<string, unknown>) =>
     lagOppdrag(rad(data), maal, 'sendt' as never, KJERNE, () => 'o1');
+
+  it('målet fryses uten topicens nummer når det har nummeret (#1991)', () => {
+    const frosset = {
+      catenda_project_id: 'p',
+      library_id: 'l',
+      folder_id: null,
+      board_id: 'b',
+      topic_id: 't',
+    };
+    const medNummer = { ...frosset, topic_nummer: 726 };
+    const { innhold } = lagOppdrag(rad({}), medNummer, 'sendt' as never, KJERNE, () => 'o1');
+    expect(innhold.maal).toEqual(frosset);
+  });
 
   it('et brev med brevtekst får dokumentet med merkingen', () => {
     const brevtekst = [{ gjelder: 'a', laast: 'Tekst.' }];

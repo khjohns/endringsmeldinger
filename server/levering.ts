@@ -92,6 +92,8 @@ export function lagOppdrag(
   if (brevtekst === null && rad.data.brevtekst !== undefined)
     throw new UgjengivbartBrev('Brevteksten i hendelsen har ikke formen i formatet');
   const merket = brevtekst ? merkingI(rad) : null;
+  // Bare feltene i `Leveringsmaal` (#1991).
+  const { catenda_project_id, library_id, folder_id, board_id, topic_id } = maal;
   const innhold = {
     oppdragsformat: OPPDRAGSFORMAT,
     brev: {
@@ -107,7 +109,7 @@ export function lagOppdrag(
       brevprofil: merket ? brevprofil(rad.aktor_rolle) : null,
     },
     dokument: merket ? { noekkel: rad.event_id, filnavn: `${merket}.pdf` } : null,
-    maal,
+    maal: { catenda_project_id, library_id, folder_id, board_id, topic_id } satisfies Leveringsmaal,
     status,
     kjerne: {
       projeksjonsversjon: kjerne.projeksjonsversjon,
