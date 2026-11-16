@@ -25,6 +25,7 @@
     sendt,
     fot,
     innfelt = false,
+    ramme,
     hode = true,
     dempet = false,
   }: {
@@ -47,6 +48,11 @@
     /** Brevet står i en ramme som har kanten, som ved lesing ved siden av. */
     innfelt?: boolean;
     /**
+     * Brevet står innfelt i en ramme som ruller, med fotlinja fast nederst mens brevet ruller over
+     * den (`rullende`, U-16 i BF-44), eller innfelt i brevtråden uten egen bakgrunn (`rad`).
+     */
+    ramme?: 'rullende' | 'rad';
+    /**
      * Partene og referansene øverst. Uten dem står bare tittelen og teksten, der raden over
      * brevet allerede sier hvem som sendte det og når (lesepanelet i BF-10).
      */
@@ -60,7 +66,15 @@
   const organisasjoner = $derived(hentOrganisasjoner());
 </script>
 
-<article class="brev" class:innfelt class:dempet class:bh={avsender === 'BH'} aria-label={tittel}>
+<article
+  class="brev"
+  class:innfelt={innfelt || ramme !== undefined}
+  class:rullende={ramme === 'rullende'}
+  class:rad={ramme === 'rad'}
+  class:dempet
+  class:bh={avsender === 'BH'}
+  aria-label={tittel}
+>
   {#if hode}<header class="hode">
       <div class="topp">
         <p class="avsender">
@@ -167,6 +181,9 @@
     padding: var(--spacing-6);
     border: 0;
     border-radius: 0;
+  }
+  .brev.rad {
+    background: transparent;
   }
   .hode {
     display: flex;
@@ -340,6 +357,13 @@
     color: var(--ink-3);
     font-family: var(--font-sans);
     font-size: 14px;
+  }
+  .rullende .fot {
+    position: sticky;
+    bottom: 0;
+    margin: var(--spacing-8) calc(-1 * var(--spacing-6)) calc(-1 * var(--spacing-6));
+    padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
+    background: var(--surface);
   }
   @media (max-width: 860px) {
     .brev {
