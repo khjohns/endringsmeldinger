@@ -24,7 +24,7 @@
   import Knapp from './Knapp.svelte';
   import Manglene from './Manglene.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
-  import type { Mangel } from './mangler';
+  import { feltfeil, type Mangel } from './mangler';
   import Melding from './Melding.svelte';
   import Tallfelt from './Tallfelt.svelte';
   import Tidslinje from './Tidslinje.svelte';
@@ -166,7 +166,6 @@
   let forsoekt = $state(false);
   const feil = (felt: string): string | null =>
     forsoekt ? feltfeil(mangler.find((m) => m.felt === id(felt))) : null;
-  const feltfeil = (m: Mangel | undefined) => (m ? (m.ved ?? m.tekst) : null);
   const begrunnelseFeil = $derived(feil('begrunnelse'));
   let oppsummering = $state<HTMLElement | null>(null);
   let sendehindring = $state<string | null>(null);

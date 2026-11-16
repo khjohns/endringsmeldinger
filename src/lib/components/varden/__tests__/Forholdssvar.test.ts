@@ -192,9 +192,10 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
       'aria-required',
       'true'
     );
-    // Feltet som ikke kreves, er merket «(valgfritt)» («Valgfrie felt» i `system.md`).
+    // Feltet som ikke kreves, har «Valgfri» til høyre (system.md, «Et valgfritt felt har
+    // «Valgfri» til høyre på linja med labelen», oppdragsgiver 16.11).
     expect(
-      screen.getByLabelText(/Varselet etter punkt 32\.2 \(valgfritt\)$/, { selector: 'textarea' })
+      screen.getByLabelText(/Varselet etter punkt 32\.2, Valgfri$/, { selector: 'textarea' })
     ).not.toHaveAttribute('aria-required');
   });
 

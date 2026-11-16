@@ -34,8 +34,9 @@
   import Kravpunkter from './Kravpunkter.svelte';
   import Hjemmel from './Hjemmel.svelte';
   import Manglene from './Manglene.svelte';
-  import type { Mangel } from './mangler';
+  import { feltfeil, type Mangel } from './mangler';
   import Melding from './Melding.svelte';
+  import Tallfelt from './Tallfelt.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
@@ -236,7 +237,7 @@
   const mangler = $derived(manglerIKravet(v, varslene, uid, navnet));
   let forsoekt = $state(false);
   const feil = (felt: string): string | null =>
-    forsoekt ? (mangler.find((m) => m.felt === id(felt))?.ved ?? null) : null;
+    forsoekt ? feltfeil(mangler.find((m) => m.felt === id(felt))) : null;
   let oppsummering = $state<HTMLElement | null>(null);
   let sendehindring = $state<string | null>(null);
 
@@ -583,22 +584,17 @@
   paakrevd: boolean
 )}
   {@const f = feil(felt)}
-  <div class="felt">
-    <Feltetikett for={id(felt)} valgfri={!paakrevd}>{etikett}</Feltetikett>
-    <span class="hjelp" id={id(`${felt}-hjelp`)}>{hjelp}</span>
-    <span class="inndata" class:ugyldig={f}>
-      <input
-        id={id(felt)}
-        inputmode="decimal"
-        bind:value={eier[noekkel]}
-        aria-required={paakrevd ? 'true' : undefined}
-        aria-describedby={f ? `${id(`${felt}-hjelp`)} ${id(`${felt}-feil`)}` : id(`${felt}-hjelp`)}
-        aria-invalid={f ? 'true' : undefined}
-      />
-      <span class="kr" aria-hidden="true">kr</span>
-    </span>
-    {#if f}<p class="feilmelding" id={id(`${felt}-feil`)}>{f}</p>{/if}
-  </div>
+  <Tallfelt
+    id={id(felt)}
+    {etikett}
+    {hjelp}
+    enhet="kr"
+    inputmode="decimal"
+    bind:verdi={() => eier[noekkel] ?? '', (t) => (eier[noekkel] = t)}
+    feil={f}
+    {paakrevd}
+    valgfri={!paakrevd}
+  />
 {/snippet}
 
 {#snippet aapenPost(p: Kravpostvalg)}
@@ -1381,34 +1377,6 @@
     padding: var(--spacing-3);
     resize: vertical;
   }
-  .inndata {
-    display: inline-flex;
-    align-items: stretch;
-    width: 220px;
-    border: var(--control-border);
-    border-radius: var(--r-felt);
-  }
-  .inndata input {
-    flex: 1;
-    min-width: 0;
-    min-height: 44px;
-    padding: 0 var(--spacing-3);
-    border: 0;
-    text-align: right;
-    font: 16px var(--font-sans);
-    font-variant-numeric: tabular-nums;
-    color: var(--ink);
-    background: var(--surface);
-    outline: none;
-  }
-  .kr {
-    display: flex;
-    align-items: center;
-    padding: 0 var(--spacing-3);
-    border-left: var(--rule);
-    color: var(--ink-3);
-  }
-  .inndata:focus-within,
   .tekstfelt:focus-visible,
   .kort-felt:focus-visible,
   .datofelt:focus-visible,

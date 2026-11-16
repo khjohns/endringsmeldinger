@@ -27,13 +27,13 @@
   } = $props();
 </script>
 
-<section class="spoersmaal" aria-labelledby={id}>
+<section class="spoersmaal" aria-labelledby={hjemmel ? `${id} ${id}-hjemmel` : id}>
   <div class="sp-hode">
     <h3 {id}>
       {#if tillegg}{`${tittel} · `}<span class="num">{tillegg}</span>{:else}{tittel}{/if}
     </h3>
     {#if info}<Infotips navn={info.navn} tekst={info.tekst} />{/if}
-    {#if hjemmel}<Hjemmel numre={hjemmel} />{/if}
+    {#if hjemmel}<Hjemmel id={`${id}-hjemmel`} numre={hjemmel} />{/if}
   </div>
   {@render children()}
 </section>
@@ -48,6 +48,7 @@
   }
   .sp-hode {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--spacing-3);
   }

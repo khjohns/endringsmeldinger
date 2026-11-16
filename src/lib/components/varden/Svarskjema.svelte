@@ -33,6 +33,7 @@
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
+  import Valgfri from './Valgfri.svelte';
   import { brevene, datoerISporet } from './lesing';
   import { begrunnelsespunktene, kravbrevetI, SVARSKJEMA, type Postvelger } from './svarskjema';
   import { HOVEDLINJER, SKJEMA, brevhode, brevtittel, dato } from './tekster';
@@ -269,7 +270,7 @@
               {@const bFeil = feil(id)}
               <div class="begrunnelse">
                 <label for={id}
-                  >{kreves(p.punkt) || kanStaa(p.punkt) ? p.navn : SKJEMA.valgfritt(p.navn)}</label
+                  >{p.navn}{#if !kreves(p.punkt) && !kanStaa(p.punkt)}<Valgfri />{/if}</label
                 >
                 {#if kreves(p.punkt)}
                   <span class="dempet" id={`${id}-kreves`}>{begrunnelseKreves!.grunn}</span>
@@ -376,6 +377,10 @@
   }
   /* Feltnavnet er punktet i brevet, under overskriften «Begrunnelse» (design-review #1858). */
   .begrunnelse label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--spacing-3);
     font-size: 15px;
     color: var(--ink-2);
   }

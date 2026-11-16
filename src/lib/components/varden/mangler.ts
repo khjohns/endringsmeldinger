@@ -9,3 +9,6 @@ export interface Mangel {
   /** Teksten ved feltet, når den er en annen enn i oppsummeringen. */
   ved?: string;
 }
+
+/** Teksten ved feltet: `ved`, og ellers teksten i oppsummeringen. `null` når feltet ikke mangler noe. */
+export const feltfeil = (m: Mangel | undefined): string | null => (m ? (m.ved ?? m.tekst) : null);

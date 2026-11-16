@@ -5,10 +5,11 @@
 <script lang="ts">
   import { hjemmelsmerke } from './tekster';
 
-  let { numre }: { /** Punktene, uten «pkt.». */ numre: readonly string[] } = $props();
+  let { id, numre }: { id?: string; /** Punktene, uten «pkt.». */ numre: readonly string[] } =
+    $props();
 </script>
 
-<span>{hjemmelsmerke(...numre)}</span>
+<span {id}>{hjemmelsmerke(...numre)}</span>
 
 <style>
   span {

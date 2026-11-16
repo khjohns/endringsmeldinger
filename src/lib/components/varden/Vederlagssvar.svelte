@@ -431,9 +431,8 @@
             />
             <Valg
               navn={`${uid}-varsel-${p.betegnelse}`}
-              spoersmaal={v.form === 'godtar'
-                ? SKJEMA.varselJusteringSpoersmaal
-                : SKJEMA.valgfritt(SKJEMA.varselJusteringSpoersmaal)}
+              spoersmaal={SKJEMA.varselJusteringSpoersmaal}
+              valgfri={v.form !== 'godtar'}
               beskrevetAv={varselet.length
                 ? `${uid}-varsel-${p.betegnelse}-forutsetninger`
                 : undefined}
@@ -455,9 +454,8 @@
             />
             <Valg
               navn={`${uid}-justering-${p.betegnelse}`}
-              spoersmaal={v.form === 'godtar'
-                ? SKJEMA.justeringSpoersmaal
-                : SKJEMA.valgfritt(SKJEMA.justeringSpoersmaal)}
+              spoersmaal={SKJEMA.justeringSpoersmaal}
+              valgfri={v.form !== 'godtar'}
               beskrevetAv={justeringen.length
                 ? `${uid}-justering-${p.betegnelse}-forutsetninger`
                 : undefined}

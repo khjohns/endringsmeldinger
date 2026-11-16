@@ -415,8 +415,7 @@ export const SKJEMA = {
   justeringSpoersmaal: 'Justeringen av enhetsprisene (punkt 34.3.2)',
   godkjennerJustering: 'Godkjenner justeringen',
   bestriderJustering: 'Bestrider justeringen',
-  valgfritt: (spoersmaal: string) => `${spoersmaal} (valgfritt)`,
-  /** Til høyre på linja med labelen over et valgfritt felt (`Feltetikett`). */
+  /** Til høyre på linja med labelen eller spørsmålet over et valgfritt felt (`Valgfri`). */
   valgfri: 'Valgfri',
   // Beløpet står etter tittelen i komponenten, med mono (#1467).
   beloepTittel: 'Vederlagsjustering',

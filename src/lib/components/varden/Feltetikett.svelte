@@ -4,7 +4,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { SKJEMA } from './tekster';
+  import Valgfri from './Valgfri.svelte';
 
   let {
     for: felt,
@@ -14,23 +14,20 @@
   }: { for: string; id?: string; valgfri?: boolean; children: Snippet } = $props();
 </script>
 
-<!-- prettier-ignore -->
-<label for={felt} {id}>{@render children()}{#if valgfri}<span class="visually-hidden">,</span>&#32;<span class="valgfri">{SKJEMA.valgfri}</span>{/if}</label>
+<label for={felt} {id} class:valgfri
+  >{@render children()}{#if valgfri}<Valgfri />{/if}</label
+>
 
 <style>
   label {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0 var(--spacing-3);
     font-size: 16px;
     font-weight: 600;
     color: var(--ink);
   }
-  .valgfri {
-    font-size: 14px;
-    font-weight: 400;
-    color: var(--ink-3);
+  label.valgfri {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--spacing-3);
   }
 </style>
