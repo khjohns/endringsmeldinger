@@ -2,9 +2,9 @@ import type { Part, Spor } from '#kjerne/typer.ts';
 import type { Brevet, Brevref } from '../lesing';
 import { FORHOLDET } from './forholdet';
 import { KRAVET, SAKSDELEN, brevref, brevrefStor, brevtittel } from './felles';
-import { dato } from './format';
+import { dato, haerdet } from './format';
 
-export const TIDSLINJE = {
+export const TIDSLINJE = haerdet({
   tittel: 'Tidslinje',
   oppfoeringer: (n: number) => `${n} ${n === 1 ? 'oppføring' : 'oppføringer'}`,
   oppgitt: (part: Part, b: Brevref) => `Oppgitt av ${part} i ${brevref(b)}`,
@@ -28,4 +28,4 @@ export const TIDSLINJE = {
   registrert: (part: Part, lagtTil: string) => `Sendt ifølge ${part}, lagt til ${dato(lagtTil)}`,
   tom: 'Ingen datoer eller brev ennå.',
   fristene: 'Fristene i kontrakten',
-};
+});

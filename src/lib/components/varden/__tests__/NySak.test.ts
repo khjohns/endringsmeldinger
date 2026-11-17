@@ -80,8 +80,8 @@ async function sendBrevet() {
   await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
 }
 
-const ENDRINGER = 'Endringer, jf. punkt 31 og 32';
-const SVIKT = 'Forsinkelse eller svikt ved byggherrens ytelser etter punkt 22, 23 og 24';
+const ENDRINGER = 'Endringer, jf. punkt\u00a031 og 32';
+const SVIKT = 'Forsinkelse eller svikt ved byggherrens ytelser etter punkt\u00a022, 23 og 24';
 
 /** Velgeren fra `/mockup` har gruppene felt sammen, så TE åpner gruppen før forholdet velges. */
 async function velgForhold(gruppe: string, navn: RegExp) {
@@ -204,6 +204,11 @@ describe('skjemaet for ny sak (BF-05)', () => {
     });
     expect(screen.getByRole('radio', { name: /^Uforutsette forhold ved grunnen/ })).toBeTruthy();
     expect(screen.queryByRole('radio', { name: /^Irregulær endring/ })).toBeNull();
+    // Et søk limt inn fra navnet på siden har hardt mellomrom og treffer likevel (#2049).
+    await fireEvent.input(screen.getByLabelText('Søk etter forhold eller punkt'), {
+      target: { value: 'punkt\u00a031' },
+    });
+    expect(screen.getByRole('radio', { name: /^Irregulær endring/ })).toBeTruthy();
   });
 
   it('OV-U77/OV-U78: gruppene har kontraktens henvisning, og hvert forhold har sitt eget navn uten skråstrek', async () => {

@@ -1,5 +1,6 @@
+import { haerdet } from './format';
 /** Sakslisten i prosjektet (#1450, prototypen `saksliste-v2.html`, MM-U37–MM-U39). */
-export const SAKSLISTE = {
+export const SAKSLISTE = haerdet({
   saker: 'Saker',
   koe: 'Krav om endringsordre',
   eo: 'Endringsordrer',
@@ -15,7 +16,7 @@ export const SAKSLISTE = {
   /** Avsenderen av sakens siste brev, til brevkoden er bygget (#1174). */
   brevFra: (avsender: string) => `Fra ${avsender}`,
   ingenBrev: 'Ingen brev',
-  forholdMedPunkt: (navn: string, punkt: string) => `${navn} · pkt.\u00a0${punkt}`,
+  forholdMedPunkt: (navn: string, punkt: string) => `${navn} · pkt. ${punkt}`,
   ikkeKrevd: 'Ikke krevd',
   varslet: 'Varslet',
   trukket: 'trukket',
@@ -60,4 +61,4 @@ export const SAKSLISTE = {
   tomKoeTe: 'Ingen krav om endringsordre ennå. Et nytt krav begynner med påberopelsen.',
   tomEo: 'Ingen endringsordrer ennå.',
   tomEoForklaring: 'Endringsordrene vises her når de kan føres i løsningen.',
-};
+});

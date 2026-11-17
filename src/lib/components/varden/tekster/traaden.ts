@@ -5,13 +5,13 @@ import { FORHOLDET } from './forholdet';
 import { KRAVET, brevref } from './felles';
 import { SKJEMA } from './svaret';
 import { TIDSLINJE } from './tidslinjen';
-import { dato, kl } from './format';
+import { dato, kl, haerdet } from './format';
 
 /**
  * Brevtråden, felles for sidene for forholdet, vederlaget og fristen (#1898, U-5, U-8 og U-16 i
  * BF-44, prototypen `vederlagsoversikt.html` i oppsett B).
  */
-export const TRAADEN = {
+export const TRAADEN = haerdet({
   tittel: (spor: Spor) =>
     spor === 'forhold' ? 'Brevene i saken, nyeste først' : 'Brevene, nyeste først',
   /** Hva brevet er, kort: «Svar på krav om vederlagsjustering». Et registrert brev har partens beskrivelse. */
@@ -70,4 +70,4 @@ export const TRAADEN = {
   brevet: 'Brevet',
   brevetSomSendt: (b: Pick<Brevet, 'nummer'>) =>
     b.nummer === null ? 'Brevet slik det ble sendt' : `Brev ${b.nummer} slik det ble sendt`,
-};
+});

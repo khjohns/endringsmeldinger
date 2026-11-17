@@ -3,14 +3,14 @@ import { KORRESPONDANSETYPEN, kroner } from '#kjerne/frosset/tekst.ts';
 import type { Korrespondansetype } from '#kjerne/typer.ts';
 import type { Brevref } from '../lesing';
 import { brevref, brevrefStor } from './felles';
-import { dato, kortDato, punkt } from './format';
+import { dato, kortDato, punkt, haerdet } from './format';
 
 /**
  * TEs krav om vederlagsjustering (BF-14, prototype v4, økt 3 i #1663). Ordene følger språkfila:
  * «vederlagsjustering» og «særskilt vederlagsjustering», partene fullt ut, «brev» og ikke
  * «versjon», og et trekk kalles ikke avkall (KA-U75, D-18).
  */
-export const KRAVSKJEMA = {
+export const KRAVSKJEMA = haerdet({
   tittel: 'Krav om justering av vederlaget',
   til: 'Til byggherren (BH)',
   forholdet: (navn: string, b: Brevref) =>
@@ -204,4 +204,4 @@ export const KRAVSKJEMA = {
   detteSender: {
     poster: (n: number) => `${n === 1 ? 'Én kravpost' : `${n} kravposter`} i vederlagsjusteringen`,
   },
-};
+});

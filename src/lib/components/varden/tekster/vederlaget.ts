@@ -5,7 +5,7 @@ import type { Brevref } from '../lesing';
 import type { Innsigelsen, Svarlaget } from '../svarlagene';
 import { SKJEMA } from './svaret';
 import { brevref, brevrefStor } from './felles';
-import { dato, hjemmelsmerke, punkt } from './format';
+import { dato, hjemmelsmerke, punkt, haerdet } from './format';
 import { grunntekst, standpunkttekst } from './standpunkt';
 import { liten } from './fristkrav';
 
@@ -17,7 +17,7 @@ const OPPGJOERSFORMEN: Record<Oppgjoersform, string> = {
 };
 
 /** Siden for vederlaget (BF-44, prototypen `vederlagsoversikt.html` v3, oppsett B). */
-export const VEDERLAGET = {
+export const VEDERLAGET = haerdet({
   tittel: 'Vederlagsjustering',
   hjemmel: hjemmelsmerke('34'),
   kortet: 'Kravet og svaret',
@@ -97,4 +97,4 @@ export const VEDERLAGET = {
     overslaget: (beloep: number, krav: Brevref) =>
       `${kroner(beloep)} ifølge totalentreprenøren i ${brevref(krav)}, ${dato(krav.registrert)}`,
   },
-};
+});
