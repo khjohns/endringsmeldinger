@@ -4445,7 +4445,7 @@ Spørsmål S1 for #2142 (VS-U73), stilt 17.11 og rettet etter prøvingen mot ved
 - Et varsel sendt fra løsningen kan ikke ha vedlegg, så varslene med filer er alltid lagt til som korrespondanse. Kjerneøkta har kontrollert det i kjernen.'''
 valgt = "B"
 svar = '''
-Oppdragsgiver 17.11, ordrett ([#2142](https://github.com/khjohns/endringsmeldinger/issues/2142#issuecomment-6945921800)): «3 B». Spørsmålet var nummer 3 i runden. Valgt: B. A er forkastet.'''
+Oppdragsgiver 17.11, ordrett ([#2142](https://github.com/khjohns/endringsmeldinger/issues/2142#issuecomment-6945921800)): «3 B». Valgt: B. A er forkastet.'''
 forhold = [
   { art = "presiserer", vedtak = "vs-u73" },
 ]
