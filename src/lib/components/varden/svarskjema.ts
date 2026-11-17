@@ -19,6 +19,17 @@ export const manglene = (
 ): Mangel[] =>
   felt.flatMap((m) => (m.tekst ? [{ ...m, felt: `${prefiks}-${m.felt}`, tekst: m.tekst }] : []));
 
+/**
+ * Om kjernen sier at spørsmålet er påkrevd og ubesvart i utkastet (`ubesvart` i `Utkastlag`,
+ * #2025), for hele kravet eller for posten eller fristen `gjelder`. `false` uten lag.
+ */
+export const ubesvart = <S extends string>(
+  lag: { ubesvart: readonly { spoersmaal: S; gjelder?: string }[] } | null,
+  spoersmaal: S,
+  gjelder?: string
+): boolean =>
+  lag?.ubesvart.some((x) => x.spoersmaal === spoersmaal && x.gjelder === gjelder) ?? false;
+
 /** Lista over postene, så oppsummeringen kan åpne posten et felt står i (`Postliste`). */
 export interface Postvelger {
   erAapen(id: string): boolean;
