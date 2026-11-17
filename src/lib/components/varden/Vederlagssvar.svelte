@@ -14,7 +14,7 @@
   import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { VIRKNING } from '#lib/kjernesak/svarvirkning.ts';
   import { lesKroner } from '#lib/utils/belop.ts';
-  import type { Forutsetning, LagIVederlaget } from '#kjerne/spor/vederlag/kommando.ts';
+  import type { Forutsetning } from '#kjerne/spor/vederlag/kommando.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kravpost, Standpunkt } from '#kjerne/typer.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -116,7 +116,6 @@
   const etter = $derived(kjernesak.forhaandsvist(utkast));
   // OV-U33: lagene står også før spørsmålene er besvart (`lagIVederlaget`).
   const lagene = $derived(stoppet ? null : kjernesak.lagForUtkastet(utkast.svar[0], 'vederlag'));
-  type Spoersmaalet = LagIVederlaget['ubesvart'][number]['spoersmaal'];
   type IPosten = { f: Forutsetning; post?: Kravpost };
   const iPosten = (liste: Forutsetning[], post?: Kravpost): IPosten[] =>
     liste.map((f) => ({ f, post }));
@@ -200,26 +199,33 @@
   );
   // Det som mangler, med skjemaets ord: det kjernen sier er påkrevd og ubesvart (#2025), og et
   // beløp som er skrevet, men ikke kan godtas.
+  const delbeloepFeil = (p: Kravpost): string | null => {
+    const v = postvalget(valg, p.betegnelse);
+    if (beloepsvalget(v, p) !== 'deler') return null;
+    const lest = lesKroner(v.delbeloep);
+    if ('feil' in lest) return lest.feil;
+    if (lest.verdi !== undefined && (lest.verdi <= 0 || lest.verdi >= krevdI(p)))
+      return HOVEDLINJER.beloepUtenfor(krevdI(p));
+    return ubesvart(lagene, 'godkjent_beloep', p.id) ? SKJEMA.manglerDelbeloep : null;
+  };
   const hovedvarselet = $derived(spoerOmHovedvarselet(u, kjernesak.regler));
-  const mangler = $derived.by(() => {
-    const paakrevd = (s: Spoersmaalet, gjelder?: string) => ubesvart(lagene, s, gjelder);
-    return manglene(uid, [
+  const mangler = $derived(
+    manglene(uid, [
       {
         felt: 'itide',
         post: null,
-        tekst: paakrevd('hovedkrav_varslet_i_tide') ? SKJEMA.manglerITide : null,
+        tekst: ubesvart(lagene, 'hovedkrav_varslet_i_tide') ? SKJEMA.manglerITide : null,
       },
       ...poster.flatMap((p) => {
-        const v = postvalget(valg, p.betegnelse);
         const i = (tekst: string | null) =>
           tekst ? SKJEMA.iPosten(navnet(p) ?? null, tekst) : null;
-        const lest = lesKroner(v.delbeloep);
         return [
           {
             felt: `form-${p.betegnelse}`,
             post: p.id,
             tekst: i(
-              paakrevd('aksepterer', p.id) || paakrevd('oensket_oppgjoersform', p.id)
+              ubesvart(lagene, 'aksepterer', p.id) ||
+                ubesvart(lagene, 'oensket_oppgjoersform', p.id)
                 ? SKJEMA.manglerForm(p.oppgjoersform)
                 : null
             ),
@@ -227,32 +233,18 @@
           {
             felt: `justering-${p.betegnelse}`,
             post: p.id,
-            tekst: i(paakrevd('godtar_justering', p.id) ? SKJEMA.manglerJustering : null),
+            tekst: i(ubesvart(lagene, 'godtar_justering', p.id) ? SKJEMA.manglerJustering : null),
           },
           {
             felt: `beloep-${p.betegnelse}`,
             post: p.id,
-            tekst: i(paakrevd('vurdering', p.id) ? SKJEMA.manglerBeloep : null),
+            tekst: i(ubesvart(lagene, 'vurdering', p.id) ? SKJEMA.manglerBeloep : null),
           },
-          {
-            felt: `delbeloep-${p.betegnelse}`,
-            post: p.id,
-            tekst: i(
-              beloepsvalget(v, p) !== 'deler'
-                ? null
-                : 'feil' in lest
-                  ? lest.feil
-                  : lest.verdi !== undefined && (lest.verdi <= 0 || lest.verdi >= krevdI(p))
-                    ? HOVEDLINJER.beloepUtenfor(krevdI(p))
-                    : paakrevd('godkjent_beloep', p.id)
-                      ? SKJEMA.manglerDelbeloep
-                      : null
-            ),
-          },
+          { felt: `delbeloep-${p.betegnelse}`, post: p.id, tekst: i(delbeloepFeil(p)) },
         ];
       }),
-    ]);
-  });
+    ])
+  );
 
   const virkninger = $derived([
     ...(nyttSvar?.beslutningsgrunnlag.sammenfall ? [VIRKNING.sammenfall] : []),

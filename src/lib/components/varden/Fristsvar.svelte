@@ -11,7 +11,7 @@
   import { dager } from '#kjerne/frosset/tekst.ts';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
   import { foresporselenISvaret } from '#lib/kjernesak/fristsvar.ts';
-  import type { Forutsetning, LagIFristen } from '#kjerne/spor/frist/kommando.ts';
+  import type { Forutsetning } from '#kjerne/spor/frist/kommando.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { VIRKNING } from '#lib/kjernesak/svarvirkning.ts';
@@ -111,7 +111,6 @@
   // OV-U33: lagene står også før spørsmålene er besvart (`lagIFristen`).
   const lagene = $derived(kjernesak.lagForUtkastet(utkast.svar[0], 'frist'));
   type Lagene = NonNullable<typeof lagene>['standpunkter'][number];
-  type Spoersmaalet = LagIFristen['ubesvart'][number]['spoersmaal'];
   const forutsetninger = (passer: (x: Lagene) => boolean): Forutsetning[] =>
     lagene?.standpunkter.find(passer)?.forutsetninger ?? [];
   const forDagene = (id: string) => forutsetninger((x) => x.art === 'dager' && x.gjelder === id);
@@ -200,65 +199,67 @@
 
   // Det som mangler, med skjemaets ord: det kjernen sier er påkrevd og ubesvart (#2025), og et
   // tall som er skrevet, men ikke kan godtas.
-  const mangler = $derived.by(() => {
-    const paakrevd = (s: Spoersmaalet, gjelder?: string) => ubesvart(lagene, s, gjelder);
-    const hele = (felt: string, s: Spoersmaalet, tekst: string) => ({
-      felt,
-      post: null,
-      tekst: paakrevd(s) ? tekst : null,
-    });
-    return manglene(uid, [
-      hele('varsel', 'frist_varsel_ok', FRISTSVAR.manglerVarsel),
-      hele('foresporsel', 'foresporsel_svar_ok', FRISTSVAR.manglerForesporsel),
-      hele('hindret', 'vilkar_oppfylt', FRISTSVAR.manglerHindring),
-      hele('spesifisert', 'spesifisert_krav_ok', FRISTSVAR.manglerSpesifisering),
+  const deldagerFeil = (f: Fristpost): string | null => {
+    const v = valg.frister[f.id];
+    if (v?.dager !== 'deler') return null;
+    if (ubesvart(lagene, 'dager', f.id)) return FRISTSVAR.manglerDeldager;
+    const d = heleDager(v.deldager);
+    return d !== undefined && (d <= 0 || d >= f.dager) ? FRISTSVAR.deldagerUtenfor(f.dager) : null;
+  };
+  // D-5: dagene byggherren måtte forstå er høyst dagene byggherren godtar om kravet kom i tide
+  // (`kontrollerSpesifiseringen` i kjernen).
+  const maatteForstaaFeil = (f: Fristpost): string | null => {
+    if (ubesvart(lagene, 'dager_maatte_forstaa', f.id)) return FRISTSVAR.manglerMaatteForstaa;
+    if (valg.spesifisertITide !== false) return null;
+    const v = fristvalget(valg, f.id);
+    const d = heleDager(v.maatteForstaa);
+    const godtar = godkjenteDager(v, f.dager);
+    return d !== undefined && godtar !== undefined && d > godtar
+      ? FRISTSVAR.maatteForstaaForMange
+      : null;
+  };
+  const mangler = $derived(
+    manglene(uid, [
+      // Spørsmålene som gjelder hele kravet.
+      {
+        felt: 'varsel',
+        post: null,
+        tekst: ubesvart(lagene, 'frist_varsel_ok') ? FRISTSVAR.manglerVarsel : null,
+      },
+      {
+        felt: 'foresporsel',
+        post: null,
+        tekst: ubesvart(lagene, 'foresporsel_svar_ok') ? FRISTSVAR.manglerForesporsel : null,
+      },
+      {
+        felt: 'hindret',
+        post: null,
+        tekst: ubesvart(lagene, 'vilkar_oppfylt') ? FRISTSVAR.manglerHindring : null,
+      },
+      {
+        felt: 'spesifisert',
+        post: null,
+        tekst: ubesvart(lagene, 'spesifisert_krav_ok') ? FRISTSVAR.manglerSpesifisering : null,
+      },
       ...frister.flatMap((f) => {
-        const v = fristvalget(valg, f.id);
         const i = (tekst: string | null) =>
           tekst ? SKJEMA.iPosten(flere ? f.navn : null, tekst) : null;
-        const dagene = paakrevd('dager', f.id);
-        // D-5: dagene byggherren måtte forstå er høyst dagene byggherren godtar om kravet kom i
-        // tide (`kontrollerSpesifiseringen` i kjernen).
-        const maatte = heleDager(v.maatteForstaa);
-        const godtar = godkjenteDager(v, f.dager);
-        const deldager = heleDager(v.deldager);
         return [
-          {
-            felt: `maatte-${f.id}`,
-            post: f.id,
-            tekst: i(
-              paakrevd('dager_maatte_forstaa', f.id)
-                ? FRISTSVAR.manglerMaatteForstaa
-                : valg.spesifisertITide === false &&
-                    maatte !== undefined &&
-                    godtar !== undefined &&
-                    maatte > godtar
-                  ? FRISTSVAR.maatteForstaaForMange
-                  : null
-            ),
-          },
+          { felt: `maatte-${f.id}`, post: f.id, tekst: i(maatteForstaaFeil(f)) },
           {
             felt: `dager-${f.id}`,
             post: f.id,
-            tekst: i(dagene && v.dager === null ? FRISTSVAR.manglerDager : null),
-          },
-          {
-            felt: `deldager-${f.id}`,
-            post: f.id,
             tekst: i(
-              v.dager !== 'deler'
-                ? null
-                : dagene
-                  ? FRISTSVAR.manglerDeldager
-                  : deldager !== undefined && (deldager <= 0 || deldager >= f.dager)
-                    ? FRISTSVAR.deldagerUtenfor(f.dager)
-                    : null
+              ubesvart(lagene, 'dager', f.id) && !valg.frister[f.id]?.dager
+                ? FRISTSVAR.manglerDager
+                : null
             ),
           },
+          { felt: `deldager-${f.id}`, post: f.id, tekst: i(deldagerFeil(f)) },
         ];
       }),
-    ]);
-  });
+    ])
+  );
 
   const virkninger = $derived([
     ...(nyttSvar?.beslutningsgrunnlag.sammenfall ? [VIRKNING.sammenfall] : []),
