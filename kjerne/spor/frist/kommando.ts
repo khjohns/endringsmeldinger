@@ -397,7 +397,7 @@ function medVarselet(k: Extract<Kommando, { type: 'krav' }>, skriving: Skriveste
  * #2082: korrespondansen registreres én gang (OV-U80). Er totalentreprenørens brev med varselet
  * alt i saken, med det samme innholdet i vedleggene, velger totalentreprenøren varselet etter
  * § 33.4 for det (OV-U84), eller viser kravet til varselet som står i saken (VS-U73). Hele
- * dokumentet sammenliknes, fordi ett vedlegg kan ligge ved to brev. Vedleggene sammenliknes på
+ * dokumentet sammenliknes (`sammeDokument`). Vedleggene sammenliknes på
  * innholdet, så samme fil lastet opp på nytt er samme brev (#2100). Saken er den før handlingen,
  * så varselet kravskjemaet skrev i samme handling (`medVarselet`, `vedKravet`), ikke er med.
  */

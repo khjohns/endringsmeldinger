@@ -4254,10 +4254,6 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
   });
 });
 
-/**
- * VS-U38: har TE alt sendt varselet etter punkt 32.2 utenfor løsningen, legges dokumentet
- * med varselet ved påberopelsen. Et fristkrav har brevet med varselet i `varsel` (OV-U5).
- */
 describe('et brev sendt utenfor løsningen som både varsler og krever, legges til som krav (VS-U74)', () => {
   const KRAVBREVET = '7f1c2d3e-0000-4000-8000-000000002133';
   const melding = (punkt: string) =>
@@ -4308,6 +4304,18 @@ describe('et brev sendt utenfor løsningen som både varsler og krever, legges t
       ).toBeNull();
     }
   );
+
+  it('et krav sendt fra løsningen med brevet som vedlegg sperrer ikke brevet som varsel, fordi brevet ikke er kravet (VS-U74)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: tilbud(125000),
+      dokumentasjon: [KRAVBREVET],
+    });
+    expect(s.avvist('TE', varsel('vederlag', '34.1.2', [KRAVBREVET], '2026-09-28'))).toBeNull();
+  });
 
   it('et tidligere varsel etter samme bestemmelse legges til uten retting, og det tidligste regnes (VS-U66, VS-U70)', () => {
     const s = sak();
@@ -4364,6 +4372,10 @@ describe('et brev sendt utenfor løsningen som både varsler og krever, legges t
   });
 });
 
+/**
+ * VS-U38: har TE alt sendt varselet etter punkt 32.2 utenfor løsningen, legges dokumentet
+ * med varselet ved påberopelsen. Et fristkrav har brevet med varselet i `varsel` (OV-U5).
+ */
 describe('vedleggene ved påberopelsen (VS-U38)', () => {
   it('påberopelsen lagrer vedlegget med ID, filnavn og sum (VS-U38, LV-U14)', () => {
     const s = sak();

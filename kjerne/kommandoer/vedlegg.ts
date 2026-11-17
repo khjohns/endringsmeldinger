@@ -4,6 +4,7 @@
  * etter samme bestemmelse (VS-U74).
  */
 
+import { erRegistrert } from '../format/leser.ts';
 import { kravSomVarsler, type Utledning } from '../utledning/utled.ts';
 import { avvis, type Avvisning, type Dokument, type Domenehendelse } from '../typer.ts';
 import type { Kommando } from './kommando.ts';
@@ -38,7 +39,7 @@ const kravetErVarsel = (h: string): h is (typeof KRAVET_ER_VARSEL)[number] =>
 
 /**
  * VS-U74: brevet med varselet etter punkt 33.4, 34.1.2 eller 34.1.3 står alt i saken som et krav
- * i sporet som gjelder som varselet etter bestemmelsen (`kravSomVarsler`). Varslene etter
+ * totalentreprenøren har lagt til i sporet som gjelder som varselet etter bestemmelsen (`kravSomVarsler`). Varslene etter
  * `ogsaaEtter` er i samme dokument (VS-U52). Et varsel lagt til før kravet står (VS-U73).
  */
 export function kravetErVarselet(
@@ -47,14 +48,25 @@ export function kravetErVarselet(
   { lest, u }: { lest: readonly Domenehendelse[]; u: Utledning },
   oppslag: Vedleggsoppslag
 ): Avvisning | null {
+  const hjemlene = [k.hjemmel, ...ogsaaEtter].filter(kravetErVarsel);
+  if (!hjemlene.length) return null;
   const vedlagte = innholdetIVedleggene(k.dokumentasjon, oppslag);
   if (!vedlagte.size) return null;
-  const dokumentene = new Map(
-    lest.flatMap((h) => (h.art === 'dokument' ? [[h.id, h.dokument] as const] : []))
+  // Brevet er sendt utenfor løsningen og lagt til, og en registrering som er rettet, står ikke.
+  const rettet = new Set(lest.flatMap((h) => (h.art === 'dokument' ? [h.dokument.retter] : [])));
+  const brevene = new Map(
+    lest.flatMap((h) =>
+      h.art === 'dokument' &&
+      h.dokument.avsender === 'TE' &&
+      erRegistrert(h.dokument.opplysninger) &&
+      !rettet.has(h.id)
+        ? [[h.id, h.dokument] as const]
+        : []
+    )
   );
-  for (const hjemmel of [k.hjemmel, ...ogsaaEtter].filter(kravetErVarsel)) {
+  for (const hjemmel of hjemlene) {
     const kravet = kravSomVarsler(hjemmel, u.spor[k.spor], () => true).find((kr) => {
-      const d = dokumentene.get(kr.dokument);
+      const d = brevene.get(kr.dokument);
       return d !== undefined && sammeDokument(d, vedlagte);
     });
     if (kravet)
