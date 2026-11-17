@@ -77,7 +77,7 @@ const KRAVPOSTVARSEL_I_KOMMANDOEN: Skjema = objekt(
 );
 
 /**
- * En kravpost med feltene oppgjørsformen har (OV-U95 punkt 19, KA-U66). I kommandoen har en
+ * En kravpost med feltene oppgjørsformen har (OV-U115 punkt 19, KA-U66). I kommandoen har en
  * ny kravpost ingen `id`, og ingen kravpost har `betegnelse`: serveren setter dem
  * (`kommandoer/skriving.ts`). En kravpost fra forrige versjon har sin `id`.
  */
@@ -127,7 +127,7 @@ function kravpost(lagret: boolean): Skjema {
  * byggetid (OV-U89 punkt 17) er ikke i formatet før #1724 har satt formen, så en lagret rad med
  * posten er ikke forstått (#1775). `trekker` er kravpostene fra forrige versjon TE trekker (KA-U56), og
  * `trekker_saerskilt` den særskilte posten fra forrige versjon TE trekker (KA-U83).
- * Formen følger OV-U95 punkt 19–22 og arbeidsvalget 07.11 i domenetabellen.
+ * Formen følger OV-U115 punkt 19–22 og arbeidsvalget 07.11 i domenetabellen.
  */
 export function vederlagsinnhold(lagret: boolean): {
   properties: Skjema;
@@ -259,7 +259,7 @@ function lesKrevd(krav: Krav, verdi: number | undefined): Oere | null {
 export const harProduktivitetspost = (krav: Krav): boolean =>
   innholdIVederlaget(krav).saerskilt.produktivitet !== undefined;
 
-/** Kravpostene i en lagret kravversjon (OV-U95 punkt 19). */
+/** Kravpostene i en lagret kravversjon (OV-U115 punkt 19). */
 export const kravposterI = (krav: Pick<Krav, 'innhold'>): readonly Kravpost[] =>
   innholdIVederlaget(krav).kravposter;
 
@@ -267,12 +267,12 @@ export const kravposterI = (krav: Pick<Krav, 'innhold'>): readonly Kravpost[] =>
 export const justerteEnhetspriser = (post: Pick<Kravpost, 'oppgjoersform' | 'justert'>): boolean =>
   post.oppgjoersform === 'enhetspriser' && post.justert === true;
 
-/** Den andre beregningsregelen, som byggherren kan mene (OV-U95 punkt 1 og 5). */
+/** Den andre beregningsregelen, som byggherren kan mene (OV-U115 punkt 1 og 5). */
 export const denAndreRegelen = (
   r: Exclude<Oppgjoersform, 'tilbud'>
 ): Exclude<Oppgjoersform, 'tilbud'> => (r === 'enhetspriser' ? 'regningsarbeid' : 'enhetspriser');
 
-/** OV-U95 punkt 19: kravet har kravposter i vederlagsjusteringen, i tillegg til eller uten postene utenfor. */
+/** OV-U115 punkt 19: kravet har kravposter i vederlagsjusteringen, i tillegg til eller uten postene utenfor. */
 export const harHovedbeloep = (krav: Krav): boolean => kravposterI(krav).length > 0;
 
 /** Det krevde beløpet i en kravpost med fast sum, i øre, eller `null` etter en beregningsregel. */
@@ -290,7 +290,7 @@ export const krevdProduktivitet = (krav: Krav): Oere | null =>
 /**
  * Summen av de krevde faste beløpene i kravet, i øre: kravpostene med fast sum, kravet etter
  * § 34.1.3 annet ledd og rigg og drift. En kravpost etter en beregningsregel har ikke et krevd
- * beløp og regnes ikke med (OV-U95 punkt 2 og 19, OV-U73).
+ * beløp og regnes ikke med (OV-U115 punkt 2 og 19, OV-U73).
  */
 export const krevdSamlet = (krav: Krav): Oere =>
   kravposterI(krav).reduce((sum, p) => sum + (krevdIKravposten(krav, p) ?? 0n), 0n) +
@@ -386,7 +386,7 @@ function standpunktIVederlaget(
         throw new Uforstaatt(
           `${sti}: kravet om tilbud står bare for en beregningsregel byggherren ikke godtar (KA-U69, KA-U71)`
         );
-      // OV-U95 punkt 1 og 5: byggherren mener ikke den beregningsregelen TE krever.
+      // OV-U115 punkt 1 og 5: byggherren mener ikke den beregningsregelen TE krever.
       if (OPPGJOERSFORM_I_HJEMMELEN[hjemmel] === e.oensket_oppgjoersform)
         throw new Uforstaatt(`${sti}: byggherren mener den oppgjørsformen TE krever`);
       return {
@@ -491,7 +491,7 @@ function kontrollerVederlagsstandpunktene(
       `${sti}: standpunktene i vederlaget står ikke i rekkefølgen § 34.1.2, oppgjørsformen og beløpet for hver kravpost, § 34.1.3 og posten etter annet ledd`
     );
   // KA-U72: standpunktet til beløpet står uten beløp når, og bare når, tilbudet ikke er akseptert
-  // eller kravposten følger en beregningsregel (OV-U95 punkt 5).
+  // eller kravposten følger en beregningsregel (OV-U115 punkt 5).
   const utenBeloep = utenFastBeloep(ut);
   const regelposter = new Set(
     ut.flatMap((s) => (s.art === 'oppgjoersform' && s.hjemmel !== '34.2.2' ? [s.gjelder] : []))
@@ -502,7 +502,7 @@ function kontrollerVederlagsstandpunktene(
         s.godkjent === undefined
           ? `${sti}: standpunktet til beløpet står uten beløp, men byggherren aksepterer tilbudet for posten (KA-U72)`
           : regelposter.has(s.gjelder!)
-            ? `${sti}: standpunktet til beløpet har et beløp, men kravposten følger en beregningsregel (OV-U95 punkt 5)`
+            ? `${sti}: standpunktet til beløpet har et beløp, men kravposten følger en beregningsregel (OV-U115 punkt 5)`
             : `${sti}: standpunktet til beløpet har et beløp, men byggherren aksepterer ikke tilbudet for posten (KA-U72)`
       );
   // VS-U5: begrensningen etter § 34.1.3 gjelder posten etter annet ledd.
@@ -580,7 +580,7 @@ function kontrollerUtregningenPerPost(
     throw feil('det siste laget summerer ikke til det byggherren godtar subsidiært');
 }
 
-/** OV-U95 punkt 5: oppgjørsformen TE krever etter en beregningsregel, i hjemmelen. */
+/** OV-U115 punkt 5: oppgjørsformen TE krever etter en beregningsregel, i hjemmelen. */
 const OPPGJOERSFORM_I_HJEMMELEN = {
   '34.2.2': null,
   '34.3': 'enhetspriser',
@@ -589,7 +589,7 @@ const OPPGJOERSFORM_I_HJEMMELEN = {
 
 /**
  * Kravpostene uten fast beløp i svaret: tilbudet er ikke akseptert (KA-U72), eller kravposten
- * følger en beregningsregel (OV-U95 punkt 5).
+ * følger en beregningsregel (OV-U115 punkt 5).
  */
 export const utenFastBeloep = (ut: readonly Standpunkt[]): Set<string> =>
   new Set(

@@ -89,7 +89,7 @@ export const KRAVSKJEMA = {
   sumFaste: 'Sum faste beløp i kravpostene',
   leggTil: 'Legg til kravpost',
   taMedIgjen: (post: string, beskrivelse: string) => `Ta med igjen ${post} ${beskrivelse}`,
-  // 2. Den særskilte vederlagsjusteringen (OV-U89, OV-U95 punkt 3).
+  // 2. Den særskilte vederlagsjusteringen (OV-U89, OV-U115 punkt 3).
   saerskilt: 'Særskilt vederlagsjustering',
   saerskiltKort: 'Særskilt',
   saerskiltHjemmel: ['34.1.3 annet ledd'],

@@ -12759,7 +12759,7 @@
         {
           "etter": 2,
           "rolle": "kontroll",
-          "kilde": ["KA-U59", "OV-U95"],
+          "kilde": ["KA-U59", "OV-U115"],
           "prov": {
             "handling": "brev",
             "svar": [

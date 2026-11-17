@@ -83,7 +83,7 @@ const forutsetningene = (gruppe: string) => {
 afterEach(cleanup);
 
 describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
-  it('skjemaet svarer på kravet, og kravposten har regelen og overslaget, ingen spørsmål om beløpet og ikke fast sum (KA-U66, OV-U95 punkt 1 og 5)', async () => {
+  it('skjemaet svarer på kravet, og kravposten har regelen og overslaget, ingen spørsmål om beløpet og ikke fast sum (KA-U66, OV-U115 punkt 1 og 5)', async () => {
     await svarskjemaet();
     expect(screen.queryByText(/følger en beregningsregel/)).toBeNull();
     expect(

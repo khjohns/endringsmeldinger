@@ -146,7 +146,7 @@ function varselpunkt(hjemmel: '34.1.2' | '34.1.3', t: Tekst): Brevpunkt {
 /**
  * Vederlagskravet i punkter med overskrift (#1824, prototype v4 i BF-14): kravet det erstatter
  * (KA-U52 punkt 4), varslene, kravpostene med trekket (KA-U56), postene utenfor kravpostene
- * (OV-U95 punkt 3, OV-U89 punkt 17) med trekket av den særskilte (KA-U83), og hvilke poster som
+ * (OV-U115 punkt 3, OV-U89 punkt 17) med trekket av den særskilte (KA-U83), og hvilke poster som
  * er tilbud etter § 34.2.1 (KA-U61, KA-U65). Rigg og drift kalles ikke tilbud. Partene skrives fullt ut (`docs/sprak.md`).
  */
 function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
@@ -196,7 +196,7 @@ function vederlagstekst(k: Krav, t: Tekst, regler: Regelsett): Brevpunkt[] {
     justering[0].overskrift = 'Vederlagsjustering';
     punkter.push(...justering);
   }
-  // OV-U95 punkt 3: «i tillegg» når vederlagsjusteringen har minst én kravpost.
+  // OV-U115 punkt 3: «i tillegg» når vederlagsjusteringen har minst én kravpost.
   if (post !== null)
     punkter.push({
       punkt: 'produktivitet',
@@ -422,7 +422,7 @@ export const STANDPUNKTENE_I_VEDERLAGET = {
       : `byggherren aksepterer ikke totalentreprenørens tilbud${post ? ` for ${post}` : ''} (NS 8407 punkt 34.2.2 første ledd), og mener vederlaget${post ? ' for kravposten' : ''} skal justeres ${METODEN[p.oensket!]}.`;
   },
   justering: (p, krav) => {
-    // KA-U68, OV-U95 punkt 5: standpunktet godkjenner ingen priser, mengder eller beløp.
+    // KA-U68, OV-U115 punkt 5: standpunktet godkjenner ingen priser, mengder eller beløp.
     const post = kravpostenI(krav, p.gjelder).betegnelse;
     return p.godtar
       ? `byggherren godtar at enhetsprisene for ${post} justeres (NS 8407 punkt 34.3.2). Det godkjenner ikke priser, mengder eller beløp.`
@@ -459,7 +459,7 @@ const REGELEN = {
 } as const;
 
 /**
- * Standpunktet til beregningsregelen for en kravpost (KA-U54, OV-U95 punkt 5) og kravet om
+ * Standpunktet til beregningsregelen for en kravpost (KA-U54, OV-U115 punkt 5) og kravet om
  * spesifisert tilbud (KA-U69, KA-U71). Ordlyden er design (prototype v3, `#svar`).
  */
 function beregningsregeltekst(
