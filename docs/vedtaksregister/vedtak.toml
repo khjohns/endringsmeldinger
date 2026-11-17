@@ -4422,6 +4422,48 @@ tekst = '''
 Et brev sendt utenfor løsningen som både varsler og krever, kan legges til med kategorien krav alene, og kravet gjelder da som varselet etter de samme reglene som et krav sendt fra løsningen. Totalentreprenøren kan også legge det til med kategoriene varsel og krav. Da står varselet, og et tidligere varsel etter samme bestemmelse kommer bare inn ved en retting av varselet etter punkt 9 i samlevedtaket for retting av sendt brev, som gjelder når byggherren godtar den. Forhold: følger OV-U80, SK-12 og svaret 17.11 A.'''
 forkastet = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "VS-U75"
+dato = 2026-11-17
+hvem = "oppdragsgiver"
+kilde = ["#2142"]
+sporsmal = '''
+Spørsmål S1 for #2142 (VS-U73), stilt 17.11 og rettet etter prøvingen mot vedtakene. Ordrett slik det står i [#2142](https://github.com/khjohns/endringsmeldinger/issues/2142#issuecomment-6945880904):
+
+**Situasjonen:** totalentreprenøren har lagt til varselet (etter punkt 33.4, eller for en kravpost i vederlaget) med flere filer, for eksempel brevet og en fremdriftsplan. Så sender totalentreprenøren et krav fra løsningen med én av filene. I dag avviser vederlaget ved én felles fil, mens fristen avviser bare når alle filene ligger ved kravet.
+
+**Spørsmål:** Hva er «brevet eller dokumentet med et varsel» i VS-U73 når varselet har flere filer?
+
+- **A:** «Et krav sendt fra løsningen avvises bare når det har som vedlegg alle filene ved et varsel som alt står i saken: varselet etter punkt 33.4 i fristforlengelsen eller et varsel for en kravpost i vederlaget. En fil som også lå ved varselet, kan legges ved kravet. Hadde varselet et bilag, tar løsningen derfor imot kravet med brevet med varselet alene. Løsningen vurderer ikke om kravet er tilstrekkelig dokumentert. Et dokument lagt til som varsel i kravskjemaet i samme handling legges ved kravet (VS-U51, VS-U53). Et krav lagt til som korrespondanse har brevet som ble sendt som vedlegg (VS-U74).» Forhold: snevrer inn VS-U73 for et varsel med flere filer.
+- **B (anbefalt):** «Et krav sendt fra løsningen har ikke som vedlegg en fil som ligger ved et varsel som alt står i saken: varselet etter punkt 33.4 i fristforlengelsen eller et varsel for en kravpost i vederlaget. Hver fil ved varselet regnes som en del av brevet eller dokumentet med varselet, fordi løsningen ikke ser hvilken fil som er brevet. Kravet viser til varselet, og begrunnelsen kan vise til filene der. Løsningen vurderer ikke om kravet er tilstrekkelig dokumentert. Et dokument lagt til som varsel i kravskjemaet i samme handling legges ved kravet (VS-U51, VS-U53). Et krav lagt til som korrespondanse har brevet som ble sendt som vedlegg (VS-U74).» Forhold: presiserer VS-U73 (hva brevet eller dokumentet er når varselet har flere filer).
+
+**Belegg for B:**
+- Med A kan brevet med varselet legges ved kravet på nytt når varselet hadde et bilag. Det er det VS-U73 skal hindre.
+- Totalentreprenøren taper ingen posisjon. Punkt 33.6.1 krever at dagene angis og begrunnes, ikke at filene legges ved på nytt.
+- B stemmer med OV-U80, KA-U16 og vederlaget i dag.
+- Et varsel sendt fra løsningen kan ikke ha vedlegg, så varslene med filer er alltid lagt til som korrespondanse. Kjerneøkta har kontrollert det i kjernen.'''
+valgt = "B"
+svar = '''
+Oppdragsgiver 17.11, ordrett ([#2142](https://github.com/khjohns/endringsmeldinger/issues/2142#issuecomment-6945921800)): «3 B». Valgt: B. A er forkastet.'''
+forhold = [
+  { art = "presiserer", vedtak = "vs-u73" },
+]
+folge = '''
+Bygges i #2142.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et krav sendt fra løsningen avvises bare når det har som vedlegg alle filene ved et varsel som alt står i saken: varselet etter punkt 33.4 i fristforlengelsen eller et varsel for en kravpost i vederlaget. En fil som også lå ved varselet, kan legges ved kravet. Hadde varselet et bilag, tar løsningen derfor imot kravet med brevet med varselet alene. Løsningen vurderer ikke om kravet er tilstrekkelig dokumentert. Et dokument lagt til som varsel i kravskjemaet i samme handling legges ved kravet (VS-U51, VS-U53). Et krav lagt til som korrespondanse har brevet som ble sendt som vedlegg (VS-U74). Forhold: snevrer inn VS-U73 for et varsel med flere filer.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Et krav sendt fra løsningen har ikke som vedlegg en fil som ligger ved et varsel som alt står i saken: varselet etter punkt 33.4 i fristforlengelsen eller et varsel for en kravpost i vederlaget. Hver fil ved varselet regnes som en del av brevet eller dokumentet med varselet, fordi løsningen ikke ser hvilken fil som er brevet. Kravet viser til varselet, og begrunnelsen kan vise til filene der. Løsningen vurderer ikke om kravet er tilstrekkelig dokumentert. Et dokument lagt til som varsel i kravskjemaet i samme handling legges ved kravet (VS-U51, VS-U53). Et krav lagt til som korrespondanse har brevet som ble sendt som vedlegg (VS-U74). Forhold: presiserer VS-U73 (hva brevet eller dokumentet er når varselet har flere filer).'''
+anbefalt = true
+
 [[gruppe]]
 tittel = "Svar og standpunkt"
 etter = '''
