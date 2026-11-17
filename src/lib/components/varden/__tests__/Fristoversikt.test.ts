@@ -329,7 +329,7 @@ describe('Byggherrens forespørsel etter punkt 33.6.2 (U-6, U-9, D-10)', () => {
     await forespoerselen('TE');
     const veiledning = screen.getByText(/^Byggherren ba om dagene /);
     expect(veiledning.textContent).toMatch(
-      /Svarer totalentreprenøren ikke uten ugrunnet opphold, tapes kravet på fristforlengelse \(punkt\s33\.6\.2 tredje ledd\)\.$/
+      /Svarer totalentreprenøren ikke uten ugrunnet opphold, tapes kravet på fristforlengelse \(punkt\u00a033\.6\.2 tredje ledd\)\.$/
     );
     const svar = screen.getByRole('button', { name: FRISTEN.svarPaaForesporsel });
     expect(svar.closest('li')).toBe(veiledning.closest('li'));

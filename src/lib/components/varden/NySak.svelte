@@ -45,7 +45,7 @@
     type Utfylling,
     type VedleggForNySak,
   } from './nysak';
-  import { KORRESPONDANSEN, NYSAK, SKJEMA, dagensDato, punkt } from './tekster';
+  import { KORRESPONDANSEN, NYSAK, SKJEMA, dagensDato, haerdet, punkt } from './tekster';
   import {
     korrespondansefeilene,
     korrespondansenoekkel,
@@ -129,7 +129,10 @@
   // Panelet viser det brevet sier, i brevets rekkefølge (F-1, GR-U31, VS-U38).
   const linjer = $derived(
     [
-      valgt && { lag: NYSAK.linjeForholdet, tekst: `${valgt.navn}, ${punkt(valgt.punkt)}` },
+      valgt && {
+        lag: NYSAK.linjeForholdet,
+        tekst: haerdet(`${valgt.navn}, ${punkt(valgt.punkt)}`),
+      },
       felt.punkt322 && { lag: NYSAK.linjeVarsel, tekst: NYSAK.varslerEtter322 },
       tittel.trim() && { lag: NYSAK.linjeTittel, tekst: tittel.trim() },
       varselet && {
@@ -359,14 +362,14 @@
             {#if valgt && !velgerAapen}
               <div class="valgt">
                 <div>
-                  <strong>{valgt.navn}</strong>
+                  <strong>{haerdet(valgt.navn)}</strong>
                   <span class="punkt">{punkt(valgt.punkt)}</span>
                 </div>
                 {#if valgt.regel}
-                  <p>{valgt.regel.regel}</p>
-                  <p>{valgt.regel.konsekvens}</p>
+                  <p>{haerdet(valgt.regel.regel)}</p>
+                  <p>{haerdet(valgt.regel.konsekvens)}</p>
                 {:else}
-                  <p>{valgt.beskrivelse}</p>
+                  <p>{haerdet(valgt.beskrivelse)}</p>
                 {/if}
                 <Knapp variant="lenke" onclick={endre}>{NYSAK.endre}</Knapp>
               </div>
@@ -387,14 +390,14 @@
                       aria-controls={gid}
                       onclick={() => (aapenGruppe = aapenGruppe === g.navn ? null : g.navn)}
                     >
-                      <span>{g.navn}</span>
+                      <span>{haerdet(g.navn)}</span>
                       <ChevronDown size={18} aria-hidden="true" />
                     </button>
                     <div
                       class="forholdene"
                       id={gid}
                       role="radiogroup"
-                      aria-label={g.navn}
+                      aria-label={haerdet(g.navn)}
                       hidden={!aapen}
                     >
                       {#each g.forhold as f (f.kode)}
@@ -405,7 +408,7 @@
                             checked={forhold?.kode === f.kode}
                             onchange={() => velg(f.gruppe, f.kode)}
                           />
-                          <span class="navn">{f.navn}</span>
+                          <span class="navn">{haerdet(f.navn)}</span>
                           <span class="punkt">{punkt(f.punkt)}</span>
                         </label>
                       {/each}

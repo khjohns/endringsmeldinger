@@ -58,7 +58,7 @@ function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
 }
 
 /** Leselinjene for kravposten `post` av linjene i svaret, med etiketten for laget foran. */
-function leselinjeneUten(linjer: Standpunktet[], post: Kravpost): string[] {
+function leselinjeneMedVanligeMellomrom(linjer: Standpunktet[], post: Kravpost): string[] {
   return linjer.flatMap((l) => {
     if (!('standpunkt' in l)) return [];
     const s = l.standpunkt;
@@ -80,7 +80,7 @@ function leselinjeneUten(linjer: Standpunktet[], post: Kravpost): string[] {
  * Det gjelder standpunktene som begynner med parten. Beløpet og dagene begynner med posten
  * («Fristforlengelse: …») og har eget lag, så de står aldri etter en leddsetning (`FRISTEN.utenLag`).
  */
-function standpunkttekstUten(
+function standpunkttekstMedVanligeMellomrom(
   s: Standpunkt,
   du: boolean,
   krevd?: number,
@@ -216,5 +216,5 @@ export const setningene = (rader: Innlegget['standpunkter']): string[] =>
     return medLaget(i === 0 && r.lag === 'prinsipalt' ? null : r.lag, u);
   });
 
-export const leselinjene = haerdet(leselinjeneUten);
-export const standpunkttekst = haerdet(standpunkttekstUten);
+export const leselinjene = haerdet(leselinjeneMedVanligeMellomrom);
+export const standpunkttekst = haerdet(standpunkttekstMedVanligeMellomrom);

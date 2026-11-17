@@ -80,8 +80,8 @@ async function sendBrevet() {
   await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
 }
 
-const ENDRINGER = 'Endringer, jf. punkt 31 og 32';
-const SVIKT = 'Forsinkelse eller svikt ved byggherrens ytelser etter punkt 22, 23 og 24';
+const ENDRINGER = 'Endringer, jf. punkt\u00a031 og 32';
+const SVIKT = 'Forsinkelse eller svikt ved byggherrens ytelser etter punkt\u00a022, 23 og 24';
 
 /** Velgeren fra `/mockup` har gruppene felt sammen, så TE åpner gruppen før forholdet velges. */
 async function velgForhold(gruppe: string, navn: RegExp) {

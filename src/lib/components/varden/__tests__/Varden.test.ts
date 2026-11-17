@@ -810,7 +810,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     ['TE', 1],
     ['BH', 0],
   ] as const)(
-    '%s ser lenken «Nytt krav om endringsordre» %i gang(er), i topplinja og ikke i panelet (#1899 punkt\u00a03, oppdragsgiver 13.11: «topplinja»)',
+    '%s ser lenken «Nytt krav om endringsordre» %i gang(er), i topplinja og ikke i panelet (#1899 punkt 3, oppdragsgiver 13.11: «topplinja»)',
     async (part, antall) => {
       const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', part);
       const kjernesak = lagKjernesak({

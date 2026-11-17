@@ -1,6 +1,6 @@
 /**
  * Hardt mellomrom etter «punkt», «pkt.» og «kl.» foran et tall i tekstene i visningen (språkfila,
- * «Hardt mellomrom», svaret 16.11 i #2049: «Hardt overalt (Anbefalt)»).
+ * «Hardt mellomrom», svaret 16.11 i #2049).
  */
 import { describe, expect, it } from 'vitest';
 import * as TEKSTER from '#lib/components/varden/tekster/index.ts';
