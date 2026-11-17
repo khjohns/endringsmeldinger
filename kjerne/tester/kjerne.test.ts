@@ -34,7 +34,7 @@ import { harIkkeVurdertBrev, visning } from '../utledning/visning.ts';
 import { minnebane } from './bane.ts';
 import { bygg } from './baner.ts';
 import { avvikFraFormatet } from './formatprove.ts';
-import { mellomlager, type Handling } from './klient.ts';
+import { innholdssummen, mellomlager, type Handling } from './klient.ts';
 import { Forutsetning, les, type Kjoering } from './kjoerer.ts';
 import { SOM_BREV } from './brevet.ts';
 
@@ -1924,7 +1924,7 @@ describe('et brev sendt utenfor appen registreres som dokumentasjon (OV-U4, OV-U
         spor: ['frist'],
         opplysninger: [{ id: expect.any(String), hva: 'sendt', dato: '2026-10-20' }],
         dokumentasjon: [
-          { vedlegg_id: brevet, filnavn: `${brevet}.pdf`, innhold_sha256: '0'.repeat(64) },
+          { vedlegg_id: brevet, filnavn: `${brevet}.pdf`, innhold_sha256: innholdssummen(brevet) },
         ],
       });
       const [lest] = lesJournal([rad], KJERNE.leserformat);
