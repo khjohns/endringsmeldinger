@@ -40,7 +40,11 @@ import { fristinnhold, innholdIFristen } from './format.ts';
 import { fristkravet, fristvurderinger } from './frysing.ts';
 import { paakrevdeSpoersmaal, type Fristspoersmaal } from '../../regler/frist.ts';
 import { mangler } from '../../regler/typer.ts';
-import { innholdetIDokumentet, innholdetIVedleggene } from '../../kommandoer/vedlegg.ts';
+import {
+  innholdetIDokumentet,
+  innholdetIVedleggene,
+  sammeDokument,
+} from '../../kommandoer/vedlegg.ts';
 import { maatteForstaaUbesvart } from '../../regler/svarkontroll.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
 import { lageneIUtkastet } from '../../kommandoer/utkastlag.ts';
@@ -393,7 +397,7 @@ function medVarselet(k: Extract<Kommando, { type: 'krav' }>, skriving: Skriveste
  * #2082: korrespondansen registreres én gang (OV-U80). Er totalentreprenørens brev med varselet
  * alt i saken, med det samme innholdet i vedleggene, velger totalentreprenøren varselet etter
  * § 33.4 for det (OV-U84), eller viser kravet til varselet som står i saken (VS-U73). Hele
- * dokumentet sammenliknes, fordi ett vedlegg kan ligge ved to brev. Vedleggene sammenliknes på
+ * dokumentet sammenliknes (`sammeDokument`). Vedleggene sammenliknes på
  * innholdet, så samme fil lastet opp på nytt er samme brev (#2100). Saken er den før handlingen,
  * så varselet kravskjemaet skrev i samme handling (`medVarselet`, `vedKravet`), ikke er med.
  */
@@ -420,7 +424,7 @@ function varseldokumentetISaken(
       !rettet.has(h.id)
   );
   const brevet = vedlagte.size
-    ? brevene.find((h) => likeMengder(innholdetIDokumentet(h.dokument), vedlagte))
+    ? brevene.find((h) => sammeDokument(h.dokument, vedlagte))
     : undefined;
   if (brevet)
     return varselet
@@ -439,14 +443,6 @@ function varseldokumentetISaken(
 }
 
 type Brevet = Extract<Domenehendelse, { art: 'dokument' }>;
-
-function erDelAv(a: ReadonlySet<string>, b: ReadonlySet<string>): boolean {
-  for (const x of a) if (!b.has(x)) return false;
-  return true;
-}
-
-const likeMengder = (a: ReadonlySet<string>, b: ReadonlySet<string>) =>
-  a.size === b.size && erDelAv(a, b);
 
 /** Brevet slik avvisningen omtaler det, med et mellomrom foran, eller tomt. */
 function som(h: Brevet): string {

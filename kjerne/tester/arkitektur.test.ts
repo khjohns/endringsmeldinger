@@ -767,7 +767,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utledning/utled.ts',
     'relasjon',
     'kravSomVarsler',
-    ['kommandoer/nyttelast.ts:varslerOmForholdet', 'spor/forhold/kommando.ts:varseletEtter322'],
+    [
+      'kommandoer/nyttelast.ts:varslerOmForholdet',
+      'spor/forhold/kommando.ts:varseletEtter322',
+      'kommandoer/vedlegg.ts:kravetErVarselet',
+    ],
   ],
   // VS-U38, OV-U102: påberopelsen som ble sendt først, som utledningen leser den.
   [
@@ -1593,6 +1597,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'relasjon',
     'innhold_sha256',
     ['kommandoer/vedlegg.ts:innholdetIVedleggene', 'kommandoer/vedlegg.ts:innholdetIDokumentet'],
+  ],
+  // VS-U74, #2133: samme brev som et krav som gjelder som varselet, er ikke et varsel etter samme
+  // bestemmelse.
+  ['kommandoer/vedlegg.ts', 'relasjon', 'kravetErVarselet', ['kommandoer/skriving.ts:skriv']],
+  ['kommandoer/vedlegg.ts:kravetErVarselet', 'kommando', 'lest u'],
+  ['Krav', 'relasjon', 'dokument', ['kommandoer/vedlegg.ts:kravetErVarselet']],
+  ['Dokument', 'relasjon', 'retter', ['kommandoer/vedlegg.ts:kravetErVarselet']],
+  [
+    'kommandoer/vedlegg.ts',
+    'relasjon',
+    'sammeDokument',
+    ['spor/frist/kommando.ts:varseldokumentetISaken'],
   ],
   [
     'kommandoer/vedlegg.ts',
