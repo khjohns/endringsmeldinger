@@ -226,7 +226,8 @@ Sendt til orkestratoren 17.11 før kartleggingen av B1, med varslene og postene 
 >
 > Styrer: antall PR-er og tilslutninger i B, og om KA-U49, KA-U52 og VS-U47 hører til B.
 
-Oppdragsgiver 17.11, ordrett, videresendt av orkestratoren: «B: Tre deler». B1 og B4 som i A. B2 og
+Oppdragsgiver 17.11, ordrett, videresendt av orkestratoren
+([#1534, 6948258685](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6948258685)): «B: Tre deler». B1 og B4 som i A. B2 og
 B3 slås sammen til ett samlevedtak for varslene etter punkt 34.3.3 og 34.4 og sent varsel, som
 opphever VS-U46. KA-U49 og KA-U52 går til gruppe C som i A (orkestratoren 17.11).
 
@@ -305,7 +306,10 @@ Lagret før de sendes til orkestratoren. Spørsmål 3 og 4 gjelder rettsregler o
 - **Spørsmål 5:** orkestratoren 17.11, ordrett: «Spørsmål 5 avgjør jeg, siden det er teknisk: B.
   Vedtaks-PR-en skifter ut alle henvisningene til OV-U95, også i kjerne/, src/ og sprakprove/. Det
   skjer i en egen commit etter tilslutningen og en rebase mot main, slik som for VS-U76 i #2151.»
-- **Spørsmål 1–4** er lagt fram for oppdragsgiver 17.11.
+- **Spørsmål 1–4:** oppdragsgiver 17.11, ordrett, videresendt av orkestratoren
+  ([#1534, 6948496847](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6948496847)):
+  «1 ja, 2 A, 3 A, 4 A». Det er tilslutning til utkastet med E17–E25 uten rettelser, og 2 A, 3 A og
+  4 A. Posten er ført som OV-U115.
 
 ## Verifikasjon og grenser
 
