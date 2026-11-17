@@ -209,8 +209,8 @@
   // D-5: dagene byggherren måtte forstå er høyst dagene byggherren godtar om kravet kom i tide
   // (`kontrollerSpesifiseringen` i kjernen).
   const maatteForstaaFeil = (f: Fristpost): string | null => {
-    if (ubesvart(lagene, 'dager_maatte_forstaa', f.id)) return FRISTSVAR.manglerMaatteForstaa;
     if (valg.spesifisertITide !== false) return null;
+    if (ubesvart(lagene, 'dager_maatte_forstaa', f.id)) return FRISTSVAR.manglerMaatteForstaa;
     const v = fristvalget(valg, f.id);
     const d = heleDager(v.maatteForstaa);
     const godtar = godkjenteDager(v, f.dager);
@@ -249,8 +249,9 @@
           {
             felt: `dager-${f.id}`,
             post: f.id,
+            // Ved «Delvis» står mangelen ved feltet for dagene som godkjennes (`deldagerFeil`).
             tekst: i(
-              ubesvart(lagene, 'dager', f.id) && !valg.frister[f.id]?.dager
+              ubesvart(lagene, 'dager', f.id) && valg.frister[f.id]?.dager !== 'deler'
                 ? FRISTSVAR.manglerDager
                 : null
             ),
