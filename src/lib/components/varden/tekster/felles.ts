@@ -7,6 +7,12 @@ import type { Brevet, Brevref, OppgittDato } from '../lesing';
 import { STOERSTE_VEDLEGG } from '../vedlegg';
 import { dato, haerdet } from './format';
 
+/** Et valgfritt spørsmål med radioknapper (oppdragsgiver 17.11 i #2137). */
+export const VALG = {
+  fjern: 'Fjern svaret',
+  fjernNavn: (spoersmaal: string) => `Fjern svaret på «${spoersmaal}»`,
+};
+
 /** Grensen for et vedlegg, som serveren håndhever (`STOERSTE_VEDLEGG`). */
 export const GRENSEN_FOR_VEDLEGG = `${STOERSTE_VEDLEGG / (1024 * 1024)} MB`;
 
