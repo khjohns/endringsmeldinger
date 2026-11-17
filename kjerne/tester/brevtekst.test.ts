@@ -2257,6 +2257,36 @@ describe('svaret på vederlag og frist når forholdet er avslått eller preklude
     ]);
   });
 
+  // Arbeidsvalget i #2145, etter LV-U41 og MM-U50: punktet gjentar det tidligere svaret, og
+  // byggherren begrunner ikke forholdet på nytt i svaret på vederlaget eller fristen (LV-U71).
+  it.each([
+    ['vederlaget', (s: ReturnType<typeof sak>) => vederlag(s)],
+    [
+      'fristen',
+      (s: ReturnType<typeof sak>) => svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1]),
+    ],
+  ])(
+    'svaret på %s har ikke noe felt for begrunnelsen av forholdet avslått i et tidligere brev, og avviser en begrunnelse for det (#2145, LV-U41, MM-U50)',
+    (_n, svaret) => {
+      const s = sakMedKrav();
+      s.send('BH', { type: 'brev', svar: [forhold(s, 'avslaatt', true)] });
+      expect(
+        s.avvisning('BH', {
+          type: 'brev',
+          svar: [{ ...svaret(s), utdypninger: { forholdet: BEGRUNNELSE } }],
+        })?.melding
+      ).toBe('Punktet «Forholdet» i brevet har ingen begrunnelse.');
+      const rad = s.send('BH', { type: 'brev', svar: [svaret(s)] });
+      expect(
+        tekst(rad).map((a) => a.punkt),
+        'punktet står i brevet'
+      ).toContain('forholdet');
+      const punktene = punkteneMedBegrunnelse(tekst(rad)).map((p) => p.punkt);
+      expect(punktene, 'kontrollsak: de andre punktene har et felt').not.toEqual([]);
+      expect(punktene).not.toContain('forholdet');
+    }
+  );
+
   it('kontrollsak: forholdet godkjent gir ingen prinsipal grunn fra forholdet', () => {
     const s = sakMedKrav();
     s.send('BH', { type: 'brev', svar: [forhold(s, 'godkjent', true)] });

@@ -80,6 +80,12 @@ export const OVERSIKTEN = 'oversikt';
 /** Punktet med forbeholdet i svaret etter GR-U34, sist i svaret. */
 export const FORBEHOLDET = 'forbehold';
 
+/**
+ * Punktet med forholdet i svaret på vederlaget og fristen: det første laget når forholdet er
+ * avslått eller varselet etter punkt 32.2 er påberopt for sent (OV-U32, LV-U34).
+ */
+export const FORHOLDET = 'forholdet';
+
 /** Radene og cellene i oversiktstabellen; den første raden er kolonnene, den siste summen. */
 export const cellene = (tabell: string): string[][] =>
   tabell.split('\n').map((rad) => rad.split('\t'));
@@ -96,7 +102,8 @@ export const erKravpostpunkt = (punkt: string | undefined): boolean =>
   punkt !== undefined && /^P[1-9]\d*$/.test(punkt);
 
 // Innledningen og oversikten har ingen begrunnelse, og forbeholdet har sitt eget felt i svaret.
-const UTEN_BEGRUNNELSE = new Set([INNLEDNINGEN, OVERSIKTEN, FORBEHOLDET]);
+// Forholdet gjentar det byggherren sa i det tidligere brevet (LV-U41, MM-U50, #2145).
+const UTEN_BEGRUNNELSE = new Set([INNLEDNINGEN, OVERSIKTEN, FORBEHOLDET, FORHOLDET]);
 
 /** Et punkt i brevet som tar en begrunnelse (`punkteneMedBegrunnelse`). */
 export interface PunktMedBegrunnelse {
