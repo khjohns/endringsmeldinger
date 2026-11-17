@@ -313,9 +313,9 @@ export interface Skrivesteg {
    * først, så en avvisning av en senere rad kommer før den første raden gis (VS-U53).
    */
   proevd(kjede: (kontekst: Kontekst, journal: Journalrad[]) => Utfall): Utfall;
-  /** Journalen lest og utledet, som `skriv` leser den. Utledes én gang per journal. */
+  /** Journalen lest og utledet, som `skriv` leser den. */
   saken(journal: Journalrad[]): LestSak;
-  /** Saken før handlingen (`saken`). */
+  /** Saken før handlingen, utledet én gang i handlingen. */
   sakenFoer(): LestSak;
 }
 
@@ -331,7 +331,7 @@ export interface Sakssperre extends LestSak {
 
 /** Journalen lest og utledet (`Skrivesteg.saken`). */
 export interface LestSak {
-  lest: Domenehendelse[];
+  lest: readonly Domenehendelse[];
   u: Utledning;
 }
 
@@ -657,7 +657,10 @@ function skriv(
   ogsaaEtter: readonly Kravpostvarselhjemmel[] = []
 ): Utfall {
   const kommando: unknown = k;
-  const { lest, u } = saken(journal);
+  // Saken kan være delt med de andre radene i handlingen (`Skrivesteg.saken`).
+  const lestSak = saken(journal);
+  const lest = [...lestSak.lest];
+  const { u } = lestSak;
   const tidspunkt = kontekst.tidspunkt();
   const bygde: Bygde = new Map();
   // Nyttelastkontrollen leser standpunktene slik brevet lagrer dem (#776).

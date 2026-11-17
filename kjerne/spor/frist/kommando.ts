@@ -387,6 +387,11 @@ function varseldokumentetISaken(
   { foer, vedKravet, oppslag }: Sakssperre
 ): Avvisning | null {
   const varselet = foer.u.spor.frist.varsler['33.4'];
+  const vedlagte = innholdetIVedleggene(
+    [...vedKravet, ...(k.varsel?.dokumentasjon ?? [])],
+    oppslag
+  );
+  if (!vedlagte.size && !(varselet && k.dokumentasjon?.length)) return null;
   const rettet = new Set(
     foer.lest.flatMap((h) => (h.art === 'dokument' ? [h.dokument.retter] : []))
   );
@@ -396,10 +401,6 @@ function varseldokumentetISaken(
       h.dokument.avsender === 'TE' &&
       erRegistrert(h.dokument.opplysninger) &&
       !rettet.has(h.id)
-  );
-  const vedlagte = innholdetIVedleggene(
-    [...vedKravet, ...(k.varsel?.dokumentasjon ?? [])],
-    oppslag
   );
   const brevet = vedlagte.size
     ? brevene.find((h) => likeMengder(innholdetIBrevet(h), vedlagte))

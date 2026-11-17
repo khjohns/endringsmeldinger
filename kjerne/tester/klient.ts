@@ -694,13 +694,14 @@ export function radFor(
   };
 }
 
+/** Summen mellomlageret gir vedlegget: hver fil har sitt eget innhold, så samme fil er samme brev (#2100). */
+export const innholdssummen = (id: string): string =>
+  createHash('sha256').update(id.toLowerCase()).digest('hex');
+
 /**
  * Mellomlageret slik serveren leser det, for vedleggene kommandoen viser til: hvert av
  * dem finnes, med filnavnet av ID-en. Et vedlegg som ikke finnes, prøves for seg.
  */
-/** Summen mellomlageret gir vedlegget: hver fil har sitt eget innhold, så samme fil er samme brev (#2100). */
-export const innholdssummen = (id: string): string =>
-  createHash('sha256').update(id.toLowerCase()).digest('hex');
 
 export function mellomlager(kommando: unknown): Vedleggsoppslag {
   const ider: unknown =
