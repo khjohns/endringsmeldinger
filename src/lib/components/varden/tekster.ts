@@ -28,8 +28,19 @@ import {
   type Forholdsordene,
   type Forholdstilfelle,
 } from '$kjerne/spor/forhold/tekst';
-import type { Brevet, Brevref, Innlegget, OppgittDato, Standpunktet } from './lesing';
+import type {
+  Brevet,
+  Brevref,
+  Datoopplysningen,
+  Innlegget,
+  OppgittDato,
+  Standpunktet,
+} from './lesing';
 import type { Innsigelsen, Svarlaget } from './svarlagene';
+import { STOERSTE_VEDLEGG } from './vedlegg';
+
+/** Grensen for et vedlegg, som serveren håndhever (`STOERSTE_VEDLEGG`). */
+const GRENSEN_FOR_VEDLEGG = `${STOERSTE_VEDLEGG / (1024 * 1024)} MB`;
 
 export const SPORNAVN: Record<Spor, string> = {
   forhold: 'Forholdet',
@@ -838,6 +849,10 @@ export const FORHOLDET = {
   /** BHs primærhandling i forholdet (oppdragsgiver 06.11, #1649). */
   svar: 'Svar på påberopelsen',
   svarNyVersjon: 'Svar på det nye brevet',
+  // #2104.
+  svaretUtenPaaberopelse: (lagtTil: boolean) =>
+    `Totalentreprenøren har trukket påberopelsen, så svaret kan ikke ${lagtTil ? 'legges til' : 'sendes'}. Utkastet står til du forkaster det.`,
+  forkastSvaret: 'Det du har fylt ut i svaret, slettes. Det kan ikke gjøres om.',
   handlinger: 'Det du kan gjøre nå',
   beskrivelse: (paalegg: boolean) => `Beskrivelse av ${paalegg ? 'pålegget' : 'forholdet'}`,
   begrunnelsen: 'Begrunnelsen',
@@ -851,6 +866,9 @@ export const FORHOLDET = {
   korrigerer: (forrige: { dato: string; brev: Brevref }) =>
     `Korrigerer ${dato(forrige.dato)}, oppgitt i ${brevref(forrige.brev)}.`,
   korrigertI: (b: Brevref) => `Korrigert i ${brevref(b)}.`,
+  /** Ved et svar når TE har korrigert datoen etter svaret (designdelen i MM-U55, U-5 i BF-02A). */
+  sisteOpplysningVedSvaret: (o: Pick<Datoopplysningen, 'hva' | 'dato' | 'brev'>) =>
+    `Da svaret ble sendt, var totalentreprenørens siste opplysning at ${o.hva === 'paalegg_mottatt' ? 'pålegget ble mottatt' : 'totalentreprenøren ble klar over forholdet'} ${dato(o.dato)}, oppgitt i ${brevref(o.brev)}.`,
   korrigerILukket: KORRIGERT_I_LUKKET,
   omKorrigeringen: 'Om korrigeringen',
   avgjoerIkke:
@@ -1164,8 +1182,8 @@ export const KORRESPONDANSEN = {
   dokumentet: (hva: Korrespondansehva) => KORRESPONDANSEORD[hva].dokumentet,
   dokumentetHjelp: (hva: Korrespondansehva) =>
     hva === 'korrespondanse'
-      ? 'Legges til i saken. Opptil 15 MB.'
-      : 'Legges til i saken og ved brevet. Opptil 15 MB.',
+      ? `Legges til i saken. Opptil ${GRENSEN_FOR_VEDLEGG}.`
+      : `Legges til i saken og ved brevet. Opptil ${GRENSEN_FOR_VEDLEGG}.`,
   dokumentetIkkeEnnaa: 'Dokumentet kan ikke legges ved ennå.',
   beskrivelse: (hva: Korrespondansehva) => `Kort beskrivelse av ${KORRESPONDANSEORD[hva].bestemt}`,
   beskrivelseHjelp: 'Kort, med egne ord.',
@@ -1273,13 +1291,13 @@ export const NYSAK = {
   /** GR-U40 punkt 7: endringsordren står fast, som forholdet. */
   endringsordreHjelp: 'Står fast når brevet er sendt.',
   vedlegg: 'Vedlegg',
-  vedleggHjelp:
-    'For eksempel pålegget selv, en tegning eller et referat. Hver fil kan være opptil 15 MB.',
+  vedleggHjelp: `For eksempel pålegget selv, en tegning eller et referat. Hver fil kan være opptil ${GRENSEN_FOR_VEDLEGG}.`,
   velgFiler: 'Velg filer',
   lasterOpp: (filnavn: string) => `Laster opp ${filnavn} …`,
   fjernVedlegg: 'Fjern',
   fjernVedleggNavn: (filnavn: string) => `Fjern ${filnavn}`,
-  forStorFil: (filnavn: string) => `${filnavn} er større enn 15 MB. Velg en mindre fil.`,
+  forStorFil: (filnavn: string) =>
+    `${filnavn} er større enn ${GRENSEN_FOR_VEDLEGG}. Velg en mindre fil.`,
   vedleggFeilet: (filnavn: string, melding: string) => `${filnavn} ble ikke lastet opp. ${melding}`,
   ventPaaOpplastingen: 'Vent til vedleggene er lastet opp.',
   // Spørsmålet sier «pålegget» eller «forholdet», som ledetekstene (F-5).

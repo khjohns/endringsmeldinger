@@ -1,5 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
+import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import type { Connect, Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 import { tilTsServeren } from './server/ruting.ts';
@@ -37,7 +39,22 @@ function svelteUtenforModulcachen(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [tsServeren(), svelteUtenforModulcachen(), tailwindcss(), sveltekit()],
+  plugins: [
+    tsServeren(),
+    svelteUtenforModulcachen(),
+    tailwindcss(),
+    sveltekit({
+      preprocess: vitePreprocess(),
+      adapter: adapter({
+        fallback: 'index.html',
+      }),
+      // TS-kjernen (B-14, B-15). Grensetesten i src/lib/kjernegrense.test.ts holder kjerne/tester/ ute.
+      alias: {
+        $lib: 'src/lib',
+        $kjerne: 'kjerne',
+      },
+    }),
+  ],
   resolve: {
     conditions: ['browser', 'svelte'],
   },

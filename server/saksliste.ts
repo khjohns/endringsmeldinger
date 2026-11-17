@@ -8,7 +8,7 @@
 
 import type { Fristresultat, Forholdsresultat, Vederlagsresultat } from '../kjerne/regler/typer.ts';
 import type { Dokument, Journalrad, Part, Spor } from '../kjerne/typer.ts';
-import { kalenderdag, registrertDato } from '../kjerne/format/leser.ts';
+import { kalenderdag, registrertDato, sakstittelen } from '../kjerne/format/leser.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
 import { betegnelsen, innholdIFristen, type FristIKravet } from '../kjerne/spor/frist/format.ts';
@@ -399,7 +399,7 @@ export function sakslinje(sak: LestSak, kjerne: Kjerne): Sakslinje {
   const felles = {
     sak_id: sak.sakId,
     sakstype: sak.sakstype,
-    sakstittel: tekst(sak.journal[0]!.data.sakstittel),
+    sakstittel: sakstittelen(u.journal),
     opprettet: sak.opprettet,
     kode: sak.sakskode?.kode ?? null,
     loepenummer: sak.sakskode?.loepenummer ?? null,

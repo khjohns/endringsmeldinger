@@ -200,6 +200,50 @@ describe('Siden for forholdet', () => {
     );
   });
 
+  const I_TIDE_SVAR = {
+    spor: 'forhold',
+    navn: 'S-g1',
+    resultat: 'avslaatt',
+    varslet_i_tide: true,
+    utdypning: 'Ingen endring.',
+  };
+  const FOR_SENT_SVAR = { ...I_TIDE_SVAR, navn: 'S-g2', varslet_i_tide: false };
+  it.each<[string, Handling[]]>([
+    [
+      'i en revisjon av svaret',
+      [{ handling: 'revisjon', erstatter: 'S-g1', ...FOR_SENT_SVAR } as Handling],
+    ],
+    [
+      'i svaret på en ny versjon av påberopelsen',
+      [
+        { ...PAABEROPELSE, navn: 'K-g2' },
+        { handling: 'brev', navn: 'D4', svar: [FOR_SENT_SVAR] } as Handling,
+      ],
+    ],
+  ])(
+    'et «i tide» står i tråden sammen med en senere påberopelse av at varselet kom for sent %s, uten noe om hvem som er bundet (MM-U34 punkt 6, HF-U4)',
+    async (_tilfelle, senere) => {
+      await vis([PAABEROPELSE, { handling: 'brev', navn: 'D2', svar: [I_TIDE_SVAR] }, ...senere]);
+      const tekster = traad()
+        .getAllByRole('listitem')
+        .map((li) => li.textContent?.replace(/\s+/g, ' ') ?? '');
+      const forSent = tekster.findIndex((t) =>
+        t.includes('Byggherren gjør gjeldende at varselet etter punkt 32.2 i brev 1 kom for sent.')
+      );
+      const iTide = tekster.findIndex((t) =>
+        t.includes('Byggherren godkjenner at varselet etter punkt 32.2 i brev 1 kom i tide.')
+      );
+      expect(forSent).toBeGreaterThanOrEqual(0);
+      expect(iTide).toBeGreaterThan(forSent);
+      // Løsningen trekker ikke konklusjonen: stillingen er det siste svaret, uten det tidligere.
+      const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
+      expect(tittel.nextElementSibling?.textContent).toMatch(
+        /^Byggherren svarte \d+\. \w+ 2026 og gjør gjeldende at varselet etter punkt\u00a032\.2 kom for sent\. Subsidiært avslår byggherren kravet på endringsordre \(punkt 32\.3 første ledd b\)\.$/
+      );
+      expect(document.body.textContent).not.toMatch(/bundet|kan ikke påberope|i strid med/i);
+    }
+  );
+
   it('svaret i ett lag står uten etiketter for lagene, med brevets ord for avslaget ved irregulær endring (OV-U32, GR-U32)', async () => {
     await vis([PAABEROPELSE, AVSLAG]);
     expect(screen.queryByRole('list', { name: 'Standpunktene i svaret' })).toBeNull();
@@ -493,6 +537,7 @@ describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
             siste: true,
             korrigertI: null,
           },
+          sisteOpplysningVedSvaret: null,
           standpunkter: [],
         },
       ],

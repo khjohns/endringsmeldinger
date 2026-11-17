@@ -673,6 +673,15 @@ function dokumentasjonsbrev(d: Dokument): void {
     throw new Uforstaatt('samme spor står to ganger i brevet registrert som dokumentasjon');
 }
 
+/**
+ * Tittelen fra opprettelsen slik leseren har lest den, eller `null` når den ikke er forstått
+ * (MM-U2, #896, #2079). Sakslisten og saksbildet viser den samme.
+ */
+export function sakstittelen(lest: readonly Domenehendelse[]): string | null {
+  const opprettet = lest.find((h) => h.art === 'sak');
+  return opprettet?.art === 'sak' ? opprettet.tittel : null;
+}
+
 /** Journalen i kjernens form. En rad leseren ikke forstår, blir `ukjent`, ikke hoppet over. */
 export function lesJournal(journal: Journalrad[], format: number): Domenehendelse[] {
   return journal.map((h): Domenehendelse => {

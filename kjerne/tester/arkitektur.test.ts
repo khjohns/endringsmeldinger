@@ -474,6 +474,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // OV-U16: sporene et brev registrert som dokumentasjon hører til. Ingen regel leser dem (OV-U4).
   ['Dokument', 'relasjon', 'spor', ['format/leser.ts:dokumentasjonsbrev']],
   ['Domenehendelse', 'relasjon', 'art id versjon dokument grunn'],
+  // MM-U2, #2079: tittelen fra opprettelsen, til sakslisten og saksbildet.
+  ['Domenehendelse', 'utsagn', 'tittel', ['format/leser.ts:sakstittelen']],
   ['Krav', 'relasjon', 'id spor erstatter gjelder'],
   ['Krav', 'utsagn', 'innhold'],
   // #1707, #1711: kravinnholdet leses gjennom den typede tilgangen i formatfila for sporet (#1783).
@@ -1492,6 +1494,17 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['LestSak', 'kommando', 'lest u', ['spor/vederlag/kommando.ts:vedleggIVarslene']],
   // VS-U34, C1 i #2056: fristkravet skriver varselet først når saken ikke har det.
   ['LestSak', 'kommando', 'u', ['spor/frist/kommando.ts:medVarselet']],
+  // #2082, OV-U80, OV-U84: brevet med varselet i fristkravet prøves mot korrespondansen i saken.
+  ['LestSak', 'kommando', 'lest u', ['spor/frist/kommando.ts:varseldokumentetISaken']],
+  ['Dokument', 'relasjon', 'retter', ['spor/frist/kommando.ts:varseldokumentetISaken']],
+  ['Dokument', 'utsagn', 'dokumentasjon', ['spor/frist/kommando.ts:varseldokumentetISaken']],
+  ['Vedlegg', 'relasjon', 'vedlegg_id', ['spor/frist/kommando.ts:varseldokumentetISaken']],
+  [
+    'frosset/brevdeler.ts',
+    'brevtekst',
+    'omtalen',
+    ['spor/frist/kommando.ts:varseldokumentetISaken'],
+  ],
   ['spor/vederlag/kommando.ts', 'kommando', 'SKRIVING_I_VEDERLAGET', ['kommandoer/skriving.ts']],
   ['spor/forhold/kommando.ts', 'kommando', 'SKRIVING_I_FORHOLDET', ['kommandoer/skriving.ts']],
   // Lagene i et svarutkast i sporet (#1778).
@@ -2468,6 +2481,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'medHardeMellomrom',
     ['frosset/brevtekst.ts', 'frosset/linje.ts', 'frosset/brevtittel.ts'],
   ],
+  // LV-U71, KA-U53.
+  ['Avsnitt', 'brevtekst', 'laast punkt overskrift', ['frosset/tekst.ts:punkteneMedBegrunnelse']],
   [
     'frosset/tekst.ts',
     'brevtekst',

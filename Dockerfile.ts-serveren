@@ -1,6 +1,7 @@
 # TS-serveren (#376, B18-02). Node kjører TypeScript-kildene direkte, så bildet
-# har ingen byggesteg. Serveren trenger kjernen, migrasjonene den kontrollerer
-# basen mot ved oppstart, og skriftene i server/skrift/.
+# har ingen byggesteg. Serveren trenger kjernen, kontrollen av kroppen den deler med
+# demoruta (src/lib/kontroll/, #2092), migrasjonene den kontrollerer basen mot ved
+# oppstart, og skriftene i server/skrift/.
 FROM node:22-slim
 WORKDIR /app
 ENV NODE_ENV=production
@@ -10,6 +11,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 COPY kjerne/ kjerne/
 COPY server/ server/
+COPY src/lib/kontroll/ src/lib/kontroll/
 COPY database/migrasjoner/ database/migrasjoner/
 RUN rm -rf server/tester kjerne/tester
 USER node

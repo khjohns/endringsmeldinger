@@ -14,7 +14,7 @@
       projects = await listProjects();
       if (projects.length === 1) {
         await goto(resolve('/[prosjektId]', { prosjektId: encodeURIComponent(projects[0].id) }), {
-          replaceState: true,
+          replace: true,
         });
       }
     } catch (err) {

@@ -3,25 +3,3 @@
 # Hver post gjelder én advisory i én pakke, med datoen unntaket ble ført, issuet
 # som skal fjerne det, og hvorfor det ikke er rettet nå. Skanningen feiler når en
 # advisory ikke lenger treffer, så posten må fjernes (#1170).
-#
-# Postene fra 18.10 er sårbarhetene som fantes da skanningen ble innført. De har
-# rettede versjoner, men oppgraderingen av frontendavhengighetene hører til #268
-# og ble ikke gjort her.
-#
-# Posten fra 16.11 har ingen rettet versjon i 2.x. Den rettede versjonen er 3.1.1,
-# og oppgraderingen hører til #2092.
-
-[[unntak]]
-advisory = "GHSA-38f7-945m-qr2g"
-pakke = "effect"
-dato = "2026-10-18"
-issue = 268
-begrunnelse = "Fantes da skanningen ble innført. high: Effect `AsyncLocalStorage` context lost/contaminated inside Effect fibers under concurrent load with RPC"
-
-[[unntak]]
-advisory = "GHSA-3r8g-jcqq-3p5j"
-pakke = "@sveltejs/kit"
-dato = "2026-11-16"
-issue = 2092
-begrunnelse = "high: DoS while parsing form data from a remote functions `form`. Appen bruker ikke remote functions `form`, og varselet er rettet først i 3.1.1. Oppgraderingen til 3.x er et major-skifte og er ikke gjort."
-
