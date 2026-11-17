@@ -100,8 +100,8 @@
 </script>
 
 <!-- Hindringen står bare under knappen i panelet, så ID-en den har, finnes én gang. -->
-{#snippet handlingsrad(knappen: Snippet)}
-  <div class="handling" class:bred={knapp!.bred}>{@render knappen()}</div>
+{#snippet handlingsrad(innhold: Snippet)}
+  <div class="handling" class:bred={knapp!.bred}>{@render innhold()}</div>
 {/snippet}
 
 {#snippet sendeknappen(medHindring: boolean)}

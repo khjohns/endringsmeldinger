@@ -59,18 +59,24 @@
   });
 
   // Ny bredde bryter linjene på nytt, så høyden måles igjen (WCAG 1.4.10, #2138). Høyden settes
-  // her selv, så bare en endret bredde utløser målingen.
+  // her selv, så bare en endret bredde utløser målingen, og den settes i neste bilde, så
+  // observatøren ikke endrer elementet den observerer mens den varsles.
   $effect(() => {
     if (!vokser || !felt || typeof ResizeObserver === 'undefined') return;
     const el = felt;
     let bredde = el.clientWidth;
-    const observator = new ResizeObserver(() => {
-      if (el.clientWidth === bredde) return;
-      bredde = el.clientWidth;
-      tilpassHoeyden(el);
+    let bilde = 0;
+    const observator = new ResizeObserver(([e]) => {
+      if (e.contentRect.width === bredde) return;
+      bredde = e.contentRect.width;
+      cancelAnimationFrame(bilde);
+      bilde = requestAnimationFrame(() => tilpassHoeyden(el));
     });
     observator.observe(el);
-    return () => observator.disconnect();
+    return () => {
+      cancelAnimationFrame(bilde);
+      observator.disconnect();
+    };
   });
 </script>
 
