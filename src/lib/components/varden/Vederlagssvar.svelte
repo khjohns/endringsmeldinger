@@ -226,17 +226,8 @@
             post: p.id,
             tekst: i(formBesvart(v, p) ? null : SKJEMA.manglerForm(p.oppgjoersform)),
           },
-          // KA-U68: når BH godkjenner justerte enhetspriser, tar svaret stilling til varselet og
-          // justeringen. Ellers står de subsidiært og er valgfrie (VS-U56).
-          {
-            felt: `varsel-${p.betegnelse}`,
-            post: p.id,
-            tekst: i(
-              justerteEnhetspriser(p) && v.form === 'godtar' && v.varsletITide === null
-                ? SKJEMA.manglerVarselJustering
-                : null
-            ),
-          },
+          // Svaret på varselet er valgfritt (arbeidsvalg A 16.11 i #2025, VS-U57). Justeringen
+          // følger `godtar_justering` i kjernen, og står ellers subsidiært (VS-U56).
           {
             felt: `justering-${p.betegnelse}`,
             post: p.id,
@@ -426,7 +417,7 @@
             <Valg
               navn={`${uid}-varsel-${p.betegnelse}`}
               spoersmaal={SKJEMA.varselJusteringSpoersmaal}
-              valgfri={v.form !== 'godtar'}
+              valgfri
               beskrevetAv={varselet.length
                 ? `${uid}-varsel-${p.betegnelse}-forutsetninger`
                 : undefined}
@@ -435,7 +426,6 @@
                 { verdi: false, tekst: SKJEMA.komForSent },
               ]}
               bind:verdi={v.varsletITide}
-              feil={feil(`${uid}-varsel-${p.betegnelse}`)}
               lett
               stablet
             />
