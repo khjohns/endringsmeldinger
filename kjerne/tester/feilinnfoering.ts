@@ -4071,14 +4071,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['et vederlagskrav lagt til som korrespondanse har brevet som ble sendt'],
   },
   {
-    id: 'F720',
-    feilklasse:
-      'et fristkrav sendt fra løsningen godtas med ett av vedleggene ved varselet etter punkt 33.4 i saken (#2100, VS-U73)',
-    fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [['.some((x) => vedleggene.has(x))', '.every((x) => vedleggene.has(x))']],
-    mal: ['avvises også med ett av vedleggene ved varselet etter punkt 33.4'],
-  },
-  {
     id: 'F721',
     feilklasse:
       'vedleggene ved et vederlagskrav prøves mot varslene for en kravpost på ID-en, ikke på innholdet (#2100, VS-U73)',

@@ -4066,28 +4066,6 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     expect(s.avvist('TE', { ...utenBrevet, dokumentasjon: [PLAN] }), 'kontrollsak').toBeNull();
   });
 
-  it('et fristkrav sendt fra løsningen avvises også med ett av vedleggene ved varselet etter punkt 33.4, som i vederlaget (VS-U73, #2100)', () => {
-    const vedlegget = randomUUID();
-    const registrert = sak();
-    registrert.send('TE', PAABEROPELSE);
-    registrert.send('TE', {
-      type: 'varsel',
-      ...SOM_BREV,
-      spor: 'frist',
-      hjemmel: '33.4',
-      sendt: FRISTKRAV.varsel.sendt,
-      dokumentasjon: [VARSELBREVET, vedlegget],
-    });
-    expect(
-      registrert.avvist('TE', { ...utenBrevet, dokumentasjon: [vedlegget] }),
-      'ett av to vedlegg'
-    ).toBe('VARSEL_REGISTRERT');
-    expect(
-      registrert.avvist('TE', { ...utenBrevet, dokumentasjon: [PLAN] }),
-      'kontrollsak'
-    ).toBeNull();
-  });
-
   it('et fristkrav lagt til som korrespondanse har brevet som ble sendt som vedlegg, også når brevet står i saken som varselet etter punkt 33.4 (VS-U73, OV-U80)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);

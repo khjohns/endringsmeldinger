@@ -395,7 +395,9 @@ function medVarslene(
     };
   // VS-U55 (#1993): ellers holder `foranKravet` varselet i saken utenfor for de andre kravpostene.
   // `journal` har ikke dokumentet (VS-U51, VS-U53).
-  const iVarslene = vedleggIVarslene(skriving.saken(journal));
+  const iVarslene = vedleggIVarslene(skriving.saken(journal), (d) =>
+    d.dokumentasjon.map((v) => v.vedlegg_id.toLowerCase())
+  );
   if (dokumentnoekkel(dokumentet).some((id) => iVarslene.has(id)))
     return {
       godtatt: false,
@@ -459,12 +461,7 @@ function vedleggetErEtVarsel(
   // VS-U73. Et krav lagt til har datoen det ble sendt (`erRegistrering`).
   if (k.sendt !== undefined) return null;
   // #2100: samme fil lastet opp på nytt er samme vedlegg, som i fristen.
-  const varslene = new Set(sak.u.spor.vederlag.kravpostvarsler.map((v) => v.dokument));
-  const iVarslene = new Set(
-    sak.lest.flatMap((h) =>
-      h.art === 'dokument' && varslene.has(h.id) ? [...innholdetIDokumentet(h.dokument)] : []
-    )
-  );
+  const iVarslene = vedleggIVarslene(sak, (d) => innholdetIDokumentet(d));
   return [...innholdetIVedleggene(k.dokumentasjon ?? [], sak.oppslag)].some((x) => iVarslene.has(x))
     ? vedleggVedEtVarsel('ved kravet')
     : null;
@@ -476,14 +473,18 @@ const vedleggVedEtVarsel = (hvor: string) =>
     `Et vedlegg ${hvor} ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.`
   );
 
-/** Vedleggene ved varslene for en kravpost i saken, med små bokstaver (VS-U55). */
-function vedleggIVarslene({ lest, u }: LestSak): Set<string> {
+/**
+ * Vedleggene ved varslene for en kravpost i saken (VS-U55), slik `vedlegg` leser dem fra hvert
+ * dokument: ID-en med små bokstaver, eller innholdet.
+ */
+function vedleggIVarslene(
+  { lest, u }: LestSak,
+  vedlegg: (d: Dokument) => Iterable<string>
+): Set<string> {
   const varslene = new Set(u.spor.vederlag.kravpostvarsler.map((v) => v.dokument));
   return new Set(
     lest.flatMap((h) =>
-      h.art === 'dokument' && varslene.has(h.id)
-        ? h.dokument.dokumentasjon.map((v) => v.vedlegg_id.toLowerCase())
-        : []
+      h.art === 'dokument' && varslene.has(h.id) ? [...vedlegg(h.dokument)] : []
     )
   );
 }

@@ -1301,7 +1301,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Dokument',
     'utsagn',
     'dokumentasjon',
-    ['spor/vederlag/kommando.ts:foranKravet', 'spor/vederlag/kommando.ts:vedleggIVarslene'],
+    [
+      'spor/vederlag/kommando.ts:foranKravet',
+      'spor/vederlag/kommando.ts:medVarslene',
+      'spor/frist/kommando.ts:varseldokumentetISaken',
+    ],
   ],
   [
     'Utsagn',
@@ -1311,7 +1315,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/kommando.ts:foranKravet',
       'spor/vederlag/kommando.ts:vedleggIVarslene',
       'spor/frist/kommando.ts:varseldokumentetISaken',
-      'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
     ],
   ],
   ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar dokumentasjon hjemmel'],
@@ -1548,7 +1551,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // VS-U55 (#1993): dokumentet fra kravskjemaet prøves mot varslene i saken før det skrives.
   ['LestSak', 'kommando', 'lest u', ['spor/vederlag/kommando.ts:vedleggIVarslene']],
   // VS-U73, #2100: vedleggene ved kravet prøves mot varslene for en kravpost på innholdet.
-  ['LestSak', 'kommando', 'lest u', ['spor/vederlag/kommando.ts:vedleggetErEtVarsel']],
   ['Sakssperre', 'kommando', 'oppslag', ['spor/vederlag/kommando.ts:vedleggetErEtVarsel']],
   // VS-U34, C1 i #2056: fristkravet skriver varselet først når saken ikke har det.
   ['LestSak', 'kommando', 'u', ['spor/frist/kommando.ts:medVarselet']],
@@ -1578,7 +1580,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'innholdetIVedleggene innholdetIDokumentet',
     [
       'spor/frist/kommando.ts:varseldokumentetISaken',
-      'spor/frist/kommando.ts:innholdetIBrevet',
       'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
     ],
   ],
@@ -2800,7 +2801,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'vedlegg_id',
     [
       'spor/vederlag/kommando.ts:foranKravet',
-      'spor/vederlag/kommando.ts:vedleggIVarslene',
+      'spor/vederlag/kommando.ts:medVarslene',
       'frosset/brevdeler.ts',
     ],
   ],

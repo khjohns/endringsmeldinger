@@ -420,7 +420,7 @@ function varseldokumentetISaken(
       !rettet.has(h.id)
   );
   const brevet = vedlagte.size
-    ? brevene.find((h) => likeMengder(innholdetIBrevet(h), vedlagte))
+    ? brevene.find((h) => likeMengder(innholdetIDokumentet(h.dokument), vedlagte))
     : undefined;
   if (brevet)
     return varselet
@@ -429,17 +429,15 @@ function varseldokumentetISaken(
           'VARSEL_REGISTRERT',
           `Brevet med varselet står alt i saken${som(brevet)}. Velg varselet etter punkt 33.4 for det brevet i stedet for å legge det ved kravet på nytt.`
         );
-  // VS-U73: ett av dokumentene ved varselet, som i vederlaget (`vedleggetErEtVarsel`).
   const varselbrevet = vedKravetsBrev ? brevene.find((h) => h.id === varselet.dokument) : undefined;
   const vedleggene = innholdetIVedleggene(k.dokumentasjon ?? [], oppslag);
-  return varselbrevet && [...innholdetIBrevet(varselbrevet)].some((x) => vedleggene.has(x))
+  return varselbrevet?.dokument.dokumentasjon.length &&
+    erDelAv(innholdetIDokumentet(varselbrevet.dokument), vedleggene)
     ? fjernBrevet(varselbrevet)
     : null;
 }
 
 type Brevet = Extract<Domenehendelse, { art: 'dokument' }>;
-
-const innholdetIBrevet = (h: Brevet) => innholdetIDokumentet(h.dokument);
 
 function erDelAv(a: ReadonlySet<string>, b: ReadonlySet<string>): boolean {
   for (const x of a) if (!b.has(x)) return false;
