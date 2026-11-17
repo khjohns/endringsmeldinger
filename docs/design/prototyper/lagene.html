@@ -8,7 +8,7 @@
   Skisse av vekten på lagene i kortet «Kravet og svaret» (R1-1 i #2163, bygges i #2180, versjon 1).
   Til venstre som i dag (Maalrad.svelte): hvert lag har verdien i 20 px og halvfet og et fylt mål
   på 8 px i --ink. Til høyre forslaget: det første laget som gjelder, leder, og lagene under er
-  dempet med blekknivå og et tynnere mål. Ingen farge. Ordlyden i lagene tas i #2182, så teksten
+  dempet med blekknivå og vekt. Størrelsene er de samme i alle lagene (oppdragsgiver 17.11). Ingen farge. Ordlyden i lagene tas i #2182, så teksten
   her er dagens. Verdiene står i tabellen nederst. Fargene og målene er .tema-varden i
   src/lib/components/kontraktsbord/theme.css. Ingenting sendes.
 -->
@@ -40,8 +40,7 @@ body{background:var(--canvas);color:var(--ink);font:14px/1.5 var(--font-sans);pa
 
 /* Forslaget: det første laget som gjelder, leder; lagene under er dempet. */
 .forslag .lag.under .navn{font-weight:500;color:var(--ink-2)}
-.forslag .lag.under .verdi{font-size:16px;color:var(--ink-2);letter-spacing:0}
-.forslag .lag.under .maal{height:4px;margin-top:4px;border-color:var(--rule-color,#dadde2)}
+.forslag .lag.under .verdi{color:var(--ink-2)}
 .forslag .lag.under .maal i{background:var(--ink-3)}
 .forslag .lag.under .tekst{color:var(--ink-3)}
 .forslag .lag.forste .tekst{color:var(--ink)}
@@ -101,11 +100,11 @@ th{font-weight:600}
   <thead><tr><th>Del</th><th>Kravet</th><th>Det første laget som gjelder</th><th>Lagene under</th></tr></thead>
   <tbody>
     <tr><td>Navnet</td><td>14 px, 600, <code>--ink</code></td><td>14 px, 600, <code>--ink</code></td><td>14 px, 500, <code>--ink-2</code></td></tr>
-    <tr><td>Verdien</td><td>20 px, 600, <code>--ink</code></td><td>20 px, 600, <code>--ink</code></td><td>16 px, 600, <code>--ink-2</code></td></tr>
-    <tr><td>Målet</td><td>8 px, åpent, ramme i <code>--ink</code></td><td>8 px, fylt med <code>--ink</code></td><td>4 px, fylt med <code>--ink-3</code></td></tr>
+    <tr><td>Verdien</td><td>20 px, 600, <code>--ink</code></td><td>20 px, 600, <code>--ink</code></td><td>20 px, 600, <code>--ink-2</code></td></tr>
+    <tr><td>Målet</td><td>8 px, åpent, ramme i <code>--ink</code></td><td>8 px, fylt med <code>--ink</code></td><td>8 px, fylt med <code>--ink-3</code></td></tr>
     <tr><td>Teksten under</td><td>—</td><td>14 px, <code>--ink</code></td><td>14 px, <code>--ink-3</code></td></tr>
   </tbody>
 </table>
-<p style="text-align:center;color:var(--ink-3);margin-top:12px;font-size:13px">«Det første laget som gjelder» er det første laget med et standpunkt i elementet, ikke alltid «Prinsipalt». Det samme gjelder for hver frist i fristen (med <code>kompakt</code>, der verdien er 16 px for det første laget og 14 px under).</p>
+<p style="text-align:center;color:var(--ink-3);margin-top:12px;font-size:13px">«Det første laget som gjelder» er det første laget med et standpunkt i elementet, ikke alltid «Prinsipalt». Det samme gjelder for hver frist i fristen (med <code>kompakt</code>, der verdien er 16 px i alle lagene).</p>
 </body>
 </html>
