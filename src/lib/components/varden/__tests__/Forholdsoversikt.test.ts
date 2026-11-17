@@ -101,7 +101,7 @@ describe('Siden for forholdet', () => {
     expect(tittel.previousElementSibling).toBeNull();
     expect(screen.queryByText('Endringer, jf. punkt 31 og 32')).toBeNull();
     expect(tittel.nextElementSibling?.textContent).toMatch(
-      /^Byggherren svarte \d+\. \w+ 2026 og avslår kravet på endringsordre \(punkt 32\.3 første ledd b\)\.$/
+      /^Byggherren svarte \d+\. \w+ 2026 og avslår kravet på endringsordre \(punkt\s32\.3 første ledd b\)\.$/
     );
   });
 
@@ -196,7 +196,7 @@ describe('Siden for forholdet', () => {
     // Statuslinjen sier begge lagene med ordene i tråden (oppdragsgiver 15.11 i #2038: «B»).
     const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
     expect(tittel.nextElementSibling?.textContent).toMatch(
-      /^Byggherren svarte \d+\. \w+ 2026 og gjør gjeldende at varselet etter punkt\u00a032\.2 kom for sent\. Subsidiært avslår byggherren kravet på endringsordre \(punkt 32\.3 første ledd b\)\.$/
+      /^Byggherren svarte \d+\. \w+ 2026 og gjør gjeldende at varselet etter punkt\u00a032\.2 kom for sent\. Subsidiært avslår byggherren kravet på endringsordre \(punkt\u00a032\.3 første ledd b\)\.$/
     );
   });
 
@@ -238,7 +238,7 @@ describe('Siden for forholdet', () => {
       // Løsningen trekker ikke konklusjonen: stillingen er det siste svaret, uten det tidligere.
       const tittel = screen.getByRole('heading', { level: 2, name: 'Irregulær endring' });
       expect(tittel.nextElementSibling?.textContent).toMatch(
-        /^Byggherren svarte \d+\. \w+ 2026 og gjør gjeldende at varselet etter punkt\u00a032\.2 kom for sent\. Subsidiært avslår byggherren kravet på endringsordre \(punkt 32\.3 første ledd b\)\.$/
+        /^Byggherren svarte \d+\. \w+ 2026 og gjør gjeldende at varselet etter punkt\u00a032\.2 kom for sent\. Subsidiært avslår byggherren kravet på endringsordre \(punkt\u00a032\.3 første ledd b\)\.$/
       );
       expect(document.body.textContent).not.toMatch(/bundet|kan ikke påberope|i strid med/i);
     }
@@ -311,7 +311,7 @@ describe('Siden for forholdet', () => {
     await vis([PAABEROPELSE, VEDERLAG, AVSLAG]);
     const kortet = screen.getByRole('region', { name: 'Tilknyttede krav' });
     expect(kortet.querySelector('.rot')?.textContent).toBe(
-      'Irregulær endring · Brev 3: byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b)'
+      'Irregulær endring · Brev 3: byggherren avslår kravet på endringsordre (punkt\u00a032.3 første ledd b)'
     );
     expect(kortet.textContent).toContain(
       'Et svar blir subsidiært så lenge byggherren står fast på brev 3.'

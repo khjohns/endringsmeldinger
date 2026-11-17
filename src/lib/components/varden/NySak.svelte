@@ -45,7 +45,7 @@
     type Utfylling,
     type VedleggForNySak,
   } from './nysak';
-  import { KORRESPONDANSEN, NYSAK, SKJEMA, dagensDato } from './tekster';
+  import { KORRESPONDANSEN, NYSAK, SKJEMA, dagensDato, punkt } from './tekster';
   import {
     korrespondansefeilene,
     korrespondansenoekkel,
@@ -129,7 +129,7 @@
   // Panelet viser det brevet sier, i brevets rekkefølge (F-1, GR-U31, VS-U38).
   const linjer = $derived(
     [
-      valgt && { lag: NYSAK.linjeForholdet, tekst: `${valgt.navn}, punkt ${valgt.punkt}` },
+      valgt && { lag: NYSAK.linjeForholdet, tekst: `${valgt.navn}, ${punkt(valgt.punkt)}` },
       felt.punkt322 && { lag: NYSAK.linjeVarsel, tekst: NYSAK.varslerEtter322 },
       tittel.trim() && { lag: NYSAK.linjeTittel, tekst: tittel.trim() },
       varselet && {
@@ -360,7 +360,7 @@
               <div class="valgt">
                 <div>
                   <strong>{valgt.navn}</strong>
-                  <span class="punkt">punkt {valgt.punkt}</span>
+                  <span class="punkt">{punkt(valgt.punkt)}</span>
                 </div>
                 {#if valgt.regel}
                   <p>{valgt.regel.regel}</p>
@@ -406,7 +406,7 @@
                             onchange={() => velg(f.gruppe, f.kode)}
                           />
                           <span class="navn">{f.navn}</span>
-                          <span class="punkt">punkt {f.punkt}</span>
+                          <span class="punkt">{punkt(f.punkt)}</span>
                         </label>
                       {/each}
                     </div>

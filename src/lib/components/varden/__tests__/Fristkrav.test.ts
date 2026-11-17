@@ -286,26 +286,26 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     await kravskjemaet(medGrunnlag);
     const varselet = screen.getByRole('heading', { name: 'Varselet om fristforlengelse' });
     expect(varselet.parentElement).toHaveTextContent(/pkt\. 33\.4$/);
-    expect(varselet.parentElement).not.toHaveTextContent('punkt 33.4');
+    expect(varselet.parentElement).not.toHaveTextContent('punkt\u00a033.4');
   });
 
   it('TE kan bare varsle etter punkt 33.4, uten dager, og «Når du sender» sier virkningen (U-13, VS-U15)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
     await fireEvent.click(
-      screen.getByRole('radio', { name: 'Bare varsle etter punkt 33.4, uten dager' })
+      screen.getByRole('radio', { name: 'Bare varsle etter punkt\u00a033.4, uten dager' })
     );
     expect(screen.queryByLabelText('Dagene du krever')).not.toBeInTheDocument();
     expect(screen.getByText('Varselet etter punkt 33.4, uten dager')).toBeInTheDocument();
     await seBrevet();
     expect(sendt).toHaveLength(1);
     expect(sendt[0]!.kommando).toEqual({ type: 'send_varsel', spor: 'frist', hjemmel: '33.4' });
-    expect(sendt[0]!.virkninger[0]).toMatch(/^Varselet etter punkt 33\.4 sendes i dag/);
+    expect(sendt[0]!.virkninger[0]).toMatch(/^Varselet etter punkt\u00a033\.4 sendes i dag/);
   });
 
   it('et varsel sendt utenfor løsningen registreres med typen, sendemåten, datoen, dokumentet og beskrivelsen, uten brevkontroll (U-13, VS-U16, LV-U42, OV-U79)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
     await fireEvent.click(
-      screen.getByRole('radio', { name: 'Bare varsle etter punkt 33.4, uten dager' })
+      screen.getByRole('radio', { name: 'Bare varsle etter punkt\u00a033.4, uten dager' })
     );
     await fireEvent.click(
       screen.getByRole('radio', { name: 'Registrer et varsel sendt utenfor løsningen' })
@@ -364,7 +364,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
   it('en registrering av varselet som ikke er fylt ut, blir ikke med når TE går tilbake til kravet, og kravet er varselet (U-6, U-13)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
     await fireEvent.click(
-      screen.getByRole('radio', { name: 'Bare varsle etter punkt 33.4, uten dager' })
+      screen.getByRole('radio', { name: 'Bare varsle etter punkt\u00a033.4, uten dager' })
     );
     await fireEvent.click(
       screen.getByRole('radio', { name: 'Registrer et varsel sendt utenfor løsningen' })
@@ -495,7 +495,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       utdypning: 'Omfanget av omprosjekteringen er ikke kjent.',
     });
     expect(sendt[0]!.virkninger).toEqual([
-      'Svaret er en begrunnelse etter punkt 33.6.2 annet ledd b. For kravet du sender senere, gjelder punkt 33.6.1 (punkt 33.6.2 femte ledd).',
+      'Svaret er en begrunnelse etter punkt\u00a033.6.2 annet ledd b. For kravet du sender senere, gjelder punkt\u00a033.6.1 (punkt\u00a033.6.2 femte ledd).',
     ]);
   });
 

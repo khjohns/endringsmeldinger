@@ -5,7 +5,7 @@ import type { Brevref } from '../lesing';
 import type { Innsigelsen } from '../svarlagene';
 import { VEDERLAGET } from './vederlaget';
 import { brevref } from './felles';
-import { dato, hjemmelsmerke } from './format';
+import { dato, hjemmelsmerke, haerdet } from './format';
 import { liten } from './fristkrav';
 import { standpunkttekst } from './standpunkt';
 
@@ -14,7 +14,7 @@ const datoUtenAar = (d: string, ved: string) =>
   d.slice(0, 4) === ved.slice(0, 4) ? dato(d).replace(/ \d{4}$/, '') : dato(d);
 
 /** Siden for fristforlengelsen (BF-45, prototypen `fristoversikt.html` v2, oppsett B). */
-export const FRISTEN = {
+export const FRISTEN = haerdet({
   tittel: 'Fristforlengelse',
   hjemmel: hjemmelsmerke('33'),
   kortet: 'Kravet og svaret',
@@ -100,4 +100,4 @@ export const FRISTEN = {
   /** Veiledningen under forespørselen etter punkt 33.6.2 (U-9, V-1 A). */
   foresporsel: (d: string, dagerSiden: number) =>
     `Byggherren ba om dagene ${dato(d)}, ${dagerSiden <= 0 ? 'i dag' : `for ${dagerSiden} ${dagerSiden === 1 ? 'dag' : 'dager'} siden`}. Svarer totalentreprenøren ikke uten ugrunnet opphold, tapes kravet på fristforlengelse (punkt 33.6.2 tredje ledd).`,
-};
+});

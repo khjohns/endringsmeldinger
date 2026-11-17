@@ -1,4 +1,26 @@
 import { liste } from '#kjerne/frosset/brevdeler.ts';
+import { medHardeMellomrom } from '#kjerne/frosset/tekst.ts';
+
+/**
+ * Teksten med hardt mellomrom etter «punkt», «pkt.» og «kl.» foran et tall, laget av kjernen
+ * (språkfila, «Hardt mellomrom», #2049). En tekst, en liste eller et objekt med tekster gjøres om
+ * når fila lastes. En funksjon gir teksten eller listen med tekster den lager, gjort om.
+ */
+export function haerdet<T>(t: T): T {
+  if (typeof t === 'string') return medHardeMellomrom(t) as T;
+  if (typeof t === 'function')
+    return ((...a: unknown[]) => {
+      const svar: unknown = t(...a);
+      if (typeof svar === 'string') return medHardeMellomrom(svar);
+      if (Array.isArray(svar))
+        return svar.map((x: unknown) => (typeof x === 'string' ? medHardeMellomrom(x) : x));
+      return svar;
+    }) as T;
+  if (Array.isArray(t)) return t.map(haerdet) as T;
+  if (t !== null && typeof t === 'object' && Object.getPrototypeOf(t) === Object.prototype)
+    return Object.fromEntries(Object.entries(t).map(([k, v]) => [k, haerdet(v)])) as T;
+  return t;
+}
 
 const DATO = new Intl.DateTimeFormat('nb-NO', {
   day: 'numeric',
@@ -43,15 +65,15 @@ export const kortDatoMedAar = (d: string) => KORT_AAR.format(new Date(d));
 
 export const klokke = (d: string) => KLOKKE.format(new Date(d)).replace(':', '.');
 
-/** «kl. 10.15», med hardt mellomrom så klokkeslettet ikke brytes fra «kl.». */
-export const kl = (d: string) => `kl.\u00a0${klokke(d)}`;
+/** «kl. 10.15». */
+export const kl = haerdet((d: string) => `kl. ${klokke(d)}`);
 
-/** «punkt 34.1.2» eller «punktene 34.1.2 og 34.1.3», med hardt mellomrom etter ordet. */
+/** «punkt 34.1.2» eller «punktene 34.1.2 og 34.1.3», med hardt mellomrom også etter «punktene», som kjernen ikke dekker. */
 export const punkt = (...numre: string[]) =>
   `${numre.length > 1 ? 'punktene' : 'punkt'}\u00a0${liste(numre)}`;
 
 /** «pkt. 33.4» eller «pkt. 33.5 og 33.6.1», for henvisningen som står alene i et merke (OV-U75). */
-export const hjemmelsmerke = (...numre: string[]) => `pkt. ${liste(numre)}`;
+export const hjemmelsmerke = haerdet((...numre: string[]) => `pkt. ${liste(numre)}`);
 
 /** Dagens dato i Oslo, ÅÅÅÅ-MM-DD, for `max` i et datofelt og dagene til i dag. */
 export const dagensDato = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Oslo' });

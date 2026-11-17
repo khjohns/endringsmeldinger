@@ -11,7 +11,7 @@
 </script>
 
 <!-- Linja brytes bare mellom punktene, aldri inne i ett. -->
-<span {id}>{hjemmelsmerke(...numre.map(fast)).replace('pkt. ', 'pkt.\u00a0')}</span>
+<span {id}>{hjemmelsmerke(...numre.map(fast))}</span>
 
 <style>
   span {

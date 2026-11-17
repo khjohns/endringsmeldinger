@@ -10,13 +10,14 @@ import {
 import type { Brevref, Innlegget, Standpunktet } from '../lesing';
 import { SKJEMA } from './svaret';
 import { brevref, metodenavn, oppgjoersformEtter } from './felles';
-import { punkt } from './format';
+import { punkt, haerdet } from './format';
 
 /** En grunn fra svaret på grunnlaget i brevet `brev`, som utsagn fra byggherren. */
-export const grunntekst = (grunn: Subsidiaergrunn, du: boolean, brev: Brevref) =>
+export const grunntekst = haerdet((grunn: Subsidiaergrunn, du: boolean, brev: Brevref) =>
   grunn === 'avslaatt'
     ? `${du ? 'Du' : 'Byggherren'} har avslått forholdet i ${brevref(brev)}`
-    : `${du ? 'Du' : 'Byggherren'} har gjort gjeldende i ${brevref(brev)} at varselet om forholdet kom for sent (punkt 32.2)`;
+    : `${du ? 'Du' : 'Byggherren'} har gjort gjeldende i ${brevref(brev)} at varselet om forholdet kom for sent (punkt 32.2)`
+);
 
 /**
  * Standpunktet i den lukkede kravposten, kort og uten kravposten, som raden navngir (prototype v3,
@@ -57,7 +58,7 @@ function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
 }
 
 /** Leselinjene for kravposten `post` av linjene i svaret, med etiketten for laget foran. */
-export function leselinjene(linjer: Standpunktet[], post: Kravpost): string[] {
+function leselinjeneUten(linjer: Standpunktet[], post: Kravpost): string[] {
   return linjer.flatMap((l) => {
     if (!('standpunkt' in l)) return [];
     const s = l.standpunkt;
@@ -79,7 +80,7 @@ export function leselinjene(linjer: Standpunktet[], post: Kravpost): string[] {
  * Det gjelder standpunktene som begynner med parten. Beløpet og dagene begynner med posten
  * («Fristforlengelse: …») og har eget lag, så de står aldri etter en leddsetning (`FRISTEN.utenLag`).
  */
-export function standpunkttekst(
+function standpunkttekstUten(
   s: Standpunkt,
   du: boolean,
   krevd?: number,
@@ -161,7 +162,7 @@ type Utsagnet = readonly [verb: string, resten: string];
  * Byggherrens standpunkt til forholdet i hvert tilfelle, med ordene brevet har (GR-U32, LV-U41,
  * `STANDPUNKTENE_I_FORHOLDET` i kjernen) i kortform.
  */
-export const I_FORHOLDET: Record<Forholdstilfelle, Utsagnet> = {
+export const I_FORHOLDET: Record<Forholdstilfelle, Utsagnet> = haerdet({
   frafall: ['frafaller', 'pålegget (punkt 32.3 første ledd c)'],
   endringsordre: ['er', 'enig, og svaret er en endringsordre (punkt 32.3 første ledd a)'],
   enig_i_endring: ['er', 'enig i at pålegget innebærer en endring'],
@@ -170,7 +171,7 @@ export const I_FORHOLDET: Record<Forholdstilfelle, Utsagnet> = {
   avslag_endringsordre: ['avslår', 'kravet på endringsordre (punkt 32.3 første ledd b)'],
   har_ikke_risikoen: ['har', 'ikke risikoen for forholdet'],
   avslag: ['avslår', 'forholdet'],
-};
+});
 
 /**
  * Byggherrens standpunkt i svaret på forholdet: varselet eller forholdet. Tråden og statuslinjen
@@ -214,3 +215,6 @@ export const setningene = (rader: Innlegget['standpunkter']): string[] =>
     if (!u) return standpunkttekst(r.standpunkt, false);
     return medLaget(i === 0 && r.lag === 'prinsipalt' ? null : r.lag, u);
   });
+
+export const leselinjene = haerdet(leselinjeneUten);
+export const standpunkttekst = haerdet(standpunkttekstUten);

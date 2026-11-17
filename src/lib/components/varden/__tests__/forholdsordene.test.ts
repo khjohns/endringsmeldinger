@@ -22,11 +22,11 @@ const SVARTE = 'Byggherren svarte 3. november 2026';
 
 const tilfellene: [string, Forholdsresultat, Forholdsordene, string, string][] = [
   [
-    'endringsordre etter punkt 32.3 a',
+    'endringsordre etter punkt\u00a032.3 a',
     'godkjent',
     ord({ endringsordre: true, varslingsplikt: true }),
-    'Byggherren er enig, og svaret er en endringsordre (punkt 32.3 første ledd a).',
-    `${SVARTE} med en endringsordre (punkt 32.3 første ledd a).`,
+    'Byggherren er enig, og svaret er en endringsordre (punkt\u00a032.3 første ledd a).',
+    `${SVARTE} med en endringsordre (punkt\u00a032.3 første ledd a).`,
   ],
   [
     'enighet om endring når varselet kom for sent',
@@ -39,8 +39,8 @@ const tilfellene: [string, Forholdsresultat, Forholdsordene, string, string][] =
     'avslag ved irregulær endring',
     'avslaatt',
     ord({ varslingsplikt: true }),
-    'Byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).',
-    `${SVARTE} og avslår kravet på endringsordre (punkt 32.3 første ledd b).`,
+    'Byggherren avslår kravet på endringsordre (punkt\u00a032.3 første ledd b).',
+    `${SVARTE} og avslår kravet på endringsordre (punkt\u00a032.3 første ledd b).`,
   ],
   [
     'svikt, godkjent',
@@ -57,14 +57,14 @@ const tilfellene: [string, Forholdsresultat, Forholdsordene, string, string][] =
     `${SVARTE} og har ikke risikoen for forholdet.`,
   ],
   [
-    'endringsordre etter punkt 31.3, godkjent',
+    'endringsordre etter punkt\u00a031.3, godkjent',
     'godkjent',
     ord({}),
-    'Byggherren er enig i at forholdet er en endringsordre (punkt 31.3).',
-    `${SVARTE} og er enig i at forholdet er en endringsordre (punkt 31.3).`,
+    'Byggherren er enig i at forholdet er en endringsordre (punkt\u00a031.3).',
+    `${SVARTE} og er enig i at forholdet er en endringsordre (punkt\u00a031.3).`,
   ],
   [
-    'endringsordre etter punkt 31.3, avslått',
+    'endringsordre etter punkt\u00a031.3, avslått',
     'avslaatt',
     ord({}),
     'Byggherren avslår forholdet.',
@@ -74,8 +74,8 @@ const tilfellene: [string, Forholdsresultat, Forholdsordene, string, string][] =
     'frafall av pålegget',
     'paalegg_frafalt',
     ord({ varslingsplikt: true }),
-    'Byggherren frafaller pålegget (punkt 32.3 første ledd c).',
-    `${SVARTE} og frafaller pålegget (punkt 32.3 første ledd c).`,
+    'Byggherren frafaller pålegget (punkt\u00a032.3 første ledd c).',
+    `${SVARTE} og frafaller pålegget (punkt\u00a032.3 første ledd c).`,
   ],
 ];
 

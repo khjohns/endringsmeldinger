@@ -1,6 +1,6 @@
 import type { Brevref } from '../lesing';
 import { brevref, brevrefStor } from './felles';
-import { dato } from './format';
+import { dato, haerdet } from './format';
 
 /** Skjemaet for korrigeringen av datoen (BF-02A, skissen `korrigering-av-datoen.html`). */
 const DATOEN: Record<'paalegg_mottatt' | 'klar_over_forholdet', string> = {
@@ -8,7 +8,7 @@ const DATOEN: Record<'paalegg_mottatt' | 'klar_over_forholdet', string> = {
   klar_over_forholdet: 'du ble klar over forholdet',
 };
 
-export const KORRIGERING = {
+export const KORRIGERING = haerdet({
   tittel: (hva: keyof typeof DATOEN) => `Korriger datoen ${DATOEN[hva]}`,
   duKorrigerer: 'Du korrigerer',
   opplysningen: (o: { hva: keyof typeof DATOEN; dato: string }) =>
@@ -47,4 +47,4 @@ export const KORRIGERING = {
   /** U-4: datoen er TEs siste opplysning, og påberopelsen og svaret står som de ble sendt. */
   kvittering: (d: string, hva: keyof typeof DATOEN, lukket: boolean, harSvar: boolean) =>
     `Korrigeringen er sendt til byggherren. ${dato(d)} er nå din siste opplysning om når ${DATOEN[hva]}. ${lukket ? 'Saken står lukket, og utfallet er det samme.' : harSvar ? 'Påberopelsen og svaret står som de ble sendt.' : 'Påberopelsen står som den ble sendt.'}`,
-};
+});

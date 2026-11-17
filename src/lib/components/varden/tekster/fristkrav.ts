@@ -2,7 +2,7 @@ import { liste, stor } from '#kjerne/frosset/brevdeler.ts';
 import { dager } from '#kjerne/frosset/tekst.ts';
 import type { Brevref } from '../lesing';
 import { brevref } from './felles';
-import { dato } from './format';
+import { dato, haerdet } from './format';
 
 /** TEs krav om fristforlengelse (G-3 i BF-20, prototypen `fristkrav-te.html#nytt-krav`). */
 const DAGMULKT = 'dagmulkt';
@@ -11,7 +11,7 @@ const DAGMULKT = 'dagmulkt';
 export const liten = (t: string) =>
   t.length > 1 && t[1] === t[1]!.toUpperCase() ? t : t.charAt(0).toLowerCase() + t.slice(1);
 
-export const FRISTKRAV = {
+export const FRISTKRAV = haerdet({
   titler: {
     krav: 'Krav om fristforlengelse',
     varsel: 'Varsel om fristforlengelse etter punkt 33.4',
@@ -172,4 +172,4 @@ export const FRISTKRAV = {
     'Kravet er også varselet etter punkt 33.4. Varsles det for sent, tapes kravet på fristforlengelse.',
   virkningNyVersjon: (svar: Brevref) =>
     `Etter at den nye versjonen er sendt, kan svaret i ${brevref(svar)} ikke godtas, og byggherren er ikke lenger bundet av det.`,
-};
+});

@@ -38,6 +38,9 @@ import { FRISTEN, HANDLINGENE } from '#lib/components/varden/tekster/index.ts';
 
 afterEach(cleanup);
 
+/** `getByText` normaliserer teksten på siden, ikke den den leter etter, og hardt mellomrom blir vanlig (#2049). */
+const utenHardeMellomrom = (t: string) => t.replaceAll('\u00a0', ' ');
+
 /** Stegene i startjournalen for BF-45 (G-8): tre frister, tre lag og avslaget for én frist. */
 const BF45 = JSON.parse(readFileSync('docs/domenetabell/brukerforlop/BF-45.json', 'utf8')) as {
   steg: Handling[];
@@ -167,11 +170,11 @@ describe('Siden for fristforlengelsen', () => {
   it('tråden har dagene for hver frist ved kravet, varselet uten dager og akseptfristen ved svaret (U-1, U-8, U-11, U-12)', async () => {
     await vis(BF45.steg);
     expect(
-      screen.getByRole('heading', { name: 'Fristforlengelse pkt. 33', level: 2 })
+      screen.getByRole('heading', { name: 'Fristforlengelse pkt.\u00a033', level: 2 })
     ).toBeTruthy();
     const krav = screen.getByText('Frist 3: 25 dager. Frist 2: 20 dager. Frist 8: 20 dager.');
     expect(krav.closest('li')?.textContent).toContain('Krav om fristforlengelse');
-    const varsel = screen.getByText(FRISTEN.varselUtenDager).closest('li')!;
+    const varsel = screen.getByText(utenHardeMellomrom(FRISTEN.varselUtenDager)).closest('li')!;
     expect(varsel.textContent).toContain('Varsel om fristforlengelse');
     expect(varsel.textContent).toContain('Totalentreprenøren ble klar over forholdet');
     expect(screen.getByText(/^Akseptfrist:/).closest('li')?.textContent).toContain(
@@ -326,11 +329,11 @@ describe('Byggherrens forespørsel etter punkt 33.6.2 (U-6, U-9, D-10)', () => {
     await forespoerselen('TE');
     const veiledning = screen.getByText(/^Byggherren ba om dagene /);
     expect(veiledning.textContent).toMatch(
-      /Svarer totalentreprenøren ikke uten ugrunnet opphold, tapes kravet på fristforlengelse \(punkt 33\.6\.2 tredje ledd\)\.$/
+      /Svarer totalentreprenøren ikke uten ugrunnet opphold, tapes kravet på fristforlengelse \(punkt\s33\.6\.2 tredje ledd\)\.$/
     );
     const svar = screen.getByRole('button', { name: FRISTEN.svarPaaForesporsel });
     expect(svar.closest('li')).toBe(veiledning.closest('li'));
-    expect(screen.getByText(FRISTEN.virkningForesporsel)).toBeTruthy();
+    expect(screen.getByText(utenHardeMellomrom(FRISTEN.virkningForesporsel))).toBeTruthy();
     const kortet = within(screen.getByRole('region', { name: FRISTEN.utenKrav }));
     expect(kortet.getByText(/^Dagene er ikke angitt\. Totalentreprenøren varslet i /)).toBeTruthy();
   });

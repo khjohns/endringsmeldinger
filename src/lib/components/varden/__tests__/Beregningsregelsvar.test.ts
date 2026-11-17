@@ -96,7 +96,10 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
       within(formen)
         .getAllByRole('radio')
         .map((r) => r.closest('label')!.textContent?.trim())
-    ).toEqual(['Godkjenner regningsarbeid (punkt 34.4)', 'Mener enhetspriser (punkt 34.3)']);
+    ).toEqual([
+      'Godkjenner regningsarbeid (punkt\u00a034.4)',
+      'Mener enhetspriser (punkt\u00a034.3)',
+    ]);
     expect(screen.queryByRole('group', { name: 'Hvor mye av beløpet godkjenner du?' })).toBeNull();
   });
 
@@ -107,16 +110,16 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
         name: 'Krev at totalentreprenøren gir et spesifisert tilbud for P1',
       });
     expect(tilbud()).toBeInTheDocument();
-    await fireEvent.click(radio('Godkjenner regningsarbeid (punkt 34.4)'));
+    await fireEvent.click(radio('Godkjenner regningsarbeid (punkt\u00a034.4)'));
     expect(tilbud()).toBeNull();
-    await fireEvent.click(radio('Mener enhetspriser (punkt 34.3)'));
+    await fireEvent.click(radio('Mener enhetspriser (punkt\u00a034.3)'));
     await fireEvent.click(tilbud()!);
     await ferdig();
     expect(
       screen.getByRole('button', { name: 'Endre svaret på P1' }).closest('li')!.textContent
-    ).toContain('Mener enhetspriser (punkt 34.3), krever spesifisert tilbud');
+    ).toContain('Mener enhetspriser (punkt\u00a034.3), krever spesifisert tilbud');
     await aapne('P2');
-    await fireEvent.click(radio('Godkjenner enhetspriser (punkt 34.3)'));
+    await fireEvent.click(radio('Godkjenner enhetspriser (punkt\u00a034.3)'));
     await fireEvent.click(radio('Kom i tide'));
     await fireEvent.click(radio('Godkjenner justeringen'));
     await fireEvent.click(radio('Varslet i tide'));
@@ -132,7 +135,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     expect(
       screen.queryByText('Varselet før regningsarbeidet settes i gang (punkt 34.4).')
     ).toBeNull();
-    await fireEvent.click(radio('Godkjenner regningsarbeid (punkt 34.4)'));
+    await fireEvent.click(radio('Godkjenner regningsarbeid (punkt\u00a034.4)'));
     expect(screen.getByText('Ingen innsigelse.')).toBeInTheDocument();
     expect(screen.queryByRole('radio', { name: 'Kom i tide' })).toBeNull();
     await fireEvent.click(
@@ -143,7 +146,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     ).toBeInTheDocument();
     await ferdig();
     await aapne('P2');
-    await fireEvent.click(radio('Mener regningsarbeid (punkt 34.4)'));
+    await fireEvent.click(radio('Mener regningsarbeid (punkt\u00a034.4)'));
     await fireEvent.click(radio('Varslet i tide'));
     await seBrevet();
     // LV-U34: «NS 8407» står bare første gang i brevet.
@@ -154,10 +157,10 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
 
   it('godkjenner BH justerte enhetspriser, må justeringen besvares, mens svaret på varselet er valgfritt (arbeidsvalg A i #2025)', async () => {
     const sendt = await svarskjemaet();
-    await fireEvent.click(radio('Godkjenner regningsarbeid (punkt 34.4)'));
+    await fireEvent.click(radio('Godkjenner regningsarbeid (punkt\u00a034.4)'));
     await ferdig();
     await aapne('P2');
-    await fireEvent.click(radio('Godkjenner enhetspriser (punkt 34.3)'));
+    await fireEvent.click(radio('Godkjenner enhetspriser (punkt\u00a034.3)'));
     await fireEvent.click(radio('Varslet i tide'));
     await seBrevet();
     expect(sendt).toHaveLength(0);
@@ -169,7 +172,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     ).toEqual(['P2: Velg om du godkjenner justeringen av enhetsprisene.']);
     expect(
       screen.getByRole('group', {
-        name: 'Varselet om justering av enhetsprisene (punkt 34.3.3), Valgfri',
+        name: 'Varselet om justering av enhetsprisene (punkt\u00a034.3.3), Valgfri',
       })
     ).toBeTruthy();
   });
@@ -177,9 +180,9 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
   it('mener BH en annen regel, er varselet etter punkt 34.3.3 og justeringen valgfrie og står subsidiært, med lenke til standpunktet (VS-U56, VS-U4)', async () => {
     await svarskjemaet();
     await aapne('P2');
-    await fireEvent.click(radio('Mener regningsarbeid (punkt 34.4)'));
-    const varselet = 'Varselet om justering av enhetsprisene (punkt 34.3.3), Valgfri';
-    const justeringen = 'Justeringen av enhetsprisene (punkt 34.3.2), Valgfri';
+    await fireEvent.click(radio('Mener regningsarbeid (punkt\u00a034.4)'));
+    const varselet = 'Varselet om justering av enhetsprisene (punkt\u00a034.3.3), Valgfri';
+    const justeringen = 'Justeringen av enhetsprisene (punkt\u00a034.3.2), Valgfri';
     expect(forutsetningene(varselet)).toBe(
       'Gjelder hvis standpunktet ditt til oppgjørsformen ikke fører frem'
     );
@@ -196,7 +199,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     )!;
     expect([...liste.querySelectorAll('li')].map((li) => li.textContent?.trim())).toEqual([
       'standpunktet ditt til oppgjørsformen ikke fører frem',
-      'innsigelsen om at varselet etter punkt 34.3.3 kom for sent ikke fører frem',
+      'innsigelsen om at varselet etter punkt\u00a034.3.3 kom for sent ikke fører frem',
     ]);
   });
 });

@@ -2,13 +2,13 @@ import { kroner } from '#kjerne/frosset/tekst.ts';
 import type { Spor } from '#kjerne/typer.ts';
 import type { Brevref } from '../lesing';
 import { brevref } from './felles';
-import { punkt } from './format';
+import { punkt, haerdet } from './format';
 
 /**
  * Brevtypene kjernen kan tilby i sporet, i fast rekkefølge, med teksten de vises med. En
  * handling kjernen tilbyr som ikke står her, vises med `ukjentHandling`, så ingen faller bort.
  */
-export const BREVTYPER: { type: string; tekst: string }[] = [
+export const BREVTYPER: { type: string; tekst: string }[] = haerdet([
   { type: 'svare', tekst: 'Svar på kravet' },
   { type: 'revidere', tekst: 'Send nytt svar' },
   { type: 'godta', tekst: 'Godta svaret' },
@@ -21,7 +21,7 @@ export const BREVTYPER: { type: string; tekst: string }[] = [
   { type: 'trekke', tekst: 'Trekk kravet' },
   // Står ved datoen, ikke i «Andre handlinger» (skissen i BF-02A, #1615).
   { type: 'korrigere', tekst: 'Korriger datoen' },
-];
+]);
 
 export const ukjentHandling = (noekkel: string) => `Handlingen ${noekkel}`;
 
@@ -30,7 +30,7 @@ export const varselet = (type: string, hjemmel: string) =>
   `${type === 'sende_varsel' ? 'Send varsel' : 'Registrer et varsel som er sendt på annen måte'} etter ${punkt(hjemmel)}`;
 
 /** Kortet «Det du kan gjøre nå», som i prototypen `grunnlagsoversikt.html`. */
-export const HANDLINGENE = {
+export const HANDLINGENE = haerdet({
   andre: 'Andre handlinger',
   /** En brevtype som ikke er bygget i Varden (#1636). */
   ikkeBygget: 'Denne handlingen er ikke bygget i prøven ennå.',
@@ -83,9 +83,9 @@ export const HANDLINGENE = {
     nyttSvar: (svar: Brevref) =>
       `Nytt brev med svaret. Svaret i ${brevref(svar)} står som det ble sendt.`,
   },
-};
+});
 
-export const STILLING = {
+export const STILLING = haerdet({
   /** Når kjernen ikke kan lage akseptbrevet og ikke sier hvorfor. */
   godta: 'Aksepten kan ikke lages nå.',
   // Etter § 34.3.3 står justeringen subsidiært, ikke beløpet (VS-U4, KA-U64).
@@ -112,4 +112,4 @@ export const STILLING = {
   vilkaar: 'Enigheten får virkning når forholdet er avklart.',
   kilde: (b: Brevref) => `Virkningen er regnet ut fra ${brevref(b)} slik det ble sendt.`,
   godtarBrev: (b: Brevref) => `Du godtar hele svaret i ${brevref(b)}`,
-};
+});
