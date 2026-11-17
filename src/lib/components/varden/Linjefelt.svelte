@@ -1,7 +1,8 @@
 <!--
   Et felt i skjemaene med labelen over, hjelpeteksten under labelen, feltet med enheten og
-  feilmeldingen under (system.md, «Feltene står under hverandre», #1925). Et tall står til høyre
-  med like brede sifre; `bredde` gir et kort felt eller et tekstfelt i full bredde.
+  feilmeldingen under (system.md, «Feltene står under hverandre», #1925). Feltet har én linje,
+  for et tall eller en kort tekst. Et tall står til høyre med like brede sifre; `bredde` gir et
+  kort felt eller et tekstfelt i full bredde.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -67,6 +68,7 @@
 
 <style>
   .inndata {
+    position: relative;
     display: inline-flex;
     align-items: stretch;
     width: 100%;
@@ -111,6 +113,15 @@
   }
   .inndata.ugyldig {
     border-color: var(--danger);
+  }
+  /* Den indre linja står over feltet, så en bakgrunn i feltet ikke dekker den, som ved
+     autofyll i Chrome (#2150). */
+  .inndata.ugyldig::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
     box-shadow: inset 0 0 0 1px var(--danger);
+    pointer-events: none;
   }
 </style>

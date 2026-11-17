@@ -36,7 +36,7 @@
   import Korrespondansen from './Korrespondansen.svelte';
   import { fokuser, type Mangel } from './mangler';
   import { sendeflyt } from './sendeflyt.svelte';
-  import Tallfelt from './Tallfelt.svelte';
+  import Linjefelt from './Linjefelt.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Valg from './Valg.svelte';
   import Valgfri from './Valgfri.svelte';
@@ -564,7 +564,7 @@
   paakrevd: boolean
 )}
   {@const f = feil(felt)}
-  <Tallfelt
+  <Linjefelt
     id={id(felt)}
     {etikett}
     {hjelp}
@@ -582,7 +582,7 @@
   {@const vs = varselFor(p)}
   <div class="aapen">
     <h4>{navnet(p)} · {p.beskrivelse || KRAVSKJEMA.nyPost}</h4>
-    <Tallfelt
+    <Linjefelt
       id={id(`beskrivelse-${n}`)}
       etikett={KRAVSKJEMA.beskrivelse}
       hjelp={KRAVSKJEMA.beskrivelseHjelp}
@@ -641,7 +641,7 @@
         <a href={`#${id(`varselrad-${n}`)}`}>{KRAVSKJEMA.tilVarslene}</a>
       </p>
     {/if}
-    <Tallfelt
+    <Linjefelt
       id={id(`pns-${n}`)}
       etikett={KRAVSKJEMA.pns}
       hjelp={KRAVSKJEMA.pnsHjelp}
