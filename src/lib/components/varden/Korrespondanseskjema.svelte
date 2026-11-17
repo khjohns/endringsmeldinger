@@ -178,6 +178,9 @@
           />
         {:else if viderekategori(kategori)}
           <p class="dempet">{LEGG_TIL.neste[kategori]}</p>
+          {#if kategori !== 'svar'}
+            <p class="dempet">{LEGG_TIL.kravetErVarselet}</p>
+          {/if}
         {/if}
 
         {#if kategori === 'aksept' && kommando}

@@ -121,6 +121,9 @@ export const LEGG_TIL = haerdet({
     krav: 'Når du går videre, åpnes kravskjemaet. Det viser til korrespondansen, og du fyller det ut slik kravet står i dokumentet, uten begrunnelsen.',
     svar: 'Når du går videre, åpnes svarskjemaet. Det viser til korrespondansen, og du fyller det ut slik svaret står i dokumentet, uten begrunnelsen.',
   },
+  /** VS-U74. */
+  kravetErVarselet:
+    'Et brev som både varsler og krever, legger du til som krav. Kravet gjelder da også som varselet.',
   svaret: 'Hvilket svar godtok du?',
   svaretHjelp: 'Byggherrens svar i saken. Aksepten gjelder fra datoen du oppgir.',
   svaretMangler: 'Velg svaret aksepten gjelder.',
