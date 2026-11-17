@@ -37,8 +37,8 @@
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import { brevene, datoerISporet } from './lesing';
-  import { begrunnelsespunktene, kravbrevetI, SVARSKJEMA, type Postvelger } from './svarskjema';
-  import { HOVEDLINJER, LEGG_TIL, SKJEMA, brevhode, brevtittel, dato } from './tekster';
+  import { begrunnelsespunktene, kravbrevetI, type Postvelger } from './svarskjema';
+  import { HOVEDLINJER, LEGG_TIL, SKJEMA, SVARSKJEMA, brevhode, brevtittel, dato } from './tekster';
   import {
     lagtTil as kommandoenLagtTil,
     leggTilISaken,

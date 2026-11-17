@@ -256,3 +256,16 @@ export const MOTTATT = {
   sakenEndret:
     'Brevet ble ikke sendt, fordi saken er endret siden du åpnet brevkontrollen. Se over saken og brevet på nytt før du sender.',
 };
+
+/** Ordene i det felles svarskjemaet (`Svarskjema.svelte`). */
+export const SVARSKJEMA = {
+  postKolonne: 'Post',
+  fristKolonne: 'Frist',
+  kravetKolonne: 'Kravet',
+  svaretKolonne: 'Svaret, slik det står i brevet',
+  /** Den skjulte etiketten for svaret i hver rad, der overskriften står over kolonnen. */
+  svaret: 'Svaret',
+  forkastTekst:
+    'Valgene og begrunnelsene du har skrevet i utkastet, slettes. Det kan ikke gjøres om.',
+  kompaktLinje: 'Hovedlinjene og brevkontrollen',
+} as const;

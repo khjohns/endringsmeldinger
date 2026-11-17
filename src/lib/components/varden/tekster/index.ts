@@ -17,6 +17,7 @@ export * from './svaret';
 export * from './handlingene';
 export * from './tidslinjen';
 export * from './forholdet';
+export * from './forholdssvar';
 export * from './traaden';
 export * from './korrigering';
 export * from './nyversjon';

@@ -6,8 +6,7 @@
 <script lang="ts" generics="P extends { id: string }">
   import { tick, type Snippet } from 'svelte';
   import Knapp from './Knapp.svelte';
-  import { SVARSKJEMA } from './svarskjema';
-  import { SKJEMA } from './tekster';
+  import { SKJEMA, SVARSKJEMA } from './tekster';
 
   let {
     poster,
