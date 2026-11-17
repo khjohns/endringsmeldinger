@@ -5,7 +5,7 @@
 
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 import type { Journalrad } from '#kjerne/typer.ts';
 import { utledJournal } from '#kjerne/kommandoer/skriving.ts';
@@ -138,5 +138,31 @@ describe('varselet etter punkt 34.1.2 i byggherrens svar (#1842)', () => {
     expect(spoersmaalet()).toBeNull();
     const gjelderHvis = document.querySelector('[id$="-form-P1-forutsetninger"]');
     expect(gjelderHvis?.textContent).toMatch(/avslaget av forholdet i brev 2/);
+  });
+});
+
+describe('det som mangler, er det kjernen sier er påkrevd og ubesvart (#2025)', () => {
+  const manglene = () =>
+    within(screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' }))
+      .getAllByRole('link')
+      .map((l) => l.textContent);
+
+  it('uten noe besvart står varselet, oppgjørsformen og beløpet (punkt 34.1.2, 34.2.2 og KA-U66)', async () => {
+    await svarskjemaet(svikt);
+    await seBrevet();
+    expect(manglene()).toEqual([
+      'Velg om varselet kom i tide.',
+      'Velg om du godkjenner fast sum (punkt 34.2.1).',
+      'Velg hvor mye av beløpet du godkjenner.',
+    ]);
+  });
+
+  it('en delvis godkjenning uten beløpet ber om beløpet du godkjenner (KA-U42)', async () => {
+    await svarskjemaet(svikt);
+    await radio('Varslet i tide');
+    await radio('Godkjenner fast sum (punkt 34.2.1)');
+    await radio('Deler av beløpet');
+    await seBrevet();
+    expect(manglene()).toEqual(['Skriv beløpet du godkjenner.']);
   });
 });

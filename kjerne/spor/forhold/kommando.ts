@@ -207,7 +207,7 @@ export const NYTTELAST_I_FORHOLDET = {
 } satisfies Sporsnyttelast;
 
 /**
- * VS-U43 punkt 6 og E3: standpunktet om rettidigheten i svaret på grunnlaget gjelder
+ * VS-U76 punkt 6: standpunktet om rettidigheten i svaret på grunnlaget gjelder
  * varselet fra `varseletForNyttSvar`. Er det et registrert varsel etter § 32.2, har det ingen
  * brevtekst før #1600 er bygget. Sperren gjelder også et svar uten et slikt standpunkt.
  */
@@ -294,7 +294,7 @@ export const FORUTSETNINGER_I_FORHOLDET = {
 } satisfies Sporsforutsetninger;
 
 /**
- * Standpunktene i svaret på forholdet (`standpunkter`). VS-U43 punkt 6 og 10: påberopelsen gjelder
+ * Standpunktene i svaret på forholdet (`standpunkter`). VS-U76 punkt 6 og 10: påberopelsen gjelder
  * det registrerte varselet etter § 32.2, ellers det første grunnlagskravet, ikke versjonen svaret
  * gjelder. Med et registrert varsel avviser forutsetningene svaret til #1600 er bygget.
  */

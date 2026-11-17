@@ -15,6 +15,7 @@ import {
 } from '#kjerne/spor/forhold/tekst.ts';
 import { grunnerFraForholdet } from '#kjerne/spor/forhold/frysing.ts';
 import { plassene } from '#kjerne/frosset/byggeklosser.ts';
+import { datoForDokumentet } from '#kjerne/format/leser.ts';
 import { betegnelsen, innholdIFristen } from '#kjerne/spor/frist/format.ts';
 import { fasteBeloepIKravet, kravposterI, utenFastBeloep } from '#kjerne/spor/vederlag/format.ts';
 import { tilTall } from '#kjerne/regler/beloep.ts';
@@ -74,12 +75,6 @@ export interface Brevet {
   vedlegg: string[];
 }
 
-/** OV-U85: datoen parten oppga at dokumentet ble sendt, ikke datoen for et varsel i det (HF-U1). */
-function sendtDato(d: Dokument): string | null {
-  for (const o of d.opplysninger) if (o.hva === 'sendt' && o.gjelder === undefined) return o.dato;
-  return null;
-}
-
 function artAv(d: Dokument): Brevet['art'] {
   if (d.brevtekst === null) return 'registrert';
   if (d.svar.length) return 'svar';
@@ -134,7 +129,7 @@ function lesBrevene(u: Utledning): Brevet[] {
         nummer: d.brevnummer,
         avsender: d.avsender,
         registrert: d.registrert,
-        sendt: sendtDato(d),
+        sendt: datoForDokumentet(d.opplysninger, 'sendt')?.dato ?? null,
         spor: [...i],
         art: artAv(d),
         forhold: innholdIForholdet(d.krav.find((k) => k.spor === 'forhold')).underkategori,

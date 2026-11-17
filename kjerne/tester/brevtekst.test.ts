@@ -1194,7 +1194,7 @@ describe('korrigeringen av datoen (punkt 10 i samlevedtaket for retting av sendt
     ).toBeNull();
   });
 
-  it('datoen varslingsplikten løper fra, finnes i endring utenom endringsordre, svikt og andre forhold, men ikke ved force majeure (VS-U26, VS-U43 punkt 1)', () => {
+  it('datoen varslingsplikten løper fra, finnes i endring utenom endringsordre, svikt og andre forhold, men ikke ved force majeure (VS-U26, VS-U76 punkt 1)', () => {
     const forventet: Record<Hovedkategori, string | null> = {
       endring: 'paalegg_mottatt',
       svikt: 'klar_over_forholdet',
@@ -5396,7 +5396,7 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
     );
   });
 
-  // VS-U43 punkt 6 og 10 med E3: påberopelsen gjelder det registrerte varselet når det har en
+  // VS-U76 punkt 6 og 10: påberopelsen gjelder det registrerte varselet når det har en
   // tidligere dato. Brevteksten for det registrerte varselet bygges i #1600, så kjernen
   // avviser svaret med en regelkode i stedet for å nevne grunnlagskravet (CLAUDE.md,
   // «Domenekjernen»), og svaret tilbys ikke.
@@ -5418,7 +5418,7 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
     expect(handlinger(s.u(), 'BH')).not.toContain('svare:forhold');
   });
 
-  it('revisjonen av svaret på grunnlaget etter at varselet etter § 32.2 er registrert, avvises til varselet har brevtekst, og svaret på fristen tilbys (VS-U43 punkt 10)', () => {
+  it('revisjonen av svaret på grunnlaget etter at varselet etter § 32.2 er registrert, avvises til varselet har brevtekst, og svaret på fristen tilbys (VS-U76 punkt 10)', () => {
     const s = medPaaberopelse();
     s.send('TE', FRISTKRAV);
     s.send('BH', {
@@ -5445,7 +5445,7 @@ describe('varselet etter § 32.2 sendt utenfor løsningen (VS-U34, VS-U38, G-2 i
 
 /**
  * VS-U58 og VS-U59 (#1730): et varsel om forholdet kan ikke være oppgitt sendt før datoen TE har
- * oppgitt i grunnlagskravet (VS-U43 punkt 1–5), og en korrigering av datoen kan ikke snu
+ * oppgitt i grunnlagskravet (VS-U76 punkt 1–5), og en korrigering av datoen kan ikke snu
  * rekkefølgen. Påberopelsen er brev K201-KOE-017-01 av 2. oktober 2026, med datoen 25. september.
  */
 describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', () => {
@@ -5514,7 +5514,7 @@ describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', (
     );
   });
 
-  it('i underkategorien endringsordre er det ingen dato, og ingenting kontrolleres (VS-U43)', () => {
+  it('i underkategorien endringsordre er det ingen dato, og ingenting kontrolleres (VS-U76)', () => {
     const s = medForhold({
       ...PAABEROPELSE,
       innhold: { hovedkategori: 'endring', underkategori: 'endringsordre', endringsordre: 'EO 12' },
@@ -5551,7 +5551,7 @@ describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', (
     expect(s.avvist('TE', korrigering(s, 'paalegg_mottatt', '2026-10-02'))).toBeNull();
   });
 
-  it('i svikt er påberopelsen ikke et varsel etter § 32.2, og en korrigering til en dato etter den godtas (VS-U60, VS-U43 punkt 6)', () => {
+  it('i svikt er påberopelsen ikke et varsel etter § 32.2, og en korrigering til en dato etter den godtas (VS-U60, VS-U76 punkt 6)', () => {
     const s = medForhold(svikt);
     expect(s.avvist('TE', korrigering(s, 'klar_over_forholdet', '2026-10-03'))).toBeNull();
   });
@@ -5684,7 +5684,7 @@ describe('varselet om forholdet og datoen i grunnlagskravet (VS-U58, VS-U59)', (
   });
 });
 
-describe('varselet etter § 32.2 er det første grunnlagskravet (VS-U43 punkt 6 og 10, #1489)', () => {
+describe('varselet etter § 32.2 er det første grunnlagskravet (VS-U76 punkt 6 og 10, #1489)', () => {
   // Versjon 1 er brev K201-KOE-017-01 av 2. oktober 2026, og versjon 2 er brev K201-KOE-017-02.
   const medToVersjoner = () => {
     const s = sak();
@@ -5711,7 +5711,7 @@ describe('varselet etter § 32.2 er det første grunnlagskravet (VS-U43 punkt 6 
     return p!;
   };
 
-  it('svaret på versjon 2 påberoper varselet i den første versjonen, og brevet nevner det brevet (VS-U43 punkt 6 og 10 med designdelen)', () => {
+  it('svaret på versjon 2 påberoper varselet i den første versjonen, og brevet nevner det brevet (VS-U76 punkt 6 og 10 med designdelen)', () => {
     const s = medToVersjoner();
     const [v1, v2] = s.u().spor.forhold.krav;
     const rad = svarPaaGjeldende(s, false);
@@ -5727,7 +5727,7 @@ describe('varselet etter § 32.2 er det første grunnlagskravet (VS-U43 punkt 6 
     expect(s.u().forstaatt).toBe(true);
   });
 
-  it('en lagret påberopelse etter § 32.2 som viser til versjon 2, gjør saken ikke forstått, og en som viser til versjon 1, forstås (VS-U43 punkt 6)', () => {
+  it('en lagret påberopelse etter § 32.2 som viser til versjon 2, gjør saken ikke forstått, og en som viser til versjon 1, forstås (VS-U76 punkt 6)', () => {
     const lagret = (versjon: 0 | 1) => {
       const s = medToVersjoner();
       const krav = s.u().spor.forhold.krav;
@@ -5757,7 +5757,7 @@ describe('varselet etter § 32.2 er det første grunnlagskravet (VS-U43 punkt 6 
     expect(lagret(1).forstaatt).toBe(false);
   });
 
-  it('et varsel etter § 32.2 TE registrerer etter svaret, markerer standpunktet, og svaret står med virkningen det hadde (VS-U43 punkt 10, OV-U5)', () => {
+  it('et varsel etter § 32.2 TE registrerer etter svaret, markerer standpunktet, og svaret står med virkningen det hadde (VS-U76 punkt 10, OV-U5)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
     svarPaaGjeldende(s, false);
@@ -6564,7 +6564,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
           gjelder: u.spor.forhold.gjeldendeKrav!.id,
           ...(u.spor.forhold.gjeldendeSvar ? { erstatter: u.spor.forhold.gjeldendeSvar.id } : {}),
           standpunkter: [
-            // VS-U43 punkt 6: rettidigheten gjelder det første grunnlagskravet.
+            // VS-U76 punkt 6: rettidigheten gjelder det første grunnlagskravet.
             {
               id: randomUUID(),
               art: 'rettidighet',
@@ -6723,7 +6723,7 @@ describe('et frafall fra appen kan følges av et avslag (MM-U34 punkt 7, GR-U17,
             spor: 'forhold',
             gjelder: v2,
             standpunkter: [
-              // VS-U43 punkt 6: rettidigheten gjelder det første grunnlagskravet.
+              // VS-U76 punkt 6: rettidigheten gjelder det første grunnlagskravet.
               {
                 id: randomUUID(),
                 art: 'rettidighet',
