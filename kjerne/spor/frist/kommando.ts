@@ -16,6 +16,7 @@ import {
   type Avvisning,
   type Domenehendelse,
   type Journalrad,
+  type Krav,
   type Standpunkt,
 } from '../../typer.ts';
 import type { Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
@@ -37,8 +38,17 @@ import {
   fristnoekkel,
 } from './utledning.ts';
 import { fristinnhold, innholdIFristen } from './format.ts';
-import { fristkravet, fristvurderinger } from './frysing.ts';
-import { paakrevdeSpoersmaal, type Fristspoersmaal } from '../../regler/frist.ts';
+import {
+  dagerMaatteForstaa,
+  fristkravet,
+  fristvurderinger,
+  vurderingenAvFristen,
+} from './frysing.ts';
+import {
+  kontroller as kontrollerFristen,
+  paakrevdeSpoersmaal,
+  type Fristspoersmaal,
+} from '../../regler/frist.ts';
 import { mangler } from '../../regler/typer.ts';
 import {
   innholdetIDokumentet,
@@ -47,7 +57,7 @@ import {
 } from '../../kommandoer/vedlegg.ts';
 import { maatteForstaaUbesvart } from '../../regler/svarkontroll.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
-import { lageneIUtkastet } from '../../kommandoer/utkastlag.ts';
+import { avvisteFelt, lageneIUtkastet, utenom } from '../../kommandoer/utkastlag.ts';
 
 /** Formen på kravet i fristen (`KRAVFORM`). */
 export const KRAVFORM_I_FRISTEN = {
@@ -316,6 +326,7 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
   return {
     stilt,
     ubesvart: ubesvarte,
+    ugyldig: utenom(ugyldigIFristen(utkast.vurderinger, fristene, krav, u), ubesvarte),
     standpunkter: svar.standpunkter.map((s, i) => {
       const l = lag[i]!;
       return {
@@ -338,6 +349,47 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
       };
     }),
   };
+}
+
+/**
+ * Svarene i utkastet kontrollene av fristen avviser når svaret sendes (#2156), for hver frist
+ * med de krevde dagene: spørsmålene om hele kravet og dagene (`kontroller` i regelsettet, punkt
+ * 33.5 og 33.6.2 fjerde ledd), og dagene byggherren måtte forstå (`kontrollerSpesifiseringen`,
+ * VS-U4) når dagene og spesifiseringen er godtatt. Også de ubesvarte, som kalleren tar ut.
+ */
+function ugyldigIFristen(
+  v: Svarutkast['vurderinger'],
+  fristene: ReturnType<typeof fristvurderinger>,
+  krav: Krav,
+  u: Utledning
+): LagIFristen['ugyldig'] {
+  const krevd = innholdIFristen(krav).frister;
+  const foresporsel = foresporselForFristsvar(u);
+  const hele = new Set<string>(Object.values(SPOERSMAALET));
+  return fristene.flatMap((f, i): LagIFristen['ugyldig'] => {
+    const feil = avvisteFelt(() =>
+      kontrollerFristen(vurderingenAvFristen(v, f), fristkravet(krevd[i]!.dager, foresporsel))
+    );
+    // Kontrollen leser dagene og spesifiseringen og kjører når de er godtatt, også når et
+    // annet spørsmål er ubesvart. Sendingen kjører den først når hele fristen er godtatt.
+    const maatteForstaa =
+      feil.godkjent_dager || feil.spesifisert_krav_ok
+        ? {}
+        : avvisteFelt(() => dagerMaatteForstaa(v, f));
+    return [
+      ...Object.keys(feil).flatMap((felt): LagIFristen['ugyldig'] =>
+        felt === 'godkjent_dager'
+          ? [{ spoersmaal: 'dager' as const, gjelder: f.gjelder }]
+          : hele.has(felt)
+            ? [{ spoersmaal: felt as Fristspoersmaal }]
+            : []
+      ),
+      ...Object.keys(maatteForstaa).map(() => ({
+        spoersmaal: 'dager_maatte_forstaa' as const,
+        gjelder: f.gjelder,
+      })),
+    ];
+  });
 }
 
 /**
