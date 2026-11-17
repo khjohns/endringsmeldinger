@@ -238,6 +238,21 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   forsvinner når feltet er rettet. Når kontrollen skjer, og hva som vises øverst i
   skjemaet, står i [MM-U32](#mm-u32). En feil fra serveren beklager og sier hva parten kan gjøre;
   en feil i utfyllingen går rett på sak. Ingen feilmelding i en egen dialog.
+- **En feil har én form** (oppdragsgiver 17.11, #2163, skissen
+  [feilmeldingene.html](../docs/design/prototyper/feilmeldingene.html)). Det gjelder lista over det
+  som mangler, en sending som feiler og en sak som ikke kan hentes:
+  - Kanten til venstre og ikonet er i `--danger`. Flaten er nøytral. Ikonet gjør at fargen aldri
+    står alene. En informasjonsmelding har ikke ikon.
+  - Tittelen i halvfet sier hva som skjedde, som «Brevet ble ikke sendt». Linja under sier hvorfor,
+    og så hva parten kan gjøre, som en lenke eller et råd.
+  - Visningen eier teksten for hver feilkode, og viser ikke serverens melding direkte.
+  - Et usikkert utfall er ikke en feil. Kanten er i blekk, tittelen er «Vi vet ikke om brevet ble
+    sendt», og knappen er «Prøv å sende igjen».
+  - Når brevet er sendt, byttes stempelet «Utkast · ikke sendt» med et heltrukket «Sendt <dato>
+    kl. <tid>» på samme sted, og én linje under bekrefter det.
+  - En sak som ikke kan hentes, står på arket, innenfor kantene til arbeidsflaten. Kan saken ikke
+    leses fordi den ikke finnes eller parten ikke har tilgang, sier siden begge deler, uten å skille
+    dem, og har bare «Til sakslisten».
 
 ## Ordene i visningen
 

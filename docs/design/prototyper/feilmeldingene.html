@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feilmeldingene i Varden</title>
+<!--
+  Skisse av feilene, det usikre utfallet og kvitteringen i Varden (#2163, tillegg 4, versjon 1).
+  Regelen står i .interface-design/system.md, «En feil har én form». Fargene og målene er
+  .tema-varden i src/lib/components/kontraktsbord/theme.css. Teksten er prototypetekst. Ingenting
+  sendes.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{--brand:#15181d;--on-brand:#fff;--canvas:#eef0f2;--surface:#fff;--surface-inset:#f3f4f6;--ink:#15181d;--ink-2:#343a43;--ink-3:#545b66;--rule:1px solid #dadde2;--rule-subtle:1px solid #e6e8eb;--rule-strong-color:#c3c8cf;--danger:#b33e33;--draft:#5f4a00;--draft-bg:#fff3c4;--r-kort:12px;--r-merke:2px;--r-felt:4px;--r-knapp:999px;--font-sans:'Inter',system-ui,sans-serif;--font-brev:'Source Serif 4',serif}
+*{box-sizing:border-box;margin:0}
+body{background:var(--canvas);font:14px/1.5 var(--font-sans);color:var(--ink);padding:24px;-webkit-font-smoothing:antialiased}
+h2.seksjon{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);margin:0 0 10px}
+.rad{display:grid;grid-template-columns:repeat(4,320px);gap:24px;align-items:start;margin-bottom:32px}
+.panel{background:var(--surface);border:var(--rule);border-radius:var(--r-kort);padding:16px 20px}
+.panel .avkrysning{display:flex;gap:10px;align-items:center;min-height:44px;padding:0 12px;border:1px solid var(--rule-strong-color);border-radius:var(--r-felt);margin-bottom:10px}
+.knapp{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;border-radius:var(--r-knapp);background:var(--brand);color:var(--on-brand);border:0;font:600 15px var(--font-sans)}
+.knapp.sek{background:var(--surface);color:var(--ink);border:1px solid var(--brand);min-height:40px;width:auto;padding:0 18px;font-size:14px}
+.lenke{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+
+/* Feilen: kant og ikon i --danger, nøytral flate, tittelen sier hva som skjedde, linja under hva du gjør. */
+.feil{display:grid;grid-template-columns:20px 1fr;gap:4px 10px;margin-top:12px;padding:12px 14px;border-left:3px solid var(--danger);background:var(--surface-inset);border-radius:0 var(--r-felt) var(--r-felt) 0}
+.feil svg{color:var(--danger);margin-top:1px}
+.feil b{font-weight:600}
+.feil p{grid-column:2;color:var(--ink-2)}
+.feil .gjoer{grid-column:2;margin-top:6px;display:flex;gap:12px;align-items:center}
+
+/* Usikkert utfall: ikke feil og ikke sendt. Blekk, ikke rødt, og «Prøv igjen» er hovedhandlingen. */
+.usikker{display:grid;grid-template-columns:20px 1fr;gap:4px 10px;margin-top:12px;padding:12px 14px;border-left:3px solid var(--ink);background:var(--surface-inset);border-radius:0 var(--r-felt) var(--r-felt) 0}
+.usikker p{grid-column:2;color:var(--ink-2)}
+
+/* Kvitteringen er stempelet: samme sted og form som «Utkast · ikke sendt», heltrukket blekk. */
+.brevhode{position:relative;background:var(--surface);border:var(--rule);border-radius:var(--r-kort);padding:20px 24px;font-family:var(--font-brev)}
+.brevhode.utkast{border:1px dashed var(--draft)}
+.brevhode b{font-weight:600;display:block}
+.brevhode .rolle{color:var(--ink-3);font-size:13px}
+.brevhode h3{font-family:var(--font-brev);font-size:17px;margin-top:14px}
+.stempel{position:absolute;top:18px;right:20px;border:1px dashed var(--draft);background:var(--draft-bg);color:var(--draft);border-radius:var(--r-merke);padding:0 7px;font:500 12px/20px var(--font-sans)}
+.stempel.sendt{border:1px solid var(--ink);background:var(--surface);color:var(--ink)}
+.kvittering{margin-top:10px;color:var(--ink-2);font-size:14px}
+
+/* Feilsiden: på arket, innenfor kantene til arbeidsflaten. */
+.ark{background:var(--surface);border:var(--rule);border-radius:var(--r-kort);padding:28px 32px}
+.ark h1{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.ark p{color:var(--ink-2);margin-top:6px;max-width:56ch}
+.ark .gjoer{display:flex;gap:16px;align-items:center;margin-top:16px}
+.ark .detalj{color:var(--ink-3);font-size:13px;margin-top:20px;padding-top:12px;border-top:var(--rule-subtle)}
+
+/* Oppsummeringen av det som mangler: samme feilform som sendefeilen. */
+.feil ul{grid-column:2;margin:2px 0 0;padding-left:18px;color:var(--ink-2)}
+.feil ul a{color:var(--ink)}
+@media (max-width:1400px){.rad{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><symbol id="varsel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></symbol><symbol id="send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></symbol></svg>
+
+<h2 class="seksjon">Sendefeilene, under knappen i panelet</h2>
+<div class="rad">
+  <div class="panel">
+    <label class="avkrysning"><input type="checkbox" checked> Jeg har kontrollert brevet</label>
+    <button class="knapp"><svg width="16" height="16"><use href="#send"/></svg> Send til byggherren</button>
+    <div class="feil" role="alert"><svg width="18" height="18" aria-hidden="true"><use href="#varsel"/></svg><b>Brevet ble ikke sendt</b>
+      <p>En annen sak fikk nummeret i brevet. Brevet har nå det nye nummeret.</p>
+      <p class="gjoer"><a class="lenke" href="#">Se over brevet</a></p></div>
+  </div>
+  <div class="panel">
+    <label class="avkrysning"><input type="checkbox" checked> Jeg har kontrollert brevet</label>
+    <button class="knapp"><svg width="16" height="16"><use href="#send"/></svg> Send til byggherren</button>
+    <div class="feil" role="alert"><svg width="18" height="18" aria-hidden="true"><use href="#varsel"/></svg><b>Brevet ble ikke sendt</b>
+      <p>Beklager, det oppstod en feil hos oss. Utkastet er som før.</p>
+      <p class="gjoer">Prøv igjen om litt.</p></div>
+  </div>
+  <div class="panel">
+    <label class="avkrysning"><input type="checkbox" checked> Jeg har kontrollert brevet</label>
+    <button class="knapp"><svg width="16" height="16"><use href="#send"/></svg> Send til byggherren</button>
+    <div class="feil" role="alert"><svg width="18" height="18" aria-hidden="true"><use href="#varsel"/></svg><b>Brevet ble ikke sendt</b>
+      <p>Beklager, du har ikke tilgang til å sende brev i saken nå.</p>
+      <p class="gjoer"><a class="lenke" href="#">Logg inn på nytt</a></p></div>
+  </div>
+  <div class="panel">
+    <label class="avkrysning"><input type="checkbox" checked> Jeg har kontrollert brevet</label>
+    <button class="knapp">Prøv å sende igjen</button>
+    <div class="usikker" role="alert"><svg width="18" height="18" aria-hidden="true"><use href="#varsel"/></svg><b>Vi vet ikke om brevet ble sendt</b>
+      <p>Forbindelsen ble brutt. Prøv igjen. Brevet sendes ikke to ganger.</p></div>
+  </div>
+</div>
+
+<h2 class="seksjon">Det som mangler, og kvitteringen</h2>
+<div class="rad" style="grid-template-columns:420px 380px 460px">
+  <div class="panel">
+    <div class="feil" role="alert" style="margin-top:0"><svg width="18" height="18" aria-hidden="true"><use href="#varsel"/></svg><b>Dette mangler før brevet kan lages</b>
+      <ul><li><a href="#">Velg om varselet kom i tide.</a></li><li><a href="#">Skriv begrunnelsen for punkt 2.</a></li></ul></div>
+  </div>
+  <div class="brevhode utkast"><span class="stempel">Utkast · ikke sendt</span><b>Oslobygg KF</b><span class="rolle">Byggherren</span><h3>Svar på krav om vederlagsjustering</h3></div>
+  <div><div class="brevhode"><span class="stempel sendt">Sendt 17. november 2026 kl. 14.02</span><b>Oslobygg KF</b><span class="rolle">Byggherren</span><h3>Svar på krav om vederlagsjustering</h3></div>
+    <p class="kvittering" role="status">Brevet er sendt til totalentreprenøren.</p></div>
+</div>
+
+<h2 class="seksjon">Feilsidene, på arket</h2>
+<div class="rad" style="grid-template-columns:520px 520px">
+  <div class="ark" role="alert">
+    <h1>Saken kunne ikke hentes</h1>
+    <p>Beklager, vi fikk ikke svar fra serveren. Kontroller nettforbindelsen, og prøv igjen.</p>
+    <div class="gjoer"><button class="knapp sek">Prøv igjen</button><a class="lenke" href="#">Til sakslisten</a></div>
+    <p class="detalj">Sist forsøkt kl. 20.03.</p>
+  </div>
+  <div class="ark" role="alert">
+    <h1>Saken finnes ikke, eller du har ikke tilgang til den</h1>
+    <p>Kontroller lenken. Er du med i prosjektet, finner du saken i sakslisten.</p>
+    <div class="gjoer"><a class="lenke" href="#">Til sakslisten</a></div>
+  </div>
+</div>
+</body>
+</html>
