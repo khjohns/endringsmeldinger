@@ -53,11 +53,11 @@
   const uid = $props.id();
   let gruppe: HTMLFieldSetElement | undefined;
 
-  // Knappen forsvinner med svaret, så fokus går til valget som var gjort.
+  // U-19 i BF-14.
   async function fjern() {
-    const valgt = valg.findIndex((v) => v.verdi === verdi);
+    const valgt = gruppe?.querySelector<HTMLElement>('input:checked');
     verdi = null;
-    await fokuser(() => gruppe?.querySelectorAll<HTMLElement>('input')[valgt]);
+    await fokuser(() => valgt);
   }
   const beskrivelse = $derived(
     [hjelp ? `${uid}-hjelp` : undefined, beskrevetAv, feil ? `${uid}-feil` : undefined]
