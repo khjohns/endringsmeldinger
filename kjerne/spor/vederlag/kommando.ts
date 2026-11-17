@@ -19,10 +19,11 @@ import { kategori } from '../forhold/format.ts';
 import { omtalen } from '../../frosset/brevdeler.ts';
 import { innholdetIDokumentet, innholdetIVedleggene } from '../../kommandoer/vedlegg.ts';
 import {
-  beregnVederlag,
+  kontroller as kontrollerVederlaget,
   ubesvartIKravposten,
   ubesvarteSpoersmaal,
   type UbesvartIVederlaget,
+  type Vederlagssvar,
 } from '../../regler/vederlag.ts';
 import { hjemmelenGjelder, laget, type Svarvurdering } from '../../frosset/byggeklosser.ts';
 import {
@@ -580,14 +581,12 @@ const iSaerskilt = (
  * `ubesvartIKravposten`, #2025): varselet etter § 34.1.2 først, så postene i kravets rekkefølge.
  */
 function ubesvartIVederlaget(
+  svaret: Vederlagssvar,
   v: Svarvurdering,
-  utkast: Svarutkast,
-  u: Utledning,
+  krav: Krav,
   regler: Regelsett
 ): LagIVederlaget['ubesvart'] {
-  const krav = u.spor.vederlag.gjeldendeKrav!;
-  const { hovedkategori } = kategori(paaberopelseFor(utkast, u));
-  const ubesvarte = ubesvarteSpoersmaal(svaretFraVurderingene(v, krav, hovedkategori).svar, regler);
+  const ubesvarte = ubesvarteSpoersmaal(svaret, regler);
   const iPosten = (gjelder: string) =>
     ubesvarte.flatMap((x) => (iKravpost(x) && x.post.gjelder === gjelder ? [x.felt] : []));
   return [
@@ -608,28 +607,24 @@ function ubesvartIVederlaget(
   ];
 }
 
-/** Svarene om en kravpost kontrollen av vederlaget avviser med kravposten som nøkkel. */
+/** Feltene for en kravpost kontrollen av vederlaget fører feil for, med kravposten i nøkkelen. */
 const KRAVPOSTFELT = ['vurdering', 'godkjent_beloep', 'aksepterer'] as const;
 
 /**
- * Svarene i utkastet kontrollen av vederlaget avviser når svaret sendes (`beregnVederlag`,
- * #2156): varselet etter § 34.1.2, og for hver post beløpet, svaret på tilbudet og for posten
- * etter § 34.1.3 annet ledd varselet og beløpet etter begrensningen, som beløpet ved en delvis
- * godkjenning (KA-U42). Også de ubesvarte, som kalleren tar ut. Kontrollen av oppgjørsformen for
- * en kravpost (`kravpostvurderinger`) kaster før lagene bygges.
+ * Svarene i utkastet `kontroller` i regelsettet avviser når svaret sendes (#2156): beløpet for
+ * hver kravpost og for posten etter § 34.1.3 annet ledd, med beløpet ved en delvis godkjenning
+ * (KA-U42) og beløpet etter begrensningen. Feltene følger nøklene kontrollen fører, også de den
+ * i dag bare fører som ubesvarte; de ubesvarte tar kalleren ut. Kontrollene `regnUtVederlag`
+ * gjør i tillegg, av oppgjørsformen for en kravpost, varselet etter § 34.1.2 og posten for rigg
+ * og drift, står ikke her (#2156).
  */
 function ugyldigIVederlaget(
+  svaret: Vederlagssvar,
   v: Svarvurdering,
-  utkast: Svarutkast,
-  u: Utledning,
+  krav: Krav,
   regler: Regelsett
 ): LagIVederlaget['ugyldig'] {
-  const krav = u.spor.vederlag.gjeldendeKrav!;
-  const { hovedkategori } = kategori(paaberopelseFor(utkast, u));
-  const feil = avvisteFelt(() =>
-    beregnVederlag(svaretFraVurderingene(v, krav, hovedkategori).svar, regler)
-  );
-  const produktivitet = Object.entries(PRODUKTIVITETSFELT);
+  const feil = avvisteFelt(() => kontrollerVederlaget(svaret, regler));
   return [
     ...(feil.varslet_i_tide ? [{ spoersmaal: 'hovedkrav_varslet_i_tide' as const }] : []),
     ...kravpostvurderinger(v, krav).flatMap(({ post }) =>
@@ -638,7 +633,7 @@ function ugyldigIVederlaget(
         gjelder: post.id,
       }))
     ),
-    ...produktivitet.flatMap(([felt, spoersmaal]) =>
+    ...Object.entries(PRODUKTIVITETSFELT).flatMap(([felt, spoersmaal]) =>
       feil[`produktivitet.${felt}`] ? [{ spoersmaal }] : []
     ),
   ];
@@ -708,10 +703,13 @@ export function lagIVederlaget(
   ).filter(({ s }) => s.art !== 'oppgjoersform' && iKravposten(s));
   const iPosten = (liste: typeof formene, gjelder: string) =>
     liste.filter(({ s }) => 'gjelder' in s && s.gjelder === gjelder).map(({ lag }) => lag);
-  const ubesvart = ubesvartIVederlaget(v, utkast, u, regler);
+  const krav = u.spor.vederlag.gjeldendeKrav!;
+  const { hovedkategori } = kategori(paaberopelseFor(utkast, u));
+  const svaret = svaretFraVurderingene(v, krav, hovedkategori).svar;
+  const ubesvart = ubesvartIVederlaget(svaret, v, krav, regler);
   return {
     ubesvart,
-    ugyldig: utenom(ugyldigIVederlaget(v, utkast, u, regler), ubesvart),
+    ugyldig: utenom(ugyldigIVederlaget(svaret, v, krav, regler), ubesvart),
     standpunkter: beloepet.flatMap(({ s, lag }) => {
       if (iKravposten(s)) return [];
       if (s.art !== 'beloep' || s.saerskilt || s.gjelder === undefined) return [lag];

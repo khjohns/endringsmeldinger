@@ -70,8 +70,8 @@ export const utenom = <S extends string>(
   liste: SpoersmaalIUtkastet<S>[],
   unntatt: SpoersmaalIUtkastet<S>[]
 ): SpoersmaalIUtkastet<S>[] =>
-  liste.filter(
-    (x, i) =>
-      !unntatt.some((y) => y.spoersmaal === x.spoersmaal && y.gjelder === x.gjelder) &&
-      liste.findIndex((y) => y.spoersmaal === x.spoersmaal && y.gjelder === x.gjelder) === i
-  );
+  liste.filter((x, i) => {
+    const samme = (y: SpoersmaalIUtkastet<S>) =>
+      y.spoersmaal === x.spoersmaal && y.gjelder === x.gjelder;
+    return !unntatt.some(samme) && liste.findIndex(samme) === i;
+  });

@@ -1082,6 +1082,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     [
       'spor/vederlag/kommando.ts:ubesvartIVederlaget',
       'spor/vederlag/kommando.ts:ugyldigIVederlaget',
+      'spor/vederlag/kommando.ts:lagIVederlaget',
     ],
   ],
   [
@@ -1109,12 +1110,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/frysing.ts', 'kommandoer/utkastlag.ts:avvisteFelt'],
   ],
   // Kontrollene av vurderingene i svaret, med feltene fra `Svarvurdering` (#1695).
-  [
-    'regler/svarkontroll.ts',
-    'regelsett',
-    'kontrollerSpesifiseringen',
-    ['spor/frist/frysing.ts', 'spor/frist/kommando.ts:ugyldigIFristen'],
-  ],
+  ['regler/svarkontroll.ts', 'regelsett', 'kontrollerSpesifiseringen', ['spor/frist/frysing.ts']],
   // D-5, #2025: dagene byggherren måtte forstå, påkrevd i et svarutkast som ved sending.
   [
     'regler/svarkontroll.ts',
@@ -1669,6 +1665,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // samme kontrollene, med feltene i feilene.
   ['regler/frist.ts', 'regelsett', 'kontroller', ['spor/frist/kommando.ts:ugyldigIFristen']],
   [
+    'spor/frist/frysing.ts',
+    'regelsett',
+    'vurderingenAvFristen dagerMaatteForstaa',
+    ['spor/frist/kommando.ts:ugyldigIFristen'],
+  ],
+  [
+    'regler/vederlag.ts',
+    'regelsett',
+    'kontroller',
+    ['spor/vederlag/kommando.ts:ugyldigIVederlaget'],
+  ],
+  [
     'spor/frist/kommando.ts:ugyldigIFristen(feil)',
     'regelsett',
     'godkjent_dager spesifisert_krav_ok',
@@ -1686,7 +1694,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utenom',
     ['spor/frist/kommando.ts:lagIFristen', 'spor/vederlag/kommando.ts:lagIVederlaget'],
   ],
-  ['SpoersmaalIUtkastet', 'kommando', 'spoersmaal gjelder', ['kommandoer/utkastlag.ts:utenom']],
+  ['SpoersmaalIUtkastet', 'kommando', 'spoersmaal gjelder', ['kommandoer/utkastlag.ts']],
   // OV-U32, OV-U33: lagene i utkastet regnet som brevet regner dem, felles for sporene.
   [
     'kommandoer/utkastlag.ts',
@@ -1776,8 +1784,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/forhold/frysing.ts',
       'frosset/byggeklosser.ts',
       'spor/vederlag/frysing.ts',
-      'spor/vederlag/kommando.ts:ubesvartIVederlaget',
-      'spor/vederlag/kommando.ts:ugyldigIVederlaget',
+      'spor/vederlag/kommando.ts:lagIVederlaget',
       'spor/forhold/kommando.ts:korrigering',
       'spor/forhold/kommando.ts:kontrollerKorrigering',
       'kommandoer/nyttelast.ts:grunnlagsdatoen',

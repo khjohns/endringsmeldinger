@@ -38,7 +38,12 @@ import {
   fristnoekkel,
 } from './utledning.ts';
 import { fristinnhold, innholdIFristen } from './format.ts';
-import { fristkravet, fristvurderinger } from './frysing.ts';
+import {
+  dagerMaatteForstaa,
+  fristkravet,
+  fristvurderinger,
+  vurderingenAvFristen,
+} from './frysing.ts';
 import {
   kontroller as kontrollerFristen,
   paakrevdeSpoersmaal,
@@ -50,7 +55,7 @@ import {
   innholdetIVedleggene,
   sammeDokument,
 } from '../../kommandoer/vedlegg.ts';
-import { kontrollerSpesifiseringen, maatteForstaaUbesvart } from '../../regler/svarkontroll.ts';
+import { maatteForstaaUbesvart } from '../../regler/svarkontroll.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
 import { avvisteFelt, lageneIUtkastet, utenom } from '../../kommandoer/utkastlag.ts';
 
@@ -363,28 +368,14 @@ function ugyldigIFristen(
   const hele = new Set<string>(Object.values(SPOERSMAALET));
   return fristene.flatMap((f, i): LagIFristen['ugyldig'] => {
     const feil = avvisteFelt(() =>
-      kontrollerFristen(
-        {
-          frist_varsel_ok: v.frist_varsel_ok as boolean | undefined,
-          spesifisert_krav_ok: v.spesifisert_krav_ok as boolean | undefined,
-          foresporsel_svar_ok: v.foresporsel_svar_ok as boolean | undefined,
-          vilkar_oppfylt: v.vilkar_oppfylt as boolean | undefined,
-          godkjent_dager: f.dager,
-        },
-        fristkravet(krevd[i]!.dager, foresporsel)
-      )
+      kontrollerFristen(vurderingenAvFristen(v, f), fristkravet(krevd[i]!.dager, foresporsel))
     );
-    // Kontrollen leser dagene og spesifiseringen, og kjører bare når de er godtatt.
+    // Kontrollen leser dagene og spesifiseringen og kjører når de er godtatt, også når et
+    // annet spørsmål er ubesvart. Sendingen kjører den først når hele fristen er godtatt.
     const maatteForstaa =
       feil.godkjent_dager || feil.spesifisert_krav_ok
         ? {}
-        : avvisteFelt(() =>
-            kontrollerSpesifiseringen({
-              spesifisert_krav_ok: v.spesifisert_krav_ok,
-              dager_maatte_forstaa: f.dager_maatte_forstaa,
-              dager: f.dager,
-            })
-          );
+        : avvisteFelt(() => dagerMaatteForstaa(v, f));
     return [
       ...Object.keys(feil).flatMap((felt): LagIFristen['ugyldig'] =>
         felt === 'godkjent_dager'

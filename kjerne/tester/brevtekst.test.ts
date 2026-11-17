@@ -12179,8 +12179,10 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
 
   it('vederlaget: ved en delvis godkjenning er et beløp som ikke er mer enn 0 og mindre enn det krevde, et svar kjernen ikke godtar (KA-U42, #2156)', () => {
     const s = saken(vederlagskravet(tilbud(100000)));
-    const delvis = (godkjent_beloep: number) => ({
-      kravposter: [{ gjelder: 'P1', aksepterer: true, vurdering: 'delvis', godkjent_beloep }],
+    const delvis = (beloep: number) => ({
+      kravposter: [
+        { gjelder: 'P1', aksepterer: true, vurdering: 'delvis', godkjent_beloep: beloep },
+      ],
     });
     for (const [beloep, grunn] of [
       [100000, 'gjelder mer enn 0 og mindre enn det krevde beløpet'],
@@ -12200,6 +12202,54 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
         kravposter: [{ gjelder: 'P1', aksepterer: true, vurdering: 'delvis' }],
       })
     ).toEqual([]);
+  });
+
+  it('vederlaget: for posten etter § 34.1.3 annet ledd er et beløp ved en delvis godkjenning som er lik det krevde, et svar kjernen ikke godtar (KA-U42, #2156)', () => {
+    const s = saken(
+      vederlagskravet(tilbud(100000, { saerskilt: { produktivitet: { beloep: 40000 } } }))
+    );
+    const v = (beloep: number) => ({
+      kravposter: [
+        { gjelder: 'P1', aksepterer: true, vurdering: 'godkjent', godkjent_beloep: 100000 },
+      ],
+      produktivitet_vurdering: 'delvis',
+      produktivitet_godkjent_beloep: beloep,
+      produktivitet_varslet_i_tide: true,
+    });
+    expect(ugyldig(s, 'vederlag', v(40000))).toEqual(['produktivitet_godkjent_beloep']);
+    expect(melding(s, 'vederlag', v(40000))).toContain(
+      'gjelder mer enn 0 og mindre enn det krevde beløpet'
+    );
+    expect(ugyldig(s, 'vederlag', v(20000)), 'kontrollsak').toEqual([]);
+  });
+
+  it('fristen: med to frister står et svar om hele kravet kjernen ikke godtar, én gang (punkt 33.6.2 fjerde ledd, #2156)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), { grunnlag_varslet_i_tide: true, resultat: 'godkjent' }),
+      ],
+    });
+    s.send('BH', { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' });
+    s.send('TE', {
+      ...utenFelt(FRISTKRAV, 'varsel'),
+      innhold: {
+        frister: [
+          { navn: 'Sluttfristen', dager: 20 },
+          { navn: 'Delfristen', dager: 10 },
+        ],
+      },
+    });
+    const v = {
+      frist_varsel_ok: true,
+      foresporsel_svar_ok: true,
+      vilkar_oppfylt: true,
+      spesifisert_krav_ok: false,
+      frister: [{ dager: 5 }, { dager: 11 }],
+    };
+    expect(ugyldig(s, 'frist', v)).toEqual(['spesifisert_krav_ok', 'frist 2.dager']);
   });
 
   it('vederlaget: uten svar er varselet etter § 34.1.2, beløpet og svaret på tilbudet etter § 34.2.2 påkrevd (OV-U15, KA-U57 (d))', () => {
