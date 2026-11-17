@@ -666,10 +666,20 @@ export function lagIVederlaget(
     ...v,
     kravposter: svarene.map(({ post, svar }) => fyll({ ...svar, gjelder: post.id }, post)),
   });
+  // #2140: oppgjørsformen byggherren mener, når tilbudet eller regelen ikke godtas og den ikke er
+  // valgt, fylles ut med en regel byggherren kan mene. Lagene leser ikke hvilken.
   const regelGodtatt = (svar: Kravpostvurdering, post: Kravpost) =>
     post.oppgjoersform !== 'tilbud' && typeof svar.aksepterer !== 'boolean'
       ? { ...svar, aksepterer: true }
-      : svar;
+      : ubesvartIKravposten(svar, post).includes('oensket_oppgjoersform')
+        ? {
+            ...svar,
+            oensket_oppgjoersform:
+              post.oppgjoersform === 'tilbud'
+                ? 'regningsarbeid'
+                : denAndreRegelen(post.oppgjoersform),
+          }
+        : svar;
   const lagI = (fylt: Svarvurdering) => lagIUtfyllingen(fylt, utkast, u, regler);
   const beloepet = lagI(utfylt(regelGodtatt));
   const formene = lagI(
@@ -848,15 +858,21 @@ function besvart(
   if (s.art === 'beloep' && utenFastBeloepIKravposten(u, gjelder)) return true;
   const svar = gjelder === undefined ? undefined : svaret.get(gjelder);
   if (s.art === 'beloep') return typeof svar?.vurdering === 'string';
-  if (s.art === 'oppgjoersform') return typeof svar?.aksepterer === 'boolean';
+  if (s.art === 'oppgjoersform')
+    return (
+      typeof svar?.aksepterer === 'boolean' &&
+      !ubesvartIKravposten(svar, kravposten(u, gjelder)!).includes('oensket_oppgjoersform')
+    );
   if (s.art === 'justering') return typeof svar?.godtar_justering === 'boolean';
   if (s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel))
     return typeof svar?.varslet_i_tide === 'boolean';
   return true;
 }
 
+/** Kravposten `gjelder` i gjeldende krav. */
+const kravposten = (u: Utledning, gjelder: string | undefined): Kravpost | undefined =>
+  kravposterI(u.spor.vederlag.gjeldendeKrav!).find((p) => p.id === gjelder);
+
 /** En kravpost etter en beregningsregel har ikke et beløp å besvare (OV-U115 punkt 5). */
 const utenFastBeloepIKravposten = (u: Utledning, gjelder: string | undefined): boolean =>
-  gjelder !== undefined &&
-  kravposterI(u.spor.vederlag.gjeldendeKrav!).find((p) => p.id === gjelder)?.oppgjoersform !==
-    'tilbud';
+  gjelder !== undefined && kravposten(u, gjelder)?.oppgjoersform !== 'tilbud';

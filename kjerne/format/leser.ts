@@ -67,8 +67,8 @@ import type {
  * Dokumentet er registrert korrespondanse: det er sendt eller mottatt utenfor appen
  * (4.1). En opplysning som gjelder et varsel i dokumentet, teller ikke (HF-U1).
  */
-export const erRegistrert = (opplysninger: { hva: string; gjelder?: string }[]): boolean =>
-  opplysninger.some((o) => (o.hva === 'sendt' || o.hva === 'mottatt') && o.gjelder === undefined);
+export const erRegistrert = (opplysninger: readonly Opplysning[]): boolean =>
+  datoForDokumentet(opplysninger) !== undefined;
 
 const OSLO = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Europe/Oslo',
@@ -128,15 +128,18 @@ export function datoFor(
 
 /**
  * Datoen parten oppga at dokumentet ble sendt eller mottatt, for dokumentet som helhet og ikke
- * for ett element i det (HF-U1, OV-U85). Opplysningene er dokumentets egne.
+ * for ett element i det (HF-U1, OV-U85). Opplysningene er dokumentets egne. Uten `hva` den
+ * første av dem, sendt eller mottatt.
  */
 export function datoForDokumentet(
   opplysninger: readonly Opplysning[],
-  hva: 'sendt' | 'mottatt'
+  hva?: 'sendt' | 'mottatt'
 ): Extract<Opplysning, { hva: 'sendt' | 'mottatt' }> | undefined {
   return opplysninger.find(
     (o): o is Extract<Opplysning, { hva: 'sendt' | 'mottatt' }> =>
-      o.hva === hva && o.gjelder === undefined
+      (o.hva === 'sendt' || o.hva === 'mottatt') &&
+      (hva === undefined || o.hva === hva) &&
+      o.gjelder === undefined
   );
 }
 

@@ -4,7 +4,7 @@
  * og teksten i sporene (`kjerne/spor/<spor>/tekst.ts`) bygger på dem.
  */
 
-import { erRegistrert, kalenderdag } from '../format/leser.ts';
+import { datoForDokumentet, erRegistrert, kalenderdag } from '../format/leser.ts';
 import type { Subsidiaergrunn } from '../regler/forhold.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { kravposterI } from '../spor/vederlag/format.ts';
@@ -115,10 +115,9 @@ export const PARTENS: Record<Part, string> = { TE: 'totalentreprenørens', BH: '
  * noen av dem. Varden omtaler brevet med den samme teksten.
  */
 export function omtalen(d: Dokument): string | null {
-  const registrert = erRegistrert(d.opplysninger);
-  const sendt = registrert
-    ? d.opplysninger.filter(erDato).find((o) => o.gjelder === undefined)?.dato
-    : d.registrert;
+  const datoen = datoForDokumentet(d.opplysninger);
+  const registrert = datoen !== undefined;
+  const sendt = registrert ? datoen.dato : d.registrert;
   if (sendt === undefined) return null;
   if (d.merking !== null) return `brev ${d.merking} av ${norskDato(sendt)}`;
   if (registrert && d.korrespondansetype !== null)

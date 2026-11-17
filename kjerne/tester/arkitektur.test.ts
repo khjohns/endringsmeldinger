@@ -1095,7 +1095,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'regler/vederlag.ts',
     'regelsett',
     'ubesvarteSpoersmaal ubesvartIKravposten',
-    ['spor/vederlag/kommando.ts:ubesvartIVederlaget'],
+    [
+      'spor/vederlag/kommando.ts:ubesvartIVederlaget',
+      // #2140: utfyllingen og `besvart` for oppgjørsformen byggherren mener.
+      'spor/vederlag/kommando.ts:lagIVederlaget.regelGodtatt',
+      'spor/vederlag/kommando.ts:besvart',
+    ],
   ],
   ['UbesvartIVederlaget', 'regelsett', 'post felt'],
   [
@@ -2425,7 +2430,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['format/leser.ts'],
   ],
   ['format/leser.ts:lesBeslutningsgrunnlag(p)', 'rad', 'standpunkt lag', ['format/leser.ts']],
-  ['format/leser.ts:erRegistrert', 'rad', 'hva gjelder', ['format/leser.ts']],
   ['format/leser.ts:datoFor', 'relasjon', 'id dokument', ['format/leser.ts']],
   // Det brevet fryser, som skrivingen og predikatet for et svarutkast deler (#351).
   ['frosset/frysing.ts', 'regelsett', 'frys', ['kommandoer/skriving.ts']],
@@ -2509,7 +2513,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'format/leser.ts',
     'relasjon',
     'datoForDokumentet',
-    ['utledning/utled.ts:registreringer', 'kommandoer/skriving.ts:frysBrev'],
+    [
+      'utledning/utled.ts:registreringer',
+      'kommandoer/skriving.ts:frysBrev',
+      // #2140 punkt 2: datoen i omtalen av brevet.
+      'frosset/brevdeler.ts:omtalen',
+    ],
   ],
   // Et svar som ikke er gitt, for spørsmålene regelen krever svar på (#2025).
   ['regler/typer.ts', 'predikat', 'mangler'],
