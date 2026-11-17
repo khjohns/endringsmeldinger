@@ -6,8 +6,10 @@
 
 import { etikett, laget, type Svarinnhold } from '../frosset/byggeklosser.ts';
 import { virkninger } from '../frosset/standpunkt.ts';
+import { UgyldigVurdering } from '../regler/feil.ts';
 import type { Regelsett } from '../regler/regelsett.ts';
 import { grunnerFraForholdet } from '../spor/forhold/frysing.ts';
+import type { SpoersmaalIUtkastet } from '../spor/poster/kommando.ts';
 import type { Standpunktsvirkning, Virkning } from '../typer.ts';
 import { paaberopelseFor, type Utledning } from '../utledning/utled.ts';
 import type { Svarutkast } from './kommando.ts';
@@ -44,3 +46,32 @@ export function lageneIUtkastet(
     etikett: lag.map((l) => (l !== null && flereLag ? etikett(l) : null)),
   };
 }
+
+/**
+ * Feltene kontrollen `kontroller` avviser med `UgyldigVurdering`, med grunnen, eller ingen når
+ * den godtar svaret. Lagene i et svarutkast leser `ugyldig` av de samme kontrollene som svaret
+ * når det sendes (#2156).
+ */
+export function avvisteFelt(kontroller: () => unknown): Record<string, string> {
+  try {
+    kontroller();
+    return {};
+  } catch (e) {
+    if (!(e instanceof UgyldigVurdering)) throw e;
+    return e.feil;
+  }
+}
+
+/**
+ * Spørsmålene i `liste` som ikke står i `unntatt` med samme felt og post eller frist, hvert én
+ * gang.
+ */
+export const utenom = <S extends string>(
+  liste: SpoersmaalIUtkastet<S>[],
+  unntatt: SpoersmaalIUtkastet<S>[]
+): SpoersmaalIUtkastet<S>[] =>
+  liste.filter((x, i) => {
+    const samme = (y: SpoersmaalIUtkastet<S>) =>
+      y.spoersmaal === x.spoersmaal && y.gjelder === x.gjelder;
+    return !unntatt.some(samme) && liste.findIndex(samme) === i;
+  });
