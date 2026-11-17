@@ -68,7 +68,15 @@ export interface Startjournal {
   journal: Journalrad[];
 }
 
-export const FORLOEP = (startjournaler as unknown as { forlop: Startjournal[] }).forlop;
+/** `data` med gjeldende regelversjon der startjournalene har en (`sammenliknbar`, #2116). */
+export const medGjeldendeRegelversjon = <T>(data: T): T =>
+  JSON.parse(JSON.stringify(data), (felt, verdi: unknown) =>
+    felt === 'regelversjon' && typeof verdi === 'number' ? KJERNE.regler.versjon : verdi
+  ) as T;
+
+export const FORLOEP = medGjeldendeRegelversjon(
+  startjournaler as unknown as { forlop: Startjournal[] }
+).forlop;
 
 export const finnForloep = (id: string): Startjournal | null =>
   FORLOEP.find((f) => f.id === id) ?? null;

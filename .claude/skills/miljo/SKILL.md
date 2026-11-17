@@ -183,11 +183,12 @@ Grunnen sier hva som skal rettes:
 - `målet feilet ikke: <mål>`: målet består under mutasjonen, også om andre tester
   feilet. Prøver målet fortsatt feilklassen, eller har endringen fjernet det målet
   prøvde? Tas det ut, må et annet mål eller en ny test prøve feilklassen.
-- `ikke en assertion: <test>`: testen kastet en vanlig `Error`, ikke
-  `AssertionError`. I en bevis-sak er det en kontrollsak eller en forutsetning
+- `ikke en assertion: <test>`: en test i en fil med målene kastet en vanlig `Error`, ikke
+  `AssertionError`. En slik feil i en annen fil står i linjen `utenfor målfilene` og
+  avgjør ikke utfallet (#2108). I en bevis-sak er det en kontrollsak eller en forutsetning
   (`Forutsetning` i `kjerne/tester/kjoerer.ts`). Sjekk om kontrollen er blitt en
   forventning og skal ha `rolle: mal`.
-- `suitefeil`: testfila feilet før testene kjørte, for eksempel på import.
+- `suitefeil`: en testfil med målene feilet før testene kjørte, for eksempel på import.
 - `tidsavbrudd`: kjøringen ble avbrutt to ganger; da er utfallet ikke avgjort.
 
 Kjør deretter bare de ID-ene som feilet, med `FEILINNFOERING_UTVALG=1`, i bakgrunnen.
@@ -241,8 +242,8 @@ der laster pakkene fra hovedcheckouten. `tsconfig.json` utvider `$app/tsconfig`,
 SvelteKit 3 skriver i `node_modules/$app/` når vite eller vitest starter, også i
 arbeidstreet (kontrollert 16.11, #2092). Feilen «Tsconfig not found» fra kit 2 (#1114)
 skal derfor ikke komme igjen. Kjør `npx svelte-kit sync` i arbeidstreet før `tsc -p` eller
-`svelte-check` der. Ellers finner TypeScript `$app/tsconfig` i hovedcheckouten, og den
-peker `$lib` til `src/` i hovedcheckouten, ikke i arbeidstreet.
+`svelte-check` der. Ellers finner TypeScript `$app/tsconfig` i hovedcheckouten. Importene
+`#lib/…` og `#kjerne/…` løses fra `imports` i `package.json` i arbeidstreet (#2101).
 
 ### Orkestreringen i skyøkta
 

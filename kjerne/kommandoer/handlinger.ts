@@ -58,7 +58,7 @@ export function kandidater(u: Utledning): Handlingsnoekkel[] {
 /**
  * Sporet hvert krav, svar, varsel, hver forespørsel og hver opplysning om datoen hører til. Også
  * sporene et brev hører til i visningen (`brevene` i Varden), gjennom lesepunktet i
- * `$lib/kjernesak/kontekst.svelte` (#1663).
+ * `#lib/kjernesak/kontekst.svelte.ts` (#1663).
  */
 export function elementenesSpor(u: Utledning): Map<string, Spor> {
   const sporet = new Map<string, Spor>();
