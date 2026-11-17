@@ -221,10 +221,10 @@ describe('leselinjene i den lukkede kravposten (prototype v3, `leselinje`; KA-U5
     const [p1, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
     const linjer = standpunktene(svar, u);
     expect(leselinjene(linjer, p1!)).toEqual([
-      'Godkjenner fast sum (punkt 34.2.1)',
+      'Godkjenner fast sum (punkt\u00a034.2.1)',
       `${kroner(100000)}, godkjent som krevd`,
     ]);
-    expect(leselinjene(linjer, p2!)).toEqual(['Mener regningsarbeid (punkt 34.4)']);
+    expect(leselinjene(linjer, p2!)).toEqual(['Mener regningsarbeid (punkt\u00a034.4)']);
   });
 });
 
@@ -460,8 +460,10 @@ describe('Standpunktet etter en leddsetning (#2000)', () => {
 describe('Meldingen om oppgjørsformen (#1848)', () => {
   it('nevner oppgjørsformen med navnet og punktet i NS 8407, ikke koden (punkt 34.2.1 og 34.4, #1848)', () => {
     expect(SKJEMA.manglerForm('regningsarbeid')).toBe(
-      'Velg om du godkjenner regningsarbeid (punkt 34.4).'
+      'Velg om du godkjenner regningsarbeid (punkt\u00a034.4).'
     );
-    expect(SKJEMA.manglerForm('tilbud')).toBe('Velg om du godkjenner fast sum (punkt 34.2.1).');
+    expect(SKJEMA.manglerForm('tilbud')).toBe(
+      'Velg om du godkjenner fast sum (punkt\u00a034.2.1).'
+    );
   });
 });

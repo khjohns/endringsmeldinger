@@ -169,8 +169,8 @@ describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
 describe('Siden for vederlaget (BF-44, oppsett B)', () => {
   it('overskriften er «Vederlagsjustering» med hjemmelen etter, og hodet sier ikke hvem som skal handle (U-1, U-16, MM-U40)', async () => {
     await vis(BF44.steg);
-    const h = screen.getByRole('heading', { level: 2, name: 'Vederlagsjustering pkt. 34' });
-    expect(h.closest('header')?.textContent?.trim()).toBe('Vederlagsjustering pkt. 34');
+    const h = screen.getByRole('heading', { level: 2, name: 'Vederlagsjustering pkt.\u00a034' });
+    expect(h.closest('header')?.textContent?.trim()).toBe('Vederlagsjustering pkt.\u00a034');
   });
 
   it('beløpet i hvert krav står ved brevet, og det eldre kravet er fulgt opp (U-5, U-12)', async () => {
@@ -319,7 +319,7 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
     expect(kort.queryByRole('table')).toBeNull();
     expect(kort.queryByText('Totalentreprenøren krever')).toBeNull();
     expect(kort.getByText('Oppgjørsform').nextElementSibling?.textContent?.trim()).toBe(
-      'Regningsarbeid etter punkt 34.4. Byggherren godkjenner regningsarbeid i brev 3.'
+      'Regningsarbeid etter punkt\u00a034.4. Byggherren godkjenner regningsarbeid i brev 3.'
     );
   });
 });

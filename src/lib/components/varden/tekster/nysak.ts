@@ -1,8 +1,8 @@
 import { GRENSEN_FOR_VEDLEGG } from './felles';
-import { punkt } from './format';
+import { punkt, haerdet } from './format';
 
 /** Skjemaet for ny sak (BF-05, skissen versjon 3 med funnene F-1–F-8). */
-export const NYSAK = {
+export const NYSAK = haerdet({
   over: 'Ny sak',
   tittel: 'Nytt krav om endringsordre',
   forholdet: 'Forholdet du påberoper',
@@ -87,4 +87,4 @@ export const NYSAK = {
   tilbakeTil: 'skjemaet',
   kvittering: 'Påberopelsen er sendt. Brevet sendes til Catenda.',
   avbrutt: 'Brevet er ikke sendt, og ingen sak er opprettet.',
-};
+});

@@ -2,15 +2,15 @@ import { PARTEN } from '#kjerne/frosset/brevdeler.ts';
 import type { Part } from '#kjerne/typer.ts';
 import type { Brevref } from '../lesing';
 import { brevref } from './felles';
-import { dato, kl } from './format';
+import { dato, kl, haerdet } from './format';
 
 /** Utkastet som brev under arbeid (`Brevutkast.svelte`). */
-export const BREVUTKAST = {
+export const BREVUTKAST = haerdet({
   utkast: 'Utkast',
   forkastSpoersmaal: 'Forkaste utkastet?',
-};
+});
 
-export const SAKEN = {
+export const SAKEN = haerdet({
   nav: 'Saken',
   kontraktsforhold: 'Kontraktsforhold',
   krav: 'Krav',
@@ -52,4 +52,4 @@ export const SAKEN = {
   iCatenda: 'Åpne saken i Catenda',
   akseptfrist: (frist: string) => `Akseptfrist ${dato(frist)}`,
   ikkeTilgjengelig: 'Dette er ikke bygget i denne prøven av Varden ennå.',
-};
+});

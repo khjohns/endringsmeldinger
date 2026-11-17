@@ -68,7 +68,9 @@ afterEach(cleanup);
 describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () => {
   it('irregulær endring har punktet om varselet med datoene, og ingenting er forhåndsvalgt (U-2, U-3)', async () => {
     await svarskjemaet(medGrunnlag);
-    expect(screen.getByRole('heading', { name: /Varselet etter punkt 32\.2/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /Varselet etter punkt\u00a032\.2/ })
+    ).toBeInTheDocument();
     expect(
       screen.getByText(/Totalentreprenøren oppgir at pålegget ble mottatt 1\. okt/)
     ).toBeInTheDocument();
@@ -219,7 +221,7 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
   it('forholdet ved grunnen har ikke punktet om varselet, og valgene sier om byggherren har risikoen (F-5, U-4, LV-U41)', async () => {
     const sendt = await svarskjemaet(vedGrunnen);
     expect(
-      screen.queryByRole('heading', { name: /Varselet etter punkt 32\.2/ })
+      screen.queryByRole('heading', { name: /Varselet etter punkt\u00a032\.2/ })
     ).not.toBeInTheDocument();
     expect(screen.queryByRole('radio', { name: 'Frafaller pålegget' })).not.toBeInTheDocument();
     await radio('Byggherren har ikke risikoen');

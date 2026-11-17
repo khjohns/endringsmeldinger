@@ -1,5 +1,6 @@
+import { haerdet } from './format';
 /** Skjemaet for byggherrens svar på forholdet (`Forholdssvar.svelte`). */
-export const FORHOLDSSVAR = {
+export const FORHOLDSSVAR = haerdet({
   varselTittel: 'Varselet etter punkt 32.2',
   forholdTittel: 'Forholdet',
   datoOppgitt: (gjelder: string, dato: string, brev: string) =>
@@ -52,4 +53,4 @@ export const FORHOLDSSVAR = {
   /** U-14 og OV-U101: et svar gitt utenfor løsningen legges til som korrespondanse. */
   utenforLoesningen:
     'Har du alt svart på påberopelsen utenfor løsningen, i et brev, en e-post eller et møtereferat? Legg svaret til i saken som korrespondanse, og velg at det er et svar. Det gjelder fra datoen du oppgir at det ble sendt.',
-} as const;
+} as const);

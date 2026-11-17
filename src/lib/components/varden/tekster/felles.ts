@@ -5,29 +5,29 @@ import type { Korrespondansetype, Oppgjoersform, Part, Spor } from '#kjerne/type
 import { OPPGJOERSHJEMMEL } from '#kjerne/spor/vederlag/format.ts';
 import type { Brevet, Brevref, OppgittDato } from '../lesing';
 import { STOERSTE_VEDLEGG } from '../vedlegg';
-import { dato } from './format';
+import { dato, haerdet } from './format';
 
 /** Grensen for et vedlegg, som serveren håndhever (`STOERSTE_VEDLEGG`). */
 export const GRENSEN_FOR_VEDLEGG = `${STOERSTE_VEDLEGG / (1024 * 1024)} MB`;
 
-export const SPORNAVN: Record<Spor, string> = {
+export const SPORNAVN: Record<Spor, string> = haerdet({
   forhold: 'Forholdet',
   vederlag: 'Vederlagsjustering',
   frist: 'Fristforlengelse',
-};
+});
 
 /** Kravet i bestemt form, slik visningen omtaler det (språkfila, «Kravet, ikke sporet»). */
-export const SAKSDELEN: Record<Spor, string> = {
+export const SAKSDELEN: Record<Spor, string> = haerdet({
   forhold: 'forholdet',
   vederlag: 'vederlagsjusteringen',
   frist: 'kravet om fristforlengelse',
-};
+});
 
-export const KRAVET: Record<Spor, string> = {
+export const KRAVET: Record<Spor, string> = haerdet({
   forhold: 'forholdet',
   vederlag: 'vederlagsjustering',
   frist: 'fristforlengelse',
-};
+});
 
 /**
  * Tittelen som ble frosset med brevet, med sakens kode (LV-U27; frosset etter LV-U2 og LV-U25,
@@ -62,18 +62,18 @@ export const brevrefStor = (b: Brevref) => stor(brevref(b));
 export const brevhode = (b: Pick<Brevet, 'merking' | 'art' | 'brevtittel'>) =>
   b.merking === null ? brevtittel(b) : `${b.merking} · ${brevtittel(b)}`;
 
-export const OPPGITT: Record<OppgittDato['hva'], string> = {
+export const OPPGITT: Record<OppgittDato['hva'], string> = haerdet({
   paalegg_mottatt: 'Pålegget mottatt',
   klar_over_forholdet: 'Klar over forholdet',
   sendt: 'Dokumentet sendt',
   mottatt: 'Dokumentet mottatt',
-};
+});
 
-const METODE: Record<Oppgjoersform, string> = {
+const METODE: Record<Oppgjoersform, string> = haerdet({
   tilbud: 'fast sum (punkt 34.2.1)',
   enhetspriser: 'enhetspriser (punkt 34.3)',
   regningsarbeid: 'regningsarbeid (punkt 34.4)',
-};
+});
 
 export const metodenavn = (m: unknown) =>
   METODE[m as Oppgjoersform] ?? 'metoden totalentreprenøren oppgir';
@@ -83,7 +83,7 @@ export const oppgjoersformEtter = (hjemmel: string): Oppgjoersform | undefined =
   (Object.keys(OPPGJOERSHJEMMEL) as Oppgjoersform[]).find((f) => OPPGJOERSHJEMMEL[f] === hjemmel);
 
 /** Betegnelsene i MM-U30, slik lista står i system.md. */
-export const BETEGNELSE: Record<Betegnelse, string> = {
+export const BETEGNELSE: Record<Betegnelse, string> = haerdet({
   trukket: 'Trukket',
   spesifisert_krav_etterspurt: 'Byggherren har bedt om spesifisert krav (punkt 33.6.2)',
   venter_paa_svar: 'Svar ikke registrert',
@@ -91,7 +91,7 @@ export const BETEGNELSE: Record<Betegnelse, string> = {
   enige: 'Enige',
   byggherren_har_svart: 'Byggherren har svart',
   varslet: 'Varslet',
-};
+});
 
 /** Korrespondansen slik et brev omtaler den (LV-U42): parten, typen og datoen. */
 export const omtalenAvKorrespondansen = (part: Part, type: Korrespondansetype, d: string) =>
