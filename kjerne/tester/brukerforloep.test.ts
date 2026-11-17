@@ -23,6 +23,8 @@ import {
   kontrollerI,
   lagret,
   MAPPE,
+  sammenliknbar,
+  stemmer,
   somForloep,
   vedtakIBestilling,
   type Brukerforloep,
@@ -268,6 +270,34 @@ describe('vakttestene for brukerforløpene', () => {
 
   it('dekningsoversikten og startjournalene stemmer med forløpsfilene', async () => {
     for (const [fil, innhold] of Object.entries(await genererte()))
-      expect(lagret(fil), `${fil}: kjør node kjerne/tester/brukerforloep.ts --skriv`).toBe(innhold);
+      expect(
+        sammenliknbar(fil, lagret(fil) ?? ''),
+        `${fil}: kjør node kjerne/tester/brukerforloep.ts --skriv`
+      ).toBe(sammenliknbar(fil, innhold));
+  });
+
+  it('en ny regelversjon endrer ikke startjournalene, men en annen endring gjør det (#2116)', async () => {
+    const innhold = (await genererte())['startjournaler.json']!;
+    expect(innhold, 'forutsetning').toMatch(/"regelversjon": \d+/);
+    const nyVersjon = innhold.replace(
+      /("regelversjon": )(\d+)/g,
+      (_, felt, n) => `${felt}${Number(n) + 1}`
+    );
+    expect(sammenliknbar('startjournaler.json', nyVersjon)).toBe(
+      sammenliknbar('startjournaler.json', innhold)
+    );
+    // `--skriv` lar fila være når bare regelversjonen er ny.
+    expect(stemmer('startjournaler.json', nyVersjon)).toBe(true);
+    expect(
+      sammenliknbar(
+        'startjournaler.json',
+        innhold.replace('"linje": "Byggherrens standpunkt: godkjent."', '"linje": "Annen linje."')
+      ),
+      'kontrollsak: feltet ved siden av regelversjonen'
+    ).not.toBe(sammenliknbar('startjournaler.json', innhold));
+    expect(
+      sammenliknbar('startjournaler.json', innhold.replace('"versjon": 1,', '"versjon": 2,')),
+      'kontrollsak'
+    ).not.toBe(sammenliknbar('startjournaler.json', innhold));
   });
 });
