@@ -100,7 +100,7 @@ finner ut at pålegget ble mottatt 20.09.2026.
 - **D-2** Den nye opplysningen gjelder straks som TEs siste opplysning, uten BHs godkjenning,
   også når datoen er senere. Et svar BH alt har gitt, står med virkningen det hadde, og en
   påberopelse BH alt har fremsatt, står med tidspunktet. Sporet venter ikke på et nytt svar
-  (MM-U52 og MM-U55 punkt 10–11, [VS-U46](../../plans/vedtak.md#vs-u46)).
+  (MM-U52 og MM-U55 punkt 10–11, [VS-U77](../../plans/vedtak.md#vs-u77)).
 - **D-3** Løsningen avgjør ikke hvilken dato som er riktig, når varslingsfristen begynte å
   løpe eller om varselet var rettidig (MM-U52 og MM-U55 punkt 11, [MM-U50](../../plans/vedtak.md#mm-u50)
   punkt 6).

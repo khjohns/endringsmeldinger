@@ -330,6 +330,13 @@ Lagret før de sendes til orkestratoren. Spørsmål 3 gjelder rettsregler og sti
 > Kostnaden: ett valg til i svaret, og kjernen må få standpunktet (i dag bare «for sent»). Styrer:
 > punkt 30 og valgene i svaret på varselet og kravposten (BF-14, D-14 og D-20).
 
+## Svarene
+
+- **Spørsmål 1–3:** oppdragsgiver 17.11, ordrett, videresendt av orkestratoren (#1534): «1 ja, 2 A,
+  3 A». Det er tilslutning til utkastet med E11–E18 uten rettelser, forholdene etter 2 A, og at punkt
+  8 og 10 gjelder også varselet etter punkt 34.3.3 første ledd (3 A). Svaret på spørsmål 3 står som
+  siste setning i punkt 30. Posten er ført som VS-U77.
+
 ## Verifikasjon og grenser
 
 - **Kjørt og observert:** `--sjekk` og `--kjede VS-U46` på `bd11924`; et skript over `vedtak.toml`

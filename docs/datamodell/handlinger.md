@@ -43,7 +43,7 @@ Kolonnene for kjernen er handlingsnøklene (`noekkel` i [`forutsetninger.ts`](..
 
 | ID | Handling | Part | Spor | Kilde | 1 Finnes? | 2 Form | 3 Når | 4 Tilstander | Nøkler | Kommandoer | Skjema | Mangler |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| I1 | Den egne innsigelsen etter punkt 5 | TE og BH | forhold, vederlag, frist | punkt 5, VS-U46, OV-U99 | Nei. Utsagn uten virkning på utfallet. | Innlegg i første versjon. Om det gjelder varig, avgjøres i #1657. | Som G5. | Som G5. | `innsigelse:*` | `innsigelse` | – | Kjernen slutter å tilby den (K4). |
+| I1 | Den egne innsigelsen etter punkt 5 | TE og BH | forhold, vederlag, frist | punkt 5, VS-U77, OV-U99 | Nei. Utsagn uten virkning på utfallet. | Innlegg i første versjon. Om det gjelder varig, avgjøres i #1657. | Som G5. | Som G5. | `innsigelse:*` | `innsigelse` | – | Kjernen slutter å tilby den (K4). |
 | I2 | Protest mot en innsigelse | TE og BH | forhold, vederlag, frist | VS-U1, VS-U9, OV-U7, OV-U99 | Nei. | Innlegg. | Som G5. | Som G5. | `protest:*` | `protest` | – | Ingen. Kommandoen avvises. |
 | I3 | Bestridelse | TE og BH | forhold, vederlag, frist | MM-U7, MM-U14, MM-U48, OV-U7, OV-U99 | Nei. | Innlegg. | Som G5. | Som G5. | `bestride:*` | `bestridelse` | – | Ingen. Kommandoen avvises. |
 | I4 | Påberopt passivitet | TE | forhold, vederlag, frist | VS-U12, OV-U99 | Nei. | Innlegg i første versjon. Om det gjelder varig, avgjøres i #1657. | Som G5. | Som G5. | `passivitet:*` | `passivitet` | – | Ingen. Kommandoen avvises. |
