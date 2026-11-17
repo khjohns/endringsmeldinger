@@ -6238,6 +6238,8 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['har ikke noe felt for begrunnelsen av forholdet fra et tidligere brev'],
+  },
+  {
     id: 'F732',
     feilklasse:
       'frafallet kan velges sammen med at varselet etter punkt 32.2 kom for sent (vedtaket 05.10 for #235, #2120)',
