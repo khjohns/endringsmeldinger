@@ -73,7 +73,8 @@
     /** En linje over «Forkast utkast», når det over ikke slutter med en. */
     skilt?: boolean;
     /** Sendeknappen, eller `null` når skjemaet ikke kan sendes nå. */
-    knapp: { tekst: string; onclick: () => void; opptatt: boolean } | null;
+    /** `bred` gir knappen hele bredden i panelet. */
+    knapp: { tekst: string; onclick: () => void; opptatt: boolean; bred?: boolean } | null;
     /** Brevet som leses ved siden av skjemaet, eller `null` når det ikke gjør det. */
     lesing?: { id: string; brev: Brevet; innhold: Snippet } | null;
     /** Panelet i høyre kolonne, med sendeknappen der den skal stå. */
@@ -85,7 +86,7 @@
      */
     kompakt?: {
       etikett: string;
-      innhold?: Snippet<[tilPanelet: () => void]>;
+      innhold?: Snippet<[knappen: Snippet, tilPanelet: () => void]>;
     } | null;
     children: Snippet;
   } = $props();
@@ -99,8 +100,9 @@
   );
 </script>
 
-{#snippet sendeknapp()}
-  <div class="handling">
+<!-- Hindringen står bare under knappen i panelet, så ID-en den har, finnes én gang. -->
+{#snippet knappen()}
+  <div class="handling" class:bred={knapp!.bred}>
     <Knapp
       variant="primaer"
       onclick={knapp!.onclick}
@@ -108,6 +110,10 @@
       aria-describedby={flyt.hindring ? flyt.hindringId : undefined}>{knapp!.tekst}</Knapp
     >
   </div>
+{/snippet}
+
+{#snippet sendeknapp()}
+  {@render knappen()}
   {#if flyt.hindring}
     <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1">{flyt.hindring}</Melding>
   {/if}
@@ -127,7 +133,7 @@
         <Lagttillinje {part} valg={lagtTil} {onendre} />
       {/if}
       {@render oeverst?.()}
-      {#if flyt.forsoekt && mangler.length}
+      {#if knapp && flyt.forsoekt && mangler.length}
         <Manglene
           tittel={lagtTil ? LEGG_TIL.mangler : manglerTittel}
           {mangler}
@@ -160,9 +166,9 @@
 
 {#if kompakt && linja.visKompakt}
   <div class="kompakt" role="region" aria-label={kompakt.etikett}>
-    {#if kompakt.innhold}{@render kompakt.innhold(() =>
+    {#if kompakt.innhold}{@render kompakt.innhold(knappen, () =>
         panelet?.scrollIntoView({ block: 'start' })
-      )}{:else}{@render sendeknapp()}{/if}
+      )}{:else}{@render knappen()}{/if}
   </div>
 {/if}
 
@@ -177,6 +183,10 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-2);
+  }
+  /* `display: contents`: knappen er da et barn i panelets kolonne og fyller bredden. */
+  .handling.bred {
+    display: contents;
   }
   /* Over tidslinja, som ruller under: den åpne chevronen er rotert og ville ellers ligget
      øverst og tatt klikkene i panelet. */

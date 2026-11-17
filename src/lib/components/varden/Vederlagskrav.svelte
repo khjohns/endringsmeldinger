@@ -824,6 +824,7 @@
     tekst: lagtTil ? LEGG_TIL.leggTilKravet : KRAVSKJEMA.seBrevet,
     onclick: seBrevet,
     opptatt: !!lagtTil && kjernesak.sender,
+    bred: true,
   }}
   lesing={side.vedSiden && lesbart
     ? { id: id('lesebrev'), brev: lesbart, innhold: lestInnfelt }

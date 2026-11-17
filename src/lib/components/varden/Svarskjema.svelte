@@ -201,8 +201,8 @@
 
 {#snippet kravbrevInnfelt()}{@render kravbrev('innfelt')}{/snippet}
 
-{#snippet kompaktLinje(tilPanelet: () => void)}
-  <Knapp variant="primaer" onclick={knapp.onclick} opptatt={knapp.opptatt}>{knapp.tekst}</Knapp>
+{#snippet kompaktLinje(knappen: Snippet, tilPanelet: () => void)}
+  {@render knappen()}
   <Knapp onclick={tilPanelet}>{HOVEDLINJER.seHovedlinjene}</Knapp>
 {/snippet}
 
