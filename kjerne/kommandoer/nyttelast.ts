@@ -191,7 +191,7 @@ const erVarselOmForholdet = (hjemmel: string): hjemmel is VarselOmForholdet =>
   (VARSLER_OM_FORHOLDET as readonly string[]).includes(hjemmel);
 
 /**
- * Datoen TE har oppgitt i grunnlagskravet etter VS-U26 (VS-U43 punkt 1–5), med en korrigering
+ * Datoen TE har oppgitt i grunnlagskravet etter VS-U26 (VS-U76 punkt 1–5), med en korrigering
  * etter MM-U55 punkt 10. `null` når kategorien ikke har en dato, eller datoen ikke kan leses.
  */
 function grunnlagsdatoen(u: Utledning): { felt: OppgittDatofelt; dag: string } | null {
@@ -222,7 +222,7 @@ function varseletFoerGrunnlagsdatoen(
 
 /**
  * VS-U60 og VS-U66: det egne varselet etter hjemmelen og kravene som kan være det første varselet
- * løsningen kjenner (VS-U43 punkt 6–9, OV-U102). Ulikt `varseletForNyttSvar` gir den begge, og kalleren
+ * løsningen kjenner (VS-U76 punkt 6–9, OV-U102). Ulikt `varseletForNyttSvar` gir den begge, og kalleren
  * bruker det tidligste.
  */
 function varslerOmForholdet(
