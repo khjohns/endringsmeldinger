@@ -16,11 +16,10 @@
   import { fastLinje } from './fastlinje.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
-  import Knapp from './Knapp.svelte';
   import Lagttillinje from './Lagttillinje.svelte';
   import Leseramme from './Leseramme.svelte';
   import Manglene from './Manglene.svelte';
-  import Melding from './Melding.svelte';
+  import Sendeknapp from './Sendeknapp.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import { LEGG_TIL } from './tekster';
 
@@ -101,23 +100,23 @@
 </script>
 
 <!-- Hindringen står bare under knappen i panelet, så ID-en den har, finnes én gang. -->
-{#snippet knappen()}
-  <div class="handling" class:bred={knapp!.bred}>
-    <Knapp
-      variant="primaer"
-      onclick={knapp!.onclick}
-      opptatt={knapp!.opptatt}
-      aria-describedby={flyt.hindring ? flyt.hindringId : undefined}>{knapp!.tekst}</Knapp
-    >
-  </div>
+{#snippet handlingsrad(innhold: Snippet)}
+  <div class="handling" class:bred={knapp!.bred}>{@render innhold()}</div>
 {/snippet}
 
-{#snippet sendeknapp()}
-  {@render knappen()}
-  {#if flyt.hindring}
-    <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1">{flyt.hindring}</Melding>
-  {/if}
+{#snippet sendeknappen(medHindring: boolean)}
+  <Sendeknapp
+    {flyt}
+    onclick={knapp!.onclick}
+    opptatt={knapp!.opptatt}
+    {medHindring}
+    ramme={handlingsrad}>{knapp!.tekst}</Sendeknapp
+  >
 {/snippet}
+
+{#snippet knappen()}{@render sendeknappen(false)}{/snippet}
+
+{#snippet sendeknapp()}{@render sendeknappen(true)}{/snippet}
 
 <Arbeidsflate leser={lesing !== null}>
   {#snippet hoved()}

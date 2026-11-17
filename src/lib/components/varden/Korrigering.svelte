@@ -17,9 +17,8 @@
   import Forkastutkast from './Forkastutkast.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Infotips from './Infotips.svelte';
-  import Knapp from './Knapp.svelte';
+  import Sendeknapp from './Sendeknapp.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
-  import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import { korrigeringen, type Korrigeringsvalg } from './kommandoer';
@@ -111,14 +110,7 @@
 </script>
 
 {#snippet sendeknapp()}
-  <Knapp
-    variant="primaer"
-    onclick={seBrevet}
-    aria-describedby={flyt.hindring ? flyt.hindringId : undefined}>{KORRIGERING.seBrevet}</Knapp
-  >
-  {#if flyt.hindring}
-    <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1">{flyt.hindring}</Melding>
-  {/if}
+  <Sendeknapp {flyt} onclick={seBrevet}>{KORRIGERING.seBrevet}</Sendeknapp>
 {/snippet}
 
 <Arbeidsflate>

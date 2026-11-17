@@ -11,7 +11,6 @@
   import { KJERNE } from '#kjerne/versjon.ts';
   import type { Saksmerking } from '#lib/kjernesak/brevtekst.ts';
   import { tekstenKanVaereUtdatert } from '#lib/kjernesak/kontekst.svelte.ts';
-  import Feltetikett from './Feltetikett.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brevkontroll, {
     detSomKontrolleres,
@@ -26,6 +25,7 @@
   import Korrespondansen from './Korrespondansen.svelte';
   import Datofelt from './Datofelt.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
+  import Tallfelt from './Tallfelt.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import { fokuser } from './mangler';
@@ -440,19 +440,16 @@
             </p>
           </fieldset>
 
-          <div class="felt">
-            <Feltetikett for={id('tittel')}>{NYSAK.sakstittel}</Feltetikett>
-            <p class="hjelp" id={id('tittel-hjelp')}>{NYSAK.sakstittelHjelp}</p>
-            <input
-              id={id('tittel')}
-              bind:value={tittel}
-              aria-required="true"
-              aria-invalid={!!feil.tittel}
-              aria-describedby={`${id('tittel-hjelp')}${feil.tittel ? ` ${id('tittel-feil')}` : ''}`}
-              oninput={() => delete feil.tittel}
-            />
-            {#if feil.tittel}<p class="feil" id={id('tittel-feil')}>{feil.tittel}</p>{/if}
-          </div>
+          <Tallfelt
+            id={id('tittel')}
+            etikett={NYSAK.sakstittel}
+            hjelp={NYSAK.sakstittelHjelp}
+            bredde="tekst"
+            bind:verdi={tittel}
+            paakrevd
+            feil={feil.tittel ?? null}
+            oninput={() => delete feil.tittel}
+          />
 
           <Tekstomraade
             id={id('beskrivelse')}
@@ -478,22 +475,16 @@
           {/if}
 
           {#if felt.endringsordre}
-            <div class="felt">
-              <Feltetikett for={id('endringsordre')}>{NYSAK.endringsordre}</Feltetikett>
-              <p class="hjelp" id={id('endringsordre-hjelp')}>{NYSAK.endringsordreHjelp}</p>
-              <input
-                id={id('endringsordre')}
-                class="kort-felt"
-                bind:value={endringsordre}
-                aria-required="true"
-                aria-invalid={!!feil.endringsordre}
-                aria-describedby={`${id('endringsordre-hjelp')}${feil.endringsordre ? ` ${id('endringsordre-feil')}` : ''}`}
-                oninput={() => delete feil.endringsordre}
-              />
-              {#if feil.endringsordre}<p class="feil" id={id('endringsordre-feil')}>
-                  {feil.endringsordre}
-                </p>{/if}
-            </div>
+            <Tallfelt
+              id={id('endringsordre')}
+              etikett={NYSAK.endringsordre}
+              hjelp={NYSAK.endringsordreHjelp}
+              bredde="kort"
+              bind:verdi={endringsordre}
+              paakrevd
+              feil={feil.endringsordre ?? null}
+              oninput={() => delete feil.endringsordre}
+            />
           {/if}
 
           <Filvalg
@@ -618,15 +609,6 @@
     border-radius: var(--r-felt);
     background: var(--surface);
     color: var(--ink);
-  }
-  /* Feltene er så brede som svaret de venter: et nummer er kort, en tittel er en linje. */
-  .kort-felt {
-    inline-size: 20rem;
-    max-inline-size: 100%;
-  }
-  /* Like spesifikk som regelen for feltene, så feilkanten vises også på input. */
-  input:not([type='radio'])[aria-invalid='true'] {
-    border-color: var(--danger);
   }
   .feil {
     margin: 0;

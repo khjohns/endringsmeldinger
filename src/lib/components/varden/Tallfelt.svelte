@@ -20,6 +20,7 @@
     etter = [],
     paakrevd = false,
     valgfri = false,
+    oninput,
     children,
   }: {
     id: string;
@@ -38,6 +39,7 @@
     paakrevd?: boolean;
     /** Feltet kan stå tomt, og labelen har «Valgfri» til høyre. */
     valgfri?: boolean;
+    oninput?: () => void;
     /** Tekst under feltet og feilmeldingen. */
     children?: Snippet;
   } = $props();
@@ -57,6 +59,7 @@
       aria-describedby={beskrevetAv(id, hjelp, feil, foran, etter)}
       aria-invalid={feil ? 'true' : undefined}
       aria-required={paakrevd ? 'true' : undefined}
+      {oninput}
     />
     {#if enhet}<span class="enhet" aria-hidden="true">{enhet}</span>{/if}
   </span>
@@ -70,6 +73,9 @@
     max-width: 100%;
     border: var(--control-border);
     border-radius: var(--r-felt);
+    background: var(--surface);
+    /* Feltet og enheten holder seg innenfor de runde hjørnene. */
+    overflow: hidden;
   }
   .inndata.tall {
     width: 220px;
@@ -89,7 +95,7 @@
     border: 0;
     font: 16px var(--font-sans);
     color: var(--ink);
-    background: var(--surface);
+    background: transparent;
     outline: none;
   }
   .tall input {

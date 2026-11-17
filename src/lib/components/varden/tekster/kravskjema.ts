@@ -149,7 +149,6 @@ export const KRAVSKJEMA = {
   ingenVarslerISaken: (hjemmel: string) =>
     `Saken har ikke noe varsel etter ${punkt(hjemmel)}. Legg til dokumentet i stedet.`,
   // 4. Forbeholdet, i kravets eget felt (LV-U74).
-  forbehold: 'Forbehold',
   forbeholdHjelp: 'Står i brevet under kravet.',
   // Det som mangler, med feltet (MM-U32, språkfila: «<Verb> <feltet>.»).
   mangler: 'Dette mangler før brevet kan lages:',
