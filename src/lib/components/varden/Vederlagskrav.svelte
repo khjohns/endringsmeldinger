@@ -569,6 +569,7 @@
     {etikett}
     {hjelp}
     enhet="kr"
+    bredde="tall"
     inputmode="decimal"
     bind:verdi={() => eier[noekkel] ?? '', (t) => (eier[noekkel] = t)}
     feil={f}

@@ -350,6 +350,7 @@
           etikett={SKJEMA.belopEtikett}
           hjelp={SKJEMA.belopHjelp(krevdI(p))}
           enhet="kr"
+          bredde="tall"
           inputmode="decimal"
           bind:verdi={v.delbeloep}
           feil={beloepFeil}

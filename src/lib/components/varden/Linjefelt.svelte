@@ -13,7 +13,7 @@
     etikett,
     hjelp = null,
     enhet,
-    bredde = 'tall',
+    bredde,
     inputmode,
     verdi = $bindable(),
     feil = null,
@@ -27,9 +27,10 @@
     id: string;
     etikett: string;
     hjelp?: string | null;
-    /** Enheten etter tallet, som «dager» eller «kr». */
+    /** Enheten etter verdien, som «dager» eller «kr». */
     enhet?: string;
-    bredde?: 'tall' | 'kort' | 'tekst';
+    /** «tall» står til høyre med like brede sifre. «tekst» har full bredde. */
+    bredde: 'tall' | 'kort' | 'tekst';
     inputmode?: 'numeric' | 'decimal';
     verdi: string;
     feil?: string | null;
@@ -120,7 +121,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: inherit;
+    border-radius: calc(var(--r-felt) - 1px);
     box-shadow: inset 0 0 0 1px var(--danger);
     pointer-events: none;
   }

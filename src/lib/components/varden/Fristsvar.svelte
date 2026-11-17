@@ -323,6 +323,7 @@
               etikett={FRISTSVAR.maatteForstaaEtikett}
               hjelp={FRISTSVAR.maatteForstaaHjelp(f.dager)}
               enhet="dager"
+              bredde="tall"
               inputmode="numeric"
               bind:verdi={v.maatteForstaa}
               feil={mFeil}
@@ -364,6 +365,7 @@
           etikett={FRISTSVAR.deldagerEtikett}
           hjelp={FRISTSVAR.deldagerHjelp}
           enhet="dager"
+          bredde="tall"
           inputmode="numeric"
           bind:verdi={
             () => godkjenteDagerIFeltet(v, f.dager), (t) => skrivGodkjenteDager(v, t, f.dager)
