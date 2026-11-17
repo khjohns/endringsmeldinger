@@ -4332,6 +4332,51 @@ kilde = "hovedplanen"
 tekst = "egne poster"
 utdrag = true
 
+[[gruppe.vedtak]]
+klasse = "vedtak"
+id = "VS-U73"
+dato = 2026-11-17
+hvem = "oppdragsgiver"
+kilde = ["#2100"]
+sporsmal = '''
+Stilt 17.11 av kjerneøkta for punkt 2 i #2100 og kontrollert mot vedtakene av en uavhengig subagent. Ordrett slik det ble lagt fram, fra [kommentaren i #2100](https://github.com/khjohns/endringsmeldinger/issues/2100#issuecomment-6943596422):
+
+**Avgrensning (følger av OV-U80):** Et krav sendt utenfor løsningen og lagt til som korrespondanse har det sendte brevet som vedlegg, også når det samme brevet alt står i saken som et varsel. Det gjelder fristforlengelsen og vederlaget.
+
+**Spørsmål:** Totalentreprenøren sender et krav fra løsningen og legger ved brevet eller dokumentet der et varsel som alt står i saken, ble gitt. Skal løsningen ta imot brevet som vedlegg?
+
+- **A (anbefalt):** «Et krav sendt fra løsningen har ikke som vedlegg brevet eller dokumentet med et varsel som alt står i saken. Løsningen tar ikke imot kravet med det vedlegget, og kravet viser kort til varselet og gjentar det ikke. Det gjelder varselet etter punkt 33.4 i fristforlengelsen og varslene for en kravpost i vederlaget. Et krav sendt utenfor løsningen og lagt til som korrespondanse har brevet som ble sendt som vedlegg, også når brevet alt står i saken som varsel.» Forhold: utvider VS-U55 til varselet etter punkt 33.4 og presiserer VS-U55 for vedlegget. Følger OV-U80.
+- **B:** «Et krav sendt fra løsningen kan ha som vedlegg brevet eller dokumentet med et varsel som alt står i saken. Kravet viser kort til varselet og gjentar det ikke. Det gjelder fristforlengelsen og vederlaget. Et krav lagt til som korrespondanse har brevet som ble sendt som vedlegg.» Forhold: presiserer VS-U55 (gjelder kravteksten, ikke vedleggene). Følger OV-U80.
+- **C (ikke anbefalt):** «Brevet med et varsel som alt står i saken, legges ikke ved et krav, heller ikke et krav lagt til. Et krav sendt i samme brev som varselet viser til korrespondansen som står i saken.» Forhold: utvider VS-U55 til punkt 33.4 og endrer OV-U80.'''
+valgt = "A"
+svar = '''
+Oppdragsgiver 17.11, ordrett ([#2100, 6943596422](https://github.com/khjohns/endringsmeldinger/issues/2100#issuecomment-6943596422)): «Velger A». Valgt: A.'''
+forhold = [
+  { art = "utvider", vedtak = "vs-u55" },
+  { art = "presiserer", vedtak = "vs-u55" },
+  { art = "bygger på", vedtak = "ov-u80" },
+]
+folge = '''
+Bygges i #2100.'''
+
+[[gruppe.vedtak.alternativ]]
+navn = "A"
+tekst = '''
+Et krav sendt fra løsningen har ikke som vedlegg brevet eller dokumentet med et varsel som alt står i saken. Løsningen tar ikke imot kravet med det vedlegget, og kravet viser kort til varselet og gjentar det ikke. Det gjelder varselet etter punkt 33.4 i fristforlengelsen og varslene for en kravpost i vederlaget. Et krav sendt utenfor løsningen og lagt til som korrespondanse har brevet som ble sendt som vedlegg, også når brevet alt står i saken som varsel. Forhold: utvider VS-U55 til varselet etter punkt 33.4 og presiserer VS-U55 for vedlegget. Følger OV-U80.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "B"
+tekst = '''
+Et krav sendt fra løsningen kan ha som vedlegg brevet eller dokumentet med et varsel som alt står i saken. Kravet viser kort til varselet og gjentar det ikke. Det gjelder fristforlengelsen og vederlaget. Et krav lagt til som korrespondanse har brevet som ble sendt som vedlegg. Forhold: presiserer VS-U55 (gjelder kravteksten, ikke vedleggene). Følger OV-U80.'''
+forkastet = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "C"
+tekst = '''
+Brevet med et varsel som alt står i saken, legges ikke ved et krav, heller ikke et krav lagt til. Et krav sendt i samme brev som varselet viser til korrespondansen som står i saken. Forhold: utvider VS-U55 til punkt 33.4 og endrer OV-U80.'''
+forkastet = true
+
 [[gruppe]]
 tittel = "Svar og standpunkt"
 etter = '''
