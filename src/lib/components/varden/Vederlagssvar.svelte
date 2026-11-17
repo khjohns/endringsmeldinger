@@ -8,7 +8,6 @@
   import {
     denAndreRegelen,
     harProduktivitetspost,
-    justerteEnhetspriser,
     kravposterI,
   } from '#kjerne/spor/vederlag/format.ts';
   import { kroner } from '#kjerne/frosset/tekst.ts';
@@ -30,7 +29,6 @@
   import {
     beloepsvalget,
     etterRegel,
-    formBesvart,
     postvalget,
     regelen,
     spoerOmBeloepet,
@@ -45,7 +43,7 @@
     type Svarvalg,
   } from './kommandoer';
   import { brevet, standpunktene } from './lesing';
-  import { manglene } from './svarskjema';
+  import { manglene, ubesvart } from './svarskjema';
   import {
     BREVKONTROLL,
     HOVEDLINJER,
@@ -199,14 +197,16 @@
         .map((s) => s.lag)
     ).size > 1
   );
-  // Det som mangler, med skjemaets ord. Kjernen avviser det samme med feltkoder.
+  // Det som mangler, med skjemaets ord: det kjernen sier er påkrevd og ubesvart (#2025), og et
+  // beløp som er skrevet, men ikke kan godtas.
   const delbeloepFeil = (p: Kravpost): string | null => {
     const v = postvalget(valg, p.betegnelse);
     if (beloepsvalget(v, p) !== 'deler') return null;
     const lest = lesKroner(v.delbeloep);
     if ('feil' in lest) return lest.feil;
-    if (lest.verdi === undefined) return SKJEMA.manglerDelbeloep;
-    return lest.verdi <= 0 || lest.verdi >= krevdI(p) ? HOVEDLINJER.beloepUtenfor(krevdI(p)) : null;
+    if (lest.verdi !== undefined && (lest.verdi <= 0 || lest.verdi >= krevdI(p)))
+      return HOVEDLINJER.beloepUtenfor(krevdI(p));
+    return ubesvart(lagene, 'godkjent_beloep', p.id) ? SKJEMA.manglerDelbeloep : null;
   };
   const hovedvarselet = $derived(spoerOmHovedvarselet(u, kjernesak.regler));
   const mangler = $derived(
@@ -214,35 +214,31 @@
       {
         felt: 'itide',
         post: null,
-        tekst: hovedvarselet && valg.iTide === null ? SKJEMA.manglerITide : null,
+        tekst: ubesvart(lagene, 'hovedkrav_varslet_i_tide') ? SKJEMA.manglerITide : null,
       },
       ...poster.flatMap((p) => {
-        const v = postvalget(valg, p.betegnelse);
         const i = (tekst: string | null) =>
           tekst ? SKJEMA.iPosten(navnet(p) ?? null, tekst) : null;
         return [
           {
             felt: `form-${p.betegnelse}`,
             post: p.id,
-            tekst: i(formBesvart(v, p) ? null : SKJEMA.manglerForm(p.oppgjoersform)),
-          },
-          // Svaret på varselet er valgfritt (arbeidsvalg A 16.11 i #2025, VS-U57). Justeringen
-          // følger `godtar_justering` i kjernen, og står ellers subsidiært (VS-U56).
-          {
-            felt: `justering-${p.betegnelse}`,
-            post: p.id,
             tekst: i(
-              justerteEnhetspriser(p) && v.form === 'godtar' && v.godtarJustering === null
-                ? SKJEMA.manglerJustering
+              ubesvart(lagene, 'aksepterer', p.id) ||
+                ubesvart(lagene, 'oensket_oppgjoersform', p.id)
+                ? SKJEMA.manglerForm(p.oppgjoersform)
                 : null
             ),
           },
           {
+            felt: `justering-${p.betegnelse}`,
+            post: p.id,
+            tekst: i(ubesvart(lagene, 'godtar_justering', p.id) ? SKJEMA.manglerJustering : null),
+          },
+          {
             felt: `beloep-${p.betegnelse}`,
             post: p.id,
-            tekst: i(
-              spoerOmBeloepet(v, p) && beloepsvalget(v, p) === null ? SKJEMA.manglerBeloep : null
-            ),
+            tekst: i(ubesvart(lagene, 'vurdering', p.id) ? SKJEMA.manglerBeloep : null),
           },
           { felt: `delbeloep-${p.betegnelse}`, post: p.id, tekst: i(delbeloepFeil(p)) },
         ];

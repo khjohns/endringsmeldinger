@@ -37,7 +37,7 @@
     velgDagene,
   } from './fristsvar';
   import { brevet, standpunktene } from './lesing';
-  import { manglene } from './svarskjema';
+  import { manglene, ubesvart } from './svarskjema';
   import {
     BREVKONTROLL,
     FRISTSVAR,
@@ -197,23 +197,26 @@
     })
   );
 
-  // Det som mangler, med skjemaets ord. Kjernen avviser det samme med feltkoder.
+  // Det som mangler, med skjemaets ord: det kjernen sier er påkrevd og ubesvart (#2025), og et
+  // tall som er skrevet, men ikke kan godtas.
   const deldagerFeil = (f: Fristpost): string | null => {
     const v = valg.frister[f.id];
     if (v?.dager !== 'deler') return null;
+    if (ubesvart(lagene, 'dager', f.id)) return FRISTSVAR.manglerDeldager;
     const d = heleDager(v.deldager);
-    if (d === undefined) return FRISTSVAR.manglerDeldager;
-    return d <= 0 || d >= f.dager ? FRISTSVAR.deldagerUtenfor(f.dager) : null;
+    return d !== undefined && (d <= 0 || d >= f.dager) ? FRISTSVAR.deldagerUtenfor(f.dager) : null;
   };
   // D-5: dagene byggherren måtte forstå er høyst dagene byggherren godtar om kravet kom i tide
   // (`kontrollerSpesifiseringen` i kjernen).
   const maatteForstaaFeil = (f: Fristpost): string | null => {
     if (valg.spesifisertITide !== false) return null;
+    if (ubesvart(lagene, 'dager_maatte_forstaa', f.id)) return FRISTSVAR.manglerMaatteForstaa;
     const v = fristvalget(valg, f.id);
     const d = heleDager(v.maatteForstaa);
-    if (d === undefined) return FRISTSVAR.manglerMaatteForstaa;
     const godtar = godkjenteDager(v, f.dager);
-    return godtar !== undefined && d > godtar ? FRISTSVAR.maatteForstaaForMange : null;
+    return d !== undefined && godtar !== undefined && d > godtar
+      ? FRISTSVAR.maatteForstaaForMange
+      : null;
   };
   const mangler = $derived(
     manglene(uid, [
@@ -221,23 +224,22 @@
       {
         felt: 'varsel',
         post: null,
-        tekst: valg.varselITide === null ? FRISTSVAR.manglerVarsel : null,
+        tekst: ubesvart(lagene, 'frist_varsel_ok') ? FRISTSVAR.manglerVarsel : null,
       },
       {
         felt: 'foresporsel',
         post: null,
-        tekst:
-          foresporselen && valg.foresporselITide === null ? FRISTSVAR.manglerForesporsel : null,
+        tekst: ubesvart(lagene, 'foresporsel_svar_ok') ? FRISTSVAR.manglerForesporsel : null,
       },
       {
         felt: 'hindret',
         post: null,
-        tekst: valg.hindret === null ? FRISTSVAR.manglerHindring : null,
+        tekst: ubesvart(lagene, 'vilkar_oppfylt') ? FRISTSVAR.manglerHindring : null,
       },
       {
         felt: 'spesifisert',
         post: null,
-        tekst: valg.spesifisertITide === null ? FRISTSVAR.manglerSpesifisering : null,
+        tekst: ubesvart(lagene, 'spesifisert_krav_ok') ? FRISTSVAR.manglerSpesifisering : null,
       },
       ...frister.flatMap((f) => {
         const i = (tekst: string | null) =>
@@ -247,7 +249,12 @@
           {
             felt: `dager-${f.id}`,
             post: f.id,
-            tekst: i(valg.frister[f.id]?.dager ? null : FRISTSVAR.manglerDager),
+            // Ved «Delvis» står mangelen ved feltet for dagene som godkjennes (`deldagerFeil`).
+            tekst: i(
+              ubesvart(lagene, 'dager', f.id) && valg.frister[f.id]?.dager !== 'deler'
+                ? FRISTSVAR.manglerDager
+                : null
+            ),
           },
           { felt: `deldager-${f.id}`, post: f.id, tekst: i(deldagerFeil(f)) },
         ];
