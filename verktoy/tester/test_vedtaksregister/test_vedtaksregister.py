@@ -1680,6 +1680,35 @@ def test_en_endring_fra_en_opphevet_post_telles_ikke(grunnregister, overtatt, va
     assert vr.varsler(endret, endret) == (forventet if varsel else [])
 
 
+@pytest.mark.parametrize("samlet", [True, False])
+def test_en_endring_fra_en_samlet_post_telles_fra_samlevedtaket(grunnregister, samlet):
+    """S2 A 17.11 i #2143: en endring fra en post et gjeldende samlevedtak samler, telles som en
+    endring fra samlevedtaket, og kjeden telles ikke videre gjennom posten. XX-U5 samler XX-U3
+    og XX-U4, slik samlevedtaket for brev sendt utenfor løsningen samler OV-U98 og OV-U102."""
+    endret = med(grunnregister, ny_post(forhold=[{"art": "samler", "vedtak": "ka-u1"}]))
+    for i in (2, 3, 4):
+        endret = med(
+            endret, ny_post(id=f"XX-U{i}", forhold=[{"art": "presiserer", "vedtak": "xx-u1"}])
+        )
+    endret = med(endret, ny_post(id="XX-U6", forhold=[{"art": "presiserer", "vedtak": "xx-u3"}]))
+    if samlet:
+        endret = med(
+            endret,
+            ny_post(
+                id="XX-U5",
+                forhold=[
+                    {"art": "samler", "vedtak": "xx-u3"},
+                    {"art": "samler", "vedtak": "xx-u4"},
+                ],
+            ),
+        )
+    forventet = [
+        "xx-u1: har fått 4 endringer etter at temaet er samlet (gjennom kjeden: xx-u6 presiserer "
+        "xx-u3); den neste endringen skrives som et samlevedtak (svar 6 og 10 04.11 i #1534)"
+    ]
+    assert vr.varsler(endret, endret) == ([] if samlet else forventet)
+
+
 def _samlet_med_to_endringer(grunnregister) -> dict:
     """XX-U1 samler KA-U1. XX-U2 presiserer og XX-U3 utvider XX-U1, som VS-U48 og KA-U69 gjør
     med OV-U95 i eksemplet i #1726."""
