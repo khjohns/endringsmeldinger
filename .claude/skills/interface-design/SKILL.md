@@ -272,6 +272,10 @@ Use this skill as a working discipline, not just advice. When editing UI:
 6. Keep user-facing updates short. Don't expose long private design monologues — surface the useful recommendation or decision.
 
 **I dette repoet:** kjør «Tidlig sjekk» i skillen `uu-sjekk` mens en komponent bygges.
+Før du bygger en ny komponent, ser du i [komponentkatalogen](../../../.interface-design/komponenter.md)
+om det finnes en for formålet. Katalogen genereres av hodekommentarene, så en ny felles komponent
+får en hodekommentar, og katalogen skrives på nytt med `node src/lib/komponentkatalog.ts`.
+Mønstrene lagres ikke i `system.md`; der står beslutningene.
 
 ## Suggest + Ask
 Lead with exploration and recommendation, then confirm:
