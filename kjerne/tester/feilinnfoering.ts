@@ -3987,7 +3987,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F711',
     feilklasse:
       'samme fil lastet opp på nytt med en ny ID regnes som et annet brev enn det registrerte (#2100, OV-U80)',
-    fil: `${K}/spor/frist/kommando.ts`,
+    fil: `${K}/kommandoer/vedlegg.ts`,
     endringer: [
       [
         'oppslag.get(id.toLowerCase())?.innhold_sha256 ?? `id:${id.toLowerCase()}`',
@@ -4069,6 +4069,27 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [['  if (k.sendt !== undefined) return null;\n', '']],
     mal: ['et vederlagskrav lagt til som korrespondanse har brevet som ble sendt'],
+  },
+  {
+    id: 'F720',
+    feilklasse:
+      'et fristkrav sendt fra løsningen godtas med ett av vedleggene ved varselet etter punkt 33.4 i saken (#2100, VS-U73)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['.some((x) => vedleggene.has(x))', '.every((x) => vedleggene.has(x))']],
+    mal: ['avvises også med ett av vedleggene ved varselet etter punkt 33.4'],
+  },
+  {
+    id: 'F721',
+    feilklasse:
+      'vedleggene ved et vederlagskrav prøves mot varslene for en kravpost på ID-en, ikke på innholdet (#2100, VS-U73)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        'innholdetIVedleggene(k.dokumentasjon ?? [], sak.oppslag)',
+        'innholdetIVedleggene(k.dokumentasjon ?? [], new Map())',
+      ],
+    ],
+    mal: ['samme fil lastet opp på nytt som vedlegget ved et varsel for en kravpost'],
   },
 
   {
@@ -4504,8 +4525,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
       [
-        '  return (k.dokumentasjon ?? []).some((id) => iVarslene.has(id.toLowerCase()))\n    ? vedleggVedEtVarsel(',
-        '  return false\n    ? vedleggVedEtVarsel(',
+        '.some((x) => iVarslene.has(x))\n    ? vedleggVedEtVarsel(',
+        '.some(() => false)\n    ? vedleggVedEtVarsel(',
       ],
     ],
     mal: ['et vedlegg ved kravet som alt ligger ved et varsel for en kravpost i saken, avvises'],

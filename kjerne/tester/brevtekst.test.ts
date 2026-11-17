@@ -4066,6 +4066,28 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     expect(s.avvist('TE', { ...utenBrevet, dokumentasjon: [PLAN] }), 'kontrollsak').toBeNull();
   });
 
+  it('et fristkrav sendt fra løsningen avvises også med ett av vedleggene ved varselet etter punkt 33.4, som i vederlaget (VS-U73, #2100)', () => {
+    const vedlegget = randomUUID();
+    const registrert = sak();
+    registrert.send('TE', PAABEROPELSE);
+    registrert.send('TE', {
+      type: 'varsel',
+      ...SOM_BREV,
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: FRISTKRAV.varsel.sendt,
+      dokumentasjon: [VARSELBREVET, vedlegget],
+    });
+    expect(
+      registrert.avvist('TE', { ...utenBrevet, dokumentasjon: [vedlegget] }),
+      'ett av to vedlegg'
+    ).toBe('VARSEL_REGISTRERT');
+    expect(
+      registrert.avvist('TE', { ...utenBrevet, dokumentasjon: [PLAN] }),
+      'kontrollsak'
+    ).toBeNull();
+  });
+
   it('et fristkrav lagt til som korrespondanse har brevet som ble sendt som vedlegg, også når brevet står i saken som varselet etter punkt 33.4 (VS-U73, OV-U80)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
@@ -11367,6 +11389,44 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       });
     const rad = s.send('TE', { ...vederlagskrav([regning]), dokumentasjon: [PLAN] });
     expect(laast(rad).join(' '), 'kontrollsak').toContain('ble gitt i totalentreprenørens e-post');
+  });
+
+  it('samme fil lastet opp på nytt som vedlegget ved et varsel for en kravpost, avvises ved et vederlagskrav sendt fra løsningen, og en annen fil godtas (VS-U73, #2100)', () => {
+    const s = paaberopt();
+    const varselet = registrertVarsel('34.4');
+    s.send('TE', varselet);
+    const kontekst = {
+      sakId: SAK,
+      aktoerId: 'te',
+      part: 'TE' as const,
+      teamId: null,
+      sakskode: { kode: 'koe' as const, loepenummer: 17 },
+      kontraktsforkortelse: 'K201',
+      kontraktsfrister: [],
+      tidspunkt: () => new Date('2026-10-07T08:00:00Z'),
+      nyId: randomUUID,
+    };
+    const lastetOpp = randomUUID();
+    const kravet = { ...vederlagskrav([regning]), dokumentasjon: [lastetOpp] };
+    const lager = (sum: string) =>
+      new Map([[lastetOpp, { vedlegg_id: lastetOpp, filnavn: 'varsel.pdf', innhold_sha256: sum }]]);
+    const avvisning = (u: ReturnType<typeof forhaandsvis>) =>
+      u.godtatt ? null : u.avvisning.regel;
+    expect(
+      avvisning(
+        forhaandsvis(
+          kravet,
+          kontekst,
+          s.journal,
+          KJERNE,
+          lager(innholdssummen(varselet.dokumentasjon[0]!))
+        )
+      )
+    ).toBe('KRAVPOSTVARSELET');
+    expect(
+      avvisning(forhaandsvis(kravet, kontekst, s.journal, KJERNE, lager('0'.repeat(64)))),
+      'kontrollsak: en annen fil'
+    ).toBeNull();
   });
 
   it('et vederlagskrav lagt til som korrespondanse har brevet som ble sendt som vedlegg, også når brevet står i saken som et varsel for en kravpost (VS-U73, OV-U80)', () => {

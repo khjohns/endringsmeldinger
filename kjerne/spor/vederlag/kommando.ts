@@ -16,6 +16,7 @@ import {
   type Kravpostvurdering,
 } from './frysing.ts';
 import { kategori } from '../forhold/format.ts';
+import { innholdetIDokumentet, innholdetIVedleggene } from '../../kommandoer/vedlegg.ts';
 import {
   ubesvartIKravposten,
   ubesvarteSpoersmaal,
@@ -448,18 +449,23 @@ const kravpostvarslerIBrevet = (
 
 /**
  * Et vedlegg ved et krav sendt fra løsningen som alt ligger ved et varsel for en kravpost i saken
- * (VS-U73). Kravet viser til varselet, og et dokument ved kravet som også er et varsel, er
- * dokumentet kravskjemaet la til som varsel i samme handling (`foranKravet`, VS-U51). Et krav
- * lagt til har brevet som ble sendt, også når det står i saken som varsel.
+ * (VS-U73). Et dokument ved kravet som også er et varsel, er dokumentet kravskjemaet la til som
+ * varsel i samme handling (`foranKravet`, VS-U51).
  */
 function vedleggetErEtVarsel(
   k: Extract<Kommando, { type: 'krav' }>,
   sak: Sakssperre
 ): Avvisning | null {
-  // Et krav lagt til har datoen det ble sendt (`erRegistrering`).
+  // VS-U73. Et krav lagt til har datoen det ble sendt (`erRegistrering`).
   if (k.sendt !== undefined) return null;
-  const iVarslene = vedleggIVarslene(sak);
-  return (k.dokumentasjon ?? []).some((id) => iVarslene.has(id.toLowerCase()))
+  // #2100: samme fil lastet opp på nytt er samme vedlegg, som i fristen.
+  const varslene = new Set(sak.u.spor.vederlag.kravpostvarsler.map((v) => v.dokument));
+  const iVarslene = new Set(
+    sak.lest.flatMap((h) =>
+      h.art === 'dokument' && varslene.has(h.id) ? [...innholdetIDokumentet(h.dokument)] : []
+    )
+  );
+  return [...innholdetIVedleggene(k.dokumentasjon ?? [], sak.oppslag)].some((x) => iVarslene.has(x))
     ? vedleggVedEtVarsel('ved kravet')
     : null;
 }

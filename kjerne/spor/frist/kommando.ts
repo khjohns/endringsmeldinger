@@ -28,7 +28,6 @@ import type {
   Sporsskriving,
   Utfall,
   Sakssperre,
-  Vedleggsoppslag,
 } from '../../kommandoer/skriving.ts';
 import {
   foresporselForFristsvar,
@@ -41,6 +40,7 @@ import { fristinnhold, innholdIFristen } from './format.ts';
 import { fristkravet, fristvurderinger } from './frysing.ts';
 import { paakrevdeSpoersmaal, type Fristspoersmaal } from '../../regler/frist.ts';
 import { mangler } from '../../regler/typer.ts';
+import { innholdetIDokumentet, innholdetIVedleggene } from '../../kommandoer/vedlegg.ts';
 import { maatteForstaaUbesvart } from '../../regler/svarkontroll.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
 import { lageneIUtkastet } from '../../kommandoer/utkastlag.ts';
@@ -406,9 +406,7 @@ function varseldokumentetISaken(
     [...vedKravet, ...(k.varsel?.dokumentasjon ?? [])],
     oppslag
   );
-  // VS-U73: et krav sendt fra løsningen har ikke brevet med varselet etter § 33.4 i saken som
-  // vedlegg. Et krav lagt til, med datoen det ble sendt (`erRegistrering`), har brevet som ble
-  // sendt (OV-U80).
+  // VS-U73. Et krav lagt til har datoen det ble sendt (`erRegistrering`).
   const vedKravetsBrev = varselet && k.sendt === undefined && !!k.dokumentasjon?.length;
   if (!vedlagte.size && !vedKravetsBrev) return null;
   const rettet = new Set(
@@ -431,23 +429,17 @@ function varseldokumentetISaken(
           'VARSEL_REGISTRERT',
           `Brevet med varselet står alt i saken${som(brevet)}. Velg varselet etter punkt 33.4 for det brevet i stedet for å legge det ved kravet på nytt.`
         );
+  // VS-U73: ett av dokumentene ved varselet, som i vederlaget (`vedleggetErEtVarsel`).
   const varselbrevet = vedKravetsBrev ? brevene.find((h) => h.id === varselet.dokument) : undefined;
-  return varselbrevet?.dokument.dokumentasjon.length &&
-    erDelAv(innholdetIBrevet(varselbrevet), innholdetIVedleggene(k.dokumentasjon ?? [], oppslag))
+  const vedleggene = innholdetIVedleggene(k.dokumentasjon ?? [], oppslag);
+  return varselbrevet && [...innholdetIBrevet(varselbrevet)].some((x) => vedleggene.has(x))
     ? fjernBrevet(varselbrevet)
     : null;
 }
 
 type Brevet = Extract<Domenehendelse, { art: 'dokument' }>;
 
-/** Innholdet i vedleggene, med ID-en for et vedlegg mellomlageret ikke har (#2100). */
-const innholdetIVedleggene = (ider: readonly string[], oppslag: Vedleggsoppslag) =>
-  new Set(
-    ider.map((id) => oppslag.get(id.toLowerCase())?.innhold_sha256 ?? `id:${id.toLowerCase()}`)
-  );
-
-const innholdetIBrevet = (h: Brevet) =>
-  new Set(h.dokument.dokumentasjon.map((v) => v.innhold_sha256));
+const innholdetIBrevet = (h: Brevet) => innholdetIDokumentet(h.dokument);
 
 function erDelAv(a: ReadonlySet<string>, b: ReadonlySet<string>): boolean {
   for (const x of a) if (!b.has(x)) return false;

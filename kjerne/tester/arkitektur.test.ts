@@ -1311,6 +1311,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/kommando.ts:foranKravet',
       'spor/vederlag/kommando.ts:vedleggIVarslene',
       'spor/frist/kommando.ts:varseldokumentetISaken',
+      'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
     ],
   ],
   ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar dokumentasjon hjemmel'],
@@ -1384,7 +1385,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/skriving.ts:frysBrev']],
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/avvisning.ts:avvisning']],
   ['Registrering', 'kommando', 'sendt', ['kommandoer/avvisning.ts:avvisning']],
-  // VS-U73: et krav lagt til har brevet som ble sendt som vedlegg, også når det står i saken som varsel.
+  // VS-U73: et krav lagt til.
   [
     'Registrering',
     'kommando',
@@ -1546,6 +1547,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // VS-U55 (#1993): dokumentet fra kravskjemaet prøves mot varslene i saken før det skrives.
   ['LestSak', 'kommando', 'lest u', ['spor/vederlag/kommando.ts:vedleggIVarslene']],
+  // VS-U73, #2100: vedleggene ved kravet prøves mot varslene for en kravpost på innholdet.
+  ['LestSak', 'kommando', 'lest u', ['spor/vederlag/kommando.ts:vedleggetErEtVarsel']],
+  ['Sakssperre', 'kommando', 'oppslag', ['spor/vederlag/kommando.ts:vedleggetErEtVarsel']],
   // VS-U34, C1 i #2056: fristkravet skriver varselet først når saken ikke har det.
   ['LestSak', 'kommando', 'u', ['spor/frist/kommando.ts:medVarselet']],
   // #2082, OV-U80, OV-U84: brevet med varselet i fristkravet prøves mot korrespondansen i saken.
@@ -1560,18 +1564,23 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['LestSak', 'kommando', 'lest u', ['spor/frist/kommando.ts:varseldokumentetISaken']],
   ['Dokument', 'relasjon', 'retter', ['spor/frist/kommando.ts:varseldokumentetISaken']],
-  [
-    'Dokument',
-    'utsagn',
-    'dokumentasjon',
-    ['spor/frist/kommando.ts:varseldokumentetISaken', 'spor/frist/kommando.ts:innholdetIBrevet'],
-  ],
+  ['Dokument', 'utsagn', 'dokumentasjon', ['kommandoer/vedlegg.ts:innholdetIDokumentet']],
   // #2100: samme fil lastet opp på nytt er samme brev, så vedleggene sammenliknes på innholdet.
   [
     'Vedlegg',
     'relasjon',
     'innhold_sha256',
-    ['spor/frist/kommando.ts:innholdetIVedleggene', 'spor/frist/kommando.ts:innholdetIBrevet'],
+    ['kommandoer/vedlegg.ts:innholdetIVedleggene', 'kommandoer/vedlegg.ts:innholdetIDokumentet'],
+  ],
+  [
+    'kommandoer/vedlegg.ts',
+    'relasjon',
+    'innholdetIVedleggene innholdetIDokumentet',
+    [
+      'spor/frist/kommando.ts:varseldokumentetISaken',
+      'spor/frist/kommando.ts:innholdetIBrevet',
+      'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
+    ],
   ],
   ['frosset/brevdeler.ts', 'brevtekst', 'omtalen', ['spor/frist/kommando.ts:som']],
   ['spor/vederlag/kommando.ts', 'kommando', 'SKRIVING_I_VEDERLAGET', ['kommandoer/skriving.ts']],
