@@ -84,4 +84,11 @@
     gap: var(--spacing-3);
     margin-top: var(--spacing-5);
   }
+  /* Knappene står ved siden av hverandre også på smal skjerm (designvalget 17.11 i #2119). */
+  @media (max-width: 480px) {
+    .bekreft {
+      max-width: calc(100vw - 2 * var(--spacing-3));
+      padding: var(--spacing-5);
+    }
+  }
 </style>
