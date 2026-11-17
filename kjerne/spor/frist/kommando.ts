@@ -224,11 +224,10 @@ function spoersmaaletFor(s: Standpunkt): Fristspoersmaal | null {
  * besvart uten innsigelse (S1-A), og spørsmålene som var ubesvart (#1925, KA-U78).
  */
 function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
-  const ubesvart = new Set(
-    paakrevdeSpoersmaal(fristkravet(0, foresporselForFristsvar(u)))
-      .map(([felt]) => felt)
-      .filter((felt) => mangler(v[felt]))
+  const paakrevde = paakrevdeSpoersmaal(fristkravet(0, foresporselForFristsvar(u))).map(
+    ([felt]) => felt
   );
+  const ubesvart = new Set(paakrevde.filter((felt) => mangler(v[felt])));
   const utfylt: Record<string, unknown> = { ...v };
   for (const felt of ubesvart) utfylt[felt] = true;
   if (utfylt.spesifisert_krav_ok === false && Array.isArray(v.frister))
@@ -239,7 +238,7 @@ function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
         ? { ...r, dager_maatte_forstaa: 0 }
         : r
     );
-  return { v: utfylt, ubesvart };
+  return { v: utfylt, ubesvart, paakrevde };
 }
 
 /**
@@ -252,7 +251,7 @@ function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
  * fristene ikke er én per frist i kravet.
  */
 export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett): LagIFristen {
-  const { v, ubesvart } = utfylt(utkast.vurderinger, u);
+  const { v, ubesvart, paakrevde } = utfylt(utkast.vurderinger, u);
   const krav = u.spor.frist.gjeldendeKrav!;
   let n = 0;
   const lagret = STANDPUNKTER_I_FRISTEN(v, krav, u, () => `utkast-${n++}`);
@@ -287,7 +286,9 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
       // Dagene kontrolleres som manglende etter punkt 33.5 (`kontroller` i regelsettet).
       ...fristene.flatMap((f) => [
         ...(mangler(f.dager) ? [{ spoersmaal: 'dager' as const, gjelder: f.gjelder }] : []),
-        ...(maatteForstaaUbesvart({
+        // Bare når spesifiseringen er et spørsmål for kravet (§ 33.6.2 fjerde ledd).
+        ...(paakrevde.includes('spesifisert_krav_ok') &&
+        maatteForstaaUbesvart({
           ...f,
           spesifisert_krav_ok: utkast.vurderinger.spesifisert_krav_ok,
         })

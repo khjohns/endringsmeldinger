@@ -1569,7 +1569,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'spor/frist/kommando.ts:utfylt',
     'kommando',
-    'v ubesvart',
+    'v ubesvart paakrevde',
     ['spor/frist/kommando.ts:lagIFristen'],
   ],
   [

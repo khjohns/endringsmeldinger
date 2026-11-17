@@ -11731,6 +11731,28 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     expect(melding(s, 'frist', medDagene)).not.toContain('mangler');
   });
 
+  it('fristen: når kravet svarer på forespørselen, er spesifiseringen ikke et spørsmål, og dagene byggherren måtte forstå er ikke påkrevd (§ 33.6.2 fjerde ledd, KA-U78)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), { grunnlag_varslet_i_tide: true, resultat: 'godkjent' }),
+      ],
+    });
+    s.send('BH', { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' });
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const v = {
+      frist_varsel_ok: true,
+      foresporsel_svar_ok: true,
+      vilkar_oppfylt: true,
+      spesifisert_krav_ok: false,
+      frister: [{ dager: 5 }],
+    };
+    expect(ubesvart(s, 'frist', v)).toEqual([]);
+    expect(melding(s, 'frist', v)).toContain('punkt 33.6.1 kan ikke påberopes');
+  });
+
   it('vederlaget: ved en delvis godkjenning er beløpet byggherren godtar påkrevd (KA-U42)', () => {
     const s = saken(vederlagskravet(tilbud(100000)));
     const v = { kravposter: [{ gjelder: 'P1', aksepterer: true, vurdering: 'delvis' }] };

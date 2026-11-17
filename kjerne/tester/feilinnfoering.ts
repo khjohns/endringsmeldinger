@@ -4036,7 +4036,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F716',
     feilklasse: 'et besvart spørsmål i fristen står som ubesvart i svarutkastet (#2025)',
     fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [['      .filter((felt) => mangler(v[felt]))\n', '']],
+    endringer: [['paakrevde.filter((felt) => mangler(v[felt]))', 'paakrevde']],
     mal: ['fristen: med hvert spørsmål besvart er ingenting ubesvart'],
   },
   {
@@ -4044,7 +4044,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'dagene byggherren måtte forstå står ikke som ubesvart i svarutkastet når spesifiseringen kom for sent (#2025, D-5)',
     fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [['...(maatteForstaaUbesvart({', '...(false && maatteForstaaUbesvart({']],
+    endringer: [["...(paakrevde.includes('spesifisert_krav_ok') &&", '...(false &&']],
     mal: ['dagene byggherren måtte forstå påkrevd for hver frist'],
   },
 
