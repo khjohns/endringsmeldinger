@@ -21,7 +21,7 @@ import {
   type NySakTilServeren,
   type sendKommando,
 } from '$lib/api/kjerne';
-import { feilINySak } from '../../../server/nysak';
+import { feilINySak } from '../kontroll/nysak';
 import { opprettelse } from '$kjerne/kommandoer/opprettelse';
 import { vurder } from '$kjerne/kommandoer/skriving';
 import type { Journalrad, Part, Vedlegg } from '$kjerne/typer';

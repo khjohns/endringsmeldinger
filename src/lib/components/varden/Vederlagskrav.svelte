@@ -17,6 +17,7 @@
   import type { Utledning } from '$kjerne/utledning/utled';
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+  import { harTekst } from '$lib/kjernesak/brevtekst';
   import {
     varseletFoerKravet,
     varslenePerKravpost,
@@ -187,7 +188,7 @@
 
   const utkastbrev = $derived.by(() => {
     const b = kjernesak.brev(kommando, vedlegg);
-    return b && 'avsnitt' in b ? b : null;
+    return harTekst(b) ? b : null;
   });
 
   // Én kravpost er åpen om gangen; en ny, tom post står åpen.

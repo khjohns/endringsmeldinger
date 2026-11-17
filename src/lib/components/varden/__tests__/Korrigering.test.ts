@@ -135,10 +135,20 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     ).toBeTruthy();
     const korrigeringen = await innlegget(3);
     expect(korrigeringen.getByRole('button', { name: /Korriger datoen/ })).toBeTruthy();
-    // U-5: visningen sier ikke hvilken opplysning svaret gjaldt, fordi løsningen ikke tolker
-    // svaret (oppdragsgiver 06.11, #1646).
+    // U-5: ved svaret står TEs siste opplysning da svaret ble sendt, uten å si hva svaret mente
+    // (designdelen i MM-U55; oppdragsgiver 16.11 i #2093: «A: linje etter korrigering»).
+    const svaret = (await innlegget(2)).getByRole('heading').closest('li')!.textContent!;
+    expect(svaret.replace(/\s+/g, ' ')).toContain(
+      'Da svaret ble sendt, var totalentreprenørens siste opplysning at pålegget ble mottatt 15. september 2026, oppgitt i brev 1.'
+    );
+    expect(svaret).not.toMatch(/gjaldt|20\. september 2026/);
+  });
+
+  it('uten en senere korrigering står ingen linje om opplysningen ved svaret (oppdragsgiver 16.11 i #2093: «A: linje etter korrigering»)', async () => {
+    aapne('BF-02A', 'te-har-mottatt-svaret');
+    await tilForholdet();
     expect((await innlegget(2)).getByRole('heading').closest('li')!.textContent).not.toMatch(
-      /opplysning|15\. september 2026|20\. september 2026/
+      /opplysning|Da svaret ble sendt/
     );
   });
 

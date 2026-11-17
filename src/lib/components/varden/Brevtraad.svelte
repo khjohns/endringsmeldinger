@@ -215,6 +215,11 @@
                 {/if}
               </Sitat>
             {/if}
+            {#if i.sisteOpplysningVedSvaret}
+              <Melding art="info" levende={false}
+                >{FORHOLDET.sisteOpplysningVedSvaret(i.sisteOpplysningVedSvaret)}</Melding
+              >
+            {/if}
             {#if i.opplysning && !i.opplysning.korrigering && lukket && onkorriger && korrigerbare.includes(i.opplysning.id)}
               <!-- Under brevet, ikke i det parten skrev (oppdragsgiver 06.11, #1646). -->
               <Melding art="info" levende={false}>{FORHOLDET.korrigerILukket}</Melding>

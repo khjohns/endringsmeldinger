@@ -92,7 +92,7 @@
             "staar": "Regningsarbeid, før arbeidet settes i gang (punkt 34.4)"
           },
           {
-            "staar": "Registrer et brev sendt utenfor løsningen"
+            "staar": "Registrer et varsel sendt utenfor løsningen"
           }
         ]
       },
@@ -298,6 +298,11 @@
       "dato": "2026-11-16",
       "forhold": "#807, #2056",
       "hva": "U-12 lister feltene for et dokument sendt utenfor løsningen med ordene i Varden (OV-U79, A1 i #2056): typen heter «Hvordan ble varselet gitt?», sendemåten «Hvordan ble brevet sendt?» (bare for Brev), og dokumentet er «Dokumentet du varslet i», ikke PDF."
+    },
+    {
+      "dato": "2026-11-16",
+      "forhold": "#2056",
+      "hva": "Registreringen heter «Registrer et varsel sendt utenfor løsningen», etter `FRISTKRAV` i `tekster.ts`, og feltene etter `Korrespondansen.svelte` (A1 i #2056). Klikkstien og avsnittene om registreringen har ordene. Stegnumrene, ID-ene og vedtakene er uendret."
     }
   ]
 }

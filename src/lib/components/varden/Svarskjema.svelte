@@ -17,6 +17,7 @@
   import type { Spor } from '$kjerne/typer';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+  import { harTekst } from '$lib/kjernesak/brevtekst';
   import { VIRKNING } from '$lib/kjernesak/svarvirkning';
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import { fastLinje } from './fastlinje.svelte';
@@ -123,10 +124,8 @@
   // Nummeret og tittelen står i raden kjernen ville skrevet (LV-U44, LV-U27), og punktene i
   // brevet kjernen lager uten tekstene.
   const utkastbrev = $derived(kjernesak.brev(utkast));
-  const brevMedTekst = $derived(utkastbrev && 'avsnitt' in utkastbrev ? utkastbrev : null);
-  const punktene = $derived(
-    utkastbrev && 'avsnitt' in utkastbrev ? begrunnelsespunktene(utkastbrev.avsnitt ?? []) : []
-  );
+  const brevMedTekst = $derived(harTekst(utkastbrev) ? utkastbrev : null);
+  const punktene = $derived(brevMedTekst ? begrunnelsespunktene(brevMedTekst.avsnitt) : []);
 
   const begrunnelseId = (punkt: string) => `${uid}-begrunnelse-${punkt}`;
   // Punktene i skjemaet der begrunnelsen som kreves, kan stå (D-7). Holder ett av flere, sier

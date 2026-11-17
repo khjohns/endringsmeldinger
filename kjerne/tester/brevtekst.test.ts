@@ -3958,6 +3958,85 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     expect(rad.data.utsagn).toBeUndefined();
   });
 
+  // #2082: korrespondansen registreres én gang (OV-U80), og avsenderen velger senere et nytt
+  // varsel for den (OV-U84).
+  it('et fristkrav med et brev som alt står i saken med varselet etter punkt 32.2, avvises, og et nytt brev med ett av vedleggene godtas (#2082, OV-U80, OV-U84)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', {
+      type: 'varsel',
+      ...SOM_BREV,
+      spor: 'forhold',
+      hjemmel: '32.2',
+      sendt: '2026-09-28',
+      dokumentasjon: [VARSELBREVET],
+    });
+    expect(s.avvisning('TE', FRISTKRAV)).toEqual({
+      regel: 'VARSEL_REGISTRERT',
+      melding:
+        'Brevet med varselet står alt i saken som totalentreprenørens brev av 28. september 2026. Velg varselet etter punkt 33.4 for det brevet i stedet for å legge det ved kravet på nytt.',
+    });
+    // Samme brev med vedleggene i en annen rekkefølge og skrivemåte er samme brev.
+    expect(
+      s.avvist('TE', {
+        ...FRISTKRAV,
+        varsel: { ...FRISTKRAV.varsel, dokumentasjon: [VARSELBREVET.toUpperCase()] },
+      })
+    ).toBe('VARSEL_REGISTRERT');
+    // Et annet brev med ett av vedleggene er ikke det registrerte brevet.
+    expect(
+      s.avvist('TE', {
+        ...FRISTKRAV,
+        varsel: { ...FRISTKRAV.varsel, dokumentasjon: [VARSELBREVET, PLAN] },
+      }),
+      'kontrollsak'
+    ).toBeNull();
+  });
+
+  it('et brev byggherren har sendt, eller et brev som ikke hører til saken, med de samme vedleggene hindrer ikke fristkravet (#2082, OV-U18)', () => {
+    const registrert = {
+      type: 'registrert_brev',
+      sendt: '2026-09-28',
+      ...SOM_BREV,
+      beskrivelse: 'Brevet med varselet',
+      dokumentasjon: [VARSELBREVET],
+    };
+    const fraByggherren = sak();
+    fraByggherren.send('TE', PAABEROPELSE);
+    fraByggherren.send('BH', registrert);
+    expect(fraByggherren.avvist('TE', FRISTKRAV)).toBeNull();
+    const ikkeISaken = sak();
+    ikkeISaken.send('TE', PAABEROPELSE);
+    const rad = ikkeISaken.send('TE', registrert);
+    expect(ikkeISaken.avvist('TE', FRISTKRAV), 'kontrollsak').toBe('VARSEL_REGISTRERT');
+    ikkeISaken.send('TE', { type: 'ikke_i_saken', retter: rad.event_id });
+    expect(ikkeISaken.avvist('TE', FRISTKRAV)).toBeNull();
+  });
+
+  it('et fristkrav med brevet der varselet etter punkt 33.4 alt er registrert, avvises, og kravet uten brevet godtas (#2082, VS-U55)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', {
+      type: 'varsel',
+      ...SOM_BREV,
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: FRISTKRAV.varsel.sendt,
+      dokumentasjon: [VARSELBREVET],
+    });
+    expect(
+      s.avvisning('TE', {
+        ...FRISTKRAV,
+        varsel: { sendt: FRISTKRAV.varsel.sendt, dokumentasjon: [VARSELBREVET] },
+      })
+    ).toEqual({
+      regel: 'VARSEL_REGISTRERT',
+      melding:
+        'Brevet med varselet står alt i saken som totalentreprenørens brev av 28. september 2026, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet.',
+    });
+    expect(s.avvist('TE', utenBrevet), 'kontrollsak').toBeNull();
+  });
+
   it('et varsel uten typen meldes på feltet i varselet i fristkravet (LV-U42, VS-U34)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);

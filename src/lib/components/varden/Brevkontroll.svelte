@@ -6,7 +6,7 @@
 -->
 <script module lang="ts">
   import type { Avsnitt } from '$kjerne/typer';
-  import { laastTekstI, type Brev as Kjernebrev } from '$lib/kjernesak/brevtekst';
+  import { harTekst, laastTekstI, type Brev as Kjernebrev } from '$lib/kjernesak/brevtekst';
 
   /**
    * Brevet kjernen lager for kommandoen, slik brevkontrollen viser det: avsnittene med punktene
@@ -46,7 +46,7 @@
   export function kontrollbrev(
     b: Kjernebrev | { programfeil: string } | null
   ): Kontrollbrev | null {
-    if (!b || !('avsnitt' in b) || !b.avsnitt) return null;
+    if (!harTekst(b)) return null;
     return { avsnitt: b.avsnitt, merking: b.merking, deresRef: b.deresRef, tittel: b.brevtittel };
   }
 </script>

@@ -9,6 +9,7 @@
   import { FileText } from 'lucide-svelte';
   import { tick } from 'svelte';
   import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+  import { harTekst } from '$lib/kjernesak/brevtekst';
   import type { Utledning } from '$kjerne/utledning/utled';
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
@@ -64,7 +65,7 @@
   const kommando = $derived(korrigeringen(valg, opplysningen));
   const utkastbrev = $derived.by(() => {
     const b = valg.dato ? kjernesak.brev(kommando) : null;
-    return b && 'avsnitt' in b ? b : null;
+    return harTekst(b) ? b : null;
   });
 
   // Det som hindrer, med skjemaets ord, før brevkontrollen (U-3, MM-U32). Kjernen avviser det

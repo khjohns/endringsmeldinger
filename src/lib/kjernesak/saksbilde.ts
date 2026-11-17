@@ -4,6 +4,7 @@
  * (MM-U30). Her står ingen regel, bare oppslag.
  */
 
+import { sakstittelen } from '$kjerne/format/leser';
 import type { Betegnelse, Visning } from '$kjerne/utledning/visning';
 import { SPOR, type Domenehendelse, type Spor } from '$kjerne/typer';
 
@@ -23,9 +24,8 @@ export interface Saksbilde {
  * kjernen ikke forstår opprettelsen (MM-U2, #896).
  */
 export function lagSaksbilde(lest: Domenehendelse[], vist: Visning): Saksbilde {
-  const opprettet = lest.find((h) => h.art === 'sak');
   return {
-    tittel: opprettet?.art === 'sak' ? opprettet.tittel : null,
+    tittel: sakstittelen(lest),
     spor: SPOR.map((spor) => {
       const kode = vist.spor[spor].betegnelse;
       return { spor, betegnelse: kode && { kode } };

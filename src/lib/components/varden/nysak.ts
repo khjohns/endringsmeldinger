@@ -68,9 +68,6 @@ export const vedleggsgrense = (
   lastOpp: (fil: File) => Promise<Kjernevedlegg>
 ): VedleggForNySak => ({ lastOpp, slett: async () => {} });
 
-/** Filene serveren tar imot (`STOERSTE_VEDLEGG` i `server/vedlegg.ts`). */
-export const STOERSTE_VEDLEGG = 15 * 1024 * 1024;
-
 /**
  * Grensen skjemaet sender gjennom, som `send?` i `lagKjernesak`. Den gir saken som ble
  * opprettet, eller kaster med meldingen som vises i sendepanelet. Ingen sak finnes etter
