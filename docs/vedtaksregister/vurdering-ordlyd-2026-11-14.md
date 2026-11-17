@@ -277,7 +277,9 @@ Klassene er ført i registeret i PR-en for omklassifiseringen, med disse avviken
   LV-U52 (av LV-U75).
 - **Uendret fordi koden viser til posten som eneste grunnlag:** LV-U35, LV-U42 og LV-U53. De blir
   design når henvisningene i `kjerne/` viser til vedtaket med den bindende setningen
-  (`vedtakshenvisninger.py`).
+  (`vedtakshenvisninger.py`). *Merknad 17.11:* Etter #2086 viser ingen fil i `kjerne/` til dem
+  som eneste grunnlag, og de er design. En uavhengig kontroll rettet `bindende_i`: MM-U50 for
+  alle tre, LV-U44 og LV-U45 for LV-U53, og ikke LV-U45 for LV-U42 (se #1534).
 - **Annet hjem:** LV-U54 er bindende i MM-U55 og LV-U56, ikke i MM-U52. Ordlyden i HF-U29
   pkt. 2 er beslutningsdel, fordi LV-U73 har tatt den.
 - **Budskapet står utenfor designdelen:** I LV-U4, LV-U56 og GR-U32 sier designdelen uttrykkelig
