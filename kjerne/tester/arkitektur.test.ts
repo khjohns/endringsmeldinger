@@ -1599,10 +1599,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/vedlegg.ts:innholdetIVedleggene', 'kommandoer/vedlegg.ts:innholdetIDokumentet'],
   ],
   // VS-U74, #2133: samme brev som et krav som gjelder som varselet, er ikke et varsel etter samme
-  // bestemmelse. Hele dokumentet sammenliknes.
+  // bestemmelse.
   ['kommandoer/vedlegg.ts', 'relasjon', 'kravetErVarselet', ['kommandoer/skriving.ts:skriv']],
   ['kommandoer/vedlegg.ts:kravetErVarselet', 'kommando', 'lest u'],
   ['Krav', 'relasjon', 'dokument', ['kommandoer/vedlegg.ts:kravetErVarselet']],
+  ['Dokument', 'relasjon', 'retter', ['kommandoer/vedlegg.ts:kravetErVarselet']],
   [
     'kommandoer/vedlegg.ts',
     'relasjon',

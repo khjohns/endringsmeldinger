@@ -6302,6 +6302,14 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['brevet som er lagt til som krav, avvises som varsel etter punkt'],
   },
   {
+    id: 'F738',
+    feilklasse:
+      'et krav sendt fra løsningen med brevet som vedlegg sperrer brevet som varsel (VS-U74, #2133)',
+    fil: `${K}/kommandoer/vedlegg.ts`,
+    endringer: [['      erRegistrert(h.dokument.opplysninger) &&', '      true &&']],
+    mal: ['et krav sendt fra løsningen med brevet som vedlegg sperrer ikke brevet som varsel'],
+  },
+  {
     id: 'F739',
     feilklasse:
       'sperren for brevet med kravet gjelder også varselet etter punkt 32.2 (VS-U74, svaret 2a)',
