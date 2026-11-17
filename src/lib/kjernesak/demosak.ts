@@ -68,7 +68,19 @@ export interface Startjournal {
   journal: Journalrad[];
 }
 
-export const FORLOEP = (startjournaler as unknown as { forlop: Startjournal[] }).forlop;
+/**
+ * `data` med gjeldende regelversjon i beslutningsgrunnlaget og aksepten. Startjournalene har
+ * versjonen fra da innholdet sist ble endret, fordi en ny regelversjon alene ikke skriver fila
+ * på nytt (#2116, `sammenliknbar` i `kjerne/tester/brukerforloep.ts`).
+ */
+export const medGjeldendeRegelversjon = <T>(data: T): T =>
+  JSON.parse(JSON.stringify(data), (felt, verdi: unknown) =>
+    felt === 'regelversjon' ? KJERNE.regler.versjon : verdi
+  ) as T;
+
+export const FORLOEP = medGjeldendeRegelversjon(
+  startjournaler as unknown as { forlop: Startjournal[] }
+).forlop;
 
 export const finnForloep = (id: string): Startjournal | null =>
   FORLOEP.find((f) => f.id === id) ?? null;

@@ -386,6 +386,20 @@ export async function genererte(): Promise<Record<string, string>> {
   };
 }
 
+/**
+ * #2116: startjournalene sammenliknes uten regelversjonen beslutningsgrunnlaget fryser. Fila
+ * skrives bare på nytt når noe annet er endret, så en ny `REGELVERSJON` endrer den ikke, og
+ * demoruta setter inn gjeldende versjon når den laster fila (`FORLOEP` i `demosak.ts`).
+ */
+export const sammenliknbar = (fil: string, innhold: string): string =>
+  fil === STARTJOURNALER ? innhold.replace(/("regelversjon": )\d+/g, '$1null') : innhold;
+
+/** Om den lagrede fila stemmer med den genererte (`sammenliknbar`). */
+export const stemmer = (fil: string, innhold: string): boolean => {
+  const fraFor = lagret(fil);
+  return fraFor !== null && sammenliknbar(fil, fraFor) === sammenliknbar(fil, innhold);
+};
+
 export const lagret = (fil: string): string | null => {
   try {
     return readFileSync(join(MAPPE, fil), 'utf8');
@@ -400,6 +414,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     process.exit(2);
   }
   for (const [fil, innhold] of Object.entries(await genererte())) {
+    if (stemmer(fil, innhold)) continue;
     writeFileSync(join(MAPPE, fil), innhold);
     console.log(`Skrev ${join('docs/domenetabell/brukerforlop', fil)}`);
   }
