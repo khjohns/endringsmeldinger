@@ -643,7 +643,9 @@ function ugyldigIVederlaget(
  * Lagene i et svarutkast på vederlag, også før alle spørsmålene er besvart (OV-U33, #1925). Hvert
  * standpunkt står i laget én av tre utfyllinger av de ubesvarte spørsmålene gir det:
  * - beløpet og varselet etter § 34.1.2 og § 34.1.3: en ubesvart beregningsregel regnes som
- *   godtatt (#1756 punkt 1), og et ubesvart varsel gir ikke noe standpunkt (S1-A);
+ *   godtatt (#1756 punkt 1), et ubesvart varsel gir ikke noe standpunkt (S1-A), og en
+ *   oppgjørsform byggherren mener som ikke er valgt, fylles ut med en regel byggherren kan mene
+ *   (#2140);
  * - oppgjørsformen: hver beregningsregel som ikke godtatt, med den andre regelen, og fast sum som
  *   godtatt, uansett svaret (OV-U33, LV-U31, VS-U4);
  * - varselet etter § 34.3.3 og justeringen: som beløpet, og en ubesvart innsigelse mot dem som

@@ -6405,6 +6405,19 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['gir lagene oppgjørsformen byggherren mener som ubesvart'],
   },
   {
+    id: 'F751',
+    feilklasse:
+      'utfyllingen i lagene i vederlaget mener beregningsregelen totalentreprenøren krever (#2140)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        '                : denAndreRegelen(post.oppgjoersform),',
+        '                : post.oppgjoersform,',
+      ],
+    ],
+    mal: ['når beregningsregelen ikke godtas, gir lagene oppgjørsformen byggherren mener'],
+  },
+  {
     id: 'F749',
     feilklasse:
       'omtalen av registrert korrespondanse bruker dagen den ble registrert (LV-U45, #2140)',
@@ -6419,7 +6432,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'datoen for dokumentet leses bare som «sendt» når slaget ikke er oppgitt (#2140)',
     fil: `${K}/format/leser.ts`,
     endringer: [['(hva === undefined || o.hva === hva)', "(o.hva === (hva ?? 'sendt'))"]],
-    mal: ['mottatt'],
+    mal: ['korrespondanse som bare er mottatt, er også registrert'],
   },
 ];
 interface Testresultat {

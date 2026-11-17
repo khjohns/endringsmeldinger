@@ -12272,6 +12272,17 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     ).toBe(true);
   });
 
+  it('vederlaget: når beregningsregelen ikke godtas, gir lagene oppgjørsformen byggherren mener som ubesvart før den er valgt (arbeidsvalget i #479, #2140)', () => {
+    const s = saken(
+      vederlagskravet({
+        kravposter: [{ betegnelse: 'P1', beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid' }],
+      })
+    );
+    const v = { kravposter: [{ gjelder: 'P1', aksepterer: false }] };
+    expect(ubesvart(s, 'vederlag', v)).toEqual(['P1.oensket_oppgjoersform']);
+    expect(melding(s, 'vederlag', v)).toContain('oensket_oppgjoersform: mangler');
+  });
+
   it('vederlaget: uten svar er varselet etter § 34.1.2, beløpet og svaret på tilbudet etter § 34.2.2 påkrevd (OV-U15, KA-U57 (d))', () => {
     const s = saken(vederlagskravet(tilbud(100000)), true);
     expect(ubesvart(s, 'vederlag', {})).toEqual([
