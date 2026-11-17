@@ -1680,33 +1680,53 @@ def test_en_endring_fra_en_opphevet_post_telles_ikke(grunnregister, overtatt, va
     assert vr.varsler(endret, endret) == (forventet if varsel else [])
 
 
-@pytest.mark.parametrize("samlet", [True, False])
-def test_en_endring_fra_en_samlet_post_telles_fra_samlevedtaket(grunnregister, samlet):
-    """S2 A 17.11 i #2143: en endring fra en post et gjeldende samlevedtak samler, telles som en
-    endring fra samlevedtaket, og kjeden telles ikke videre gjennom posten. XX-U5 samler XX-U3
-    og XX-U4, slik samlevedtaket for brev sendt utenfor løsningen samler OV-U98 og OV-U102."""
+def _samlevedtak_med_fire_endringer(grunnregister) -> dict:
+    """XX-U1 samler KA-U1. XX-U2, XX-U3, XX-U4 og XX-U7 presiserer XX-U1, og XX-U6 presiserer
+    XX-U3."""
     endret = med(grunnregister, ny_post(forhold=[{"art": "samler", "vedtak": "ka-u1"}]))
-    for i in (2, 3, 4):
+    for i in (2, 3, 4, 7):
         endret = med(
             endret, ny_post(id=f"XX-U{i}", forhold=[{"art": "presiserer", "vedtak": "xx-u1"}])
         )
-    endret = med(endret, ny_post(id="XX-U6", forhold=[{"art": "presiserer", "vedtak": "xx-u3"}]))
+    return med(endret, ny_post(id="XX-U6", forhold=[{"art": "presiserer", "vedtak": "xx-u3"}]))
+
+
+def _samler(id: str, *vedtak: str) -> dict:
+    return ny_post(id=id, forhold=[{"art": "samler", "vedtak": v} for v in vedtak])
+
+
+@pytest.mark.parametrize("samlet", [True, False])
+def test_en_endring_fra_en_samlet_post_telles_fra_samlevedtaket(grunnregister, samlet):
+    """S2 A 17.11 i #2143. XX-U5 samler XX-U3 og XX-U4, slik samlevedtaket for brev sendt utenfor
+    løsningen samler OV-U98 og OV-U102. XX-U1 har da tre endringer: XX-U2, XX-U7 og XX-U5, og
+    kjeden går ikke videre gjennom XX-U3 til XX-U6."""
+    endret = _samlevedtak_med_fire_endringer(grunnregister)
     if samlet:
-        endret = med(
-            endret,
-            ny_post(
-                id="XX-U5",
-                forhold=[
-                    {"art": "samler", "vedtak": "xx-u3"},
-                    {"art": "samler", "vedtak": "xx-u4"},
-                ],
-            ),
+        endret = med(endret, _samler("XX-U5", "xx-u3", "xx-u4"))
+        forventet = (
+            "xx-u1: har fått 3 endringer etter at temaet er samlet; den neste endringen skrives "
+            "som et samlevedtak (svar 6 og 10 04.11 i #1534)"
         )
-    forventet = [
-        "xx-u1: har fått 4 endringer etter at temaet er samlet (gjennom kjeden: xx-u6 presiserer "
-        "xx-u3); den neste endringen skrives som et samlevedtak (svar 6 og 10 04.11 i #1534)"
+    else:
+        forventet = (
+            "xx-u1: har fått 5 endringer etter at temaet er samlet (gjennom kjeden: xx-u6 "
+            "presiserer xx-u3); den neste endringen skrives som et samlevedtak (svar 6 og 10 "
+            "04.11 i #1534)"
+        )
+    assert vr.varsler(endret, endret) == [forventet]
+
+
+def test_en_post_samlet_av_to_samlevedtak_telles_en_gang(grunnregister):
+    """S2 A 17.11 i #2143 og «Hver post telles én gang» (#1726). XX-U3 og XX-U4 er samlet av både
+    XX-U5 og XX-U8, og XX-U1 har fortsatt tre endringer: XX-U2, XX-U7 og XX-U8, det nyeste."""
+    endret = _samlevedtak_med_fire_endringer(grunnregister)
+    endret = med(endret, _samler("XX-U5", "xx-u3", "xx-u4"))
+    endret = med(endret, _samler("XX-U8", "xx-u3", "xx-u4"))
+    meldinger = vr.varsler(endret, endret)
+    assert [m for m in meldinger if m.startswith("xx-u1:")] == [
+        "xx-u1: har fått 3 endringer etter at temaet er samlet; den neste endringen skrives "
+        "som et samlevedtak (svar 6 og 10 04.11 i #1534)"
     ]
-    assert vr.varsler(endret, endret) == ([] if samlet else forventet)
 
 
 def _samlet_med_to_endringer(grunnregister) -> dict:

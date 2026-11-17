@@ -1154,8 +1154,8 @@ def varsler(register: dict, gammel_register: dict | None) -> list[str]:
     i en post som ikke står på main, og et samlet vedtak som har fått tre endringer eller mer fra
     gjeldende poster (svar 2 A i #1614). En endring av en post som endrer samlevedtaket, telles
     også, gjennom hele kjeden, men ikke videre gjennom et annet samlevedtak. En endring fra en
-    post et gjeldende samlevedtak samler, telles som en endring fra samlevedtaket (S2 A 17.11 i
-    #2143). Hver post telles én gang, som i eksemplet i #1726."""
+    post et gjeldende samlevedtak samler, telles fra samlevedtaket (S2 A 17.11 i #2143). Er posten
+    samlet av flere, telles den fra det nyeste. Hver post telles én gang, som i eksemplet i #1726."""
     ut = []
     if gammel_register is not None:
         paa_main = {p["id"] for p in _nye(gammel_register)}
@@ -1172,20 +1172,21 @@ def varsler(register: dict, gammel_register: dict | None) -> list[str]:
         for p in gjeldende
         if STEG_4_AVSLUTTET and er_ny(p) and p["dato"] > STEG_4_AVSLUTTET
     }
-    samlet_av = collections.defaultdict(set)
+    samlet_av: dict[str, tuple[datetime.date, str]] = {}
     for p in gjeldende:
-        if (anker(p) or etikett(p)) in samlevedtak:
+        s = anker(p) or etikett(p)
+        if s in samlevedtak:
             for f in p.get("forhold", []):
                 if f["art"] == "samler":
-                    samlet_av[f["vedtak"]].add(anker(p) or etikett(p))
+                    nytt = (p.get("dato", datetime.date.min), s)
+                    samlet_av[f["vedtak"]] = max(samlet_av.get(f["vedtak"], nytt), nytt)
     endrer = collections.defaultdict(list)
     for p in gjeldende:
         a = anker(p) or etikett(p)
+        fra = samlet_av[a][1] if a in samlet_av else a
         for f in p.get("forhold", []):
-            if f["art"] in ENDRINGER:
-                for fra in sorted(samlet_av.get(a) or {a}):
-                    if fra != f["vedtak"]:
-                        endrer[f["vedtak"]].append((fra, f["art"], f["vedtak"]))
+            if f["art"] in ENDRINGER and fra != f["vedtak"]:
+                endrer[f["vedtak"]].append((fra, f["art"], f["vedtak"]))
     for a in sorted(telles):
         sett = {a} | {post for post, _, _ in endrer[a]}
         kjede, aapne = [], sorted(sett - {a} - telles)

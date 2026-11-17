@@ -197,9 +197,12 @@ løsningen tar dem.
 ## Svarene om delingen
 
 Oppdragsgiver 17.11, ordrett (videresendt av orkestratoren): S1: «A: To PR-er (Anbefalt)». S2: «A:
-Telles fra samlevedtaket (Anbefalt)». B og C i S1 og B i S2 er forkastet. Denne PR-en er A1.
-Rettingen etter S2 A står i `varsler()`. Etter den varsler `--sjekk` ikke om KA-U51, fordi KA-U56,
-som endrer KA-U51, er samlet av OV-U95.
+Telles fra samlevedtaket (Anbefalt)». B og C i S1 og B i S2 er forkastet. Denne PR-en har
+kartleggingen og utkastet til A1 og rettingen etter S2 A i `varsler()`. Posten føres i
+`vedtak.toml` når oppdragsgiver har sluttet seg til utkastet. **Kjørt og observert:** etter
+rettingen forsvinner varselet for KA-U51, KA-U52 går fra 7 til 4 endringer og OV-U89 fra 13 til 4.
+Endringene kom gjennom poster OV-U95 samler, som KA-U56 og KA-U53. En post som er samlet av flere
+samlevedtak, telles fra det nyeste (review, se PR-en). Det som ikke telles etter S2 A, står i S3.
 
 ## Spørsmålene om delingen
 
@@ -234,6 +237,18 @@ Lagret ordrett før de sendes til orkestratoren. Begge gjelder framgangsmåten, 
 >   OV-U98 punkt for punkt der den presiserer dem.
 >
 > Styrer: om A2 har én eller tre nye versjoner av samlevedtak.
+
+> **S3. En senere endring av en samlet post (prosess, med en teknisk side).** Stilt 17.11 etter
+> reviewet av rettingen. Etter S2 A går kjeden ikke videre gjennom en samlet post. En endring som
+> kommer etter at posten er samlet, telles da ingen steder. KA-U75 og KA-U83 endrer KA-U56, som
+> OV-U95 samlet 07.11. Før S2 A ble de talt for KA-U51 og KA-U52 gjennom KA-U56.
+>
+> - **A (anbefalt):** En endring av en samlet post som er nyere enn samlevedtaket, telles som en
+>   endring av samlevedtaket. Da får KA-U49 (4), MM-U43 (3), MM-U50 (5) og VS-U47 (4) nye varsler,
+>   og flere endringer telles for OV-U95 (24), VS-U46 (10), KA-U52 (5) og MM-U55 (8).
+> - **B:** Tellingen står slik S2 A er bygget, og en senere endring av en samlet post telles ikke.
+>
+> Styrer: om fire samlevedtak til får varsel og må skrives på nytt etter svar 6 og 10.
 
 ## Spørsmålene om innholdet
 
