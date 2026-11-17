@@ -78,6 +78,7 @@ import {
   VARSELSPOR,
 } from '../typer.ts';
 import { lagFraForholdet } from '../spor/forhold/frysing.ts';
+import { kravetErVarselet } from './vedlegg.ts';
 
 /** Det serveren stempler kommandoen med. Klienten bestemmer ingen av dem. */
 export interface Kontekst {
@@ -698,7 +699,9 @@ function skriv(
     k.type === 'krav'
       ? (iSporet(SKRIVING, k.spor).kontekstsperre?.(k, kontekst) ??
         iSporet(SKRIVING, k.spor).saksperre?.(k, { lest, u, foer, vedKravet, oppslag: vedlegg }))
-      : null;
+      : k.type === 'varsel'
+        ? kravetErVarselet(k, ogsaaEtter, lestSak, vedlegg)
+        : null;
   if (sperre) return { godtatt: false, feil: 'REGELBRUDD', avvisning: sperre };
   // LV-U14: brevet lagrer ID-en, filnavnet og summen fra mellomlageret.
   const bundne: Vedlegg[] = [];
