@@ -648,6 +648,47 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByRole('region', { name: 'Sending' })).toBeNull();
   });
 
+  it('på smal skjerm med brevet lukket står hindringen også, og hver knapp som viser til den, viser til en melding som står (#2149)', async () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({
+      matches: true,
+      media: q,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+    try {
+      const demosak = lagDemosak(finnForloep('BF-04')!, 'te-har-mottatt-svaret', 'TE');
+      const ekte = lagKjernesak({
+        sakId: demosak.sakId,
+        prosjektId: 'demo',
+        part: 'TE',
+        hent: demosak.hent,
+        send: demosak.send,
+      });
+      await ekte.last();
+      const kjernesak = new Proxy(ekte, {
+        get: (t, k) => (k === 'brev' ? () => null : Reflect.get(t, k, t)),
+      });
+      render(Vardensak, { kjernesak, spor: 'vederlag' });
+      await screen.findByRole('list', { name: 'Brevene, nyeste først' });
+      // Smalt: brevet står ikke i høyre kolonne.
+      expect(document.querySelector('[data-brevpanel]')).toBeNull();
+      await fireEvent.click(
+        within(screen.getByRole('main')).getByRole('button', { name: /^Godta svaret/ })
+      );
+      const hindringen = await screen.findByText('Aksepten kan ikke lages nå.');
+      const id = hindringen.closest('[id]')!.id;
+      const viserTil = [...document.querySelectorAll('[aria-describedby]')].filter((e) =>
+        e.getAttribute('aria-describedby')!.split(' ').includes(id)
+      );
+      expect(viserTil.map((e) => e.textContent!.trim())).toEqual([
+        expect.stringMatching(/^Godta svaret/),
+      ]);
+      expect(document.querySelectorAll(`[id="${id}"]`)).toHaveLength(1);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('MM-U2: en opprettelse kjernen ikke forstår, gir overskriften «Uten tittel» og en melding om at saken ikke kan leses (#2079)', async () => {
     const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
     const hent: typeof demosak.hent = async (...a) => {

@@ -8,7 +8,7 @@
   Kommandoen bygges i `fristkrav.ts`, og kjernen lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
-  import { tick, untrack } from 'svelte';
+  import { untrack } from 'svelte';
   import { dager } from '#kjerne/frosset/tekst.ts';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -252,19 +252,16 @@
   let aapen = $state<string | null>(
     untrack(() => v.frister.find((p) => p.id === null && p.frist === null)?.noekkel ?? null)
   );
-  /** Fokus på det valgte i en gruppe, ellers det første feltet, ellers elementet selv. */
-  const fokuserIGruppen = (el: HTMLElement | null) =>
-    (
-      el?.querySelector<HTMLElement>('input:checked') ??
-      el?.querySelector<HTMLElement>('input') ??
-      el
-    )?.focus();
+  /** Det valgte i en gruppe, ellers det første feltet, ellers elementet selv. */
+  const iGruppen = (el: HTMLElement | null) =>
+    el?.querySelector<HTMLElement>('input:checked') ??
+    el?.querySelector<HTMLElement>('input') ??
+    el;
   async function aapne(p: Fristpostvalg) {
     aapen = p.noekkel;
-    await tick();
     // En fast frist fra forrige versjon har ikke valget av fristen.
-    fokuserIGruppen(
-      document.getElementById(id(`${fastFrist(p) ? 'dager' : 'frist'}-${p.noekkel}`))
+    await fokuser(() =>
+      iGruppen(document.getElementById(id(`${fastFrist(p) ? 'dager' : 'frist'}-${p.noekkel}`)))
     );
   }
   async function lukk(p: Fristpostvalg) {
@@ -291,8 +288,7 @@
     if (!p || aapen === p.noekkel) return;
     e.preventDefault();
     aapen = p.noekkel;
-    await tick();
-    fokuserIGruppen(document.getElementById(m.felt));
+    await fokuser(() => iGruppen(document.getElementById(m.felt)));
   }
 
   // Snarveien (BF-20 U-4).

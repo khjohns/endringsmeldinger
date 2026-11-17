@@ -117,6 +117,15 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     await fireEvent.click(screen.getByRole('radio', { name: '5 Mekanisk ferdigstillelse' }));
     await skriv(screen.getByLabelText('Dagene du krever'), '25');
     await fireEvent.click(screen.getByRole('button', { name: 'Legg til frist' }));
+    // Fokus står i valget av fristen i den nye fristen, der ingenting er valgt (#2149).
+    await vi.waitFor(() =>
+      expect(document.activeElement).toBe(
+        screen
+          .getByRole('radio', { name: 'En frist som ikke er registrert' })
+          .closest('fieldset, [role=radiogroup]')!
+          .querySelector('input')
+      )
+    );
     // Den første fristen lukkes til en linje i tabellen, og den nye står åpen.
     expect(
       screen.getByRole('button', { name: 'Endre 5 Mekanisk ferdigstillelse' })
