@@ -6,6 +6,7 @@
  */
 
 import { UgyldigVurdering } from './feil.ts';
+import { mangler } from './typer.ts';
 import type { Regelsett } from './regelsett.ts';
 
 /** § 32.3 c og § 32.2: svaret på forholdet i kategorien i kravet. */
@@ -33,6 +34,15 @@ export function kontrollerForholdet(
 }
 
 /**
+ * D-5: dagene byggherren måtte forstå er påkrevd når kravet er spesifisert for sent etter
+ * § 33.6.1, og ubesvart (`kontrollerSpesifiseringen`, #2025).
+ */
+export const maatteForstaaUbesvart = (v: {
+  spesifisert_krav_ok?: unknown;
+  dager_maatte_forstaa?: unknown;
+}): boolean => v.spesifisert_krav_ok === false && mangler(v.dager_maatte_forstaa);
+
+/**
  * VS-U4: når spesifiseringen kom for sent, oppgir byggherren dagene byggherren måtte forstå at
  * TE hadde krav på, høyst de vurderte og de krevde (arbeidsvalget i #479). Gir dagene, eller `null`.
  */
@@ -50,7 +60,7 @@ export function kontrollerSpesifiseringen(v: {
     return null;
   }
   const feil = (grunn: string) => new UgyldigVurdering({ dager_maatte_forstaa: grunn });
-  if (d === undefined || d === null) throw feil('mangler (punkt 33.6.1)');
+  if (maatteForstaaUbesvart(v)) throw feil('mangler (punkt 33.6.1)');
   if (typeof d !== 'number' || !Number.isInteger(d) || d < 0)
     throw feil('er ikke et helt antall dager');
   // `beregnFrist` har kontrollert at de vurderte dagene er høyst de krevde.

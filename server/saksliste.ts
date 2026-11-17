@@ -8,7 +8,12 @@
 
 import type { Fristresultat, Forholdsresultat, Vederlagsresultat } from '../kjerne/regler/typer.ts';
 import type { Dokument, Journalrad, Part, Spor } from '../kjerne/typer.ts';
-import { kalenderdag, registrertDato, sakstittelen } from '../kjerne/format/leser.ts';
+import {
+  datoForDokumentet,
+  kalenderdag,
+  registrertDato,
+  sakstittelen,
+} from '../kjerne/format/leser.ts';
 import type { Kjerne } from '../kjerne/versjon.ts';
 import { utledJournal } from '../kjerne/kommandoer/skriving.ts';
 import { betegnelsen, innholdIFristen, type FristIKravet } from '../kjerne/spor/frist/format.ts';
@@ -364,10 +369,9 @@ function frist(u: Utledning): Fristlinje {
  * #1450. En oppgitt dato som ikke kan leses, gir registreringsdagen.
  */
 function brevetsDato(d: Dokument): string {
-  const om = (hva: string) =>
-    d.opplysninger.find((o) => o.hva === hva && !('gjelder' in o && o.gjelder));
-  const oppgitt = om('sendt') ?? om('mottatt');
-  const dag = oppgitt && 'dato' in oppgitt ? kalenderdag(oppgitt.dato) : null;
+  const oppgitt =
+    datoForDokumentet(d.opplysninger, 'sendt') ?? datoForDokumentet(d.opplysninger, 'mottatt');
+  const dag = oppgitt ? kalenderdag(oppgitt.dato) : null;
   return dag ?? registrertDato(d);
 }
 
