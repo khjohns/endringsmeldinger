@@ -2,7 +2,7 @@
  * Påberopelsen og vederlagskravet med kravposter mot dagens TS-server (#667, #1663).
  * Påberopelsen er den Varden sender, bygget av `kommandoene` i
  * `src/lib/components/varden/nysak.ts` (#1678). Vederlagskravet bygges direkte i kjernens
- * format (OV-U95 punkt 19), og den låste teksten er den `brevFor` gir. Saken er en prøvesak
+ * format (OV-U115 punkt 19), og den låste teksten er den `brevFor` gir. Saken er en prøvesak
  * fra testverktøyet. Kildene til forventningene er formatet i kjernen, avgjørelsen om
  * valgfri utdypning (oppdragsgiver 17.10, #667) og LV-U2.
  */
@@ -37,7 +37,7 @@ const { paaberopelse: PAABEROPELSE } = kommandoene(
   KJERNE
 );
 
-/** Kravet med én kravpost med tilbud, i formatet i kjernen (OV-U95 punkt 19). */
+/** Kravet med én kravpost med tilbud, i formatet i kjernen (OV-U115 punkt 19). */
 const vederlagskrav = (beloep: number, utdypning = '') => ({
   type: 'krav',
   spor: 'vederlag',
