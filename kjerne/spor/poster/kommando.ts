@@ -7,16 +7,32 @@
 import type { Hjemmel, Standpunktsart, Virkning } from '../../typer.ts';
 
 /**
- * Lagene i utkastet. `F` er det som kan ramme et standpunkt i sporet, og `P` feltene sporet selv
- * har i standpunktet, som en særskilt post i vederlaget.
+ * Lagene i utkastet. `F` er det som kan ramme et standpunkt i sporet, `S` spørsmålene i sporet
+ * regelen krever svar på, og `P` feltene sporet selv har i standpunktet, som en særskilt post i
+ * vederlaget.
  */
-export interface Utkastlag<F, P extends object = object> {
+export interface Utkastlag<F, S extends string, P extends object = object> {
+  /**
+   * Spørsmålene regelen krever svar på før svaret kan sendes, og som er ubesvart i utkastet, i
+   * rekkefølgen regelen stiller dem (#2025). Et spørsmål er feltet i vurderingene, også en verdi
+   * som kreves av et annet svar, som dagene eller beløpet ved en delvis godkjenning. Er lista
+   * tom, avviser kjernen ikke svaret i sporet for et manglende svar; et svar på forholdet i samme
+   * brev kontrolleres for seg. En verdi som er gitt, men ikke kan
+   * godtas, står ikke her. `gjelder` er posten eller fristen spørsmålet gjelder, og mangler for
+   * et spørsmål om hele kravet. Et spørsmål som ikke er påkrevd, som varselet etter § 34.3.3,
+   * står ikke her (VS-U57).
+   */
+  ubesvart: { spoersmaal: S; gjelder?: string }[];
   standpunkter: (P & {
     art: Standpunktsart;
     hjemmel?: Hjemmel;
     /** Posten standpunktet gjelder (KA-U57 (c) og (d)). */
     gjelder?: string;
-    /** Beløpsspørsmålet for posten er besvart. Andre standpunkter finnes bare når de er besvart (KA-U4). */
+    /**
+     * Spørsmålet standpunktet svarer på, er besvart. Er det `false`, står standpunktet i laget en
+     * utfylling av spørsmålet gir, og laget kan endre seg når det besvares. Om svaret er påkrevd,
+     * står i `ubesvart`.
+     */
     besvart: boolean;
     /** Laget etter lagene fra forholdet, `upaavirket` eller `uten_virkning`. */
     virkning: Virkning;
