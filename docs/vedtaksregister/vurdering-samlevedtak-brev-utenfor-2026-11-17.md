@@ -204,6 +204,10 @@ rettingen forsvinner varselet for KA-U51, KA-U52 går fra 7 til 4 endringer og O
 Endringene kom gjennom poster OV-U95 samler, som KA-U56 og KA-U53. En post som er samlet av flere
 samlevedtak, telles fra det nyeste (review, se PR-en). Det som ikke telles etter S2 A, står i S3.
 
+Oppdragsgiver 17.11, ordrett, på tilslutningen og S3: «1 ja, 2 A»
+([6945921077](https://github.com/khjohns/endringsmeldinger/pull/2143#issuecomment-6945921077)).
+Utkastet er ført uten rettelser som OV-U114, og tellingen etter S3 A står i `varsler()`.
+
 ## Spørsmålene om delingen
 
 Lagret ordrett før de sendes til orkestratoren. Begge gjelder framgangsmåten, ikke rettsregler.
