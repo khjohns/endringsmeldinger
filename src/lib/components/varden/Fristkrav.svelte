@@ -256,7 +256,7 @@
     untrack(() => v.frister.find((p) => p.id === null && p.frist === null)?.noekkel ?? null)
   );
   /** Fokus på det valgte i en gruppe, ellers det første feltet, ellers elementet selv. */
-  const fokuser = (el: HTMLElement | null) =>
+  const fokuserIGruppen = (el: HTMLElement | null) =>
     (
       el?.querySelector<HTMLElement>('input:checked') ??
       el?.querySelector<HTMLElement>('input') ??
@@ -266,7 +266,9 @@
     aapen = p.noekkel;
     await tick();
     // En fast frist fra forrige versjon har ikke valget av fristen.
-    fokuser(document.getElementById(id(`${fastFrist(p) ? 'dager' : 'frist'}-${p.noekkel}`)));
+    fokuserIGruppen(
+      document.getElementById(id(`${fastFrist(p) ? 'dager' : 'frist'}-${p.noekkel}`))
+    );
   }
   async function lukk(p: Fristpostvalg) {
     aapen = null;
@@ -295,7 +297,7 @@
     e.preventDefault();
     aapen = p.noekkel;
     await tick();
-    fokuser(document.getElementById(m.felt));
+    fokuserIGruppen(document.getElementById(m.felt));
   }
 
   // Snarveien (BF-20 U-4).

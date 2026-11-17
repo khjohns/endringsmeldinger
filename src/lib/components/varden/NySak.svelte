@@ -25,7 +25,7 @@
   import Filvalg from './Filvalg.svelte';
   import Korrespondansen from './Korrespondansen.svelte';
   import Utkastkort from './Utkastkort.svelte';
-  import { fokuser } from './sendeflyt.svelte';
+  import { fokuser } from './mangler';
   import { ChevronDown } from 'lucide-svelte';
   import {
     FELTENE_UTEN_FORHOLD,

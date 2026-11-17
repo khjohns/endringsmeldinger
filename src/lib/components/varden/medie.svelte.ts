@@ -30,7 +30,7 @@ export const SMAL = '(max-width: 1180px)';
  */
 export function brevetVedSiden(
   onvedsiden: () => ((vedSiden: boolean) => void) | undefined,
-  leser: () => boolean
+  leser: () => boolean = () => true
 ): { readonly smal: boolean; readonly vedSiden: boolean } {
   const vindu = medietreff(SMAL);
   const vedSiden = $derived(leser() && !vindu.treff);

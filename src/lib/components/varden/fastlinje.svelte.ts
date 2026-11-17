@@ -11,12 +11,13 @@ const vilHaLinja = $state<string[]>([]);
 
 /**
  * Kalles mens komponenten initialiseres. `panel` er elementet som måles, og bindes på nytt når
- * det settes inn igjen. `skjult` er når linja aldri skal vises, som når brevet leses ved siden av.
+ * det settes inn igjen. `skjult` er når linja ikke skal vises, som når brevet leses ved siden av.
+ * Uten `skjult` har skjemaet ingen kompakt linje, og bare `faarPlass` regnes ut.
  */
 export function fastLinje(
   uid: string,
   panel: () => HTMLElement | null,
-  skjult: () => boolean
+  skjult?: () => boolean
 ): { readonly faarPlass: boolean; readonly visKompakt: boolean } {
   const tilstand = $state({ faarPlass: true, iSyne: true });
   $effect(() => {
@@ -27,7 +28,7 @@ export function fastLinje(
     ro.observe(el);
     window.addEventListener('resize', maal);
     const io =
-      typeof IntersectionObserver === 'undefined'
+      !skjult || typeof IntersectionObserver === 'undefined'
         ? null
         : new IntersectionObserver(([e]) => (tilstand.iSyne = e.isIntersecting));
     io?.observe(el);
@@ -38,7 +39,7 @@ export function fastLinje(
       window.removeEventListener('resize', maal);
     };
   });
-  const vilVise = $derived(!skjult() && !tilstand.faarPlass && !tilstand.iSyne);
+  const vilVise = $derived(!!skjult && !skjult() && !tilstand.faarPlass && !tilstand.iSyne);
   $effect(() => {
     if (!vilVise) return;
     untrack(() => vilHaLinja.push(uid));

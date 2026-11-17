@@ -92,10 +92,7 @@
 
   // Brevene står ved siden av utkastet, og på smal skjerm under det, der høyre kolonne står
   // under arbeidet (mønsteret i vederlagssvaret, oppdragsgiver 29.10, #1391).
-  const side = brevetVedSiden(
-    () => onvedsiden,
-    () => true
-  );
+  const side = brevetVedSiden(() => onvedsiden);
   const smal = $derived(side.smal);
 
   // Ett brev er åpent om gangen: byggherrens svar fra start, ellers det nyeste.

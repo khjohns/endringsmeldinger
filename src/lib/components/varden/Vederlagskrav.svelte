@@ -569,12 +569,7 @@
   // Panelet følger rullingen bare når det får plass i vinduet, så «Se brevet før sending» alltid
   // kan nås (U-16).
   let panel = $state<HTMLElement | null>(null);
-  // Kravskjemaet har ingen kompakt linje.
-  const linja = fastLinje(
-    uid,
-    () => panel,
-    () => true
-  );
+  const linja = fastLinje(uid, () => panel);
 </script>
 
 {#snippet lest(b: Brevet, ramme: 'kant' | 'innfelt')}

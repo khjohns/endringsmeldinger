@@ -5,21 +5,19 @@
  * knappen og får fokus. Skjemaet gir bare kommandoen og det som skjer etterpå.
  */
 
-import { tick } from 'svelte';
 import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
 import { kontrollbrev, type Kontrollbrev } from './Brevkontroll.svelte';
 import { leggTilISaken } from './korrespondansen';
-import { feltfeil, type Mangel } from './mangler';
+import { feltfeil, fokuser, type Mangel } from './mangler';
 import type { vedleggskart } from './nysak';
 
 type Vedlegg = ReturnType<typeof vedleggskart>;
 type Kommando = Record<string, unknown>;
-type Fokus = () => HTMLElement | null | undefined;
 type Kjernebrevet = ReturnType<Kjernesakkontekst['brev']>;
 
 export interface Sendesteg {
   /** Hvor fokus går når noe mangler, eller `null` når skjemaet kan sendes. */
-  mangler: Fokus | null;
+  mangler: (() => HTMLElement | null | undefined) | null;
   /** Korrespondansen som legges til i stedet for å sendes (OV-U80), med det som skjer etterpå. */
   lagtTil?: { kommando: Kommando; vedlegg: Vedlegg; ferdig: () => void } | null;
   kommando: Kommando;
@@ -33,12 +31,6 @@ export interface Sendesteg {
   tilBrevkontrollen: (brevet: Kontrollbrev) => void;
 }
 
-/** Fokus til elementet når det er tegnet, som oppsummeringen av det som mangler. */
-export async function fokuser(fokus: Fokus) {
-  await tick();
-  fokus()?.focus();
-}
-
 /**
  * Kalles mens komponenten initialiseres. `hindringId` er ID-en til meldingen om hindringen, som
  * knappen viser til med `aria-describedby`.
@@ -47,10 +39,11 @@ export function sendeflyt(kjernesak: () => Kjernesakkontekst, hindringId: string
   const t = $state({ forsoekt: false, hindring: null as string | null });
 
   /** Nullstiller hindringen. Mangler noe, vises det med fokus, og `false` gis tilbake. */
-  function kontroller(mangler: Fokus | null): boolean {
+  function kontroller(mangler: Sendesteg['mangler']): boolean {
     t.hindring = null;
     if (!mangler) return true;
     t.forsoekt = true;
+    // Svaret venter ikke på fokuset, så resten av sendingen ikke kommer et mikrosteg senere.
     void fokuser(mangler);
     return false;
   }
@@ -96,7 +89,6 @@ export function sendeflyt(kjernesak: () => Kjernesakkontekst, hindringId: string
     /** Feilen ved feltet etter et forsøk. */
     feil: (m: Mangel | undefined) => (t.forsoekt ? feltfeil(m) : null),
     kontroller,
-    hindre,
     leggTil,
     send,
   };

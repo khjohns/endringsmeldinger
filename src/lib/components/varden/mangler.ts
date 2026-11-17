@@ -1,3 +1,11 @@
+import { tick } from 'svelte';
+
+/** Fokus til elementet når det er tegnet, som oppsummeringen av det som mangler. */
+export async function fokuser(element: () => HTMLElement | null | undefined) {
+  await tick();
+  element()?.focus();
+}
+
 /** Det som mangler før brevet kan lages, i et krav- eller svarskjema (MM-U32). */
 export interface Mangel {
   /** ID-en til feltet, med starten skjemaet gir ID-ene sine. */
