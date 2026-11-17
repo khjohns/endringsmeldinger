@@ -171,6 +171,12 @@
   );
   const vedleggLagtTil = $derived(vedleggskart(lagtTil?.vedlegg ?? []));
 
+  const knapp = $derived({
+    tekst: lagtTil ? LEGG_TIL.leggTilSvaret : HOVEDLINJER.seBrevet,
+    onclick: seBrevet,
+    opptatt: !!lagtTil && kjernesak.sender,
+  });
+
   // Brevet leses i en ramme ved siden av skjemaet, og på smal skjerm i skjemaet, der høyre
   // kolonne står under arbeidet (oppdragsgiver 29.10, #1391).
   let leser = $state(false);
@@ -196,9 +202,7 @@
 {#snippet kravbrevInnfelt()}{@render kravbrev('innfelt')}{/snippet}
 
 {#snippet kompaktLinje(tilPanelet: () => void)}
-  <Knapp variant="primaer" onclick={seBrevet} opptatt={!!lagtTil && kjernesak.sender}
-    >{lagtTil ? LEGG_TIL.leggTilSvaret : HOVEDLINJER.seBrevet}</Knapp
-  >
+  <Knapp variant="primaer" onclick={knapp.onclick} opptatt={knapp.opptatt}>{knapp.tekst}</Knapp>
   <Knapp onclick={tilPanelet}>{HOVEDLINJER.seHovedlinjene}</Knapp>
 {/snippet}
 
@@ -217,18 +221,13 @@
   {onendre}
   {flyt}
   mangler={alleMangler}
-  manglerTittel={lagtTil ? LEGG_TIL.mangler : SKJEMA.mangler}
+  manglerTittel={SKJEMA.mangler}
   ongaa={gaaTil}
   bind:oppsummering
   forkastTekst={SVARSKJEMA.forkastTekst}
   {onforkast}
   skilt
-  knapp={{
-    tekst: lagtTil ? LEGG_TIL.leggTilSvaret : HOVEDLINJER.seBrevet,
-    onclick: seBrevet,
-    opptatt: !!lagtTil && kjernesak.sender,
-  }}
-  utenKnapp={stopp !== null}
+  knapp={stopp === null ? knapp : null}
   lesing={side.vedSiden
     ? { id: `${uid}-kravbrev`, brev: kravbrevet, innhold: kravbrevInnfelt }
     : null}

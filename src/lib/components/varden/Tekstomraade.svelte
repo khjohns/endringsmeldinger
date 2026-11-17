@@ -1,12 +1,11 @@
 <!--
-  Et tekstfelt over flere linjer i skjemaene, med labelen over, hjelpeteksten under labelen,
-  feltet og feilmeldingen under (system.md, «Feltene står under hverandre», #2119). Feltet har
-  full bredde og kan gjøres høyere; `vokser` lar det vokse med teksten i stedet. Uten `etikett`
-  står labelen et annet sted, som overskriften i `Spoersmaal`, og `merketAv` peker på den.
+  Et tekstfelt over flere linjer i skjemaene, i rammen `Felt` (system.md, «Feltene står under
+  hverandre», #2119). Feltet har full bredde og kan gjøres høyere; `vokser` lar det vokse med
+  teksten i stedet. Uten `etikett` står labelen et annet sted, som overskriften i `Spoersmaal`, og
+  `merketAv` peker på den.
 -->
 <script lang="ts">
-  import type { Snippet } from 'svelte';
-  import Feltetikett from './Feltetikett.svelte';
+  import Felt, { beskrevetAv } from './Felt.svelte';
 
   let {
     id,
@@ -24,7 +23,6 @@
     valgfri = false,
     underordnet = false,
     oninput,
-    children,
   }: {
     id: string;
     etikett?: string;
@@ -47,28 +45,17 @@
     /** Labelen for et punkt under en felles overskrift (`Feltetikett`). */
     underordnet?: boolean;
     oninput?: () => void;
-    /** Tekst mellom labelen og feltet, etter hjelpeteksten. */
-    children?: Snippet;
   } = $props();
 
-  const beskrevetAv = $derived(
-    [...foran, hjelp ? `${id}-hjelp` : '', ...etter, feil ? `${id}-feil` : '']
-      .filter(Boolean)
-      .join(' ') || undefined
-  );
-
   $effect(() => {
-    void verdi;
     if (!vokser || !felt) return;
+    void verdi;
     felt.style.height = 'auto';
     felt.style.height = `${felt.scrollHeight + 2}px`;
   });
 </script>
 
-<div class="tekstomraade">
-  {#if etikett}<Feltetikett for={id} {valgfri} {underordnet}>{etikett}</Feltetikett>{/if}
-  {#if hjelp}<span class="dempet" id={`${id}-hjelp`}>{hjelp}</span>{/if}
-  {@render children?.()}
+<Felt {id} {etikett} {hjelp} {feil} {valgfri} {underordnet}>
   <textarea
     {id}
     rows={rader}
@@ -76,24 +63,14 @@
     bind:value={verdi}
     bind:this={felt}
     aria-labelledby={merketAv}
-    aria-describedby={beskrevetAv}
+    aria-describedby={beskrevetAv(id, hjelp, feil, foran, etter)}
     aria-invalid={feil ? 'true' : undefined}
     aria-required={paakrevd ? 'true' : undefined}
     {oninput}
   ></textarea>
-  {#if feil}<p class="feilmelding" id={`${id}-feil`}>{feil}</p>{/if}
-</div>
+</Felt>
 
 <style>
-  .tekstomraade {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
-  }
-  .dempet {
-    color: var(--ink-3);
-    font-size: 14px;
-  }
   textarea {
     padding: var(--spacing-3);
     border: var(--control-border);
@@ -115,10 +92,5 @@
   textarea[aria-invalid='true'] {
     border-color: var(--danger);
     box-shadow: inset 0 0 0 1px var(--danger);
-  }
-  .feilmelding {
-    color: var(--danger);
-    font-size: 14px;
-    font-weight: 500;
   }
 </style>

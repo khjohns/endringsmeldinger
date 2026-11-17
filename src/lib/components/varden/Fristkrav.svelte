@@ -581,7 +581,7 @@
   {onendre}
   {flyt}
   {mangler}
-  manglerTittel={lagtTil ? LEGG_TIL.mangler : SKJEMA.mangler}
+  manglerTittel={SKJEMA.mangler}
   ongaa={gaaTil}
   bind:oppsummering
   forkastTekst={FRISTKRAV.forkastTekst}

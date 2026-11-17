@@ -43,7 +43,6 @@
     onforkast,
     skilt = false,
     knapp,
-    utenKnapp = false,
     lesing = null,
     panel,
     tidslinje,
@@ -65,6 +64,7 @@
     oeverst?: Snippet;
     flyt: ReturnType<typeof sendeflyt>;
     mangler: Mangel[];
+    /** Tittelen på oppsummeringen av det som mangler, for et brev som sendes herfra. */
     manglerTittel: string;
     ongaa: (m: Mangel, e: MouseEvent) => void;
     oppsummering?: HTMLElement | null;
@@ -72,9 +72,8 @@
     onforkast: () => void;
     /** En linje over «Forkast utkast», når det over ikke slutter med en. */
     skilt?: boolean;
-    knapp: { tekst: string; onclick: () => void; opptatt: boolean };
-    /** Skjemaet kan ikke sendes nå, og har ingen sendeknapp. */
-    utenKnapp?: boolean;
+    /** Sendeknappen, eller `null` når skjemaet ikke kan sendes nå. */
+    knapp: { tekst: string; onclick: () => void; opptatt: boolean } | null;
     /** Brevet som leses ved siden av skjemaet, eller `null` når det ikke gjør det. */
     lesing?: { id: string; brev: Brevet; innhold: Snippet } | null;
     /** Panelet i høyre kolonne, med sendeknappen der den skal stå. */
@@ -96,7 +95,7 @@
   const linja = fastLinje(
     uid,
     () => panelet,
-    () => kompakt === null || utenKnapp || lesing !== null
+    () => kompakt === null || knapp === null || lesing !== null
   );
 </script>
 
@@ -104,9 +103,9 @@
   <div class="handling">
     <Knapp
       variant="primaer"
-      onclick={knapp.onclick}
-      opptatt={knapp.opptatt}
-      aria-describedby={flyt.hindring ? flyt.hindringId : undefined}>{knapp.tekst}</Knapp
+      onclick={knapp!.onclick}
+      opptatt={knapp!.opptatt}
+      aria-describedby={flyt.hindring ? flyt.hindringId : undefined}>{knapp!.tekst}</Knapp
     >
   </div>
   {#if flyt.hindring}
@@ -129,7 +128,12 @@
       {/if}
       {@render oeverst?.()}
       {#if flyt.forsoekt && mangler.length}
-        <Manglene tittel={manglerTittel} {mangler} {ongaa} bind:element={oppsummering} />
+        <Manglene
+          tittel={lagtTil ? LEGG_TIL.mangler : manglerTittel}
+          {mangler}
+          {ongaa}
+          bind:element={oppsummering}
+        />
       {/if}
 
       {@render children()}
@@ -142,12 +146,12 @@
 
   {#snippet hoeyre()}
     {#if lesing}
-      <Leseramme id={lesing.id} brev={lesing.brev} bunn={utenKnapp ? undefined : sendeknapp}>
+      <Leseramme id={lesing.id} brev={lesing.brev} bunn={knapp ? sendeknapp : undefined}>
         {@render lesing.innhold()}
       </Leseramme>
     {:else}
       <div class="feste" class:fast={linja.faarPlass} bind:this={panelet}>
-        {@render panel(utenKnapp ? undefined : sendeknapp)}
+        {@render panel(knapp ? sendeknapp : undefined)}
       </div>
       {@render tidslinje()}
     {/if}
