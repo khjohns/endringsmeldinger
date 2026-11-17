@@ -107,7 +107,7 @@ finner ut at pålegget ble mottatt 20.09.2026.
 - **D-4** Korrigeringen avvises når datoen er uendret (`DATOEN_ER_UENDRET`), når den ikke
   gjelder TEs siste opplysning (`UGYLDIG_KORRIGERING`), når datoen er etter brevets dato, og i
   underkategorien endringsordre og ved force majeure, der totalentreprenøren ikke oppgir noen slik
-  dato (`INGEN_DATO_I_KATEGORIEN`, VS-U43 punkt 1). Arbeidsvalgene står i
+  dato (`INGEN_DATO_I_KATEGORIEN`, VS-U76 punkt 1). Arbeidsvalgene står i
   [#1308](https://github.com/khjohns/endringsmeldinger/issues/1308#issuecomment-6656493872).
 - **D-5** En ny grunnlagsversjon kan ikke endre datoen og avvises med
   `DATOEN_KAN_IKKE_ENDRES`. Etter en korrigering sier den: ‹Pålegget ble mottatt <dato>.

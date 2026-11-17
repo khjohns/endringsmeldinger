@@ -4159,10 +4159,10 @@ const MUTASJONER: Mutasjon[] = [
     ],
     mal: ['en merking som ikke slutter med brevnummeret, eller står uten nummeret'],
   },
-  // #1489: varselet etter § 32.2 er det første grunnlagskravet (VS-U43 punkt 6 og 10).
+  // #1489: varselet etter § 32.2 er det første grunnlagskravet (VS-U76 punkt 6 og 10).
   {
     id: 'F449',
-    feilklasse: 'påberopelsen etter § 32.2 gjelder versjonen svaret gjelder (VS-U43 punkt 6)',
+    feilklasse: 'påberopelsen etter § 32.2 gjelder versjonen svaret gjelder (VS-U76 punkt 6)',
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       [
@@ -4175,7 +4175,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F450',
     feilklasse:
-      'en lagret påberopelse etter § 32.2 som viser til en senere versjon, forstås (VS-U43 punkt 6)',
+      'en lagret påberopelse etter § 32.2 som viser til en senere versjon, forstås (VS-U76 punkt 6)',
     fil: `${K}/utledning/utled.ts`,
     endringer: [
       [
@@ -4187,7 +4187,7 @@ const MUTASJONER: Mutasjon[] = [
   },
   {
     id: 'F451',
-    feilklasse: 'brevet nevner ikke brevet med det første grunnlagskravet (VS-U43 designdelen)',
+    feilklasse: 'brevet nevner ikke brevet med det første grunnlagskravet (VS-U76 designdelen)',
     fil: `${K}/frosset/brevtekst.ts`,
     endringer: [
       [
@@ -4200,7 +4200,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F452',
     feilklasse:
-      'svaret på grunnlaget tilbys og skrives med et registrert varsel etter § 32.2 som ikke har brevtekst (VS-U43 E3, #1600)',
+      'svaret på grunnlaget tilbys og skrives med et registrert varsel etter § 32.2 som ikke har brevtekst (VS-U76 punkt 6, #1600)',
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [
       ["  return registrert && varseletForNyttSvar(u, '32.2') === registrert.id", '  return false'],
@@ -4213,7 +4213,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F453',
     feilklasse:
-      'sperren for et registrert varsel etter § 32.2 mangler i revisjonen og stopper svaret i de andre sporene (VS-U43 E3, #1600)',
+      'sperren for et registrert varsel etter § 32.2 mangler i revisjonen og stopper svaret i de andre sporene (VS-U76 punkt 6, #1600)',
     fil: `${K}/kommandoer/forutsetninger.ts`,
     endringer: [
       [
@@ -5173,7 +5173,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F526',
     feilklasse:
-      'påberopelsen regnes som varsel etter § 32.2 også der varslingsplikten ikke gjelder (VS-U60, VS-U43 punkt 6)',
+      'påberopelsen regnes som varsel etter § 32.2 også der varslingsplikten ikke gjelder (VS-U60, VS-U76 punkt 6)',
     fil: `${K}/kommandoer/nyttelast.ts`,
     endringer: [
       [
@@ -5945,7 +5945,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F634',
     feilklasse:
-      'force majeure får en dato varslingsplikten løper fra (VS-U26, VS-U43 punkt 1, #1955)',
+      'force majeure får en dato varslingsplikten løper fra (VS-U26, VS-U76 punkt 1, #1955)',
     fil: `${K}/spor/forhold/format.ts`,
     endringer: [
       [
