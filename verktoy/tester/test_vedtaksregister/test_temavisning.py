@@ -212,7 +212,7 @@ def test_kjeden_viser_forholdene_begge_veier_i_raden_til_vedtaket(tema, kilder):
     aktive, passive = _kjederad(tekst, "GR-U15")
     assert aktive == ["Utvider [GR-U13](#gr-u13)"] and passive == ["Lagt til grunn av [VS-U68](#vs-u68)"]
     aktive, passive = _kjederad(tekst, "VS-U68")
-    assert "Bygger på [GR-U15](#gr-u15)" in aktive and passive == ["—"]
+    assert "Bygger på [GR-U15](#gr-u15)" in aktive and passive == ["Samlet av [VS-U77](#vs-u77)"]
 
 
 def test_vedtak_utenfor_temaet_lenkes_til_3_1(tema, kilder):
