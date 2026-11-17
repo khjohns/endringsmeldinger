@@ -102,7 +102,7 @@ export const erKravpostpunkt = (punkt: string | undefined): boolean =>
   punkt !== undefined && /^P[1-9]\d*$/.test(punkt);
 
 // Innledningen og oversikten har ingen begrunnelse, og forbeholdet har sitt eget felt i svaret.
-// Forholdet gjentar det byggherren sa i det tidligere brevet (LV-U41, MM-U50, #2145).
+// Forholdet har ingen begrunnelse etter #2145 (LV-U41, MM-U50).
 const UTEN_BEGRUNNELSE = new Set([INNLEDNINGEN, OVERSIKTEN, FORBEHOLDET, FORHOLDET]);
 
 /** Et punkt i brevet som tar en begrunnelse (`punkteneMedBegrunnelse`). */

@@ -154,8 +154,8 @@ export function lagBrevtekst(
         );
       perPunkt[FORBEHOLDET] = forbehold;
     }
-    // #2145: forholdet gjentar det tidligere svaret, og byggherren begrunner det ikke på nytt.
-    if (perPunkt[FORHOLDET])
+    // #2145 (LV-U41, MM-U50): punktet med forholdet tar ingen utdypning.
+    if (perPunkt[FORHOLDET] && brevpunkter.some((p) => p.punkt === FORHOLDET))
       throw new UtdypningUtenPunkt('Punktet «Forholdet» i brevet har ingen begrunnelse.');
     // HF-U23 punkt 5: linjen med akseptfristen har ingen utdypning, og står sist.
     if (perPunkt[AKSEPTFRISTEN] && brevpunkter.some((p) => p.punkt === AKSEPTFRISTEN))
