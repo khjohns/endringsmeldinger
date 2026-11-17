@@ -274,22 +274,22 @@ export interface Sporsskriving {
   ): Data;
   /** Det i kravet `k` som strider mot det serveren stempler i konteksten, eller `null`. */
   kontekstsperre?(k: Extract<Kommando, { type: 'krav' }>, kontekst: Kontekst): Avvisning | null;
-  /** Det i kravet `k` som strider mot dokumentene i saken, eller `null`. `lest` er journalen. */
+  /**
+   * Det i kravet `k` som strider mot dokumentene i saken, eller `null`. `lest` er journalen.
+   * `vedlagt` er vedleggene sporet legger ved kravet i samme handling, og oppslaget i
+   * mellomlageret.
+   */
   saksperre?(
     k: Extract<Kommando, { type: 'krav' }>,
-    lest: readonly Domenehendelse[],
-    u: Utledning
+    lest: Domenehendelse[],
+    u: Utledning,
+    vedlagt: Vedlagt
   ): Avvisning | null;
   /**
    * Kravet som flere rader, når sporet skriver noe før kravet i samme handling, ellers `null`,
    * og kravet er én rad (VS-U51, VS-U53).
    */
-  handlingen?(
-    k: Extract<Kommando, { type: 'krav' }>,
-    kontekst: Kontekst,
-    journal: Journalrad[],
-    skriving: Skrivesteg
-  ): Utfall | null;
+  handlingen?(k: Extract<Kommando, { type: 'krav' }>, skriving: Skrivesteg): Utfall | null;
   /**
    * Varselet for hver post i kravet `k` i det nye dokumentet som trenger et, etter postens `id`,
    * til brevteksten. `lest` er journalen før dokumentet.
@@ -304,11 +304,10 @@ export interface Sporsskriving {
 
 /**
  * Det skrivingen gir sporet for en handling med flere rader (`Sporsskriving.handlingen`):
- * kontrollen av formen, én rad med kjernen og vedleggene i handlingen, og hele handlingen
- * prøvd til den er avvist eller ferdig.
+ * kontrollen av formen, én rad med kjernen og vedleggene i handlingen, hele handlingen
+ * prøvd før den første raden gis, og saken slik `skriv` leser den.
  */
 export interface Skrivesteg {
-  sendes: boolean;
   formen(kommando: unknown): Utfall | null;
   /** Én rad, som `skriv`. */
   skriv(
@@ -318,14 +317,26 @@ export interface Skrivesteg {
     vedKravet?: readonly string[],
     ogsaaEtter?: readonly Kravpostvarselhjemmel[]
   ): Utfall;
-  hele(utfall: Utfall, kontekst: Kontekst, journal: Journalrad[]): Utfall;
-  /** Journalen lest og utledet, som `skriv` leser den. */
+  /**
+   * Handlingen `kjede` lager fra konteksten og journalen. Når den sendes, prøves hele handlingen
+   * først, så en avvisning av en senere rad kommer før den første raden gis (VS-U53).
+   */
+  proevd(kjede: (kontekst: Kontekst, journal: Journalrad[]) => Utfall): Utfall;
+  /** Journalen lest og utledet, som `skriv` leser den. Utledes én gang per journal. */
   saken(journal: Journalrad[]): LestSak;
+  /** Saken før handlingen (`saken`). */
+  sakenFoer(): LestSak;
+}
+
+/** Vedleggene sporet legger ved kravet i samme handling, og oppslaget i mellomlageret (`saksperre`). */
+export interface Vedlagt {
+  vedKravet: readonly string[];
+  oppslag: Vedleggsoppslag;
 }
 
 /** Journalen lest og utledet (`Skrivesteg.saken`). */
 export interface LestSak {
-  lest: readonly Domenehendelse[];
+  lest: Domenehendelse[];
   u: Utledning;
 }
 
@@ -567,9 +578,16 @@ export function forhaandsvis(
   return hele(handlingen(kommando, kontekst, journal, kjerne, vedlegg, false), kontekst, journal);
 }
 
-/** Den låste teksten i en rad, slik kommandoen bærer den (A1). `null` for et registrert brev. */
+/**
+ * Den låste teksten i avsnittene, slik kommandoen bærer den og serveren sammenlikner den (A1,
+ * LV-U2). `null` for et registrert brev, som ikke har avsnitt.
+ */
+export const laastTekstIAvsnittene = (avsnitt: readonly Avsnitt[] | null): string[] | null =>
+  avsnitt?.map((a) => a.laast) ?? null;
+
+/** Den låste teksten i en rad (`laastTekstIAvsnittene`). `null` for et registrert brev. */
 export const laastTekst = (rad: Journalrad): string[] | null =>
-  brevtekstI(rad)?.map((a) => a.laast) ?? null;
+  laastTekstIAvsnittene(brevtekstI(rad));
 
 /** Avvisningen av formen, eller `null`. */
 function formen(kommando: unknown): Utfall | null {
@@ -595,27 +613,42 @@ function handlingen(
   const form = formen(kommando);
   if (form) return form;
   const k = kommando as Kommando;
+  // #2076: hver journal i handlingen utledes én gang, også når hele handlingen prøves først.
+  // Kalleren kan legge rader til i samme liste mellom radene (`neste`), så lengden og den siste
+  // raden må være de samme.
+  const lesteSaker = new WeakMap<Journalrad[], { antall: number; siste?: string; sak: LestSak }>();
+  const saken = (jx: Journalrad[]): LestSak => {
+    const lagret = lesteSaker.get(jx);
+    if (lagret && lagret.antall === jx.length && lagret.siste === jx.at(-1)?.event_id)
+      return lagret.sak;
+    const lest = lesJournal(jx, kjerne.leserformat);
+    const sak = { lest, u: utled(lest, kjerne.regler) };
+    lesteSaker.set(jx, { antall: jx.length, siste: jx.at(-1)?.event_id, sak });
+    return sak;
+  };
   const skriving: Skrivesteg = {
-    sendes,
     formen,
     skriv: (kx, kont, jx, vedKravet, ogsaaEtter) =>
-      skriv(kx, kont, jx, kjerne, vedlegg, sendes, vedKravet, ogsaaEtter),
-    hele,
-    saken: (jx) => {
-      const lest = lesJournal(jx, kjerne.leserformat);
-      return { lest, u: utled(lest, kjerne.regler) };
+      skriv(kx, kont, jx, kjerne, vedlegg, sendes, saken, vedKravet, ogsaaEtter),
+    proevd: (kjede) => {
+      if (sendes) {
+        const proeve = hele(kjede(kontekst, journal), kontekst, journal);
+        if (!proeve.godtatt) return proeve;
+      }
+      return kjede(kontekst, journal);
     },
+    saken,
+    sakenFoer: () => saken(journal),
   };
   return (
-    (k.type === 'krav'
-      ? iSporet(SKRIVING, k.spor).handlingen?.(k, kontekst, journal, skriving)
-      : null) ?? skriv(k, kontekst, journal, kjerne, vedlegg, sendes)
+    (k.type === 'krav' ? iSporet(SKRIVING, k.spor).handlingen?.(k, skriving) : null) ??
+    skriv(k, kontekst, journal, kjerne, vedlegg, sendes, saken)
   );
 }
 
 /**
- * Én rad. `vedKravet` er dokumentene kravskjemaet la til som varsel for en kravpost, som
- * legges ved kravet (VS-U51).
+ * Én rad. `vedKravet` er dokumentene kravskjemaet la til som varsel i samme handling, som
+ * legges ved kravet (VS-U51, VS-U34).
  */
 function skriv(
   k: Kommando,
@@ -624,12 +657,12 @@ function skriv(
   kjerne: Kjerne,
   vedlegg: Vedleggsoppslag,
   sendes: boolean,
+  saken: (journal: Journalrad[]) => LestSak,
   vedKravet: readonly string[] = [],
   ogsaaEtter: readonly Kravpostvarselhjemmel[] = []
 ): Utfall {
   const kommando: unknown = k;
-  const lest = lesJournal(journal, kjerne.leserformat);
-  const u = utled(lest, kjerne.regler);
+  const { lest, u } = saken(journal);
   const tidspunkt = kontekst.tidspunkt();
   const bygde: Bygde = new Map();
   // Nyttelastkontrollen leser standpunktene slik brevet lagrer dem (#776).
@@ -664,7 +697,7 @@ function skriv(
   const sperre =
     k.type === 'krav'
       ? (iSporet(SKRIVING, k.spor).kontekstsperre?.(k, kontekst) ??
-        iSporet(SKRIVING, k.spor).saksperre?.(k, lest, u))
+        iSporet(SKRIVING, k.spor).saksperre?.(k, lest, u, { vedKravet, oppslag: vedlegg }))
       : null;
   if (sperre) return { godtatt: false, feil: 'REGELBRUDD', avvisning: sperre };
   // LV-U14: brevet lagrer ID-en, filnavnet og summen fra mellomlageret.

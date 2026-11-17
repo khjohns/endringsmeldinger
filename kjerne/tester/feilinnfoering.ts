@@ -3978,7 +3978,7 @@ const MUTASJONER: Mutasjon[] = [
       'fristkravet registrerer et brev med varselet som alt står i saken, på nytt (#2082, OV-U80, OV-U84)',
     fil: `${K}/spor/frist/kommando.ts`,
     endringer: [
-      ["if (registrert) return { godtatt: false, feil: 'REGELBRUDD', avvisning: registrert };", ''],
+      ['        !(fraSkjemaet && h.id === varselet?.dokument) &&', '        !fraSkjemaet &&'],
     ],
     mal: ['et fristkrav med et brev som alt står i saken med varselet etter punkt 32.2'],
   },
@@ -3987,8 +3987,42 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'fristkravet legger ved brevet med varselet etter punkt 33.4 som alt står i saken, på nytt (#2082, VS-U55)',
     fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [['  saksperre: (k, lest, u) => varseldokumentetISaken(k, { lest, u }),\n', '']],
+    endringer: [['  saksperre: varseldokumentetISaken,\n', '']],
     mal: ['et fristkrav med brevet der varselet etter punkt 33.4 alt er registrert'],
+  },
+  {
+    id: 'F711',
+    feilklasse:
+      'samme fil lastet opp på nytt med en ny ID regnes som et annet brev enn det registrerte (#2100, OV-U80)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        'oppslag.get(id.toLowerCase())?.innhold_sha256 ?? `id:${id.toLowerCase()}`',
+        '`id:${id.toLowerCase()}`',
+      ],
+    ],
+    mal: ['samme fil lastet opp på nytt som brevet med varselet'],
+  },
+  {
+    id: 'F712',
+    feilklasse:
+      'fristkravet uten varsel legger ved brevet med varselet etter punkt 33.4 som står i saken (#2100, VS-U55)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['    varselet && !vedKravet.length', '    false && !vedKravet.length']],
+    mal: ['et fristkrav uten varsel med brevet der varselet etter punkt 33.4 alt er registrert'],
+  },
+  {
+    id: 'F713',
+    feilklasse:
+      'utledningen av en journal kalleren har lagt rader til i, gjenbrukes, så neste rad skrives mot saken før (#2076, VS-U53)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        'if (lagret && lagret.antall === jx.length && lagret.siste === jx.at(-1)?.event_id)',
+        'if (lagret)',
+      ],
+    ],
+    mal: ['serveren får radene én og én'],
   },
   {
     id: 'F705',
@@ -3997,8 +4031,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/kommando.ts`,
     endringer: [
       [
-        'noekkel(h.dokument.dokumentasjon.map((v) => v.vedlegg_id)) === varselet',
-        'h.dokument.dokumentasjon.some((v) => varselet.includes(v.vedlegg_id))',
+        '        erDelAv(innholdetIBrevet(h), vedlagte) &&\n        erDelAv(vedlagte, innholdetIBrevet(h))',
+        '        erDelAv(innholdetIBrevet(h), vedlagte)',
       ],
     ],
     mal: ['et nytt brev med ett av vedleggene godtas'],
@@ -5187,9 +5221,9 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F538',
     feilklasse:
       'varselet fra kravskjemaet gis før kjernen har prøvd kravet, så et avvist krav etterlater varselet (VS-U53)',
-    fil: `${K}/spor/vederlag/kommando.ts`,
+    fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
-      ['  if (skriving.sendes) {\n    const proeve', '  if (!skriving.sendes) {\n    const proeve'],
+      ['      if (sendes) {\n        const proeve', '      if (!sendes) {\n        const proeve'],
     ],
     mal: ['avvises kravet, gis ingen rad, heller ikke varselet'],
   },
@@ -6077,7 +6111,7 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/kommando.ts`,
     endringer: [
       [
-        "  if (!k.varsel || skriving.saken(journal).u.spor.frist.varsler['33.4']) return null;",
+        "  if (!k.varsel || skriving.sakenFoer().u.spor.frist.varsler['33.4']) return null;",
         '  if (k.varsel || !k.varsel) return null;',
       ],
     ],

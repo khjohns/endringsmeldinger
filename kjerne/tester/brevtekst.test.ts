@@ -47,7 +47,14 @@ import {
   type Kontekst,
   type Utfall,
 } from '../kommandoer/skriving.ts';
-import { medKravpostIder, medP1, medP1IkkeAkseptert, mellomlager, P1 } from './klient.ts';
+import {
+  innholdssummen,
+  medKravpostIder,
+  medP1,
+  medP1IkkeAkseptert,
+  mellomlager,
+  P1,
+} from './klient.ts';
 import { formfeil, type Kommando, type Svarutkast } from '../kommandoer/kommando.ts';
 import { oppgittDatoEtterBrevet } from '../kommandoer/nyttelast.ts';
 import {
@@ -4039,6 +4046,66 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     expect(s.avvist('TE', utenBrevet), 'kontrollsak').toBeNull();
   });
 
+  it('et fristkrav uten varsel med brevet der varselet etter punkt 33.4 alt er registrert, avvises, og kravet med et annet vedlegg godtas (#2100, VS-U55)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', {
+      type: 'varsel',
+      ...SOM_BREV,
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: FRISTKRAV.varsel.sendt,
+      dokumentasjon: [VARSELBREVET],
+    });
+    expect(s.avvisning('TE', { ...utenBrevet, dokumentasjon: [VARSELBREVET, PLAN] })).toEqual({
+      regel: 'VARSEL_REGISTRERT',
+      melding:
+        'Brevet med varselet står alt i saken som totalentreprenørens brev av 28. september 2026, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet.',
+    });
+    expect(s.avvist('TE', { ...utenBrevet, dokumentasjon: [PLAN] }), 'kontrollsak').toBeNull();
+  });
+
+  it('samme fil lastet opp på nytt som brevet med varselet er brevet som står i saken, og en annen fil er det ikke (#2100, OV-U80)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', {
+      type: 'varsel',
+      ...SOM_BREV,
+      spor: 'forhold',
+      hjemmel: '32.2',
+      sendt: '2026-09-28',
+      dokumentasjon: [VARSELBREVET],
+    });
+    const kontekst = {
+      sakId: SAK,
+      aktoerId: 'te',
+      part: 'TE' as const,
+      teamId: null,
+      sakskode: { kode: 'koe' as const, loepenummer: 17 },
+      kontraktsforkortelse: 'K201',
+      kontraktsfrister: [],
+      tidspunkt: () => new Date('2026-10-07T08:00:00Z'),
+      nyId: randomUUID,
+    };
+    const lastetOpp = randomUUID();
+    const kravet = { ...FRISTKRAV, varsel: { ...FRISTKRAV.varsel, dokumentasjon: [lastetOpp] } };
+    const lager = (sum: string) =>
+      new Map([[lastetOpp, { vedlegg_id: lastetOpp, filnavn: 'varsel.pdf', innhold_sha256: sum }]]);
+    const avvisning = (u: ReturnType<typeof forhaandsvis>) =>
+      u.godtatt ? null : u.avvisning.regel;
+    expect(
+      avvisning(
+        forhaandsvis(kravet, kontekst, s.journal, KJERNE, lager(innholdssummen(VARSELBREVET)))
+      )
+    ).toBe('VARSEL_REGISTRERT');
+    expect(
+      avvisning(
+        forhaandsvis(kravet, kontekst, s.journal, KJERNE, lager(innholdssummen(lastetOpp)))
+      ),
+      'kontrollsak'
+    ).toBeNull();
+  });
+
   it('et varsel uten typen meldes på feltet i varselet i fristkravet (LV-U42, VS-U34)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
@@ -4093,7 +4160,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
       mellomlager({ dokumentasjon: [vedlegg] })
     );
     expect(godtatt.godtatt && godtatt.hendelser[0].data.dokumentasjon, 'kontrollsak').toEqual([
-      { vedlegg_id: vedlegg, filnavn: `${vedlegg}.pdf`, innhold_sha256: '0'.repeat(64) },
+      { vedlegg_id: vedlegg, filnavn: `${vedlegg}.pdf`, innhold_sha256: innholdssummen(vedlegg) },
     ]);
     const u = vurder(kommando, kontekst, s.journal, KJERNE, new Map());
     expect(u.godtatt ? null : u.avvisning.regel).toBe('VEDLEGG_FINNES_IKKE');
@@ -4109,7 +4176,11 @@ describe('vedleggene ved påberopelsen (VS-U38)', () => {
     const s = sak();
     const rad = s.send('TE', { ...PAABEROPELSE, dokumentasjon: [VARSELBREVET] });
     expect(rad.data.dokumentasjon).toEqual([
-      { vedlegg_id: VARSELBREVET, filnavn: `${VARSELBREVET}.pdf`, innhold_sha256: '0'.repeat(64) },
+      {
+        vedlegg_id: VARSELBREVET,
+        filnavn: `${VARSELBREVET}.pdf`,
+        innhold_sha256: innholdssummen(VARSELBREVET),
+      },
     ]);
   });
 

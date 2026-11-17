@@ -295,8 +295,6 @@ const erDokumentvarsel = (v: unknown): v is Dokumentvarsel => typeof v === 'obje
  */
 function medDokumentvarslene(
   k: Extract<Kommando, { type: 'krav' }>,
-  kontekst: Kontekst,
-  journal: Journalrad[],
   skriving: Skrivesteg
 ): Utfall | null {
   const poster = (k.innhold.kravposter ?? []) as Record<string, unknown>[];
@@ -328,12 +326,7 @@ function medDokumentvarslene(
       dokumentene.set(id, like);
     }
   }
-  const kjede = (kx: Kontekst, jx: Journalrad[]) => medVarslene(k, [], kx, jx, skriving);
-  if (skriving.sendes) {
-    const proeve = skriving.hele(kjede(kontekst, journal), kontekst, journal);
-    if (!proeve.godtatt) return proeve;
-  }
-  return kjede(kontekst, journal);
+  return skriving.proevd((kx, jx) => medVarslene(k, [], kx, jx, skriving));
 }
 
 /** Vedleggene i dokumentet, med små bokstaver og sortert, som skiller ett dokument fra et annet. */
@@ -451,7 +444,7 @@ const kravpostvarslerIBrevet = (
  */
 function vedleggetErEtVarsel(
   k: Extract<Kommando, { type: 'krav' }>,
-  lest: readonly Domenehendelse[],
+  lest: Domenehendelse[],
   u: Utledning
 ): Avvisning | null {
   const iVarslene = vedleggIVarslene({ lest, u });
