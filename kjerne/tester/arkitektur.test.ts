@@ -1307,7 +1307,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Utsagn',
     'relasjon',
     'dokument',
-    ['spor/vederlag/kommando.ts:foranKravet', 'spor/vederlag/kommando.ts:vedleggIVarslene'],
+    [
+      'spor/vederlag/kommando.ts:foranKravet',
+      'spor/vederlag/kommando.ts:vedleggIVarslene',
+      'spor/frist/kommando.ts:varseldokumentetISaken',
+    ],
   ],
   ['kommandoer/kommando.ts:formfeil', 'kommando', 'type spor innhold svar dokumentasjon hjemmel'],
   // OV-U79: bare et brev har sendemåten, også i varselet i fristkravet.
@@ -1380,6 +1384,16 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/skriving.ts:frysBrev']],
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/avvisning.ts:avvisning']],
   ['Registrering', 'kommando', 'sendt', ['kommandoer/avvisning.ts:avvisning']],
+  // VS-U73: et krav lagt til har brevet som ble sendt som vedlegg, også når det står i saken som varsel.
+  [
+    'Registrering',
+    'kommando',
+    'sendt',
+    [
+      'spor/frist/kommando.ts:varseldokumentetISaken',
+      'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
+    ],
+  ],
   // OV-U109: dagen forespørselen og fristkravet ble sendt.
   [
     'Dokument',
@@ -1546,7 +1560,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['LestSak', 'kommando', 'lest u', ['spor/frist/kommando.ts:varseldokumentetISaken']],
   ['Dokument', 'relasjon', 'retter', ['spor/frist/kommando.ts:varseldokumentetISaken']],
-  ['Dokument', 'utsagn', 'dokumentasjon', ['spor/frist/kommando.ts:innholdetIBrevet']],
+  [
+    'Dokument',
+    'utsagn',
+    'dokumentasjon',
+    ['spor/frist/kommando.ts:varseldokumentetISaken', 'spor/frist/kommando.ts:innholdetIBrevet'],
+  ],
   // #2100: samme fil lastet opp på nytt er samme brev, så vedleggene sammenliknes på innholdet.
   [
     'Vedlegg',
@@ -1554,12 +1573,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'innhold_sha256',
     ['spor/frist/kommando.ts:innholdetIVedleggene', 'spor/frist/kommando.ts:innholdetIBrevet'],
   ],
-  [
-    'frosset/brevdeler.ts',
-    'brevtekst',
-    'omtalen',
-    ['spor/frist/kommando.ts:varseldokumentetISaken'],
-  ],
+  ['frosset/brevdeler.ts', 'brevtekst', 'omtalen', ['spor/frist/kommando.ts:som']],
   ['spor/vederlag/kommando.ts', 'kommando', 'SKRIVING_I_VEDERLAGET', ['kommandoer/skriving.ts']],
   ['spor/forhold/kommando.ts', 'kommando', 'SKRIVING_I_FORHOLDET', ['kommandoer/skriving.ts']],
   // Lagene i et svarutkast i sporet (#1778).

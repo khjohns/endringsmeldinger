@@ -447,14 +447,17 @@ const kravpostvarslerIBrevet = (
   kravpostvarslene(k, u.spor.vederlag.krav, foranKravet(nytt, lest, u));
 
 /**
- * Et vedlegg ved kravet som alt ligger ved et varsel for en kravpost i saken (VS-U55). Kravet viser
- * til varselet, og et dokument ved kravet som også er et varsel, er dokumentet kravskjemaet la
- * til som varsel i samme handling (`foranKravet`, VS-U51).
+ * Et vedlegg ved et krav sendt fra løsningen som alt ligger ved et varsel for en kravpost i saken
+ * (VS-U73). Kravet viser til varselet, og et dokument ved kravet som også er et varsel, er
+ * dokumentet kravskjemaet la til som varsel i samme handling (`foranKravet`, VS-U51). Et krav
+ * lagt til har brevet som ble sendt, også når det står i saken som varsel.
  */
 function vedleggetErEtVarsel(
   k: Extract<Kommando, { type: 'krav' }>,
   sak: Sakssperre
 ): Avvisning | null {
+  // Et krav lagt til har datoen det ble sendt (`erRegistrering`).
+  if (k.sendt !== undefined) return null;
   const iVarslene = vedleggIVarslene(sak);
   return (k.dokumentasjon ?? []).some((id) => iVarslene.has(id.toLowerCase()))
     ? vedleggVedEtVarsel('ved kravet')
