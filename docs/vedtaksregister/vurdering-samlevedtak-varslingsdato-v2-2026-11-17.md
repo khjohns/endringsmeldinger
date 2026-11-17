@@ -126,6 +126,13 @@ mot vedtakene ble gjort én gang, og funnene er rettet: forholdet i 1 A er et E-
 samler VS-U70, 1 A fikk setningen om svar som alt er gitt, belegget viser til E3 og OV-U114
 punkt 13, og 2 A fører «presiserer VS-U66» videre.
 
+## Svarene
+
+Oppdragsgiver 17.11, ordrett, videresendt av orkestratoren
+([#2151, 6947043512](https://github.com/khjohns/endringsmeldinger/pull/2151#issuecomment-6947043512)):
+«A, A, ja». Det er 1 A, 2 A og tilslutning til utkastet med E1–E6 uten rettelser. Posten er ført
+som VS-U76.
+
 ## Verifikasjon og grenser
 
 - **Kjørt og observert:** `--sjekk`, `--kjede VS-U43` og `--vis VS-U43` på `62dc9f2`. Lest i
