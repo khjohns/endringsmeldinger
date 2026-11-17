@@ -11665,11 +11665,14 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
           )
         : []),
     ]);
-    return lagForUtkastet(
-      utkastet(s, spor, vurderinger) as Svarutkast,
-      s.u(),
-      KJERNE.regler
-    ).ubesvart.map(({ spoersmaal, gjelder }) =>
+    let lag: ReturnType<typeof lagForUtkastet>;
+    try {
+      lag = lagForUtkastet(utkastet(s, spor, vurderinger) as Svarutkast, s.u(), KJERNE.regler);
+    } catch (e) {
+      // Et kast er en feil i lagene, ikke i oppsettet, så testen feiler som en assertion.
+      expect.fail(`lagene kastet: ${String(e)}`);
+    }
+    return lag.ubesvart.map(({ spoersmaal, gjelder }) =>
       gjelder === undefined ? spoersmaal : `${ider.get(gjelder)}.${spoersmaal}`
     );
   };
