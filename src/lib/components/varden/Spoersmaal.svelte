@@ -15,10 +15,14 @@
     hjemmel,
     info,
     children,
-  }: {
-    /** ID-en til overskriften, som navngir spørsmålet. */
-    id?: string;
-    tittel?: string;
+  }: (
+    | {
+        /** ID-en til overskriften, som navngir spørsmålet. */
+        id: string;
+        tittel: string;
+      }
+    | { id?: undefined; tittel?: undefined }
+  ) & {
     /** Et tall etter tittelen, som det samlede beløpet. */
     tillegg?: string;
     /** Punktene i NS 8407, uten «pkt.». */

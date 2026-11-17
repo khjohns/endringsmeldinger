@@ -185,13 +185,11 @@
     () => onvedsiden,
     () => leser
   );
-  const smal = $derived(side.smal);
-  const vedSiden = $derived(side.vedSiden);
   let panel = $state<HTMLElement | null>(null);
   const linja = fastLinje(
     uid,
     () => panel,
-    () => stopp !== null || vedSiden
+    () => stopp !== null || side.vedSiden
   );
 </script>
 
@@ -223,7 +221,7 @@
   {/if}
 {/snippet}
 
-<Arbeidsflate leser={vedSiden}>
+<Arbeidsflate leser={side.vedSiden}>
   {#snippet hoved()}
     <Utkastkort
       id={`${uid}-tittel`}
@@ -244,7 +242,7 @@
       <Brevlinje
         id={`${uid}-kravbrev`}
         bind:leser
-        {smal}
+        smal={side.smal}
         lenke={{ les: SKJEMA.lesBrevet, lesHer: SKJEMA.lesBrevetHer, lukk: SKJEMA.lukkBrevet }}
       >
         {SKJEMA.svarerPaa(kravbrevet)}
@@ -340,7 +338,7 @@
   {/snippet}
 
   {#snippet hoeyre()}
-    {#if vedSiden}
+    {#if side.vedSiden}
       <Leseramme
         id={`${uid}-kravbrev`}
         brev={kravbrevet}

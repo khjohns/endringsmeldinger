@@ -1,7 +1,6 @@
 /**
- * Sendeflyten i skjemaene (#2118). Forventningene er MM-U32: knappen er aldri sperret, det som
- * mangler, vises først etter et forsøk med fokus på feltet, og det som hindrer at brevet kan lages,
- * står ved knappen med fokus. Testen fastholder ellers atferden skjemaene hadde før modulen.
+ * Sendeflyten i skjemaene (#2118). Kilden for forventningene er MM-U32 og «En knapp er aldri
+ * sperret» i `system.md`. Ellers fastholder testen atferden skjemaene hadde før modulen.
  */
 
 import { render, screen } from '@testing-library/svelte';

@@ -10,16 +10,11 @@ import { untrack } from 'svelte';
 const vilHaLinja = $state<string[]>([]);
 
 /**
- * Kalles mens komponenten initialiseres. `panel` er elementet som måles, og bindes på nytt når
- * det settes inn igjen. `skjult` er når linja ikke skal vises, som når brevet leses ved siden av.
- * Uten `skjult` har skjemaet ingen kompakt linje, og bare `faarPlass` regnes ut.
+ * Om panelet får plass i vinduet, så det kan følge rullingen. Kalles mens komponenten
+ * initialiseres. `panel` er elementet som måles, og bindes på nytt når det settes inn igjen.
  */
-export function fastLinje(
-  uid: string,
-  panel: () => HTMLElement | null,
-  skjult?: () => boolean
-): { readonly faarPlass: boolean; readonly visKompakt: boolean } {
-  const tilstand = $state({ faarPlass: true, iSyne: true });
+export function faarPlass(panel: () => HTMLElement | null): { readonly faarPlass: boolean } {
+  const tilstand = $state({ faarPlass: true });
   $effect(() => {
     const el = panel();
     if (!el || typeof ResizeObserver === 'undefined') return;
@@ -27,19 +22,34 @@ export function fastLinje(
     const ro = new ResizeObserver(maal);
     ro.observe(el);
     window.addEventListener('resize', maal);
-    const io =
-      !skjult || typeof IntersectionObserver === 'undefined'
-        ? null
-        : new IntersectionObserver(([e]) => (tilstand.iSyne = e.isIntersecting));
-    io?.observe(el);
     maal();
     return () => {
       ro.disconnect();
-      io?.disconnect();
       window.removeEventListener('resize', maal);
     };
   });
-  const vilVise = $derived(!!skjult && !skjult() && !tilstand.faarPlass && !tilstand.iSyne);
+  return tilstand;
+}
+
+/**
+ * Kalles mens komponenten initialiseres, med `panel` som i `faarPlass`. `skjult` er når linja
+ * aldri skal vises, som når brevet leses ved siden av.
+ */
+export function fastLinje(
+  uid: string,
+  panel: () => HTMLElement | null,
+  skjult: () => boolean
+): { readonly faarPlass: boolean; readonly visKompakt: boolean } {
+  const plass = faarPlass(panel);
+  const tilstand = $state({ iSyne: true });
+  $effect(() => {
+    const el = panel();
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(([e]) => (tilstand.iSyne = e.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  });
+  const vilVise = $derived(!skjult() && !plass.faarPlass && !tilstand.iSyne);
   $effect(() => {
     if (!vilVise) return;
     untrack(() => vilHaLinja.push(uid));
@@ -51,7 +61,7 @@ export function fastLinje(
   });
   return {
     get faarPlass() {
-      return tilstand.faarPlass;
+      return plass.faarPlass;
     },
     get visKompakt() {
       return vilVise && vilHaLinja.at(-1) === uid;

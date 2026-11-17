@@ -38,7 +38,7 @@
   import Manglene from './Manglene.svelte';
   import type { Mangel } from './mangler';
   import { sendeflyt } from './sendeflyt.svelte';
-  import { fastLinje } from './fastlinje.svelte';
+  import { faarPlass } from './fastlinje.svelte';
   import Melding from './Melding.svelte';
   import Tallfelt from './Tallfelt.svelte';
   import Tidslinje from './Tidslinje.svelte';
@@ -564,12 +564,11 @@
     () => onvedsiden,
     () => leser
   );
-  const smal = $derived(side.smal);
 
   // Panelet følger rullingen bare når det får plass i vinduet, så «Se brevet før sending» alltid
   // kan nås (U-16).
   let panel = $state<HTMLElement | null>(null);
-  const linja = fastLinje(uid, () => panel);
+  const plass = faarPlass(() => panel);
 </script>
 
 {#snippet lest(b: Brevet, ramme: 'kant' | 'innfelt')}
@@ -835,7 +834,7 @@
   {/if}
 {/snippet}
 
-<Arbeidsflate leser={leser && !smal}>
+<Arbeidsflate leser={side.vedSiden}>
   {#snippet hoved()}
     <Utkastkort
       id={id('tittel')}
@@ -852,7 +851,7 @@
         <Brevlinje
           id={id('lesebrev')}
           bind:leser
-          {smal}
+          smal={side.smal}
           lenke={{
             les: KRAVSKJEMA.lesBrevet(lesbart),
             lesHer: KRAVSKJEMA.lesBrevetHer(lesbart),
@@ -1147,12 +1146,12 @@
   {/snippet}
 
   {#snippet hoeyre()}
-    {#if leser && !smal && lesbart}
+    {#if side.vedSiden && lesbart}
       <Leseramme id={id('lesebrev')} brev={lesbart} bunn={sendeknapp}>
         {@render lest(lesbart, 'innfelt')}
       </Leseramme>
     {:else}
-      <div class="feste" class:fast={linja.faarPlass} bind:this={panel}>
+      <div class="feste" class:fast={plass.faarPlass} bind:this={panel}>
         <Kravpunkter
           {punkter}
           aktiv={aktivtPunkt}

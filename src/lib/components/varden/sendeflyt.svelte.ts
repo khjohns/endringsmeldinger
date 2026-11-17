@@ -1,8 +1,7 @@
 /**
- * Sendeflyten i skjemaene (#2118): forsøket, sendehindringen, fokuset og grenen for korrespondanse
- * som legges til. Knappen er aldri sperret (MM-U32): det som mangler, vises først når parten har
- * prøvd, og fokus går til oppsummeringen eller feltet. Det som hindrer at brevet kan lages, står ved
- * knappen og får fokus. Skjemaet gir bare kommandoen og det som skjer etterpå.
+ * Sendeflyten i skjemaene (#2118, MM-U32, «En knapp er aldri sperret» i `system.md`): forsøket,
+ * sendehindringen, fokuset og grenen for korrespondanse som legges til. Skjemaet gir bare
+ * kommandoen og det som skjer etterpå.
  */
 
 import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
@@ -20,6 +19,7 @@ export interface Sendesteg {
   mangler: (() => HTMLElement | null | undefined) | null;
   /** Korrespondansen som legges til i stedet for å sendes (OV-U80), med det som skjer etterpå. */
   lagtTil?: { kommando: Kommando; vedlegg: Vedlegg; ferdig: () => void } | null;
+  /** Kommandoen for brevet. Den sendes ikke når `lagtTil` er satt. */
   kommando: Kommando;
   vedlegg?: Vedlegg;
   /** Kommandoen sendes uten brevkontroll, som et varsel som registreres (VS-U16). */
@@ -54,7 +54,7 @@ export function sendeflyt(kjernesak: () => Kjernesakkontekst, hindringId: string
   }
 
   /** Legger korrespondansen til i saken. Ellers står hindringen, og `false` gis tilbake. */
-  async function leggTil(kommando: Kommando, vedlegg: Vedlegg, kanIkkeLages: string) {
+  async function leggTil(kommando: Kommando, vedlegg: Vedlegg | undefined, kanIkkeLages: string) {
     const h = await leggTilISaken(kjernesak(), kommando, vedlegg, kanIkkeLages);
     if (h !== null) await hindre(h);
     return h === null;
@@ -66,13 +66,11 @@ export function sendeflyt(kjernesak: () => Kjernesakkontekst, hindringId: string
       if (await leggTil(s.lagtTil.kommando, s.lagtTil.vedlegg, s.kanIkkeLages)) s.lagtTil.ferdig();
       return;
     }
-    const k = kjernesak();
     if (s.registrert) {
-      if (await k.send(s.kommando, undefined, s.vedlegg)) s.registrert();
-      else await hindre(k.feil ?? s.kanIkkeLages);
+      if (await leggTil(s.kommando, s.vedlegg, s.kanIkkeLages)) s.registrert();
       return;
     }
-    const b = k.brev(s.kommando, s.vedlegg, true);
+    const b = kjernesak().brev(s.kommando, s.vedlegg, true);
     const brevet = kontrollbrev(b);
     if (!brevet) return hindre((s.aarsak ?? brevaarsak)(b) ?? s.kanIkkeLages);
     s.tilBrevkontrollen(brevet);
