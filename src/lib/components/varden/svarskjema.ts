@@ -30,6 +30,15 @@ export const ubesvart = <S extends string>(
 ): boolean =>
   lag?.ubesvart.some((x) => x.spoersmaal === spoersmaal && x.gjelder === gjelder) ?? false;
 
+/**
+ * Om kjernen stiller spørsmålet om hele kravet i utkastet, besvart eller ikke (`stilt` i
+ * `LagIFristen`, #2156). `true` uten lag, så spørsmålet står til kjernen har svart.
+ */
+export const stilt = <S extends string>(
+  lag: { stilt: readonly { spoersmaal: S; gjelder?: string }[] } | null,
+  spoersmaal: S
+): boolean => lag?.stilt.some((x) => x.spoersmaal === spoersmaal && !x.gjelder) ?? true;
+
 /** Lista over postene, så oppsummeringen kan åpne posten et felt står i (`Postliste`). */
 export interface Postvelger {
   erAapen(id: string): boolean;
