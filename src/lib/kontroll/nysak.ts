@@ -4,7 +4,7 @@
  * kroppen med samme funksjon som serveren (#1526 punkt 3, `src/lib/kjernesak/demosak.ts`).
  */
 
-import { erObjekt } from '../kjerne/format/skjema.ts';
+import { erObjekt } from '../../../kjerne/format/skjema.ts';
 import { ukjenteFeltmelding } from './kroppsfelt.ts';
 
 const NY_SAK = new Set([

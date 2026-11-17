@@ -44,7 +44,7 @@ import {
   type Skriveutfall,
 } from './kommandoer.ts';
 import { filnavn, KontraktsforkortelseMangler, lagOppdrag } from './levering.ts';
-import { feilINySak, vedleggIder } from './nysak.ts';
+import { feilINySak, vedleggIder } from '../src/lib/kontroll/nysak.ts';
 import {
   finnesIkke,
   medSide,

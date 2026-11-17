@@ -7,7 +7,15 @@
 
 import { spawn, type ChildProcess } from 'node:child_process';
 import { once } from 'node:events';
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+} from 'node:fs';
 import { createRequire } from 'node:module';
 import { connect } from 'node:net';
 import { tmpdir } from 'node:os';
@@ -97,7 +105,7 @@ describe('oppstarten når en skrift mangler (#813 punkt 4)', () => {
   let mappe: string;
 
   // En kopi av `server/` per test, så en skrift kan fjernes uten å røre treet eller
-  // de andre testene. `kjerne/` og pakkene lenkes; `brevpdf.ts` leser skriftene ved
+  // de andre testene. `kjerne/`, `src/lib/kontroll/` og pakkene lenkes; `brevpdf.ts` leser skriftene ved
   // siden av seg selv i kopien.
   beforeEach(() => {
     mappe = mkdtempSync(join(tmpdir(), 'koe-start-'));
@@ -107,6 +115,8 @@ describe('oppstarten når en skrift mangler (#813 punkt 4)', () => {
     });
     cpSync(join(ROT, 'package.json'), join(mappe, 'package.json'));
     symlinkSync(join(ROT, 'kjerne'), join(mappe, 'kjerne'));
+    mkdirSync(join(mappe, 'src', 'lib'), { recursive: true });
+    symlinkSync(join(ROT, 'src', 'lib', 'kontroll'), join(mappe, 'src', 'lib', 'kontroll'));
     symlinkSync(PAKKEMAPPE, join(mappe, 'node_modules'));
   });
   afterEach(() => rmSync(mappe, { recursive: true, force: true }));

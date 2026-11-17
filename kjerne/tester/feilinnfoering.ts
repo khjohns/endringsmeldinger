@@ -3973,6 +3973,37 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['byggherren som mener den andre beregningsregelen, må oppgi den'],
   },
   {
+    id: 'F704',
+    feilklasse:
+      'fristkravet registrerer et brev med varselet som alt står i saken, på nytt (#2082, OV-U80, OV-U84)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      ["if (registrert) return { godtatt: false, feil: 'REGELBRUDD', avvisning: registrert };", ''],
+    ],
+    mal: ['et fristkrav med et brev som alt står i saken med varselet etter punkt 32.2'],
+  },
+  {
+    id: 'F706',
+    feilklasse:
+      'fristkravet legger ved brevet med varselet etter punkt 33.4 som alt står i saken, på nytt (#2082, VS-U55)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['  saksperre: (k, lest, u) => varseldokumentetISaken(k, { lest, u }),\n', '']],
+    mal: ['et fristkrav med brevet der varselet etter punkt 33.4 alt er registrert'],
+  },
+  {
+    id: 'F705',
+    feilklasse:
+      'et brev som har ett av vedleggene til et registrert brev, regnes som det registrerte brevet (#2082)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      [
+        'noekkel(h.dokument.dokumentasjon.map((v) => v.vedlegg_id)) === varselet',
+        'h.dokument.dokumentasjon.some((v) => varselet.includes(v.vedlegg_id))',
+      ],
+    ],
+    mal: ['et nytt brev med ett av vedleggene godtas'],
+  },
+  {
     id: 'F444',
     feilklasse: 'leseren godtar registrert korrespondanse uten typen (LV-U42, MM-U2)',
     fil: `${K}/format/leser.ts`,

@@ -1071,10 +1071,15 @@ def bindende_i_opphevet(register: dict) -> list[str]:
 
 # Et gjeldende vedtak som presiserer, utvider, snevrer inn, endrer eller bygger på et opphevet
 # vedtak, er en motsigelse (svar 5 04.11 i #1534; «snevrer inn» etter arbeidsvalg 04.11 fra
-# økta som følger #1534). Dagens tilfeller rettes i samlevedtakene i steg 4, og
-# lista skal bare krympe.
+# økta som følger #1534).
 FORHOLD_TIL_OPPHEVET = ("presiserer", "utvider", "snevrer inn", "endrer", "bygger på")
-KJENTE_FORHOLD_TIL_OPPHEVET: frozenset = frozenset()
+# Radene er kjente avvik for forhold som ikke kan endres etter merge (oppdragsgiver 16.11, #1988).
+KJENTE_FORHOLD_TIL_OPPHEVET: frozenset = frozenset(
+    {
+        ("lv-u53", "endrer", "lv-u52", "#1988"),
+        ("lv-u56", "endrer", "lv-u52", "#1988"),
+    }
+)
 _AVVIKSISSUE = re.compile(r"#\d+(?:, steg \d+)?")
 
 
