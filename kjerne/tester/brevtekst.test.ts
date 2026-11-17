@@ -11713,6 +11713,30 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     expect(melding(s, 'frist', v)).toContain('mangler (punkt 33.5)');
   });
 
+  it('fristen: når spesifiseringen kom for sent, er dagene byggherren måtte forstå påkrevd for hver frist (§ 33.6.1, D-5)', () => {
+    const s = saken(FRISTKRAV);
+    const v = {
+      frist_varsel_ok: true,
+      spesifisert_krav_ok: false,
+      vilkar_oppfylt: true,
+      frister: [{ dager: 20 }],
+    };
+    expect(ubesvart(s, 'frist', v)).toEqual(['frist 1.dager_maatte_forstaa']);
+    expect(melding(s, 'frist', v)).toContain('dager_maatte_forstaa: mangler (punkt 33.6.1)');
+    const medDagene = { ...v, frister: [{ dager: 20, dager_maatte_forstaa: 10 }] };
+    expect(ubesvart(s, 'frist', medDagene)).toEqual([]);
+    expect(melding(s, 'frist', medDagene)).not.toContain('mangler');
+  });
+
+  it('vederlaget: ved en delvis godkjenning er beløpet byggherren godtar påkrevd (KA-U42)', () => {
+    const s = saken(vederlagskravet(tilbud(100000)));
+    const v = { kravposter: [{ gjelder: 'P1', aksepterer: true, vurdering: 'delvis' }] };
+    expect(ubesvart(s, 'vederlag', v)).toEqual(['P1.godkjent_beloep']);
+    expect(melding(s, 'vederlag', v)).toContain(
+      'P1.godkjent_beloep: mangler ved delvis godkjenning'
+    );
+  });
+
   it('vederlaget: uten svar er varselet etter § 34.1.2, beløpet og svaret på tilbudet etter § 34.2.2 påkrevd (OV-U15, KA-U57 (d))', () => {
     const s = saken(vederlagskravet(tilbud(100000)), true);
     expect(ubesvart(s, 'vederlag', {})).toEqual([
@@ -11781,6 +11805,26 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     const m = melding(s, 'vederlag', v);
     expect(m).toContain('produktivitet_vurdering: mangler');
     expect(m).toContain('produktivitet_varslet_i_tide: mangler (punkt 34.1.3)');
+  });
+
+  it('vederlaget: når begrensningen etter § 34.1.3 er påberopt, er beløpet etter begrensningen påkrevd (valg 2 i #1047)', () => {
+    const s = saken(
+      vederlagskravet(tilbud(100000, { saerskilt: { produktivitet: { beloep: 40000 } } }))
+    );
+    const v = {
+      kravposter: [
+        { gjelder: 'P1', aksepterer: true, vurdering: 'godkjent', godkjent_beloep: 100000 },
+      ],
+      produktivitet_vurdering: 'godkjent',
+      produktivitet_godkjent_beloep: 40000,
+      produktivitet_varslet_i_tide: false,
+    };
+    expect(ubesvart(s, 'vederlag', v)).toEqual(['produktivitet_begrenset_beloep']);
+    expect(melding(s, 'vederlag', v)).toContain(
+      'produktivitet_begrenset_beloep: mangler (punkt 34.1.3)'
+    );
+    const medBeloepet = { ...v, produktivitet_begrenset_beloep: 10000 };
+    expect(ubesvart(s, 'vederlag', medBeloepet)).toEqual([]);
   });
 });
 

@@ -14,9 +14,12 @@ import type { Hjemmel, Standpunktsart, Virkning } from '../../typer.ts';
 export interface Utkastlag<F, S extends string, P extends object = object> {
   /**
    * Spørsmålene regelen krever svar på før svaret kan sendes, og som er ubesvart i utkastet, i
-   * rekkefølgen regelen stiller dem (#2025). Er lista tom, avviser kjernen ikke svaret for et manglende svar.
-   * `gjelder` er posten spørsmålet gjelder, og mangler for et spørsmål om hele kravet. Et
-   * spørsmål som ikke er påkrevd, som varselet etter § 34.3.3, står ikke her (VS-U57).
+   * rekkefølgen regelen stiller dem (#2025). Et spørsmål er feltet i vurderingene, også en verdi
+   * som kreves av et annet svar, som dagene eller beløpet ved en delvis godkjenning. Er lista
+   * tom, avviser kjernen ikke svaret for et manglende svar. En verdi som er gitt, men ikke kan
+   * godtas, står ikke her. `gjelder` er posten eller fristen spørsmålet gjelder, og mangler for
+   * et spørsmål om hele kravet. Et spørsmål som ikke er påkrevd, som varselet etter § 34.3.3,
+   * står ikke her (VS-U57).
    */
   ubesvart: { spoersmaal: S; gjelder?: string }[];
   standpunkter: (P & {

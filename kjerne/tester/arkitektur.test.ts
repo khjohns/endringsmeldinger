@@ -1059,7 +1059,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'PRODUKTIVITETSFELT',
     'kommando',
-    'vurdering varslet_i_tide',
+    'vurdering godkjent_beloep varslet_i_tide begrenset_beloep',
     ['spor/vederlag/kommando.ts:ubesvartIVederlaget'],
   ],
   [
@@ -1077,6 +1077,18 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['UgyldigVurdering', 'regelsett', 'feil', ['spor/vederlag/frysing.ts']],
   // Kontrollene av vurderingene i svaret, med feltene fra `Svarvurdering` (#1695).
   ['regler/svarkontroll.ts', 'regelsett', 'kontrollerSpesifiseringen', ['spor/frist/frysing.ts']],
+  // D-5, #2025: dagene byggherren måtte forstå, påkrevd i et svarutkast som ved sending.
+  [
+    'regler/svarkontroll.ts',
+    'regelsett',
+    'maatteForstaaUbesvart',
+    ['spor/frist/kommando.ts:lagIFristen'],
+  ],
+  [
+    'regler/svarkontroll.ts:maatteForstaaUbesvart',
+    'utsagn',
+    'spesifisert_krav_ok dager_maatte_forstaa',
+  ],
   ['regler/svarkontroll.ts', 'regelsett', 'kontrollerForholdet', ['spor/forhold/frysing.ts']],
   [
     'regler/vederlag.ts',

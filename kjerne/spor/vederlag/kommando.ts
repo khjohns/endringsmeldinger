@@ -537,11 +537,14 @@ export type Forutsetning =
 export type Vederlagsspoersmaal =
   | 'hovedkrav_varslet_i_tide'
   | 'vurdering'
+  | 'godkjent_beloep'
   | 'aksepterer'
   | 'oensket_oppgjoersform'
   | 'godtar_justering'
   | 'produktivitet_vurdering'
-  | 'produktivitet_varslet_i_tide';
+  | 'produktivitet_godkjent_beloep'
+  | 'produktivitet_varslet_i_tide'
+  | 'produktivitet_begrenset_beloep';
 
 /**
  * Lagene i et svarutkast på vederlaget, med den særskilte posten etter § 34.1.3 annet ledd.
@@ -553,10 +556,6 @@ export type LagIVederlaget = Utkastlag<
   { saerskilt?: 'produktivitet' }
 >;
 
-/**
- * Spørsmålene i utkastet regelen krever svar på, og som er ubesvart (`ubesvarteSpoersmaal` og
- * `ubesvartIKravposten`, #2025): varselet etter § 34.1.2 først, så postene i kravets rekkefølge.
- */
 const iKravpost = (
   x: UbesvartIVederlaget
 ): x is Extract<UbesvartIVederlaget, { post: { gjelder: string } }> =>
@@ -566,6 +565,10 @@ const iSaerskilt = (
 ): x is Extract<UbesvartIVederlaget, { post: { saerskilt: string } }> =>
   x.post !== null && 'saerskilt' in x.post;
 
+/**
+ * Spørsmålene i utkastet regelen krever svar på, og som er ubesvart (`ubesvarteSpoersmaal` og
+ * `ubesvartIKravposten`, #2025): varselet etter § 34.1.2 først, så postene i kravets rekkefølge.
+ */
 function ubesvartIVederlaget(
   v: Svarvurdering,
   utkast: Svarutkast,

@@ -41,6 +41,7 @@ import { fristinnhold, innholdIFristen } from './format.ts';
 import { fristkravet, fristvurderinger } from './frysing.ts';
 import { paakrevdeSpoersmaal, type Fristspoersmaal } from '../../regler/frist.ts';
 import { mangler } from '../../regler/typer.ts';
+import { maatteForstaaUbesvart } from '../../regler/svarkontroll.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
 import { lageneIUtkastet } from '../../kommandoer/utkastlag.ts';
 
@@ -196,7 +197,10 @@ export type Forutsetning =
  * Lagene i et svarutkast på fristen, med spørsmålene om hele kravet og dagene for hver frist
  * (`gjelder`). Fristen har ingen egne felt i standpunktet.
  */
-export type LagIFristen = Utkastlag<Forutsetning, Fristspoersmaal | 'dager'>;
+export type LagIFristen = Utkastlag<
+  Forutsetning,
+  Fristspoersmaal | 'dager' | 'dager_maatte_forstaa'
+>;
 
 /** Spørsmålet i svaret hvert standpunkt om hele kravet svarer på. */
 const SPOERSMAALET: Readonly<Record<string, Fristspoersmaal>> = {
@@ -281,7 +285,15 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
   return {
     ubesvart: [
       ...[...ubesvart].map((spoersmaal) => ({ spoersmaal })),
-      ...[...utenDager].map((gjelder) => ({ spoersmaal: 'dager' as const, gjelder })),
+      ...fristvurderinger(utkast.vurderinger, krav).flatMap((f) => [
+        ...(utenDager.has(f.gjelder) ? [{ spoersmaal: 'dager' as const, gjelder: f.gjelder }] : []),
+        ...(maatteForstaaUbesvart({
+          ...f,
+          spesifisert_krav_ok: utkast.vurderinger.spesifisert_krav_ok,
+        })
+          ? [{ spoersmaal: 'dager_maatte_forstaa' as const, gjelder: f.gjelder }]
+          : []),
+      ]),
     ],
     standpunkter: svar.standpunkter.map((s, i) => {
       const l = lag[i]!;

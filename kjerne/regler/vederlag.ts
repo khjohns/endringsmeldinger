@@ -153,15 +153,20 @@ const regelen = (p: Postsvar) => ('gjelder' in p ? p.beregningsregel : undefined
 /** Et spørsmål regelen krever svar på, og som er ubesvart: i hele kravet (`post` er `null`) eller i en post. */
 export type UbesvartIVederlaget =
   | { post: null; felt: 'varslet_i_tide' }
-  | { post: Kravpostsvar; felt: 'vurdering' | 'aksepterer' }
-  | { post: Produktivitetssvar | RiggOgDriftsvar; felt: 'vurdering' | 'varslet_i_tide' };
+  | { post: Kravpostsvar; felt: 'vurdering' | 'godkjent_beloep' | 'aksepterer' }
+  | {
+      post: Produktivitetssvar | RiggOgDriftsvar;
+      felt: 'vurdering' | 'godkjent_beloep' | 'varslet_i_tide' | 'begrenset_beloep';
+    };
 
 /**
  * Spørsmålene i svaret regelen krever svar på, og som er ubesvart (#2025), i rekkefølgen
  * `kontroller` fører dem: varselet etter § 34.1.2 der varslingsplikten gjelder (OV-U15), og for
- * hver post beløpet når posten har et fast beløp å vurdere (KA-U66, KA-U72), svaret på
- * oppgjørsformen for en kravpost (§ 34.2.2, KA-U57 (d)) og varselet etter § 34.1.3 for posten
- * etter annet ledd. Svaret på varselet etter § 34.3.3 og § 34.4 er ikke påkrevd (VS-U57, VS-U46).
+ * hver post beløpet når posten har et fast beløp å vurdere (KA-U66, KA-U72), med beløpet
+ * byggherren godtar ved en delvis godkjenning (KA-U42), svaret på oppgjørsformen for en kravpost
+ * (§ 34.2.2, KA-U57 (d)) og for posten etter annet ledd varselet etter § 34.1.3 og beløpet etter
+ * begrensningen når den er påberopt. Svaret på varselet etter § 34.3.3 og § 34.4 er ikke påkrevd
+ * (VS-U57, VS-U46).
  */
 export function ubesvarteSpoersmaal(
   svar: Vederlagssvar,
@@ -171,14 +176,26 @@ export function ubesvarteSpoersmaal(
   if (regler.gjelderVarslingspliktenForVederlag(svar.hovedkategori) && mangler(svar.varslet_i_tide))
     ut.push({ post: null, felt: 'varslet_i_tide' });
   for (const p of svar.poster) {
+    // Beløpet byggherren godtar ved en delvis godkjenning er en del av svaret på beløpet.
+    const beloepet = mangler(p.vurdering)
+      ? ('vurdering' as const)
+      : !erKravlinjeGyldig(p.vurdering, p.godkjent_beloep)
+        ? ('godkjent_beloep' as const)
+        : null;
     if ('gjelder' in p) {
-      if (!regelen(p) && !ikkeAkseptert(p) && mangler(p.vurdering))
-        ut.push({ post: p, felt: 'vurdering' });
+      if (!regelen(p) && !ikkeAkseptert(p) && beloepet) ut.push({ post: p, felt: beloepet });
       if (mangler(p.aksepterer)) ut.push({ post: p, felt: 'aksepterer' });
     } else {
-      if (mangler(p.vurdering)) ut.push({ post: p, felt: 'vurdering' });
+      if (beloepet) ut.push({ post: p, felt: beloepet });
       if (p.saerskilt === 'produktivitet' && mangler(p.varslet_i_tide))
         ut.push({ post: p, felt: 'varslet_i_tide' });
+      // Valg 2 i #1047: beløpet etter begrensningen når den er påberopt.
+      if (
+        p.saerskilt === 'produktivitet' &&
+        p.varslet_i_tide === false &&
+        mangler(p.begrenset_beloep)
+      )
+        ut.push({ post: p, felt: 'begrenset_beloep' });
     }
   }
   return ut;
@@ -340,7 +357,7 @@ function kontroller(svar: Vederlagssvar, regler: Varslingsplikt): void {
       feil[`${navn}.vurdering`] = `${String(vurd)} er ikke en vurdering av beløpet`;
       return;
     }
-    if (!erKravlinjeGyldig(vurd, godkjent)) {
+    if (ubesvart(p, 'godkjent_beloep')) {
       feil[felt] = 'mangler ved delvis godkjenning';
       return;
     }
@@ -373,11 +390,11 @@ function kontroller(svar: Vederlagssvar, regler: Varslingsplikt): void {
         feil[felt] = 'gjelder bare en påberopt begrensning (punkt 34.1.3)';
       return;
     }
-    if (begrenset === null || begrenset === undefined) {
+    if (ubesvart(p, 'begrenset_beloep')) {
       feil[felt] = 'mangler (punkt 34.1.3)';
       return;
     }
-    const b = lesOere(felt, begrenset);
+    const b = lesOere(felt, begrenset as Tall);
     if (b !== null && !feil[`${navn}.vurdering`] && !feil[`${navn}.godkjent_beloep`]) {
       const krevd = beloep(p.krevd)!;
       const godkjent = beregnGodkjentBeloep(p.vurdering, krevd, beloep(p.godkjent_beloep));
