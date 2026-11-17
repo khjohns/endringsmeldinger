@@ -7,18 +7,18 @@
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
-  import NySak from '$lib/components/varden/NySak.svelte';
-  import Vardensak from '$lib/components/varden/Vardensak.svelte';
-  import { type SendNySak, type VedleggForNySak } from '$lib/components/varden/nysak';
-  import { fjernVentende, lagreVentende, lesVentende } from '$lib/components/varden/ventende';
+  import NySak from '#lib/components/varden/NySak.svelte';
+  import Vardensak from '#lib/components/varden/Vardensak.svelte';
+  import { type SendNySak, type VedleggForNySak } from '#lib/components/varden/nysak.ts';
+  import { fjernVentende, lagreVentende, lesVentende } from '#lib/components/varden/ventende.ts';
   import {
     hentSaksmerkingForNySak,
     lastOppVedleggForNySak,
     nyKommandoId,
     sendNySak,
     slettVedleggForNySak,
-  } from '$lib/api/kjerne';
-  import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+  } from '#lib/api/kjerne.ts';
+  import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
   // Det ventende utkastet følger den innloggede (#1678).

@@ -1,5 +1,5 @@
-import type { Journallinje } from '$lib/api/kjerne';
-import type { Journalrad } from '$kjerne/typer';
+import type { Journallinje } from '#lib/api/kjerne.ts';
+import type { Journalrad } from '#kjerne/typer.ts';
 
 /** En rad i journalen med navnet på aktøren, som bare visningen leser. */
 export type Visningsrad = Journalrad & { aktor_navn?: string };

@@ -1,5 +1,5 @@
-import { setActiveProjectId } from '$lib/api/client';
-import { getProject } from '$lib/api/projects';
+import { setActiveProjectId } from '#lib/api/client.ts';
+import { getProject } from '#lib/api/projects.ts';
 import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async ({ params, parent }) => {

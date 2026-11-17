@@ -1,7 +1,7 @@
 /**
  * Grensen for Varden (#1331): komponentene importerer ingen regler eller utledning utenom
  * kjernen og `lagKjernesak`. Det de kan importere, står i en hviteliste. Alt annet, som
- * oversetterne og projeksjonene i `$lib/kjernesak/`, gir rød test. Importene leses med
+ * oversetterne og projeksjonene i `#lib/kjernesak/`, gir rød test. Importene leses med
  * TypeScript-parseren og løses til absolutte stier, så alias, relative stier, `export … from`,
  * `import()` og `require()` teller likt.
  */
@@ -54,8 +54,8 @@ function importer(fil: string, kilde: string): string[] {
     ? [...kilde.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]).join('\n')
     : kilde;
   return ts.preProcessFile(kode, true, true).importedFiles.map(({ fileName: navn }) => {
-    if (navn === '$lib' || navn.startsWith('$lib/')) return join(LIB, navn.slice(4));
-    if (navn === '$kjerne' || navn.startsWith('$kjerne/')) return join(KJERNE, navn.slice(7));
+    if (navn === '#lib' || navn.startsWith('#lib/')) return join(LIB, navn.slice(4));
+    if (navn === '#kjerne' || navn.startsWith('#kjerne/')) return join(KJERNE, navn.slice(7));
     if (navn.startsWith('/')) return join(ROT, navn);
     return navn.startsWith('.') ? resolve(dirname(fil), navn) : navn;
   });
@@ -91,16 +91,16 @@ describe('grensen for Varden', () => {
     const kilder = new Map([
       [
         fil,
-        `<script lang="ts">\n  import { lesJournal } from '$lib/kjernesak/journal';\n  import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';\n</script>`,
+        `<script lang="ts">\n  import { lesJournal } from '#lib/kjernesak/journal.ts';\n  import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';\n</script>`,
       ],
       [
         ts_,
         [
           `import { lagSaksbilde } from '../../kjernesak/saksbilde';`,
-          `export * from '$lib/kjernesak/vederlagssvar';`,
-          `const d = await import('$lib/kjernesak/forsoek');`,
-          `import { kjoer } from '$kjerne/tester/kjoerer';`,
-          `import { handlinger } from '$kjerne/kommandoer/handlinger';`,
+          `export * from '#lib/kjernesak/vederlagssvar.ts';`,
+          `const d = await import('#lib/kjernesak/forsoek.ts');`,
+          `import { kjoer } from '#kjerne/tester/kjoerer.ts';`,
+          `import { handlinger } from '#kjerne/kommandoer/handlinger.ts';`,
           `import x from 'bits-ui';`,
           `import { brevene } from './lesing';`,
           `import { hjelp } from './__tests__/hjelp';`,
@@ -108,11 +108,11 @@ describe('grensen for Varden', () => {
       ],
     ]);
     expect(forbudte(kilder)).toEqual([
-      'src/lib/components/varden/Eksempel.svelte → src/lib/kjernesak/journal',
+      'src/lib/components/varden/Eksempel.svelte → src/lib/kjernesak/journal.ts',
       'src/lib/components/varden/eksempel.ts → src/lib/kjernesak/saksbilde',
-      'src/lib/components/varden/eksempel.ts → src/lib/kjernesak/vederlagssvar',
-      'src/lib/components/varden/eksempel.ts → src/lib/kjernesak/forsoek',
-      'src/lib/components/varden/eksempel.ts → kjerne/tester/kjoerer',
+      'src/lib/components/varden/eksempel.ts → src/lib/kjernesak/vederlagssvar.ts',
+      'src/lib/components/varden/eksempel.ts → src/lib/kjernesak/forsoek.ts',
+      'src/lib/components/varden/eksempel.ts → kjerne/tester/kjoerer.ts',
       'src/lib/components/varden/eksempel.ts → bits-ui',
       'src/lib/components/varden/eksempel.ts → src/lib/components/varden/__tests__/hjelp',
     ]);

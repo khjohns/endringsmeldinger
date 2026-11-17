@@ -8,8 +8,8 @@
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import type { Journalrad, Part, Spor } from '$kjerne/typer';
+import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+import type { Journalrad, Part, Spor } from '#kjerne/typer.ts';
 import {
   MERKING,
   SAK,
@@ -17,20 +17,20 @@ import {
   medGrunnlag,
   medVederlag,
   skrevet,
-} from '$lib/kjernesak/__tests__/provejournal';
-import { KJERNE } from '$kjerne/versjon';
-import { utledJournal } from '$kjerne/kommandoer/skriving';
-import Korrespondanseskjema from '$lib/components/varden/Korrespondanseskjema.svelte';
-import Forholdssvar from '$lib/components/varden/Forholdssvar.svelte';
-import Fristkrav from '$lib/components/varden/Fristkrav.svelte';
-import Vederlagskrav from '$lib/components/varden/Vederlagskrav.svelte';
-import Lagttilmerknader from '$lib/components/varden/Lagttilmerknader.svelte';
-import type { Korrespondansevalg } from '$lib/components/varden/korrespondansen';
-import { kravposterI } from '$kjerne/spor/vederlag/format';
-import { FORHOLDET, HOVEDLINJER, LEGG_TIL, SAKEN } from '$lib/components/varden/tekster';
-import { brevene, sendtSammeDag, sendtSammeDagSom } from '$lib/components/varden/lesing';
-import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
-import Vardensak from '$lib/components/varden/Vardensak.svelte';
+} from '#lib/kjernesak/__tests__/provejournal.ts';
+import { KJERNE } from '#kjerne/versjon.ts';
+import { utledJournal } from '#kjerne/kommandoer/skriving.ts';
+import Korrespondanseskjema from '#lib/components/varden/Korrespondanseskjema.svelte';
+import Forholdssvar from '#lib/components/varden/Forholdssvar.svelte';
+import Fristkrav from '#lib/components/varden/Fristkrav.svelte';
+import Vederlagskrav from '#lib/components/varden/Vederlagskrav.svelte';
+import Lagttilmerknader from '#lib/components/varden/Lagttilmerknader.svelte';
+import type { Korrespondansevalg } from '#lib/components/varden/korrespondansen.ts';
+import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
+import { FORHOLDET, HOVEDLINJER, LEGG_TIL, SAKEN } from '#lib/components/varden/tekster.ts';
+import { brevene, sendtSammeDag, sendtSammeDagSom } from '#lib/components/varden/lesing.ts';
+import { finnForloep, lagDemosak } from '#lib/kjernesak/demosak.ts';
+import Vardensak from '#lib/components/varden/Vardensak.svelte';
 
 /** Byggherren godkjenner 200 000 av 250 000 kr, så aksepten gir enighet (KA-U1). */
 const medDelvisSvar = (() => {

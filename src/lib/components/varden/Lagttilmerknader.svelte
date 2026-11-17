@@ -6,9 +6,9 @@
 -->
 <script lang="ts">
   import { untrack } from 'svelte';
-  import type { Spor } from '$kjerne/typer';
-  import type { Utledning } from '$kjerne/utledning/utled';
-  import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+  import type { Spor } from '#kjerne/typer.ts';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
+  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import Melding from './Melding.svelte';
   import { sendtSammeDagSom } from './lesing';
   import type { vedleggskart } from './nysak';

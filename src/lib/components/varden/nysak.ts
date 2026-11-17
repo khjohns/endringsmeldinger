@@ -5,19 +5,19 @@
  * kommandoene samlet. Demoruta fyller grensen i minnet, og saksruta med kommandoen fra #1487.
  */
 
-import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
-import { getKontraktsregel, type Kontraktsregel } from '$lib/constants/kontraktsregler';
-import { kravMotNySak, type Brev, type Saksmerking } from '$lib/kjernesak/brevtekst';
-import { PROGRAMFEIL, type Programfeil } from '$lib/kjernesak/kontekst.svelte';
-import { oppgittDato, type OppgittDato } from '$kjerne/spor/forhold/format';
-import { FORHOLDSGRUPPER } from '$kjerne/spor/forhold/tekst';
+import { KRAV_STRUKTUR_NS8407 } from '#lib/constants/categories.ts';
+import { getKontraktsregel, type Kontraktsregel } from '#lib/constants/kontraktsregler.ts';
+import { kravMotNySak, type Brev, type Saksmerking } from '#lib/kjernesak/brevtekst.ts';
+import { PROGRAMFEIL, type Programfeil } from '#lib/kjernesak/kontekst.svelte.ts';
+import { oppgittDato, type OppgittDato } from '#kjerne/spor/forhold/format.ts';
+import { FORHOLDSGRUPPER } from '#kjerne/spor/forhold/tekst.ts';
 import {
   kategoriFraKatalogen,
   tilKatalogen,
   UNDERKATEGORI_FRA_KATALOGEN,
-} from '$kjerne/format/koder';
-import type { Kjerne } from '$kjerne/versjon';
-import type { Part, Vedlegg } from '$kjerne/typer';
+} from '#kjerne/format/koder.ts';
+import type { Kjerne } from '#kjerne/versjon.ts';
+import type { Part, Vedlegg } from '#kjerne/typer.ts';
 
 /** Opprettelsen og påberopelsen, med brevteksten kjernen laget i brevkontrollen. */
 export interface NySak {
@@ -39,7 +39,7 @@ export type Paaberopelse = {
   dokumentasjon?: string[];
 };
 
-/** Vedlegget i mellomlageret, med størrelsen, som `Kjernevedlegg` i `$lib/api/kjerne`. */
+/** Vedlegget i mellomlageret, med størrelsen, som `Kjernevedlegg` i `#lib/api/kjerne.ts`. */
 export type Kjernevedlegg = Vedlegg & { stoerrelse: number };
 
 /** Vedleggene kommandoen viser til, med ID-en som nøkkel, så kjernen kan lage brevet (VS-U53). */

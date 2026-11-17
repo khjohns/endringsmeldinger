@@ -4,10 +4,10 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { load } from '../../../../routes/+layout';
-import { lagreVentende, lesVentende } from '$lib/components/varden/ventende';
+import { lagreVentende, lesVentende } from '#lib/components/varden/ventende.ts';
 
 const getSession = vi.hoisted(() => vi.fn());
-vi.mock('$lib/api/auth', () => ({ getSession }));
+vi.mock('#lib/api/auth.ts', () => ({ getSession }));
 
 afterEach(() => {
   getSession.mockReset();

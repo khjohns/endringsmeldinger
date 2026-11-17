@@ -8,10 +8,10 @@
 <script lang="ts">
   import { ArrowRight } from 'lucide-svelte';
   import { tick, type Component } from 'svelte';
-  import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
-  import { brevaarsak } from '$lib/kjernesak/kontekst.svelte';
-  import type { Part, Spor } from '$kjerne/typer';
-  import type { Utledning } from '$kjerne/utledning/utled';
+  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { brevaarsak } from '#lib/kjernesak/kontekst.svelte.ts';
+  import type { Part, Spor } from '#kjerne/typer.ts';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brevpanel from './Brevpanel.svelte';

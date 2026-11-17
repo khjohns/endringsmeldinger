@@ -6,9 +6,9 @@
   brevet (MM-U50), og den nye fristen er regnet fra gjeldende frist (G-4).
 -->
 <script lang="ts">
-  import { dager } from '$kjerne/frosset/tekst';
-  import { stor } from '$kjerne/frosset/brevdeler';
-  import type { Utledning } from '$kjerne/utledning/utled';
+  import { dager } from '#kjerne/frosset/tekst.ts';
+  import { stor } from '#kjerne/frosset/brevdeler.ts';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
   import Forbeholdet from './Forbeholdet.svelte';
   import Gjeldendefrist from './Gjeldendefrist.svelte';
   import Kravkort from './Kravkort.svelte';

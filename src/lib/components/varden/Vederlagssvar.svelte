@@ -10,14 +10,14 @@
     harProduktivitetspost,
     justerteEnhetspriser,
     kravposterI,
-  } from '$kjerne/spor/vederlag/format';
-  import { kroner } from '$kjerne/frosset/tekst';
-  import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
-  import { VIRKNING } from '$lib/kjernesak/svarvirkning';
-  import { lesKroner } from '$lib/utils/belop';
-  import type { Forutsetning } from '$kjerne/spor/vederlag/kommando';
-  import type { Utledning } from '$kjerne/utledning/utled';
-  import type { Kravpost, Standpunkt } from '$kjerne/typer';
+  } from '#kjerne/spor/vederlag/format.ts';
+  import { kroner } from '#kjerne/frosset/tekst.ts';
+  import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { VIRKNING } from '#lib/kjernesak/svarvirkning.ts';
+  import { lesKroner } from '#lib/utils/belop.ts';
+  import type { Forutsetning } from '#kjerne/spor/vederlag/kommando.ts';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
+  import type { Kravpost, Standpunkt } from '#kjerne/typer.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
   import Knapp from './Knapp.svelte';

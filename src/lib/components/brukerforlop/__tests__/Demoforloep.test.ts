@@ -11,13 +11,18 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import { finnForloep, lagDemosak, type Demosak } from '$lib/kjernesak/demosak';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import { laastTekstI } from '$lib/kjernesak/brevtekst';
-import { tomPost, vederlagssvaret, type Svarvalg } from '$lib/components/varden/kommandoer';
-import type { Journalrad } from '$kjerne/typer';
-import { finn, kjoerBrukerforloep, kontrollpunkt, somForloep } from '$kjerne/tester/brukerforloep';
-import { kontrollerEtter } from '$kjerne/tester/kjoerer';
+import { finnForloep, lagDemosak, type Demosak } from '#lib/kjernesak/demosak.ts';
+import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+import { laastTekstI } from '#lib/kjernesak/brevtekst.ts';
+import { tomPost, vederlagssvaret, type Svarvalg } from '#lib/components/varden/kommandoer.ts';
+import type { Journalrad } from '#kjerne/typer.ts';
+import {
+  finn,
+  kjoerBrukerforloep,
+  kontrollpunkt,
+  somForloep,
+} from '#kjerne/tester/brukerforloep.ts';
+import { kontrollerEtter } from '#kjerne/tester/kjoerer.ts';
 import Demoforloep from '../Demoforloep.svelte';
 
 const BF = finn('BF-01');

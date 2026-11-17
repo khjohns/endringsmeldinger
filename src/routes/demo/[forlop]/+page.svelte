@@ -6,8 +6,8 @@
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
-  import Demoforloep from '$lib/components/brukerforlop/Demoforloep.svelte';
-  import { finnForloep } from '$lib/kjernesak/demosak';
+  import Demoforloep from '#lib/components/brukerforlop/Demoforloep.svelte';
+  import { finnForloep } from '#lib/kjernesak/demosak.ts';
 
   const forloep = $derived(finnForloep(page.params.forlop ?? ''));
   // `?brukertest` viser saken uten demopanelet; tilstanden settes med lenken.

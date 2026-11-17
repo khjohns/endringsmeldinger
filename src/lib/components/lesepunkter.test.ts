@@ -13,8 +13,8 @@
  * saken (`hentKjernesak`) og kalles utledningen, visningen, handlingene og
  * forhåndsvisningen i kjernen. Typeimporter er tillatt, også `{ type X }` når hvert
  * navn er en type. Vakten kjenner igjen en import, en re-eksport, en import bare for
- * sideeffekten og en dynamisk import fra `$kjerne/utledning/` og
- * `$kjerne/kommandoer/`, og navnet `hentKjernesak`. Den kjenner ikke igjen en
+ * sideeffekten og en dynamisk import fra `#kjerne/utledning/` og
+ * `#kjerne/kommandoer/`, og navnet `hentKjernesak`. Den kjenner ikke igjen en
  * relativ sti inn i kjernen; den fanger `src/lib/kjernegrense.test.ts`.
  */
 
@@ -68,7 +68,7 @@ describe('lesepunktene for statusene', () => {
       statuslesing(
         [
           `<script lang="ts">`,
-          `  import { getOverordnetStatusStyle } from '$lib/constants/statusStyles.js';`,
+          `  import { getOverordnetStatusStyle } from '#lib/constants/statusStyles.js';`,
           `  const lukket = store.sak.frist.status === 'laast';`,
           `  const s: SporStatus = sak.vederlag?.status;`,
           `</script>`,
@@ -99,7 +99,7 @@ const bareTyper = (klausul: string) => {
 };
 
 /** Utledningen og kommandoene, også rollefilene for dem i et spor (#1783). */
-const KJERNE = String.raw`['"\x60]\$kjerne\/(?:(?:utledning|kommandoer)\/|spor\/\w+\/(?:utledning|visning|kommando)\b)`;
+const KJERNE = String.raw`['"\x60]\#kjerne\/(?:(?:utledning|kommandoer)\/|spor\/\w+\/(?:utledning|visning|kommando)\b)`;
 
 const KJERNELESING: [string, RegExp, ((klausul: string) => boolean)?][] = [
   [
@@ -142,24 +142,24 @@ describe('lesepunktet for TS-sakene', () => {
       kjernelesing(
         [
           `<script lang="ts">`,
-          `  import { visning } from '$kjerne/utledning/visning';`,
-          `  import type { Visning } from '$kjerne/utledning/visning';`,
+          `  import { visning } from '#kjerne/utledning/visning.ts';`,
+          `  import type { Visning } from '#kjerne/utledning/visning.ts';`,
           `  import {`,
           `    forhaandsvis,`,
           `    laastTekst,`,
-          `  } from '$kjerne/kommandoer/skriving';`,
-          `  import { hentKjernesak } from '$lib/api/kjerne';`,
-          `  import { HOVEDKATEGORI_FRA_KATALOGEN } from '$kjerne/format/koder';`,
-          `  export { visning } from '$kjerne/utledning/visning';`,
-          `  export type { Visning } from '$kjerne/utledning/visning';`,
-          `  export * from '$kjerne/kommandoer/skriving';`,
-          `  const skriving = await import('$kjerne/kommandoer/skriving');`,
-          `  import { type Visning } from '$kjerne/utledning/visning';`,
-          `  export { type Visning, type Status } from '$kjerne/utledning/visning';`,
-          `  import { type Visning, visning } from '$kjerne/utledning/visning';`,
-          `  import '$kjerne/kommandoer/skriving';`,
-          `  import { vederlagssvaret } from '$kjerne/spor/vederlag/visning';`,
-          `  import { kravposterI } from '$kjerne/spor/vederlag/format';`,
+          `  } from '#kjerne/kommandoer/skriving.ts';`,
+          `  import { hentKjernesak } from '#lib/api/kjerne.ts';`,
+          `  import { HOVEDKATEGORI_FRA_KATALOGEN } from '#kjerne/format/koder.ts';`,
+          `  export { visning } from '#kjerne/utledning/visning.ts';`,
+          `  export type { Visning } from '#kjerne/utledning/visning.ts';`,
+          `  export * from '#kjerne/kommandoer/skriving.ts';`,
+          `  const skriving = await import('#kjerne/kommandoer/skriving.ts');`,
+          `  import { type Visning } from '#kjerne/utledning/visning.ts';`,
+          `  export { type Visning, type Status } from '#kjerne/utledning/visning.ts';`,
+          `  import { type Visning, visning } from '#kjerne/utledning/visning.ts';`,
+          `  import '#kjerne/kommandoer/skriving.ts';`,
+          `  import { vederlagssvaret } from '#kjerne/spor/vederlag/visning.ts';`,
+          `  import { kravposterI } from '#kjerne/spor/vederlag/format.ts';`,
           `</script>`,
         ].join('\n')
       )

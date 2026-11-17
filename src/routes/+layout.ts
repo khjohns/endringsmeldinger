@@ -2,10 +2,10 @@ export const ssr = false;
 export const prerender = false;
 
 import { redirect, error } from '@sveltejs/kit';
-import { getSession } from '$lib/api/auth';
-import { ApiError } from '$lib/api/client';
-import { fjernAndresVentende } from '$lib/components/varden/ventende';
-import { OM_VARDEN_STI } from '$lib/components/om-varden/sti';
+import { getSession } from '#lib/api/auth.ts';
+import { ApiError } from '#lib/api/client.ts';
+import { fjernAndresVentende } from '#lib/components/varden/ventende.ts';
+import { OM_VARDEN_STI } from '#lib/components/om-varden/sti.ts';
 import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async ({ url }) => {

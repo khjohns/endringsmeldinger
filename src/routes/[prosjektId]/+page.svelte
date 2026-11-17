@@ -1,10 +1,10 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { resolve } from '$app/paths';
-  import { createCaseListQuery } from '$lib/queries/caseList';
-  import Saksliste from '$lib/components/varden/Saksliste.svelte';
-  import { projectToMeta } from '$lib/constants/projectMeta';
-  import { projectStore } from '$lib/stores/project.svelte';
+  import { createCaseListQuery } from '#lib/queries/caseList.ts';
+  import Saksliste from '#lib/components/varden/Saksliste.svelte';
+  import { projectToMeta } from '#lib/constants/projectMeta.ts';
+  import { projectStore } from '#lib/stores/project.svelte.ts';
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const query = createCaseListQuery(() => prosjektId);

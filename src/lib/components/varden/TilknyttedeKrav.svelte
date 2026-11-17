@@ -5,10 +5,10 @@
   svaret er subsidiært til forholdet (vedtaket 05.10). «Åpne» fører til kravet.
 -->
 <script lang="ts">
-  import type { Betegnelse } from '$kjerne/utledning/visning';
-  import type { Spor } from '$kjerne/typer';
-  import type { Utledning } from '$kjerne/utledning/utled';
-  import { dager, kroner } from '$kjerne/frosset/tekst';
+  import type { Betegnelse } from '#kjerne/utledning/visning.ts';
+  import type { Spor } from '#kjerne/typer.ts';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
+  import { dager, kroner } from '#kjerne/frosset/tekst.ts';
   import { ChevronRight } from 'lucide-svelte';
   import Knapp from './Knapp.svelte';
   import {

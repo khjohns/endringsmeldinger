@@ -48,11 +48,6 @@ export default defineConfig({
       adapter: adapter({
         fallback: 'index.html',
       }),
-      // TS-kjernen (B-14, B-15). Grensetesten i src/lib/kjernegrense.test.ts holder kjerne/tester/ ute.
-      alias: {
-        $lib: 'src/lib',
-        $kjerne: 'kjerne',
-      },
     }),
   ],
   resolve: {
@@ -60,7 +55,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    // Legges til SvelteKits liste: TS-kjernen importeres fra kjerne/ ($kjerne), og demoruta
+    // Legges til SvelteKits liste: TS-kjernen importeres fra kjerne/ (#kjerne), og demoruta
     // leser startjournalene for brukerforløpene (#1330).
     fs: { allow: ['kjerne', 'docs/domenetabell/brukerforlop'] },
     proxy: {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { KORRESPONDANSETYPER, SENDEMAATER } from '$kjerne/typer';
-import { formfeil } from '$kjerne/kommandoer/kommando';
+import { KORRESPONDANSETYPER, SENDEMAATER } from '#kjerne/typer.ts';
+import { formfeil } from '#kjerne/kommandoer/kommando.ts';
 import {
   korrespondansemangler,
   lagtTil,

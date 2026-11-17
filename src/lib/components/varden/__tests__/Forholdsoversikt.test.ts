@@ -7,11 +7,11 @@
 
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import { minnebane } from '$kjerne/tester/bane';
-import { kjoer, type Forloep } from '$kjerne/tester/kjoerer';
-import type { Handling } from '$kjerne/tester/klient';
-import Forholdsoversikt from '$lib/components/varden/Forholdsoversikt.svelte';
-import Tidslinje from '$lib/components/varden/Tidslinje.svelte';
+import { minnebane } from '#kjerne/tester/bane.ts';
+import { kjoer, type Forloep } from '#kjerne/tester/kjoerer.ts';
+import type { Handling } from '#kjerne/tester/klient.ts';
+import Forholdsoversikt from '#lib/components/varden/Forholdsoversikt.svelte';
+import Tidslinje from '#lib/components/varden/Tidslinje.svelte';
 import {
   brevForLinja,
   brevene,
@@ -19,13 +19,13 @@ import {
   oppfoelgingene,
   type Brevet,
   type Innlegget,
-} from '$lib/components/varden/lesing';
-import { TRAADEN } from '$lib/components/varden/tekster';
+} from '#lib/components/varden/lesing.ts';
+import { TRAADEN } from '#lib/components/varden/tekster.ts';
 import { createRawSnippet } from 'svelte';
-import Brevtraad from '$lib/components/varden/Brevtraad.svelte';
-import type { Spor } from '$kjerne/typer';
-import type { Utledning } from '$kjerne/utledning/utled';
-import { betegnelse } from '$kjerne/utledning/visning';
+import Brevtraad from '#lib/components/varden/Brevtraad.svelte';
+import type { Spor } from '#kjerne/typer.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
+import { betegnelse } from '#kjerne/utledning/visning.ts';
 
 /** Betegnelsene slik saksbildet gir dem (`betegnelsene`), regnet av kjernen. */
 const betegnelserI = (u: Utledning) => ({

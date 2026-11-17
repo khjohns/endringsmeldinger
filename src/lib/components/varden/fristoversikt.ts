@@ -7,12 +7,12 @@
  * gjeldende frist og dagene (G-4). Modulen avgjør ingenting selv.
  */
 
-import { sakensKode } from '$kjerne/frosset/tekst';
-import { forlengetFrist } from '$kjerne/regler/hverdager';
-import { utregningIFristen, innholdIFristen } from '$kjerne/spor/frist/format';
-import type { Standpunkt } from '$kjerne/typer';
-import type { Utledning } from '$kjerne/utledning/utled';
-import type { Fristdato } from '$lib/kjernesak/brevtekst';
+import { sakensKode } from '#kjerne/frosset/tekst.ts';
+import { forlengetFrist } from '#kjerne/regler/hverdager.ts';
+import { utregningIFristen, innholdIFristen } from '#kjerne/spor/frist/format.ts';
+import type { Standpunkt } from '#kjerne/typer.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
+import type { Fristdato } from '#lib/kjernesak/brevtekst.ts';
 import type { Brevet, Fristtabellen } from './lesing';
 import {
   innsigelseneFoer,

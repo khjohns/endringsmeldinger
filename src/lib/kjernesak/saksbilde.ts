@@ -4,9 +4,9 @@
  * (MM-U30). Her står ingen regel, bare oppslag.
  */
 
-import { sakstittelen } from '$kjerne/format/leser';
-import type { Betegnelse, Visning } from '$kjerne/utledning/visning';
-import { SPOR, type Domenehendelse, type Spor } from '$kjerne/typer';
+import { sakstittelen } from '#kjerne/format/leser.ts';
+import type { Betegnelse, Visning } from '#kjerne/utledning/visning.ts';
+import { SPOR, type Domenehendelse, type Spor } from '#kjerne/typer.ts';
 
 export interface Sporbilde {
   spor: Spor;

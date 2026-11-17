@@ -2,16 +2,16 @@
  * TEKSTER (#1331). Spørsmålene, forklaringene og virkningstekstene Varden viser,
  * samlet her så de kan kontrolleres med linse A i `design-review` før brukertesten. De er
  * ikke vedtatt brevtekst eller produktdesign. Teksten i brevene kommer fra kjernen, og
- * teksten om svarets virkning er arbeidsvalget 26.10 (`$lib/kjernesak/svarvirkning`).
+ * teksten om svarets virkning er arbeidsvalget 26.10 (`#lib/kjernesak/svarvirkning.ts`).
  *
  * En tekst formulerer et strukturert resultat fra kjernen (et standpunkt, et beløp, et
  * brevnummer). Den finner ikke på virkningen.
  */
 
-import { liste, opplistet, PARTEN, PARTENS, stor } from '$kjerne/frosset/brevdeler';
-import { dager, KORRESPONDANSETYPEN, kroner } from '$kjerne/frosset/tekst';
-import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
-import type { Betegnelse } from '$kjerne/utledning/visning';
+import { liste, opplistet, PARTEN, PARTENS, stor } from '#kjerne/frosset/brevdeler.ts';
+import { dager, KORRESPONDANSETYPEN, kroner } from '#kjerne/frosset/tekst.ts';
+import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
+import type { Betegnelse } from '#kjerne/utledning/visning.ts';
 import type {
   Korrespondansetype,
   Kravpost,
@@ -20,14 +20,14 @@ import type {
   Sendemaate,
   Spor,
   Standpunkt,
-} from '$kjerne/typer';
-import { OPPGJOERSHJEMMEL } from '$kjerne/spor/vederlag/format';
+} from '#kjerne/typer.ts';
+import { OPPGJOERSHJEMMEL } from '#kjerne/spor/vederlag/format.ts';
 import type { Regel } from './kommandoer';
 import {
   forholdstilfellet,
   type Forholdsordene,
   type Forholdstilfelle,
-} from '$kjerne/spor/forhold/tekst';
+} from '#kjerne/spor/forhold/tekst.ts';
 import type {
   Brevet,
   Brevref,

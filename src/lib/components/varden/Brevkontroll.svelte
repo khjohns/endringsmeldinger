@@ -5,8 +5,8 @@
   mangler avkrysningen, står det ved den (MM-U32).
 -->
 <script module lang="ts">
-  import type { Avsnitt } from '$kjerne/typer';
-  import { harTekst, laastTekstI, type Brev as Kjernebrev } from '$lib/kjernesak/brevtekst';
+  import type { Avsnitt } from '#kjerne/typer.ts';
+  import { harTekst, laastTekstI, type Brev as Kjernebrev } from '#lib/kjernesak/brevtekst.ts';
 
   /**
    * Brevet kjernen lager for kommandoen, slik brevkontrollen viser det: avsnittene med punktene
@@ -54,7 +54,7 @@
 <script lang="ts">
   import { ChevronLeft, Send } from 'lucide-svelte';
   import { onMount, tick } from 'svelte';
-  import type { Part } from '$kjerne/typer';
+  import type { Part } from '#kjerne/typer.ts';
   import type { Brevref } from './lesing';
   import type { Brevsending } from './nysak';
   import Brev from './Brev.svelte';
@@ -62,7 +62,7 @@
   import Melding from './Melding.svelte';
   import { organisasjonene } from './kontrakt';
   import { BREVKONTROLL } from './tekster';
-  import { PARTEN, stor } from '$kjerne/frosset/brevdeler';
+  import { PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 
   let {
     kjernesak,

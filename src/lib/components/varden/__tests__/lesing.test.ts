@@ -7,25 +7,25 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { minnebane } from '$kjerne/tester/bane';
-import { kjoer, type Forloep } from '$kjerne/tester/kjoerer';
-import type { Handling } from '$kjerne/tester/klient';
-import { kroner } from '$kjerne/frosset/tekst';
+import { minnebane } from '#kjerne/tester/bane.ts';
+import { kjoer, type Forloep } from '#kjerne/tester/kjoerer.ts';
+import type { Handling } from '#kjerne/tester/klient.ts';
+import { kroner } from '#kjerne/frosset/tekst.ts';
 import {
   brevene,
   kravposterUtenFastBeloep,
   standpunktene,
   tilknyttetKrav,
-} from '$lib/components/varden/lesing';
+} from '#lib/components/varden/lesing.ts';
 import {
   FRISTEN,
   leselinjene,
   SKJEMA,
   standpunkttekst,
   STILLING,
-} from '$lib/components/varden/tekster';
-import type { Standpunkt } from '$kjerne/typer';
-import { kravposterI } from '$kjerne/spor/vederlag/format';
+} from '#lib/components/varden/tekster.ts';
+import type { Standpunkt } from '#kjerne/typer.ts';
+import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
 
 async function utledning(steg: Handling[]) {
   const forloep: Forloep = { id: 'lagene', rader: [], start: null, steg, kontroller: [] };

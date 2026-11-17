@@ -1,8 +1,8 @@
 <script lang="ts">
   import { Tooltip } from 'bits-ui';
-  import '$lib/components/kontraktsbord/theme.css';
+  import '#lib/components/kontraktsbord/theme.css';
   import '../app.css';
-  import { logout } from '$lib/api/auth';
+  import { logout } from '#lib/api/auth.ts';
   let { children, data } = $props();
   let logoutError = $state('');
   let loggingOut = $state(false);

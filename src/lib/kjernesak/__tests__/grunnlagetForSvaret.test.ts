@@ -5,9 +5,9 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { utledJournal } from '$kjerne/kommandoer/skriving';
-import { KJERNE } from '$kjerne/versjon';
-import type { Journalrad } from '$kjerne/typer';
+import { utledJournal } from '#kjerne/kommandoer/skriving.ts';
+import { KJERNE } from '#kjerne/versjon.ts';
+import type { Journalrad } from '#kjerne/typer.ts';
 import { grunnlagetForSvaret } from '../vederlagssvar';
 import { medGrunnlag, skrevet } from './provejournal';
 

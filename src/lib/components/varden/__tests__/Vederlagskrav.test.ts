@@ -7,9 +7,9 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import { finnForloep, type Demosak } from '$lib/kjernesak/demosak';
-import Demoforloep from '$lib/components/brukerforlop/Demoforloep.svelte';
-import type { Journalrad } from '$kjerne/typer';
+import { finnForloep, type Demosak } from '#lib/kjernesak/demosak.ts';
+import Demoforloep from '#lib/components/brukerforlop/Demoforloep.svelte';
+import type { Journalrad } from '#kjerne/typer.ts';
 
 beforeEach(() => vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Ingen nettverk.'))));
 afterEach(() => {

@@ -7,9 +7,9 @@
 -->
 <script lang="ts">
   import { tick } from 'svelte';
-  import type { Spor } from '$kjerne/typer';
-  import type { Utledning } from '$kjerne/utledning/utled';
-  import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+  import type { Spor } from '#kjerne/typer.ts';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
+  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';

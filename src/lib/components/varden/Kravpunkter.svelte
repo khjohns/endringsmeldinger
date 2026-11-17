@@ -6,7 +6,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { kroner } from '$kjerne/frosset/tekst';
+  import { kroner } from '#kjerne/frosset/tekst.ts';
   import { KRAVSKJEMA } from './tekster';
   import { PNS_GRENSE } from './vederlagskrav';
 

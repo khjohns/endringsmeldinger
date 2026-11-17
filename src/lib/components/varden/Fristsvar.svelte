@@ -7,14 +7,14 @@
   kjernen regner resultatet og lagene, lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
-  import { stor } from '$kjerne/frosset/brevdeler';
-  import { dager } from '$kjerne/frosset/tekst';
-  import { betegnelsen, hindringenEtter, innholdIFristen } from '$kjerne/spor/frist/format';
-  import { foresporselenISvaret } from '$lib/kjernesak/fristsvar';
-  import type { Forutsetning } from '$kjerne/spor/frist/kommando';
-  import type { Utledning } from '$kjerne/utledning/utled';
-  import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
-  import { VIRKNING } from '$lib/kjernesak/svarvirkning';
+  import { stor } from '#kjerne/frosset/brevdeler.ts';
+  import { dager } from '#kjerne/frosset/tekst.ts';
+  import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
+  import { foresporselenISvaret } from '#lib/kjernesak/fristsvar.ts';
+  import type { Forutsetning } from '#kjerne/spor/frist/kommando.ts';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
+  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { VIRKNING } from '#lib/kjernesak/svarvirkning.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
   import Knapp from './Knapp.svelte';

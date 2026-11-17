@@ -4,14 +4,14 @@
   `Vardensak.svelte`, med tekstene fra `tekster.ts`.
 -->
 <script lang="ts">
-  import type { Spor } from '$kjerne/typer';
-  import Brevkontroll from '$lib/components/varden/Brevkontroll.svelte';
-  import Sporlesing from '$lib/components/varden/Sporlesing.svelte';
-  import Vederlagssvar from '$lib/components/varden/Vederlagssvar.svelte';
-  import { tomtSvar, type Svarvalg } from '$lib/components/varden/kommandoer';
-  import { brevene } from '$lib/components/varden/lesing';
-  import { BREVKONTROLL, SAKEN, STILLING } from '$lib/components/varden/tekster';
-  import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+  import type { Spor } from '#kjerne/typer.ts';
+  import Brevkontroll from '#lib/components/varden/Brevkontroll.svelte';
+  import Sporlesing from '#lib/components/varden/Sporlesing.svelte';
+  import Vederlagssvar from '#lib/components/varden/Vederlagssvar.svelte';
+  import { tomtSvar, type Svarvalg } from '#lib/components/varden/kommandoer.ts';
+  import { brevene } from '#lib/components/varden/lesing.ts';
+  import { BREVKONTROLL, SAKEN, STILLING } from '#lib/components/varden/tekster.ts';
+  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
 
   let {
     kjernesak,

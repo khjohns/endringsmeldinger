@@ -1,4 +1,4 @@
-import { erUsikkertUtfall } from '$lib/api/kjerne';
+import { erUsikkertUtfall } from '#lib/api/kjerne.ts';
 
 /** Meldingen etter et usikkert utfall, med hva som kan være lagret og hvorfor et nytt forsøk er trygt. */
 export const usikkertUtfall = (hva: string, trygt: string) =>

@@ -7,9 +7,9 @@
 
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
-import Brev from '$lib/components/varden/Brev.svelte';
-import Infotips from '$lib/components/varden/Infotips.svelte';
-import { SKJEMA, brevrefFra } from '$lib/components/varden/tekster';
+import Brev from '#lib/components/varden/Brev.svelte';
+import Infotips from '#lib/components/varden/Infotips.svelte';
+import { SKJEMA, brevrefFra } from '#lib/components/varden/tekster.ts';
 
 afterEach(cleanup);
 

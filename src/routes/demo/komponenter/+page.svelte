@@ -3,16 +3,22 @@
    * Showcase for Varden (#1371): komponentene i `src/lib/components/varden/` i tilstandene de
    * kan ha, med saken fra startjournalen for BF-01 og `lagKjernesak`, som i `Varden.test.ts`.
    */
-  import '$lib/components/kontraktsbord/theme.css';
+  import '#lib/components/kontraktsbord/theme.css';
   import { resolve } from '$app/paths';
-  import type { Part } from '$kjerne/typer';
-  import Brev from '$lib/components/varden/Brev.svelte';
-  import Brevtyper from '$lib/components/varden/Brevtyper.svelte';
-  import Knapp from '$lib/components/varden/Knapp.svelte';
-  import Tidslinje from '$lib/components/varden/Tidslinje.svelte';
-  import { tomPost, tomtSvar, type Svarvalg } from '$lib/components/varden/kommandoer';
-  import { brevene, oppgitteDatoer } from '$lib/components/varden/lesing';
-  import { HANDLINGENE, SAKEN, SPORNAVN, brevtittel, dato } from '$lib/components/varden/tekster';
+  import type { Part } from '#kjerne/typer.ts';
+  import Brev from '#lib/components/varden/Brev.svelte';
+  import Brevtyper from '#lib/components/varden/Brevtyper.svelte';
+  import Knapp from '#lib/components/varden/Knapp.svelte';
+  import Tidslinje from '#lib/components/varden/Tidslinje.svelte';
+  import { tomPost, tomtSvar, type Svarvalg } from '#lib/components/varden/kommandoer.ts';
+  import { brevene, oppgitteDatoer } from '#lib/components/varden/lesing.ts';
+  import {
+    HANDLINGENE,
+    SAKEN,
+    SPORNAVN,
+    brevtittel,
+    dato,
+  } from '#lib/components/varden/tekster.ts';
   import Arbeid from './Arbeid.svelte';
   import { FORLOEPET, TILSTANDER, aapneSak } from './kjernesaker';
   import { SVAR_MED_TABELL } from './svarmedtabell';

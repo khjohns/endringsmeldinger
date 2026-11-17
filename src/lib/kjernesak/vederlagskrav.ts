@@ -4,10 +4,10 @@
  * vil si.
  */
 
-import { kravposterI } from '$kjerne/spor/vederlag/format';
-import { kravpostvarslene, varselhjemmel } from '$kjerne/spor/vederlag/utledning';
-import type { Kravpost, Kravpostvarselhjemmel } from '$kjerne/typer';
-import { varseletForNyttSvar, type Utledning } from '$kjerne/utledning/utled';
+import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
+import { kravpostvarslene, varselhjemmel } from '#kjerne/spor/vederlag/utledning.ts';
+import type { Kravpost, Kravpostvarselhjemmel } from '#kjerne/typer.ts';
+import { varseletForNyttSvar, type Utledning } from '#kjerne/utledning/utled.ts';
 
 /** Kravposten i skjemaet: feltene kjernen leser for varselet, og `id` når posten fantes før. */
 export type Kravpostutkast = Pick<Kravpost, 'oppgjoersform' | 'justert'> & { id?: string };

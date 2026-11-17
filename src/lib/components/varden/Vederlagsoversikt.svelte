@@ -20,7 +20,7 @@
     sendtSammeDag,
   } from './lesing';
   import { TRAADEN, VEDERLAGET } from './tekster';
-  import { varseletFoerKravet } from '$lib/kjernesak/vederlagskrav';
+  import { varseletFoerKravet } from '#lib/kjernesak/vederlagskrav.ts';
   import { kravbeloepene, kravetOgSvaret, varsleneIKravene } from './vederlagsoversikt';
   import { akseptfristen } from './svarlagene';
 
