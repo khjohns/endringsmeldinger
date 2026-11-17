@@ -11949,7 +11949,7 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     s: ReturnType<typeof sak>,
     spor: 'frist' | 'vederlag',
     vurderinger: Data,
-    liste: 'ubesvart' | 'stilt'
+    liste: 'ubesvart' | 'stilt' | 'ugyldig'
   ) => {
     const ider = new Map<string, string>([
       ...(s.u().spor.vederlag.gjeldendeKrav
@@ -11970,8 +11970,8 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
       expect.fail(`lagene kastet: ${String(e)}`);
     }
     const spoersmaal =
-      liste === 'ubesvart'
-        ? lag.ubesvart
+      liste !== 'stilt'
+        ? lag[liste]
         : 'stilt' in lag
           ? lag.stilt
           : expect.fail(`lagene i ${spor} har ikke lista stilt`);
@@ -11981,6 +11981,9 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
   };
   const ubesvart = (s: ReturnType<typeof sak>, spor: 'frist' | 'vederlag', vurderinger: Data) =>
     spoersmaalene(s, spor, vurderinger, 'ubesvart');
+  /** #2156 punkt 1: svarene i utkastet kjernen ikke godtar når svaret sendes. */
+  const ugyldig = (s: ReturnType<typeof sak>, spor: 'frist' | 'vederlag', vurderinger: Data) =>
+    spoersmaalene(s, spor, vurderinger, 'ugyldig');
   /** #2156 punkt 2: spørsmålene regelen stiller i svarutkastet på fristen, også når de er besvart. */
   const stilt = (s: ReturnType<typeof sak>, vurderinger: Data) =>
     spoersmaalene(s, 'frist', vurderinger, 'stilt');
@@ -12109,6 +12112,94 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     expect(melding(s, 'vederlag', v)).toContain(
       'P1.godkjent_beloep: mangler ved delvis godkjenning'
     );
+  });
+
+  it('fristen: dager som ikke er et helt tall, er negative eller flere enn de krevde, er et svar kjernen ikke godtar, og et ubesvart spørsmål står ikke der (punkt 33.5, #2156)', () => {
+    const s = saken(FRISTKRAV);
+    const v = { frist_varsel_ok: true, spesifisert_krav_ok: true, vilkar_oppfylt: true };
+    for (const [dager, grunn] of [
+      ['20', 'er ikke et helt antall dager'],
+      [2.5, 'er ikke et helt antall dager'],
+      [-1, 'kan ikke være negativt'],
+      [21, 'er flere enn de krevde dagene'],
+    ] as const) {
+      const svaret = { ...v, frister: [{ dager }] };
+      expect(ugyldig(s, 'frist', svaret), String(dager)).toEqual(['frist 1.dager']);
+      expect(melding(s, 'frist', svaret)).toContain(grunn);
+    }
+    // Kontrollsaker: de krevde dagene og 0 dager godtas, og ubesvarte dager står i `ubesvart`.
+    for (const dager of [20, 0])
+      expect(ugyldig(s, 'frist', { ...v, frister: [{ dager }] }), String(dager)).toEqual([]);
+    expect(ugyldig(s, 'frist', { frister: [{}] })).toEqual([]);
+  });
+
+  it('fristen: dagene byggherren måtte forstå er et svar kjernen ikke godtar når de er flere enn dagene byggherren godtar (VS-U4, D-5, #2156)', () => {
+    const s = saken(FRISTKRAV);
+    const v = {
+      frist_varsel_ok: true,
+      spesifisert_krav_ok: false,
+      vilkar_oppfylt: true,
+      frister: [{ dager: 10, dager_maatte_forstaa: 11 }],
+    };
+    expect(ugyldig(s, 'frist', v)).toEqual(['frist 1.dager_maatte_forstaa']);
+    expect(melding(s, 'frist', v)).toContain(
+      'er flere enn dagene byggherren godtar om kravet kom i tide'
+    );
+    expect(
+      ugyldig(s, 'frist', { ...v, frister: [{ dager: 10, dager_maatte_forstaa: 10 }] })
+    ).toEqual([]);
+    // Dagene som ikke kan leses, står for seg, ikke dagene byggherren måtte forstå.
+    expect(
+      ugyldig(s, 'frist', { ...v, frister: [{ dager: 21, dager_maatte_forstaa: 30 }] })
+    ).toEqual(['frist 1.dager']);
+  });
+
+  it('fristen: når kravet svarer på forespørselen, er spesifiseringen for sent et svar kjernen ikke godtar (punkt 33.6.2 fjerde ledd, #2156)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar('forhold', s.krav('forhold'), { grunnlag_varslet_i_tide: true, resultat: 'godkjent' }),
+      ],
+    });
+    s.send('BH', { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' });
+    s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+    const v = {
+      frist_varsel_ok: true,
+      foresporsel_svar_ok: true,
+      vilkar_oppfylt: true,
+      spesifisert_krav_ok: false,
+      frister: [{ dager: 5 }],
+    };
+    expect(ugyldig(s, 'frist', v)).toEqual(['spesifisert_krav_ok']);
+    expect(melding(s, 'frist', v)).toContain('punkt 33.6.1 kan ikke påberopes');
+    expect(ugyldig(s, 'frist', { ...v, spesifisert_krav_ok: undefined })).toEqual([]);
+  });
+
+  it('vederlaget: ved en delvis godkjenning er et beløp som ikke er mer enn 0 og mindre enn det krevde, et svar kjernen ikke godtar (KA-U42, #2156)', () => {
+    const s = saken(vederlagskravet(tilbud(100000)));
+    const delvis = (godkjent_beloep: number) => ({
+      kravposter: [{ gjelder: 'P1', aksepterer: true, vurdering: 'delvis', godkjent_beloep }],
+    });
+    for (const [beloep, grunn] of [
+      [100000, 'gjelder mer enn 0 og mindre enn det krevde beløpet'],
+      [0, 'gjelder mer enn 0 og mindre enn det krevde beløpet'],
+      [-1, 'kan ikke være negativt'],
+      [100001, 'er høyere enn det krevde beløpet'],
+    ] as const) {
+      expect(ugyldig(s, 'vederlag', delvis(beloep)), String(beloep)).toEqual([
+        'P1.godkjent_beloep',
+      ]);
+      expect(melding(s, 'vederlag', delvis(beloep))).toContain(grunn);
+    }
+    expect(ugyldig(s, 'vederlag', delvis(50000)), 'kontrollsak').toEqual([]);
+    // Et ubesvart beløp står i `ubesvart`, ikke her.
+    expect(
+      ugyldig(s, 'vederlag', {
+        kravposter: [{ gjelder: 'P1', aksepterer: true, vurdering: 'delvis' }],
+      })
+    ).toEqual([]);
   });
 
   it('vederlaget: uten svar er varselet etter § 34.1.2, beløpet og svaret på tilbudet etter § 34.2.2 påkrevd (OV-U15, KA-U57 (d))', () => {

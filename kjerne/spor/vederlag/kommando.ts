@@ -19,6 +19,7 @@ import { kategori } from '../forhold/format.ts';
 import { omtalen } from '../../frosset/brevdeler.ts';
 import { innholdetIDokumentet, innholdetIVedleggene } from '../../kommandoer/vedlegg.ts';
 import {
+  beregnVederlag,
   ubesvartIKravposten,
   ubesvarteSpoersmaal,
   type UbesvartIVederlaget,
@@ -71,7 +72,7 @@ import type {
   Utfall,
 } from '../../kommandoer/skriving.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
-import { lageneIUtkastet } from '../../kommandoer/utkastlag.ts';
+import { avvisteFelt, lageneIUtkastet, utenom } from '../../kommandoer/utkastlag.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
 
@@ -607,6 +608,42 @@ function ubesvartIVederlaget(
   ];
 }
 
+/** Svarene om en kravpost kontrollen av vederlaget avviser med kravposten som nøkkel. */
+const KRAVPOSTFELT = ['vurdering', 'godkjent_beloep', 'aksepterer'] as const;
+
+/**
+ * Svarene i utkastet kontrollen av vederlaget avviser når svaret sendes (`beregnVederlag`,
+ * #2156): varselet etter § 34.1.2, og for hver post beløpet, svaret på tilbudet og for posten
+ * etter § 34.1.3 annet ledd varselet og beløpet etter begrensningen, som beløpet ved en delvis
+ * godkjenning (KA-U42). Også de ubesvarte, som kalleren tar ut. Kontrollen av oppgjørsformen for
+ * en kravpost (`kravpostvurderinger`) kaster før lagene bygges.
+ */
+function ugyldigIVederlaget(
+  v: Svarvurdering,
+  utkast: Svarutkast,
+  u: Utledning,
+  regler: Regelsett
+): LagIVederlaget['ugyldig'] {
+  const krav = u.spor.vederlag.gjeldendeKrav!;
+  const { hovedkategori } = kategori(paaberopelseFor(utkast, u));
+  const feil = avvisteFelt(() =>
+    beregnVederlag(svaretFraVurderingene(v, krav, hovedkategori).svar, regler)
+  );
+  const produktivitet = Object.entries(PRODUKTIVITETSFELT);
+  return [
+    ...(feil.varslet_i_tide ? [{ spoersmaal: 'hovedkrav_varslet_i_tide' as const }] : []),
+    ...kravpostvurderinger(v, krav).flatMap(({ post }) =>
+      KRAVPOSTFELT.filter((felt) => feil[`${post.id}.${felt}`]).map((spoersmaal) => ({
+        spoersmaal,
+        gjelder: post.id,
+      }))
+    ),
+    ...produktivitet.flatMap(([felt, spoersmaal]) =>
+      feil[`produktivitet.${felt}`] ? [{ spoersmaal }] : []
+    ),
+  ];
+}
+
 /**
  * Lagene i et svarutkast på vederlag, også før alle spørsmålene er besvart (OV-U33, #1925). Hvert
  * standpunkt står i laget én av tre utfyllinger av de ubesvarte spørsmålene gir det:
@@ -671,8 +708,10 @@ export function lagIVederlaget(
   ).filter(({ s }) => s.art !== 'oppgjoersform' && iKravposten(s));
   const iPosten = (liste: typeof formene, gjelder: string) =>
     liste.filter(({ s }) => 'gjelder' in s && s.gjelder === gjelder).map(({ lag }) => lag);
+  const ubesvart = ubesvartIVederlaget(v, utkast, u, regler);
   return {
-    ubesvart: ubesvartIVederlaget(v, utkast, u, regler),
+    ubesvart,
+    ugyldig: utenom(ugyldigIVederlaget(v, utkast, u, regler), ubesvart),
     standpunkter: beloepet.flatMap(({ s, lag }) => {
       if (iKravposten(s)) return [];
       if (s.art !== 'beloep' || s.saerskilt || s.gjelder === undefined) return [lag];

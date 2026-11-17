@@ -1079,7 +1079,10 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/frysing.ts',
     'regelsett',
     'svaretFraVurderingene PRODUKTIVITETSFELT',
-    ['spor/vederlag/kommando.ts:ubesvartIVederlaget'],
+    [
+      'spor/vederlag/kommando.ts:ubesvartIVederlaget',
+      'spor/vederlag/kommando.ts:ugyldigIVederlaget',
+    ],
   ],
   [
     'PRODUKTIVITETSFELT',
@@ -1099,9 +1102,19 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'aksepterer oensket_oppgjoersform krever_tilbud godtar_justering',
   ],
-  ['UgyldigVurdering', 'regelsett', 'feil', ['spor/vederlag/frysing.ts']],
+  [
+    'UgyldigVurdering',
+    'regelsett',
+    'feil',
+    ['spor/vederlag/frysing.ts', 'kommandoer/utkastlag.ts:avvisteFelt'],
+  ],
   // Kontrollene av vurderingene i svaret, med feltene fra `Svarvurdering` (#1695).
-  ['regler/svarkontroll.ts', 'regelsett', 'kontrollerSpesifiseringen', ['spor/frist/frysing.ts']],
+  [
+    'regler/svarkontroll.ts',
+    'regelsett',
+    'kontrollerSpesifiseringen',
+    ['spor/frist/frysing.ts', 'spor/frist/kommando.ts:ugyldigIFristen'],
+  ],
   // D-5, #2025: dagene byggherren måtte forstå, påkrevd i et svarutkast som ved sending.
   [
     'regler/svarkontroll.ts',
@@ -1646,7 +1659,34 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/frist/kommando.ts:utfylt(r)', 'kommando', 'dager_maatte_forstaa'],
   // Spørsmålene regelsettet krever svar på i fristen, også i lagene i et svarutkast (#1925, #2025).
   ['regler/frist.ts', 'regelsett', 'paakrevdeSpoersmaal', ['spor/frist/kommando.ts:utfylt']],
-  ['spor/frist/frysing.ts', 'predikat', 'fristkravet', ['spor/frist/kommando.ts:utfylt']],
+  [
+    'spor/frist/frysing.ts',
+    'predikat',
+    'fristkravet',
+    ['spor/frist/kommando.ts:utfylt', 'spor/frist/kommando.ts:ugyldigIFristen'],
+  ],
+  // #2156 punkt 1: svarene i et svarutkast kontrollene avviser når svaret sendes, lest av de
+  // samme kontrollene, med feltene i feilene.
+  ['regler/frist.ts', 'regelsett', 'kontroller', ['spor/frist/kommando.ts:ugyldigIFristen']],
+  [
+    'spor/frist/kommando.ts:ugyldigIFristen(feil)',
+    'regelsett',
+    'godkjent_dager spesifisert_krav_ok',
+  ],
+  ['spor/vederlag/kommando.ts:ugyldigIVederlaget(feil)', 'regelsett', 'varslet_i_tide *'],
+  [
+    'kommandoer/utkastlag.ts',
+    'regelsett',
+    'avvisteFelt',
+    ['spor/frist/kommando.ts:ugyldigIFristen', 'spor/vederlag/kommando.ts:ugyldigIVederlaget'],
+  ],
+  [
+    'kommandoer/utkastlag.ts',
+    'kommando',
+    'utenom',
+    ['spor/frist/kommando.ts:lagIFristen', 'spor/vederlag/kommando.ts:lagIVederlaget'],
+  ],
+  ['SpoersmaalIUtkastet', 'kommando', 'spoersmaal gjelder', ['kommandoer/utkastlag.ts:utenom']],
   // OV-U32, OV-U33: lagene i utkastet regnet som brevet regner dem, felles for sporene.
   [
     'kommandoer/utkastlag.ts',
@@ -1737,6 +1777,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'frosset/byggeklosser.ts',
       'spor/vederlag/frysing.ts',
       'spor/vederlag/kommando.ts:ubesvartIVederlaget',
+      'spor/vederlag/kommando.ts:ugyldigIVederlaget',
       'spor/forhold/kommando.ts:korrigering',
       'spor/forhold/kommando.ts:kontrollerKorrigering',
       'kommandoer/nyttelast.ts:grunnlagsdatoen',
@@ -1768,6 +1809,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/frist/frysing.ts',
       'spor/frist/utledning.ts',
       'spor/frist/kommando.ts:lagIFristen',
+      'spor/frist/kommando.ts:ugyldigIFristen',
     ],
   ],
   // U-1, KA-U79: fristen slik kontrakten betegner den, i brevet og i meldingene.
