@@ -18,7 +18,7 @@
     SPORNAVN,
     brevtittel,
     dato,
-  } from '#lib/components/varden/tekster.ts';
+  } from '#lib/components/varden/tekster/index.ts';
   import Arbeid from './Arbeid.svelte';
   import { FORLOEPET, TILSTANDER, aapneSak } from './kjernesaker';
   import { SVAR_MED_TABELL } from './svarmedtabell';

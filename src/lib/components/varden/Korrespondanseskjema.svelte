@@ -6,7 +6,6 @@
   korrespondansen. Kjernen avviser det den ikke godtar.
 -->
 <script lang="ts">
-  import { tick } from 'svelte';
   import type { Spor } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
@@ -17,6 +16,7 @@
   import Manglene from './Manglene.svelte';
   import Melding from './Melding.svelte';
   import Valg from './Valg.svelte';
+  import { sendeflyt } from './sendeflyt.svelte';
   import Valgfri from './Valgfri.svelte';
   import { aksepten } from './kommandoer';
   import {
@@ -24,7 +24,6 @@
     kategoriene,
     lagtTil,
     lagttilmangler,
-    leggTilISaken,
     tomtLagtTil,
     type Lagttilvalg,
   } from './korrespondansen';
@@ -90,30 +89,20 @@
       ([felt, tekst]): Mangel => ({ felt: id(felt), post: null, tekst: tekst! })
     )
   );
-  let forsoekt = $state(false);
+  const flyt = sendeflyt(() => kjernesak, id('hindring'));
   const feil = (felt: string): string | null =>
-    forsoekt ? ((feltene as Record<string, string | undefined>)[felt] ?? null) : null;
+    flyt.forsoekt ? ((feltene as Record<string, string | undefined>)[felt] ?? null) : null;
   let oppsummering = $state<HTMLElement | null>(null);
-  let hindring = $state<string | null>(null);
 
   const viderekategori = (k: Korrespondansekategori | null): k is 'varsel' | 'krav' | 'svar' =>
     k === 'varsel' || k === 'krav' || k === 'svar';
 
   async function send() {
-    hindring = null;
-    if (mangler.length) {
-      forsoekt = true;
-      await tick();
-      oppsummering?.focus();
-      return;
-    }
+    if (!flyt.kontroller(mangler.length ? () => oppsummering : null)) return;
     const k = kategori;
     if (viderekategori(k)) return onneste(k);
     if (!kommando || (k !== 'dokumentasjon' && k !== 'aksept')) return;
-    hindring = await leggTilISaken(kjernesak, kommando, vedlegg, LEGG_TIL.ikkeLagtTilFeil);
-    if (hindring === null) return onlagttil(k);
-    await tick();
-    document.getElementById(id('hindring'))?.focus();
+    if (await flyt.leggTil(kommando, vedlegg, LEGG_TIL.ikkeLagtTilFeil)) onlagttil(k);
   }
 
   function gaaTil(m: Mangel, e: MouseEvent) {
@@ -141,7 +130,7 @@
         <p class="dempet">{LEGG_TIL.egen}</p>
       </header>
 
-      {#if forsoekt && mangler.length}
+      {#if flyt.forsoekt && mangler.length}
         <Manglene tittel={LEGG_TIL.mangler} {mangler} ongaa={gaaTil} bind:element={oppsummering} />
       {/if}
 
@@ -199,13 +188,15 @@
             variant="primaer"
             onclick={send}
             opptatt={kjernesak.sender}
-            aria-describedby={hindring ? id('hindring') : undefined}
+            aria-describedby={flyt.hindring ? flyt.hindringId : undefined}
             >{viderekategori(kategori) ? LEGG_TIL.gaaVidere : LEGG_TIL.leggTil}</Knapp
           >
           <Knapp variant="lenke" onclick={onavbryt}>{LEGG_TIL.avbryt}</Knapp>
         </div>
-        {#if hindring}
-          <Melding art="feil" levende={false} id={id('hindring')} tabindex="-1">{hindring}</Melding>
+        {#if flyt.hindring}
+          <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1"
+            >{flyt.hindring}</Melding
+          >
         {/if}
       </div>
     </form>

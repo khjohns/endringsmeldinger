@@ -25,7 +25,7 @@ import {
 import { trinnene } from '#lib/components/varden/Maalrad.svelte';
 import { akseptfristen } from '#lib/components/varden/svarlagene.ts';
 import { brevene, leveringene, type Brevet } from '#lib/components/varden/lesing.ts';
-import { VEDERLAGET } from '#lib/components/varden/tekster.ts';
+import { VEDERLAGET } from '#lib/components/varden/tekster/index.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 
 const kravetOgSvaretI = (u: Utledning) => kravetOgSvaret(u, brevene(u));

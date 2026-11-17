@@ -91,18 +91,19 @@ def test_hvert_skjema_i_varden_har_en_rad(register):
     assert i_registeret - i_varden == set(), "Raden viser til et skjema Varden ikke har"
 
 
-def test_skjemaene_i_varden_leses_av_nokkelen_i_tabellen(tmp_path):
+def test_skjemaene_i_varden_leses_av_noeklene_i_hvert_skjema(tmp_path):
     sti = tmp_path / "Vardensak.svelte"
     sti.write_text(
-        "  const skjemaene: Record<string, () => void> = {\n"
-        "    'svare:vederlag': () => {\n"
-        "      arbeid = { art: '}' };\n"
+        "  const skjemaene = {\n"
+        "    vederlagssvar: {\n"
+        "      noekler: ['svare:vederlag'],\n"
+        "      aapne: () => (arbeid = { art: '}', noekler: ['godta:vederlag'] }),\n"
         "    },\n"
-        "    // 'krav:frist': i en kommentar\n"
-        '    "innlegg:forhold": () => (arbeid = vilkaar ? \'a\' : `{${x}`),\n'
-        "    registrere_brev: () => aapne(),\n"
-        "  };\n"
-        "  const andre = { 'godta:frist': 1 };\n",
+        "    // noekler: ['krav:frist'] i en kommentar\n"
+        "    korrigering: { noekler: [], vises: () => [`{${x}`] },\n"
+        '    fristkrav: { noekler: ["innlegg:forhold", `registrere_brev`], skjema: fristkrav },\n'
+        "  } satisfies Record<string, Skjema>;\n"
+        "  const andre = { a: { noekler: ['godta:frist'] } };\n",
         encoding="utf-8",
     )
     assert hr.skjemaene_i_varden(sti) == {"svare:vederlag", "innlegg:forhold", "registrere_brev"}
@@ -113,7 +114,7 @@ def test_skjemaene_i_varden_feiler_naar_tabellen_mangler_eller_ikke_lukkes(tmp_p
     sti.write_text("  const skjemaer = {};\n", encoding="utf-8")
     with pytest.raises(ValueError, match="ingen `const skjemaene`"):
         hr.skjemaene_i_varden(sti)
-    sti.write_text("  const skjemaene = {\n    'svare:frist': () => {\n", encoding="utf-8")
+    sti.write_text("  const skjemaene = {\n    fristsvar: { noekler: ['svare:frist'],\n", encoding="utf-8")
     with pytest.raises(ValueError, match="lukkes ikke"):
         hr.skjemaene_i_varden(sti)
 

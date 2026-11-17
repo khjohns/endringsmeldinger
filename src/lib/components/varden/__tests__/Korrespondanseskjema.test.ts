@@ -27,7 +27,7 @@ import Vederlagskrav from '#lib/components/varden/Vederlagskrav.svelte';
 import Lagttilmerknader from '#lib/components/varden/Lagttilmerknader.svelte';
 import type { Korrespondansevalg } from '#lib/components/varden/korrespondansen.ts';
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
-import { FORHOLDET, HOVEDLINJER, LEGG_TIL, SAKEN } from '#lib/components/varden/tekster.ts';
+import { FORHOLDET, HOVEDLINJER, LEGG_TIL, SAKEN } from '#lib/components/varden/tekster/index.ts';
 import { brevene, sendtSammeDag, sendtSammeDagSom } from '#lib/components/varden/lesing.ts';
 import { finnForloep, lagDemosak } from '#lib/kjernesak/demosak.ts';
 import Vardensak from '#lib/components/varden/Vardensak.svelte';

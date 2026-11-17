@@ -242,8 +242,8 @@ der laster pakkene fra hovedcheckouten. `tsconfig.json` utvider `$app/tsconfig`,
 SvelteKit 3 skriver i `node_modules/$app/` når vite eller vitest starter, også i
 arbeidstreet (kontrollert 16.11, #2092). Feilen «Tsconfig not found» fra kit 2 (#1114)
 skal derfor ikke komme igjen. Kjør `npx svelte-kit sync` i arbeidstreet før `tsc -p` eller
-`svelte-check` der. Ellers finner TypeScript `$app/tsconfig` i hovedcheckouten, og den
-peker `$lib` til `src/` i hovedcheckouten, ikke i arbeidstreet.
+`svelte-check` der. Ellers finner TypeScript `$app/tsconfig` i hovedcheckouten. Importene
+`#lib/…` og `#kjerne/…` løses fra `imports` i `package.json` i arbeidstreet (#2101).
 
 ### Orkestreringen i skyøkta
 
