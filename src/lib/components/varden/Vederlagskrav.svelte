@@ -27,7 +27,6 @@
   } from '#lib/kjernesak/vederlagskrav.ts';
   import Brev from './Brev.svelte';
   import Brevlinje from './Brevlinje.svelte';
-  import Feltetikett from './Feltetikett.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
   import { brevetVedSiden } from './medie.svelte';
   import Brevskjema from './Brevskjema.svelte';
@@ -40,6 +39,7 @@
   import Tallfelt from './Tallfelt.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Valg from './Valg.svelte';
+  import Valgfri from './Valgfri.svelte';
   import { beloepet } from './kommandoer';
   import { vedleggsgrense, vedleggskart } from './nysak';
   import {
@@ -590,27 +590,17 @@
 {#snippet aapenPost(p: Kravpostvalg)}
   {@const n = p.noekkel}
   {@const vs = varselFor(p)}
-  {@const fBeskrivelse = feil(`beskrivelse-${n}`)}
   <div class="aapen">
     <h4>{navnet(p)} · {p.beskrivelse || KRAVSKJEMA.nyPost}</h4>
-    <div class="felt">
-      <Feltetikett for={id(`beskrivelse-${n}`)}>{KRAVSKJEMA.beskrivelse}</Feltetikett>
-      <span class="hjelp" id={id(`beskrivelse-${n}-hjelp`)}>{KRAVSKJEMA.beskrivelseHjelp}</span>
-      <input
-        id={id(`beskrivelse-${n}`)}
-        class="tekstfelt"
-        class:ugyldig={fBeskrivelse}
-        bind:value={p.beskrivelse}
-        aria-required="true"
-        aria-invalid={fBeskrivelse ? 'true' : undefined}
-        aria-describedby={fBeskrivelse
-          ? `${id(`beskrivelse-${n}-hjelp`)} ${id(`beskrivelse-${n}-feil`)}`
-          : id(`beskrivelse-${n}-hjelp`)}
-      />
-      {#if fBeskrivelse}<p class="feilmelding" id={id(`beskrivelse-${n}-feil`)}>
-          {fBeskrivelse}
-        </p>{/if}
-    </div>
+    <Tallfelt
+      id={id(`beskrivelse-${n}`)}
+      etikett={KRAVSKJEMA.beskrivelse}
+      hjelp={KRAVSKJEMA.beskrivelseHjelp}
+      bredde="tekst"
+      bind:verdi={p.beskrivelse}
+      paakrevd
+      feil={feil(`beskrivelse-${n}`)}
+    />
     <Valg
       navn={id(`form-${n}`)}
       spoersmaal={KRAVSKJEMA.form}
@@ -661,16 +651,14 @@
         <a href={`#${id(`varselrad-${n}`)}`}>{KRAVSKJEMA.tilVarslene}</a>
       </p>
     {/if}
-    <div class="felt">
-      <Feltetikett for={id(`pns-${n}`)} valgfri>{KRAVSKJEMA.pns}</Feltetikett>
-      <span class="hjelp" id={id(`pns-${n}-hjelp`)}>{KRAVSKJEMA.pnsHjelp}</span>
-      <input
-        id={id(`pns-${n}`)}
-        class="kort-felt"
-        bind:value={p.pns}
-        aria-describedby={id(`pns-${n}-hjelp`)}
-      />
-    </div>
+    <Tallfelt
+      id={id(`pns-${n}`)}
+      etikett={KRAVSKJEMA.pns}
+      hjelp={KRAVSKJEMA.pnsHjelp}
+      bredde="kort"
+      valgfri
+      bind:verdi={p.pns}
+    />
     <div class="postfot">
       {#if p.id && forrigePoster.has(p.id)}
         <Knapp variant="lenke" onclick={() => trekk(p)}>{KRAVSKJEMA.trekk(navnet(p))}</Knapp>
@@ -1099,12 +1087,13 @@
   {:else}<section class="seksjon" id={id('forbehold')} aria-labelledby={id('forbehold-tittel')}>
       <div class="seksjonshode">
         <span class="nummer" aria-hidden="true">{v.saerskilt ? 4 : 3}</span>
-        <h3 id={id('forbehold-tittel')}>{KRAVSKJEMA.forbeholdPunkt}</h3>
+        <h3 class="fyller" id={id('forbehold-tittel')}>
+          <Valgfri>{KRAVSKJEMA.forbeholdPunkt}</Valgfri>
+        </h3>
       </div>
       <Tekstomraade
         id={id('forbehold-felt')}
-        etikett={KRAVSKJEMA.forbehold}
-        valgfri
+        merketAv={id('forbehold-tittel')}
         hjelp={KRAVSKJEMA.forbeholdHjelp}
         rader={4}
         bind:verdi={v.forbehold}
@@ -1127,6 +1116,9 @@
     display: flex;
     align-items: baseline;
     gap: var(--spacing-3);
+  }
+  .fyller {
+    flex: 1;
   }
   .nummer {
     display: inline-grid;
@@ -1251,40 +1243,10 @@
   .aapen h4 {
     font-size: 16px;
   }
-  .felt {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
-  }
   .hjelp,
   .dempet {
     color: var(--ink-3);
     font-size: 14px;
-  }
-  .tekstfelt,
-  .kort-felt {
-    min-height: 44px;
-    padding: 0 var(--spacing-3);
-    border: var(--control-border);
-    border-radius: var(--r-felt);
-    font: 16px var(--font-sans);
-    color: var(--ink);
-    background: var(--surface);
-  }
-  .tekstfelt {
-    width: 100%;
-  }
-  .kort-felt {
-    width: 8em;
-  }
-  .tekstfelt:focus-visible,
-  .kort-felt:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
-  .ugyldig {
-    border-color: var(--danger);
-    box-shadow: inset 0 0 0 1px var(--danger);
   }
   .feilmelding {
     color: var(--danger);

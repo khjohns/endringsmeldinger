@@ -339,7 +339,10 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     await fireEvent.click(screen.getByRole('radio', { name: /^Fast sum/ }));
     await skriv('Beløpet du krever', '210 000');
     await fireEvent.click(knapp('Ferdig'));
-    await skriv('Forbehold, Valgfri', 'Forbeholdet om grunnforholdene.');
+    // Feltet og punktet har overskriften som navn, så feltet finnes på rollen (#2138).
+    await fireEvent.input(screen.getByRole('textbox', { name: 'Forbehold, Valgfri' }), {
+      target: { value: 'Forbeholdet om grunnforholdene.' },
+    });
     await fireEvent.click(knapp('Se brevet før sending'));
     const brevet = await screen.findByRole('article', { name: /Krav om vederlagsjustering/ });
     const overskrifter = within(brevet)

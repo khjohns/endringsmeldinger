@@ -405,7 +405,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
     const felt = screen.getByLabelText('Endringsordrens nummer eller dato');
     expect(felt.getAttribute('aria-invalid')).toBe('true');
     await fireEvent.input(felt, { target: { value: 'EO-012' } });
-    expect(felt.getAttribute('aria-invalid')).toBe('false');
+    expect(felt.getAttribute('aria-invalid')).toBeNull();
     expect(screen.queryAllByText('Oppgi endringsordren.').length).toBe(0);
   });
 
