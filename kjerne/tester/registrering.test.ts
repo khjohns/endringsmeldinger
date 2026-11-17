@@ -1100,6 +1100,114 @@ describe('et svar som legges til, fryses med lagene i svaret på forholdet slik 
   });
 });
 
+describe('et svar lagt til fryses med svaret på forholdet utenfor rekken som var gjeldende da det ble sendt (OV-U98, OV-U103, arbeidsvalget 16.11 i #2090)', () => {
+  /** Vederlagssvaret lagt til, sendt `sendt`, etter stegene `steg`: linjen og svaret på forholdet. */
+  const vederlagssvaret = async (steg: Handling[], sendt: string) => {
+    const forloep: Forloep = {
+      id: 'svar-utenfor-rekken',
+      rader: [],
+      start: 'krav_irreg',
+      steg: [
+        ...steg,
+        {
+          handling: 'rad',
+          part: 'BH',
+          spor: 'vederlag',
+          vurdering: 'delvis',
+          godkjent_belop: 60000,
+          gjelder: 'K-v1',
+          navn: 'S-v',
+          dokument: 'D-v',
+          sendt,
+        },
+      ],
+      kontroller: [],
+    };
+    // Avvises et steg, kaster kjøreren en vanlig feil; feilinnføringene teller bare assertions.
+    const k = await kjoer(forloep, minnebane(), { valg: { klokke: dagklokke() } }).catch(
+      (feil: unknown) =>
+        expect.fail(
+          `forutsetning: stegene ble ikke kjørt: ${feil instanceof Error ? feil.message : String(feil)}`
+        )
+    );
+    const u = await k.utledning();
+    const data = (await k.bane.journal()).at(-1)!.data as {
+      svar: { id: string; beslutningsgrunnlag: { linje: string } }[];
+    };
+    expect(u.forstaatt, 'forutsetning: saken er forstått').toBe(true);
+    return {
+      linje: data.svar[0].beslutningsgrunnlag.linje,
+      forholdssvaret: k.navn.navngi(u.svar[data.svar[0].id]!.forholdssvaret),
+      samme: u.sendtSammeDag
+        .filter((x) => x.element === data.svar[0].id)
+        .map((x) => k.navn.navngi(x.med)),
+    };
+  };
+  const godkjent: Handling = {
+    handling: 'brev',
+    svar: [{ spor: 'forhold', resultat: 'godkjent', varslet_i_tide: true, navn: 'S-1' }],
+  };
+
+  it('et avslag utenfor rekken og en godkjenning i rekken: vederlagssvaret sendt imellom står i lag 2 (OV-U33)', async () => {
+    expect(
+      await vederlagssvaret([godkjent, registrertSvar('K-g1', '2026-09-22')], '2026-09-23')
+    ).toEqual({
+      linje: expect.stringMatching(
+        /^Byggherrens standpunkt: subsidiært godkjent med 60\s000\skr\.$/
+      ),
+      forholdssvaret: 'S-r',
+      samme: [],
+    });
+  });
+
+  it('en godkjenning utenfor rekken med preklusjon påberopt prinsipalt: vederlagssvaret sendt etter den står i lag 2 (OV-U32)', async () => {
+    const prekludert: Handling = {
+      ...registrertSvar('K-g1', '2026-09-22'),
+      resultat: 'godkjent',
+      varslet_i_tide: false,
+    };
+    expect(await vederlagssvaret([godkjent, prekludert], '2026-09-23')).toEqual({
+      linje: expect.stringMatching(
+        /^Byggherrens standpunkt: subsidiært godkjent med 60\s000\skr\.$/
+      ),
+      forholdssvaret: 'S-r',
+      samme: [],
+    });
+  });
+
+  it('vederlagssvaret sendt samme dag som svaret i rekken fryses med det sist sendte (OV-U104)', async () => {
+    expect(
+      await vederlagssvaret([godkjent, registrertSvar('K-g1', '2026-09-22')], '2026-09-24')
+    ).toEqual({
+      linje: expect.stringMatching(/^Byggherrens standpunkt: godkjent med 60\s000\skr\.$/),
+      forholdssvaret: 'S-1',
+      samme: ['S-1'],
+    });
+  });
+
+  it('vederlagssvaret sendt samme dag som svaret utenfor rekken fryses med det og merkes (OV-U104)', async () => {
+    expect(
+      await vederlagssvaret([godkjent, registrertSvar('K-g1', '2026-09-23')], '2026-09-23')
+    ).toEqual({
+      linje: expect.stringMatching(
+        /^Byggherrens standpunkt: subsidiært godkjent med 60\s000\skr\.$/
+      ),
+      forholdssvaret: 'S-r',
+      samme: ['S-r'],
+    });
+  });
+
+  it('kontrollsak: vederlagssvaret sendt etter svaret i rekken fryses med det', async () => {
+    expect(
+      await vederlagssvaret([godkjent, registrertSvar('K-g1', '2026-09-22')], '2026-09-25')
+    ).toEqual({
+      linje: expect.stringMatching(/^Byggherrens standpunkt: godkjent med 60\s000\skr\.$/),
+      forholdssvaret: 'S-1',
+      samme: [],
+    });
+  });
+});
+
 describe('varselet etter § 32.2 og et krav utenfor rekken (VS-U38, OV-U102)', () => {
   const varselet: Handling = { handling: 'varsel', spor: 'frist', sendt: '2026-09-20' };
   const felt = {
