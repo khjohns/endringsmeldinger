@@ -51,12 +51,13 @@
     hjelp?: string;
   } = $props();
   const uid = $props.id();
-  let gruppe = $state<HTMLElement>();
+  let gruppe: HTMLFieldSetElement | undefined;
 
-  // Knappen forsvinner med svaret, så fokus går til det første valget.
+  // Knappen forsvinner med svaret, så fokus går til valget som var gjort.
   async function fjern() {
+    const valgt = valg.findIndex((v) => v.verdi === verdi);
     verdi = null;
-    await fokuser(() => gruppe?.querySelector<HTMLElement>('input'));
+    await fokuser(() => gruppe?.querySelectorAll<HTMLElement>('input')[valgt]);
   }
   const beskrivelse = $derived(
     [hjelp ? `${uid}-hjelp` : undefined, beskrevetAv, feil ? `${uid}-feil` : undefined]
@@ -91,7 +92,7 @@
       </label>
     {/each}
   </div>
-  {#if valgfri && !avkrysning && verdi !== null}
+  {#if valgfri && !avkrysning && verdi != null}
     <div class="fjern">
       <Knapp variant="lenke" iFlukt aria-label={VALG.fjernNavn(spoersmaal)} onclick={fjern}
         >{VALG.fjern}</Knapp

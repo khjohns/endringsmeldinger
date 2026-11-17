@@ -203,7 +203,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     ]);
   });
 
-  it('et valgfritt svar på varselet etter punkt 34.3.3 kan fjernes med «Fjern svaret», og fokus går til det første valget (oppdragsgiver 17.11 i #2137, U-19 i BF-14)', async () => {
+  it('et valgfritt svar på varselet etter punkt 34.3.3 kan fjernes med «Fjern svaret», og fokus går til valget som var gjort (oppdragsgiver 17.11 i #2137, U-19 i BF-14)', async () => {
     const sendt = await svarskjemaet();
     await fireEvent.click(radio('Godkjenner regningsarbeid (punkt 34.4)'));
     await ferdig();
@@ -232,7 +232,9 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
         .filter((r) => (r as HTMLInputElement).checked)
     ).toEqual([]);
     expect(fjern()).toBeNull();
-    await vi.waitFor(() => expect(within(gruppe).getAllByRole('radio')[0]).toHaveFocus());
+    await vi.waitFor(() =>
+      expect(within(gruppe).getByRole('radio', { name: 'Kom for sent' })).toHaveFocus()
+    );
     // Brevet har ikke noe standpunkt til varselet etter punkt 34.3.3.
     await fireEvent.click(radio('Varslet i tide'));
     await seBrevet();
