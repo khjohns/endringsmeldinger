@@ -191,10 +191,19 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   en dato med kalenderikonet, og et nummer eller en dato for endringsordren har et
   kort felt. Løpende tekst, som en tittel eller en beskrivelse, har full bredde
   (#1492).
-- **Korte valg, som nei og ja, står ved siden av hverandre.** Om to eller tre får
-  plass på én linje, vurderes i hvert tilfelle. Alternativer som ville brytes ujevnt
-  ved siden av hverandre, står under hverandre i kort med lik bredde, så de leses som
-  en liste (#1492).
+- **Valgene står under hverandre**, i kort med lik bredde, så de leses som en liste
+  (#1492). Unntaket er to korte svar som speiler hverandre, som «Ja» og «Nei» eller
+  «Varslet i tide» og «Varslet for sent». De står ved siden av hverandre. Tre valg, og
+  valg med komma i teksten, står alltid under hverandre. «Ja» står før «Nei»
+  (oppdragsgiver 17.11, #2163).
+- **Formen på et valg følger hva svaret betyr** (oppdragsgiver 17.11, #2163):
+  - Har begge svarene virkning, og skal skjemaet ikke svare for parten, er valget radioknapper
+    uten forhåndsvalg. Et eksempel er «Kom varselet i tide?» i byggherrens svar.
+  - Finnes det et normalsvar, er valget en setning med en lenke til unntaket (se «Normalsvaret
+    er en setning, unntaket en lenke»).
+  - Én bekreftelse er en avkrysning, som «Jeg har kontrollert brevet».
+  - Et valg som åpner et felt, er radioknapper med feltet under det valgte svaret.
+  - Mange alternativer får en velger med søk og grupper, som forholdene.
 - **Et valgfritt felt har «Valgfri» til høyre på linja med labelen**, som dempet tekst i 14 px
   (`varden/Valgfri.svelte`, som `Feltetikett` og `Valg` bruker, oppdragsgiver 16.11). Ordet
   står ikke i labelen, og skjermleseren leser «<label>, Valgfri». Obligatoriske felt har
