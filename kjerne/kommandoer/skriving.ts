@@ -274,17 +274,8 @@ export interface Sporsskriving {
   ): Data;
   /** Det i kravet `k` som strider mot det serveren stempler i konteksten, eller `null`. */
   kontekstsperre?(k: Extract<Kommando, { type: 'krav' }>, kontekst: Kontekst): Avvisning | null;
-  /**
-   * Det i kravet `k` som strider mot dokumentene i saken, eller `null`. `lest` er journalen.
-   * `vedlagt` er vedleggene sporet legger ved kravet i samme handling, og oppslaget i
-   * mellomlageret.
-   */
-  saksperre?(
-    k: Extract<Kommando, { type: 'krav' }>,
-    lest: Domenehendelse[],
-    u: Utledning,
-    vedlagt: Vedlagt
-  ): Avvisning | null;
+  /** Det i kravet `k` som strider mot dokumentene i saken, eller `null`. */
+  saksperre?(k: Extract<Kommando, { type: 'krav' }>, sak: Sakssperre): Avvisning | null;
   /**
    * Kravet som flere rader, når sporet skriver noe før kravet i samme handling, ellers `null`,
    * og kravet er én rad (VS-U51, VS-U53).
@@ -328,8 +319,12 @@ export interface Skrivesteg {
   sakenFoer(): LestSak;
 }
 
-/** Vedleggene sporet legger ved kravet i samme handling, og oppslaget i mellomlageret (`saksperre`). */
-export interface Vedlagt {
+/**
+ * Det `saksperre` prøver kravet mot: saken med radene før kravet i samme handling, saken før
+ * handlingen, vedleggene sporet legger ved kravet i handlingen og oppslaget i mellomlageret.
+ */
+export interface Sakssperre extends LestSak {
+  foer: LestSak;
   vedKravet: readonly string[];
   oppslag: Vedleggsoppslag;
 }
@@ -613,36 +608,35 @@ function handlingen(
   const form = formen(kommando);
   if (form) return form;
   const k = kommando as Kommando;
-  // #2076: hver journal i handlingen utledes én gang, også når hele handlingen prøves først.
-  // Kalleren kan legge rader til i samme liste mellom radene (`neste`), så lengden og den siste
-  // raden må være de samme.
-  const lesteSaker = new WeakMap<Journalrad[], { antall: number; siste?: string; sak: LestSak }>();
-  const saken = (jx: Journalrad[]): LestSak => {
-    const lagret = lesteSaker.get(jx);
-    if (lagret && lagret.antall === jx.length && lagret.siste === jx.at(-1)?.event_id)
-      return lagret.sak;
+  // #2076: saken før handlingen utledes én gang. Kalleren kan legge rader til i samme liste
+  // før den neste raden (`neste`), så lengden må være den samme.
+  const les = (jx: Journalrad[]): LestSak => {
     const lest = lesJournal(jx, kjerne.leserformat);
-    const sak = { lest, u: utled(lest, kjerne.regler) };
-    lesteSaker.set(jx, { antall: jx.length, siste: jx.at(-1)?.event_id, sak });
-    return sak;
+    return { lest, u: utled(lest, kjerne.regler) };
   };
+  const antall = journal.length;
+  const foer = les(journal);
+  const saken = (jx: Journalrad[]): LestSak =>
+    jx === journal && jx.length === antall ? foer : les(jx);
   const skriving: Skrivesteg = {
     formen,
     skriv: (kx, kont, jx, vedKravet, ogsaaEtter) =>
-      skriv(kx, kont, jx, kjerne, vedlegg, sendes, saken, vedKravet, ogsaaEtter),
+      skriv(kx, kont, jx, kjerne, vedlegg, sendes, saken, foer, vedKravet, ogsaaEtter),
     proevd: (kjede) => {
+      // Den første raden er den samme i prøven; `neste` lager de andre fra sin egen journal.
+      const foerste = kjede(kontekst, journal);
       if (sendes) {
-        const proeve = hele(kjede(kontekst, journal), kontekst, journal);
+        const proeve = hele(foerste, kontekst, journal);
         if (!proeve.godtatt) return proeve;
       }
-      return kjede(kontekst, journal);
+      return foerste;
     },
     saken,
-    sakenFoer: () => saken(journal),
+    sakenFoer: () => foer,
   };
   return (
     (k.type === 'krav' ? iSporet(SKRIVING, k.spor).handlingen?.(k, skriving) : null) ??
-    skriv(k, kontekst, journal, kjerne, vedlegg, sendes, saken)
+    skriv(k, kontekst, journal, kjerne, vedlegg, sendes, saken, foer)
   );
 }
 
@@ -658,6 +652,7 @@ function skriv(
   vedlegg: Vedleggsoppslag,
   sendes: boolean,
   saken: (journal: Journalrad[]) => LestSak,
+  foer: LestSak,
   vedKravet: readonly string[] = [],
   ogsaaEtter: readonly Kravpostvarselhjemmel[] = []
 ): Utfall {
@@ -697,7 +692,7 @@ function skriv(
   const sperre =
     k.type === 'krav'
       ? (iSporet(SKRIVING, k.spor).kontekstsperre?.(k, kontekst) ??
-        iSporet(SKRIVING, k.spor).saksperre?.(k, lest, u, { vedKravet, oppslag: vedlegg }))
+        iSporet(SKRIVING, k.spor).saksperre?.(k, { lest, u, foer, vedKravet, oppslag: vedlegg }))
       : null;
   if (sperre) return { godtatt: false, feil: 'REGELBRUDD', avvisning: sperre };
   // LV-U14: brevet lagrer ID-en, filnavnet og summen fra mellomlageret.

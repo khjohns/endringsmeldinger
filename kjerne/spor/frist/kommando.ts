@@ -27,7 +27,7 @@ import type {
   Skrivesteg,
   Sporsskriving,
   Utfall,
-  Vedlagt,
+  Sakssperre,
   Vedleggsoppslag,
 } from '../../kommandoer/skriving.ts';
 import {
@@ -379,61 +379,44 @@ function medVarselet(k: Extract<Kommando, { type: 'krav' }>, skriving: Skriveste
  * alt i saken, med det samme innholdet i vedleggene, velger totalentreprenøren varselet etter
  * § 33.4 for det (OV-U84), eller viser kravet til varselet som står i saken (VS-U55). Hele
  * dokumentet sammenliknes, fordi ett vedlegg kan ligge ved to brev. Vedleggene sammenliknes på
- * innholdet, så samme fil lastet opp på nytt er samme brev (#2100).
- *
- * Varselet fra kravskjemaet (`medVarselet`) er skrevet før kravet i samme handling, og vedleggene
- * står i `vedKravet`. Ellers står de i `varsel` eller, med varselet etter § 33.4 i saken, i
- * `dokumentasjon`.
+ * innholdet, så samme fil lastet opp på nytt er samme brev (#2100). Saken er den før handlingen,
+ * så varselet kravskjemaet skrev i samme handling (`medVarselet`, `vedKravet`), ikke er med.
  */
 function varseldokumentetISaken(
   k: Extract<Kommando, { type: 'krav' }>,
-  lest: Domenehendelse[],
-  u: Utledning,
-  { vedKravet, oppslag }: Vedlagt
+  { foer, vedKravet, oppslag }: Sakssperre
 ): Avvisning | null {
-  const varselet = u.spor.frist.varsler['33.4'];
-  const rettet = new Set(lest.flatMap((h) => (h.art === 'dokument' ? [h.dokument.retter] : [])));
-  const brevene = lest.filter(
+  const varselet = foer.u.spor.frist.varsler['33.4'];
+  const rettet = new Set(
+    foer.lest.flatMap((h) => (h.art === 'dokument' ? [h.dokument.retter] : []))
+  );
+  const brevene = foer.lest.filter(
     (h): h is Brevet =>
       h.art === 'dokument' &&
       h.dokument.avsender === 'TE' &&
       erRegistrert(h.dokument.opplysninger) &&
       !rettet.has(h.id)
   );
-  if (vedKravet.length || k.varsel?.dokumentasjon?.length) {
-    const fraSkjemaet = vedKravet.length > 0;
-    const vedlagte = innholdetIVedleggene(
-      fraSkjemaet ? vedKravet : (k.varsel?.dokumentasjon ?? []),
-      oppslag
-    );
-    const brevet = brevene.find(
-      (h) =>
-        !(fraSkjemaet && h.id === varselet?.dokument) &&
-        erDelAv(innholdetIBrevet(h), vedlagte) &&
-        erDelAv(vedlagte, innholdetIBrevet(h))
-    );
-    if (brevet)
-      return avvis(
-        'VARSEL_REGISTRERT',
-        varselet && !fraSkjemaet
-          ? `Brevet med varselet står alt i saken${som(brevet)}, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet.`
-          : `Brevet med varselet står alt i saken${som(brevet)}. Velg varselet etter punkt 33.4 for det brevet i stedet for å legge det ved kravet på nytt.`
-      );
-  }
+  const vedlagte = innholdetIVedleggene(
+    [...vedKravet, ...(k.varsel?.dokumentasjon ?? [])],
+    oppslag
+  );
+  const brevet = vedlagte.size
+    ? brevene.find((h) => likeMengder(innholdetIBrevet(h), vedlagte))
+    : undefined;
+  if (brevet)
+    return varselet
+      ? fjernBrevet(brevet)
+      : avvis(
+          'VARSEL_REGISTRERT',
+          `Brevet med varselet står alt i saken${som(brevet)}. Velg varselet etter punkt 33.4 for det brevet i stedet for å legge det ved kravet på nytt.`
+        );
   // #2100: brevet med varselet etter § 33.4 i saken legges ikke ved kravet på nytt (VS-U55).
-  const varselbrevet =
-    varselet && !vedKravet.length
-      ? brevene.find((h) => h.id === varselet.dokument && h.dokument.dokumentasjon.length)
-      : undefined;
-  if (
-    varselbrevet &&
+  const varselbrevet = varselet && brevene.find((h) => h.id === varselet.dokument);
+  return varselbrevet?.dokument.dokumentasjon.length &&
     erDelAv(innholdetIBrevet(varselbrevet), innholdetIVedleggene(k.dokumentasjon ?? [], oppslag))
-  )
-    return avvis(
-      'VARSEL_REGISTRERT',
-      `Brevet med varselet står alt i saken${som(varselbrevet)}, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet.`
-    );
-  return null;
+    ? fjernBrevet(varselbrevet)
+    : null;
 }
 
 type Brevet = Extract<Domenehendelse, { art: 'dokument' }>;
@@ -447,13 +430,25 @@ const innholdetIVedleggene = (ider: readonly string[], oppslag: Vedleggsoppslag)
 const innholdetIBrevet = (h: Brevet) =>
   new Set(h.dokument.dokumentasjon.map((v) => v.innhold_sha256));
 
-const erDelAv = (a: Set<string>, b: Set<string>) => [...a].every((x) => b.has(x));
+function erDelAv(a: ReadonlySet<string>, b: ReadonlySet<string>): boolean {
+  for (const x of a) if (!b.has(x)) return false;
+  return true;
+}
+
+const likeMengder = (a: ReadonlySet<string>, b: ReadonlySet<string>) =>
+  a.size === b.size && erDelAv(a, b);
 
 /** Brevet slik avvisningen omtaler det, med et mellomrom foran, eller tomt. */
 function som(h: Brevet): string {
   const omtale = omtalen(h.dokument);
   return omtale ? ` som ${omtale}` : '';
 }
+
+const fjernBrevet = (h: Brevet) =>
+  avvis(
+    'VARSEL_REGISTRERT',
+    `Brevet med varselet står alt i saken${som(h)}, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet.`
+  );
 
 /** Raden med varselet fra kravskjemaet som registrert varsel etter § 33.4 (`medVarselet`). */
 function varseletIKravet(

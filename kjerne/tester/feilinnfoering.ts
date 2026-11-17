@@ -3978,7 +3978,7 @@ const MUTASJONER: Mutasjon[] = [
       'fristkravet registrerer et brev med varselet som alt står i saken, på nytt (#2082, OV-U80, OV-U84)',
     fil: `${K}/spor/frist/kommando.ts`,
     endringer: [
-      ['        !(fraSkjemaet && h.id === varselet?.dokument) &&', '        !fraSkjemaet &&'],
+      ['  if (brevet)\n    return varselet', '  if (brevet && varselet)\n    return varselet'],
     ],
     mal: ['et fristkrav med et brev som alt står i saken med varselet etter punkt 32.2'],
   },
@@ -4008,7 +4008,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'fristkravet uten varsel legger ved brevet med varselet etter punkt 33.4 som står i saken (#2100, VS-U55)',
     fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [['    varselet && !vedKravet.length', '    false && !vedKravet.length']],
+    endringer: [
+      [
+        'const varselbrevet = varselet && brevene.find(',
+        'const varselbrevet = undefined && brevene.find(',
+      ],
+    ],
     mal: ['et fristkrav uten varsel med brevet der varselet etter punkt 33.4 alt er registrert'],
   },
   {
@@ -4018,8 +4023,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/kommandoer/skriving.ts`,
     endringer: [
       [
-        'if (lagret && lagret.antall === jx.length && lagret.siste === jx.at(-1)?.event_id)',
-        'if (lagret)',
+        '    jx === journal && jx.length === antall ? foer : les(jx);',
+        '    jx === journal ? foer : les(jx);',
       ],
     ],
     mal: ['serveren får radene én og én'],
@@ -4029,12 +4034,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et brev som har ett av vedleggene til et registrert brev, regnes som det registrerte brevet (#2082)',
     fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [
-      [
-        '        erDelAv(innholdetIBrevet(h), vedlagte) &&\n        erDelAv(vedlagte, innholdetIBrevet(h))',
-        '        erDelAv(innholdetIBrevet(h), vedlagte)',
-      ],
-    ],
+    endringer: [['  a.size === b.size && erDelAv(a, b);', '  erDelAv(a, b);']],
     mal: ['et nytt brev med ett av vedleggene godtas'],
   },
   {

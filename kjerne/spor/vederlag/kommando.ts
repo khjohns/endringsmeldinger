@@ -55,6 +55,7 @@ import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type {
   Kontekst,
   LestSak,
+  Sakssperre,
   Skrivesteg,
   Sporsskriving,
   Utfall,
@@ -444,10 +445,9 @@ const kravpostvarslerIBrevet = (
  */
 function vedleggetErEtVarsel(
   k: Extract<Kommando, { type: 'krav' }>,
-  lest: Domenehendelse[],
-  u: Utledning
+  sak: Sakssperre
 ): Avvisning | null {
-  const iVarslene = vedleggIVarslene({ lest, u });
+  const iVarslene = vedleggIVarslene(sak);
   return (k.dokumentasjon ?? []).some((id) => iVarslene.has(id.toLowerCase()))
     ? vedleggVedEtVarsel('ved kravet')
     : null;

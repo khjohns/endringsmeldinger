@@ -1501,8 +1501,14 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // #2082, OV-U80, OV-U84: brevet med varselet i fristkravet prøves mot korrespondansen i saken.
   // #2076: `skriv` leser saken gjennom `Skrivesteg.saken`, så hver journal utledes én gang.
   ['LestSak', 'kommando', 'lest u', ['kommandoer/skriving.ts:skriv']],
-  ['kommandoer/skriving.ts:handlingen', 'kommando', 'antall siste sak'],
-  ['Vedlagt', 'kommando', 'vedKravet oppslag', ['spor/frist/kommando.ts:varseldokumentetISaken']],
+  // #2100: brevet med varselet prøves mot saken før handlingen, med vedleggene i handlingen.
+  [
+    'Sakssperre',
+    'kommando',
+    'foer vedKravet oppslag',
+    ['spor/frist/kommando.ts:varseldokumentetISaken'],
+  ],
+  ['LestSak', 'kommando', 'lest u', ['spor/frist/kommando.ts:varseldokumentetISaken']],
   ['Dokument', 'relasjon', 'retter', ['spor/frist/kommando.ts:varseldokumentetISaken']],
   [
     'Dokument',
