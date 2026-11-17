@@ -3945,6 +3945,7 @@
     }
   ],
   "koder_uten_rad": {
+    "KRAVET_ER_VARSELET": "Kontrollen av kommandoen: et brev som alt står i saken som et krav som gjelder som varselet etter punkt 33.4, 34.1.2 eller 34.1.3, tas ikke imot som varsel etter samme bestemmelse (VS-U74). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "SVAR_PER_KRAVPOST": "Kontrollen av kommandoen: svaret på rigg og drift er ikke bygget, så svaret på et krav med posten tilbys ikke (arbeidsvalg 5 i spørsmålsfila 10.11 for #1663). Det er en avgrensning i byggingen, og ingen rad sier avvisningen.",
     "ANNEN_ENDRINGSORDRE": "Kontrollen av kommandoen: når grunnlaget er sendt, står endringsordren i underkategorien endringsordre, og en annen endringsordre påberopes i en ny sak (GR-U40 punkt 7 og 9). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",
     "FORESPORSEL_BEGRUNNET": "Kontrollen av kommandoen: etter TEs begrunnelse etter § 33.6.2 annet ledd b sendes ingen ny forespørsel fra appen (VS-U30). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`.",

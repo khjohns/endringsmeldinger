@@ -520,6 +520,7 @@ kontrollen leter etter, står under [Formatet](#formatet).
 | `INGEN_FORESPORSEL` | — | Kontrollen av kommandoen: TEs begrunnelse etter § 33.6.2 annet ledd b gjelder en forespørsel fra appen (VS-U27). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `INGEN_KRAV` | — | Kontrollen av kommandoen: et svar eller et trekk i et spor uten krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `INGEN_SVAR` | — | Kontrollen av kommandoen: en revisjon uten et svar på gjeldende krav avvises. Ingen rad sier avvisningen; den prøves i `kjerne/tester/kjerne.test.ts`. |
+| `KRAVET_ER_VARSELET` | — | Kontrollen av kommandoen: et brev som alt står i saken som et krav som gjelder som varselet etter punkt 33.4, 34.1.2 eller 34.1.3, tas ikke imot som varsel etter samme bestemmelse (VS-U74). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |
 | `KRAVPOSTENE` | KA-55, KA-58 | — |
 | `KRAVPOSTVARSELET` | VS-08, VS-09 | — |
 | `KRAV_FOER_FORESPORSELEN` | — | Kontrollen av kommandoen: et svar på forespørselen etter § 33.6.2 avvises når totalentreprenøren hadde sendt et krav om dager før den, lagt til etterpå (OV-U109). Ingen rad sier avvisningen; den prøves i `kjerne/tester/brevtekst.test.ts`. |

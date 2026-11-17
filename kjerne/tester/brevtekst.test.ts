@@ -4255,14 +4255,14 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
 });
 
 describe('et brev sendt utenfor løsningen som både varsler og krever, legges til som krav (VS-U74)', () => {
-  const KRAVBREVET = '7f1c2d3e-0000-4000-8000-000000002133';
+  const kravbrevet = '7f1c2d3e-0000-4000-8000-000000002133';
   const melding = (punkt: string) =>
     `Brevet står alt i saken som krav, og kravet gjelder som varselet etter punkt ${punkt}. Det samme brevet kan ikke legges til som varsel etter punkt ${punkt}. Har totalentreprenøren sendt et eget varsel før kravet, kan det brevet legges til.`;
   const lagtTil = (krav: Data) => ({
     ...krav,
     ...SOM_BREV,
     sendt: '2026-10-01',
-    dokumentasjon: [KRAVBREVET],
+    dokumentasjon: [kravbrevet],
   });
   const fristkravet = lagtTil(utenFelt(utenFelt(FRISTKRAV, 'varsel'), 'utdypning'));
   const vederlagskravet = lagtTil({
@@ -4294,7 +4294,7 @@ describe('et brev sendt utenfor løsningen som både varsler og krever, legges t
       const s = sak();
       s.send('TE', PAABEROPELSE);
       s.send('TE', krav);
-      expect(s.avvisning('TE', varsel(spor, hjemmel, [KRAVBREVET]))).toEqual({
+      expect(s.avvisning('TE', varsel(spor, hjemmel, [kravbrevet]))).toEqual({
         regel: 'KRAVET_ER_VARSELET',
         melding: melding(hjemmel),
       });
@@ -4309,8 +4309,8 @@ describe('et brev sendt utenfor løsningen som både varsler og krever, legges t
     const s = sak();
     s.send('TE', PAABEROPELSE);
     s.send('TE', lagtTil({ type: 'krav', spor: 'vederlag', innhold: tilbud(125000) }));
-    expect(s.avvist('TE', varsel('vederlag', '34.1.3', [KRAVBREVET]))).toBeNull();
-    expect(s.avvist('TE', varsel('vederlag', '34.1.2', [KRAVBREVET])), 'kontrollsak').toBe(
+    expect(s.avvist('TE', varsel('vederlag', '34.1.3', [kravbrevet]))).toBeNull();
+    expect(s.avvist('TE', varsel('vederlag', '34.1.2', [kravbrevet])), 'kontrollsak').toBe(
       'KRAVET_ER_VARSELET'
     );
   });
@@ -4322,9 +4322,9 @@ describe('et brev sendt utenfor løsningen som både varsler og krever, legges t
       type: 'krav',
       spor: 'vederlag',
       innhold: tilbud(125000),
-      dokumentasjon: [KRAVBREVET],
+      dokumentasjon: [kravbrevet],
     });
-    expect(s.avvist('TE', varsel('vederlag', '34.1.2', [KRAVBREVET], '2026-09-28'))).toBeNull();
+    expect(s.avvist('TE', varsel('vederlag', '34.1.2', [kravbrevet], '2026-09-28'))).toBeNull();
   });
 
   it('et tidligere varsel etter samme bestemmelse legges til uten retting, og det tidligste regnes (VS-U66, VS-U70)', () => {
@@ -4347,7 +4347,7 @@ describe('et brev sendt utenfor løsningen som både varsler og krever, legges t
     const lager = new Map([
       [
         lastetOpp,
-        { vedlegg_id: lastetOpp, filnavn: 'krav.pdf', innhold_sha256: innholdssummen(KRAVBREVET) },
+        { vedlegg_id: lastetOpp, filnavn: 'krav.pdf', innhold_sha256: innholdssummen(kravbrevet) },
       ],
     ]);
     const kontekst = {
@@ -4370,7 +4370,7 @@ describe('et brev sendt utenfor løsningen som både varsler og krever, legges t
     );
     expect(utfall.godtatt ? null : utfall.avvisning.regel).toBe('KRAVET_ER_VARSELET');
     expect(
-      s.avvist('TE', varsel('frist', '33.4', [KRAVBREVET, PLAN])),
+      s.avvist('TE', varsel('frist', '33.4', [kravbrevet, PLAN])),
       'kontrollsak: hele dokumentet sammenliknes'
     ).toBeNull();
   });
@@ -4378,7 +4378,7 @@ describe('et brev sendt utenfor løsningen som både varsler og krever, legges t
   it('punkt 32.2 er uendret: brevet med påberopelsen kan legges til som varsel etter punkt 32.2 (VS-U74, svaret 2a)', () => {
     const s = sak();
     s.send('TE', lagtTil(utenFelt(PAABEROPELSE, 'utdypning')));
-    expect(s.avvist('TE', varsel('forhold', '32.2', [KRAVBREVET], '2026-09-28'))).toBeNull();
+    expect(s.avvist('TE', varsel('forhold', '32.2', [kravbrevet], '2026-09-28'))).toBeNull();
   });
 });
 
