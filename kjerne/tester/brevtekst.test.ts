@@ -11701,7 +11701,7 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     expect(melding(s, 'frist', besvart)).not.toContain('mangler');
   });
 
-  it('fristen: dagene er ubesvart til de er et tall, også når resten er besvart (§ 33.5)', () => {
+  it('fristen: dagene er ubesvart til de er gitt, også når resten er besvart, og dager som er gitt, men ikke kan godtas, står ikke som ubesvart (§ 33.5)', () => {
     const s = saken(FRISTKRAV);
     const v = {
       frist_varsel_ok: true,
@@ -11711,6 +11711,9 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     };
     expect(ubesvart(s, 'frist', v)).toEqual(['frist 1.dager']);
     expect(melding(s, 'frist', v)).toContain('mangler (punkt 33.5)');
+    const ugyldig = { ...v, frister: [{ dager: '20' }] };
+    expect(ubesvart(s, 'frist', ugyldig)).toEqual([]);
+    expect(melding(s, 'frist', ugyldig)).toContain('er ikke et helt antall dager');
   });
 
   it('fristen: når spesifiseringen kom for sent, er dagene byggherren måtte forstå påkrevd for hver frist (§ 33.6.1, D-5)', () => {

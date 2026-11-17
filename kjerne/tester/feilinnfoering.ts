@@ -4033,6 +4033,13 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['varselet etter § 34.1.2 er ikke påkrevd når varslingsplikten ikke gjelder kategorien'],
   },
   {
+    id: 'F716',
+    feilklasse: 'et besvart spørsmål i fristen står som ubesvart i svarutkastet (#2025)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['      .filter((felt) => mangler(v[felt]))\n', '']],
+    mal: ['fristen: med hvert spørsmål besvart er ingenting ubesvart'],
+  },
+  {
     id: 'F717',
     feilklasse:
       'dagene byggherren måtte forstå står ikke som ubesvart i svarutkastet når spesifiseringen kom for sent (#2025, D-5)',
@@ -4040,13 +4047,7 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['...(maatteForstaaUbesvart({', '...(false && maatteForstaaUbesvart({']],
     mal: ['dagene byggherren måtte forstå påkrevd for hver frist'],
   },
-  {
-    id: 'F716',
-    feilklasse: 'et besvart spørsmål i fristen står som ubesvart i svarutkastet (#2025)',
-    fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [['      .filter((felt) => mangler(v[felt]))\n', '']],
-    mal: ['fristen: med hvert spørsmål besvart er ingenting ubesvart'],
-  },
+
   {
     id: 'F705',
     feilklasse:

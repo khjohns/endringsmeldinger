@@ -269,10 +269,9 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
     utregning,
   };
   const { grunner, virkning, lag, etikett } = lageneIUtkastet(svar, utkast, u, regler);
+  const fristene = fristvurderinger(utkast.vurderinger, krav);
   const utenDager = new Set(
-    fristvurderinger(v, krav)
-      .filter((f) => typeof f.dager !== 'number')
-      .map((f) => f.gjelder)
+    fristene.filter((f) => typeof f.dager !== 'number').map((f) => f.gjelder)
   );
   // Hvert standpunkt i et tidligere lag i sporet åpnet laget etter seg (OV-U32).
   const aapnetLaget = (f: Standpunkt): Forutsetning[] => {
@@ -285,8 +284,9 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
   return {
     ubesvart: [
       ...[...ubesvart].map((spoersmaal) => ({ spoersmaal })),
-      ...fristvurderinger(utkast.vurderinger, krav).flatMap((f) => [
-        ...(utenDager.has(f.gjelder) ? [{ spoersmaal: 'dager' as const, gjelder: f.gjelder }] : []),
+      // Dagene kontrolleres som manglende etter punkt 33.5 (`kontroller` i regelsettet).
+      ...fristene.flatMap((f) => [
+        ...(mangler(f.dager) ? [{ spoersmaal: 'dager' as const, gjelder: f.gjelder }] : []),
         ...(maatteForstaaUbesvart({
           ...f,
           spesifisert_krav_ok: utkast.vurderinger.spesifisert_krav_ok,
