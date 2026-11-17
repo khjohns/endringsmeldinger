@@ -20,7 +20,7 @@ const brev = (ekstra: Record<string, unknown> = {}) =>
     merking: 'K201-KOE-005-06',
     dato: '20. oktober 2026',
     tittel: 'Svar på krav om vederlagsjustering',
-    avsnitt: [{ laast: 'Byggherren svarer.' }],
+    avsnitt: [{ gjelder: 'svar', laast: 'Byggherren svarer.' }],
     ...ekstra,
   });
 
@@ -178,5 +178,40 @@ describe('Punktene i brevet (#1824, prototype v4 i BF-14)', () => {
     brev();
     expect(screen.queryAllByRole('heading', { level: 3 })).toEqual([]);
     expect(screen.getByTestId('laast-tekst').textContent).toContain('Byggherren svarer.');
+  });
+
+  // Kravposten er avsnittet kjernen finner først i punktet (`punkteneMedBegrunnelse`, KA-U53).
+  const kravpostlinjen = () =>
+    [...document.querySelectorAll('.postlinje')].map((p) => [
+      p.querySelector('b')?.textContent,
+      p.textContent,
+    ]);
+
+  it('et punkt for en kravpost har kravposten først, med betegnelsen i fet skrift (KA-U53)', () => {
+    brev({
+      avsnitt: [
+        {
+          gjelder: 'svar',
+          punkt: 'P1',
+          overskrift: 'Spunt',
+          laast: 'Spunt\n\nP1 Spunt langs nordveggen\n\nByggherren godkjenner enhetsprisene.',
+        },
+      ],
+    });
+    expect(kravpostlinjen()).toEqual([['P1', 'P1 Spunt langs nordveggen']]);
+  });
+
+  it('et punkt for en kravpost uten kravposten først har ingen linje for kravposten (kontrollsak)', () => {
+    brev({
+      avsnitt: [
+        {
+          gjelder: 'svar',
+          punkt: 'P1',
+          overskrift: 'Spunt',
+          laast: 'Spunt\n\nByggherren godkjenner enhetsprisene.',
+        },
+      ],
+    });
+    expect(kravpostlinjen()).toEqual([]);
   });
 });
