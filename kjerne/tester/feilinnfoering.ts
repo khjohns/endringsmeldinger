@@ -6409,8 +6409,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'omtalen av registrert korrespondanse bruker dagen den ble registrert (LV-U45, #2140)',
     fil: `${K}/frosset/brevdeler.ts`,
-    endringer: [['  const registrert = datoen !== undefined;', '  const registrert = false;']],
-    mal: ['LV-U45'],
+    endringer: [
+      ['registrert ? datoen.dato : d.registrert', 'registrert ? d.registrert : d.registrert'],
+    ],
+    mal: ['dokumentet står som et eget registrert varsel før kravet'],
   },
   {
     id: 'F750',
