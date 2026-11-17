@@ -3124,7 +3124,7 @@ describe('innsigelse, protest og passivitet (LV-U4 punkt 7–9, VS-U9, VS-U11)',
         });
         if (utenVirkning) expect(s.u().utenVirkning, 'forutsetning').toHaveLength(1);
         else s.send('TE', PAABEROPELSE);
-        // Byggherren kan påberope det samme på nytt (VS-U46 punkt 13).
+        // Byggherren kan påberope det samme på nytt (VS-U77 punkt 13).
         expect(s.avvist('BH', forSent(s))).toBeNull();
         return laast(s.send('BH', forSent(s)))[1];
       };
@@ -12286,7 +12286,7 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
 
   const justert = { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true };
 
-  it('vederlaget: med justerte enhetspriser godtatt er justeringen påkrevd, og svaret på varselet etter § 34.3.3 er det ikke (VS-U57 B, VS-U46 punkt 10 og 12, arbeidsvalg A 16.11 i #2025)', () => {
+  it('vederlaget: med justerte enhetspriser godtatt er justeringen påkrevd, og svaret på varselet etter § 34.3.3 er det ikke (VS-U57 B, VS-U77 punkt 10 og 12, arbeidsvalg A 16.11 i #2025)', () => {
     const s = saken(vederlagskravet({ kravposter: [justert] }));
     const v = { kravposter: [{ gjelder: 'P1', aksepterer: true }] };
     expect(ubesvart(s, 'vederlag', v)).toEqual(['P1.godtar_justering']);
