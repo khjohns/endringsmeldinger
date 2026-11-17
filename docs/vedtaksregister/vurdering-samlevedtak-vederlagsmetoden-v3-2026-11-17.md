@@ -310,6 +310,10 @@ Lagret før de sendes til orkestratoren. Spørsmål 3 og 4 gjelder rettsregler o
   ([#1534, 6948496847](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6948496847)):
   «1 ja, 2 A, 3 A, 4 A». Det er tilslutning til utkastet med E17–E25 uten rettelser, og 2 A, 3 A og
   4 A. Posten er ført som OV-U115.
+- **Rettelse i punkt 9:** oppdragsgiver 17.11, ordrett
+  ([#1534, 6949093396](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6949093396)):
+  «Rett til «andre», merge (Anbefalt)». Utkastet over sier «i første setning»; posten sier «i andre
+  setning», fordi «i løsningen» står i andre setning i punkt 9.
 
 ## Verifikasjon og grenser
 

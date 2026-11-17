@@ -846,7 +846,7 @@ er nye.
    p2 s1 og s3–s6; VS-U28 s6 slik OV-U43 endret den; E2) I første versjon oppgis
    kostnadsoverslaget i kravposten. Et nytt overslag uten ny kravversjon, og varselet etter punkt
    30.2 annet ledd, sendes som innlegg eller legges til som korrespondanse, også etter at
-   behandlingen er ferdig. Løsningen leser dem ikke. (OV-U108 s1–s3; E21) «I løsningen» i første setning omfatter da et innlegg og korrespondanse.
+   behandlingen er ferdig. Løsningen leser dem ikke. (OV-U108 s1–s3; E21) «I løsningen» i andre setning omfatter da et innlegg og korrespondanse.
 10. Varselet til byggherren før regningsarbeidet settes i gang (punkt 34.4 første ledd) kan sendes
     fra løsningen som et eget utsagn med serverens dato, eller TE kan oppgi datoen for et varsel
     sendt utenfor løsningen, som etter OV-U5. (VS-U28 s3)

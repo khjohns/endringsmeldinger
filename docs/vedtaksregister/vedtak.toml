@@ -768,7 +768,7 @@ er nye.
    p2 s1 og s3–s6; VS-U28 s6 slik OV-U43 endret den; E2) I første versjon oppgis
    kostnadsoverslaget i kravposten. Et nytt overslag uten ny kravversjon, og varselet etter punkt
    30.2 annet ledd, sendes som innlegg eller legges til som korrespondanse, også etter at
-   behandlingen er ferdig. Løsningen leser dem ikke. (OV-U108 s1–s3; E21) «I løsningen» i første setning omfatter da et innlegg og korrespondanse.
+   behandlingen er ferdig. Løsningen leser dem ikke. (OV-U108 s1–s3; E21) «I løsningen» i andre setning omfatter da et innlegg og korrespondanse.
 10. Varselet til byggherren før regningsarbeidet settes i gang (punkt 34.4 første ledd) kan sendes
     fra løsningen som et eget utsagn med serverens dato, eller TE kan oppgi datoen for et varsel
     sendt utenfor løsningen, som etter OV-U5. (VS-U28 s3)
@@ -4799,7 +4799,7 @@ ut alle postene og beholde kravet, må han legge til den nye posten før han tre
 Styrer: punkt 21 i versjon 3.'''
 valgt = "Ja, 2 A, 3 A, 4 A"
 svar = '''
-Oppdragsgiver 17.11, ordrett, videresendt av orkestratoren ([#1534, 6948496847](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6948496847)): «1 ja, 2 A, 3 A, 4 A». Valgt samlet: Ja, 2 A, 3 A, 4 A, det vil si tilslutning til utkastet med E17–E25 uten rettelser, 2 A, 3 A og 4 A.'''
+Oppdragsgiver 17.11, ordrett, videresendt av orkestratoren ([#1534, 6948496847](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6948496847)): «1 ja, 2 A, 3 A, 4 A». Valgt samlet: Ja, 2 A, 3 A, 4 A, det vil si tilslutning til utkastet med E17–E25 uten rettelser, 2 A, 3 A og 4 A. Rettelse etter tilslutningen, oppdragsgiver 17.11, ordrett ([#1534, 6949093396](https://github.com/khjohns/endringsmeldinger/issues/1534#issuecomment-6949093396)): «Rett til «andre», merge (Anbefalt)». Punkt 9 sier derfor «i andre setning», der utkastet sa «i første setning».'''
 forhold = [
   { art = "opphever", vedtak = "ov-u95" },
   { art = "samler", vedtak = "ka-u69" },
