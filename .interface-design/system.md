@@ -128,8 +128,10 @@ Skriftene ble valgt 07.11 (oppdragsgiver), etter en sammenligning av fire brevsk
   arbeidet under 860 px, som i prototypene (#1461).
   En tabell ruller ikke vannrett. Under 720 px står navnet på raden over verdiene sine, så alle
   kolonnene er synlige ([U-2 i BF-44](../docs/domenetabell/brukerforlop/BF-44.md#u-2)).
-- **Radius betyr noe** (#1402). Bare knappene er runde,
-  som piller (`--r-knapp`), så en handling skiller seg fra alt annet. Kort og brev har
+- **Radius betyr noe** (#1402). Knappene har 6 px (`--r-knapp`), som bokser inne i et kort,
+  og en handling skilles med fyllet: svart for primærhandlingen og ramme for den sekundære
+  (oppdragsgiver 17.11, #2163, skissen
+  [brevtraaden.html](../docs/design/prototyper/brevtraaden.html)). Kort og brev har
   samme radius, 12 px (`--r-kort`): det gir ro på store flater, og brevet ser ikke
   annerledes ut enn kortene ved siden av. Merker og stempler, som «Registrert»,
   «Inngår i EO-012» og «Sendt …», har 2 px (`--r-merke`), så de leses som merker på et
@@ -459,6 +461,13 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   Samme form gjelder der et krav måles mot et svar: kravet er åpent og det godkjente fylt, på samme
   skala med runde trinn ([U-2 i BF-44](../docs/domenetabell/brukerforlop/BF-44.md#u-2)).
   Raden for brevet som vises ved siden av, har en strek i blekk til venstre og sier det i tekst, ikke bare med en flate.
+  Datoen og brevnummeret står i én dempet linje over tittelen, i alle bredder, med «Les brevet»
+  eller «Vises til høyre» til høyre i samme linje. Innholdet bruker hele bredden ved siden av
+  ringen. Handlingene ved et brev står uten hjelpetekst: knappeteksten sier hva handlingen gjør,
+  og virkningen står i brevkontrollen under «Når du sender». Standpunktene i en rad følger
+  leselinja: det første laget leder, og lagene under er dempet og begynner med vilkåret
+  (oppdragsgiver 17.11, #2163, skissen
+  [brevtraaden.html](../docs/design/prototyper/brevtraaden.html); U-16 i BF-44 endres med dette).
   Under 1181 px åpnes brevet i raden, og knappen heter «Lukk brevet» (U-16 i BF-44). Rammen i
   høyre kolonne kan få fokus med tastaturet, fordi brevet ruller i den. Brevet i raden er ikke et
   eget tabstopp. Raden for et svar som ikke er registrert, har stiplet ring, fordi
