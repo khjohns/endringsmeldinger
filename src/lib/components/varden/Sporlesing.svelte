@@ -220,8 +220,8 @@
     return n ? (omtalen(n)?.ved?.() ?? null) : null;
   });
   const godtaVedBrevet = $derived(kanGodta && handlingVed !== null);
-  // Forsering står for totalentreprenøren når byggherren prinsipalt har avslått dager (U-6 i
-  // BF-45, FO-U1, svar 3 A). «Andre handlinger» setter den foran «Trekk kravet» (`BREVTYPER`).
+  // Kjernen sier om totalentreprenøren kan velge forsering (`forseringKanVelges`, FO-U1, U-6 i
+  // BF-45). «Andre handlinger» setter den foran «Trekk kravet» (`BREVTYPER`).
   const forsering = $derived(
     spor === 'frist' && part === 'TE' && kanGodta && forseringKanVelges(u)
   );
