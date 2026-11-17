@@ -293,6 +293,10 @@
     ];
   }
 
+  /** Hindringen for aksepten, som knappen som åpner den, viser til. */
+  const hindringFor = (n: string) =>
+    n === `godta:${spor}` && flyt.hindring ? flyt.hindringId : undefined;
+
   function velg(n: string) {
     flyt.kontroller(null);
     if (n === `godta:${spor}`) seAksepten();
@@ -318,6 +322,7 @@
     {bygget}
     tekstFor={innsigelsestekst}
     beskrivelseFor={virkningen}
+    beskrevetAv={hindringFor}
     onvelg={velg}
   />
 {/snippet}
@@ -364,11 +369,11 @@
     .filter(Boolean)
     .join(' ')}
   {@const vedbrevet = linje ? `${uid}-vedbrevet` : undefined}
-  <!-- Hindringen kommer fra aksepten, som primærknappen eller «Godta» åpner. -->
+  <!-- Hindringen kommer fra aksepten, som bare «Godta» åpner. -->
   {@const medHindring =
-    [vedbrevet, flyt.hindring ? flyt.hindringId : undefined].filter(Boolean).join(' ') || undefined}
+    [vedbrevet, hindringFor(`godta:${spor}`)].filter(Boolean).join(' ') || undefined}
   <div class="knapper">
-    {#if primaer}{@render primaerknapp(primaer, medHindring)}{/if}
+    {#if primaer}{@render primaerknapp(primaer, vedbrevet)}{/if}
     {#if revidere}
       {@const r = revidere}
       <!-- Kantstilt med linja under og i samme størrelse, som i prototypene (#2000). -->

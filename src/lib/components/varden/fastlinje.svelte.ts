@@ -26,7 +26,8 @@ export function faarPlass(elementer: () => (HTMLElement | null)[]): {
       // Effekten leser ikke tilstanden den skriver, så målingen ikke utløser seg selv.
       const hoeyder = els.map((el) => el!.offsetHeight);
       const samlet = hoeyder.reduce((sum, h) => sum + h, 0) + 16 * (els.length - 1);
-      tilstand.hoeyder = hoeyder;
+      if (hoeyder.some((h, i) => h !== untrack(() => tilstand.hoeyder[i])))
+        tilstand.hoeyder = hoeyder;
       tilstand.faarPlass = samlet + 32 <= window.innerHeight;
     };
     const ro = new ResizeObserver(maal);
