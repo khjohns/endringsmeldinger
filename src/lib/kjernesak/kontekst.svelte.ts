@@ -38,6 +38,12 @@ export { elementenesSpor } from '#kjerne/kommandoer/handlinger.ts';
  */
 export { kravversjonenPaaDagen } from '#kjerne/utledning/utled.ts';
 
+/** Akseptfristen i byggherrens gjeldende svar så lenge TE kan godta det (HF-U23), for Varden (#2120). */
+export { akseptfristen } from '#kjerne/utledning/visning.ts';
+
+/** Om byggherren prinsipalt har avslått dager, for forseringen i Varden (FO-U1, #2120). */
+export { prinsipaltAvslaatteDager } from '#kjerne/spor/frist/utledning.ts';
+
 /** Det som hindrer byggherrens svar på kravet i dag (KA-U59), for vederlagssvaret i Varden. */
 export { hindrerSvarPaaKravet } from '#kjerne/spor/vederlag/kommando.ts';
 

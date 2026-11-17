@@ -28,11 +28,11 @@ import {
   medFristvarsel,
   skrevet,
 } from '#lib/kjernesak/__tests__/provejournal.ts';
+import { prinsipaltAvslaatteDager } from '#kjerne/spor/frist/utledning.ts';
 import {
   gjeldendeFrist,
   kravetOgSvaretIFristen,
   nyFrist,
-  prinsipaltAvslaatteDager,
 } from '#lib/components/varden/fristoversikt.ts';
 import { brevene, type Fristtabellen } from '#lib/components/varden/lesing.ts';
 import { FRISTEN, HANDLINGENE } from '#lib/components/varden/tekster/index.ts';

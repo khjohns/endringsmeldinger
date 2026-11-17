@@ -5,7 +5,7 @@
   visning: brevteksten, handlingene og avvisningene kommer fra kjernen.
 -->
 <script lang="ts">
-  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { akseptfristen, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Spor } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { tick, untrack, type Snippet } from 'svelte';
@@ -19,7 +19,6 @@
   import Melding from './Melding.svelte';
   import Sporlesing from './Sporlesing.svelte';
   import Vardenskall, { type Smule } from './Vardenskall.svelte';
-  import { akseptfristen } from './svarlagene';
   import Vederlagssvar from './Vederlagssvar.svelte';
   import Fristsvar from './Fristsvar.svelte';
   import { tomtFristsvar } from './fristsvar';

@@ -23,7 +23,7 @@ import {
   varsleneIKravene,
 } from '#lib/components/varden/vederlagsoversikt.ts';
 import { trinnene } from '#lib/components/varden/Maalrad.svelte';
-import { akseptfristen } from '#lib/components/varden/svarlagene.ts';
+import { akseptfristen } from '#kjerne/utledning/visning.ts';
 import { brevene, leveringene, type Brevet } from '#lib/components/varden/lesing.ts';
 import { VEDERLAGET } from '#lib/components/varden/tekster/index.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';

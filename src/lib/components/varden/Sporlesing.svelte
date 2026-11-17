@@ -9,6 +9,7 @@
   import { ArrowRight } from 'lucide-svelte';
   import type { Component } from 'svelte';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { prinsipaltAvslaatteDager } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Part, Spor } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -20,7 +21,6 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Vederlagsoversikt from './Vederlagsoversikt.svelte';
-  import { prinsipaltAvslaatteDager } from './fristoversikt';
   import { aksepten } from './kommandoer';
   import { fokuser } from './mangler';
   import { sendeflyt } from './sendeflyt.svelte';

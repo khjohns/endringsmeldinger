@@ -22,7 +22,7 @@
   import { TRAADEN, VEDERLAGET } from './tekster';
   import { varseletFoerKravet } from '#lib/kjernesak/vederlagskrav.ts';
   import { kravbeloepene, kravetOgSvaret, varsleneIKravene } from './vederlagsoversikt';
-  import { akseptfristen } from './svarlagene';
+  import { akseptfristen } from '#lib/kjernesak/kontekst.svelte.ts';
 
   let {
     u,
