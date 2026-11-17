@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import type { Forholdsresultat } from '#kjerne/regler/typer.ts';
 import type { Forholdsordene } from '#kjerne/spor/forhold/tekst.ts';
 import type { Innlegget } from '#lib/components/varden/lesing.ts';
-import { FORHOLDET } from '#lib/components/varden/tekster.ts';
+import { FORHOLDET } from '#lib/components/varden/tekster/index.ts';
 
 const ord = (o: Partial<Forholdsordene>): Forholdsordene => ({
   endringsordre: false,

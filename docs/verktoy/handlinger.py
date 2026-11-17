@@ -160,21 +160,20 @@ def valider(register: dict) -> list[str]:
 
 # En streng, en malstreng eller en kommentar, så klammene i dem ikke telles.
 _HOPP = re.compile(r"'(?:\\.|[^'\\])*'|\"(?:\\.|[^\"\\])*\"|`(?:\\.|[^`\\])*`|//[^\n]*|/\*.*?\*/", re.DOTALL)
-_NOEKKEL_I_TABELLEN = re.compile(r"\s*:")
 _NAVN = re.compile(r"[A-Za-z_$][\w$]*")
 
 
 def skjemaene_i_varden(sti: pathlib.Path = VARDENSAK) -> set[str]:
-    """Nøklene øverst i objektet `const skjemaene` i Vardensak.svelte, lest som tekst.
+    """Handlingsnøklene i Vardensak.svelte: strengene i lista `noekler: [...]` i hvert skjema
+    rett under objektet `const skjemaene`, lest som tekst.
 
-    En nøkkel er en streng eller et navn som står etter `{` eller `,` og foran `:`.
     Feiler når objektet ikke finnes eller ikke lukkes, så vakttesten ikke blir grønn av
     en lesing som ikke fant noe."""
     tekst = sti.read_text(encoding="utf-8")
     start = re.search(r"const skjemaene\b[^\n]*?=\s*\{", tekst)
     if not start:
         raise ValueError(f"{sti} har ingen `const skjemaene`")
-    noekler, dybde, i, forrige = set(), 1, start.end(), "{"
+    noekler, dybde, i, siste, i_lista = set(), 1, start.end(), ["", ""], False
     while dybde:
         if i >= len(tekst):
             raise ValueError(f"`const skjemaene` i {sti} lukkes ikke")
@@ -185,13 +184,16 @@ def skjemaene_i_varden(sti: pathlib.Path = VARDENSAK) -> set[str]:
         if ord_ and ord_.group().startswith(("//", "/*")):
             i = ord_.end()
             continue
-        if ord_:
-            if dybde == 1 and forrige in "{," and _NOEKKEL_I_TABELLEN.match(tekst, ord_.end()):
-                noekler.add(ord_.group().strip("'\"`"))
-            i, forrige = ord_.end(), ord_.group()[-1]
-            continue
-        dybde += {"{": 1, "}": -1}.get(tekst[i], 0)
-        i, forrige = i + 1, tekst[i]
+        token = ord_.group() if ord_ else tekst[i]
+        if i_lista and ord_ and token[0] in "'\"`":
+            noekler.add(token[1:-1])
+        elif token == "[" and dybde == 2 and siste == ["noekler", ":"]:
+            i_lista = True
+        elif token == "]":
+            i_lista = False
+        dybde += {"{": 1, "}": -1}.get(token, 0)
+        siste = [siste[1], token]
+        i += len(token)
     return noekler
 
 

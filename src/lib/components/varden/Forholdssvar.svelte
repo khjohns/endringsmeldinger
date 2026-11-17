@@ -30,7 +30,6 @@
   import Valg from './Valg.svelte';
   import {
     begrunnelsenKreves,
-    FORHOLDSSVAR,
     forholdet,
     forholdslinjen,
     forholdssvaret,
@@ -42,7 +41,7 @@
   import { brevene, standpunktene, underOverskriften } from './lesing';
   import { vedleggskart } from './nysak';
   import { kravbrevetI, kravetSendt, manglene } from './svarskjema';
-  import { brevref, dato, kalenderdager, LEGG_TIL } from './tekster';
+  import { brevref, dato, FORHOLDSSVAR, kalenderdager, LEGG_TIL } from './tekster';
 
   let {
     kjernesak,

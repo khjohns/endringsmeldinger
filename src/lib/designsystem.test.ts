@@ -72,7 +72,8 @@ describe('systemfila for visningen', () => {
   it('nevner tokens, klasser og komponenter, så vakten har noe å kontrollere', () => {
     expect(system.tokens.length).toBeGreaterThan(20);
     expect(system.klasser.length).toBeGreaterThan(0);
-    expect(system.komponenter.length).toBeGreaterThan(5);
+    // Komponentene står i den genererte katalogen (#2117), og systemfila nevner bare noen få.
+    expect(system.komponenter.length).toBeGreaterThan(0);
   });
 
   it('hvert token systemfila nevner, er definert for lys modus i theme.css eller app.css', () => {

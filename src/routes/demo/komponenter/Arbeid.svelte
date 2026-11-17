@@ -1,7 +1,7 @@
 <!--
   Arbeidet i ett spor i showcasen (#1371): `Sporlesing` eller `Vederlagssvar`, og
   `Brevkontroll` når brevet åpnes derfra. Propsene til brevkontrollen settes sammen som i
-  `Vardensak.svelte`, med tekstene fra `tekster.ts`.
+  `Vardensak.svelte`, med tekstene fra `tekster/`.
 -->
 <script lang="ts">
   import type { Spor } from '#kjerne/typer.ts';
@@ -10,7 +10,7 @@
   import Vederlagssvar from '#lib/components/varden/Vederlagssvar.svelte';
   import { tomtSvar, type Svarvalg } from '#lib/components/varden/kommandoer.ts';
   import { brevene } from '#lib/components/varden/lesing.ts';
-  import { BREVKONTROLL, SAKEN, STILLING } from '#lib/components/varden/tekster.ts';
+  import { BREVKONTROLL, SAKEN, STILLING } from '#lib/components/varden/tekster/index.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
 
   let {

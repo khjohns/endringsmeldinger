@@ -244,7 +244,7 @@ vedtaksregisteret (#1534).
   «Siste: brev 5 fra BH». Merkingen og datoen står i brevhodet og i brevet selv, der brevteksten
   viser til et tidligere brev etter [LV-U53](../docs/plans/vedtak.md#lv-u53). Registrert
   korrespondanse uten nummer omtales som i brevteksten, med parten, typen og datoen (LV-U42).
-  Tekstene står i `brevref` i `src/lib/components/varden/tekster.ts` (#1631).
+  Tekstene står i `brevref` i `src/lib/components/varden/tekster/felles.ts` (#1631).
 
 ## Kravene, sporene og handlingene
 
@@ -307,18 +307,11 @@ punktet. Det juridiske står i vedtakene, ikke her.
 
 ## Mønstre
 
-Et mønster står her når det brukes to ganger eller mer. Verdiene står i komponenten.
-
-| Mønster | Komponent | Bruk |
-| --- | --- | --- |
-| Knapp | `varden/Knapp.svelte` | Primærhandlingen, sekundære handlinger og lenkeknapper |
-| Utkastkort | `varden/Utkastkort.svelte` | Hodet på et brev som ikke er sendt, i hvert skjema |
-| Brevkontroll | `varden/Brevkontroll.svelte` | Brevet ordrett før sending, med det parten sender og virkningen |
-| Brevtråd | `varden/Brevtraad.svelte` | Brevene i saken eller i ett spor, med partene og det løsningen sier under brevet. Felles for sidene for forholdet, vederlaget og fristen |
-| Handlingene | `varden/Brevtyper.svelte` | Radene i «Det du kan gjøre nå» |
-| Tidslinje | `varden/Tidslinje.svelte` | Datoene i sporet, også dem parten fyller ut før sending |
-| Melding | `varden/Melding.svelte` | Feil fra serveren, kvitteringen og det løsningen sier om saken |
-| Infotips | `varden/Infotips.svelte` | Hvordan løsningen virker, når det trengs ved en tekst |
+Komponentene som brukes to steder eller mer, står i [komponentkatalogen](komponenter.md), som
+genereres av hodekommentaren i hver komponent (#2117). Se der før du bygger en ny komponent. En ny
+felles komponent får en hodekommentar, og katalogen skrives på nytt med
+`node src/lib/komponentkatalog.ts`. Verdiene står i komponenten. Her står beslutningene om hvordan
+mønstrene virker.
 
 ### Handlingene i Varden
 

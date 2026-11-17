@@ -37,8 +37,15 @@
     velgDagene,
   } from './fristsvar';
   import { brevet, standpunktene } from './lesing';
-  import { manglene, SVARSKJEMA } from './svarskjema';
-  import { BREVKONTROLL, FRISTSVAR, SKJEMA, grunntekst, standpunkttekst } from './tekster';
+  import { manglene } from './svarskjema';
+  import {
+    BREVKONTROLL,
+    FRISTSVAR,
+    SKJEMA,
+    SVARSKJEMA,
+    grunntekst,
+    standpunkttekst,
+  } from './tekster';
 
   let {
     kjernesak,
