@@ -4066,7 +4066,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     expect(s.avvist('TE', { ...utenBrevet, dokumentasjon: [PLAN] }), 'kontrollsak').toBeNull();
   });
 
-  it('et fristkrav sendt fra løsningen avvises også med ett av vedleggene ved varselet etter punkt 33.4, som i vederlaget (VS-U73, svar B 17.11 i #2142)', () => {
+  it('et fristkrav sendt fra løsningen avvises også med ett av vedleggene ved varselet etter punkt 33.4, som i vederlaget (VS-U75)', () => {
     const vedlegget = randomUUID();
     const s = sak();
     s.send('TE', PAABEROPELSE);

@@ -431,7 +431,7 @@ function varseldokumentetISaken(
         );
   const varselbrevet = vedKravetsBrev ? brevene.find((h) => h.id === varselet.dokument) : undefined;
   const vedleggene = innholdetIVedleggene(k.dokumentasjon ?? [], oppslag);
-  // Hver fil ved varselet er en del av brevet med varselet (VS-U73, svar B 17.11 i #2142).
+  // VS-U75.
   return varselbrevet &&
     [...innholdetIDokumentet(varselbrevet.dokument)].some((x) => vedleggene.has(x))
     ? fjernBrevet(varselbrevet)

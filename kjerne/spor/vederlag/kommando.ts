@@ -450,7 +450,7 @@ const kravpostvarslerIBrevet = (
 
 /**
  * Et vedlegg ved et krav sendt fra løsningen som alt ligger ved et varsel for en kravpost i saken
- * (VS-U73). Et dokument ved kravet som også er et varsel, er dokumentet kravskjemaet la til som
+ * (VS-U73, VS-U75). Et dokument ved kravet som også er et varsel, er dokumentet kravskjemaet la til som
  * varsel i samme handling (`foranKravet`, VS-U51).
  */
 function vedleggetErEtVarsel(

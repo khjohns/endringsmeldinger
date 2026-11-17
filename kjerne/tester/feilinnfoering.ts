@@ -4073,7 +4073,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F720',
     feilklasse:
-      'et fristkrav sendt fra løsningen godtas med ett av vedleggene ved varselet etter punkt 33.4 i saken (#2142, VS-U73)',
+      'et fristkrav sendt fra løsningen godtas med ett av vedleggene ved varselet etter punkt 33.4 i saken (#2142, VS-U75)',
     fil: `${K}/spor/frist/kommando.ts`,
     endringer: [['.some((x) => vedleggene.has(x))', '.every((x) => vedleggene.has(x))']],
     mal: ['avvises også med ett av vedleggene ved varselet etter punkt 33.4'],
