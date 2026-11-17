@@ -24,6 +24,7 @@ import {
   kilden,
   kraveneErAvgjort,
   sporetErLukket,
+  svarIkkeGodtatt,
   venterPaaSvar,
   vurdertVedRegistreringen,
   type Enighet,
@@ -198,6 +199,18 @@ export const avsluttetAvTe = (u: Utledning): boolean =>
  */
 export const kravetStaar = (u: Utledning, spor: Kravspor): boolean =>
   u.forstaatt && u.spor[spor].gjeldendeKrav !== null && !u.spor[spor].trukket && !avsluttetAvTe(u);
+
+/**
+ * Akseptfristen i byggherrens gjeldende svar i sporet, med brevet, så lenge TE kan godta svaret
+ * (`svarIkkeGodtatt`, MM-U24): det er ikke godtatt, kravet er ikke trukket, og saken er ikke
+ * lukket (HF-U23 punkt 4, 6 og 9, GR-U8, GR-U27). Ellers `null`.
+ */
+export function akseptfristen(u: Utledning, spor: Kravspor): { brev: string; dato: string } | null {
+  const s = u.spor[spor].gjeldendeSvar;
+  return s?.akseptfrist && svarIkkeGodtatt(u, spor)
+    ? { brev: s.dokument, dato: s.akseptfrist }
+    : null;
+}
 
 /** MM-U30: sporets betegnelse, eller `null` når ingen av dem foreligger. */
 export function betegnelse(u: Utledning, spor: Spor): Betegnelse | null {

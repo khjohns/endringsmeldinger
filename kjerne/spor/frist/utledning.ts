@@ -152,6 +152,22 @@ export function fristkravErFremmet(u: Utledning): boolean {
 }
 
 /**
+ * FO-U1: byggherren har prinsipalt avslått dager for en frist i svaret på kravet som gjelder, også
+ * gjennom forholdet: svaret er subsidiært til et avslag av forholdet, eller det første laget i
+ * fristen gir færre dager enn kravet (U-6 og D-12 i BF-45). Om TE kan godta avslaget, leser
+ * visningen av handlingen `godta:frist`.
+ */
+export function prinsipaltAvslaatteDager(u: Utledning): boolean {
+  const { gjeldendeKrav: krav, gjeldendeSvar: svar, subsidiaer } = u.spor.frist;
+  if (!krav || svar?.gjelder !== krav.id) return false;
+  if (subsidiaer.length) return true;
+  const krevd = new Map(innholdIFristen(krav).frister.map((f) => [f.id, f.dager]));
+  return utregningIFristen(svar.utregning).frister.some(
+    (r) => r.godkjent_dager < (krevd.get(r.gjelder) ?? 0)
+  );
+}
+
+/**
  * Dagene i én sak for en frist i fristtabellen (GFK-U26), med grunnlaget for dem:
  * - `avtalt`: dagene i en enighet om byggherrens gjeldende svar, også en betinget enighet (GR-U39)
  *   og en enighet ved sammenfall (GR-U7, GR-U38);

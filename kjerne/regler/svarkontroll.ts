@@ -6,6 +6,7 @@
  */
 
 import { UgyldigVurdering } from './feil.ts';
+import { kanFrafalle } from './forhold.ts';
 import { mangler } from './typer.ts';
 import type { Regelsett } from './regelsett.ts';
 
@@ -21,15 +22,25 @@ export function kontrollerForholdet(
   if (!regler.gyldigeForholdsresultater(hovedkategori, underkategori).includes(resultat))
     feil.resultat = `«${String(v.resultat)}» kan ikke velges i denne kategorien (punkt 32.3 første ledd c)`;
   const iTide = v.grunnlag_varslet_i_tide;
-  if (regler.gjelderVarslingsplikten(hovedkategori, underkategori)) {
+  const varslingsplikt = regler.gjelderVarslingsplikten(hovedkategori, underkategori);
+  if (varslingsplikt) {
     if (typeof iTide !== 'boolean') feil.grunnlag_varslet_i_tide = 'mangler (punkt 32.2)';
-    // #235: frafall skjer mot endringsordre og kan ikke kombineres med preklusjon.
-    else if (v.resultat === 'paalegg_frafalt' && !iTide)
-      feil.grunnlag_varslet_i_tide =
-        'frafall kan ikke kombineres med at grunnlaget er varslet for sent';
   } else if (iTide !== undefined) {
     feil.grunnlag_varslet_i_tide = 'gjelder bare punkt 32.2';
   }
+  if (
+    v.resultat === 'paalegg_frafalt' &&
+    !feil.resultat &&
+    !kanFrafalle(
+      {
+        varslingsplikt,
+        resultater: regler.gyldigeForholdsresultater(hovedkategori, underkategori),
+      },
+      iTide === false
+    )
+  )
+    feil.grunnlag_varslet_i_tide =
+      'frafall kan ikke kombineres med at grunnlaget er varslet for sent';
   if (Object.keys(feil).length) throw new UgyldigVurdering(feil);
 }
 

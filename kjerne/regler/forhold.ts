@@ -55,6 +55,16 @@ export function gyldigeResultater(
     : resultater;
 }
 
+/**
+ * Vedtaket 05.10 for #235 og GR-U18: byggherren kan frafalle pålegget når kategorien gir frafall
+ * (`gyldigeResultater`), og ikke sammen med at varselet etter § 32.2 kom for sent. Kontrollen av
+ * svaret (`kontrollerForholdet`) og svarskjemaet i Varden leser det herfra (#2120).
+ */
+export const kanFrafalle = (
+  f: { varslingsplikt: boolean; resultater: readonly string[] },
+  forSent: boolean
+): boolean => f.resultater.includes('paalegg_frafalt') && !(f.varslingsplikt && forSent);
+
 export type Subsidiaergrunn = 'avslaatt' | 'prekludert';
 
 /** M1: standpunktet i et svar på vederlag eller frist, utledet av forholdet. */
