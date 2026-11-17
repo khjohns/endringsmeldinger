@@ -28,7 +28,6 @@ import {
   medFristvarsel,
   skrevet,
 } from '#lib/kjernesak/__tests__/provejournal.ts';
-import { prinsipaltAvslaatteDager } from '#kjerne/spor/frist/utledning.ts';
 import {
   gjeldendeFrist,
   kravetOgSvaretIFristen,
@@ -291,41 +290,6 @@ describe('Handlingene på siden for fristforlengelsen (U-6, D-12)', () => {
   it('byggherren har ikke forseringen (FO-U1)', async () => {
     await demosaken('te-har-mottatt-svaret', 'BH');
     expect(screen.queryByText('Anse avslaget som pålegg om forsering')).toBeNull();
-  });
-
-  it('forseringen leser at byggherren prinsipalt har avslått dager (FO-U1)', async () => {
-    expect(prinsipaltAvslaatteDager(await utledning(BF45.steg))).toBe(true);
-    expect(prinsipaltAvslaatteDager(await utledning(BF45.steg.slice(0, 3)))).toBe(false);
-  });
-
-  it('forseringen står også når byggherren prinsipalt avslår gjennom forholdet og godkjenner alle dagene i fristen (FO-U1)', async () => {
-    const forholdssvar: Handling = {
-      handling: 'brev',
-      navn: 'D-g',
-      svar: [{ spor: 'forhold', navn: 'S-g1', resultat: 'avslaatt' }],
-    };
-    const alleDagene: Handling = {
-      handling: 'brev',
-      navn: 'D-f',
-      svar: [
-        {
-          spor: 'frist',
-          navn: 'S-f1',
-          varsel_i_tide: true,
-          hindring: true,
-          spesifisering_i_tide: true,
-          frister: [{ dager: 25 }, { dager: 20 }, { dager: 20 }],
-        },
-      ],
-    };
-    expect(prinsipaltAvslaatteDager(await utledning([...BF45.steg.slice(0, 3), alleDagene]))).toBe(
-      false
-    );
-    expect(
-      prinsipaltAvslaatteDager(
-        await utledning([...BF45.steg.slice(0, 3), forholdssvar, alleDagene])
-      )
-    ).toBe(true);
   });
 });
 

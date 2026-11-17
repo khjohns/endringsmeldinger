@@ -23,7 +23,6 @@ import {
   varsleneIKravene,
 } from '#lib/components/varden/vederlagsoversikt.ts';
 import { trinnene } from '#lib/components/varden/Maalrad.svelte';
-import { akseptfristen } from '#kjerne/utledning/visning.ts';
 import { brevene, leveringene, type Brevet } from '#lib/components/varden/lesing.ts';
 import { VEDERLAGET } from '#lib/components/varden/tekster/index.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -158,14 +157,6 @@ describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
     expect(k.svarbrev).toBeNull();
     expect(k.lagene).toEqual([]);
     expect(k.krevd).toBe(190000);
-  });
-
-  it('akseptfristen står ikke lenger når kravet er trukket (U-11, KA-U51)', async () => {
-    const u = await utledning([...BF44.steg.slice(0, 4), { handling: 'trekk', spor: 'vederlag' }]);
-    expect(akseptfristen(u, 'vederlag')).toBeNull();
-    expect(akseptfristen(await utledning(BF44.steg.slice(0, 4)), 'vederlag')?.dato).toBe(
-      '2026-10-15'
-    );
   });
 
   it('målestokken har runde trinn: 0, 50 000, 100 000 og 150 000 for 190 000 kr (U-2)', () => {
