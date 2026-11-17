@@ -24,6 +24,7 @@ import {
   lagret,
   MAPPE,
   sammenliknbar,
+  stemmer,
   somForloep,
   vedtakIBestilling,
   type Brukerforloep,
@@ -285,6 +286,15 @@ describe('vakttestene for brukerforløpene', () => {
     expect(sammenliknbar('startjournaler.json', nyVersjon)).toBe(
       sammenliknbar('startjournaler.json', innhold)
     );
+    // `--skriv` lar fila være når bare regelversjonen er ny.
+    expect(stemmer('startjournaler.json', nyVersjon)).toBe(true);
+    expect(
+      sammenliknbar(
+        'startjournaler.json',
+        innhold.replace('"linje": "Byggherrens standpunkt: godkjent."', '"linje": "Annen linje."')
+      ),
+      'kontrollsak: feltet ved siden av regelversjonen'
+    ).not.toBe(sammenliknbar('startjournaler.json', innhold));
     expect(
       sammenliknbar('startjournaler.json', innhold.replace('"versjon": 1,', '"versjon": 2,')),
       'kontrollsak'
