@@ -35,8 +35,9 @@ Beholde inter som font.» Oslo-logoen er fast.
   - `--brand` er handling: primærknappen og valgt svar. Valgt svar har også flaten
     `--surface-selected`. I det mørke panelet markeres valgt spor med `--sidebar-active`.
   - `--draft` er utkast: det som ikke er sendt. Utkastet har
-    stiplet kant rundt hele kortet og `--draft-bg` i hodet, så det aldri ser ut som et
-    sendt brev. Ingenting annet er gult.
+    stiplet kant rundt hele arket og stempelet «Utkast · ikke sendt» med `--draft-bg`, så det
+    aldri ser ut som et sendt brev. Når utkastet vises til på oversikten, kan kortet ha
+    `--draft-bg` i hodet (oppdragsgiver 17.11, #2163). Ingenting annet er gult.
   - `--control-focus` er fokus og ingenting annet.
   - `--danger` er feil.
 - **Subsidiært får ingen farge.** Det skilles med tekst og form (#197).
@@ -82,8 +83,8 @@ feltkanten fra #1258.
   [`fargetokens.test.ts`](../src/lib/fargetokens.test.ts) feiler under kravet for
   flatene den lister i `FLATER`, ikke for andre flater eller lokale overstyringer.
 - **Kanter, ikke skygger.** Strukturen tegnes med `--rule`, `--rule-subtle` og
-  `--rule-strong`. Skygger (`--overlay-shadow-sm`) brukes bare på overlegg, som infotipset og
-  lappen i sakslisten.
+  `--rule-strong`. Skygger (`--overlay-shadow-sm`) brukes bare på overlegg, som lappen i
+  sakslisten.
 
 ## Typografi
 
@@ -127,8 +128,10 @@ Skriftene ble valgt 07.11 (oppdragsgiver), etter en sammenligning av fire brevsk
   arbeidet under 860 px, som i prototypene (#1461).
   En tabell ruller ikke vannrett. Under 720 px står navnet på raden over verdiene sine, så alle
   kolonnene er synlige ([U-2 i BF-44](../docs/domenetabell/brukerforlop/BF-44.md#u-2)).
-- **Radius betyr noe** (#1402). Bare knappene er runde,
-  som piller (`--r-knapp`), så en handling skiller seg fra alt annet. Kort og brev har
+- **Radius betyr noe** (#1402). Knappene har 6 px (`--r-knapp`), som bokser inne i et kort,
+  og en handling skilles med fyllet: svart for primærhandlingen og ramme for den sekundære
+  (oppdragsgiver 17.11, #2163, skissen
+  [brevtraaden.html](../docs/design/prototyper/brevtraaden.html)). Kort og brev har
   samme radius, 12 px (`--r-kort`): det gir ro på store flater, og brevet ser ikke
   annerledes ut enn kortene ved siden av. Merker og stempler, som «Registrert»,
   «Inngår i EO-012» og «Sendt …», har 2 px (`--r-merke`), så de leses som merker på et
@@ -191,10 +194,19 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   en dato med kalenderikonet, og et nummer eller en dato for endringsordren har et
   kort felt. Løpende tekst, som en tittel eller en beskrivelse, har full bredde
   (#1492).
-- **Korte valg, som nei og ja, står ved siden av hverandre.** Om to eller tre får
-  plass på én linje, vurderes i hvert tilfelle. Alternativer som ville brytes ujevnt
-  ved siden av hverandre, står under hverandre i kort med lik bredde, så de leses som
-  en liste (#1492).
+- **Valgene står under hverandre**, i kort med lik bredde, så de leses som en liste
+  (#1492). Unntaket er to korte svar som speiler hverandre, som «Ja» og «Nei» eller
+  «Varslet i tide» og «Varslet for sent». De står ved siden av hverandre. Tre valg, og
+  valg med komma i teksten, står alltid under hverandre. «Ja» står før «Nei»
+  (oppdragsgiver 17.11, #2163).
+- **Formen på et valg følger hva svaret betyr** (oppdragsgiver 17.11, #2163):
+  - Har begge svarene virkning, og skal skjemaet ikke svare for parten, er valget radioknapper
+    uten forhåndsvalg. Et eksempel er «Kom varselet i tide?» i byggherrens svar.
+  - Finnes det et normalsvar, er valget en setning med en lenke til unntaket (se «Normalsvaret
+    er en setning, unntaket en lenke»).
+  - Én bekreftelse er en avkrysning, som «Jeg har kontrollert brevet».
+  - Et valg som åpner et felt, er radioknapper med feltet under det valgte svaret.
+  - Mange alternativer får en velger med søk og grupper, som forholdene.
 - **Et valgfritt felt har «Valgfri» til høyre på linja med labelen**, som dempet tekst i 14 px
   (`varden/Valgfri.svelte`, som `Feltetikett` og `Valg` bruker, oppdragsgiver 16.11). Ordet
   står ikke i labelen, og skjermleseren leser «<label>, Valgfri». Obligatoriske felt har
@@ -206,7 +218,7 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   et ubesvart element står åpent til det er besvart. Lesing og redigering får hver sin form, og
   den rolige tilstanden er den som vises mest. Prototypen er
   [vederlagskrav-te-v3.html](../docs/design/prototyper/vederlagskrav-te-v3.html).
-- **To vekter på et valg** (#1663). Pillen med ramme står for et
+- **To vekter på et valg** (#1663). Kortet med ramme står for et
   standpunkt på seksjonsnivå, som «Kom i tide» og «Kom for sent». Inne i et åpent element er
   valget radio og tekst, og bare det valgte svaret får flaten `--surface-selected`. Et valg med
   én forklaring per alternativ, som oppgjørsformen, står som kort under hverandre.
@@ -228,6 +240,21 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   forsvinner når feltet er rettet. Når kontrollen skjer, og hva som vises øverst i
   skjemaet, står i [MM-U32](#mm-u32). En feil fra serveren beklager og sier hva parten kan gjøre;
   en feil i utfyllingen går rett på sak. Ingen feilmelding i en egen dialog.
+- **En feil har én form** (oppdragsgiver 17.11, #2163, skissen
+  [feilmeldingene.html](../docs/design/prototyper/feilmeldingene.html)). Det gjelder lista over det
+  som mangler, en sending som feiler og en sak som ikke kan hentes:
+  - Kanten til venstre og ikonet er i `--danger`. Flaten er nøytral. Ikonet gjør at fargen aldri
+    står alene. En informasjonsmelding har ikke ikon.
+  - Tittelen i halvfet sier hva som skjedde, som «Brevet ble ikke sendt». Linja under sier hvorfor,
+    og så hva parten kan gjøre, som en lenke eller et råd.
+  - Visningen eier teksten for hver feilkode, og viser ikke serverens melding direkte.
+  - Et usikkert utfall er ikke en feil. Kanten er i blekk, tittelen er «Vi vet ikke om brevet ble
+    sendt», og knappen er «Prøv å sende igjen».
+  - Når brevet er sendt, byttes stempelet «Utkast · ikke sendt» med et heltrukket «Sendt <dato>
+    kl. <tid>» på samme sted, og én linje under bekrefter det.
+  - En sak som ikke kan hentes, står på arket, innenfor kantene til arbeidsflaten. Kan saken ikke
+    leses fordi den ikke finnes eller parten ikke har tilgang, sier siden begge deler, uten å skille
+    dem, og har bare «Til sakslisten».
 
 ## Ordene i visningen
 
@@ -332,9 +359,10 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   fordi løsningen ikke vet det (#1402).
 - **Hvordan løsningen virker, forklares ikke ved feltene.** Setninger som «Teksten tolkes
   ikke» og «Innholdet vurderes ikke» står ikke i flaten. Slike forklaringer hører på en
-  egen side om løsningen eller i et infotips (#1402). Setninger om hva
+  egen side om løsningen (#1402). Varden har ingen infotips, heller ikke som ikon i hodet på et
+  skjema (oppdragsgiver 17.11, #2163). Setninger om hva
   løsningen ikke avgjør, som «Om varselet kom i tide, avgjør partene», står ikke i appen i det
-  hele tatt, heller ikke i et infotips (#1663: «slik informasjon kan
+  hele tatt (#1663: «slik informasjon kan
   fjernes. Høres generelt ikke hjemme i appen»).
 - **Én primærhandling per skjerm** (`Knapp` med `variant="primaer"`). I svaret er det
   «Se brevet før sending», bare i panelet med hovedlinjene og fast i bunnen av
@@ -345,7 +373,8 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   sendt (`Tidslinje` med `utfylt`). Datoene står ikke i panelet. Panelet står fast. I
   skjemaet for ny sak står tidslinja også fast, rett under panelet, når begge får plass i
   vinduet. Ellers ruller den under panelet (#1492).
-- **Unntak: den nye versjonen av påberopelsen.** Arbeidsflaten har to roller (PR 1650):
+- **Unntak: den nye versjonen av påberopelsen.** Arbeidsflaten har to roller (PR 1650). Den gule
+  arbeidsraden under erstattes av «Utkastet er brevet mens det skrives» når det bygges (#2178):
   - En gul arbeidsrad med stiplet kant over begge kolonnene følger rullingen, unntatt på 640 px
     og smalere, der den ligger fast (PR 1650) (`Utkastrad`):
     «Tilbake til forholdet», skilt fra resten med en linje, siden sakslisten er felt inn, «Utkast»,
@@ -380,11 +409,33 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   for ny sak har «Avbryt» på lenken (S2 i #1414), en egen tittel og tekst og de samme knappene
   (designvalget 17.11 i #2119). Rødt på en knapp står bare der handlingen ikke kan gjøres om, og teksten sier det
   (PR 1650, #1925, #2119).
-- **Utkastet sier det selv.** Hodet på utkastkortet sier «Utkast · ikke sendt». Det sier ikke at
+- **Utkastet er brevet mens det skrives** (oppdragsgiver 17.11, #2163, prototypen
+  [utkastet-som-brev.html](../docs/design/prototyper/utkastet-som-brev.html)). Det gule er
+  krympet til stempelet «Utkast · ikke sendt» oppe til høyre i brevhodet, der det sendte brevet
+  får «Sendt …», og arket har stiplet kant. I skjemaet står brevhodet foldet sammen til
+  tittelen i avsenderens brevskrift og én linje med referansene, og hele brevhodet står i
+  brevkontrollen. Seksjonene er punktene i brevet, med samme nummer, og et punkt uten arbeid
+  står som én dempet linje. Punktet som venter på svar, har blekkstreken til venstre og
+  spørsmålet i 20 px. Skjemaet slutter med hilsenen. «Tilbake» står over arket, på samme sted i
+  skjemaet og brevkontrollen, og stegviseren («Skriv brevet», «Kontroller og send») øverst i
+  panelet. Panelet med hovedlinjene heter «Punktene i brevet», og tidslinja står under det som
+  før, selv om prototypen ikke viser den. Det erstatter det gule hodet på utkastkortet og arbeidsraden (`Utkastrad`) når det
+  bygges.
+- **Brevkontrollen er lik for alle brevene** (oppdragsgiver 17.11, #2163, versjon 4 av prototypen).
+  - Brevet står til venstre, med brevhodet og stempelet på samme sted som i skjemaet.
+  - Panelet har stegviseren øverst, med «Kontroller og send» markert. Det har ingen egen
+    overskrift og ikke merket «Utkast».
+  - Under stegviseren står bare «Mottaker» og «Svarer på», fordi avsenderen er parten selv.
+    Partene står uten «(BH)» og «(TE)».
+  - «Punktene i brevet» har én linje per punkt, med samme nummer som brevet og skjemaet. Lista
+    gjentar ikke brevteksten.
+  - «Når du sender» står rett over avkrysningen, med kant i blekk på `--surface-inset`, og med én
+    påstand per setning. Det er der virkningen står, også den som før sto ved handlingen i tråden.
+  - Sendeknappen sier hvem brevet sendes til, kort: «Send til totalentreprenøren».
+- **Utkastet sier det selv.** Stempelet sier «Utkast · ikke sendt». Det sier ikke at
   brevet bare er synlig for teamet, fordi det er åpenbart for et utkast (oppdragsgiver 12.11 i
-  #1663). Sendepanelet i brevkontrollen, og panelet
-  med punktene i et langt skjema, sier «Utkast» og «Ikke sendt» ved knappen, så statusen står i
-  bildet også når hodet er rullet ut av det (#1663). Merket «Utkast» i panelet til venstre, og i sporraden der panelet er felt inn,
+  #1663). Panelet med punktene og sendepanelet i brevkontrollen har ikke merket «Utkast» ved
+  knappen (oppdragsgiver 17.11, #2163). Merket «Utkast» i panelet til venstre, og i sporraden der panelet er felt inn,
   vises bare når et annet spor er valgt, så statusen aldri står to steder samtidig.
 - **Lesing ved siden av** er én lenkeknapp som veksler mellom «Les brevet ved siden av»
   og «Lukk brevet». Rammen følger brevet og er høyst like høy som vinduet, så et
@@ -394,7 +445,7 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   når de bygges i oppsett B (U-16 i BF-44, #1898, #1906). Den står ved kravet når parten kan svare,
   og ved svaret når parten kan godta det eller sende en ny versjon. Hovedhandlingen er primærknappen,
   «Godta …» en sekundær knapp, og byggherrens «Send revidert svar» en lenkeknapp ved byggherrens
-  eget svar, med én linje under om hva de gjør. «Send innlegg» står øverst i tråden. «Legg til
+  eget svar, uten hjelpetekst (se «Brevene»). «Send innlegg» står øverst i tråden. «Legg til
   korrespondanse» står i et eget kort under «Andre handlinger», med én linje om hva som kan legges
   til (#807, oppdragsgiver 16.11). De sjeldne handlingene står i kortet «Andre handlinger» nederst, med trekket
   sist. Har handlingen ikke noe brev å stå ved, står den i et eget kort over «Andre
@@ -423,6 +474,13 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   Samme form gjelder der et krav måles mot et svar: kravet er åpent og det godkjente fylt, på samme
   skala med runde trinn ([U-2 i BF-44](../docs/domenetabell/brukerforlop/BF-44.md#u-2)).
   Raden for brevet som vises ved siden av, har en strek i blekk til venstre og sier det i tekst, ikke bare med en flate.
+  Datoen og brevnummeret står i én dempet linje over tittelen, i alle bredder, med «Les brevet»
+  eller «Vises til høyre» til høyre i samme linje. Innholdet bruker hele bredden ved siden av
+  ringen. Handlingene ved et brev står uten hjelpetekst: knappeteksten sier hva handlingen gjør,
+  og virkningen står i brevkontrollen under «Når du sender». Standpunktene i en rad følger
+  leselinja: det første laget leder, og lagene under er dempet og begynner med vilkåret
+  (oppdragsgiver 17.11, #2163, skissen
+  [brevtraaden.html](../docs/design/prototyper/brevtraaden.html); U-16 i BF-44 endres med dette).
   Under 1181 px åpnes brevet i raden, og knappen heter «Lukk brevet» (U-16 i BF-44). Rammen i
   høyre kolonne kan få fokus med tastaturet, fordi brevet ruller i den. Brevet i raden er ikke et
   eget tabstopp. Raden for et svar som ikke er registrert, har stiplet ring, fordi
@@ -438,6 +496,6 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   med initialene og navnet. Rollen står ikke der (#1631). Lenkene som gjelder hele prosjektet,
   «Nytt krav om endringsordre» for TE og «Ny endringsordre» for BH, står i topplinja ved
   «Åpne saken i Catenda», ikke i panelet (oppdragsgiver 13.11: «topplinja»).
-- **En melding om prøven**, som at et svar ikke kan gis i Varden, har ikon og en kant i
-  blekk (`--ink`) på `--surface-inset`. Den er ikke gul, fordi gult betyr utkast, og
+- **En melding om prøven**, som at et svar ikke kan gis i Varden, har en kant i
+  blekk (`--ink`) på `--surface-inset`, uten ikon («En feil har én form»). Den er ikke gul, fordi gult betyr utkast, og
   ikke rød, fordi den ikke er en feil.

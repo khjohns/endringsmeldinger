@@ -12,6 +12,11 @@ i Punkt og Oslo kommunes språkprofil.
 Rådene under er med egne ord.
 
 - Korte setninger som bærer én mening. Overskrifter sier hva siden gjelder.
+- Ett utsagn per setning. En presisering som henges på etter komma eller kolon, som i
+  «Varselet er gitt før, utenfor løsningen», skrives som en egen setning eller bygges inn i
+  hovedsetningen (#2163).
+- Bestemt form bare når leseren vet hva som menes. Første gang noe nevnes, heter det det det
+  er: «antall dager fristen skal forlenges», ikke «dagene» (#2163).
 - Ord brukeren kjenner. Kodenavn og interne fagbegreper, som «respons», vises ikke.
 - En feilmelding eller sperre sier hva som hindrer, og hva brukeren kan gjøre nå.
 - Feilmeldingene ved feltene har samme form: «<Verb> <feltet>.», for eksempel «Skriv tittelen.»,
