@@ -114,10 +114,6 @@ export const spoerOmTilbud = (p: Postvalg, post: Kravpost): boolean =>
 export const spoerOmVarselet = (p: Postvalg, post: Kravpost): boolean =>
   justerteEnhetspriser(post) || (post.oppgjoersform === 'regningsarbeid' && p.form === 'godtar');
 
-/** Om BH har tatt stilling til oppgjørsformen: godtar, mener en annen eller krever tilbud. */
-export const formBesvart = (p: Postvalg, post: Kravpost): boolean =>
-  p.form !== null || (spoerOmTilbud(p, post) && p.kreverTilbud);
-
 const VURDERING: Record<Beloepsvalg, string> = {
   hele: 'godkjent',
   deler: 'delvis',
