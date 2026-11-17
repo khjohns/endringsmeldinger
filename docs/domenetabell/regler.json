@@ -1340,11 +1340,11 @@
       "radetikett": "KA-U53: TE kan dele vederlagsjusteringen i flere kravposter, hver med beskrivelse og beløp"
     },
     {
-      "id": "OV-U95",
+      "id": "OV-U115",
       "type": "vedtak",
-      "dato": "2026-11-07",
-      "ref": "../plans/vedtak.md#ov-u95",
-      "radetikett": "OV-U95: Spørsmål 1: Samlevedtaket for vederlagsmetoden, versjon 2, gjelder med E8–E16"
+      "dato": "2026-11-17",
+      "ref": "../plans/vedtak.md#ov-u115",
+      "radetikett": "OV-U115: Utkastet til versjon 3 gjelder som samlevedtaket for vederlagsmetoden"
     },
     {
       "id": "VS-U48",
@@ -3850,7 +3850,7 @@
         "KA-U56",
         "KA-U75",
         "KA-U53",
-        "OV-U95"
+        "OV-U115"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [
@@ -3863,14 +3863,14 @@
     {
       "id": "KA-56",
       "tilfelle": "TE har sendt et vederlagskrav. Byggherren svarer med ett beløp for hele kravet, når kravet har én kravpost med fast sum, og når det har flere kravposter.",
-      "forventet": "Byggherren svarer per kravpost ([KA-U59](../plans/vedtak.md#ka-u59)). Et svar med ett beløp på et krav med flere kravposter avvises, og et svar på hver kravpost godtas. Et svar med ett beløp på et krav med én kravpost med fast sum godtas. En kravpost etter en beregningsregel får ikke et beløp i svaret ([OV-U95](../plans/vedtak.md#ov-u95) punkt 5). Til svaret på rigg og drift er bygget, avvises svaret på et krav med rigg og drift; det er en avgrensning i byggingen, ikke en forventning fra vedtaket.",
+      "forventet": "Byggherren svarer per kravpost ([KA-U59](../plans/vedtak.md#ka-u59)). Et svar med ett beløp på et krav med flere kravposter avvises, og et svar på hver kravpost godtas. Et svar med ett beløp på et krav med én kravpost med fast sum godtas. En kravpost etter en beregningsregel får ikke et beløp i svaret ([OV-U115](../plans/vedtak.md#ov-u115) punkt 5). Til svaret på rigg og drift er bygget, avvises svaret på et krav med rigg og drift; det er en avgrensning i byggingen, ikke en forventning fra vedtaket.",
       "bh_standpunkt": "Beløpsvurderingen av vederlagskravet.",
       "rettslig_virkning": "Avgjør ikke hva partene har avtalt. Samling av poster på tvers hører til endringsordren (KA-U59).",
       "rettidighet": "—",
       "tidsakse": "registrering",
       "kilder": [
         "KA-U59",
-        "OV-U95"
+        "OV-U115"
       ],
       "tolkningsstatus": "avklart_tolkning",
       "funksjoner": [

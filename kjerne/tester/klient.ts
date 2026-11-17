@@ -280,7 +280,7 @@ const INNHOLD = {
       ...(dato ? { [dato]: '2026-09-15' } : {}),
     };
   },
-  // Én kravpost med fast sum, P1, som følger med fra forrige versjon (OV-U95 punkt 19, arbeidsvalget 07.11 i domenetabellen).
+  // Én kravpost med fast sum, P1, som følger med fra forrige versjon (OV-U115 punkt 19, arbeidsvalget 07.11 i domenetabellen).
   // `kravposter` og `trekker` i handlingen gir kravpostene selv; `post` er betegnelsen til
   // en kravpost i en tidligere versjon, og kravposten sendes med dens id (KA-U56, KA-U75).
   // `produktivitet` er beløpet i posten etter § 34.1.3 annet ledd (OV-U89 punkt 6), bare i

@@ -32,7 +32,7 @@ export interface Kravpostsvar extends Postbeloep {
   gjelder: string;
   aksepterer?: boolean | null;
   /**
-   * Kravposten følger en beregningsregel, og svaret tar ikke stilling til et beløp (OV-U95
+   * Kravposten følger en beregningsregel, og svaret tar ikke stilling til et beløp (OV-U115
    * punkt 5). `varselForSent` er innsigelsen etter § 34.3.3 første ledd (VS-U4, VS-U56), og
    * `justering` standpunktet etter § 34.3.2, `null` uten standpunkt (KA-U68).
    */
@@ -524,7 +524,7 @@ export function kontrollerOppgjoersformen(
   else if (ubesvart.includes('oensket_oppgjoersform')) feil[felt] = `mangler når ${hva}`;
   else if (p.aksepterer !== false && p.oensket_oppgjoersform != null)
     feil[felt] = `gjelder bare når ${hva}`;
-  // OV-U95 punkt 1 og 5: byggherren mener ikke den beregningsregelen TE krever.
+  // OV-U115 punkt 1 og 5: byggherren mener ikke den beregningsregelen TE krever.
   else if (
     regel &&
     p.oensket_oppgjoersform != null &&

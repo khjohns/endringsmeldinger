@@ -26,7 +26,7 @@ export type Regel = Exclude<Oppgjoersform, 'tilbud'>;
 /**
  * Standpunktet til oppgjørsformen TE krever for kravposten: `godtar` den, eller mener en annen
  * (§ 34.2.2, KA-U57 (d)). For en kravpost etter en beregningsregel kan BH ikke mene fast sum
- * (OV-U95 punkt 1 og 5).
+ * (OV-U115 punkt 1 og 5).
  */
 export type Formvalg = 'godtar' | 'enhetspriser' | 'regningsarbeid';
 
