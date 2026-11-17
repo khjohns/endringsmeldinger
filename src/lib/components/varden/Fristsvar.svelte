@@ -21,7 +21,7 @@
   import Postliste from './Postliste.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
-  import Tallfelt from './Tallfelt.svelte';
+  import Linjefelt from './Linjefelt.svelte';
   import Valg from './Valg.svelte';
   import Varseldatoer from './Varseldatoer.svelte';
   import {
@@ -318,11 +318,12 @@
               liste={spesifiseringslagene}
               punkt={forutsetning}
             />
-            <Tallfelt
+            <Linjefelt
               {id}
               etikett={FRISTSVAR.maatteForstaaEtikett}
               hjelp={FRISTSVAR.maatteForstaaHjelp(f.dager)}
               enhet="dager"
+              bredde="tall"
               inputmode="numeric"
               bind:verdi={v.maatteForstaa}
               feil={mFeil}
@@ -359,11 +360,12 @@
              valget. -->
         {@const id = `${uid}-deldager-${f.id}`}
         {@const dFeil = feil(id)}
-        <Tallfelt
+        <Linjefelt
           {id}
           etikett={FRISTSVAR.deldagerEtikett}
           hjelp={FRISTSVAR.deldagerHjelp}
           enhet="dager"
+          bredde="tall"
           inputmode="numeric"
           bind:verdi={
             () => godkjenteDagerIFeltet(v, f.dager), (t) => skrivGodkjenteDager(v, t, f.dager)

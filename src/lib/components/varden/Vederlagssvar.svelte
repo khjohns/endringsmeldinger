@@ -23,7 +23,7 @@
   import Postliste from './Postliste.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
-  import Tallfelt from './Tallfelt.svelte';
+  import Linjefelt from './Linjefelt.svelte';
   import Valg from './Valg.svelte';
   import Varseldatoer from './Varseldatoer.svelte';
   import {
@@ -345,11 +345,12 @@
       {/if}
       {#if beloepsvalget(v, p) === 'deler'}
         {@const id = `${uid}-delbeloep-${p.betegnelse}`}
-        <Tallfelt
+        <Linjefelt
           {id}
           etikett={SKJEMA.belopEtikett}
           hjelp={SKJEMA.belopHjelp(krevdI(p))}
           enhet="kr"
+          bredde="tall"
           inputmode="decimal"
           bind:verdi={v.delbeloep}
           feil={beloepFeil}
