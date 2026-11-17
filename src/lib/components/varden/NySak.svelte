@@ -25,7 +25,7 @@
   import Korrespondansen from './Korrespondansen.svelte';
   import Datofelt from './Datofelt.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
-  import Tallfelt from './Tallfelt.svelte';
+  import Linjefelt from './Linjefelt.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import { faarPlass } from './fastlinje.svelte';
@@ -426,7 +426,7 @@
             </p>
           </fieldset>
 
-          <Tallfelt
+          <Linjefelt
             id={id('tittel')}
             etikett={NYSAK.sakstittel}
             hjelp={NYSAK.sakstittelHjelp}
@@ -461,7 +461,7 @@
           {/if}
 
           {#if felt.endringsordre}
-            <Tallfelt
+            <Linjefelt
               id={id('endringsordre')}
               etikett={NYSAK.endringsordre}
               hjelp={NYSAK.endringsordreHjelp}

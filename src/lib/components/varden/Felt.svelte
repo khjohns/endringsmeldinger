@@ -1,6 +1,6 @@
 <!--
   Rammen rundt et felt i skjemaene: labelen over, hjelpeteksten under labelen, feltet og
-  feilmeldingen under (system.md, «Feltene står under hverandre», #2119). `Tallfelt`,
+  feilmeldingen under (system.md, «Feltene står under hverandre», #2119). `Linjefelt`,
   `Tekstomraade` og `Datofelt` legger feltet i den, og `beskrevetAv` gir feltet ID-ene til
   hjelpeteksten og feilen.
 -->

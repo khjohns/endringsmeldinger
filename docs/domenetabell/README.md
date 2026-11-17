@@ -333,6 +333,14 @@ av [KA-U71](../plans/vedtak.md#ka-u71).
 | 4. **Byggherren har ikke et eget strukturert svar på et varsel etter punkt 34.4 som står alene.** | [VS-U48](../plans/vedtak.md#vs-u48), OV-U115 punkt 11, KA-U64 |
 | 5. **Byggherren tar stilling per kravpost i svaret på kravet, også når byggherren har svart på varselet før.** | KA-U57 (d), HF-U28, [MM-U50](../plans/vedtak.md#mm-u50), [HF-U25](../plans/vedtak.md#hf-u25) punkt 8 |
 
+### Navn i visningen
+
+Komponentene i `src/lib/components/varden/`. Navnene er ikke lagret og kan byttes.
+
+| Før | Etter | Hvorfor |
+| --- | --- | --- |
+| `Tallfelt` | `Linjefelt` | Feltet på én linje brukes også for tekst, som tittelen og endringsordren i skjemaet for ny sak og beskrivelsen i kravposten (#2150) |
+
 ## Tabellen
 
 Skrevet av `python3 docs/verktoy/domenetabell.py --skriv`. Rett i JSON-filene,
