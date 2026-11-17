@@ -56,9 +56,8 @@ export function gyldigeResultater(
 }
 
 /**
- * Vedtaket 05.10 for #235 og GR-U18: byggherren kan frafalle pålegget når kategorien gir frafall
- * (`gyldigeResultater`), og ikke sammen med at varselet etter § 32.2 kom for sent. Kontrollen av
- * svaret (`kontrollerForholdet`) og svarskjemaet i Varden leser det herfra (#2120).
+ * Vedtaket 05.10 for #235 og GR-U18: om byggherren kan frafalle pålegget, med `forSent` når
+ * varselet etter § 32.2 er påberopt for sent.
  */
 export const kanFrafalle = (
   f: { varslingsplikt: boolean; resultater: readonly string[] },
