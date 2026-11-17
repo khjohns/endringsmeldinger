@@ -19,7 +19,7 @@
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Knapp from './Knapp.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
-  import type { Mangel } from './mangler';
+  import { fokuser, type Mangel } from './mangler';
   import { sendeflyt } from './sendeflyt.svelte';
   import Melding from './Melding.svelte';
   import Tallfelt from './Tallfelt.svelte';
@@ -269,8 +269,7 @@
   }
   async function lukk(p: Fristpostvalg) {
     aapen = null;
-    await tick();
-    document.getElementById(id(`endre-${p.noekkel}`))?.focus();
+    await fokuser(() => document.getElementById(id(`endre-${p.noekkel}`)));
   }
   async function leggTil() {
     const p = nyFristpost();
@@ -281,8 +280,7 @@
     const i = v.frister.indexOf(p);
     v.frister.splice(i, 1);
     aapen = null;
-    await tick();
-    document.getElementById(id('legg-til'))?.focus();
+    await fokuser(() => document.getElementById(id('legg-til')));
   }
   async function trekk(p: Fristpostvalg) {
     p.trukket = !p.trukket;
@@ -332,8 +330,7 @@
     const { kilde, senere } = snarvei;
     const nye = senere.map((f) => ({ ...nyFristpost(), frist: f.fristId, dager: kilde.dager }));
     v.frister.push(...nye);
-    await tick();
-    document.getElementById(id(`endre-${nye[0]!.noekkel}`))?.focus();
+    await fokuser(() => document.getElementById(id(`endre-${nye[0]!.noekkel}`)));
   }
 
   // Fristene i tidslinja med ny dato, i den rekkefølgen de får hvis kravet godtas (U-5, U-2).

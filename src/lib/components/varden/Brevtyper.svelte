@@ -15,6 +15,7 @@
     bygget,
     tekstFor = () => null,
     beskrivelseFor = () => null,
+    beskrevetAv = () => undefined,
     onvelg,
   }: {
     /** Overskriften over lista, eller ingen når lista er alt kortet har. */
@@ -27,6 +28,8 @@
     tekstFor?: (noekkel: string) => string | null;
     /** Linja under teksten: hva handlingen gjør med saken. */
     beskrivelseFor?: (noekkel: string) => string | null;
+    /** ID-en til tekst utenfor lista som beskriver knappen, som en hindring for handlingen. */
+    beskrevetAv?: (noekkel: string) => string | undefined;
     onvelg: (noekkel: string) => void;
   } = $props();
 
@@ -65,8 +68,11 @@
       {#each rader as r (r.noekkel)}
         <li data-handling={r.noekkel}>
           {#if r.bygget}
-            <button type="button" class="rad" onclick={() => onvelg(r.noekkel)}
-              >{@render innhold(r)}</button
+            <button
+              type="button"
+              class="rad"
+              aria-describedby={beskrevetAv(r.noekkel)}
+              onclick={() => onvelg(r.noekkel)}>{@render innhold(r)}</button
             >
           {:else}
             <button type="button" class="rad" onclick={() => (ikkeBygget = r.noekkel)}

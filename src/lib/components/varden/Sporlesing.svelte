@@ -7,12 +7,11 @@
 -->
 <script lang="ts">
   import { ArrowRight } from 'lucide-svelte';
-  import { tick, type Component } from 'svelte';
+  import type { Component } from 'svelte';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import { brevaarsak } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Part, Spor } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
-  import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
+  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brevpanel from './Brevpanel.svelte';
   import Brevtyper from './Brevtyper.svelte';
@@ -23,6 +22,8 @@
   import Vederlagsoversikt from './Vederlagsoversikt.svelte';
   import { prinsipaltAvslaatteDager } from './fristoversikt';
   import { aksepten } from './kommandoer';
+  import { fokuser } from './mangler';
+  import { sendeflyt } from './sendeflyt.svelte';
   import { medietreff, SMAL } from './medie.svelte';
   import {
     betegnelsene,
@@ -240,11 +241,12 @@
       return;
     }
     lest = id;
-    await tick();
-    if (!smal) document.querySelector<HTMLElement>(`[data-brevpanel="${id}"]`)?.focus();
+    await fokuser(() =>
+      smal ? null : document.querySelector<HTMLElement>(`[data-brevpanel="${id}"]`)
+    );
   }
 
-  let hindring = $state<string | null>(null);
+  const flyt = sendeflyt(() => kjernesak, `${uid}-hindring`);
 
   const akseptkommando = $derived(
     kanGodta && svaret ? aksepten(spor, svaret.id, kjernesak.regelversjon) : null
@@ -291,23 +293,24 @@
     ];
   }
 
+  /** Hindringen for aksepten, som knappen som åpner den, viser til. */
+  const hindringFor = (n: string) =>
+    n === `godta:${spor}` && flyt.hindring ? flyt.hindringId : undefined;
+
   function velg(n: string) {
-    hindring = null;
+    flyt.kontroller(null);
     if (n === `godta:${spor}`) seAksepten();
     else onvelg(n);
   }
 
   function seAksepten() {
-    const b = kjernesak.brev(akseptkommando!, undefined, true);
-    const brevet = kontrollbrev(b);
-    if (!brevet) {
-      hindring = (b && brevaarsak(b)) ?? STILLING.godta;
-      return;
-    }
-    onakseptbrev({
-      kommando: akseptkommando!,
-      ...brevet,
-      virkninger: akseptensVirkning(),
+    const kommando = akseptkommando!;
+    void flyt.send({
+      mangler: null,
+      kommando,
+      kanIkkeLages: STILLING.godta,
+      tilBrevkontrollen: (brevet) =>
+        onakseptbrev({ kommando, ...brevet, virkninger: akseptensVirkning() }),
     });
   }
 </script>
@@ -319,6 +322,7 @@
     {bygget}
     tekstFor={innsigelsestekst}
     beskrivelseFor={virkningen}
+    beskrevetAv={hindringFor}
     onvelg={velg}
   />
 {/snippet}
@@ -364,8 +368,12 @@
   ]
     .filter(Boolean)
     .join(' ')}
+  {@const vedbrevet = linje ? `${uid}-vedbrevet` : undefined}
+  <!-- Hindringen kommer fra aksepten, som bare «Godta» åpner. -->
+  {@const medHindring =
+    [vedbrevet, hindringFor(`godta:${spor}`)].filter(Boolean).join(' ') || undefined}
   <div class="knapper">
-    {#if primaer}{@render primaerknapp(primaer, linje ? `${uid}-vedbrevet` : undefined)}{/if}
+    {#if primaer}{@render primaerknapp(primaer, vedbrevet)}{/if}
     {#if revidere}
       {@const r = revidere}
       <!-- Kantstilt med linja under og i samme størrelse, som i prototypene (#2000). -->
@@ -373,20 +381,21 @@
         variant="lenke"
         kompakt
         onclick={() => (bygget.includes(r) ? velg(r) : (primaerIkkeBygget = true))}
-        aria-describedby={linje ? `${uid}-vedbrevet` : undefined}
+        aria-describedby={vedbrevet}
         >{innsigelsestekst(r) ?? BREVTYPER.find((b) => b.type === 'revidere')!.tekst}</Knapp
       >
     {/if}
     {#if godtaVedBrevet}
-      <Knapp
-        onclick={() => velg(`godta:${spor}`)}
-        aria-describedby={linje ? `${uid}-vedbrevet` : undefined}>{HANDLINGENE.godta(avslag)}</Knapp
+      <Knapp onclick={() => velg(`godta:${spor}`)} aria-describedby={medHindring}
+        >{HANDLINGENE.godta(avslag)}</Knapp
       >
     {/if}
   </div>
   {#if linje}<p class="dempet" id={`${uid}-vedbrevet`}>{linje}</p>{/if}
   {@render ikkeBygget()}
-  {#if hindring}<Melding art="feil">{hindring}</Melding>{/if}
+  {#if flyt.hindring}
+    <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1">{flyt.hindring}</Melding>
+  {/if}
 {/snippet}
 
 {#snippet lestBrevet(b: Brevet)}
@@ -410,7 +419,7 @@
       brevet={lestBrevet}
       {levering}
     />
-    {#if handlingVed === null && (primaer || hindring)}
+    {#if handlingVed === null && (primaer || flyt.hindring)}
       <!-- Uten et brev å stå ved står handlingen over de andre, så den aldri faller bort. -->
       <section class="kort andre" aria-label={FORHOLDET.handlinger}>
         {@render vedBrevet()}
