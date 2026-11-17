@@ -643,7 +643,9 @@ function ugyldigIVederlaget(
  * Lagene i et svarutkast på vederlag, også før alle spørsmålene er besvart (OV-U33, #1925). Hvert
  * standpunkt står i laget én av tre utfyllinger av de ubesvarte spørsmålene gir det:
  * - beløpet og varselet etter § 34.1.2 og § 34.1.3: en ubesvart beregningsregel regnes som
- *   godtatt (#1756 punkt 1), og et ubesvart varsel gir ikke noe standpunkt (S1-A);
+ *   godtatt (#1756 punkt 1), et ubesvart varsel gir ikke noe standpunkt (S1-A), og en
+ *   oppgjørsform byggherren mener som ikke er valgt, fylles ut med en regel byggherren kan mene
+ *   (#2140);
  * - oppgjørsformen: hver beregningsregel som ikke godtatt, med den andre regelen, og fast sum som
  *   godtatt, uansett svaret (OV-U33, LV-U31, VS-U4);
  * - varselet etter § 34.3.3 og justeringen: som beløpet, og en ubesvart innsigelse mot dem som
@@ -666,10 +668,20 @@ export function lagIVederlaget(
     ...v,
     kravposter: svarene.map(({ post, svar }) => fyll({ ...svar, gjelder: post.id }, post)),
   });
+  // #2140: oppgjørsformen byggherren mener, når tilbudet eller regelen ikke godtas og den ikke er
+  // valgt, fylles ut med en regel byggherren kan mene. Lagene leser ikke hvilken.
   const regelGodtatt = (svar: Kravpostvurdering, post: Kravpost) =>
     post.oppgjoersform !== 'tilbud' && typeof svar.aksepterer !== 'boolean'
       ? { ...svar, aksepterer: true }
-      : svar;
+      : ubesvartIKravposten(svar, post).includes('oensket_oppgjoersform')
+        ? {
+            ...svar,
+            oensket_oppgjoersform:
+              post.oppgjoersform === 'tilbud'
+                ? 'regningsarbeid'
+                : denAndreRegelen(post.oppgjoersform),
+          }
+        : svar;
   const lagI = (fylt: Svarvurdering) => lagIUtfyllingen(fylt, utkast, u, regler);
   const beloepet = lagI(utfylt(regelGodtatt));
   const formene = lagI(
@@ -848,15 +860,21 @@ function besvart(
   if (s.art === 'beloep' && utenFastBeloepIKravposten(u, gjelder)) return true;
   const svar = gjelder === undefined ? undefined : svaret.get(gjelder);
   if (s.art === 'beloep') return typeof svar?.vurdering === 'string';
-  if (s.art === 'oppgjoersform') return typeof svar?.aksepterer === 'boolean';
+  if (s.art === 'oppgjoersform')
+    return (
+      typeof svar?.aksepterer === 'boolean' &&
+      !ubesvartIKravposten(svar, kravposten(u, gjelder)!).includes('oensket_oppgjoersform')
+    );
   if (s.art === 'justering') return typeof svar?.godtar_justering === 'boolean';
   if (s.art === 'rettidighet' && erKravpostvarselhjemmel(s.hjemmel))
     return typeof svar?.varslet_i_tide === 'boolean';
   return true;
 }
 
+/** Kravposten `gjelder` i gjeldende krav. */
+const kravposten = (u: Utledning, gjelder: string | undefined): Kravpost | undefined =>
+  kravposterI(u.spor.vederlag.gjeldendeKrav!).find((p) => p.id === gjelder);
+
 /** En kravpost etter en beregningsregel har ikke et beløp å besvare (OV-U115 punkt 5). */
 const utenFastBeloepIKravposten = (u: Utledning, gjelder: string | undefined): boolean =>
-  gjelder !== undefined &&
-  kravposterI(u.spor.vederlag.gjeldendeKrav!).find((p) => p.id === gjelder)?.oppgjoersform !==
-    'tilbud';
+  gjelder !== undefined && kravposten(u, gjelder)?.oppgjoersform !== 'tilbud';

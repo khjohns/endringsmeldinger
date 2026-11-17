@@ -64,6 +64,7 @@ import {
   type Dokument,
   type Journalrad,
   type Krav,
+  type Opplysning,
   type Part,
   type Sakskode,
   type Standpunkt,
@@ -262,9 +263,7 @@ function sak(sakstittel = TITTEL, sakskode?: Sakskode, forkortelse: string | nul
       // Et brev fra løsningen, skrevet her uten teksten, har nummeret og merkingen skrivingen
       // gir (LV-U44, LV-U53).
       data:
-        erRegistrert(
-          (data.opplysninger as { hva: string; gjelder?: string }[] | undefined) ?? []
-        ) || 'brevnummer' in data
+        erRegistrert((data.opplysninger as Opplysning[] | undefined) ?? []) || 'brevnummer' in data
           ? data
           : medNummer(data),
     };
@@ -12250,6 +12249,38 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
       frister: [{ dager: 5 }, { dager: 11 }],
     };
     expect(ugyldig(s, 'frist', v)).toEqual(['spesifisert_krav_ok', 'frist 2.dager']);
+  });
+
+  it('vederlaget: når tilbudet ikke aksepteres, gir lagene oppgjørsformen byggherren mener som ubesvart før den er valgt (arbeidsvalget i #479, #2140)', () => {
+    const s = saken(vederlagskravet(tilbud(100000)));
+    const v = { kravposter: [{ gjelder: 'P1', aksepterer: false }] };
+    expect(ubesvart(s, 'vederlag', v)).toEqual(['P1.oensket_oppgjoersform']);
+    expect(melding(s, 'vederlag', v)).toContain('oensket_oppgjoersform: mangler');
+    // Standpunktet til oppgjørsformen står som ubesvart til oppgjørsformen er valgt.
+    const oppgjoersformen = (vurderinger: Data) =>
+      lagForUtkastet(
+        utkastet(s, 'vederlag', vurderinger) as Svarutkast,
+        s.u(),
+        KJERNE.regler
+      ).standpunkter.find((x) => x.art === 'oppgjoersform')?.besvart;
+    expect(oppgjoersformen(v)).toBe(false);
+    expect(
+      oppgjoersformen({
+        kravposter: [{ gjelder: 'P1', aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' }],
+      }),
+      'kontrollsak'
+    ).toBe(true);
+  });
+
+  it('vederlaget: når beregningsregelen ikke godtas, gir lagene oppgjørsformen byggherren mener som ubesvart før den er valgt (arbeidsvalget i #479, #2140)', () => {
+    const s = saken(
+      vederlagskravet({
+        kravposter: [{ betegnelse: 'P1', beskrivelse: 'Pumping', oppgjoersform: 'regningsarbeid' }],
+      })
+    );
+    const v = { kravposter: [{ gjelder: 'P1', aksepterer: false }] };
+    expect(ubesvart(s, 'vederlag', v)).toEqual(['P1.oensket_oppgjoersform']);
+    expect(melding(s, 'vederlag', v)).toContain('oensket_oppgjoersform: mangler');
   });
 
   it('vederlaget: uten svar er varselet etter § 34.1.2, beløpet og svaret på tilbudet etter § 34.2.2 påkrevd (OV-U15, KA-U57 (d))', () => {
