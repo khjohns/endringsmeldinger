@@ -4051,7 +4051,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'dagene byggherren måtte forstå står ikke som ubesvart i svarutkastet når spesifiseringen kom for sent (#2025, D-5)',
     fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [['    if (spesifiseringen && ', '    if (false && ']],
+    endringer: [['    if (spesifiseringenForSent)\n', '    if (false)\n']],
     mal: ['dagene byggherren måtte forstå påkrevd for hver frist'],
   },
   {
@@ -6336,8 +6336,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/kommando.ts`,
     endringer: [
       [
-        "  const spesifiseringen = paakrevde.includes('spesifisert_krav_ok');",
-        '  const spesifiseringen = true;',
+        "    paakrevde.includes('spesifisert_krav_ok') && utkast.vurderinger.spesifisert_krav_ok === false;",
+        '    utkast.vurderinger.spesifisert_krav_ok === false;',
       ],
     ],
     mal: ['når kravet svarer på forespørselen, er spesifiseringen ikke et spørsmål'],

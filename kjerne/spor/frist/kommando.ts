@@ -197,13 +197,14 @@ export type Forutsetning =
   | { grunn: Subsidiaergrunn }
   | { innsigelse: '33.4' | '33.6.2' | '33.6.1' | 'hindring' };
 
-type SpoersmaalIFristen = Fristspoersmaal | 'dager' | 'dager_maatte_forstaa';
+/** Feltet i vurderingene hvert spørsmål i svarutkastet på fristen gjelder. */
+type FeltIFristen = Fristspoersmaal | 'dager' | 'dager_maatte_forstaa';
 
 /**
  * Lagene i et svarutkast på fristen, med spørsmålene om hele kravet og dagene for hver frist
  * (`gjelder`). Fristen har ingen egne felt i standpunktet.
  */
-export type LagIFristen = Utkastlag<Forutsetning, SpoersmaalIFristen> & {
+export type LagIFristen = Utkastlag<Forutsetning, FeltIFristen> & {
   /**
    * Spørsmålene regelen stiller i utkastet, besvart eller ikke, i rekkefølgen den stiller dem
    * (#2156): spørsmålene om hele kravet (`paakrevdeSpoersmaal`), og for hver frist dagene og,
@@ -211,7 +212,7 @@ export type LagIFristen = Utkastlag<Forutsetning, SpoersmaalIFristen> & {
    * som er ubesvart. Et spørsmål som ikke står her, stilles ikke for kravet, som spesifiseringen
    * når kravet svarer på forespørselen (§ 33.6.2 fjerde ledd).
    */
-  stilt: { spoersmaal: SpoersmaalIFristen; gjelder?: string }[];
+  stilt: Utkastlag<Forutsetning, FeltIFristen>['ubesvart'];
 };
 
 /** Spørsmålet i svaret hvert standpunkt om hele kravet svarer på. */
@@ -299,12 +300,14 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
     if (!besvart) ubesvarte.push(spoersmaal);
   };
   for (const spoersmaal of paakrevde) still({ spoersmaal }, !ubesvart.has(spoersmaal));
-  // Bare når spesifiseringen er et spørsmål for kravet (§ 33.6.2 fjerde ledd).
-  const spesifiseringen = paakrevde.includes('spesifisert_krav_ok');
+  // Når spesifiseringen kom for sent, og bare når den er et spørsmål for kravet (§ 33.6.2
+  // fjerde ledd).
+  const spesifiseringenForSent =
+    paakrevde.includes('spesifisert_krav_ok') && utkast.vurderinger.spesifisert_krav_ok === false;
   for (const f of fristene) {
     // Dagene kontrolleres som manglende etter punkt 33.5 (`kontroller` i regelsettet).
     still({ spoersmaal: 'dager', gjelder: f.gjelder }, !mangler(f.dager));
-    if (spesifiseringen && utkast.vurderinger.spesifisert_krav_ok === false)
+    if (spesifiseringenForSent)
       still(
         { spoersmaal: 'dager_maatte_forstaa', gjelder: f.gjelder },
         !maatteForstaaUbesvart({ ...f, spesifisert_krav_ok: false })
