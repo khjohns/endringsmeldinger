@@ -6224,15 +6224,20 @@ const MUTASJONER: Mutasjon[] = [
       'svaret på vederlaget og fristen gir et felt for begrunnelsen av forholdet fra et tidligere svar (#2145, LV-U41, MM-U50)',
     fil: `${K}/frosset/tekst.ts`,
     endringer: [['FORBEHOLDET, FORHOLDET]);', 'FORBEHOLDET]);']],
-    mal: ['har ikke noe felt for begrunnelsen av forholdet avslått i et tidligere brev'],
+    mal: ['har ikke noe felt for begrunnelsen av forholdet fra et tidligere brev'],
   },
   {
     id: 'F731',
     feilklasse:
       'en begrunnelse for forholdet i svaret på vederlaget eller fristen godtas (#2145, LV-U41, MM-U50)',
     fil: `${K}/frosset/brevtekst.ts`,
-    endringer: [['    if (perPunkt[FORHOLDET])', '    if (perPunkt[FORHOLDET] && false)']],
-    mal: ['har ikke noe felt for begrunnelsen av forholdet avslått i et tidligere brev'],
+    endringer: [
+      [
+        '    if (perPunkt[FORHOLDET] && brevpunkter.some((p) => p.punkt === FORHOLDET))',
+        '    if (perPunkt[FORHOLDET] && false)',
+      ],
+    ],
+    mal: ['har ikke noe felt for begrunnelsen av forholdet fra et tidligere brev'],
   },
 ];
 interface Testresultat {
