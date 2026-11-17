@@ -15,7 +15,7 @@ import { kanFrafalle } from '../regler/forhold.ts';
 import { GJELDENDE_REGLER } from '../regler/regelsett.ts';
 import { kontrollerForholdet } from '../regler/svarkontroll.ts';
 import { prinsipaltAvslaatteDager } from '../spor/frist/utledning.ts';
-import { akseptfristen } from '../utledning/visning.ts';
+import { akseptfristen, forseringKanVelges } from '../utledning/visning.ts';
 
 const forloep = (navn: string) =>
   JSON.parse(readFileSync(`docs/domenetabell/brukerforlop/${navn}.json`, 'utf8')) as {
@@ -68,6 +68,19 @@ describe('forseringen leser at byggherren prinsipalt har avslått dager (FO-U1, 
         await utledning([...BF45.steg.slice(0, 3), AVSLAG_AV_FORHOLDET, alleDagene])
       )
     ).toBe(true);
+  });
+});
+
+describe('forseringen kan velges så lenge totalentreprenøren ikke har godtatt avslaget (FO-U1)', () => {
+  it('valget står etter avslaget, og ikke etter at totalentreprenøren har godtatt svaret', async () => {
+    expect(forseringKanVelges(await utledning(BF45.steg)), 'kontrollsak').toBe(true);
+    expect(
+      forseringKanVelges(await utledning([...BF45.steg, { handling: 'aksept', spor: 'frist' }]))
+    ).toBe(false);
+  });
+
+  it('valget står ikke uten prinsipalt avslåtte dager', async () => {
+    expect(forseringKanVelges(await utledning(BF45.steg.slice(0, 3)))).toBe(false);
   });
 });
 

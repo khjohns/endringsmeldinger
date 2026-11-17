@@ -17,6 +17,7 @@ import { iSporet } from '../frosset/byggeklosser.ts';
 import { VISNING_I_FORHOLDET } from '../spor/forhold/visning.ts';
 import { VISNING_I_VEDERLAGET } from '../spor/vederlag/visning.ts';
 import { VISNING_I_FRISTEN } from '../spor/frist/visning.ts';
+import { prinsipaltAvslaatteDager } from '../spor/frist/utledning.ts';
 import {
   datoenDetBleSendt,
   enighetensVirkning,
@@ -211,6 +212,13 @@ export function akseptfristen(u: Utledning, spor: Kravspor): { brev: string; dat
     ? { brev: s.dokument, dato: s.akseptfrist }
     : null;
 }
+
+/**
+ * FO-U1: TE kan anse byggherrens avslag som pålegg om forsering når byggherren prinsipalt har
+ * avslått dager (`prinsipaltAvslaatteDager`), og TE ikke har godtatt svaret (`svarIkkeGodtatt`).
+ */
+export const forseringKanVelges = (u: Utledning): boolean =>
+  svarIkkeGodtatt(u, 'frist') && prinsipaltAvslaatteDager(u);
 
 /** MM-U30: sporets betegnelse, eller `null` når ingen av dem foreligger. */
 export function betegnelse(u: Utledning, spor: Spor): Betegnelse | null {

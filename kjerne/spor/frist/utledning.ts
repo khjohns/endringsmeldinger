@@ -154,8 +154,7 @@ export function fristkravErFremmet(u: Utledning): boolean {
 /**
  * FO-U1: byggherren har prinsipalt avslått dager for en frist i svaret på kravet som gjelder, også
  * gjennom forholdet: svaret er subsidiært til et avslag av forholdet, eller det første laget i
- * fristen gir færre dager enn kravet (U-6 og D-12 i BF-45). Om TE kan godta avslaget, leser
- * visningen av handlingen `godta:frist`.
+ * fristen gir færre dager enn kravet (U-6 og D-12 i BF-45). Valget står i `forseringKanVelges`.
  */
 export function prinsipaltAvslaatteDager(u: Utledning): boolean {
   const { gjeldendeKrav: krav, gjeldendeSvar: svar, subsidiaer } = u.spor.frist;

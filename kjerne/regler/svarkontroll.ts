@@ -18,8 +18,8 @@ export function kontrollerForholdet(
   regler: Regelsett
 ): void {
   const feil: Record<string, string> = {};
-  const resultat = v.resultat as never;
-  if (!regler.gyldigeForholdsresultater(hovedkategori, underkategori).includes(resultat))
+  const resultater = regler.gyldigeForholdsresultater(hovedkategori, underkategori);
+  if (!resultater.includes(v.resultat as never))
     feil.resultat = `«${String(v.resultat)}» kan ikke velges i denne kategorien (punkt 32.3 første ledd c)`;
   const iTide = v.grunnlag_varslet_i_tide;
   const varslingsplikt = regler.gjelderVarslingsplikten(hovedkategori, underkategori);
@@ -31,13 +31,7 @@ export function kontrollerForholdet(
   if (
     v.resultat === 'paalegg_frafalt' &&
     !feil.resultat &&
-    !kanFrafalle(
-      {
-        varslingsplikt,
-        resultater: regler.gyldigeForholdsresultater(hovedkategori, underkategori),
-      },
-      iTide === false
-    )
+    !kanFrafalle({ varslingsplikt, resultater }, iTide === false)
   )
     feil.grunnlag_varslet_i_tide =
       'frafall kan ikke kombineres med at grunnlaget er varslet for sent';
