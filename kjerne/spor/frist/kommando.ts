@@ -5,17 +5,30 @@
  */
 
 import { HJEMMEL } from '../../format/format.ts';
-import { standpunkterISvaret } from '../../format/leser.ts';
+import { erRegistrert, standpunkterISvaret } from '../../format/leser.ts';
+import { omtalen } from '../../frosset/brevdeler.ts';
 import { feilI, objekt } from '../../format/skjema.ts';
 import type { Subsidiaergrunn } from '../../regler/forhold.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
 import { varseletForNyttSvar, type Utledning } from '../../utledning/utled.ts';
-import { avvis, type Avvisning, type Journalrad, type Standpunkt } from '../../typer.ts';
+import {
+  avvis,
+  type Avvisning,
+  type Domenehendelse,
+  type Journalrad,
+  type Standpunkt,
+} from '../../typer.ts';
 import type { Kommando, Kravform, Svarutkast } from '../../kommandoer/kommando.ts';
 import type { Sporsnyttelast } from '../../kommandoer/nyttelast.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
-import type { Kontekst, Skrivesteg, Sporsskriving, Utfall } from '../../kommandoer/skriving.ts';
+import type {
+  Kontekst,
+  LestSak,
+  Skrivesteg,
+  Sporsskriving,
+  Utfall,
+} from '../../kommandoer/skriving.ts';
 import {
   foresporselForFristsvar,
   fristeneISporet,
@@ -357,6 +370,9 @@ function medVarselet(
   const kjede = (kx: Kontekst, jx: Journalrad[]): Utfall => {
     const varselet = varseletIKravet(varsel, skriving, kx, jx);
     if (!varselet.godtatt) return varselet;
+    // Etter kontrollene av varselet, så en avvisning for rollen eller saken kommer først.
+    const registrert = varseldokumentetISaken(k, skriving.saken(jx));
+    if (registrert) return { godtatt: false, feil: 'REGELBRUDD', avvisning: registrert };
     return {
       godtatt: true,
       hendelser: varselet.hendelser,
@@ -368,6 +384,41 @@ function medVarselet(
     if (!proeve.godtatt) return proeve;
   }
   return kjede(kontekst, journal);
+}
+
+/**
+ * #2082: korrespondansen registreres én gang (OV-U80). Er totalentreprenørens brev med varselet
+ * alt i saken, med de samme vedleggene, velger totalentreprenøren varselet etter § 33.4 for det
+ * (OV-U84), eller viser kravet til varselet som står i saken (VS-U55). Hele dokumentet
+ * sammenliknes, fordi ett vedlegg kan ligge ved to brev. Med varselet etter § 33.4 i saken
+ * prøves kravet i `saksperre`, ellers i `medVarselet`.
+ */
+function varseldokumentetISaken(
+  k: Extract<Kommando, { type: 'krav' }>,
+  { lest, u }: LestSak
+): Avvisning | null {
+  if (!k.varsel?.dokumentasjon?.length) return null;
+  const noekkel = (ider: readonly string[]) =>
+    JSON.stringify([...new Set(ider.map((id) => id.toLowerCase()))].sort());
+  const varselet = noekkel(k.varsel.dokumentasjon);
+  const rettet = new Set(lest.flatMap((h) => (h.art === 'dokument' ? [h.dokument.retter] : [])));
+  const brevet = lest.find(
+    (h): h is Extract<Domenehendelse, { art: 'dokument' }> =>
+      h.art === 'dokument' &&
+      h.dokument.avsender === 'TE' &&
+      erRegistrert(h.dokument.opplysninger) &&
+      !rettet.has(h.id) &&
+      noekkel(h.dokument.dokumentasjon.map((v) => v.vedlegg_id)) === varselet
+  );
+  if (!brevet) return null;
+  const omtale = omtalen(brevet.dokument);
+  const som = omtale ? ` som ${omtale}` : '';
+  return avvis(
+    'VARSEL_REGISTRERT',
+    u.spor.frist.varsler['33.4']
+      ? `Brevet med varselet står alt i saken${som}, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet.`
+      : `Brevet med varselet står alt i saken${som}. Velg varselet etter punkt 33.4 for det brevet i stedet for å legge det ved kravet på nytt.`
+  );
 }
 
 /** Raden med varselet fra kravskjemaet som registrert varsel etter § 33.4 (`medVarselet`). */
@@ -417,5 +468,6 @@ function varseletIKravet(
 export const SKRIVING_I_FRISTEN = {
   kravinnhold: fristeneSomLagres,
   kontekstsperre: fristIkkeRegistrert,
+  saksperre: (k, lest, u) => varseldokumentetISaken(k, { lest, u }),
   handlingen: medVarselet,
 } satisfies Sporsskriving;
