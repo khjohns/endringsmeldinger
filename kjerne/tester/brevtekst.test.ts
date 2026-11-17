@@ -4046,25 +4046,6 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     expect(s.avvist('TE', utenBrevet), 'kontrollsak').toBeNull();
   });
 
-  it('et fristkrav uten varsel med brevet der varselet etter punkt 33.4 alt er registrert, avvises, og kravet med et annet vedlegg godtas (#2100, VS-U55)', () => {
-    const s = sak();
-    s.send('TE', PAABEROPELSE);
-    s.send('TE', {
-      type: 'varsel',
-      ...SOM_BREV,
-      spor: 'frist',
-      hjemmel: '33.4',
-      sendt: FRISTKRAV.varsel.sendt,
-      dokumentasjon: [VARSELBREVET],
-    });
-    expect(s.avvisning('TE', { ...utenBrevet, dokumentasjon: [VARSELBREVET, PLAN] })).toEqual({
-      regel: 'VARSEL_REGISTRERT',
-      melding:
-        'Brevet med varselet står alt i saken som totalentreprenørens brev av 28. september 2026, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet.',
-    });
-    expect(s.avvist('TE', { ...utenBrevet, dokumentasjon: [PLAN] }), 'kontrollsak').toBeNull();
-  });
-
   it('samme fil lastet opp på nytt som brevet med varselet er brevet som står i saken, og en annen fil er det ikke (#2100, OV-U80)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);

@@ -3977,9 +3977,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'fristkravet registrerer et brev med varselet som alt står i saken, på nytt (#2082, OV-U80, OV-U84)',
     fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [
-      ['  if (brevet)\n    return varselet', '  if (brevet && varselet)\n    return varselet'],
-    ],
+    endringer: [['  if (!brevet) return null;', '  if (!brevet || !varselet) return null;']],
     mal: ['et fristkrav med et brev som alt står i saken med varselet etter punkt 32.2'],
   },
   {
@@ -4004,19 +4002,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['samme fil lastet opp på nytt som brevet med varselet'],
   },
   {
-    id: 'F712',
-    feilklasse:
-      'fristkravet uten varsel legger ved brevet med varselet etter punkt 33.4 som står i saken (#2100, VS-U55)',
-    fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [
-      [
-        'const varselbrevet = varselet && brevene.find(',
-        'const varselbrevet = undefined && brevene.find(',
-      ],
-    ],
-    mal: ['et fristkrav uten varsel med brevet der varselet etter punkt 33.4 alt er registrert'],
-  },
-  {
     id: 'F713',
     feilklasse:
       'utledningen av en journal kalleren har lagt rader til i, gjenbrukes, så neste rad skrives mot saken før (#2076, VS-U53)',
@@ -4034,7 +4019,7 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'et brev som har ett av vedleggene til et registrert brev, regnes som det registrerte brevet (#2082)',
     fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [['  a.size === b.size && erDelAv(a, b);', '  erDelAv(a, b);']],
+    endringer: [['  if (a.size !== b.size) return false;\n', '']],
     mal: ['et nytt brev med ett av vedleggene godtas'],
   },
   {
