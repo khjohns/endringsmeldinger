@@ -2380,6 +2380,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
   // av samme slag (MM-U1, MM-U7).
   ['format/leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],
+  // #2088 punkt 1: datoen parten oppga for dokumentet, lest ett sted.
+  ['format/leser.ts', 'relasjon', 'datoForDokumentet', ['utledning/utled.ts:registreringer']],
   // OV-U98, OV-U104: dagene sammenliknes som kalenderdager, og samme dag meldes der de sammenliknes.
   ['format/leser.ts', 'relasjon', 'foerDagen'],
   // OV-U32, OV-U98, #2057: dagen et svar ble sendt, og om brevet er lagt til, for svaret på

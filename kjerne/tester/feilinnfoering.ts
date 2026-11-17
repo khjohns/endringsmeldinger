@@ -4027,14 +4027,9 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F715',
     feilklasse:
-      'varselet etter punkt 34.1.2 regnes som påkrevd også der varslingsplikten ikke gjelder kategorien (#2025, OV-U15)',
-    fil: `${K}/regler/vederlag.ts`,
-    endringer: [
-      [
-        'if (regler.gjelderVarslingspliktenForVederlag(svar.hovedkategori) && mangler(svar.varslet_i_tide))',
-        'if (mangler(svar.varslet_i_tide))',
-      ],
-    ],
+      'varselet etter punkt 34.1.2 står som ubesvart i svarutkastet også der varslingsplikten ikke gjelder kategorien (#2025, OV-U15)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['ubesvarte.some((x) => x.post === null)', 'true']],
     mal: ['varselet etter § 34.1.2 er ikke påkrevd når varslingsplikten ikke gjelder kategorien'],
   },
   {
