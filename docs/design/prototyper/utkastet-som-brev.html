@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Utkastet som brev</title>
+<!--
+  Prototype av hodet og oppbygningen i et skjema som blir et brev (#2163, versjon 1). Utkastet er
+  brevet mens det skrives: en smal arbeidsrad for utkastet, brevhodet i avsenderens brevskrift,
+  seksjonene som punktene i brevet og hilsenen til slutt. Brevkontrollen har samme hode på samme
+  sted.
+  Tilstandene er ankrene #<part>-<steg>[-nederst]: part te (krav om vederlagsjustering) eller bh
+  (svar på kravet), steg skjema eller brevet, og «-nederst» når «Se brevet før sending» også står
+  nederst i skjemaet. Teksten er prototypetekst; ingressen og punktene i brevet er kjernens tekst
+  fra demosaken KOE-17. Fargene og målene er .tema-varden i
+  src/lib/components/kontraktsbord/theme.css. Oslo Sans (byggherrens brevskrift) lastes ikke her,
+  så byggherrens brev står i reserveskriften Noto Sans. Ingenting sendes, og ingenting lagres.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&family=Noto+Sans:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#15181d; --on-brand:#ffffff;
+  --canvas:#eef0f2; --surface:#ffffff; --surface-warm:#f6f7f8; --surface-inset:#f3f4f6; --surface-selected:#e6e9ee;
+  --ink:#15181d; --ink-2:#343a43; --ink-3:#545b66; --ink-4:#5f6672;
+  --rule-color:#dadde2; --rule-subtle-color:#e6e8eb; --rule-strong-color:#c3c8cf;
+  --rule:1px solid var(--rule-color); --rule-subtle:1px solid var(--rule-subtle-color);
+  --danger:#b33e33; --draft:#5f4a00; --draft-bg:#fff3c4; --control-focus:#2457d6;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-brev:'Source Serif 4','Noto Sans',serif;
+  --font-brev-bh:'Oslo Sans','Noto Sans',sans-serif;
+  --r-kort:12px; --r-merke:2px; --r-felt:4px; --r-innfelt:6px; --r-knapp:999px;
+  --varden-ark:760px; --varden-stoette:360px;
+  --sperring-20:-0.01em;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --brand:#eef0f3; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --danger:#f2a39b; --draft:#f3d675; --draft-bg:#2f2810; --control-focus:#8fb0ff;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --brand:#eef0f3; --on-brand:#15181d;
+  --canvas:#0f1114; --surface:#171a1f; --surface-warm:#1c2026; --surface-inset:#1a1d22; --surface-selected:#262b33;
+  --ink:#eef0f3; --ink-2:#cdd2d9; --ink-3:#a9afb9; --ink-4:#9aa1ab;
+  --rule-color:#2b3037; --rule-subtle-color:#23272d; --rule-strong-color:#3a4049;
+  --danger:#f2a39b; --draft:#f3d675; --draft-bg:#2f2810; --control-focus:#8fb0ff;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--canvas);color:var(--ink);font-family:var(--font-sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,p,dl,dd,ol,ul{margin:0}
+a{color:inherit;text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+/* Prototypelinja, ikke en del av designet. */
+.mockup{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;padding:8px 16px;background:var(--surface-inset);border-bottom:var(--rule);font-size:13px;color:var(--ink-2)}
+.mockup .gruppe{display:flex;gap:4px;align-items:center}
+.mockup button{font:inherit;padding:2px 10px;border:1px solid var(--rule-strong-color);border-radius:var(--r-knapp);background:var(--surface);color:var(--ink);cursor:pointer}
+.mockup button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.mockup label{display:flex;gap:6px;align-items:center}
+
+/* Skallet over arbeidet, som i Varden mellom 1181 og 1899 px. */
+.topp{background:var(--surface);border-bottom:var(--rule)}
+.topp-inne{max-width:calc(var(--varden-ark) + var(--varden-stoette) + 24px);margin:0 auto;padding:12px 16px 0}
+.sti{font-size:14px;color:var(--ink-3)}
+.sti b{color:var(--ink);font-weight:600}
+.faner{display:flex;gap:24px;margin-top:8px}
+.faner span{padding:6px 0 8px;color:var(--ink-2)}
+.faner .valgt{color:var(--ink);font-weight:600;box-shadow:inset 0 -2px 0 var(--ink)}
+
+.arbeid{max-width:calc(var(--varden-ark) + var(--varden-stoette) + 24px);margin:24px auto 64px;padding:0 16px;display:grid;grid-template-columns:minmax(0,var(--varden-ark)) var(--varden-stoette);gap:24px;align-items:start}
+@media (max-width:1180px){.arbeid{grid-template-columns:minmax(0,1fr)}}
+
+/* Arbeidsraden: det eneste gule. Den hører til utkastet, ikke brevet, og følger rullingen. */
+.arbeidsrad{grid-column:1/-1;position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 16px;background:var(--draft-bg);border:1px dashed var(--draft);border-radius:var(--r-innfelt);font-size:14px}
+.arbeidsrad .skille{width:1px;align-self:stretch;background:color-mix(in srgb,var(--draft) 35%,transparent)}
+.merke{display:inline-block;border:1px dashed var(--draft);color:var(--draft);border-radius:var(--r-merke);padding:0 6px;font-size:12px;font-weight:500;line-height:20px}
+.arbeidsrad .brevnr{font-weight:600}
+.arbeidsrad .til{margin-left:auto;color:var(--ink-2)}
+
+/* Arket: utkastet og brevet har samme hode på samme sted. */
+.ark{background:var(--surface);border:var(--rule);border-radius:var(--r-kort);min-width:0}
+.utkast .ark{border:1px dashed color-mix(in srgb,var(--draft) 55%,transparent)}
+.brevhode{padding:32px 40px 0;font-family:var(--brev);font-size:16px;line-height:1.6}
+.parter{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.parter b{display:block;font-weight:600}
+.rolle{color:var(--ink-3);font-size:14px}
+.refs{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;margin-top:20px;padding-bottom:20px;border-bottom:var(--rule);font-size:14px}
+.refs dt{color:var(--ink-3);font-size:13px}
+.refs .app{font-family:var(--font-sans);font-size:13px;color:var(--ink-3)}
+.settes{color:var(--ink-3)}
+.brevtittel{font-family:var(--brev);font-weight:600;font-size:20px;line-height:1.3;letter-spacing:var(--sperring-20);margin-top:24px;text-wrap:balance}
+.ingress{font-family:var(--brev);color:var(--ink-2);margin-top:8px;padding-bottom:8px}
+
+/* Punktene: overskriften er punktet i brevet, feltene er appens. */
+.punkt{padding:24px 40px;border-top:var(--rule-subtle)}
+.punkt:first-of-type{border-top:0}
+.punkthode{display:flex;align-items:baseline;gap:12px}
+.punkthode h3{font-family:var(--brev);font-weight:600;font-size:17px}
+.hjemmel{margin-left:auto;color:var(--ink-3);font-size:14px;white-space:nowrap}
+.hjelp{color:var(--ink-3);margin-top:4px;max-width:62ch;text-wrap:pretty}
+.fast{font-family:var(--brev);font-size:16px;color:var(--ink-2);margin-top:8px}
+.kilde{color:var(--ink-3);font-size:13px;margin-top:4px}
+.gjelder{margin-top:12px;padding-left:12px;border-left:2px solid var(--rule-strong-color);color:var(--ink-2)}
+.gjelder b{display:block;font-size:13px;color:var(--ink);font-weight:600}
+fieldset{border:0;padding:0;margin:16px 0 0;min-width:0}
+legend{font-weight:600;padding:0;margin-bottom:8px}
+.valg{display:flex;gap:8px}
+.valg.stablet{flex-direction:column;width:fit-content}
+.valgkort{display:flex;gap:10px;align-items:center;min-height:44px;padding:0 14px;border:1px solid var(--rule-strong-color);border-radius:var(--r-felt);background:var(--surface);cursor:pointer}
+.valgkort:hover{background:var(--surface-inset)}
+.valgkort:has(input:checked){background:var(--surface-selected);border-color:var(--brand);box-shadow:inset 0 0 0 1px var(--brand);font-weight:600}
+.valgkort:has(input:focus-visible){outline:2px solid var(--control-focus);outline-offset:2px}
+.etikett{display:block;font-weight:600;margin:16px 0 6px}
+.etikett.underordnet{font-weight:400;color:var(--ink-2)}
+.etikett .valgfri,.punkthode .valgfri{float:right;font-weight:400;color:var(--ink-3);font-size:14px}
+.felt{display:block;width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--rule-strong-color);border-radius:var(--r-felt);background:var(--surface);color:var(--ink);font:inherit}
+textarea.felt{min-height:84px;resize:vertical}
+.belop{display:flex;align-items:center;width:200px}
+.belop .felt{text-align:right;border-radius:var(--r-felt) 0 0 var(--r-felt)}
+.belop span{padding:0 12px;min-height:44px;display:flex;align-items:center;border:1px solid var(--rule-strong-color);border-left:0;border-radius:0 var(--r-felt) var(--r-felt) 0;color:var(--ink-3)}
+.post{margin-top:16px;padding:12px 16px;border-left:2px solid var(--ink);background:var(--surface-warm);border-radius:0 var(--r-innfelt) var(--r-innfelt) 0}
+.post .linje{display:flex;justify-content:space-between;gap:12px}
+.post .linje b{font-weight:600}
+
+/* Hilsenen: utkastet slutter som brevet. */
+.hilsen{padding:24px 40px;border-top:var(--rule);font-family:var(--brev);font-size:16px}
+.hilsen b{font-weight:600}
+.hilsen .settes{font-family:var(--font-sans);font-size:13px;margin-top:4px}
+.slutt{display:flex;flex-wrap:wrap;gap:16px;align-items:center;padding:16px 40px 20px;border-top:var(--rule-subtle)}
+.slutt .nederst{display:none}
+[data-nederst="ja"] .slutt .nederst{display:inline-flex}
+
+.knapp{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 24px;border-radius:var(--r-knapp);border:1px solid var(--brand);background:var(--brand);color:var(--on-brand);font:600 15px var(--font-sans);cursor:pointer;text-decoration:none}
+.knapp:hover{background:var(--ink-2)}
+.knapp:active{background:var(--ink-3)}
+.knapp.full{width:100%}
+.lenke{background:none;border:0;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:44px}
+
+/* Panelet til høyre: punktene i brevet og handlingen, på samme sted i begge stegene. */
+.panel{position:sticky;top:64px;background:var(--surface);border:var(--rule);border-radius:var(--r-kort)}
+.panel > *{padding:16px 20px}
+.panel > * + *{border-top:var(--rule-subtle)}
+.panel h2{font-size:16px;font-weight:600}
+.punktliste{list-style:none;padding:0;display:grid;gap:10px;margin-top:12px}
+.punktliste li{display:grid;grid-template-columns:24px 1fr}
+.punktliste li span{display:block;color:var(--ink-3);font-size:13px}
+.felt-par{display:grid;grid-template-columns:96px 1fr;gap:4px 12px}
+.felt-par dt{color:var(--ink-3)}
+.sender{list-style:disc;padding-left:20px;display:grid;gap:6px;margin-top:8px}
+.avkrysning{display:flex;gap:10px;align-items:center;min-height:48px;padding:0 14px;border:1px solid var(--rule-strong-color);border-radius:var(--r-felt);margin-bottom:12px}
+
+/* Brevet slik det sendes: samme hode, punktene som tekst. */
+.brevet .punkt h3{font-family:var(--brev);font-weight:600;font-size:16px}
+.brevet .punkt p{font-family:var(--brev);font-size:16px;line-height:1.6;margin-top:6px}
+.brevet .lag{font-family:var(--brev);font-size:14px;color:var(--ink-3);margin-top:8px}
+.brevet .lag b{color:var(--ink);font-weight:600}
+
+/* Partene og stegene. */
+[data-part="te"]{--brev:var(--font-brev)}
+[data-part="bh"]{--brev:var(--font-brev-bh)}
+[data-part="te"] .bh,[data-part="bh"] .te{display:none!important}
+[data-steg="skjema"] .steg-brevet,[data-steg="brevet"] .steg-skjema{display:none!important}
+
+/* Sporbarheten: funnene i #2163 på elementene. */
+[data-spor]{position:relative}
+[data-vis-spor="ja"] [data-spor]{outline:1px dashed #b36b00;outline-offset:2px}
+[data-vis-spor="ja"] [data-spor]::after{content:attr(data-spor);position:absolute;top:-10px;right:0;font:500 11px var(--font-sans);background:#b36b00;color:#fff;padding:0 4px;border-radius:2px}
+
+@media (max-width:720px){
+  .brevhode,.punkt,.hilsen,.slutt{padding-left:20px;padding-right:20px}
+  .parter{gap:12px}
+}
+</style>
+</head>
+<body>
+<div id="skall" data-part="bh" data-steg="skjema" data-nederst="nei" data-vis-spor="nei">
+
+<div class="mockup" role="region" aria-label="Prototypevalg">
+  <b>Prototype · Utkastet som brev · v1</b>
+  <div class="gruppe" role="group" aria-label="Vis som"><span>Vis som</span>
+    <button type="button" data-velg-part="bh">Byggherren</button>
+    <button type="button" data-velg-part="te">Totalentreprenøren</button>
+  </div>
+  <div class="gruppe" role="group" aria-label="Steget"><span>Steget</span>
+    <button type="button" data-velg-steg="skjema">Skjemaet</button>
+    <button type="button" data-velg-steg="brevet">Brevkontrollen</button>
+  </div>
+  <div class="gruppe" role="group" aria-label="Se brevet før sending"><span>«Se brevet før sending»</span>
+    <button type="button" data-velg-nederst="nei">Bare i panelet</button>
+    <button type="button" data-velg-nederst="ja">Også nederst</button>
+  </div>
+  <label><input type="checkbox" id="vis-spor"> Vis sporbarhet</label>
+</div>
+
+<header class="topp">
+  <div class="topp-inne">
+    <p class="sti">Varden › Operatunnelen — Parsell 3 › <b>KOE-17 · Manglende medvirkning eller leveranser fra byggherren</b></p>
+    <div class="faner" aria-hidden="true"><span>Manglende medvirkning eller leveranser fra byggherren</span><span class="valgt">Vederlagsjustering</span><span>Fristforlengelse</span></div>
+  </div>
+</header>
+
+<main class="arbeid">
+  <!-- Arbeidsraden er lik i begge stegene; bare lenken tilbake skifter. -->
+  <div class="arbeidsrad" data-spor="R5-4 T-4">
+    <a class="steg-skjema" href="#" data-tilbake>‹ Tilbake til vederlagsjusteringen</a>
+    <a class="steg-brevet" href="#" data-til-steg="skjema">‹ Tilbake til utkastet</a>
+    <span class="skille" aria-hidden="true"></span>
+    <span class="merke">Utkast · ikke sendt</span>
+    <span class="brevnr" data-spor="T-2">Brev 5</span>
+    <span class="til bh">Til totalentreprenøren</span>
+    <span class="til te">Til byggherren</span>
+  </div>
+
+  <!-- ============ Skjemaet ============ -->
+  <form class="steg-skjema utkast" aria-labelledby="tittel-skjema" novalidate>
+    <div class="ark">
+      <div class="brevhode" data-spor="T-1 T-3">
+        <div class="parter">
+          <div class="bh"><b>Oslobygg KF</b><span class="rolle">Byggherren</span></div>
+          <div class="bh"><b>Veidekke Entreprenør AS</b><span class="rolle">Totalentreprenøren</span></div>
+          <div class="te"><b>Veidekke Entreprenør AS</b><span class="rolle">Totalentreprenøren</span></div>
+          <div class="te"><b>Oslobygg KF</b><span class="rolle">Byggherren</span></div>
+        </div>
+        <dl class="refs">
+          <div><dt>Sak</dt><dd>KOE-17 · Manglende medvirkning eller leveranser fra byggherren</dd></div>
+          <div><dt>Deres ref.</dt>
+            <dd class="bh">K201-KOE-017-03 <span class="app">(brev 3) · <a href="#">Les ved siden av</a></span></dd>
+            <dd class="te">K201-KOE-017-04 <span class="app">(brev 4) · <a href="#">Les ved siden av</a></span></dd></div>
+          <div><dt>Vår ref.</dt><dd>K201-KOE-017-05</dd></div>
+          <div><dt>Dato</dt><dd class="settes">Settes ved sending</dd></div>
+        </dl>
+        <h2 class="brevtittel bh" id="tittel-skjema">Svar på krav om vederlagsjustering i sak KOE-17</h2>
+        <h2 class="brevtittel te">Krav om vederlagsjustering i sak KOE-17</h2>
+        <p class="ingress bh">Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-03 av 1. oktober 2026. Beløpene i brevet er eks. mva.</p>
+        <p class="ingress te">Totalentreprenøren krever justering av vederlaget. Beløpene i brevet er eks. mva.</p>
+      </div>
+
+      <!-- Byggherren: punktene i svaret, med begrunnelsen under punktet den gjelder. -->
+      <section class="punkt bh" aria-labelledby="bh-p1" data-spor="R3-2">
+        <div class="punkthode"><h3 id="bh-p1">1. Forholdet</h3></div>
+        <p class="fast">Byggherren har i brev K201-KOE-017-02 av 1. oktober 2026 svart at byggherren ikke har risikoen for forholdet.</p>
+        <p class="kilde">Fra svaret på forholdet i brev 2. Punktet endres på siden for forholdet.</p>
+      </section>
+      <section class="punkt bh" aria-labelledby="bh-p2">
+        <div class="punkthode"><h3 id="bh-p2">2. Varselet om vederlagsjustering</h3><span class="hjemmel">punkt 34.1.2</span></div>
+        <div class="gjelder"><b>Gjelder hvis</b>avslaget av forholdet i brev 2 ikke fører frem</div>
+        <p class="hjelp">Totalentreprenøren ble klar over forholdet 15. september 2026, ifølge brev 1. Kravet ble sendt 1. oktober 2026, 16 kalenderdager etter.</p>
+        <fieldset data-spor="R5-6">
+          <legend>Kom varselet i tide?</legend>
+          <div class="valg">
+            <label class="valgkort"><input type="radio" name="varsel"> Varslet i tide</label>
+            <label class="valgkort"><input type="radio" name="varsel" checked> Varslet for sent</label>
+          </div>
+        </fieldset>
+        <label class="etikett underordnet" for="beg-2" data-spor="R4-3 R4-6">Begrunnelse for punkt 2</label>
+        <textarea class="felt" id="beg-2">Varselet kom 16 dager etter at totalentreprenøren ble klar over forholdet.</textarea>
+      </section>
+      <section class="punkt bh" aria-labelledby="bh-p3">
+        <div class="punkthode"><h3 id="bh-p3">3. Beregningsmetode</h3><span class="hjemmel">punkt 34.2</span></div>
+        <div class="gjelder"><b>Gjelder hvis</b>avslaget av forholdet i brev 2 og innsigelsen om varselet ikke fører frem</div>
+        <fieldset>
+          <legend>Oppgjørsformen totalentreprenøren krever: fast sum</legend>
+          <div class="valg stablet">
+            <label class="valgkort"><input type="radio" name="form" checked> Godkjenner fast sum (punkt 34.2.1)</label>
+            <label class="valgkort"><input type="radio" name="form"> Mener enhetspriser (punkt 34.3)</label>
+            <label class="valgkort"><input type="radio" name="form"> Mener regningsarbeid (punkt 34.4)</label>
+          </div>
+        </fieldset>
+      </section>
+      <section class="punkt bh" aria-labelledby="bh-p4">
+        <div class="punkthode"><h3 id="bh-p4">4. Vederlagsjustering</h3><span class="hjemmel">punkt 34.1.2</span></div>
+        <div class="post">
+          <div class="linje"><b>P1 · Kravposten i bevis-saken</b><span class="num">100 000 kr krevd</span></div>
+          <fieldset>
+            <legend>Hvor mye av beløpet godkjenner du?</legend>
+            <div class="valg stablet">
+              <label class="valgkort"><input type="radio" name="belop" value="hele"> Hele beløpet</label>
+              <label class="valgkort"><input type="radio" name="belop" value="deler" checked> Deler av beløpet</label>
+              <label class="valgkort"><input type="radio" name="belop" value="ingenting"> Ingenting</label>
+            </div>
+          </fieldset>
+          <div id="delbelop">
+            <label class="etikett" for="belop">Beløpet du godkjenner</label>
+            <p class="hjelp" id="belop-hjelp">Mer enn 0 kr og mindre enn 100 000 kr.</p>
+            <div class="belop"><input class="felt num" id="belop" inputmode="numeric" value="60 000" aria-describedby="belop-hjelp"><span>kr</span></div>
+          </div>
+        </div>
+        <label class="etikett underordnet" for="beg-4">Begrunnelse for punkt 4</label>
+        <textarea class="felt" id="beg-4"></textarea>
+      </section>
+      <section class="punkt bh" aria-labelledby="bh-p5">
+        <div class="punkthode"><h3 id="bh-p5">5. Forbehold</h3><span class="valgfri">Valgfri</span></div>
+        <p class="hjelp">Står sist i brevet og gjelder hele svaret.</p>
+        <textarea class="felt" aria-labelledby="bh-p5" style="margin-top:12px"></textarea>
+      </section>
+
+      <!-- Totalentreprenøren: punktene i kravet. -->
+      <section class="punkt te" aria-labelledby="te-p1">
+        <div class="punkthode"><h3 id="te-p1">1. Vederlagsjustering</h3><span class="hjemmel">punkt 34.1.1 og 34.1.2</span></div>
+        <p class="hjelp">Del kravet i poster. Hver post får et nummer (P1, P2 …), og nummeret er det samme i nye brev og i endringsordren.</p>
+        <div class="post">
+          <label class="etikett" for="te-beskr" style="margin-top:0">P1 · Beskrivelse av posten</label>
+          <input class="felt" id="te-beskr" value="Kravposten i bevis-saken">
+          <fieldset>
+            <legend>Oppgjørsform</legend>
+            <div class="valg stablet">
+              <label class="valgkort"><input type="radio" name="te-form" checked> Fast sum</label>
+              <label class="valgkort"><input type="radio" name="te-form"> Enhetspriser</label>
+              <label class="valgkort"><input type="radio" name="te-form"> Regningsarbeid</label>
+            </div>
+          </fieldset>
+          <label class="etikett" for="te-belop">Beløpet du krever</label>
+          <div class="belop"><input class="felt num" id="te-belop" inputmode="numeric" value="100 000"><span>kr</span></div>
+        </div>
+      </section>
+      <section class="punkt te" aria-labelledby="te-p2">
+        <div class="punkthode"><h3 id="te-p2">2. Varslene</h3><span class="hjemmel">punkt 34.1.2</span></div>
+        <p class="fast">Varselet om vederlagsjustering gis i dette brevet.</p>
+        <p><button type="button" class="lenke">Legg til et varsel du har sendt før</button></p>
+      </section>
+      <section class="punkt te" aria-labelledby="te-p3">
+        <div class="punkthode"><h3 id="te-p3">3. Forbehold</h3><span class="valgfri">Valgfri</span></div>
+        <textarea class="felt" aria-labelledby="te-p3" style="margin-top:12px"></textarea>
+      </section>
+
+      <div class="hilsen">
+        <p>Med vennlig hilsen</p>
+        <p class="bh"><b>Oslobygg KF</b></p>
+        <p class="te"><b>Veidekke Entreprenør AS</b></p>
+        <p class="settes">Navnet ditt settes inn når brevet sendes.</p>
+      </div>
+      <div class="slutt">
+        <a class="knapp nederst" href="#" data-til-steg="brevet">Se brevet før sending</a>
+        <button type="button" class="lenke">Forkast utkast</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- ============ Brevkontrollen ============ -->
+  <article class="steg-brevet brevet ark" aria-labelledby="tittel-brevet">
+    <div class="brevhode">
+      <div class="parter">
+        <div class="bh"><b>Oslobygg KF</b><span class="rolle">Byggherren</span></div>
+        <div class="bh"><b>Veidekke Entreprenør AS</b><span class="rolle">Totalentreprenøren</span></div>
+        <div class="te"><b>Veidekke Entreprenør AS</b><span class="rolle">Totalentreprenøren</span></div>
+        <div class="te"><b>Oslobygg KF</b><span class="rolle">Byggherren</span></div>
+      </div>
+      <dl class="refs">
+        <div><dt>Sak</dt><dd>KOE-17 · Manglende medvirkning eller leveranser fra byggherren</dd></div>
+        <div><dt>Deres ref.</dt><dd class="bh">K201-KOE-017-03</dd><dd class="te">K201-KOE-017-04</dd></div>
+        <div><dt>Vår ref.</dt><dd>K201-KOE-017-05</dd></div>
+        <div><dt>Dato</dt><dd class="settes">Settes ved sending</dd></div>
+      </dl>
+      <h2 class="brevtittel bh" id="tittel-brevet">Svar på krav om vederlagsjustering i sak KOE-17</h2>
+      <h2 class="brevtittel te">Krav om vederlagsjustering i sak KOE-17</h2>
+      <p class="ingress bh">Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-03 av 1. oktober 2026. Beløpene i brevet er eks. mva.</p>
+      <p class="ingress te">Totalentreprenøren krever justering av vederlaget. Beløpene i brevet er eks. mva.</p>
+    </div>
+    <section class="punkt bh"><h3>1. Forholdet</h3><p class="lag"><b>Prinsipalt</b></p><p>Byggherren har i brev K201-KOE-017-02 av 1. oktober 2026 svart at byggherren ikke har risikoen for forholdet.</p></section>
+    <section class="punkt bh"><h3>2. Varselet om vederlagsjustering (punkt 34.1.2)</h3><p class="lag"><b>Subsidiært</b>, hvis innsigelsen i punkt 1 ovenfor ikke fører frem</p><p>Byggherren gjør gjeldende at varselet om vederlagsjustering etter NS 8407 punkt 34.1.2 i brev K201-KOE-017-03 av 1. oktober 2026 kom for sent.</p><p>Varselet kom 16 dager etter at totalentreprenøren ble klar over forholdet.</p></section>
+    <section class="punkt bh"><h3>3. Beregningsmetode (punkt 34.2)</h3><p class="lag"><b>Videre subsidiært</b>, hvis heller ikke innsigelsen i punkt 2 ovenfor fører frem</p><p>Byggherren godkjenner oppgjør som fast sum.</p></section>
+    <section class="punkt bh"><h3>4. Vederlagsjustering (punkt 34.1.2)</h3><p class="lag"><b>Videre subsidiært</b>, hvis heller ikke innsigelsen i punkt 2 ovenfor fører frem</p><p>Byggherren godkjenner 60 000 kr av de krevde 100 000 kr.</p></section>
+    <section class="punkt te"><h3>1. Vederlagsjustering (punkt 34.1.1 og 34.1.2)</h3><p>P1 Kravposten i bevis-saken. Totalentreprenøren krever 100 000 kr eks. mva. Kravet for P1 er et tilbud etter NS 8407 punkt 34.2.1.</p></section>
+    <section class="punkt te"><h3>2. Varselet om vederlagsjustering</h3><p>Varsel om vederlagsjustering etter NS 8407 punkt 34.1.2 gis i dette brevet.</p></section>
+    <div class="hilsen">
+      <p>Med vennlig hilsen</p>
+      <p class="bh"><b>Oslobygg KF</b></p>
+      <p class="te"><b>Veidekke Entreprenør AS</b></p>
+      <p class="settes">Navnet ditt settes inn når brevet sendes.</p>
+    </div>
+  </article>
+
+  <!-- ============ Panelet ============ -->
+  <aside class="panel" aria-label="Panelet">
+    <div class="steg-skjema" data-spor="R3-6 R4-3">
+      <h2>Punktene i brevet</h2>
+      <ol class="punktliste bh">
+        <li><b>1</b><div>Forholdet<span>Fra brev 2</span></div></li>
+        <li><b>2</b><div>Varselet<span>Varslet for sent</span></div></li>
+        <li><b>3</b><div>Beregningsmetode<span>Godkjenner fast sum</span></div></li>
+        <li><b>4</b><div>Vederlagsjustering<span class="num">60 000 av 100 000 kr</span></div></li>
+        <li><b>5</b><div>Forbehold<span>Ikke skrevet</span></div></li>
+      </ol>
+      <ol class="punktliste te">
+        <li><b>1</b><div>Vederlagsjustering<span class="num">1 post · 100 000 kr</span></div></li>
+        <li><b>2</b><div>Varslene<span>Gis i dette brevet</span></div></li>
+        <li><b>3</b><div>Forbehold<span>Ikke skrevet</span></div></li>
+      </ol>
+    </div>
+    <div class="steg-skjema">
+      <a class="knapp full" href="#" data-til-steg="brevet">Se brevet før sending</a>
+    </div>
+
+    <div class="steg-brevet">
+      <h2>Kontroller og send</h2>
+      <dl class="felt-par" style="margin-top:12px">
+        <dt>Mottaker</dt><dd class="bh">Veidekke Entreprenør AS</dd><dd class="te">Oslobygg KF</dd>
+        <dt>Svarer på</dt><dd class="bh">Brev 3</dd><dd class="te">Brev 4</dd>
+      </dl>
+    </div>
+    <div class="steg-brevet">
+      <h3 style="font-size:14px;font-weight:600">Dette sender du</h3>
+      <ul class="sender bh">
+        <li>Prinsipalt avslår du forholdet, som i brev 2.</li>
+        <li>Subsidiært gjør du gjeldende at varselet etter punkt 34.1.2 kom for sent.</li>
+        <li>Videre subsidiært godkjenner du fast sum og 60 000 kr av 100 000 kr.</li>
+      </ul>
+      <ul class="sender te">
+        <li>P1: 100 000 kr som fast sum.</li>
+        <li>Varselet etter punkt 34.1.2 gis i dette brevet.</li>
+      </ul>
+    </div>
+    <div class="steg-brevet">
+      <label class="avkrysning"><input type="checkbox"> Jeg har kontrollert brevet</label>
+      <button type="button" class="knapp full bh">Send til totalentreprenøren</button>
+      <button type="button" class="knapp full te">Send til byggherren</button>
+    </div>
+  </aside>
+</main>
+</div>
+
+<script>
+  const skall = document.getElementById('skall');
+  const visSpor = document.getElementById('vis-spor');
+  function oppdater(){
+    const d = skall.dataset;
+    document.querySelectorAll('[data-velg-part]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.velgPart === d.part)));
+    document.querySelectorAll('[data-velg-steg]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.velgSteg === d.steg)));
+    document.querySelectorAll('[data-velg-nederst]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.velgNederst === d.nederst)));
+    document.getElementById('delbelop').hidden = document.querySelector('input[name="belop"]:checked')?.value !== 'deler';
+    const a = '#' + d.part + '-' + d.steg + (d.nederst === 'ja' ? '-nederst' : '');
+    if (location.hash !== a) history.replaceState(null, '', a);
+  }
+  // Tilstandene er ankrene #<part>-<steg>[-nederst], for eksempel #bh-skjema eller #te-brevet-nederst.
+  function lesAnker(){
+    const m = /^#(te|bh)-(skjema|brevet)(-nederst)?$/.exec(location.hash);
+    if (m) { skall.dataset.part = m[1]; skall.dataset.steg = m[2]; skall.dataset.nederst = m[3] ? 'ja' : 'nei'; }
+    oppdater();
+  }
+  document.querySelectorAll('[data-velg-part]').forEach(b => b.addEventListener('click', () => { skall.dataset.part = b.dataset.velgPart; oppdater(); }));
+  document.querySelectorAll('[data-velg-steg]').forEach(b => b.addEventListener('click', () => { skall.dataset.steg = b.dataset.velgSteg; oppdater(); }));
+  document.querySelectorAll('[data-velg-nederst]').forEach(b => b.addEventListener('click', () => { skall.dataset.nederst = b.dataset.velgNederst; oppdater(); }));
+  document.querySelectorAll('[data-til-steg]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); skall.dataset.steg = a.dataset.tilSteg; oppdater(); scrollTo(0, 0); }));
+  document.querySelectorAll('[data-tilbake]').forEach(a => a.addEventListener('click', e => e.preventDefault()));
+  document.querySelectorAll('input[name="belop"]').forEach(i => i.addEventListener('change', oppdater));
+  visSpor.addEventListener('change', () => { skall.dataset.visSpor = visSpor.checked ? 'ja' : 'nei'; });
+  lesAnker();
+  addEventListener('hashchange', lesAnker);
+</script>
+</body>
+</html>

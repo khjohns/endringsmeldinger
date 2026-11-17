@@ -82,8 +82,8 @@ feltkanten fra #1258.
   [`fargetokens.test.ts`](../src/lib/fargetokens.test.ts) feiler under kravet for
   flatene den lister i `FLATER`, ikke for andre flater eller lokale overstyringer.
 - **Kanter, ikke skygger.** Strukturen tegnes med `--rule`, `--rule-subtle` og
-  `--rule-strong`. Skygger (`--overlay-shadow-sm`) brukes bare på overlegg, som infotipset og
-  lappen i sakslisten.
+  `--rule-strong`. Skygger (`--overlay-shadow-sm`) brukes bare på overlegg, som lappen i
+  sakslisten.
 
 ## Typografi
 
@@ -341,9 +341,10 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   fordi løsningen ikke vet det (#1402).
 - **Hvordan løsningen virker, forklares ikke ved feltene.** Setninger som «Teksten tolkes
   ikke» og «Innholdet vurderes ikke» står ikke i flaten. Slike forklaringer hører på en
-  egen side om løsningen eller i et infotips (#1402). Setninger om hva
+  egen side om løsningen (#1402). Varden har ingen infotips, heller ikke som ikon i hodet på et
+  skjema (oppdragsgiver 17.11, #2163). Setninger om hva
   løsningen ikke avgjør, som «Om varselet kom i tide, avgjør partene», står ikke i appen i det
-  hele tatt, heller ikke i et infotips (#1663: «slik informasjon kan
+  hele tatt (#1663: «slik informasjon kan
   fjernes. Høres generelt ikke hjemme i appen»).
 - **Én primærhandling per skjerm** (`Knapp` med `variant="primaer"`). I svaret er det
   «Se brevet før sending», bare i panelet med hovedlinjene og fast i bunnen av
@@ -391,9 +392,8 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   (PR 1650, #1925, #2119).
 - **Utkastet sier det selv.** Hodet på utkastkortet sier «Utkast · ikke sendt». Det sier ikke at
   brevet bare er synlig for teamet, fordi det er åpenbart for et utkast (oppdragsgiver 12.11 i
-  #1663). Sendepanelet i brevkontrollen, og panelet
-  med punktene i et langt skjema, sier «Utkast» og «Ikke sendt» ved knappen, så statusen står i
-  bildet også når hodet er rullet ut av det (#1663). Merket «Utkast» i panelet til venstre, og i sporraden der panelet er felt inn,
+  #1663). Panelet med punktene og sendepanelet i brevkontrollen har ikke merket «Utkast» ved
+  knappen (oppdragsgiver 17.11, #2163). Merket «Utkast» i panelet til venstre, og i sporraden der panelet er felt inn,
   vises bare når et annet spor er valgt, så statusen aldri står to steder samtidig.
 - **Lesing ved siden av** er én lenkeknapp som veksler mellom «Les brevet ved siden av»
   og «Lukk brevet». Rammen følger brevet og er høyst like høy som vinduet, så et
