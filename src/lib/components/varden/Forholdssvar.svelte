@@ -33,11 +33,11 @@
     forholdet,
     forholdslinjen,
     forholdssvaret,
-    kanFrafalle,
     tomtForholdssvar,
     valgteksten,
     type Forholdssvarvalg,
   } from './forholdssvar';
+  import { kanFrafalle } from '#kjerne/regler/forhold.ts';
   import { brevene, standpunktene, underOverskriften } from './lesing';
   import { vedleggskart } from './nysak';
   import { kravbrevetI, kravetSendt, manglene } from './svarskjema';
@@ -79,7 +79,7 @@
       u.spor.forhold.gjeldendeKrav!
   );
   const f = $derived(forholdet(krav, kjernesak.regler));
-  const frafallMulig = $derived(kanFrafalle(f, valg));
+  const frafallMulig = $derived(kanFrafalle(f, valg.forSent === true));
 
   // U-3: datoen TE oppgir, sendingen av påberopelsen og dagene mellom. Partene avgjør om varselet
   // kom i tide.
@@ -124,7 +124,8 @@
     const r = valg.resultat;
     if (r && valgteksten(r, f, x) !== valgteksten(r, f, valg.forSent)) valg.resultat = null;
     valg.forSent = x;
-    if (valg.resultat === 'paalegg_frafalt' && !kanFrafalle(f, valg)) valg.resultat = null;
+    if (valg.resultat === 'paalegg_frafalt' && !kanFrafalle(f, valg.forSent === true))
+      valg.resultat = null;
   }
   const valgene = $derived(
     f.resultater

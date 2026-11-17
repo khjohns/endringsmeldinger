@@ -9,6 +9,7 @@
   import { ArrowRight } from 'lucide-svelte';
   import type { Component } from 'svelte';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { forseringKanVelges } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Part, Spor } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
@@ -20,7 +21,6 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Vederlagsoversikt from './Vederlagsoversikt.svelte';
-  import { prinsipaltAvslaatteDager } from './fristoversikt';
   import { aksepten } from './kommandoer';
   import { fokuser } from './mangler';
   import { sendeflyt } from './sendeflyt.svelte';
@@ -223,7 +223,7 @@
   // Forsering står for totalentreprenøren når byggherren prinsipalt har avslått dager (U-6 i
   // BF-45, FO-U1, svar 3 A). «Andre handlinger» setter den foran «Trekk kravet» (`BREVTYPER`).
   const forsering = $derived(
-    spor === 'frist' && part === 'TE' && kanGodta && prinsipaltAvslaatteDager(u)
+    spor === 'frist' && part === 'TE' && kanGodta && forseringKanVelges(u)
   );
   const andre = $derived([
     ...menyvalg.filter((n) => !(godtaVedBrevet && n === `godta:${spor}`) && n !== revidere),

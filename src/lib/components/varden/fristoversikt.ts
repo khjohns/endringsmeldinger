@@ -221,18 +221,3 @@ export function kravdagene(
     ])
   );
 }
-
-/**
- * Byggherren har prinsipalt avslått dager for en frist i svaret på kravet som gjelder, også gjennom
- * forholdet: svaret er subsidiært til et avslag av forholdet, eller det første laget i fristen gir
- * færre dager enn kravet (FO-U1, U-6 og D-12 i BF-45).
- */
-export function prinsipaltAvslaatteDager(u: Utledning): boolean {
-  const { gjeldendeKrav: krav, gjeldendeSvar: svar, subsidiaer } = u.spor.frist;
-  if (!krav || svar?.gjelder !== krav.id) return false;
-  if (subsidiaer.length) return true;
-  const krevd = new Map(innholdIFristen(krav).frister.map((f) => [f.id, f.dager]));
-  return utregningIFristen(svar.utregning).frister.some(
-    (r) => r.godkjent_dager < (krevd.get(r.gjelder) ?? 0)
-  );
-}

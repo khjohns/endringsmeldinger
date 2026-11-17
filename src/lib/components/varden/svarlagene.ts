@@ -119,16 +119,3 @@ export const medForbehold = (u: Utledning, svar: Svar, svarbrev: Brevet): boolea
   u.svar[svar.id]?.forholdssvaret === null &&
   svar.paaberopelse !== null &&
   !!svarbrev.avsnitt?.some((a) => a.punkt === FORBEHOLDET);
-
-/**
- * Akseptfristen i byggherrens gjeldende svar i sporet, med brevet, så lenge svaret kan godtas: det
- * er ikke godtatt, kravet er ikke trukket, og saken er ikke lukket fordi forholdet er avvist ved
- * enighet (U-11 i BF-44, HF-U23 punkt 4, GR-U27). Ellers `null`.
- */
-export function akseptfristen(u: Utledning, spor: 'vederlag' | 'frist') {
-  const s = u.spor[spor].gjeldendeSvar;
-  const { enighet, trukket } = u.spor[spor];
-  return s?.akseptfrist && !enighet && !trukket && !u.forholdAvvist
-    ? { brev: s.dokument, dato: s.akseptfrist }
-    : null;
-}

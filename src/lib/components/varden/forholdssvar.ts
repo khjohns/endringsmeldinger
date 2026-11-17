@@ -60,10 +60,6 @@ export function forholdet(krav: Krav, regler: Regelsett): Forholdet {
   };
 }
 
-/** D-6 (vedtaket for #235): frafall er ikke et valg sammen med at varselet kom for sent. */
-export const kanFrafalle = (f: Forholdet, v: Pick<Forholdssvarvalg, 'forSent'>): boolean =>
-  f.resultater.includes('paalegg_frafalt') && !(f.varslingsplikt && v.forSent === true);
-
 /**
  * D-7: punktene der én av dem må ha en begrunnelse (`begrunnelseskravet` i kjernen), og
  * hvorfor, eller `null` når begrunnelsen er valgfri.
