@@ -3970,7 +3970,9 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'fristkravet registrerer et brev med varselet som alt står i saken, på nytt (#2082, OV-U80, OV-U84)',
     fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [['  if (!brevet) return null;', '  if (!brevet || !varselet) return null;']],
+    endringer: [
+      ['  if (brevet)\n    return varselet', '  if (brevet && varselet)\n    return varselet'],
+    ],
     mal: ['et fristkrav med et brev som alt står i saken med varselet etter punkt 32.2'],
   },
   {
@@ -3985,7 +3987,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F711',
     feilklasse:
       'samme fil lastet opp på nytt med en ny ID regnes som et annet brev enn det registrerte (#2100, OV-U80)',
-    fil: `${K}/spor/frist/kommando.ts`,
+    fil: `${K}/kommandoer/vedlegg.ts`,
     endringer: [
       [
         'oppslag.get(id.toLowerCase())?.innhold_sha256 ?? `id:${id.toLowerCase()}`',
@@ -3993,6 +3995,18 @@ const MUTASJONER: Mutasjon[] = [
       ],
     ],
     mal: ['samme fil lastet opp på nytt som brevet med varselet'],
+  },
+  {
+    id: 'F712',
+    feilklasse:
+      'et fristkrav sendt fra løsningen legger ved brevet med varselet etter punkt 33.4 som står i saken (#2100, VS-U73)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [
+      ['vedKravetsBrev ? brevene.find((h) => h.id === varselet.dokument) : undefined', 'undefined'],
+    ],
+    mal: [
+      'et fristkrav sendt fra løsningen med brevet der varselet etter punkt 33.4 alt er registrert',
+    ],
   },
   {
     id: 'F713',
@@ -4040,13 +4054,50 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [["...(paakrevde.includes('spesifisert_krav_ok') &&", '...(false &&']],
     mal: ['dagene byggherren måtte forstå påkrevd for hver frist'],
   },
+  {
+    id: 'F718',
+    feilklasse:
+      'et fristkrav lagt til som korrespondanse avvises med brevet som ble sendt, når brevet står i saken som varselet etter punkt 33.4 (#2100, VS-U73, OV-U80)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['varselet && k.sendt === undefined && ', 'varselet && ']],
+    mal: ['et fristkrav lagt til som korrespondanse har brevet som ble sendt'],
+  },
+  {
+    id: 'F719',
+    feilklasse:
+      'et vederlagskrav lagt til som korrespondanse avvises med brevet som ble sendt, når brevet står i saken som et varsel for en kravpost (#2100, VS-U73, OV-U80)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['  if (k.sendt !== undefined) return null;\n', '']],
+    mal: ['et vederlagskrav lagt til som korrespondanse har brevet som ble sendt'],
+  },
+  {
+    id: 'F720',
+    feilklasse:
+      'et fristkrav sendt fra løsningen godtas med ett av vedleggene ved varselet etter punkt 33.4 i saken (#2142, VS-U75)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['.some((x) => vedleggene.has(x))', '.every((x) => vedleggene.has(x))']],
+    mal: ['avvises også med ett av vedleggene ved varselet etter punkt 33.4'],
+  },
+  {
+    id: 'F721',
+    feilklasse:
+      'vedleggene ved et vederlagskrav prøves mot varslene for en kravpost på ID-en, ikke på innholdet (#2100, VS-U73)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [
+      [
+        'innholdetIVedleggene(k.dokumentasjon ?? [], sak.oppslag)',
+        'innholdetIVedleggene(k.dokumentasjon ?? [], new Map())',
+      ],
+    ],
+    mal: ['samme fil lastet opp på nytt som vedlegget ved et varsel for en kravpost'],
+  },
 
   {
     id: 'F705',
     feilklasse:
       'et brev som har ett av vedleggene til et registrert brev, regnes som det registrerte brevet (#2082)',
     fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [['  if (a.size !== b.size) return false;\n', '']],
+    endringer: [['  a.size === b.size && erDelAv(a, b);', '  erDelAv(a, b);']],
     mal: ['et nytt brev med ett av vedleggene godtas'],
   },
   {
@@ -4473,10 +4524,7 @@ const MUTASJONER: Mutasjon[] = [
       'et vedlegg ved kravet som alt ligger ved et varsel for en kravpost, tar varselet bort fra kravposten (VS-U55, #1823)',
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
-      [
-        '  return (k.dokumentasjon ?? []).some((id) => iVarslene.has(id.toLowerCase()))\n    ? vedleggVedEtVarsel(',
-        '  return false\n    ? vedleggVedEtVarsel(',
-      ],
+      ["return varselet ? vedleggVedEtVarsel('ved kravet', varselet) : null;", 'return null;'],
     ],
     mal: ['et vedlegg ved kravet som alt ligger ved et varsel for en kravpost i saken, avvises'],
   },

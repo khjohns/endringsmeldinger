@@ -622,6 +622,32 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(kortet.getByRole('button', { name: /^Godta svaret/ })).toBeTruthy();
   });
 
+  it('når kjernen ikke lager aksepten, står hindringen ved knappen med fokus, og «Godta svaret» viser til den (MM-U32, #2130)', async () => {
+    const demosak = lagDemosak(finnForloep('BF-04')!, 'te-har-mottatt-svaret', 'TE');
+    const ekte = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'TE',
+      hent: demosak.hent,
+      send: demosak.send,
+    });
+    await ekte.last();
+    // Kjernen gir ikke noe brev for aksepten; resten av saken er den ekte.
+    const kjernesak = new Proxy(ekte, {
+      get: (t, k) => (k === 'brev' ? () => null : Reflect.get(t, k, t)),
+    });
+    render(Vardensak, { kjernesak, spor: 'vederlag' });
+    await screen.findByRole('list', { name: 'Brevene, nyeste først' });
+    const godta = within(screen.getByRole('main')).getByRole('button', { name: /^Godta svaret/ });
+    await fireEvent.click(godta);
+    const hindringen = await screen.findByText('Aksepten kan ikke lages nå.');
+    await vi.waitFor(() => expect(document.activeElement).toBe(hindringen.closest('[tabindex]')));
+    expect(godta.getAttribute('aria-describedby')!.split(' ')).toContain(
+      hindringen.closest('[id]')!.id
+    );
+    expect(screen.queryByRole('region', { name: 'Sending' })).toBeNull();
+  });
+
   it('MM-U2: en opprettelse kjernen ikke forstår, gir overskriften «Uten tittel» og en melding om at saken ikke kan leses (#2079)', async () => {
     const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
     const hent: typeof demosak.hent = async (...a) => {

@@ -4,7 +4,8 @@
   den åpne posten er sporets eget (#1778).
 -->
 <script lang="ts" generics="P extends { id: string }">
-  import { tick, type Snippet } from 'svelte';
+  import type { Snippet } from 'svelte';
+  import { fokuser } from './mangler';
   import Knapp from './Knapp.svelte';
   import { SKJEMA, SVARSKJEMA } from './tekster';
 
@@ -56,14 +57,14 @@
 
   export async function aapne(id: string, fokus?: string) {
     valgt = id;
-    await tick();
-    const p = poster.find((x) => x.id === id);
-    document.getElementById(fokus ?? (p ? foersteFelt(p) : ''))?.focus();
+    await fokuser(() => {
+      const p = poster.find((x) => x.id === id);
+      return document.getElementById(fokus ?? (p ? foersteFelt(p) : ''));
+    });
   }
   async function lukk(id: string) {
     valgt = '';
-    await tick();
-    document.getElementById(`${prefiks}-endre-${id}`)?.focus();
+    await fokuser(() => document.getElementById(`${prefiks}-endre-${id}`));
   }
 </script>
 
