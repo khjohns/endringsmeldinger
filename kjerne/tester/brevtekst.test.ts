@@ -4254,6 +4254,134 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
   });
 });
 
+describe('et brev sendt utenfor løsningen som både varsler og krever, legges til som krav (VS-U74)', () => {
+  const kravbrevet = '7f1c2d3e-0000-4000-8000-000000002133';
+  const melding = (punkt: string) =>
+    `Brevet står alt i saken som krav, og kravet gjelder som varselet etter punkt ${punkt}. Det samme brevet kan ikke legges til som varsel etter punkt ${punkt}. Har totalentreprenøren sendt et eget varsel før kravet, kan det brevet legges til.`;
+  const lagtTil = (krav: Data) => ({
+    ...krav,
+    ...SOM_BREV,
+    sendt: '2026-10-01',
+    dokumentasjon: [kravbrevet],
+  });
+  const fristkravet = lagtTil(utenFelt(utenFelt(FRISTKRAV, 'varsel'), 'utdypning'));
+  const vederlagskravet = lagtTil({
+    type: 'krav',
+    spor: 'vederlag',
+    innhold: tilbud(125000, { saerskilt: { produktivitet: { beloep: 40000 } } }),
+  });
+  const varsel = (
+    spor: string,
+    hjemmel: string,
+    dokumentasjon: string[],
+    sendt = '2026-10-01'
+  ) => ({
+    type: 'varsel',
+    ...SOM_BREV,
+    spor,
+    hjemmel,
+    sendt,
+    dokumentasjon,
+  });
+
+  it.each([
+    ['33.4', 'frist', fristkravet],
+    ['34.1.2', 'vederlag', vederlagskravet],
+    ['34.1.3', 'vederlag', vederlagskravet],
+  ] as const)(
+    'brevet som er lagt til som krav, avvises som varsel etter punkt %s, og et annet brev godtas',
+    (hjemmel, spor, krav) => {
+      const s = sak();
+      s.send('TE', PAABEROPELSE);
+      s.send('TE', krav);
+      expect(s.avvisning('TE', varsel(spor, hjemmel, [kravbrevet]))).toEqual({
+        regel: 'KRAVET_ER_VARSELET',
+        melding: melding(hjemmel),
+      });
+      expect(
+        s.avvist('TE', varsel(spor, hjemmel, [randomUUID()], '2026-09-28')),
+        'kontrollsak: et eget varsel sendt før kravet'
+      ).toBeNull();
+    }
+  );
+
+  it('et vederlagskrav uten posten etter punkt 34.1.3 annet ledd gjelder ikke som varselet etter punkt 34.1.3, og brevet godtas som det varselet (VS-U74, OV-U5)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', lagtTil({ type: 'krav', spor: 'vederlag', innhold: tilbud(125000) }));
+    expect(s.avvist('TE', varsel('vederlag', '34.1.3', [kravbrevet]))).toBeNull();
+    expect(s.avvist('TE', varsel('vederlag', '34.1.2', [kravbrevet])), 'kontrollsak').toBe(
+      'KRAVET_ER_VARSELET'
+    );
+  });
+
+  it('et krav sendt fra løsningen med brevet som vedlegg sperrer ikke brevet som varsel, fordi brevet ikke er kravet (VS-U74)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: tilbud(125000),
+      dokumentasjon: [kravbrevet],
+    });
+    expect(s.avvist('TE', varsel('vederlag', '34.1.2', [kravbrevet], '2026-09-28'))).toBeNull();
+  });
+
+  it('et tidligere varsel etter samme bestemmelse legges til uten retting, og det tidligste regnes (VS-U66, VS-U70)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', fristkravet);
+    const varselet = s.send('TE', varsel('frist', '33.4', [VARSELBREVET], '2026-09-28'));
+    const u = s.u();
+    expect(u.spor.frist.varsler['33.4']?.dokument).toBe(varselet.event_id);
+    expect(varseletForNyttSvar(u, '33.4'), 'påberopelsen gjelder varselet sendt før kravet').toBe(
+      u.spor.frist.varsler['33.4']?.id
+    );
+  });
+
+  it('samme brev lastet opp på nytt er samme brev, og et brev med et vedlegg til er et annet (#2100)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', fristkravet);
+    const lastetOpp = randomUUID();
+    const lager = new Map([
+      [
+        lastetOpp,
+        { vedlegg_id: lastetOpp, filnavn: 'krav.pdf', innhold_sha256: innholdssummen(kravbrevet) },
+      ],
+    ]);
+    const kontekst = {
+      sakId: SAK,
+      aktoerId: 'te',
+      part: 'TE' as const,
+      teamId: null,
+      sakskode: { kode: 'koe' as const, loepenummer: 17 },
+      kontraktsforkortelse: 'K201',
+      kontraktsfrister: [],
+      tidspunkt: () => new Date('2026-10-07T08:00:00Z'),
+      nyId: randomUUID,
+    };
+    const utfall = forhaandsvis(
+      varsel('frist', '33.4', [lastetOpp]),
+      kontekst,
+      s.journal,
+      KJERNE,
+      lager
+    );
+    expect(utfall.godtatt ? null : utfall.avvisning.regel).toBe('KRAVET_ER_VARSELET');
+    expect(
+      s.avvist('TE', varsel('frist', '33.4', [kravbrevet, PLAN])),
+      'kontrollsak: hele dokumentet sammenliknes'
+    ).toBeNull();
+  });
+
+  it('punkt 32.2 er uendret: brevet med påberopelsen kan legges til som varsel etter punkt 32.2 (VS-U74, svaret 2a)', () => {
+    const s = sak();
+    s.send('TE', lagtTil(utenFelt(PAABEROPELSE, 'utdypning')));
+    expect(s.avvist('TE', varsel('forhold', '32.2', [kravbrevet], '2026-09-28'))).toBeNull();
+  });
+});
+
 /**
  * VS-U38: har TE alt sendt varselet etter punkt 32.2 utenfor løsningen, legges dokumentet
  * med varselet ved påberopelsen. Et fristkrav har brevet med varselet i `varsel` (OV-U5).

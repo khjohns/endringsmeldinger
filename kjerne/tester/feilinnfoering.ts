@@ -4096,9 +4096,9 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F705',
     feilklasse:
       'et brev som har ett av vedleggene til et registrert brev, regnes som det registrerte brevet (#2082)',
-    fil: `${K}/spor/frist/kommando.ts`,
-    endringer: [['  a.size === b.size && erDelAv(a, b);', '  erDelAv(a, b);']],
-    mal: ['et nytt brev med ett av vedleggene godtas'],
+    fil: `${K}/kommandoer/vedlegg.ts`,
+    endringer: [['  return innholdet.size === vedlagte.size && ', '  return ']],
+    mal: ['et nytt brev med ett av vedleggene godtas', 'et brev med et vedlegg til er et annet'],
   },
   {
     id: 'F444',
@@ -6287,6 +6287,35 @@ const MUTASJONER: Mutasjon[] = [
       ["svarIkkeGodtatt(u, 'frist') && prinsipaltAvslaatteDager(u)", 'prinsipaltAvslaatteDager(u)'],
     ],
     mal: ['ikke etter at totalentreprenøren har godtatt svaret'],
+  },
+  {
+    id: 'F737',
+    feilklasse:
+      'brevet som er lagt til som krav, tas imot som varsel etter samme bestemmelse (VS-U74, #2133)',
+    fil: `${K}/kommandoer/skriving.ts`,
+    endringer: [
+      [
+        '        ? kravetErVarselet(k, ogsaaEtter, lestSak, vedlegg)',
+        '        ? (kravetErVarselet(k, ogsaaEtter, lestSak, vedlegg) && null)',
+      ],
+    ],
+    mal: ['brevet som er lagt til som krav, avvises som varsel etter punkt'],
+  },
+  {
+    id: 'F738',
+    feilklasse:
+      'et krav sendt fra løsningen med brevet som vedlegg sperrer brevet som varsel (VS-U74, #2133)',
+    fil: `${K}/kommandoer/vedlegg.ts`,
+    endringer: [['      erRegistrert(h.dokument.opplysninger) &&', '      true &&']],
+    mal: ['et krav sendt fra løsningen med brevet som vedlegg sperrer ikke brevet som varsel'],
+  },
+  {
+    id: 'F739',
+    feilklasse:
+      'sperren for brevet med kravet gjelder også varselet etter punkt 32.2 (VS-U74, svaret 2a)',
+    fil: `${K}/kommandoer/vedlegg.ts`,
+    endringer: [["const KRAVET_ER_VARSEL = ['33.4',", "const KRAVET_ER_VARSEL = ['32.2', '33.4',"]],
+    mal: ['punkt 32.2 er uendret'],
   },
 ];
 interface Testresultat {
