@@ -79,6 +79,31 @@ describe('forseringen kan velges så lenge totalentreprenøren ikke har godtatt 
     ).toBe(false);
   });
 
+  it.each([
+    ['kravet er trukket (KA-U51)', [{ handling: 'trekk', spor: 'frist' }]],
+    [
+      'en ny kravversjon venter på svar (HF-U23 punkt 9)',
+      [
+        {
+          handling: 'krav',
+          spor: 'frist',
+          frister: [
+            { frist_id: 2, dager: 26 },
+            { frist_id: 1, dager: 20 },
+            { nummer: '8', navn: 'Overtakelse av utomhusarbeider', dager: 20 },
+          ],
+          navn: 'K-f2',
+        },
+      ],
+    ],
+    [
+      'totalentreprenøren har godtatt avslaget av forholdet, og saken er lukket (GR-U27)',
+      [AVSLAG_AV_FORHOLDET, { handling: 'aksept', spor: 'forhold' }],
+    ],
+  ] as [string, Handling[]][])('valget står ikke når %s', async (_n, etter) => {
+    expect(forseringKanVelges(await utledning([...BF45.steg, ...etter]))).toBe(false);
+  });
+
   it('valget står ikke uten prinsipalt avslåtte dager', async () => {
     expect(forseringKanVelges(await utledning(BF45.steg.slice(0, 3)))).toBe(false);
   });
@@ -125,6 +150,18 @@ describe('akseptfristen står så lenge totalentreprenøren kan godta svaret (HF
 
   it.each([
     ['kravet er trukket (KA-U51)', [{ handling: 'trekk', spor: 'vederlag' }]],
+    [
+      'en ny kravversjon venter på svar (HF-U23 punkt 9)',
+      [
+        {
+          handling: 'krav',
+          spor: 'vederlag',
+          kravposter: [{ post: 'P1', belop: 140000 }],
+          produktivitet: 40000,
+          navn: 'K-v3',
+        },
+      ],
+    ],
     ['totalentreprenøren har godtatt svaret (GR-U8)', [{ handling: 'aksept', spor: 'vederlag' }]],
     [
       'totalentreprenøren har godtatt avslaget av forholdet, og saken er lukket (GR-U27)',
