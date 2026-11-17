@@ -24,10 +24,11 @@ import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
 import type {
   Kontekst,
-  LestSak,
   Skrivesteg,
   Sporsskriving,
   Utfall,
+  Sakssperre,
+  Vedleggsoppslag,
 } from '../../kommandoer/skriving.ts';
 import {
   foresporselForFristsvar,
@@ -357,68 +358,77 @@ function fristIkkeRegistrert(
  * Fristkravet med varselet etter § 33.4 TE legger til i kravskjemaet, som to rader: varselet som
  * registrert korrespondanse med kategorien varsel, og så kravet, som legger dokumentet ved
  * (VS-U34, VS-U53, C1 i #2056). Er varselet alt registrert, er kravet én rad, og datoen
- * kontrolleres mot det registrerte (`NYTTELAST`). Hele handlingen prøves før den første raden gis.
+ * kontrolleres mot det registrerte (`NYTTELAST`). Brevet prøves mot saken i `saksperre`.
  */
-function medVarselet(
-  k: Extract<Kommando, { type: 'krav' }>,
-  kontekst: Kontekst,
-  journal: Journalrad[],
-  skriving: Skrivesteg
-): Utfall | null {
-  if (!k.varsel || skriving.saken(journal).u.spor.frist.varsler['33.4']) return null;
+function medVarselet(k: Extract<Kommando, { type: 'krav' }>, skriving: Skrivesteg): Utfall | null {
+  if (!k.varsel || skriving.sakenFoer().u.spor.frist.varsler['33.4']) return null;
   const { varsel, ...kravet } = k;
-  const kjede = (kx: Kontekst, jx: Journalrad[]): Utfall => {
+  return skriving.proevd((kx, jx) => {
     const varselet = varseletIKravet(varsel, skriving, kx, jx);
     if (!varselet.godtatt) return varselet;
-    // Etter kontrollene av varselet, så en avvisning for rollen eller saken kommer først.
-    const registrert = varseldokumentetISaken(k, skriving.saken(jx));
-    if (registrert) return { godtatt: false, feil: 'REGELBRUDD', avvisning: registrert };
     return {
       godtatt: true,
       hendelser: varselet.hendelser,
       neste: (ky, jy) => skriving.skriv(kravet, ky, jy, varsel.dokumentasjon ?? []),
     };
-  };
-  if (skriving.sendes) {
-    const proeve = skriving.hele(kjede(kontekst, journal), kontekst, journal);
-    if (!proeve.godtatt) return proeve;
-  }
-  return kjede(kontekst, journal);
+  });
 }
 
 /**
  * #2082: korrespondansen registreres én gang (OV-U80). Er totalentreprenørens brev med varselet
- * alt i saken, med de samme vedleggene, velger totalentreprenøren varselet etter § 33.4 for det
- * (OV-U84), eller viser kravet til varselet som står i saken (VS-U55). Hele dokumentet
- * sammenliknes, fordi ett vedlegg kan ligge ved to brev. Med varselet etter § 33.4 i saken
- * prøves kravet i `saksperre`, ellers i `medVarselet`.
+ * alt i saken, med det samme innholdet i vedleggene, velger totalentreprenøren varselet etter
+ * § 33.4 for det (OV-U84), eller viser kravet til varselet som står i saken (VS-U55). Hele
+ * dokumentet sammenliknes, fordi ett vedlegg kan ligge ved to brev. Vedleggene sammenliknes på
+ * innholdet, så samme fil lastet opp på nytt er samme brev (#2100). Saken er den før handlingen,
+ * så varselet kravskjemaet skrev i samme handling (`medVarselet`, `vedKravet`), ikke er med.
  */
 function varseldokumentetISaken(
   k: Extract<Kommando, { type: 'krav' }>,
-  { lest, u }: LestSak
+  { foer, vedKravet, oppslag }: Sakssperre
 ): Avvisning | null {
-  if (!k.varsel?.dokumentasjon?.length) return null;
-  const noekkel = (ider: readonly string[]) =>
-    JSON.stringify([...new Set(ider.map((id) => id.toLowerCase()))].sort());
-  const varselet = noekkel(k.varsel.dokumentasjon);
-  const rettet = new Set(lest.flatMap((h) => (h.art === 'dokument' ? [h.dokument.retter] : [])));
-  const brevet = lest.find(
-    (h): h is Extract<Domenehendelse, { art: 'dokument' }> =>
+  const varselet = foer.u.spor.frist.varsler['33.4'];
+  const vedlagte = innholdetIVedleggene(
+    [...vedKravet, ...(k.varsel?.dokumentasjon ?? [])],
+    oppslag
+  );
+  if (!vedlagte.size) return null;
+  const rettet = new Set(
+    foer.lest.flatMap((h) => (h.art === 'dokument' ? [h.dokument.retter] : []))
+  );
+  const brevene = foer.lest.filter(
+    (h): h is Brevet =>
       h.art === 'dokument' &&
       h.dokument.avsender === 'TE' &&
       erRegistrert(h.dokument.opplysninger) &&
-      !rettet.has(h.id) &&
-      noekkel(h.dokument.dokumentasjon.map((v) => v.vedlegg_id)) === varselet
+      !rettet.has(h.id)
   );
+  const brevet = brevene.find((h) => likeMengder(innholdetIBrevet(h), vedlagte));
   if (!brevet) return null;
   const omtale = omtalen(brevet.dokument);
   const som = omtale ? ` som ${omtale}` : '';
   return avvis(
     'VARSEL_REGISTRERT',
-    u.spor.frist.varsler['33.4']
+    varselet
       ? `Brevet med varselet står alt i saken${som}, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet.`
       : `Brevet med varselet står alt i saken${som}. Velg varselet etter punkt 33.4 for det brevet i stedet for å legge det ved kravet på nytt.`
   );
+}
+
+type Brevet = Extract<Domenehendelse, { art: 'dokument' }>;
+
+/** Innholdet i vedleggene, med ID-en for et vedlegg mellomlageret ikke har (#2100). */
+const innholdetIVedleggene = (ider: readonly string[], oppslag: Vedleggsoppslag) =>
+  new Set(
+    ider.map((id) => oppslag.get(id.toLowerCase())?.innhold_sha256 ?? `id:${id.toLowerCase()}`)
+  );
+
+const innholdetIBrevet = (h: Brevet) =>
+  new Set(h.dokument.dokumentasjon.map((v) => v.innhold_sha256));
+
+function likeMengder(a: ReadonlySet<string>, b: ReadonlySet<string>): boolean {
+  if (a.size !== b.size) return false;
+  for (const x of a) if (!b.has(x)) return false;
+  return true;
 }
 
 /** Raden med varselet fra kravskjemaet som registrert varsel etter § 33.4 (`medVarselet`). */
@@ -468,6 +478,6 @@ function varseletIKravet(
 export const SKRIVING_I_FRISTEN = {
   kravinnhold: fristeneSomLagres,
   kontekstsperre: fristIkkeRegistrert,
-  saksperre: (k, lest, u) => varseldokumentetISaken(k, { lest, u }),
+  saksperre: varseldokumentetISaken,
   handlingen: medVarselet,
 } satisfies Sporsskriving;
