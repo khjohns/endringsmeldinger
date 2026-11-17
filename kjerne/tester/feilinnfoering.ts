@@ -27,8 +27,8 @@
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
  * feil i filene med målene er assertions, ikke import, oppsett eller en brutt forutsetning
  * (`.claude/rules/tester.md`). Unntatt er forutsetningene mutasjonen selv oppgir, om
- * atferden den endrer (`forutsetninger`, #1859). En feil i en annen fil meldes, men avgjør
- * ikke utfallet, så utvalget og hele samlingen gir samme utfall (#2108).
+ * atferden den endrer (`forutsetninger`, #1859). Bare filene med målene avgjør utfallet
+ * (#2108); for en annen fil meldes antallet feil som ikke er assertions.
  *
  * Mutasjonene fordeles på flere kopier av arbeidstreet, med lokale endringer,
  * som kjører samtidig (#378). Lagringstestene i `sprakprove/kjernelagring/` lager
@@ -64,6 +64,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  realpathSync,
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
@@ -2207,15 +2208,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['påberoper «for sent» etter § 32.2 etter «i tide», godtas og leses som påberopelse'],
     // Svaret på forholdet har ikke feltet for § 34.1.2, så mutasjonen fjerner påberopelsen etter
     // § 32.2. Brukerforløpene og regelendringen bygger på den: uten den er forholdet avklart.
-    forutsetninger: [
-      {
-        test: 'brukerforløpene',
-        melding:
-          'BF-02A etter steg 2 [MM-U52, MM-U55, VS-U43]: standpunkt.S-g1.rettidighet.iTide er null',
-      },
-      { test: 'brukerforløpene', melding: 'steg 3 (aksept) avvist: ENIGHET_I_SPORET' },
-      { test: 'regelendringen', melding: 'aksept ble avvist: ENIGHET_I_SPORET' },
-    ],
   },
   {
     id: 'F267',
@@ -6449,10 +6441,12 @@ interface Utfall {
 const iForutsetningene = (m: Mutasjon, navn: string, melding: string) =>
   (m.forutsetninger ?? []).some((f) => treffer(navn, f.test) && melding.includes(f.melding));
 
+const erAssertion = (t: Testresultat) => t.failureMessages.join('\n').includes('AssertionError');
+
 function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): Utfall {
-  // #2108: bare filene med målene avgjør utfallet, som i utvalget på en PR. En feil i en annen
-  // fil meldes, men gjør ikke mutasjonen overlevende, så utvalget og hele samlingen er enige.
-  const iMaalfilene = (fil: string) => maalfilene.get(m)!.has(relative(k.rot, fil));
+  // #2108. Vitest melder filene med realpath.
+  const rot = realpathSync(k.rot);
+  const iMaalfilene = (fil: string) => maalfilene.get(m)!.has(relative(rot, fil));
   const [andreFiler, filene] = delEtter(rapport.testResults, (f) => iMaalfilene(f.name));
   const [utenforMaalene, iMaalene] = delEtter(suitefeilene(rapport), (f) => iMaalfilene(f.fil));
   const tester = filene.flatMap((f) => f.assertionResults);
@@ -6460,22 +6454,16 @@ function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): Utfall {
   const [suitefeil, godtattSuite] = delEtter(iMaalene, (f) =>
     iForutsetningene(m, suitenavn(f, k), f.melding)
   );
-  // Antallet feil som ikke er assertions, per fil utenfor målfilene (#2108).
   const utenfor = new Map<string, number>();
   const tell = (fil: string, antall: number) => {
-    const sti = relative(k.rot, fil);
+    const sti = relative(rot, fil);
     if (antall) utenfor.set(sti, (utenfor.get(sti) ?? 0) + antall);
   };
   for (const f of utenforMaalene) tell(f.fil, 1);
   for (const f of andreFiler)
-    tell(
-      f.name,
-      f.assertionResults.filter(
-        (t) => t.status === 'failed' && !t.failureMessages.join('\n').includes('AssertionError')
-      ).length
-    );
+    tell(f.name, f.assertionResults.filter((t) => t.status === 'failed' && !erAssertion(t)).length);
   const [ikkeAssertion, godtattTest] = delEtter(
-    feilet.filter((t) => !t.failureMessages.join('\n').includes('AssertionError')),
+    feilet.filter((t) => !erAssertion(t)),
     (t) => iForutsetningene(m, t.fullName, t.failureMessages.join('\n'))
   );
   const manglerMal = m.mal.filter(
@@ -6624,7 +6612,7 @@ if (malfeil.length) throw new Error(malfeil.join('\n'));
 // målene sine, og om natta hele samlingen. Kontrollkjøringen går alltid over hele, med et
 // utvalg i én kopi: hvert utvalg har sin egen kontroll, og `ci.yml` kjører samlingen.
 const utvalg = process.env.FEILINNFOERING_UTVALG === '1';
-/** Filene med målene til hver mutasjon: utvalget på en PR, og det som avgjør utfallet (#2108). */
+/** Filene med målene til hver mutasjon (#934, #2108). */
 const maalfilene = new Map(
   valgte.map((m) => [
     m,
