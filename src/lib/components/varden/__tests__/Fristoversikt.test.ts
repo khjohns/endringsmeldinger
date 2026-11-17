@@ -35,7 +35,7 @@ import {
   prinsipaltAvslaatteDager,
 } from '#lib/components/varden/fristoversikt.ts';
 import { brevene, type Fristtabellen } from '#lib/components/varden/lesing.ts';
-import { FRISTEN, HANDLINGENE } from '#lib/components/varden/tekster.ts';
+import { FRISTEN, HANDLINGENE } from '#lib/components/varden/tekster/index.ts';
 
 afterEach(cleanup);
 
