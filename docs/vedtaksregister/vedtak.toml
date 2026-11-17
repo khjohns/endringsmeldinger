@@ -20994,8 +20994,8 @@ anbefalt = true
 
 
 [[gruppe.vedtak]]
-klasse = "vedtak"
-designdel = "BH og TE i visningen"
+klasse = "design"
+bindende_i = ["mm-u50"]
 id = "LV-U35"
 dato = 2026-10-31
 hvem = "oppdragsgiver"
@@ -21415,7 +21415,8 @@ kilde = "hovedplanen"
 tekst = "TE varsler etter NS 8407 § 32.2 at TE påberoper seg at pålegget innebærer en endring."
 
 [[gruppe.vedtak]]
-klasse = "vedtak"
+klasse = "design"
+bindende_i = ["mm-u50"]
 id = "LV-U42"
 dato = 2026-11-01
 hvem = "oppdragsgiver"
@@ -21992,7 +21993,8 @@ id = "LV-U53"
 dato = 2026-11-04
 hvem = "oppdragsgiver"
 kilde = ["#1497", "#1065"]
-klasse = "vedtak"
+klasse = "design"
+bindende_i = ["lv-u44", "lv-u45", "mm-u50"]
 sporsmal = '''
 Spørsmål S-1, ordrett slik det ble stilt 04.11 i orkestreringsrunde 12 (#1065, PR #1570) og lagret i #1497 ([kommentaren 6629603578](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6629603578)), med tillegget med alternativ C ([kommentaren 6629700535](https://github.com/khjohns/endringsmeldinger/issues/1497#issuecomment-6629700535)). Delene «Er spørsmålet alt avgjort?», belegget under bakgrunnen og under anbefalingen, antakelsene, avsnittet «Velges A, …» og prøvingen mot vedtaksfila står bare i den første kommentaren. Alternativene står i posten.
 
@@ -26418,6 +26420,7 @@ Opplysningen om kravets dato gjelder § 33.6.1. Skal datoen også gjelde § 33.4
 
 [[gruppe.vedtak]]
 klasse = "design"
+bindende_i = ["ov-u4", "hf-u13"]
 id = "OV-U10"
 dato = 2026-10-13
 hvem = "oppdragsgiver"
