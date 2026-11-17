@@ -6,6 +6,9 @@
 
 import type { Hjemmel, Standpunktsart, Virkning } from '../../typer.ts';
 
+/** Et spørsmål i utkastet: feltet i vurderingene, og posten eller fristen det gjelder. */
+export type SpoersmaalIUtkastet<S extends string> = { spoersmaal: S; gjelder?: string };
+
 /**
  * Lagene i utkastet. `F` er det som kan ramme et standpunkt i sporet, `S` spørsmålene i sporet
  * regelen krever svar på, og `P` feltene sporet selv har i standpunktet, som en særskilt post i
@@ -22,7 +25,14 @@ export interface Utkastlag<F, S extends string, P extends object = object> {
    * et spørsmål om hele kravet. Et spørsmål som ikke er påkrevd, som varselet etter § 34.3.3,
    * står ikke her (VS-U57).
    */
-  ubesvart: { spoersmaal: S; gjelder?: string }[];
+  ubesvart: SpoersmaalIUtkastet<S>[];
+  /**
+   * Svarene i utkastet kontrollen kjernen gjør når svaret sendes, ikke godtar, i rekkefølgen
+   * kontrollen fører dem (#2156): en verdi som er gitt, men som kjernen avviser, som flere dager
+   * enn de krevde. Et ubesvart spørsmål står i `ubesvart`, ikke her. Kjernen avviser også andre
+   * feil enn dem som står her, og et svar på forholdet i samme brev kontrolleres for seg.
+   */
+  ugyldig: SpoersmaalIUtkastet<S>[];
   standpunkter: (P & {
     art: Standpunktsart;
     hjemmel?: Hjemmel;

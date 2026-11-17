@@ -5,7 +5,12 @@
  * på forespørselen etter § 33.6.2 og hvordan fristkravene står til den, leses av journalen her.
  */
 
-import { beregnFrist, resultatAvDager, type Fristkrav } from '../../regler/frist.ts';
+import {
+  beregnFrist,
+  resultatAvDager,
+  type Fristkrav,
+  type Fristvurdering,
+} from '../../regler/frist.ts';
 import { UgyldigVurdering } from '../../regler/feil.ts';
 import { kontrollerSpesifiseringen } from '../../regler/svarkontroll.ts';
 import {
@@ -126,6 +131,23 @@ export const fristkravet = (
   er_hele_fristen_subsidiaer_pga_grunnlag: false,
 });
 
+/** Vurderingen av én frist slik regelsettet leser den: vurderingene av hele kravet og dagene. */
+export const vurderingenAvFristen = (v: Svarvurdering, f: Dagvurdering): Fristvurdering => ({
+  frist_varsel_ok: v.frist_varsel_ok as boolean | undefined,
+  spesifisert_krav_ok: v.spesifisert_krav_ok as boolean | undefined,
+  foresporsel_svar_ok: v.foresporsel_svar_ok as boolean | undefined,
+  vilkar_oppfylt: v.vilkar_oppfylt as boolean | undefined,
+  godkjent_dager: f.dager,
+});
+
+/** Dagene byggherren måtte forstå for én frist, kontrollert (VS-U4), eller `null`. */
+export const dagerMaatteForstaa = (v: Svarvurdering, f: Dagvurdering): number | null =>
+  kontrollerSpesifiseringen({
+    spesifisert_krav_ok: v.spesifisert_krav_ok,
+    dager_maatte_forstaa: f.dager_maatte_forstaa,
+    dager: f.dager,
+  });
+
 /** Utregningen av én frist (§ 33), med vurderingene som gjelder hele kravet. */
 function regnUtFristen(
   v: Svarvurdering,
@@ -134,18 +156,8 @@ function regnUtFristen(
   foresporsel: Foresporselsrelasjon | null
 ): Record<string, unknown> {
   const fkrav = fristkravet(krevd, foresporsel);
-  const { er_prekludert: prekludert } = beregnFrist(fkrav, {
-    frist_varsel_ok: v.frist_varsel_ok as boolean | undefined,
-    spesifisert_krav_ok: v.spesifisert_krav_ok as boolean | undefined,
-    foresporsel_svar_ok: v.foresporsel_svar_ok as boolean | undefined,
-    vilkar_oppfylt: v.vilkar_oppfylt as boolean | undefined,
-    godkjent_dager: f.dager,
-  });
-  const maatteForstaa = kontrollerSpesifiseringen({
-    spesifisert_krav_ok: v.spesifisert_krav_ok,
-    dager_maatte_forstaa: f.dager_maatte_forstaa,
-    dager: f.dager,
-  });
+  const { er_prekludert: prekludert } = beregnFrist(fkrav, vurderingenAvFristen(v, f));
+  const maatteForstaa = dagerMaatteForstaa(v, f);
   // KA-U78, OV-U32: dagene i hvert lag i rekkefølgen i `virkningerIForholdetOgFristen`.
   // Preklusjon og «ikke hindret» gir 0 dager, og spesifiseringen dagene byggherren måtte forstå.
   const dager = [
