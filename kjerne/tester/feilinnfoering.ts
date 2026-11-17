@@ -6460,15 +6460,20 @@ function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): Utfall {
   const [suitefeil, godtattSuite] = delEtter(iMaalene, (f) =>
     iForutsetningene(m, suitenavn(f, k), f.melding)
   );
-  const utenfor = [
-    ...utenforMaalene.map((f) => suitenavn(f, k)),
-    ...andreFiler
-      .flatMap((f) => f.assertionResults)
-      .filter(
+  // Antallet feil som ikke er assertions, per fil utenfor målfilene (#2108).
+  const utenfor = new Map<string, number>();
+  const tell = (fil: string, antall: number) => {
+    const sti = relative(k.rot, fil);
+    if (antall) utenfor.set(sti, (utenfor.get(sti) ?? 0) + antall);
+  };
+  for (const f of utenforMaalene) tell(f.fil, 1);
+  for (const f of andreFiler)
+    tell(
+      f.name,
+      f.assertionResults.filter(
         (t) => t.status === 'failed' && !t.failureMessages.join('\n').includes('AssertionError')
-      )
-      .map((t) => t.fullName),
-  ];
+      ).length
+    );
   const [ikkeAssertion, godtattTest] = delEtter(
     feilet.filter((t) => !t.failureMessages.join('\n').includes('AssertionError')),
     (t) => iForutsetningene(m, t.fullName, t.failureMessages.join('\n'))
@@ -6508,11 +6513,10 @@ function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): Utfall {
           `  ${TIDSAVBRUDD.test(t.failureMessages.join('\n')) ? 'tidsavbrudd' : 'ikke en assertion'}: ${t.fullName}`
       ),
       ...godtattSuite.map((f) => `  forutsetning (oppgitt): ${suitenavn(f, k)}`),
-      ...(utenfor.length
-        ? [
-            `  utenfor målfilene, avgjør ikke utfallet: ${utenfor.length} feil som ikke er assertions, for eksempel ${utenfor[0]}`,
-          ]
-        : []),
+      ...[...utenfor].map(
+        ([fil, antall]) =>
+          `  utenfor målfilene, avgjør ikke utfallet: ${fil}: ${antall} feil som ikke er assertions`
+      ),
       ...godtattTest.map((t) => `  forutsetning (oppgitt): ${t.fullName}`),
       ...manglerMal.flatMap((mal) => [
         `  målet feilet ikke på en assertion: ${mal}`,
