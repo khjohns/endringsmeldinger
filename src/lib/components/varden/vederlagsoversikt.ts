@@ -6,13 +6,13 @@
  * Modulen avgjør ingenting selv.
  */
 
-import { OVERSIKTEN, tabellenIAvsnittet } from '$kjerne/frosset/tekst';
-import { beloep, tilTall, type Oere } from '$kjerne/regler/beloep';
-import { beloepeneILagene, krevdSamlet } from '$kjerne/spor/vederlag/format';
-import { posteneIOversikten } from '$kjerne/spor/vederlag/tekst';
-import type { Krav, Kravpost, Oppgjoersform } from '$kjerne/typer';
-import type { Utledning } from '$kjerne/utledning/utled';
-import { varseletFoerKravet } from '$lib/kjernesak/vederlagskrav';
+import { OVERSIKTEN, tabellenIAvsnittet } from '#kjerne/frosset/tekst.ts';
+import { beloep, tilTall, type Oere } from '#kjerne/regler/beloep.ts';
+import { beloepeneILagene, krevdSamlet } from '#kjerne/spor/vederlag/format.ts';
+import { posteneIOversikten } from '#kjerne/spor/vederlag/tekst.ts';
+import type { Krav, Kravpost, Oppgjoersform } from '#kjerne/typer.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
+import { varseletFoerKravet } from '#lib/kjernesak/vederlagskrav.ts';
 import type { Brevet } from './lesing';
 import { lageneISvaret, medForbehold, type Svarlaget } from './svarlagene';
 

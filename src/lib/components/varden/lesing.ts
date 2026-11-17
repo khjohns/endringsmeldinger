@@ -5,21 +5,21 @@
  * sier og hva en aksept gir, kommer fra kjernen gjennom `lagKjernesak`.
  */
 
-import { omtalen } from '$kjerne/frosset/brevdeler';
-import { innholdIForholdet, oppgittDato } from '$kjerne/spor/forhold/format';
+import { omtalen } from '#kjerne/frosset/brevdeler.ts';
+import { innholdIForholdet, oppgittDato } from '#kjerne/spor/forhold/format.ts';
 import {
   FORHOLDSGRUPPER,
   forholdet,
   forholdsordene,
   type Forholdsordene,
-} from '$kjerne/spor/forhold/tekst';
-import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
-import { plassene } from '$kjerne/frosset/byggeklosser';
-import { betegnelsen, innholdIFristen } from '$kjerne/spor/frist/format';
-import { fasteBeloepIKravet, kravposterI, utenFastBeloep } from '$kjerne/spor/vederlag/format';
-import { tilTall } from '$kjerne/regler/beloep';
-import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
-import type { TilbudtHandling } from '$kjerne/kommandoer/handlinger';
+} from '#kjerne/spor/forhold/tekst.ts';
+import { grunnerFraForholdet } from '#kjerne/spor/forhold/frysing.ts';
+import { plassene } from '#kjerne/frosset/byggeklosser.ts';
+import { betegnelsen, innholdIFristen } from '#kjerne/spor/frist/format.ts';
+import { fasteBeloepIKravet, kravposterI, utenFastBeloep } from '#kjerne/spor/vederlag/format.ts';
+import { tilTall } from '#kjerne/regler/beloep.ts';
+import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
+import type { TilbudtHandling } from '#kjerne/kommandoer/handlinger.ts';
 import type {
   Avsnitt,
   Dokument,
@@ -30,11 +30,11 @@ import type {
   Svar,
   Utfall,
   Varselhjemmel,
-} from '$kjerne/typer';
-import type { Utledning } from '$kjerne/utledning/utled';
-import type { Betegnelse } from '$kjerne/utledning/visning';
-import { elementenesSpor, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
-import type { Fristdato } from '$lib/kjernesak/brevtekst';
+} from '#kjerne/typer.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
+import type { Betegnelse } from '#kjerne/utledning/visning.ts';
+import { elementenesSpor, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+import type { Fristdato } from '#lib/kjernesak/brevtekst.ts';
 import type { Snippet } from 'svelte';
 
 /**

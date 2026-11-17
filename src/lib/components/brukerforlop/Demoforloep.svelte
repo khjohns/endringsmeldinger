@@ -6,10 +6,10 @@
    * vises saken uten panelet, til en brukertest.
    */
   import { ChevronRight } from 'lucide-svelte';
-  import NySak from '$lib/components/varden/NySak.svelte';
-  import Vardensak from '$lib/components/varden/Vardensak.svelte';
-  import { NYSAK } from '$lib/components/varden/tekster';
-  import SegmentedControl from '$lib/components/primitives/SegmentedControl.svelte';
+  import NySak from '#lib/components/varden/NySak.svelte';
+  import Vardensak from '#lib/components/varden/Vardensak.svelte';
+  import { NYSAK } from '#lib/components/varden/tekster.ts';
+  import SegmentedControl from '#lib/components/primitives/SegmentedControl.svelte';
   import {
     DEMOKONTRAKT,
     DEMOMERKING,
@@ -17,9 +17,9 @@
     lagDemosak,
     type Demosak,
     type Startjournal,
-  } from '$lib/kjernesak/demosak';
-  import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-  import type { Part } from '$kjerne/typer';
+  } from '#lib/kjernesak/demosak.ts';
+  import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+  import type { Part } from '#kjerne/typer.ts';
 
   let {
     forloep,

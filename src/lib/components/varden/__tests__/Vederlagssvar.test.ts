@@ -6,10 +6,10 @@
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import type { Journalrad } from '$kjerne/typer';
-import { utledJournal } from '$kjerne/kommandoer/skriving';
-import { KJERNE } from '$kjerne/versjon';
+import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+import type { Journalrad } from '#kjerne/typer.ts';
+import { utledJournal } from '#kjerne/kommandoer/skriving.ts';
+import { KJERNE } from '#kjerne/versjon.ts';
 import {
   MERKING,
   SAK,
@@ -18,9 +18,9 @@ import {
   medVederlag,
   opprettet,
   skrevet,
-} from '$lib/kjernesak/__tests__/provejournal';
-import type { TilBrevkontrollen } from '$lib/components/varden/Brevkontroll.svelte';
-import Vederlagssvar from '$lib/components/varden/Vederlagssvar.svelte';
+} from '#lib/kjernesak/__tests__/provejournal.ts';
+import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svelte';
+import Vederlagssvar from '#lib/components/varden/Vederlagssvar.svelte';
 
 const svikt = skrevet(
   skrevet([opprettet], 'TE', {

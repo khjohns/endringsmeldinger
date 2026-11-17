@@ -8,9 +8,15 @@
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import { MERKING, SAK, linje, medGrunnlag, skrevet } from '$lib/kjernesak/__tests__/provejournal';
-import Vederlagssvar from '$lib/components/varden/Vederlagssvar.svelte';
+import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+import {
+  MERKING,
+  SAK,
+  linje,
+  medGrunnlag,
+  skrevet,
+} from '#lib/kjernesak/__tests__/provejournal.ts';
+import Vederlagssvar from '#lib/components/varden/Vederlagssvar.svelte';
 
 const journal = skrevet(medGrunnlag, 'TE', {
   type: 'krav',

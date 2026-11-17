@@ -1,9 +1,9 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { resolve } from '$app/paths';
-  import { loginUrl } from '$lib/api/auth';
-  import Button from '$lib/components/primitives/Button.svelte';
-  import { OM_VARDEN_STI } from '$lib/components/om-varden/sti';
+  import { loginUrl } from '#lib/api/auth.ts';
+  import Button from '#lib/components/primitives/Button.svelte';
+  import { OM_VARDEN_STI } from '#lib/components/om-varden/sti.ts';
 
   let leaving = $state(false);
   function login() {

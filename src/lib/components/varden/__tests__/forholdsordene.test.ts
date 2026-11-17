@@ -5,10 +5,10 @@
  * bare et forhold uten varslingsplikt og uten risiko.
  */
 import { describe, expect, it } from 'vitest';
-import type { Forholdsresultat } from '$kjerne/regler/typer';
-import type { Forholdsordene } from '$kjerne/spor/forhold/tekst';
-import type { Innlegget } from '$lib/components/varden/lesing';
-import { FORHOLDET } from '$lib/components/varden/tekster';
+import type { Forholdsresultat } from '#kjerne/regler/typer.ts';
+import type { Forholdsordene } from '#kjerne/spor/forhold/tekst.ts';
+import type { Innlegget } from '#lib/components/varden/lesing.ts';
+import { FORHOLDET } from '#lib/components/varden/tekster.ts';
 
 const ord = (o: Partial<Forholdsordene>): Forholdsordene => ({
   endringsordre: false,

@@ -9,10 +9,10 @@
 -->
 <script lang="ts">
   import { tick, untrack } from 'svelte';
-  import { dager } from '$kjerne/frosset/tekst';
-  import { betegnelsen, hindringenEtter, innholdIFristen } from '$kjerne/spor/frist/format';
-  import type { Utledning } from '$kjerne/utledning/utled';
-  import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+  import { dager } from '#kjerne/frosset/tekst.ts';
+  import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
+  import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import { fastLinje } from './fastlinje.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';

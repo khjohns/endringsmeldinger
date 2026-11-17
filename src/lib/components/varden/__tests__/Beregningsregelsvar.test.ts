@@ -9,10 +9,10 @@
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import { MERKING, SAK, linje, opprettet, skrevet } from '$lib/kjernesak/__tests__/provejournal';
-import type { TilBrevkontrollen } from '$lib/components/varden/Brevkontroll.svelte';
-import Vederlagssvar from '$lib/components/varden/Vederlagssvar.svelte';
+import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+import { MERKING, SAK, linje, opprettet, skrevet } from '#lib/kjernesak/__tests__/provejournal.ts';
+import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svelte';
+import Vederlagssvar from '#lib/components/varden/Vederlagssvar.svelte';
 
 // Svikt, så varselet etter punkt 34.1.2 er et spørsmål i svaret (OV-U15).
 const grunnforhold = skrevet([opprettet], 'TE', {

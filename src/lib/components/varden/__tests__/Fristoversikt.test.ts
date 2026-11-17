@@ -10,32 +10,32 @@
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render, screen, within } from '@testing-library/svelte';
-import { minnebane } from '$kjerne/tester/bane';
-import { kjoer, type Forloep } from '$kjerne/tester/kjoerer';
-import type { Handling } from '$kjerne/tester/klient';
-import { START } from '$kjerne/tester/brukerforloep';
-import { testklokke } from '$kjerne/tester/testmiljoe';
-import type { Part } from '$kjerne/typer';
-import Fristoversikt from '$lib/components/varden/Fristoversikt.svelte';
-import { maalestokken } from '$lib/components/varden/Maalrad.svelte';
-import Vardensak from '$lib/components/varden/Vardensak.svelte';
-import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+import { minnebane } from '#kjerne/tester/bane.ts';
+import { kjoer, type Forloep } from '#kjerne/tester/kjoerer.ts';
+import type { Handling } from '#kjerne/tester/klient.ts';
+import { START } from '#kjerne/tester/brukerforloep.ts';
+import { testklokke } from '#kjerne/tester/testmiljoe.ts';
+import type { Part } from '#kjerne/typer.ts';
+import Fristoversikt from '#lib/components/varden/Fristoversikt.svelte';
+import { maalestokken } from '#lib/components/varden/Maalrad.svelte';
+import Vardensak from '#lib/components/varden/Vardensak.svelte';
+import { finnForloep, lagDemosak } from '#lib/kjernesak/demosak.ts';
+import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 import {
   MERKING,
   SAK,
   linje,
   medFristvarsel,
   skrevet,
-} from '$lib/kjernesak/__tests__/provejournal';
+} from '#lib/kjernesak/__tests__/provejournal.ts';
 import {
   gjeldendeFrist,
   kravetOgSvaretIFristen,
   nyFrist,
   prinsipaltAvslaatteDager,
-} from '$lib/components/varden/fristoversikt';
-import { brevene, type Fristtabellen } from '$lib/components/varden/lesing';
-import { FRISTEN, HANDLINGENE } from '$lib/components/varden/tekster';
+} from '#lib/components/varden/fristoversikt.ts';
+import { brevene, type Fristtabellen } from '#lib/components/varden/lesing.ts';
+import { FRISTEN, HANDLINGENE } from '#lib/components/varden/tekster.ts';
 
 afterEach(cleanup);
 

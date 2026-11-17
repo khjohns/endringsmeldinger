@@ -6,14 +6,14 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import Saksliste from '$lib/components/varden/Saksliste.svelte';
-import Vardensak from '$lib/components/varden/Vardensak.svelte';
+import Saksliste from '#lib/components/varden/Saksliste.svelte';
+import Vardensak from '#lib/components/varden/Vardensak.svelte';
 import { lagSakslinje } from './sakslinje';
-import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import { ApiError } from '$lib/api/client';
-import type { Sakslinje } from '$lib/types/api';
-import { sorter } from '$lib/components/varden/saksliste';
+import { finnForloep, lagDemosak } from '#lib/kjernesak/demosak.ts';
+import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+import { ApiError } from '#lib/api/client.ts';
+import type { Sakslinje } from '#lib/types/api.ts';
+import { sorter } from '#lib/components/varden/saksliste.ts';
 
 afterEach(cleanup);
 

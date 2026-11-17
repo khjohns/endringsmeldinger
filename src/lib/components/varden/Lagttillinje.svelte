@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
   import { FileText } from 'lucide-svelte';
-  import type { Part } from '$kjerne/typer';
+  import type { Part } from '#kjerne/typer.ts';
   import Knapp from './Knapp.svelte';
   import type { Korrespondansevalg } from './korrespondansen';
   import { LEGG_TIL, omtalenAvKorrespondansen } from './tekster';

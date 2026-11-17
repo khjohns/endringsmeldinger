@@ -5,10 +5,10 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { resolve } from '$app/paths';
-  import Vardensak from '$lib/components/varden/Vardensak.svelte';
-  import { NYSAK } from '$lib/components/varden/tekster';
-  import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-  import type { Spor } from '$kjerne/typer';
+  import Vardensak from '#lib/components/varden/Vardensak.svelte';
+  import { NYSAK } from '#lib/components/varden/tekster.ts';
+  import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+  import type { Spor } from '#kjerne/typer.ts';
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
   const sakId = $derived(page.params.sakId ?? '');

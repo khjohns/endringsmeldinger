@@ -9,9 +9,9 @@
 -->
 <script lang="ts">
   import { tick } from 'svelte';
-  import { KJERNE } from '$kjerne/versjon';
-  import type { Saksmerking } from '$lib/kjernesak/brevtekst';
-  import { tekstenKanVaereUtdatert } from '$lib/kjernesak/kontekst.svelte';
+  import { KJERNE } from '#kjerne/versjon.ts';
+  import type { Saksmerking } from '#lib/kjernesak/brevtekst.ts';
+  import { tekstenKanVaereUtdatert } from '#lib/kjernesak/kontekst.svelte.ts';
   import Feltetikett from './Feltetikett.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brevkontroll, {

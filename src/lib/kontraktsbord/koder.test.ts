@@ -8,8 +8,8 @@ import {
   HOVEDKATEGORI_FRA_KATALOGEN,
   KATEGORIER,
   UNDERKATEGORI_FRA_KATALOGEN,
-} from '$kjerne/format/koder';
-import { KRAV_STRUKTUR_NS8407 } from '$lib/constants/categories';
+} from '#kjerne/format/koder.ts';
+import { KRAV_STRUKTUR_NS8407 } from '#lib/constants/categories.ts';
 
 describe('oversettelsen fra katalogen til kjernens koder (#335)', () => {
   it.each(KRAV_STRUKTUR_NS8407.map((h) => [h.kode, h] as const))(

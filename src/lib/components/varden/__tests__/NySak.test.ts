@@ -6,26 +6,26 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import NySak from '$lib/components/varden/NySak.svelte';
-import { DEMOMERKING, finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
+import NySak from '#lib/components/varden/NySak.svelte';
+import { DEMOMERKING, finnForloep, lagDemosak } from '#lib/kjernesak/demosak.ts';
 import {
   fjernAndresVentende,
   fjernVentende,
   lagreVentende,
   lesVentende,
-} from '$lib/components/varden/ventende';
+} from '#lib/components/varden/ventende.ts';
 import {
   FORHOLDENE,
   type SendNySak,
   type Utfylling,
   type VedleggForNySak,
-} from '$lib/components/varden/nysak';
-import type { Kjernevedlegg } from '$lib/api/kjerne';
-import { kravMotNySak, laastTekstI, type Saksmerking } from '$lib/kjernesak/brevtekst';
-import { ApiError } from '$lib/api/client';
-import { KJERNE } from '$kjerne/versjon';
-import { brevtittel, NYSAK } from '$lib/components/varden/tekster';
-import { STOERSTE_VEDLEGG } from '$lib/components/varden/vedlegg';
+} from '#lib/components/varden/nysak.ts';
+import type { Kjernevedlegg } from '#lib/api/kjerne.ts';
+import { kravMotNySak, laastTekstI, type Saksmerking } from '#lib/kjernesak/brevtekst.ts';
+import { ApiError } from '#lib/api/client.ts';
+import { KJERNE } from '#kjerne/versjon.ts';
+import { brevtittel, NYSAK } from '#lib/components/varden/tekster.ts';
+import { STOERSTE_VEDLEGG } from '#lib/components/varden/vedlegg.ts';
 
 afterEach(cleanup);
 
@@ -697,8 +697,8 @@ describe('saken i demoruta før opprettelsen (G-1, KT-U11)', () => {
 
 describe('programfeil i brevkontrollen for ny sak (#898)', () => {
   it('en kjerne som kaster, gir PROGRAMFEIL og ikke en rå feil', async () => {
-    const { brevet } = await import('$lib/components/varden/nysak');
-    const { PROGRAMFEIL } = await import('$lib/kjernesak/kontekst.svelte');
+    const { brevet } = await import('#lib/components/varden/nysak.ts');
+    const { PROGRAMFEIL } = await import('#lib/kjernesak/kontekst.svelte.ts');
     const kjerne = {
       ...KJERNE,
       get regler(): typeof KJERNE.regler {

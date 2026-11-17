@@ -5,9 +5,9 @@
  */
 
 import { getContext, setContext } from 'svelte';
-import { ApiError } from '$lib/api/client';
+import { ApiError } from '#lib/api/client.ts';
 import { brevFor, laastTekstI, utledetMed, type Brev, type Fristdato } from './brevtekst';
-import type { Registrertfrist } from '$kjerne/spor/frist/format';
+import type { Registrertfrist } from '#kjerne/spor/frist/format.ts';
 import { somJournal } from './journal';
 import { lagSaksbilde } from './saksbilde';
 import { sendForsoek, usikkertUtfall } from './forsoek';
@@ -18,28 +18,28 @@ import {
   nyKommandoId,
   sendKommando,
   type LastetKjernesak,
-} from '$lib/api/kjerne';
-import { utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
-import { tilbudte } from '$kjerne/kommandoer/handlinger';
-import { lagForUtkastet } from '$kjerne/kommandoer/lag';
-import type { Svarutkast } from '$kjerne/kommandoer/kommando';
-import type { LagIFristen } from '$kjerne/spor/frist/kommando';
-import type { LagIVederlaget } from '$kjerne/spor/vederlag/kommando';
-import { visning } from '$kjerne/utledning/visning';
-import { KJERNE, type Kjerne } from '$kjerne/versjon';
-import type { Part } from '$kjerne/typer';
+} from '#lib/api/kjerne.ts';
+import { utledJournal, type Vedleggsoppslag } from '#kjerne/kommandoer/skriving.ts';
+import { tilbudte } from '#kjerne/kommandoer/handlinger.ts';
+import { lagForUtkastet } from '#kjerne/kommandoer/lag.ts';
+import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
+import type { LagIFristen } from '#kjerne/spor/frist/kommando.ts';
+import type { LagIVederlaget } from '#kjerne/spor/vederlag/kommando.ts';
+import { visning } from '#kjerne/utledning/visning.ts';
+import { KJERNE, type Kjerne } from '#kjerne/versjon.ts';
+import type { Part } from '#kjerne/typer.ts';
 
 /** Sporet kjernen gir hvert element i saken, for brevene i Varden (#1663). */
-export { elementenesSpor } from '$kjerne/kommandoer/handlinger';
+export { elementenesSpor } from '#kjerne/kommandoer/handlinger.ts';
 
 /**
  * Kravversjonen som var gjeldende på dagen et svar lagt til ble sendt, som svaret gjelder (OV-U98),
  * for svarskjemaet i Varden.
  */
-export { kravversjonenPaaDagen } from '$kjerne/utledning/utled';
+export { kravversjonenPaaDagen } from '#kjerne/utledning/utled.ts';
 
 /** Det som hindrer byggherrens svar på kravet i dag (KA-U59), for vederlagssvaret i Varden. */
-export { hindrerSvarPaaKravet } from '$kjerne/spor/vederlag/kommando';
+export { hindrerSvarPaaKravet } from '#kjerne/spor/vederlag/kommando.ts';
 
 /**
  * En kommando som fikk et usikkert utfall. Den kan være lagret, så et nytt forsøk

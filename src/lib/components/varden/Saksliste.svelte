@@ -6,10 +6,10 @@
   ingen tall å vise, og ukjent er ikke 0.
 -->
 <script lang="ts">
-  import type { Part } from '$kjerne/typer';
-  import type { Sakslinje } from '$lib/types/api';
+  import type { Part } from '#kjerne/typer.ts';
+  import type { Sakslinje } from '#lib/types/api.ts';
   import { Plus } from 'lucide-svelte';
-  import { kroner } from '$kjerne/frosset/tekst';
+  import { kroner } from '#kjerne/frosset/tekst.ts';
   import Knapp from './Knapp.svelte';
   import Vardenskall from './Vardenskall.svelte';
   import type { Kontrakt } from './kontrakt';

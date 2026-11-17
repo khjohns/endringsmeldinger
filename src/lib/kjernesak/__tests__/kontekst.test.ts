@@ -6,8 +6,8 @@
 
 import { MERKING, linje } from './provejournal';
 import { describe, expect, it, vi } from 'vitest';
-import { ApiError, NETTFEIL } from '$lib/api/client';
-import type { Kjernesak, LastetKjernesak } from '$lib/api/kjerne';
+import { ApiError, NETTFEIL } from '#lib/api/client.ts';
+import type { Kjernesak, LastetKjernesak } from '#lib/api/kjerne.ts';
 import {
   avvisningFoerBrevet,
   brevaarsak,
@@ -16,12 +16,12 @@ import {
   lagKjernesak,
   tekstenKanVaereUtdatert,
   PROGRAMFEIL,
-} from '$lib/kjernesak/kontekst.svelte';
-import { forhaandsvis, laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
-import { handlinger } from '$kjerne/kommandoer/handlinger';
-import { visning, type Visning } from '$kjerne/utledning/visning';
-import { KJERNE } from '$kjerne/versjon';
-import type { Journalrad } from '$kjerne/typer';
+} from '#lib/kjernesak/kontekst.svelte.ts';
+import { forhaandsvis, laastTekst, utledJournal } from '#kjerne/kommandoer/skriving.ts';
+import { handlinger } from '#kjerne/kommandoer/handlinger.ts';
+import { visning, type Visning } from '#kjerne/utledning/visning.ts';
+import { KJERNE } from '#kjerne/versjon.ts';
+import type { Journalrad } from '#kjerne/typer.ts';
 
 const SAK = 'sak-1';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;

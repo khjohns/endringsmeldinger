@@ -16,7 +16,7 @@ import type { Utfylling } from './nysak';
  * brukers tekst, vedlegg eller ID-er, også når den første sesjonen utløp uten utlogging.
  * Uten en innlogget bruker lagres og leses ingenting. Utkastene til andre brukere fjernes fra
  * fanen når sesjonen er hentet (`+layout.ts`), og utloggingen tømmer fanens lagring (`logout`
- * i `$lib/api/auth`, #1678).
+ * i `#lib/api/auth.ts`, #1678).
  */
 export interface VentendeOpprettelse {
   sakId: string;

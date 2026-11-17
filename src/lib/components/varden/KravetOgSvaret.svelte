@@ -6,14 +6,14 @@
 -->
 <script lang="ts">
   import { brevMedUtsagn, type Brevet } from './lesing';
-  import { kroner } from '$kjerne/frosset/tekst';
-  import { stor } from '$kjerne/frosset/brevdeler';
+  import { kroner } from '#kjerne/frosset/tekst.ts';
+  import { stor } from '#kjerne/frosset/brevdeler.ts';
   import Forbeholdet from './Forbeholdet.svelte';
   import Kravkort from './Kravkort.svelte';
   import Maalrad, { maalestokken } from './Maalrad.svelte';
   import { utenKr, VEDERLAGET } from './tekster';
   import { postIRaden, type KravetOgSvaret } from './vederlagsoversikt';
-  import type { Utledning } from '$kjerne/utledning/utled';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
 
   let {
     k,

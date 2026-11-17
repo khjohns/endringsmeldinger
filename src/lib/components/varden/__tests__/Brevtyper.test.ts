@@ -6,8 +6,8 @@
 
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
-import Brevtyper from '$lib/components/varden/Brevtyper.svelte';
-import { HANDLINGENE } from '$lib/components/varden/tekster';
+import Brevtyper from '#lib/components/varden/Brevtyper.svelte';
+import { HANDLINGENE } from '#lib/components/varden/tekster.ts';
 
 afterEach(cleanup);
 

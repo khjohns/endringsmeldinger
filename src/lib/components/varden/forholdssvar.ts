@@ -3,20 +3,20 @@
  * Svaret har standpunktet til varselet etter punkt 32.2 der det gjelder, og til forholdet.
  */
 
-import { gjelderVarslingsplikten } from '$kjerne/frosset/byggeklosser';
-import type { Svarutkast } from '$kjerne/kommandoer/kommando';
+import { gjelderVarslingsplikten } from '#kjerne/frosset/byggeklosser.ts';
+import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
 import {
   BEGRUNNELSESPUNKTENE,
   begrunnelseskravet,
   erByggherrensPaalegg,
   gyldigeResultater,
-} from '$kjerne/regler/forhold';
-import type { Regelsett } from '$kjerne/regler/regelsett';
-import type { Forholdsresultat } from '$kjerne/regler/typer';
-import { kategori } from '$kjerne/spor/forhold/format';
-import { forholdstilfellet, harRisikoen } from '$kjerne/spor/forhold/tekst';
-import type { Krav } from '$kjerne/typer';
-import type { Utledning } from '$kjerne/utledning/utled';
+} from '#kjerne/regler/forhold.ts';
+import type { Regelsett } from '#kjerne/regler/regelsett.ts';
+import type { Forholdsresultat } from '#kjerne/regler/typer.ts';
+import { kategori } from '#kjerne/spor/forhold/format.ts';
+import { forholdstilfellet, harRisikoen } from '#kjerne/spor/forhold/tekst.ts';
+import type { Krav } from '#kjerne/typer.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { definert, svarbrevet } from './kommandoer';
 
 /** Det BH har valgt i skjemaet. `null` er ikke besvart; ingenting er forhåndsvalgt. */

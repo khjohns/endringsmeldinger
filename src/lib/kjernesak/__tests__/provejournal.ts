@@ -1,12 +1,12 @@
 /** Journalen for prøvene av TS-saken i Kontrollrommet, skrevet av kjernen selv (#718). */
 
-import type { Saksmerking } from '$lib/kjernesak/brevtekst';
-import { forhaandsvis, utledJournal, type Vedleggsoppslag } from '$kjerne/kommandoer/skriving';
-import { KJERNE } from '$kjerne/versjon';
-import { kravposterI } from '$kjerne/spor/vederlag/format';
-import type { Journalrad, Part } from '$kjerne/typer';
-import type { Kontekst } from '$kjerne/kommandoer/skriving';
-import type { Journallinje } from '$lib/api/kjerne';
+import type { Saksmerking } from '#lib/kjernesak/brevtekst.ts';
+import { forhaandsvis, utledJournal, type Vedleggsoppslag } from '#kjerne/kommandoer/skriving.ts';
+import { KJERNE } from '#kjerne/versjon.ts';
+import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
+import type { Journalrad, Part } from '#kjerne/typer.ts';
+import type { Kontekst } from '#kjerne/kommandoer/skriving.ts';
+import type { Journallinje } from '#lib/api/kjerne.ts';
 
 export const SAK = 'sak-1';
 

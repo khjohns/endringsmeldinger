@@ -7,12 +7,12 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import type { Avsnitt, Part } from '$kjerne/typer';
-  import { cellene, erKravpostpunkt, erLagslinje, OVERSIKTEN } from '$kjerne/frosset/tekst';
+  import type { Avsnitt, Part } from '#kjerne/typer.ts';
+  import { cellene, erKravpostpunkt, erLagslinje, OVERSIKTEN } from '#kjerne/frosset/tekst.ts';
   import { organisasjonene } from './kontrakt';
   import { underOverskriften } from './lesing';
   import { MOTTATT } from './tekster';
-  import { PARTEN, stor } from '$kjerne/frosset/brevdeler';
+  import { PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 
   let {
     avsender,

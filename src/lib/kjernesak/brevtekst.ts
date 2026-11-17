@@ -4,12 +4,12 @@ import {
   utledJournal,
   type Kontekst,
   type Vedleggsoppslag,
-} from '$kjerne/kommandoer/skriving';
-import { opprettelse as opprett } from '$kjerne/kommandoer/opprettelse';
-import type { Utledning } from '$kjerne/utledning/utled';
-import type { Kjerne } from '$kjerne/versjon';
-import { brevtekstI } from '$kjerne/format/leser';
-import type { Avsnitt, Avvisning, Journalrad, Part, Sakskode } from '$kjerne/typer';
+} from '#kjerne/kommandoer/skriving.ts';
+import { opprettelse as opprett } from '#kjerne/kommandoer/opprettelse.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
+import type { Kjerne } from '#kjerne/versjon.ts';
+import { brevtekstI } from '#kjerne/format/leser.ts';
+import type { Avsnitt, Avvisning, Journalrad, Part, Sakskode } from '#kjerne/typer.ts';
 
 /**
  * Brevet kjernen lager for kommandoen mot journalen slik den er lastet (B-15):

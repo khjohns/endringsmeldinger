@@ -6,8 +6,8 @@
  * forespørsel etter punkt 33.6.2 (U-11, VS-U17).
  */
 
-import { innholdIFristen } from '$kjerne/spor/frist/format';
-import type { Utledning } from '$kjerne/utledning/utled';
+import { innholdIFristen } from '#kjerne/spor/frist/format.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { heleDager } from './fristsvar';
 import { definert } from './kommandoer';
 import { korrespondansemangler, registreringen, type Korrespondansevalg } from './korrespondansen';

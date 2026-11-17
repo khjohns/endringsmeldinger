@@ -1,9 +1,9 @@
 /** Klienten mot TS-serveren (#663). */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { opprettSak, sendKommando, sendNySak } from '$lib/api/kjerne';
+import { opprettSak, sendKommando, sendNySak } from '#lib/api/kjerne.ts';
 
-import { setActiveProjectId } from '$lib/api/client';
+import { setActiveProjectId } from '#lib/api/client.ts';
 
 const ID = '0b9c4c64-3f0e-4a8e-9a43-2a4b8f7f6a10';
 

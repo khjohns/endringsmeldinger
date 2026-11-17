@@ -5,11 +5,11 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
-import { lagForUtkastet } from '$kjerne/kommandoer/lag';
-import { KJERNE } from '$kjerne/versjon';
-import { innholdIFristen } from '$kjerne/spor/frist/format';
-import { medGrunnlag, skrevet } from '$lib/kjernesak/__tests__/provejournal';
+import { laastTekst, utledJournal } from '#kjerne/kommandoer/skriving.ts';
+import { lagForUtkastet } from '#kjerne/kommandoer/lag.ts';
+import { KJERNE } from '#kjerne/versjon.ts';
+import { innholdIFristen } from '#kjerne/spor/frist/format.ts';
+import { medGrunnlag, skrevet } from '#lib/kjernesak/__tests__/provejournal.ts';
 import {
   fristsvaret,
   godkjenteDager,
