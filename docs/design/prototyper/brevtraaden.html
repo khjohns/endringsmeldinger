@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brevtråden i Varden</title>
+<!--
+  Skisse av brevtråden på sidene for forholdet, vederlaget og fristen (#2163, tillegg 5, versjon 1).
+  Datoen og brevnummeret står i én linje over tittelen i alle bredder, så innholdet bruker hele
+  bredden ved siden av ringen (B-1). Handlingene står uten hjelpetekst; virkningen står i
+  brevkontrollen (MM-U34 legger påminnelsen i skjemaet). Lagene følger leselinja i system.md (#1663):
+  det første laget leder, lagene under er dempet og begynner med vilkåret. Knappene kan vises med
+  pilleform (--r-knapp i dag) eller 6 px. Tilstandene er ankrene #pille og #kantet.
+  Fargene og målene er .tema-varden i src/lib/components/kontraktsbord/theme.css. Teksten er
+  prototypetekst fra demosakene KOE-17. Ingenting sendes.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&family=Noto+Sans:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#15181d;--on-brand:#fff;--canvas:#eef0f2;--surface:#fff;--surface-inset:#f3f4f6;--surface-warm:#f6f7f8;
+  --ink:#15181d;--ink-2:#343a43;--ink-3:#545b66;--rule-color:#dadde2;--rule-subtle-color:#e6e8eb;--rule-strong-color:#c3c8cf;
+  --rule:1px solid var(--rule-color);--rule-subtle:1px solid var(--rule-subtle-color);--control-focus:#2457d6;
+  --font-sans:'Inter',system-ui,sans-serif;--font-brev:'Source Serif 4','Noto Sans',serif;--font-brev-bh:'Oslo Sans','Noto Sans',sans-serif;
+  --r-kort:12px;--r-merke:2px;--r-felt:4px;--r-innfelt:6px;--r-knapp:999px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --brand:#eef0f3;--on-brand:#15181d;--canvas:#0f1114;--surface:#171a1f;--surface-inset:#1a1d22;--surface-warm:#1c2026;
+  --ink:#eef0f3;--ink-2:#cdd2d9;--ink-3:#a9afb9;--rule-color:#2b3037;--rule-subtle-color:#23272d;--rule-strong-color:#3a4049;--control-focus:#8fb0ff;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --brand:#eef0f3;--on-brand:#15181d;--canvas:#0f1114;--surface:#171a1f;--surface-inset:#1a1d22;--surface-warm:#1c2026;
+  --ink:#eef0f3;--ink-2:#cdd2d9;--ink-3:#a9afb9;--rule-color:#2b3037;--rule-subtle-color:#23272d;--rule-strong-color:#3a4049;--control-focus:#8fb0ff;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--canvas);color:var(--ink);font:14px/1.5 var(--font-sans);-webkit-font-smoothing:antialiased;padding:16px}
+h1,h2,h3,h4,p,ul,ol{margin:0}
+a{color:inherit;text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.mockup{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;max-width:1300px;margin:0 auto 16px;font-size:13px;color:var(--ink-2)}
+.mockup button{font:inherit;padding:2px 10px;border:1px solid var(--rule-strong-color);border-radius:999px;background:var(--surface);color:var(--ink);cursor:pointer}
+.mockup button[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+.sider{display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start}
+.kort{width:min(100%,620px);background:var(--surface);border:var(--rule);border-radius:var(--r-kort)}
+.kort > h3{font-size:16px;font-weight:600;padding:16px 20px 4px}
+
+/* Tråden: ringen og streken til venstre, alt annet i én kolonne ved siden av. */
+.traad{list-style:none;padding:0 0 8px}
+.brev{position:relative;padding:14px 20px 14px 68px}
+.brev + .brev{border-top:var(--rule-subtle)}
+.brev::before{content:'';position:absolute;left:36px;top:0;bottom:0;border-left:1px solid var(--rule-strong-color)}
+.brev:first-child::before{top:22px}
+.brev:last-child::before{bottom:auto;height:22px}
+.part{position:absolute;left:20px;top:14px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:1.5px solid var(--ink);font-size:12px;font-weight:600;letter-spacing:.02em;z-index:1}
+.part.bh{background:var(--ink);color:var(--surface)}
+.part.tom{border-style:dashed;border-color:var(--ink-3);color:var(--ink-3);background:var(--surface)}
+.brev.valgt{box-shadow:inset 3px 0 0 var(--ink)}
+
+.metalinje{display:flex;gap:6px;align-items:baseline;min-height:20px;font-size:13px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.metalinje .hoeyre{margin-left:auto;display:flex;gap:12px;align-items:baseline}
+.metalinje .les{color:var(--ink);font-size:14px}
+.metalinje .vises{color:var(--ink-2);font-size:13px}
+.brev h4{font-size:16px;font-weight:600;line-height:24px;text-wrap:balance}
+.brev.eldre h4{font-weight:500;color:var(--ink-2)}
+.kravtall{font-size:16px;margin-top:4px;font-variant-numeric:tabular-nums}
+.brev.eldre .kravtall{color:var(--ink-2)}
+.notis{color:var(--ink-3);margin-top:4px;text-wrap:pretty}
+.tomtekst{color:var(--ink-3);padding-top:6px}
+
+/* Lagene: det første leder, de under er dempet og begynner med vilkåret (#1663). */
+.lag{margin-top:6px;display:grid;gap:4px}
+.lag .forste{font-size:16px;color:var(--ink)}
+.lag .under{color:var(--ink-3)}
+.sitat{margin-top:10px;padding-left:12px;border-left:2px solid var(--rule-strong-color)}
+.sitat .etikett{font-size:12px;color:var(--ink-3)}
+.sitat p{font-family:var(--font-brev-bh);font-size:15px;line-height:1.55;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.sitat.te p{font-family:var(--font-brev)}
+
+.akseptfrist{margin-top:8px}
+.akseptfrist b{font-weight:600}
+.handlinger{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.knapp{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 20px;border:1px solid var(--brand);background:var(--brand);color:var(--on-brand);font:600 14px var(--font-sans);border-radius:var(--knapp-r);cursor:pointer}
+.knapp.sek{background:var(--surface);color:var(--ink)}
+.knapp:hover{filter:brightness(1.15)}
+[data-radius="pille"]{--knapp-r:var(--r-knapp)}
+[data-radius="kantet"]{--knapp-r:var(--r-innfelt)}
+
+.fil{display:inline-flex;gap:6px;align-items:center;margin-top:8px;padding:4px 10px;border:var(--rule);border-radius:var(--r-felt);font-size:13px;color:var(--ink);text-decoration:none}
+.fil:hover{background:var(--surface-inset)}
+.fil svg{color:var(--ink-3)}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (max-width:480px){.brev{padding-left:60px}.part{left:14px}.brev::before{left:30px}}
+</style>
+</head>
+<body>
+<div id="skall" data-radius="kantet">
+<div class="mockup" role="region" aria-label="Prototypevalg">
+  <b>Skisse · Brevtråden · v1</b>
+  <span>Knappene</span>
+  <button type="button" data-r="kantet">6 px</button>
+  <button type="button" data-r="pille">Pille (i dag)</button>
+</div>
+
+<div class="sider">
+  <!-- Fristen, slik totalentreprenøren ser den etter byggherrens svar. -->
+  <section class="kort" aria-labelledby="t-frist">
+    <h3 id="t-frist">Brevene, nyeste først</h3>
+    <ol class="traad">
+      <li class="brev">
+        <span class="part bh" aria-hidden="true">BH</span>
+        <p class="metalinje"><span>Lagt til 1. okt. 2026</span><span>·</span><span>e-post</span><span class="hoeyre"><span>Dokumentasjon</span></span></p>
+        <h4>Revidert fremdriftsplan, revisjon 4<span class="visually-hidden"> fra byggherren</span></h4>
+        <p class="notis">Sendt 30. september 2026, ifølge byggherren.</p>
+        <a class="fil" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Fremdriftsplan rev. 4.pdf</a>
+      </li>
+      <li class="brev valgt" aria-current="true">
+        <span class="part bh" aria-hidden="true">BH</span>
+        <p class="metalinje"><span>1. okt. 2026</span><span>·</span><span>brev 4</span><span class="hoeyre"><span class="vises">Vises til høyre</span></span></p>
+        <h4>Svar på krav om fristforlengelse<span class="visually-hidden"> fra byggherren</span></h4>
+        <p class="akseptfrist">Akseptfrist <b>15. oktober 2026</b></p>
+        <div class="handlinger">
+          <button class="knapp" type="button">Oppdater kravet</button>
+          <button class="knapp sek" type="button">Godta svaret</button>
+        </div>
+      </li>
+      <li class="brev">
+        <span class="part" aria-hidden="true">TE</span>
+        <p class="metalinje"><span>1. okt. 2026</span><span>·</span><span>brev 3</span><span class="hoeyre"><a class="les" href="#">Les brevet</a></span></p>
+        <h4>Krav om fristforlengelse<span class="visually-hidden"> fra totalentreprenøren</span></h4>
+        <p class="kravtall">Frist 3: 25 dager. Frist 2: 20 dager. Frist 8: 20 dager.</p>
+      </li>
+      <li class="brev">
+        <span class="part" aria-hidden="true">TE</span>
+        <p class="metalinje"><span>1. okt. 2026</span><span>·</span><span>brev 2</span><span class="hoeyre"><a class="les" href="#">Les brevet</a></span></p>
+        <h4>Varsel om fristforlengelse<span class="visually-hidden"> fra totalentreprenøren</span></h4>
+        <p class="kravtall">Varsel etter punkt 33.4. Antall dager er ikke oppgitt.</p>
+        <p class="notis">Totalentreprenøren ble klar over forholdet 15. september 2026, ifølge brev 1. Varselet kom 16 kalenderdager etter.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- Forholdet, slik totalentreprenøren ser det etter avslaget, og vederlaget før svaret. -->
+  <div style="display:grid;gap:24px;width:min(100%,620px)">
+  <section class="kort" aria-labelledby="t-forhold">
+    <h3 id="t-forhold">Brevene i saken, nyeste først</h3>
+    <ol class="traad">
+      <li class="brev valgt" aria-current="true">
+        <span class="part bh" aria-hidden="true">BH</span>
+        <p class="metalinje"><span>1. okt. 2026</span><span>·</span><span>brev 3</span><span class="hoeyre"><span class="vises">Vises til høyre</span></span></p>
+        <h4>Svar på påberopelsen<span class="visually-hidden"> fra byggherren</span></h4>
+        <div class="lag">
+          <p class="forste">Byggherren gjør gjeldende at varselet etter punkt 32.2 i brev 1 kom for sent.</p>
+          <p class="under">Hvis innsigelsen om varselet ikke fører frem: byggherren er enig i at pålegget innebærer en endring.</p>
+        </div>
+        <div class="sitat"><span class="etikett">Begrunnelsen</span><p>«Varselet kom lenge etter pålegget i byggemøtet. Subsidiært er byggherren enig i at pålegget innebærer en endring.»</p></div>
+        <div class="handlinger">
+          <button class="knapp" type="button">Oppdater påberopelse</button>
+          <button class="knapp sek" type="button">Godta svaret</button>
+        </div>
+      </li>
+      <li class="brev">
+        <span class="part" aria-hidden="true">TE</span>
+        <p class="metalinje"><span>1. okt. 2026</span><span>·</span><span>brev 1</span><span class="hoeyre"><a class="les" href="#">Les brevet</a></span></p>
+        <h4>Påberopelse av forholdet<span class="visually-hidden"> fra totalentreprenøren</span></h4>
+        <div class="sitat te"><span class="etikett">Beskrivelse av pålegget</span><p>«Byggherren påla i byggemøtet 15. september 2026 at fasaden skal ha teglforblending i stedet for platekledning, som beskrevet i kontrakten.»</p></div>
+        <p class="notis">Pålegget mottatt 15. september 2026, ifølge totalentreprenøren. <a href="#">Korriger datoen</a></p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="kort" aria-labelledby="t-vederlag">
+    <h3 id="t-vederlag">Brevene, nyeste først</h3>
+    <ol class="traad">
+      <li class="brev">
+        <span class="part bh tom" aria-hidden="true">BH</span>
+        <p class="tomtekst">Svar ikke registrert.</p>
+      </li>
+      <li class="brev valgt" aria-current="true">
+        <span class="part" aria-hidden="true">TE</span>
+        <p class="metalinje"><span>1. okt. 2026</span><span>·</span><span>brev 3</span><span class="hoeyre"><span class="vises">Vises til høyre</span></span></p>
+        <h4>Krav om vederlagsjustering<span class="visually-hidden"> fra totalentreprenøren</span></h4>
+        <p class="kravtall">190 000 kr, med varsel etter punkt 34.1.3.</p>
+        <div class="handlinger"><button class="knapp" type="button">Svar på kravet</button></div>
+      </li>
+      <li class="brev eldre">
+        <span class="part" aria-hidden="true">TE</span>
+        <p class="metalinje"><span>1. okt. 2026</span><span>·</span><span>brev 2</span><span>·</span><span>fulgt opp i brev 3</span><span class="hoeyre"><a class="les" href="#">Les brevet</a></span></p>
+        <h4>Krav om vederlagsjustering<span class="visually-hidden"> fra totalentreprenøren</span></h4>
+        <p class="kravtall">125 000 kr, med varsel etter punkt 34.1.2.</p>
+      </li>
+    </ol>
+  </section>
+  </div>
+</div>
+</div>
+<script>
+  const skall = document.getElementById('skall');
+  function oppdater(){
+    document.querySelectorAll('[data-r]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.r === skall.dataset.radius)));
+    if (location.hash !== '#' + skall.dataset.radius) history.replaceState(null, '', '#' + skall.dataset.radius);
+  }
+  document.querySelectorAll('[data-r]').forEach(b => b.addEventListener('click', () => { skall.dataset.radius = b.dataset.r; oppdater(); }));
+  function lesAnker(){ const m = /^#(pille|kantet)$/.exec(location.hash); if (m) skall.dataset.radius = m[1]; oppdater(); }
+  lesAnker(); addEventListener('hashchange', lesAnker);
+</script>
+</body>
+</html>
