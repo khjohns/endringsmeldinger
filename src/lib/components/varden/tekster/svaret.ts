@@ -125,7 +125,6 @@ export const SKJEMA = {
   /** Med flere kravposter sier meldingen hvilken den gjelder. */
   iPosten: (post: string | null, tekst: string) => (post ? `${post}: ${tekst}` : tekst),
   forkast: 'Forkast utkast',
-  forkastJa: 'Forkast',
   behold: 'Behold utkastet',
   ikkeStoettet:
     'Kravet har en post for særskilt vederlagsjustering (punkt 34.1.3). Den kan ikke besvares i denne prøven av Varden ennå.',

@@ -44,6 +44,11 @@ export function fastLinje(
   const tilstand = $state({ iSyne: true });
   $effect(() => {
     const el = panel();
+    // Mens linja er skjult, regnes panelet i syne, så linja ikke blinker når den vises igjen.
+    if (skjult()) {
+      tilstand.iSyne = true;
+      return;
+    }
     if (!el || typeof IntersectionObserver === 'undefined') return;
     const io = new IntersectionObserver(([e]) => (tilstand.iSyne = e.isIntersecting));
     io.observe(el);
