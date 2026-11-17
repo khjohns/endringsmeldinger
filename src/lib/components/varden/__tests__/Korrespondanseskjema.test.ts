@@ -27,7 +27,7 @@ import Vederlagskrav from '$lib/components/varden/Vederlagskrav.svelte';
 import Lagttilmerknader from '$lib/components/varden/Lagttilmerknader.svelte';
 import type { Korrespondansevalg } from '$lib/components/varden/korrespondansen';
 import { kravposterI } from '$kjerne/spor/vederlag/format';
-import { HOVEDLINJER, LEGG_TIL, SAKEN } from '$lib/components/varden/tekster';
+import { FORHOLDET, HOVEDLINJER, LEGG_TIL, SAKEN } from '$lib/components/varden/tekster';
 import { brevene, sendtSammeDag, sendtSammeDagSom } from '$lib/components/varden/lesing';
 import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
 import Vardensak from '$lib/components/varden/Vardensak.svelte';
@@ -487,5 +487,111 @@ describe('svaret lagt til i saken (code-review i #807)', () => {
     expect(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret }).length).toBeGreaterThan(
       0
     );
+  });
+});
+
+describe('utkastet til svaret når påberopelsen er trukket (#2104)', () => {
+  /** Saken der byggherren har et utkast, og totalentreprenøren kan trekke påberopelsen. */
+  async function saken() {
+    let journal = medGrunnlag;
+    const kjernesak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: 'BH',
+      hent: async () => ({
+        versjon: journal.at(-1)!.versjon,
+        part: 'BH',
+        visning: null as never,
+        journal: journal.map(linje),
+        leveringsoppdrag: [],
+        catenda_lenke: null,
+        merking: MERKING,
+      }),
+      send: async () => {
+        throw new Error('Ingenting sendes i denne testen');
+      },
+      lastOppVedlegg: async () => ({ ...BREVET, stoerrelse: 8 }),
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, spor: 'forhold' });
+    await fireEvent.click(
+      await screen.findByRole('button', { name: /^Svar på påberopelsen|^Svar/ })
+    );
+    return {
+      trekk: async () => {
+        journal = skrevet(medGrunnlag, 'TE', { type: 'trekk', spor: 'forhold' });
+        await kjernesak.last();
+      },
+    };
+  }
+  async function leggTil() {
+    await fireEvent.click(await screen.findByRole('button', { name: LEGG_TIL.tittel }));
+    await fyllUt(new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Oslo' }).format(new Date()));
+    await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.gaaVidere }));
+    expect(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret }).length).toBeGreaterThan(
+      0
+    );
+  }
+  const tilVederlaget = () =>
+    fireEvent.click(screen.getAllByRole('button', { name: /^Vederlagsjustering/ })[0]!);
+  const tilForholdet = () =>
+    fireEvent.click(
+      within(screen.getAllByRole('list', { name: SAKEN.kontraktsforhold })[0]!).getByRole('button')
+    );
+
+  it('et svar lagt til står med en melding om at det ikke kan legges til, fokus står ved meldingen, og «Forkast utkast» sletter utkastet (oppdragsgiver 16.11 i #2104: «A: melding med valg»)', async () => {
+    const { trekk } = await saken();
+    await leggTil();
+    await trekk();
+
+    const meldingen = await screen.findByText(FORHOLDET.svaretUtenPaaberopelse(true));
+    // Skjemaet brukeren sto i, er borte, så fokus står ved meldingen (WCAG 2.4.3).
+    expect(meldingen.closest('[tabindex="-1"]')).toHaveFocus();
+    expect(meldingen.closest('[tabindex="-1"]')).toHaveAccessibleName(
+      FORHOLDET.svaretUtenPaaberopelse(true)
+    );
+    expect(screen.queryByRole('button', { name: LEGG_TIL.leggTilSvaret })).toBeNull();
+    await fireEvent.click(screen.getByRole('button', { name: 'Forkast utkast' }));
+    const dialog = screen.getByRole('dialog', { hidden: true });
+    expect(within(dialog).getByText(FORHOLDET.forkastSvaret)).toBeTruthy();
+    await fireEvent.click(within(dialog).getByRole('button', { name: 'Forkast utkast' }));
+    expect(await screen.findByText('Utkastet er forkastet.')).toBeTruthy();
+    expect(screen.queryByText(FORHOLDET.svaretUtenPaaberopelse(true))).toBeNull();
+    expect(document.querySelector('.merke-utkast')).toBeNull();
+  });
+
+  it('et vanlig utkast til svaret står med meldingen om at svaret ikke kan sendes, og kan forkastes (#2104, code-review)', async () => {
+    const { trekk } = await saken();
+    await screen.findByRole('button', { name: 'Forkast utkast' });
+    await trekk();
+    const meldingen = await screen.findByText(FORHOLDET.svaretUtenPaaberopelse(false));
+    expect(meldingen.closest('[tabindex="-1"]')).toHaveFocus();
+    await fireEvent.click(screen.getByRole('button', { name: 'Forkast utkast' }));
+    const dialog = screen.getByRole('dialog', { hidden: true });
+    await fireEvent.click(within(dialog).getByRole('button', { name: 'Forkast utkast' }));
+    expect(await screen.findByText('Utkastet er forkastet.')).toBeTruthy();
+    expect(document.querySelector('.merke-utkast')).toBeNull();
+  });
+
+  it('står fokus et annet sted enn i skjemaet når påberopelsen trekkes, blir det stående (#2104, kontrollen av rettingene)', async () => {
+    const { trekk } = await saken();
+    await leggTil();
+    const annet = document.createElement('button');
+    document.body.append(annet);
+    annet.focus();
+    await trekk();
+    await screen.findByText(FORHOLDET.svaretUtenPaaberopelse(true));
+    expect(annet).toHaveFocus();
+    annet.remove();
+  });
+
+  it('kommer byggherren til forholdet fra et annet spor etter trekket, flyttes ikke fokus til meldingen (#2104, design-review)', async () => {
+    const { trekk } = await saken();
+    await leggTil();
+    await tilVederlaget();
+    await trekk();
+    await tilForholdet();
+    const meldingen = await screen.findByText(FORHOLDET.svaretUtenPaaberopelse(true));
+    expect(meldingen.closest('[tabindex="-1"]')).not.toHaveFocus();
   });
 });

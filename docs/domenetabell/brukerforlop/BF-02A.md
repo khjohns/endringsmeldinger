@@ -81,9 +81,10 @@ finner ut at pålegget ble mottatt 20.09.2026.
   med en melding som sier hva som hindrer.
 - <a id="u-4"></a>**U-4** Etter sending ser TE at datoen nå er TEs siste opplysning, og at
   svaret og påberopelsen står.
-- <a id="u-5"></a>**U-5** Begge ser den siste og de tidligere opplysningene. Visningen sier
-  ikke hvilken opplysning svaret gjaldt, fordi løsningen ikke tolker svaret. Ingenting i
-  visningen sier at varselet nå kom i tide.
+- <a id="u-5"></a>**U-5** Begge ser den siste og de tidligere opplysningene. Har TE korrigert
+  datoen etter svaret, står det ved svaret hva som var TEs siste opplysning da svaret ble
+  sendt, med brevet. Linja sier tidspunktet, ikke hva svaret mente, fordi løsningen ikke
+  tolker svaret. Ingenting i visningen sier at varselet nå kom i tide.
 - <a id="u-6"></a>**U-6** BH ser at svaret står som det ble sendt. BH kan ta stilling til den
   nye datoen i et senere svar, i et nytt svar eller, i en lukket sak, i et innlegg.
 - <a id="u-7"></a>**U-7** I skjemaet for en ny grunnlagsversjon står datoen låst, med
@@ -165,3 +166,4 @@ Spørsmålene står ordrett i [BF-02A-sporsmal.md](BF-02A-sporsmal.md), med svar
 | 06.11.2026 | #1615 | G-2 og G-7 er bygget i Varden. U-7 venter på skjemaet for «Oppdater påberopelse» (BF-10) |
 | 06.11.2026 | oppdragsgiver 06.11, i #1646 | M-4 og U-5: visningen sier ikke hvilken opplysning svaret gjaldt. Linja «Svaret gjaldt …» så ut som om løsningen tolket svaret |
 | 06.11.2026 | oppdragsgiver 06.11, tekstene i #1646 | U-2, U-6 og M-5 sier at påberopelsen og svaret står som de ble sendt, ikke at brevet ikke er en ny kravversjon eller at saken ikke venter på BH. Forståelsen i BF-02A og BF-02C er rettet likt |
+| 16.11.2026 | designdelen i MM-U55, oppdragsgiver 16.11 i #2093 («A: linje etter korrigering») | U-5: har TE korrigert datoen etter svaret, står TEs siste opplysning da svaret ble sendt ved svaret. Linja sier tidspunktet, ikke hva svaret mente, og erstatter «Svaret gjaldt …» fra 06.11 |
