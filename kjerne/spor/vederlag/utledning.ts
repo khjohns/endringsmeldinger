@@ -195,7 +195,7 @@ function kontrollerPostene(s: Svar, krav: Krav, ugyldig: Ugyldig): void {
  * `null`: standpunktet til oppgjørsformen har TEs oppgjørsform som hjemmel, rettidigheten etter
  * § 34.3.3 eller § 34.4 gjelder en kravpost som trenger det varselet (KA-U64), justeringen
  * gjelder en kravpost med justerte enhetspriser (KA-U68), og beløpet har ikke et beløp for en
- * kravpost etter en beregningsregel (OV-U95 punkt 5).
+ * kravpost etter en beregningsregel (OV-U115 punkt 5).
  */
 function kravpoststandpunktetStrider(
   p: Standpunkt,
@@ -219,7 +219,7 @@ function kravpoststandpunktetStrider(
       ? null
       : 'justeringen gjelder ikke en kravpost med justerte enhetspriser';
   }
-  // OV-U95 punkt 5: en kravpost etter en beregningsregel har ikke et beløp i svaret.
+  // OV-U115 punkt 5: en kravpost etter en beregningsregel har ikke et beløp i svaret.
   if (p.art === 'beloep' && p.gjelder !== undefined && p.godkjent !== undefined) {
     const post = poster.get(p.gjelder);
     return post && post.oppgjoersform !== 'tilbud'

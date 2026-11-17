@@ -130,7 +130,7 @@ describe('kategorien i påberopelsen er et par fra den lukkede listen (#335, HF-
   });
 });
 
-describe('oppgjørsformen i kravposten (OV-U95 punkt 19, § 34.2.1, § 34.3, § 34.4)', () => {
+describe('oppgjørsformen i kravposten (OV-U115 punkt 19, § 34.2.1, § 34.3, § 34.4)', () => {
   const vederlagskrav = (oppgjoersform: string) => ({
     type: 'krav',
     spor: 'vederlag',

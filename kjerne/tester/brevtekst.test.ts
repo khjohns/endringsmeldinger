@@ -317,7 +317,7 @@ const laast = (rad: Journalrad) => tekst(rad).map((a) => a.laast);
 
 const BESKRIVELSE = 'Byggherren har pålagt en annen fundamentering.';
 
-/** Vederlagskravet med én kravpost med fast sum, P1 (OV-U95 punkt 19), og eventuelt postene utenfor. */
+/** Vederlagskravet med én kravpost med fast sum, P1 (OV-U115 punkt 19), og eventuelt postene utenfor. */
 /** `id` for P1 i den gjeldende vederlagskravversjonen, for et krav som trekker den (KA-U56). */
 const p1I = (s: { u: () => Utledning }): string =>
   kravposterI(s.u().spor.vederlag.gjeldendeKrav!)[0]!.id;
@@ -8099,7 +8099,7 @@ describe('det særskilte kravet etter § 34.1.3 annet ledd, TEs side (OV-U22–O
       'TE',
       vederlagskrav(tilbud(undefined, { saerskilt: post, trekker: [p1I(s)] }))
     );
-    // Ordlyden er LV-U30 med LV-U35 og LV-U39, og tilbudssetningen nevner posten (OV-U95
+    // Ordlyden er LV-U30 med LV-U35 og LV-U39, og tilbudssetningen nevner posten (OV-U115
     // punkt 3, BF-14 U-6). Punktene er prototype v4 i BF-14 (#1824); P1 er trukket.
     // Forholdet er en endring, så varselet etter § 34.1.2 nevnes ikke (VS-U3, OV-U15).
     expect(tekst(rad).map((a) => [a.punkt, a.overskrift])).toEqual([
@@ -10495,13 +10495,13 @@ describe('henvisningen til et tidligere brev (LV-U42, LV-U53, S3 i #1497)', () =
 });
 
 /**
- * Kravpostene i vederlagskravet (#1663). Kildene: OV-U95 punkt 19–22, KA-U53 (betegnelsen),
+ * Kravpostene i vederlagskravet (#1663). Kildene: OV-U115 punkt 19–22, KA-U53 (betegnelsen),
  * KA-U56 (en ny versjon tar med eller trekker hver kravpost), KA-U61 og KA-U66 (tilbud og
  * beregningsregel), VS-U48 (kravposten er varselet etter punkt 34.3.3 eller 34.4 når et slikt
  * varsel ikke er sendt før), KA-U75 (en trukket kravpost kan tas med igjen med samme betegnelse,
  * og trekket er ikke avkall) og arbeidsvalget 07.11 i domenetabellen (formatet). Brev 3 i `sakMedKrav` har P1 med fast sum 125 000 kr.
  */
-describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #1663)', () => {
+describe('kravpostene i vederlagskravet (OV-U115 punkt 19–22, KA-U53, KA-U56, #1663)', () => {
   const krav = (kravposter: Data[], rest: Data = {}) => ({
     type: 'krav',
     spor: 'vederlag',
@@ -10830,7 +10830,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     });
   });
 
-  it('byggherren kan ikke svare med ett beløp på et krav med flere kravposter, og et beløp for en kravpost etter en beregningsregel avvises (KA-U59, OV-U95 punkt 5)', () => {
+  it('byggherren kan ikke svare med ett beløp på et krav med flere kravposter, og et beløp for en kravpost etter en beregningsregel avvises (KA-U59, OV-U115 punkt 5)', () => {
     const s = sakMedKrav();
     const svaret = () => ({
       type: 'brev',
@@ -10851,7 +10851,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     expect(s.avvist('BH', svaret())).toBe('UGYLDIG_VURDERING');
     expect(s.avvisning('BH', svaret())?.melding).toContain('P2.vurdering');
     // Én kravpost etter en beregningsregel: svaret tilbys, og et beløp for posten avvises
-    // (OV-U95 punkt 5).
+    // (OV-U115 punkt 5).
     s.send(
       'TE',
       krav([{ ...regning, oppgjoersform: 'regningsarbeid' }], {
@@ -10893,7 +10893,7 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
   });
 });
 
-describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U68, KA-U69, KA-U71, OV-U95 punkt 5, #1663)', () => {
+describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U68, KA-U69, KA-U71, OV-U115 punkt 5, #1663)', () => {
   const krav = (kravposter: Data[], rest: Data = {}) => ({
     type: 'krav',
     spor: 'vederlag',
@@ -10941,7 +10941,7 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     ]);
   };
 
-  it('byggherren som godtar beregningsregelen, tar ikke stilling til et beløp, og svaret faller sammen med kravet (OV-U95 punkt 5, HF-U28)', () => {
+  it('byggherren som godtar beregningsregelen, tar ikke stilling til et beløp, og svaret faller sammen med kravet (OV-U115 punkt 5, HF-U28)', () => {
     const s = sakMed(regning);
     expect(
       s.avvist('BH', svaret(s, { P2: { aksepterer: true, vurdering: 'godkjent' } })),
@@ -10960,7 +10960,7 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     );
   });
 
-  it('byggherren som mener den andre beregningsregelen, må oppgi den, og kan ikke mene den TE krever (OV-U95 punkt 1 og 5)', () => {
+  it('byggherren som mener den andre beregningsregelen, må oppgi den, og kan ikke mene den TE krever (OV-U115 punkt 1 og 5)', () => {
     const s = sakMed(regning);
     expect(s.avvisning('BH', svaret(s, { P2: { aksepterer: false } }))?.melding).toContain(
       'P2.oensket_oppgjoersform: mangler når beregningsregelen ikke godtas'
@@ -11197,7 +11197,7 @@ describe('svaret på en kravpost etter en beregningsregel (KA-U54, KA-U64, KA-U6
     expect(s.u().forstaatt, JSON.stringify(s.u().begrensninger)).toBe(true);
   });
 
-  it('et lagret svar med et beløp for en kravpost etter en beregningsregel er ikke forstått, også uten standpunktet til oppgjørsformen (OV-U95 punkt 5)', () => {
+  it('et lagret svar med et beløp for en kravpost etter en beregningsregel er ikke forstått, også uten standpunktet til oppgjørsformen (OV-U115 punkt 5)', () => {
     const s = sakMed(regning);
     const sv = (s.send('BH', svaret(s, { P2: { aksepterer: true } })).data.svar as Data[])[0]!;
     expect(s.u().forstaatt, 'kontrollsak').toBe(true);

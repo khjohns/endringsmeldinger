@@ -498,7 +498,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['FristIKravet', 'relasjon', 'id frist_id'],
   ['FristIKravet', 'utsagn', 'dager'],
   ['spor/frist/format.ts:betegnelsen', 'utsagn', 'nummer navn'],
-  // OV-U95 punkt 19–22 og arbeidsvalget 07.11 i domenetabellen: kravpostene i vederlagskravet, og kravpostene
+  // OV-U115 punkt 19–22 og arbeidsvalget 07.11 i domenetabellen: kravpostene i vederlagskravet, og kravpostene
   // fra forrige versjon TE trekker (KA-U56).
   [
     'Vederlagsinnhold',
@@ -531,7 +531,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/utledning.ts:kravpostvarseletStrider',
     ],
   ],
-  // KA-U54, KA-U64, KA-U68, OV-U95 punkt 5: svaret på en kravpost etter en beregningsregel.
+  // KA-U54, KA-U64, KA-U68, OV-U115 punkt 5: svaret på en kravpost etter en beregningsregel.
   [
     'Kravpost',
     'utsagn',
@@ -934,7 +934,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['frosset/utregning.ts'],
   ],
   ['frosset/utregning.ts:regnUtSvar', 'relasjon', 'foresporsel'],
-  // OV-U95 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
+  // OV-U115 punkt 19–22: kravpostene og beløpene i dem, som brevet og versjonsreglene leser,
   // og utledningen, som prøver postene i svaret mot dem (OV-U23).
   [
     'spor/vederlag/format.ts',
@@ -949,7 +949,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/kommando.ts',
     ],
   ],
-  // KA-U68, OV-U95 punkt 1 og 5: justerte enhetspriser og den andre beregningsregelen, for
+  // KA-U68, OV-U115 punkt 1 og 5: justerte enhetspriser og den andre beregningsregelen, for
   // utfyllingen av lagene i et svarutkast (#1925) og kontrollen av oppgjørsformen (#2025 punkt 2).
   ['Kravpost', 'utsagn', 'justert', ['spor/vederlag/format.ts:justerteEnhetspriser']],
   [
@@ -1060,7 +1060,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // #342, #2011: påberopelsen nyttelastkontrollen regnet svaret mot, er den brevet lagrer.
   ['Bygde', 'relasjon', 'paaberopelse', ['kommandoer/skriving.ts:svar']],
   ['spor/forhold/format.ts:kategori', 'utsagn', 'hovedkategori underkategori'],
-  // OV-U23, OV-U95 punkt 19: kravet har kravposter i vederlagsjusteringen.
+  // OV-U23, OV-U115 punkt 19: kravet har kravposter i vederlagsjusteringen.
   ['spor/vederlag/format.ts', 'regelsett', 'kravposterI', ['spor/vederlag/frysing.ts']],
   [
     'Svarvurdering',
@@ -1993,7 +1993,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'beloep',
     ['spor/vederlag/kommando.ts:oerefeil'],
   ],
-  // OV-U95 punkt 19–22, arbeidsvalget 07.11 i domenetabellen: skjemaet for vederlagskravet i kommandoen.
+  // OV-U115 punkt 19–22, arbeidsvalget 07.11 i domenetabellen: skjemaet for vederlagskravet i kommandoen.
   [
     'spor/vederlag/format.ts',
     'skjema',

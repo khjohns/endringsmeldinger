@@ -30,7 +30,7 @@ function valg(): Kravvalg {
 }
 
 describe('vederlagskravet', () => {
-  it('sender bare feltene oppgjørsformen har: beløp ved fast sum, overslag ved regningsarbeid (KA-U66, OV-U95 punkt 19)', () => {
+  it('sender bare feltene oppgjørsformen har: beløp ved fast sum, overslag ved regningsarbeid (KA-U66, OV-U115 punkt 19)', () => {
     const k = vederlagskravet(valg(), [null, { art: 'kravet', hjemmel: '34.4' }]);
     expect(k.innhold.kravposter).toEqual([
       { beskrivelse: 'Omlegging', oppgjoersform: 'tilbud', beloep: 210000, pns: '31' },

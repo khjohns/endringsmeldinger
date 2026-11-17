@@ -818,7 +818,7 @@ function besvart(
   return true;
 }
 
-/** En kravpost etter en beregningsregel har ikke et beløp å besvare (OV-U95 punkt 5). */
+/** En kravpost etter en beregningsregel har ikke et beløp å besvare (OV-U115 punkt 5). */
 const utenFastBeloepIKravposten = (u: Utledning, gjelder: string | undefined): boolean =>
   gjelder !== undefined &&
   kravposterI(u.spor.vederlag.gjeldendeKrav!).find((p) => p.id === gjelder)?.oppgjoersform !==

@@ -375,7 +375,7 @@ export function kravpostvurderinger(
 
 /**
  * Standpunktene for en kravpost etter en beregningsregel som regelen regner lagene av, eller
- * `undefined` for en kravpost med fast sum (OV-U95 punkt 5, KA-U64, KA-U68).
+ * `undefined` for en kravpost med fast sum (OV-U115 punkt 5, KA-U64, KA-U68).
  */
 function beregningsregelen(post: Kravpost, svar: Kravpostvurdering) {
   if (post.oppgjoersform === 'tilbud') return undefined;
@@ -532,7 +532,7 @@ export function vederlagsposter(
   return [
     ...kravpostvurderinger(v, krav).map(({ post: k, svar }) => ({
       // En kravpost der tilbudet ikke er akseptert (KA-U72), eller etter en beregningsregel
-      // (OV-U95 punkt 5), får ikke beløp.
+      // (OV-U115 punkt 5), får ikke beløp.
       godkjent:
         svar.aksepterer === false || k.oppgjoersform !== 'tilbud'
           ? null

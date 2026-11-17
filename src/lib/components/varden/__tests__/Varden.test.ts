@@ -21,6 +21,7 @@ import Demoforloep from '#lib/components/brukerforlop/Demoforloep.svelte';
 import Vardensak from '#lib/components/varden/Vardensak.svelte';
 import { ApiError } from '#lib/api/client.ts';
 import { projectStore } from '#lib/stores/project.svelte.ts';
+import { SMAL } from '#lib/components/varden/medie.svelte.ts';
 
 const BF = finn('BF-01');
 const START = finnForloep('BF-01')!;
@@ -622,7 +623,8 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(kortet.getByRole('button', { name: /^Godta svaret/ })).toBeTruthy();
   });
 
-  it('når kjernen ikke lager aksepten, står hindringen ved knappen med fokus, og «Godta svaret» viser til den (MM-U32, #2130)', async () => {
+  /** BF-04 etter svaret, der kjernen ikke gir noe brev for aksepten. Resten av saken er den ekte. */
+  async function medAkseptSomIkkeLages() {
     const demosak = lagDemosak(finnForloep('BF-04')!, 'te-har-mottatt-svaret', 'TE');
     const ekte = lagKjernesak({
       sakId: demosak.sakId,
@@ -632,11 +634,13 @@ describe('Varden med brukerforløpet BF-01', () => {
       send: demosak.send,
     });
     await ekte.last();
-    // Kjernen gir ikke noe brev for aksepten; resten av saken er den ekte.
-    const kjernesak = new Proxy(ekte, {
+    return new Proxy(ekte, {
       get: (t, k) => (k === 'brev' ? () => null : Reflect.get(t, k, t)),
     });
-    render(Vardensak, { kjernesak, spor: 'vederlag' });
+  }
+
+  it('når kjernen ikke lager aksepten, står hindringen ved knappen med fokus, og «Godta svaret» viser til den (MM-U32, #2130)', async () => {
+    render(Vardensak, { kjernesak: await medAkseptSomIkkeLages(), spor: 'vederlag' });
     await screen.findByRole('list', { name: 'Brevene, nyeste først' });
     const godta = within(screen.getByRole('main')).getByRole('button', { name: /^Godta svaret/ });
     await fireEvent.click(godta);
@@ -646,6 +650,32 @@ describe('Varden med brukerforløpet BF-01', () => {
       hindringen.closest('[id]')!.id
     );
     expect(screen.queryByRole('region', { name: 'Sending' })).toBeNull();
+  });
+
+  it('på smal skjerm med brevet lukket står hindringen også, og hver knapp som viser til den, viser til en melding som står (#2149)', async () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({
+      matches: q === SMAL,
+      media: q,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+    render(Vardensak, { kjernesak: await medAkseptSomIkkeLages(), spor: 'vederlag' });
+    const traaden = await screen.findByRole('list', { name: 'Brevene, nyeste først' });
+    // Smalt: brevene åpnes i raden, og ingen står åpen.
+    expect(traaden.querySelector('[aria-expanded="true"]')).toBeNull();
+    expect(traaden.querySelector('[aria-expanded="false"]')).not.toBeNull();
+    await fireEvent.click(
+      within(screen.getByRole('main')).getByRole('button', { name: /^Godta svaret/ })
+    );
+    const hindringen = await screen.findByText('Aksepten kan ikke lages nå.');
+    const id = hindringen.closest('[id]')!.id;
+    const viserTil = [...document.querySelectorAll('[aria-describedby]')].filter((e) =>
+      e.getAttribute('aria-describedby')!.split(' ').includes(id)
+    );
+    expect(viserTil.map((e) => e.textContent!.trim())).toEqual([
+      expect.stringMatching(/^Godta svaret/),
+    ]);
+    expect(document.querySelectorAll(`[id="${id}"]`)).toHaveLength(1);
   });
 
   it('MM-U2: en opprettelse kjernen ikke forstår, gir overskriften «Uten tittel» og en melding om at saken ikke kan leses (#2079)', async () => {

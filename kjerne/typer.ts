@@ -163,7 +163,7 @@ export type Standpunkt =
   /**
    * § 34.3.2: om byggherren godtar justeringen av enhetsprisene for kravposten `gjelder`
    * (KA-U68; det tekniske avsnittet punkt 2 i spørsmålsfila 09.11 for #1663). Godkjenner ingen
-   * priser, mengder eller beløp (OV-U95 punkt 5).
+   * priser, mengder eller beløp (OV-U115 punkt 5).
    */
   | { id: string; art: 'justering'; gjelder: string; hjemmel: '34.3.2'; godtar: boolean }
   /** § 33.1: om byggherren godtar at fremdriften hindres som følge av forholdet saken gjelder. */
@@ -254,7 +254,7 @@ export type Opplysningsslag = Opplysning['hva'];
 export type Utsagnsart = Utsagn['art'];
 
 /**
- * Oppgjørsformen for en kravpost (OV-U95 punkt 19–20). `tilbud` er fast sum etter § 34.2.1;
+ * Oppgjørsformen for en kravpost (OV-U115 punkt 19–20). `tilbud` er fast sum etter § 34.2.1;
  * `enhetspriser` og `regningsarbeid` er kontraktens beregningsregler (§ 34.3, § 34.4).
  */
 export type Oppgjoersform = 'tilbud' | 'enhetspriser' | 'regningsarbeid';
@@ -265,7 +265,7 @@ export const OPPGJOERSFORMER: readonly Oppgjoersform[] = [
 ];
 
 /**
- * En kravpost i vederlagskravet, slik den er lagret (OV-U95 punkt 19–22; arbeidsvalget 07.11 i
+ * En kravpost i vederlagskravet, slik den er lagret (OV-U115 punkt 19–22; arbeidsvalget 07.11 i
  * domenetabellen, #1663). `id` settes av serveren og `betegnelse` av kommandoen, og
  * begge følger posten gjennom kravversjonene. Anslaget, kostnadsoverslaget og PNS er
  * opplysninger som ingen regel leser (KA-U55, KA-U66).
