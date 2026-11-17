@@ -46,6 +46,7 @@ describe('komponentkatalogen', () => {
       [join(VARDEN, 'B.svelte'), "<script>import Ny from './Ny.svelte';</script>"],
       // Testene og komponentdemoen telles ikke.
       [join(VARDEN, '__tests__', 'Alene.test.ts'), "import Alene from '../Alene.svelte';"],
+      [join(VARDEN, 'Alene.test.svelte.ts'), "import Alene from './Alene.svelte';"],
       [
         join(ROT, 'src', 'routes', 'demo', 'komponenter', '+page.svelte'),
         "<script>import Alene from '#lib/components/varden/Alene.svelte';</script>",
@@ -65,6 +66,9 @@ describe('komponentkatalogen', () => {
     );
     expect(foersteSetning('Fristen etter pkt. 33.4 i skjemaet. Resten.')).toBe(
       'Fristen etter pkt. 33.4 i skjemaet.'
+    );
+    expect(foersteSetning('Boksen for fristen, jf. BF-20 og B-14. Resten.')).toBe(
+      'Boksen for fristen, jf. BF-20 og B-14.'
     );
   });
 });

@@ -11,8 +11,20 @@
 
 export * from './format';
 export * from './typer';
-export * from './felles';
-export * from './standpunkt';
+// Hjelperne filene i mappa deler med hverandre, eksporteres ikke herfra.
+export {
+  BETEGNELSE,
+  brevhode,
+  brevref,
+  brevrefFra,
+  brevrefStor,
+  brevtittel,
+  metodenavn,
+  omtalenAvKorrespondansen,
+  OPPGITT,
+  SPORNAVN,
+} from './felles';
+export { grunntekst, leselinjene, standpunkttekst } from './standpunkt';
 export * from './svaret';
 export * from './handlingene';
 export * from './tidslinjen';
@@ -26,6 +38,6 @@ export * from './korrespondansen';
 export * from './nysak';
 export * from './saksliste';
 export * from './kravskjema';
-export * from './fristkrav';
+export { FRISTKRAV } from './fristkrav';
 export * from './vederlaget';
 export * from './fristen';

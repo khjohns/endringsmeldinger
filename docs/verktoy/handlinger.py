@@ -160,7 +160,6 @@ def valider(register: dict) -> list[str]:
 
 # En streng, en malstreng eller en kommentar, så klammene i dem ikke telles.
 _HOPP = re.compile(r"'(?:\\.|[^'\\])*'|\"(?:\\.|[^\"\\])*\"|`(?:\\.|[^`\\])*`|//[^\n]*|/\*.*?\*/", re.DOTALL)
-_NOEKKEL_I_TABELLEN = re.compile(r"\s*:")
 _NAVN = re.compile(r"[A-Za-z_$][\w$]*")
 
 

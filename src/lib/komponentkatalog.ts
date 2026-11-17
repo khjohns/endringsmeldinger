@@ -16,7 +16,11 @@ const SRC = join(ROT, 'src');
 const VARDEN = join(SRC, 'lib', 'components', 'varden');
 
 /** Testene og komponentdemoen viser komponentene, men bruker dem ikke. */
-const TELLES_IKKE = [/__tests__/, /\.test\.ts$/, /[/\\]routes[/\\]demo[/\\]komponenter[/\\]/];
+const TELLES_IKKE = [
+  /__tests__/,
+  /\.(test|spec)(\.svelte)?\.ts$/,
+  /[/\\]routes[/\\]demo[/\\]komponenter[/\\]/,
+];
 
 const IMPORT =
   /\b(?:import|export)\b[^'";]*?\bfrom\s*['"]([^'"]+)['"]|\bimport\s*\(\s*['"]([^'"]+)['"]/g;
@@ -35,11 +39,26 @@ export function hodekommentar(kilde: string): string | null {
   return tekst ? tekst : null;
 }
 
+const FORKORTELSER = new Set([
+  'jf.',
+  'f.eks.',
+  'bl.a.',
+  'pkt.',
+  'nr.',
+  'ca.',
+  'dvs.',
+  'mv.',
+  'kl.',
+]);
+
 /** Første setning i hodekommentaren, på én linje. */
 export function foersteSetning(kommentar: string): string {
   const tekst = kommentar.replace(/\s+/g, ' ').trim();
-  const slutt = /[.!?](?=\s+[A-ZÆØÅ«`(])/.exec(tekst);
-  return slutt ? tekst.slice(0, slutt.index + 1) : tekst;
+  for (const t of tekst.matchAll(/[.!?](?=\s+[A-ZÆØÅ«`(])/g)) {
+    const ordet = /\S*$/.exec(tekst.slice(0, t.index + 1))![0].toLowerCase();
+    if (!FORKORTELSER.has(ordet)) return tekst.slice(0, t.index + 1);
+  }
+  return tekst;
 }
 
 export type Komponent = {

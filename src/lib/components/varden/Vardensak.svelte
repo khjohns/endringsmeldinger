@@ -172,7 +172,7 @@
    * forklaringen i korrigeringen (U-3 i BF-02A) og teksten i den nye versjonen mens TE korrigerer
    * datoen (U-2 i BF-10).
    */
-  const TOMME_UTKAST = {
+  const tommeUtkast = {
     forholdssvar: tomtForholdssvar,
     vederlagssvar: tomtSvar,
     fristsvar: tomtFristsvar,
@@ -181,21 +181,21 @@
     korrigering: (): Korrigeringsvalg => ({ dato: '', forklaring: '' }),
     nyversjon: (): string | null => null,
   };
-  type Utkastnavn = keyof typeof TOMME_UTKAST;
-  type Utkastene = { [N in Utkastnavn]: ReturnType<(typeof TOMME_UTKAST)[N]> };
-  const erUtkastnavn = (n: string): n is Utkastnavn => Object.hasOwn(TOMME_UTKAST, n);
+  type Utkastnavn = keyof typeof tommeUtkast;
+  type Utkastene = { [N in Utkastnavn]: ReturnType<(typeof tommeUtkast)[N]> };
+  const erUtkastnavn = (n: string): n is Utkastnavn => Object.hasOwn(tommeUtkast, n);
   let utkastene = $state(
-    Object.fromEntries(Object.entries(TOMME_UTKAST).map(([n, tomt]) => [n, tomt()])) as Utkastene
+    Object.fromEntries(Object.entries(tommeUtkast).map(([n, tomt]) => [n, tomt()])) as Utkastene
   );
   function tom<N extends Utkastnavn>(n: N) {
-    utkastene[n] = TOMME_UTKAST[n]() as Utkastene[N];
+    utkastene[n] = tommeUtkast[n]() as Utkastene[N];
   }
-  const SVARET_I = {
+  const svaretI = {
     forhold: 'forholdssvar',
     vederlag: 'vederlagssvar',
     frist: 'fristsvar',
   } as const satisfies Record<Spor, Utkastnavn>;
-  const KRAVET_I = {
+  const kravetI = {
     vederlag: 'vederlagskrav',
     frist: 'fristkrav',
   } as const satisfies Record<Kravspor, Utkastnavn>;
@@ -284,7 +284,7 @@
 
   // Svarutkastet i sporet er sendt eller forkastet.
   function tomtUtkast(s: Spor) {
-    tom(SVARET_I[s]);
+    tom(svaretI[s]);
     utkastAapent[s] = false;
     // Et forkastet svar lagt til tar korrespondansen med seg.
     if (s === 'forhold') {
@@ -329,7 +329,7 @@
         ...(svaret ? [{ hva: BREVKONTROLL.viserTil, brev: NYVERSJON.viserTilBrev(svaret) }] : []),
       ],
       kvittering: KRAVSKJEMA.kvittering,
-      tilbake: { art: KRAVET_I[s] },
+      tilbake: { art: kravetI[s] },
       utkastet: null,
     };
   }
@@ -411,7 +411,7 @@
     skjema: Snippet<[Utledning]>;
   };
   /**
-   * Skjemaene i arbeidsflaten, med det tomme utkastet i `TOMME_UTKAST`. Varden åpner dem fra «Det
+   * Skjemaene i arbeidsflaten, med det tomme utkastet i `tommeUtkast`. Varden åpner dem fra «Det
    * du kan gjøre nå», med hele nøkkelen fra kjernen. Bare en nøkkel her blir en knapp som åpner
    * noe; resten sier at handlingen ikke er bygget (#1636, #1663).
    */
@@ -497,9 +497,8 @@
       skjema: fristsvar,
     },
   } satisfies Record<string, Skjema>;
-  const aktivtSkjema = $derived(
-    Object.values<Skjema>(skjemaene).find((s) => s.vises())?.skjema ?? null
-  );
+  const skjemalista: Skjema[] = Object.values(skjemaene);
+  const aktivtSkjema = $derived(skjemalista.find((s) => s.vises())?.skjema ?? null);
   /**
    * Kjernen avviser et svar på en trukket påberopelse (`KRAV_TRUKKET`), så utkastet står bare med
    * valget om å forkaste det (#2104).
@@ -538,7 +537,7 @@
   function lagtTilKvittering(tekst: string, krav: Kravspor | null = null) {
     lagtTil = null;
     // Kravet er lagt til, så utkastet er brukt, som etter sendingen (`sendt`).
-    if (krav) tom(KRAVET_I[krav]);
+    if (krav) tom(kravetI[krav]);
     return tilSaken(tekst, 'sendt');
   }
   /**
@@ -569,12 +568,9 @@
   const foresporselssvar = $derived(
     kjernesak.tilbudte.filter((h) => h.type === 'svare_paa_foresporsel').map((h) => h.noekkel)
   );
-  const skjemanoeklene = $derived([
-    ...Object.values<Skjema>(skjemaene).flatMap((s) => s.noekler),
-    ...foresporselssvar,
-  ]);
+  const skjemanoeklene = $derived([...skjemalista.flatMap((s) => s.noekler), ...foresporselssvar]);
   function aapne(n: string) {
-    const skjema = Object.values<Skjema>(skjemaene).find((s) => s.noekler.includes(n));
+    const skjema = skjemalista.find((s) => s.noekler.includes(n));
     if (skjema?.aapne) skjema.aapne(n);
     else if (foresporselssvar.includes(n)) fristskjema('krav');
   }
