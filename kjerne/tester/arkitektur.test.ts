@@ -931,7 +931,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/format.ts',
     'predikat',
     'justerteEnhetspriser denAndreRegelen',
-    ['spor/vederlag/kommando.ts', 'regler/vederlag.ts:kontrollerOppgjoersformen'],
+    [
+      'spor/vederlag/kommando.ts',
+      'regler/vederlag.ts:kontrollerOppgjoersformen',
+      'regler/vederlag.ts:ubesvartIKravposten',
+    ],
   ],
   // KA-U64, KA-U68: varselet og justeringen gjelder justerte enhetspriser (#2025 punkt 2).
   ['spor/vederlag/format.ts', 'predikat', 'justerteEnhetspriser', ['spor/vederlag/utledning.ts']],
@@ -1044,9 +1048,47 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // #1663, 2a-1b: kommandoens felt oversatt til postene i regelen, og feilene tilbake.
   ['spor/vederlag/frysing.ts:svaretFraVurderingene', 'regelsett', 'svar felt'],
+  // #2025 punkt 3: spørsmålene regelen krever svar på i et svarutkast, lest av svaret regelen
+  // kontrollerer, med feltene for posten etter § 34.1.3 annet ledd.
+  [
+    'spor/vederlag/frysing.ts',
+    'regelsett',
+    'svaretFraVurderingene PRODUKTIVITETSFELT',
+    ['spor/vederlag/kommando.ts:ubesvartIVederlaget'],
+  ],
+  [
+    'PRODUKTIVITETSFELT',
+    'kommando',
+    'vurdering godkjent_beloep varslet_i_tide begrenset_beloep',
+    ['spor/vederlag/kommando.ts:ubesvartIVederlaget'],
+  ],
+  [
+    'regler/vederlag.ts',
+    'regelsett',
+    'ubesvarteSpoersmaal ubesvartIKravposten',
+    ['spor/vederlag/kommando.ts:ubesvartIVederlaget'],
+  ],
+  ['UbesvartIVederlaget', 'regelsett', 'post felt'],
+  [
+    'regler/vederlag.ts:ubesvartIKravposten',
+    'utsagn',
+    'aksepterer oensket_oppgjoersform krever_tilbud godtar_justering',
+  ],
   ['UgyldigVurdering', 'regelsett', 'feil', ['spor/vederlag/frysing.ts']],
   // Kontrollene av vurderingene i svaret, med feltene fra `Svarvurdering` (#1695).
   ['regler/svarkontroll.ts', 'regelsett', 'kontrollerSpesifiseringen', ['spor/frist/frysing.ts']],
+  // D-5, #2025: dagene byggherren måtte forstå, påkrevd i et svarutkast som ved sending.
+  [
+    'regler/svarkontroll.ts',
+    'regelsett',
+    'maatteForstaaUbesvart',
+    ['spor/frist/kommando.ts:lagIFristen'],
+  ],
+  [
+    'regler/svarkontroll.ts:maatteForstaaUbesvart',
+    'utsagn',
+    'spesifisert_krav_ok dager_maatte_forstaa',
+  ],
   ['regler/svarkontroll.ts', 'regelsett', 'kontrollerForholdet', ['spor/forhold/frysing.ts']],
   [
     'regler/vederlag.ts',
@@ -1335,8 +1377,6 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['kommandoer/skriving.ts:frosneSvar', 'kommandoer/skriving.ts:frysBrev'],
   ],
   ['Journalrad.data', 'rad', 'opplysninger', ['kommandoer/skriving.ts:frysBrev']],
-  ['kommandoer/skriving.ts:frysBrev(o)', 'rad', 'hva gjelder', ['kommandoer/skriving.ts:frysBrev']],
-  ['kommandoer/skriving.ts:frysBrev(sendt)', 'rad', 'dato', ['kommandoer/skriving.ts:frysBrev']],
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/skriving.ts:frysBrev']],
   ['format/leser.ts', 'relasjon', 'kalenderdag', ['kommandoer/avvisning.ts:avvisning']],
   ['Registrering', 'kommando', 'sendt', ['kommandoer/avvisning.ts:avvisning']],
@@ -1529,7 +1569,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   [
     'spor/frist/kommando.ts:utfylt',
     'kommando',
-    'v ubesvart',
+    'v ubesvart paakrevde',
     ['spor/frist/kommando.ts:lagIFristen'],
   ],
   [
@@ -1539,8 +1579,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/frist/kommando.ts:spoersmaaletFor'],
   ],
   ['spor/frist/kommando.ts:utfylt(r)', 'kommando', 'dager_maatte_forstaa'],
-  // Spørsmålene regelsettet stiller i fristen, også i lagene i et svarutkast (#1925).
-  ['regler/frist.ts', 'regelsett', 'beregnSynlighet', ['spor/frist/kommando.ts:utfylt']],
+  // Spørsmålene regelsettet krever svar på i fristen, også i lagene i et svarutkast (#1925, #2025).
+  ['regler/frist.ts', 'regelsett', 'paakrevdeSpoersmaal', ['spor/frist/kommando.ts:utfylt']],
   ['spor/frist/frysing.ts', 'predikat', 'fristkravet', ['spor/frist/kommando.ts:utfylt']],
   // OV-U32, OV-U33: lagene i utkastet regnet som brevet regner dem, felles for sporene.
   [
@@ -1631,6 +1671,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/forhold/frysing.ts',
       'frosset/byggeklosser.ts',
       'spor/vederlag/frysing.ts',
+      'spor/vederlag/kommando.ts:ubesvartIVederlaget',
       'spor/forhold/kommando.ts:korrigering',
       'spor/forhold/kommando.ts:kontrollerKorrigering',
       'kommandoer/nyttelast.ts:grunnlagsdatoen',
@@ -2349,6 +2390,15 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   // Leseregler som deles: registrert korrespondanse, datoen for et varsel og bestridelsen
   // av samme slag (MM-U1, MM-U7).
   ['format/leser.ts', 'relasjon', 'erRegistrert datoFor sammeSlag'],
+  // #2088 punkt 1: datoen parten oppga for dokumentet, lest ett sted.
+  [
+    'format/leser.ts',
+    'relasjon',
+    'datoForDokumentet',
+    ['utledning/utled.ts:registreringer', 'kommandoer/skriving.ts:frysBrev'],
+  ],
+  // Et svar som ikke er gitt, for spørsmålene regelen krever svar på (#2025).
+  ['regler/typer.ts', 'predikat', 'mangler'],
   // OV-U98, OV-U104: dagene sammenliknes som kalenderdager, og samme dag meldes der de sammenliknes.
   ['format/leser.ts', 'relasjon', 'foerDagen'],
   // OV-U32, OV-U98, #2057: dagen et svar ble sendt, og om brevet er lagt til, for svaret på

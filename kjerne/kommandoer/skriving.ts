@@ -34,6 +34,7 @@ import {
 import { brevmerking, lagBrevtittel, medSakskode } from '../frosset/brevtittel.ts';
 import {
   brevtekstI,
+  datoForDokumentet,
   erRegistrert,
   kalenderdag,
   lesJournal,
@@ -68,6 +69,7 @@ import {
   type Domenehendelse,
   type Kravpostvarselet,
   type Kravpostvarselhjemmel,
+  type Opplysning,
   type Part,
   type Sakskode,
   type Spor,
@@ -940,10 +942,8 @@ export function frysBrev(rad: Journalrad, foer: Journalrad[], kjerne: Kjerne): v
   for (const h of lesJournal(foer, kjerne.leserformat))
     if (h.art === 'dokument') kravene.push(...h.dokument.krav);
   const paaberopelse = kravene.filter((k) => k.spor === 'forhold');
-  // OV-U98: dagen brevet ble sendt, ikke datoen for ett element i det (`datoFor`).
-  const sendt = ((rad.data.opplysninger ?? []) as Data[]).find(
-    (o) => o.hva === 'sendt' && o.gjelder === undefined
-  );
+  // OV-U98: dagen brevet ble sendt, ikke datoen for ett element i det.
+  const sendt = datoForDokumentet((rad.data.opplysninger ?? []) as Opplysning[], 'sendt');
   const dag = typeof sendt?.dato === 'string' ? kalenderdag(sendt.dato) : null;
   // Kategorien i påberopelsen: § 32.2 i forholdet (GR-U12), § 34.1.2 i vederlaget (HF-U1, #342).
   frysSvarene(
