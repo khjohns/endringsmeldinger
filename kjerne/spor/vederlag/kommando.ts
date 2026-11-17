@@ -19,9 +19,11 @@ import { kategori } from '../forhold/format.ts';
 import { omtalen } from '../../frosset/brevdeler.ts';
 import { innholdetIDokumentet, innholdetIVedleggene } from '../../kommandoer/vedlegg.ts';
 import {
+  kontroller as kontrollerVederlaget,
   ubesvartIKravposten,
   ubesvarteSpoersmaal,
   type UbesvartIVederlaget,
+  type Vederlagssvar,
 } from '../../regler/vederlag.ts';
 import { hjemmelenGjelder, laget, type Svarvurdering } from '../../frosset/byggeklosser.ts';
 import {
@@ -71,7 +73,7 @@ import type {
   Utfall,
 } from '../../kommandoer/skriving.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
-import { lageneIUtkastet } from '../../kommandoer/utkastlag.ts';
+import { avvisteFelt, lageneIUtkastet, utenom } from '../../kommandoer/utkastlag.ts';
 import type { Sporsforutsetninger } from '../../kommandoer/forutsetninger.ts';
 import type { Sporsstandpunkter } from '../../kommandoer/standpunkter.ts';
 
@@ -579,14 +581,12 @@ const iSaerskilt = (
  * `ubesvartIKravposten`, #2025): varselet etter § 34.1.2 først, så postene i kravets rekkefølge.
  */
 function ubesvartIVederlaget(
+  svaret: Vederlagssvar,
   v: Svarvurdering,
-  utkast: Svarutkast,
-  u: Utledning,
+  krav: Krav,
   regler: Regelsett
 ): LagIVederlaget['ubesvart'] {
-  const krav = u.spor.vederlag.gjeldendeKrav!;
-  const { hovedkategori } = kategori(paaberopelseFor(utkast, u));
-  const ubesvarte = ubesvarteSpoersmaal(svaretFraVurderingene(v, krav, hovedkategori).svar, regler);
+  const ubesvarte = ubesvarteSpoersmaal(svaret, regler);
   const iPosten = (gjelder: string) =>
     ubesvarte.flatMap((x) => (iKravpost(x) && x.post.gjelder === gjelder ? [x.felt] : []));
   return [
@@ -603,6 +603,38 @@ function ubesvartIVederlaget(
       iSaerskilt(x) && x.post.saerskilt === 'produktivitet'
         ? [{ spoersmaal: PRODUKTIVITETSFELT[x.felt] }]
         : []
+    ),
+  ];
+}
+
+/** Feltene for en kravpost kontrollen av vederlaget fører feil for, med kravposten i nøkkelen. */
+const KRAVPOSTFELT = ['vurdering', 'godkjent_beloep', 'aksepterer'] as const;
+
+/**
+ * Svarene i utkastet `kontroller` i regelsettet avviser når svaret sendes (#2156): beløpet for
+ * hver kravpost og for posten etter § 34.1.3 annet ledd, med beløpet ved en delvis godkjenning
+ * (KA-U42) og beløpet etter begrensningen. Feltene følger nøklene kontrollen fører, også de den
+ * i dag bare fører som ubesvarte; de ubesvarte tar kalleren ut. Kontrollene `regnUtVederlag`
+ * gjør i tillegg, av oppgjørsformen for en kravpost, varselet etter § 34.1.2 og posten for rigg
+ * og drift, står ikke her (#2156).
+ */
+function ugyldigIVederlaget(
+  svaret: Vederlagssvar,
+  v: Svarvurdering,
+  krav: Krav,
+  regler: Regelsett
+): LagIVederlaget['ugyldig'] {
+  const feil = avvisteFelt(() => kontrollerVederlaget(svaret, regler));
+  return [
+    ...(feil.varslet_i_tide ? [{ spoersmaal: 'hovedkrav_varslet_i_tide' as const }] : []),
+    ...kravpostvurderinger(v, krav).flatMap(({ post }) =>
+      KRAVPOSTFELT.filter((felt) => feil[`${post.id}.${felt}`]).map((spoersmaal) => ({
+        spoersmaal,
+        gjelder: post.id,
+      }))
+    ),
+    ...Object.entries(PRODUKTIVITETSFELT).flatMap(([felt, spoersmaal]) =>
+      feil[`produktivitet.${felt}`] ? [{ spoersmaal }] : []
     ),
   ];
 }
@@ -671,8 +703,13 @@ export function lagIVederlaget(
   ).filter(({ s }) => s.art !== 'oppgjoersform' && iKravposten(s));
   const iPosten = (liste: typeof formene, gjelder: string) =>
     liste.filter(({ s }) => 'gjelder' in s && s.gjelder === gjelder).map(({ lag }) => lag);
+  const krav = u.spor.vederlag.gjeldendeKrav!;
+  const { hovedkategori } = kategori(paaberopelseFor(utkast, u));
+  const svaret = svaretFraVurderingene(v, krav, hovedkategori).svar;
+  const ubesvart = ubesvartIVederlaget(svaret, v, krav, regler);
   return {
-    ubesvart: ubesvartIVederlaget(v, utkast, u, regler),
+    ubesvart,
+    ugyldig: utenom(ugyldigIVederlaget(svaret, v, krav, regler), ubesvart),
     standpunkter: beloepet.flatMap(({ s, lag }) => {
       if (iKravposten(s)) return [];
       if (s.art !== 'beloep' || s.saerskilt || s.gjelder === undefined) return [lag];

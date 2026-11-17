@@ -165,6 +165,17 @@ describe('korrespondanse lagt til i saken (OV-U79, OV-U80)', () => {
     await vi.waitFor(() => expect(lagtTil).toEqual(['dokumentasjon']));
   });
 
+  it('velger totalentreprenøren varselet eller kravet, sier skjemaet at et brev som både varsler og krever, legges til som krav (VS-U74)', async () => {
+    await skjemaet(medGrunnlag, 'TE', 'frist');
+    expect(screen.queryByText(LEGG_TIL.kravetErVarselet)).toBeNull();
+    await radio(LEGG_TIL.kategorier.varsel);
+    expect(screen.getByText(LEGG_TIL.kravetErVarselet)).toBeInTheDocument();
+    await radio(LEGG_TIL.kategorier.krav);
+    expect(screen.getByText(LEGG_TIL.kravetErVarselet)).toBeInTheDocument();
+    await radio(LEGG_TIL.kategorier.dokumentasjon);
+    expect(screen.queryByText(LEGG_TIL.kravetErVarselet)).toBeNull();
+  });
+
   it('kravet går videre til kravskjemaet i stedet for å legges til her (OV-U80)', async () => {
     const { tilServeren, neste } = await skjemaet(medVederlag, 'TE', 'vederlag');
     await fyllUt('2026-10-16');

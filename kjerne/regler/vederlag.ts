@@ -317,7 +317,8 @@ function resultatAvBeloep(
   return 'delvis_godkjent';
 }
 
-function kontroller(svar: Vederlagssvar, regler: Varslingsplikt): void {
+/** Kontrollen av svaret før utregningen (B-13). Kaster `UgyldigVurdering` med feilene. */
+export function kontroller(svar: Vederlagssvar, regler: Varslingsplikt): void {
   const feil: Record<string, string> = {};
   const ubesvarte = ubesvarteSpoersmaal(svar, regler);
   const ubesvart = (post: Postsvar | null, felt: UbesvartIVederlaget['felt']) =>
