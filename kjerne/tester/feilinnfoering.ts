@@ -6453,8 +6453,8 @@ function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): Utfall {
   // #2108: bare filene med målene avgjør utfallet, som i utvalget på en PR. En feil i en annen
   // fil meldes, men gjør ikke mutasjonen overlevende, så utvalget og hele samlingen er enige.
   const iMaalfilene = (fil: string) => maalfilene.get(m)!.has(relative(k.rot, fil));
-  const [filene, andreFiler] = delEtter(rapport.testResults, (f) => iMaalfilene(f.name));
-  const [iMaalene, utenforMaalene] = delEtter(suitefeilene(rapport), (f) => iMaalfilene(f.fil));
+  const [andreFiler, filene] = delEtter(rapport.testResults, (f) => iMaalfilene(f.name));
+  const [utenforMaalene, iMaalene] = delEtter(suitefeilene(rapport), (f) => iMaalfilene(f.fil));
   const tester = filene.flatMap((f) => f.assertionResults);
   const feilet = tester.filter((t) => t.status === 'failed');
   const [suitefeil, godtattSuite] = delEtter(iMaalene, (f) =>
