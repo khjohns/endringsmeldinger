@@ -123,7 +123,21 @@ export function datoFor(
     (o): o is Extract<Opplysning, { hva: 'sendt' | 'mottatt' }> =>
       o.hva === hva && o.dokument === varsel.dokument
   );
-  return dato.find((o) => o.gjelder === varsel.id) ?? dato.find((o) => o.gjelder === undefined);
+  return dato.find((o) => o.gjelder === varsel.id) ?? datoForDokumentet(dato, hva);
+}
+
+/**
+ * Datoen parten oppga at dokumentet ble sendt eller mottatt, for dokumentet som helhet og ikke
+ * for ett element i det (HF-U1, OV-U85). Opplysningene er dokumentets egne.
+ */
+export function datoForDokumentet(
+  opplysninger: readonly Opplysning[],
+  hva: 'sendt' | 'mottatt'
+): Extract<Opplysning, { hva: 'sendt' | 'mottatt' }> | undefined {
+  return opplysninger.find(
+    (o): o is Extract<Opplysning, { hva: 'sendt' | 'mottatt' }> =>
+      o.hva === hva && o.gjelder === undefined
+  );
 }
 
 /**

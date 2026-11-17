@@ -20,6 +20,7 @@
 
 import {
   datoFor,
+  datoForDokumentet,
   dokumenterI,
   erRegistrert,
   foerDagen,
@@ -423,10 +424,10 @@ function registreringer(journal: Domenehendelse[]): {
       }
       rettet.rettetAv = d.id;
     }
-    const sendt = d.opplysninger[0];
+    const sendt = datoForDokumentet(d.opplysninger, 'sendt');
     // OV-U4, OV-U16: dokumentasjon har bare beskrivelsen, datoen og vedlegget (`leser.ts`).
     const dokumentasjon = !d.krav.length && !d.svar.length && !d.utsagn.length;
-    if (dokumentasjon && d.beskrivelse !== null && sendt?.hva === 'sendt')
+    if (dokumentasjon && d.beskrivelse !== null && sendt)
       brev.push({
         dokument: d.id,
         avsender: d.avsender,

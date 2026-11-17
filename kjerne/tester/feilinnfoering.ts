@@ -1524,8 +1524,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/regler/vederlag.ts`,
     endringer: [
       [
-        '  else if (p.aksepterer === false && p.oensket_oppgjoersform == null && !kreverTilbud)',
-        '  else if (false && p.oensket_oppgjoersform == null && !kreverTilbud)',
+        '...(p.aksepterer === false && mangler(p.oensket_oppgjoersform) && p.krever_tilbud !== true',
+        '...(false && mangler(p.oensket_oppgjoersform) && p.krever_tilbud !== true',
       ],
     ],
     mal: ['F-MM-V-34-2-2-nei'],
@@ -4008,6 +4008,40 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['serveren får radene én og én'],
   },
   {
+    id: 'F714',
+    feilklasse:
+      'justeringen regnes som påkrevd også når byggherren ikke godtar de justerte enhetsprisene (#2025)',
+    fil: `${K}/regler/vederlag.ts`,
+    endringer: [
+      ['&& p.aksepterer === true && mangler(p.godtar_justering)', '&& mangler(p.godtar_justering)'],
+    ],
+    mal: ['med kravet om tilbud etter § 34.2.1 er oppgjørsformen byggherren mener, ikke påkrevd'],
+  },
+  {
+    id: 'F715',
+    feilklasse:
+      'varselet etter punkt 34.1.2 står som ubesvart i svarutkastet også der varslingsplikten ikke gjelder kategorien (#2025, OV-U15)',
+    fil: `${K}/spor/vederlag/kommando.ts`,
+    endringer: [['ubesvarte.some((x) => x.post === null)', 'true']],
+    mal: ['varselet etter § 34.1.2 er ikke påkrevd når varslingsplikten ikke gjelder kategorien'],
+  },
+  {
+    id: 'F716',
+    feilklasse: 'et besvart spørsmål i fristen står som ubesvart i svarutkastet (#2025)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [['paakrevde.filter((felt) => mangler(v[felt]))', 'paakrevde']],
+    mal: ['fristen: med hvert spørsmål besvart er ingenting ubesvart'],
+  },
+  {
+    id: 'F717',
+    feilklasse:
+      'dagene byggherren måtte forstå står ikke som ubesvart i svarutkastet når spesifiseringen kom for sent (#2025, D-5)',
+    fil: `${K}/spor/frist/kommando.ts`,
+    endringer: [["...(paakrevde.includes('spesifisert_krav_ok') &&", '...(false &&']],
+    mal: ['dagene byggherren måtte forstå påkrevd for hver frist'],
+  },
+
+  {
     id: 'F705',
     feilklasse:
       'et brev som har ett av vedleggene til et registrert brev, regnes som det registrerte brevet (#2082)',
@@ -4954,7 +4988,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F513',
     feilklasse: 'en vurdering av beløpet kjernen ikke kjenner, regnes som 0 kr (#1663)',
     fil: `${K}/regler/vederlag.ts`,
-    endringer: [['if (!BELOEPSVURDERINGER.includes(vurd)) {', 'if (false) {']],
+    endringer: [['if (!BELOEPSVURDERINGER.includes(vurd as Beloepsvurdering)) {', 'if (false) {']],
     mal: ['svaret avvises med en vurdering kjernen ikke kjenner'],
   },
   {
@@ -5674,11 +5708,11 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F602',
     feilklasse:
       'lagene i et fristsvar har spesifiseringen når kravet svarer på forespørselen (KA-U78 siste setning)',
-    fil: `${K}/spor/frist/kommando.ts`,
+    fil: `${K}/regler/frist.ts`,
     endringer: [
       [
-        '{ ...synlig, vilkar_oppfylt: true }',
-        '{ ...synlig, spesifisert_krav_ok: true, vilkar_oppfylt: true }',
+        "[synlig.spesifisert_krav_ok, 'spesifisert_krav_ok', 'punkt 33.6.1'],",
+        "[true, 'spesifisert_krav_ok', 'punkt 33.6.1'],",
       ],
     ],
     mal: ['når kravet svarer på forespørselen, står spørsmålet om forespørselen ubesvart'],
