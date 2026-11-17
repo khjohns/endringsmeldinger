@@ -24477,7 +24477,7 @@ Tilslutning til utkastet til A1, med rettelser per punkt (svar 7 A). Utkastet ha
 Anbefalt svar: «Ja», med eventuelle rettelser per punkt.'''
 valgt = "Ja"
 svar = '''
-Oppdragsgiver 17.11, ordrett ([#2143, 6945921077](https://github.com/khjohns/endringsmeldinger/pull/2143#issuecomment-6945921077)): «1 ja, 2 A». Valgt for 1: Ja, tilslutning til utkastet uten rettelser. 2 er S3 i vurderingsfila, om varseltellingen, og er ikke en del av vedtaket.'''
+Oppdragsgiver 17.11, ordrett ([#2143, 6945921077](https://github.com/khjohns/endringsmeldinger/pull/2143#issuecomment-6945921077)): «1 ja, 2 A». Valgt for 1: Ja, tilslutning til utkastet uten rettelser. 2 er S3 i vurderingsfila, om varseltellingen.'''
 forhold = [
   { art = "samler", vedtak = "ka-u20" },
   { art = "samler", vedtak = "mm-u1" },
@@ -24512,7 +24512,7 @@ forhold = [
   { art = "endrer", vedtak = "hf-u5" },
 ]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for brev sendt utenfor løsningen](#samlevedtak-brev-utenfor). Samler bare delene av OV-U4, OV-U5 og HF-U13 som andre samlevedtak ikke har samlet, og av KA-U20 bare andre og tredje setning. Samler også raden SK-12 om datoen og metoden for et varsel fra TE, som ikke har anker (rad-101 i vurderingen). Endrer setningen «Et registrert brev binder ikke i appen (OV-U4).» i HF-U5 (E1).'''
+Teksten står under tabellen, i [Samlevedtaket for brev sendt utenfor løsningen](#samlevedtak-brev-utenfor). Samler bare delene av OV-U4, OV-U5, OV-U80 og HF-U13 som andre samlevedtak ikke har samlet, og av KA-U20 bare andre setning. Samler også raden SK-12 om datoen og metoden for et varsel fra totalentreprenøren, som ikke har anker (rad-101 i vurderingen). Endrer setningen «Et registrert brev binder ikke i appen (OV-U4).» i HF-U5 (E1).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja"
