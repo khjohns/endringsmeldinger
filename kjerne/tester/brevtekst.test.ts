@@ -2257,6 +2257,50 @@ describe('svaret på vederlag og frist når forholdet er avslått eller preklude
     ]);
   });
 
+  // Arbeidsvalget i #2145, etter LV-U41 og MM-U50 (LV-U71).
+  const vederlaget = (s: ReturnType<typeof sak>) => vederlag(s);
+  const fristen = (s: ReturnType<typeof sak>) =>
+    svar('frist', s.krav('frist'), FRIST_FULLT[0], FRIST_FULLT[1]);
+  it.each([
+    ['vederlaget', 'avslått', vederlaget, 'avslaatt', true],
+    ['vederlaget', 'prekludert', vederlaget, 'godkjent', false],
+    ['fristen', 'avslått', fristen, 'avslaatt', true],
+    ['fristen', 'prekludert', fristen, 'godkjent', false],
+  ])(
+    'svaret på %s har ikke noe felt for begrunnelsen av forholdet fra et tidligere brev (%s), og avviser en begrunnelse for det (#2145, LV-U41, MM-U50)',
+    (_n, _grunn, svaret, resultat, iTide) => {
+      const s = sakMedKrav();
+      s.send('BH', { type: 'brev', svar: [forhold(s, resultat, iTide)] });
+      expect(
+        s.avvisning('BH', {
+          type: 'brev',
+          svar: [{ ...svaret(s), utdypninger: { forholdet: BEGRUNNELSE } }],
+        })?.melding
+      ).toBe('Punktet «Forholdet» i brevet har ingen begrunnelse.');
+      const rad = s.send('BH', { type: 'brev', svar: [svaret(s)] });
+      expect(
+        tekst(rad).map((a) => a.punkt),
+        'punktet står i brevet'
+      ).toContain('forholdet');
+      const punktene = punkteneMedBegrunnelse(tekst(rad)).map((p) => p.punkt);
+      expect(punktene, 'kontrollsak: de andre punktene har et felt').not.toEqual([]);
+      expect(punktene).not.toContain('forholdet');
+    }
+  );
+
+  it('kontrollsak: svarer byggherren på forholdet i samme brev, har brevet ikke punktet, og en begrunnelse for det avvises som et punkt brevet ikke har (#2145, LV-U71)', () => {
+    const s = sakMedKrav();
+    expect(
+      s.avvisning('BH', {
+        type: 'brev',
+        svar: [
+          forhold(s, 'avslaatt', true),
+          { ...vederlag(s), utdypninger: { forholdet: BEGRUNNELSE } },
+        ],
+      })?.melding
+    ).toBe('Brevet har ikke punktet utdypningen gjelder («forholdet»).');
+  });
+
   it('kontrollsak: forholdet godkjent gir ingen prinsipal grunn fra forholdet', () => {
     const s = sakMedKrav();
     s.send('BH', { type: 'brev', svar: [forhold(s, 'godkjent', true)] });

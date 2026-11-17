@@ -55,7 +55,14 @@ import {
 } from '../spor/forhold/tekst.ts';
 import { BREVTEKSTEN_I_VEDERLAGET, STANDPUNKTENE_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
 import { BREVTEKSTEN_I_FRISTEN, STANDPUNKTENE_I_FRISTEN } from '../spor/frist/tekst.ts';
-import { FORBEHOLDET, INNLEDNINGEN, kroner, medHardeMellomrom, OVERSIKTEN } from './tekst.ts';
+import {
+  FORBEHOLDET,
+  FORHOLDET,
+  INNLEDNINGEN,
+  kroner,
+  medHardeMellomrom,
+  OVERSIKTEN,
+} from './tekst.ts';
 import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
   Avsnitt,
@@ -147,6 +154,9 @@ export function lagBrevtekst(
         );
       perPunkt[FORBEHOLDET] = forbehold;
     }
+    // #2145 (LV-U41, MM-U50): punktet med forholdet tar ingen utdypning.
+    if (perPunkt[FORHOLDET] && brevpunkter.some((p) => p.punkt === FORHOLDET))
+      throw new UtdypningUtenPunkt('Punktet «Forholdet» i brevet har ingen begrunnelse.');
     // HF-U23 punkt 5: linjen med akseptfristen har ingen utdypning, og står sist.
     if (perPunkt[AKSEPTFRISTEN] && brevpunkter.some((p) => p.punkt === AKSEPTFRISTEN))
       throw new UtdypningUtenPunkt('Linjen med akseptfristen har ingen utdypning.');
@@ -541,7 +551,7 @@ function forholdetsLag(
   }
   const brevet = j.brevet(g.dokument);
   const ledd: Svarledd[] = grunner.map((grunn, i) => ({
-    punkt: 'forholdet',
+    punkt: FORHOLDET,
     plass: i + 1,
     innsigelse: true,
     tekst:
