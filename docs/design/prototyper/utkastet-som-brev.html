@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Utkastet som brev</title>
 <!--
-  Prototype av hodet og oppbygningen i et skjema som blir et brev (#2163, versjon 1). Utkastet er
-  brevet mens det skrives: en smal arbeidsrad for utkastet, brevhodet i avsenderens brevskrift,
-  seksjonene som punktene i brevet og hilsenen til slutt. Brevkontrollen har samme hode på samme
-  sted.
+  Prototype av hodet og oppbygningen i et skjema som blir et brev (#2163, versjon 2). Utkastet er
+  brevet mens det skrives: en smal arbeidsrad for utkastet, tittelen i avsenderens brevskrift,
+  seksjonene som punktene i brevet og hilsenen til slutt. Brevet folder seg ut i to steg: i
+  skjemaet står hodet sammenfoldet, og hele brevhodet kommer i brevkontrollen. Punktet som venter
+  på svar, leder (versjon 2, oppdragsgiver 17.11: blikket fant ikke oppgaven i versjon 1).
   Tilstandene er ankrene #<part>-<steg>[-nederst]: part te (krav om vederlagsjustering) eller bh
   (svar på kravet), steg skjema eller brevet, og «-nederst» når «Se brevet før sending» også står
   nederst i skjemaet. Teksten er prototypetekst; ingressen og punktene i brevet er kjernens tekst
@@ -73,11 +74,12 @@ a{color:inherit;text-underline-offset:3px}
 .faner span{padding:6px 0 8px;color:var(--ink-2)}
 .faner .valgt{color:var(--ink);font-weight:600;box-shadow:inset 0 -2px 0 var(--ink)}
 
-.arbeid{max-width:calc(var(--varden-ark) + var(--varden-stoette) + 24px);margin:24px auto 64px;padding:0 16px;display:grid;grid-template-columns:minmax(0,var(--varden-ark)) var(--varden-stoette);gap:24px;align-items:start}
+.arbeid{max-width:calc(var(--varden-ark) + var(--varden-stoette) + 24px);margin:16px auto 64px;padding:0 16px;display:grid;grid-template-columns:minmax(0,var(--varden-ark)) var(--varden-stoette);gap:24px;align-items:start}
 @media (max-width:1180px){.arbeid{grid-template-columns:minmax(0,1fr)}}
 
 /* Arbeidsraden: det eneste gule. Den hører til utkastet, ikke brevet, og følger rullingen. */
-.arbeidsrad{grid-column:1/-1;position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 16px;background:var(--draft-bg);border:1px dashed var(--draft);border-radius:var(--r-innfelt);font-size:14px}
+.radramme{position:sticky;top:0;z-index:2;max-width:calc(var(--varden-ark) + var(--varden-stoette) + 24px);margin:24px auto 0;padding:0 16px}
+.arbeidsrad{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 16px;background:var(--draft-bg);border:1px dashed var(--draft);border-radius:var(--r-innfelt);font-size:14px}
 .arbeidsrad .skille{width:1px;align-self:stretch;background:color-mix(in srgb,var(--draft) 35%,transparent)}
 .merke{display:inline-block;border:1px dashed var(--draft);color:var(--draft);border-radius:var(--r-merke);padding:0 6px;font-size:12px;font-weight:500;line-height:20px}
 .arbeidsrad .brevnr{font-weight:600}
@@ -176,13 +178,36 @@ textarea.felt{min-height:84px;resize:vertical}
   .brevhode,.punkt,.hilsen,.slutt{padding-left:20px;padding-right:20px}
   .parter{gap:12px}
 }
+
+/* Versjon 2: oppgaven leder. Hodet er foldet sammen, et punkt uten arbeid er én dempet linje,
+   og punktet som venter på svar, har blekkstreken og spørsmålet i 20 px. */
+.utkast .brevhode{padding:24px 40px 20px;border-bottom:var(--rule)}
+.utkast .brevtittel{margin-top:0;font-size:20px}
+.meta{display:flex;flex-wrap:wrap;gap:2px 16px;margin-top:6px;font-family:var(--font-sans);font-size:13px;color:var(--ink-3)}
+.punktnavn{font-family:var(--brev);font-weight:600;font-size:14px;color:var(--ink-2)}
+.punkt.fast-punkt{padding:14px 40px;color:var(--ink-3)}
+.fast-punkt .punktnavn{margin-right:8px}
+.fast-punkt .lenke{min-height:0;margin-left:4px}
+.utkast legend,.utkast .etikett.sporsmaal{font-size:16px;font-weight:600;color:var(--ink);margin:12px 0 2px}
+.utkast legend.liten{font-size:14px;margin-top:16px}
+.utkast fieldset{margin-top:4px}
+.utkast fieldset .hjelp{margin:0 0 12px}
+.utkast .gjelder{margin-top:10px;font-size:13px}
+.utkast .gjelder b{display:inline;margin-right:6px;font-size:13px}
+.punkt{transition:box-shadow .15s cubic-bezier(.23,1,.32,1)}
+.punkt.aktiv{box-shadow:inset 3px 0 0 var(--ink)}
+.punkt.aktiv legend,.punkt.aktiv .etikett.sporsmaal{font-size:20px;letter-spacing:var(--sperring-20);line-height:1.3;margin-top:14px}
+.punkt.besvart:not(.aktiv) legend{color:var(--ink-2)}
+.punktliste li.aktiv{font-weight:600}
+.punktliste li.aktiv b::before{content:'';display:inline-block;width:3px;height:14px;background:var(--ink);margin-right:6px;vertical-align:-2px}
+@media (prefers-reduced-motion:reduce){.punkt{transition:none}}
 </style>
 </head>
 <body>
 <div id="skall" data-part="bh" data-steg="skjema" data-nederst="nei" data-vis-spor="nei">
 
 <div class="mockup" role="region" aria-label="Prototypevalg">
-  <b>Prototype · Utkastet som brev · v1</b>
+  <b>Prototype · Utkastet som brev · v2</b>
   <div class="gruppe" role="group" aria-label="Vis som"><span>Vis som</span>
     <button type="button" data-velg-part="bh">Byggherren</button>
     <button type="button" data-velg-part="te">Totalentreprenøren</button>
@@ -205,7 +230,7 @@ textarea.felt{min-height:84px;resize:vertical}
   </div>
 </header>
 
-<main class="arbeid">
+<div class="radramme">
   <!-- Arbeidsraden er lik i begge stegene; bare lenken tilbake skifter. -->
   <div class="arbeidsrad" data-spor="R5-4 T-4">
     <a class="steg-skjema" href="#" data-tilbake>‹ Tilbake til vederlagsjusteringen</a>
@@ -217,116 +242,102 @@ textarea.felt{min-height:84px;resize:vertical}
     <span class="til te">Til byggherren</span>
   </div>
 
+</div>
+<main class="arbeid">
   <!-- ============ Skjemaet ============ -->
+  <!-- Brevhodet er foldet sammen til tittelen og én linje; hele hodet står i brevkontrollen. -->
   <form class="steg-skjema utkast" aria-labelledby="tittel-skjema" novalidate>
     <div class="ark">
-      <div class="brevhode" data-spor="T-1 T-3">
-        <div class="parter">
-          <div class="bh"><b>Oslobygg KF</b><span class="rolle">Byggherren</span></div>
-          <div class="bh"><b>Veidekke Entreprenør AS</b><span class="rolle">Totalentreprenøren</span></div>
-          <div class="te"><b>Veidekke Entreprenør AS</b><span class="rolle">Totalentreprenøren</span></div>
-          <div class="te"><b>Oslobygg KF</b><span class="rolle">Byggherren</span></div>
-        </div>
-        <dl class="refs">
-          <div><dt>Sak</dt><dd>KOE-17 · Manglende medvirkning eller leveranser fra byggherren</dd></div>
-          <div><dt>Deres ref.</dt>
-            <dd class="bh">K201-KOE-017-03 <span class="app">(brev 3) · <a href="#">Les ved siden av</a></span></dd>
-            <dd class="te">K201-KOE-017-04 <span class="app">(brev 4) · <a href="#">Les ved siden av</a></span></dd></div>
-          <div><dt>Vår ref.</dt><dd>K201-KOE-017-05</dd></div>
-          <div><dt>Dato</dt><dd class="settes">Settes ved sending</dd></div>
-        </dl>
+      <div class="brevhode" data-spor="T-1 T-2 T-3">
         <h2 class="brevtittel bh" id="tittel-skjema">Svar på krav om vederlagsjustering i sak KOE-17</h2>
         <h2 class="brevtittel te">Krav om vederlagsjustering i sak KOE-17</h2>
-        <p class="ingress bh">Byggherren svarer på totalentreprenørens krav om justering av vederlaget i brev K201-KOE-017-03 av 1. oktober 2026. Beløpene i brevet er eks. mva.</p>
-        <p class="ingress te">Totalentreprenøren krever justering av vederlaget. Beløpene i brevet er eks. mva.</p>
+        <p class="meta bh"><span>Svarer på brev 3 fra totalentreprenøren, 1. oktober 2026 · <a href="#">Les ved siden av</a></span><span>Vår ref. K201-KOE-017-05</span><span>Datoen settes ved sending</span></p>
+        <p class="meta te"><span>Følger opp kravet i brev 3 og svaret i brev 4 · <a href="#">Les brev 4 ved siden av</a></span><span>Vår ref. K201-KOE-017-05</span><span>Datoen settes ved sending</span></p>
       </div>
 
-      <!-- Byggherren: punktene i svaret, med begrunnelsen under punktet den gjelder. -->
-      <section class="punkt bh" aria-labelledby="bh-p1" data-spor="R3-2">
-        <div class="punkthode"><h3 id="bh-p1">1. Forholdet</h3></div>
-        <p class="fast">Byggherren har i brev K201-KOE-017-02 av 1. oktober 2026 svart at byggherren ikke har risikoen for forholdet.</p>
-        <p class="kilde">Fra svaret på forholdet i brev 2. Punktet endres på siden for forholdet.</p>
+      <!-- Byggherren. Et punkt uten arbeid står som én dempet linje. -->
+      <section class="punkt fast-punkt bh" aria-labelledby="bh-p1" data-spor="R3-2">
+        <p><span class="punktnavn" id="bh-p1">1. Forholdet</span> Står fast fra svaret i brev 2: byggherren har ikke risikoen for forholdet.</p>
       </section>
-      <section class="punkt bh" aria-labelledby="bh-p2">
-        <div class="punkthode"><h3 id="bh-p2">2. Varselet om vederlagsjustering</h3><span class="hjemmel">punkt 34.1.2</span></div>
+      <section class="punkt bh" data-oppgave aria-labelledby="bh-p2">
+        <div class="punkthode"><span class="punktnavn" id="bh-p2">2. Varselet om vederlagsjustering</span><span class="hjemmel">punkt 34.1.2</span></div>
         <div class="gjelder"><b>Gjelder hvis</b>avslaget av forholdet i brev 2 ikke fører frem</div>
-        <p class="hjelp">Totalentreprenøren ble klar over forholdet 15. september 2026, ifølge brev 1. Kravet ble sendt 1. oktober 2026, 16 kalenderdager etter.</p>
-        <fieldset data-spor="R5-6">
+        <fieldset data-spor="R5-6" aria-describedby="bh-p2-hjelp">
           <legend>Kom varselet i tide?</legend>
+          <p class="hjelp" id="bh-p2-hjelp">Totalentreprenøren ble klar over forholdet 15. september 2026, ifølge brev 1. Kravet ble sendt 1. oktober 2026. Det er 16 kalenderdager etter.</p>
           <div class="valg">
             <label class="valgkort"><input type="radio" name="varsel"> Varslet i tide</label>
-            <label class="valgkort"><input type="radio" name="varsel" checked> Varslet for sent</label>
+            <label class="valgkort"><input type="radio" name="varsel"> Varslet for sent</label>
           </div>
         </fieldset>
         <label class="etikett underordnet" for="beg-2" data-spor="R4-3 R4-6">Begrunnelse for punkt 2</label>
-        <textarea class="felt" id="beg-2">Varselet kom 16 dager etter at totalentreprenøren ble klar over forholdet.</textarea>
+        <textarea class="felt" id="beg-2"></textarea>
       </section>
-      <section class="punkt bh" aria-labelledby="bh-p3">
-        <div class="punkthode"><h3 id="bh-p3">3. Beregningsmetode</h3><span class="hjemmel">punkt 34.2</span></div>
+      <section class="punkt bh" data-oppgave aria-labelledby="bh-p3">
+        <div class="punkthode"><span class="punktnavn" id="bh-p3">3. Beregningsmetode</span><span class="hjemmel">punkt 34.2</span></div>
         <div class="gjelder"><b>Gjelder hvis</b>avslaget av forholdet i brev 2 og innsigelsen om varselet ikke fører frem</div>
-        <fieldset>
-          <legend>Oppgjørsformen totalentreprenøren krever: fast sum</legend>
+        <fieldset aria-describedby="bh-p3-hjelp">
+          <legend>Godkjenner du oppgjørsformen?</legend>
+          <p class="hjelp" id="bh-p3-hjelp">Totalentreprenøren krever fast sum.</p>
           <div class="valg stablet">
-            <label class="valgkort"><input type="radio" name="form" checked> Godkjenner fast sum (punkt 34.2.1)</label>
+            <label class="valgkort"><input type="radio" name="form"> Godkjenner fast sum (punkt 34.2.1)</label>
             <label class="valgkort"><input type="radio" name="form"> Mener enhetspriser (punkt 34.3)</label>
             <label class="valgkort"><input type="radio" name="form"> Mener regningsarbeid (punkt 34.4)</label>
           </div>
         </fieldset>
       </section>
-      <section class="punkt bh" aria-labelledby="bh-p4">
-        <div class="punkthode"><h3 id="bh-p4">4. Vederlagsjustering</h3><span class="hjemmel">punkt 34.1.2</span></div>
-        <div class="post">
-          <div class="linje"><b>P1 · Kravposten i bevis-saken</b><span class="num">100 000 kr krevd</span></div>
-          <fieldset>
-            <legend>Hvor mye av beløpet godkjenner du?</legend>
-            <div class="valg stablet">
-              <label class="valgkort"><input type="radio" name="belop" value="hele"> Hele beløpet</label>
-              <label class="valgkort"><input type="radio" name="belop" value="deler" checked> Deler av beløpet</label>
-              <label class="valgkort"><input type="radio" name="belop" value="ingenting"> Ingenting</label>
-            </div>
-          </fieldset>
-          <div id="delbelop">
-            <label class="etikett" for="belop">Beløpet du godkjenner</label>
-            <p class="hjelp" id="belop-hjelp">Mer enn 0 kr og mindre enn 100 000 kr.</p>
-            <div class="belop"><input class="felt num" id="belop" inputmode="numeric" value="60 000" aria-describedby="belop-hjelp"><span>kr</span></div>
+      <section class="punkt bh" data-oppgave aria-labelledby="bh-p4">
+        <div class="punkthode"><span class="punktnavn" id="bh-p4">4. Vederlagsjustering</span><span class="hjemmel">punkt 34.1.2</span></div>
+        <fieldset aria-describedby="bh-p4-hjelp">
+          <legend>Hvor mye av beløpet godkjenner du?</legend>
+          <p class="hjelp num" id="bh-p4-hjelp">P1 · Kravposten i bevis-saken. Totalentreprenøren krever 100 000 kr.</p>
+          <div class="valg stablet">
+            <label class="valgkort"><input type="radio" name="belop" value="hele"> Hele beløpet</label>
+            <label class="valgkort"><input type="radio" name="belop" value="deler"> Deler av beløpet</label>
+            <label class="valgkort"><input type="radio" name="belop" value="ingenting"> Ingenting</label>
           </div>
+        </fieldset>
+        <div id="delbelop" hidden>
+          <label class="etikett" for="belop">Beløpet du godkjenner</label>
+          <p class="hjelp" id="belop-hjelp">Mer enn 0 kr og mindre enn 100 000 kr.</p>
+          <div class="belop"><input class="felt num" id="belop" inputmode="numeric" aria-describedby="belop-hjelp"><span>kr</span></div>
         </div>
         <label class="etikett underordnet" for="beg-4">Begrunnelse for punkt 4</label>
         <textarea class="felt" id="beg-4"></textarea>
       </section>
       <section class="punkt bh" aria-labelledby="bh-p5">
-        <div class="punkthode"><h3 id="bh-p5">5. Forbehold</h3><span class="valgfri">Valgfri</span></div>
-        <p class="hjelp">Står sist i brevet og gjelder hele svaret.</p>
-        <textarea class="felt" aria-labelledby="bh-p5" style="margin-top:12px"></textarea>
+        <div class="punkthode"><span class="punktnavn" id="bh-p5">5. Forbehold</span><span class="valgfri">Valgfri</span></div>
+        <label class="etikett underordnet" for="bh-forbehold">Står sist i brevet og gjelder hele svaret</label>
+        <textarea class="felt" id="bh-forbehold"></textarea>
       </section>
 
-      <!-- Totalentreprenøren: punktene i kravet. -->
-      <section class="punkt te" aria-labelledby="te-p1">
-        <div class="punkthode"><h3 id="te-p1">1. Vederlagsjustering</h3><span class="hjemmel">punkt 34.1.1 og 34.1.2</span></div>
-        <p class="hjelp">Del kravet i poster. Hver post får et nummer (P1, P2 …), og nummeret er det samme i nye brev og i endringsordren.</p>
+      <!-- Totalentreprenøren. -->
+      <section class="punkt te" data-oppgave aria-labelledby="te-p1">
+        <div class="punkthode"><span class="punktnavn" id="te-p1">1. Vederlagsjustering</span><span class="hjemmel">punkt 34.1.1 og 34.1.2</span></div>
+        <label class="etikett sporsmaal" for="te-beskr">Hva krever du justering for?</label>
+        <p class="hjelp" id="te-beskr-hjelp">Del kravet i poster. Hver post får et nummer (P1, P2 …), og nummeret er det samme i nye brev og i endringsordren.</p>
         <div class="post">
           <label class="etikett" for="te-beskr" style="margin-top:0">P1 · Beskrivelse av posten</label>
-          <input class="felt" id="te-beskr" value="Kravposten i bevis-saken">
+          <input class="felt" id="te-beskr" aria-describedby="te-beskr-hjelp" data-paakrevd>
           <fieldset>
-            <legend>Oppgjørsform</legend>
+            <legend class="liten">Oppgjørsform</legend>
             <div class="valg stablet">
-              <label class="valgkort"><input type="radio" name="te-form" checked> Fast sum</label>
+              <label class="valgkort"><input type="radio" name="te-form"> Fast sum</label>
               <label class="valgkort"><input type="radio" name="te-form"> Enhetspriser</label>
               <label class="valgkort"><input type="radio" name="te-form"> Regningsarbeid</label>
             </div>
           </fieldset>
           <label class="etikett" for="te-belop">Beløpet du krever</label>
-          <div class="belop"><input class="felt num" id="te-belop" inputmode="numeric" value="100 000"><span>kr</span></div>
+          <div class="belop"><input class="felt num" id="te-belop" inputmode="numeric"><span>kr</span></div>
         </div>
       </section>
-      <section class="punkt te" aria-labelledby="te-p2">
-        <div class="punkthode"><h3 id="te-p2">2. Varslene</h3><span class="hjemmel">punkt 34.1.2</span></div>
-        <p class="fast">Varselet om vederlagsjustering gis i dette brevet.</p>
-        <p><button type="button" class="lenke">Legg til et varsel du har sendt før</button></p>
+      <section class="punkt fast-punkt te" aria-labelledby="te-p2">
+        <p><span class="punktnavn" id="te-p2">2. Varslene</span> Varselet om vederlagsjustering etter punkt 34.1.2 gis i dette brevet. <button type="button" class="lenke">Legg til et varsel du har sendt før</button></p>
       </section>
       <section class="punkt te" aria-labelledby="te-p3">
-        <div class="punkthode"><h3 id="te-p3">3. Forbehold</h3><span class="valgfri">Valgfri</span></div>
-        <textarea class="felt" aria-labelledby="te-p3" style="margin-top:12px"></textarea>
+        <div class="punkthode"><span class="punktnavn" id="te-p3">3. Forbehold</span><span class="valgfri">Valgfri</span></div>
+        <label class="etikett underordnet" for="te-forbehold">Står sist i brevet og gjelder hele kravet</label>
+        <textarea class="felt" id="te-forbehold"></textarea>
       </section>
 
       <div class="hilsen">
@@ -382,13 +393,13 @@ textarea.felt{min-height:84px;resize:vertical}
       <h2>Punktene i brevet</h2>
       <ol class="punktliste bh">
         <li><b>1</b><div>Forholdet<span>Fra brev 2</span></div></li>
-        <li><b>2</b><div>Varselet<span>Varslet for sent</span></div></li>
-        <li><b>3</b><div>Beregningsmetode<span>Godkjenner fast sum</span></div></li>
-        <li><b>4</b><div>Vederlagsjustering<span class="num">60 000 av 100 000 kr</span></div></li>
+        <li><b>2</b><div>Varselet<span>Ikke besvart</span></div></li>
+        <li><b>3</b><div>Beregningsmetode<span>Ikke besvart</span></div></li>
+        <li><b>4</b><div>Vederlagsjustering<span>Ikke besvart</span></div></li>
         <li><b>5</b><div>Forbehold<span>Ikke skrevet</span></div></li>
       </ol>
       <ol class="punktliste te">
-        <li><b>1</b><div>Vederlagsjustering<span class="num">1 post · 100 000 kr</span></div></li>
+        <li><b>1</b><div>Vederlagsjustering<span>1 post · ikke ferdig</span></div></li>
         <li><b>2</b><div>Varslene<span>Gis i dette brevet</span></div></li>
         <li><b>3</b><div>Forbehold<span>Ikke skrevet</span></div></li>
       </ol>
@@ -450,6 +461,31 @@ textarea.felt{min-height:84px;resize:vertical}
   document.querySelectorAll('[data-tilbake]').forEach(a => a.addEventListener('click', e => e.preventDefault()));
   document.querySelectorAll('input[name="belop"]').forEach(i => i.addEventListener('change', oppdater));
   visSpor.addEventListener('change', () => { skall.dataset.visSpor = visSpor.checked ? 'ja' : 'nei'; });
+  // Versjon 2: det første punktet som venter på svar, er aktivt, i skjemaet og i panelet.
+  function besvart(s){
+    const grupper = [...new Set([...s.querySelectorAll('input[type=radio]')].map(i => i.name))];
+    const radioOk = grupper.every(n => s.querySelector(`input[name="${n}"]:checked`));
+    const feltOk = [...s.querySelectorAll('[data-paakrevd]')].every(i => i.value.trim());
+    return radioOk && feltOk;
+  }
+  function marker(){
+    const part = skall.dataset.part;
+    const oppgaver = [...document.querySelectorAll(`.utkast .punkt.${part}[data-oppgave]`)];
+    const aktiv = oppgaver.find(s => !besvart(s)) ?? null;
+    oppgaver.forEach(s => { s.classList.toggle('aktiv', s === aktiv); s.classList.toggle('besvart', besvart(s)); });
+    const nr = aktiv ? aktiv.querySelector('.punktnavn').textContent.split('.')[0] : null;
+    document.querySelectorAll(`.punktliste.${part} li`).forEach(li => li.classList.toggle('aktiv', li.querySelector('b').textContent === nr));
+    // Panelet sier det brevet kommer til å si om punktet.
+    oppgaver.forEach(s => {
+      const n = s.querySelector('.punktnavn').textContent.split('.')[0];
+      const li = [...document.querySelectorAll(`.punktliste.${part} li`)].find(l => l.querySelector('b').textContent === n);
+      const valgt = [...s.querySelectorAll('input[type=radio]:checked')].map(i => i.closest('label').textContent.trim());
+      if (li && part === 'bh') li.querySelector('span').textContent = valgt.length ? valgt.join(', ') : 'Ikke besvart';
+    });
+  }
+  document.querySelectorAll('.utkast input, .utkast textarea').forEach(i => { i.addEventListener('change', marker); i.addEventListener('input', marker); });
+  document.querySelectorAll('[data-velg-part]').forEach(b => b.addEventListener('click', marker));
+  marker();
   lesAnker();
   addEventListener('hashchange', lesAnker);
 </script>
