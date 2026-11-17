@@ -300,6 +300,13 @@ Lagret før de sendes til orkestratoren. Spørsmål 3 og 4 gjelder rettsregler o
 > - **B:** Vedtaks-PR-en skifter ut alle, også i `kjerne/`, `src/` og `sprakprove/`, etter avtale
 >   med eierne.
 
+## Svarene
+
+- **Spørsmål 5:** orkestratoren 17.11, ordrett: «Spørsmål 5 avgjør jeg, siden det er teknisk: B.
+  Vedtaks-PR-en skifter ut alle henvisningene til OV-U95, også i kjerne/, src/ og sprakprove/. Det
+  skjer i en egen commit etter tilslutningen og en rebase mot main, slik som for VS-U76 i #2151.»
+- **Spørsmål 1–4** er lagt fram for oppdragsgiver 17.11.
+
 ## Verifikasjon og grenser
 
 - **Kjørt og observert:** `--sjekk` og `--vis` for postene på `923690e`; tellingen av endringene per
