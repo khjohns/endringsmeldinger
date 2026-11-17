@@ -421,6 +421,17 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   panelet. Panelet med hovedlinjene heter «Punktene i brevet», og tidslinja står under det som
   før, selv om prototypen ikke viser den. Det erstatter det gule hodet på utkastkortet og arbeidsraden (`Utkastrad`) når det
   bygges.
+- **Brevkontrollen er lik for alle brevene** (oppdragsgiver 17.11, #2163, versjon 4 av prototypen).
+  - Brevet står til venstre, med brevhodet og stempelet på samme sted som i skjemaet.
+  - Panelet har stegviseren øverst, med «Kontroller og send» markert. Det har ingen egen
+    overskrift og ikke merket «Utkast».
+  - Under stegviseren står bare «Mottaker» og «Svarer på», fordi avsenderen er parten selv.
+    Partene står uten «(BH)» og «(TE)».
+  - «Punktene i brevet» har én linje per punkt, med samme nummer som brevet og skjemaet. Lista
+    gjentar ikke brevteksten.
+  - «Når du sender» står rett over avkrysningen, med kant i blekk på `--surface-inset`, og med én
+    påstand per setning. Det er der virkningen står, også den som før sto ved handlingen i tråden.
+  - Sendeknappen sier hvem brevet sendes til, kort: «Send til totalentreprenøren».
 - **Utkastet sier det selv.** Stempelet sier «Utkast · ikke sendt». Det sier ikke at
   brevet bare er synlig for teamet, fordi det er åpenbart for et utkast (oppdragsgiver 12.11 i
   #1663). Panelet med punktene og sendepanelet i brevkontrollen har ikke merket «Utkast» ved
