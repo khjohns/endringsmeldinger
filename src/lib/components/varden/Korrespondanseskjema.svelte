@@ -6,6 +6,7 @@
   korrespondansen. Kjernen avviser det den ikke godtar.
 -->
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import type { Spor } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
@@ -14,7 +15,7 @@
   import Knapp from './Knapp.svelte';
   import Korrespondansen from './Korrespondansen.svelte';
   import Manglene from './Manglene.svelte';
-  import Melding from './Melding.svelte';
+  import Sendeknapp from './Sendeknapp.svelte';
   import Valg from './Valg.svelte';
   import { sendeflyt } from './sendeflyt.svelte';
   import Valgfri from './Valgfri.svelte';
@@ -183,21 +184,15 @@
           <Lagttilmerknader {kjernesak} {u} {spor} {kommando} {vedlegg} />
         {/if}
 
-        <div class="knapper">
-          <Knapp
-            variant="primaer"
-            onclick={send}
-            opptatt={kjernesak.sender}
-            aria-describedby={flyt.hindring ? flyt.hindringId : undefined}
-            >{viderekategori(kategori) ? LEGG_TIL.gaaVidere : LEGG_TIL.leggTil}</Knapp
-          >
-          <Knapp variant="lenke" onclick={onavbryt}>{LEGG_TIL.avbryt}</Knapp>
-        </div>
-        {#if flyt.hindring}
-          <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1"
-            >{flyt.hindring}</Melding
-          >
-        {/if}
+        {#snippet knapprad(knappen: Snippet)}
+          <div class="knapper">
+            {@render knappen()}
+            <Knapp variant="lenke" onclick={onavbryt}>{LEGG_TIL.avbryt}</Knapp>
+          </div>
+        {/snippet}
+        <Sendeknapp {flyt} onclick={send} opptatt={kjernesak.sender} ramme={knapprad}
+          >{viderekategori(kategori) ? LEGG_TIL.gaaVidere : LEGG_TIL.leggTil}</Sendeknapp
+        >
       </div>
     </form>
   {/snippet}

@@ -19,7 +19,7 @@
   import Brevutkast from './Brevutkast.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
   import Knapp from './Knapp.svelte';
-  import Melding from './Melding.svelte';
+  import Sendeknapp from './Sendeknapp.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastrad from './Utkastrad.svelte';
   import { nyVersjonAvPaaberopelsen } from './kommandoer';
@@ -120,17 +120,7 @@
         >
       {/snippet}
       {#snippet handling()}
-        <Knapp
-          variant="primaer"
-          onclick={tilForhaandsvisningen}
-          aria-describedby={flyt.hindring ? flyt.hindringId : undefined}
-          >{NYVERSJON.forhaandsvis}</Knapp
-        >
-        {#if flyt.hindring}
-          <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1"
-            >{flyt.hindring}</Melding
-          >
-        {/if}
+        <Sendeknapp {flyt} onclick={tilForhaandsvisningen}>{NYVERSJON.forhaandsvis}</Sendeknapp>
       {/snippet}
     </Utkastrad>
   {/snippet}

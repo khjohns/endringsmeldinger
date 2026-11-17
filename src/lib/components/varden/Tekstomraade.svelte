@@ -47,11 +47,30 @@
     oninput?: () => void;
   } = $props();
 
+  function tilpassHoeyden(el: HTMLTextAreaElement) {
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight + 2}px`;
+  }
+
   $effect(() => {
     if (!vokser || !felt) return;
     void verdi;
-    felt.style.height = 'auto';
-    felt.style.height = `${felt.scrollHeight + 2}px`;
+    tilpassHoeyden(felt);
+  });
+
+  // Ny bredde bryter linjene på nytt, så høyden måles igjen (WCAG 1.4.10, #2138). Høyden settes
+  // her selv, så bare en endret bredde utløser målingen.
+  $effect(() => {
+    if (!vokser || !felt || typeof ResizeObserver === 'undefined') return;
+    const el = felt;
+    let bredde = el.clientWidth;
+    const observator = new ResizeObserver(() => {
+      if (el.clientWidth === bredde) return;
+      bredde = el.clientWidth;
+      tilpassHoeyden(el);
+    });
+    observator.observe(el);
+    return () => observator.disconnect();
   });
 </script>
 
