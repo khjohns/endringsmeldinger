@@ -6,7 +6,7 @@ import { etikett, iSporet, laget, type Svarinnhold } from './byggeklosser.ts';
 import { LINJEN_I_FORHOLDET } from '../spor/forhold/tekst.ts';
 import { LINJEN_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
 import { LINJEN_I_FRISTEN } from '../spor/frist/tekst.ts';
-import { iLagene, SENT_I_LINJEN } from './tekst.ts';
+import { iLagene, medHardeMellomrom, SENT_I_LINJEN } from './tekst.ts';
 import {
   erKravpostvarselhjemmel,
   type Krav,
@@ -85,7 +85,7 @@ export function beslutningslinje(
     merket.add(lag);
     return `${etikett(lag)} ${l.tekst}`;
   };
-  return `Byggherrens standpunkt: ${ledd.map(etikettert).join(', ')}.`;
+  return medHardeMellomrom(`Byggherrens standpunkt: ${ledd.map(etikettert).join(', ')}.`);
 }
 
 /** Leddene i hvert spor. */

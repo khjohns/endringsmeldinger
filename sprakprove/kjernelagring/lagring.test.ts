@@ -113,12 +113,12 @@ describe.skipIf(!TESTBASE_URL)('forløp A–E gjennom testbasen', () => {
     expect(u.spor.vederlag.kravpostvarsler.map((v) => v.hjemmel)).toEqual(['34.4', '34.4']);
     const kravet = lest.at(-1)!.data as { brevtekst: { laast: string }[] };
     expect(kravet.brevtekst.map((a) => a.laast).join(' ')).toContain(
-      'gjøres opp som regningsarbeid etter NS 8407 punkt 34.4 og punkt 30.'
+      'gjøres opp som regningsarbeid etter NS 8407 punkt\u00a034.4 og punkt\u00a030.'
     );
     expect(kravet.brevtekst.map((a) => a.laast).join(' ')).not.toContain('Kravet er varsel');
     // VS-U55: kravet viser til det første varselet, sendt fra løsningen.
     expect(kravet.brevtekst.map((a) => a.laast).join(' ')).toContain(
-      'Varselet før regningsarbeidet settes i gang (NS 8407 punkt 34.4) ble gitt i brev'
+      'Varselet før regningsarbeidet settes i gang (NS 8407 punkt\u00a034.4) ble gitt i brev'
     );
   });
 

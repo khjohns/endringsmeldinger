@@ -192,7 +192,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     await fireEvent.click(knapp('Se brevet før sending'));
     const brevet = await screen.findByRole('article', { name: /Krav om vederlagsjustering/ });
     expect(brevet.textContent).toMatch(
-      /Totalentreprenøren opplyser at varselet om justering av enhetsprisene etter NS 8407 punkt 34\.3\.3 ble gitt i .* som er vedlagt\./
+      /Totalentreprenøren opplyser at varselet om justering av enhetsprisene etter NS 8407 punkt\u00a034\.3\.3 ble gitt i .* som er vedlagt\./
     );
     await fireEvent.click(
       await screen.findByRole('checkbox', { name: 'Jeg har kontrollert brevet' })

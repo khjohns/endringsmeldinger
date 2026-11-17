@@ -4,7 +4,7 @@
  */
 
 import type { Dokument, Sakskode, Spor } from '../typer.ts';
-import { sakensKode } from './tekst.ts';
+import { medHardeMellomrom, sakensKode } from './tekst.ts';
 import { paaberopelsenAv, paaberoptForhold } from '../spor/forhold/tekst.ts';
 
 const utfylt = (tall: number, sifre: number) => String(tall).padStart(sifre, '0');
@@ -105,6 +105,11 @@ export const UTSAGNSTITTEL = {
  * det første svaret, kravet eller utsagnet. `null` for et brev uten slik tittel.
  */
 export function lagBrevtittel(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): string | null {
+  const tittel = tittelen(d);
+  return tittel === null ? null : medHardeMellomrom(tittel);
+}
+
+function tittelen(d: Pick<Dokument, 'krav' | 'svar' | 'utsagn'>): string | null {
   if (d.svar.length) return SVARTITTEL[d.svar[0].spor];
   const f = paaberoptForhold(d);
   if (f) return paaberopelsenAv(f.navn);

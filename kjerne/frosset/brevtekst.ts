@@ -55,7 +55,7 @@ import {
 } from '../spor/forhold/tekst.ts';
 import { BREVTEKSTEN_I_VEDERLAGET, STANDPUNKTENE_I_VEDERLAGET } from '../spor/vederlag/tekst.ts';
 import { BREVTEKSTEN_I_FRISTEN, STANDPUNKTENE_I_FRISTEN } from '../spor/frist/tekst.ts';
-import { FORBEHOLDET, INNLEDNINGEN, kroner, OVERSIKTEN } from './tekst.ts';
+import { FORBEHOLDET, INNLEDNINGEN, kroner, medHardeMellomrom, OVERSIKTEN } from './tekst.ts';
 import { erKravpostvarselhjemmel } from '../typer.ts';
 import type {
   Avsnitt,
@@ -110,7 +110,11 @@ export function lagBrevtekst(
       );
     if (forbehold)
       throw new UtdypningUtenPunkt('Forbeholdet gjelder et element i brevet uten punkter.');
-    avsnitt.push({ gjelder, laast, ...(utdypning ? { utdypning } : {}) });
+    avsnitt.push({
+      gjelder,
+      laast: medHardeMellomrom(laast),
+      ...(utdypning ? { utdypning } : {}),
+    });
   };
   // LV-U34, LV-U40: punktene er nummerert gjennom hele brevet, så «punkt 1 ovenfor» er entydig.
   let nummer = 0;
@@ -159,7 +163,7 @@ export function lagBrevtekst(
     for (const { punkt, overskrift: o, avsnitt: a, poster } of punktene) {
       if (punkt === undefined)
         throw new KanIkkeUttrykkes(`et punkt i brevteksten for ${gjelder} har ikke noe navn`);
-      const overskrift = o === null ? undefined : `${++nummer}. ${o}`;
+      const overskrift = o === null ? undefined : medHardeMellomrom(`${++nummer}. ${o}`);
       if (overskrift) nummerert.set(punktnoekkel(gjelder, punkt), nummer);
       const tekst = perPunkt[punkt];
       delete perPunkt[punkt];
@@ -167,7 +171,7 @@ export function lagBrevtekst(
         gjelder,
         punkt,
         ...(overskrift ? { overskrift } : {}),
-        laast: [...(overskrift ? [overskrift] : []), ...a].join('\n\n'),
+        laast: [...(overskrift ? [overskrift] : []), ...a.map(medHardeMellomrom)].join('\n\n'),
         ...(tekst ? { utdypning: tekst } : {}),
         ...(poster ? { poster } : {}),
       });
