@@ -197,14 +197,22 @@ export type Forutsetning =
   | { grunn: Subsidiaergrunn }
   | { innsigelse: '33.4' | '33.6.2' | '33.6.1' | 'hindring' };
 
+type SpoersmaalIFristen = Fristspoersmaal | 'dager' | 'dager_maatte_forstaa';
+
 /**
  * Lagene i et svarutkast på fristen, med spørsmålene om hele kravet og dagene for hver frist
  * (`gjelder`). Fristen har ingen egne felt i standpunktet.
  */
-export type LagIFristen = Utkastlag<
-  Forutsetning,
-  Fristspoersmaal | 'dager' | 'dager_maatte_forstaa'
->;
+export type LagIFristen = Utkastlag<Forutsetning, SpoersmaalIFristen> & {
+  /**
+   * Spørsmålene regelen stiller i utkastet, besvart eller ikke, i rekkefølgen den stiller dem
+   * (#2156): spørsmålene om hele kravet (`paakrevdeSpoersmaal`), og for hver frist dagene og,
+   * når spesifiseringen kom for sent, dagene byggherren måtte forstå. `ubesvart` er de av dem
+   * som er ubesvart. Et spørsmål som ikke står her, stilles ikke for kravet, som spesifiseringen
+   * når kravet svarer på forespørselen (§ 33.6.2 fjerde ledd).
+   */
+  stilt: { spoersmaal: SpoersmaalIFristen; gjelder?: string }[];
+};
 
 /** Spørsmålet i svaret hvert standpunkt om hele kravet svarer på. */
 const SPOERSMAALET: Readonly<Record<string, Fristspoersmaal>> = {
@@ -284,22 +292,27 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
     if (f.art === 'hindring') return [{ innsigelse: 'hindring' }];
     return [];
   };
+  const stilt: LagIFristen['stilt'] = [];
+  const ubesvarte: LagIFristen['ubesvart'] = [];
+  const still = (spoersmaal: LagIFristen['stilt'][number], besvart: boolean) => {
+    stilt.push(spoersmaal);
+    if (!besvart) ubesvarte.push(spoersmaal);
+  };
+  for (const spoersmaal of paakrevde) still({ spoersmaal }, !ubesvart.has(spoersmaal));
+  // Bare når spesifiseringen er et spørsmål for kravet (§ 33.6.2 fjerde ledd).
+  const spesifiseringen = paakrevde.includes('spesifisert_krav_ok');
+  for (const f of fristene) {
+    // Dagene kontrolleres som manglende etter punkt 33.5 (`kontroller` i regelsettet).
+    still({ spoersmaal: 'dager', gjelder: f.gjelder }, !mangler(f.dager));
+    if (spesifiseringen && utkast.vurderinger.spesifisert_krav_ok === false)
+      still(
+        { spoersmaal: 'dager_maatte_forstaa', gjelder: f.gjelder },
+        !maatteForstaaUbesvart({ ...f, spesifisert_krav_ok: false })
+      );
+  }
   return {
-    ubesvart: [
-      ...[...ubesvart].map((spoersmaal) => ({ spoersmaal })),
-      // Dagene kontrolleres som manglende etter punkt 33.5 (`kontroller` i regelsettet).
-      ...fristene.flatMap((f) => [
-        ...(mangler(f.dager) ? [{ spoersmaal: 'dager' as const, gjelder: f.gjelder }] : []),
-        // Bare når spesifiseringen er et spørsmål for kravet (§ 33.6.2 fjerde ledd).
-        ...(paakrevde.includes('spesifisert_krav_ok') &&
-        maatteForstaaUbesvart({
-          ...f,
-          spesifisert_krav_ok: utkast.vurderinger.spesifisert_krav_ok,
-        })
-          ? [{ spoersmaal: 'dager_maatte_forstaa' as const, gjelder: f.gjelder }]
-          : []),
-      ]),
-    ],
+    stilt,
+    ubesvart: ubesvarte,
     standpunkter: svar.standpunkter.map((s, i) => {
       const l = lag[i]!;
       return {

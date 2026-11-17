@@ -11944,8 +11944,13 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
         ? medKravpostIder(vurderinger, s.u().spor.vederlag.gjeldendeKrav)
         : vurderinger
     );
-  /** `ubesvart` med kravposten og fristen som betegnelse, så forventningen kan leses. */
-  const ubesvart = (s: ReturnType<typeof sak>, spor: 'frist' | 'vederlag', vurderinger: Data) => {
+  /** Spørsmålene i `liste` med kravposten og fristen som betegnelse, så forventningen kan leses. */
+  const spoersmaalene = (
+    s: ReturnType<typeof sak>,
+    spor: 'frist' | 'vederlag',
+    vurderinger: Data,
+    liste: 'ubesvart' | 'stilt'
+  ) => {
     const ider = new Map<string, string>([
       ...(s.u().spor.vederlag.gjeldendeKrav
         ? kravposterI(s.u().spor.vederlag.gjeldendeKrav!)
@@ -11964,10 +11969,21 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
       // Et kast er en feil i lagene, ikke i oppsettet, så testen feiler som en assertion.
       expect.fail(`lagene kastet: ${String(e)}`);
     }
-    return lag.ubesvart.map(({ spoersmaal, gjelder }) =>
+    const spoersmaal =
+      liste === 'ubesvart'
+        ? lag.ubesvart
+        : 'stilt' in lag
+          ? lag.stilt
+          : expect.fail(`lagene i ${spor} har ikke lista stilt`);
+    return spoersmaal.map(({ spoersmaal, gjelder }) =>
       gjelder === undefined ? spoersmaal : `${ider.get(gjelder)}.${spoersmaal}`
     );
   };
+  const ubesvart = (s: ReturnType<typeof sak>, spor: 'frist' | 'vederlag', vurderinger: Data) =>
+    spoersmaalene(s, spor, vurderinger, 'ubesvart');
+  /** #2156 punkt 2: spørsmålene regelen stiller i svarutkastet på fristen, også når de er besvart. */
+  const stilt = (s: ReturnType<typeof sak>, vurderinger: Data) =>
+    spoersmaalene(s, 'frist', vurderinger, 'stilt');
   const melding = (s: ReturnType<typeof sak>, spor: 'frist' | 'vederlag', vurderinger: Data) =>
     s.avvisning('BH', { type: 'brev', svar: [utkastet(s, spor, vurderinger)] })?.melding ?? '';
 
@@ -11994,6 +12010,25 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     };
     expect(ubesvart(s, 'frist', besvart)).toEqual([]);
     expect(melding(s, 'frist', besvart)).not.toContain('mangler');
+  });
+
+  it('fristen: spørsmålene regelen stiller, står også når de er besvart, og er de samme som uten svar (§ 33.4, § 33.6.1, § 33.1, § 33.5, #2156)', () => {
+    const s = saken(FRISTKRAV);
+    const spoersmaalene = [
+      'frist_varsel_ok',
+      'spesifisert_krav_ok',
+      'vilkar_oppfylt',
+      'frist 1.dager',
+    ];
+    expect(stilt(s, { frister: [{}] })).toEqual(spoersmaalene);
+    expect(
+      stilt(s, {
+        frist_varsel_ok: true,
+        spesifisert_krav_ok: true,
+        vilkar_oppfylt: true,
+        frister: [{ dager: 20 }],
+      })
+    ).toEqual(spoersmaalene);
   });
 
   it('fristen: dagene er ubesvart til de er gitt, også når resten er besvart, og dager som er gitt, men ikke kan godtas, står ikke som ubesvart (§ 33.5)', () => {
@@ -12024,6 +12059,18 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     const medDagene = { ...v, frister: [{ dager: 20, dager_maatte_forstaa: 10 }] };
     expect(ubesvart(s, 'frist', medDagene)).toEqual([]);
     expect(melding(s, 'frist', medDagene)).not.toContain('mangler');
+    // #2156: dagene byggherren måtte forstå er stilt også når de er gitt, og bare når
+    // spesifiseringen kom for sent (VS-U4).
+    expect(stilt(s, medDagene)).toEqual([
+      'frist_varsel_ok',
+      'spesifisert_krav_ok',
+      'vilkar_oppfylt',
+      'frist 1.dager',
+      'frist 1.dager_maatte_forstaa',
+    ]);
+    expect(stilt(s, { ...v, spesifisert_krav_ok: true })).not.toContain(
+      'frist 1.dager_maatte_forstaa'
+    );
   });
 
   it('fristen: når kravet svarer på forespørselen, er spesifiseringen ikke et spørsmål, og dagene byggherren måtte forstå er ikke påkrevd (§ 33.6.2 fjerde ledd, KA-U78)', () => {
@@ -12046,6 +12093,13 @@ describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => 
     };
     expect(ubesvart(s, 'frist', v)).toEqual([]);
     expect(melding(s, 'frist', v)).toContain('punkt 33.6.1 kan ikke påberopes');
+    // #2156: skjemaet leser at spørsmålet ikke stilles, også når det er besvart.
+    expect(stilt(s, v)).toEqual([
+      'frist_varsel_ok',
+      'foresporsel_svar_ok',
+      'vilkar_oppfylt',
+      'frist 1.dager',
+    ]);
   });
 
   it('vederlaget: ved en delvis godkjenning er beløpet byggherren godtar påkrevd (KA-U42)', () => {
