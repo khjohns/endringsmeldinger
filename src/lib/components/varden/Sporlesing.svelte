@@ -220,8 +220,9 @@
     return n ? (omtalen(n)?.ved?.() ?? null) : null;
   });
   const godtaVedBrevet = $derived(kanGodta && handlingVed !== null);
-  // Kjernen sier om totalentreprenøren kan velge forsering (`forseringKanVelges`, FO-U1, U-6 i
-  // BF-45). «Andre handlinger» setter den foran «Trekk kravet» (`BREVTYPER`).
+  // Kjernen sier om forseringen kan velges (`forseringKanVelges`, FO-U1, U-6 i BF-45), og
+  // `kanGodta` om serveren lar totalentreprenøren svare på svaret. «Andre handlinger» setter den
+  // foran «Trekk kravet» (`BREVTYPER`, svar 3 A).
   const forsering = $derived(
     spor === 'frist' && part === 'TE' && kanGodta && forseringKanVelges(u)
   );
