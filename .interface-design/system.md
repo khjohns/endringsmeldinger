@@ -218,7 +218,7 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   et ubesvart element står åpent til det er besvart. Lesing og redigering får hver sin form, og
   den rolige tilstanden er den som vises mest. Prototypen er
   [vederlagskrav-te-v3.html](../docs/design/prototyper/vederlagskrav-te-v3.html).
-- **To vekter på et valg** (#1663). Pillen med ramme står for et
+- **To vekter på et valg** (#1663). Kortet med ramme står for et
   standpunkt på seksjonsnivå, som «Kom i tide» og «Kom for sent». Inne i et åpent element er
   valget radio og tekst, og bare det valgte svaret får flaten `--surface-selected`. Et valg med
   én forklaring per alternativ, som oppgjørsformen, står som kort under hverandre.
@@ -373,7 +373,8 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   sendt (`Tidslinje` med `utfylt`). Datoene står ikke i panelet. Panelet står fast. I
   skjemaet for ny sak står tidslinja også fast, rett under panelet, når begge får plass i
   vinduet. Ellers ruller den under panelet (#1492).
-- **Unntak: den nye versjonen av påberopelsen.** Arbeidsflaten har to roller (PR 1650):
+- **Unntak: den nye versjonen av påberopelsen.** Arbeidsflaten har to roller (PR 1650). Den gule
+  arbeidsraden under erstattes av «Utkastet er brevet mens det skrives» når det bygges (#2178):
   - En gul arbeidsrad med stiplet kant over begge kolonnene følger rullingen, unntatt på 640 px
     og smalere, der den ligger fast (PR 1650) (`Utkastrad`):
     «Tilbake til forholdet», skilt fra resten med en linje, siden sakslisten er felt inn, «Utkast»,
@@ -417,7 +418,8 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   står som én dempet linje. Punktet som venter på svar, har blekkstreken til venstre og
   spørsmålet i 20 px. Skjemaet slutter med hilsenen. «Tilbake» står over arket, på samme sted i
   skjemaet og brevkontrollen, og stegviseren («Skriv brevet», «Kontroller og send») øverst i
-  panelet. Det erstatter det gule hodet på utkastkortet og arbeidsraden (`Utkastrad`) når det
+  panelet. Panelet med hovedlinjene heter «Punktene i brevet», og tidslinja står under det som
+  før, selv om prototypen ikke viser den. Det erstatter det gule hodet på utkastkortet og arbeidsraden (`Utkastrad`) når det
   bygges.
 - **Utkastet sier det selv.** Stempelet sier «Utkast · ikke sendt». Det sier ikke at
   brevet bare er synlig for teamet, fordi det er åpenbart for et utkast (oppdragsgiver 12.11 i
@@ -432,7 +434,7 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   når de bygges i oppsett B (U-16 i BF-44, #1898, #1906). Den står ved kravet når parten kan svare,
   og ved svaret når parten kan godta det eller sende en ny versjon. Hovedhandlingen er primærknappen,
   «Godta …» en sekundær knapp, og byggherrens «Send revidert svar» en lenkeknapp ved byggherrens
-  eget svar, med én linje under om hva de gjør. «Send innlegg» står øverst i tråden. «Legg til
+  eget svar, uten hjelpetekst (se «Brevene»). «Send innlegg» står øverst i tråden. «Legg til
   korrespondanse» står i et eget kort under «Andre handlinger», med én linje om hva som kan legges
   til (#807, oppdragsgiver 16.11). De sjeldne handlingene står i kortet «Andre handlinger» nederst, med trekket
   sist. Har handlingen ikke noe brev å stå ved, står den i et eget kort over «Andre
@@ -483,6 +485,6 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   med initialene og navnet. Rollen står ikke der (#1631). Lenkene som gjelder hele prosjektet,
   «Nytt krav om endringsordre» for TE og «Ny endringsordre» for BH, står i topplinja ved
   «Åpne saken i Catenda», ikke i panelet (oppdragsgiver 13.11: «topplinja»).
-- **En melding om prøven**, som at et svar ikke kan gis i Varden, har ikon og en kant i
-  blekk (`--ink`) på `--surface-inset`. Den er ikke gul, fordi gult betyr utkast, og
+- **En melding om prøven**, som at et svar ikke kan gis i Varden, har en kant i
+  blekk (`--ink`) på `--surface-inset`, uten ikon («En feil har én form»). Den er ikke gul, fordi gult betyr utkast, og
   ikke rød, fordi den ikke er en feil.
