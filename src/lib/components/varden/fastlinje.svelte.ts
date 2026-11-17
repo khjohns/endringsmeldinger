@@ -23,8 +23,10 @@ export function faarPlass(elementer: () => (HTMLElement | null)[]): {
     const els = elementer();
     if (els.some((el) => !el) || typeof ResizeObserver === 'undefined') return;
     const maal = () => {
-      tilstand.hoeyder = els.map((el) => el!.offsetHeight);
-      const samlet = tilstand.hoeyder.reduce((sum, h) => sum + h, 0) + 16 * (els.length - 1);
+      // Effekten leser ikke tilstanden den skriver, så målingen ikke utløser seg selv.
+      const hoeyder = els.map((el) => el!.offsetHeight);
+      const samlet = hoeyder.reduce((sum, h) => sum + h, 0) + 16 * (els.length - 1);
+      tilstand.hoeyder = hoeyder;
       tilstand.faarPlass = samlet + 32 <= window.innerHeight;
     };
     const ro = new ResizeObserver(maal);
