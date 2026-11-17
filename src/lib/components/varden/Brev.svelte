@@ -68,9 +68,8 @@
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
   const hentOrganisasjoner = organisasjonene();
   const organisasjoner = $derived(hentOrganisasjoner());
-  const kravpostene = $derived(
-    new Map(punkteneMedBegrunnelse(avsnitt).map((p) => [p.punkt, p.kravpost]))
-  );
+  // Avsnittet som navngir kravposten, først i et punkt for en kravpost (KA-U53).
+  const kravposten = (a: (typeof avsnitt)[number]) => punkteneMedBegrunnelse([a])[0]?.kravpost;
 </script>
 
 <article
@@ -151,7 +150,7 @@
               <p class="lagslinje">
                 <b>{etikett}</b>{vilkaar.length ? `, ${vilkaar.join(', ')}` : ''}
               </p>
-            {:else if k === 0 && a.punkt && del === kravpostene.get(a.punkt)}
+            {:else if k === 0 && del === kravposten(a)}
               <p class="postlinje"><b>{a.punkt}</b>{del.slice(a.punkt!.length)}</p>
             {:else}
               <p>{del}</p>

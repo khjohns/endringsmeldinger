@@ -76,12 +76,12 @@ export function korrespondansemangler(
 export const korrespondansefeilene = (
   v: Korrespondansevalg,
   navn: string,
-  valg?: Parameters<typeof korrespondansemangler>[1]
+  { post, ...valg }: Parameters<typeof korrespondansemangler>[1] & { post?: string } = {}
 ): [string, string][] => {
   const mangler = korrespondansemangler(v, valg);
   return KORRESPONDANSEFELTENE.flatMap((felt) => {
     const tekst = mangler[felt];
-    return tekst === undefined ? [] : [[korrespondansenoekkel(navn, felt), tekst]];
+    return tekst === undefined ? [] : [[korrespondansenoekkel(navn, felt, post), tekst]];
   });
 };
 

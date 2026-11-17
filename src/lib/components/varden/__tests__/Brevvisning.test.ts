@@ -201,6 +201,21 @@ describe('Punktene i brevet (#1824, prototype v4 i BF-14)', () => {
     expect(kravpostlinjen()).toEqual([['P1', 'P1 Spunt langs nordveggen']]);
   });
 
+  it('to punkter med samme kravpost har hver sin linje for kravposten (#2131)', () => {
+    brev({
+      avsnitt: ['Spunt langs nordveggen', 'Spunt langs sørveggen'].map((post) => ({
+        gjelder: 'svar',
+        punkt: 'P1',
+        overskrift: 'Spunt',
+        laast: `Spunt\n\nP1 ${post}\n\nByggherren godkjenner enhetsprisene.`,
+      })),
+    });
+    expect(kravpostlinjen()).toEqual([
+      ['P1', 'P1 Spunt langs nordveggen'],
+      ['P1', 'P1 Spunt langs sørveggen'],
+    ]);
+  });
+
   it('et punkt for en kravpost uten kravposten først har ingen linje for kravposten (kontrollsak)', () => {
     brev({
       avsnitt: [

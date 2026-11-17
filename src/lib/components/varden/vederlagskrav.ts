@@ -236,10 +236,11 @@ export function manglerIKravet(
       ved: KRAVSKJEMA.ingenPoster,
     });
   med.forEach((p, i) => {
-    const legg = (felt: string, t: string | null) => {
+    // `noekkel` er hele nøkkelen for feltet når den er bygget av `korrespondansenoekkel`.
+    const legg = (felt: string, t: string | null, noekkel = `${felt}-${p.noekkel}`) => {
       if (t)
         ut.push({
-          felt: `${prefiks}-${felt}-${p.noekkel}`,
+          felt: `${prefiks}-${noekkel}`,
           post: p.noekkel,
           tekst: KRAVSKJEMA.iPosten(navnet(p), t),
           ved: t,
@@ -266,7 +267,8 @@ export function manglerIKravet(
     }
     // VS-U51, VS-U53: dokumentet med varselet for posten.
     if (p.varsel.art === 'dokument')
-      for (const [felt, t] of korrespondansefeilene(valg, 'varsel')) legg(felt, t);
+      for (const [noekkel, t] of korrespondansefeilene(valg, 'varsel', { post: p.noekkel }))
+        legg(noekkel, t, noekkel);
   });
   if (v.saerskilt) {
     const f = beloepsfeil(v.saerskilt.beloep, true, KRAVSKJEMA.manglerBeloep);
