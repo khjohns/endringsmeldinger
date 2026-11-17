@@ -295,6 +295,7 @@ på kilden, men har ingen kontroller ennå.
 | [OV-U89](../../plans/vedtak.md#ov-u89) | — | — | BF-14, BF-37 |
 | [OV-U90](../../plans/vedtak.md#ov-u90) | — | — | BF-37 |
 | [OV-U94](../../plans/vedtak.md#ov-u94) | — | — | BF-14 |
+| [OV-U95](../../plans/vedtak.md#ov-u95) | — | — | BF-14 |
 | [OV-U98](../../plans/vedtak.md#ov-u98) | — | BF-08 bh-har-mottatt-paaberopelsen | — |
 | [OV-U101](../../plans/vedtak.md#ov-u101) | — | BF-08 bh-har-mottatt-paaberopelsen | — |
 | [OV-U115](../../plans/vedtak.md#ov-u115) | — | — | BF-14 |
