@@ -205,25 +205,25 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
 
   it('et valgfritt svar på varselet etter punkt 34.3.3 kan fjernes med «Fjern svaret», og fokus går til valget som var gjort (oppdragsgiver 17.11 i #2137, U-19 i BF-14)', async () => {
     const sendt = await svarskjemaet();
-    await fireEvent.click(radio('Godkjenner regningsarbeid (punkt 34.4)'));
+    await fireEvent.click(radio('Godkjenner regningsarbeid (punkt\u00a034.4)'));
     await ferdig();
     await aapne('P2');
-    await fireEvent.click(radio('Mener regningsarbeid (punkt 34.4)'));
+    await fireEvent.click(radio('Mener regningsarbeid (punkt\u00a034.4)'));
     const gruppe = screen.getByRole('group', {
-      name: 'Varselet om justering av enhetsprisene (punkt 34.3.3), Valgfri',
+      name: 'Varselet om justering av enhetsprisene (punkt\u00a034.3.3), Valgfri',
     });
     const fjern = () => within(gruppe).queryByRole('button', { name: /^Fjern svaret/ });
     expect(fjern()).toBeNull();
     // Kontrollsak: spørsmålet om oppgjørsformen er ikke valgfritt og har ingen knapp.
     expect(
-      within(radio('Mener regningsarbeid (punkt 34.4)').closest('fieldset')!).queryByRole(
+      within(radio('Mener regningsarbeid (punkt\u00a034.4)').closest('fieldset')!).queryByRole(
         'button',
         { name: /^Fjern svaret/ }
       )
     ).toBeNull();
     await fireEvent.click(within(gruppe).getByRole('radio', { name: 'Kom for sent' }));
     expect(fjern()).toHaveAccessibleName(
-      'Fjern svaret på «Varselet om justering av enhetsprisene (punkt 34.3.3)»'
+      'Fjern svaret på «Varselet om justering av enhetsprisene (punkt\u00a034.3.3)»'
     );
     await fireEvent.click(fjern()!);
     expect(
