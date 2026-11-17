@@ -25,10 +25,11 @@ describe('hardt mellomrom i tekstene i visningen (#2049)', () => {
   });
 
   it('en tekst en funksjon lager, får hardt mellomrom, også i en liste', () => {
-    expect(TEKSTER.FRISTKRAV.fristerHjelp).toContain('punkt 1.2');
-    expect(hjemmelsmerke('33.4')).toBe('pkt. 33.4');
-    expect(kl('2026-11-17T09:15:00Z')).toBe('kl. 10.15');
-    expect(haerdet(() => ['etter punkt 33.4', 3])()).toEqual(['etter punkt 33.4', 3]);
+    expect(TEKSTER.FRISTKRAV.fristerHjelp).toContain('punkt\u00a01.2');
+    expect(hjemmelsmerke('33.4')).toBe('pkt.\u00a033.4');
+    expect(kl('2026-11-17T09:15:00Z')).toBe('kl.\u00a010.15');
+    expect(haerdet(() => ['etter punkt 33.4', 3])()).toEqual(['etter punkt\u00a033.4', 3]);
+    expect(haerdet(() => ({ tekst: 'kl. 9.00' }))()).toEqual({ tekst: 'kl.\u00a09.00' });
   });
 
   it('kontrollsak: «punkter 3» og «pkt. a» er ikke henvisninger etter regelen og står uendret', () => {

@@ -162,7 +162,8 @@
 
   // Velgeren fra `/mockup` (arbeidsvalg 02.11): gruppene er felt sammen til TE åpner én,
   // og et søk åpner alle gruppene med treff.
-  const sokeord = $derived(sok.trim().toLocaleLowerCase('nb-NO'));
+  // Navnene vises med hardt mellomrom, og katalogen har vanlig (#2049).
+  const sokeord = $derived(sok.replaceAll('\u00a0', ' ').trim().toLocaleLowerCase('nb-NO'));
   const treff = (...tekster: string[]) =>
     tekster.some((t) => t.toLocaleLowerCase('nb-NO').includes(sokeord));
   const grupper = $derived(

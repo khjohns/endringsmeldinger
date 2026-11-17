@@ -204,6 +204,11 @@ describe('skjemaet for ny sak (BF-05)', () => {
     });
     expect(screen.getByRole('radio', { name: /^Uforutsette forhold ved grunnen/ })).toBeTruthy();
     expect(screen.queryByRole('radio', { name: /^Irregulær endring/ })).toBeNull();
+    // Et søk limt inn fra navnet på siden har hardt mellomrom og treffer likevel (#2049).
+    await fireEvent.input(screen.getByLabelText('Søk etter forhold eller punkt'), {
+      target: { value: 'punkt\u00a031' },
+    });
+    expect(screen.getByRole('radio', { name: /^Irregulær endring/ })).toBeTruthy();
   });
 
   it('OV-U77/OV-U78: gruppene har kontraktens henvisning, og hvert forhold har sitt eget navn uten skråstrek', async () => {

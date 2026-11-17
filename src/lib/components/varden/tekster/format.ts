@@ -1,26 +1,18 @@
 import { liste } from '#kjerne/frosset/brevdeler.ts';
 import { medHardeMellomrom } from '#kjerne/frosset/tekst.ts';
 
-/** Teksten, listen eller objektet med tekster, med hardt mellomrom fra kjernen. */
-function iTekstene(t: unknown): unknown {
-  if (typeof t === 'string') return medHardeMellomrom(t);
-  if (Array.isArray(t)) return t.map(iTekstene);
-  if (t !== null && typeof t === 'object' && Object.getPrototypeOf(t) === Object.prototype)
-    return Object.fromEntries(Object.entries(t).map(([k, v]) => [k, iTekstene(v)]));
-  return t;
-}
-
 /**
  * Hardt mellomrom etter «punkt», «pkt.» og «kl.» foran et tall, laget av kjernen (språkfila,
  * «Hardt mellomrom», #2049). En tekst, en liste eller et objekt med tekster gjøres om når fila
  * lastes, og en funksjon, også i et objekt, gir det den lager, gjort om.
  */
 export function haerdet<T>(t: T): T {
-  if (typeof t === 'function') return ((...a: unknown[]) => iTekstene(t(...a))) as T;
+  if (typeof t === 'string') return medHardeMellomrom(t) as T;
+  if (typeof t === 'function') return ((...a: unknown[]) => haerdet(t(...a))) as T;
   if (Array.isArray(t)) return t.map(haerdet) as T;
   if (t !== null && typeof t === 'object' && Object.getPrototypeOf(t) === Object.prototype)
     return Object.fromEntries(Object.entries(t).map(([k, v]) => [k, haerdet(v)])) as T;
-  return iTekstene(t) as T;
+  return t;
 }
 
 const DATO = new Intl.DateTimeFormat('nb-NO', {
