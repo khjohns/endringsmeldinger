@@ -9,9 +9,9 @@ Fila viser til punktene i [OV-U95](../plans/vedtak.md#samlevedtak-vederlagsmetod
 gjengi dem, og skriver ikke i `vedtak.toml`.
 
 **Grensen.** Versjon 3 tar endringene av OV-U95 om kravpostene, tilbudet og den særskilte
-vederlagsjusteringen. Varslene etter punkt 34.3.3 og 34.4 for kravpostene (VS-U48–VS-U55, VS-U68,
-VS-U73–VS-U75) er B2, og byggherrens svar på varselet (VS-U57, VS-U61–VS-U65, VS-U69) er B3. De
-viser til OV-U95 og blir stående til B2 og B3 er ført. Punkt 8, 10 og 11 står derfor som i
+vederlagsjusteringen. Varslene etter punkt 34.3.3 og 34.4 for kravpostene og byggherrens svar på dem
+(VS-U48–VS-U55, VS-U57, VS-U61–VS-U65, VS-U68, VS-U69, VS-U73–VS-U75) står i samlevedtaket for
+varslene og sent varsel, B2. De viser til OV-U95 og blir stående til B2 er ført. Punkt 8, 10 og 11 står derfor som i
 versjon 2. Det særskilte varselet og rigg og drift har hjemmet i
 [OV-U89](../plans/vedtak.md#samlevedtak-saerskilt-varsel). **Prinsippet 14.11:** vedtaket sier
 budskapet, og ordlyden står i designdelen til forløpet finnes.
@@ -155,7 +155,7 @@ Versjon 3 opphever OV-U95 (svar 4 A, fordi E20 og E22 endrer innholdet) og samle
 KA-U72, KA-U75, KA-U83, OV-U106, OV-U107, OV-U108, VS-U56 og HF-U28. Samlingene og forholdene i
 OV-U95 føres videre. De samlede postene beholder forholdene til andre poster, blant dem «KA-U72
 opphever KA-U58», «KA-U75 opphever KA-U70», «OV-U106 endrer OV-U89» og «HF-U28 snevrer inn HF-U9».
-KA-U62 og KA-U67 samles fortsatt ikke. Postene i B2 og B3 som viser til OV-U95, gjelder versjon 3
+KA-U62 og KA-U67 samles fortsatt ikke. Postene i B2 som viser til OV-U95, gjelder versjon 3
 (OV-U92 (a)).
 
 ## Spørsmålet om delingen, lagret ordrett
@@ -191,4 +191,6 @@ Sendt til orkestratoren 17.11 før kartleggingen av B1, med varslene og postene 
 >
 > Styrer: antall PR-er og tilslutninger i B, og om KA-U49, KA-U52 og VS-U47 hører til B.
 
-Svaret er ikke kommet.
+Oppdragsgiver 17.11, ordrett, videresendt av orkestratoren: «B: Tre deler». B1 og B4 som i A. B2 og
+B3 slås sammen til ett samlevedtak for varslene etter punkt 34.3.3 og 34.4 og sent varsel, som
+opphever VS-U46. KA-U49 og KA-U52 går til gruppe C som i A (orkestratoren 17.11).
