@@ -437,7 +437,7 @@ describe('et krav sendt før totalentreprenørens siste krav står utenfor rekke
         {
           etter: 1,
           rolle: 'kontroll',
-          kilde: ['VS-U43'],
+          kilde: ['VS-U76'],
           forventet: { forstaatt: true, 'standpunkt.S-g1.rettidighet.gjelder': 'K-g1' },
         },
       ]

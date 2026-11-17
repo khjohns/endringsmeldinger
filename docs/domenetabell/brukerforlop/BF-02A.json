@@ -45,7 +45,7 @@
     },
     {
       "dato": "2026-11-15",
-      "forhold": "VS-U26, VS-U43 punkt 1, arbeidsvalget i #1955",
+      "forhold": "VS-U26, VS-U76 punkt 1, arbeidsvalget i #1955",
       "hva": "D-4 sier at korrigeringen også avvises ved force majeure, der totalentreprenøren ikke oppgir noen dato. Koden avviste den alt."
     },
     {
@@ -93,7 +93,7 @@
           "kilde": [
             "MM-U52",
             "MM-U55",
-            "VS-U43"
+            "VS-U76"
           ],
           "forventet": {
             "gjeldende_svar.forhold": "S-g1",
@@ -130,7 +130,7 @@
           "kilde": [
             "MM-U52",
             "MM-U55",
-            "VS-U43"
+            "VS-U76"
           ]
         },
         {

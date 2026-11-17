@@ -13,6 +13,7 @@ import {
   MERKING,
   SAK,
   linje,
+  medFristvarsel,
   medGrunnlag,
   skrevet,
 } from '#lib/kjernesak/__tests__/provejournal.ts';
@@ -30,6 +31,18 @@ const medFristkrav = skrevet(medGrunnlag, 'TE', {
   },
   utdypning: 'Pelingen tar fire uker lenger.',
 });
+
+/** Kravet om dager svarer på byggherrens forespørsel etter punkt 33.6.2 (HF-U1, LV-U18 punkt 3). */
+const medSvarPaaForesporsel = skrevet(
+  skrevet(medFristvarsel, 'BH', { type: 'foresporsel', spor: 'frist', hjemmel: '33.6.2' }),
+  'TE',
+  {
+    type: 'krav',
+    spor: 'frist',
+    innhold: { frister: [{ navn: 'Sluttfristen', dager: 10 }] },
+    utdypning: 'Pelingen tar to uker lenger.',
+  }
+);
 
 async function svarskjemaet(journal: Journalrad[]) {
   const kjernesak = lagKjernesak({
@@ -204,5 +217,35 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     expect(gjelderHvisForDagene()).toEqual([
       'innsigelsen om at kravet ble spesifisert for sent ikke fører frem',
     ]);
+  });
+
+  describe('det som mangler, er det kjernen sier er påkrevd og ubesvart (#2025)', () => {
+    const manglene = () =>
+      within(screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' }))
+        .getAllByRole('link')
+        .map((l) => l.textContent);
+
+    it('uten noe besvart står varselet, hindringen, spesifiseringen og dagene for hver frist (punkt 33.4, 33.1, 33.6.1 og 33.5)', async () => {
+      await svarskjemaet(medFristkrav);
+      await seBrevet();
+      expect(manglene()).toEqual([
+        'Velg om varselet kom i tide.',
+        'Velg om du legger til grunn at fremdriften er hindret av forholdet.',
+        'Velg om kravet ble spesifisert i tide.',
+        '5 Mekanisk ferdigstillelse: Velg hvor mange av dagene du godkjenner.',
+        'Sluttfristen: Velg hvor mange av dagene du godkjenner.',
+      ]);
+    });
+
+    it('når kravet svarer på forespørselen, står forespørselen, og spesifiseringen er ikke påkrevd (punkt 33.6.2 fjerde ledd)', async () => {
+      await svarskjemaet(medSvarPaaForesporsel);
+      await seBrevet();
+      expect(manglene()).toEqual([
+        'Velg om varselet kom i tide.',
+        'Velg om svaret på forespørselen kom i tide.',
+        'Velg om du legger til grunn at fremdriften er hindret av forholdet.',
+        'Velg hvor mange av dagene du godkjenner.',
+      ]);
+    });
   });
 });
