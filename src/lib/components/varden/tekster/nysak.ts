@@ -69,9 +69,9 @@ export const NYSAK = {
   sendesTil: 'Saken opprettes og brevet sendes til byggherren når du sender.',
   seBrevet: 'Se brevet før sending',
   avbryt: 'Avbryt',
-  avbrytSpoersmaal: 'Brevet sendes ikke, og ingen sak opprettes. Det du har skrevet, slettes.',
-  avbrytJa: 'Ja, slett det du har skrevet',
-  avbrytNei: 'Nei, fortsett å skrive',
+  forkastTittel: 'Forkaste den nye saken?',
+  forkastTekst:
+    'Saken opprettes ikke, og brevet sendes ikke. Det du har skrevet, slettes. Det kan ikke gjøres om.',
   mangler: 'Det mangler noe før du kan se brevet',
   ingenSak: 'Ingen sak er opprettet ennå.',
   velgForholdet: 'Velg forholdet.',

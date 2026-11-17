@@ -228,8 +228,8 @@ skriver ikke der.
   kjede, og den viser til punktene uten å gjengi dem. Alternativene prøves én gang mot
   vedtakene, og funnene rettes én gang. Kodefunn fra kartleggingen står i
   vurderingsfila og samles i én kommentar i issuet kartleggingen er en del av. De får
-  ikke egne issues før samlevedtaket er ført. Kartleggingsøkta sender spørsmålene før om lag
-  150 000 tokens. Klarer den ikke det, skriver den tilstanden og stopper. Postene og
+  ikke egne issues før samlevedtaket er ført. Kartleggingsøkta følger «Hold hurtigbufferen
+  varm» i [arbeidsøkt-skillen](../arbeidsokt/SKILL.md#tid-og-kontekst). Postene og
   kjedene slås opp med `vedtaksregister.py --vis` og `--kjede`, og subagentene følger
   skillen [`subagenter`](../subagenter/SKILL.md).
 - Før vedtaks-PR-en merges, kontrollerer en subagent én gang `folge` i de nye

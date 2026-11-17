@@ -174,7 +174,7 @@ try {
   await page.getByLabel('Dato du mottok pålegget').fill('2026-09-15');
   await knapp('Se brevet før sending').click();
   // Kjernen avviser påberopelsen uten beskrivelse (GR-U15), og feilen står ved feltet.
-  await page.locator('p.feil', { hasText: 'Beskriv pålegget.' }).waitFor();
+  await page.locator('p.feilmelding', { hasText: 'Beskriv pålegget.' }).waitFor();
   await steg('ny-feil-beskrivelse', true);
 
   await page
@@ -215,7 +215,7 @@ try {
   await knapp('Start på nytt').click();
   await demopanel(false);
   await knapp('Avbryt').click();
-  await knapp('Ja, slett det du har skrevet').click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Forkast utkast', exact: true }).click();
   await page.getByText('Brevet er ikke sendt, og ingen sak er opprettet.').waitFor();
   await steg('avbrutt', true);
   } else {

@@ -7,17 +7,18 @@
 -->
 <script lang="ts">
   import { FileText } from 'lucide-svelte';
-  import { tick } from 'svelte';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import { sendeflyt } from './sendeflyt.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
-  import Feltetikett from './Feltetikett.svelte';
+  import Datofelt from './Datofelt.svelte';
+  import Forkastutkast from './Forkastutkast.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
+  import Tekstomraade from './Tekstomraade.svelte';
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
@@ -107,19 +108,6 @@
         }),
     });
   }
-
-  let bekreftForkast = $state(false);
-  let forkastSpoersmaal = $state<HTMLElement | null>(null);
-  async function spoerOmForkast() {
-    bekreftForkast = true;
-    await tick();
-    forkastSpoersmaal?.focus();
-  }
-  async function behold() {
-    bekreftForkast = false;
-    await tick();
-    document.getElementById(id('forkast'))?.focus();
-  }
 </script>
 
 {#snippet sendeknapp()}
@@ -167,48 +155,27 @@
           {#if lukket}<p>{KORRIGERING.lukket}</p>{/if}
         </div>
 
-        <div class="felt">
-          <Feltetikett for={id('dato')}>{KORRIGERING.nyDato(opplysningen.hva)}</Feltetikett>
-          <p class="hjelp" id={id('dato-hjelp')}>{KORRIGERING.datoHjelp}</p>
-          {#if visDatofeil}<p class="feil" id={id('dato-feil')}>{visDatofeil}</p>{/if}
-          <input
-            id={id('dato')}
-            type="date"
-            max={idag}
-            bind:value={valg.dato}
-            aria-required="true"
-            aria-invalid={!!visDatofeil}
-            aria-describedby={`${id('dato-hjelp')}${visDatofeil ? ` ${id('dato-feil')}` : ''}`}
-          />
-        </div>
+        <Datofelt
+          id={id('dato')}
+          etikett={KORRIGERING.nyDato(opplysningen.hva)}
+          hjelp={KORRIGERING.datoHjelp}
+          maks={idag}
+          bind:verdi={valg.dato}
+          paakrevd
+          feil={visDatofeil || null}
+        />
 
-        <div class="felt">
-          <Feltetikett for={id('forklaring')} valgfri>{KORRIGERING.forklaring}</Feltetikett>
-          <p class="hjelp" id={id('forklaring-hjelp')}>{KORRIGERING.forklaringHjelp}</p>
-          <textarea
-            id={id('forklaring')}
-            rows="4"
-            bind:value={valg.forklaring}
-            aria-describedby={id('forklaring-hjelp')}
-          ></textarea>
-        </div>
+        <Tekstomraade
+          id={id('forklaring')}
+          etikett={KORRIGERING.forklaring}
+          valgfri
+          hjelp={KORRIGERING.forklaringHjelp}
+          rader={4}
+          bind:verdi={valg.forklaring}
+        />
 
         <div class="skjemafot">
-          {#if bekreftForkast}
-            <div class="bekreft" role="group" aria-labelledby={id('forkast-spoersmaal')}>
-              <p id={id('forkast-spoersmaal')} tabindex="-1" bind:this={forkastSpoersmaal}>
-                {KORRIGERING.forkastSpoersmaal}
-              </p>
-              <div class="knapper">
-                <Knapp onclick={onforkast}>{SKJEMA.forkastJa}</Knapp>
-                <Knapp variant="lenke" onclick={behold}>{SKJEMA.behold}</Knapp>
-              </div>
-            </div>
-          {:else}
-            <Knapp variant="lenke" id={id('forkast')} onclick={spoerOmForkast}
-              >{SKJEMA.forkast}</Knapp
-            >
-          {/if}
+          <Forkastutkast tekst={KORRIGERING.forkastTekst} {onforkast} />
         </div>
       </div>
     </Utkastkort>
@@ -269,59 +236,9 @@
     gap: var(--spacing-2);
     color: var(--ink-2);
   }
-  .felt {
-    display: grid;
-    gap: var(--spacing-2);
-  }
-  .hjelp {
-    margin: 0;
-    color: var(--ink-3);
-    font-size: 14px;
-  }
-  .feil {
-    margin: 0;
-    color: var(--danger);
-    font-size: 14px;
-    font-weight: 500;
-  }
-  input,
-  textarea {
-    font: inherit;
-    padding: var(--spacing-3);
-    border: var(--control-border);
-    border-radius: var(--r-felt);
-    background: var(--surface);
-    color: var(--ink);
-  }
-  input {
-    inline-size: 12rem;
-    max-inline-size: 100%;
-    min-height: 44px;
-  }
-  textarea {
-    resize: vertical;
-  }
-  input:focus-visible,
-  textarea:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
-  input[aria-invalid='true'] {
-    border-color: var(--danger);
-  }
   .skjemafot {
     padding-top: var(--spacing-4);
     border-top: var(--rule);
-  }
-  .bekreft {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
-  }
-  .knapper {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-3);
   }
   .feste {
     position: sticky;

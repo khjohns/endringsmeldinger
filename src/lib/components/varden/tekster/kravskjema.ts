@@ -200,10 +200,8 @@ export const KRAVSKJEMA = {
   tilbakeTil: 'utkastet',
   kvittering: 'Brevet er sendt til byggherren.',
   kanIkkeLages: 'Brevet kan ikke lages ennå.',
-  forkast: 'Forkast utkast',
-  forkastSpoersmaal: 'Forkaste utkastet? Kravpostene og forbeholdet du har skrevet, slettes.',
-  forkastJa: 'Forkast',
-  behold: 'Behold utkastet',
+  forkastTekst:
+    'Kravpostene og forbeholdet du har skrevet i utkastet, slettes. Det kan ikke gjøres om.',
   detteSender: {
     poster: (n: number) => `${n === 1 ? 'Én kravpost' : `${n} kravposter`} i vederlagsjusteringen`,
   },

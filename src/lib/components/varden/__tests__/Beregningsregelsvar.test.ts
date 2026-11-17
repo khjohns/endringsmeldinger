@@ -152,7 +152,7 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     );
   });
 
-  it('godkjenner BH justerte enhetspriser, må varselet og justeringen besvares (KA-U68)', async () => {
+  it('godkjenner BH justerte enhetspriser, må justeringen besvares, mens svaret på varselet er valgfritt (arbeidsvalg A i #2025)', async () => {
     const sendt = await svarskjemaet();
     await fireEvent.click(radio('Godkjenner regningsarbeid (punkt 34.4)'));
     await ferdig();
@@ -166,10 +166,12 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
       within(mangler)
         .getAllByRole('link')
         .map((a) => a.textContent)
-    ).toEqual([
-      'P2: Velg om varselet om justering av enhetsprisene kom i tide.',
-      'P2: Velg om du godkjenner justeringen av enhetsprisene.',
-    ]);
+    ).toEqual(['P2: Velg om du godkjenner justeringen av enhetsprisene.']);
+    expect(
+      screen.getByRole('group', {
+        name: 'Varselet om justering av enhetsprisene (punkt 34.3.3), Valgfri',
+      })
+    ).toBeTruthy();
   });
 
   it('mener BH en annen regel, er varselet etter punkt 34.3.3 og justeringen valgfrie og står subsidiært, med lenke til standpunktet (VS-U56, VS-U4)', async () => {

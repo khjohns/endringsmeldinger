@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import Feltetikett from './Feltetikett.svelte';
+  import Felt, { beskrevetAv } from './Felt.svelte';
 
   let {
     id,
@@ -41,17 +41,9 @@
     /** Tekst under feltet og feilmeldingen. */
     children?: Snippet;
   } = $props();
-
-  const beskrevetAv = $derived(
-    [...foran, hjelp ? `${id}-hjelp` : '', ...etter, feil ? `${id}-feil` : '']
-      .filter(Boolean)
-      .join(' ') || undefined
-  );
 </script>
 
-<div class="tallfelt">
-  <Feltetikett for={id} {valgfri}>{etikett}</Feltetikett>
-  {#if hjelp}<span class="dempet" id={`${id}-hjelp`}>{hjelp}</span>{/if}
+<Felt {id} {etikett} {hjelp} {feil} {valgfri} under={children}>
   <span
     class="inndata"
     class:ugyldig={feil}
@@ -62,26 +54,15 @@
       {id}
       {inputmode}
       bind:value={verdi}
-      aria-describedby={beskrevetAv}
+      aria-describedby={beskrevetAv(id, hjelp, feil, foran, etter)}
       aria-invalid={feil ? 'true' : undefined}
       aria-required={paakrevd ? 'true' : undefined}
     />
     {#if enhet}<span class="enhet" aria-hidden="true">{enhet}</span>{/if}
   </span>
-  {#if feil}<p class="feilmelding" id={`${id}-feil`}>{feil}</p>{/if}
-  {@render children?.()}
-</div>
+</Felt>
 
 <style>
-  .tallfelt {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
-  }
-  .dempet {
-    color: var(--ink-3);
-    font-size: 14px;
-  }
   .inndata {
     display: inline-flex;
     align-items: stretch;
@@ -125,10 +106,5 @@
   .inndata.ugyldig {
     border-color: var(--danger);
     box-shadow: inset 0 0 0 1px var(--danger);
-  }
-  .feilmelding {
-    color: var(--danger);
-    font-size: 14px;
-    font-weight: 500;
   }
 </style>

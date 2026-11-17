@@ -32,7 +32,8 @@ export const KORRIGERING = {
     `Datoen er den samme som i ${brevref(o.brev)}, ${dato(o.dato)}. Skriv datoen ${DATOEN[o.hva]}.`,
   etterIdag: 'Datoen er etter dagens dato. Skriv en dato fram til i dag.',
   kanIkkeLages: 'Brevet kan ikke lages ennå.',
-  forkastSpoersmaal: 'Forkaste utkastet? Datoen og forklaringen slettes.',
+  forkastTekst:
+    'Datoen og forklaringen du har skrevet i utkastet, slettes. Det kan ikke gjøres om.',
   panel: 'Hovedlinjene i korrigeringen',
   panelTom: 'Skriv den nye datoen, så står korrigeringen her.',
   linjeNy: (hva: keyof typeof DATOEN, d: string) => `Ny dato for når ${DATOEN[hva]}: ${dato(d)}`,

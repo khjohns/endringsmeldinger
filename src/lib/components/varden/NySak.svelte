@@ -24,6 +24,9 @@
   import Valg from './Valg.svelte';
   import Filvalg from './Filvalg.svelte';
   import Korrespondansen from './Korrespondansen.svelte';
+  import Datofelt from './Datofelt.svelte';
+  import Forkastutkast from './Forkastutkast.svelte';
+  import Tekstomraade from './Tekstomraade.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import { fokuser } from './mangler';
   import { ChevronDown } from 'lucide-svelte';
@@ -42,7 +45,12 @@
     type VedleggForNySak,
   } from './nysak';
   import { KORRESPONDANSEN, NYSAK, SKJEMA, dagensDato } from './tekster';
-  import { korrespondansemangler, tomKorrespondanse } from './korrespondansen';
+  import {
+    korrespondansefeilene,
+    korrespondansenoekkel,
+    KORRESPONDANSEFELTENE,
+    tomKorrespondanse,
+  } from './korrespondansen';
 
   let {
     sakId,
@@ -84,7 +92,6 @@
   // Dokumentet med varselet kan ikke legges ved før påberopelsen sier det (#1488).
   const varseldokumentet: VedleggForNySak | null = null;
   let feil = $state<Record<string, string>>({});
-  let avbryter = $state(false);
   let oppsummering = $state<HTMLElement | null>(null);
   let kontroll = $state<Omit<TilBrevkontrollen, 'detteSender' | 'virkninger'> | null>(null);
 
@@ -203,10 +210,10 @@
     if (felt.endringsordre && !endringsordre.trim()) ny.endringsordre = NYSAK.oppgiEndringsordren;
     if (lasterOpp) ny.vedlegg = NYSAK.ventPaaOpplastingen;
     if (varselet) {
-      const mangler = Object.entries(
-        korrespondansemangler(varsel, { dokument: varseldokumentet !== null })
-      );
-      for (const [f, tekst] of mangler) ny[`varsel-${f}`] = tekst;
+      const mangler = korrespondansefeilene(varsel, 'varsel', {
+        dokument: varseldokumentet !== null,
+      });
+      for (const [f, tekst] of mangler) ny[f] = tekst;
       if (!mangler.length) ny.varselLagres = NYSAK.varseletKanIkkeLagres;
     }
     if (forhold && !ny.tittel && !ny.dato && !ny.endringsordre && !ny.vedlegg) {
@@ -287,7 +294,8 @@
   function vises(f: string) {
     if (f === 'dato') return !!felt.datotekst;
     if (f === 'endringsordre') return felt.endringsordre;
-    if (f === 'varsel-sendemaate') return varselet && varsel.type === 'brev';
+    if (f === korrespondansenoekkel('varsel', 'sendemaate'))
+      return varselet && varsel.type === 'brev';
     if (f.startsWith('varsel')) return varselet;
     return true;
   }
@@ -299,10 +307,7 @@
     'dato',
     'endringsordre',
     'vedlegg',
-    'varsel-type',
-    'varsel-sendemaate',
-    'varsel-dato',
-    'varsel-beskrivelse',
+    ...KORRESPONDANSEFELTENE.map((f) => korrespondansenoekkel('varsel', f)),
     'varselLagres',
     'kjernen',
   ];
@@ -449,38 +454,27 @@
             {#if feil.tittel}<p class="feil" id={id('tittel-feil')}>{feil.tittel}</p>{/if}
           </div>
 
-          <div class="felt">
-            <Feltetikett for={id('beskrivelse')}>{felt.beskrivelse}</Feltetikett>
-            <p class="hjelp" id={id('beskrivelse-hjelp')}>{NYSAK.beskrivelseHjelp}</p>
-            <textarea
-              id={id('beskrivelse')}
-              rows="6"
-              bind:value={beskrivelse}
-              aria-required="true"
-              aria-invalid={!!feil.beskrivelse}
-              aria-describedby={`${id('beskrivelse-hjelp')}${feil.beskrivelse ? ` ${id('beskrivelse-feil')}` : ''}`}
-              oninput={() => delete feil.beskrivelse}
-            ></textarea>
-            {#if feil.beskrivelse}<p class="feil" id={id('beskrivelse-feil')}>
-                {feil.beskrivelse}
-              </p>{/if}
-          </div>
+          <Tekstomraade
+            id={id('beskrivelse')}
+            etikett={felt.beskrivelse}
+            hjelp={NYSAK.beskrivelseHjelp}
+            rader={6}
+            bind:verdi={beskrivelse}
+            paakrevd
+            feil={feil.beskrivelse ?? null}
+            oninput={() => delete feil.beskrivelse}
+          />
 
           {#if felt.datotekst}
-            <div class="felt">
-              <Feltetikett for={id('dato')}>{felt.datotekst}</Feltetikett>
-              <input
-                id={id('dato')}
-                type="date"
-                max={iDag}
-                bind:value={dato}
-                aria-required="true"
-                aria-invalid={!!feil.dato}
-                aria-describedby={feil.dato ? id('dato-feil') : undefined}
-                oninput={() => delete feil.dato}
-              />
-              {#if feil.dato}<p class="feil" id={id('dato-feil')}>{feil.dato}</p>{/if}
-            </div>
+            <Datofelt
+              id={id('dato')}
+              etikett={felt.datotekst}
+              maks={iDag}
+              bind:verdi={dato}
+              paakrevd
+              feil={feil.dato ?? null}
+              oninput={() => delete feil.dato}
+            />
           {/if}
 
           {#if felt.endringsordre}
@@ -536,12 +530,12 @@
             {#if varselet}
               <div class="varselet">
                 <Korrespondansen
-                  id={(f) => id(`varsel-${f}`)}
+                  id={(f) => id(korrespondansenoekkel('varsel', f))}
                   bind:valg={varsel}
-                  feil={(f) => feil[`varsel-${f}`] ?? null}
+                  feil={(f) => feil[korrespondansenoekkel('varsel', f)] ?? null}
                   grense={varseldokumentet}
                   endret={(f) => {
-                    delete feil[`varsel-${f}`];
+                    delete feil[korrespondansenoekkel('varsel', f)];
                     delete feil.varselLagres;
                   }}
                 />
@@ -556,15 +550,13 @@
           {#if feil.kjernen}<p class="feil" id={id('kjernen')}>{feil.kjernen}</p>{/if}
 
           <div class="handlinger">
-            <Knapp variant="lenke" onclick={() => (avbryter = true)}>{NYSAK.avbryt}</Knapp>
+            <Forkastutkast
+              knapp={NYSAK.avbryt}
+              tittel={NYSAK.forkastTittel}
+              tekst={NYSAK.forkastTekst}
+              onforkast={onavbrutt}
+            />
           </div>
-          {#if avbryter}
-            <div class="avbryt" role="group" aria-label={NYSAK.avbryt}>
-              <p>{NYSAK.avbrytSpoersmaal}</p>
-              <Knapp variant="sekundaer" onclick={onavbrutt}>{NYSAK.avbrytJa}</Knapp>
-              <Knapp variant="lenke" onclick={() => (avbryter = false)}>{NYSAK.avbrytNei}</Knapp>
-            </div>
-          {/if}
         </div>
       </Utkastkort>
     {/snippet}
@@ -617,9 +609,9 @@
   .hjelp {
     margin: 0;
     color: var(--ink-3);
+    font-size: 14px;
   }
-  input:not([type='radio']),
-  textarea {
+  input:not([type='radio']) {
     font: inherit;
     padding: var(--spacing-3);
     border: var(--control-border);
@@ -627,18 +619,13 @@
     background: var(--surface);
     color: var(--ink);
   }
-  /* Feltene er så brede som svaret de venter: en dato er kort, en tittel er en linje. */
-  input[type='date'] {
-    inline-size: 12rem;
-    max-inline-size: 100%;
-  }
+  /* Feltene er så brede som svaret de venter: et nummer er kort, en tittel er en linje. */
   .kort-felt {
     inline-size: 20rem;
     max-inline-size: 100%;
   }
   /* Like spesifikk som regelen for feltene, så feilkanten vises også på input. */
-  input:not([type='radio'])[aria-invalid='true'],
-  textarea[aria-invalid='true'] {
+  input:not([type='radio'])[aria-invalid='true'] {
     border-color: var(--danger);
   }
   .feil {
@@ -815,15 +802,10 @@
   .oppsummering:focus-visible {
     outline: 2px solid var(--control-focus);
   }
-  .handlinger,
-  .avbryt {
+  .handlinger {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-3);
     align-items: center;
-  }
-  .avbryt p {
-    flex-basis: 100%;
-    margin: 0;
   }
 </style>

@@ -10,7 +10,7 @@ import { innholdIFristen } from '#kjerne/spor/frist/format.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { heleDager } from './fristsvar';
 import { definert } from './kommandoer';
-import { korrespondansemangler, registreringen, type Korrespondansevalg } from './korrespondansen';
+import { korrespondansefeilene, registreringen, type Korrespondansevalg } from './korrespondansen';
 import { vedleggskart } from './nysak';
 import { FRISTKRAV } from './tekster';
 import type { Mangel } from './mangler';
@@ -140,8 +140,7 @@ export function manglerIFristkravet(
       post: post ?? null,
     });
   if (v.utenfor)
-    for (const [felt, tekst] of Object.entries(korrespondansemangler(v.utenfor)))
-      legg(`utenfor-${felt}`, tekst);
+    for (const [felt, tekst] of korrespondansefeilene(v.utenfor, 'utenfor')) legg(felt, tekst);
   if (v.hva === 'varsel') return ut;
   if (foresporsel && v.bokstav === 'b') {
     if (!v.grunnB.trim()) legg('grunn-b', FRISTKRAV.manglerGrunnB);

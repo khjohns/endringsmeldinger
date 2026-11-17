@@ -838,12 +838,13 @@ try {
     }
   }
   if (OPPRETTES) {
-    // S2 i #1414: «Avbryt» fører til sakslisten uten melding, og ingen sak opprettes.
+    // S2 i #1414: «Avbryt» fører til sakslisten uten melding, og ingen sak opprettes. Dialogen har
+    // de samme knappene som de andre dialogene (designvalget 17.11 i #2119).
     await te.goto(`${FRONTEND}/${katalog.prosjekt}/ny`);
     await te.getByRole('heading', { name: 'Nytt krav om endringsordre', level: 1 }).waitFor({ timeout: 30_000 });
     await te.getByLabel('Tittel på saken').fill('Avbrytes');
     await te.getByRole('button', { name: 'Avbryt', exact: true }).click();
-    await te.getByRole('button', { name: 'Ja, slett det du har skrevet', exact: true }).click();
+    await te.getByRole('dialog').getByRole('button', { name: 'Forkast utkast', exact: true }).click();
     await te.waitForURL(new RegExp(`/${katalog.prosjekt}$`), { timeout: 30_000 });
     await te.waitForLoadState('networkidle');
     if (await te.getByText('Avbrytes').count()) throw new Error('Sakslisten viser saken som ble avbrutt');

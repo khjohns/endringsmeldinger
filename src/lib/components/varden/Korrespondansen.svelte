@@ -6,8 +6,9 @@
   oppsummeringen av feilene kan flytte fokus dit.
 -->
 <script lang="ts">
-  import Feltetikett from './Feltetikett.svelte';
+  import Datofelt from './Datofelt.svelte';
   import Filvalg from './Filvalg.svelte';
+  import Tekstomraade from './Tekstomraade.svelte';
   import Valg from './Valg.svelte';
   import { dagensDato, KORRESPONDANSEN, type Korrespondansehva } from './tekster';
   import type { Korrespondansefelt, Korrespondansevalg } from './korrespondansen';
@@ -41,8 +42,6 @@
   } = $props();
 
   const iDag = dagensDato();
-  const beskrevet = (felt: Korrespondansefelt) =>
-    `${id(felt)}-hjelp${feil(felt) ? ` ${id(felt)}-feil` : ''}`;
 </script>
 
 <div class="korrespondansen">
@@ -83,22 +82,16 @@
     />
   {/if}
 
-  <div class="felt">
-    <Feltetikett for={id('dato')}>{KORRESPONDANSEN.dato}</Feltetikett>
-    <p class="hjelp" id={`${id('dato')}-hjelp`}>{KORRESPONDANSEN.datoHjelp}</p>
-    <input
-      id={id('dato')}
-      type="date"
-      class:ugyldig={feil('dato')}
-      max={iDag}
-      bind:value={valg.dato}
-      aria-required="true"
-      aria-invalid={feil('dato') ? 'true' : undefined}
-      aria-describedby={beskrevet('dato')}
-      oninput={() => endret('dato')}
-    />
-    {#if feil('dato')}<p class="feil" id={`${id('dato')}-feil`}>{feil('dato')}</p>{/if}
-  </div>
+  <Datofelt
+    id={id('dato')}
+    etikett={KORRESPONDANSEN.dato}
+    hjelp={KORRESPONDANSEN.datoHjelp}
+    maks={iDag}
+    bind:verdi={valg.dato}
+    paakrevd
+    feil={feil('dato')}
+    oninput={() => endret('dato')}
+  />
 
   {#if grense}
     <Filvalg
@@ -122,23 +115,15 @@
     </div>
   {/if}
 
-  <div class="felt">
-    <Feltetikett for={id('beskrivelse')}>{KORRESPONDANSEN.beskrivelse(hva)}</Feltetikett>
-    <p class="hjelp" id={`${id('beskrivelse')}-hjelp`}>{KORRESPONDANSEN.beskrivelseHjelp}</p>
-    <textarea
-      id={id('beskrivelse')}
-      rows="3"
-      class:ugyldig={feil('beskrivelse')}
-      bind:value={valg.beskrivelse}
-      aria-required="true"
-      aria-invalid={feil('beskrivelse') ? 'true' : undefined}
-      aria-describedby={beskrevet('beskrivelse')}
-      oninput={() => endret('beskrivelse')}
-    ></textarea>
-    {#if feil('beskrivelse')}<p class="feil" id={`${id('beskrivelse')}-feil`}>
-        {feil('beskrivelse')}
-      </p>{/if}
-  </div>
+  <Tekstomraade
+    id={id('beskrivelse')}
+    etikett={KORRESPONDANSEN.beskrivelse(hva)}
+    hjelp={KORRESPONDANSEN.beskrivelseHjelp}
+    bind:verdi={valg.beskrivelse}
+    paakrevd
+    feil={feil('beskrivelse')}
+    oninput={() => endret('beskrivelse')}
+  />
 </div>
 
 <style>
@@ -166,36 +151,5 @@
   .hjelp {
     color: var(--ink-3);
     font-size: 14px;
-  }
-  input,
-  textarea {
-    min-height: 44px;
-    padding: 0 var(--spacing-3);
-    border: var(--control-border);
-    border-radius: var(--r-felt);
-    font: 16px var(--font-sans);
-    color: var(--ink);
-    background: var(--surface);
-  }
-  input {
-    width: 12em;
-  }
-  textarea {
-    padding: var(--spacing-3);
-    resize: vertical;
-  }
-  input:focus-visible,
-  textarea:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
-  .ugyldig {
-    border-color: var(--danger);
-    box-shadow: inset 0 0 0 1px var(--danger);
-  }
-  .feil {
-    color: var(--danger);
-    font-size: 14px;
-    font-weight: 500;
   }
 </style>

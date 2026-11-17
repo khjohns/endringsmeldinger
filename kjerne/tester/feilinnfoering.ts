@@ -25,9 +25,10 @@
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
  * kjøres først én gang uten mutasjon (#945). For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
- * feil er assertions, ikke import, oppsett eller en brutt forutsetning
+ * feil i filene med målene er assertions, ikke import, oppsett eller en brutt forutsetning
  * (`.claude/rules/tester.md`). Unntatt er forutsetningene mutasjonen selv oppgir, om
- * atferden den endrer (`forutsetninger`, #1859).
+ * atferden den endrer (`forutsetninger`, #1859). Bare filene med målene avgjør utfallet
+ * (#2108); for en annen fil meldes antallet feil som ikke er assertions.
  *
  * Mutasjonene fordeles på flere kopier av arbeidstreet, med lokale endringer,
  * som kjører samtidig (#378). Lagringstestene i `sprakprove/kjernelagring/` lager
@@ -63,6 +64,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  realpathSync,
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
@@ -2206,15 +2208,6 @@ const MUTASJONER: Mutasjon[] = [
     mal: ['påberoper «for sent» etter § 32.2 etter «i tide», godtas og leses som påberopelse'],
     // Svaret på forholdet har ikke feltet for § 34.1.2, så mutasjonen fjerner påberopelsen etter
     // § 32.2. Brukerforløpene og regelendringen bygger på den: uten den er forholdet avklart.
-    forutsetninger: [
-      {
-        test: 'brukerforløpene',
-        melding:
-          'BF-02A etter steg 2 [MM-U52, MM-U55, VS-U43]: standpunkt.S-g1.rettidighet.iTide er null',
-      },
-      { test: 'brukerforløpene', melding: 'steg 3 (aksept) avvist: ENIGHET_I_SPORET' },
-      { test: 'regelendringen', melding: 'aksept ble avvist: ENIGHET_I_SPORET' },
-    ],
   },
   {
     id: 'F267',
@@ -6501,14 +6494,29 @@ interface Utfall {
 const iForutsetningene = (m: Mutasjon, navn: string, melding: string) =>
   (m.forutsetninger ?? []).some((f) => treffer(navn, f.test) && melding.includes(f.melding));
 
+const erAssertion = (t: Testresultat) => t.failureMessages.join('\n').includes('AssertionError');
+
 function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): Utfall {
-  const tester = rapport.testResults.flatMap((f) => f.assertionResults);
+  // #2108. Vitest melder filene med realpath.
+  const rot = realpathSync(k.rot);
+  const iMaalfilene = (fil: string) => maalfilene.get(m)!.has(relative(rot, fil));
+  const [andreFiler, filene] = delEtter(rapport.testResults, (f) => iMaalfilene(f.name));
+  const [utenforMaalene, iMaalene] = delEtter(suitefeilene(rapport), (f) => iMaalfilene(f.fil));
+  const tester = filene.flatMap((f) => f.assertionResults);
   const feilet = tester.filter((t) => t.status === 'failed');
-  const [suitefeil, godtattSuite] = delEtter(suitefeilene(rapport), (f) =>
+  const [suitefeil, godtattSuite] = delEtter(iMaalene, (f) =>
     iForutsetningene(m, suitenavn(f, k), f.melding)
   );
+  const utenfor = new Map<string, number>();
+  const tell = (fil: string, antall: number) => {
+    const sti = relative(rot, fil);
+    if (antall) utenfor.set(sti, (utenfor.get(sti) ?? 0) + antall);
+  };
+  for (const f of utenforMaalene) tell(f.fil, 1);
+  for (const f of andreFiler)
+    tell(f.name, f.assertionResults.filter((t) => t.status === 'failed' && !erAssertion(t)).length);
   const [ikkeAssertion, godtattTest] = delEtter(
-    feilet.filter((t) => !t.failureMessages.join('\n').includes('AssertionError')),
+    feilet.filter((t) => !erAssertion(t)),
     (t) => iForutsetningene(m, t.fullName, t.failureMessages.join('\n'))
   );
   const manglerMal = m.mal.filter(
@@ -6546,6 +6554,10 @@ function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): Utfall {
           `  ${TIDSAVBRUDD.test(t.failureMessages.join('\n')) ? 'tidsavbrudd' : 'ikke en assertion'}: ${t.fullName}`
       ),
       ...godtattSuite.map((f) => `  forutsetning (oppgitt): ${suitenavn(f, k)}`),
+      ...[...utenfor].map(
+        ([fil, antall]) =>
+          `  utenfor målfilene, avgjør ikke utfallet: ${fil}: ${antall} feil som ikke er assertions`
+      ),
       ...godtattTest.map((t) => `  forutsetning (oppgitt): ${t.fullName}`),
       ...manglerMal.flatMap((mal) => [
         `  målet feilet ikke på en assertion: ${mal}`,
@@ -6653,19 +6665,14 @@ if (malfeil.length) throw new Error(malfeil.join('\n'));
 // målene sine, og om natta hele samlingen. Kontrollkjøringen går alltid over hele, med et
 // utvalg i én kopi: hvert utvalg har sin egen kontroll, og `ci.yml` kjører samlingen.
 const utvalg = process.env.FEILINNFOERING_UTVALG === '1';
-const utvalgene = new Map(
-  utvalg
-    ? valgte.map((m) => [
-        m,
-        [
-          ...new Set(
-            navn.filter((n) => m.mal.some((mal) => harMal(n.navn, mal))).map((n) => n.fil)
-          ),
-        ],
-      ])
-    : []
+/** Filene med målene til hver mutasjon (#934, #2108). */
+const maalfilene = new Map(
+  valgte.map((m) => [
+    m,
+    new Set(navn.filter((n) => m.mal.some((mal) => harMal(n.navn, mal))).map((n) => n.fil)),
+  ])
 );
-const filerFor = (m: Mutasjon) => utvalgene.get(m);
+const filerFor = (m: Mutasjon) => (utvalg ? [...maalfilene.get(m)!] : undefined);
 // Lagringstestene mot SQL Server tar det meste av tiden i et utvalg, så mutasjonene med
 // slike filer fordeles for seg. Ellers avgjør rekkefølgen i lista hvor mange hver del får.
 const tung = (m: Mutasjon) =>

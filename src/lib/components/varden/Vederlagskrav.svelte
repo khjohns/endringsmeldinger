@@ -25,29 +25,28 @@
     varslerUtenKravpost,
     type Varselet,
   } from '#lib/kjernesak/vederlagskrav.ts';
-  import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Brevlinje from './Brevlinje.svelte';
-  import Leseramme from './Leseramme.svelte';
   import Feltetikett from './Feltetikett.svelte';
+  import Tekstomraade from './Tekstomraade.svelte';
   import { brevetVedSiden } from './medie.svelte';
+  import Brevskjema from './Brevskjema.svelte';
   import Knapp from './Knapp.svelte';
   import Kravpunkter from './Kravpunkter.svelte';
   import Hjemmel from './Hjemmel.svelte';
   import Korrespondansen from './Korrespondansen.svelte';
-  import Manglene from './Manglene.svelte';
   import type { Mangel } from './mangler';
   import { sendeflyt } from './sendeflyt.svelte';
-  import { faarPlass } from './fastlinje.svelte';
-  import Melding from './Melding.svelte';
   import Tallfelt from './Tallfelt.svelte';
   import Tidslinje from './Tidslinje.svelte';
-  import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
   import { beloepet } from './kommandoer';
   import { vedleggsgrense, vedleggskart } from './nysak';
-  import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
-  import Lagttillinje from './Lagttillinje.svelte';
+  import {
+    korrespondansenoekkel,
+    lagtTil as kommandoenLagtTil,
+    type Korrespondansevalg,
+  } from './korrespondansen';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
   import {
     brevene,
@@ -545,30 +544,12 @@
     });
   }
 
-  let bekreftForkast = $state(false);
-  let forkastSpoersmaal = $state<HTMLElement | null>(null);
-  async function spoerOmForkast() {
-    bekreftForkast = true;
-    await tick();
-    forkastSpoersmaal?.focus();
-  }
-  async function behold() {
-    bekreftForkast = false;
-    await tick();
-    document.getElementById(id('forkast'))?.focus();
-  }
-
   // Brevet leses ved siden av skjemaet, og på smal skjerm i skjemaet (`Vederlagssvar`).
   let leser = $state(false);
   const side = brevetVedSiden(
     () => onvedsiden,
     () => leser
   );
-
-  // Panelet følger rullingen bare når det får plass i vinduet, så «Se brevet før sending» alltid
-  // kan nås (U-16).
-  let panel = $state<HTMLElement | null>(null);
-  const plass = faarPlass(() => panel);
 </script>
 
 {#snippet lest(b: Brevet, ramme: 'kant' | 'innfelt')}
@@ -804,9 +785,9 @@
     {:else if p.varsel.art === 'dokument'}
       <div class="innrykk">
         <Korrespondansen
-          id={(felt) => id(`varsel-${felt}-${n}`)}
+          id={(felt) => id(korrespondansenoekkel('varsel', felt, n))}
           bind:valg={p.varsel}
-          feil={(felt) => feil(`varsel-${felt}-${n}`)}
+          feil={(felt) => feil(korrespondansenoekkel('varsel', felt, n))}
           {grense}
           kapittelB
         />
@@ -821,353 +802,315 @@
   </div>
 {/snippet}
 
-{#snippet sendeknapp()}
-  <Knapp
-    variant="primaer"
-    onclick={seBrevet}
-    opptatt={!!lagtTil && kjernesak.sender}
-    aria-describedby={flyt.hindring ? flyt.hindringId : undefined}
-    >{lagtTil ? LEGG_TIL.leggTilKravet : KRAVSKJEMA.seBrevet}</Knapp
-  >
-  {#if flyt.hindring}
-    <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1">{flyt.hindring}</Melding>
-  {/if}
-{/snippet}
+{#snippet lestInnfelt()}{@render lest(lesbart!, 'innfelt')}{/snippet}
 
-<Arbeidsflate leser={side.vedSiden}>
-  {#snippet hoved()}
-    <Utkastkort
-      id={id('tittel')}
-      tittel={utkastbrev && !lagtTil
-        ? brevhode({ merking: utkastbrev.merking, art: 'krav', brevtittel: utkastbrev.brevtittel })
-        : KRAVSKJEMA.tittel}
-      mottaker={KRAVSKJEMA.til}
-      merke={lagtTil ? LEGG_TIL.utkast : undefined}
-    >
-      {#if lagtTil && kjernesak.part}
-        <Lagttillinje part={kjernesak.part} valg={lagtTil} {onendre} />
-      {/if}
-      {#if lesbart}
-        <Brevlinje
-          id={id('lesebrev')}
-          bind:leser
-          smal={side.smal}
-          lenke={{
-            les: KRAVSKJEMA.lesBrevet(lesbart),
-            lesHer: KRAVSKJEMA.lesBrevetHer(lesbart),
-            lukk: KRAVSKJEMA.lukkBrevet,
-          }}
-        >
-          {#if kravbrevet}
-            {KRAVSKJEMA.folgerOpp(kravbrevet, svarbrevet)}
-          {:else if forholdet && paaberopelsen}
-            {KRAVSKJEMA.forholdet(forholdet.navn, paaberopelsen)}
-          {/if}
-          {#snippet brev()}{@render lest(lesbart, 'kant')}{/snippet}
-        </Brevlinje>
-      {/if}
-
-      {#if flyt.forsoekt && mangler.length}
-        <Manglene
-          tittel={lagtTil ? LEGG_TIL.mangler : KRAVSKJEMA.mangler}
-          {mangler}
-          ongaa={gaaTil}
-          bind:element={oppsummering}
-        />
-      {/if}
-
-      <section
-        class="seksjon"
-        id={id('postene')}
-        aria-labelledby={`${id('postene-tittel')} ${id('postene-hjemmel')}`}
+<Brevskjema
+  id={id('tittel')}
+  tittel={utkastbrev && !lagtTil
+    ? brevhode({ merking: utkastbrev.merking, art: 'krav', brevtittel: utkastbrev.brevtittel })
+    : KRAVSKJEMA.tittel}
+  mottaker={KRAVSKJEMA.til}
+  {lagtTil}
+  part={kjernesak.part}
+  {onendre}
+  {flyt}
+  {mangler}
+  manglerTittel={KRAVSKJEMA.mangler}
+  ongaa={gaaTil}
+  bind:oppsummering
+  forkastTekst={KRAVSKJEMA.forkastTekst}
+  {onforkast}
+  knapp={{
+    tekst: lagtTil ? LEGG_TIL.leggTilKravet : KRAVSKJEMA.seBrevet,
+    onclick: seBrevet,
+    opptatt: !!lagtTil && kjernesak.sender,
+    bred: true,
+  }}
+  lesing={side.vedSiden && lesbart
+    ? { id: id('lesebrev'), brev: lesbart, innhold: lestInnfelt }
+    : null}
+>
+  {#snippet oeverst()}
+    {#if lesbart}
+      <Brevlinje
+        id={id('lesebrev')}
+        bind:leser
+        smal={side.smal}
+        lenke={{
+          les: KRAVSKJEMA.lesBrevet(lesbart),
+          lesHer: KRAVSKJEMA.lesBrevetHer(lesbart),
+          lukk: KRAVSKJEMA.lukkBrevet,
+        }}
       >
-        <div class="seksjonshode">
-          <span class="nummer" aria-hidden="true">1</span>
-          <h3 id={id('postene-tittel')}>{KRAVSKJEMA.postene}</h3>
-          <Hjemmel id={id('postene-hjemmel')} numre={KRAVSKJEMA.posteneHjemmel} />
-        </div>
-        <p class="intro">{KRAVSKJEMA.posteneIntro}</p>
-        {#if v.poster.length}
-          <div class="kolonner" aria-hidden="true">
-            {#each KRAVSKJEMA.kolonner as k (k)}<span>{k}</span>{/each}
-            <span></span>
-          </div>
-          <ul class="poster">
-            {#each v.poster as p (p.noekkel)}
-              <li
-                class="post"
-                id={id(`post-${p.noekkel}`)}
-                class:er-aapen={aapen === p.noekkel && !p.trukket}
-              >
-                {#if aapen === p.noekkel && !p.trukket}
-                  {@render aapenPost(p)}
-                {:else}
-                  {@render postlinje(p)}
-                {/if}
-              </li>
-            {/each}
-          </ul>
-          <p class="sum">
-            <span>{KRAVSKJEMA.sumFaste}</span>
-            <span class="num">{kroner(summer.iKravpostene)}</span>
-          </p>
+        {#if kravbrevet}
+          {KRAVSKJEMA.folgerOpp(kravbrevet, svarbrevet)}
+        {:else if forholdet && paaberopelsen}
+          {KRAVSKJEMA.forholdet(forholdet.navn, paaberopelsen)}
         {/if}
-        <div class="leggtil">
-          <Knapp id={id('legg-til')} onclick={leggTil}>{KRAVSKJEMA.leggTil}</Knapp>
-          {#each trukne as q (q.id)}
-            <Knapp variant="lenke" onclick={() => taMedIgjen(q)}
-              >{KRAVSKJEMA.taMedIgjen(q.betegnelse, q.beskrivelse)}</Knapp
-            >
-          {/each}
-        </div>
-        {#if feil('legg-til')}<p class="feilmelding">{feil('legg-til')}</p>{/if}
-      </section>
-
-      {#if v.saerskilt}
-        {@const saerskilt = v.saerskilt}
-        <section
-          class="seksjon"
-          id={id('saerskilt-seksjon')}
-          aria-labelledby={`${id('saerskilt-tittel')} ${id('saerskilt-hjemmel')}`}
-        >
-          <div class="seksjonshode">
-            <span class="nummer" aria-hidden="true">2</span>
-            <h3 id={id('saerskilt-tittel')}>{KRAVSKJEMA.saerskilt}</h3>
-            <Hjemmel id={id('saerskilt-hjemmel')} numre={KRAVSKJEMA.saerskiltHjemmel} />
-          </div>
-          <p class="intro">{KRAVSKJEMA.saerskiltIntro}</p>
-          {#if saerskiltAapen}
-            <div class="aapen saerskilt-aapen">
-              {@render beloepsfelt(
-                'saerskilt',
-                KRAVSKJEMA.saerskiltBeloep,
-                KRAVSKJEMA.saerskiltHjelp,
-                saerskilt,
-                'beloep',
-                true
-              )}
-              <div class="postfot saerskilt-fot">
-                <Knapp onclick={lukkSaerskilt}>{KRAVSKJEMA.ferdig}</Knapp>
-              </div>
-            </div>
-          {:else}
-            <div class="linje saerskilt-linje">
-              <h4 class="navn"><span class="betegnelse">{KRAVSKJEMA.saerskiltKort}</span></h4>
-              <p class="form">
-                <span class="visually-hidden">{KRAVSKJEMA.kolonner[1]}:</span>{KRAVSKJEMA.formnavn
-                  .tilbud}
-              </p>
-              <p class="pns-celle tom"></p>
-              <p class="beloep-celle">
-                <span class="visually-hidden">{KRAVSKJEMA.kolonner[3]}:</span>{saerskiltBeloep}
-              </p>
-              <Knapp
-                variant="lenke"
-                id={id('endre-saerskilt')}
-                aria-label={KRAVSKJEMA.endrePost(KRAVSKJEMA.saerskilt.toLowerCase())}
-                onclick={aapneSaerskilt}>{KRAVSKJEMA.endre}</Knapp
-              >
-              {#if saerskiltEndret}<div class="under"><p>{saerskiltEndret}</p></div>{/if}
-            </div>
-          {/if}
-          {#if feil('saerskilt') && !saerskiltAapen}
-            <p class="feilmelding">{feil('saerskilt')}</p>
-          {/if}
-          <!-- Under posten, som i prototype v4. En post fra forrige krav trekkes (KA-U83). Er den
-               den eneste posten, avviser kjernen trekket, og kravet trekkes i stedet. -->
-          {#if !forrige || krevdProduktivitet(forrige) === null}
-            <div class="saerskilt-fjern">
-              <Knapp variant="lenke" iFlukt onclick={fjernSaerskilt}
-                >{KRAVSKJEMA.fjernSaerskilt}</Knapp
-              >
-            </div>
-          {:else if med.length}
-            <div class="saerskilt-fjern">
-              <Knapp variant="lenke" iFlukt onclick={trekkSaerskilt}
-                >{KRAVSKJEMA.trekkSaerskilt}</Knapp
-              >
-            </div>
-          {:else}
-            <p class="intro">{KRAVSKJEMA.saerskiltEneste}</p>
-          {/if}
-        </section>
-      {:else if v.trekkerSaerskilt}
-        <section class="seksjon kompakt">
-          <p>{KRAVSKJEMA.trekket(KRAVSKJEMA.denSaerskilte)}</p>
-          <div>
-            <Knapp variant="lenke" id={id('angre-saerskilt')} onclick={angreSaerskilt}
-              >{KRAVSKJEMA.angreTrekk(KRAVSKJEMA.denSaerskilte)}</Knapp
-            >
-          </div>
-        </section>
-      {:else}
-        <section class="seksjon kompakt">
-          <div>
-            <Knapp id={id('legg-til-saerskilt')} onclick={leggTilSaerskilt}
-              >{KRAVSKJEMA.leggTilSaerskilt}</Knapp
-            >
-          </div>
-        </section>
-      {/if}
-
-      <section class="seksjon" id={id('varslene')} aria-labelledby={id('varslene-tittel')}>
-        <div class="seksjonshode">
-          <span class="nummer" aria-hidden="true">{v.saerskilt ? 3 : 2}</span>
-          <h3 id={id('varslene-tittel')}>{KRAVSKJEMA.varslene}</h3>
-        </div>
-        <p class="intro">
-          {lagtTil ? KRAVSKJEMA.varsleneIntroLagtTil : KRAVSKJEMA.varsleneIntro}
-        </p>
-        <div class="kolonner varselkolonner" aria-hidden="true">
-          {#each varselkolonner as k (k)}<span>{k}</span>{/each}
-          <span></span>
-        </div>
-        <ul class="varsler">
-          <li class="varselrad">
-            <span class="punkt">34.1.2</span>
-            <div class="hva">
-              <h4>{KRAVSKJEMA.varselnavn['34.1.2']}</h4>
-              <p class="dempet">{KRAVSKJEMA.gjelderHele}</p>
-            </div>
-            <div class="brevet">
-              <span class="visually-hidden">{varselkolonner[2]}:</span>
-              <p>{varselI(vederlagsvarselet)}</p>
-              {#if vederlagsvarselet === null && klarOver}
-                <p class="dempet">
-                  {KRAVSKJEMA.dagerEtterKlarOver(kalenderdager(klarOver.dato, iDag), klarOver.dato)}
-                </p>
-              {/if}
-            </div>
-          </li>
-          {#if v.saerskilt}
-            <li class="varselrad">
-              <span class="punkt">34.1.3</span>
-              <div class="hva">
-                <h4>{KRAVSKJEMA.varselnavn['34.1.3']}</h4>
-                <p class="dempet">{KRAVSKJEMA.gjelderSaerskilt}</p>
-              </div>
-              <div class="brevet">
-                <span class="visually-hidden">{varselkolonner[2]}:</span>
-                <p>{varselI(saerskiltvarselet)}</p>
-              </div>
-            </li>
-          {/if}
-          {#each postvarsler as { p, vs } (p.noekkel)}
-            <li class="varselrad" id={id(`varselrad-${p.noekkel}`)}>
-              <span class="punkt">{vs.hjemmel}</span>
-              <div class="hva">
-                <h4>{KRAVSKJEMA.varselnavn[vs.hjemmel]}</h4>
-                <p class="dempet">{KRAVSKJEMA.gjelderPost(navnet(p))}</p>
-              </div>
-              <div class="brevet">
-                <span class="visually-hidden">{varselkolonner[2]}:</span>
-                <p>{postvarseltekst(p, vs)}</p>
-                {#if vs.art === 'kravet' && gjeldendeVarselvalg(v, p).art === 'kravet' && utenKravpost.some((x) => x.hjemmel === vs.hjemmel)}
-                  <p class="dempet">{KRAVSKJEMA.utenKravpost(vs.hjemmel)}</p>
-                {/if}
-              </div>
-              {#if vs.art === 'kravet' && aapentVarsel !== p.noekkel}
-                <Knapp
-                  variant="lenke"
-                  aria-label={KRAVSKJEMA.endreVarselet(navnet(p))}
-                  onclick={async () => {
-                    aapentVarsel = p.noekkel;
-                    await tick();
-                    document
-                      .querySelector<HTMLInputElement>(
-                        `#${CSS.escape(id(`varsel-${p.noekkel}`))} input`
-                      )
-                      ?.focus();
-                  }}>{KRAVSKJEMA.endre}</Knapp
-                >
-              {/if}
-              {#if vs.art === 'kravet' && aapentVarsel === p.noekkel}
-                <div class="varselvalgene">{@render varselvalgene(p, vs.hjemmel)}</div>
-              {/if}
-            </li>
-          {/each}
-          {#each utenKravpost as x (x.id)}
-            <li class="varselrad">
-              <span class="punkt">{x.hjemmel}</span>
-              <div class="hva">
-                <h4>{KRAVSKJEMA.varselnavn[x.hjemmel]}</h4>
-                <p class="dempet">{KRAVSKJEMA.ingenPostViserTil}</p>
-              </div>
-              <div class="brevet"><p>{varselI(x.dokument)}</p></div>
-            </li>
-          {/each}
-        </ul>
-      </section>
-
-      {#if kommandoLagtTil}
-        <Lagttilmerknader
-          {kjernesak}
-          {u}
-          spor="vederlag"
-          kommando={kommandoLagtTil}
-          vedlegg={vedleggLagtTil}
-          innfelt
-        />
-      {:else}<section class="seksjon" id={id('forbehold')} aria-labelledby={id('forbehold-tittel')}>
-          <div class="seksjonshode">
-            <span class="nummer" aria-hidden="true">{v.saerskilt ? 4 : 3}</span>
-            <h3 id={id('forbehold-tittel')}>{KRAVSKJEMA.forbeholdPunkt}</h3>
-          </div>
-          <div class="felt">
-            <Feltetikett for={id('forbehold-felt')} valgfri>{KRAVSKJEMA.forbehold}</Feltetikett>
-            <span class="hjelp" id={id('forbehold-hjelp')}>{KRAVSKJEMA.forbeholdHjelp}</span>
-            <textarea
-              id={id('forbehold-felt')}
-              rows="4"
-              bind:value={v.forbehold}
-              aria-describedby={id('forbehold-hjelp')}
-            ></textarea>
-          </div>
-        </section>{/if}
-
-      <div class="skjemafot">
-        {#if bekreftForkast}
-          <div class="bekreft" role="group" aria-labelledby={id('forkast-spoersmaal')}>
-            <p id={id('forkast-spoersmaal')} tabindex="-1" bind:this={forkastSpoersmaal}>
-              {KRAVSKJEMA.forkastSpoersmaal}
-            </p>
-            <div class="knapper">
-              <Knapp onclick={onforkast}>{KRAVSKJEMA.forkastJa}</Knapp>
-              <Knapp variant="lenke" onclick={behold}>{KRAVSKJEMA.behold}</Knapp>
-            </div>
-          </div>
-        {:else}
-          <Knapp variant="lenke" id={id('forkast')} onclick={spoerOmForkast}
-            >{KRAVSKJEMA.forkast}</Knapp
-          >
-        {/if}
-      </div>
-    </Utkastkort>
-  {/snippet}
-
-  {#snippet hoeyre()}
-    {#if side.vedSiden && lesbart}
-      <Leseramme id={id('lesebrev')} brev={lesbart} bunn={sendeknapp}>
-        {@render lest(lesbart, 'innfelt')}
-      </Leseramme>
-    {:else}
-      <div class="feste" class:fast={plass.faarPlass} bind:this={panel}>
-        <Kravpunkter
-          {punkter}
-          aktiv={aktivtPunkt}
-          faste={summer.faste}
-          anslag={summer.anslag}
-          {pns}
-          {pnsOver}
-          {hvaKravetEr}
-          handling={sendeknapp}
-          status={lagtTil ? LEGG_TIL.ikkeLagtTil : undefined}
-        />
-      </div>
-      <Tidslinje brev={sporbrev} datoer={datoerISporet(u, 'vederlag')} {utfylt} />
+        {#snippet brev()}{@render lest(lesbart, 'kant')}{/snippet}
+      </Brevlinje>
     {/if}
   {/snippet}
-</Arbeidsflate>
+  {#snippet panel(sendeknapp)}
+    <Kravpunkter
+      {punkter}
+      aktiv={aktivtPunkt}
+      faste={summer.faste}
+      anslag={summer.anslag}
+      {pns}
+      {pnsOver}
+      {hvaKravetEr}
+      handling={sendeknapp!}
+      status={lagtTil ? LEGG_TIL.ikkeLagtTil : undefined}
+    />
+  {/snippet}
+  {#snippet tidslinje()}
+    <Tidslinje brev={sporbrev} datoer={datoerISporet(u, 'vederlag')} {utfylt} />
+  {/snippet}
+
+  <section
+    class="seksjon"
+    id={id('postene')}
+    aria-labelledby={`${id('postene-tittel')} ${id('postene-hjemmel')}`}
+  >
+    <div class="seksjonshode">
+      <span class="nummer" aria-hidden="true">1</span>
+      <h3 id={id('postene-tittel')}>{KRAVSKJEMA.postene}</h3>
+      <Hjemmel id={id('postene-hjemmel')} numre={KRAVSKJEMA.posteneHjemmel} />
+    </div>
+    <p class="intro">{KRAVSKJEMA.posteneIntro}</p>
+    {#if v.poster.length}
+      <div class="kolonner" aria-hidden="true">
+        {#each KRAVSKJEMA.kolonner as k (k)}<span>{k}</span>{/each}
+        <span></span>
+      </div>
+      <ul class="poster">
+        {#each v.poster as p (p.noekkel)}
+          <li
+            class="post"
+            id={id(`post-${p.noekkel}`)}
+            class:er-aapen={aapen === p.noekkel && !p.trukket}
+          >
+            {#if aapen === p.noekkel && !p.trukket}
+              {@render aapenPost(p)}
+            {:else}
+              {@render postlinje(p)}
+            {/if}
+          </li>
+        {/each}
+      </ul>
+      <p class="sum">
+        <span>{KRAVSKJEMA.sumFaste}</span>
+        <span class="num">{kroner(summer.iKravpostene)}</span>
+      </p>
+    {/if}
+    <div class="leggtil">
+      <Knapp id={id('legg-til')} onclick={leggTil}>{KRAVSKJEMA.leggTil}</Knapp>
+      {#each trukne as q (q.id)}
+        <Knapp variant="lenke" onclick={() => taMedIgjen(q)}
+          >{KRAVSKJEMA.taMedIgjen(q.betegnelse, q.beskrivelse)}</Knapp
+        >
+      {/each}
+    </div>
+    {#if feil('legg-til')}<p class="feilmelding">{feil('legg-til')}</p>{/if}
+  </section>
+
+  {#if v.saerskilt}
+    {@const saerskilt = v.saerskilt}
+    <section
+      class="seksjon"
+      id={id('saerskilt-seksjon')}
+      aria-labelledby={`${id('saerskilt-tittel')} ${id('saerskilt-hjemmel')}`}
+    >
+      <div class="seksjonshode">
+        <span class="nummer" aria-hidden="true">2</span>
+        <h3 id={id('saerskilt-tittel')}>{KRAVSKJEMA.saerskilt}</h3>
+        <Hjemmel id={id('saerskilt-hjemmel')} numre={KRAVSKJEMA.saerskiltHjemmel} />
+      </div>
+      <p class="intro">{KRAVSKJEMA.saerskiltIntro}</p>
+      {#if saerskiltAapen}
+        <div class="aapen saerskilt-aapen">
+          {@render beloepsfelt(
+            'saerskilt',
+            KRAVSKJEMA.saerskiltBeloep,
+            KRAVSKJEMA.saerskiltHjelp,
+            saerskilt,
+            'beloep',
+            true
+          )}
+          <div class="postfot saerskilt-fot">
+            <Knapp onclick={lukkSaerskilt}>{KRAVSKJEMA.ferdig}</Knapp>
+          </div>
+        </div>
+      {:else}
+        <div class="linje saerskilt-linje">
+          <h4 class="navn"><span class="betegnelse">{KRAVSKJEMA.saerskiltKort}</span></h4>
+          <p class="form">
+            <span class="visually-hidden">{KRAVSKJEMA.kolonner[1]}:</span>{KRAVSKJEMA.formnavn
+              .tilbud}
+          </p>
+          <p class="pns-celle tom"></p>
+          <p class="beloep-celle">
+            <span class="visually-hidden">{KRAVSKJEMA.kolonner[3]}:</span>{saerskiltBeloep}
+          </p>
+          <Knapp
+            variant="lenke"
+            id={id('endre-saerskilt')}
+            aria-label={KRAVSKJEMA.endrePost(KRAVSKJEMA.saerskilt.toLowerCase())}
+            onclick={aapneSaerskilt}>{KRAVSKJEMA.endre}</Knapp
+          >
+          {#if saerskiltEndret}<div class="under"><p>{saerskiltEndret}</p></div>{/if}
+        </div>
+      {/if}
+      {#if feil('saerskilt') && !saerskiltAapen}
+        <p class="feilmelding">{feil('saerskilt')}</p>
+      {/if}
+      <!-- Under posten, som i prototype v4. En post fra forrige krav trekkes (KA-U83). Er den
+           den eneste posten, avviser kjernen trekket, og kravet trekkes i stedet. -->
+      {#if !forrige || krevdProduktivitet(forrige) === null}
+        <div class="saerskilt-fjern">
+          <Knapp variant="lenke" iFlukt onclick={fjernSaerskilt}>{KRAVSKJEMA.fjernSaerskilt}</Knapp>
+        </div>
+      {:else if med.length}
+        <div class="saerskilt-fjern">
+          <Knapp variant="lenke" iFlukt onclick={trekkSaerskilt}>{KRAVSKJEMA.trekkSaerskilt}</Knapp>
+        </div>
+      {:else}
+        <p class="intro">{KRAVSKJEMA.saerskiltEneste}</p>
+      {/if}
+    </section>
+  {:else if v.trekkerSaerskilt}
+    <section class="seksjon kompakt">
+      <p>{KRAVSKJEMA.trekket(KRAVSKJEMA.denSaerskilte)}</p>
+      <div>
+        <Knapp variant="lenke" id={id('angre-saerskilt')} onclick={angreSaerskilt}
+          >{KRAVSKJEMA.angreTrekk(KRAVSKJEMA.denSaerskilte)}</Knapp
+        >
+      </div>
+    </section>
+  {:else}
+    <section class="seksjon kompakt">
+      <div>
+        <Knapp id={id('legg-til-saerskilt')} onclick={leggTilSaerskilt}
+          >{KRAVSKJEMA.leggTilSaerskilt}</Knapp
+        >
+      </div>
+    </section>
+  {/if}
+
+  <section class="seksjon" id={id('varslene')} aria-labelledby={id('varslene-tittel')}>
+    <div class="seksjonshode">
+      <span class="nummer" aria-hidden="true">{v.saerskilt ? 3 : 2}</span>
+      <h3 id={id('varslene-tittel')}>{KRAVSKJEMA.varslene}</h3>
+    </div>
+    <p class="intro">
+      {lagtTil ? KRAVSKJEMA.varsleneIntroLagtTil : KRAVSKJEMA.varsleneIntro}
+    </p>
+    <div class="kolonner varselkolonner" aria-hidden="true">
+      {#each varselkolonner as k (k)}<span>{k}</span>{/each}
+      <span></span>
+    </div>
+    <ul class="varsler">
+      <li class="varselrad">
+        <span class="punkt">34.1.2</span>
+        <div class="hva">
+          <h4>{KRAVSKJEMA.varselnavn['34.1.2']}</h4>
+          <p class="dempet">{KRAVSKJEMA.gjelderHele}</p>
+        </div>
+        <div class="brevet">
+          <span class="visually-hidden">{varselkolonner[2]}:</span>
+          <p>{varselI(vederlagsvarselet)}</p>
+          {#if vederlagsvarselet === null && klarOver}
+            <p class="dempet">
+              {KRAVSKJEMA.dagerEtterKlarOver(kalenderdager(klarOver.dato, iDag), klarOver.dato)}
+            </p>
+          {/if}
+        </div>
+      </li>
+      {#if v.saerskilt}
+        <li class="varselrad">
+          <span class="punkt">34.1.3</span>
+          <div class="hva">
+            <h4>{KRAVSKJEMA.varselnavn['34.1.3']}</h4>
+            <p class="dempet">{KRAVSKJEMA.gjelderSaerskilt}</p>
+          </div>
+          <div class="brevet">
+            <span class="visually-hidden">{varselkolonner[2]}:</span>
+            <p>{varselI(saerskiltvarselet)}</p>
+          </div>
+        </li>
+      {/if}
+      {#each postvarsler as { p, vs } (p.noekkel)}
+        <li class="varselrad" id={id(`varselrad-${p.noekkel}`)}>
+          <span class="punkt">{vs.hjemmel}</span>
+          <div class="hva">
+            <h4>{KRAVSKJEMA.varselnavn[vs.hjemmel]}</h4>
+            <p class="dempet">{KRAVSKJEMA.gjelderPost(navnet(p))}</p>
+          </div>
+          <div class="brevet">
+            <span class="visually-hidden">{varselkolonner[2]}:</span>
+            <p>{postvarseltekst(p, vs)}</p>
+            {#if vs.art === 'kravet' && gjeldendeVarselvalg(v, p).art === 'kravet' && utenKravpost.some((x) => x.hjemmel === vs.hjemmel)}
+              <p class="dempet">{KRAVSKJEMA.utenKravpost(vs.hjemmel)}</p>
+            {/if}
+          </div>
+          {#if vs.art === 'kravet' && aapentVarsel !== p.noekkel}
+            <Knapp
+              variant="lenke"
+              aria-label={KRAVSKJEMA.endreVarselet(navnet(p))}
+              onclick={async () => {
+                aapentVarsel = p.noekkel;
+                await tick();
+                document
+                  .querySelector<HTMLInputElement>(
+                    `#${CSS.escape(id(`varsel-${p.noekkel}`))} input`
+                  )
+                  ?.focus();
+              }}>{KRAVSKJEMA.endre}</Knapp
+            >
+          {/if}
+          {#if vs.art === 'kravet' && aapentVarsel === p.noekkel}
+            <div class="varselvalgene">{@render varselvalgene(p, vs.hjemmel)}</div>
+          {/if}
+        </li>
+      {/each}
+      {#each utenKravpost as x (x.id)}
+        <li class="varselrad">
+          <span class="punkt">{x.hjemmel}</span>
+          <div class="hva">
+            <h4>{KRAVSKJEMA.varselnavn[x.hjemmel]}</h4>
+            <p class="dempet">{KRAVSKJEMA.ingenPostViserTil}</p>
+          </div>
+          <div class="brevet"><p>{varselI(x.dokument)}</p></div>
+        </li>
+      {/each}
+    </ul>
+  </section>
+
+  {#if kommandoLagtTil}
+    <Lagttilmerknader
+      {kjernesak}
+      {u}
+      spor="vederlag"
+      kommando={kommandoLagtTil}
+      vedlegg={vedleggLagtTil}
+      innfelt
+    />
+  {:else}<section class="seksjon" id={id('forbehold')} aria-labelledby={id('forbehold-tittel')}>
+      <div class="seksjonshode">
+        <span class="nummer" aria-hidden="true">{v.saerskilt ? 4 : 3}</span>
+        <h3 id={id('forbehold-tittel')}>{KRAVSKJEMA.forbeholdPunkt}</h3>
+      </div>
+      <Tekstomraade
+        id={id('forbehold-felt')}
+        etikett={KRAVSKJEMA.forbehold}
+        valgfri
+        hjelp={KRAVSKJEMA.forbeholdHjelp}
+        rader={4}
+        bind:verdi={v.forbehold}
+      />
+    </section>{/if}
+</Brevskjema>
 
 <style>
   .seksjon {
@@ -1319,8 +1262,7 @@
     font-size: 14px;
   }
   .tekstfelt,
-  .kort-felt,
-  textarea {
+  .kort-felt {
     min-height: 44px;
     padding: 0 var(--spacing-3);
     border: var(--control-border);
@@ -1335,13 +1277,8 @@
   .kort-felt {
     width: 8em;
   }
-  textarea {
-    padding: var(--spacing-3);
-    resize: vertical;
-  }
   .tekstfelt:focus-visible,
-  .kort-felt:focus-visible,
-  textarea:focus-visible {
+  .kort-felt:focus-visible {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
   }
@@ -1411,27 +1348,6 @@
     gap: var(--spacing-4);
     padding-left: var(--spacing-4);
     border-left: 2px solid var(--rule-strong-color);
-  }
-  .skjemafot {
-    padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
-  }
-  .bekreft {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
-  }
-  .bekreft p:focus {
-    outline: none;
-  }
-  .knapper {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-3);
-  }
-  .feste.fast {
-    position: sticky;
-    top: var(--spacing-4);
-    z-index: 1;
   }
   .smal-etikett {
     display: none;
