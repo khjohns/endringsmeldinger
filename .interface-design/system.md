@@ -35,8 +35,9 @@ Beholde inter som font.» Oslo-logoen er fast.
   - `--brand` er handling: primærknappen og valgt svar. Valgt svar har også flaten
     `--surface-selected`. I det mørke panelet markeres valgt spor med `--sidebar-active`.
   - `--draft` er utkast: det som ikke er sendt. Utkastet har
-    stiplet kant rundt hele kortet og `--draft-bg` i hodet, så det aldri ser ut som et
-    sendt brev. Ingenting annet er gult.
+    stiplet kant rundt hele arket og stempelet «Utkast · ikke sendt» med `--draft-bg`, så det
+    aldri ser ut som et sendt brev. Når utkastet vises til på oversikten, kan kortet ha
+    `--draft-bg` i hodet (oppdragsgiver 17.11, #2163). Ingenting annet er gult.
   - `--control-focus` er fokus og ingenting annet.
   - `--danger` er feil.
 - **Subsidiært får ingen farge.** Det skilles med tekst og form (#197).
@@ -390,7 +391,18 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   for ny sak har «Avbryt» på lenken (S2 i #1414), en egen tittel og tekst og de samme knappene
   (designvalget 17.11 i #2119). Rødt på en knapp står bare der handlingen ikke kan gjøres om, og teksten sier det
   (PR 1650, #1925, #2119).
-- **Utkastet sier det selv.** Hodet på utkastkortet sier «Utkast · ikke sendt». Det sier ikke at
+- **Utkastet er brevet mens det skrives** (oppdragsgiver 17.11, #2163, prototypen
+  [utkastet-som-brev.html](../docs/design/prototyper/utkastet-som-brev.html)). Det gule er
+  krympet til stempelet «Utkast · ikke sendt» oppe til høyre i brevhodet, der det sendte brevet
+  får «Sendt …», og arket har stiplet kant. I skjemaet står brevhodet foldet sammen til
+  tittelen i avsenderens brevskrift og én linje med referansene, og hele brevhodet står i
+  brevkontrollen. Seksjonene er punktene i brevet, med samme nummer, og et punkt uten arbeid
+  står som én dempet linje. Punktet som venter på svar, har blekkstreken til venstre og
+  spørsmålet i 20 px. Skjemaet slutter med hilsenen. «Tilbake» står over arket, på samme sted i
+  skjemaet og brevkontrollen, og stegviseren («Skriv brevet», «Kontroller og send») øverst i
+  panelet. Det erstatter det gule hodet på utkastkortet og arbeidsraden (`Utkastrad`) når det
+  bygges.
+- **Utkastet sier det selv.** Stempelet sier «Utkast · ikke sendt». Det sier ikke at
   brevet bare er synlig for teamet, fordi det er åpenbart for et utkast (oppdragsgiver 12.11 i
   #1663). Panelet med punktene og sendepanelet i brevkontrollen har ikke merket «Utkast» ved
   knappen (oppdragsgiver 17.11, #2163). Merket «Utkast» i panelet til venstre, og i sporraden der panelet er felt inn,
