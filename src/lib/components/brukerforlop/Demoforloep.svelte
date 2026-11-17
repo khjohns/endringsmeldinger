@@ -8,7 +8,7 @@
   import { ChevronRight } from 'lucide-svelte';
   import NySak from '#lib/components/varden/NySak.svelte';
   import Vardensak from '#lib/components/varden/Vardensak.svelte';
-  import { NYSAK } from '#lib/components/varden/tekster.ts';
+  import { NYSAK } from '#lib/components/varden/tekster/index.ts';
   import SegmentedControl from '#lib/components/primitives/SegmentedControl.svelte';
   import {
     DEMOKONTRAKT,

@@ -7,6 +7,7 @@
 <script lang="ts">
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Spor } from '#kjerne/typer.ts';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { tick, untrack, type Snippet } from 'svelte';
   import { medietreff } from './medie.svelte';
   import { sakensKode } from '#kjerne/frosset/tekst.ts';
@@ -164,11 +165,40 @@
     else if (f.right > n.right) sporene.scrollLeft += f.right - n.right;
   });
   let arbeid = $state<Arbeid>({ art: 'les' });
-  let svarvalg = $state(tomtSvar());
-  // Kravet om vederlagsjustering står når TE går til brevkontrollen og tilbake (BF-14).
-  let kravvalg = $state<Kravvalg | null>(null);
-  // Kravet om fristforlengelse står på samme måte (G-3 i BF-20).
-  let fristkravvalg = $state<Fristkravvalg | null>(null);
+  /**
+   * Det tomme utkastet i hvert skjema, med navnet skjemaet har i `skjemaene`. Utkastet står når
+   * parten går til brevkontrollen og tilbake: svaret også når BH velger et annet spor (BF-01 S-8),
+   * kravet om vederlagsjustering (BF-14), kravet om fristforlengelse (G-3 i BF-20), datoen og
+   * forklaringen i korrigeringen (U-3 i BF-02A) og teksten i den nye versjonen mens TE korrigerer
+   * datoen (U-2 i BF-10).
+   */
+  const tommeUtkast = {
+    forholdssvar: tomtForholdssvar,
+    vederlagssvar: tomtSvar,
+    fristsvar: tomtFristsvar,
+    vederlagskrav: (): Kravvalg | null => null,
+    fristkrav: (): Fristkravvalg | null => null,
+    korrigering: (): Korrigeringsvalg => ({ dato: '', forklaring: '' }),
+    nyversjon: (): string | null => null,
+  };
+  type Utkastnavn = keyof typeof tommeUtkast;
+  type Utkastene = { [N in Utkastnavn]: ReturnType<(typeof tommeUtkast)[N]> };
+  const erUtkastnavn = (n: string): n is Utkastnavn => Object.hasOwn(tommeUtkast, n);
+  let utkastene = $state(
+    Object.fromEntries(Object.entries(tommeUtkast).map(([n, tomt]) => [n, tomt()])) as Utkastene
+  );
+  function tom<N extends Utkastnavn>(n: N) {
+    utkastene[n] = tommeUtkast[n]() as Utkastene[N];
+  }
+  const svaretI = {
+    forhold: 'forholdssvar',
+    vederlag: 'vederlagssvar',
+    frist: 'fristsvar',
+  } as const satisfies Record<Spor, Utkastnavn>;
+  const kravetI = {
+    vederlag: 'vederlagskrav',
+    frist: 'fristkrav',
+  } as const satisfies Record<Kravspor, Utkastnavn>;
   // Korrespondansen lagt til står når parten går videre til krav- eller svarskjemaet og tilbake
   // (OV-U80). Skjemaet for kravet er åpnet fra den når `arbeid` sier det.
   let lagtTil = $state<{ spor: Spor; valg: Lagttilvalg } | null>(null);
@@ -188,10 +218,6 @@
           lagtTil.valg.kategori === 'krav'
         ? lagtTil.valg.korrespondanse
         : null;
-  // Datoen og forklaringen står når TE går til brevkontrollen og tilbake (U-3 i BF-02A).
-  let korrigeringsvalg = $state<Korrigeringsvalg>({ dato: '', forklaring: '' });
-  // Teksten i den nye versjonen står mens TE korrigerer datoen (U-2 i BF-10).
-  let nyVersjonstekst = $state<string | null>(null);
   // Mens brevet leses ved siden av skjemaet, felles panelet til venstre inn, så brevet blir
   // omtrent like bredt som ellers (oppdragsgiver 30.10, #1391).
   let vedSiden = $state(false);
@@ -202,8 +228,6 @@
     vederlag: false,
     frist: false,
   });
-  let fristsvarvalg = $state(tomtFristsvar());
-  let forholdssvarvalg = $state(tomtForholdssvar());
   const harUtkast = (s: Spor) => utkastAapent[s];
   let melding = $state<{ tekst: string; art: 'sendt' | 'forkastet' | 'endret' } | null>(
     untrack(() => (kvittering ? { tekst: kvittering, art: 'sendt' } : null))
@@ -260,9 +284,7 @@
 
   // Svarutkastet i sporet er sendt eller forkastet.
   function tomtUtkast(s: Spor) {
-    if (s === 'vederlag') svarvalg = tomtSvar();
-    else if (s === 'frist') fristsvarvalg = tomtFristsvar();
-    else forholdssvarvalg = tomtForholdssvar();
+    tom(svaretI[s]);
     utkastAapent[s] = false;
     // Et forkastet svar lagt til tar korrespondansen med seg.
     if (s === 'forhold') {
@@ -307,7 +329,7 @@
         ...(svaret ? [{ hva: BREVKONTROLL.viserTil, brev: NYVERSJON.viserTilBrev(svaret) }] : []),
       ],
       kvittering: KRAVSKJEMA.kvittering,
-      tilbake: { art: s === 'vederlag' ? 'vederlagskrav' : 'fristkrav' },
+      tilbake: { art: kravetI[s] },
       utkastet: null,
     };
   }
@@ -334,21 +356,24 @@
     // Bare det sendte svaret tømmer utkastet; en aksept i et annet spor lar det stå (BF-01 S-8).
     if (arbeid.art === 'kontroll' && arbeid.utkastet) tomtUtkast(arbeid.utkastet);
     const kvittering = arbeid.art === 'kontroll' ? arbeid.kvittering : undefined;
-    if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'korrigering')
-      korrigeringsvalg = { dato: '', forklaring: '' };
-    if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'nyversjon') nyVersjonstekst = null;
-    if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'vederlagskrav') kravvalg = null;
-    if (arbeid.art === 'kontroll' && arbeid.tilbake.art === 'fristkrav') fristkravvalg = null;
+    // Kravet, korrigeringen og den nye versjonen er sendt, så utkastet er brukt.
+    if (arbeid.art === 'kontroll' && erUtkastnavn(arbeid.tilbake.art)) tom(arbeid.tilbake.art);
     arbeid = { art: 'les' };
     melding = { tekst: kvittering ?? MOTTATT.dittBrev, art: 'sendt' };
   }
 
-  async function forkastKorrigeringen() {
-    korrigeringsvalg = { dato: '', forklaring: '' };
+  /** Tilbake til saken med kvitteringen `tekst`, som får fokus. */
+  async function tilSaken(tekst: string, art: 'sendt' | 'forkastet') {
     arbeid = { art: 'les' };
-    melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
+    melding = { tekst, art };
     await tick();
     meldingen?.focus();
+  }
+
+  /** Utkastet i skjemaet `n` er forkastet. Svarutkastet forkastes med `forkast`. */
+  function forkastUtkast(n: Utkastnavn) {
+    tom(n);
+    return tilSaken(MOTTATT.forkastet, 'forkastet');
   }
 
   /**
@@ -376,37 +401,110 @@
     arbeid = { ...arbeid, ...brevet };
   }
 
-  /**
-   * Skjemaene Varden åpner fra «Det du kan gjøre nå», med hele nøkkelen fra kjernen. Bare en
-   * nøkkel her blir en knapp som åpner noe; resten sier at handlingen ikke er bygget (#1636, #1663).
-   */
-  const skjemaene: Record<string, () => void> = {
-    'svare:forhold': () => {
-      // Svaret sendes fra løsningen, også et utkast som var et svar lagt til.
-      svaretFra = null;
-      utkastAapent.forhold = true;
-      arbeid = { art: 'svar' };
-    },
-    'svare:vederlag': () => {
-      utkastAapent.vederlag = true;
-      arbeid = { art: 'svar' };
-    },
-    'svare:frist': () => {
-      utkastAapent.frist = true;
-      arbeid = { art: 'svar' };
-    },
-    'krav:forhold': () => (arbeid = { art: 'nyversjon' }),
-    'krav:vederlag': () => (arbeid = { art: 'vederlagskrav' }),
-    'krav:frist': () => fristskjema('krav'),
-    // U-13: varselet etter punkt 33.4 alene, i skjemaet for kravet (BF-20 steg 4).
-    'sende_varsel:frist': () => fristskjema('varsel'),
-    'varsle:frist': () => fristskjema('varsel', true),
-    // OV-U79, OV-U80: korrespondanse parten har sendt utenfor løsningen (arbeidsvalget 16.11, #807).
-    registrere_brev: () => {
-      if (lagtTil?.spor !== valgt) lagtTil = { spor: valgt, valg: tomtLagtTil(valgt) };
-      arbeid = { art: 'korrespondanse' };
-    },
+  type Skjema = {
+    /** Handlingsnøklene fra kjernen som åpner skjemaet. `handlinger.py` leser dem. */
+    noekler: readonly string[];
+    aapne?: (noekkel: string) => void;
+    /** Skjemaet står i arbeidsflaten. Det første i `skjemaene` som står, vises. */
+    vises: () => boolean;
+    /** Komponenten, i snippeten med samme navn som skjemaet. */
+    skjema: Snippet<[Utledning]>;
   };
+  /**
+   * Skjemaene i arbeidsflaten, med det tomme utkastet i `tommeUtkast`. Varden åpner dem fra «Det
+   * du kan gjøre nå», med hele nøkkelen fra kjernen. Bare en nøkkel her blir en knapp som åpner
+   * noe; resten sier at handlingen ikke er bygget (#1636, #1663).
+   */
+  const skjemaene = {
+    korrigering: {
+      noekler: [],
+      vises: () => arbeid.art === 'korrigering' && kanKorrigere(arbeid.gjelder),
+      skjema: korrigering,
+    },
+    nyversjon: {
+      noekler: ['krav:forhold'],
+      aapne: () => (arbeid = { art: 'nyversjon' }),
+      vises: () =>
+        arbeid.art === 'nyversjon' &&
+        valgt === 'forhold' &&
+        kjernesak.handlinger.includes('krav:forhold') &&
+        !!u?.spor.forhold.gjeldendeKrav,
+      skjema: nyversjon,
+    },
+    korrespondanse: {
+      // OV-U79, OV-U80: korrespondanse parten har sendt utenfor løsningen (arbeidsvalget 16.11, #807).
+      noekler: ['registrere_brev'],
+      aapne: () => {
+        if (lagtTil?.spor !== valgt) lagtTil = { spor: valgt, valg: tomtLagtTil(valgt) };
+        arbeid = { art: 'korrespondanse' };
+      },
+      vises: () => arbeid.art === 'korrespondanse' && lagtTil?.spor === valgt,
+      skjema: korrespondanse,
+    },
+    vederlagskrav: {
+      noekler: ['krav:vederlag'],
+      aapne: () => (arbeid = { art: 'vederlagskrav' }),
+      vises: () =>
+        arbeid.art === 'vederlagskrav' &&
+        valgt === 'vederlag' &&
+        kjernesak.handlinger.includes('krav:vederlag'),
+      skjema: vederlagskrav,
+    },
+    fristkrav: {
+      // U-13: varselet etter punkt 33.4 alene, i skjemaet for kravet (BF-20 steg 4).
+      noekler: ['krav:frist', 'sende_varsel:frist', 'varsle:frist'],
+      aapne: (n) =>
+        n === 'krav:frist' ? fristskjema('krav') : fristskjema('varsel', n === 'varsle:frist'),
+      vises: () => arbeid.art === 'fristkrav' && valgt === 'frist' && fristskjemaTilbudt,
+      skjema: fristkrav,
+    },
+    forholdssvar: {
+      noekler: ['svare:forhold'],
+      aapne: () => {
+        // Svaret sendes fra løsningen, også et utkast som var et svar lagt til.
+        svaretFra = null;
+        utkastAapent.forhold = true;
+        arbeid = { art: 'svar' };
+      },
+      vises: () =>
+        arbeid.art === 'svar' &&
+        valgt === 'forhold' &&
+        (utenPaaberopelsen() ||
+          kjernesak.handlinger.includes('svare:forhold') ||
+          (!!lagtTilI('forhold', 'svar') && !!u?.spor.forhold.gjeldendeKrav)),
+      skjema: forholdssvar,
+    },
+    vederlagssvar: {
+      noekler: ['svare:vederlag'],
+      aapne: () => {
+        utkastAapent.vederlag = true;
+        arbeid = { art: 'svar' };
+      },
+      vises: () =>
+        arbeid.art === 'svar' &&
+        valgt === 'vederlag' &&
+        kjernesak.handlinger.includes('svare:vederlag'),
+      skjema: vederlagssvar,
+    },
+    fristsvar: {
+      noekler: ['svare:frist'],
+      aapne: () => {
+        utkastAapent.frist = true;
+        arbeid = { art: 'svar' };
+      },
+      vises: () =>
+        arbeid.art === 'svar' && valgt === 'frist' && kjernesak.handlinger.includes('svare:frist'),
+      skjema: fristsvar,
+    },
+  } satisfies Record<string, Skjema>;
+  const skjemalista: Skjema[] = Object.values(skjemaene);
+  const aktivtSkjema = $derived(skjemalista.find((s) => s.vises())?.skjema ?? null);
+  /**
+   * Kjernen avviser et svar på en trukket påberopelse (`KRAV_TRUKKET`), så utkastet står bare med
+   * valget om å forkaste det (#2104).
+   */
+  const utenPaaberopelsen = () =>
+    !!u?.spor.forhold.trukket && (!!lagtTilI('forhold', 'svar') || harUtkast('forhold'));
   /** Varselet, kravet eller svaret lagt til fylles ut i skjemaet for det (OV-U80). */
   function videreFraKorrespondansen(kategori: 'varsel' | 'krav' | 'svar') {
     if (!lagtTil || !u) return;
@@ -422,7 +520,7 @@
       arbeid = { art: 'svar' };
     } else if (valgt === 'frist') {
       // `utenfor` i utkastet står; skjemaet ser bort fra det når kravet legges til.
-      fristkravvalg = { ...(fristkravvalg ?? fristkravstart(u)), hva: 'krav' };
+      utkastene.fristkrav = { ...(utkastene.fristkrav ?? fristkravstart(u)), hva: 'krav' };
       arbeid = { art: 'fristkrav', fraKorrespondansen: true };
     } else arbeid = { art: 'vederlagskrav', fraKorrespondansen: true };
   }
@@ -436,15 +534,11 @@
       };
     arbeid = { art: 'korrespondanse' };
   }
-  async function lagtTilKvittering(tekst: string, krav: Kravspor | null = null) {
+  function lagtTilKvittering(tekst: string, krav: Kravspor | null = null) {
     lagtTil = null;
     // Kravet er lagt til, så utkastet er brukt, som etter sendingen (`sendt`).
-    if (krav === 'vederlag') kravvalg = null;
-    if (krav === 'frist') fristkravvalg = null;
-    arbeid = { art: 'les' };
-    melding = { tekst, art: 'sendt' };
-    await tick();
-    meldingen?.focus();
+    if (krav) tom(kravetI[krav]);
+    return tilSaken(tekst, 'sendt');
   }
   /**
    * Skjemaet for kravet om fristforlengelse, med varselet alene eller kravet valgt. Uten
@@ -456,8 +550,8 @@
     utenfor: Korrespondansevalg | null = null
   ) {
     if (u) {
-      const v = fristkravvalg ?? fristkravstart(u);
-      fristkravvalg = {
+      const v = utkastene.fristkrav ?? fristkravstart(u);
+      utkastene.fristkrav = {
         ...v,
         hva,
         // «Send varsel» sender fra løsningen, og registrerer ikke et varsel som er påbegynt.
@@ -474,15 +568,16 @@
   const foresporselssvar = $derived(
     kjernesak.tilbudte.filter((h) => h.type === 'svare_paa_foresporsel').map((h) => h.noekkel)
   );
-  const skjemanoeklene = $derived([...Object.keys(skjemaene), ...foresporselssvar]);
+  const skjemanoeklene = $derived([...skjemalista.flatMap((s) => s.noekler), ...foresporselssvar]);
   function aapne(n: string) {
-    if (Object.hasOwn(skjemaene, n)) skjemaene[n]();
+    const skjema = skjemalista.find((s) => s.noekler.includes(n));
+    if (skjema?.aapne) skjema.aapne(n);
     else if (foresporselssvar.includes(n)) fristskjema('krav');
   }
   /** Fristskjemaet står åpent når kjernen tilbyr en av handlingene det åpnes fra. */
   const fristskjemaTilbudt = $derived(
     kjernesak.tilbudte.some(
-      (h) => h.spor === 'frist' && FRISTSKJEMAET[fristkravvalg?.hva ?? 'krav'].has(h.type)
+      (h) => h.spor === 'frist' && FRISTSKJEMAET[utkastene.fristkrav?.hva ?? 'krav'].has(h.type)
     )
   );
 
@@ -495,31 +590,189 @@
     !!u &&
     datoopplysningene(u).some((o) => o.id === gjelder);
 
-  async function forkastNyVersjon() {
-    nyVersjonstekst = null;
-    arbeid = { art: 'les' };
-    melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
-    await tick();
-    meldingen?.focus();
-  }
-
-  async function forkastKravet(spor: Kravspor) {
-    if (spor === 'vederlag') kravvalg = null;
-    else fristkravvalg = null;
-    arbeid = { art: 'les' };
-    melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
-    await tick();
-    meldingen?.focus();
-  }
-
-  async function forkast() {
+  function forkast() {
     tomtUtkast(valgt);
-    arbeid = { art: 'les' };
-    melding = { tekst: MOTTATT.forkastet, art: 'forkastet' };
-    await tick();
-    meldingen?.focus();
+    return tilSaken(MOTTATT.forkastet, 'forkastet');
   }
 </script>
+
+<!-- Skjemaene i `skjemaene`, med utkastet i `utkastene`. -->
+{#snippet korrigering(u: Utledning)}
+  {#if arbeid.art === 'korrigering'}
+    {@const gjelder = arbeid.gjelder}
+    <Korrigering
+      {kjernesak}
+      {u}
+      {gjelder}
+      bind:valg={utkastene.korrigering}
+      onforkast={() => forkastUtkast('korrigering')}
+      onbrevkontroll={(k) => {
+        const viserTil = datoopplysningene(u).find((o) => o.id === gjelder)?.brev ?? null;
+        melding = null;
+        arbeid = {
+          art: 'kontroll',
+          versjon: kjernesak.versjon,
+          ...k,
+          handling: KORRIGERING.handling,
+          sendTekst: KORRIGERING.sendTekst,
+          tilbakeTil: KORRIGERING.tilbakeTil,
+          svarerPaa: viserTil,
+          henvisning: BREVKONTROLL.viserTil,
+          kvittering: KORRIGERING.kvittering(
+            (k.kommando.paalegg_mottatt ?? k.kommando.klar_over_forholdet) as string,
+            k.kommando.paalegg_mottatt ? 'paalegg_mottatt' : 'klar_over_forholdet',
+            u.forholdAvvist,
+            !!u.spor.forhold.gjeldendeSvar
+          ),
+          tilbake: { art: 'korrigering', gjelder },
+          utkastet: null,
+        };
+      }}
+    />
+  {/if}
+{/snippet}
+
+{#snippet nyversjon(u: Utledning)}
+  <Paaberopelsesversjon
+    {kjernesak}
+    {u}
+    bind:tekst={utkastene.nyversjon}
+    onforkast={() => forkastUtkast('nyversjon')}
+    ontilbake={() => velgSpor('forhold')}
+    onvedsiden={(v) => (vedSiden = v)}
+    onbrevkontroll={(k) => {
+      const svaret = brev.find((b) => b.id === u.spor.forhold.gjeldendeSvar?.dokument);
+      const kravet = brev.find((b) => b.id === u.spor.forhold.gjeldendeKrav?.dokument);
+      melding = null;
+      arbeid = {
+        art: 'kontroll',
+        versjon: kjernesak.versjon,
+        ...k,
+        handling: NYVERSJON.kontroller,
+        bareMottaker: true,
+        sendTekst: NYVERSJON.sendTekst,
+        tilbakeTil: NYVERSJON.tilbakeTil,
+        svarerPaa: svaret ?? null,
+        henvisning: BREVKONTROLL.viserTil,
+        relasjoner: [
+          ...(kravet
+            ? [{ hva: NYVERSJON.forrigeBrev, brev: NYVERSJON.forrigeBrevet(kravet) }]
+            : []),
+          ...(svaret ? [{ hva: BREVKONTROLL.viserTil, brev: NYVERSJON.viserTilBrev(svaret) }] : []),
+        ],
+        kvittering: NYVERSJON.kvittering,
+        tilbake: { art: 'nyversjon' },
+        utkastet: null,
+      };
+    }}
+  />
+{/snippet}
+
+{#snippet korrespondanse(u: Utledning)}
+  {#if lagtTil}
+    <Korrespondanseskjema
+      {kjernesak}
+      {u}
+      spor={valgt}
+      bind:valg={lagtTil.valg}
+      onneste={videreFraKorrespondansen}
+      onlagttil={(k) => lagtTilKvittering(LEGG_TIL.lagtTil[k])}
+      onavbryt={() => {
+        lagtTil = null;
+        arbeid = harUtkast(valgt) ? { art: 'svar' } : { art: 'les' };
+      }}
+    />
+  {/if}
+{/snippet}
+
+{#snippet vederlagskrav(u: Utledning)}
+  <Vederlagskrav
+    {kjernesak}
+    {u}
+    lagtTil={lagtTilI('vederlag', 'krav')}
+    onendre={tilKorrespondansen}
+    onlagttil={() => lagtTilKvittering(LEGG_TIL.lagtTil.krav, 'vederlag')}
+    bind:valg={utkastene.vederlagskrav}
+    onforkast={() => forkastUtkast('vederlagskrav')}
+    onvedsiden={(v) => (vedSiden = v)}
+    onbrevkontroll={(k) => tilKravkontroll('vederlag', k)}
+  />
+{/snippet}
+
+{#snippet fristkrav(u: Utledning)}
+  <Fristkrav
+    {kjernesak}
+    {u}
+    {sakslenke}
+    lagtTil={lagtTilI('frist', 'krav')}
+    onendre={tilKorrespondansen}
+    onlagttil={() => lagtTilKvittering(LEGG_TIL.lagtTil.krav, 'frist')}
+    bind:valg={utkastene.fristkrav}
+    onforkast={() => forkastUtkast('fristkrav')}
+    onbrevkontroll={(k) => tilKravkontroll('frist', k)}
+    onregistrert={() => {
+      tom('fristkrav');
+      return tilSaken(FRISTKRAV.registrert, 'sendt');
+    }}
+  />
+{/snippet}
+
+{#snippet forholdssvar(u: Utledning)}
+  {#if utenPaaberopelsen()}
+    <div
+      class="uten-paaberopelse"
+      tabindex="-1"
+      aria-labelledby={`${uid}-uten-paaberopelse`}
+      bind:this={utenPaaberopelse}
+    >
+      <Melding art="info" levende={false} id={`${uid}-uten-paaberopelse`}
+        >{FORHOLDET.svaretUtenPaaberopelse(!!lagtTilI('forhold', 'svar'))}</Melding
+      >
+      <Forkastutkast tekst={FORHOLDET.forkastSvaret} onforkast={forkast} />
+    </div>
+  {:else}
+    <Forholdssvar
+      {kjernesak}
+      {u}
+      lagtTil={lagtTilI('forhold', 'svar')}
+      onendre={tilKorrespondansen}
+      onleggtil={() => {
+        skjemaene.korrespondanse.aapne();
+        lagtTil!.valg.kategori = 'svar';
+      }}
+      onlagttil={() => {
+        tomtUtkast('forhold');
+        void lagtTilKvittering(LEGG_TIL.lagtTil.svar);
+      }}
+      bind:valg={utkastene.forholdssvar}
+      onforkast={forkast}
+      onvedsiden={(v) => (vedSiden = v)}
+      onbrevkontroll={(k) => tilSvarkontroll('forhold', k)}
+    />
+  {/if}
+{/snippet}
+
+{#snippet vederlagssvar(u: Utledning)}
+  <Vederlagssvar
+    {kjernesak}
+    {u}
+    bind:valg={utkastene.vederlagssvar}
+    onforkast={forkast}
+    onvedsiden={(v) => (vedSiden = v)}
+    onbrevkontroll={(k) => tilSvarkontroll('vederlag', k)}
+  />
+{/snippet}
+
+{#snippet fristsvar(u: Utledning)}
+  <Fristsvar
+    {kjernesak}
+    {u}
+    bind:valg={utkastene.fristsvar}
+    onforkast={forkast}
+    onvedsiden={(v) => (vedSiden = v)}
+    onbrevkontroll={(k) => tilSvarkontroll('frist', k)}
+  />
+{/snippet}
 
 <Vardenskall
   {sti}
@@ -660,168 +913,8 @@
           onsendt={sendt}
           onavvist={() => byggPaaNytt(k)}
         />
-      {:else if arbeid.art === 'korrigering' && kanKorrigere(arbeid.gjelder)}
-        {@const gjelder = arbeid.gjelder}
-        <Korrigering
-          {kjernesak}
-          {u}
-          {gjelder}
-          bind:valg={korrigeringsvalg}
-          onforkast={forkastKorrigeringen}
-          onbrevkontroll={(k) => {
-            const viserTil = datoopplysningene(u).find((o) => o.id === gjelder)?.brev ?? null;
-            melding = null;
-            arbeid = {
-              art: 'kontroll',
-              versjon: kjernesak.versjon,
-              ...k,
-              handling: KORRIGERING.handling,
-              sendTekst: KORRIGERING.sendTekst,
-              tilbakeTil: KORRIGERING.tilbakeTil,
-              svarerPaa: viserTil,
-              henvisning: BREVKONTROLL.viserTil,
-              kvittering: KORRIGERING.kvittering(
-                (k.kommando.paalegg_mottatt ?? k.kommando.klar_over_forholdet) as string,
-                k.kommando.paalegg_mottatt ? 'paalegg_mottatt' : 'klar_over_forholdet',
-                u.forholdAvvist,
-                !!u.spor.forhold.gjeldendeSvar
-              ),
-              tilbake: { art: 'korrigering', gjelder },
-              utkastet: null,
-            };
-          }}
-        />
-      {:else if arbeid.art === 'nyversjon' && valgt === 'forhold' && kjernesak.handlinger.includes('krav:forhold') && u.spor.forhold.gjeldendeKrav}
-        <Paaberopelsesversjon
-          {kjernesak}
-          {u}
-          bind:tekst={nyVersjonstekst}
-          onforkast={forkastNyVersjon}
-          ontilbake={() => velgSpor('forhold')}
-          onvedsiden={(v) => (vedSiden = v)}
-          onbrevkontroll={(k) => {
-            const svaret = brev.find((b) => b.id === u.spor.forhold.gjeldendeSvar?.dokument);
-            const kravet = brev.find((b) => b.id === u.spor.forhold.gjeldendeKrav?.dokument);
-            melding = null;
-            arbeid = {
-              art: 'kontroll',
-              versjon: kjernesak.versjon,
-              ...k,
-              handling: NYVERSJON.kontroller,
-              bareMottaker: true,
-              sendTekst: NYVERSJON.sendTekst,
-              tilbakeTil: NYVERSJON.tilbakeTil,
-              svarerPaa: svaret ?? null,
-              henvisning: BREVKONTROLL.viserTil,
-              relasjoner: [
-                ...(kravet
-                  ? [{ hva: NYVERSJON.forrigeBrev, brev: NYVERSJON.forrigeBrevet(kravet) }]
-                  : []),
-                ...(svaret
-                  ? [{ hva: BREVKONTROLL.viserTil, brev: NYVERSJON.viserTilBrev(svaret) }]
-                  : []),
-              ],
-              kvittering: NYVERSJON.kvittering,
-              tilbake: { art: 'nyversjon' },
-              utkastet: null,
-            };
-          }}
-        />
-      {:else if arbeid.art === 'korrespondanse' && lagtTil && lagtTil.spor === valgt}
-        <Korrespondanseskjema
-          {kjernesak}
-          {u}
-          spor={valgt}
-          bind:valg={lagtTil.valg}
-          onneste={videreFraKorrespondansen}
-          onlagttil={(k) => lagtTilKvittering(LEGG_TIL.lagtTil[k])}
-          onavbryt={() => {
-            lagtTil = null;
-            arbeid = harUtkast(valgt) ? { art: 'svar' } : { art: 'les' };
-          }}
-        />
-      {:else if arbeid.art === 'vederlagskrav' && valgt === 'vederlag' && kjernesak.handlinger.includes('krav:vederlag')}
-        <Vederlagskrav
-          {kjernesak}
-          {u}
-          lagtTil={lagtTilI('vederlag', 'krav')}
-          onendre={tilKorrespondansen}
-          onlagttil={() => lagtTilKvittering(LEGG_TIL.lagtTil.krav, 'vederlag')}
-          bind:valg={kravvalg}
-          onforkast={() => forkastKravet('vederlag')}
-          onvedsiden={(v) => (vedSiden = v)}
-          onbrevkontroll={(k) => tilKravkontroll('vederlag', k)}
-        />
-      {:else if arbeid.art === 'fristkrav' && valgt === 'frist' && fristskjemaTilbudt}
-        <Fristkrav
-          {kjernesak}
-          {u}
-          {sakslenke}
-          lagtTil={lagtTilI('frist', 'krav')}
-          onendre={tilKorrespondansen}
-          onlagttil={() => lagtTilKvittering(LEGG_TIL.lagtTil.krav, 'frist')}
-          bind:valg={fristkravvalg}
-          onforkast={() => forkastKravet('frist')}
-          onbrevkontroll={(k) => tilKravkontroll('frist', k)}
-          onregistrert={async () => {
-            fristkravvalg = null;
-            arbeid = { art: 'les' };
-            melding = { tekst: FRISTKRAV.registrert, art: 'sendt' };
-            await tick();
-            meldingen?.focus();
-          }}
-        />
-      {:else if arbeid.art === 'svar' && valgt === 'forhold' && u.spor.forhold.trukket && (lagtTilI('forhold', 'svar') || harUtkast('forhold'))}
-        <!-- Kjernen avviser et svar på en trukket påberopelse (`KRAV_TRUKKET`), så utkastet står
-          bare med valget om å forkaste det (#2104). -->
-        <div
-          class="uten-paaberopelse"
-          tabindex="-1"
-          aria-labelledby={`${uid}-uten-paaberopelse`}
-          bind:this={utenPaaberopelse}
-        >
-          <Melding art="info" levende={false} id={`${uid}-uten-paaberopelse`}
-            >{FORHOLDET.svaretUtenPaaberopelse(!!lagtTilI('forhold', 'svar'))}</Melding
-          >
-          <Forkastutkast tekst={FORHOLDET.forkastSvaret} onforkast={forkast} />
-        </div>
-      {:else if arbeid.art === 'svar' && valgt === 'forhold' && (kjernesak.handlinger.includes('svare:forhold') || (lagtTilI('forhold', 'svar') && u.spor.forhold.gjeldendeKrav))}
-        <Forholdssvar
-          {kjernesak}
-          {u}
-          lagtTil={lagtTilI('forhold', 'svar')}
-          onendre={tilKorrespondansen}
-          onleggtil={() => {
-            skjemaene.registrere_brev();
-            lagtTil!.valg.kategori = 'svar';
-          }}
-          onlagttil={() => {
-            tomtUtkast('forhold');
-            void lagtTilKvittering(LEGG_TIL.lagtTil.svar);
-          }}
-          bind:valg={forholdssvarvalg}
-          onforkast={forkast}
-          onvedsiden={(v) => (vedSiden = v)}
-          onbrevkontroll={(k) => tilSvarkontroll('forhold', k)}
-        />
-      {:else if arbeid.art === 'svar' && valgt === 'vederlag' && kjernesak.handlinger.includes('svare:vederlag')}
-        <Vederlagssvar
-          {kjernesak}
-          {u}
-          bind:valg={svarvalg}
-          onforkast={forkast}
-          onvedsiden={(v) => (vedSiden = v)}
-          onbrevkontroll={(k) => tilSvarkontroll('vederlag', k)}
-        />
-      {:else if arbeid.art === 'svar' && valgt === 'frist' && kjernesak.handlinger.includes('svare:frist')}
-        <Fristsvar
-          {kjernesak}
-          {u}
-          bind:valg={fristsvarvalg}
-          onforkast={forkast}
-          onvedsiden={(v) => (vedSiden = v)}
-          onbrevkontroll={(k) => tilSvarkontroll('frist', k)}
-        />
+      {:else if aktivtSkjema}
+        {@render aktivtSkjema(u)}
       {:else}
         {#key valgt}
           <Sporlesing

@@ -24,7 +24,7 @@ import type { Kjernevedlegg } from '#lib/api/kjerne.ts';
 import { kravMotNySak, laastTekstI, type Saksmerking } from '#lib/kjernesak/brevtekst.ts';
 import { ApiError } from '#lib/api/client.ts';
 import { KJERNE } from '#kjerne/versjon.ts';
-import { brevtittel, NYSAK } from '#lib/components/varden/tekster.ts';
+import { brevtittel, NYSAK } from '#lib/components/varden/tekster/index.ts';
 import { STOERSTE_VEDLEGG } from '#lib/components/varden/vedlegg.ts';
 
 afterEach(cleanup);

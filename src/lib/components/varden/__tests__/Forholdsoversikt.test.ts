@@ -20,7 +20,7 @@ import {
   type Brevet,
   type Innlegget,
 } from '#lib/components/varden/lesing.ts';
-import { TRAADEN } from '#lib/components/varden/tekster.ts';
+import { TRAADEN } from '#lib/components/varden/tekster/index.ts';
 import { createRawSnippet } from 'svelte';
 import Brevtraad from '#lib/components/varden/Brevtraad.svelte';
 import type { Spor } from '#kjerne/typer.ts';

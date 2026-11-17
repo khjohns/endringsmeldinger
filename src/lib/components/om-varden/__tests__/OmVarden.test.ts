@@ -12,7 +12,7 @@ import OmVarden from '#lib/components/om-varden/OmVarden.svelte';
 import Login from '../../../../routes/login/+page.svelte';
 import { load } from '../../../../routes/+layout';
 import { OM_VARDEN_STI } from '#lib/components/om-varden/sti.ts';
-import { FORHOLDET } from '#lib/components/varden/tekster.ts';
+import { FORHOLDET } from '#lib/components/varden/tekster/index.ts';
 
 const getSession = vi.hoisted(() => vi.fn());
 vi.mock('#lib/api/auth.ts', () => ({ getSession, loginUrl: (r: string) => r }));

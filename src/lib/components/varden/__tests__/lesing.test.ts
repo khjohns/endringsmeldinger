@@ -23,7 +23,7 @@ import {
   SKJEMA,
   standpunkttekst,
   STILLING,
-} from '#lib/components/varden/tekster.ts';
+} from '#lib/components/varden/tekster/index.ts';
 import type { Standpunkt } from '#kjerne/typer.ts';
 import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
 

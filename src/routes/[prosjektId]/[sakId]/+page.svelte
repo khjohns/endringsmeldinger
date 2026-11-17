@@ -6,7 +6,7 @@
   import { page } from '$app/state';
   import { resolve } from '$app/paths';
   import Vardensak from '#lib/components/varden/Vardensak.svelte';
-  import { NYSAK } from '#lib/components/varden/tekster.ts';
+  import { NYSAK } from '#lib/components/varden/tekster/index.ts';
   import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Spor } from '#kjerne/typer.ts';
 

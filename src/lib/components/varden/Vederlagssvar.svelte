@@ -45,12 +45,13 @@
     type Svarvalg,
   } from './kommandoer';
   import { brevet, standpunktene } from './lesing';
-  import { manglene, SVARSKJEMA } from './svarskjema';
+  import { manglene } from './svarskjema';
   import {
     BREVKONTROLL,
     HOVEDLINJER,
     KRAVSKJEMA,
     SKJEMA,
+    SVARSKJEMA,
     grunntekst,
     leselinjene,
     standpunkttekst,
