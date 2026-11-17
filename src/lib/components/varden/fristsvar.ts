@@ -4,12 +4,12 @@
  * kravet, og dagene for hver frist (KA-U74, KA-U80).
  */
 
-import type { Svarvurdering } from '$kjerne/frosset/byggeklosser';
-import type { Regelsett } from '$kjerne/regler/regelsett';
-import type { Svarutkast } from '$kjerne/kommandoer/kommando';
-import { innholdIFristen, type FristIKravet } from '$kjerne/spor/frist/format';
-import { foresporselenISvaret } from '$lib/kjernesak/fristsvar';
-import type { Utledning } from '$kjerne/utledning/utled';
+import type { Svarvurdering } from '#kjerne/frosset/byggeklosser.ts';
+import type { Regelsett } from '#kjerne/regler/regelsett.ts';
+import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
+import { innholdIFristen, type FristIKravet } from '#kjerne/spor/frist/format.ts';
+import { foresporselenISvaret } from '#lib/kjernesak/fristsvar.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { definert, svarbrevet } from './kommandoer';
 
 export type Dagevalg = 'alle' | 'deler' | 'avslaatt';

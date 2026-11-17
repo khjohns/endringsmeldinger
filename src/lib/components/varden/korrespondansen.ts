@@ -4,9 +4,9 @@
  * (OV-U79, VS-U34, A1 i #2056). Varselet i skjemaet for ny sak, fristkravet og vederlagskravet, og
  * kravet, svaret og aksepten som legges til (OV-U98), bruker det.
  */
-import type { Korrespondansetype, Part, Sendemaate, Spor } from '$kjerne/typer';
-import type { Utledning } from '$kjerne/utledning/utled';
-import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
+import type { Korrespondansetype, Part, Sendemaate, Spor } from '#kjerne/typer.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
+import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
 import type { Kjernevedlegg, vedleggskart } from './nysak';
 import { svareneISporet } from './lesing';
 import {

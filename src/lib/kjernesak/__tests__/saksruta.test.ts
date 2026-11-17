@@ -22,8 +22,8 @@ const side = vi.hoisted(() => ({
 vi.mock('$app/state', () => ({ page: side }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 vi.mock('$app/paths', () => ({ resolve: () => '/p-1' }));
-vi.mock('$lib/kjernesak/kontekst.svelte', async (original) => ({
-  ...(await original<typeof import('$lib/kjernesak/kontekst.svelte')>()),
+vi.mock('#lib/kjernesak/kontekst.svelte.ts', async (original) => ({
+  ...(await original<typeof import('#lib/kjernesak/kontekst.svelte.ts')>()),
   lagKjernesak: () => t.kontekst,
 }));
 
@@ -62,10 +62,10 @@ describe('saksruta mot TS-serveren', () => {
 
 describe('sporet saken åpner i (S5 i #1414)', () => {
   async function aapne(spor: string) {
-    const { lagKjernesak } = await vi.importActual<typeof import('$lib/kjernesak/kontekst.svelte')>(
-      '$lib/kjernesak/kontekst.svelte'
-    );
-    const { finnForloep, lagDemosak } = await import('$lib/kjernesak/demosak');
+    const { lagKjernesak } = await vi.importActual<
+      typeof import('#lib/kjernesak/kontekst.svelte.ts')
+    >('#lib/kjernesak/kontekst.svelte.ts');
+    const { finnForloep, lagDemosak } = await import('#lib/kjernesak/demosak.ts');
     const demosak = lagDemosak(finnForloep('BF-01')!, 'bh-har-mottatt-vederlagskravet', 'TE');
     const kjernesak = lagKjernesak({
       sakId: demosak.sakId,

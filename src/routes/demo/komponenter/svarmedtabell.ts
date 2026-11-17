@@ -3,8 +3,8 @@
  * tilfellet i `kjerne/tester/brevtekst.test.ts` («det særskilte kravet etter § 34.1.3 annet
  * ledd»), som i prototypen `godkjenning-vederlagssvar.html`. Begrunnelsene er eksempler.
  */
-import { FORBEHOLDET, INNLEDNINGEN } from '$kjerne/frosset/tekst';
-import type { Avsnitt } from '$kjerne/typer';
+import { FORBEHOLDET, INNLEDNINGEN } from '#kjerne/frosset/tekst.ts';
+import type { Avsnitt } from '#kjerne/typer.ts';
 
 const kr = (n: string) => `${n.replace(/ /g, '\u00a0')}\u00a0kr`;
 const sub = 'Subsidiært, hvis innsigelsen i punkt 1 ovenfor ikke fører frem';

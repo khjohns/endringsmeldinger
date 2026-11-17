@@ -2,8 +2,8 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
-  import type { Project } from '$lib/types/project';
-  import { listProjects } from '$lib/api/projects';
+  import type { Project } from '#lib/types/project.ts';
+  import { listProjects } from '#lib/api/projects.ts';
 
   let projects = $state<Project[]>([]);
   let loading = $state(true);

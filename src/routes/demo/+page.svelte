@@ -1,7 +1,7 @@
 <script lang="ts">
   /** Brukerforløpene som kan kjøres i demoruta (#1330), fra startjournalene. */
   import { resolve } from '$app/paths';
-  import { FORLOEP } from '$lib/kjernesak/demosak';
+  import { FORLOEP } from '#lib/kjernesak/demosak.ts';
 </script>
 
 <svelte:head><title>Brukerforløp — demo</title></svelte:head>

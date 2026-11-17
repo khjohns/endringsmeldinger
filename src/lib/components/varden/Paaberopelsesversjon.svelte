@@ -10,8 +10,8 @@
 <script lang="ts">
   import { ChevronLeft } from 'lucide-svelte';
   import { tick } from 'svelte';
-  import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
-  import type { Utledning } from '$kjerne/utledning/utled';
+  import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';

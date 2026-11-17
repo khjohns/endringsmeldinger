@@ -7,10 +7,10 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import { finnForloep, lagDemosak, type Demosak } from '$lib/kjernesak/demosak';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import type { Part } from '$kjerne/typer';
-import Demoforloep from '$lib/components/brukerforlop/Demoforloep.svelte';
+import { finnForloep, lagDemosak, type Demosak } from '#lib/kjernesak/demosak.ts';
+import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+import type { Part } from '#kjerne/typer.ts';
+import Demoforloep from '#lib/components/brukerforlop/Demoforloep.svelte';
 import Vardensak from '../Vardensak.svelte';
 import { HANDLINGENE } from '../tekster';
 

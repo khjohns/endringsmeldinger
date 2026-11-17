@@ -8,25 +8,25 @@
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import { minnebane } from '$kjerne/tester/bane';
-import { kjoer, type Forloep } from '$kjerne/tester/kjoerer';
-import type { Handling } from '$kjerne/tester/klient';
-import { START } from '$kjerne/tester/brukerforloep';
-import { testklokke } from '$kjerne/tester/testmiljoe';
-import Vardensak from '$lib/components/varden/Vardensak.svelte';
-import Vederlagsoversikt from '$lib/components/varden/Vederlagsoversikt.svelte';
-import { finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
+import { minnebane } from '#kjerne/tester/bane.ts';
+import { kjoer, type Forloep } from '#kjerne/tester/kjoerer.ts';
+import type { Handling } from '#kjerne/tester/klient.ts';
+import { START } from '#kjerne/tester/brukerforloep.ts';
+import { testklokke } from '#kjerne/tester/testmiljoe.ts';
+import Vardensak from '#lib/components/varden/Vardensak.svelte';
+import Vederlagsoversikt from '#lib/components/varden/Vederlagsoversikt.svelte';
+import { finnForloep, lagDemosak } from '#lib/kjernesak/demosak.ts';
+import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 import {
   kravetOgSvaret,
   postIRaden,
   varsleneIKravene,
-} from '$lib/components/varden/vederlagsoversikt';
-import { trinnene } from '$lib/components/varden/Maalrad.svelte';
-import { akseptfristen } from '$lib/components/varden/svarlagene';
-import { brevene, leveringene, type Brevet } from '$lib/components/varden/lesing';
-import { VEDERLAGET } from '$lib/components/varden/tekster';
-import type { Utledning } from '$kjerne/utledning/utled';
+} from '#lib/components/varden/vederlagsoversikt.ts';
+import { trinnene } from '#lib/components/varden/Maalrad.svelte';
+import { akseptfristen } from '#lib/components/varden/svarlagene.ts';
+import { brevene, leveringene, type Brevet } from '#lib/components/varden/lesing.ts';
+import { VEDERLAGET } from '#lib/components/varden/tekster.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
 
 const kravetOgSvaretI = (u: Utledning) => kravetOgSvaret(u, brevene(u));
 

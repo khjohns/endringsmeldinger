@@ -5,11 +5,11 @@
  * avgjør om kravet er varselet for en post (VS-U49) og lager brevet.
  */
 
-import { innholdIVederlaget, kravposterI } from '$kjerne/spor/vederlag/format';
-import type { Kravpost, Oppgjoersform } from '$kjerne/typer';
-import type { Utledning } from '$kjerne/utledning/utled';
-import type { Varselet } from '$lib/kjernesak/vederlagskrav';
-import { lesKroner, visKroner } from '$lib/utils/belop';
+import { innholdIVederlaget, kravposterI } from '#kjerne/spor/vederlag/format.ts';
+import type { Kravpost, Oppgjoersform } from '#kjerne/typer.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
+import type { Varselet } from '#lib/kjernesak/vederlagskrav.ts';
+import { lesKroner, visKroner } from '#lib/utils/belop.ts';
 import { vedleggskart } from './nysak';
 import { beloepet, definert } from './kommandoer';
 import {

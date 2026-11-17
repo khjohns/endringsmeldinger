@@ -5,9 +5,9 @@
 
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/svelte';
-import Tidslinje from '$lib/components/varden/Tidslinje.svelte';
-import { brevene, type Brevet } from '$lib/components/varden/lesing';
-import type { Utledning } from '$kjerne/utledning/utled';
+import Tidslinje from '#lib/components/varden/Tidslinje.svelte';
+import { brevene, type Brevet } from '#lib/components/varden/lesing.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
 
 afterEach(cleanup);
 

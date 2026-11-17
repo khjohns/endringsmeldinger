@@ -2,9 +2,9 @@
  * Det brevet setter foran BHs svar på vederlaget, lest av saken før svaret (#1047 C2 del 2).
  */
 
-import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
-import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
-import type { Utledning } from '$kjerne/utledning/utled';
+import { grunnerFraForholdet } from '#kjerne/spor/forhold/frysing.ts';
+import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
 
 /**
  * Grunnene i gjeldende svar på grunnlaget, som hver er ett lag foran sporet (A2, OV-U32,

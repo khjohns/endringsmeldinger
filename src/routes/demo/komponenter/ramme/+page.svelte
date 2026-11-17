@@ -4,8 +4,8 @@
    * `?tilstand=<id>&side=BH|TE`.
    */
   import { page } from '$app/state';
-  import Vardensak from '$lib/components/varden/Vardensak.svelte';
-  import { DEMOKONTRAKT } from '$lib/kjernesak/demosak';
+  import Vardensak from '#lib/components/varden/Vardensak.svelte';
+  import { DEMOKONTRAKT } from '#lib/kjernesak/demosak.ts';
   import { TILSTANDER, aapneSak } from '../kjernesaker';
 
   const s = page.url.searchParams;

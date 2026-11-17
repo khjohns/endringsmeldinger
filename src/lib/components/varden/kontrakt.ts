@@ -1,6 +1,6 @@
 import { getContext, setContext } from 'svelte';
-import type { Part } from '$kjerne/typer';
-import { projectStore } from '$lib/stores/project.svelte';
+import type { Part } from '#kjerne/typer.ts';
+import { projectStore } from '#lib/stores/project.svelte.ts';
 import { SAKEN } from './tekster';
 
 /** Organisasjonene på hver side av kontrakten, slik prosjektet eller demoruta oppgir dem (#1398). */

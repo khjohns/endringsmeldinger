@@ -11,7 +11,7 @@
  */
 
 import startjournaler from '../../../docs/domenetabell/brukerforlop/startjournaler.json';
-import { ApiError } from '$lib/api/client';
+import { ApiError } from '#lib/api/client.ts';
 import {
   nySakKropp,
   type hentKjernesakMedMerking,
@@ -20,12 +20,12 @@ import {
   type lastOppKjernevedlegg,
   type NySakTilServeren,
   type sendKommando,
-} from '$lib/api/kjerne';
+} from '#lib/api/kjerne.ts';
 import { feilINySak } from '../kontroll/nysak';
-import { opprettelse } from '$kjerne/kommandoer/opprettelse';
-import { vurder } from '$kjerne/kommandoer/skriving';
-import type { Journalrad, Part, Vedlegg } from '$kjerne/typer';
-import { KJERNE } from '$kjerne/versjon';
+import { opprettelse } from '#kjerne/kommandoer/opprettelse.ts';
+import { vurder } from '#kjerne/kommandoer/skriving.ts';
+import type { Journalrad, Part, Vedlegg } from '#kjerne/typer.ts';
+import { KJERNE } from '#kjerne/versjon.ts';
 import type { Saksmerking } from './brevtekst';
 
 /**

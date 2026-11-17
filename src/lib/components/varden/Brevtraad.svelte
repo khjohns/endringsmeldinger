@@ -10,8 +10,8 @@
 <script lang="ts">
   import { File } from 'lucide-svelte';
   import type { Snippet } from 'svelte';
-  import { stor } from '$kjerne/frosset/brevdeler';
-  import type { Spor } from '$kjerne/typer';
+  import { stor } from '#kjerne/frosset/brevdeler.ts';
+  import type { Spor } from '#kjerne/typer.ts';
   import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';

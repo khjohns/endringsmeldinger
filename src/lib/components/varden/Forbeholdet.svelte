@@ -3,7 +3,7 @@
   stillingen i forholdet nå (U-3 og D-3 i BF-44, D-11 i BF-45), med lenke til forholdet.
 -->
 <script lang="ts">
-  import type { Utledning } from '$kjerne/utledning/utled';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import type { Brevet } from './lesing';

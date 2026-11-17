@@ -8,14 +8,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/svelte';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import OmVarden from '$lib/components/om-varden/OmVarden.svelte';
+import OmVarden from '#lib/components/om-varden/OmVarden.svelte';
 import Login from '../../../../routes/login/+page.svelte';
 import { load } from '../../../../routes/+layout';
-import { OM_VARDEN_STI } from '$lib/components/om-varden/sti';
-import { FORHOLDET } from '$lib/components/varden/tekster';
+import { OM_VARDEN_STI } from '#lib/components/om-varden/sti.ts';
+import { FORHOLDET } from '#lib/components/varden/tekster.ts';
 
 const getSession = vi.hoisted(() => vi.fn());
-vi.mock('$lib/api/auth', () => ({ getSession, loginUrl: (r: string) => r }));
+vi.mock('#lib/api/auth.ts', () => ({ getSession, loginUrl: (r: string) => r }));
 vi.mock('$app/state', () => ({ page: { url: new URL('http://localhost/login') } }));
 
 afterEach(() => {

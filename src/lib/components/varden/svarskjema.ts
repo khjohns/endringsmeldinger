@@ -3,9 +3,9 @@
  * det som mangler, brevet svaret gjelder, og tekstene i skallet. Spørsmålene er sporets egne.
  */
 
-import { punkteneMedBegrunnelse } from '$kjerne/frosset/tekst';
-import type { Avsnitt, Spor } from '$kjerne/typer';
-import type { Utledning } from '$kjerne/utledning/utled';
+import { punkteneMedBegrunnelse } from '#kjerne/frosset/tekst.ts';
+import type { Avsnitt, Spor } from '#kjerne/typer.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { brevet, type Brevet } from './lesing';
 import type { Mangel } from './mangler';
 

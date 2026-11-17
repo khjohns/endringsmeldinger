@@ -3,10 +3,10 @@
  * `lagKjernesak` som i demoruta og `Varden.test.ts`. En feil fra serveren er et avslag fra
  * `hent` eller `send` med den feilen klienten ellers ville gitt.
  */
-import { ApiError } from '$lib/api/client';
-import { DEMOPROSJEKT, finnForloep, lagDemosak } from '$lib/kjernesak/demosak';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import type { Part } from '$kjerne/typer';
+import { ApiError } from '#lib/api/client.ts';
+import { DEMOPROSJEKT, finnForloep, lagDemosak } from '#lib/kjernesak/demosak.ts';
+import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+import type { Part } from '#kjerne/typer.ts';
 
 export const FORLOEPET = finnForloep('BF-01')!;
 

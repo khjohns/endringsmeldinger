@@ -13,12 +13,12 @@
 <script lang="ts">
   import { Info } from 'lucide-svelte';
   import { tick, type Snippet } from 'svelte';
-  import { SVARTITTEL } from '$kjerne/frosset/brevtittel';
-  import type { Spor } from '$kjerne/typer';
-  import type { Utledning } from '$kjerne/utledning/utled';
-  import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
-  import { harTekst } from '$lib/kjernesak/brevtekst';
-  import { VIRKNING } from '$lib/kjernesak/svarvirkning';
+  import { SVARTITTEL } from '#kjerne/frosset/brevtittel.ts';
+  import type { Spor } from '#kjerne/typer.ts';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
+  import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { harTekst } from '#lib/kjernesak/brevtekst.ts';
+  import { VIRKNING } from '#lib/kjernesak/svarvirkning.ts';
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import { fastLinje } from './fastlinje.svelte';
   import { medietreff } from './medie.svelte';

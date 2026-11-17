@@ -1,7 +1,7 @@
 /**
  * Grensen mellom appen og TS-kjernen (B-14, B-15, #313).
  *
- * - Appen når kjernen gjennom `$kjerne`.
+ * - Appen når kjernen gjennom `#kjerne`.
  * - Ingen fil i `src/` utenom testene importerer fra `kjerne/tester/`, verken med
  *   aliaset eller med en relativ sti. Testene i `kjerne/tester/` bruker Node, Vitest og
  *   bevis-sakene. En test i `src/` kan bruke kjøreren for brukerforløpene, så demoruta
@@ -26,7 +26,7 @@ import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
-import { PROJEKSJONSVERSJON } from '$kjerne/versjon';
+import { PROJEKSJONSVERSJON } from '#kjerne/versjon.ts';
 
 const ROT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const SRC = join(ROT, 'src');
@@ -41,7 +41,7 @@ const KONTROLL = join(SRC, 'lib', 'kontroll');
 const NETTLESERMODULER = readdirSync(KONTROLL)
   .filter((f) => f.endsWith('.ts'))
   .map((f) => join(KONTROLL, f));
-const ALIAS = '$kjerne';
+const ALIAS = '#kjerne';
 
 function filer(mappe: string, endelser: RegExp): string[] {
   return readdirSync(mappe, { recursive: true, encoding: 'utf8' })
@@ -58,7 +58,7 @@ function kode(fil: string, kilde: string): string {
 /** Aliasene som kan føre inn i kjernen, med mappa de peker på. */
 const ALIASER: [string, string][] = [
   [ALIAS, KJERNE],
-  ['$lib', join(SRC, 'lib')],
+  ['#lib', join(SRC, 'lib')],
 ];
 
 /** Importene i `kilde`: aliasene og relative stier løst til absolutte, pakkenavn som de står. */
@@ -170,20 +170,23 @@ describe('grensen mellom appen og kjernen', () => {
   it('vakten kjenner igjen de forbudte importene', () => {
     const app = join(SRC, 'lib', 'eksempel.svelte');
     const kilder = new Map([
-      [app, `<script lang="ts">\n  import { lagKlient } from '$kjerne/tester/klient';\n</script>`],
+      [
+        app,
+        `<script lang="ts">\n  import { lagKlient } from '#kjerne/tester/klient.ts';\n</script>`,
+      ],
       [join(SRC, 'lib', 'a.ts'), `export * from '../../kjerne/tester/bane.ts';`],
-      [join(SRC, 'lib', 'b.ts'), `const m = await import('$kjerne/tester');`],
-      [join(SRC, 'lib', 'c.ts'), `import { KJERNE } from '$kjerne/versjon';`],
-      [join(SRC, 'lib', 'd.ts'), `import { lagKlient } from '$lib/../../kjerne/tester/klient';`],
+      [join(SRC, 'lib', 'b.ts'), `const m = await import('#kjerne/tester');`],
+      [join(SRC, 'lib', 'c.ts'), `import { KJERNE } from '#kjerne/versjon.ts';`],
+      [join(SRC, 'lib', 'd.ts'), `import { lagKlient } from '#lib/../../kjerne/tester/klient.ts';`],
       [join(SRC, 'lib', 'e.ts'), `import { lagKlient } from '/kjerne/./tester/klient';`],
-      [join(SRC, 'lib', 'f.test.ts'), `import { kjoer } from '$kjerne/tester/kjoerer';`],
-      [join(SRC, 'lib', '__tests__', 'g.ts'), `import { kjoer } from '$kjerne/tester/kjoerer';`],
+      [join(SRC, 'lib', 'f.test.ts'), `import { kjoer } from '#kjerne/tester/kjoerer.ts';`],
+      [join(SRC, 'lib', '__tests__', 'g.ts'), `import { kjoer } from '#kjerne/tester/kjoerer.ts';`],
     ]);
     expect(testimporter(kilder)).toEqual([
-      'src/lib/eksempel.svelte → kjerne/tester/klient',
+      'src/lib/eksempel.svelte → kjerne/tester/klient.ts',
       'src/lib/a.ts → kjerne/tester/bane.ts',
       'src/lib/b.ts → kjerne/tester',
-      'src/lib/d.ts → kjerne/tester/klient',
+      'src/lib/d.ts → kjerne/tester/klient.ts',
       'src/lib/e.ts → kjerne/tester/klient',
     ]);
 
@@ -191,14 +194,14 @@ describe('grensen mellom appen og kjernen', () => {
       [join(SRC, 'lib', 'h.ts'), `import { feilINySak } from './kontroll/nysak';`],
       [join(SRC, 'lib', 'i.ts'), `import { feilINySak } from '../../server/nysak.js';`],
       [join(SRC, 'lib', 'j.ts'), `import { UUID } from '../../server/datalag.ts';`],
-      [join(SRC, 'lib', 'k.ts'), `import { lagre } from '$lib/../../server/lager';`],
+      [join(SRC, 'lib', 'k.ts'), `import { lagre } from '#lib/../../server/lager.ts';`],
       [join(SRC, 'lib', 'l.js'), `const m = await import('/server/app.ts');`],
       [join(SRC, 'lib', 'm.test.ts'), `import { lagre } from '../../server/lager';`],
     ]);
     expect(serverimporter(serverkilder)).toEqual([
       'src/lib/i.ts → server/nysak.js',
       'src/lib/j.ts → server/datalag.ts',
-      'src/lib/k.ts → server/lager',
+      'src/lib/k.ts → server/lager.ts',
       'src/lib/l.js → server/app.ts',
     ]);
 

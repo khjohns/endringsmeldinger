@@ -10,7 +10,7 @@
 </script>
 
 <script lang="ts">
-  import '$lib/components/kontraktsbord/theme.css';
+  import '#lib/components/kontraktsbord/theme.css';
   import type { Snippet } from 'svelte';
   import osloLogo from '../../../../public/logos/Oslo-logo-hvit-RGB.png?inline';
   import { kontraktFraProsjektet, kontraktsrader, type Kontrakt } from './kontrakt';

@@ -1,4 +1,4 @@
-import type { Sakslinje } from '$lib/types/api';
+import type { Sakslinje } from '#lib/types/api.ts';
 
 const ingenting = { betegnelse: null, venter_paa_svar: false, svar_ikke_godtatt: false };
 

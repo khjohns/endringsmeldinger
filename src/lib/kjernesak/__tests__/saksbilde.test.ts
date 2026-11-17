@@ -6,11 +6,11 @@
 
 import { MERKING } from './provejournal';
 import { describe, expect, it } from 'vitest';
-import { lagSaksbilde } from '$lib/kjernesak/saksbilde';
-import { forhaandsvis, utledJournal } from '$kjerne/kommandoer/skriving';
-import { visning } from '$kjerne/utledning/visning';
-import { KJERNE } from '$kjerne/versjon';
-import type { Journalrad } from '$kjerne/typer';
+import { lagSaksbilde } from '#lib/kjernesak/saksbilde.ts';
+import { forhaandsvis, utledJournal } from '#kjerne/kommandoer/skriving.ts';
+import { visning } from '#kjerne/utledning/visning.ts';
+import { KJERNE } from '#kjerne/versjon.ts';
+import type { Journalrad } from '#kjerne/typer.ts';
 
 const SAK = 'sak-1';
 

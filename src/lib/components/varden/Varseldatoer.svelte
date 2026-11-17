@@ -3,7 +3,7 @@
   ble sendt og avstanden mellom dem. Byggherren vurderer selv om varselet kom i tide.
 -->
 <script lang="ts">
-  import type { Utledning } from '$kjerne/utledning/utled';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { klarOverForholdet, type Brevet } from './lesing';
   import { kravbrevetI, kravetSendt } from './svarskjema';
   import Datoer from './Datoer.svelte';

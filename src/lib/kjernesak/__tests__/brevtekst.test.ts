@@ -1,8 +1,8 @@
 /** Typevakten for et brev med tekst (#2071 punkt 2). */
 
 import { describe, expect, it } from 'vitest';
-import { harTekst, type Brev } from '$lib/kjernesak/brevtekst';
-import type { Avsnitt } from '$kjerne/typer';
+import { harTekst, type Brev } from '#lib/kjernesak/brevtekst.ts';
+import type { Avsnitt } from '#kjerne/typer.ts';
 
 const hode = { brevnummer: 1, brevtittel: null, merking: null, deresRef: [] };
 

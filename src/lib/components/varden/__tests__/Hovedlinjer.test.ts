@@ -5,7 +5,7 @@
 
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render } from '@testing-library/svelte';
-import Hovedlinjer from '$lib/components/varden/Hovedlinjer.svelte';
+import Hovedlinjer from '#lib/components/varden/Hovedlinjer.svelte';
 
 afterEach(cleanup);
 

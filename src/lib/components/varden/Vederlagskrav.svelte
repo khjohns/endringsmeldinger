@@ -11,20 +11,20 @@
 -->
 <script lang="ts">
   import { tick, untrack } from 'svelte';
-  import { kroner } from '$kjerne/frosset/tekst';
-  import { krevdProduktivitet, kravposterI } from '$kjerne/spor/vederlag/format';
-  import type { Kravpost } from '$kjerne/typer';
-  import type { Utledning } from '$kjerne/utledning/utled';
+  import { kroner } from '#kjerne/frosset/tekst.ts';
+  import { krevdProduktivitet, kravposterI } from '#kjerne/spor/vederlag/format.ts';
+  import type { Kravpost } from '#kjerne/typer.ts';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
-  import { brevaarsak, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
-  import { harTekst } from '$lib/kjernesak/brevtekst';
+  import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import {
     varseletFoerKravet,
     varslenePerKravpost,
     varsleneISaken,
     varslerUtenKravpost,
     type Varselet,
-  } from '$lib/kjernesak/vederlagskrav';
+  } from '#lib/kjernesak/vederlagskrav.ts';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Brevlinje from './Brevlinje.svelte';

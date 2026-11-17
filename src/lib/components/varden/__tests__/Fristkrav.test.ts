@@ -11,8 +11,8 @@
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import type { Journalrad } from '$kjerne/typer';
+import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+import type { Journalrad } from '#kjerne/typer.ts';
 import {
   MERKING,
   SAK,
@@ -21,10 +21,10 @@ import {
   medGrunnlag,
   opprettet,
   skrevet,
-} from '$lib/kjernesak/__tests__/provejournal';
-import type { TilBrevkontrollen } from '$lib/components/varden/Brevkontroll.svelte';
-import Fristkrav from '$lib/components/varden/Fristkrav.svelte';
-import type { Fristdato } from '$lib/kjernesak/brevtekst';
+} from '#lib/kjernesak/__tests__/provejournal.ts';
+import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svelte';
+import Fristkrav from '#lib/components/varden/Fristkrav.svelte';
+import type { Fristdato } from '#lib/kjernesak/brevtekst.ts';
 
 const FRISTTABELLEN = [
   { fristId: 1, nummer: '5', navn: 'Mekanisk ferdigstillelse' },

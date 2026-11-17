@@ -8,11 +8,16 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import { finnForloep, type Demosak } from '$lib/kjernesak/demosak';
-import type { Journalrad } from '$kjerne/typer';
-import { finn, kjoerBrukerforloep, kontrollpunkt, somForloep } from '$kjerne/tester/brukerforloep';
-import { kontrollerEtter } from '$kjerne/tester/kjoerer';
-import Demoforloep from '$lib/components/brukerforlop/Demoforloep.svelte';
+import { finnForloep, type Demosak } from '#lib/kjernesak/demosak.ts';
+import type { Journalrad } from '#kjerne/typer.ts';
+import {
+  finn,
+  kjoerBrukerforloep,
+  kontrollpunkt,
+  somForloep,
+} from '#kjerne/tester/brukerforloep.ts';
+import { kontrollerEtter } from '#kjerne/tester/kjoerer.ts';
+import Demoforloep from '#lib/components/brukerforlop/Demoforloep.svelte';
 import { FORHOLDET, KORRIGERING } from '../tekster';
 
 const paastand = (holder: boolean, melding: string) => expect(holder, melding).toBe(true);

@@ -7,11 +7,17 @@
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
-import { lagKjernesak } from '$lib/kjernesak/kontekst.svelte';
-import type { Journalrad } from '$kjerne/typer';
-import { MERKING, SAK, linje, medGrunnlag, skrevet } from '$lib/kjernesak/__tests__/provejournal';
-import type { TilBrevkontrollen } from '$lib/components/varden/Brevkontroll.svelte';
-import Fristsvar from '$lib/components/varden/Fristsvar.svelte';
+import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+import type { Journalrad } from '#kjerne/typer.ts';
+import {
+  MERKING,
+  SAK,
+  linje,
+  medGrunnlag,
+  skrevet,
+} from '#lib/kjernesak/__tests__/provejournal.ts';
+import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svelte';
+import Fristsvar from '#lib/components/varden/Fristsvar.svelte';
 
 const medFristkrav = skrevet(medGrunnlag, 'TE', {
   type: 'krav',

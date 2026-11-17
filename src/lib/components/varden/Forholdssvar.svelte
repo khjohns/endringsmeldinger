@@ -12,13 +12,13 @@
     innholdIForholdet,
     kategori,
     oppgittDato,
-  } from '$kjerne/spor/forhold/format';
-  import { blirEndringsordre } from '$kjerne/spor/forhold/frysing';
-  import { forholdet as forholdIKatalogen } from '$kjerne/spor/forhold/tekst';
-  import type { Forholdsresultat } from '$kjerne/regler/typer';
-  import type { Utledning } from '$kjerne/utledning/utled';
-  import { kravversjonenPaaDagen, type Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
-  import { harTekst } from '$lib/kjernesak/brevtekst';
+  } from '#kjerne/spor/forhold/format.ts';
+  import { blirEndringsordre } from '#kjerne/spor/forhold/frysing.ts';
+  import { forholdet as forholdIKatalogen } from '#kjerne/spor/forhold/tekst.ts';
+  import type { Forholdsresultat } from '#kjerne/regler/typer.ts';
+  import type { Utledning } from '#kjerne/utledning/utled.ts';
+  import { kravversjonenPaaDagen, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Datoer from './Datoer.svelte';

@@ -5,13 +5,13 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { laastTekst, utledJournal } from '$kjerne/kommandoer/skriving';
-import { KJERNE } from '$kjerne/versjon';
-import type { Journalrad } from '$kjerne/typer';
-import { medVederlag, opprettet, skrevet } from '$lib/kjernesak/__tests__/provejournal';
-import { kravposterI } from '$kjerne/spor/vederlag/format';
+import { laastTekst, utledJournal } from '#kjerne/kommandoer/skriving.ts';
+import { KJERNE } from '#kjerne/versjon.ts';
+import type { Journalrad } from '#kjerne/typer.ts';
+import { medVederlag, opprettet, skrevet } from '#lib/kjernesak/__tests__/provejournal.ts';
+import { kravposterI } from '#kjerne/spor/vederlag/format.ts';
 import { tomPost, tomtSvar, vederlagssvaret, type Postvalg } from '../kommandoer';
-import { lagForUtkastet } from '$kjerne/kommandoer/lag';
+import { lagForUtkastet } from '#kjerne/kommandoer/lag.ts';
 
 const grunnforhold = skrevet([opprettet], 'TE', {
   type: 'krav',

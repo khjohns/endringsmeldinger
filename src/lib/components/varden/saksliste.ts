@@ -3,15 +3,15 @@
  * viser bare det totalentreprenøren har krevd, og nøkkeltallene summerer kravene. Byggherrens
  * svar, enigheten og betegnelsen per spor står på siden for saken.
  */
-import type { Sakslinje } from '$lib/types/api';
+import type { Sakslinje } from '#lib/types/api.ts';
 import {
   HOVEDKATEGORI_FRA_KATALOGEN,
   tilKatalogen,
   UNDERKATEGORI_FRA_KATALOGEN,
-} from '$kjerne/format/koder';
-import { dager, kroner } from '$kjerne/frosset/tekst';
-import { kalenderdag } from '$kjerne/format/leser';
-import { getKontraktsforholdLabel } from '$lib/constants/categories';
+} from '#kjerne/format/koder.ts';
+import { dager, kroner } from '#kjerne/frosset/tekst.ts';
+import { kalenderdag } from '#kjerne/format/leser.ts';
+import { getKontraktsforholdLabel } from '#lib/constants/categories.ts';
 import { FORHOLDENE } from './nysak';
 import { FORHOLDET, SAKSLISTE } from './tekster';
 

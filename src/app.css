@@ -54,7 +54,7 @@
 
 /* ── Light theme (default) ── */
 /*
- * Fargene eies av `$lib/components/kontraktsbord/theme.css`, som lastes globalt
+ * Fargene eies av `#lib/components/kontraktsbord/theme.css`, som lastes globalt
  * i `+layout.svelte`. Blokkene under binder bare det eldre --koe-*-vokabularet
  * til de tokenene, slik at råverdiene står ett sted. Den grønne paletten har
  * erstattet det tidligere stålblå systemet i sin helhet.

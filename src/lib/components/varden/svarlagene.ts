@@ -5,12 +5,12 @@
  * dagene. Modulen avgjør ingenting selv.
  */
 
-import { grunnerFraForholdet } from '$kjerne/spor/forhold/frysing';
-import { etikett, plassene } from '$kjerne/frosset/byggeklosser';
-import { FORBEHOLDET } from '$kjerne/frosset/tekst';
-import type { Subsidiaergrunn } from '$kjerne/regler/forhold';
-import type { Standpunkt, Standpunktsart, Svar } from '$kjerne/typer';
-import type { Utledning } from '$kjerne/utledning/utled';
+import { grunnerFraForholdet } from '#kjerne/spor/forhold/frysing.ts';
+import { etikett, plassene } from '#kjerne/frosset/byggeklosser.ts';
+import { FORBEHOLDET } from '#kjerne/frosset/tekst.ts';
+import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
+import type { Standpunkt, Standpunktsart, Svar } from '#kjerne/typer.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
 import type { Brevet, Brevref } from './lesing';
 
 /** En innsigelse et senere lag bygger på. */

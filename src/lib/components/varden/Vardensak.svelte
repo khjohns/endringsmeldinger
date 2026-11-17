@@ -5,11 +5,11 @@
   visning: brevteksten, handlingene og avvisningene kommer fra kjernen.
 -->
 <script lang="ts">
-  import type { Kjernesakkontekst } from '$lib/kjernesak/kontekst.svelte';
-  import type { Spor } from '$kjerne/typer';
+  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import type { Spor } from '#kjerne/typer.ts';
   import { tick, untrack, type Snippet } from 'svelte';
   import { medietreff } from './medie.svelte';
-  import { sakensKode } from '$kjerne/frosset/tekst';
+  import { sakensKode } from '#kjerne/frosset/tekst.ts';
   import Brevkontroll, { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
   import Forkastutkast from './Forkastutkast.svelte';

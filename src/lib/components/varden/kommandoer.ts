@@ -5,18 +5,18 @@
  * avviser kommandoen med sin egen melding før brevet vises.
  */
 
-import { regnUtSvar } from '$kjerne/frosset/utregning';
-import { hjemmelenGjelder, type Svarvurdering } from '$kjerne/frosset/byggeklosser';
-import { UgyldigBeloep } from '$kjerne/regler/beloep';
-import { UgyldigVurdering } from '$kjerne/regler/feil';
-import type { Regelsett } from '$kjerne/regler/regelsett';
-import type { Svarutkast } from '$kjerne/kommandoer/kommando';
-import type { Krav, Kravpost, Oppgjoersform, Spor } from '$kjerne/typer';
-import { KRAVINNHOLD } from '$kjerne/format/format';
-import { oppgittDato } from '$kjerne/spor/forhold/format';
-import type { Utledning } from '$kjerne/utledning/utled';
-import { lesKroner } from '$lib/utils/belop';
-import { justerteEnhetspriser, kravposterI } from '$kjerne/spor/vederlag/format';
+import { regnUtSvar } from '#kjerne/frosset/utregning.ts';
+import { hjemmelenGjelder, type Svarvurdering } from '#kjerne/frosset/byggeklosser.ts';
+import { UgyldigBeloep } from '#kjerne/regler/beloep.ts';
+import { UgyldigVurdering } from '#kjerne/regler/feil.ts';
+import type { Regelsett } from '#kjerne/regler/regelsett.ts';
+import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
+import type { Krav, Kravpost, Oppgjoersform, Spor } from '#kjerne/typer.ts';
+import { KRAVINNHOLD } from '#kjerne/format/format.ts';
+import { oppgittDato } from '#kjerne/spor/forhold/format.ts';
+import type { Utledning } from '#kjerne/utledning/utled.ts';
+import { lesKroner } from '#lib/utils/belop.ts';
+import { justerteEnhetspriser, kravposterI } from '#kjerne/spor/vederlag/format.ts';
 
 export type Beloepsvalg = 'hele' | 'deler' | 'ingenting';
 
@@ -295,7 +295,7 @@ export function nyVersjonAvPaaberopelsen(u: Utledning, tekst: string) {
     )
   );
   const felt = oppgittDato(gjeldende.hovedkategori, gjeldende.underkategori);
-  // TEs siste opplysning i feltet, som `sisteDatoopplysning` i kjernen (lesepunktet er `$lib/kjernesak/`).
+  // TEs siste opplysning i feltet, som `sisteDatoopplysning` i kjernen (lesepunktet er `#lib/kjernesak/`).
   const siste = felt === null ? null : u.datoopplysninger.findLast((o) => o.felt === felt);
   if (felt !== null && siste) innhold[felt] = siste.dato;
   const utdypning = tekst.trim();

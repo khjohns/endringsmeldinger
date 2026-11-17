@@ -3,10 +3,10 @@
  * vert under `/api/kjerne/`, med samme sesjon og CSRF-token som resten av appen.
  */
 
-import { ApiError, apiFetch } from '$lib/api/client';
-import type { Saksmerking } from '$lib/kjernesak/brevtekst';
-import type { Journalrad, Korrespondansetype, Part, Sakskode, Vedlegg } from '$kjerne/typer';
-import type { Visning } from '$kjerne/utledning/visning';
+import { ApiError, apiFetch } from '#lib/api/client.ts';
+import type { Saksmerking } from '#lib/kjernesak/brevtekst.ts';
+import type { Journalrad, Korrespondansetype, Part, Sakskode, Vedlegg } from '#kjerne/typer.ts';
+import type { Visning } from '#kjerne/utledning/visning.ts';
 
 /** Navnet er slått opp ved visning; uten treff er det `aktor_id` (#820). */
 export type Journallinje = Pick<
