@@ -10512,14 +10512,14 @@ describe('kravpostene i vederlagskravet (OV-U95 punkt 19–22, KA-U53, KA-U56, #
     expect(punkteneMedBegrunnelse(tekst(rad))).toEqual([
       {
         punkt: 'metode',
-        overskrift: '1. Beregningsmetode (punkt 34.2)',
-        foerstIPunktet: '1. Beregningsmetode (punkt 34.2)',
+        overskrift: '1. Beregningsmetode (punkt\u00a034.2)',
+        foerstIPunktet: '1. Beregningsmetode (punkt\u00a034.2)',
       },
       {
         punkt: 'P1',
-        overskrift: '2. Vederlagsjustering (punkt 34.1.1)',
+        overskrift: '2. Vederlagsjustering (punkt\u00a034.1.1)',
         kravpost: 'P1 Ny fundamentering.',
-        foerstIPunktet: '2. Vederlagsjustering (punkt 34.1.1)',
+        foerstIPunktet: '2. Vederlagsjustering (punkt\u00a034.1.1)',
       },
     ]);
     const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
