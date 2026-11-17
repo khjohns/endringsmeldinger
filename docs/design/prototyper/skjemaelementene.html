@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skjemaelementene i Varden</title>
+<!--
+  Skisse av radioknappen, avkrysningen, valgkortet og feltene i Varden, i alle tilstandene (#2163,
+  versjon 1). Elementene er ekte input-elementer med appearance: none, så semantikken, tastaturet og
+  skjermleseren er nettleserens; bare tegningen er Vardens. Radioknappen er en liten ring, som
+  partene i tråden, og avkrysningen har hjørnene til stempelet (--r-merke). Tilstandene hover og
+  fokus er vist med klasser, så de kan sees samtidig. Fargene og målene er .tema-varden i
+  src/lib/components/kontraktsbord/theme.css. Ingenting sendes.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#eef0f2;--surface:#fff;--surface-inset:#f3f4f6;--surface-selected:#e6e9ee;
+  --ink:#15181d;--ink-2:#343a43;--ink-3:#545b66;--ink-4:#5f6672;--on-brand:#fff;
+  --rule-color:#dadde2;--rule-subtle-color:#e6e8eb;--rule-strong-color:#c3c8cf;
+  --danger:#b33e33;--control-focus:#2457d6;
+  --r-kort:12px;--r-merke:2px;--r-felt:4px;
+  --font-sans:'Inter',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --canvas:#0f1114;--surface:#171a1f;--surface-inset:#1a1d22;--surface-selected:#262b33;
+  --ink:#eef0f3;--ink-2:#cdd2d9;--ink-3:#a9afb9;--ink-4:#9aa1ab;--on-brand:#15181d;
+  --rule-color:#2b3037;--rule-subtle-color:#23272d;--rule-strong-color:#3a4049;--danger:#f2a39b;--control-focus:#8fb0ff;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --canvas:#0f1114;--surface:#171a1f;--surface-inset:#1a1d22;--surface-selected:#262b33;
+  --ink:#eef0f3;--ink-2:#cdd2d9;--ink-3:#a9afb9;--ink-4:#9aa1ab;--on-brand:#15181d;
+  --rule-color:#2b3037;--rule-subtle-color:#23272d;--rule-strong-color:#3a4049;--danger:#f2a39b;--control-focus:#8fb0ff;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}h2,h3,p{margin:0}
+body{background:var(--canvas);color:var(--ink);font:14px/1.5 var(--font-sans);padding:24px;-webkit-font-smoothing:antialiased}
+.ark{max-width:1180px;margin:0 auto;display:grid;gap:20px}
+.kort{background:var(--surface);border:1px solid var(--rule-color);border-radius:var(--r-kort);padding:20px 24px}
+.kort > h2{font-size:16px;font-weight:600;margin-bottom:14px}
+.kort > h2 span{font-weight:400;color:var(--ink-3);font-size:14px;margin-left:8px}
+.rutenett{display:grid;grid-template-columns:150px repeat(6,1fr);gap:12px 16px;align-items:center}
+.rutenett .kol{font-size:12px;color:var(--ink-3)}
+.rutenett .rad{font-size:13px;color:var(--ink-2);font-weight:500}
+.celle{display:flex;align-items:center;gap:8px;min-height:44px}
+
+/* I dag: nettleserens egne elementer, farget med accent-color. */
+.innfoedt{accent-color:var(--ink);width:16px;height:16px;margin:0}
+
+/* Radioknappen: en ring, som partene i tråden. Valgt er en ring med en prikk i blekk. */
+.radio{appearance:none;-webkit-appearance:none;margin:0;flex:none;width:20px;height:20px;border-radius:50%;
+  border:1.5px solid var(--ink-3);background:var(--surface);display:inline-grid;place-content:center;cursor:pointer}
+.radio::before{content:'';width:10px;height:10px;border-radius:50%;background:var(--ink);transform:scale(0);transition:transform 120ms cubic-bezier(.23,1,.32,1)}
+.radio:checked{border-color:var(--ink)}
+.radio:checked::before{transform:scale(1)}
+.radio.er-hover:not(:checked),.radio:hover:not(:checked){border-color:var(--ink-2)}
+
+/* Avkrysningen: hjørnene til stempelet. Krysset av er fylt blekk med et hakk i flaten. */
+.boks{appearance:none;-webkit-appearance:none;margin:0;flex:none;width:20px;height:20px;border-radius:var(--r-merke);
+  border:1.5px solid var(--ink-3);background:var(--surface);display:inline-grid;place-content:center;cursor:pointer}
+.boks::before{content:'';width:11px;height:6px;border:solid var(--on-brand);border-width:0 0 2px 2px;transform:translateY(-1px) rotate(-45deg) scale(0);transition:transform 120ms cubic-bezier(.23,1,.32,1)}
+.boks:checked{background:var(--ink);border-color:var(--ink)}
+.boks:checked::before{transform:translateY(-1px) rotate(-45deg) scale(1)}
+.boks.er-hover:not(:checked),.boks:hover:not(:checked){border-color:var(--ink-2)}
+
+/* Fokus: ringen er rundt hele kortet eller feltet, aldri bare rundt prikken. */
+.er-fokus,.radio:focus-visible,.boks:focus-visible{outline:2px solid var(--control-focus);outline-offset:2px}
+.radio:disabled,.boks:disabled{border-color:var(--rule-strong-color);background:var(--surface-inset);cursor:not-allowed}
+.radio:disabled:checked::before{background:var(--ink-4)}
+.boks:disabled:checked{background:var(--ink-4);border-color:var(--ink-4)}
+.feil .radio,.feil .boks{border-color:var(--danger)}
+@media (prefers-reduced-motion:reduce){.radio::before,.boks::before{transition:none}}
+
+/* Valgkortet: hele kortet er treffflaten. Valgt endrer ikke vekten, så teksten ikke flytter seg. */
+.valgkort{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;border:1px solid var(--rule-strong-color);
+  border-radius:var(--r-felt);background:var(--surface);cursor:pointer;font-weight:500}
+.valgkort.er-hover{background:var(--surface-inset)}
+.valgkort.valgt{background:var(--surface-selected);border-color:var(--ink)}
+.valgkort.er-fokus{outline:2px solid var(--control-focus);outline-offset:2px}
+.valgkort.av{color:var(--ink-4);background:var(--surface-inset);cursor:not-allowed}
+.valgkort.feil{border-color:var(--danger)}
+.valgkort.naa{font-weight:400}
+.valgkort.naa.valgt{font-weight:600;border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+
+/* Feltet: 44 px, kant i --rule-strong, fokus i --control-focus, feil i --danger. */
+.felt{display:flex;align-items:center;width:100%;min-height:44px;border:1px solid var(--rule-strong-color);border-radius:var(--r-felt);background:var(--surface);overflow:hidden}
+.felt input{flex:1;min-width:0;border:0;background:transparent;font:inherit;color:var(--ink);padding:0 12px;height:42px;outline:none;font-variant-numeric:tabular-nums}
+.felt input.tall{text-align:right}
+.felt .enhet{padding:0 12px;color:var(--ink-3);border-left:1px solid var(--rule-color);align-self:stretch;display:flex;align-items:center;background:var(--surface-inset)}
+.felt.er-hover{border-color:var(--ink-3)}
+.felt.er-fokus{outline:2px solid var(--control-focus);outline-offset:2px;border-color:var(--ink-3)}
+.felt.av{background:var(--surface-inset)}
+.felt.av input{color:var(--ink-4)}
+.felt.feil{border-color:var(--danger)}
+.feilmelding{color:var(--danger);font-size:13px;margin-top:4px}
+.merk{font-size:13px;color:var(--ink-3);margin-top:14px;max-width:80ch}
+</style>
+</head>
+<body>
+<main class="ark">
+  <section class="kort" aria-labelledby="t-radio">
+    <h2 id="t-radio">Radioknappen <span>en ring, som partene i tråden</span></h2>
+    <div class="rutenett">
+      <span></span><span class="kol">Ikke valgt</span><span class="kol">Hover</span><span class="kol">Valgt</span><span class="kol">Fokus</span><span class="kol">Inaktiv, valgt</span><span class="kol">Feil</span>
+      <span class="rad">I dag</span>
+      <span class="celle"><input class="innfoedt" type="radio" name="n1" aria-label="I dag, ikke valgt"></span>
+      <span class="celle"><input class="innfoedt" type="radio" name="n2" aria-label="I dag, hover"></span>
+      <span class="celle"><input class="innfoedt" type="radio" name="n3" checked aria-label="I dag, valgt"></span>
+      <span class="celle"><input class="innfoedt er-fokus" type="radio" name="n4" checked aria-label="I dag, fokus"></span>
+      <span class="celle"><input class="innfoedt" type="radio" name="n5" checked disabled aria-label="I dag, inaktiv"></span>
+      <span class="celle"><input class="innfoedt" type="radio" name="n6" aria-label="I dag, feil"></span>
+      <span class="rad">Forslag</span>
+      <span class="celle"><input class="radio" type="radio" name="r1" aria-label="Forslag, ikke valgt"></span>
+      <span class="celle"><input class="radio er-hover" type="radio" name="r2" aria-label="Forslag, hover"></span>
+      <span class="celle"><input class="radio" type="radio" name="r3" checked aria-label="Forslag, valgt"></span>
+      <span class="celle"><input class="radio er-fokus" type="radio" name="r4" checked aria-label="Forslag, fokus"></span>
+      <span class="celle"><input class="radio" type="radio" name="r5" checked disabled aria-label="Forslag, inaktiv"></span>
+      <span class="celle feil"><input class="radio" type="radio" name="r6" aria-label="Forslag, feil"></span>
+    </div>
+  </section>
+
+  <section class="kort" aria-labelledby="t-boks">
+    <h2 id="t-boks">Avkrysningen <span>hjørnene til stempelet</span></h2>
+    <div class="rutenett">
+      <span></span><span class="kol">Ikke krysset av</span><span class="kol">Hover</span><span class="kol">Krysset av</span><span class="kol">Fokus</span><span class="kol">Inaktiv, krysset av</span><span class="kol">Feil</span>
+      <span class="rad">I dag</span>
+      <span class="celle"><input class="innfoedt" type="checkbox" aria-label="I dag, ikke krysset av"></span>
+      <span class="celle"><input class="innfoedt" type="checkbox" aria-label="I dag, hover"></span>
+      <span class="celle"><input class="innfoedt" type="checkbox" checked aria-label="I dag, krysset av"></span>
+      <span class="celle"><input class="innfoedt er-fokus" type="checkbox" checked aria-label="I dag, fokus"></span>
+      <span class="celle"><input class="innfoedt" type="checkbox" checked disabled aria-label="I dag, inaktiv"></span>
+      <span class="celle"><input class="innfoedt" type="checkbox" aria-label="I dag, feil"></span>
+      <span class="rad">Forslag</span>
+      <span class="celle"><input class="boks" type="checkbox" aria-label="Forslag, ikke krysset av"></span>
+      <span class="celle"><input class="boks er-hover" type="checkbox" aria-label="Forslag, hover"></span>
+      <span class="celle"><input class="boks" type="checkbox" checked aria-label="Forslag, krysset av"></span>
+      <span class="celle"><input class="boks er-fokus" type="checkbox" checked aria-label="Forslag, fokus"></span>
+      <span class="celle"><input class="boks" type="checkbox" checked disabled aria-label="Forslag, inaktiv"></span>
+      <span class="celle feil"><input class="boks" type="checkbox" aria-label="Forslag, feil"></span>
+    </div>
+  </section>
+
+  <section class="kort" aria-labelledby="t-kort">
+    <h2 id="t-kort">Valgkortet <span>hele kortet er treffflaten, og valgt endrer ikke vekten</span></h2>
+    <div class="rutenett" style="grid-template-columns:150px repeat(5,1fr)">
+      <span></span><span class="kol">Ikke valgt</span><span class="kol">Hover</span><span class="kol">Valgt</span><span class="kol">Fokus</span><span class="kol">Feil</span>
+      <span class="rad">I dag</span>
+      <label class="valgkort naa"><input class="innfoedt" type="radio" name="k1"> Varslet for sent</label>
+      <label class="valgkort naa er-hover" style="background:var(--surface-inset)"><input class="innfoedt" type="radio" name="k2"> Varslet for sent</label>
+      <label class="valgkort naa valgt" style="background:var(--surface-selected)"><input class="innfoedt" type="radio" name="k3" checked> Varslet for sent</label>
+      <label class="valgkort naa valgt er-fokus" style="background:var(--surface-selected)"><input class="innfoedt" type="radio" name="k4" checked> Varslet for sent</label>
+      <label class="valgkort naa"><input class="innfoedt" type="radio" name="k5"> Varslet for sent</label>
+      <span class="rad">Forslag</span>
+      <label class="valgkort"><input class="radio" type="radio" name="f1"> Varslet for sent</label>
+      <label class="valgkort er-hover"><input class="radio er-hover" type="radio" name="f2"> Varslet for sent</label>
+      <label class="valgkort valgt"><input class="radio" type="radio" name="f3" checked> Varslet for sent</label>
+      <label class="valgkort valgt er-fokus"><input class="radio" type="radio" name="f4" checked> Varslet for sent</label>
+      <label class="valgkort feil"><input class="radio" type="radio" name="f5"> Varslet for sent</label>
+    </div>
+  </section>
+
+  <section class="kort" aria-labelledby="t-felt">
+    <h2 id="t-felt">Feltene <span>tekst, tall med enhet og dato</span></h2>
+    <div class="rutenett" style="grid-template-columns:150px repeat(5,1fr)">
+      <span></span><span class="kol">Tomt</span><span class="kol">Hover</span><span class="kol">Fokus</span><span class="kol">Inaktivt</span><span class="kol">Feil</span>
+      <span class="rad">Tall med enhet</span>
+      <div class="felt"><input class="tall" aria-label="Tomt"><span class="enhet">kr</span></div>
+      <div class="felt er-hover"><input class="tall" value="60 000" aria-label="Hover"><span class="enhet">kr</span></div>
+      <div class="felt er-fokus"><input class="tall" value="60 000" aria-label="Fokus"><span class="enhet">kr</span></div>
+      <div class="felt av"><input class="tall" value="60 000" disabled aria-label="Inaktivt"><span class="enhet">kr</span></div>
+      <div><div class="felt feil"><input class="tall" value="120 000" aria-invalid="true" aria-describedby="fm1" aria-label="Feil"><span class="enhet">kr</span></div><p class="feilmelding" id="fm1">Skriv et beløp under 100 000 kr.</p></div>
+      <span class="rad">Dager</span>
+      <div class="felt" style="max-width:140px"><input class="tall" aria-label="Dager, tomt"><span class="enhet">dager</span></div>
+      <div class="felt er-hover" style="max-width:140px"><input class="tall" value="10" aria-label="Dager, hover"><span class="enhet">dager</span></div>
+      <div class="felt er-fokus" style="max-width:140px"><input class="tall" value="10" aria-label="Dager, fokus"><span class="enhet">dager</span></div>
+      <div class="felt av" style="max-width:140px"><input class="tall" value="10" disabled aria-label="Dager, inaktivt"><span class="enhet">dager</span></div>
+      <div><div class="felt feil" style="max-width:140px"><input class="tall" value="30" aria-invalid="true" aria-describedby="fm2" aria-label="Dager, feil"><span class="enhet">dager</span></div><p class="feilmelding" id="fm2">Høyst 25 dager.</p></div>
+    </div>
+    <p class="merk">Tallet står til høyre med <code>tabular-nums</code>. Enheten står i en egen flate i <code>--surface-inset</code>, ikke som tekst etter feltet. Feilen står som tekst under feltet, koblet med <code>aria-describedby</code>, og kanten er i <code>--danger</code>. Ikonet står bare i lista over det som mangler («En feil har én form»).</p>
+  </section>
+</main>
+</body>
+</html>
