@@ -55,3 +55,6 @@ export const KATEGORIER = {
 
 export type Hovedkategori = keyof typeof KATEGORIER;
 export type Underkategori = (typeof KATEGORIER)[Hovedkategori][number];
+
+/** Et svar som ikke er gitt: feltet mangler eller er `null`. */
+export const mangler = (x: unknown): x is null | undefined => x === null || x === undefined;

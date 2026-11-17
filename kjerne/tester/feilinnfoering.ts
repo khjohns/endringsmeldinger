@@ -4986,7 +4986,7 @@ const MUTASJONER: Mutasjon[] = [
     id: 'F513',
     feilklasse: 'en vurdering av beløpet kjernen ikke kjenner, regnes som 0 kr (#1663)',
     fil: `${K}/regler/vederlag.ts`,
-    endringer: [['if (!BELOEPSVURDERINGER.includes(vurd)) {', 'if (false) {']],
+    endringer: [['if (!BELOEPSVURDERINGER.includes(vurd as Beloepsvurdering)) {', 'if (false) {']],
     mal: ['svaret avvises med en vurdering kjernen ikke kjenner'],
   },
   {

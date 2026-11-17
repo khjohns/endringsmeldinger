@@ -1,6 +1,11 @@
 /** Byggherrens svar på krav om fristforlengelse, NS 8407 § 33. Port av `regler/frist.py`. */
 
-import type { Fristresultat, Fristvarseltype, SubsidiaerUtloser } from './typer.ts';
+import {
+  mangler,
+  type Fristresultat,
+  type Fristvarseltype,
+  type SubsidiaerUtloser,
+} from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';
 
 export interface Fristkrav {
@@ -38,8 +43,6 @@ export interface Fristberegning {
   er_redusert: boolean;
   hele_fristen_subsidiaer: boolean;
 }
-
-const mangler = (v: unknown) => v === null || v === undefined;
 
 export function beregnSynlighet(krav: Fristkrav) {
   if (krav.varsel_type === 'begrunnelse_utsatt') {

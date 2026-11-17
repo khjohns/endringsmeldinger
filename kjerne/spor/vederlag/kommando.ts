@@ -16,7 +16,11 @@ import {
   type Kravpostvurdering,
 } from './frysing.ts';
 import { kategori } from '../forhold/format.ts';
-import { ubesvartIKravposten, ubesvarteSpoersmaal } from '../../regler/vederlag.ts';
+import {
+  ubesvartIKravposten,
+  ubesvarteSpoersmaal,
+  type UbesvartIVederlaget,
+} from '../../regler/vederlag.ts';
 import { hjemmelenGjelder, laget, type Svarvurdering } from '../../frosset/byggeklosser.ts';
 import {
   denAndreRegelen,
@@ -553,6 +557,15 @@ export type LagIVederlaget = Utkastlag<
  * Spørsmålene i utkastet regelen krever svar på, og som er ubesvart (`ubesvarteSpoersmaal` og
  * `ubesvartIKravposten`, #2025): varselet etter § 34.1.2 først, så postene i kravets rekkefølge.
  */
+const iKravpost = (
+  x: UbesvartIVederlaget
+): x is Extract<UbesvartIVederlaget, { post: { gjelder: string } }> =>
+  x.post !== null && 'gjelder' in x.post;
+const iSaerskilt = (
+  x: UbesvartIVederlaget
+): x is Extract<UbesvartIVederlaget, { post: { saerskilt: string } }> =>
+  x.post !== null && 'saerskilt' in x.post;
+
 function ubesvartIVederlaget(
   v: Svarvurdering,
   utkast: Svarutkast,
@@ -563,11 +576,7 @@ function ubesvartIVederlaget(
   const { hovedkategori } = kategori(paaberopelseFor(utkast, u));
   const ubesvarte = ubesvarteSpoersmaal(svaretFraVurderingene(v, krav, hovedkategori).svar, regler);
   const iPosten = (gjelder: string) =>
-    ubesvarte.flatMap(({ post, felt }) =>
-      post !== null && 'gjelder' in post && post.gjelder === gjelder && felt !== 'varslet_i_tide'
-        ? [felt]
-        : []
-    );
+    ubesvarte.flatMap((x) => (iKravpost(x) && x.post.gjelder === gjelder ? [x.felt] : []));
   return [
     ...(ubesvarte.some((x) => x.post === null)
       ? [{ spoersmaal: 'hovedkrav_varslet_i_tide' as const }]
@@ -578,12 +587,9 @@ function ubesvartIVederlaget(
         gjelder: post.id,
       }))
     ),
-    ...ubesvarte.flatMap(({ post, felt }) =>
-      post !== null &&
-      !('gjelder' in post) &&
-      post.saerskilt === 'produktivitet' &&
-      felt !== 'aksepterer'
-        ? [{ spoersmaal: PRODUKTIVITETSFELT[felt] }]
+    ...ubesvarte.flatMap((x) =>
+      iSaerskilt(x) && x.post.saerskilt === 'produktivitet'
+        ? [{ spoersmaal: PRODUKTIVITETSFELT[x.felt] }]
         : []
     ),
   ];

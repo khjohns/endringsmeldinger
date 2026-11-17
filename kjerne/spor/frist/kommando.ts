@@ -40,6 +40,7 @@ import {
 import { fristinnhold, innholdIFristen } from './format.ts';
 import { fristkravet, fristvurderinger } from './frysing.ts';
 import { paakrevdeSpoersmaal, type Fristspoersmaal } from '../../regler/frist.ts';
+import { mangler } from '../../regler/typer.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
 import { lageneIUtkastet } from '../../kommandoer/utkastlag.ts';
 
@@ -219,7 +220,6 @@ function spoersmaaletFor(s: Standpunkt): Fristspoersmaal | null {
  * besvart uten innsigelse (S1-A), og spørsmålene som var ubesvart (#1925, KA-U78).
  */
 function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
-  const mangler = (x: unknown) => x === null || x === undefined;
   const ubesvart = new Set(
     paakrevdeSpoersmaal(fristkravet(0, foresporselForFristsvar(u)))
       .map(([felt]) => felt)

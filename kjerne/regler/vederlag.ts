@@ -4,7 +4,12 @@
  */
 
 import { beloep, BroekdelAvOere, heleOere, NULL_OERE, UgyldigBeloep, type Oere } from './beloep.ts';
-import { BELOEPSVURDERINGER, type Beloepsvurdering, type Vederlagsresultat } from './typer.ts';
+import {
+  BELOEPSVURDERINGER,
+  mangler,
+  type Beloepsvurdering,
+  type Vederlagsresultat,
+} from './typer.ts';
 import { UgyldigVurdering } from './feil.ts';
 import { denAndreRegelen, justerteEnhetspriser, METODER } from '../spor/vederlag/format.ts';
 import type { Oppgjoersform } from '../typer.ts';
@@ -145,13 +150,11 @@ const ikkeAkseptert = (p: Postsvar): boolean => 'gjelder' in p && p.aksepterer =
 
 const regelen = (p: Postsvar) => ('gjelder' in p ? p.beregningsregel : undefined);
 
-const mangler = (x: unknown) => x === null || x === undefined;
-
 /** Et spørsmål regelen krever svar på, og som er ubesvart: i hele kravet (`post` er `null`) eller i en post. */
-export interface UbesvartIVederlaget {
-  post: Postsvar | null;
-  felt: 'varslet_i_tide' | 'vurdering' | 'aksepterer';
-}
+export type UbesvartIVederlaget =
+  | { post: null; felt: 'varslet_i_tide' }
+  | { post: Kravpostsvar; felt: 'vurdering' | 'aksepterer' }
+  | { post: Produktivitetssvar | RiggOgDriftsvar; felt: 'vurdering' | 'varslet_i_tide' };
 
 /**
  * Spørsmålene i svaret regelen krever svar på, og som er ubesvart (#2025), i rekkefølgen
@@ -168,12 +171,15 @@ export function ubesvarteSpoersmaal(
   if (regler.gjelderVarslingspliktenForVederlag(svar.hovedkategori) && mangler(svar.varslet_i_tide))
     ut.push({ post: null, felt: 'varslet_i_tide' });
   for (const p of svar.poster) {
-    if (!regelen(p) && !ikkeAkseptert(p) && mangler(p.vurdering))
-      ut.push({ post: p, felt: 'vurdering' });
     if ('gjelder' in p) {
+      if (!regelen(p) && !ikkeAkseptert(p) && mangler(p.vurdering))
+        ut.push({ post: p, felt: 'vurdering' });
       if (mangler(p.aksepterer)) ut.push({ post: p, felt: 'aksepterer' });
-    } else if (p.saerskilt === 'produktivitet' && mangler(p.varslet_i_tide))
-      ut.push({ post: p, felt: 'varslet_i_tide' });
+    } else {
+      if (mangler(p.vurdering)) ut.push({ post: p, felt: 'vurdering' });
+      if (p.saerskilt === 'produktivitet' && mangler(p.varslet_i_tide))
+        ut.push({ post: p, felt: 'varslet_i_tide' });
+    }
   }
   return ut;
 }
@@ -326,12 +332,11 @@ function kontroller(svar: Vederlagssvar, regler: Varslingsplikt): void {
       if (godkjent !== null && godkjent !== undefined) feil[felt] = ikkeAkseptertMen;
       return;
     }
-    // Det samme som `ubesvarteSpoersmaal` fører for beløpet, etter beregningsregelen og tilbudet over.
-    if (vurd === null || vurd === undefined) {
+    if (ubesvart(p, 'vurdering')) {
       feil[`${navn}.vurdering`] = 'mangler';
       return;
     }
-    if (!BELOEPSVURDERINGER.includes(vurd)) {
+    if (!BELOEPSVURDERINGER.includes(vurd as Beloepsvurdering)) {
       feil[`${navn}.vurdering`] = `${String(vurd)} er ikke en vurdering av beløpet`;
       return;
     }
