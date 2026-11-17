@@ -8,7 +8,6 @@
   Vedleggene lastes opp før saken finnes og bindes av påberopelsen (#1037).
 -->
 <script lang="ts">
-  import { tick } from 'svelte';
   import { KJERNE } from '#kjerne/versjon.ts';
   import type { Saksmerking } from '#lib/kjernesak/brevtekst.ts';
   import { tekstenKanVaereUtdatert } from '#lib/kjernesak/kontekst.svelte.ts';
@@ -26,6 +25,7 @@
   import Filvalg from './Filvalg.svelte';
   import Korrespondansen from './Korrespondansen.svelte';
   import Utkastkort from './Utkastkort.svelte';
+  import { fokuser } from './sendeflyt.svelte';
   import { ChevronDown } from 'lucide-svelte';
   import {
     FELTENE_UTEN_FORHOLD,
@@ -226,8 +226,7 @@
       }
     }
     feil = ny;
-    await tick();
-    oppsummering?.focus();
+    await fokuser(() => oppsummering);
   }
 
   /** Brevet med nummeret saken vil få nå (LV-U46), eller `null` når nummeret ikke kan hentes. */

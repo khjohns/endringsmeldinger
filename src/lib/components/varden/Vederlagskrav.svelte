@@ -15,8 +15,8 @@
   import { krevdProduktivitet, kravposterI } from '#kjerne/spor/vederlag/format.ts';
   import type { Kravpost } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
-  import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
-  import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import {
     varseletFoerKravet,
@@ -30,13 +30,15 @@
   import Brevlinje from './Brevlinje.svelte';
   import Leseramme from './Leseramme.svelte';
   import Feltetikett from './Feltetikett.svelte';
-  import { medietreff } from './medie.svelte';
+  import { brevetVedSiden } from './medie.svelte';
   import Knapp from './Knapp.svelte';
   import Kravpunkter from './Kravpunkter.svelte';
   import Hjemmel from './Hjemmel.svelte';
   import Korrespondansen from './Korrespondansen.svelte';
   import Manglene from './Manglene.svelte';
-  import { feltfeil, type Mangel } from './mangler';
+  import type { Mangel } from './mangler';
+  import { sendeflyt } from './sendeflyt.svelte';
+  import { fastLinje } from './fastlinje.svelte';
   import Melding from './Melding.svelte';
   import Tallfelt from './Tallfelt.svelte';
   import Tidslinje from './Tidslinje.svelte';
@@ -44,11 +46,7 @@
   import Valg from './Valg.svelte';
   import { beloepet } from './kommandoer';
   import { vedleggsgrense, vedleggskart } from './nysak';
-  import {
-    lagtTil as kommandoenLagtTil,
-    leggTilISaken,
-    type Korrespondansevalg,
-  } from './korrespondansen';
+  import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
   import Lagttillinje from './Lagttillinje.svelte';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
   import {
@@ -269,11 +267,9 @@
 
   // Det som mangler vises først når TE har prøvd å se brevet (MM-U32).
   const mangler = $derived(manglerIKravet(v, varslene, uid, navnet));
-  let forsoekt = $state(false);
-  const feil = (felt: string): string | null =>
-    forsoekt ? feltfeil(mangler.find((m) => m.felt === id(felt))) : null;
+  const flyt = sendeflyt(() => kjernesak, id('hindring'));
+  const feil = (felt: string): string | null => flyt.feil(mangler.find((m) => m.felt === id(felt)));
   let oppsummering = $state<HTMLElement | null>(null);
-  let sendehindring = $state<string | null>(null);
 
   async function gaaTil(m: Mangel, e: Event) {
     if (m.felt === id('saerskilt')) {
@@ -535,40 +531,17 @@
     ...hvaKravetEr.map((tekst) => ({ tekst: tekst.replace(/\.$/, ''), lag: null })),
   ]);
 
-  async function seBrevet() {
-    sendehindring = null;
-    if (mangler.length) {
-      forsoekt = true;
-      await tick();
-      oppsummering?.focus();
-      return;
-    }
-    if (kommandoLagtTil) {
-      sendehindring = await leggTilISaken(
-        kjernesak,
-        kommandoLagtTil,
-        vedleggLagtTil,
-        KRAVSKJEMA.kanIkkeLages
-      );
-      if (sendehindring === null) return onlagttil();
-      await tick();
-      document.getElementById(id('hindring'))?.focus();
-      return;
-    }
-    const b = kjernesak.brev(kommando, vedlegg, true);
-    const brevet = kontrollbrev(b);
-    if (!brevet) {
-      sendehindring = brevaarsak(b) ?? KRAVSKJEMA.kanIkkeLages;
-      await tick();
-      document.getElementById(id('hindring'))?.focus();
-      return;
-    }
-    onbrevkontroll({
+  function seBrevet() {
+    return flyt.send({
+      mangler: mangler.length ? () => oppsummering : null,
+      lagtTil: kommandoLagtTil
+        ? { kommando: kommandoLagtTil, vedlegg: vedleggLagtTil, ferdig: onlagttil }
+        : null,
       kommando,
-      ...brevet,
-      detteSender,
-      virkninger: [],
       vedlegg,
+      kanIkkeLages: KRAVSKJEMA.kanIkkeLages,
+      tilBrevkontrollen: (brevet) =>
+        onbrevkontroll({ kommando, ...brevet, detteSender, virkninger: [], vedlegg }),
     });
   }
 
@@ -586,31 +559,22 @@
   }
 
   // Brevet leses ved siden av skjemaet, og på smal skjerm i skjemaet (`Vederlagssvar`).
-  const smalt = medietreff('(max-width: 1180px)');
-  const smal = $derived(smalt.treff);
   let leser = $state(false);
-  $effect(() => {
-    onvedsiden?.(leser && !smal);
-    return () => onvedsiden?.(false);
-  });
+  const side = brevetVedSiden(
+    () => onvedsiden,
+    () => leser
+  );
+  const smal = $derived(side.smal);
 
   // Panelet følger rullingen bare når det får plass i vinduet, så «Se brevet før sending» alltid
   // kan nås (U-16).
   let panel = $state<HTMLElement | null>(null);
-  let faarPlass = $state(true);
-  $effect(() => {
-    const el = panel;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const maal = () => (faarPlass = el.offsetHeight + 32 <= window.innerHeight);
-    const ro = new ResizeObserver(maal);
-    ro.observe(el);
-    window.addEventListener('resize', maal);
-    maal();
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', maal);
-    };
-  });
+  // Kravskjemaet har ingen kompakt linje.
+  const linja = fastLinje(
+    uid,
+    () => panel,
+    () => true
+  );
 </script>
 
 {#snippet lest(b: Brevet, ramme: 'kant' | 'innfelt')}
@@ -868,11 +832,11 @@
     variant="primaer"
     onclick={seBrevet}
     opptatt={!!lagtTil && kjernesak.sender}
-    aria-describedby={sendehindring ? id('hindring') : undefined}
+    aria-describedby={flyt.hindring ? flyt.hindringId : undefined}
     >{lagtTil ? LEGG_TIL.leggTilKravet : KRAVSKJEMA.seBrevet}</Knapp
   >
-  {#if sendehindring}
-    <Melding art="feil" levende={false} id={id('hindring')} tabindex="-1">{sendehindring}</Melding>
+  {#if flyt.hindring}
+    <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1">{flyt.hindring}</Melding>
   {/if}
 {/snippet}
 
@@ -909,7 +873,7 @@
         </Brevlinje>
       {/if}
 
-      {#if forsoekt && mangler.length}
+      {#if flyt.forsoekt && mangler.length}
         <Manglene
           tittel={lagtTil ? LEGG_TIL.mangler : KRAVSKJEMA.mangler}
           {mangler}
@@ -1193,7 +1157,7 @@
         {@render lest(lesbart, 'innfelt')}
       </Leseramme>
     {:else}
-      <div class="feste" class:fast={faarPlass} bind:this={panel}>
+      <div class="feste" class:fast={linja.faarPlass} bind:this={panel}>
         <Kravpunkter
           {punkter}
           aktiv={aktivtPunkt}

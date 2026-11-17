@@ -13,7 +13,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | --- | ---: | --- |
 | [`Arbeidsflate`](../src/lib/components/varden/Arbeidsflate.svelte) | 8 | Arbeidet i sporet (Varden, prinsipp 8): hovedkolonnen med det brukeren gjør nå, og høyre kolonne med det som støtter arbeidet. |
 | [`Brev`](../src/lib/components/varden/Brev.svelte) | 5 | Brevet som lesespalte (Varden, skjerm C og D). |
-| [`Brevkontroll`](../src/lib/components/varden/Brevkontroll.svelte) | 11 | Brevet før sending (Varden, skjerm C): den låste teksten kjernen lager for kommandoen som lesespalte, og sendepanelet med virkningen av brevet. |
+| [`Brevkontroll`](../src/lib/components/varden/Brevkontroll.svelte) | 12 | Brevet før sending (Varden, skjerm C): den låste teksten kjernen lager for kommandoen som lesespalte, og sendepanelet med virkningen av brevet. |
 | [`Brevlinje`](../src/lib/components/varden/Brevlinje.svelte) | 2 | Linja øverst i et skjema om brevet skjemaet følger opp, med lenken som åpner det. |
 | [`Brevtraad`](../src/lib/components/varden/Brevtraad.svelte) | 3 | Brevtråden, felles for sidene for forholdet, vederlaget og fristen (#1898, system.md «Brevene»): brevene nyest først, med parten i ringen, datoen, hva brevet er og brevnummeret, og en kortere rad for registrert korrespondanse (U-5 og U-8 i BF-44). |
 | [`Datoer`](../src/lib/components/varden/Datoer.svelte) | 2 | Boksen med datoene ved spørsmålet om varselet i svarskjemaene: datoen totalentreprenøren oppgir, når kravet ble sendt og dagene mellom. |
@@ -39,7 +39,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`NySak`](../src/lib/components/varden/NySak.svelte) | 2 | Skjemaet for ny sak (BF-05, #1481): TE velger forholdet, skriver tittelen og beskrivelsen, oppgir datoen og kontrollerer brevet før det sendes. |
 | [`Postliste`](../src/lib/components/varden/Postliste.svelte) | 2 | Postene i et svar med én åpen post om gangen; de andre står som en leselinje med svaret slik det står i brevet (#1739, system.md). |
 | [`Sitat`](../src/lib/components/varden/Sitat.svelte) | 2 | Et sitat fra et brev utenfor brevet, med etiketten for hva det er: utdraget i tråden og setningen om endringsordren i svarskjemaet for forholdet (#2035). |
-| [`Spoersmaal`](../src/lib/components/varden/Spoersmaal.svelte) | 4 | Et spørsmål i svarskjemaet: overskriften med bestemmelsen i NS 8407 som dempet tekst (OV-U75, «Høyst tre nivåer av flater» i `system.md`), et infotips og feltene under (#1925, #2035). |
+| [`Spoersmaal`](../src/lib/components/varden/Spoersmaal.svelte) | 4 | Et spørsmål i et skjema: overskriften med bestemmelsen i NS 8407 som dempet tekst (OV-U75, «Høyst tre nivåer av flater» i `system.md`), et infotips og feltene under (#1925, #2035). |
 | [`Sporside`](../src/lib/components/varden/Sporside.svelte) | 2 | Kortet øverst på siden for et krav, med overskriften og hjemmelen dempet etter (U-1 i BF-44 og BF-45) og brevtråden under. |
 | [`Svarskjema`](../src/lib/components/varden/Svarskjema.svelte) | 3 | Skallet for byggherrens svar på påberopelsen av forholdet og på et krav om vederlag eller frist (#1925, #2009): skjemaet vurderer, panelet viser hovedlinjene slik kjernen forhåndsviser svaret, og brevet viser alt (prinsipp 3). |
 | [`Tallfelt`](../src/lib/components/varden/Tallfelt.svelte) | 4 | Et felt i skjemaene med labelen over, hjelpeteksten under labelen, feltet med enheten og feilmeldingen under (system.md, «Feltene står under hverandre», #1925). |

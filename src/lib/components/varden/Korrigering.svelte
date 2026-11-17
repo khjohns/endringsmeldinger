@@ -8,10 +8,11 @@
 <script lang="ts">
   import { FileText } from 'lucide-svelte';
   import { tick } from 'svelte';
-  import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
-  import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
+  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import { sendeflyt } from './sendeflyt.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Feltetikett from './Feltetikett.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
@@ -79,9 +80,8 @@
           ? KORRIGERING.etterIdag
           : null
   );
-  let forsoekt = $state(false);
-  const visDatofeil = $derived(forsoekt ? datofeil : null);
-  let hindring = $state<string | null>(null);
+  const flyt = sendeflyt(() => kjernesak, id('hindring'));
+  const visDatofeil = $derived(flyt.forsoekt ? datofeil : null);
 
   const linjer = $derived(
     valg.dato && !datofeil
@@ -93,27 +93,18 @@
       : []
   );
 
-  async function seBrevet() {
-    hindring = null;
-    if (datofeil) {
-      forsoekt = true;
-      await tick();
-      document.getElementById(id('dato'))?.focus();
-      return;
-    }
-    const b = kjernesak.brev(kommando, undefined, true);
-    const brevet = kontrollbrev(b);
-    if (!brevet) {
-      hindring = brevaarsak(b) ?? KORRIGERING.kanIkkeLages;
-      await tick();
-      document.getElementById(id('hindring'))?.focus();
-      return;
-    }
-    onbrevkontroll({
+  function seBrevet() {
+    return flyt.send({
+      mangler: datofeil ? () => document.getElementById(id('dato')) : null,
       kommando,
-      ...brevet,
-      detteSender: linjer,
-      virkninger: [FORHOLDET.korrigeringenStaar(lukket, svarbrevet)].filter((v) => v !== null),
+      kanIkkeLages: KORRIGERING.kanIkkeLages,
+      tilBrevkontrollen: (brevet) =>
+        onbrevkontroll({
+          kommando,
+          ...brevet,
+          detteSender: linjer,
+          virkninger: [FORHOLDET.korrigeringenStaar(lukket, svarbrevet)].filter((v) => v !== null),
+        }),
     });
   }
 
@@ -135,10 +126,10 @@
   <Knapp
     variant="primaer"
     onclick={seBrevet}
-    aria-describedby={hindring ? id('hindring') : undefined}>{KORRIGERING.seBrevet}</Knapp
+    aria-describedby={flyt.hindring ? flyt.hindringId : undefined}>{KORRIGERING.seBrevet}</Knapp
   >
-  {#if hindring}
-    <Melding art="feil" levende={false} id={id('hindring')} tabindex="-1">{hindring}</Melding>
+  {#if flyt.hindring}
+    <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1">{flyt.hindring}</Melding>
   {/if}
 {/snippet}
 

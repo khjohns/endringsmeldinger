@@ -12,16 +12,16 @@
 -->
 <script lang="ts">
   import { Info } from 'lucide-svelte';
-  import { tick, type Snippet } from 'svelte';
+  import type { Snippet } from 'svelte';
   import { SVARTITTEL } from '#kjerne/frosset/brevtittel.ts';
   import type { Spor } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import { VIRKNING } from '#lib/kjernesak/svarvirkning.ts';
-  import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
+  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import { fastLinje } from './fastlinje.svelte';
-  import { medietreff } from './medie.svelte';
+  import { brevetVedSiden } from './medie.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Brevlinje from './Brevlinje.svelte';
@@ -32,18 +32,15 @@
   import Leseramme from './Leseramme.svelte';
   import Knapp from './Knapp.svelte';
   import Manglene from './Manglene.svelte';
-  import { feltfeil, type Mangel } from './mangler';
+  import type { Mangel } from './mangler';
+  import { sendeflyt } from './sendeflyt.svelte';
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import { brevene, datoerISporet } from './lesing';
   import { begrunnelsespunktene, kravbrevetI, type Postvelger } from './svarskjema';
   import { HOVEDLINJER, LEGG_TIL, SKJEMA, SVARSKJEMA, brevhode, brevtittel, dato } from './tekster';
-  import {
-    lagtTil as kommandoenLagtTil,
-    leggTilISaken,
-    type Korrespondansevalg,
-  } from './korrespondansen';
+  import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
   import Lagttillinje from './Lagttillinje.svelte';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
   import { vedleggskart } from './nysak';
@@ -146,11 +143,9 @@
   });
 
   // Beskjedene vises først når BH har prøvd å se brevet (MM-U32), og forsvinner når feltet er besvart.
-  let forsoekt = $state(false);
-  const feil = (id: string): string | null =>
-    forsoekt ? feltfeil(alleMangler.find((m) => m.felt === id)) : null;
+  const flyt = sendeflyt(() => kjernesak, `${uid}-hindring`);
+  const feil = (id: string): string | null => flyt.feil(alleMangler.find((m) => m.felt === id));
   let oppsummering = $state<HTMLElement | null>(null);
-  let sendehindring = $state<string | null>(null);
 
   /** Lenken i oppsummeringen åpner posten feltet står i (`Postliste`). */
   function gaaTil(m: Mangel, e: MouseEvent) {
@@ -159,42 +154,23 @@
     postliste.aapne(m.post, m.felt);
   }
 
-  async function seBrevet() {
-    sendehindring = null;
-    if (alleMangler.length) {
-      forsoekt = true;
-      const foerste = alleMangler.find((m) => m.post !== null);
-      if (foerste) postliste?.velg(foerste.post!);
-      await tick();
-      oppsummering?.focus();
-      return;
-    }
-    if (kommandoLagtTil) {
-      sendehindring = await leggTilISaken(
-        kjernesak,
-        kommandoLagtTil,
-        vedleggLagtTil,
-        HOVEDLINJER.kanIkkeLages
-      );
-      if (sendehindring === null) return onlagttil();
-      await tick();
-      document.getElementById(`${uid}-hindring`)?.focus();
-      return;
-    }
+  function seBrevet() {
+    const foerste = alleMangler.find((m) => m.post !== null);
+    if (foerste) postliste?.velg(foerste.post!);
     const kommando = medTekstene(punktene.map((p) => p.punkt));
-    const b = kjernesak.brev(kommando, undefined, true);
-    const brevet = kontrollbrev(b);
-    if (!brevet) {
-      sendehindring =
-        b && 'avvisning' in b && b.avvisning.regel === 'UGYLDIG_VURDERING'
-          ? HOVEDLINJER.kanIkkeLages
-          : (brevaarsak(b) ?? HOVEDLINJER.kanIkkeLages);
-      // Fra den faste linja står hindringen utenfor syne; fokus viser den.
-      await tick();
-      document.getElementById(`${uid}-hindring`)?.focus();
-      return;
-    }
-    onbrevkontroll({ kommando, ...brevet, detteSender: linjer, virkninger });
+    // Fra den faste linja står hindringen utenfor syne; fokus viser den.
+    return flyt.send({
+      mangler: alleMangler.length ? () => oppsummering : null,
+      lagtTil: kommandoLagtTil
+        ? { kommando: kommandoLagtTil, vedlegg: vedleggLagtTil, ferdig: onlagttil }
+        : null,
+      kommando,
+      kanIkkeLages: HOVEDLINJER.kanIkkeLages,
+      aarsak: (b) =>
+        b && 'avvisning' in b && b.avvisning.regel === 'UGYLDIG_VURDERING' ? null : brevaarsak(b),
+      tilBrevkontrollen: (brevet) =>
+        onbrevkontroll({ kommando, ...brevet, detteSender: linjer, virkninger }),
+    });
   }
 
   const kommandoLagtTil = $derived(
@@ -204,14 +180,13 @@
 
   // Brevet leses i en ramme ved siden av skjemaet, og på smal skjerm i skjemaet, der høyre
   // kolonne står under arbeidet (oppdragsgiver 29.10, #1391).
-  const vindu = medietreff('(max-width: 1180px)');
-  const smal = $derived(vindu.treff);
   let leser = $state(false);
-  const vedSiden = $derived(leser && !smal);
-  $effect(() => {
-    onvedsiden?.(vedSiden);
-    return () => onvedsiden?.(false);
-  });
+  const side = brevetVedSiden(
+    () => onvedsiden,
+    () => leser
+  );
+  const smal = $derived(side.smal);
+  const vedSiden = $derived(side.vedSiden);
   let panel = $state<HTMLElement | null>(null);
   const linja = fastLinje(
     uid,
@@ -239,14 +214,12 @@
       variant="primaer"
       onclick={seBrevet}
       opptatt={!!lagtTil && kjernesak.sender}
-      aria-describedby={sendehindring ? `${uid}-hindring` : undefined}
+      aria-describedby={flyt.hindring ? flyt.hindringId : undefined}
       >{lagtTil ? LEGG_TIL.leggTilSvaret : HOVEDLINJER.seBrevet}</Knapp
     >
   </div>
-  {#if sendehindring}
-    <Melding art="feil" levende={false} id={`${uid}-hindring`} tabindex="-1"
-      >{sendehindring}</Melding
-    >
+  {#if flyt.hindring}
+    <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1">{flyt.hindring}</Melding>
   {/if}
 {/snippet}
 
@@ -284,7 +257,7 @@
           <p>{stopp}</p>
         </div>
       {:else}
-        {#if forsoekt && alleMangler.length}
+        {#if flyt.forsoekt && alleMangler.length}
           <Manglene
             tittel={lagtTil ? LEGG_TIL.mangler : SKJEMA.mangler}
             mangler={alleMangler}
