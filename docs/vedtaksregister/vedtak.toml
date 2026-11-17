@@ -10321,7 +10321,7 @@ Samlevedtaket er et *vedtak* med designdel og beslutningsdel. Setningene står i
 begreper. Kildene står i parentes etter hver setning; «s» er setningen i postens vedtakstekst.
 «Påberopelsen» er innsigelsen etter punkt 5 tredje ledd i NS 8407 slik den står i et svar, og «den
 egne innsigelsen» er innsigelsen som eget brev. Punkt 1–20, designdelen og beslutningsdelen er
-versjon 1 med E11–E18. Punkt 21–35 er nye. Henvisningene til OV-U95 gjelder OV-U115, og til OV-U80,
+versjon 1 med tilleggene i utkastet og E11–E18. Punkt 21–35 er nye. Henvisningene til OV-U95 gjelder OV-U115, og til OV-U80,
 VS-U34 og VS-U39 gjelder de OV-U114.
 
 ###### A. Påberopelsen i svaret
@@ -14011,7 +14011,7 @@ forhold = [
   { art = "utvider", vedtak = "vs-u20" },
 ]
 folge = '''
-Teksten står under tabellen, i [Samlevedtaket for varslene etter punkt 34.3.3 og 34.4, og påberopelse av sent varsel, versjon 2](#samlevedtak-sent-varsel-2). Opphever VS-U46, og henvisningene til VS-U46 gjelder versjon 2; samler de 23 postene i vurderingsfila, og har forholdene til OV-U114, OV-U115 og OV-U89 etter svar 2 A. Svar 3 A presiserer VS-U57, som versjon 2 samler. Samlingene og forholdene i VS-U46 er ført videre. MM-U54 og MM-U56 er ikke samlet; de hører til påberopelsen av forholdet (GR-U40).'''
+Teksten står under tabellen, i [Samlevedtaket for varslene etter punkt 34.3.3 og 34.4, og påberopelse av sent varsel, versjon 2](#samlevedtak-sent-varsel-2). Opphever VS-U46, og henvisningene til VS-U46 gjelder versjon 2; samler de 23 postene i vurderingsfila, og har forholdene til OV-U114, OV-U115 og OV-U89 etter svar 2 A. Svar 3 A presiserer VS-U57, som versjon 2 samler. Samlingene og forholdene i VS-U46 er ført videre. MM-U54 og MM-U56 er ikke samlet; de gjelder ny versjon av påberopelsen av forholdet, og hører til forholdet (GR-U40).'''
 
 [[gruppe.vedtak.alternativ]]
 navn = "Ja, 2 A, 3 A"
