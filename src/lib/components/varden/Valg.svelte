@@ -2,10 +2,14 @@
   Valgkortene i Varden: ekte radioknapper i en `fieldset` med spørsmålet som `legend`, eller én
   avkrysning med samme form.
   Ingenting er forhåndsvalgt, og ingen valg har farge (prinsipp 6 og 7). Mangler svaret når
-  parten går videre, står feilmeldingen under valgene (MM-U32).
+  parten går videre, står feilmeldingen under valgene (MM-U32). Et valgfritt spørsmål som er
+  besvart, har «Fjern svaret» under valgene (oppdragsgiver 17.11 i #2137, U-19 i BF-14).
 -->
 <script lang="ts" generics="T extends string | boolean">
+  import Knapp from './Knapp.svelte';
   import Valgfri from './Valgfri.svelte';
+  import { fokuser } from './mangler';
+  import { VALG } from './tekster';
 
   let {
     navn,
@@ -47,6 +51,14 @@
     hjelp?: string;
   } = $props();
   const uid = $props.id();
+  let gruppe: HTMLFieldSetElement | undefined;
+
+  // U-19 i BF-14.
+  async function fjern() {
+    const valgt = gruppe?.querySelector<HTMLElement>('input:checked');
+    verdi = null;
+    await fokuser(() => valgt);
+  }
   const beskrivelse = $derived(
     [hjelp ? `${uid}-hjelp` : undefined, beskrevetAv, feil ? `${uid}-feil` : undefined]
       .filter(Boolean)
@@ -54,7 +66,7 @@
   );
 </script>
 
-<fieldset class="valg" id={navn} tabindex="-1" aria-describedby={beskrivelse}>
+<fieldset class="valg" id={navn} tabindex="-1" aria-describedby={beskrivelse} bind:this={gruppe}>
   <legend
     >{#if valgfri}<Valgfri>{spoersmaal}</Valgfri>{:else}{spoersmaal}{/if}</legend
   >
@@ -80,6 +92,13 @@
       </label>
     {/each}
   </div>
+  {#if valgfri && !avkrysning && verdi != null}
+    <div class="fjern">
+      <Knapp variant="lenke" iFlukt aria-label={VALG.fjernNavn(spoersmaal)} onclick={fjern}
+        >{VALG.fjern}</Knapp
+      >
+    </div>
+  {/if}
   {#if feil}<p class="feilmelding" id={`${uid}-feil`}>{feil}</p>{/if}
 </fieldset>
 
@@ -171,6 +190,9 @@
   .valgkort:has(input:focus-visible) {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
+  }
+  .fjern {
+    margin-top: var(--spacing-2);
   }
   .feilmelding {
     margin-top: var(--spacing-2);

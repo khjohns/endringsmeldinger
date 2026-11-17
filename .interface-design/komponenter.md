@@ -30,7 +30,7 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Hjemmel`](../src/lib/components/varden/Hjemmel.svelte) | 2 | Bestemmelsen i NS 8407 til høyre på linja med overskriften i et skjema, som dempet tekst og ikke som et merke (OV-U75, system.md, «Høyst tre nivåer av flater», #1925). |
 | [`Hovedlinjer`](../src/lib/components/varden/Hovedlinjer.svelte) | 4 | Hovedlinjene i brevet (Varden, skjerm B): standpunktene og beløpene slik kjernen forhåndsviser brevet, i brevets rekkefølge og med laget. |
 | [`Infotips`](../src/lib/components/varden/Infotips.svelte) | 5 | Infotips (OV-U81): en forklaring av hvordan løsningen virker, bak en knapp med ikonet «i» ved overskriften, ikke ved feltet. |
-| [`Knapp`](../src/lib/components/varden/Knapp.svelte) | 22 | Knappen i Varden: pilleform, minst 44 px høy. |
+| [`Knapp`](../src/lib/components/varden/Knapp.svelte) | 23 | Knappen i Varden: pilleform, minst 44 px høy. |
 | [`Korrespondansen`](../src/lib/components/varden/Korrespondansen.svelte) | 4 | Korrespondansen sendt utenfor løsningen: varselet i skjemaet for ny sak, fristkravet og vederlagskravet, og kravet, svaret eller aksepten som legges til (OV-U98). |
 | [`Kravkort`](../src/lib/components/varden/Kravkort.svelte) | 3 | Kortet under tråden på siden for et krav: overskriften, brevene kortet leser av, og innholdet (U-2 i BF-44 og BF-45). |
 | [`Lagttilmerknader`](../src/lib/components/varden/Lagttilmerknader.svelte) | 4 | Det kjernen sier om et krav, et svar eller en aksept lagt til, før det legges til: kravet eller svaret blir ikke gjeldende fordi det er sendt før det siste (OV-U102, OV-U103), og brevene det er sendt samme dag som (OV-U104). |
