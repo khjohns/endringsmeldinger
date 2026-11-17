@@ -2474,6 +2474,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['frosset/tekst.ts', 'brevtekst', 'OVERSIKTEN', ['frosset/brevtekst.ts', 'format/leser.ts']],
   ['frosset/tekst.ts', 'brevtekst', 'postradene tabellenIAvsnittet', ['format/leser.ts']],
   ['frosset/tekst.ts:tabellenIAvsnittet', 'brevtekst', 'laast overskrift', ['frosset/tekst.ts']],
+  // LV-U71, KA-U53.
+  ['Avsnitt', 'brevtekst', 'laast punkt overskrift', ['frosset/tekst.ts:punkteneMedBegrunnelse']],
   [
     'frosset/tekst.ts',
     'brevtekst',
