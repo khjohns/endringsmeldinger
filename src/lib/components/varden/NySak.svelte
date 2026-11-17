@@ -24,6 +24,9 @@
   import Valg from './Valg.svelte';
   import Filvalg from './Filvalg.svelte';
   import Korrespondansen from './Korrespondansen.svelte';
+  import Datofelt from './Datofelt.svelte';
+  import Forkastutkast from './Forkastutkast.svelte';
+  import Tekstomraade from './Tekstomraade.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import { fokuser } from './mangler';
   import { ChevronDown } from 'lucide-svelte';
@@ -89,7 +92,6 @@
   // Dokumentet med varselet kan ikke legges ved før påberopelsen sier det (#1488).
   const varseldokumentet: VedleggForNySak | null = null;
   let feil = $state<Record<string, string>>({});
-  let avbryter = $state(false);
   let oppsummering = $state<HTMLElement | null>(null);
   let kontroll = $state<Omit<TilBrevkontrollen, 'detteSender' | 'virkninger'> | null>(null);
 
@@ -452,38 +454,27 @@
             {#if feil.tittel}<p class="feil" id={id('tittel-feil')}>{feil.tittel}</p>{/if}
           </div>
 
-          <div class="felt">
-            <Feltetikett for={id('beskrivelse')}>{felt.beskrivelse}</Feltetikett>
-            <p class="hjelp" id={id('beskrivelse-hjelp')}>{NYSAK.beskrivelseHjelp}</p>
-            <textarea
-              id={id('beskrivelse')}
-              rows="6"
-              bind:value={beskrivelse}
-              aria-required="true"
-              aria-invalid={!!feil.beskrivelse}
-              aria-describedby={`${id('beskrivelse-hjelp')}${feil.beskrivelse ? ` ${id('beskrivelse-feil')}` : ''}`}
-              oninput={() => delete feil.beskrivelse}
-            ></textarea>
-            {#if feil.beskrivelse}<p class="feil" id={id('beskrivelse-feil')}>
-                {feil.beskrivelse}
-              </p>{/if}
-          </div>
+          <Tekstomraade
+            id={id('beskrivelse')}
+            etikett={felt.beskrivelse}
+            hjelp={NYSAK.beskrivelseHjelp}
+            rader={6}
+            bind:verdi={beskrivelse}
+            paakrevd
+            feil={feil.beskrivelse ?? null}
+            oninput={() => delete feil.beskrivelse}
+          />
 
           {#if felt.datotekst}
-            <div class="felt">
-              <Feltetikett for={id('dato')}>{felt.datotekst}</Feltetikett>
-              <input
-                id={id('dato')}
-                type="date"
-                max={iDag}
-                bind:value={dato}
-                aria-required="true"
-                aria-invalid={!!feil.dato}
-                aria-describedby={feil.dato ? id('dato-feil') : undefined}
-                oninput={() => delete feil.dato}
-              />
-              {#if feil.dato}<p class="feil" id={id('dato-feil')}>{feil.dato}</p>{/if}
-            </div>
+            <Datofelt
+              id={id('dato')}
+              etikett={felt.datotekst}
+              maks={iDag}
+              bind:verdi={dato}
+              paakrevd
+              feil={feil.dato ?? null}
+              oninput={() => delete feil.dato}
+            />
           {/if}
 
           {#if felt.endringsordre}
@@ -559,15 +550,14 @@
           {#if feil.kjernen}<p class="feil" id={id('kjernen')}>{feil.kjernen}</p>{/if}
 
           <div class="handlinger">
-            <Knapp variant="lenke" onclick={() => (avbryter = true)}>{NYSAK.avbryt}</Knapp>
+            <Forkastutkast
+              tekst={NYSAK.avbrytSpoersmaal}
+              onforkast={onavbrutt}
+              knapp={NYSAK.avbryt}
+              forkast={NYSAK.avbrytJa}
+              behold={NYSAK.avbrytNei}
+            />
           </div>
-          {#if avbryter}
-            <div class="avbryt" role="group" aria-label={NYSAK.avbryt}>
-              <p>{NYSAK.avbrytSpoersmaal}</p>
-              <Knapp variant="sekundaer" onclick={onavbrutt}>{NYSAK.avbrytJa}</Knapp>
-              <Knapp variant="lenke" onclick={() => (avbryter = false)}>{NYSAK.avbrytNei}</Knapp>
-            </div>
-          {/if}
         </div>
       </Utkastkort>
     {/snippet}
@@ -620,9 +610,9 @@
   .hjelp {
     margin: 0;
     color: var(--ink-3);
+    font-size: 14px;
   }
-  input:not([type='radio']),
-  textarea {
+  input:not([type='radio']) {
     font: inherit;
     padding: var(--spacing-3);
     border: var(--control-border);
@@ -630,18 +620,13 @@
     background: var(--surface);
     color: var(--ink);
   }
-  /* Feltene er så brede som svaret de venter: en dato er kort, en tittel er en linje. */
-  input[type='date'] {
-    inline-size: 12rem;
-    max-inline-size: 100%;
-  }
+  /* Feltene er så brede som svaret de venter: et nummer er kort, en tittel er en linje. */
   .kort-felt {
     inline-size: 20rem;
     max-inline-size: 100%;
   }
   /* Like spesifikk som regelen for feltene, så feilkanten vises også på input. */
-  input:not([type='radio'])[aria-invalid='true'],
-  textarea[aria-invalid='true'] {
+  input:not([type='radio'])[aria-invalid='true'] {
     border-color: var(--danger);
   }
   .feil {
@@ -818,15 +803,10 @@
   .oppsummering:focus-visible {
     outline: 2px solid var(--control-focus);
   }
-  .handlinger,
-  .avbryt {
+  .handlinger {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-3);
     align-items: center;
-  }
-  .avbryt p {
-    flex-basis: 100%;
-    margin: 0;
   }
 </style>

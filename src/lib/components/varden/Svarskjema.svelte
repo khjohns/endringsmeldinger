@@ -25,7 +25,6 @@
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Brevlinje from './Brevlinje.svelte';
-  import Feltetikett from './Feltetikett.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Infotips from './Infotips.svelte';
@@ -36,6 +35,7 @@
   import { sendeflyt } from './sendeflyt.svelte';
   import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
+  import Tekstomraade from './Tekstomraade.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import { brevene, datoerISporet } from './lesing';
   import { begrunnelsespunktene, kravbrevetI, type Postvelger } from './svarskjema';
@@ -291,41 +291,29 @@
               {#each punktene as p (p.punkt)}
                 {@const id = begrunnelseId(p.punkt)}
                 {@const bFeil = feil(id)}
-                <div class="begrunnelse">
-                  <Feltetikett for={id} underordnet valgfri={!kreves(p.punkt) && !kanStaa(p.punkt)}
-                    >{p.navn}</Feltetikett
-                  >
-                  {#if kreves(p.punkt)}
-                    <span class="dempet" id={`${id}-kreves`}>{begrunnelseKreves!.grunn}</span>
-                  {/if}
-                  <textarea
-                    {id}
-                    rows="2"
-                    bind:value={tekster.begrunnelser[p.punkt]}
-                    aria-required={kreves(p.punkt) ? 'true' : undefined}
-                    aria-invalid={bFeil ? 'true' : undefined}
-                    aria-describedby={[
-                      `${uid}-begrunnelse-hjelp`,
-                      kreves(p.punkt) ? `${id}-kreves` : '',
-                      kanStaa(p.punkt) ? `${uid}-begrunnelse-kreves` : '',
-                      bFeil ? `${id}-feil` : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                  ></textarea>
-                  {#if bFeil}<p class="feilmelding" id={`${id}-feil`}>{bFeil}</p>{/if}
-                </div>
+                <Tekstomraade
+                  {id}
+                  etikett={p.navn}
+                  underordnet
+                  valgfri={!kreves(p.punkt) && !kanStaa(p.punkt)}
+                  hjelp={kreves(p.punkt) ? begrunnelseKreves!.grunn : null}
+                  rader={2}
+                  bind:verdi={tekster.begrunnelser[p.punkt]}
+                  paakrevd={kreves(p.punkt)}
+                  feil={bFeil}
+                  foran={[`${uid}-begrunnelse-hjelp`]}
+                  etter={kanStaa(p.punkt) ? [`${uid}-begrunnelse-kreves`] : []}
+                />
               {/each}
             {/if}
-            <div class="begrunnelse forbehold">
-              <Feltetikett for={`${uid}-forbehold`} valgfri>{SKJEMA.forbehold}</Feltetikett>
-              <span class="dempet" id={`${uid}-forbehold-hjelp`}>{SKJEMA.forbeholdHjelp}</span>
-              <textarea
+            <div class="forbehold">
+              <Tekstomraade
                 id={`${uid}-forbehold`}
-                rows="3"
-                bind:value={tekster.forbehold}
-                aria-describedby={`${uid}-forbehold-hjelp`}
-              ></textarea>
+                etikett={SKJEMA.forbehold}
+                valgfri
+                hjelp={SKJEMA.forbeholdHjelp}
+                bind:verdi={tekster.forbehold}
+              />
             </div>
           </section>
         {/if}
@@ -378,33 +366,11 @@
     font-weight: 600;
     color: var(--ink);
   }
-  .begrunnelse {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
-  }
   /* Forbeholdet gjelder hele svaret og står sist i brevet, skilt fra punktene. */
-  .begrunnelse.forbehold:not(:first-child) {
+  .forbehold:not(:first-child) {
     margin-top: var(--spacing-3);
     padding-top: var(--spacing-4);
     border-top: var(--rule);
-  }
-  textarea {
-    padding: var(--spacing-3);
-    border: var(--control-border);
-    border-radius: var(--r-felt);
-    font: inherit;
-    background: var(--surface);
-    resize: vertical;
-  }
-  .feilmelding {
-    color: var(--danger);
-    font-size: 14px;
-    font-weight: 500;
-  }
-  textarea:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
   }
   /* En melding om prøven, ikke en feil og ikke et utkast: blekk i kanten, ingen farge (#1391). */
   .ikke-stoettet {

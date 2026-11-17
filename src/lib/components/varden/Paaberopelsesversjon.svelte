@@ -17,7 +17,6 @@
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Brevutkast from './Brevutkast.svelte';
-  import Feltetikett from './Feltetikett.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
@@ -26,6 +25,7 @@
   import { nyVersjonAvPaaberopelsen } from './kommandoer';
   import { brevetVedSiden } from './medie.svelte';
   import { brevene, datoerISporet, innleggene, type Brevet } from './lesing';
+  import Tekstomraade from './Tekstomraade.svelte';
   import { FORHOLDET, NYVERSJON, brevtittel, dato } from './tekster';
 
   let {
@@ -106,14 +106,7 @@
     rulle?.scrollTo?.({ top: 0 });
   }
 
-  // Feltet vokser med teksten, så én setning ikke står i en stor tom boks.
   let felt = $state<HTMLTextAreaElement | null>(null);
-  $effect(() => {
-    void tekst;
-    if (!felt) return;
-    felt.style.height = 'auto';
-    felt.style.height = `${felt.scrollHeight + 2}px`;
-  });
 </script>
 
 <Arbeidsflate leser={side.vedSiden} deling="utkast">
@@ -151,19 +144,15 @@
       {#snippet bunn()}
         <Forkastutkast tekst={NYVERSJON.forkastTekst} {onforkast} />
       {/snippet}
-      <div class="felt">
-        <Feltetikett for={id('tekst')}>{NYVERSJON.tekst}</Feltetikett>
-        <textarea
-          id={id('tekst')}
-          rows="3"
-          required
-          aria-invalid={mangler ? 'true' : undefined}
-          aria-describedby={mangler ? id('mangler') : undefined}
-          bind:value={tekst}
-          bind:this={felt}
-        ></textarea>
-        {#if mangler}<p class="mangler" id={id('mangler')}>{NYVERSJON.manglerTekst}</p>{/if}
-      </div>
+      <Tekstomraade
+        id={id('tekst')}
+        etikett={NYVERSJON.tekst}
+        vokser
+        paakrevd
+        feil={mangler ? NYVERSJON.manglerTekst : null}
+        bind:verdi={() => tekst ?? '', (v) => (tekst = v)}
+        bind:felt
+      />
     </Brevutkast>
   {/snippet}
 
@@ -227,35 +216,6 @@
 </Arbeidsflate>
 
 <style>
-  .felt {
-    display: grid;
-    gap: var(--spacing-2);
-  }
-  .mangler {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--danger);
-  }
-  textarea {
-    font: inherit;
-    line-height: 1.6;
-    min-height: 6lh;
-    padding: var(--spacing-3);
-    border: var(--control-border);
-    border-radius: var(--r-felt);
-    background: var(--surface);
-    color: var(--ink);
-    resize: none;
-    overflow: hidden;
-  }
-  textarea[aria-invalid='true'] {
-    border-color: var(--danger);
-    box-shadow: inset 0 0 0 1px var(--danger);
-  }
-  textarea:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
   /* Høyre kolonne følger rullingen under arbeidsraden og er høyst like høy som vinduet under
      den, med samme avstand til raden som før rullingen. `--radhoeyde` er den målte høyden på
      raden med flaten bak den (`Arbeidsflate`). Et langt brev ruller i rammen. */

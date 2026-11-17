@@ -26,6 +26,7 @@
   import { sendeflyt } from './sendeflyt.svelte';
   import Melding from './Melding.svelte';
   import Tallfelt from './Tallfelt.svelte';
+  import Tekstomraade from './Tekstomraade.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
@@ -722,20 +723,15 @@
           tittel={FRISTKRAV.grunnBTittel}
           hjemmel={['33.6.2 annet ledd b']}
         >
-          <p class="dempet" id={id('grunn-b-hjelp')}>{FRISTKRAV.grunnBHjelp}</p>
-          <textarea
+          <Tekstomraade
             id={id('grunn-b')}
-            rows="6"
-            aria-labelledby={id('sp-grunn-b')}
-            bind:value={v.grunnB}
-            class:ugyldig={fB}
-            aria-describedby={fB
-              ? `${id('grunn-b-hjelp')} ${id('grunn-b-feil')}`
-              : id('grunn-b-hjelp')}
-            aria-invalid={fB ? 'true' : undefined}
-            aria-required="true"
-          ></textarea>
-          {#if fB}<p class="feilmelding" id={id('grunn-b-feil')}>{fB}</p>{/if}
+            merketAv={id('sp-grunn-b')}
+            hjelp={FRISTKRAV.grunnBHjelp}
+            rader={6}
+            bind:verdi={v.grunnB}
+            paakrevd
+            feil={fB}
+          />
         </Spoersmaal>
       {/if}
 
@@ -791,21 +787,15 @@
               </ul>
               <p>{FRISTKRAV.fremdriftsplan}</p>
             </div>
-            <textarea
+            <Tekstomraade
               id={id('begrunnelse')}
-              rows="6"
-              aria-labelledby={id('sp-begrunnelse')}
-              bind:value={v.begrunnelse}
-              class:ugyldig={begrunnelseFeil}
-              aria-describedby={begrunnelseFeil
-                ? `${id('begrunnelse-hjelp')} ${id('begrunnelse-feil')}`
-                : id('begrunnelse-hjelp')}
-              aria-invalid={begrunnelseFeil ? 'true' : undefined}
-              aria-required="true"
-            ></textarea>
-            {#if begrunnelseFeil}<p class="feilmelding" id={id('begrunnelse-feil')}>
-                {begrunnelseFeil}
-              </p>{/if}
+              merketAv={id('sp-begrunnelse')}
+              rader={6}
+              bind:verdi={v.begrunnelse}
+              paakrevd
+              feil={begrunnelseFeil}
+              foran={[id('begrunnelse-hjelp')]}
+            />
           </Spoersmaal>{/if}
       {/if}
 
@@ -980,18 +970,6 @@
     color: var(--ink-2);
     font-size: 12px;
   }
-  textarea:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
-  textarea {
-    padding: var(--spacing-3);
-    border: var(--control-border);
-    border-radius: var(--r-felt);
-    font: inherit;
-    background: var(--surface);
-    resize: vertical;
-  }
   .innrykk {
     display: flex;
     flex-direction: column;
@@ -1016,15 +994,6 @@
   .klar-over dd .dempet {
     margin-left: var(--spacing-2);
     font-weight: 400;
-  }
-  textarea.ugyldig {
-    border-color: var(--danger);
-    box-shadow: inset 0 0 0 1px var(--danger);
-  }
-  .feilmelding {
-    color: var(--danger);
-    font-size: 14px;
-    font-weight: 500;
   }
   .skjemafot {
     padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
