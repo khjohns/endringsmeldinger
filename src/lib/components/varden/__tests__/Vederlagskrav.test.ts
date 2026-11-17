@@ -353,6 +353,41 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
   });
 });
 
+describe('«Forkast utkast» i kravskjemaet (system.md «Forkast utkast», #2119)', () => {
+  it('spør i dialogen, og «Behold utkastet» lar kravposten stå', async () => {
+    await aapneSomTe('forholdet-er-godkjent');
+    await fireEvent.click(
+      within(
+        await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
+      ).getByRole('button')
+    );
+    await screen.findByRole('heading', { name: /^P1 · Ny kravpost/ });
+    await fireEvent.click(
+      within(screen.getByRole('form')).getByRole('button', { name: 'Forkast utkast' })
+    );
+    const dialogen = within(screen.getByRole('dialog', { name: 'Forkaste utkastet?' }));
+    expect(
+      dialogen.getByText(
+        'Kravpostene og forbeholdet du har skrevet i utkastet, slettes. Det kan ikke gjøres om.'
+      )
+    ).toBeTruthy();
+    await fireEvent.click(dialogen.getByRole('button', { name: 'Behold utkastet' }));
+    expect(screen.getByRole('heading', { name: /^P1 · Ny kravpost/ })).toBeTruthy();
+
+    await fireEvent.click(
+      within(screen.getByRole('form')).getByRole('button', { name: 'Forkast utkast' })
+    );
+    await fireEvent.click(
+      within(screen.getByRole('dialog', { name: 'Forkaste utkastet?' })).getByRole('button', {
+        name: 'Forkast utkast',
+      })
+    );
+    await vi.waitFor(() =>
+      expect(screen.queryByRole('heading', { name: /^P1 · Ny kravpost/ })).toBeNull()
+    );
+  });
+});
+
 describe('trekket av den særskilte vederlagsjusteringen (KA-U83, kravet i #1663)', () => {
   async function reviderKravetIBf44() {
     let demosak: Demosak | null = null;

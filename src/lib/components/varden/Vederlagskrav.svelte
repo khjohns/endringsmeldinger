@@ -30,6 +30,8 @@
   import Brevlinje from './Brevlinje.svelte';
   import Leseramme from './Leseramme.svelte';
   import Feltetikett from './Feltetikett.svelte';
+  import Forkastutkast from './Forkastutkast.svelte';
+  import Tekstomraade from './Tekstomraade.svelte';
   import { brevetVedSiden } from './medie.svelte';
   import Knapp from './Knapp.svelte';
   import Kravpunkter from './Kravpunkter.svelte';
@@ -547,19 +549,6 @@
       tilBrevkontrollen: (brevet) =>
         onbrevkontroll({ kommando, ...brevet, detteSender, virkninger: [], vedlegg }),
     });
-  }
-
-  let bekreftForkast = $state(false);
-  let forkastSpoersmaal = $state<HTMLElement | null>(null);
-  async function spoerOmForkast() {
-    bekreftForkast = true;
-    await tick();
-    forkastSpoersmaal?.focus();
-  }
-  async function behold() {
-    bekreftForkast = false;
-    await tick();
-    document.getElementById(id('forkast'))?.focus();
   }
 
   // Brevet leses ved siden av skjemaet, og på smal skjerm i skjemaet (`Vederlagssvar`).
@@ -1117,34 +1106,18 @@
             <span class="nummer" aria-hidden="true">{v.saerskilt ? 4 : 3}</span>
             <h3 id={id('forbehold-tittel')}>{KRAVSKJEMA.forbeholdPunkt}</h3>
           </div>
-          <div class="felt">
-            <Feltetikett for={id('forbehold-felt')} valgfri>{KRAVSKJEMA.forbehold}</Feltetikett>
-            <span class="hjelp" id={id('forbehold-hjelp')}>{KRAVSKJEMA.forbeholdHjelp}</span>
-            <textarea
-              id={id('forbehold-felt')}
-              rows="4"
-              bind:value={v.forbehold}
-              aria-describedby={id('forbehold-hjelp')}
-            ></textarea>
-          </div>
+          <Tekstomraade
+            id={id('forbehold-felt')}
+            etikett={KRAVSKJEMA.forbehold}
+            valgfri
+            hjelp={KRAVSKJEMA.forbeholdHjelp}
+            rader={4}
+            bind:verdi={v.forbehold}
+          />
         </section>{/if}
 
       <div class="skjemafot">
-        {#if bekreftForkast}
-          <div class="bekreft" role="group" aria-labelledby={id('forkast-spoersmaal')}>
-            <p id={id('forkast-spoersmaal')} tabindex="-1" bind:this={forkastSpoersmaal}>
-              {KRAVSKJEMA.forkastSpoersmaal}
-            </p>
-            <div class="knapper">
-              <Knapp onclick={onforkast}>{KRAVSKJEMA.forkastJa}</Knapp>
-              <Knapp variant="lenke" onclick={behold}>{KRAVSKJEMA.behold}</Knapp>
-            </div>
-          </div>
-        {:else}
-          <Knapp variant="lenke" id={id('forkast')} onclick={spoerOmForkast}
-            >{KRAVSKJEMA.forkast}</Knapp
-          >
-        {/if}
+        <Forkastutkast tekst={KRAVSKJEMA.forkastTekst} {onforkast} />
       </div>
     </Utkastkort>
   {/snippet}
@@ -1323,8 +1296,7 @@
     font-size: 14px;
   }
   .tekstfelt,
-  .kort-felt,
-  textarea {
+  .kort-felt {
     min-height: 44px;
     padding: 0 var(--spacing-3);
     border: var(--control-border);
@@ -1339,13 +1311,8 @@
   .kort-felt {
     width: 8em;
   }
-  textarea {
-    padding: var(--spacing-3);
-    resize: vertical;
-  }
   .tekstfelt:focus-visible,
-  .kort-felt:focus-visible,
-  textarea:focus-visible {
+  .kort-felt:focus-visible {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
   }
@@ -1418,19 +1385,6 @@
   }
   .skjemafot {
     padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
-  }
-  .bekreft {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
-  }
-  .bekreft p:focus {
-    outline: none;
-  }
-  .knapper {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-3);
   }
   .feste.fast {
     position: sticky;
