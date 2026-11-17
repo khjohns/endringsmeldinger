@@ -240,6 +240,26 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   forsvinner når feltet er rettet. Når kontrollen skjer, og hva som vises øverst i
   skjemaet, står i [MM-U32](#mm-u32). En feil fra serveren beklager og sier hva parten kan gjøre;
   en feil i utfyllingen går rett på sak. Ingen feilmelding i en egen dialog.
+- **Skjemaelementene er tegnet av Varden** (oppdragsgiver 17.11, #2163, skissen
+  [skjemaelementene.html](../docs/design/prototyper/skjemaelementene.html)). De er ekte
+  `input`-elementer med `appearance: none`, så tastaturet og skjermleseren er nettleserens, og ingen
+  komponent bruker `accent-color`.
+  - Radioknappen er en ring på 20 px i `--ink-3`, som partene i tråden. Valgt er ringen i blekk med
+    en prikk på 10 px.
+  - Avkrysningen er en firkant på 20 px med hjørnene til stempelet (`--r-merke`). Krysset av er den
+    fylt med blekk og har et hakk i flatefargen.
+  - I et valgkort er hele kortet treffflaten, minst 44 px. Valgt kort har `--surface-selected` og
+    kant på 1 px i blekk, og teksten beholder vekten, så den ikke flytter seg.
+  - Et felt er minst 44 px, med kant i `--rule-strong` og `--ink-3` ved hover. Et tall står til
+    høyre med `tabular-nums`, og enheten står i en egen flate i `--surface-inset`.
+  - Fokus er ringen i `--control-focus` rundt kortet eller feltet. Inaktivt er `--surface-inset`
+    med `--ink-4`. Feil er kanten i `--danger`, med meldingen under feltet.
+  - Prikken og hakket kommer på 120 ms med ease-out, og ikke når brukeren har valgt redusert
+    bevegelse.
+- **Utseendet velges med tre valg:** «Lys», «Mørk» og «Som systemet», som radioknapper i
+  brukermenyen, ikke en bryter eller et ikon alene, fordi valget har tre tilstander (oppdragsgiver
+  17.11, #2163, #1451). Valget lagres i `koe-theme`, som `app.html` leser. «Som systemet» følger
+  `prefers-color-scheme`, også når innstillingen endres mens siden er åpen.
 - **En feil har én form** (oppdragsgiver 17.11, #2163, skissen
   [feilmeldingene.html](../docs/design/prototyper/feilmeldingene.html)). Det gjelder lista over det
   som mangler, en sending som feiler og en sak som ikke kan hentes:
