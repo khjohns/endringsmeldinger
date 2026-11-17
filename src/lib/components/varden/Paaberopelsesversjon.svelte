@@ -10,9 +10,10 @@
 <script lang="ts">
   import { ChevronLeft } from 'lucide-svelte';
   import { tick } from 'svelte';
-  import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
-  import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
+  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import { sendeflyt } from './sendeflyt.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Brevutkast from './Brevutkast.svelte';
@@ -23,7 +24,7 @@
   import Tidslinje from './Tidslinje.svelte';
   import Utkastrad from './Utkastrad.svelte';
   import { nyVersjonAvPaaberopelsen } from './kommandoer';
-  import { medietreff } from './medie.svelte';
+  import { brevetVedSiden } from './medie.svelte';
   import { brevene, datoerISporet, innleggene, type Brevet } from './lesing';
   import { FORHOLDET, NYVERSJON, brevtittel, dato } from './tekster';
 
@@ -68,45 +69,30 @@
   });
 
   const kommando = $derived(nyVersjonAvPaaberopelsen(u, tekst ?? ''));
-  let hindring = $state<string | null>(null);
+  const flyt = sendeflyt(() => kjernesak, id('hindring'));
 
   // Begrunnelsen kreves; beskjeden står under feltet etter et forsøk (oppdragsgiver 07.11, MM-U32).
-  let provd = $state(false);
-  const mangler = $derived(provd && !(tekst ?? '').trim());
+  const mangler = $derived(flyt.forsoekt && !(tekst ?? '').trim());
 
-  async function tilForhaandsvisningen() {
-    hindring = null;
-    if (!(tekst ?? '').trim()) {
-      provd = true;
-      await tick();
-      felt?.focus();
-      return;
-    }
-    const b = kjernesak.brev(kommando, undefined, true);
-    const brevet = kontrollbrev(b);
-    if (!brevet) {
-      hindring = brevaarsak(b) ?? NYVERSJON.kanIkkeLages;
-      await tick();
-      document.getElementById(id('hindring'))?.focus();
-      return;
-    }
-    onbrevkontroll({
+  function tilForhaandsvisningen() {
+    return flyt.send({
+      mangler: (tekst ?? '').trim() ? null : () => felt,
       kommando,
-      ...brevet,
-      // Brevrelasjonene i brevkontrollen sier hva brevet erstatter og viser til.
-      detteSender: [],
-      virkninger: enig ? [NYVERSJON.enighet(svarbrevet!)] : [],
+      kanIkkeLages: NYVERSJON.kanIkkeLages,
+      tilBrevkontrollen: (brevet) =>
+        onbrevkontroll({
+          kommando,
+          ...brevet,
+          // Brevrelasjonene i brevkontrollen sier hva brevet erstatter og viser til.
+          detteSender: [],
+          virkninger: enig ? [NYVERSJON.enighet(svarbrevet!)] : [],
+        }),
     });
   }
 
   // Brevene står ved siden av utkastet, og på smal skjerm under det, der høyre kolonne står
   // under arbeidet (mønsteret i vederlagssvaret, oppdragsgiver 29.10, #1391).
-  const smalt = medietreff('(max-width: 1180px)');
-  const smal = $derived(smalt.treff);
-  $effect(() => {
-    onvedsiden?.(!smal);
-    return () => onvedsiden?.(false);
-  });
+  const side = brevetVedSiden(() => onvedsiden);
 
   // Ett brev er åpent om gangen: byggherrens svar fra start, ellers det nyeste.
   let valgtId = $state<string | null>(null);
@@ -130,7 +116,7 @@
   });
 </script>
 
-<Arbeidsflate leser={!smal} deling="utkast">
+<Arbeidsflate leser={side.vedSiden} deling="utkast">
   {#snippet rad()}
     <Utkastrad tittel={NYVERSJON.radtittel(nummer)} linje={NYVERSJON.til}>
       {#snippet tilbake()}
@@ -144,10 +130,13 @@
         <Knapp
           variant="primaer"
           onclick={tilForhaandsvisningen}
-          aria-describedby={hindring ? id('hindring') : undefined}>{NYVERSJON.forhaandsvis}</Knapp
+          aria-describedby={flyt.hindring ? flyt.hindringId : undefined}
+          >{NYVERSJON.forhaandsvis}</Knapp
         >
-        {#if hindring}
-          <Melding art="feil" levende={false} id={id('hindring')} tabindex="-1">{hindring}</Melding>
+        {#if flyt.hindring}
+          <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1"
+            >{flyt.hindring}</Melding
+          >
         {/if}
       {/snippet}
     </Utkastrad>
