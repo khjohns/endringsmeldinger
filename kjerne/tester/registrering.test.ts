@@ -1123,7 +1123,13 @@ describe('et svar lagt til fryses med svaret på forholdet utenfor rekken som va
       ],
       kontroller: [],
     };
-    const k = await kjoer(forloep, minnebane(), { valg: { klokke: dagklokke() } });
+    // Avvises et steg, kaster kjøreren en vanlig feil; feilinnføringene teller bare assertions.
+    const k = await kjoer(forloep, minnebane(), { valg: { klokke: dagklokke() } }).catch(
+      (feil: unknown) =>
+        expect.fail(
+          `forutsetning: stegene ble ikke kjørt: ${feil instanceof Error ? feil.message : String(feil)}`
+        )
+    );
     const u = await k.utledning();
     const data = (await k.bane.journal()).at(-1)!.data as {
       svar: { id: string; beslutningsgrunnlag: { linje: string } }[];
