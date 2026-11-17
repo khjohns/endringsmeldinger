@@ -1729,6 +1729,22 @@ def test_en_post_samlet_av_to_samlevedtak_telles_en_gang(grunnregister):
     ]
 
 
+@pytest.mark.parametrize("nyere", [True, False])
+def test_en_nyere_endring_av_en_samlet_post_telles_for_samlevedtaket(grunnregister, nyere):
+    """S3 A 17.11 i #2143: en endring av en samlet post som er nyere enn samlevedtaket, telles som
+    en endring av samlevedtaket, slik KA-U75 endrer KA-U56 etter at OV-U95 samlet den. XX-U1
+    samler KA-U1 og har to endringer. XX-U4 endrer KA-U1. En endring fra før samlevedtaket er tatt
+    inn i det og telles ikke."""
+    post = ny_post(id="XX-U4", forhold=[{"art": "endrer", "vedtak": "ka-u1"}])
+    post["dato"] = datetime.date(2026, 10, 13 if nyere else 11)
+    endret = med(_samlet_med_to_endringer(grunnregister), post)
+    forventet = [
+        "xx-u1: har fått 3 endringer etter at temaet er samlet; den neste endringen skrives "
+        "som et samlevedtak (svar 6 og 10 04.11 i #1534)"
+    ]
+    assert vr.varsler(endret, endret) == (forventet if nyere else [])
+
+
 def _samlet_med_to_endringer(grunnregister) -> dict:
     """XX-U1 samler KA-U1. XX-U2 presiserer og XX-U3 utvider XX-U1, som VS-U48 og KA-U69 gjør
     med OV-U95 i eksemplet i #1726."""

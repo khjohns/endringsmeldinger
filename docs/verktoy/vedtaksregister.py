@@ -1155,7 +1155,9 @@ def varsler(register: dict, gammel_register: dict | None) -> list[str]:
     gjeldende poster (svar 2 A i #1614). En endring av en post som endrer samlevedtaket, telles
     også, gjennom hele kjeden, men ikke videre gjennom et annet samlevedtak. En endring fra en
     post et gjeldende samlevedtak samler, telles fra samlevedtaket (S2 A 17.11 i #2143). Er posten
-    samlet av flere, telles den fra det nyeste. Hver post telles én gang, som i eksemplet i #1726."""
+    samlet av flere, telles den fra det nyeste. En endring av posten som er nyere enn samlevedtaket,
+    telles som en endring av samlevedtaket (S3 A 17.11 i #2143). Hver post telles én gang, som i
+    eksemplet i #1726."""
     ut = []
     if gammel_register is not None:
         paa_main = {p["id"] for p in _nye(gammel_register)}
@@ -1185,8 +1187,12 @@ def varsler(register: dict, gammel_register: dict | None) -> list[str]:
         a = anker(p) or etikett(p)
         fra = samlet_av[a][1] if a in samlet_av else a
         for f in p.get("forhold", []):
-            if f["art"] in ENDRINGER and fra != f["vedtak"]:
-                endrer[f["vedtak"]].append((fra, f["art"], f["vedtak"]))
+            if f["art"] in ENDRINGER:
+                til = f["vedtak"]
+                if til in samlet_av and er_ny(p) and p["dato"] > samlet_av[til][0]:
+                    til = samlet_av[til][1]
+                if fra != til:
+                    endrer[til].append((fra, f["art"], til))
     for a in sorted(telles):
         sett = {a} | {post for post, _, _ in endrer[a]}
         kjede, aapne = [], sorted(sett - {a} - telles)
