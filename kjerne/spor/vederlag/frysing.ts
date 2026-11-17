@@ -386,7 +386,7 @@ function beregningsregelen(post: Kravpost, svar: Kravpostvurdering) {
 }
 
 /** Feltene i kommandoen for posten etter § 34.1.3 annet ledd; feilene fra regelen føres tilbake til dem. */
-const PRODUKTIVITETSFELT = {
+export const PRODUKTIVITETSFELT = {
   vurdering: 'produktivitet_vurdering',
   godkjent_beloep: 'produktivitet_godkjent_beloep',
   varslet_i_tide: 'produktivitet_varslet_i_tide',
@@ -394,7 +394,7 @@ const PRODUKTIVITETSFELT = {
 } as const;
 
 /** Svaret i kommandoen som postene regelen regner over, og feltet i kommandoen for hver feil. */
-function svaretFraVurderingene(
+export function svaretFraVurderingene(
   v: Svarvurdering,
   krav: Krav,
   hovedkategori: string | null

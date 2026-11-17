@@ -931,7 +931,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/vederlag/format.ts',
     'predikat',
     'justerteEnhetspriser denAndreRegelen',
-    ['spor/vederlag/kommando.ts', 'regler/vederlag.ts:kontrollerOppgjoersformen'],
+    [
+      'spor/vederlag/kommando.ts',
+      'regler/vederlag.ts:kontrollerOppgjoersformen',
+      'regler/vederlag.ts:ubesvartIKravposten',
+    ],
   ],
   // KA-U64, KA-U68: varselet og justeringen gjelder justerte enhetspriser (#2025 punkt 2).
   ['spor/vederlag/format.ts', 'predikat', 'justerteEnhetspriser', ['spor/vederlag/utledning.ts']],
@@ -1044,6 +1048,32 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   // #1663, 2a-1b: kommandoens felt oversatt til postene i regelen, og feilene tilbake.
   ['spor/vederlag/frysing.ts:svaretFraVurderingene', 'regelsett', 'svar felt'],
+  // #2025 punkt 3: spørsmålene regelen krever svar på i et svarutkast, lest av svaret regelen
+  // kontrollerer, med feltene for posten etter § 34.1.3 annet ledd.
+  [
+    'spor/vederlag/frysing.ts',
+    'regelsett',
+    'svaretFraVurderingene PRODUKTIVITETSFELT',
+    ['spor/vederlag/kommando.ts:ubesvartIVederlaget'],
+  ],
+  [
+    'PRODUKTIVITETSFELT',
+    'kommando',
+    'vurdering varslet_i_tide',
+    ['spor/vederlag/kommando.ts:ubesvartIVederlaget'],
+  ],
+  [
+    'regler/vederlag.ts',
+    'regelsett',
+    'ubesvarteSpoersmaal ubesvartIKravposten',
+    ['spor/vederlag/kommando.ts:ubesvartIVederlaget'],
+  ],
+  ['UbesvartIVederlaget', 'regelsett', 'post felt'],
+  [
+    'regler/vederlag.ts:ubesvartIKravposten',
+    'utsagn',
+    'aksepterer oensket_oppgjoersform krever_tilbud godtar_justering',
+  ],
   ['UgyldigVurdering', 'regelsett', 'feil', ['spor/vederlag/frysing.ts']],
   // Kontrollene av vurderingene i svaret, med feltene fra `Svarvurdering` (#1695).
   ['regler/svarkontroll.ts', 'regelsett', 'kontrollerSpesifiseringen', ['spor/frist/frysing.ts']],
@@ -1539,8 +1569,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/frist/kommando.ts:spoersmaaletFor'],
   ],
   ['spor/frist/kommando.ts:utfylt(r)', 'kommando', 'dager_maatte_forstaa'],
-  // Spørsmålene regelsettet stiller i fristen, også i lagene i et svarutkast (#1925).
-  ['regler/frist.ts', 'regelsett', 'beregnSynlighet', ['spor/frist/kommando.ts:utfylt']],
+  // Spørsmålene regelsettet krever svar på i fristen, også i lagene i et svarutkast (#1925, #2025).
+  ['regler/frist.ts', 'regelsett', 'paakrevdeSpoersmaal', ['spor/frist/kommando.ts:utfylt']],
   ['spor/frist/frysing.ts', 'predikat', 'fristkravet', ['spor/frist/kommando.ts:utfylt']],
   // OV-U32, OV-U33: lagene i utkastet regnet som brevet regner dem, felles for sporene.
   [
@@ -1631,6 +1661,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/forhold/frysing.ts',
       'frosset/byggeklosser.ts',
       'spor/vederlag/frysing.ts',
+      'spor/vederlag/kommando.ts:ubesvartIVederlaget',
       'spor/forhold/kommando.ts:korrigering',
       'spor/forhold/kommando.ts:kontrollerKorrigering',
       'kommandoer/nyttelast.ts:grunnlagsdatoen',

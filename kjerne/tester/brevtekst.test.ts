@@ -27,6 +27,7 @@ import { regnUtSvar } from '../frosset/utregning.ts';
 import { innsigelsenErOppgitt } from '../frosset/standpunkt.ts';
 import { UgyldigVurdering } from '../regler/feil.ts';
 import { etterAkseptfristen } from '../regler/akseptfrist.ts';
+import { ubesvartIKravposten } from '../regler/vederlag.ts';
 import { harProduktivitetspost, kravposterI } from '../spor/vederlag/format.ts';
 import { innholdIFristen } from '../spor/frist/format.ts';
 import { LINJEN_I_FRISTEN } from '../spor/frist/tekst.ts';
@@ -11610,6 +11611,176 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
         for (const ved of [{}, { dokumentasjon: [PLAN] }])
           expect(formfeil({ type: 'krav', spor: 'vederlag', innhold, ...ved })).not.toEqual([]);
     });
+  });
+});
+
+/**
+ * #2025 punkt 3: kjernen sier hvilke spørsmål regelen krever svar på i et svarutkast, og som er
+ * ubesvart (`ubesvart` i `Utkastlag`). Forventningene har kilden i bestemmelsen kontrollen viser
+ * til, og hvert tilfelle prøves mot avvisningen når utkastet sendes: kjernen avviser feltet med
+ * «mangler». Prøven utelater rigg og drift og en revisjon av svaret.
+ */
+describe('spørsmålene regelen krever svar på i et svarutkast (#2025)', () => {
+  const sviktkrav = {
+    type: 'krav',
+    spor: 'forhold',
+    innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER },
+  };
+  /** Forholdet godkjent, og kravet i sporet. `svikt` gir varslingsplikt etter § 34.1.2. */
+  const saken = (krav: Data, svikt = false) => {
+    const s = sak();
+    s.send('TE', svikt ? sviktkrav : PAABEROPELSE);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'forhold',
+          s.krav('forhold'),
+          svikt ? { resultat: 'godkjent' } : { grunnlag_varslet_i_tide: true, resultat: 'godkjent' }
+        ),
+      ],
+    });
+    s.send('TE', krav);
+    return s;
+  };
+  const vederlagskravet = (innhold: Data): Data => ({ type: 'krav', spor: 'vederlag', innhold });
+  const utkastet = (s: ReturnType<typeof sak>, spor: 'frist' | 'vederlag', vurderinger: Data) =>
+    svar(
+      spor,
+      s.krav(spor),
+      spor === 'vederlag'
+        ? medKravpostIder(vurderinger, s.u().spor.vederlag.gjeldendeKrav)
+        : vurderinger
+    );
+  /** `ubesvart` med kravposten og fristen som betegnelse, så forventningen kan leses. */
+  const ubesvart = (s: ReturnType<typeof sak>, spor: 'frist' | 'vederlag', vurderinger: Data) => {
+    const ider = new Map<string, string>([
+      ...(s.u().spor.vederlag.gjeldendeKrav
+        ? kravposterI(s.u().spor.vederlag.gjeldendeKrav!)
+        : []
+      ).map((p) => [p.id, p.betegnelse] as [string, string]),
+      ...(s.u().spor.frist.gjeldendeKrav
+        ? innholdIFristen(s.u().spor.frist.gjeldendeKrav!).frister.map(
+            (f, i) => [f.id, `frist ${i + 1}`] as [string, string]
+          )
+        : []),
+    ]);
+    return lagForUtkastet(
+      utkastet(s, spor, vurderinger) as Svarutkast,
+      s.u(),
+      KJERNE.regler
+    ).ubesvart.map(({ spoersmaal, gjelder }) =>
+      gjelder === undefined ? spoersmaal : `${ider.get(gjelder)}.${spoersmaal}`
+    );
+  };
+  const melding = (s: ReturnType<typeof sak>, spor: 'frist' | 'vederlag', vurderinger: Data) =>
+    s.avvisning('BH', { type: 'brev', svar: [utkastet(s, spor, vurderinger)] })?.melding ?? '';
+
+  it('fristen: uten svar er varselet etter § 33.4, spesifiseringen etter § 33.6.1, hindringen etter § 33.1 og dagene etter § 33.5 påkrevd', () => {
+    const s = saken(FRISTKRAV);
+    expect(ubesvart(s, 'frist', { frister: [{}] })).toEqual([
+      'frist_varsel_ok',
+      'spesifisert_krav_ok',
+      'vilkar_oppfylt',
+      'frist 1.dager',
+    ]);
+    expect(melding(s, 'frist', { frister: [{}] })).toContain(
+      'frist_varsel_ok: mangler (punkt 33.4)'
+    );
+  });
+
+  it('fristen: med hvert spørsmål besvart er ingenting ubesvart, og kjernen avviser ikke svaret for et manglende svar', () => {
+    const s = saken(FRISTKRAV);
+    const besvart = {
+      frist_varsel_ok: true,
+      spesifisert_krav_ok: true,
+      vilkar_oppfylt: true,
+      frister: [{ dager: 20 }],
+    };
+    expect(ubesvart(s, 'frist', besvart)).toEqual([]);
+    expect(melding(s, 'frist', besvart)).not.toContain('mangler');
+  });
+
+  it('fristen: dagene er ubesvart til de er et tall, også når resten er besvart (§ 33.5)', () => {
+    const s = saken(FRISTKRAV);
+    const v = {
+      frist_varsel_ok: true,
+      spesifisert_krav_ok: true,
+      vilkar_oppfylt: false,
+      frister: [{}],
+    };
+    expect(ubesvart(s, 'frist', v)).toEqual(['frist 1.dager']);
+    expect(melding(s, 'frist', v)).toContain('mangler (punkt 33.5)');
+  });
+
+  it('vederlaget: uten svar er varselet etter § 34.1.2, beløpet og svaret på tilbudet etter § 34.2.2 påkrevd (OV-U15, KA-U57 (d))', () => {
+    const s = saken(vederlagskravet(tilbud(100000)), true);
+    expect(ubesvart(s, 'vederlag', {})).toEqual([
+      'hovedkrav_varslet_i_tide',
+      'P1.vurdering',
+      'P1.aksepterer',
+    ]);
+    const m = melding(s, 'vederlag', {});
+    expect(m).toContain('varslet_i_tide: mangler (punkt 34.1.2)');
+    expect(m).toContain('P1.vurdering: mangler');
+    expect(m).toContain('P1.aksepterer: mangler (punkt 34.2.2)');
+  });
+
+  it('vederlaget: varselet etter § 34.1.2 er ikke påkrevd når varslingsplikten ikke gjelder kategorien, og beløpet ikke når tilbudet ikke aksepteres (OV-U15, KA-U72)', () => {
+    const s = saken(vederlagskravet(tilbud(100000)));
+    const v = {
+      kravposter: [{ gjelder: 'P1', aksepterer: false, oensket_oppgjoersform: 'regningsarbeid' }],
+    };
+    expect(ubesvart(s, 'vederlag', v)).toEqual([]);
+    expect(melding(s, 'vederlag', v)).not.toContain('mangler');
+  });
+
+  it('vederlaget: oppgjørsformen byggherren mener, er påkrevd når tilbudet ikke aksepteres (arbeidsvalget i #479)', () => {
+    const s = saken(vederlagskravet(tilbud(100000)));
+    const v = { kravposter: [{ gjelder: 'P1', aksepterer: false }] };
+    // Lagene regnes ikke for et slikt utkast (oppfølgingen fra #2025), så regelen prøves direkte.
+    expect(ubesvartIKravposten({ aksepterer: false }, { oppgjoersform: 'tilbud' })).toEqual([
+      'oensket_oppgjoersform',
+    ]);
+    expect(melding(s, 'vederlag', v)).toContain('P1.oensket_oppgjoersform: mangler');
+  });
+
+  const justert = { beskrivelse: 'Spunt', oppgjoersform: 'enhetspriser', justert: true };
+
+  it('vederlaget: med justerte enhetspriser godtatt er justeringen påkrevd, og svaret på varselet etter § 34.3.3 er det ikke (VS-U57 B, VS-U46 punkt 10 og 12, arbeidsvalg A 16.11 i #2025)', () => {
+    const s = saken(vederlagskravet({ kravposter: [justert] }));
+    const v = { kravposter: [{ gjelder: 'P1', aksepterer: true }] };
+    expect(ubesvart(s, 'vederlag', v)).toEqual(['P1.godtar_justering']);
+    expect(melding(s, 'vederlag', v)).toContain('P1.godtar_justering: mangler');
+    const medJustering = {
+      kravposter: [{ gjelder: 'P1', aksepterer: true, godtar_justering: true }],
+    };
+    expect(ubesvart(s, 'vederlag', medJustering), 'uten svar på varselet').toEqual([]);
+    expect(melding(s, 'vederlag', medJustering)).not.toContain('mangler');
+  });
+
+  it('vederlaget: med kravet om tilbud etter § 34.2.1 er oppgjørsformen byggherren mener, ikke påkrevd (svar 3 A 10.11 for #1663)', () => {
+    const s = saken(vederlagskravet({ kravposter: [justert] }));
+    const v = { kravposter: [{ gjelder: 'P1', aksepterer: false, krever_tilbud: true }] };
+    expect(ubesvart(s, 'vederlag', v)).toEqual([]);
+  });
+
+  it('vederlaget: for posten etter § 34.1.3 annet ledd er beløpet og varselet etter § 34.1.3 påkrevd', () => {
+    const s = saken(
+      vederlagskravet(tilbud(100000, { saerskilt: { produktivitet: { beloep: 40000 } } }))
+    );
+    const v = {
+      kravposter: [
+        { gjelder: 'P1', aksepterer: true, vurdering: 'godkjent', godkjent_beloep: 100000 },
+      ],
+    };
+    expect(ubesvart(s, 'vederlag', v)).toEqual([
+      'produktivitet_vurdering',
+      'produktivitet_varslet_i_tide',
+    ]);
+    const m = melding(s, 'vederlag', v);
+    expect(m).toContain('produktivitet_vurdering: mangler');
+    expect(m).toContain('produktivitet_varslet_i_tide: mangler (punkt 34.1.3)');
   });
 });
 

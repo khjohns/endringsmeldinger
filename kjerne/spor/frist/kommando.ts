@@ -39,7 +39,7 @@ import {
 } from './utledning.ts';
 import { fristinnhold, innholdIFristen } from './format.ts';
 import { fristkravet, fristvurderinger } from './frysing.ts';
-import { beregnSynlighet } from '../../regler/frist.ts';
+import { paakrevdeSpoersmaal, type Fristspoersmaal } from '../../regler/frist.ts';
 import type { Utkastlag } from '../poster/kommando.ts';
 import { lageneIUtkastet } from '../../kommandoer/utkastlag.ts';
 
@@ -191,17 +191,14 @@ export type Forutsetning =
   | { grunn: Subsidiaergrunn }
   | { innsigelse: '33.4' | '33.6.2' | '33.6.1' | 'hindring' };
 
-/** Lagene i et svarutkast på fristen. Fristen har ingen egne felt i standpunktet. */
-export type LagIFristen = Utkastlag<Forutsetning>;
-
-type Spoersmaal =
-  | 'frist_varsel_ok'
-  | 'foresporsel_svar_ok'
-  | 'vilkar_oppfylt'
-  | 'spesifisert_krav_ok';
+/**
+ * Lagene i et svarutkast på fristen, med spørsmålene om hele kravet og dagene for hver frist
+ * (`gjelder`). Fristen har ingen egne felt i standpunktet.
+ */
+export type LagIFristen = Utkastlag<Forutsetning, Fristspoersmaal | 'dager'>;
 
 /** Spørsmålet i svaret hvert standpunkt om hele kravet svarer på. */
-const SPOERSMAALET: Readonly<Record<string, Spoersmaal>> = {
+const SPOERSMAALET: Readonly<Record<string, Fristspoersmaal>> = {
   'rettidighet 33.4': 'frist_varsel_ok',
   'rettidighet 33.6.2': 'foresporsel_svar_ok',
   hindring: 'vilkar_oppfylt',
@@ -209,7 +206,7 @@ const SPOERSMAALET: Readonly<Record<string, Spoersmaal>> = {
 };
 
 /** Spørsmålet standpunktet svarer på, eller `null` for dagene. */
-function spoersmaaletFor(s: Standpunkt): Spoersmaal | null {
+function spoersmaaletFor(s: Standpunkt): Fristspoersmaal | null {
   if (s.art === 'dager') return null;
   const noekkel = s.art === 'rettidighet' ? `${s.art} ${s.hjemmel}` : s.art;
   const felt = SPOERSMAALET[noekkel];
@@ -218,15 +215,15 @@ function spoersmaaletFor(s: Standpunkt): Spoersmaal | null {
 }
 
 /**
- * Vurderingene i utkastet med hvert ubesvart spørsmål regelsettet stiller (`beregnSynlighet`),
+ * Vurderingene i utkastet med hvert ubesvart spørsmål regelsettet stiller (`paakrevdeSpoersmaal`),
  * besvart uten innsigelse (S1-A), og spørsmålene som var ubesvart (#1925, KA-U78).
  */
 function utfylt(v: Svarutkast['vurderinger'], u: Utledning) {
-  const synlig = beregnSynlighet(fristkravet(0, foresporselForFristsvar(u)));
-  const gjelder: Record<Spoersmaal, boolean> = { ...synlig, vilkar_oppfylt: true };
   const mangler = (x: unknown) => x === null || x === undefined;
   const ubesvart = new Set(
-    (Object.keys(gjelder) as Spoersmaal[]).filter((felt) => gjelder[felt] && mangler(v[felt]))
+    paakrevdeSpoersmaal(fristkravet(0, foresporselForFristsvar(u)))
+      .map(([felt]) => felt)
+      .filter((felt) => mangler(v[felt]))
   );
   const utfylt: Record<string, unknown> = { ...v };
   for (const felt of ubesvart) utfylt[felt] = true;
@@ -268,7 +265,11 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
     utregning,
   };
   const { grunner, virkning, lag, etikett } = lageneIUtkastet(svar, utkast, u, regler);
-  const dagene = fristvurderinger(v, krav);
+  const utenDager = new Set(
+    fristvurderinger(v, krav)
+      .filter((f) => typeof f.dager !== 'number')
+      .map((f) => f.gjelder)
+  );
   // Hvert standpunkt i et tidligere lag i sporet åpnet laget etter seg (OV-U32).
   const aapnetLaget = (f: Standpunkt): Forutsetning[] => {
     if (f.art === 'rettidighet')
@@ -278,16 +279,17 @@ export function lagIFristen(utkast: Svarutkast, u: Utledning, regler: Regelsett)
     return [];
   };
   return {
+    ubesvart: [
+      ...[...ubesvart].map((spoersmaal) => ({ spoersmaal })),
+      ...[...utenDager].map((gjelder) => ({ spoersmaal: 'dager' as const, gjelder })),
+    ],
     standpunkter: svar.standpunkter.map((s, i) => {
       const l = lag[i]!;
       return {
         art: s.art,
         ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
         ...(s.art === 'dager' ? { gjelder: s.gjelder } : {}),
-        besvart:
-          s.art === 'dager'
-            ? dagene.some((f) => f.gjelder === s.gjelder && typeof f.dager === 'number')
-            : !ubesvart.has(spoersmaaletFor(s)!),
+        besvart: s.art === 'dager' ? !utenDager.has(s.gjelder) : !ubesvart.has(spoersmaaletFor(s)!),
         virkning: virkning[i]!,
         etikett: etikett[i]!,
         forutsetninger:

@@ -91,17 +91,32 @@ export function resultatAvDager(hindring: boolean, krevd: number, godkjent: numb
 
 const erHeltall = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v);
 
-export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
-  const feil: Record<string, string> = {};
+/** Et spørsmål om hele kravet byggherren tar stilling til i svaret. */
+export type Fristspoersmaal =
+  | 'frist_varsel_ok'
+  | 'spesifisert_krav_ok'
+  | 'foresporsel_svar_ok'
+  | 'vilkar_oppfylt';
+
+/**
+ * Spørsmålene om hele kravet regelen krever svar på (`beregnSynlighet`, og hindringen etter
+ * § 33.1 alltid), med bestemmelsen. Dagene for hver frist kreves i tillegg (`kontroller`).
+ */
+export function paakrevdeSpoersmaal(krav: Fristkrav): [Fristspoersmaal, string][] {
   const synlig = beregnSynlighet(krav);
-  const spoersmaal: [boolean, keyof Fristvurdering, string][] = [
+  const spoersmaal: [boolean, Fristspoersmaal, string][] = [
     [synlig.frist_varsel_ok, 'frist_varsel_ok', 'punkt 33.4'],
     [synlig.spesifisert_krav_ok, 'spesifisert_krav_ok', 'punkt 33.6.1'],
     [synlig.foresporsel_svar_ok, 'foresporsel_svar_ok', 'punkt 33.6.2'],
     [true, 'vilkar_oppfylt', 'punkt 33.1'],
   ];
-  for (const [gjelder, felt, hjemmel] of spoersmaal) {
-    if (gjelder && mangler(v[felt])) feil[felt] = `mangler (${hjemmel})`;
+  return spoersmaal.filter(([gjelder]) => gjelder).map(([, felt, hjemmel]) => [felt, hjemmel]);
+}
+
+export function kontroller(v: Fristvurdering, krav: Fristkrav): void {
+  const feil: Record<string, string> = {};
+  for (const [felt, hjemmel] of paakrevdeSpoersmaal(krav)) {
+    if (mangler(v[felt])) feil[felt] = `mangler (${hjemmel})`;
   }
   // VS-U29: etter begrunnelsen gjentar svaret byggherrens innsigelse mot den, eller gir den opp.
   if (
