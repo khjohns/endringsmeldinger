@@ -3955,7 +3955,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F703',
     feilklasse:
-      'byggherren kan mene den beregningsregelen totalentreprenøren krever (OV-U95 punkt 1 og 5, #2025 punkt 2)',
+      'byggherren kan mene den beregningsregelen totalentreprenøren krever (OV-U115 punkt 1 og 5, #2025 punkt 2)',
     fil: `${K}/regler/vederlag.ts`,
     endringer: [
       [
@@ -4768,7 +4768,7 @@ const MUTASJONER: Mutasjon[] = [
   {
     id: 'F481',
     feilklasse:
-      'svaret godkjenner et beløp for en kravpost etter en beregningsregel (OV-U95 punkt 5, #1663)',
+      'svaret godkjenner et beløp for en kravpost etter en beregningsregel (OV-U115 punkt 5, #1663)',
     fil: `${K}/regler/vederlag.ts`,
     endringer: [
       ['    if (regelen(p)) {\n      const grunn =', '    if (false) {\n      const grunn ='],
