@@ -5,13 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Utkastet som brev</title>
 <!--
-  Prototype av hodet og oppbygningen i et skjema som blir et brev (#2163, versjon 3). Utkastet er
+  Prototype av hodet og oppbygningen i et skjema som blir et brev (#2163, versjon 4). Utkastet er
   brevet mens det skrives: en smal arbeidsrad for utkastet, tittelen i avsenderens brevskrift,
   seksjonene som punktene i brevet og hilsenen til slutt. Brevet folder seg ut i to steg: i
   skjemaet står hodet sammenfoldet, og hele brevhodet kommer i brevkontrollen. Punktet som venter
   på svar, leder (versjon 2, oppdragsgiver 17.11: blikket fant ikke oppgaven i versjon 1). Versjon 3:
   det gule er krympet til stempelet «Utkast · ikke sendt» i brevhodet, der det sendte brevet får
   «Sendt …», arket har stiplet kant, tilbakelenken står over arket og stegviseren øverst i panelet.
+  Versjon 4: i brevkontrollen er «Dette sender du» punktene i brevet, én linje hver, og «Når du
+  sender» står rett over avkrysningen med kant i blekk, fordi virkningen bare står der.
   Tilstandene er ankrene #<part>-<steg>[-nederst]: part te (krav om vederlagsjustering) eller bh
   (svar på kravet), steg skjema eller brevet, og «-nederst» når «Se brevet før sending» også står
   nederst i skjemaet. Teksten er prototypetekst; ingressen og punktene i brevet er kjernens tekst
@@ -32,7 +34,7 @@
   --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   --font-brev:'Source Serif 4','Noto Sans',serif;
   --font-brev-bh:'Oslo Sans','Noto Sans',sans-serif;
-  --r-kort:12px; --r-merke:2px; --r-felt:4px; --r-innfelt:6px; --r-knapp:999px;
+  --r-kort:12px; --r-merke:2px; --r-felt:4px; --r-innfelt:6px; --r-knapp:6px;
   --varden-ark:760px; --varden-stoette:360px;
   --sperring-20:-0.01em;
 }
@@ -213,13 +215,16 @@ textarea.felt{min-height:84px;resize:vertical}
 .stegviser b{display:inline-flex;width:20px;height:20px;align-items:center;justify-content:center;border:1px solid var(--rule-strong-color);border-radius:999px;font-weight:500;font-size:12px;margin-right:4px}
 .stegviser [aria-current="step"]{color:var(--ink);font-weight:600}
 .stegviser [aria-current="step"] b{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.virkning{border-left:3px solid var(--ink)!important;background:var(--surface-inset)}
+.virkning h3{font-size:14px;font-weight:600;margin-bottom:4px}
+.virkning p{color:var(--ink)}
 </style>
 </head>
 <body>
 <div id="skall" data-part="bh" data-steg="skjema" data-nederst="nei" data-vis-spor="nei">
 
 <div class="mockup" role="region" aria-label="Prototypevalg">
-  <b>Prototype · Utkastet som brev · v3</b>
+  <b>Prototype · Utkastet som brev · v4</b>
   <div class="gruppe" role="group" aria-label="Vis som"><span>Vis som</span>
     <button type="button" data-velg-part="bh">Byggherren</button>
     <button type="button" data-velg-part="te">Totalentreprenøren</button>
@@ -419,23 +424,30 @@ textarea.felt{min-height:84px;resize:vertical}
     </div>
 
     <div class="steg-brevet">
-      <h2>Kontroller og send</h2>
-      <dl class="felt-par" style="margin-top:12px">
+      <dl class="felt-par">
         <dt>Mottaker</dt><dd class="bh">Veidekke Entreprenør AS</dd><dd class="te">Oslobygg KF</dd>
         <dt>Svarer på</dt><dd class="bh">Brev 3</dd><dd class="te">Brev 4</dd>
       </dl>
     </div>
-    <div class="steg-brevet">
-      <h3 style="font-size:14px;font-weight:600">Dette sender du</h3>
-      <ul class="sender bh">
-        <li>Prinsipalt avslår du forholdet, som i brev 2.</li>
-        <li>Subsidiært gjør du gjeldende at varselet etter punkt 34.1.2 kom for sent.</li>
-        <li>Videre subsidiært godkjenner du fast sum og 60 000 kr av 100 000 kr.</li>
-      </ul>
-      <ul class="sender te">
-        <li>P1: 100 000 kr som fast sum.</li>
-        <li>Varselet etter punkt 34.1.2 gis i dette brevet.</li>
-      </ul>
+    <!-- Versjon 4: «Dette sender du» er punktene i brevet, én linje hver, ikke brevet på nytt. -->
+    <div class="steg-brevet" data-spor="K-1">
+      <h3 style="font-size:14px;font-weight:600">Punktene i brevet</h3>
+      <ol class="punktliste bh">
+        <li><b>1</b><div>Forholdet<span>Avslått i brev 2</span></div></li>
+        <li><b>2</b><div>Varselet<span>Varslet for sent</span></div></li>
+        <li><b>3</b><div>Beregningsmetode<span>Fast sum godkjent</span></div></li>
+        <li><b>4</b><div>Vederlagsjustering<span class="num">60 000 av 100 000 kr</span></div></li>
+      </ol>
+      <ol class="punktliste te">
+        <li><b>1</b><div>Vederlagsjustering<span class="num">P1: 100 000 kr, fast sum</span></div></li>
+        <li><b>2</b><div>Varslene<span>Gis i dette brevet</span></div></li>
+      </ol>
+    </div>
+    <!-- Virkningen er det parten tar stilling til, så den står rett over avkrysningen og leder. -->
+    <div class="steg-brevet virkning" data-spor="K-2">
+      <h3>Når du sender</h3>
+      <p class="bh">Totalentreprenøren kan godta svaret. Da gjelder aksepten hele svaret, også at varselet kom for sent.</p>
+      <p class="te">Kravet er også varselet om vederlagsjustering etter punkt 34.1.2.</p>
     </div>
     <div class="steg-brevet">
       <label class="avkrysning"><input type="checkbox"> Jeg har kontrollert brevet</label>
@@ -488,11 +500,11 @@ textarea.felt{min-height:84px;resize:vertical}
     const aktiv = oppgaver.find(s => !besvart(s)) ?? null;
     oppgaver.forEach(s => { s.classList.toggle('aktiv', s === aktiv); s.classList.toggle('besvart', besvart(s)); });
     const nr = aktiv ? aktiv.querySelector('.punktnavn').textContent.split('.')[0] : null;
-    document.querySelectorAll(`.punktliste.${part} li`).forEach(li => li.classList.toggle('aktiv', li.querySelector('b').textContent === nr));
+    document.querySelectorAll(`.steg-skjema .punktliste.${part} li`).forEach(li => li.classList.toggle('aktiv', li.querySelector('b').textContent === nr));
     // Panelet sier det brevet kommer til å si om punktet.
     oppgaver.forEach(s => {
       const n = s.querySelector('.punktnavn').textContent.split('.')[0];
-      const li = [...document.querySelectorAll(`.punktliste.${part} li`)].find(l => l.querySelector('b').textContent === n);
+      const li = [...document.querySelectorAll(`.steg-skjema .punktliste.${part} li`)].find(l => l.querySelector('b').textContent === n);
       const valgt = [...s.querySelectorAll('input[type=radio]:checked')].map(i => i.closest('label').textContent.trim());
       if (li && part === 'bh') li.querySelector('span').textContent = valgt.length ? valgt.join(', ') : 'Ikke besvart';
     });
