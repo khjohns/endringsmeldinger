@@ -7,7 +7,7 @@
  */
 
 import '@testing-library/jest-dom/vitest';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 import { MERKING, SAK, linje, opprettet, skrevet } from '#lib/kjernesak/__tests__/provejournal.ts';
@@ -201,5 +201,44 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
       'standpunktet ditt til oppgjørsformen ikke fører frem',
       'innsigelsen om at varselet etter punkt\u00a034.3.3 kom for sent ikke fører frem',
     ]);
+  });
+
+  it('et valgfritt svar på varselet etter punkt 34.3.3 kan fjernes med «Fjern svaret», og fokus går til det første valget (oppdragsgiver 17.11 i #2137, U-19 i BF-14)', async () => {
+    const sendt = await svarskjemaet();
+    await fireEvent.click(radio('Godkjenner regningsarbeid (punkt 34.4)'));
+    await ferdig();
+    await aapne('P2');
+    await fireEvent.click(radio('Mener regningsarbeid (punkt 34.4)'));
+    const gruppe = screen.getByRole('group', {
+      name: 'Varselet om justering av enhetsprisene (punkt 34.3.3), Valgfri',
+    });
+    const fjern = () => within(gruppe).queryByRole('button', { name: /^Fjern svaret/ });
+    expect(fjern()).toBeNull();
+    // Kontrollsak: spørsmålet om oppgjørsformen er ikke valgfritt og har ingen knapp.
+    expect(
+      within(radio('Mener regningsarbeid (punkt 34.4)').closest('fieldset')!).queryByRole(
+        'button',
+        { name: /^Fjern svaret/ }
+      )
+    ).toBeNull();
+    await fireEvent.click(within(gruppe).getByRole('radio', { name: 'Kom for sent' }));
+    expect(fjern()).toHaveAccessibleName(
+      'Fjern svaret på «Varselet om justering av enhetsprisene (punkt 34.3.3)»'
+    );
+    await fireEvent.click(fjern()!);
+    expect(
+      within(gruppe)
+        .getAllByRole('radio')
+        .filter((r) => (r as HTMLInputElement).checked)
+    ).toEqual([]);
+    expect(fjern()).toBeNull();
+    await vi.waitFor(() => expect(within(gruppe).getAllByRole('radio')[0]).toHaveFocus());
+    // Brevet har ikke noe standpunkt til varselet etter punkt 34.3.3.
+    await fireEvent.click(radio('Varslet i tide'));
+    await seBrevet();
+    expect(sendt).toHaveLength(1);
+    expect(sendt[0]!.avsnitt.map((a) => a.laast).join(' ')).not.toMatch(
+      /varselet om justering av enhetsprisene/
+    );
   });
 });
