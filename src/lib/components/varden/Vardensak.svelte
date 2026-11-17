@@ -10,8 +10,10 @@
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { tick, untrack, type Snippet } from 'svelte';
   import { medietreff } from './medie.svelte';
+  import { fokuser } from './mangler';
+  import { brevTilKontrollen } from './sendeflyt.svelte';
   import { sakensKode } from '#kjerne/frosset/tekst.ts';
-  import Brevkontroll, { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
+  import Brevkontroll, { type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
   import Melding from './Melding.svelte';
@@ -366,8 +368,7 @@
   async function tilSaken(tekst: string, art: 'sendt' | 'forkastet') {
     arbeid = { art: 'les' };
     melding = { tekst, art };
-    await tick();
-    meldingen?.focus();
+    await fokuser(() => meldingen);
   }
 
   /** Utkastet i skjemaet `n` er forkastet. Svarutkastet forkastes med `forkast`. */
@@ -391,11 +392,10 @@
       kjernesak.fjernFeil();
       arbeid = k.tilbake;
       melding = { tekst: MOTTATT.sakenEndret, art: 'endret' };
-      await tick();
-      meldingen?.focus();
+      await fokuser(() => meldingen);
       return;
     }
-    const brevet = kontrollbrev(kjernesak.brev(k.kommando, k.vedlegg, true));
+    const { brevet } = brevTilKontrollen(kjernesak, k.kommando, k.vedlegg);
     if (!brevet) return;
     // LV-U2.
     arbeid = { ...arbeid, ...brevet };

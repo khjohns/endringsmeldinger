@@ -28,6 +28,7 @@
   import Tallfelt from './Tallfelt.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
   import Utkastkort from './Utkastkort.svelte';
+  import { faarPlass } from './fastlinje.svelte';
   import { fokuser } from './mangler';
   import { ChevronDown } from 'lucide-svelte';
   import {
@@ -103,26 +104,7 @@
   // Ellers står bare panelet fast, og tidslinja ruller under det (oppdragsgiver 02.11).
   let panel = $state<HTMLElement | null>(null);
   let linja = $state<HTMLElement | null>(null);
-  let panelhoeyde = $state(0);
-  let faarPlass = $state(true);
-  $effect(() => {
-    const p = panel;
-    const l = linja;
-    if (!p || !l || typeof ResizeObserver === 'undefined') return;
-    const maal = () => {
-      panelhoeyde = p.offsetHeight;
-      faarPlass = p.offsetHeight + 16 + l.offsetHeight + 32 <= window.innerHeight;
-    };
-    const ro = new ResizeObserver(maal);
-    ro.observe(p);
-    ro.observe(l);
-    window.addEventListener('resize', maal);
-    maal();
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', maal);
-    };
-  });
+  const plass = faarPlass(() => [panel, linja]);
 
   // Tidslinja viser datoene etter hvert som TE fyller dem ut, og dagen brevet sendes. Datoene
   // står der og ikke i panelet (oppdragsgiver 02.11, #1492).
@@ -563,8 +545,8 @@
       </div>
       <div
         class="linja"
-        class:fast={faarPlass}
-        style:--panelhoeyde={`${panelhoeyde}px`}
+        class:fast={plass.faarPlass}
+        style:--panelhoeyde={`${plass.hoeyder[0] ?? 0}px`}
         bind:this={linja}
       >
         <Tidslinje brev={[]} datoer={[]} utfylt={tidslinja} />

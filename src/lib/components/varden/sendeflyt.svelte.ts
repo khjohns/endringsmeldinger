@@ -31,6 +31,18 @@ export interface Sendesteg {
   tilBrevkontrollen: (brevet: Kontrollbrev) => void;
 }
 
+/** Brevet til brevkontrollen, eller årsaken kjernen gir når det ikke kan lages. */
+export function brevTilKontrollen(
+  kjernesak: Kjernesakkontekst,
+  kommando: Kommando,
+  vedlegg?: Parameters<Kjernesakkontekst['brev']>[1],
+  aarsak: (b: Kjernebrevet) => string | null = brevaarsak
+): { brevet: Kontrollbrev | null; aarsak: string | null } {
+  const b = kjernesak.brev(kommando, vedlegg, true);
+  const brevet = kontrollbrev(b);
+  return { brevet, aarsak: brevet ? null : aarsak(b) };
+}
+
 /**
  * Kalles mens komponenten initialiseres. `hindringId` er ID-en til meldingen om hindringen, som
  * knappen viser til med `aria-describedby`.
@@ -70,10 +82,9 @@ export function sendeflyt(kjernesak: () => Kjernesakkontekst, hindringId: string
       if (await leggTil(s.kommando, s.vedlegg, s.kanIkkeLages)) s.registrert();
       return;
     }
-    const b = kjernesak().brev(s.kommando, s.vedlegg, true);
-    const brevet = kontrollbrev(b);
-    if (!brevet) return hindre((s.aarsak ?? brevaarsak)(b) ?? s.kanIkkeLages);
-    s.tilBrevkontrollen(brevet);
+    const r = brevTilKontrollen(kjernesak(), s.kommando, s.vedlegg, s.aarsak);
+    if (!r.brevet) return hindre(r.aarsak ?? s.kanIkkeLages);
+    s.tilBrevkontrollen(r.brevet);
   }
 
   return {
