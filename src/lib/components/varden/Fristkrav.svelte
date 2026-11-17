@@ -14,13 +14,10 @@
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
-  import { fastLinje } from './fastlinje.svelte';
-  import Arbeidsflate from './Arbeidsflate.svelte';
-  import Forkastutkast from './Forkastutkast.svelte';
+  import Brevskjema from './Brevskjema.svelte';
   import Gjeldendefrist from './Gjeldendefrist.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Knapp from './Knapp.svelte';
-  import Manglene from './Manglene.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import type { Mangel } from './mangler';
   import { sendeflyt } from './sendeflyt.svelte';
@@ -28,7 +25,6 @@
   import Tallfelt from './Tallfelt.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
   import Tidslinje from './Tidslinje.svelte';
-  import Utkastkort from './Utkastkort.svelte';
   import Valg from './Valg.svelte';
   import Korrespondansen from './Korrespondansen.svelte';
   import {
@@ -38,7 +34,6 @@
     tomKorrespondanse,
     type Korrespondansevalg,
   } from './korrespondansen';
-  import Lagttillinje from './Lagttillinje.svelte';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
   import {
     fristkravet,
@@ -400,33 +395,7 @@
         }),
     });
   }
-
-  let panel = $state<HTMLElement | null>(null);
-  const linja = fastLinje(
-    uid,
-    () => panel,
-    () => false
-  );
 </script>
-
-{#snippet sendeknapp()}
-  <div class="handling">
-    <Knapp
-      variant="primaer"
-      opptatt={(registreres || !!lagtTil) && kjernesak.sender}
-      onclick={seBrevet}
-      aria-describedby={flyt.hindring ? flyt.hindringId : undefined}
-      >{lagtTil
-        ? LEGG_TIL.leggTilKravet
-        : registreres
-          ? FRISTKRAV.registrer
-          : HOVEDLINJER.seBrevet}</Knapp
-    >
-  </div>
-  {#if flyt.hindring}
-    <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1">{flyt.hindring}</Melding>
-  {/if}
-{/snippet}
 
 {#snippet varselUtenfor()}
   <div class="innrykk">
@@ -602,228 +571,219 @@
   </li>
 {/snippet}
 
-<Arbeidsflate>
-  {#snippet hoved()}
-    <Utkastkort
-      id={id('tittel')}
-      tittel={FRISTKRAV.titler[foresporselsbrev && !varsel ? 'svar' : modus]}
-      undertittel={forrige && !lagtTil ? FRISTKRAV.nyVersjon(forrige) : null}
-      mottaker={SKJEMA.tilBH}
-      merke={lagtTil ? LEGG_TIL.utkast : undefined}
-    >
-      {#if lagtTil && kjernesak.part}
-        <Lagttillinje part={kjernesak.part} valg={lagtTil} {onendre} />
-      {/if}
-      {#if flyt.forsoekt && mangler.length}
-        <Manglene
-          tittel={lagtTil ? LEGG_TIL.mangler : SKJEMA.mangler}
-          {mangler}
-          ongaa={gaaTil}
-          bind:element={oppsummering}
-        />
-      {/if}
-
-      {#if kanVarsle}
-        <Spoersmaal>
-          <Valg
-            navn={id('hva')}
-            spoersmaal={FRISTKRAV.hvaSender}
-            valg={FRISTKRAV.hvaValg}
-            bind:verdi={() => v.hva, velgHva}
-            beskrevetAv={id('hva-hjelp')}
-            lett
-            stablet
-          />
-          <p class="dempet" id={id('hva-hjelp')}>{FRISTKRAV.hvaHjelp}</p>
-        </Spoersmaal>
-      {/if}
-
-      {#if foresporsel && foresporselsbrev}
-        <Spoersmaal>
-          <p class="status">
-            {FRISTKRAV.foresporsel(
-              foresporselsbrev,
-              foresporselsbrev.registrert,
-              kalenderdager(foresporselsbrev.registrert, iDag)
-            )}
-          </p>
-          <Valg
-            navn={id('bokstav')}
-            spoersmaal={FRISTKRAV.hvordanSvarer}
-            valg={FRISTKRAV.bokstavValg}
-            bind:verdi={() => v.bokstav, (x) => (v.bokstav = x ?? 'a')}
-            lett
-            stablet
-          />
-        </Spoersmaal>
-      {/if}
-
-      {#if !lagtTil && (!bokstavB || varselbrev)}
-        <Spoersmaal id={id('sp-varsel')} tittel={FRISTKRAV.varselTittel} hjemmel={['33.4']}>
-          <p class="dempet">{varsel ? FRISTKRAV.varselAleneHjelp : FRISTKRAV.varselHjelp}</p>
-          {#if klarOver}
-            <dl class="klar-over">
-              <dt>{FRISTKRAV.klarOver}</dt>
-              <dd>
-                {dato(klarOver.dato)}
-                <span class="dempet">{FRISTKRAV.oppgittI(klarOver.brev)}</span>
-              </dd>
-            </dl>
-          {/if}
-          {#if varsel}
-            {#if kanSende && kanRegistrere}
-              <Valg
-                navn={id('maate')}
-                spoersmaal={FRISTKRAV.hvordanVarsler}
-                valg={[
-                  { verdi: 'send', tekst: FRISTKRAV.varselmaate.send },
-                  { verdi: 'registrer', tekst: FRISTKRAV.varselmaate.registrer },
-                ]}
-                bind:verdi={
-                  () => (v.utenfor ? 'registrer' : 'send'),
-                  (x) => (v.utenfor = x === 'registrer' ? (v.utenfor ?? tomKorrespondanse()) : null)
-                }
-                lett
-                stablet
-              />
-            {/if}
-            {#if utenfor}{@render varselUtenfor()}{/if}
-          {:else if varselbrev}
-            <p class="status">
-              {FRISTKRAV.varseletSendt(
-                varselbrev,
-                klarOver
-                  ? kalenderdager(klarOver.dato, varselbrev.sendt ?? varselbrev.registrert)
-                  : null
-              )}
-            </p>
-          {:else if utenfor}
-            <p class="status">{FRISTKRAV.gittFoer}.</p>
-            <p class="dempet">{FRISTKRAV.gittFoerHjelp}</p>
-            {@render varselUtenfor()}
-            <div>
-              <Knapp variant="lenke" onclick={() => (v.utenfor = null)}>{FRISTKRAV.likevel}</Knapp>
-            </div>
-          {:else}
-            <p class="status">{FRISTKRAV.kravetErVarselet}</p>
-            <div>
-              <Knapp variant="lenke" onclick={() => (v.utenfor = tomKorrespondanse())}
-                >{FRISTKRAV.gittFoer}</Knapp
-              >
-            </div>
-          {/if}
-          {#if dagerEtterKlarOver}<p class="dempet">{dagerEtterKlarOver}</p>{/if}
-        </Spoersmaal>
-      {/if}
-
-      {#if bokstavB}
-        {@const fB = feil('grunn-b')}
-        <Spoersmaal
-          id={id('sp-grunn-b')}
-          tittel={FRISTKRAV.grunnBTittel}
-          hjemmel={['33.6.2 annet ledd b']}
-        >
-          <Tekstomraade
-            id={id('grunn-b')}
-            merketAv={id('sp-grunn-b')}
-            hjelp={FRISTKRAV.grunnBHjelp}
-            rader={6}
-            bind:verdi={v.grunnB}
-            paakrevd
-            feil={fB}
-          />
-        </Spoersmaal>
-      {/if}
-
-      {#if !varsel && !bokstavB}
-        <Spoersmaal
-          id={id('sp-frister')}
-          tittel={FRISTKRAV.fristerTittel}
-          hjemmel={[hindringPunkt, '33.6.1']}
-        >
-          <p class="dempet">{FRISTKRAV.fristerHjelp}</p>
-          {#if kjernesak.kontraktsfrister === null}
-            <Melding art="feil" levende={false}>{FRISTKRAV.ingenFristtabell}</Melding>
-          {/if}
-          {#if forrige}<p class="dempet">{FRISTKRAV.trekkHjelp}</p>{/if}
-          <div class="kolonner" aria-hidden="true">
-            {#each FRISTKRAV.kolonner as k (k)}<span>{k}</span>{/each}
-            <span></span>
-          </div>
-          <ul class="frister">
-            {#each v.frister as p (p.noekkel)}
-              {@render fristrad(p)}
-            {/each}
-          </ul>
-          {#if snarvei}
-            <div class="snarvei">
-              <Knapp variant="lenke" onclick={brukSnarvei}>{snarvei.tekst}</Knapp>
-            </div>
-          {/if}
-          <div>
-            <Knapp variant="sekundaer" id={id('legg-til')} onclick={leggTil}
-              >{FRISTKRAV.leggTil}</Knapp
-            >
-          </div>
-        </Spoersmaal>
-
-        {#if kommandoLagtTil}
-          <Lagttilmerknader
-            {kjernesak}
-            {u}
-            spor="frist"
-            kommando={kommandoLagtTil}
-            vedlegg={vedleggLagtTil}
-          />
-        {:else}<Spoersmaal
-            id={id('sp-begrunnelse')}
-            tittel={FRISTKRAV.begrunnelseTittel}
-            hjemmel={['33.5', '33.6.1']}
-          >
-            <div class="dempet" id={id('begrunnelse-hjelp')}>
-              <p>{FRISTKRAV.begrunnelseHjelp}</p>
-              <ul class="hensyn">
-                {#each FRISTKRAV.hensyn as h (h)}<li>{h}</li>{/each}
-              </ul>
-              <p>{FRISTKRAV.fremdriftsplan}</p>
-            </div>
-            <Tekstomraade
-              id={id('begrunnelse')}
-              merketAv={id('sp-begrunnelse')}
-              rader={6}
-              bind:verdi={v.begrunnelse}
-              paakrevd
-              feil={begrunnelseFeil}
-              foran={[id('begrunnelse-hjelp')]}
-            />
-          </Spoersmaal>{/if}
-      {/if}
-
-      <div class="skjemafot">
-        <Forkastutkast tekst={FRISTKRAV.forkastTekst} {onforkast} />
-      </div>
-    </Utkastkort>
+<Brevskjema
+  id={id('tittel')}
+  tittel={FRISTKRAV.titler[foresporselsbrev && !varsel ? 'svar' : modus]}
+  undertittel={forrige && !lagtTil ? FRISTKRAV.nyVersjon(forrige) : null}
+  mottaker={SKJEMA.tilBH}
+  {lagtTil}
+  part={kjernesak.part}
+  {onendre}
+  {flyt}
+  {mangler}
+  manglerTittel={lagtTil ? LEGG_TIL.mangler : SKJEMA.mangler}
+  ongaa={gaaTil}
+  bind:oppsummering
+  forkastTekst={FRISTKRAV.forkastTekst}
+  {onforkast}
+  knapp={{
+    tekst: lagtTil
+      ? LEGG_TIL.leggTilKravet
+      : registreres
+        ? FRISTKRAV.registrer
+        : HOVEDLINJER.seBrevet,
+    onclick: seBrevet,
+    opptatt: (registreres || !!lagtTil) && kjernesak.sender,
+  }}
+  kompakt={{ etikett: FRISTKRAV.punktene }}
+>
+  {#snippet panel(sendeknapp)}
+    <Hovedlinjer
+      {linjer}
+      alternativer={false}
+      handling={sendeknapp}
+      tittel={FRISTKRAV.punktene}
+      tom={FRISTKRAV.ingenFrister}
+    />
   {/snippet}
-
-  {#snippet hoeyre()}
-    <div class="feste" class:fast={linja.faarPlass} bind:this={panel}>
-      <Hovedlinjer
-        {linjer}
-        alternativer={false}
-        handling={sendeknapp}
-        tittel={FRISTKRAV.punktene}
-        tom={FRISTKRAV.ingenFrister}
-      />
-    </div>
+  {#snippet tidslinje()}
     <Tidslinje brev={sporbrev} {datoer} frister={fristeneITidslinja} />
   {/snippet}
-</Arbeidsflate>
 
-{#if linja.visKompakt}
-  <div class="kompakt" role="region" aria-label={FRISTKRAV.punktene}>
-    {@render sendeknapp()}
-  </div>
-{/if}
+  {#if kanVarsle}
+    <Spoersmaal>
+      <Valg
+        navn={id('hva')}
+        spoersmaal={FRISTKRAV.hvaSender}
+        valg={FRISTKRAV.hvaValg}
+        bind:verdi={() => v.hva, velgHva}
+        beskrevetAv={id('hva-hjelp')}
+        lett
+        stablet
+      />
+      <p class="dempet" id={id('hva-hjelp')}>{FRISTKRAV.hvaHjelp}</p>
+    </Spoersmaal>
+  {/if}
+
+  {#if foresporsel && foresporselsbrev}
+    <Spoersmaal>
+      <p class="status">
+        {FRISTKRAV.foresporsel(
+          foresporselsbrev,
+          foresporselsbrev.registrert,
+          kalenderdager(foresporselsbrev.registrert, iDag)
+        )}
+      </p>
+      <Valg
+        navn={id('bokstav')}
+        spoersmaal={FRISTKRAV.hvordanSvarer}
+        valg={FRISTKRAV.bokstavValg}
+        bind:verdi={() => v.bokstav, (x) => (v.bokstav = x ?? 'a')}
+        lett
+        stablet
+      />
+    </Spoersmaal>
+  {/if}
+
+  {#if !lagtTil && (!bokstavB || varselbrev)}
+    <Spoersmaal id={id('sp-varsel')} tittel={FRISTKRAV.varselTittel} hjemmel={['33.4']}>
+      <p class="dempet">{varsel ? FRISTKRAV.varselAleneHjelp : FRISTKRAV.varselHjelp}</p>
+      {#if klarOver}
+        <dl class="klar-over">
+          <dt>{FRISTKRAV.klarOver}</dt>
+          <dd>
+            {dato(klarOver.dato)}
+            <span class="dempet">{FRISTKRAV.oppgittI(klarOver.brev)}</span>
+          </dd>
+        </dl>
+      {/if}
+      {#if varsel}
+        {#if kanSende && kanRegistrere}
+          <Valg
+            navn={id('maate')}
+            spoersmaal={FRISTKRAV.hvordanVarsler}
+            valg={[
+              { verdi: 'send', tekst: FRISTKRAV.varselmaate.send },
+              { verdi: 'registrer', tekst: FRISTKRAV.varselmaate.registrer },
+            ]}
+            bind:verdi={
+              () => (v.utenfor ? 'registrer' : 'send'),
+              (x) => (v.utenfor = x === 'registrer' ? (v.utenfor ?? tomKorrespondanse()) : null)
+            }
+            lett
+            stablet
+          />
+        {/if}
+        {#if utenfor}{@render varselUtenfor()}{/if}
+      {:else if varselbrev}
+        <p class="status">
+          {FRISTKRAV.varseletSendt(
+            varselbrev,
+            klarOver
+              ? kalenderdager(klarOver.dato, varselbrev.sendt ?? varselbrev.registrert)
+              : null
+          )}
+        </p>
+      {:else if utenfor}
+        <p class="status">{FRISTKRAV.gittFoer}.</p>
+        <p class="dempet">{FRISTKRAV.gittFoerHjelp}</p>
+        {@render varselUtenfor()}
+        <div>
+          <Knapp variant="lenke" onclick={() => (v.utenfor = null)}>{FRISTKRAV.likevel}</Knapp>
+        </div>
+      {:else}
+        <p class="status">{FRISTKRAV.kravetErVarselet}</p>
+        <div>
+          <Knapp variant="lenke" onclick={() => (v.utenfor = tomKorrespondanse())}
+            >{FRISTKRAV.gittFoer}</Knapp
+          >
+        </div>
+      {/if}
+      {#if dagerEtterKlarOver}<p class="dempet">{dagerEtterKlarOver}</p>{/if}
+    </Spoersmaal>
+  {/if}
+
+  {#if bokstavB}
+    {@const fB = feil('grunn-b')}
+    <Spoersmaal
+      id={id('sp-grunn-b')}
+      tittel={FRISTKRAV.grunnBTittel}
+      hjemmel={['33.6.2 annet ledd b']}
+    >
+      <Tekstomraade
+        id={id('grunn-b')}
+        merketAv={id('sp-grunn-b')}
+        hjelp={FRISTKRAV.grunnBHjelp}
+        rader={6}
+        bind:verdi={v.grunnB}
+        paakrevd
+        feil={fB}
+      />
+    </Spoersmaal>
+  {/if}
+
+  {#if !varsel && !bokstavB}
+    <Spoersmaal
+      id={id('sp-frister')}
+      tittel={FRISTKRAV.fristerTittel}
+      hjemmel={[hindringPunkt, '33.6.1']}
+    >
+      <p class="dempet">{FRISTKRAV.fristerHjelp}</p>
+      {#if kjernesak.kontraktsfrister === null}
+        <Melding art="feil" levende={false}>{FRISTKRAV.ingenFristtabell}</Melding>
+      {/if}
+      {#if forrige}<p class="dempet">{FRISTKRAV.trekkHjelp}</p>{/if}
+      <div class="kolonner" aria-hidden="true">
+        {#each FRISTKRAV.kolonner as k (k)}<span>{k}</span>{/each}
+        <span></span>
+      </div>
+      <ul class="frister">
+        {#each v.frister as p (p.noekkel)}
+          {@render fristrad(p)}
+        {/each}
+      </ul>
+      {#if snarvei}
+        <div class="snarvei">
+          <Knapp variant="lenke" onclick={brukSnarvei}>{snarvei.tekst}</Knapp>
+        </div>
+      {/if}
+      <div>
+        <Knapp variant="sekundaer" id={id('legg-til')} onclick={leggTil}>{FRISTKRAV.leggTil}</Knapp>
+      </div>
+    </Spoersmaal>
+
+    {#if kommandoLagtTil}
+      <Lagttilmerknader
+        {kjernesak}
+        {u}
+        spor="frist"
+        kommando={kommandoLagtTil}
+        vedlegg={vedleggLagtTil}
+      />
+    {:else}<Spoersmaal
+        id={id('sp-begrunnelse')}
+        tittel={FRISTKRAV.begrunnelseTittel}
+        hjemmel={['33.5', '33.6.1']}
+      >
+        <div class="dempet" id={id('begrunnelse-hjelp')}>
+          <p>{FRISTKRAV.begrunnelseHjelp}</p>
+          <ul class="hensyn">
+            {#each FRISTKRAV.hensyn as h (h)}<li>{h}</li>{/each}
+          </ul>
+          <p>{FRISTKRAV.fremdriftsplan}</p>
+        </div>
+        <Tekstomraade
+          id={id('begrunnelse')}
+          merketAv={id('sp-begrunnelse')}
+          rader={6}
+          bind:verdi={v.begrunnelse}
+          paakrevd
+          feil={begrunnelseFeil}
+          foran={[id('begrunnelse-hjelp')]}
+        />
+      </Spoersmaal>{/if}
+  {/if}
+</Brevskjema>
 
 <style>
   .frist-hode {
@@ -995,9 +955,6 @@
     margin-left: var(--spacing-2);
     font-weight: 400;
   }
-  .skjemafot {
-    padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
-  }
   .dempet {
     color: var(--ink-3);
     font-size: 14px;
@@ -1005,28 +962,5 @@
   .hensyn {
     padding-left: var(--spacing-5);
     list-style: disc;
-  }
-  .handling {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-2);
-  }
-  .feste.fast {
-    position: sticky;
-    top: var(--spacing-4);
-    z-index: 1;
-  }
-  .kompakt {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 20;
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--spacing-3);
-    padding: var(--spacing-3) var(--spacing-6);
-    background: var(--surface);
-    border-top: var(--rule-strong);
   }
 </style>

@@ -184,7 +184,8 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   (`underordnet` i `varden/Feltetikett.svelte`, oppdragsgiver 16.11, #2059). Ved to
   til seks alternativer vises alle, ikke en nedtrekksliste. En nedtrekksliste passer
   først når alternativene er for mange til å vises. En lang liste med grupper, som de
-  17 forholdene, får en egen velger med søk og grupper (#1492).
+  17 forholdene, får en egen velger med søk og grupper (#1492). Et tekstfelt over flere linjer
+  er `Tekstomraade`, et datofelt `Datofelt` og et tall `Tallfelt`, med samme oppbygning (#2119).
 - **Bredden på feltet følger svaret det venter.** Et datofelt er om lag så bredt som
   en dato med kalenderikonet, og et nummer eller en dato for endringsordren har et
   kort felt. Løpende tekst, som en tittel eller en beskrivelse, har full bredde
@@ -337,7 +338,8 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
 - **Én primærhandling per skjerm** (`Knapp` med `variant="primaer"`). I svaret er det
   «Se brevet før sending», bare i panelet med hovedlinjene og fast i bunnen av
   lesingen. Linjen nederst i vinduet vises bare når panelet er ute av syne.
-- **Høyre kolonne i et skjema har panelet med hovedlinjene og tidslinja under.** Panelet
+- **Høyre kolonne i et skjema har panelet med hovedlinjene og tidslinja under.** Svarskjemaet og
+  kravskjemaene for vederlaget og fristen får rammen fra skallet `Brevskjema` (#2119). Panelet
   sier hva brevet sier. Tidslinja har datoene, også dem parten fyller ut før brevet er
   sendt (`Tidslinje` med `utfylt`). Datoene står ikke i panelet. Panelet står fast. I
   skjemaet for ny sak står tidslinja også fast, rett under panelet, når begge får plass i
@@ -372,11 +374,11 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   mens en sending pågår. Det som hindrer at brevet kan lages, står under knappen og får fokus.
   Skjemaene får forsøket, hindringen og fokuset fra `sendeflyt.svelte.ts` (#2118).
 - **«Forkast utkast»** er en lenkeknapp nederst i skjemaet, adskilt fra primærhandlingen.
-  I den nye versjonen av påberopelsen, i kravskjemaet for fristen og i svarskjemaene for
-  vederlaget og fristen spør den i en dialog (`Forkastutkast`) med «Behold utkastet» og en rød
-  «Forkast utkast» (`Knapp` med `variant="fare"`). De andre skjemaene spør i skjemaet, med
-  «Forkast» og «Behold utkastet». Rødt på en knapp står bare der handlingen ikke kan gjøres om,
-  og teksten sier det (PR 1650, #1925).
+  Den spør i en dialog (`Forkastutkast`) med «Behold utkastet» og en rød «Forkast utkast»
+  (`Knapp` med `variant="fare"`), i alle skjemaene som blir et brev. Skjemaet for ny sak har
+  samme dialog med «Avbryt», «Nei, fortsett å skrive» og «Ja, slett det du har skrevet» (S2 i
+  #1414). Rødt på en knapp står bare der handlingen ikke kan gjøres om, og teksten sier det
+  (PR 1650, #1925, #2119).
 - **Utkastet sier det selv.** Hodet på utkastkortet sier «Utkast · ikke sendt». Det sier ikke at
   brevet bare er synlig for teamet, fordi det er åpenbart for et utkast (oppdragsgiver 12.11 i
   #1663). Sendepanelet i brevkontrollen, og panelet

@@ -1,9 +1,9 @@
 <!--
-  Skallet for byggherrens svar på påberopelsen av forholdet og på et krav om vederlag eller frist
-  (#1925, #2009): skjemaet vurderer,
+  Byggherrens svar på påberopelsen av forholdet og på et krav om vederlag eller frist, i skallet
+  for brevskjemaene (`Brevskjema`, #1925, #2009, #2119): skjemaet vurderer,
   panelet viser hovedlinjene slik kjernen forhåndsviser svaret, og brevet viser alt (prinsipp 3).
-  Spørsmålene er sporets egne; skallet har brevet svaret gjelder, oppsummeringen av det som mangler,
-  begrunnelsene, forbeholdet, «Forkast utkast» og brevkontrollen.
+  Spørsmålene er sporets egne. Svarskjemaet har brevet svaret gjelder, begrunnelsene, forbeholdet og
+  veien til brevkontrollen, og skallet resten av rammen.
 
   Handlingene (oppdragsgiver 29.10, #1391): «Se brevet før sending» står bare i panelet og er
   alltid aktiv. Mangler et svar, vises ikke brevet, og det som mangler, står ved feltet og øverst
@@ -20,28 +20,21 @@
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import { VIRKNING } from '#lib/kjernesak/svarvirkning.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
-  import { fastLinje } from './fastlinje.svelte';
   import { brevetVedSiden } from './medie.svelte';
-  import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
   import Brevlinje from './Brevlinje.svelte';
-  import Forkastutkast from './Forkastutkast.svelte';
+  import Brevskjema from './Brevskjema.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
   import Infotips from './Infotips.svelte';
-  import Leseramme from './Leseramme.svelte';
   import Knapp from './Knapp.svelte';
-  import Manglene from './Manglene.svelte';
   import type { Mangel } from './mangler';
   import { sendeflyt } from './sendeflyt.svelte';
-  import Melding from './Melding.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
-  import Utkastkort from './Utkastkort.svelte';
   import { brevene, datoerISporet } from './lesing';
   import { begrunnelsespunktene, kravbrevetI, type Postvelger } from './svarskjema';
   import { HOVEDLINJER, LEGG_TIL, SKJEMA, SVARSKJEMA, brevhode, brevtittel, dato } from './tekster';
   import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
-  import Lagttillinje from './Lagttillinje.svelte';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
   import { vedleggskart } from './nysak';
   import type { Brevet } from './lesing';
@@ -185,12 +178,6 @@
     () => onvedsiden,
     () => leser
   );
-  let panel = $state<HTMLElement | null>(null);
-  const linja = fastLinje(
-    uid,
-    () => panel,
-    () => stopp !== null || side.vedSiden
-  );
 </script>
 
 {#snippet kravbrev(ramme: 'kant' | 'innfelt')}
@@ -206,153 +193,125 @@
   />
 {/snippet}
 
-{#snippet sendeknapp()}
-  <div class="handling">
-    <Knapp
-      variant="primaer"
-      onclick={seBrevet}
-      opptatt={!!lagtTil && kjernesak.sender}
-      aria-describedby={flyt.hindring ? flyt.hindringId : undefined}
-      >{lagtTil ? LEGG_TIL.leggTilSvaret : HOVEDLINJER.seBrevet}</Knapp
-    >
-  </div>
-  {#if flyt.hindring}
-    <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1">{flyt.hindring}</Melding>
-  {/if}
+{#snippet kravbrevInnfelt()}{@render kravbrev('innfelt')}{/snippet}
+
+{#snippet kompaktLinje(tilPanelet: () => void)}
+  <Knapp variant="primaer" onclick={seBrevet} opptatt={!!lagtTil && kjernesak.sender}
+    >{lagtTil ? LEGG_TIL.leggTilSvaret : HOVEDLINJER.seBrevet}</Knapp
+  >
+  <Knapp onclick={tilPanelet}>{HOVEDLINJER.seHovedlinjene}</Knapp>
 {/snippet}
 
-<Arbeidsflate leser={side.vedSiden}>
-  {#snippet hoved()}
-    <Utkastkort
-      id={`${uid}-tittel`}
-      tittel={brevMedTekst && !lagtTil
-        ? brevhode({
-            merking: brevMedTekst.merking,
-            art: 'svar',
-            brevtittel: brevMedTekst.brevtittel,
-          })
-        : SVARTITTEL[spor]}
-      mottaker={SKJEMA.tilTE}
-      merke={lagtTil ? LEGG_TIL.utkast : undefined}
+<Brevskjema
+  id={`${uid}-tittel`}
+  tittel={brevMedTekst && !lagtTil
+    ? brevhode({
+        merking: brevMedTekst.merking,
+        art: 'svar',
+        brevtittel: brevMedTekst.brevtittel,
+      })
+    : SVARTITTEL[spor]}
+  mottaker={SKJEMA.tilTE}
+  {lagtTil}
+  part={kjernesak.part}
+  {onendre}
+  {flyt}
+  mangler={alleMangler}
+  manglerTittel={lagtTil ? LEGG_TIL.mangler : SKJEMA.mangler}
+  ongaa={gaaTil}
+  bind:oppsummering
+  forkastTekst={SVARSKJEMA.forkastTekst}
+  {onforkast}
+  skilt
+  knapp={{
+    tekst: lagtTil ? LEGG_TIL.leggTilSvaret : HOVEDLINJER.seBrevet,
+    onclick: seBrevet,
+    opptatt: !!lagtTil && kjernesak.sender,
+  }}
+  utenKnapp={stopp !== null}
+  lesing={side.vedSiden
+    ? { id: `${uid}-kravbrev`, brev: kravbrevet, innhold: kravbrevInnfelt }
+    : null}
+  kompakt={{ etikett: SVARSKJEMA.kompaktLinje, innhold: kompaktLinje }}
+>
+  {#snippet infotips()}<Infotips navn={SKJEMA.omSvaret} tekst={VIRKNING.alltid} />{/snippet}
+  {#snippet oeverst()}
+    <Brevlinje
+      id={`${uid}-kravbrev`}
+      bind:leser
+      smal={side.smal}
+      lenke={{ les: SKJEMA.lesBrevet, lesHer: SKJEMA.lesBrevetHer, lukk: SKJEMA.lukkBrevet }}
     >
-      {#snippet infotips()}<Infotips navn={SKJEMA.omSvaret} tekst={VIRKNING.alltid} />{/snippet}
-      {#if lagtTil && kjernesak.part}
-        <Lagttillinje part={kjernesak.part} valg={lagtTil} {onendre} />
-      {/if}
-      <Brevlinje
-        id={`${uid}-kravbrev`}
-        bind:leser
-        smal={side.smal}
-        lenke={{ les: SKJEMA.lesBrevet, lesHer: SKJEMA.lesBrevetHer, lukk: SKJEMA.lukkBrevet }}
-      >
-        {SKJEMA.svarerPaa(kravbrevet)}
-        {#snippet brev()}{@render kravbrev('kant')}{/snippet}
-      </Brevlinje>
-
-      {#if stopp !== null}
-        <div class="ikke-stoettet" role="note">
-          <Info size={18} aria-hidden="true" />
-          <p>{stopp}</p>
-        </div>
-      {:else}
-        {#if flyt.forsoekt && alleMangler.length}
-          <Manglene
-            tittel={lagtTil ? LEGG_TIL.mangler : SKJEMA.mangler}
-            mangler={alleMangler}
-            ongaa={gaaTil}
-            bind:element={oppsummering}
-          />
-        {/if}
-
-        {@render spoersmaal(feil)}
-
-        {#if kommandoLagtTil}
-          <Lagttilmerknader
-            {kjernesak}
-            {u}
-            {spor}
-            kommando={kommandoLagtTil}
-            vedlegg={vedleggLagtTil}
-            innfelt
-          />
-        {:else}
-          <!-- Begrunnelsene står under punktene i brevet, så de vises når brevet har punkter.
-             Forbeholdet står alltid, så teksten ikke blir borte når brevet ikke kan lages. -->
-          <section
-            class="begrunnelser"
-            aria-labelledby={punktene.length ? `${uid}-sp-begrunnelse` : undefined}
-          >
-            {#if punktene.length}
-              <h3 id={`${uid}-sp-begrunnelse`}>{SKJEMA.begrunnelse}</h3>
-              <p class="dempet" id={`${uid}-begrunnelse-hjelp`}>{SKJEMA.begrunnelseHjelp}</p>
-              {#if kreverPunktene.length > 1}
-                <p class="dempet" id={`${uid}-begrunnelse-kreves`}>{begrunnelseKreves!.grunn}</p>
-              {/if}
-              {#each punktene as p (p.punkt)}
-                {@const id = begrunnelseId(p.punkt)}
-                {@const bFeil = feil(id)}
-                <Tekstomraade
-                  {id}
-                  etikett={p.navn}
-                  underordnet
-                  valgfri={!kreves(p.punkt) && !kanStaa(p.punkt)}
-                  hjelp={kreves(p.punkt) ? begrunnelseKreves!.grunn : null}
-                  rader={2}
-                  bind:verdi={tekster.begrunnelser[p.punkt]}
-                  paakrevd={kreves(p.punkt)}
-                  feil={bFeil}
-                  foran={[`${uid}-begrunnelse-hjelp`]}
-                  etter={kanStaa(p.punkt) ? [`${uid}-begrunnelse-kreves`] : []}
-                />
-              {/each}
-            {/if}
-            <div class="forbehold">
-              <Tekstomraade
-                id={`${uid}-forbehold`}
-                etikett={SKJEMA.forbehold}
-                valgfri
-                hjelp={SKJEMA.forbeholdHjelp}
-                bind:verdi={tekster.forbehold}
-              />
-            </div>
-          </section>
-        {/if}
-      {/if}
-
-      <div class="skjemafot">
-        <Forkastutkast tekst={SVARSKJEMA.forkastTekst} {onforkast} />
-      </div>
-    </Utkastkort>
+      {SKJEMA.svarerPaa(kravbrevet)}
+      {#snippet brev()}{@render kravbrev('kant')}{/snippet}
+    </Brevlinje>
   {/snippet}
+  {#snippet panel(sendeknapp)}
+    <Hovedlinjer {linjer} {alternativer} handling={sendeknapp} />
+  {/snippet}
+  {#snippet tidslinje()}<Tidslinje brev={sporbrev} {datoer} />{/snippet}
 
-  {#snippet hoeyre()}
-    {#if side.vedSiden}
-      <Leseramme
-        id={`${uid}-kravbrev`}
-        brev={kravbrevet}
-        bunn={stopp === null ? sendeknapp : undefined}
-      >
-        {@render kravbrev('innfelt')}
-      </Leseramme>
+  {#if stopp !== null}
+    <div class="ikke-stoettet" role="note">
+      <Info size={18} aria-hidden="true" />
+      <p>{stopp}</p>
+    </div>
+  {:else}
+    {@render spoersmaal(feil)}
+
+    {#if kommandoLagtTil}
+      <Lagttilmerknader
+        {kjernesak}
+        {u}
+        {spor}
+        kommando={kommandoLagtTil}
+        vedlegg={vedleggLagtTil}
+        innfelt
+      />
     {:else}
-      <div class="feste" class:fast={linja.faarPlass} bind:this={panel}>
-        <Hovedlinjer {linjer} {alternativer} handling={stopp === null ? sendeknapp : undefined} />
-      </div>
-      <Tidslinje brev={sporbrev} {datoer} />
+      <!-- Begrunnelsene står under punktene i brevet, så de vises når brevet har punkter.
+         Forbeholdet står alltid, så teksten ikke blir borte når brevet ikke kan lages. -->
+      <section
+        class="begrunnelser"
+        aria-labelledby={punktene.length ? `${uid}-sp-begrunnelse` : undefined}
+      >
+        {#if punktene.length}
+          <h3 id={`${uid}-sp-begrunnelse`}>{SKJEMA.begrunnelse}</h3>
+          <p class="dempet" id={`${uid}-begrunnelse-hjelp`}>{SKJEMA.begrunnelseHjelp}</p>
+          {#if kreverPunktene.length > 1}
+            <p class="dempet" id={`${uid}-begrunnelse-kreves`}>{begrunnelseKreves!.grunn}</p>
+          {/if}
+          {#each punktene as p (p.punkt)}
+            {@const id = begrunnelseId(p.punkt)}
+            {@const bFeil = feil(id)}
+            <Tekstomraade
+              {id}
+              etikett={p.navn}
+              underordnet
+              valgfri={!kreves(p.punkt) && !kanStaa(p.punkt)}
+              hjelp={kreves(p.punkt) ? begrunnelseKreves!.grunn : null}
+              rader={2}
+              bind:verdi={tekster.begrunnelser[p.punkt]}
+              paakrevd={kreves(p.punkt)}
+              feil={bFeil}
+              foran={[`${uid}-begrunnelse-hjelp`]}
+              etter={kanStaa(p.punkt) ? [`${uid}-begrunnelse-kreves`] : []}
+            />
+          {/each}
+        {/if}
+        <div class="forbehold">
+          <Tekstomraade
+            id={`${uid}-forbehold`}
+            etikett={SKJEMA.forbehold}
+            valgfri
+            hjelp={SKJEMA.forbeholdHjelp}
+            bind:verdi={tekster.forbehold}
+          />
+        </div>
+      </section>
     {/if}
-  {/snippet}
-</Arbeidsflate>
-
-{#if linja.visKompakt}
-  <div class="kompakt" role="region" aria-label={SVARSKJEMA.kompaktLinje}>
-    <Knapp variant="primaer" onclick={seBrevet} opptatt={!!lagtTil && kjernesak.sender}
-      >{lagtTil ? LEGG_TIL.leggTilSvaret : HOVEDLINJER.seBrevet}</Knapp
-    >
-    <Knapp onclick={() => panel?.scrollIntoView({ block: 'start' })}
-      >{HOVEDLINJER.seHovedlinjene}</Knapp
-    >
-  </div>
-{/if}
+  {/if}
+</Brevskjema>
 
 <style>
   .begrunnelser {
@@ -386,37 +345,8 @@
     flex: none;
     margin-top: 3px;
   }
-  .skjemafot {
-    padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
-    border-top: var(--rule);
-  }
   .dempet {
     color: var(--ink-3);
     font-size: 14px;
-  }
-  .handling {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-2);
-  }
-  /* Over tidslinja, som ruller under: den åpne chevronen er rotert og ville ellers ligget
-     øverst og tatt klikkene i panelet. */
-  .feste.fast {
-    position: sticky;
-    top: var(--spacing-4);
-    z-index: 1;
-  }
-  .kompakt {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 20;
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--spacing-3);
-    padding: var(--spacing-3) var(--spacing-6);
-    background: var(--surface);
-    border-top: var(--rule-strong);
   }
 </style>
