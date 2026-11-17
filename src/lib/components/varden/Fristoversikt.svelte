@@ -25,7 +25,7 @@
   } from './lesing';
   import { FRISTEN, dagensDato, kalenderdager } from './tekster';
   import { kravdagene, kravetOgSvaretIFristen } from './fristoversikt';
-  import { akseptfristen } from './svarlagene';
+  import { akseptfristen } from '#lib/kjernesak/kontekst.svelte.ts';
 
   let {
     u,

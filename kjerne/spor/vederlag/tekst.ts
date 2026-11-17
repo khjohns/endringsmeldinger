@@ -35,7 +35,7 @@ import {
 } from '../../frosset/byggeklosser.ts';
 import type { Regelsett } from '../../regler/regelsett.ts';
 import type { Linjeledd, Sporslinje } from '../../frosset/linje.ts';
-import { INNLEDNINGEN, kroner, SENT_I_LINJEN } from '../../frosset/tekst.ts';
+import { FORHOLDET, INNLEDNINGEN, kroner, SENT_I_LINJEN } from '../../frosset/tekst.ts';
 import { begrensningen } from './frysing.ts';
 import {
   harProduktivitetspost,
@@ -259,7 +259,7 @@ function kravetsBeloep(krav: Krav): string {
 function temaer(krav: Krav, { saken }: Tekst, regler: Regelsett): Tema[] {
   const hjemmel = hjemmelenGjelder('34.1.2', saken.paaberopelse, regler) ? '34.1.2' : '34.1.1';
   return [
-    { punkt: 'forholdet', overskrift: 'Forholdet' },
+    { punkt: FORHOLDET, overskrift: 'Forholdet' },
     { punkt: '34.1.2', overskrift: 'Varselet om vederlagsjustering (punkt 34.1.2)' },
     { punkt: '34.1.3', overskrift: 'Varselet om særskilt vederlagsjustering (punkt 34.1.3)' },
     { punkt: 'metode', overskrift: 'Beregningsmetode (punkt 34.2)' },

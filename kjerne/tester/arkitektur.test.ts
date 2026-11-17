@@ -605,6 +605,27 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['Utfall', 'frosset svar', 'frister frister.gjelder frister.dager', [FORLENGELSENE]],
   // MM-U9: et fristsvar som er subsidiært til avslaget av forholdet, tas ikke med (GFK-U27, GFK-U28).
   ['Sporutledning', 'relasjon', 'subsidiaer', [FORLENGELSENE]],
+  // FO-U1, #2120: forseringen leser om svaret er subsidiært til forholdet, og dagene i første lag.
+  ['Sporutledning', 'relasjon', 'subsidiaer', ['spor/frist/utledning.ts:prinsipaltAvslaatteDager']],
+  ['Svar', 'frosset svar', 'utregning', ['spor/frist/utledning.ts:prinsipaltAvslaatteDager']],
+  [
+    'spor/frist/format.ts',
+    'frosset svar',
+    'utregningIFristen',
+    ['spor/frist/utledning.ts:prinsipaltAvslaatteDager'],
+  ],
+  [
+    'Fristutregning',
+    'frosset svar',
+    'frister',
+    ['spor/frist/utledning.ts:prinsipaltAvslaatteDager'],
+  ],
+  [
+    'Fristrad',
+    'frosset svar',
+    'gjelder godkjent_dager',
+    ['spor/frist/utledning.ts:prinsipaltAvslaatteDager'],
+  ],
   // GFK-U19: fristen etter dagene i de andre sakene som forlenger den.
   [
     'Forlengelse',
@@ -1099,6 +1120,9 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['regler/svarkontroll.ts:kontrollerForholdet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
   // D-7, #2035: når svaret på forholdet må ha en begrunnelse, og punktene den kan stå i.
   ['regler/forhold.ts:begrunnelseskravet', 'utsagn', 'resultat grunnlag_varslet_i_tide'],
+  // Vedtaket 05.10 for #235, #2120: frafallet etter kategorien og påberopelsen av § 32.2.
+  ['regler/forhold.ts:kanFrafalle', 'regelsett', 'varslingsplikt resultater'],
+  ['regler/forhold.ts', 'regelsett', 'kanFrafalle', ['regler/svarkontroll.ts']],
   [
     'regler/forhold.ts',
     'regelsett',
@@ -2560,6 +2584,13 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ],
   ['BrevetAvvises', 'brevtekst', 'regel', ['kommandoer/skriving.ts:skriv']],
   ['frosset/tekst.ts', 'brevtekst', 'FORBEHOLDET', ['frosset/brevtekst.ts']],
+  // #2145: punktet med forholdet i svaret på vederlaget og fristen har ingen begrunnelse.
+  [
+    'frosset/tekst.ts',
+    'brevtekst',
+    'FORHOLDET',
+    ['frosset/brevtekst.ts', 'spor/frist/tekst.ts', 'spor/vederlag/tekst.ts'],
+  ],
   // Svaret 16.11 i #1997: leseren kontrollerer nøklene i punktet med tabellen.
   ['frosset/tekst.ts', 'brevtekst', 'OVERSIKTEN', ['frosset/brevtekst.ts', 'format/leser.ts']],
   ['frosset/tekst.ts', 'brevtekst', 'postradene tabellenIAvsnittet', ['format/leser.ts']],

@@ -19,7 +19,7 @@ import {
 } from '../../frosset/brevdeler.ts';
 import { standpunktet, virkningen } from '../../frosset/byggeklosser.ts';
 import type { Sporslinje } from '../../frosset/linje.ts';
-import { dager, INNLEDNINGEN } from '../../frosset/tekst.ts';
+import { dager, FORHOLDET, INNLEDNINGEN } from '../../frosset/tekst.ts';
 import { Uforstaatt } from '../../format/skjema.ts';
 import { betegnelsen, hindringenEtter, innholdIFristen, type FristIKravet } from './format.ts';
 import { svarPaaForesporsler } from './frysing.ts';
@@ -130,7 +130,7 @@ function fristkravtekst(k: Krav, t: Tekst): Brevpunkt[] {
  */
 function temaer(krav: Krav): Tema[] {
   return [
-    { punkt: 'forholdet', overskrift: 'Forholdet' },
+    { punkt: FORHOLDET, overskrift: 'Forholdet' },
     { punkt: '33.4', overskrift: 'Varselet om fristforlengelse (punkt 33.4)' },
     { punkt: '33.6.2', overskrift: 'Svaret på forespørselen (punkt 33.6.2)' },
     // Bestemmelsen står i teksten, som leser den av påberopelsen svaret gjelder.

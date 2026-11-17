@@ -6218,6 +6218,76 @@ const MUTASJONER: Mutasjon[] = [
       'en godkjenning utenfor rekken med preklusjon påberopt prinsipalt',
     ],
   },
+  {
+    id: 'F730',
+    feilklasse:
+      'svaret på vederlaget og fristen gir et felt for begrunnelsen av forholdet fra et tidligere svar (#2145, LV-U41, MM-U50)',
+    fil: `${K}/frosset/tekst.ts`,
+    endringer: [['FORBEHOLDET, FORHOLDET]);', 'FORBEHOLDET]);']],
+    mal: ['har ikke noe felt for begrunnelsen av forholdet fra et tidligere brev'],
+  },
+  {
+    id: 'F731',
+    feilklasse:
+      'en begrunnelse for forholdet i svaret på vederlaget eller fristen godtas (#2145, LV-U41, MM-U50)',
+    fil: `${K}/frosset/brevtekst.ts`,
+    endringer: [
+      [
+        '    if (perPunkt[FORHOLDET] && brevpunkter.some((p) => p.punkt === FORHOLDET))',
+        '    if (perPunkt[FORHOLDET] && false)',
+      ],
+    ],
+    mal: ['har ikke noe felt for begrunnelsen av forholdet fra et tidligere brev'],
+  },
+  {
+    id: 'F732',
+    feilklasse:
+      'frafallet kan velges sammen med at varselet etter punkt 32.2 kom for sent (vedtaket 05.10 for #235, #2120)',
+    fil: `${K}/regler/forhold.ts`,
+    endringer: [['!(f.varslingsplikt && forSent)', '!(f.varslingsplikt && false)']],
+    mal: [
+      'en irregulær endring kan frafalles når varselet ikke er påberopt for sent',
+      'kontrollen av svaret avviser frafallet når varselet er påberopt for sent',
+    ],
+  },
+  {
+    id: 'F733',
+    feilklasse:
+      'forseringen tilbys ikke når byggherren prinsipalt avslår gjennom forholdet (FO-U1, #2120)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [['  if (subsidiaer.length) return true;\n', '']],
+    mal: ['et avslag av forholdet gir valget også når byggherren godkjenner alle dagene'],
+  },
+  {
+    id: 'F734',
+    feilklasse: 'forseringen tilbys når byggherren har godkjent alle dagene (FO-U1, #2120)',
+    fil: `${K}/spor/frist/utledning.ts`,
+    endringer: [
+      [
+        '(r) => r.godkjent_dager < (krevd.get(r.gjelder) ?? 0)',
+        '(r) => r.godkjent_dager <= (krevd.get(r.gjelder) ?? 0)',
+      ],
+    ],
+    mal: ['et avslag av forholdet gir valget også når byggherren godkjenner alle dagene'],
+  },
+  {
+    id: 'F735',
+    feilklasse:
+      'akseptfristen står etter at svaret er godtatt, kravet er trukket eller saken er lukket (HF-U23, MM-U24, #2120)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [['s?.akseptfrist && svarIkkeGodtatt(u, spor)', 's?.akseptfrist']],
+    mal: ['akseptfristen står ikke når'],
+  },
+  {
+    id: 'F736',
+    feilklasse:
+      'forseringen kan velges etter at totalentreprenøren har godtatt avslaget (FO-U1, #2120)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      ["svarIkkeGodtatt(u, 'frist') && prinsipaltAvslaatteDager(u)", 'prinsipaltAvslaatteDager(u)'],
+    ],
+    mal: ['ikke etter at totalentreprenøren har godtatt svaret'],
+  },
 ];
 interface Testresultat {
   fullName: string;

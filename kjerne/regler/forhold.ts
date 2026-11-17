@@ -55,6 +55,15 @@ export function gyldigeResultater(
     : resultater;
 }
 
+/**
+ * Vedtaket 05.10 for #235 og GR-U18: om byggherren kan frafalle pålegget, med `forSent` når
+ * varselet etter § 32.2 er påberopt for sent.
+ */
+export const kanFrafalle = (
+  f: { varslingsplikt: boolean; resultater: readonly string[] },
+  forSent: boolean
+): boolean => f.resultater.includes('paalegg_frafalt') && !(f.varslingsplikt && forSent);
+
 export type Subsidiaergrunn = 'avslaatt' | 'prekludert';
 
 /** M1: standpunktet i et svar på vederlag eller frist, utledet av forholdet. */
