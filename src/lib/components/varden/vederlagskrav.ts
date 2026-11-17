@@ -13,7 +13,7 @@ import { lesKroner, visKroner } from '#lib/utils/belop.ts';
 import { vedleggskart } from './nysak';
 import { beloepet, definert } from './kommandoer';
 import {
-  korrespondansemangler,
+  korrespondansefeilene,
   registreringen,
   tomKorrespondanse,
   type Korrespondansevalg,
@@ -266,8 +266,7 @@ export function manglerIKravet(
     }
     // VS-U51, VS-U53: dokumentet med varselet for posten.
     if (p.varsel.art === 'dokument')
-      for (const [felt, t] of Object.entries(korrespondansemangler(valg)))
-        legg(`varsel-${felt}`, t);
+      for (const [felt, t] of korrespondansefeilene(valg, 'varsel')) legg(felt, t);
   });
   if (v.saerskilt) {
     const f = beloepsfeil(v.saerskilt.beloep, true, KRAVSKJEMA.manglerBeloep);

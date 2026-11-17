@@ -27,6 +27,22 @@ export interface Korrespondansevalg {
 
 export type Korrespondansefelt = keyof ReturnType<typeof KORRESPONDANSEN.mangler>;
 
+/** Feltene i komponenten, i rekkefølgen den viser dem. */
+export const KORRESPONDANSEFELTENE = [
+  'type',
+  'sendemaate',
+  'dato',
+  'dokument',
+  'beskrivelse',
+] as const satisfies readonly Korrespondansefelt[];
+
+/**
+ * Nøkkelen for et felt i komponenten hos kalleren. ID-en for feltet og nøkkelen for feilen bygges
+ * av den, så de to stemmer (punkt 2 i #2088). `post` skiller komponenten i hver post.
+ */
+export const korrespondansenoekkel = (navn: string, felt: Korrespondansefelt, post?: string) =>
+  post === undefined ? `${navn}-${felt}` : `${navn}-${felt}-${post}`;
+
 export const tomKorrespondanse = (): Korrespondansevalg => ({
   type: null,
   sendemaate: null,
@@ -55,6 +71,19 @@ export function korrespondansemangler(
     ...(!v.beskrivelse.trim() ? { beskrivelse: m.beskrivelse } : {}),
   };
 }
+
+/** Det som mangler (`korrespondansemangler`), med nøkkelen for feltet hos kalleren. */
+export const korrespondansefeilene = (
+  v: Korrespondansevalg,
+  navn: string,
+  valg?: Parameters<typeof korrespondansemangler>[1]
+): [string, string][] => {
+  const mangler = korrespondansemangler(v, valg);
+  return KORRESPONDANSEFELTENE.flatMap((felt) => {
+    const tekst = mangler[felt];
+    return tekst === undefined ? [] : [[korrespondansenoekkel(navn, felt), tekst]];
+  });
+};
 
 /**
  * Feltene kommandoen bærer for korrespondansen (OV-U79, LV-U42). Sendemåten følger bare et brev,
