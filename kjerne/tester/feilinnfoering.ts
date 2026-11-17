@@ -25,9 +25,10 @@
  * PR, kjører hver mutasjon bare filene med målene sine (#934), og hvert slikt utvalg
  * kjøres først én gang uten mutasjon (#945). For
  * hver mutasjon kreves det at de forventede målassertions feiler, og at alle
- * feil er assertions, ikke import, oppsett eller en brutt forutsetning
+ * feil i filene med målene er assertions, ikke import, oppsett eller en brutt forutsetning
  * (`.claude/rules/tester.md`). Unntatt er forutsetningene mutasjonen selv oppgir, om
- * atferden den endrer (`forutsetninger`, #1859).
+ * atferden den endrer (`forutsetninger`, #1859). En feil i en annen fil meldes, men avgjør
+ * ikke utfallet, så utvalget og hele samlingen gir samme utfall (#2108).
  *
  * Mutasjonene fordeles på flere kopier av arbeidstreet, med lokale endringer,
  * som kjører samtidig (#378). Lagringstestene i `sprakprove/kjernelagring/` lager
@@ -6449,11 +6450,25 @@ const iForutsetningene = (m: Mutasjon, navn: string, melding: string) =>
   (m.forutsetninger ?? []).some((f) => treffer(navn, f.test) && melding.includes(f.melding));
 
 function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): Utfall {
-  const tester = rapport.testResults.flatMap((f) => f.assertionResults);
+  // #2108: bare filene med målene avgjør utfallet, som i utvalget på en PR. En feil i en annen
+  // fil meldes, men gjør ikke mutasjonen overlevende, så utvalget og hele samlingen er enige.
+  const iMaalfilene = (fil: string) => maalfilene.get(m)!.has(relative(k.rot, fil));
+  const [filene, andreFiler] = delEtter(rapport.testResults, (f) => iMaalfilene(f.name));
+  const [iMaalene, utenforMaalene] = delEtter(suitefeilene(rapport), (f) => iMaalfilene(f.fil));
+  const tester = filene.flatMap((f) => f.assertionResults);
   const feilet = tester.filter((t) => t.status === 'failed');
-  const [suitefeil, godtattSuite] = delEtter(suitefeilene(rapport), (f) =>
+  const [suitefeil, godtattSuite] = delEtter(iMaalene, (f) =>
     iForutsetningene(m, suitenavn(f, k), f.melding)
   );
+  const utenfor = [
+    ...utenforMaalene.map((f) => suitenavn(f, k)),
+    ...andreFiler
+      .flatMap((f) => f.assertionResults)
+      .filter(
+        (t) => t.status === 'failed' && !t.failureMessages.join('\n').includes('AssertionError')
+      )
+      .map((t) => t.fullName),
+  ];
   const [ikkeAssertion, godtattTest] = delEtter(
     feilet.filter((t) => !t.failureMessages.join('\n').includes('AssertionError')),
     (t) => iForutsetningene(m, t.fullName, t.failureMessages.join('\n'))
@@ -6493,6 +6508,11 @@ function vurder(m: Mutasjon, rapport: Rapport, k: Arbeidskopi): Utfall {
           `  ${TIDSAVBRUDD.test(t.failureMessages.join('\n')) ? 'tidsavbrudd' : 'ikke en assertion'}: ${t.fullName}`
       ),
       ...godtattSuite.map((f) => `  forutsetning (oppgitt): ${suitenavn(f, k)}`),
+      ...(utenfor.length
+        ? [
+            `  utenfor målfilene, avgjør ikke utfallet: ${utenfor.length} feil som ikke er assertions, for eksempel ${utenfor[0]}`,
+          ]
+        : []),
       ...godtattTest.map((t) => `  forutsetning (oppgitt): ${t.fullName}`),
       ...manglerMal.flatMap((mal) => [
         `  målet feilet ikke på en assertion: ${mal}`,
@@ -6600,19 +6620,14 @@ if (malfeil.length) throw new Error(malfeil.join('\n'));
 // målene sine, og om natta hele samlingen. Kontrollkjøringen går alltid over hele, med et
 // utvalg i én kopi: hvert utvalg har sin egen kontroll, og `ci.yml` kjører samlingen.
 const utvalg = process.env.FEILINNFOERING_UTVALG === '1';
-const utvalgene = new Map(
-  utvalg
-    ? valgte.map((m) => [
-        m,
-        [
-          ...new Set(
-            navn.filter((n) => m.mal.some((mal) => harMal(n.navn, mal))).map((n) => n.fil)
-          ),
-        ],
-      ])
-    : []
+/** Filene med målene til hver mutasjon: utvalget på en PR, og det som avgjør utfallet (#2108). */
+const maalfilene = new Map(
+  valgte.map((m) => [
+    m,
+    new Set(navn.filter((n) => m.mal.some((mal) => harMal(n.navn, mal))).map((n) => n.fil)),
+  ])
 );
-const filerFor = (m: Mutasjon) => utvalgene.get(m);
+const filerFor = (m: Mutasjon) => (utvalg ? [...maalfilene.get(m)!] : undefined);
 // Lagringstestene mot SQL Server tar det meste av tiden i et utvalg, så mutasjonene med
 // slike filer fordeles for seg. Ellers avgjør rekkefølgen i lista hvor mange hver del får.
 const tung = (m: Mutasjon) =>
