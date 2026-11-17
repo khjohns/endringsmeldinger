@@ -256,7 +256,10 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     const spesifiseringen = () => screen.queryByRole('radio', { name: 'Spesifisert for sent' });
 
     it('når kravet svarer på forespørselen, står ikke spørsmålet om spesifiseringen og ikke dagene byggherren måtte forstå (punkt 33.6.2 fjerde ledd)', async () => {
-      await svarskjemaet(medSvarPaaForesporsel);
+      await svarskjemaet(
+        medSvarPaaForesporsel,
+        reaktiv({ ...tomtFristsvar(), spesifisertITide: false })
+      );
       expect(spesifiseringen()).toBeNull();
       expect(
         screen.queryByLabelText('Dagene du måtte forstå at totalentreprenøren hadde krav på')
@@ -280,6 +283,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
       await seBrevet();
       expect(sendt).toHaveLength(1);
       expect(vurderingen(sendt)).not.toHaveProperty('spesifisert_krav_ok');
+      expect(vurderingen(sendt).frister).toEqual([{ dager: 10 }]);
     });
   });
 });

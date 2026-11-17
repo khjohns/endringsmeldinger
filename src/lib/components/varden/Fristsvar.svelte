@@ -115,8 +115,8 @@
     lagene?.standpunkter.find(passer)?.forutsetninger ?? [];
   const forDagene = (id: string) => forutsetninger((x) => x.art === 'dager' && x.gjelder === id);
   const grunnene = $derived(frister[0] ? forDagene(frister[0].id).filter((f) => 'grunn' in f) : []);
-  // Spesifiseringen er ikke et spørsmål når kravet svarer på forespørselen (punkt 33.6.2 fjerde
-  // ledd), og et svar som står fra før, sendes ikke (#2158).
+  // Spørsmålet står bare når kjernen stiller det (`stilt`), og et svar som står fra før, sendes
+  // ikke (#2158).
   const spesifiseringen = $derived(stilt(lagene, 'spesifisert_krav_ok'));
   $effect.pre(() => {
     if (!spesifiseringen) valg.spesifisertITide = null;
@@ -288,8 +288,10 @@
     <a href={`#${uid}-foresporsel`}>{FRISTSVAR.innsigelsenForesporsel}</a>
   {:else if f.innsigelse === 'hindring'}
     <a href={`#${uid}-hindret`}>{FRISTSVAR.standpunktetHindring}</a>
-  {:else}
+  {:else if spesifiseringen}
     <a href={`#${uid}-spesifisert`}>{FRISTSVAR.innsigelsenSpesifisering}</a>
+  {:else}
+    {FRISTSVAR.innsigelsenSpesifisering}
   {/if}
 {/snippet}
 
