@@ -41,13 +41,13 @@ MM-U55 punkt 8 og er samlet.
 
 ## Utkastet til A1
 
-Hver setning har kilden i parentes. «s3» er tredje setning i posten. Språket følger E4.
+Hver setning har kilden i parentes. «s3» er tredje setning i posten. Språket følger E3.
 
 ###### A. Hva korrespondansen er i løsningen
 
 1. Det partene har sendt hverandre utenfor løsningen, kan legges til i saken som korrespondanse.
    Begge parter kan legge til korrespondanse, også det motparten har sendt. En kommentar i Catenda
-   er ikke et brev i løsningen. (OV-U79 s1, s5 og s6, som endrer KA-U20 s2 og OV-U4 s7)
+   er ikke et brev i løsningen, og den kan ikke legges til som brev. (OV-U79 s1, s5 og s6, som endrer KA-U20 s2 og OV-U4 s7)
 2. Den som legger korrespondansen til, oppgir hva den er etter kontrakten: dokumentasjon, varsel,
    krav eller svar. Bare parten som sendte den, kan velge noe annet enn dokumentasjon. Legger
    motparten den til, står den som dokumentasjon til avsenderen velger. (OV-U80 s1–3)
@@ -57,21 +57,29 @@ Hver setning har kilden i parentes. «s3» er tredje setning i posten. Språket 
    og parten sender utsagnet fra løsningen. (OV-U98 s1–2, uten forespørselen etter OV-U113)
 4. Dokumentasjon står ved sporene eller saken. Løsningen utleder ikke noe av den, verken standpunkt,
    enighet, sperre eller uavklart utfall, og fryser ingen vurdering av den. Partene tar den i
-   betraktning når de svarer i løsningen. (OV-U80; OV-U4 s3 og s5; OV-U44 s2) En forespørsel etter
-   punkt 33.6.2 sendt utenfor løsningen er dokumentasjon i første versjon, og det samme er
-   påberopelsen av at totalentreprenøren svarte for sent på den. (OV-U113 s1 og s3)
+   betraktning når de svarer i løsningen. (OV-U80; OV-U4 s3 og s5; OV-U44 s2) Virkningen bygger på
+   partens uttrykkelige, strukturerte opplysninger, ikke på løsningens lesing av vedlegget. (OV-U44
+   s4) En forespørsel etter punkt 33.6.2 sendt utenfor løsningen er dokumentasjon i første versjon.
+   Påberopelsen av at totalentreprenøren svarte for sent på den, sendes utenfor løsningen og legges
+   til som dokumentasjon. (OV-U113 s1 og s3)
 5. Et krav eller svar som legges til, fylles ut med de samme påkrevde feltene som et krav eller svar
    sendt fra løsningen, unntatt utdypningen og begrunnelsen. Når skjemaet er fylt ut, har det samme
    virkning i løsningen som et krav eller svar sendt derfra, med datoen det ble sendt. Løsningen lager
-   ingen brevtekst. Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse. (OV-U80;
-   KA-U24) Et brev som står som dokumentasjon, binder ikke i løsningen. (E1)
+   ingen brevtekst. Der skjemaet og dokumentet spriker, er dokumentet partens meddelelse. Er skjemaet ikke fylt ut,
+   står korrespondansen som dokumentasjon. (OV-U80; KA-U24) Et brev som står som dokumentasjon, har
+   ingen virkning i løsningen. (HF-U5, setningen om et registrert brev, med E1)
 6. Et svar som legges til, går gjennom godkjenningen etter fullmakten og står som dokumentasjon til
-   det er godkjent. Har svaret et forbehold skjemaet ikke kan uttrykke, står det som dokumentasjon.
-   Løsningen tolker ikke et forbehold i svaret. (OV-U80; OV-U101 s5–6; E2)
-7. Byggherren bekrefter ikke i et brev fra løsningen et svar byggherren har gitt utenfor løsningen,
+   det er godkjent. (OV-U80; OV-U101 s5) Et forbehold står i dokumentet, og der
+   skjemaet og dokumentet spriker, er dokumentet partens meddelelse. Løsningen tolker ikke et
+   forbehold i svaret, og ingen handling sperres fordi et brev har et forbehold. (OV-U101 s6; KA-U49
+   punkt 4, 6 og 10; EO-U18; E2)
+7. Byggherren bekrefter ikke i et brev fra løsningen et svar på forholdet byggherren har gitt utenfor
+   løsningen,
    men legger det til som korrespondanse og velger at det er et svar. Kan svaret ikke legges til som
    svar, eller vil byggherren gi en endringsordre nå, sender byggherren et nytt svar fra løsningen,
-   og det får virkning når det sendes. (OV-U101 s1–2 og s8–9)
+   og det får virkning når det sendes. (OV-U101 s1–2 og s8–9) Henvisningen til et svar utenfor
+   løsningen (GR-U34 punkt 6–7) og det nye svaret etter en henvisning (OV-U46, GR-U36) står. (OV-U101
+   s10)
 8. Byggherrens egen endringsordre er et valg i svaret, på vilkårene i OV-U6. (OV-U80; OV-U101 s7)
 9. Løsningen kontrollerer ikke at dokumentet er det parten oppgir, og avgjør ikke om sendemåten
    oppfyller kravene i kontrakten til skriftlighet og adresse. (OV-U80; OV-U79 s4; VS-U39)
@@ -91,10 +99,11 @@ Hver setning har kilden i parentes. «s3» er tredje setning i posten. Språket 
     Løsningen avgjør ikke når korrespondansen ble sendt eller kom fram. Mener mottakeren at datoen er
     feil, sier mottakeren det i begrunnelsen for svaret eller i et innlegg. (OV-U98 s3; OV-U85; VS-U8
     s2) Et varsel totalentreprenøren sender fra løsningen, får serverens dato. (VS-U8 s1)
-12. Et varsel er et eget utsagn med datoen det ble sendt. Datoen for et varsel fra
-    totalentreprenøren settes én gang, også når varselet er lagt til som korrespondanse, og et senere
+12. Et varsel er et eget utsagn med datoen det ble sendt. Datoen og metoden for et
+    varsel fra totalentreprenøren settes én gang, også når varselet er lagt til som korrespondanse, og et senere
     krav med en annen dato avvises. En feil dato rettes etter MM-U55 punkt 8 og 18. (HF-U13
-    siste setning; rad-101 s1–2; OV-U80; VS-U34 s6)
+    siste setning; rad-101 s1–2; OV-U80; VS-U34 s6) Det gjelder et varsel som er registrert, ikke et
+    varsel som bare er utledet. (MM-U1 s1)
 13. «Før» og «da det ble sendt» regnes i hele kalenderdager, og et brev sendt samme dag som et
     annet er ikke sendt før det, etter OV-U104. (OV-U104)
 
@@ -122,13 +131,18 @@ Hver setning har kilden i parentes. «s3» er tredje setning i posten. Språket 
     faller bort. Kategorien godtas også etter kravet og etter byggherrens svar, på vilkårene i OV-U5
     og VS-U16. (OV-U80; VS-U34 s1–2, som endrer OV-U5) Det er første registrering, ikke en flytting
     av et varsel som alt er registrert. (MM-U1 s2–3; VS-U7 s1–2) Et svar byggherren alt har gitt,
-    står etter MM-U50 punkt 21–24. (OV-U5 og MM-U50, som endrer MM-U1 s5 og VS-U7 s3–4, s6 og s8)
+    står da med virkningen det hadde, og varselet gjelder som premiss for nye svar. (OV-U80; OV-U5 og
+    MM-U50 punkt 21–24, som endrer MM-U1 s5 og VS-U7 s3–4, s6 og s8)
 19. Velger totalentreprenøren i kravskjemaet at varselet er sendt på annen måte, legges det til i
     samme forløp. Et krav sendt utenfor løsningen legges til med kategorien krav. (VS-U34 s3 og s5;
     s4 er brevtekst og hører til gruppe E)
     Sender totalentreprenøren fra løsningen et krav som også er sendt utenfor, kan totalentreprenøren
-    oppgi datoen det ble sendt utenfor, med det kravet som vedlegg, og byggherren tar stilling til
-    rettidigheten med opplysningen som premiss. (OV-U5, de siste seks setningene; MM-U55 punkt 18)
+    i kravet oppgi datoen det ble sendt utenfor, med det kravet som vedlegg. Datoen oppgis når kravet
+    sendes, og endres ikke senere. Kravet har datoen det sendes fra løsningen. Byggherren tar stilling
+    til rettidigheten etter punkt 33.6.1 med opplysningen som premiss. Det samme gjelder rettidigheten
+    etter punkt 32.2 når grunnlagskravet er det første varselet løsningen kjenner, og etter punkt
+    34.1.2 og 34.1.3 når vederlagskravet er det. Løsningen kontrollerer ikke at dokumentet er det
+    samme kravet, eller at datoen er riktig. (OV-U5, de siste seks setningene; MM-U55 punkt 18)
 20. Når fristkravet er det første varselet løsningen kjenner, og totalentreprenøren har oppgitt at
     kravet ble sendt tidligere utenfor løsningen, tar byggherren også stilling til rettidigheten etter
     punkt 33.4 med den datoen som premiss. Opplysningen er ikke en registrering av varselet, og
@@ -136,10 +150,11 @@ Hver setning har kilden i parentes. «s3» er tredje setning i posten. Språket 
 21. Varselet etter punkt 32.2 i skjemaet for ny sak, og etter at saken er opprettet, følger VS-U38,
     VS-U39 og VS-U40. (VS-U38; VS-U39; VS-U40)
 22. Totalentreprenøren kan sende varsel etter punkt 34.1.2 og 34.1.3 fra løsningen, som et eget
-    varsel med dato og uten beløp, også i en sak der totalentreprenøren krever endring etter punkt
-    33.1 a. Der er det ikke krav om varsel (punkt 34.1.1), løsningen utleder ingen virkning av det,
-    og byggherren tar ikke stilling til rettidigheten etter punkt 34.1.2. Når vederlagskravet er
-    sendt, avvises et nytt slikt varsel fra løsningen. (OV-U5 s1–3; VS-U6; OV-U15)
+    varsel med dato og uten beløp. Når vederlagskravet er sendt, avvises et nytt slikt varsel fra
+    løsningen. (OV-U5 s1–3; VS-U6) Varsel etter punkt 34.1.2 kan sendes i alle kategorier. Der
+    totalentreprenøren krever endring (punkt 33.1 a), er det ikke krav om varsel (punkt 34.1.1).
+    Varselet etter punkt 34.1.2 vises da uten at løsningen utleder noen virkning av det, og
+    byggherren tar ikke stilling til rettidigheten etter punkt 34.1.2. (OV-U15)
 
 ###### E. Rettingen
 
@@ -166,18 +181,17 @@ løsningen tar dem.
 
 ###### Endret innhold
 
-- **E1 HF-U5.** «Et registrert brev binder ikke i appen (OV-U4).» står igjen, selv om OV-U80 gir et
-  krav eller svar som er lagt til, samme virkning som et sendt fra løsningen. OV-U80 endrer OV-U4,
-  men ikke HF-U5. Punkt 5 avgrenser setningen til dokumentasjon. Spørsmål I1.
-- **E2 KA-U20.** Merkingen av et registrert brev med noe løsningen ikke kan uttrykke, og sperren av
-  handlingene som bygger på det, står ikke i punktene. OV-U80 lar et svar med et slikt forbehold stå
-  som dokumentasjon, og OV-U13 sier at merkingen bygges med avklaringen av registrerte brev (OV-U7).
-  Spørsmål I2.
-- **E3 Forhold som alt er løst.** Disse står med den senere posten som kilde og endrer ikke noe:
-  OV-U79 og OV-U80 mot KA-U20 og OV-U4 (punkt 1), OV-U113 mot OV-U98 (punkt 3, 4 og 14), VS-U34 mot
-  OV-U5 (punkt 18), og OV-U5 og MM-U50 punkt 21 mot MM-U1 og VS-U7 (punkt 18). MM-U21 i OV-U80
-  leses som MM-U55, som opphever den.
-- **E4 Språket.** «Appen» blir «løsningen», «TE» blir «totalentreprenøren», «registrert» blir «lagt
+- **E1 HF-U5.** Setningen «Et registrert brev binder ikke i appen (OV-U4).» erstattes av punkt 3–5.
+  Det følger av OV-U80, OV-U98 og OV-U101, og OV-U80 endrer OV-U4, som setningen viser til.
+  Bindingen i HF-U5 har ikke lenger innhold (MM-U34 punkt 4, HF-U23 E2, MM-U50 punkt 8). Forhold:
+  endrer HF-U5 for den setningen.
+- **E2 Forhold som alt er løst.** Disse står med den senere posten som kilde og endrer ikke noe:
+  OV-U79 og OV-U80 mot KA-U20 s2 og OV-U4 s7 (punkt 1), OV-U98 mot OV-U80 om aksepten (punkt 3),
+  OV-U113 mot OV-U98 (punkt 3, 4 og 14), OV-U102 mot OV-U98 s5 (punkt 15), VS-U34 mot OV-U5 (punkt
+  18), og OV-U5 og MM-U50 punkt 21 mot MM-U1 og VS-U7 (punkt 18). Merkingen og sperren i KA-U20 er
+  opphevet av KA-U45 og samlet i KA-U49 punkt 10, og spørsmålet om forbehold i OV-U80 er tatt ut av
+  EO-U18 (punkt 6). MM-U21 i OV-U80 og OV-U11 i VS-U34 s6 leses som MM-U55 (punkt 12 og 23).
+- **E3 Språket.** «Appen» blir «løsningen», «TE» blir «totalentreprenøren», «registrert» blir «lagt
   til» der det gjelder korrespondanse, og «§» blir «punkt», etter [språkfila](../sprak.md).
 
 ## Svarene om delingen
@@ -223,45 +237,20 @@ Lagret ordrett før de sendes til orkestratoren. Begge gjelder framgangsmåten, 
 
 ## Spørsmålene om innholdet
 
-Lagret ordrett før de sendes til orkestratoren. Begge gjelder rettsregler og stilles i tekst, ikke
-med spørsmålsverktøyet. Resten av utkastet legges fram til tilslutning med rettelser per punkt.
-
-> **I1. Hva et brev som er lagt til, binder (E1).** HF-U5 sier: «Et registrert brev binder ikke i
-> appen (OV-U4).» OV-U80 gir et krav eller svar som er lagt til med skjemaet, «samme virkning i
-> løsningen som et krav eller svar sendt derfra», og OV-U98 gjør det samme for aksepten. OV-U80
-> endrer OV-U4, men har ikke noe forhold til HF-U5.
->
-> - **A (anbefalt):** «Et brev som står som dokumentasjon, binder ikke i løsningen. Et krav, et
->   svar eller en aksept som avsenderen har lagt til etter punkt 3 og 5, binder i løsningen som et
->   krav, et svar eller en aksept sendt derfra, med datoen det ble sendt.» Forhold: endrer HF-U5
->   (setningen om et registrert brev); følger OV-U80 og OV-U98.
-> - **B:** Setningen i HF-U5 står uendret. Et svar som er lagt til, binder da ikke byggherren i
->   løsningen. Det strider mot OV-U80 og OV-U98 og er et forslag om å oppheve dem for bindingen.
->
-> Styrer: om bindingen etter HF-U5 gjelder et svar byggherren har lagt til.
-
-> **I2. Merkingen av et forbehold i et brev som er lagt til (E2).** KA-U20 sier at et registrert
-> brev med noe løsningen ikke kan uttrykke, merkes av den som registrerer, at en part senere kan
-> merke det, og at handlingene som bygger på forbeholdet, sperres. OV-U80 lar den som legger til et
-> svar, svare på om svaret har et forbehold skjemaet ikke kan uttrykke. Svarer den ja, står svaret
-> som dokumentasjon, og det er ingenting å sperre. OV-U13 sier at avklaringen av et registrert brev
-> bygges «med merking og avklaring av registrerte brev (OV-U7)».
->
-> - **A (anbefalt):** «Den som legger til et svar med et forbehold skjemaet ikke kan uttrykke,
->   merker det med spørsmålet i svarskjemaet, og svaret står som dokumentasjon (punkt 6). En senere
->   merking av et krav eller svar som er lagt til, og sperren av handlingene som bygger på
->   forbeholdet, venter til et nytt vedtak sier at de bygges.» Forhold: snevrer inn KA-U20 for
->   første versjon; følger OV-U80 og OV-U13.
-> - **B:** KA-U20 står i A1 som i dag. En part kan også senere merke et krav eller svar som er
->   lagt til, og handlingene som bygger på forbeholdet, sperres til avsenderen avklarer det.
->
-> Styrer: om første versjon har en senere merking med sperre.
+Ingen. To spørsmål, I1 om bindingen i HF-U5 og I2 om merkingen i KA-U20, ble skrevet og trukket før
+de ble sendt. Prøvingen mot vedtakene viste at svarene følger av OV-U80, OV-U98, OV-U101, KA-U45,
+KA-U49 punkt 10 og EO-U18. De står nå i E1 og E2. Utkastet legges fram til tilslutning med
+rettelser per punkt.
 
 ## Verifikasjon og grenser
 
 - **Kjørt og observert:** kommandoene under «Grunnlaget» på `c18fec2`, og søket i K1.
   `test_vedtaksregister` er grønn (476 tester). Testen for S2 A er prøvd mot feilinnføringen som
   fjerner rettingen, og ble rød.
+- **Prøvingen:** én subagent kontrollerte hver setning i utkastet mot kilden, og én prøvde I1 og I2
+  mot vedtakene. Funnene er rettet én gang: tre avvik, fire vilkår og fem setninger som manglet, og
+  I1 og I2 trukket. OV-U13 viser fortsatt til «(OV-U7)» for en del som er opphevet. Det rettes i
+  registeret, ikke i A1.
 - **Lest ut av vedtaksfila:** K1, utkastet og «Endret innhold». Bare Følge og teksten til
   samlevedtakene for VS-U43, MM-U43, MM-U50 og MM-U55 er lest for K1.
 - **Ikke kontrollert:** sitatene fra NS 8407 (ingen er brukt), og koden for registreringen.
