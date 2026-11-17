@@ -4042,7 +4042,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     ).toEqual({
       regel: 'VARSEL_REGISTRERT',
       melding:
-        'Brevet med varselet står alt i saken som totalentreprenørens brev av 28. september 2026, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet. Begrunnelsen kan vise til brevet.',
+        'Brevet med varselet står alt i saken som totalentreprenørens brev av 28. september 2026, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet og vedleggene ved varselet fra kravet. Begrunnelsen kan vise til dem.',
     });
     expect(s.avvist('TE', utenBrevet), 'kontrollsak').toBeNull();
   });
@@ -4061,8 +4061,26 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     expect(s.avvisning('TE', { ...utenBrevet, dokumentasjon: [VARSELBREVET, PLAN] })).toEqual({
       regel: 'VARSEL_REGISTRERT',
       melding:
-        'Brevet med varselet står alt i saken som totalentreprenørens brev av 28. september 2026, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet. Begrunnelsen kan vise til brevet.',
+        'Brevet med varselet står alt i saken som totalentreprenørens brev av 28. september 2026, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet og vedleggene ved varselet fra kravet. Begrunnelsen kan vise til dem.',
     });
+    expect(s.avvist('TE', { ...utenBrevet, dokumentasjon: [PLAN] }), 'kontrollsak').toBeNull();
+  });
+
+  it('et fristkrav sendt fra løsningen avvises også med ett av vedleggene ved varselet etter punkt 33.4, som i vederlaget (VS-U73, svar B 17.11 i #2142)', () => {
+    const vedlegget = randomUUID();
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', {
+      type: 'varsel',
+      ...SOM_BREV,
+      spor: 'frist',
+      hjemmel: '33.4',
+      sendt: FRISTKRAV.varsel.sendt,
+      dokumentasjon: [VARSELBREVET, vedlegget],
+    });
+    expect(s.avvist('TE', { ...utenBrevet, dokumentasjon: [vedlegget] }), 'ett av to vedlegg').toBe(
+      'VARSEL_REGISTRERT'
+    );
     expect(s.avvist('TE', { ...utenBrevet, dokumentasjon: [PLAN] }), 'kontrollsak').toBeNull();
   });
 

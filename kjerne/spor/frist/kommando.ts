@@ -431,8 +431,9 @@ function varseldokumentetISaken(
         );
   const varselbrevet = vedKravetsBrev ? brevene.find((h) => h.id === varselet.dokument) : undefined;
   const vedleggene = innholdetIVedleggene(k.dokumentasjon ?? [], oppslag);
-  return varselbrevet?.dokument.dokumentasjon.length &&
-    erDelAv(innholdetIDokumentet(varselbrevet.dokument), vedleggene)
+  // Hver fil ved varselet er en del av brevet med varselet (VS-U73, svar B 17.11 i #2142).
+  return varselbrevet &&
+    [...innholdetIDokumentet(varselbrevet.dokument)].some((x) => vedleggene.has(x))
     ? fjernBrevet(varselbrevet)
     : null;
 }
@@ -456,7 +457,7 @@ function som(h: Brevet): string {
 const fjernBrevet = (h: Brevet) =>
   avvis(
     'VARSEL_REGISTRERT',
-    `Brevet med varselet står alt i saken${som(h)}, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet. Begrunnelsen kan vise til brevet.`
+    `Brevet med varselet står alt i saken${som(h)}, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet og vedleggene ved varselet fra kravet. Begrunnelsen kan vise til dem.`
   );
 
 /** Raden med varselet fra kravskjemaet som registrert varsel etter § 33.4 (`medVarselet`). */

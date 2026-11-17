@@ -1301,11 +1301,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'Dokument',
     'utsagn',
     'dokumentasjon',
-    [
-      'spor/vederlag/kommando.ts:foranKravet',
-      'spor/vederlag/kommando.ts:vedleggIVarslene',
-      'spor/frist/kommando.ts:varseldokumentetISaken',
-    ],
+    ['spor/vederlag/kommando.ts:foranKravet', 'spor/vederlag/kommando.ts:vedleggIVarslene'],
   ],
   [
     'Utsagn',
