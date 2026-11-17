@@ -21,7 +21,7 @@
   import Postliste from './Postliste.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
-  import Tallfelt from './Tallfelt.svelte';
+  import Linjefelt from './Linjefelt.svelte';
   import Valg from './Valg.svelte';
   import Varseldatoer from './Varseldatoer.svelte';
   import {
@@ -37,7 +37,7 @@
     velgDagene,
   } from './fristsvar';
   import { brevet, standpunktene } from './lesing';
-  import { manglene, ubesvart } from './svarskjema';
+  import { manglene, stilt, ubesvart } from './svarskjema';
   import {
     BREVKONTROLL,
     FRISTSVAR,
@@ -115,6 +115,12 @@
     lagene?.standpunkter.find(passer)?.forutsetninger ?? [];
   const forDagene = (id: string) => forutsetninger((x) => x.art === 'dager' && x.gjelder === id);
   const grunnene = $derived(frister[0] ? forDagene(frister[0].id).filter((f) => 'grunn' in f) : []);
+  // Spørsmålet står bare når kjernen stiller det (`stilt`), og et svar som står fra før, sendes
+  // ikke (#2158).
+  const spesifiseringen = $derived(stilt(lagene, 'spesifisert_krav_ok'));
+  $effect.pre(() => {
+    if (!spesifiseringen) valg.spesifisertITide = null;
+  });
   const hindringslagene = $derived(forutsetninger((x) => x.art === 'hindring'));
   const spesifiseringslagene = $derived(forutsetninger((x) => x.art === 'spesifisering'));
   const foresporselslagene = $derived(
@@ -282,8 +288,10 @@
     <a href={`#${uid}-foresporsel`}>{FRISTSVAR.innsigelsenForesporsel}</a>
   {:else if f.innsigelse === 'hindring'}
     <a href={`#${uid}-hindret`}>{FRISTSVAR.standpunktetHindring}</a>
-  {:else}
+  {:else if spesifiseringen}
     <a href={`#${uid}-spesifisert`}>{FRISTSVAR.innsigelsenSpesifisering}</a>
+  {:else}
+    {FRISTSVAR.innsigelsenSpesifisering}
   {/if}
 {/snippet}
 
@@ -318,11 +326,12 @@
               liste={spesifiseringslagene}
               punkt={forutsetning}
             />
-            <Tallfelt
+            <Linjefelt
               {id}
               etikett={FRISTSVAR.maatteForstaaEtikett}
               hjelp={FRISTSVAR.maatteForstaaHjelp(f.dager)}
               enhet="dager"
+              bredde="tall"
               inputmode="numeric"
               bind:verdi={v.maatteForstaa}
               feil={mFeil}
@@ -359,11 +368,12 @@
              valget. -->
         {@const id = `${uid}-deldager-${f.id}`}
         {@const dFeil = feil(id)}
-        <Tallfelt
+        <Linjefelt
           {id}
           etikett={FRISTSVAR.deldagerEtikett}
           hjelp={FRISTSVAR.deldagerHjelp}
           enhet="dager"
+          bredde="tall"
           inputmode="numeric"
           bind:verdi={
             () => godkjenteDagerIFeltet(v, f.dager), (t) => skrivGodkjenteDager(v, t, f.dager)
@@ -446,29 +456,33 @@
       />
     </Spoersmaal>
 
-    <Spoersmaal
-      id={`${uid}-sp-spesifisering`}
-      tittel={FRISTSVAR.spesifiseringTittel}
-      hjemmel={['33.6.1']}
-    >
-      <Gjelderhvis
-        id={`${uid}-spesifisert-forutsetninger`}
-        liste={spesifiseringslagene}
-        punkt={forutsetning}
-      />
-      <p class="dempet">{FRISTSVAR.spesifiseringGrense}</p>
-      <Valg
-        navn={`${uid}-spesifisert`}
-        spoersmaal={FRISTSVAR.spesifiseringSpoersmaal}
-        beskrevetAv={spesifiseringslagene.length ? `${uid}-spesifisert-forutsetninger` : undefined}
-        valg={[
-          { verdi: true, tekst: FRISTSVAR.spesifisertITide },
-          { verdi: false, tekst: FRISTSVAR.spesifisertForSent },
-        ]}
-        bind:verdi={valg.spesifisertITide}
-        feil={feil(`${uid}-spesifisert`)}
-      />
-    </Spoersmaal>
+    {#if spesifiseringen}
+      <Spoersmaal
+        id={`${uid}-sp-spesifisering`}
+        tittel={FRISTSVAR.spesifiseringTittel}
+        hjemmel={['33.6.1']}
+      >
+        <Gjelderhvis
+          id={`${uid}-spesifisert-forutsetninger`}
+          liste={spesifiseringslagene}
+          punkt={forutsetning}
+        />
+        <p class="dempet">{FRISTSVAR.spesifiseringGrense}</p>
+        <Valg
+          navn={`${uid}-spesifisert`}
+          spoersmaal={FRISTSVAR.spesifiseringSpoersmaal}
+          beskrevetAv={spesifiseringslagene.length
+            ? `${uid}-spesifisert-forutsetninger`
+            : undefined}
+          valg={[
+            { verdi: true, tekst: FRISTSVAR.spesifisertITide },
+            { verdi: false, tekst: FRISTSVAR.spesifisertForSent },
+          ]}
+          bind:verdi={valg.spesifisertITide}
+          feil={feil(`${uid}-spesifisert`)}
+        />
+      </Spoersmaal>
+    {/if}
 
     <Spoersmaal id={`${uid}-sp-dager`} tittel={FRISTSVAR.dagerTittel} hjemmel={['33.5', '33.7']}>
       {#if forHeleKravet.length}

@@ -185,7 +185,8 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   til seks alternativer vises alle, ikke en nedtrekksliste. En nedtrekksliste passer
   først når alternativene er for mange til å vises. En lang liste med grupper, som de
   17 forholdene, får en egen velger med søk og grupper (#1492). Et tekstfelt over flere linjer
-  er `Tekstomraade`, et datofelt `Datofelt` og et tall `Tallfelt`, med samme oppbygning (#2119).
+  er `Tekstomraade`, et datofelt `Datofelt`, og et tall eller en kort tekst på én linje
+  `Linjefelt`, med samme oppbygning (#2119, #2150).
 - **Bredden på feltet følger svaret det venter.** Et datofelt er om lag så bredt som
   en dato med kalenderikonet, og et nummer eller en dato for endringsordren har et
   kort felt. Løpende tekst, som en tittel eller en beskrivelse, har full bredde

@@ -22,7 +22,7 @@
   import { fokuser, type Mangel } from './mangler';
   import { sendeflyt } from './sendeflyt.svelte';
   import Melding from './Melding.svelte';
-  import Tallfelt from './Tallfelt.svelte';
+  import Linjefelt from './Linjefelt.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Valg from './Valg.svelte';
@@ -413,7 +413,7 @@
 )}
   {@const fid = id(`${navn}-${p.noekkel}`)}
   {@const f = feil(`${navn}-${p.noekkel}`)}
-  <Tallfelt
+  <Linjefelt
     id={fid}
     {etikett}
     {hjelp}
@@ -431,7 +431,7 @@
         {nyDato ?? ''}
       </p>{/if}
     {#if etter}<p class="dempet" id={`${fid}-etter`}>{etter}</p>{/if}
-  </Tallfelt>
+  </Linjefelt>
 {/snippet}
 
 {#snippet fristrad(p: Fristpostvalg)}

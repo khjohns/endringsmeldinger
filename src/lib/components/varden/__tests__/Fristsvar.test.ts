@@ -18,6 +18,8 @@ import {
   skrevet,
 } from '#lib/kjernesak/__tests__/provejournal.ts';
 import type { TilBrevkontrollen } from '#lib/components/varden/Brevkontroll.svelte';
+import { tomtFristsvar, type Fristsvarvalg } from '#lib/components/varden/fristsvar.ts';
+import { reaktiv } from './reaktiv.svelte.ts';
 import Fristsvar from '#lib/components/varden/Fristsvar.svelte';
 
 const medFristkrav = skrevet(medGrunnlag, 'TE', {
@@ -44,7 +46,7 @@ const medSvarPaaForesporsel = skrevet(
   }
 );
 
-async function svarskjemaet(journal: Journalrad[]) {
+async function svarskjemaet(journal: Journalrad[], valg: Fristsvarvalg = reaktiv(tomtFristsvar())) {
   const kjernesak = lagKjernesak({
     sakId: SAK,
     prosjektId: 'p-1',
@@ -64,6 +66,7 @@ async function svarskjemaet(journal: Journalrad[]) {
   render(Fristsvar, {
     kjernesak,
     u: kjernesak.utledning!,
+    valg,
     onbrevkontroll: (k: TilBrevkontrollen) => sendt.push(k),
     onforkast: () => {},
   });
@@ -246,6 +249,41 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
         'Velg om du legger til grunn at fremdriften er hindret av forholdet.',
         'Velg hvor mange av dagene du godkjenner.',
       ]);
+    });
+  });
+
+  describe('spørsmålet om spesifiseringen står bare når kjernen stiller det (#2158)', () => {
+    const spesifiseringen = () => screen.queryByRole('radio', { name: 'Spesifisert for sent' });
+
+    it('når kravet svarer på forespørselen, står ikke spørsmålet om spesifiseringen og ikke dagene byggherren måtte forstå (punkt 33.6.2 fjerde ledd)', async () => {
+      await svarskjemaet(
+        medSvarPaaForesporsel,
+        reaktiv({ ...tomtFristsvar(), spesifisertITide: false })
+      );
+      expect(spesifiseringen()).toBeNull();
+      expect(
+        screen.queryByLabelText('Dagene du måtte forstå at totalentreprenøren hadde krav på')
+      ).toBeNull();
+    });
+
+    it('uten forespørsel står spørsmålet om spesifiseringen (punkt 33.6.1)', async () => {
+      await svarskjemaet(medFristkrav);
+      expect(spesifiseringen()).toBeInTheDocument();
+    });
+
+    it('når kravet svarer på forespørselen, sendes ikke et svar om spesifiseringen som sto i utkastet fra før (punkt 33.6.2 fjerde ledd)', async () => {
+      const valg = reaktiv({ ...tomtFristsvar(), spesifisertITide: false });
+      const sendt = await svarskjemaet(medSvarPaaForesporsel, valg);
+      await radio('Varslet i tide');
+      await radio('Svarte i tide');
+      await radio('Ja, fremdriften er hindret, og hindringen skyldes forholdet');
+      await fireEvent.input(screen.getByLabelText('Godkjente dager'), {
+        target: { value: '10' },
+      });
+      await seBrevet();
+      expect(sendt).toHaveLength(1);
+      expect(vurderingen(sendt)).not.toHaveProperty('spesifisert_krav_ok');
+      expect(vurderingen(sendt).frister).toEqual([{ dager: 10 }]);
     });
   });
 });

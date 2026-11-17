@@ -23,6 +23,7 @@ export {
   omtalenAvKorrespondansen,
   OPPGITT,
   SPORNAVN,
+  VALG,
 } from './felles';
 export { grunntekst, leselinjene, standpunkttekst } from './standpunkt';
 export * from './svaret';
