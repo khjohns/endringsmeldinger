@@ -10,17 +10,25 @@ import { untrack } from 'svelte';
 const vilHaLinja = $state<string[]>([]);
 
 /**
- * Om panelet får plass i vinduet, så det kan følge rullingen. Kalles mens komponenten
- * initialiseres. `panel` er elementet som måles, og bindes på nytt når det settes inn igjen.
+ * Om elementene får plass i vinduet over hverandre, med 16 px mellom, så de kan følge rullingen.
+ * Kalles mens komponenten initialiseres. `elementer` gir elementene som måles, og de bindes på
+ * nytt når ett settes inn igjen. `hoeyder` er høyden til hvert, i samme rekkefølge.
  */
-export function faarPlass(panel: () => HTMLElement | null): { readonly faarPlass: boolean } {
-  const tilstand = $state({ faarPlass: true });
+export function faarPlass(elementer: () => (HTMLElement | null)[]): {
+  readonly faarPlass: boolean;
+  readonly hoeyder: readonly number[];
+} {
+  const tilstand = $state({ faarPlass: true, hoeyder: [] as number[] });
   $effect(() => {
-    const el = panel();
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const maal = () => (tilstand.faarPlass = el.offsetHeight + 32 <= window.innerHeight);
+    const els = elementer();
+    if (els.some((el) => !el) || typeof ResizeObserver === 'undefined') return;
+    const maal = () => {
+      tilstand.hoeyder = els.map((el) => el!.offsetHeight);
+      const samlet = tilstand.hoeyder.reduce((sum, h) => sum + h, 0) + 16 * (els.length - 1);
+      tilstand.faarPlass = samlet + 32 <= window.innerHeight;
+    };
     const ro = new ResizeObserver(maal);
-    ro.observe(el);
+    for (const el of els) ro.observe(el!);
     window.addEventListener('resize', maal);
     maal();
     return () => {
@@ -40,7 +48,7 @@ export function fastLinje(
   panel: () => HTMLElement | null,
   skjult: () => boolean
 ): { readonly faarPlass: boolean; readonly visKompakt: boolean } {
-  const plass = faarPlass(panel);
+  const plass = faarPlass(() => [panel()]);
   const tilstand = $state({ iSyne: true });
   $effect(() => {
     const el = panel();

@@ -10,7 +10,7 @@
   som mangler, står ved feltet og øverst (MM-U32).
 -->
 <script lang="ts">
-  import { tick, untrack } from 'svelte';
+  import { untrack } from 'svelte';
   import { kroner } from '#kjerne/frosset/tekst.ts';
   import { krevdProduktivitet, kravposterI } from '#kjerne/spor/vederlag/format.ts';
   import type { Kravpost } from '#kjerne/typer.ts';
@@ -34,7 +34,7 @@
   import Kravpunkter from './Kravpunkter.svelte';
   import Hjemmel from './Hjemmel.svelte';
   import Korrespondansen from './Korrespondansen.svelte';
-  import type { Mangel } from './mangler';
+  import { fokuser, type Mangel } from './mangler';
   import { sendeflyt } from './sendeflyt.svelte';
   import Tallfelt from './Tallfelt.svelte';
   import Tidslinje from './Tidslinje.svelte';
@@ -196,13 +196,11 @@
 
   async function aapne(p: Kravpostvalg, felt = 'beskrivelse') {
     aapen = p.noekkel;
-    await tick();
-    document.getElementById(id(`${felt}-${p.noekkel}`))?.focus();
+    await fokuser(() => document.getElementById(id(`${felt}-${p.noekkel}`)));
   }
   async function lukk(p: Kravpostvalg) {
     aapen = null;
-    await tick();
-    document.getElementById(id(`endre-${p.noekkel}`))?.focus();
+    await fokuser(() => document.getElementById(id(`endre-${p.noekkel}`)));
   }
   async function leggTil() {
     const p = nyKravpost(v);
@@ -217,26 +215,22 @@
   async function fjernNy(p: Kravpostvalg) {
     v.poster = v.poster.filter((q) => q !== p);
     aapen = null;
-    await tick();
-    document.getElementById(id('legg-til'))?.focus();
+    await fokuser(() => document.getElementById(id('legg-til')));
   }
   async function trekk(p: Kravpostvalg) {
     p.trukket = true;
     aapen = null;
-    await tick();
-    document.getElementById(id(`endre-${p.noekkel}`))?.focus();
+    await fokuser(() => document.getElementById(id(`endre-${p.noekkel}`)));
   }
   // Den særskilte vederlagsjusteringen har en leselinje som kravpostene, og står åpen når den er ny (#1827).
   let saerskiltAapen = $state(untrack(() => v.saerskilt !== null && !v.saerskilt.beloep));
   async function aapneSaerskilt() {
     saerskiltAapen = true;
-    await tick();
-    document.getElementById(id('saerskilt'))?.focus();
+    await fokuser(() => document.getElementById(id('saerskilt')));
   }
   async function lukkSaerskilt() {
     saerskiltAapen = false;
-    await tick();
-    document.getElementById(id('endre-saerskilt'))?.focus();
+    await fokuser(() => document.getElementById(id('endre-saerskilt')));
   }
   async function leggTilSaerskilt() {
     v.saerskilt = { beloep: '' };
@@ -247,20 +241,17 @@
     v.saerskilt = null;
     v.trekkerSaerskilt = true;
     saerskiltAapen = false;
-    await tick();
-    document.getElementById(id('angre-saerskilt'))?.focus();
+    await fokuser(() => document.getElementById(id('angre-saerskilt')));
   }
   async function angreSaerskilt() {
     v.trekkerSaerskilt = false;
     v.saerskilt = startvalg(u).saerskilt;
-    await tick();
-    document.getElementById(id('endre-saerskilt'))?.focus();
+    await fokuser(() => document.getElementById(id('endre-saerskilt')));
   }
   async function fjernSaerskilt() {
     v.saerskilt = null;
     saerskiltAapen = false;
-    await tick();
-    document.getElementById(id('legg-til-saerskilt'))?.focus();
+    await fokuser(() => document.getElementById(id('legg-til-saerskilt')));
   }
   const trukne = $derived(trukneKravposter(u).filter((q) => !v.poster.some((p) => p.id === q.id)));
 
@@ -282,8 +273,7 @@
     e.preventDefault();
     if (iVarselet) aapentVarsel = p.noekkel;
     else aapen = p.noekkel;
-    await tick();
-    document.getElementById(m.felt)?.focus();
+    await fokuser(() => document.getElementById(m.felt));
   }
 
   // Leselinja: hva posten krever, og hva som er endret fra forrige krav.
@@ -1048,12 +1038,11 @@
               aria-label={KRAVSKJEMA.endreVarselet(navnet(p))}
               onclick={async () => {
                 aapentVarsel = p.noekkel;
-                await tick();
-                document
-                  .querySelector<HTMLInputElement>(
+                await fokuser(() =>
+                  document.querySelector<HTMLInputElement>(
                     `#${CSS.escape(id(`varsel-${p.noekkel}`))} input`
                   )
-                  ?.focus();
+                );
               }}>{KRAVSKJEMA.endre}</Knapp
             >
           {/if}

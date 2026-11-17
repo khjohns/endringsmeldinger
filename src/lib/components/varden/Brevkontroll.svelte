@@ -53,10 +53,11 @@
 
 <script lang="ts">
   import { ChevronLeft, Send } from 'lucide-svelte';
-  import { onMount, tick } from 'svelte';
+  import { onMount } from 'svelte';
   import type { Part } from '#kjerne/typer.ts';
   import type { Brevref } from './lesing';
   import type { Brevsending } from './nysak';
+  import { fokuser } from './mangler';
   import Brev from './Brev.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
@@ -151,8 +152,7 @@
     if (!kontrollert) {
       manglerKontroll = true;
       // Beskjeden og aria-describedby må stå før fokus flyttes, så skjermleseren leser dem.
-      await tick();
-      avkrysning?.focus();
+      await fokuser(() => avkrysning);
       return;
     }
     harSendt = true;
