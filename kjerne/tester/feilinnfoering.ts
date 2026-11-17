@@ -6276,6 +6276,16 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['s?.akseptfrist && svarIkkeGodtatt(u, spor)', 's?.akseptfrist']],
     mal: ['akseptfristen står ikke når'],
   },
+  {
+    id: 'F736',
+    feilklasse:
+      'forseringen kan velges etter at totalentreprenøren har godtatt avslaget (FO-U1, #2120)',
+    fil: `${K}/utledning/visning.ts`,
+    endringer: [
+      ["svarIkkeGodtatt(u, 'frist') && prinsipaltAvslaatteDager(u)", 'prinsipaltAvslaatteDager(u)'],
+    ],
+    mal: ['ikke etter at totalentreprenøren har godtatt svaret'],
+  },
 ];
 interface Testresultat {
   fullName: string;
