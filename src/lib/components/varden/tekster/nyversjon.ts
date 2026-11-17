@@ -1,3 +1,4 @@
+import { haerdet } from './format';
 import { PARTENS, stor } from '#kjerne/frosset/brevdeler.ts';
 import type { Part } from '#kjerne/typer.ts';
 import type { Brevref } from '../lesing';
@@ -6,7 +7,7 @@ import { brevref, brevrefStor } from './felles';
 /**
  * Skjemaet for TEs nye versjon av påberopelsen (BF-10).
  */
-export const NYVERSJON = {
+export const NYVERSJON = haerdet({
   /**
    * Brevet som skrives, i arbeidsraden (oppdragsgiver 07.11, PR 1650). Nummeret er det neste i
    * saken; forhåndsvisningen viser det brevet får.
@@ -45,4 +46,4 @@ export const NYVERSJON = {
   tilbakeTil: 'utkastet',
   kanIkkeLages: 'Brevet kan ikke lages ennå.',
   kvittering: 'Brevet er sendt til byggherren.',
-};
+});

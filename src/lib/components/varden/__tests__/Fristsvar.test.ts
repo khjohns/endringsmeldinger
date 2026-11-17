@@ -206,7 +206,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     await svarskjemaet(medFristkrav);
     await radio('Varslet for sent');
     expect(gjelderHvisForDagene()).toEqual([
-      'innsigelsen om at varselet etter punkt 33.4 kom for sent ikke fører frem',
+      'innsigelsen om at varselet etter punkt\u00a033.4 kom for sent ikke fører frem',
     ]);
   });
 

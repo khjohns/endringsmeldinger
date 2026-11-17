@@ -50,7 +50,9 @@ const demopanel = () =>
 async function bhSvarerIVarden(): Promise<string[]> {
   await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
   await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
-  await fireEvent.click(screen.getByRole('radio', { name: 'Godkjenner fast sum (punkt 34.2.1)' }));
+  await fireEvent.click(
+    screen.getByRole('radio', { name: 'Godkjenner fast sum (punkt\u00a034.2.1)' })
+  );
   await fireEvent.click(screen.getByRole('radio', { name: 'Deler av beløpet' }));
   await fireEvent.input(await screen.findByRole('textbox', { name: 'Beløpet du godkjenner' }), {
     target: { value: '60 000' },
@@ -175,7 +177,7 @@ describe('Varden med brukerforløpet BF-01', () => {
         .map((l) => l.textContent)
     ).toEqual([
       'Velg om varselet kom i tide.',
-      'Velg om du godkjenner fast sum (punkt 34.2.1).',
+      'Velg om du godkjenner fast sum (punkt\u00a034.2.1).',
       'Velg hvor mye av beløpet du godkjenner.',
     ]);
     const ved = (spoersmaal: string) =>
@@ -197,7 +199,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     ).toHaveLength(2);
 
     await fireEvent.click(
-      screen.getByRole('radio', { name: 'Godkjenner fast sum (punkt 34.2.1)' })
+      screen.getByRole('radio', { name: 'Godkjenner fast sum (punkt\u00a034.2.1)' })
     );
     await fireEvent.click(screen.getByRole('radio', { name: 'Deler av beløpet' }));
     const beloep = await screen.findByRole('textbox', { name: 'Beløpet du godkjenner' });
@@ -275,7 +277,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(forutsetningene()).toEqual([AVSLAGET, 'innsigelsen om sen varsling ikke fører frem']);
 
     // KA-U72: mener BH en annen oppgjørsform, spør skjemaet ikke om beløpet.
-    await fireEvent.click(screen.getByRole('radio', { name: 'Mener regningsarbeid (punkt 34.4)' }));
+    await fireEvent.click(
+      screen.getByRole('radio', { name: 'Mener regningsarbeid (punkt\u00a034.4)' })
+    );
     expect(screen.queryByRole('group', { name: 'Hvor mye av beløpet godkjenner du?' })).toBeNull();
 
     // Som i brevet står avslaget prinsipalt, foran sporet (OV-U33).
@@ -306,13 +310,15 @@ describe('Varden med brukerforløpet BF-01', () => {
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet i tide' }));
     expect(beloepet(), 'forutsetning: uten oppgjørsform spør skjemaet om beløpet').not.toBeNull();
     await fireEvent.click(screen.getByRole('radio', { name: 'Ingenting' }));
-    await fireEvent.click(screen.getByRole('radio', { name: 'Mener regningsarbeid (punkt 34.4)' }));
+    await fireEvent.click(
+      screen.getByRole('radio', { name: 'Mener regningsarbeid (punkt\u00a034.4)' })
+    );
     expect(beloepet()).toBeNull();
     expect(linjer().some((l) => l.includes('Vederlagsjustering'))).toBe(false);
     expect(linjer().some((l) => l.includes('regningsarbeid'))).toBe(true);
 
     await fireEvent.click(
-      screen.getByRole('radio', { name: 'Godkjenner fast sum (punkt 34.2.1)' })
+      screen.getByRole('radio', { name: 'Godkjenner fast sum (punkt\u00a034.2.1)' })
     );
     expect(beloepet()).not.toBeNull();
     expect(screen.getByRole('radio', { name: 'Ingenting' })).toBeChecked();
@@ -338,7 +344,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     // Nummeret i saken, ikke versjonen i journalen (oppdragsgiver 05.11 i #1631).
     const AVSLAGET = ['avslaget av forholdet i brev 2 ikke fører frem'];
     const VARSEL = 'Kom varselet om kravet i tide?';
-    const METODE = 'Oppgjørsformen (punkt 34.2.2)';
+    const METODE = 'Oppgjørsformen (punkt\u00a034.2.2)';
 
     expect(forutsetningene(VARSEL)).toEqual(AVSLAGET);
     expect(forutsetningene(METODE)).toEqual(AVSLAGET);
@@ -352,7 +358,9 @@ describe('Varden med brukerforløpet BF-01', () => {
       'innsigelsen om sen varsling ikke fører frem',
     ]);
     // Svaret på oppgjørsformen flytter ikke oppgjørsformen ut av laget sitt.
-    await fireEvent.click(screen.getByRole('radio', { name: 'Mener regningsarbeid (punkt 34.4)' }));
+    await fireEvent.click(
+      screen.getByRole('radio', { name: 'Mener regningsarbeid (punkt\u00a034.4)' })
+    );
     expect(forutsetningene(METODE)).toEqual([
       ...AVSLAGET,
       'innsigelsen om sen varsling ikke fører frem',

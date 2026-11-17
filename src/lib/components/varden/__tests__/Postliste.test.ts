@@ -83,7 +83,7 @@ describe('lista over kravpostene i svaret (#1739, #1778)', () => {
   it('en besvart kravpost viser svaret i leselinjen og tilbyr «Endre svaret på P1»', async () => {
     await svarskjemaet();
     await fireEvent.click(
-      screen.getByRole('radio', { name: 'Godkjenner fast sum (punkt 34.2.1)' })
+      screen.getByRole('radio', { name: 'Godkjenner fast sum (punkt\u00a034.2.1)' })
     );
     await fireEvent.click(screen.getByRole('radio', { name: 'Hele beløpet' }));
     await fireEvent.click(screen.getByRole('button', { name: 'Ferdig' }));

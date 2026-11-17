@@ -98,7 +98,7 @@ async function svarskjemaet(journal: Journalrad[]) {
 
 const radio = (navn: string) => fireEvent.click(screen.getByRole('radio', { name: navn }));
 const godkjennHele = async () => {
-  await radio('Godkjenner fast sum (punkt 34.2.1)');
+  await radio('Godkjenner fast sum (punkt\u00a034.2.1)');
   await radio('Hele beløpet');
 };
 const seBrevet = () =>
@@ -152,7 +152,7 @@ describe('det som mangler, er det kjernen sier er påkrevd og ubesvart (#2025)',
     await seBrevet();
     expect(manglene()).toEqual([
       'Velg om varselet kom i tide.',
-      'Velg om du godkjenner fast sum (punkt 34.2.1).',
+      'Velg om du godkjenner fast sum (punkt\u00a034.2.1).',
       'Velg hvor mye av beløpet du godkjenner.',
     ]);
   });
@@ -160,7 +160,7 @@ describe('det som mangler, er det kjernen sier er påkrevd og ubesvart (#2025)',
   it('en delvis godkjenning uten beløpet ber om beløpet du godkjenner (KA-U42)', async () => {
     await svarskjemaet(svikt);
     await radio('Varslet i tide');
-    await radio('Godkjenner fast sum (punkt 34.2.1)');
+    await radio('Godkjenner fast sum (punkt\u00a034.2.1)');
     await radio('Deler av beløpet');
     await seBrevet();
     expect(manglene()).toEqual(['Skriv beløpet du godkjenner.']);

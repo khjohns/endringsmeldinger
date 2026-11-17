@@ -5,9 +5,9 @@ import type { Kravpost, Oppgjoersform, Part } from '#kjerne/typer.ts';
 import type { Regel } from '../kommandoer';
 import type { Brevref } from '../lesing';
 import { brevref, brevrefStor, metodenavn } from './felles';
-import { dato, kl, kortDato } from './format';
+import { dato, kl, kortDato, haerdet } from './format';
 
-export const SKJEMA = {
+export const SKJEMA = haerdet({
   overskrift: 'Svar på kravet',
   // KA-U19: skjemaet sier at virkningen regnes ut fra valgene; OV-U81: i et infotips.
   omSvaret: 'Om svaret',
@@ -131,14 +131,14 @@ export const SKJEMA = {
   /** Hinderet kjernen gir for kravet (`hindrerSvarPaaKravet`). */
   ikkeStoettetHinder: (hinder: string) =>
     `${hinder}. Svaret på det kan ikke skrives i denne prøven av Varden ennå.`,
-};
+});
 
 /**
  * Skjemaet for byggherrens svar på kravet om fristforlengelse (G-4 i BF-20, prototypene
  * `fristsvar.html` og `fristkrav-te.html#svar`). Ordene som er felles med svaret på vederlaget,
  * står i `SKJEMA`.
  */
-export const FRISTSVAR = {
+export const FRISTSVAR = haerdet({
   varselTittel: 'Varselet om fristforlengelse',
   varselSpoersmaal: 'Kom varselet i tide?',
   kravSendt: (d: string, b: Brevref) =>
@@ -208,9 +208,9 @@ export const FRISTSVAR = {
       : n === 0
         ? 'Avslått'
         : `${n} av ${dager(krevd)} godkjent`,
-};
+});
 
-export const HOVEDLINJER = {
+export const HOVEDLINJER = haerdet({
   tittel: 'Hovedlinjene i svaret',
   tom: 'Velg et svar på spørsmålene, så står standpunktene her.',
   alternativer: 'alternativer, ikke tillegg',
@@ -220,9 +220,9 @@ export const HOVEDLINJER = {
   kanIkkeLages: 'Brevet kan ikke lages ennå.',
   beloepUtenfor: (krevd: number) =>
     `Beløpet du godkjenner må være mer enn 0 kr og mindre enn ${kroner(krevd)}.`,
-};
+});
 
-export const BREVKONTROLL = {
+export const BREVKONTROLL = haerdet({
   utkast: 'Utkast · ikke sendt',
   tilbake: (hva: string) => `Tilbake til ${hva}`,
   fra: 'Fra',
@@ -242,9 +242,9 @@ export const BREVKONTROLL = {
   sender: 'Sender …',
   sendSvaret: 'Send svaret til totalentreprenøren',
   sendAksepten: 'Send aksepten til byggherren',
-};
+});
 
-export const MOTTATT = {
+export const MOTTATT = haerdet({
   fra: (n: number, part: Part, d: string) => `Brev ${n} · ${part} · mottatt ${dato(d)} ${kl(d)}`,
   sendt: (d: string) =>
     `Sendt herfra ${dato(d)} ${kl(d)}. Dette er brevet slik det ble sendt, og det kan ikke endres.`,
@@ -253,10 +253,10 @@ export const MOTTATT = {
   forkastet: 'Utkastet er forkastet.',
   sakenEndret:
     'Brevet ble ikke sendt, fordi saken er endret siden du åpnet brevkontrollen. Se over saken og brevet på nytt før du sender.',
-};
+});
 
 /** Ordene i det felles svarskjemaet (`Svarskjema.svelte`). */
-export const SVARSKJEMA = {
+export const SVARSKJEMA = haerdet({
   postKolonne: 'Post',
   fristKolonne: 'Frist',
   kravetKolonne: 'Kravet',
@@ -266,4 +266,4 @@ export const SVARSKJEMA = {
   forkastTekst:
     'Valgene og begrunnelsene du har skrevet i utkastet, slettes. Det kan ikke gjøres om.',
   kompaktLinje: 'Hovedlinjene og brevkontrollen',
-} as const;
+} as const);

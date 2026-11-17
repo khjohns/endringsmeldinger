@@ -13,14 +13,14 @@ import {
   utsagnet,
 } from './standpunkt';
 import { SAKSDELEN, brevref, brevrefStor } from './felles';
-import { dato } from './format';
+import { dato, haerdet } from './format';
 
 /** Siden for forholdet (#1449, prototypen `grunnlagsoversikt.html`, OV-U76–OV-U78). */
 /** Korrigeringen i en lukket sak (D-6 og U-6 i BF-02A; oppdragsgiver 06.11, #1646). */
 const KORRIGERT_I_LUKKET =
   'Saken står lukket, og korrigeringen endrer ikke utfallet. Byggherren kan ta stilling til den nye datoen i et innlegg. Innlegg kan ikke sendes fra løsningen ennå.';
 
-export const FORHOLDET = {
+export const FORHOLDET = haerdet({
   utenNavn: 'Forholdet',
   registrertTittel: (part: Part) => `Korrespondanse fra ${PARTEN[part]}`,
   tilbake: 'Tilbake til forholdet',
@@ -140,4 +140,4 @@ export const FORHOLDET = {
   /** Antallet poster uten fast beløp ved summen (KA-U61, KA-U72; oppdragsgiver 12.11 i #1752). */
   utenFastBeloep: (n: number) => `${n} ${n === 1 ? 'post' : 'poster'} uten fast beløp`,
   ingenFastBeloep: 'Ingen poster med fast beløp',
-};
+});

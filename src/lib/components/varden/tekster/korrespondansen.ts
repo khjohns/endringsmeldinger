@@ -3,7 +3,7 @@ import type { Korrespondansetype, Sendemaate, Spor } from '#kjerne/typer.ts';
 import type { Brevet, Brevref } from '../lesing';
 import { GRENSEN_FOR_VEDLEGG, SPORNAVN, brevref, brevrefStor } from './felles';
 import type { Korrespondansehva, Korrespondansekategori } from './typer';
-import { dato } from './format';
+import { dato, haerdet } from './format';
 
 const KORRESPONDANSEORD: Record<
   Korrespondansehva,
@@ -56,7 +56,7 @@ const KORRESPONDANSEORD: Record<
  * Korrespondansen sendt utenfor løsningen, i den felles komponenten for varselet, kravet, svaret
  * og aksepten (OV-U79, OV-U80, OV-U98, VS-U34, A1 i #2056). Ordene følger fristkravet (#2063).
  */
-export const KORRESPONDANSEN = {
+export const KORRESPONDANSEN = haerdet({
   typen: (hva: Korrespondansehva) => KORRESPONDANSEORD[hva].typen,
   typer: [
     { verdi: 'brev', tekst: 'Brev' },
@@ -92,13 +92,13 @@ export const KORRESPONDANSEN = {
     dokument: KORRESPONDANSEORD[hva].dokumentMangler,
     beskrivelse: `Beskriv ${KORRESPONDANSEORD[hva].bestemt}.`,
   }),
-};
+});
 
 /**
  * Skjemaet for korrespondanse sendt utenfor løsningen og lagt til i saken (OV-U79, OV-U80, OV-U98,
  * prototypen `grunnlagsoversikt.html#reg-skjema`, arbeidsvalget 16.11 i #807).
  */
-export const LEGG_TIL = {
+export const LEGG_TIL = haerdet({
   tittel: 'Legg til korrespondanse',
   inngangHjelp: 'Brev, e-post, møtereferat eller notat du har sendt utenfor løsningen.',
   // Arbeidsvalget 16.11, punkt 2: bare det parten selv har sendt (avsenderen er #2069).
@@ -156,4 +156,4 @@ export const LEGG_TIL = {
   /** OV-U104 og MM-U50 punkt 8. */
   sammeDag: (brev: readonly Brevref[]) =>
     `Sendt samme dag som ${liste([...new Set(brev.map(brevref))])}. Løsningen kjenner ikke rekkefølgen og har ikke avgjort hvilket brev som kom først, eller hvem som er bundet.`,
-};
+});
