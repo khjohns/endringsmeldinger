@@ -166,7 +166,7 @@ export type UbesvartIVederlaget =
  * byggherren godtar ved en delvis godkjenning (KA-U42), svaret på oppgjørsformen for en kravpost
  * (§ 34.2.2, KA-U57 (d)) og for posten etter annet ledd varselet etter § 34.1.3 og beløpet etter
  * begrensningen når den er påberopt. Svaret på varselet etter § 34.3.3 og § 34.4 er ikke påkrevd
- * (VS-U57, VS-U46).
+ * (VS-U57, VS-U77).
  */
 export function ubesvarteSpoersmaal(
   svar: Vederlagssvar,
