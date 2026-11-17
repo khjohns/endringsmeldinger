@@ -310,7 +310,7 @@ export interface Skrivesteg {
   ): Utfall;
   /**
    * Handlingen `kjede` lager fra konteksten og journalen. Når den sendes, prøves hele handlingen
-   * først, så en avvisning av en senere rad kommer før den første raden gis (VS-U53).
+   * først, så en avvisning av en senere rad kommer før den første raden gis (VS-U51, VS-U53).
    */
   proevd(kjede: (kontekst: Kontekst, journal: Journalrad[]) => Utfall): Utfall;
   /** Journalen lest og utledet, som `skriv` leser den. */
