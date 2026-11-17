@@ -4305,6 +4305,16 @@ describe('et brev sendt utenfor løsningen som både varsler og krever, legges t
     }
   );
 
+  it('et vederlagskrav uten posten etter punkt 34.1.3 annet ledd gjelder ikke som varselet etter punkt 34.1.3, og brevet godtas som det varselet (VS-U74, OV-U5)', () => {
+    const s = sak();
+    s.send('TE', PAABEROPELSE);
+    s.send('TE', lagtTil({ type: 'krav', spor: 'vederlag', innhold: tilbud(125000) }));
+    expect(s.avvist('TE', varsel('vederlag', '34.1.3', [KRAVBREVET]))).toBeNull();
+    expect(s.avvist('TE', varsel('vederlag', '34.1.2', [KRAVBREVET])), 'kontrollsak').toBe(
+      'KRAVET_ER_VARSELET'
+    );
+  });
+
   it('et krav sendt fra løsningen med brevet som vedlegg sperrer ikke brevet som varsel, fordi brevet ikke er kravet (VS-U74)', () => {
     const s = sak();
     s.send('TE', PAABEROPELSE);
