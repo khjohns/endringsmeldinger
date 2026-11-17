@@ -42,7 +42,12 @@
     type VedleggForNySak,
   } from './nysak';
   import { KORRESPONDANSEN, NYSAK, SKJEMA, dagensDato } from './tekster';
-  import { korrespondansemangler, tomKorrespondanse } from './korrespondansen';
+  import {
+    korrespondansefeilene,
+    korrespondansenoekkel,
+    KORRESPONDANSEFELTENE,
+    tomKorrespondanse,
+  } from './korrespondansen';
 
   let {
     sakId,
@@ -203,10 +208,10 @@
     if (felt.endringsordre && !endringsordre.trim()) ny.endringsordre = NYSAK.oppgiEndringsordren;
     if (lasterOpp) ny.vedlegg = NYSAK.ventPaaOpplastingen;
     if (varselet) {
-      const mangler = Object.entries(
-        korrespondansemangler(varsel, { dokument: varseldokumentet !== null })
-      );
-      for (const [f, tekst] of mangler) ny[`varsel-${f}`] = tekst;
+      const mangler = korrespondansefeilene(varsel, 'varsel', {
+        dokument: varseldokumentet !== null,
+      });
+      for (const [f, tekst] of mangler) ny[f] = tekst;
       if (!mangler.length) ny.varselLagres = NYSAK.varseletKanIkkeLagres;
     }
     if (forhold && !ny.tittel && !ny.dato && !ny.endringsordre && !ny.vedlegg) {
@@ -287,7 +292,8 @@
   function vises(f: string) {
     if (f === 'dato') return !!felt.datotekst;
     if (f === 'endringsordre') return felt.endringsordre;
-    if (f === 'varsel-sendemaate') return varselet && varsel.type === 'brev';
+    if (f === korrespondansenoekkel('varsel', 'sendemaate'))
+      return varselet && varsel.type === 'brev';
     if (f.startsWith('varsel')) return varselet;
     return true;
   }
@@ -299,10 +305,7 @@
     'dato',
     'endringsordre',
     'vedlegg',
-    'varsel-type',
-    'varsel-sendemaate',
-    'varsel-dato',
-    'varsel-beskrivelse',
+    ...KORRESPONDANSEFELTENE.map((f) => korrespondansenoekkel('varsel', f)),
     'varselLagres',
     'kjernen',
   ];
@@ -536,12 +539,12 @@
             {#if varselet}
               <div class="varselet">
                 <Korrespondansen
-                  id={(f) => id(`varsel-${f}`)}
+                  id={(f) => id(korrespondansenoekkel('varsel', f))}
                   bind:valg={varsel}
-                  feil={(f) => feil[`varsel-${f}`] ?? null}
+                  feil={(f) => feil[korrespondansenoekkel('varsel', f)] ?? null}
                   grense={varseldokumentet}
                   endret={(f) => {
-                    delete feil[`varsel-${f}`];
+                    delete feil[korrespondansenoekkel('varsel', f)];
                     delete feil.varselLagres;
                   }}
                 />

@@ -8,7 +8,12 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { Avsnitt, Part } from '#kjerne/typer.ts';
-  import { cellene, erKravpostpunkt, erLagslinje, OVERSIKTEN } from '#kjerne/frosset/tekst.ts';
+  import {
+    cellene,
+    erLagslinje,
+    OVERSIKTEN,
+    punkteneMedBegrunnelse,
+  } from '#kjerne/frosset/tekst.ts';
   import { organisasjonene } from './kontrakt';
   import { underOverskriften } from './lesing';
   import { MOTTATT } from './tekster';
@@ -40,7 +45,7 @@
     dato: string;
     tittel: string;
     /** Avsnittene kjernen lager. Et punkt med overskrift har den først i `laast` (#1824). */
-    avsnitt: Pick<Avsnitt, 'laast' | 'punkt' | 'overskrift' | 'utdypning'>[];
+    avsnitt: Pick<Avsnitt, 'gjelder' | 'laast' | 'punkt' | 'overskrift' | 'utdypning'>[];
     /** Tidspunktet brevet ble sendt. Bare et sendt brev har stempelet. */
     sendt?: string;
     fot?: Snippet;
@@ -63,6 +68,8 @@
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
   const hentOrganisasjoner = organisasjonene();
   const organisasjoner = $derived(hentOrganisasjoner());
+  // Avsnittet som navngir kravposten, først i et punkt for en kravpost (KA-U53).
+  const kravposten = (a: (typeof avsnitt)[number]) => punkteneMedBegrunnelse([a])[0]?.kravpost;
 </script>
 
 <article
@@ -143,7 +150,7 @@
               <p class="lagslinje">
                 <b>{etikett}</b>{vilkaar.length ? `, ${vilkaar.join(', ')}` : ''}
               </p>
-            {:else if k === 0 && erKravpostpunkt(a.punkt) && del.startsWith(`${a.punkt} `)}
+            {:else if k === 0 && del === kravposten(a)}
               <p class="postlinje"><b>{a.punkt}</b>{del.slice(a.punkt!.length)}</p>
             {:else}
               <p>{del}</p>

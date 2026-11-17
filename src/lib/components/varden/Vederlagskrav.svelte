@@ -46,7 +46,11 @@
   import Valg from './Valg.svelte';
   import { beloepet } from './kommandoer';
   import { vedleggsgrense, vedleggskart } from './nysak';
-  import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
+  import {
+    korrespondansenoekkel,
+    lagtTil as kommandoenLagtTil,
+    type Korrespondansevalg,
+  } from './korrespondansen';
   import Lagttillinje from './Lagttillinje.svelte';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
   import {
@@ -804,9 +808,9 @@
     {:else if p.varsel.art === 'dokument'}
       <div class="innrykk">
         <Korrespondansen
-          id={(felt) => id(`varsel-${felt}-${n}`)}
+          id={(felt) => id(korrespondansenoekkel('varsel', felt, n))}
           bind:valg={p.varsel}
-          feil={(felt) => feil(`varsel-${felt}-${n}`)}
+          feil={(felt) => feil(korrespondansenoekkel('varsel', felt, n))}
           {grense}
           kapittelB
         />

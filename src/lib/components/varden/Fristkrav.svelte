@@ -32,6 +32,7 @@
   import Korrespondansen from './Korrespondansen.svelte';
   import {
     erTomKorrespondanse,
+    korrespondansenoekkel,
     lagtTil as kommandoenLagtTil,
     tomKorrespondanse,
     type Korrespondansevalg,
@@ -429,9 +430,9 @@
 {#snippet varselUtenfor()}
   <div class="innrykk">
     <Korrespondansen
-      id={(felt) => id(`utenfor-${felt}`)}
+      id={(felt) => id(korrespondansenoekkel('utenfor', felt))}
       bind:valg={v.utenfor!}
-      feil={(felt) => feil(`utenfor-${felt}`)}
+      feil={(felt) => feil(korrespondansenoekkel('utenfor', felt))}
       {grense}
       kapittelB
     />

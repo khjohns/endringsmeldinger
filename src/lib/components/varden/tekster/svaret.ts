@@ -119,7 +119,6 @@ export const SKJEMA = {
   mangler: 'Dette mangler før brevet kan lages:',
   manglerITide: 'Velg om varselet kom i tide.',
   manglerForm: (m: Oppgjoersform) => `Velg om du godkjenner ${metodenavn(m)}.`,
-  manglerVarselJustering: 'Velg om varselet om justering av enhetsprisene kom i tide.',
   manglerJustering: 'Velg om du godkjenner justeringen av enhetsprisene.',
   manglerBeloep: 'Velg hvor mye av beløpet du godkjenner.',
   manglerDelbeloep: 'Skriv beløpet du godkjenner.',
