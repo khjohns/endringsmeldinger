@@ -2,7 +2,8 @@
   «Forkast utkast» nederst i utkastet, med en dialog som spør først (oppdragsgiver 06.11 og 07.11,
   PR 1650). Den trygge knappen heter «Behold utkastet», og «Forkast utkast» er rød, fordi
   handlingen ikke kan gjøres om. Fokus går tilbake til lenken når dialogen lukkes uten forkasting.
-  Skjemaet for ny sak har egne ord på knappene (S2 i #1414), og samme dialog (#2119).
+  Knappene står ved siden av hverandre, og alle skjemaene har de samme knappene (designvalget 17.11
+  i #2119). Skjemaet for ny sak har «Avbryt» på lenken (S2 i #1414) og sin egen tittel og tekst.
 -->
 <script lang="ts">
   import Knapp from './Knapp.svelte';
@@ -12,17 +13,14 @@
     tekst,
     onforkast,
     knapp = SKJEMA.forkast,
-    forkast = SKJEMA.forkast,
-    behold = SKJEMA.behold,
+    tittel = BREVUTKAST.forkastSpoersmaal,
   }: {
     tekst: string;
     onforkast: () => void;
     /** Lenkeknappen som åpner dialogen. */
     knapp?: string;
-    /** Den røde knappen i dialogen. */
-    forkast?: string;
-    /** Den trygge knappen i dialogen. */
-    behold?: string;
+    /** Spørsmålet øverst i dialogen. */
+    tittel?: string;
   } = $props();
   const uid = $props.id();
 
@@ -41,17 +39,17 @@
     if (!forkastet) document.getElementById(`${uid}-forkast`)?.focus();
   }}
 >
-  <h2 id={`${uid}-tittel`}>{BREVUTKAST.forkastSpoersmaal}</h2>
+  <h2 id={`${uid}-tittel`}>{tittel}</h2>
   <p id={`${uid}-tekst`}>{tekst}</p>
   <div class="knapper">
-    <Knapp onclick={() => dialog?.close()}>{behold}</Knapp>
+    <Knapp onclick={() => dialog?.close()}>{SKJEMA.behold}</Knapp>
     <Knapp
       variant="fare"
       onclick={() => {
         forkastet = true;
         dialog?.close();
         onforkast();
-      }}>{forkast}</Knapp
+      }}>{SKJEMA.forkast}</Knapp
     >
   </div>
 </dialog>

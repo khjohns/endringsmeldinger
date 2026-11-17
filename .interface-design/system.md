@@ -375,9 +375,9 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   Skjemaene får forsøket, hindringen og fokuset fra `sendeflyt.svelte.ts` (#2118).
 - **«Forkast utkast»** er en lenkeknapp nederst i skjemaet, adskilt fra primærhandlingen.
   Den spør i en dialog (`Forkastutkast`) med «Behold utkastet» og en rød «Forkast utkast»
-  (`Knapp` med `variant="fare"`), i alle skjemaene som blir et brev. Skjemaet for ny sak har
-  samme dialog med «Avbryt», «Nei, fortsett å skrive» og «Ja, slett det du har skrevet» (S2 i
-  #1414). Rødt på en knapp står bare der handlingen ikke kan gjøres om, og teksten sier det
+  (`Knapp` med `variant="fare"`) ved siden av hverandre, i alle skjemaene som blir et brev. Skjemaet
+  for ny sak har «Avbryt» på lenken (S2 i #1414), en egen tittel og tekst og de samme knappene
+  (designvalget 17.11 i #2119). Rødt på en knapp står bare der handlingen ikke kan gjøres om, og teksten sier det
   (PR 1650, #1925, #2119).
 - **Utkastet sier det selv.** Hodet på utkastkortet sier «Utkast · ikke sendt». Det sier ikke at
   brevet bare er synlig for teamet, fordi det er åpenbart for et utkast (oppdragsgiver 12.11 i

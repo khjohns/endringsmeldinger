@@ -577,13 +577,16 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(screen.queryByText(NYSAK.nyttNummer)).toBeNull();
   });
 
-  it('5a: «Avbryt» spør i dialogen før det som er skrevet slettes, og sender ingenting (#2119)', async () => {
+  it('5a: «Avbryt» spør i dialogen, med de samme knappene som de andre dialogene, før det som er skrevet slettes, og sender ingenting (designvalget 17.11 i #2119)', async () => {
     const { send, onavbrutt } = aapne();
     await fireEvent.click(screen.getByRole('button', { name: 'Avbryt' }));
-    expect(screen.getByText(/ingen sak opprettes/)).toBeTruthy();
-    const dialogen = within(screen.getByRole('dialog', { name: 'Forkaste utkastet?' }));
-    expect(dialogen.getByRole('button', { name: 'Nei, fortsett å skrive' })).toBeTruthy();
-    await fireEvent.click(dialogen.getByRole('button', { name: 'Ja, slett det du har skrevet' }));
+    const dialogen = within(screen.getByRole('dialog', { name: 'Forkaste den nye saken?' }));
+    expect(dialogen.getByText(/Saken opprettes ikke/)).toBeTruthy();
+    expect(dialogen.getAllByRole('button').map((b) => b.textContent?.trim())).toEqual([
+      'Behold utkastet',
+      'Forkast utkast',
+    ]);
+    await fireEvent.click(dialogen.getByRole('button', { name: 'Forkast utkast' }));
     expect(onavbrutt).toHaveBeenCalled();
     expect(send).not.toHaveBeenCalled();
   });

@@ -551,11 +551,10 @@
 
           <div class="handlinger">
             <Forkastutkast
-              tekst={NYSAK.avbrytSpoersmaal}
-              onforkast={onavbrutt}
               knapp={NYSAK.avbryt}
-              forkast={NYSAK.avbrytJa}
-              behold={NYSAK.avbrytNei}
+              tittel={NYSAK.forkastTittel}
+              tekst={NYSAK.forkastTekst}
+              onforkast={onavbrutt}
             />
           </div>
         </div>
