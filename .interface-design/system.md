@@ -369,7 +369,8 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   liste øverst i skjemaet, med lenke til feltet, og fokus flyttes til lista. Beskjedene
   vises først når parten har prøvd, og forsvinner når feltet er rettet. Kjernens
   avvisning av et svar uten begrunnelse står ved begrunnelsen. `Knapp` er inaktiv bare
-  mens en sending pågår.
+  mens en sending pågår. Det som hindrer at brevet kan lages, står under knappen og får fokus.
+  Skjemaene får forsøket, hindringen og fokuset fra `sendeflyt.svelte.ts` (#2118).
 - **«Forkast utkast»** er en lenkeknapp nederst i skjemaet, adskilt fra primærhandlingen.
   I den nye versjonen av påberopelsen, i kravskjemaet for fristen og i svarskjemaene for
   vederlaget og fristen spør den i en dialog (`Forkastutkast`) med «Behold utkastet» og en rød

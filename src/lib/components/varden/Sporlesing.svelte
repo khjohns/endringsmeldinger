@@ -23,7 +23,7 @@
   import Vederlagsoversikt from './Vederlagsoversikt.svelte';
   import { prinsipaltAvslaatteDager } from './fristoversikt';
   import { aksepten } from './kommandoer';
-  import { medietreff } from './medie.svelte';
+  import { medietreff, SMAL } from './medie.svelte';
   import {
     betegnelsene,
     brevMedUtsagn,
@@ -100,7 +100,7 @@
   const fristtabell = $derived(fristtabellen(kjernesak, sakslenke));
   const levering = $derived(leveringene(kjernesak.sak?.leveringsoppdrag ?? []));
   // Under 1181 px står brevet i raden i tråden, og ellers i høyre kolonne (U-16 i BF-44).
-  const smalt = medietreff('(max-width: 1180px)');
+  const smalt = medietreff(SMAL);
   const smal = $derived(smalt.treff);
   // Brevet brukeren valgte å lese. I høyre kolonne står det siste brevet med tekst fra start.
   let lest = $state<string | null>(null);

@@ -100,7 +100,7 @@ export function lagtTil<K extends { type: 'krav' | 'brev' | 'aksept'; svar?: unk
 export async function leggTilISaken(
   kjernesak: Kjernesakkontekst,
   kommando: Record<string, unknown>,
-  vedlegg: ReturnType<typeof vedleggskart>,
+  vedlegg: ReturnType<typeof vedleggskart> | undefined,
   annet: string
 ): Promise<string | null> {
   return (await kjernesak.send(kommando, undefined, vedlegg)) ? null : (kjernesak.feil ?? annet);

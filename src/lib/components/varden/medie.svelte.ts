@@ -19,3 +19,31 @@ export function medietreff(uttrykk: string, aktiv: () => boolean = () => true): 
   });
   return tilstand;
 }
+
+/** Under denne bredden står høyre kolonne under arbeidet, og brevet leses i skjemaet (#1391). */
+export const SMAL = '(max-width: 1180px)';
+
+/**
+ * Brevet leses ved siden av skjemaet når parten `leser` og vinduet er bredere enn `SMAL`, og i
+ * skjemaet ellers (oppdragsgiver 29.10, #1391). `onvedsiden` får beskjed, så kalleren kan felle
+ * inn panelet. Kalles mens komponenten initialiseres.
+ */
+export function brevetVedSiden(
+  onvedsiden: () => ((vedSiden: boolean) => void) | undefined,
+  leser: () => boolean = () => true
+): { readonly smal: boolean; readonly vedSiden: boolean } {
+  const vindu = medietreff(SMAL);
+  const vedSiden = $derived(leser() && !vindu.treff);
+  $effect(() => {
+    onvedsiden()?.(vedSiden);
+    return () => onvedsiden()?.(false);
+  });
+  return {
+    get smal() {
+      return vindu.treff;
+    },
+    get vedSiden() {
+      return vedSiden;
+    },
+  };
+}

@@ -12,8 +12,8 @@
   import { dager } from '#kjerne/frosset/tekst.ts';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
-  import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import { kontrollbrev, type TilBrevkontrollen } from './Brevkontroll.svelte';
+  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import { fastLinje } from './fastlinje.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
@@ -22,7 +22,8 @@
   import Knapp from './Knapp.svelte';
   import Manglene from './Manglene.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
-  import { feltfeil, type Mangel } from './mangler';
+  import type { Mangel } from './mangler';
+  import { sendeflyt } from './sendeflyt.svelte';
   import Melding from './Melding.svelte';
   import Tallfelt from './Tallfelt.svelte';
   import Tidslinje from './Tidslinje.svelte';
@@ -32,7 +33,6 @@
   import {
     erTomKorrespondanse,
     lagtTil as kommandoenLagtTil,
-    leggTilISaken,
     tomKorrespondanse,
     type Korrespondansevalg,
   } from './korrespondansen';
@@ -195,12 +195,10 @@
     lagtTil ? kommandoenLagtTil(fristkravet(gjeldende) as { type: 'krav' }, lagtTil) : null
   );
   const vedleggLagtTil = $derived(vedleggskart(lagtTil?.vedlegg ?? []));
-  let forsoekt = $state(false);
-  const feil = (felt: string): string | null =>
-    forsoekt ? feltfeil(mangler.find((m) => m.felt === id(felt))) : null;
+  const flyt = sendeflyt(() => kjernesak, id('hindring'));
+  const feil = (felt: string): string | null => flyt.feil(mangler.find((m) => m.felt === id(felt)));
   const begrunnelseFeil = $derived(feil('begrunnelse'));
   let oppsummering = $state<HTMLElement | null>(null);
-  let sendehindring = $state<string | null>(null);
 
   const dagene = (p: Fristpostvalg) => {
     const d = heleDager(p.dager);
@@ -258,7 +256,7 @@
     untrack(() => v.frister.find((p) => p.id === null && p.frist === null)?.noekkel ?? null)
   );
   /** Fokus på det valgte i en gruppe, ellers det første feltet, ellers elementet selv. */
-  const fokuser = (el: HTMLElement | null) =>
+  const fokuserIGruppen = (el: HTMLElement | null) =>
     (
       el?.querySelector<HTMLElement>('input:checked') ??
       el?.querySelector<HTMLElement>('input') ??
@@ -268,7 +266,9 @@
     aapen = p.noekkel;
     await tick();
     // En fast frist fra forrige versjon har ikke valget av fristen.
-    fokuser(document.getElementById(id(`${fastFrist(p) ? 'dager' : 'frist'}-${p.noekkel}`)));
+    fokuserIGruppen(
+      document.getElementById(id(`${fastFrist(p) ? 'dager' : 'frist'}-${p.noekkel}`))
+    );
   }
   async function lukk(p: Fristpostvalg) {
     aapen = null;
@@ -297,7 +297,7 @@
     e.preventDefault();
     aapen = p.noekkel;
     await tick();
-    fokuser(document.getElementById(m.felt));
+    fokuserIGruppen(document.getElementById(m.felt));
   }
 
   // Snarveien (BF-20 U-4).
@@ -367,57 +367,36 @@
     })
   );
 
-  async function seBrevet() {
-    sendehindring = null;
-    if (mangler.length) {
-      forsoekt = true;
-      await tick();
-      oppsummering?.focus();
-      return;
-    }
-    if (kommandoLagtTil) {
-      const h = await leggTilISaken(
-        kjernesak,
-        kommandoLagtTil,
-        vedleggLagtTil,
-        HOVEDLINJER.kanIkkeLages
-      );
-      if (h === null) onlagttil();
-      else await hindret(h);
-      return;
-    }
+  function seBrevet() {
     const kommando = fristkravet(gjeldende, foresporsel);
     const vedlegg = vedleggIFristkravet(gjeldende);
-    if (registreres) {
-      if (await kjernesak.send(kommando, undefined, vedlegg)) onregistrert();
-      else await hindret(kjernesak.feil ?? HOVEDLINJER.kanIkkeLages);
-      return;
-    }
-    const b = kjernesak.brev(kommando, vedlegg, true);
-    const brevet = kontrollbrev(b);
-    if (!brevet) return hindret(brevaarsak(b) ?? HOVEDLINJER.kanIkkeLages);
-    onbrevkontroll({
+    return flyt.send({
+      mangler: mangler.length ? () => oppsummering : null,
+      lagtTil: kommandoLagtTil
+        ? { kommando: kommandoLagtTil, vedlegg: vedleggLagtTil, ferdig: onlagttil }
+        : null,
       kommando,
       vedlegg,
-      ...brevet,
-      // Som panelet: hver frist med dagene og en frist som trekkes (U-10), eller varselet eller svaret.
-      detteSender: linjer,
-      virkninger:
-        modus === 'varsel'
-          ? [FRISTKRAV.virkningVarsel(klarOver ? kalenderdager(klarOver.dato, iDag) : null)]
-          : modus === 'svar'
-            ? [FRISTKRAV.virkningB]
-            : [
-                ...(varselbrev || utenfor ? [] : [FRISTKRAV.virkningKravetErVarselet]),
-                ...(svaret ? [FRISTKRAV.virkningNyVersjon(svaret)] : []),
-              ],
+      registrert: registreres ? onregistrert : null,
+      kanIkkeLages: HOVEDLINJER.kanIkkeLages,
+      tilBrevkontrollen: (brevet) =>
+        onbrevkontroll({
+          kommando,
+          vedlegg,
+          ...brevet,
+          // Som panelet: hver frist med dagene og en frist som trekkes (U-10), eller varselet eller svaret.
+          detteSender: linjer,
+          virkninger:
+            modus === 'varsel'
+              ? [FRISTKRAV.virkningVarsel(klarOver ? kalenderdager(klarOver.dato, iDag) : null)]
+              : modus === 'svar'
+                ? [FRISTKRAV.virkningB]
+                : [
+                    ...(varselbrev || utenfor ? [] : [FRISTKRAV.virkningKravetErVarselet]),
+                    ...(svaret ? [FRISTKRAV.virkningNyVersjon(svaret)] : []),
+                  ],
+        }),
     });
-  }
-
-  async function hindret(tekst: string) {
-    sendehindring = tekst;
-    await tick();
-    document.getElementById(id('hindring'))?.focus();
   }
 
   let panel = $state<HTMLElement | null>(null);
@@ -434,7 +413,7 @@
       variant="primaer"
       opptatt={(registreres || !!lagtTil) && kjernesak.sender}
       onclick={seBrevet}
-      aria-describedby={sendehindring ? id('hindring') : undefined}
+      aria-describedby={flyt.hindring ? flyt.hindringId : undefined}
       >{lagtTil
         ? LEGG_TIL.leggTilKravet
         : registreres
@@ -442,8 +421,8 @@
           : HOVEDLINJER.seBrevet}</Knapp
     >
   </div>
-  {#if sendehindring}
-    <Melding art="feil" levende={false} id={id('hindring')} tabindex="-1">{sendehindring}</Melding>
+  {#if flyt.hindring}
+    <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1">{flyt.hindring}</Melding>
   {/if}
 {/snippet}
 
@@ -633,7 +612,7 @@
       {#if lagtTil && kjernesak.part}
         <Lagttillinje part={kjernesak.part} valg={lagtTil} {onendre} />
       {/if}
-      {#if forsoekt && mangler.length}
+      {#if flyt.forsoekt && mangler.length}
         <Manglene
           tittel={lagtTil ? LEGG_TIL.mangler : SKJEMA.mangler}
           {mangler}
@@ -643,7 +622,7 @@
       {/if}
 
       {#if kanVarsle}
-        <section class="spoersmaal">
+        <Spoersmaal>
           <Valg
             navn={id('hva')}
             spoersmaal={FRISTKRAV.hvaSender}
@@ -654,11 +633,11 @@
             stablet
           />
           <p class="dempet" id={id('hva-hjelp')}>{FRISTKRAV.hvaHjelp}</p>
-        </section>
+        </Spoersmaal>
       {/if}
 
       {#if foresporsel && foresporselsbrev}
-        <section class="spoersmaal">
+        <Spoersmaal>
           <p class="status">
             {FRISTKRAV.foresporsel(
               foresporselsbrev,
@@ -674,7 +653,7 @@
             lett
             stablet
           />
-        </section>
+        </Spoersmaal>
       {/if}
 
       {#if !lagtTil && (!bokstavB || varselbrev)}
@@ -856,13 +835,6 @@
 {/if}
 
 <style>
-  .spoersmaal {
-    padding: var(--spacing-5) var(--spacing-6);
-    border-bottom: var(--rule);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-3);
-  }
   .frist-hode {
     display: flex;
     align-items: center;
