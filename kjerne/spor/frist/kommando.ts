@@ -456,7 +456,7 @@ function som(h: Brevet): string {
 const fjernBrevet = (h: Brevet) =>
   avvis(
     'VARSEL_REGISTRERT',
-    `Brevet med varselet står alt i saken${som(h)}, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet.`
+    `Brevet med varselet står alt i saken${som(h)}, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet. Begrunnelsen kan vise til brevet.`
   );
 
 /** Raden med varselet fra kravskjemaet som registrert varsel etter § 33.4 (`medVarselet`). */

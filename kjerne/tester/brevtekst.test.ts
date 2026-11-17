@@ -4042,7 +4042,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     ).toEqual({
       regel: 'VARSEL_REGISTRERT',
       melding:
-        'Brevet med varselet står alt i saken som totalentreprenørens brev av 28. september 2026, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet.',
+        'Brevet med varselet står alt i saken som totalentreprenørens brev av 28. september 2026, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet. Begrunnelsen kan vise til brevet.',
     });
     expect(s.avvist('TE', utenBrevet), 'kontrollsak').toBeNull();
   });
@@ -4061,7 +4061,7 @@ describe('fristkravet med varselet sendt utenfor appen (OV-U5)', () => {
     expect(s.avvisning('TE', { ...utenBrevet, dokumentasjon: [VARSELBREVET, PLAN] })).toEqual({
       regel: 'VARSEL_REGISTRERT',
       melding:
-        'Brevet med varselet står alt i saken som totalentreprenørens brev av 28. september 2026, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet.',
+        'Brevet med varselet står alt i saken som totalentreprenørens brev av 28. september 2026, og kravet viser til varselet etter punkt 33.4 som står i saken. Fjern brevet fra kravet. Begrunnelsen kan vise til brevet.',
     });
     expect(s.avvist('TE', { ...utenBrevet, dokumentasjon: [PLAN] }), 'kontrollsak').toBeNull();
   });
@@ -11363,7 +11363,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       ).toEqual({
         regel: 'KRAVPOSTVARSELET',
         melding:
-          'Et vedlegg ved kravet ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.',
+          'Et vedlegg ved kravet ligger alt ved varselet for en kravpost i totalentreprenørens e-post av 28. september 2026. Kravposten viser til varselet, og begrunnelsen kan vise til vedlegget der.',
       });
     const rad = s.send('TE', { ...vederlagskrav([regning]), dokumentasjon: [PLAN] });
     expect(laast(rad).join(' '), 'kontrollsak').toContain('ble gitt i totalentreprenørens e-post');
@@ -11519,7 +11519,7 @@ describe('kravposten viser til varselet for posten (VS-U50, VS-U54, VS-U55, #166
       expect(s.avvisning('TE', vederlagskrav([{ ...regning, varsel: delt }, regning]))).toEqual({
         regel: 'KRAVPOSTVARSELET',
         melding:
-          'Et vedlegg i varselet for kravpost nr. 1 ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.',
+          'Et vedlegg i varselet for kravpost nr. 1 ligger alt ved varselet for en kravpost i saken. Kravposten viser til varselet, og begrunnelsen kan vise til vedlegget der.',
       });
       expect(s.journal.length, 'ingen rad skrives').toBe(foer);
       expect(

@@ -4516,10 +4516,7 @@ const MUTASJONER: Mutasjon[] = [
       'et vedlegg ved kravet som alt ligger ved et varsel for en kravpost, tar varselet bort fra kravposten (VS-U55, #1823)',
     fil: `${K}/spor/vederlag/kommando.ts`,
     endringer: [
-      [
-        '.some((x) => iVarslene.has(x))\n    ? vedleggVedEtVarsel(',
-        '.some(() => false)\n    ? vedleggVedEtVarsel(',
-      ],
+      ["return varselet ? vedleggVedEtVarsel('ved kravet', varselet) : null;", 'return null;'],
     ],
     mal: ['et vedlegg ved kravet som alt ligger ved et varsel for en kravpost i saken, avvises'],
   },

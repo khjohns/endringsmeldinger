@@ -1303,7 +1303,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'dokumentasjon',
     [
       'spor/vederlag/kommando.ts:foranKravet',
-      'spor/vederlag/kommando.ts:medVarslene',
+      'spor/vederlag/kommando.ts:vedleggIVarslene',
       'spor/frist/kommando.ts:varseldokumentetISaken',
     ],
   ],
@@ -1313,7 +1313,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'dokument',
     [
       'spor/vederlag/kommando.ts:foranKravet',
-      'spor/vederlag/kommando.ts:vedleggIVarslene',
+      'spor/vederlag/kommando.ts:varseldokumentene',
       'spor/frist/kommando.ts:varseldokumentetISaken',
     ],
   ],
@@ -1549,7 +1549,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     ['spor/vederlag/kommando.ts', 'spor/frist/kommando.ts'],
   ],
   // VS-U55 (#1993): dokumentet fra kravskjemaet prøves mot varslene i saken før det skrives.
-  ['LestSak', 'kommando', 'lest u', ['spor/vederlag/kommando.ts:vedleggIVarslene']],
+  ['LestSak', 'kommando', 'lest u', ['spor/vederlag/kommando.ts:varseldokumentene']],
   // VS-U73, #2100: vedleggene ved kravet prøves mot varslene for en kravpost på innholdet.
   ['Sakssperre', 'kommando', 'oppslag', ['spor/vederlag/kommando.ts:vedleggetErEtVarsel']],
   // VS-U34, C1 i #2056: fristkravet skriver varselet først når saken ikke har det.
@@ -1583,7 +1583,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/kommando.ts:vedleggetErEtVarsel',
     ],
   ],
-  ['frosset/brevdeler.ts', 'brevtekst', 'omtalen', ['spor/frist/kommando.ts:som']],
+  [
+    'frosset/brevdeler.ts',
+    'brevtekst',
+    'omtalen',
+    ['spor/frist/kommando.ts:som', 'spor/vederlag/kommando.ts:vedleggVedEtVarsel'],
+  ],
   ['spor/vederlag/kommando.ts', 'kommando', 'SKRIVING_I_VEDERLAGET', ['kommandoer/skriving.ts']],
   ['spor/forhold/kommando.ts', 'kommando', 'SKRIVING_I_FORHOLDET', ['kommandoer/skriving.ts']],
   // Lagene i et svarutkast i sporet (#1778).
@@ -2801,7 +2806,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'vedlegg_id',
     [
       'spor/vederlag/kommando.ts:foranKravet',
-      'spor/vederlag/kommando.ts:medVarslene',
+      'spor/vederlag/kommando.ts:vedleggIVarslene',
       'frosset/brevdeler.ts',
     ],
   ],

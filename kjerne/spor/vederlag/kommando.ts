@@ -16,6 +16,7 @@ import {
   type Kravpostvurdering,
 } from './frysing.ts';
 import { kategori } from '../forhold/format.ts';
+import { omtalen } from '../../frosset/brevdeler.ts';
 import { innholdetIDokumentet, innholdetIVedleggene } from '../../kommandoer/vedlegg.ts';
 import {
   ubesvartIKravposten,
@@ -395,9 +396,7 @@ function medVarslene(
     };
   // VS-U55 (#1993): ellers holder `foranKravet` varselet i saken utenfor for de andre kravpostene.
   // `journal` har ikke dokumentet (VS-U51, VS-U53).
-  const iVarslene = vedleggIVarslene(skriving.saken(journal), (d) =>
-    d.dokumentasjon.map((v) => v.vedlegg_id.toLowerCase())
-  );
+  const iVarslene = vedleggIVarslene(skriving.saken(journal));
   if (dokumentnoekkel(dokumentet).some((id) => iVarslene.has(id)))
     return {
       godtatt: false,
@@ -461,33 +460,33 @@ function vedleggetErEtVarsel(
   // VS-U73. Et krav lagt til har datoen det ble sendt (`erRegistrering`).
   if (k.sendt !== undefined) return null;
   // #2100: samme fil lastet opp på nytt er samme vedlegg, som i fristen.
-  const iVarslene = vedleggIVarslene(sak, (d) => innholdetIDokumentet(d));
-  return [...innholdetIVedleggene(k.dokumentasjon ?? [], sak.oppslag)].some((x) => iVarslene.has(x))
-    ? vedleggVedEtVarsel('ved kravet')
-    : null;
+  const vedlagte = innholdetIVedleggene(k.dokumentasjon ?? [], sak.oppslag);
+  const varselet = varseldokumentene(sak).find((d) =>
+    [...innholdetIDokumentet(d)].some((x) => vedlagte.has(x))
+  );
+  return varselet ? vedleggVedEtVarsel('ved kravet', varselet) : null;
 }
 
-const vedleggVedEtVarsel = (hvor: string) =>
-  avvis(
+/** Hva som hindrer, med varselet vedlegget ligger ved når det er kjent. */
+function vedleggVedEtVarsel(hvor: string, varselet?: Dokument) {
+  const omtale = varselet ? omtalen(varselet) : null;
+  return avvis(
     'KRAVPOSTVARSELET',
-    `Et vedlegg ${hvor} ligger alt ved et varsel for en kravpost i saken. Kravposten viser til varselet i stedet.`
-  );
-
-/**
- * Vedleggene ved varslene for en kravpost i saken (VS-U55), slik `vedlegg` leser dem fra hvert
- * dokument: ID-en med små bokstaver, eller innholdet.
- */
-function vedleggIVarslene(
-  { lest, u }: LestSak,
-  vedlegg: (d: Dokument) => Iterable<string>
-): Set<string> {
-  const varslene = new Set(u.spor.vederlag.kravpostvarsler.map((v) => v.dokument));
-  return new Set(
-    lest.flatMap((h) =>
-      h.art === 'dokument' && varslene.has(h.id) ? [...vedlegg(h.dokument)] : []
-    )
+    `Et vedlegg ${hvor} ligger alt ved varselet for en kravpost ${omtale ? `i ${omtale}` : 'i saken'}. Kravposten viser til varselet, og begrunnelsen kan vise til vedlegget der.`
   );
 }
+
+/** Dokumentene med et varsel for en kravpost i saken (VS-U55). */
+function varseldokumentene({ lest, u }: LestSak): Dokument[] {
+  const varslene = new Set(u.spor.vederlag.kravpostvarsler.map((v) => v.dokument));
+  return lest.flatMap((h) => (h.art === 'dokument' && varslene.has(h.id) ? [h.dokument] : []));
+}
+
+/** Vedleggene ved varslene for en kravpost i saken, med små bokstaver (VS-U55). */
+const vedleggIVarslene = (sak: LestSak): Set<string> =>
+  new Set(
+    varseldokumentene(sak).flatMap((d) => d.dokumentasjon.map((v) => v.vedlegg_id.toLowerCase()))
+  );
 
 export const SKRIVING_I_VEDERLAGET = {
   kravinnhold: (innhold, u, { nyId }) => medKravposter(innhold, u, nyId),
