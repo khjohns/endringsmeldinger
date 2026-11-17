@@ -73,6 +73,9 @@
     max-width: 100%;
     border: var(--control-border);
     border-radius: var(--r-felt);
+    background: var(--surface);
+    /* Feltet og enheten holder seg innenfor de runde hjørnene. */
+    overflow: hidden;
   }
   .inndata.tall {
     width: 220px;
@@ -92,7 +95,7 @@
     border: 0;
     font: 16px var(--font-sans);
     color: var(--ink);
-    background: var(--surface);
+    background: transparent;
     outline: none;
   }
   .tall input {
