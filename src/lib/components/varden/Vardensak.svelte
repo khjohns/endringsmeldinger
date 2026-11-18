@@ -956,6 +956,8 @@
               ? SAKEN.lastefeilNett
               : SAKEN.lastefeilBeklager}
         </p>
+        <!-- Et brev som er sendt før lastingen feilet, står som sendt (review av #2202). -->
+        {#if kjernesak.utdatert && kjernesak.feil}<p role="status">{kjernesak.feil}</p>{/if}
         <div class="lastehandlinger">
           {#if !utilgjengelig}
             <Knapp opptatt={proever} onclick={proevIgjen}

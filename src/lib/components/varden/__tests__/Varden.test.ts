@@ -725,7 +725,7 @@ describe('Varden med brukerforløpet BF-01', () => {
 
   it.each([
     [0, 'Beklager, vi fikk ikke svar fra serveren. Kontroller nettforbindelsen, og prøv igjen.'],
-    [500, 'Beklager, saken ble ikke hentet. Prøv igjen om litt.'],
+    [500, 'Beklager, serveren svarte med en feil. Prøv igjen om litt.'],
   ])(
     'ved lastefeil %i står rådet på arket, og «Prøv igjen» laster saken (#2188)',
     async (status, raad) => {
@@ -756,6 +756,37 @@ describe('Varden med brukerforløpet BF-01', () => {
       expect(screen.queryByRole('alert')).toBeNull();
     }
   );
+
+  it('når lastingen etter en sending avvises med 403, sier arket at brevet er lagret (review av #2202)', async () => {
+    const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
+    const ekte = lagKjernesak({
+      sakId: demosak.sakId,
+      prosjektId: 'demo',
+      part: 'BH',
+      hent: demosak.hent,
+      send: demosak.send,
+    });
+    const lagret = 'Brevet er lagret, men saken kunne ikke lastes på nytt. Du har ikke tilgang.';
+    const overstyrt: Record<string, unknown> = {
+      lasteutfall: 'utilgjengelig',
+      saksbilde: null,
+      utledning: null,
+      utdatert: true,
+      feil: lagret,
+    };
+    const kjernesak = new Proxy(ekte, {
+      get: (t, k) =>
+        typeof k === 'string' && k in overstyrt ? overstyrt[k] : Reflect.get(t, k, t),
+    });
+    render(Vardensak, { kjernesak });
+    const feil = await screen.findByRole('alert');
+    expect(
+      within(feil).getByRole('heading', {
+        name: 'Saken finnes ikke, eller du har ikke tilgang til den',
+      })
+    ).toBeTruthy();
+    expect(within(feil).getByRole('status').textContent).toBe(lagret);
+  });
 
   it.each([403, 404])('viser samme vei til sakslisten ved HTTP %i (#2188)', async (status) => {
     const kjernesak = lagKjernesak({
@@ -803,7 +834,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(knapp.getAttribute('aria-busy')).toBeNull();
     expect(screen.getByRole('alert').textContent).toMatch(/Sist forsøkt kl\.\u00a0\d\d\.\d\d\./);
     expect(screen.getByRole('alert').textContent).toContain(
-      'Beklager, saken ble ikke hentet. Prøv igjen om litt.'
+      'Beklager, serveren svarte med en feil. Prøv igjen om litt.'
     );
   });
 
