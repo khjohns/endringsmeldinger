@@ -414,20 +414,16 @@
     }
   }
 
-  function sendt() {
-    // Bare det sendte svaret tømmer utkastet; en aksept i et annet spor lar det stå (BF-01 S-8).
-    if (arbeid.art === 'kontroll' && arbeid.utkastet) tomtUtkast(arbeid.utkastet);
-    const kvittering = arbeid.art === 'kontroll' ? arbeid.kvittering : undefined;
-    // Kravet, korrigeringen og den nye versjonen er sendt, så utkastet er brukt.
-    if (arbeid.art === 'kontroll') {
-      if (erUtkastnavn(arbeid.tilbake.art)) {
-        tom(arbeid.tilbake.art);
-        fjernUtkast(valgt, arbeid.tilbake.art);
-      }
-      fjernUtkast(valgt, 'kontroll');
+  function sendt(k: Kontroll, s: Spor) {
+    if (k.utkastet) tomtUtkast(k.utkastet);
+    if (erUtkastnavn(k.tilbake.art)) {
+      tom(k.tilbake.art);
+      fjernUtkast(s, k.tilbake.art);
     }
-    tilArbeid({ art: 'les' }, valgt, true);
-    melding = { tekst: kvittering ?? MOTTATT.dittBrev, art: 'sendt' };
+    fjernUtkast(s, 'kontroll');
+    if (valgt !== s || arbeid.art !== 'kontroll' || arbeid.kommando !== k.kommando) return;
+    tilArbeid({ art: 'les' }, s, true);
+    melding = { tekst: k.kvittering ?? MOTTATT.dittBrev, art: 'sendt' };
   }
 
   /** Tilbake til saken med kvitteringen `tekst`, som får fokus. */
@@ -1003,12 +999,13 @@
       {/if}
       {#if arbeid.art === 'kontroll'}
         {@const k = arbeid}
+        {@const s = valgt}
         <Brevkontroll
           {...k}
           {kjernesak}
           visTilbake={false}
           ontilbake={() => tilbakeTil(k.tilbake)}
-          onsendt={sendt}
+          onsendt={() => sendt(k, s)}
           onavvist={() => byggPaaNytt(k)}
         />
       {:else if aktivtSkjema}
