@@ -512,9 +512,7 @@
     border: 1px solid var(--rule-color);
     border-radius: var(--r-innfelt);
   }
-  /* Lappen henger under overskriften og holder seg innenfor kortet på smal skjerm. */
   .spor-tittel {
-    position: relative;
     display: flex;
     align-items: center;
     gap: var(--spacing-2);
