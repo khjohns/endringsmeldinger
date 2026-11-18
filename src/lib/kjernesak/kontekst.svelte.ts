@@ -249,7 +249,8 @@ export function lagKjernesak(valg: Kjernesakvalg) {
 
   /**
    * Lagene i et svar BH ennå fyller ut, regnet av kjernen (#1400,
-   * M-8 i BF-20). `spor` gir typen for lagene, og et utkast i et annet spor kaster.
+   * M-2 i BF-08 for forholdet og M-8 i BF-20 for fristen).
+   * `spor` gir typen for lagene, og et utkast i et annet spor kaster.
    */
   function lagene(utkast: Svarutkast, spor: 'forhold'): LagIForholdet | null;
   function lagene(utkast: Svarutkast, spor: 'vederlag'): LagIVederlaget | null;

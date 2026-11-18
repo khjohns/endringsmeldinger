@@ -1,6 +1,6 @@
 /**
- * Lagene i et svarutkast i hvert spor (`Utkastlag`, #1400, #1778). Forholdet, vederlaget og fristen
- * (M-8 i BF-20) gir forutsetningene for spørsmålene i skjemaet.
+ * Lagene i svarutkastet gir forutsetningene for spørsmålene i skjemaet (#1400, #1778).
+ * For forholdet står bestillingen i M-2 i BF-08, og for fristen i M-8 i BF-20.
  */
 
 import { iSporet } from '../frosset/byggeklosser.ts';
