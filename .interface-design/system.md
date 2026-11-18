@@ -83,8 +83,7 @@ feltkanten fra #1258.
   [`fargetokens.test.ts`](../src/lib/fargetokens.test.ts) feiler under kravet for
   flatene den lister i `FLATER`, ikke for andre flater eller lokale overstyringer.
 - **Kanter, ikke skygger.** Strukturen tegnes med `--rule`, `--rule-subtle` og
-  `--rule-strong`. Skygger (`--overlay-shadow-sm`) brukes bare på overlegg, som lappen i
-  sakslisten.
+  `--rule-strong`. Skygger (`--overlay-shadow-sm`) brukes bare på overlegg.
 
 ## Typografi
 

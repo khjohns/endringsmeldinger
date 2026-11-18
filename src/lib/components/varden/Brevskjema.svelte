@@ -28,7 +28,6 @@
     tittel,
     undertittel = null,
     mottaker,
-    infotips,
     lagtTil = null,
     part = null,
     onendre = () => {},
@@ -53,7 +52,6 @@
     tittel: string | null;
     undertittel?: string | null;
     mottaker: string;
-    infotips?: Snippet;
     /** Korrespondansen kravet eller svaret legges til fra (OV-U80), eller `null`. */
     lagtTil?: Korrespondansevalg | null;
     part?: Part | null;
@@ -126,7 +124,6 @@
       {undertittel}
       {mottaker}
       merke={lagtTil ? LEGG_TIL.utkast : undefined}
-      {infotips}
     >
       {#if lagtTil && part}
         <Lagttillinje {part} valg={lagtTil} {onendre} />

@@ -18,14 +18,12 @@
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
-  import { VIRKNING } from '#lib/kjernesak/svarvirkning.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import { brevetVedSiden } from './medie.svelte';
   import Brev from './Brev.svelte';
   import Brevlinje from './Brevlinje.svelte';
   import Brevskjema from './Brevskjema.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
-  import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
   import type { Mangel } from './mangler';
   import { sendeflyt } from './sendeflyt.svelte';
@@ -233,7 +231,6 @@
     : null}
   kompakt={{ etikett: SVARSKJEMA.kompaktLinje, innhold: kompaktLinje }}
 >
-  {#snippet infotips()}<Infotips navn={SKJEMA.omSvaret} tekst={VIRKNING.alltid} />{/snippet}
   {#snippet oeverst()}
     <Brevlinje
       id={`${uid}-kravbrev`}

@@ -1,14 +1,12 @@
 /**
- * Brevhodet, stempelet, infotipset og meldingen i Varden (#1466, #1467). Kildene er
+ * Brevhodet, stempelet og meldingen i Varden (#1466, #1467). Kildene er
  * `godkjenning-vederlagssvar.html:276-283` og LV-U23 for brevhodet, system.md («Mønstre»,
- * raden Stempel) for stempelet, OV-U81 og `grunnlagsoversikt.html:644` for infotipset, og
- * `innlogging.html:306` og system.md («Hver farge betyr én ting») for meldingen.
+ * raden Stempel) for stempelet,  * `innlogging.html:306` og system.md («Hver farge betyr én ting») for meldingen.
  */
 
 import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
+import { cleanup, render, screen } from '@testing-library/svelte';
 import Brev from '#lib/components/varden/Brev.svelte';
-import Infotips from '#lib/components/varden/Infotips.svelte';
 import { SKJEMA, brevrefFra } from '#lib/components/varden/tekster/index.ts';
 
 afterEach(cleanup);
@@ -57,36 +55,6 @@ describe('Brevhodet', () => {
     cleanup();
     brev({ dato: 'Settes ved sending' });
     expect(screen.queryByTestId('stempel')).toBeNull();
-  });
-});
-
-describe('Infotipset', () => {
-  it('har et tilgjengelig navn, åpnes med tastatur og lukkes med Escape med fokus tilbake på knappen (OV-U81, WCAG 2.1.1)', async () => {
-    render(Infotips, { navn: 'Om brevet', tekst: 'Teksten kan ikke endres her.' });
-    const knapp = screen.getByRole('button', { name: 'Om brevet' });
-    expect(knapp.getAttribute('aria-expanded')).toBe('false');
-    expect(screen.getByText('Teksten kan ikke endres her.').hidden).toBe(true);
-
-    knapp.focus();
-    await fireEvent.click(knapp);
-    expect(knapp.getAttribute('aria-expanded')).toBe('true');
-    expect(screen.getByRole('note').textContent).toBe('Teksten kan ikke endres her.');
-
-    await fireEvent.keyDown(knapp, { key: 'Escape' });
-    expect(knapp.getAttribute('aria-expanded')).toBe('false');
-    expect(document.activeElement).toBe(knapp);
-  });
-
-  it('lukkes av et klikk utenfor, også når knappen ikke fikk fokus av klikket (Safari)', async () => {
-    render(Infotips, { navn: 'Om brevet', tekst: 'Teksten kan ikke endres her.' });
-    const knapp = screen.getByRole('button', { name: 'Om brevet' });
-    await fireEvent.click(knapp);
-    expect(knapp.getAttribute('aria-expanded')).toBe('true');
-
-    await fireEvent.pointerDown(screen.getByRole('note'));
-    expect(knapp.getAttribute('aria-expanded')).toBe('true');
-    await fireEvent.pointerDown(document.body);
-    expect(knapp.getAttribute('aria-expanded')).toBe('false');
   });
 });
 

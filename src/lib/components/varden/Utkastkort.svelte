@@ -17,7 +17,6 @@
     merke = BREVKONTROLL.utkast,
     novalidate = false,
     onsubmit,
-    infotips,
     children,
   }: {
     /** ID-en til overskriften, som skjemaet er merket med. */
@@ -34,7 +33,6 @@
     merke?: string;
     novalidate?: boolean;
     onsubmit?: () => void;
-    infotips?: Snippet;
     children: Snippet;
   } = $props();
 </script>
@@ -54,7 +52,6 @@
         <span class="merke-utkast">{merke}</span>
         {#if tittel}<span>{tittel}</span>{/if}
       </svelte:element>
-      {@render infotips?.()}
     </div>
     {#if undertittel}<p class="undertittel">{undertittel}</p>{/if}
     <p class="dempet">{mottaker}</p>

@@ -455,12 +455,7 @@
     {/snippet}
 
     {#if hovedvarselet}
-      <Spoersmaal
-        id={`${uid}-sp-varsel`}
-        tittel={SKJEMA.varselTittel}
-        hjemmel={['34.1.2']}
-        info={{ navn: SKJEMA.datoInfoNavn, tekst: SKJEMA.datoInfo }}
-      >
+      <Spoersmaal id={`${uid}-sp-varsel`} tittel={SKJEMA.varselTittel} hjemmel={['34.1.2']}>
         <Gjelderhvis
           id={`${uid}-itide-forutsetninger`}
           liste={iPosten(grunnene)}

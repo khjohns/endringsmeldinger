@@ -9,8 +9,6 @@ import { dato, kl, kortDato, haerdet } from './format';
 
 export const SKJEMA = haerdet({
   overskrift: 'Svar på kravet',
-  // KA-U19: skjemaet sier at virkningen regnes ut fra valgene; OV-U81: i et infotips.
-  omSvaret: 'Om svaret',
   // Omtalen av registrert korrespondanse har datoen i seg (LV-U42).
   svarerPaa: (b: Brevref) =>
     b.nummer === null && b.omtale
@@ -27,9 +25,6 @@ export const SKJEMA = haerdet({
   iTide: 'Varslet i tide',
   forSent: 'Varslet for sent',
   datoGrense: 'Om varselet kom i tide, avgjør partene.',
-  datoInfo:
-    'Datoene er de partene har oppgitt i brevene. Løsningen regner ut dagene mellom dem, men vurderer ikke om varselet kom i tide.',
-  datoInfoNavn: 'Om datoene',
   klarOver: (d: string, b: Brevref) =>
     `Totalentreprenøren oppgir at totalentreprenøren ble klar over forholdet ${dato(d)} (${brevref(b)}).`,
   // For registrert korrespondanse har omtalen datoen totalentreprenøren oppgir, og avstanden regnes til den

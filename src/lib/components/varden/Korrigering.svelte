@@ -16,7 +16,6 @@
   import Datofelt from './Datofelt.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
-  import Infotips from './Infotips.svelte';
   import Sendeknapp from './Sendeknapp.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
   import Tidslinje from './Tidslinje.svelte';
@@ -123,10 +122,6 @@
       mottaker={SKJEMA.tilBH}
       onsubmit={seBrevet}
     >
-      {#snippet infotips()}<Infotips
-          navn={FORHOLDET.omKorrigeringen}
-          tekst={FORHOLDET.avgjoerIkke}
-        />{/snippet}
       <div class="gjelder">
         <FileText size={16} aria-hidden="true" />
         <dl>

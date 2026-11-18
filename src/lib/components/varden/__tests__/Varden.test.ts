@@ -103,8 +103,6 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(vist).toContain(BEGRUNNELSE);
     // MM-U34 punkt 26: skjemaet sier ikke at BH er bundet av svaret eller at det ikke kan revideres.
     // OV-U81 og #1443: hvordan løsningen virker, står på siden «Om Varden», ikke ved feltene.
-    // KA-U19: skjemaet sier at virkningen regnes ut fra valgene, i infotipset «Om svaret». Det
-    // prøves i testen for #1466 og #1467. Brevkontrollen har ikke infotipset «Om brevet»
     // (oppdragsgiver 07.11, PR 1650).
     expect(document.body.textContent).not.toMatch(/tolkes ikke|vurderes ikke/);
     expect(document.body.textContent).not.toMatch(/er bundet av svaret|kan ikke revideres/);
@@ -502,9 +500,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(nyeRader(demosak(), versjonVed('bh-har-mottatt-vederlagskravet'))).toHaveLength(0);
   });
 
-  it('#1466 og #1467: skjemaet og brevkontrollen bruker ordene i sprak.md og OV-U75, og forklaringene av løsningen står bare i infotipsene (OV-U81)', async () => {
+  it('#1466 og #1467: skjemaet og brevkontrollen bruker ordene i sprak.md og OV-U75, og forklaringene av løsningen står ikke ved feltene (#2187)', async () => {
     aapne('bh-har-mottatt-vederlagskravet');
-    // Teksten i brevet kommer fra kjernen og hører til #1433; infotipsene prøves for seg.
+    // Teksten i brevet kommer fra kjernen og hører til #1433.
     const synlig = () => {
       const kopi = document.body.cloneNode(true) as HTMLElement;
       kopi
@@ -512,8 +510,6 @@ describe('Varden med brukerforløpet BF-01', () => {
         .forEach((e) => e.remove());
       return kopi.textContent!.replace(/\s+/g, ' ');
     };
-    const infotips = () =>
-      [...document.querySelectorAll('[role="note"]')].map((e) => e.textContent).join(' ');
     const FORKLARINGER = [
       'Løsningen viser datoene',
       'Virkningen av svaret regnes ut fra valgene over',
@@ -533,16 +529,10 @@ describe('Varden med brukerforløpet BF-01', () => {
 
     await bhSvarerIVarden();
     kontroller();
-    // Brevkontrollen har ingen infotips (oppdragsgiver 07.11, PR 1650).
-    expect(screen.queryByRole('button', { name: 'Om brevet' })).toBeNull();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til utkastet' }));
     kontroller();
     expect(screen.getByText('Om varselet kom i tide, avgjør partene.')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Om datoene' })).toBeTruthy();
-    // KA-U19: skjemaet sier at virkningen regnes ut fra valgene, i et infotips (OV-U81).
-    expect(screen.getByRole('button', { name: 'Om svaret' })).toBeTruthy();
-    expect(infotips()).toContain('Virkningen av svaret regnes ut fra valgene over.');
   });
 
   it.each([

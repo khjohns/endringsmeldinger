@@ -383,12 +383,7 @@
       {/if}
     {/snippet}
 
-    <Spoersmaal
-      id={`${uid}-sp-varsel`}
-      tittel={FRISTSVAR.varselTittel}
-      hjemmel={['33.4']}
-      info={{ navn: SKJEMA.datoInfoNavn, tekst: SKJEMA.datoInfo }}
-    >
+    <Spoersmaal id={`${uid}-sp-varsel`} tittel={FRISTSVAR.varselTittel} hjemmel={['33.4']}>
       <Gjelderhvis id={`${uid}-varsel-forutsetninger`} liste={grunnene} punkt={forutsetning} />
       <Varseldatoer {u} spor="frist" sendt={FRISTSVAR.kravSendt} />
       <Valg
