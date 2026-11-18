@@ -12,9 +12,8 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | Komponent | Importører | Hva den er |
 | --- | ---: | --- |
 | [`Arbeidsflate`](../src/lib/components/varden/Arbeidsflate.svelte) | 6 | Arbeidet i sporet (Varden, prinsipp 8): hovedkolonnen med det brukeren gjør nå, og høyre kolonne med det som støtter arbeidet. |
-| [`Brev`](../src/lib/components/varden/Brev.svelte) | 5 | Brevet som lesespalte (Varden, skjerm C og D). |
+| [`Brev`](../src/lib/components/varden/Brev.svelte) | 4 | Brevet som lesespalte (Varden, skjerm C og D). |
 | [`Brevkontroll`](../src/lib/components/varden/Brevkontroll.svelte) | 12 | Brevet før sending (Varden, skjerm C): den låste teksten kjernen lager for kommandoen som lesespalte, og sendepanelet med virkningen av brevet. |
-| [`Brevlinje`](../src/lib/components/varden/Brevlinje.svelte) | 2 | Linja øverst i et skjema om brevet skjemaet følger opp, med lenken som åpner det. |
 | [`Brevskjema`](../src/lib/components/varden/Brevskjema.svelte) | 3 | Skallet for et skjema som blir et brev (#2119): utkastkortet med linja for korrespondanse lagt til, oppsummeringen av det som mangler, spørsmålene, «Forkast utkast» nederst og høyre kolonne med panelet, sendeknappen og tidslinja, eller brevet ved siden av. |
 | [`Brevtraad`](../src/lib/components/varden/Brevtraad.svelte) | 3 | Brevtråden, felles for sidene for forholdet, vederlaget og fristen (#1898, system.md «Brevene»): brevene nyest først, med parten i ringen, datoen, hva brevet er og brevnummeret, og en kortere rad for registrert korrespondanse (U-5 og U-8 i BF-44). |
 | [`Datoer`](../src/lib/components/varden/Datoer.svelte) | 2 | Boksen med datoene ved spørsmålet om varselet i svarskjemaene: datoen totalentreprenøren oppgir, når kravet ble sendt og dagene mellom. |
@@ -46,7 +45,8 @@ virker, står i [«Mønstre» i `system.md`](system.md#mønstre).
 | [`Svarskjema`](../src/lib/components/varden/Svarskjema.svelte) | 3 | Byggherrens svar på påberopelsen av forholdet og på et krav om vederlag eller frist, i skallet for brevskjemaene (`Brevskjema`, #1925, #2009, #2119): skjemaet vurderer, panelet viser hovedlinjene slik kjernen forhåndsviser svaret, og brevet viser alt (prinsipp 3). |
 | [`Tekstomraade`](../src/lib/components/varden/Tekstomraade.svelte) | 7 | Et tekstfelt over flere linjer i skjemaene, i rammen `Felt` (system.md, «Feltene står under hverandre», #2119). |
 | [`Tidslinje`](../src/lib/components/varden/Tidslinje.svelte) | 6 | Tidslinja i sporet (Varden, valget 27.10 i #1331): datoene partene har oppgitt (ring), brev som er sendt (fylt prikk) og brev som er registrert (firkant), med kilden for hver. |
-| [`Utkastkort`](../src/lib/components/varden/Utkastkort.svelte) | 3 | Utkastkortet rundt et skjema som blir et brev (svaret på S-4 og S-4b i BF-10, oppdragsgiver 06.11): stiplet kant rundt hele kortet og et hode med «Utkast · ikke sendt», brevhodet når kjernen har laget det, og mottakeren («Utkastet sier det selv» i `system.md`). |
+| [`Utkastkort`](../src/lib/components/varden/Utkastkort.svelte) | 4 | Arket mens brevet skrives, med sammenfoldet brevhode og utkaststempel (system.md, #2178). |
+| [`Utkaststempel`](../src/lib/components/varden/Utkaststempel.svelte) | 2 | Stempelet i brevhodet mens brevet skrives og kontrolleres (system.md, #2178). |
 | [`Valg`](../src/lib/components/varden/Valg.svelte) | 8 | Valgkortene i Varden: ekte radioknapper i en `fieldset` med spørsmålet som `legend`, eller én avkrysning med samme form. |
 | [`Valgfri`](../src/lib/components/varden/Valgfri.svelte) | 4 | Teksten i en label eller et spørsmål over et valgfritt felt, med «Valgfri» til høyre på linja (system.md, «Et valgfritt felt har «Valgfri» til høyre», oppdragsgiver 16.11). |
 | [`Vardensak`](../src/lib/components/varden/Vardensak.svelte) | 3 | Varden: eksperimentell saksvisning (#1331, konseptet i docs/design/konsept-varden/). |

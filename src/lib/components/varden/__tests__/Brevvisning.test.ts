@@ -65,6 +65,8 @@ describe('Henvisningen til kravbrevet i svarskjemaet', () => {
     registrert: '2026-10-02T08:00:00Z',
     omtale: 'brev K201-KOE-017-02 av 2. oktober 2026',
     art: 'krav' as const,
+    avsender: 'TE' as const,
+    sendt: null,
   };
   const epost = {
     ...kravbrev,
@@ -75,14 +77,16 @@ describe('Henvisningen til kravbrevet i svarskjemaet', () => {
   };
 
   it('viser til brevet i kortform med nummeret i saken, ikke med merkingen brevteksten bruker (oppdragsgiver 05.11 i #1631)', () => {
-    expect(SKJEMA.svarerPaa(kravbrev)).toBe('Svar på brev 2 fra totalentreprenøren · 2. okt.');
+    expect(SKJEMA.svarerPaa(kravbrev)).toBe(
+      'Svarer på brev 2 fra totalentreprenøren, 2. oktober 2026'
+    );
     expect(SKJEMA.kravSendt(kravbrev.registrert, kravbrev)).toBe(
       'Kravet om vederlagsjustering ble sendt 2. oktober 2026 (brev 2).'
     );
   });
 
   it('registrert korrespondanse nevner parten og datoen TE oppgir én gang, som avstanden regnes til (LV-U42, #1596)', () => {
-    expect(SKJEMA.svarerPaa(epost)).toBe('Svar på totalentreprenørens e-post av 1. oktober 2026');
+    expect(SKJEMA.svarerPaa(epost)).toBe('Svarer på totalentreprenørens e-post av 1. oktober 2026');
     expect(SKJEMA.kravSendt(epost.registrert, epost)).toBe(
       'Kravet om vederlagsjustering står i totalentreprenørens e-post av 1. oktober 2026.'
     );
@@ -92,7 +96,7 @@ describe('Henvisningen til kravbrevet i svarskjemaet', () => {
 
   it('et brev uten omtale får nummeret, parten og datoen', () => {
     expect(SKJEMA.svarerPaa({ ...kravbrev, omtale: null })).toMatch(
-      /^Svar på brev 2 fra totalentreprenøren · /
+      /^Svarer på brev 2 fra totalentreprenøren, /
     );
   });
 });

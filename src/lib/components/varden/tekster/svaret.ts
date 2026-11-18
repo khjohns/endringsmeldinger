@@ -1,25 +1,22 @@
-import { opplistet } from '#kjerne/frosset/brevdeler.ts';
+import { opplistet, PARTEN } from '#kjerne/frosset/brevdeler.ts';
 import { dager, kroner } from '#kjerne/frosset/tekst.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
 import type { Kravpost, Oppgjoersform, Part } from '#kjerne/typer.ts';
 import type { Regel } from '../kommandoer';
 import type { Brevref } from '../lesing';
 import { brevref, brevrefStor, metodenavn } from './felles';
-import { dato, kl, kortDato, haerdet } from './format';
+import { dato, kl, haerdet } from './format';
 
 export const SKJEMA = haerdet({
   overskrift: 'Svar på kravet',
   // Omtalen av registrert korrespondanse har datoen i seg (LV-U42).
-  svarerPaa: (b: Brevref) =>
+  svarerPaa: (b: Brevref & { avsender: Part; sendt: string | null }) =>
     b.nummer === null && b.omtale
-      ? `Svar på ${b.omtale}`
-      : `Svar på ${brevref(b)} fra totalentreprenøren · ${kortDato(b.registrert)}`,
-  lesBrevet: 'Les brevet ved siden av',
+      ? `Svarer på ${b.omtale}`
+      : `Svarer på ${brevref(b)} fra ${PARTEN[b.avsender]}, ${dato(b.sendt ?? b.registrert)}`,
   // På smal skjerm åpnes brevet i skjemaet, ikke ved siden av.
   lesBrevetHer: 'Les brevet',
   lukkBrevet: 'Lukk brevet',
-  tilTE: 'Til totalentreprenøren (TE)',
-  tilBH: 'Til byggherren (BH)',
   varselTittel: 'Varselet om kravet',
   varselSpoersmaal: 'Kom varselet om kravet i tide?',
   iTide: 'Varslet i tide',

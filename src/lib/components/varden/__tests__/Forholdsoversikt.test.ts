@@ -132,7 +132,7 @@ describe('Siden for forholdet', () => {
     expect(rad.querySelector('.part')?.textContent).toBe('TE');
     expect(rad.querySelector('.dato .lang')?.textContent).toMatch(/^\d+\. \p{L}+ 2026$/u);
     expect(within(rad).getByRole('heading', { level: 4 }).textContent?.trim()).toBe(
-      'Påberopelse av forholdet fra totalentreprenøren'
+      'Påberopelse av irregulær endring fra totalentreprenøren'
     );
     expect(rad.querySelector('.nr')?.textContent).toBe('brev 1');
     expect(
@@ -254,7 +254,7 @@ describe('Siden for forholdet', () => {
   it('«Les brevet» gir brevet å lese, og navnet på knappen sier hvilket brev (#1898, U-16 i BF-44)', async () => {
     const { lest, u } = await vis([PAABEROPELSE]);
     await fireEvent.click(
-      traad().getByRole('button', { name: 'Les brevet: brev 1, Påberopelse av forholdet' })
+      traad().getByRole('button', { name: 'Les brevet: brev 1, Påberopelse av irregulær endring' })
     );
     expect(lest).toEqual([u.spor.forhold.gjeldendeKrav!.dokument]);
   });
@@ -431,7 +431,11 @@ describe('Brevtråden er felles for sidene, og sporet styrer brevene (#1898 punk
     [
       'forhold',
       'Brevene i saken, nyeste først',
-      ['Krav om fristforlengelse', 'Krav om vederlagsjustering', 'Påberopelse av forholdet'],
+      [
+        'Krav om fristforlengelse',
+        'Krav om vederlagsjustering',
+        'Påberopelse av irregulær endring',
+      ],
     ],
     ['vederlag', 'Brevene, nyeste først', ['Krav om vederlagsjustering']],
     ['frist', 'Brevene, nyeste først', ['Krav om fristforlengelse']],

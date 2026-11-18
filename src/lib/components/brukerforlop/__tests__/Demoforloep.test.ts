@@ -115,8 +115,7 @@ describe('demoruta for brukerforløpet BF-01', () => {
   });
 
   // Oppdragsgiver 02.11 i PR #1492: skjemaet for ny sak står i skallet i Varden, med panelet
-  // og topplinja, og bare TE kan sende det (BF-05). Overskriften står i utkastkortet etter merket
-  // «Utkast · ikke sendt» (S-4 og S-4b i BF-10, oppdragsgiver 06.11).
+  // og topplinja, og bare TE kan sende det (BF-05). Overskriften og stempelet står i brevhodet (#2178).
   it('BF-05: skjemaet for ny sak står i skallet i Varden, og siden kan ikke byttes før saken finnes', async () => {
     const bf05 = finnForloep('BF-05')!;
     render(Demoforloep, {
@@ -126,9 +125,9 @@ describe('demoruta for brukerforløpet BF-01', () => {
     });
     const overskrift = await screen.findByRole('heading', {
       level: 1,
-      name: /^Utkast · ikke sendt\s*Nytt krav om endringsordre$/,
+      name: 'Nytt krav om endringsordre',
     });
-    expect(overskrift).toBeTruthy();
+    expect(within(overskrift.closest('header')!).getByText('Utkast · ikke sendt')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Kontrakten' })).toBeTruthy();
     const sti = screen.getByRole('navigation', { name: 'Du er her' });
     expect(within(sti).getByText('Ny sak').getAttribute('aria-current')).toBe('page');

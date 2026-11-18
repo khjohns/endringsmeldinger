@@ -37,7 +37,7 @@
     border-left: 3px solid var(--danger);
     background: var(--danger-bg);
   }
-  .mangler:focus-visible {
+  .mangler:focus {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
   }

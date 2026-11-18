@@ -467,7 +467,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(omslaget()).toBeInTheDocument();
 
     // Der panelet er felt inn, står sporene i topplinja (U-16 i BF-44, #1899 punkt 4).
-    await fireEvent.click(screen.getByRole('button', { name: 'Les brevet ved siden av' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Les ved siden av' }));
     expect(omslaget()).toBeNull();
     const sporene = screen.getByRole('navigation', { name: 'Forholdet og kravene i saken' });
     expect(within(sporene).getByRole('button', { name: 'Vederlagsjustering' })).toHaveAttribute(
@@ -588,7 +588,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     // Handlingen står ved brevet den svarer på, byggherrens svar (U-16 i BF-44, #1898).
     const primaer = await screen.findByRole('button', { name: 'Oppdater påberopelse' });
     const raden = within(primaer.closest('li')!);
-    expect(raden.getByRole('heading', { level: 4 }).textContent).toMatch(/^Svar på påberopelsen/);
+    expect(raden.getByRole('heading', { level: 4 }).textContent).toMatch(/^Svar på forholdet/);
     // Teksten oppdragsgiver ga 06.11 i #1631, med «har risikoen for» som i § 33.1 c.
     expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toMatch(
       /^Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for\./

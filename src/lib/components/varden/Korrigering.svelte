@@ -8,7 +8,8 @@
 <script lang="ts">
   import { FileText } from 'lucide-svelte';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import { harTekst } from '#lib/kjernesak/brevtekst.ts';
+  import { UTSAGNSTITTEL } from '#kjerne/frosset/brevtittel.ts';
+  import { utkastetsHode } from './utkastetsHode';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import { sendeflyt } from './sendeflyt.svelte';
@@ -22,7 +23,7 @@
   import Utkastkort from './Utkastkort.svelte';
   import { korrigeringen, type Korrigeringsvalg } from './kommandoer';
   import { brevene, datoerISporet, datoopplysningene } from './lesing';
-  import { FORHOLDET, KORRIGERING, SKJEMA, brevhode } from './tekster';
+  import { FORHOLDET, KORRIGERING } from './tekster';
 
   let {
     kjernesak,
@@ -63,10 +64,7 @@
   const idag = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Oslo' }).format(new Date());
 
   const kommando = $derived(korrigeringen(valg, opplysningen));
-  const utkastbrev = $derived.by(() => {
-    const b = valg.dato ? kjernesak.brev(kommando) : null;
-    return harTekst(b) ? b : null;
-  });
+  const hode = $derived(utkastetsHode(u, kjernesak.sak?.merking, UTSAGNSTITTEL.korrigering));
 
   // Det som hindrer, med skjemaets ord, før brevkontrollen (U-3, MM-U32). Kjernen avviser det
   // samme med `DATOEN_ER_UENDRET` og datosperren.
@@ -114,14 +112,7 @@
 
 <Arbeidsflate>
   {#snippet hoved()}
-    <Utkastkort
-      id={id('tittel')}
-      tittel={utkastbrev
-        ? brevhode({ merking: utkastbrev.merking, art: 'annet', brevtittel: utkastbrev.brevtittel })
-        : KORRIGERING.tittel(opplysningen.hva)}
-      mottaker={SKJEMA.tilBH}
-      onsubmit={seBrevet}
-    >
+    <Utkastkort id={id('tittel')} {...hode} avsender="TE" onsubmit={seBrevet}>
       <div class="gjelder">
         <FileText size={16} aria-hidden="true" />
         <dl>
