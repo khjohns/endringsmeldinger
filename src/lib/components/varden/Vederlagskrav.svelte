@@ -10,6 +10,7 @@
   som mangler, står ved feltet og øverst (MM-U32).
 -->
 <script lang="ts">
+  import { KRAVTITTEL } from '#kjerne/frosset/brevtittel.ts';
   import { untrack } from 'svelte';
   import { kroner } from '#kjerne/frosset/tekst.ts';
   import { krevdProduktivitet, kravposterI } from '#kjerne/spor/vederlag/format.ts';
@@ -17,7 +18,6 @@
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import {
     varseletFoerKravet,
     varslenePerKravpost,
@@ -25,10 +25,7 @@
     varslerUtenKravpost,
     type Varselet,
   } from '#lib/kjernesak/vederlagskrav.ts';
-  import Brev from './Brev.svelte';
-  import Brevlinje from './Brevlinje.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
-  import { brevetVedSiden } from './medie.svelte';
   import Brevskjema from './Brevskjema.svelte';
   import Knapp from './Knapp.svelte';
   import Kravpunkter from './Kravpunkter.svelte';
@@ -56,15 +53,7 @@
     type Brevet,
     type Brevref,
   } from './lesing';
-  import {
-    brevhode,
-    brevtittel,
-    dagensDato,
-    dato,
-    kalenderdager,
-    KRAVSKJEMA,
-    LEGG_TIL,
-  } from './tekster';
+  import { dagensDato, kalenderdager, KRAVSKJEMA, LEGG_TIL } from './tekster';
   import {
     PNS_GRENSE,
     fordelingenPaaPns,
@@ -182,11 +171,6 @@
   });
   const navnet = (p: Kravpostvalg) =>
     p.betegnelse ?? betegnelsene.get(p.noekkel) ?? KRAVSKJEMA.nyBetegnelse;
-
-  const utkastbrev = $derived.by(() => {
-    const b = kjernesak.brev(kommando, vedlegg);
-    return harTekst(b) ? b : null;
-  });
 
   // Én kravpost er åpen om gangen; en ny, tom post står åpen.
   let aapen = $state<string | null>(
@@ -533,27 +517,7 @@
         onbrevkontroll({ kommando, ...brevet, detteSender, virkninger: [], vedlegg }),
     });
   }
-
-  // Brevet leses ved siden av skjemaet, og på smal skjerm i skjemaet (`Vederlagssvar`).
-  let leser = $state(false);
-  const side = brevetVedSiden(
-    () => onvedsiden,
-    () => leser
-  );
 </script>
-
-{#snippet lest(b: Brevet, ramme: 'kant' | 'innfelt')}
-  <Brev
-    avsender={b.avsender}
-    sak={kjernesak.saksbilde?.tittel ?? ''}
-    merking={b.merking}
-    deresRef={b.deresRef}
-    dato={dato(b.registrert)}
-    tittel={brevtittel(b)}
-    avsnitt={b.avsnitt ?? []}
-    {ramme}
-  />
-{/snippet}
 
 {#snippet beloepsfelt(
   felt: string,
@@ -781,14 +745,18 @@
   </div>
 {/snippet}
 
-{#snippet lestInnfelt()}{@render lest(lesbart!, 'innfelt')}{/snippet}
-
 <Brevskjema
   id={id('tittel')}
-  tittel={utkastbrev && !lagtTil
-    ? brevhode({ merking: utkastbrev.merking, art: 'krav', brevtittel: utkastbrev.brevtittel })
-    : KRAVSKJEMA.tittel}
-  mottaker={KRAVSKJEMA.til}
+  tittel={KRAVTITTEL.vederlag}
+  {kjernesak}
+  {u}
+  avsender="TE"
+  oppfolging={kravbrevet
+    ? { tekst: KRAVSKJEMA.folgerOpp(kravbrevet, svarbrevet), brev: lesbart }
+    : forholdet && paaberopelsen
+      ? { tekst: KRAVSKJEMA.forholdet(forholdet.navn, paaberopelsen), brev: lesbart }
+      : null}
+  {onvedsiden}
   {lagtTil}
   part={kjernesak.part}
   {onendre}
@@ -805,31 +773,7 @@
     opptatt: !!lagtTil && kjernesak.sender,
     bred: true,
   }}
-  lesing={side.vedSiden && lesbart
-    ? { id: id('lesebrev'), brev: lesbart, innhold: lestInnfelt }
-    : null}
 >
-  {#snippet oeverst()}
-    {#if lesbart}
-      <Brevlinje
-        id={id('lesebrev')}
-        bind:leser
-        smal={side.smal}
-        lenke={{
-          les: KRAVSKJEMA.lesBrevet(lesbart),
-          lesHer: KRAVSKJEMA.lesBrevetHer(lesbart),
-          lukk: KRAVSKJEMA.lukkBrevet,
-        }}
-      >
-        {#if kravbrevet}
-          {KRAVSKJEMA.folgerOpp(kravbrevet, svarbrevet)}
-        {:else if forholdet && paaberopelsen}
-          {KRAVSKJEMA.forholdet(forholdet.navn, paaberopelsen)}
-        {/if}
-        {#snippet brev()}{@render lest(lesbart, 'kant')}{/snippet}
-      </Brevlinje>
-    {/if}
-  {/snippet}
   {#snippet panel(sendeknapp)}
     <Kravpunkter
       {punkter}

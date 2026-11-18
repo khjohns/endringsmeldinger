@@ -120,6 +120,8 @@ describe('svaret på en kravpost etter en beregningsregel (#1756)', () => {
     ).toContain('Mener enhetspriser (punkt\u00a034.3), krever spesifisert tilbud');
     await aapne('P2');
     await fireEvent.click(radio('Godkjenner enhetspriser (punkt\u00a034.3)'));
+    expect(radio('Kom i tide').closest('.kort')).not.toHaveClass('stablet');
+    expect(radio('Godkjenner justeringen').closest('.kort')).not.toHaveClass('stablet');
     await fireEvent.click(radio('Kom i tide'));
     await fireEvent.click(radio('Godkjenner justeringen'));
     await fireEvent.click(radio('Varslet i tide'));

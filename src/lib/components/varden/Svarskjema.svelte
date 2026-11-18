@@ -11,21 +11,15 @@
   ufullstendig svar). Brevet leses ved siden av skjemaet, og på smal skjerm i skjemaet.
 -->
 <script lang="ts">
-  import { Info } from 'lucide-svelte';
   import type { Snippet } from 'svelte';
   import { SVARTITTEL } from '#kjerne/frosset/brevtittel.ts';
   import type { Spor } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { harTekst } from '#lib/kjernesak/brevtekst.ts';
-  import { VIRKNING } from '#lib/kjernesak/svarvirkning.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
-  import { brevetVedSiden } from './medie.svelte';
-  import Brev from './Brev.svelte';
-  import Brevlinje from './Brevlinje.svelte';
   import Brevskjema from './Brevskjema.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
-  import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
   import type { Mangel } from './mangler';
   import { sendeflyt } from './sendeflyt.svelte';
@@ -33,7 +27,7 @@
   import Tekstomraade from './Tekstomraade.svelte';
   import { brevene, datoerISporet } from './lesing';
   import { begrunnelsespunktene, kravbrevetI, type Postvelger } from './svarskjema';
-  import { HOVEDLINJER, LEGG_TIL, SKJEMA, SVARSKJEMA, brevhode, brevtittel, dato } from './tekster';
+  import { HOVEDLINJER, LEGG_TIL, SKJEMA, SVARSKJEMA } from './tekster';
   import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
   import Lagttilmerknader from './Lagttilmerknader.svelte';
   import { vedleggskart } from './nysak';
@@ -176,30 +170,7 @@
     onclick: seBrevet,
     opptatt: !!lagtTil && kjernesak.sender,
   });
-
-  // Brevet leses i en ramme ved siden av skjemaet, og på smal skjerm i skjemaet, der høyre
-  // kolonne står under arbeidet (oppdragsgiver 29.10, #1391).
-  let leser = $state(false);
-  const side = brevetVedSiden(
-    () => onvedsiden,
-    () => leser
-  );
 </script>
-
-{#snippet kravbrev(ramme: 'kant' | 'innfelt')}
-  <Brev
-    avsender={kravbrevet.avsender}
-    sak={kjernesak.saksbilde?.tittel ?? ''}
-    merking={kravbrevet.merking}
-    deresRef={kravbrevet.deresRef}
-    dato={dato(kravbrevet.registrert)}
-    tittel={brevtittel(kravbrevet)}
-    avsnitt={kravbrevet.avsnitt ?? []}
-    {ramme}
-  />
-{/snippet}
-
-{#snippet kravbrevInnfelt()}{@render kravbrev('innfelt')}{/snippet}
 
 {#snippet kompaktLinje(knappen: Snippet, tilPanelet: () => void)}
   {@render knappen()}
@@ -208,14 +179,12 @@
 
 <Brevskjema
   id={`${uid}-tittel`}
-  tittel={brevMedTekst && !lagtTil
-    ? brevhode({
-        merking: brevMedTekst.merking,
-        art: 'svar',
-        brevtittel: brevMedTekst.brevtittel,
-      })
-    : SVARTITTEL[spor]}
-  mottaker={SKJEMA.tilTE}
+  tittel={SVARTITTEL[spor]}
+  {kjernesak}
+  {u}
+  avsender="BH"
+  oppfolging={{ tekst: SKJEMA.svarerPaa(kravbrevet), brev: kravbrevet }}
+  {onvedsiden}
   {lagtTil}
   part={kjernesak.part}
   {onendre}
@@ -228,23 +197,8 @@
   {onforkast}
   skilt
   knapp={stopp === null ? knapp : null}
-  lesing={side.vedSiden
-    ? { id: `${uid}-kravbrev`, brev: kravbrevet, innhold: kravbrevInnfelt }
-    : null}
   kompakt={{ etikett: SVARSKJEMA.kompaktLinje, innhold: kompaktLinje }}
 >
-  {#snippet infotips()}<Infotips navn={SKJEMA.omSvaret} tekst={VIRKNING.alltid} />{/snippet}
-  {#snippet oeverst()}
-    <Brevlinje
-      id={`${uid}-kravbrev`}
-      bind:leser
-      smal={side.smal}
-      lenke={{ les: SKJEMA.lesBrevet, lesHer: SKJEMA.lesBrevetHer, lukk: SKJEMA.lukkBrevet }}
-    >
-      {SKJEMA.svarerPaa(kravbrevet)}
-      {#snippet brev()}{@render kravbrev('kant')}{/snippet}
-    </Brevlinje>
-  {/snippet}
   {#snippet panel(sendeknapp)}
     <Hovedlinjer {linjer} {alternativer} handling={sendeknapp} />
   {/snippet}
@@ -252,7 +206,6 @@
 
   {#if stopp !== null}
     <div class="ikke-stoettet" role="note">
-      <Info size={18} aria-hidden="true" />
       <p>{stopp}</p>
     </div>
   {:else}
@@ -332,17 +285,11 @@
   }
   /* En melding om prøven, ikke en feil og ikke et utkast: blekk i kanten, ingen farge (#1391). */
   .ikke-stoettet {
-    display: flex;
-    gap: var(--spacing-3);
     margin: var(--spacing-5) var(--spacing-6);
     padding: var(--spacing-4);
     border-left: 3px solid var(--ink);
     background: var(--surface-inset);
     color: var(--ink);
-  }
-  .ikke-stoettet :global(svg) {
-    flex: none;
-    margin-top: 3px;
   }
   .dempet {
     color: var(--ink-3);

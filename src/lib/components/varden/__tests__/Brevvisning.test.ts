@@ -1,14 +1,13 @@
 /**
- * Brevhodet, stempelet, infotipset og meldingen i Varden (#1466, #1467). Kildene er
+ * Brevhodet, stempelet og meldingen i Varden (#1466, #1467). Kildene er
  * `godkjenning-vederlagssvar.html:276-283` og LV-U23 for brevhodet, system.md («Mønstre»,
- * raden Stempel) for stempelet, OV-U81 og `grunnlagsoversikt.html:644` for infotipset, og
- * `innlogging.html:306` og system.md («Hver farge betyr én ting») for meldingen.
+ * raden Stempel) for stempelet, og `innlogging.html:306` og system.md («Hver farge betyr én ting»)
+ * for meldingen.
  */
 
 import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
+import { cleanup, render, screen } from '@testing-library/svelte';
 import Brev from '#lib/components/varden/Brev.svelte';
-import Infotips from '#lib/components/varden/Infotips.svelte';
 import { SKJEMA, brevrefFra } from '#lib/components/varden/tekster/index.ts';
 
 afterEach(cleanup);
@@ -60,36 +59,6 @@ describe('Brevhodet', () => {
   });
 });
 
-describe('Infotipset', () => {
-  it('har et tilgjengelig navn, åpnes med tastatur og lukkes med Escape med fokus tilbake på knappen (OV-U81, WCAG 2.1.1)', async () => {
-    render(Infotips, { navn: 'Om brevet', tekst: 'Teksten kan ikke endres her.' });
-    const knapp = screen.getByRole('button', { name: 'Om brevet' });
-    expect(knapp.getAttribute('aria-expanded')).toBe('false');
-    expect(screen.getByText('Teksten kan ikke endres her.').hidden).toBe(true);
-
-    knapp.focus();
-    await fireEvent.click(knapp);
-    expect(knapp.getAttribute('aria-expanded')).toBe('true');
-    expect(screen.getByRole('note').textContent).toBe('Teksten kan ikke endres her.');
-
-    await fireEvent.keyDown(knapp, { key: 'Escape' });
-    expect(knapp.getAttribute('aria-expanded')).toBe('false');
-    expect(document.activeElement).toBe(knapp);
-  });
-
-  it('lukkes av et klikk utenfor, også når knappen ikke fikk fokus av klikket (Safari)', async () => {
-    render(Infotips, { navn: 'Om brevet', tekst: 'Teksten kan ikke endres her.' });
-    const knapp = screen.getByRole('button', { name: 'Om brevet' });
-    await fireEvent.click(knapp);
-    expect(knapp.getAttribute('aria-expanded')).toBe('true');
-
-    await fireEvent.pointerDown(screen.getByRole('note'));
-    expect(knapp.getAttribute('aria-expanded')).toBe('true');
-    await fireEvent.pointerDown(document.body);
-    expect(knapp.getAttribute('aria-expanded')).toBe('false');
-  });
-});
-
 describe('Henvisningen til kravbrevet i svarskjemaet', () => {
   const kravbrev = {
     id: 'k1',
@@ -97,6 +66,8 @@ describe('Henvisningen til kravbrevet i svarskjemaet', () => {
     registrert: '2026-10-02T08:00:00Z',
     omtale: 'brev K201-KOE-017-02 av 2. oktober 2026',
     art: 'krav' as const,
+    avsender: 'TE' as const,
+    sendt: null,
   };
   const epost = {
     ...kravbrev,
@@ -107,14 +78,16 @@ describe('Henvisningen til kravbrevet i svarskjemaet', () => {
   };
 
   it('viser til brevet i kortform med nummeret i saken, ikke med merkingen brevteksten bruker (oppdragsgiver 05.11 i #1631)', () => {
-    expect(SKJEMA.svarerPaa(kravbrev)).toBe('Svar på brev 2 fra totalentreprenøren · 2. okt.');
+    expect(SKJEMA.svarerPaa(kravbrev)).toBe(
+      'Svarer på brev 2 fra totalentreprenøren, 2. oktober 2026'
+    );
     expect(SKJEMA.kravSendt(kravbrev.registrert, kravbrev)).toBe(
       'Kravet om vederlagsjustering ble sendt 2. oktober 2026 (brev 2).'
     );
   });
 
   it('registrert korrespondanse nevner parten og datoen TE oppgir én gang, som avstanden regnes til (LV-U42, #1596)', () => {
-    expect(SKJEMA.svarerPaa(epost)).toBe('Svar på totalentreprenørens e-post av 1. oktober 2026');
+    expect(SKJEMA.svarerPaa(epost)).toBe('Svarer på totalentreprenørens e-post av 1. oktober 2026');
     expect(SKJEMA.kravSendt(epost.registrert, epost)).toBe(
       'Kravet om vederlagsjustering står i totalentreprenørens e-post av 1. oktober 2026.'
     );
@@ -124,7 +97,7 @@ describe('Henvisningen til kravbrevet i svarskjemaet', () => {
 
   it('et brev uten omtale får nummeret, parten og datoen', () => {
     expect(SKJEMA.svarerPaa({ ...kravbrev, omtale: null })).toMatch(
-      /^Svar på brev 2 fra totalentreprenøren · /
+      /^Svarer på brev 2 fra totalentreprenøren, /
     );
   });
 });
