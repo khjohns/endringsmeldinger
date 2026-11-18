@@ -125,6 +125,10 @@
   .valg:focus {
     outline: none;
   }
+  .valg:global([data-fra-lista]):focus {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
+  }
   .hjelp {
     margin: 0 0 var(--spacing-3);
     color: var(--ink-3);

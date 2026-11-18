@@ -134,11 +134,33 @@
   const feil = (id: string): string | null => flyt.feil(alleMangler.find((m) => m.felt === id));
   let oppsummering = $state<HTMLElement | null>(null);
 
-  /** Lenken i oppsummeringen åpner posten feltet står i (`Postliste`). */
-  function gaaTil(m: Mangel, e: MouseEvent) {
-    if (m.post === null || !postliste || postliste.erAapen(m.post)) return;
-    e.preventDefault();
-    postliste.aapne(m.post, m.felt);
+  async function gaaTil(m: Mangel, e: MouseEvent) {
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    if (m.post !== null && postliste && !postliste.erAapen(m.post)) {
+      e.preventDefault();
+      await postliste.aapne(m.post, m.felt);
+    } else {
+      const felt = document.getElementById(m.felt);
+      if (!(felt instanceof HTMLFieldSetElement)) return;
+      e.preventDefault();
+      felt.focus();
+    }
+
+    const gruppe = document.getElementById(m.felt);
+    if (!(gruppe instanceof HTMLFieldSetElement)) return;
+    // Ringen vises når fokus kommer fra lista, ikke ved et klikk i gruppen (review av #2205).
+    gruppe.dataset.fraLista = '';
+    gruppe.addEventListener('blur', () => delete gruppe.dataset.fraLista, { once: true });
+    const seksjon = gruppe.closest('section[aria-labelledby]');
+    if (!seksjon) return;
+    const foersteValg = gruppe.querySelector('label') ?? gruppe;
+    const avstand =
+      foersteValg.getBoundingClientRect().bottom - seksjon.getBoundingClientRect().top;
+    // Linja med sendeknappen ligger fast nederst på smal skjerm og dekker det som står under den.
+    const linja = document.querySelector('.kompakt')?.getBoundingClientRect().height ?? 0;
+    if (avstand < document.documentElement.clientHeight - linja) {
+      seksjon.scrollIntoView({ block: 'start' });
+    }
   }
 
   function seBrevet() {

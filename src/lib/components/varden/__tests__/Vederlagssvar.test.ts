@@ -4,7 +4,7 @@
  */
 
 import '@testing-library/jest-dom/vitest';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 import type { Journalrad } from '#kjerne/typer.ts';
@@ -164,5 +164,30 @@ describe('det som mangler, er det kjernen sier er påkrevd og ubesvart (#2025)',
     await radio('Deler av beløpet');
     await seBrevet();
     expect(manglene()).toEqual(['Skriv beløpet du godkjenner.']);
+  });
+
+  it('lenken til en lukket kravpost åpner den og fokuserer valggruppen (#2183)', async () => {
+    const journal = skrevet(svikt.slice(0, -1), 'TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: {
+        kravposter: [
+          { beskrivelse: 'Pumping', oppgjoersform: 'tilbud', beloep: 250000 },
+          { beskrivelse: 'Peling', oppgjoersform: 'tilbud', beloep: 100000 },
+        ],
+      },
+      utdypning: 'Tilbud om pumping og peling.',
+    });
+    await svarskjemaet(journal);
+    await seBrevet();
+    const lenke = screen.getByRole('link', { name: /^P2: Velg om du godkjenner fast sum/ });
+    const id = lenke.getAttribute('href')!.slice(1);
+    expect(document.getElementById(id)).toBeNull();
+    await fireEvent.click(lenke);
+    expect(document.getElementById(id)).toHaveFocus();
+    // Ringen gjelder fokuset fra lista, ikke et klikk i gruppen (review av #2205).
+    await vi.waitFor(() => expect(document.getElementById(id)).toHaveAttribute('data-fra-lista'));
+    document.getElementById(id)!.blur();
+    expect(document.getElementById(id)).not.toHaveAttribute('data-fra-lista');
   });
 });

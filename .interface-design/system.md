@@ -422,6 +422,8 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   avvisning av et svar uten begrunnelse står ved begrunnelsen. `Knapp` er inaktiv bare
   mens en sending pågår. Det som hindrer at brevet kan lages, står under knappen og får fokus.
   Skjemaene får forsøket, hindringen og fokuset fra `sendeflyt.svelte.ts` (#2118).
+  I svarskjemaene gir en lenke fra lista synlig fokus på valggruppen og viser seksjonsoverskriften
+  sammen med gruppen når begge får plass (#2183).
 - **«Forkast utkast»** er en lenkeknapp nederst i skjemaet, adskilt fra primærhandlingen.
   Den spør i en dialog (`Forkastutkast`) med «Behold utkastet» og en rød «Forkast utkast»
   (`Knapp` med `variant="fare"`) ved siden av hverandre, i alle skjemaene som blir et brev. Skjemaet

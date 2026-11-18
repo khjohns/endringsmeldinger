@@ -127,6 +127,18 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     ).toBeInTheDocument();
   });
 
+  it('lenken i «Dette mangler» flytter fokus til valggruppen for varselet (#2183)', async () => {
+    await svarskjemaet(medGrunnlag);
+    await seBrevet();
+    const lenke = screen.getByRole('link', {
+      name: 'Svar på om du gjør gjeldende at varselet kom for sent.',
+    });
+    await fireEvent.click(lenke);
+    expect(
+      screen.getByRole('radio', { name: 'Ja, varselet kom for sent' }).closest('fieldset')
+    ).toHaveFocus();
+  });
+
   it('godkjenning uten påberopt preklusjon er en endringsordre, og skjemaet viser setningen med sitatet før sending (D-3, U-5)', async () => {
     const sendt = await svarskjemaet(medGrunnlag);
     await radio('Nei');
