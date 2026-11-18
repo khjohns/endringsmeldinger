@@ -405,6 +405,11 @@
     melding = null;
   }
 
+  async function tilForholdet() {
+    velgSpor('forhold');
+    await fokuser(() => arbeidsflate?.querySelector<HTMLElement>('h2[tabindex="-1"]'));
+  }
+
   async function proevIgjen() {
     proever = true;
     try {
@@ -824,6 +829,7 @@
     onforkast={forkast}
     onvedsiden={(v) => (vedSiden = v)}
     onbrevkontroll={(k) => tilSvarkontroll('vederlag', k)}
+    onforholdet={tilForholdet}
   />
 {/snippet}
 
@@ -835,6 +841,7 @@
     onforkast={forkast}
     onvedsiden={(v) => (vedSiden = v)}
     onbrevkontroll={(k) => tilSvarkontroll('frist', k)}
+    onforholdet={tilForholdet}
   />
 {/snippet}
 

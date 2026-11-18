@@ -61,7 +61,7 @@
 
 <section class="kort" aria-labelledby={`${uid}-tittel`}>
   <header class="sporhode">
-    <h2 id={`${uid}-tittel`}>{forholdet?.navn ?? FORHOLDET.utenNavn}</h2>
+    <h2 id={`${uid}-tittel`} tabindex="-1">{forholdet?.navn ?? FORHOLDET.utenNavn}</h2>
     {#if status}<p class="status">{status}</p>{/if}
     {#if trekket !== undefined}
       <p class="trukket" role="note">{FORHOLDET.trukket(trekket)}</p>

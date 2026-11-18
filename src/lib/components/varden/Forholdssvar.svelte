@@ -26,6 +26,7 @@
   import Sitat from './Sitat.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
+  import { innsigelsenOmVarselet } from './tekster/svaret';
   import Valg from './Valg.svelte';
   import {
     begrunnelsenKreves,
@@ -227,7 +228,7 @@
 </script>
 
 {#snippet innsigelsen()}
-  <a href={`#${uid}-varsel`}>{FORHOLDSSVAR.innsigelsenVarsel}</a>
+  <a href={`#${uid}-varsel`}>{innsigelsenOmVarselet('32.2')}</a>
 {/snippet}
 
 <Svarskjema

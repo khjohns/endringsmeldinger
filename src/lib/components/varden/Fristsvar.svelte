@@ -20,6 +20,7 @@
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { VIRKNING } from '#lib/kjernesak/svarvirkning.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import Forholdsgrunn from './Forholdsgrunn.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
   import Knapp from './Knapp.svelte';
   import Postliste from './Postliste.svelte';
@@ -48,6 +49,7 @@
     SKJEMA,
     SVARSKJEMA,
     grunntekst,
+    innsigelsenOmVarselet,
     standpunkttekst,
   } from './tekster';
 
@@ -58,6 +60,7 @@
     onbrevkontroll,
     onforkast,
     onvedsiden,
+    onforholdet,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -68,6 +71,8 @@
     onforkast: () => void;
     /** Brevet leses i en ramme ved siden av skjemaet, eller ikke lenger. */
     onvedsiden?: (vedSiden: boolean) => void;
+    /** Åpner siden for forholdet uten å forkaste svarutkastet. */
+    onforholdet?: () => void;
   } = $props();
   const uid = $props.id();
 
@@ -315,9 +320,9 @@
 
 {#snippet forutsetning(f: Forutsetning)}
   {#if 'grunn' in f}
-    {SKJEMA.grunnen(f.grunn, grunnlagsbrev!)}
+    <Forholdsgrunn grunn={f.grunn} brev={grunnlagsbrev!} {onforholdet} />
   {:else if f.innsigelse === '33.4'}
-    <a href={`#${uid}-varsel`}>{FRISTSVAR.innsigelsenVarsel}</a>
+    <a href={`#${uid}-varsel`}>{innsigelsenOmVarselet('33.4')}</a>
   {:else if f.innsigelse === '33.6.2'}
     <a href={`#${uid}-foresporsel`}>{FRISTSVAR.innsigelsenForesporsel}</a>
   {:else if f.innsigelse === 'hindring'}
