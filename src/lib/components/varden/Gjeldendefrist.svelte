@@ -28,13 +28,12 @@
 {#if g?.art === 'kjent' && g.forlengelser.length}
   <p class="gjeldende" {id}>
     {FRISTEN.forlenget(g.dato, g.iKontrakten)}
-    {#each g.forlengelser as f, i (i)}{#if i}{i === g.forlengelser.length - 1
-          ? ' og '
-          : ', '}{/if}{FRISTEN.forlengelsen(f.dager)}
+    {#each g.forlengelser as f (f.sakId)}
+      {FRISTEN.sak}
       <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
-      {#if sakslenke}<a href={sakslenke(f.sakId)}>{sakensNavn(f)}</a>{:else}{sakensNavn(
-          f
-        )}{/if}{/each}.{#if tillegg}
+      {#if sakslenke}<a href={sakslenke(f.sakId)}>{sakensNavn(f)}</a>{:else}{sakensNavn(f)}{/if}
+      {FRISTEN.forlengelsen(f.dager)}
+    {/each}{#if tillegg}
       {tillegg}{/if}
   </p>
 {:else if g?.art === 'kjent'}

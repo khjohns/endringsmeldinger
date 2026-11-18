@@ -17,35 +17,35 @@ export const FRISTKRAV = haerdet({
     varsel: 'Varsel om fristforlengelse etter punkt 33.4',
     svar: 'Svar på byggherrens forespørsel etter punkt 33.6.2',
   },
-  nyVersjon: (krav: Brevref) => `Ny versjon av kravet i ${brevref(krav)}`,
+  nyVersjon: (krav: Brevref) => `Oppdaterer kravet i ${brevref(krav)}`,
   // 1. Varselet.
   varselTittel: 'Varselet om fristforlengelse',
   varselHjelp:
     'Varselet skal gis uten ugrunnet opphold etter at du ble eller burde ha blitt klar over forholdet, også før du kan angi dagene. Varsles det for sent, tapes kravet. Varselet gjelder hele kravet, med alle fristene.',
-  kravetErVarselet: 'Dette kravet er varselet.',
+  kravetErVarselet: 'Gis i dette brevet.',
   /** Med kalenderdagene etter datoen TE oppgir at TE ble klar over forholdet, som i prototypen. */
   varseletSendt: (b: Brevref & { sendt: string | null }, etter: number | null) =>
-    `Varselet ble sendt i ${brevref(b)}, ${dato(b.sendt ?? b.registrert)}${etter === null ? '' : `, ${etter} kalenderdager etter at du ble klar over forholdet`}.`,
+    `Varselet ble sendt ${dato(b.sendt ?? b.registrert)} i ${brevref(b)}.${etter === null ? '' : ` Det var ${etter} kalenderdager etter at du ble klar over forholdet.`}`,
   // U-13: varselet alene, uten dager (VS-U15).
   kravMedDager: 'Du krever et antall dager for hver frist.',
   varsleSenere: 'Varsle nå, og krev dagene senere',
   bareVarsel: 'Du varsler om fristforlengelse uten å kreve et antall dager nå.',
   krevDager: 'Krev et antall dager for hver frist',
   hvaHjelp:
-    'Du skal varsle uten ugrunnet opphold, også før du kan angi dagene (punkt 33.4). Sender du kravet, er det også varselet.',
+    'Du skal varsle uten ugrunnet opphold, også før du kan angi dagene (punkt 33.4). Har du ikke varslet før, gis varselet i dette brevet.',
   varselAleneHjelp:
     'Varsles det for sent, tapes kravet på fristforlengelse. Når du har grunnlag for å beregne omfanget, skal du uten ugrunnet opphold angi og begrunne antall dager (punkt 33.6.1).',
   hvordanVarsler: 'Hvordan varsler du?',
   varselmaate: {
-    send: 'Send varselet fra løsningen nå',
-    registrer: 'Registrer et varsel sendt utenfor løsningen',
+    send: 'Send varselet nå',
+    registrer: 'Legg til et varsel du har sendt før',
   },
   registrer: 'Registrer varselet',
   registrert: 'Varselet er registrert.',
   // U-6: varselet gitt før, utenfor løsningen (OV-U5, VS-U16).
-  gittFoer: 'Varselet er gitt før, utenfor løsningen',
+  gittFoer: 'Varselet er gitt før',
   gittFoerHjelp: 'Brevet sier når varselet ble gitt, og dokumentet du varslet i, legges ved.',
-  likevel: 'Dette kravet er varselet likevel',
+  likevel: 'Gi varselet i dette brevet',
   // Datoen TE ble klar over forholdet, fra påberopelsen eller korrigeringen (`klarOverForholdet`).
   klarOver: 'Når ble du klar over forholdet?',
   oppgittI: (b: Brevref) => `Oppgitt i ${brevref(b)}.`,
@@ -66,7 +66,7 @@ export const FRISTKRAV = haerdet({
     'Når du kan beregne dagene, skal du uten ugrunnet opphold angi og begrunne dem. Da gjelder punkt 33.6.1 for kravet (punkt 33.6.2 femte ledd).',
   /** Linja i panelet og «Dette sender du» for varselet alene og svaret etter bokstav b. */
   dette: {
-    varsel: 'Varselet etter punkt 33.4, uten dager',
+    varsel: 'Varselet etter punkt 33.4. Antall dager er ikke oppgitt.',
     svar: 'Begrunnelse etter punkt 33.6.2 annet ledd b',
   },
   virkningB:
@@ -91,7 +91,7 @@ export const FRISTKRAV = haerdet({
   kanIkkeRegnes: 'Kan ikke regnes nå',
   nummerEtikett: 'Nummer i kontrakten',
   navnEtikett: 'Navnet i kontrakten',
-  dagerEtikett: 'Dagene du krever',
+  dagerEtikett: 'Antall dager du krever',
   kalenderdager: 'Kalenderdager.',
   /** Raden før fristen er valgt, uten et tall som kan leses som nummeret i E.1 (U-1). */
   nyFrist: (n: number, av: number) => (av === 1 ? 'Ny frist' : `Ny frist ${n}`),
@@ -126,7 +126,7 @@ export const FRISTKRAV = haerdet({
   fristvalg: (navn: string, d: string, dagmulkt: boolean) =>
     `${navn} · ${dato(d)}${dagmulkt ? ` · ${DAGMULKT}` : ''}`,
   trukketMerk: (navn: string) =>
-    `Kravet om forlengelse av ${navn} trekkes i denne versjonen. Brevet sier det uttrykkelig.`,
+    `Kravet om forlengelse av ${navn} trekkes i dette brevet. Brevet sier det uttrykkelig.`,
   /** Fristen omtalt i en setning: «frist 2 (overtakelse)». */
   omtale: (nummer: string | null, navn: string) =>
     nummer ? `frist ${nummer} (${liten(navn)})` : liten(navn),
@@ -159,7 +159,7 @@ export const FRISTKRAV = haerdet({
   ingenFristtabell:
     'Fristtabellen for prosjektet kunne ikke hentes. Last saken på nytt for å velge en frist fra den.',
   manglerNavn: 'Skriv navnet kontrakten gir fristen.',
-  manglerDager: 'Skriv dagene som et helt antall.',
+  manglerDager: 'Skriv et helt antall dager.',
   nullDager: 'Et krav på 0 dager er ikke et krav. Skriv dagene du krever.',
   manglerBegrunnelse: 'Skriv begrunnelsen for kravet.',
   manglerGrunnB: 'Skriv hvorfor du ennå ikke kan beregne dagene.',

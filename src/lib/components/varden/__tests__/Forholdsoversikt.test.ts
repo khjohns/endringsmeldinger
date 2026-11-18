@@ -558,7 +558,7 @@ describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
       venterPaaSvar: false,
       onles: () => {},
     });
-    expect(screen.getByText(/^Svaret i brev 2 står som det ble sendt\./)).toBeTruthy();
+    expect(screen.getByText(/^Svaret i brev 2 endres ikke\./)).toBeTruthy();
     expect(screen.queryByText(/Svaret i brev 4/)).toBeNull();
   });
 
@@ -580,7 +580,7 @@ describe('tråden med alle brevene i saken (/code-review i #1908)', () => {
         },
       }) as unknown as Utledning;
     expect(oppfoelgingene(u('b1'), alle).has('b1')).toBe(false);
-    // Kontrollsaken: uten påberopelsen i brevet er brev 1 fulgt opp i brev 3.
+    // Kontrollsaken: uten påberopelsen i brevet er brev 1 oppdatert i brev 3.
     expect(oppfoelgingene(u(null), alle).get('b1')?.nummer).toBe(3);
   });
 

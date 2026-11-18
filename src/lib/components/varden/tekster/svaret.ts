@@ -175,11 +175,11 @@ export const FRISTSVAR = haerdet({
   dagerSpoersmaalITide: 'Dagene du godkjenner hvis kravet ble spesifisert i tide',
   maatteForstaaLinje: (n: number) => `${dager(n)} du måtte forstå`,
   maatteForstaaPerFrist: (linjer: string[]) => `: ${opplistet(linjer)}`,
-  alle: (krevd: number) => `Som krevd, ${dager(krevd)}`,
+  alle: (krevd: number) => (krevd === 1 ? 'Hele dagen' : `Alle ${krevd} dagene`),
   deler: 'Delvis',
   avslaatt: 'Avslått',
   deldagerEtikett: 'Godkjente dager',
-  deldagerHjelp: 'Valget over følger tallet.',
+  deldagerHjelp: 'Valget oppdateres når du skriver antall dager.',
   innsigelsenForesporsel:
     'innsigelsen om at svaret på forespørselen etter punkt 33.6.2 kom for sent',
   standpunktetHindring: 'standpunktet ditt om at fremdriften ikke er hindret av forholdet',
@@ -189,7 +189,7 @@ export const FRISTSVAR = haerdet({
   manglerHindring: 'Velg om du legger til grunn at fremdriften er hindret av forholdet.',
   manglerSpesifisering: 'Velg om kravet ble spesifisert i tide.',
   manglerDager: 'Velg hvor mange av dagene du godkjenner.',
-  manglerDeldager: 'Skriv dagene du godkjenner, som et helt antall.',
+  manglerDeldager: 'Skriv et helt antall dager.',
   deldagerUtenfor: (krevd: number) =>
     `Totalentreprenøren krever ${dager(krevd)}. Du kan ikke godkjenne flere.`,
   manglerMaatteForstaa:
@@ -201,6 +201,14 @@ export const FRISTSVAR = haerdet({
       : n === 0
         ? 'Avslått'
         : `${n} av ${dager(krevd)} godkjent`,
+});
+
+// Arbeidsvalget 26.10 i #1303, GR-U7, GR-U23, GR-U26 og OV-U45.
+export const VIRKNING = haerdet({
+  sammenfall: (kravet: 'fristforlengelse' | 'vederlagsjustering') =>
+    `Svaret samsvarer med totalentreprenørens krav om ${kravet}. Enigheten registreres uten at totalentreprenøren må godta svaret.`,
+  forbehold:
+    'Byggherren har ikke svart på påberopelsen. Byggherren har heller ikke avklart forholdet ved å frafalle pålegget. Standpunktene i svaret gjelder hvis forholdet gir rett til kravet. Godtar totalentreprenøren et avslag på forholdet, får enigheten om kravet ingen virkning.',
 });
 
 export const HOVEDLINJER = haerdet({

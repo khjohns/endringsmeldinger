@@ -12,7 +12,6 @@
   } from '#kjerne/spor/vederlag/format.ts';
   import { kroner } from '#kjerne/frosset/tekst.ts';
   import { hindrerSvarPaaKravet, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import { VIRKNING } from '#lib/kjernesak/svarvirkning.ts';
   import { lesKroner } from '#lib/utils/belop.ts';
   import type { Forutsetning } from '#kjerne/spor/vederlag/kommando.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -47,6 +46,7 @@
   import { manglene, ubesvart } from './svarskjema';
   import {
     BREVKONTROLL,
+    VIRKNING,
     HOVEDLINJER,
     KRAVSKJEMA,
     SKJEMA,
@@ -252,7 +252,9 @@
   );
 
   const virkninger = $derived([
-    ...(nyttSvar?.beslutningsgrunnlag.sammenfall ? [VIRKNING.sammenfall] : []),
+    ...(nyttSvar?.beslutningsgrunnlag.sammenfall
+      ? [VIRKNING.sammenfall('vederlagsjustering')]
+      : []),
     ...(kjernesak.forbehold ? [VIRKNING.forbehold] : []),
     // KA-U64: varselet etter § 34.4 har ingen virkning.
     ...(nyttSvar?.standpunkter.some(

@@ -180,7 +180,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     const felt = screen.getByLabelText('Godkjente dager');
     expect(felt).toHaveValue('');
     await fireEvent.input(felt, { target: { value: '25' } });
-    expect(screen.getByRole('radio', { name: 'Som krevd, 25 dager' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Alle 25 dagene' })).toBeChecked();
     await fireEvent.input(felt, { target: { value: '12' } });
     expect(screen.getByRole('radio', { name: 'Delvis' })).toBeChecked();
     await radio('Avslått');
@@ -191,7 +191,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     await svarskjemaet(medFristkrav);
     const dager = screen.getByRole('group', { name: 'Hvor mange av dagene godkjenner du?' });
     const valg = within(dager).getAllByRole('radio');
-    expect(valg[0]).toHaveAccessibleName('Som krevd, 25 dager');
+    expect(valg[0]).toHaveAccessibleName('Alle 25 dagene');
     expect(valg[1]).toHaveAccessibleName('Delvis');
     expect(valg[2]).toHaveAccessibleName('Avslått');
     expect(valg[0]?.closest('.kort')).toHaveClass('stablet');

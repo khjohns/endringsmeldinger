@@ -186,7 +186,7 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
       '190 000 kr, med varsel etter punkt 34.1.3.',
       '125 000 kr, med varsel etter punkt 34.1.2.',
     ]);
-    expect(krav[1]!.textContent).toContain('fulgt opp i brev 3');
+    expect(krav[1]!.textContent).toContain('oppdatert i brev 3');
     // Beløpet i det eldre kravet står dempet, som tittelen (U-5).
     expect(krav.map((r) => r.querySelector('.oeverst')?.classList.contains('eldre-krav'))).toEqual([
       false,

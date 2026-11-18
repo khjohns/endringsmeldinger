@@ -29,8 +29,6 @@ const PAKKER = new Set([
 const MODULER = new Set(
   [
     'kjernesak/kontekst.svelte',
-    // Teksten om svarets virkning i arbeidsvalget 26.10. Ingen regel.
-    'kjernesak/svarvirkning',
     // Lesingen av beløpsfeltet (OV-U58). Ingen regel.
     'utils/belop',
     // Prosjektet frontenden alt henter, med partsnavnene (#1398). Ingen regel.

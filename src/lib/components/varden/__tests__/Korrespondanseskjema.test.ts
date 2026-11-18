@@ -287,7 +287,7 @@ describe('svaret på forholdet lagt til (OV-U80, OV-U98, OV-U101)', () => {
     expect(screen.getByText(/^Legges til fra byggherrens brev av 16\. okt/)).toBeInTheDocument();
     expect(screen.queryByLabelText(/Forbehold/)).not.toBeInTheDocument();
     await radio('Nei');
-    await radio('Enig, endringsordre');
+    await radio('Enig. Svaret er en endringsordre');
     await fireEvent.click(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret })[0]!);
     expect(tilServeren).toHaveLength(1);
     const sendt = tilServeren[0] as { svar: Record<string, unknown>[]; brevtekst?: unknown };
@@ -301,7 +301,7 @@ describe('svaret på forholdet lagt til (OV-U80, OV-U98, OV-U101)', () => {
   it('et svar sendt før påberopelsen avvises av kjernen og legges ikke til (OV-U98)', async () => {
     const { tilServeren, lagtTil } = await svaret('2026-10-01');
     await radio('Nei');
-    await radio('Enig, endringsordre');
+    await radio('Enig. Svaret er en endringsordre');
     await fireEvent.click(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret })[0]!);
     expect(tilServeren).toEqual([]);
     expect(lagtTil()).toBe(false);
@@ -346,9 +346,9 @@ describe('kravet lagt til (OV-U80, OV-U98)', () => {
     expect(screen.getByText('Utkast · ikke lagt til')).toBeInTheDocument();
     expect(screen.queryByText('Utkast · ikke sendt')).toBeNull();
     expect(screen.queryByRole('textbox', { name: 'Begrunnelse' })).not.toBeInTheDocument();
-    expect(screen.queryByText('Dette kravet er varselet.')).not.toBeInTheDocument();
+    expect(screen.queryByText('Gis i dette brevet.')).not.toBeInTheDocument();
     await radio('5 Mekanisk ferdigstillelse');
-    await skriv(screen.getByLabelText('Dagene du krever'), '25');
+    await skriv(screen.getByLabelText('Antall dager du krever'), '25');
     await fireEvent.click(screen.getAllByRole('button', { name: LEGG_TIL.leggTilKravet })[0]!);
     expect(tilServeren).toEqual([
       {

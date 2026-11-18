@@ -113,7 +113,7 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     expect(within(brevet).getByText(FORKLARING)).toBeTruthy();
     const kontrollen = screen.getByRole('region', { name: 'Sending' });
     expect(within(kontrollen).getByText('Viser til')).toBeTruthy();
-    expect(kontrollen.textContent).toMatch(/Svaret i brev 2 står som det ble sendt\./);
+    expect(kontrollen.textContent).toMatch(/Svaret i brev 2 endres ikke\./);
 
     await sendKorrigeringen();
     const foer = versjonVed('BF-02A', punkt.id);
@@ -169,7 +169,7 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     ).toBeTruthy();
     expect(
       korrigeringen.getByText(
-        'Svaret i brev 2 står som det ble sendt. Byggherren kan ta stilling til den nye datoen i et senere svar.'
+        'Svaret i brev 2 endres ikke. Byggherren kan ta stilling til den nye datoen i et senere svar.'
       )
     ).toBeTruthy();
     expect(korrigeringen.queryByText(/venter/)).toBeNull();

@@ -129,7 +129,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     // Aksepten står ved byggherrens svar, med linja om hva den gjør, og resten står synlig under
     // «Andre handlinger», uten panel (U-16 i BF-44, oppdragsgiver 06.11, #1631).
     const kortet = within(screen.getByRole('main'));
-    expect(kortet.getByText(/Du godtar hele svaret i brev 4\./)).toBeTruthy();
+    expect(kortet.queryByText(/Du godtar hele svaret i brev 4\./)).toBeNull();
     expect(kortet.getByRole('region', { name: 'Andre handlinger' })).toBeTruthy();
     await fireEvent.click(kortet.getByRole('button', { name: /^Godta svaret/ }));
     // Aksepten går rett til brevkontrollen fra saken, så lenken går dit (review av #2200).
@@ -635,7 +635,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       )
         iVarden.push('godta:vederlag');
       if (screen.queryByRole('button', { name: 'Svar på kravet' })) iVarden.push('svare:vederlag');
-      if (screen.queryByRole('button', { name: 'Revider krav' })) iVarden.push('krav:vederlag');
+      if (screen.queryByRole('button', { name: 'Oppdater kravet' })) iVarden.push('krav:vederlag');
       // Innsigelsen om at et brev kom for sent er ikke en handling i Varden (oppdragsgiver 06.11,
       // PR 1650).
       expect(iVarden.sort()).toEqual(tilbudt.filter((n) => !n.startsWith('innsigelse:')).sort());
@@ -668,7 +668,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByRole('button', { name: /Ta stilling/ })).toBeNull();
   });
 
-  it('etter svaret på vederlagskravet er primærhandlingen for TE «Revider krav», som sier at det nye kravet avslår tilbudet (oppdragsgiver 06.11, #1631, U-6 og D-6 i BF-44, OV-U54)', async () => {
+  it('etter svaret på vederlagskravet er primærhandlingen for TE «Oppdater kravet», som sier at det nye kravet avslår tilbudet (oppdragsgiver 06.11, #1631, U-6 og D-6 i BF-44, OV-U54)', async () => {
     const demosak = lagDemosak(finnForloep('BF-04')!, 'te-har-mottatt-svaret', 'TE');
     const kjernesak = lagKjernesak({
       sakId: demosak.sakId,
@@ -681,7 +681,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     render(Vardensak, { kjernesak, spor: 'vederlag' });
     await screen.findByRole('list', { name: 'Brevene, nyeste først' });
     const kortet = within(screen.getByRole('main'));
-    const primaer = kortet.getByRole('button', { name: 'Revider krav' });
+    const primaer = kortet.getByRole('button', { name: 'Oppdater kravet' });
     expect(primaer.className).toContain('knapp-primaer');
     expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toMatch(
       /^Et nytt krav følger opp kravet i brev 3 og avslår tilbudet i svaret\./
@@ -1121,20 +1121,20 @@ describe('svaret på påberopelsen av forholdet (BF-08, #2009)', () => {
 
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på påberopelsen' }));
     await fireEvent.click(screen.getByRole('radio', { name: 'Nei' }));
-    await fireEvent.click(screen.getByRole('radio', { name: 'Enig, endringsordre' }));
+    await fireEvent.click(screen.getByRole('radio', { name: 'Enig. Svaret er en endringsordre' }));
 
     // Utkastet står til det er sendt eller forkastet, også når et annet spor velges (BF-01 S-8).
     await fireEvent.click(screen.getByRole('button', { name: /^Vederlagsjustering/ }));
     await fireEvent.click(screen.getByRole('button', { name: /^Irregulær endring/ }));
     expect(screen.queryByRole('form')).toBeNull();
     await fireEvent.click(screen.getByRole('button', { name: 'Fortsett utkastet' }));
-    expect(screen.getByRole('radio', { name: 'Enig, endringsordre' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Enig. Svaret er en endringsordre' })).toBeChecked();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
     await sendBrevet('Send svaret til totalentreprenøren');
     await screen.findByText('Brevet ditt er sendt.');
     const svaret = kjernesak.utledning!.spor.forhold.gjeldendeSvar;
     expect(svaret?.gjelder).toBe(paaberopelsen);
-    expect(screen.queryByRole('radio', { name: 'Enig, endringsordre' })).toBeNull();
+    expect(screen.queryByRole('radio', { name: 'Enig. Svaret er en endringsordre' })).toBeNull();
   });
 });

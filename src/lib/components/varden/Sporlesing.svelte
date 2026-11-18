@@ -331,13 +331,12 @@
   />
 {/snippet}
 
-{#snippet primaerknapp(p: string, beskrevetAv: string | undefined)}
+{#snippet primaerknapp(p: string)}
   {@const tekst =
     innsigelsestekst(p) ?? BREVTYPER.find((b) => b.type === handlingen(p)!.type)!.tekst}
   <Knapp
     variant={utkast ? 'sekundaer' : 'primaer'}
-    onclick={() => (primaerBygget ? velg(p) : (primaerIkkeBygget = true))}
-    aria-describedby={beskrevetAv}>{tekst}</Knapp
+    onclick={() => (primaerBygget ? velg(p) : (primaerIkkeBygget = true))}>{tekst}</Knapp
   >
 {/snippet}
 
@@ -363,21 +362,10 @@
   {/if}
 {/snippet}
 
-<!-- Handlingen ved brevet den svarer på, med én linje om hva den gjør (U-16 i BF-44). -->
+<!-- Handlingen står ved brevet den svarer på (U-16 i BF-44). -->
 {#snippet vedBrevet()}
-  {@const linje = [
-    primaer ? virkningen(primaer) : null,
-    revidere ? virkningen(revidere) : null,
-    godtaVedBrevet ? virkningen(`godta:${spor}`) : null,
-  ]
-    .filter(Boolean)
-    .join(' ')}
-  {@const vedbrevet = linje ? `${uid}-vedbrevet` : undefined}
-  <!-- Hindringen kommer fra aksepten, som bare «Godta» åpner. -->
-  {@const medHindring =
-    [vedbrevet, hindringFor(`godta:${spor}`)].filter(Boolean).join(' ') || undefined}
   <div class="knapper">
-    {#if primaer}{@render primaerknapp(primaer, vedbrevet)}{/if}
+    {#if primaer}{@render primaerknapp(primaer)}{/if}
     {#if revidere}
       {@const r = revidere}
       <!-- Kantstilt med linja under og i samme størrelse, som i prototypene (#2000). -->
@@ -385,17 +373,15 @@
         variant="lenke"
         kompakt
         onclick={() => (bygget.includes(r) ? velg(r) : (primaerIkkeBygget = true))}
-        aria-describedby={vedbrevet}
         >{innsigelsestekst(r) ?? BREVTYPER.find((b) => b.type === 'revidere')!.tekst}</Knapp
       >
     {/if}
     {#if godtaVedBrevet}
-      <Knapp onclick={() => velg(`godta:${spor}`)} aria-describedby={medHindring}
+      <Knapp onclick={() => velg(`godta:${spor}`)} aria-describedby={hindringFor(`godta:${spor}`)}
         >{HANDLINGENE.godta(avslag)}</Knapp
       >
     {/if}
   </div>
-  {#if linje}<p class="dempet" id={`${uid}-vedbrevet`}>{linje}</p>{/if}
   {@render ikkeBygget()}
   {#if flyt.hindring}
     <Melding art="feil" levende={false} id={flyt.hindringId} tabindex="-1">{flyt.hindring}</Melding>

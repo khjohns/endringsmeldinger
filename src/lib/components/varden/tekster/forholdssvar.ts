@@ -12,7 +12,7 @@ export const FORHOLDSSVAR = haerdet({
   varselNei: 'Nei',
   varselJa: 'Ja, varselet kom for sent',
   forholdSpoersmaal: 'Hva svarer du på påberopelsen?',
-  enigEndringsordre: 'Enig, endringsordre',
+  enigEndringsordre: 'Enig. Svaret er en endringsordre',
   enigIEndring: 'Enig i at pålegget innebærer en endring',
   avslaarEndringsordre: 'Avslår kravet på endringsordre',
   frafaller: 'Frafaller pålegget',
