@@ -1,15 +1,16 @@
 <!--
-  Feil, kvittering eller informasjon på nøytral flate (system.md, «En feil har én form»).
-  Feil har kant og ikon i --danger. Informasjon har kant i blekk. Kalleren eier teksten.
+  Meldingen om en feil fra serveren, en kvittering eller en melding om prøven: ikon og en kant
+  i blekk på `--surface-inset`, ikke rosa eller grønt (`innlogging.html:306`, system.md, «En
+  melding om prøven» og «Hver farge betyr én ting»). Feilen ved et felt bruker `--danger` og
+  står ikke her (MM-U32).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { CircleAlert, CircleCheck } from 'lucide-svelte';
+  import { CircleAlert, CircleCheck, Info } from 'lucide-svelte';
 
   let {
     art,
     levende = true,
-    element = $bindable(null),
     children,
     ...rest
   }: {
@@ -17,24 +18,19 @@
     art: 'feil' | 'kvittering' | 'info';
     /** `false` når meldingen står i en levende region som finnes fra før, så den ikke leses to ganger. */
     levende?: boolean;
-    element?: HTMLElement | null;
     children: Snippet;
     [k: string]: unknown;
   } = $props();
+  const Ikon = $derived(art === 'feil' ? CircleAlert : art === 'kvittering' ? CircleCheck : Info);
 </script>
 
 <div
   class="melding"
   role={levende ? (art === 'feil' ? 'alert' : 'status') : undefined}
   data-art={art}
-  bind:this={element}
   {...rest}
 >
-  {#if art === 'feil'}
-    <CircleAlert size={18} aria-hidden="true" />
-  {:else if art === 'kvittering'}
-    <CircleCheck size={18} aria-hidden="true" />
-  {/if}
+  <Ikon size={18} aria-hidden="true" />
   <div class="tekst">{@render children()}</div>
 </div>
 
@@ -48,17 +44,7 @@
     color: var(--ink);
     font-size: 14px;
   }
-  .melding[data-art='feil'] {
-    border-left-color: var(--danger);
-  }
-  .melding:focus {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
-  .melding[data-art='feil'] > :global(svg) {
-    color: var(--danger);
-  }
-  .melding > :global(svg) {
+  .melding :global(svg) {
     flex: none;
     margin-top: 1px;
   }

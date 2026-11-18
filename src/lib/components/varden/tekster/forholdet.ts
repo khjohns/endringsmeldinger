@@ -27,6 +27,9 @@ export const FORHOLDET = haerdet({
   svarIkkeRegistrert: 'Svar ikke registrert.',
   trukket: (b: Brevref | null) =>
     b ? `Påberopelsen er trukket i ${brevref(b)}.` : 'Påberopelsen er trukket.',
+  omKorrespondansen: 'Om korrespondansen',
+  omKorrespondansenTekst:
+    'Løsningen vurderer ikke innholdet i dokumentet, og avgjør ikke hvilken betydning det har for partenes rettigheter og plikter.',
   tilknyttede: 'Tilknyttede krav',
   tilknyttedeKilde: 'Kravene som bygger på forholdet',
   ingenKrav: 'Ingen krav om vederlagsjustering eller fristforlengelse ennå.',
@@ -112,6 +115,9 @@ export const FORHOLDET = haerdet({
   sisteOpplysningVedSvaret: (o: Pick<Datoopplysningen, 'hva' | 'dato' | 'brev'>) =>
     `Da svaret ble sendt, var totalentreprenørens siste opplysning at ${o.hva === 'paalegg_mottatt' ? 'pålegget ble mottatt' : 'totalentreprenøren ble klar over forholdet'} ${dato(o.dato)}, oppgitt i ${brevref(o.brev)}.`,
   korrigerILukket: KORRIGERT_I_LUKKET,
+  omKorrigeringen: 'Om korrigeringen',
+  avgjoerIkke:
+    'Løsningen avgjør ikke hvilken dato som er riktig, når varslingsfristen begynte å løpe eller om varselet kom i tide.',
   /**
    * Hva korrigeringen gjør med saken (D-2, D-6 og U-6 i BF-02A; oppdragsgiver 06.11, #1646),
    * og `null` når byggherren ikke har svart.

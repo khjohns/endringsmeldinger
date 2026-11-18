@@ -8,8 +8,7 @@
 <script lang="ts">
   import { FileText } from 'lucide-svelte';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import { UTSAGNSTITTEL } from '#kjerne/frosset/brevtittel.ts';
-  import { utkastetsHode } from './utkastetsHode';
+  import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import { sendeflyt } from './sendeflyt.svelte';
@@ -17,13 +16,14 @@
   import Datofelt from './Datofelt.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
+  import Infotips from './Infotips.svelte';
   import Sendeknapp from './Sendeknapp.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import Utkastkort from './Utkastkort.svelte';
   import { korrigeringen, type Korrigeringsvalg } from './kommandoer';
   import { brevene, datoerISporet, datoopplysningene } from './lesing';
-  import { FORHOLDET, KORRIGERING } from './tekster';
+  import { FORHOLDET, KORRIGERING, SKJEMA, brevhode } from './tekster';
 
   let {
     kjernesak,
@@ -64,7 +64,10 @@
   const idag = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Oslo' }).format(new Date());
 
   const kommando = $derived(korrigeringen(valg, opplysningen));
-  const hode = $derived(utkastetsHode(u, kjernesak.sak?.merking, UTSAGNSTITTEL.korrigering));
+  const utkastbrev = $derived.by(() => {
+    const b = valg.dato ? kjernesak.brev(kommando) : null;
+    return harTekst(b) ? b : null;
+  });
 
   // Det som hindrer, med skjemaets ord, før brevkontrollen (U-3, MM-U32). Kjernen avviser det
   // samme med `DATOEN_ER_UENDRET` og datosperren.
@@ -112,7 +115,18 @@
 
 <Arbeidsflate>
   {#snippet hoved()}
-    <Utkastkort id={id('tittel')} {...hode} avsender="TE" onsubmit={seBrevet}>
+    <Utkastkort
+      id={id('tittel')}
+      tittel={utkastbrev
+        ? brevhode({ merking: utkastbrev.merking, art: 'annet', brevtittel: utkastbrev.brevtittel })
+        : KORRIGERING.tittel(opplysningen.hva)}
+      mottaker={SKJEMA.tilBH}
+      onsubmit={seBrevet}
+    >
+      {#snippet infotips()}<Infotips
+          navn={FORHOLDET.omKorrigeringen}
+          tekst={FORHOLDET.avgjoerIkke}
+        />{/snippet}
       <div class="gjelder">
         <FileText size={16} aria-hidden="true" />
         <dl>

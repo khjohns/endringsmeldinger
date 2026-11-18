@@ -424,6 +424,7 @@
               ]}
               bind:verdi={v.varsletITide}
               lett
+              stablet
             />
           </div>
           <div class="betinget">
@@ -446,6 +447,7 @@
               bind:verdi={v.godtarJustering}
               feil={feil(`${uid}-justering-${p.betegnelse}`)}
               lett
+              stablet
             />
           </div>
         {/if}
@@ -453,13 +455,18 @@
     {/snippet}
 
     {#if hovedvarselet}
-      <Spoersmaal id={`${uid}-sp-varsel`} tittel={SKJEMA.varselTittel} hjemmel={['34.1.2']}>
-        <Varseldatoer {u} spor="vederlag" sendt={SKJEMA.kravSendt} />
+      <Spoersmaal
+        id={`${uid}-sp-varsel`}
+        tittel={SKJEMA.varselTittel}
+        hjemmel={['34.1.2']}
+        info={{ navn: SKJEMA.datoInfoNavn, tekst: SKJEMA.datoInfo }}
+      >
         <Gjelderhvis
           id={`${uid}-itide-forutsetninger`}
           liste={iPosten(grunnene)}
           punkt={forutsetning}
         />
+        <Varseldatoer {u} spor="vederlag" sendt={SKJEMA.kravSendt} />
         <Valg
           navn={`${uid}-itide`}
           spoersmaal={SKJEMA.varselSpoersmaal}

@@ -27,8 +27,6 @@
   import Forkastutkast from './Forkastutkast.svelte';
   import Linjefelt from './Linjefelt.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
-  import { paaberopelsenAv } from '#kjerne/spor/forhold/tekst.ts';
-  import { utkastetsHode } from './utkastetsHode';
   import Utkastkort from './Utkastkort.svelte';
   import { faarPlass } from './fastlinje.svelte';
   import { fokuser } from './mangler';
@@ -48,7 +46,7 @@
     type Utfylling,
     type VedleggForNySak,
   } from './nysak';
-  import { KORRESPONDANSEN, NYSAK, dagensDato, haerdet, punkt } from './tekster';
+  import { KORRESPONDANSEN, NYSAK, SKJEMA, dagensDato, haerdet, punkt } from './tekster';
   import {
     korrespondansefeilene,
     korrespondansenoekkel,
@@ -100,11 +98,7 @@
   let kontroll = $state<Omit<TilBrevkontrollen, 'detteSender' | 'virkninger'> | null>(null);
 
   const felt = $derived(forhold ? feltene(forhold, KJERNE) : FELTENE_UTEN_FORHOLD);
-  let merking = $state<Saksmerking | null>(null);
   const valgt = $derived(forhold ? forholdet(forhold) : null);
-  const hode = $derived(
-    utkastetsHode(null, merking, valgt ? paaberopelsenAv(valgt.navn) : NYSAK.tittel, true)
-  );
   const iDag = dagensDato();
   const varselet = $derived(felt.punkt322 && alleredeVarslet === true);
   // Panelet og tidslinja står fast når de får plass i vinduet, som panelet i vederlagssvaret.
@@ -232,8 +226,7 @@
   /** Brevet med nummeret saken vil få nå (LV-U46), eller `null` når nummeret ikke kan hentes. */
   async function brevetMedNummer() {
     try {
-      merking = await hentMerking();
-      return brevet(utfylling(), sakId, merking, KJERNE);
+      return brevet(utfylling(), sakId, await hentMerking(), KJERNE);
     } catch (e) {
       console.error(e);
       return null;
@@ -331,8 +324,8 @@
     {#snippet hoved()}
       <Utkastkort
         id={id('utkast')}
-        {...hode}
-        avsender="TE"
+        tittel={NYSAK.tittel}
+        mottaker={SKJEMA.tilBH}
         nivaa={1}
         novalidate
         onsubmit={seBrevet}

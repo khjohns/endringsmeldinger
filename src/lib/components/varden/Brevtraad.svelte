@@ -12,6 +12,7 @@
   import type { Snippet } from 'svelte';
   import { stor } from '#kjerne/frosset/brevdeler.ts';
   import type { Spor } from '#kjerne/typer.ts';
+  import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Sitat from './Sitat.svelte';
@@ -131,6 +132,12 @@
         <span class="meta">
           {#if b.nummer !== null}<span class="nr">{TRAADEN.nummer(b.nummer)}</span>{/if}
           {#if registrert && dokumentasjon.includes(b.id)}<span>{TRAADEN.dokumentasjon}</span>{/if}
+          {#if registrert}
+            <Infotips navn={FORHOLDET.omKorrespondansen} tekst={FORHOLDET.omKorrespondansenTekst} />
+          {/if}
+          {#if i?.opplysning?.korrigering}
+            <Infotips navn={FORHOLDET.omKorrigeringen} tekst={FORHOLDET.avgjoerIkke} />
+          {/if}
           {#if b.avsnitt}
             {#if tilHoeyre}
               <span class="vises">{TRAADEN.vises}</span>

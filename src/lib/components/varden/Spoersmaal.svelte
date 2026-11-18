@@ -1,10 +1,11 @@
 <!--
   Et spørsmål i et skjema: overskriften med bestemmelsen i NS 8407 som dempet tekst (OV-U75,
-  «Høyst tre nivåer av flater» i `system.md`), feltene under (#1925, #2035). Uten
+  «Høyst tre nivåer av flater» i `system.md`), et infotips og feltene under (#1925, #2035). Uten
   tittel står bare feltene, når valget har spørsmålet selv.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import Infotips from './Infotips.svelte';
   import Hjemmel from './Hjemmel.svelte';
 
   let {
@@ -12,6 +13,7 @@
     tittel,
     tillegg,
     hjemmel,
+    info,
     children,
   }: (
     | {
@@ -25,6 +27,7 @@
     tillegg?: string;
     /** Punktene i NS 8407, uten «pkt.». */
     hjemmel?: readonly string[];
+    info?: { navn: string; tekst: string };
     children: Snippet;
   } = $props();
 </script>
@@ -38,6 +41,7 @@
       <h3 {id}>
         {#if tillegg}{`${tittel} · `}<span class="num">{tillegg}</span>{:else}{tittel}{/if}
       </h3>
+      {#if info}<Infotips navn={info.navn} tekst={info.tekst} />{/if}
       {#if hjemmel}<Hjemmel id={`${id}-hjemmel`} numre={hjemmel} />{/if}
     </div>
   {/if}

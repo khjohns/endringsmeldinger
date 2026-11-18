@@ -16,7 +16,6 @@
   } from '#kjerne/frosset/tekst.ts';
   import { organisasjonene } from './kontrakt';
   import { underOverskriften } from './lesing';
-  import Utkaststempel from './Utkaststempel.svelte';
   import { MOTTATT } from './tekster';
   import { PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 
@@ -29,7 +28,6 @@
     tittel,
     avsnitt,
     sendt,
-    utkast = false,
     fot,
     ramme = 'kant',
     hode = true,
@@ -50,8 +48,6 @@
     avsnitt: Pick<Avsnitt, 'gjelder' | 'laast' | 'punkt' | 'overskrift' | 'utdypning'>[];
     /** Tidspunktet brevet ble sendt. Bare et sendt brev har stempelet. */
     sendt?: string;
-    /** Brevet i brevkontrollen før sending. */
-    utkast?: boolean;
     fot?: Snippet;
     /**
      * Rammen brevet står i. `kant` har egen kant og bakgrunn. `innfelt` står i en ramme som har
@@ -82,7 +78,6 @@
   class:rullende={ramme === 'rullende'}
   class:rad={ramme === 'rad'}
   class:dempet
-  class:utkast
   class:bh={avsender === 'BH'}
   aria-label={tittel}
 >
@@ -92,11 +87,8 @@
           <b>{organisasjoner[avsender] ?? stor(PARTEN[avsender])}</b>
           {#if organisasjoner[avsender]}<span>{stor(PARTEN[avsender])}</span>{/if}
         </p>
-        {#if sendt}
-          <span class="stempel" data-testid="stempel">{MOTTATT.sendtMerke(sendt)}</span>
-        {:else if utkast}
-          <Utkaststempel />
-        {/if}
+        {#if sendt}<span class="stempel" data-testid="stempel">{MOTTATT.sendtMerke(sendt)}</span
+          >{/if}
       </div>
       <p class="mottaker">
         {#if organisasjoner[mottaker]}{organisasjoner[mottaker]}<br />{/if}{stor(PARTEN[mottaker])}
@@ -190,10 +182,6 @@
   .brev.bh {
     font-family: var(--font-brev-bh);
     font-size: 11pt;
-  }
-  .brev.utkast {
-    width: 100%;
-    border: 1px dashed var(--draft);
   }
   .brev.innfelt {
     --innfelt-luft: var(--spacing-6);

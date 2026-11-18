@@ -9,38 +9,30 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { Part } from '#kjerne/typer.ts';
-  import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Korrespondansevalg } from './korrespondansen';
   import type { Brevet } from './lesing';
   import type { Mangel } from './mangler';
   import type { sendeflyt } from './sendeflyt.svelte';
   import { fastLinje } from './fastlinje.svelte';
-  import { brevetVedSiden } from './medie.svelte';
-  import { utkastetsHode } from './utkastetsHode';
   import Arbeidsflate from './Arbeidsflate.svelte';
-  import Brev from './Brev.svelte';
-  import Knapp from './Knapp.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
   import Lagttillinje from './Lagttillinje.svelte';
   import Leseramme from './Leseramme.svelte';
   import Manglene from './Manglene.svelte';
   import Sendeknapp from './Sendeknapp.svelte';
   import Utkastkort from './Utkastkort.svelte';
-  import { LEGG_TIL, SKJEMA, brevtittel, dato } from './tekster';
+  import { LEGG_TIL } from './tekster';
 
   let {
     id,
     tittel,
-    kjernesak,
-    u,
-    avsender,
-    oppfolging = null,
-    onvedsiden,
-    sendes = true,
+    undertittel = null,
+    mottaker,
+    infotips,
     lagtTil = null,
     part = null,
     onendre = () => {},
+    oeverst,
     flyt,
     mangler,
     manglerTittel,
@@ -50,6 +42,7 @@
     onforkast,
     skilt = false,
     knapp,
+    lesing = null,
     panel,
     tidslinje,
     kompakt = null,
@@ -57,18 +50,17 @@
   }: {
     /** ID-en til overskriften i utkastkortet; resten av ID-ene i skallet bygges av den. */
     id: string;
-    tittel: string;
-    kjernesak: Kjernesakkontekst;
-    u: Utledning;
-    avsender: Part;
-    oppfolging?: { tekst: string; brev: Brevet | null } | null;
-    onvedsiden?: (vedSiden: boolean) => void;
-    sendes?: boolean;
+    tittel: string | null;
+    undertittel?: string | null;
+    mottaker: string;
+    infotips?: Snippet;
     /** Korrespondansen kravet eller svaret legges til fra (OV-U80), eller `null`. */
     lagtTil?: Korrespondansevalg | null;
     part?: Part | null;
     /** Tilbake til korrespondansen. */
     onendre?: () => void;
+    /** Det som står over oppsummeringen, som linja om brevet skjemaet følger opp. */
+    oeverst?: Snippet;
     flyt: ReturnType<typeof sendeflyt>;
     mangler: Mangel[];
     /** Tittelen på oppsummeringen av det som mangler, for et brev som sendes herfra. */
@@ -82,6 +74,8 @@
     /** Sendeknappen, eller `null` når skjemaet ikke kan sendes nå. */
     /** `bred` gir knappen hele bredden i panelet. */
     knapp: { tekst: string; onclick: () => void; opptatt: boolean; bred?: boolean } | null;
+    /** Brevet som leses ved siden av skjemaet, eller `null` når det ikke gjør det. */
+    lesing?: { id: string; brev: Brevet; innhold: Snippet } | null;
     /** Panelet i høyre kolonne, med sendeknappen der den skal stå. */
     panel: Snippet<[sendeknapp: Snippet | undefined]>;
     tidslinje: Snippet;
@@ -97,19 +91,11 @@
   } = $props();
 
   const uid = $props.id();
-  const hode = $derived(utkastetsHode(u, kjernesak.sak?.merking, tittel));
-  const lesebrev = $derived(oppfolging?.brev ?? null);
-  const leseId = `${uid}-lesebrev`;
-  let leser = $state(false);
-  const side = brevetVedSiden(
-    () => onvedsiden,
-    () => leser && lesebrev !== null
-  );
   let panelet = $state<HTMLElement | null>(null);
   const linja = fastLinje(
     uid,
     () => panelet,
-    () => kompakt === null || knapp === null || side.vedSiden
+    () => kompakt === null || knapp === null || lesing !== null
   );
 </script>
 
@@ -132,50 +118,20 @@
 
 {#snippet sendeknapp()}{@render sendeknappen(true)}{/snippet}
 
-{#snippet brevet(b: Brevet, ramme: 'kant' | 'innfelt')}
-  <Brev
-    avsender={b.avsender}
-    sak={kjernesak.saksbilde?.tittel ?? ''}
-    merking={b.merking}
-    deresRef={b.deresRef}
-    dato={dato(b.registrert)}
-    tittel={brevtittel(b)}
-    avsnitt={b.avsnitt ?? []}
-    {ramme}
-  />
-{/snippet}
-
-{#snippet leselenke()}
-  <Knapp
-    variant="lenke"
-    kompakt
-    iFlukt
-    onclick={() => (leser = !leser)}
-    aria-expanded={leser}
-    aria-controls={leser ? leseId : undefined}
-    >{leser ? SKJEMA.lukkBrevet : side.smal ? SKJEMA.lesBrevetHer : SKJEMA.lesBrevet}</Knapp
-  >
-{/snippet}
-
-<Arbeidsflate leser={side.vedSiden}>
+<Arbeidsflate leser={lesing !== null}>
   {#snippet hoved()}
     <Utkastkort
       {id}
-      {...hode}
-      {avsender}
-      sendes={sendes && !lagtTil}
-      merke={sendes && !lagtTil ? undefined : LEGG_TIL.utkast}
-      leselenke={lesebrev ? leselenke : undefined}
+      {tittel}
+      {undertittel}
+      {mottaker}
+      merke={lagtTil ? LEGG_TIL.utkast : undefined}
+      {infotips}
     >
-      {#snippet referanse()}
-        {#if oppfolging}<span>{oppfolging.tekst}</span>{/if}
-      {/snippet}
-      {#if lesebrev && leser && side.smal}
-        <div class="innebrev" id={leseId}>{@render brevet(lesebrev, 'kant')}</div>
-      {/if}
       {#if lagtTil && part}
         <Lagttillinje {part} valg={lagtTil} {onendre} />
       {/if}
+      {@render oeverst?.()}
       {#if knapp && flyt.forsoekt && mangler.length}
         <Manglene
           tittel={lagtTil ? LEGG_TIL.mangler : manglerTittel}
@@ -194,9 +150,9 @@
   {/snippet}
 
   {#snippet hoeyre()}
-    {#if lesebrev && side.vedSiden}
-      <Leseramme id={leseId} brev={lesebrev} bunn={knapp ? sendeknapp : undefined}>
-        {@render brevet(lesebrev, 'innfelt')}
+    {#if lesing}
+      <Leseramme id={lesing.id} brev={lesing.brev} bunn={knapp ? sendeknapp : undefined}>
+        {@render lesing.innhold()}
       </Leseramme>
     {:else}
       <div class="feste" class:fast={linja.faarPlass} bind:this={panelet}>
@@ -216,9 +172,6 @@
 {/if}
 
 <style>
-  .innebrev {
-    padding: var(--spacing-4) var(--spacing-4) 0;
-  }
   .skjemafot {
     padding: var(--spacing-3) var(--spacing-6) var(--spacing-4);
   }

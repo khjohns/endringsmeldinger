@@ -6,6 +6,7 @@
   og avviser det den ikke godtar.
 -->
 <script lang="ts">
+  import { Info } from 'lucide-svelte';
   import {
     DATOEN_GJELDER,
     innholdIForholdet,
@@ -40,7 +41,7 @@
   import { brevene, standpunktene, underOverskriften } from './lesing';
   import { vedleggskart } from './nysak';
   import { kravbrevetI, kravetSendt, manglene } from './svarskjema';
-  import { brevref, dato, FORHOLDSSVAR, kalenderdager } from './tekster';
+  import { brevref, dato, FORHOLDSSVAR, kalenderdager, LEGG_TIL } from './tekster';
 
   let {
     kjernesak,
@@ -250,9 +251,15 @@
   {onvedsiden}
 >
   {#snippet spoersmaal(feil)}
-    {#if !lagtTil && onleggtil}
-      <div class="utenfor">
-        <Knapp variant="lenke" kompakt iFlukt onclick={onleggtil}>{FORHOLDSSVAR.leggTilSvar}</Knapp>
+    {#if !lagtTil}
+      <div class="utenfor" role="note">
+        <Info size={16} aria-hidden="true" />
+        <div>
+          <p>{FORHOLDSSVAR.utenforLoesningen}</p>
+          {#if onleggtil}
+            <Knapp variant="lenke" kompakt onclick={onleggtil}>{LEGG_TIL.tittel}</Knapp>
+          {/if}
+        </div>
       </div>
     {/if}
 
@@ -263,12 +270,11 @@
           navn={`${uid}-varsel`}
           spoersmaal={FORHOLDSSVAR.varselSpoersmaal}
           valg={[
-            { verdi: true, tekst: FORHOLDSSVAR.varselJa },
             { verdi: false, tekst: FORHOLDSSVAR.varselNei },
+            { verdi: true, tekst: FORHOLDSSVAR.varselJa },
           ]}
           bind:verdi={() => valg.forSent, velgForSent}
           feil={feil(`${uid}-varsel`)}
-          stablet
         />
       </Spoersmaal>
     {/if}
@@ -309,7 +315,15 @@
 
 <style>
   .utenfor {
+    display: flex;
+    gap: var(--spacing-2);
     margin: var(--spacing-5) var(--spacing-6) 0;
+    color: var(--ink-3);
+    font-size: 14px;
+  }
+  .utenfor :global(svg) {
+    flex: none;
+    margin-top: 2px;
   }
   /* Setningen i byggherrens brevskrift. */
   blockquote {

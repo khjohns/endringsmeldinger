@@ -1,27 +1,35 @@
-import { opplistet, PARTEN } from '#kjerne/frosset/brevdeler.ts';
+import { opplistet } from '#kjerne/frosset/brevdeler.ts';
 import { dager, kroner } from '#kjerne/frosset/tekst.ts';
 import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
 import type { Kravpost, Oppgjoersform, Part } from '#kjerne/typer.ts';
 import type { Regel } from '../kommandoer';
 import type { Brevref } from '../lesing';
 import { brevref, brevrefStor, metodenavn } from './felles';
-import { dato, kl, haerdet } from './format';
+import { dato, kl, kortDato, haerdet } from './format';
 
 export const SKJEMA = haerdet({
   overskrift: 'Svar på kravet',
+  // KA-U19: skjemaet sier at virkningen regnes ut fra valgene; OV-U81: i et infotips.
+  omSvaret: 'Om svaret',
   // Omtalen av registrert korrespondanse har datoen i seg (LV-U42).
-  svarerPaa: (b: Brevref & { avsender: Part; sendt: string | null }) =>
+  svarerPaa: (b: Brevref) =>
     b.nummer === null && b.omtale
-      ? `Svarer på ${b.omtale}`
-      : `Svarer på ${brevref(b)} fra ${PARTEN[b.avsender]}, ${dato(b.sendt ?? b.registrert)}`,
-  // På smal skjerm åpnes brevet i skjemaet, ikke ved siden av.
+      ? `Svar på ${b.omtale}`
+      : `Svar på ${brevref(b)} fra totalentreprenøren · ${kortDato(b.registrert)}`,
   lesBrevet: 'Les brevet ved siden av',
+  // På smal skjerm åpnes brevet i skjemaet, ikke ved siden av.
   lesBrevetHer: 'Les brevet',
   lukkBrevet: 'Lukk brevet',
+  tilTE: 'Til totalentreprenøren (TE)',
+  tilBH: 'Til byggherren (BH)',
   varselTittel: 'Varselet om kravet',
   varselSpoersmaal: 'Kom varselet om kravet i tide?',
   iTide: 'Varslet i tide',
   forSent: 'Varslet for sent',
+  datoGrense: 'Om varselet kom i tide, avgjør partene.',
+  datoInfo:
+    'Datoene er de partene har oppgitt i brevene. Løsningen regner ut dagene mellom dem, men vurderer ikke om varselet kom i tide.',
+  datoInfoNavn: 'Om datoene',
   klarOver: (d: string, b: Brevref) =>
     `Totalentreprenøren oppgir at totalentreprenøren ble klar over forholdet ${dato(d)} (${brevref(b)}).`,
   // For registrert korrespondanse har omtalen datoen totalentreprenøren oppgir, og avstanden regnes til den
@@ -153,6 +161,7 @@ export const FRISTSVAR = haerdet({
   spesifiseringSpoersmaal: 'Ble kravet spesifisert i tide?',
   spesifisertITide: 'Spesifisert i tide',
   spesifisertForSent: 'Spesifisert for sent',
+  spesifiseringGrense: 'Om kravet ble spesifisert i tide, avgjør partene.',
   dagerTittel: 'Fristforlengelse',
   heleKravetTapt: (hjemmel: '33.4' | '33.6.2') =>
     hjemmel === '33.4'
@@ -165,10 +174,8 @@ export const FRISTSVAR = haerdet({
   godkjennAlle: 'Godkjenn dagene som krevd for alle fristene',
   teKrever: (n: number) => `Totalentreprenøren krever ${dager(n)}`,
   maatteForstaaEtikett: 'Dagene du måtte forstå at totalentreprenøren hadde krav på',
-  maatteForstaaHjelp: (grense: number | undefined) =>
-    grense === undefined
-      ? 'Høyst like mange dager som du godkjenner.'
-      : `Høyst ${dager(grense)}. Det er dagene du godkjenner.`,
+  maatteForstaaHjelp: (krevd: number) =>
+    `Er kravet spesifisert for sent, har totalentreprenøren bare krav på det du måtte forstå. Krevd: ${dager(krevd)}.`,
   dagerSpoersmaal: 'Hvor mange av dagene godkjenner du?',
   // U-14: når du gjør gjeldende at kravet ble spesifisert for sent.
   dagerSpoersmaalITide: 'Dagene du godtar hvis kravet ble spesifisert i tide',
@@ -194,7 +201,7 @@ export const FRISTSVAR = haerdet({
     `Totalentreprenøren krever ${dager(krevd)}. Du kan ikke godkjenne flere.`,
   manglerMaatteForstaa:
     'Skriv dagene du måtte forstå at totalentreprenøren hadde krav på, som et helt antall.',
-  maatteForstaaHoeyst: (grense: number) => `Skriv høyst ${dager(grense)}.`,
+  maatteForstaaForMange: 'Dagene du måtte forstå kan ikke være flere enn dagene du godkjenner.',
   leselinjeDager: (n: number, krevd: number) =>
     n === krevd
       ? `${dager(n)}, godkjent som krevd`

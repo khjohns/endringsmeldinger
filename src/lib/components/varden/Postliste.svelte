@@ -20,7 +20,6 @@
     kravet,
     leselinje,
     foersteFelt,
-    kontrollerVedFerdig,
     valgene,
   }: {
     poster: readonly P[];
@@ -42,8 +41,6 @@
     leselinje: (p: P) => string[];
     /** Feltet som får fokus når posten åpnes. */
     foersteFelt: (p: P) => string;
-    /** ID-en til et felt som må rettes før posten kan lukkes. */
-    kontrollerVedFerdig?: (p: P) => string | null;
     /** Valgene i den åpne posten. */
     valgene: Snippet<[P]>;
   } = $props();
@@ -65,14 +62,9 @@
       return document.getElementById(fokus ?? (p ? foersteFelt(p) : ''));
     });
   }
-  async function lukk(p: P) {
-    const feilfelt = kontrollerVedFerdig?.(p);
-    if (feilfelt) {
-      await fokuser(() => document.getElementById(feilfelt));
-      return;
-    }
+  async function lukk(id: string) {
     valgt = '';
-    await fokuser(() => document.getElementById(`${prefiks}-endre-${p.id}`));
+    await fokuser(() => document.getElementById(`${prefiks}-endre-${id}`));
   }
 </script>
 
@@ -103,7 +95,7 @@
         {@render valgene(p)}
         {#if flere}
           <div class="postfot">
-            <Knapp onclick={() => lukk(p)}>{SKJEMA.ferdig}</Knapp>
+            <Knapp onclick={() => lukk(p.id)}>{SKJEMA.ferdig}</Knapp>
           </div>
         {/if}
       {:else}

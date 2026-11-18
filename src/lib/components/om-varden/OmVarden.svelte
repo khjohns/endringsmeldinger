@@ -16,13 +16,16 @@
       <h1 id="om-varden-tittel">Om Varden</h1>
       <p class="ingress">
         I Varden sender totalentreprenøren og byggherren varsler, krav og svar om endringer etter NS
-        8407. Her står det løsningen gjør med det dere sender og legger til.
+        8407. Her står det løsningen gjør med det dere sender og legger til, og det den ikke gjør.
       </p>
     </div>
 
     <section aria-labelledby="om-innholdet">
-      <h2 id="om-innholdet">Korrespondanse lagt til i saken</h2>
-      <p>Løsningen vurderer ikke innholdet i dokumentene som legges til.</p>
+      <h2 id="om-innholdet">Innholdet i korrespondansen vurderes ikke</h2>
+      <p>
+        Løsningen vurderer ikke innholdet i dokumentene som legges til, og avgjør ikke hvilken
+        betydning de har for partenes rettigheter og plikter.
+      </p>
       <p>
         Ved korrespondansen står det løsningen vet: typen, avsenderen, datoen, sendemåten, hvem som
         la den til og når, og kategorien.
@@ -34,30 +37,23 @@
       <p>
         Et varsel, et krav eller et svar som er sendt på en annen måte, har datoen avsenderen
         oppgir. Har motparten lagt det til med en annen dato, står begge, med parten som oppga dem.
-        Dagene mellom datoene regnes ut fra datoene partene har oppgitt i brevene.
+        Løsningen avgjør ikke når korrespondansen ble sendt eller kom fram.
       </p>
     </section>
 
     <section aria-labelledby="om-begrunnelsen">
       <h2 id="om-begrunnelsen">Begrunnelsen tolkes ikke</h2>
       <p>
-        I et brev herfra regnes virkningen av svaret ut fra valgene parten gjør i skjemaet.
-        Begrunnelsen står i brevet slik parten skrev den, og løsningen tolker den ikke. Det er hele
-        brevet som er partens standpunkt.
+        I et brev herfra følger virkningen av valgene parten gjør i skjemaet. Begrunnelsen står i
+        brevet slik parten skrev den, og løsningen tolker den ikke. Det er hele brevet som er
+        partens standpunkt.
       </p>
     </section>
 
-    <section aria-labelledby="om-tallene">
-      <h2 id="om-tallene">Tallene i sakslisten</h2>
+    <section aria-labelledby="om-avgjoerelsene">
+      <h2 id="om-avgjoerelsene">Uenighet avgjøres ikke her</h2>
       <p>
-        Vederlaget er summen av de faste beløpene i kravene i sakene som ikke inngår i en sendt
-        endringsordre. Kravposter etter regningsarbeid eller enhetspriser har ikke beløp. Krav med
-        bare slike poster telles for seg. Trukne krav og saker som totalentreprenøren har avsluttet,
-        er ikke med. Krav i flere saker kan gjelde samme kostnad.
-      </p>
-      <p>
-        For fristforlengelse vises antall krav i sakene som ikke inngår i en sendt endringsordre.
-        Dagene summeres ikke, fordi forlengelser i ulike saker kan gjelde samme periode.
+        Løsningen avgjør ikke det kontrakten overlater til partene, en oppmann eller domstolene.
       </p>
     </section>
 

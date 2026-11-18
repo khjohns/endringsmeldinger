@@ -240,9 +240,8 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
       (await traaden()).getByRole('button', { name: 'Korriger datoen pålegget ble mottatt' })
     );
     const skjema = within(screen.getByRole('form'));
-    expect(skjema.getByRole('heading', { level: 2 }).textContent).toMatch(/^Korrigering av datoen/);
-    expect(skjema.getByText('Utkast · ikke sendt')).toBeTruthy();
-    expect(skjema.getByText(/^Brev \d+ til byggherren$/)).toBeTruthy();
+    expect(skjema.getByRole('heading', { level: 2 }).textContent).toMatch(/^Utkast · ikke sendt/);
+    expect(skjema.getByText('Til byggherren (BH)')).toBeTruthy();
     expect(
       skjema.getByText('15. september 2026, datoen du oppga for når pålegget ble mottatt')
     ).toBeTruthy();

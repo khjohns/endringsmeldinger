@@ -321,7 +321,7 @@
           ]
         },
         {
-          "tekst": "BH finner lenken til skjemaet for korrespondansen, der et svar gitt før legges til med kategorien svar og gjelder fra datoen BH oppgir at det ble sendt. Bekreftelsen er opphevet, og byggherrens egen endringsordre sendt utenfor løsningen er ikke med (U-14, avgrensningen).",
+          "tekst": "BH ser at et svar gitt utenfor løsningen legges til i saken som korrespondanse med kategorien svar, og gjelder fra datoen BH oppgir at det ble sendt. Bekreftelsen er opphevet, og byggherrens egen endringsordre sendt utenfor løsningen er ikke med (U-14, avgrensningen).",
           "kilde": [
             "OV-U101",
             "OV-U98",
@@ -479,16 +479,6 @@
       "dato": "2026-11-15",
       "forhold": "#2009",
       "hva": "Forløpet er kjørbart for F-2 og F-9: byggherren gjør gjeldende at varselet kom for sent og er subsidiært enig, og totalentreprenøren godtar avslaget. Utgangspunktet har ikke kravet om fristforlengelse. Vedtakene som sto i `kilder`, står i kontrollene, forståelsen og bestillingen."
-    },
-    {
-      "dato": "2026-11-18",
-      "forhold": "#2183, review av #2203",
-      "hva": "U-14: skjemaet for svaret har bare lenken. Kategorien og datoen står i skjemaet for korrespondansen."
-    },
-    {
-      "dato": "2026-11-18",
-      "forhold": "#2183",
-      "hva": "U-3 viser «Ja» før «Nei» i en loddrett liste."
     }
   ]
 }

@@ -8,9 +8,16 @@ import { brevref, brevrefStor } from './felles';
  * Skjemaet for TEs nye versjon av påberopelsen (BF-10).
  */
 export const NYVERSJON = haerdet({
+  /**
+   * Brevet som skrives, i arbeidsraden (oppdragsgiver 07.11, PR 1650). Nummeret er det neste i
+   * saken; forhåndsvisningen viser det brevet får.
+   */
+  radtittel: (nummer: number) => `Brev ${nummer} · Oppdatert påberopelse`,
+  til: 'Til byggherren (BH)',
   tekst: 'Begrunnelse',
   /** Begrunnelsen kreves (oppdragsgiver 07.11, PR 1650). Knappen er aktiv (MM-U32). */
   manglerTekst: 'Skriv en begrunnelse for å gå videre.',
+  forhaandsvis: 'Forhåndsvis brevet',
   /** Brevene TE bygger på, til høyre for utkastet. Ett er åpent om gangen. */
   tidligere: 'Tidligere brev om forholdet',
   brevrad: (b: Brevref & { avsender: Part }) =>
