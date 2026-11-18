@@ -105,9 +105,18 @@
   const v = $derived(valg!);
 
   const tabell = $derived(kjernesak.kontraktsfrister ?? []);
+  // Uten tabell står feltene for fristen direkte (#2185). Kommer tabellen ved en ny lasting, må
+  // parten velge igjen i en rad som ikke er fylt ut.
+  const satt = new Set<string>();
   $effect(() => {
-    if (tabell.length === 0) {
-      for (const p of v.frister) p.frist ??= 'annen';
+    for (const p of v.frister) {
+      if (tabell.length === 0 && p.frist === null) {
+        p.frist = 'annen';
+        satt.add(p.noekkel);
+      } else if (tabell.length > 0 && satt.has(p.noekkel)) {
+        satt.delete(p.noekkel);
+        if (p.frist === 'annen' && !p.nummer && !p.navn) p.frist = null;
+      }
     }
   });
   // En frist som var registrert i forrige versjon, er fast. En som ikke var det, kan byttes med en
@@ -482,7 +491,7 @@
       {#if p.frist !== null}
         <Gjeldendefrist
           {g}
-          registrert={p.frist !== 'annen'}
+          registrert={p.frist !== 'annen' || kjernesak.kontraktsfrister === null}
           {sakslenke}
           tillegg={FRISTKRAV.iTillegg}
           id={`${sid}-gjeldende`}

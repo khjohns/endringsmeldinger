@@ -137,6 +137,8 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
   it('#2185: uten fristtabell fylles fristen direkte og sendes med navn og dager', async () => {
     const sendt = await kravskjemaet(medGrunnlag, [], [], null);
     expect(screen.queryByRole('radio', { name: 'En frist som ikke er registrert' })).toBeNull();
+    // Tabellen kunne ikke hentes, så løsningen vet ikke om fristen er registrert.
+    expect(screen.queryByText(/ikke er registrert for prosjektet/)).toBeNull();
     await skriv(await screen.findByLabelText('Navnet i kontrakten'), 'Sluttfristen');
     await skriv(screen.getByLabelText('Dagene du krever'), '10');
     await skriv(screen.getByRole('textbox', { name: 'Begrunnelse' }), 'Pelingen tar lenger tid.');
