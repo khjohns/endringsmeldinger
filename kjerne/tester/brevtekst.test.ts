@@ -9781,6 +9781,10 @@ describe('forutsetningene i forholdssvaret (#2181, OV-U32, OV-U33, GR-U11)', () 
       { spoersmaal: 'resultat' },
     ]);
     expect(lagene(s, {}).ugyldig).toEqual([]);
+    expect(lagene(s, { grunnlag_varslet_i_tide: 'ukjent', resultat: 'ukjent' }).ugyldig).toEqual([
+      { spoersmaal: 'resultat' },
+      { spoersmaal: 'grunnlag_varslet_i_tide' },
+    ]);
     expect(lagene(s, { grunnlag_varslet_i_tide: true, resultat: 'ukjent' }).ugyldig).toEqual([
       { spoersmaal: 'resultat' },
     ]);
