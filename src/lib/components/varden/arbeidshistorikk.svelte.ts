@@ -17,10 +17,12 @@ export function arbeidshistorikk<T>(vis: (visning: T) => void) {
   $effect(() => {
     const id = page.state?.vardenArbeid;
     untrack(() => {
-      if (id === aktiv || (id && !trinn.has(id))) return;
-      aktiv = id;
+      if (id === aktiv) return;
+      // En nøkkel fra en tidligere montering er roten i denne.
+      const steg = id ? trinn.get(id) : undefined;
+      aktiv = steg ? id : undefined;
       tilbakeVenter = false;
-      const visning = id ? trinn.get(id)?.visning : rot;
+      const visning = steg ? steg.visning : rot;
       if (visning) vis(visning);
     });
   });
@@ -28,6 +30,10 @@ export function arbeidshistorikk<T>(vis: (visning: T) => void) {
   function lagre(forrige: T, neste: T, erstatt = false) {
     if (!page.route?.id || tilbakeVenter) return;
     rot ??= forrige;
+    if (erstatt && !aktiv) {
+      rot = neste;
+      return;
+    }
     const id = sesjon + '-' + ++nummer;
     const forelder = erstatt && aktiv ? trinn.get(aktiv)?.forrige : aktiv;
     trinn.set(id, { visning: neste, forrige: forelder });
