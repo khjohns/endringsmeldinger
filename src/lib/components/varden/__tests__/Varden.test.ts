@@ -722,32 +722,56 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByText(/^Saken har en hendelse løsningen ikke kan lese\./)).toBeNull();
   });
 
-  it('når lastingen feiler, viser Varden feilen og «Prøv igjen» i stedet for «Laster saken …» (#1373, funn 1)', async () => {
-    const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
-    const hent = vi
-      .fn()
-      .mockRejectedValueOnce(new ApiError(500, 'Serveren svarte med feilkode 500 uten forklaring.'))
-      .mockImplementation(demosak.hent);
+  it.each([
+    [0, 'Beklager, vi fikk ikke svar fra serveren. Kontroller nettforbindelsen, og prøv igjen.'],
+    [500, 'Beklager, saken ble ikke hentet. Prøv igjen om litt.'],
+  ])(
+    'ved lastefeil %i står rådet på arket, og «Prøv igjen» laster saken (#2188)',
+    async (status, raad) => {
+      const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
+      const hent = vi
+        .fn()
+        .mockRejectedValueOnce(new ApiError(status, 'Teknisk detalj fra serveren.'))
+        .mockImplementation(demosak.hent);
+      const kjernesak = lagKjernesak({
+        sakId: demosak.sakId,
+        prosjektId: 'demo',
+        part: 'BH',
+        hent,
+        send: demosak.send,
+      });
+      await kjernesak.last();
+      render(Vardensak, { kjernesak });
+
+      const feil = await screen.findByRole('alert');
+      expect(within(feil).getByRole('heading', { name: 'Saken kunne ikke hentes' })).toBeTruthy();
+      expect(within(feil).getByText(raad)).toBeTruthy();
+      expect(feil.textContent).not.toContain('Teknisk detalj');
+      expect(feil.closest('main')).toBeTruthy();
+      expect(screen.queryByText('Laster saken …')).toBeNull();
+
+      await fireEvent.click(within(feil).getByRole('button', { name: 'Prøv igjen' }));
+      await screen.findByRole('heading', { name: BF.tittel, level: 1 });
+      expect(screen.queryByRole('alert')).toBeNull();
+    }
+  );
+
+  it.each([403, 404])('viser samme vei til sakslisten ved HTTP %i (#2188)', async (status) => {
     const kjernesak = lagKjernesak({
-      sakId: demosak.sakId,
-      prosjektId: 'demo',
-      part: 'BH',
-      hent,
-      send: demosak.send,
+      sakId: 'sak-1',
+      prosjektId: 'p-1',
+      hent: async () => {
+        throw new ApiError(status, 'Teknisk detalj fra serveren.');
+      },
     });
     await kjernesak.last();
-    render(Vardensak, { kjernesak });
-
-    const feil = await screen.findByRole('alert');
-    expect(within(feil).getByRole('heading', { name: 'Saken kunne ikke lastes' })).toBeTruthy();
-    // En feil fra serveren beklager og sier hva parten kan gjøre (.interface-design/system.md).
-    expect(feil.textContent).toContain('Beklager, saken ble ikke hentet. Prøv igjen om litt.');
-    expect(feil.textContent).toContain('Serveren svarte med feilkode 500 uten forklaring.');
-    expect(screen.queryByText('Laster saken …')).toBeNull();
-
-    await fireEvent.click(within(feil).getByRole('button', { name: 'Prøv igjen' }));
-    await screen.findByRole('heading', { name: BF.tittel, level: 1 });
-    expect(screen.queryByRole('alert')).toBeNull();
+    render(Vardensak, { kjernesak, saksliste: '/p-1' });
+    const kortet = within(screen.getByRole('alert'));
+    expect(
+      kortet.getByRole('heading', { name: 'Saken finnes ikke, eller du har ikke tilgang til den' })
+    ).toBeTruthy();
+    expect(kortet.getByRole('link', { name: 'Til sakslisten' }).getAttribute('href')).toBe('/p-1');
+    expect(kortet.queryByRole('button')).toBeNull();
   });
 
   it('«Prøv igjen» er opptatt mens saken lastes på nytt, og en ny feil viser når det sist ble forsøkt (#1373, funn 1)', async () => {
@@ -777,7 +801,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     const knapp = await screen.findByRole('button', { name: 'Prøv igjen' });
     expect(knapp.getAttribute('aria-busy')).toBeNull();
     expect(screen.getByRole('alert').textContent).toMatch(/Sist forsøkt kl\.\u00a0\d\d\.\d\d\./);
-    expect(screen.getByRole('alert').textContent).toContain('Igjen.');
+    expect(screen.getByRole('alert').textContent).toContain(
+      'Beklager, saken ble ikke hentet. Prøv igjen om litt.'
+    );
   });
 
   it('saksomslaget har partene øverst og prosjektet nederst, og et navn som mangler, står ikke der (panel B, #1899 punkt 1, #1398)', async () => {

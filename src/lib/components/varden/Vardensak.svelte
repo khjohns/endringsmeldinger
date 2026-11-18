@@ -942,25 +942,32 @@
         </div>{/if}
       {@render nySak()}
     </main>
-  {:else if kjernesak.finnes === false}
-    <div class="lastefeil" role="alert">
-      <h1>{SAKEN.finnesIkke}</h1>
-      <p>{SAKEN.finnesIkkeForklaring}</p>
-      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- kalleren gir lenken løst -->
-      {#if saksliste}<p><a href={saksliste}>{SAKEN.tilSakslisten}</a></p>{/if}
-    </div>
-  {:else if (!u || !kjernesak.saksbilde) && kjernesak.feil}
-    <div class="lastefeil" role="alert">
-      <h1>{SAKEN.lastefeil}</h1>
-      <p>{SAKEN.lastefeilBeklager}</p>
-      <p class="detaljer">{SAKEN.lastefeilDetaljer(kjernesak.feil)}</p>
-      {#if sistForsoekt && !proever}<p class="detaljer">
-          {SAKEN.sistForsoekt(sistForsoekt)}
-        </p>{/if}
-      <Knapp opptatt={proever} onclick={proevIgjen}
-        >{proever ? SAKEN.proever : SAKEN.proevIgjen}</Knapp
-      >
-    </div>
+  {:else if kjernesak.lasteutfall && (!u || !kjernesak.saksbilde)}
+    {@const utilgjengelig = kjernesak.lasteutfall === 'utilgjengelig'}
+    <main class="arbeid">
+      <div class="lastefeil" role="alert">
+        <h1>{utilgjengelig ? SAKEN.finnesIkke : SAKEN.lastefeil}</h1>
+        <p>
+          {utilgjengelig
+            ? SAKEN.finnesIkkeForklaring
+            : kjernesak.lasteutfall === 'nettverk'
+              ? SAKEN.lastefeilNett
+              : SAKEN.lastefeilBeklager}
+        </p>
+        <div class="lastehandlinger">
+          {#if !utilgjengelig}
+            <Knapp opptatt={proever} onclick={proevIgjen}
+              >{proever ? SAKEN.proever : SAKEN.proevIgjen}</Knapp
+            >
+          {/if}
+          {#if saksliste}<Knapp variant="lenke" iFlukt href={saksliste}>{SAKEN.tilSakslisten}</Knapp
+            >{/if}
+        </div>
+        {#if sistForsoekt && !proever && !utilgjengelig}
+          <p class="sist-forsoekt">{SAKEN.sistForsoekt(sistForsoekt)}</p>
+        {/if}
+      </div>
+    </main>
   {:else if !u || !kjernesak.saksbilde}
     <p class="laster" role="status">{SAKEN.laster}</p>
   {:else}
@@ -1211,22 +1218,40 @@
     min-width: 0;
     padding: 28px var(--kant) 64px;
   }
-  .laster,
-  .lastefeil {
-    padding: var(--spacing-6) var(--kant) var(--spacing-12);
-  }
   .laster {
+    padding: var(--spacing-6) var(--kant) var(--spacing-12);
     color: var(--ink-2);
   }
   .lastefeil {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-3);
+    max-width: var(--varden-ark);
+    padding: var(--spacing-6) var(--spacing-8);
+    border: var(--rule);
+    border-radius: var(--r-kort);
+    background: var(--surface);
   }
-  .lastefeil .detaljer {
+  .lastefeil h1 {
+    font-size: 20px;
+    font-weight: 600;
+  }
+  .lastefeil p {
+    max-width: 56ch;
+    margin-top: var(--spacing-2);
+    color: var(--ink-2);
+  }
+  .lastehandlinger {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-4);
+  }
+  .lastefeil .sist-forsoekt {
+    max-width: none;
+    margin-top: var(--spacing-4);
+    padding-top: var(--spacing-3);
+    border-top: var(--rule);
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: 13px;
   }
   .melding.tom {
     display: none;
@@ -1267,8 +1292,7 @@
       font-size: 14px;
     }
     .arbeid,
-    .laster,
-    .lastefeil {
+    .laster {
       padding: var(--spacing-4);
     }
   }

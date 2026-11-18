@@ -1,19 +1,14 @@
+import type { Kjernesakkontekst } from '../kontekst.svelte';
+
 /** En sakskontekst for testen av saksruta, der testen setter svaret fra TS-serveren. */
 export function falskKjernesak() {
-  let finnes = $state<boolean | null>(null);
-  let feil = $state<string | null>(null);
+  let lasteutfall = $state<Kjernesakkontekst['lasteutfall']>(null);
   return {
-    get finnes() {
-      return finnes;
+    get lasteutfall() {
+      return lasteutfall;
     },
-    set finnes(v: boolean | null) {
-      finnes = v;
-    },
-    get feil() {
-      return feil;
-    },
-    set feil(v: string | null) {
-      feil = v;
+    set lasteutfall(v: Kjernesakkontekst['lasteutfall']) {
+      lasteutfall = v;
     },
     saksbilde: null,
     last: async () => {},

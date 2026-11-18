@@ -338,6 +338,21 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(sak.saksbilde).toBeNull();
   });
 
+  it('fjerner den lastede saken når en ny lasting avvises med 403 (#2188)', async () => {
+    const hent = vi
+      .fn()
+      .mockResolvedValueOnce(svar([opprettet]))
+      .mockRejectedValueOnce(new ApiError(403, 'Du har ikke tilgang.'))
+      .mockResolvedValueOnce(svar([opprettet]));
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', hent });
+    expect(await sak.last()).toBe(true);
+    expect(await sak.last()).toBe(false);
+    expect(sak.lasteutfall).toBe('utilgjengelig');
+    expect(sak.saksbilde).toBeNull();
+    expect(await sak.last()).toBe(true);
+    expect(sak.lasteutfall).toBeNull();
+  });
+
   it('lar det være uavgjort om saken finnes når serveren svarer med en annen feil', async () => {
     const sak = lagKjernesak({
       sakId: SAK,
