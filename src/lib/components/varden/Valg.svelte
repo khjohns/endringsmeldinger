@@ -110,7 +110,8 @@
     min-width: 0;
   }
   .valg:focus {
-    outline: none;
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
   }
   .hjelp {
     margin: calc(-1 * var(--spacing-2)) 0 var(--spacing-3);

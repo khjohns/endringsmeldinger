@@ -165,4 +165,25 @@ describe('det som mangler, er det kjernen sier er påkrevd og ubesvart (#2025)',
     await seBrevet();
     expect(manglene()).toEqual(['Skriv beløpet du godkjenner.']);
   });
+
+  it('lenken til en lukket kravpost åpner den og fokuserer valggruppen (#2183)', async () => {
+    const journal = skrevet(svikt.slice(0, -1), 'TE', {
+      type: 'krav',
+      spor: 'vederlag',
+      innhold: {
+        kravposter: [
+          { beskrivelse: 'Pumping', oppgjoersform: 'tilbud', beloep: 250000 },
+          { beskrivelse: 'Peling', oppgjoersform: 'tilbud', beloep: 100000 },
+        ],
+      },
+      utdypning: 'Tilbud om pumping og peling.',
+    });
+    await svarskjemaet(journal);
+    await seBrevet();
+    const lenke = screen.getByRole('link', { name: /^P2: Velg om du godkjenner fast sum/ });
+    const id = lenke.getAttribute('href')!.slice(1);
+    expect(document.getElementById(id)).toBeNull();
+    await fireEvent.click(lenke);
+    expect(document.getElementById(id)).toHaveFocus();
+  });
 });
