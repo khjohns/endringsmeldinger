@@ -12,7 +12,6 @@ import OmVarden from '#lib/components/om-varden/OmVarden.svelte';
 import Login from '../../../../routes/login/+page.svelte';
 import { load } from '../../../../routes/+layout';
 import { OM_VARDEN_STI } from '#lib/components/om-varden/sti.ts';
-import { FORHOLDET } from '#lib/components/varden/tekster/index.ts';
 
 const getSession = vi.hoisted(() => vi.fn());
 vi.mock('#lib/api/auth.ts', () => ({ getSession, loginUrl: (r: string) => r }));
@@ -39,9 +38,7 @@ describe('siden «Om Varden»', () => {
     render(OmVarden);
     expect(screen.getByRole('heading', { level: 1, name: 'Om Varden' })).toBeInTheDocument();
     const tekst = (document.body.textContent ?? '').replace(/\s+/g, ' ');
-    expect(tekst).toMatch(
-      /vurderer ikke innholdet i dokumentene som legges til, og avgjør ikke hvilken betydning de har for partenes rettigheter og plikter/
-    );
+    expect(tekst).toMatch(/vurderer ikke innholdet i dokumentene som legges til/);
     expect(tekst).toMatch(
       /typen, avsenderen, datoen, sendemåten, hvem som la den til og når, og kategorien/
     );
@@ -50,13 +47,24 @@ describe('siden «Om Varden»', () => {
     );
   });
 
+  it('#2187: datoene, virkningen av valgene og nøkkeltallene forklares på siden uten påstander om hva løsningen ikke avgjør', () => {
+    render(OmVarden);
+    const tekst = document.body.textContent!.replace(/\s+/g, ' ');
+    expect(tekst).toContain(
+      'Dagene mellom datoene regnes ut fra datoene partene har oppgitt i brevene.'
+    );
+    expect(tekst).toContain('regnes virkningen av svaret ut fra valgene parten gjør i skjemaet.');
+    expect(screen.getByRole('heading', { name: 'Tallene i sakslisten' })).toBeInTheDocument();
+    expect(tekst).toContain('Dagene summeres ikke');
+    expect(tekst).not.toMatch(/avgjør ikke|avgjøres ikke/);
+  });
+
   it('#1443: ingen fil i Varden forklarer ved feltene at innholdet ikke vurderes eller teksten ikke tolkes', () => {
     const mappe = join(process.cwd(), 'src/lib/components/varden');
     const filer = readdirSync(mappe).filter((f) => /\.(svelte|ts)$/.test(f));
-    // OV-U81 lar forklaringen ved korrespondansen stå i et infotips, ikke ved feltet.
     const treff = filer.filter((f) =>
       /(vurderes|tolkes) ikke|(vurderer|tolker) ikke (innholdet|teksten|begrunnelsen)/i.test(
-        readFileSync(join(mappe, f), 'utf8').replace(FORHOLDET.omKorrespondansenTekst, '')
+        readFileSync(join(mappe, f), 'utf8')
       )
     );
     expect(treff).toEqual([]);

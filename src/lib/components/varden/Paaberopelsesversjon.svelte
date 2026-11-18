@@ -2,12 +2,12 @@
   TEs nye versjon av påberopelsen (BF-10): «Oppdater påberopelse», før og etter byggherrens svar.
   Arbeidsflaten har to roller (oppdragsgiver 06.11, PR 1650):
   brevet TE skriver står til venstre, med teksten fra versjonen som erstattes (S-3 B), og
-  brevene TE bygger på står til høyre. Arbeidsraden over begge sier hvilket brev som skrives, og
-  har «Forhåndsvis brevet». Byggherrens svar er åpent fra start, og ett brev om forholdet leses om
+  brevene TE bygger på står til høyre sammen med «Se brevet før sending». Byggherrens svar er åpent fra start, og ett brev om forholdet leses om
   gangen. Tidslinja står lagt sammen under. Datoen og korrigeringen av den står på oversikten. Brevet sendes fra brevkontrollen,
   som de andre brevene (S-4b). Kjernen lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
+  import { lagBrevtittel } from '#kjerne/frosset/brevtittel.ts';
   import { ChevronLeft } from 'lucide-svelte';
   import { tick } from 'svelte';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
@@ -16,17 +16,17 @@
   import { sendeflyt } from './sendeflyt.svelte';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
-  import Brevutkast from './Brevutkast.svelte';
+  import Utkastkort from './Utkastkort.svelte';
+  import { utkastetsHode } from './utkastetsHode';
   import Forkastutkast from './Forkastutkast.svelte';
   import Knapp from './Knapp.svelte';
   import Sendeknapp from './Sendeknapp.svelte';
   import Tidslinje from './Tidslinje.svelte';
-  import Utkastrad from './Utkastrad.svelte';
   import { nyVersjonAvPaaberopelsen } from './kommandoer';
   import { brevetVedSiden } from './medie.svelte';
   import { brevene, datoerISporet, innleggene, type Brevet } from './lesing';
   import Tekstomraade from './Tekstomraade.svelte';
-  import { FORHOLDET, NYVERSJON, brevtittel, dato } from './tekster';
+  import { FORHOLDET, HOVEDLINJER, KRAVSKJEMA, NYVERSJON, brevtittel, dato } from './tekster';
 
   let {
     kjernesak,
@@ -54,8 +54,14 @@
   const brev = $derived(brevene(u));
   const finn = (dokument: string | undefined) => brev.find((b) => b.id === dokument) ?? null;
   const kravet = $derived(u.spor.forhold.gjeldendeKrav!);
-  // Det neste nummeret i saken. Forhåndsvisningen viser nummeret brevet får.
-  const nummer = $derived(Math.max(0, ...brev.map((b) => b.nummer ?? 0)) + 1);
+  const hode = $derived(
+    utkastetsHode(
+      u,
+      kjernesak.sak?.merking,
+      lagBrevtittel({ krav: [kravet], svar: [], utsagn: [] }) ?? 'Påberopelse av forholdet'
+    )
+  );
+  const kravbrev = $derived(finn(kravet.dokument));
   const svarbrevet = $derived(finn(u.spor.forhold.gjeldendeSvar?.dokument));
   const enig = $derived(!!u.spor.forhold.enighet && !!svarbrevet);
 
@@ -111,43 +117,38 @@
 
 <Arbeidsflate leser={side.vedSiden} deling="utkast">
   {#snippet rad()}
-    <Utkastrad tittel={NYVERSJON.radtittel(nummer)} linje={NYVERSJON.til}>
-      {#snippet tilbake()}
-        <!-- Sakslisten er felt inn mens brevene leses ved siden av, så veien tilbake står i raden,
-             og brevet begynner på samme høyde som i brevkontrollen. -->
-        <Knapp variant="lenke" onclick={ontilbake}
-          ><ChevronLeft size={16} aria-hidden="true" />{FORHOLDET.tilbake}</Knapp
-        >
-      {/snippet}
-      {#snippet handling()}
-        <Sendeknapp {flyt} onclick={tilForhaandsvisningen}>{NYVERSJON.forhaandsvis}</Sendeknapp>
-      {/snippet}
-    </Utkastrad>
+    <Knapp variant="lenke" onclick={ontilbake}
+      ><ChevronLeft size={16} aria-hidden="true" />{FORHOLDET.tilbake}</Knapp
+    >
   {/snippet}
 
   {#snippet hoved()}
-    <Brevutkast
-      id={id('emne')}
-      emne={kjernesak.saksbilde?.tittel ?? ''}
-      onsubmit={tilForhaandsvisningen}
-    >
-      {#snippet bunn()}
-        <Forkastutkast tekst={NYVERSJON.forkastTekst} {onforkast} />
+    <Utkastkort id={id('emne')} {...hode} avsender="TE" novalidate onsubmit={tilForhaandsvisningen}>
+      {#snippet referanse()}
+        {#if kravbrev}<span>{KRAVSKJEMA.folgerOpp(kravbrev, svarbrevet)}</span>{/if}
       {/snippet}
-      <Tekstomraade
-        id={id('tekst')}
-        etikett={NYVERSJON.tekst}
-        vokser
-        paakrevd
-        feil={mangler ? NYVERSJON.manglerTekst : null}
-        bind:verdi={() => tekst ?? '', (v) => (tekst = v)}
-        bind:felt
-      />
-    </Brevutkast>
+      <div class="begrunnelse">
+        <Tekstomraade
+          id={id('tekst')}
+          etikett={NYVERSJON.tekst}
+          vokser
+          paakrevd
+          feil={mangler ? NYVERSJON.manglerTekst : null}
+          bind:verdi={() => tekst ?? '', (v) => (tekst = v)}
+          bind:felt
+        />
+      </div>
+      <div class="bunn">
+        <Forkastutkast tekst={NYVERSJON.forkastTekst} {onforkast} />
+      </div>
+    </Utkastkort>
   {/snippet}
 
   {#snippet hoeyre()}
     <div class="stoette">
+      <div class="handling">
+        <Sendeknapp {flyt} onclick={tilForhaandsvisningen}>{HOVEDLINJER.seBrevet}</Sendeknapp>
+      </div>
       {#if valgt}
         <section class="tidligere" aria-labelledby={id('tidligere')}>
           <h2 id={id('tidligere')}>{NYVERSJON.tidligere}</h2>
@@ -206,6 +207,22 @@
 </Arbeidsflate>
 
 <style>
+  .begrunnelse,
+  .bunn {
+    padding: var(--spacing-5) var(--spacing-6);
+  }
+  .bunn {
+    border-top: var(--rule);
+  }
+  .handling {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    padding: var(--spacing-5);
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: var(--r-kort);
+  }
   /* Høyre kolonne følger rullingen under arbeidsraden og er høyst like høy som vinduet under
      den, med samme avstand til raden som før rullingen. `--radhoeyde` er den målte høyden på
      raden med flaten bak den (`Arbeidsflate`). Et langt brev ruller i rammen. */

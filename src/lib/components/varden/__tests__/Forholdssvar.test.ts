@@ -4,8 +4,8 @@
  */
 
 import '@testing-library/jest-dom/vitest';
-import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 import type { Journalrad } from '#kjerne/typer.ts';
 import {
@@ -29,7 +29,7 @@ const vedGrunnen = skrevet(medGrunnlag.slice(0, 1), 'TE', {
   utdypning: 'Fjell høyere enn antatt.',
 });
 
-async function svarskjemaet(journal: Journalrad[]) {
+async function svarskjemaet(journal: Journalrad[], onleggtil?: () => void) {
   const kjernesak = lagKjernesak({
     sakId: SAK,
     prosjektId: 'p-1',
@@ -51,6 +51,7 @@ async function svarskjemaet(journal: Journalrad[]) {
     u: kjernesak.utledning!,
     onbrevkontroll: (k: TilBrevkontrollen) => sendt.push(k),
     onforkast: () => {},
+    onleggtil,
   });
   return sendt;
 }
@@ -77,17 +78,35 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     expect(screen.getAllByRole('radio').filter((r) => (r as HTMLInputElement).checked)).toEqual([]);
   });
 
+  it('valgene om varselet står under hverandre med «Ja» først (#2183)', async () => {
+    await svarskjemaet(medGrunnlag);
+    const varselet = screen.getByRole('group', {
+      name: 'Gjør du gjeldende at varselet kom for sent?',
+    });
+    const valg = within(varselet).getAllByRole('radio');
+    expect(valg[0]).toHaveAccessibleName('Ja, varselet kom for sent');
+    expect(valg[1]).toHaveAccessibleName('Nei');
+    expect(valg[0]?.closest('.kort')).toHaveClass('stablet');
+  });
+
   it('det tomme skjemaet har kjernens tittel for svaret og forbeholdet, men ingen felt for begrunnelsen før brevet har punkter (#2035)', async () => {
     await svarskjemaet(medGrunnlag);
-    // Tittelen er kjernens brevtittel for svaret (`SVARTITTEL` i `kjerne/frosset/brevtittel.ts`).
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Utkast · ikke sendt Svar på forholdet' })
-    ).toBeInTheDocument();
+    // #2178: tittelen og brevnummeret står fra start. Stempelet står i samme hode.
+    const overskrift = screen.getByRole('heading', {
+      level: 2,
+      name: 'Svar på forholdet i sak KOE-17',
+    });
+    const hode = within(overskrift.closest('header')!);
+    expect(hode.getByText('Utkast · ikke sendt')).toBeInTheDocument();
+    expect(hode.getByText('Brev 2 til totalentreprenøren')).toBeInTheDocument();
+    expect(hode.getByText('Vår ref. K201-KOE-017-02')).toBeInTheDocument();
+    expect(hode.getByText('Datoen settes ved sending')).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Begrunnelse' })).not.toBeInTheDocument();
     // Forbeholdet står også før brevet kan lages, så teksten ikke blir borte.
     expect(screen.getByLabelText('Forbehold for hele svaret, Valgfri')).toBeInTheDocument();
     await radio('Nei');
     await radio('Enig, endringsordre');
+    expect(overskrift).toHaveTextContent(/^Svar på forholdet i sak KOE-17$/);
     expect(screen.getByRole('heading', { name: 'Begrunnelse' })).toBeInTheDocument();
     expect(screen.getByLabelText('Forbehold for hele svaret, Valgfri')).toBeInTheDocument();
     // Hjemmelen står til høyre på linja med overskriften, som tekst og ikke som merke («Høyst tre
@@ -229,10 +248,12 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     expect(svaret(sendt).vurderinger).toEqual({ resultat: 'avslaatt' });
   });
 
-  it('skjemaet sier at et svar gitt utenfor løsningen legges til som korrespondanse (U-14, OV-U101)', async () => {
-    await svarskjemaet(medGrunnlag);
-    expect(
-      screen.getByText(/Legg svaret til i saken som korrespondanse, og velg at det er et svar\./)
-    ).toBeInTheDocument();
+  it('ett lenkevalg åpner registrering av et svar gitt utenfor løsningen (U-14, OV-U101, #2183)', async () => {
+    const onleggtil = vi.fn();
+    await svarskjemaet(medGrunnlag, onleggtil);
+    const lenken = screen.getByRole('button', { name: 'Legg til et svar du har gitt før' });
+    expect(screen.queryByText(/Legg svaret til i saken som korrespondanse/)).toBeNull();
+    await fireEvent.click(lenken);
+    expect(onleggtil).toHaveBeenCalledOnce();
   });
 });

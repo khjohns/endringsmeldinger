@@ -526,10 +526,12 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     expect(
       screen.getByText(/^Byggherren ber deg angi og begrunne antall dager/)
     ).toBeInTheDocument();
-    // Kravet etter bokstav a er svaret, og utkastet heter det (prototypen, `#foresporsel`).
-    expect(
-      screen.getByText('Svar på byggherrens forespørsel etter punkt 33.6.2')
-    ).toBeInTheDocument();
+    // #2178: Brevhodet viser kjernens tittel for kravet etter bokstav a.
+    const hode = screen
+      .getByRole('heading', { name: /^Krav om fristforlengelse/ })
+      .closest('header')!;
+    expect(hode).toHaveTextContent(/Svarer på brev/);
+    expect(hode).toHaveTextContent(/Vår ref\. K201-KOE-017-/);
     await fireEvent.click(
       screen.getByRole('radio', {
         name: 'Begrunne hvorfor du ennå ikke kan beregne dagene (bokstav b)',

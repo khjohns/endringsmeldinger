@@ -4,9 +4,8 @@ import type { Brevref } from '../lesing';
 import { brevref } from './felles';
 import { dato, kl, haerdet } from './format';
 
-/** Utkastet som brev under arbeid (`Brevutkast.svelte`). */
+/** Bekreftelsen ved forkasting av et utkast. */
 export const BREVUTKAST = haerdet({
-  utkast: 'Utkast',
   forkastSpoersmaal: 'Forkaste utkastet?',
 });
 

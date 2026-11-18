@@ -8,6 +8,7 @@
   Kommandoen bygges i `fristkrav.ts`, og kjernen lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
+  import { KRAVTITTEL } from '#kjerne/frosset/brevtittel.ts';
   import { untrack } from 'svelte';
   import { dager } from '#kjerne/frosset/tekst.ts';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
@@ -62,6 +63,7 @@
     dagensDato,
     dato,
     kalenderdager,
+    KRAVSKJEMA,
   } from './tekster';
 
   let {
@@ -71,6 +73,7 @@
     onbrevkontroll,
     onforkast,
     onregistrert,
+    onvedsiden,
     sakslenke,
     lagtTil = null,
     onendre = () => {},
@@ -86,6 +89,8 @@
     onforkast: () => void;
     /** Varselet sendt utenfor løsningen er registrert (U-13). */
     onregistrert: () => void;
+    /** Brevet leses ved siden av skjemaet, så panelet til venstre felles inn (system.md). */
+    onvedsiden?: (vedSiden: boolean) => void;
     /** Lenken til en annen sak i prosjektet, som en forlengelse av en frist står i (U-2). */
     sakslenke?: (sakId: string) => string;
     /**
@@ -107,14 +112,14 @@
   const tabell = $derived(kjernesak.kontraktsfrister ?? []);
   // Uten tabell står feltene for fristen direkte (#2185). Kommer tabellen ved en ny lasting, må
   // parten velge igjen i en rad som ikke er fylt ut.
-  const satt = new Set<string>();
+  const satt: Record<string, true> = {};
   $effect(() => {
     for (const p of v.frister) {
       if (tabell.length === 0 && p.frist === null) {
         p.frist = 'annen';
-        satt.add(p.noekkel);
-      } else if (tabell.length > 0 && satt.has(p.noekkel)) {
-        satt.delete(p.noekkel);
+        satt[p.noekkel] = true;
+      } else if (tabell.length > 0 && satt[p.noekkel]) {
+        delete satt[p.noekkel];
         if (p.frist === 'annen' && !p.nummer && !p.navn) p.frist = null;
       }
     }
@@ -129,6 +134,7 @@
   const alleBrev = $derived(brevene(u));
   const brevMed = (dokument: string | null | undefined) =>
     alleBrev.find((b) => b.id === dokument) ?? null;
+  const paaberopelsen = $derived(brevMed(u.spor.forhold.gjeldendeKrav?.dokument));
   const forrige = $derived(brevMed(u.spor.frist.gjeldendeKrav?.dokument));
   const svaret = $derived(brevMed(u.spor.frist.gjeldendeSvar?.dokument));
   // Varselet etter punkt 33.4 er det registrerte varselet, ellers det første kravet i sporet
@@ -585,9 +591,19 @@
 
 <Brevskjema
   id={id('tittel')}
-  tittel={FRISTKRAV.titler[foresporselsbrev && !varsel ? 'svar' : modus]}
-  undertittel={forrige && !lagtTil ? FRISTKRAV.nyVersjon(forrige) : null}
-  mottaker={SKJEMA.tilBH}
+  tittel={modus === 'krav' ? KRAVTITTEL.frist : FRISTKRAV.titler[modus]}
+  {kjernesak}
+  {u}
+  avsender="TE"
+  sendes={!registreres}
+  {onvedsiden}
+  oppfolging={foresporselsbrev
+    ? { tekst: SKJEMA.svarerPaa(foresporselsbrev), brev: foresporselsbrev }
+    : forrige
+      ? { tekst: KRAVSKJEMA.folgerOpp(forrige, svaret), brev: svaret ?? forrige }
+      : paaberopelsen
+        ? { tekst: KRAVSKJEMA.paaberoptI(paaberopelsen), brev: paaberopelsen }
+        : null}
   {lagtTil}
   part={kjernesak.part}
   {onendre}

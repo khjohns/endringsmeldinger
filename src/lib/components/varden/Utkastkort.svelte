@@ -1,42 +1,44 @@
 <!--
-  Utkastkortet rundt et skjema som blir et brev (svaret på S-4 og S-4b i BF-10, oppdragsgiver
-  06.11): stiplet kant rundt hele kortet og et hode med «Utkast · ikke sendt», brevhodet når
-  kjernen har laget det, og mottakeren («Utkastet sier det selv» i `system.md`). Skjemaet står i
-  kortet, og brevet vises i brevkontrollen etter «Se brevet før sending».
+  Arket mens brevet skrives, med sammenfoldet brevhode og utkaststempel (system.md, #2178).
+  Brevkontrollen viser hele brevhodet når avsenderen har fylt ut skjemaet.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { BREVKONTROLL } from './tekster';
+  import type { Part } from '#kjerne/typer.ts';
+  import { PARTEN } from '#kjerne/frosset/brevdeler.ts';
+  import Utkaststempel from './Utkaststempel.svelte';
 
   let {
     id,
-    tittel = null,
-    undertittel = null,
-    mottaker,
+    tittel,
+    avsender,
+    nummer = null,
+    merking = null,
     nivaa = 2,
-    merke = BREVKONTROLL.utkast,
     novalidate = false,
+    sendes = true,
+    merke,
     onsubmit,
-    infotips,
+    referanse,
+    leselenke,
     children,
   }: {
-    /** ID-en til overskriften, som skjemaet er merket med. */
     id: string;
-    /** Brevhodet eller skjemaets navn etter merket, `null` før kjernen har laget brevet. */
-    tittel?: string | null;
-    /** Hva brevet er, når tittelen er handlingen, som «Ny versjon av påberopelsen i brev 1». */
-    undertittel?: string | null;
-    /** «Til byggherren (BH)» eller «Til totalentreprenøren (TE)». */
-    mottaker: string;
-    /** Overskriftsnivået: 1 når skjemaet er det eneste på siden. */
+    tittel: string;
+    avsender: Part;
+    nummer?: number | null;
+    merking?: string | null;
     nivaa?: 1 | 2;
-    /** Merket foran tittelen; et krav eller svar lagt til blir ikke sendt (OV-U80). */
-    merke?: string;
     novalidate?: boolean;
+    sendes?: boolean;
+    /** Stempelet når brevet ikke sendes herfra, som «Utkast · ikke lagt til». */
+    merke?: string;
     onsubmit?: () => void;
-    infotips?: Snippet;
+    referanse?: Snippet;
+    leselenke?: Snippet;
     children: Snippet;
   } = $props();
+  const mottaker = $derived(PARTEN[avsender === 'TE' ? 'BH' : 'TE']);
 </script>
 
 <form
@@ -50,14 +52,30 @@
 >
   <header class="utkasthode">
     <div class="tittelrad">
-      <svelte:element this={`h${nivaa}`} class="tittel" {id}>
-        <span class="merke-utkast">{merke}</span>
-        {#if tittel}<span>{tittel}</span>{/if}
+      <svelte:element
+        this={`h${nivaa}`}
+        class="tittel"
+        class:bh={avsender === 'BH'}
+        {id}
+        tabindex="-1"
+      >
+        {tittel}
       </svelte:element>
-      {@render infotips?.()}
+      <Utkaststempel tekst={merke} />
     </div>
-    {#if undertittel}<p class="undertittel">{undertittel}</p>{/if}
-    <p class="dempet">{mottaker}</p>
+    <div class="referanser">
+      <div class="referansetekst">
+        {#if sendes}<span>{nummer === null ? 'Brev' : `Brev ${nummer}`} til {mottaker}</span>{/if}
+        {@render referanse?.()}
+        {#if sendes}
+          {#if merking}<span>Vår ref. {merking}</span>{/if}
+          <span>Datoen settes ved sending</span>
+        {/if}
+      </div>
+      {#if leselenke}
+        <div class="leselenke">{@render leselenke()}</div>
+      {/if}
+    </div>
   </header>
   {@render children()}
 </form>
@@ -65,50 +83,64 @@
 <style>
   .utkast {
     background: var(--surface);
-    border: 1.5px dashed var(--draft-border);
+    border: 1px dashed var(--draft);
     border-radius: var(--r-kort);
   }
   .utkasthode {
-    background: var(--draft-bg);
-    border-radius: calc(var(--r-kort) - 1.5px) calc(var(--r-kort) - 1.5px) 0 0;
     padding: var(--spacing-5) var(--spacing-6);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-1);
+    border-bottom: var(--rule);
   }
   .tittelrad {
-    display: flex;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    column-gap: var(--spacing-4);
   }
   .tittel {
-    flex: 1;
-    display: flex;
-    line-height: 1.4;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--spacing-3);
     margin: 0;
-    font-size: 20px;
-    font-weight: 600;
+    font: 600 20px / 1.3 var(--font-brev);
+    overflow-wrap: anywhere;
   }
-  .tittel > span:not(.merke-utkast) {
-    letter-spacing: var(--sperring-20);
+  .tittel.bh {
+    font-family: var(--font-brev-bh);
   }
-  .merke-utkast {
-    padding: 0 var(--spacing-2);
-    border: 1px dashed var(--draft-border);
-    border-radius: var(--r-merke);
-    background: var(--surface);
-    font-size: 12px;
-    font-weight: 500;
+  .tittel:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
   }
-  .undertittel {
-    margin-bottom: var(--spacing-1);
-    color: var(--ink);
-    font-size: 16px;
-  }
-  .dempet {
+  .referanser {
+    display: flex;
+    align-items: baseline;
+    gap: 0 var(--spacing-4);
+    margin-top: var(--spacing-2);
     color: var(--ink-3);
-    font-size: 14px;
+    font-size: 13px;
+  }
+  .referansetekst {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--spacing-4);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .leselenke {
+    flex: none;
+    margin-inline-start: auto;
+  }
+  @media (max-width: 640px) {
+    .referanser {
+      flex-wrap: wrap;
+    }
+    .referansetekst {
+      width: 100%;
+    }
+    .tittelrad {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--spacing-2);
+    }
+    .tittel {
+      grid-row: 2;
+    }
   }
 </style>

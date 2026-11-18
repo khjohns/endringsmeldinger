@@ -122,7 +122,7 @@
   const avsender = $derived(kjernesak.part as Part);
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
   const hentOrganisasjoner = organisasjonene();
-  const partnavn = (p: Part) => `${hentOrganisasjoner()[p] ?? stor(PARTEN[p])} (${p})`;
+  const partnavn = (p: Part) => hentOrganisasjoner()[p] ?? stor(PARTEN[p]);
   // Teksten kommandoen bærer, og som serveren sammenligner med sin egen (LV-U2).
   const tekst = $derived(laastTekstI({ avsnitt })!);
   let kontrollert = $state(false);
@@ -177,12 +177,12 @@
       dato={BREVKONTROLL.datoSettes}
       tittel={tittel ?? ''}
       {avsnitt}
+      utkast
     />
   </div>
 
   <section class="panel" aria-label="Sending">
     <header class="hode">
-      <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
       <h2 tabindex="-1" bind:this={tittelen}>{handling}</h2>
     </header>
     <dl class="fakta">
@@ -285,15 +285,6 @@
   .sender,
   .virkning {
     border-bottom: var(--rule);
-  }
-  .merke-utkast {
-    display: inline-block;
-    padding: 0 var(--spacing-2);
-    border: 1px dashed var(--draft-border);
-    border-radius: var(--r-merke);
-    background: var(--draft-bg);
-    color: var(--ink);
-    font-size: 12px;
   }
   h2 {
     margin-top: var(--spacing-2);
