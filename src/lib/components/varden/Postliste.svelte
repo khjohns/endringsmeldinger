@@ -65,12 +65,20 @@
       return document.getElementById(fokus ?? (p ? foersteFelt(p) : ''));
     });
   }
-  async function lukk(p: P) {
+  async function kanLukkes(p: P) {
     const feilfelt = kontrollerVedFerdig?.(p);
     if (feilfelt) {
       await fokuser(() => document.getElementById(feilfelt));
-      return;
+      return false;
     }
+    return true;
+  }
+  async function aapneFraRad(id: string) {
+    const p = poster.find((rad) => rad.id === aapen);
+    if (!p || (await kanLukkes(p))) await aapne(id);
+  }
+  async function lukk(p: P) {
+    if (!(await kanLukkes(p))) return;
     valgt = '';
     await fokuser(() => document.getElementById(`${prefiks}-endre-${p.id}`));
   }
@@ -128,7 +136,7 @@
             variant="lenke"
             id={`${prefiks}-endre-${p.id}`}
             aria-label={lest.length ? SKJEMA.endrePost(navn(p)) : SKJEMA.svarPaaPost(navn(p))}
-            onclick={() => aapne(p.id)}>{lest.length ? SKJEMA.endre : SKJEMA.svarPaa}</Knapp
+            onclick={() => aapneFraRad(p.id)}>{lest.length ? SKJEMA.endre : SKJEMA.svarPaa}</Knapp
           >
         </div>
       {/if}
