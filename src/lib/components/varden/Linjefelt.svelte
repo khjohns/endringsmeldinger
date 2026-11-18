@@ -89,7 +89,7 @@
   .inndata.kort {
     width: 140px;
   }
-  .inndata:hover {
+  .inndata:hover:has(:where(input:enabled)) {
     border-color: var(--ink-3);
   }
   .inndata:has(input:disabled) {
