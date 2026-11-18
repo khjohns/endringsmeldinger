@@ -20,6 +20,9 @@
   import { utkastetsHode } from './utkastetsHode';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brev from './Brev.svelte';
+  import Brevsteg from './Brevsteg.svelte';
+  import { organisasjonene } from './kontrakt';
+  import { PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
   import Knapp from './Knapp.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
   import Lagttillinje from './Lagttillinje.svelte';
@@ -27,7 +30,7 @@
   import Manglene from './Manglene.svelte';
   import Sendeknapp from './Sendeknapp.svelte';
   import Utkastkort from './Utkastkort.svelte';
-  import { LEGG_TIL, SKJEMA, brevtittel, dato } from './tekster';
+  import { BREVSTEG, LEGG_TIL, SKJEMA, brevtittel, dato } from './tekster';
 
   let {
     id,
@@ -97,6 +100,8 @@
   } = $props();
 
   const uid = $props.id();
+  const hentOrganisasjoner = organisasjonene();
+  const avsendernavn = $derived(hentOrganisasjoner()[avsender] ?? stor(PARTEN[avsender]));
   const hode = $derived(utkastetsHode(u, kjernesak.sak?.merking, tittel));
   const lesebrev = $derived(oppfolging?.brev ?? null);
   const leseId = `${uid}-lesebrev`;
@@ -187,6 +192,14 @@
 
       {@render children()}
 
+      {#if sendes && !lagtTil}
+        <div class="hilsen" class:bh={avsender === 'BH'}>
+          <p>{BREVSTEG.hilsen}</p>
+          <p><strong>{avsendernavn}</strong></p>
+          <p class="navn-settes">{BREVSTEG.navnSettes}</p>
+        </div>
+      {/if}
+
       <div class="skjemafot" class:skilt>
         <Forkastutkast tekst={forkastTekst} {onforkast} />
       </div>
@@ -200,6 +213,7 @@
       </Leseramme>
     {:else}
       <div class="feste" class:fast={linja.faarPlass} bind:this={panelet}>
+        {#if sendes && !lagtTil}<div class="steg"><Brevsteg /></div>{/if}
         {@render panel(knapp ? sendeknapp : undefined)}
       </div>
       {@render tidslinje()}
@@ -216,6 +230,26 @@
 {/if}
 
 <style>
+  .hilsen {
+    padding: var(--spacing-5) var(--spacing-6);
+    border-top: var(--rule);
+    font-family: var(--font-brev);
+  }
+  .hilsen.bh {
+    font-family: var(--font-brev-bh);
+  }
+  .navn-settes {
+    margin-top: var(--spacing-1);
+    color: var(--ink-3);
+    font: 14px var(--font-sans);
+  }
+  .steg {
+    background: var(--surface);
+    border: var(--rule);
+    border-radius: var(--r-kort);
+    margin-bottom: var(--spacing-2);
+  }
+
   .innebrev {
     padding: var(--spacing-4) var(--spacing-4) 0;
   }

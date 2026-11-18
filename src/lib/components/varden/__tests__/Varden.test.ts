@@ -128,6 +128,17 @@ describe('Varden med brukerforløpet BF-01', () => {
 
     // Steg 4: BH vurderer varslingen og beløpet, kontrollerer brevet og sender svaret.
     const vist = await bhSvarerIVarden();
+    const brevkontrollen = within(screen.getByRole('region', { name: 'Sending' }));
+    expect(brevkontrollen.getByText('Kontroller og send')).toHaveAttribute('aria-current', 'step');
+    expect(
+      brevkontrollen.getByText('Enigheten registreres ut fra valgene du har gjort.')
+    ).toBeVisible();
+    expect(
+      brevkontrollen
+        .getAllByRole('listitem')
+        .slice(2)
+        .map((rad) => rad.textContent?.trim())
+    ).toEqual(vist.filter((avsnitt) => /^\d+\. /.test(avsnitt)));
     // LV-U34: lagslinjen står for seg over påberopelsen, og begrunnelsen under punktet.
     expect(vist).toContain('Prinsipalt');
     expect(vist.join(' ')).toMatch(/Byggherren gjør gjeldende at varselet om vederlagsjustering/);
@@ -318,9 +329,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByRole('group', { name: 'Hvor mye av beløpet godkjenner du?' })).toBeNull();
 
     // Som i brevet står avslaget prinsipalt, foran sporet (OV-U33).
-    const linjer = within(
-      screen.getByRole('region', { name: 'Hovedlinjene i svaret' })
-    ).getAllByRole('listitem');
+    const linjer = within(screen.getByRole('region', { name: 'Punktene i brevet' })).getAllByRole(
+      'listitem'
+    );
     expect(linjer[0].textContent!.replace(/\s+/g, ' ').trim()).toBe(
       'prinsipalt Du har avslått forholdet i brev 2'
     );
@@ -338,7 +349,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     const beloepet = () =>
       screen.queryByRole('group', { name: 'Hvor mye av beløpet godkjenner du?' });
     const linjer = () =>
-      within(screen.getByRole('region', { name: 'Hovedlinjene i svaret' }))
+      within(screen.getByRole('region', { name: 'Punktene i brevet' }))
         .queryAllByRole('listitem')
         .map((li) => li.textContent!.replace(/\s+/g, ' ').trim());
 

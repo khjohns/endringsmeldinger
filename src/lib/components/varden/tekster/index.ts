@@ -14,6 +14,7 @@ export * from './typer';
 // Hjelperne filene i mappa deler med hverandre, eksporteres ikke herfra.
 export {
   BETEGNELSE,
+  BREVSTEG,
   brevhode,
   brevref,
   brevrefFra,

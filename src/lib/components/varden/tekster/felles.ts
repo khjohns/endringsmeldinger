@@ -7,6 +7,17 @@ import type { Brevet, Brevref, OppgittDato } from '../lesing';
 import { STOERSTE_VEDLEGG } from '../vedlegg';
 import { dato, haerdet } from './format';
 
+export const BREVSTEG = {
+  stegene: 'Stegene',
+  sending: 'Sending',
+  skriv: 'Skriv brevet',
+  kontroller: 'Kontroller og send',
+  punktene: 'Punktene i brevet',
+  hilsen: 'Med vennlig hilsen',
+  navnSettes: 'Navnet ditt settes inn når brevet sendes.',
+  enigheten: 'Enigheten registreres ut fra valgene du har gjort.',
+};
+
 /** Et valgfritt spørsmål med radioknapper (oppdragsgiver 17.11 i #2137). */
 export const VALG = {
   fjern: 'Fjern svaret',

@@ -130,7 +130,7 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
       )
     ).toBeTruthy();
     const kontrollen = within(screen.getByRole('region', { name: 'Sending' }));
-    expect(kontrollen.getByRole('heading', { name: /^Kontroller og send/ })).toBeTruthy();
+    expect(kontrollen.getByText('Kontroller og send')).toHaveAttribute('aria-current', 'step');
     // U-3, D-5: mottakeren og brevrelasjonene. Datoen står i brevet, og korrigeringen på
     // oversikten, ikke i bekreftelsen (oppdragsgiver 06.11 og 07.11, PR 1650).
     expect(kontrollen.queryByText('Fra')).toBeNull();

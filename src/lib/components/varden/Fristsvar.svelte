@@ -45,6 +45,7 @@
   import {
     BREVKONTROLL,
     VIRKNING,
+    BREVSTEG,
     FRISTSVAR,
     SKJEMA,
     SVARSKJEMA,
@@ -320,6 +321,7 @@
   );
 
   const virkninger = $derived([
+    BREVSTEG.enigheten,
     ...(nyttSvar?.beslutningsgrunnlag.sammenfall ? [VIRKNING.sammenfall('fristforlengelse')] : []),
     ...(kjernesak.forbehold ? [VIRKNING.forbehold] : []),
     ...(nyttSvar?.standpunkter.some(

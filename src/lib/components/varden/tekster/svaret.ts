@@ -212,7 +212,7 @@ export const VIRKNING = haerdet({
 });
 
 export const HOVEDLINJER = haerdet({
-  tittel: 'Hovedlinjene i svaret',
+  tittel: 'Punktene i brevet',
   tom: 'Velg et svar på spørsmålene, så står standpunktene her.',
   alternativer: 'alternativer, ikke tillegg',
   krevd: (b: number) => `${kroner(b)} krevd`,

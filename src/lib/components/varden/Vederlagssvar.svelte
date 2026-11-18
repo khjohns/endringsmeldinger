@@ -47,6 +47,7 @@
   import {
     BREVKONTROLL,
     VIRKNING,
+    BREVSTEG,
     HOVEDLINJER,
     KRAVSKJEMA,
     SKJEMA,
@@ -252,6 +253,7 @@
   );
 
   const virkninger = $derived([
+    BREVSTEG.enigheten,
     ...(nyttSvar?.beslutningsgrunnlag.sammenfall
       ? [VIRKNING.sammenfall('vederlagsjustering')]
       : []),

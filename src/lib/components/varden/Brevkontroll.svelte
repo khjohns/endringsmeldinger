@@ -54,10 +54,11 @@
   import type { Brevsending } from './nysak';
   import { fokuser } from './mangler';
   import Brev from './Brev.svelte';
+  import Brevsteg from './Brevsteg.svelte';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import { organisasjonene } from './kontrakt';
-  import { BREVKONTROLL, SENDEFEIL, USIKKERT_UTFALL } from './tekster';
+  import { BREVKONTROLL, BREVSTEG, SENDEFEIL, USIKKERT_UTFALL } from './tekster';
   import { PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 
   let {
@@ -67,12 +68,9 @@
     merking,
     deresRef,
     tittel,
-    handling,
-    bareMottaker = false,
     svarerPaa,
     relasjoner = [],
     henvisning = BREVKONTROLL.svarerPaa,
-    detteSender,
     virkninger,
     kanIkkeGjoeresOm = false,
     sendTekst,
@@ -135,6 +133,8 @@
       : resolve('/login')
   );
 
+  const punktene = $derived(avsnitt.flatMap((a) => (a.overskrift ? [a.overskrift] : [])));
+
   const avsender = $derived(kjernesak.part as Part);
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
   const hentOrganisasjoner = organisasjonene();
@@ -152,14 +152,14 @@
   });
   let manglerKontroll = $state(false);
   let avkrysning = $state<HTMLInputElement | null>(null);
-  let tittelen = $state<HTMLElement | null>(null);
+  let stegviseren = $state<HTMLOListElement | null>(null);
   // Bare en feil fra sendingen her vises, ikke en som står igjen fra et tidligere forsøk (#1393).
   let harSendt = $state(false);
   const proevIgjen = $derived(
     (harSendt || gjenopptar) && !!kjernesak.venterPaa?.(kommando) ? kjernesak.provIgjen : undefined
   );
   // Fokus til panelet når brevkontrollen åpnes, så tastatur og skjermleser starter der.
-  onMount(() => tittelen?.focus());
+  onMount(() => stegviseren?.focus());
 
   // Feilen fra et tidligere forsøk står ikke over brevet når avsenderen kommer tilbake (#1393).
   function tilbake() {
@@ -202,20 +202,11 @@
     />
   </div>
 
-  <section class="panel" aria-label="Sending">
-    <header class="hode">
-      <h2 tabindex="-1" bind:this={tittelen}>{handling}</h2>
-    </header>
+  <section class="panel" aria-label={BREVSTEG.sending}>
+    <Brevsteg kontroll bind:element={stegviseren} />
     <dl class="fakta">
-      {#if bareMottaker}
-        <dt>{BREVKONTROLL.mottaker}</dt>
-        <dd>{partnavn(mottaker)}</dd>
-      {:else}
-        <dt>{BREVKONTROLL.fra}</dt>
-        <dd>{partnavn(avsender)}</dd>
-        <dt>{BREVKONTROLL.til}</dt>
-        <dd>{partnavn(mottaker)}</dd>
-      {/if}
+      <dt>{BREVKONTROLL.mottaker}</dt>
+      <dd>{partnavn(mottaker)}</dd>
       {#each relasjoner as r (r.hva)}
         <dt>{r.hva}</dt>
         <dd>{r.brev}</dd>
@@ -226,12 +217,12 @@
         {/if}
       {/each}
     </dl>
-    {#if detteSender.length}
+    {#if punktene.length}
       <div class="sender">
-        <h3>{BREVKONTROLL.detteSender}</h3>
+        <h3>{BREVSTEG.punktene}</h3>
         <ul>
-          {#each detteSender as l, i (i)}
-            <li>{l.lag ? `${stor(l.lag)}: ` : ''}{l.tekst}.</li>
+          {#each punktene as punkt, i (i)}
+            <li>{punkt}</li>
           {/each}
         </ul>
       </div>
@@ -316,24 +307,16 @@
     border: var(--rule);
     border-radius: var(--r-kort);
   }
-  .hode,
   .fakta,
   .sender,
   .virkning,
   .send {
     padding: var(--spacing-5);
   }
-  .hode,
   .fakta,
   .sender,
   .virkning {
     border-bottom: var(--rule);
-  }
-  h2 {
-    margin-top: var(--spacing-2);
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: var(--sperring-20);
   }
   .fakta {
     display: grid;
@@ -352,8 +335,7 @@
   ul {
     display: grid;
     gap: var(--spacing-2);
-    list-style: disc;
-    padding-left: var(--spacing-5);
+    list-style: none;
     margin-bottom: var(--spacing-3);
     font-size: 14px;
   }
@@ -363,6 +345,9 @@
   .virkninger {
     display: grid;
     gap: var(--spacing-2);
+    border-left: 3px solid var(--ink);
+    padding: var(--spacing-3);
+    background: var(--surface-inset);
     font-size: 14px;
   }
   /* Bare for en handling som ikke kan gjøres om, og teksten sier det selv (system.md). */
