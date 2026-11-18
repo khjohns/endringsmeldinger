@@ -1,7 +1,8 @@
 /**
  * Brevhodet, stempelet og meldingen i Varden (#1466, #1467). Kildene er
  * `godkjenning-vederlagssvar.html:276-283` og LV-U23 for brevhodet, system.md («Mønstre»,
- * raden Stempel) for stempelet,  * `innlogging.html:306` og system.md («Hver farge betyr én ting») for meldingen.
+ * raden Stempel) for stempelet, og `innlogging.html:306` og system.md («Hver farge betyr én ting»)
+ * for meldingen.
  */
 
 import { afterEach, describe, expect, it } from 'vitest';
