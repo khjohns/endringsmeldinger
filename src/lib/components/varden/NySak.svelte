@@ -30,6 +30,7 @@
   import Utkastkort from './Utkastkort.svelte';
   import { faarPlass } from './fastlinje.svelte';
   import { fokuser } from './mangler';
+  import Manglene from './Manglene.svelte';
   import { ChevronDown } from 'lucide-svelte';
   import {
     FELTENE_UTEN_FORHOLD,
@@ -329,25 +330,14 @@
         novalidate
         onsubmit={seBrevet}
       >
+        {#if synligeFeil.length}
+          <Manglene
+            tittel={NYSAK.mangler}
+            mangler={synligeFeil.map((f) => ({ felt: id(f), tekst: feil[f], post: null }))}
+            bind:element={oppsummering}
+          />
+        {/if}
         <div class="nysak">
-          {#if synligeFeil.length}
-            <div
-              class="oppsummering"
-              tabindex="-1"
-              bind:this={oppsummering}
-              role="group"
-              aria-labelledby={id('mangler')}
-            >
-              <h2 id={id('mangler')}>{NYSAK.mangler}</h2>
-              <ul>
-                {#each synligeFeil as f (f)}
-                  <li><a href={`#${id(f)}`}>{feil[f]}</a></li>
-                {/each}
-              </ul>
-              <p>{NYSAK.ingenSak}</p>
-            </div>
-          {/if}
-
           <fieldset
             class="felt"
             id={id('forhold')}
@@ -744,31 +734,6 @@
     display: grid;
     gap: var(--spacing-2);
     margin-top: var(--spacing-2);
-  }
-  .oppsummering {
-    padding: var(--spacing-4);
-    border: 2px solid var(--danger);
-    border-radius: var(--r-kort);
-  }
-  .oppsummering h2 {
-    margin: 0 0 var(--spacing-2);
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .oppsummering ul {
-    margin: 0 0 var(--spacing-3);
-    padding-left: var(--spacing-5);
-  }
-  .oppsummering a {
-    color: var(--danger);
-    font-weight: 600;
-  }
-  .oppsummering p {
-    margin: 0;
-    color: var(--ink-3);
-  }
-  .oppsummering:focus-visible {
-    outline: 2px solid var(--control-focus);
   }
   .handlinger {
     display: flex;

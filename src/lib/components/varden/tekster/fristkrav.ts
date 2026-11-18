@@ -27,11 +27,10 @@ export const FRISTKRAV = haerdet({
   varseletSendt: (b: Brevref & { sendt: string | null }, etter: number | null) =>
     `Varselet ble sendt i ${brevref(b)}, ${dato(b.sendt ?? b.registrert)}${etter === null ? '' : `, ${etter} kalenderdager etter at du ble klar over forholdet`}.`,
   // U-13: varselet alene, uten dager (VS-U15).
-  hvaSender: 'Hva sender du?',
-  hvaValg: [
-    { verdi: 'krav' as const, tekst: 'Send kravet med dagene' },
-    { verdi: 'varsel' as const, tekst: 'Bare varsle etter punkt 33.4, uten dager' },
-  ],
+  kravMedDager: 'Du krever et antall dager for hver frist.',
+  varsleSenere: 'Varsle nå, og krev dagene senere',
+  bareVarsel: 'Du varsler om fristforlengelse uten å kreve et antall dager nå.',
+  krevDager: 'Krev et antall dager for hver frist',
   hvaHjelp:
     'Du skal varsle uten ugrunnet opphold, også før du kan angi dagene (punkt 33.4). Sender du kravet, er det også varselet.',
   varselAleneHjelp:

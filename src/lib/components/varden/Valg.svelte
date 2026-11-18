@@ -72,6 +72,7 @@
   disabled={inaktiv}
   class="valg"
   class:ugyldig={!!feil}
+  class:med-hjelp={!!hjelp}
   id={navn}
   tabindex="-1"
   aria-describedby={beskrivelse}
@@ -125,7 +126,7 @@
     outline: none;
   }
   .hjelp {
-    margin: calc(-1 * var(--spacing-2)) 0 var(--spacing-3);
+    margin: 0 0 var(--spacing-3);
     color: var(--ink-3);
     font-size: 14px;
     text-wrap: pretty;
@@ -136,6 +137,9 @@
     margin-bottom: var(--spacing-3);
     font-weight: 600;
     color: var(--ink);
+  }
+  .med-hjelp legend {
+    margin-bottom: var(--spacing-1);
   }
   .kort {
     display: flex;
