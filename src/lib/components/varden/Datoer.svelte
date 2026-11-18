@@ -6,15 +6,15 @@
   let {
     linjer,
   }: {
-    /** `avstand` er dagene mellom datoene, og `dempet` en merknad under dem. */
-    linjer: { tekst: string; art?: 'avstand' | 'dempet' }[];
+    /** `avstand` er dagene mellom datoene. */
+    linjer: { tekst: string; art?: 'avstand' }[];
   } = $props();
 </script>
 
 <div class="datoer">
   {#each linjer as l, i (i)}
     {#if l.art === 'avstand'}<p><strong>{l.tekst}</strong></p>
-    {:else}<p class={l.art}>{l.tekst}</p>{/if}
+    {:else}<p>{l.tekst}</p>{/if}
   {/each}
 </div>
 
@@ -24,8 +24,5 @@
     background: var(--surface-inset);
     border-radius: var(--r-innfelt);
     font-size: 14px;
-  }
-  .dempet {
-    color: var(--ink-3);
   }
 </style>
