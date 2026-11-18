@@ -363,7 +363,7 @@ export function lagIForholdet(utkast: Svarutkast, u: Utledning, regler: Regelset
       const lag = laget(virkning);
       return {
         art: s.art,
-        ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel, gjelder: s.gjelder } : {}),
+        ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
         besvart: !mangler(v[s.art === 'forhold' ? 'resultat' : 'grunnlag_varslet_i_tide']),
         virkning,
         etikett: flereLag && lag !== null ? etikett(lag) : null,
