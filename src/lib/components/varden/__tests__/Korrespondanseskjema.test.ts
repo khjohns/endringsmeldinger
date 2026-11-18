@@ -342,6 +342,9 @@ describe('kravet lagt til (OV-U80, OV-U98)', () => {
     expect(
       screen.getByText(/^Legges til fra totalentreprenørens e-post av 16\. okt/)
     ).toBeInTheDocument();
+    // Kravet sendes ikke herfra, så stempelet sier ikke «ikke sendt» (OV-U80).
+    expect(screen.getByText('Utkast · ikke lagt til')).toBeInTheDocument();
+    expect(screen.queryByText('Utkast · ikke sendt')).toBeNull();
     expect(screen.queryByRole('textbox', { name: 'Begrunnelse' })).not.toBeInTheDocument();
     expect(screen.queryByText('Dette kravet er varselet.')).not.toBeInTheDocument();
     await radio('5 Mekanisk ferdigstillelse');
@@ -467,7 +470,9 @@ describe('svaret lagt til i saken (code-review i #807)', () => {
     await fireEvent.click(
       await screen.findByRole('button', { name: /^Svar på påberopelsen|^Svar/ })
     );
-    await fireEvent.click(await screen.findByRole('button', { name: LEGG_TIL.tittel }));
+    await fireEvent.click(
+      await screen.findByRole('button', { name: 'Legg til et svar du har gitt før' })
+    );
     expect(screen.getByRole('radio', { name: LEGG_TIL.kategorier.svar })).toBeChecked();
     await fyllUt(new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Oslo' }).format(new Date()));
     await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.gaaVidere }));
@@ -478,6 +483,7 @@ describe('svaret lagt til i saken (code-review i #807)', () => {
     await fireEvent.click(
       within(screen.getAllByRole('list', { name: SAKEN.kontraktsforhold })[0]!).getByRole('button')
     );
+    await fireEvent.click(screen.getByRole('button', { name: 'Fortsett utkastet' }));
     expect(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret }).length).toBeGreaterThan(
       0
     );
@@ -489,6 +495,7 @@ describe('svaret lagt til i saken (code-review i #807)', () => {
     await fireEvent.click(
       within(screen.getAllByRole('list', { name: SAKEN.kontraktsforhold })[0]!).getByRole('button')
     );
+    await fireEvent.click(screen.getByRole('button', { name: 'Fortsett utkastet' }));
     expect(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret }).length).toBeGreaterThan(
       0
     );
@@ -536,7 +543,9 @@ describe('utkastet til svaret når påberopelsen er trukket (#2104)', () => {
     };
   }
   async function leggTil() {
-    await fireEvent.click(await screen.findByRole('button', { name: LEGG_TIL.tittel }));
+    await fireEvent.click(
+      await screen.findByRole('button', { name: 'Legg til et svar du har gitt før' })
+    );
     await fyllUt(new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Oslo' }).format(new Date()));
     await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.gaaVidere }));
     expect(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret }).length).toBeGreaterThan(
@@ -596,13 +605,15 @@ describe('utkastet til svaret når påberopelsen er trukket (#2104)', () => {
     annet.remove();
   });
 
-  it('kommer byggherren til forholdet fra et annet spor etter trekket, flyttes ikke fokus til meldingen (#2104, design-review)', async () => {
+  it('etter trekket vises oversikten først, og utkastet kan forkastes når byggherren åpner det (#2104, #2179)', async () => {
     const { trekk } = await saken();
     await leggTil();
     await tilVederlaget();
     await trekk();
     await tilForholdet();
-    const meldingen = await screen.findByText(FORHOLDET.svaretUtenPaaberopelse(true));
-    expect(meldingen.closest('[tabindex="-1"]')).not.toHaveFocus();
+    expect(screen.queryByText(FORHOLDET.svaretUtenPaaberopelse(true))).toBeNull();
+    await fireEvent.click(screen.getByRole('button', { name: 'Fortsett utkastet' }));
+    expect(await screen.findByText(FORHOLDET.svaretUtenPaaberopelse(true))).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Forkast utkast' })).toBeTruthy();
   });
 });

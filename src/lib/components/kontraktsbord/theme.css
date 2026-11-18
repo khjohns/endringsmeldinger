@@ -50,7 +50,7 @@
    ══════════════════════════════════════════════════ */
 :root {
   /* ── Radius (Varden) ── */
-  --r-knapp: 999px;
+  --r-knapp: 6px;
   --r-kort: 12px;
   --r-merke: 2px;
   --r-felt: 4px;

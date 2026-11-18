@@ -23,6 +23,7 @@ import { utledJournal, type Vedleggsoppslag } from '#kjerne/kommandoer/skriving.
 import { tilbudte } from '#kjerne/kommandoer/handlinger.ts';
 import { lagForUtkastet } from '#kjerne/kommandoer/lag.ts';
 import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
+import type { LagIForholdet } from '#kjerne/spor/forhold/kommando.ts';
 import type { LagIFristen } from '#kjerne/spor/frist/kommando.ts';
 import type { LagIVederlaget } from '#kjerne/spor/vederlag/kommando.ts';
 import { visning } from '#kjerne/utledning/visning.ts';
@@ -161,6 +162,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   let feil = $state<string | null>(null);
   let sender = $state(false);
   let finnes = $state<boolean | null>(null);
+  let lasteutfall = $state<'utilgjengelig' | 'nettverk' | 'server' | null>(null);
   let ventende = $state<Ventende | null>(valg.ventende ?? null);
   // Saken som vises, er utdatert til den er lastet på nytt: `fordi` er et lagret brev eller en
   // sending serveren avviste mot saken slik den er lastet, og `aarsak` den siste lastefeilen.
@@ -203,18 +205,20 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       if (nr !== lastinger) return gjeldende;
       sak = hentet;
       finnes = true;
+      lasteutfall = null;
       utdatert = null;
       // Et usikkert utfall står til «Prøv igjen» har fått svar (#816).
       feil = staaende();
       return true;
     } catch (e) {
       if (nr !== lastinger) return gjeldende;
-      // Serveren svarer 404 for en sak TS-kjernen ikke har skrevet (#705). En sak som
-      // alt er lastet, finnes, så en senere 404 er en lastefeil (#719).
-      if (e instanceof ApiError && e.status === 404 && finnes !== true) {
-        finnes = false;
+      const status = e instanceof ApiError ? e.status : null;
+      // En 404 etter at saken er lastet, er en lastefeil (#719).
+      if (status === 404 && finnes !== true) finnes = false;
+      if (status === 403 || (status === 404 && finnes === false)) {
+        lasteutfall = 'utilgjengelig';
         sak = null;
-      }
+      } else lasteutfall = status === 0 ? 'nettverk' : 'server';
       const aarsak = meldingFra(e, 'Saken kunne ikke hentes.');
       lastefeil = aarsak;
       if (etterLagring || utdatert)
@@ -244,12 +248,13 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   }
 
   /**
-   * Lagene i et svar på vederlaget eller fristen BH ennå fyller ut, regnet av kjernen (#1400,
+   * Lagene i et svar BH ennå fyller ut, regnet av kjernen (#1400,
    * M-8 i BF-20). `spor` gir typen for lagene, og et utkast i et annet spor kaster.
    */
+  function lagene(utkast: Svarutkast, spor: 'forhold'): LagIForholdet | null;
   function lagene(utkast: Svarutkast, spor: 'vederlag'): LagIVederlaget | null;
   function lagene(utkast: Svarutkast, spor: 'frist'): LagIFristen | null;
-  function lagene(utkast: Svarutkast, spor: 'vederlag' | 'frist') {
+  function lagene(utkast: Svarutkast, spor: 'forhold' | 'vederlag' | 'frist') {
     if (!utledning) return null;
     if (utkast.spor !== spor) throw new Error(`Utkastet gjelder ${utkast.spor}, ikke ${spor}`);
     return lagForUtkastet(utkast, utledning, kjerne.regler);
@@ -422,6 +427,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       return utledning ? grunnlagetForSvaret(utledning).forbehold : false;
     },
     lagForUtkastet: lagene,
+    get lasteutfall() {
+      return lasteutfall;
+    },
     /**
      * `false` når saken ikke er en TS-sak i prosjektet: serveren svarte 404. `null`
      * før svaret, og når serveren svarte med en annen feil.

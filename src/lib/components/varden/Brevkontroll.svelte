@@ -82,6 +82,7 @@
     kanIkkeGjoeresOm = false,
     sendTekst,
     tilbakeTil,
+    visTilbake = true,
     ontilbake,
     onsendt,
     onavvist,
@@ -109,6 +110,7 @@
     kanIkkeGjoeresOm?: boolean;
     sendTekst: string;
     tilbakeTil: string;
+    visTilbake?: boolean;
     ontilbake: () => void;
     onsendt: () => void;
     /**
@@ -122,7 +124,7 @@
   const avsender = $derived(kjernesak.part as Part);
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
   const hentOrganisasjoner = organisasjonene();
-  const partnavn = (p: Part) => `${hentOrganisasjoner()[p] ?? stor(PARTEN[p])} (${p})`;
+  const partnavn = (p: Part) => hentOrganisasjoner()[p] ?? stor(PARTEN[p]);
   // Teksten kommandoen bærer, og som serveren sammenligner med sin egen (LV-U2).
   const tekst = $derived(laastTekstI({ avsnitt })!);
   let kontrollert = $state(false);
@@ -163,11 +165,11 @@
 
 <div class="kontroll">
   <!-- Lenken står over begge kolonnene, så brevet og sendepanelet begynner på samme høyde. -->
-  <p class="tilbake">
-    <Knapp variant="lenke" onclick={tilbake}
-      ><ChevronLeft size={16} aria-hidden="true" />{BREVKONTROLL.tilbake(tilbakeTil)}</Knapp
-    >
-  </p>
+  {#if visTilbake}<p class="tilbake">
+      <Knapp variant="lenke" onclick={tilbake}
+        ><ChevronLeft size={16} aria-hidden="true" />{BREVKONTROLL.tilbake(tilbakeTil)}</Knapp
+      >
+    </p>{/if}
   <div class="venstre">
     <Brev
       {avsender}
@@ -177,12 +179,12 @@
       dato={BREVKONTROLL.datoSettes}
       tittel={tittel ?? ''}
       {avsnitt}
+      utkast
     />
   </div>
 
   <section class="panel" aria-label="Sending">
     <header class="hode">
-      <span class="merke-utkast">{BREVKONTROLL.utkast}</span>
       <h2 tabindex="-1" bind:this={tittelen}>{handling}</h2>
     </header>
     <dl class="fakta">
@@ -286,15 +288,6 @@
   .virkning {
     border-bottom: var(--rule);
   }
-  .merke-utkast {
-    display: inline-block;
-    padding: 0 var(--spacing-2);
-    border: 1px dashed var(--draft-border);
-    border-radius: var(--r-merke);
-    background: var(--draft-bg);
-    color: var(--ink);
-    font-size: 12px;
-  }
   h2 {
     margin-top: var(--spacing-2);
     font-size: 20px;
@@ -357,6 +350,9 @@
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
   }
+  .avkryss:has(input:focus-visible) input {
+    outline: none;
+  }
   .avkryss.ugyldig {
     border-color: var(--danger);
     box-shadow: inset 0 0 0 1px var(--danger);
@@ -365,11 +361,6 @@
     color: var(--danger);
     font-size: 14px;
     font-weight: 500;
-  }
-  .avkryss input {
-    width: 20px;
-    height: 20px;
-    accent-color: var(--ink);
   }
   @media (max-width: 1180px) {
     .kontroll {

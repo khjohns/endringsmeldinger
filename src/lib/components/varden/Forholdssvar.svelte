@@ -6,7 +6,6 @@
   og avviser det den ikke godtar.
 -->
 <script lang="ts">
-  import { Info } from 'lucide-svelte';
   import {
     DATOEN_GJELDER,
     innholdIForholdet,
@@ -27,6 +26,7 @@
   import Sitat from './Sitat.svelte';
   import Spoersmaal from './Spoersmaal.svelte';
   import Svarskjema from './Svarskjema.svelte';
+  import { innsigelsenOmVarselet } from './tekster/svaret';
   import Valg from './Valg.svelte';
   import {
     begrunnelsenKreves,
@@ -41,7 +41,7 @@
   import { brevene, standpunktene, underOverskriften } from './lesing';
   import { vedleggskart } from './nysak';
   import { kravbrevetI, kravetSendt, manglene } from './svarskjema';
-  import { brevref, dato, FORHOLDSSVAR, kalenderdager, LEGG_TIL } from './tekster';
+  import { brevref, dato, FORHOLDSSVAR, kalenderdager } from './tekster';
 
   let {
     kjernesak,
@@ -149,6 +149,10 @@
       krav
     )!
   );
+  const lagene = $derived(kjernesak.lagForUtkastet(utkast.svar[0]!, 'forhold'));
+  const forutsetninger = $derived(
+    lagene?.standpunkter.find((s) => s.art === 'forhold')?.forutsetninger ?? []
+  );
   // Et svar lagt til forhåndsvises med datoen, så kjernen regner det mot saken slik den var da.
   const etter = $derived(
     kjernesak.forhaandsvist(
@@ -228,7 +232,7 @@
 </script>
 
 {#snippet innsigelsen()}
-  <a href={`#${uid}-varsel`}>{FORHOLDSSVAR.innsigelsenVarsel}</a>
+  <a href={`#${uid}-varsel`}>{innsigelsenOmVarselet('32.2')}</a>
 {/snippet}
 
 <Svarskjema
@@ -251,15 +255,9 @@
   {onvedsiden}
 >
   {#snippet spoersmaal(feil)}
-    {#if !lagtTil}
-      <div class="utenfor" role="note">
-        <Info size={16} aria-hidden="true" />
-        <div>
-          <p>{FORHOLDSSVAR.utenforLoesningen}</p>
-          {#if onleggtil}
-            <Knapp variant="lenke" kompakt onclick={onleggtil}>{LEGG_TIL.tittel}</Knapp>
-          {/if}
-        </div>
+    {#if !lagtTil && onleggtil}
+      <div class="utenfor">
+        <Knapp variant="lenke" kompakt iFlukt onclick={onleggtil}>{FORHOLDSSVAR.leggTilSvar}</Knapp>
       </div>
     {/if}
 
@@ -270,11 +268,12 @@
           navn={`${uid}-varsel`}
           spoersmaal={FORHOLDSSVAR.varselSpoersmaal}
           valg={[
-            { verdi: false, tekst: FORHOLDSSVAR.varselNei },
             { verdi: true, tekst: FORHOLDSSVAR.varselJa },
+            { verdi: false, tekst: FORHOLDSSVAR.varselNei },
           ]}
           bind:verdi={() => valg.forSent, velgForSent}
           feil={feil(`${uid}-varsel`)}
+          stablet
         />
       </Spoersmaal>
     {/if}
@@ -286,7 +285,7 @@
     >
       <Gjelderhvis
         id={`${uid}-forhold-forutsetninger`}
-        liste={f.varslingsplikt && valg.forSent === true ? ['32.2'] : []}
+        liste={forutsetninger}
         punkt={innsigelsen}
       />
       <Valg
@@ -294,9 +293,7 @@
         spoersmaal={FORHOLDSSVAR.forholdSpoersmaal}
         valg={valgene}
         bind:verdi={valg.resultat}
-        beskrevetAv={f.varslingsplikt && valg.forSent === true
-          ? `${uid}-forhold-forutsetninger`
-          : undefined}
+        beskrevetAv={forutsetninger.length ? `${uid}-forhold-forutsetninger` : undefined}
         feil={feil(`${uid}-forhold`)}
         stablet
       />
@@ -315,15 +312,7 @@
 
 <style>
   .utenfor {
-    display: flex;
-    gap: var(--spacing-2);
     margin: var(--spacing-5) var(--spacing-6) 0;
-    color: var(--ink-3);
-    font-size: 14px;
-  }
-  .utenfor :global(svg) {
-    flex: none;
-    margin-top: 2px;
   }
   /* Setningen i byggherrens brevskrift. */
   blockquote {

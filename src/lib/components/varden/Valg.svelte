@@ -22,6 +22,7 @@
     lett = false,
     valgfri = false,
     avkrysning = false,
+    inaktiv = false,
     hjelp,
   }: {
     navn: string;
@@ -47,6 +48,7 @@
     valgfri?: boolean;
     /** Ett valg som en avkrysning: avkrysset gir `verdi` valget, ellers `null`. */
     avkrysning?: boolean;
+    inaktiv?: boolean;
     /** Hjelpeteksten under spørsmålet, som for et felt (`system.md`). */
     hjelp?: string;
   } = $props();
@@ -66,7 +68,16 @@
   );
 </script>
 
-<fieldset class="valg" id={navn} tabindex="-1" aria-describedby={beskrivelse} bind:this={gruppe}>
+<fieldset
+  disabled={inaktiv}
+  class="valg"
+  class:ugyldig={!!feil}
+  class:med-hjelp={!!hjelp}
+  id={navn}
+  tabindex="-1"
+  aria-describedby={beskrivelse}
+  bind:this={gruppe}
+>
   <legend
     >{#if valgfri}<Valgfri>{spoersmaal}</Valgfri>{:else}{spoersmaal}{/if}</legend
   >
@@ -77,6 +88,8 @@
         <input
           type={avkrysning ? 'checkbox' : 'radio'}
           name={navn}
+          aria-invalid={feil ? 'true' : undefined}
+          aria-describedby={beskrivelse}
           value={String(v.verdi)}
           checked={verdi === v.verdi}
           onchange={(e) => (verdi = avkrysning && !e.currentTarget.checked ? null : v.verdi)}
@@ -112,8 +125,12 @@
   .valg:focus {
     outline: none;
   }
+  .valg:global([data-fra-lista]):focus {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
+  }
   .hjelp {
-    margin: calc(-1 * var(--spacing-2)) 0 var(--spacing-3);
+    margin: 0 0 var(--spacing-3);
     color: var(--ink-3);
     font-size: 14px;
     text-wrap: pretty;
@@ -124,6 +141,9 @@
     margin-bottom: var(--spacing-3);
     font-weight: 600;
     color: var(--ink);
+  }
+  .med-hjelp legend {
+    margin-bottom: var(--spacing-1);
   }
   .kort {
     display: flex;
@@ -148,6 +168,7 @@
     background: var(--surface);
     color: var(--ink);
     cursor: pointer;
+    font-weight: 500;
   }
   /* Med en forklaring per valg er kortene like brede og fyller kolonnen (oppgjørsformen, #1663). */
   .kort.stablet:has(.forklart) {
@@ -183,13 +204,22 @@
   }
   .valgkort.valgt {
     background: var(--surface-selected);
-    border-color: var(--brand);
-    box-shadow: inset 0 0 0 1px var(--brand);
-    font-weight: 600;
+    border-color: var(--ink);
   }
   .valgkort:has(input:focus-visible) {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
+  }
+  .valg.ugyldig .kort:not(.lett) .valgkort {
+    border-color: var(--danger);
+  }
+  .valg:disabled .valgkort {
+    background: var(--surface-inset);
+    color: var(--ink-4);
+    cursor: not-allowed;
+  }
+  .valgkort:has(input:focus-visible) input {
+    outline: none;
   }
   .fjern {
     margin-top: var(--spacing-2);
@@ -199,11 +229,5 @@
     color: var(--danger);
     font-size: 14px;
     font-weight: 500;
-  }
-  input {
-    width: 18px;
-    height: 18px;
-    margin: 0;
-    accent-color: var(--ink);
   }
 </style>

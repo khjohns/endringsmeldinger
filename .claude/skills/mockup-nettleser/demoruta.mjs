@@ -112,7 +112,7 @@ if (!NY_SAK && !punktet('bh-har-mottatt-vederlagskravet'))
 // Lagene foran beløpet, som er det siste laget: forholdet når Byggherren har avslått det, og varselet.
 const FORUTSETNINGER = [
   ...(punktet('forholdet-er-avslaatt') ? [/avslaget av forholdet/] : []),
-  /innsigelsen om sen varsling/,
+  /innsigelsen om at varselet etter punkt\s+34\.1\.2 kom for sent/,
 ];
 if (!NY_SAK && FORUTSETNINGER.length !== ETIKETTER.length - (ETIKETTER[0] === 'prinsipalt' ? 1 : 0))
   throw new Error(`Lagene ${ETIKETTER.join(', ')} i ${arg.forlop} passer ikke med forutsetningene skriptet venter`);
@@ -165,7 +165,7 @@ try {
 
   // Steg 3f: feilene står ved feltet før brevkontrollen, og ingen sak er opprettet (F-4, U-5).
   await knapp('Se brevet før sending').click();
-  await page.getByRole('group', { name: 'Det mangler noe før du kan se brevet' }).waitFor();
+  await page.getByRole('group', { name: 'Dette mangler før brevet kan lages:' }).waitFor();
   await steg('ny-feil', true);
 
   await page.getByRole('button', { name: 'Endringer, jf. punkt 31 og 32' }).click();

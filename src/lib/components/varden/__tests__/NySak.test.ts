@@ -110,11 +110,10 @@ describe('skjemaet for ny sak (BF-05)', () => {
     const { send } = aapne();
     await seBrevet();
     const liste = await screen.findByRole('group', {
-      name: 'Det mangler noe før du kan se brevet',
+      name: 'Dette mangler før brevet kan lages:',
     });
     expect(within(liste).getByText('Velg forholdet.')).toBeTruthy();
     expect(within(liste).getByText('Skriv tittelen.')).toBeTruthy();
-    expect(within(liste).getByText('Ingen sak er opprettet ennå.')).toBeTruthy();
     expect(screen.queryByRole('region', { name: 'Sending' })).toBeNull();
     expect(send).not.toHaveBeenCalled();
   });
@@ -334,9 +333,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
     await fireEvent.click(screen.getByRole('radio', { name: 'Nei' }));
     expect(screen.queryByText('Beskriv varselet.')).toBeNull();
     expect(screen.queryByText('Velg hvordan varselet ble gitt.')).toBeNull();
-    expect(
-      screen.queryByRole('group', { name: 'Det mangler noe før du kan se brevet' })
-    ).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Dette mangler før brevet kan lages:' })).toBeNull();
   });
 
   it('tidslinja viser datoene TE fyller ut og dagen påberopelsen sendes (oppdragsgiver 02.11, #1492)', async () => {
@@ -505,7 +502,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
     await velgFiler(new File(['tegning'], 'tegning.pdf'));
     await seBrevet();
     const liste = await screen.findByRole('group', {
-      name: 'Det mangler noe før du kan se brevet',
+      name: 'Dette mangler før brevet kan lages:',
     });
     expect(within(liste).getByText('Vent til vedleggene er lastet opp.')).toBeTruthy();
     expect(screen.queryByRole('checkbox', { name: 'Jeg har kontrollert brevet' })).toBeNull();

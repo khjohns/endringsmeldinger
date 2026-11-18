@@ -166,7 +166,15 @@ export async function hentKjernesakMedMerking(
   prosjektId: string
 ): Promise<LastetKjernesak> {
   const sak = await hentKjernesak(sakId, prosjektId);
-  return { ...sak, merking: sak.part ? await hentSaksmerking(sakId, prosjektId) : null };
+  if (!sak.part) return { ...sak, merking: null };
+  try {
+    return { ...sak, merking: await hentSaksmerking(sakId, prosjektId) };
+  } catch (e) {
+    // Saken er lest. En 403 eller 404 fra merkingen sier ikke at saken mangler (review av #2202).
+    if (e instanceof ApiError && (e.status === 403 || e.status === 404))
+      throw new ApiError(502, e.message, e.data);
+    throw e;
+  }
 }
 
 /** Oppretter saken i prosjektet. Serveren lager saks-ID-en og stempler aktøren og tidspunktet. */

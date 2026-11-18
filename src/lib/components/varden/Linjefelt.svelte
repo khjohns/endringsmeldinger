@@ -20,6 +20,7 @@
     foran = [],
     etter = [],
     paakrevd = false,
+    inaktiv = false,
     valgfri = false,
     oninput,
     children,
@@ -39,6 +40,7 @@
     /** ID-ene til tekst som beskriver feltet, etter hjelpeteksten og før feilen. */
     etter?: readonly string[];
     paakrevd?: boolean;
+    inaktiv?: boolean;
     /** Feltet kan stå tomt, og labelen har «Valgfri» til høyre. */
     valgfri?: boolean;
     oninput?: () => void;
@@ -61,6 +63,7 @@
       aria-describedby={beskrevetAv(id, hjelp, feil, foran, etter)}
       aria-invalid={feil ? 'true' : undefined}
       aria-required={paakrevd ? 'true' : undefined}
+      disabled={inaktiv}
       {oninput}
     />
     {#if enhet}<span class="enhet" aria-hidden="true">{enhet}</span>{/if}
@@ -86,6 +89,17 @@
   .inndata.kort {
     width: 140px;
   }
+  .inndata:hover {
+    border-color: var(--ink-3);
+  }
+  .inndata:has(input:disabled) {
+    background: var(--surface-inset);
+    color: var(--ink-4);
+  }
+  input:disabled {
+    color: var(--ink-4);
+    cursor: not-allowed;
+  }
   .inndata:focus-within {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
@@ -110,6 +124,7 @@
     align-items: center;
     padding: 0 var(--spacing-3);
     border-left: var(--rule);
+    background: var(--surface-inset);
     color: var(--ink-3);
   }
   .inndata.ugyldig {

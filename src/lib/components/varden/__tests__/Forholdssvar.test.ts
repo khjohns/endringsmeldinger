@@ -4,8 +4,8 @@
  */
 
 import '@testing-library/jest-dom/vitest';
-import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 import type { Journalrad } from '#kjerne/typer.ts';
 import {
@@ -29,7 +29,7 @@ const vedGrunnen = skrevet(medGrunnlag.slice(0, 1), 'TE', {
   utdypning: 'Fjell høyere enn antatt.',
 });
 
-async function svarskjemaet(journal: Journalrad[]) {
+async function svarskjemaet(journal: Journalrad[], onleggtil?: () => void) {
   const kjernesak = lagKjernesak({
     sakId: SAK,
     prosjektId: 'p-1',
@@ -51,6 +51,7 @@ async function svarskjemaet(journal: Journalrad[]) {
     u: kjernesak.utledning!,
     onbrevkontroll: (k: TilBrevkontrollen) => sendt.push(k),
     onforkast: () => {},
+    onleggtil,
   });
   return sendt;
 }
@@ -66,6 +67,25 @@ const svaret = (sendt: TilBrevkontrollen[]) => (sendt[0]!.kommando as Sendt).sva
 afterEach(cleanup);
 
 describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () => {
+  it('#2181: forutsetningene fra kjernen følger innsigelsen og beskriver spørsmålet om forholdet', async () => {
+    await svarskjemaet(medGrunnlag);
+    const gruppe = screen.getByRole('group', { name: 'Hva svarer du på påberopelsen?' });
+    expect(document.querySelector('.forutsetninger')).toBeNull();
+    await radio('Ja, varselet kom for sent');
+    const liste = document.querySelector('.forutsetninger')!;
+    expect(liste.textContent).toContain('32.2');
+    expect(gruppe).toHaveAttribute('aria-describedby', liste.id);
+    expect(liste.querySelector('a')).toHaveAttribute('href', expect.stringMatching(/-varsel$/));
+    await radio('Nei');
+    expect(document.querySelector('.forutsetninger')).toBeNull();
+    expect(gruppe).not.toHaveAttribute('aria-describedby');
+  });
+
+  it('#2181: et forhold uten varslingsplikt har ingen forutsetning etter 32.2', async () => {
+    await svarskjemaet(vedGrunnen);
+    expect(document.querySelector('.forutsetninger')).toBeNull();
+  });
+
   it('irregulær endring har punktet om varselet med datoene, og ingenting er forhåndsvalgt (U-2, U-3)', async () => {
     await svarskjemaet(medGrunnlag);
     expect(
@@ -77,17 +97,35 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     expect(screen.getAllByRole('radio').filter((r) => (r as HTMLInputElement).checked)).toEqual([]);
   });
 
+  it('valgene om varselet står under hverandre med «Ja» først (#2183)', async () => {
+    await svarskjemaet(medGrunnlag);
+    const varselet = screen.getByRole('group', {
+      name: 'Gjør du gjeldende at varselet kom for sent?',
+    });
+    const valg = within(varselet).getAllByRole('radio');
+    expect(valg[0]).toHaveAccessibleName('Ja, varselet kom for sent');
+    expect(valg[1]).toHaveAccessibleName('Nei');
+    expect(valg[0]?.closest('.kort')).toHaveClass('stablet');
+  });
+
   it('det tomme skjemaet har kjernens tittel for svaret og forbeholdet, men ingen felt for begrunnelsen før brevet har punkter (#2035)', async () => {
     await svarskjemaet(medGrunnlag);
-    // Tittelen er kjernens brevtittel for svaret (`SVARTITTEL` i `kjerne/frosset/brevtittel.ts`).
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Utkast · ikke sendt Svar på forholdet' })
-    ).toBeInTheDocument();
+    // #2178: tittelen og brevnummeret står fra start. Stempelet står i samme hode.
+    const overskrift = screen.getByRole('heading', {
+      level: 2,
+      name: 'Svar på forholdet i sak KOE-17',
+    });
+    const hode = within(overskrift.closest('header')!);
+    expect(hode.getByText('Utkast · ikke sendt')).toBeInTheDocument();
+    expect(hode.getByText('Brev 2 til totalentreprenøren')).toBeInTheDocument();
+    expect(hode.getByText('Vår ref. K201-KOE-017-02')).toBeInTheDocument();
+    expect(hode.getByText('Datoen settes ved sending')).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Begrunnelse' })).not.toBeInTheDocument();
     // Forbeholdet står også før brevet kan lages, så teksten ikke blir borte.
     expect(screen.getByLabelText('Forbehold for hele svaret, Valgfri')).toBeInTheDocument();
     await radio('Nei');
     await radio('Enig, endringsordre');
+    expect(overskrift).toHaveTextContent(/^Svar på forholdet i sak KOE-17$/);
     expect(screen.getByRole('heading', { name: 'Begrunnelse' })).toBeInTheDocument();
     expect(screen.getByLabelText('Forbehold for hele svaret, Valgfri')).toBeInTheDocument();
     // Hjemmelen står til høyre på linja med overskriften, som tekst og ikke som merke («Høyst tre
@@ -106,6 +144,18 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     expect(
       screen.getByRole('link', { name: 'Velg hva du svarer på påberopelsen.' })
     ).toBeInTheDocument();
+  });
+
+  it('lenken i «Dette mangler» flytter fokus til valggruppen for varselet (#2183)', async () => {
+    await svarskjemaet(medGrunnlag);
+    await seBrevet();
+    const lenke = screen.getByRole('link', {
+      name: 'Svar på om du gjør gjeldende at varselet kom for sent.',
+    });
+    await fireEvent.click(lenke);
+    expect(
+      screen.getByRole('radio', { name: 'Ja, varselet kom for sent' }).closest('fieldset')
+    ).toHaveFocus();
   });
 
   it('godkjenning uten påberopt preklusjon er en endringsordre, og skjemaet viser setningen med sitatet før sending (D-3, U-5)', async () => {
@@ -229,10 +279,24 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     expect(svaret(sendt).vurderinger).toEqual({ resultat: 'avslaatt' });
   });
 
-  it('skjemaet sier at et svar gitt utenfor løsningen legges til som korrespondanse (U-14, OV-U101)', async () => {
+  it('ett lenkevalg åpner registrering av et svar gitt utenfor løsningen (U-14, OV-U101, #2183)', async () => {
+    const onleggtil = vi.fn();
+    await svarskjemaet(medGrunnlag, onleggtil);
+    const lenken = screen.getByRole('button', { name: 'Legg til et svar du har gitt før' });
+    expect(screen.queryByText(/Legg svaret til i saken som korrespondanse/)).toBeNull();
+    await fireEvent.click(lenken);
+    expect(onleggtil).toHaveBeenCalledOnce();
+  });
+});
+
+describe('ordlyden i forutsetningene (#2183 G-2)', () => {
+  it('forutsetningen etter punkt 32.2 har felles ordlyd med liten forbokstav (#2183 G-2)', async () => {
     await svarskjemaet(medGrunnlag);
+    await radio('Ja, varselet kom for sent');
     expect(
-      screen.getByText(/Legg svaret til i saken som korrespondanse, og velg at det er et svar\./)
+      screen.getByRole('link', {
+        name: 'innsigelsen om at varselet etter punkt\u00a032.2 kom for sent',
+      })
     ).toBeInTheDocument();
   });
 });

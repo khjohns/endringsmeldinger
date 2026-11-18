@@ -42,7 +42,8 @@ const FRISTDATOENE = [
 async function kravskjemaet(
   journal: Journalrad[],
   fristdatoer: readonly Fristdato[] = [],
-  sakerIkkeForstaatt: string[] = []
+  sakerIkkeForstaatt: string[] = [],
+  fristtabell: typeof FRISTTABELLEN | null = FRISTTABELLEN
 ) {
   const sendtTilServeren: unknown[] = [];
   let registrert = false;
@@ -57,7 +58,12 @@ async function kravskjemaet(
       journal: journal.map(linje),
       leveringsoppdrag: [],
       catenda_lenke: null,
-      merking: { ...MERKING, kontraktsfrister: FRISTTABELLEN, fristdatoer, sakerIkkeForstaatt },
+      merking: {
+        ...MERKING,
+        kontraktsfrister: fristtabell ?? undefined,
+        fristdatoer,
+        sakerIkkeForstaatt,
+      },
     }),
     send: async (_sak, versjon, _id, kommando) => {
       sendtTilServeren.push(kommando);
@@ -100,6 +106,51 @@ const skriv = (felt: HTMLElement, verdi: string) =>
 afterEach(cleanup);
 
 describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
+  it('#2185: kravet presenteres som en setning, og en lenke bytter til varselet og tilbake', async () => {
+    await kravskjemaet(medGrunnlag);
+    expect(screen.queryByRole('group', { name: 'Hva sender du?' })).toBeNull();
+    expect(screen.getByText('Du krever et antall dager for hver frist.')).toBeInTheDocument();
+    await fireEvent.click(screen.getByRole('button', { name: 'Varsle nå, og krev dagene senere' }));
+    expect(screen.queryByLabelText('Dagene du krever')).toBeNull();
+    await vi.waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: 'Krev et antall dager for hver frist' })
+      ).toHaveFocus()
+    );
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Krev et antall dager for hver frist' })
+    );
+    expect(screen.getByText('Du krever et antall dager for hver frist.')).toBeInTheDocument();
+  });
+
+  it('#2185: tabellhodet vises først når en frist er ferdig', async () => {
+    await kravskjemaet(medGrunnlag);
+    expect(document.querySelector('.kolonner')).toBeNull();
+    await fireEvent.click(screen.getByRole('radio', { name: '5 Mekanisk ferdigstillelse' }));
+    await skriv(screen.getByLabelText('Dagene du krever'), '10');
+    await fireEvent.click(screen.getByRole('button', { name: 'Ferdig' }));
+    expect(document.querySelector('.kolonner')).toBeInTheDocument();
+    await fireEvent.click(screen.getByRole('button', { name: 'Endre 5 Mekanisk ferdigstillelse' }));
+    expect(document.querySelector('.kolonner')).toBeNull();
+  });
+
+  it('#2185: uten fristtabell fylles fristen direkte og sendes med navn og dager', async () => {
+    const sendt = await kravskjemaet(medGrunnlag, [], [], null);
+    expect(screen.queryByRole('radio', { name: 'En frist som ikke er registrert' })).toBeNull();
+    // Tabellen kunne ikke hentes, så løsningen vet ikke om fristen er registrert.
+    expect(screen.queryByText(/ikke er registrert for prosjektet/)).toBeNull();
+    await skriv(await screen.findByLabelText('Navnet i kontrakten'), 'Sluttfristen');
+    await skriv(screen.getByLabelText('Dagene du krever'), '10');
+    await skriv(screen.getByRole('textbox', { name: 'Begrunnelse' }), 'Pelingen tar lenger tid.');
+    await seBrevet();
+    expect(sendt).toHaveLength(1);
+    expect(sendt[0]!.kommando).toMatchObject({
+      type: 'krav',
+      spor: 'frist',
+      innhold: { frister: [{ navn: 'Sluttfristen', dager: 10 }] },
+    });
+  });
+
   it('det første kravet er varselet etter punkt 33.4, og brevet lages ikke før fristen, dagene og begrunnelsen er fylt ut (U-6, D-1)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
     expect(screen.getByText('Dette kravet er varselet.')).toBeInTheDocument();
@@ -299,9 +350,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
 
   it('TE kan bare varsle etter punkt 33.4, uten dager, og «Når du sender» sier virkningen (U-13, VS-U15)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
-    await fireEvent.click(
-      screen.getByRole('radio', { name: 'Bare varsle etter punkt\u00a033.4, uten dager' })
-    );
+    await fireEvent.click(screen.getByRole('button', { name: 'Varsle nå, og krev dagene senere' }));
     expect(screen.queryByLabelText('Dagene du krever')).not.toBeInTheDocument();
     expect(screen.getByText('Varselet etter punkt 33.4, uten dager')).toBeInTheDocument();
     await seBrevet();
@@ -312,9 +361,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
 
   it('et varsel sendt utenfor løsningen registreres med typen, sendemåten, datoen, dokumentet og beskrivelsen, uten brevkontroll (U-13, VS-U16, LV-U42, OV-U79)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
-    await fireEvent.click(
-      screen.getByRole('radio', { name: 'Bare varsle etter punkt\u00a033.4, uten dager' })
-    );
+    await fireEvent.click(screen.getByRole('button', { name: 'Varsle nå, og krev dagene senere' }));
     await fireEvent.click(
       screen.getByRole('radio', { name: 'Registrer et varsel sendt utenfor løsningen' })
     );
@@ -371,13 +418,13 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
 
   it('en registrering av varselet som ikke er fylt ut, blir ikke med når TE går tilbake til kravet, og kravet er varselet (U-6, U-13)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
-    await fireEvent.click(
-      screen.getByRole('radio', { name: 'Bare varsle etter punkt\u00a033.4, uten dager' })
-    );
+    await fireEvent.click(screen.getByRole('button', { name: 'Varsle nå, og krev dagene senere' }));
     await fireEvent.click(
       screen.getByRole('radio', { name: 'Registrer et varsel sendt utenfor løsningen' })
     );
-    await fireEvent.click(screen.getByRole('radio', { name: 'Send kravet med dagene' }));
+    await fireEvent.click(
+      screen.getByRole('button', { name: 'Krev et antall dager for hver frist' })
+    );
     expect(screen.queryByLabelText('Datoen det ble sendt')).not.toBeInTheDocument();
     await fireEvent.click(screen.getByRole('radio', { name: 'Overtakelse' }));
     await skriv(screen.getByLabelText('Dagene du krever'), '20');
@@ -479,10 +526,12 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     expect(
       screen.getByText(/^Byggherren ber deg angi og begrunne antall dager/)
     ).toBeInTheDocument();
-    // Kravet etter bokstav a er svaret, og utkastet heter det (prototypen, `#foresporsel`).
-    expect(
-      screen.getByText('Svar på byggherrens forespørsel etter punkt 33.6.2')
-    ).toBeInTheDocument();
+    // #2178: Brevhodet viser kjernens tittel for kravet etter bokstav a.
+    const hode = screen
+      .getByRole('heading', { name: /^Krav om fristforlengelse/ })
+      .closest('header')!;
+    expect(hode).toHaveTextContent(/Svarer på brev/);
+    expect(hode).toHaveTextContent(/Vår ref\. K201-KOE-017-/);
     await fireEvent.click(
       screen.getByRole('radio', {
         name: 'Begrunne hvorfor du ennå ikke kan beregne dagene (bokstav b)',

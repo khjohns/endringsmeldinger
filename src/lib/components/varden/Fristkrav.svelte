@@ -8,6 +8,7 @@
   Kommandoen bygges i `fristkrav.ts`, og kjernen lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
+  import { KRAVTITTEL } from '#kjerne/frosset/brevtittel.ts';
   import { untrack } from 'svelte';
   import { dager } from '#kjerne/frosset/tekst.ts';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
@@ -62,6 +63,7 @@
     dagensDato,
     dato,
     kalenderdager,
+    KRAVSKJEMA,
   } from './tekster';
 
   let {
@@ -71,6 +73,7 @@
     onbrevkontroll,
     onforkast,
     onregistrert,
+    onvedsiden,
     sakslenke,
     lagtTil = null,
     onendre = () => {},
@@ -86,6 +89,8 @@
     onforkast: () => void;
     /** Varselet sendt utenfor løsningen er registrert (U-13). */
     onregistrert: () => void;
+    /** Brevet leses ved siden av skjemaet, så panelet til venstre felles inn (system.md). */
+    onvedsiden?: (vedSiden: boolean) => void;
     /** Lenken til en annen sak i prosjektet, som en forlengelse av en frist står i (U-2). */
     sakslenke?: (sakId: string) => string;
     /**
@@ -105,6 +110,20 @@
   const v = $derived(valg!);
 
   const tabell = $derived(kjernesak.kontraktsfrister ?? []);
+  // Uten tabell står feltene for fristen direkte (#2185). Kommer tabellen ved en ny lasting, må
+  // parten velge igjen i en rad som ikke er fylt ut.
+  const satt: Record<string, true> = {};
+  $effect(() => {
+    for (const p of v.frister) {
+      if (tabell.length === 0 && p.frist === null) {
+        p.frist = 'annen';
+        satt[p.noekkel] = true;
+      } else if (tabell.length > 0 && satt[p.noekkel]) {
+        delete satt[p.noekkel];
+        if (p.frist === 'annen' && !p.nummer && !p.navn) p.frist = null;
+      }
+    }
+  });
   // En frist som var registrert i forrige versjon, er fast. En som ikke var det, kan byttes med en
   // frist i fristtabellen (`fristeneStrider` i kjernen).
   const fastFrist = (p: Fristpostvalg) =>
@@ -115,6 +134,7 @@
   const alleBrev = $derived(brevene(u));
   const brevMed = (dokument: string | null | undefined) =>
     alleBrev.find((b) => b.id === dokument) ?? null;
+  const paaberopelsen = $derived(brevMed(u.spor.forhold.gjeldendeKrav?.dokument));
   const forrige = $derived(brevMed(u.spor.frist.gjeldendeKrav?.dokument));
   const svaret = $derived(brevMed(u.spor.frist.gjeldendeSvar?.dokument));
   // Varselet etter punkt 33.4 er det registrerte varselet, ellers det første kravet i sporet
@@ -157,11 +177,12 @@
   );
   const registreres = $derived(varsel && utenfor !== null);
   /** Et varsel registreres når TE bare varsler og ikke kan sende det fra løsningen. */
-  function velgHva(hva: Fristkravvalg['hva'] | null) {
+  async function velgHva(hva: Fristkravvalg['hva'] | null) {
     v.hva = hva ?? 'krav';
     if (v.hva === 'varsel' && !kanSende) v.utenfor ??= tomKorrespondanse();
     // En registrering TE ikke har fylt ut, blir ikke et varsel gitt før i kravet.
     if (v.hva === 'krav' && v.utenfor && erTomKorrespondanse(v.utenfor)) v.utenfor = null;
+    await fokuser(() => document.getElementById(id('hva')));
   }
 
   // Radene uten et navn nummereres bare seg imellom (U-1).
@@ -261,7 +282,11 @@
     aapen = p.noekkel;
     // En fast frist fra forrige versjon har ikke valget av fristen.
     await fokuser(() =>
-      iGruppen(document.getElementById(id(`${fastFrist(p) ? 'dager' : 'frist'}-${p.noekkel}`)))
+      iGruppen(
+        document.getElementById(
+          id(`${fastFrist(p) ? 'dager' : tabell.length ? 'frist' : 'nummer'}-${p.noekkel}`)
+        )
+      )
     );
   }
   async function lukk(p: Fristpostvalg) {
@@ -455,7 +480,7 @@
         {#if ny}<span class="merke">{FRISTKRAV.nyIVersjonen}</span>{/if}
         {#if d?.dagmulktbelagt}<span class="merke">{FRISTKRAV.dagmulktMerke}</span>{/if}
       </div>
-      {#if !fastFrist(p)}
+      {#if !fastFrist(p) && tabell.length}
         <Valg
           navn={sid}
           spoersmaal={FRISTKRAV.fristEtikett}
@@ -472,7 +497,7 @@
       {#if p.frist !== null}
         <Gjeldendefrist
           {g}
-          registrert={p.frist !== 'annen'}
+          registrert={p.frist !== 'annen' || kjernesak.kontraktsfrister === null}
           {sakslenke}
           tillegg={FRISTKRAV.iTillegg}
           id={`${sid}-gjeldende`}
@@ -566,9 +591,19 @@
 
 <Brevskjema
   id={id('tittel')}
-  tittel={FRISTKRAV.titler[foresporselsbrev && !varsel ? 'svar' : modus]}
-  undertittel={forrige && !lagtTil ? FRISTKRAV.nyVersjon(forrige) : null}
-  mottaker={SKJEMA.tilBH}
+  tittel={modus === 'krav' ? KRAVTITTEL.frist : FRISTKRAV.titler[modus]}
+  {kjernesak}
+  {u}
+  avsender="TE"
+  sendes={!registreres}
+  {onvedsiden}
+  oppfolging={foresporselsbrev
+    ? { tekst: SKJEMA.svarerPaa(foresporselsbrev), brev: foresporselsbrev }
+    : forrige
+      ? { tekst: KRAVSKJEMA.folgerOpp(forrige, svaret), brev: svaret ?? forrige }
+      : paaberopelsen
+        ? { tekst: KRAVSKJEMA.paaberoptI(paaberopelsen), brev: paaberopelsen }
+        : null}
   {lagtTil}
   part={kjernesak.part}
   {onendre}
@@ -605,16 +640,18 @@
 
   {#if kanVarsle}
     <Spoersmaal>
-      <Valg
-        navn={id('hva')}
-        spoersmaal={FRISTKRAV.hvaSender}
-        valg={FRISTKRAV.hvaValg}
-        bind:verdi={() => v.hva, velgHva}
-        beskrevetAv={id('hva-hjelp')}
-        lett
-        stablet
-      />
-      <p class="dempet" id={id('hva-hjelp')}>{FRISTKRAV.hvaHjelp}</p>
+      {#if varsel}
+        <p>{FRISTKRAV.bareVarsel}</p>
+        <Knapp id={id('hva')} variant="lenke" onclick={() => velgHva('krav')}
+          >{FRISTKRAV.krevDager}</Knapp
+        >
+      {:else}
+        <p>{FRISTKRAV.kravMedDager}</p>
+        <Knapp id={id('hva')} variant="lenke" onclick={() => velgHva('varsel')}
+          >{FRISTKRAV.varsleSenere}</Knapp
+        >
+      {/if}
+      <p class="dempet">{FRISTKRAV.hvaHjelp}</p>
     </Spoersmaal>
   {/if}
 
@@ -726,10 +763,12 @@
         <Melding art="feil" levende={false}>{FRISTKRAV.ingenFristtabell}</Melding>
       {/if}
       {#if forrige}<p class="dempet">{FRISTKRAV.trekkHjelp}</p>{/if}
-      <div class="kolonner" aria-hidden="true">
-        {#each FRISTKRAV.kolonner as k (k)}<span>{k}</span>{/each}
-        <span></span>
-      </div>
+      {#if v.frister.some((p) => p.noekkel !== aapen || p.trukket)}
+        <div class="kolonner" aria-hidden="true">
+          {#each FRISTKRAV.kolonner as k (k)}<span>{k}</span>{/each}
+          <span></span>
+        </div>
+      {/if}
       <ul class="frister">
         {#each v.frister as p (p.noekkel)}
           {@render fristrad(p)}

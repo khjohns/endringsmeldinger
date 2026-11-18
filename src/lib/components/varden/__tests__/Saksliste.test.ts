@@ -291,32 +291,10 @@ describe('Sakslisten i Varden', () => {
     expect(within(rad('Påberopelse trukket')).getByText('Påberopelsen trukket')).toBeTruthy();
   });
 
-  it('infotipsene har hvert sitt navn, åpnes med klikk og lukkes med Escape med fokus tilbake på knappen (#1450, økt B punkt 3)', async () => {
+  it('kortene navngis av overskriftene (#1511, #2187)', () => {
     vis();
-    const vederlag = screen.getByRole('button', { name: 'Om tallene for vederlag' });
-    const frist = screen.getByRole('button', { name: 'Om tallene for fristforlengelse' });
-    const lapp = document.getElementById(vederlag.getAttribute('aria-controls')!)!;
-    expect(vederlag).toHaveAttribute('aria-expanded', 'false');
-    expect(lapp).not.toBeVisible();
-
-    await fireEvent.click(vederlag);
-    expect(vederlag).toHaveAttribute('aria-expanded', 'true');
-    expect(lapp).toBeVisible();
-    expect(frist).toHaveAttribute('aria-expanded', 'false');
-
-    await fireEvent.keyDown(window, { key: 'Escape' });
-    expect(vederlag).toHaveAttribute('aria-expanded', 'false');
-    expect(lapp).not.toBeVisible();
-    expect(vederlag).toHaveFocus();
-  });
-
-  it('kortene heter bare det overskriften sier, også når infotipset er åpent (#1511)', async () => {
-    vis();
-    const kortet = (navn: string) => screen.getByRole('region', { name: navn });
-    await fireEvent.click(screen.getByRole('button', { name: 'Om tallene for vederlag' }));
-    expect(kortet('Vederlag eks. mva.')).toBeTruthy();
-    expect(kortet('Fristforlengelse')).toBeTruthy();
-    expect(screen.getByRole('heading', { name: 'Vederlag eks. mva.' })).toBeTruthy();
+    expect(screen.getByRole('region', { name: 'Vederlag eks. mva.' })).toBeTruthy();
+    expect(screen.getByRole('region', { name: 'Fristforlengelse' })).toBeTruthy();
   });
 
   it('nøkkeltallene summerer kravene med beløp utenfor endringsordrene, teller varsler og krav uten beløp for seg og summerer ikke dagene (MM-U38)', () => {
@@ -549,7 +527,11 @@ describe('Saken i Varden etter at skallet er trukket ut', () => {
     await kjernesak.last();
     render(Vardensak, { kjernesak, saksliste: '/p1' });
     const feil = await screen.findByRole('alert');
-    expect(within(feil).getByRole('heading', { name: 'Saken finnes ikke' })).toBeTruthy();
+    expect(
+      within(feil).getByRole('heading', {
+        name: 'Saken finnes ikke, eller du har ikke tilgang til den',
+      })
+    ).toBeTruthy();
     expect(within(feil).getByRole('link', { name: 'Til sakslisten' }).getAttribute('href')).toBe(
       '/p1'
     );

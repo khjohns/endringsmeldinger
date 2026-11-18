@@ -2,7 +2,7 @@
  * Siden for forholdet (#1449, kriteriene 1–4). Sakene kjøres gjennom kjernen i minnet med
  * testklienten, så utledningen er kjernens. Kildene er OV-U76–OV-U78 for overskriftene og
  * tittelen, GR-U31 for brevnavnet, MM-U30 for «Svar ikke registrert», OV-U85 for datoen på
- * registrert korrespondanse, OV-U81 for infotipset og GR-U30 for trekket.
+ * registrert korrespondanse og GR-U30 for trekket.
  */
 
 import { afterEach, describe, expect, it } from 'vitest';
@@ -132,7 +132,7 @@ describe('Siden for forholdet', () => {
     expect(rad.querySelector('.part')?.textContent).toBe('TE');
     expect(rad.querySelector('.dato .lang')?.textContent).toMatch(/^\d+\. \p{L}+ 2026$/u);
     expect(within(rad).getByRole('heading', { level: 4 }).textContent?.trim()).toBe(
-      'Påberopelse av forholdet fra totalentreprenøren'
+      'Påberopelse av irregulær endring fra totalentreprenøren'
     );
     expect(rad.querySelector('.nr')?.textContent).toBe('brev 1');
     expect(
@@ -140,7 +140,7 @@ describe('Siden for forholdet', () => {
     ).toBeTruthy();
   });
 
-  it('tråden har alle brevene i saken nyest først, også kravene og den registrerte korrespondansen, med datoen avsenderen oppgir og infotipset (#1898 punkt 2, OV-U85, OV-U81)', async () => {
+  it('tråden har alle brevene i saken nyest først, også kravene og den registrerte korrespondansen, med datoen avsenderen oppgir (#1898 punkt 2, OV-U85)', async () => {
     const { u } = await vis([PAABEROPELSE, REGISTRERT, VEDERLAG, AVSLAG]);
     const brev = traad()
       .getAllByRole('listitem')
@@ -159,10 +159,8 @@ describe('Siden for forholdet', () => {
     );
     expect(registrert.textContent).toContain('Sendt 20. september 2026, ifølge byggherren.');
     expect(within(registrert).queryByRole('button', { name: /Les brevet/ })).toBeNull();
-    expect(within(registrert).getByRole('button', { name: 'Om korrespondansen' })).toBeTruthy();
     // Vedleggene står under brevet sitt (U-5 i BF-44, LV-U14).
     expect(within(registrert).getByRole('list', { name: 'Vedlegg' }).textContent).toMatch(/\S/);
-    // Infotipset står ikke i overskriften (#1511).
     expect(registrert.querySelector('h4 button')).toBeNull();
     expect(brev[0].textContent).not.toContain('Svar ikke registrert');
     expect(u.spor.forhold.gjeldendeSvar).not.toBeNull();
@@ -256,7 +254,7 @@ describe('Siden for forholdet', () => {
   it('«Les brevet» gir brevet å lese, og navnet på knappen sier hvilket brev (#1898, U-16 i BF-44)', async () => {
     const { lest, u } = await vis([PAABEROPELSE]);
     await fireEvent.click(
-      traad().getByRole('button', { name: 'Les brevet: brev 1, Påberopelse av forholdet' })
+      traad().getByRole('button', { name: 'Les brevet: brev 1, Påberopelse av irregulær endring' })
     );
     expect(lest).toEqual([u.spor.forhold.gjeldendeKrav!.dokument]);
   });
@@ -433,7 +431,11 @@ describe('Brevtråden er felles for sidene, og sporet styrer brevene (#1898 punk
     [
       'forhold',
       'Brevene i saken, nyeste først',
-      ['Krav om fristforlengelse', 'Krav om vederlagsjustering', 'Påberopelse av forholdet'],
+      [
+        'Krav om fristforlengelse',
+        'Krav om vederlagsjustering',
+        'Påberopelse av irregulær endring',
+      ],
     ],
     ['vederlag', 'Brevene, nyeste først', ['Krav om vederlagsjustering']],
     ['frist', 'Brevene, nyeste først', ['Krav om fristforlengelse']],

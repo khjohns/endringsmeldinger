@@ -100,35 +100,7 @@
     utvalg = 'alle';
     soek = '';
   }
-
-  // Infotipset ved hvert kort: åpnes med klikk eller tastatur, Escape lukker og gir fokus tilbake.
-  let aapentTips = $state<string | null>(null);
-  function tipsTast(e: KeyboardEvent) {
-    if (e.key !== 'Escape' || !aapentTips) return;
-    const knapp = document.querySelector<HTMLButtonElement>(`[aria-controls="${aapentTips}"]`);
-    aapentTips = null;
-    knapp?.focus();
-  }
 </script>
-
-<svelte:window onkeydown={tipsTast} onclick={() => (aapentTips = null)} />
-
-{#snippet tips(id: string, spor: string, tekst: string)}
-  <span class="tips">
-    <button
-      type="button"
-      class="info"
-      aria-expanded={aapentTips === id}
-      aria-controls={id}
-      aria-label={SAKSLISTE.omTallene(spor)}
-      onclick={(e) => {
-        e.stopPropagation();
-        aapentTips = aapentTips === id ? null : id;
-      }}>i</button
-    >
-    <span class="lapp" {id} role="note" hidden={aapentTips !== id}>{tekst}</span>
-  </span>
-{/snippet}
 
 <Vardenskall {sti} {bruker} {kontrakt}>
   {#snippet panel()}
@@ -187,12 +159,10 @@
       {:else}
         <div class="noekkel" role="group" aria-label={SAKSLISTE.tallene}>
           <section class="spor-kort" aria-labelledby="nk-vederlag">
-            <!-- Tipset står utenfor overskriften, så kortet bare heter det overskriften sier (#1511). -->
             <div class="spor-tittel">
               <h2 id="nk-vederlag">
                 {SAKSLISTE.vederlag} <span class="enhet">{SAKSLISTE.eksMva}</span>
               </h2>
-              {@render tips('tips-vederlag', SAKSLISTE.vederlag, SAKSLISTE.omVederlag)}
             </div>
             <div class="halv">
               <span class="hl">{SAKSLISTE.krevdUtenforEo}</span>
@@ -213,7 +183,6 @@
               <h2 id="nk-frist">
                 {SAKSLISTE.fristforlengelse}
               </h2>
-              {@render tips('tips-frist', SAKSLISTE.fristforlengelse, SAKSLISTE.omFrist)}
             </div>
             <div class="halv">
               <span class="hl">{SAKSLISTE.krevdUtenforEo}</span>
@@ -543,9 +512,7 @@
     border: 1px solid var(--rule-color);
     border-radius: var(--r-innfelt);
   }
-  /* Lappen henger under overskriften og holder seg innenfor kortet på smal skjerm. */
   .spor-tittel {
-    position: relative;
     display: flex;
     align-items: center;
     gap: var(--spacing-2);
@@ -587,46 +554,6 @@
     font-family: var(--font-sans);
     font-size: 12px;
     font-weight: 400;
-  }
-  .info {
-    position: relative;
-    display: inline-grid;
-    place-items: center;
-    width: 20px;
-    height: 20px;
-    border: 1px solid var(--rule-strong-color);
-    border-radius: 50%;
-    background: none;
-    color: var(--ink-2);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  /* Treffflaten er 44 px, selv om knappen er liten. */
-  .info::after {
-    content: '';
-    position: absolute;
-    inset: -12px;
-  }
-  .info:focus-visible {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
-  }
-  .lapp {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    z-index: 5;
-    width: min(300px, 100%);
-    padding: var(--spacing-3);
-    border: 1px solid var(--rule-strong-color);
-    border-radius: var(--r-innfelt);
-    background: var(--surface);
-    box-shadow: var(--overlay-shadow-sm);
-    color: var(--ink);
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1.5;
   }
   .verktoy {
     display: flex;

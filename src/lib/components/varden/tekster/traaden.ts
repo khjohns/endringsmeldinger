@@ -18,6 +18,7 @@ export const TRAADEN = haerdet({
   hva: (b: Pick<Brevet, 'art' | 'spor' | 'avsender' | 'brevtittel' | 'beskrivelse'>) => {
     if (b.art === 'registrert') return b.beskrivelse || FORHOLDET.registrertTittel(b.avsender);
     const spor = (['forhold', 'vederlag', 'frist'] as const).filter((s) => b.spor.includes(s));
+    if (b.brevtittel && spor.length <= 1) return b.brevtittel.replace(/ i sak \S+$/, '');
     const krav = spor.filter((s) => s !== 'forhold').map((s) => `krav om ${KRAVET[s]}`);
     if (b.art === 'krav' && spor.length)
       return spor.includes('forhold')

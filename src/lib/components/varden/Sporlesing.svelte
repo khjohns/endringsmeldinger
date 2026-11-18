@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
   import { ArrowRight } from 'lucide-svelte';
-  import type { Component } from 'svelte';
+  import type { Component, Snippet } from 'svelte';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { forseringKanVelges } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Part, Spor } from '#kjerne/typer.ts';
@@ -63,6 +63,7 @@
     skjemaene,
     onvelg,
     onspor,
+    utkast,
     onkorriger,
     onakseptbrev,
     nySak,
@@ -77,6 +78,8 @@
     onvelg: (noekkel: string) => void;
     /** Brukeren valgte et annet spor på siden for forholdet. */
     onspor?: (spor: Spor) => void;
+    /** Utkastene som kan fortsettes fra oversikten. */
+    utkast?: Snippet;
     /** Lenken til skjemaet for ny sak, når TE kan sende en ny versjon av påberopelsen (BF-10 U-2). */
     nySak?: string;
     /** TE velger «Korriger datoen» ved opplysningen (U-1 i BF-02A). */
@@ -332,7 +335,7 @@
   {@const tekst =
     innsigelsestekst(p) ?? BREVTYPER.find((b) => b.type === handlingen(p)!.type)!.tekst}
   <Knapp
-    variant="primaer"
+    variant={utkast ? 'sekundaer' : 'primaer'}
     onclick={() => (primaerBygget ? velg(p) : (primaerIkkeBygget = true))}
     aria-describedby={beskrevetAv}>{tekst}</Knapp
   >
@@ -405,6 +408,7 @@
 
 <Arbeidsflate leser>
   {#snippet hoved()}
+    {@render utkast?.()}
     <Side
       {u}
       betegnelser={betegnelsene(kjernesak.saksbilde)}

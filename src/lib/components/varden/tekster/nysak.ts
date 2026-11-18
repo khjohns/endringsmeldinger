@@ -72,8 +72,7 @@ export const NYSAK = haerdet({
   forkastTittel: 'Forkaste den nye saken?',
   forkastTekst:
     'Saken opprettes ikke, og brevet sendes ikke. Det du har skrevet, slettes. Det kan ikke gjøres om.',
-  mangler: 'Det mangler noe før du kan se brevet',
-  ingenSak: 'Ingen sak er opprettet ennå.',
+  mangler: 'Dette mangler før brevet kan lages:',
   velgForholdet: 'Velg forholdet.',
   skrivTittelen: 'Skriv tittelen.',
   beskriv: (paalegg: boolean) => (paalegg ? 'Beskriv pålegget.' : 'Beskriv forholdet.'),

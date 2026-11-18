@@ -4,9 +4,8 @@ import type { Brevref } from '../lesing';
 import { brevref } from './felles';
 import { dato, kl, haerdet } from './format';
 
-/** Utkastet som brev under arbeid (`Brevutkast.svelte`). */
+/** Bekreftelsen ved forkasting av et utkast. */
 export const BREVUTKAST = haerdet({
-  utkast: 'Utkast',
   forkastSpoersmaal: 'Forkaste utkastet?',
 });
 
@@ -15,6 +14,7 @@ export const SAKEN = haerdet({
   kontraktsforhold: 'Kontraktsforhold',
   krav: 'Krav',
   utkast: 'Utkast',
+  fortsettUtkastet: 'Fortsett utkastet',
   prototype: 'Varden · eksperimentell visning',
   kommune: 'Oslo kommune',
   foretak: 'Oslobygg KF',
@@ -27,15 +27,16 @@ export const SAKEN = haerdet({
   merkenavn: 'Varden',
   stien: 'Du er her',
   laster: 'Laster saken …',
-  lastefeil: 'Saken kunne ikke lastes',
-  lastefeilBeklager: 'Beklager, saken ble ikke hentet. Prøv igjen om litt.',
+  lastefeil: 'Saken kunne ikke hentes',
+  lastefeilBeklager: 'Beklager, serveren svarte med en feil. Prøv igjen om litt.',
+  lastefeilNett:
+    'Beklager, vi fikk ikke svar fra serveren. Kontroller nettforbindelsen, og prøv igjen.',
   lastefeilDetaljer: (aarsak: string) => `Teknisk melding: ${aarsak}`,
   sistForsoekt: (d: string) => `Sist forsøkt ${kl(d)}.`,
   proevIgjen: 'Prøv igjen',
   proever: 'Prøver igjen …',
-  finnesIkke: 'Saken finnes ikke',
-  finnesIkkeForklaring:
-    'Saken ble ikke funnet. Kontroller lenken, eller gå tilbake til sakslisten.',
+  finnesIkke: 'Saken finnes ikke, eller du har ikke tilgang til den',
+  finnesIkkeForklaring: 'Kontroller lenken. Er du med i prosjektet, finner du saken i sakslisten.',
   tilSakslisten: 'Til sakslisten',
   /** Panelet til venstre som saksomslaget (panel B i `vederlagsoversikt.html`, #1899). */
   sporene: 'Forholdet og kravene i saken',

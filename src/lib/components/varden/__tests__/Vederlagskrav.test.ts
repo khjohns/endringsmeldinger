@@ -49,6 +49,22 @@ async function sendBrevet() {
 }
 
 describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
+  it('#2185: tabellhodet vises først når en kravpost er ferdig', async () => {
+    await aapneSomTe('forholdet-er-godkjent');
+    await fireEvent.click(
+      within(
+        await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
+      ).getByRole('button')
+    );
+    const postene = screen.getByRole('region', { name: /Vederlagsjustering.*pkt\./ });
+    expect(postene.querySelector('.kolonner')).toBeNull();
+    await skriv('Beskrivelse av posten', 'Omlegging av rør');
+    await fireEvent.click(screen.getByRole('radio', { name: /^Fast sum/ }));
+    await skriv('Beløpet du krever', '210 000');
+    await fireEvent.click(knapp('Ferdig'));
+    expect(postene.querySelector('.kolonner')).toBeInTheDocument();
+  });
+
   it('det første kravet begynner med én åpen kravpost, og det som mangler, står øverst og ved feltet (MM-U32, D-1)', async () => {
     await aapneSomTe('forholdet-er-godkjent');
     await fireEvent.click(

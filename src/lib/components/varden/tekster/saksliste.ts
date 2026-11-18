@@ -32,11 +32,6 @@ export const SAKSLISTE = haerdet({
   krav: (n: number) => `${n} krav`,
   varsletAntall: (n: number) => `${n} varslet`,
   utenBeloep: (n: number) => `${n} uten beløp`,
-  omTallene: (spor: string) => `Om tallene for ${spor.toLowerCase()}`,
-  omVederlag:
-    'Summen av de faste beløpene i kravene i sakene som ikke inngår i en sendt endringsordre. Kravposter etter regningsarbeid eller enhetspriser har ikke beløp, og et krav med bare slike poster telles for seg. Trukne krav og saker som TE har avsluttet, er ikke med. Krav i flere saker kan gjelde samme kostnad.',
-  omFrist:
-    'Antall krav i sakene som ikke inngår i en sendt endringsordre. Dagene summeres ikke, fordi forlengelser i ulike saker kan gjelde samme periode.',
   // Verktøylinja
   utvalg: 'Utvalg',
   alle: 'Alle',

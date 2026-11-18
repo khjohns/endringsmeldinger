@@ -4,6 +4,13 @@
  * står i `regler/forhold.ts`.
  */
 
+import { standpunkterISvaret } from '../../format/leser.ts';
+import { virkninger } from '../../frosset/standpunkt.ts';
+import { etikett, laget } from '../../frosset/byggeklosser.ts';
+import { kontrollerForholdet } from '../../regler/svarkontroll.ts';
+import { mangler } from '../../regler/typer.ts';
+import { avvisteFelt } from '../../kommandoer/utkastlag.ts';
+import type { Utkastlag } from '../poster/kommando.ts';
 import { KRAVINNHOLD } from '../../format/format.ts';
 import { erKalenderdato, feilI, objekt, tekst } from '../../format/skjema.ts';
 import { kalenderdag } from '../../format/leser.ts';
@@ -12,6 +19,7 @@ import { gjelderVarslingsplikten } from '../../frosset/byggeklosser.ts';
 import { BEGRUNNELSESPUNKTENE, begrunnelseskravet } from '../../regler/forhold.ts';
 import {
   datoenDetBleSendt,
+  paaberopelseFor,
   kravSomVarsler,
   varseletFoerSvaret,
   varseletForNyttSvar,
@@ -305,3 +313,62 @@ export const STANDPUNKTER_I_FORHOLDET: Sporsstandpunkter = (v, _krav, u, nyId) =
 export const SKRIVING_I_FORHOLDET = {
   kravinnhold: (innhold) => innhold,
 } satisfies Sporsskriving;
+
+/** Innsigelsen som åpner laget for forholdet, med varselet den gjelder (OV-U32, VS-U76). */
+export type ForutsetningIForholdet = { innsigelse: '32.2'; gjelder: string };
+
+type Forholdsfelt = 'grunnlag_varslet_i_tide' | 'resultat';
+export type LagIForholdet = Utkastlag<ForutsetningIForholdet, Forholdsfelt>;
+
+/** Lagene i svarutkastet regnes av de samme standpunktene og virkningene som brevet (#2181). */
+export function lagIForholdet(utkast: Svarutkast, u: Utledning, regler: Regelsett): LagIForholdet {
+  const krav = paaberopelseFor(utkast, u);
+  if (!krav) throw new Error('Påberopelsen svarutkastet gjelder, finnes ikke.');
+  const v = utkast.vurderinger;
+  const { hovedkategori, underkategori } = kategori(krav);
+  const varslingsplikt = gjelderVarslingsplikten(krav, regler);
+  const feil = avvisteFelt(() => kontrollerForholdet(v, hovedkategori, underkategori, regler));
+  const ubesvart: LagIForholdet['ubesvart'] = [];
+  const ugyldig: LagIForholdet['ugyldig'] = [];
+  for (const felt of ['grunnlag_varslet_i_tide', 'resultat'] as const) {
+    if (!feil[felt]) continue;
+    const liste = mangler(v[felt]) && (felt === 'resultat' || varslingsplikt) ? ubesvart : ugyldig;
+    liste.push({ spoersmaal: felt });
+  }
+  let n = 0;
+  const svar = {
+    spor: 'forhold' as const,
+    utregning: {},
+    standpunkter: standpunkterISvaret('forhold', {
+      standpunkter: STANDPUNKTER_I_FORHOLDET(
+        { ...v, ...(feil.resultat ? { resultat: 'avslaatt' } : {}) },
+        krav,
+        u,
+        () => `utkast-${n++}`
+      ),
+    }),
+  };
+  const virket = virkninger(svar, krav, regler);
+  const flereLag = virket.some((x) => (laget(x.virkning) ?? 0) > 1);
+  const forutsetninger: ForutsetningIForholdet[] = svar.standpunkter.flatMap((s, i) =>
+    s.art === 'rettidighet' && s.hjemmel === '32.2' && virket[i]!.virkning === 1
+      ? [{ innsigelse: s.hjemmel, gjelder: s.gjelder }]
+      : []
+  );
+  return {
+    ubesvart,
+    ugyldig,
+    standpunkter: svar.standpunkter.map((s, i) => {
+      const virkning = virket[i]!.virkning;
+      const lag = laget(virkning);
+      return {
+        art: s.art,
+        ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel, gjelder: s.gjelder } : {}),
+        besvart: !mangler(v[s.art === 'forhold' ? 'resultat' : 'grunnlag_varslet_i_tide']),
+        virkning,
+        etikett: flereLag && lag !== null ? etikett(lag) : null,
+        forutsetninger: s.art === 'forhold' ? forutsetninger : [],
+      };
+    }),
+  };
+}

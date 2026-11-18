@@ -34,7 +34,6 @@
           },
         ]
       : []),
-    { tekst: SKJEMA.datoGrense, art: 'dempet' as const },
   ]);
 </script>
 

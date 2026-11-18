@@ -11,15 +11,11 @@ import { dato, kortDato, punkt, haerdet } from './format';
  * «versjon», og et trekk kalles ikke avkall (KA-U75, D-18).
  */
 export const KRAVSKJEMA = haerdet({
-  tittel: 'Krav om justering av vederlaget',
-  til: 'Til byggherren (BH)',
   forholdet: (navn: string, b: Brevref) =>
     `Forholdet: ${navn}, påberopt i ${brevref(b)} · ${kortDato(b.registrert)}`,
+  paaberoptI: (b: Brevref) => `Forholdet er påberopt i ${brevref(b)}`,
   folgerOpp: (krav: Brevref, svar: Brevref | null) =>
     `Følger opp kravet i ${brevref(krav)}${svar ? `. Byggherren svarte i ${brevref(svar)}` : ''}`,
-  lesBrevet: (b: Brevref) => `Les ${brevref(b)} ved siden av`,
-  lesBrevetHer: (b: Brevref) => `Les ${brevref(b)}`,
-  lukkBrevet: 'Lukk brevet',
   // 1. Vederlagsjusteringen.
   postene: 'Vederlagsjustering',
   posteneHjemmel: ['34.1.1', '34.1.2'],

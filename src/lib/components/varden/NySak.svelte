@@ -27,9 +27,12 @@
   import Forkastutkast from './Forkastutkast.svelte';
   import Linjefelt from './Linjefelt.svelte';
   import Tekstomraade from './Tekstomraade.svelte';
+  import { paaberopelsenAv } from '#kjerne/spor/forhold/tekst.ts';
+  import { utkastetsHode } from './utkastetsHode';
   import Utkastkort from './Utkastkort.svelte';
   import { faarPlass } from './fastlinje.svelte';
   import { fokuser } from './mangler';
+  import Manglene from './Manglene.svelte';
   import { ChevronDown } from 'lucide-svelte';
   import {
     FELTENE_UTEN_FORHOLD,
@@ -45,7 +48,7 @@
     type Utfylling,
     type VedleggForNySak,
   } from './nysak';
-  import { KORRESPONDANSEN, NYSAK, SKJEMA, dagensDato, haerdet, punkt } from './tekster';
+  import { KORRESPONDANSEN, NYSAK, dagensDato, haerdet, punkt } from './tekster';
   import {
     korrespondansefeilene,
     korrespondansenoekkel,
@@ -97,7 +100,11 @@
   let kontroll = $state<Omit<TilBrevkontrollen, 'detteSender' | 'virkninger'> | null>(null);
 
   const felt = $derived(forhold ? feltene(forhold, KJERNE) : FELTENE_UTEN_FORHOLD);
+  let merking = $state<Saksmerking | null>(null);
   const valgt = $derived(forhold ? forholdet(forhold) : null);
+  const hode = $derived(
+    utkastetsHode(null, merking, valgt ? paaberopelsenAv(valgt.navn) : NYSAK.tittel, true)
+  );
   const iDag = dagensDato();
   const varselet = $derived(felt.punkt322 && alleredeVarslet === true);
   // Panelet og tidslinja står fast når de får plass i vinduet, som panelet i vederlagssvaret.
@@ -225,7 +232,8 @@
   /** Brevet med nummeret saken vil få nå (LV-U46), eller `null` når nummeret ikke kan hentes. */
   async function brevetMedNummer() {
     try {
-      return brevet(utfylling(), sakId, await hentMerking(), KJERNE);
+      merking = await hentMerking();
+      return brevet(utfylling(), sakId, merking, KJERNE);
     } catch (e) {
       console.error(e);
       return null;
@@ -323,31 +331,20 @@
     {#snippet hoved()}
       <Utkastkort
         id={id('utkast')}
-        tittel={NYSAK.tittel}
-        mottaker={SKJEMA.tilBH}
+        {...hode}
+        avsender="TE"
         nivaa={1}
         novalidate
         onsubmit={seBrevet}
       >
+        {#if synligeFeil.length}
+          <Manglene
+            tittel={NYSAK.mangler}
+            mangler={synligeFeil.map((f) => ({ felt: id(f), tekst: feil[f], post: null }))}
+            bind:element={oppsummering}
+          />
+        {/if}
         <div class="nysak">
-          {#if synligeFeil.length}
-            <div
-              class="oppsummering"
-              tabindex="-1"
-              bind:this={oppsummering}
-              role="group"
-              aria-labelledby={id('mangler')}
-            >
-              <h2 id={id('mangler')}>{NYSAK.mangler}</h2>
-              <ul>
-                {#each synligeFeil as f (f)}
-                  <li><a href={`#${id(f)}`}>{feil[f]}</a></li>
-                {/each}
-              </ul>
-              <p>{NYSAK.ingenSak}</p>
-            </div>
-          {/if}
-
           <fieldset
             class="felt"
             id={id('forhold')}
@@ -662,15 +659,15 @@
   .forhold:has(input:checked) {
     background: var(--canvas);
   }
+  .forhold:has(input:focus-visible) {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
+  }
+  .forhold:has(input:focus-visible) input {
+    outline: none;
+  }
   .forhold .navn {
     flex: 1;
-  }
-  .forhold input {
-    flex-shrink: 0;
-    width: 18px;
-    height: 18px;
-    margin: 0;
-    accent-color: var(--ink);
   }
   .punkt {
     color: var(--ink-3);
@@ -744,31 +741,6 @@
     display: grid;
     gap: var(--spacing-2);
     margin-top: var(--spacing-2);
-  }
-  .oppsummering {
-    padding: var(--spacing-4);
-    border: 2px solid var(--danger);
-    border-radius: var(--r-kort);
-  }
-  .oppsummering h2 {
-    margin: 0 0 var(--spacing-2);
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .oppsummering ul {
-    margin: 0 0 var(--spacing-3);
-    padding-left: var(--spacing-5);
-  }
-  .oppsummering a {
-    color: var(--danger);
-    font-weight: 600;
-  }
-  .oppsummering p {
-    margin: 0;
-    color: var(--ink-3);
-  }
-  .oppsummering:focus-visible {
-    outline: 2px solid var(--control-focus);
   }
   .handlinger {
     display: flex;

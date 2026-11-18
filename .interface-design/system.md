@@ -83,8 +83,7 @@ feltkanten fra #1258.
   [`fargetokens.test.ts`](../src/lib/fargetokens.test.ts) feiler under kravet for
   flatene den lister i `FLATER`, ikke for andre flater eller lokale overstyringer.
 - **Kanter, ikke skygger.** Strukturen tegnes med `--rule`, `--rule-subtle` og
-  `--rule-strong`. Skygger (`--overlay-shadow-sm`) brukes bare på overlegg, som lappen i
-  sakslisten.
+  `--rule-strong`. Skygger (`--overlay-shadow-sm`) brukes bare på overlegg.
 
 ## Typografi
 
@@ -250,7 +249,7 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
     fylt med blekk og har et hakk i flatefargen.
   - I et valgkort er hele kortet treffflaten, minst 44 px. Valgt kort har `--surface-selected` og
     kant på 1 px i blekk, og teksten beholder vekten, så den ikke flytter seg.
-  - Et felt er minst 44 px, med kant i `--rule-strong` og `--ink-3` ved hover. Et tall står til
+  - Et felt er minst 44 px, med kant i `--control-border`, som holder 3:1 mot flaten (WCAG 1.4.11), og `--ink-3` ved hover (oppdragsgiver 18.11). Et tall står til
     høyre med `tabular-nums`, og enheten står i en egen flate i `--surface-inset`.
   - Fokus er ringen i `--control-focus` rundt kortet eller feltet. Inaktivt er `--surface-inset`
     med `--ink-4`. Feil er kanten i `--danger`, med meldingen under feltet.
@@ -262,7 +261,7 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   `prefers-color-scheme`, også når innstillingen endres mens siden er åpen.
 - **En feil har én form** (oppdragsgiver 17.11, #2163, skissen
   [feilmeldingene.html](../docs/design/prototyper/feilmeldingene.html)). Det gjelder lista over det
-  som mangler, en sending som feiler og en sak som ikke kan hentes:
+  som mangler og en sending som feiler:
   - Kanten til venstre og ikonet er i `--danger`. Flaten er nøytral. Ikonet gjør at fargen aldri
     står alene. En informasjonsmelding har ikke ikon.
   - Tittelen i halvfet sier hva som skjedde, som «Brevet ble ikke sendt». Linja under sier hvorfor,
@@ -272,9 +271,10 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
     sendt», og knappen er «Prøv å sende igjen».
   - Når brevet er sendt, byttes stempelet «Utkast · ikke sendt» med et heltrukket «Sendt <dato>
     kl. <tid>» på samme sted, og én linje under bekrefter det.
-  - En sak som ikke kan hentes, står på arket, innenfor kantene til arbeidsflaten. Kan saken ikke
-    leses fordi den ikke finnes eller parten ikke har tilgang, sier siden begge deler, uten å skille
-    dem, og har bare «Til sakslisten».
+  - En sak som ikke kan hentes, står på arket, innenfor kantene til arbeidsflaten, uten rød kant og
+    uten ikon, som i skissen (oppdragsgiver 18.11). Arket er hele siden, så tittelen bærer beskjeden.
+    Kan saken ikke leses fordi den ikke finnes eller parten ikke har tilgang, sier siden begge
+    deler, uten å skille dem, og har bare «Til sakslisten».
 
 ## Ordene i visningen
 
@@ -423,6 +423,8 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   avvisning av et svar uten begrunnelse står ved begrunnelsen. `Knapp` er inaktiv bare
   mens en sending pågår. Det som hindrer at brevet kan lages, står under knappen og får fokus.
   Skjemaene får forsøket, hindringen og fokuset fra `sendeflyt.svelte.ts` (#2118).
+  I svarskjemaene gir en lenke fra lista synlig fokus på valggruppen og viser seksjonsoverskriften
+  sammen med gruppen når begge får plass (#2183).
 - **«Forkast utkast»** er en lenkeknapp nederst i skjemaet, adskilt fra primærhandlingen.
   Den spør i en dialog (`Forkastutkast`) med «Behold utkastet» og en rød «Forkast utkast»
   (`Knapp` med `variant="fare"`) ved siden av hverandre, i alle skjemaene som blir et brev. Skjemaet

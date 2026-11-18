@@ -11,7 +11,6 @@
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import Arbeidsflate from './Arbeidsflate.svelte';
-  import Infotips from './Infotips.svelte';
   import Knapp from './Knapp.svelte';
   import Korrespondansen from './Korrespondansen.svelte';
   import Manglene from './Manglene.svelte';
@@ -32,7 +31,7 @@
   import { brevet, svareneISporet } from './lesing';
   import type { Mangel } from './mangler';
   import { vedleggsgrense, vedleggskart } from './nysak';
-  import { FORHOLDET, LEGG_TIL, SPORNAVN, type Korrespondansekategori } from './tekster';
+  import { LEGG_TIL, SPORNAVN, type Korrespondansekategori } from './tekster';
 
   let {
     kjernesak,
@@ -126,7 +125,6 @@
       <header>
         <h2 id={id('tittel')}>
           {LEGG_TIL.tittel}
-          <Infotips navn={FORHOLDET.omKorrespondansen} tekst={FORHOLDET.omKorrespondansenTekst} />
         </h2>
         <p class="dempet">{LEGG_TIL.egen}</p>
       </header>
@@ -249,12 +247,6 @@
   }
   .gjelder label.valgt {
     background: var(--surface-selected);
-    font-weight: 600;
-  }
-  .gjelder input {
-    width: 18px;
-    height: 18px;
-    margin: 0;
   }
   .dempet {
     color: var(--ink-3);
