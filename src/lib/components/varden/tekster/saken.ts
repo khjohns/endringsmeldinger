@@ -14,6 +14,7 @@ export const SAKEN = haerdet({
   kontraktsforhold: 'Kontraktsforhold',
   krav: 'Krav',
   utkast: 'Utkast',
+  fortsettUtkastet: 'Fortsett utkastet',
   prototype: 'Varden · eksperimentell visning',
   kommune: 'Oslo kommune',
   foretak: 'Oslobygg KF',

@@ -131,6 +131,8 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(kortet.getByText(/Du godtar hele svaret i brev 4\./)).toBeTruthy();
     expect(kortet.getByRole('region', { name: 'Andre handlinger' })).toBeTruthy();
     await fireEvent.click(kortet.getByRole('button', { name: /^Godta svaret/ }));
+    // Aksepten går rett til brevkontrollen fra saken, så lenken går dit (review av #2200).
+    expect(screen.getByRole('link', { name: 'Tilbake til saken' })).toBeTruthy();
     // KA-U1, GR-U7: aksepten omfatter påberopelsen, og kjernen gir beløpet 0 kr etter den. Det
     // står i brevkontrollen før sendingen.
     const kontrollen = screen.getByRole('region', { name: 'Sending' });

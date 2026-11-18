@@ -78,6 +78,7 @@
     SPORNAVN,
     STILLING,
   } from './tekster';
+  import { SAKSDELEN } from './tekster/felles';
 
   let {
     kjernesak,
@@ -469,7 +470,7 @@
     noekler: readonly string[];
     aapne?: (noekkel: string) => void;
     /** Skjemaet står i arbeidsflaten. Det første i `skjemaene` som står, vises. */
-    vises: () => boolean;
+    vises: (a: Arbeid) => boolean;
     /** Komponenten, i snippeten med samme navn som skjemaet. */
     skjema: Snippet<[Utledning]>;
   };
@@ -481,14 +482,14 @@
   const skjemaene = {
     korrigering: {
       noekler: [],
-      vises: () => arbeid.art === 'korrigering' && kanKorrigere(arbeid.gjelder),
+      vises: (a) => a.art === 'korrigering' && kanKorrigere(a.gjelder),
       skjema: korrigering,
     },
     nyversjon: {
       noekler: ['krav:forhold'],
       aapne: () => aapneUtkast({ art: 'nyversjon' }),
-      vises: () =>
-        arbeid.art === 'nyversjon' &&
+      vises: (a) =>
+        a.art === 'nyversjon' &&
         valgt === 'forhold' &&
         kjernesak.handlinger.includes('krav:forhold') &&
         !!u?.spor.forhold.gjeldendeKrav,
@@ -501,14 +502,14 @@
         if (lagtTil?.spor !== valgt) lagtTil = { spor: valgt, valg: tomtLagtTil(valgt) };
         tilArbeid({ art: 'korrespondanse' });
       },
-      vises: () => arbeid.art === 'korrespondanse' && lagtTil?.spor === valgt,
+      vises: (a) => a.art === 'korrespondanse' && lagtTil?.spor === valgt,
       skjema: korrespondanse,
     },
     vederlagskrav: {
       noekler: ['krav:vederlag'],
       aapne: () => aapneUtkast({ art: 'vederlagskrav' }),
-      vises: () =>
-        arbeid.art === 'vederlagskrav' &&
+      vises: (a) =>
+        a.art === 'vederlagskrav' &&
         valgt === 'vederlag' &&
         kjernesak.handlinger.includes('krav:vederlag'),
       skjema: vederlagskrav,
@@ -518,7 +519,7 @@
       noekler: ['krav:frist', 'sende_varsel:frist', 'varsle:frist'],
       aapne: (n) =>
         n === 'krav:frist' ? fristskjema('krav') : fristskjema('varsel', n === 'varsle:frist'),
-      vises: () => arbeid.art === 'fristkrav' && valgt === 'frist' && fristskjemaTilbudt,
+      vises: (a) => a.art === 'fristkrav' && valgt === 'frist' && fristskjemaTilbudt,
       skjema: fristkrav,
     },
     forholdssvar: {
@@ -528,8 +529,8 @@
         svaretFra = null;
         aapneUtkast({ art: 'svar' });
       },
-      vises: () =>
-        arbeid.art === 'svar' &&
+      vises: (a) =>
+        a.art === 'svar' &&
         valgt === 'forhold' &&
         (utenPaaberopelsen() ||
           kjernesak.handlinger.includes('svare:forhold') ||
@@ -541,10 +542,8 @@
       aapne: () => {
         aapneUtkast({ art: 'svar' });
       },
-      vises: () =>
-        arbeid.art === 'svar' &&
-        valgt === 'vederlag' &&
-        kjernesak.handlinger.includes('svare:vederlag'),
+      vises: (a) =>
+        a.art === 'svar' && valgt === 'vederlag' && kjernesak.handlinger.includes('svare:vederlag'),
       skjema: vederlagssvar,
     },
     fristsvar: {
@@ -552,13 +551,15 @@
       aapne: () => {
         aapneUtkast({ art: 'svar' });
       },
-      vises: () =>
-        arbeid.art === 'svar' && valgt === 'frist' && kjernesak.handlinger.includes('svare:frist'),
+      vises: (a) =>
+        a.art === 'svar' && valgt === 'frist' && kjernesak.handlinger.includes('svare:frist'),
       skjema: fristsvar,
     },
   } satisfies Record<string, Skjema>;
   const skjemalista: Skjema[] = Object.values(skjemaene);
-  const aktivtSkjema = $derived(skjemalista.find((s) => s.vises())?.skjema ?? null);
+  const aktivtSkjema = $derived(skjemalista.find((s) => s.vises(arbeid))?.skjema ?? null);
+  /** Et utkast vises på oversikten bare når skjemaet for det kan åpnes nå. */
+  const kanAapnes = (utkast: Skjemaarbeid) => skjemalista.some((s) => s.vises(utkast));
   /**
    * Kjernen avviser et svar på en trukket påberopelse (`KRAV_TRUKKET`), så utkastet står bare med
    * valget om å forkaste det (#2104).
@@ -838,10 +839,10 @@
 {/snippet}
 
 {#snippet utkastkortene()}
-  {#each utkastArbeid[valgt] as utkast (utkast.art)}
+  {#each utkastArbeid[valgt].filter(kanAapnes) as utkast (utkast.art)}
     <section class="utkastkort" aria-label={SAKEN.utkast}>
       <h2>{utkasttittel(utkast)}</h2>
-      <Knapp variant="primaer" onclick={() => aapneUtkast(utkast)}>Fortsett utkastet</Knapp>
+      <Knapp variant="primaer" onclick={() => aapneUtkast(utkast)}>{SAKEN.fortsettUtkastet}</Knapp>
     </section>
   {/each}
 {/snippet}
@@ -978,14 +979,7 @@
       {#if arbeid.art === 'kontroll' || (aktivtSkjema && arbeid.art !== 'korrespondanse')}
         {@const kontroll = arbeid.art === 'kontroll' ? arbeid : null}
         {@const neste = kontroll?.tilbake ?? { art: 'les' }}
-        {@const maal =
-          kontroll && neste.art !== 'les'
-            ? 'utkastet'
-            : valgt === 'forhold'
-              ? 'forholdet'
-              : valgt === 'vederlag'
-                ? 'vederlagsjusteringen'
-                : 'fristforlengelsen'}
+        {@const maal = kontroll ? kontroll.tilbakeTil : SAKSDELEN[valgt]}
         <p class="tilbake">
           <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- samme rute, nytt arbeidstrinn -->
           <a
