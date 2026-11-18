@@ -4,7 +4,7 @@
  */
 
 import '@testing-library/jest-dom/vitest';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 import type { Journalrad } from '#kjerne/typer.ts';
@@ -185,5 +185,9 @@ describe('det som mangler, er det kjernen sier er påkrevd og ubesvart (#2025)',
     expect(document.getElementById(id)).toBeNull();
     await fireEvent.click(lenke);
     expect(document.getElementById(id)).toHaveFocus();
+    // Ringen gjelder fokuset fra lista, ikke et klikk i gruppen (review av #2205).
+    await vi.waitFor(() => expect(document.getElementById(id)).toHaveAttribute('data-fra-lista'));
+    document.getElementById(id)!.blur();
+    expect(document.getElementById(id)).not.toHaveAttribute('data-fra-lista');
   });
 });

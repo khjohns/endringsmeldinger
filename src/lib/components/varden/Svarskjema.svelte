@@ -148,12 +148,17 @@
 
     const gruppe = document.getElementById(m.felt);
     if (!(gruppe instanceof HTMLFieldSetElement)) return;
+    // Ringen vises når fokus kommer fra lista, ikke ved et klikk i gruppen (review av #2205).
+    gruppe.dataset.fraLista = '';
+    gruppe.addEventListener('blur', () => delete gruppe.dataset.fraLista, { once: true });
     const seksjon = gruppe.closest('section[aria-labelledby]');
     if (!seksjon) return;
     const foersteValg = gruppe.querySelector('label') ?? gruppe;
     const avstand =
       foersteValg.getBoundingClientRect().bottom - seksjon.getBoundingClientRect().top;
-    if (avstand < document.documentElement.clientHeight) {
+    // Linja med sendeknappen ligger fast nederst på smal skjerm og dekker det som står under den.
+    const linja = document.querySelector('.kompakt')?.getBoundingClientRect().height ?? 0;
+    if (avstand < document.documentElement.clientHeight - linja) {
       seksjon.scrollIntoView({ block: 'start' });
     }
   }
