@@ -124,12 +124,14 @@
   const uid = $props.id();
   let sendtMedMerking = $state<string | null>(null);
   const avvisningsstatus = $derived(kjernesak.sendeavvisning?.status);
+  const nummerEndret = $derived(
+    kjernesak.nummerEndret ||
+      (avvisningsstatus === 409 && !!merking && !!sendtMedMerking && merking !== sendtMedMerking)
+  );
   const avvisning = $derived.by(() => {
+    if (nummerEndret) return SENDEFEIL.nyttNummer;
     if (avvisningsstatus === 403) return SENDEFEIL.ingenTilgang;
     if (avvisningsstatus !== undefined && avvisningsstatus >= 500) return SENDEFEIL.serverfeil;
-    if (avvisningsstatus === 409 && merking && sendtMedMerking && merking !== sendtMedMerking) {
-      return SENDEFEIL.nyttNummer;
-    }
     return null;
   });
   const innlogging = $derived(
@@ -188,7 +190,7 @@
         ><ChevronLeft size={16} aria-hidden="true" />{BREVKONTROLL.tilbake(tilbakeTil)}</Knapp
       >
     </p>{/if}
-  <div class="venstre">
+  <div class="venstre" id={`${uid}-brevet`} tabindex="-1">
     <Brev
       {avsender}
       sak={kjernesak.saksbilde?.tittel ?? ''}
@@ -267,7 +269,9 @@
           >{#if avvisning}
             <strong>{SENDEFEIL.tittel}</strong>
             <p>{avvisning}</p>
-            {#if avvisningsstatus === 403}
+            {#if nummerEndret}
+              <p><a href={`#${uid}-brevet`}>{SENDEFEIL.seOverBrevet}</a></p>
+            {:else if avvisningsstatus === 403}
               <p><a href={innlogging}>{SENDEFEIL.loggInn}</a></p>
             {:else if avvisning === SENDEFEIL.serverfeil}
               <p>{SENDEFEIL.proevSenere}</p>

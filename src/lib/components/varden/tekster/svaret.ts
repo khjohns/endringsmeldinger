@@ -244,8 +244,8 @@ export const SENDEFEIL = haerdet({
   loggInn: 'Logg inn på nytt',
   serverfeil: 'Beklager, det oppstod en feil hos oss. Utkastet er som før.',
   proevSenere: 'Prøv igjen om litt.',
-  nyttNummer:
-    'En annen sak fikk nummeret før brevet ble sendt. Se over brevet med det nye nummeret og send det på nytt.',
+  seOverBrevet: 'Se over brevet',
+  nyttNummer: 'En annen sak fikk nummeret i brevet. Brevet har nå det nye nummeret.',
 });
 
 export const MOTTATT = haerdet({

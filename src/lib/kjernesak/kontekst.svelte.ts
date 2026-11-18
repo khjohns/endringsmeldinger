@@ -72,6 +72,14 @@ export function sendeavvisningFra(feil: unknown): Sendeavvisning | null {
   return feil instanceof ApiError && !erUsikkertUtfall(feil) ? { status: feil.status } : null;
 }
 
+/** Serveren har kvittert for lagringen, men kunne ikke lese tilbake brevet. */
+export function erKvittertBrevMangler(feil: unknown): boolean {
+  return (
+    feil instanceof ApiError &&
+    (feil.data as { error?: string } | undefined)?.error === 'KVITTERT_BREV_MANGLER'
+  );
+}
+
 export interface Kjernesakvalg {
   sakId: string;
   /** Prosjektet fra ruta, for lesingen og kommandoene (#743). */
@@ -347,7 +355,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       const utfall = await sendForsoek(forsoek, (f) =>
         send(sakId, f.versjon, f.kommandoId, f.kommando, valg.prosjektId)
       );
-      if (utfall.lagret) {
+      if (utfall.lagret || erKvittertBrevMangler(utfall.feil)) {
         ventende = null;
         // Et nyere kall som feilet, gir utfallet uten å vite om lagringen.
         if (!(await last(true))) {

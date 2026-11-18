@@ -242,6 +242,7 @@ export interface Brevsending {
   readonly feil: string | null;
   /** Sikker avvisning fra serveren i en eksisterende sak. */
   readonly sendeavvisning?: Sendeavvisning | null;
+  readonly nummerEndret?: boolean;
   send(kommando: Record<string, unknown>, tekst?: string[]): Promise<boolean>;
   fjernFeil(): void;
 }

@@ -11,6 +11,7 @@
   import { KJERNE } from '#kjerne/versjon.ts';
   import type { Saksmerking } from '#lib/kjernesak/brevtekst.ts';
   import {
+    erKvittertBrevMangler,
     sendeavvisningFra,
     tekstenKanVaereUtdatert,
     type Sendeavvisning,
@@ -52,7 +53,7 @@
     type Utfylling,
     type VedleggForNySak,
   } from './nysak';
-  import { KORRESPONDANSEN, NYSAK, SENDEFEIL, dagensDato, haerdet, punkt } from './tekster';
+  import { KORRESPONDANSEN, NYSAK, dagensDato, haerdet, punkt } from './tekster';
   import {
     korrespondansefeilene,
     korrespondansenoekkel,
@@ -247,6 +248,7 @@
   let sender = $state(false);
   let sendefeil = $state<string | null>(null);
   let sendeavvisning = $state<Sendeavvisning | null>(null);
+  let nummerEndret = $state(false);
   const sending: Brevsending = {
     part: 'TE',
     get saksbilde() {
@@ -261,16 +263,21 @@
     get sendeavvisning() {
       return sendeavvisning;
     },
+    get nummerEndret() {
+      return nummerEndret;
+    },
     async send(_kommando, tekst) {
       sender = true;
       sendefeil = null;
       sendeavvisning = null;
+      nummerEndret = false;
       try {
         const utkast = utfylling();
         const { opprettelse, paaberopelse } = kommandoene(utkast, KJERNE);
         await send({ sakId, opprettelse, paaberopelse, tekst: tekst ?? [], utkast });
         return true;
       } catch (e) {
+        if (erKvittertBrevMangler(e)) return true;
         sendeavvisning = sendeavvisningFra(e);
         sendefeil = e instanceof Error ? e.message : String(e);
         if (tekstenKanVaereUtdatert(e)) {
@@ -281,7 +288,7 @@
           if (lest && kontroll && detSomKontrolleres(lest) !== detSomKontrolleres(kontroll)) {
             const nyttNummer = lest.merking !== kontroll.merking;
             kontroll = { ...kontroll, ...lest };
-            if (nyttNummer) sendefeil = SENDEFEIL.nyttNummer;
+            nummerEndret = nyttNummer;
           }
         }
         return false;
@@ -292,6 +299,7 @@
     fjernFeil() {
       sendefeil = null;
       sendeavvisning = null;
+      nummerEndret = false;
     },
   };
 

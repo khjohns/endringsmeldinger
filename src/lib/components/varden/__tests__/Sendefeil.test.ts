@@ -91,7 +91,7 @@ describe('sendefeil i et eksisterende brev (#2188, E-2)', () => {
       'KOE-99'
     );
     expect(melding).toHaveTextContent('Brevet ble ikke sendt');
-    expect(melding).toHaveTextContent('Se over brevet med det nye nummeret');
+    expect(within(melding).getByRole('link', { name: 'Se over brevet' })).toBeInTheDocument();
     expect(melding).not.toHaveTextContent('Intern nummerkonflikt.');
     expect(screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' })).not.toBeChecked();
   });

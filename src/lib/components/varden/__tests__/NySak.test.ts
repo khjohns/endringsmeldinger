@@ -545,6 +545,20 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(screen.queryByText('Intern feilmelding.')).toBeNull();
   });
 
+  it('går til den lagrede saken ved KVITTERT_BREV_MANGLER (#2188)', async () => {
+    const { onsendt } = aapne(
+      vi
+        .fn<SendNySak>()
+        .mockRejectedValue(
+          new ApiError(500, 'Brevet kunne ikke leses tilbake.', { error: 'KVITTERT_BREV_MANGLER' })
+        )
+    );
+    await fyllIrregulaerEndring();
+    await sendBrevet();
+    await vi.waitFor(() => expect(onsendt).toHaveBeenCalledWith('ny-sak'));
+    expect(screen.queryByText(SENDEFEIL.tittel)).toBeNull();
+  });
+
   it('LV-U46: tok en annen sak nummeret, vises brevet med det nye nummeret og sendes med det', async () => {
     let nummer = 17;
     const send = vi
