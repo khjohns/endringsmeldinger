@@ -4,6 +4,7 @@
   står i med `ongaa`.
 -->
 <script lang="ts">
+  import Melding from './Melding.svelte';
   import type { Mangel } from './mangler';
 
   let {
@@ -21,25 +22,20 @@
   const uid = $props.id();
 </script>
 
-<div class="mangler" role="group" tabindex="-1" bind:this={element} aria-labelledby={uid}>
-  <p id={uid}>{tittel}</p>
-  <ul>
-    {#each mangler as m (m.felt)}
-      <li><a href={`#${m.felt}`} onclick={(e) => ongaa?.(m, e)}>{m.tekst}</a></li>
-    {/each}
-  </ul>
+<div class="mangler">
+  <Melding art="feil" levende={false} role="group" tabindex="-1" bind:element aria-labelledby={uid}>
+    <p id={uid}>{tittel}</p>
+    <ul>
+      {#each mangler as m (m.felt)}
+        <li><a href={`#${m.felt}`} onclick={(e) => ongaa?.(m, e)}>{m.tekst}</a></li>
+      {/each}
+    </ul>
+  </Melding>
 </div>
 
 <style>
   .mangler {
     margin: var(--spacing-5) var(--spacing-6) 0;
-    padding: var(--spacing-4);
-    border-left: 3px solid var(--danger);
-    background: var(--danger-bg);
-  }
-  .mangler:focus {
-    outline: 2px solid var(--control-focus);
-    outline-offset: 2px;
   }
   p {
     font-weight: 600;
