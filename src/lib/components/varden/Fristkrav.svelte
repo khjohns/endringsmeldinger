@@ -107,14 +107,14 @@
   const tabell = $derived(kjernesak.kontraktsfrister ?? []);
   // Uten tabell står feltene for fristen direkte (#2185). Kommer tabellen ved en ny lasting, må
   // parten velge igjen i en rad som ikke er fylt ut.
-  const satt = new Set<string>();
+  const satt: Record<string, true> = {};
   $effect(() => {
     for (const p of v.frister) {
       if (tabell.length === 0 && p.frist === null) {
         p.frist = 'annen';
-        satt.add(p.noekkel);
-      } else if (tabell.length > 0 && satt.has(p.noekkel)) {
-        satt.delete(p.noekkel);
+        satt[p.noekkel] = true;
+      } else if (tabell.length > 0 && satt[p.noekkel]) {
+        delete satt[p.noekkel];
         if (p.frist === 'annen' && !p.nummer && !p.navn) p.frist = null;
       }
     }
