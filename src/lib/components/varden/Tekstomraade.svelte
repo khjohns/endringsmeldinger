@@ -20,6 +20,7 @@
     foran = [],
     etter = [],
     paakrevd = false,
+    inaktiv = false,
     valgfri = false,
     underordnet = false,
     oninput,
@@ -40,6 +41,7 @@
     /** ID-ene til tekst som beskriver feltet, etter hjelpeteksten og før feilen. */
     etter?: readonly string[];
     paakrevd?: boolean;
+    inaktiv?: boolean;
     /** Feltet kan stå tomt, og labelen har «Valgfri» til høyre. */
     valgfri?: boolean;
     /** Labelen for et punkt under en felles overskrift (`Feltetikett`). */
@@ -91,14 +93,16 @@
     aria-describedby={beskrevetAv(id, hjelp, feil, foran, etter)}
     aria-invalid={feil ? 'true' : undefined}
     aria-required={paakrevd ? 'true' : undefined}
+    disabled={inaktiv}
     {oninput}
   ></textarea>
 </Felt>
 
 <style>
   textarea {
+    min-height: 44px;
     padding: var(--spacing-3);
-    border: var(--control-border);
+    border: var(--rule-strong);
     border-radius: var(--r-felt);
     font: 16px/1.6 var(--font-sans);
     color: var(--ink);
@@ -109,6 +113,14 @@
     min-height: 6lh;
     resize: none;
     overflow: hidden;
+  }
+  textarea:hover {
+    border-color: var(--ink-3);
+  }
+  textarea:disabled {
+    background: var(--surface-inset);
+    color: var(--ink-4);
+    cursor: not-allowed;
   }
   textarea:focus-visible {
     outline: 2px solid var(--control-focus);

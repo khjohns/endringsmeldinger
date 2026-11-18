@@ -662,15 +662,15 @@
   .forhold:has(input:checked) {
     background: var(--canvas);
   }
+  .forhold:has(input:focus-visible) {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
+  }
+  .forhold:has(input:focus-visible) input {
+    outline: none;
+  }
   .forhold .navn {
     flex: 1;
-  }
-  .forhold input {
-    flex-shrink: 0;
-    width: 18px;
-    height: 18px;
-    margin: 0;
-    accent-color: var(--ink);
   }
   .punkt {
     color: var(--ink-3);

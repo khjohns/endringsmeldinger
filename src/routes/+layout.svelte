@@ -2,6 +2,7 @@
   import { Tooltip } from 'bits-ui';
   import '#lib/components/kontraktsbord/theme.css';
   import '../app.css';
+  import '#lib/components/varden/skjemaelementer.css';
   import { logout } from '#lib/api/auth.ts';
   let { children, data } = $props();
   let logoutError = $state('');

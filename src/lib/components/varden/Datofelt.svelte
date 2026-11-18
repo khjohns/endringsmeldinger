@@ -14,6 +14,7 @@
     verdi = $bindable(),
     feil = null,
     paakrevd = false,
+    inaktiv = false,
     oninput,
   }: {
     id: string;
@@ -24,6 +25,7 @@
     verdi: string;
     feil?: string | null;
     paakrevd?: boolean;
+    inaktiv?: boolean;
     oninput?: () => void;
   } = $props();
 </script>
@@ -37,6 +39,7 @@
     aria-describedby={beskrevetAv(id, hjelp, feil)}
     aria-invalid={feil ? 'true' : undefined}
     aria-required={paakrevd ? 'true' : undefined}
+    disabled={inaktiv}
     {oninput}
   />
 </Felt>
@@ -48,11 +51,19 @@
     max-inline-size: 100%;
     min-height: 44px;
     padding: 0 var(--spacing-3);
-    border: var(--control-border);
+    border: var(--rule-strong);
     border-radius: var(--r-felt);
     font: 16px var(--font-sans);
     color: var(--ink);
     background: var(--surface);
+  }
+  input:hover {
+    border-color: var(--ink-3);
+  }
+  input:disabled {
+    background: var(--surface-inset);
+    color: var(--ink-4);
+    cursor: not-allowed;
   }
   input:focus-visible {
     outline: 2px solid var(--control-focus);

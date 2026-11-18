@@ -357,6 +357,9 @@
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
   }
+  .avkryss:has(input:focus-visible) input {
+    outline: none;
+  }
   .avkryss.ugyldig {
     border-color: var(--danger);
     box-shadow: inset 0 0 0 1px var(--danger);
@@ -365,11 +368,6 @@
     color: var(--danger);
     font-size: 14px;
     font-weight: 500;
-  }
-  .avkryss input {
-    width: 20px;
-    height: 20px;
-    accent-color: var(--ink);
   }
   @media (max-width: 1180px) {
     .kontroll {
