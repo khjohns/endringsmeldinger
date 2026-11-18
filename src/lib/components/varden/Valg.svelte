@@ -89,7 +89,6 @@
           type={avkrysning ? 'checkbox' : 'radio'}
           name={navn}
           aria-invalid={feil ? 'true' : undefined}
-          aria-describedby={beskrivelse}
           value={String(v.verdi)}
           checked={verdi === v.verdi}
           onchange={(e) => (verdi = avkrysning && !e.currentTarget.checked ? null : v.verdi)}
