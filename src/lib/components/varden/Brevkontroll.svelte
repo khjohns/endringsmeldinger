@@ -54,6 +54,8 @@
 <script lang="ts">
   import { ChevronLeft, Send } from 'lucide-svelte';
   import { onMount } from 'svelte';
+  import { page } from '$app/state';
+  import { resolve } from '$app/paths';
   import type { Part } from '#kjerne/typer.ts';
   import type { Brevref } from './lesing';
   import type { Brevsending } from './nysak';
@@ -62,7 +64,7 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import { organisasjonene } from './kontrakt';
-  import { BREVKONTROLL } from './tekster';
+  import { BREVKONTROLL, SENDEFEIL } from './tekster';
   import { PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 
   let {
@@ -120,6 +122,19 @@
     onavvist?: () => void;
   } = $props();
   const uid = $props.id();
+  const avvisningsstatus = $derived(kjernesak.sendeavvisning?.status);
+  const avvisning = $derived(
+    avvisningsstatus === 403
+      ? SENDEFEIL.ingenTilgang
+      : avvisningsstatus !== undefined && avvisningsstatus >= 500
+        ? SENDEFEIL.serverfeil
+        : null
+  );
+  const innlogging = $derived(
+    page.url
+      ? `${resolve('/login')}?return_to=${encodeURIComponent(page.url.pathname + page.url.search)}`
+      : resolve('/login')
+  );
 
   const avsender = $derived(kjernesak.part as Part);
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
@@ -246,13 +261,24 @@
         {kjernesak.sender ? BREVKONTROLL.sender : sendTekst}
       </Knapp>
       {#if harSendt && kjernesak.feil && !kjernesak.sender}<Melding art="feil"
-          >{kjernesak.feil}</Melding
+          >{#if avvisning}
+            <strong>{SENDEFEIL.tittel}</strong>
+            <p>{avvisning}</p>
+            {#if avvisningsstatus === 403}
+              <p><a href={innlogging}>{SENDEFEIL.loggInn}</a></p>
+            {:else}
+              <p>{SENDEFEIL.proevSenere}</p>
+            {/if}
+          {:else}{kjernesak.feil}{/if}</Melding
         >{/if}
     </div>
   </section>
 </div>
 
 <style>
+  strong {
+    font-weight: 600;
+  }
   .kontroll {
     display: grid;
     grid-template-columns: minmax(0, var(--varden-ark)) var(--varden-stoette);

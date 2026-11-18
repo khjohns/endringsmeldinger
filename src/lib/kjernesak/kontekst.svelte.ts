@@ -62,6 +62,11 @@ const USIKKERT = usikkertUtfall('brevet ble lagret', 'det lagres ikke to ganger'
 const IKKE_LASTET = 'Brevet er lagret, men saken kunne ikke lastes på nytt.';
 const KAN_VAERE_UTDATERT = 'Saken som vises, kan være utdatert, og den kunne ikke lastes på nytt.';
 
+/** HTTP-statusen når serveren bekrefter at forsøket ble avvist. */
+export interface Sendeavvisning {
+  status: number;
+}
+
 export interface Kjernesakvalg {
   sakId: string;
   /** Prosjektet fra ruta, for lesingen og kommandoene (#743). */
@@ -161,6 +166,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   let sak = $state<LastetKjernesak | null>(null);
   let feil = $state<string | null>(null);
   let sender = $state(false);
+  let sendeavvisning = $state<Sendeavvisning | null>(null);
   let finnes = $state<boolean | null>(null);
   let lasteutfall = $state<'utilgjengelig' | 'nettverk' | 'server' | null>(null);
   let ventende = $state<Ventende | null>(valg.ventende ?? null);
@@ -292,6 +298,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       feil = 'Et brev sendes allerede. Vent til det er ferdig.';
       return false;
     }
+    sendeavvisning = null;
     if (!sak) {
       feil = 'Saken er ikke lastet. Last den på nytt og prøv igjen.';
       return false;
@@ -330,6 +337,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   async function sendBrev(forsoek: Ventende): Promise<boolean> {
     sender = true;
     feil = null;
+    sendeavvisning = null;
     try {
       const utfall = await sendForsoek(forsoek, (f) =>
         send(sakId, f.versjon, f.kommandoId, f.kommando, valg.prosjektId)
@@ -345,6 +353,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       }
       ventende = utfall.ventende;
       const e = utfall.feil;
+      sendeavvisning = !ventende && e instanceof ApiError ? { status: e.status } : null;
       const hva = ventende ? USIKKERT : 'Brevet ble ikke sendt.';
       const aarsak = ventende ? null : meldingFra(e, null);
       // Saken er endret siden den ble lastet, eller en annen sak har fått nummeret i teksten
@@ -366,6 +375,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
    * saken er utdatert.
    */
   function fjernFeil() {
+    sendeavvisning = null;
     feil = staaende();
   }
 
@@ -439,6 +449,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     },
     get feil() {
       return feil;
+    },
+    get sendeavvisning() {
+      return sendeavvisning;
     },
     get sender() {
       return sender;

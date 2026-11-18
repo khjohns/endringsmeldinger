@@ -237,6 +237,15 @@ export const BREVKONTROLL = haerdet({
   sendAksepten: 'Send aksepten til byggherren',
 });
 
+/** Sikre sendefeil i brevkontrollen (#2188, E-2). */
+export const SENDEFEIL = haerdet({
+  tittel: 'Brevet ble ikke sendt',
+  ingenTilgang: 'Beklager, du har ikke tilgang til å sende brev i saken nå.',
+  loggInn: 'Logg inn på nytt',
+  serverfeil: 'Beklager, det oppstod en feil hos oss. Utkastet er som før.',
+  proevSenere: 'Prøv igjen om litt.',
+});
+
 export const MOTTATT = haerdet({
   fra: (n: number, part: Part, d: string) => `Brev ${n} · ${part} · mottatt ${dato(d)} ${kl(d)}`,
   sendt: (d: string) =>
