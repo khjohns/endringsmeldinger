@@ -17,6 +17,7 @@
   import { brevTilKontrollen } from './sendeflyt.svelte';
   import { KRAVTITTEL, SVARTITTEL, UTSAGNSTITTEL } from '#kjerne/frosset/brevtittel.ts';
   import { sakensKode } from '#kjerne/frosset/tekst.ts';
+  import Brevkvittering from './Brevkvittering.svelte';
   import Brevkontroll, { type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
   import Forkastutkast from './Forkastutkast.svelte';
@@ -58,6 +59,8 @@
     betegnelsene,
     brevForLinja,
     brevene,
+    brevet,
+    type Brevet,
     datoopplysningene,
     forholdetISaken,
     type Brevref,
@@ -185,6 +188,7 @@
     valgt = spor;
     arbeid = neste;
     melding = null;
+    lukkKvittering();
     if (neste.art !== 'les' && neste.art !== 'kontroll') void fokuserOverskriften();
   });
 
@@ -195,6 +199,7 @@
 
   function tilArbeid(neste: Arbeid, s = valgt, erstatt = false) {
     const forrige = { spor: valgt, arbeid };
+    lukkKvittering();
     valgt = s;
     arbeid = neste;
     historikk.lagre(forrige, { spor: s, arbeid }, erstatt);
@@ -296,11 +301,26 @@
   let melding = $state<{ tekst: string; art: 'sendt' | 'forkastet' | 'endret' } | null>(
     untrack(() => (kvittering ? { tekst: kvittering, art: 'sendt' } : null))
   );
+  let kvittert = $state<Brevet | null>(null);
+  let visNySakKvittering = $state(untrack(() => Boolean(kvittering)));
+
+  function lukkKvittering() {
+    kvittert = null;
+    visNySakKvittering = false;
+    if (melding?.art === 'sendt') melding = null;
+  }
+
   let meldingen = $state<HTMLElement | null>(null);
   let proever = $state(false);
   let sistForsoekt = $state<string | null>(null);
 
   const u = $derived(kjernesak.utledning);
+  const kvittertBrev = $derived(
+    kvittert ??
+      (visNySakKvittering && u
+        ? (brevene(u).find((b) => b.art === 'krav' && b.spor.includes('forhold')) ?? null)
+        : null)
+  );
   const uid = $props.id();
   // Fokus flyttes til meldingen om den trukne påberopelsen når fokuset forsvant med skjemaet, ikke
   // når brukeren velger sporet eller står et annet sted (#2104).
@@ -430,6 +450,8 @@
     if (valgt !== s || arbeid.art !== 'kontroll' || arbeid.kommando !== k.kommando) return;
     tilArbeid({ art: 'les' }, s, true);
     melding = { tekst: k.kvittering ?? MOTTATT.dittBrev, art: 'sendt' };
+    const id = kjernesak.sistSendteHendelse;
+    if (u && id) kvittert = brevet(u, id);
   }
 
   /** Tilbake til saken med kvitteringen `tekst`, som får fokus. */
@@ -986,9 +1008,16 @@
     <p class="laster" role="status">{SAKEN.laster}</p>
   {:else}
     <main class="arbeid" bind:this={arbeidsflate}>
-      <div class="melding" class:tom={!melding} role="status" tabindex="-1" bind:this={meldingen}>
-        {#if melding}<Melding art={melding.art === 'endret' ? 'info' : 'kvittering'} levende={false}
-            >{melding.tekst}</Melding
+      <div
+        class="melding"
+        class:tom={!melding || !!kvittertBrev}
+        role={kvittertBrev ? undefined : 'status'}
+        tabindex="-1"
+        bind:this={meldingen}
+      >
+        {#if melding && !kvittertBrev}<Melding
+            art={melding.art === 'endret' ? 'info' : 'kvittering'}
+            levende={false}>{melding.tekst}</Melding
           >{/if}
       </div>
       <!-- MM-U2: en hendelse kjernen ikke forstår, gjør saken ikke forstått (#2079). -->
@@ -1011,7 +1040,14 @@
           >
         </p>
       {/if}
-      {#if arbeid.art === 'kontroll'}
+      {#if kvittertBrev && melding}
+        <Brevkvittering
+          brev={kvittertBrev}
+          sak={kjernesak.saksbilde.tittel ?? ''}
+          tekst={melding.tekst}
+          ontilbake={lukkKvittering}
+        />
+      {:else if arbeid.art === 'kontroll'}
         {@const k = arbeid}
         {@const s = valgt}
         <Brevkontroll

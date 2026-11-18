@@ -180,6 +180,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   let feil = $state<string | null>(null);
   let sender = $state(false);
   let sendeavvisning = $state<Sendeavvisning | null>(null);
+  let sistSendteHendelse = $state<string | null>(null);
   let finnes = $state<boolean | null>(null);
   let lasteutfall = $state<'utilgjengelig' | 'ugyldig' | 'nettverk' | 'server' | null>(null);
   let ventende = $state<Ventende | null>(valg.ventende ?? null);
@@ -357,6 +358,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
 
   async function sendBrev(forsoek: Ventende): Promise<boolean> {
     sender = true;
+    sistSendteHendelse = null;
     feil = null;
     sendeavvisning = null;
     try {
@@ -365,6 +367,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       );
       if (utfall.lagret || erKvittertBrevMangler(utfall.feil)) {
         ventende = null;
+        sistSendteHendelse = utfall.lagret ? utfall.svar.event_id : null;
         // Et nyere kall som feilet, gir utfallet uten å vite om lagringen.
         if (!(await last(true))) {
           utdatert = { fordi: IKKE_LASTET, aarsak: lastefeil };
@@ -482,6 +485,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     },
     get sendeavvisning() {
       return sendeavvisning;
+    },
+    get sistSendteHendelse() {
+      return sistSendteHendelse;
     },
     get sender() {
       return sender;

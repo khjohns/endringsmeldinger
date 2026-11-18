@@ -266,7 +266,8 @@ export const MOTTATT = haerdet({
   fra: (n: number, part: Part, d: string) => `Brev ${n} · ${part} · mottatt ${dato(d)} ${kl(d)}`,
   sendt: (d: string) =>
     `Sendt herfra ${dato(d)} ${kl(d)}. Dette er brevet slik det ble sendt, og det kan ikke endres.`,
-  sendtMerke: (d: string) => `Sendt ${dato(d)}`,
+  sendtMerke: (d: string) => `Sendt ${dato(d)} ${kl(d)}`,
+  saken: 'saken',
   dittBrev: 'Brevet ditt er sendt.',
   forkastet: 'Utkastet er forkastet.',
   sakenEndret:
