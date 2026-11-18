@@ -103,7 +103,6 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(vist).toContain(BEGRUNNELSE);
     // MM-U34 punkt 26: skjemaet sier ikke at BH er bundet av svaret eller at det ikke kan revideres.
     // OV-U81 og #1443: hvordan løsningen virker, står på siden «Om Varden», ikke ved feltene.
-    // (oppdragsgiver 07.11, PR 1650).
     expect(document.body.textContent).not.toMatch(/tolkes ikke|vurderes ikke/);
     expect(document.body.textContent).not.toMatch(/er bundet av svaret|kan ikke revideres/);
     expect(document.body.textContent).not.toMatch(/\bKA-U\d/);
@@ -467,7 +466,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(omslaget()).toBeInTheDocument();
 
     // Der panelet er felt inn, står sporene i topplinja (U-16 i BF-44, #1899 punkt 4).
-    await fireEvent.click(screen.getByRole('button', { name: 'Les ved siden av' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Les brevet ved siden av' }));
     expect(omslaget()).toBeNull();
     const sporene = screen.getByRole('navigation', { name: 'Forholdet og kravene i saken' });
     expect(within(sporene).getByRole('button', { name: 'Vederlagsjustering' })).toHaveAttribute(
