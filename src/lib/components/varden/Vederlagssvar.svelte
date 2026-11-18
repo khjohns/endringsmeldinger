@@ -18,6 +18,7 @@
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kravpost, Standpunkt } from '#kjerne/typer.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import Forholdsgrunn from './Forholdsgrunn.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
   import Knapp from './Knapp.svelte';
   import Postliste from './Postliste.svelte';
@@ -265,13 +266,7 @@
 <!-- Forutsetningene i en kravpost gjelder den, også innsigelsen etter § 34.3.3 (`innenforKravposten`). -->
 {#snippet forutsetning({ f, post }: IPosten)}
   {#if 'grunn' in f}
-    {#if f.grunn === 'avslaatt' && onforholdet}
-      <Knapp variant="lenke" kompakt iFlukt onclick={onforholdet}
-        >{SKJEMA.grunnen(f.grunn, grunnlagsbrev!)}</Knapp
-      >
-    {:else}
-      {SKJEMA.grunnen(f.grunn, grunnlagsbrev!)}
-    {/if}
+    <Forholdsgrunn grunn={f.grunn} brev={grunnlagsbrev!} {onforholdet} />
   {:else if 'oppgjoersform' in f}
     <a href={`#${uid}-form-${post!.betegnelse}`}>{SKJEMA.standpunktetTilFormen}</a>
   {:else if f.innsigelse === '34.3.3'}

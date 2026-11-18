@@ -407,8 +407,9 @@ describe('Varden med brukerforløpet BF-01', () => {
       const avslaget = screen.getAllByRole('button', { name: 'avslaget av forholdet i brev 2' })[0];
       await fireEvent.click(avslaget);
       expect(screen.queryByRole('form')).toBeNull();
-      expect(screen.getByRole('main')).toHaveFocus();
-      expect(screen.getByRole('heading', { name: /^Manglende medvirkning/ })).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: /^Manglende medvirkning/, level: 2 })
+      ).toHaveFocus();
       expect(kjernesak.versjon).toBe(utkastversjon);
       const panelet = within(
         screen.getByRole('navigation', { name: 'Forholdet og kravene i saken' })

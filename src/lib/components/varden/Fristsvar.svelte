@@ -16,6 +16,7 @@
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import { VIRKNING } from '#lib/kjernesak/svarvirkning.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
+  import Forholdsgrunn from './Forholdsgrunn.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
   import Knapp from './Knapp.svelte';
   import Postliste from './Postliste.svelte';
@@ -285,13 +286,7 @@
 
 {#snippet forutsetning(f: Forutsetning)}
   {#if 'grunn' in f}
-    {#if f.grunn === 'avslaatt' && onforholdet}
-      <Knapp variant="lenke" kompakt iFlukt onclick={onforholdet}
-        >{SKJEMA.grunnen(f.grunn, grunnlagsbrev!)}</Knapp
-      >
-    {:else}
-      {SKJEMA.grunnen(f.grunn, grunnlagsbrev!)}
-    {/if}
+    <Forholdsgrunn grunn={f.grunn} brev={grunnlagsbrev!} {onforholdet} />
   {:else if f.innsigelse === '33.4'}
     <a href={`#${uid}-varsel`}>{innsigelsenOmVarselet('33.4')}</a>
   {:else if f.innsigelse === '33.6.2'}

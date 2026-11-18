@@ -407,7 +407,7 @@
 
   async function tilForholdet() {
     velgSpor('forhold');
-    await fokuser(() => arbeidsflate);
+    await fokuser(() => arbeidsflate?.querySelector<HTMLElement>('h2[tabindex="-1"]'));
   }
 
   async function proevIgjen() {
@@ -973,7 +973,7 @@
   {:else if !u || !kjernesak.saksbilde}
     <p class="laster" role="status">{SAKEN.laster}</p>
   {:else}
-    <main class="arbeid" tabindex="-1" bind:this={arbeidsflate}>
+    <main class="arbeid" bind:this={arbeidsflate}>
       <div class="melding" class:tom={!melding} role="status" tabindex="-1" bind:this={meldingen}>
         {#if melding}<Melding art={melding.art === 'endret' ? 'info' : 'kvittering'} levende={false}
             >{melding.tekst}</Melding
