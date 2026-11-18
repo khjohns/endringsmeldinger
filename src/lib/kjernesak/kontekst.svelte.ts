@@ -257,7 +257,12 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   function lagene(utkast: Svarutkast, spor: 'forhold' | 'vederlag' | 'frist') {
     if (!utledning) return null;
     if (utkast.spor !== spor) throw new Error(`Utkastet gjelder ${utkast.spor}, ikke ${spor}`);
-    return lagForUtkastet(utkast, utledning, kjerne.regler);
+    try {
+      return lagForUtkastet(utkast, utledning, kjerne.regler);
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
   }
 
   /**
