@@ -128,7 +128,7 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     // U-3, D-5: mottakeren og brevrelasjonene. Datoen står i brevet, og korrigeringen på
     // oversikten, ikke i bekreftelsen (oppdragsgiver 06.11 og 07.11, PR 1650).
     expect(kontrollen.queryByText('Fra')).toBeNull();
-    expect(kontrollen.getByText('Mottaker').nextElementSibling?.textContent).toMatch(/\(BH\)$/);
+    expect(kontrollen.getByText('Mottaker').nextElementSibling?.textContent).toBe('Oslobygg KF');
     // Rekkefølgen, ikke hva brevene sier i forhold til hverandre, og uten eier på TEs eget brev
     // (oppdragsgiver 07.11, PR 1650; språkfila, «Brev, ikke versjon»).
     expect(kontrollen.queryByText('Erstatter')).toBeNull();
@@ -223,7 +223,7 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     );
     // Tråden står nyest først, så den nye versjonen er den første påberopelsen.
     const nyVersjon = traaden
-      .getAllByRole('heading', { name: /^Påberopelse av forholdet/ })
+      .getAllByRole('heading', { name: /^Påberopelse av irregulær endring/ })
       .at(0)!
       .closest('li')!;
     expect(nyVersjon.textContent).toMatch(/Pålegget mottatt 15\. september 2026/);

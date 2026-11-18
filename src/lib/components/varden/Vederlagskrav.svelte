@@ -53,7 +53,7 @@
     type Brevet,
     type Brevref,
   } from './lesing';
-  import { dagensDato, dato, kalenderdager, KRAVSKJEMA, LEGG_TIL } from './tekster';
+  import { dagensDato, kalenderdager, KRAVSKJEMA, LEGG_TIL } from './tekster';
   import {
     PNS_GRENSE,
     fordelingenPaaPns,
