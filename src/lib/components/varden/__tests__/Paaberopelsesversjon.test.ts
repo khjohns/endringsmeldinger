@@ -239,7 +239,7 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     expect(skjema.queryByRole('button', { name: /Korriger datoen/ })).toBeNull();
     await fireEvent.input(teksten(), { target: { value: 'Utkastet mitt.' } });
     // TE går tilbake til oversikten og korrigerer datoen ved datoen i brevtråden.
-    await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til forholdet' }));
+    await fireEvent.click(screen.getByRole('link', { name: 'Tilbake til forholdet' }));
     await fireEvent.click(
       within(await screen.findByRole('list', { name: 'Brevene i saken, nyeste først' })).getByRole(
         'button',

@@ -421,7 +421,16 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByRole('form')).toBeNull();
     expect(vederlag().textContent).toMatch(/Utkast/);
 
+    // #2179: fanen åpner oversikten. Fortsett og tilbake bevarer valget.
     await fireEvent.click(vederlag());
+    expect(screen.queryByRole('form')).toBeNull();
+    await fireEvent.click(screen.getByRole('button', { name: 'Fortsett utkastet' }));
+    expect(screen.getByRole('radio', { name: 'Varslet for sent' })).toBeChecked();
+    const hode = screen.getByRole('heading', { name: /^Svar på krav om vederlagsjustering/ });
+    expect(document.activeElement).toBe(hode);
+    await fireEvent.click(screen.getByRole('link', { name: 'Tilbake til vederlagsjusteringen' }));
+    expect(screen.queryByRole('form')).toBeNull();
+    await fireEvent.click(screen.getByRole('button', { name: 'Fortsett utkastet' }));
     expect(screen.getByRole('radio', { name: 'Varslet for sent' })).toBeChecked();
     expect(vederlag().textContent).not.toMatch(/Utkast/);
   });
@@ -530,7 +539,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     await bhSvarerIVarden();
     kontroller();
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til utkastet' }));
+    await fireEvent.click(screen.getByRole('link', { name: 'Tilbake til utkastet' }));
     kontroller();
     expect(screen.getByText('Om varselet kom i tide, avgjør partene.')).toBeTruthy();
   });
@@ -1001,6 +1010,8 @@ describe('svaret på påberopelsen av forholdet (BF-08, #2009)', () => {
     // Utkastet står til det er sendt eller forkastet, også når et annet spor velges (BF-01 S-8).
     await fireEvent.click(screen.getByRole('button', { name: /^Vederlagsjustering/ }));
     await fireEvent.click(screen.getByRole('button', { name: /^Irregulær endring/ }));
+    expect(screen.queryByRole('form')).toBeNull();
+    await fireEvent.click(screen.getByRole('button', { name: 'Fortsett utkastet' }));
     expect(screen.getByRole('radio', { name: 'Enig, endringsordre' })).toBeChecked();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));

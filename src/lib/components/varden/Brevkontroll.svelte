@@ -82,6 +82,7 @@
     kanIkkeGjoeresOm = false,
     sendTekst,
     tilbakeTil,
+    visTilbake = true,
     ontilbake,
     onsendt,
     onavvist,
@@ -109,6 +110,7 @@
     kanIkkeGjoeresOm?: boolean;
     sendTekst: string;
     tilbakeTil: string;
+    visTilbake?: boolean;
     ontilbake: () => void;
     onsendt: () => void;
     /**
@@ -163,11 +165,11 @@
 
 <div class="kontroll">
   <!-- Lenken står over begge kolonnene, så brevet og sendepanelet begynner på samme høyde. -->
-  <p class="tilbake">
-    <Knapp variant="lenke" onclick={tilbake}
-      ><ChevronLeft size={16} aria-hidden="true" />{BREVKONTROLL.tilbake(tilbakeTil)}</Knapp
-    >
-  </p>
+  {#if visTilbake}<p class="tilbake">
+      <Knapp variant="lenke" onclick={tilbake}
+        ><ChevronLeft size={16} aria-hidden="true" />{BREVKONTROLL.tilbake(tilbakeTil)}</Knapp
+      >
+    </p>{/if}
   <div class="venstre">
     <Brev
       {avsender}

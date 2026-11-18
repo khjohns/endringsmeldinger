@@ -8,6 +8,8 @@ declare global {
     interface PageState {
       /** TE kommer til saken fra skjemaet for ny sak, og saken viser kvitteringen (#1414). */
       nySakSendt?: boolean;
+      /** Nøkkelen til en arbeidsflate i den åpne saken (#2179). */
+      vardenArbeid?: string;
     }
     // interface Platform {}
   }

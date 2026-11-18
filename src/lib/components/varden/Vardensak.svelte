@@ -8,10 +8,14 @@
   import { akseptfristen, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Spor } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
+  import { page } from '$app/state';
+  import { ChevronLeft } from 'lucide-svelte';
+  import { arbeidshistorikk } from './arbeidshistorikk.svelte';
   import { tick, untrack, type Snippet } from 'svelte';
   import { medietreff } from './medie.svelte';
   import { fokuser } from './mangler';
   import { brevTilKontrollen } from './sendeflyt.svelte';
+  import { KRAVTITTEL, SVARTITTEL, UTSAGNSTITTEL } from '#kjerne/frosset/brevtittel.ts';
   import { sakensKode } from '#kjerne/frosset/tekst.ts';
   import Brevkontroll, { type TilBrevkontrollen } from './Brevkontroll.svelte';
   import Knapp from './Knapp.svelte';
@@ -145,6 +149,9 @@
     | { art: 'korrespondanse' }
     | ({ art: 'kontroll' } & Kontroll);
 
+  type Skjemaarbeid = Exclude<Arbeid, { art: 'les' | 'kontroll' }>;
+  type Visning = { spor: Spor; arbeid: Arbeid };
+
   const SPORGRUPPENE: { id: string; etikett: string; spor: Spor[] }[] = [
     { id: 'forholdet', etikett: SAKEN.kontraktsforhold, spor: ['forhold'] },
     { id: 'kravene', etikett: SAKEN.krav, spor: ['vederlag', 'frist'] },
@@ -166,6 +173,38 @@
     else if (f.right > n.right) sporene.scrollLeft += f.right - n.right;
   });
   let arbeid = $state<Arbeid>({ art: 'les' });
+  let arbeidsflate = $state<HTMLElement | null>(null);
+  const historikk = arbeidshistorikk<Visning>(({ spor, arbeid: neste }) => {
+    if (arbeid.art === 'kontroll' && neste.art !== 'kontroll') {
+      const kontrollen = arbeid;
+      historikk.oppdater((v) =>
+        v.arbeid === kontrollen ? { spor: v.spor, arbeid: kontrollen.tilbake } : v
+      );
+    }
+    valgt = spor;
+    arbeid = neste;
+    melding = null;
+    if (neste.art !== 'les' && neste.art !== 'kontroll') void fokuserOverskriften();
+  });
+
+  async function fokuserOverskriften() {
+    await tick();
+    arbeidsflate?.querySelector<HTMLElement>('form[aria-labelledby] h2[tabindex="-1"]')?.focus();
+  }
+
+  function tilArbeid(neste: Arbeid, s = valgt, erstatt = false) {
+    const forrige = { spor: valgt, arbeid };
+    valgt = s;
+    arbeid = neste;
+    historikk.lagre(forrige, { spor: s, arbeid }, erstatt);
+    if (neste.art !== 'les' && neste.art !== 'kontroll') void fokuserOverskriften();
+  }
+
+  function tilbakeTil(neste: Arbeid) {
+    if (!historikk.tilbake((v) => v.spor === valgt && v.arbeid.art === neste.art))
+      tilArbeid(neste, valgt, true);
+  }
+
   /**
    * Det tomme utkastet i hvert skjema, med navnet skjemaet har i `skjemaene`. Utkastet står når
    * parten går til brevkontrollen og tilbake: svaret også når BH velger et annet spor (BF-01 S-8),
@@ -222,14 +261,37 @@
   // Mens brevet leses ved siden av skjemaet, felles panelet til venstre inn, så brevet blir
   // omtrent like bredt som ellers (oppdragsgiver 30.10, #1391).
   let vedSiden = $state(false);
-  // Utkastet til svaret står til det er sendt eller forkastet, også når BH velger et annet
-  // spor (BF-01 S-8). Merket i panelet vises bare når et annet spor er valgt (#1391).
-  let utkastAapent = $state<Record<Spor, boolean>>({
-    forhold: false,
-    vederlag: false,
-    frist: false,
+  const utkastArbeid = $state<Record<Spor, Skjemaarbeid[]>>({
+    forhold: [],
+    vederlag: [],
+    frist: [],
   });
-  const harUtkast = (s: Spor) => utkastAapent[s];
+  const harUtkast = (s: Spor) => utkastArbeid[s].length > 0;
+  const harSvarutkast = (s: Spor) => utkastArbeid[s].some((utkast) => utkast.art === 'svar');
+
+  function aapneUtkast(neste: Skjemaarbeid) {
+    utkastArbeid[valgt] = [neste, ...utkastArbeid[valgt].filter((u) => u.art !== neste.art)];
+    tilArbeid(neste);
+  }
+
+  function fjernUtkast(s: Spor, art: Arbeid['art']) {
+    utkastArbeid[s] = utkastArbeid[s].filter((utkast) => utkast.art !== art);
+    historikk.oppdater((v) =>
+      v.spor === s && (v.arbeid.art === art || v.arbeid.art === 'kontroll')
+        ? { spor: s, arbeid: { art: 'les' } }
+        : v
+    );
+  }
+  const utkasttittel = (utkast: Skjemaarbeid) =>
+    ({
+      svar: SVARTITTEL[valgt],
+      korrigering: UTSAGNSTITTEL.korrigering,
+      nyversjon: FORHOLDET.oppdater,
+      vederlagskrav: KRAVTITTEL.vederlag,
+      fristkrav: KRAVTITTEL.frist,
+      korrespondanse: LEGG_TIL.tittel,
+    })[utkast.art];
+
   let melding = $state<{ tekst: string; art: 'sendt' | 'forkastet' | 'endret' } | null>(
     untrack(() => (kvittering ? { tekst: kvittering, art: 'sendt' } : null))
   );
@@ -286,7 +348,7 @@
   // Svarutkastet i sporet er sendt eller forkastet.
   function tomtUtkast(s: Spor) {
     tom(svaretI[s]);
-    utkastAapent[s] = false;
+    fjernUtkast(s, 'svar');
     // Et forkastet svar lagt til tar korrespondansen med seg.
     if (s === 'forhold') {
       svaretFra = null;
@@ -298,7 +360,7 @@
   function tilSvarkontroll(s: Spor, k: TilBrevkontrollen) {
     const krav = brev.find((b) => b.id === u?.spor[s].gjeldendeKrav?.dokument);
     melding = null;
-    arbeid = {
+    tilArbeid({
       art: 'kontroll',
       versjon: kjernesak.versjon,
       ...k,
@@ -308,7 +370,7 @@
       svarerPaa: krav ?? null,
       tilbake: { art: 'svar' },
       utkastet: s,
-    };
+    });
   }
 
   /** Brevkontrollen for TEs krav i sporet, med forrige krav og svaret på det som relasjoner. */
@@ -316,7 +378,7 @@
     const kravet = brev.find((b) => b.id === u?.spor[s].gjeldendeKrav?.dokument);
     const svaret = brev.find((b) => b.id === u?.spor[s].gjeldendeSvar?.dokument);
     melding = null;
-    arbeid = {
+    tilArbeid({
       art: 'kontroll',
       versjon: kjernesak.versjon,
       ...k,
@@ -332,14 +394,13 @@
       kvittering: KRAVSKJEMA.kvittering,
       tilbake: { art: kravetI[s] },
       utkastet: null,
-    };
+    });
   }
 
   function velgSpor(s: Spor) {
     nyttSpor = true;
     void tick().then(() => (nyttSpor = false));
-    valgt = s;
-    arbeid = harUtkast(s) ? { art: 'svar' } : { art: 'les' };
+    if (valgt !== s || arbeid.art !== 'les') tilArbeid({ art: 'les' }, s);
     melding = null;
   }
 
@@ -358,21 +419,28 @@
     if (arbeid.art === 'kontroll' && arbeid.utkastet) tomtUtkast(arbeid.utkastet);
     const kvittering = arbeid.art === 'kontroll' ? arbeid.kvittering : undefined;
     // Kravet, korrigeringen og den nye versjonen er sendt, så utkastet er brukt.
-    if (arbeid.art === 'kontroll' && erUtkastnavn(arbeid.tilbake.art)) tom(arbeid.tilbake.art);
-    arbeid = { art: 'les' };
+    if (arbeid.art === 'kontroll') {
+      if (erUtkastnavn(arbeid.tilbake.art)) {
+        tom(arbeid.tilbake.art);
+        fjernUtkast(valgt, arbeid.tilbake.art);
+      }
+      fjernUtkast(valgt, 'kontroll');
+    }
+    tilArbeid({ art: 'les' }, valgt, true);
     melding = { tekst: kvittering ?? MOTTATT.dittBrev, art: 'sendt' };
   }
 
   /** Tilbake til saken med kvitteringen `tekst`, som får fokus. */
   async function tilSaken(tekst: string, art: 'sendt' | 'forkastet') {
-    arbeid = { art: 'les' };
+    tilArbeid({ art: 'les' }, valgt, true);
     melding = { tekst, art };
     await fokuser(() => meldingen);
   }
 
   /** Utkastet i skjemaet `n` er forkastet. Svarutkastet forkastes med `forkast`. */
-  function forkastUtkast(n: Utkastnavn) {
+  function forkastUtkast(n: Exclude<Utkastnavn, (typeof svaretI)[Spor]>) {
     tom(n);
+    fjernUtkast(valgt, n);
     return tilSaken(MOTTATT.forkastet, 'forkastet');
   }
 
@@ -389,7 +457,7 @@
     if (arbeid.art !== 'kontroll' || arbeid.kommando !== k.kommando) return;
     if (kjernesak.versjon !== k.versjon) {
       kjernesak.fjernFeil();
-      arbeid = k.tilbake;
+      tilArbeid(k.tilbake, valgt, true);
       melding = { tekst: MOTTATT.sakenEndret, art: 'endret' };
       await fokuser(() => meldingen);
       return;
@@ -397,7 +465,7 @@
     const { brevet } = brevTilKontrollen(kjernesak, k.kommando, k.vedlegg);
     if (!brevet) return;
     // LV-U2.
-    arbeid = { ...arbeid, ...brevet };
+    tilArbeid({ ...arbeid, ...brevet }, valgt, true);
   }
 
   type Skjema = {
@@ -422,7 +490,7 @@
     },
     nyversjon: {
       noekler: ['krav:forhold'],
-      aapne: () => (arbeid = { art: 'nyversjon' }),
+      aapne: () => aapneUtkast({ art: 'nyversjon' }),
       vises: () =>
         arbeid.art === 'nyversjon' &&
         valgt === 'forhold' &&
@@ -435,14 +503,14 @@
       noekler: ['registrere_brev'],
       aapne: () => {
         if (lagtTil?.spor !== valgt) lagtTil = { spor: valgt, valg: tomtLagtTil(valgt) };
-        arbeid = { art: 'korrespondanse' };
+        tilArbeid({ art: 'korrespondanse' });
       },
       vises: () => arbeid.art === 'korrespondanse' && lagtTil?.spor === valgt,
       skjema: korrespondanse,
     },
     vederlagskrav: {
       noekler: ['krav:vederlag'],
-      aapne: () => (arbeid = { art: 'vederlagskrav' }),
+      aapne: () => aapneUtkast({ art: 'vederlagskrav' }),
       vises: () =>
         arbeid.art === 'vederlagskrav' &&
         valgt === 'vederlag' &&
@@ -462,8 +530,7 @@
       aapne: () => {
         // Svaret sendes fra løsningen, også et utkast som var et svar lagt til.
         svaretFra = null;
-        utkastAapent.forhold = true;
-        arbeid = { art: 'svar' };
+        aapneUtkast({ art: 'svar' });
       },
       vises: () =>
         arbeid.art === 'svar' &&
@@ -476,8 +543,7 @@
     vederlagssvar: {
       noekler: ['svare:vederlag'],
       aapne: () => {
-        utkastAapent.vederlag = true;
-        arbeid = { art: 'svar' };
+        aapneUtkast({ art: 'svar' });
       },
       vises: () =>
         arbeid.art === 'svar' &&
@@ -488,8 +554,7 @@
     fristsvar: {
       noekler: ['svare:frist'],
       aapne: () => {
-        utkastAapent.frist = true;
-        arbeid = { art: 'svar' };
+        aapneUtkast({ art: 'svar' });
       },
       vises: () =>
         arbeid.art === 'svar' && valgt === 'frist' && kjernesak.handlinger.includes('svare:frist'),
@@ -503,7 +568,7 @@
    * valget om å forkaste det (#2104).
    */
   const utenPaaberopelsen = () =>
-    !!u?.spor.forhold.trukket && (!!lagtTilI('forhold', 'svar') || harUtkast('forhold'));
+    !!u?.spor.forhold.trukket && (!!lagtTilI('forhold', 'svar') || harSvarutkast('forhold'));
   /** Varselet, kravet eller svaret lagt til fylles ut i skjemaet for det (OV-U80). */
   function videreFraKorrespondansen(kategori: 'varsel' | 'krav' | 'svar') {
     if (!lagtTil || !u) return;
@@ -514,14 +579,13 @@
       return;
     }
     if (kategori === 'svar') {
-      utkastAapent.forhold = true;
       svaretFra = { ...lagtTil.valg.korrespondanse };
-      arbeid = { art: 'svar' };
+      aapneUtkast({ art: 'svar' });
     } else if (valgt === 'frist') {
       // `utenfor` i utkastet står; skjemaet ser bort fra det når kravet legges til.
       utkastene.fristkrav = { ...(utkastene.fristkrav ?? fristkravstart(u)), hva: 'krav' };
-      arbeid = { art: 'fristkrav', fraKorrespondansen: true };
-    } else arbeid = { art: 'vederlagskrav', fraKorrespondansen: true };
+      aapneUtkast({ art: 'fristkrav', fraKorrespondansen: true });
+    } else aapneUtkast({ art: 'vederlagskrav', fraKorrespondansen: true });
   }
   /** Tilbake til korrespondansen fra krav- eller svarskjemaet. */
   function tilKorrespondansen() {
@@ -531,12 +595,15 @@
         spor: 'forhold',
         valg: { ...tomtLagtTil('forhold'), korrespondanse: { ...svaretFra }, kategori: 'svar' },
       };
-    arbeid = { art: 'korrespondanse' };
+    tilbakeTil({ art: 'korrespondanse' });
   }
   function lagtTilKvittering(tekst: string, krav: Kravspor | null = null) {
     lagtTil = null;
     // Kravet er lagt til, så utkastet er brukt, som etter sendingen (`sendt`).
-    if (krav) tom(kravetI[krav]);
+    if (krav) {
+      tom(kravetI[krav]);
+      fjernUtkast(krav, kravetI[krav]);
+    }
     return tilSaken(tekst, 'sendt');
   }
   /**
@@ -561,7 +628,7 @@
             : v.utenfor,
       };
     }
-    arbeid = { art: 'fristkrav' };
+    aapneUtkast({ art: 'fristkrav' });
   }
   // U-11: svaret på forespørselen etter punkt 33.6.2 åpner skjemaet for kravet.
   const foresporselssvar = $derived(
@@ -608,7 +675,7 @@
       onbrevkontroll={(k) => {
         const viserTil = datoopplysningene(u).find((o) => o.id === gjelder)?.brev ?? null;
         melding = null;
-        arbeid = {
+        tilArbeid({
           art: 'kontroll',
           versjon: kjernesak.versjon,
           ...k,
@@ -625,7 +692,7 @@
           ),
           tilbake: { art: 'korrigering', gjelder },
           utkastet: null,
-        };
+        });
       }}
     />
   {/if}
@@ -637,13 +704,12 @@
     {u}
     bind:tekst={utkastene.nyversjon}
     onforkast={() => forkastUtkast('nyversjon')}
-    ontilbake={() => velgSpor('forhold')}
     onvedsiden={(v) => (vedSiden = v)}
     onbrevkontroll={(k) => {
       const svaret = brev.find((b) => b.id === u.spor.forhold.gjeldendeSvar?.dokument);
       const kravet = brev.find((b) => b.id === u.spor.forhold.gjeldendeKrav?.dokument);
       melding = null;
-      arbeid = {
+      tilArbeid({
         art: 'kontroll',
         versjon: kjernesak.versjon,
         ...k,
@@ -662,7 +728,7 @@
         kvittering: NYVERSJON.kvittering,
         tilbake: { art: 'nyversjon' },
         utkastet: null,
-      };
+      });
     }}
   />
 {/snippet}
@@ -678,7 +744,7 @@
       onlagttil={(k) => lagtTilKvittering(LEGG_TIL.lagtTil[k])}
       onavbryt={() => {
         lagtTil = null;
-        arbeid = harUtkast(valgt) ? { art: 'svar' } : { art: 'les' };
+        tilbakeTil(harSvarutkast(valgt) ? { art: 'svar' } : { art: 'les' });
       }}
     />
   {/if}
@@ -711,6 +777,7 @@
     onbrevkontroll={(k) => tilKravkontroll('frist', k)}
     onregistrert={() => {
       tom('fristkrav');
+      fjernUtkast('frist', 'fristkrav');
       return tilSaken(FRISTKRAV.registrert, 'sendt');
     }}
   />
@@ -773,6 +840,15 @@
   />
 {/snippet}
 
+{#snippet utkastkortene()}
+  {#each utkastArbeid[valgt] as utkast (utkast.art)}
+    <section class="utkastkort" aria-label={SAKEN.utkast}>
+      <h2>{utkasttittel(utkast)}</h2>
+      <Knapp variant="primaer" onclick={() => aapneUtkast(utkast)}>Fortsett utkastet</Knapp>
+    </section>
+  {/each}
+{/snippet}
+
 <Vardenskall
   {sti}
   {bruker}
@@ -780,7 +856,6 @@
   visKontrakten={!!nySak}
   innfelt={vedSiden}
   bred
-  toArk={!nySak && arbeid.art === 'les'}
   sakstittel={nySak ? null : (kjernesak.saksbilde?.tittel ?? null)}
 >
   {#snippet topplinje()}
@@ -893,7 +968,7 @@
   {:else if !u || !kjernesak.saksbilde}
     <p class="laster" role="status">{SAKEN.laster}</p>
   {:else}
-    <main class="arbeid">
+    <main class="arbeid" bind:this={arbeidsflate}>
       <div class="melding" class:tom={!melding} role="status" tabindex="-1" bind:this={meldingen}>
         {#if melding}<Melding art={melding.art === 'endret' ? 'info' : 'kvittering'} levende={false}
             >{melding.tekst}</Melding
@@ -903,12 +978,36 @@
       {#if !u.forstaatt}<div class="melding">
           <Melding art="info" levende={false}>{SAKEN.ikkeForstaatt}</Melding>
         </div>{/if}
+      {#if arbeid.art === 'kontroll' || (aktivtSkjema && arbeid.art !== 'korrespondanse')}
+        {@const kontroll = arbeid.art === 'kontroll' ? arbeid : null}
+        {@const neste = kontroll?.tilbake ?? { art: 'les' }}
+        {@const maal =
+          kontroll && neste.art !== 'les'
+            ? 'utkastet'
+            : valgt === 'forhold'
+              ? 'forholdet'
+              : valgt === 'vederlag'
+                ? 'vederlagsjusteringen'
+                : 'fristforlengelsen'}
+        <p class="tilbake">
+          <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- samme rute, nytt arbeidstrinn -->
+          <a
+            href={page.url?.href ?? '#'}
+            onclick={(e) => {
+              e.preventDefault();
+              kjernesak.fjernFeil();
+              tilbakeTil(neste);
+            }}><ChevronLeft size={16} aria-hidden="true" />{BREVKONTROLL.tilbake(maal)}</a
+          >
+        </p>
+      {/if}
       {#if arbeid.art === 'kontroll'}
         {@const k = arbeid}
         <Brevkontroll
           {...k}
           {kjernesak}
-          ontilbake={() => (arbeid = k.tilbake)}
+          visTilbake={false}
+          ontilbake={() => tilbakeTil(k.tilbake)}
           onsendt={sendt}
           onavvist={() => byggPaaNytt(k)}
         />
@@ -927,9 +1026,10 @@
             {sakslenke}
             onkorriger={(gjelder) => {
               melding = null;
-              arbeid = { art: 'korrigering', gjelder };
+              aapneUtkast({ art: 'korrigering', gjelder });
             }}
             skjemaene={skjemanoeklene}
+            utkast={harUtkast(valgt) ? utkastkortene : undefined}
             onvelg={(n) => {
               melding = null;
               aapne(n);
@@ -937,7 +1037,7 @@
             onakseptbrev={(k) => {
               const svaret = brev.find((b) => b.id === u.spor[valgt].gjeldendeSvar?.dokument);
               melding = null;
-              arbeid = {
+              tilArbeid({
                 art: 'kontroll',
                 versjon: kjernesak.versjon,
                 ...k,
@@ -946,9 +1046,9 @@
                 sendTekst: BREVKONTROLL.sendAksepten,
                 tilbakeTil: 'saken',
                 svarerPaa: svaret ?? null,
-                tilbake: harUtkast(valgt) ? { art: 'svar' } : { art: 'les' },
+                tilbake: { art: 'les' },
                 utkastet: null,
-              };
+              });
             }}
           />
         {/key}
@@ -1077,6 +1177,38 @@
     border: 1px dashed var(--draft-border);
     background: var(--surface);
     color: var(--draft);
+  }
+  .utkastkort {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4) var(--spacing-5);
+    border: 1px dashed var(--draft);
+    border-radius: var(--r-kort);
+    background: var(--draft-bg);
+    color: var(--draft);
+  }
+  .utkastkort h2 {
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .tilbake {
+    margin-bottom: var(--spacing-3);
+  }
+  .tilbake a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    gap: var(--spacing-1);
+    color: var(--ink);
+    text-underline-offset: 3px;
+  }
+  .tilbake a:focus-visible {
+    outline: 2px solid var(--control-focus);
+    outline-offset: 2px;
   }
   .arbeid {
     min-width: 0;
