@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/svelte';
 import { finnForloep, lagDemosak, type Demosak } from '#lib/kjernesak/demosak.ts';
 import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+import { MERKING, linje, skrevet } from '#lib/kjernesak/__tests__/provejournal.ts';
 import type { Journalrad } from '#kjerne/typer.ts';
 import {
   finn,
@@ -236,9 +237,11 @@ describe('Varden med brukerforløpet BF-01', () => {
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
     const forutsetninger = document.getElementById(beloep().getAttribute('aria-describedby')!)!;
     expect(forutsetninger.textContent?.replace(/\s+/g, ' ').trim()).toBe(
-      'Gjelder hvis innsigelsen om sen varsling ikke fører frem'
+      'Gjelder hvis innsigelsen om at varselet etter punkt 34.1.2 kom for sent ikke fører frem'
     );
-    const lenke = within(forutsetninger).getByRole('link', { name: 'innsigelsen om sen varsling' });
+    const lenke = within(forutsetninger).getByRole('link', {
+      name: 'innsigelsen om at varselet etter punkt\u00a034.1.2 kom for sent',
+    });
     expect(document.querySelector(lenke.getAttribute('href')!)).toBe(
       screen.getByRole('group', { name: 'Kom varselet om kravet i tide?' })
     );
@@ -247,7 +250,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByText('Gjelder hvis')).toBeNull();
   });
 
-  it('BF-04: over beløpet står avslaget av forholdet først og så innsigelsen om sen varsling, og hovedlinjene begynner på avslaget (#1400, S1-A og S2-A, OV-U32, OV-U33, OV-U76)', async () => {
+  it('BF-04: over beløpet står avslaget av forholdet først og så innsigelsen om at varselet etter punkt 34.1.2 kom for sent, og hovedlinjene begynner på avslaget (#1400, S1-A og S2-A, OV-U32, OV-U33, OV-U76)', async () => {
     render(Demoforloep, {
       forloep: finnForloep('BF-04')!,
       punkt: 'bh-har-mottatt-vederlagskravet',
@@ -272,7 +275,10 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(forutsetningene()).toEqual([AVSLAGET]);
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
     // S2-A: grunnene fra grunnlaget først, så innsigelsen mot vederlagskravet.
-    expect(forutsetningene()).toEqual([AVSLAGET, 'innsigelsen om sen varsling ikke fører frem']);
+    expect(forutsetningene()).toEqual([
+      AVSLAGET,
+      'innsigelsen om at varselet etter punkt 34.1.2 kom for sent ikke fører frem',
+    ]);
 
     // KA-U72: mener BH en annen oppgjørsform, spør skjemaet ikke om beløpet.
     await fireEvent.click(
@@ -323,7 +329,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(linjer().some((l) => l.includes('Vederlagsjustering'))).toBe(true);
   });
 
-  it('BF-04: over varselet står avslaget av forholdet, og over metoden står i tillegg innsigelsen om sen varsling etter «Varslet for sent», som kjernen gir (oppdragsgiver 30.10 i #1411, S2-A i #1400, LV-U31, OV-U76)', async () => {
+  it('BF-04: over varselet står avslaget av forholdet, og over metoden står i tillegg innsigelsen om at varselet etter punkt 34.1.2 kom for sent etter «Varslet for sent», som kjernen gir (oppdragsgiver 30.10 i #1411, S2-A i #1400, LV-U31, OV-U76)', async () => {
     render(Demoforloep, {
       forloep: finnForloep('BF-04')!,
       punkt: 'bh-har-mottatt-vederlagskravet',
@@ -353,7 +359,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(forutsetningene(VARSEL)).toEqual(AVSLAGET);
     expect(forutsetningene(METODE)).toEqual([
       ...AVSLAGET,
-      'innsigelsen om sen varsling ikke fører frem',
+      'innsigelsen om at varselet etter punkt 34.1.2 kom for sent ikke fører frem',
     ]);
     // Svaret på oppgjørsformen flytter ikke oppgjørsformen ut av laget sitt.
     await fireEvent.click(
@@ -361,9 +367,60 @@ describe('Varden med brukerforløpet BF-01', () => {
     );
     expect(forutsetningene(METODE)).toEqual([
       ...AVSLAGET,
-      'innsigelsen om sen varsling ikke fører frem',
+      'innsigelsen om at varselet etter punkt 34.1.2 kom for sent ikke fører frem',
     ]);
   });
+
+  it.each(['vederlag', 'frist'] as const)(
+    'lenken fra avslaget i %s-svaret åpner forholdet og bevarer utkastet ved retur (#2183 G-5, BF-01 S-8)',
+    async (spor) => {
+      const demosak = lagDemosak(finnForloep('BF-04')!, 'bh-har-mottatt-vederlagskravet', 'BH');
+      const journal =
+        spor === 'frist'
+          ? skrevet(demosak.journal(), 'TE', {
+              type: 'krav',
+              spor: 'frist',
+              innhold: { frister: [{ navn: 'Sluttfristen', dager: 10 }] },
+              utdypning: 'Tegningene forsinket arbeidet.',
+            })
+          : demosak.journal();
+      const kjernesak = lagKjernesak({
+        sakId: demosak.sakId,
+        prosjektId: 'demo',
+        part: 'BH',
+        hent: async () => ({
+          versjon: journal.at(-1)!.versjon,
+          part: 'BH',
+          visning: null as never,
+          journal: journal.map(linje),
+          leveringsoppdrag: [],
+          catenda_lenke: null,
+          merking: MERKING,
+        }),
+      });
+      await kjernesak.last();
+      render(Vardensak, { kjernesak, spor });
+      await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
+      await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+      const utkastversjon = kjernesak.versjon;
+      const avslaget = screen.getAllByRole('button', { name: 'avslaget av forholdet i brev 2' })[0];
+      await fireEvent.click(avslaget);
+      expect(screen.queryByRole('form')).toBeNull();
+      expect(screen.getByRole('main')).toHaveFocus();
+      expect(screen.getByRole('heading', { name: /^Manglende medvirkning/ })).toBeInTheDocument();
+      expect(kjernesak.versjon).toBe(utkastversjon);
+      const panelet = within(
+        screen.getByRole('navigation', { name: 'Forholdet og kravene i saken' })
+      );
+      await fireEvent.click(
+        panelet.getByRole('button', {
+          name: spor === 'frist' ? /^Fristforlengelse/ : /^Vederlagsjustering/,
+        })
+      );
+      await fireEvent.click(screen.getByRole('button', { name: 'Fortsett utkastet' }));
+      expect(screen.getByRole('radio', { name: 'Varslet for sent' })).toBeChecked();
+    }
+  );
 
   it('«Forkast utkast» spør først i en dialog, «Behold utkastet» lar valgene stå, og «Forkast utkast» tømmer dem uten å sende (BF-01 S-8, #1391, #1925)', async () => {
     // jsdom har ikke den modale dialogen.

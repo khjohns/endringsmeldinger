@@ -1,7 +1,7 @@
 {
   "id": "BF-04",
   "tittel": "BH avslår forholdet og påberoper at vederlagsvarselet kom for sent",
-  "brukerhistorie": "BH har svart at byggherren ikke har risikoen for forholdet, og svarer på vederlagskravet. BH påberoper at varselet etter punkt 34.1.2 kom for sent og godkjenner subsidiært 60 000 kr. BH ser hvilke innsigelser beløpet bygger på før svaret er ferdig. TE leser svaret og forstår at 60 000 kr bare gjelder hvis verken svaret på forholdet eller påberopelsen av at varselet kom for sent fører fram.",
+  "brukerhistorie": "BH har svart at byggherren ikke har risikoen for forholdet, og svarer på vederlagskravet. BH påberoper at varselet etter punkt 34.1.2 kom for sent og godkjenner subsidiært 60 000 kr. BH ser hvilke innsigelser beløpet bygger på før svaret er ferdig. TE leser svaret og forstår at 60 000 kr bare gjelder hvis verken svaret på forholdet eller påberopelsen av at varselet kom for sent fører fram. Byggherren kan åpne siden for forholdet fra avslaget under «Gjelder hvis» og gå tilbake til svarutkastet uten å miste valgene.",
   "status": "kjørbar",
   "utgangspunkt": {
     "start": null,
@@ -157,7 +157,7 @@
           "med": {
             "spor": "vederlag",
             "svar": "S-v1",
-            "standpunkt": "Byggherrens standpunkt: subsidiært varselet etter punkt\u00a034.1.2 kom for sent, videre subsidiært godkjent med 60 000 kr."
+            "standpunkt": "Byggherrens standpunkt: subsidiært varselet etter punkt 34.1.2 kom for sent, videre subsidiært godkjent med 60 000 kr."
           }
         }
       ],
@@ -234,6 +234,11 @@
       "dato": "2026-11-14",
       "forhold": "#1965, LV-U39",
       "hva": "Linja i beslutningsgrunnlaget kontrolleres med «punkt 34.1.2», som kjernen nå lager for nye svar."
+    },
+    {
+      "dato": "2026-11-18",
+      "forhold": "#2183, punkt 6 (G-2 og G-5)",
+      "hva": "Forutsetningen om sent varsel angir punktet med felles ordlyd. Avslaget under «Gjelder hvis» åpner siden for forholdet; valgene i svarutkastet beholdes ved retur."
     }
   ]
 }

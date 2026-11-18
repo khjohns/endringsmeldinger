@@ -112,7 +112,7 @@ if (!NY_SAK && !punktet('bh-har-mottatt-vederlagskravet'))
 // Lagene foran beløpet, som er det siste laget: forholdet når Byggherren har avslått det, og varselet.
 const FORUTSETNINGER = [
   ...(punktet('forholdet-er-avslaatt') ? [/avslaget av forholdet/] : []),
-  /innsigelsen om sen varsling/,
+  /innsigelsen om at varselet etter punkt\s+34\.1\.2 kom for sent/,
 ];
 if (!NY_SAK && FORUTSETNINGER.length !== ETIKETTER.length - (ETIKETTER[0] === 'prinsipalt' ? 1 : 0))
   throw new Error(`Lagene ${ETIKETTER.join(', ')} i ${arg.forlop} passer ikke med forutsetningene skriptet venter`);

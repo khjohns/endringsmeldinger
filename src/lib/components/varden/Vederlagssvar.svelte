@@ -51,6 +51,7 @@
     SKJEMA,
     SVARSKJEMA,
     grunntekst,
+    innsigelsenOmVarselet,
     leselinjene,
     standpunkttekst,
   } from './tekster';
@@ -62,6 +63,7 @@
     onbrevkontroll,
     onforkast,
     onvedsiden,
+    onforholdet,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -72,6 +74,8 @@
     onforkast: () => void;
     /** Brevet leses i en ramme ved siden av skjemaet, eller ikke lenger. */
     onvedsiden?: (vedSiden: boolean) => void;
+    /** Åpner siden for forholdet uten å forkaste svarutkastet. */
+    onforholdet?: () => void;
   } = $props();
   const uid = $props.id();
 
@@ -261,15 +265,21 @@
 <!-- Forutsetningene i en kravpost gjelder den, også innsigelsen etter § 34.3.3 (`innenforKravposten`). -->
 {#snippet forutsetning({ f, post }: IPosten)}
   {#if 'grunn' in f}
-    {SKJEMA.grunnen(f.grunn, grunnlagsbrev!)}
+    {#if f.grunn === 'avslaatt' && onforholdet}
+      <Knapp variant="lenke" kompakt iFlukt onclick={onforholdet}
+        >{SKJEMA.grunnen(f.grunn, grunnlagsbrev!)}</Knapp
+      >
+    {:else}
+      {SKJEMA.grunnen(f.grunn, grunnlagsbrev!)}
+    {/if}
   {:else if 'oppgjoersform' in f}
     <a href={`#${uid}-form-${post!.betegnelse}`}>{SKJEMA.standpunktetTilFormen}</a>
   {:else if f.innsigelse === '34.3.3'}
-    <a href={`#${uid}-varsel-${post!.betegnelse}`}>{SKJEMA.innsigelsenJustering}</a>
+    <a href={`#${uid}-varsel-${post!.betegnelse}`}>{innsigelsenOmVarselet('34.3.3')}</a>
   {:else if f.innsigelse === '34.1.3'}
-    {SKJEMA.innsigelsenSaerskilt}
+    {innsigelsenOmVarselet('34.1.3')}
   {:else}
-    <a href={`#${uid}-itide`}>{SKJEMA.innsigelsenSenVarsling}</a>
+    <a href={`#${uid}-itide`}>{innsigelsenOmVarselet('34.1.2')}</a>
   {/if}
 {/snippet}
 

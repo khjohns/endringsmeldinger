@@ -243,3 +243,15 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     ).toBeInTheDocument();
   });
 });
+
+describe('ordlyden i forutsetningene (#2183 G-2)', () => {
+  it('forutsetningen etter punkt 32.2 har felles ordlyd med liten forbokstav (#2183 G-2)', async () => {
+    await svarskjemaet(medGrunnlag);
+    await radio('Ja, varselet kom for sent');
+    expect(
+      screen.getByRole('link', {
+        name: 'innsigelsen om at varselet etter punkt\u00a032.2 kom for sent',
+      })
+    ).toBeInTheDocument();
+  });
+});

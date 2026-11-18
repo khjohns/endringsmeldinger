@@ -44,6 +44,7 @@
     SKJEMA,
     SVARSKJEMA,
     grunntekst,
+    innsigelsenOmVarselet,
     standpunkttekst,
   } from './tekster';
 
@@ -54,6 +55,7 @@
     onbrevkontroll,
     onforkast,
     onvedsiden,
+    onforholdet,
   }: {
     kjernesak: Kjernesakkontekst;
     u: Utledning;
@@ -64,6 +66,8 @@
     onforkast: () => void;
     /** Brevet leses i en ramme ved siden av skjemaet, eller ikke lenger. */
     onvedsiden?: (vedSiden: boolean) => void;
+    /** Åpner siden for forholdet uten å forkaste svarutkastet. */
+    onforholdet?: () => void;
   } = $props();
   const uid = $props.id();
 
@@ -281,9 +285,15 @@
 
 {#snippet forutsetning(f: Forutsetning)}
   {#if 'grunn' in f}
-    {SKJEMA.grunnen(f.grunn, grunnlagsbrev!)}
+    {#if f.grunn === 'avslaatt' && onforholdet}
+      <Knapp variant="lenke" kompakt iFlukt onclick={onforholdet}
+        >{SKJEMA.grunnen(f.grunn, grunnlagsbrev!)}</Knapp
+      >
+    {:else}
+      {SKJEMA.grunnen(f.grunn, grunnlagsbrev!)}
+    {/if}
   {:else if f.innsigelse === '33.4'}
-    <a href={`#${uid}-varsel`}>{FRISTSVAR.innsigelsenVarsel}</a>
+    <a href={`#${uid}-varsel`}>{innsigelsenOmVarselet('33.4')}</a>
   {:else if f.innsigelse === '33.6.2'}
     <a href={`#${uid}-foresporsel`}>{FRISTSVAR.innsigelsenForesporsel}</a>
   {:else if f.innsigelse === 'hindring'}

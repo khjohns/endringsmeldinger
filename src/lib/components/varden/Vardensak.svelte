@@ -404,6 +404,11 @@
     melding = null;
   }
 
+  async function tilForholdet() {
+    velgSpor('forhold');
+    await fokuser(() => arbeidsflate);
+  }
+
   async function proevIgjen() {
     proever = true;
     try {
@@ -822,6 +827,7 @@
     onforkast={forkast}
     onvedsiden={(v) => (vedSiden = v)}
     onbrevkontroll={(k) => tilSvarkontroll('vederlag', k)}
+    onforholdet={tilForholdet}
   />
 {/snippet}
 
@@ -833,6 +839,7 @@
     onforkast={forkast}
     onvedsiden={(v) => (vedSiden = v)}
     onbrevkontroll={(k) => tilSvarkontroll('frist', k)}
+    onforholdet={tilForholdet}
   />
 {/snippet}
 
@@ -964,7 +971,7 @@
   {:else if !u || !kjernesak.saksbilde}
     <p class="laster" role="status">{SAKEN.laster}</p>
   {:else}
-    <main class="arbeid" bind:this={arbeidsflate}>
+    <main class="arbeid" tabindex="-1" bind:this={arbeidsflate}>
       <div class="melding" class:tom={!melding} role="status" tabindex="-1" bind:this={meldingen}>
         {#if melding}<Melding art={melding.art === 'endret' ? 'info' : 'kvittering'} levende={false}
             >{melding.tekst}</Melding
