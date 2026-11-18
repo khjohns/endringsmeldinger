@@ -230,6 +230,7 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     );
     await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
     await screen.findByText(/Brevet er sendt til byggherren/);
+    await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til saken' }));
     const traaden = within(
       await screen.findByRole('list', { name: 'Brevene i saken, nyeste først' })
     );
