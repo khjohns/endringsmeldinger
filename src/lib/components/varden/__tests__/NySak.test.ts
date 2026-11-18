@@ -595,7 +595,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
     }));
     const andre = aapne(undefined, { gjenoppta: forsok, hentMerking });
 
-    expect(screen.getByTestId('vaar-ref')).toHaveTextContent('KOE-17');
+    expect(screen.getByTestId('vaar-ref')).toHaveTextContent('K201-KOE-017-01');
     await fireEvent.click(screen.getByRole('button', { name: 'Prøv å sende igjen' }));
     await vi.waitFor(() => expect(andre.onsendt).toHaveBeenCalledWith('ny-sak'));
     expect(andre.send.mock.calls[0][0]).toEqual(forsok);
