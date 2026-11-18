@@ -250,7 +250,7 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
     fylt med blekk og har et hakk i flatefargen.
   - I et valgkort er hele kortet treffflaten, minst 44 px. Valgt kort har `--surface-selected` og
     kant på 1 px i blekk, og teksten beholder vekten, så den ikke flytter seg.
-  - Et felt er minst 44 px, med kant i `--rule-strong` og `--ink-3` ved hover. Et tall står til
+  - Et felt er minst 44 px, med kant i `--control-border`, som holder 3:1 mot flaten (WCAG 1.4.11), og `--ink-3` ved hover (oppdragsgiver 18.11). Et tall står til
     høyre med `tabular-nums`, og enheten står i en egen flate i `--surface-inset`.
   - Fokus er ringen i `--control-focus` rundt kortet eller feltet. Inaktivt er `--surface-inset`
     med `--ink-4`. Feil er kanten i `--danger`, med meldingen under feltet.

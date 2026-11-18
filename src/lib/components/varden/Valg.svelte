@@ -206,7 +206,7 @@
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
   }
-  .valg.ugyldig .valgkort {
+  .valg.ugyldig .kort:not(.lett) .valgkort {
     border-color: var(--danger);
   }
   .valg:disabled .valgkort {
