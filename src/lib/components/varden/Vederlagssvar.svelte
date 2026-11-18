@@ -454,12 +454,12 @@
 
     {#if hovedvarselet}
       <Spoersmaal id={`${uid}-sp-varsel`} tittel={SKJEMA.varselTittel} hjemmel={['34.1.2']}>
+        <Varseldatoer {u} spor="vederlag" sendt={SKJEMA.kravSendt} />
         <Gjelderhvis
           id={`${uid}-itide-forutsetninger`}
           liste={iPosten(grunnene)}
           punkt={forutsetning}
         />
-        <Varseldatoer {u} spor="vederlag" sendt={SKJEMA.kravSendt} />
         <Valg
           navn={`${uid}-itide`}
           spoersmaal={SKJEMA.varselSpoersmaal}

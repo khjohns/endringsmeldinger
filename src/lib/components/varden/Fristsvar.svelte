@@ -412,8 +412,8 @@
     {/snippet}
 
     <Spoersmaal id={`${uid}-sp-varsel`} tittel={FRISTSVAR.varselTittel} hjemmel={['33.4']}>
-      <Gjelderhvis id={`${uid}-varsel-forutsetninger`} liste={grunnene} punkt={forutsetning} />
       <Varseldatoer {u} spor="frist" sendt={FRISTSVAR.kravSendt} />
+      <Gjelderhvis id={`${uid}-varsel-forutsetninger`} liste={grunnene} punkt={forutsetning} />
       <Valg
         navn={`${uid}-varsel`}
         spoersmaal={FRISTSVAR.varselSpoersmaal}
@@ -457,12 +457,12 @@
       tittel={FRISTSVAR.hindringTittel}
       hjemmel={[hindringPunkt]}
     >
+      <p class="dempet" id={`${uid}-hindret-hjelp`}>{FRISTSVAR.hindringHjelp}</p>
       <Gjelderhvis
         id={`${uid}-hindret-forutsetninger`}
         liste={hindringslagene}
         punkt={forutsetning}
       />
-      <p class="dempet" id={`${uid}-hindret-hjelp`}>{FRISTSVAR.hindringHjelp}</p>
       <Valg
         navn={`${uid}-hindret`}
         spoersmaal={FRISTSVAR.hindringSpoersmaal}
