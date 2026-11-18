@@ -55,25 +55,26 @@ describe('skjemaelementene (#2191)', () => {
     expect(boks.checked).toBe(false);
   });
 
-  it.each([Linjefelt, Datofelt, Tekstomraade])(
-    'kobler feltets feil og lar det være inaktivt',
-    (komponent) => {
-      const { container } = render(komponent as typeof Linjefelt, {
-        id: 'svar',
-        etikett: 'Svar',
-        verdi: '',
-        bredde: 'tall',
-        feil: 'Fyll ut svaret.',
-        inaktiv: true,
-      });
-      const felt = container.querySelector('input, textarea') as HTMLInputElement;
-      expect(felt.disabled).toBe(true);
-      expect(felt.getAttribute('aria-invalid')).toBe('true');
-      expect(document.getElementById(felt.getAttribute('aria-describedby')!)?.textContent).toBe(
-        'Fyll ut svaret.'
-      );
-    }
-  );
+  it.each([
+    ['Linjefelt', Linjefelt],
+    ['Datofelt', Datofelt],
+    ['Tekstomraade', Tekstomraade],
+  ])('%s kobler feltets feil og lar det være inaktivt', (_navn, komponent) => {
+    const { container } = render(komponent as typeof Linjefelt, {
+      id: 'svar',
+      etikett: 'Svar',
+      verdi: '',
+      bredde: 'tall',
+      feil: 'Fyll ut svaret.',
+      inaktiv: true,
+    });
+    const felt = container.querySelector('input, textarea') as HTMLInputElement;
+    expect(felt.disabled).toBe(true);
+    expect(felt.getAttribute('aria-invalid')).toBe('true');
+    expect(document.getElementById(felt.getAttribute('aria-describedby')!)?.textContent).toBe(
+      'Fyll ut svaret.'
+    );
+  });
 
   it('ingen Varden-komponent overlater tegningen til accent-color', () => {
     const mappe = resolve('src/lib/components/varden');

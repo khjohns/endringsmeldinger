@@ -49,7 +49,10 @@
 .tema-varden input[type='checkbox']:checked::before {
   transform: translateY(-1px) rotate(-45deg) scale(1);
 }
-.tema-varden input:is([type='radio'], [type='checkbox']):hover:not(:checked):not(:disabled) {
+.tema-varden
+  input:is([type='radio'], [type='checkbox']):hover:not(:checked):not(:disabled):not(
+    [aria-invalid='true']
+  ) {
   border-color: var(--ink-2);
 }
 .tema-varden input:is([type='radio'], [type='checkbox']):focus-visible {

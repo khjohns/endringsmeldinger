@@ -102,7 +102,7 @@
   textarea {
     min-height: 44px;
     padding: var(--spacing-3);
-    border: var(--rule-strong);
+    border: var(--control-border);
     border-radius: var(--r-felt);
     font: 16px/1.6 var(--font-sans);
     color: var(--ink);

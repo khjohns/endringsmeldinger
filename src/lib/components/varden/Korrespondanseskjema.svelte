@@ -249,12 +249,6 @@
   }
   .gjelder label.valgt {
     background: var(--surface-selected);
-    font-weight: 600;
-  }
-  .gjelder input {
-    width: 18px;
-    height: 18px;
-    margin: 0;
   }
   .dempet {
     color: var(--ink-3);

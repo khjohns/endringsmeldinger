@@ -51,7 +51,7 @@
     max-inline-size: 100%;
     min-height: 44px;
     padding: 0 var(--spacing-3);
-    border: var(--rule-strong);
+    border: var(--control-border);
     border-radius: var(--r-felt);
     font: 16px var(--font-sans);
     color: var(--ink);

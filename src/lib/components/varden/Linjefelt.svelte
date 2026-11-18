@@ -77,7 +77,7 @@
     align-items: stretch;
     width: 100%;
     max-width: 100%;
-    border: var(--rule-strong);
+    border: var(--control-border);
     border-radius: var(--r-felt);
     background: var(--surface);
     /* Feltet og enheten holder seg innenfor de runde hjørnene. */
