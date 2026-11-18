@@ -60,7 +60,7 @@
     color: var(--ink);
     background: var(--surface);
   }
-  input:hover {
+  input:hover:where(:enabled) {
     border-color: var(--ink-3);
   }
   input:disabled {

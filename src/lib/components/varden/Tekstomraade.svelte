@@ -117,7 +117,7 @@
     resize: none;
     overflow: hidden;
   }
-  textarea:hover {
+  textarea:hover:where(:enabled) {
     border-color: var(--ink-3);
   }
   textarea:disabled {
