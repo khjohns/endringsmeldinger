@@ -278,7 +278,8 @@
   function fjernUtkast(s: Spor, art: Arbeid['art']) {
     utkastArbeid[s] = utkastArbeid[s].filter((utkast) => utkast.art !== art);
     historikk.oppdater((v) =>
-      v.spor === s && (v.arbeid.art === art || v.arbeid.art === 'kontroll')
+      v.spor === s &&
+      (v.arbeid.art === art || (v.arbeid.art === 'kontroll' && v.arbeid.tilbake.art === art))
         ? { spor: s, arbeid: { art: 'les' } }
         : v
     );
