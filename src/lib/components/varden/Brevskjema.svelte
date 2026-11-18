@@ -153,7 +153,7 @@
     onclick={() => (leser = !leser)}
     aria-expanded={leser}
     aria-controls={leser ? leseId : undefined}
-    >{leser ? SKJEMA.lukkBrevet : side.smal ? SKJEMA.lesBrevetHer : 'Les ved siden av'}</Knapp
+    >{leser ? SKJEMA.lukkBrevet : side.smal ? SKJEMA.lesBrevetHer : SKJEMA.lesBrevet}</Knapp
   >
 {/snippet}
 
@@ -164,6 +164,7 @@
       {...hode}
       {avsender}
       sendes={sendes && !lagtTil}
+      merke={sendes && !lagtTil ? undefined : LEGG_TIL.utkast}
       leselenke={lesebrev ? leselenke : undefined}
     >
       {#snippet referanse()}

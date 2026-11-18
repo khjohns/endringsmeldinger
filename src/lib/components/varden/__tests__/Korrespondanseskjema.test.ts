@@ -342,6 +342,9 @@ describe('kravet lagt til (OV-U80, OV-U98)', () => {
     expect(
       screen.getByText(/^Legges til fra totalentreprenørens e-post av 16\. okt/)
     ).toBeInTheDocument();
+    // Kravet sendes ikke herfra, så stempelet sier ikke «ikke sendt» (OV-U80).
+    expect(screen.getByText('Utkast · ikke lagt til')).toBeInTheDocument();
+    expect(screen.queryByText('Utkast · ikke sendt')).toBeNull();
     expect(screen.queryByRole('textbox', { name: 'Begrunnelse' })).not.toBeInTheDocument();
     expect(screen.queryByText('Dette kravet er varselet.')).not.toBeInTheDocument();
     await radio('5 Mekanisk ferdigstillelse');
