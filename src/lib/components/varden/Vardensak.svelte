@@ -427,8 +427,8 @@
       fjernUtkast(s, k.tilbake.art);
     }
     fjernUtkast(s, 'kontroll');
-    if (valgt !== s || arbeid.art !== 'kontroll' || arbeid.kommando !== k.kommando) return;
-    tilArbeid({ art: 'les' }, s, true);
+    if (valgt === s && arbeid.art === 'kontroll' && arbeid.kommando === k.kommando)
+      tilArbeid({ art: 'les' }, s, true);
     melding = { tekst: k.kvittering ?? MOTTATT.dittBrev, art: 'sendt' };
   }
 
