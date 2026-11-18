@@ -6434,6 +6434,23 @@ const MUTASJONER: Mutasjon[] = [
     endringer: [['(hva === undefined || o.hva === hva)', "(o.hva === (hva ?? 'sendt'))"]],
     mal: ['korrespondanse som bare er mottatt, er også registrert'],
   },
+  {
+    id: 'F752',
+    feilklasse:
+      'en virksom innsigelse etter 32.2 åpner ikke laget i forholdsutkastet (#2181, OV-U32)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [
+      ["forutsetninger: s.art === 'forhold' ? forutsetninger : []", 'forutsetninger: []'],
+    ],
+    mal: ['har varslingsplikt og en virksom innsigelse etter 32.2'],
+  },
+  {
+    id: 'F753',
+    feilklasse: 'en innsigelse uten virkning åpner laget i forholdsutkastet (#2181, GR-U11)',
+    fil: `${K}/spor/forhold/kommando.ts`,
+    endringer: [["s.hjemmel === '32.2' && virket[i]!.virkning === 1", "s.hjemmel === '32.2'"]],
+    mal: ['uten virksom innsigelse gir varslingsplikt'],
+  },
 ];
 interface Testresultat {
   fullName: string;

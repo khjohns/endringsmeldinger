@@ -149,6 +149,10 @@
       krav
     )!
   );
+  const lagene = $derived(kjernesak.lagForUtkastet(utkast.svar[0]!, 'forhold'));
+  const forutsetninger = $derived(
+    lagene?.standpunkter.find((s) => s.art === 'forhold')?.forutsetninger ?? []
+  );
   // Et svar lagt til forhåndsvises med datoen, så kjernen regner det mot saken slik den var da.
   const etter = $derived(
     kjernesak.forhaandsvist(
@@ -286,7 +290,7 @@
     >
       <Gjelderhvis
         id={`${uid}-forhold-forutsetninger`}
-        liste={f.varslingsplikt && valg.forSent === true ? ['32.2'] : []}
+        liste={forutsetninger}
         punkt={innsigelsen}
       />
       <Valg
@@ -294,9 +298,7 @@
         spoersmaal={FORHOLDSSVAR.forholdSpoersmaal}
         valg={valgene}
         bind:verdi={valg.resultat}
-        beskrevetAv={f.varslingsplikt && valg.forSent === true
-          ? `${uid}-forhold-forutsetninger`
-          : undefined}
+        beskrevetAv={forutsetninger.length ? `${uid}-forhold-forutsetninger` : undefined}
         feil={feil(`${uid}-forhold`)}
         stablet
       />

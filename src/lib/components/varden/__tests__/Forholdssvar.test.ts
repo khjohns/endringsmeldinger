@@ -66,6 +66,25 @@ const svaret = (sendt: TilBrevkontrollen[]) => (sendt[0]!.kommando as Sendt).sva
 afterEach(cleanup);
 
 describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () => {
+  it('#2181: forutsetningene fra kjernen følger innsigelsen og beskriver spørsmålet om forholdet', async () => {
+    await svarskjemaet(medGrunnlag);
+    const gruppe = screen.getByRole('group', { name: 'Hva svarer du på påberopelsen?' });
+    expect(document.querySelector('.forutsetninger')).toBeNull();
+    await radio('Ja, varselet kom for sent');
+    const liste = document.querySelector('.forutsetninger')!;
+    expect(liste.textContent).toContain('32.2');
+    expect(gruppe).toHaveAttribute('aria-describedby', liste.id);
+    expect(liste.querySelector('a')).toHaveAttribute('href', expect.stringMatching(/-varsel$/));
+    await radio('Nei');
+    expect(document.querySelector('.forutsetninger')).toBeNull();
+    expect(gruppe).not.toHaveAttribute('aria-describedby');
+  });
+
+  it('#2181: et forhold uten varslingsplikt har ingen forutsetning etter 32.2', async () => {
+    await svarskjemaet(vedGrunnen);
+    expect(document.querySelector('.forutsetninger')).toBeNull();
+  });
+
   it('irregulær endring har punktet om varselet med datoene, og ingenting er forhåndsvalgt (U-2, U-3)', async () => {
     await svarskjemaet(medGrunnlag);
     expect(

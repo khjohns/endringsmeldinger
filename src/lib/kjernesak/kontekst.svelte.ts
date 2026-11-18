@@ -23,6 +23,7 @@ import { utledJournal, type Vedleggsoppslag } from '#kjerne/kommandoer/skriving.
 import { tilbudte } from '#kjerne/kommandoer/handlinger.ts';
 import { lagForUtkastet } from '#kjerne/kommandoer/lag.ts';
 import type { Svarutkast } from '#kjerne/kommandoer/kommando.ts';
+import type { LagIForholdet } from '#kjerne/spor/forhold/kommando.ts';
 import type { LagIFristen } from '#kjerne/spor/frist/kommando.ts';
 import type { LagIVederlaget } from '#kjerne/spor/vederlag/kommando.ts';
 import { visning } from '#kjerne/utledning/visning.ts';
@@ -244,12 +245,13 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   }
 
   /**
-   * Lagene i et svar på vederlaget eller fristen BH ennå fyller ut, regnet av kjernen (#1400,
+   * Lagene i et svar BH ennå fyller ut, regnet av kjernen (#1400,
    * M-8 i BF-20). `spor` gir typen for lagene, og et utkast i et annet spor kaster.
    */
+  function lagene(utkast: Svarutkast, spor: 'forhold'): LagIForholdet | null;
   function lagene(utkast: Svarutkast, spor: 'vederlag'): LagIVederlaget | null;
   function lagene(utkast: Svarutkast, spor: 'frist'): LagIFristen | null;
-  function lagene(utkast: Svarutkast, spor: 'vederlag' | 'frist') {
+  function lagene(utkast: Svarutkast, spor: 'forhold' | 'vederlag' | 'frist') {
     if (!utledning) return null;
     if (utkast.spor !== spor) throw new Error(`Utkastet gjelder ${utkast.spor}, ikke ${spor}`);
     return lagForUtkastet(utkast, utledning, kjerne.regler);
