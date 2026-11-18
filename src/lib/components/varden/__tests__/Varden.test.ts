@@ -104,7 +104,6 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(vist).toContain(BEGRUNNELSE);
     // MM-U34 punkt 26: skjemaet sier ikke at BH er bundet av svaret eller at det ikke kan revideres.
     // OV-U81 og #1443: hvordan løsningen virker, står på siden «Om Varden», ikke ved feltene.
-    // (oppdragsgiver 07.11, PR 1650).
     expect(document.body.textContent).not.toMatch(/tolkes ikke|vurderes ikke/);
     expect(document.body.textContent).not.toMatch(/er bundet av svaret|kan ikke revideres/);
     expect(document.body.textContent).not.toMatch(/\bKA-U\d/);
@@ -133,6 +132,8 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(kortet.getByText(/Du godtar hele svaret i brev 4\./)).toBeTruthy();
     expect(kortet.getByRole('region', { name: 'Andre handlinger' })).toBeTruthy();
     await fireEvent.click(kortet.getByRole('button', { name: /^Godta svaret/ }));
+    // Aksepten går rett til brevkontrollen fra saken, så lenken går dit (review av #2200).
+    expect(screen.getByRole('link', { name: 'Tilbake til saken' })).toBeTruthy();
     // KA-U1, GR-U7: aksepten omfatter påberopelsen, og kjernen gir beløpet 0 kr etter den. Det
     // står i brevkontrollen før sendingen.
     const kontrollen = screen.getByRole('region', { name: 'Sending' });
@@ -533,7 +534,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(omslaget()).toBeInTheDocument();
 
     // Der panelet er felt inn, står sporene i topplinja (U-16 i BF-44, #1899 punkt 4).
-    await fireEvent.click(screen.getByRole('button', { name: 'Les ved siden av' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Les brevet ved siden av' }));
     expect(omslaget()).toBeNull();
     const sporene = screen.getByRole('navigation', { name: 'Forholdet og kravene i saken' });
     expect(within(sporene).getByRole('button', { name: 'Vederlagsjustering' })).toHaveAttribute(

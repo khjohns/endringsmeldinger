@@ -7,8 +7,6 @@
  * tolkes; det står på siden «Om Varden» (OV-U81, #1443, #1452).
  */
 export const VIRKNING = {
-  alltid: 'Virkningen av svaret regnes ut fra valgene over.',
-  tolkes: 'Begrunnelsen tolkes ikke.',
   // Bare når kjernen forhåndsviser sammenfall, ikke bare hele beløpet (GR-U7).
   sammenfall:
     'Svaret gir sammenfall med TEs krav om vederlag etter valgene over. Enighet registreres uten at TE må godta svaret.',
