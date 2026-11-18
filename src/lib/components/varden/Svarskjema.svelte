@@ -11,7 +11,6 @@
   ufullstendig svar). Brevet leses ved siden av skjemaet, og på smal skjerm i skjemaet.
 -->
 <script lang="ts">
-  import { Info } from 'lucide-svelte';
   import type { Snippet } from 'svelte';
   import { SVARTITTEL } from '#kjerne/frosset/brevtittel.ts';
   import type { Spor } from '#kjerne/typer.ts';
@@ -207,7 +206,6 @@
 
   {#if stopp !== null}
     <div class="ikke-stoettet" role="note">
-      <Info size={18} aria-hidden="true" />
       <p>{stopp}</p>
     </div>
   {:else}
@@ -287,17 +285,11 @@
   }
   /* En melding om prøven, ikke en feil og ikke et utkast: blekk i kanten, ingen farge (#1391). */
   .ikke-stoettet {
-    display: flex;
-    gap: var(--spacing-3);
     margin: var(--spacing-5) var(--spacing-6);
     padding: var(--spacing-4);
     border-left: 3px solid var(--ink);
     background: var(--surface-inset);
     color: var(--ink);
-  }
-  .ikke-stoettet :global(svg) {
-    flex: none;
-    margin-top: 3px;
   }
   .dempet {
     color: var(--ink-3);

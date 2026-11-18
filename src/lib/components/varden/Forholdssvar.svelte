@@ -6,7 +6,6 @@
   og avviser det den ikke godtar.
 -->
 <script lang="ts">
-  import { Info } from 'lucide-svelte';
   import {
     DATOEN_GJELDER,
     innholdIForholdet,
@@ -253,13 +252,10 @@
   {#snippet spoersmaal(feil)}
     {#if !lagtTil}
       <div class="utenfor" role="note">
-        <Info size={16} aria-hidden="true" />
-        <div>
-          <p>{FORHOLDSSVAR.utenforLoesningen}</p>
-          {#if onleggtil}
-            <Knapp variant="lenke" kompakt onclick={onleggtil}>{LEGG_TIL.tittel}</Knapp>
-          {/if}
-        </div>
+        <p>{FORHOLDSSVAR.utenforLoesningen}</p>
+        {#if onleggtil}
+          <Knapp variant="lenke" kompakt onclick={onleggtil}>{LEGG_TIL.tittel}</Knapp>
+        {/if}
       </div>
     {/if}
 
@@ -315,15 +311,9 @@
 
 <style>
   .utenfor {
-    display: flex;
-    gap: var(--spacing-2);
     margin: var(--spacing-5) var(--spacing-6) 0;
     color: var(--ink-3);
     font-size: 14px;
-  }
-  .utenfor :global(svg) {
-    flex: none;
-    margin-top: 2px;
   }
   /* Setningen i byggherrens brevskrift. */
   blockquote {
