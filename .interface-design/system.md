@@ -261,7 +261,7 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   `prefers-color-scheme`, også når innstillingen endres mens siden er åpen.
 - **En feil har én form** (oppdragsgiver 17.11, #2163, skissen
   [feilmeldingene.html](../docs/design/prototyper/feilmeldingene.html)). Det gjelder lista over det
-  som mangler, en sending som feiler og en sak som ikke kan hentes:
+  som mangler og en sending som feiler:
   - Kanten til venstre og ikonet er i `--danger`. Flaten er nøytral. Ikonet gjør at fargen aldri
     står alene. En informasjonsmelding har ikke ikon.
   - Tittelen i halvfet sier hva som skjedde, som «Brevet ble ikke sendt». Linja under sier hvorfor,
@@ -271,9 +271,10 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
     sendt», og knappen er «Prøv å sende igjen».
   - Når brevet er sendt, byttes stempelet «Utkast · ikke sendt» med et heltrukket «Sendt <dato>
     kl. <tid>» på samme sted, og én linje under bekrefter det.
-  - En sak som ikke kan hentes, står på arket, innenfor kantene til arbeidsflaten. Kan saken ikke
-    leses fordi den ikke finnes eller parten ikke har tilgang, sier siden begge deler, uten å skille
-    dem, og har bare «Til sakslisten».
+  - En sak som ikke kan hentes, står på arket, innenfor kantene til arbeidsflaten, uten rød kant og
+    uten ikon, som i skissen (oppdragsgiver 18.11). Arket er hele siden, så tittelen bærer beskjeden.
+    Kan saken ikke leses fordi den ikke finnes eller parten ikke har tilgang, sier siden begge
+    deler, uten å skille dem, og har bare «Til sakslisten».
 
 ## Ordene i visningen
 

@@ -131,6 +131,8 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(kortet.getByText(/Du godtar hele svaret i brev 4\./)).toBeTruthy();
     expect(kortet.getByRole('region', { name: 'Andre handlinger' })).toBeTruthy();
     await fireEvent.click(kortet.getByRole('button', { name: /^Godta svaret/ }));
+    // Aksepten går rett til brevkontrollen fra saken, så lenken går dit (review av #2200).
+    expect(screen.getByRole('link', { name: 'Tilbake til saken' })).toBeTruthy();
     // KA-U1, GR-U7: aksepten omfatter påberopelsen, og kjernen gir beløpet 0 kr etter den. Det
     // står i brevkontrollen før sendingen.
     const kontrollen = screen.getByRole('region', { name: 'Sending' });
@@ -420,7 +422,16 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByRole('form')).toBeNull();
     expect(vederlag().textContent).toMatch(/Utkast/);
 
+    // #2179: fanen åpner oversikten. Fortsett og tilbake bevarer valget.
     await fireEvent.click(vederlag());
+    expect(screen.queryByRole('form')).toBeNull();
+    await fireEvent.click(screen.getByRole('button', { name: 'Fortsett utkastet' }));
+    expect(screen.getByRole('radio', { name: 'Varslet for sent' })).toBeChecked();
+    const hode = screen.getByRole('heading', { name: /^Svar på krav om vederlagsjustering/ });
+    expect(document.activeElement).toBe(hode);
+    await fireEvent.click(screen.getByRole('link', { name: 'Tilbake til vederlagsjusteringen' }));
+    expect(screen.queryByRole('form')).toBeNull();
+    await fireEvent.click(screen.getByRole('button', { name: 'Fortsett utkastet' }));
     expect(screen.getByRole('radio', { name: 'Varslet for sent' })).toBeChecked();
     expect(vederlag().textContent).not.toMatch(/Utkast/);
   });
@@ -529,7 +540,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     await bhSvarerIVarden();
     kontroller();
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til utkastet' }));
+    await fireEvent.click(screen.getByRole('link', { name: 'Tilbake til utkastet' }));
     kontroller();
     expect(screen.queryByText('Om varselet kom i tide, avgjør partene.')).toBeNull();
   });
@@ -712,32 +723,87 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(screen.queryByText(/^Saken har en hendelse løsningen ikke kan lese\./)).toBeNull();
   });
 
-  it('når lastingen feiler, viser Varden feilen og «Prøv igjen» i stedet for «Laster saken …» (#1373, funn 1)', async () => {
+  it.each([
+    [0, 'Beklager, vi fikk ikke svar fra serveren. Kontroller nettforbindelsen, og prøv igjen.'],
+    [500, 'Beklager, serveren svarte med en feil. Prøv igjen om litt.'],
+  ])(
+    'ved lastefeil %i står rådet på arket, og «Prøv igjen» laster saken (#2188)',
+    async (status, raad) => {
+      const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
+      const hent = vi
+        .fn()
+        .mockRejectedValueOnce(new ApiError(status, 'Teknisk detalj fra serveren.'))
+        .mockImplementation(demosak.hent);
+      const kjernesak = lagKjernesak({
+        sakId: demosak.sakId,
+        prosjektId: 'demo',
+        part: 'BH',
+        hent,
+        send: demosak.send,
+      });
+      await kjernesak.last();
+      render(Vardensak, { kjernesak });
+
+      const feil = await screen.findByRole('alert');
+      expect(within(feil).getByRole('heading', { name: 'Saken kunne ikke hentes' })).toBeTruthy();
+      expect(within(feil).getByText(raad)).toBeTruthy();
+      expect(feil.textContent).not.toContain('Teknisk detalj');
+      expect(feil.closest('main')).toBeTruthy();
+      expect(screen.queryByText('Laster saken …')).toBeNull();
+
+      await fireEvent.click(within(feil).getByRole('button', { name: 'Prøv igjen' }));
+      await screen.findByRole('heading', { name: BF.tittel, level: 1 });
+      expect(screen.queryByRole('alert')).toBeNull();
+    }
+  );
+
+  it('når lastingen etter en sending avvises med 403, sier arket at brevet er lagret (review av #2202)', async () => {
     const demosak = lagDemosak(START, 'bh-har-mottatt-vederlagskravet', 'BH');
-    const hent = vi
-      .fn()
-      .mockRejectedValueOnce(new ApiError(500, 'Serveren svarte med feilkode 500 uten forklaring.'))
-      .mockImplementation(demosak.hent);
-    const kjernesak = lagKjernesak({
+    const ekte = lagKjernesak({
       sakId: demosak.sakId,
       prosjektId: 'demo',
       part: 'BH',
-      hent,
+      hent: demosak.hent,
       send: demosak.send,
     });
-    await kjernesak.last();
+    const lagret = 'Brevet er lagret, men saken kunne ikke lastes på nytt. Du har ikke tilgang.';
+    const overstyrt: Record<string, unknown> = {
+      lasteutfall: 'utilgjengelig',
+      saksbilde: null,
+      utledning: null,
+      utdatert: true,
+      feil: lagret,
+    };
+    const kjernesak = new Proxy(ekte, {
+      get: (t, k) =>
+        typeof k === 'string' && k in overstyrt ? overstyrt[k] : Reflect.get(t, k, t),
+    });
     render(Vardensak, { kjernesak });
-
     const feil = await screen.findByRole('alert');
-    expect(within(feil).getByRole('heading', { name: 'Saken kunne ikke lastes' })).toBeTruthy();
-    // En feil fra serveren beklager og sier hva parten kan gjøre (.interface-design/system.md).
-    expect(feil.textContent).toContain('Beklager, saken ble ikke hentet. Prøv igjen om litt.');
-    expect(feil.textContent).toContain('Serveren svarte med feilkode 500 uten forklaring.');
-    expect(screen.queryByText('Laster saken …')).toBeNull();
+    expect(
+      within(feil).getByRole('heading', {
+        name: 'Saken finnes ikke, eller du har ikke tilgang til den',
+      })
+    ).toBeTruthy();
+    expect(within(feil).getByRole('status').textContent).toBe(lagret);
+  });
 
-    await fireEvent.click(within(feil).getByRole('button', { name: 'Prøv igjen' }));
-    await screen.findByRole('heading', { name: BF.tittel, level: 1 });
-    expect(screen.queryByRole('alert')).toBeNull();
+  it.each([403, 404])('viser samme vei til sakslisten ved HTTP %i (#2188)', async (status) => {
+    const kjernesak = lagKjernesak({
+      sakId: 'sak-1',
+      prosjektId: 'p-1',
+      hent: async () => {
+        throw new ApiError(status, 'Teknisk detalj fra serveren.');
+      },
+    });
+    await kjernesak.last();
+    render(Vardensak, { kjernesak, saksliste: '/p-1' });
+    const kortet = within(screen.getByRole('alert'));
+    expect(
+      kortet.getByRole('heading', { name: 'Saken finnes ikke, eller du har ikke tilgang til den' })
+    ).toBeTruthy();
+    expect(kortet.getByRole('link', { name: 'Til sakslisten' }).getAttribute('href')).toBe('/p-1');
+    expect(kortet.queryByRole('button')).toBeNull();
   });
 
   it('«Prøv igjen» er opptatt mens saken lastes på nytt, og en ny feil viser når det sist ble forsøkt (#1373, funn 1)', async () => {
@@ -767,7 +833,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     const knapp = await screen.findByRole('button', { name: 'Prøv igjen' });
     expect(knapp.getAttribute('aria-busy')).toBeNull();
     expect(screen.getByRole('alert').textContent).toMatch(/Sist forsøkt kl\.\u00a0\d\d\.\d\d\./);
-    expect(screen.getByRole('alert').textContent).toContain('Igjen.');
+    expect(screen.getByRole('alert').textContent).toContain(
+      'Beklager, serveren svarte med en feil. Prøv igjen om litt.'
+    );
   });
 
   it('saksomslaget har partene øverst og prosjektet nederst, og et navn som mangler, står ikke der (panel B, #1899 punkt 1, #1398)', async () => {
@@ -1000,6 +1068,8 @@ describe('svaret på påberopelsen av forholdet (BF-08, #2009)', () => {
     // Utkastet står til det er sendt eller forkastet, også når et annet spor velges (BF-01 S-8).
     await fireEvent.click(screen.getByRole('button', { name: /^Vederlagsjustering/ }));
     await fireEvent.click(screen.getByRole('button', { name: /^Irregulær endring/ }));
+    expect(screen.queryByRole('form')).toBeNull();
+    await fireEvent.click(screen.getByRole('button', { name: 'Fortsett utkastet' }));
     expect(screen.getByRole('radio', { name: 'Enig, endringsordre' })).toBeChecked();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));

@@ -8,7 +8,6 @@
 -->
 <script lang="ts">
   import { lagBrevtittel } from '#kjerne/frosset/brevtittel.ts';
-  import { ChevronLeft } from 'lucide-svelte';
   import { tick } from 'svelte';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -19,14 +18,13 @@
   import Utkastkort from './Utkastkort.svelte';
   import { utkastetsHode } from './utkastetsHode';
   import Forkastutkast from './Forkastutkast.svelte';
-  import Knapp from './Knapp.svelte';
   import Sendeknapp from './Sendeknapp.svelte';
   import Tidslinje from './Tidslinje.svelte';
   import { nyVersjonAvPaaberopelsen } from './kommandoer';
   import { brevetVedSiden } from './medie.svelte';
   import { brevene, datoerISporet, innleggene, type Brevet } from './lesing';
   import Tekstomraade from './Tekstomraade.svelte';
-  import { FORHOLDET, HOVEDLINJER, KRAVSKJEMA, NYVERSJON, brevtittel, dato } from './tekster';
+  import { HOVEDLINJER, KRAVSKJEMA, NYVERSJON, brevtittel, dato } from './tekster';
 
   let {
     kjernesak,
@@ -34,7 +32,6 @@
     tekst = $bindable(null),
     onbrevkontroll,
     onforkast,
-    ontilbake,
     onvedsiden,
   }: {
     kjernesak: Kjernesakkontekst;
@@ -43,8 +40,6 @@
     tekst?: string | null;
     onbrevkontroll: (k: TilBrevkontrollen) => void;
     onforkast: () => void;
-    /** Tilbake til oversikten over forholdet. Teksten står til TE kommer tilbake. */
-    ontilbake: () => void;
     /** Brevene leses ved siden av utkastet, så kolonnene er like brede. */
     onvedsiden?: (vedSiden: boolean) => void;
   } = $props();
@@ -116,12 +111,6 @@
 </script>
 
 <Arbeidsflate leser={side.vedSiden} deling="utkast">
-  {#snippet rad()}
-    <Knapp variant="lenke" onclick={ontilbake}
-      ><ChevronLeft size={16} aria-hidden="true" />{FORHOLDET.tilbake}</Knapp
-    >
-  {/snippet}
-
   {#snippet hoved()}
     <Utkastkort id={id('emne')} {...hode} avsender="TE" novalidate onsubmit={tilForhaandsvisningen}>
       {#snippet referanse()}
@@ -223,16 +212,14 @@
     border: var(--rule);
     border-radius: var(--r-kort);
   }
-  /* Høyre kolonne følger rullingen under arbeidsraden og er høyst like høy som vinduet under
-     den, med samme avstand til raden som før rullingen. `--radhoeyde` er den målte høyden på
-     raden med flaten bak den (`Arbeidsflate`). Et langt brev ruller i rammen. */
+  /* Et langt brev ruller i rammen. */
   .stoette {
     position: sticky;
-    top: calc(var(--radhoeyde, 0px) - var(--spacing-3) + var(--spacing-6));
+    top: var(--spacing-4);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-4);
-    max-height: calc(100dvh - var(--radhoeyde, 0px) - var(--spacing-10));
+    max-height: calc(100dvh - var(--spacing-10));
   }
   .tidligere {
     flex: 1;

@@ -215,7 +215,7 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
   it('datoen og forklaringen står når TE går tilbake fra brevkontrollen, og «Forkast utkast» tømmer dem etter dialogen (U-3, #2119)', async () => {
     aapne('BF-02A', 'te-har-mottatt-svaret');
     await teKorrigerer('2026-09-20', FORKLARING);
-    await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til utkastet' }));
+    await fireEvent.click(screen.getByRole('link', { name: 'Tilbake til utkastet' }));
     expect(screen.getByLabelText('Ny dato for når pålegget ble mottatt')).toHaveValue('2026-09-20');
     expect(screen.getByRole('textbox', { name: 'Forklaring, Valgfri' })).toHaveValue(FORKLARING);
     await fireEvent.click(screen.getByRole('button', { name: 'Forkast utkast' }));

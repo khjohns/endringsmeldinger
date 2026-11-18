@@ -43,19 +43,20 @@ describe('saksruta mot TS-serveren', () => {
 
   it('en sak TS-serveren ikke kjenner, gir «Saken finnes ikke» uten «Prøv igjen»', () => {
     const screen = render(Saksruta);
-    t.kontekst!.finnes = false;
-    t.kontekst!.feil = 'Saken finnes ikke.';
+    t.kontekst!.lasteutfall = 'utilgjengelig';
     flushSync();
-    expect(screen.getByRole('alert')).toHaveTextContent('Saken finnes ikke');
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Saken finnes ikke, eller du har ikke tilgang til den'
+    );
     expect(screen.queryByRole('button', { name: 'Prøv igjen' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Til sakslisten' })).toHaveAttribute('href', '/p-1');
   });
 
   it('en annen feil fra TS-serveren vises med «Prøv igjen»', () => {
     const screen = render(Saksruta);
-    t.kontekst!.feil = 'Saken kunne ikke hentes.';
+    t.kontekst!.lasteutfall = 'server';
     flushSync();
-    expect(screen.getByRole('alert')).toHaveTextContent('Saken kunne ikke hentes.');
+    expect(screen.getByRole('alert')).toHaveTextContent('Saken kunne ikke hentes');
     expect(screen.getByRole('button', { name: 'Prøv igjen' })).toBeInTheDocument();
   });
 });

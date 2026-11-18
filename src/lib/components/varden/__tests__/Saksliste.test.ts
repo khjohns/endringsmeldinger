@@ -527,7 +527,11 @@ describe('Saken i Varden etter at skallet er trukket ut', () => {
     await kjernesak.last();
     render(Vardensak, { kjernesak, saksliste: '/p1' });
     const feil = await screen.findByRole('alert');
-    expect(within(feil).getByRole('heading', { name: 'Saken finnes ikke' })).toBeTruthy();
+    expect(
+      within(feil).getByRole('heading', {
+        name: 'Saken finnes ikke, eller du har ikke tilgang til den',
+      })
+    ).toBeTruthy();
     expect(within(feil).getByRole('link', { name: 'Til sakslisten' }).getAttribute('href')).toBe(
       '/p1'
     );
