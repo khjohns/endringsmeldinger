@@ -1,5 +1,5 @@
 <!--
-  Knappen i Varden: pilleform, minst 44 px høy. En handling parten kan gjøre nå, er alltid
+  Knappen i Varden: 6 px radius, minst 44 px høy. En handling parten kan gjøre nå, er alltid
   aktiv; knappen er `aria-disabled` bare mens en sending pågår (MM-U32). Med `href` er den en
   lenke med samme form, for en handling som åpner en annen side.
   `Button` i primitives er 36 px.
