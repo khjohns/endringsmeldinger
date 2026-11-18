@@ -112,7 +112,7 @@
   .valg:focus {
     outline: none;
   }
-  .valg[data-fra-lista]:focus {
+  .valg:global([data-fra-lista]):focus {
     outline: 2px solid var(--control-focus);
     outline-offset: 2px;
   }
