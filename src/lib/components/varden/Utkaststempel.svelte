@@ -1,9 +1,11 @@
 <!-- Stempelet i brevhodet mens brevet skrives og kontrolleres (system.md, #2178). -->
 <script lang="ts">
   import { BREVKONTROLL } from './tekster';
+
+  let { tekst = BREVKONTROLL.utkast }: { tekst?: string } = $props();
 </script>
 
-<span>{BREVKONTROLL.utkast}</span>
+<span>{tekst}</span>
 
 <style>
   span {
