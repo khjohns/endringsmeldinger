@@ -44,7 +44,7 @@ export const FRISTKRAV = haerdet({
   registrert: 'Varselet er registrert.',
   // U-6: varselet gitt før, utenfor løsningen (OV-U5, VS-U16).
   gittFoer: 'Varselet er gitt før',
-  gittFoerHjelp: 'Brevet sier når varselet ble gitt, og dokumentet du varslet i, legges ved.',
+  gittFoerHjelp: 'Brevet sier når varselet ble gitt. Dokumentet du varslet i, legges ved.',
   likevel: 'Gi varselet i dette brevet',
   // Datoen TE ble klar over forholdet, fra påberopelsen eller korrigeringen (`klarOverForholdet`).
   klarOver: 'Når ble du klar over forholdet?',

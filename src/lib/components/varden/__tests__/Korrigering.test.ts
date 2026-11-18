@@ -285,12 +285,12 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
     await tilForholdet();
     expect(
       (await innlegget(1)).getByText(
-        /Saken står lukket, og korrigeringen endrer ikke utfallet\. Byggherren kan ta stilling til den nye datoen i et innlegg\./
+        /Saken står lukket\. Korrigeringen endrer ikke utfallet\. Byggherren kan ta stilling til den nye datoen i et innlegg\./
       )
     ).toBeTruthy();
     await teKorrigerer('2026-09-20');
     expect(screen.getByRole('region', { name: 'Sending' }).textContent).toMatch(
-      /Saken står lukket, og korrigeringen endrer ikke utfallet/
+      /Saken står lukket\. Korrigeringen endrer ikke utfallet/
     );
     await sendKorrigeringen();
     const foer = versjonVed('BF-02D', punkt.id);
@@ -301,9 +301,7 @@ describe('TE korrigerer datoen i Varden (BF-02A, BF-02C, BF-02D)', () => {
       expect(kvitteringen()).toMatch(/Saken står lukket, og utfallet er det samme\./)
     );
     // Teksten om den lukkede saken står én gang ved korrigeringen.
-    expect((await innlegget(4)).getAllByText(/^Saken står lukket, og korrigeringen/)).toHaveLength(
-      1
-    );
+    expect((await innlegget(4)).getAllByText(/^Saken står lukket\. Korrigeringen/)).toHaveLength(1);
   });
 
   it('før byggherren har svart, sier verken tråden, brevkontrollen eller kvitteringen at et svar står (U-2, U-4)', () => {

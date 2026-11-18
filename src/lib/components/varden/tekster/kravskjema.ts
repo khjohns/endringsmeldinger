@@ -20,7 +20,7 @@ export const KRAVSKJEMA = haerdet({
   postene: 'Vederlagsjustering',
   posteneHjemmel: ['34.1.1', '34.1.2'],
   posteneIntro:
-    'Del kravet i kravposter. Bruk samme betegnelse for hver kravpost i nye brev og i endringsordren. Beløpene er eks. mva.',
+    'Del kravet i kravposter. Kravpostene får betegnelser som P1 og P2. Betegnelsene står også i nye brev og i endringsordren. Beløpene er eks. mva.',
   kolonner: ['Post', 'Oppgjørsform', 'PNS', 'Beløp'],
   nyPost: 'Ny kravpost',
   // Kjernen gir betegnelsen når kravet sendes (KA-U53).
