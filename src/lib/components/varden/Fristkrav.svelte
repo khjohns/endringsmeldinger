@@ -73,6 +73,7 @@
     onbrevkontroll,
     onforkast,
     onregistrert,
+    onvedsiden,
     sakslenke,
     lagtTil = null,
     onendre = () => {},
@@ -88,6 +89,8 @@
     onforkast: () => void;
     /** Varselet sendt utenfor løsningen er registrert (U-13). */
     onregistrert: () => void;
+    /** Brevet leses ved siden av skjemaet, så panelet til venstre felles inn (system.md). */
+    onvedsiden?: (vedSiden: boolean) => void;
     /** Lenken til en annen sak i prosjektet, som en forlengelse av en frist står i (U-2). */
     sakslenke?: (sakId: string) => string;
     /**
@@ -574,6 +577,7 @@
   {u}
   avsender="TE"
   sendes={!registreres}
+  {onvedsiden}
   oppfolging={foresporselsbrev
     ? { tekst: SKJEMA.svarerPaa(foresporselsbrev), brev: foresporselsbrev }
     : forrige

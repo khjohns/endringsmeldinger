@@ -466,7 +466,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(omslaget()).toBeInTheDocument();
 
     // Der panelet er felt inn, står sporene i topplinja (U-16 i BF-44, #1899 punkt 4).
-    await fireEvent.click(screen.getByRole('button', { name: 'Les ved siden av' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Les brevet ved siden av' }));
     expect(omslaget()).toBeNull();
     const sporene = screen.getByRole('navigation', { name: 'Forholdet og kravene i saken' });
     expect(within(sporene).getByRole('button', { name: 'Vederlagsjustering' })).toHaveAttribute(

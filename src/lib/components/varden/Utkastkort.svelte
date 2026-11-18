@@ -17,6 +17,7 @@
     nivaa = 2,
     novalidate = false,
     sendes = true,
+    merke,
     onsubmit,
     referanse,
     leselenke,
@@ -30,6 +31,8 @@
     nivaa?: 1 | 2;
     novalidate?: boolean;
     sendes?: boolean;
+    /** Stempelet når brevet ikke sendes herfra, som «Utkast · ikke lagt til». */
+    merke?: string;
     onsubmit?: () => void;
     referanse?: Snippet;
     leselenke?: Snippet;
@@ -58,7 +61,7 @@
       >
         {tittel}
       </svelte:element>
-      <Utkaststempel />
+      <Utkaststempel tekst={merke} />
     </div>
     <div class="referanser">
       <div class="referansetekst">
