@@ -13,6 +13,7 @@ import { lagSaksbilde } from './saksbilde';
 import { sendForsoek, usikkertUtfall } from './forsoek';
 import { grunnlagetForSvaret } from './vederlagssvar';
 import {
+  erUsikkertUtfall,
   hentKjernesakMedMerking,
   lastOppKjernevedlegg,
   nyKommandoId,
@@ -65,6 +66,10 @@ const KAN_VAERE_UTDATERT = 'Saken som vises, kan være utdatert, og den kunne ik
 /** HTTP-statusen når serveren bekrefter at forsøket ble avvist. */
 export interface Sendeavvisning {
   status: number;
+}
+
+export function sendeavvisningFra(feil: unknown): Sendeavvisning | null {
+  return feil instanceof ApiError && !erUsikkertUtfall(feil) ? { status: feil.status } : null;
 }
 
 export interface Kjernesakvalg {
@@ -353,7 +358,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       }
       ventende = utfall.ventende;
       const e = utfall.feil;
-      sendeavvisning = !ventende && e instanceof ApiError ? { status: e.status } : null;
+      sendeavvisning = sendeavvisningFra(e);
       const hva = ventende ? USIKKERT : 'Brevet ble ikke sendt.';
       const aarsak = ventende ? null : meldingFra(e, null);
       // Saken er endret siden den ble lastet, eller en annen sak har fått nummeret i teksten

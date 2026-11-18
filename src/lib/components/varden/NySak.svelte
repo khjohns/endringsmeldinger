@@ -10,7 +10,11 @@
 <script lang="ts">
   import { KJERNE } from '#kjerne/versjon.ts';
   import type { Saksmerking } from '#lib/kjernesak/brevtekst.ts';
-  import { tekstenKanVaereUtdatert } from '#lib/kjernesak/kontekst.svelte.ts';
+  import {
+    sendeavvisningFra,
+    tekstenKanVaereUtdatert,
+    type Sendeavvisning,
+  } from '#lib/kjernesak/kontekst.svelte.ts';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brevkontroll, {
     detSomKontrolleres,
@@ -48,7 +52,7 @@
     type Utfylling,
     type VedleggForNySak,
   } from './nysak';
-  import { KORRESPONDANSEN, NYSAK, dagensDato, haerdet, punkt } from './tekster';
+  import { KORRESPONDANSEN, NYSAK, SENDEFEIL, dagensDato, haerdet, punkt } from './tekster';
   import {
     korrespondansefeilene,
     korrespondansenoekkel,
@@ -242,6 +246,7 @@
 
   let sender = $state(false);
   let sendefeil = $state<string | null>(null);
+  let sendeavvisning = $state<Sendeavvisning | null>(null);
   const sending: Brevsending = {
     part: 'TE',
     get saksbilde() {
@@ -253,15 +258,20 @@
     get feil() {
       return sendefeil;
     },
+    get sendeavvisning() {
+      return sendeavvisning;
+    },
     async send(_kommando, tekst) {
       sender = true;
       sendefeil = null;
+      sendeavvisning = null;
       try {
         const utkast = utfylling();
         const { opprettelse, paaberopelse } = kommandoene(utkast, KJERNE);
         await send({ sakId, opprettelse, paaberopelse, tekst: tekst ?? [], utkast });
         return true;
       } catch (e) {
+        sendeavvisning = sendeavvisningFra(e);
         sendefeil = e instanceof Error ? e.message : String(e);
         if (tekstenKanVaereUtdatert(e)) {
           // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt (LV-U46).
@@ -271,7 +281,7 @@
           if (lest && kontroll && detSomKontrolleres(lest) !== detSomKontrolleres(kontroll)) {
             const nyttNummer = lest.merking !== kontroll.merking;
             kontroll = { ...kontroll, ...lest };
-            if (nyttNummer) sendefeil = NYSAK.nyttNummer;
+            if (nyttNummer) sendefeil = SENDEFEIL.nyttNummer;
           }
         }
         return false;
@@ -281,6 +291,7 @@
     },
     fjernFeil() {
       sendefeil = null;
+      sendeavvisning = null;
     },
   };
 

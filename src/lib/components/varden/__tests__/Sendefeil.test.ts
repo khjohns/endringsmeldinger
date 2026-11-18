@@ -14,7 +14,7 @@ vi.mock('$app/state', () => ({
 
 afterEach(cleanup);
 
-async function sendeforsok(feil: ApiError) {
+async function sendeforsok(feil: ApiError, nyMerking?: string) {
   const demosak = lagDemosak(finnForloep('BF-01')!, 'te-har-mottatt-svaret', 'TE');
   const send = vi.fn().mockRejectedValue(feil);
   const kjernesak = lagKjernesak({
@@ -32,7 +32,7 @@ async function sendeforsok(feil: ApiError) {
   );
   const brev = kontrollbrev(kjernesak.brev(kommando));
   if (!brev) throw new Error('BF-01 må ha et akseptbrev før sendingen prøves.');
-  render(Brevkontroll, {
+  const { rerender } = render(Brevkontroll, {
     kjernesak,
     kommando,
     ...brev,
@@ -44,6 +44,7 @@ async function sendeforsok(feil: ApiError) {
     tilbakeTil: 'utkastet',
     ontilbake: () => {},
     onsendt: vi.fn(),
+    onavvist: nyMerking ? () => rerender({ merking: nyMerking }) : undefined,
   });
   await fireEvent.click(screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }));
   await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
@@ -84,6 +85,17 @@ describe('sendefeil i et eksisterende brev (#2188, E-2)', () => {
     expect(kjernesak.ventende).toBeNull();
   });
 
+  it('409 med nytt nummer ber avsenderen kontrollere brevet på nytt (LV-U46)', async () => {
+    const { melding } = await sendeforsok(
+      new ApiError(409, 'Intern nummerkonflikt.', { error: 'LOEPENUMMER_TATT' }),
+      'KOE-99'
+    );
+    expect(melding).toHaveTextContent('Brevet ble ikke sendt');
+    expect(melding).toHaveTextContent('Se over brevet med det nye nummeret');
+    expect(melding).not.toHaveTextContent('Intern nummerkonflikt.');
+    expect(screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' })).not.toBeChecked();
+  });
+
   it.each([400, 409])('%i beholder dagens avvisningsgrunn', async (status) => {
     const { melding } = await sendeforsok(new ApiError(status, 'Begrunnelsen fra serveren.'));
     expect(melding).toHaveTextContent('Brevet ble ikke sendt. Begrunnelsen fra serveren.');
@@ -91,10 +103,10 @@ describe('sendefeil i et eksisterende brev (#2188, E-2)', () => {
   });
 
   it.each([
-    new ApiError(0, 'Forbindelsen ble brutt.'),
-    new ApiError(500, 'Et svar uten feilkode.'),
-    new ApiError(503, 'Usikkert.', { error: 'UTFALL_USIKKERT' }),
-  ])('et usikkert utfall blir fortsatt stående som ventende (#418, #816)', async (feil) => {
+    ['brudd i forbindelsen', new ApiError(0, 'Forbindelsen ble brutt.')],
+    ['500 uten feilkode', new ApiError(500, 'Et svar uten feilkode.')],
+    ['UTFALL_USIKKERT', new ApiError(503, 'Usikkert.', { error: 'UTFALL_USIKKERT' })],
+  ])('%s lar forsøket stå som ventende (#418, #816)', async (_tilfelle, feil) => {
     const { kjernesak, melding } = await sendeforsok(feil);
     expect(melding).toHaveTextContent('Det er usikkert om brevet ble lagret.');
     expect(melding).not.toHaveTextContent('Brevet ble ikke sendt');

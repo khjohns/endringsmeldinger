@@ -122,14 +122,16 @@
     onavvist?: () => void;
   } = $props();
   const uid = $props.id();
+  let sendtMedMerking = $state<string | null>(null);
   const avvisningsstatus = $derived(kjernesak.sendeavvisning?.status);
-  const avvisning = $derived(
-    avvisningsstatus === 403
-      ? SENDEFEIL.ingenTilgang
-      : avvisningsstatus !== undefined && avvisningsstatus >= 500
-        ? SENDEFEIL.serverfeil
-        : null
-  );
+  const avvisning = $derived.by(() => {
+    if (avvisningsstatus === 403) return SENDEFEIL.ingenTilgang;
+    if (avvisningsstatus !== undefined && avvisningsstatus >= 500) return SENDEFEIL.serverfeil;
+    if (avvisningsstatus === 409 && merking && sendtMedMerking && merking !== sendtMedMerking) {
+      return SENDEFEIL.nyttNummer;
+    }
+    return null;
+  });
   const innlogging = $derived(
     page.url
       ? `${resolve('/login')}?return_to=${encodeURIComponent(page.url.pathname + page.url.search)}`
@@ -173,6 +175,7 @@
       return;
     }
     harSendt = true;
+    sendtMedMerking = merking;
     if (await kjernesak.send(kommando, tekst)) onsendt();
     else onavvist?.();
   }
@@ -266,7 +269,7 @@
             <p>{avvisning}</p>
             {#if avvisningsstatus === 403}
               <p><a href={innlogging}>{SENDEFEIL.loggInn}</a></p>
-            {:else}
+            {:else if avvisning === SENDEFEIL.serverfeil}
               <p>{SENDEFEIL.proevSenere}</p>
             {/if}
           {:else}{kjernesak.feil}{/if}</Melding
