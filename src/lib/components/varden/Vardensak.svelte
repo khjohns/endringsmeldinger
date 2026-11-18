@@ -709,6 +709,7 @@
     bind:valg={utkastene.fristkrav}
     onforkast={() => forkastUtkast('fristkrav')}
     onbrevkontroll={(k) => tilKravkontroll('frist', k)}
+    onvedsiden={(v) => (vedSiden = v)}
     onregistrert={() => {
       tom('fristkrav');
       return tilSaken(FRISTKRAV.registrert, 'sendt');
