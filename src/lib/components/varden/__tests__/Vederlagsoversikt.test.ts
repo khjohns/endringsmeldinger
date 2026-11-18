@@ -24,7 +24,7 @@ import {
 } from '#lib/components/varden/vederlagsoversikt.ts';
 import { trinnene } from '#lib/components/varden/Maalrad.svelte';
 import { brevene, leveringene, type Brevet } from '#lib/components/varden/lesing.ts';
-import { VEDERLAGET } from '#lib/components/varden/tekster/index.ts';
+import { FRISTEN, VEDERLAGET } from '#lib/components/varden/tekster/index.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 
 const kravetOgSvaretI = (u: Utledning) => kravetOgSvaret(u, brevene(u));
@@ -194,6 +194,16 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
     ]);
   });
 
+  it('navngir innsigelsen og brevet om varselet i begge lesekortene (#2210, BF-44 U-2)', async () => {
+    const u = await utledning(BF44.steg);
+    const brev = brevene(u).find((b) => b.nummer === 1)!;
+    const innsigelse = { art: 'grunn', grunn: 'prekludert', brev } as const;
+    for (const lesetekst of [VEDERLAGET.innsigelsen, FRISTEN.innsigelsen])
+      expect(lesetekst(innsigelse)).toBe(
+        'innsigelsen om at varselet etter punkt\u00a032.2 kom for sent (brev 1)'
+      );
+  });
+
   it('et krav uten punktet for varselet i brevet står uten hjemmelen (U-12, VS-U3)', async () => {
     const u = await utledning(BF44.steg);
     const alle = brevene(u);
@@ -276,8 +286,8 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
         .map((l) => l.querySelector('p')?.textContent)
     ).toEqual([
       'Byggherren gjør gjeldende at varselet etter punkt\u00a034.1.2 i brev 2 kom for sent.',
-      'Hvis innsigelsen om varselet etter punkt\u00a034.1.2 ikke fører frem: Byggherren godkjenner oppgjørsformen totalentreprenøren krever, og byggherren gjør gjeldende at varselet etter punkt\u00a034.1.3 i brev 3 kom for sent, og godkjenner 10 000 kr etter begrensningen.',
-      'Hvis heller ikke innsigelsen om varselet etter punkt\u00a034.1.3 fører frem.',
+      'Hvis innsigelsen om at varselet etter punkt\u00a034.1.2 kom for sent ikke fører frem: Byggherren godkjenner oppgjørsformen totalentreprenøren krever, og byggherren gjør gjeldende at varselet etter punkt\u00a034.1.3 i brev 3 kom for sent, og godkjenner 10 000 kr etter begrensningen.',
+      'Hvis heller ikke innsigelsen om at varselet etter punkt\u00a034.1.3 kom for sent fører frem.',
     ]);
     const tabell = kort.getByRole('table', { name: 'Per post' });
     expect(within(tabell).getAllByRole('row').at(-1)?.textContent).toBe(
