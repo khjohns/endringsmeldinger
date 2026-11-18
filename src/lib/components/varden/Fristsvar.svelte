@@ -7,11 +7,12 @@
   kjernen regner resultatet og lagene, lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
+  import { untrack } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
-  import { stor } from '#kjerne/frosset/brevdeler.ts';
-  import { dager } from '#kjerne/frosset/tekst.ts';
   import { UgyldigVurdering } from '#kjerne/regler/feil.ts';
   import { kontrollerSpesifiseringen } from '#kjerne/regler/svarkontroll.ts';
+  import { stor } from '#kjerne/frosset/brevdeler.ts';
+  import { dager } from '#kjerne/frosset/tekst.ts';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
   import { foresporselenISvaret } from '#lib/kjernesak/fristsvar.ts';
   import type { Forutsetning } from '#kjerne/spor/frist/kommando.ts';
@@ -40,7 +41,7 @@
     velgDagene,
   } from './fristsvar';
   import { brevet, standpunktene } from './lesing';
-  import { manglene, stilt, ubesvart } from './svarskjema';
+  import { manglene, stilt, ubesvart, ugyldig } from './svarskjema';
   import {
     BREVKONTROLL,
     FRISTSVAR,
@@ -86,6 +87,10 @@
   let valgtFrist = $state<string | null>(null);
   let postliste = $state<Postliste<Fristpost> | null>(null);
   const fristerMedFeltfeil = new SvelteSet<string>();
+  // Feilen fra «Ferdig» gjelder spesifiseringen byggherren valgte da.
+  $effect(() => {
+    if (valg.spesifisertITide !== false) untrack(() => fristerMedFeltfeil.clear());
+  });
   // Valgene for hver frist i gjeldende krav finnes før skjemaet tegnes, også når kravet er nytt.
   $effect.pre(() => {
     for (const f of frister) valg.frister[f.id] ??= tomFrist();
@@ -221,25 +226,28 @@
     return godkjent !== undefined && godkjent <= f.dager ? godkjent : undefined;
   };
 
-  const maatteForstaaFeil = (f: Fristpost): string | null => {
-    if (valg.spesifisertITide !== false) return null;
-    const antall = heleDager(fristvalget(valg, f.id).maatteForstaa);
-    const grense = grenseForMaatteForstaa(f);
+  // Kjernen avgjør om tallet er ubesvart eller ikke kan godtas (`ugyldig` i lagene, #2156). Før
+  // byggherren har oppgitt dagene, prøver kjernen ikke tallet, og kravet er grensen.
+  const avvistMotKravet = (f: Fristpost) => {
     try {
       kontrollerSpesifiseringen({
         spesifisert_krav_ok: false,
-        dager_maatte_forstaa: antall,
-        // Før byggherren har oppgitt dagene, er kravet den øvre grensen.
-        dager: grense ?? f.dager,
+        dager_maatte_forstaa: heleDager(fristvalget(valg, f.id).maatteForstaa),
+        dager: f.dager,
       });
-      return null;
+      return false;
     } catch (feil) {
-      if (!(feil instanceof UgyldigVurdering) || !feil.feil.dager_maatte_forstaa) throw feil;
-      if (!Number.isInteger(antall)) return FRISTSVAR.manglerMaatteForstaa;
-      return grense === undefined
-        ? FRISTSVAR.maatteForstaaOverKravet(f.dager)
-        : FRISTSVAR.maatteForstaaForMange;
+      if (feil instanceof UgyldigVurdering && feil.feil.dager_maatte_forstaa) return true;
+      throw feil;
     }
+  };
+  const maatteForstaaFeil = (f: Fristpost): string | null => {
+    if (valg.spesifisertITide !== false) return null;
+    if (ubesvart(lagene, 'dager_maatte_forstaa', f.id)) return FRISTSVAR.manglerMaatteForstaa;
+    const grense = grenseForMaatteForstaa(f);
+    const avvist =
+      grense === undefined ? avvistMotKravet(f) : ugyldig(lagene, 'dager_maatte_forstaa', f.id);
+    return avvist ? FRISTSVAR.maatteForstaaHoeyst(grense ?? f.dager) : null;
   };
   const maatteForstaaId = (f: Fristpost) => `${uid}-maatte-${f.id}`;
   function kontrollerVedFerdig(f: Fristpost) {
@@ -345,7 +353,11 @@
       {#if v}
         {#if valg.spesifisertITide === false}
           {@const id = maatteForstaaId(f)}
-          {@const mFeil = fristerMedFeltfeil.has(f.id) ? maatteForstaaFeil(f) : feil(id)}
+          {@const mFeil =
+            feil(id) ??
+            (fristerMedFeltfeil.has(f.id)
+              ? (mangler.find((m) => m.felt === id)?.tekst ?? null)
+              : null)}
           <div class="betinget">
             <Gjelderhvis
               id={`${id}-forutsetninger`}

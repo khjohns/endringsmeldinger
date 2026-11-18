@@ -151,9 +151,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     expect(sendt).toHaveLength(0);
     const oppsummering = screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' });
     expect(
-      within(oppsummering).getByText(
-        '5 Mekanisk ferdigstillelse: Dagene du måtte forstå kan ikke være flere enn dagene du godkjenner.'
-      )
+      within(oppsummering).getByText('5 Mekanisk ferdigstillelse: Skriv høyst 25 dager.')
     ).toBeInTheDocument();
     await fireEvent.input(felt, { target: { value: '15' } });
     await fireEvent.click(screen.getByRole('button', { name: 'Endre svaret på Sluttfristen' }));
@@ -194,11 +192,11 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     await svarPaaHeleKravet('Spesifisert for sent');
     const felt = maatteForstaa();
     expect(felt).toHaveValue('');
-    expect(felt).toHaveAccessibleDescription(/Høyst antallet dager du godkjenner/);
+    expect(felt).toHaveAccessibleDescription(/Høyst like mange dager som du godkjenner\./);
 
     await radio('Avslått');
     expect(felt).toHaveValue('');
-    expect(felt).toHaveAccessibleDescription(/Høyst 0, dagene du godkjenner/);
+    expect(felt).toHaveAccessibleDescription(/Høyst 0 dager\. Det er dagene du godkjenner\./);
     expect(felt).not.toHaveAttribute('aria-invalid');
     await ferdig();
     expect(felt).toHaveFocus();
@@ -220,14 +218,12 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     await svarPaaHeleKravet('Spesifisert for sent');
     const felt = maatteForstaa();
     await fireEvent.input(screen.getByLabelText('Godkjente dager'), { target: { value: '10' } });
-    expect(felt).toHaveAccessibleDescription(/Høyst 10, dagene du godkjenner/);
+    expect(felt).toHaveAccessibleDescription(/Høyst 10 dager\. Det er dagene du godkjenner\./);
     await fireEvent.input(felt, { target: { value: '11' } });
     await ferdig();
     expect(felt).toHaveFocus();
     expect(felt).toHaveAttribute('aria-invalid', 'true');
-    expect(felt).toHaveAccessibleDescription(
-      /Dagene du måtte forstå kan ikke være flere enn dagene du godkjenner\./
-    );
+    expect(felt).toHaveAccessibleDescription(/Skriv høyst 10 dager\./);
 
     await fireEvent.input(felt, { target: { value: '10' } });
     await ferdig();
@@ -242,6 +238,18 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     await ferdig();
     expect(felt).toHaveAttribute('aria-invalid', 'true');
     expect(felt).toHaveAccessibleDescription(/Skriv høyst 25 dager\./);
+  });
+
+  it('en feil fra «Ferdig» vises ikke igjen før et nytt forsøk når spesifiseringen er byttet (review av #2204)', async () => {
+    await svarskjemaet(medFristkrav);
+    await svarPaaHeleKravet('Spesifisert for sent');
+    await fireEvent.input(maatteForstaa(), { target: { value: '26' } });
+    await ferdig();
+    expect(maatteForstaa()).toHaveAttribute('aria-invalid', 'true');
+    await radio('Spesifisert i tide');
+    await radio('Spesifisert for sent');
+    await fireEvent.input(maatteForstaa(), { target: { value: '26' } });
+    expect(maatteForstaa()).not.toHaveAttribute('aria-invalid', 'true');
   });
 
   it('innsigelsen om varselet etter punkt 33.4 står én gang over fristene (U-12)', async () => {

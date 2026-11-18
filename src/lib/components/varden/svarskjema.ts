@@ -31,6 +31,17 @@ export const ubesvart = <S extends string>(
   lag?.ubesvart.some((x) => x.spoersmaal === spoersmaal && x.gjelder === gjelder) ?? false;
 
 /**
+ * Om kjernen avviser svaret på spørsmålet i utkastet (`ugyldig` i `Utkastlag`), for hele kravet
+ * eller for posten eller fristen `gjelder`. `false` uten lag.
+ */
+export const ugyldig = <S extends string>(
+  lag: { ugyldig: readonly { spoersmaal: S; gjelder?: string }[] } | null,
+  spoersmaal: S,
+  gjelder?: string
+): boolean =>
+  lag?.ugyldig.some((x) => x.spoersmaal === spoersmaal && x.gjelder === gjelder) ?? false;
+
+/**
  * Om kjernen stiller spørsmålet i utkastet, besvart eller ikke (`stilt` i `LagIFristen`, #2156),
  * for hele kravet eller for fristen `gjelder`. `true` uten lag, så spørsmålet står til kjernen har
  * svart.

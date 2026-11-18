@@ -167,8 +167,8 @@ export const FRISTSVAR = haerdet({
   maatteForstaaEtikett: 'Dagene du måtte forstå at totalentreprenøren hadde krav på',
   maatteForstaaHjelp: (grense: number | undefined) =>
     grense === undefined
-      ? 'Høyst antallet dager du godkjenner'
-      : `Høyst ${grense}, dagene du godkjenner`,
+      ? 'Høyst like mange dager som du godkjenner.'
+      : `Høyst ${dager(grense)}. Det er dagene du godkjenner.`,
   dagerSpoersmaal: 'Hvor mange av dagene godkjenner du?',
   // U-14: når du gjør gjeldende at kravet ble spesifisert for sent.
   dagerSpoersmaalITide: 'Dagene du godtar hvis kravet ble spesifisert i tide',
@@ -194,8 +194,7 @@ export const FRISTSVAR = haerdet({
     `Totalentreprenøren krever ${dager(krevd)}. Du kan ikke godkjenne flere.`,
   manglerMaatteForstaa:
     'Skriv dagene du måtte forstå at totalentreprenøren hadde krav på, som et helt antall.',
-  maatteForstaaForMange: 'Dagene du måtte forstå kan ikke være flere enn dagene du godkjenner.',
-  maatteForstaaOverKravet: (krevd: number) => `Skriv høyst ${dager(krevd)}.`,
+  maatteForstaaHoeyst: (grense: number) => `Skriv høyst ${dager(grense)}.`,
   leselinjeDager: (n: number, krevd: number) =>
     n === krevd
       ? `${dager(n)}, godkjent som krevd`
