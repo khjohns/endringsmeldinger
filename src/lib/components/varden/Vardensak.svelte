@@ -288,6 +288,11 @@
         : v
     );
   }
+  function fjernSkjemautkast(s: Spor, n: Utkastnavn) {
+    if (n === 'korrigering') {
+      for (const spor of ['forhold', 'vederlag', 'frist'] as const) fjernUtkast(spor, n);
+    } else fjernUtkast(s, n);
+  }
   const utkasttittel = (utkast: Skjemaarbeid) =>
     ({
       svar: SVARTITTEL[valgt],
@@ -444,7 +449,7 @@
     if (k.utkastet) tomtUtkast(k.utkastet);
     if (erUtkastnavn(k.tilbake.art)) {
       tom(k.tilbake.art);
-      fjernUtkast(s, k.tilbake.art);
+      fjernSkjemautkast(s, k.tilbake.art);
     }
     fjernUtkast(s, 'kontroll');
     if (valgt !== s || arbeid.art !== 'kontroll' || arbeid.kommando !== k.kommando) return;
@@ -464,7 +469,7 @@
   /** Utkastet i skjemaet `n` er forkastet. Svarutkastet forkastes med `forkast`. */
   function forkastUtkast(n: Exclude<Utkastnavn, (typeof svaretI)[Spor]>) {
     tom(n);
-    fjernUtkast(valgt, n);
+    fjernSkjemautkast(valgt, n);
     return tilSaken(MOTTATT.forkastet, 'forkastet');
   }
 
