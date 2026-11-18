@@ -51,5 +51,5 @@ export const FORHOLDSSVAR = haerdet({
   virkningSubsidiaert:
     'Svarene på vederlag og frist gjelder subsidiært. Totalentreprenøren kan godta svaret, og da avsluttes saken.',
   /** U-14 og OV-U101: et svar gitt utenfor løsningen legges til som korrespondanse. */
-  leggTilSvar: 'Legg til et svar gitt utenfor løsningen',
+  leggTilSvar: 'Legg til et svar du har gitt før',
 } as const);

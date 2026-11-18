@@ -240,7 +240,7 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
   it('ett lenkevalg åpner registrering av et svar gitt utenfor løsningen (U-14, OV-U101, #2183)', async () => {
     const onleggtil = vi.fn();
     await svarskjemaet(medGrunnlag, onleggtil);
-    const lenken = screen.getByRole('button', { name: 'Legg til et svar gitt utenfor løsningen' });
+    const lenken = screen.getByRole('button', { name: 'Legg til et svar du har gitt før' });
     expect(screen.queryByText(/Legg svaret til i saken som korrespondanse/)).toBeNull();
     await fireEvent.click(lenken);
     expect(onleggtil).toHaveBeenCalledOnce();
