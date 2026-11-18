@@ -263,11 +263,12 @@
           navn={`${uid}-varsel`}
           spoersmaal={FORHOLDSSVAR.varselSpoersmaal}
           valg={[
-            { verdi: false, tekst: FORHOLDSSVAR.varselNei },
             { verdi: true, tekst: FORHOLDSSVAR.varselJa },
+            { verdi: false, tekst: FORHOLDSSVAR.varselNei },
           ]}
           bind:verdi={() => valg.forSent, velgForSent}
           feil={feil(`${uid}-varsel`)}
+          stablet
         />
       </Spoersmaal>
     {/if}

@@ -424,7 +424,6 @@
               ]}
               bind:verdi={v.varsletITide}
               lett
-              stablet
             />
           </div>
           <div class="betinget">
@@ -447,7 +446,6 @@
               bind:verdi={v.godtarJustering}
               feil={feil(`${uid}-justering-${p.betegnelse}`)}
               lett
-              stablet
             />
           </div>
         {/if}

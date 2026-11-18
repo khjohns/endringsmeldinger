@@ -189,6 +189,16 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     expect(felt).toHaveValue('0');
   });
 
+  it('fristens tre valg står under hverandre med «Som krevd» først (#2183)', async () => {
+    await svarskjemaet(medFristkrav);
+    const dager = screen.getByRole('group', { name: 'Hvor mange av dagene godkjenner du?' });
+    const valg = within(dager).getAllByRole('radio');
+    expect(valg[0]).toHaveAccessibleName('Som krevd, 25 dager');
+    expect(valg[1]).toHaveAccessibleName('Delvis');
+    expect(valg[2]).toHaveAccessibleName('Avslått');
+    expect(valg[0]?.closest('.kort')).toHaveClass('stablet');
+  });
+
   it('«Ferdig» viser feilen ved feltet når det står tomt etter avslag, og byggherren må selv skrive 0 (#2183)', async () => {
     await svarskjemaet(medFristkrav);
     await svarPaaHeleKravet('Spesifisert for sent');

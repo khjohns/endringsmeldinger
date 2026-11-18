@@ -78,6 +78,17 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     expect(screen.getAllByRole('radio').filter((r) => (r as HTMLInputElement).checked)).toEqual([]);
   });
 
+  it('valgene om varselet står under hverandre med «Ja» først (#2183)', async () => {
+    await svarskjemaet(medGrunnlag);
+    const varselet = screen.getByRole('group', {
+      name: 'Gjør du gjeldende at varselet kom for sent?',
+    });
+    const valg = within(varselet).getAllByRole('radio');
+    expect(valg[0]).toHaveAccessibleName('Ja, varselet kom for sent');
+    expect(valg[1]).toHaveAccessibleName('Nei');
+    expect(valg[0]?.closest('.kort')).toHaveClass('stablet');
+  });
+
   it('det tomme skjemaet har kjernens tittel for svaret og forbeholdet, men ingen felt for begrunnelsen før brevet har punkter (#2035)', async () => {
     await svarskjemaet(medGrunnlag);
     // #2178: tittelen og brevnummeret står fra start. Stempelet står i samme hode.

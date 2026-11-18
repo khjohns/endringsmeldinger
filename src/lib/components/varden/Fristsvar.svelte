@@ -389,6 +389,7 @@
             bind:verdi={() => v.dager, (d) => velgDagene(v, d, f.dager)}
             feil={feil(`${uid}-dager-${f.id}`)}
             lett
+            stablet
           />
         </div>
         <!-- U-14: «Godkjente dager» står alltid, tomt til byggherren har valgt, og tallet styrer

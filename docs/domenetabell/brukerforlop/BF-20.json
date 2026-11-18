@@ -322,6 +322,11 @@
       "dato": "2026-11-18",
       "forhold": "#2183",
       "hva": "U-14 presiserer tomt felt ved avslag, tallfestet hjelpetekst og kontroll med «Ferdig»."
+    },
+    {
+      "dato": "2026-11-18",
+      "forhold": "#2183",
+      "hva": "U-14 angir oppstillingen og rekkefølgen for de tre dagvalgene."
     }
   ]
 }
