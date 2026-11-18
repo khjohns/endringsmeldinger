@@ -681,9 +681,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     const primaer = kortet.getByRole('button', { name: 'Oppdater kravet' });
     expect(primaer.className).toContain('knapp-primaer');
     expect(primaer).not.toHaveAttribute('aria-describedby');
+    expect(kortet.getByRole('button', { name: /^Godta svaret/ })).toBeTruthy();
     await fireEvent.click(primaer);
     expect(screen.getByText(/Når du sender brevet, kan du ikke godta det svaret her/)).toBeTruthy();
-    expect(kortet.getByRole('button', { name: /^Godta svaret/ })).toBeTruthy();
   });
 
   /** BF-04 etter svaret, der kjernen ikke gir noe brev for aksepten. Resten av saken er den ekte. */
