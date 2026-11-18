@@ -235,7 +235,9 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
         await screen.findByText((_, e) => e?.getAttribute('data-handling') === 'krav:vederlag')
       ).getByRole('button')
     );
-    const panelet = within(screen.getByRole('heading', { name: 'Punktene' }).closest('section')!);
+    const panelet = within(
+      screen.getByRole('heading', { name: 'Punktene i brevet' }).closest('section')!
+    );
     const lenke = (navn: string) => panelet.getByRole('link', { name: navn });
     const avsnitt = (navn: string) => document.querySelector(lenke(navn).getAttribute('href')!)!;
     const merket = () =>

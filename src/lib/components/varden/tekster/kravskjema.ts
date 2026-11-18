@@ -2,7 +2,7 @@ import { opplistet } from '#kjerne/frosset/brevdeler.ts';
 import { KORRESPONDANSETYPEN, kroner } from '#kjerne/frosset/tekst.ts';
 import type { Korrespondansetype } from '#kjerne/typer.ts';
 import type { Brevref } from '../lesing';
-import { brevref, brevrefStor } from './felles';
+import { BREVSTEG, brevref, brevrefStor } from './felles';
 import { dato, kortDato, punkt, haerdet } from './format';
 
 /**
@@ -162,7 +162,7 @@ export const KRAVSKJEMA = haerdet({
   manglerVarselet: 'Velg varselet i saken.',
   manglerSamme: 'Legg til dokumentet i den andre posten, eller velg et annet svar.',
   // Panelet til høyre (U-15, U-16).
-  punktene: 'Punktene',
+  punktene: BREVSTEG.punktene,
   punkteneHjelp: 'Beløp eks. mva. Oppdateres mens du skriver.',
   antallPoster: (n: number) => (n === 1 ? '1 kravpost' : `${n} kravposter`),
   antallVarsler: (n: number, iBrevet: number, lagtTil = false) =>

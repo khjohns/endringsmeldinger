@@ -148,7 +148,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(document.body.textContent).not.toMatch(/tolkes ikke|vurderes ikke/);
     expect(document.body.textContent).not.toMatch(/er bundet av svaret|kan ikke revideres/);
     expect(document.body.textContent).not.toMatch(/\bKA-U\d/);
-    await sendBrevet('Send svaret til totalentreprenøren');
+    await sendBrevet('Send til totalentreprenøren');
     await vi.waitFor(() => expect(nyeRader(demosak(), versjonVed(punkt.id))).toHaveLength(1));
     const [svaret] = nyeRader(demosak(), versjonVed(punkt.id));
     expect(svaret.aktor_rolle).toBe('BH');
@@ -182,7 +182,7 @@ describe('Varden med brukerforløpet BF-01', () => {
       /Aksepten omfatter også at byggherren gjør gjeldende at varselet etter punkt\u00a034\.1\.2 kom for sent/
     );
     expect(kontrollen.textContent).toMatch(/enige om for vederlagsjusteringen 0\skr/);
-    await sendBrevet('Send aksepten til byggherren');
+    await sendBrevet('Send til byggherren');
     await vi.waitFor(() => expect(nyeRader(demosak(), svaret.versjon)).toHaveLength(1));
     const [aksepten] = nyeRader(demosak(), svaret.versjon);
     expect(aksepten.aktor_rolle).toBe('TE');
@@ -588,10 +588,10 @@ describe('Varden med brukerforløpet BF-01', () => {
     expect(omslaget()).toBeInTheDocument();
   });
 
-  it('«Send svaret til totalentreprenøren» er aktiv uten avkrysning, og klikket sender ikke, men sier fra ved avkrysningen (MM-U32)', async () => {
+  it('«Send til totalentreprenøren» er aktiv uten avkrysning, og klikket sender ikke, men sier fra ved avkrysningen (MM-U32)', async () => {
     const demosak = aapne('bh-har-mottatt-vederlagskravet');
     await bhSvarerIVarden();
-    const send = screen.getByRole('button', { name: 'Send svaret til totalentreprenøren' });
+    const send = screen.getByRole('button', { name: 'Send til totalentreprenøren' });
     expect(send).not.toHaveAttribute('aria-disabled');
     const avkrysning = screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' });
     // Beskjeden må være koblet til før fokus flyttes, ellers leser skjermleseren den ikke.
@@ -1100,7 +1100,7 @@ describe('brevhodet og en avvist sending (A2b i #1497)', () => {
     // Svaret viser til TEs krav med merkingen kjernen frøs på det (LV-U49).
     expect(screen.getByTestId('deres-ref').textContent!.trim()).toBe(krav.data.merking);
 
-    await sendBrevet('Send svaret til totalentreprenøren');
+    await sendBrevet('Send til totalentreprenøren');
     await vi.waitFor(() =>
       expect(screen.getByTestId('vaar-ref').textContent).toBe('K202-KOE-017-04')
     );
@@ -1133,7 +1133,7 @@ describe('brevhodet og en avvist sending (A2b i #1497)', () => {
     await bhSvarerIVarden();
     const foer = kjernesak.versjon;
 
-    await sendBrevet('Send svaret til totalentreprenøren');
+    await sendBrevet('Send til totalentreprenøren');
     await vi.waitFor(() =>
       expect(screen.queryByRole('checkbox', { name: 'Jeg har kontrollert brevet' })).toBeNull()
     );
@@ -1170,7 +1170,7 @@ describe('svaret på påberopelsen av forholdet (BF-08, #2009)', () => {
     expect(screen.getByRole('radio', { name: 'Enig. Svaret er en endringsordre' })).toBeChecked();
 
     await fireEvent.click(screen.getByRole('button', { name: 'Se brevet før sending' }));
-    await sendBrevet('Send svaret til totalentreprenøren');
+    await sendBrevet('Send til totalentreprenøren');
     await screen.findByText('Brevet er sendt til totalentreprenøren.');
     const svaret = kjernesak.utledning!.spor.forhold.gjeldendeSvar;
     expect(svaret?.gjelder).toBe(paaberopelsen);

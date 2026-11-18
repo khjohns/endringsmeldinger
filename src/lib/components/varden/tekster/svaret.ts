@@ -4,7 +4,7 @@ import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
 import type { Kravpost, Oppgjoersform, Part } from '#kjerne/typer.ts';
 import type { Regel } from '../kommandoer';
 import type { Brevref } from '../lesing';
-import { brevref, brevrefStor, metodenavn } from './felles';
+import { BREVSTEG, brevref, brevrefStor, metodenavn } from './felles';
 import { dato, kl, haerdet } from './format';
 
 /** Forutsetningen om et sent varsel i svarskjemaene (#2183, G-2). */
@@ -212,7 +212,7 @@ export const VIRKNING = haerdet({
 });
 
 export const HOVEDLINJER = haerdet({
-  tittel: 'Punktene i brevet',
+  tittel: BREVSTEG.punktene,
   tom: 'Velg et svar på spørsmålene, så står standpunktene her.',
   alternativer: 'alternativer, ikke tillegg',
   krevd: (b: number) => `${kroner(b)} krevd`,
@@ -241,8 +241,8 @@ export const BREVKONTROLL = haerdet({
   kontrollert: 'Jeg har kontrollert brevet',
   hvorforIkke: 'Kryss av for at du har kontrollert brevet, så kan du sende.',
   sender: 'Sender …',
-  sendSvaret: 'Send svaret til totalentreprenøren',
-  sendAksepten: 'Send aksepten til byggherren',
+  sendSvaret: 'Send til totalentreprenøren',
+  sendAksepten: 'Send til byggherren',
 });
 
 /** Sikre sendefeil i brevkontrollen (#2188, E-2). */
