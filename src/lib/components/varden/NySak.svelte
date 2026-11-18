@@ -69,6 +69,7 @@
     hentMerking,
     vedleggForNySak,
     utkast = null,
+    gjenoppta = null,
     onsendt,
     onavbrutt,
   }: {
@@ -80,6 +81,7 @@
     vedleggForNySak: VedleggForNySak;
     /** Skjemaet fra et forsøk med usikkert utfall, så et nytt forsøk sender det samme (#1526). */
     utkast?: Utfylling | null;
+    gjenoppta?: NySak | null;
     onsendt: (sakId: string) => void;
     onavbrutt: () => void;
   } = $props();
@@ -87,7 +89,8 @@
   const id = (felt: string) => `${uid}-${felt}`;
 
   // Skjemaet starter fra utkastet én gang; det følger ikke propen etterpå.
-  const start = (() => utkast)();
+  const startForsok = (() => (gjenoppta?.kontrollertBrev ? gjenoppta : null))();
+  const start = (() => startForsok?.utkast ?? utkast)();
   let forhold = $state<Forholdsvalg | null>(start?.forhold ?? null);
   let velgerAapen = $state(!start);
   let aapenGruppe = $state<string | null>(null);
@@ -104,7 +107,11 @@
   const varseldokumentet: VedleggForNySak | null = null;
   let feil = $state<Record<string, string>>({});
   let oppsummering = $state<HTMLElement | null>(null);
-  let kontroll = $state<Omit<TilBrevkontrollen, 'detteSender' | 'virkninger'> | null>(null);
+  let kontroll = $state<Omit<TilBrevkontrollen, 'detteSender' | 'virkninger'> | null>(
+    startForsok?.kontrollertBrev
+      ? { ...startForsok.kontrollertBrev, kommando: startForsok.paaberopelse }
+      : null
+  );
 
   const felt = $derived(forhold ? feltene(forhold, KJERNE) : FELTENE_UTEN_FORHOLD);
   let merking = $state<Saksmerking | null>(null);
@@ -251,7 +258,7 @@
   let sendefeil = $state<string | null>(null);
   let sendeavvisning = $state<Sendeavvisning | null>(null);
   let nummerEndret = $state(false);
-  let ventende = $state<NySak | null>(null);
+  let ventende = $state<NySak | null>(startForsok);
 
   async function sendForsok(forsok: NySak): Promise<boolean> {
     sender = true;
@@ -306,7 +313,20 @@
     send(_kommando, tekst) {
       const utkast = utfylling();
       const { opprettelse, paaberopelse } = kommandoene(utkast, KJERNE);
-      return sendForsok({ sakId, opprettelse, paaberopelse, tekst: tekst ?? [], utkast });
+      const kontrollertBrev = kontroll && {
+        avsnitt: $state.snapshot(kontroll.avsnitt),
+        merking: kontroll.merking,
+        deresRef: $state.snapshot(kontroll.deresRef),
+        tittel: kontroll.tittel,
+      };
+      return sendForsok({
+        sakId,
+        opprettelse,
+        paaberopelse,
+        tekst: tekst ?? [],
+        utkast,
+        kontrollertBrev: kontrollertBrev ?? undefined,
+      });
     },
     async provIgjen() {
       return ventende && !sender ? sendForsok($state.snapshot(ventende)) : false;
@@ -345,6 +365,7 @@
 {#if kontroll && valgt}
   <Brevkontroll
     kjernesak={sending}
+    gjenopptar={!!startForsok}
     {...kontroll}
     handling={NYSAK.handling}
     svarerPaa={null}

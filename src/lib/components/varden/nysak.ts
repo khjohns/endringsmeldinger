@@ -22,6 +22,7 @@ import {
 } from '#kjerne/format/koder.ts';
 import type { Kjerne } from '#kjerne/versjon.ts';
 import type { Part, Vedlegg } from '#kjerne/typer.ts';
+import type { Kontrollbrev } from './Brevkontroll.svelte';
 
 /** Opprettelsen og påberopelsen, med brevteksten kjernen laget i brevkontrollen. */
 export interface NySak {
@@ -30,6 +31,8 @@ export interface NySak {
   opprettelse: { type: 'opprett_sak'; sakstittel: string };
   paaberopelse: Paaberopelse;
   tekst: string[];
+  /** Brevet avsenderen så, når forsøket skal gjenopptas etter ny innlasting. */
+  kontrollertBrev?: Kontrollbrev;
   /** Skjemaet slik det var sendt, så et nytt forsøk etter ny innlasting sender det samme (#1526). */
   utkast: Utfylling;
 }

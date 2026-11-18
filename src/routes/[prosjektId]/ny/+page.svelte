@@ -12,13 +12,14 @@
   import { type SendNySak, type VedleggForNySak } from '#lib/components/varden/nysak.ts';
   import { fjernVentende, lagreVentende, lesVentende } from '#lib/components/varden/ventende.ts';
   import {
+    erUsikkertUtfall,
     hentSaksmerkingForNySak,
     lastOppVedleggForNySak,
     nyKommandoId,
     sendNySak,
     slettVedleggForNySak,
   } from '#lib/api/kjerne.ts';
-  import { erKvittertBrevMangler, lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
   // Det ventende utkastet følger den innloggede (#1678).
@@ -30,13 +31,13 @@
   const sakId = $derived(ventende?.sakId ?? crypto.randomUUID());
   const kommandoId = $derived(ventende?.kommandoId ?? nyKommandoId());
   const send: SendNySak = $derived(async (nySak) => {
-    lagreVentende(brukerId, prosjektId, { sakId, kommandoId, utkast: nySak.utkast });
+    lagreVentende(brukerId, prosjektId, { sakId, kommandoId, utkast: nySak.utkast, forsok: nySak });
     try {
       const svar = await sendNySak(prosjektId, kommandoId)(nySak);
       fjernVentende(brukerId, prosjektId);
       return svar;
     } catch (feil) {
-      if (erKvittertBrevMangler(feil)) fjernVentende(brukerId, prosjektId);
+      if (!erUsikkertUtfall(feil)) fjernVentende(brukerId, prosjektId);
       throw feil;
     }
   });
@@ -64,6 +65,7 @@
         hentMerking={() => hentSaksmerkingForNySak(prosjektId)}
         {vedleggForNySak}
         utkast={ventende?.utkast ?? null}
+        gjenoppta={ventende?.forsok ?? null}
         onsendt={(s) =>
           goto(resolve('/[prosjektId]/[sakId]', { prosjektId, sakId: s }), {
             state: { nySakSendt: true },

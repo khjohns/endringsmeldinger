@@ -3,7 +3,7 @@
  * fjerne andre brukeres utkast uten å laste skjemaet (#1678).
  */
 
-import type { Utfylling } from './nysak';
+import type { NySak, Utfylling } from './nysak';
 
 /**
  * Opprettelsen som er sendt uten at utfallet er kjent (#1526 punkt 1). Saks-ID-en og
@@ -22,6 +22,7 @@ export interface VentendeOpprettelse {
   sakId: string;
   kommandoId: string;
   utkast: Utfylling | null;
+  forsok?: NySak;
 }
 
 const VENTENDE = 'nysak:ventende:';

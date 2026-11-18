@@ -85,6 +85,7 @@
     sendTekst,
     tilbakeTil,
     visTilbake = true,
+    gjenopptar = false,
     ontilbake,
     onsendt,
     onavvist,
@@ -113,6 +114,7 @@
     sendTekst: string;
     tilbakeTil: string;
     visTilbake?: boolean;
+    gjenopptar?: boolean;
     ontilbake: () => void;
     onsendt: () => void;
     /**
@@ -161,7 +163,7 @@
   // Bare en feil fra sendingen her vises, ikke en som står igjen fra et tidligere forsøk (#1393).
   let harSendt = $state(false);
   const proevIgjen = $derived(
-    harSendt && kjernesak.usikkertUtfall ? kjernesak.provIgjen : undefined
+    (harSendt || gjenopptar) && kjernesak.usikkertUtfall ? kjernesak.provIgjen : undefined
   );
   // Fokus til panelet når brevkontrollen åpnes, så tastatur og skjermleser starter der.
   onMount(() => tittelen?.focus());
@@ -189,7 +191,7 @@
 
 <div class="kontroll">
   <!-- Lenken står over begge kolonnene, så brevet og sendepanelet begynner på samme høyde. -->
-  {#if visTilbake}<p class="tilbake">
+  {#if visTilbake && !proevIgjen}<p class="tilbake">
       <Knapp variant="lenke" onclick={tilbake}
         ><ChevronLeft size={16} aria-hidden="true" />{BREVKONTROLL.tilbake(tilbakeTil)}</Knapp
       >
