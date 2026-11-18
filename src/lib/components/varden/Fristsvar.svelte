@@ -7,8 +7,11 @@
   kjernen regner resultatet og lagene, lager brevet og avviser det den ikke godtar.
 -->
 <script lang="ts">
+  import { SvelteSet } from 'svelte/reactivity';
   import { stor } from '#kjerne/frosset/brevdeler.ts';
   import { dager } from '#kjerne/frosset/tekst.ts';
+  import { UgyldigVurdering } from '#kjerne/regler/feil.ts';
+  import { kontrollerSpesifiseringen } from '#kjerne/regler/svarkontroll.ts';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
   import { foresporselenISvaret } from '#lib/kjernesak/fristsvar.ts';
   import type { Forutsetning } from '#kjerne/spor/frist/kommando.ts';
@@ -82,6 +85,7 @@
 
   let valgtFrist = $state<string | null>(null);
   let postliste = $state<Postliste<Fristpost> | null>(null);
+  const fristerMedFeltfeil = new SvelteSet<string>();
   // Valgene for hver frist i gjeldende krav finnes før skjemaet tegnes, også når kravet er nytt.
   $effect.pre(() => {
     for (const f of frister) valg.frister[f.id] ??= tomFrist();
@@ -212,18 +216,40 @@
     const d = heleDager(v.deldager);
     return d !== undefined && (d <= 0 || d >= f.dager) ? FRISTSVAR.deldagerUtenfor(f.dager) : null;
   };
-  // D-5: dagene byggherren måtte forstå er høyst dagene byggherren godtar om kravet kom i tide
-  // (`kontrollerSpesifiseringen` i kjernen).
+  const grenseForMaatteForstaa = (f: Fristpost) => {
+    const godkjent = godkjenteDager(fristvalget(valg, f.id), f.dager);
+    return godkjent !== undefined && godkjent <= f.dager ? godkjent : undefined;
+  };
+
   const maatteForstaaFeil = (f: Fristpost): string | null => {
     if (valg.spesifisertITide !== false) return null;
-    if (ubesvart(lagene, 'dager_maatte_forstaa', f.id)) return FRISTSVAR.manglerMaatteForstaa;
-    const v = fristvalget(valg, f.id);
-    const d = heleDager(v.maatteForstaa);
-    const godtar = godkjenteDager(v, f.dager);
-    return d !== undefined && godtar !== undefined && d > godtar
-      ? FRISTSVAR.maatteForstaaForMange
-      : null;
+    const antall = heleDager(fristvalget(valg, f.id).maatteForstaa);
+    const grense = grenseForMaatteForstaa(f);
+    try {
+      kontrollerSpesifiseringen({
+        spesifisert_krav_ok: false,
+        dager_maatte_forstaa: antall,
+        // Før byggherren har oppgitt dagene, er kravet den øvre grensen.
+        dager: grense ?? f.dager,
+      });
+      return null;
+    } catch (feil) {
+      if (!(feil instanceof UgyldigVurdering) || !feil.feil.dager_maatte_forstaa) throw feil;
+      if (!Number.isInteger(antall)) return FRISTSVAR.manglerMaatteForstaa;
+      return grense === undefined
+        ? FRISTSVAR.maatteForstaaOverKravet(f.dager)
+        : FRISTSVAR.maatteForstaaForMange;
+    }
   };
+  const maatteForstaaId = (f: Fristpost) => `${uid}-maatte-${f.id}`;
+  function kontrollerVedFerdig(f: Fristpost) {
+    if (maatteForstaaFeil(f)) {
+      fristerMedFeltfeil.add(f.id);
+      return maatteForstaaId(f);
+    }
+    fristerMedFeltfeil.delete(f.id);
+    return null;
+  }
   const mangler = $derived(
     manglene(uid, [
       // Spørsmålene som gjelder hele kravet.
@@ -318,8 +344,8 @@
       {@const v = valg.frister[f.id]}
       {#if v}
         {#if valg.spesifisertITide === false}
-          {@const id = `${uid}-maatte-${f.id}`}
-          {@const mFeil = feil(id)}
+          {@const id = maatteForstaaId(f)}
+          {@const mFeil = fristerMedFeltfeil.has(f.id) ? maatteForstaaFeil(f) : feil(id)}
           <div class="betinget">
             <Gjelderhvis
               id={`${id}-forutsetninger`}
@@ -329,10 +355,11 @@
             <Linjefelt
               {id}
               etikett={FRISTSVAR.maatteForstaaEtikett}
-              hjelp={FRISTSVAR.maatteForstaaHjelp(f.dager)}
+              hjelp={FRISTSVAR.maatteForstaaHjelp(grenseForMaatteForstaa(f))}
               enhet="dager"
               bredde="tall"
               inputmode="numeric"
+              paakrevd
               bind:verdi={v.maatteForstaa}
               feil={mFeil}
               foran={spesifiseringslagene.length ? [`${id}-forutsetninger`] : []}
@@ -498,8 +525,9 @@
         krever={(f) => FRISTSVAR.teKrever(f.dager)}
         kravet={(f) => dager(f.dager)}
         {leselinje}
+        {kontrollerVedFerdig}
         foersteFelt={(f) =>
-          valg.spesifisertITide === false ? `${uid}-maatte-${f.id}` : `${uid}-dager-${f.id}`}
+          valg.spesifisertITide === false ? maatteForstaaId(f) : `${uid}-dager-${f.id}`}
         valgene={fristvalgene}
       />
     </Spoersmaal>

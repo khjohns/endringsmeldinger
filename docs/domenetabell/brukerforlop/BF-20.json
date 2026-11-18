@@ -317,6 +317,11 @@
       "dato": "2026-11-16",
       "forhold": "#807, #2056",
       "hva": "Valget heter «Registrer et varsel sendt utenfor løsningen», og etiketten for vedlegget er «Dokumentet du varslet i» for alle typene. F-3 og U-6 lister feltene for et varsel sendt utenfor løsningen med ordene i Varden: «Hvordan ble varselet gitt?», «Hvordan ble brevet sendt?» (bare for Brev), «Datoen det ble sendt», «Dokumentet du varslet i» og «Kort beskrivelse av varselet» (OV-U79)."
+    },
+    {
+      "dato": "2026-11-18",
+      "forhold": "#2183",
+      "hva": "U-14 presiserer tomt felt ved avslag, tallfestet hjelpetekst og kontroll med «Ferdig»."
     }
   ]
 }
