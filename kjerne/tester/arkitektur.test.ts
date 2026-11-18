@@ -830,6 +830,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/nyttelast.ts',
       'spor/forhold/kommando.ts:utdypningIForholdet',
       'spor/forhold/kommando.ts:begrunnelseIForholdet',
+      'spor/forhold/kommando.ts:lagIForholdet',
       'spor/forhold/kommando.ts:varseletEtter322',
       'spor/vederlag/kommando.ts',
       'frosset/frysing.ts:beslutningsgrunnlag',
@@ -1128,7 +1129,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'utsagn',
     'spesifisert_krav_ok dager_maatte_forstaa',
   ],
-  ['regler/svarkontroll.ts', 'regelsett', 'kontrollerForholdet', ['spor/forhold/frysing.ts']],
+  [
+    'regler/svarkontroll.ts',
+    'regelsett',
+    'kontrollerForholdet',
+    ['spor/forhold/frysing.ts', 'spor/forhold/kommando.ts:lagIForholdet'],
+  ],
   [
     'regler/vederlag.ts',
     'regelsett',
@@ -1538,6 +1544,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/utkastlag.ts',
       'spor/vederlag/frysing.ts',
       'spor/vederlag/tekst.ts',
+      'spor/forhold/kommando.ts:lagIForholdet',
     ],
   ],
   // OV-U32, OV-U33: lagene i et svarutkast regnes som brevet regner dem (S1-A i #1400).
@@ -1545,7 +1552,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'frosset/standpunkt.ts',
     'predikat',
     'virkninger',
-    ['kommandoer/utkastlag.ts:lageneIUtkastet', 'frosset/frysing.ts:beslutningsgrunnlag'],
+    [
+      'kommandoer/utkastlag.ts:lageneIUtkastet',
+      'frosset/frysing.ts:beslutningsgrunnlag',
+      'spor/forhold/kommando.ts:lagIForholdet',
+    ],
   ],
   // GR-U7 og MM-U9: sammenfallet og begrensningen etter § 34.1.3 (VS-U5), lest når brevet fryses.
   [
@@ -1643,6 +1654,8 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
   ['spor/forhold/kommando.ts', 'kommando', 'SKRIVING_I_FORHOLDET', ['kommandoer/skriving.ts']],
   // Lagene i et svarutkast i sporet (#1778).
   ['spor/vederlag/kommando.ts', 'predikat', 'lagIVederlaget', ['kommandoer/lag.ts']],
+  ['spor/forhold/kommando.ts', 'predikat', 'lagIForholdet', ['kommandoer/lag.ts']],
+  ['spor/forhold/kommando.ts:lagIForholdet(feil)', 'regelsett', 'resultat grunnlag_varslet_i_tide'],
   ['spor/frist/kommando.ts', 'predikat', 'lagIFristen', ['kommandoer/lag.ts']],
   // #1925: et ubesvart spørsmål i svarutkastet regnes som besvart uten innsigelse (S1-A).
   [
@@ -1691,7 +1704,11 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'kommandoer/utkastlag.ts',
     'regelsett',
     'avvisteFelt',
-    ['spor/frist/kommando.ts:ugyldigIFristen', 'spor/vederlag/kommando.ts:ugyldigIVederlaget'],
+    [
+      'spor/frist/kommando.ts:ugyldigIFristen',
+      'spor/vederlag/kommando.ts:ugyldigIVederlaget',
+      'spor/forhold/kommando.ts:lagIForholdet',
+    ],
   ],
   [
     'kommandoer/utkastlag.ts',
@@ -1792,6 +1809,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'spor/vederlag/kommando.ts:lagIVederlaget',
       'spor/forhold/kommando.ts:korrigering',
       'spor/forhold/kommando.ts:kontrollerKorrigering',
+      'spor/forhold/kommando.ts:lagIForholdet',
       'kommandoer/nyttelast.ts:grunnlagsdatoen',
     ],
   ],
@@ -2490,6 +2508,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/skriving.ts',
       'spor/vederlag/kommando.ts',
       'spor/frist/kommando.ts',
+      'spor/forhold/kommando.ts:lagIForholdet',
     ],
   ],
   [
@@ -2799,6 +2818,7 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
       'kommandoer/utkastlag.ts',
       'frosset/linje.ts',
       'spor/vederlag/tekst.ts',
+      'spor/forhold/kommando.ts:lagIForholdet',
     ],
   ],
   ['frosset/linje.ts:beslutningslinje', 'brevtekst', 'tekst', ['frosset/linje.ts']],

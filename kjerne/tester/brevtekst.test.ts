@@ -9690,6 +9690,99 @@ describe('lagene i et fristsvar som ikke er ferdig utfylt (M-8 i BF-20, KA-U78, 
   });
 });
 
+describe('forutsetningene i forholdssvaret (#2181, OV-U32, OV-U33, GR-U11)', () => {
+  const saken = (varsling: boolean) => {
+    const s = sak();
+    s.send(
+      'TE',
+      varsling
+        ? PAABEROPELSE
+        : {
+            type: 'krav',
+            spor: 'forhold',
+            innhold: { hovedkategori: 'svikt', underkategori: 'grunnforhold', ...KLAR_OVER },
+          }
+    );
+    return s;
+  };
+  const lagene = (s: ReturnType<typeof sak>, vurderinger: Data) =>
+    lagForUtkastet(
+      svar('forhold', s.krav('forhold'), vurderinger) as Svarutkast & { spor: 'forhold' },
+      s.u(),
+      KJERNE.regler
+    );
+
+  it('har varslingsplikt og en virksom innsigelse etter 32.2, så forholdet får forutsetningen med varselet som kilde', () => {
+    const s = saken(true);
+    const lag = lagene(s, { grunnlag_varslet_i_tide: false });
+    expect(lag.standpunkter.find((x) => x.art === 'forhold')).toMatchObject({
+      besvart: false,
+      virkning: 2,
+      etikett: 'subsidiært',
+      forutsetninger: [{ innsigelse: '32.2', gjelder: s.krav('forhold') }],
+    });
+  });
+
+  it.each([
+    [true, true],
+    [true, undefined],
+    [false, false],
+    [false, true],
+    [false, undefined],
+  ])(
+    'uten virksom innsigelse gir varslingsplikt %s og i tide %s ingen forutsetning',
+    (varsling, iTide) => {
+      const s = saken(varsling);
+      const lag = lagene(s, {
+        resultat: 'avslaatt',
+        ...(iTide === undefined ? {} : { grunnlag_varslet_i_tide: iTide }),
+      });
+      expect(lag.standpunkter.find((x) => x.art === 'forhold')).toMatchObject({
+        besvart: true,
+        virkning: 1,
+        etikett: null,
+        forutsetninger: [],
+      });
+    }
+  );
+
+  it('har bare egne lag selv om det tidligere svaret på forholdet opptok to lag', () => {
+    const s = saken(true);
+    s.send('BH', {
+      type: 'brev',
+      svar: [
+        svar(
+          'forhold',
+          s.krav('forhold'),
+          {
+            resultat: 'avslaatt',
+            grunnlag_varslet_i_tide: false,
+          },
+          undefined,
+          'Pålegget innebærer ingen endring.'
+        ),
+      ],
+    });
+    expect(
+      lagene(s, { resultat: 'godkjent', grunnlag_varslet_i_tide: false }).standpunkter.find(
+        (x) => x.art === 'forhold'
+      )?.virkning
+    ).toBe(2);
+  });
+
+  it('skiller ubesvarte spørsmål fra svar kontrollen ikke godtar', () => {
+    const s = saken(true);
+    expect(lagene(s, {}).ubesvart).toEqual([
+      { spoersmaal: 'grunnlag_varslet_i_tide' },
+      { spoersmaal: 'resultat' },
+    ]);
+    expect(lagene(s, {}).ugyldig).toEqual([]);
+    expect(lagene(s, { grunnlag_varslet_i_tide: true, resultat: 'ukjent' }).ugyldig).toEqual([
+      { spoersmaal: 'resultat' },
+    ]);
+  });
+});
+
 describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S1-A og S2-A i #1400)', () => {
   const sviktkrav = {
     type: 'krav',
@@ -9718,13 +9811,6 @@ describe('lagene i et vederlagssvar som ikke er ferdig utfylt (OV-U32, OV-U33, S
       delete rest.gjelder;
       return { standpunkt: [art, hjemmel ?? saerskilt].filter(Boolean).join(' '), ...rest };
     });
-
-  it('forholdet har ingen lag i svarutkastet, og oppslaget kaster', () => {
-    const s = saken({ resultat: 'godkjent' });
-    expect(() =>
-      lagForUtkastet({ spor: 'forhold', vurderinger: {} } as never, s.u(), KJERNE.regler)
-    ).toThrow('Forholdet har ingen lag i svarutkastet');
-  });
 
   it('med to kravposter sier hvert lag for beløpet og oppgjørsformen hvilken kravpost det gjelder (KA-U57 (c) og (d))', () => {
     const s = saken(
