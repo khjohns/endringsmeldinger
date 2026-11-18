@@ -19,6 +19,7 @@
     sendes = true,
     onsubmit,
     referanse,
+    leselenke,
     children,
   }: {
     id: string;
@@ -31,6 +32,7 @@
     sendes?: boolean;
     onsubmit?: () => void;
     referanse?: Snippet;
+    leselenke?: Snippet;
     children: Snippet;
   } = $props();
   const mottaker = $derived(PARTEN[avsender === 'TE' ? 'BH' : 'TE']);
@@ -59,11 +61,16 @@
       <Utkaststempel />
     </div>
     <div class="referanser">
-      {#if sendes}<span>{nummer === null ? 'Brev' : `Brev ${nummer}`} til {mottaker}</span>{/if}
-      {@render referanse?.()}
-      {#if sendes}
-        {#if merking}<span>Vår ref. {merking}</span>{/if}
-        <span>Datoen settes ved sending</span>
+      <div class="referansetekst">
+        {#if sendes}<span>{nummer === null ? 'Brev' : `Brev ${nummer}`} til {mottaker}</span>{/if}
+        {@render referanse?.()}
+        {#if sendes}
+          {#if merking}<span>Vår ref. {merking}</span>{/if}
+          <span>Datoen settes ved sending</span>
+        {/if}
+      </div>
+      {#if leselenke}
+        <div class="leselenke">{@render leselenke()}</div>
       {/if}
     </div>
   </header>
@@ -100,14 +107,31 @@
   }
   .referanser {
     display: flex;
-    flex-wrap: wrap;
     align-items: baseline;
     gap: 0 var(--spacing-4);
     margin-top: var(--spacing-2);
     color: var(--ink-3);
     font-size: 13px;
   }
+  .referansetekst {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--spacing-4);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .leselenke {
+    flex: none;
+    margin-inline-start: auto;
+  }
   @media (max-width: 640px) {
+    .referanser {
+      flex-wrap: wrap;
+    }
+    .referansetekst {
+      width: 100%;
+    }
     .tittelrad {
       grid-template-columns: minmax(0, 1fr);
       row-gap: var(--spacing-2);

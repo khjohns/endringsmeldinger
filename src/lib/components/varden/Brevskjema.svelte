@@ -145,29 +145,29 @@
   />
 {/snippet}
 
+{#snippet leselenke()}
+  <Knapp
+    variant="lenke"
+    kompakt
+    iFlukt
+    onclick={() => (leser = !leser)}
+    aria-expanded={leser}
+    aria-controls={leser ? leseId : undefined}
+    >{leser ? SKJEMA.lukkBrevet : side.smal ? SKJEMA.lesBrevetHer : 'Les ved siden av'}</Knapp
+  >
+{/snippet}
+
 <Arbeidsflate leser={side.vedSiden}>
   {#snippet hoved()}
-    <Utkastkort {id} {...hode} {avsender} sendes={sendes && !lagtTil}>
+    <Utkastkort
+      {id}
+      {...hode}
+      {avsender}
+      sendes={sendes && !lagtTil}
+      leselenke={lesebrev ? leselenke : undefined}
+    >
       {#snippet referanse()}
-        {#if oppfolging}
-          <span class="oppfolging">
-            {oppfolging.tekst}
-            {#if lesebrev}
-              <Knapp
-                variant="lenke"
-                kompakt
-                onclick={() => (leser = !leser)}
-                aria-expanded={leser}
-                aria-controls={leser ? leseId : undefined}
-                >{leser
-                  ? SKJEMA.lukkBrevet
-                  : side.smal
-                    ? SKJEMA.lesBrevetHer
-                    : 'Les ved siden av'}</Knapp
-              >
-            {/if}
-          </span>
-        {/if}
+        {#if oppfolging}<span>{oppfolging.tekst}</span>{/if}
       {/snippet}
       {#if lesebrev && leser && side.smal}
         <div class="innebrev" id={leseId}>{@render brevet(lesebrev, 'kant')}</div>
@@ -215,10 +215,6 @@
 {/if}
 
 <style>
-  .oppfolging :global(button) {
-    font-size: inherit;
-    margin-left: var(--spacing-1);
-  }
   .innebrev {
     padding: var(--spacing-4) var(--spacing-4) 0;
   }
