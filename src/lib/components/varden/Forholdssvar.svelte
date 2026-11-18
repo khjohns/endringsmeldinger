@@ -150,6 +150,7 @@
     )!
   );
   const lagene = $derived(kjernesak.lagForUtkastet(utkast.svar[0]!, 'forhold'));
+  const foersteSporsmaal = $derived(lagene?.ubesvart[0]?.spoersmaal);
   const forutsetninger = $derived(
     lagene?.standpunkter.find((s) => s.art === 'forhold')?.forutsetninger ?? []
   );
@@ -262,7 +263,11 @@
     {/if}
 
     {#if f.varslingsplikt}
-      <Spoersmaal id={`${uid}-sp-varsel`} tittel={FORHOLDSSVAR.varselTittel}>
+      <Spoersmaal
+        id={`${uid}-sp-varsel`}
+        aktiv={foersteSporsmaal === 'grunnlag_varslet_i_tide'}
+        tittel={FORHOLDSSVAR.varselTittel}
+      >
         <Datoer linjer={datoene} />
         <Valg
           navn={`${uid}-varsel`}
@@ -280,6 +285,7 @@
 
     <Spoersmaal
       id={`${uid}-sp-forhold`}
+      aktiv={foersteSporsmaal === 'resultat'}
       tittel={FORHOLDSSVAR.forholdTittel}
       hjemmel={hjemmelen ? [hjemmelen] : undefined}
     >

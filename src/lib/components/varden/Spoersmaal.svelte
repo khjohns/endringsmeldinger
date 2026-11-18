@@ -12,6 +12,7 @@
     tittel,
     tillegg,
     hjemmel,
+    aktiv = false,
     children,
   }: (
     | {
@@ -25,12 +26,14 @@
     tillegg?: string;
     /** Punktene i NS 8407, uten «pkt.». */
     hjemmel?: readonly string[];
+    aktiv?: boolean;
     children: Snippet;
   } = $props();
 </script>
 
 <section
   class="spoersmaal"
+  class:aktiv
   aria-labelledby={tittel ? (hjemmel ? `${id} ${id}-hjemmel` : id) : undefined}
 >
   {#if tittel}
@@ -51,6 +54,12 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-3);
+  }
+  .spoersmaal.aktiv {
+    box-shadow: inset 3px 0 0 var(--ink);
+  }
+  .spoersmaal.aktiv h3 {
+    font-size: 20px;
   }
   .sp-hode {
     display: flex;

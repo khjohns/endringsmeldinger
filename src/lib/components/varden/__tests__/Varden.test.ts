@@ -198,6 +198,14 @@ describe('Varden med brukerforløpet BF-01', () => {
     // mangler.» BF-01 S-3: reserven B, fordi kjernen ikke lager tekst for et ufullstendig svar.
     aapne('bh-har-mottatt-vederlagskravet');
     await fireEvent.click(await screen.findByRole('button', { name: 'Svar på kravet' }));
+    const varselpunkt = screen
+      .getByRole('group', { name: 'Kom varselet om kravet i tide?' })
+      .closest('section');
+    const beloepspunkt = screen
+      .getByRole('group', { name: 'Hvor mye av beløpet godkjenner du?' })
+      .closest('section');
+    expect(varselpunkt).toHaveClass('aktiv');
+    expect(beloepspunkt).not.toHaveClass('aktiv');
     const seBrevet = screen.getByRole('button', { name: 'Se brevet før sending' });
     expect(seBrevet).not.toHaveAttribute('aria-disabled');
     // #1391: før BH har prøvd, står det verken «Ikke besvart» eller en hindring.
@@ -232,6 +240,8 @@ describe('Varden med brukerforløpet BF-01', () => {
 
     // Beskjeden ved feltet forsvinner når feltet er besvart.
     await fireEvent.click(screen.getByRole('radio', { name: 'Varslet for sent' }));
+    expect(varselpunkt).not.toHaveClass('aktiv');
+    expect(beloepspunkt).toHaveClass('aktiv');
     expect(ved('Kom varselet om kravet i tide?')).toBeNull();
     expect(
       within(

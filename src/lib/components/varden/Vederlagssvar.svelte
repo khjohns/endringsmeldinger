@@ -122,6 +122,7 @@
   const etter = $derived(kjernesak.forhaandsvist(utkast));
   // OV-U33: lagene står også før spørsmålene er besvart (`lagIVederlaget`).
   const lagene = $derived(stoppet ? null : kjernesak.lagForUtkastet(utkast.svar[0], 'vederlag'));
+  const foersteSporsmaal = $derived(lagene?.ubesvart[0]?.spoersmaal);
   type IPosten = { f: Forutsetning; post?: Kravpost };
   const iPosten = (liste: Forutsetning[], post?: Kravpost): IPosten[] =>
     liste.map((f) => ({ f, post }));
@@ -462,7 +463,12 @@
     {/snippet}
 
     {#if hovedvarselet}
-      <Spoersmaal id={`${uid}-sp-varsel`} tittel={SKJEMA.varselTittel} hjemmel={['34.1.2']}>
+      <Spoersmaal
+        id={`${uid}-sp-varsel`}
+        aktiv={foersteSporsmaal === 'hovedkrav_varslet_i_tide'}
+        tittel={SKJEMA.varselTittel}
+        hjemmel={['34.1.2']}
+      >
         <Varseldatoer {u} spor="vederlag" sendt={SKJEMA.kravSendt} />
         <Gjelderhvis
           id={`${uid}-itide-forutsetninger`}
@@ -485,6 +491,7 @@
 
     <Spoersmaal
       id={`${uid}-sp-beloep`}
+      aktiv={foersteSporsmaal !== undefined && foersteSporsmaal !== 'hovedkrav_varslet_i_tide'}
       tittel={SKJEMA.beloepTittel}
       tillegg={kroner(krevdTotalt)}
       hjemmel={['34.1', '34.2']}

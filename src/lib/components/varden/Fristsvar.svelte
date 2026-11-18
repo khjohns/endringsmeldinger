@@ -125,6 +125,7 @@
   const etter = $derived(kjernesak.forhaandsvist(utkast));
   // OV-U33: lagene står også før spørsmålene er besvart (`lagIFristen`).
   const lagene = $derived(kjernesak.lagForUtkastet(utkast.svar[0], 'frist'));
+  const foersteSporsmaal = $derived(lagene?.ubesvart[0]?.spoersmaal);
   type Lagene = NonNullable<typeof lagene>['standpunkter'][number];
   const forutsetninger = (passer: (x: Lagene) => boolean): Forutsetning[] =>
     lagene?.standpunkter.find(passer)?.forutsetninger ?? [];
@@ -446,7 +447,12 @@
       {/if}
     {/snippet}
 
-    <Spoersmaal id={`${uid}-sp-varsel`} tittel={FRISTSVAR.varselTittel} hjemmel={['33.4']}>
+    <Spoersmaal
+      id={`${uid}-sp-varsel`}
+      aktiv={foersteSporsmaal === 'frist_varsel_ok'}
+      tittel={FRISTSVAR.varselTittel}
+      hjemmel={['33.4']}
+    >
       <Varseldatoer {u} spor="frist" sendt={FRISTSVAR.kravSendt} />
       <Gjelderhvis id={`${uid}-varsel-forutsetninger`} liste={grunnene} punkt={forutsetning} />
       <Valg
@@ -465,6 +471,7 @@
     {#if foresporselen}
       <Spoersmaal
         id={`${uid}-sp-foresporsel`}
+        aktiv={foersteSporsmaal === 'foresporsel_svar_ok'}
         tittel={FRISTSVAR.foresporselTittel}
         hjemmel={['33.6.2']}
       >
@@ -489,6 +496,7 @@
 
     <Spoersmaal
       id={`${uid}-sp-hindring`}
+      aktiv={foersteSporsmaal === 'vilkar_oppfylt'}
       tittel={FRISTSVAR.hindringTittel}
       hjemmel={[hindringPunkt]}
     >
@@ -517,6 +525,7 @@
     {#if spesifiseringen}
       <Spoersmaal
         id={`${uid}-sp-spesifisering`}
+        aktiv={foersteSporsmaal === 'spesifisert_krav_ok'}
         tittel={FRISTSVAR.spesifiseringTittel}
         hjemmel={['33.6.1']}
       >
@@ -541,7 +550,12 @@
       </Spoersmaal>
     {/if}
 
-    <Spoersmaal id={`${uid}-sp-dager`} tittel={FRISTSVAR.dagerTittel} hjemmel={['33.5', '33.7']}>
+    <Spoersmaal
+      id={`${uid}-sp-dager`}
+      aktiv={foersteSporsmaal === 'dager' || foersteSporsmaal === 'dager_maatte_forstaa'}
+      tittel={FRISTSVAR.dagerTittel}
+      hjemmel={['33.5', '33.7']}
+    >
       {#if forHeleKravet.length}
         <p class="helekravet">{FRISTSVAR.forHeleKravet(forHeleKravet)}</p>
       {/if}
