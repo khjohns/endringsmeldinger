@@ -245,7 +245,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     expect(screen.getByText('Ikke oppgitt')).toBeInTheDocument();
     await seBrevet();
     await fireEvent.click(
-      screen.getByRole('link', { name: /^5 Mekanisk ferdigstillelse: Skriv dagene/ })
+      screen.getByRole('link', { name: /^5 Mekanisk ferdigstillelse: Skriv et helt antall dager/ })
     );
     expect(screen.getByLabelText('Antall dager du krever')).toHaveFocus();
   });
@@ -275,7 +275,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       utdypning: 'Pelingen tar fire uker lenger.',
     });
     const sendt = await kravskjemaet(medKrav);
-    expect(screen.getByText(/Varselet ble sendt i brev/)).toBeInTheDocument();
+    expect(screen.getByText(/Varselet ble sendt .* i brev/)).toBeInTheDocument();
     // Fristene fra forrige versjon står som linjer i tabellen, og én åpnes om gangen.
     expect(screen.queryByLabelText('Antall dager du krever')).not.toBeInTheDocument();
     await fireEvent.click(screen.getByRole('button', { name: 'Endre Sluttfristen' }));
@@ -352,7 +352,9 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     const sendt = await kravskjemaet(medGrunnlag);
     await fireEvent.click(screen.getByRole('button', { name: 'Varsle nå, og krev dagene senere' }));
     expect(screen.queryByLabelText('Antall dager du krever')).not.toBeInTheDocument();
-    expect(screen.getByText('Varselet etter punkt 33.4, uten dager')).toBeInTheDocument();
+    expect(
+      screen.getByText('Varselet etter punkt 33.4. Antall dager er ikke oppgitt.')
+    ).toBeInTheDocument();
     await seBrevet();
     expect(sendt).toHaveLength(1);
     expect(sendt[0]!.kommando).toEqual({ type: 'send_varsel', spor: 'frist', hjemmel: '33.4' });
@@ -570,8 +572,8 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
       await fireEvent.click(
         screen.getByRole('radio', { name: '5 Mekanisk ferdigstillelse · 11. mars 2027' })
       );
-      const gjeldende = screen.getByText(/^Gjeldende frist 11\. mars 2027/);
-      expect(gjeldende).toHaveTextContent('forlenget 10 dager i sak sak-a.');
+      const gjeldende = screen.getByText(/^Gjeldende frist er 11\. mars 2027/);
+      expect(gjeldende).toHaveTextContent('Sak sak-a forlenget fristen med 10 dager.');
       expect(gjeldende).not.toHaveTextContent(SAK);
       expect(gjeldende).toHaveTextContent(
         'Den nye datoen forutsetter at dagene du krever, kommer i tillegg til forlengelsen som er avtalt.'

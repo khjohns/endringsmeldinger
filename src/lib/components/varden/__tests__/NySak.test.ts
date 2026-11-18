@@ -163,20 +163,24 @@ describe('skjemaet for ny sak (BF-05)', () => {
     await velgForhold(SVIKT, /^Manglende medvirkning/);
     expect(screen.getByLabelText('Beskrivelse av forholdet')).toBeTruthy();
     expect(screen.getByLabelText('Dato du ble klar over forholdet')).toBeTruthy();
-    expect(screen.queryByText(/allerede varslet byggherren etter punkt 32.2/)).toBeNull();
+    expect(
+      screen.queryByText(/allerede varslet byggherren på annen måte etter punkt 32.2/)
+    ).toBeNull();
   });
 
   it('F-5: ved et pålegg der punkt 32.2 gjelder, spør skjemaet om varselet alt er sendt', async () => {
     aapne();
     await velgForhold(ENDRINGER, /^Irregulær endring/);
-    expect(screen.getByText(/allerede varslet byggherren etter punkt 32.2/)).toBeTruthy();
+    expect(
+      screen.getByText(/allerede varslet byggherren på annen måte etter punkt 32.2/)
+    ).toBeTruthy();
   });
 
   it('F-5: spørsmålet om punkt 32.2 sier «forholdet» når forholdet ikke er et pålegg', async () => {
     aapne();
     await velgForhold(ENDRINGER, /^Samordning/);
     expect(screen.getByLabelText('Beskrivelse av forholdet')).toBeTruthy();
-    expect(screen.getByText(/på annen måte, at forholdet er en endring\?/)).toBeTruthy();
+    expect(screen.getByText(/etter punkt 32.2 om at forholdet er en endring\?/)).toBeTruthy();
   });
 
   it('U-3/arbeidsvalg 02.11: det valgte forholdet viser kontraktens regel, og «Endre» åpner velgeren', async () => {
@@ -232,7 +236,9 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(screen.getByLabelText('Beskrivelse av pålegget')).toBeTruthy();
     expect(screen.getByLabelText('Dato du mottok pålegget')).toBeTruthy();
     expect(screen.getByLabelText('Vedlegg, Valgfri', { selector: 'input' })).toBeTruthy();
-    expect(screen.queryByText(/allerede varslet byggherren etter punkt 32.2/)).toBeNull();
+    expect(
+      screen.queryByText(/allerede varslet byggherren på annen måte etter punkt 32.2/)
+    ).toBeNull();
   });
 
   it('F-8/VS-U39: opplysningen fra kapittel B står ved spørsmålet, både ved nei og ved ja', async () => {

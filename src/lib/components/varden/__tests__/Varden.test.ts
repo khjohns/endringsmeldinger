@@ -657,10 +657,7 @@ describe('Varden med brukerforløpet BF-01', () => {
     const primaer = await screen.findByRole('button', { name: 'Oppdater påberopelse' });
     const raden = within(primaer.closest('li')!);
     expect(raden.getByRole('heading', { level: 4 }).textContent).toMatch(/^Svar på forholdet/);
-    // Teksten oppdragsgiver ga 06.11 i #1631, med «har risikoen for» som i § 33.1 c.
-    expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toMatch(
-      /^Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for\./
-    );
+    expect(primaer).not.toHaveAttribute('aria-describedby');
     expect(raden.getByRole('button', { name: 'Godta avslaget' })).toBeTruthy();
     const andre = within(screen.getByRole('region', { name: 'Andre handlinger' }));
     expect(andre.getByRole('button', { name: /^Trekk påberopelsen/ })).toBeTruthy();
@@ -683,9 +680,9 @@ describe('Varden med brukerforløpet BF-01', () => {
     const kortet = within(screen.getByRole('main'));
     const primaer = kortet.getByRole('button', { name: 'Oppdater kravet' });
     expect(primaer.className).toContain('knapp-primaer');
-    expect(document.getElementById(primaer.getAttribute('aria-describedby')!)!.textContent).toMatch(
-      /^Et nytt krav følger opp kravet i brev 3 og avslår tilbudet i svaret\./
-    );
+    expect(primaer).not.toHaveAttribute('aria-describedby');
+    await fireEvent.click(primaer);
+    expect(screen.getByText(/Når du sender brevet, kan du ikke godta det svaret her/)).toBeTruthy();
     expect(kortet.getByRole('button', { name: /^Godta svaret/ })).toBeTruthy();
   });
 
