@@ -106,6 +106,7 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     const sendt = await svarskjemaet(medFristkrav);
     expect(screen.getAllByRole('radio').filter((r) => (r as HTMLInputElement).checked)).toEqual([]);
     await svarPaaHeleKravet('Spesifisert i tide');
+    expect(screen.queryByText('Om kravet ble spesifisert i tide, avgjør partene.')).toBeNull();
     await seBrevet();
     expect(sendt).toHaveLength(0);
     expect(
