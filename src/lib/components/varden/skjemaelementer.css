@@ -1,0 +1,81 @@
+/* Skjemaelementene i system.md og skissen skjemaelementene.html (#2191). */
+.tema-varden input:is([type='radio'], [type='checkbox']) {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  margin: 0;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--ink-3);
+  background: var(--surface);
+  display: inline-grid;
+  place-content: center;
+  cursor: pointer;
+}
+.tema-varden input[type='radio'] {
+  border-radius: 50%;
+}
+.tema-varden input[type='checkbox'] {
+  border-radius: var(--r-merke);
+}
+.tema-varden input:is([type='radio'], [type='checkbox'])::before {
+  content: '';
+  transition: transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.tema-varden input[type='radio']::before {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ink);
+  transform: scale(0);
+}
+.tema-varden input[type='checkbox']::before {
+  width: 11px;
+  height: 6px;
+  border: solid var(--on-brand);
+  border-width: 0 0 2px 2px;
+  transform: translateY(-1px) rotate(-45deg) scale(0);
+}
+.tema-varden input:is([type='radio'], [type='checkbox']):checked {
+  border-color: var(--ink);
+}
+.tema-varden input[type='radio']:checked::before {
+  transform: scale(1);
+}
+.tema-varden input[type='checkbox']:checked {
+  background: var(--ink);
+}
+.tema-varden input[type='checkbox']:checked::before {
+  transform: translateY(-1px) rotate(-45deg) scale(1);
+}
+.tema-varden
+  input:is([type='radio'], [type='checkbox']):hover:not(:checked):not(:disabled):not(
+    [aria-invalid='true']
+  ) {
+  border-color: var(--ink-2);
+}
+.tema-varden input:is([type='radio'], [type='checkbox']):focus-visible {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 2px;
+}
+.tema-varden input:is([type='radio'], [type='checkbox']):disabled {
+  border-color: var(--rule-strong-color);
+  background: var(--surface-inset);
+  cursor: not-allowed;
+}
+.tema-varden input[type='radio']:disabled:checked::before {
+  background: var(--ink-4);
+}
+.tema-varden input[type='checkbox']:disabled:checked {
+  background: var(--ink-4);
+  border-color: var(--ink-4);
+}
+.tema-varden input:is([type='radio'], [type='checkbox'])[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tema-varden input:is([type='radio'], [type='checkbox'])::before {
+    transition: none;
+  }
+}

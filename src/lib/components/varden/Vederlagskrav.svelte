@@ -859,10 +859,12 @@
     </div>
     <p class="intro">{KRAVSKJEMA.posteneIntro}</p>
     {#if v.poster.length}
-      <div class="kolonner" aria-hidden="true">
-        {#each KRAVSKJEMA.kolonner as k (k)}<span>{k}</span>{/each}
-        <span></span>
-      </div>
+      {#if v.poster.some((p) => p.noekkel !== aapen || p.trukket)}
+        <div class="kolonner" aria-hidden="true">
+          {#each KRAVSKJEMA.kolonner as k (k)}<span>{k}</span>{/each}
+          <span></span>
+        </div>
+      {/if}
       <ul class="poster">
         {#each v.poster as p (p.noekkel)}
           <li

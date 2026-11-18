@@ -165,7 +165,7 @@ try {
 
   // Steg 3f: feilene står ved feltet før brevkontrollen, og ingen sak er opprettet (F-4, U-5).
   await knapp('Se brevet før sending').click();
-  await page.getByRole('group', { name: 'Det mangler noe før du kan se brevet' }).waitFor();
+  await page.getByRole('group', { name: 'Dette mangler før brevet kan lages:' }).waitFor();
   await steg('ny-feil', true);
 
   await page.getByRole('button', { name: 'Endringer, jf. punkt 31 og 32' }).click();
