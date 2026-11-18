@@ -18,7 +18,14 @@ const LIB = join(ROT, 'src', 'lib');
 const KJERNE = join(ROT, 'kjerne');
 
 /** Pakkene og modulene utenfor kjernen og mappa Varden kan importere. */
-const PAKKER = new Set(['svelte', 'lucide-svelte']);
+const PAKKER = new Set([
+  'svelte',
+  'lucide-svelte',
+  // Nettleserens historikk for arbeidet i saken (#2179). Ingen regel.
+  'svelte/reactivity',
+  '$app/state',
+  '$app/navigation',
+]);
 const MODULER = new Set(
   [
     'kjernesak/kontekst.svelte',
