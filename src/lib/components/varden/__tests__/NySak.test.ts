@@ -565,6 +565,21 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(screen.queryByText(SENDEFEIL.tittel)).toBeNull();
   });
 
+  it('prøver samme opprettelse igjen etter usikkert utfall (#2188 punkt 3)', async () => {
+    const send = vi
+      .fn<SendNySak>()
+      .mockRejectedValueOnce(new ApiError(0, 'Forbindelsen ble brutt.'))
+      .mockResolvedValueOnce({ sakId: 'ny-sak' });
+    const { onsendt } = aapne(send);
+    await fyllIrregulaerEndring();
+    await sendBrevet();
+    await screen.findByText('Vi vet ikke om brevet ble sendt');
+    await fireEvent.click(screen.getByRole('button', { name: 'Prøv å sende igjen' }));
+    await vi.waitFor(() => expect(onsendt).toHaveBeenCalledWith('ny-sak'));
+    expect(send).toHaveBeenCalledTimes(2);
+    expect(send.mock.calls[1]).toEqual(send.mock.calls[0]);
+  });
+
   it('LV-U46: tok en annen sak nummeret, vises brevet med det nye nummeret og sendes med det', async () => {
     let nummer = 17;
     const send = vi

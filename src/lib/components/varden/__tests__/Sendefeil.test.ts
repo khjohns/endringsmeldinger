@@ -32,6 +32,7 @@ async function sendeforsok(feil: ApiError, nyMerking?: string) {
   );
   const brev = kontrollbrev(kjernesak.brev(kommando));
   if (!brev) throw new Error('BF-01 må ha et akseptbrev før sendingen prøves.');
+  const onsendt = vi.fn();
   const { rerender } = render(Brevkontroll, {
     kjernesak,
     kommando,
@@ -43,14 +44,14 @@ async function sendeforsok(feil: ApiError, nyMerking?: string) {
     sendTekst: 'Send til byggherren',
     tilbakeTil: 'utkastet',
     ontilbake: () => {},
-    onsendt: vi.fn(),
+    onsendt,
     onavvist: nyMerking ? () => rerender({ merking: nyMerking }) : undefined,
   });
   await fireEvent.click(screen.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }));
   await fireEvent.click(screen.getByRole('button', { name: 'Send til byggherren' }));
   const melding = await screen.findByRole('alert');
   expect(send).toHaveBeenCalledTimes(1);
-  return { kjernesak, melding };
+  return { kjernesak, melding, send, onsendt };
 }
 
 describe('sendefeil i et eksisterende brev (#2188, E-2)', () => {
@@ -107,10 +108,21 @@ describe('sendefeil i et eksisterende brev (#2188, E-2)', () => {
     ['UTFALL_USIKKERT', new ApiError(503, 'Usikkert.', { error: 'UTFALL_USIKKERT' })],
   ])('%s lar forsøket stå som ventende (#418, #816)', async (_tilfelle, feil) => {
     const { kjernesak, melding } = await sendeforsok(feil);
-    expect(melding).toHaveTextContent('Det er usikkert om brevet ble lagret.');
+    expect(melding).toHaveTextContent('Vi vet ikke om brevet ble sendt');
+    expect(melding).toHaveTextContent('Brevet sendes ikke to ganger.');
+    expect(melding).toHaveAttribute('data-art', 'info');
+    expect(screen.getByRole('button', { name: 'Prøv å sende igjen' })).toBeEnabled();
     expect(melding).not.toHaveTextContent('Brevet ble ikke sendt');
     expect(melding).not.toHaveTextContent('Prøv igjen om litt.');
     expect(kjernesak.sendeavvisning).toBeNull();
     expect(kjernesak.ventende).not.toBeNull();
+  });
+  it('prøver igjen med samme versjon, kommando-ID og innhold (#2188 punkt 3, #418)', async () => {
+    const { send, onsendt } = await sendeforsok(new ApiError(0, 'Forbindelsen ble brutt.'));
+    send.mockResolvedValueOnce({});
+    await fireEvent.click(screen.getByRole('button', { name: 'Prøv å sende igjen' }));
+    await waitFor(() => expect(onsendt).toHaveBeenCalledOnce());
+    expect(send).toHaveBeenCalledTimes(2);
+    expect(send.mock.calls[1]).toEqual(send.mock.calls[0]);
   });
 });

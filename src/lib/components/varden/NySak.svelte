@@ -16,6 +16,7 @@
     tekstenKanVaereUtdatert,
     type Sendeavvisning,
   } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { sendForsoek } from '#lib/kjernesak/forsoek.ts';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brevkontroll, {
     detSomKontrolleres,
@@ -48,6 +49,7 @@
     kommandoene,
     type Brevsending,
     type Forholdsvalg,
+    type NySak,
     type SendNySak,
     type Kjernevedlegg,
     type Utfylling,
@@ -249,6 +251,38 @@
   let sendefeil = $state<string | null>(null);
   let sendeavvisning = $state<Sendeavvisning | null>(null);
   let nummerEndret = $state(false);
+  let ventende = $state<NySak | null>(null);
+
+  async function sendForsok(forsok: NySak): Promise<boolean> {
+    sender = true;
+    sendefeil = null;
+    sendeavvisning = null;
+    nummerEndret = false;
+    try {
+      const utfall = await sendForsoek(forsok, send);
+      if (utfall.lagret || erKvittertBrevMangler(utfall.feil)) {
+        ventende = null;
+        return true;
+      }
+      ventende = utfall.ventende;
+      const e = utfall.feil;
+      sendeavvisning = sendeavvisningFra(e);
+      sendefeil = e instanceof Error ? e.message : String(e);
+      if (tekstenKanVaereUtdatert(e)) {
+        // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt (LV-U46).
+        const lest = kontrollbrev(await brevetMedNummer());
+        if (lest && kontroll && detSomKontrolleres(lest) !== detSomKontrolleres(kontroll)) {
+          const nyttNummer = lest.merking !== kontroll.merking;
+          kontroll = { ...kontroll, ...lest };
+          nummerEndret = nyttNummer;
+        }
+      }
+      return false;
+    } finally {
+      sender = false;
+    }
+  }
+
   const sending: Brevsending = {
     part: 'TE',
     get saksbilde() {
@@ -266,35 +300,16 @@
     get nummerEndret() {
       return nummerEndret;
     },
-    async send(_kommando, tekst) {
-      sender = true;
-      sendefeil = null;
-      sendeavvisning = null;
-      nummerEndret = false;
-      try {
-        const utkast = utfylling();
-        const { opprettelse, paaberopelse } = kommandoene(utkast, KJERNE);
-        await send({ sakId, opprettelse, paaberopelse, tekst: tekst ?? [], utkast });
-        return true;
-      } catch (e) {
-        if (erKvittertBrevMangler(e)) return true;
-        sendeavvisning = sendeavvisningFra(e);
-        sendefeil = e instanceof Error ? e.message : String(e);
-        if (tekstenKanVaereUtdatert(e)) {
-          // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt (LV-U46).
-          const lest = kontrollbrev(await brevetMedNummer());
-          // Et annet brev kontrolleres på nytt. Bare en ny Vår ref. betyr at en annen sak tok
-          // nummeret; ellers står serverens melding.
-          if (lest && kontroll && detSomKontrolleres(lest) !== detSomKontrolleres(kontroll)) {
-            const nyttNummer = lest.merking !== kontroll.merking;
-            kontroll = { ...kontroll, ...lest };
-            nummerEndret = nyttNummer;
-          }
-        }
-        return false;
-      } finally {
-        sender = false;
-      }
+    get usikkertUtfall() {
+      return ventende !== null;
+    },
+    send(_kommando, tekst) {
+      const utkast = utfylling();
+      const { opprettelse, paaberopelse } = kommandoene(utkast, KJERNE);
+      return sendForsok({ sakId, opprettelse, paaberopelse, tekst: tekst ?? [], utkast });
+    },
+    async provIgjen() {
+      return ventende && !sender ? sendForsok($state.snapshot(ventende)) : false;
     },
     fjernFeil() {
       sendefeil = null;

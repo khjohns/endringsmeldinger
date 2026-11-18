@@ -471,6 +471,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get feil() {
       return feil;
     },
+    get usikkertUtfall() {
+      return ventende !== null;
+    },
     get sendeavvisning() {
       return sendeavvisning;
     },

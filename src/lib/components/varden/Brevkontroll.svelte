@@ -64,7 +64,7 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import { organisasjonene } from './kontrakt';
-  import { BREVKONTROLL, SENDEFEIL } from './tekster';
+  import { BREVKONTROLL, SENDEFEIL, USIKKERT_UTFALL } from './tekster';
   import { PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 
   let {
@@ -160,6 +160,9 @@
   let tittelen = $state<HTMLElement | null>(null);
   // Bare en feil fra sendingen her vises, ikke en som står igjen fra et tidligere forsøk (#1393).
   let harSendt = $state(false);
+  const proevIgjen = $derived(
+    harSendt && kjernesak.usikkertUtfall ? kjernesak.provIgjen : undefined
+  );
   // Fokus til panelet når brevkontrollen åpnes, så tastatur og skjermleser starter der.
   onMount(() => tittelen?.focus());
 
@@ -170,7 +173,7 @@
   }
 
   async function send() {
-    if (!kontrollert) {
+    if (!proevIgjen && !kontrollert) {
       manglerKontroll = true;
       // Beskjeden og aria-describedby må stå før fokus flyttes, så skjermleseren leser dem.
       await fokuser(() => avkrysning);
@@ -178,8 +181,9 @@
     }
     harSendt = true;
     sendtMedMerking = merking;
-    if (await kjernesak.send(kommando, tekst)) onsendt();
-    else onavvist?.();
+    const sendt = await (proevIgjen ? proevIgjen() : kjernesak.send(kommando, tekst));
+    if (sendt) onsendt();
+    else if (!kjernesak.usikkertUtfall) onavvist?.();
   }
 </script>
 
@@ -263,9 +267,18 @@
         </p>{/if}
       <Knapp variant="primaer" opptatt={kjernesak.sender} onclick={send}>
         <Send size={16} aria-hidden="true" />
-        {kjernesak.sender ? BREVKONTROLL.sender : sendTekst}
+        {kjernesak.sender
+          ? BREVKONTROLL.sender
+          : proevIgjen
+            ? USIKKERT_UTFALL.proevIgjen
+            : sendTekst}
       </Knapp>
-      {#if harSendt && kjernesak.feil && !kjernesak.sender}<Melding art="feil"
+      {#if proevIgjen && !kjernesak.sender}
+        <Melding art="info" role="alert">
+          <strong>{USIKKERT_UTFALL.tittel}</strong>
+          <p>{USIKKERT_UTFALL.forklaring}</p>
+        </Melding>
+      {:else if harSendt && kjernesak.feil && !kjernesak.sender}<Melding art="feil"
           >{#if avvisning}
             <strong>{SENDEFEIL.tittel}</strong>
             <p>{avvisning}</p>

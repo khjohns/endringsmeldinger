@@ -256,6 +256,12 @@ export const SENDEFEIL = haerdet({
   nyttNummer: 'En annen sak fikk nummeret i brevet. Brevet har nå det nye nummeret.',
 });
 
+export const USIKKERT_UTFALL = haerdet({
+  tittel: 'Vi vet ikke om brevet ble sendt',
+  forklaring: 'Brevet sendes ikke to ganger.',
+  proevIgjen: 'Prøv å sende igjen',
+});
+
 export const MOTTATT = haerdet({
   fra: (n: number, part: Part, d: string) => `Brev ${n} · ${part} · mottatt ${dato(d)} ${kl(d)}`,
   sendt: (d: string) =>
