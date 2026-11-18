@@ -223,7 +223,8 @@ const PROTOTYPENE_LYS: Record<string, string> = {
   '--sidebar-border': '#2e333b',
   '--varden-ark': '760px',
   '--varden-stoette': '360px',
-  '--r-knapp': '999px',
+  // system.md, «Radius betyr noe», og #2178 punkt 6 erstatter den eldre prototypen.
+  '--r-knapp': '6px',
   '--r-felt': '4px',
 };
 const PROTOTYPENE_MØRK: Record<string, string> = {
