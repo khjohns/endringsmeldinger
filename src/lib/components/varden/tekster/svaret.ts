@@ -21,7 +21,6 @@ export const SKJEMA = haerdet({
   varselSpoersmaal: 'Kom varselet om kravet i tide?',
   iTide: 'Varslet i tide',
   forSent: 'Varslet for sent',
-  datoGrense: 'Om varselet kom i tide, avgjør partene.',
   klarOver: (d: string, b: Brevref) =>
     `Totalentreprenøren oppgir at totalentreprenøren ble klar over forholdet ${dato(d)} (${brevref(b)}).`,
   // For registrert korrespondanse har omtalen datoen totalentreprenøren oppgir, og avstanden regnes til den
@@ -153,7 +152,6 @@ export const FRISTSVAR = haerdet({
   spesifiseringSpoersmaal: 'Ble kravet spesifisert i tide?',
   spesifisertITide: 'Spesifisert i tide',
   spesifisertForSent: 'Spesifisert for sent',
-  spesifiseringGrense: 'Om kravet ble spesifisert i tide, avgjør partene.',
   dagerTittel: 'Fristforlengelse',
   heleKravetTapt: (hjemmel: '33.4' | '33.6.2') =>
     hjemmel === '33.4'

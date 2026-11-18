@@ -40,7 +40,7 @@
   import { brevene, standpunktene, underOverskriften } from './lesing';
   import { vedleggskart } from './nysak';
   import { kravbrevetI, kravetSendt, manglene } from './svarskjema';
-  import { brevref, dato, FORHOLDSSVAR, kalenderdager, LEGG_TIL } from './tekster';
+  import { brevref, dato, FORHOLDSSVAR, kalenderdager } from './tekster';
 
   let {
     kjernesak,
@@ -250,12 +250,9 @@
   {onvedsiden}
 >
   {#snippet spoersmaal(feil)}
-    {#if !lagtTil}
-      <div class="utenfor" role="note">
-        <p>{FORHOLDSSVAR.utenforLoesningen}</p>
-        {#if onleggtil}
-          <Knapp variant="lenke" kompakt onclick={onleggtil}>{LEGG_TIL.tittel}</Knapp>
-        {/if}
+    {#if !lagtTil && onleggtil}
+      <div class="utenfor">
+        <Knapp variant="lenke" kompakt iFlukt onclick={onleggtil}>{FORHOLDSSVAR.leggTilSvar}</Knapp>
       </div>
     {/if}
 
@@ -312,8 +309,6 @@
 <style>
   .utenfor {
     margin: var(--spacing-5) var(--spacing-6) 0;
-    color: var(--ink-3);
-    font-size: 14px;
   }
   /* Setningen i byggherrens brevskrift. */
   blockquote {

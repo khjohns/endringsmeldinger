@@ -532,7 +532,7 @@ describe('Varden med brukerforløpet BF-01', () => {
 
     await fireEvent.click(screen.getByRole('button', { name: 'Tilbake til utkastet' }));
     kontroller();
-    expect(screen.getByText('Om varselet kom i tide, avgjør partene.')).toBeTruthy();
+    expect(screen.queryByText('Om varselet kom i tide, avgjør partene.')).toBeNull();
   });
 
   it.each([

@@ -467,7 +467,9 @@ describe('svaret lagt til i saken (code-review i #807)', () => {
     await fireEvent.click(
       await screen.findByRole('button', { name: /^Svar på påberopelsen|^Svar/ })
     );
-    await fireEvent.click(await screen.findByRole('button', { name: LEGG_TIL.tittel }));
+    await fireEvent.click(
+      await screen.findByRole('button', { name: 'Legg til et svar gitt utenfor løsningen' })
+    );
     expect(screen.getByRole('radio', { name: LEGG_TIL.kategorier.svar })).toBeChecked();
     await fyllUt(new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Oslo' }).format(new Date()));
     await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.gaaVidere }));
@@ -536,7 +538,9 @@ describe('utkastet til svaret når påberopelsen er trukket (#2104)', () => {
     };
   }
   async function leggTil() {
-    await fireEvent.click(await screen.findByRole('button', { name: LEGG_TIL.tittel }));
+    await fireEvent.click(
+      await screen.findByRole('button', { name: 'Legg til et svar gitt utenfor løsningen' })
+    );
     await fyllUt(new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Oslo' }).format(new Date()));
     await fireEvent.click(screen.getByRole('button', { name: LEGG_TIL.gaaVidere }));
     expect(screen.getAllByRole('button', { name: LEGG_TIL.leggTilSvaret }).length).toBeGreaterThan(

@@ -462,7 +462,6 @@
           liste={spesifiseringslagene}
           punkt={forutsetning}
         />
-        <p class="dempet">{FRISTSVAR.spesifiseringGrense}</p>
         <Valg
           navn={`${uid}-spesifisert`}
           spoersmaal={FRISTSVAR.spesifiseringSpoersmaal}
