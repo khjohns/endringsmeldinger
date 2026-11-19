@@ -32981,6 +32981,36 @@ tekst = "I første versjon er en forespørsel sendt utenfor løsningen dokumenta
 kilde = "hovedplanen"
 tekst = "Beslutningsdelen i VS-U47 gjelder for forespørselen etter punkt 33.6.2 i første versjon (oppdragsgiver 15.11)."
 
+
+[[gruppe.vedtak]]
+id = "OV-U116"
+dato = 2026-11-18
+hvem = "oppdragsgiver"
+kilde = ["#2194", "#2163"]
+klasse = "design"
+sporsmal = '''
+OV-U81 (#2194). Vedtaket (klassen design, 01.11) sier at det at løsningen «ikke vurderer innholdet i dokumentet og ikke avgjør hvilken betydning det har for partenes rettigheter og plikter», forklares i et infotips eller på en egen side om løsningen. Etter 17.11 (system.md) har Varden ingen infotips, og setninger om hva løsningen ikke avgjør, står ikke i appen. #2194 beholder «vurderer ikke innholdet» på Om Varden og stryker resten. A (anbefalt): ny versjon av OV-U81. Om Varden sier at løsningen ikke vurderer innholdet i dokumentene. Kravet om utsagnet om rettigheter og plikter faller bort, i tråd med 17.11. B: OV-U81 står. Om Varden får tilbake setningen om at løsningen ikke avgjør hvilken betydning dokumentet har for partenes rettigheter og plikter.'''
+valgt = "1A"
+svar = "1A, 2A,3A"
+forhold = [{ art = "endrer", vedtak = "ov-u81" }]
+
+[[gruppe.vedtak.alternativ]]
+navn = "1A"
+tekst = '''
+ny versjon av OV-U81. Om Varden sier at løsningen ikke vurderer innholdet i dokumentene. Kravet om utsagnet om rettigheter og plikter faller bort, i tråd med 17.11.'''
+anbefalt = true
+
+[[gruppe.vedtak.alternativ]]
+navn = "1B"
+tekst = '''
+OV-U81 står. Om Varden får tilbake setningen om at løsningen ikke avgjør hvilken betydning dokumentet har for partenes rettigheter og plikter.'''
+forkastet = true
+
+[[gruppe.vedtak.sitat]]
+kilde = "hovedplanen"
+tekst = "ikke vurderer innholdet i dokumentet og ikke avgjør hvilken betydning det har for partenes rettigheter og plikter"
+utdrag = true
+
 [[gruppe]]
 tittel = "Plattform, datalag, tilgang og identitet"
 etter = '''
