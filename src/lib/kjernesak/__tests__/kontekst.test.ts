@@ -353,6 +353,35 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(sak.lasteutfall).toBeNull();
   });
 
+  it('en sak som var lastet og så gir 403, gir «utilgjengelig» også ved en senere 404, ikke en serverfeil (#2210)', async () => {
+    const hent = vi
+      .fn()
+      .mockResolvedValueOnce(svar([opprettet]))
+      .mockRejectedValueOnce(new ApiError(403, 'Du har ikke tilgang.'))
+      .mockRejectedValueOnce(new ApiError(404, 'Saken finnes ikke.'));
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', hent });
+    await sak.last();
+    await sak.last();
+    expect(sak.finnes).toBe(false);
+    await sak.last();
+    expect(sak.lasteutfall).toBe('utilgjengelig');
+  });
+
+  it.each([400, 422])(
+    'en lenke serveren avviser med %i, er ugyldig og ikke en midlertidig feil (#2210)',
+    async (status) => {
+      const sak = lagKjernesak({
+        sakId: SAK,
+        prosjektId: 'p-1',
+        hent: async () => {
+          throw new ApiError(status, 'Ugyldig.');
+        },
+      });
+      await sak.last();
+      expect(sak.lasteutfall).toBe('ugyldig');
+    }
+  );
+
   it('lar det være uavgjort om saken finnes når serveren svarer med en annen feil', async () => {
     const sak = lagKjernesak({
       sakId: SAK,

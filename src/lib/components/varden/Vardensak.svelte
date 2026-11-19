@@ -961,7 +961,7 @@
           {utilgjengelig
             ? SAKEN.finnesIkkeForklaring
             : ugyldig
-              ? SAKEN.lastefeilUgyldig
+              ? SAKEN.lastefeilUgyldig(!!saksliste)
               : kjernesak.lasteutfall === 'nettverk'
                 ? SAKEN.lastefeilNett
                 : SAKEN.lastefeilBeklager}
