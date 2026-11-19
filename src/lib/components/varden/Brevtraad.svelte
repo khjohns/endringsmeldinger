@@ -122,8 +122,11 @@
       <span class="part" class:bh={b.avsender === 'BH'} aria-hidden="true">{b.avsender}</span>
       <div class="rad">
         <span class="dato">
-          {kortDatoMedAar(datoen)}{#if b.nummer !== null}
-            {' · '}{TRAADEN.nummer(b.nummer)}{/if}{#if fulgt}{TRAADEN.fulgtOpp(fulgt)}{/if}
+          {kortDatoMedAar(
+            datoen
+          )}{#if b.nummer !== null}{` · ${TRAADEN.nummer(b.nummer)}`}{/if}{#if fulgt}{TRAADEN.fulgtOpp(
+              fulgt
+            )}{/if}
         </span>
         <span class="meta">
           {#if registrert && dokumentasjon.includes(b.id)}<span>{TRAADEN.dokumentasjon}</span>{/if}

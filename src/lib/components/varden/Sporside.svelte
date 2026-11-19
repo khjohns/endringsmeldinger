@@ -1,6 +1,6 @@
 <!--
-  Kortet øverst på siden for et krav, med overskriften og hjemmelen dempet etter (U-1 i BF-44 og
-  BF-45) og brevtråden under.
+  Kortet øverst på siden for forholdet og for et krav, med overskriften og hjemmelen dempet etter
+  (U-1 i BF-44 og BF-45), hvem som sendte siste brev, og brevtråden under (#2180).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -26,8 +26,8 @@
 <section class="kort" aria-labelledby={`${uid}-tittel`}>
   <header class="sporhode">
     <h2 id={`${uid}-tittel`} tabindex="-1">
-      {tittel}{#if hjemmel}{' '}
-        <span class="hjemmel">{hjemmel}</span>{/if}
+      {tittel}
+      {#if hjemmel}<span class="hjemmel">{hjemmel}</span>{/if}
     </h2>
     {#if siste}<p>{TRAADEN.siste(siste)}</p>{/if}
     {@render merknad?.()}

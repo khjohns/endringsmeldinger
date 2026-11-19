@@ -199,11 +199,11 @@ export function iSvaretPaaForholdet(
 export const utsagnet = ([verb, resten]: Utsagnet) => `${verb} ${resten}`;
 
 /** Utsagnet i en rad med laget først, som «subsidiært er byggherren enig …», uten punktum. */
-export const medLaget = (lag: string | null, u: Utsagnet) =>
+const medLaget = (lag: string | null, u: Utsagnet) =>
   lag ? `${lag} ${u[0]} byggherren ${u[1]}` : `byggherren ${utsagnet(u)}`;
 
 /** Radene i svaret som statuslinjen og roten i «Tilknyttede krav» sier (oppdragsgiver 15.11 i #2038: «B»). */
-export function radeneSomSies(rader: Innlegget['standpunkter']): Innlegget['standpunkter'] {
+function radeneSomSies(rader: Innlegget['standpunkter']): Innlegget['standpunkter'] {
   const begge = rader.some(
     (r) => r.lag || (r.standpunkt.art === 'rettidighet' && !r.standpunkt.iTide)
   );

@@ -164,13 +164,19 @@
   /* Tallet ved enden slutter ved kanten av målet. */
   .trinn.ende span:last-child {
     flex: 0 0 0;
-    direction: rtl;
+    min-width: 0;
+    display: flex;
+    justify-content: flex-end;
   }
   /* Smal skjerm: laget står over dagene (U-5 i BF-45). */
   @media (max-width: 560px) {
     .kompakt {
       flex-direction: column;
       align-items: flex-start;
+    }
+    /* Tallene står midt under streken sin, så de ikke går over hverandre ved enden. */
+    .trinn.ende span:not(:first-child, :last-child) {
+      transform: translateX(-50%);
     }
   }
 </style>
