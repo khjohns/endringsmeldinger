@@ -29,6 +29,9 @@ export interface Kjernesak {
   versjon: number;
   /** Leserens kontraktsside etter Catenda-teamet, `null` uten side (#705). */
   part: Part | null;
+  sakskode: Sakskode | null;
+  kontraktsforkortelse: string | null;
+  kan_foreslaa_sakskode: boolean;
   visning: Visning;
   journal: Journallinje[];
   leveringsoppdrag: Leveringsoppdrag[];
@@ -86,16 +89,18 @@ const somMerking = ({ kode, loepenummer, kontraktsforkortelse }: Sakskodesvar): 
 });
 
 /**
- * Koden saken har, eller den sakens første brev vil få, og kontraktsforkortelsen, som
- * brevteksten trenger (LV-U46, LV-U53). Inngangen krever kontraktsside.
+ * Koden sakens første brev vil få og kontraktsforkortelsen (LV-U46, LV-U53).
+ * Inngangen krever skrivetilgang.
  */
-export async function hentSaksmerking(sakId: string, prosjektId: string): Promise<Saksmerking> {
-  const [kode, tabell] = await Promise.all([
-    apiFetch<Sakskodesvar>(`${sti(sakId)}/sakskode`, { headers: prosjekthode(prosjektId) }),
-    kontraktsfristerI(prosjektId),
-  ]);
+const hentForeslaattMerking = (sakId: string, prosjektId: string) =>
+  apiFetch<Sakskodesvar>(`${sti(sakId)}/sakskode`, {
+    headers: prosjekthode(prosjektId),
+  }).then(somMerking);
+
+async function medFristtabell(merking: Saksmerking, prosjektId: string): Promise<Saksmerking> {
+  const tabell = await kontraktsfristerI(prosjektId);
   return {
-    ...somMerking(kode),
+    ...merking,
     ...(tabell
       ? {
           kontraktsfrister: tabell.frister.map(({ frist_id, nummer, navn }) => ({
@@ -166,9 +171,17 @@ export async function hentKjernesakMedMerking(
   prosjektId: string
 ): Promise<LastetKjernesak> {
   const sak = await hentKjernesak(sakId, prosjektId);
-  if (!sak.part) return { ...sak, merking: null };
+  if (sak.sakskode) {
+    const merking = await medFristtabell(
+      { sakskode: sak.sakskode, kontraktsforkortelse: sak.kontraktsforkortelse },
+      prosjektId
+    );
+    return { ...sak, merking };
+  }
+  if (!sak.kan_foreslaa_sakskode) return { ...sak, merking: null };
   try {
-    return { ...sak, merking: await hentSaksmerking(sakId, prosjektId) };
+    const merking = await hentForeslaattMerking(sakId, prosjektId);
+    return { ...sak, merking: await medFristtabell(merking, prosjektId) };
   } catch (e) {
     // Saken er lest. En 403 eller 404 fra merkingen sier ikke at saken mangler (review av #2202).
     if (e instanceof ApiError && (e.status === 403 || e.status === 404))
