@@ -601,6 +601,16 @@ FEILINNFOERINGER = [
      "server/inngang.ts",
      "      : typeof kode === 'string' && KODE.test(kode)", "      : false",
      "en feil uten feilnummer har koden"),
+    ("S154", "en synkroniseringsfeil stanser prosjektkontrollen selv med en lagret medlemsliste (#51)",
+     "server/autorisasjon.ts",
+     "    return null;\n  }\n  const etter = await medlemslistensAlder(db, prosjekt);",
+     "    throw new Error('Medlemslisten kunne ikke synkroniseres');\n  }\n  const etter = await medlemslistensAlder(db, prosjekt);",
+     "ved Catenda-feil brukes aktivt medlemskap fra den lagrede listen"),
+    ("S155", "aldersvarselet uteblir når listen ennå ikke skal hentes på nytt (#51)",
+     "server/autorisasjon.ts",
+     "  varsleOmMedlemslistensAlder(prosjekt, sist?.alderSekunder);\n  if (sist !== null && sist.alderSekunder < medlemskapsalder()) return null;",
+     "  if (sist !== null && sist.alderSekunder < medlemskapsalder()) return null;\n  varsleOmMedlemslistensAlder(prosjekt, sist?.alderSekunder);",
+     "driftsvarselet følger aldersgrensen uten feil fra Catenda"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

@@ -4,7 +4,7 @@
  * - `require_auth` (`lib/auth/session.py`): sesjonen med `koe_api.les_sesjon`,
  *   og CSRF inne i autentiseringen;
  * - `require_project_access` (`lib/auth/project_access.py`): koblingen med
- *   `koe_api.prosjektkobling`, alderen på medlemslisten, ferskt medlemskap med
+ *   `koe_api.prosjektkobling`, alderen på medlemslisten, aktivt medlemskap med
  *   `koe_api.prosjektmedlemskap`, `prosjekt_id` i nyttelasten og hver sak det
  *   vises til med `koe_api.saker_i_prosjektet`, uavhengig av siden (#1106);
  * - `require_contract_role` (`lib/auth/contract_role.py`) og
@@ -13,7 +13,8 @@
  *
  * Catenda står bak grensesnittet `Catenda`. Er medlemslisten ikke fersk, hentes
  * den på nytt fra Catenda-prosjektet i koblingen kontrollen alt har lest
- * (`synkroniserKobling()`); feiler det, nektes tilgangen med 503, som i Python.
+ * (`synkroniserKobling()`). Ved synkroniseringsfeil brukes den lagrede medlemslisten
+ * for den samme koblingen (B-04 punkt 4).
  */
 
 import { timingSafeEqual } from 'node:crypto';
@@ -23,6 +24,7 @@ import type { Bruker } from './bruker.ts';
 import { sql, transaksjon, utenKontekst, type Kontekst, type Pool } from './datalag.ts';
 import { loggFeil } from './inngang.ts';
 import {
+  FeilCatendaProsjekt,
   oversett,
   prosjektkobling,
   synkroniserKobling,
@@ -225,7 +227,16 @@ export async function medlemslistensAlder(
 }
 
 /** Hentingene fra Catenda som pågår, per base og kobling, så samtidige forespørsler deler én (#726 punkt 3). */
-const hentinger = new WeakMap<Pool, Map<string, Promise<Synkronisering>>>();
+const hentinger = new WeakMap<Pool, Map<string, Promise<Synkronisering | null>>>();
+
+function varsleOmMedlemslistensAlder(prosjekt: string, alder: number | undefined): void {
+  const grense = Number(process.env.AUTH_MEMBERSHIP_ALERT_AGE_SECONDS);
+  if (alder !== undefined && Number.isSafeInteger(grense) && grense > 0 && alder >= grense) {
+    console.warn(
+      `Medlemslisten fra Catenda er utdatert ${JSON.stringify({ prosjekt, alder_sekunder: alder })}`
+    );
+  }
+}
 
 /**
  * `AuthService.ensure_fresh` for et registrert prosjekt: synkroniser når listen
@@ -240,8 +251,9 @@ const hentinger = new WeakMap<Pool, Map<string, Promise<Synkronisering>>>();
  * (#858 punkt 1). Er det ingen slik liste, kaster den, også når en annen skrev
  * først (#707, kommentar a).
  *
- * Returnerer synkroniseringen, uten `hentet`, når denne forespørselen startet
- * den, ellers `null`.
+ * Returnerer utfallet av en vellykket synkronisering når forespørselen startet
+ * den. Ved synkroniseringsfeil kan forespørselen fortsette hvis den samme koblingen
+ * fortsatt har en lagret liste (B-04 punkt 4, DL-U10).
  */
 async function oppdaterMedlemslisten(
   db: Pool,
@@ -250,6 +262,7 @@ async function oppdaterMedlemslisten(
   catendaProsjekt: string
 ): Promise<Synkroniseringsutfall | null> {
   const sist = await medlemslistensAlder(db, prosjekt);
+  varsleOmMedlemslistensAlder(prosjekt, sist?.alderSekunder);
   if (sist !== null && sist.alderSekunder < medlemskapsalder()) return null;
   let iBasen = hentinger.get(db);
   if (!iBasen) hentinger.set(db, (iBasen = new Map()));
@@ -258,12 +271,24 @@ async function oppdaterMedlemslisten(
   const egen = !henting;
   if (!henting) {
     const paagaar = iBasen;
-    henting = synkroniserKobling(db, { prosjekt, catendaProsjekt }, (c) =>
-      catenda.medlemmer(c)
-    ).finally(() => paagaar.delete(noekkel));
+    henting = synkroniserKobling(db, { prosjekt, catendaProsjekt }, (c) => catenda.medlemmer(c))
+      .catch((feil: unknown) => {
+        if (feil instanceof FeilCatendaProsjekt) throw feil;
+        loggFeil('Medlemslisten fra Catenda kunne ikke synkroniseres', feil);
+        return null;
+      })
+      .finally(() => paagaar.delete(noekkel));
     iBasen.set(noekkel, henting);
   }
   const synkronisering = await henting;
+  if (synkronisering === null) {
+    if (
+      (await prosjektkobling(db, prosjekt)) !== catendaProsjekt ||
+      (await medlemslistensAlder(db, prosjekt)) === null
+    )
+      throw new Error('Det finnes ingen lagret medlemsliste for koblingen');
+    return null;
+  }
   const etter = await medlemslistensAlder(db, prosjekt);
   if (etter === null || etter.hentet.getTime() < synkronisering.hentet.getTime())
     throw new Error('Medlemslisten er ikke fersk etter synkroniseringen');
@@ -616,8 +641,8 @@ async function kontraktsside(
 /**
  * Hvorfor aktøren ikke kan godkjenne i prosjektet, eller `null` når hen kan: prosjektet er
  * ukjent, eller aktøren er medlem og med i et av prosjektets team for totalentreprenøren i
- * Catenda, også med leserollen (kravet 20.10 i #831, punkt 1). Medlemslisten gjøres fersk
- * først. Et oppslag som feiler, kaster.
+ * Catenda, også med leserollen (kravet 20.10 i #831, punkt 1). Medlemslisten
+ * kontrolleres først etter B-04 punkt 4. Et teamoppslag som feiler, kaster.
  */
 export async function hindringForGodkjenner(
   db: Pool,
