@@ -598,9 +598,14 @@ FEILINNFOERINGER = [
      "AND NOT (jobbtype = N'levering' AND antall_forsoek >= 24)", "",
      "parkeres etter forsøk 24"),
     ("S149", "loggen har ikke koden for en feil uten feilnummer (#926)",
-     "server/inngang.ts",
-     "      : typeof kode === 'string' && KODE.test(kode)", "      : false",
+     "server/logg.ts",
+     "typeof kode === 'string' && KODE.test(kode)", "false",
      "en feil uten feilnummer har koden"),
+    ("S156", "korrelasjons-ID-en blir borte før SQL Server oppretter jobben (#1805)",
+     "server/datalag.ts",
+     ".input('korrelasjon', sql.UniqueIdentifier, korrelasjonsId() ?? null)",
+     ".input('korrelasjon', sql.UniqueIdentifier, null)",
+     "korrelasjons-ID-en følger HTTP-kommandoen til jobben etter commit"),
 ]
 
 # S8 nås ikke: avvisningen av ukjente felt i kroppen (S6) stopper aktor_id først.

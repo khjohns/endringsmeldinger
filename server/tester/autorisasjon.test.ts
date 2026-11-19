@@ -578,7 +578,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('tilgangsoppslagene i SQL Server', () => 
         });
         // Loggen har stedet og feilklassen, ikke meldingen (#867 punkt 5).
         const [linje] = logg.mock.calls[0] as [string];
-        expect(linje).toMatch(/^Prosjekttilgangen kunne ikke avgjøres \(Error\)\n\s+at /);
+        expect(JSON.parse(linje)).toMatchObject({
+          sted: 'Prosjekttilgangen kunne ikke avgjøres',
+          feilklasse: 'Error',
+        });
         expect(linje).not.toContain(nede.message);
       } finally {
         logg.mockRestore();

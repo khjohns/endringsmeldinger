@@ -6,7 +6,8 @@
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fast, loggFeil, svarhoder } from '../inngang.ts';
+import { fast, svarhoder } from '../inngang.ts';
+import { loggFeil, medLoggkontekst } from '../logg.ts';
 
 describe('hodene ruteren skriver (#854 punkt 2)', () => {
   it('en JSON-kropp får Content-Type, og svarets hoder går foran rutens', () => {
@@ -46,24 +47,39 @@ describe('loggen av en feil (#867 punkt 5)', () => {
   it('har stedet, klassen, feilnummeret og kallstakken, ikke meldingen', () => {
     const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
     const feil = Object.assign(new TypeError('token=hemmelig, Kari Nordmann'), { number: 52044 });
-    loggFeil('Synkroniseringen feilet', feil);
+    medLoggkontekst(() => loggFeil('Synkroniseringen feilet', feil), {
+      korrelasjons_id: '3a5b86de-c166-444e-8970-773ce664edd0',
+      aktor_id: '4b283460-6c4d-4855-8031-5bd1fd97c19d',
+      prosjekt_id: 'prosjekt-test',
+    });
     const [linje] = logg.mock.calls[0] as [string];
-    expect(linje).toMatch(/^Synkroniseringen feilet \(TypeError, feilnummer 52044\)\n\s+at /);
+    expect(linje.split('\n')).toHaveLength(1);
+    expect(JSON.parse(linje)).toMatchObject({
+      tidspunkt: expect.stringMatching(/^\d{4}-\d\d-\d\dT.*Z$/),
+      nivaa: 'error',
+      sted: 'Synkroniseringen feilet',
+      korrelasjons_id: '3a5b86de-c166-444e-8970-773ce664edd0',
+      aktor_id: '4b283460-6c4d-4855-8031-5bd1fd97c19d',
+      prosjekt_id: 'prosjekt-test',
+      feilklasse: 'TypeError',
+      feilnummer: 52044,
+      kallstakk: expect.arrayContaining([expect.stringMatching(/^\s+at /)]),
+    });
     expect(linje).not.toContain('hemmelig');
     expect(linje).not.toContain('Kari');
   });
 
-  it.each([
-    ['ETIMEOUT', 'kode ETIMEOUT'],
-    ['ECLOSE', 'kode ECLOSE'],
-    ['EPARAM', 'kode EPARAM'],
-  ])(
+  it.each(['ETIMEOUT', 'ECLOSE', 'EPARAM'])(
     'en feil uten feilnummer har koden %s, så loggen skiller tidsavbrudd, lukket forbindelse og parameterfeil (#926)',
-    (kode, merke) => {
+    (kode) => {
       const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
       loggFeil('Kallet feilet', Object.assign(new Error('token=hemmelig'), { code: kode }));
       const [linje] = logg.mock.calls[0] as [string];
-      expect(linje).toMatch(new RegExp(`^Kallet feilet \\(Error, ${merke}\\)\\n`));
+      expect(JSON.parse(linje)).toMatchObject({
+        sted: 'Kallet feilet',
+        feilklasse: 'Error',
+        feilkode: kode,
+      });
       expect(linje).not.toContain('hemmelig');
     }
   );
@@ -79,8 +95,9 @@ describe('loggen av en feil (#867 punkt 5)', () => {
       new Error('ytre', { cause: Object.assign(new Error('x'), { number: 1205 }) })
     );
     const [[foerste], [andre]] = logg.mock.calls as [string][];
-    expect(foerste).toMatch(/^Kallet feilet \(Error, kode ESOCKET\)\n/);
-    expect(andre).toMatch(/^Kallet feilet \(Error, feilnummer 1205\)\n/);
+    expect(JSON.parse(foerste)).toMatchObject({ feilkode: 'ESOCKET' });
+    expect(JSON.parse(andre)).toMatchObject({ feilnummer: 1205 });
+    expect(JSON.parse(andre)).not.toHaveProperty('feilkode');
   });
 
   it('en kode som ikke har formen til en kode, logges ikke, og feilnummeret går foran koden', () => {
@@ -88,8 +105,9 @@ describe('loggen av en feil (#867 punkt 5)', () => {
     loggFeil('Kallet feilet', Object.assign(new Error('x'), { code: 'Kari Nordmann' }));
     loggFeil('Kallet feilet', Object.assign(new Error('x'), { code: 'ETIMEOUT', number: 1205 }));
     const [[foerste], [andre]] = logg.mock.calls as [string][];
-    expect(foerste).toMatch(/^Kallet feilet \(Error\)\n/);
-    expect(andre).toMatch(/^Kallet feilet \(Error, feilnummer 1205\)\n/);
+    expect(JSON.parse(foerste)).not.toHaveProperty('feilkode');
+    expect(JSON.parse(andre)).toMatchObject({ feilnummer: 1205 });
+    expect(JSON.parse(andre)).not.toHaveProperty('feilkode');
   });
 
   it('en meldingslinje som begynner med «at», kommer ikke med i stakken', () => {
@@ -99,7 +117,9 @@ describe('loggen av en feil (#867 punkt 5)', () => {
       new Error('Catenda svarte:\n    at Kari Nordmann token=hemmelig')
     );
     const [linje] = logg.mock.calls[0] as [string];
-    expect(linje).toMatch(/\n\s+at /);
+    expect(JSON.parse(linje).kallstakk).toEqual(
+      expect.arrayContaining([expect.stringMatching(/^\s+at /)])
+    );
     expect(linje).not.toContain('hemmelig');
     expect(linje).not.toContain('Kari');
   });
@@ -108,7 +128,9 @@ describe('loggen av en feil (#867 punkt 5)', () => {
     const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
     loggFeil('Navnet', Object.assign(new Error('m'), { name: 'N\n    at Kari' }));
     const [linje] = logg.mock.calls[0] as [string];
-    expect(linje).toMatch(/\n\s+at /);
+    expect(JSON.parse(linje).kallstakk).toEqual(
+      expect.arrayContaining([expect.stringMatching(/^\s+at /)])
+    );
     expect(linje).not.toContain('Kari');
   });
 
@@ -118,7 +140,9 @@ describe('loggen av en feil (#867 punkt 5)', () => {
     void feil.stack;
     feil.message = 'kort';
     loggFeil('Endret', feil);
-    expect(logg).toHaveBeenCalledWith('Endret (Error)');
+    const linje = JSON.parse(String(logg.mock.calls[0][0]));
+    expect(linje).toMatchObject({ sted: 'Endret', feilklasse: 'Error' });
+    expect(linje).not.toHaveProperty('kallstakk');
   });
 
   it('en feil fra Node med kode har koden og rammene (#926)', () => {
@@ -130,9 +154,12 @@ describe('loggen av en feil (#867 punkt 5)', () => {
         'RangeError [ERR_OUT_OF_RANGE]: Received -1\n    at Function.alloc (node:buffer:395:3)',
     });
     loggFeil('Kode', feil);
-    expect(logg).toHaveBeenCalledWith(
-      'Kode (RangeError, kode ERR_OUT_OF_RANGE)\n    at Function.alloc (node:buffer:395:3)'
-    );
+    expect(JSON.parse(String(logg.mock.calls[0][0]))).toMatchObject({
+      sted: 'Kode',
+      feilklasse: 'RangeError',
+      feilkode: 'ERR_OUT_OF_RANGE',
+      kallstakk: ['    at Function.alloc (node:buffer:395:3)'],
+    });
   });
 
   it('en melding som ikke kan bli tekst, gir ingen rammer og ingen ny feil', () => {
@@ -144,7 +171,9 @@ describe('loggen av en feil (#867 punkt 5)', () => {
       },
     };
     loggFeil('Getter', feil);
-    expect(logg).toHaveBeenCalledWith('Getter (Object)');
+    const linje = JSON.parse(String(logg.mock.calls[0][0]));
+    expect(linje).toMatchObject({ sted: 'Getter', feilklasse: 'Object' });
+    expect(linje).not.toHaveProperty('kallstakk');
   });
 
   it('en melding forkortet etter at stakken ble laget, gir ingen meldingslinje', () => {
@@ -173,14 +202,18 @@ describe('loggen av en feil (#867 punkt 5)', () => {
     ].join('\n');
     loggFeil('Eval', feil);
     const [linje] = logg.mock.calls[0] as [string];
-    expect(linje.split('\n')).toEqual(['Eval (Error)', ...feil.stack.split('\n').slice(1)]);
+    expect(JSON.parse(linje).kallstakk).toEqual(feil.stack.split('\n').slice(1));
   });
 
   it('nivået warn logger med console.warn', () => {
     const advarsel = vi.spyOn(console, 'warn').mockImplementation(() => {});
     loggFeil('Navneoppslaget feilet', Object.assign(new Error('Kari'), { number: 229 }), 'warn');
     const [linje] = advarsel.mock.calls[0] as [string];
-    expect(linje).toMatch(/^Navneoppslaget feilet \(Error, feilnummer 229\)/);
+    expect(JSON.parse(linje)).toMatchObject({
+      nivaa: 'warn',
+      sted: 'Navneoppslaget feilet',
+      feilnummer: 229,
+    });
     expect(linje).not.toContain('Kari');
   });
 
@@ -191,22 +224,31 @@ describe('loggen av en feil (#867 punkt 5)', () => {
       stack: 'm\n    at f (x.ts:1:1)',
     });
     loggFeil('Tomt navn', feil);
-    expect(logg).toHaveBeenCalledWith('Tomt navn (Error)\n    at f (x.ts:1:1)');
+    expect(JSON.parse(String(logg.mock.calls[0][0]))).toMatchObject({
+      sted: 'Tomt navn',
+      feilklasse: 'Error',
+      kallstakk: ['    at f (x.ts:1:1)'],
+    });
   });
 
   it('null og undefined gir typen', () => {
     const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
     loggFeil('Ingen årsak', undefined);
     loggFeil('Ingen årsak', null);
-    expect(logg.mock.calls.map(([l]) => l)).toEqual([
-      'Ingen årsak (undefined)',
-      'Ingen årsak (object)',
+    expect(logg.mock.calls.map(([l]) => JSON.parse(String(l)).feilklasse)).toEqual([
+      'undefined',
+      'object',
     ]);
   });
 
   it('en verdi som ikke er en feil, gir typen', () => {
     const logg = vi.spyOn(console, 'error').mockImplementation(() => {});
     loggFeil('Svaret kunne ikke skrives', 'token=hemmelig');
-    expect(logg).toHaveBeenCalledWith('Svaret kunne ikke skrives (String)');
+    const linje = String(logg.mock.calls[0][0]);
+    expect(JSON.parse(linje)).toMatchObject({
+      sted: 'Svaret kunne ikke skrives',
+      feilklasse: 'String',
+    });
+    expect(linje).not.toContain('hemmelig');
   });
 });

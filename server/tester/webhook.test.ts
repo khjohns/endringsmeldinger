@@ -131,7 +131,8 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('webhooken fra Catenda i SQL Server', () 
         .request()
         .input('id', id)
         .query(
-          `SELECT kilde, hendelse_id, hendelsestype, kropp, mottatt, SYSUTCDATETIME() AS naa
+          `SELECT kilde, hendelse_id, hendelsestype, kropp, LOWER(CONVERT(nvarchar(36), korrelasjons_id)) AS korrelasjons_id,
+                  mottatt, SYSUTCDATETIME() AS naa
              FROM koe.innkommende_hendelse WHERE hendelse_id = @id`
         )
     ).recordset;
@@ -167,11 +168,16 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('webhooken fra Catenda i SQL Server', () 
 
   it('samme event.id igjen gir 200 og ingen ny rad, så Catenda slutter å prøve (INT-02)', async () => {
     const id = nyId();
-    expect((await send(kallMed(id))).status).toBe(200);
+    const foerste = await send(kallMed(id));
+    expect(foerste.status).toBe(200);
+    const korrelasjon = foerste.headers.get('X-Correlation-ID');
+    expect(korrelasjon).toMatch(/^[a-f0-9-]{36}$/);
+    await foerste.text();
     const igjen = await send(kallMed(id));
     expect(igjen.status).toBe(200);
+    expect(igjen.headers.get('X-Correlation-ID')).not.toBe(korrelasjon);
     expect(await igjen.json()).toEqual({ success: true, status: 'allerede_mottatt' });
-    expect(await rader(id)).toHaveLength(1);
+    expect(await rader(id)).toEqual([expect.objectContaining({ korrelasjons_id: korrelasjon })]);
   });
 
   it('åtte samtidige leveringer av samme event.id gir én rad og én «mottatt»', async () => {

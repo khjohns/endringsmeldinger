@@ -345,7 +345,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     const etter = await sesjonen(() => pool.request());
     expect(etter).toMatchObject({ trancount: 0, ...ingenKontekst });
     expect(etter.forbindelse).not.toBe(inne.forbindelse);
-    expect(logg).toHaveBeenCalledWith(expect.any(String), aarsak);
+    expect(JSON.parse(String(logg.mock.calls[0][0]))).toMatchObject({
+      sted: 'Datalaget: forbindelsen forkastes etter nullstillingen',
+      feilklasse: 'Error',
+    });
   });
 
   it('forkastingen kaster etter COMMIT: svaret gis likevel, og feilen logges', async () => {
@@ -359,7 +362,12 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     });
     const inne = await transaksjon(pool, KONTEKST, async (f) => (await sesjonen(f)).forbindelse);
     expect(inne).toMatch(/^[0-9a-f-]{36}$/);
-    expect(logg).toHaveBeenCalledWith(expect.any(String), lukking);
+    expect(logg.mock.calls.map(([l]) => JSON.parse(String(l)))).toContainEqual(
+      expect.objectContaining({
+        sted: 'Datalaget: forkastingen av forbindelsen feilet',
+        feilklasse: 'Error',
+      })
+    );
     const etter = await sesjonen(() => pool.request());
     expect(etter.forbindelse).not.toBe(inne);
   });
@@ -384,10 +392,10 @@ describe.skipIf(!SQLSERVER_TILKOBLING)('transaksjonshjelperen mot SQL Server (#4
     const etter = await sesjonen(() => pool.request());
     expect(etter).toMatchObject({ trancount: 0, ...ingenKontekst });
     expect(etter.forbindelse).not.toBe(inne.forbindelse);
-    expect(logg).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({ message: expect.stringMatching(/kontekstnøkler med verdi/) })
-    );
+    expect(JSON.parse(String(logg.mock.calls[0][0]))).toMatchObject({
+      sted: 'Datalaget: forbindelsen forkastes etter nullstillingen',
+      feilklasse: 'Error',
+    });
   });
 
   it('ROLLBACK som feiler: feilen fra arbeidet kastes, og forbindelsen forkastes med den åpne transaksjonen', async () => {

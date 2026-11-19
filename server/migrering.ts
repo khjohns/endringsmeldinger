@@ -25,6 +25,7 @@
  * i skjemaet kommer fra filene (`.claude/rules/database.md`).
  */
 
+import { loggFeil } from './logg.ts';
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -585,7 +586,7 @@ export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Prom
            END`
           )
           .catch((feil: unknown) => {
-            console.error('Migreringen: transaksjonen og applåsen kunne ikke ryddes:', feil);
+            loggFeil('Migreringen: transaksjonen og applåsen kunne ikke ryddes', feil);
           });
     }
   } catch (feil) {
@@ -605,7 +606,7 @@ export async function migrer(pool: sql.ConnectionPool, filer: Migrasjon[]): Prom
     // Poolen lukker forbindelsen når den selv lukkes.
     if (forbindelse) (egenPool as unknown as Utlaan).release(forbindelse);
     await egenPool.close().catch((feil: unknown) => {
-      console.error('Migreringen: poolen kunne ikke lukkes:', feil);
+      loggFeil('Migreringen: poolen kunne ikke lukkes', feil);
     });
   }
 }
