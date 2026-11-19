@@ -74,7 +74,7 @@
         {send}
         hentMerking={() => hentSaksmerkingForNySak(prosjektId)}
         {vedleggForNySak}
-        utkast={ventende?.forsok?.utkast ?? ventende?.utkast ?? null}
+        utkast={ventende?.utkast ?? null}
         gjenoppta={ventende?.forsok ?? null}
         onsendt={(s) =>
           goto(resolve('/[prosjektId]/[sakId]', { prosjektId, sakId: s }), {

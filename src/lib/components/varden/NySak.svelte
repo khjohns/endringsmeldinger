@@ -90,7 +90,7 @@
 
   // Skjemaet starter fra utkastet én gang; det følger ikke propen etterpå.
   const startForsok = (() => (gjenoppta?.kontrollertBrev ? gjenoppta : null))();
-  const start = (() => startForsok?.utkast ?? utkast)();
+  const start = (() => gjenoppta?.utkast ?? utkast)();
   let forhold = $state<Forholdsvalg | null>(start?.forhold ?? null);
   let velgerAapen = $state(!start);
   let aapenGruppe = $state<string | null>(null);
