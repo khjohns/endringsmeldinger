@@ -7,6 +7,7 @@
 <script module lang="ts">
   import type { Kontrollbrev } from './nysak';
   import { harTekst, laastTekstI, type Brev as Kjernebrev } from '#lib/kjernesak/brevtekst.ts';
+  import { IKKE_SENDT } from '#lib/kjernesak/kontekst.svelte.ts';
 
   /**
    * Brevet kjernen lager for kommandoen, slik brevkontrollen viser det: avsnittene med punktene
@@ -225,8 +226,8 @@
     </dl>
     {#if punktene.length}
       <div class="sender">
-        <h3>{BREVSTEG.punktene}</h3>
-        <ul aria-label={BREVSTEG.punktene}>
+        <h3 id={`${uid}-punktene`}>{BREVSTEG.punktene}</h3>
+        <ul aria-labelledby={`${uid}-punktene`}>
           {#each punktene as punkt, i (i)}
             <li>{punkt}</li>
           {/each}
@@ -286,9 +287,8 @@
               <p>{SENDEFEIL.proevSenere}</p>
             {/if}
           {:else}
-            {@const innledning = `${SENDEFEIL.tittel}.`}
-            {@const grunn = kjernesak.feil.startsWith(innledning)
-              ? kjernesak.feil.slice(innledning.length).trimStart()
+            {@const grunn = kjernesak.feil.startsWith(IKKE_SENDT)
+              ? kjernesak.feil.slice(IKKE_SENDT.length).trimStart()
               : kjernesak.feil}
             {#if grunn}<p>{grunn}</p>{/if}
           {/if}

@@ -59,6 +59,9 @@ export interface Ventende {
   kommando: Record<string, unknown>;
 }
 
+/** Innledningen når serveren har avvist brevet. Brevkontrollen skiller grunnen fra den. */
+export const IKKE_SENDT = 'Brevet ble ikke sendt.';
+
 const USIKKERT = usikkertUtfall('brevet ble lagret', 'det lagres ikke to ganger');
 const IKKE_LASTET = 'Brevet er lagret, men saken kunne ikke lastes på nytt.';
 const KAN_VAERE_UTDATERT = 'Saken som vises, kan være utdatert, og den kunne ikke lastes på nytt.';
@@ -142,8 +145,7 @@ export function brevaarsak(
 }
 
 /** Det som hindrer at brevet sendes, eller `null` når det har en tekst eller ikke lager en. */
-export const brevhindring = (brev: Brev | Programfeil) =>
-  brevaarsak(brev, 'Brevet ble ikke sendt.');
+export const brevhindring = (brev: Brev | Programfeil) => brevaarsak(brev, IKKE_SENDT);
 
 /**
  * En avvisning før brevet vises som gjelder ett felt i skjemaet (#1264). `feltmelding` står
@@ -378,7 +380,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       ventende = utfall.ventende;
       const e = utfall.feil;
       sendeavvisning = sendeavvisningFra(e);
-      const hva = ventende ? USIKKERT : 'Brevet ble ikke sendt.';
+      const hva = ventende ? USIKKERT : IKKE_SENDT;
       const aarsak = ventende ? null : meldingFra(e, null);
       // Saken er endret siden den ble lastet, eller en annen sak har fått nummeret i teksten
       // (LV-U46). Den lastes på nytt med nummeret, og meldingen skal stå etterpå.
