@@ -41,6 +41,9 @@ async function svarskjemaet(journal: Journalrad[], onleggtil?: () => void) {
       journal: journal.map(linje),
       leveringsoppdrag: [],
       catenda_lenke: null,
+      sakskode: null,
+      kontraktsforkortelse: null,
+      kan_foreslaa_sakskode: false,
       merking: MERKING,
     }),
   });

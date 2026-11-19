@@ -8,7 +8,7 @@
  * (#705, #712). `skrevetAvKjernen` avgjør det for både lesingen og skrivingen.
  */
 
-import type { Journalrad, Part } from '../kjerne/typer.ts';
+import type { Journalrad, Part, Sakskode } from '../kjerne/typer.ts';
 import {
   sql,
   Tilbakerulling,
@@ -142,6 +142,8 @@ async function lesOppdrag(
 export interface LestSak {
   journal: Journalrad[];
   oppdrag: LagretOppdrag[];
+  sakskode: Sakskode | null;
+  kontraktsforkortelse: string | null;
   /** Navnet bak hver aktør med navn; tomt uten `navn`, og når oppslaget feilet. */
   navn: Map<string, string>;
   /** Feilen fra navneoppslaget, når det feilet. */
@@ -162,14 +164,29 @@ export async function lesSaken(
   pool: Pool,
   kontekst: Kontekst,
   sakId: string,
-  { navn = false } = {}
+  { navn = false, merking = false } = {}
 ): Promise<LestSak> {
   return transaksjon(pool, kontekst, async (foresp) => {
+    const sakskode = merking
+      ? ((
+          await foresp()
+            .input('sak_id', sql.NVarChar(36), sakId)
+            .execute<Sakskode>('koe_api.les_tildelt_sakskode')
+        ).recordset[0] ?? null)
+      : null;
     const journal = await lesJournal(foresp, sakId, false);
     if (!skrevetAvKjernen(journal))
       throw new SakFinnesIkke(`Saken ${sakId} finnes ikke i prosjektet.`);
     const oppdrag = await lesOppdrag(foresp, sakId, journal.at(-1)!.versjon);
-    const lest = { journal, oppdrag, navn: new Map<string, string>() };
+    const kontraktsforkortelse =
+      sakskode && kontekst.side ? await lesKontraktsforkortelse(foresp, kontekst) : null;
+    const lest = {
+      journal,
+      oppdrag,
+      sakskode,
+      kontraktsforkortelse,
+      navn: new Map<string, string>(),
+    };
     if (!navn) return lest;
     try {
       return { ...lest, navn: await aktornavn(foresp, sakId) };
@@ -177,6 +194,18 @@ export async function lesSaken(
       return new Tilbakerulling({ ...lest, navnefeil });
     }
   });
+}
+
+/** Kontraktsforkortelsen for merkingen av brevet (LV-U44), eller `null` når den mangler. */
+export async function lesKontraktsforkortelse(
+  foresp: Foresp,
+  kontekst: Kontekst
+): Promise<string | null> {
+  const svar = await foresp()
+    .input('aktor', sql.UniqueIdentifier, kontekst.aktor)
+    .input('prosjekt', sql.NVarChar(4000), kontekst.prosjekt)
+    .execute<{ kontraktsforkortelse: string }>('koe_api.kontraktsparter');
+  return svar.recordset[0]?.kontraktsforkortelse ?? null;
 }
 
 /**
