@@ -13,6 +13,7 @@ import { lagSaksbilde } from './saksbilde';
 import { sendForsoek, usikkertUtfall } from './forsoek';
 import { grunnlagetForSvaret } from './vederlagssvar';
 import {
+  erUsikkertUtfall,
   hentKjernesakMedMerking,
   lastOppKjernevedlegg,
   nyKommandoId,
@@ -61,6 +62,23 @@ export interface Ventende {
 const USIKKERT = usikkertUtfall('brevet ble lagret', 'det lagres ikke to ganger');
 const IKKE_LASTET = 'Brevet er lagret, men saken kunne ikke lastes på nytt.';
 const KAN_VAERE_UTDATERT = 'Saken som vises, kan være utdatert, og den kunne ikke lastes på nytt.';
+
+/** HTTP-statusen når serveren bekrefter at forsøket ble avvist. */
+export interface Sendeavvisning {
+  status: number;
+}
+
+export function sendeavvisningFra(feil: unknown): Sendeavvisning | null {
+  return feil instanceof ApiError && !erUsikkertUtfall(feil) ? { status: feil.status } : null;
+}
+
+/** Serveren har kvittert for lagringen, men kunne ikke lese tilbake brevet. */
+export function erKvittertBrevMangler(feil: unknown): boolean {
+  return (
+    feil instanceof ApiError &&
+    (feil.data as { error?: string } | undefined)?.error === 'KVITTERT_BREV_MANGLER'
+  );
+}
 
 export interface Kjernesakvalg {
   sakId: string;
@@ -161,6 +179,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   let sak = $state<LastetKjernesak | null>(null);
   let feil = $state<string | null>(null);
   let sender = $state(false);
+  let sendeavvisning = $state<Sendeavvisning | null>(null);
   let finnes = $state<boolean | null>(null);
   let lasteutfall = $state<'utilgjengelig' | 'ugyldig' | 'nettverk' | 'server' | null>(null);
   let ventende = $state<Ventende | null>(valg.ventende ?? null);
@@ -300,6 +319,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       feil = 'Et brev sendes allerede. Vent til det er ferdig.';
       return false;
     }
+    sendeavvisning = null;
     if (!sak) {
       feil = 'Saken er ikke lastet. Last den på nytt og prøv igjen.';
       return false;
@@ -338,11 +358,12 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   async function sendBrev(forsoek: Ventende): Promise<boolean> {
     sender = true;
     feil = null;
+    sendeavvisning = null;
     try {
       const utfall = await sendForsoek(forsoek, (f) =>
         send(sakId, f.versjon, f.kommandoId, f.kommando, valg.prosjektId)
       );
-      if (utfall.lagret) {
+      if (utfall.lagret || erKvittertBrevMangler(utfall.feil)) {
         ventende = null;
         // Et nyere kall som feilet, gir utfallet uten å vite om lagringen.
         if (!(await last(true))) {
@@ -353,6 +374,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       }
       ventende = utfall.ventende;
       const e = utfall.feil;
+      sendeavvisning = sendeavvisningFra(e);
       const hva = ventende ? USIKKERT : 'Brevet ble ikke sendt.';
       const aarsak = ventende ? null : meldingFra(e, null);
       // Saken er endret siden den ble lastet, eller en annen sak har fått nummeret i teksten
@@ -374,6 +396,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
    * saken er utdatert.
    */
   function fjernFeil() {
+    sendeavvisning = null;
     feil = staaende();
   }
 
@@ -447,6 +470,9 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     },
     get feil() {
       return feil;
+    },
+    get sendeavvisning() {
+      return sendeavvisning;
     },
     get sender() {
       return sender;

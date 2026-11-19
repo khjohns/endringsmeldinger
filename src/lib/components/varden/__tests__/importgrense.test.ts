@@ -25,6 +25,8 @@ const PAKKER = new Set([
   'svelte/reactivity',
   '$app/state',
   '$app/navigation',
+  // Stien til innloggingen etter en sikker sendefeil (#2188). Ingen regel.
+  '$app/paths',
 ]);
 const MODULER = new Set(
   [

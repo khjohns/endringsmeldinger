@@ -24,7 +24,7 @@ import type { Kjernevedlegg } from '#lib/api/kjerne.ts';
 import { kravMotNySak, laastTekstI, type Saksmerking } from '#lib/kjernesak/brevtekst.ts';
 import { ApiError } from '#lib/api/client.ts';
 import { KJERNE } from '#kjerne/versjon.ts';
-import { brevtittel, NYSAK } from '#lib/components/varden/tekster/index.ts';
+import { brevtittel, NYSAK, SENDEFEIL } from '#lib/components/varden/tekster/index.ts';
 import { STOERSTE_VEDLEGG } from '#lib/components/varden/vedlegg.ts';
 
 afterEach(cleanup);
@@ -529,6 +529,36 @@ describe('skjemaet for ny sak (BF-05)', () => {
     expect(andre.vedleggForNySak.lastOpp).not.toHaveBeenCalled();
   });
 
+  it.each([
+    [403, SENDEFEIL.ingenTilgang],
+    [500, SENDEFEIL.serverfeil],
+  ])('viser egen melding ved sikker sendefeil %i i ny sak (#2188)', async (status, tekst) => {
+    aapne(
+      vi
+        .fn<SendNySak>()
+        .mockRejectedValue(new ApiError(status, 'Intern feilmelding.', { error: 'INTERNAL_ERROR' }))
+    );
+    await fyllIrregulaerEndring();
+    await sendBrevet();
+    await screen.findByText(tekst);
+    expect(screen.getByText(SENDEFEIL.tittel)).toBeTruthy();
+    expect(screen.queryByText('Intern feilmelding.')).toBeNull();
+  });
+
+  it('går til den lagrede saken ved KVITTERT_BREV_MANGLER (#2188)', async () => {
+    const { onsendt } = aapne(
+      vi
+        .fn<SendNySak>()
+        .mockRejectedValue(
+          new ApiError(500, 'Brevet kunne ikke leses tilbake.', { error: 'KVITTERT_BREV_MANGLER' })
+        )
+    );
+    await fyllIrregulaerEndring();
+    await sendBrevet();
+    await vi.waitFor(() => expect(onsendt).toHaveBeenCalledWith('ny-sak'));
+    expect(screen.queryByText(SENDEFEIL.tittel)).toBeNull();
+  });
+
   it('LV-U46: tok en annen sak nummeret, vises brevet med det nye nummeret og sendes med det', async () => {
     let nummer = 17;
     const send = vi
@@ -548,7 +578,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
     aapne(send, { hentMerking });
     await fyllIrregulaerEndring();
     await sendBrevet();
-    await screen.findByText(NYSAK.nyttNummer);
+    await screen.findByText(SENDEFEIL.nyttNummer);
     expect(send.mock.calls[0][0].tekst.join(' ')).toContain('KOE-17');
     const avkrysning = screen.getByRole('checkbox', {
       name: 'Jeg har kontrollert brevet',
@@ -576,7 +606,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
     await sendBrevet();
     await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(1));
     await screen.findByText(melding, { exact: false });
-    expect(screen.queryByText(NYSAK.nyttNummer)).toBeNull();
+    expect(screen.queryByText(SENDEFEIL.nyttNummer)).toBeNull();
   });
 
   it('5a: «Avbryt» spør i dialogen, med de samme knappene som de andre dialogene, før det som er skrevet slettes, og sender ingenting (designvalget 17.11 i #2119)', async () => {

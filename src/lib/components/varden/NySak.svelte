@@ -10,7 +10,12 @@
 <script lang="ts">
   import { KJERNE } from '#kjerne/versjon.ts';
   import type { Saksmerking } from '#lib/kjernesak/brevtekst.ts';
-  import { tekstenKanVaereUtdatert } from '#lib/kjernesak/kontekst.svelte.ts';
+  import {
+    erKvittertBrevMangler,
+    sendeavvisningFra,
+    tekstenKanVaereUtdatert,
+    type Sendeavvisning,
+  } from '#lib/kjernesak/kontekst.svelte.ts';
   import Arbeidsflate from './Arbeidsflate.svelte';
   import Brevkontroll, {
     detSomKontrolleres,
@@ -242,6 +247,8 @@
 
   let sender = $state(false);
   let sendefeil = $state<string | null>(null);
+  let sendeavvisning = $state<Sendeavvisning | null>(null);
+  let nummerEndret = $state(false);
   const sending: Brevsending = {
     part: 'TE',
     get saksbilde() {
@@ -253,15 +260,25 @@
     get feil() {
       return sendefeil;
     },
+    get sendeavvisning() {
+      return sendeavvisning;
+    },
+    get nummerEndret() {
+      return nummerEndret;
+    },
     async send(_kommando, tekst) {
       sender = true;
       sendefeil = null;
+      sendeavvisning = null;
+      nummerEndret = false;
       try {
         const utkast = utfylling();
         const { opprettelse, paaberopelse } = kommandoene(utkast, KJERNE);
         await send({ sakId, opprettelse, paaberopelse, tekst: tekst ?? [], utkast });
         return true;
       } catch (e) {
+        if (erKvittertBrevMangler(e)) return true;
+        sendeavvisning = sendeavvisningFra(e);
         sendefeil = e instanceof Error ? e.message : String(e);
         if (tekstenKanVaereUtdatert(e)) {
           // Avsenderen ser brevet med det nye nummeret og godkjenner det på nytt (LV-U46).
@@ -271,7 +288,7 @@
           if (lest && kontroll && detSomKontrolleres(lest) !== detSomKontrolleres(kontroll)) {
             const nyttNummer = lest.merking !== kontroll.merking;
             kontroll = { ...kontroll, ...lest };
-            if (nyttNummer) sendefeil = NYSAK.nyttNummer;
+            nummerEndret = nyttNummer;
           }
         }
         return false;
@@ -281,6 +298,8 @@
     },
     fjernFeil() {
       sendefeil = null;
+      sendeavvisning = null;
+      nummerEndret = false;
     },
   };
 

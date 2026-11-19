@@ -324,6 +324,25 @@ describe('sakskonteksten for en TS-sak', () => {
     expect(sak.feil).toBe('Brevet ble ikke sendt. Uventet feil.');
   });
 
+  it('behandler en lagringskvittering uten lesbart brev som lagret (#2188)', async () => {
+    const send = vi
+      .fn()
+      .mockRejectedValue(
+        new ApiError(500, 'Brevet kunne ikke leses tilbake.', { error: 'KVITTERT_BREV_MANGLER' })
+      );
+    const hent = vi
+      .fn()
+      .mockResolvedValueOnce(svar([opprettet]))
+      .mockRejectedValueOnce(new Error('Saken kunne ikke lastes på nytt.'));
+    const sak = lagKjernesak({ sakId: SAK, prosjektId: 'p-1', part: 'TE', hent, send });
+    await sak.last();
+
+    expect(await sak.send(grunnlagskrav)).toBe(true);
+    expect(sak.feil).toContain('Brevet er lagret');
+    expect(sak.sendeavvisning).toBeNull();
+    expect(sak.ventende).toBeNull();
+  });
+
   it('sier at saken ikke finnes i TS når serveren svarer 404', async () => {
     const sak = lagKjernesak({
       sakId: SAK,

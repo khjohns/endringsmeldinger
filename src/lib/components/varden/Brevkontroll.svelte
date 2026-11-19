@@ -54,6 +54,8 @@
 <script lang="ts">
   import { ChevronLeft, Send } from 'lucide-svelte';
   import { onMount } from 'svelte';
+  import { page } from '$app/state';
+  import { resolve } from '$app/paths';
   import type { Part } from '#kjerne/typer.ts';
   import type { Brevref } from './lesing';
   import type { Brevsending } from './nysak';
@@ -62,7 +64,7 @@
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import { organisasjonene } from './kontrakt';
-  import { BREVKONTROLL } from './tekster';
+  import { BREVKONTROLL, SENDEFEIL } from './tekster';
   import { PARTEN, stor } from '#kjerne/frosset/brevdeler.ts';
 
   let {
@@ -120,6 +122,23 @@
     onavvist?: () => void;
   } = $props();
   const uid = $props.id();
+  let sendtMedMerking = $state<string | null>(null);
+  const avvisningsstatus = $derived(kjernesak.sendeavvisning?.status);
+  const nummerEndret = $derived(
+    kjernesak.nummerEndret ||
+      (avvisningsstatus === 409 && !!merking && !!sendtMedMerking && merking !== sendtMedMerking)
+  );
+  const avvisning = $derived.by(() => {
+    if (nummerEndret) return SENDEFEIL.nyttNummer;
+    if (avvisningsstatus === 403) return SENDEFEIL.ingenTilgang;
+    if (avvisningsstatus !== undefined && avvisningsstatus >= 500) return SENDEFEIL.serverfeil;
+    return null;
+  });
+  const innlogging = $derived(
+    page.url
+      ? `${resolve('/login')}?return_to=${encodeURIComponent(page.url.pathname + page.url.search)}`
+      : resolve('/login')
+  );
 
   const avsender = $derived(kjernesak.part as Part);
   const mottaker = $derived<Part>(avsender === 'TE' ? 'BH' : 'TE');
@@ -158,6 +177,7 @@
       return;
     }
     harSendt = true;
+    sendtMedMerking = merking;
     if (await kjernesak.send(kommando, tekst)) onsendt();
     else onavvist?.();
   }
@@ -170,7 +190,7 @@
         ><ChevronLeft size={16} aria-hidden="true" />{BREVKONTROLL.tilbake(tilbakeTil)}</Knapp
       >
     </p>{/if}
-  <div class="venstre">
+  <div class="venstre" id={`${uid}-brevet`} tabindex="-1">
     <Brev
       {avsender}
       sak={kjernesak.saksbilde?.tittel ?? ''}
@@ -246,13 +266,26 @@
         {kjernesak.sender ? BREVKONTROLL.sender : sendTekst}
       </Knapp>
       {#if harSendt && kjernesak.feil && !kjernesak.sender}<Melding art="feil"
-          >{kjernesak.feil}</Melding
+          >{#if avvisning}
+            <strong>{SENDEFEIL.tittel}</strong>
+            <p>{avvisning}</p>
+            {#if nummerEndret}
+              <p><a href={`#${uid}-brevet`}>{SENDEFEIL.seOverBrevet}</a></p>
+            {:else if avvisningsstatus === 403}
+              <p><a href={innlogging} target="_blank" rel="noopener">{SENDEFEIL.loggInn}</a></p>
+            {:else if avvisning === SENDEFEIL.serverfeil}
+              <p>{SENDEFEIL.proevSenere}</p>
+            {/if}
+          {:else}{kjernesak.feil}{/if}</Melding
         >{/if}
     </div>
   </section>
 </div>
 
 <style>
+  strong {
+    font-weight: 600;
+  }
   .kontroll {
     display: grid;
     grid-template-columns: minmax(0, var(--varden-ark)) var(--varden-stoette);

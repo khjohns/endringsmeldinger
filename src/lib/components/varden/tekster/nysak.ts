@@ -41,8 +41,6 @@ export const NYSAK = haerdet({
   varselMerknad:
     'Varselet legges til i saken sammen med påberopelsen, og dokumentet legges ved brevet.',
   /** LV-U46: en annen sak fikk nummeret før brevet ble sendt. */
-  nyttNummer:
-    'En annen sak fikk nummeret før brevet ble sendt. Se over brevet med det nye nummeret og send det på nytt.',
   ingenMerking: 'Sakens nummer kunne ikke hentes, så brevet kan ikke vises.',
   // Varselet lagres når påberopelsen har setningen etter VS-U38 (#1488).
   varseletKanIkkeLagres:

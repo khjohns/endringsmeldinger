@@ -18,7 +18,7 @@
     sendNySak,
     slettVedleggForNySak,
   } from '#lib/api/kjerne.ts';
-  import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { erKvittertBrevMangler, lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
   // Det ventende utkastet følger den innloggede (#1678).
@@ -31,9 +31,14 @@
   const kommandoId = $derived(ventende?.kommandoId ?? nyKommandoId());
   const send: SendNySak = $derived(async (nySak) => {
     lagreVentende(brukerId, prosjektId, { sakId, kommandoId, utkast: nySak.utkast });
-    const svar = await sendNySak(prosjektId, kommandoId)(nySak);
-    fjernVentende(brukerId, prosjektId);
-    return svar;
+    try {
+      const svar = await sendNySak(prosjektId, kommandoId)(nySak);
+      fjernVentende(brukerId, prosjektId);
+      return svar;
+    } catch (feil) {
+      if (erKvittertBrevMangler(feil)) fjernVentende(brukerId, prosjektId);
+      throw feil;
+    }
   });
   const vedleggForNySak: VedleggForNySak = $derived({
     lastOpp: (fil) => lastOppVedleggForNySak(fil, prosjektId),

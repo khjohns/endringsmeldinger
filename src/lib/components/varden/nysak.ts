@@ -8,7 +8,11 @@
 import { KRAV_STRUKTUR_NS8407 } from '#lib/constants/categories.ts';
 import { getKontraktsregel, type Kontraktsregel } from '#lib/constants/kontraktsregler.ts';
 import { kravMotNySak, type Brev, type Saksmerking } from '#lib/kjernesak/brevtekst.ts';
-import { PROGRAMFEIL, type Programfeil } from '#lib/kjernesak/kontekst.svelte.ts';
+import {
+  PROGRAMFEIL,
+  type Programfeil,
+  type Sendeavvisning,
+} from '#lib/kjernesak/kontekst.svelte.ts';
 import { oppgittDato, type OppgittDato } from '#kjerne/spor/forhold/format.ts';
 import { FORHOLDSGRUPPER } from '#kjerne/spor/forhold/tekst.ts';
 import {
@@ -236,6 +240,9 @@ export interface Brevsending {
   readonly saksbilde: { tittel: string | null } | null;
   readonly sender: boolean;
   readonly feil: string | null;
+  /** Sikker avvisning fra serveren i en eksisterende sak. */
+  readonly sendeavvisning?: Sendeavvisning | null;
+  readonly nummerEndret?: boolean;
   send(kommando: Record<string, unknown>, tekst?: string[]): Promise<boolean>;
   fjernFeil(): void;
 }
