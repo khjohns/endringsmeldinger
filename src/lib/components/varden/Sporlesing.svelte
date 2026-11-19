@@ -392,6 +392,14 @@
   <Brevpanel brev={b} sak={kjernesak.saksbilde?.tittel ?? ''} iRaden />
 {/snippet}
 
+{#snippet leggTilKorrespondanse()}
+  {#if kjernesak.handlinger.includes('registrere_brev') && skjemaene.includes('registrere_brev')}
+    <Knapp variant="lenke" kompakt onclick={() => onvelg('registrere_brev')}>
+      {LEGG_TIL.tittel}
+    </Knapp>
+  {/if}
+{/snippet}
+
 <Arbeidsflate leser>
   {#snippet hoved()}
     {@render utkast?.()}
@@ -409,6 +417,7 @@
       handling={vedBrevet}
       brevet={lestBrevet}
       {levering}
+      {leggTilKorrespondanse}
     />
     {#if handlingVed === null && (primaer || flyt.hindring)}
       <!-- Uten et brev å stå ved står handlingen over de andre, så den aldri faller bort. -->
@@ -417,23 +426,9 @@
       </section>
     {/if}
     {#if andre.length || nySak}
-      <section class="kort andre" aria-label={HANDLINGENE.andre}>
+      <section class="andre" aria-label={HANDLINGENE.andre}>
         {#if andre.length}{@render meny(andre, HANDLINGENE.andre)}{/if}
         {@render nySaklenke()}
-      </section>
-    {/if}
-    <!-- OV-U79: korrespondanse sendt utenfor løsningen, når kjernen tar imot den (U5 og U6). -->
-    {#if kjernesak.handlinger.includes('registrere_brev') && skjemaene.includes('registrere_brev')}
-      <section class="kort andre legg-til" aria-labelledby={`${uid}-legg-til`}>
-        <div>
-          <Knapp
-            variant="lenke"
-            kompakt
-            id={`${uid}-legg-til`}
-            onclick={() => onvelg('registrere_brev')}>{LEGG_TIL.tittel}</Knapp
-          >
-        </div>
-        <p class="dempet">{LEGG_TIL.inngangHjelp}</p>
       </section>
     {/if}
   {/snippet}
@@ -458,9 +453,6 @@
     flex-direction: column;
     gap: var(--spacing-2);
     padding: var(--spacing-4) var(--spacing-5) var(--spacing-5);
-  }
-  .legg-til {
-    gap: var(--spacing-1);
   }
   .andre .annen {
     padding: var(--spacing-2) 0 0;

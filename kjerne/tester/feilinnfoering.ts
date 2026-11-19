@@ -1544,7 +1544,10 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse: 'spesifisering i tide får virkning etter § 33.6.1',
     fil: `${K}/frosset/byggeklosser.ts`,
     endringer: [
-      ["const virkning = s.iTide ? 'uten_virkning' : iLaget();", 'const virkning = iLaget();'],
+      [
+        "const virkning = s.iTide && !etterFristvarselet ? 'uten_virkning' : iLaget();",
+        'const virkning = iLaget();',
+      ],
     ],
     mal: ['F-MM-F-33-6-1-ja'],
   },
@@ -3053,11 +3056,11 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/linje.ts`,
     endringer: [
       [
-        "rettidighet: `${sene.join(' og ')} kom for sent`",
-        'rettidighet: `${sene[0]} kom for sent`',
+        '!s.iTide && s.id !== egetLedd && !forKravposten.has(s.id)',
+        "!s.iTide && s.id !== egetLedd && !forKravposten.has(s.id) && s.hjemmel !== '33.6.2'",
       ],
     ],
-    mal: ['beslutningslinjen nevner begge bestemmelsene'],
+    mal: ['KA-U84: innsigelsen etter § 33.6.2 følger etter'],
   },
   {
     id: 'F328',
@@ -3448,8 +3451,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/frosset/standpunkt.ts`,
     endringer: [
       [
-        "(s?.art === 'rettidighet' && (s.hjemmel === '34.1.2' || !s.hjemmel.startsWith('34')))",
-        "s?.art === 'rettidighet'",
+        "(s?.art === 'rettidighet' &&\n        !s.iTide &&\n        (s.hjemmel === '34.1.2' || !s.hjemmel.startsWith('34')))",
+        "(s?.art === 'rettidighet' && !s.iTide)",
       ],
     ],
     mal: ['en aksept av svaret gir prinsipalt beløp etter begrensningen, ikke 0'],
@@ -5191,7 +5194,12 @@ const MUTASJONER: Mutasjon[] = [
     feilklasse:
       'innsigelsen etter § 34.3.3 står som grunn for hele svaret i linjen, ikke ved kravposten (KA-U64, VS-U56)',
     fil: `${K}/frosset/linje.ts`,
-    endringer: [['        !forKravposten.has(p.standpunkt)', '        true']],
+    endringer: [
+      [
+        '!s.iTide && s.id !== egetLedd && !forKravposten.has(s.id)',
+        '!s.iTide && s.id !== egetLedd',
+      ],
+    ],
     mal: ['linjen nevner innsigelsen etter punkt 34.3.3 ved kravposten'],
   },
   {
@@ -5655,8 +5663,8 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/frist/kommando.ts`,
     endringer: [
       [
-        "    if (f.art === 'hindring') return [{ innsigelse: 'hindring' }];",
-        "    if (f.art === 'hindring') return [];",
+        "    if (f.art === 'hindring' && !f.oppfylt) return [{ innsigelse: 'hindring' }];",
+        "    if (f.art === 'hindring' && !f.oppfylt) return [];",
       ],
     ],
     mal: ['KA-U78: varselet for sent, ikke hindret og spesifisert for sent gir fire lag'],
@@ -6450,6 +6458,30 @@ const MUTASJONER: Mutasjon[] = [
     fil: `${K}/spor/forhold/kommando.ts`,
     endringer: [["s.hjemmel === '32.2' && virket[i]!.virkning === 1", "s.hjemmel === '32.2'"]],
     mal: ['uten virksom innsigelse gir varslingsplikt'],
+  },
+  {
+    id: 'F754',
+    feilklasse: 'en bekreftet hindring i fristsvaret står uten vilkår etter § 33.4 (KA-U84)',
+    fil: `${K}/frosset/byggeklosser.ts`,
+    endringer: [
+      [
+        "      const virkning = s.oppfylt && !etterFristvarselet ? 'uten_virkning' : iLaget();",
+        "      const virkning = s.oppfylt ? 'uten_virkning' : iLaget();",
+      ],
+    ],
+    mal: ['KA-U84: bekreftet hindring får vilkåret', 'KA-U84: hindringen i utkastet får vilkåret'],
+  },
+  {
+    id: 'F755',
+    feilklasse: 'innsigelsen etter § 33.6.2 får samme lag som innsigelsen etter § 33.4 (KA-U84)',
+    fil: `${K}/frosset/byggeklosser.ts`,
+    endringer: [
+      [
+        "      const virkning = virker || etterFristvarselet ? iLaget() : 'uten_virkning';",
+        "      const virkning = virker ? 1 : etterFristvarselet ? iLaget() : 'uten_virkning';",
+      ],
+    ],
+    mal: ['KA-U84: innsigelsen etter § 33.6.2 følger etter'],
   },
 ];
 interface Testresultat {

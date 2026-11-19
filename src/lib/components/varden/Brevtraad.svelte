@@ -10,13 +10,12 @@
 <script lang="ts">
   import { File } from 'lucide-svelte';
   import type { Snippet } from 'svelte';
-  import { stor } from '#kjerne/frosset/brevdeler.ts';
   import type { Spor } from '#kjerne/typer.ts';
   import Knapp from './Knapp.svelte';
   import Melding from './Melding.svelte';
   import Sitat from './Sitat.svelte';
   import type { Brevet, Brevref, Innlegget } from './lesing';
-  import { FORHOLDET, LEGG_TIL, TRAADEN, dato, kortDatoMedAar } from './tekster';
+  import { FORHOLDET, LEGG_TIL, TRAADEN, VEDERLAGET, kortDatoMedAar } from './tekster';
 
   let {
     brev,
@@ -38,6 +37,7 @@
     brevet,
     oeverst,
     nederst,
+    leggTilKorrespondanse,
   }: {
     /** Brevene i tråden i rekkefølgen i journalen (`brevITraaden`). Tråden viser dem nyest først. */
     brev: Brevet[];
@@ -81,6 +81,7 @@
     oeverst?: Snippet<[Brevet]>;
     /** Det siden viser sist under brevet, over handlingen, som akseptfristen (U-11 i BF-44). */
     nederst?: Snippet<[Brevet]>;
+    leggTilKorrespondanse?: Snippet;
   } = $props();
   const uid = $props.id();
 
@@ -89,6 +90,7 @@
 
 <div class="traadhode">
   <h3 id={`${uid}-tittel`}>{TRAADEN.tittel(spor)}</h3>
+  {@render leggTilKorrespondanse?.()}
 </div>
 <ol class="traad" aria-labelledby={`${uid}-tittel`}>
   {#if venterPaaSvar}
@@ -119,17 +121,11 @@
       <!-- Partene skilles med form: BH har fylt ring, TE åpen (oppdragsgiver 06.11, #1646). -->
       <span class="part" class:bh={b.avsender === 'BH'} aria-hidden="true">{b.avsender}</span>
       <div class="rad">
-        <span class="dato"
-          ><span class="lang">{dato(datoen)}</span><span class="kort">{kortDatoMedAar(datoen)}</span
-          ></span
-        >
-        <h4 id={`${uid}-${b.id}`}>
-          {hva}{#if fulgt}<span class="fulgt">{TRAADEN.fulgtOpp(fulgt)}</span>{/if}<span
-            class="visually-hidden">{TRAADEN.fra(b.avsender)}</span
-          >
-        </h4>
+        <span class="dato">
+          {kortDatoMedAar(datoen)}{#if b.nummer !== null}
+            {' · '}{TRAADEN.nummer(b.nummer)}{/if}{#if fulgt}{TRAADEN.fulgtOpp(fulgt)}{/if}
+        </span>
         <span class="meta">
-          {#if b.nummer !== null}<span class="nr">{TRAADEN.nummer(b.nummer)}</span>{/if}
           {#if registrert && dokumentasjon.includes(b.id)}<span>{TRAADEN.dokumentasjon}</span>{/if}
           {#if b.avsnitt}
             {#if tilHoeyre}
@@ -146,6 +142,9 @@
             {/if}
           {/if}
         </span>
+        <h4 id={`${uid}-${b.id}`}>
+          {hva}<span class="visually-hidden">{TRAADEN.fra(b.avsender)}</span>
+        </h4>
       </div>
       {#if registrert || i || b.vedlegg.length || oeverst || nederst || samme.length}
         <div class="innhold">
@@ -161,9 +160,9 @@
           {#if i}
             {#if i.standpunkter.some((l) => l.lag)}
               <ul class="lagene" aria-label={FORHOLDET.lagene}>
-                {#each i.standpunkter as l (l.standpunkt.id)}
-                  <li>
-                    {#if l.lag}<b>{stor(l.lag)}</b>{/if}
+                {#each i.standpunkter as l, j (l.standpunkt.id)}
+                  <li class:under={j > 0 && l.lag !== i.standpunkter[0]?.lag}>
+                    {#if l.vilkaar?.length}<b>{VEDERLAGET.lagetVilkaar(l.vilkaar)}</b>{/if}
                     <span>{FORHOLDET.standpunkt(l.standpunkt, l.brev, l.ordene)}</span>
                   </li>
                 {/each}
@@ -244,6 +243,10 @@
 
 <style>
   .traadhode {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
     padding: var(--spacing-4) var(--spacing-5) 0;
   }
   .traadhode h3 {
@@ -318,30 +321,23 @@
   }
   .rad {
     display: grid;
-    grid-template-columns: 8.5rem minmax(0, 1fr) auto;
-    gap: 2px var(--spacing-4);
-    align-items: start;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0 var(--spacing-3);
+    align-items: baseline;
     min-height: 32px;
   }
   .dato {
-    color: var(--ink-2);
-    white-space: nowrap;
-    line-height: 24px;
-    font-size: 14px;
-  }
-  .dato .kort {
-    display: none;
+    color: var(--ink-3);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
   }
   h4 {
+    grid-column: 1 / -1;
     min-width: 0;
     font-size: 16px;
     font-weight: 600;
     line-height: 24px;
     color: var(--ink);
-  }
-  .fulgt {
-    font-weight: 400;
-    color: var(--ink-3);
   }
   .eldre h4 {
     color: var(--ink-2);
@@ -363,10 +359,6 @@
   .vises {
     font-size: 14px;
     color: var(--ink-2);
-  }
-  .innhold,
-  .handling {
-    padding-left: calc(8.5rem + var(--spacing-4));
   }
   .innhold {
     display: flex;
@@ -403,9 +395,6 @@
     font-weight: 500;
     color: var(--ink-2);
   }
-  .kompakt .dato {
-    color: var(--ink-3);
-  }
   .datolinje {
     font-size: 14px;
     color: var(--ink-2);
@@ -425,14 +414,16 @@
   }
   .lagene li {
     display: grid;
-    grid-template-columns: 7rem minmax(0, 1fr);
-    gap: var(--spacing-1) var(--spacing-3);
+    gap: var(--spacing-1);
   }
   .lagene b {
     font-weight: 600;
   }
-  .lagene span {
-    color: var(--ink-2);
+  .lagene .under {
+    color: var(--ink-3);
+  }
+  .lagene .under b {
+    font-weight: 500;
   }
   /* Partens ord står i avsenderens brevskrift (system.md, «Typografi»; oppdragsgiver 07.11, #1659). */
   .utdrag {
@@ -493,32 +484,6 @@
     color: var(--ink-3);
   }
   @media (max-width: 720px) {
-    .dato .kort {
-      display: inline;
-    }
-    .dato .lang {
-      display: none;
-    }
-    .rad {
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 0 var(--spacing-3);
-    }
-    .dato {
-      grid-column: 1;
-      font-size: 12px;
-      color: var(--ink-3);
-    }
-    .meta {
-      grid-column: 2;
-      grid-row: 1;
-    }
-    h4 {
-      grid-column: 1 / 3;
-    }
-    .innhold,
-    .handling {
-      padding-left: 0;
-    }
     .lagene li {
       grid-template-columns: 1fr;
     }

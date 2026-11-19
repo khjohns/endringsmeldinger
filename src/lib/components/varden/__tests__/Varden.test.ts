@@ -408,8 +408,10 @@ describe('Varden med brukerforløpet BF-01', () => {
     );
     expect(within(linjer[0]).getByText('1. Forholdet')).toBeVisible();
     expect(within(linjer[0]).getByText('Du har avslått forholdet i brev 2')).toBeVisible();
-    expect(within(linjer[0]).getByText(/^prinsipalt$/i)).toBeVisible();
-    expect(within(linjer[1]).getByText(/^subsidiært$/i)).toBeVisible();
+    expect(within(linjer[0]).queryByText(/^prinsipalt$/i)).toBeNull();
+    expect(
+      within(linjer[1]).getByText(/^Hvis avslaget av forholdet i brev 2 ikke fører frem$/)
+    ).toBeVisible();
   });
 
   it('BF-04: mener BH en annen oppgjørsform, spør skjemaet ikke om beløpet, og hovedlinjene sier ikke noe om det; med fast sum godkjent står valget for beløpet igjen (KA-U72)', async () => {

@@ -7,7 +7,6 @@ import { SKJEMA, innsigelsenOmVarselet } from './svaret';
 import { brevref, brevrefStor } from './felles';
 import { dato, hjemmelsmerke, punkt, haerdet } from './format';
 import { grunntekst, standpunkttekst } from './standpunkt';
-import { liten } from './fristkrav';
 
 /** Hva hver oppgjørsform heter i en tabellcelle, med «pkt.» der hjemmelen står (OV-U75). */
 const OPPGJOERSFORMEN: Record<Oppgjoersform, string> = {
@@ -37,13 +36,17 @@ export const VEDERLAGET = haerdet({
     i.art === 'grunn'
       ? SKJEMA.grunnen(i.grunn, i.brev)
       : i.art === 'varsel'
-        ? innsigelsenOmVarselet(i.hjemmel)
+        ? i.hjemmel === '33.6.2'
+          ? 'innsigelsen om at svaret på forespørselen kom for sent'
+          : innsigelsenOmVarselet(i.hjemmel)
         : `innsigelsen om ${i.art === 'spesifisering' ? 'spesifiseringen' : 'hindringen'}`,
   /** Vilkåret ved beløpet i et lag: «Hvis innsigelsen … ikke fører frem» (U-2, LV-U4 punkt 4). */
   vilkaar: (innsigelser: string[], heller: boolean) =>
     heller
       ? `Hvis heller ikke ${liste(innsigelser)} fører frem`
       : `Hvis ${liste(innsigelser)} ikke fører frem`,
+  lagetVilkaar: (innsigelser: readonly Innsigelsen[]): string =>
+    VEDERLAGET.vilkaar(innsigelser.map(VEDERLAGET.innsigelsen), false),
   /** Et standpunkt et lag bygger på, med brevet med varselet en påberopelse gjelder. */
   standpunkt: (s: Standpunkt, varselbrev: Brevref | null) =>
     s.art === 'rettidighet' && !s.iTide && varselbrev && s.hjemmel !== '34.4'
@@ -52,20 +55,12 @@ export const VEDERLAGET = haerdet({
           ? `, og godkjenner ${kroner(s.begrenset)} etter begrensningen`
           : '')
       : standpunkttekst(s, false),
-  /** Vilkåret og det laget bygger på, i én setning ved beløpet (U-2). */
-  laget: (l: Svarlaget): string => {
-    const grunnlag = [
+  /** Standpunktene som står under vilkåret i oversikten (BF-44 U-2, #2182). */
+  laget: (l: Svarlaget): string[] =>
+    [
       ...l.grunner.map((g) => grunntekst(g.grunn, false, g.brev)),
       ...l.standpunkter.map((s) => VEDERLAGET.standpunkt(s.standpunkt, s.brev)),
-    ]
-      .map((t, i) => (i ? liten(t) : t))
-      .join(', og ');
-    const vilkaar = l.vilkaar.length
-      ? VEDERLAGET.vilkaar(l.vilkaar.map(VEDERLAGET.innsigelsen), l.lag > 2)
-      : null;
-    if (vilkaar && grunnlag) return `${vilkaar}: ${grunnlag}.`;
-    return vilkaar || grunnlag ? `${vilkaar ?? grunnlag}.` : '';
-  },
+    ].map((t) => `${t}.`),
   /** Hva som skiller svaret fra kravet om ingen av innsigelsene fører frem (U-2). */
   skiller: (beloep: number, flereLag: boolean) =>
     flereLag

@@ -8,6 +8,7 @@ import {
   type Forholdstilfelle,
 } from '#kjerne/spor/forhold/tekst.ts';
 import type { Brevref, Innlegget, Standpunktet } from '../lesing';
+import type { Innsigelsen } from '../svarlagene';
 import { SKJEMA } from './svaret';
 import { brevref, metodenavn, oppgjoersformEtter } from './felles';
 import { punkt, haerdet } from './format';
@@ -57,8 +58,12 @@ function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
   }
 }
 
-/** Leselinjene for kravposten `post` av linjene i svaret, med etiketten for laget foran. */
-function leselinjeneMedVanligeMellomrom(linjer: Standpunktet[], post: Kravpost): string[] {
+/** Leselinjene for kravposten med vilkåret for hvert standpunkt. */
+function leselinjeneMedVanligeMellomrom(
+  linjer: Standpunktet[],
+  post: Kravpost,
+  vilkaar: (innsigelser: Innsigelsen[]) => string
+): string[] {
   return linjer.flatMap((l) => {
     if (!('standpunkt' in l)) return [];
     const s = l.standpunkt;
@@ -68,7 +73,7 @@ function leselinjeneMedVanligeMellomrom(linjer: Standpunktet[], post: Kravpost):
       s.art === 'beloep' && !s.saerskilt ? (post.beloep ?? 0) : undefined
     );
     if (!t) return [];
-    return [l.lag ? `${stor(l.lag)}: ${t[0].toLowerCase()}${t.slice(1)}` : t];
+    return l.vilkaar?.length ? [vilkaar(l.vilkaar), t] : [t];
   });
 }
 

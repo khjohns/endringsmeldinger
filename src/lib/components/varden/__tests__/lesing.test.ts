@@ -19,6 +19,7 @@ import {
 } from '#lib/components/varden/lesing.ts';
 import {
   FRISTEN,
+  VEDERLAGET,
   leselinjene,
   SKJEMA,
   standpunkttekst,
@@ -220,11 +221,13 @@ describe('leselinjene i den lukkede kravposten (prototype v3, `leselinje`; KA-U5
     const svar = u.spor.vederlag.svar[0];
     const [p1, p2] = kravposterI(u.spor.vederlag.gjeldendeKrav!);
     const linjer = standpunktene(svar, u);
-    expect(leselinjene(linjer, p1!)).toEqual([
+    expect(leselinjene(linjer, p1!, VEDERLAGET.lagetVilkaar)).toEqual([
       'Godkjenner fast sum (punkt\u00a034.2.1)',
       `${kroner(100000)}, godkjent som krevd`,
     ]);
-    expect(leselinjene(linjer, p2!)).toEqual(['Mener regningsarbeid (punkt\u00a034.4)']);
+    expect(leselinjene(linjer, p2!, VEDERLAGET.lagetVilkaar)).toEqual([
+      'Mener regningsarbeid (punkt\u00a034.4)',
+    ]);
   });
 });
 
@@ -446,10 +449,10 @@ describe('Brevene lest én gang per utledning (#2000)', () => {
 });
 
 describe('Standpunktet etter en leddsetning (#2000)', () => {
-  it('verbet står foran «byggherren», også når standpunktet er nektende (FRISTEN.utenLag, OV-U42)', () => {
+  it('et standpunkt uten lag vises uten et vilkår fra visningen (BF-45 U-3, OV-U42)', () => {
     const hindring: Standpunkt = { id: 'h', art: 'hindring', oppfylt: false };
-    expect(FRISTEN.utenLag(hindring, [{ art: 'varsel', hjemmel: '33.4' }])).toBe(
-      'Hvis innsigelsen om varselet ikke fører frem, legger byggherren ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet.'
+    expect(FRISTEN.utenLag(hindring)).toBe(
+      'Byggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet.'
     );
     expect(standpunkttekst(hindring, false)).toBe(
       'Byggherren legger ikke til grunn at fremdriften er hindret, eller at en hindring skyldes forholdet'

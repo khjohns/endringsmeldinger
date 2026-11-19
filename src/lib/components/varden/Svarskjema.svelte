@@ -11,6 +11,7 @@
   ufullstendig svar). Brevet leses ved siden av skjemaet, og på smal skjerm i skjemaet.
 -->
 <script lang="ts">
+  import type { Innsigelsen } from './svarlagene';
   import type { Snippet } from 'svelte';
   import { SVARTITTEL } from '#kjerne/frosset/brevtittel.ts';
   import { FORBEHOLDET, FORHOLDET } from '#kjerne/frosset/tekst.ts';
@@ -79,7 +80,7 @@
     medTekstene: (punktene: readonly string[]) => Record<string, unknown>;
     /** Tekstene står når BH går til brevkontrollen og tilbake. */
     tekster: { begrunnelser: Record<string, string>; forbehold: string };
-    linjer: { tekst: string; lag: string | null }[];
+    linjer: { tekst: string; lag: string | null; vilkaar?: Innsigelsen[] }[];
     /** Beløp i mer enn ett lag er alternativer, ikke tillegg (Varden, skjerm B). */
     alternativer?: boolean;
     virkninger: string[];

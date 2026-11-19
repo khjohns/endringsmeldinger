@@ -1,3 +1,5 @@
+import type { Innsigelsen } from './svarlagene';
+
 /**
  * Det svarskjemaene for forholdet, vederlaget og fristen deler (#1925, #2009): punktene som får en begrunnelse,
  * det som mangler, brevet svaret gjelder, og tekstene i skallet. Spørsmålene er sporets egne.
@@ -76,7 +78,7 @@ export interface Skjemapunkt {
   punkt: string;
   navn: string;
   beholdNavn?: boolean;
-  linjer?: readonly { tekst: string; lag: string | null }[];
+  linjer?: readonly { tekst: string; lag: string | null; vilkaar?: Innsigelsen[] }[];
   aktiv?: boolean;
 }
 
