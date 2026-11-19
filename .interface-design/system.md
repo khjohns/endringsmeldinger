@@ -500,7 +500,7 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   Samme form gjelder på målestokken: totalentreprenørens mål er åpent og byggherrens er fylt,
   på samme skala med runde trinn ([U-2 i BF-44](../docs/domenetabell/brukerforlop/BF-44.md#u-2), #2182).
   Raden for brevet som vises ved siden av, har en strek i blekk til venstre og sier det i tekst, ikke bare med en flate.
-  Datoen og brevnummeret står i én dempet linje over tittelen, i alle bredder, med «Les brevet»
+  Datoen og brevnummeret står i én dempet linje over tittelen i 12 px, som er størrelsen for metadata, i alle bredder, med «Les brevet»
   eller «Vises til høyre» til høyre i samme linje. Innholdet bruker hele bredden ved siden av
   ringen. Handlingene ved et brev står uten hjelpetekst: knappeteksten sier hva handlingen gjør,
   og virkningen står i brevkontrollen under «Når du sender». Standpunktene i en rad følger

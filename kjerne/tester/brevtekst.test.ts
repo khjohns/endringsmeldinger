@@ -4694,8 +4694,29 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
       { resultat: 'avslaatt', godkjent_dager: 0 }
     );
     expect(((rad.data.svar as Data[])[0].beslutningsgrunnlag as Data).linje).toBe(
-      'Byggherrens standpunkt: prinsipalt svaret på forespørselen etter punkt\u00a033.6.2 kom for sent, subsidiært godkjent med 20 dager for frist Sluttfristen.'
+      'Byggherrens standpunkt: prinsipalt svaret på forespørselen etter punkt\u00a033.6.2 kom for sent, subsidiært fremdriften er hindret av forholdet (punkt\u00a033.1), godkjent med 20 dager for frist Sluttfristen.'
     );
+  });
+
+  it('KA-U86: etter innsigelsen etter § 33.6.2 alene er også en bekreftet hindring subsidiær', () => {
+    const vurdering = { ...utenFelt(FRIST_FULLT[0], 'spesifisert_krav_ok'), frist_varsel_ok: true };
+    const lagene = (foresporsel_svar_ok: boolean) => {
+      const { s } = medForesporsel();
+      s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
+      const rad = fristsvar(
+        s,
+        { ...vurdering, foresporsel_svar_ok },
+        foresporsel_svar_ok
+          ? { resultat: 'godkjent', godkjent_dager: 20 }
+          : { resultat: 'avslaatt', godkjent_dager: 0 }
+      );
+      const b = (rad.data.svar as Data[])[0].beslutningsgrunnlag as Data;
+      return (b.virkninger as Data[]).map((v) => v.lag);
+    };
+    // Innsigelsen etter § 33.6.2, hindringen og dagene.
+    expect(lagene(false)).toEqual([1, 2, 2]);
+    // Kontrollsak: svaret på forespørselen kom i tide, og hindringen står uten vilkår.
+    expect(lagene(true)).toEqual([1]);
   });
 
   it('et svar som gjør gjeldende at svaret på forespørselen etter § 33.6.2 kom for sent, godtas uten begrunnelse (KA-U46 punkt 1, VS-U17)', () => {
