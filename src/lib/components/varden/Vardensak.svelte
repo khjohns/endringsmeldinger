@@ -953,20 +953,23 @@
     </main>
   {:else if kjernesak.lasteutfall && (!u || !kjernesak.saksbilde)}
     {@const utilgjengelig = kjernesak.lasteutfall === 'utilgjengelig'}
+    {@const ugyldig = kjernesak.lasteutfall === 'ugyldig'}
     <main class="arbeid">
       <div class="lastefeil" role="alert">
         <h1>{utilgjengelig ? SAKEN.finnesIkke : SAKEN.lastefeil}</h1>
         <p>
           {utilgjengelig
             ? SAKEN.finnesIkkeForklaring
-            : kjernesak.lasteutfall === 'nettverk'
-              ? SAKEN.lastefeilNett
-              : SAKEN.lastefeilBeklager}
+            : ugyldig
+              ? SAKEN.lastefeilUgyldig(!!saksliste)
+              : kjernesak.lasteutfall === 'nettverk'
+                ? SAKEN.lastefeilNett
+                : SAKEN.lastefeilBeklager}
         </p>
         <!-- Et brev som er sendt før lastingen feilet, står som sendt (review av #2202). -->
         {#if kjernesak.utdatert && kjernesak.feil}<p role="status">{kjernesak.feil}</p>{/if}
         <div class="lastehandlinger">
-          {#if !utilgjengelig}
+          {#if !utilgjengelig && !ugyldig}
             <Knapp opptatt={proever} onclick={proevIgjen}
               >{proever ? SAKEN.proever : SAKEN.proevIgjen}</Knapp
             >
@@ -974,7 +977,7 @@
           {#if saksliste}<Knapp variant="lenke" iFlukt href={saksliste}>{SAKEN.tilSakslisten}</Knapp
             >{/if}
         </div>
-        {#if sistForsoekt && !proever && !utilgjengelig}
+        {#if sistForsoekt && !proever && !utilgjengelig && !ugyldig}
           <p class="sist-forsoekt">{SAKEN.sistForsoekt(sistForsoekt)}</p>
         {/if}
       </div>

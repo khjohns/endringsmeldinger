@@ -28,6 +28,8 @@ export const SAKEN = haerdet({
   stien: 'Du er her',
   laster: 'Laster saken …',
   lastefeil: 'Saken kunne ikke hentes',
+  lastefeilUgyldig: (medSakslisten: boolean) =>
+    medSakslisten ? 'Kontroller lenken, eller åpne saken fra sakslisten.' : 'Kontroller lenken.',
   lastefeilBeklager: 'Beklager, serveren svarte med en feil. Prøv igjen om litt.',
   lastefeilNett:
     'Beklager, vi fikk ikke svar fra serveren. Kontroller nettforbindelsen, og prøv igjen.',

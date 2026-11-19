@@ -162,7 +162,7 @@ export function lagKjernesak(valg: Kjernesakvalg) {
   let feil = $state<string | null>(null);
   let sender = $state(false);
   let finnes = $state<boolean | null>(null);
-  let lasteutfall = $state<'utilgjengelig' | 'nettverk' | 'server' | null>(null);
+  let lasteutfall = $state<'utilgjengelig' | 'ugyldig' | 'nettverk' | 'server' | null>(null);
   let ventende = $state<Ventende | null>(valg.ventende ?? null);
   // Saken som vises, er utdatert til den er lastet på nytt: `fordi` er et lagret brev eller en
   // sending serveren avviste mot saken slik den er lastet, og `aarsak` den siste lastefeilen.
@@ -216,9 +216,11 @@ export function lagKjernesak(valg: Kjernesakvalg) {
       // En 404 etter at saken er lastet, er en lastefeil (#719).
       if (status === 404 && finnes !== true) finnes = false;
       if (status === 403 || (status === 404 && finnes === false)) {
+        finnes = false;
         lasteutfall = 'utilgjengelig';
         sak = null;
-      } else lasteutfall = status === 0 ? 'nettverk' : 'server';
+      } else if (status === 400 || status === 422) lasteutfall = 'ugyldig';
+      else lasteutfall = status === 0 ? 'nettverk' : 'server';
       const aarsak = meldingFra(e, 'Saken kunne ikke hentes.');
       lastefeil = aarsak;
       if (etterLagring || utdatert)
