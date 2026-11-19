@@ -646,8 +646,7 @@
           id={id('hva')}
           variant="lenke"
           aria-describedby={`${id('hva-status')} ${id('hva-hjelp')}`}
-          onclick={() => velgHva('krav')}
-          >{FRISTKRAV.krevDager}</Knapp
+          onclick={() => velgHva('krav')}>{FRISTKRAV.krevDager}</Knapp
         >
       {:else}
         <p id={id('hva-status')}>{FRISTKRAV.kravMedDager}</p>
@@ -655,8 +654,7 @@
           id={id('hva')}
           variant="lenke"
           aria-describedby={`${id('hva-status')} ${id('hva-hjelp')}`}
-          onclick={() => velgHva('varsel')}
-          >{FRISTKRAV.varsleSenere}</Knapp
+          onclick={() => velgHva('varsel')}>{FRISTKRAV.varsleSenere}</Knapp
         >
       {/if}
       <p class="dempet" id={id('hva-hjelp')}>{FRISTKRAV.hvaHjelp}</p>
