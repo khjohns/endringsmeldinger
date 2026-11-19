@@ -15,12 +15,15 @@ export const KRAVSKJEMA = haerdet({
     `Forholdet: ${navn}, påberopt i ${brevref(b)} · ${kortDato(b.registrert)}`,
   paaberoptI: (b: Brevref) => `Forholdet er påberopt i ${brevref(b)}`,
   folgerOpp: (krav: Brevref, svar: Brevref | null) =>
-    `Følger opp kravet i ${brevref(krav)}${svar ? `. Byggherren svarte i ${brevref(svar)}` : ''}`,
+    `Oppdaterer kravet i ${brevref(krav)}.${svar ? ` Byggherren svarte i ${brevref(svar)}. Når du sender brevet, kan du ikke godta det svaret her. Har byggherren gitt et tilbud? Skriv i begrunnelsen om du godtar tilbudet, avslår det eller tar forbehold.` : ''}`,
+  /** Den nye påberopelsen: påminnelsen om tilbudet gjelder kravene (MM-U34 punkt 1). */
+  folgerOppPaaberopelsen: (paaberopelse: Brevref, svar: Brevref | null) =>
+    `Oppdaterer påberopelsen i ${brevref(paaberopelse)}.${svar ? ` Byggherren svarte i ${brevref(svar)}.` : ''}`,
   // 1. Vederlagsjusteringen.
   postene: 'Vederlagsjustering',
   posteneHjemmel: ['34.1.1', '34.1.2'],
   posteneIntro:
-    'Del kravet i kravposter. Betegnelsen (P1, P2 …) følger posten i nye brev og i endringsordren. Beløpene er eks. mva.',
+    'Del kravet i kravposter. Kravpostene får betegnelser som P1 og P2. Betegnelsene står også i nye brev og i endringsordren. Beløpene er eks. mva.',
   kolonner: ['Post', 'Oppgjørsform', 'PNS', 'Beløp'],
   nyPost: 'Ny kravpost',
   // Kjernen gir betegnelsen når kravet sendes (KA-U53).
@@ -62,7 +65,7 @@ export const KRAVSKJEMA = haerdet({
   overslagHjelp:
     'En opplysning, ikke et tilbud (punkt 30.2). Ser det ut til å bli overskredet, skal du varsle byggherren.',
   pns: 'PNS',
-  pnsHjelp: 'Binder ikke. Byggherren kan sette en annen i endringsordren.',
+  pnsHjelp: 'Byggherren kan velge en annen PNS-kode i endringsordren.',
   varsellinje: (hjemmel: string, tekst: string) => `Varsel etter ${punkt(hjemmel)}: ${tekst}`,
   tilVarslene: 'Se under Varslene',
   ferdig: 'Ferdig',
@@ -137,7 +140,7 @@ export const KRAVSKJEMA = haerdet({
   varselvalg: {
     kravet: 'I dette brevet',
     saken: 'I et varsel som står i saken',
-    dokument: 'I et dokument sendt utenfor løsningen',
+    dokument: 'I et brev, en e-post eller et referat',
     samme: (post: string) => `Samme dokument som for ${post}`,
   },
   hvilketVarsel: 'Varselet i saken',
@@ -174,7 +177,7 @@ export const KRAVSKJEMA = haerdet({
     anslag ? `${kroner(faste)} + ${kroner(anslag)} anslått` : kroner(faste),
   // U-3: veiledningen etter Del II punkt 184 stopper ikke kravet.
   pnsOver: (pns: string[], grense: number) =>
-    `${pns.length === 1 ? `PNS ${pns[0]} har` : `PNS ${pns.join(' og ')} har hver`} over ${kroner(grense)}. Ved fakturering etter endringsordren skal endringen da fordeles på PNS-kodene (Del II punkt 184). PNS-en binder ikke, og byggherren kan sette en annen i endringsordren.`,
+    `${pns.length === 1 ? `PNS ${pns[0]} har` : `PNS ${pns.join(' og ')} har hver`} over ${kroner(grense)}. Ved fakturering etter endringsordren skal endringen da fordeles på PNS-kodene (Del II punkt 184). Byggherren kan velge en annen PNS-kode i endringsordren.`,
   tilbudet: (poster: string[]) =>
     `Kravet for ${opplistet(poster)} er et tilbud etter punkt 34.2.1. Byggherren kan akseptere det.`,
   regelen: (poster: string[]) =>

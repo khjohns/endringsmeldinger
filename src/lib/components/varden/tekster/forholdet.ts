@@ -18,7 +18,7 @@ import { dato, haerdet } from './format';
 /** Siden for forholdet (#1449, prototypen `grunnlagsoversikt.html`, OV-U76–OV-U78). */
 /** Korrigeringen i en lukket sak (D-6 og U-6 i BF-02A; oppdragsgiver 06.11, #1646). */
 const KORRIGERT_I_LUKKET =
-  'Saken står lukket, og korrigeringen endrer ikke utfallet. Byggherren kan ta stilling til den nye datoen i et innlegg. Innlegg kan ikke sendes fra løsningen ennå.';
+  'Saken står lukket. Korrigeringen endrer ikke utfallet. Byggherren kan ta stilling til den nye datoen i et innlegg. Innlegg kan ikke sendes herfra ennå.';
 
 export const FORHOLDET = haerdet({
   utenNavn: 'Forholdet',
@@ -120,7 +120,7 @@ export const FORHOLDET = haerdet({
     lukket
       ? KORRIGERT_I_LUKKET
       : svar
-        ? `Svaret i ${brevref(svar)} står som det ble sendt. Byggherren kan ta stilling til den nye datoen i et senere svar.`
+        ? `Svaret i ${brevref(svar)} endres ikke. Byggherren kan ta stilling til den nye datoen i et senere svar.`
         : null,
   lagene: 'Standpunktene i svaret',
   /**

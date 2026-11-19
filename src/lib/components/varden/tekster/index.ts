@@ -3,7 +3,7 @@
  * denne mappa med én fil per side eller skjema (#2117), så de kan kontrolleres med linse A i
  * `design-review` før brukertesten. Formateringen står i `format.ts`. Tekstene er
  * ikke vedtatt brevtekst eller produktdesign. Teksten i brevene kommer fra kjernen, og
- * teksten om svarets virkning er arbeidsvalget 26.10 (`#lib/kjernesak/svarvirkning.ts`).
+ * teksten om svarets virkning er arbeidsvalget 26.10 (`./svaret.ts`).
  *
  * En tekst formulerer et strukturert resultat fra kjernen (et standpunkt, et beløp, et
  * brevnummer). Den finner ikke på virkningen.

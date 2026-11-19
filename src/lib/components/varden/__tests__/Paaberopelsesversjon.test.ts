@@ -81,6 +81,12 @@ describe('TE oppdaterer påberopelsen i Varden (BF-10)', () => {
     expect(skjema.getByText('Brev 3 til byggherren')).toBeTruthy();
     expect(skjema.getByText('Utkast · ikke sendt')).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/synlig for teamet/i);
+    // Brevet oppdaterer påberopelsen, ikke et krav, og byggherrens svar er ikke et tilbud
+    // (språkfila, «Brev, ikke versjon»; MM-U34 punkt 1 gjelder kravene).
+    expect(
+      skjema.getByText(/^Oppdaterer påberopelsen i brev 1\. Byggherren svarte i brev 2\.$/)
+    ).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/Oppdaterer kravet|tilbud/);
     expect(skjema.queryByRole('button', { name: 'Se brevet før sending' })).toBeNull();
     // S-3 B: teksten står slik den sist ble sendt, i ett felt, uten hjelpetekst.
     expect((teksten() as HTMLTextAreaElement).value).not.toBe('');
@@ -349,14 +355,12 @@ describe('primærhandlingen i «Det du kan gjøre nå» (#1649)', () => {
     expect(knapper.map((k) => k.textContent?.trim())).toEqual(['Svar på påberopelsen']);
   });
 
-  it('BH: «Send nytt svar» står ved byggherrens svar, med hva det gjør, og ikke under «Andre handlinger» (U-16 i BF-44)', async () => {
+  it('BH: «Send nytt svar» står ved byggherrens svar uten hjelpetekst, utenfor «Andre handlinger» (U-16 i BF-44)', async () => {
     await vis('BF-02A', 'korrigeringen-er-sendt', 'BH', 'forhold');
     const knappen = screen.getByRole('button', { name: 'Send nytt svar' });
     const raden = knappen.closest('li')!;
     expect(raden.querySelector('h4')?.textContent).toMatch(/^Svar på forholdet/);
-    expect(document.getElementById(knappen.getAttribute('aria-describedby')!)!.textContent).toBe(
-      'Nytt brev med svaret. Svaret i brev 2 står som det ble sendt.'
-    );
+    expect(knappen).not.toHaveAttribute('aria-describedby');
     const andre = screen.queryByRole('region', { name: 'Andre handlinger' });
     expect(andre && within(andre).queryByRole('button', { name: /Send nytt svar/ })).toBeFalsy();
   });
@@ -380,9 +384,9 @@ describe('primærhandlingen i «Det du kan gjøre nå» (#1649)', () => {
     expect(screen.queryByText(HANDLINGENE.ikkeBygget)).toBeNull();
   });
 
-  it('i demoruta er «Revider krav» primær etter svaret og åpner kravskjemaet for vederlaget (#1636, BF-14)', async () => {
+  it('i demoruta er «Oppdater kravet» primær etter svaret og åpner kravskjemaet for vederlaget (#1636, BF-14)', async () => {
     const kortet = await vis('BF-04', 'te-har-mottatt-svaret', 'TE', 'vederlag');
-    await fireEvent.click(kortet.getByRole('button', { name: 'Revider krav' }));
+    await fireEvent.click(kortet.getByRole('button', { name: 'Oppdater kravet' }));
     expect(
       await screen.findByRole('heading', { name: 'Vederlagsjustering', level: 3 })
     ).toBeTruthy();

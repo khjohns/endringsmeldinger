@@ -18,7 +18,6 @@
   import type { Forutsetning } from '#kjerne/spor/frist/kommando.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
-  import { VIRKNING } from '#lib/kjernesak/svarvirkning.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Forholdsgrunn from './Forholdsgrunn.svelte';
   import Gjelderhvis from './Gjelderhvis.svelte';
@@ -45,6 +44,7 @@
   import { manglene, stilt, ubesvart, ugyldig } from './svarskjema';
   import {
     BREVKONTROLL,
+    VIRKNING,
     FRISTSVAR,
     SKJEMA,
     SVARSKJEMA,
@@ -320,7 +320,7 @@
   );
 
   const virkninger = $derived([
-    ...(nyttSvar?.beslutningsgrunnlag.sammenfall ? [VIRKNING.sammenfall] : []),
+    ...(nyttSvar?.beslutningsgrunnlag.sammenfall ? [VIRKNING.sammenfall('fristforlengelse')] : []),
     ...(kjernesak.forbehold ? [VIRKNING.forbehold] : []),
     ...(nyttSvar?.standpunkter.some(
       (s) => s.art === 'rettidighet' && s.hjemmel === '33.4' && !s.iTide

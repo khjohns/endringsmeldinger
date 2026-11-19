@@ -12,7 +12,7 @@ export const BREVTYPER: { type: string; tekst: string }[] = haerdet([
   { type: 'svare', tekst: 'Svar på kravet' },
   { type: 'revidere', tekst: 'Send nytt svar' },
   { type: 'godta', tekst: 'Godta svaret' },
-  { type: 'krav', tekst: 'Send ny versjon av kravet' },
+  { type: 'krav', tekst: 'Oppdater kravet' },
   { type: 'sende_varsel', tekst: 'Send varsel' },
   { type: 'varsle', tekst: 'Registrer et varsel som er sendt på annen måte' },
   { type: 'svare_paa_foresporsel', tekst: 'Svar på forespørselen om dagene' },
@@ -36,7 +36,7 @@ export const HANDLINGENE = haerdet({
   ikkeBygget: 'Denne handlingen er ikke bygget i prøven ennå.',
   godta: (avslag: boolean) => `Godta ${avslag ? 'avslaget' : 'svaret'}`,
   /** Den nye kravversjonen etter byggherrens svar i vederlaget og fristen (oppdragsgiver 06.11, #1631). */
-  revidertKrav: 'Revider krav',
+  revidertKrav: 'Oppdater kravet',
   /** Linja under handlingen i «Andre handlinger»: hva den gjør med saken. */
   virkning: {
     godta: (svar: Brevref) =>
@@ -55,9 +55,12 @@ export const HANDLINGENE = haerdet({
             ? 'Redegjør nærmere for hvorfor dette er et forhold byggherren har risikoen for.'
             : 'Utdyp beskrivelsen og begrunnelsen. Byggherren svarer på nytt.',
     reviderKrav: 'Juster kravet eller begrunnelsen. Byggherren svarer på nytt.',
-    /** Et nytt krav i vederlaget avslår tilbudet i svaret (OV-U54, D-6 i BF-44). */
-    avslaarTilbudet: (krav: Brevref) =>
-      `Et nytt krav følger opp kravet i ${brevref(krav)} og avslår tilbudet i svaret. Svaret kan da ikke godtas.`,
+    /**
+     * Et nytt krav etter svaret: svaret kan ikke godtas her etterpå, og løsningen sier ikke hva
+     * det nye kravet betyr for svaret (MM-U34 punkt 1, D-6 i BF-44).
+     */
+    oppdatererKravet: (krav: Brevref) =>
+      `Det nye brevet oppdaterer kravet i ${brevref(krav)}. Når du sender det, kan du ikke godta svaret her.`,
     /**
      * En ny kravversjon er den byggherren svarer på, og sporet venter på nytt svar. Teksten sier
      * hvilket brev det nye følger opp, ikke hva brevene sier i forhold til hverandre, og «brev»,
@@ -69,8 +72,8 @@ export const HANDLINGENE = haerdet({
       const hva = spor === 'forhold' ? 'påberopelsen' : 'kravet';
       if (!krav) return 'Byggherren svarer på det nye brevet.';
       if (!svar)
-        return `Følger opp ${hva} i ${brevref(krav)}. Byggherren svarer på det nye brevet.`;
-      return `Følger opp ${hva} i ${brevref(krav)}. Du kan ikke lenger godta svaret i ${brevref(svar)} i denne saken. Byggherren svarer på det nye brevet.`;
+        return `Oppdaterer ${hva} i ${brevref(krav)}. Byggherren svarer på det nye brevet.`;
+      return `Oppdaterer ${hva} i ${brevref(krav)}. Du kan ikke lenger godta svaret i ${brevref(svar)} i denne saken. Byggherren svarer på det nye brevet.`;
     },
     // Et trukket forhold trekker kravene som bygger på det (GR-U5, GR-U25), og et trukket krav
     // kan ikke tas opp igjen (GR-U5).
@@ -81,7 +84,7 @@ export const HANDLINGENE = haerdet({
       'Du gir avkall på hele kravet, også det byggherren har godkjent. Kravet kan ikke tas opp igjen.',
     /** Byggherrens nye svar (U-16 i BF-44). */
     nyttSvar: (svar: Brevref) =>
-      `Nytt brev med svaret. Svaret i ${brevref(svar)} står som det ble sendt.`,
+      `Svaret i ${brevref(svar)} endres ikke. Det nye svaret sendes i et nytt brev.`,
   },
 });
 

@@ -134,7 +134,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
 
   it('den nye versjonen har postene fra forrige krav, og et trekk står i kravet og kan angres før sending (D-4, D-18, KA-U56, KA-U75)', async () => {
     const demosak = await aapneSomTe('te-har-mottatt-svaret');
-    await fireEvent.click(await screen.findByRole('button', { name: 'Revider krav' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Oppdater kravet' }));
     // KA-U56: P1 fra brev 3 står uten at TE gjør noe.
     expect(await screen.findByRole('button', { name: 'Endre P1' })).toBeTruthy();
     await fireEvent.click(knapp('Endre P1'));
@@ -168,7 +168,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
 
   it('for en ny post med justerte enhetspriser kan TE oppgi at varselet er gitt i et dokument, og dokumentet legges ved kravet (VS-U50, VS-U51, VS-U53, D-19)', async () => {
     const demosak = await aapneSomTe('te-har-mottatt-svaret');
-    await fireEvent.click(await screen.findByRole('button', { name: 'Revider krav' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Oppdater kravet' }));
     await fireEvent.click(knapp('Legg til kravpost'));
     await skriv('Beskrivelse av posten', 'Tetting av gjennomføringer');
     await fireEvent.click(screen.getByRole('radio', { name: /^Enhetspriser/ }));
@@ -176,7 +176,7 @@ describe('TE krever vederlag med kravposter i Varden (BF-14)', () => {
     await fireEvent.click(knapp('Ferdig'));
     await fireEvent.click(knapp('Endre varselet for P2'));
     await fireEvent.click(
-      screen.getByRole('radio', { name: 'I et dokument sendt utenfor løsningen' })
+      screen.getByRole('radio', { name: 'I et brev, en e-post eller et referat' })
     );
 
     // D-19, OV-U79: kravet sendes ikke uten typen, datoen, dokumentet og beskrivelsen.
@@ -419,7 +419,7 @@ describe('trekket av den særskilte vederlagsjusteringen (KA-U83, kravet i #1663
     const panel = within(screen.getByRole('complementary', { name: 'Demo av brukerforløpet' }));
     await fireEvent.click(panel.getByRole('radio', { name: 'TE' }));
     await fireEvent.click(await screen.findByRole('button', { name: /^Vederlagsjustering/ }));
-    await fireEvent.click(await screen.findByRole('button', { name: 'Revider krav' }));
+    await fireEvent.click(await screen.findByRole('button', { name: 'Oppdater kravet' }));
     await screen.findByRole('heading', { name: 'Særskilt vederlagsjustering', level: 3 });
     return () => demosak!;
   }

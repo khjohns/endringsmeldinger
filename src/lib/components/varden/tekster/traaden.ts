@@ -31,7 +31,7 @@ export const TRAADEN = haerdet({
   },
   nummer: (n: number) => `brev ${n}`,
   /** Et eldre krav, fulgt opp av et nytt brev med kravet (U-5 i BF-44). */
-  fulgtOpp: (b: Brevref) => ` · fulgt opp i ${brevref(b)}`,
+  fulgtOpp: (b: Brevref) => ` · oppdatert i ${brevref(b)}`,
   /** Avsenderen for skjermleseren, som ser ringen uten tekst (oppdragsgiver 13.11). */
   fra: (part: Part) => ` fra ${PARTEN[part]}`,
   // Samme tekst som ved brevet i skjemaene, med én kilde (#1909).

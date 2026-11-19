@@ -175,23 +175,23 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     ]);
   });
 
-  it('«Godkjente dager» står tomt fra start, og tallet velger «Som krevd», «Delvis» eller «Avslått» (U-14)', async () => {
+  it('«Godkjente dager» står tomt fra start, og tallet velger «Alle <n> dagene», «Delvis» eller «Avslått» (U-14)', async () => {
     await svarskjemaet(medFristkrav);
     const felt = screen.getByLabelText('Godkjente dager');
     expect(felt).toHaveValue('');
     await fireEvent.input(felt, { target: { value: '25' } });
-    expect(screen.getByRole('radio', { name: 'Som krevd, 25 dager' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Alle 25 dagene' })).toBeChecked();
     await fireEvent.input(felt, { target: { value: '12' } });
     expect(screen.getByRole('radio', { name: 'Delvis' })).toBeChecked();
     await radio('Avslått');
     expect(felt).toHaveValue('0');
   });
 
-  it('fristens tre valg står under hverandre med «Som krevd» først (#2183)', async () => {
+  it('fristens tre valg står under hverandre med «Alle <n> dagene» først (#2183)', async () => {
     await svarskjemaet(medFristkrav);
     const dager = screen.getByRole('group', { name: 'Hvor mange av dagene godkjenner du?' });
     const valg = within(dager).getAllByRole('radio');
-    expect(valg[0]).toHaveAccessibleName('Som krevd, 25 dager');
+    expect(valg[0]).toHaveAccessibleName('Alle 25 dagene');
     expect(valg[1]).toHaveAccessibleName('Delvis');
     expect(valg[2]).toHaveAccessibleName('Avslått');
     expect(valg[0]?.closest('.kort')).toHaveClass('stablet');

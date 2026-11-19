@@ -234,7 +234,7 @@ på kilden, men har ingen kontroller ennå.
 | [MM-U28](../../plans/vedtak.md#mm-u28) | — | — | BF-01V |
 | [MM-U32](../../plans/vedtak.md#mm-u32) | — | — | BF-01V |
 | [MM-U33](../../plans/vedtak.md#mm-u33) | — | — | BF-01V, BF-03, BF-14 |
-| [MM-U34](../../plans/vedtak.md#mm-u34) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret, BF-02C te-vil-sende-ny-versjon, BF-08 te-har-mottatt-svaret | BF-01V, BF-02B, BF-03, BF-06, BF-10 |
+| [MM-U34](../../plans/vedtak.md#mm-u34) | BF-01 te-har-mottatt-svaret, BF-01 te-har-godtatt-svaret, BF-04 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret | BF-01 te-har-mottatt-svaret, BF-02C te-vil-sende-ny-versjon, BF-08 te-har-mottatt-svaret, BF-44 te-har-mottatt-svaret | BF-01V, BF-02B, BF-03, BF-06, BF-10 |
 | [MM-U35](../../plans/vedtak.md#mm-u35) | — | BF-04 te-har-mottatt-svaret | BF-01V, BF-03, BF-06 |
 | [MM-U36](../../plans/vedtak.md#mm-u36) | — | — | BF-01V, BF-03 |
 | [MM-U37](../../plans/vedtak.md#mm-u37) | — | — | BF-01V, BF-06 |

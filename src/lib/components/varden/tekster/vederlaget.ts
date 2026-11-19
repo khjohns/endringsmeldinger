@@ -1,9 +1,9 @@
-import { liste, stor } from '#kjerne/frosset/brevdeler.ts';
+import { liste } from '#kjerne/frosset/brevdeler.ts';
 import { kroner } from '#kjerne/frosset/tekst.ts';
 import type { Oppgjoersform, Standpunkt } from '#kjerne/typer.ts';
 import type { Brevref } from '../lesing';
 import type { Innsigelsen, Svarlaget } from '../svarlagene';
-import { SKJEMA } from './svaret';
+import { SKJEMA, innsigelsenOmVarselet } from './svaret';
 import { brevref, brevrefStor } from './felles';
 import { dato, hjemmelsmerke, punkt, haerdet } from './format';
 import { grunntekst, standpunkttekst } from './standpunkt';
@@ -37,7 +37,7 @@ export const VEDERLAGET = haerdet({
     i.art === 'grunn'
       ? SKJEMA.grunnen(i.grunn, i.brev)
       : i.art === 'varsel'
-        ? `innsigelsen om varselet etter ${punkt(i.hjemmel)}`
+        ? innsigelsenOmVarselet(i.hjemmel)
         : `innsigelsen om ${i.art === 'spesifisering' ? 'spesifiseringen' : 'hindringen'}`,
   /** Vilkåret ved beløpet i et lag: «Hvis innsigelsen … ikke fører frem» (U-2, LV-U4 punkt 4). */
   vilkaar: (innsigelser: string[], heller: boolean) =>
@@ -69,8 +69,8 @@ export const VEDERLAGET = haerdet({
   /** Hva som skiller svaret fra kravet om ingen av innsigelsene fører frem (U-2). */
   skiller: (beloep: number, flereLag: boolean) =>
     flereLag
-      ? `Om ingen av byggherrens innsigelser fører frem, skiller ${kroner(beloep)} svaret fra kravet.`
-      : `${stor(kroner(beloep))} skiller svaret fra kravet.`,
+      ? `Hvis ingen av byggherrens innsigelser fører frem, er svaret ${kroner(beloep)} lavere enn kravet.`
+      : `Svaret er ${kroner(beloep)} lavere enn kravet.`,
   eksMva: 'Beløpene er eks. mva.',
   perPost: 'Per post',
   post: 'Post',

@@ -124,7 +124,7 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     // Forbeholdet står også før brevet kan lages, så teksten ikke blir borte.
     expect(screen.getByLabelText('Forbehold for hele svaret, Valgfri')).toBeInTheDocument();
     await radio('Nei');
-    await radio('Enig, endringsordre');
+    await radio('Enig. Svaret er en endringsordre');
     expect(overskrift).toHaveTextContent(/^Svar på forholdet i sak KOE-17$/);
     expect(screen.getByRole('heading', { name: 'Begrunnelse' })).toBeInTheDocument();
     expect(screen.getByLabelText('Forbehold for hele svaret, Valgfri')).toBeInTheDocument();
@@ -161,7 +161,7 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
   it('godkjenning uten påberopt preklusjon er en endringsordre, og skjemaet viser setningen med sitatet før sending (D-3, U-5)', async () => {
     const sendt = await svarskjemaet(medGrunnlag);
     await radio('Nei');
-    await radio('Enig, endringsordre');
+    await radio('Enig. Svaret er en endringsordre');
     expect(screen.getByText('Svaret er en endringsordre')).toBeInTheDocument();
     expect(
       screen.getByText(/punkt 32\.3 første ledd a.*«BH påla ny peling\.»/s)
@@ -179,7 +179,9 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     await radio('Ja, varselet kom for sent');
     await radio('Enig i at pålegget innebærer en endring');
     await radio('Nei');
-    expect(screen.getByRole('radio', { name: 'Enig, endringsordre' })).not.toBeChecked();
+    expect(
+      screen.getByRole('radio', { name: 'Enig. Svaret er en endringsordre' })
+    ).not.toBeChecked();
     expect(screen.queryByText('Svaret er en endringsordre')).not.toBeInTheDocument();
     await seBrevet();
     expect(sendt).toHaveLength(0);
@@ -188,11 +190,11 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     ).toBeInTheDocument();
   });
 
-  it('svarer byggherren på forholdet før varselet, står «Enig, endringsordre» når svaret om varselet er «Nei» (U-4)', async () => {
+  it('svarer byggherren på forholdet før varselet, står «Enig. Svaret er en endringsordre» når svaret om varselet er «Nei» (U-4)', async () => {
     await svarskjemaet(medGrunnlag);
-    await radio('Enig, endringsordre');
+    await radio('Enig. Svaret er en endringsordre');
     await radio('Nei');
-    expect(screen.getByRole('radio', { name: 'Enig, endringsordre' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Enig. Svaret er en endringsordre' })).toBeChecked();
   });
 
   it('når varselet påberopes for sent, er frafall ikke et valg, og skjemaet sier hvorfor (D-6, U-4)', async () => {

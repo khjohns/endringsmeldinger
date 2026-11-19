@@ -238,14 +238,17 @@ describe('Siden for fristforlengelsen', () => {
     ]);
     const overtakelse = within(per.getByRole('region', { name: /^Frist 2\s+Overtakelse$/ }));
     expect(
-      overtakelse.getByText(/Gjeldende frist 26\. august 2027: 16\. august i kontrakten/)
-        .textContent
-    ).toMatch(/forlenget 10 dager i sak\s*KOE-9\.$/);
+      overtakelse.getByText(
+        /Gjeldende frist er 26\. august 2027\. I kontrakten er fristen 16\. august/
+      ).textContent
+    ).toMatch(/Sak\s+KOE-9\s+forlenget fristen med 10 dager\.$/);
     expect(overtakelse.getByRole('link', { name: 'KOE-9' }).getAttribute('href')).toBe('/p/annen');
     expect(overtakelse.getByText(/ny frist 15\. september 2027/)).toBeTruthy();
     expect(overtakelse.getByText(/ny frist 9\. september 2027/)).toBeTruthy();
     const mekanisk = within(per.getByRole('region', { name: /^Frist 3\s+Mekanisk/ }));
-    expect(mekanisk.getByText('Gjeldende frist 1. juni 2027, som i kontrakten.')).toBeTruthy();
+    expect(
+      mekanisk.getByText('Gjeldende frist er 1. juni 2027. Det er datoen i kontrakten.')
+    ).toBeTruthy();
     expect(
       mekanisk.getByText(
         'Videre subsidiært avslår byggherren dagene for fristen: Fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet.'
@@ -276,11 +279,11 @@ async function demosaken(punkt: string, part: Part) {
 }
 
 describe('Handlingene på siden for fristforlengelsen (U-6, D-12)', () => {
-  it('«Revider krav» står ved svaret med linja om fristene, og forseringen står foran «Trekk kravet» (svar 3 A og 4 A, FO-U1, OV-U2)', async () => {
+  it('«Oppdater kravet» står ved svaret med linja om fristene, og forseringen står foran «Trekk kravet» (svar 3 A og 4 A, FO-U1, OV-U2)', async () => {
     await demosaken('te-har-mottatt-svaret', 'TE');
     const revider = screen.getByRole('button', { name: HANDLINGENE.revidertKrav });
     expect(revider.closest('li')?.textContent).toContain('Svar på krav om fristforlengelse');
-    expect(screen.getByText(new RegExp(FRISTEN.endreEllerTaUt))).toBeTruthy();
+    expect(screen.queryByText(new RegExp(FRISTEN.endreEllerTaUt))).toBeNull();
     const andre = within(screen.getByRole('region', { name: HANDLINGENE.andre }));
     const rader = andre.getAllByRole('button').map((b) => b.textContent ?? '');
     expect(rader.findIndex((t) => t.includes('Anse avslaget som pålegg om forsering'))).toBe(
@@ -333,7 +336,7 @@ describe('Byggherrens forespørsel etter punkt 33.6.2 (U-6, U-9, D-10)', () => {
     );
     const svar = screen.getByRole('button', { name: FRISTEN.svarPaaForesporsel });
     expect(svar.closest('li')).toBe(veiledning.closest('li'));
-    expect(screen.getByText(utenHardeMellomrom(FRISTEN.virkningForesporsel))).toBeTruthy();
+    expect(screen.queryByText(utenHardeMellomrom(FRISTEN.virkningForesporsel))).toBeNull();
     const kortet = within(screen.getByRole('region', { name: FRISTEN.utenKrav }));
     expect(kortet.getByText(/^Dagene er ikke angitt\. Totalentreprenøren varslet i /)).toBeTruthy();
   });

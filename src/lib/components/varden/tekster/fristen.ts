@@ -36,14 +36,15 @@ export const FRISTEN = haerdet({
   kravdagene: (frister: { nummer: string | null; navn: string; dager: number }[]) =>
     frister.map((f) => `${f.nummer ? `Frist ${f.nummer}` : f.navn}: ${dager(f.dager)}.`).join(' '),
   /** Varselet etter punkt 33.4 uten dager ved brevet i tråden (U-8). */
-  varselUtenDager: 'Varsel etter punkt 33.4, uten dager.',
+  varselUtenDager: 'Varsel etter punkt 33.4. Antall dager er ikke oppgitt.',
   kalenderdager: 'Dagene er kalenderdager. Ny frist er regnet fra gjeldende frist.',
   /** Gjeldende frist uten forlengelser i andre saker (U-5). */
-  somIKontrakten: (d: string) => `Gjeldende frist ${dato(d)}, som i kontrakten.`,
+  somIKontrakten: (d: string) => `Gjeldende frist er ${dato(d)}. Det er datoen i kontrakten.`,
   /** Gjeldende frist med forlengelsene i andre saker, før lenkene til sakene (U-5). */
   forlenget: (d: string, iKontrakten: string) =>
-    `Gjeldende frist ${dato(d)}: ${datoUtenAar(iKontrakten, d)} i kontrakten, forlenget`,
-  forlengelsen: (n: number) => `${dager(n)} i sak`,
+    `Gjeldende frist er ${dato(d)}. I kontrakten er fristen ${datoUtenAar(iKontrakten, d)}.`,
+  forlengelsen: (n: number) => `forlenget fristen med ${dager(n)}.`,
+  sak: 'Sak',
   ukjent: (iKontrakten: string) =>
     `Fristen er ${dato(iKontrakten)} i kontrakten. Gjeldende frist kan ikke regnes nå, fordi en annen sak i prosjektet ikke kan leses.`,
   ikkeRegistrert: 'Gjeldende frist er ikke kjent, fordi fristen ikke er registrert for prosjektet.',
@@ -85,7 +86,7 @@ export const FRISTEN = haerdet({
   avslag: (etikett: string | null, begrunnelse: string | null) =>
     `${etikett ? `${stor(etikett)} avslår byggherren` : 'Byggherren avslår'} dagene for fristen` +
     (begrunnelse ? `: ${begrunnelse}` : '.'),
-  /** Linja under «Revider krav» (U-6, svar 4 A). */
+  /** Linja under «Oppdater kravet» (U-6, svar 4 A). */
   endreEllerTaUt: 'I det nye kravet kan du endre dagene eller ta ut en frist.',
   /** Handlingen under forespørselen etter punkt 33.6.2 (U-6), og linja under den (BF-20). */
   svarPaaForesporsel: 'Svar på forespørselen',

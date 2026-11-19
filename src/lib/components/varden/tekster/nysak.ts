@@ -35,11 +35,13 @@ export const NYSAK = haerdet({
   vedleggFeilet: (filnavn: string, melding: string) => `${filnavn} ble ikke lastet opp. ${melding}`,
   ventPaaOpplastingen: 'Vent til vedleggene er lastet opp.',
   // Spørsmålet sier «pålegget» eller «forholdet», som ledetekstene (F-5).
+  ja: 'Ja',
+  nei: 'Nei',
   alleredeVarslet: (paalegg: boolean) =>
-    `Har du allerede varslet byggherren etter punkt 32.2, på annen måte, at ${paalegg ? 'pålegget' : 'forholdet'} er en endring?`,
+    `Har du allerede varslet byggherren på annen måte etter punkt 32.2 om at ${paalegg ? 'pålegget' : 'forholdet'} er en endring?`,
   // Varselet som alt er sendt (VS-U38), med feltene i `KORRESPONDANSEN`.
   varselMerknad:
-    'Varselet legges til i saken sammen med påberopelsen, og dokumentet legges ved brevet.',
+    'Varselet legges til i saken sammen med påberopelsen. Dokumentet legges ved brevet.',
   /** LV-U46: en annen sak fikk nummeret før brevet ble sendt. */
   ingenMerking: 'Sakens nummer kunne ikke hentes, så brevet kan ikke vises.',
   // Varselet lagres når påberopelsen har setningen etter VS-U38 (#1488).

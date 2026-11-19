@@ -512,8 +512,8 @@
                 navn={id('varslet')}
                 spoersmaal={NYSAK.alleredeVarslet(felt.beskrivelse.endsWith('pålegget'))}
                 valg={[
-                  { verdi: false, tekst: 'Nei' },
-                  { verdi: true, tekst: 'Ja' },
+                  { verdi: true, tekst: NYSAK.ja },
+                  { verdi: false, tekst: NYSAK.nei },
                 ]}
                 bind:verdi={alleredeVarslet}
                 beskrevetAv={id('kapittel-b')}
