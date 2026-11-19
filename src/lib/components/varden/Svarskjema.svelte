@@ -13,6 +13,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { SVARTITTEL } from '#kjerne/frosset/brevtittel.ts';
+  import { FORBEHOLDET, FORHOLDET } from '#kjerne/frosset/tekst.ts';
   import type { Spor } from '#kjerne/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { brevaarsak, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
@@ -29,9 +30,12 @@
   import {
     begrunnelsespunktene,
     kravbrevetI,
+    panelpunktene,
+    punktoverskriftene,
     type Begrunnelsespunkt,
     type BegrunnelseISkjemaet,
     type Postvelger,
+    type Skjemapunkt,
   } from './svarskjema';
   import { HOVEDLINJER, LEGG_TIL, SKJEMA, SVARSKJEMA } from './tekster';
   import { lagtTil as kommandoenLagtTil, type Korrespondansevalg } from './korrespondansen';
@@ -54,6 +58,7 @@
     stopp = null,
     begrunnelseKreves = null,
     begrunnelserISkjemaet = [],
+    skjemapunkter,
     onbrevkontroll,
     onforkast,
     onvedsiden,
@@ -87,13 +92,20 @@
     begrunnelseKreves?: { punktene: readonly string[]; grunn: string; mangler: string } | null;
     /** Brevpunktene skjemaet har plass til og om de er besvart før kjernen kan lage brevet. */
     begrunnelserISkjemaet?: readonly BegrunnelseISkjemaet[];
+    skjemapunkter: readonly Skjemapunkt[];
     onbrevkontroll: (k: TilBrevkontrollen) => void;
     /** BH har bekreftet at utkastet skal forkastes. */
     onforkast: () => void;
     /** Brevet leses i en ramme ved siden av skjemaet, eller ikke lenger. */
     onvedsiden?: (vedSiden: boolean) => void;
     /** Spørsmålene, med beskjeden for feltet med ID-en når BH har prøvd å se brevet. */
-    spoersmaal: Snippet<[feil: (id: string) => string | null, begrunnelse: Snippet<[string]>]>;
+    spoersmaal: Snippet<
+      [
+        feil: (id: string) => string | null,
+        begrunnelse: Snippet<[string]>,
+        overskrift: (punkt: string) => string | undefined,
+      ]
+    >;
     /**
      * Korrespondansen svaret legges til fra (OV-U80, OV-U98), eller `null` for et svar sendt fra
      * løsningen. Svaret har da ingen begrunnelse og ikke noe forbehold (OV-U80), og løsningen lager
@@ -119,6 +131,40 @@
   const utkastbrev = $derived(kjernesak.brev(utkast));
   const brevMedTekst = $derived(harTekst(utkastbrev) ? utkastbrev : null);
   const punktene = $derived(brevMedTekst ? begrunnelsespunktene(brevMedTekst.avsnitt) : []);
+  const medForbehold = $derived(
+    brevMedTekst && tekster.forbehold.trim()
+      ? kjernesak.brev(medTekstene(punktene.map((p) => p.punkt)))
+      : null
+  );
+  const overskriftene = $derived(
+    punktoverskriftene((harTekst(medForbehold) ? medForbehold : brevMedTekst)?.avsnitt)
+  );
+  const overskrift = (punkt: string) => overskriftene.get(punkt);
+  const feltpunktene = $derived(
+    panelpunktene(
+      lagtTil || stopp !== null
+        ? skjemapunkter
+        : [
+            ...skjemapunkter,
+            {
+              punkt: FORBEHOLDET,
+              navn: SKJEMA.forbehold,
+              linjer: [
+                {
+                  tekst: tekster.forbehold.trim()
+                    ? SKJEMA.skrevet
+                    : overskriftene.has(FORBEHOLDET)
+                      ? SKJEMA.staarIBrevet
+                      : SKJEMA.ikkeSkrevet,
+                  lag: null,
+                },
+              ],
+            },
+          ],
+      overskriftene
+    )
+  );
+  const tidligereForhold = $derived(skjemapunkter.find((p) => p.punkt === FORHOLDET));
   const feltene = $derived(
     brevMedTekst ? punktene : begrunnelserISkjemaet.filter((punkt) => punkt.besvart)
   );
@@ -267,7 +313,7 @@
   kompakt={{ etikett: SVARSKJEMA.kompaktLinje, innhold: kompaktLinje }}
 >
   {#snippet panel(sendeknapp)}
-    <Hovedlinjer {linjer} {alternativer} handling={sendeknapp} />
+    <Hovedlinjer {linjer} {alternativer} punkter={feltpunktene} handling={sendeknapp} />
   {/snippet}
   {#snippet tidslinje()}<Tidslinje brev={sporbrev} {datoer} />{/snippet}
 
@@ -276,7 +322,13 @@
       <p>{stopp}</p>
     </div>
   {:else}
-    {@render spoersmaal(feil, begrunnelse)}
+    {#if tidligereForhold}
+      <p class="fast-punkt">
+        <strong>{overskrift(FORHOLDET) ?? tidligereForhold.navn}</strong>
+        {#each tidligereForhold.linjer ?? [] as l, i (i)}<span>{l.tekst}</span>{/each}
+      </p>
+    {/if}
+    {@render spoersmaal(feil, begrunnelse, overskrift)}
 
     {#if kommandoLagtTil}
       <Lagttilmerknader
@@ -303,7 +355,7 @@
         <div class="forbehold">
           <Tekstomraade
             id={`${uid}-forbehold`}
-            etikett={SKJEMA.forbehold}
+            etikett={overskrift(FORBEHOLDET) ?? SKJEMA.forbehold}
             valgfri
             hjelp={SKJEMA.forbeholdHjelp}
             bind:verdi={tekster.forbehold}
@@ -315,6 +367,15 @@
 </Brevskjema>
 
 <style>
+  .fast-punkt {
+    padding: var(--spacing-3) var(--spacing-6);
+    border-bottom: var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1) var(--spacing-2);
+    color: var(--ink-3);
+    font-size: 14px;
+  }
   .begrunnelser {
     padding: var(--spacing-5) var(--spacing-6);
     display: flex;

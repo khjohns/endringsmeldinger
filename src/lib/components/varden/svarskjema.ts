@@ -71,6 +71,36 @@ export interface BegrunnelseISkjemaet extends Begrunnelsespunkt {
   besvart: boolean;
 }
 
+/** Et punkt i panelet med svaret eller statusen slik den står i skjemaet. */
+export interface Skjemapunkt {
+  punkt: string;
+  navn: string;
+  linjer?: readonly { tekst: string; lag: string | null }[];
+  aktiv?: boolean;
+}
+
+/** Inneholder brevets egne nummer og ordlyd for punkter som har overskrift. */
+export const punktoverskriftene = (avsnitt: readonly Avsnitt[] = []) =>
+  new Map(
+    avsnitt.flatMap(({ punkt, overskrift }) =>
+      punkt && overskrift ? [[punkt, overskrift] as const] : []
+    )
+  );
+
+export function panelpunktene(
+  punkter: readonly Skjemapunkt[],
+  overskrifter: ReadonlyMap<string, string>
+): Skjemapunkt[] {
+  return [
+    ...[...overskrifter].map(([punkt, navn]) => ({
+      ...punkter.find((p) => p.punkt === punkt),
+      punkt,
+      navn,
+    })),
+    ...punkter.filter((p) => !overskrifter.has(p.punkt)),
+  ];
+}
+
 export const begrunnelserForTemaene = (
   temaene: readonly Tema[],
   besvart: (punkt: string) => boolean

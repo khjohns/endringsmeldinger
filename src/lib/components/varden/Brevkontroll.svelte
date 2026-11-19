@@ -152,6 +152,7 @@
   });
   let manglerKontroll = $state(false);
   let avkrysning = $state<HTMLInputElement | null>(null);
+  let sendeknappensHoeyde = $state(0);
   let stegviseren = $state<HTMLOListElement | null>(null);
   // Bare en feil fra sendingen her vises, ikke en som står igjen fra et tidligere forsøk (#1393).
   let harSendt = $state(false);
@@ -182,7 +183,7 @@
   }
 </script>
 
-<div class="kontroll">
+<div class="kontroll" style:--sendeknappens-hoeyde={`${sendeknappensHoeyde}px`}>
   <!-- Lenken står over begge kolonnene, så brevet og sendepanelet begynner på samme høyde. -->
   {#if visTilbake && !proevIgjen}<p class="tilbake">
       <Knapp variant="lenke" onclick={tilbake}
@@ -251,14 +252,16 @@
       {#if manglerKontroll && !kontrollert}<p id={`${uid}-hvorfor-ikke-send`} class="feilmelding">
           {BREVKONTROLL.hvorforIkke}
         </p>{/if}
-      <Knapp variant="primaer" opptatt={kjernesak.sender} onclick={send}>
-        <Send size={16} aria-hidden="true" />
-        {kjernesak.sender
-          ? BREVKONTROLL.sender
-          : proevIgjen
-            ? USIKKERT_UTFALL.proevIgjen
-            : sendTekst}
-      </Knapp>
+      <div class="sendeknapp" bind:offsetHeight={sendeknappensHoeyde}>
+        <Knapp variant="primaer" opptatt={kjernesak.sender} onclick={send}>
+          <Send size={16} aria-hidden="true" />
+          {kjernesak.sender
+            ? BREVKONTROLL.sender
+            : proevIgjen
+              ? USIKKERT_UTFALL.proevIgjen
+              : sendTekst}
+        </Knapp>
+      </div>
       {#if proevIgjen && !kjernesak.sender}
         <Melding art="info" role="alert">
           <strong>{USIKKERT_UTFALL.tittel}</strong>
@@ -358,9 +361,17 @@
     background: var(--danger-bg);
   }
   .send {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    background: var(--surface);
+    border-radius: 0 0 var(--r-kort) var(--r-kort);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-3);
+  }
+  .sendeknapp {
+    display: grid;
   }
   .avkryss {
     display: flex;
@@ -391,6 +402,22 @@
   @media (max-width: 1180px) {
     .kontroll {
       grid-template-columns: minmax(0, 1fr);
+      padding-bottom: var(--sendeknappens-hoeyde);
+    }
+    .send {
+      position: static;
+    }
+    .sendeknapp {
+      position: fixed;
+      inset: auto 0 0;
+      z-index: 20;
+      padding: var(--spacing-3) var(--spacing-6);
+      padding-bottom: max(var(--spacing-3), env(safe-area-inset-bottom));
+      background: var(--surface);
+      border-top: var(--rule-strong);
+    }
+    .kontroll :global(:focus-visible) {
+      scroll-margin-bottom: var(--sendeknappens-hoeyde);
     }
   }
 </style>

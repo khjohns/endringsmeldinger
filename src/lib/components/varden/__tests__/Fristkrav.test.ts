@@ -142,8 +142,19 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
     await skriv(await screen.findByLabelText('Navnet i kontrakten'), 'Sluttfristen');
     await skriv(screen.getByLabelText('Antall dager du krever'), '10');
     await skriv(screen.getByRole('textbox', { name: 'Begrunnelse' }), 'Pelingen tar lenger tid.');
+    const seksjonene = screen
+      .getAllByRole('heading', { level: 3, name: /^\d+\./ })
+      .map((h) => h.textContent);
+    expect(seksjonene).toEqual(
+      expect.arrayContaining([expect.stringMatching(/^\d+\. Fristforlengelse$/)])
+    );
+    const panel = within(screen.getByRole('region', { name: 'Punktene i brevet' }));
+    expect(panel.getByText(/^\d+\. Fristforlengelse$/)).toBeVisible();
     await seBrevet();
     expect(sendt).toHaveLength(1);
+    expect(seksjonene).toEqual(
+      sendt[0]!.avsnitt.flatMap((a) => (a.overskrift ? [a.overskrift] : []))
+    );
     expect(sendt[0]!.kommando).toMatchObject({
       type: 'krav',
       spor: 'frist',

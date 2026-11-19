@@ -58,8 +58,9 @@
   .spoersmaal.aktiv {
     box-shadow: inset 3px 0 0 var(--ink);
   }
-  .spoersmaal.aktiv h3 {
+  .spoersmaal.aktiv :global(legend) {
     font-size: 20px;
+    line-height: 1.3;
   }
   .sp-hode {
     display: flex;

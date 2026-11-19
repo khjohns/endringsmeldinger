@@ -14,6 +14,7 @@
   import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import type { Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { harTekst } from '#lib/kjernesak/brevtekst.ts';
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Brevskjema from './Brevskjema.svelte';
   import Gjeldendefrist from './Gjeldendefrist.svelte';
@@ -47,6 +48,7 @@
   } from './fristkrav';
   import { gjeldendeFrist, nyFrist, sakensNavn, type GjeldendeFrist } from './fristoversikt';
   import { heleDager } from './fristsvar';
+  import { panelpunktene, punktoverskriftene } from './svarskjema';
   import { vedleggsgrense, vedleggskart } from './nysak';
   import {
     brevMedUtsagn,
@@ -60,6 +62,7 @@
     HOVEDLINJER,
     LEGG_TIL,
     SKJEMA,
+    brevref,
     dagensDato,
     dato,
     kalenderdager,
@@ -213,6 +216,25 @@
     lagtTil ? kommandoenLagtTil(fristkravet(gjeldende) as { type: 'krav' }, lagtTil) : null
   );
   const vedleggLagtTil = $derived(vedleggskart(lagtTil?.vedlegg ?? []));
+  const kommando = $derived(fristkravet(gjeldende, foresporsel));
+  const vedlegg = $derived(vedleggIFristkravet(gjeldende));
+  const overskriftene = $derived.by(() => {
+    const brev =
+      lagtTil || registreres || mangler.length ? null : kjernesak.brev(kommando, vedlegg);
+    return punktoverskriftene(harTekst(brev) ? brev.avsnitt : undefined);
+  });
+  const foersteMangel = $derived(mangler[0]);
+  const ventendePunkt = $derived(
+    !foersteMangel
+      ? undefined
+      : foersteMangel.felt === id('grunn-b')
+        ? 'grunn-b'
+        : foersteMangel.felt === id('begrunnelse')
+          ? 'begrunnelse'
+          : foersteMangel.post || foersteMangel.felt === id('legg-til')
+            ? 'frister'
+            : '33.4'
+  );
   const flyt = sendeflyt(() => kjernesak, id('hindring'));
   const feil = (felt: string): string | null => flyt.feil(mangler.find((m) => m.felt === id(felt)));
   const begrunnelseFeil = $derived(feil('begrunnelse'));
@@ -231,6 +253,71 @@
           lag: null,
         }))
       : [{ tekst: FRISTKRAV.dette[modus], lag: null }]
+  );
+  const skjemapunkter = $derived(
+    panelpunktene(
+      [
+        ...(!lagtTil && (!bokstavB || varselbrev)
+          ? [
+              {
+                punkt: '33.4',
+                navn: FRISTKRAV.varselTittel,
+                aktiv: ventendePunkt === '33.4',
+                linjer: [
+                  {
+                    tekst: varsel
+                      ? FRISTKRAV.dette.varsel
+                      : varselbrev
+                        ? brevref(varselbrev)
+                        : utenfor
+                          ? FRISTKRAV.gittFoer
+                          : KRAVSKJEMA.gisIBrevet,
+                    lag: null,
+                  },
+                ],
+              },
+            ]
+          : []),
+        ...(bokstavB
+          ? [
+              {
+                punkt: 'grunn-b',
+                navn: FRISTKRAV.grunnBTittel,
+                aktiv: ventendePunkt === 'grunn-b',
+                linjer: [
+                  { tekst: v.grunnB.trim() ? SKJEMA.skrevet : SKJEMA.ikkeSkrevet, lag: null },
+                ],
+              },
+            ]
+          : []),
+        ...(!varsel && !bokstavB
+          ? [
+              {
+                punkt: 'frister',
+                navn: FRISTKRAV.fristerTittel,
+                aktiv: ventendePunkt === 'frister',
+                linjer,
+              },
+              ...(!lagtTil
+                ? [
+                    {
+                      punkt: 'begrunnelse',
+                      navn: FRISTKRAV.begrunnelseTittel,
+                      aktiv: ventendePunkt === 'begrunnelse',
+                      linjer: [
+                        {
+                          tekst: v.begrunnelse.trim() ? SKJEMA.skrevet : SKJEMA.ikkeSkrevet,
+                          lag: null,
+                        },
+                      ],
+                    },
+                  ]
+                : []),
+            ]
+          : []),
+      ],
+      overskriftene
+    )
   );
   // Kalenderdagene fra datoen TE oppgir, til varselet eller i dag. Løsningen vurderer dem ikke.
   const dagerEtterKlarOver = $derived.by(() => {
@@ -383,8 +470,6 @@
   );
 
   function seBrevet() {
-    const kommando = fristkravet(gjeldende, foresporsel);
-    const vedlegg = vedleggIFristkravet(gjeldende);
     return flyt.send({
       mangler: mangler.length ? () => oppsummering : null,
       lagtTil: kommandoLagtTil
@@ -628,6 +713,7 @@
   {#snippet panel(sendeknapp)}
     <Hovedlinjer
       {linjer}
+      punkter={skjemapunkter}
       alternativer={false}
       handling={sendeknapp}
       tittel={FRISTKRAV.punktene}
@@ -682,7 +768,12 @@
   {/if}
 
   {#if !lagtTil && (!bokstavB || varselbrev)}
-    <Spoersmaal id={id('sp-varsel')} tittel={FRISTKRAV.varselTittel} hjemmel={['33.4']}>
+    <Spoersmaal
+      id={id('sp-varsel')}
+      tittel={overskriftene.get('33.4') ?? FRISTKRAV.varselTittel}
+      aktiv={ventendePunkt === '33.4'}
+      hjemmel={['33.4']}
+    >
       <p class="dempet">{varsel ? FRISTKRAV.varselAleneHjelp : FRISTKRAV.varselHjelp}</p>
       {#if klarOver}
         <dl class="klar-over">
@@ -744,6 +835,7 @@
     <Spoersmaal
       id={id('sp-grunn-b')}
       tittel={FRISTKRAV.grunnBTittel}
+      aktiv={ventendePunkt === 'grunn-b'}
       hjemmel={['33.6.2 annet ledd b']}
     >
       <Tekstomraade
@@ -761,7 +853,8 @@
   {#if !varsel && !bokstavB}
     <Spoersmaal
       id={id('sp-frister')}
-      tittel={FRISTKRAV.fristerTittel}
+      tittel={overskriftene.get('frister') ?? FRISTKRAV.fristerTittel}
+      aktiv={ventendePunkt === 'frister'}
       hjemmel={[hindringPunkt, '33.6.1']}
     >
       <p class="dempet">{FRISTKRAV.fristerHjelp}</p>
@@ -800,7 +893,8 @@
       />
     {:else}<Spoersmaal
         id={id('sp-begrunnelse')}
-        tittel={FRISTKRAV.begrunnelseTittel}
+        tittel={overskriftene.get('begrunnelse') ?? FRISTKRAV.begrunnelseTittel}
+        aktiv={ventendePunkt === 'begrunnelse'}
         hjemmel={['33.5', '33.6.1']}
       >
         <div class="dempet" id={id('begrunnelse-hjelp')}>

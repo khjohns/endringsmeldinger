@@ -18,6 +18,7 @@
     hvaKravetEr,
     handling,
     aktiv = null,
+    venter = null,
     status,
   }: {
     punkter: {
@@ -42,6 +43,8 @@
     handling: Snippet;
     /** Punktet for avsnittet som er i syne. */
     aktiv?: string | null;
+    /** Det første punktet som trenger et svar. */
+    venter?: string | null;
     /** Teksten under knappen når parten legger til et krav (OV-U80). */
     status?: string;
   } = $props();
@@ -55,7 +58,11 @@
   </div>
   <ol class="punkter">
     {#each punkter as p (p.id)}
-      <li class:aktiv={aktiv === p.id}>
+      <li
+        class:aktiv={aktiv === p.id}
+        class:venter={venter === p.id}
+        aria-current={venter === p.id ? 'step' : undefined}
+      >
         <div class="innhold">
           <a href={`#${p.id}`} aria-current={aktiv === p.id ? 'location' : undefined}>{p.tittel}</a>
           <span class="status">{p.status}</span>
@@ -215,6 +222,9 @@
   }
   .punkter > li.aktiv {
     background: var(--surface-selected);
+    border-left-color: var(--ink);
+  }
+  .punkter > li.venter {
     border-left-color: var(--ink);
   }
   .punkter > li.aktiv > .innhold > a {

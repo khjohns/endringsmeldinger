@@ -55,6 +55,7 @@
     type Brevref,
   } from './lesing';
   import { dagensDato, kalenderdager, KRAVSKJEMA, LEGG_TIL } from './tekster';
+  import { punktoverskriftene } from './svarskjema';
   import {
     PNS_GRENSE,
     fordelingenPaaPns,
@@ -242,6 +243,13 @@
 
   // Det som mangler vises først når TE har prøvd å se brevet (MM-U32).
   const mangler = $derived(manglerIKravet(v, varslene, uid, navnet));
+  const iVarselseksjonen = (m: Mangel) => /-(varsel|type|dato|dokument)-/.test(m.felt);
+  const ventendePunkt = $derived.by(() => {
+    if (mangler.some((m) => m.felt !== id('saerskilt') && !iVarselseksjonen(m)))
+      return id('postene');
+    if (mangler.some((m) => m.felt === id('saerskilt'))) return id('saerskilt-seksjon');
+    return mangler.length ? id('varslene') : null;
+  });
   const flyt = sendeflyt(() => kjernesak, id('hindring'));
   const feil = (felt: string): string | null => flyt.feil(mangler.find((m) => m.felt === id(felt)));
   let oppsummering = $state<HTMLElement | null>(null);
@@ -254,7 +262,7 @@
     }
     if (m.post === null) return;
     const p = v.poster.find((q) => q.noekkel === m.post)!;
-    const iVarselet = /-(varsel|type|dato|dokument)-/.test(m.felt);
+    const iVarselet = iVarselseksjonen(m);
     e.preventDefault();
     if (iVarselet) aapentVarsel = p.noekkel;
     else aapen = p.noekkel;
@@ -382,13 +390,7 @@
   // Skjemaets plassering gir derfor ikke punktnummeret. Det leses av brevets overskrift.
   const overskrifterIBrevet = $derived.by(() => {
     const brev = lagtTil || mangler.length ? null : kjernesak.brev(kommando, vedlegg);
-    return new Map(
-      harTekst(brev)
-        ? brev.avsnitt.flatMap(({ punkt, overskrift }) =>
-            punkt && overskrift ? [[punkt, overskrift] as const] : []
-          )
-        : []
-    );
+    return punktoverskriftene(harTekst(brev) ? brev.avsnitt : undefined);
   });
   const posttittel = $derived(
     [...overskrifterIBrevet].find(([punkt]) => erKravpostpunkt(punkt))?.[1] ?? KRAVSKJEMA.postene
@@ -401,6 +403,20 @@
   );
   const varseletsTittel = (hjemmel: '34.1.2' | '34.1.3') =>
     overskrifterIBrevet.get(hjemmel) ?? KRAVSKJEMA.varselnavn[hjemmel];
+  const brevpunkteneOmVarsler = $derived(
+    (['34.1.2', '34.1.3'] as const).flatMap((hjemmel) => {
+      const tittel = overskrifterIBrevet.get(hjemmel);
+      return tittel
+        ? [
+            {
+              id: id(`varsel-${hjemmel}`),
+              tittel,
+              status: varselI(hjemmel === '34.1.2' ? vederlagsvarselet : saerskiltvarselet),
+            },
+          ]
+        : [];
+    })
+  );
   const punkter = $derived([
     {
       id: id('postene'),
@@ -428,11 +444,15 @@
           },
         ]
       : []),
-    {
-      id: id('varslene'),
-      tittel: KRAVSKJEMA.varslene,
-      status: KRAVSKJEMA.antallVarsler(antallVarsler, iBrevet, !!lagtTil),
-    },
+    ...(brevpunkteneOmVarsler.length
+      ? brevpunkteneOmVarsler
+      : [
+          {
+            id: id('varslene'),
+            tittel: KRAVSKJEMA.varslene,
+            status: KRAVSKJEMA.antallVarsler(antallVarsler, iBrevet, !!lagtTil),
+          },
+        ]),
     // OV-U80: et krav lagt til har ikke noe forbehold.
     ...(lagtTil
       ? []
@@ -798,6 +818,7 @@
     <Kravpunkter
       {punkter}
       aktiv={aktivtPunkt}
+      venter={ventendePunkt}
       faste={summer.faste}
       anslag={summer.anslag}
       {pns}
@@ -814,6 +835,7 @@
   <section
     class="seksjon"
     id={id('postene')}
+    class:venter={ventendePunkt === id('postene')}
     aria-labelledby={`${id('postene-tittel')} ${id('postene-hjemmel')}`}
   >
     <div class="seksjonshode">
@@ -864,6 +886,7 @@
     <section
       class="seksjon"
       id={id('saerskilt-seksjon')}
+      class:venter={ventendePunkt === id('saerskilt-seksjon')}
       aria-labelledby={`${id('saerskilt-tittel')} ${id('saerskilt-hjemmel')}`}
     >
       <div class="seksjonshode">
@@ -941,7 +964,12 @@
     </section>
   {/if}
 
-  <section class="seksjon" id={id('varslene')} aria-labelledby={id('varslene-tittel')}>
+  <section
+    class="seksjon"
+    class:venter={ventendePunkt === id('varslene')}
+    id={id('varslene')}
+    aria-labelledby={id('varslene-tittel')}
+  >
     <div class="seksjonshode">
       <h3 id={id('varslene-tittel')}>{KRAVSKJEMA.varslene}</h3>
     </div>
@@ -953,7 +981,7 @@
       <span></span>
     </div>
     <ul class="varsler">
-      <li class="varselrad">
+      <li class="varselrad" id={id('varsel-34.1.2')}>
         <span class="punkt">34.1.2</span>
         <div class="hva">
           <h4>{varseletsTittel('34.1.2')}</h4>
@@ -970,7 +998,7 @@
         </div>
       </li>
       {#if v.saerskilt}
-        <li class="varselrad">
+        <li class="varselrad" id={id('varsel-34.1.3')}>
           <span class="punkt">34.1.3</span>
           <div class="hva">
             <h4>{varseletsTittel('34.1.3')}</h4>
@@ -1060,6 +1088,13 @@
     gap: var(--spacing-3);
     padding: var(--spacing-5) var(--spacing-6);
     border-bottom: var(--rule);
+  }
+  .seksjon.venter {
+    box-shadow: inset 3px 0 0 var(--ink);
+  }
+  .seksjon.venter :global(legend) {
+    font-size: 20px;
+    line-height: 1.3;
   }
   .seksjon.kompakt {
     padding-block: var(--spacing-4);

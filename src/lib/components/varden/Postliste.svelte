@@ -15,6 +15,8 @@
     kolonne,
     valgt = $bindable(null),
     navn,
+    brevoverskrift,
+    aktiv,
     beskrivelse,
     krever,
     kravet,
@@ -32,6 +34,8 @@
     valgt?: string | null;
     /** Navnet posten står med, som betegnelsen på kravposten eller fristen. */
     navn: (p: P) => string;
+    brevoverskrift?: (p: P) => string | undefined;
+    aktiv?: (p: P) => boolean;
     /** Det TE kalte posten, etter navnet. Med én post står den alene. */
     beskrivelse?: (p: P) => string;
     /** Kravet i posten, som en setning under navnet i den åpne posten. */
@@ -86,10 +90,14 @@
 
 {#snippet tittel(p: P, alene: boolean)}
   {@const b = beskrivelse?.(p)}
+  {@const overskrift = brevoverskrift?.(p)}
   <h4>
-    {#if !alene || !b}<span class="navn">{navn(p)}</span>{/if}
-    {b}
+    {#if overskrift}{overskrift}{:else}
+      {#if !alene || !b}<span class="navn">{navn(p)}</span>{/if}
+      {b}
+    {/if}
   </h4>
+  {#if overskrift && b}<p class="dempet">{navn(p)} {b}</p>{/if}
 {/snippet}
 
 {#if flere}
@@ -102,7 +110,7 @@
 {/if}
 <ul class="poster" class:flere>
   {#each poster as p (p.id)}
-    <li class="post" class:aapen={aapen === p.id}>
+    <li class="post" class:aapen={aapen === p.id} class:aktiv={aktiv?.(p)}>
       {#if aapen === p.id}
         <div class="posthode">
           {@render tittel(p, !flere)}
@@ -162,7 +170,14 @@
   }
   .poster.flere > .post.aapen {
     padding: var(--spacing-4) 0 var(--spacing-4) var(--spacing-4);
-    border-left: 3px solid var(--ink);
+  }
+  .poster.flere > .post.aktiv {
+    padding-inline-start: var(--spacing-4);
+    box-shadow: inset 3px 0 0 var(--ink);
+  }
+  .poster.flere > .post.aktiv :global(legend) {
+    font-size: 20px;
+    line-height: 1.3;
   }
   h4 {
     font-size: 15px;

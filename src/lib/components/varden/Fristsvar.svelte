@@ -134,6 +134,10 @@
     ['hindring', 'vilkar_oppfylt'],
     ['spesifisering', 'spesifisert_krav_ok'],
   ]);
+  const foerstePunkt = $derived(
+    lagene?.ubesvart[0]?.gjelder ??
+      [...spoersmaalForPunkt].find(([, felt]) => felt === foersteSporsmaal)?.[0]
+  );
   const begrunnelserISkjemaet = $derived(
     begrunnelserForTemaene(
       BREVTEKSTEN_I_FRISTEN.temaer(krav).filter((tema) => tema.punkt !== FORHOLDET),
@@ -188,6 +192,14 @@
           ? fristen(l.standpunkt.gjelder)
           : undefined;
       return {
+        punkt:
+          'grunn' in l
+            ? FORHOLDET
+            : l.standpunkt.art === 'rettidighet'
+              ? l.standpunkt.hjemmel
+              : l.standpunkt.art === 'dager'
+                ? l.standpunkt.gjelder
+                : l.standpunkt.art,
         tekst:
           'grunn' in l
             ? grunntekst(l.grunn, true, l.brev)
@@ -223,6 +235,64 @@
     const d = godkjenteDager(fristvalget(valg, f.id), f.dager);
     return d === undefined ? [] : [FRISTSVAR.leselinjeDager(d, f.dager)];
   };
+  const punktstatus = (punkt: string): string[] => {
+    switch (punkt) {
+      case '33.4':
+        return valg.varselITide === null ? [] : [valg.varselITide ? SKJEMA.iTide : SKJEMA.forSent];
+      case '33.6.2':
+        return valg.foresporselITide === null
+          ? []
+          : [valg.foresporselITide ? FRISTSVAR.foresporselITide : FRISTSVAR.foresporselForSent];
+      case 'hindring':
+        return valg.hindret === null
+          ? []
+          : [valg.hindret ? FRISTSVAR.hindret : FRISTSVAR.ikkeHindret];
+      case 'spesifisering':
+        return valg.spesifisertITide === null
+          ? []
+          : [valg.spesifisertITide ? FRISTSVAR.spesifisertITide : FRISTSVAR.spesifisertForSent];
+      default: {
+        const f = fristen(punkt);
+        return f ? leselinje(f) : [];
+      }
+    }
+  };
+  const skjemapunkter = $derived([
+    ...(grunnlagsbrev && grunnene.length
+      ? [
+          {
+            punkt: FORHOLDET,
+            navn: SKJEMA.forholdspunktet,
+            linjer: nyttSvar
+              ? linjer.filter((l) => l.punkt === FORHOLDET)
+              : grunnene.flatMap((f) =>
+                  'grunn' in f
+                    ? [{ tekst: grunntekst(f.grunn, true, grunnlagsbrev), lag: null }]
+                    : []
+                ),
+          },
+        ]
+      : []),
+    ...begrunnelserISkjemaet
+      .filter((p) => {
+        const felt = spoersmaalForPunkt.get(p.punkt);
+        return !felt || stilt(lagene, felt);
+      })
+      .map((p) => {
+        const fraBrevet = linjer.filter((l) => l.punkt === p.punkt);
+        const status = punktstatus(p.punkt);
+        return {
+          ...p,
+          aktiv: foerstePunkt === p.punkt,
+          linjer: fraBrevet.length
+            ? fraBrevet
+            : (status.length ? status : [SKJEMA.ikkeBesvart]).map((tekst) => ({
+                tekst,
+                lag: null,
+              })),
+        };
+      }),
+  ]);
   // U-12: en innsigelse som rammer hele kravet, står én gang over fristene, med laget kjernen gir
   // den i utkastet, så den står så snart den er valgt.
   const forHeleKravet = $derived(
@@ -389,11 +459,12 @@
   {mangler}
   {postliste}
   {begrunnelserISkjemaet}
+  {skjemapunkter}
   {onbrevkontroll}
   {onforkast}
   {onvedsiden}
 >
-  {#snippet spoersmaal(feil, begrunnelse)}
+  {#snippet spoersmaal(feil, begrunnelse, overskrift)}
     <!-- Dagene byggherren måtte forstå står først i fristen når kravet er spesifisert for sent
          (D-5), så dagene byggherren godtar om kravet kom i tide (U-14, D-5, prototypen
          `fristkrav-te.html#svar`). -->
@@ -480,7 +551,7 @@
     <Spoersmaal
       id={`${uid}-sp-varsel`}
       aktiv={foersteSporsmaal === 'frist_varsel_ok'}
-      tittel={FRISTSVAR.varselTittel}
+      tittel={overskrift('33.4') ?? FRISTSVAR.varselTittel}
       hjemmel={['33.4']}
     >
       <Varseldatoer {u} spor="frist" sendt={FRISTSVAR.kravSendt} />
@@ -503,7 +574,7 @@
       <Spoersmaal
         id={`${uid}-sp-foresporsel`}
         aktiv={foersteSporsmaal === 'foresporsel_svar_ok'}
-        tittel={FRISTSVAR.foresporselTittel}
+        tittel={overskrift('33.6.2') ?? FRISTSVAR.foresporselTittel}
         hjemmel={['33.6.2']}
       >
         <Gjelderhvis
@@ -529,7 +600,7 @@
     <Spoersmaal
       id={`${uid}-sp-hindring`}
       aktiv={foersteSporsmaal === 'vilkar_oppfylt'}
-      tittel={FRISTSVAR.hindringTittel}
+      tittel={overskrift('hindring') ?? FRISTSVAR.hindringTittel}
       hjemmel={[hindringPunkt]}
     >
       <p class="dempet" id={`${uid}-hindret-hjelp`}>{FRISTSVAR.hindringHjelp}</p>
@@ -559,7 +630,7 @@
       <Spoersmaal
         id={`${uid}-sp-spesifisering`}
         aktiv={foersteSporsmaal === 'spesifisert_krav_ok'}
-        tittel={FRISTSVAR.spesifiseringTittel}
+        tittel={overskrift('spesifisering') ?? FRISTSVAR.spesifiseringTittel}
         hjemmel={['33.6.1']}
       >
         <Gjelderhvis
@@ -586,7 +657,8 @@
 
     <Spoersmaal
       id={`${uid}-sp-dager`}
-      aktiv={foersteSporsmaal === 'dager' || foersteSporsmaal === 'dager_maatte_forstaa'}
+      aktiv={!flere &&
+        (foersteSporsmaal === 'dager' || foersteSporsmaal === 'dager_maatte_forstaa')}
       tittel={FRISTSVAR.dagerTittel}
       hjemmel={['33.5', '33.7']}
     >
@@ -606,6 +678,8 @@
         prefiks={uid}
         kolonne={SVARSKJEMA.fristKolonne}
         navn={(f) => f.navn}
+        brevoverskrift={(f) => overskrift(f.id)}
+        aktiv={(f) => foerstePunkt === f.id}
         krever={(f) => FRISTSVAR.teKrever(f.dager)}
         kravet={(f) => dager(f.dager)}
         {leselinje}
