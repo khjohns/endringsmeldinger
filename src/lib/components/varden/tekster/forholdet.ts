@@ -3,15 +3,7 @@ import type { Subsidiaergrunn } from '#kjerne/regler/forhold.ts';
 import type { Part, Spor, Standpunkt } from '#kjerne/typer.ts';
 import type { Forholdsordene } from '#kjerne/spor/forhold/tekst.ts';
 import type { Brevref, Datoopplysningen, Innlegget } from '../lesing';
-import {
-  I_FORHOLDET,
-  iSvaretPaaForholdet,
-  medLaget,
-  radeneSomSies,
-  setningene,
-  standpunkttekst,
-  utsagnet,
-} from './standpunkt';
+import { iSvaretPaaForholdet, setningene, standpunkttekst, utsagnet } from './standpunkt';
 import { SAKSDELEN, brevref, brevrefStor } from './felles';
 import { dato, haerdet } from './format';
 
@@ -59,31 +51,6 @@ export const FORHOLDET = haerdet({
    * og 07.11, PR 1650).
    */
   oppdater: 'Oppdater påberopelse',
-  /**
-   * Hvor saken står, under tittelen på oversikten (oppdragsgiver 06.11, PR 1650), med kontraktens
-   * ord etter forholdet, som `standpunkt`.
-   */
-  utfall: (rader: Innlegget['standpunkter'], d: string): string => {
-    const med = radeneSomSies(rader);
-    const svarte = `Byggherren svarte ${dato(d)}`;
-    // Den første linja står etter «svarte» når den ikke er subsidiær; ellers står hver linje for seg.
-    const foerste = med[0];
-    const iStarten = foerste && (foerste.lag === null || foerste.lag === 'prinsipalt');
-    const setninger = med.map((r, i) => {
-      const u = iSvaretPaaForholdet(r.standpunkt, null, r.ordene);
-      if (i === 0 && iStarten) {
-        if (!u) return `${svarte}. ${standpunkttekst(r.standpunkt, false)}.`;
-        const eo = r.standpunkt.art === 'forhold' && u === I_FORHOLDET.endringsordre;
-        return eo && med.length === 1
-          ? `${svarte} med en endringsordre (punkt 32.3 første ledd a).`
-          : `${svarte} og ${utsagnet(u)}.`;
-      }
-      if (!u) return `${standpunkttekst(r.standpunkt, false)}.`;
-      return `${stor(medLaget(r.lag, u))}.`;
-    });
-    return iStarten ? setninger.join(' ') : [`${svarte}.`, ...setninger].join(' ');
-  },
-  venter: (d: string) => `Sendt til byggherren ${dato(d)}. Svar ikke registrert.`,
   /** BF-10 U-2: en annen hjemmel eller endringsordre går i en ny sak (GR-U22, OV-U57). */
   annen: 'Annen hjemmel eller endringsordre?',
   annenLenke: 'Opprett ny sak',
