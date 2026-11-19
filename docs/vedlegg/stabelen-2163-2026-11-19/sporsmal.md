@@ -47,4 +47,49 @@ og 24 px, og 12 px er etiketter og metadata.
 
 ## Svarene
 
-Ikke kommet.
+Oppdragsgiver 19.11, ordrett:
+
+- 1: «Angående juridisk #2237. Les reglene i kontrakt khjohns/kontrakt. Slik jeg ser det kan BH mene kravet
+  er fremsatt for sent, men av hensyn til forutsigbarhet - evt av taktiske grunner - fortsatt ønske at TE
+  spesifiserer krav etter 33.6.2. Denne forespørselen vil da måtte vise til at BH prinsipalt mener kravet er
+  fremsatt for sent, tenker jeg.»
+- 2: «B - hvordan blir det seende ut?»
+- 3: «A - men vil gjerne ha eksempler på B før Vi beslutter»
+- 4: ikke besvart.
+
+Svar 1 passer ikke på et av alternativene og gir oppfølgingsspørsmålene 1a, 1b og 5. Svar 2 og 3 er ikke
+endelige: skissen med B for spørsmål 2 og eksemplene på B for spørsmål 3 er vist i chatten 19.11.
+
+## Oppfølgingsspørsmålene
+
+Belegget er NS 8407 punkt 33.4, 33.6.1 og 33.6.2. Etter punkt 33.6.2 fjerde ledd kan byggherren ikke påberope at
+fristen i 33.6.1 er oversittet når totalentreprenøren svarer på forespørselen med dager. Bestemmelsen sier ikke
+noe om varselet etter 33.4.
+
+**1a. Rekkefølgen.** Svar 1 leses slik: forespørselen sendes under forbehold om innsigelsen etter 33.4.
+Innsigelsen om at totalentreprenøren ikke svarte på forespørselen, står derfor subsidiært til innsigelsen etter
+33.4. Det er rekkefølgen #2237 har bygget, og alternativ A i spørsmål 1 faller bort.
+
+- **Ja (anbefalt).** 33.4 prinsipalt, 33.6.2 subsidiært.
+- **Nei.** Oppdragsgiver retter lesningen.
+
+**1b. Når bare innsigelsen etter 33.6.2 er påberopt.** Varselet etter 33.4 er ikke påberopt, men byggherren gjør
+gjeldende at totalentreprenøren ikke svarte på forespørselen i tide. Byggherren er enig i at fremdriften er
+hindret.
+
+- **C (anbefalt).** De øvrige standpunktene, også at fremdriften er hindret, gjelder bare hvis innsigelsen etter
+  33.6.2 ikke fører frem, som etter KA-U84 for 33.4. Begge innsigelsene gjør at kravet tapes helt.
+- **B.** Som bygget: de øvrige standpunktene gjelder uten vilkår.
+
+**5. Forbeholdet i forespørselen etter 33.6.2.** Forespørselen fra løsningen (LV-U18) har ikke noe forbehold.
+Etter fjerde ledd mister byggherren innsigelsen om at kravet ble spesifisert for sent (33.6.1) når
+totalentreprenøren svarer med dager. Forbeholdet kan derfor bare gjelde varselet etter 33.4.
+
+- **A (anbefalt).** Har byggherren påberopt at varselet etter 33.4 kom for sent, sier forespørselen at byggherren
+  fastholder det prinsipalt, og at forespørselen sendes for det tilfellet at innsigelsen ikke fører frem. For
+  eksempel: «Byggherren fastholder at varselet etter NS 8407 punkt 33.4 i brev 2 kom for sent. Forespørselen
+  sendes for det tilfellet at innsigelsen ikke fører frem.»
+- **B.** Byggherren velger i skjemaet om forbeholdet tas med.
+- **C.** Ingen endring.
+
+Svaret styrer LV-U18 og brevteksten for forespørselen. Det bygges ikke i stabelen.
