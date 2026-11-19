@@ -506,17 +506,13 @@ BEGIN
   IF koe.er_hash(@token_hash) = 0
     THROW 52050, N'Sesjonstokenet er ikke en SHA-256 i små heksadesimale tegn', 1;
   DECLARE @token varchar(64) = @token_hash;
-  DECLARE @slettet TABLE (bruker uniqueidentifier NOT NULL);
+  DECLARE @aktor uniqueidentifier;
   BEGIN TRANSACTION;
-  DELETE koe.app_sessions
-    OUTPUT deleted.user_id INTO @slettet (bruker)
-    WHERE token_hash = @token;
   IF @utlogging = 1
-  BEGIN
-    DECLARE @aktor uniqueidentifier = (SELECT bruker FROM @slettet);
-    IF @aktor IS NOT NULL
-      EXEC koe.skriv_tilgangslogg 'utlogging', @korrelasjon, @aktor;
-  END
+    SELECT @aktor = user_id FROM koe.app_sessions WITH (UPDLOCK) WHERE token_hash = @token;
+  DELETE koe.app_sessions WHERE token_hash = @token;
+  IF @aktor IS NOT NULL
+    EXEC koe.skriv_tilgangslogg 'utlogging', @korrelasjon, @aktor;
   COMMIT;
 END
 GO
