@@ -195,7 +195,7 @@
         punkt:
           'grunn' in l
             ? FORHOLDET
-            : (BREVTEKSTEN_I_FRISTEN.punktet(l.standpunkt, krav) ??
+            : (BREVTEKSTEN_I_FRISTEN.punktet(l.standpunkt) ??
               (l.standpunkt.art === 'rettidighet' ? l.standpunkt.hjemmel : l.standpunkt.art)),
         tekst:
           'grunn' in l
