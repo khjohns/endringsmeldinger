@@ -9715,6 +9715,10 @@ describe('forutsetningene i forholdssvaret (#2181, OV-U32, OV-U33, GR-U11)', () 
   it('har varslingsplikt og en virksom innsigelse etter 32.2, så forholdet får forutsetningen med varselet som kilde', () => {
     const s = saken(true);
     const lag = lagene(s, { grunnlag_varslet_i_tide: false });
+    expect(lag.standpunkter.find((x) => x.art === 'rettidighet')).toMatchObject({
+      hjemmel: '32.2',
+    });
+    expect(lag.standpunkter.find((x) => x.art === 'rettidighet')).not.toHaveProperty('gjelder');
     expect(lag.standpunkter.find((x) => x.art === 'forhold')).toMatchObject({
       besvart: false,
       virkning: 2,
@@ -9777,6 +9781,10 @@ describe('forutsetningene i forholdssvaret (#2181, OV-U32, OV-U33, GR-U11)', () 
       { spoersmaal: 'resultat' },
     ]);
     expect(lagene(s, {}).ugyldig).toEqual([]);
+    expect(lagene(s, { grunnlag_varslet_i_tide: 'ukjent', resultat: 'ukjent' }).ugyldig).toEqual([
+      { spoersmaal: 'resultat' },
+      { spoersmaal: 'grunnlag_varslet_i_tide' },
+    ]);
     expect(lagene(s, { grunnlag_varslet_i_tide: true, resultat: 'ukjent' }).ugyldig).toEqual([
       { spoersmaal: 'resultat' },
     ]);

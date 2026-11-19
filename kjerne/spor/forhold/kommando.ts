@@ -328,13 +328,16 @@ export function lagIForholdet(utkast: Svarutkast, u: Utledning, regler: Regelset
   const { hovedkategori, underkategori } = kategori(krav);
   const varslingsplikt = gjelderVarslingsplikten(krav, regler);
   const feil = avvisteFelt(() => kontrollerForholdet(v, hovedkategori, underkategori, regler));
-  const ubesvart: LagIForholdet['ubesvart'] = [];
-  const ugyldig: LagIForholdet['ugyldig'] = [];
-  for (const felt of ['grunnlag_varslet_i_tide', 'resultat'] as const) {
-    if (!feil[felt]) continue;
-    const liste = mangler(v[felt]) && (felt === 'resultat' || varslingsplikt) ? ubesvart : ugyldig;
-    liste.push({ spoersmaal: felt });
-  }
+  const feltene = ['grunnlag_varslet_i_tide', 'resultat'] as const;
+  const erUbesvart = (felt: Forholdsfelt) =>
+    mangler(v[felt]) && (felt === 'resultat' || varslingsplikt);
+  const ubesvart = feltene
+    .filter((felt) => feil[felt] && erUbesvart(felt))
+    .map((spoersmaal) => ({ spoersmaal }));
+  const ugyldig = Object.keys(feil).flatMap((felt) => {
+    const spoersmaal = feltene.find((f) => f === felt);
+    return spoersmaal && !erUbesvart(spoersmaal) ? [{ spoersmaal }] : [];
+  });
   let n = 0;
   const svar = {
     spor: 'forhold' as const,
@@ -363,7 +366,7 @@ export function lagIForholdet(utkast: Svarutkast, u: Utledning, regler: Regelset
       const lag = laget(virkning);
       return {
         art: s.art,
-        ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel, gjelder: s.gjelder } : {}),
+        ...(s.art === 'rettidighet' ? { hjemmel: s.hjemmel } : {}),
         besvart: !mangler(v[s.art === 'forhold' ? 'resultat' : 'grunnlag_varslet_i_tide']),
         virkning,
         etikett: flereLag && lag !== null ? etikett(lag) : null,
