@@ -4,6 +4,7 @@
  */
 
 import { punkteneMedBegrunnelse } from '#kjerne/frosset/tekst.ts';
+import type { Tema } from '#kjerne/frosset/brevdeler.ts';
 import type { Avsnitt, Spor } from '#kjerne/typer.ts';
 import type { Utledning } from '#kjerne/utledning/utled.ts';
 import { brevet, type Brevet } from './lesing';
@@ -64,6 +65,19 @@ export interface Begrunnelsespunkt {
   punkt: string;
   navn: string;
 }
+
+/** Et felt under et punkt i skjemaet. Navnet kommer fra temaet i brevteksten. */
+export interface BegrunnelseISkjemaet extends Begrunnelsespunkt {
+  besvart: boolean;
+}
+
+export const begrunnelserForTemaene = (
+  temaene: readonly Tema[],
+  besvart: (punkt: string) => boolean
+): BegrunnelseISkjemaet[] =>
+  temaene.flatMap(({ punkt, overskrift }) =>
+    overskrift === null ? [] : [{ punkt, navn: overskrift, besvart: besvart(punkt) }]
+  );
 
 /**
  * LV-U71: ett felt for begrunnelsen per punkt i brevet, i brevets rekkefølge, lest av brevet

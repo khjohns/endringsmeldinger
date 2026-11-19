@@ -121,6 +121,19 @@ describe('byggherrens svar på fristkravet i Varden (G-4 i BF-20)', () => {
     ).toBeInTheDocument();
   });
 
+  it('et besvart fristpunkt får begrunnelse før de andre punktene er besvart (#2190)', async () => {
+    await svarskjemaet(medFristkrav);
+    const varselet = screen.getByRole('radio', { name: 'Varslet i tide' });
+    const punkt = within(varselet.closest('section')!);
+    expect(punkt.queryByRole('textbox')).toBeNull();
+    await radio('Varslet i tide');
+    const grunn = punkt.getByRole('textbox', { name: /Varselet om fristforlengelse/ });
+    await fireEvent.input(grunn, { target: { value: 'Varselet kom i tide.' } });
+    await radio('Ja, fremdriften er hindret, og hindringen skyldes forholdet');
+    expect(punkt.getByRole('textbox')).toHaveValue('Varselet kom i tide.');
+    expect(screen.queryByRole('textbox', { name: /Spesifiseringen av kravet/ })).toBeNull();
+  });
+
   it('«Godkjenn dagene som krevd for alle fristene» gir én vurdering per frist med de krevde dagene (KA-U74)', async () => {
     const sendt = await svarskjemaet(medFristkrav);
     await svarPaaHeleKravet('Spesifisert i tide');

@@ -13,7 +13,10 @@
     oppgittDato,
   } from '#kjerne/spor/forhold/format.ts';
   import { blirEndringsordre } from '#kjerne/spor/forhold/frysing.ts';
-  import { forholdet as forholdIKatalogen } from '#kjerne/spor/forhold/tekst.ts';
+  import {
+    BREVTEKSTEN_I_FORHOLDET,
+    forholdet as forholdIKatalogen,
+  } from '#kjerne/spor/forhold/tekst.ts';
   import type { Forholdsresultat } from '#kjerne/regler/typer.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import { kravversjonenPaaDagen, type Kjernesakkontekst } from '#lib/kjernesak/kontekst.svelte.ts';
@@ -40,7 +43,13 @@
   import { kanFrafalle } from '#kjerne/regler/forhold.ts';
   import { brevene, standpunktene, underOverskriften } from './lesing';
   import { vedleggskart } from './nysak';
-  import { kravbrevetI, kravetSendt, manglene } from './svarskjema';
+  import {
+    begrunnelserForTemaene,
+    kravbrevetI,
+    kravetSendt,
+    manglene,
+    ugyldig,
+  } from './svarskjema';
   import { brevref, dato, FORHOLDSSVAR, kalenderdager } from './tekster';
 
   let {
@@ -151,6 +160,16 @@
   );
   const lagene = $derived(kjernesak.lagForUtkastet(utkast.svar[0]!, 'forhold'));
   const foersteSporsmaal = $derived(lagene?.ubesvart[0]?.spoersmaal);
+  const begrunnelserISkjemaet = $derived(
+    begrunnelserForTemaene(BREVTEKSTEN_I_FORHOLDET.temaer(), (punkt) =>
+      punkt === '32.2'
+        ? !!lagene?.standpunkter.some(
+            (s) => s.art === 'rettidighet' && s.hjemmel === punkt && s.besvart
+          ) && !ugyldig(lagene, 'grunnlag_varslet_i_tide')
+        : !!lagene?.standpunkter.some((s) => s.art === 'forhold' && s.besvart) &&
+          !ugyldig(lagene, 'resultat')
+    )
+  );
   const forutsetninger = $derived(
     lagene?.standpunkter.find((s) => s.art === 'forhold')?.forutsetninger ?? []
   );
@@ -251,11 +270,12 @@
   virkninger={virkning ? [virkning] : []}
   {mangler}
   begrunnelseKreves={kreves}
+  {begrunnelserISkjemaet}
   {onbrevkontroll}
   {onforkast}
   {onvedsiden}
 >
-  {#snippet spoersmaal(feil)}
+  {#snippet spoersmaal(feil, begrunnelse)}
     {#if !lagtTil && onleggtil}
       <div class="utenfor">
         <Knapp variant="lenke" kompakt iFlukt onclick={onleggtil}>{FORHOLDSSVAR.leggTilSvar}</Knapp>
@@ -280,6 +300,7 @@
           feil={feil(`${uid}-varsel`)}
           stablet
         />
+        {@render begrunnelse('32.2')}
       </Spoersmaal>
     {/if}
 
@@ -312,6 +333,7 @@
         </Sitat>
       {/if}
       {#if virkning}<p class="virkning">{virkning}</p>{/if}
+      {@render begrunnelse('forhold')}
     </Spoersmaal>
   {/snippet}
 </Svarskjema>

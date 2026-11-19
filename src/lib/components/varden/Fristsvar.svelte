@@ -10,10 +10,12 @@
   import { untrack } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
   import { UgyldigVurdering } from '#kjerne/regler/feil.ts';
+  import type { Fristspoersmaal } from '#kjerne/regler/frist.ts';
   import { kontrollerSpesifiseringen } from '#kjerne/regler/svarkontroll.ts';
   import { stor } from '#kjerne/frosset/brevdeler.ts';
-  import { dager } from '#kjerne/frosset/tekst.ts';
+  import { dager, FORHOLDET } from '#kjerne/frosset/tekst.ts';
   import { betegnelsen, hindringenEtter, innholdIFristen } from '#kjerne/spor/frist/format.ts';
+  import { BREVTEKSTEN_I_FRISTEN } from '#kjerne/spor/frist/tekst.ts';
   import { foresporselenISvaret } from '#lib/kjernesak/fristsvar.ts';
   import type { Forutsetning } from '#kjerne/spor/frist/kommando.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
@@ -41,7 +43,7 @@
     velgDagene,
   } from './fristsvar';
   import { brevet, standpunktene } from './lesing';
-  import { manglene, stilt, ubesvart, ugyldig } from './svarskjema';
+  import { begrunnelserForTemaene, manglene, stilt, ubesvart, ugyldig } from './svarskjema';
   import {
     BREVKONTROLL,
     VIRKNING,
@@ -126,6 +128,32 @@
   // OV-U33: lagene står også før spørsmålene er besvart (`lagIFristen`).
   const lagene = $derived(kjernesak.lagForUtkastet(utkast.svar[0], 'frist'));
   const foersteSporsmaal = $derived(lagene?.ubesvart[0]?.spoersmaal);
+  const spoersmaalForPunkt = new Map<string, Fristspoersmaal>([
+    ['33.4', 'frist_varsel_ok'],
+    ['33.6.2', 'foresporsel_svar_ok'],
+    ['hindring', 'vilkar_oppfylt'],
+    ['spesifisering', 'spesifisert_krav_ok'],
+  ]);
+  const begrunnelserISkjemaet = $derived(
+    begrunnelserForTemaene(
+      BREVTEKSTEN_I_FRISTEN.temaer(krav).filter((tema) => tema.punkt !== FORHOLDET),
+      (punkt) => {
+        if (!lagene) return false;
+        const spoersmaal = spoersmaalForPunkt.get(punkt);
+        if (spoersmaal)
+          return (
+            stilt(lagene, spoersmaal) &&
+            !ubesvart(lagene, spoersmaal) &&
+            !ugyldig(lagene, spoersmaal)
+          );
+        return (
+          stilt(lagene, 'dager', punkt) &&
+          !lagene.ubesvart.some((p) => p.gjelder === punkt) &&
+          !lagene.ugyldig.some((p) => p.gjelder === punkt)
+        );
+      }
+    )
+  );
   type Lagene = NonNullable<typeof lagene>['standpunkter'][number];
   const forutsetninger = (passer: (x: Lagene) => boolean): Forutsetning[] =>
     lagene?.standpunkter.find(passer)?.forutsetninger ?? [];
@@ -360,11 +388,12 @@
   {virkninger}
   {mangler}
   {postliste}
+  {begrunnelserISkjemaet}
   {onbrevkontroll}
   {onforkast}
   {onvedsiden}
 >
-  {#snippet spoersmaal(feil)}
+  {#snippet spoersmaal(feil, begrunnelse)}
     <!-- Dagene byggherren måtte forstå står først i fristen når kravet er spesifisert for sent
          (D-5), så dagene byggherren godtar om kravet kom i tide (U-14, D-5, prototypen
          `fristkrav-te.html#svar`). -->
@@ -444,6 +473,7 @@
           }
           feil={dFeil}
         />
+        {@render begrunnelse(f.id)}
       {/if}
     {/snippet}
 
@@ -466,6 +496,7 @@
         bind:verdi={valg.varselITide}
         feil={feil(`${uid}-varsel`)}
       />
+      {@render begrunnelse('33.4')}
     </Spoersmaal>
 
     {#if foresporselen}
@@ -491,6 +522,7 @@
           bind:verdi={valg.foresporselITide}
           feil={feil(`${uid}-foresporsel`)}
         />
+        {@render begrunnelse('33.6.2')}
       </Spoersmaal>
     {/if}
 
@@ -520,6 +552,7 @@
         feil={feil(`${uid}-hindret`)}
         stablet
       />
+      {@render begrunnelse('hindring')}
     </Spoersmaal>
 
     {#if spesifiseringen}
@@ -547,6 +580,7 @@
           bind:verdi={valg.spesifisertITide}
           feil={feil(`${uid}-spesifisert`)}
         />
+        {@render begrunnelse('spesifisering')}
       </Spoersmaal>
     {/if}
 
