@@ -15,7 +15,7 @@ const valg = [
 ];
 
 describe('skjemaelementene (#2191)', () => {
-  it('beholder ekte radio i en navngitt gruppe og kobler feilen til hvert valg', async () => {
+  it('beholder ekte radio i en navngitt gruppe og beskriver feilen én gang (#2210)', async () => {
     render(Valg, {
       navn: 'varsling',
       spoersmaal: 'Når kom varselet?',
@@ -23,15 +23,15 @@ describe('skjemaelementene (#2191)', () => {
       verdi: null,
       feil: 'Velg når varselet kom.',
     });
-    expect(screen.getByRole('group', { name: 'Når kom varselet?' })).toBeTruthy();
+    expect(screen.getByRole('group', { name: 'Når kom varselet?' })).toHaveAccessibleDescription(
+      'Velg når varselet kom.'
+    );
     const radio = screen.getAllByRole('radio') as HTMLInputElement[];
     expect(radio.map((r) => r.name)).toEqual(['varsling', 'varsling']);
     for (const r of radio) {
       expect(r.checked).toBe(false);
       expect(r.getAttribute('aria-invalid')).toBe('true');
-      expect(document.getElementById(r.getAttribute('aria-describedby')!)?.textContent).toBe(
-        'Velg når varselet kom.'
-      );
+      expect(r).not.toHaveAttribute('aria-describedby');
     }
     await fireEvent.click(screen.getByText('Kom i tide'));
     expect(radio[0].checked).toBe(true);
