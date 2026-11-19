@@ -799,7 +799,7 @@ try {
         },
         melding: /det oppstod en feil hos oss/,
       },
-      { navn: 'avbrutt', svar: null, melding: /usikkert om brevet ble lagret/ },
+      { navn: 'avbrutt', svar: null, melding: /Vi vet ikke om brevet ble sendt/ },
     ];
     const kommandoruta = `**/api/kjerne/saker/${sak}/kommandoer`;
     const godta = te.getByRole('button', { name: /^Godta svaret/ });
