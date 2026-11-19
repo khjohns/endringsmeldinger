@@ -7,7 +7,6 @@
 <script lang="ts">
   import { brevMedUtsagn, type Brevet } from './lesing';
   import { kroner } from '#kjerne/frosset/tekst.ts';
-  import { stor } from '#kjerne/frosset/brevdeler.ts';
   import Forbeholdet from './Forbeholdet.svelte';
   import Kravkort from './Kravkort.svelte';
   import Maalrad, { maalestokken } from './Maalrad.svelte';
@@ -83,15 +82,15 @@
         <p class="lagtittel" id={`${uid}-lag`}>{VEDERLAGET.godkjenner}</p>
         <ul class="lagene" aria-labelledby={`${uid}-lag`}>
           {#each k.lagene as l (l.lag)}
-            {@const tekst = VEDERLAGET.laget(l)}
             <li>
-              <Maalrad
-                navn={l.etikett ? stor(l.etikett) : VEDERLAGET.godkjenner}
-                verdi={l.beloep === null ? null : kroner(l.beloep)}
-                andel={l.beloep === null ? null : andel(l.beloep)}
-                sterk={false}
-              />
-              {#if tekst}<p>{tekst}</p>{/if}
+              {#if l.vilkaar.length}<p>{VEDERLAGET.lagetVilkaar(l.vilkaar)}</p>{/if}
+              {#if l.beloep !== null}<Maalrad
+                  navn={VEDERLAGET.godkjenner}
+                  verdi={l.beloep === null ? null : kroner(l.beloep)}
+                  andel={l.beloep === null ? null : andel(l.beloep)}
+                  sterk={false}
+                />{/if}
+              {#each VEDERLAGET.laget(l) as tekst, i (i)}<p>{tekst}</p>{/each}
             </li>
           {/each}
         </ul>

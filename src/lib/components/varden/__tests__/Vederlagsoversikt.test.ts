@@ -149,7 +149,7 @@ describe('Kravet og svaret, lest av kjernen (BF-44)', () => {
       ['videre subsidiært', 130000],
     ]);
     expect(k.lagene[1]!.vilkaar.map((v) => v.art)).toEqual(['grunn']);
-    expect(VEDERLAGET.laget(k.lagene[0]!)).toBe('Byggherren har avslått forholdet i brev 2.');
+    expect(VEDERLAGET.laget(k.lagene[0]!)).toEqual(['Byggherren har avslått forholdet i brev 2.']);
   });
 
   it('før byggherren har svart, står kravet uten lag (U-4)', async () => {
@@ -286,8 +286,8 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
         .map((l) => l.querySelector('p')?.textContent)
     ).toEqual([
       'Byggherren gjør gjeldende at varselet etter punkt\u00a034.1.2 i brev 2 kom for sent.',
-      'Hvis innsigelsen om at varselet etter punkt\u00a034.1.2 kom for sent ikke fører frem: Byggherren godkjenner oppgjørsformen totalentreprenøren krever, og byggherren gjør gjeldende at varselet etter punkt\u00a034.1.3 i brev 3 kom for sent, og godkjenner 10 000 kr etter begrensningen.',
-      'Hvis heller ikke innsigelsen om at varselet etter punkt\u00a034.1.3 kom for sent fører frem.',
+      'Hvis innsigelsen om at varselet etter punkt\u00a034.1.2 kom for sent ikke fører frem',
+      'Hvis innsigelsen om at varselet etter punkt\u00a034.1.3 kom for sent ikke fører frem',
     ]);
     const tabell = kort.getByRole('table', { name: 'Per post' });
     expect(within(tabell).getAllByRole('row').at(-1)?.textContent).toBe(

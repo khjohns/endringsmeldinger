@@ -230,8 +230,10 @@ i [MM-U25](#mm-u25) og [MM-U32](#mm-u32). Tilgjengeligheten kontrolleres etter
   sier hva TE kan oppgi, ikke hvordan spørsmålet stilles).
 - **Leselinja for et svar med lag** (#1663) viser standpunktet i det første
   laget som gjelder elementet, uten etiketten «Prinsipalt». Lagene under står som dempede linjer
-  som begynner med vilkåret, med brevets ord: «Subsidiært, hvis fast sum legges til grunn:
-  190 000 kr, godkjent delvis.» En innsigelse som rammer hele kravet, står én gang over
+  som begynner med vilkåret i klarspråk. Hvert standpunkt står på sin egen linje.
+  Det gjelder skjemaet, panelet «Punktene i brevet», «Kravet og svaret» og brevtråden.
+  Lagnavnene «Prinsipalt», «Subsidiært» og «Videre subsidiært» brukes i brevet og
+  brevkontrollen (#2182, oppdragsgiver 19.11). En innsigelse som rammer hele kravet, står én gang over
   tabellen og gjentas ikke per element. Summene per lag hører til panelet. Tabellen i brevet og
   panelet følger [OV-U73](../docs/plans/vedtak.md#ov-u73); leselinja er skjemaets.
 - **Hindringen i fristsvaret** står i laget kjernen gir den etter
@@ -496,8 +498,8 @@ Avgjort i designrunde 1 (#1391). Komponentene står i
   krav brevene i sitt spor (oppdragsgiver 13.11, [#1065](https://github.com/khjohns/endringsmeldinger/issues/1065#issuecomment-6861711203)). Partene skilles med form, ikke med farge: BH har
   fylt ring og TE åpen ring. Beskrivelsen og begrunnelsen kan være flere sider, så tråden viser
   de første tre linjene, og hele teksten står i brevet bak «Les brevet».
-  Samme form gjelder der et krav måles mot et svar: kravet er åpent og det godkjente fylt, på samme
-  skala med runde trinn ([U-2 i BF-44](../docs/domenetabell/brukerforlop/BF-44.md#u-2)).
+  Samme form gjelder på målestokken: totalentreprenørens mål er åpent og byggherrens er fylt,
+  på samme skala med runde trinn ([U-2 i BF-44](../docs/domenetabell/brukerforlop/BF-44.md#u-2), #2182).
   Raden for brevet som vises ved siden av, har en strek i blekk til venstre og sier det i tekst, ikke bare med en flate.
   Datoen og brevnummeret står i én dempet linje over tittelen, i alle bredder, med «Les brevet»
   eller «Vises til høyre» til høyre i samme linje. Innholdet bruker hele bredden ved siden av

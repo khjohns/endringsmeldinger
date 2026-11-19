@@ -213,6 +213,7 @@
                   ? FORHOLDSSVAR.linjeVarselIkkeForSent
                   : FORHOLDSSVAR.linjeVarselForSent,
                 lag: l.lag,
+                vilkaar: l.vilkaar,
               },
             ];
           if (s.art === 'forhold')
@@ -221,6 +222,7 @@
                 punkt: 'forhold',
                 tekst: forholdslinjen(s.resultat as Forholdsresultat, f, endringsordre),
                 lag: l.lag,
+                vilkaar: l.vilkaar,
               },
             ];
           return [];

@@ -1,4 +1,3 @@
-import { stor } from '#kjerne/frosset/brevdeler.ts';
 import { dager } from '#kjerne/frosset/tekst.ts';
 import type { Standpunkt } from '#kjerne/typer.ts';
 import type { Brevref } from '../lesing';
@@ -6,7 +5,6 @@ import type { Innsigelsen } from '../svarlagene';
 import { VEDERLAGET } from './vederlaget';
 import { brevref } from './felles';
 import { dato, hjemmelsmerke, haerdet } from './format';
-import { liten } from './fristkrav';
 import { standpunkttekst } from './standpunkt';
 
 /** Datoen uten året når året er det samme som i `ved`: «16. august» ved siden av «26. august 2027». */
@@ -48,41 +46,30 @@ export const FRISTEN = haerdet({
   ukjent: (iKontrakten: string) =>
     `Fristen er ${dato(iKontrakten)} i kontrakten. Gjeldende frist kan ikke regnes nå, fordi en annen sak i prosjektet ikke kan leses.`,
   ikkeRegistrert: 'Gjeldende frist er ikke kjent, fordi fristen ikke er registrert for prosjektet.',
-  /**
-   * Innsigelsen et senere lag gjelder hvis ikke fører frem, med ordene i prototypen: «innsigelsen
-   * om varselet» (U-3, U-4).
-   */
-  innsigelsen: (i: Innsigelsen) =>
-    i.art === 'varsel'
-      ? `innsigelsen om ${i.hjemmel === '33.6.2' ? 'svaret på forespørselen' : 'varselet'}`
-      : VEDERLAGET.innsigelsen(i),
-  /** Vilkåret for et lag under «Per frist»: «hvis innsigelsen om varselet ikke fører frem» (U-4). */
-  vilkaar: (innsigelser: Innsigelsen[], heller: boolean) =>
-    liten(VEDERLAGET.vilkaar(innsigelser.map(FRISTEN.innsigelsen), heller)),
+  /** Vilkåret for et lag i fristsvaret (BF-45 U-3 og U-4). */
+  vilkaar: (innsigelser: readonly Innsigelsen[]) => VEDERLAGET.lagetVilkaar(innsigelser),
   /** Det laget bygger på, i brevets ord, og de dagene byggherren godkjenner i det siste laget. */
   grunnlaget: (standpunkter: Standpunkt[], sist: boolean) =>
     standpunkter.length
-      ? `${standpunkter
-          .map((s, i) =>
-            s.art === 'spesifisering' && !s.iTide
-              ? `${i ? 'byggherren' : 'Byggherren'} gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1), og godkjenner dagene byggherren måtte forstå`
-              : i
-                ? liten(standpunkttekst(s, false))
-                : standpunkttekst(s, false)
-          )
-          .join(', og ')}.`
+      ? standpunkter.flatMap((s) =>
+          s.art === 'spesifisering' && !s.iTide
+            ? [
+                'Byggherren gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1).',
+                'Byggherren godkjenner dagene byggherren måtte forstå.',
+              ]
+            : [`${standpunkttekst(s, false)}.`]
+        )
       : sist
-        ? 'dagene byggherren godkjenner.'
-        : '',
+        ? ['Dagene byggherren godkjenner.']
+        : [],
   /** Et standpunkt brevet ga uten eget lag (U-3, OV-U42). */
   utenLag: (s: Standpunkt) => `${standpunkttekst(s, false)}.`,
   /**
    * Avslaget av dagene for én frist, med laget først og begrunnelsen slik den står i brevet (U-13,
    * MM-U50).
    */
-  avslag: (etikett: string | null, begrunnelse: string | null) =>
-    `${etikett ? `${stor(etikett)} avslår byggherren` : 'Byggherren avslår'} dagene for fristen` +
-    (begrunnelse ? `: ${begrunnelse}` : '.'),
+  avslag: (begrunnelse: string | null) =>
+    `Byggherren avslår dagene for fristen.${begrunnelse ? ` ${begrunnelse}` : ''}`,
   /** Linja under «Oppdater kravet» (U-6, svar 4 A). */
   endreEllerTaUt: 'I det nye kravet kan du endre dagene eller ta ut en frist.',
   /** Handlingen under forespørselen etter punkt 33.6.2 (U-6), og linja under den (BF-20). */

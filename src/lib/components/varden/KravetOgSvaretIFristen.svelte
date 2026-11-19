@@ -7,7 +7,6 @@
 -->
 <script lang="ts">
   import { dager } from '#kjerne/frosset/tekst.ts';
-  import { stor } from '#kjerne/frosset/brevdeler.ts';
   import type { Utledning } from '#kjerne/utledning/utled.ts';
   import Forbeholdet from './Forbeholdet.svelte';
   import Gjeldendefrist from './Gjeldendefrist.svelte';
@@ -50,14 +49,10 @@
     <section class="del" aria-labelledby={`${uid}-alle`}>
       <h3 id={`${uid}-alle`}>{FRISTEN.forAlle}</h3>
       {#each k.felles as l (l.lag)}
-        {@const tekst = VEDERLAGET.laget(l, FRISTEN.innsigelsen)}
         <div class="lag">
-          <Maalrad
-            navn={l.etikett ? stor(l.etikett) : FRISTEN.godkjent}
-            verdi={l.dager === null ? null : dager(l.dager)}
-            kompakt
-          />
-          {#if tekst}<p>{tekst}</p>{/if}
+          {#if l.vilkaar.length}<p>{FRISTEN.vilkaar(l.vilkaar)}</p>{/if}
+          {#if l.dager !== null}<p>{dager(l.dager)}</p>{/if}
+          {#each VEDERLAGET.laget(l) as tekst, i (i)}<p>{tekst}</p>{/each}
         </div>
       {/each}
       {#each k.utenLag as s (s.id)}
@@ -76,10 +71,8 @@
             l.lag === sistePerFrist
           )}
           <li>
-            <b>{stor(l.etikett ?? '')}</b>{#if l.vilkaar.length}, {FRISTEN.vilkaar(
-                l.vilkaar,
-                l.lag > 2
-              )}{/if}{#if grunnlag}: {grunnlag}{/if}
+            {#if l.vilkaar.length}<b>{FRISTEN.vilkaar(l.vilkaar)}</b>{/if}
+            {#each grunnlag as tekst, i (i)}<p>{tekst}</p>{/each}
           </li>
         {/each}
       </ul>
@@ -112,7 +105,7 @@
             {@const ny = nyFrist(g, l.dager)}
             <li>
               <Maalrad
-                navn={l.etikett ? stor(l.etikett) : FRISTEN.godkjent}
+                navn={FRISTEN.godkjent}
                 verdi={dager(l.dager)}
                 etter={ny ? FRISTEN.nyFrist(ny) : null}
                 andel={andel(l.dager)}
@@ -125,7 +118,7 @@
           {/each}
         </ul>
         {#if f.avslag}
-          <p class="avslag">{FRISTEN.avslag(f.avslag.etikett, f.avslag.begrunnelse)}</p>
+          <p class="avslag">{FRISTEN.avslag(f.avslag.begrunnelse)}</p>
         {/if}
       </section>
     {/each}

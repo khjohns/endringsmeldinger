@@ -186,8 +186,8 @@ describe('Siden for forholdet', () => {
         .getAllByRole('listitem')
         .map((li) => li.textContent?.replace(/\s+/g, ' ').trim())
     ).toEqual([
-      'Prinsipalt Byggherren gjør gjeldende at varselet etter punkt 32.2 i brev 1 kom for sent.',
-      'Subsidiært Byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).',
+      'Byggherren gjør gjeldende at varselet etter punkt 32.2 i brev 1 kom for sent.',
+      'Hvis innsigelsen om at varselet etter punkt 32.2 kom for sent ikke fører frem Byggherren avslår kravet på endringsordre (punkt 32.3 første ledd b).',
     ]);
     expect(screen.getByText('«Ingen endring.»')).toBeTruthy();
     expect(screen.getByText('Begrunnelsen')).toBeTruthy();

@@ -223,9 +223,14 @@ describe('Siden for fristforlengelsen', () => {
     ).toBeTruthy();
     expect(
       alle.getByText(
-        'Hvis innsigelsen om varselet ikke fører frem: Byggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet.'
+        'Byggherren legger til grunn at fremdriften er hindret, og at hindringen skyldes forholdet.'
       )
     ).toBeTruthy();
+    expect(
+      alle.getByText(
+        'Hvis innsigelsen om at varselet etter punkt 33.4 kom for sent ikke fører frem'
+      )
+    ).toBeVisible();
     const per = within(kort.getByRole('region', { name: FRISTEN.perFrist }));
     expect(
       per
@@ -233,8 +238,8 @@ describe('Siden for fristforlengelsen', () => {
         .slice(0, 2)
         .map((l) => l.textContent?.replace(/\s+/g, ' ').trim())
     ).toEqual([
-      'Subsidiært, hvis innsigelsen om varselet ikke fører frem: Byggherren gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1), og godkjenner dagene byggherren måtte forstå.',
-      'Videre subsidiært, hvis heller ikke innsigelsen om spesifiseringen fører frem: dagene byggherren godkjenner.',
+      'Hvis innsigelsen om at varselet etter punkt 33.4 kom for sent ikke fører frem Byggherren gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1). Byggherren godkjenner dagene byggherren måtte forstå.',
+      'Hvis innsigelsen om spesifiseringen ikke fører frem Dagene byggherren godkjenner.',
     ]);
     const overtakelse = within(per.getByRole('region', { name: /^Frist 2\s+Overtakelse$/ }));
     expect(
@@ -251,7 +256,7 @@ describe('Siden for fristforlengelsen', () => {
     ).toBeTruthy();
     expect(
       mekanisk.getByText(
-        'Videre subsidiært avslår byggherren dagene for fristen: Fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet.'
+        'Byggherren avslår dagene for fristen. Fremdriften for mekanisk ferdigstillelse er ikke hindret av forholdet.'
       )
     ).toBeTruthy();
     const utomhus = within(per.getByRole('region', { name: /^Frist 8\s+Overtakelse av/ }));
