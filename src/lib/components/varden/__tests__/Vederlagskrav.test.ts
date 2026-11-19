@@ -454,8 +454,6 @@ describe('trekket av den særskilte vederlagsjusteringen (KA-U83, kravet i #1663
     await fireEvent.click(panel.getByRole('radio', { name: 'TE' }));
     await fireEvent.click(await screen.findByRole('button', { name: /^Vederlagsjustering/ }));
     await fireEvent.click(await screen.findByRole('button', { name: 'Oppdater kravet' }));
-    await screen.findByRole('heading', { name: 'Særskilt vederlagsjustering', level: 3 });
-    await fireEvent.click(await screen.findByRole('button', { name: 'Revider krav' }));
     await screen.findByRole('heading', {
       name: /^(?:\d+\. )?Særskilt vederlagsjustering$/,
       level: 3,

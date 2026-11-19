@@ -164,7 +164,7 @@ describe('TEs krav om fristforlengelse i Varden (G-3 i BF-20)', () => {
 
   it('det første kravet er varselet etter punkt 33.4, og brevet lages ikke før fristen, dagene og begrunnelsen er fylt ut (U-6, D-1)', async () => {
     const sendt = await kravskjemaet(medGrunnlag);
-    expect(screen.getByText('Gis i dette brevet.')).toBeInTheDocument();
+    expect(within(screen.getByRole('form')).getByText('Gis i dette brevet.')).toBeInTheDocument();
     await seBrevet();
     expect(sendt).toHaveLength(0);
     const oppsummering = screen.getByRole('group', { name: 'Dette mangler før brevet kan lages:' });

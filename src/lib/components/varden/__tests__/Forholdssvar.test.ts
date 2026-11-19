@@ -129,11 +129,10 @@ describe('byggherrens svar på påberopelsen av forholdet i Varden (BF-08)', () 
     // Forbeholdet står også før brevet kan lages, så teksten ikke blir borte.
     expect(screen.getByLabelText('Forbehold for hele svaret, Valgfri')).toBeInTheDocument();
     await radio('Nei');
-    await radio('Enig. Svaret er en endringsordre');
     const grunn = varselpunktet.getByRole('textbox', { name: /Varselet etter punkt 32\.2/ });
     await fireEvent.input(grunn, { target: { value: 'Varselet kom samme dag.' } });
     expect(forholdspunktet.queryByRole('textbox')).toBeNull();
-    await radio('Enig, endringsordre');
+    await radio('Enig. Svaret er en endringsordre');
     expect(overskrift).toHaveTextContent(/^Svar på forholdet i sak KOE-17$/);
     expect(varselpunktet.getByRole('textbox')).toHaveValue('Varselet kom samme dag.');
     expect(forholdspunktet.getByRole('textbox', { name: /Forholdet/ })).toBeInTheDocument();
