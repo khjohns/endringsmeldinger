@@ -1,3 +1,4 @@
+import { liste } from '#kjerne/frosset/brevdeler.ts';
 import { dager } from '#kjerne/frosset/tekst.ts';
 import type { Standpunkt } from '#kjerne/typer.ts';
 import type { Brevref } from '../lesing';
@@ -25,6 +26,26 @@ export const FRISTEN = haerdet({
   krevd: 'Krevd',
   /** Laget når svaret har ett (U-4). */
   godkjent: 'Byggherren godkjenner',
+  /**
+   * Navnet på raden for et lag per frist: vilkåret i kortform, eller «Byggherren godkjenner» for
+   * laget uten vilkår (U-4, svar 2 B 19.11 i `docs/vedlegg/stabelen-2163-2026-11-19`). En grunn fra
+   * forholdet har ingen kortform og står med vilkåret i brevets ord.
+   */
+  radnavn: (innsigelser: readonly Innsigelsen[], heller: boolean): string => {
+    if (!innsigelser.length) return 'Byggherren godkjenner';
+    if (innsigelser.some((i) => i.art === 'grunn'))
+      return VEDERLAGET.lagetVilkaar(innsigelser, heller);
+    const kort = innsigelser.map((i) =>
+      i.art === 'varsel'
+        ? i.hjemmel === '33.6.2'
+          ? 'svaret på forespørselen kom i tide'
+          : 'varselet kom i tide'
+        : i.art === 'spesifisering'
+          ? 'spesifiseringen kom i tide'
+          : 'fremdriften er hindret'
+    );
+    return `Hvis ${heller ? 'også ' : ''}${liste(kort)}`;
+  },
   ikkeSvart: 'Byggherren har ikke svart på dette kravet.',
   /** Fristen med nummeret i Del II punkt E.1, som overskrift for blokken (U-4). */
   frist: (nummer: string | null) => (nummer ? `Frist ${nummer}` : 'Frist'),

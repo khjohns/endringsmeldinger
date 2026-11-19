@@ -257,6 +257,13 @@ describe('Siden for fristforlengelsen', () => {
     expect(overtakelse.getByRole('link', { name: 'KOE-9' }).getAttribute('href')).toBe('/p/annen');
     expect(overtakelse.getByText(/ny frist 15\. september 2027/)).toBeTruthy();
     expect(overtakelse.getByText(/ny frist 9\. september 2027/)).toBeTruthy();
+    // Radene per frist heter etter vilkåret i kortform (svar 2 B 19.11 i
+    // docs/vedlegg/stabelen-2163-2026-11-19/sporsmal.md).
+    expect(
+      within(overtakelse.getByRole('list', { name: 'Overtakelse' }))
+        .getAllByRole('listitem')
+        .map((l) => l.textContent!.match(/^\s*(\D+?)\s*\d/)?.[1])
+    ).toEqual(['Krevd', 'Hvis varselet kom i tide', 'Hvis også spesifiseringen kom i tide']);
     const mekanisk = within(per.getByRole('region', { name: /^Frist 3\s+Mekanisk/ }));
     expect(
       mekanisk.getByText('Gjeldende frist er 1. juni 2027. Det er datoen i kontrakten.')
