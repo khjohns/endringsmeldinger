@@ -278,6 +278,7 @@
             {#if nummerEndret}
               <p><a href={`#${uid}-brevet`}>{SENDEFEIL.seOverBrevet}</a></p>
             {:else if avvisningsstatus === 403}
+              <p>{SENDEFEIL.kontaktAdministrator}</p>
               <p><a href={innlogging} target="_blank" rel="noopener">{SENDEFEIL.loggInn}</a></p>
             {:else if avvisning === SENDEFEIL.serverfeil}
               <p>{SENDEFEIL.proevSenere}</p>
