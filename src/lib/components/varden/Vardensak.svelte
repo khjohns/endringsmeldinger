@@ -453,11 +453,12 @@
       fjernSkjemautkast(s, k.tilbake.art);
     }
     fjernUtkast(s, 'kontroll');
-    if (valgt === s && arbeid.art === 'kontroll' && arbeid.kommando === k.kommando)
-      tilArbeid({ art: 'les' }, s, true);
+    const sammeBrevkontroll =
+      valgt === s && arbeid.art === 'kontroll' && arbeid.kommando === k.kommando;
+    if (sammeBrevkontroll) tilArbeid({ art: 'les' }, s, true);
     melding = { tekst: k.kvittering ?? MOTTATT.dittBrev, art: 'sendt' };
     const id = kjernesak.sistSendteHendelse;
-    if (u && id) kvittert = brevet(u, id);
+    if (sammeBrevkontroll && u && id) kvittert = brevet(u, id);
   }
 
   /** Tilbake til saken med kvitteringen `tekst`, som får fokus. */
