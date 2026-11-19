@@ -10,7 +10,7 @@
   import { untrack } from 'svelte';
   import { SvelteSet } from 'svelte/reactivity';
   import { UgyldigVurdering } from '#kjerne/regler/feil.ts';
-  import type { Fristspoersmaal } from '#kjerne/regler/frist.ts';
+  import { fristpunktForSpoersmaal, fristspoersmaalForPunkt } from '#kjerne/spor/frist/kommando.ts';
   import { kontrollerSpesifiseringen } from '#kjerne/regler/svarkontroll.ts';
   import { stor } from '#kjerne/frosset/brevdeler.ts';
   import { dager, FORHOLDET } from '#kjerne/frosset/tekst.ts';
@@ -128,22 +128,15 @@
   // OV-U33: lagene står også før spørsmålene er besvart (`lagIFristen`).
   const lagene = $derived(kjernesak.lagForUtkastet(utkast.svar[0], 'frist'));
   const foersteSporsmaal = $derived(lagene?.ubesvart[0]?.spoersmaal);
-  const spoersmaalForPunkt = new Map<string, Fristspoersmaal>([
-    ['33.4', 'frist_varsel_ok'],
-    ['33.6.2', 'foresporsel_svar_ok'],
-    ['hindring', 'vilkar_oppfylt'],
-    ['spesifisering', 'spesifisert_krav_ok'],
-  ]);
   const foerstePunkt = $derived(
-    lagene?.ubesvart[0]?.gjelder ??
-      [...spoersmaalForPunkt].find(([, felt]) => felt === foersteSporsmaal)?.[0]
+    lagene?.ubesvart[0]?.gjelder ?? fristpunktForSpoersmaal(foersteSporsmaal)
   );
   const begrunnelserISkjemaet = $derived(
     begrunnelserForTemaene(
       BREVTEKSTEN_I_FRISTEN.temaer(krav).filter((tema) => tema.punkt !== FORHOLDET),
       (punkt) => {
         if (!lagene) return false;
-        const spoersmaal = spoersmaalForPunkt.get(punkt);
+        const spoersmaal = fristspoersmaalForPunkt(punkt);
         if (spoersmaal)
           return (
             stilt(lagene, spoersmaal) &&
@@ -272,7 +265,7 @@
       : []),
     ...begrunnelserISkjemaet
       .filter((p) => {
-        const felt = spoersmaalForPunkt.get(p.punkt);
+        const felt = fristspoersmaalForPunkt(p.punkt);
         return !felt || stilt(lagene, felt);
       })
       .map((p) => {
@@ -320,8 +313,10 @@
     const v = valg.frister[f.id];
     if (v?.dager !== 'deler') return null;
     if (ubesvart(lagene, 'dager', f.id)) return FRISTSVAR.manglerDeldager;
-    const d = heleDager(v.deldager);
-    return d !== undefined && (d <= 0 || d >= f.dager) ? FRISTSVAR.deldagerUtenfor(f.dager) : null;
+    if (!ugyldig(lagene, 'dager', f.id)) return null;
+    return heleDager(v.deldager) === undefined
+      ? FRISTSVAR.ugyldigeDeldager
+      : FRISTSVAR.deldagerUtenfor(f.dager);
   };
   const grenseForMaatteForstaa = (f: Fristpost) => {
     const godkjent = godkjenteDager(fristvalget(valg, f.id), f.dager);
@@ -445,6 +440,7 @@
 {/snippet}
 
 <Svarskjema
+  lagfeil={lagene === null}
   {kjernesak}
   {u}
   spor="frist"

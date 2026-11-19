@@ -226,18 +226,24 @@ export type LagIFristen = Utkastlag<Forutsetning, FeltIFristen> & {
 };
 
 /** Spørsmålet i svaret hvert standpunkt om hele kravet svarer på. */
-const SPOERSMAALET: Readonly<Record<string, Fristspoersmaal>> = {
-  'rettidighet 33.4': 'frist_varsel_ok',
-  'rettidighet 33.6.2': 'foresporsel_svar_ok',
+const SPOERSMAALET: Readonly<Partial<Record<string, Fristspoersmaal>>> = {
+  '33.4': 'frist_varsel_ok',
+  '33.6.2': 'foresporsel_svar_ok',
   hindring: 'vilkar_oppfylt',
   spesifisering: 'spesifisert_krav_ok',
 };
 
+export const fristspoersmaalForPunkt = (punkt: string): Fristspoersmaal | undefined =>
+  Object.hasOwn(SPOERSMAALET, punkt) ? SPOERSMAALET[punkt] : undefined;
+
+export const fristpunktForSpoersmaal = (spoersmaal: string | undefined): string | undefined =>
+  Object.entries(SPOERSMAALET).find(([, felt]) => felt === spoersmaal)?.[0];
+
 /** Spørsmålet standpunktet svarer på, eller `null` for dagene. */
 function spoersmaaletFor(s: Standpunkt): Fristspoersmaal | null {
   if (s.art === 'dager') return null;
-  const noekkel = s.art === 'rettidighet' ? `${s.art} ${s.hjemmel}` : s.art;
-  const felt = SPOERSMAALET[noekkel];
+  const noekkel = s.art === 'rettidighet' ? s.hjemmel : s.art;
+  const felt = fristspoersmaalForPunkt(noekkel);
   if (!felt) throw new Error(`standpunktet ${noekkel} svarer ikke på noe spørsmål i fristen`);
   return felt;
 }
@@ -365,7 +371,7 @@ function ugyldigIFristen(
 ): LagIFristen['ugyldig'] {
   const krevd = innholdIFristen(krav).frister;
   const foresporsel = foresporselForFristsvar(u);
-  const hele = new Set<string>(Object.values(SPOERSMAALET));
+  const hele = new Set<string | undefined>(Object.values(SPOERSMAALET));
   return fristene.flatMap((f, i): LagIFristen['ugyldig'] => {
     const feil = avvisteFelt(() =>
       kontrollerFristen(vurderingenAvFristen(v, f), fristkravet(krevd[i]!.dager, foresporsel))

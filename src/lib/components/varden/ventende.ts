@@ -18,12 +18,13 @@ import type { NySak, Utfylling } from './nysak';
  * fanen når sesjonen er hentet (`+layout.ts`), og utloggingen tømmer fanens lagring (`logout`
  * i `#lib/api/auth.ts`, #1678).
  */
-export interface VentendeOpprettelse {
+interface Opprettelse {
   sakId: string;
   kommandoId: string;
-  utkast: Utfylling | null;
-  forsok?: NySak;
 }
+
+export type VentendeOpprettelse = Opprettelse &
+  ({ utkast: Utfylling | null; forsok?: never } | { forsok: NySak; utkast?: never });
 
 const VENTENDE = 'nysak:ventende:';
 
@@ -52,7 +53,9 @@ export function lesVentende(
   if (!brukerId) return null;
   try {
     const lagret = sessionStorage.getItem(ventendeNoekkel(brukerId, prosjektId));
-    return lagret ? (JSON.parse(lagret) as VentendeOpprettelse) : null;
+    if (!lagret) return null;
+    const { sakId, kommandoId, forsok, utkast } = JSON.parse(lagret) as VentendeOpprettelse;
+    return forsok ? { sakId, kommandoId, forsok } : { sakId, kommandoId, utkast: utkast ?? null };
   } catch {
     return null;
   }
@@ -93,6 +96,12 @@ export function etterFeiletForsoek(
   utfall: 'lagret' | 'usikkert' | 'avvist'
 ) {
   if (utfall === 'lagret') fjernVentende(brukerId, prosjektId);
-  else if (utfall === 'avvist')
-    lagreVentende(brukerId, prosjektId, { ...ventende, forsok: undefined });
+  else if (utfall === 'avvist') {
+    const { sakId, kommandoId, forsok, utkast } = ventende;
+    lagreVentende(brukerId, prosjektId, {
+      sakId,
+      kommandoId,
+      utkast: forsok?.utkast ?? utkast ?? null,
+    });
+  }
 }

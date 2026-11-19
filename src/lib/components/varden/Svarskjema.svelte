@@ -21,6 +21,7 @@
   import type { TilBrevkontrollen } from './Brevkontroll.svelte';
   import Brevskjema from './Brevskjema.svelte';
   import Hovedlinjer from './Hovedlinjer.svelte';
+  import Melding from './Melding.svelte';
   import Knapp from './Knapp.svelte';
   import type { Mangel } from './mangler';
   import { sendeflyt } from './sendeflyt.svelte';
@@ -56,6 +57,7 @@
     mangler,
     postliste,
     stopp = null,
+    lagfeil = false,
     begrunnelseKreves = null,
     begrunnelserISkjemaet = [],
     skjemapunkter,
@@ -85,6 +87,7 @@
     postliste?: Postvelger | null;
     /** Det som hindrer at svaret kan gis nå; skjemaet viser da bare meldingen. */
     stopp?: string | null;
+    lagfeil?: boolean;
     /**
      * Punktene der minst én må ha en begrunnelse før brevet vises, og hvorfor, eller `null` når
      * begrunnelsen er valgfri (D-7 i BF-08).
@@ -316,6 +319,7 @@
   {/snippet}
   {#snippet tidslinje()}<Tidslinje brev={sporbrev} {datoer} />{/snippet}
 
+  {#if lagfeil}<Melding art="feil">{SKJEMA.lagfeil}</Melding>{/if}
   {#if stopp !== null}
     <div class="ikke-stoettet" role="note">
       <p>{stopp}</p>

@@ -207,7 +207,8 @@
     />
   </div>
 
-  <section class="panel" aria-label={BREVSTEG.sending}>
+  <section class="panel" aria-labelledby={`${uid}-sending`}>
+    <h2 id={`${uid}-sending`} class="visually-hidden">{BREVSTEG.sending}</h2>
     <Brevsteg kontroll bind:element={stegviseren} />
     <dl class="fakta">
       <dt>{BREVKONTROLL.mottaker}</dt>
@@ -225,7 +226,7 @@
     {#if punktene.length}
       <div class="sender">
         <h3>{BREVSTEG.punktene}</h3>
-        <ul>
+        <ul aria-label={BREVSTEG.punktene}>
           {#each punktene as punkt, i (i)}
             <li>{punkt}</li>
           {/each}
@@ -271,9 +272,10 @@
           <strong>{USIKKERT_UTFALL.tittel}</strong>
           <p>{USIKKERT_UTFALL.forklaring}</p>
         </Melding>
-      {:else if harSendt && kjernesak.feil && !kjernesak.sender}<Melding art="feil"
-          >{#if avvisning}
-            <strong>{SENDEFEIL.tittel}</strong>
+      {:else if harSendt && kjernesak.feil && !kjernesak.sender}
+        <Melding art="feil">
+          <strong>{SENDEFEIL.tittel}</strong>
+          {#if avvisning}
             <p>{avvisning}</p>
             {#if nummerEndret}
               <p><a href={`#${uid}-brevet`}>{SENDEFEIL.seOverBrevet}</a></p>
@@ -283,8 +285,15 @@
             {:else if avvisning === SENDEFEIL.serverfeil}
               <p>{SENDEFEIL.proevSenere}</p>
             {/if}
-          {:else}{kjernesak.feil}{/if}</Melding
-        >{/if}
+          {:else}
+            {@const innledning = `${SENDEFEIL.tittel}.`}
+            {@const grunn = kjernesak.feil.startsWith(innledning)
+              ? kjernesak.feil.slice(innledning.length).trimStart()
+              : kjernesak.feil}
+            {#if grunn}<p>{grunn}</p>{/if}
+          {/if}
+        </Melding>
+      {/if}
     </div>
   </section>
 </div>

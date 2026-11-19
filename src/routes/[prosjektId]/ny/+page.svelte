@@ -36,7 +36,7 @@
   const sakId = $derived(ventende?.sakId ?? crypto.randomUUID());
   const kommandoId = $derived(ventende?.kommandoId ?? nyKommandoId());
   const send: SendNySak = $derived(async (nySak) => {
-    lagreVentende(brukerId, prosjektId, { sakId, kommandoId, utkast: nySak.utkast, forsok: nySak });
+    lagreVentende(brukerId, prosjektId, { sakId, kommandoId, forsok: nySak });
     try {
       const svar = await sendNySak(prosjektId, kommandoId)(nySak);
       fjernVentende(brukerId, prosjektId);
@@ -45,7 +45,7 @@
       etterFeiletForsoek(
         brukerId,
         prosjektId,
-        { sakId, kommandoId, utkast: nySak.utkast, forsok: nySak },
+        { sakId, kommandoId, forsok: nySak },
         erKvittertBrevMangler(feil) ? 'lagret' : erUsikkertUtfall(feil) ? 'usikkert' : 'avvist'
       );
       throw feil;
@@ -74,7 +74,7 @@
         {send}
         hentMerking={() => hentSaksmerkingForNySak(prosjektId)}
         {vedleggForNySak}
-        utkast={ventende?.utkast ?? null}
+        utkast={ventende?.forsok?.utkast ?? ventende?.utkast ?? null}
         gjenoppta={ventende?.forsok ?? null}
         onsendt={(s) =>
           goto(resolve('/[prosjektId]/[sakId]', { prosjektId, sakId: s }), {

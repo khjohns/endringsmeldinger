@@ -68,7 +68,11 @@ export function heleDager(tekst: string): number | undefined {
 export function godkjenteDager(f: Fristvalg, krevd: number): number | undefined {
   if (f.dager === 'alle') return krevd;
   if (f.dager === 'avslaatt') return 0;
-  if (f.dager === 'deler') return heleDager(f.deldager);
+  if (f.dager === 'deler') {
+    const tekst = f.deldager.trim();
+    if (!tekst) return undefined;
+    return /^-?\d+(?:[.,]\d+)?$/.test(tekst) ? Number(tekst.replace(',', '.')) : NaN;
+  }
   return undefined;
 }
 

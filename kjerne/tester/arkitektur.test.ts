@@ -1668,6 +1668,12 @@ const LESBART: [eier: string, klasse: Klasse, felt: string, steder?: string[]][]
     'spor/frist/kommando.ts',
     'relasjon',
     'SPOERSMAALET.*',
+    ['spor/frist/kommando.ts:fristspoersmaalForPunkt'],
+  ],
+  [
+    'spor/frist/kommando.ts',
+    'relasjon',
+    'fristspoersmaalForPunkt',
     ['spor/frist/kommando.ts:spoersmaaletFor'],
   ],
   ['spor/frist/kommando.ts:utfylt(r)', 'kommando', 'dager_maatte_forstaa'],
