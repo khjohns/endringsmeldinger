@@ -163,7 +163,7 @@
   // Bare en feil fra sendingen her vises, ikke en som står igjen fra et tidligere forsøk (#1393).
   let harSendt = $state(false);
   const proevIgjen = $derived(
-    (harSendt || gjenopptar) && kjernesak.usikkertUtfall ? kjernesak.provIgjen : undefined
+    (harSendt || gjenopptar) && !!kjernesak.venterPaa?.(kommando) ? kjernesak.provIgjen : undefined
   );
   // Fokus til panelet når brevkontrollen åpnes, så tastatur og skjermleser starter der.
   onMount(() => tittelen?.focus());
@@ -185,7 +185,7 @@
     sendtMedMerking = merking;
     const sendt = await (proevIgjen ? proevIgjen() : kjernesak.send(kommando, tekst));
     if (sendt) onsendt();
-    else if (!kjernesak.usikkertUtfall) onavvist?.();
+    else if (!kjernesak.venterPaa?.(kommando)) onavvist?.();
   }
 </script>
 

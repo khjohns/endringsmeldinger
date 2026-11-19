@@ -691,4 +691,17 @@ describe('sakskonteksten for en TS-sak', () => {
       'Det er usikkert om brevet ble lagret. Prøv igjen: det lagres ikke to ganger.'
     );
   });
+  it('det usikre utfallet gjelder bare kommandoen som ble sendt, så et annet brev ikke får «Prøv å sende igjen» (#2213)', async () => {
+    const sak = lagKjernesak({
+      sakId: SAK,
+      prosjektId: 'p-1',
+      part: 'TE',
+      hent: async () => svar([opprettet]),
+      send: vi.fn().mockRejectedValue(new ApiError(0, 'Network error')),
+    });
+    await sak.last();
+    await sak.send(grunnlagskrav);
+    expect(sak.venterPaa(grunnlagskrav)).toBe(true);
+    expect(sak.venterPaa({ ...grunnlagskrav, tittel: 'Et annet brev' })).toBe(false);
+  });
 });

@@ -247,6 +247,8 @@ export interface Brevsending {
   readonly sendeavvisning?: Sendeavvisning | null;
   readonly nummerEndret?: boolean;
   readonly usikkertUtfall?: boolean;
+  /** Det usikre utfallet gjelder `kommando`, så «Prøv å sende igjen» sender det samme brevet. */
+  venterPaa?(kommando: Record<string, unknown>): boolean;
   provIgjen?(): Promise<boolean>;
   send(kommando: Record<string, unknown>, tekst?: string[]): Promise<boolean>;
   fjernFeil(): void;

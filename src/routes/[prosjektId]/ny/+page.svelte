@@ -10,7 +10,12 @@
   import NySak from '#lib/components/varden/NySak.svelte';
   import Vardensak from '#lib/components/varden/Vardensak.svelte';
   import { type SendNySak, type VedleggForNySak } from '#lib/components/varden/nysak.ts';
-  import { fjernVentende, lagreVentende, lesVentende } from '#lib/components/varden/ventende.ts';
+  import {
+    etterFeiletForsoek,
+    fjernVentende,
+    lagreVentende,
+    lesVentende,
+  } from '#lib/components/varden/ventende.ts';
   import {
     erUsikkertUtfall,
     hentSaksmerkingForNySak,
@@ -19,7 +24,7 @@
     sendNySak,
     slettVedleggForNySak,
   } from '#lib/api/kjerne.ts';
-  import { lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
+  import { erKvittertBrevMangler, lagKjernesak } from '#lib/kjernesak/kontekst.svelte.ts';
 
   const prosjektId = $derived(page.params.prosjektId ?? '');
   // Det ventende utkastet følger den innloggede (#1678).
@@ -37,7 +42,12 @@
       fjernVentende(brukerId, prosjektId);
       return svar;
     } catch (feil) {
-      if (!erUsikkertUtfall(feil)) fjernVentende(brukerId, prosjektId);
+      etterFeiletForsoek(
+        brukerId,
+        prosjektId,
+        { sakId, kommandoId, utkast: nySak.utkast, forsok: nySak },
+        erKvittertBrevMangler(feil) ? 'lagret' : erUsikkertUtfall(feil) ? 'usikkert' : 'avvist'
+      );
       throw feil;
     }
   });

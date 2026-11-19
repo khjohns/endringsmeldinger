@@ -79,3 +79,20 @@ export function fjernVentende(brukerId: string | undefined, prosjektId: string) 
     // Som over.
   }
 }
+
+/**
+ * Den ventende opprettelsen etter et forsøk som feilet (#2188). Er saken lagret, fjernes den.
+ * Er utfallet usikkert, står forsøket, så det gjenopptas med de samme ID-ene. Er forsøket
+ * sikkert avvist, står skjemaet uten forsøket, så en ny lasting viser skjemaet og ikke
+ * brevkontrollen for et brev som ikke ble sendt.
+ */
+export function etterFeiletForsoek(
+  brukerId: string | undefined,
+  prosjektId: string,
+  ventende: VentendeOpprettelse,
+  utfall: 'lagret' | 'usikkert' | 'avvist'
+) {
+  if (utfall === 'lagret') fjernVentende(brukerId, prosjektId);
+  else if (utfall === 'avvist')
+    lagreVentende(brukerId, prosjektId, { ...ventende, forsok: undefined });
+}

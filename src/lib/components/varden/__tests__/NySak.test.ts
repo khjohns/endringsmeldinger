@@ -591,7 +591,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
     cleanup();
     const hentMerking = vi.fn(async () => ({
       ...DEMOMERKING,
-      sakskode: { kode: 'koe', loepenummer: 18 },
+      sakskode: { kode: 'koe' as const, loepenummer: 18 },
     }));
     const andre = aapne(undefined, { gjenoppta: forsok, hentMerking });
 
@@ -616,7 +616,7 @@ describe('skjemaet for ny sak (BF-05)', () => {
       .mockResolvedValue({ sakId: 'ny-sak' });
     const hentMerking = async (): Promise<Saksmerking> => ({
       ...DEMOMERKING,
-      sakskode: { kode: 'koe', loepenummer: nummer },
+      sakskode: { kode: 'koe' as const, loepenummer: nummer },
     });
     aapne(send, { hentMerking });
     await fyllIrregulaerEndring();

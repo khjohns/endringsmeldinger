@@ -474,6 +474,12 @@ export function lagKjernesak(valg: Kjernesakvalg) {
     get usikkertUtfall() {
       return ventende !== null;
     },
+    /** Den ventende kommandoen er `kommando`, med eller uten brevteksten som ble sendt. */
+    venterPaa(kommando: Record<string, unknown>) {
+      const utenTekst = (k: Record<string, unknown>) =>
+        JSON.stringify({ ...k, brevtekst: undefined });
+      return !!ventende && utenTekst(ventende.kommando) === utenTekst($state.snapshot(kommando));
+    },
     get sendeavvisning() {
       return sendeavvisning;
     },

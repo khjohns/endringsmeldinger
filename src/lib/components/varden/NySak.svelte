@@ -310,6 +310,8 @@
     get usikkertUtfall() {
       return ventende !== null;
     },
+    // Skjemaet har bare ett brev, så det ventende forsøket er alltid brevet i kontrollen.
+    venterPaa: () => ventende !== null,
     send(_kommando, tekst) {
       const utkast = utfylling();
       const { opprettelse, paaberopelse } = kommandoene(utkast, KJERNE);
