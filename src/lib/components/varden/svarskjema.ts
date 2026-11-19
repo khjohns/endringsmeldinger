@@ -77,7 +77,12 @@ export interface BegrunnelseISkjemaet extends Begrunnelsespunkt {
 export interface Skjemapunkt {
   punkt: string;
   navn: string;
-  linjer?: readonly { tekst: string; lag: string | null; vilkaar?: Innsigelsen[] }[];
+  linjer?: readonly {
+    tekst: string;
+    lag: string | null;
+    vilkaar?: Innsigelsen[];
+    heller?: boolean;
+  }[];
   aktiv?: boolean;
 }
 

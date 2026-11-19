@@ -211,24 +211,28 @@
                 : ''),
         lag: l.lag,
         vilkaar: l.vilkaar,
+        heller: l.heller,
       };
     })
   );
   // Leselinjen for en lukket frist: dagene slik kjernen leser dem, eller valget til svaret er
   // fullstendig.
   const leselinje = (f: Fristpost): string[] => {
-    const medVilkaar = (t: string, vilkaar: Parameters<typeof FRISTEN.vilkaar>[0] = []) =>
-      vilkaar.length ? [FRISTEN.vilkaar(vilkaar), t] : [t];
+    const medVilkaar = (
+      t: string,
+      vilkaar: Parameters<typeof FRISTEN.vilkaar>[0] = [],
+      heller?: boolean
+    ) => (vilkaar.length ? [FRISTEN.vilkaar(vilkaar, heller), t] : [t]);
     // D-5: dagene byggherren måtte forstå står i laget sitt før dagene byggherren godtar.
     const fra = nyeStandpunkter.flatMap((l) => {
       if (!('standpunkt' in l)) return [];
       const s = l.standpunkt;
       if (s.art === 'spesifisering') {
         const m = s.maatteForstaa?.find((x) => x.frist === f.id);
-        return m ? medVilkaar(FRISTSVAR.maatteForstaaLinje(m.dager), l.vilkaar) : [];
+        return m ? medVilkaar(FRISTSVAR.maatteForstaaLinje(m.dager), l.vilkaar, l.heller) : [];
       }
       if (s.art !== 'dager' || s.gjelder !== f.id) return [];
-      return medVilkaar(FRISTSVAR.leselinjeDager(s.vurdert, f.dager), l.vilkaar);
+      return medVilkaar(FRISTSVAR.leselinjeDager(s.vurdert, f.dager), l.vilkaar, l.heller);
     });
     if (fra.length) return fra;
     const d = godkjenteDager(fristvalget(valg, f.id), f.dager);

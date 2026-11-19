@@ -186,6 +186,7 @@
               ),
         lag: l.lag,
         vilkaar: l.vilkaar,
+        heller: l.heller,
       };
     })
   );

@@ -50,7 +50,7 @@
       <h3 id={`${uid}-alle`}>{FRISTEN.forAlle}</h3>
       {#each k.felles as l, i (l.lag)}
         <div class="lag" class:under={i > 0}>
-          {#if l.vilkaar.length}<p>{FRISTEN.vilkaar(l.vilkaar)}</p>{/if}
+          {#if l.vilkaar.length}<p>{FRISTEN.vilkaar(l.vilkaar, l.heller)}</p>{/if}
           {#each VEDERLAGET.laget(l) as tekst, j (j)}<p>{tekst}</p>{/each}
           {#if l.dager !== null}<Maalrad
               navn={FRISTEN.godkjent}
@@ -76,7 +76,7 @@
             l.lag === sistePerFrist
           )}
           <li>
-            {#if l.vilkaar.length}<b>{FRISTEN.vilkaar(l.vilkaar)}</b>{/if}
+            {#if l.vilkaar.length}<b>{FRISTEN.vilkaar(l.vilkaar, l.heller)}</b>{/if}
             {#each grunnlag as tekst, i (i)}<p>{tekst}</p>{/each}
           </li>
         {/each}

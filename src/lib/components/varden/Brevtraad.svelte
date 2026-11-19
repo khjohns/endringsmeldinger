@@ -165,7 +165,9 @@
               <ul class="lagene" aria-label={FORHOLDET.lagene}>
                 {#each i.standpunkter as l, j (l.standpunkt.id)}
                   <li class:under={j > 0 && l.lag !== i.standpunkter[0]?.lag}>
-                    {#if l.vilkaar?.length}<b>{VEDERLAGET.lagetVilkaar(l.vilkaar)}</b>{/if}
+                    {#if l.vilkaar?.length && l.vilkaar !== i.standpunkter[j - 1]?.vilkaar}<b
+                        >{VEDERLAGET.lagetVilkaar(l.vilkaar, l.heller)}</b
+                      >{/if}
                     <span>{FORHOLDET.standpunkt(l.standpunkt, l.brev, l.ordene)}</span>
                   </li>
                 {/each}

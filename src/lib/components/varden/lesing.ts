@@ -369,7 +369,7 @@ export function datoopplysningene(u: Utledning): Datoopplysningen[] {
  * fra svaret på forholdet brevet hadde foran seg, med brevet det står i, eller et standpunkt i
  * svaret.
  */
-export type Standpunktet = { lag: string | null; vilkaar?: Innsigelsen[] } & (
+export type Standpunktet = { lag: string | null; vilkaar?: Innsigelsen[]; heller?: boolean } & (
   | { grunn: Subsidiaergrunn; brev: Brevref }
   | { standpunkt: Standpunkt }
 );
@@ -388,8 +388,8 @@ export function standpunktene(svar: Svar, u: Utledning): Standpunktet[] {
   const plass = plassene(svar, svar.beslutningsgrunnlag.virkninger, grunner.length);
   const lagene = lageneISvaret(u, svar, brevene(u), 0, 'dager');
   const vilkaarFor = (lag: number | null) => {
-    const vilkaar = lag === null ? [] : (lagene[lag - 1]?.vilkaar ?? []);
-    return vilkaar.length ? { vilkaar } : {};
+    const laget = lag === null ? undefined : lagene[lag - 1];
+    return laget?.vilkaar.length ? { vilkaar: laget.vilkaar, heller: laget.heller } : {};
   };
   return [
     ...grunner.map((grunn, i) => ({
@@ -544,6 +544,7 @@ export interface Innlegget {
     brev: Brevref | null;
     ordene: Forholdsordene;
     vilkaar?: Innsigelsen[];
+    heller?: boolean;
   }[];
 }
 
@@ -621,7 +622,7 @@ export function innleggene(u: Utledning): Map<string, Innlegget> {
             lag: l.lag,
             brev: b ? ref(b) : null,
             ordene,
-            ...(l.vilkaar ? { vilkaar: l.vilkaar } : {}),
+            ...(l.vilkaar ? { vilkaar: l.vilkaar, heller: l.heller } : {}),
           },
         ];
       }),

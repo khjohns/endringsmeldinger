@@ -62,8 +62,10 @@ function kortStandpunkt(s: Standpunkt, krevd?: number): string | null {
 function leselinjeneMedVanligeMellomrom(
   linjer: Standpunktet[],
   post: Kravpost,
-  vilkaar: (innsigelser: Innsigelsen[]) => string
+  vilkaar: (innsigelser: Innsigelsen[], heller?: boolean) => string
 ): string[] {
+  // Vilkåret står én gang for standpunktene i samme lag (#2182).
+  let forrige: Innsigelsen[] | undefined;
   return linjer.flatMap((l) => {
     if (!('standpunkt' in l)) return [];
     const s = l.standpunkt;
@@ -73,7 +75,9 @@ function leselinjeneMedVanligeMellomrom(
       s.art === 'beloep' && !s.saerskilt ? (post.beloep ?? 0) : undefined
     );
     if (!t) return [];
-    return l.vilkaar?.length ? [vilkaar(l.vilkaar), t] : [t];
+    const nytt = l.vilkaar?.length && l.vilkaar !== forrige;
+    forrige = l.vilkaar;
+    return nytt ? [vilkaar(l.vilkaar!, l.heller), t] : [t];
   });
 }
 

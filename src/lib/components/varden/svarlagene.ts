@@ -28,6 +28,8 @@ export interface Svarlaget {
   iSporet: number;
   /** Innsigelsene i laget foran, som laget gjelder hvis ikke fører frem (OV-U32). */
   vilkaar: Innsigelsen[];
+  /** Laget kommer etter minst to lag, så vilkåret sier «heller ikke» (LV-U4 punkt 4). */
+  heller: boolean;
   /** Grunnene fra svaret på forholdet i laget (OV-U33), med brevet de står i. */
   grunner: { grunn: Subsidiaergrunn; brev: Brevet }[];
   /** Standpunktene i laget utenom beløpet eller dagene, med brevet en påberopelse gjelder. */
@@ -80,6 +82,7 @@ export function lageneISvaret(
       etikett: antall > 1 ? etikett(lag) : null,
       iSporet: lag - grunner.length,
       vilkaar: [],
+      heller: lag > 2,
       grunner: lag <= grunner.length && grunnbrev ? [{ grunn: grunner[i]!, brev: grunnbrev }] : [],
       standpunkter: svar.standpunkter
         .filter((x) => x.art !== utenom && plass.standpunkt(x.id).lag === lag)

@@ -47,7 +47,8 @@ export const FRISTEN = haerdet({
     `Fristen er ${dato(iKontrakten)} i kontrakten. Gjeldende frist kan ikke regnes nå, fordi en annen sak i prosjektet ikke kan leses.`,
   ikkeRegistrert: 'Gjeldende frist er ikke kjent, fordi fristen ikke er registrert for prosjektet.',
   /** Vilkåret for et lag i fristsvaret (BF-45 U-3 og U-4). */
-  vilkaar: (innsigelser: readonly Innsigelsen[]) => VEDERLAGET.lagetVilkaar(innsigelser),
+  vilkaar: (innsigelser: readonly Innsigelsen[], heller = false) =>
+    VEDERLAGET.lagetVilkaar(innsigelser, heller),
   /** Det laget bygger på, i brevets ord, og de dagene byggherren godkjenner i det siste laget. */
   grunnlaget: (standpunkter: Standpunkt[], sist: boolean) =>
     standpunkter.length

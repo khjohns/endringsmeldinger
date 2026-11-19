@@ -289,7 +289,8 @@ describe('Siden for vederlaget (BF-44, oppsett B)', () => {
     ).toEqual([
       'Byggherren gjør gjeldende at varselet etter punkt\u00a034.1.2 i brev 2 kom for sent.',
       'Hvis innsigelsen om at varselet etter punkt\u00a034.1.2 kom for sent ikke fører frem',
-      'Hvis innsigelsen om at varselet etter punkt\u00a034.1.3 kom for sent ikke fører frem',
+      // Det tredje laget: «heller ikke», som prototypen `vederlagsoversikt-v2.html` og brevet.
+      'Hvis heller ikke innsigelsen om at varselet etter punkt\u00a034.1.3 kom for sent fører frem',
     ]);
     const tabell = kort.getByRole('table', { name: 'Per post' });
     expect(within(tabell).getAllByRole('row').at(-1)?.textContent).toBe(

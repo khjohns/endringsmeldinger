@@ -245,7 +245,8 @@ describe('Siden for fristforlengelsen', () => {
         )
     ).toEqual([
       'Hvis innsigelsen om at varselet etter punkt 33.4 kom for sent ikke fører frem Byggherren gjør gjeldende at kravet ble spesifisert for sent (punkt 33.6.1). Byggherren godkjenner dagene byggherren måtte forstå.',
-      'Hvis innsigelsen om spesifiseringen ikke fører frem Dagene byggherren godkjenner.',
+      // Det tredje laget: «heller ikke», som brevets «Videre subsidiært» (LV-U4 punkt 4).
+      'Hvis heller ikke innsigelsen om spesifiseringen fører frem Dagene byggherren godkjenner.',
     ]);
     const overtakelse = within(per.getByRole('region', { name: /^Frist 2\s+Overtakelse$/ }));
     expect(
