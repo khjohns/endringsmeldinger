@@ -196,7 +196,6 @@
         <div class="hilsen" class:bh={avsender === 'BH'}>
           <p>{BREVSTEG.hilsen}</p>
           <p><strong>{avsendernavn}</strong></p>
-          <p class="navn-settes">{BREVSTEG.navnSettes}</p>
         </div>
       {/if}
 
@@ -237,11 +236,6 @@
   }
   .hilsen.bh {
     font-family: var(--font-brev-bh);
-  }
-  .navn-settes {
-    margin-top: var(--spacing-1);
-    color: var(--ink-3);
-    font: 14px var(--font-sans);
   }
   .steg {
     background: var(--surface);

@@ -256,7 +256,7 @@ try {
     throw new Error(`Brevet sier ikke lagene ${ETIKETTER.join(', ')} og det subsidiære beløpet`);
   await steg('bh-kontrollerer-brevet', true);
   await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
-  await knapp('Send svaret til totalentreprenøren').click();
+  await knapp('Send til totalentreprenøren').click();
   await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).waitFor({ state: 'detached' });
   await steg('bh-har-sendt', true);
 
@@ -270,7 +270,7 @@ try {
   console.log(`Aksepten TE kontrollerer:\n${await article('Aksept av svaret').getByTestId('laast-tekst').innerText()}`);
   await steg('te-godtar');
   await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).check();
-  await knapp('Send aksepten til byggherren').click();
+  await knapp('Send til byggherren').click();
   await page.getByRole('checkbox', { name: 'Jeg har kontrollert brevet' }).waitFor({ state: 'detached' });
   if (await knapp(/^Godta svaret/).isVisible())
     throw new Error('TE får fortsatt tilbud om å godta svaret etter aksepten');

@@ -153,7 +153,7 @@
                 {
                   tekst: tekster.forbehold.trim()
                     ? SKJEMA.skrevet
-                    : overskriftene.has(FORBEHOLDET)
+                    : overskriftene.get(FORBEHOLDET)
                       ? SKJEMA.staarIBrevet
                       : SKJEMA.ikkeSkrevet,
                   lag: null,

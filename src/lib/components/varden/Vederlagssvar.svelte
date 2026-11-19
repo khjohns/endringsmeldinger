@@ -636,7 +636,6 @@
           prefiks={uid}
           kolonne={SVARSKJEMA.postKolonne}
           navn={(p) => p.betegnelse}
-          brevoverskrift={(p) => overskrift(p.betegnelse)}
           aktiv={(p) => foerstePunkt === p.betegnelse}
           beskrivelse={(p) => p.beskrivelse}
           krever={(p) =>

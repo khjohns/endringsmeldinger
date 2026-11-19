@@ -142,9 +142,8 @@ describe('Varden med brukerforløpet BF-01', () => {
     const vist = await bhSvarerIVarden();
     const brevkontrollen = within(screen.getByRole('region', { name: 'Sending' }));
     expect(brevkontrollen.getByText('Kontroller og send')).toHaveAttribute('aria-current', 'step');
-    expect(
-      brevkontrollen.getByText('Enigheten registreres ut fra valgene du har gjort.')
-    ).toBeVisible();
+    // GR-U7: enigheten registreres bare ved sammenfall, så brevkontrollen sier det ikke ellers.
+    expect(brevkontrollen.queryByText(/Enigheten registreres/)).toBeNull();
     expect(
       brevkontrollen
         .getAllByRole('listitem')

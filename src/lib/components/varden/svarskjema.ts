@@ -79,24 +79,32 @@ export interface Skjemapunkt {
   aktiv?: boolean;
 }
 
-/** Inneholder brevets egne nummer og ordlyd for punkter som har overskrift. */
-export const punktoverskriftene = (avsnitt: readonly Avsnitt[] = []) =>
-  new Map(
-    avsnitt.flatMap(({ punkt, overskrift }) =>
-      punkt && overskrift ? [[punkt, overskrift] as const] : []
-    )
-  );
+/**
+ * Brevets punkter i brevets rekkefølge, med brevets egne nummer og ordlyd der punktet har
+ * overskrift. Med flere kravposter har bare den første posten overskriften (KA-U53), og de
+ * andre står under den uten.
+ */
+export const punktoverskriftene = (avsnitt: readonly Avsnitt[] = []) => {
+  const punktene = new Map<string, string | undefined>();
+  for (const { punkt, overskrift } of avsnitt)
+    if (punkt && !punktene.get(punkt)) punktene.set(punkt, overskrift || undefined);
+  return punktene;
+};
 
+/**
+ * Punktene i panelet i brevets rekkefølge. Et punkt med overskrift i brevet har brevets navn,
+ * og står også før skjemaet har svaret. Punktene brevet ikke har, står sist.
+ */
 export function panelpunktene(
   punkter: readonly Skjemapunkt[],
-  overskrifter: ReadonlyMap<string, string>
+  overskrifter: ReadonlyMap<string, string | undefined>
 ): Skjemapunkt[] {
   return [
-    ...[...overskrifter].map(([punkt, navn]) => ({
-      ...punkter.find((p) => p.punkt === punkt),
-      punkt,
-      navn,
-    })),
+    ...[...overskrifter].flatMap(([punkt, navn]) => {
+      const p = punkter.find((q) => q.punkt === punkt);
+      if (navn) return [{ ...p, punkt, navn }];
+      return p ? [p] : [];
+    }),
     ...punkter.filter((p) => !overskrifter.has(p.punkt)),
   ];
 }

@@ -195,11 +195,8 @@
         punkt:
           'grunn' in l
             ? FORHOLDET
-            : l.standpunkt.art === 'rettidighet'
-              ? l.standpunkt.hjemmel
-              : l.standpunkt.art === 'dager'
-                ? l.standpunkt.gjelder
-                : l.standpunkt.art,
+            : (BREVTEKSTEN_I_FRISTEN.punktet(l.standpunkt, krav) ??
+              (l.standpunkt.art === 'rettidighet' ? l.standpunkt.hjemmel : l.standpunkt.art)),
         tekst:
           'grunn' in l
             ? grunntekst(l.grunn, true, l.brev)
@@ -552,7 +549,7 @@
       id={`${uid}-sp-varsel`}
       aktiv={foersteSporsmaal === 'frist_varsel_ok'}
       tittel={overskrift('33.4') ?? FRISTSVAR.varselTittel}
-      hjemmel={['33.4']}
+      hjemmel={overskrift('33.4') ? undefined : ['33.4']}
     >
       <Varseldatoer {u} spor="frist" sendt={FRISTSVAR.kravSendt} />
       <Gjelderhvis id={`${uid}-varsel-forutsetninger`} liste={grunnene} punkt={forutsetning} />
@@ -575,7 +572,7 @@
         id={`${uid}-sp-foresporsel`}
         aktiv={foersteSporsmaal === 'foresporsel_svar_ok'}
         tittel={overskrift('33.6.2') ?? FRISTSVAR.foresporselTittel}
-        hjemmel={['33.6.2']}
+        hjemmel={overskrift('33.6.2') ? undefined : ['33.6.2']}
       >
         <Gjelderhvis
           id={`${uid}-foresporsel-forutsetninger`}
@@ -631,7 +628,7 @@
         id={`${uid}-sp-spesifisering`}
         aktiv={foersteSporsmaal === 'spesifisert_krav_ok'}
         tittel={overskrift('spesifisering') ?? FRISTSVAR.spesifiseringTittel}
-        hjemmel={['33.6.1']}
+        hjemmel={overskrift('spesifisering') ? undefined : ['33.6.1']}
       >
         <Gjelderhvis
           id={`${uid}-spesifisert-forutsetninger`}
