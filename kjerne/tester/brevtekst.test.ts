@@ -4700,13 +4700,13 @@ describe('forespørselen og svaret etter § 33.6.2 (VS-U17, VS-U19, VS-U27, VS-U
 
   it('KA-U86: etter innsigelsen etter § 33.6.2 alene er også en bekreftet hindring subsidiær', () => {
     const vurdering = { ...utenFelt(FRIST_FULLT[0], 'spesifisert_krav_ok'), frist_varsel_ok: true };
-    const lagene = (foresporsel_svar_ok: boolean) => {
+    const lagene = (iTide: boolean) => {
       const { s } = medForesporsel();
       s.send('TE', utenFelt(FRISTKRAV, 'varsel'));
       const rad = fristsvar(
         s,
-        { ...vurdering, foresporsel_svar_ok },
-        foresporsel_svar_ok
+        { ...vurdering, foresporsel_svar_ok: iTide },
+        iTide
           ? { resultat: 'godkjent', godkjent_dager: 20 }
           : { resultat: 'avslaatt', godkjent_dager: 0 }
       );
