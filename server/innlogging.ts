@@ -18,11 +18,17 @@
  * loggen får bare navnet på feiltypen, som i Python.
  */
 
+import {
+  loggAvvisning,
+  type ForsoktIdentitet,
+  type Innloggingsavvisning,
+  type Innloggingshendelse,
+} from './tilgangslogg.ts';
 import { kjenteLoggfelter, loggFeil } from './logg.ts';
 import { validateHeaderName, validateHeaderValue, type IncomingMessage } from 'node:http';
 
 import type { Avhengigheter, Innlogget, Rute, Svar } from './rutetyper.ts';
-import { informasjonskapsel, sesjonsnavn } from './autorisasjon.ts';
+import { informasjonskapsel, sesjonsnavn, uuidMedBindestreker } from './autorisasjon.ts';
 import { CatendaOAuth, catendaFraMiljoe, type CatendaBruker } from './catenda.ts';
 import { sql, utenKontekst, type Pool } from './datalag.ts';
 import { entraFraMiljoe, entraIdentitet, type EntraOIDC } from './entra.ts';
@@ -204,10 +210,14 @@ export async function catendaIdentitet(pool: Pool, bruker: CatendaBruker): Promi
 async function medlemskapVedInnlogging(
   pool: Pool,
   oauth: Innloggingsleverandoer,
-  token: string
+  token: string,
+  verifisert: (id: ForsoktIdentitet) => void
 ): Promise<string> {
   const catendaBruker = await oauth.bruker(token);
+  const subjekt = uuidMedBindestreker(catendaBruker.subjekt);
+  if (subjekt) verifisert({ subjekt });
   const bruker = await catendaIdentitet(pool, catendaBruker);
+  kjenteLoggfelter({ aktor_id: bruker });
   const hentet = await basensKlokke(pool);
   const catendaProsjekter = [...(await oauth.prosjekter(token))];
   for (const prosjekt of await kobledeProsjekter(pool, catendaProsjekter))
@@ -222,6 +232,7 @@ async function medlemskapVedInnlogging(
 
 /** Det som skiller innloggingen med Catenda fra innloggingen med Entra ID. */
 interface Leverandoer {
+  hendelse: Innloggingshendelse;
   /**
    * Det som følger sesjonsnavnet i navnet på innloggingskapselen. Hver leverandør har sin, så et
    * forsøk startet for den ene ikke kan fullføres på tilbakekallet til den andre.
@@ -235,16 +246,18 @@ interface Leverandoer {
     innlogging: Innlogging,
     kode: string,
     nettleser: string,
-    avh: Required<Avhengigheter>
+    avh: Required<Avhengigheter>,
+    verifisert: (id: ForsoktIdentitet) => void
   ): Promise<string>;
 }
 
 const CATENDA: Leverandoer = {
+  hendelse: 'innlogging_catenda',
   kapselsuffiks: '_login',
   sattOpp: () => true,
   adresse: ({ oauth }, { state }) => oauth.autorisasjonsadresse(state),
-  konto: async ({ oauth }, kode, _nettleser, avh) =>
-    medlemskapVedInnlogging(avh.datalag, oauth, await oauth.byttKode(kode)),
+  konto: async ({ oauth }, kode, _nettleser, avh, verifisert) =>
+    medlemskapVedInnlogging(avh.datalag, oauth, await oauth.byttKode(kode), verifisert),
 };
 
 /**
@@ -252,12 +265,16 @@ const CATENDA: Leverandoer = {
  * En identitet driften har koblet til en eksisterende bruker, har den brukerens medlemskap (S5 i #831).
  */
 const ENTRA: Leverandoer = {
+  hendelse: 'innlogging_entra',
   kapselsuffiks: '_entra_login',
   sattOpp: ({ entra }) => Boolean(entra),
   adresse: ({ entra }, { state, nettleser }) => entra!.autorisasjonsadresse(state, nettleser),
-  konto: async ({ entra }, kode, nettleser, avh) => {
+  konto: async ({ entra }, kode, nettleser, avh, verifisert) => {
     const idToken = await entra!.byttKode(kode, nettleser);
-    return entraIdentitet(avh.datalag, await entra!.valider(idToken, nettleser, avh.tidspunkt()));
+    const identitet = await entra!.valider(idToken, nettleser, avh.tidspunkt());
+    const tenant = new URL(identitet.issuer).pathname.split('/')[1];
+    verifisert({ subjekt: identitet.subjekt, tenant });
+    return entraIdentitet(avh.datalag, identitet);
   },
 };
 
@@ -266,7 +283,12 @@ async function loggInn(
   avh: Required<Avhengigheter>,
   leverandoer: Leverandoer
 ): Promise<Svar> {
-  if (!avh.innlogging || !leverandoer.sattOpp(avh.innlogging)) return utilgjengelig();
+  const avvist = () =>
+    loggAvvisning(avh.datalag, { hendelse: leverandoer.hendelse, grunn: 'utilgjengelig' });
+  if (!avh.innlogging || !leverandoer.sattOpp(avh.innlogging)) {
+    await avvist();
+    return utilgjengelig();
+  }
   const url = new URL(foresporsel.url ?? '/', 'http://localhost');
   try {
     const forsoek = await opprettInnloggingsforsoek(
@@ -283,6 +305,7 @@ async function loggInn(
     ]);
   } catch (feil) {
     loggFeil('Innloggingen kunne ikke startes', feil);
+    await avvist();
     return utilgjengelig();
   }
 }
@@ -294,20 +317,35 @@ async function tilbakekall(
   leverandoer: Leverandoer
 ): Promise<Svar> {
   const innlogging = avh.innlogging;
-  if (!innlogging || !leverandoer.sattOpp(innlogging)) return [503, { error: 'AUTH_UNAVAILABLE' }];
+  let identitet: ForsoktIdentitet | undefined;
+  const avvis = (grunn: Innloggingsavvisning) =>
+    loggAvvisning(avh.datalag, { hendelse: leverandoer.hendelse, grunn, identitet });
+  if (!innlogging || !leverandoer.sattOpp(innlogging)) {
+    await avvis('utilgjengelig');
+    return [503, { error: 'AUTH_UNAVAILABLE' }];
+  }
   const url = new URL(foresporsel.url ?? '/', 'http://localhost');
   const navn = sesjonsnavn();
   const naa = avh.tidspunkt();
   const ryddForsoek = kapsel(`${navn}${leverandoer.kapselsuffiks}`, '', 0, naa);
   const mislyktes = omdiriger(`${innlogging.frontend}/login?error=login_failed`, [ryddForsoek]);
+  let grunn: Innloggingsavvisning = 'ugyldig_forsoek';
   try {
     const state = url.searchParams.getAll('state');
     const kode = url.searchParams.getAll('code');
     const nettleser = informasjonskapsel(foresporsel, `${navn}${leverandoer.kapselsuffiks}`);
-    if (state.length !== 1 || !state[0] || !nettleser) return mislyktes;
-    const retursti = await brukInnloggingsforsoek(avh.datalag, state[0], nettleser);
-    if (retursti === null || url.searchParams.get('error') || kode.length !== 1 || !kode[0])
+    const retursti =
+      state.length === 1 && state[0] && nettleser
+        ? await brukInnloggingsforsoek(avh.datalag, state[0], nettleser)
+        : null;
+    if (retursti === null) {
+      await avvis('ugyldig_forsoek');
       return mislyktes;
+    }
+    if (url.searchParams.get('error') || kode.length !== 1 || !kode[0]) {
+      await avvis(url.searchParams.get('error') ? 'leverandoer_avviste' : 'kode_mangler');
+      return mislyktes;
+    }
     // Basen gir den lagrede stien tilbake uten ny kontroll.
     const innlogget = (token: string) =>
       omdiriger(`${innlogging.frontend}${tryggRetursti(retursti)}`, [
@@ -317,21 +355,20 @@ async function tilbakekall(
     // Hodene prøves før sesjonen endres, så et hode Node avviser, ikke etterlater en
     // sesjon klienten aldri fikk (#763 punkt 8). Tokenet er base64url.
     kontrollerHoder(innlogget(''), rute);
-    const bruker = await leverandoer.konto(innlogging, kode[0], nettleser, avh);
+    grunn = 'identitet_eller_medlemskap';
+    const bruker = await leverandoer.konto(innlogging, kode[0], nettleser, avh, (verifisert) => {
+      identitet = verifisert;
+    });
     kjenteLoggfelter({ aktor_id: bruker });
-    const sesjon = await opprettSesjon(avh.datalag, bruker);
-    const gammel = informasjonskapsel(foresporsel, navn);
-    // Den nye sesjonen slettes når den gamle ikke kan slettes, så klienten beholder én (#854 punkt 1).
-    if (gammel)
-      await slettSesjon(avh.datalag, gammel).catch(async (feil) => {
-        await slettSesjon(avh.datalag, sesjon.token).catch((rydding) =>
-          loggFeil('Den nye sesjonen kunne ikke slettes etter tilbakekallet', rydding)
-        );
-        throw feil;
-      });
+    grunn = 'sesjon_feilet';
+    const sesjon = await opprettSesjon(avh.datalag, bruker, {
+      hendelse: leverandoer.hendelse,
+      gammel: informasjonskapsel(foresporsel, navn),
+    });
     return innlogget(sesjon.token);
   } catch (feil) {
     loggFeil('Tilbakekallet fra innloggingen feilet', feil);
+    await avvis(grunn);
     return mislyktes;
   }
 }

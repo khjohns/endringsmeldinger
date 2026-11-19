@@ -569,7 +569,7 @@ data = "Brukerens token, byttet mot koden fra tilbakekallet (`grant_type=authori
 
 [[flyt.steg]]
 fra = "catenda:bruker"
-til = ["koe.app_users", "koe.app_identities"]
+til = ["koe.app_users", "koe.app_identities", "koe.tilgangslogg"]
 endepunkt = "GET /v2/user"
 kode = [
     "server/innlogging.ts:tilbakekall",
@@ -580,7 +580,8 @@ kode = [
 data = """
 Subjektet i `catendaId()`-formen, e-posten og navnet, til `koe_api.catenda_identitet`,
 som løser identiteten med `koe.resolve_identity`. Brukerraden får navnet og
-e-posten."""
+e-posten. Ved avvist innlogging kan tilgangsloggen få det verifiserte subjektet
+når en intern bruker-ID mangler."""
 
 [[flyt.steg]]
 fra = "catenda:prosjekt"
