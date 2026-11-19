@@ -395,7 +395,7 @@ describe('primærhandlingen i «Det du kan gjøre nå» (#1649)', () => {
     const kortet = await vis('BF-04', 'te-har-mottatt-svaret', 'TE', 'vederlag');
     await fireEvent.click(kortet.getByRole('button', { name: 'Oppdater kravet' }));
     expect(
-      await screen.findByRole('heading', { name: 'Vederlagsjustering', level: 3 })
+      await screen.findByRole('heading', { name: /^(?:\d+\. )?Vederlagsjustering$/, level: 3 })
     ).toBeTruthy();
     expect(screen.queryByText(HANDLINGENE.ikkeBygget)).toBeNull();
   });
