@@ -57,6 +57,10 @@ describe('sendefeil i et eksisterende brev (#2188, E-2)', () => {
     const { kjernesak, melding } = await sendeforsok(new ApiError(403, 'INTERN TILGANGSFEIL'));
     expect(melding).toHaveTextContent('Brevet ble ikke sendt');
     expect(melding).toHaveTextContent('Beklager, du har ikke tilgang til å sende brev i saken nå.');
+    // Svar 6A 19.11 i #2209: 403 er oftest manglende tilgang, så rådet nevner også administratoren.
+    expect(melding).toHaveTextContent(
+      'Mangler du tilgang, kontakt den som administrerer prosjektet.'
+    );
     const lenke = within(melding).getByRole('link', { name: 'Logg inn på nytt i en ny fane' });
     expect(lenke).toHaveAttribute('href', '/login?return_to=%2Fp-1%2Fs-1%3Fspor%3Dvederlag');
     expect(lenke).toHaveAttribute('target', '_blank');
