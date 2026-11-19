@@ -36,8 +36,8 @@ import type {
 /**
  * Virkningen av hvert standpunkt i svaret etter regelsettet, regnet når brevet
  * skrives. `påberopelse` er kravet et svar på påberopelsen gjelder. Laget er et nummer fra 1.
- * Hver grunn med virkning åpner et nytt lag for standpunktene etter den, og påberopelsene
- * av rettidighet står i det første (OV-U32, vedtaket 05.10). `forskyvning` er lagene
+ * Hver grunn med virkning åpner et nytt lag for standpunktene etter den (OV-U32), også
+ * påberopelsene av rettidighet i fristen (KA-U85). `forskyvning` er lagene
  * svaret på forholdet opptar foran sporet (`lagFraForholdet`).
  */
 export function virkninger(

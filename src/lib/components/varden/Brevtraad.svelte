@@ -334,7 +334,7 @@
   }
   .dato {
     color: var(--ink-3);
-    font-size: 13px;
+    font-size: 12px;
     font-variant-numeric: tabular-nums;
   }
   h4 {

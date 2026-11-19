@@ -72,6 +72,9 @@ function skrevet(kommando: unknown, journal: Journalrad[]): Journalrad {
 const svar = (journal: Journalrad[], part: Kjernesak['part'] = null): LastetKjernesak => ({
   versjon: journal.at(-1)!.versjon,
   part,
+  sakskode: MERKING.sakskode,
+  kontraktsforkortelse: MERKING.kontraktsforkortelse,
+  kan_foreslaa_sakskode: false,
   visning: { status: { kode: 'fra_serveren', tekst: 'Fra serveren' } } as unknown as Visning,
   journal: journal.map(linje),
   leveringsoppdrag: [],

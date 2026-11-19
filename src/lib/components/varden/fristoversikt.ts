@@ -20,6 +20,9 @@ import { lageneISvaret, medForbehold, utenLag, type Svarlaget } from './svarlage
 export interface Fristlaget {
   lag: number;
   etikett: string | null;
+  /** Innsigelsene laget gjelder hvis ikke fører frem, som raden heter etter (U-4). */
+  vilkaar: Svarlaget['vilkaar'];
+  heller: boolean;
   dager: number;
 }
 
@@ -148,7 +151,9 @@ export function kravetOgSvaretIFristen(
       ...f,
       lagene: perFrist.flatMap((l) => {
         const dager = dagerI(f.id, l);
-        return dager === undefined ? [] : [{ lag: l.lag, etikett: l.etikett, dager }];
+        return dager === undefined
+          ? []
+          : [{ lag: l.lag, etikett: l.etikett, vilkaar: l.vilkaar, heller: l.heller, dager }];
       }),
       avslag: avslaget(f.id),
     })),

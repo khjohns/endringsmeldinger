@@ -110,7 +110,7 @@
             {@const ny = nyFrist(g, l.dager)}
             <li>
               <Maalrad
-                navn={FRISTEN.godkjent}
+                navn={FRISTEN.radnavn(l.vilkaar, l.heller)}
                 verdi={dager(l.dager)}
                 etter={ny ? FRISTEN.nyFrist(ny) : null}
                 andel={l.dager > 0 && l.dager !== f.lagene[i - 1]?.dager ? andel(l.dager) : null}
