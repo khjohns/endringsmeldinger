@@ -65,4 +65,10 @@
   .tekst {
     min-width: 0;
   }
+  /* En lenke i meldingen skilles fra teksten med understrek, ikke bare med farge (WCAG 1.4.1). */
+  .tekst :global(a) {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 </style>
