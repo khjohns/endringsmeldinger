@@ -168,8 +168,8 @@ export class Kjoering {
       typeof h.klientregler === 'string' ? REGELSETT[h.klientregler] : this.kjerne.regler;
     const klient = utledJournal(journal, medRegler(klientregler, this.kjerne));
     const k = kommandoFor(h, klient, klientregler, this.navn);
-    const vedlegg = mellomlager(k, typeof h.filnavn === 'string' ? h.filnavn : undefined);
     endre?.(k as unknown as Record<string, unknown>);
+    const vedlegg = mellomlager(k, typeof h.filnavn === 'string' ? h.filnavn : undefined);
     // A1: klienten sender den låste teksten den viste, laget med sine regler. Avviser
     // forhåndsvisningen kommandoen, sendes den uten tekst, og serveren avviser den.
     try {
