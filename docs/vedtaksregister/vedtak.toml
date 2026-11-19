@@ -4943,7 +4943,7 @@ forhold = [{ art = "utvider", vedtak = "ka-u84" }]
 [[gruppe.vedtak.alternativ]]
 navn = "C"
 tekst = '''
-Påberoper byggherren at totalentreprenøren ikke svarte i tide på forespørselen etter punkt 33.6.2, gjelder byggherrens øvrige standpunkter til kravet om fristforlengelse, også at fremdriften er hindret, bare hvis den innsigelsen ikke fører frem, som etter KA-U84 for punkt 33.4.'''
+Påberoper byggherren at totalentreprenøren ikke svarte i tide på forespørselen etter punkt 33.6.2, gjelder byggherrens øvrige standpunkter, også at fremdriften er hindret, bare hvis den innsigelsen ikke fører frem, som etter KA-U84 for punkt 33.4.'''
 anbefalt = true
 
 [[gruppe.vedtak.alternativ]]

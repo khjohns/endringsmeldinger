@@ -13,7 +13,7 @@ Temaet er [GR-U10](#gr-u10), [GR-U12](#gr-u12), [GR-U13](#gr-u13) (#451, #454). 
 - Regelradene: [`docs/domenetabell/regler.json`](../../domenetabell/regler.json)
 - Bevis-sakene: [`docs/domenetabell/bevis-saker.json`](../../domenetabell/bevis-saker.json) og [`docs/domenetabell/bevis-saker-maalmodell.json`](../../domenetabell/bevis-saker-maalmodell.json)
 
-Kontrollsum (SHA-256 over utdraget visningen leser): `27672cd493c1320a63d217e219c78fe3b73a6cd64c0a46c044b2eeb007dc8e3c`
+Kontrollsum (SHA-256 over utdraget visningen leser): `268ee3298ca3c01a5b7e4c71f2b25ff9fa72206fbbed356a102ef5db7723fad6`
 
 Lag visningen på nytt med `python3 docs/verktoy/temavisning.py`.
 
@@ -1168,7 +1168,7 @@ Forholdene etter `forhold` i registeret. Forhold som Følge bare sier med ord, s
 
 ### <a id="ka-u86"></a>KA-U86
 
-> KA-U86: Påberoper byggherren at totalentreprenøren ikke svarte i tide på forespørselen etter punkt 33.6.2, gjelder byggherrens øvrige standpunkter til kravet om fristforlengelse, også at fremdriften er hindret, bare hvis den innsigelsen ikke fører frem, som etter KA-U84 for punkt 33.4.
+> KA-U86: Påberoper byggherren at totalentreprenøren ikke svarte i tide på forespørselen etter punkt 33.6.2, gjelder byggherrens øvrige standpunkter, også at fremdriften er hindret, bare hvis den innsigelsen ikke fører frem, som etter KA-U84 for punkt 33.4.
 
 **Forkastet:** «Påberoper byggherren bare at totalentreprenøren ikke svarte i tide på forespørselen etter punkt 33.6.2, gjelder byggherrens øvrige standpunkter uten vilkår.»
 
